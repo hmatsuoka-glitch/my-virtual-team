@@ -1,0 +1,25 @@
+name: Sync Agents to All Repos
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync to let-lp3
+        run: |
+          git clone https://x-access-token:${{ secrets.SYNC_TOKEN }}@github.com/hmatsuoka-glitch/let-lp3 /tmp/let-lp3
+          cd /tmp/let-lp3
+          git checkout main
+          rm -rf agents
+          cp -r $GITHUB_WORKSPACE/agents .
+          cp $GITHUB_WORKSPACE/CLAUDE.md ./AGENTS.md
+          git config user.email "action@github.com"
+          git config user.name "GitHub Actions"
+          git add .
+          git diff --staged --quiet || git commit -m "Sync agents from my-virtual-team"
+          git push
