@@ -10,16 +10,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Sync to let-lp3
+      - name: Sync to all repos
         run: |
-          git clone https://x-access-token:${{ secrets.SYNC_TOKEN }}@github.com/hmatsuoka-glitch/let-lp3 /tmp/let-lp3
-          cd /tmp/let-lp3
-          git checkout main
-          rm -rf agents
-          cp -r $GITHUB_WORKSPACE/agents .
-          cp $GITHUB_WORKSPACE/CLAUDE.md ./AGENTS.md
-          git config user.email "action@github.com"
-          git config user.name "GitHub Actions"
-          git add .
-          git diff --staged --quiet || git commit -m "Sync agents from my-virtual-team"
-          git push
+          while IFS= read -r REPO || [[ -n "$REPO" ]]; do
+            [[ -z "$REPO" || "$REPO" == \#* ]] && continue
+            echo "🔄 $REPO を同期中..."
+            git clone https://x-access-token:${{ secrets.SYNC_TOKEN }}@github.com/hmatsuoka-glitch/$REPO /tmp/$REPO
+            cd /tmp/$REPO
+            git checkout main 2>/dev/null || git checkout -b main
+            rm -rf agents
+            cp -r $GITHUB_WORKSPACE/agents .
+            cp $GITHUB_WORKSPACE/CLAUDE.md ./AGENTS.md
+            git config user.email "action@github.com"
+            git config user.name "GitHub Actions"
+            git add .
+            git diff --staged --quiet || git commit -m "Sync agents from my-virtual-team"
+            git push origin main
+            cd ~
+            rm -rf /tmp/$REPO
+            echo "✅ $REPO 完了"
+          done < $GITHUB_WORKSPACE/repos.txt
