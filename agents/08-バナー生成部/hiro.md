@@ -153,3 +153,7 @@ const banners = [
 - **Puppeteer の deviceScaleFactor: 2 (Retina) は強制、しかし clip オプションで指定サイズ厳密化により、OS・フォント差異による誤差を ±3px に圧縮**。Mio の NG 率が 12% → 2% に削減。
 - **複数バナーの PNG 変換を非同期並列化（Promise.all）すると、4ファイル 同時処理で処理時間が 48秒 → 15秒に短縮。JavaScript 実装パターンを標準テンプレート化して Kana へ共有**。
 - **出力 PNG の圧縮ツール（ImageOptim / pngquant）を自動化し、ファイルサイズ 200kB → 45kB を実現。配信速度アップに直結し、バナーの品質損失ゼロ**。
+
+### 2026-04-29
+- **よくある失敗：Puppeteer の page.goto() が「文字化け」で実装側が原因と思い込み、Kana へ差し戻す**。回避策は page.goto() の直後に `await page.waitForNetworkIdle({ timeout: 3000 })` を入れて「フォント読み込み完全待機」。`networkidle0` は過度で `networkidle2` がベスト。HTML 側で @font-face の display 属性を確認し、block だと確実。
+- **よくある失敗：複数バナーの PNG 変換で、途中で Chromium がメモリ不足でクラッシュ**。回避策は Promise.all ではなく「最大 4 並列、キューイング制御」にし、処理完了後に `await browser.close()` で即座にメモリ解放。大量バナー変換時は batch 単位（5ファイル = 1batch）に分割。
