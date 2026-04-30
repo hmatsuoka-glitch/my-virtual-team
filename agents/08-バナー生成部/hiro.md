@@ -157,3 +157,7 @@ const banners = [
 ### 2026-04-29
 - **よくある失敗：Puppeteer の page.goto() が「文字化け」で実装側が原因と思い込み、Kana へ差し戻す**。回避策は page.goto() の直後に `await page.waitForNetworkIdle({ timeout: 3000 })` を入れて「フォント読み込み完全待機」。`networkidle0` は過度で `networkidle2` がベスト。HTML 側で @font-face の display 属性を確認し、block だと確実。
 - **よくある失敗：複数バナーの PNG 変換で、途中で Chromium がメモリ不足でクラッシュ**。回避策は Promise.all ではなく「最大 4 並列、キューイング制御」にし、処理完了後に `await browser.close()` で即座にメモリ解放。大量バナー変換時は batch 単位（5ファイル = 1batch）に分割。
+
+### 2026-04-30
+- **Kana から受け取った HTML ファイルの納品時に「デバイススケーラー値・clip 範囲・出力圧縮レベル」を明示してもらい、標準テンプレートに入れることで、バナーサイズ誤差（±3px）がゼロ化。Puppeteer の設定値をハードコードするのでなく config 化**。
+- **複数クライアントのバナーを同時 PNG 変換する際に「キューイングログ（待機中・処理中・完了）」を console に出力し、どのファイルが失敗したかを即座に特定可能に。失敗したファイル 1個だけ再実行できるようスクリプト化**。
