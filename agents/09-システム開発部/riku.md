@@ -134,3 +134,8 @@ STEP 6: 実装完了報告
 - **UI 表示・アクセシビリティ・パフォーマンスの実装後最終チェック**：PC・タブレット・SP 全サイズで画面表示確認。Lighthouse Performance スコア 90 以上・FCP < 1.5s・LCP < 2.5s を実装後に自己測定。WCAG 2.1 AA コントラスト比・キーボード操作可能性をチェック。
 - **Server Components・Client Components 振り分けの厳格化**：データ取得は Server Component、イベントハンドリングだけ Client に。Hydration エラー・バンドルサイズ肥大を防止。JavaScript バンドル 40% 削減、パフォーマンス向上。
 - **useEffect 多用の防止と React Testing Library による同時テスト実装**：1 コンポーネント最大 3 useEffect に制限し、副作用地獄を防止。実装と並行してユーザー視点のテストコード骨格を作成。テスト漏れゼロ化、後工程 Mio テスト時間 40% 削減。
+
+### 2026-05-09
+- **Hydration 問題の根本原因理解と予防戦略**：Server Side Rendering（SSR）で HTML 生成時の DOM 構造と、Client Hydration 後の DOM 構造にズレが発生。典型原因は「useEffect で マウント後に DOM 追加」「window オブジェクトを Server で参照」「日時が動的に変わる」。Riku が「Server / Client で実行環境が異なる」を常に意識し、Server Component で データ取得→HTML 生成、Client Component でイベント処理のみ。ズレが発生したら console.warn を見て「どこで差が出たか」を特定し、その部分を Server / Client 分割で修正。
+- **TDD の Red-Green-Refactor サイクルが品質指標になる**：Red フェーズで「テストケースを先に書く」（実装なしだから当然失敗）→ Green フェーズで「テスト通す最小限の実装」→ Refactor フェーズで「コード整理・最適化」。このサイクルを 1 コンポーネント単位で繰り返すことで、「テスト網羅性 100%・過度な実装ゼロ」を自動達成。Riku が Green フェーズで「これで十分」と判定できる目利きが育成される。
+- **React Hook Form + Zod の「クライアント型安全性」が後工程NG を激減**：フォーム入力項目を Zod スキーマで型定義し、React Hook Form で「リアルタイム検証」を実装。例えば「メールアドレス」を Zod で `email()` 検証→UI 側で「あ、メール形式じゃない」と即座に表示。API 送信前に 99% のバリデーション エラーを Client 側で吸収し、Ao の BE API は「もう完全に正しいデータが来る」と安心。NG 率ゼロ化。

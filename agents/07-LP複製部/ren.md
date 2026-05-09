@@ -153,3 +153,8 @@ STEP 5: レスポンシブ対応
 - **STEP 2 Nao 設計書受け取り時の「3 項目 30 分クイックチェック」必須化**：型定義の妥当性（props が TypeScript で正確に定義されているか）・循環参照（コンポーネント A が B を・B が A を参照していないか）・constants データ構造の完全性（実装時に必要な全データが定義されているか）。不備時は即 Nao へ差し戻し
 - **STEP 3・4 実装前の「レスポンシブ + パフォーマンスバジェット」事前宣言**：SP（375px）/ TAB（768px）/ PC（1280px）の 3 サイズで同時ビルド。First Contentful Paint（FCP）< 2.5s・Cumulative Layout Shift（CLS）< 0.1 を実装ルール化。Mia の「パフォーマンス NG」を事前削減
 - **STEP 5 実装完了時の「全ブレークポイント + 複数ブラウザ自動テスト」実施**：Chrome・Safari・Firefox 3 ブラウザで同時に Lighthouse を実行・差分レポート生成。環境依存的なレイアウト崩れ・アニメーション不具合をゼロに
+
+### 2026-05-09
+- **「Image Optimization（Next.js Image コンポーネント）」の見落とし設定**：Ren が全 img を Image コンポーネントに置き換えても、width・height を指定しないと CLS（Cumulative Layout Shift）が悪化。さらに priority 属性を指定しないと LCP が延びる。特に Hero セクションの大型画像は priority=true 必須。width・height・priority の 3 項目が全て揃わない限り「画像最適化した」は成立しない
+- **「Hydration エラー」の「見えない原因」3 パターン**：Next.js でサーバーレンダリングとクライアント JSX が異なると Hydration Error が発生。典型パターンは「①useEffect 内でのみ localStorage アクセス・②日時・乱数の取得・③SSR 不対応ライブラリの使用」。これら 3 つを STEP 2 段階で Nao が「Constants に静的データだけ」と指定しても、実装中に「あ、これ動的に生成したい」と変更すると Hydration が壊れる。JSON を constants に定義・useEffect で操作・state 管理という分離ルールを設計書に明記必須
+- **「Tailwind CSS 拡張定義」における「extend vs 上書き」の結果差異**：`tailwind.config.ts` で「`extend colors`」vs「`colors`」で動作が 180 度異なる。extend なら Tailwind 標準色も使える・上書きなら Hana カラーだけになる。Hana が抽出したカラーパレット を「extend として追加」するのか「全色上書き」するのかで、Ren の実装自由度が変わる。STEP 1 で Hana・Nao・Ren 三者で「このプロジェクトは extend 方式」と統一していないと、デプロイ後に「あ、このセクションはデフォルト灰色になってた」と気付く
