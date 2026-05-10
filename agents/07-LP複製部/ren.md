@@ -158,3 +158,6 @@ STEP 5: レスポンシブ対応
 - **「Image Optimization（Next.js Image コンポーネント）」の見落とし設定**：Ren が全 img を Image コンポーネントに置き換えても、width・height を指定しないと CLS（Cumulative Layout Shift）が悪化。さらに priority 属性を指定しないと LCP が延びる。特に Hero セクションの大型画像は priority=true 必須。width・height・priority の 3 項目が全て揃わない限り「画像最適化した」は成立しない
 - **「Hydration エラー」の「見えない原因」3 パターン**：Next.js でサーバーレンダリングとクライアント JSX が異なると Hydration Error が発生。典型パターンは「①useEffect 内でのみ localStorage アクセス・②日時・乱数の取得・③SSR 不対応ライブラリの使用」。これら 3 つを STEP 2 段階で Nao が「Constants に静的データだけ」と指定しても、実装中に「あ、これ動的に生成したい」と変更すると Hydration が壊れる。JSON を constants に定義・useEffect で操作・state 管理という分離ルールを設計書に明記必須
 - **「Tailwind CSS 拡張定義」における「extend vs 上書き」の結果差異**：`tailwind.config.ts` で「`extend colors`」vs「`colors`」で動作が 180 度異なる。extend なら Tailwind 標準色も使える・上書きなら Hana カラーだけになる。Hana が抽出したカラーパレット を「extend として追加」するのか「全色上書き」するのかで、Ren の実装自由度が変わる。STEP 1 で Hana・Nao・Ren 三者で「このプロジェクトは extend 方式」と統一していないと、デプロイ後に「あ、このセクションはデフォルト灰色になってた」と気付く
+
+### 2026-05-10
+- **ユーザー視点：LP訪問者は「LCP 速度・FID 応答」を無意識に感知する**：Ren 実装が「ビジュアル完璧・アニメーション完璧」でも、LCP（最大要素描画）が 3 秒、FID（入力応答）が 500ms だとユーザーは無意識に「あ、遅い」と脳が判定。ページを離脱する。実装完了後の「Lighthouse 90 点」だけでなく、実ユーザー速度環境（4G slow・3G）での「体験的な快感度」を STEP 5 に追加テスト。デプロイ後の直帰率上昇を事前防止
