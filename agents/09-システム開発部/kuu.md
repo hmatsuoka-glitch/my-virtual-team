@@ -155,3 +155,8 @@ STEP 6: 実装完了報告
 ### 2026-05-11
 - **Vercel の 2026年新機能「AI-powered builds」：ビルド時間の自動最適化**。Vercel AI が「このプロジェクトのビルドはキャッシュ効率が 40%」と検出し、「ここを変更すれば効率 80%」と提案。Kuu が無意識に実装している非効率なビルド設定を AI が機械学習で自動改善。本番デプロイリードタイム 6分 → 2分を自動実現。
 - **Cloudflare Workers と Vercel Edge Functions の統合選択基準**：Workers は「グローバル分散・低レイテンシ・複雑ロジック対応」で優位。Edge Functions（Vercel）は「Next.js との統合・簡単設定」で優位。Kuu がプロジェクトの「API レスポンス要件・複雑度・運用工数」を整理し、どちらを選択するかを Kai・Nao と合意。2026年は両者の差別化が鮮明化し、選択ミスのコストが増加。
+
+### 2026-05-12
+- **効率化テクニック：GitHub Actions の reusable workflows（`workflow_call`）で「CI/lint・test・build・deploy」のステップをライブラリ化**。新規プロジェクトは `.github/workflows/main.yml` で 5行の `uses:` を書くだけで全パイプライン完成。プロジェクト起ち上げ時の CI/CD 設定工数 4時間 → 15分。バグ修正も中央集約のため全プロジェクトに一括反映。
+- **効率化テクニック：Vercel CLI（`vercel env pull`）で本番環境変数をローカル `.env.local` に自動同期するスクリプトを `package.json` の `postinstall` に組込み**。新メンバーが clone 後 `npm install` するだけで本番と同じ環境変数で動作可能。手動コピペ作業（10分／人）が消滅、設定ミスもゼロ化。
+- **効率化テクニック：Sentry + Vercel Analytics + GitHub Issues の自動連携で、本番エラーが発生したら「該当エラー名で GitHub Issue 自動作成 + Slack 通知」**。Kuu が「ログを見る → Issue を作る → 担当者にアサイン」の 3 ステップが「通知を見る → 1クリックでアサイン」に短縮。障害対応の初動が 15分 → 1分。

@@ -2,14 +2,16 @@
 #
 # auto-commit.sh
 #
-# my-virtual-team の Daily Knowledge Log 自動コミットスクリプト
-# launchd から毎日 04:30 AM に起動される
+# my-virtual-team の Daily Knowledge Log 自動コミット & プッシュスクリプト
+# launchd から朝8:00（またはMac起床時）に起動される
 #
 # 動作:
-#   1. .git/index.lock を強制削除（サンドボックス外なので可能）
-#   2. agents/ と CHANGELOG-AGENTS.md の変更を git add
-#   3. 変更があればコミット（push はしない）
-#   4. 結果をログに記録
+#   1. Cowork タスクが進行中なら待機（ファイル更新が落ち着くまで）
+#   2. .git/index.lock を必要に応じて削除
+#   3. agents/ と CHANGELOG-AGENTS.md の変更を git add
+#   4. 変更があればコミット
+#   5. リモート（origin/main）に未push分があれば git push（認証は macOS keychain / gh CLI / SSH に依存）
+#   6. 結果をログに記録
 #
 
 set -uo pipefail
@@ -23,7 +25,7 @@ TIMESTAMP=$(date +'%Y-%m-%d %H:%M:%S')
 mkdir -p "${LOG_DIR}"
 
 log() {
-    echo "[${TIMESTAMP}] $1" | tee -a "${LOG_FILE}"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" | tee -a "${LOG_FILE}"
 }
 
 log "=== auto-commit start (${DATE_STR}) ==="
@@ -40,7 +42,74 @@ if [ ! -d ".git" ]; then
     exit 0
 fi
 
-# 3. index.lock があれば削除
+# --- push 共通関数（多重定義） ----------------------------------
+push_to_remote() {
+    # 引数なし。origin/main へ未push分があれば push する。
+    # 認証は macOS keychain / gh CLI / SSH 経由（このスクリプトが macOS 上で動作する前提）
+    local upstream
+    upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || echo "")
+    if [ -z "${upstream}" ]; then
+        log "INFO: no upstream tracking branch, skipping push"
+        return 0
+    fi
+
+    local ahead
+    ahead=$(git rev-list --count "${upstream}..HEAD" 2>/dev/null || echo "0")
+    if [ "${ahead}" = "0" ]; then
+        log "INFO: nothing to push (in sync with ${upstream})"
+        return 0
+    fi
+
+    log "INFO: pushing ${ahead} commit(s) to ${upstream}..."
+    if git push origin HEAD 2>>"${LOG_FILE}"; then
+        log "OK: push succeeded (${ahead} commit(s) → ${upstream})"
+        return 0
+    else
+        log "ERROR: git push failed (check auth: gh auth status / keychain / SSH)"
+        return 1
+    fi
+}
+# ---------------------------------------------------------------
+
+# 3. 既に本日コミット済みかチェック（朝一回の冪等性確保）
+TODAY_COMMIT=$(git log --since="${DATE_STR} 00:00" --grep="daily knowledge log ${DATE_STR}" --format="%H" | head -1)
+if [ -n "${TODAY_COMMIT}" ]; then
+    log "INFO: today's commit already exists (${TODAY_COMMIT:0:8}), skipping commit"
+    # 既にコミット済みでも未push分があれば push する
+    push_to_remote || true
+    log "=== auto-commit done (already-done) ==="
+    exit 0
+fi
+
+# 4. Cowork タスクの完了待機（ファイル活動の沈静化を待つ）
+log "INFO: waiting for Cowork file activity to settle..."
+WAIT_TIMEOUT=900  # 15分上限
+WAIT_START=$(date +%s)
+SETTLE_DURATION=120  # 2分間ファイル変更がなければ「沈静化」と判定
+
+while true; do
+    NOW=$(date +%s)
+    ELAPSED=$((NOW - WAIT_START))
+
+    # タイムアウトチェック
+    if [ "${ELAPSED}" -gt "${WAIT_TIMEOUT}" ]; then
+        log "WARN: settle timeout after ${ELAPSED}s, proceeding anyway"
+        break
+    fi
+
+    # 直近2分以内に変更されたファイルを探す
+    RECENT_CHANGE=$(find ./agents -name "*.md" -type f -mmin -2 2>/dev/null | head -1)
+    if [ -z "${RECENT_CHANGE}" ]; then
+        # 直近2分間ファイル変更なし → 沈静化と判定
+        log "INFO: file activity settled (no changes in last 2 min)"
+        break
+    fi
+
+    log "INFO: still active (recent: ${RECENT_CHANGE}), waiting 30s..."
+    sleep 30
+done
+
+# 5. index.lock があれば削除
 if [ -f ".git/index.lock" ]; then
     LOCK_AGE=$(($(date +%s) - $(stat -f %m .git/index.lock 2>/dev/null || stat -c %Y .git/index.lock 2>/dev/null || echo 0)))
     if [ "${LOCK_AGE}" -gt 60 ]; then
@@ -56,26 +125,28 @@ if [ -f ".git/index.lock" ]; then
     fi
 fi
 
-# 4. 変更があるか確認
+# 6. 変更があるか確認
 if git diff --quiet && git diff --staged --quiet && [ -z "$(git status --porcelain)" ]; then
     log "INFO: no changes to commit"
+    # 変更が無くても未push分があれば push する
+    push_to_remote || true
     log "=== auto-commit done (no-op) ==="
     exit 0
 fi
 
-# 5. 変更を add
+# 7. 変更を add
 git add CHANGELOG-AGENTS.md agents/ 2>>"${LOG_FILE}" || {
     log "ERROR: git add failed"
     exit 2
 }
 
-# 6. テーマ取得（CHANGELOG-AGENTS.md から本日のテーマを抽出）
+# 8. テーマ取得（CHANGELOG-AGENTS.md から本日のテーマを抽出）
 THEME=$(grep -A1 "## ${DATE_STR}" CHANGELOG-AGENTS.md 2>/dev/null | \
         grep -E "^\*\*|本日のテーマ" | head -1 | \
         sed -E 's/.*\*\*([^（]+).*/\1/' | tr -d '*' || echo "daily-update")
 [ -z "${THEME}" ] && THEME="daily-update"
 
-# 7. コミット
+# 9. コミット
 COMMIT_MSG="chore(agents): daily knowledge log ${DATE_STR} - ${THEME}"
 if git diff --staged --quiet; then
     log "INFO: nothing staged, skipping commit"
@@ -84,6 +155,9 @@ else
         log "OK: committed: ${COMMIT_MSG}" || \
         { log "ERROR: git commit failed"; exit 3; }
 fi
+
+# 10. コミット後の push（失敗してもスクリプト自体は成功扱い：次回 launchd でリトライ）
+push_to_remote || true
 
 log "=== auto-commit done ==="
 exit 0

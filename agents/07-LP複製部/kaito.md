@@ -170,3 +170,8 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Vercel v0 AI Assistant による「コード生成補助」2026年4月機能アップデート**：Vercel CLI に組み込まれた AI アシスタントが「LP デザイン画像 → React コンポーネント自動生成」を実現。Ren の実装工期を 40% 短縮。STEP 5 デプロイ前に AI が自動生成した Lighthouse スコア予測も実施可能に。意外なパフォーマンス NG を本番前検出
 - **Next.js 14.2+ における「Partial Prerendering」によるハイブリッド静的・動的レンダリング**：一部のセクションを静的生成し、一部を動的にすることで LCP・TTFB が劇的に改善。STEP 5 デプロイ戦略として「Hero・FAQ は静的 / コンテンツは CSR」といった選別が可能に。複製 LP の Web Vitals が自動的に 85→95 点へ跳躍
 - **Vercel Edge Middleware による「キャッシュ制御・リダイレクト」のエッジ集約化**：DNS レベルでのキャッシュ戦略が Vercel CDN で直結可能。STEP 5 デプロイ時に「画像キャッシュ 30 日 / HTML キャッシュ 1 日」という制御が vercel.json + Edge Function で実装。本番運用後のキャッシュ崩れ問題を完全防止
+
+### 2026-05-12
+- **`vercel --prebuilt` フラグでローカルビルド成果物を即デプロイ**：STEP 5 で従来「Vercel 側でビルド→4分待機→デプロイ完了」のフローを、ローカルで `vercel build` →`vercel deploy --prebuilt` に変更。Vercel のビルドキューを完全スキップしデプロイ時間を 4 分→40 秒に短縮。緊急修正リリースのリードタイム激減
+- **GitHub Actions の「複製 LP 共通ワークフロー」テンプレート化**：受注ごとに `.github/workflows/lp-clone.yml` を手書きしていたのを「`uses: let-inc/lp-clone-deploy@v1`」の 1 行で呼び出す再利用可能ワークフローに集約。lint・build・lighthouse・vercel deploy を 1 ファイル参照で完結。新規プロジェクトのCI構築時間を 30 分→3 分に短縮
+- **ステップ完了通知の Slack インクリメンタル自動投稿**：Hana・Nao・Ren・Mia の各 STEP 完了時に Slack Webhook へ「✅ STEP X 完了 / 経過時間 XX 分 / 次の担当: Y」を自動投稿するスクリプトを `package.json` の `postcomplete` に組み込み。Kaito の進捗確認 DM 不要化、ダッシュボード閲覧時間ゼロに

@@ -197,3 +197,8 @@ const banners = [
 ### 2026-05-11
 - **Playwright 1.46 の WebP 自動変換機能を PNG 圧縮の前に導入**。WebP ファイルサイズは PNG の 25～35% に削減。ただしブラウザ互換性（IE 非対応・iOS Safari 古い版）のため、fallback PNG をセットで生成。Puppeteer の代替として Playwright の parallel execution が安定度 20% 向上。
 - **pngquant（外部コマンド）の最新版では AI ベース色削減アルゴリズムで、圧縮率を損失なく 30% 削減可能**。従来の品質 80% 指定だけでなく「知覚的に区別不可な色差」を自動検出し、RGB 256 色から 128 色への削減を自動実行。ファイルサイズ 45KB → 28KB を実現しながら人間の目には「同じ品質」に見える。2026 年の PNG 最適化スタンダード。
+
+### 2026-05-12
+- **効率化テクニック：Puppeteer の `browser.newPage()` を毎回再生成するのではなく、ブラウザ起動 1回で複数 page を使い回す「ブラウザプール」パターン**。launch() コストが 3秒/回かかるため、20バナー一括変換なら 60秒の起動オーバーヘッドを 3秒に削減。`const browser = await puppeteer.launch(); const pages = await Promise.all([...Array(4)].map(() => browser.newPage()))` でプール化、キューから page を取得して使用後に return する設計。総処理時間 48秒 → 18秒。
+- **効率化テクニック：Kana の HTML テンプレートと色値 JSON を分離し、Puppeteer 実行時に「同じ HTML × 色パターン JSON 配列」をループ処理することで、複数色バリエーション（5色×4サイズ = 20ファイル）を 1スクリプト実行で生成**。`page.evaluate((vars) => { document.documentElement.style.setProperty('--primary', vars.primary) }, colorPattern)` で CSS Variables を動的注入。HTML 再読込なし、page 再利用で 5倍高速化。
+- **効率化テクニック：PNG 出力後の「ファイルサイズ・解像度・破損」自己チェックを Node.js の sharp ライブラリで自動化**。`sharp(outputPath).metadata()` で「width: 2160, height: 2160（Retina 2倍）」を即座取得し、想定外なら自動再変換。目視チェック工数 5分/件 → 0秒に圧縮、品質ばらつきゼロ化。

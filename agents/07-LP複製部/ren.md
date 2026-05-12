@@ -166,3 +166,8 @@ STEP 5: レスポンシブ対応
 - **「Next.js 15」における「React Server Components デフォルト化」の実装パラダイムシフト**：Next.js 13 では「'use client' で Client Component 明記」でしたが、Next.js 15 からは「デフォルト Server Component」に。STEP 2 実装開始時に「useState / useEffect 使う箇所だけ 'use client'」という最小主義で、ページサイズ 3 倍削減・初期読み込みが 2 秒短縮
 - **「Tailwind CSS 動的クラス生成」の「サーバー側最適化」フロー**：Tailwind v4 では動的クラスの計算をビルド段階で完結。STEP 3 のスタイリング時に「런타임에 클래스 생성」という遅延が完全に排除。ビルド時間短縮・本番パフォーマンス向上で Vercel デプロイから初期表示まで 1.5 秒削減
 - **「Streaming SSR」による「ページ分割レンダリング」フロー確立**：重いセクション（複雑グラフ・大量データテーブル）を別途ストリーミング。STEP 4・5 実装時に「Hero は即表示、FAQ セクションは遅延表示」という UX 改善が自然実装。TTFB（First Byte）が 3 倍高速化し、ユーザーの「早く見える」感覚が飛躍的に向上
+
+### 2026-05-12
+- **shadcn/ui の `npx shadcn add` ワンライナーで Button/Card/Dialog を一括投入**：STEP 3 の UI 実装で「Button・Card・Dialog・Sheet・Form」を毎回手書きしていたのを `npx shadcn add button card dialog sheet form` の 1 コマンドで揃える。Tailwind 互換のコピペ可能なコンポーネントが即配置され、UI 骨格実装が 2 時間→20 分に短縮
+- **`turbopack` + `next dev --turbo` の HMR 高速化で実装ループ時間 75% 削減**：STEP 3・4 のスタイリング微調整時に、Webpack ベースの dev server は再ビルド 3 秒/回 → Turbopack は 0.7 秒/回。1 日の実装で 200 回 HMR が走る場合、合計 460 秒の待機が削減。修正→確認のフィードバックループが体感 4 倍高速化
+- **`next/image` の `placeholder="blur"` + `getPlaiceholder` でアセット最適化を自動化**：STEP 3 の画像実装で、`getPlaiceholder(src)` を使って Base64 の blurDataURL を `constants/content.ts` に事前生成して埋め込む。LCP 改善 + CLS 0 を実装側で担保、Mia パフォーマンス NG を本番前に潰す

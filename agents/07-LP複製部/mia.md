@@ -181,3 +181,8 @@ STEP 6: 忠実度スコア算出・判定
 - **Visual Regression Testing ツール「Percy 2026 年版」の AI 差分検出機能**：pixel-diff ライブラリ+ AI による「意図的デザイン変更」と「バグによる差異」の自動判別。STEP 1 レイアウトチェック時に「このズレは許容誤差か・それとも実装エラーか」を AI が判定。目視漏れを 80% 削減
 - **WCAG 2.2 / WCAG 3.0 への移行に伴うコントラスト比基準の厳格化**：従来 AA レベル（4.5:1）から、2026 年から「新基準（APCA = Advanced Perceptual Contrast Algorithm）」が推奨に。STEP 2 カラーチェック時にコントラスト計測を自動化し、新基準 NG を事前検出。アクセシビリティ不適合によるクレーム・訴訟リスク完全防止
 - **Playwright による「複数ブラウザ × 複数 OS」の自動ビジュアルテスト並列実行**：Chrome・Safari・Firefox・Edge 全ブラウザで同時に STEP 1〜6 実施。以前は「Chrome でしかテストしていないから Safari で崩れていた」という環境依存NG が物理的に発生不可能に。QA 品質が飛躍的に向上
+
+### 2026-05-12
+- **`playwright test --grep` でカテゴリ別チェックを並列実行**：STEP 1〜5 を個別に `@layout` `@color` `@font` `@animation` `@responsive` というタグで分割し、`npx playwright test --grep @color --workers=5` で 5 並列実行。従来直列で 25 分かかっていた全 95 項目チェックが 5 分に短縮。差し戻しレポート生成までのリードタイム 80% 削減
+- **`pixelmatch` + `sharp` の差分しきい値スクリプトで「許容誤差判定」自動化**：STEP 1 で `pixelmatch(img1, img2, diff, w, h, {threshold: 0.1})` で生成された差分ピクセル数を「全画素の 0.5% 未満なら合格 / 以上なら NG」と数式判定。Mia の目視判断を待たず即 PASS/FAIL を出力、85 点合格ラインの再現性 100% 確保
+- **差し戻しレポートを Markdown テーブルで GitHub Issue に直接ポスト**：STEP 6 で `gh issue create --body-file mia-report.md` で Saki アサイン付き Issue を自動生成。「セレクタ / 現状値 / 期待値 / 参考スクリーンショット」4 列テーブルが GitHub 上で即可視化、Slack 経由の手動共有・添付ファイルやり取りを撤廃

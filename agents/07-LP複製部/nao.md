@@ -175,3 +175,8 @@ export const HERO = {
 - **「Figma Dev Mode」による「デザイン仕様・コード仕様」の一元化トレンド**：Sota がデザイン企画した LP をそのまま Figma に落としても、従来は「Figma の値を手で Nao の設計書に転記」という二重管理。2026 年の Figma Dev Mode なら、Nao が設計書作成時に Figma コンポーネント・トークン定義を直接参照。手入力ミス・数値のズレをゼロに
 - **「Component API」による「再利用コンポーネントの型定義自動生成」機能強化**：TypeScript 5.x の進化に伴い、Nao が STEP 2 で手書きする Props 型定義が「Figma コンポーネントプロパティ → TypeScript Interface 自動変換」で可能に。Ren への設計書納品時に「型定義は Figma から自動抽出」と指示可能。コード品質向上・ズレ防止が両立
 - **デザインシステム「Token Studio」の「多言語・複数ブランド対応」拡張**：STEP 1 の「ページセクション洗い出し」で複数ブランド案件（A ブランド・B ブランド）の色・フォント定義を Token Studio で一元管理。STEP 3・4 で「B ブランド切り替え」が JSON 一行の変更で実現。複数案件の並行設計が 3 倍スピード化
+
+### 2026-05-12
+- **設計書テンプレートを `templates/lp-design-spec.md` として固定化**：STEP 6 納品時に毎回ゼロから書いていた Markdown 構造を「ページ構成・コンポーネント定義・props 型・constants 例・データフロー図」5 セクションのスケルトンファイルに集約。新案件はコピーして埋めるだけで完成、設計書作成時間を 90 分→30 分に短縮
+- **Hana 仕様データから `types/index.ts` を自動生成する `zod-to-ts` パイプライン**：STEP 3 で props 型定義を手書きしていたところを、Hana の JSON を zod スキーマに変換→`zod-to-ts` で TypeScript Interface を出力。Ren への納品時にビルド検証済みの型ファイルが添付され、型エラー起因の差し戻しゼロ
+- **Mermaid 形式のデータフロー図を VSCode 拡張で即プレビュー納品**：STEP 5 の「コンテンツデータ構造」と「ページ遷移フロー」を Mermaid 記法で書き、`Markdown Preview Mermaid Support` 拡張で PDF エクスポート。Ren が IDE 内で確認できる形式で提供し、図解質問のラリーを完全撲滅

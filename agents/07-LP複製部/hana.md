@@ -161,3 +161,8 @@ STEP 8: 仕様データを構造化して出力
 - **CSS カスタムプロパティ（CSS Variables）2026年最新仕様の機能拡張**：`:is()` / `:where()` セレクタとの組み合わせで、CSS 変数のスコープ制御が更に細粒化。STEP 2 で「:root」「.container」「.section」の階層別変数定義に加え、「:is(.hero, .feature)」で複数セクター共通変数を一括定義。スタイルシート削減率 35% 向上
 - **Tailwind CSS v4 の @theme ディレクティブによる設定簡素化**：`@theme color-primary from tailwind.config.ts` という相互参照が直接可能に。Hana の仕様データから tailwind.config の色定義を自動抽出→CSS に直結することで、手動入力ミスを完全排除。STEP 1〜8 全体の確認作業を 25% 削減
 - **ブラウザ互換性ツール「Can I Use」連携による STEP 6 自動化**：@supports クエリと同時に「このプロパティは何%のブラウザで対応しているか」を自動判定。STEP 6 で「ブレークポイント定義」時に「古いSafari対応は CSS Grid ではなく Flexbox」という分岐ルール自動生成。実装の前もって互換性リスク検出
+
+### 2026-05-12
+- **DevTools「Recorder」パネルを使った CSS 抽出フロー自動記録**：STEP 1〜7 で実施するクリック・要素選択・computedStyle 取得操作を Chrome DevTools Recorder で記録し、Puppeteer スクリプトにエクスポート。次回同類サイトの抽出時に再生するだけで 8 ステップを 15 分で完了。手動操作時間を 70% 削減
+- **CSS 抽出 JSON の Tailwind config 自動変換ワンライナー化**：STEP 8 の出力 JSON を `node scripts/json-to-tailwind.js` で直接 tailwind.config.ts に変換するスクリプトを共通化。Ren への引き渡し時に「colors / fontFamily / screens / animation」4 ブロックがそのまま使える形式で納品。Ren の手動入力工数をゼロに
+- **画像アセット一括ダウンロードを `wget --mirror` + `cwebp` パイプラインで高速化**：STEP 7 の外部ライブラリ特定と並行して、対象サイトの全画像を `wget -r -l 1 -A jpg,png,svg,webp` で一括取得→`cwebp -q 80` で WebP 変換。アセット収集時間を従来 30 分→5 分に短縮し、Ren に最適化済み画像を即納品

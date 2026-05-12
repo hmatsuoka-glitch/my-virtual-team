@@ -1,39 +1,178 @@
-# my-virtual-team — LET事業バーチャルチーム
+# 🤖 my-virtual-team
 
-株式会社LETのSNSマーケティング×採用支援サービス「サクバズ」を支援するAIエージェントチーム。
+**Claude（Desktop / Cowork / Code）で動作する、25人体制のバーチャルチーム。**
+BMAD-METHOD仕様駆動開発 + TDD強制で、思った通りのシステムを精度良く作る。
 
-## チーム構成
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Skill](https://img.shields.io/badge/Claude-Skill-7C3AED)](https://docs.claude.com)
+[![BMAD](https://img.shields.io/badge/BMAD--METHOD-Compatible-success)](https://github.com/bmad-code-org/BMAD-METHOD)
+
+---
+
+## 🚀 30秒で導入
+
+```bash
+curl -sSL https://raw.githubusercontent.com/<USERNAME>/my-virtual-team/main/install.sh | bash
+```
+
+これだけで `~/.claude/skills/my-virtual-team/` にスキルが配置されます。
+Claude Desktop / Cowork を再起動して、新しい会話で「システム作って」「翔星建設のSNS戦略立てて」など指示するだけ。**自動でチームが起動**します。
+
+---
+
+## ✨ 特徴
+
+### 🎯 思った通りに作れる（BMAD-METHOD準拠）
+要件→設計→タスク分解→実装→テストまでを段階的に進めるので、**作りたいものとズレない**。
+
+### 🛡️ TDD強制でバグを未然防止
+全ての実装は **RED → GREEN → REFACTOR** のサイクル必須。テストカバレッジ80%以上を保証。
+
+### ⚡ 真の並列実行
+独立タスクは Agent tool で**本当に同時実行**。1人のClaudeが順番に演じるのではなく、複数のClaudeが本物の並列で動く。
+
+### 📦 リポジトリに何も置かなくていい
+スキル方式なので、各プロジェクトに `.md` ファイルを配置する必要なし。
+Claude Desktop / Cowork なら `~/.claude/skills/` に1度入れれば全プロジェクトで動く。
+
+### 🌐 業界標準対応
+- `SKILL.md` → Claude Desktop / Cowork
+- `AGENTS.md` → Cursor / Codex / Amp / Windsurf
+- `CLAUDE.md` → Claude Code（ターミナル）
+
+---
+
+## 👥 チーム編成（28人）
 
 | 部署 | エージェント | 役割 |
 |------|------------|------|
-| 01-経営企画部 | Haruto | 戦略・KPI・事業計画 |
-| 02-SNS運用部 | Sho | X/Instagram投稿企画 |
-| 02-SNS運用部 | Yui | バズ分析・トレンド調査 |
-| 03-コンテンツ制作部 | Eito | 動画企画・台本 |
-| 03-コンテンツ制作部 | Itsuki | バナー・サムネ指示 |
-| 04-クライアント管理部 | Ryota | 7社の案件管理・提案書 |
-| 04-クライアント管理部 | Akari | 採用広告レポート作成 |
-| 05-データ分析部 | Shun | Airworkデータ分析・可視化 |
-| 06-リサーチ部 | Rui | 建設業界トレンド・競合調査 |
+| 00-COO | **sora** | 品質保証・最終QA |
+| 01-経営企画部 | haruto | 戦略・KPI・事業計画 |
+| 02-SNS運用部 | sho / yui | SNS投稿企画 / バズ分析 |
+| 03-コンテンツ制作部 | eito / itsuki / **toma** / sou / takumi | 動画台本（汎用）/ バナー指示 / **TikTok台本** / TikTokトレンド分析 / TikTok撮影・編集指示 |
+| 04-クライアント管理部 | ryota / akari | 案件管理 / レポート |
+| 05-データ分析部 | shun | データ分析・可視化 |
+| 06-リサーチ部 | rui | 業界トレンド調査 |
+| 07-LP複製部 | **kaito** / saki / sota | LP複製 / 修正 / デザイン企画 |
+| 08-バナー生成部 | yuna | バナー生成統括 |
+| **09-システム開発部** | **kai** / nao / riku / ao / kuu / mio | **PM / Architect / FE / BE / DevOps / QA** |
+| 10-資料作成部 | **yuto** / rin / souma / aoi / mana | ディレクター / Writer / Designer / Templates / QA |
 
-## フォルダ構成
+---
+
+## 📋 使い方
+
+### 例1: SNS戦略
+```
+あなた: 「翔星建設のSNS戦略立てて」
+↓
+HARU 自動起動 → haruto に振り分け → 戦略立案 → Sora QA → 出力
+```
+
+### 例2: システム開発（BMAD-METHOD適用）
+```
+あなた: 「採用管理システムを Next.js で作って」
+↓
+HARU → kai → BMADワークフロー開始
+  STEP 1: nao が要件定義（ユーザーストーリー + 受け入れ基準）
+  STEP 2: nao が設計（アーキテクチャ + DB + API）
+  STEP 3: kai がタスク分解
+  STEP 4: riku/ao/kuu が並列実装（TDD強制）
+  STEP 5: mio が QAゲート判定
+  STEP 6: sora が最終QA
+↓
+動くシステム + テストカバレッジレポートが完成
+```
+
+### 例3: 並列タスク
+```
+あなた: 「翔星建設の月次レポートと提案書」
+↓
+HARU が Agent tool で並列起動:
+  ├─ akari: 月次レポート作成
+  └─ ryota: 提案書作成
+↓
+両方完了 → 統合 → Sora QA → 出力
+```
+
+---
+
+## 🏗️ ディレクトリ構成
 
 ```
 my-virtual-team/
-├── agents/
-│   ├── 01-経営企画部/haruto.md
-│   ├── 02-SNS運用部/sho.md, yui.md
-│   ├── 03-コンテンツ制作部/eito.md, itsuki.md
-│   ├── 04-クライアント管理部/ryota.md, akari.md
-│   ├── 05-データ分析部/shun.md
-│   └── 06-リサーチ部/rui.md
-├── guidelines/
-│   └── team-rules.md
-├── templates/
-│   ├── monthly-report.md
-│   └── proposal.md
-└── .claude/commands/
+├── SKILL.md                    # スキル定義（Claude Desktop/Cowork）
+├── AGENTS.md                   # 業界標準（Cursor/Codex対応）
+├── CLAUDE.md                   # → SKILL.md 参照
+├── agents/                     # 25人のエージェント定義
+│   └── 00-COO 〜 10-資料作成部/
+├── workflows/                  # BMAD-METHOD ワークフロー
+│   ├── spec-driven/            # 仕様駆動開発（要件→設計→タスク→実装）
+│   ├── bug-fix/                # バグ修正フロー（報告→解析→修正→検証）
+│   └── tdd/                    # TDD強制ルール
+├── checklists/                 # BMAD品質チェックリスト
+│   ├── architect-checklist.md
+│   ├── dev-completion.md
+│   ├── tdd-checklist.md
+│   └── qa-gate.md
+├── guidelines/                 # チーム共通ルール
+├── templates/                  # ドキュメントテンプレート
+├── install.sh                  # ワンライナー導入
+├── update.sh                   # 更新スクリプト
+├── LICENSE                     # MIT
+└── README.md                   # このファイル
 ```
 
-## 使い方
-各エージェントのmdファイルを読み込み、役割・出力フォーマットに従って指示を出す。
+---
+
+## 🔄 更新
+
+```bash
+curl -sSL https://raw.githubusercontent.com/<USERNAME>/my-virtual-team/main/update.sh | bash
+```
+
+または：
+```bash
+cd ~/.claude/skills/my-virtual-team
+git pull
+```
+
+---
+
+## 🗑️ アンインストール
+
+```bash
+rm -rf ~/.claude/skills/my-virtual-team
+```
+
+---
+
+## 🛠️ カスタマイズ
+
+このリポジトリを fork して、自分のチーム構成に合わせて編集できます。
+
+1. fork する
+2. `agents/` 配下を自社向けに編集
+3. `SKILL.md` の振り分けルールを更新
+4. install.sh の `REPO_URL` を自分のリポジトリに変更
+5. push
+
+---
+
+## 🤝 貢献
+
+PR歓迎。新しい部署・エージェント・ワークフローの追加など。
+
+---
+
+## 📜 ライセンス
+
+[MIT License](LICENSE) — 自由に利用・改変可能。
+
+---
+
+## 🙏 クレジット
+
+- BMAD-METHOD: https://github.com/bmad-code-org/BMAD-METHOD
+- TDD Guard: https://github.com/nizos/tdd-guard
+- AGENTS.md standard: https://agents.md/
