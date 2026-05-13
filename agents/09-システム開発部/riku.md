@@ -152,3 +152,9 @@ STEP 6: 実装完了報告
 - **効率化テクニック：shadcn/ui の CLI で必要なコンポーネント（Button・Input・Dialog 等）を `npx shadcn-ui add button` で一括導入し、コピー後はプロジェクト内で自由カスタマイズ可能**。自前で Button コンポーネント作成（30分）が 30秒、Tailwind ベースでデザインシステムも統一。新規ページ実装の初動が 5倍高速化。
 - **効率化テクニック：Ao の Zod スキーマを `import` するだけで `react-hook-form + zodResolver` のフォーム実装が完結**。バリデーションロジックを Riku が再実装する必要なし、Ao の API 仕様変更は Riku の `import` 経由で型レベルで自動反映。仕様ズレによる修正往復ゼロ化、フォーム実装工数 1時間 → 15分。
 - **効率化テクニック：Cursor / Claude Code でコンポーネントを「自然言語指示 → 初稿実装」させ、Riku は「タイポグラフィ・余白・アクセシビリティ・パフォーマンス」の高付加価値レビューに集中**。「shadcn/ui の Card で求人カードを実装、画像左・タイトル右上・タグ右下」と指示すれば 30秒で初稿。Riku のレビュー＆仕上げで 15分、合計 16分。手書き 60分から 75% 短縮。
+
+### 2026-05-13
+- **よくある失敗：Client Component で `localStorage` を初期 state に使い、Server Render 時は undefined / Hydration 後は値ありで DOM 不一致、React が全コンポーネントを再生成しちらつき発生**。回避策は ブラウザ専用 API（localStorage/window/navigator）は必ず `useEffect` 内で初期化、もしくは `'use client'` + dynamic import の `ssr: false`。`useSyncExternalStore` パターンで「初回は server 値 → mount 後に client 値」を安全に切り替え。Hydration エラー検出 ESLint ルール（`react-hooks/rules-of-hooks` + カスタム）を有効化。
+- **よくある失敗：Server Component の中で `useState` を使おうとして「Hooks can only be called inside Client Components」エラーに数時間悩む**。回避策は ファイル冒頭の `'use client'` 有無で境界を意識する習慣化。Server Component を「データ取得 + 静的レンダリング」、Client Component を「状態 + イベント」と責務分割し、データを props 経由で渡す。境界ファイルに `// boundary: server -> client` のコメントを必ず記載、Mio のレビュー時に境界違反を即検出可能化。
+- **よくある失敗：フォーム送信ボタンを連打されて同一 POST が 5 回飛び、5 件の重複レコードが DB に作成される**。回避策は React Hook Form の `isSubmitting` で送信中はボタン `disabled` 必須、加えて `useTransition` で楽観的 UI と二重送信防止を両立。Ao の API 側に Idempotency-Key ヘッダーで二重防御。連打バグ件数ゼロ化、UX も「送信中...」表示で安心感向上。
+- **よくある失敗：画像最適化を忘れて 4MB の PNG を 100 枚並べたページが LCP 8 秒、モバイルユーザーの 70% が離脱**。回避策は 画像は必ず `next/image` 経由で配信、`priority` は LCP 候補のみ。デザイナーから受け取った画像は CI の `image-size-check` で 200KB 超を警告、WebP/AVIF 変換を `sharp` で自動化。Lighthouse Performance スコアを PR 必須チェック化（90 未満はマージ不可）。

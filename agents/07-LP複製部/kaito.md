@@ -175,3 +175,9 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **`vercel --prebuilt` フラグでローカルビルド成果物を即デプロイ**：STEP 5 で従来「Vercel 側でビルド→4分待機→デプロイ完了」のフローを、ローカルで `vercel build` →`vercel deploy --prebuilt` に変更。Vercel のビルドキューを完全スキップしデプロイ時間を 4 分→40 秒に短縮。緊急修正リリースのリードタイム激減
 - **GitHub Actions の「複製 LP 共通ワークフロー」テンプレート化**：受注ごとに `.github/workflows/lp-clone.yml` を手書きしていたのを「`uses: let-inc/lp-clone-deploy@v1`」の 1 行で呼び出す再利用可能ワークフローに集約。lint・build・lighthouse・vercel deploy を 1 ファイル参照で完結。新規プロジェクトのCI構築時間を 30 分→3 分に短縮
 - **ステップ完了通知の Slack インクリメンタル自動投稿**：Hana・Nao・Ren・Mia の各 STEP 完了時に Slack Webhook へ「✅ STEP X 完了 / 経過時間 XX 分 / 次の担当: Y」を自動投稿するスクリプトを `package.json` の `postcomplete` に組み込み。Kaito の進捗確認 DM 不要化、ダッシュボード閲覧時間ゼロに
+
+### 2026-05-13
+- **「Preview デプロイ成功 → 本番デプロイ失敗」の環境差分失敗**：原因は Preview は `NEXT_PUBLIC_*` 環境変数のみで動くが、本番では DB 接続文字列・OAuth secret も必要というプロジェクト設定差。回避策は STEP 5 で `vercel env pull --environment=production` を実行し、ローカル `.env.production` と Vercel 設定の差分を `diff` で必ず確認。本番デプロイ直前に「Production 環境変数 N 個・全項目セット済み」をログ出力
+- **STEP 4 Mia 通過後の「画像最終差し替え」忘れ失敗**：原因は Mia QA はプレースホルダー画像で通過させたが、本番デプロイ時にクライアント提供素材への差し替えが抜け、placeholder.jpg のまま公開すること。回避策は STEP 5 デプロイ前のチェックリストに「`grep -r 'placeholder' src/` で 0 件確認」を必須化。検出時はデプロイブロック
+- **`vercel.json` の `redirects` 順序ミスによる無限ループ失敗**：原因は複数リダイレクトルールを羅列した際、上位ルールが下位ルールに該当するパスを返してループ。回避策は STEP 5 で `vercel dev` 起動後に旧URL→新URLパターンを `curl -I -L` で 5 ホップ以内に終わるか自動検証。301 が 5 回以上連続したらデプロイ中断
+- **HARU からの受注時「複製範囲」曖昧解釈失敗**：原因は「このサイト複製して」だけで TOP ページ／下層ページ／フォーム動作含むかが不明確のまま着手し、後から追加要件で工数倍増。回避策は受注直後 5 分で「TOP のみ／TOP +下層 N 枚／フォーム送信ロジック含む」の 3 択を HARU に必ず確認。Hana 着手前に Scope 確定書を Slack ピン留め

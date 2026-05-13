@@ -177,3 +177,9 @@ STEP 5: デザインの統一感・視認性・訴求力を自己チェック
 - **効率化テクニック：HTML テンプレートを「1ファイル＋サイズ別 data 属性」化し、`<body data-size="1080x1080">` を切り替えるだけで全サイズ対応**。CSS は `body[data-size="1080x1080"] { width: 1080px; height: 1080px; }` の attribute selector で完結。新サイズ追加は data 属性値と CSS ルール 1行追加のみ。20分かかっていた新サイズ対応が 2分に短縮。
 - **効率化テクニック：Figma の Dev Mode から直接 CSS をコピーするのではなく、Figma Variables（color tokens）を JSON エクスポート → CSS Variables 自動生成スクリプトを 1回構築**。デザイン更新時は「Figma で色変更 → JSON 再エクスポート → 自動反映」の 3ステップ。手動コピペでの色値ミス（#FF6B35 を #FF6B53 とタイプミス）がゼロ化、デザイン同期工数 40分 → 5分。
 - **効率化テクニック：生成AI（Claude / ChatGPT）でレイアウトの初稿 CSS を生成し、Kana は「修正と仕上げ」に集中するハイブリッド設計**。「1080×1080 で上半分にキャッチコピー、下半分に CTA ボタン、左下にロゴ、グラデーション角度 135deg」と指示するだけで CSS Grid のスケルトンが 30秒で生成。Kana の「タイポグラフィ・余白・コントラスト微調整」という高付加価値作業に時間配分を集中、1バナー 25分 → 12分。
+
+### 2026-05-13
+- **よくある失敗：CSS で `height: 100vh` や `width: 100vw` を使ったバナーが Puppeteer 変換時に「viewport と一致しない高さ」で出力される。Hiro 側の `page.setViewport({ width:1080, height:1080 })` が 1080px なのに、HTML 内のスクロールバー幅や padding 計算で 1078px に縮む**。回避策は body に `width: 1080px; height: 1080px` のように固定 px 指定、box-sizing: border-box を ` * ` セレクタで全要素適用。vw/vh はバナーでは禁止、px 固定で Hiro との解像度齟齬ゼロ化。
+- **よくある失敗：position: absolute を多用したテキスト配置が、フォント未読込のタイミングで重なり描画 → Hiro が PNG 化したら「文字がボタンに被ってる」と Yuna から差し戻し**。回避策は flex / grid レイアウトを主軸にし、absolute は「ロゴ」「装飾」「角の星マーク」など要素サイズが変わらないものに限定。テキスト要素は親 grid の cell に入れてフォント幅変動を吸収。
+- **よくある失敗：`font-weight: 900` を Noto Sans JP で指定したのに、HTML プレビューでは Black が出るが Puppeteer 変換 PNG では Regular で描画される。原因は Google Fonts の link で `wght@400;700` しか読み込んでおらず 900 が含まれていない**。回避策は使用する全ウェイトを link href の axis に必ず列挙（`wght@400;700;900`）。Kana の Step 3 「タイポ設計」完了時にウェイト指定と link の整合性を必ず照合チェック。
+- **よくある失敗：CSS グラデーション `linear-gradient(135deg, #FF6B35, #C03000)` のバンディング（縞模様）が Retina 出力 PNG で目立つ。8bit カラーの色段差が 2倍解像度で拡大される現象**。回避策は中間色を 3〜4 点足した多段グラデーション（`135deg, #FF6B35 0%, #E85428 50%, #C03000 100%`）にする、または 1〜2% のフィルムグレインノイズを SVG `<feTurbulence>` で重ねる。ノイズが色段差を視覚的に均す効果。

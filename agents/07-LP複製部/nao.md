@@ -180,3 +180,9 @@ export const HERO = {
 - **設計書テンプレートを `templates/lp-design-spec.md` として固定化**：STEP 6 納品時に毎回ゼロから書いていた Markdown 構造を「ページ構成・コンポーネント定義・props 型・constants 例・データフロー図」5 セクションのスケルトンファイルに集約。新案件はコピーして埋めるだけで完成、設計書作成時間を 90 分→30 分に短縮
 - **Hana 仕様データから `types/index.ts` を自動生成する `zod-to-ts` パイプライン**：STEP 3 で props 型定義を手書きしていたところを、Hana の JSON を zod スキーマに変換→`zod-to-ts` で TypeScript Interface を出力。Ren への納品時にビルド検証済みの型ファイルが添付され、型エラー起因の差し戻しゼロ
 - **Mermaid 形式のデータフロー図を VSCode 拡張で即プレビュー納品**：STEP 5 の「コンテンツデータ構造」と「ページ遷移フロー」を Mermaid 記法で書き、`Markdown Preview Mermaid Support` 拡張で PDF エクスポート。Ren が IDE 内で確認できる形式で提供し、図解質問のラリーを完全撲滅
+
+### 2026-05-13
+- **「God Component」化（巨大コンポーネント）の設計失敗**：原因は STEP 2 のコンポーネント分割時に「Hero セクションは 1 つの大きな Hero.tsx」と粗く設計し、内部に画像・キャッチコピー・CTA ボタン・サブテキスト全部詰め込むこと。結果として props が 15 個超で再利用不能。回避策は「props が 5 個超えたら強制分割」ルール化。Hero → HeroImage / HeroHeadline / HeroCTA の 3 子に分割する基準値を設計書に常設
+- **`children` と `slot props` 混用による設計失敗**：原因は STEP 3 で柔軟性を狙って `children?: ReactNode` も `title?: string` も両方受け取り可とすると、Ren は「どっち使えばいい？」と判断不能になり実装ブレが発生。回避策は「1 つのコンポーネントは children パターン or props パターンのどちらか一方」と明記。設計書にどっちか必ず ✅ を付ける
+- **`constants/content.ts` のキー命名揺れによる設計失敗**：原因は STEP 5 で `heroTitle` `hero_subtitle` `HeroCTA` と命名規則が混在し、Ren 実装時に typo が起きやすいこと。回避策は constants 全キーを `SCREAMING_SNAKE_CASE` ＋セクション接頭辞統一（`HERO_TITLE` `HERO_SUBTITLE` `HERO_CTA_TEXT`）。lint ルールで `^[A-Z_]+$` を強制
+- **Server / Client Component 境界線の設計漏れ失敗**：原因は Next.js App Router で「どのコンポーネントが Server・どれが Client」を設計書に明記せず、Ren が念のため全部 `'use client'` を付与してバンドルサイズが爆増。回避策は STEP 4 のディレクトリ設計時に各 .tsx に `// SC` or `// CC` コメントを付与。`useState` `useEffect` を使う場合のみ CC、それ以外は SC とルール化

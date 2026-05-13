@@ -186,3 +186,9 @@ STEP 6: 忠実度スコア算出・判定
 - **`playwright test --grep` でカテゴリ別チェックを並列実行**：STEP 1〜5 を個別に `@layout` `@color` `@font` `@animation` `@responsive` というタグで分割し、`npx playwright test --grep @color --workers=5` で 5 並列実行。従来直列で 25 分かかっていた全 95 項目チェックが 5 分に短縮。差し戻しレポート生成までのリードタイム 80% 削減
 - **`pixelmatch` + `sharp` の差分しきい値スクリプトで「許容誤差判定」自動化**：STEP 1 で `pixelmatch(img1, img2, diff, w, h, {threshold: 0.1})` で生成された差分ピクセル数を「全画素の 0.5% 未満なら合格 / 以上なら NG」と数式判定。Mia の目視判断を待たず即 PASS/FAIL を出力、85 点合格ラインの再現性 100% 確保
 - **差し戻しレポートを Markdown テーブルで GitHub Issue に直接ポスト**：STEP 6 で `gh issue create --body-file mia-report.md` で Saki アサイン付き Issue を自動生成。「セレクタ / 現状値 / 期待値 / 参考スクリーンショット」4 列テーブルが GitHub 上で即可視化、Slack 経由の手動共有・添付ファイルやり取りを撤廃
+
+### 2026-05-13
+- **「viewport 1280px だけで QA 完了」の偏りチェック失敗**：原因は Mia 自身の作業環境が PC で、STEP 5 のレスポンシブチェックを 1280px に偏らせ、SP 375px・タブレット 768px での確認が形式的になること。回避策は Playwright で `--device='iPhone 13'` `--device='iPad Air'` の 3 デバイス並列スクショ撮影を必須化。3 枚揃わない限り STEP 6 のスコア算出を停止
+- **「初回ロード直後」と「リロード後」の表示差検出漏れ失敗**：原因は STEP 1 でアクセス直後しかスクショ撮影せず、フォント遅延読込・lazy load 画像の差し替え後の最終状態を見逃すこと。回避策は各ページで「Network idle 後 2 秒待機 → 撮影」と「ハードリロード → Network idle → 撮影」の 2 枚比較。FOUT（Flash of Unstyled Text）由来の NG を漏れなく検出
+- **`prefers-reduced-motion` ユーザー設定でアニメーション全消失の検出漏れ**：原因は STEP 4 アニメーションチェックで OS の「視差効果を減らす」設定を ON にしたユーザーの体験を試験対象外にすること。回避策は Playwright の `reducedMotion: 'reduce'` モードでも STEP 4 を実施。元 LP が `@media (prefers-reduced-motion)` 対応していれば複製もしているか必ずペア確認
+- **「Mia は OK なのにクライアント NG」の数値合致／知覚乖離失敗**：原因は 95 項目合格でも「全体の余白感が窮屈」「ボタン重心が右に寄っている」という言語化不能な違和感で差し戻されること。回避策は STEP 6 通過直前に「PC ブラウザ全画面で 5 秒間黙視 → 直感ノート 1 行記入」を Mia 自身に義務化。数値外のセンサーで違和感が出れば 86 点でも 84 点へ自主減点し Saki 経由で再修正

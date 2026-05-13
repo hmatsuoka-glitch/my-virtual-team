@@ -160,3 +160,9 @@ STEP 6: 実装完了報告
 - **効率化テクニック：GitHub Actions の reusable workflows（`workflow_call`）で「CI/lint・test・build・deploy」のステップをライブラリ化**。新規プロジェクトは `.github/workflows/main.yml` で 5行の `uses:` を書くだけで全パイプライン完成。プロジェクト起ち上げ時の CI/CD 設定工数 4時間 → 15分。バグ修正も中央集約のため全プロジェクトに一括反映。
 - **効率化テクニック：Vercel CLI（`vercel env pull`）で本番環境変数をローカル `.env.local` に自動同期するスクリプトを `package.json` の `postinstall` に組込み**。新メンバーが clone 後 `npm install` するだけで本番と同じ環境変数で動作可能。手動コピペ作業（10分／人）が消滅、設定ミスもゼロ化。
 - **効率化テクニック：Sentry + Vercel Analytics + GitHub Issues の自動連携で、本番エラーが発生したら「該当エラー名で GitHub Issue 自動作成 + Slack 通知」**。Kuu が「ログを見る → Issue を作る → 担当者にアサイン」の 3 ステップが「通知を見る → 1クリックでアサイン」に短縮。障害対応の初動が 15分 → 1分。
+
+### 2026-05-13
+- **よくある失敗：金曜夜にデプロイして本番障害発生、週末に Kuu が一人で対応する羽目に**。回避策は「金曜 15:00 以降の本番デプロイ禁止」をブランチ保護ルールで強制。GitHub Actions の deploy ジョブに「曜日・時刻チェック」を組み込み、金曜午後・休前日はマージ自体をブロック。緊急時は管理者承認の override フラグで例外対応。週末障害対応件数 90% 削減。
+- **よくある失敗：環境変数のローテーション（API キー更新）時に「本番だけ古いキー」のまま、外部 API 連携が突然 401 で全停止**。回避策は キー更新を「新旧両キー有効期間 1週間」設計に変更。① 新キー追加（旧キー併存）→ ② Vercel 全環境を新キーに切替 → ③ 動作確認後に旧キー削除。各環境のキー値を `vercel env ls` で diff 自動比較する CI ジョブで「環境間ズレ」を毎朝検知。
+- **よくある失敗：GitHub Actions の secrets を「全ジョブ共通」で参照し、PR からの fork ビルドで本番シークレットが漏洩可能な状態**。回避策は secrets を `environment: production` で隔離し、本番デプロイジョブのみ参照可能化。fork PR は `pull_request_target` を使わず `pull_request` トリガーに統一、secrets 無しでも CI（lint/test）は完走する設計。Mio に secrets スキャン（gitleaks）を CI 必須化依頼。
+- **よくある失敗：Vercel のビルドキャッシュが壊れて「ローカルでは動くのに本番ビルドだけ失敗」を 3時間調査**。回避策は デプロイ失敗時の調査手順を「① Vercel UI で Clear Cache & Redeploy → ② ローカル `vercel build --debug` で再現 → ③ Node.js / pnpm バージョン固定確認」の順で固定化。`engines` フィールドを `package.json` に必ず明記、Volta / proto でローカルと CI のバージョン完全一致。調査時間 3時間 → 15分。

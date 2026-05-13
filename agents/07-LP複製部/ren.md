@@ -171,3 +171,9 @@ STEP 5: レスポンシブ対応
 - **shadcn/ui の `npx shadcn add` ワンライナーで Button/Card/Dialog を一括投入**：STEP 3 の UI 実装で「Button・Card・Dialog・Sheet・Form」を毎回手書きしていたのを `npx shadcn add button card dialog sheet form` の 1 コマンドで揃える。Tailwind 互換のコピペ可能なコンポーネントが即配置され、UI 骨格実装が 2 時間→20 分に短縮
 - **`turbopack` + `next dev --turbo` の HMR 高速化で実装ループ時間 75% 削減**：STEP 3・4 のスタイリング微調整時に、Webpack ベースの dev server は再ビルド 3 秒/回 → Turbopack は 0.7 秒/回。1 日の実装で 200 回 HMR が走る場合、合計 460 秒の待機が削減。修正→確認のフィードバックループが体感 4 倍高速化
 - **`next/image` の `placeholder="blur"` + `getPlaiceholder` でアセット最適化を自動化**：STEP 3 の画像実装で、`getPlaiceholder(src)` を使って Base64 の blurDataURL を `constants/content.ts` に事前生成して埋め込む。LCP 改善 + CLS 0 を実装側で担保、Mia パフォーマンス NG を本番前に潰す
+
+### 2026-05-13
+- **Tailwind 動的クラス文字列結合による「クラス消失」失敗**：原因は `className={`text-${color}-500`}` のような動的生成は PurgeCSS / JIT に「未使用」と判定され本番ビルドで剥がれること。回避策は STEP 3 で全クラスをフル文字列で書き、条件分岐は `clsx` ＋三項演算子化。`safelist` に頼らず静的記述ルールを strict 化、本番だけ色が消える NG を完全防止
+- **SP ブレークポイント崩れ：固定 px と vw の混用失敗**：原因は STEP 5 のレスポンシブ実装で Hero 高さに `min-h-[800px]` を指定し、iPhone SE 横画面（375×667）でコンテンツが切れる。回避策は「ファーストビューは `min-h-[100svh]`」「セクション内余白は `clamp()` で px/vw 連動」をテンプレ化。固定 px は装飾境界（border-radius 等）のみに限定
+- **`use client` の付け忘れで「onClick is not a function」失敗**：原因は Next.js App Router で Server Component のまま `onClick` ハンドラを書きビルド時エラーになる。回避策は「ファイル冒頭で `useState` `useEffect` `on*` ハンドラのいずれかを使うなら最初の 1 行は `'use client'`」を実装ルール化。ESLint カスタムルールで自動検出
+- **画像 `alt` 属性空文字での Lighthouse Accessibility 失敗**：原因は STEP 3 で装飾画像と判断して `alt=""` のままにしたが、Mia アクセシビリティチェックで「意味のある画像に alt なし」と NG。回避策は constants にすべての画像エントリで `{src, alt}` を必須化し、装飾なら `role="presentation"` 併用。alt 抜けで Lighthouse 90 点切る事象を根絶

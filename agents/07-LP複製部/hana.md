@@ -166,3 +166,9 @@ STEP 8: 仕様データを構造化して出力
 - **DevTools「Recorder」パネルを使った CSS 抽出フロー自動記録**：STEP 1〜7 で実施するクリック・要素選択・computedStyle 取得操作を Chrome DevTools Recorder で記録し、Puppeteer スクリプトにエクスポート。次回同類サイトの抽出時に再生するだけで 8 ステップを 15 分で完了。手動操作時間を 70% 削減
 - **CSS 抽出 JSON の Tailwind config 自動変換ワンライナー化**：STEP 8 の出力 JSON を `node scripts/json-to-tailwind.js` で直接 tailwind.config.ts に変換するスクリプトを共通化。Ren への引き渡し時に「colors / fontFamily / screens / animation」4 ブロックがそのまま使える形式で納品。Ren の手動入力工数をゼロに
 - **画像アセット一括ダウンロードを `wget --mirror` + `cwebp` パイプラインで高速化**：STEP 7 の外部ライブラリ特定と並行して、対象サイトの全画像を `wget -r -l 1 -A jpg,png,svg,webp` で一括取得→`cwebp -q 80` で WebP 変換。アセット収集時間を従来 30 分→5 分に短縮し、Ren に最適化済み画像を即納品
+
+### 2026-05-13
+- **Cloudflare/bot対策サイトのスクレイピング失敗**：原因は対象 LP が Cloudflare Bot Management や reCAPTCHA で `fetch`・Puppeteer ヘッドレスをブロックすること。回避策は STEP 1 で User-Agent を実ブラウザ値に偽装＋`puppeteer-extra-plugin-stealth` 導入＋それでも NG なら Chrome DevTools の手動 Recorder モードに切替。事前に `curl -I` で 403/503 検出するルーチン化で着手前に判定
+- **背景画像の `url()` 相対パス取りこぼし失敗**：原因は computed style では `background-image: url("./images/hero.jpg")` が「絶対 URL に変換」されて返るが、CSS テキスト検索だけだと相対パス記述を見逃すこと。回避策は STEP 2 で `getComputedStyle().backgroundImage` の絶対 URL と、元 CSS ファイルの相対パス両方を JSON にペアで記録。Ren が `next/image` 実装時にビルド失敗するパターンを根絶
+- **疑似要素 `::before` `::after` の CSS 抽出漏れ失敗**：原因は `querySelectorAll` では疑似要素を直接取得できず、`getComputedStyle(el, '::before')` の第二引数指定を忘れること。回避策は STEP 4 で全要素に対し `['::before', '::after']` を明示的にループ。Mia QA で「アイコン・装飾線が消えている」NG の 7 割を事前防止
+- **ダークモード／`prefers-color-scheme` メディアクエリ抽出漏れ**：原因は STEP 6 のブレークポイント検出に集中するあまり、`@media (prefers-color-scheme: dark)` を見落とし複製版がライトモードのみになること。回避策は STEP 6 で `@media` 正規表現に `prefers-*` 系を必ず含め、Ren へ「ダークモード対応の要否」を STEP 8 出力に明記
