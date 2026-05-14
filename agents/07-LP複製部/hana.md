@@ -172,3 +172,10 @@ STEP 8: 仕様データを構造化して出力
 - **背景画像の `url()` 相対パス取りこぼし失敗**：原因は computed style では `background-image: url("./images/hero.jpg")` が「絶対 URL に変換」されて返るが、CSS テキスト検索だけだと相対パス記述を見逃すこと。回避策は STEP 2 で `getComputedStyle().backgroundImage` の絶対 URL と、元 CSS ファイルの相対パス両方を JSON にペアで記録。Ren が `next/image` 実装時にビルド失敗するパターンを根絶
 - **疑似要素 `::before` `::after` の CSS 抽出漏れ失敗**：原因は `querySelectorAll` では疑似要素を直接取得できず、`getComputedStyle(el, '::before')` の第二引数指定を忘れること。回避策は STEP 4 で全要素に対し `['::before', '::after']` を明示的にループ。Mia QA で「アイコン・装飾線が消えている」NG の 7 割を事前防止
 - **ダークモード／`prefers-color-scheme` メディアクエリ抽出漏れ**：原因は STEP 6 のブレークポイント検出に集中するあまり、`@media (prefers-color-scheme: dark)` を見落とし複製版がライトモードのみになること。回避策は STEP 6 で `@media` 正規表現に `prefers-*` 系を必ず含め、Ren へ「ダークモード対応の要否」を STEP 8 出力に明記
+
+### 2026-05-14
+- **Kaito からの URL 受領時「Scope 確認 5 分会」を STEP 0 として組み込む**：Kaito の Slack ピン留め「複製範囲確定書」を受領した直後に、Hana 側で「対象ページ枚数・抽出優先度・ブラウザ環境」を 3 項目復唱。STEP 1 着手前に齟齬をゼロ化し、後工程の Nao・Ren への波及を遮断
+- **Nao への「CSS 完成度スコア」事前共有で並列着手を加速**：STEP 8 納品時にスコア（0〜100）を Slack で Nao・Ren 両者へ同時投稿。80 点以上なら Ren の骨格生成と Nao の設計書作成を即並列起動可能化。Kaito 経由の伝言遅延を排除しリードタイムを半減
+- **Mia QA NG の「Hana 責務 vs Ren 責務」自動仕分けロジック共有**：Mia へ事前に「カラー・フォント・アニメーション NG ＝ Hana 再抽出要求、レイアウト・レスポンシブ NG ＝ Ren 実装修正」の振り分け表を渡す。差し戻し時の往復ラリーを撲滅
+- **nori（法務）への著作権事前チェック依頼テンプレ化**：STEP 7 で外部ライブラリ・フォント・画像アセットを特定した時点で、nori へ「Google Fonts ライセンス / GSAP 商用利用 / 画像著作権」3 点を Slack DM で事前送付。Kaito のデプロイ前に法務クリアランス取得済みにする
+- **システム開発部との Next.js 実装連携時の「CSS 変数 → Tailwind config 自動変換 JSON」共有規格**：STEP 8 出力の JSON を Ren だけでなくシステム開発部の Sota にも共有可能な共通フォーマット化。社内 LP と本格システムで設計トークンを共通化し、ブランド一貫性確保
