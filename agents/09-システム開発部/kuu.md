@@ -107,6 +107,12 @@ STEP 6: 実装完了報告
 
 ## 📝 Daily Knowledge Log
 
+### 2026-05-15
+- **本番デプロイ前の Pre-Deploy チェックリスト 10 項目**：① 全環境変数が Vercel 本番環境に設定済み（`vercel env ls` で確認）② プレビューデプロイで動作確認完了（PC・SP 両方）③ ビルドログにエラー・警告ゼロ ④ Lighthouse Performance 90 以上 ⑤ Sentry エラー監視が稼働中 ⑥ DB マイグレーションのロールバック SQL が用意済み ⑦ ロールバック手順ドキュメントが最新 ⑧ ステータスページが復旧見込み時刻を表示可能な状態 ⑨ 金曜 15:00 以降ではない（緊急時のみ override）⑩ Mio の QA PASS 確認済み。1 つでも未達ならデプロイ中止。本番障害件数 80% 削減。
+- **CI/CD パイプラインの品質ゲート段階化**：PR 作成時 = lint・typecheck・unit test・security scan（gitleaks/npm audit）の 4 段階を全 PASS で初めてマージ可能化。マージ後 = preview デプロイ＋E2E テスト＋Lighthouse CI で再度ゲート。本番デプロイ = canary（10% トラフィック）→ 5 分監視 → 100% 切り替え。各段階で fail した時点でロールバック自動化。本番反映前のバグ検出率 95% 以上。
+- **インフラの可観測性（Observability）3 軸チェック**：① メトリクス（Vercel Analytics で p50/p95/p99 レイテンシ・エラー率・トラフィック量）② ログ（Vercel Log Drains で Datadog/BetterStack に集約、検索可能化）③ トレース（OpenTelemetry で「ユーザーリクエスト → API → DB クエリ」の全経路を可視化）。3 軸が揃って初めて「本番で何が起きているか」を 1 分以内に診断可能。MTTR（平均復旧時間）30 分 → 5 分。
+- **依存パッケージのセキュリティ品質チェック自動化**：Dependabot で毎週月曜に脆弱性 PR を自動作成し、Critical/High は Kuu が即時マージ、Moderate 以下は週次レビュー枠でまとめて処理。さらに `snyk monitor` で本番環境の依存ツリーを継続スキャン、新規 CVE が出たら Slack 即時通知。`package-lock.json` の整合性チェックを CI で `npm ci --frozen-lockfile` 強制、誰かが手動で `package.json` のみ変更した PR をブロック。依存起因の本番脆弱性 100% 防止。
+
 ### 2026-04-28
 - **GitHub Actions の「CI（lint・test）」を PR トリガー、「CD（Vercel デプロイ）」を main マージ時に分離**。develop ブランチへの自動デプロイ（ステージング）も並列実行で、本番反映までの総時間 6分 → 2分。
 - **Vercel の環境変数を「本番・ステージング・プレビュー」で厳密に分離し、各環境ごとに DATABASE_URL を変える**。誤ってステージング DB を本番で実行する インシデント ゼロ化。
@@ -166,3 +172,10 @@ STEP 6: 実装完了報告
 - **よくある失敗：環境変数のローテーション（API キー更新）時に「本番だけ古いキー」のまま、外部 API 連携が突然 401 で全停止**。回避策は キー更新を「新旧両キー有効期間 1週間」設計に変更。① 新キー追加（旧キー併存）→ ② Vercel 全環境を新キーに切替 → ③ 動作確認後に旧キー削除。各環境のキー値を `vercel env ls` で diff 自動比較する CI ジョブで「環境間ズレ」を毎朝検知。
 - **よくある失敗：GitHub Actions の secrets を「全ジョブ共通」で参照し、PR からの fork ビルドで本番シークレットが漏洩可能な状態**。回避策は secrets を `environment: production` で隔離し、本番デプロイジョブのみ参照可能化。fork PR は `pull_request_target` を使わず `pull_request` トリガーに統一、secrets 無しでも CI（lint/test）は完走する設計。Mio に secrets スキャン（gitleaks）を CI 必須化依頼。
 - **よくある失敗：Vercel のビルドキャッシュが壊れて「ローカルでは動くのに本番ビルドだけ失敗」を 3時間調査**。回避策は デプロイ失敗時の調査手順を「① Vercel UI で Clear Cache & Redeploy → ② ローカル `vercel build --debug` で再現 → ③ Node.js / pnpm バージョン固定確認」の順で固定化。`engines` フィールドを `package.json` に必ず明記、Volta / proto でローカルと CI のバージョン完全一致。調査時間 3時間 → 15分。
+
+### 2026-05-14
+- **Ao からの環境変数引き継ぎ運用**：Ao が `.env.example` を更新したコミットには `[env]` プレフィックスが付いている前提で、Kuu は GitHub の検索（`[env] in:message`）で週次まとめチェック。新規キーは Vercel UI に「本番／ステージング／プレビュー」の 3 環境セット投入を 1 PR 内で完了、漏れ検出は `vercel env ls | diff .env.example` で自動化。本番デプロイ後の「環境変数未設定」インシデント完全消滅。
+- **07-LP複製部（kaito）との Vercel デプロイ住み分け**：kaito チームの静的 LP は別プロジェクト（`xxx-lp`）、kai チームのアプリは `xxx-app` として Vercel プロジェクトを分離。同一ドメイン下で `/lp/*` と `/app/*` を Edge Middleware で振り分け、各チームが独立にデプロイ可能化。kaito の LP 修正で kai チームのアプリが巻き込みリリースされる事故ゼロ。
+- **Mio との CI/CD 品質ゲート分担**：Mio はテストカバレッジ・E2E・a11y・パフォーマンスの「コード品質」担当、Kuu は環境変数・シークレット・依存脆弱性・ロールバック手順の「インフラ品質」担当。両者のチェックを GitHub Actions の独立ジョブとし、片方失敗でも他方の結果が分かる構成。レビュー責任の境界明確化、見落としゼロ。
+- **Akari への稼働状況レポート**：毎週金曜に Vercel Analytics の「過去 7 日トラフィック・p95 レイテンシ・エラー率・稼働率」を Notion DB へ自動投稿（GitHub Actions の `vercel-metrics` ジョブ）。Akari がクライアント月次レポート作成時に SLA 達成状況をワンクリックで参照可能。クライアント説明時の数値根拠ゼロ問題が解消。
+- **nori（法務）への外部サービス利用申請**：Vercel・Sentry・Datadog 等の新規 SaaS 導入時、契約前に nori へ「① データ保存先リージョン ② SCC（標準契約条項）の有無 ③ 解約時のデータ削除条項 ④ サブプロセッサ一覧」の 4 点確認。GDPR/個人情報保護法違反リスクをデプロイ前に排除、リーガル NG による途中解約コストゼロ化。

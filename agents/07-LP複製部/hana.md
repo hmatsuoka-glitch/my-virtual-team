@@ -110,6 +110,12 @@ STEP 8: 仕様データを構造化して出力
 
 ## 📝 Daily Knowledge Log
 
+### 2026-05-15
+- **STEP 2 カラー抽出の「三重ピッカー検証」チェックポイント**：DevTools Color Picker・Figma スポイト・`getComputedStyle().color` の 3 ツールで HEX 値を照合し、3 つのうち 2 つが一致したら採用、不一致なら必ず再採取。単一ツールの sRGB 解釈差による「数値合っているのに見た目違う」を STEP 8 前に根絶
+- **STEP 3 フォント仕様「6 項目完全シート」**：font-family・font-size・font-weight・line-height・letter-spacing・font-display の 6 項目を全見出し・本文・キャプション単位でテーブル化。1 項目でも空欄なら STEP 8 のサインオフを保留する強制ゲートを設置し、Ren 実装後の「行間違う」差し戻しゼロ化
+- **STEP 6 ブレークポイント網羅チェック「3 グリッド + ダーク + reduce-motion」**：320 / 375 / 768 / 1024 / 1280 / 1920 の 6 幅 × `prefers-color-scheme` 2 値 × `prefers-reduced-motion` 2 値 = 24 パターンで `@media` 抽出有無を○×表に。1 つでも不明なら Mia QA 前に再抽出。OS 設定起因の NG を物理的に排除
+- **STEP 7 外部ライブラリ「ライセンス・バージョン・代替案」3 点同時記録**：GSAP/Framer Motion 等を検出した瞬間に「商用ライセンス要否・固定バージョン・OSS 代替（CSS native / GSAP 3 vs 2）」を JSON に書き込み。nori 法務 & Ren 実装の双方が STEP 8 受領時点で判断材料が揃っている状態を必ず維持
+
 ### 2026-04-28
 - **DevTools Console 自動スクリプト化**：CSS抽出の 8 ステップを JavaScript で自動化。getComputedStyle() や querySelectorAll() で一括抽出して JSON 出力。手作業時間を 60% 削減
 - **カラーパレット抽出ツール**：要素のセレクタを入力するだけで、その要素と全子要素の色情報をツリー構造で可視化。見逃しをゼロに

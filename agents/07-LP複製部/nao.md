@@ -123,6 +123,13 @@ export const HERO = {
 
 ## 📝 Daily Knowledge Log
 
+### 2026-05-15
+- **設計書「コンポーネント品質チェック 7 観点」チェックポイント**：①Props 5 個以下 ②再利用 2 箇所以上 ③責務 1 つ ④`children` or `props` 排他 ⑤Server/Client 境界明記 ⑥a11y ロール記載 ⑦`data-testid` 命名規則統一 の 7 項目を全コンポーネントで埋める表を STEP 6 納品時に必須化。1 項目でも空欄なら Ren へ渡さず再設計するゲートで、実装後の「これ Server？Client？」質問をゼロに
+- **`zod` スキーマで constants の入力ガード**：STEP 5 で `constants/content.ts` の各データ構造を `z.object({...}).parse()` で実行時バリデート可能な形に設計。長さ・URL 形式・必須項目を Nao がスキーマ定義し、Ren が `tsc` ビルド時に違反検出。タイポ・null・空文字での Lighthouse 減点を設計層で予防
+- **フォーム設計「a11y バリデーション 6 項目」必須記載**：`<label htmlFor>` / `aria-required` / `aria-describedby` / `aria-invalid` / `required` / `inputMode` の 6 属性を全フォーム要素で表化。STEP 3 の Form コンポーネント仕様に組み込み、Mia キーボード操作 QA を一発通過させる
+- **設計書に「Lighthouse 目標値」事前明記の運用化**：STEP 6 納品時に Performance 90 / Accessibility 95 / Best Practices 95 / SEO 100 の目標値を設計書冒頭に記載。Ren が実装中に「lazy load 必須」「`<h1>` 単一」「`alt` 必須」と判断する根拠を設計書に持たせ、QA 段階での再設計戻りを排除
+- **ページ遷移フロー図に「エラー状態 / ローディング状態」必須化**：従来正常系のみだった Mermaid 遷移図に、`Network error` / `Form validation error` / `Loading skeleton` の 3 異常系を必ず追加。Ren が「エラー時の見せ方未定義」と気付かず実装をスキップする失敗を設計段階で根絶
+
 ### 2026-04-28
 - **コンポーネント命名規則の標準化**：Hero / Section / Card など固定パターンを事前定義。Ren との命名齟齬をゼロにして実装時の修正指示削減
 - **props 定義テンプレート自動生成**：Hana の仕様データから TypeScript 型定義を自動出力。手書きエラーを排除し、Ren の実装速度を 30% 高速化
@@ -180,6 +187,13 @@ export const HERO = {
 - **設計書テンプレートを `templates/lp-design-spec.md` として固定化**：STEP 6 納品時に毎回ゼロから書いていた Markdown 構造を「ページ構成・コンポーネント定義・props 型・constants 例・データフロー図」5 セクションのスケルトンファイルに集約。新案件はコピーして埋めるだけで完成、設計書作成時間を 90 分→30 分に短縮
 - **Hana 仕様データから `types/index.ts` を自動生成する `zod-to-ts` パイプライン**：STEP 3 で props 型定義を手書きしていたところを、Hana の JSON を zod スキーマに変換→`zod-to-ts` で TypeScript Interface を出力。Ren への納品時にビルド検証済みの型ファイルが添付され、型エラー起因の差し戻しゼロ
 - **Mermaid 形式のデータフロー図を VSCode 拡張で即プレビュー納品**：STEP 5 の「コンテンツデータ構造」と「ページ遷移フロー」を Mermaid 記法で書き、`Markdown Preview Mermaid Support` 拡張で PDF エクスポート。Ren が IDE 内で確認できる形式で提供し、図解質問のラリーを完全撲滅
+
+### 2026-05-14
+- **Kaito 部長への「設計書受領確認」テンプレ運用化**：Kaito から指示書を受け取ったら STEP 0 として「指示内容を 3 行サマリで復唱→Kaito 承認待ち」のステップを必須化。要件解釈ズレを設計開始前にゼロ化し、STEP 6 納品時の「これじゃない」差し戻しを撲滅
+- **Hana 仕様データ受領時の「並列起動シグナル」発信**：Hana の CSS 抽出と並行して Nao が STEP 1〜2 を着手できるよう、Hana に「セクション洗い出しだけ先行共有」を依頼する非同期連携プロトコルを定型化。トータル設計時間を 30% 短縮
+- **Ren との「STEP 1 並列実装ハンドシェイク」会議 5 分ルール**：Ren が骨格生成中の段階で Nao 設計書のドラフトを共有し、命名規則・ディレクトリ構造の差異を 5 分で擦り合わせ。STEP 6 納品後の「型定義が骨格と合わない」事故をゼロ化
+- **Sora 最終 QA との「設計書チェックポイント事前合意」**：Sora の QA 観点（型網羅性・Server/Client 境界・a11y）を STEP 6 納品前に Nao 側で先回りチェック。Sora から「設計書不足」差し戻し率を 75% 削減
+- **nori 法務への「フォント・画像ライセンス事前確認」依頼フロー**：STEP 5 のコンテンツ定義時に Google Fonts・Adobe Fonts・ストック画像の利用範囲を nori に 30 分以内に確認依頼。Ren 実装後の「商用利用 NG」発覚をゼロ化
 
 ### 2026-05-13
 - **「God Component」化（巨大コンポーネント）の設計失敗**：原因は STEP 2 のコンポーネント分割時に「Hero セクションは 1 つの大きな Hero.tsx」と粗く設計し、内部に画像・キャッチコピー・CTA ボタン・サブテキスト全部詰め込むこと。結果として props が 15 個超で再利用不能。回避策は「props が 5 個超えたら強制分割」ルール化。Hero → HeroImage / HeroHeadline / HeroCTA の 3 子に分割する基準値を設計書に常設

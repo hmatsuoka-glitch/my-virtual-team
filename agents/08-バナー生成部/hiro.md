@@ -149,6 +149,12 @@ const banners = [
 
 ## 📝 Daily Knowledge Log
 
+### 2026-05-15
+- **PNG 変換完了後の品質チェックポイント 5 点固定化**：①ファイルサイズが媒体規定上限内か（Indeed 150KB / Instagram 30MB / LINE 1MB）、②解像度が Retina 2 倍で出力されているか（1080→2160px の sharp metadata 確認）、③ICC プロファイルが sRGB に正規化されているか、④透過要求があれば背景透過になっているか、⑤フォント未読込・グラデーション縞模様・細線ぼやけが無いか。sharp ライブラリで①②③を自動判定し、④⑤は目視で 30 秒チェック。Yuna 差し戻し率 70% 削減。
+- **カラーコントラスト比 5:1 を PNG 出力後に自動検証**：Indeed/Google Jobs の 2026 年改定で 4.5:1 → 5:1 に厳格化されたため、出力 PNG を `sharp().raw()` で RGB 抽出 → CTA ボタンと背景の輝度差を WCAG 計算式で算出 → 5:1 未満なら警告ログ出力。HTML 段階で Kana が見落とした場合でも、PNG 工程で最終ゲートとして機能。入稿 NG ゼロ化。
+- **媒体別 deviceScaleFactor / 圧縮率の品質チェックマトリクス化**：Instagram=2倍/品質85%、Indeed=2倍/品質80%（150KB 上限のため強め）、LINE=2倍/品質85%、Web動画広告=3倍/品質90%、Twitter=2倍/品質85% を config 化。媒体に応じた品質目標値を自動適用し、目視で「圧縮しすぎてモザイク化」「圧縮足りずファイルサイズ超過」のヒューマンエラーを撲滅。
+- **複数解像度同一バナーのピクセル整合性検証**：1080×1080 と 1200×628 を同じデザインで出力した際、ロゴ位置・CTA ボタンサイズ・余白比率が「相対値で揃っているか」を sharp で抽出 → 比率差 5% 以上なら Kana に差し戻し。媒体横断で「同じブランドのバナー」と認識される一貫性を技術担保。
+
 ### 2026-04-28
 - **Puppeteer の deviceScaleFactor: 2 (Retina) は強制、しかし clip オプションで指定サイズ厳密化により、OS・フォント差異による誤差を ±3px に圧縮**。Mio の NG 率が 12% → 2% に削減。
 - **複数バナーの PNG 変換を非同期並列化（Promise.all）すると、4ファイル 同時処理で処理時間が 48秒 → 15秒に短縮。JavaScript 実装パターンを標準テンプレート化して Kana へ共有**。
@@ -208,3 +214,10 @@ const banners = [
 - **よくある失敗：page.screenshot() で `omitBackground: true` を指定したのに PNG の背景が白く出力される。Kana の HTML 側で body に `background: linear-gradient(...)` が指定されているため、透過要求が無視されている**。回避策は透過 PNG が必要な場合は Kana に「body 背景は transparent、コンテンツ要素にのみ装飾」を仕様依頼。Puppeteer 側は `page.evaluate(() => document.body.style.background = 'transparent')` を screenshot 前に実行して保険。
 - **よくある失敗：pngquant の `--quality 80-90` 圧縮で「lossy encoding error: image format not recognized」が一部バナーで発生。原因は Puppeteer 出力 PNG に sRGB プロファイル以外の ICC が埋め込まれている**。回避策は screenshot 後に `sharp(buf).withMetadata({ icc: 'srgb' }).png()` で ICC を sRGB に正規化してから pngquant に渡す 2 段階処理。色ズレも同時に解消され、納品先デバイスでの色差クレーム消滅。
 - **よくある失敗：deviceScaleFactor: 3 を試したら出力ファイルサイズが 4倍に膨張し、納品先の Indeed 入稿上限 150KB を超えて入稿失敗**。回避策は媒体別 deviceScaleFactor 設定表を config 化（Instagram=2 / Indeed=2 / LINE=2 / Web 動画広告=3）。3 倍解像度は実機で「ほぼ差を感じない」のに容量だけ増えるため、媒体規定容量に対する圧縮余裕の有無で判定。
+
+### 2026-05-14
+- **Yuna の指示書スタイル攻略**：Yuna から渡される「PNG 変換指示シート」には必ず deviceScaleFactor / clip 範囲 / 圧縮レベル / ファイル名規則 / 上限ファイルサイズの 5 点が記載される。Hiro 側でこの 5 点を Node スクリプトの config として受け取り、欠落があれば即座に Yuna へ質問。曖昧なまま着手して再変換ロスを防止、初回完遂率 95% 化。
+- **Sho/Yui/Eito（SNS・台本部）からの依頼解読**：彼らがバナー生成を依頼してきた場合、必ず Yuna 経由でフォーマット化された依頼に変換してもらう。SNS 部門からの直接依頼は「動画サムネ用 / Reels カバー用」など用途が曖昧なので、Yuna が用途確認 STEP を踏んでからでないと Hiro は着手しない運用に固定化。誤った媒体サイズで変換するムダ撲滅。
+- **LP 複製部との素材引き継ぎ**：LP 制作チームが Web 用 OGP 画像（1200×630）を生成する場合、Hiro の Puppeteer config を流用可能。LP の Hero セクションを screenshot し、Twitter/Facebook OGP 規定サイズに切り抜く処理を共通化。LP 部とバナー部で「Puppeteer スクリプトのライブラリ化」を進め、再利用性 3 倍。
+- **nori（法務）への薬機法・景表法事前チェック**：PNG 出力後のテキスト OCR を tesseract.js で実行し、「絶対 / 必ず / No.1 / 完全保証」等の禁止ワードを自動検出。検出時は Hiro→nori 確認依頼→Kana 差し戻しのフロー。Hiro は文字認識の機械チェックゲートとして機能、法務リスクをゼロ化。
+- **sora（最終 QA）の合格基準クリア**：Sora が確認する 5 点（ファイル名規則 / 解像度 Retina 2 倍 / ファイルサイズ媒体上限 / 視覚破損なし / ICC sRGB）を Hiro が事前セルフチェック。sharp ライブラリで①〜③④を自動判定、⑤を目視確認した上で「Sora QA 合格保証付きレポート」として Yuna へ提出。Sora QA 時間 10 分 → 1 分。

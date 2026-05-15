@@ -118,6 +118,12 @@ STEP 6: Sora（COO）へ成果物を渡す
 
 ## 📝 Daily Knowledge Log
 
+### 2026-05-15
+- **デプロイ前「5 ゲート品質ゲートウェイ」チェックポイント**：①`npm run build` 成功 ②`npm run lint` 0 warnings ③`tsc --noEmit` エラーゼロ ④`lighthouse --view` 全カテゴリ 85 点超 ⑤Mia 忠実度 85 点超 の 5 項目を `package.json` の `predeploy` スクリプトに連結。1 つでも NG なら `vercel --prod` を物理的に拒否する CI 設計で、本番事故をゼロ化
+- **Core Web Vitals「LCP 2.5s / INP 200ms / CLS 0.1」を契約基準として明文化**：Hana 着手前に Kaito からクライアントへ「この 3 指標を SLA として保証する」と書面合意。STEP 5 デプロイ前に PageSpeed Insights の Real（Field）データで全 3 指標が緑色か `curl https://pagespeedinsights.../api` で自動取得し、未達なら Ren 経由でリリース停止。納品後の「速度遅い」クレームを契約レベルで予防
+- **クロスブラウザ動作確認の「4 ブラウザ × 3 デバイス」12 マトリクス**：Chrome / Safari / Firefox / Edge × iPhone / Android / Desktop = 12 環境を BrowserStack または Playwright で自動巡回。CTA クリック→フォーム送信→サンクスページ遷移の E2E シナリオが全 12 環境で緑にならない限り Sora へ引き継ぎ不可とするルール化。Safari の `position: sticky` バグ等を本番前に潰す
+- **Lighthouse スコア「90 点以上 + Accessibility 95 点以上」をデプロイ前 SLA に組み込み**：STEP 5 で `lighthouse-ci` を使い Performance/Accessibility/Best Practices/SEO の 4 カテゴリで自動採点。Accessibility 95 点未満は WCAG 2.2 違反として `gh pr create` を物理ブロック。視覚障害ユーザーからのクレーム・訴訟リスクを事前排除
+
 ### 2026-04-28
 - **Vercelデプロイ事前チェックリスト化**：ビルドエラーを本番前に検出するため、デプロイ前に `npm run build && npm run lint` を自動実行する CI パイプラインを組む。差し戻し迴数を削減
 - **複製フロー4ステップ短縮**：HanaのCSS抽出とRenのコード骨格生成を同時並列実行することで、Naoの設計書完成を待つ待機時間を 0 に。全体納期を 20% 短縮

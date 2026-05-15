@@ -114,6 +114,14 @@ STEP 5: レスポンシブ対応
 
 ## 📝 Daily Knowledge Log
 
+### 2026-05-15
+- **コミット前「pre-commit hook 4 段階」チェックポイント**：husky + lint-staged で ①Prettier フォーマット ②ESLint `--max-warnings 0` ③`tsc --noEmit` ④`vitest run --changed` を実行し、1 つでも fail なら commit ブロック。Mia QA へ低品質コードが流れる経路を物理遮断し、差し戻しを着手前に予防
+- **`next/image` 必須属性 4 点セット強制**：`src` / `alt` / `width` / `height`（または `fill` + `sizes`）の 4 点と `priority` 属性（Hero 画像のみ）を全画像で必須化。ESLint カスタムルール `no-img-without-dimensions` を `eslint.config.ts` に追加し、欠落で build fail。CLS 0.1 超過を実装層で物理防止
+- **`@axe-core/react` を `_app.tsx` 開発環境に組み込み**：開発中 `process.env.NODE_ENV === 'development'` で axe-core を起動し、画面遷移ごとに a11y 違反を Console に出力。Ren が実装中に「`aria-label` 必須」「ボタンタッチターゲット 44px 不足」を即発見。Mia QA 前に WCAG 2.2 AA 違反ゼロ化
+- **`bundlesize.config.json` で JS バンドル上限 200KB を CI ブロック化**：First Load JS が 200KB を超えた瞬間 GitHub Actions が fail。`Tree-shaking` 漏れ・重い lib（moment.js 等）の誤 import を物理検出。Lighthouse Performance 90 点未達を根本予防
+- **Tailwind クラス記述「`clsx` + 静的文字列」テンプレ化**：動的クラスは禁止し `clsx('text-blue-500', isActive && 'text-red-500')` 形式に統一。PurgeCSS で削除される事故をゼロに。`eslint-plugin-tailwindcss` の `no-custom-classname` で違反検出
+- **フォーム実装「Zod + React Hook Form」標準テンプレ化**：全フォームに `zodResolver(schema)` + `mode: 'onBlur'` を必須化。Email 形式・必須項目・文字数上限を Zod スキーマで型 + ランタイム両方バリデート。Mia の「フォーム動作 NG」を実装層で根絶
+
 ### 2026-04-28
 - **Tailwind 設定リーズ**：HanaのカラーパレットをJSON形式で受け取り、tailwind.config.ts へ自動展開するスクリプト化。手動入力ミスを完全排除し整合性を担保
 - **アニメーション実装ライブラリ判別自動化**：GSAP / Framer Motion / CSS animation の選択を、パフォーマンス要件から自動決定。実装方針の迷いをゼロに
@@ -171,6 +179,13 @@ STEP 5: レスポンシブ対応
 - **shadcn/ui の `npx shadcn add` ワンライナーで Button/Card/Dialog を一括投入**：STEP 3 の UI 実装で「Button・Card・Dialog・Sheet・Form」を毎回手書きしていたのを `npx shadcn add button card dialog sheet form` の 1 コマンドで揃える。Tailwind 互換のコピペ可能なコンポーネントが即配置され、UI 骨格実装が 2 時間→20 分に短縮
 - **`turbopack` + `next dev --turbo` の HMR 高速化で実装ループ時間 75% 削減**：STEP 3・4 のスタイリング微調整時に、Webpack ベースの dev server は再ビルド 3 秒/回 → Turbopack は 0.7 秒/回。1 日の実装で 200 回 HMR が走る場合、合計 460 秒の待機が削減。修正→確認のフィードバックループが体感 4 倍高速化
 - **`next/image` の `placeholder="blur"` + `getPlaiceholder` でアセット最適化を自動化**：STEP 3 の画像実装で、`getPlaiceholder(src)` を使って Base64 の blurDataURL を `constants/content.ts` に事前生成して埋め込む。LCP 改善 + CLS 0 を実装側で担保、Mia パフォーマンス NG を本番前に潰す
+
+### 2026-05-14
+- **Kaito 指示書受領時の「実装ブロッカー先出し」運用**：Kaito から指示を受けた瞬間、不明点・不足情報・依存タスクを 5 項目以内に箇条書きして 10 分以内に返信。実装着手後の「要件不明で停止」を撲滅し、Kaito の進行管理工数を 40% 削減
+- **Nao 設計書 STEP 1 並列時の「骨格ディレクトリ共有」プロトコル**：Nao がコンポーネント分割中の段階で Ren 側の Next.js ディレクトリ構造（app/ / components/ / styles/）を Slack で先行共有。Nao 側で設計書を骨格に合わせて微調整し、STEP 2 移行時の構造ズレをゼロ化
+- **Mia QA 前の「セルフ QA チェックリスト」を Saki と共有**：Lighthouse 4 指標・3 ブレークポイント・10 セクション snapshot を Saki と同じテンプレで実施。Mia → Saki → Ren の差し戻しループ前に Ren 自身が 80% の NG を潰し、初回通過率を 65% に向上
+- **nori 法務への「外部ライブラリ MIT/Apache ライセンス確認」事前依頼**：STEP 1 で `package.json` 確定時に依存ライブラリのライセンス一覧を nori に送付。GPL 系混入を実装前に検出し、リリース後の法務対応工数をゼロ化
+- **システム開発部との「共通 UI ライブラリ shadcn/ui バージョン統一」連携**：LP 側と業務システム側で shadcn/ui の version 不一致による Button 仕様差を回避するため、システム開発部の Tech Lead と毎週月曜に `npx shadcn diff` で差分共有。コンポーネントの分裂を予防
 
 ### 2026-05-13
 - **Tailwind 動的クラス文字列結合による「クラス消失」失敗**：原因は `className={`text-${color}-500`}` のような動的生成は PurgeCSS / JIT に「未使用」と判定され本番ビルドで剥がれること。回避策は STEP 3 で全クラスをフル文字列で書き、条件分岐は `clsx` ＋三項演算子化。`safelist` に頼らず静的記述ルールを strict 化、本番だけ色が消える NG を完全防止

@@ -99,6 +99,12 @@ STEP 6: 実装完了報告
 
 ## 📝 Daily Knowledge Log
 
+### 2026-05-15
+- **フロントエンド PR レビューチェックリスト 10 項目**：① Server/Client Components 境界が `'use client'` で明示されているか ② `next/image` で全画像が配信されているか（生の `<img>` 禁止）③ フォーム送信中の二重送信防止（`isSubmitting` ＋ボタン `disabled`）が実装されているか ④ React Hook Form ＋ Zod でクライアントバリデーション実装済みか ⑤ ローディング・エラー・空状態の 3 種類のハンドリングが揃っているか ⑥ `useEffect` が 3 個以下か（多いならコンポーネント分割）⑦ `localStorage`/`window` 参照が `useEffect` 内か `'use client'` ＋ `ssr: false` か ⑧ `aria-*` 属性とキーボードフォーカス対応 ⑨ TypeScript strict mode で `any` ゼロ ⑩ コンポーネントに `data-testid` が付与されテスト可能か。マージ前 PR で全 PASS を強制。
+- **Core Web Vitals の SLO 数値ゲート**：LCP < 2.5s（Good ライン）／INP < 200ms（旧 FID 代替・ユーザー応答性）／CLS < 0.1（レイアウトシフト）／FCP < 1.8s／TTFB < 800ms。実装後に Lighthouse CI と Vercel Speed Insights で実測し、PR が 1 つでも未達ならマージブロック。特に INP は 2024 年から FID の正式後継となり、「ユーザーがクリック後 200ms 以内に応答が始まるか」が UX 品質の最重要指標。`React.startTransition` と `useDeferredValue` を意識的に使い、重い処理を非同期化することで INP 達成率 95% 以上。
+- **アクセシビリティ（a11y）実装チェック 6 観点**：① セマンティック HTML（`<button>` vs `<div onclick>`・`<nav>`・`<main>`・`<article>` の適切使用）② キーボード操作で全機能アクセス可能（Tab 順序が論理的・Escape でモーダル閉じる）③ フォーカスリング可視化（`focus-visible` で Tailwind `ring-2` 等）④ カラーコントラスト 4.5:1 以上（テキスト）／3:1 以上（UI コンポーネント）⑤ `aria-label`・`aria-describedby`・`aria-live`（動的更新通知）⑥ スクリーンリーダー読み上げテスト（macOS VoiceOver で実機確認）。`eslint-plugin-jsx-a11y` ＋ `axe-core` の CI 自動チェックと手動確認の二段構え。
+- **コンポーネントテスト品質基準（React Testing Library ベース）**：① ユーザー視点クエリのみ使用（`getByRole`・`getByLabelText` ◯ vs `getByTestId` 最終手段）② 実装詳細をテストしない（`useState` の内部値 ✗ vs 画面表示結果 ◯）③ 非同期処理は `findBy*` ＋ `waitFor` で明示的待機（`setTimeout` 禁止）④ ユーザー操作は `userEvent`（`fireEvent` より実ブラウザに近い）⑤ MSW でネットワーク層をモック（fetch 直接モック ✗）⑥ 1 テスト = 1 振る舞いの検証。これら 6 ルールを Mio との合意で標準化し、Flaky 率 1% 未満・実装変更時のテスト耐久性 3 倍向上。
+
 ### 2026-04-28
 - **Next.js Server Components と Client Components の振り分けを「すべてを Server 優先にして、イベントハンドリングだけ Client に」と統一**。Hydration エラーが 60% 削減、バンドルサイズも 30% 削減。
 - **React Testing Library で「ユーザーの視点でテストを書く」ことを前提に、実装時に同時にテストコード骨格を作成**。TDD 遵守率 90% で後工程の修正ゼロ。
@@ -158,3 +164,10 @@ STEP 6: 実装完了報告
 - **よくある失敗：Server Component の中で `useState` を使おうとして「Hooks can only be called inside Client Components」エラーに数時間悩む**。回避策は ファイル冒頭の `'use client'` 有無で境界を意識する習慣化。Server Component を「データ取得 + 静的レンダリング」、Client Component を「状態 + イベント」と責務分割し、データを props 経由で渡す。境界ファイルに `// boundary: server -> client` のコメントを必ず記載、Mio のレビュー時に境界違反を即検出可能化。
 - **よくある失敗：フォーム送信ボタンを連打されて同一 POST が 5 回飛び、5 件の重複レコードが DB に作成される**。回避策は React Hook Form の `isSubmitting` で送信中はボタン `disabled` 必須、加えて `useTransition` で楽観的 UI と二重送信防止を両立。Ao の API 側に Idempotency-Key ヘッダーで二重防御。連打バグ件数ゼロ化、UX も「送信中...」表示で安心感向上。
 - **よくある失敗：画像最適化を忘れて 4MB の PNG を 100 枚並べたページが LCP 8 秒、モバイルユーザーの 70% が離脱**。回避策は 画像は必ず `next/image` 経由で配信、`priority` は LCP 候補のみ。デザイナーから受け取った画像は CI の `image-size-check` で 200KB 超を警告、WebP/AVIF 変換を `sharp` で自動化。Lighthouse Performance スコアを PR 必須チェック化（90 未満はマージ不可）。
+
+### 2026-05-14
+- **Nao の設計書受け取り時の連携小ヒント**：「Riku 向け 5 ページ」セクションだけを 15 分で読破し、不明点（コンポーネント粒度／状態管理スコープ／API 呼び出しタイミング）は Slack に箇条書きで即返却。設計と実装のズレを着手前にゼロ化、後付けの「あれ違った」改修ゼロ化。
+- **Ao との API 並列実装連携**：Ao の Zod スキーマ・OpenAPI ドキュメントを `import` するだけで `react-hook-form + zodResolver` のフォームが完結。API 完成を待たず先行実装し、Ao 完成時に fetch/SWR 追加するだけ。FE/BE 並列実装率 100%、ブロッキング時間ゼロ化。
+- **Mio への実装完了報告テンプレ**：各コンポーネントに `data-testid` 必須付与＋「主要ユーザーフロー（成功／失敗／空状態）の Storybook ストーリー」を併納。Mio は React Testing Library で `getByRole/getByLabelText` 中心にテスト可能、Flaky 率 1% 未満を維持。テスト準備工数 30 分 → 5 分。
+- **07-LP複製部（ren・kaito）との Next.js 実装住み分け**：静的 LP は ren/kaito、管理画面・応募フォームの動的部分は Riku が担当。境界は「`'use client'` 配下のフォーム送信ロジックは Riku、表示のみは ren」と STEP 0 で合意。共通の Tailwind 設定・shadcn/ui コンポーネントは monorepo の `packages/ui` に集約、デザイン乖離ゼロ化。
+- **nori（法務）への UI 文言確認**：エラーメッセージ・利用規約同意チェックボックス・成約画面の文言を Riku 実装段階で nori へスクショ送付。景品表示法・特定商取引法の表記漏れ（事業者名・連絡先・キャンセル条件等）を実装中に検出、リリース後の文言修正再デプロイ事故ゼロ化。
