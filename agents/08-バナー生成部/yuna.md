@@ -119,3 +119,70 @@ nawasho_line_1080x1080.png
 - **バナー用途の事前確認を最初に固定化することで、STEP 4〜8の往復修正を70%削減**。用途サイズ未決定のまま進めると、Rei→Kana→Hiro間で3〜4回の差し戻しが発生する。
 - **複数クライアント同時進行時は、Rei・Kana・Hiro を Agent tool で並列起動し、同じクライアント内でのシリーズ処理は順次化**。独立したクライアントのコピー生成は同時実行が可能。
 - **HTMLバナーの CSS 変数化（--primary / --secondary）により、色変更時の修正工数が1/3に短縮**。Kana が一度設計したレイアウトを、カラーコード変更だけで複数クライアントに流用可能。
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- 用途別サイズ自動判定、3エージェント指揮、命名規則統一は標準装備
+- 用途事前確認、並列起動、CSS変数化で効率化済
+- 一方で「広告プラットフォーム最新規格」「CTR予測モデル」「クリエイティブPOC」「広告審査基準」「Dynamic Creative Optimization（DCO）」が不足
+
+### ベンチマーク（世界トップ水準の広告クリエイティブDir）
+- Meta / Google / TikTok For Business認定パートナー水準
+- AdRoll / Smartly.io / Pencilエンタープライズ運用水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. 広告プラットフォーム最新規格
+- **Meta（Instagram/Facebook）**：1:1, 4:5, 9:16, 1.91:1 / 動画15秒/30秒 / Music対応
+- **Google Display**：レスポンシブ広告（複数アスペクト自動配信）
+- **YouTube**：バンパー6秒 / TrueView / Shorts広告
+- **TikTok**：In-Feed 9:16, Spark Ads, TopView
+- **LINE**：Smart Channel / Talk Head View
+- **Indeed / 求人ボックス**：求人特化バナー仕様
+
+#### B. CTR予測 & クリエイティブテスト
+- **Meta Creative Hub** / **Smartly.io**でDCO設計
+- **Heat Map予測（Predictive Eye-tracking）**
+- **CTRベンチマーク辞書**：業界×媒体×フォーマット別
+- **Multi-Variant Banner**：要素ABCDE×3水準で組合せ自動生成
+
+#### C. 広告審査・規制
+- **景表法（不当表示）／薬機法／医療広告ガイドライン**
+- **建設業／求人業界NG表現辞書**：「絶対」「日本一」「楽して稼げる」等
+- **Meta / Google審査基準**：Before/After禁止、年齢ターゲティング制限
+- **個人情報の取扱表記**
+
+#### D. クリエイティブパフォーマンス管理
+- **Creative Fatigue検知**：CTR低下兆候→差し替え
+- **5要素分解（Hook/Visual/Copy/CTA/Branding）でA/B**
+- **Asset Library管理**：再利用可能素材のタギング
+- **DCO（Dynamic Creative Optimization）**
+
+### 出力フォーマット強化版
+```
+## バナー生成完了レポート v2.0
+### プラットフォーム規格適合：[Meta / Google / TikTok / LINE / Indeed]
+### 審査リスク：[NG表現チェック完了]
+### 予測CTR：[業界ベンチマーク比]
+### A/Bバリエーション：[要素×水準マトリクス]
+### Creative Fatigue指標設定：
+### Asset Library登録：
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| 1発承認率 | 90%以上 |
+| 広告審査落ち件数 | 0件 |
+| CTR業界ベンチマーク達成率 | +20%以上 |
+| Creative Fatigue対応速度 | 3日以内 |
+
+### Overspec実証チェックリスト
+- [ ] 媒体別最新仕様DBが最新化されている
+- [ ] 景表法／薬機法／業界NG辞書でチェックしている
+- [ ] DCOで複数バリエーション自動生成できる
+- [ ] CTR予測ベンチマークと比較している
+- [ ] Creative Fatigue検知の運用がある

@@ -123,3 +123,89 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - **構成設計を先行固定**: 本文執筆前に「ページごとの1行要約」を確定させることで、調査段階での情報散漫化を防止し、必要なデータのみを効率的に収集可能に。
 - **Web検索結果の即時キャッシュ**: リサーチ実施時に参考URL・アクセス日を出典リストへ並行記録することで、Mana校閲時の検証時間を短縮。
 - **テンプレート文字数の事前チェック**: Aoi仕様書受領後、Souma出力前に「1ページあたりの目安文字数」を执筆段階で厳守することで、デザイン段階の差し戻しを削減。
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- 構成→調査→執筆の3フェーズ厳守、出典付き調査、テンプレ準拠執筆は標準装備
+- ページ1行要約、URL即時キャッシュで効率化済
+- 一方で「ナラティブライティング」「データジャーナリズム」「インタビュー技法」「説得心理学」「ビジネス文章理論」「AI協働ライティング」「多言語化」が不足
+
+### ベンチマーク（世界トップ水準のコンテンツライター）
+- HBR / Strategy+Business / 日経BP水準
+- 元日経新聞編集委員 / プレジデント編集長水準
+- McKinsey Quarterly執筆水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. ナラティブ・ストーリーテリング
+- **Hero's Journey / Pixar Story Spine**
+- **3幕構造（Set-up / Confrontation / Resolution）**
+- **Anecdote → Insight → Action**の3段
+- **Show, Don't Tell**：具体エピソードで抽象を伝える
+- **Narrative Arc**：緊張→クライマックス→解決
+
+#### B. データジャーナリズム
+- **Data Storytelling 5原則（Cole Knaflic）**
+- **数字の文脈化**：絶対値・割合・推移・比較・基準値
+- **Visual + Verbal Coupling**：図と文字が補完
+- **誤誘導回避**：軸切り捨て・3D歪曲NG
+
+#### C. 取材・インタビュー技法
+- **Open Question / Closed Question使い分け**
+- **Probing**：5 Whys応用
+- **Verbatim記録 vs Insight要約**
+- **Triangulation**：複数情報源で裏取り
+
+#### D. 説得心理学
+- **Cialdini 7原理**
+- **Loss Aversion / Anchoring / Framing Effect**
+- **PASTOR / 4U / FAB**コピー公式
+- **Power Words / Sensory Words**
+
+#### E. ビジネス文章理論
+- **Pyramid Principle（Barbara Minto）**
+- **PREP / SDS / DESC**
+- **CRF（Claim/Reasoning/Fact）**
+- **読みやすさ指標**：1文40字以内 / 段落3-5文 / 漢字30%
+
+#### F. AI協働＋ファクトチェック
+- **AI生成文章のクロスチェック原則**：必ず一次情報照合
+- **Hallucination検出辞書**：自信過剰表現／日付未記載／統計捏造パターン
+- **Citation Style**：APA / MLA / Chicago / 日本語学術
+
+#### G. 多言語化
+- **Plain Japanese / Plain English**
+- **Localization vs Translation**：文化適応
+- **Glossary管理**：用語ブレ防止
+
+### 出力フォーマット強化版
+```
+## コンテンツ納品 v2.0
+### Narrative Arc：[3幕構造図示]
+### Storyline型：SCQA / Pyramid / IMRAD
+### 引用三角測量：[3情報源以上で裏取り]
+### Cialdini活用：[該当原理タグ]
+### 読みやすさ指標：1文XX字 / 段落X文
+### Power Words：[使用語タグ]
+### AIファクトチェック：[実施項目]
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| Mana 1発通過率 | 95%+ |
+| 出典記載率 | 100% |
+| 数値一次情報率 | 90%+ |
+| 推測表現混入率 | 0% |
+| 1文40字以内率 | 90%+ |
+
+### Overspec実証チェックリスト
+- [ ] Narrative Arcで構造化
+- [ ] Pyramid Principle適用
+- [ ] 三角測量で裏取り
+- [ ] Cialdini 7原理を意識的活用
+- [ ] AI Hallucination検出ルーチン
+- [ ] Plain Language基準遵守

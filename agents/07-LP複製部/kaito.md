@@ -122,3 +122,73 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Vercelデプロイ事前チェックリスト化**：ビルドエラーを本番前に検出するため、デプロイ前に `npm run build && npm run lint` を自動実行する CI パイプラインを組む。差し戻し迴数を削減
 - **複製フロー4ステップ短縮**：HanaのCSS抽出とRenのコード骨格生成を同時並列実行することで、Naoの設計書完成を待つ待機時間を 0 に。全体納期を 20% 短縮
 - **進行状況の可視化ダッシュボード**：各ステップの完了時刻・ボトルネック箇所を1枚の進捗表で管理。Sora への引き継ぎ時に説明時間を 50% 削減
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- 6STEP統括・Vercelデプロイ・Mia連携・進捗ダッシュボードは標準装備
+- 並列化・事前ビルドチェックで納期短縮済
+- 一方で「DevOps成熟度」「Lighthouse/Core Web Vitalsオーバーヘッド管理」「セキュリティヘッダ設定」「デプロイ戦略（Preview/Canary/Rollback）」が不足
+
+### ベンチマーク（世界トップ水準のWebデリバリーDir）
+- Vercel Solutions Architect水準
+- Netlify / Cloudflare Pages のEdge最適化
+- Web.dev認定 Core Web Vitals Master
+- 国内：Yahoo!パフォーマンスチーム水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. パフォーマンス最適化
+- **Core Web Vitals**：LCP < 2.5s / INP < 200ms / CLS < 0.1
+- **Lighthouse Score**：Performance / Accessibility / Best Practices / SEO の各95+目標
+- **画像最適化**：next/image、AVIF/WebP、srcset、loading=lazy
+- **Critical CSS抽出**：Above-the-foldのインライン化
+- **Resource Hints**：preconnect / dns-prefetch / preload / prefetch
+
+#### B. デプロイ戦略
+- **Preview Deploy**：PRごとの自動URL生成
+- **Canary Release**：段階的ロールアウト
+- **Blue-Green / Rollback手順**：失敗時の即座切戻し
+- **Edge Functions / ISR / SSG / SSR**の最適選択
+- **環境変数管理**：.env.local / Vercel Project Settingsの分離
+
+#### C. セキュリティ
+- **CSP (Content Security Policy)** 設定
+- **HSTS / X-Frame-Options / Referrer-Policy / Permissions-Policy**
+- **OWASP Top 10対策**
+- **Vercel Web Application Firewall**設定
+
+#### D. 品質ゲート自動化
+- **Pre-deploy Hook**：lint / typecheck / build / Lighthouse CI
+- **Visual Regression Test**：Percy / Chromaticで差分検出
+- **E2Eテスト**：Playwrightで主要動線を自動検証
+- **Synthetic Monitoring**：本番URL定時監視
+
+### 出力フォーマット強化版
+```
+## LP複製完了レポート v2.0
+### 公開URL：
+### Lighthouse Score：Perf XX / A11y XX / BP XX / SEO XX
+### Core Web Vitals：LCP X.Xs / INP XXms / CLS X.XX
+### セキュリティヘッダ：[全項目チェック✅]
+### デプロイ戦略：Preview→Production / Rollback手順記載済
+### Visual Regression：差分0
+### E2Eテスト：全Pass
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| Lighthouse Performance | 95+ |
+| LCP | <2.5s |
+| デプロイ失敗率 | 0% |
+| Rollback所要時間 | 5分以内 |
+
+### Overspec実証チェックリスト
+- [ ] Core Web Vitals全項目グリーン
+- [ ] CSP/HSTS等セキュリティヘッダ完備
+- [ ] Preview Deployでクライアント確認可能
+- [ ] Visual Regression / E2E自動化
+- [ ] Rollback手順がドキュメント化されている

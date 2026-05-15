@@ -133,3 +133,90 @@ STEP 6: 忠実度スコア算出・判定
 - **スクリーンショット差分自動検出ツール**：複製 LP と原版 LP をキャプチャして pixel-diff ライブラリで自動比較。目視チェックの不確実性を排除し 85 点基準の厳格性を維持
 - **カラー値一括検証スクリプト**：元サイトと複製コードの全要素の computed color を JSON で出力・比較。HEX 値完全一致チェックを 3 分で完了
 - **チェックリスト段階別スコア管理**：各カテゴリ 20 点の 5 段階評価を項目細分化（合計 50 項目）。指摘内容を数値化してRenへの修正優先度を明確化
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- 5カテゴリ100点制スコアリング、Pixel-diff自動検出、Computed Color一括検証は標準装備
+- 50項目細分化で修正優先度明確化済
+- 一方で「ΔE色差計算（人間知覚基準）」「Visual Regression CI/CD」「クロスブラウザ／クロスデバイス検証」「a11y自動検査」「パフォーマンス忠実度」が不足
+
+### ベンチマーク（世界トップ水準のVisual QA）
+- BrowserStack / Sauce Labs / LambdaTestエンタープライズ水準
+- Applitools Visual AI水準
+- Percy / Chromatic / Playwright Visual水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. 知覚色差計算
+- **CIE ΔE 2000**：人間の目で識別可能な色差（ΔE < 2 = 識別困難）
+- **WCAG Contrast Ratio**：4.5:1 (AA) / 7:1 (AAA)
+- **HSL/LCH変換**で知覚均一な比較
+
+#### B. Visual Regression自動化
+- **Playwright + visual snapshots**
+- **Percy / Chromatic**でCI統合
+- **Threshold調整**：誤検知防止
+- **Hidden領域マスク**：動的コンテンツ除外
+
+#### C. クロスブラウザ／デバイス
+- **BrowserStack行列**：Chrome/Safari/Firefox/Edge × Win/Mac/iOS/Android
+- **Real Device Cloud**で実機検証
+- **iOS Safari固有バグ**：100vh問題、position sticky問題、blur問題
+- **Android WebView差異**
+
+#### D. a11y自動検査
+- **axe-core / Lighthouse a11y**
+- **Pa11y / WAVE**
+- **キーボード操作完全検証**：Tab順序・Focus Visible・Escape動作
+- **Screen Reader実機検証**：NVDA / VoiceOver / TalkBack
+
+#### E. パフォーマンス忠実度
+- **Core Web Vitals比較**：オリジナル vs 複製
+- **Bundle Size差分**
+- **TTI（Time to Interactive）比較**
+
+### 出力フォーマット強化版
+```
+## 忠実度チェックレポート v2.1
+### スコア（150点満点に拡張）
+- レイアウト：/20
+- カラー（ΔE平均）：/20
+- フォント：/20
+- アニメーション：/20
+- レスポンシブ：/20
+- a11y（WCAG AA）：/15
+- パフォーマンス（CWV）：/15
+- クロスブラウザ：/20
+
+### 知覚色差レポート
+| 要素 | Original | 複製 | ΔE2000 | 判定 |
+
+### Visual Regression差分
+[Playwright snapshotリンク]
+
+### a11y自動検査結果
+[axe-coreレポート]
+
+### CWV比較
+[LCP/INP/CLS比較表]
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| 合格基準スコア | 130/150以上 |
+| ΔE平均 | <2.0 |
+| a11y重大違反 | 0件 |
+| クロスブラウザ動作 | 全Pass |
+| 検出漏れ（後発覚） | 0件 |
+
+### Overspec実証チェックリスト
+- [ ] ΔE 2000で色差を計測している
+- [ ] Playwright Visual Regressionで自動化している
+- [ ] axe-core a11y検査を必ず実施している
+- [ ] 4ブラウザ × モバイル/デスクトップで検証している
+- [ ] CWV比較で性能忠実度も評価している
+- [ ] 動的コンテンツのマスク設定が適切

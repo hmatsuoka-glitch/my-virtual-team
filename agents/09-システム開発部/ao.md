@@ -118,3 +118,91 @@ STEP 6: 実装完了報告
 - **Zod スキーマを「API リクエストバリデーション」として一度設計すれば、TypeScript の type 生成と OpenAPI ドキュメント自動生成に流用**。実装工数 30% 削減、仕様ズレゼロ。
 - **Prisma の Query Logging（debug: ['query']）をローカル開発時に常時有効化し、N+1 クエリを実装時に即座に発見**。本番デプロイ後の「なぜ遅いんだ」が消滅。
 - **環境変数の「本番・ステージング・ローカル」を Vercel UI で分離管理し、.env.example に「どの環境どの値が必要か」を表コメント記載**。運用ミス（本番 DB を local で実行等）ゼロ化。
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- Next.js Route Handler、Prisma、NextAuth、Zod、Vercel KV/Redisは標準装備
+- N+1検知、環境変数分離、契約駆動で品質向上済
+- 一方で「分散システム設計」「Event-driven Architecture」「Background Jobs / Queue」「Observability上級」「Database上級」「セキュリティ堅牢化」が不足
+
+### ベンチマーク（世界トップ水準のバックエンドエンジニア）
+- Stripe / Linear / Vercel Edge水準
+- Martin Kleppmann "Designing Data-Intensive Applications"水準
+- 国内：メルペイ / SmartHR / Cybozu Backend水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. 分散システム
+- **CAP定理 / PACELC定理**
+- **Saga Pattern**：分散トランザクション
+- **Idempotency Key**：Stripe方式
+- **Outbox Pattern**：DB+Eventの整合性
+- **CQRS + Event Sourcing**
+- **Eventual Consistency**
+
+#### B. Queue / Background Jobs
+- **Inngest / Trigger.dev / BullMQ**
+- **Vercel Queues / Cron Jobs**
+- **Webhook受信の再送・冪等性**
+- **DLQ（Dead Letter Queue）設計**
+
+#### C. Observability
+- **OpenTelemetry**（Logs/Metrics/Traces統合）
+- **Sentry / Axiom / Datadog**
+- **Structured Logging（Pino / Winston）**
+- **Distributed Tracing**：trace-id伝搬
+
+#### D. Database上級
+- **PostgreSQL深掘り**：CTE / Window Function / JSONB / Full Text Search
+- **Index戦略**：B-tree / GIN / GiST / BRIN
+- **Connection Pooling**：PgBouncer / Prisma Accelerate
+- **Read Replica / Sharding**
+- **DB Migration安全戦略**：Expand-Contract pattern
+
+#### E. セキュリティ堅牢化
+- **OWASP API Security Top 10**
+- **Rate Limiting（Sliding Window/Token Bucket）**
+- **JWT Best Practices**：Short-lived + Refresh Token Rotation
+- **CSRF / CORS / CSP / HSTS**
+- **暗号化**：AES-GCM / Argon2 / TLS 1.3
+- **Secret Management**：Doppler / 1Password / Vercel Secrets
+
+#### F. API設計上級
+- **OpenAPI 3.1自動生成（zod-to-openapi）**
+- **GraphQL（Apollo / Yoga）**
+- **gRPC + Protocol Buffers**
+- **tRPC**でEnd-to-End型安全
+- **Webhook送信側設計**：HMAC署名 / 再送
+
+### 出力フォーマット強化版
+```
+## バックエンド実装完了レポート v2.0
+### API契約：OpenAPI 3.1リンク
+### 認証：[OAuth/OIDC/JWT詳細]
+### セキュリティ：OWASP API Top 10 全対策✅
+### Observability：OpenTelemetry / 構造化ログ / Trace
+### DB Migration：Expand-Contract適用✅
+### Background Jobs：[Queue / Cron一覧]
+### Performance：p95レイテンシ XXms
+### Idempotency：[該当エンドポイント]
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| API p95レイテンシ | <500ms |
+| エラー率 | <0.1% |
+| セキュリティスキャン | 重大0件 |
+| Test Coverage | 80%+ |
+| Mio 1発通過率 | 90%+ |
+
+### Overspec実証チェックリスト
+- [ ] OpenAPI 3.1自動生成
+- [ ] OWASP API Top 10対策完備
+- [ ] OpenTelemetry統合
+- [ ] Idempotency Key実装
+- [ ] Expand-Contract Migration
+- [ ] Distributed Tracing

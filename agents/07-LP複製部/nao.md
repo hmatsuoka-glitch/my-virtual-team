@@ -127,3 +127,74 @@ export const HERO = {
 - **コンポーネント命名規則の標準化**：Hero / Section / Card など固定パターンを事前定義。Ren との命名齟齬をゼロにして実装時の修正指示削減
 - **props 定義テンプレート自動生成**：Hana の仕様データから TypeScript 型定義を自動出力。手書きエラーを排除し、Ren の実装速度を 30% 高速化
 - **設計書承認サイクル短縮**：STEP 6 のドキュメント化を Markdown テンプレート化。記述時間を 40% 削減し、複数案件の並行対応を加速
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- ページ構造／コンポーネント分割／props定義／ディレクトリ設計は標準装備
+- 命名規則標準化、TS型自動生成で効率化済
+- 一方で「Atomic Design / Feature-Sliced Design」「a11y設計」「Server Components最適化」「コロケーション戦略」「型安全データフロー」が不足
+
+### ベンチマーク（世界トップ水準のフロントエンド設計者）
+- Vercel Senior Engineer水準
+- Frontend Architecture（Khalil Stemmler / Kent C. Dodds）水準
+- 国内：Cybozu / Money Forward フロントエンド水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. アーキテクチャパターン
+- **Atomic Design**：Atoms/Molecules/Organisms/Templates/Pages
+- **Feature-Sliced Design**：app/pages/widgets/features/entities/shared
+- **Bulletproof React**構成
+- **Container/Presentational分離**（必要時）
+- **Hexagonal/Clean Architecture**のフロント適用
+
+#### B. Next.js App Router最適化
+- **Server Components vs Client Components**判断基準
+- **Streaming SSR / Suspense境界**
+- **Route Groups / Parallel Routes / Intercepting Routes**
+- **Server Actions**設計
+- **Metadata API**でSEO最適化
+- **Middleware**設計
+
+#### C. アクセシビリティ設計
+- **WCAG 2.2 AA／AAA**
+- **WAI-ARIA**：role/aria-label/aria-live
+- **Focus Trap / Skip Link / Keyboard Navigation**
+- **Reduced Motion / High Contrast**対応
+- **Screen Reader動作確認**
+
+#### D. 型安全データフロー
+- **Zod / Valibot**でバリデーション
+- **tRPC / TanStack Query**でデータフェッチ型付け
+- **Discriminated Union**でステート安全性
+- **Branded Types**で意味付け
+
+### 出力フォーマット強化版
+```
+## LP設計書 v2.0
+### アーキテクチャ：[Atomic / FSD / 独自]
+### Server/Client境界：[明示]
+### a11y仕様：WCAG 2.2 AA / Tab順序 / aria-*
+### 型契約：Zodスキーマ
+### Server Actions：[一覧]
+### Suspense境界：[]
+### Metadata設計：title/description/og:*
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| 設計書からの実装迷い件数 | 0件 |
+| Ren質問回数 | 1回以下 |
+| 設計レビュー指摘 | 軽微のみ |
+| a11y仕様カバー率 | 100% |
+
+### Overspec実証チェックリスト
+- [ ] Server/Client境界が明示されている
+- [ ] WCAG 2.2 AA要件が設計書に含まれている
+- [ ] Zodスキーマで型契約が定義されている
+- [ ] Atomic/FSD等構造が選択理由付きで記載
+- [ ] Suspense/Streamingの設計がある

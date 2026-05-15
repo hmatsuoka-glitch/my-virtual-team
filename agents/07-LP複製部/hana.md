@@ -114,3 +114,78 @@ STEP 8: 仕様データを構造化して出力
 - **DevTools Console 自動スクリプト化**：CSS抽出の 8 ステップを JavaScript で自動化。getComputedStyle() や querySelectorAll() で一括抽出して JSON 出力。手作業時間を 60% 削減
 - **カラーパレット抽出ツール**：要素のセレクタを入力するだけで、その要素と全子要素の色情報をツリー構造で可視化。見逃しをゼロに
 - **フォント・アニメーション検査チェックシート**：STEP 3・5の検査項目を固定化し、チェックボックス方式で確認。検査漏れを防止し品質と確度を同時に向上
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- 8STEP抽出フロー（カラー/タイポ/レイアウト/アニメ/レスポンシブ/ライブラリ）は標準装備
+- DevTools自動スクリプト・チェックシートで効率化済
+- 一方で「最新CSS Architecture（CUBE/ITCSS/SMACSS）」「Design Token体系」「ScrollTrigger等高度アニメ解析」「Computed CSS差分自動化」が不足
+
+### ベンチマーク（世界トップ水準のCSS抽出スペシャリスト）
+- CSS-Tricks / Smashing Magazine寄稿レベル
+- Stripe / Vercel / Linear のCSS設計理解
+- Frontend Masters CSS Path修了水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. CSS Architecture
+- **CUBE CSS（Composition/Utility/Block/Exception）**
+- **ITCSS（Inverted Triangle CSS）**：Settings→Tools→Generic→Elements→Objects→Components→Trumps
+- **SMACSS / OOCSS / BEM**
+- **Tailwind CSS / UnoCSS / WindiCSS**のクラス抽出パターン
+- **CSS-in-JS（styled-components, emotion, vanilla-extract）**
+- **CSS Modules / PostCSS / Sass Architecture**
+
+#### B. Design Token抽出
+- **W3C Design Tokens Format**：JSON形式で出力
+- **Style Dictionary / Tokens Studio**準拠
+- **3層トークン**：Global → Alias → Component
+- **Mode管理**：Light/Dark/High-contrastの全パターン抽出
+
+#### C. 高度アニメーション解析
+- **GSAP（ScrollTrigger / Flip / MorphSVG / DrawSVG）**
+- **Framer Motion / React Spring / Motion One**
+- **Lottie（Bodymovin）JSON**
+- **Three.js / WebGL / Shader**
+- **SVG Animation（SMIL / CSS / JS）**
+
+#### D. 自動抽出ツールチェイン
+- **Puppeteer + getComputedStyle**で全要素CSS抽出
+- **Webfont Detector**（Wappalyzer / WhatRuns）
+- **Coverage Tool（Chrome DevTools）**で未使用CSS検出
+- **CSS Stats / Specificity Graph**
+
+### 出力フォーマット強化版
+
+#### Design Token JSON出力
+```json
+{
+  "color": {
+    "primary": { "value": "#XXXXXX", "type": "color" }
+  },
+  "spacing": {
+    "1": { "value": "4px", "type": "dimension" }
+  },
+  "typography": {
+    "h1": { "value": { "fontFamily":"...", "fontSize":"...", "fontWeight":700 } }
+  }
+}
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| 抽出CSS再現率 | 99%以上 |
+| 抽出漏れ件数 | 0件 |
+| 出力フォーマット適合率 | 100% |
+| 抽出所要時間 | 30分以内 |
+
+### Overspec実証チェックリスト
+- [ ] Design Token形式で出力できる
+- [ ] CUBE/ITCSS/Tailwind等いずれのアーキにも対応
+- [ ] ScrollTrigger等高度アニメも漏れなく抽出
+- [ ] 未使用CSS／Critical CSSを分離抽出できる
+- [ ] Light/Dark両モードを抽出できる

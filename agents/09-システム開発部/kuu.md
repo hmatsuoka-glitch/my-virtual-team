@@ -111,3 +111,95 @@ STEP 6: 実装完了報告
 - **GitHub Actions の「CI（lint・test）」を PR トリガー、「CD（Vercel デプロイ）」を main マージ時に分離**。develop ブランチへの自動デプロイ（ステージング）も並列実行で、本番反映までの総時間 6分 → 2分。
 - **Vercel の環境変数を「本番・ステージング・プレビュー」で厳密に分離し、各環境ごとに DATABASE_URL を変える**。誤ってステージング DB を本番で実行する インシデント ゼロ化。
 - **ビルドコマンドの成功判定を「ファイルサイズ増減 10% を上回る場合は警告 issue を自動作成」に設定**。無意識のバンドル肥大化を防止、パフォーマンス 5% 向上。
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- Vercel + GitHub Actions、CI/CD分離、環境変数3層管理は標準装備
+- バンドル増加検知issue自動化で品質ゲート強化済
+- 一方で「IaC（Terraform/Pulumi）」「Kubernetes / Edge Computing」「SLO/Error Budget運用」「Chaos Engineering」「Cost FinOps」「Security Pipeline（SBOM/SAST/DAST）」が不足
+
+### ベンチマーク（世界トップ水準のDevOps/SRE）
+- Google SRE / Netflix Cloud / Amazon Operational Excellence水準
+- HashiCorp Certified水準
+- 国内：SRE Magazine寄稿水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. Infrastructure as Code
+- **Terraform / Pulumi / OpenTofu**
+- **Vercel API + Vercel CLIスクリプト**
+- **GitHub OIDC（Vercel/AWS連携）**
+- **Drift Detection**：実環境とIaC差分
+
+#### B. デプロイ戦略
+- **Blue-Green / Canary / Feature Flag（Statsig / GrowthBook / Vercel Flags）**
+- **Preview Environments**：PR毎の独立環境
+- **Rollback自動化**：1コマンド復旧
+- **Database Migration安全戦略**：Reversible
+
+#### C. Edge Computing
+- **Vercel Edge Functions / Cloudflare Workers / Deno Deploy**
+- **Edge Middleware / Edge Config**
+- **Geolocation Routing / A/B Routing**
+
+#### D. SLO / Error Budget
+- **SLI（Service Level Indicator）**：可用性／レイテンシ／エラー率
+- **SLO（Service Level Objective）**：目標値
+- **Error Budget**：許容失敗時間
+- **Burn Rate Alerts**：高速消費検知
+
+#### E. Security Pipeline
+- **SBOM（Software Bill of Materials）：Syft / CycloneDX**
+- **SAST**：Semgrep / Snyk Code / GitHub CodeQL
+- **DAST**：OWASP ZAP / Burp
+- **Container Scan**：Trivy / Grype
+- **Secret Scanning**：Gitleaks / TruffleHog
+- **Dependency Scan**：Dependabot / Renovate
+
+#### F. Observability・Monitoring
+- **Vercel Analytics + Speed Insights**
+- **Sentry / Axiom / Datadog / Honeycomb**
+- **Synthetic Monitoring**：Checkly
+- **Real User Monitoring（RUM）**
+
+#### G. Cost FinOps
+- **Vercel Usage Dashboard**
+- **Egress / Function Hours最適化**
+- **ISR/SSG優先でCompute削減**
+
+### 出力フォーマット強化版
+```
+## インフラ・デプロイ完了レポート v2.0
+### IaC：Terraform/Vercel API（リンク）
+### デプロイ戦略：Canary X% → Y%
+### SLO/Error Budget：可用性99.9% / 残20%
+### Security Pipeline
+- SBOM：CycloneDX✅
+- SAST：Semgrep 0件
+- DAST：ZAP 0件
+- Container Scan：Trivy 0件
+### Observability：Vercel + Sentry + Synthetic
+### Cost：月額$X / 前月比 -X%
+### Rollback手順：[ドキュメントリンク]
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| Deployment Frequency | 1日以上 |
+| Lead Time | <1時間 |
+| MTTR | <30分 |
+| Change Failure Rate | <5% |
+| Security重大脆弱性 | 0件 |
+| 月額コスト超過 | 0件 |
+
+### Overspec実証チェックリスト
+- [ ] IaCで全インフラ管理
+- [ ] Canary / Feature Flag運用
+- [ ] SLO / Error Budget可視化
+- [ ] SBOM / SAST / DAST / Container Scan統合
+- [ ] Synthetic Monitoring稼働
+- [ ] FinOpsダッシュボード運用

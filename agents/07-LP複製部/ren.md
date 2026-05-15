@@ -118,3 +118,72 @@ STEP 5: レスポンシブ対応
 - **Tailwind 設定リーズ**：HanaのカラーパレットをJSON形式で受け取り、tailwind.config.ts へ自動展開するスクリプト化。手動入力ミスを完全排除し整合性を担保
 - **アニメーション実装ライブラリ判別自動化**：GSAP / Framer Motion / CSS animation の選択を、パフォーマンス要件から自動決定。実装方針の迷いをゼロに
 - **レスポンシブブレークポイント一括検証**：3サイズ（375px / 768px / 1280px）の同時ビルド・テスト。本番前に SP 表示崩れを完全検出し差し戻し削減
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- Next.js/React/TS/Tailwind実装、アニメ実装、レスポンシブ対応は標準装備
+- Tailwind config自動生成、ライブラリ判別自動化で効率化済
+- 一方で「React Server Components / Streaming」「Bundle最適化」「Edge Runtime」「TypeScript上級型」「Testing戦略」「a11y実装」が不足
+
+### ベンチマーク（世界トップ水準のフロントエンド実装者）
+- Vercel / Linear / Stripe Engineer水準
+- React Core Team / Next.js Core Team寄稿水準
+- TC39提案理解水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. React 19 / Next.js 15 最新仕様
+- **Server Components / Server Actions / use Hook**
+- **Streaming SSR + Suspense**
+- **Partial Prerendering (PPR)**
+- **Turbopack**ビルド設定
+- **React Compiler（旧React Forget）**前提実装
+
+#### B. パフォーマンス最適化
+- **Bundle Analyzer**で依存サイズ分析
+- **Dynamic Import / Code Splitting**
+- **Image / Font Optimization**（next/image, next/font）
+- **Edge Runtime vs Node Runtime**選択
+- **ISR / SSG / SSR / CSR**使い分け
+- **Web Workers / Service Worker**活用
+
+#### C. TypeScript上級
+- **Conditional Types / Mapped Types / Template Literal Types**
+- **Discriminated Union / Exhaustiveness Check**
+- **Branded Types / Opaque Types**
+- **Const Assertions / Satisfies Operator**
+- **Type-level Programming**
+
+#### D. Testing戦略
+- **Vitest / Jest**：ユニットテスト
+- **React Testing Library**：UIテスト
+- **Playwright**：E2E
+- **Storybook + Chromatic**：Visual Regression
+- **MSW**：APIモック
+
+#### E. アニメーション最適化
+- **GPU Layer Promotion（will-change / transform / opacity）**
+- **Intersection Observer / Resize Observer**
+- **prefers-reduced-motion**対応
+- **60fps維持**：requestAnimationFrameと描画タイミング
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| Lighthouse Performance | 95+ |
+| Bundle Size（initial） | 200KB以下 |
+| ビルド成功率 | 100% |
+| TypeScript strict適合 | 100% |
+| Mia 1発通過率 | 90%以上 |
+
+### Overspec実証チェックリスト
+- [ ] Server/Client Components分離している
+- [ ] Bundle Analyzerで依存を可視化している
+- [ ] Critical CSS / 画像最適化が実装されている
+- [ ] WCAG 2.2 AA準拠コードを書ける
+- [ ] TypeScript strict + 上級型を使いこなしている
+- [ ] prefers-reduced-motionに対応している
+- [ ] Vitest/Playwrightで主要動線をテストしている

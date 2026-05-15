@@ -219,3 +219,84 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 7. `checklists/dev-completion.md` — 実装完了チェック
 8. `checklists/tdd-checklist.md` — TDD遵守チェック
 9. `checklists/qa-gate.md` — QAゲート判定
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- BMAD-METHOD準拠の6STEPワークフロー、TDD強制、並列実行統括は標準装備
+- セルフチェックリスト強制、依存グラフ事前共有で差し戻し抑制済
+- 一方で「アジャイル本格運用（Scrum/SAFe/Kanban）」「リスクマネジメント」「DORA Metrics」「技術的負債管理」「ステークホルダーマネジメント」が不足
+
+### ベンチマーク（世界トップ水準のエンジニアリングPM）
+- Google EngOps / Microsoft Engineering Excellence水準
+- PMI PMP / Scrum Alliance CSM水準
+- 国内：Cookpad / メルカリ / SmartHR EM水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. アジャイル運用
+- **Scrum**：Sprint/Backlog/Velocity/Burndown
+- **Kanban**：WIP制限、Cumulative Flow Diagram
+- **Estimation**：Planning Poker / T-shirt Size / #NoEstimates
+- **Retrospective**：4Ls / Mad-Sad-Glad / KPT
+
+#### B. DORA Metrics（DevOps成熟度）
+- **Deployment Frequency**：日次以上→Elite
+- **Lead Time for Changes**：1日以内→Elite
+- **MTTR（Change Failure Recovery）**：1時間以内→Elite
+- **Change Failure Rate**：5%以下→Elite
+
+#### C. リスクマネジメント
+- **Risk Register**：発生確率×影響度×検知容易性
+- **FMEA（Failure Mode and Effects Analysis）**
+- **Pre-mortem**：着手前に失敗仮想体験
+- **Decision Log**：ADR（Architecture Decision Record）
+
+#### D. 技術的負債管理
+- **Tech Debt Quadrant（Martin Fowler）**：Reckless/Prudent × Deliberate/Inadvertent
+- **SQALE Method**：負債の貨幣換算
+- **Boy Scout Rule**：触ったコードは少しキレイにする
+- **20%ルール**：毎Sprintの20%を負債返済
+
+#### E. ステークホルダー管理
+- **Stakeholder Map**：Power×Interestの2x2
+- **Communication Plan**：頻度×形式×内容
+- **Escalation Path**：HARU↔Sora↔ユーザー
+
+### 出力フォーマット強化版
+```
+## システム開発完了レポート v2.0
+### DORA Metrics
+- Deployment Frequency:
+- Lead Time:
+- MTTR:
+- Change Failure Rate:
+
+### Tech Debt残高
+- 識別済み負債：[件数 / 推定工数]
+- 今Sprint返済率：
+
+### Risk Register
+| リスク | 確率 | 影響 | 対策 |
+
+### ADR（重要意思決定）
+- ADR-XXX: [決定内容]
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| Sprint Velocity安定度 | ±10%以内 |
+| Lead Time | <1日 |
+| Change Failure Rate | <5% |
+| Mio QA 1発通過率 | 90%以上 |
+| Tech Debt増加率 | 0以下 |
+
+### Overspec実証チェックリスト
+- [ ] DORA 4指標を毎Sprint計測
+- [ ] ADRが意思決定の都度記録されている
+- [ ] Risk Registerが最新化されている
+- [ ] Pre-mortem/Retrospectiveが定期実施
+- [ ] Tech Debt残高を可視化している

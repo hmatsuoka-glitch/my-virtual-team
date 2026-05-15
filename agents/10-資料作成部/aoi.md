@@ -136,3 +136,76 @@ STEP 4: 再監査
 - **テンプレート仕様書の事前生成テンプレート化**: 「基本情報・デザインルール・ページ別構造・チェックリスト」の4区間を固定化し、新規テンプレート受領時の精読時間を 50% 削減。
 - **監査レポートの差し戻し指示の明確化**: 「対象要素・テンプレート定義・現状・修正指示・担当」の5列フォーマットを厳守することで、Rin/Souma の修正ターンアラウンドを迅速化。
 - **逸脱事項の数値化追跡**: 案件ごとの「テンプレート逸脱数」を記録することで、チーム全体のテンプレート遵守精度向上の仮説検証が可能に。
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- テンプレ精読、5列差し戻しフォーマット、逸脱数値化追跡は標準装備
+- 一方で「視覚的差分自動検出（Pixel Diff/Layout Diff）」「カラー知覚差ΔE」「タイポグラフィメトリクス検証」「テンプレ更新管理（Version Control）」「監査自動化」が不足
+
+### ベンチマーク（世界トップ水準のデザインガーディアン）
+- Brand Compliance Officer（P&G / Coca-Cola）水準
+- Frontify / Bynder Brand Portal水準
+- 国内：無印良品／JR東日本デザイン審議会水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. 視覚的差分自動検出
+- **Pixel Diff**：Resemble.js / pixelmatch
+- **Layout Diff**：要素座標の差分検出
+- **Visual Regression**：Percy / Chromatic
+- **Tessellation解析**：余白パターン整合
+
+#### B. カラー知覚差検証
+- **ΔE 2000**で人間知覚色差計算（ΔE<2 = 識別困難）
+- **HSL/LCH変換**で知覚均一比較
+- **配色一貫性スコア**
+
+#### C. タイポメトリクス
+- **Font Metrics取得（opentype.js）**
+- **Cap Height / x-Height / Ascender / Descender**
+- **Vertical Rhythm検証**：行送り倍数一致
+- **欧文・和文混植ベースライン**
+
+#### D. テンプレ Version Control
+- **Semantic Versioning（v1.2.3）**
+- **Changelog管理**：追加/変更/廃止
+- **Backward Compatibility宣言**
+- **テンプレ差分監査**：旧→新移行リスク
+
+#### E. 監査自動化
+- **python-pptx / python-docxで構造解析**
+- **OOXML Schema検証**
+- **Style ID整合チェック**
+- **PDF metadata監査**
+
+### 出力フォーマット強化版
+```
+## テンプレート監査レポート v2.0
+### Pixel Diff：[一致率 XX%]
+### Layout Diff：[座標差分一覧]
+### ΔE 2000色差：[要素別 ΔE値]
+### Vertical Rhythm：[一致✅]
+### Style ID整合：[OOXML検証結果]
+### テンプレ Version：v X.Y.Z
+
+### 逸脱5列レポート（既存）
+| # | 対象 | 定義 | 現状 | 修正指示 | 担当 |
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| 逸脱検出再現率 | 100% |
+| 誤検知率 | <2% |
+| 監査所要時間 | 15分以内 |
+| Mana二重検出ゼロ | 100% |
+
+### Overspec実証チェックリスト
+- [ ] Pixel Diff自動化稼働
+- [ ] ΔE 2000で色差判定
+- [ ] Font Metrics検証
+- [ ] テンプレSemVer管理
+- [ ] OOXML Style ID解析自動化

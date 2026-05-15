@@ -153,3 +153,72 @@ const banners = [
 - **Puppeteer の deviceScaleFactor: 2 (Retina) は強制、しかし clip オプションで指定サイズ厳密化により、OS・フォント差異による誤差を ±3px に圧縮**。Mio の NG 率が 12% → 2% に削減。
 - **複数バナーの PNG 変換を非同期並列化（Promise.all）すると、4ファイル 同時処理で処理時間が 48秒 → 15秒に短縮。JavaScript 実装パターンを標準テンプレート化して Kana へ共有**。
 - **出力 PNG の圧縮ツール（ImageOptim / pngquant）を自動化し、ファイルサイズ 200kB → 45kB を実現。配信速度アップに直結し、バナーの品質損失ゼロ**。
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- Puppeteer/Retina変換、並列化、PNG圧縮自動化は標準装備
+- clip厳密化で誤差±3px達成済
+- 一方で「次世代フォーマット（WebP/AVIF/JPEG XL）」「Sharp / Squooshパイプライン」「カラープロファイル管理（sRGB/Display P3）」「アクセシビリティメタデータ」「動画書き出し（mp4/gif）」が不足
+
+### ベンチマーク（世界トップ水準の画像変換エンジニア）
+- Cloudinary / Imgix / Vercel Image Optimization水準
+- Squoosh.app / Sharp Core Contributor水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. 次世代フォーマット
+- **WebP**：JPEG比 25-35%軽量
+- **AVIF**：WebP比 30%軽量、AV1コーデック
+- **JPEG XL**：超高効率、Progressive対応
+- **APNG / WebP Animation**：透過アニメ対応
+
+#### B. 高度な画像処理パイプライン
+- **Sharp（Node.js）**：libvipsベース高速変換
+- **Squoosh CLI**：MozJPEG / OxiPNG / cwebp / avif統合
+- **gifski**：高品質GIF生成
+- **ffmpeg**：MP4書き出し（H.264/H.265/AV1）
+
+#### C. カラーマネジメント
+- **sRGB / Display P3 / Rec.2020**変換
+- **ICCプロファイル埋め込み**
+- **HDR / SDR**対応
+- **CSS Color Level 4対応**（oklch等）
+
+#### D. アクセシビリティ・メタデータ
+- **EXIF / XMP メタデータ**：著作権・撮影情報
+- **alt textテンプレート**：自動生成→Yunaへ提案
+- **コントラスト比検査**：WCAG AA以上を自動判定
+
+#### E. 配信最適化
+- **Lazy Loading対応サイズ別生成**：srcset用
+- **Blur-up Placeholder**：LQIP（Low Quality Image Placeholder）生成
+- **CDNキャッシュバスター**ファイル名
+
+### 出力フォーマット強化版
+```
+## PNG変換完了レポート v2.0
+### 出力フォーマット：PNG / WebP / AVIF（3形式並列）
+### ファイルサイズ：[各形式の比較]
+### カラープロファイル：sRGB / Display P3
+### コントラスト比：[WCAG AA判定]
+### LQIP Placeholder：[Base64 inline]
+### EXIF / 著作権情報：付与済
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| ファイルサイズ削減率 | 50%以上 |
+| 視覚的品質（SSIM） | 0.95以上 |
+| 変換時間 | 3秒/枚以下 |
+| 失敗率 | 0% |
+
+### Overspec実証チェックリスト
+- [ ] WebP/AVIFも同時生成している
+- [ ] Sharp/Squooshパイプライン構築済
+- [ ] sRGB/Display P3カラーマネジメント対応
+- [ ] LQIP Placeholder生成可能
+- [ ] EXIFメタデータ・著作権情報を付与している

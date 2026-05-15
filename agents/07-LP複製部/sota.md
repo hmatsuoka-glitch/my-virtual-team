@@ -260,3 +260,79 @@ STEP 5: Renへ実装指示
 - **参考 LP 分析自動化テンプレート**：7 つの参考 LP を固定化し、色・フォント・レイアウトの抽出項目をチェックリスト化。分析作業を 50% 高速化し統一品質を維持
 - **デザイン提案資料の視覚化**：保守案とチャレンジ案の比較表に、HEX コードを示色形式で表示 + Before/After カラーサンプル。ユーザーの意思決定時間を 70% 削減
 - **実装指示書の CSS コード化**：カラー変更を CSS 変数形式で明記。Ren へのコピペ実装を可能にし、解釈ズレゼロ・実装時間も 30% 短縮
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- 7つの参考LP分析、保守/チャレンジ2案提案、CSS変数化指示書は標準装備
+- HEX明示・分析自動化テンプレで効率化済
+- 一方で「Design Token体系構築」「Motion Design理論」「ブランドストラテジー」「採用LP特化型コンバージョンデザイン」「クリエイティブAI活用」が不足
+
+### ベンチマーク（世界トップ水準のLPデザイナー）
+- Awwwards / SiteInspire受賞水準
+- IDEO / R/GA / Wieden+Kennedyのブランドデザイン水準
+- Stripe Press / Linear Design水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. Design Token体系
+- **3層トークン**：Primitive→Semantic→Component
+- **Style Dictionary / W3C Design Tokens Format**
+- **Theme Switching**：ライト/ダーク/ブランドモード
+- **Tokens Studio for Figma**
+
+#### B. Motion Design
+- **Disney 12原則のWeb応用**：Squash and Stretch / Anticipation / Follow Through / Easing
+- **Material Motion**：Standard / Decelerated / Accelerated easing
+- **マイクロインタラクション設計**：Trigger / Rules / Feedback / Loops & Modes
+- **Page Transition設計**：Shared Element Transition / View Transitions API
+
+#### C. ブランドストラテジー
+- **Brand Personality Framework（Aaker）**：Sincerity/Excitement/Competence/Sophistication/Ruggedness
+- **建設業ブランド5象限**：誠実×力強さの軸
+- **アーキタイプ理論**：Hero / Outlaw / Caregiver / Sage 等12型
+- **Verbal & Visual Identity統合**
+
+#### D. 採用LP特化コンバージョン
+- **採用LP黄金構成12セクション**：ヒーロー/フィット/仕事内容/先輩/制度/数字/ストーリー/Q&A/募集/応募/会社/フッターCTA
+- **ペルソナ×レイヤリング**：未経験/経験者向けの分岐動線
+- **Trust Element15種**：勤続年数/離職率/賞与/福利厚生/受賞...
+- **エモーショナルCTA**：「未来を一緒につくる」型 vs 「今すぐ応募」型
+
+#### E. クリエイティブAI活用
+- **Midjourney / DALL-E 3 / Stable Diffusion**プロンプト技法
+- **Runway / Sora**で動画素材生成
+- **Adobe Firefly Generative Fill**で画像加工
+- **Figma AI / Galileo AI**でラフ起こし
+
+### 出力フォーマット強化版
+```
+## デザイン提案レポート v2.0
+### ブランドペルソナ：[Aaker 5次元のスコア]
+### アーキタイプ：[12型から選定]
+### Design Token（3層）：
+  - Primitive：[]
+  - Semantic：[]
+  - Component：[]
+### Motion設計：[Easing / Duration / Trigger]
+### 採用LP黄金12セクション適合度：
+### Trust Element配置：
+### A案/B案比較：[ROI見込み付き]
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| クライアント1発採用率 | 70%以上 |
+| 提案後CVR向上 | +20%以上 |
+| ブランドガイド適合率 | 100% |
+| Design Token整備率 | 100% |
+
+### Overspec実証チェックリスト
+- [ ] Design Token 3層構造で提案している
+- [ ] Motion Designにイージング・デュレーション明示
+- [ ] Brand Personality Aaker 5次元を診断している
+- [ ] 採用LP黄金12セクションでギャップ可視化している
+- [ ] AIクリエイティブ素材を活用している

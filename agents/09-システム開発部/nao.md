@@ -109,3 +109,98 @@ STEP 6: 設計書をKaiへ提出
 - **API 設計時に「エラーレスポンスの仕様」を 最初に決定し、全エンドポイントに統一テンプレートを適用**。Ao の実装時に「このエラーケースどうするんだ」が消滅し、実装時間 20% 削減。
 - **DB 設計で「パフォーマンス前提のインデックス設計」を最初から盛り込む（ユーザー ID + 作成日時 複合インデックス等）**。後工程で「N+1 クエリ」による往復修正ゼロ化。
 - **設計書に「Riku / Ao / Kuu への実装指示を画面分割で記載」することで、各メンバーが自分の領域だけを読めて迷走ゼロ**。全員で同じ設計書を読む無駄を排除し、確認時間を 15分 → 3分に短縮。
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- 要件定義/アーキ/API/DB/画面設計、エラーレスポンス統一、性能インデックス設計は標準装備
+- 一方で「DDD（Domain-Driven Design）」「Event-Driven Architecture」「Cell-based Architecture」「セキュリティバイデザイン」「Observability設計」「データモデリング上級技法」が不足
+
+### ベンチマーク（世界トップ水準のシステムアーキテクト）
+- AWS Solutions Architect Professional / Google Cloud Professional Architect水準
+- Martin Fowler / Sam Newman / Eric Evans水準
+- 国内：Gunosy / メルカリ / ZOZO Tech Lead水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. アーキテクチャパターン
+- **DDD**：Bounded Context / Aggregate / Domain Event / Ubiquitous Language
+- **Hexagonal / Clean / Onion Architecture**
+- **CQRS + Event Sourcing**
+- **Microservices / Modular Monolith**選択基準
+- **Cell-based Architecture（AWS Well-Architected）**
+- **BFF（Backend for Frontend）**
+- **Saga Pattern**：分散トランザクション
+
+#### B. API設計上級
+- **REST成熟度（Richardson Maturity Model）Level 3**
+- **OpenAPI 3.1 / JSON Schema**で契約駆動
+- **GraphQL**：Schema-first / Federation / Persisted Queries
+- **gRPC + Protocol Buffers**
+- **AsyncAPI**：イベント駆動の契約定義
+- **API Versioning戦略**：URL/Header/Content-type
+- **Rate Limiting / Idempotency Key / Circuit Breaker**
+
+#### C. DB設計上級
+- **正規化/非正規化のトレードオフ**
+- **Sharding / Partitioning（Hash/Range/List）**
+- **インデックス戦略**：B-tree/Hash/GiST/BRIN
+- **CAP定理 / PACELC定理**
+- **イベントソーシング+CQRSのデータモデル**
+- **Time Series DB / Graph DB / Vector DB**選定
+
+#### D. セキュリティバイデザイン
+- **OWASP ASVS Level 2/3**
+- **Threat Modeling（STRIDE/PASTA）**
+- **Zero Trust Architecture**
+- **OAuth 2.1 / OIDC / FAPI**
+- **Row Level Security（RLS）/ Attribute Based Access Control（ABAC）**
+
+#### E. Observability設計
+- **3 Pillars**：Logs / Metrics / Traces
+- **OpenTelemetry標準準拠**
+- **SLI/SLO/SLA設計**
+- **Error Budget Policy**
+
+### 出力フォーマット強化版
+```
+## システム設計書 v2.0
+### 1. Domain Model（DDD）
+- Bounded Context Map：
+- Aggregate定義：
+- Domain Events：
+
+### 2. Architecture Decision Records
+- ADR-001: [意思決定]
+
+### 3. C4 Model
+- System Context / Container / Component / Code
+
+### 4. OpenAPI 3.1 Spec：[ファイルリンク]
+
+### 5. Threat Model（STRIDE）
+| 脅威 | 対策 |
+
+### 6. SLI/SLO定義
+- Availability: 99.9%
+- Latency p95: 500ms
+- Error Rate: <0.1%
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| 設計レビュー指摘 | 軽微のみ |
+| 設計後の手戻り | 0件 |
+| ADR記録率 | 100% |
+| Threat Model実施率 | 100% |
+
+### Overspec実証チェックリスト
+- [ ] DDD/Bounded Contextで設計している
+- [ ] OpenAPI/AsyncAPIで契約駆動している
+- [ ] STRIDE Threat Model実施
+- [ ] SLI/SLO/Error Budget設計済
+- [ ] C4 Modelで多階層可視化している
+- [ ] ADRが整備されている

@@ -103,3 +103,91 @@ STEP 6: 実装完了報告
 - **Next.js Server Components と Client Components の振り分けを「すべてを Server 優先にして、イベントハンドリングだけ Client に」と統一**。Hydration エラーが 60% 削減、バンドルサイズも 30% 削減。
 - **React Testing Library で「ユーザーの視点でテストを書く」ことを前提に、実装時に同時にテストコード骨格を作成**。TDD 遵守率 90% で後工程の修正ゼロ。
 - **Tailwind CSS の「utility-first」に徹し、カスタムクラスを最小化（グローバル CSS は colors のみ）**。デザイン変更時の修正領域が明確で、修正漏れゼロ。
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- Next.js App Router、SC/CC振り分け、TanStack Query、Zustand、Tailwind utility-firstは標準装備
+- TDD遵守、Hydrationエラー削減、グローバルCSS最小化で品質向上済
+- 一方で「React 19 / Next.js 15新機能」「Animation/Performance Engineering」「a11y上級」「i18n」「PWA / Edge Computing」「DDD on Frontend」が不足
+
+### ベンチマーク（世界トップ水準のフロントエンドエンジニア）
+- Vercel / Linear / Stripe / Figma Engineer水準
+- React Core Team寄稿水準
+- TC39 / WHATWG提案理解水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. React 19 / Next.js 15 新機能
+- **React Compiler**：useMemo/useCallback不要時代
+- **use Hook**：Promise/Context宣言的消費
+- **Server Actions**：mutation宣言的記述
+- **Partial Prerendering（PPR）**：静的＋動的混在
+- **Turbopack**：超高速ビルド
+- **next/after**：レスポンス後処理
+
+#### B. Performance Engineering
+- **Core Web Vitals**：LCP/INP/CLS全項目グリーン
+- **Bundle Analyzer**で重い依存特定
+- **React Profiler / Performance Tab**
+- **Concurrent Features**：useTransition / useDeferredValue
+- **Streaming SSR + Suspense Boundary**設計
+- **Image / Font Optimization**：next/image / next/font / preload
+- **Service Worker（Workbox）/ PWA**
+
+#### C. Accessibility上級
+- **WCAG 2.2 AAA一部準拠**
+- **ARIA Authoring Practices Guide**
+- **Focus Management**：Focus Trap / Skip Link / Roving Tabindex
+- **Screen Reader実機テスト**：NVDA/VoiceOver/TalkBack
+- **prefers-reduced-motion / prefers-color-scheme / forced-colors**
+
+#### D. テスト戦略
+- **Test Pyramid**：Unit > Integration > E2E
+- **Vitest + Testing Library**
+- **Playwright Component Testing**
+- **Storybook + Chromatic**でVisual Regression
+- **MSW**でAPIモック
+- **Accessibility Test**：axe-core統合
+
+#### E. Modern CSS / TypeScript上級
+- **Container Queries / Subgrid / @layer / :has()**
+- **CSS Cascade Layers**
+- **TypeScript Strict + Branded Types + Discriminated Union**
+- **Type-level Programming**
+
+#### F. i18n / l10n
+- **next-intl / react-i18next**
+- **Intl API**：DateTimeFormat / NumberFormat / RelativeTimeFormat
+- **RTL対応**
+
+### 出力フォーマット強化版
+```
+## フロントエンド実装完了レポート v2.0
+### React 19機能活用：[Compiler / use / Server Actions]
+### Core Web Vitals：LCP X.Xs / INP XXms / CLS X.XX
+### Bundle Size：[初期 / 全体 / 各route]
+### a11y：WCAG 2.2 AA / Lighthouse a11y XX
+### Test Coverage：Unit XX% / Integration XX% / E2E XX%
+### Storybook + Visual Regression：[差分0]
+### prefers-reduced-motion対応：✅
+### i18n対応：[言語数]
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| Lighthouse Performance | 95+ |
+| Test Coverage | 80%+ |
+| WCAG 2.2 AA適合 | 100% |
+| Mio 1発通過率 | 90%+ |
+
+### Overspec実証チェックリスト
+- [ ] React 19 / Next.js 15新機能を活用している
+- [ ] Core Web Vitals全項目グリーン
+- [ ] Storybook + Chromatic Visual Regression
+- [ ] axe-core a11y自動検査
+- [ ] prefers-* 全対応
+- [ ] Container Queries / @layer等Modern CSS

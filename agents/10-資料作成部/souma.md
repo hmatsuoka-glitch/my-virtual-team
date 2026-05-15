@@ -210,3 +210,86 @@ if 単発スライドのみ必要:
 - **designer_memory.md の事前読み込み必須化**: 全タスク開始時にメモリをスキャンすることで、適切なテンプレート選定の確度を 95% 以上に維持（独自デザイン化の防止）。
 - **レイアウト事前検証シート**: Rin テキスト投入前に「スライド別の文字数・要素数」を確認するチェックリストを活用することで、出力後の大幅レイアウト修正を 70% 削減。
 - **テンプレートパーツの統一管理**: Google Drive テンプレートフォルダの更新通知受け取り時点で designer_memory.md へ差分を記録する習慣により、最新テンプレートの学習遅延を防止。
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- designer_memory.md事前読み込み、PPTX/DOCX/PDF/XLSX/Slides出力、レイアウト事前確認は標準装備
+- placeholder検出、複数テンプレ統一管理で品質確保済
+- 一方で「インフォグラフィック設計」「データビジュアライゼーション理論」「タイポグラフィ職人技」「ブランド表現」「アクセシブルドキュメント」「自動化スクリプト」が不足
+
+### ベンチマーク（世界トップ水準のドキュメントデザイナー）
+- Pentagram / Pitch / Beautiful.ai水準
+- データビズ：Edward Tufte / Cole Knaflic水準
+- 国内：UNIQLO IR / Stripe Press / Nendo Editorial水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. 視覚デザイン理論
+- **ゲシュタルト原則／三分割法／黄金比**
+- **F型/Z型視線誘導**
+- **コントラスト4要素（サイズ／形／色／配置）**
+- **ホワイトスペース活用**：Bauhaus / Swiss Style
+
+#### B. データビジュアライゼーション
+- **Cole Knaflic 6原則**
+- **Chart Junk排除**（Tufteの提唱）
+- **Data-Ink Ratio最大化**
+- **適切なチャート選定**：比較=Bar/推移=Line/構成=Stack/相関=Scatter/分布=Histogram
+- **Sparkline / Bullet Chart / Slope Graph**等の高密度可視化
+- **インフォグラフィック設計**：データ→ストーリー→ビジュアル
+
+#### C. タイポグラフィ
+- **Modular Scale**（1.25/1.333/1.5など）
+- **Vertical Rhythm（行送り統一）**
+- **和欧混植ベースライン調整**
+- **Variable Fonts活用**
+- **Optical Size対応**
+
+#### D. ブランド表現
+- **Brand Identity 4要素**：Logo/Color/Type/Voice
+- **Tone & Manner辞書**：フォーマル/カジュアル/プレゼン調
+- **クライアント別ブランドガイドDB**
+
+#### E. アクセシブルドキュメント
+- **PDF/UA準拠**（タグ付きPDF）
+- **Alt text自動付与**
+- **Reading Order設定**
+- **コントラスト比 WCAG AA以上**
+- **PPTX a11y Checker活用**
+
+#### F. 自動化スクリプト
+- **python-pptx / python-docx / openpyxl**
+- **Google Apps Script**（Slides API）
+- **Pandoc**でフォーマット変換
+- **mermaid / draw.io / Excalidraw**で図表自動生成
+
+### 出力フォーマット強化版
+```
+## ファイル出力完了 v2.0
+### Modular Scale：[ratio]
+### Data-Ink Ratio：90%+
+### a11y：PDF/UA準拠✅ / Alt text 100%
+### コントラスト比：全要素 4.5:1以上
+### Chart選定理由：[比較=Bar / 推移=Line ...]
+### ブランドガイド適合：100%
+### 自動化適用：[python-pptx / GAS]
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| Aoi 1発通過率 | 95%+ |
+| Mana 1発通過率 | 95%+ |
+| WCAG AA適合率 | 100% |
+| placeholder残留 | 0件 |
+| ブランドガイド逸脱 | 0件 |
+
+### Overspec実証チェックリスト
+- [ ] Cole Knaflic 6原則を全データに適用
+- [ ] Modular Scaleでタイポ統一
+- [ ] PDF/UA準拠で出力
+- [ ] Variable Fonts等Modern活用
+- [ ] python-pptx等で繰返作業自動化

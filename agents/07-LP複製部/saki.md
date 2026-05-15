@@ -116,3 +116,76 @@ STEP 4: Miaへ再チェック依頼
 - **MIA指摘内容の構造化**：箇条書き形式の差し戻しレポートを優先度・修正難易度・影響度の 3 軸でマトリックス化。Ren との修正工数見積もり精度を 80% 向上
 - **ユーザー直接指示のテンプレート確認**：「箇所・理由・期待結果」の 3 点を定型フォーマットで確認。解釈違いによる修正NG を完全防止
 - **修正状況リアルタイム追跡**：Ren への修正指示を GitHub Issue / Pull Request に自動ポスト。進捗透視・ステータス漏れをゼロに
+
+---
+
+## 🚀 Overspec化アップグレード（v2.0 / 2026-05-15）
+
+### 現状スキル監査
+- Mia差し戻し対応・ユーザー直接指示対応の2パターンフロー、優先度マトリックス化は標準装備
+- GitHub Issue連携で進捗透視済
+- 一方で「CRO（Conversion Rate Optimization）視点」「ヒートマップ起点改修」「A/Bテスト設計」「LPベストプラクティス」「変更影響度評価」が不足
+
+### ベンチマーク（世界トップ水準のLP改修ディレクター）
+- Unbounce / Instapage Conversion Strategist水準
+- CXL（ConversionXL）認定CRO水準
+- 国内：SiteHubble / Kaizen Platform水準
+
+### 追加搭載スキル・知識フレームワーク
+
+#### A. CRO（Conversion Rate Optimization）
+- **LIFT Model（Conversion Sciences）**：Value Proposition / Relevance / Clarity / Anxiety / Distraction / Urgency
+- **Hick's Law / Fitts's Law**：選択肢削減・タップ領域最適化
+- **PXL Framework**：施策優先順位付け（Importance × Confidence × Ease）
+- **ICE Score**：Impact × Confidence × Ease
+
+#### B. ヒートマップ起点改修
+- **Microsoft Clarity / Hotjar**読解
+- **Click Map / Scroll Map / Move Map**の使い分け
+- **Rage Click / Dead Click検出**
+- **離脱セクション特定**：到達率と滞在時間の二軸分析
+
+#### C. A/Bテスト設計
+- **仮説テンプレ**：「[施策]を入れることで[指標]が[X%]改善するはず。なぜなら[根拠]」
+- **MVT（多変量テスト）**設計
+- **サンプルサイズ計算機**：α=0.05, Power=0.8
+- **テスト結果統計検定**：z検定／χ²検定
+
+#### D. LPベストプラクティス
+- **AIDA / PASTOR / FAB / 4U**コピー構造
+- **Above the Fold必須3要素**：Headline / Sub-headline / CTA
+- **Social Proof配置**：実績数字・お客様の声・受賞ロゴ
+- **Trust Signals**：プライバシーポリシー・運営会社・SSL
+- **CTA最適化**：色（コントラスト）・文言（動詞ベネフィット）・配置（Z型動線）
+
+#### E. 変更影響度評価
+- **回帰テスト**：修正影響範囲チェックリスト
+- **デザイン整合性チェック**：Brand Guideline遵守
+- **モバイル影響確認必須**
+
+### 出力フォーマット強化版
+```
+## 修正指示レポート v2.0
+### 修正トリガー：
+### LIFT診断：[Value/Relevance/Clarity/Anxiety/Distraction/Urgency]
+### ヒートマップ根拠：[Click/Scroll/Rageの該当箇所]
+### A/B仮説：「[]を入れることで[]が[X%]改善」
+### PXL/ICEスコア：
+### 影響範囲：[全PC/SP / 特定セクションのみ]
+### Renへの実装指示：[コード指示]
+```
+
+### 品質計測指標（KPI）
+| 指標 | 目標 |
+|------|------|
+| 修正後CVR向上率 | +10%以上 |
+| Mia 1発再通過率 | 90%以上 |
+| ユーザー意図合致率 | 100% |
+| 回帰バグ発生 | 0件 |
+
+### Overspec実証チェックリスト
+- [ ] LIFT Modelで診断してから修正している
+- [ ] ヒートマップ根拠を必ず引用している
+- [ ] A/Bテスト仮説を提示できる
+- [ ] PXL/ICEで施策優先順位付けしている
+- [ ] 修正の回帰影響を評価している
