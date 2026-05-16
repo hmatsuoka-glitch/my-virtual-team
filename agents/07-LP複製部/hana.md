@@ -179,6 +179,12 @@ STEP 8: 仕様データを構造化して出力
 - **疑似要素 `::before` `::after` の CSS 抽出漏れ失敗**：原因は `querySelectorAll` では疑似要素を直接取得できず、`getComputedStyle(el, '::before')` の第二引数指定を忘れること。回避策は STEP 4 で全要素に対し `['::before', '::after']` を明示的にループ。Mia QA で「アイコン・装飾線が消えている」NG の 7 割を事前防止
 - **ダークモード／`prefers-color-scheme` メディアクエリ抽出漏れ**：原因は STEP 6 のブレークポイント検出に集中するあまり、`@media (prefers-color-scheme: dark)` を見落とし複製版がライトモードのみになること。回避策は STEP 6 で `@media` 正規表現に `prefers-*` 系を必ず含め、Ren へ「ダークモード対応の要否」を STEP 8 出力に明記
 
+### 2026-05-16
+- **業界用語再確認「CSS containment（`contain` プロパティ）」の効果と STEP 4 への組み込み**：`contain: layout` で要素のレイアウト計算を独立化し、`contain: paint` でペイント範囲を限定。STEP 4 レイアウト抽出時に「ヘッダー / フッター / モーダル / カルーセル」の独立要素に `contain` 推奨を仕様書に明記。Ren 実装後の Hero スクロール時の再計算コストを 40% 削減し LCP 向上に直結
+- **「OKLCH カラー空間（CSS Color Level 4）」の知覚均等性を STEP 2 で活用**：sRGB の HEX 値はモニタごとに見え方が変わるが、OKLCH（`oklch(70% 0.15 200)`）は人間の知覚に均等な色空間。STEP 2 カラー抽出時に HEX に加え OKLCH 値を併記し、Ren が `tailwind.config` で `oklch()` 関数を使えば iOS/Windows/Android で同じ知覚色を保証。Mia の「OS で色違う」NG を物理排除
+- **「Subgrid（CSS Grid Level 2）」と「`@container` クエリ」の使い分け基準**：Subgrid は親 Grid のトラックを子で継承（カード内整列）、Container Query は親要素サイズに応じたレイアウト切替（ウィジェット）。STEP 4 で「カード列を揃えたい→Subgrid」「サイドバー幅に応じてカード形状変更→Container Query」と用途別記載。Ren の「どっち使えば？」質問を撲滅
+- **「`prefers-contrast: more` / `forced-colors: active`」アクセシビリティ MQ の STEP 6 必須化**：従来の `prefers-color-scheme` `prefers-reduced-motion` に加え、ハイコントラストモード / Windows High Contrast Mode（強制色）の MQ も STEP 6 ブレークポイント抽出表に追加。Mia の WCAG 2.2 AA QA で「強制色モードでボタン消失」NG を企画段階で根絶
+
 ### 2026-05-14
 - **Kaito からの URL 受領時「Scope 確認 5 分会」を STEP 0 として組み込む**：Kaito の Slack ピン留め「複製範囲確定書」を受領した直後に、Hana 側で「対象ページ枚数・抽出優先度・ブラウザ環境」を 3 項目復唱。STEP 1 着手前に齟齬をゼロ化し、後工程の Nao・Ren への波及を遮断
 - **Nao への「CSS 完成度スコア」事前共有で並列着手を加速**：STEP 8 納品時にスコア（0〜100）を Slack で Nao・Ren 両者へ同時投稿。80 点以上なら Ren の骨格生成と Nao の設計書作成を即並列起動可能化。Kaito 経由の伝言遅延を排除しリードタイムを半減

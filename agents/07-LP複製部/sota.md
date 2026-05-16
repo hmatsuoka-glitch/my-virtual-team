@@ -321,6 +321,13 @@ STEP 5: Renへ実装指示
 - **Figma Variables 一括書き出しスクリプトで案 A・案 B のカラートークン同時生成**：STEP 3 のデザイン案策定時に Figma の Local Variables を `figma-tokens-export` プラグインで JSON 出力→Ren 用 `tailwind.config.ts` に 2 案分の `colors.optionA` `colors.optionB` を同時生成。案切り替えが 1 行変更で完了し提案修正コストゼロ
 - **デザイン提案 PDF を `react-pdf` で自動生成、Before/After カラーサンプル埋め込み**：STEP 4 のユーザー提案用 PDF を毎回 Google Slides で手作りしていたのを、JSON 入力→PDF 出力の React コンポーネントに集約。「現状色・案A色・案B色・期待効果」テーブルが自動レイアウトされ、提案資料作成が 60 分→10 分に短縮
 
+### 2026-05-16
+- **業界用語再確認「Above the Fold / First View / Hero / MV」をクライアント説明資料で厳密区別**：FV = デバイス毎に見える領域（iPhone SE = 375×667 / PC = 1920×1080）、Hero = FV 内のメインビジュアル、ATF = スクロール前領域（技術用語）、MV = 映像広告の最初 5 秒。STEP 4 提案時にクライアントへ「FV ≠ Hero」と図解。「FV 全部変えて」依頼で工数 5 倍化する事故を企画段階で予防
+- **「OG image（1200×630）」と「Twitter Card（summary_large_image）」のデザイン規格を提案書に必須化**：STEP 3 デザイン案策定時に「SNS シェア時に表示される 1200×630 の OG image デザイン」を案 A・B 双方で必須化。LP は SNS 経由流入が 40% 超のため、Hero 画像と別物として独立デザイン化。Ren 実装後に「シェア時画像が崩れる」NG をゼロ化
+- **「Schema.org 構造化データ」をデザイン企画に組込み、リッチリザルト効果を提案価値化**：採用 LP = `JobPosting`、商品 LP = `Product` + `Review`、店舗 LP = `LocalBusiness`、FAQ あり = `FAQPage` を STEP 5 Ren 実装指示書に必須記載。Google 検索結果での「星評価表示・FAQ アコーディオン表示」を実現し、CTR を 25-35% 向上させる提案根拠を数値化
+- **「Core Web Vitals（LCP/INP/CLS）」をデザイン段階で先取り、案 A・B のパフォーマンス予測値併記**：参考 LP 7 件を PageSpeed Insights で実測し、案 A・B のデザイン要素（動画 / 大型画像 / 複雑アニメ）から LCP/CLS 予測値を提案書に併記。「案 B はかっこいいが LCP 4.5s で SEO 評価減」と数値根拠で案選択を支援。Ren 実装後の Lighthouse NG 再提案ループをゼロに
+- **「Dark Mode（`prefers-color-scheme: dark`）」対応をデザイン企画段階で意思決定**：2026 年は iOS/Android ユーザーの 60% がダークモード常用。STEP 3 案 A・B 提案時に「ダークモード対応有無」と「対応する場合のカラーパレット第 2 セット」を必須提示。Hana CSS 抽出 → Ren 実装の全工程に影響するため、企画段階で先決定して後戻りゼロ化
+
 ### 2026-05-14
 - **Kaito 部長への「企画ブリーフ 5 項目」事前ヒアリング標準化**：「ターゲット業界 / KPI 指標 / 予算上限 / 納期 / 競合 LP」の 5 項目を Kaito から STEP 1 着手前に取得。提案後の「予算オーバー」「ターゲット違い」での全案差し戻しをゼロ化
 - **Nao 設計書連携時の「カラートークン JSON 引き渡し」フロー**：STEP 5 採用案決定後、Figma Variables から JSON 出力したカラートークンを Nao にダイレクト連携。Nao 設計書での命名・HEX 値の転記ミスを撲滅し、Ren 実装段階での色ズレ報告をゼロ化

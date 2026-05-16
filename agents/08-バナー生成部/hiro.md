@@ -221,3 +221,9 @@ const banners = [
 - **LP 複製部との素材引き継ぎ**：LP 制作チームが Web 用 OGP 画像（1200×630）を生成する場合、Hiro の Puppeteer config を流用可能。LP の Hero セクションを screenshot し、Twitter/Facebook OGP 規定サイズに切り抜く処理を共通化。LP 部とバナー部で「Puppeteer スクリプトのライブラリ化」を進め、再利用性 3 倍。
 - **nori（法務）への薬機法・景表法事前チェック**：PNG 出力後のテキスト OCR を tesseract.js で実行し、「絶対 / 必ず / No.1 / 完全保証」等の禁止ワードを自動検出。検出時は Hiro→nori 確認依頼→Kana 差し戻しのフロー。Hiro は文字認識の機械チェックゲートとして機能、法務リスクをゼロ化。
 - **sora（最終 QA）の合格基準クリア**：Sora が確認する 5 点（ファイル名規則 / 解像度 Retina 2 倍 / ファイルサイズ媒体上限 / 視覚破損なし / ICC sRGB）を Hiro が事前セルフチェック。sharp ライブラリで①〜③④を自動判定、⑤を目視確認した上で「Sora QA 合格保証付きレポート」として Yuna へ提出。Sora QA 時間 10 分 → 1 分。
+
+### 2026-05-16
+- **CMYK と RGB の本質的違いを Puppeteer 出力の文脈で再確認**：RGB（加法混色：Red+Green+Blue）はディスプレイ表示用（光の三原色、最大値で白）、CMYK（減法混色：Cyan+Magenta+Yellow+Key/Black）は印刷用（インクの四色、最大値で黒）。Web バナーは 100% RGB（sRGB プロファイル）で出力するため、もし Kana から「CMYK 入稿用」と指示があれば Puppeteer→sharp 後に ImageMagick で `-colorspace CMYK -profile USWebCoatedSWOP.icc` 変換が必要。Web 媒体納品時に CMYK 変換すると色が暗く沈むため絶対 NG、用途確認を徹底。
+- **deviceScaleFactor と DPI/PPI の関係を再整理**：DPI（Dots Per Inch）は印刷物の解像度（300DPI が高品質印刷標準）、PPI（Pixels Per Inch）はディスプレイの解像度（iPhone Retina は 326PPI 前後）。Puppeteer の `deviceScaleFactor: 2` は「論理ピクセル 1 個に対し物理ピクセル 2 個で描画」する設定で、出力 PNG の メタデータ DPI とは別物。`sharp(buf).withMetadata({ density: 144 })` で DPI 値を明示しないと、媒体側で「72DPI 扱い」され印刷物に流用された場合に荒れる。Web 専用なら DPI 設定不要、印刷併用なら 300DPI 設定が原則。
+- **PNG の圧縮アルゴリズム LZ77 + Deflate と JPEG の DCT 圧縮の選択基準**：PNG は可逆圧縮（Lossless：元画像を完全復元可）でテキスト・ロゴ・透過に強い、JPEG は非可逆圧縮（Lossy：DCT で高周波数情報を捨てる）で写真・グラデーションに強い。バナー出力で「ロゴ＋写真混在」なら PNG 一択（JPEG だとロゴ周りに モスキート ノイズ発生）。WebP は両方をカバーし PNG の 25-35% サイズだが iOS Safari 14 未満非対応のため fallback PNG 必須。形式選択は「画像内容」で機械的判定。
+- **ICC プロファイル（sRGB / Adobe RGB / Display P3）の Web バナーでの正しい扱い**：sRGB は Web 標準色域（モニター 95% 以上が対応）、Adobe RGB は印刷業界標準（色域広い）、Display P3 は新型 iPhone/Mac で採用された広色域（sRGB の 1.25 倍）。バナー出力は必ず sRGB に正規化（`sharp(buf).withMetadata({ icc: 'srgb' })`）しないと、Display P3 で撮影された写真素材が「Adobe RGB として誤解釈」されて納品先で色がくすむ事故が発生。Web 配信は sRGB 統一が鉄則、ICC 埋め込みを必ず明示。

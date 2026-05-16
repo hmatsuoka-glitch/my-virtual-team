@@ -177,6 +177,12 @@ STEP 4: Miaへ再チェック依頼
 - **`gh pr diff --stat` で修正スコープを Ren 着手前に提示**：Ren へ修正指示する際に `gh pr diff main --stat` で「想定修正行数 / 影響ファイル数」を事前計算→指示書に「想定: 3 ファイル 15 行以内」と明記。Ren の実装が 30 行超えたら自動アラート、スコープ拡大を物理的に検出
 - **Storybook の `--ci` フラグで修正コンポーネント単体ビジュアル確認**：修正対象が `Button` `Card` 等の単体コンポーネントの場合、ページ全体を起動せず `npm run storybook -- --ci --quiet` で対象 story だけ起動。修正→確認のループ時間を 90 秒→15 秒に短縮し、Mia 再依頼前のセルフチェックを高速化
 
+### 2026-05-16
+- **業界用語再確認「CLS（Cumulative Layout Shift）」修正指示の具体化テンプレ**：Mia「CLS 0.3 で NG」指摘を Ren に渡す際、「①画像 width/height 必須 ②`<Skeleton/>` で fetched コンテンツの予約領域確保 ③カスタムフォントは `next/font` で先読み ④広告/動的要素は `min-height` 固定」の 4 アクションを必須テンプレ化。Ren が「とりあえず画像最適化」だけで終わらせる対処療法を防止
+- **「LCP / INP」改善指示で「測定値・改善目標・推奨手法」3 点セット明記**：「LCP 4.2s → 2.5s 以下」だけでなく「Hero 画像に `priority` 追加 / `next/image` 化 / WebP 変換 / preload `<link rel=preload>`」と推奨手法を 4 つ列挙。Ren が「どこから手を付ければ」と迷う時間を消失化、修正一発成功率 95% を維持
+- **「Hydration エラー」差し戻し時の「再現条件・コンソールログ」必須添付**：Mia から「Hydration mismatch」指摘が来たら、Saki が `npm run build && npm run start` で本番モード起動→Chrome DevTools Console を Mia 撮影と同じスクショで Issue 添付。Ren が「dev では出ない / prod で再現」の差分原因（時刻 / 乱数 / SSR 不対応ライブラリ）を即特定可能化
+- **「Schema.org / OG image / canonical」SEO 系修正の優先度マトリクス追加**：Mia QA で SEO 系 NG（リッチリザルト消失・SNS シェア画像崩れ）は「リリース後発覚すると検索順位低下が 2 週間続く」ため、視覚 NG より優先度を高く設定。STEP 1 で「SEO/SNS 系 NG = 優先度 1 級、その他視覚 NG = 優先度 2 級」と明文化、Ren 着手順序の判断基準を統一
+
 ### 2026-05-14
 - **Kaito 部長への「修正サイクル進捗 3 指標」日次レポート**：「修正中タスク数 / Mia 再依頼待ち件数 / 平均ループ回数」の 3 KPI を毎日 17 時に Kaito へ自動報告。部全体の修正リソース配分を即座に最適化、滞留案件のエスカレ判断を加速
 - **同部内 hana/mia/ren との「修正範囲 3 者承認」プロトコル**：修正指示を Ren に出す前に、Hana（仕様根拠）・Mia（QA 観点）・Ren（実装難易度）の 3 名から 30 分以内に承認スタンプを取得。「修正後さらに別箇所で NG」の連鎖差し戻しを根絶

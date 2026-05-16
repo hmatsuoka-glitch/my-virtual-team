@@ -200,6 +200,12 @@ STEP 6: 忠実度スコア算出・判定
 - **`prefers-reduced-motion` ユーザー設定でアニメーション全消失の検出漏れ**：原因は STEP 4 アニメーションチェックで OS の「視差効果を減らす」設定を ON にしたユーザーの体験を試験対象外にすること。回避策は Playwright の `reducedMotion: 'reduce'` モードでも STEP 4 を実施。元 LP が `@media (prefers-reduced-motion)` 対応していれば複製もしているか必ずペア確認
 - **「Mia は OK なのにクライアント NG」の数値合致／知覚乖離失敗**：原因は 95 項目合格でも「全体の余白感が窮屈」「ボタン重心が右に寄っている」という言語化不能な違和感で差し戻されること。回避策は STEP 6 通過直前に「PC ブラウザ全画面で 5 秒間黙視 → 直感ノート 1 行記入」を Mia 自身に義務化。数値外のセンサーで違和感が出れば 86 点でも 84 点へ自主減点し Saki 経由で再修正
 
+### 2026-05-16
+- **業界用語再確認「LCP / INP / CLS」Core Web Vitals 2024 改訂後の合格基準を STEP 6 に固定**：FID は 2024 年 3 月に INP（Interaction to Next Paint）へ完全置換。合格基準は LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1。STEP 4 アニメ忠実度チェック時に PageSpeed Insights API で 3 指標を取得し、1 つでも未達なら 85 点合格でも自動で 84 点へ減点。古い FID 基準で QA する事故を物理排除
+- **「Hydration」失敗パターン 3 種（時刻 / 乱数 / localStorage）の検出スクリプト追加**：Next.js 開発者ツールの Console で `Hydration failed` warning を自動収集する Playwright `page.on('console')` フックを STEP 1 に組込。Hero/CTA に Date.now() や Math.random() を埋め込んだ Ren 実装をデプロイ前に検出。Mia 通過後の本番 White Screen を根本予防
+- **「Schema.org 構造化データ（JSON-LD）」の QA 項目化**：複製対象 LP に `Organization` `Product` `FAQPage` `BreadcrumbList` の JSON-LD があれば、複製版にも同等の構造化データが実装されているかを Google Rich Results Test API で自動検証。STEP 3 フォント忠実度の後に STEP 3.5 として組込。SEO リッチリザルト消失による検索流入減を Mia 段階で検出
+- **「accessibility tree（a11y ツリー）」の比較を STEP 5 レスポンシブと統合**：Playwright の `page.accessibility.snapshot()` で元 LP と複製 LP の a11y ツリーを JSON 比較。見出し階層・ランドマーク（`<main>` `<nav>` `<footer>`）・aria-label が一致しなければ NG。視覚一致でも構造ズレでスクリーンリーダー体験が崩壊するパターンを物理検出
+
 ### 2026-05-14
 - **Kaito からの「合格ライン事前合意」を STEP 0 として組み込む**：着手前に Kaito 経由で sora と合意した合格ライン（標準 85 点 / 高難度 90 点）を Mia 自身が再確認。途中で「やっぱり 90 点に引き上げ」となる手戻りを完全排除
 - **Ren への差し戻しレポートに「セレクタ・現状値・期待値・参考スクショ」4 点セット必須化**：抽象的な「ボタン色違う」ではなく `#hero > .btn-primary` `background: #FF0001` `期待: #FF0000` `[スクショ添付]` の 4 点を GitHub Issue に明記。Ren の対象特定時間を 5 分→30 秒に短縮

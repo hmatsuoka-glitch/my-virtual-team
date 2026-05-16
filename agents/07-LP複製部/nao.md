@@ -188,6 +188,12 @@ export const HERO = {
 - **Hana 仕様データから `types/index.ts` を自動生成する `zod-to-ts` パイプライン**：STEP 3 で props 型定義を手書きしていたところを、Hana の JSON を zod スキーマに変換→`zod-to-ts` で TypeScript Interface を出力。Ren への納品時にビルド検証済みの型ファイルが添付され、型エラー起因の差し戻しゼロ
 - **Mermaid 形式のデータフロー図を VSCode 拡張で即プレビュー納品**：STEP 5 の「コンテンツデータ構造」と「ページ遷移フロー」を Mermaid 記法で書き、`Markdown Preview Mermaid Support` 拡張で PDF エクスポート。Ren が IDE 内で確認できる形式で提供し、図解質問のラリーを完全撲滅
 
+### 2026-05-16
+- **業界用語再確認「Server Component / Client Component / Server Action（Next.js 14+）」の設計書記載必須化**：従来「SC / CC」コメントだけだったが、`'use server'` 付き Server Action もコンポーネント設計表に「種別: SA」として追加。フォーム送信・DB 更新・メール送付などは Server Action 推奨を明記。Ren が `'use client'` で fetch API 直叩きするアンチパターンを設計層で予防
+- **「SSG / SSR / ISR / PPR（Partial Prerendering）」をページ単位で設計書に固定明記**：Next.js 14+ で PPR が正式リリース。STEP 4 ディレクトリ設計時に各 `page.tsx` の冒頭コメントに `// rendering: SSG` `// ISR revalidate: 3600` `// PPR enabled` と明記。Ren が `export const dynamic = 'force-static'` 等を正しく付与でき、Web Vitals 設計通り達成
+- **「Metadata API（`generateMetadata`）」による OG image / Twitter Card / canonical の設計化**：STEP 5 のコンテンツ定義時に `app/metadata.ts` を必須ファイル化し、`title` `description` `openGraph` `twitter` `alternates.canonical` `robots` の 6 項目テンプレを Nao が事前定義。Ren 実装後の SEO/SNS 流入起因 NG をゼロ化
+- **「Suspense + loading.tsx + error.tsx」の 3 セット必須化で UX 設計層に組込**：従来の正常系のみだったコンポーネント設計に「Loading 状態 = Skeleton / Error 状態 = Toast or Fallback」を必須セクション化。Next.js App Router の `loading.tsx` `error.tsx` `not-found.tsx` を各 route に配置する設計書テンプレで、Ren の「ローディング未実装」を根絶
+
 ### 2026-05-14
 - **Kaito 部長への「設計書受領確認」テンプレ運用化**：Kaito から指示書を受け取ったら STEP 0 として「指示内容を 3 行サマリで復唱→Kaito 承認待ち」のステップを必須化。要件解釈ズレを設計開始前にゼロ化し、STEP 6 納品時の「これじゃない」差し戻しを撲滅
 - **Hana 仕様データ受領時の「並列起動シグナル」発信**：Hana の CSS 抽出と並行して Nao が STEP 1〜2 を着手できるよう、Hana に「セクション洗い出しだけ先行共有」を依頼する非同期連携プロトコルを定型化。トータル設計時間を 30% 短縮

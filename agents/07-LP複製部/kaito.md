@@ -188,6 +188,12 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **`vercel.json` の `redirects` 順序ミスによる無限ループ失敗**：原因は複数リダイレクトルールを羅列した際、上位ルールが下位ルールに該当するパスを返してループ。回避策は STEP 5 で `vercel dev` 起動後に旧URL→新URLパターンを `curl -I -L` で 5 ホップ以内に終わるか自動検証。301 が 5 回以上連続したらデプロイ中断
 - **HARU からの受注時「複製範囲」曖昧解釈失敗**：原因は「このサイト複製して」だけで TOP ページ／下層ページ／フォーム動作含むかが不明確のまま着手し、後から追加要件で工数倍増。回避策は受注直後 5 分で「TOP のみ／TOP +下層 N 枚／フォーム送信ロジック含む」の 3 択を HARU に必ず確認。Hana 着手前に Scope 確定書を Slack ピン留め
 
+### 2026-05-16
+- **業界用語再確認「TTFB（Time To First Byte）」のSLA 基準明示化**：Vercel/CDN エッジから初回バイト到達まで 200ms 以内を契約 SLA に組込。STEP 5 デプロイ前に `curl -w "%{time_starttransfer}\n" -o /dev/null -s URL` で計測し 300ms 超なら Edge Middleware / ISR（Incremental Static Regeneration）戦略を再検討。Core Web Vitals の根本指標を見落とさない運用化
+- **「ISR（Incremental Static Regeneration）」と「SSG/SSR/CSR」使い分けの STEP 5 判定フロー**：完全静的＝SSG、ユーザー個別＝CSR、定期更新コンテンツ＝ISR（`revalidate: 60`）、リアルタイム＝SSR。STEP 5 デプロイ前に各ページの「更新頻度・パーソナライズ要否」マトリクスで判定し vercel.json に明記。LP は基本 ISR + ヒーローのみ SSG をデフォルト戦略化
+- **「OG image（Open Graph image）」の 1200×630 仕様と動的生成方針再確認**：Next.js 14+ の `@vercel/og` で `app/opengraph-image.tsx` を実装し、SNS シェア時に正方形・横長で破綻しない画像を自動生成。STEP 5 デプロイ前に `https://www.opengraph.xyz/url/{URL}` で Facebook / X / LinkedIn 3 プレビュー検証。SNS 流入 LP の CTR を 25% 向上
+- **「CDN（Vercel Edge Network）」キャッシュ戦略 3 層モデル明文化**：①静的アセット（画像/フォント）= `Cache-Control: public, max-age=31536000, immutable` ②HTML = `s-maxage=60, stale-while-revalidate=3600` ③API = `no-store`。STEP 5 で vercel.json `headers` セクションに 3 層明記。本番運用後のキャッシュ起因不具合（古い画像表示 / API 結果固まる）を物理予防
+
 ### 2026-05-14
 - **部下 4 名への指示書フォーマット統一**：Hana・Nao・Ren・Mia へ渡す指示書を「対象 URL / 複製範囲 / 納期 / 優先デバイス / 特記事項」5 項目固定 Markdown テンプレ化。受領者ごとに書式が違うと解釈ズレが発生するため、Slack スレッドのトップに必ずピン留め
 - **sora（最終 QA）との品質基準合意を着手前に取り付ける**：STEP 1 開始前に sora へ「今回の忠実度スコア合格ライン（標準 85 点 / 高難度案件 90 点）」を提案・合意取得。Mia QA 完了後に sora から「合格ライン引き上げ」が来る手戻りを根絶

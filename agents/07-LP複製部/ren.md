@@ -180,6 +180,13 @@ STEP 5: レスポンシブ対応
 - **`turbopack` + `next dev --turbo` の HMR 高速化で実装ループ時間 75% 削減**：STEP 3・4 のスタイリング微調整時に、Webpack ベースの dev server は再ビルド 3 秒/回 → Turbopack は 0.7 秒/回。1 日の実装で 200 回 HMR が走る場合、合計 460 秒の待機が削減。修正→確認のフィードバックループが体感 4 倍高速化
 - **`next/image` の `placeholder="blur"` + `getPlaiceholder` でアセット最適化を自動化**：STEP 3 の画像実装で、`getPlaiceholder(src)` を使って Base64 の blurDataURL を `constants/content.ts` に事前生成して埋め込む。LCP 改善 + CLS 0 を実装側で担保、Mia パフォーマンス NG を本番前に潰す
 
+### 2026-05-16
+- **業界用語再確認「Hydration」3 大失敗パターンの実装ガードレール**：①Date.now()/Math.random() を JSX 直接埋込 ②`typeof window !== 'undefined'` 条件分岐 ③`useEffect` 外での localStorage 参照、の 3 つを ESLint `react/no-unstable-nested-components` + カスタムルール `no-hydration-mismatch` で fail 化。`'use client'` でも server/client JSX 差分は Hydration エラーになる事実を実装時に強制意識
+- **「`next/image` の `priority` / `loading` / `fetchPriority` / `sizes`」4 属性の使い分けマスター化**：Hero 画像 = `priority` + `fetchPriority="high"`、Above the Fold = `loading="eager"`、それ以下 = `loading="lazy"`（デフォルト）。`sizes="(max-width: 768px) 100vw, 50vw"` で srcset 最適化。STEP 3 実装で全 Image に 4 属性を必須化し、LCP 2.5s 切りを実装層で確保
+- **「ISR の `revalidate` + `revalidateTag` + `revalidatePath`」キャッシュ無効化 3 手法の使い分け**：時間ベース＝`export const revalidate = 60`、CMS 更新時＝`revalidateTag('blog')` を Server Action 内で発火、特定パス＝`revalidatePath('/lp/[id]')`。STEP 2 実装時にコンテンツ更新フローに合わせて 1 つ選択を必須化。古いキャッシュが本番で残る事故を実装段階で防ぐ
+- **「`<Suspense>` + `loading.tsx` + Streaming SSR」の正しい組合せでLCP改善**：重い fetch を含むコンポーネントを `<Suspense fallback={<Skeleton/>}>` でラップし、`loading.tsx` をルート直下に配置。Streaming SSR でHTMLが分割配信され、Hero が即表示・下部セクションは順次描画。STEP 3 実装で大型データテーブルは必ず Suspense 化、Lighthouse Performance 90 → 95 へ底上げ
+- **「Schema.org JSON-LD」を `<Script type="application/ld+json">` で出力する標準テンプレ**：`Organization` `LocalBusiness` `Product` `FAQPage` `BreadcrumbList` `Review` の 6 種をテンプレ化し、constants から JSON 生成して `app/layout.tsx` で出力。STEP 5 実装完了前に Google Rich Results Test API で構造化データ検証必須化。SEO リッチリザルト獲得率 30% 向上
+
 ### 2026-05-14
 - **Kaito 指示書受領時の「実装ブロッカー先出し」運用**：Kaito から指示を受けた瞬間、不明点・不足情報・依存タスクを 5 項目以内に箇条書きして 10 分以内に返信。実装着手後の「要件不明で停止」を撲滅し、Kaito の進行管理工数を 40% 削減
 - **Nao 設計書 STEP 1 並列時の「骨格ディレクトリ共有」プロトコル**：Nao がコンポーネント分割中の段階で Ren 側の Next.js ディレクトリ構造（app/ / components/ / styles/）を Slack で先行共有。Nao 側で設計書を骨格に合わせて微調整し、STEP 2 移行時の構造ズレをゼロ化
