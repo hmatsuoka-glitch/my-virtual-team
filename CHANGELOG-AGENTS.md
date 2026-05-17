@@ -1,6 +1,90 @@
 # CHANGELOG: my-virtual-team Agents
 
-Daily Knowledge Log の追記履歴。各エージェント末尾の `## 📝 Daily Knowledge Log` セクションへの軽量強化を記録する。
+各エージェントの強化履歴。Daily Knowledge Log の追記、ならびにオーバースペック化アップグレードを記録する。
+
+---
+
+## 2026-05-17（オーバースペック化アップグレード）
+
+### 強化されたエージェント: 32 / 32（100%）
+全部署の全エージェントに対し、業界トップクラス・唯一無二のオーバースペック仕様へ抜本的にアップグレード。
+1名あたり10ステップ（現状把握 → 業界ベンチマーク → ギャップ分析 → オーバースペック化方針 → 新スキルカタログ → 出力強化 → 方法論追加 → 失敗回避 → 連携プロトコル → ファイル更新）を実施。
+
+### 本日のテーマ
+**業界ベンチマーク準拠の抜本的スキル拡張（オーバースペック化）**
+2025-2026年における各専門領域のトップ1%が駆使する手法・フレームワーク・ツール・KPI・自己チェックリストを各エージェントに実装。
+
+### 統計サマリ
+- **総行数**: 4,239行 → **13,507行**（約3.2倍 / +9,268行）
+- **平均行数/ファイル**: 約130行 → **約420行**
+- **コミット数**: 5回（4バッチ × バッチ別 + 最終バッチ）
+- **使用subagent**: 32（各エージェント1並列）
+
+### バッチ別実行履歴
+| バッチ | 対象 | コミット |
+|------|------|--------|
+| 1-2 | Sora/Haruto/Sho/Yui/Eito/Itsuki/Ryota/Akari (8名) | fd1fde7 |
+| 3 | Shun/Rui/Kaito/Hana (4名) | ae6ce09 |
+| 4 | Nao(LP)/Ren/Mia/Saki (4名) | 93268a9 |
+| 5-8 | Sota/Yuna/Rei/Kana/Hiro/Kai/Nao(Dev)/Riku/Ao/Kuu/Mio/Yuto/Rin/Souma/Aoi/Mana (16名) | 628ec9e |
+
+### 部署別追加ハイライト
+
+#### 00-COO / 01-経営企画部
+- **Sora**: LLM Auto-Evaluation Stack (TruLens/Ragas/G-Eval) / NIST AI RMF / ISO 42001 / 多視点5レンズレビュー
+- **Haruto**: North Star Metric / Unit Economics (LTV/CAC) / RICE/ICE/WSJF / Pre-Mortem / シナリオ3層モデル
+
+#### 02-SNS運用部
+- **Sho**: 15コピー型×6フック×5CTA / 3階層KPI体系 / 炎上回避・媒体規約自己チェック
+- **Yui**: 5因子バズ採点モデル / トレンドライフサイクル4段階 / BERTopic / バイラル係数K
+
+#### 03-コンテンツ制作部
+- **Eito**: 動画構成20種 / 3秒フック12型 / Hook Rate/維持率 / Runway/Sora/Veo3/Suno/ElevenLabs
+- **Itsuki**: バナー構図15型 / サムネ10型 / WCAG/コントラスト / 業種別カラー戦略
+
+#### 04-クライアント管理部
+- **Ryota**: CHS（顧客健全度スコア）/ 解約予兆5段階 / MEDDIC/SPIN/Challenger / QBR
+- **Akari**: 採用ファネル6段階 / 媒体ROI判定 / 建設業ベンチDB / 改善提案コメント10型
+
+#### 05-データ分析部 / 06-リサーチ部
+- **Shun**: BigQuery×GA4 SQL / Polars/Prophet/PyMC / A/Bテスト MDE/SRM / MMM / DQ
+- **Rui**: トライアンギュレーション / JTBD / CRAAP / PESTLE / Crayon/Visualping
+
+#### 07-LP複製部（7名）
+- **Kaito**: 5段階品質ゲート / Vercel 30項目チェック / WBS+RACI+リスクログ / Rollback
+- **Hana**: W3Cデザイントークン正規化 / アセット台帳 / DevTools自作スニペット
+- **Nao(LP)**: RSC/CC境界マップ / Zod×TS Propsスキーマ / Polymorphic/Compound/Slot
+- **Ren**: Tailwind v4 @theme/@utility / Performance Budget CI Gate / View Transitions
+- **Mia**: 4軸統合60項目検査 / Playwright+pixelmatch+Lighthouse CI+axe-core / 重大度4段階+SLA
+- **Saki**: 7-Phase Workflow / 修正タイプ別6テンプレ / Rollback 3層防御
+- **Sota**: Cialdini 6原則 / Hick/Fitts/Miller法則 / CRO提案+A/Bテスト計画 / 信頼性レバー7
+
+#### 08-バナー生成部（4名）
+- **Yuna**: 用途確認20項目 / 媒体別サイズ2026 / ABテスト4軸 / CR疲弊管理
+- **Rei**: コピー17フレームワーク / フック30型 / 5軸スコア / 景表法・薬機法・特商法
+- **Kana**: 構図15型 / Variable Fonts / Performance<200kB / WCAG AA / 8ptグリッド
+- **Hiro**: Playwright+Worker Pool並列 / WebP/AVIF/APNG / pixelmatch差分検証 / SHA-256
+
+#### 09-システム開発部（6名）
+- **Kai**: DORA 4指標 / 技術選定7軸 / RAG/Agent/Eval / 5分3問テンプレ / C4/STRIDE/DECIDE
+- **Nao(Dev)**: C4 Model / Event Storming / Saga/Outbox / OTel / Fitness Function / RAG 8層
+- **Riku**: Next.js 15 RSC / Server Actions / Test Trophy / 4層テスト / Performance Budget PRゲート
+- **Ao**: OWASP API Top 10 / Idempotency / Webhook署名 / OTel+Sentry+pino / Inngest
+- **Kuu**: Progressive Delivery / Chaos / SBOM+Cosign / SLSA Level 3 / FinOps / Error Budget Policy
+- **Mio**: Test Trophy / F.I.R.S.T / 50項目レビュー / Stryker/Pact / Defect Escape Rate
+
+#### 10-資料作成部（5名）
+- **Yuto**: Pyramid Principle / Executive Summary / Amazon式6ページャー / AI時代ワークフロー
+- **Rin**: 5論理フレーム / CRAAP評価 / 構成テンプレ10種 / 可読性定量目標 / APA引用
+- **Souma**: レイアウト20種 / Zelazny7型 / 60-30-10 / Modular Scale / 8pt Grid / WCAG 2.2 AA
+- **Aoi**: 監査100項目 / 逸脱重大度4段階 / ΔE2000閾値 / Design Tokens / 制作不参加独立性
+- **Mana**: 共同通信HB/JIS Z 8208 / textlint+prh / 景表法・薬機法・特商法 / 100項目チェック
+
+### 注記
+- `agents/10-資料作成部/designer_memory.md` はメモリファイルのため対象外。
+- `agents/07-LP複製部/nao.md` と `agents/09-システム開発部/nao.md` は別人。両方とも独立にアップグレード済み。
+- 全エージェントの既存セクション（`## プロフィール` / `## 役割定義` / `## 📝 Daily Knowledge Log` 2026-04-28 エントリ）は保持。
+- 4並列のsubagentで32名を効率処理。3秒インターバル＆コミットを4回挟み品質を担保。
 
 ---
 
