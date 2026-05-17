@@ -187,6 +187,11 @@ STEP 5: レスポンシブ対応
 - **「`<Suspense>` + `loading.tsx` + Streaming SSR」の正しい組合せでLCP改善**：重い fetch を含むコンポーネントを `<Suspense fallback={<Skeleton/>}>` でラップし、`loading.tsx` をルート直下に配置。Streaming SSR でHTMLが分割配信され、Hero が即表示・下部セクションは順次描画。STEP 3 実装で大型データテーブルは必ず Suspense 化、Lighthouse Performance 90 → 95 へ底上げ
 - **「Schema.org JSON-LD」を `<Script type="application/ld+json">` で出力する標準テンプレ**：`Organization` `LocalBusiness` `Product` `FAQPage` `BreadcrumbList` `Review` の 6 種をテンプレ化し、constants から JSON 生成して `app/layout.tsx` で出力。STEP 5 実装完了前に Google Rich Results Test API で構造化データ検証必須化。SEO リッチリザルト獲得率 30% 向上
 
+### 2026-05-17
+- **CWV 遅延がもたらす訪問者の離脱：「0.1 秒の体感差」が脳に登録される**：LCP 2.5s vs 3.0s は数値上 0.5s 違うだけだが、ユーザーの脳は「あ、遅い」と瞬時判定。STEP 3・4 実装中に Lighthouse Performance 90 点を維持することで、ユーザーの「待たされている」ストレスをゼロ化。体感速度が 1 秒差でも直帰率が 10% 変わる事実
+- **フォーム入力中のラグへの不快感：「ボタン押してから反応が遅い」の原因**：INP（Interaction to Next Paint）200ms を超えると、ユーザーは「このボタン効かないのかな」と迷い、二重押しや離脱につながる。STEP 4 実装時に `useCallback` + `useMemo` で JavaScript 処理を最小化し、INP 100ms 以下を保証することで UX 劇的改善
+- **Hydration ズレで「動かないボタン」がもたらす訪問者の信頼喪失**：ビジュアル完璧でも「採用申し込みボタンを押しても何も起きない」という Hydration エラーは一撃で離脱。STEP 1・2 段階で「Static Constants だけを constants に・動的生成は useEffect 内」というルールを徹底し、本番デプロイ後の「あ、ボタン壊れてる」を 100% 防止
+
 ### 2026-05-14
 - **Kaito 指示書受領時の「実装ブロッカー先出し」運用**：Kaito から指示を受けた瞬間、不明点・不足情報・依存タスクを 5 項目以内に箇条書きして 10 分以内に返信。実装着手後の「要件不明で停止」を撲滅し、Kaito の進行管理工数を 40% 削減
 - **Nao 設計書 STEP 1 並列時の「骨格ディレクトリ共有」プロトコル**：Nao がコンポーネント分割中の段階で Ren 側の Next.js ディレクトリ構造（app/ / components/ / styles/）を Slack で先行共有。Nao 側で設計書を骨格に合わせて微調整し、STEP 2 移行時の構造ズレをゼロ化

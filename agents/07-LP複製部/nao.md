@@ -206,3 +206,8 @@ export const HERO = {
 - **`children` と `slot props` 混用による設計失敗**：原因は STEP 3 で柔軟性を狙って `children?: ReactNode` も `title?: string` も両方受け取り可とすると、Ren は「どっち使えばいい？」と判断不能になり実装ブレが発生。回避策は「1 つのコンポーネントは children パターン or props パターンのどちらか一方」と明記。設計書にどっちか必ず ✅ を付ける
 - **`constants/content.ts` のキー命名揺れによる設計失敗**：原因は STEP 5 で `heroTitle` `hero_subtitle` `HeroCTA` と命名規則が混在し、Ren 実装時に typo が起きやすいこと。回避策は constants 全キーを `SCREAMING_SNAKE_CASE` ＋セクション接頭辞統一（`HERO_TITLE` `HERO_SUBTITLE` `HERO_CTA_TEXT`）。lint ルールで `^[A-Z_]+$` を強制
 - **Server / Client Component 境界線の設計漏れ失敗**：原因は Next.js App Router で「どのコンポーネントが Server・どれが Client」を設計書に明記せず、Ren が念のため全部 `'use client'` を付与してバンドルサイズが爆増。回避策は STEP 4 のディレクトリ設計時に各 .tsx に `// SC` or `// CC` コメントを付与。`useState` `useEffect` を使う場合のみ CC、それ以外は SC とルール化
+
+### 2026-05-17
+- **設計書を読まないクライアント・ユーザーにも「伝わる」ビジュアル表現**：ユーザーが Nao の設計書を技術ドキュメントとして読むのではなく、「Figma のビジュアルスクショ」や「Before/After 図解」で直感的に理解したいという心理。STEP 6 納品時に設計書の PDF・Markdown に加え「各セクションのコンポーネント構成図」をビジュアル化
+- **設計段階で「ナビゲーション心理」を読み込んでいない失敗**：ユーザーが情報を探す視線移動・スクロール完結の心理・CTAボタンを「押すまでの逡巡」を数値化しないと、見た目完璧でも「スクロール 3 回目でやっと CTA 見つかる」という「遅い」体験になる。STEP 1〜5 の間に「ユーザーの視線フロー図」を Mermaid で必須追加
+- **「CTAボタンテキスト」の曖昧さがコンバージョン率を 50% 削減する事実**：「詳しく見る」「次へ」という曖昧テキストでは訪問者は「何をするボタン？」と迷い CV に至らない。STEP 3 CTA 定義時に「無料相談予約」「資料ダウンロード」など「アクション + ベネフィット」形式に統一ルール化
