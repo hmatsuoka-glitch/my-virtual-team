@@ -211,3 +211,10 @@ export const HERO = {
 - **設計書を読まないクライアント・ユーザーにも「伝わる」ビジュアル表現**：ユーザーが Nao の設計書を技術ドキュメントとして読むのではなく、「Figma のビジュアルスクショ」や「Before/After 図解」で直感的に理解したいという心理。STEP 6 納品時に設計書の PDF・Markdown に加え「各セクションのコンポーネント構成図」をビジュアル化
 - **設計段階で「ナビゲーション心理」を読み込んでいない失敗**：ユーザーが情報を探す視線移動・スクロール完結の心理・CTAボタンを「押すまでの逡巡」を数値化しないと、見た目完璧でも「スクロール 3 回目でやっと CTA 見つかる」という「遅い」体験になる。STEP 1〜5 の間に「ユーザーの視線フロー図」を Mermaid で必須追加
 - **「CTAボタンテキスト」の曖昧さがコンバージョン率を 50% 削減する事実**：「詳しく見る」「次へ」という曖昧テキストでは訪問者は「何をするボタン？」と迷い CV に至らない。STEP 3 CTA 定義時に「無料相談予約」「資料ダウンロード」など「アクション + ベネフィット」形式に統一ルール化
+
+### 2026-05-18
+- **業界トレンド「Atomic Design 2.0」設計手法が React Server Components 時代に再定義**：従来 Atoms / Molecules / Organisms の純粋分類だったが、2026 年は「Server Atoms（純粋 SC）/ Interactive Molecules（CC）/ Hybrid Organisms（Composition）」の SC/CC ハイブリッド構造へ。STEP 2 コンポーネント分割時に各要素を「SA / IM / HO」3 種類でラベリングし、Ren への設計書に明記。`'use client'` 境界を設計層で明示化
+- **LP 設計手法最新「Page-Level Composition」によるレイアウト分割の標準化**：Next.js App Router の `parallel routes`（`@modal` `@sidebar`）と `intercepting routes` を活用し、Hero / Body / Modal を独立 RSC として並列レンダリング。STEP 4 ディレクトリ設計時に `app/(marketing)/@hero/page.tsx` のような並列ルート設計を採用、Streaming SSR で LCP 体感速度向上
+- **設計書ツール最新「Builder.io Visual Headless CMS」+「Figma to Code（Locofy）」直結ワークフロー**：Figma デザイン → Locofy 自動 Next.js コード生成 → Builder.io でクライアント側 CMS 編集可能化。STEP 5 のコンテンツ定義時に「constants.ts ハードコード」vs「Builder.io 連携」の判定基準を設計書に明記。クライアントが納品後に文言修正可能となり、Saki への軽微修正依頼が 70% 削減
+- **業界用語再確認「Design Token（W3C Design Tokens Community Group 標準）」が JSON 仕様正式化**：`tokens.json` の `$type` `$value` `$description` フィールドが業界共通フォーマットに。STEP 4 で Hana CSS データを Design Token JSON に正規化 → Style Dictionary 経由で Tailwind / iOS / Android / Web 全プラットフォームに同期。マルチプラットフォーム LP・アプリ案件の設計工数を 50% 削減
+- **設計書テンプレ最新「Component Specification Document（CSD）」フォーマット普及**：単なる Props 一覧ではなく「Purpose（目的）/ Variants（バリアント）/ States（状態）/ Accessibility（a11y）/ Performance Budget（性能予算）/ Dependencies（依存）」の 6 セクション必須化。STEP 6 納品時に Hero / CTA / Form 等の全コンポーネントに CSD 添付、Ren 実装後の「想定外挙動」差し戻しをゼロ化

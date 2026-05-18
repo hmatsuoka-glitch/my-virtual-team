@@ -217,3 +217,10 @@ STEP 6: 忠実度スコア算出・判定
 - **Hana 責務 NG（カラー・フォント・アニメーション）の自動エスカレーション**：Mia 差し戻しの際に「これは Hana の抽出ミス起因か / Ren の実装ミス起因か」を 3 段階で判定。Hana 責務分は Kaito 経由で Hana へ再抽出要求し、Ren 修正→再差し戻しの無駄ループをゼロ化
 - **sora（最終 QA）への通過レポートに「ハイパーフォーカス 4 要素」を別枠記載**：ヘッダー位置・フォント太さ・ボタン色・余白感の 4 要素は数値スコアと別途「初見 3 秒違和感ゼロ」判定を明記。sora が最終 QA で重複チェックする手間を省き、納品速度向上
 - **システム開発部 Sota への「Web Vitals 計測結果共有」**：LP 単体だけでなくシステム連携を伴う案件では、STEP 5 で計測した LCP・FID・CLS・INP を Sota にも共有。バックエンド側で改善可能なボトルネックの早期発見ルート確立
+
+### 2026-05-18
+- **ビジュアルリグレッション最新ツール「Chromatic 2026」が AI ベース「意図変更検出」を一般公開**：Storybook 連携の Chromatic に AI 判定エンジン追加で、「Hero フォント変更=意図変更 / ボタン色微差=リグレッション」を 99% 精度で自動分類。STEP 1 レイアウト忠実度チェックを `chromatic --auto-accept-changes` ＋ AI 判定で実行し、Mia の目視確認時間を 80% 削減。誤検出による再 QA ループを根絶
+- **業界トレンド「Playwright UI Mode」+ trace viewer 連携で「リグレッション原因追跡」が秒速化**：`npx playwright test --ui` でテスト実行中の DOM スナップショット・ネットワーク・コンソールログを時系列で並列表示。STEP 4 アニメーション差分検出時に「どのフレームで CLS 発生したか」が秒で特定可能。Ren への差し戻しに `trace.zip` 添付で原因究明工数を 1 時間→5 分に短縮
+- **「Percy + axe-core 統合」によるビジュアル + a11y 同時検出ワークフロー普及**：従来 Percy（ビジュアル）と axe（a11y）を別実行していたが、2026 年 Percy SDK v2 で同パイプライン実行可能化。STEP 1〜5 の各カテゴリに axe 違反検出を併走させ、Mia 通過レポートに「ビジュアル合格 + a11y violations 0 件」を 1 行記載。WCAG 2.2 AA 不適合をビジュアル QA フェーズで物理ブロック
+- **業界用語再確認「VRT（Visual Regression Testing）」の新評価基準「pixel-perfect → perception-perfect」転換**：従来 `pixelmatch` 0.1 しきい値の絶対値判定から、`Looks Same`（人間知覚モデル DSSIM）を採用する流れ。STEP 6 スコア算出時に `pixelmatch`（厳格）と `looks-same --ignoreAntialiasing`（知覚）の 2 軸で評価し、両方 PASS で 90 点超とする運用に。アンチエイリアス差分での誤 NG を撲滅
+- **「Lighthouse CI（lhci autorun）」が Performance Budget JSON で「指標別 SLA」を CI ブロック化**：`lighthouserc.json` の `assertions` で `categories:performance: ["error", {minScore: 0.9}]` `largest-contentful-paint: ["error", {maxNumericValue: 2500}]` を定義し PR レベルで物理ブロック。STEP 6 通過レポートに `lhci report --upload` URL を添付し Sora が履歴比較可能化

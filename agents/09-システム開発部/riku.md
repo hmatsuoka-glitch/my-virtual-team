@@ -182,3 +182,10 @@ STEP 6: 実装完了報告
 - **UI で迷う 0.7 秒のスキップが無いボタンと有るボタンの「押す気」の違い**：リンク色が標準テキスト色と同じ（黒）だと「あ、押せるのか」と脳が 0.7 秒迷い、その間ユーザーは次の行動を中断。赤や下線なしは「何この文字」と無視される。Riku が `<a>` を赤＋下線、`<button>` を濃い背景色で必ず実装することで、ユーザーが「あ、押せる」と 0 秒で認識。UI 反応性が UX 時間体験を決定。
 - **ボタン押す前のホバーで色が変わらないと「本当に押せるのか」と不安になるメンタリティ**：デスクトップユーザーが `:hover` で色変化を期待する脳になっているから、ホバー未実装ボタンは「押せる感覚がない」。Riku が全ボタンに `:hover` `:active` `:focus` を付けることで、デスクトップ・タッチ・キーボード 3 種類のユーザーが全て「フィードバック」を受け取る。UI 動作の確実性が信頼度につながる。
 - **ローディング我慢限界秒数は「1.5 秒超で 50% のユーザーが離脱」という論文が既に 15 年前の結果**：今のスマホユーザーは LCP 1 秒超で「遅い」と感じ、ローディング表示が 3 秒なら確実に離脱。Riku が Next.js Server Components で JavaScript バンドル 40% 削減、画像最適化で LCP < 2.5s を実装時の自己チェック基準化。Lighthouse Performance 90+ を PR 必須ゲートにすることで、本番での速度 NG を未然防止。
+
+### 2026-05-18
+- **2026 年 Next.js 16 リリース：Turbopack が安定版・Webpack 完全置換**：dev 起動 5 秒 → 1 秒、HMR 300ms → 30ms に高速化。Riku の開発体験が劇的改善、1 日の実装速度 30% 向上。`next.config.js` から Webpack カスタム設定を削除しシンプルな Turbopack 設定に移行する作業を 2026 H2 までに完了予定。Vite との競争で Next.js の優位性確立。
+- **React 19 安定リリース：use Hook / Actions / Compiler が業界標準化**：React Compiler が自動メモ化（useMemo/useCallback 不要）、`use(promise)` で Suspense と組合せた非同期処理が簡潔化、Form Actions で `<form action={fn}>` のサーバーアクション統合が標準に。Riku の手動最適化工数が大幅削減、コード可読性向上。Mio との Pre-QA レビューで「React 19 標準パターン採用」を新チェック項目化。
+- **shadcn/ui v2 と Aceternity UI / Magic UI の業界覇権**：2026 年は「コピペ式 UI ライブラリ」が MUI/Chakra UI を駆逐する勢い。Riku が新規プロジェクトで shadcn/ui を基盤に、アニメーション特化の Magic UI（Framer Motion ベース）を補完採用。Tailwind v4 と組合せて「デザインシステム独自構築不要」「ベンダーロックインなし」を両立。Kana のバナーデザインと一貫性ある UI 構築可能化。
+- **Web Components / HTML Web Components の Re-emergence**：「React 疲労」議論を背景に、フレームワーク非依存の Web Components が 2026 で再注目。GitHub・Adobe・Microsoft が積極採用。Riku の判断軸として「埋込ウィジェット・複数フレームワーク跨ぐ → Web Components」「フルスタック SaaS → Next.js」と使い分け明示。LET の採用支援案件でクライアントサイトに埋込む「応募ボタンウィジェット」を Web Components で実装する選択肢追加。
+- **Partial Prerendering（PPR）の Next.js 16 標準化**：1 ページ内で「静的部分は SSG・動的部分は SSR」を自動分割、LCP 改善と SEO 両立。Riku の Hero セクションは静的・ユーザー固有情報は streaming render する設計が当たり前に。Lighthouse Performance スコアが PPR 採用で 95+ に到達可能、Core Web Vitals SLO 達成率向上。Vercel Speed Insights で PPR の効果を可視化、クライアント提案時の差別化要素に。

@@ -196,3 +196,9 @@ STEP 8: 仕様データを構造化して出力
 - **訪問者が「LP の完成度」を脳が 0.5 秒で判定する瞬間の 3 要素**：STEP 8 完成度スコア出力時に、Hana が抽出した「ヘッダーロゴ位置・フォント太さ・ボタン色」の 3 要素を「初見 0.5 秒違和感ゼロチェック」として Mia へ別枠で強調表示。ピクセル完全でも知覚的に「あ、違う」と感じるのはこの 3 つだけという実装からの学び
 - **フォント読み込み遅延による「FOUT（Flash of Unstyled Text）」の訪問者ストレス化**：Google Fonts 読み込み中のテキスト透明化・サンセリフ→セリフ置換・行高変化による CLS。STEP 3 フォント抽出時に `font-display: swap` + `font-weight: 400/700 プリロード` を必須化し、読み込み中のちらつきを Mia 観点で物理削減
 - **レイアウトシフト（余白詰まり・画像未読み込み）で訪問者が「0.5 秒で離脱」する仕組み**：CLS 0.1 超過は単なる数値NG ではなく、ユーザーの脳が「このページは信用できない」と瞬時に判定。STEP 6 で CLS 計測ツール（web-vitals ライブラリ）を組み込み、ビジュアル完璧でも数値 NG があれば Mia へエスカレ
+
+### 2026-05-18
+- **業界トレンド「CSS Anchor Positioning（CSS Anchor Positioning Module Level 1）」が Chrome 125+ で正式サポート**：従来 JS で書いていたツールチップ・ポップオーバー・ドロップダウン位置計算が `anchor-name` / `position-anchor` / `inset-area` の CSS 純宣言で実現可能に。STEP 4 レイアウト抽出時に「ポップオーバー・吹き出し系 UI」を見つけたら旧 JS 実装か新 CSS 実装かを判定し、Ren への仕様書に「Chrome 125+ なら CSS Anchor 採用可」と明記。JS バンドルサイズ削減＋アクセシビリティ向上
+- **抽出ツール最新「Style Spy（Chrome 拡張）」と「CSS Stats」の併用で抽出時間 40% 短縮**：Style Spy は要素クリックだけで `:hover` `:focus` `:active` 全状態の CSS を JSON ダンプ、CSS Stats は対象 URL の使用色数・フォント数・セレクタ複雑度を統計化。STEP 1 で両ツールを並列起動し、Style Spy = ミクロ抽出 / CSS Stats = マクロ全体把握の役割分担で 8 ステップを高速化
+- **Google Fonts「Variable Fonts（可変フォント）」採用率が 2026 年で日本語フォント 80% 突破**：Noto Sans JP Variable / Zen Kaku Gothic New Variable など 1 ファイルで全 weight を提供。STEP 3 フォント抽出時に「ウェイト 5 種類個別読込（500KB×5）」vs「Variable 1 ファイル（800KB）」を判定し、Variable 採用で初回ロード 1.7MB 削減を Ren への仕様書に明記。`font-variation-settings: 'wght' 500` での微調整も併記
+- **業界用語再確認「Container Queries（`@container`）」と「Subgrid」が 2026 年 LP 標準装備に**：Bootstrap 5.4 / Tailwind v4 ともに `@container` ネイティブサポート。STEP 4 レイアウト抽出時に「親要素サイズに依存するカード形状変化」を見つけたら旧 `@media` ではなく `@container (min-width: 400px)` 仕様で Ren に引き渡し。viewport ではなくコンテナ基準のレスポンシブで、サイドバー込み複雑レイアウトの一貫性を担保

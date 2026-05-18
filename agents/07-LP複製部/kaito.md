@@ -205,3 +205,9 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **クライアントが LP を初めて開いた時の「1秒間の第一印象の体験フロー」**：デプロイ URL を受け取ったクライアントが見て 1 秒で判定する 3 要素は①ヘッダー・ロゴ位置②フォント太さ③ボタン色。これらが完璧でも「なんか違う」と言われるのは多くが④全体的な余白感の詰まり・空き方。Kaito が納品前 3 秒テスト（PC・SP・TAB）を自ら実施し、知覚合致を最後の砦にする
 - **URL 共有を躊躇させるクライアント心理「完璧でないから見せたくない」の正体**：ビジュアル・パフォーマンス完璧でも「なんか自分のブランドじゃない感がする」と言われるのは、色選定・フォント選定の「方向性」がビジネスアイデンティティとズレているケース。Kaito が Sora へ引き継ぐ前に「このデザイン方向性でいいですか」の確認を STEP 5 に追加
 - **複製フロー中の「進捗が見えない不安」がクライアント信頼を損なう構造**：Hana→Nao・Ren 並列→Mia QA→Saki 修正→完了という全体フロー 10 日間の間、クライアント側には「何が起きているのか」見えない。Kaito が週 1 回「進捗ダッシュボード画像」をクライアントに自動配信し、「完成近い」感を可視化することで提案採用率向上
+
+### 2026-05-18
+- **Vercel 業界トレンド「Fluid Compute（流体型コンピュート）」が 2026 年 4 月 GA**：従来 Serverless Functions の cold start 問題を、リクエストが流入し続ける限り同一インスタンスで処理する新モデル。STEP 5 デプロイ時に `vercel.json` の `functions` セクションで `runtime: "edge"` から `runtime: "fluid"` に切替検討。API ルート集約 LP で TTFB が 800ms→150ms に短縮、Lighthouse Performance スコア 5-10 点底上げ
+- **Vercel「v0 Platform API」公開で「LP 修正指示テキスト → コード自動生成」が直結化**：従来 Sota → Ren → デプロイの 3 ステップを、`v0 chat completions` API 経由でクライアント要望テキストから直接 Pull Request 生成。STEP 4 Mia QA 通過後の軽微修正（コピー変更・色微調整）を Saki 介さず Kaito 単独で 30 分以内に対応可能化。緊急修正リードタイム激減
+- **デプロイ業界最新「Cloudflare Workers vs Vercel Edge」競争激化、Vercel が `@vercel/edge-config` で動的構成読み出し**：A/B テスト・地域別配信を Edge レベルで実現する `getEdgeConfig()` が 2026 年 3 月 stable。STEP 5 でクライアントから「日本向け・海外向け配信切替」要望があれば、`vercel.json` で Edge Config 接続→管理画面で切替可能と提案。デプロイ後の運用柔軟性で差別化
+- **業界用語再確認「DX Platform（Developer Experience Platform）」としての Vercel の立ち位置**：単なるホスティングから「コード生成（v0）+ ビルド + デプロイ + 監視（Speed Insights）+ A/B（Edge Config）」のフル DX へ進化。STEP 5 で Speed Insights を必ず有効化し、本番後 7 日間の実ユーザー LCP/INP/CLS を Slack 自動投稿。Mia QA で見えない本番劣化を運用フェーズで検出

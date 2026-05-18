@@ -204,3 +204,10 @@ STEP 5: レスポンシブ対応
 - **SP ブレークポイント崩れ：固定 px と vw の混用失敗**：原因は STEP 5 のレスポンシブ実装で Hero 高さに `min-h-[800px]` を指定し、iPhone SE 横画面（375×667）でコンテンツが切れる。回避策は「ファーストビューは `min-h-[100svh]`」「セクション内余白は `clamp()` で px/vw 連動」をテンプレ化。固定 px は装飾境界（border-radius 等）のみに限定
 - **`use client` の付け忘れで「onClick is not a function」失敗**：原因は Next.js App Router で Server Component のまま `onClick` ハンドラを書きビルド時エラーになる。回避策は「ファイル冒頭で `useState` `useEffect` `on*` ハンドラのいずれかを使うなら最初の 1 行は `'use client'`」を実装ルール化。ESLint カスタムルールで自動検出
 - **画像 `alt` 属性空文字での Lighthouse Accessibility 失敗**：原因は STEP 3 で装飾画像と判断して `alt=""` のままにしたが、Mia アクセシビリティチェックで「意味のある画像に alt なし」と NG。回避策は constants にすべての画像エントリで `{src, alt}` を必須化し、装飾なら `role="presentation"` 併用。alt 抜けで Lighthouse 90 点切る事象を根絶
+
+### 2026-05-18
+- **Next.js 最新「15.2 リリース」で `after()` API が stable 化、レスポンス後の非同期処理が公式サポート**：従来 `setTimeout` で逃がしていたログ送信・分析イベント送信が `after(() => fetch('/log'))` で Server Action 内に記述可能化。STEP 4 でフォーム送信後の Slack 通知・GA4 イベント発火を `after()` で実装し、ユーザー体感速度を損なわず非同期処理を完結。INP 200ms 切りを実装層で確保
+- **「Tailwind CSS v4.0」正式版で `@theme` ディレクティブと Lightning CSS エンジン採用**：従来 `tailwind.config.ts` 別ファイル管理が `globals.css` 内の `@theme { --color-primary: oklch(...) }` で完結化。STEP 1 で Hana JSON を直接 globals.css に `@theme` 展開するパイプラインに切替、tailwind.config 不要化でビルド時間 60% 短縮。OKLCH カラー空間ネイティブ対応で iOS/Android 色再現精度向上
+- **React 19.1 + 「React Compiler」自動メモ化が production 推奨に**：手動 `useMemo` / `useCallback` 不要化、コンパイラが自動で再レンダリング最適化。STEP 3 実装時に `eslint-plugin-react-compiler` を導入し、コンパイラが安全に最適化できるパターンを強制。INP 改善 + コード可読性向上の二重メリット
+- **業界トレンド「shadcn/ui CLI v2」で `npx shadcn add --all` が registry.json 経由で組織共通テーマ配信可能化**：LET 社内で `let-inc/shadcn-registry` を構築し、Button / Card / Form の社内標準デザインを `components.json` に `"aliases": "@/registry/let"` で配信。STEP 3 で新規案件着手時に LET ブランド適合の shadcn コンポーネント一括投入、Sota デザイン提案との一貫性が標準化
+- **業界用語再確認「Server Action」と「Route Handler（`app/api/route.ts`）」の使い分けが Next.js 15+ で明文化**：フォーム送信・DB 更新・mutation = Server Action（`'use server'`）、外部 API 公開・Webhook 受信・SSE = Route Handler。STEP 4 でフォーム実装時に Route Handler を使うアンチパターン（progressive enhancement 喪失）を ESLint で検出。Server Action + `<form action={fn}>` の標準テンプレで JS 無効環境でも動作保証
