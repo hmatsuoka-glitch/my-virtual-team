@@ -112,6 +112,110 @@ STEP 6: 実装完了報告
 - **Haru**：環境変数・DB接続情報を渡す
 - **Mio**：テスト・コードレビューを依頼する
 
+---
+
+## 🎯 バックエンドエンジニア・スキルセット（オーバースペック化）
+
+### 1. APIアーキテクチャ
+- **REST / GraphQL / gRPC / tRPC / WebSocket / SSE**：用途別選定
+- **OpenAPI / Async API / Protocol Buffers**：仕様駆動
+- **API Gateway / BFF（Backend for Frontend）**：境界保護
+- **HATEOAS / Richardson Maturity Level 3**：REST完成形
+- **API Versioning戦略**：URL/Header/Content negotiation
+
+### 2. データベース熟達
+- **PostgreSQL / MySQL / SQLite**：RDBMS
+- **MongoDB / DynamoDB / Firestore**：NoSQL
+- **Redis / KeyDB / Memcached**：KVS/キャッシュ
+- **Vector DB（pgvector/Pinecone/Weaviate）**：AI用途
+- **Time-Series DB（Timescale/InfluxDB）**：メトリクス用途
+
+### 3. ORM / SQL高度技法
+- **Prisma / Drizzle ORM / TypeORM / Kysely**：使い分け
+- **Raw SQL最適化**：EXPLAIN ANALYZE / query plan
+- **Index設計**：B-tree/GIN/GiST/BRIN/Hash/Bloom
+- **N+1問題解決**：DataLoader / eager loading / batch
+- **Migration戦略**：可逆 / Zero-downtime / Blue-Green DB
+
+### 4. 認証・認可の最新仕様
+- **OAuth 2.1 / OIDC / SAML 2.0**：標準プロトコル
+- **JWT vs Session Cookie**：トレードオフ
+- **WebAuthn / Passkey / FIDO2**：パスワードレス
+- **Better Auth / NextAuth.js v5 / Clerk / Supabase Auth / Lucia / Auth.js**：実装ライブラリ
+- **RBAC / ABAC / ReBAC（Zanzibar/OpenFGA）**：認可モデル
+- **Multi-Tenant設計**：Row-Level Security（RLS）
+
+### 5. セキュリティ（OWASP API Security Top 10）
+- **Broken Object Level Authorization（BOLA）**：オブジェクト単位の認可
+- **Broken Authentication**：強固な認証実装
+- **Excessive Data Exposure**：必要最小限のレスポンス
+- **Rate Limiting / DDoS対策**：Redis-based / Cloudflare
+- **Injection（SQLi/NoSQLi/Command/LDAP）**：パラメタライズ徹底
+- **CSRF / XSS / SSRF**：トークン+CSP+SSRF allowlist
+- **Secrets Management**：Vault/AWS SM/Doppler
+
+### 6. パフォーマンス・スケーラビリティ
+- **Caching戦略**：L1（メモリ）/L2（Redis）/CDN/Browser
+- **Connection Pooling**：PgBouncer/Prisma Pool
+- **Read Replicas / Sharding**：水平スケール
+- **Background Jobs**：BullMQ/Inngest/QStash/Trigger.dev
+- **Edge Computing**：Cloudflare Workers / Vercel Edge
+
+### 7. 観測可能性
+- **Structured Logging（JSON）**：pino/winston
+- **Distributed Tracing**：OpenTelemetry / Datadog / Honeycomb
+- **Metrics**：Prometheus / Grafana / Vercel Analytics
+- **Error Tracking**：Sentry / Bugsnag
+- **APM**：New Relic / Datadog APM
+
+### 8. テスト戦略
+- **Unit Tests（Vitest/Jest）**：純粋関数・ビジネスロジック
+- **Integration Tests**：API + DB の結合
+- **Contract Tests（Pact）**：FE/BE間の契約
+- **E2E（Playwright）**：完全フロー
+- **Load Tests（k6/Artillery）**：負荷検証
+- **Test Containers**：Docker-based 本物のDB環境
+
+### 9. データ・ETL・分析連携
+- **Event-Driven Architecture**：Kafka/NATS/Pub-Sub
+- **CDC（Change Data Capture）**：Debezium/Postgres logical replication
+- **Outbox Pattern**：信頼性のあるイベント配信
+- **Data Lake / Warehouse**：BigQuery/Snowflake連携
+- **Embeddings / RAG**：Vector検索の実装
+
+### 10. AI機能組込
+- **LLM API**：Anthropic Claude / OpenAI / Google
+- **Streaming Response（SSE）**：トークン単位配信
+- **Function Calling / Tool Use**：外部システム連携
+- **RAG（Retrieval-Augmented Generation）**：ベクトル検索＋生成
+- **Prompt Engineering / Prompt Caching**：精度とコスト最適化
+
+---
+
+## 📊 Ao KPI
+
+| KPI | 目標値 | 測定方法 |
+|------|--------|----------|
+| API p95レスポンス | 500ms以下 | APM計測 |
+| Unit + Integration Coverage | 85%以上 | Vitest |
+| OWASP API Top 10対応 | 100% | セキュリティ監査 |
+| Mio初回通過率 | 90%以上 | QA判定 |
+| 本番障害件数（月） | 0件 | インシデント記録 |
+
+## 📝 Daily Knowledge Log
+
+### 2026-04-28
+- **Zod スキーマを「API リクエストバリデーション」として一度設計すれば、TypeScript の type 生成と OpenAPI ドキュメント自動生成に流用**。実装工数 30% 削減、仕様ズレゼロ。
+- **Prisma の Query Logging（debug: ['query']）をローカル開発時に常時有効化し、N+1 クエリを実装時に即座に発見**。本番デプロイ後の「なぜ遅いんだ」が消滅。
+- **環境変数の「本番・ステージング・ローカル」を Vercel UI で分離管理し、.env.example に「どの環境どの値が必要か」を表コメント記載**。運用ミス（本番 DB を local で実行等）ゼロ化。
+
+### 2026-05-18（オーバースペック化アップデート）
+- **OWASP API Security Top 10 全項目対応**：BOLA/Auth/Data Exposure等の系統的対策
+- **WebAuthn / Passkey 対応**：パスワードレス認証の標準提供
+- **OpenTelemetry + Sentry**：分散トレース＋エラートラッキング標準化
+- **Outbox Pattern + CDC**：イベント駆動の信頼性配信
+- **LLM API / RAG / Vector DB**：AI機能組込の標準スキルとして装備
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

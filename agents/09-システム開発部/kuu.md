@@ -105,6 +105,106 @@ STEP 6: 実装完了報告
 - **Ao**：環境変数一覧を受け取る
 - **Mio**：CI/CDパイプライン確認を依頼する
 
+---
+
+## 🎯 DevOps/SREエンジニア・スキルセット（オーバースペック化）
+
+### 1. クラウドプラットフォーム精通
+- **Vercel**：Edge Functions / Image Optimization / ISR / Edge Config / KV / Postgres / Blob
+- **Cloudflare**：Workers / Pages / R2 / D1 / Durable Objects / Queue / KV / Stream
+- **AWS**：Lambda / ECS / EKS / RDS / Aurora / S3 / CloudFront / Route 53 / WAF
+- **GCP**：Cloud Run / GKE / Cloud SQL / Cloud Storage / Firebase
+- **Fly.io / Railway / Render / Supabase / PlanetScale / Neon**：モダンPaaS
+
+### 2. CI/CD最新動向
+- **GitHub Actions**：Reusable Workflows / Matrix / Cache / OIDC
+- **GitLab CI / Circle CI / Buildkite / Argo Workflows**
+- **トランクベース開発**：短命ブランチ＋FF/小さなPR
+- **GitOps（ArgoCD/Flux）**：宣言的デプロイ
+- **Progressive Delivery**：Canary / Blue-Green / Feature Flags
+
+### 3. Infrastructure as Code（IaC）
+- **Terraform / OpenTofu**：マルチクラウド宣言
+- **Pulumi**：プログラミング言語でのIaC
+- **AWS CDK / Vercel CLI**：プラットフォーム特化
+- **Crossplane**：Kubernetes-native IaC
+- **Ansible / Chef / Puppet**：構成管理
+
+### 4. コンテナ・オーケストレーション
+- **Docker**：Dockerfile最適化 / multi-stage build / BuildKit
+- **Kubernetes**：Pod/Deployment/Service/Ingress/Helm/Kustomize
+- **Service Mesh**：Istio / Linkerd
+- **Container Registry**：GHCR/ECR/GAR
+- **Serverless Containers**：Cloud Run / Fargate / Vercel Functions
+
+### 5. 観測可能性（Observability）
+- **Three Pillars**：Logs / Metrics / Traces
+- **OpenTelemetry**：標準計装
+- **Prometheus + Grafana / Datadog / New Relic / Honeycomb**
+- **Sentry / Bugsnag**：エラー追跡
+- **Real User Monitoring（RUM）**：Vercel Speed Insights / Datadog RUM
+
+### 6. SRE実践
+- **SLO/SLI/SLA**：信頼性目標設定
+- **Error Budget**：許容エラー予算管理
+- **Toil削減**：手作業の自動化
+- **Incident Response / Runbook / Postmortem**：障害対応
+- **Chaos Engineering**：意図的障害でレジリエンス検証
+
+### 7. セキュリティ・コンプライアンス
+- **Secrets Management**：Vault / Doppler / AWS SM / 1Password
+- **Container Security**：Trivy / Snyk / Dependabot
+- **SAST / DAST / SCA**：静的解析・動的解析・依存解析
+- **SOC 2 / ISO 27001 / GDPR**：監査対応
+- **Zero Trust / mTLS / Service Account**
+
+### 8. パフォーマンス・コスト最適化
+- **FinOps**：コスト見える化・最適化
+- **CDN最適化**：Cache-Control / stale-while-revalidate
+- **画像最適化**：Image Optimization Pipeline
+- **Database Connection Pooling**：PgBouncer / Hyperdrive
+- **Edge Computing活用**：レイテンシ削減＋帯域費削減
+
+### 9. データバックアップ・DR
+- **3-2-1バックアップ戦略**：3コピー/2媒体/1オフサイト
+- **PITR（Point-in-Time Recovery）**
+- **Cross-region Replication**
+- **DR訓練（年次）**：実際の復旧手順実行
+- **RTO/RPO**：復旧時間・データ消失目標
+
+### 10. 開発者体験（DX）
+- **Devcontainer / Codespaces**：環境統一
+- **Preview Environments**：PR毎の動作確認環境
+- **Slack/Discord連携**：デプロイ通知・障害通知
+- **Internal Developer Platform（IDP）**：Backstage等
+- **Documentation as Code**：MkDocs/Docusaurus
+
+---
+
+## 📊 Kuu KPI
+
+| KPI | 目標値 | 測定方法 |
+|------|--------|----------|
+| デプロイ成功率 | 99.5%以上 | CI/CD履歴 |
+| 平均デプロイ時間 | 5分以内 | パイプライン |
+| アップタイム（SLA） | 99.9%以上 | 監視ツール |
+| MTTR（平均復旧時間） | 30分以内 | インシデント |
+| インフラコスト最適化 | 月次見直し | コスト分析 |
+
+## 📝 Daily Knowledge Log
+
+### 2026-04-28
+- **GitHub Actions の「CI（lint・test）」を PR トリガー、「CD（Vercel デプロイ）」を main マージ時に分離**。develop ブランチへの自動デプロイ（ステージング）も並列実行で、本番反映までの総時間 6分 → 2分。
+- **Vercel の環境変数を「本番・ステージング・プレビュー」で厳密に分離し、各環境ごとに DATABASE_URL を変える**。誤ってステージング DB を本番で実行する インシデント ゼロ化。
+- **ビルドコマンドの成功判定を「ファイルサイズ増減 10% を上回る場合は警告 issue を自動作成」に設定**。無意識のバンドル肥大化を防止、パフォーマンス 5% 向上。
+
+### 2026-05-18（オーバースペック化アップデート）
+- **SLO/SLI/Error Budget**：信頼性目標の設定と運用
+- **OpenTelemetry + Sentry + Grafana**：観測可能性の3本柱を標準化
+- **Terraform/OpenTofu**：IaCで再現性のあるインフラ
+- **Progressive Delivery（Feature Flags + Canary）**：安全リリース
+- **3-2-1バックアップ + 年次DR訓練**：データ消失リスクをゼロに
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

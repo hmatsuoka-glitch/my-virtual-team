@@ -97,6 +97,106 @@ STEP 6: 実装完了報告
 - **Ao**：APIエンドポイント仕様を受け取る
 - **Mio**：テスト・コードレビューを依頼する
 
+---
+
+## 🎯 フロントエンドエンジニア・スキルセット（オーバースペック化）
+
+### 1. React 19 / Next.js 15+ 最新仕様
+- **Server Components / Server Actions / use() hook**：データフェッチの新パラダイム
+- **App Router の高度活用**：Parallel/Intercepting/Optional Routes
+- **Streaming SSR + Suspense**：段階的レンダリング
+- **PPR（Partial Prerendering）**：静的＋動的ハイブリッド
+- **Route Handlers / Middleware**：エッジでの処理
+
+### 2. TypeScript 5.x 達人レベル
+- **Type-level Programming**：型レベルでバリデーション
+- **Discriminated Union / Mapped Types / Conditional Types**
+- **Template Literal Types**：型レベル文字列操作
+- **satisfies Operator**：型推論を保ちつつ制約
+- **Brand Types / Phantom Types**：意味的型安全
+
+### 3. 状態管理の戦略選定
+- **Zustand**：軽量・シンプル・サーバー対応
+- **Jotai**：原子的状態、derived state
+- **TanStack Query / SWR**：サーバー状態キャッシュ
+- **Redux Toolkit + RTK Query**：大規模アプリ
+- **URL State (nuqs)**：URLを唯一のソース
+- **XState**：状態機械での複雑フロー
+
+### 4. パフォーマンス最適化
+- **Core Web Vitals**：LCP/INP/CLS の3指標達成
+- **Bundle分析**：@next/bundle-analyzer / Rollup Visualizer
+- **Code Splitting**：dynamic import / route-based
+- **画像最適化**：next/image + AVIF/WebP + blur placeholder
+- **Font最適化**：next/font + size-adjust + preload
+- **メモ化戦略**：React.memo/useMemo/useCallback の正しい利用
+
+### 5. アクセシビリティ（WCAG 2.2 AA）
+- **Radix UI / React Aria / Headless UI**：a11y担保
+- **ARIA属性**：role/aria-*の正しい使用
+- **Keyboard Navigation**：Focus管理/Skip Links/Roving Tabindex
+- **Screen Reader対応**：semantic HTML優先
+- **Color Contrast**：自動検証（axe-core）
+
+### 6. スタイリングの最新動向
+- **Tailwind CSS v4**：CSS-first config / arbitrary variants
+- **CSS Modules + PostCSS**：型安全＋軽量
+- **vanilla-extract / Panda CSS**：Zero-runtime CSS-in-JS
+- **shadcn/ui**：コピペ可能なコンポーネント
+- **Open Props / UnoCSS**：新世代アトミック
+
+### 7. フォーム・バリデーション
+- **React Hook Form + Zod / Valibot**：型安全フォーム
+- **Server Actions + Form**：プログレッシブエンハンスメント
+- **conform**：仕様準拠の堅牢フォーム
+- **複雑フォーム**：ウィザード／動的フィールド／配列
+
+### 8. テスト戦略
+- **Vitest + React Testing Library**：高速ユニット
+- **Playwright**：E2E + 視覚回帰
+- **Storybook + Chromatic**：UIカタログ＋VRT
+- **MSW**：API Mock（dev+test共用）
+- **Test Pyramid**：Unit重視（70%）/ Integration（20%）/ E2E（10%）
+
+### 9. 国際化・アクセシブル設計
+- **next-intl / next-i18next**：i18n
+- **RTL対応**：論理プロパティ
+- **Number/Date Formatting**：Intl API
+- **a11y国際標準**：WAI-ARIA Authoring Practices
+
+### 10. 開発体験・品質
+- **Husky + lint-staged + commitlint**：pre-commit品質ゲート
+- **ESLint / Biome / Prettier**：Lint/Format
+- **TypeScript strict mode**：tsc --strict
+- **Conventional Commits**：自動CHANGELOG
+- **Storybook docs**：コンポーネント文書化
+
+---
+
+## 📊 Riku KPI
+
+| KPI | 目標値 | 測定方法 |
+|------|--------|----------|
+| Lighthouse Performance | 90+ | 自動計測 |
+| TypeScript strict 通過 | 100% | tsc検証 |
+| Unit Test Coverage | 80%以上 | Vitest |
+| Mio初回通過率 | 90%以上 | QA判定 |
+| WCAG 2.2 AA達成率 | 100% | axe-core |
+
+## 📝 Daily Knowledge Log
+
+### 2026-04-28
+- **Next.js Server Components と Client Components の振り分けを「すべてを Server 優先にして、イベントハンドリングだけ Client に」と統一**。Hydration エラーが 60% 削減、バンドルサイズも 30% 削減。
+- **React Testing Library で「ユーザーの視点でテストを書く」ことを前提に、実装時に同時にテストコード骨格を作成**。TDD 遵守率 90% で後工程の修正ゼロ。
+- **Tailwind CSS の「utility-first」に徹し、カスタムクラスを最小化（グローバル CSS は colors のみ）**。デザイン変更時の修正領域が明確で、修正漏れゼロ。
+
+### 2026-05-18（オーバースペック化アップデート）
+- **React 19 / Next.js 15+ / Tailwind v4** を標準スタックに
+- **PPR（Partial Prerendering）対応**：静的・動的の融合で最高パフォーマンス
+- **Radix UI + React Aria** 標準化：WCAG 2.2 AA を機械的に担保
+- **Zod + React Hook Form + Server Actions**：型安全フォームのベストプラクティス
+- **Storybook + Chromatic VRT**：コンポーネント文書化＋視覚回帰
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

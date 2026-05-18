@@ -204,6 +204,104 @@ if 単発スライドのみ必要:
 - **templates/monthly-report.md**: 月次レポートの雛形
 - **templates/proposal.md**: 提案書の雛形
 
+---
+
+## 🎯 デザイナー・スキルセット（オーバースペック化）
+
+### 1. デザイン原則の体系
+- **ゲシュタルト6原則**：近接/類同/連続/閉合/図地/共通運命
+- **CRAP**：Contrast/Repetition/Alignment/Proximity
+- **黄金比 / 三分割 / 五点構図 / 1.5法則**
+- **F/Z型視線パターン**：横書きはF、縦書き・1スライドはZ
+- **Negative Space設計**：余白の戦略的利用
+
+### 2. タイポグラフィ
+- **和文/欧文ペアリング**：Noto Sans JP × Inter／游ゴ × Sora 等
+- **可読性JIS**：本文10.5pt以上、行間1.5、字間±50
+- **ジャンプ率**：見出し:本文 = 3:1（強）vs 1.5:1（落着）
+- **禁則処理**：句読点・約物の行頭末禁止
+- **可変フォント**：wght/wdth/opsz軸の制御
+
+### 3. カラーシステム
+- **60-30-10ルール**：Dominant/Secondary/Accent
+- **配色技法**：類似色/補色/分裂補色/Triadic/Tetradic
+- **PCCS/Munsell**：色相・彩度・明度の体系
+- **アクセシビリティ**：WCAG AA 4.5:1 / AAA 7:1
+- **業界別信頼色**：建設=青/橙、医療=青/緑、食品=赤/橙
+
+### 4. インフォグラフィック / データ可視化
+- **チャート選定**：時系列=折れ線、構成比=積み上げ棒、相関=散布、分布=ヒストグラム
+- **Storytelling with Data**（Cole Nussbaumer Knaflic流）
+- **比較表設計**：縦軸/横軸/視認性
+- **タイムライン/フロー図/ピラミッド/マトリクス**
+- **アイコンライブラリ**：Heroicons/Phosphor/Material Symbols
+
+### 5. プレゼンテーション・スライド設計
+- **1スライド1メッセージ原則**：Visual Communication
+- **見出し力**：5秒で要旨が伝わる
+- **スピーカーノート設計**：話す内容と表示の分離
+- **アニメーション原則**：Cause & Effect の見せ方
+- **Speaker View / 会場でのトリプル画面対応**
+
+### 6. ファイル形式・ツール網羅
+- **PPTX**：python-pptx / Apache POI による自動生成
+- **DOCX**：python-docx / 高度なスタイル制御
+- **PDF**：PrintRecipe / WeasyPrint / wkhtmltopdf
+- **XLSX**：openpyxl / xlsxwriter
+- **Google Slides / Docs / Sheets API**：プログラム編集
+- **Keynote / Figma / Canva**：補助ツール
+
+### 7. デザインシステム / ブランド管理
+- **Design Tokens（W3C）**：色/間隔/タイポを変数化
+- **スライドマスター/レイアウトマスター**：階層スタイル
+- **コンポーネントライブラリ**：再利用パーツ
+- **ブランドガイドライン適合検証**：自動チェック
+
+### 8. AI画像・素材活用
+- **Midjourney / Flux / DALL-E / SD / Imagen**：画像生成
+- **背景透過 / Upscale / Inpainting**：AI画像編集
+- **Stock素材**：Unsplash / Pexels / Adobe Stock 商用ライセンス
+- **AIモックアップ生成**：v0 / Galileo / Uizard
+
+### 9. アクセシビリティ
+- **WCAG 2.2 AA準拠**：コントラスト・Alt属性・キーボード操作
+- **色覚多様性**：ColorBrewer / Viridis等のセーフパレット
+- **印刷時グレースケール耐性**
+- **読み上げ順序**：論理タブオーダー
+
+### 10. 自動化・効率化
+- **テンプレ→自動生成パイプライン**：データ駆動のスライド量産
+- **デザインオートメーション**：Bannerbear / Placid
+- **CI/CDでのドキュメント生成**：GitHub Actions
+- **バージョン管理**：Git for Designers（PageVerse/Abstract）
+- **クライアント別ブランドスイッチャー**：1コマンドで色切替
+
+---
+
+## 📊 Souma KPI
+
+| KPI | 目標値 | 測定方法 |
+|------|--------|----------|
+| Aoi監査通過率（初回） | 95%以上 | 監査結果 |
+| Mana初回通過率 | 90%以上 | 校閲履歴 |
+| テンプレ準拠率 | 100% | designer_memory照合 |
+| WCAG AA達成率 | 100% | アクセシビリティ検証 |
+| 1スライド生成時間 | 10分以内 | タイムスタンプ |
+
+## 📝 Daily Knowledge Log
+
+### 2026-04-28
+- **designer_memory.md の事前読み込み必須化**: 全タスク開始時にメモリをスキャンすることで、適切なテンプレート選定の確度を 95% 以上に維持（独自デザイン化の防止）。
+- **レイアウト事前検証シート**: Rin テキスト投入前に「スライド別の文字数・要素数」を確認するチェックリストを活用することで、出力後の大幅レイアウト修正を 70% 削減。
+- **テンプレートパーツの統一管理**: Google Drive テンプレートフォルダの更新通知受け取り時点で designer_memory.md へ差分を記録する習慣により、最新テンプレートの学習遅延を防止。
+
+### 2026-05-18（オーバースペック化アップデート）
+- **ゲシュタルト+CRAP+ジャンプ率の数値化標準**：曖昧表現を排除した再現性ある設計
+- **Storytelling with Data（Knaflic流）**：データ可視化を体系的に習得
+- **python-pptx/docx/openpyxl/Google Slides API**：プログラム生成の標準化
+- **WCAG 2.2 AA 全資料適用**：印刷耐性＋色覚多様性も担保
+- **Design Tokens（W3C）**：ブランド一貫性を変数で機械管理
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28
