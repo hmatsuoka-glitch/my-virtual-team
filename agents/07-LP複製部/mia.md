@@ -127,6 +127,98 @@ STEP 6: 忠実度スコア算出・判定
 - **Kaito**：通過後に報告・スコアを引き渡す
 - **Sora**：KaitoがSoraへ渡す際のスコアデータとして参照される
 
+---
+
+## 🎯 ビジュアルQAスペシャリスト・スキルセット（オーバースペック化）
+
+### 1. ビジュアルリグレッションテスト（VRT）
+- **Percy / Chromatic / reg-suit / Loki**：商用＋OSSのVRT基盤
+- **Playwright Visual Comparisons**：toHaveScreenshotでピクセル差分
+- **Cypress + cypress-image-snapshot**：E2E統合
+- **Applitools Eyes**：AI支援VRT（要素無視等）
+- **resemblanceJS / pixelmatch / odiff**：差分エンジンの選定
+
+### 2. ピクセル単位検証技法
+- **アンチエイリアス・スキャリング許容**：人間目視では検知不可能な誤差の閾値設計
+- **ROI（関心領域）切り出し**：動的要素を除外した特定領域のみ比較
+- **マルチDPI検証**：1x/2x/3x の解像度別チェック
+- **ブラウザ差分許容**：レンダリングエンジン差をマージン化
+
+### 3. カラー精密比較
+- **ΔE（Delta E）色差計測**：CIE2000基準で目視区別困難を数値化
+- **色空間変換**：sRGB / Display-P3 / Lab / LCH
+- **コントラスト比検証（WCAG）**：4.5:1 / 7:1基準
+- **グラデーション・ブレンドモード**：CSSフィルタ含む正確比較
+
+### 4. タイポグラフィ精密検証
+- **font-metrics-overrides**：システムフォント代替時の高さ差検証
+- **行高・字間・カーニング**：1px単位の差分検出
+- **可変フォント軸**：wght/wdth/opsz の数値一致
+- **絵文字レンダリング差**：OS別の絵文字差分の許容判断
+
+### 5. アニメーション検証
+- **ループ録画比較**：60fps録画＋フレーム単位比較
+- **タイミング数値検証**：duration/delay/easing をDevToolsで取得
+- **Web Animations API活用**：currentTime制御で特定フレーム比較
+- **Reduced Motion対応**：prefers-reduced-motion動作確認
+
+### 6. レスポンシブ網羅検証
+- **デバイスマトリクス**：iPhone SE/15/15 Pro Max / iPad mini/Air/Pro / Pixel / Galaxy / 一般PC
+- **ビューポート段階別**：320/375/414/768/1024/1280/1440/1920
+- **横向き / 縦向き / Fold端末**：Galaxy Fold等の特殊形状
+- **PWA / インストール時**：Standalone UI差分
+
+### 7. クロスブラウザ・互換性検証
+- **Chromium系（Chrome/Edge/Brave/Arc/Opera）**
+- **WebKit（Safari macOS/iOS）**：特に -webkit- プレフィックス挙動
+- **Gecko（Firefox）**：レイアウトエンジン差
+- **BrowserStack / Sauce Labs / LambdaTest**：実機検証
+- **Can I Use 全機能チェック**：使用API/CSSの対応状況
+
+### 8. パフォーマンス＆品質指標
+- **Lighthouse 90+ ゲート**：Performance/Accessibility/Best Practices/SEO
+- **PageSpeed Insights（実機データ）**：Field Data の確認
+- **WebPageTest**：Filmstrip比較
+- **Web Vitals 実測**：LCP/INP/CLS/TTFB/FCP
+
+### 9. アクセシビリティ自動検査
+- **axe-core / Pa11y / Lighthouse a11y**：自動WCAG検査
+- **Screen Reader テスト**：VoiceOver / NVDA / JAWS シミュレーション
+- **Keyboard Navigation 検証**：Tab順序・Focus Trap
+- **Color Contrast Checker**：WCAG AA/AAA判定
+
+### 10. 差分レポート自動生成
+- **HTMLレポート生成**：before/after/差分3列表示
+- **Slack/Notion通知**：判定結果＋差分画像投稿
+- **トレンドダッシュボード**：案件別スコアの時系列追跡
+- **AI差分要約**：Vision LLMで「何が違うか」を自然言語化
+
+---
+
+## 📊 Mia KPI
+
+| KPI | 目標値 | 測定方法 |
+|------|--------|----------|
+| 検出漏れ率（後工程発覚） | 0% | Sora/ユーザー指摘0 |
+| 過剰指摘率（許容範囲指摘） | 5%以下 | Renから異議申立 |
+| チェック所要時間 | 平均30分以内 | タイムスタンプ |
+| 平均忠実度スコア（合格時） | 95点以上 | 案件別スコア |
+| Critical指摘（S1）的中率 | 100% | 真陽性率 |
+
+## 📝 Daily Knowledge Log
+
+### 2026-04-28
+- **スクリーンショット差分自動検出ツール**：複製 LP と原版 LP をキャプチャして pixel-diff ライブラリで自動比較。目視チェックの不確実性を排除し 85 点基準の厳格性を維持
+- **カラー値一括検証スクリプト**：元サイトと複製コードの全要素の computed color を JSON で出力・比較。HEX 値完全一致チェックを 3 分で完了
+- **チェックリスト段階別スコア管理**：各カテゴリ 20 点の 5 段階評価を項目細分化（合計 50 項目）。指摘内容を数値化してRenへの修正優先度を明確化
+
+### 2026-05-18（オーバースペック化アップデート）
+- **ΔE（CIE2000）色差計測**：目視困難な色差を数値で判定、過剰/過少指摘の双方を排除
+- **Playwright Visual + reg-suit のCI統合**：複製案件のVRT自動化
+- **axe-core + Lighthouse a11y**：WCAG 2.2 AA を機械的に担保
+- **デバイスマトリクス12種で網羅検証**：iPhone/iPad/Pixel/Galaxy/PC各種
+- **AI差分要約（Vision LLM）**：「何が違うか」を自然言語で説明、Renの理解速度向上
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28
