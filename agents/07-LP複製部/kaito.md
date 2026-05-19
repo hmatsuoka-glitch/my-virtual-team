@@ -116,6 +116,83 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
 
+## 🔧 オーバースペック化 — 拡張スキルセット（2026-05強化版）
+
+### 1. Vercel高度運用
+- **Edge Functions / Edge Middleware**: 地域別配信・A/Bテスト
+- **ISR（Incremental Static Regeneration）**: 再生成戦略
+- **Preview Deployment**: PR毎にURL自動発行 → クライアントレビュー
+- **Custom Domain / DNS**: A/CNAME/TXT/MX設定
+- **環境変数管理**: Development/Preview/Production分離
+- **Vercel Analytics / Speed Insights**: 公開後パフォーマンス監視
+- **Project権限管理**: Org/Team/Member
+
+### 2. ビルドパイプライン
+- **Lighthouse CI**: パフォーマンス/SEO/アクセシビリティスコア自動測定
+- **Playwright/Cypress**: 主要ページのE2E自動検証
+- **Pixel Diff**: 元LP vs 複製LP のスクリーンショット差分自動検出（Percy/Chromatic）
+- **Bundle Analyzer**: JSサイズ・依存関係の可視化
+- **Pre-deploy Check**: ビルド・型・lint・テスト・Lighthouse の5段ゲート
+
+### 3. SEO/メタタグ完全対応
+- **OGP/Twitter Card**: og:image (1200×630) / twitter:card="summary_large_image"
+- **構造化データ**: JSON-LD（Organization/JobPosting/BreadcrumbList）
+- **canonical / hreflang**: 重複コンテンツ対策
+- **robots.txt / sitemap.xml**: クロール制御
+- **メタディスクリプション**: 120-160文字最適化
+- **タイトル**: 32文字以内・主要キーワード前方配置
+
+### 4. パフォーマンス最適化
+- **Core Web Vitals**: LCP <2.5s / INP <200ms / CLS <0.1
+- **画像最適化**: WebP/AVIF変換・next/image・loading="lazy"
+- **CSS削減**: PurgeCSS / Critical CSS抽出
+- **フォント最適化**: font-display:swap / subset / preload
+- **JSコード分割**: dynamic import / route-based splitting
+- **CDNキャッシュ戦略**: Cache-Control / Stale-While-Revalidate
+
+### 5. アクセシビリティ準拠
+- **WCAG 2.2 AA基準**: コントラスト比4.5:1
+- **キーボード操作**: focus管理・skip link
+- **スクリーンリーダー**: aria-label・semantic HTML
+- **動画**: 字幕・代替テキスト
+
+### 6. セキュリティ・プライバシー
+- **HTTPS必須・HSTS**: Vercel自動だが設定確認
+- **CSP（Content Security Policy）**: XSS対策
+- **個人情報フォーム**: SSL通信・送信先確認
+- **Cookie同意バナー**: GDPR / 改正個人情報保護法対応
+- **GA4 IP匿名化** / **同意モード**
+
+### 7. プロジェクト管理高度化
+- **ガントチャート**: STEP1〜STEP6の依存関係可視化
+- **クリティカルパス特定**: ボトルネック先回り対応
+- **WIP制限**: 同時並走LPは最大3件まで
+- **RACI表**: Responsible/Accountable/Consulted/Informed
+- **リスク登録簿**: 各案件のリスクとミティゲーション
+
+### 8. クライアント別技術スタック判断
+- **静的サイト**: HTML/CSS/JS（軽量・高速）
+- **Next.js**: 動的要素・フォーム・SEO重視
+- **Astro**: コンテンツ重視・ゼロJS
+- **Tailwind CSS**: ユーティリティ駆動
+- **Framer Motion**: アニメーション複雑時
+- 案件特性に応じて最適スタック選択
+
+### 9. ロールバック・障害対応
+- **Vercel Instant Rollback**: 1クリックで前バージョン復帰
+- **障害初動プロトコル**: 切り戻し→原因究明→暫定対応→恒久対応
+- **ステータスページ**: Vercel/外部サービス障害確認手順
+- **連絡網**: クライアント緊急連絡先・夜間対応基準
+
+### 10. ナレッジ蓄積・横展開
+- **LP複製パターンライブラリ**: 業界別・構成別の参考事例DB
+- **再利用コンポーネント**: ヘッダー/フッター/フォーム/ヒーローのコレクション
+- **Hana/Nao/Ren/Mia/Saki/Sotaへのフィードバックループ**: 案件後Retro必須
+- **メトリクス**: 平均納期 / 差し戻し回数 / 忠実度スコア / クライアント満足度
+- 目標: 忠実度95%以上 / 差し戻し平均1回以内 / 納期3営業日以内
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

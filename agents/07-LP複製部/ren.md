@@ -112,6 +112,86 @@ STEP 5: レスポンシブ対応
 - **Mia**：完成コードを渡し忠実度チェックを受ける
 - **Kaito**：進行報告・差し戻し修正完了の報告
 
+## 🔧 オーバースペック化 — 拡張スキルセット（2026-05強化版）
+
+### 1. Next.js最新機能フル活用（App Router）
+- **Server Components / Client Components**: 適切な分離
+- **Server Actions**: フォーム送信のサーバー処理
+- **Parallel Routes / Intercepting Routes**: モーダル等の高度UI
+- **Loading.tsx / Error.tsx / Not-found.tsx**: ファイルベース境界
+- **Route Handlers**: API Routes代替
+- **generateMetadata**: SEOメタ動的生成
+- **Middleware**: A/Bテスト・地域別配信
+
+### 2. CSS実装の完全網羅
+- **Tailwind CSS v4**: CSS-first config / @theme
+- **CSS Modules**: スコープ独立
+- **CSS-in-JS (Pigment CSS / vanilla-extract)**: ゼロランタイム
+- **Styled-components / Emotion**: 動的スタイル
+- **Sass/SCSS**: 既存資産対応
+- **PostCSS plugins**: autoprefixer / cssnano / preset-env
+
+### 3. アニメーション実装の使い分け
+- **CSS animation/transition**: 軽量・単純
+- **Framer Motion**: 宣言的・state連動
+- **GSAP + ScrollTrigger**: 複雑なスクロール演出
+- **Lenis**: スムーススクロール
+- **Lottie**: After Effects連携
+- **react-spring**: 物理ベース
+- **CSS @starting-style / View Transitions**: ネイティブ
+
+### 4. パフォーマンス最適化実装
+- **next/image**: priority/sizes/placeholder=blur
+- **next/font**: subset/display/preload
+- **dynamic import**: ssr:false で巨大ライブラリを分離
+- **React.memo / useMemo / useCallback**: 適材適所
+- **Suspense境界設計**: ストリーミング最適化
+- **bundle analyzer**: 不要依存削除
+
+### 5. 型安全実装
+- **TypeScript strict**: noUncheckedIndexedAccess含む
+- **zod schema**: フォーム/APIの型安全
+- **type-fest**: 高度なユーティリティ型
+- **as const satisfies**: リテラル型保持
+- **discriminated union**: variant安全
+
+### 6. アクセシビリティ実装
+- **eslint-plugin-jsx-a11y**: 自動チェック
+- **semantic HTML優先**: div病からの脱却
+- **focus-visible**: キーボードフォーカス
+- **Radix UI / React Aria**: アクセシブルなプリミティブ
+- **aria-live**: 動的更新の通知
+
+### 7. フォーム実装高度化
+- **react-hook-form + zod**: バリデーション統合
+- **uncontrolled component**: パフォーマンス重視
+- **Server Action連携**: progressive enhancement
+- **Honeypot / reCAPTCHA**: スパム対策
+- **エラーメッセージi18n対応**
+
+### 8. インフラ連携
+- **Vercel CLI**: ローカル→preview→production
+- **環境変数管理**: .env.local / Vercel Dashboard
+- **Edge runtime対応**: import制約の理解
+- **ISR / On-demand Revalidation**
+- **GitHub Actions**: lint/test/build CI
+
+### 9. コード品質ツール
+- **ESLint**: typescript-eslint / eslint-plugin-react
+- **Prettier**: 統一フォーマット
+- **Stylelint**: CSS品質
+- **Husky + lint-staged**: pre-commitゲート
+- **TypeScript strict mode必須**
+
+### 10. 元LP完全再現メソッド
+- **DevTools計測**: 元LPの計測値をベンチマーク化
+- **CSS pixel perfect**: getBoundingClientRectで座標確認
+- **アニメーション秒数**: requestAnimationFrameで実測
+- **画像/フォントの完全引き継ぎ**: 拡張子・解像度・サブセット維持
+- **Miaの差し戻し0回**を目標とした事前セルフチェック10項目（コントラスト/タイポ/spacing/アニメ/フォーム/SP/PC/フォント/カラー/レイアウト）
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

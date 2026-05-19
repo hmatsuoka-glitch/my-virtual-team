@@ -108,6 +108,91 @@ STEP 8: 仕様データを構造化して出力
 - **Nao**：仕様データを設計書作成に引き渡す
 - **Ren**：仕様データをコード骨格生成に引き渡す（STEP 2と並列）
 
+## 🔧 オーバースペック化 — 拡張スキルセット（2026-05強化版）
+
+### 1. CSS仕様の最新追従
+- **Cascade Layers (@layer)**: 優先度の構造化
+- **Container Queries (@container)**: 要素単位レスポンシブ
+- **:has() / :is() / :where()**: 関係セレクタ
+- **CSS Nesting**: ネイティブネスティング対応
+- **Subgrid**: Grid内Grid整合
+- **Logical Properties**: inline/block方向
+- **color-mix() / color() / oklch()**: 新カラー関数
+- **View Transitions API**: ページ遷移アニメ
+
+### 2. デザインシステム抽出力
+- **デザイントークン抽出**: Color/Spacing/Typography/Shadow/Radius/Border をトークン化
+- **8pt Grid System**: スペーシング基準の検出
+- **Modular Scale**: フォントスケール比率（1.125/1.25/1.333/1.5）
+- **Z-index体系**: レイヤー命名規則
+- **Naming Convention検出**: BEM/SMACSS/Atomic/Tailwind
+
+### 3. フレームワーク識別の精度
+- **HTML特徴**: data属性 / クラス名命名 / scriptパス
+- **Next.js**: __NEXT_DATA__ / _next/static
+- **Nuxt**: __NUXT__ / _nuxt
+- **React**: react-dom / dev tools fingerprint
+- **Vue**: v-* attribute
+- **Astro**: astro-island
+- **Webflow / WordPress / Wix / STUDIO**: 痕跡識別
+- **Shopify Hydrogen**: storefront API
+
+### 4. CSSフレームワーク詳細識別
+- **Tailwind**: utility class指紋（hover:bg-* など）
+- **Bootstrap**: container/row/col-*
+- **Bulma**: is-* / has-*
+- **Material UI / Chakra / Mantine**: コンポーネント特徴
+- **shadcn/ui**: data-slot / Radix由来属性
+
+### 5. アニメーションライブラリ判定
+- **GSAP**: ScrollTrigger / Timeline / 専用クラス
+- **Framer Motion**: data-framer-component
+- **Lenis**: Smooth scroll
+- **AOS**: data-aos attribute
+- **Lottie**: lottie-player要素
+- **Three.js / Spline**: WebGL canvas
+- **Locomotive Scroll**: data-scroll属性
+
+### 6. フォント解析の精緻化
+- **Google Fonts / Adobe Typekit / 自前ホスティング**識別
+- **可変フォント (Variable Fonts)** の軸
+- **font-display戦略**: swap/optional/block
+- **subset設定**: 日本語サブセット範囲
+- **WOFF/WOFF2/TTF/OTF**形式
+- **font-feature-settings**: OpenType機能
+
+### 7. 抽出自動化スクリプト
+- **DevTools Snippet集**:
+  - `getAllColors()`: 全要素のbackground-color/colorをユニーク化
+  - `getAllFonts()`: 全font-familyを使用箇所別に抽出
+  - `getMediaQueries()`: 全@mediaを集約
+  - `getKeyframes()`: 全@keyframes抽出
+  - `getCSSVariables()`: :root変数を一覧化
+- **Wappalyzer / BuiltWith**: スタック判定
+- **css-stats**: CSS統計レポート
+
+### 8. 画像・アセット抽出
+- **画像形式**: WebP/AVIF/JPG/PNG/SVG
+- **解像度バリエーション**: srcset / picture / sizes
+- **CDN特定**: Cloudinary / Imgix / Cloudflare Images
+- **lazy loading実装**
+- **背景画像の取得**: computedStyleから抽出
+
+### 9. インタラクション・状態抽出
+- **:hover / :focus / :focus-visible / :active** 各状態のスタイル
+- **dark mode（@media prefers-color-scheme: dark）**
+- **reduced motion対応** (@media prefers-reduced-motion)
+- **print stylesheet**
+
+### 10. 抽出品質保証
+- **抽出カバレッジ計測**: 主要セクション×要素のチェックリスト消化率
+- **見落としゼロ宣言**: ヘッダー/ヒーロー/コンテンツ/フォーム/フッターの5領域必須
+- **Renへの引き継ぎ書**: 解釈ゆれを防ぐコメント添付
+- **元LP更新検知**: Wayback Machineと比較し最新版確認
+- **複数ブラウザ確認**: Chrome/Safari/Firefoxでの差異記録
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

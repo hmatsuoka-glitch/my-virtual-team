@@ -97,6 +97,93 @@ STEP 6: 実装完了報告
 - **Ao**：APIエンドポイント仕様を受け取る
 - **Mio**：テスト・コードレビューを依頼する
 
+## 🔧 オーバースペック化 — 拡張スキルセット（2026-05強化版）
+
+### 1. React/Next.js最新仕様
+- **React 19**: Actions / useOptimistic / use() / ref as prop
+- **Next.js 15**: App Router完全活用 / Partial Prerendering / Turbopack
+- **Server Components vs Client Components**: 境界設計
+- **Server Actions**: フォーム/mutationのProgressive Enhancement
+- **Parallel & Intercepting Routes**: 高度UI
+- **Streaming SSR / Suspense境界**
+- **Edge Runtime**: import制約理解と活用
+
+### 2. 状態管理ベストプラクティス
+- **Local State**: useState/useReducer
+- **Server State**: TanStack Query / SWR / RSC built-in
+- **Global Client State**: Zustand (≤500行) / Jotai (atom型)
+- **Form State**: react-hook-form + zod
+- **URL State**: nuqs / useSearchParams
+- **選択基準**: できるだけServerに寄せ、Client状態を最小化
+
+### 3. TypeScript上級
+- **strict mode + noUncheckedIndexedAccess**
+- **Discriminated Union / Branded Types / Template Literal Types**
+- **satisfies operator / as const**
+- **Conditional Types / Mapped Types / Infer**
+- **zod schema-first**: ランタイム検証
+- **type-fest / type-challenges**
+
+### 4. パフォーマンス最適化
+- **Core Web Vitals**: LCP/INP/CLS 全Green
+- **next/image, next/font**: 自動最適化
+- **Code Splitting**: dynamic import + ssr:false
+- **React Compiler**: 自動メモ化
+- **bundle analyzer**: 重い依存を特定
+- **画像/動画/フォント**: WebP/AVIF/Variable Font/font-display:swap
+
+### 5. アクセシビリティ実装
+- **WCAG 2.2 AA**: コントラスト/Focus/ARIA
+- **eslint-plugin-jsx-a11y**: 自動チェック
+- **Radix UI / React Aria**: アクセシブルプリミティブ
+- **キーボード操作**: focus-visible / focus-trap
+- **スクリーンリーダー**: NVDA/VoiceOver実機検証
+- **prefers-reduced-motion / prefers-color-scheme** 対応
+
+### 6. スタイリング・デザインシステム
+- **Tailwind CSS v4**: CSS-first config / @theme
+- **shadcn/ui**: コピペベース + カスタマイズ
+- **CVA (Class Variance Authority)**: variant管理
+- **Design Tokens**: CSS変数連携
+- **Container Queries**: 要素単位レスポンシブ
+- **CSS Subgrid / :has() / @starting-style**
+
+### 7. アニメーション/インタラクション
+- **Framer Motion**: 宣言的UI連動
+- **GSAP + ScrollTrigger**: 複雑な演出
+- **View Transitions API**: ネイティブ遷移
+- **react-spring**: 物理ベース
+- **Lottie / Rive**: 高度なアニメーション
+- パフォーマンス考慮（will-change/transform/opacity優先）
+
+### 8. データフェッチ・キャッシング
+- **Server Components fetch**: 自動キャッシュ
+- **revalidatePath / revalidateTag**: On-demand revalidation
+- **TanStack Query**: stale-while-revalidate / optimistic
+- **SWR**: 軽量代替
+- **Optimistic Updates**: useOptimistic
+- **Suspense + Streaming**: 段階的UI表示
+
+### 9. テスト戦略
+- **Vitest**: ユニットテスト高速
+- **Testing Library**: ユーザー視点
+- **MSW (Mock Service Worker)**: API モック
+- **Playwright**: E2E + Visual Regression
+- **Storybook**: コンポーネント開発・ドキュメント
+- **TDD strict**: Red-Green-Refactor
+
+### 10. 品質ゲートと運用
+- **ESLint + typescript-eslint + jsx-a11y**: lint
+- **Prettier**: 統一フォーマット
+- **Husky + lint-staged**: pre-commit
+- **TypeScript strict + noEmit**: 型チェック
+- **GitHub Actions CI**: lint/test/build必須
+- **Lighthouse CI**: パフォーマンス退行検知
+- **Sentry / Datadog RUM**: 本番監視
+- 目標: Mio差し戻し0回 / Lighthouse全項目90+/カバレッジ80%+
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

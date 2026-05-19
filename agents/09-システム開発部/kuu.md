@@ -105,6 +105,93 @@ STEP 6: 実装完了報告
 - **Ao**：環境変数一覧を受け取る
 - **Mio**：CI/CDパイプライン確認を依頼する
 
+## 🔧 オーバースペック化 — 拡張スキルセット（2026-05強化版）
+
+### 1. Vercel高度活用
+- **Edge Functions / Edge Middleware**: 地域別配信・A/Bテスト
+- **ISR / On-demand Revalidation**: 静的+動的ハイブリッド
+- **Preview Deployments**: PR毎の検証URL
+- **Vercel Analytics / Speed Insights**: 本番計測
+- **Vercel KV / Blob / Postgres**: 統合ストレージ
+- **Custom Build / Output**: monorepo対応
+- **Cron Jobs**: 定期実行
+- **Image Optimization**: next/image連携
+
+### 2. CI/CDパイプライン設計
+- **GitHub Actions マトリクス**: Node.js複数版/OS複数
+- **キャッシュ戦略**: actions/cache / pnpm store / turbo cache
+- **並列ジョブ**: lint/typecheck/test/buildを同時実行
+- **Composite Actions**: 共通処理の再利用
+- **Reusable Workflows**: 組織横断テンプレート
+- **OIDC**: AWS/GCP secretless認証
+- **GitHub Environments**: 環境別承認フロー
+
+### 3. Infrastructure as Code
+- **Terraform**: 宣言的インフラ
+- **Pulumi**: TypeScriptでIaC
+- **Vercel CLI / API**: プロジェクト設定の自動化
+- **Cloudflare Wrangler**: Workers管理
+- **Docker / Docker Compose**: ローカル環境統一
+- **dev container**: VSCode統合
+
+### 4. モニタリング・可観測性
+- **Sentry**: エラー監視 + Source Map
+- **Datadog / New Relic / Grafana**: APM
+- **Logflare / Better Stack / Axiom**: ログ集約
+- **Uptime Robot / Better Uptime**: 死活監視
+- **OpenTelemetry**: 統合計装
+- **アラート設計**: PagerDuty / Slack / Discord連携
+
+### 5. パフォーマンス最適化
+- **Lighthouse CI**: PR毎にスコア検証
+- **Web Vitals**: CrUX / Real User Monitoring
+- **Bundle Analyzer**: 重い依存を継続監視
+- **CDN戦略**: Vercel Edge / Cloudflare / Fastly
+- **画像最適化**: WebP/AVIF自動変換
+- **Critical CSS**: above-the-fold先読み
+
+### 6. セキュリティ運用
+- **GitHub Advanced Security**: CodeQL / Secret Scanning / Dependency Review
+- **Dependabot / Renovate**: 依存更新自動化
+- **Snyk / Mend**: 脆弱性スキャン
+- **Vercel Firewall**: WAF / Bot対策
+- **HSTS / CSP / Permissions Policy**: セキュリティヘッダ
+- **DDoS対策**: Cloudflare / Vercel組込
+
+### 7. 環境管理・シークレット
+- **Vercel Environments**: Dev/Preview/Production分離
+- **Dotenv Vault / Doppler / Infisical**: シークレット管理
+- **GitHub Secrets**: Workflow用
+- **.env.example必須化**: 必要変数の明示
+- **Secret Rotation**: 定期更新運用
+- **ローカル環境統一**: direnv / mise
+
+### 8. デプロイ戦略
+- **Blue-Green**: 切り替え瞬時
+- **Canary Release**: 段階公開
+- **Feature Flag**: LaunchDarkly / Vercel Edge Config / Statsig
+- **Rollback戦略**: Vercel Instant Rollback
+- **Database Migration**: Zero Downtime（expand/contract）
+- **Maintenance Mode**: 計画停止フロー
+
+### 9. データ・ストレージ
+- **Supabase / Neon / PlanetScale**: Serverless DB
+- **Upstash Redis**: Edge対応KV
+- **Vercel Blob / Cloudflare R2 / S3**: ファイルストレージ
+- **Sanity / Contentful / Payload**: Headless CMS
+- **バックアップ運用**: PITR / 定期ダンプ
+- **災害復旧**: RTO/RPO定義
+
+### 10. コスト・キャパシティ管理
+- **Vercel使用量モニタリング**: Function Invocations / Bandwidth
+- **コスト分析**: プロジェクト別/環境別
+- **自動スケール**: コールドスタート対策
+- **Edge最適化**: 地域別配信でコスト最適化
+- **不要リソース削除**: 月次棚卸し
+- **目標**: デプロイ失敗率 < 5% / MTTR < 30分 / 月次コスト目標値内
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

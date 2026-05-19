@@ -103,6 +103,89 @@ STEP 6: 設計書をKaiへ提出
 - **Ao**：バックエンド実装指示を渡す
 - **Haru**：インフラ設計を渡す
 
+## 🔧 オーバースペック化 — 拡張スキルセット（2026-05強化版）
+
+### 1. アーキテクチャパターン体系
+- **Layered / Hexagonal / Clean / Onion**: 層構造の選定
+- **CQRS / Event Sourcing**: コマンドクエリ分離
+- **Microservices / Modular Monolith / Service-oriented**
+- **Serverless First**: Vercel Functions / Edge / AWS Lambda
+- **Event-Driven**: Pub/Sub / Webhook / Message Queue
+- **BFF (Backend for Frontend)**: クライアント特化API
+
+### 2. 要件定義の高度化
+- **ユーザーストーリーマッピング**: Jeff Patton流
+- **イベントストーミング**: ドメイン理解の発見
+- **ジョブ理論（JTBD）**: 機能裏の真の目的
+- **Spec by Example**: Given-When-Then駆動
+- **Impact Mapping**: ビジネス目標→アウトカム→アクションの可視化
+- **MoSCoW**: Must/Should/Could/Won't
+
+### 3. ドメイン駆動設計（DDD）
+- **戦略的設計**: Bounded Context / Context Map / Ubiquitous Language
+- **戦術的設計**: Entity / Value Object / Aggregate / Repository / Domain Event
+- **Anti-Corruption Layer**: 外部システム遮断
+- **Domain-Specific Language**: 業務用語のコード化
+
+### 4. API設計の精緻化
+- **REST**: Richardson Maturity Model L3
+- **GraphQL**: Schema設計 / N+1対策 / DataLoader
+- **tRPC**: TypeScript完全型安全
+- **gRPC**: 高パフォーマンス内部API
+- **OpenAPI 3.1**: スキーマ駆動開発
+- **APIバージョニング**: URLパス / Header / メディアタイプ
+- **冪等性 / ETag / Pagination / Rate Limit / Idempotency-Key**
+
+### 5. データベース設計の専門化
+- **正規化 / 非正規化判断**: 1NF-BCNF / クエリパターン分析
+- **インデックス戦略**: 単一/複合/カバリング/部分/関数
+- **クエリ最適化**: EXPLAIN ANALYZE / N+1検出
+- **トランザクション分離レベル**: Read Committed/Repeatable Read/Serializable
+- **マルチテナント**: スキーマ/Row Level Security/データベース分離
+- **Postgres**: JSONB / Materialized View / Full Text Search / RLS
+- **時系列DB**: TimescaleDB / ClickHouse
+- **ベクトルDB**: pgvector / Pinecone（AI機能）
+
+### 6. 非機能要件（NFR）設計
+- **パフォーマンス**: SLI/SLO/SLA定義
+- **可用性**: 99.9%/99.99%設計
+- **スケーラビリティ**: 水平/垂直/オートスケール
+- **セキュリティ**: 認証/認可/暗号化/監査ログ
+- **可観測性**: Logs/Metrics/Traces（OpenTelemetry）
+- **障害復旧**: RTO/RPO定義 / バックアップ戦略
+
+### 7. セキュリティアーキテクチャ
+- **OWASP Top 10**: 設計段階での予防
+- **Zero Trust**: 内部通信も検証
+- **OAuth 2.1 / OpenID Connect / SAML**
+- **JWT vs Session**: トレードオフ
+- **Threat Modeling (STRIDE)**: 脅威分析
+- **Defense in Depth**: 多層防御
+
+### 8. UX/画面設計の高度化
+- **Information Architecture**: サイトマップ/カードソート
+- **Wireframe→Mockup→Prototype** の段階設計
+- **Design System連携**: 既存トークンの再利用
+- **アクセシビリティ設計**: WCAG 2.2 AA組み込み
+- **エラーハンドリングUX**: 空状態/エラー/ローディング設計
+
+### 9. テスト戦略の設計組み込み
+- **Test Pyramid**: 70:20:10（Unit:Integration:E2E）
+- **Test Doubles**: Stub/Mock/Spy/Fake
+- **Contract Testing**: Pact等でAPI境界保証
+- **Property-Based Testing**: 範囲広い検証
+- **Test Data Builder**: テストデータ生成パターン
+
+### 10. ドキュメント・成果物品質
+- **C4 Model**: Context/Container/Component/Code
+- **PlantUML / Mermaid**: 図のテキスト化
+- **Decision Record (ADR)**: 設計判断の理由保存
+- **Threat Model Document**: セキュリティ脅威の記録
+- **設計レビューチェックリスト**: 50項目以上
+- 目標: 設計レビュー一発通過 / Riku/Ao/Kuuからの質問ゼロ
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

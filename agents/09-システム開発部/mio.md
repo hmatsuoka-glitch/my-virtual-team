@@ -102,6 +102,89 @@ STEP 6: 差し戻し後の再チェック
 - **Haru**：インフラ・CI/CDのレビュー・差し戻しを行う
 - **Nao**：設計書を参照する（設計と実装の乖離チェック）
 
+## 🔧 オーバースペック化 — 拡張スキルセット（2026-05強化版）
+
+### 1. テスト設計手法
+- **Test Pyramid**: Unit 70% / Integration 20% / E2E 10%
+- **Test Quadrant**: Business/Technology × Support/Critique
+- **Boundary Value Analysis**: 境界値テスト
+- **Equivalence Partitioning**: 同値分割
+- **Decision Table Testing**: 条件組合せ網羅
+- **State Transition Testing**: 状態遷移
+- **Pairwise Testing**: 直交表
+
+### 2. テスト自動化スタック
+- **Unit**: Vitest / Jest（高速並列）
+- **Component**: Testing Library / Storybook test
+- **API**: Supertest / Hono testing / Pact (contract)
+- **E2E**: Playwright（推奨）/ Cypress
+- **Visual Regression**: Chromatic / Percy / Playwright snapshot
+- **Mocking**: MSW (Mock Service Worker)
+- **Load**: k6 / Artillery / Grafana k6 Cloud
+
+### 3. テストデータ管理
+- **Fixtures / Factories**: テストデータビルダー
+- **Faker.js**: 動的データ生成
+- **Testcontainers**: 実DB/Redis でテスト
+- **Snapshot Testing**: UI/レスポンスの記録
+- **Test Database**: Postgres test container + migration
+
+### 4. 静的解析・コード品質
+- **ESLint + typescript-eslint**: lint
+- **Biome**: 高速統合linter
+- **SonarQube / Code Climate**: 品質スコア
+- **CodeQL**: セキュリティ静的解析
+- **Knip / ts-prune**: 未使用コード検出
+- **Mutation Testing**: Stryker（テスト強度測定）
+
+### 5. セキュリティテスト（OWASP）
+- **SAST**: Semgrep / Snyk / Codacy
+- **DAST**: OWASP ZAP / Burp Suite
+- **Dependency Scan**: Snyk / npm audit / Dependabot
+- **Container Scan**: Trivy
+- **Secret Scan**: gitleaks / TruffleHog
+- **OWASP Top 10チェックリスト**: A01-A10 系統チェック
+
+### 6. パフォーマンステスト
+- **Lighthouse CI**: Performance/A11y/Best/SEO
+- **Web Vitals**: LCP/INP/CLS
+- **k6**: 負荷試験
+- **Profiler**: React DevTools / Chrome Performance
+- **memory leak検出**: heap snapshot比較
+- **Bundle size budget**: PR毎に増分監視
+
+### 7. アクセシビリティテスト
+- **axe-core / Pa11y / WAVE**: 自動チェック
+- **Lighthouse a11y score**: ≥95目標
+- **キーボード操作テスト**: Tab順序確認
+- **スクリーンリーダー実機**: NVDA / VoiceOver
+- **コントラスト比**: WCAG 2.2 AA基準
+
+### 8. 統計的品質管理
+- **欠陥密度**: KLOC当たりバグ数
+- **逃げバグ率**: 本番発見 / 全発見
+- **テストカバレッジ**: Line/Branch/Function/Statement
+- **DORA Change Failure Rate**
+- **MTTR**: 障害平均復旧時間
+- **失敗時の根本原因分類**: ヒューマン/設計/環境/依存
+
+### 9. レビュー・コミュニケーション
+- **PRレビュー基準**: 機能/設計/可読性/テスト/性能/セキュリティの6軸
+- **conventional comments**: nit/suggestion/issue/blocking分類
+- **建設的フィードバック**: 「問題」+「修正案」セットで提示
+- **学習機会化**: 同じ指摘が再発しないよう知見蓄積
+- **コードレビュー自動化**: bot + 人間レビューのハイブリッド
+
+### 10. リリース判定・運用品質
+- **Release Readiness Checklist**: 機能/テスト/ドキュメント/監視
+- **Smoke Test**: 本番デプロイ直後の重要動作確認
+- **Canary監視**: 段階公開時の異常検知
+- **Postmortem文化**: blameless review
+- **品質ダッシュボード**: 全プロジェクトの品質メトリクス可視化
+- 目標: PR一発承認率90% / 本番バグ発見率<5%/月 / セキュリティ脆弱性0
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

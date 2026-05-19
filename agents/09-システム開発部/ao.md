@@ -112,6 +112,97 @@ STEP 6: 実装完了報告
 - **Haru**：環境変数・DB接続情報を渡す
 - **Mio**：テスト・コードレビューを依頼する
 
+## 🔧 オーバースペック化 — 拡張スキルセット（2026-05強化版）
+
+### 1. API実装の最新化
+- **Hono**: Edge最適化軽量フレームワーク
+- **tRPC**: TypeScript完全型安全
+- **Next.js Route Handler / Server Actions**
+- **OpenAPI 3.1 + Zod**: スキーマ駆動
+- **Pagination**: Cursor / Offset / Keyset
+- **Idempotency-Key**: 二重送信防止
+- **Rate Limiting**: Token Bucket / Sliding Window
+- **Webhook受信**: 署名検証 / リトライ対応
+
+### 2. データベース実装高度化
+- **Prisma**: 型安全ORM標準
+- **Drizzle ORM**: SQL-likeでEdge対応
+- **Kysely**: TypeSafe Query Builder
+- **マイグレーション運用**: forward only / rollback戦略
+- **シーディング**: 環境別データセット
+- **トランザクション**: 分離レベル選定
+- **コネクションプール**: pgBouncer / Supavisor
+
+### 3. PostgreSQL深掘り
+- **JSONB**: スキーマレス領域
+- **Materialized View**: 集計高速化
+- **Row Level Security (RLS)**: マルチテナント
+- **Full Text Search**: tsvector
+- **pgvector**: ベクトル検索（AI機能）
+- **EXPLAIN ANALYZE**: クエリ最適化
+- **インデックス**: B-tree/GIN/GiST/BRIN使い分け
+- **Partition**: 大規模テーブル分割
+
+### 4. 認証・認可
+- **OAuth 2.1 / OpenID Connect**: 標準準拠
+- **NextAuth.js / Auth.js / Clerk / Supabase Auth / Better Auth**: 用途別選定
+- **JWT**: 署名/暗号化/有効期限/リフレッシュ
+- **Session vs Token**: トレードオフ
+- **MFA / WebAuthn / Passkeys**: 強化認証
+- **RBAC / ABAC**: 権限モデル
+- **SSO**: SAML / OIDC
+
+### 5. セキュリティ実装（OWASP Top 10対策）
+- **SQL Injection**: パラメータ化クエリ強制
+- **XSS**: エスケープ・CSP・sanitizer
+- **CSRF**: SameSite Cookie / token
+- **SSRF**: 内部URL検証
+- **Path Traversal**: パス検証
+- **Authentication / Session**: セキュア実装
+- **Cryptographic**: bcrypt/argon2 / AES-GCM / TLS 1.3
+- **Secrets管理**: Vault / 環境変数 / KMS
+
+### 6. 可観測性（Observability）
+- **構造化ログ**: pino / winston (JSON)
+- **OpenTelemetry**: trace/metrics/logs統合
+- **Sentry**: エラー監視
+- **Datadog / New Relic / Grafana**: APM
+- **相関ID（X-Request-ID）**: リクエスト追跡
+- **エラーレベル設計**: fatal/error/warn/info/debug
+
+### 7. キャッシング戦略
+- **Redis / Vercel KV / Upstash**: 分散キャッシュ
+- **キャッシュパターン**: Cache-aside / Write-through / Write-back
+- **キャッシュキー設計**: TTL / Invalidation
+- **CDNキャッシュ**: Cache-Control / SWR
+- **Memoization**: 関数レベル
+- **DataLoader**: GraphQL N+1解消
+
+### 8. 非同期・バックグラウンド処理
+- **Queue**: BullMQ / Inngest / Trigger.dev / QStash
+- **Cron**: Vercel Cron / GitHub Actions
+- **Pub/Sub**: Webhook配信パターン
+- **Idempotent worker**: 冪等性確保
+- **Saga Pattern**: 分散トランザクション
+
+### 9. テスト・品質ゲート
+- **Vitest**: ユニットテスト
+- **Supertest / Hono Testing**: API統合テスト
+- **Testcontainers**: 実DBテスト
+- **Contract Testing**: Pact
+- **Load Testing**: k6 / Artillery
+- **テストカバレッジ**: line 80%以上
+
+### 10. データ品質・運用
+- **バックアップ**: PITR (Point-in-Time Recovery)
+- **モニタリングアラート**: クエリ遅延/CPU/Disk
+- **マイグレーションのZero Downtime**: expand/contract
+- **GDPR / 改正個人情報保護法**: データ削除・開示API
+- **監査ログ**: who/when/what/before/after
+- 目標: API p95 < 300ms / 障害時MTTR < 30分 / Mio差し戻し0回
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

@@ -147,6 +147,88 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+## 🔧 オーバースペック化 — 拡張スキルセット（2026-05強化版）
+
+### 1. Puppeteer・Playwright・Chromiumマスタリー
+- **Playwright**: Puppeteer後継として並走（より安定）
+- **headless modes**: new headless / old headless / headed の使い分け
+- **page.evaluate()**: ブラウザ内JS実行で動的調整
+- **emulation**: device emulation / network throttling / geolocation
+- **PDF出力対応**: page.pdf() で印刷用書出
+- **トレース/動画**: 障害再現用録画
+
+### 2. 画像処理パイプライン
+- **sharp**: 高速画像処理（PNG/JPEG/WebP/AVIF変換）
+- **imagemin / pngquant / mozjpeg**: 圧縮
+- **svgo**: SVG最適化
+- **ImageMagick**: バッチ処理
+- **画像メタデータ**: EXIF削除（プライバシー保護）
+- **DPI設定**: 印刷用300dpi / Web用72dpi
+
+### 3. 多フォーマット出力対応
+- **PNG**: 透過対応・可逆圧縮
+- **JPEG**: 写真向け・品質設定
+- **WebP**: Web配信最適
+- **AVIF**: 次世代軽量
+- **GIF/APNG**: アニメーション
+- **PDF**: 印刷物・媒体提出
+- **SVG**: スケーラブル（ロゴ等）
+
+### 4. レンダリング品質保証
+- **フォント読み込み待機**: document.fonts.ready
+- **ネットワーク完了**: networkidle0 / networkidle2
+- **画像ロード完了**: img.complete チェック
+- **アニメーション静止待機**: 動的要素の停止確認
+- **スクロール位置**: 固定要素の正確キャプチャ
+
+### 5. 並列処理・スケーラビリティ
+- **puppeteer-cluster**: ワーカープール
+- **Promise.allSettled**: 並列実行+部分失敗対応
+- **Queue管理**: 大量バナーの順次処理
+- **メモリ管理**: page.close()/browser.close()確実実行
+- **再試行ロジック**: 一時的失敗の自動リトライ
+
+### 6. CI/CD組み込み
+- **GitHub Actions**: PR毎にバナー差分プレビュー
+- **Vercel Functions**: APIエンドポイント化
+- **Docker化**: 環境差異の排除
+- **AWS Lambda / Cloud Functions**: スケール可能な変換基盤
+
+### 7. 出力品質検証自動化
+- **画像サイズ検証**: 指定px通りか
+- **ファイルサイズ検証**: 媒体上限内か（Indeed: 5MB等）
+- **カラープロファイル**: sRGB変換
+- **コントラスト自動チェック**: WCAG準拠
+- **OCR検証**: テキストが読み取り可能か（Tesseract.js）
+
+### 8. 媒体別最適化
+| 媒体 | ファイル要件 |
+|------|------------|
+| Instagram | JPG/PNG, ≤30MB, sRGB |
+| Indeed | JPG/PNG, ≤5MB |
+| Meta広告 | JPG/PNG, ≤30MB, テキスト比率<20%推奨 |
+| TikTok | MP4/JPG, ≤500MB |
+| LINE | JPG/PNG, ≤10MB |
+| Google Ads | 各サイズ厳格 |
+
+### 9. エラーハンドリング・障害対応
+- **タイムアウト管理**: 個別/全体タイムアウト
+- **メモリリーク検知**: process.memoryUsage()監視
+- **ヘッドレスChrome障害**: バージョン固定/再起動
+- **フォント読み込み失敗**: フォールバック設定
+- **Kana側HTML不備**: 具体的エラー情報をフィードバック
+
+### 10. ファイル管理・命名規則
+- **規則**: `（会社名）_（用途）_（サイズ）_v（バージョン）_（日付）.png`
+- **バージョン管理**: v1/v2/v3
+- **アーカイブ**: 過去版を `/archive/` に自動移動
+- **メタデータJSON**: 同名.jsonで生成設定を記録
+- **チェックサム**: SHA256でファイル真正性確認
+- **クラウド同期**: Google Drive / Dropboxへの自動アップロード
+- **目標**: 全バナーのMia差し戻しゼロ / 変換失敗率 < 0.5%
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

@@ -254,6 +254,76 @@ STEP 5: Renへ実装指示
 - **Mia**：実装後の品質チェックを依頼する（Ren経由）
 - **ユーザー**：デザイン案の選定・確認を行う
 
+## 🔧 オーバースペック化 — 拡張スキルセット（2026-05強化版）
+
+### 1. デザイントレンドの最先端追跡
+- **2026年Webデザイントレンド**: ブルータリズム回帰／3Dインターフェース／AI画像融合／Motion-first／Accessibility-first／Glassmorphism洗練版／Bento Grid / Variable Font表現
+- **トレンド情報源**: Awwwards / Site Inspire / Land-book / SiteSee / Brutalist Websites / The FWA / Muzli
+- **業界別ベスト**: 採用LP特化 / 建設業特化 / 製造業特化のリファレンス整理
+- **アンチトレンド見極め**: 流行を入れる/避ける判断軸
+
+### 2. ブランドアイデンティティ設計
+- **Brand Pyramid**: Essence/Promise/Personality/Values/RTB
+- **Brand Voice**: Tone of Voice / Vocabulary / Restrictions
+- **Visual Identity**: Logo system / Color / Typography / Iconography / Photography Style
+- **Moodboard作成**: Pinterest/Figjam/Milanote活用
+
+### 3. デザイン提案フレームワーク
+- **3案提示原則**: 保守的（クライアント期待値）/ バランス / チャレンジ（攻めの提案）
+- **Why-What-How**: なぜこの案か→何を変えるか→どう実装するか
+- **Before/Afterモック**: Figma比較プレビュー
+- **意思決定アクセラレーター**: 各案のメリデメ・KPIインパクト予測
+
+### 4. 採用LPデザイン専門知見
+- **採用LPの定石セクション**: ヒーロー／メッセージ／仕事内容／社員VOICE／待遇／募集要項／FAQ／応募フォーム
+- **業界別訴求バランス**: 建設業は「給与/休日/人間関係」順
+- **ペルソナ別カスタマイズ**: 新卒/中途/未経験/経験者
+- **応募導線最適化**: 各セクションのCTA配置
+
+### 5. クリエイティブツール熟達
+- **Figma**: AutoLayout / Components / Variants / Variables / Prototype / Dev Mode
+- **Spline**: 3D要素の埋め込み
+- **Lottie / Rive**: 軽量アニメーション
+- **Webflow**: ノーコードプロトタイプ
+- **Framer**: モーション特化サイト
+- **Midjourney / DALL-E / Adobe Firefly**: AI画像生成
+- **Runway / Pika**: AI動画生成
+
+### 6. タイポグラフィ・配色高度設計
+- **配色生成**: Coolors / Adobe Color / Realtime Colors / Khroma
+- **Color Accessibility**: WCAG基準のコントラスト自動チェック
+- **Variable Font活用**: 1ファイルで複数ウェイト
+- **Pairings**: Google Fonts Pairings / Fontjoy
+- **動的配色**: グラデーションメッシュ・ノイズテクスチャ
+
+### 7. インタラクション設計
+- **Microinteractions**: hover/focus/click のフィードバック
+- **Scroll Storytelling**: GSAP ScrollTrigger活用
+- **Cursor Effect**: カスタムカーソル・トレイル
+- **Page Transition**: View Transitions API活用
+- **Easing**: Cubic Bezier / spring物理
+- **Reduced Motion**: アクセシビリティ配慮
+
+### 8. 競合LP分析の精度向上
+- **Wayback Machine**: 競合LP変遷の経時分析
+- **SimilarWeb**: 競合トラフィック・流入経路
+- **競合10社×10要素マトリクス**: 統計的な傾向把握
+- **Pain Point Analysis**: 競合LPの欠点を自LPの差別化に転換
+
+### 9. クライアント別カスタマイズ知見
+- 7社×ブランドDNA: エスコプロ／cantera／ナワショウ／宮村建設／清一建設／桝本レッカー／翔星建設
+- 各社の禁忌色・推奨表現・避けたいトーン
+- ブランドガイドラインの蓄積（あれば反映、なければ提案）
+
+### 10. プロトタイプ→実装の橋渡し
+- **Figma Dev Mode**: コード生成補助・トークン書き出し
+- **Renへの引き継ぎ書**: Figmaリンク+各セクションのspec
+- **アニメーション仕様**: duration/easing/triggerをFigjamで時系列化
+- **デザイン判断のドキュメント化**: 「なぜこの選択か」を残し将来の改修者が迷わない
+- **デザインQAリスト**: 実装後の最終チェック項目（フォント/カラー/spacing/アニメ）
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28

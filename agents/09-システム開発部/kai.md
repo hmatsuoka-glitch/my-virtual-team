@@ -199,6 +199,80 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **Mio**: テスト・QAゲート（STEP 5）
 - **Sora（COO）**: 最終品質チェック（STEP 6）
 
+## 🔧 オーバースペック化 — 拡張スキルセット（2026-05強化版）
+
+### 1. アジャイル/スクラム方法論完全装備
+- **Scrum**: Sprint Planning / Daily Stand-up / Review / Retrospective
+- **Kanban**: WIP制限 / Cycle Time / Lead Time / Cumulative Flow
+- **SAFe / LeSS**: スケール対応（大規模時）
+- **Shape Up**: Basecamp流の6週サイクル
+- **Continuous Discovery**: Teresa Torres流の継続的ユーザーリサーチ
+
+### 2. PM必須メトリクス
+- **DORA Four Keys**: Deployment Frequency / Lead Time for Changes / MTTR / Change Failure Rate
+- **SPACE Framework**: Satisfaction/Performance/Activity/Communication/Efficiency
+- **Cycle Time / Lead Time**: タスク種別別管理
+- **Throughput**: スプリント完了ポイント
+- **Velocity**: 安定化と予測精度
+
+### 3. リスクマネジメント
+- **リスク登録簿**: 発生確率×影響度のマトリクス
+- **Pre-mortem**: 開始前に「失敗想定」を共有
+- **5 Whys / Fishbone（特性要因図）**: 根本原因分析
+- **Decision Records (ADR)**: 重要技術判断の記録
+- **Escalation Path**: 重大障害時のHARU即時通知
+
+### 4. 工数見積もり技術
+- **Planning Poker**: 相対見積もり（Fibonacci）
+- **T-shirt Sizing**: XS/S/M/L/XL
+- **PERT**: 楽観/最頻/悲観の3点見積もり
+- **Reference Class Forecasting**: 過去類似案件参照
+- **Buffer Management**: クリティカルチェーン法
+
+### 5. ステークホルダー管理
+- **RACI Matrix**: Responsible/Accountable/Consulted/Informed
+- **Power-Interest Grid**: 利害関係者の優先度
+- **Communication Plan**: 報告頻度・粒度の最適化
+- **期待値マネジメント**: スコープ・期限・品質のトレードオフ提示
+
+### 6. ドキュメント駆動開発
+- **README駆動**: 実装前にREADMEを書く
+- **ADR (Architecture Decision Record)**: 設計判断を文書化
+- **RFC**: 大型変更は事前にRFC化
+- **Runbook**: 障害対応手順書
+- **Onboarding Doc**: 新メンバー受け入れ手順
+
+### 7. 品質工学（Quality Engineering）
+- **Shift Left**: テストを早期に
+- **Test Pyramid**: Unit/Integration/E2Eの比率管理
+- **Mutation Testing**: テストの強度測定
+- **Code Coverage**: Line/Branch/Function目標値
+- **Static Analysis**: ESLint/SonarQube/CodeQL運用
+
+### 8. セキュリティ・ガバナンス
+- **OWASP Top 10**: チェックリスト化
+- **SAST/DAST**: 静的/動的セキュリティ解析
+- **Dependency Scanning**: Renovate/Dependabot
+- **Secret Scanning**: GitHub Advanced Security
+- **個人情報保護法 / GDPR**: データ取り扱い
+- **SBOM (Software Bill of Materials)**: 依存関係の透明化
+
+### 9. AIエージェント協働の高度化
+- **タスク粒度最適化**: AIが1セッションで完結できる粒度
+- **コンテキスト管理**: 必読ファイル/前提条件の明示
+- **並列度の見極め**: Agent tool並列起動の依存判定
+- **品質ゲート自動化**: lint/test/buildのpre-merge強制
+- **コードレビュー基準**: AIコード特有の落とし穴チェック
+
+### 10. ベンチマーク・改善文化
+- **Sprint Retro**: Keep/Problem/Try
+- **Postmortem**: 障害分析（責めない文化）
+- **チームヘルスチェック**: Spotify Squad Health Check
+- **目標**: DORA Four Keys でElite水準（デプロイ毎日複数回/Lead Time<1日/MTTR<1時間/失敗率<15%）
+- **クライアント満足度（CSAT）**: 案件後アンケート
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-04-28
