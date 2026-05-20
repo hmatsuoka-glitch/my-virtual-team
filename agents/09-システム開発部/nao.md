@@ -196,6 +196,12 @@ STEP 6: 設計書をKaiへ提出
 - **効率化テクニック：レビュー効率化のため PR テンプレートに「Lighthouse スコア（PR Preview URL から自動取得）・Bundle Size 差分・スクショ（PC/SP）・data-testid 一覧」を必須添付化**。レビュアー（Mio・Kai）は数値とスクショで「視覚的に」品質判定可能、コードリーディング 30 分 → 5 分。`size-limit` ＋ `lighthouse-ci` を GitHub Actions で自動実行、PR コメントに自動投稿。
 - **Ao との並列実装連携の効率化：Ao の Zod スキーマを monorepo `packages/api-types` で共有、Riku は `import { applySchema } from '@app/api-types'` で即座にフォーム実装開始**。`react-hook-form` ＋ `zodResolver` で型・バリデーション・エラーメッセージが 1 ソース化、API 完成を待たず先行実装、fetch/SWR 追加だけで完結。FE/BE 並列実装率 100%、ブロッキング時間ゼロ化。
 
+### 2026-05-20
+- **よくある失敗：マルチテナント設計を後付けで導入、既存テーブルに `tenant_id` カラムを追加して全クエリに WHERE 句追加する大規模リファクタが発生**。回避策は プロジェクト初期 STEP 2 で「シングルテナント／マルチテナント」を必ず判定し、マルチなら全テーブルに `tenant_id` NOT NULL + 複合インデックス `(tenant_id, ...)` を最初から設計。Row-Level Security（PostgreSQL RLS）または Prisma Middleware で `tenant_id` 自動注入を強制し、アプリ層での書き忘れによるテナント越境バグを構造的に防止。
+- **よくある失敗：ID 設計を auto-increment integer にして本番運用、外部公開 URL に内部 ID 露出（`/orders/12345`）でレコード件数推測・列挙攻撃のリスク**。回避策は 外部公開する ID は UUID v7（時系列ソート可能・推測不可）または ULID を設計時に必須化。内部処理用の bigint と公開用 UUID の 2 軸を Naoの DB 設計テンプレートに標準セクション化、公開 ID の桁数・形式を API 仕様書にも明記し Riku の URL 設計と整合性確保。
+- **よくある失敗：時刻データを `DATETIME` で保存しタイムゾーン情報を持たず、サーバー TZ 変更や海外ユーザー対応時にデータ解釈不整合**。回避策は 全時刻カラムを `TIMESTAMPTZ`（PostgreSQL）/ `DATETIME(6)` + UTC 統一保存（MySQL）で設計、アプリ層は必ず UTC で扱い表示時のみユーザー TZ に変換。タイムゾーン依存表示（営業時間・予約締切）が要件にある場合は別途 `time_zone VARCHAR(64)` カラム（'Asia/Tokyo' 等）を保持、設計段階で「保存 TZ・処理 TZ・表示 TZ」の 3 層を文書化。
+- **よくある失敗：イベントログ・監査ログを業務テーブルと同居させて INSERT 頻度が爆発、メインテーブルのインデックス更新コストでレスポンス劣化**。回避策は 監査ログ・アクセスログ・イベントログは別スキーマ・別 DB（または BigQuery / ClickHouse 等の分析用 DBMS）に分離設計。Append-Only テーブルとしてインデックス最小化、パーティション分割（月次）で古いログを高速 DROP 可能化。設計段階で「業務 DB（OLTP）と分析 DB（OLAP）」の責務分離を明示し、Ao の実装で意図せず混在しない構造を保証。
+
 ### 2026-05-18
 - **2026 年 Modular Monolith の業界本格定着：マイクロサービス疲労からの揺り戻し**：Shopify・Stripe・Amazon Prime Video が「マイクロサービス → モノリス回帰」を 2025-2026 で公式発表。運用負荷・分散トランザクション・デバッグ困難が理由。Nao の新規アーキテクチャ判断は「5-20 人規模チームなら Modular Monolith（Next.js + Prisma 単一リポジトリ + 明確なモジュール境界）」が業界推奨に。LET の現状規模で完全に最適、過剰なマイクロサービス化を避ける設計判断が品質キー。
 - **Drizzle ORM の急成長と Prisma との 2 強時代**：型安全・SQL ライク・Edge 完全対応の Drizzle が 2026 で Prisma に並ぶ採用率。Nao の DB 設計時に「複雑な集計クエリ・パフォーマンス重視 → Drizzle」「保守性・チーム可読性重視 → Prisma」と判断軸明確化。新規プロジェクトで両者比較する設計レビュー枠を STEP 2 で必須化、ORM ロックインの長期コストを設計段階で評価。

@@ -190,6 +190,12 @@ STEP 6: 実装完了報告
 - **効率化テクニック：API レスポンス整形を「Result 型」（`{ ok: true, data } | { ok: false, error }`）に統一、Riku の FE 側で `if (!res.ok) return showError(res.error)` だけで全エラーハンドリング完結**。try-catch 散在を撲滅、エラー処理ロジック 30% 削減。Mio のテストも `res.ok` ベースで Positive/Negative 両ケース機械生成可能、認可テスト網羅率 100%。
 - **Ao・Riku との並列実装連携：OpenAPI 仕様確定直後 30 分以内に `openapi-typescript` で TypeScript 型を `packages/api-types` に自動生成、Riku が `import type { paths } from '@app/api-types'` で即座にフォーム実装着手**。API 実装完成を待たず先行実装可能、FE/BE 並列率 100%。仕様変更時も型レベルで自動同期、Riku のコンパイルエラーが「仕様変更検知センサー」として機能。
 
+### 2026-05-20
+- **よくある失敗：`useState` で配列・オブジェクトを直接 mutate（`arr.push(x); setArr(arr)`）し React の参照変更検知が走らず再レンダリングされない**。回避策は 必ず新しい参照を作る（`setArr([...arr, x])` / `setObj({...obj, key: value})`）か、`immer` の `produce()` を使う運用統一。ESLint の `react/no-direct-mutation-state` と `eslint-plugin-functional` の `immutable-data` で機械検出、Zustand 利用時も `set((state) => ({ ...state, ... }))` パターンを徹底。再レンダリング漏れによる「画面が更新されない」バグ根絶。
+- **よくある失敗：`Link` ではなく `<a href>` を使い、Next.js のクライアント遷移が効かず毎回フルリロード、SPA の体感速度を完全に失う**。回避策は 内部リンクは必ず `next/link` の `<Link>` 使用、外部リンクのみ `<a href target="_blank" rel="noopener noreferrer">`。ESLint の `@next/next/no-html-link-for-pages` を有効化、外部リンクには `rel="noopener noreferrer"` 自動付与のカスタムコンポーネント `<ExternalLink>` を `packages/ui` に用意し直接 `<a>` の使用を原則禁止。
+- **よくある失敗：日付・通貨・数値のフォーマットを `toLocaleString()` 直書きでサーバー／クライアントで異なる結果になり Hydration ミスマッチ**。回避策は `Intl.DateTimeFormat` / `Intl.NumberFormat` をロケール明示（`'ja-JP'`）＋ TZ 明示（`timeZone: 'Asia/Tokyo'`）で必ず指定、`date-fns-tz` の `formatInTimeZone` 等のラッパーを `@/lib/format.ts` に集約。Server で生成した値を Client にバケツリレーする方針で「Server 1 ソース → Client 表示のみ」を徹底、Hydration ミスマッチ警告ゼロ化。
+- **よくある失敗：無限スクロール実装で `IntersectionObserver` の cleanup を忘れ、ページ遷移後もリスナーが残留、メモリリークでブラウザがフリーズ**。回避策は `useEffect` の return で必ず `observer.disconnect()` ＋ `observer.unobserve()` を実行、TanStack Query の `useInfiniteQuery` ＋ `react-intersection-observer` の組合せで自動 cleanup される標準パターン化。React DevTools Profiler で「unmount 後の subscription 残存」を定期検査、メモリ使用量の異常増を Sentry Performance で検知。
+
 ### 2026-05-18
 - **2026 年 Next.js 16 リリース：Turbopack が安定版・Webpack 完全置換**：dev 起動 5 秒 → 1 秒、HMR 300ms → 30ms に高速化。Riku の開発体験が劇的改善、1 日の実装速度 30% 向上。`next.config.js` から Webpack カスタム設定を削除しシンプルな Turbopack 設定に移行する作業を 2026 H2 までに完了予定。Vite との競争で Next.js の優位性確立。
 - **React 19 安定リリース：use Hook / Actions / Compiler が業界標準化**：React Compiler が自動メモ化（useMemo/useCallback 不要）、`use(promise)` で Suspense と組合せた非同期処理が簡潔化、Form Actions で `<form action={fn}>` のサーバーアクション統合が標準に。Riku の手動最適化工数が大幅削減、コード可読性向上。Mio との Pre-QA レビューで「React 19 標準パターン採用」を新チェック項目化。

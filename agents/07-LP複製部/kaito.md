@@ -212,6 +212,12 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **デプロイ業界最新「Cloudflare Workers vs Vercel Edge」競争激化、Vercel が `@vercel/edge-config` で動的構成読み出し**：A/B テスト・地域別配信を Edge レベルで実現する `getEdgeConfig()` が 2026 年 3 月 stable。STEP 5 でクライアントから「日本向け・海外向け配信切替」要望があれば、`vercel.json` で Edge Config 接続→管理画面で切替可能と提案。デプロイ後の運用柔軟性で差別化
 - **業界用語再確認「DX Platform（Developer Experience Platform）」としての Vercel の立ち位置**：単なるホスティングから「コード生成（v0）+ ビルド + デプロイ + 監視（Speed Insights）+ A/B（Edge Config）」のフル DX へ進化。STEP 5 で Speed Insights を必ず有効化し、本番後 7 日間の実ユーザー LCP/INP/CLS を Slack 自動投稿。Mia QA で見えない本番劣化を運用フェーズで検出
 
+### 2026-05-20
+- **HARU 受注時「納期確認」漏れで Mia QA フェーズ短縮の失敗**：原因は HARU から「LP 複製して」だけ受け、納期確認を後回しにして Hana 着手させ、後から「3 日後リリース」と判明し Mia QA を 1 日に圧縮、忠実度スコア 70 点台で納品事故。回避策は受注 5 分以内に「公開希望日・社内レビュー日・最終確認日」3 点を HARU に必須確認、Hana 着手前に逆算スケジュールを Slack ピン留め。タイトな納期は受注段階でスコア合格ライン緩和合意
+- **Vercel Project と GitHub Repository の「ブランチ連携先」誤設定で本番事故**：原因は新規 Vercel プロジェクト作成時、Production Branch を `main` でなく作業ブランチ（`feature/lp-clone-xx`）に設定したまま放置し、開発中の未完成コードが本番デプロイされる事故。回避策は STEP 5 着手前に `vercel project ls` + `vercel project inspect` で `production_branch` が `main` であることを必須確認、不一致なら `vercel git connect` で再設定。本番事故ゼロを設定層で保証
+- **`vercel.json` の `cleanUrls`/`trailingSlash` 設定漏れで SEO URL 重複失敗**：原因は `/about` と `/about/` の両方が 200 で応答し Google 検索結果に重複インデックスされ SEO 評価下落。回避策は STEP 5 デプロイ前に `vercel.json` で `cleanUrls: true, trailingSlash: false` を必須化、`curl -I https://{URL}/about/` で 308 リダイレクトを物理確認。納品後 2 週間で起きる SEO 順位下落の根本原因を排除
+- **複製対象サイトの「動的コンテンツ（CMS 連動）」見落としによる Scope 誤判定失敗**：原因は HARU 受注時に対象 URL のトップページだけ見て「静的 LP」と判断し Hana 着手させたが、実は WordPress 連動のブログ一覧が含まれており、Ren 実装後に「動的フェッチ実装漏れ」発覚。回避策は受注直後 5 分で対象 URL を `view-source:` で確認、`<script>` 内に `window.__INITIAL_STATE__` や fetch 呼出しを検出したら HARU に「CMS 連動含むか」確認。Scope 拡大の手戻り工数を撲滅
+
 ### 2026-05-19
 - **`vercel build --prebuilt` + Turborepo Remote Cache 連動でデプロイ時間 4 分 → 25 秒**：従来 `vercel --prebuilt`（40 秒）から更に、Turborepo の `--remote-only` フラグで CI 間のビルド成果物をリモートキャッシュ共有。同一依存変更なしのデプロイは tsc・next build を完全スキップし 25 秒で本番反映。緊急修正コミットからクライアント確認可能までを 30 分 → 5 分に短縮
 - **Edge Config A/B 切替を Slack スラッシュコマンド `/lp-ab` で 5 秒完結化**：従来 Vercel 管理画面 → Edge Config → JSON 編集 → Save の 4 ステップ（90 秒）を、Slack `/lp-ab hero=variantB` 1 行で Edge Config 書き込み → 全エッジ即反映。Kaito が会議中でも切替可能となり、ren/saki 不在時のクライアント要望対応スピードが 18 倍化

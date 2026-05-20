@@ -195,6 +195,12 @@ STEP 6: 差し戻し後の再チェック
 - **効率化テクニック：テストデータ管理を `@faker-js/faker` ＋ Prisma Seed の Factory パターンで統一、`UserFactory.create({ role: 'admin' })` のようにビルダー API で生成**。テスト毎の DB セットアップ工数 10 分 → 30 秒、データ汚染防止のため `beforeEach` で `prisma.$transaction` ＋ ROLLBACK でテスト後自動クリーン。Flaky 率 5% → 1% 未満を達成。
 - **Ao・Riku・Kuu との CI 統合効率化：4 つの並列ジョブ（lint / unit / integration / e2e）を `needs:` で依存制御、PASS したジョブから順次次工程へ**。順次実行 12 分 → 並列 3 分、PR フィードバック 4 倍速化。Mutation Testing（StrykerJS）を nightly ジョブで実行し朝に Slack 投稿、Mio が朝レビューで「テストが甘い箇所」を把握、本物のテスト品質を継続改善。
 
+### 2026-05-20
+- **よくある失敗：単体テストでモック化された依存（API・DB・時刻）のみで検証し、本物の統合では「契約違反（レスポンス形式が想定と違う）」に気づけず本番障害**。回避策は Contract Testing（Pact / Schemathesis）を CI に組込み、Ao の OpenAPI 仕様と Riku の FE クライアントの整合性を自動検証。モックは「OpenAPI スキーマから自動生成」（`@stoplight/prism` / `msw` の OpenAPI 連携）して手書きモック禁止、仕様変更時にモックも自動追従する状態を維持。契約違反による本番事故ゼロ化。
+- **よくある失敗：時刻依存テスト（「今日が月初かどうか」「30 日経過後の挙動」）を実時刻で書き、テスト実行日によって PASS/FAIL がブレる Flaky の典型**。回避策は `vi.useFakeTimers()` / `vi.setSystemTime(new Date('2026-05-20T00:00:00Z'))` で必ず時刻固定、テストファイル冒頭でセットアップ。実時刻参照（`new Date()` / `Date.now()`）を ESLint カスタムルールで本番コード以外禁止、`@/lib/clock.ts` のラッパー経由参照を強制し DI で差し替え可能化。タイムゾーン依存バグも `process.env.TZ = 'UTC'` で全テスト統一実行。
+- **よくある失敗：E2E テストのテストデータを `beforeAll` で 1 度だけ生成し、テスト間でデータ汚染→順序依存で「単独実行は PASS、全実行で FAIL」**。回避策は 各テストで `beforeEach` ＋ `prisma.$transaction` ＋ ROLLBACK で完全独立化、もしくは Factory パターン（`@faker-js/faker`）で一意 ID 生成。並列実行（`vitest --threads`）時のテスト DB はワーカー毎にスキーマ分離（`SET search_path TO test_worker_${WORKER_ID}`）、テスト独立性 100% 維持。
+- **よくある失敗：負荷試験を「本番リリース前 1 回」しか実施せず、3 か月後にデータ増加でクエリが遅延、Black Friday で全停止**。回避策は k6 / Artillery で「想定 trafic の 3 倍」の負荷シナリオを GitHub Actions の nightly ジョブに組込み、p95 レイテンシ・エラー率の閾値違反を Slack 通知。さらに「データ量 10 倍・100 倍シナリオ」を月次実行し、N+1 / インデックス不足を早期検出。本番想定の 2 倍負荷で連続 5 分耐えられるかを QA ゲート必須化。
+
 ### 2026-05-18
 - **2026 年 Playwright 1.50 リリース：AI 駆動の Auto-Healing テストが新標準**：UI のセレクタ変更（`#submit-btn` → `[data-testid="submit"]`）でテスト失敗時に、AI が「意図したのはこのボタン」と自動推論して self-healing。Mio の Flaky テスト調査工数 70% 削減。ただし「AI が間違った要素を選んで本物のバグを見逃す」リスクもあるため、`auto-heal` 有効時は warning ログを必ず確認する運用ルール化。
 - **Vitest 3.0 リリースの業界影響：Jest からの大規模移行が 2026 で本格化**：Vite ベースの 5 倍速度、ESM ネイティブ対応、ブラウザモード（実ブラウザでユニットテスト実行）対応。Mio のテスト実行時間 5 分 → 1 分、CI フィードバック高速化で Riku/Ao の修正サイクル 10 倍速に。Jest 互換 API 維持で移行コスト最小、新規プロジェクトは Vitest デフォルト採用が業界標準。

@@ -208,6 +208,12 @@ STEP 4: Miaへ再チェック依頼
 - **業界用語再確認「Hot Module Replacement（HMR）」失敗時の Turbopack デバッグフロー**：Next.js 15 + Turbopack で HMR が「保存しても反映されない」場合、`.next/cache` 削除 → `rm -rf node_modules/.cache` → `next dev --turbo` 再起動の 3 ステップを修正指示書に必須記載。STEP 2 で Ren が無駄に 30 分悩むパターンを未然防止
 - **「Storybook 8.5 + Vitest 統合」で「修正コンポーネント単体テスト＋ビジュアル確認」を 1 コマンド化**：`npx storybook test` で Stories の Play 関数を Vitest 経由で実行 + Chromatic VRT 同時起動。STEP 3 Saki セルフ QA 時に「修正対象コンポーネント単独」での回帰確認を 15 秒で完了、Mia 再依頼前の品質保証ループを高速化
 
+### 2026-05-20
+- **「Mia NG の根本原因」追究せず対症療法で同じ箇所を 3 回 NG 失敗**：原因は Mia「フォントサイズが違う」指摘を受け、Ren に「`text-base` → `text-lg`」と単発修正を依頼し続け、根本は Hana 抽出仕様データの `font-size` 単位（rem vs px）誤り、と気付かないこと。回避策は STEP 1 で「同一セクション・同類項目 2 回目 NG なら、即 Hana 仕様データに遡って原因切分け」を Issue テンプレに必須化。`saki-bot` で 2 回目検知時に自動 Hana メンション
+- **修正指示時の「絶対座標 vs 相対座標」混在失敗**：原因はユーザーから「もう少し右に寄せて」と曖昧指示を受け、Saki が「`margin-left: 20px` 追加」と絶対値で指示するが、レスポンシブで SP では画面外に飛び出すこと。回避策は STEP 2 で `transform: translateX(2vw)` `inset-inline-start: clamp(8px, 2%, 24px)` 等の相対指標を必須化、絶対 px 指定は ESLint で warn。修正後の SP 崩れ二次 NG を物理予防
+- **「ユーザー指示 vs Mia 仕様」競合検出漏れ失敗**：原因はユーザーから「ボタンを赤色に」と指示を受けて Ren に修正依頼するが、Hana 抽出 + Mia QA 基準ではブランドカラー青固定で、修正後 Mia 再チェックで「ブランド仕様逸脱」NG になること。回避策は STEP 1 でユーザー指示受領直後に Hana 仕様データを `diff` し、競合あれば即ユーザーへ「ブランド逸脱になります、進めますか」確認。Mia 再 NG ループを抽出段階で根絶
+- **修正 PR の `git rebase` ミスで「既存修正の巻き戻し」失敗**：原因は Ren が複数修正タスクを並列ブランチで進め、main へマージ時に `git rebase` で過去修正を upstream で消してしまう事故。回避策は STEP 2 で Ren へ渡す指示書に「`git rebase` 禁止・`git merge --no-ff` 必須」と明記、CI で `git log --first-parent` 強制チェック。過去修正の巻き戻し事故を物理予防
+
 ### 2026-05-19
 - **コーディング規約自動化「Biome v1.9 採用」で ESLint + Prettier の 2 ツール統合、CI 時間 45 秒→8 秒に短縮**：Saki 指示書テンプレに「Ren へは Biome 設定（`biome.json`）配布、`biome check --apply` をコミット前必須」と明記。STEP 2 で Ren に渡す修正指示書から「ESLint 警告無視するな・Prettier 走らせろ」という雑務文言を撲滅、1 案件あたり指示書記述量 40% 削減
 - **Husky v9 + lint-staged + `commitlint` の 3 段コミットフックを `pnpm prepare` 自動配布**：修正タスク着手時に `.husky/pre-commit` で「Biome check / `tsc --noEmit` / Vitest changed」、`commit-msg` で `commitlint` Conventional Commits 強制。Ren の修正コミットが規約違反で reject されるため、Saki 再依頼前の「コミットメッセージ読めない」ループをゼロ化、平均修正サイクル 35 分→18 分

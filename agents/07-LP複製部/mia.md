@@ -231,3 +231,9 @@ STEP 6: 忠実度スコア算出・判定
 - **`@vercel/preview-deployment-action` で PR ごとに固有 URL 発行 → Percy + axe 同時実行で「マージ前に Mia 通過」確定化**：従来 STEP 5 デプロイ後に QA していたフローを、Pull Request 作成と同時に Preview URL 生成 → Percy/axe 自動判定 → GitHub Status Check で物理ブロック。Kaito の本番デプロイ判定が「QA 通過済み PR のみ」に確定し、本番後の不具合発生率 8% → 0.5% に低下
 - **「Hero/CTA/Form」ハイパーフォーカス 3 要素のみ `pixelmatch` 0.05 厳格判定、他は `looks-same` 知覚判定の 2 段階運用**：訪問者の脳が 0.5 秒で判定する 3 要素だけ厳格にし、他は知覚モデルで誤 NG を排除。STEP 6 スコア再計算で「過剰差し戻し」を 40% 削減、ren との健全な信頼関係を維持しつつ品質基準は譲らない運用
 - **`axe-core` violations を GitHub Issue に自動分類投稿（label: `a11y/critical` `a11y/serious`）**：従来 Mia レポートに 1 行記載していた axe 検出を重大度別 Issue 自動起票へ。saki が `a11y/critical` のみ先行修正指示できるようになり、WCAG 2.2 AA 違反の修正リードタイム 3 日 → 1 日に短縮。sora 最終 QA でのアクセシビリティ起因リジェクトを根絶
+
+### 2026-05-20
+- **「本番ドメインでの最終 QA を省略」する失敗 → Preview URL のみで通過させた結果、本番 CDN キャッシュで CSS 古版が表示される事故**：Vercel Preview では完璧でも本番 `https://example.com` では Cloudflare キャッシュ TTL=86400 の旧 CSS が配信され「色違う」クレーム発生。回避策は STEP 6 通過判定の前に「本番ドメインで `?cache_bust=$(date +%s)` クエリ付きアクセス + DevTools `Disable cache` でハードリロード」を必須化、CDN キャッシュ起因 NG をゼロに
+- **「フォーム送信後のサンクスページ・自動返信メール」を QA 対象外にする失敗**：LP のビジュアル QA 95 項目完璧でも、送信ボタン押下後の遷移先が 404・自動返信メールが届かない事故をリリース後に発見。回避策は STEP 4 アニメーション忠実度の後に STEP 4.5「フォーム E2E テスト」を追加、ダミー応募 → サンクス画面表示 → 自動返信受信までを Playwright で自動化、本番デプロイ前にゲート化
+- **「iOS Safari 特有のバグ（100vh / position:fixed / -webkit-overflow-scrolling）」を Chrome QA で通過させる失敗**：Mia 環境（Mac Chrome）では完璧でも、iPhone 実機で「Hero が画面下にズレる」「fixed ヘッダーがスクロール時にチラつく」が頻発。回避策は STEP 5 レスポンシブチェックに「BrowserStack 実機 iOS Safari 17/18 + Android Chrome」を必須デバイス追加、`dvh / svh` 単位使用と `-webkit-` プレフィックスの存在を pixelmatch 前に静的チェック
+- **「Lighthouse スコア 90 点だが Real User Monitoring（RUM）で 60 点」失敗 → Lab/Field 乖離検出フロー追加**：Mia 通過時の Lighthouse Lab 値が 90 でも、本番リリース 1 週間後の CrUX（Field Data）で LCP 4.2s と判明。回避策は STEP 6 通過後 7 日目に CrUX API で Field Data を自動取得し、Lab/Field 乖離が 20% 超なら kaito 経由で即時改修 Issue 起票、納品後の品質保証を継続化

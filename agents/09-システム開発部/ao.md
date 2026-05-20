@@ -205,6 +205,12 @@ STEP 6: 実装完了報告
 - **Kuu との連携効率化：CI で `prisma migrate diff --from-empty --to-schema-datamodel schema.prisma --script` を毎 PR 実行し、生成 SQL を PR コメントに自動投稿**。Kuu が「このマイグレ本番でテーブルロックするか」を PR 段階で判定可能、デプロイ前レビュー工数 20 分 → 3 分。破壊的変更（DROP COLUMN・ALTER TYPE）は CI が自動ラベル付与し、3 段階デプロイ強制フローへ自動振り分け。
 - **Mio との QA 引き渡し効率化：実装完了時に `tsx scripts/gen-test-fixtures.ts` で「正常系 cURL ＋ 401/403/422/500 異常系再現コマンド集 ＋ EXPLAIN ANALYZE 結果」を Markdown 自動生成**。Mio のテスト準備工数 30 分 → 2 分、認可ペアテスト（自分 200 ＋他人 403）も即実行可能。Vitest テスト雛形も同スクリプトで吐き出すため、Mio は中身詰めだけに集中可能。
 
+### 2026-05-20
+- **よくある失敗：Prisma の Connection Pool 上限を未指定で本番デプロイし、トラフィック増加時に「Too many connections」エラーで全リクエスト 500 化、サーバーレス関数の同時実行数 × 接続数で DB 上限を瞬時に超過**。回避策は DATABASE_URL に `?connection_limit=1&pool_timeout=10` を明示（サーバーレスは関数毎に Pool が独立）、外部 Pooler（PgBouncer / Neon Pooler / Supabase Pooler）を介した接続に統一。本番デプロイ前に `pg_stat_activity` で同時接続数の上限を確認、Vercel Functions の最大同時実行数 ×（1 + バッファ）が DB max_connections 内に収まる設計をチェックリスト化。
+- **よくある失敗：JWT の `exp` クレームを検証せずデコードだけで信頼し、有効期限切れトークンや改ざんトークンを受理して認可バイパス**。回避策は `jose.jwtVerify()` 等のライブラリで `algorithms`・`audience`・`issuer`・`exp`・`nbf` を必須検証、自前デコードを ESLint カスタムルールで禁止。鍵ローテーションを想定して JWKs エンドポイントから公開鍵を取得しキャッシュ（TTL 10 分）、`alg: none` 攻撃防止のため許可アルゴリズムをホワイトリスト化。認証バイパス事故ゼロ化。
+- **よくある失敗：外部 API 呼び出しのリトライをデフォルト即時 3 回で実装し、相手側が一時的に過負荷の時に「リトライストーム」で完全停止を悪化**。回避策は Exponential Backoff（100ms → 200ms → 400ms）＋ジッター（±20%）＋最大リトライ回数 3 回を共通ライブラリ化、4xx は原則リトライ禁止・5xx と 429 のみリトライ対象。Circuit Breaker パターン（連続失敗 5 回で 30 秒遮断）を `opossum` などで実装、Sentry に「リトライ発生率」を計測指標として送信。
+- **よくある失敗：Redis キャッシュの TTL を未設定で `SET key value` してしまい、メモリが永久に増え続け数ヶ月後に OOM**。回避策は `SET key value EX 3600` の TTL 必須化（ESLint カスタムルールで `SET` 単独使用警告）、キャッシュ用ヘルパー関数 `cache.set(key, value, ttlSeconds)` で TTL 引数を必須化。Redis の `maxmemory-policy` を `allkeys-lru` に設定し、万一の TTL 漏れでも LRU で自動削除。月次で `MEMORY USAGE` 上位キーを監視し異常成長を検出。
+
 ### 2026-05-18
 - **2026 年 Prisma 6.2 リリース：Edge Runtime 完全対応＋ ORM 内蔵 Connection Pooling**。従来は Vercel Edge Functions で Prisma が動かず、Drizzle や Kysely への移行が議論されていたが、6.2 でネイティブ対応。`@prisma/adapter-neon` + serverless DB（Neon / Supabase）の組合せで「コールドスタート 50ms 以内」が実現。Ao の Route Handler を全 Edge Runtime 化することで、p95 レイテンシ 300ms → 80ms へ削減可能。
 - **tRPC v11 と Server Actions の住み分けが 2026 業界で議論決着**：Next.js App Router 内の社内ツール・管理画面は「Server Actions（型自動・ボイラープレートゼロ）」、外部公開 API・モバイルアプリ連携は「tRPC or 従来 REST」が業界推奨に。Ao が新規実装時に「呼び出し元が Next.js のみ → Server Actions、それ以外 → REST/tRPC」と判断軸を明確化。Riku との型共有も Server Actions なら 0 ボイラープレート、開発速度 40% 向上。
