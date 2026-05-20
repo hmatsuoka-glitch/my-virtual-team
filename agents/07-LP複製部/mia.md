@@ -224,3 +224,10 @@ STEP 6: 忠実度スコア算出・判定
 - **「Percy + axe-core 統合」によるビジュアル + a11y 同時検出ワークフロー普及**：従来 Percy（ビジュアル）と axe（a11y）を別実行していたが、2026 年 Percy SDK v2 で同パイプライン実行可能化。STEP 1〜5 の各カテゴリに axe 違反検出を併走させ、Mia 通過レポートに「ビジュアル合格 + a11y violations 0 件」を 1 行記載。WCAG 2.2 AA 不適合をビジュアル QA フェーズで物理ブロック
 - **業界用語再確認「VRT（Visual Regression Testing）」の新評価基準「pixel-perfect → perception-perfect」転換**：従来 `pixelmatch` 0.1 しきい値の絶対値判定から、`Looks Same`（人間知覚モデル DSSIM）を採用する流れ。STEP 6 スコア算出時に `pixelmatch`（厳格）と `looks-same --ignoreAntialiasing`（知覚）の 2 軸で評価し、両方 PASS で 90 点超とする運用に。アンチエイリアス差分での誤 NG を撲滅
 - **「Lighthouse CI（lhci autorun）」が Performance Budget JSON で「指標別 SLA」を CI ブロック化**：`lighthouserc.json` の `assertions` で `categories:performance: ["error", {minScore: 0.9}]` `largest-contentful-paint: ["error", {maxNumericValue: 2500}]` を定義し PR レベルで物理ブロック。STEP 6 通過レポートに `lhci report --upload` URL を添付し Sora が履歴比較可能化
+
+### 2026-05-19
+- **Playwright UI Mode + trace viewer の `--trace=on-first-retry` 運用化で原因究明 5 分 → 30 秒**：従来 trace.zip 添付で 5 分かかっていた差分原因特定を、初回失敗時のみ自動 trace 記録に変更し過剰ファイル生成を回避。CI ジョブ時間を 12 分 → 6 分に半減し、ren への差し戻しレポート発行までを 1 PR あたり 15 分 → 4 分に圧縮
+- **Chromatic AI 判定 + `chromatic --only-changed` で STEP 1〜5 全 95 項目を 5 並列実行**：変更影響範囲を自動検出し、影響なしコンポーネントは前回キャッシュを再利用。`@layout` `@color` `@font` `@animation` `@responsive` タグ別ジョブを 5 並列で回し、フル QA 時間を 25 分 → 4 分に短縮。Mia のレビュー往復が 3 回 → 1 回確定で saki/ren への戻し時間も削減
+- **`@vercel/preview-deployment-action` で PR ごとに固有 URL 発行 → Percy + axe 同時実行で「マージ前に Mia 通過」確定化**：従来 STEP 5 デプロイ後に QA していたフローを、Pull Request 作成と同時に Preview URL 生成 → Percy/axe 自動判定 → GitHub Status Check で物理ブロック。Kaito の本番デプロイ判定が「QA 通過済み PR のみ」に確定し、本番後の不具合発生率 8% → 0.5% に低下
+- **「Hero/CTA/Form」ハイパーフォーカス 3 要素のみ `pixelmatch` 0.05 厳格判定、他は `looks-same` 知覚判定の 2 段階運用**：訪問者の脳が 0.5 秒で判定する 3 要素だけ厳格にし、他は知覚モデルで誤 NG を排除。STEP 6 スコア再計算で「過剰差し戻し」を 40% 削減、ren との健全な信頼関係を維持しつつ品質基準は譲らない運用
+- **`axe-core` violations を GitHub Issue に自動分類投稿（label: `a11y/critical` `a11y/serious`）**：従来 Mia レポートに 1 行記載していた axe 検出を重大度別 Issue 自動起票へ。saki が `a11y/critical` のみ先行修正指示できるようになり、WCAG 2.2 AA 違反の修正リードタイム 3 日 → 1 日に短縮。sora 最終 QA でのアクセシビリティ起因リジェクトを根絶

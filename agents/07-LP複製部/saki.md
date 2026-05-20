@@ -207,3 +207,10 @@ STEP 4: Miaへ再チェック依頼
 - **業界トレンド「Sentry Session Replay」を Saki 工程に組込、本番ユーザー再現エラーをローカル再生**：Mia QA で再現できない「本番だけ起こる Hydration エラー」を Sentry の Session Replay で動画再生し、ユーザー操作・ネットワーク・コンソールを完全再現。STEP 1 で Sentry Issue URL を受領→Replay 視聴→Ren に「再現手順 5 ステップ」を伝達。「再現できない」報告ループを根絶
 - **業界用語再確認「Hot Module Replacement（HMR）」失敗時の Turbopack デバッグフロー**：Next.js 15 + Turbopack で HMR が「保存しても反映されない」場合、`.next/cache` 削除 → `rm -rf node_modules/.cache` → `next dev --turbo` 再起動の 3 ステップを修正指示書に必須記載。STEP 2 で Ren が無駄に 30 分悩むパターンを未然防止
 - **「Storybook 8.5 + Vitest 統合」で「修正コンポーネント単体テスト＋ビジュアル確認」を 1 コマンド化**：`npx storybook test` で Stories の Play 関数を Vitest 経由で実行 + Chromatic VRT 同時起動。STEP 3 Saki セルフ QA 時に「修正対象コンポーネント単独」での回帰確認を 15 秒で完了、Mia 再依頼前の品質保証ループを高速化
+
+### 2026-05-19
+- **コーディング規約自動化「Biome v1.9 採用」で ESLint + Prettier の 2 ツール統合、CI 時間 45 秒→8 秒に短縮**：Saki 指示書テンプレに「Ren へは Biome 設定（`biome.json`）配布、`biome check --apply` をコミット前必須」と明記。STEP 2 で Ren に渡す修正指示書から「ESLint 警告無視するな・Prettier 走らせろ」という雑務文言を撲滅、1 案件あたり指示書記述量 40% 削減
+- **Husky v9 + lint-staged + `commitlint` の 3 段コミットフックを `pnpm prepare` 自動配布**：修正タスク着手時に `.husky/pre-commit` で「Biome check / `tsc --noEmit` / Vitest changed」、`commit-msg` で `commitlint` Conventional Commits 強制。Ren の修正コミットが規約違反で reject されるため、Saki 再依頼前の「コミットメッセージ読めない」ループをゼロ化、平均修正サイクル 35 分→18 分
+- **AI アシスト補完「Cursor + Claude Code Inline」を修正指示書に統合、Saki 指示→Ren 実装の往復を 4 回→1 回に圧縮**：修正指示書末尾に `## AI 補完用コンテキスト` セクションを追加、対象 CSS セレクタ・期待値・参考スクショ URL を JSON で記述、Ren が Cursor `Cmd+K` で一発生成。「`#hero > .cta-button` を `bg-red-500` に変更」の修正実装が 5 分→40 秒、Mia 再依頼までのリードタイム 2 時間→30 分
+- **`turbo run lint test build --filter=...[origin/main]` で変更影響範囲のみ並列実行、CI 全体時間 4 分→50 秒**：Turborepo の `--filter` でモノレポ内 LP 案件のうち差分があるパッケージのみテスト、Vercel Preview デプロイ完了まで Saki セルフ QA 待機時間を 75% 削減。1 日の修正ループ件数を 3 件→8 件に拡張
+- **VS Code `settings.json` 標準テンプレを部内配布、「保存時 Biome / TypeScript / Tailwind sort 自動実行」で実装ミス源を物理排除**：`.vscode/settings.json` に `"editor.codeActionsOnSave": { "source.fixAll.biome": "explicit", "source.organizeImports.biome": "explicit" }` を必須化、`tailwindcss.classRegex` で `clsx` `cn` 内のクラス自動ソート。Ren の `className` 順序ブレ起因の差分レビュー時間を 70% 削減

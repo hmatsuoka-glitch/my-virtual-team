@@ -214,3 +214,9 @@ STEP 5: デザインの統一感・視認性・訴求力を自己チェック
 - **広告クリエイティブ業界の AI 生成画像合法ガイドライン 2026 版が施行**：Midjourney v7・DALL-E 4 の生成画像を広告素材で使う際、「AI 生成である旨」を画像メタデータ（EXIF）に埋め込むことが Meta・Google で必須化。Kana が AI 素材を HTML バナーに組み込む時は、Yuna 経由で「AI 生成フラグ」と「学習データ商用ライセンス確認」の 2 点を nori に事前確認する運用に固定化。違反時は広告アカウント停止リスク。
 - **Tailwind CSS v4（2026 リリース）の Oxide エンジンで CSS ビルド速度 10 倍**。Kana が複数色パターン × 複数サイズで 20 バナー一括 HTML 出力する際、従来は CSS ビルド 30 秒だったのが 3 秒に短縮。Vite ベースの dev server と組み合わせて「色値変更 → 即反映」のホットリロードが体感ゼロ秒に。複数バリエーション制作の工数が物理的に短縮。
 - **ダークモード対応バナーの 2026 業界標準化**：Instagram・X・LINE が「ユーザーのダークモード設定に応じた広告自動切替」を 2026 H2 から実装予定。Kana が今後の HTML バナー設計時に `@media (prefers-color-scheme: dark)` で「ダーク版 CSS Variables」を併設しておくと、媒体側 AI が自動でダーク版を選択。CTA ボタンや背景色をダークモードで「コントラスト 5:1 維持」設計を 2026 標準化、Yuna への提案として 1 セット 2 バリ（ライト/ダーク）が新標準。
+
+### 2026-05-19
+- **Figma Auto Layout + Variables のフル活用で 1 案件あたり 45 分 → 15 分に短縮**：バナーフレームを Auto Layout で構築し、パディング・ギャップ・色を Figma Variables で全て変数化。クライアント色変更時は Variables Mode を切り替えるだけで全サイズ・全パターンに即反映、手動色値修正の 30 分が 1 分に。Sho/Itsuki からの「色だけ変えて」依頼も Figma URL 1 本共有で完結。
+- **Figma Component（Banner Master）化で複数サイズ展開を 5 倍高速化**：1080×1080 / 1080×1350 / 1200×628 / 1080×1920 の 4 サイズを Component Set として登録し、Variants でサイズ切替。Auto Layout の `Fill Container` / `Hug Contents` を活用すれば、メインコピー差し替え時に 4 サイズ全部のレイアウトが自動再計算。1 案件 4 サイズの作業時間が 60 分 → 12 分（5 倍効率化）。
+- **Figma Magic Resize（FigJam AI）で 1 サイズ作れば全サイズ自動生成**：Instagram 1080×1080 の親バナーを作り、Magic Resize に「Stories 1080×1920 / Indeed 1200×628 に変換」と指示するだけで AI が要素配置を自動最適化。Kana が手動調整するのは「Magic Resize 後の微修正 2-3 箇所」のみで、1 案件 4 サイズの初稿出しが 90 分 → 25 分に。Rei のコピー入れ替えも Variables 経由で 5 分。
+- **Figma to HTML 書き出し自動化プラグイン（HTML to Figma / Anima）で Hiro 引き渡し工数ゼロ化**：Figma で完成したバナーを Anima プラグインで HTML/CSS にワンクリック書き出し、CSS Variables も自動生成。Kana の「Figma → HTML 手動コーディング」工数 25 分が 2 分に圧縮。Hiro はそのまま Puppeteer で PNG 変換可能、書き出し HTML の構造が予測可能になり Hiro 側の差し戻しもゼロ化。Itsuki/Ryota との Figma URL 共有で「デザイン確認 → そのまま実装」のシームレス連携が実現。

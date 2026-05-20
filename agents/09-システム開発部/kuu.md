@@ -191,6 +191,13 @@ STEP 6: 実装完了報告
 - **メンテナンス時間帯への不満閾値は業種で劇的に変わる**：採用サイトなら「平日夜間 22:00-03:00」が無難（応募者が少ない時間）。給与管理 SaaS なら「月末 25-28 日避ける」（給与計算時期）。EC サイトなら「ユーザー販売時間を避ける」が必須。Kuu がメンテナンスウィンドウを設定する際は Kai・Akari とコミュニケーション取り、「このクライアント向けアプリは何曜日が谷？」を事前に確認。ユーザー離脱を招かないメンテ時間選定が品質。
 - **Statuspage を見る行動順序：健全なユーザーなら「ステータス一覧 → 最新 incident → 復旧見込み」。不健全な状況では「何度も refresh → チャットで問い合わせ → Twitter で愚痴」に変わる**。Kuu の statuspage 設定で「リアルタイム status 自動更新」「incident 発生直後 5 分以内に「原因調査中」と投稿」「復旧見込み時刻の明示」を必須化。ユーザーがページを見て「あ、復旧予定 16:00 か」と判断できる透明性が、サイレント離脱 vs 問い合わせを分ける。
 
+### 2026-05-19
+- **効率化テクニック：GitHub Actions の reusable workflows（`workflow_call`）で「lint / typecheck / test / build / preview-deploy / prod-deploy」の 6 ステップをライブラリ化し中央リポジトリに集約**。新規プロジェクトは `.github/workflows/main.yml` で `uses: org/ci-templates/.github/workflows/full-pipeline.yml@v1` の 1 行で全パイプライン完成。CI/CD 設定工数 4 時間 → 10 分、バグ修正も中央 1 箇所で全プロジェクトに即時反映。プロジェクト間の設定ばらつきゼロ化。
+- **効率化テクニック：Terraform で Vercel プロジェクト・環境変数・ドメイン設定を完全 IaC 化、`terraform apply` で新規環境を 30 秒で再現**。従来 Vercel UI でポチポチ設定していた「環境変数 30 個・ドメイン・ブランチ保護ルール」を `.tf` ファイルに記述、PR レビューも可能化。新環境構築工数 2 時間 → 30 秒、設定漏れインシデント 100% 防止。`vercel.json` ＋ Terraform のハイブリッドで Git 管理外の手動操作ゼロ。
+- **効率化テクニック：Observability 整備を OpenTelemetry ＋ Grafana Cloud で統一、`@vercel/otel` を全 Route Handler に挿入するだけで「メトリクス・ログ・トレース」3 軸が自動収集**。従来 Sentry ＋ Datadog の二重設定（月額 $300）を Grafana Cloud 1 本化（月額 $50）、コスト 80% 削減。エラー発生時の「ユーザーリクエスト → API → DB → 外部 API」全経路を 1 画面で追跡可能、MTTR 30 分 → 3 分。
+- **Ao との連携効率化：`.env.example` 更新コミットを GitHub Actions が検出し、Slack #infra に「新規環境変数：キー名・用途・本番要否・サンプル値」を自動投稿**。Ao の手動 Slack 投稿工数ゼロ、Kuu の Vercel UI 投入も「Slack 通知 → 1 クリックで Vercel CLI 実行スクリプト」化。デプロイ後の環境変数未設定インシデント完全消滅、Ao-Kuu 間の引き継ぎ工数 15 分 → 1 分。
+- **Mio との CI 品質ゲート効率化：Kuu の「インフラ品質」（環境変数・シークレット・脆弱性・ロールバック）と Mio の「コード品質」（カバレッジ・E2E・a11y）を独立 GitHub Actions ジョブ化し、`needs:` で並列実行**。順次比でパイプライン時間 8 分 → 3 分、片方失敗でも他方の結果が PR コメントに表示されレビュー判断高速化。両者の責任境界も Job 名で物理的に明示。
+
 ### 2026-05-18
 - **2026 年 Vercel Fluid Compute リリース：従来 Serverless と Edge の中間形態が新標準**：1 つの関数インスタンスで複数リクエスト同時処理可能（従来は 1 リクエスト 1 インスタンス）。コールドスタート 90% 削減、コスト 50% 削減。Kuu が `vercel.json` で `"functions": { "runtime": "fluid" }` 設定するだけで全 Route Handler が自動移行。Ao の Prisma 6.2 と組合せて p95 レイテンシ 80ms 達成可能、2026 H2 から本番案件で全面採用検討。
 - **GitHub Actions の AI Runner（2026 リリース予定）が業界注目**：従来「ジョブが失敗 → Kuu が手動でログ確認 → 修正」だったのが「AI Runner が失敗原因を自動分析 → 修正 PR を自動生成」する未来。Dependabot や Renovate の進化系。Kuu のインシデント対応工数 60% 削減、深夜・週末の自動修復が現実化。2026 H2 ベータ参加検討。

@@ -198,6 +198,13 @@ STEP 6: 実装完了報告
 - **エラーメッセージの「見た目親切」と「本当に役立つ」の巨大な隔たり**：「エラーが発生しました」は技術的親切だが、ユーザーは「何が起きたの？」と問い合わせ殺到。「入力したメールアドレスが既に登録済みです。別のメールアドレスで登録するか、ログインしてください」と原因と対策を示すと、ユーザーは自分で解決。Ao が実装段階でエラーレスポンスを「テクニカル」ではなく「ユーザー行動指針」に言語化することが、問い合わせ 70% 削減の鍵。
 - **API 遅延を自分の Wi-Fi のせいだと思うユーザーの瞬間**：スマホユーザーが「あ、この機能遅い」と感じると「私の Wi-Fi が遅いんだろう」と自己判定。本当は Ao の API 実装の N+1 クエリが原因だが、ユーザーはサポート問い合わせもしない。本番ログで「なぜか応答が遅い」と気づくまでに週単位の時間が経過。Ao は実装段階で `EXPLAIN ANALYZE` と Sentry Performance で p95 レイテンシをトラッキング、500ms 超は即座に原因追跡。本番環境の「遅さ」は無言ユーザーの離脱につながる。
 
+### 2026-05-19
+- **効率化テクニック：Drizzle ORM の `drizzle-kit generate` ＋ `drizzle-kit push` でスキーマ変更 → マイグレーション生成 → DB 反映を 3 コマンド・5 秒で完結**。従来 Prisma の `migrate dev` で 30 秒待っていた工程が 5 秒、ローカル開発のスキーマ修正サイクル 6 倍速。`drizzle-zod` で Zod スキーマも自動派生し、Riku 向け型定義／API バリデーション／OpenAPI ドキュメントの 3 つが 1 スキーマから生成、手動同期工数 30 分/エンドポイント → 0 分。
+- **効率化テクニック：Hono ＋ `@hono/zod-openapi` で「ルート定義 = OpenAPI 仕様」が同一コード化**。`createRoute({ method, path, request, responses })` で書くだけで Swagger UI ＋ TypeScript 型 ＋ Zod バリデーションが 1 度に完成。Next.js Route Handler の冗長な `NextRequest` 取り回しが消滅、エンドポイント実装行数 50% 削減、Riku への仕様共有も `/doc` URL を渡すだけ。
+- **効率化テクニック：`prisma studio` ＋ `vitest --watch` ＋ `pnpm dev` の 3 画面分割を VS Code Tasks で 1 コマンド起動化**。新メンバーが clone 後 `pnpm dev:all` するだけで DB GUI ／テストランナー／Next.js dev サーバーが同時起動、環境セットアップ工数 30 分 → 30 秒。Mio との QA ペアプロ時も全員同じ画面構成で「あれどこにあるんですか」がゼロ化。
+- **Kuu との連携効率化：CI で `prisma migrate diff --from-empty --to-schema-datamodel schema.prisma --script` を毎 PR 実行し、生成 SQL を PR コメントに自動投稿**。Kuu が「このマイグレ本番でテーブルロックするか」を PR 段階で判定可能、デプロイ前レビュー工数 20 分 → 3 分。破壊的変更（DROP COLUMN・ALTER TYPE）は CI が自動ラベル付与し、3 段階デプロイ強制フローへ自動振り分け。
+- **Mio との QA 引き渡し効率化：実装完了時に `tsx scripts/gen-test-fixtures.ts` で「正常系 cURL ＋ 401/403/422/500 異常系再現コマンド集 ＋ EXPLAIN ANALYZE 結果」を Markdown 自動生成**。Mio のテスト準備工数 30 分 → 2 分、認可ペアテスト（自分 200 ＋他人 403）も即実行可能。Vitest テスト雛形も同スクリプトで吐き出すため、Mio は中身詰めだけに集中可能。
+
 ### 2026-05-18
 - **2026 年 Prisma 6.2 リリース：Edge Runtime 完全対応＋ ORM 内蔵 Connection Pooling**。従来は Vercel Edge Functions で Prisma が動かず、Drizzle や Kysely への移行が議論されていたが、6.2 でネイティブ対応。`@prisma/adapter-neon` + serverless DB（Neon / Supabase）の組合せで「コールドスタート 50ms 以内」が実現。Ao の Route Handler を全 Edge Runtime 化することで、p95 レイテンシ 300ms → 80ms へ削減可能。
 - **tRPC v11 と Server Actions の住み分けが 2026 業界で議論決着**：Next.js App Router 内の社内ツール・管理画面は「Server Actions（型自動・ボイラープレートゼロ）」、外部公開 API・モバイルアプリ連携は「tRPC or 従来 REST」が業界推奨に。Ao が新規実装時に「呼び出し元が Next.js のみ → Server Actions、それ以外 → REST/tRPC」と判断軸を明確化。Riku との型共有も Server Actions なら 0 ボイラープレート、開発速度 40% 向上。

@@ -183,6 +183,13 @@ STEP 6: 実装完了報告
 - **ボタン押す前のホバーで色が変わらないと「本当に押せるのか」と不安になるメンタリティ**：デスクトップユーザーが `:hover` で色変化を期待する脳になっているから、ホバー未実装ボタンは「押せる感覚がない」。Riku が全ボタンに `:hover` `:active` `:focus` を付けることで、デスクトップ・タッチ・キーボード 3 種類のユーザーが全て「フィードバック」を受け取る。UI 動作の確実性が信頼度につながる。
 - **ローディング我慢限界秒数は「1.5 秒超で 50% のユーザーが離脱」という論文が既に 15 年前の結果**：今のスマホユーザーは LCP 1 秒超で「遅い」と感じ、ローディング表示が 3 秒なら確実に離脱。Riku が Next.js Server Components で JavaScript バンドル 40% 削減、画像最適化で LCP < 2.5s を実装時の自己チェック基準化。Lighthouse Performance 90+ を PR 必須ゲートにすることで、本番での速度 NG を未然防止。
 
+### 2026-05-19
+- **効率化テクニック：API 設計の起点を「Hono ＋ `@hono/zod-openapi`」に統一、ルート定義 = OpenAPI 仕様 = TypeScript 型 = Zod バリデーションの 4 つが 1 コードから自動生成**。`createRoute({ method: 'post', path: '/users', request: { body: UserSchema }, responses: {...} })` で書くだけで Swagger UI が `/doc` URL に自動公開、Riku への仕様共有は URL を渡すだけ。エンドポイント実装工数 60 分 → 15 分、仕様ズレゼロ化。
+- **効率化テクニック：エンドポイント雛形を `plop` ジェネレータでテンプレ化、`pnpm gen:endpoint users.create` で「Hono ルート・Zod スキーマ・Vitest テスト・OpenAPI 仕様」の 4 ファイル一括生成**。CRUD パターン（list/get/create/update/delete）は 1 コマンドで 5 エンドポイント揃う、認可ミドルウェアも自動挿入。新規リソース実装工数 2 時間 → 20 分、命名規則・構造の一貫性 100% 確保。
+- **効率化テクニック：tRPC v11 を社内ツール・管理画面に採用、Next.js Server Actions と組合せて「型は BE/FE 共有・ボイラープレートゼロ」**。Riku は `import { api } from '@app/trpc'` で `api.users.list.useQuery()` を呼ぶだけ、API 仕様書 ↔ 実装の同期作業が消滅。外部公開 API のみ Hono ＋ OpenAPI、内部 API は tRPC のハイブリッドで開発速度 40% 向上。
+- **効率化テクニック：API レスポンス整形を「Result 型」（`{ ok: true, data } | { ok: false, error }`）に統一、Riku の FE 側で `if (!res.ok) return showError(res.error)` だけで全エラーハンドリング完結**。try-catch 散在を撲滅、エラー処理ロジック 30% 削減。Mio のテストも `res.ok` ベースで Positive/Negative 両ケース機械生成可能、認可テスト網羅率 100%。
+- **Ao・Riku との並列実装連携：OpenAPI 仕様確定直後 30 分以内に `openapi-typescript` で TypeScript 型を `packages/api-types` に自動生成、Riku が `import type { paths } from '@app/api-types'` で即座にフォーム実装着手**。API 実装完成を待たず先行実装可能、FE/BE 並列率 100%。仕様変更時も型レベルで自動同期、Riku のコンパイルエラーが「仕様変更検知センサー」として機能。
+
 ### 2026-05-18
 - **2026 年 Next.js 16 リリース：Turbopack が安定版・Webpack 完全置換**：dev 起動 5 秒 → 1 秒、HMR 300ms → 30ms に高速化。Riku の開発体験が劇的改善、1 日の実装速度 30% 向上。`next.config.js` から Webpack カスタム設定を削除しシンプルな Turbopack 設定に移行する作業を 2026 H2 までに完了予定。Vite との競争で Next.js の優位性確立。
 - **React 19 安定リリース：use Hook / Actions / Compiler が業界標準化**：React Compiler が自動メモ化（useMemo/useCallback 不要）、`use(promise)` で Suspense と組合せた非同期処理が簡潔化、Form Actions で `<form action={fn}>` のサーバーアクション統合が標準に。Riku の手動最適化工数が大幅削減、コード可読性向上。Mio との Pre-QA レビューで「React 19 標準パターン採用」を新チェック項目化。

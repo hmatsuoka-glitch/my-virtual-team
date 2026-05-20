@@ -218,3 +218,10 @@ export const HERO = {
 - **設計書ツール最新「Builder.io Visual Headless CMS」+「Figma to Code（Locofy）」直結ワークフロー**：Figma デザイン → Locofy 自動 Next.js コード生成 → Builder.io でクライアント側 CMS 編集可能化。STEP 5 のコンテンツ定義時に「constants.ts ハードコード」vs「Builder.io 連携」の判定基準を設計書に明記。クライアントが納品後に文言修正可能となり、Saki への軽微修正依頼が 70% 削減
 - **業界用語再確認「Design Token（W3C Design Tokens Community Group 標準）」が JSON 仕様正式化**：`tokens.json` の `$type` `$value` `$description` フィールドが業界共通フォーマットに。STEP 4 で Hana CSS データを Design Token JSON に正規化 → Style Dictionary 経由で Tailwind / iOS / Android / Web 全プラットフォームに同期。マルチプラットフォーム LP・アプリ案件の設計工数を 50% 削減
 - **設計書テンプレ最新「Component Specification Document（CSD）」フォーマット普及**：単なる Props 一覧ではなく「Purpose（目的）/ Variants（バリアント）/ States（状態）/ Accessibility（a11y）/ Performance Budget（性能予算）/ Dependencies（依存）」の 6 セクション必須化。STEP 6 納品時に Hero / CTA / Form 等の全コンポーネントに CSD 添付、Ren 実装後の「想定外挙動」差し戻しをゼロ化
+
+### 2026-05-19
+- **Hana 納品 JSON → `tokens.json`（W3C 標準）→ `tailwind.config.ts` 自動生成パイプラインで STEP 4 工数 90 分 → 12 分**：`style-dictionary build --platform=tailwind --platform=ios --platform=android` を npm script 化し、Hana の CSS データから 3 プラットフォーム設定を 1 コマンドで同期。Sota との Next.js / ネイティブアプリ並行案件で「色変更時に 3 ファイル手動修正」をゼロ化、運用工数 75% 削減
+- **Atomic Design 2.0「SA / IM / HO」ラベル自動付与スクリプトで STEP 2 コンポーネント分割 60 分 → 15 分**：`ast-grep` で各 .tsx の `useState` `useEffect` `onClick` 検出 → CC 必須なら IM、それ以外 SA、`children` 受領で他コンポ合成なら HO と自動ラベリング。Ren が `'use client'` 乱用するパターンを設計層で排除し、本番バンドルサイズ 30% 削減
+- **Builder.io + Locofy + v0 の 3 段階初期構築フロー化で「設計開始 → Ren ドラフト納品」を 8 時間 → 2 時間に短縮**：Sota の Figma → Locofy で Next.js コード自動生成 → v0 で props 型定義リファイン → Builder.io で CMS 化、の 3 段階パイプを設計書テンプレに固定。STEP 1〜6 の初期工程を 4 倍速化し、Hana 抽出後のハンドオフ待ちを実質ゼロに
+- **Component Specification Document（CSD）の Mermaid 状態遷移図自動生成で Mia/Ren 質問ラリー 5 往復 → 1 往復**：各コンポーネントの `States`（idle/hover/focus/disabled/loading/error）を YAML 定義 → `mermaid-cli` で状態遷移図 SVG 自動出力。Ren 実装時の「ローディングどう見せる？」質問を設計書だけで完結、Mia QA 通過率 70% → 95% に向上
+- **設計書納品時に `lighthouserc.json` の Performance Budget も同時生成し saki/kaito へ事前共有**：Nao が STEP 6 で Performance 90 / Accessibility 95 / LCP 2.5s / INP 200ms / CLS 0.1 の閾値 JSON を `lighthouserc.json` テンプレで生成 → kaito の予 deploy gate に直結。設計フェーズで SLA 合意を取り、Mia QA で「いまさら目標値変更」の手戻り根絶

@@ -353,3 +353,10 @@ STEP 5: Renへ実装指示
 - **「タイポグラフィ・フォーカス LP（巨大文字組デザイン）」がブランド LP で流行**：Hero に商品名・キャッチコピーを 200px 超の巨大フォントで配置し、画像より文字でブランド世界観を構築。Stripe / Figma / Linear の LP に共通する手法。STEP 3 案 B 提案時に「Variable Font + `font-size: clamp(80px, 12vw, 240px)`」で SP〜PC 滑らかにスケール、見出し主役の構成を提案
 - **業界トレンド「Motion Design（マイクロインタラクション）」軽量化、Framer Motion → CSS `@keyframes` + `View Transitions API` 回帰**：2026 年は「JS アニメーション重い→ CSS native 軽量」のトレンド逆流。STEP 3 提案時に Page Transitions を `document.startViewTransition()` で実装するよう Ren に指示、Framer Motion バンドル 80KB 削減。LCP 維持しつつアニメーション体験向上の両立提案
 - **業界用語再確認「Squircle（角丸正方形・iOS スタイル）」が CSS の `corner-shape: superellipse` で公式サポート**：従来 `border-radius: 24px` の単純な円弧から、iOS アイコン特有の滑らかな曲線（superellipse）が CSS 標準化。STEP 3 ボタン・カード提案時に「Apple 品質の Squircle」を Ren への仕様書に明記、ブランド洗練度を CSS 1 行で向上
+
+### 2026-05-19
+- **LP 複製部「依頼受付→デリバリー」フロー Notion データベース化、リードタイム 7 営業日→3 営業日に短縮**：受付（Kaito）→ 仕様抽出（Hana）→ 設計（Nao）→ デザイン企画（Sota）→ 実装（Ren）→ QA（Mia）→ 修正（Saki）の 7 工程を Notion `LP案件管理 DB` のステータスプロパティで可視化、各工程完了時に Slack 自動通知。Sota の進捗確認工数 1 日 2 時間→20 分、ボトルネック工程の即特定で工程間滞留ゼロ化
+- **Hana / Sota 並列スタート「STEP 1 同時着手プロトコル」確立、企画着手リードタイム 2 日→半日**：従来「Hana CSS 抽出完了 → Sota デザイン企画開始」だった逐次フローを、参考 LP URL 確定時点で Hana（CSS 仕様抽出）と Sota（コンセプト・カラー戦略）を同時起動、Slack `#lp-{案件名}` チャンネルで 30 分ごと同期。Nao 設計書着手まで 48 時間→6 時間に短縮
+- **Ren / Saki / Mia 三者「並列修正サイクル」採用、修正ループ平均 3.2 回→1.4 回に圧縮**：Mia QA 中に Saki が次案件の Ren 指示書を先行作成、Ren は Mia レポート受領と同時に Saki セルフ QA 通過分から即修正着手。3 名のタスクをスタッガー実行する `pnpm coord:parallel` スクリプトで GitHub Issue を自動振分け、1 案件あたり修正期間 5 日→2 日
+- **Kaito 部長との「日次 15 分スタンドアップ」を Loom 非同期動画化、進捗共有工数 50% 削減**：毎朝 9:00 の対面 MTG を廃止し、Sota が前日夜 21 時に Loom で 5 分動画録画（各メンバー進捗・ブロッカー・本日タスク）、Kaito は朝チェック後コメント。タイムゾーン拘束ゼロ・録画資産化で過去経緯参照も可能、部全体の MTG 時間を週 5 時間→1.5 時間に削減
+- **6 メンバー（ren/saki/hana/kaito/mia/nao）スキルマトリクス Figma 化、案件アサイン判断を 30 分→5 分に短縮**：各メンバーの「Next.js / Figma / Tailwind / アニメ / SEO / a11y」6 軸スキルを Figma `LP部スキルマトリクス` ボードに 5 段階評価で可視化。新規案件着手時に「採用 LP × 高難度アニメ → Ren + Hana ペア」と即時マッチング、Kaito からの「誰に任せる？」相談を撲滅

@@ -211,3 +211,10 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Vercel「v0 Platform API」公開で「LP 修正指示テキスト → コード自動生成」が直結化**：従来 Sota → Ren → デプロイの 3 ステップを、`v0 chat completions` API 経由でクライアント要望テキストから直接 Pull Request 生成。STEP 4 Mia QA 通過後の軽微修正（コピー変更・色微調整）を Saki 介さず Kaito 単独で 30 分以内に対応可能化。緊急修正リードタイム激減
 - **デプロイ業界最新「Cloudflare Workers vs Vercel Edge」競争激化、Vercel が `@vercel/edge-config` で動的構成読み出し**：A/B テスト・地域別配信を Edge レベルで実現する `getEdgeConfig()` が 2026 年 3 月 stable。STEP 5 でクライアントから「日本向け・海外向け配信切替」要望があれば、`vercel.json` で Edge Config 接続→管理画面で切替可能と提案。デプロイ後の運用柔軟性で差別化
 - **業界用語再確認「DX Platform（Developer Experience Platform）」としての Vercel の立ち位置**：単なるホスティングから「コード生成（v0）+ ビルド + デプロイ + 監視（Speed Insights）+ A/B（Edge Config）」のフル DX へ進化。STEP 5 で Speed Insights を必ず有効化し、本番後 7 日間の実ユーザー LCP/INP/CLS を Slack 自動投稿。Mia QA で見えない本番劣化を運用フェーズで検出
+
+### 2026-05-19
+- **`vercel build --prebuilt` + Turborepo Remote Cache 連動でデプロイ時間 4 分 → 25 秒**：従来 `vercel --prebuilt`（40 秒）から更に、Turborepo の `--remote-only` フラグで CI 間のビルド成果物をリモートキャッシュ共有。同一依存変更なしのデプロイは tsc・next build を完全スキップし 25 秒で本番反映。緊急修正コミットからクライアント確認可能までを 30 分 → 5 分に短縮
+- **Edge Config A/B 切替を Slack スラッシュコマンド `/lp-ab` で 5 秒完結化**：従来 Vercel 管理画面 → Edge Config → JSON 編集 → Save の 4 ステップ（90 秒）を、Slack `/lp-ab hero=variantB` 1 行で Edge Config 書き込み → 全エッジ即反映。Kaito が会議中でも切替可能となり、ren/saki 不在時のクライアント要望対応スピードが 18 倍化
+- **v0 Platform API を STEP 5 デプロイ前の「軽微修正フィードバック自動取り込み」に統合**：Mia QA NG 後 saki が指示書を書くフローを、`v0 generate --from-issue {github-issue}` で GitHub Issue 直接→PR 自動生成に変換。コピー文言修正・色微調整など 5 分以内に終わる修正はレビュー往復 3 回 → 1 回に圧縮し、Ren の実装工数 2 時間 → 30 分に短縮
+- **`vercel deploy --target=production --skip-domain` で Preview URL を本番ドメイン未割当で先行公開**：クライアント最終確認用 URL を本番アライアス前に発行可能。DNS 切替前にステークホルダー全員が確認 → OK 後に `vercel alias set` で 10 秒で本番化。承認待ち時間の本番反映遅延（従来 2 日）をゼロ化、納品リードタイム 30% 短縮
+- **Lighthouse CI + Vercel Speed Insights を `predeploy` フック連結で SLA 違反デプロイ物理ブロック**：`lhci autorun --upload.target=temporary-public-storage` 実行 → LCP 2.5s/INP 200ms/CLS 0.1 のいずれか未達なら exit 1 で `vercel --prod` 物理停止。Sora 最終 QA でのリジェクト率 25% → 3% に減らし、Sora との合格ライン合意プロセスも自動化
