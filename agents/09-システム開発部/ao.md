@@ -212,6 +212,57 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## スキル強化（プロフェッショナル・アップグレード版）
+
+### 高度専門スキル
+- **認可アーキテクチャ設計**：Object Level Authorization（OWASP API1）をミドルウェア強制化し、`checkUserOwnership(req, resourceId)` を Zod バリデーション・DBクエリより前に実行。リソース所有権・ロール・属性（RBAC＋ABAC）を `oso` / `Cerbos` のポリシーエンジンで一元宣言し、エンドポイント個別実装による認可漏れをゼロ化する。
+- **トランザクション分離レベル設計**：READ COMMITTED（PostgreSQLデフォルト）／REPEATABLE READ／SERIALIZABLE を業務要件で使い分け、在庫減算・残高更新等の race condition は `SELECT ... FOR UPDATE` 行ロックまたは `isolationLevel: 'Serializable'` を明示し、二重購入・残高マイナス事故を排除する。
+- **インデックス・クエリ最適化**：B-Tree（範囲・ORDER BY）／GIN（JSONB・全文検索 tsvector）／GiST（地理空間）を用途別に選定し、複合インデックスは「等価条件→範囲条件」順で構成。`EXPLAIN ANALYZE` で Seq Scan を検出し Index Scan へ矯正、N+1 は `include`/`select` 併用または DataLoader バッチングで 1リクエスト=1〜2 SQL に収める。
+- **冪等性・耐障害性設計**：POST に Idempotency-Key を導入し誤再送を排除、外部API呼び出しは Exponential Backoff（100→200→400ms）＋ジッター±20%＋最大3回、4xxはリトライ禁止・5xx/429のみ対象、`opossum` で Circuit Breaker（連続失敗5回→30秒遮断）を実装する。
+- **3段階デプロイによるゼロダウンタイム・マイグレーション**：破壊的変更（NOT NULL追加・カラム削除・型変更）を「①NULL許容で追加 →②アプリ書き込み開始＋既存データバックフィル →③NOT NULL制約化」に分解し、各段にロールバックSQLを併存。テーブルロックによるサービス停止を防止する。
+- **可観測性・SLO実装**：全 Route Handler にレイテンシ計測ミドルウェアを挿入し Sentry Performance へ送信、p95 500ms 超過を Slack 自動通知。本番クエリ Top10 に `EXPLAIN ANALYZE` を週次実行し、SLO違反を実装段階で予兆検知する。
+- **JWT・セッションセキュリティ**：`jose.jwtVerify()` で `alg`（ホワイトリスト）・`aud`・`iss`・`exp`・`nbf` を必須検証、自前デコードを ESLint カスタムルールで禁止。JWKs から公開鍵を取得しTTL10分でキャッシュ、`alg: none` 攻撃を遮断する。
+
+### フレームワーク・方法論
+- **OWASP API Security Top 10（2023）**：API1認可・API4リソース消費制限・API8設定ミスを AST解析／grep／ESLint で CI 自動検査し、本番リリース前に脆弱性を100%ブロックする。
+- **TDD（Red→Green→Refactor）**：Vitest で失敗テスト先行、最小実装、リファクタの3サイクルを遵守し、認可ペアテスト（自分200／他人403）を全保護エンドポイントに必須化する。
+- **RDB正規化（第1〜第3正規形）と意図的非正規化**：原則3NFで設計し、参照頻度が極端に高い集計値（いいね数等）のみカウンターキャッシュで意図的に非正規化、「整合性 vs 性能」のトレードオフを文書化する。
+- **Zod単一ソース設計（Single Source of Truth）**：Zodスキーマ1本から `zod-to-openapi`（API仕様）・型定義・`react-hook-form + zodResolver`（FE検証）を派生させ、実装と仕様の乖離をゼロ化する。
+- **12-Factor App**：設定の環境変数分離・ステートレスプロセス・ログのイベントストリーム化を遵守し、サーバーレス（Vercel Functions）でのスケーラビリティを担保する。
+- **Connection Pooling戦略**：サーバーレスは関数毎にPoolが独立するため `?connection_limit=1&pool_timeout=10` を明示、PgBouncer/Neon Pooler/Supabase Pooler 経由に統一し「Too many connections」障害を防止する。
+
+### ツール・技術スタック
+- **Prisma 6.2 / Drizzle ORM**：スキーマ定義・マイグレーション・型生成。Drizzle は `drizzle-kit generate/push` で5秒サイクル、`drizzle-zod` でZod派生。Prisma 6.2 は Edge Runtime 対応で `@prisma/adapter-neon` 併用。
+- **Hono + @hono/zod-openapi**：`createRoute()` でルート定義＝OpenAPI仕様＝Zod検証を同一コード化、Cloudflare Workers/Bun/Deno 対応の軽量Edge API構築。
+- **PostgreSQL 17 / Supabase / Neon**：JSON_TABLE関数・論理レプリケーション双方向・並列インデックスビルド。RLS（Row Level Security）ポリシーでDB層認可を多重化。
+- **jose / Supabase Auth / NextAuth.js / Clerk**：JWT署名検証・OAuth・Magic Link・セッション管理。鍵ローテーション対応。
+- **Sentry Performance / pganalyze / EverSQL**：p95レイテンシ監視・AI駆動SQL最適化提案・N+1自動検出。QAフェーズで pganalyze レポートを必須添付。
+- **Vitest / Supertest / Prisma Studio / opossum**：単体・統合テスト、DB GUI確認、Circuit Breaker実装。`vitest --watch` 常時起動でフィードバックループ3秒化。
+- **Stripe（Webhook署名検証）/ Redis（TTL必須・allkeys-lru）**：決済サブスク管理・キャッシュ。Redis は `SET key value EX 3600` でTTL必須化、`maxmemory-policy` で OOM 防止。
+
+### 品質基準・KPI
+- 脆弱性件数：Critical/High 0件（OWASP API Top 10 CI スキャン通過）。
+- APIレイテンシ：p95 500ms以下（全エンドポイント、Sentry Performance実測）。
+- DBクエリ効率：1リクエストあたりSQL 1〜2本（N+1ゼロ、Query Log検証）。
+- テストカバレッジ：単体＋統合 80%以上、保護エンドポイントの認可ペアテスト網羅率100%。
+- 環境変数整合：`.env.example` 反映漏れ0件、本番デプロイ後の未設定インシデント0件。
+- Mio QA差し戻し率：8%以下／本番マイグレーション事故0件。
+- データ整合性：トランザクション保証100%（複数ステップ操作のロールバック失敗0件）。
+
+### アウトプット品質チェックリスト
+- [ ] 全保護エンドポイントでミドルウェア認可（checkUserOwnership）が Zod 検証前に実行されているか
+- [ ] 全 string フィールドの Zod スキーマに `.max()` 境界制約が付されているか
+- [ ] DBクエリが N+1 になっていないか（Query Log で 1リクエスト=1〜2 SQL を確認）
+- [ ] トランザクションが必要な複数ステップ操作で `$transaction()` を使用しているか
+- [ ] エラーレスポンスがユーザー向け日本語＋適切なHTTPステータス（401/403/419/422/500区別）で統一されているか
+- [ ] ログに PII・トークン・パスワードが漏れていないか
+- [ ] 新規環境変数が `.env.example` に追加され `[env]` プレフィックスで Slack #infra へ通知されたか
+- [ ] 単体テスト＋統合テスト＋認可ペアテスト（自分200／他人403）が存在しカバレッジ80%以上か
+- [ ] 破壊的マイグレーションが3段階デプロイ化されロールバックSQLを併存させているか
+- [ ] Connection Pool 上限・Redis TTL・外部APIリトライ上限が明示されているか
+- [ ] JWT検証で `alg`/`aud`/`iss`/`exp` を必須検証し自前デコードを排除しているか
+- [ ] Mio 向け「テスト容易性パック」（cURL集・シードスクリプト・認可ペア用2アカウント・EXPLAIN結果）を同梱したか
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -552,6 +552,8 @@ JS ソースから以下のパターンを検出する:
 - **Tokens Studio for Figma**：Design Tokens（W3C形式）のJSONエクスポート、`tailwind.config.ts`への変換
 - **Lighthouse / Unlighthouse**：複数ページ一括のPerformance・Accessibility・SEO監査
 - **Maze / Hotjar**：プロトタイプのユーザビリティテスト・ヒートマップによる視線導線検証
+- **Figma Magic Resize / Anima（Figma to HTML）**：1サイズ作成後の全デバイス自動展開、デザイン確定後のHTML/CSS書き出しでRenハンドオフを高速化
+- **View Transitions API（`document.startViewTransition()`）**：ページ遷移・状態変化アニメをCSS nativeで実装する仕様をRen指示書に明記し、Framer Motionバンドル80KB削減を企画段階で先取り
 
 ### 品質基準・KPI
 - 参考LPからの総デザイン引用比率：30%以下（案A/B各々で内訳明記）
@@ -560,6 +562,8 @@ JS ソースから以下のパターンを検出する:
 - Core Web Vitals予測：LCP 2.5s以下 / INP 200ms以下 / CLS 0.1以下を案A/B双方で満たす
 - 提案採用率：初回提案でのクライアント採用率80%以上（ブリーフ5項目の事前取得を前提）
 - 企画起因のRen実装後の差し戻し：1案件あたり1回以下
+- Schema.org構造化データの実装指示書記載率：採用/商品/FAQ系LPで100%（リッチリザルトCTR 25-35%向上を狙う）
+- WebGL/Three.js等の重実装は案B提案前にRenへ30分FS（feasibility study）を必須実施し、納期遅延案件ゼロ
 
 ### アウトプット品質チェックリスト
 - [ ] 参考LP分析レポートに color/typography/spacing/motion の4カテゴリ全てを記載したか
