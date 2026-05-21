@@ -3,37 +3,72 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: dark;
+  }
   body {
-    @apply bg-slate-50 text-slate-800 antialiased;
+    @apply bg-noir font-sans text-cream antialiased;
+    background-image:
+      radial-gradient(
+        55rem 38rem at 82% -12%,
+        rgba(201, 162, 75, 0.12),
+        transparent 70%
+      ),
+      radial-gradient(
+        48rem 38rem at -12% 108%,
+        rgba(201, 162, 75, 0.07),
+        transparent 70%
+      );
+    background-attachment: fixed;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
   }
 }
 
 @layer components {
   .card {
-    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+    @apply border border-line bg-surface;
+  }
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase tracking-widest text-gold;
   }
   .label {
-    @apply mb-1 block text-sm font-medium text-slate-700;
+    @apply mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-muted;
   }
   .field {
-    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20;
+    @apply w-full rounded-none border border-line bg-ink px-3.5 py-2.5 text-sm text-cream outline-none transition placeholder:text-muted/50 focus:border-gold;
   }
   .btn {
-    @apply inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-none px-6 py-3 text-[11px] font-semibold uppercase tracking-widest transition disabled:cursor-not-allowed disabled:opacity-50;
   }
-  .btn-primary {
-    @apply btn bg-brand text-white hover:bg-brand-dark;
+  .btn-gold {
+    @apply btn bg-gradient-to-b from-gold-light to-gold text-noir hover:from-gold hover:to-gold-dark;
   }
   .btn-outline {
-    @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+    @apply btn border border-gold/50 bg-transparent text-gold hover:border-gold hover:bg-gold/10;
+  }
+  .btn-ghost {
+    @apply btn border border-line bg-transparent text-cream hover:border-gold/40;
   }
   .btn-danger {
-    @apply btn border border-red-300 bg-white text-red-600 hover:bg-red-50;
+    @apply btn border border-red-500/40 bg-transparent text-red-300 hover:bg-red-500/10;
   }
   .btn-sm {
-    @apply px-2.5 py-1 text-xs;
+    @apply px-3.5 py-2 text-[10px];
   }
   .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    @apply inline-flex items-center gap-1 rounded-none border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest;
+  }
+  .badge-gold {
+    @apply badge border-gold/40 bg-gold/10 text-gold;
+  }
+  .badge-muted {
+    @apply badge border-line bg-white/5 text-muted;
+  }
+  .hairline {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-gold/40 to-transparent;
   }
 }

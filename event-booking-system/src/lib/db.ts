@@ -11,6 +11,7 @@ function createConnection(): Database.Database {
   const db = new Database(path.join(dataDir, 'app.db'));
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
+  db.pragma('busy_timeout = 8000');
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS events (

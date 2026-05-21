@@ -31,7 +31,7 @@ export function listPublicEvents(): EventWithImages[] {
   const rows = db
     .prepare(
       `SELECT * FROM events
-       WHERE status = 'published' AND is_invite_only = 0
+       WHERE status = 'published'
        ORDER BY event_date ASC`,
     )
     .all() as EventRecord[];

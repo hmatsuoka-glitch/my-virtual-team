@@ -8,12 +8,16 @@ export const dynamic = 'force-dynamic';
 export default function NewEventPage() {
   return (
     <AdminShell>
-      <Link href="/admin" className="text-sm text-slate-500 hover:underline">
-        ← イベント一覧へ
+      <Link
+        href="/admin"
+        className="text-[10px] uppercase tracking-widest text-muted transition hover:text-gold"
+      >
+        ← Dashboard
       </Link>
-      <h1 className="mt-2 mb-6 text-xl font-bold text-slate-900">
-        新規イベント作成
-      </h1>
+      <div className="mb-7 mt-3">
+        <p className="eyebrow">New Event</p>
+        <h1 className="mt-2 text-3xl text-cream">新規イベント作成</h1>
+      </div>
       <EventForm mode="create" action={createEventAction} />
     </AdminShell>
   );

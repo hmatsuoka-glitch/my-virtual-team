@@ -16,6 +16,18 @@ export function formatDateTime(iso: string): string {
   }).format(d);
 }
 
+const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+export function formatDateShort(iso: string): string {
+  if (!iso) return 'DATE TBD';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${
+    WEEKDAYS[d.getDay()]
+  } ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function toDateTimeLocalValue(iso: string): string {
   if (!iso) return '';
   const d = new Date(iso);

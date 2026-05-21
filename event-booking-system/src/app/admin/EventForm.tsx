@@ -31,14 +31,14 @@ export default function EventForm({
 
   return (
     <div className="space-y-6">
-      <form action={formAction} className="card space-y-5 p-6">
+      <form action={formAction} className="card space-y-6 p-7">
         {mode === 'edit' && event && (
           <input type="hidden" name="eventId" value={event.id} />
         )}
 
         <div>
           <label className="label" htmlFor="f-title">
-            イベント名 <span className="text-red-500">*</span>
+            イベント名 <span className="text-gold">*</span>
           </label>
           <input
             id="f-title"
@@ -49,10 +49,10 @@ export default function EventForm({
           />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="f-date">
-              開催日時 <span className="text-red-500">*</span>
+              開催日時 <span className="text-gold">*</span>
             </label>
             <input
               id="f-date"
@@ -91,7 +91,7 @@ export default function EventForm({
           />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-3">
           <div>
             <label className="label" htmlFor="f-price-advance">
               事前振込 料金（円）
@@ -147,20 +147,21 @@ export default function EventForm({
           />
         </div>
 
-        <div className="rounded-lg border border-slate-200 p-4">
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+        <div className="border border-line p-5">
+          <label className="flex items-center gap-2.5 text-sm text-cream">
             <input
               type="checkbox"
               name="is_invite_only"
               checked={inviteOnly}
               onChange={(e) => setInviteOnly(e.target.checked)}
+              className="accent-gold"
             />
-            完全招待制にする（一覧に表示せず、パスワードを知る人だけ申込可能）
+            完全招待制にする（一覧には表示されますが、詳細・予約には招待コードが必要）
           </label>
           {inviteOnly && (
-            <div className="mt-3">
+            <div className="mt-4">
               <label className="label" htmlFor="f-invite-password">
-                招待パスワード <span className="text-red-500">*</span>
+                招待コード <span className="text-gold">*</span>
               </label>
               <input
                 id="f-invite-password"
@@ -168,8 +169,8 @@ export default function EventForm({
                 defaultValue={event?.invite_password ?? ''}
                 className="field max-w-xs"
               />
-              <p className="mt-1 text-xs text-slate-500">
-                このパスワードを参加者に共有してください。
+              <p className="mt-2 text-[11px] tracking-wide text-muted">
+                このコードを招待者に共有してください。
               </p>
             </div>
           )}
@@ -182,7 +183,7 @@ export default function EventForm({
               {event.images.map((img) => (
                 <label
                   key={img}
-                  className="block overflow-hidden rounded-lg border border-slate-200"
+                  className="block overflow-hidden border border-line"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -190,11 +191,12 @@ export default function EventForm({
                     alt=""
                     className="aspect-square w-full object-cover"
                   />
-                  <span className="flex items-center gap-1 bg-slate-50 px-2 py-1 text-xs text-red-600">
+                  <span className="flex items-center gap-1.5 bg-ink px-2 py-1.5 text-[11px] text-red-300">
                     <input
                       type="checkbox"
                       name="remove_image"
                       value={img}
+                      className="accent-gold"
                     />
                     削除する
                   </span>
@@ -214,7 +216,7 @@ export default function EventForm({
             type="file"
             multiple
             accept="image/jpeg,image/png,image/webp,image/gif"
-            className="field"
+            className="field file:mr-3 file:cursor-pointer file:border file:border-line file:bg-surface2 file:px-3 file:py-1 file:text-xs file:text-cream"
           />
         </div>
 
@@ -234,24 +236,20 @@ export default function EventForm({
         </div>
 
         {state.error && (
-          <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+          <p className="border border-red-500/40 bg-red-500/10 p-3 text-xs tracking-wide text-red-300">
             {state.error}
           </p>
         )}
 
         <div className="flex items-center gap-3">
-          <button
-            type="submit"
-            className="btn-primary"
-            disabled={pending}
-          >
+          <button type="submit" className="btn-gold" disabled={pending}>
             {pending
               ? '保存中...'
               : mode === 'create'
                 ? 'イベントを作成'
                 : '変更を保存'}
           </button>
-          <Link href="/admin" className="btn-outline">
+          <Link href="/admin" className="btn-ghost">
             キャンセル
           </Link>
         </div>
@@ -260,15 +258,15 @@ export default function EventForm({
       {mode === 'edit' && event && deleteAction && (
         <form
           action={deleteAction}
-          className="card border-red-200 p-6"
+          className="card border-red-500/30 p-7"
         >
           <input type="hidden" name="eventId" value={event.id} />
-          <p className="text-sm text-slate-600">
+          <p className="text-sm tracking-wide text-muted">
             このイベントを削除すると、関連する予約データもすべて削除されます。
           </p>
           <button
             type="submit"
-            className="btn-danger mt-3"
+            className="btn-danger mt-4"
             onClick={(e: MouseEvent<HTMLButtonElement>) => {
               if (
                 !window.confirm(

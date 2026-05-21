@@ -4,7 +4,7 @@ import {
   deleteReservationAction,
 } from '@/app/actions/reservations';
 import {
-  formatDateTime,
+  formatDateShort,
   formatYen,
   paymentStatusLabel,
   paymentTypeLabel,
@@ -12,9 +12,9 @@ import {
 import type { EventWithImages, ReservationRecord } from '@/lib/types';
 
 const STATUS_BADGE: Record<string, string> = {
-  pending: 'bg-amber-100 text-amber-700',
-  paid: 'bg-emerald-100 text-emerald-700',
-  cancelled: 'bg-slate-200 text-slate-500',
+  pending: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
+  paid: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
+  cancelled: 'border-line bg-white/5 text-muted',
 };
 
 export default function ReservationTable({
@@ -26,7 +26,7 @@ export default function ReservationTable({
 }) {
   if (reservations.length === 0) {
     return (
-      <div className="card p-10 text-center text-sm text-slate-500">
+      <div className="card p-12 text-center text-sm tracking-wide text-muted">
         まだ予約はありません。
       </div>
     );
@@ -36,13 +36,13 @@ export default function ReservationTable({
     <div className="card overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
-            <th className="px-4 py-3">申込者</th>
-            <th className="px-4 py-3">支払方法</th>
-            <th className="px-4 py-3 text-right">人数 / 金額</th>
-            <th className="px-4 py-3">入金状況</th>
-            <th className="px-4 py-3">申込日時</th>
-            <th className="px-4 py-3">操作</th>
+          <tr className="border-b border-line text-left text-[10px] uppercase tracking-widest text-muted">
+            <th className="px-5 py-4 font-medium">申込者</th>
+            <th className="px-5 py-4 font-medium">支払方法</th>
+            <th className="px-5 py-4 text-right font-medium">人数 / 金額</th>
+            <th className="px-5 py-4 font-medium">入金状況</th>
+            <th className="px-5 py-4 font-medium">申込日時</th>
+            <th className="px-5 py-4 font-medium">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -55,40 +55,40 @@ export default function ReservationTable({
             return (
               <tr
                 key={r.id}
-                className="border-b border-slate-100 align-top last:border-0"
+                className="border-b border-line align-top last:border-0"
               >
-                <td className="px-4 py-3">
-                  <div className="font-medium text-slate-900">{r.name}</div>
-                  <div className="text-xs text-slate-500">{r.email}</div>
+                <td className="px-5 py-4">
+                  <div className="font-medium text-cream">{r.name}</div>
+                  <div className="text-xs text-muted">{r.email}</div>
                   {r.phone && (
-                    <div className="text-xs text-slate-500">{r.phone}</div>
+                    <div className="text-xs text-muted">{r.phone}</div>
                   )}
                   {r.note && (
-                    <div className="mt-1 text-xs text-slate-400">
+                    <div className="mt-1 text-xs text-muted/70">
                       備考：{r.note}
                     </div>
                   )}
                 </td>
-                <td className="px-4 py-3 text-slate-600">
+                <td className="px-5 py-4 text-muted">
                   {paymentTypeLabel(r.payment_type)}
                 </td>
-                <td className="px-4 py-3 text-right text-slate-600">
+                <td className="px-5 py-4 text-right text-muted">
                   {r.quantity}名
-                  <div className="font-semibold text-slate-900">
+                  <div className="font-display text-base text-cream">
                     {formatYen(amount)}
                   </div>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-5 py-4">
                   <span
                     className={`badge ${STATUS_BADGE[r.payment_status] ?? ''}`}
                   >
                     {paymentStatusLabel(r.payment_status)}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-xs text-slate-500">
-                  {formatDateTime(r.created_at)}
+                <td className="px-5 py-4 text-xs uppercase tracking-wide text-muted">
+                  {formatDateShort(r.created_at)}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-5 py-4">
                   <div className="flex flex-wrap gap-1.5">
                     <form action={setReservationStatusAction}>
                       <input type="hidden" name="id" value={r.id} />
@@ -102,7 +102,7 @@ export default function ReservationTable({
                           type="submit"
                           name="status"
                           value="paid"
-                          className="btn-primary btn-sm"
+                          className="btn-gold btn-sm"
                         >
                           入金確認
                         </button>
@@ -112,7 +112,7 @@ export default function ReservationTable({
                           type="submit"
                           name="status"
                           value="pending"
-                          className="btn-outline btn-sm"
+                          className="btn-ghost btn-sm"
                         >
                           未入金に戻す
                         </button>
@@ -121,7 +121,7 @@ export default function ReservationTable({
                         <ConfirmButton
                           name="status"
                           value="cancelled"
-                          className="btn-outline btn-sm"
+                          className="btn-ghost btn-sm"
                           confirmMessage="この予約をキャンセル扱いにします。よろしいですか？"
                         >
                           キャンセル
