@@ -39,7 +39,7 @@ my-virtual-team/
 │   ├── 04-クライアント管理部/{akari,ryota}.md
 │   ├── 05-データ分析部/{deng,shun}.md
 │   ├── 06-リサーチ部/{ana,rui}.md
-│   ├── 07-LP複製部/{hana,kaito,mia,nao,ren,saki,sota}.md
+│   ├── 07-LP部/{hana,iro,kaito,kotone,mia,nao,ren,saki,sota,tsumugi}.md
 │   ├── 08-バナー生成部/{hiro,kana,rei,yuna}.md
 │   ├── 09-システム開発部/{ao,kai,kuu,mio,nao,riku}.md
 │   ├── 10-資料作成部/{aoi,mana,rin,souma,yuto}.md
