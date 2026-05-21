@@ -21,10 +21,12 @@
       );
     background-attachment: fixed;
   }
-  h1,
+  h1 {
+    @apply font-display font-black;
+  }
   h2,
   h3 {
-    @apply font-display;
+    @apply font-display font-bold;
   }
 }
 

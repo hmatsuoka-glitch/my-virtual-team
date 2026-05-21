@@ -1,18 +1,11 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { Shippori_Mincho, Noto_Sans_JP } from 'next/font/google';
+import { Zen_Kaku_Gothic_New } from 'next/font/google';
 import './globals.css';
 
-const display = Shippori_Mincho({
+const zenKaku = Zen_Kaku_Gothic_New({
   subsets: ['latin'],
-  weight: ['500', '600', '700', '800'],
-  variable: '--font-display',
-  display: 'swap',
-});
-
-const sans = Noto_Sans_JP({
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
+  weight: ['400', '500', '700', '900'],
   variable: '--font-sans',
   display: 'swap',
 });
@@ -24,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ja" className={`${display.variable} ${sans.variable}`}>
+    <html lang="ja" className={zenKaku.variable}>
       <body>{children}</body>
     </html>
   );

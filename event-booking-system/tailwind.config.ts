@@ -19,7 +19,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ['var(--font-display)', 'serif'],
+        display: ['var(--font-sans)', 'sans-serif'],
         sans: ['var(--font-sans)', 'sans-serif'],
       },
       letterSpacing: {
