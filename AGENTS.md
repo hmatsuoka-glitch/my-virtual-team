@@ -43,13 +43,11 @@ my-virtual-team/
 │   ├── 08-バナー生成部/{hiro,kana,rei,yuna}.md
 │   ├── 09-システム開発部/{ao,kai,kuu,mio,nao,riku}.md
 │   ├── 10-資料作成部/{aoi,mana,rin,souma,yuto}.md
-│   ├── 11-法務部/nori.md
+│   ├── 11-管理部門/{finance,hr,legal,nori}.md
 │   ├── 12-営業部/sales.md
 │   ├── 13-マーケティング部/{marketing,pr}.md
-│   ├── 14-経理財務部/finance.md
-│   ├── 15-人事部/hr.md
-│   ├── 16-業務自動化部/{bo,owl}.md
-│   └── 17-横断チーム/{dat,kpi,pm,qa}.md
+│   ├── 14-業務自動化部/{bo,owl}.md
+│   └── 15-横断チーム/{dat,kpi,pm,qa}.md
 # AGENTS_TREE:END
 ├── workflows/                  # BMAD-METHOD準拠ワークフロー
 │   ├── spec-driven/            # 要件→設計→タスク→実装
