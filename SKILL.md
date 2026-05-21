@@ -352,3 +352,126 @@ STEP 6: kai が完了レポート → sora がCOOチェック
 6. **成果物は必ず sora.md を Read してQAチェック**
 7. **完了後はクライアント情報のタスク管理.md を更新**
 8. **エージェントの出力フォーマットを必ず守る**
+
+---
+
+## 🛠️ チーム編成変更モード（エージェント追加・編集・追記）
+
+以下のキーワードが含まれる指示は **通常の業務委託ではなく「チーム編成変更モード」** で動作する。
+
+### 起動キーワード（このいずれかが含まれたら必ず本モードに入る）
+
+- 「エージェント追加」「新エージェント」「〇〇を追加して」（人名・部署名の文脈）
+- 「エージェントに追記」「〇〇のファイルに追記」「〇〇の役割を変更」
+- 「新しい部署」「部署を追加」「部署を作る」
+- 「エージェント編集」「役職変更」「専門領域変更」
+- 「メンバー追加」「チームに〇〇を入れて」
+
+### 共通の絶対ルール
+
+- **ローカルの `/Users/matsuokahideto/my-virtual-team/agents/` だけを編集する**
+- **`~/my-virtual-team-agents/` 配下は絶対に直接編集しない**（同期スクリプトが管理）
+- **README.md / AGENTS.md のマーカー間は絶対に手動編集しない**（sync-source-readmes.py が再生成）
+- **編集後に AskUserQuestion で「即時GitHub反映するか」を必ず確認する**
+
+---
+
+### ケース1: 既存エージェントに追記したい
+
+例: 「Shoに〇〇という新スキルを追記して」「Yutoの専門領域に建設業を追加して」
+
+**手順**:
+1. 対象ファイルを Read（例: `agents/02-SNS運用部/sho.md`）
+2. 追記すべきセクションを判定：
+   - 「新スキル」「できること」→ `## 専門スキル`
+   - 「専門領域」「担当」→ `## プロフィール` の専門領域
+   - 「連携先」→ `## 連携エージェント`
+   - 「日々の気づき」「学び」「ナレッジ」→ `## 📝 Daily Knowledge Log` の本日日付セクション
+   - **どこに入れるか不明な場合は AskUserQuestion でセクション選択させる**
+3. Edit ツールで該当セクションのみ編集（他セクションは触らない）
+4. AskUserQuestion で「すぐ GitHub に反映しますか？(Yes/No)」を聞く
+5. Yes → 後述の即時反映処理を実行 / No → 完了報告のみ
+
+---
+
+### ケース2: 既存部署に新エージェントを追加
+
+例: 「02-SNS運用部にyamatoを追加して」「LP複製部にnewbieを入れて」
+
+**必須ヒアリング項目（AskUserQuestion で一括で聞く）**:
+1. **名前**（kebab-case小文字、例: `yamato`）
+2. **役職**（例: `SNSテクニカルエンジニア`）
+3. **役割定義**（2〜3行で「何をする人か」を端的に。エージェント版のdescription自動生成に使われる）
+4. **専門領域**（短いフレーズ、例: `SNS予約配信システム開発、エンゲージメント最適化`）
+
+**手順**:
+1. 対象部署が存在するか確認（`agents/<部署>/` の存在チェック）
+2. 名前重複チェック（同名ファイルがあれば AskUserQuestion で確認）
+3. `/Users/matsuokahideto/my-virtual-team/templates/agent-template.md` を Read してテンプレ取得
+4. プレースホルダ置換:
+   - `{{NAME}}` → 名前（先頭大文字化、例: Yamato）
+   - `{{DEPT}}` → 部署名（例: 02-SNS運用部）
+   - `{{ROLE}}` → 役職
+   - `{{SPECIALTY}}` → 専門領域
+   - `{{ROLE_DEFINITION}}` → 役割定義
+5. Write で `agents/<部署>/<name>.md` に作成
+6. AskUserQuestion で即時反映確認 → Yes なら即時反映処理
+
+---
+
+### ケース3: 新部署を作成
+
+例: 「12-カスタマーサポート部を作って、最初にrenaを追加して」
+
+**手順**:
+1. 部署番号と部署名を確認（既存の最大番号+1を推奨：現状は `11-法務部` まで、次は `12-` から）
+2. 同名部署が存在しないか確認
+3. ディレクトリ作成: `agents/<番号>-<部署名>/`
+4. 最初のエージェントをケース2の手順で追加
+5. （SKILL.md の「振り分けルール」セクションに新部署を追記すべきか確認）
+
+---
+
+### 即時反映処理（Yes 選択時）
+
+ユーザーが Yes を選んだ場合、以下を **Bash で順に実行** する:
+
+```bash
+# 1. ローカルの未コミット変更を commit & push（スキル版リポジトリへ反映）
+bash /Users/matsuokahideto/my-virtual-team/scripts/push-now.sh
+
+# 2. README.md / AGENTS.md の自動更新（agents/ から再生成）
+python3 /Users/matsuokahideto/my-virtual-team/scripts/sync-source-readmes.py /Users/matsuokahideto/my-virtual-team
+
+# 3. 再度 push（README/AGENTS.md の差分があれば反映）
+cd /Users/matsuokahideto/my-virtual-team && \
+  if [ -n "$(git status --porcelain)" ]; then \
+    git add -A && \
+    git commit -m "chore(readme): regenerate dept table after agent change" && \
+    git push origin main; \
+  fi
+
+# 4. エージェント版リポジトリへ同期
+bash /Users/matsuokahideto/my-virtual-team/scripts/sync-to-agents.sh
+```
+
+これにより:
+- ローカルの編集が **GitHub: my-virtual-team（スキル版）** に push される
+- README.md / AGENTS.md が自動再生成される（部署一覧・人数の更新）
+- **GitHub: my-virtual-team-agents（エージェント版）** にも frontmatter付きで同期される
+
+### No 選択時
+
+ユーザーへの最終報告:
+> 編集を完了しました。GitHubへの反映は翌朝8:00（または Mac 起床時）の launchd ジョブで自動的に行われます。
+> 今すぐ反映したい場合は `bash ~/my-virtual-team/scripts/push-now.sh && bash ~/my-virtual-team/scripts/sync-to-agents.sh` を実行してください。
+
+---
+
+### 編集時の安全装置
+
+- **核セクション（プロフィール・役割定義・作業フロー・出力フォーマット）の改変は AskUserQuestion で必ず確認**
+- **削除操作（エージェント削除・部署削除）は AskUserQuestion で2回確認**（誤操作防止）
+- **複数ファイルの一括変更は要件を列挙してから AskUserQuestion で承認を得る**
+
+---
