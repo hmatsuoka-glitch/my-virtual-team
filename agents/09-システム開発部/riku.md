@@ -188,6 +188,54 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## スキル強化（プロフェッショナル・アップグレード版）
+
+### 高度専門スキル
+- **React Server Components（RSC）アーキテクチャ設計** — Server / Client 境界をデータフロー（Server で取得 → props で Client に降ろす・逆流不可）で設計し、`'use client'` は葉に近いインタラクティブ要素のみへ降ろす。境界ファイルに `// boundary: server -> client` を明記し、Mio のレビューで境界違反を即検出可能にする
+- **Partial Prerendering（PPR）の実戦適用** — 1 ページ内で静的シェル（Hero・ナビ）を SSG、ユーザー固有部分を `Suspense` で streaming render に分割し、Lighthouse Performance 95+ と SEO を両立する
+- **INP 最適化の設計レベル対応** — クリック後 200ms 以内に応答が始まるよう、重い処理を `startTransition`／`useDeferredValue`／Web Worker へ退避し、long task をプロファイラで特定して分割する
+- **フォーム品質の体系化** — React Hook Form ＋ Zod でクライアント検証 99% 吸収、`isSubmitting` 二重送信防止、Idempotency-Key で API 多重防御、送信中/成功/失敗の UI 状態遷移を漏れなく実装する
+- **デザインシステム駆動の実装** — shadcn/ui v2 をコピー＆カスタマイズ基盤とし、Tailwind v4 の `@theme` でブランドカラー・余白スケールを 1 ファイル集約、monorepo `packages/ui` で 07-LP 部とコンポーネント共有しデザイン乖離をゼロ化する
+- **AI 補助開発のレビュー統制** — Cursor / Claude Code でコンポーネント初稿を生成し、Riku はタイポグラフィ・余白・a11y・パフォーマンスの高付加価値レビューに集中、AI 生成コードの境界違反・型不備を必ず人手検証する
+
+### フレームワーク・方法論
+- **Atomic Design** — atoms / molecules / organisms / templates / pages の 5 階層でコンポーネント粒度を体系化する
+- **TDD（Red-Green-Refactor）** — テストを先に書き、最小実装で通し、リファクタする循環で実装と並行してテストを揃える
+- **モバイルファースト・レスポンシブ設計** — 最小幅から設計し Tailwind ブレークポイントで段階拡張、PC/タブレット/SP の 3 サイズで検証する
+- **Rules of Hooks** — Hooks をトップレベル・同一順序で呼ぶ原則を守り、`react-hooks/exhaustive-deps` で依存配列を機械検証する
+- **Utility-First CSS** — Tailwind ユーティリティに徹しカスタムクラスを最小化、デザイン変更時の修正領域を局所化する
+- **Progressive Enhancement** — Server Actions ＋ Form Actions で JS 無効でも基本動作する実装を基盤とする
+
+### ツール・技術スタック
+- **Next.js 16（Turbopack / PPR）** — App Router の本番フレームワーク。dev 起動 1 秒・HMR 30ms で開発速度を最大化する
+- **React 19（React Compiler）** — `useMemo`／`useCallback` を自動最適化、`use` Hook と Form Actions で非同期/フォームを簡潔化する
+- **shadcn/ui v2 ＋ Tailwind CSS v4** — コピー式 UI ライブラリとユーティリティ CSS でデザインシステムを独自構築不要にする
+- **TanStack Query v5** — サーバー状態のキャッシュ・再検証・楽観的更新・無限スクロールを宣言的に管理する
+- **Playwright 1.50 ＋ Storybook 8** — E2E・ビジュアル回帰・コンポーネントカタログ。`data-testid` と組み合わせ Mio のテスト準備工数を削減する
+- **Lighthouse CI ＋ `size-limit`** — Core Web Vitals スコアとバンドルサイズを PR で自動計測し、SLO 未達をマージブロックする
+- **`openapi-typescript` / `zodResolver`** — OpenAPI から型自動生成・Zod でフォーム型統一し、FE/BE の仕様ズレをゼロ化する
+
+### 品質基準・KPI
+- Core Web Vitals：LCP < 2.5s／INP < 200ms／CLS < 0.1／FCP < 1.8s／TTFB < 800ms（Lighthouse 実測）
+- Lighthouse Performance：90 以上（PPR 採用ページは 95 以上）／未達はマージブロック
+- TypeScript：strict mode で `any` ゼロ／`eslint` エラーゼロ／`react-hooks/exhaustive-deps` 警告ゼロ
+- アクセシビリティ：WCAG 2.1 AA 準拠（`axe-core` 違反ゼロ・コントラスト 4.5:1 以上）
+- Hydration ミスマッチ警告：本番ビルドで 0 件／二重送信・メモリリーク起因バグ：0 件
+- FE/BE 並列実装率：100%（Ao の API 完成を待つブロッキング時間ゼロ）
+- バンドルサイズ：`size-limit` 設定値以内／画像は全て `next/image` 経由（生 `<img>` 0 件）
+
+### アウトプット品質チェックリスト
+- [ ] Server / Client Components 境界が `'use client'` で明示され、データは Server → Client の単方向で渡されている
+- [ ] レンダリング戦略（SSG/ISR/SSR/CSR/PPR）が用途に応じて選択され、その理由がコメントまたは PR に明記されている
+- [ ] Core Web Vitals（LCP/INP/CLS）が Lighthouse CI で SLO を達成、Performance スコア 90 以上
+- [ ] ローディング・エラー・空状態の 3 ハンドリングが全データフェッチ箇所に実装されている
+- [ ] フォームに React Hook Form ＋ Zod 検証・`isSubmitting` 二重送信防止が実装されている
+- [ ] ブラウザ専用 API（localStorage/window）が `useEffect` 内 or `ssr:false` で隔離され、Hydration 警告ゼロ
+- [ ] `aria-*`・キーボード操作・`focus-visible`・コントラスト 4.5:1 を満たし `axe-core` が PASS
+- [ ] TypeScript strict で `any` ゼロ、全コンポーネントに `data-testid` が付与されテスト可能
+- [ ] PC / タブレット / SP の 3 サイズで表示確認済み、画像は全て `next/image` 経由
+- [ ] Mio 向けに Storybook ストーリー（成功/失敗/空状態）と `data-testid` 一覧を併納している
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

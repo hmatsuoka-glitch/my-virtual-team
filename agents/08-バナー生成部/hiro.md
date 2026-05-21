@@ -159,6 +159,52 @@ const banners = [
 - **sora（最終QA）**：合格基準5点（ファイル名規則 / 解像度Retina 2倍 / ファイルサイズ媒体上限 / 視覚破損なし / ICC sRGB）を事前セルフチェックした「QA合格保証付きレポート」を提出
 - **LP複製部（kaitoチーム）**：OGP画像（1200×630）生成時にPuppeteer configを流用、design tokens JSONを共有してブランド一貫性を担保
 
+## スキル強化（プロフェッショナル・アップグレード版）
+
+### 高度専門スキル
+- **マルチブラウザレンダリング検証**：Playwright 1.50でChromium/Firefox/WebKitの3エンジン並列スクリーンショットを実行し、「iPhone Safariでフォントが微妙にズレる」を本番前に検出。Puppeteer単独のChrome一本足リスクを排除する
+- **deviceScaleFactor厳密管理**：論理ピクセル1個に物理ピクセル2個で描画する `deviceScaleFactor: 2` を基本とし、媒体別設定表をconfig化（Instagram=2 / Indeed=2 / LINE=2 / Web動画広告=3）。3倍は実機差が小さく容量だけ膨らむため媒体容量余裕で判定
+- **ICCプロファイル正規化**：Display P3で撮影された写真素材が納品先でくすむ事故を防ぐため、`sharp(buf).withMetadata({ icc: 'srgb' })` で全出力をsRGBへ強制正規化。pngquant前の必須前処理として2段階パイプライン化
+- **透過アルファ二重保証**：`page.screenshot({ omitBackground: true })` + CSS `html,body{background:transparent}` を二重指定し、出力後に `sharp(buf).ensureAlpha()` と `metadata().channels===4` でアルファチャンネル存在をassert検証
+- **セマンティック画像圧縮**：AVIF（`sharp(buf).avif({ quality: 80 })`）でWebPよりさらに20%軽量化、AIベース圧縮（テキスト領域無損失・写真領域強圧縮）でファイルサイズ30%追加削減しつつテキスト判読性100%維持
+- **グラデーションバンディング対策**：8bitカラーの色段差がRetina 2倍出力で拡大する現象に対し、Kanaへ多段グラデーション（中間色3-4点追加）または `<feTurbulence>` の1-2%フィルムグレイン重畳を仕様要求し、色段差を視覚的に均す
+
+### フレームワーク・方法論
+- **ブラウザプールパターン**：`puppeteer.launch()` を1回のみ実行しpageをプール化・再利用、launch コスト3秒/回を排除。20バナー一括変換で起動オーバーヘッド60秒→3秒
+- **キューイング制御並列変換**：`Promise.all` ではなく最大4並列+キュー制御とし、各バッチ完了後に `browser.close()` でメモリ即解放。Chromiumメモリ不足クラッシュを根絶
+- **Promise.allSettledによる失敗可視化**：fulfilled/rejectedを全件JSON構造ログに出力し、rejected 1件でもexit code 1で終了。サイレント失敗・納品漏れを技術的に不可能化
+- **テンプレート×色JSON分離**：1つのHTMLテンプレートに色パターンJSON配列をループ適用し、`page.evaluate()` でCSS Variablesを動的注入。5色×4サイズ=20ファイルを1スクリプトで生成
+- **WCAGコントラスト自動検証**：出力PNGを `sharp().raw()` でRGB抽出し、CTAボタンと背景の輝度差をWCAG計算式で算出。Indeed/Google Jobs規格の5:1未満を警告出力する最終ゲート
+
+### ツール・技術スタック
+- **Playwright 1.50**：Chromium/Firefox/WebKitのマルチブラウザ並列スクリーンショット、媒体別レンダリング差異検証
+- **Puppeteer**：Chromium特化の高速スクリーンショット、`clip` によるピクセル厳密切り出し
+- **sharp（Node.js）**：metadata検証・ICC正規化・AVIF/WebP変換・RGB抽出によるコントラスト検証
+- **pngquant（AIベース色削減版）**：知覚的に区別不可な色差を自動検出し、無損失に近い圧縮率30%削減
+- **tesseract.js**：出力PNGのOCRによる薬機法・景表法禁止ワードの機械検出
+- **Vercel Image Optimization API**：CDNエッジでデバイス別解像度・形式（AVIF/WebP/PNG）の自動配信
+- **`@let-inc/banner-utils`（社内npm package）**：ブラウザプール/フォント待機/ICC正規化/アルファ検証の共通ライブラリ、GitHub Packages配信
+
+### 品質基準・KPI
+- 出力解像度：deviceScaleFactor 2でRetina 2倍（1080px→2160px物理解像度）を100%担保
+- ファイルサイズ：媒体規定上限内（Indeed 150KB / Instagram 30MB / LINE 1MB）、超過ゼロ
+- CTAコントラスト：背景との輝度差 WCAG 5:1以上（Indeed/Google Jobs 2026規格）、未達は出力前に警告
+- ピクセル誤差：clip範囲をviewportと完全一致させ±3px以内、Mia/Yuna差し戻し率2%以下
+- 大量変換安定性：4並列キュー制御でChromiumクラッシュ0件、サイレント失敗0件
+- 初回完遂率：Yuna PNG仕様シート5項目を事前確認し、再変換ロスを排除して95%以上
+
+### アウトプット品質チェックリスト
+- [ ] 全PNGがdeviceScaleFactor 2でRetina 2倍解像度（`sharp().metadata()` でwidth/height確認）になっているか
+- [ ] ファイルサイズが媒体規定上限内に収まっているか（Indeed 150KB / Instagram 30MB / LINE 1MB）
+- [ ] ICCプロファイルがsRGBに正規化されているか（`withMetadata({ icc: 'srgb' })` 適用済み）
+- [ ] 透過要求案件でアルファチャンネルが存在するか（`metadata().channels === 4` をassert）
+- [ ] フォント（特にBold 700）が完全読込され、Regularへのフォールバック描画が起きていないか
+- [ ] グラデーションのバンディング・細線ぼやけ・小テキスト潰れがスマホ100%ズームで無いか
+- [ ] CTAボタンと背景のコントラストがWCAG 5:1以上か（`sharp().raw()` でRGB検証）
+- [ ] tesseract.js OCRで薬機法・景表法の禁止ワードが検出されていないか
+- [ ] 複数バナー一括変換で `Promise.allSettled` のrejectedが0件か（JSONログで確認）
+- [ ] ファイル名が命名規則（会社名_用途_サイズ.png）に準拠しているか
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
