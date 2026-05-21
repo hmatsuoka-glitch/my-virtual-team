@@ -214,6 +214,12 @@ STEP 4: Miaへ再チェック依頼
 - **「ユーザー指示 vs Mia 仕様」競合検出漏れ失敗**：原因はユーザーから「ボタンを赤色に」と指示を受けて Ren に修正依頼するが、Hana 抽出 + Mia QA 基準ではブランドカラー青固定で、修正後 Mia 再チェックで「ブランド仕様逸脱」NG になること。回避策は STEP 1 でユーザー指示受領直後に Hana 仕様データを `diff` し、競合あれば即ユーザーへ「ブランド逸脱になります、進めますか」確認。Mia 再 NG ループを抽出段階で根絶
 - **修正 PR の `git rebase` ミスで「既存修正の巻き戻し」失敗**：原因は Ren が複数修正タスクを並列ブランチで進め、main へマージ時に `git rebase` で過去修正を upstream で消してしまう事故。回避策は STEP 2 で Ren へ渡す指示書に「`git rebase` 禁止・`git merge --no-ff` 必須」と明記、CI で `git log --first-parent` 強制チェック。過去修正の巻き戻し事故を物理予防
 
+### 2026-05-21
+- **Ren への修正指示書に「カラーコード共有テンプレ（HEX + Figma Variables URL + CSS 変数名）」3 点固定化する他エージェント連携 Tips**：「`--main-color: #1E4995`（Figma Variables: `https://figma.com/...` / 旧値: `#1E3A8A`）」と 3 点セット明記し、Ren が解釈ズレなく実装可能化。Hana 仕様データへの追加確認往復をゼロ化、修正一発成功率 95%→99% に向上
+- **Mia 差し戻し受領時の「Hana / Sota / Ren への影響範囲事前通知」プロトコル Tips**：Mia NG レポート受領後 10 分以内に「修正対象セクション / 影響を受けそうな他セクション / 仕様遡及が必要か」を Hana・Sota・Ren の 3 名にスレッド共有。各メンバーが「自分の担当に波及するか」を即判定でき、関連修正の同時着手が可能化。修正リードタイム 2 日→半日
+- **ユーザー直接指示と Hana / Sota 仕様の「競合検出ボット」を Slack に常駐 Tips**：ユーザー指示メッセージを `saki-bot` が監視し、Hana 仕様データ・Sota デザイン案と `diff` を取って競合検出時は即座に「ブランド逸脱の可能性あり」を Saki に通知。Saki がユーザーへ「進めますか」確認を 5 分以内に発行可能化、Mia 再 NG ループを抽出段階で根絶
+- **Kaito へのエスカレーション「3 ループ警告」を Slack Workflow で自動発火する連携 Tips**：同一セクション 3 回目の修正指示時に Slack Workflow が自動で Kaito にメンション + Issue リンク添付通知。Saki が「いつエスカレすべきか」迷う時間ゼロ化、Hana 仕様再抽出 / Sota 再提案 / Nao 設計変更の判断を Kaito が即着手可能
+
 ### 2026-05-19
 - **コーディング規約自動化「Biome v1.9 採用」で ESLint + Prettier の 2 ツール統合、CI 時間 45 秒→8 秒に短縮**：Saki 指示書テンプレに「Ren へは Biome 設定（`biome.json`）配布、`biome check --apply` をコミット前必須」と明記。STEP 2 で Ren に渡す修正指示書から「ESLint 警告無視するな・Prettier 走らせろ」という雑務文言を撲滅、1 案件あたり指示書記述量 40% 削減
 - **Husky v9 + lint-staged + `commitlint` の 3 段コミットフックを `pnpm prepare` 自動配布**：修正タスク着手時に `.husky/pre-commit` で「Biome check / `tsc --noEmit` / Vitest changed」、`commit-msg` で `commitlint` Conventional Commits 強制。Ren の修正コミットが規約違反で reject されるため、Saki 再依頼前の「コミットメッセージ読めない」ループをゼロ化、平均修正サイクル 35 分→18 分

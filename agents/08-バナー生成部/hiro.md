@@ -246,6 +246,12 @@ const banners = [
 - **Puppeteer 一括変換ジョブの「夜間バッチ化」で日中の対話工数を解放**：Yuna からの当日依頼 15-17 時着→Kana HTML 19 時納品→Hiro が 22 時に「全クライアント PNG 一括変換 cron」を起動→翌朝 Yuna が成果物確認、というシフト運用で、Hiro の日中対応時間を「複雑案件のみ」に集中可能。1 日処理可能案件数が 8 件 → 14 件（1.75 倍）、Sora QA 提出までのリードタイムも 24 時間 → 12 時間に半減。
 - **エージェント間引き継ぎ「単一シート化」徹底**：Kana → Hiro 引き継ぎを Notion 1 ページ（クライアント情報 / HTML パス / サイズ / 色 / 圧縮設定 / 締切）に統一し、Slack で URL 1 本共有のみ。説明工数 5 分 → 30 秒、3 者並列起動時の伝達ズレゼロ化。Rei/Kana/Hiro が「同じシートを各自の責任領域だけ読む」運用で、Yuna の説明往復 15 分 → 1 分に圧縮。
 
+### 2026-05-21
+- **kana/rei/yuna 三者「Puppeteer スクリプト + sharp 検証ライブラリ」を `@let-inc/banner-utils` として GitHub Packages で社内配信 Tips**：Hiro が個人スクリプト化していた「ブラウザプール / フォント読込待機 / ICC sRGB 正規化 / アルファ検証」を npm package 化し、kana（HTML テンプレ生成側）・rei（デザインスペック側）・yuna（進行管理側）で `pnpm add @let-inc/banner-utils` 1 コマンドで導入可能化。スクリプト個別メンテ工数 3 人月→0.5 人月、品質ばらつきゼロ化
+- **kana への HTML 仕様要求「7 項目チェックリスト Notion 化」共有 Tips**：Hiro が変換時に必要とする「色値 CSS Variables 化 / position: fixed 禁止 / Google Fonts wght@ 明示 / body 背景 transparent / clip 境界要素なし / ロゴクリアスペース / 禁止ワード回避」7 項目を Notion `バナー HTML 仕様 DB` で kana に常設共有。kana が HTML 納品前にセルフチェック可能化、差し戻し率 30%→3% に圧縮
+- **yuna 進行管理「Notion DB ステータス自動更新 Webhook」連携 Tips**：Hiro の Puppeteer バッチ完了時に GitHub Actions から Notion API を叩き、`バナー案件管理 DB` の該当行ステータスを「PNG 変換中→完了」に自動遷移、Slack 通知も同時発火。yuna が「Hiro 進捗どう？」を聞く工数ゼロ化、案件可視性リアルタイム化
+- **rei（デザインスペック）との「ブランドガイドライン JSON 共通フォーマット」合意 Tips**：rei がクライアントブランドガイドラインを抽出する際の JSON スキーマ（`brand-tokens.schema.json`）を Hiro と共同設計、`{ colors, fonts, logoClearSpace, ngWords }` の 4 キー必須化。Hiro の sharp 検証スクリプトが同 JSON を読み込むだけで違反検出可能化、rei→kana→Hiro の引き継ぎ伝達工数 20 分→2 分
+
 ### 2026-05-20
 - **よくある失敗：Puppeteer の `page.screenshot({ type: 'png' })` で透過 PNG を期待したのに、Retina（deviceScaleFactor: 2）出力時に「アルファチャンネルが欠落して背景白塗り」になる事故**。回避策は screenshot オプションに `omitBackground: true` と CSS 側 `html, body { background: transparent !important }` を二重指定し、出力後に `sharp(buf).ensureAlpha().png()` でアルファチャンネル存在を強制検証。Yuna への引き渡し前に `sharp(path).metadata().channels === 4` を assert 化、透過要求案件の差し戻しゼロ化。
 - **よくある失敗：Kana の HTML が `position: fixed` を含むと Puppeteer の viewport より要素が画面外にレンダされ、PNG 出力時に「CTA ボタンが切れている」状態で納品**。回避策は変換前に `page.evaluate(() => [...document.querySelectorAll('*')].some(el => getComputedStyle(el).position === 'fixed'))` で fixed 検出 → 検出時は Kana に「absolute へ変更」を即差し戻し。Hiro 側でも `clip` 範囲外要素を sharp の bounding box 検証で 2 次検知。

@@ -237,3 +237,9 @@ STEP 6: 忠実度スコア算出・判定
 - **「フォーム送信後のサンクスページ・自動返信メール」を QA 対象外にする失敗**：LP のビジュアル QA 95 項目完璧でも、送信ボタン押下後の遷移先が 404・自動返信メールが届かない事故をリリース後に発見。回避策は STEP 4 アニメーション忠実度の後に STEP 4.5「フォーム E2E テスト」を追加、ダミー応募 → サンクス画面表示 → 自動返信受信までを Playwright で自動化、本番デプロイ前にゲート化
 - **「iOS Safari 特有のバグ（100vh / position:fixed / -webkit-overflow-scrolling）」を Chrome QA で通過させる失敗**：Mia 環境（Mac Chrome）では完璧でも、iPhone 実機で「Hero が画面下にズレる」「fixed ヘッダーがスクロール時にチラつく」が頻発。回避策は STEP 5 レスポンシブチェックに「BrowserStack 実機 iOS Safari 17/18 + Android Chrome」を必須デバイス追加、`dvh / svh` 単位使用と `-webkit-` プレフィックスの存在を pixelmatch 前に静的チェック
 - **「Lighthouse スコア 90 点だが Real User Monitoring（RUM）で 60 点」失敗 → Lab/Field 乖離検出フロー追加**：Mia 通過時の Lighthouse Lab 値が 90 でも、本番リリース 1 週間後の CrUX（Field Data）で LCP 4.2s と判明。回避策は STEP 6 通過後 7 日目に CrUX API で Field Data を自動取得し、Lab/Field 乖離が 20% 超なら kaito 経由で即時改修 Issue 起票、納品後の品質保証を継続化
+
+### 2026-05-21
+- **バナー生成部（hiro/kana/rei/yuna）への「画像差分 NG リスト」自動連携プロトコル化**：Mia QA で「Hero 背景画像・OG image・CTA アイコン」がオリジナルとずれている NG を検出した瞬間、`pixelmatch` の差分画像 PNG ＋「期待値スクショ／現状スクショ／差分率」3 点を `#banner-creation` Slack チャンネルへ自動投稿（@hiro メンション付）。バナー部が即制作開始可能となり、Ren 経由の伝言ゲームを 3 ホップ → 0 ホップに短縮、画像差分起因の差し戻しリードタイム 2 日 → 4 時間
+- **Hana への「責務 NG 自動振り分け」運用化（カラー／フォント／アニメ → Hana 再抽出要求）**：Mia 差し戻し時に NG 内容を ①カラー HEX 不一致 ②フォント family/weight 違い ③アニメ duration/easing 違い の 3 カテゴリ自動判定し、これらは Ren ではなく Hana へ「再抽出要求」として自動エスカレ。Ren が「自分のミスじゃないのに修正指示が来る」という不要往復を物理排除、原因元での修正で再発率もゼロ化
+- **システム開発部 Sota への「Web Vitals + Hydration エラー」共有を STEP 6 通過レポート必須項目化**：LP 単体 QA だけでなく、システム連動案件では Mia 通過時の `Hydration failed` 警告ログ ＋ LCP/INP/CLS/TTFB 4 指標を Sota にも JSON で同時共有。Sota が API レスポンス時間・SSR レンダリング最適化を本番劣化前に着手可能化、システム連携 LP の納品後パフォーマンスクレームを根絶
+- **Kaito 経由「複製チーム内 5 分立ち会い QA」を STEP 6 通過直前に必須化**：Mia 単独の判定でなく、Hana・Nao・Ren と Kaito を集めて「3 デバイス × 3 ブラウザでの体感確認」を 5 分間共同実施し、全員が「OK」を出した時点で初めて通過判定。Mia 単独視点の偏り（PC Chrome 中心）を補正し、Sora 最終 QA でのリジェクト率を 15% → 2% に低減

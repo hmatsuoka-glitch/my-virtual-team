@@ -196,6 +196,12 @@ STEP 6: 実装完了報告
 - **よくある失敗：日付・通貨・数値のフォーマットを `toLocaleString()` 直書きでサーバー／クライアントで異なる結果になり Hydration ミスマッチ**。回避策は `Intl.DateTimeFormat` / `Intl.NumberFormat` をロケール明示（`'ja-JP'`）＋ TZ 明示（`timeZone: 'Asia/Tokyo'`）で必ず指定、`date-fns-tz` の `formatInTimeZone` 等のラッパーを `@/lib/format.ts` に集約。Server で生成した値を Client にバケツリレーする方針で「Server 1 ソース → Client 表示のみ」を徹底、Hydration ミスマッチ警告ゼロ化。
 - **よくある失敗：無限スクロール実装で `IntersectionObserver` の cleanup を忘れ、ページ遷移後もリスナーが残留、メモリリークでブラウザがフリーズ**。回避策は `useEffect` の return で必ず `observer.disconnect()` ＋ `observer.unobserve()` を実行、TanStack Query の `useInfiniteQuery` ＋ `react-intersection-observer` の組合せで自動 cleanup される標準パターン化。React DevTools Profiler で「unmount 後の subscription 残存」を定期検査、メモリ使用量の異常増を Sentry Performance で検知。
 
+### 2026-05-21
+- **Ao との型共有連携小ヒント「PR タグ通知」運用化**：Ao が `packages/api-types` の Zod スキーマを更新したら、PR タイトルに `[api-types-update]` タグを必須付与。GitHub Actions で Riku に Slack 通知が飛び、Riku が即 `pnpm install` 反映可能。型更新の見落としによる「コンパイル通るけど実行時エラー」事故ゼロ化、FE/BE 同期 24h 以内維持。
+- **Mio への実装完了報告テンプレ「3 点セット」連携**：実装完了 PR に「① data-testid 一覧（コンポーネントごと）/ ② Storybook ストーリー URL（成功/失敗/空状態の 3 種）/ ③ 主要ユーザーフロー Loom 動画 30 秒」を必須添付。Mio がテスト準備に要する時間 30 分→5 分、Mio との「あの要素どう参照するの？」往復ゼロ化。
+- **ren/kaito（07-LP）との Next.js 実装住み分け連携**：境界ルール「`'use client'` 配下のフォーム送信・状態管理は Riku、静的表示・SSG は ren/kaito」を STEP 0 で Yuto と合意。共通の Tailwind 設定・shadcn/ui コンポーネントは monorepo `packages/ui` に集約し、両者が `import` で参照。デザイン乖離ゼロ化、コード重複 60% 削減。
+- **nori との UI 文言確認「スクショ 5 枚束送付」連携運用**：エラーメッセージ・利用規約同意チェックボックス・成約画面の謝辞・料金表示・キャンセル文言の 5 箇所を実装完了時にスクショ束で nori へ送付。景品表示法・特定商取引法・薬機法・個人情報保護法の 4 軸チェックを 1 往復で完了、リリース後の文言修正再デプロイ事故ゼロ化。
+
 ### 2026-05-18
 - **2026 年 Next.js 16 リリース：Turbopack が安定版・Webpack 完全置換**：dev 起動 5 秒 → 1 秒、HMR 300ms → 30ms に高速化。Riku の開発体験が劇的改善、1 日の実装速度 30% 向上。`next.config.js` から Webpack カスタム設定を削除しシンプルな Turbopack 設定に移行する作業を 2026 H2 までに完了予定。Vite との競争で Next.js の優位性確立。
 - **React 19 安定リリース：use Hook / Actions / Compiler が業界標準化**：React Compiler が自動メモ化（useMemo/useCallback 不要）、`use(promise)` で Suspense と組合せた非同期処理が簡潔化、Form Actions で `<form action={fn}>` のサーバーアクション統合が標準に。Riku の手動最適化工数が大幅削減、コード可読性向上。Mio との Pre-QA レビューで「React 19 標準パターン採用」を新チェック項目化。

@@ -210,3 +210,10 @@ STEP 6: 実装完了報告
 - **OpenTelemetry の業界標準化進展と Datadog/New Relic ベンダーロックイン回避**：2026 年に「観測データは OTel 形式で出力 → Datadog でも BetterStack でも自由に切替可」が標準に。Kuu が新規プロジェクトで Sentry + Datadog の組合せから「OTel + Grafana Cloud」へ移行検討、コスト 60% 削減。クライアント案件のインフラ提案で「ベンダーロックインなし」が訴求軸に。
 - **Cloudflare Workers の AI 統合（Workers AI / Vectorize）が 2026 で本格商用化**：単なる CDN/Edge Compute から「AI 推論実行プラットフォーム」へ進化。LET の採用支援案件で「応募者プロフィールを Workers AI で解析 → 適性マッチング」を Edge で完結する設計が可能に。Vercel 一強体制から Cloudflare/Vercel 二強への業界シフト、Kuu が両方のスキル習得を 2026 個人目標に。
 - **DORA Metrics（Deployment Frequency / Lead Time / MTTR / Change Failure Rate）の業界標準化**：高パフォーマンス組織の指標として 4 メトリクス測定が 2026 業界必須化。Kuu が GitHub Actions と Vercel Analytics の連携で DORA Metrics を自動計測 → Notion DB へ週次投稿、Kai の品質メトリクス Dashboard に統合。クライアント提案時に「Elite パフォーマー水準（デプロイ 1 日複数回・MTTR 1 時間以内）」を数値で証明可能化。
+
+### 2026-05-21
+- **Ao（BE）からの環境変数追加依頼は「Slack 自動通知 → 1 クリック投入」フロー固定化**：Ao が `.env.example` を `[env]` プレフィックス付きでコミット → GitHub Actions が Slack #infra へ「キー名・用途・本番要否・サンプル値」を自動投稿 → Kuu は通知の「Vercel に投入」ボタンクリックで `vercel env add` が 3 環境（本番/ステージング/プレビュー）に即時反映。手動コピペゼロ、引き継ぎ漏れインシデント完全消滅。
+- **Riku（FE）への preview デプロイ URL 共有テンプレ**：PR 作成時に Vercel preview デプロイ完了通知を GitHub PR コメントに「preview URL ＋ Lighthouse スコア ＋ バンドルサイズ差分」の 3 点セットで自動投稿する設定化。Riku は PR コメントから即動作確認可能、Mio の E2E テストも同 URL に対し並列実行。PR レビュー → デプロイ確認のリードタイム 30 分 → 5 分。
+- **Mio（QA）との CI/CD 品質ゲート分担明確化**：Kuu は「インフラ品質」（環境変数・シークレット・脆弱性・ロールバック・DORA Metrics）担当、Mio は「コード品質」（カバレッジ・E2E・a11y・パフォーマンス）担当を GitHub Actions の独立 Job として `needs:` 並列実行。片方失敗でも他方の結果が PR コメントに表示、レビュー責任の境界が Job 名で物理的に明示。パイプライン時間 8 分 → 3 分、見落としゼロ。
+- **07-LP複製部（kaito チーム）との Vercel プロジェクト分離運用標準化**：kaito の静的 LP は `xxx-lp` プロジェクト、kai チームのアプリは `xxx-app` プロジェクトで完全分離。同一ドメイン下で Edge Middleware が `/lp/*` ↔ `/app/*` を振り分け、各チーム独立デプロイ可能。kaito の LP 修正で kai のアプリが巻き込みリリースされる事故ゼロ、ロールバックも独立実行可能。
+- **02-クライアント管理部（Akari）への稼働状況レポート自動化**：毎週金曜に Vercel Analytics・Sentry・DORA Metrics を集計し Notion DB「Kuu 週次稼働レポート」へ「①稼働率（SLA 達成状況）／②過去 7 日トラフィック／③エラー率／④デプロイ頻度＋MTTR」を自動投稿。Akari がクライアント月次レポート作成時にワンクリック参照可能、SLA 数値根拠を即時提示。クライアント説明工数 50% 削減、信頼度向上。

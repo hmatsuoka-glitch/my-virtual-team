@@ -215,3 +215,9 @@ STEP 8: 仕様データを構造化して出力
 - **Container Queries 移植自動化「`@media → @container` 変換 codemod」で STEP 6 ブレークポイント抽出 50% 高速化**：`jscodeshift` ベースの社内 codemod を STEP 6 出力 JSON に対し実行し、`@media (min-width: 768px)` を `@container card (min-width: 400px)` に親要素基準で自動変換。Ren への仕様書に「media 版 + container 版」の 2 系統を併記し、Sota（システム開発部）連携時のサイドバー含む複雑レイアウトでも一貫性確保
 - **STEP 8 納品 JSON を `tokens.json`（W3C Design Tokens 標準）に直接変換するパイプライン共通化**：従来 Nao が手作業で Hana JSON → Tailwind config に変換していたところを、`style-dictionary` の `transformGroup: 'web'` で `tokens.json` を直接生成。Nao の設計工数 60 分 → 10 分に短縮、ren/sota への同時納品で複数プラットフォーム同期も実現
 - **Lighthouse CI を STEP 7 外部ライブラリ判定に組込「重量級ライブラリ警告」自動化**：GSAP/Framer Motion 等を検出した瞬間に `lhci collect --url={URL}` で Performance スコア取得 → 85 点未満なら「CSS native 代替」を Ren へ強制提案。レビュー往復 3 回 → 1 回で確定し Mia QA 通過率を向上
+
+### 2026-05-21
+- **バナー生成部（hiro/kana/rei/yuna）へ「Hero/CTA カラー＋フォント抽出 JSON」を STEP 8 と同時共有する連携プロトコル**：複製 LP 内に CTA バナー・SNS シェア画像が含まれる案件で、Hana の `tokens.json` から `--color-primary` `--color-accent` と Hero フォント `font-family` `font-weight` の 4 項目だけを抽出した「banner-handoff.json」を hiro 宛 Slack に自動投稿。バナー部がゼロからカラーピッカーで色採取する 30 分工程をスキップし、LP とバナーのブランド一貫性を物理保証
+- **複製チーム内「Hana → Ren」CSS 変数命名規則の事前合意 5 分会**：STEP 2 カラー抽出着手前に Ren へ Slack DM で「今回の CSS 変数接頭辞（`--lp-` or `--brand-` or プロジェクトコード）」を確認し、Hana JSON のキー命名と Ren の `tailwind.config.ts` `extend.colors` キーが完全一致するよう統一。Ren 実装後の「変数名違って Tailwind が拾わない」起因の Mia NG をゼロに
+- **システム開発部 Sota への「複雑挙動（Shadow DOM／Web Components／iframe 埋込）」事前エスカレ運用化**：STEP 1 で対象 LP に `<custom-element>` や `<iframe>` の埋込ウィジェット（チャットボット・予約フォーム等）を検出した瞬間、Hana 単独では再現困難な領域として Sota へ「埋込種別・データ流入元・想定実装方式」3 点を Slack DM 即送付。Ren が知らずに着手して STEP 4 で詰まる事故を抽出段階で予防
+- **Mia QA 担当者と「ハイパーフォーカス 3 要素（ヘッダーロゴ位置・フォント太さ・ボタン色）」の事前同期**：STEP 8 納品時に Mia へ「今回特に注視してほしい 3 要素」を Hana 側から先回り共有し、Mia 95 項目チェックの優先度を Hana 抽出精度の自己評価と連動。Mia の差し戻し率を 25% → 8% に低減

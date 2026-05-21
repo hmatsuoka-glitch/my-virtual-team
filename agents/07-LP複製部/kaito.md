@@ -224,3 +224,9 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **v0 Platform API を STEP 5 デプロイ前の「軽微修正フィードバック自動取り込み」に統合**：Mia QA NG 後 saki が指示書を書くフローを、`v0 generate --from-issue {github-issue}` で GitHub Issue 直接→PR 自動生成に変換。コピー文言修正・色微調整など 5 分以内に終わる修正はレビュー往復 3 回 → 1 回に圧縮し、Ren の実装工数 2 時間 → 30 分に短縮
 - **`vercel deploy --target=production --skip-domain` で Preview URL を本番ドメイン未割当で先行公開**：クライアント最終確認用 URL を本番アライアス前に発行可能。DNS 切替前にステークホルダー全員が確認 → OK 後に `vercel alias set` で 10 秒で本番化。承認待ち時間の本番反映遅延（従来 2 日）をゼロ化、納品リードタイム 30% 短縮
 - **Lighthouse CI + Vercel Speed Insights を `predeploy` フック連結で SLA 違反デプロイ物理ブロック**：`lhci autorun --upload.target=temporary-public-storage` 実行 → LCP 2.5s/INP 200ms/CLS 0.1 のいずれか未達なら exit 1 で `vercel --prod` 物理停止。Sora 最終 QA でのリジェクト率 25% → 3% に減らし、Sora との合格ライン合意プロセスも自動化
+
+### 2026-05-21
+- **バナー生成部（hiro/kana/rei/yuna）への「LP デプロイ URL ＋ Hero スクリーンショット ＋ カラー JSON」3 点セット自動共有運用**：STEP 5 Vercel デプロイ完了直後に GitHub Actions で `playwright screenshot` ＋ Hana の `tokens.json` から Hero カラー抜粋 → バナー部 Slack チャンネル `#banner-creation` に「URL／スクショ／カラー JSON」3 点を自動投稿。バナー部が SNS 用シェア画像・広告クリエイティブを LP と完全一致のブランドで即制作可能化、ブランドズレ起因の作り直しをゼロに
+- **システム開発部（Sota）への「複雑挙動（フォーム送信ロジック・CMS 連携・認証フロー）」引き継ぎテンプレ統一**：複製対象 LP に WordPress / Shopify / Salesforce 等の外部システム連動が含まれた場合、Hana STEP 7 完了時点で Kaito から Sota へ「①連携先サービス名 ②API 仕様有無 ③認証方式 ④データ流入経路 ⑤想定実装方式（Server Action / API Route / Edge Function）」5 項目固定 Markdown テンプレで Slack DM。Ren が実装フェーズで詰まる前に Sota の判断を取得し、STEP 3 の手戻りを撲滅
+- **複製チーム内「STEP 完了通知 Slack 自動投稿」に次工程担当者の @メンション必須化**：Hana 完了 → @Nao @Ren、Nao 完了 → @Ren、Ren 完了 → @Mia、Mia 通過 → @Kaito と次担当を機械的にタグ付け。誰が次に動くか曖昧で待機が発生する「お見合いボトルネック」を物理排除、全体リードタイムを 1.5 日短縮
+- **資料作成部（提案書・報告書チーム）への「複製 LP 完了レポート」自動連携**：Sora 通過後、Kaito から資料作成部へ「複製元 URL / 複製 LP URL / 忠実度スコア / 使用技術 / 工数実績」を JSON で自動共有。クライアント月次報告・ピッチデックに「直近の複製案件成果」が即組み込み可能化、営業部の受注確度向上に直結

@@ -218,6 +218,12 @@ STEP 5: レスポンシブ対応
 - **Server Action の `revalidatePath` 漏れで「フォーム送信後に古いキャッシュ表示」失敗**：原因はフォーム送信 Server Action 内で DB 書込みだけ実行し `revalidatePath('/contact/complete')` を忘れ、サンクスページに古いキャッシュが残ること。回避策は Server Action 必須テンプレに `try { ...mutation } finally { revalidatePath(path); revalidateTag(tag) }` を ESLint カスタムルール `server-action-must-revalidate` で fail 化。STEP 4 フォーム実装の「送信したのに反映されない」事故を物理予防
 - **`next/font/google` 未使用で素の `<link href="fonts.googleapis.com">` 直書き失敗**：原因は Hana から Google Fonts 仕様を受領した際、慣れで `app/layout.tsx` に `<link>` を直書きし、Next.js のフォント自動セルフホスティング・preconnect・CLS 対策を全てバイパスすること。回避策は STEP 3 で `next/font/google` 経由のみ許可、`eslint-plugin-@next/next/no-page-custom-font` を error 化。FOUT/CLS を実装層でゼロ化
 
+### 2026-05-21
+- **Nao 設計書受領時の「実装ブロッカー 5 分以内返信」プロトコル他エージェント連携 Tips**：Nao の設計書 PR 通知が Slack に届いた瞬間、Ren 側で「型定義の循環参照 / props 不足 / constants 未定義」を 5 分以内にチェックし、不明点・不足情報を「Nao への質問テンプレ（質問内容 / 該当ファイル行番号 / 想定回答 3 択）」で即返信。Nao が「考えながら回答」せずに済み、設計書修正サイクルを 1 日→2 時間に短縮
+- **Mia QA 差し戻しを Saki と並列受信する「PR コメント共有メンション」運用 Tips**：Mia の GitHub PR コメントで `@ren @saki` 同時メンション運用に統一し、Saki が修正指示を整理する間に Ren は「該当ファイル特定 + 影響範囲調査」を並列実行。Saki 指示書到着即座に着手可能化、修正 1 サイクルを 4 時間→1.5 時間に圧縮
+- **Hana への CSS 仕様問い合わせを「constants/colors.ts 行番号引用」形式に統一する Tips**：実装中に「この HEX 値の使用箇所が仕様と一致しない」と気付いた瞬間、`constants/colors.ts:42` のように行番号付きで Hana にメンション。Hana が「どの色のことか」を探す時間ゼロ化、即時回答率 95% に向上
+- **Sota デザイン案 A/B 切替時に Ren 側「`npm run theme:switch B` 1 コマンド対応」共有 Tips**：Sota が STEP 4 提案でユーザーが案 B 採用と決定した瞬間、Ren 側で事前構築済みの `theme:switch` スクリプトで切替完了を 30 秒で返信。Sota が「実装に何日かかる？」と気を揉む時間ゼロ化、Sota→Ren のハンドオフが意思決定から実装まで 1 分以内に完結
+
 ### 2026-05-19
 - **Next.js 15.2 `after()` API でフォーム送信後の重い非同期処理をレスポンス外に逃がし INP 200ms 切りを保証**：従来 `await fetch('/log')` でレスポンス遅延していた GA4 / Slack / Sentry イベント送信を Server Action 内 `import { after } from 'next/server'; after(() => fetch('/log'))` に統一。STEP 4 のフォーム実装テンプレ化で実装時間 30 分→8 分、INP 計測値 350ms→120ms。Mia QA「フォーム送信後の体感遅延」NG を企画段階でゼロ化
 - **Tailwind v4 `@theme` ディレクティブ + Server Action 連携で「色変更が即実装に反映」フロー確立**：Hana 抽出カラー JSON → `globals.css` 内 `@theme { --color-primary: oklch(...) }` を Server Action `updateTheme()` で動的書換、`revalidatePath('/')` で即反映。STEP 1 着手から色適用完了までを 45 分→12 分に短縮、Sota 案 A/B 切替も 1 コマンド `npm run theme:switch B` で完結
