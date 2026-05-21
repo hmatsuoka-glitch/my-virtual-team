@@ -159,5 +159,14 @@ fi
 # 10. コミット後の push（失敗してもスクリプト自体は成功扱い：次回 launchd でリトライ）
 push_to_remote || true
 
+
+# ---------------------------------------------------------------
+# 11. my-virtual-team-agents（subagent 版リポジトリ）に同期
+# ---------------------------------------------------------------
+if [ -x "${REPO_DIR}/scripts/sync-to-agents.sh" ]; then
+    log "INFO: sync-to-agents.sh 実行"
+    bash "${REPO_DIR}/scripts/sync-to-agents.sh" >> "${LOG_FILE}" 2>&1 || log "WARN: sync-to-agents.sh が失敗（続行）"
+fi
+
 log "=== auto-commit done ==="
 exit 0
