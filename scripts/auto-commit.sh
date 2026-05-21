@@ -125,7 +125,15 @@ if [ -f ".git/index.lock" ]; then
     fi
 fi
 
-# 6. 変更があるか確認
+# 6. README.md / AGENTS.md の部署一覧を自動同期
+#    （新部署・新エージェント追加時の更新漏れ防止）
+if [ -f "${REPO_DIR}/scripts/sync-source-readmes.py" ]; then
+    log "INFO: sync-source-readmes.py 実行（README/AGENTS.mdの部署一覧を再生成）"
+    python3 "${REPO_DIR}/scripts/sync-source-readmes.py" "${REPO_DIR}" >> "${LOG_FILE}" 2>&1 || \
+        log "WARN: sync-source-readmes.py 失敗（続行）"
+fi
+
+# 6.1 変更があるか確認
 if git diff --quiet && git diff --staged --quiet && [ -z "$(git status --porcelain)" ]; then
     log "INFO: no changes to commit"
     # 変更が無くても未push分があれば push する
@@ -134,8 +142,8 @@ if git diff --quiet && git diff --staged --quiet && [ -z "$(git status --porcela
     exit 0
 fi
 
-# 7. 変更を add
-git add CHANGELOG-AGENTS.md agents/ 2>>"${LOG_FILE}" || {
+# 7. 変更を add（README/AGENTS.md も含める）
+git add CHANGELOG-AGENTS.md agents/ README.md AGENTS.md 2>>"${LOG_FILE}" || {
     log "ERROR: git add failed"
     exit 2
 }

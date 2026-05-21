@@ -30,18 +30,21 @@ my-virtual-team/
 ├── SKILL.md                    # メインのスキル定義（HARU + 振り分けロジック）
 ├── CLAUDE.md                   # → SKILL.md を参照（軽量）
 ├── AGENTS.md                   # ← このファイル（業界標準・他ツール用）
-├── agents/                     # 各エージェント定義
+├── agents/                     # 各エージェント定義（以下はマーカー間が自動生成）
+# AGENTS_TREE:START
 │   ├── 00-COO/sora.md
 │   ├── 01-経営企画部/haruto.md
 │   ├── 02-SNS運用部/{sho,yui}.md
-│   ├── 03-コンテンツ制作部/{eito,itsuki,toma,sou,takumi}.md
-│   ├── 04-クライアント管理部/{ryota,akari}.md
+│   ├── 03-コンテンツ制作部/{eito,itsuki,sou,takumi,toma}.md
+│   ├── 04-クライアント管理部/{akari,ryota}.md
 │   ├── 05-データ分析部/shun.md
 │   ├── 06-リサーチ部/rui.md
-│   ├── 07-LP複製部/{kaito,saki,sota}.md
-│   ├── 08-バナー生成部/yuna.md
-│   ├── 09-システム開発部/{kai,nao,riku,ao,kuu,mio}.md
-│   └── 10-資料作成部/{yuto,rin,souma,aoi,mana}.md
+│   ├── 07-LP複製部/{hana,kaito,mia,nao,ren,saki,sota}.md
+│   ├── 08-バナー生成部/{hiro,kana,rei,yuna}.md
+│   ├── 09-システム開発部/{ao,kai,kuu,mio,nao,riku}.md
+│   ├── 10-資料作成部/{aoi,mana,rin,souma,yuto}.md
+│   └── 11-法務部/nori.md
+# AGENTS_TREE:END
 ├── workflows/                  # BMAD-METHOD準拠ワークフロー
 │   ├── spec-driven/            # 要件→設計→タスク→実装
 │   ├── bug-fix/                # 報告→解析→修正→検証
