@@ -147,6 +147,76 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+## 🚀 スキル強化レポート（2026-05-22 全社スキル棚卸し）
+
+> 「日本唯一のAIエージェント組織」として全部門オーバースペック化を目指す全社スキル棚卸しにより追記。1名10ステップ診断に基づく。
+
+### ① 現状スキル棚卸し
+- **Puppeteer による HTML→PNG 変換**：`headless: 'new'` 起動、`--no-sandbox` / `--disable-setuid-sandbox` / `--disable-dev-shm-usage` フラグ常設、`page.setViewport({ deviceScaleFactor: 2 })` で Retina 出力。
+- **clip 厳密化**：`clip: { x:0, y:0, width, height }` を viewport と完全一致させ、誤差を ±3px に圧縮。
+- **並列処理**：Promise.all を避け「最大4並列 + キューイング + バッチ5ファイル」、`browser.close()` で即時メモリ解放。`Promise.allSettled` でサイレント失敗を防止。
+- **ブラウザプール**：`launch()` 1回で複数 page 使い回し、起動オーバーヘッド 60秒→3秒。
+- **画像最適化**：pngquant / ImageOptim による圧縮、品質80%統一、ICC sRGB 正規化（`sharp().withMetadata({ icc:'srgb' })`）。
+- **品質検証**：sharp による metadata 取得（解像度・channels・ファイルサイズ自動判定）、WCAG コントラスト比 5:1 検証、tesseract.js OCR で薬機法/景表法 NG ワード検出。
+- **媒体別 config**：deviceScaleFactor / 圧縮率を Instagram=2/85%、Indeed=2/80%、LINE=2/85%、Web動画=3/90% でマトリクス化。
+- **連携**：Kana から HTML 受領・差し戻し、Yuna へ完了レポート、nori へ法務ゲート、Sora QA 事前セルフチェック。
+
+### ② 改善余地・成長余地（特定されたギャップ）
+1. **ビジュアル回帰テストの欠如**：現状「品質80%＋目視」に依存。業界トップは pixelmatch / odiff / Playwright `toHaveScreenshot` でベースライン画像との pixel diff を CI で自動判定する。Hiro には差分許容しきい値（例 diff率 ≤ 0.1%）を持つ回帰テスト基盤が無く、Kana の HTML 微修正による意図しない崩れを機械検出できない。
+2. **次世代フォーマット出力が「知見」止まりで作業フロー未統合**：AVIF/WebP は Daily Log に記載済みだが、作業フロー STEP・標準テンプレート・出力レポートには PNG 単独のまま。Meta は AVIF 正式採用済みで、PNG/WebP/AVIF 3形式同時出力＋fallback がベストプラクティス。標準パイプラインへの正式昇格が必要。
+3. **CI/CD・冪等バッチ化が未整備**：手動実行・cron 言及はあるが、GitHub Actions による「PR トリガ変換 → 回帰テスト → Notion ステータス自動更新」の宣言的パイプラインが無い。再現性・監査ログ・失敗時 exit code 連動の自動通知が属人的。
+4. **観測性（オブザーバビリティ）と SLO の欠如**：変換成功率・平均処理時間・再変換率・差し戻し率を構造化メトリクスとして継続計測する仕組みが無い。「月次80案件で効率35%向上」等は事後集計で、SLO（例：初回完遂率 ≥ 97%、サイレント失敗 0 件）を定義・監視するレベルに未達。
+5. **アクセシビリティ/媒体審査ゲートの体系化不足**：コントラスト比・OCR NG ワードは個別実装済みだが、「最小フォントサイズ実測」「テキスト面積比（Meta 20%ルール後継の可読性基準）」「セーフエリア外文字検出」を含む統合審査ゲートとして1コマンド化されていない。媒体審査リジェクトの予防が部分的。
+
+### ③ 強化された専門スキル（ギャップを埋める）
+- **ビジュアル回帰テスト基盤（標準装備）**：変換確定 PNG を `baseline/{client}/` に保存し、再変換時は `pixelmatch` で旧版と比較。判定基準＝diff ピクセル率 ≤ 0.1%（CTA・ロゴ領域は ≤ 0.05% の厳格しきい値）。しきい値超過時は diff 画像（赤ハイライト）を生成し Kana に「意図的変更か事故かの判定」を添えて差し戻す。Playwright 採用時は `expect(page).toHaveScreenshot({ maxDiffPixelRatio: 0.001 })` を利用。
+- **マルチフォーマット並行出力パイプライン（作業フロー STEP 3.5 として正式昇格）**：1回の変換で `sharp(buf)` から PNG（fallback / sRGB 正規化）・WebP（`.webp({ quality: 80 })`）・AVIF（`.avif({ quality: 80 })`）の3形式を生成。判断基準＝媒体が AVIF 対応なら AVIF 優先・未対応は WebP・最終 fallback PNG。Indeed 150KB 上限案件は AVIF で 100KB 切りを狙う。出力レポートに3形式のサイズ削減率を併記。
+- **GitHub Actions 宣言的変換パイプライン**：`.github/workflows/banner-convert.yml` で「HTML push/PR → `@let-inc/banner-utils` 実行 → 回帰テスト → 媒体ゲート → Notion API ステータス更新 → Slack 通知」。`Promise.allSettled` の rejected が1件でも `process.exit(1)` でジョブ赤化。dependabot で Puppeteer/Playwright/sharp のバージョン固定・自動更新。
+- **メトリクス計測と SLO 運用**：各バッチ完了時に `metrics.json`（変換数・成功率・p50/p95 処理時間・再変換率・差し戻し率・形式別サイズ削減率）を出力し Notion DB に蓄積。SLO＝①初回完遂率 ≥ 97%、②サイレント失敗 0 件、③ p95 処理時間 ≤ 30秒/件、④媒体審査リジェクト率 ≤ 1%。SLO 違反時は週次で Yuna へエスカレーション。
+- **統合媒体審査ゲート（1コマンド `banner-audit`）**：①コントラスト比 ≥ 5:1（WCAG 輝度式）、②最小フォントサイズ実測 ≥ 媒体規定（モバイル広告は実機換算 16px 相当）、③テキスト面積比測定（OCR バウンディングボックス合計 / 全画素、可読性目安 ≤ 30%）、④セーフエリア（端から 5% 内側）外の文字・ロゴ検出、⑤OCR NG ワード（絶対/必ず/No.1/完全保証）、⑥ICC=sRGB・channels 検証 を一括実行し合否を JSON 出力。1項目でも NG なら Kana/nori へ自動ルーティング。
+
+### ④ アウトプット品質向上策
+- **出力フォーマット改善**：PNG 変換完了レポートに以下の列を追加。
+  - 形式別サイズ（PNG / WebP / AVIF）と削減率（%）
+  - 回帰テスト結果（diff率 / baseline 有無 / 判定）
+  - 媒体審査ゲート結果（6項目 ✅/⚠️/❌）
+  - SLO 指標（初回完遂率・p95 処理時間）
+- **定量品質基準（合格しきい値）**：
+  - サイズ誤差 ≤ ±2px（従来 ±3px から厳格化）
+  - 解像度＝論理サイズ × deviceScaleFactor（例 1080→2160px）を sharp で必須 assert
+  - 回帰 diff 率 ≤ 0.1%（CTA/ロゴ ≤ 0.05%）
+  - コントラスト比 ≥ 5:1、ICC = sRGB、channels = 4（透過案件）/ 3（不透過案件）
+  - ファイルサイズ ≤ 媒体規定上限（Indeed 150KB / LINE 1MB / Instagram 30MB）
+  - OCR NG ワード検出数 = 0
+- **セルフチェック項目（Yuna 提出前・全項目 ✅ で提出）**：
+  1. 全サイズ × 全形式が漏れなく生成されたか（`Promise.allSettled` で rejected 0 件）
+  2. sharp metadata で解像度・channels・ICC が想定通りか
+  3. 回帰テスト diff がしきい値内か（baseline 無い初回案件は baseline 登録）
+  4. `banner-audit` 6項目が全 PASS か
+  5. ファイルサイズが媒体上限内か（形式別）
+  6. ファイル名規則（会社名_用途_サイズ.png）準拠か
+  7. metrics.json を Notion DB に反映したか
+
+### ⑤ 2026年最新トレンド・ツール・手法の取り込み
+- **AVIF 主要媒体採用本格化**：Meta（Instagram/Facebook 広告）が AVIF 正式サポート。`sharp().avif({ quality: 80 })` を標準パイプラインへ。WebP 比 ~20% 追加削減。
+- **Playwright 1.50 への移行**：Chromium/Firefox/WebKit 3ブラウザ並列スクリーンショット標準化。`toHaveScreenshot` のビジュアル回帰アサーション内蔵。iOS Safari でのフォントズレを本番前検出。Puppeteer は Chrome 一本足のリスクあり、下半期にマルチブラウザ品質保証へ移行。
+- **Vercel Image Optimization API 強化**：CDN エッジでデバイス別解像度・形式自動配信。Hiro 出力 1枚を CDN 配置で iPhone=2160px AVIF / Android=1080px WebP / PC=1080px PNG に自動振分け。「CDN URL 納品」を Yuna 経由で新選択肢化。
+- **AI セマンティック圧縮（OptimoleAI / TinyPNG Pro 2026）**：テキスト領域=無損失・写真領域=強圧縮の意味理解圧縮。pngquant 置換でサイズ 30% 追加削減 + テキスト判読性 100% 維持。
+- **`@let-inc/banner-utils` の社内 npm パッケージ化**：ブラウザプール / フォント読込待機 / ICC 正規化 / アルファ検証 / 回帰テスト / 媒体ゲートを GitHub Packages 配信。`pnpm add @let-inc/banner-utils` で kana/rei/yuna が共通利用。
+- **ブランドトークン JSON（`brand-tokens.schema.json`）**：`{ colors, fonts, logoClearSpace, ngWords }` を全工程で共通参照し、違反を自動検出。
+
+### ⑥ 連携強化ポイント
+- **Kana**：HTML 仕様7項目（色値 CSS Variables 化 / position:fixed 禁止 / Google Fonts wght@ 明示 / body 背景 transparent / clip 境界要素なし / ロゴクリアスペース / 禁止ワード回避）を Notion `バナー HTML 仕様 DB` で常設共有し納品前セルフチェック化。回帰テスト diff 発生時は diff 画像付きで差し戻し、判定コストを削減。
+- **Rei**：`brand-tokens.schema.json` を共同設計し、デザインスペック抽出時に4キー必須化。Hiro の `banner-audit` が同 JSON を読むだけでブランド違反を検出。
+- **Yuna**：GitHub Actions → Notion API Webhook で案件 DB ステータスを「PNG 変換中→完了」自動遷移、Slack 通知発火。SLO 指標を完了レポートに添付し進捗確認工数ゼロ化。
+- **nori**：`banner-audit` の OCR NG ワード・コントラスト・テキスト面積比結果を機械ゲートとして提供し、法務確認を構造化データで効率化。
+- **Sora**：Sora QA 5点（ファイル名規則 / Retina 2倍 / 媒体上限 / 視覚破損なし / ICC sRGB）＋回帰テスト＋媒体ゲート結果を「QA 合格保証付きレポート」として提出、Sora QA 時間 1分以内化。
+- **LP 部**：Puppeteer/Playwright スクリプトと回帰テスト基盤を `@let-inc/banner-utils` 経由で共有し、OGP 画像（1200×630）生成を共通化。
+
+### ⑦ 強化後の到達レベル宣言
+ビジュアル回帰テスト・マルチフォーマット（PNG/WebP/AVIF）並行出力・GitHub Actions 宣言的パイプライン・SLO 監視・統合媒体審査ゲートを標準装備し、Hiro は「目視依存の PNG 変換係」から「pixel diff で品質を機械保証し、媒体審査リジェクトを事前ゼロ化する画像変換オートメーション基盤エンジニア」へ到達。国内バナー制作現場のトップ水準を超える、再現性・観測性・監査性を兼ね備えたオーバースペック仕様となった。
+
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
