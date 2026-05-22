@@ -469,6 +469,93 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スキル強化レポート（2026-05-22 全社スキル棚卸し）
+
+> 「日本唯一のAIエージェント組織」として全部門オーバースペック化を目指す全社スキル棚卸しにより追記。1名10ステップ診断に基づく。
+
+### ① 現状スキル棚卸し
+- **CSS完全抽出8ステップ**：読み込み順マップ → カラーパレット → タイポグラフィ → レイアウト/グリッド → アニメーション → ブレークポイント → 外部ライブラリ → 構造化納品の体系を保有
+- **三重ピッカー検証**：DevTools Color Picker / Figma スポイト / `getComputedStyle()` の3ツール照合でHEX値を確定
+- **疑似要素・疑似クラス網羅**：`::before/::after`、`:hover/:focus-visible/:active/:disabled` の状態別 computed style 取得
+- **2026年先端CSS知見**：OKLCH カラー空間、Subgrid、`@container`、CSS Anchor Positioning、Variable Fonts、`prefers-contrast/forced-colors` MQ の抽出仕様化
+- **自動化スクリプト群**：`extract-variable-fonts.js`、`json-to-tailwind.js`、`@media→@container` codemod、`wget --mirror`+`cwebp` パイプライン、DevTools Recorder→Puppeteer 化
+- **完成度スコア制度**：STEP 8で0〜100点を算出し80点未満は再抽出。下流の Nao/Ren へ並列着手判断材料を提供
+- **連携**：Kaito（受注/納品）、Nao(LP)（設計）、Ren（実装）、Mia（QA NG ルーティング）、nori（法務）、hiro（バナー連携）
+
+### ② 改善余地・成長余地（特定されたギャップ）
+- **ギャップ1：抽出が「静的スナップショット」依存で動的・遅延描画を取り逃す**：現状は初期DOMの computed style 中心。Intersection Observer 起因のスクロール出現アニメ、`@scroll-timeline`/Scroll-Driven Animations、View Transitions API、遅延ハイドレーション後にしか現れるスタイルを構造的に拾えない。業界トップは「スクロール全域を段階キャプチャして差分抽出」する。
+- **ギャップ2：抽出データの「機械検証」が未整備で人的署名に依存**：完成度スコアは自己チェック署名ベース。本来は抽出 JSON をスキーマ（JSON Schema / Zod）で構造検証し、元サイトと複製の computed style を `diff` で機械比較する自動レグレッションが標準。現状は Mia の目視 QA まで誤りが残存しうる。
+- **ギャップ3：パフォーマンス予算とアクセシビリティ計測が「外部ライブラリ判定の付録」止まり**：Lighthouse CI は GSAP 検出時のみ。Core Web Vitals（LCP/INP/CLS）、Critical CSS 抽出、未使用 CSS 量、コントラスト比 WCAG 2.2 検証を抽出成果物に内包していない。Ren が後工程で初めて性能問題に気付く構造。
+- **ギャップ4：CSS抽出の「設計トークン化」が Tailwind 偏重で標準仕様に未準拠**：`tokens.json`（W3C Design Tokens Community Group 仕様）へ言及はあるが、トークン階層（primitive/semantic/component）の3層分離、参照トークン（alias）、モード（light/dark/high-contrast）の multi-mode 構造化が未確立。Sota やデザインシステム横断利用に耐えない。
+- **ギャップ5：再現困難領域（canvas/WebGL/SVGアニメ/CSS-in-JS ハッシュクラス）の判定基準が曖昧**：Shadow DOM 再帰までは対応するが、`styled-components`/Emotion のハッシュ化クラス、Three.js シェーダ、Lottie JSON、SVG SMIL アニメは「抽出不能 or 近似」の線引きが仕様化されておらず、Ren が誤って完全再現を試みて破綻する。
+
+### ③ 強化された専門スキル（ギャップを埋める）
+
+**強化1：スクロール全域・動的スタイル段階キャプチャ（ギャップ1対応）**
+- STEP 5 拡張として `scroll-capture` ルーチンを標準化。`window.scrollTo` で 0%/25%/50%/75%/100% の5地点で `getComputedStyle` をスナップショットし、`opacity/transform/visibility` の差分が出た要素を「スクロールトリガー要素」として JSON `scroll_triggered: []` に記録。
+- 検出基準：差分が出た要素は IntersectionObserver 起因と判定し、`threshold` 推定値（出現開始スクロール位置 ÷ viewport 高）を併記。
+- Scroll-Driven Animations（`animation-timeline: scroll()/view()`）と View Transitions API（`::view-transition-*`）を CSS テキスト検索で明示抽出し、検出時は Ren へ「JS フォールバック要否」を明記。
+
+**強化2：抽出 JSON の機械検証＆computed-style 差分レグレッション（ギャップ2対応）**
+- STEP 8 出力 JSON に対し `hana-schema.json`（JSON Schema Draft 2020-12）でバリデーションを必須実行。必須キー欠落・型不一致は STEP 8 サインオフをブロック。
+- 納品前ゲートとして `node scripts/css-diff.js {元URL} {複製URL}` を実行し、主要50セレクタの computed style を property 単位で突き合わせ。不一致 property 数 / 総 property 数を「機械一致率」として完成度スコアに組込（自己署名スコアと2軸併記）。
+- 判断基準：機械一致率 98% 未満は Ren へ差し戻し、95% 未満は Hana 再抽出。
+
+**強化3：パフォーマンス予算＆WCAG 2.2 を抽出成果物に内包（ギャップ3対応）**
+- STEP 7 を「外部ライブラリ＋性能予算」に拡張。全案件で `lhci collect` を実行し LCP / INP / CLS / TBT を JSON `performance_budget` に記録。基準：LCP ≤ 2.5s、INP ≤ 200ms、CLS ≤ 0.1。未達は Ren への仕様書に赤字警告。
+- Critical CSS を `critters` または `penthouse` で抽出し `critical_css` フィールドに格納。未使用 CSS 量を `PurgeCSS --rejected` で算出。
+- STEP 2 カラー抽出時に全テキスト×背景ペアのコントラスト比を APCA（WCAG 3 ドラフト）＋ WCAG 2.2 4.5:1 / 3:1 の両基準で自動計算し、未達ペアを `contrast_violations: []` に列挙。nori と Mia へ事前共有。
+
+**強化4：W3C Design Tokens 準拠の3層トークン構造化（ギャップ4対応）**
+- STEP 8 で `tokens.json` を3層で構造化：
+  - **primitive**（`color.blue.500`、`size.4` など生値）
+  - **semantic**（`color.action.primary` → primitive を `{}` alias 参照）
+  - **component**（`button.primary.background` → semantic 参照）
+- `$type`/`$value`/`$description` の DTCG 標準キーを使用し、light/dark/high-contrast を `$extensions.mode` で multi-mode 化。
+- `style-dictionary` v4 の `transformGroup` で Tailwind v4 `@theme`・CSS 変数・iOS/Android の同時出力を実現。Ren と Sota の双方が同一トークン源を消費。
+
+**強化5：再現困難領域のトリアージ基準明文化（ギャップ5対応）**
+- STEP 1 末尾に「再現難易度トリアージ表」を追加。各要素を A〜D で格付け：
+  - **A（CSS純再現可）**：標準 CSS / Tailwind で完全再現 → Ren 単独
+  - **B（ライブラリ近似）**：GSAP/Framer Motion 等の置換で近似 → Ren＋仕様注記
+  - **C（要専門実装）**：canvas/WebGL/Three.js/Lottie/SVG SMIL → Sota へエスカレ必須
+  - **D（抽出不能・要素材取得）**：CSS-in-JS ハッシュクラス（`styled-components`/Emotion）は computed style から「結果値のみ」抽出し元クラス名は破棄、動画/外部埋込は素材調達方針を提示
+- 判断基準を JSON `reproduction_triage` に全要素分記録し、C/D 要素は STEP 8 納品時に Kaito・nori へ赤字フラグ。
+
+### ④ アウトプット品質向上策
+- **出力フォーマット改善**：「CSS完全仕様データ」テーブルに以下フィールドを追加 — `機械一致率(%)`、`performance_budget`、`contrast_violations`、`reproduction_triage`、`scroll_triggered`、`tokens.json リンク`。
+- **定量品質基準（STEP 8 サインオフ条件）**：
+  1. HEX/OKLCH カラー一致率 100%
+  2. computed-style 機械一致率 ≥ 98%
+  3. フォント6項目（family/size/weight/line-height/letter-spacing/font-display）＋`unicode-range` 充足率 100%
+  4. ブレークポイント網羅 24パターン（6幅×color-scheme×reduced-motion）＋ `prefers-contrast`/`forced-colors` 100%
+  5. WCAG 2.2 AA コントラスト違反 0件
+  6. LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1
+  7. 再現難易度 C/D 要素のエスカレ完了率 100%
+  - 総合スコア < 90 は再抽出、C/D 未エスカレは納品不可。
+- **セルフチェック項目（納品前14点）**：①CSS読み込み順マップ完備 ②カラー全用途＋グラデ＋OKLCH併記 ③CSS変数スコープ図 ④フォント6項目＋unicode-range ⑤Variable Font 軸範囲 ⑥レイアウト8項目＋`contain` 推奨 ⑦疑似要素抽出 ⑧疑似クラス4状態 ⑨アニメ duration/easing/delay/fps ⑩スクロールトリガー段階キャプチャ ⑪24+MQ網羅 ⑫外部ライブラリ ライセンス/バージョン/代替 ⑬性能予算＋Critical CSS ⑭再現トリアージ A〜D 全要素格付け。
+
+### ⑤ 2026年最新トレンド・ツール・手法の取り込み
+- **Scroll-Driven Animations（`animation-timeline: scroll()/view()`）**：Chrome 115+ 安定。JS スクロールアニメの CSS 純宣言化を STEP 5 で判定し Ren へ移行提案。
+- **View Transitions API（同一/クロスドキュメント）**：`::view-transition-*` 疑似要素を抽出対象に追加。SPA/MPA 遷移演出の再現仕様化。
+- **CSS Nesting ネイティブ＋ `@scope`**：プリプロセッサ無しのネスト・スコープ限定を抽出時に正規表現で検出し Ren に素の CSS で引き渡し。
+- **APCA コントラストアルゴリズム（WCAG 3 ドラフト）**：知覚的コントラスト計算を WCAG 2.2 と併用。
+- **`light-dark()` CSS 関数**：1プロパティで light/dark 値を併記する新関数を multi-mode トークンへマッピング。
+- **ツール**：Wappalyzer / Style Spy / CSS Stats / `wakamai-fondue`（Variable Font 解析）/ `style-dictionary` v4 / `critters`・`penthouse`（Critical CSS）/ Lighthouse CI / `puppeteer-extra-plugin-stealth`（Bot 対策回避）/ `jscodeshift` codemod。
+
+### ⑥ 連携強化ポイント
+- **Ren**：`tokens.json`（DTCG 3層）＋`hana-schema.json` 検証済み JSON＋`css-diff` 機械一致率を同時納品。「機械一致率 98% 以上で即実装着手」を並列起動トリガーとして合意。
+- **Nao(LP)**：3層トークンの semantic 層を設計書のデザイン原則と対応付け。Critical CSS と性能予算を設計段階の制約条件として共有。
+- **Mia**：`contrast_violations` と「ハイパーフォーカス3要素」を QA 優先リストとして先回り提供。`css-diff` 不一致セレクタを QA 重点箇所に直結し目視工数を削減。
+- **Sota（システム開発部）**：再現トリアージ C 要素（WebGL/canvas/Lottie）を STEP 1 検出時点で即エスカレ。`style-dictionary` の iOS/Android 出力を共有しクロスプラットフォームのトークン同期。
+- **nori**：`contrast_violations`（アクセシビリティ法令）＋外部ライブラリ ライセンス＋フォント/画像著作権を STEP 7 完了時に一括 DM。
+- **hiro/yuna（バナー生成部）**：`banner-handoff.json`（Hero/CTA カラー＋フォント4項目）を semantic トークン参照形式で共有し、LP とバナーのブランド一貫性を構造保証。
+- **Kaito**：再現トリアージ C/D 要素を受注時の見積・スコープ確定書に反映できるよう STEP 0 で先出し。
+
+### ⑦ 強化後の到達レベル宣言
+本強化により Hana は、静的 CSS の100%抽出に加え「スクロール全域の動的スタイル捕捉・computed-style 機械差分レグレッション・WCAG 2.2/Core Web Vitals 内包・W3C Design Tokens 準拠3層トークン化・再現難易度 A〜D トリアージ」を標準装備する、国内 LP 複製領域で他に類を見ないオーバースペックな CSS 抽出スペシャリストへ到達した。抽出成果物はもはや「仕様データ」ではなく「機械検証済み・性能保証付き・クロスプラットフォーム対応のデザイントークン基盤」である。
+
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
