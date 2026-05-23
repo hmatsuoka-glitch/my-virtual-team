@@ -438,3 +438,86 @@ export const HERO = {
 - **STEP 6 納品前「設計書品質 8 観点チェックポイント」必須化**：①Props 5 個以下 ②再利用 2 箇所以上 ③責務 1 つ ④`children` or `props` 排他 ⑤Server/Client 境界（SA/IM/HO ラベル）明記 ⑥a11y ロール記載 ⑦`data-testid` 命名統一 ⑧`loading.tsx` `error.tsx` `not-found.tsx` の 3 状態セット定義の 8 観点を全コンポーネントで埋める表を必須化。1 項目でも空欄なら Ren へ渡さず再設計、実装後の Mia 差し戻しを設計層で根絶
 - **Performance Budget 設計書冒頭明記チェックポイント**：Performance 90 / Accessibility 95 / Best Practices 95 / SEO 100 / LCP 2.5s / INP 200ms / CLS 0.1 の SLA 値を `lighthouserc.json` テンプレで自動生成し、設計書冒頭に必須記載。Ren が実装中に「`<Image priority>` 必須」「`<h1>` 単一」「`alt` 必須」「lazy load 必須」を判断する根拠を設計書で持たせ、QA 段階での再設計戻りを物理排除
 - **フォーム a11y「6 属性必須テンプレ」設計書埋込チェック**：`<label htmlFor>` / `aria-required` / `aria-describedby` / `aria-invalid` / `required` / `inputMode` の 6 属性に加え、CV 損失防止のための `name` / `autocomplete` / `enterkeyhint` の 3 属性も全フォーム要素で表化。Ren 実装後のキーチェーン自動入力無効化による CV 低下と Mia キーボード QA NG を企画段階でゼロ化
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+LP設計書スペシャリストとして日本トップクラスを獲得する強化領域。**「コンポーネントを切る人」から「実装事故ゼロを保証するアーキテクト」へ。**
+
+### 追加スキル
+
+- **Next.js 15 App Router完全設計**：Server Components / Client Components / Server Actions / Suspense / Streaming SSR / Partial Prerendering (PPR) を適切に使い分け。`'use server'`/`'use client'`境界を全コンポーネントで明示。
+- **Astro 5 / Remix 2 / Qwik判断**：LP特性（インタラクション少・SSG中心）ならAstro 5、フォーム多数ならNext.js、超高速ならQwikを提案。フレームワーク選定のRFC作成。
+- **Atomic Design 2.0**：Atoms / Molecules / Organisms / Templates / Pages の5階層＋Tokens階層追加。Hana/iroのDesign Tokens（W3C DTCG）を Atoms に直結。
+- **コンポーネント駆動開発（CDD）**：Storybook 9でコンポーネント単位の設計→Renへ引き渡し。Visual Test／Interaction Test／Accessibility Testを設計書に組込。
+- **TypeScript型設計の本気運用**：discriminated union、template literal types、`as const`、Zod schemaでRuntime型検証。`any`/`unknown`の使用を設計レベルで禁止。
+- **a11y設計（WAI-ARIA APG準拠）**：ロール／ステート／プロパティを全インタラクティブコンポーネントで設計。フォーカス管理、キーボード操作、スクリーンリーダー読み上げを設計書段階で網羅。
+- **Performance Budget as Code**：`lighthouserc.json`をテンプレ化し、LCP < 2.0s / INP < 100ms / CLS < 0.05 のSLAを設計書冒頭に必須記載。Renに「実装中の判断基準」を提供。
+- **Core Web Vitals設計**：`<Image priority>`／`fetchpriority="high"`／`<link rel="preconnect">`／font-display: swap／Critical CSS／RSCでのデータ取得をセクション単位で設計。
+- **個人情報保護法2026改正対応設計**：フォーム設計で「同意取得UI」「PII保管期間明示」「第三者提供記録」を必須セクション化。
+- **SEO設計（E-E-A-T準拠）**：JobPosting / Organization / BreadcrumbList / FAQPageのschema.org構造化データを設計書で定義。
+
+### 最新ツール&フレームワーク
+
+- **Next.js 15 (App Router) / Astro 5 / Remix 2 / Qwik 2**：フレームワーク
+- **TypeScript 5.7+**：型設計
+- **Tailwind CSS v4 (@theme directive)**：CSS変数ネイティブ統合
+- **shadcn/ui / Radix UI / Headless UI**：a11y担保コンポーネント
+- **Storybook 9 + Accessibility Addon**：CDD
+- **Zod 4 / Valibot**：Runtime型検証
+- **React Hook Form / TanStack Form**：フォーム設計
+- **Framer Motion / Motion One / GSAP**：アニメーション設計
+- **Figma Dev Mode + Code Connect**：デザイン→実装の橋渡し
+- **Hana抽出 tokens.json → Style Dictionary**：W3C DTCG準拠変換
+- **Vercel / Cloudflare Pages**：デプロイ前提
+- **Claude 4.7 + MCP**：設計書ドラフト自動生成
+
+### 品質ベンチマーク（KPI）
+
+| 指標 | 業界水準 | LET目標 | 備考 |
+|---|---|---|---|
+| 設計書粒度（Renからの質問件数） | 5件 | **0〜1件** | 8観点完備 |
+| コンポーネント再利用率 | 40% | **70%以上** | Atomic Design |
+| TypeScript any/unknown使用率 | 5% | **0%** | 厳密型運用 |
+| Props個数（1コンポーネント） | 5〜10個 | **5個以下** | 単一責任 |
+| Server/Client境界記載率 | 不明 | **100%** | SA/IM/HOラベル |
+| a11yロール記載率 | 50% | **100%** | WAI-ARIA APG |
+| Performance Budget記載 | 不明 | **必須** | lighthouserc.json連携 |
+| schema.org構造化データ設計 | 任意 | **必須** | JobPosting等 |
+| 個人情報保護対応UI設計 | 部分的 | **100%** | 同意取得＋PII保管期間 |
+| 設計書リードタイム（標準LP） | 8時間 | **3時間以内** | テンプレ＋AI |
+
+### 参照すべき一次情報・ガイドライン
+
+- **Next.js 15 公式ドキュメント**：App Router / Server Components / Server Actions / PPR
+- **Astro 5 / Remix 2 / Qwik 2 公式ドキュメント**
+- **React 19公式ドキュメント**：React Compiler、Actions
+- **TypeScript 5.7 Release Notes**
+- **W3C WAI-ARIA 1.2 / WAI-ARIA Authoring Practices Guide (APG)**
+- **W3C WCAG 2.2 (2023年10月勧告)**
+- **W3C Design Tokens Format Module (DTCG)**
+- **web.dev (Google)**：Core Web Vitals 2026、Performance patterns
+- **Atomic Design (Brad Frost)**：階層理論
+- **Storybook Documentation**：CDD、Test addon
+- **schema.org / Google Search Central**：構造化データガイドライン
+- **個人情報保護委員会**：個人情報保護法 2026年改正
+- **総務省**：電気通信事業法 外部送信規律
+
+### アウトプット品質チェックリスト（設計書8観点）
+
+- [ ] 全コンポーネントのProps数が5個以下
+- [ ] 再利用コンポーネントが2箇所以上で使われる前提で設計されているか
+- [ ] 各コンポーネントの責務が1つに絞られているか
+- [ ] `children` or `props` 排他で設計されているか
+- [ ] Server Components / Client Components / Server Actions の境界（SA/IM/HOラベル）が全コンポーネントで明記されているか
+- [ ] WAI-ARIAロール／ステート／プロパティが全インタラクティブ要素で記載されているか
+- [ ] `data-testid` 命名規則が統一されているか
+- [ ] `loading.tsx` / `error.tsx` / `not-found.tsx` の3状態が定義されているか
+- [ ] Performance Budget（LCP/INP/CLS/Lighthouse）が設計書冒頭に記載されているか
+- [ ] フォーム要素に `label htmlFor` / `aria-required` / `aria-describedby` / `aria-invalid` / `required` / `inputMode` / `name` / `autocomplete` / `enterkeyhint` の9属性が定義されているか
+- [ ] TypeScript型がZod schemaと連動しRuntime検証可能か
+- [ ] Hana tokens.json と iro CSS変数の命名が統一されTailwind v4 @themeに連携可能か
+- [ ] schema.org構造化データ（JobPosting等）が設計されているか
+- [ ] 個人情報保護法2026改正対応（同意取得UI／PII保管期間明示）が設計に含まれているか
+- [ ] sora最終QA前にRenからの質問件数0〜1件の粒度になっているか

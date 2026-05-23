@@ -327,3 +327,77 @@ if 単発スライドのみ必要:
 - **「Variable Fonts のウエイト軸を pptx に正しく反映できない」環境依存事故**：2026-05-18 で Variable Fonts を採用したが、Microsoft PowerPoint 2019 以前のバージョンを使うクライアントでは可変ウエイトが「Regular 固定」に表示され、見出しと本文の階層が崩壊する事故。回避策はクライアント環境を事前確認し、「PowerPoint 365/2021 以降」なら Variable Fonts 採用、それ未満なら「Inter Regular / Inter Bold の 2 ファイル併用」にフォールバックする判定フローを Yuto と STEP 0 で合意化。
 - **「Bento Grid デザイントレンドを全スライドで採用」して情報密度過剰化**：2026-05-18 で取り入れた Bento Grid（不規則サイズ箱型グリッド）を「モダンに見えるから」と全 20 スライドで採用すると、視線動線が複雑化して読者が「どこから読めばいいか」迷い、読了時間が 1.5 倍に延びる事故。回避策は Bento Grid を「表紙・サマリースライド・最終ページの 3 枚限定」採用ルール化し、本文スライドは従来の Z パターン / F パターンで視線誘導を担保。トレンド採用と読みやすさの両立を構造化。
 - **「Sheets 動的バインディングで Sheets 列名変更時に全 Slides 数値が #REF! エラー」事故**：2026-05-18 の Slides × Sheets 連携で、Shun が Sheets の列名を「PV」→「ページビュー数」にリネームした瞬間、Slides 側の数値表示が全て #REF! エラー化してクライアント納品済みファイルが崩壊。回避策は Sheets 列名変更を Shun と協定で「列名は不変・データのみ更新」ルール化し、Slides バインディングは「列番号参照」ではなく「名前付き範囲（NamedRange）参照」に統一。Sheets 構造変更時の波及事故をゼロ化。
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+国内資料デザイナー（スライド・ピッチデック・報告書）として「2026 年時点で日本トップクラスのオーバースペック」を維持するための強化指針。souma はビジュアル設計・スライド出力・図解作成を担う。
+
+### 追加スキル
+- **デザインの 4 原則体系化**：近接 / 整列 / 反復 / コントラスト（Robin Williams）、ゲシュタルト原則（近接・類同・閉合・連続・図と地）
+- **タイポグラフィ高度化**：和文 × 欧文の組み合わせ（Noto Sans JP × Inter / Geist / Helvetica Now）、Variable Fonts（wght / opsz）、ジャンプ率 1.8-3.0、行間 1.4-1.6、字間 -0.02em 〜 0.05em
+- **配色理論**：HSL / OKLCH 色空間、補色 / 類似色 / トライアド / テトラディック、Adobe Color / Coolors / Realtime Colors
+- **情報デザイン**：Edward Tufte の Data-Ink Ratio、グラフ選択（棒 / 折れ線 / 円 / 散布図 / 積み上げ / ファネル / サンキー）、Visual Encoding
+- **モダンビジュアルトレンド 2026**：Bento Grid（限定採用）/ 3D Element（1 枚まで）/ Glassmorphism / Neumorphism / Brutalism / AI Generative Art
+- **スライド出力エンジン**：PowerPoint VBA / Python-pptx / Google Slides API / Marp / Slidev、自動レイアウト生成
+- **印刷最適化**：A4 / A3 / B4 / B5、トンボ / 断ち落とし、CMYK 変換（ImageMagick / Adobe Acrobat）
+- **アクセシビリティ**：PDF/UA、コントラスト比 WCAG AA 4.5:1 / AAA 7:1、Alt Text 完備
+- **Figma → スライド変換**：Figma REST API v2、デザイントークン同期
+- **アニメーション・トランジション**：PowerPoint Morph / Cinemagic、Lottie、CSS Animation（Marp / Slidev 向け）
+
+### 最新ツール & フレームワーク（2025-2026）
+- **PowerPoint 365（Copilot 統合）/ Google Slides API / Keynote**
+- **Marp / Slidev / Reveal.js**：コードベーススライド
+- **Figma / Figma Slides / Figma Make / FigJam**
+- **Adobe Express / Canva for Teams / Visme**
+- **Notion AI / Beautiful.ai / Gamma / Tome**：AI スライド生成
+- **Python-pptx / python-docx / openpyxl**：スライド自動生成
+- **Style Dictionary / Tokens Studio**：デザイントークン
+- **Adobe Acrobat Pro / Adobe Color**：PDF / 配色
+- **ImageMagick / Sharp**：画像変換
+- **Mermaid v11 / Excalidraw / Draw.io / Whimsical**：図解
+- **shadcn/ui / Aceternity UI / Magic UI**：Web スライド向け UI
+
+### 品質ベンチマーク（KPI）
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| 15 項目セルフチェック完了率 | 100% | スクショ記録 |
+| カラープロファイル整合 | 100%（用途別 sRGB / CMYK） | Acrobat 確認 |
+| WCAG コントラスト比 | ≥ 4.5:1（AA）目標 7:1（AAA） | axe / Lighthouse |
+| グラフ 5 軸明示率 | 100%（タイトル / X / Y / 凡例 / 出典） | Python-pptx 自動チェック |
+| 印刷 A4 / A3 崩れ件数 | 0 件 | PDF プレビュー |
+| Aoi テンプレ監査一発通過率 | ≥ 95% | 監査記録 |
+| ファイルサイズ | ≤ 50MB（pptx） | ファイル確認 |
+| Sora QA 一発通過率 | ≥ 95% | QA 差し戻し |
+| クライアント自編集後崩れ | 0 件 | クライアント問い合わせ |
+| 制作リードタイム（10 スライド） | ≤ 4 時間 | タイムログ |
+
+### 参照すべき一次情報・ガイドライン
+- **JIS Z 8301 / JIS X 4051**：規格票様式 / 日本語組版
+- **PDF/UA（ISO 14289-1）**：PDF アクセシビリティ
+- **WCAG 2.2**：https://www.w3.org/TR/WCAG22/
+- **Microsoft PowerPoint 公式 / Google Slides API**
+- **Adobe Acrobat User Guide / Adobe Color Theory**
+- **書籍：『ノンデザイナーズ・デザインブック』（Robin Williams）/『プレゼンテーション Zen』『Slide:ology』『Resonate』（Nancy Duarte）/『The Visual Display of Quantitative Information』『Beautiful Evidence』（Edward Tufte）/『Designing Data Visualizations』（Noah Iliinsky）/『なるほどデザイン』（筒井美希）**
+- **景品表示法 / 薬機法 / 著作権法**
+- **Material Design 3 / Apple HIG / Fluent Design**：UI 規範
+
+### アウトプット品質チェックリスト
+- [ ] 15 項目セルフチェック完了（カラー / フォント / 余白 / ロゴ / ページ番号 / 著作権 / 画像 / placeholder / 投影色 / スマホフォント / 視線動線 / 印刷崩れ / アイコン統一 / グラフ単位 / 誇大表現スペース）
+- [ ] デザイン 4 原則（近接 / 整列 / 反復 / コントラスト）適用
+- [ ] フォント階層統一（見出し / 本文 / キャプション、ジャンプ率 1.8-3.0）
+- [ ] カラーパレット遵守（designer_memory.md / brand-tokens.json）
+- [ ] WCAG コントラスト比 4.5:1 以上（投影想定で AAA 7:1 目標）
+- [ ] グラフ 5 軸明示（タイトル / X 軸 + 単位 / Y 軸 + 単位 / 凡例 / 出典脚注）
+- [ ] 印刷 A4 / A3 プレビュー実施、崩れなし
+- [ ] ファイルサイズ ≤ 50MB
+- [ ] 3D 要素 1 枚以下、Bento Grid 3 枚以下
+- [ ] Variable Fonts 採用時はクライアント環境（PowerPoint 365/2021+）確認
+- [ ] Sheets バインディングは NamedRange 参照
+- [ ] Master Components 更新は Variants で追加（過去案件影響回避）
+- [ ] Alt Text 全画像付与
+- [ ] 視線動線（Z / F パターン）担保（本文スライド）
+- [ ] アニメーション最小限（読みやすさ優先）
+- [ ] Mana 校閲用に数値・固有名詞抽出シート送付
+- [ ] Aoi テンプレ監査 → Mana 校閲 → Yuto 統合 → Sora QA
