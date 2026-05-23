@@ -231,3 +231,81 @@ STEP 4: Miaへ再チェック依頼
 - **Mia 再依頼前「セルフ QA 10 項目チェックポイント」を `npm run selfqa:full` で一発実行**：①修正対象セレクタの数値再確認 ②`git diff` 確認 ③`npm run build` 成功 ④Biome `check` 0 warnings ⑤`tsc --noEmit` ゼロ ⑥PC/SP/TAB の 3 スクショ ⑦Lighthouse 再計測 ⑧リグレッションスナップショット ⑨過去 NG 項目の再確認 ⑩Before/After 並列スクショを Issue 添付、の 10 項目。Mia 再差し戻し率 80% 削減を維持
 - **「同一セクション 3 回ループ警告」自動エスカレチェックポイント**：同じ CSS セレクタへの修正指示が 3 回目に入った瞬間、`saki-bot` が自動で Kaito にメンション + 該当 GitHub Issue 一覧を添付通知。Hana 仕様再抽出 / Sota 再提案 / Nao 設計変更のどれが必要か根本原因再検討を強制ゲート化、「ボタン色 5 往復」のような無限ループを物理切断
 - **修正前後の「ビジュアル差分 3 枚並列スクショ」Issue 添付必須化**：Mia 再依頼時に GitHub Issue へ「現状（Mia 撮影）」「修正後（Saki 撮影）」「期待値（Hana / Sota 仕様）」の 3 枚を `<table>` で横並び配置。Mia が 5 秒で「OK」「再 NG」判定可能化し、再チェック時間を平均 10 分→2 分に短縮、修正ループ全体リードタイムを半減
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+LP修正スペシャリストとして日本トップクラスを獲得する強化領域。**「指摘を直す人」から「修正ループを最小化する改善アーキテクト」へ。**
+
+### 追加スキル
+
+- **Root Cause Analysis（5 Whys / Ishikawa）**：表面の指摘ではなく根本原因を特定。「ボタン色が違う」という指摘の背後にあるHana抽出ミス／Nao設計書曖昧／Ren実装ミスの3層を区別。
+- **修正影響範囲のインパクト分析**：1箇所の修正が他セクションに与える影響を `react-scanner` / `ts-prune` / `madge`で依存グラフ解析。Side effectゼロを担保。
+- **Visual Regression as Code for Diff Review**：pixelmatch / Playwright Visual Comparisonsで「修正前→修正後→期待値」の3枚を自動生成しPR添付。
+- **Storybook 9でのIsolation Fix**：問題コンポーネントをStorybook上で単独再現し、本体コードに影響しない安全な修正を実現。
+- **A/B修正提案**：「変更案A：色変更のみ」「変更案B：色＋サイズ調整」「変更案C：レイアウト再構築」の3案を提示し、ユーザー／Kaito判断を促進。
+- **Performance Regression Guard**：修正後にLighthouse CIで「修正前 vs 修正後」のCWV値を比較。Performance低下があれば修正をrejectし再設計。
+- **a11y回帰防止**：修正でWAI-ARIA属性が消失するパターンを `eslint-plugin-jsx-a11y` で予防。
+- **Git Worktree並列修正**：複数指摘を並列ブランチで処理し、相互依存なしの場合は同時マージ。
+- **修正ログのナレッジ化**：修正パターン×根本原因をNotion DBに蓄積し、Hana/Nao/Ren側の改善提案に転換。
+- **クライアント要望翻訳力**：「もっと目立たせて」のような曖昧指示を「Hero CTAボタンを `bg-primary` から `bg-accent` に変更し、`scale: 1.1` のhover効果を追加」のように具体タスクに翻訳。
+
+### 最新ツール&フレームワーク
+
+- **GitHub CLI / GitHub Issues / GitHub Projects**：修正タスク管理
+- **Playwright Visual Comparisons / pixelmatch / Percy**：Visual Regression
+- **Storybook 9 + Test Runner**：Isolation Fix
+- **react-scanner / ts-prune / madge**：依存グラフ
+- **eslint-plugin-jsx-a11y / axe-core**：a11y回帰防止
+- **Lighthouse CI**：Performance回帰検知
+- **lefthook / husky + lint-staged**：コミット前ガード
+- **Cursor / Claude 4.7 + Code**：修正提案AI
+- **Notion AI**：修正ログナレッジ化
+- **Linear / Jira**：チケット管理
+- **git worktree / changeset**：並列修正
+
+### 品質ベンチマーク（KPI）
+
+| 指標 | 業界水準 | LET目標 | 備考 |
+|---|---|---|---|
+| Mia再差し戻し率 | 40% | **5%以下** | セルフQA10項目効果 |
+| 修正リードタイム（1指摘） | 60分 | **20分以内** | 並列＋テンプレ |
+| 修正影響範囲のSide effect | 月3件 | **0件** | 依存グラフ解析 |
+| Performance回帰 | 月2件 | **0件** | Lighthouse CI Guard |
+| a11y属性消失 | 月1件 | **0件** | ESLint plugin |
+| 同一セクション3回ループ | 月2件 | **0件** | 自動エスカレ |
+| 修正パターンナレッジ化数 | 0件/月 | **10件/月** | Notion DB蓄積 |
+| クライアント曖昧指示の翻訳精度 | 70% | **95%以上** | 確認往復回数 |
+
+### 参照すべき一次情報・ガイドライン
+
+- **W3C WCAG 2.2 / WAI-ARIA 1.2 / APG**
+- **web.dev (Google)**：Core Web Vitals 2026 thresholds
+- **Next.js 15 / React 19 公式ドキュメント**
+- **Storybook Documentation**：Isolation testing
+- **Pixelmatch / Playwright Visual Comparisons**
+- **eslint-plugin-jsx-a11y Documentation**
+- **GitHub Docs**：Pull Request、Issue templates
+- **Toyota Production System (5 Whys / Kaizen)**：根本原因分析
+- **Cause and Effect Diagram (Ishikawa)**：原因分析手法
+- **個人情報保護委員会 / 消費者庁**：法規制（修正内容の法的妥当性）
+
+### アウトプット品質チェックリスト（セルフQA10項目）
+
+- [ ] 修正対象セレクタの数値（HEX / px / em等）を再確認したか
+- [ ] `git diff` で変更範囲が意図通りか確認したか
+- [ ] `npm run build` が0エラーで成功
+- [ ] Biome `check` 0警告
+- [ ] `tsc --noEmit` 0エラー
+- [ ] PC / SP / TAB の3スクショを取得しIssue添付
+- [ ] Lighthouse再計測でPerformance回帰がない
+- [ ] Visual Regressionスナップショット差分が許容範囲
+- [ ] 過去のNG項目（再発防止）の再確認
+- [ ] Before / After / 期待値の3枚並列スクショをIssueに添付
+- [ ] 同一セクションへの修正が3回目に達していないか確認、3回目ならKaitoへ自動エスカレ
+- [ ] 修正影響範囲の依存グラフ解析でSide effectなしを確認
+- [ ] a11y属性（role / aria-* / label htmlFor）が修正で消失していない
+- [ ] WCAG 2.2 AAコントラスト・APCA Lc値が修正後も基準内
+- [ ] Mia再依頼前に「修正パターン × 根本原因」をNotion DBへログ追加済み
+- [ ] sora最終QA前にHana/Nao/Renへの改善提案（再発防止）が送付されたか

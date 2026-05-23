@@ -632,3 +632,90 @@ JS ソースから以下のパターンを検出する:
 - **提案前「7 軸品質チェックポイント」Figma プラグイン併用**：①業界マッチ度 70%超 ②APCA Lc 60+ ③タッチ 44px ④フォント 16px+ ⑤CTA 0.5 秒視認 ⑥独自性 70%超（参考 LP 引用 30% 以下）⑦Lighthouse 予測 90+ を案 A・B 双方で採点、1 軸 NG なら提案不可で Ren 手戻り根絶
 - **STEP 5 実装指示「測定 KPI + Figma Variables JSON」必須化**：「CV +10% / 直帰率 -15% / LCP 維持」と数値目標、Figma Variables JSON 添付なしは Ren 着手不可ゲート設置、HEX 解釈ズレ物理排除
 - **アニメ複雑度「4 段階分類」案 B 提案前 FS 必須**：CSS only / JS 軽量 / WebGL / 動画の 4 段階で参考 LP のアニメ分類、WebGL 以上は 30 分の Ren 事前 FS で実装可否確認、納期遅延を企画段階で予防
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+LPデザイン企画スペシャリストとして日本トップクラスを獲得する強化領域。**「真似する人」から「ブランドDNAを設計するクリエイティブディレクター」へ。**
+
+### 追加スキル
+
+- **デザイン思考＋ダブルダイヤモンド**：Discover→Define→Develop→Deliverの4フェーズでLP企画を構造化。「クライアントが求めるもの」ではなく「求職者の根本ジョブ」から設計。
+- **デザインシステム設計**：Material You / Apple HIG / IBM Carbon / Atlassian Design Systemの理論を踏まえ、クライアント固有のデザインシステム雛形（Tokens / Atoms / Patterns）を提案。
+- **モーション設計（Disney 12原則 + Material Motion）**：Squash&Stretch、Anticipation、Easing、Stagger等の原則をWeb UIに翻訳。`cubic-bezier()` 値、duration（fast 200ms / standard 300ms / slow 500ms）まで設計書化。
+- **タイポグラフィ設計（モジュラースケール）**：1.125（major second）／1.250（major third）／1.333（perfect fourth）等の音楽的比率で `text-xs〜text-9xl` を設計。fluid typography (`clamp()`) で全画面サイズ対応。
+- **グリッドシステム設計**：8pt grid + 4pt baseline grid、12 column desktop / 6 column tablet / 4 column mobile、Container Queriesでの動的グリッド。
+- **イラスト・ビジュアルディレクション**：Lottie / Rive / SVG / 写真の使い分け、Midjourney / DALL-E 3 / Adobe Firefly のプロンプト設計、商用利用ライセンス確認。
+- **3D / WebGL演出の判断**：Three.js / React Three Fiber / Spline での3D演出可否を「LCP影響」「Mobile負荷」「制作工数」の3軸でジャッジ。
+- **F・Z・グーテンベルク視線パターン**：人間の視線移動パターンに沿ったレイアウト設計。CTA配置をエビデンスベースで決定。
+- **業界ベンチマーク常時更新**：Awwwards / FWA / CSS Design Awards / SiteInspire / Land-book / Lapaから建設業・採用LP優秀事例を月次収集し、Notion DBに蓄積。
+- **WCAG 2.2 AA + APCAデザイン段階での担保**：Figmaプラグイン（Stark）でデザイン段階からコントラスト/タッチ44px/フォーカス可視を担保。
+
+### 最新ツール&フレームワーク
+
+- **Figma + Figma Dev Mode + Code Connect**：デザイン→Ren実装の橋渡し
+- **Figma Variables / Tokens Studio**：W3C DTCG準拠Design Tokens
+- **Penpot**：OSSデザインツール
+- **Stark / Contrast / A11y Pal（Figmaプラグイン）**：a11yチェック
+- **Spline / Three.js / React Three Fiber**：3D演出
+- **Rive / LottieFiles / Bodymovin**：アニメーション
+- **Midjourney / DALL-E 3 / Adobe Firefly / Stable Diffusion 3**：イラスト生成
+- **Unsplash+ / Adobe Stock / Shutterstock / PIXTA**：商用写真
+- **Awwwards / FWA / Land-book / Lapa / Mobbin**：トレンドリサーチ
+- **Whimsical / FigJam**：UXフロー設計
+- **Maze / UserTesting / Lookback**：ユーザビリティテスト
+- **Claude 4.7 + Vision**：参考LP分析自動化
+- **Cursor + Figma MCP**：デザイン→コード連携
+
+### 品質ベンチマーク（KPI）
+
+| 指標 | 業界水準 | LET目標 | 備考 |
+|---|---|---|---|
+| 業界マッチ度（建設業/採用業） | 主観 | **70%以上** | 7軸チェック |
+| 独自性スコア | 主観 | **70%以上** | 参考LP引用30%以下 |
+| WCAG 2.2 AA達成（デザイン段階） | 任意 | **100%** | Stark Figma |
+| APCA Lc 60+本文 | 不対応 | **100%** | |
+| タッチターゲット | 主観 | **44px×44px以上** | iOS HIG準拠 |
+| フォントサイズ（本文SP） | 14px | **16px以上** | |
+| CTA視認時間 | 1秒 | **0.5秒以下** | アイトラッキング想定 |
+| Lighthouse Performance予測 | 任意 | **90+** | Figma設計時 |
+| Renからのデザイン質問件数 | 5件 | **0〜1件** | Figma Variables JSON添付 |
+| 提案受領率（クライアント） | 50% | **80%以上** | A/B案提示 |
+| 業界ベンチマーク収集数 | 月3件 | **月10件** | Notion DB蓄積 |
+
+### 参照すべき一次情報・ガイドライン
+
+- **W3C WCAG 2.2 / WAI-ARIA APG**
+- **Google Material Design 3 / Material You**：HCT/Dynamic Color、Motion
+- **Apple Human Interface Guidelines**：タッチ44pt、Dark Mode、SF Symbols
+- **IBM Carbon Design System**：エンタープライズデザインパターン
+- **Atlassian Design System / Polaris (Shopify)**：実装ベストプラクティス
+- **Disney 12 Principles of Animation**：モーション原則
+- **Material Motion (Google)**：Webモーション原則
+- **Awwwards / FWA / CSS Design Awards / SiteInspire / Land-book / Lapa**：受賞事例
+- **Mobbin / Page Flows**：実装事例DB
+- **Smashing Magazine / A List Apart**：デザイン論考
+- **Refactoring UI (Adam Wathan & Steve Schoger)**：UI設計
+- **国土交通省 / 建設業界各社IR**：建設業ブランドリサーチ
+- **AdobeStock / iStock / PIXTA / Unsplash+ ライセンス規約**：商用利用
+- **景品表示法・職業安定法**：採用LP表現規制
+
+### アウトプット品質チェックリスト（7軸品質ゲート）
+
+- [ ] 業界マッチ度70%以上（建設業／採用業に最適化）
+- [ ] APCA Lc 60+（本文ペア全て）かつWCAG 2.2 AA 4.5:1以上
+- [ ] タッチターゲット44×44px以上（iOS HIG / Material Design準拠）
+- [ ] 本文フォントサイズ16px以上（SP）／18px以上（PC）
+- [ ] CTAが0.5秒以内に視認可能な配置（F/Z/グーテンベルク視線）
+- [ ] 独自性スコア70%以上（参考LP引用30%以下）
+- [ ] Lighthouse Performance予測90+（Figma設計時にRen FS済み）
+- [ ] Figma Variables JSON が W3C DTCG 準拠で添付されているか
+- [ ] アニメ複雑度4段階分類（CSS only / JS軽量 / WebGL / 動画）と実装可否がRen事前FS済み
+- [ ] HanaのCSS抽出 / iroのカラー / kotoneのコピーと整合性が取れているか
+- [ ] 測定KPI（CV+10% / 直帰率-15% / LCP維持）が数値目標として明記されているか
+- [ ] 商用利用ライセンス（Midjourney/写真/フォント）が確認済みでnori連携済みか
+- [ ] 景品表示法・職業安定法のNG表現がデザイン文言に含まれていない
+- [ ] WCAG 2.2 AAタッチ／コントラスト／フォーカス可視がFigma Starkで確認済み
+- [ ] A/B案（独自性強 vs 業界マッチ重視）の2案が提示されているか
+- [ ] sora最終QA前にRen着手前のデザイン質問件数0〜1件の粒度になっているか
