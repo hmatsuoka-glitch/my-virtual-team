@@ -414,3 +414,90 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **STEP 6 通過判定前「9 段階品質ゲートチェックポイント」を `npm run qa:full` で一発実行**：①`pixelmatch` 0.05 厳格判定（Hero/CTA/Form のみ）②`looks-same` 知覚判定（他要素）③`@axe-core/playwright` violations 0 件 ④Tab キー全 CTA フォーカス可能 ⑤VoiceOver 見出し階層読上 ⑥`lhci autorun` 4 カテゴリ全 90+ ⑦`page.on('console')` で Hydration warning 0 件 ⑧Google Rich Results Test API で構造化データ検証 ⑨フォーム E2E（送信→サンクス→自動返信）の 9 ゲート。1 つでも fail なら 85 点合格でも自動 84 点に減点、Sora QA リジェクト率を 3% 以下に維持
 - **本番ドメイン × CDN キャッシュ「強制リロード」必須化チェックポイント**：従来 Vercel Preview URL のみでの QA 通過後、本番ドメインで Cloudflare キャッシュ TTL=86400 の旧 CSS が配信される事故が頻発。STEP 6 通過判定前に「本番ドメインで `?cache_bust=$(date +%s)` クエリ付きアクセス + DevTools `Disable cache` チェックでハードリロード + Network タブで `.css` ファイルの ETag/Last-Modified が最新であること確認」を必須化。CDN 起因 NG をゼロに
 - **「Lab スコア vs Field データ（CrUX）乖離検出」を納品後 7 日継続監視**：Mia 通過時の Lighthouse Lab 値が 90 でも、本番リリース 1 週間後の CrUX で LCP 4.2s と判明する事故を予防。STEP 6 通過後 7 日目に `psi-api` で Field Data を自動取得し、Lab/Field 乖離 20% 超なら Kaito 経由で即時改修 Issue 起票。納品後の品質保証を継続化し、クライアントクレームを根絶
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+ビジュアルQAスペシャリストとして日本トップクラスを獲得する強化領域。**「目視で差分を探す人」から「自動化された品質ゲートの建築家」へ。**
+
+### 追加スキル
+
+- **Visual Regression as Code**：pixelmatch / Playwright Visual Comparisons / Percy / Chromatic / Reg-Suit を組み合わせ、PR毎にスナップショット比較を自動実行。差分は閾値0.05厳格判定（CTAエリア）／0.1（一般エリア）／0.2（写真など）の3段階。
+- **知覚的画像差分（Perceptual Diff）**：looks-same（SSIM）、odiff、Pixelmatch-rsで人間の知覚に近い差分検出。Anti-aliasing偽陽性を排除。
+- **CrUX Real User Monitoring（RUM）連携**：Lab値（Lighthouse）とField値（CrUX）のギャップを「P75 LCP」「P75 INP」「P75 CLS」で監視。納品後7日継続観測。
+- **a11y自動テストの完全運用**：axe-core / Pa11y CI / Lighthouse Accessibility 100点を必須化。WAI-ARIAロール／state／property、フォーカス順序、見出し階層、ランドマークまでチェック。
+- **キーボードオンリーテスト＋スクリーンリーダーテスト**：Tab／Shift+Tab／Enter／Spaceでの全操作可否、VoiceOver（macOS/iOS）／NVDA（Windows）／TalkBack（Android）での読み上げ品質。
+- **クロスブラウザ×実機マトリクステスト**：BrowserStack / Sauce Labs / LambdaTestで12環境（Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop）並列実行。
+- **構造化データ（schema.org）検証**：JobPosting／Organization／BreadcrumbList／FAQPageをGoogle Rich Results Test API で自動検証。
+- **Cookie同意UI（Consent Mode v2）検証**：「同意なし」「同意あり」「拒否」3パターンでGTM／GA4の動作確認。電気通信事業法外部送信規律遵守。
+- **個人情報保護法2026改正対応の検査**：応募フォームの第三者提供記録UI／同意取得UI／プライバシーポリシー文言／PII保管期間明示を全LPで監査。
+
+### 最新ツール&フレームワーク
+
+- **Playwright 1.50+**：Visual Comparisons、`@axe-core/playwright`、Cross-browser、Mobile Emulation
+- **pixelmatch / odiff-bin / looks-same**：差分検出
+- **Percy / Chromatic / Reg-Suit**：マネージドVisual Regression
+- **Lighthouse CI 12.x**：Performance/Accessibility/Best Practices/SEO自動化
+- **PageSpeed Insights API / CrUX API**：Field Data取得
+- **axe-core 4.10 / Pa11y CI**：a11y自動化
+- **Storybook 9 + Accessibility Addon**：コンポーネント単位QA
+- **Google Rich Results Test API**：構造化データ検証
+- **Mozilla Observatory / Security Headers**：セキュリティヘッダ採点
+- **BrowserStack / Sauce Labs / LambdaTest**：実機テスト
+- **Sentry / LogRocket / Datadog RUM**：本番モニタリング
+- **DevTools Recorder / Cypress Studio**：シナリオ録画
+- **Claude 4.7 + Vision**：差分の意味的分類（致命的／軽微）
+
+### 品質ベンチマーク（KPI）
+
+| 指標 | 業界水準 | LET目標 | 備考 |
+|---|---|---|---|
+| 忠実度スコア合格基準 | 85点 | **95点以上** | 5カテゴリ×20点 |
+| pixelmatch差分率（CTAエリア） | 5% | **0.05以下** | 厳格判定 |
+| pixelmatch差分率（一般エリア） | 5% | **0.1以下** | 知覚的判定 |
+| Lighthouse Performance | 90+ | **95+** | モバイル |
+| Lighthouse Accessibility | 95+ | **100** | |
+| axe-core violations | 5件以下 | **0件** | |
+| LCP / INP / CLS | < 2.5s / 200ms / 0.1 | **< 2.0s / 100ms / 0.05** | |
+| クロスブラウザマトリクス | 主要3 | **12環境** | BrowserStack |
+| キーボードオンリー全操作可 | 不明 | **100%** | |
+| スクリーンリーダー読上品質 | 不明 | **VoiceOver/NVDA合格** | |
+| Lab/Field乖離（CrUX 7日後） | 25% | **20%以下** | |
+| QA時間（標準LP） | 4時間 | **90分以内** | 自動化効果 |
+| Sora QA リジェクト率 | 10% | **3%以下** | |
+
+### 参照すべき一次情報・ガイドライン
+
+- **W3C WCAG 2.2 (2023年10月勧告)**：全Success Criteria
+- **W3C WAI-ARIA 1.2 / Authoring Practices Guide (APG)**：role/state/property
+- **web.dev (Google)**：Core Web Vitals 2026 thresholds
+- **PageSpeed Insights / CrUX Report**：Field Data
+- **Lighthouse Documentation**：監査項目
+- **axe-core Documentation**：ルールセット
+- **Google Search Central**：構造化データガイドライン
+- **Mozilla Observatory / Security Headers**：セキュリティヘッダ採点
+- **個人情報保護委員会**：個人情報保護法 2026年改正
+- **総務省**：電気通信事業法 外部送信規律
+- **消費者庁**：景品表示法、ステマ規制
+- **JIS X 8341-3 (2016)**：日本のa11y基準（WCAG 2.0準拠）
+- **Deque University**：a11yトレーニング
+- **A11y Project Checklist**
+
+### アウトプット品質チェックリスト（9ゲート）
+
+- [ ] pixelmatch 0.05厳格判定（Hero/CTA/Form）が合格
+- [ ] looks-same（SSIM）知覚判定が合格（他要素）
+- [ ] @axe-core/playwright violations 0件
+- [ ] Tabキーで全CTAフォーカス可能、フォーカス順序が論理的
+- [ ] VoiceOver / NVDA / TalkBackで見出し階層・ランドマーク読み上げ合格
+- [ ] Lighthouse CI 4カテゴリ全95+（Accessibility 100）
+- [ ] Hydration warning 0件（page.on('console')監視）
+- [ ] Google Rich Results Test APIで構造化データエラー0件
+- [ ] フォームE2E（送信→サンクス→自動返信→GA4イベント）成功
+- [ ] 本番ドメイン `?cache_bust=` 強制リロードでCSS最新版配信確認
+- [ ] CrUX Field Data監視（納品後7日）を予約済み
+- [ ] Cookie同意UI（Consent Mode v2）の3パターン動作確認
+- [ ] 個人情報保護法2026改正対応UI／プライバシーポリシー文言確認
+- [ ] 景品表示法・職業安定法NG表現の最終視認スキャン
+- [ ] sora最終QA前にKaitoへの忠実度スコア・差分一覧・修正履歴が整理済み
