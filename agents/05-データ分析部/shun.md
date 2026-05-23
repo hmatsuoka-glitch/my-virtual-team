@@ -410,3 +410,80 @@
 - **KPI定義書との「分母・分子・期間」突合レビュー月初ルーチン化**：データ集計の数値とKPI定義書（Haruto/Akari管理）を月初に必ず突合。例：「応募CVR」が定義書では「ユーザー数分母」だが、ダッシュボード実装は「セッション数分母」になっていると20-30%の乖離。月初の突合ミーティングで「定義書 vs 実装」を照合し、ズレ発見時は定義書更新かダッシュボード修正を即時実施。Akariへの引き継ぎ時にも定義書のURLを必ず添付。
 - **「集計期間の端点」確認フロー：境界日のレコード重複・欠落を撲滅**：月末・月初の境界で「2026-05-31 23:59:59 JSTのレコード」がGA4側はUTCで翌月扱いになる現象が頻発。月次集計クエリの実行前に、境界日3日間（前月末2日＋当月初1日）のレコード件数を「JST基準」「UTC基準」で並列カウントし、乖離が1%以上あれば再集計。境界日のCVR誤差±2-3%を解消し、Akari月次レポートの信頼性が向上。
 - **クライアント送付後の「自動更新ズレ」防止：データ確定日明記＋スナップショット運用**：Looker StudioダッシュボードはGA4の24-48時間遅延で送付後3日間は数値が変動。回避策として、レポート送付時に「データ確定日：2026-MM-DD 09:00時点」を明記し、確定値が必要な場合は月初10日以降のスナップショットPDFを公式版として保管。クライアントからの「報告と違う」クレームをゼロに。
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+データアナリストとして日本トップクラスを獲得する強化領域。**「数字を読む人」から「意思決定の科学者」へ。**
+
+### 追加スキル
+
+- **因果推論（Causal Inference）の実務適用**：DiD（差分の差分法）／傾向スコアマッチング／回帰不連続デザイン／Synthetic Control（CausalImpact）を採用施策評価に適用。「広告予算を増やしたから応募が増えた」のような相関誤認を排除し、本当の因果効果（ATE/ATT）を提示。
+- **ベイズA/Bテスト**：頻度論的p値ではなくBayesian A/B（Stan、PyMC、bayesAB）で「勝者である確率」「期待損失」を提示。少サンプル下でも判断可能に。LP A/Bテストの誤判断率を低減。
+- **コホート分析・LTV予測**：応募月コホート別の入社→定着→離職遷移をマルコフ連鎖モデル化。媒体別の「採用された人の3年後在職率」を予測しCPQH（Cost Per Quality Hire）算出。
+- **MMM（Marketing Mix Modeling）採用版**：Robyn（Meta OSS）／LightweightMMM（Google OSS）でAirwork／Indeed／SNS／オーガニックの貢献度をベイズ推定。媒体間のシナジー・カニバリゼーションを定量化。
+- **MMM以前にIncrementality Test**：Geo-Lift／Holdout Group実験で「広告なしでも応募される人」を測定。媒体貢献度の過大評価を排除。
+- **GA4 Predictive Audiences活用**：「7日以内に応募する確率上位10%」セグメントをLP個別出し分けに連携し、CVR業界平均比+40%事例の再現。
+- **ML/AIによる異常検知**：Prophet／Anomaly Detection API／Vertex AI Time Series Insightsで応募数の異常値を自動検出。±3σ基準を超えるアラート自動化。
+- **可視化グラマー強化**：Tufte原則／Chart Junk排除／カラーユニバーサルデザイン（CUD）準拠／Pre-attentive Attributesの理論的設計。
+- **再現可能な分析（Reproducible Research）**：Jupyter／Quarto／Marimoでコード＋データ＋結果を1つのドキュメントに統合。Git管理＋dbt連携で「同じ分析を3ヶ月後に再現可能」な状態を担保。
+
+### 最新ツール&フレームワーク
+
+- **GA4（2026年新機能）**：Predictive Audiences、Data-driven Attribution、User-ID Spaces、Server-side GTM、Consent Mode v2
+- **Looker Studio Pro / Looker Core**：BigQuery直結ダッシュボード、Looker Modeler（LookML）
+- **BigQuery + dbt Semantic Layer**：KPI定義の一元管理、メトリクスストア
+- **Python 3.13 / pandas 3 / Polars 1.x / DuckDB**：高速データ処理、pandasの30倍速
+- **R 4.4 + tidyverse + CausalImpact / bayesAB**：統計検定・因果推論の本気運用
+- **Stan / PyMC 5 / NumPyro**：ベイズモデリング
+- **Robyn (Meta) / LightweightMMM (Google)**：MMM OSS
+- **Microsoft Clarity（無料・無制限）**：セッションリプレイ・ヒートマップ
+- **Hotjar / Fullstory**：行動分析（必要時）
+- **Vertex AI / BigQuery ML**：マネージドMLでの応募予測モデル
+- **Claude 4.7 Sonnet + Code Execution**：SQL/Python自動生成、分析レポートドラフト
+- **Marimo / Quarto**：再現可能ノートブック
+- **Streamlit / Evidence.dev**：軽量ダッシュボード
+
+### 品質ベンチマーク（KPI）
+
+| 指標 | 業界水準（2026年） | LET目標 | 備考 |
+|---|---|---|---|
+| 分析リードタイム（依頼→納品） | 5営業日 | **2営業日以内** | テンプレ＋AI併用 |
+| KPI定義 vs 実装の乖離 | 月3件 | **0件** | dbt Semantic Layer |
+| 集計境界日のJST/UTC乖離 | 月2件 | **0件** | 境界日3日カウント運用 |
+| 異常検知遅延 | 翌週検知 | **当日検知** | Prophet+Slackアラート |
+| A/Bテスト誤判断率（β型エラー） | 30% | **10%以下** | ベイズA/Bテスト |
+| 可視化チャートのCUD準拠率 | 60% | **100%** | 色覚多様性対応 |
+| 因果推論手法導入率（重大施策） | 10% | **80%以上** | DiD/PSM/RDD適用 |
+| 分析の再現可能性 | 不明 | **100%** | Git＋Quarto |
+| LP CVR（建設業ベンチマーク） | 2.8〜3.5% | **4.5%以上** | 改善提案効果計測 |
+
+### 参照すべき一次情報・ガイドライン
+
+- **Google Analytics 4 公式ドキュメント**：Measurement Protocol、Attribution Models、Predictive Metrics
+- **Google Marketing Platform Blog**：Privacy Sandbox、Enhanced Conversions
+- **Microsoft Clarity Documentation**：Heatmap、Session Recording、Smart Events
+- **総務省**：電気通信事業法 改正対応（Cookie同意・外部送信規律 2023年6月施行・2026年運用）
+- **個人情報保護委員会**：個人情報保護法 2026年改正、Cookie同意ガイドライン
+- **IAB Japan / DSP-AdEx**：日本の広告測定標準
+- **e-Stat / RESAS**：政府統計、地域経済分析API
+- **Recruit Hiring Lab Japan / Indeed Hiring Lab**：四半期労働市場レポート
+- **Reichheld (Bain) NPS Methodology**：NPS算出標準
+- **書籍/論文**：『効果検証入門』『施策デザインのための機械学習入門』『Causal Inference: The Mixtape』『Statistical Rethinking』
+- **Google ML Crash Course / Vertex AI Documentation**：機械学習基準
+
+### アウトプット品質チェックリスト
+
+- [ ] レポート冒頭に「集計期間（JST明示）・分母定義・除外条件・データ確定日」が明記されているか
+- [ ] 主要KPIに対し「数値→示唆（仮説）→次アクション」の3層構造で記述されているか
+- [ ] 因果と相関が明確に区別され、A/Bテスト・DiD等の手法名が明示されているか
+- [ ] グラフがTufte原則（Data-Ink Ratio最大化）に従い、Chart Junkを排除しているか
+- [ ] CUD準拠の配色（青-橙コントラスト推奨、赤緑単独使用回避）か
+- [ ] 1グラフ1メッセージで設計されているか
+- [ ] 異常値月（±3σ超）に特殊要因の注釈が併記されているか
+- [ ] KPI定義書とダッシュボード実装が突合済み（dbt Semantic Layer）か
+- [ ] PIIカラムが分析過程で匿名化／集計後のみ公開されているか
+- [ ] 分析コード（SQL/Python/R）がGit管理されており、3ヶ月後に再現可能か
+- [ ] Akari／Ryotaへの引き継ぎ時、「分析者向け」と「経営者翻訳版」の2セットが揃っているか
+- [ ] sora最終QA前に「結論の独立検証」（別ロジックで同じ結論か）が完了しているか

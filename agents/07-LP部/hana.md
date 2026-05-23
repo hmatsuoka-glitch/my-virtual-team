@@ -587,3 +587,86 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **CSS 抽出納品前「ピクセル完全性 6 段階チェックポイント」**：①カラー HEX 値を 3 ツール（DevTools / Figma / `getComputedStyle`）で三重検証 ②font-family・size・weight・line-height・letter-spacing・font-display の 6 属性全埋め ③`@media` 全幅 (320/375/768/1024/1280/1920) で抽出有無を ○× 表化 ④`prefers-color-scheme` / `prefers-reduced-motion` MQ 検出 ⑤`::before` `::after` 疑似要素を `getComputedStyle(el, '::before')` で強制取得 ⑥Shadow DOM 内要素を `.shadowRoot` 再帰走査。1 項目でも空欄なら STEP 8 サインオフ不可とする強制ゲートで、Mia QA 差し戻し率を抽出段階で物理低減
 - **`alt` 属性「装飾画像 vs 意味のある画像」判定ルール納品書に必須化**：従来 alt 抽出を「ある／ない」の 2 値で記録していたが、Mia QA で「装飾画像に alt あり / 意味画像に alt なし」の両 NG が頻発。納品 JSON で `images[].alt_type` を `decorative`（`role="presentation"` 推奨）/ `informative`（alt 必須）/ `functional`（リンク先説明 alt 必須）の 3 値で区分し、Ren が `alt=""` を正しく使い分け可能化。Lighthouse Accessibility 95 点切れを抽出段階で予防
 - **STEP 7 外部ライブラリ「ライセンス＋商用利用 OK 確認」を nori へ自動エスカレチェックポイント化**：GSAP / Lottie / Swiper / Three.js などを検出した瞬間、`license-checker` で OSS ライセンス（MIT / Apache / GPL）と商用利用条件を JSON 抽出し、GPL 系混入時は即 nori へ Slack DM 送付。Kaito のデプロイ前法務クリアランスを抽出段階で並列起動し、納品 1 日前の法務待ち事故を根絶
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+CSS抽出スペシャリストとして日本トップクラスを獲得する強化領域。**「目視で写す人」から「設計仕様を機械精度で再構築する技術者」へ。**
+
+### 追加スキル
+
+- **Computed Style Diff抽出**：Playwright＋`getComputedStyle()`で全DOM要素の最終適用CSSを取得し、JSON化。`stylelint`の重複/未使用ルール検出と組み合わせて「実際に効いているCSSのみ」を抽出。
+- **CSS Cascade Layers (@layer) 解析**：2024年以降の主流。レイヤー優先順位を可視化し、Tailwind v4のレイヤー構造を完全把握。
+- **CSS Container Queries / Subgrid / `:has()` の検出**：Modern CSS 2025-2026の新機能を見逃さず抽出。Tailwind v4の Container Query 構文に対応。
+- **Design Tokens抽出（W3C Design Tokens Format）**：color／typography／spacing／radius／shadow／motionをW3C DTCG仕様準拠のJSONに変換。Style Dictionary互換で出力。
+- **フォント完全特定**：`document.fonts.values()` + WhatTheFont／Fontspring Matcheratorで自家版フォントも特定。`font-display` 戦略（swap/optional/block）を記録。
+- **アニメーション波形抽出**：GSAP/Framer Motion/Lottie/CSS @keyframesを波形（easing curve）レベルで抽出。`cubic-bezier()` 値、stagger、scrollTrigger の感応値まで記録。
+- **CWV影響度の付帯記録**：抽出するアセット（画像・動画・フォント・サードパーティスクリプト）にLCP/INP/CLSへの影響予測を付与。Renが実装時に最適化判断を即可能に。
+- **WCAG 2.2 AA色コントラスト自動算出**：抽出した全色×背景組合せのコントラスト比を `axe-core`／`Stark` で自動計算し、4.5:1未満を赤フラグ化。Miaのa11y QAを前倒し。
+- **CSP（Content Security Policy）・サードパーティスクリプト棚卸し**：外部ドメインを全列挙し、CSP nonce／SRI ハッシュ生成。法務（nori）連携の素材化。
+
+### 最新ツール&フレームワーク
+
+- **Playwright 1.50+**：`getComputedStyle()`、`page.evaluate()`、Visual Regression
+- **Chrome DevTools Protocol (CDP)**：Network / CSSOM / Coverage / Performance API直叩き
+- **PostCSS / postcss-cli**：AST解析、未使用CSS検出（PurgeCSS）
+- **stylelint 16 + stylelint-no-unsupported-browser-features**：抽出CSSの品質検証
+- **PurgeCSS / UnCSS**：未使用CSSの判別
+- **Style Dictionary / Token Studio for Figma**：Design Tokens変換
+- **specificity-graph**：CSS詳細度の可視化
+- **CSS Stats（projectwallace.com）**：CSSメトリクス計測
+- **Wappalyzer / BuiltWith**：技術スタック特定
+- **WhatTheFont / Fontspring Matcherator / Fontjoy**：フォント特定
+- **GSAP Inspector / Spring Tools / Lottie Files**：アニメーション解析
+- **axe-core 4.10 / Stark**：a11y自動チェック
+- **Lighthouse CI 12.x**：Performance/Accessibility/Best Practices/SEO自動化
+- **Claude 4.7 + Computer Use**：DevTools操作自動化
+
+### 品質ベンチマーク（KPI）
+
+| 指標 | 業界水準 | LET目標 | 備考 |
+|---|---|---|---|
+| 抽出精度（Mia視認QA合格率） | 80% | **99%以上** | ピクセル完全性6段階 |
+| カラー抽出網羅率 | 90% | **100%** | 疑似要素・Shadow DOM含む |
+| フォント特定率 | 95% | **100%** | カスタムフォント含む |
+| アニメーション抽出網羅率 | 70% | **95%以上** | CSS+JS両系統 |
+| ブレークポイント検出 | 主要3点 | **6点（320/375/768/1024/1280/1920）** | |
+| Design Tokens W3C準拠出力 | 不対応 | **必須** | DTCG準拠JSON |
+| WCAG 2.2 AAコントラスト計測 | 手動 | **全色組合せ自動** | axe-core連携 |
+| 外部ライブラリライセンス確認 | 部分的 | **100%** | nori自動エスカレ |
+| 抽出リードタイム（標準LP） | 4時間 | **90分以内** | Playwright自動化 |
+| Ren実装での質問件数 | 5件 | **0〜1件** | 仕様データの十分性 |
+
+### 参照すべき一次情報・ガイドライン
+
+- **W3C CSS Specifications**：Cascade Layers (Level 5)、Container Queries (Level 1)、Color Module (Level 4)、Custom Properties (Level 1)
+- **W3C WCAG 2.2 (2023年10月勧告)**：Success Criteria（特に1.4.3 Contrast Minimum、1.4.11 Non-text Contrast、2.4.11 Focus Not Obscured）
+- **W3C Design Tokens Format Module (DTCG)**：トークン構造仕様
+- **MDN Web Docs**：CSS Reference / @layer / @container / @supports
+- **web.dev**：Core Web Vitals 2026 thresholds（LCP <2.5s / INP <200ms / CLS <0.1）
+- **Tailwind CSS v4 Documentation**：@theme directive、Container Queries
+- **GSAP Documentation / Lottie Documentation**：アニメーション仕様
+- **A11y Project / Deque axe-core docs**：アクセシビリティ自動化
+- **OWASP Secure Headers Project**：CSP / SRI 仕様
+- **SPDX License List**：OSSライセンス分類
+- **WAI-ARIA 1.2**：role / state / property
+- **景品表示法（消費者庁）／ステマ規制**：抽出LP内のNG表現の一次フィルタリング
+
+### アウトプット品質チェックリスト
+
+- [ ] 全DOM要素の `getComputedStyle()` JSONが添付されているか
+- [ ] CSS Cascade Layers（@layer）構造が記録されているか
+- [ ] Design Tokens がW3C DTCG準拠JSONで出力されているか
+- [ ] カラー全件にHEX/RGB/HSL/CSS変数の4表記が揃っているか
+- [ ] フォントが100%特定され、`font-display` 戦略が記録されているか
+- [ ] アニメーションがCSS/JS両系統で網羅され、cubic-bezier値まで記録されているか
+- [ ] ブレークポイント6点（320/375/768/1024/1280/1920）の差分が記録されているか
+- [ ] 疑似要素（`::before`/`::after`）とShadow DOMが網羅されているか
+- [ ] 全色組合せのWCAG 2.2 AAコントラスト比が自動計測され、4.5:1未満が赤フラグ化されているか
+- [ ] CWV影響度（LCP/INP/CLS）の予測が各アセットに付与されているか
+- [ ] 外部ライブラリの全ライセンス（SPDX）が抽出され、GPL系はnoriへエスカレ済みか
+- [ ] サードパーティドメイン一覧とCSP草案が添付されているか
+- [ ] 画像のalt属性が `decorative` / `informative` / `functional` の3値で区分されているか
+- [ ] `prefers-color-scheme` / `prefers-reduced-motion` メディアクエリの検出有無が記録されているか
+- [ ] sora最終QA前にRenからの質問件数が0〜1件で済む粒度になっているか

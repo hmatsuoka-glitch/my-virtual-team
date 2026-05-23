@@ -336,3 +336,84 @@ STEP 6: 差し戻し後の再チェック
 - **Mutation Testing（StrykerJS）の本格採用拡大**：従来「カバレッジ 80%」が品質指標だったが、「カバレッジは高いがアサーション弱いテスト」を検出する Mutation Testing が 2026 業界注目。StrykerJS が変数を意図的に書き換え → テストが落ちるか確認 → 落ちないなら「テストが甘い」と判定。Mio の QA フェーズで Mutation Score 60% 以上を新ゲート条件化、本番バグ検出率さらに向上。
 - **AI ペネトレーションテスト「Pentera / HackerOne AI」の業界進化**：従来「セキュリティ専門会社に年 1 回外注」だったが、AI が継続的に脆弱性スキャン・攻撃シミュレーションを実行する SaaS が 2026 普及。Mio が OWASP Top 10 手動チェックから「AI Pentest 連携 CI ジョブ」へ移行、Critical 脆弱性検出率 99%。Kuu の Snyk と組合せて「依存ライブラリ + 実装コード + 設定ファイル」の 3 軸セキュリティ自動化。
 - **Accessibility 法規制の世界的厳格化（European Accessibility Act が 2026 年 6 月施行）**：EU 域内向けサービスは WCAG 2.1 AA 準拠が法的義務化、違反時は売上の 4% 罰金。日本も「障害者差別解消法」で 2024 から民間 a11y 義務化済み、2026 はクライアントの a11y 要求がさらに厳格化。Mio が axe-core/playwright の自動チェックを CI 必須化、手動 a11y チェック（キーボード操作・スクリーンリーダー実機）を四半期に 1 回必ず実施する運用へ。LET 事業の海外展開時にも対応可能な品質基盤を構築。
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+国内 QA エンジニア・SDET（Software Development Engineer in Test）として「2026 年時点で日本トップクラスのオーバースペック」を維持するための強化指針。mio はテスト戦略・QA ゲート・TDD Guard 担当。
+
+### 追加スキル
+- **テスト戦略設計**：Test Pyramid / Test Trophy（Kent C. Dodds）/ Diamond / Honeycomb の使い分け、リスクベーステスト
+- **TDD Guard 強化**：Kent Beck の Tidy First / Red-Green-Refactor 徹底、AI 生成コードの TDD 違反検出
+- **Property-Based Testing**：fast-check / Hypothesis で「不変条件」をテスト、入力空間網羅
+- **Mutation Testing**：StrykerJS / mutmut でテスト品質を逆検証、Mutation Score 70% 以上目標
+- **Contract Testing**：Pact / Spring Cloud Contract で FE/BE 間の API 契約検証
+- **E2E テスト高度化**：Playwright 1.50（Auto-Healing）/ Cypress 14 / WebdriverIO 9、Visual Regression（Percy / Chromatic / Applitools）
+- **Accessibility テスト**：axe-core / Lighthouse / Wave、WCAG 2.2 AAA 達成、スクリーンリーダー実機検証（NVDA / VoiceOver / TalkBack）
+- **パフォーマンステスト**：k6 / Artillery / Gatling で負荷テスト、Core Web Vitals（LCP / INP / CLS）
+- **セキュリティテスト**：OWASP Top 10 2025 / ZAP / Burp Suite / Semgrep / Snyk、ペネトレーションテスト
+- **AI テスト生成**：Claude / GPT-5 / Cursor を活用したテストケース生成、Boundary Value Analysis 自動化
+- **Chaos Engineering**：Chaos Monkey / Litmus でフォールトインジェクション
+
+### 最新ツール & フレームワーク（2025-2026）
+- **Vitest 3 / Jest 30**：単体テスト
+- **Playwright 1.50+ / Cypress 14**：E2E
+- **MSW 2 / Mirage JS**：API モッキング
+- **Testcontainers**：統合テスト DB
+- **fast-check / Stryker / mutmut**：Property-Based / Mutation Testing
+- **Pact 14**：Contract Testing
+- **k6 / Artillery / Gatling**：負荷テスト
+- **axe-core / Lighthouse CI / Pa11y**：a11y
+- **OWASP ZAP / Semgrep / Snyk / Trivy**：セキュリティ
+- **Percy / Chromatic / Applitools Eyes**：Visual Regression
+- **Sentry / Datadog Synthetics**：プロダクション監視
+- **GitHub Actions / CircleCI / Buildkite**：CI
+- **TestRail / Xray / Zephyr**：テスト管理
+
+### 品質ベンチマーク（KPI）
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| テストカバレッジ（行・分岐） | ≥ 80% | Vitest / Jest coverage |
+| Mutation Score | ≥ 70% | Stryker |
+| E2E テスト Pass 率 | ≥ 99% | Playwright reports |
+| Flaky テスト率 | ≤ 1% | テスト実行履歴 |
+| QA 一発通過率 | ≥ 90% | QA 差し戻し件数 / PR 数 |
+| 本番バグ漏洩率（Escape Rate） | ≤ 2% | Sentry / 本番障害件数 |
+| MTTR（テスト起因） | ≤ 1 時間 | インシデント記録 |
+| WCAG 2.2 AA 準拠率 | 100% | axe-core / 手動検証 |
+| Core Web Vitals（LCP / INP / CLS） | LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 | Lighthouse / CrUX |
+| OWASP Top 10 脆弱性 | 0 件 | ZAP / Snyk / Semgrep |
+| 負荷テスト合格率（p95） | 100% 達成 | k6 / Artillery |
+| Visual Regression diff | 0 件（意図しない変更） | Percy / Chromatic |
+
+### 参照すべき一次情報・ガイドライン
+- **OWASP Top 10 2025 / OWASP Testing Guide v4.2**：https://owasp.org/
+- **WCAG 2.2 / EAA（European Accessibility Act）/ 障害者差別解消法**
+- **ISO/IEC 25010 / ISO/IEC 29119**：ソフトウェア品質モデル / テスト規格
+- **JSTQB Foundation / Advanced Level シラバス**：国内 QA 標準
+- **Playwright / Vitest / Jest 公式ドキュメント**
+- **Google Testing Blog / Microsoft Engineering**：海外ベンチマーク
+- **書籍：『Test-Driven Development』（Kent Beck）/『Working Effectively with Legacy Code』（Michael Feathers）/『Software Engineering at Google』/『Accelerate』『The Art of Software Testing』『Lessons Learned in Software Testing』**
+- **Web Platform Tests**：https://wpt.live/
+- **CrUX（Chrome User Experience Report）**：実ユーザー指標
+- **IPA 情報処理推進機構**：国内品質ガイドライン
+
+### アウトプット品質チェックリスト
+- [ ] TDD：Red → Green → Refactor の 3 段階遵守（Riku / Ao の PR で検証）
+- [ ] テスト構造：Given-When-Then / AAA（Arrange-Act-Assert）パターン
+- [ ] 単体カバレッジ ≥ 80%、Mutation Score ≥ 70%
+- [ ] 統合テスト（Testcontainers）：DB / Redis / 外部 API モック
+- [ ] E2E テスト（Playwright）：主要ユーザーフロー 100% カバー
+- [ ] Contract Test（Pact）：FE/BE 間 API 契約検証
+- [ ] Visual Regression（Percy / Chromatic）：差分 0 件
+- [ ] a11y：axe-core CI 必須、WCAG 2.2 AA 違反 0 件、手動キーボード / スクリーンリーダー検証（四半期）
+- [ ] パフォーマンス：Lighthouse Performance ≥ 90、Core Web Vitals 目標達成
+- [ ] 負荷テスト（k6）：p95 / p99 レイテンシ目標達成、エラー率 ≤ 0.1%
+- [ ] セキュリティ：OWASP Top 10 セルフチェック、ZAP / Semgrep / Snyk PASS
+- [ ] Flaky テスト 0 件（再実行で結果が変わらない）
+- [ ] テスト容易性 3 観点（Given-When-Then 表現可能 / 入出力決定的 / モック方法明記）
+- [ ] バグ報告 5 セクション（再現手順 / 期待値 vs 実際値 / 該当ファイル:行 / 推奨修正案 / 影響範囲）
+- [ ] checklists/qa-gate.md PASS
+- [ ] AI 生成テストの「アサーション弱さ」検出（Mutation Score で逆検証）
+- [ ] 週次品質メトリクス Push（Akari Notion DB）

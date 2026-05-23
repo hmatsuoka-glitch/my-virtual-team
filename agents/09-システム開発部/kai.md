@@ -506,3 +506,78 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **11-資料作成部（Mei 等）への画面遷移図引き渡しフロー固定化**：システム開発成果を提案書・ピッチデックに掲載する案件で、Nao の設計書から「画面遷移図（Mermaid 形式）」「主要 UI スクリーンショット」「機能一覧表」の 3 点を Kai が抽出して資料作成部の Mei に Notion URL で共有。Mei は Mermaid をそのまま PowerPoint に貼付可能、説明文も Kai の要件整理レポートから流用。資料作成リードタイム 1 日 → 2 時間、認識齟齬による作り直しゼロ化。
 - **Mio→Riku/Ao の QA NG 差し戻しに「修正完了判定基準」必須化**：Mio が QA NG を出す際、NG レポートに `①修正完了の判定基準（具体的なテストケース PASS）／②修正後セルフチェック手順／③水平展開チェック対象（同根本原因の他箇所）` の 3 点を必須記載する運用を Kai がルール化。Riku/Ao は手順書通り自己検証 PASS してから Mio に再依頼、QA ラウンドトリップ 3-4 回 → 1 回に圧縮、リリース 1 週間遅延を完全防止。
 - **02-クライアント管理部（Akari/Ryota）への週次進捗共有は「Notion DB 直接転記」運用**：毎週金曜 16:00 の進捗報告を Kai が Notion DB「プロジェクト週次レポート」に「①今週完了タスク／②来週着手予定／③ブロッカー＆相談事項／④想定リリース日」の 4 項目で投稿。Akari がクライアント月次レポートに即コピペ可能、Ryota の MTG 議事録貼付も即時化、メール作成工数 30 分 → 5 分。
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+国内システム開発 PM として「2026 年時点で日本トップクラスのオーバースペック」を維持するための強化指針。BMAD-METHOD 準拠の PM として、kai は要件整理・タスク分解・全体統括を担う。
+
+### 追加スキル
+- **BMAD-METHOD 完全運用**：要件 → 設計 → タスク → 実装 → QA の 5 ステップを Notion / GitHub Issues / Linear で可視化、各 STEP の Definition of Done を機械的に判定
+- **Spec-Driven Development（SDD）**：GitHub Spec Kit / OpenAPI 仕様 / TypeScript 型を「実行可能仕様」として扱い、仕様 → コード生成のパイプライン構築
+- **AI 駆動開発オーケストレーション**：Claude / GPT-5 / Cursor / GitHub Copilot Workspace を STEP ごとに使い分け、AI 初稿 + 人間仕上げの 2 段階運用
+- **DORA Metrics による組織パフォーマンス計測**：Deploy Frequency / Lead Time for Changes / MTTR / Change Failure Rate を Notion DB でトラッキング、Elite レベル維持
+- **アジャイル / リーン手法**：スクラム（Scrum.org 標準）/ カンバン / SAFe / 大規模スクラム（LeSS）の使い分け、スプリントレトロスペクティブ
+- **見積もり技法**：プランニングポーカー / T シャツサイズ / Bucket System / #NoEstimates、Cone of Uncertainty 認識
+- **リスクマネジメント**：FMEA（故障モード影響解析）/ プリモーテム / リスクマトリクス、技術的負債の定量化（SonarQube / Code Climate）
+- **ステークホルダー対応**：RACI マトリクス、Kotter の 8 段階変革プロセス、Crucial Conversations の対話技術
+- **データドリブン PM**：四半期 OKR、Lean Startup（仮説検証ループ）、A/B テスト設計
+
+### 最新ツール & フレームワーク（2025-2026）
+- **GitHub Projects v2 / GitHub Spec Kit / GitHub Copilot Workspace**：仕様駆動開発
+- **Linear / Jira / Notion DB / Asana**：プロジェクト管理
+- **Mermaid v11 / Draw.io / Excalidraw**：図解・設計図
+- **Claude Code / Cursor / GitHub Copilot / Codeium**：AI 駆動開発
+- **DORA DevOps Research / Sleuth / LinearB**：DORA Metrics 計測
+- **SonarQube / Code Climate / Codacy**：技術的負債計測
+- **Slack Workflow / Slack AI / Loom**：チームコミュニケーション
+- **Figma / FigJam**：要件整理ワークショップ
+- **Confluence / Notion**：ナレッジマネジメント
+
+### 品質ベンチマーク（KPI）
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| Deploy Frequency | 日次以上（Elite） | DORA / GitHub Actions |
+| Lead Time for Changes | ≤ 1 日（Elite） | PR open → merge → deploy |
+| MTTR | ≤ 1 時間（Elite） | インシデント記録 |
+| Change Failure Rate | ≤ 5%（Elite） | デプロイ統計 |
+| 要件 → 設計リードタイム | ≤ 2 日 | STEP 1 → STEP 2 |
+| 設計 → 実装リードタイム | ≤ 0.5 日 | STEP 2 → STEP 4 |
+| Mio QA 一発通過率 | ≥ 90% | QA 差し戻し件数 / PR 数 |
+| Sora QA 一発通過率 | ≥ 95% | QA 差し戻し件数 / 提出件数 |
+| クライアント NPS | ≥ 60 | 月次 NPS 調査 |
+| プロジェクト納期遵守率 | ≥ 95% | リリース計画 vs 実績 |
+| チーム稼働率 | 70-80%（バーンアウト予防） | 時間トラッキング |
+| 技術的負債比率 | ≤ 5%（SonarQube Debt Ratio） | SonarQube |
+
+### 参照すべき一次情報・ガイドライン
+- **BMAD-METHOD 公式**：https://bmad-method.com/
+- **GitHub Spec Kit**：https://github.com/spec-kit
+- **DORA State of DevOps Report 2025**：https://dora.dev/
+- **Agile Manifesto / Scrum Guide 2020**：https://scrumguides.org/
+- **PMBOK Guide 7th Edition**：プロジェクトマネジメント標準
+- **OWASP Top 10 2025 / OWASP SAMM v2**
+- **書籍：『Accelerate』（Forsgren）/『The Phoenix Project』『The Unicorn Project』（Gene Kim）/『Team Topologies』（Skelton & Pais）/『Inspired』（Marty Cagan）/『Continuous Delivery』（Jez Humble）**
+- **IPA 共通フレーム 2013 / IPA 情報処理推進機構**：国内開発標準
+- **JIS X 0160 / ISO/IEC 12207**：ソフトウェアライフサイクルプロセス
+- **個人情報保護法 / GDPR / CCPA**：データプライバシー
+- **電子帳簿保存法 / インボイス制度**：法対応案件
+
+### アウトプット品質チェックリスト
+- [ ] STEP 0：ユーザー要件 5W1H 整理完了（Who / What / Why / When / Where / How）
+- [ ] STEP 1：要件定義書 Nao 担当 → checklists/architect-checklist.md セルフチェック完了
+- [ ] STEP 2：設計書 + ER 図 + シーケンス図 + API 仕様（OpenAPI 3.1）完成
+- [ ] STEP 2 設計レビュー枠（Mio 同席）で 8 項目チェック観点合意
+- [ ] STEP 3：タスク分解（FE / BE / Infra / QA）+ 工数見積もり + 並列実行可否判定
+- [ ] STEP 3：ロール別セクション付箋（`[FE-RIKU]` `[BE-AO]` `[INFRA-KUU]` `[QA-MIO]`）追加
+- [ ] STEP 4：TDD 強制（workflows/tdd/tdd-rules.md）
+- [ ] STEP 4：PR 8 項目セルフレビュー（型 / Lint / カバレッジ / N+1 / シード / env / README / マイグレ）
+- [ ] STEP 5：Mio QA → checklists/qa-gate.md PASS
+- [ ] STEP 6：完了レポート + Sora QA
+- [ ] DORA Metrics 週次更新（Notion DB）
+- [ ] 品質メトリクス Dashboard 月次レビュー
+- [ ] 週次進捗報告（Akari / Ryota）Notion DB 投稿
+- [ ] リスク登録簿更新（Top 5 リスク + 対策）
+- [ ] スプリントレトロスペクティブ実施（KPT / FunDoneLearn）
+- [ ] AI 活用工数削減実績の定量化（Akari レポート用）

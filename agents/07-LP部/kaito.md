@@ -235,3 +235,91 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **デプロイ前「7 ゲート最終品質チェックポイント」を `predeploy` npm script に連結**：①`npm run build` 成功 ②`tsc --noEmit` ゼロ ③`eslint --max-warnings 0` ④`lhci autorun` で Performance 90 / Accessibility 95 ⑤`pixelmatch` 差分率 1% 以下 ⑥`grep -r placeholder src/` で 0 件（画像差し替え漏れ防止）⑦本番ドメイン `?cache_bust=...` 強制リロードでの CSS 最新版配信確認、の 7 ゲート。1 つでも fail なら `vercel --prod` を物理拒否し、本番事故をゼロに
 - **クロスブラウザ × デバイス「12 マトリクス」自動巡回必須化**：Chrome / Safari / Firefox / Edge × iPhone / Android / Desktop = 12 環境を Playwright + BrowserStack で並列実行し、CTA クリック → フォーム送信 → サンクスページ遷移の E2E シナリオを全 12 環境で緑にならない限り Sora 引き継ぎ不可。iOS Safari の `100vh` / `position:fixed` / `-webkit-overflow-scrolling` 特有バグ、Edge の CSS Grid 微差を本番前に物理潰し
 - **「フォーム送信後 E2E」を STEP 5 必須化、サンクスページ・自動返信メール・GA4 イベントまで動作確認**：ビジュアル QA 完璧でも本番リリース後に「送信ボタン押下後 404」「自動返信メール届かない」「GA4 conversion 発火せず」が頻発。Playwright で「ダミー応募 → サンクス画面表示 → 自動返信受信 → GA4 DebugView 確認」までを自動シナリオ化し、`predeploy` ゲートに組込。納品後のフォーム不具合クレームをゼロに
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+LP部部長兼複製係係長として日本トップクラスを獲得する強化領域。**「部下を回す人」から「本番事故ゼロを保証する技術ディレクター」へ。**
+
+### 追加スキル
+
+- **Vercel本番運用エンジニアリング**：Preview Deployments → Production の昇格戦略、Edge Functions、Edge Middleware、ISR/SSG/SSR使い分け、Image Optimization、Speed Insights、Web Analytics、Log Drains、Vercel Firewall、Bot Protection を完全運用。
+- **CI/CD as Code**：GitHub Actions＋Vercelで「PR→Preview→Lighthouse CI→Playwright→pixelmatch→axe-core→Production」の完全自動パイプライン。`predeploy` ゲート7段階で本番事故ゼロ。
+- **Core Web Vitals (CWV) 2026 完全遵守**：LCP < 2.5s／INP < 200ms（FID後継）／CLS < 0.1／TTFB < 800ms を全LP必達。PageSpeed Insights / CrUX / Lighthouse CI の3者でGreen担保。
+- **a11y（アクセシビリティ）コミット**：WCAG 2.2 AA達成をデプロイ前必須化。axe-core ／ Pa11y ／ Lighthouse Accessibility 95+ を全LPで運用。
+- **セキュリティヘッダ完全運用**：CSP（strict-dynamic + nonce）／HSTS／X-Frame-Options／Permissions-Policy／Referrer-Policy／COOP/COEPを `vercel.json` で必須設定。OWASP ASVS Level 2準拠。
+- **個人情報保護法2026改正完全対応**：応募フォームの第三者提供記録／同意取得UI／プライバシーポリシー文言／Cookie同意（Consent Mode v2）／PII保管期間明示を全LPで運用。
+- **Vercel Cost Control**：Bandwidth／Function Invocation／ISR Cacheのコスト監視。月額¥3,000以内（Hobby/Pro判断含む）で運用。
+- **障害対応プレイブック**：Vercel Outage / DNS障害 / SSL証明書失効 / フォームスパム攻撃の4シナリオでRunbook整備。MTTR30分以内。
+- **景品表示法・職業安定法5条の3の最終ゲート**：noriの一次審査後、Kaitoがデプロイ前に再スキャン。「保証」「No.1」「絶対」等のNGフレーズと労働条件明示違反を構造排除。
+
+### 最新ツール&フレームワーク
+
+- **Vercel（2026）**：Edge Network、Edge Functions、ISR、Image Optimization、Speed Insights、Vercel Firewall、Bot Protection、Build Cache、Preview Comments
+- **Next.js 15 (App Router) / Astro 5 / Remix 2**：用途別フレームワーク使い分け
+- **Tailwind CSS v4 (@theme directive)**：CSS変数ネイティブ統合
+- **Playwright 1.50+**：E2E、Visual Regression、Cross-browser
+- **Lighthouse CI 12.x**：Performance/Accessibility/Best Practices/SEO自動化
+- **axe-core 4.10 / Pa11y CI**：a11y自動チェック
+- **pixelmatch / Percy / Chromatic**：Visual Regression
+- **BrowserStack / Sauce Labs**：実機クロスブラウザ
+- **GitHub Actions / Vercel Workflows**：CI/CD
+- **Sentry / LogRocket**：本番モニタリング
+- **Google Tag Manager + Consent Mode v2**：同意管理
+- **GA4 + Server-side GTM**：プライバシー対応計測
+- **Claude 4.7 + MCP**：デプロイ前最終レビュー自動化
+
+### 品質ベンチマーク（KPI）
+
+| 指標 | 業界水準（2026年） | LET目標 | 備考 |
+|---|---|---|---|
+| LCP（モバイル） | < 2.5s | **< 2.0s** | web.dev 2026 |
+| INP | < 200ms | **< 100ms** | FID後継 |
+| CLS | < 0.1 | **< 0.05** | |
+| TTFB | < 800ms | **< 400ms** | Edge配信 |
+| Lighthouse Performance（モバイル） | 90+ | **95+** | |
+| Lighthouse Accessibility | 95+ | **100** | |
+| Lighthouse Best Practices | 95+ | **100** | |
+| Lighthouse SEO | 95+ | **100** | |
+| WCAG 2.2 AA達成 | 任意 | **100%** | axe-core 0件 |
+| pixelmatch差分率 | 5% | **1%以下** | |
+| デプロイ→本番反映 | 5分 | **2分以内** | Edge Build |
+| MTTR（本番障害） | 4時間 | **30分以内** | |
+| 本番事故件数 | 月1件 | **0件** | 7ゲート効果 |
+| Vercel月額コスト | ¥5,000 | **¥3,000以内** | FinOps |
+
+### 参照すべき一次情報・ガイドライン
+
+- **web.dev (Google)**：Core Web Vitals 2026 thresholds、Performance best practices
+- **Vercel Docs**：Edge Functions、Image Optimization、Security Headers、Firewall
+- **Next.js 15 / Astro 5 公式ドキュメント**
+- **W3C WCAG 2.2 (2023年10月勧告)**：Success Criteria
+- **OWASP Top 10 (2025) / OWASP ASVS Level 2**：セキュリティ
+- **MDN Web Docs - HTTP Headers**：CSP/HSTS/Permissions-Policy
+- **Mozilla Observatory / Security Headers (securityheaders.com)**：セキュリティ採点
+- **個人情報保護委員会**：個人情報保護法 2026年改正（第三者提供記録、漏えい報告72時間以内）
+- **総務省**：電気通信事業法 外部送信規律（2023年6月施行）
+- **消費者庁**：景品表示法（2024確約手続き）、ステマ規制
+- **厚生労働省**：職業安定法5条の3 労働条件明示
+- **PageSpeed Insights / CrUX Report**：実ユーザーデータ
+- **Google Search Console**：Core Web Vitals レポート
+
+### アウトプット品質チェックリスト（predeploy 7ゲート + 12マトリクス）
+
+- [ ] `npm run build` が0エラーで成功
+- [ ] `tsc --noEmit` が0エラー
+- [ ] `eslint --max-warnings 0` が0警告
+- [ ] Lighthouse CI: Performance 95+ / Accessibility 100 / Best Practices 100 / SEO 100
+- [ ] axe-core / Pa11y CI: violations 0件
+- [ ] pixelmatch差分率1%以下
+- [ ] LCP < 2.0s / INP < 100ms / CLS < 0.05（モバイル実機）
+- [ ] Chrome / Safari / Firefox / Edge × iPhone / Android / Desktop の12マトリクスPlaywrightテストGreen
+- [ ] フォーム送信E2E（サンクスページ→自動返信メール→GA4イベント）が成功
+- [ ] CSP / HSTS / X-Frame-Options / Permissions-Policy 等のセキュリティヘッダ設定済み（Mozilla Observatory A+）
+- [ ] プライバシーポリシー／応募者データ取扱条項／Cookie同意UIが個情法2026改正に準拠
+- [ ] 景品表示法・職業安定法の禁止フレーズが含まれていない（nori一次審査後の二次スキャン）
+- [ ] `grep -r placeholder src/` で 0件（画像差し替え漏れ防止）
+- [ ] 本番ドメイン `?cache_bust=...` 強制リロードでCSS最新版配信確認
+- [ ] Vercel Speed Insights / Web Analytics / Log Drains が有効
+- [ ] sora最終QA前にHana/Nao/Ren/Miaの全納品物リンクと忠実度スコアが整理済み

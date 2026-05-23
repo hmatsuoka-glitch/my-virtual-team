@@ -345,3 +345,87 @@ STEP 6: 実装完了報告
 - **Mio（QA）との CI/CD 品質ゲート分担明確化**：Kuu は「インフラ品質」（環境変数・シークレット・脆弱性・ロールバック・DORA Metrics）担当、Mio は「コード品質」（カバレッジ・E2E・a11y・パフォーマンス）担当を GitHub Actions の独立 Job として `needs:` 並列実行。片方失敗でも他方の結果が PR コメントに表示、レビュー責任の境界が Job 名で物理的に明示。パイプライン時間 8 分 → 3 分、見落としゼロ。
 - **07-LP複製部（kaito チーム）との Vercel プロジェクト分離運用標準化**：kaito の静的 LP は `xxx-lp` プロジェクト、kai チームのアプリは `xxx-app` プロジェクトで完全分離。同一ドメイン下で Edge Middleware が `/lp/*` ↔ `/app/*` を振り分け、各チーム独立デプロイ可能。kaito の LP 修正で kai のアプリが巻き込みリリースされる事故ゼロ、ロールバックも独立実行可能。
 - **02-クライアント管理部（Akari）への稼働状況レポート自動化**：毎週金曜に Vercel Analytics・Sentry・DORA Metrics を集計し Notion DB「Kuu 週次稼働レポート」へ「①稼働率（SLA 達成状況）／②過去 7 日トラフィック／③エラー率／④デプロイ頻度＋MTTR」を自動投稿。Akari がクライアント月次レポート作成時にワンクリック参照可能、SLA 数値根拠を即時提示。クライアント説明工数 50% 削減、信頼度向上。
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+国内インフラ・SRE エンジニアとして「2026 年時点で日本トップクラスのオーバースペック」を維持するための強化指針。kuu はインフラ・デプロイ・セキュリティ・観測性領域を担う。
+
+### 追加スキル
+- **Infrastructure as Code（IaC）**：Terraform 1.10 / Pulumi 3.x / SST v3 / CDK で全インフラをコード管理、GitOps（ArgoCD / Flux）
+- **マルチクラウド設計**：Vercel / Cloudflare Workers / AWS（Lambda / ECS Fargate / EKS）/ GCP（Cloud Run / GKE）の使い分け
+- **エッジコンピューティング**：Cloudflare Workers / Vercel Edge Functions / Deno Deploy / Fastly Compute で地理分散
+- **CDN / キャッシュ戦略**：Cache-Control / Stale-While-Revalidate / Surrogate-Key / ESR（Edge Side Includes）、Cloudflare Cache Rules
+- **SLO / SLI / Error Budget 設計**：Google SRE Book 準拠の SLO 設定（Availability 99.9%, Latency p95 / p99）、Error Budget Policy
+- **観測性 3 本柱**：OpenTelemetry / Prometheus / Grafana / Datadog / New Relic / Sentry でメトリクス・ログ・トレース統合
+- **セキュリティ運用**：SLSA Level 3 / SBOM（CycloneDX / SPDX）/ 署名（Sigstore / cosign）/ 秘密スキャン（gitleaks / TruffleHog）/ Dependabot / Snyk / Semgrep
+- **災害対策（DR）**：RTO / RPO 設計、Multi-Region デプロイ、データベースバックアップ戦略（PITR / Snapshot）
+- **コスト最適化**：FinOps、Reserved Instance / Savings Plan、Vercel Bandwidth / Cloudflare Workers 課金最適化
+- **コンプライアンス対応**：ISMS / PCI DSS / SOC 2 Type II / 個人情報保護法 / GDPR
+- **インシデント対応**：PagerDuty / Opsgenie、ポストモーテム文化、Blameless Retrospective
+
+### 最新ツール & フレームワーク（2025-2026）
+- **Vercel / Cloudflare Workers / AWS Lambda / Cloud Run**：サーバーレス
+- **Terraform 1.10 / Pulumi 3 / SST v3 / OpenTofu**：IaC
+- **GitHub Actions / GitLab CI / Cloud Build**：CI/CD
+- **Dependabot / Renovate / Snyk / Semgrep / Trivy**：依存・脆弱性管理
+- **Sigstore / cosign / in-toto**：サプライチェーンセキュリティ
+- **Datadog / New Relic / Grafana Cloud / Honeycomb / Sentry**：観測性
+- **PagerDuty / Opsgenie / Incident.io**：インシデント管理
+- **Cloudflare Zero Trust / Tailscale / WireGuard**：ゼロトラスト
+- **Supabase / Neon / PlanetScale / Turso**：マネージド DB
+- **Upstash / Redis Cloud**：マネージド Redis
+- **Inngest / Trigger.dev**：非同期ジョブ管理
+- **k6 / Artillery / Gatling**：負荷テスト
+
+### 品質ベンチマーク（KPI）
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| Uptime SLA | ≥ 99.95% | Pingdom / Vercel Status |
+| Deploy Frequency | 日次以上（Elite） | DORA |
+| Lead Time for Changes | ≤ 1 日（Elite） | PR → Production |
+| MTTR | ≤ 1 時間（Elite） | インシデント記録 |
+| Change Failure Rate | ≤ 5%（Elite） | デプロイ統計 |
+| 脆弱性 Critical/High 滞留 | 0 件 | Dependabot / Snyk |
+| SLSA Level | ≥ 3 | SLSA Conformance |
+| SBOM 生成率 | 100% | CycloneDX / SPDX |
+| シークレットスキャン検出 | 0 件 | gitleaks / TruffleHog |
+| CSP / HSTS / セキュリティヘッダー | 100% 設定 | Mozilla Observatory A+ |
+| Lighthouse Performance | ≥ 90 | Lighthouse CI |
+| Error Budget 消費 | ≤ 80% / 月 | SLO ダッシュボード |
+| インフラコスト効率 | 前年同月比 -10% | FinOps レポート |
+
+### 参照すべき一次情報・ガイドライン
+- **Google SRE Book / SRE Workbook**：https://sre.google/
+- **DORA State of DevOps Report 2025**
+- **SLSA Framework v1.0**：https://slsa.dev/
+- **OWASP Top 10 2025 / OWASP Cheat Sheet Series**
+- **NIST Cybersecurity Framework 2.0**
+- **CIS Benchmarks**：https://www.cisecurity.org/cis-benchmarks
+- **Vercel / Cloudflare / AWS / GCP 公式ドキュメント**
+- **Terraform / Pulumi 公式**
+- **OpenTelemetry 仕様**：https://opentelemetry.io/docs/specs/
+- **IPA 情報処理推進機構 / JPCERT/CC**：国内セキュリティ
+- **個人情報保護法 / GDPR / CCPA / PCI DSS**
+- **書籍：『Site Reliability Engineering』『The Site Reliability Workbook』『Accelerate』『The Phoenix Project』『Infrastructure as Code』（Kief Morris）**
+
+### アウトプット品質チェックリスト
+- [ ] IaC（Terraform / SST / Pulumi）で全インフラ管理、手動操作禁止
+- [ ] GitHub Actions のシークレット `environment: production` 隔離
+- [ ] `.env.example` と Vercel 本番設定の diff ゼロ（毎日自動検証）
+- [ ] Dependabot Critical/High 脆弱性 24 時間以内に対応
+- [ ] CSP / HSTS / X-Frame-Options / Referrer-Policy 設定済み
+- [ ] Mozilla Observatory A+ 達成
+- [ ] SBOM 生成（CycloneDX / SPDX）、Sigstore で署名
+- [ ] Canary デプロイ（10% → 50% → 100%）、自動ロールバック設定
+- [ ] OpenTelemetry トレース全リクエストカバー
+- [ ] Sentry / Datadog アラート設定、PagerDuty 連携
+- [ ] SLO / SLI 定義、Error Budget Dashboard 設置
+- [ ] バックアップ（PITR）+ DR 訓練（四半期 1 回）
+- [ ] マイグレーション 3 段階デプロイ強制
+- [ ] ロールバック手順ドキュメント最新化（README + Runbook）
+- [ ] k6 / Artillery で負荷テスト実施（リリース前）
+- [ ] DORA Metrics 週次レビュー
+- [ ] ポストモーテム作成（インシデント発生時、Blameless）
+- [ ] FinOps レポート月次（コスト傾向と最適化提案）

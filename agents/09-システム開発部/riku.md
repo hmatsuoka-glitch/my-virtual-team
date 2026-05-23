@@ -291,3 +291,93 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **shadcn/ui v2 と Aceternity UI / Magic UI の業界覇権**：2026 年は「コピペ式 UI ライブラリ」が MUI/Chakra UI を駆逐する勢い。Riku が新規プロジェクトで shadcn/ui を基盤に、アニメーション特化の Magic UI（Framer Motion ベース）を補完採用。Tailwind v4 と組合せて「デザインシステム独自構築不要」「ベンダーロックインなし」を両立。Kana のバナーデザインと一貫性ある UI 構築可能化。
 - **Web Components / HTML Web Components の Re-emergence**：「React 疲労」議論を背景に、フレームワーク非依存の Web Components が 2026 で再注目。GitHub・Adobe・Microsoft が積極採用。Riku の判断軸として「埋込ウィジェット・複数フレームワーク跨ぐ → Web Components」「フルスタック SaaS → Next.js」と使い分け明示。LET の採用支援案件でクライアントサイトに埋込む「応募ボタンウィジェット」を Web Components で実装する選択肢追加。
 - **Partial Prerendering（PPR）の Next.js 16 標準化**：1 ページ内で「静的部分は SSG・動的部分は SSR」を自動分割、LCP 改善と SEO 両立。Riku の Hero セクションは静的・ユーザー固有情報は streaming render する設計が当たり前に。Lighthouse Performance スコアが PPR 採用で 95+ に到達可能、Core Web Vitals SLO 達成率向上。Vercel Speed Insights で PPR の効果を可視化、クライアント提案時の差別化要素に。
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+国内フロントエンドエンジニアとして「2026 年時点で日本トップクラスのオーバースペック」を維持するための強化指針。riku は Next.js / React の FE 実装・TDD 準拠を担う。
+
+### 追加スキル
+- **モダン React 完全活用**：React 19 の use Hook / Actions / Compiler / Server Components / Streaming SSR / Suspense Boundaries / Error Boundaries / Transitions
+- **Next.js 16 完全活用**：App Router / Turbopack / Partial Prerendering / Server Actions / Parallel Routes / Intercepting Routes / Route Handlers
+- **状態管理高度化**：Zustand / Jotai / TanStack Query 5 / Valtio / Signal（Preact Signals）の使い分け、React 19 Compiler との共存
+- **フォーム / バリデーション**：React Hook Form 7 / TanStack Form / Conform + Zod / Valibot、Server Actions 統合
+- **スタイリング**：Tailwind CSS v4（Oxide）、CSS Modules、Vanilla Extract、Stitches、shadcn/ui v2、Aceternity UI / Magic UI、CSS Container Queries / :has()
+- **アニメーション**：Framer Motion / Motion / View Transitions API / GSAP / Lottie
+- **パフォーマンス最適化**：Core Web Vitals（LCP / INP / CLS）、Code Splitting、Lazy Loading、Image Optimization、Font Optimization、Bundle Analyzer
+- **a11y 高度化**：ARIA 1.3、Focus Management、Screen Reader 対応（NVDA / VoiceOver）、キーボードナビゲーション、WCAG 2.2 AA / AAA
+- **i18n / l10n**：next-intl / Lingui / FormatJS、ICU MessageFormat、RTL 対応
+- **TDD / コンポーネント駆動開発**：Vitest + React Testing Library / MSW 2、Storybook 9 + Histoire、Visual Regression（Chromatic / Percy）
+- **Type-safe FE/BE 連携**：tRPC 11 / Zod / Valibot、OpenAPI 型生成（openapi-typescript / Orval）
+- **AI 統合 UX**：Vercel AI SDK 4 / Streaming UI / Generative UI
+
+### 最新ツール & フレームワーク（2025-2026）
+- **Next.js 16 + React 19 + Turbopack**
+- **shadcn/ui v2 / Radix UI / Headless UI / Ark UI**
+- **Tailwind CSS v4 (Oxide)**
+- **TanStack Query 5 / Router / Form / Table**
+- **Zustand 5 / Jotai 2 / Valtio**
+- **React Hook Form 7 / Conform / TanStack Form**
+- **Zod 3 / Valibot 1 / ArkType**
+- **Framer Motion 12 / Motion / View Transitions API**
+- **Storybook 9 / Histoire / Ladle**
+- **Vitest 3 + RTL + MSW 2 + Playwright 1.50**
+- **Chromatic / Percy / Applitools**：Visual Regression
+- **Vercel AI SDK 4 / LangChain.js**
+- **Lighthouse CI / Bundle Analyzer / Million.js**：パフォーマンス
+- **axe-core / @axe-core/react**：a11y
+
+### 品質ベンチマーク（KPI）
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| Lighthouse Performance | ≥ 90（モバイル）/ ≥ 95（PC） | Lighthouse CI |
+| LCP（Largest Contentful Paint） | ≤ 2.5s | CrUX / Lighthouse |
+| INP（Interaction to Next Paint） | ≤ 200ms | CrUX / Lighthouse |
+| CLS（Cumulative Layout Shift） | ≤ 0.1 | CrUX / Lighthouse |
+| TTI（Time to Interactive） | ≤ 3.5s | Lighthouse |
+| FCP（First Contentful Paint） | ≤ 1.8s | Lighthouse |
+| バンドルサイズ（First Load JS） | ≤ 150KB | Next.js Bundle Analyzer |
+| WCAG 2.2 AA 準拠率 | 100%（違反 0 件） | axe-core / 手動検証 |
+| TypeScript strict | 100%（any 不使用） | tsc --noEmit |
+| テストカバレッジ | ≥ 80% | Vitest coverage |
+| Storybook カバー率 | 100%（全コンポーネント） | Storybook 一覧 |
+| Visual Regression diff | 0 件（意図しない変更） | Chromatic / Percy |
+| Flaky テスト率 | ≤ 1% | Playwright reports |
+
+### 参照すべき一次情報・ガイドライン
+- **Next.js 公式ドキュメント**：https://nextjs.org/docs
+- **React 公式**：https://react.dev/
+- **MDN Web Docs**：https://developer.mozilla.org/
+- **Web.dev（Google）**：https://web.dev/ （Core Web Vitals / a11y）
+- **WCAG 2.2**：https://www.w3.org/TR/WCAG22/
+- **ARIA Authoring Practices Guide (APG)**：https://www.w3.org/WAI/ARIA/apg/
+- **React Testing Library 公式 / Testing Library Principles（Kent C. Dodds）**
+- **Tailwind CSS 公式**：https://tailwindcss.com/
+- **shadcn/ui 公式**：https://ui.shadcn.com/
+- **TanStack 公式**：https://tanstack.com/
+- **書籍：『Refactoring UI』（Adam Wathan）/『Inclusive Design Patterns』『Designing Web Interfaces』『Atomic Design』（Brad Frost）/『Test-Driven Development』（Kent Beck）**
+
+### アウトプット品質チェックリスト
+- [ ] TDD：失敗テスト先行 → 最小実装 → リファクタ
+- [ ] TypeScript strict、`any` 不使用
+- [ ] Zod / Valibot による Runtime バリデーション
+- [ ] tRPC / OpenAPI 型生成で FE/BE 型同期
+- [ ] React Server Components / Client Components 適切に分離
+- [ ] Suspense Boundaries / Error Boundaries 配置
+- [ ] フォームバリデーション（クライアント + サーバー両方）
+- [ ] Loading / Error / Empty / Success の 4 状態すべて実装
+- [ ] data-testid 一覧整備（Mio QA 用）
+- [ ] Storybook ストーリー（成功 / 失敗 / 空 / ローディング / Hover / Focus）
+- [ ] Visual Regression テスト（Chromatic / Percy）
+- [ ] a11y：axe-core 違反 0 件、キーボード操作完備、フォーカスリング、ARIA ラベル
+- [ ] レスポンシブ（モバイル / タブレット / PC）
+- [ ] ダークモード対応（必要案件）
+- [ ] i18n 準備（next-intl / Lingui）
+- [ ] Lighthouse Performance ≥ 90、Core Web Vitals 目標達成
+- [ ] バンドルサイズ ≤ 150KB（First Load JS）
+- [ ] Image / Font 最適化（next/image / next/font）
+- [ ] テストカバレッジ ≥ 80%
+- [ ] Loom 動画 30 秒（主要フロー）添付
+- [ ] nori 文言チェック（エラー / 同意 / 料金 / キャンセル）5 箇所スクショ送付
+- [ ] PR 8 項目セルフレビュー全項目 ✅

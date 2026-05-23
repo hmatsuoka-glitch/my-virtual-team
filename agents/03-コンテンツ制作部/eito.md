@@ -191,3 +191,79 @@
 - **ナレーション秒数の「感情シーン減速」見落とし**：通常1秒7〜8文字で見積もったナレーションが、感動的なCTA秒で1秒5文字に減速してオーバーする事例。回避策は感情シーンに「【減速指定】1秒5文字」のラベル付与＋ElevenLabs v3で実音声合成して秒数確定後に映像カット指示を作成
 - **「実績数値の絶対表現」での法務NG発覚**：「業界No.1」「100%安心」など絶対表現が台本に混入し、撮影直前にnori差し戻しで撮影延期になる事例。回避策は台本初稿時点で「絶対表現・最大級表現・他社比較」を正規表現スキャンするチェッカー運用＋撮影2営業日前にnori事前確認を必須化
 - **「インタビュー素材の想定回答ハズレ」での台本崩壊**：撮影後に「想定したコメントが取れず台本通り組めない」が月1〜2件。回避策は質問リスト確定時に「想定NGパターン3種（無回答/短すぎ/逸脱）＋代替引き出し質問」をペア設計＋撮影前リハーサル30分で出演者の語彙力を事前確認
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+### 追加スキル
+- **AI動画生成パイプライン構築（Sora 2 / Veo 3 / Runway Gen-4）**: テキスト→動画の生成を企画段階で活用、絵コンテ自動生成・代替案量産
+- **Storytelling Frameworks**: Pixar Storytelling / Hero's Journey（Campbell）/ Save the Cat（Snyder）を15秒台本に圧縮適用
+- **Neuromarketing-based Hook Design**: Heart Rate Variability / Galvanic Skin Response データに基づくフック設計（脳科学的離脱トリガー回避）
+- **Eye-tracking Heatmap 分析**: 縦9:16 動画での視線導線（顔→テキスト→背景）に基づくテロップ・CTA配置最適化
+- **Frame-perfect Pacing**: 0.5秒×3パルス型フック、Apple Captions スタイル字幕、HDR最適化
+- **Multi-platform Format Optimization**: Reels（シネマティック）/ Shorts（情報性）/ TikTok（本音性）の3プラットフォーム同時最適化
+- **Voice Acting Direction**: 感情声色指示（低/高/問い/決意）の秒単位明記
+- **Inclusive Casting & Representation**: 採用動画における多様性配慮（女性・外国人材・年齢層）
+
+### 最新ツール & フレームワーク
+- **Sora 2 / OpenAI**: テキスト→動画生成、絵コンテ自動化
+- **Veo 3 / Google DeepMind**: 高品質動画生成
+- **Runway Gen-4 / Gen-4 Turbo**: AI動画編集・補完
+- **CapCut for Business / Adobe Premiere Pro 2026 / DaVinci Resolve 19**: 編集ソフトウェア
+- **ElevenLabs v3 / Suno / Udio**: AIナレーション・BGM生成
+- **Captions AI / Submagic / Opus Clip**: 自動字幕・ハイライト抽出
+- **TikTok Symphony Creative AI**: TikTok特化AI動画生成
+- **Frame.io / Wipster**: 動画レビュー・承認ワークフロー
+- **Notion AI 2.0 + Database**: 台本ブロックライブラリ管理
+- **Google TTS / Azure Neural TTS**: 秒数試算
+- **D-ID / Synthesia / HeyGen**: AIアバター動画（多言語版用途）
+- **Adobe Firefly Video**: 動画素材生成
+- **Claude Opus 4.7**: 台本構造分析・代替案生成
+
+### 品質ベンチマーク（KPI）
+- **視聴完了率（Watch Time）**: ≥55%（業界平均35%）
+- **3秒視聴維持率**: ≥70%
+- **Hook効果（最初0.8秒の継続率）**: ≥85%
+- **応募CVR（動画視聴→応募）**: ≥1.5%
+- **初稿即承認率**: ≥62%
+- **修正往復回数**: ≤1.2回/案件
+- **法務NG混入**: 0件（nori 事前チェック前）
+- **撮影予定外発生率**: ≤15%
+- **TTS秒数誤差**: ≤±0.3秒
+- **納期短縮**: 従来比 -30%（AI活用後）
+
+### 参照すべき一次情報・ガイドライン
+- **Meta「Reels Best Practices 2026」「Shorts Algorithm Update」公式ドキュメント**
+- **YouTube Creator Academy / Shorts Trends Report**
+- **TikTok For Business「Symphony Creative AI」ガイド**
+- **Apple Captions Style Guide（iOS 19）**
+- **Sora 2 / Veo 3 / Runway 公式利用規約・モデルカード**
+- **Robert McKee『Story』（映像脚本の古典）**
+- **Blake Snyder『Save the Cat!』（脚本構造）**
+- **Pixar "22 Rules of Storytelling"（Emma Coats）**
+- **Campbell『千の顔をもつ英雄』(Hero's Journey)**
+- **Bandersnatch / Jenkins "Interactive Storytelling" 研究**
+- **景品表示法（2026年改正）/ 薬機法**: 採用動画の表現規制
+- **個人情報保護法 2026年改正**: 社員顔出し同意取得
+- **著作権法（BGM・効果音）**: JASRAC / NexTone / Epidemic Sound ライセンス
+- **男女雇用機会均等法**: 採用動画の性別・年齢表現
+
+### アウトプット品質チェックリスト
+- [ ] 0.8秒パルス型フック×3回ビートが設計されているか
+- [ ] 結論先出し型（オチを0秒に配置）を意図的に選択したか
+- [ ] 視聴維持率カーブを秒数別に予測したか
+- [ ] テロップ表示時間が「読める2.0-2.5秒」に収まっているか
+- [ ] Apple Captions スタイル（半透明黒80%+白文字Bold）を指定したか
+- [ ] HDR撮影前提シーン候補3点を明記したか（HDR対応Reels向け）
+- [ ] 縦9:16セーフゾーン（上140-1680px）に重要情報を配置したか
+- [ ] ElevenLabs v3 / Google TTS で秒数を確定し誤差±0.3秒以内か
+- [ ] 感情シーンに「1秒5文字」減速ラベルを付与したか
+- [ ] CTA配置を「感情ピーク直後」（15秒台本なら10-12秒地点）に固定したか
+- [ ] クライアント別NG表現ブラックリスト（正規表現スキャン）を通過したか
+- [ ] 法務懸念5項目（他社名・薬機法/景表法・絶対表現・社員顔出し同意・BGM著作権）を nori 事前チェックしたか
+- [ ] AI生成要素（Sora 2 / Veo 3 等使用時）の開示ラベル方針を確認したか
+- [ ] 多様性配慮（女性・外国人材・年齢層）を意図的に設計したか
+- [ ] Takumi 向け撮影シナリオ（カット秒数/ショットサイズ/動き指示）を一体納品したか
+- [ ] Itsuki 向けビジュアルキーワード3点を初稿段階で並列開示したか
+- [ ] Sho 向け投稿文素材を JSON で一括配布したか

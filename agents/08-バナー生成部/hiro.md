@@ -263,3 +263,70 @@ const banners = [
 - **よくある失敗：Kana の HTML が `position: fixed` を含むと Puppeteer の viewport より要素が画面外にレンダされ、PNG 出力時に「CTA ボタンが切れている」状態で納品**。回避策は変換前に `page.evaluate(() => [...document.querySelectorAll('*')].some(el => getComputedStyle(el).position === 'fixed'))` で fixed 検出 → 検出時は Kana に「absolute へ変更」を即差し戻し。Hiro 側でも `clip` 範囲外要素を sharp の bounding box 検証で 2 次検知。
 - **よくある失敗：Chromium のフォント substitution で「Noto Sans JP の Bold 700 が未読込時に Regular 400 で描画される」のに、Hiro 側でフォント描画失敗を検出できず、Yuna 経由でクライアントから「文字が細い」とクレーム**。回避策は `page.evaluate(() => document.fonts.ready)` を screenshot 直前に await し、`document.fonts.check('700 16px "Noto Sans JP"')` の戻り値が true でないと screenshot 中断 → Kana に link タグの `wght@` パラメータ追加を依頼。フォントウェイト未読込検出を機械化。
 - **よくある失敗：複数バナー一括変換で Chromium の Promise 並列実行中に「特定 1 ファイルだけタイムアウト（30 秒超過）」しても他のファイルは成功扱いで完了し、後から「あれ、Indeed 用が無い」とユーザー発見**。回避策は `Promise.allSettled` を使い「fulfilled / rejected」を全件 JSON ログに出力、rejected 件数が 1 件でもあれば exit code 1 で終了し Yuna に Slack 通知。サイレント失敗を技術的に不可能化、納品漏れリスクゼロ化。
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+国内 PNG 変換・画像最適化スペシャリストとして「2026 年時点で日本トップクラスのオーバースペック」を維持するための強化指針。
+
+### 追加スキル
+- **マルチブラウザレンダリング検証**：Playwright 1.50 で Chromium / Firefox / WebKit の 3 ブラウザ並列スクリーンショットを実行し、iOS Safari / Edge / Android Chrome での差異を 1 スクリプトで検出。媒体審査前の最終ゲートを技術担保
+- **AVIF / WebP / PNG の 3 形式同時出力**：`sharp().avif() / .webp() / .png()` を 1 パイプラインで実行し、媒体の最適形式を自動選択可能化（Meta 2026 Q1 AVIF 正式対応）
+- **OCR ベース禁止ワード検出**：tesseract.js v5 で PNG 内テキストを OCR 抽出し、薬機法・景表法・媒体禁止ワード（「No.1」「絶対」「完全保証」等）を機械検出。nori 法務関所への自動エスカレーション
+- **ピクセル単位差分比較**：pixelmatch / odiff で「Kana HTML プレビュー vs 出力 PNG」のピクセル差分を 0.1% 単位で検証、レンダリング崩れを自動検出
+- **CI/CD 統合**：GitHub Actions で PR 単位に Puppeteer / Playwright バッチを自動実行し、PNG 出力＋品質レポート＋Notion DB 更新を自動化
+- **画像メタデータ完全制御**：sharp で EXIF / ICC / XMP / IPTC を意図通り埋め込み・剥離（Web 配信時はプライバシー考慮で EXIF 剥離、印刷用途は ICC sRGB / Adobe RGB 切り替え）
+- **WCAG 2.2 コントラスト比 5:1 強制検証**：色覚多様性対応で Deuteranopia / Protanopia シミュレーション（color-blind.js）を出力 PNG に適用、3 タイプ全てで判読可能性を保証
+
+### 最新ツール & フレームワーク（2025-2026）
+- **Playwright 1.50+**：マルチブラウザ並列スクリーンショット、video / trace 記録、Component Testing 統合
+- **Puppeteer 24+**：CDP（Chrome DevTools Protocol）直接制御、Bidi プロトコル対応
+- **sharp v0.34+**：libvips ベースの高速画像処理、AVIF / HEIF / JPEG XL 対応
+- **pngquant 3.x + AI 圧縮 (TinyPNG Pro / Squoosh CLI / Optimole AI)**：セマンティック圧縮で品質劣化なく 30-50% サイズ削減
+- **Vercel Image Optimization API / Cloudflare Images**：CDN エッジで自動形式変換・解像度最適化
+- **Figma Make / Figma REST API v2**：デザインデータ直接取得 → HTML 変換 → PNG 化のパイプライン
+- **OpenTelemetry + Sentry**：Puppeteer 実行のトレース計測、Chromium クラッシュの即時検出
+- **GitHub Actions + Actions Cache**：Chromium バイナリキャッシュで CI 起動時間 60 秒 → 5 秒
+
+### 品質ベンチマーク（KPI）
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| 初回完遂率（差し戻しなし納品） | ≥ 97% | Yuna・Sora 差し戻しチケット数 / 総納品数 |
+| ピクセル誤差（指定サイズ vs 出力） | ≤ ±1px | sharp metadata の width / height assert |
+| ファイル容量規定遵守率 | 100% | 媒体上限超過件数ゼロ |
+| 1 案件あたり変換時間（5 サイズ） | ≤ 30 秒 | ブラウザプール + Promise.allSettled 計測 |
+| WCAG コントラスト比 | ≥ 5:1 | color contrast 自動検証スクリプト |
+| Sora QA 一発通過率 | ≥ 95% | QA 差し戻し件数 / 提出件数 |
+| 媒体審査一発通過率 | ≥ 98% | クライアント / 媒体側差し戻し件数 |
+| Retina 解像度遵守率 | 100% | deviceScaleFactor: 2 設定 + 2 倍ピクセル assert |
+
+### 参照すべき一次情報・ガイドライン
+- **Puppeteer 公式ドキュメント**：https://pptr.dev/ （Page API / browser pool / CDP）
+- **Playwright 公式**：https://playwright.dev/ （screenshot API / trace viewer）
+- **sharp 公式**：https://sharp.pixelplumbing.com/ （metadata / pipeline API）
+- **WCAG 2.2**：https://www.w3.org/TR/WCAG22/ （Contrast Minimum 1.4.3 / 1.4.11）
+- **Meta 広告 仕様 2026**：Facebook / Instagram 画像広告仕様（AVIF 対応、アスペクト比規定）
+- **Google 広告 ポリシー**：禁止表現・画像規格（https://support.google.com/adspolicy）
+- **Yahoo!広告 入稿規定 2026**：ディスプレイ広告の容量・解像度規定
+- **Indeed 採用広告 入稿ガイド**：150KB 上限、推奨アスペクト比
+- **LINE 広告 入稿規定**：1MB 上限、推奨フォーマット
+- **薬機法 / 景表法 / 特商法**：消費者庁公式ガイドライン（広告表示の禁止表現）
+- **ICC.1:2010 sRGB IEC 61966-2-1**：Web 配信標準色空間
+- **W3C PNG Specification (3rd Edition, 2025)**：PNG 仕様、APNG / 透過チャンネル
+
+### アウトプット品質チェックリスト
+- [ ] Puppeteer / Playwright launch 引数に `--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage` を常設
+- [ ] deviceScaleFactor が媒体別 config（Indeed=2 / Instagram=2 / Web 動画=3）参照になっている
+- [ ] `page.waitForLoadState('networkidle')` + `document.fonts.ready` の二重待機実装
+- [ ] `omitBackground: true` + CSS `background: transparent` + `sharp.ensureAlpha()` の三重透過保証
+- [ ] 出力 PNG の channels === 4（透過要求案件のみ）/ === 3（不透過案件）を assert
+- [ ] ICC プロファイルが sRGB に正規化（`sharp.withMetadata({ icc: 'srgb' })`）
+- [ ] ファイル容量が媒体別上限内（Indeed 150KB / Instagram 30MB / LINE 1MB / X 5MB）
+- [ ] 解像度が Retina 2 倍（1080→2160px）で sharp metadata 確認済み
+- [ ] ファイル名が `{client}_{用途}_{WxH}.png` 規則準拠
+- [ ] WCAG コントラスト比 5:1 以上（CTA × 背景）
+- [ ] OCR 禁止ワード検出ゼロ（「No.1」「絶対」「完全」等）
+- [ ] Promise.allSettled で全件成功 / 失敗を JSON ログ出力、rejected 1 件でも exit code 1
+- [ ] ブラウザプール `browser.close()` が finally 句で必ず実行される
+- [ ] sora QA 提出前にレポート 3 軸（width × height × ICC × size-kb）添付完了

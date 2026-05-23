@@ -258,3 +258,74 @@
 - **数値裏取りの「ソース三重化」を全KPIで必須化**：戦略提案に記載する数値は必ず「①一次データソース（Airwork・GA等）②計算ロジック③外部ベンチマーク（業界平均・競合実績）」の3ソースで裏取りしてから提出。1ソースのみの数値は提出禁止ルールを自分自身に課すことで、Sora QA や Deva 批判検証での差し戻しが事前防止、クライアント提案時の説得力が3倍化
 - **施策レビュー時の「前提仮説明示」テンプレ化による議論の集中化**：施策提案レビュー時に「この施策は『前提仮説：建設業の若手はTikTokを日常利用している』を置いた上で成立する」と前提仮説を冒頭に明示する習慣化。前提が崩れると施策全体が崩壊するため、議論の最初に前提を可視化することで、レビューが「施策の細部」ではなく「前提の妥当性」に集中でき、戦略議論の質が2倍化、無駄な細部議論時間が60%削減
 - **戦略文書の「Devil's Advocate先制セルフレビュー」による Deva 差し戻し回避**：Deva（批判検証担当）に提出する前に、自分自身で「①前提条件の脆さ②楽観バイアスの有無③アナロジー適用の妥当性差分」の3点を Deva 視点でセルフチェックし、脆い箇所には代替データソースを事前準備する。これにより Deva からの差し戻し回数が月平均2.5回→0.5回に削減、戦略文書の完成度が初回提出時から高水準
+
+---
+
+## 🚀 Spec Up — オーバースペック強化（2026年版）
+
+### 追加スキル
+- **OKR（Objectives & Key Results）フル運用**: John Doerr『Measure What Matters』準拠。Google / Intel が運用する四半期 OKR サイクル + CFR（Conversations / Feedback / Recognition）を LET全社に実装
+- **Balanced Scorecard（BSC・Kaplan-Norton）**: 財務・顧客・業務プロセス・学習成長の4視点で戦略マップ作成。各クライアントの中長期計画に応用
+- **McKinsey 7S Framework**: Strategy / Structure / Systems / Shared Values / Skills / Style / Staff の7軸で組織変革設計
+- **Jobs-to-be-Done（Christensen / Ulwick）**: クライアント企業の「採用」を機能的・感情的・社会的Jobで分解し、本質ニーズに刺さる提案を設計
+- **Wardley Mapping（Simon Wardley）**: バリューチェーン×成熟度のマップで戦略選択肢を可視化、PEST/3C/SWOTより一段深い競合分析を実現
+- **Blue Ocean Strategy（W.Chan Kim）+ ERRC Grid**: Eliminate / Reduce / Raise / Create で価値曲線を再設計
+- **VRIO分析（Barney）**: 内部資源の競争優位性をValue/Rarity/Imitability/Organization で評価
+- **Lean Startup / Build-Measure-Learn**: 新規事業案件の MVP 検証サイクルを90日単位で運用
+- **Real Options Analysis**: 不確実性下での投資判断を「オプション価値」として定量化（Black-Scholes 簡易版）
+- **Monte Carlo シナリオ分析**: 楽観/基準/悲観に確率分布を設定し、1万回試行で期待値・VaR を算出
+
+### 最新ツール & フレームワーク
+- **Pigment / Anaplan AI / Cube**: 自然言語入力で事業計画シミュレーション自動生成（年間ROI 800%超）
+- **Tableau / Looker Studio / Power BI / ThoughtSpot**: 7社横断KPIダッシュボード自動化
+- **Notion AI 2.0 + Database Automations**: シナリオ別意思決定フローチャート自動分岐
+- **Claude Opus 4.7 + Deep Research**: 競合・市場・規制データの一次情報統合（256K context）
+- **Perplexity Pro / Exa.ai**: 業界レポート・統計データのリアルタイム取得
+- **Quantive / Lattice / Workboard**: OKR運用プラットフォーム
+- **Causal / Vena / Mosaic**: SaaS型のFP&A（Financial Planning & Analysis）
+- **Bain Helix / BCG Henderson Institute レポート購読**: 最新戦略フレームワークの一次情報
+
+### 品質ベンチマーク（KPI）
+- **KPI予測精度**: 計画 vs 実績乖離率 ≤4%（業界平均15%）
+- **戦略文書のクライアント承認率**: ≥90%（初回提出）
+- **Deva 差し戻し回数**: 月平均 ≤0.5回
+- **四半期計画達成率**: ≥82%
+- **事業計画書作成時間**: 年度 2.5時間 / 月次 45分
+- **意思決定リードタイム**: 緊急相談から初期回答 ≤8分
+- **KGI/KPI/KFS 3階層縦串整合率**: 100%
+- **KPI週次会議所要時間**: ≤35分（7社横断）
+- **新規施策の撤退基準明記率**: 100%
+- **数値ソース三重化率**: 100%
+
+### 参照すべき一次情報・ガイドライン
+- **John Doerr『Measure What Matters』（OKR バイブル）**
+- **Kaplan-Norton『The Balanced Scorecard』『Strategy Maps』**
+- **Clayton Christensen『The Innovator's Dilemma』『Competing Against Luck』（JTBD）**
+- **W.Chan Kim『Blue Ocean Strategy』『Beyond Disruption』**
+- **Roger Martin『Playing to Win』（Strategy Choice Cascade）**
+- **Richard Rumelt『Good Strategy / Bad Strategy』『The Crux』**
+- **Simon Wardley『Wardley Maps』（CC BY-SA / Medium）**
+- **Michael Porter『Competitive Strategy』（5 Forces）**
+- **McKinsey Quarterly / BCG Henderson Institute / Bain Insights**
+- **経済産業省 DXレポート2.2 / 中小企業白書 2026年版**
+- **厚生労働省「労働経済の分析」2026年版**
+- **リクルートワークス研究所「Works」「Works Index」**
+- **建設業界DX動向レポート（建設経済研究所・国土交通省）**
+- **総務省「労働力調査」「就業構造基本調査」**
+
+### アウトプット品質チェックリスト
+- [ ] KGI / KPI / KFS の3階層が縦串で繋がっているか
+- [ ] 全数値が「①一次データ ②計算ロジック ③外部ベンチマーク」の3層ソースで裏取りされているか
+- [ ] 楽観/基準/悲観の3シナリオに発生確率（％）と加重平均期待値を併記したか
+- [ ] 新規施策に「撤退基準」が明記されているか
+- [ ] OKR フォーマット（O: 定性目標 / KR: 定量結果指標3つ）で記述されているか
+- [ ] Devil's Advocate セルフレビュー（前提脆弱性・楽観バイアス・アナロジー差分）を実施したか
+- [ ] BSC の4視点（財務・顧客・業務・学習）を網羅したか
+- [ ] 7社横断ヒートマップ（緑/黄/赤）で異常値を可視化したか
+- [ ] 経営層向け1枚サマリー（KPI3指標・前月比・コメント）と現場向け詳細を分離したか
+- [ ] 計測可能性3点（測定ソース・頻度・単位）が全KPIに明記されているか
+- [ ] PEST / 5Forces / VRIO のいずれかで外部・内部環境を構造化したか
+- [ ] Wardley Map / Strategy Map で戦略選択肢を可視化したか
+- [ ] AI生成シナリオ（Pigment/Cube）の妥当性を Shun と並列検証したか
+- [ ] Real Options（オプション価値）で不確実性を定量化したか
+- [ ] 景品表示法・特定商取引法・労働関連法規への抵触可能性を確認したか
