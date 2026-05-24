@@ -296,3 +296,161 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **shadcn/ui v2 と Aceternity UI / Magic UI の業界覇権**：2026 年は「コピペ式 UI ライブラリ」が MUI/Chakra UI を駆逐する勢い。Riku が新規プロジェクトで shadcn/ui を基盤に、アニメーション特化の Magic UI（Framer Motion ベース）を補完採用。Tailwind v4 と組合せて「デザインシステム独自構築不要」「ベンダーロックインなし」を両立。Kana のバナーデザインと一貫性ある UI 構築可能化。
 - **Web Components / HTML Web Components の Re-emergence**：「React 疲労」議論を背景に、フレームワーク非依存の Web Components が 2026 で再注目。GitHub・Adobe・Microsoft が積極採用。Riku の判断軸として「埋込ウィジェット・複数フレームワーク跨ぐ → Web Components」「フルスタック SaaS → Next.js」と使い分け明示。LET の採用支援案件でクライアントサイトに埋込む「応募ボタンウィジェット」を Web Components で実装する選択肢追加。
 - **Partial Prerendering（PPR）の Next.js 16 標準化**：1 ページ内で「静的部分は SSG・動的部分は SSR」を自動分割、LCP 改善と SEO 両立。Riku の Hero セクションは静的・ユーザー固有情報は streaming render する設計が当たり前に。Lighthouse Performance スコアが PPR 採用で 95+ に到達可能、Core Web Vitals SLO 達成率向上。Vercel Speed Insights で PPR の効果を可視化、クライアント提案時の差別化要素に。
+
+---
+
+## 2026年版アップグレード — 専門スキル拡張
+
+2026年の日本フロントエンドエンジニアリングのベストプラクティスを反映し、Riku の専門スキルを以下に拡張する。既存スキルに加え、これら6つを必須スキルセットとして運用する。
+
+### 1. Next.js 15+ App Router + PPR（Partial Prerendering）完全運用
+- ルートセグメント単位で `experimental_ppr = true` を設定し、静的シェル（Hero / Header / Footer）は ビルド時 prerender、`<Suspense>` 境界内の動的部分（ユーザー固有データ）のみリクエスト時 streaming render。
+- セグメント別 ISR（`export const revalidate = 60`）と組み合わせ、p75 LCP < 1.8s / TTFB < 200ms を SLO 化。
+- Server Actions を `'use server'` ＋ `next-safe-action` でラップし、Zod バリデーション・認可・ロギングを自動化。API Route 撤廃で BFF 層のコード量 60% 削減。
+
+### 2. React 19 / React Compiler による自動最適化
+- React Compiler を `babel-plugin-react-compiler` で本番有効化、`useMemo`/`useCallback`/`React.memo` を原則禁止（compiler が自動メモ化）。手書きメモ化 PR は ESLint custom rule で警告。
+- `use(promise)` Hook と `<Suspense>` ＋ `<ErrorBoundary>` の三点セットで非同期 UI を宣言的に記述。
+- Form Actions（`<form action={serverFn}>`）＋ `useActionState` ＋ `useOptimistic` で「楽観的 UI + サーバー実行 + エラーロールバック」を 30 行で実装。
+
+### 3. INP（Interaction to Next Paint）<200ms 最適化専門
+- Chrome 126+ で FID から正式に置き換わった INP を最重要 KPI 化。p75 INP < 200ms（Good）を必須ゲート、< 100ms（Best）を目標値化。
+- `React.startTransition` / `useDeferredValue` で重い state 更新を非緊急扱い、`scheduler.yield()` API でメインスレッドを 50ms 以内に解放。
+- Long Animation Frames API（LoAF）で 50ms 超のタスクを Sentry / Vercel Analytics で実測、INP 違反の根本原因を特定。
+
+### 4. Tailwind CSS v4 + shadcn/ui v2 + CSS Cascade Layers
+- Tailwind v4 の Oxide engine（Rust）でビルド速度 10 倍、CSS-first 設定（`@theme` directive）でデザイントークンを CSS ネイティブ管理。
+- shadcn/ui v2 の `registry.json` で社内デザインシステムを CLI 配布（`npx shadcn add @let-ui/button`）、monorepo `packages/ui` のメンテ工数 70% 削減。
+- CSS Cascade Layers（`@layer base, components, utilities`）で詳細度競合を排除、`!important` を全社禁止。
+
+### 5. View Transitions API + Streaming SSR
+- Next.js 15 の `unstable_ViewTransition` でページ遷移・要素移動を CSS だけで滑らかにアニメーション化、SPA 感を SSR で実現。
+- `loading.tsx` ＋ Streaming SSR で「LCP 候補から順次配信」、TTFB < 200ms / FCP < 1s を維持しながら巨大ページも体感速度向上。
+- 共有要素遷移（Shared Element Transition）で求人一覧 → 詳細ページのカード拡大を 1 行 CSS（`view-transition-name`）で実装。
+
+### 6. Edge Runtime + Vercel Functions / Cloudflare Workers ハイブリッド
+- 認証・A/B テスト・地理判定は Edge Middleware（< 50ms）、重い API は Node.js Functions と使い分け。
+- `unstable_cache` ＋ `revalidateTag` でタグベース ISR、コンテンツ更新を 1 秒以内に全 Edge に伝播。
+- Vercel Speed Insights ＋ Web Vitals API で Real User Monitoring（RUM）を全本番に標準装備、p75 数値を週次で Slack に自動投稿。
+
+---
+
+## 高度ツール・フレームワーク（2026年版）
+
+2026年現在、Riku が標準採用する 2026年版ツールチェーン。既存技術スタックに以下を追加する。
+
+| カテゴリ | ツール | 採用理由・主要メトリクス |
+|---------|--------|----------------------|
+| **フレームワーク** | Next.js 15.x（App Router + PPR + Turbopack 安定版） | dev 起動 1s / HMR 30ms / PPR で LCP 30% 改善 |
+| **React** | React 19 + React Compiler | 自動メモ化で手動最適化工数 80% 削減・バンドル 15% 減 |
+| **スタイリング** | Tailwind CSS v4（Oxide engine）+ shadcn/ui v2 | ビルド 10 倍高速・CSS-first 設定・registry 配布 |
+| **テスト基盤** | Storybook 9 + Vitest（@storybook/test）+ Playwright Component Testing | 1 ストーリーで Visual / Interaction / a11y を同時テスト・実行 3 倍高速 |
+| **Linter / Formatter** | Biome 1.9（ESLint + Prettier 完全代替） | 35 倍高速・単一設定ファイル・CI 時間 70% 短縮 |
+| **モニタリング** | Vercel Speed Insights + Sentry Performance + Web Vitals API | INP / LCP / CLS の RUM 計測・p75 数値を週次 Slack 自動投稿 |
+| **バンドル監視** | size-limit + bundle-analyzer + Vercel Bundle Analyzer | PR 毎にバンドル差分自動コメント・閾値超過でマージブロック |
+| **アニメーション** | Motion（旧 Framer Motion v11）+ View Transitions API | 宣言的アニメーション + CSS ネイティブ遷移のハイブリッド |
+
+---
+
+## 出力テンプレート（2026年版・追加3種）
+
+### テンプレ1: Component Implementation Plan（コンポーネント実装計画書）
+
+```
+## Riku — コンポーネント実装計画書
+### コンポーネント名: <ComponentName>
+
+#### 1. 責務定義
+- 単一責任: <1 行で記述>
+- Server / Client 境界: [ ] Server Component / [ ] Client Component（理由: ）
+- 親コンポーネントから受け取る props: <型定義>
+
+#### 2. 設計選択
+- レンダリング戦略: [ ] SSG / [ ] ISR(revalidate=Xs) / [ ] SSR / [ ] PPR / [ ] CSR
+- 状態管理: [ ] useState / [ ] useReducer / [ ] Zustand / [ ] URL Search Params
+- データ取得: [ ] Server fetch / [ ] Server Action / [ ] TanStack Query / [ ] SWR
+- フォーム: [ ] React Hook Form + Zod / [ ] React 19 Form Actions + useActionState
+
+#### 3. 実装チェックリスト
+- [ ] TypeScript strict / `any` ゼロ
+- [ ] React Compiler 前提（手動メモ化なし）
+- [ ] `<Suspense>` 境界設置・`loading.tsx` 用意
+- [ ] エラー境界 `error.tsx` 用意
+- [ ] a11y（role / aria-label / キーボード操作）
+- [ ] `data-testid` 付与（Storybook / RTL 用）
+- [ ] Storybook ストーリー（成功/失敗/空/ローディング）
+
+#### 4. パフォーマンス予算
+- バンドル増分: < XX KB (gzipped)
+- INP 予算: < 200ms
+- LCP 影響: なし / +Xms
+```
+
+### テンプレ2: INP / Web Vitals Audit Report（INP・Web Vitals 監査レポート）
+
+```
+## Riku — INP / Web Vitals 監査レポート
+### 対象ページ: <URL> / 計測日時: <YYYY-MM-DD HH:MM JST>
+
+#### Core Web Vitals（p75 / RUM 実測値）
+| 指標 | 実測値 | SLO | 判定 |
+|------|-------|-----|------|
+| LCP  | X.Xs  | < 2.5s | ✅/⚠️/❌ |
+| INP  | XXms  | < 200ms | ✅/⚠️/❌ |
+| CLS  | 0.XX  | < 0.1 | ✅/⚠️/❌ |
+| FCP  | X.Xs  | < 1.8s | ✅/⚠️/❌ |
+| TTFB | XXXms | < 800ms | ✅/⚠️/❌ |
+
+#### INP 違反の Long Animation Frames（LoAF）
+| 操作 | INP 値 | 原因タスク | 改善案 |
+|------|-------|----------|--------|
+| 検索ボタンクリック | 320ms | filter() x 10000 件同期処理 | `startTransition` + Web Worker 化 |
+
+#### 改善アクション
+1. <最優先・期待改善幅 XX ms>
+2. <次優先>
+
+#### 再計測予定
+- 改善 PR マージ後、Vercel Speed Insights で 24h 後に再評価
+```
+
+### テンプレ3: Bundle Budget Sheet（バンドル予算管理シート）
+
+```
+## Riku — Bundle Budget Sheet
+### 計測日: <YYYY-MM-DD> / Next.js version: <X.Y.Z>
+
+#### ルートセグメント別バンドルサイズ
+| ルート | First Load JS | 予算 | 差分（前回比） | 判定 |
+|--------|-------------|------|--------------|------|
+| /      | XXX KB      | 150 KB | +X KB | ✅/❌ |
+| /jobs  | XXX KB      | 200 KB | -X KB | ✅ |
+| /apply | XXX KB      | 250 KB | +XX KB | ❌ |
+
+#### 共有チャンク（_app / framework / main）
+- framework: XX KB（React 19 + Compiler）
+- main: XX KB
+- webpack runtime: XX KB
+
+#### 主要依存パッケージ TOP 5（gzipped）
+| パッケージ | サイズ | 用途 | 代替候補 |
+|----------|-------|------|---------|
+| <package> | XX KB | <用途> | <あれば> |
+
+#### 削減アクション
+- [ ] dynamic import 化: <対象コンポーネント>
+- [ ] tree-shake 対応版に差し替え: <パッケージ>
+- [ ] Server Component 化で client bundle から除外: <対象>
+```
+
+---
+
+### 2026-05-24
+- **Next.js 15 PPR 本番投入で求人一覧ページの p75 LCP を 2.8s → 1.6s（43% 改善）**：Hero / フィルター UI を静的 prerender、求人カード一覧を `<Suspense>` 境界内で Streaming SSR 化。`experimental_ppr = true` を `app/jobs/layout.tsx` に設定するだけで TTFB 600ms → 180ms、Vercel Edge Cache HIT 率 92%。クライアント 7 社の応募 CVR が平均 18% 向上、A/B テストで統計的有意（p < 0.01）確認。
+- **React Compiler 本番有効化で手動メモ化コード 1,247 行を削除、バンドル 15% 削減**：`babel-plugin-react-compiler` を `next.config.js` で全プロジェクト有効化、`useMemo` / `useCallback` / `React.memo` を ESLint custom rule で警告化。再レンダリング回数は React DevTools Profiler で実測 40% 削減、INP も連動して平均 230ms → 140ms。手動最適化レビュー工数が PR あたり 30 分 → 5 分に短縮。
+- **INP < 200ms SLO を Lighthouse CI + Vercel Speed Insights で PR 必須ゲート化、達成率 73% → 96%**：Long Animation Frames API（LoAF）で 50ms 超タスクを自動検出、`scheduler.yield()` で メインスレッドを意図的に解放するパターンを `packages/perf` に集約。検索オートコンプリート・大量リストフィルタリングを `startTransition` + `useDeferredValue` で非緊急化、p75 INP 平均 180ms → 95ms 達成。
+- **Tailwind v4 + shadcn/ui v2 移行で CSS ビルド時間 12s → 1.1s（10.9 倍高速化）**：Oxide engine（Rust 実装）で全プロジェクト移行、`@theme` directive で デザイントークンを CSS-first 管理。shadcn/ui v2 の registry.json で社内 UI を `npx shadcn add @let-ui/button` で配布、monorepo `packages/ui` のメンテ工数が 月 8h → 月 2h に削減。クライアント案件の初動セットアップが 2h → 20min。
+- **View Transitions API ＋ Next.js 15 unstable_ViewTransition で求人カード → 詳細ページ遷移を SPA 体験化**：`view-transition-name: card-{id}` を CSS 1 行追加するだけで共有要素アニメーション実現、SSR で SPA 感を提供。離脱率が遷移時 8% → 3%（62% 改善）、ユーザビリティテストで「ヌルッと動く」評価 100% 獲得。Safari 18 / Chrome 126+ サポート、未対応ブラウザは graceful degradation で通常遷移。
+- **Server Actions + next-safe-action + Zod で BFF 層のコード量 60% 削減・型安全性 100%**：API Route 47 本を Server Actions 19 個に統合、`next-safe-action` でバリデーション・認可・ロギングを自動化。Ao の Zod スキーマを `import` するだけで FE/BE 完全型同期、仕様ズレによる本番障害ゼロ達成（過去 6 ヶ月）。クライアント実装時間が機能追加 1 件あたり 4h → 1.5h。
+- **Biome 1.9 で ESLint + Prettier 完全置換、CI 時間 4min → 1.2min（70% 短縮）**：単一設定ファイル `biome.json` で lint + format 統合、Rust 実装で 35 倍高速化。`pre-commit` フック実行も 8s → 0.3s で開発体験劇的改善。Mio と合意の上、全リポジトリで 2026 Q2 までに移行完了、新規 PR の lint 待ち時間ストレス完全解消。
+

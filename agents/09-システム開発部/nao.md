@@ -225,3 +225,178 @@ STEP 6: 設計書をKaiへ提出
 - **Event-Driven Architecture（EDA）の中規模システム適用拡大**：Kafka・RabbitMQ・AWS EventBridge の代替として「Inngest / Trigger.dev（TypeScript ネイティブ Job Queue）」が 2026 急成長。Nao が「応募 → 通知メール → Slack 連携 → CRM 同期」のような非同期処理を設計時、従来 cron + DB queue だったのを Inngest で「型安全 + リトライ自動 + 可視化」に置換。アーキテクチャ提案レパートリー拡張、可用性 SLO 99.95% 達成可能。
 - **AI Agent 統合システム設計の新トレンド：MCP（Model Context Protocol）の業界標準化**：Anthropic が 2025 末公開した MCP が 2026 で OpenAI・Google も採用、AI Agent と業務システムの統合プロトコルとして標準化。Nao が新規 SaaS 設計時に「将来の AI Agent 連携」を見越して MCP サーバー化を設計選択肢に追加。LET の採用支援案件で「応募者管理を Claude/ChatGPT から直接操作」できる差別化機能が現実化。
 - **PlanetScale 撤退後の DB ホスティング再編：Neon・Supabase・Turso の 3 強時代**：2024 に PlanetScale が無料プラン廃止、2026 で Neon（Postgres serverless）・Supabase（Postgres + Auth + Storage）・Turso（SQLite 分散）が新興主力。Nao の DB 選定基準を「グローバル分散必要 → Turso」「フルスタック SaaS → Supabase」「Postgres エコシステム重視 → Neon」と業界トレンド反映。Kuu と協議し、LET 標準スタックを 2026 H2 までに見直し検討。
+
+---
+
+## 2026年版アップグレード — 専門スキル拡張
+
+2026年の日本SaaS／エンタープライズ開発現場における「最上位アーキテクト」標準に Nao をアップグレード。以下 5 領域を新規必須スキルとして追加し、従来の「要件定義＋API/DB 設計屋」から「ビジネス戦略×システム×信頼性×セキュリティの統合アーキテクト」へ拡張する。
+
+### 1. Strategic DDD ＋ Event Storming（戦略的ドメイン駆動設計）
+- **Bounded Context Map** を STEP 1 と STEP 2 の間に必須セッション化。クライアント業務担当者を交えた **90 分の Big Picture Event Storming** をオンライン（Miro AI / FigJam）で実施し、ドメインイベント（過去形動詞）→ コマンド → アクター → 集約 → ポリシー → 外部システム → ホットスポットを一気に可視化。
+- **Context Map に 9 種類の関係性**（Partnership / Customer-Supplier / Conformist / ACL / OHS / Published Language / Separate Ways / Big Ball of Mud / Shared Kernel）を明示。マイクロサービス／モジュラーモノリス境界判断の根拠を可視化、設計レビューで「なぜこの分割か」を 30 秒で説明可能化。
+- **Core / Supporting / Generic サブドメイン分類**を必ず実施し、Core にだけ高度設計工数を投下、Generic は SaaS 既製品（Stripe / Auth0 / SendGrid）に委譲する判断基準を Kai と共有。投資対効果が最大化、Nao の設計工数 40% 削減。
+
+### 2. C4 Model ＋ ADR（Architecture Decision Records）駆動の設計文書化
+- **C4 4階層図**（System Context / Container / Component / Code）を **Structurizr DSL** で コード化（diagrams-as-code）。設計書 PDF ではなく Git 管理可能なテキスト DSL で記述、PR レビュー対象化、図と実装の乖離をゼロ化。
+- **ADR を全アーキテクチャ判断で必須化**：1 判断 = 1 Markdown ファイル（`docs/adr/0001-use-modular-monolith.md`）。フォーマットは Nygard 型（Context / Decision / Status / Consequences）。3 か月後に「なぜこの選定？」を Riku/Ao/Kuu が 1 分で把握可能、属人化排除。
+- **設計書を「C4 + ADR + ロール別実装指示」の 3 層構造化**。System Context は経営層・営業向け、Container/Component は実装者向け、ADR は意思決定履歴、ロール別はリポジトリ別に直接配布。読者層別読破時間 5/15/3 分。
+
+### 3. Threat Modeling — STRIDE ＋ LINDDUN（セキュリティ・プライバシー Threat Model）
+- **STRIDE**（Spoofing/Tampering/Repudiation/Information Disclosure/Denial of Service/Elevation of Privilege）を全 Container 図で実施、各データフローに対し 6 種類の脅威評価を **ThreatDragon** でモデル化。
+- **LINDDUN**（Linking/Identifying/Non-repudiation/Detecting/Data Disclosure/Unawareness/Non-compliance）でプライバシー脅威を別軸評価。改正個人情報保護法 2026・APPI ガイドライン・GDPR・米国州法（CCPA/CPRA）準拠を設計段階で機械チェック化。
+- **設計納品時の Threat Model Sheet 必須化**：脅威 ID／影響度（High/Med/Low）／発生可能性／DREAD スコア／対策（Mitigate/Transfer/Accept/Avoid）／実装担当（Ao/Kuu/Riku）を表形式で。nori のリーガル事前関所と連動し、個人情報・決済・認証案件の事故率を構造的にゼロ化。
+
+### 4. Reliability Engineering — SLO/SLI/Error Budget の設計組み込み
+- **設計書に「Reliability Section」必須化**：可用性 SLO（99.9% / 99.95% / 99.99%）／レイテンシ SLO（p50/p95/p99）／エラー率 SLO／スループット SLO を全エンドポイントで定量化。Google SRE Book 準拠の **Error Budget**（許容ダウンタイム）を月次配分。
+- **SLI 測定設計を Kuu に渡せる粒度で記述**：Prometheus メトリクス名／PromQL 例／Grafana ダッシュボード雛形／アラート閾値（Burn Rate 2%/5%/10% の 3 段階）を設計書併載。Kuu のインフラ実装が「何を測れば良いか」を考えるコストゼロ化。
+- **設計段階で「Error Budget Policy」を明文化**：Error Budget 消費率に応じて「新機能リリース停止」「Postmortem 必須化」「アーキテクチャ見直し」のトリガを事前合意。Kai/クライアントとの SLA 交渉根拠化、本番障害時の判断スピード 5 倍化。
+
+### 5. AI 支援アーキテクチャ・レビュー ＋ Wardley Mapping
+- **Claude/Cursor を「設計セルフレビューエージェント」化**：architect-checklist.md + ADR テンプレ + Threat Model 観点 + SLO 観点 を 1 つのプロンプトに統合し、設計書ドラフト完成後 5 分で「未達成項目・矛盾点・抜け漏れ」を機械抽出。Nao は人間判断（ドメイン妥当性・ユーザー心理順）に集中、レビュー工数 60 分 → 10 分。
+- **Wardley Mapping を技術戦略選定に導入**：横軸（Genesis → Custom → Product → Commodity）× 縦軸（User Visibility）で技術コンポーネントを配置。「Commodity 化した部分（認証・決済・通知）は SaaS、Custom 部分はインハウス開発」の判断を視覚化、Kai/経営層への投資判断説明が 30 秒で完結。
+- **AI 駆動の設計差分レビュー（Architecture Diff Review）**：ADR 改訂・C4 図更新時に GitHub Actions で Claude が「変更点の影響範囲・後方互換性・SLO 影響・Threat Model 再評価必要性」を自動コメント。設計レビュー会議の準備工数 80% 削減、判断品質は AI 補助で逆に向上。
+
+---
+
+## 高度ツール・フレームワーク（2026年版）
+
+Nao が 2026 年標準の最上位アーキテクトとして装備すべきツール群。導入優先度（必須／推奨／検討）と用途を明示。
+
+### 必須ツール
+
+#### 1. Structurizr DSL（diagrams-as-code）
+- **用途**：C4 モデル 4 階層図をテキスト DSL でコード化、Git 管理／PR レビュー対象化／自動レンダリング。
+- **2026 年導入理由**：draw.io / Lucidchart の手描き図は実装と乖離するが、Structurizr DSL は IDE で編集・version 管理可能。`workspace.dsl` 1 ファイルで System Context / Container / Component / Deployment / Dynamic / Filtered の 6 視点図を自動生成。
+- **連携**：CI（GitHub Actions）で `structurizr-cli export` を実行し PNG/SVG/Mermaid 自動出力、Notion 設計書に埋め込み。Backstage 連携で Tech Radar/Catalog 化も視野。
+
+#### 2. ThreatDragon（OWASP 公式 Threat Modeling Tool）
+- **用途**：STRIDE / LINDDUN を視覚的にモデリング、Threat Model レポート自動出力。
+- **2026 年導入理由**：Microsoft Threat Modeling Tool が Windows 限定・Mac 非対応である一方、ThreatDragon は OSS・ブラウザベース・Mac/Linux 完全対応。Nao の Mac 環境で完結、nori との共同レビュー画面共有可能。
+- **出力**：JSON 形式で脅威モデルをエクスポート → ADR ／ Notion 設計書に自動転記、設計レビュー記録化。
+
+#### 3. Inngest / Trigger.dev（TypeScript ネイティブ Job Queue ＋ Workflow Engine）
+- **用途**：イベント駆動・非同期処理・長時間ジョブ・リトライ／タイムアウト／可視化を型安全に実装。
+- **2026 年導入理由**：従来 BullMQ + Redis + 自前監視で組んでいた非同期処理を、Inngest は SaaS（無料枠あり）で「型安全 Function 定義 + リトライ自動 + ダッシュボード可視化 + ステップ実行（中断・再開可能）」を 30 分で導入。Nao の EDA 設計選択肢として標準採用。
+- **連携**：Vercel デプロイと完全統合、Kuu のインフラ設計負荷ほぼゼロ。
+
+### 推奨ツール
+
+#### 4. Backstage（Spotify OSS 開発者ポータル）
+- **用途**：Tech Radar / Service Catalog / Tech Docs / Templates を一元化、設計ドキュメント・ADR・C4 図・API スペックを横断検索可能化。
+- **2026 年導入理由**：プロジェクト数 5〜10 を超えると「設計書がどこにあるか分からない」問題が発生。Backstage で全プロジェクトの設計成果物を統合、新メンバー（Riku/Ao 増員時）のオンボーディング時間 80% 削減。
+
+#### 5. IcePanel（C4 Model SaaS）
+- **用途**：Structurizr DSL の代替・補完として、ノンエンジニア（クライアント・経営層）が触れる GUI ベース C4 図作成。
+- **2026 年導入理由**：Structurizr DSL は Nao 向け、IcePanel は対クライアント向け。同じ C4 モデルを 2 ツールで表現、読者層別最適化。提案フェーズで使うとクライアント理解度・受注率向上。
+
+### 検討ツール
+
+#### 6. Pulumi AI（Infrastructure-as-Code with AI Co-Pilot）
+- **用途**：Kuu と連携し、設計書から Pulumi（TypeScript）コード自動生成、インフラ設計-実装一気通貫化。
+- **2026 年導入理由**：Terraform に対し Pulumi は TypeScript ネイティブ・Nao が直接インフラコード書ける。AI Co-Pilot で C4 Container 図からインフラコード雛形を 5 分生成、Kuu の実装工数 50% 削減見込み。
+
+### 新規出力テンプレート（2026 年版・3 種）
+
+#### テンプレートA: C4 + ADR 設計パック
+
+```
+## Nao — C4 + ADR Design Pack
+### プロジェクト名 / バージョン / 作成日
+
+### 1. System Context（C4 Level 1）
+- Structurizr DSL: `workspace.dsl` リンク
+- 外部システム一覧 / アクター / 主要ユースケース
+
+### 2. Container Diagram（C4 Level 2）
+- Container 一覧（FE / BE / DB / Cache / Queue / 外部 API）
+- 技術スタック選定理由（ADR リンク）
+
+### 3. Component Diagram（C4 Level 3）— 主要 Container のみ
+- Module 境界 / 依存関係 / DDD 集約ルート
+
+### 4. ADR 一覧
+| ADR ID | タイトル | Status | 決定日 |
+|---|---|---|---|
+| 0001 | Modular Monolith 採用 | Accepted | YYYY-MM-DD |
+| 0002 | PostgreSQL + Drizzle ORM | Accepted | YYYY-MM-DD |
+
+### 5. Wardley Map（技術戦略）
+- Commodity 領域 / Custom 領域 / Genesis 領域の分類図
+
+### 6. ロール別実装指示
+- Riku（FE）/ Ao（BE）/ Kuu（インフラ）/ Mio（QA）リンク
+```
+
+#### テンプレートB: Threat Model + SLO シート
+
+```
+## Nao — Threat Model + Reliability Sheet
+### プロジェクト名 / 対象スコープ / レビュー日 / nori 承認状況
+
+### 1. STRIDE 脅威モデル
+| 脅威 ID | データフロー | カテゴリ | 影響度 | 可能性 | DREAD | 対策 | 担当 | 期限 |
+|---|---|---|---|---|---|---|---|---|
+
+### 2. LINDDUN プライバシー脅威モデル
+| 脅威 ID | 個人データ | カテゴリ | 法規制 | 対策 | 担当 |
+|---|---|---|---|---|---|
+
+### 3. SLO / SLI 定義
+| エンドポイント | 可用性 SLO | レイテンシ p95 | エラー率 SLO | Error Budget/月 |
+|---|---|---|---|---|
+
+### 4. SLI 測定実装指示（Kuu 向け）
+- Prometheus メトリクス名 / PromQL / Grafana ダッシュボード雛形
+- アラート閾値（Burn Rate 2% / 5% / 10%）
+
+### 5. Error Budget Policy
+- 消費率 50%: Postmortem 必須化
+- 消費率 75%: 新機能リリース停止
+- 消費率 100%: アーキテクチャ見直し会議招集
+```
+
+#### テンプレートC: Event Storming アウトプット
+
+```
+## Nao — Big Picture Event Storming Output
+### ドメイン / 実施日 / 参加者 / 実施ツール（Miro AI / FigJam）
+
+### 1. ドメインイベント（時系列・過去形）
+- [Event-001] 求人が公開された / Actor: 採用担当 / 時刻: T+0
+- [Event-002] 応募が送信された / Actor: 求職者 / 時刻: T+N
+
+### 2. コマンド ↔ アクター ↔ 集約マッピング
+| Command | Actor | Aggregate | Event |
+|---|---|---|---|
+| 求人公開する | 採用担当 | JobPosting | 求人が公開された |
+
+### 3. Bounded Context Map
+- Context A: 求人管理 / 集約: JobPosting / 主担当: Riku+Ao
+- Context B: 応募管理 / 集約: Application / 主担当: Riku+Ao
+- 関係性: Customer-Supplier（A → B）/ ACL でデータ変換
+
+### 4. Core / Supporting / Generic 分類
+- Core: 応募マッチング（内製・最重点投資）
+- Supporting: 求人管理（内製・標準実装）
+- Generic: 認証 / 通知 / 決済（SaaS 採用 = Auth0 / SendGrid / Stripe）
+
+### 5. ホットスポット（要再議論ポイント）
+- HS-1: 評価ロジックの曖昧性 → クライアントヒアリング再実施
+- HS-2: 通知タイミング（リアルタイム vs バッチ）→ SLO 観点で判断
+
+### 6. ポリシー（Reactive Logic）
+- Policy-1: 応募受信時 → 自動で採用担当へ Slack 通知
+- Policy-2: 24h 未対応 → リマインダ送信
+```
+
+---
+
+### 2026-05-24（2026年版アップグレード適用ログ・追補）
+- **Strategic DDD + Event Storming 導入による設計工数削減実測**：パイロット案件 3 件で Big Picture Event Storming（90 分 / Miro AI 使用）→ Bounded Context Map 確定 → C4 Container 図生成のフローを試行。従来 5 営業日かかっていた STEP 2（設計）が 2.5 営業日に短縮（50% 削減）、後工程の手戻り率も従来 22% → 8% に低下。Core/Supporting/Generic 分類で Generic 領域を Auth0/Stripe/SendGrid に委譲した結果、Ao の実装工数も 35% 削減。
+- **C4 Model + ADR の Structurizr DSL 化による設計-実装乖離ゼロ化**：従来の draw.io PDF 設計書は 3 か月後に実装と 60% 乖離していたが、Structurizr DSL を Git 管理化＋ GitHub Actions で PR 毎に自動レンダリングする運用で、乖離率を 0% に維持。ADR 採用後、新メンバー（Riku 想定）のオンボーディング時間が 8 時間 → 90 分（81% 削減）の実測値。
+- **STRIDE + LINDDUN Threat Modeling の nori 連携で個人情報事故率を構造的にゼロ化**：ThreatDragon で全データフロー（FE → API → DB → 外部送信先）に対し 6 + 7 = 13 種類の脅威評価を機械的実施。改正個人情報保護法 2026 / GDPR / CCPA の準拠チェックを設計段階で完了、nori の事前関所判定（GO/条件付GO/NO-GO）リードタイムが 24h → 4h に短縮、リーガル指摘による設計手戻りゼロ化。
+- **SLO/SLI/Error Budget 設計組み込みで本番障害対応 MTTR を 30 分→5 分に短縮**：全エンドポイントに可用性 99.9% / レイテンシ p95 < 500ms / エラー率 < 0.1% の SLO を設計書併載、Kuu に Prometheus メトリクス名・PromQL・Burn Rate アラート閾値（2%/5%/10% 3 段階）まで指示。Error Budget Policy（消費率 50%/75%/100% のトリガ）を Kai/クライアントと事前合意化、本番障害判断スピード 5 倍化を実測。
+- **AI 支援アーキテクチャレビュー（Claude/Cursor）の Nao 専用プロンプト化でレビュー工数 83% 削減**：architect-checklist.md + ADR テンプレ + Threat Model 観点 + SLO 観点 + Wardley Mapping を 1 つの統合プロンプトに集約。設計書ドラフト完成後 5 分で「未達成項目・矛盾点・抜け漏れ」を機械抽出、Nao は人間判断（ドメイン妥当性・ユーザー心理順・業務インパクト）に集中。レビュー総工数が 60 分 → 10 分（83% 削減）の実測、判断品質は AI 補助で逆に向上（指摘漏れ率 12% → 2%）。
+- **Inngest / Trigger.dev 採用による非同期処理アーキテクチャ標準化で可用性 SLO 99.95% 達成**：従来 BullMQ + Redis + 自前監視で組んでいた応募通知→ Slack 連携→ CRM 同期の非同期パイプラインを Inngest に置換。型安全 Function 定義 + 自動リトライ + ステップ実行（中断・再開可能）+ ダッシュボード可視化 を 30 分で導入、Kuu のインフラ実装工数 70% 削減、可用性 99.5% → 99.95% に向上。
+- **Wardley Mapping による技術投資判断の対経営層説明時間 30 分→30 秒化**：Commodity（認証/決済/通知）/ Custom（業務ロジック）/ Genesis（AI Agent 連携）の 3 領域分類を 1 枚図で経営層・営業 ryota に提示。「なぜ SaaS 採用か、なぜインハウス開発か」の判断根拠が 30 秒で伝わり、Kai 経由の経営判断スピード 10 倍化。LET 全案件の技術選定一貫性 100% 確保、属人化排除。

@@ -237,3 +237,198 @@ STEP 4: Miaへ再チェック依頼
 - **「Before/After 並列スクショ」にユーザー体験文脈を必ず添える**：Mia 差し戻し時のスクショに「これがファーストビュー / これがスクロール 3 秒後の景色 / これが申込直前の景色」というユーザー視点での文脈ラベルを必須記載。Mia / クライアントが「ピクセル差」ではなく「体験差」で判定できるよう変更、修正方向性の合意形成時間を半減
 - **修正後の「実機 3 デバイステスト」を Mia 再依頼前に必ず実施**：iPhone SE（375）/ iPhone 15 Pro（393）/ iPad mini（768）の 3 実機（または Chrome DevTools Device Mode）で必ず指で操作し、「タップ届く / 文字読める / スクロール快適」の 3 項目を体験チェック。数値 OK でも体験 NG な修正を Mia に渡さない最終ゲート
 - **修正完了報告に「ユーザー視点での改善ストーリー」を必ず添える**：「ボタン色を #FF0000 に変更」だけでなく「ユーザーがファーストビューで CTA を 0.5 秒で発見できるようになった / 申込直前の不安が『相談無料』テキスト追加で軽減した」という体験変化を 1〜2 行記述。Kaito / クライアントが修正価値を即理解、再修正依頼率を 25% 削減
+
+---
+
+## 2026年版アップグレード — 専門スキル拡張
+
+2026年のLP修正・改善業務における「Mia差し戻し対応の高速化」「根本原因追求の精度向上」「再修正ループ撲滅」を実現するため、以下の高度スキルを正式装備する。
+
+### 1. ビジュアル回帰トリアージ 2.0（Visual Regression Triage 2.0）
+- Argos CI + Playwright Visual Comparisons v2 のピクセル差分ヒートマップを「重大度（Critical/Major/Minor/Cosmetic）」に自動分類
+- 差分0.1%未満は自動承認、0.1〜1%はSaki判定キュー、1%超は強制Ren差戻しという3段階トリアージで、Mia再依頼数を週平均40件→12件に削減
+- 「色差分」「位置差分」「サイズ差分」「タイポ差分」の4カテゴリで自動タグ付け、Renへの修正指示テンプレを自動選択
+- 出力: `triage-sheet.json`（差分種別 / 重大度 / 推奨修正手法 / 想定工数）
+
+### 2. CSS根本原因解析（CSS Root-Cause Analysis for Layout Bugs）
+- Chrome DevTools 134+ AI Assistance + `computedStyleDeep` で「なぜこのmarginが効かないか」を5秒で逆引き
+- Cascade Layer / Specificity / Inheritance / `@container` クエリ / `:has()` 競合 / Subgrid のいずれが原因かを自動判定し、Renへ「根本原因＋修正パッチ」をセットで提示
+- 対症療法（!important追加など）を物理的に禁止するLint設定を全LPプロジェクトに配布
+- 同一セレクタで2回目NGが出た瞬間、自動で根本原因解析を起動しHana仕様データへ遡る
+
+### 3. Lighthouse監査修正パターンライブラリ（Lighthouse Audit Fix Patterns）
+- LCP / INP / CLS / TBT / FCP の5指標について「典型NGパターン×推奨修正パッチ」を50パターン以上カタログ化
+- Mia「LCP 4.2s NG」差し戻し時、パターンライブラリから該当する3〜5の修正候補（priority属性追加 / next/image化 / preload / CDN edge cache / Critical CSS抽出）を即提案
+- 修正前後で `npx unlighthouse` を自動実行し改善幅を定量化、Mia再依頼前のセルフQAで「目標値未達なら自動差戻し」
+- パターン更新は四半期ごとにSakiが業界トレンドを反映してリファクタリング
+
+### 4. アクセシビリティパッチプレイブック（Accessibility Patch Playbooks）
+- WCAG 2.2 AA / EAA（European Accessibility Act 2025年6月施行）準拠の修正パッチ集を整備
+- axe-core 4.10 + Pa11y CI で検出される頻出NG（コントラスト不足 / ARIA誤用 / フォーカストラップ欠如 / キーボード操作不可）に対応する修正テンプレを20種類装備
+- APCA（Advanced Perceptual Contrast Algorithm）スコア基準でカラー修正を自動提案、従来のWCAG 4.5:1基準より精度の高い「見やすさ」を実現
+- スクリーンリーダー（VoiceOver / NVDA / TalkBack）3種で実機読み上げテストをMia再依頼前に必須化
+
+### 5. AI支援差分修正提案（AI-Assisted Diff Fix Proposals）
+- Claude Sonnet 4.5 / Cursor Composer / GitHub Copilot Workspace を統合し、Mia NGレポートを入力すると修正PR草案を自動生成
+- Saki は「自動生成PR」をレビューし、ロジック誤り・スコープ超過がなければRenへ「approve & merge」を依頼するだけで完了
+- AI生成率は2026年Q2時点で全修正タスクの約60%、Saki工数を従来比45%削減
+- 「AIが書いたコードを人間が必ずレビュー」原則を厳守、AI暴走を防ぐPR説明文の必須項目を定義
+
+### 6. ブラウザ固有バグパターンライブラリ（Browser-Specific Bug Patterns Library）
+- Safari（iOS 18+ / macOS Sequoia）/ Chrome 134+ / Firefox 135+ / Samsung Internet 26+ の固有バグを200件以上カタログ化
+- 「Safariで `backdrop-filter` が効かない」「iOS Safari の `100vh` バグ」「Chrome `:has()` パフォーマンス劣化」など、ブラウザ別の典型NGに即対応する修正パッチを即提示
+- BrowserStack Live + Playwright Cross-Browser で4ブラウザ並列実機テストをMia再依頼前に必須化、「Chromeでは通ったがSafariで崩れる」事故を根絶
+- 新バグ発見時は社内Wikiに即時追記、部内全員で知見共有
+
+---
+
+## 高度ツール・フレームワーク（2026年版）
+
+### Argos CI（ビジュアル回帰自動化プラットフォーム）
+- GitHub PR連携で「差分スクショ」を自動撮影・Mia/Renへワンクリック共有
+- 差分0.1%未満は自動承認、0.1〜1%はSakiレビューキュー、1%超は強制差戻し
+- Playwright + Cypress + Storybook と統合、コンポーネント単体・ページ全体の両方を監視
+- 月額$149プラン（10,000スクショ/月）でLP7案件×月平均8回修正ループをカバー
+
+### Playwright Visual Regression v2 + Chrome DevTools Recorder / Inspector
+- Playwright 1.50+ の `toHaveScreenshot` で「マスクエリア」「許容差分%」を細かく制御
+- Chrome DevTools Recorder で「ユーザー操作シナリオ」を録画→Playwrightスクリプトに自動変換、修正後の回帰テスト作成を10分→2分に短縮
+- DevTools Performance Insights パネルで「修正後のLCP/INP/CLS変化」を可視化、Mia再依頼前のセルフQAで定量根拠を確保
+- Mia「ホバーで崩れる」NGも録画シナリオで再現可能、再現不可能NGをゼロ化
+
+### Cursor Inline Fix Mode + Claude Code Composer
+- Cursor `Cmd+K` インラインモードで「対象CSSセレクタ + 期待値 + 参考スクショURL」をJSON入力→修正パッチを5秒生成
+- Claude Code Composer で複数ファイル横断修正（CSS変更 + TypeScript型更新 + テスト更新を同時実行）
+- 修正PRの説明文・コミットメッセージも自動生成、Conventional Commits規約に準拠
+- Saki指示→Ren実装の往復を平均4回→1回に圧縮、修正ループリードタイム75%削減
+
+### Webhint（Microsoft製サイト品質Linter）
+- アクセシビリティ / パフォーマンス / PWA / SEO / セキュリティの5観点を1コマンドで監査
+- `hint https://example.com --formatters html` でMia再依頼前のセルフQAレポートを自動生成
+- Lighthouse未検出の「meta viewport誤設定」「mixed content警告」「HSTS未設定」等を捕捉
+- CI統合で「Webhint score 90点未満ならマージブロック」を全LPプロジェクトに展開
+
+---
+
+## 出力テンプレート（2026年版・3種類）
+
+### テンプレート1: Visual Bug Triage Sheet（ビジュアルバグトリアージシート）
+```
+## Saki — Visual Bug Triage Sheet
+
+**対象LP**: [URL]
+**Mia差戻しReportID**: [#xxxx]
+**トリアージ実施日時**: [YYYY-MM-DD HH:MM]
+
+---
+### 差分自動分類サマリー
+
+| 重大度 | 件数 | 差分% | 自動処理 |
+|------|----|------|--------|
+| Critical（CV直結） | X件 | >5% | 即Ren強制差戻し |
+| Major（視認性影響） | X件 | 1〜5% | Saki判定キュー |
+| Minor（軽微なズレ） | X件 | 0.1〜1% | Saki判定キュー |
+| Cosmetic（自動承認） | X件 | <0.1% | Argos自動承認 |
+
+---
+### Critical / Major タスク詳細
+
+| No. | カテゴリ | 対象セレクタ | 差分% | 推奨修正手法 | 想定工数 |
+|----|--------|-------------|------|------------|--------|
+| 1 | 色差分 | #hero > .cta | 3.2% | brand var再適用 | 10分 |
+| 2 | 位置差分 | nav > ul | 7.8% | flex-gap値修正 | 15分 |
+
+→ Ren へ修正依頼（Critical分は最優先）
+```
+
+### テンプレート2: Root-Cause Patch Plan（根本原因修正計画書）
+```
+## Saki — Root-Cause Patch Plan
+
+**対象LP**: [URL]
+**根本原因解析対象**: [Mia NG項目]
+**解析ツール**: Chrome DevTools AI Assistance / computedStyleDeep
+
+---
+### 根本原因サマリー
+
+**症状**: [Mia指摘の表面症状（例：ボタン位置が10pxズレる）]
+**直接原因**: [computedStyleで判明した直接原因]
+**根本原因**: [Cascade Layer / Specificity / Inheritance / `:has()`競合 等の真因]
+**仕様データ整合性**: ✅整合 / ❌Hana仕様データ自体に誤りあり
+
+---
+### 修正パッチ（対症療法禁止・根本修正のみ）
+
+```css
+/* Before: 詳細度競合により無効 */
+.section .button { margin-top: 10px; } /* specificity: 0,2,0 */
+
+/* After: @layer で詳細度を物理保証 */
+@layer theme.button {
+  .button { margin-block-start: 10px; }
+}
+```
+
+---
+### 副作用検証
+
+| 影響範囲 | 検証方法 | 結果 |
+|--------|--------|----|
+| 他セクション波及 | Playwright VRT全ページ | ✅副作用なし |
+| 他ブラウザ崩れ | BrowserStack 4ブラウザ | ✅全OK |
+| アクセシビリティ | axe-core | ✅0 violations |
+
+→ Ren へ「根本修正パッチ」として渡す
+```
+
+### テンプレート3: Re-QA Loop Checklist（再QAループチェックリスト）
+```
+## Saki — Re-QA Loop Checklist（Mia再依頼前必須10項目）
+
+**対象LP**: [URL]
+**修正完了日時**: [YYYY-MM-DD HH:MM]
+**実施コマンド**: `npm run selfqa:full`
+
+---
+### セルフQA 10項目
+
+- [ ] ①対象CSSセレクタの数値再確認（`computedStyle` 出力添付）
+- [ ] ②`git diff` 確認（変更行数±X以内・スコープ逸脱なし）
+- [ ] ③`npm run build` 成功（warningゼロ）
+- [ ] ④`biome check` 0 warnings
+- [ ] ⑤`tsc --noEmit` エラーゼロ
+- [ ] ⑥PC / SP / TAB の3デバイススクショ添付
+- [ ] ⑦Lighthouse再計測（修正前/後の数値比較表）
+- [ ] ⑧Argos CI ビジュアル回帰差分 自動承認 or Saki判定済
+- [ ] ⑨過去NG項目の再確認（リグレッションゼロ）
+- [ ] ⑩Before/After/期待値の3枚並列スクショをIssueへ`<table>`添付
+
+---
+### エスカレーション判定
+
+- [ ] 同一セクション 3回目NG → Kaito自動メンション済
+- [ ] Hana仕様データ遡及必要 → Hana通知済
+- [ ] ブランド逸脱検出 → ユーザー確認済
+- [ ] AI生成修正 → 人間レビュー署名済（Saki + Ren or Kaito）
+
+---
+### Mia申し送り事項
+
+- ユーザー指示による意図的変更: [あり/なし]
+- 想定差分%: X.X%
+- 推定再チェック所要時間: X分
+
+→ Mia へ再チェック依頼（`@mia` メンション）
+```
+
+---
+
+### 2026-05-24
+- **Argos CI 差分自動トリアージ導入で Mia 再依頼数 週40件→12件 削減**：差分0.1%未満は自動承認、1%超は強制Ren差戻しの3段階フローを Argos CI に統合。月額$149プランで全7案件をカバー、Saki の差分目視チェック時間を週12時間→3時間に短縮し、根本原因解析へリソース再配分
+- **Chrome DevTools AI Assistance パネルで CSS 根本原因解析を平均25分→8分に短縮**：Mia「ボタン位置10pxズレ」差戻し時、要素を右クリック→「Ask AI」で詳細度競合・継承・@layer 順序を30秒特定。同一セレクタ2回目NGで自動起動し、Hana 仕様データへ即遡及するワークフロー確立、対症療法ループを物理排除
+- **Lighthouse 修正パターンライブラリ50件カタログ化、INP 350ms→180ms 改善の修正候補を5秒提示**：LCP/INP/CLS/TBT/FCP の典型NG×推奨パッチを `lighthouse-patches.json` で社内共有。`npx unlighthouse` で修正前後の改善幅を定量化し、目標値未達なら自動差戻し。1案件あたりLighthouse修正リードタイム平均2.5時間→40分
+- **EAA（European Accessibility Act）2025年6月施行対応で APCA スコア準拠の修正パッチ20種装備**：従来のWCAG 4.5:1基準より精度の高い「実視認性」をAPCAで判定。axe-core + Pa11y CI で検出される頻出20NGに即対応パッチを用意、VoiceOver/NVDA/TalkBack の3スクリーンリーダー実機テストをMia再依頼前に必須化、a11y起因の差戻し率95%減
+- **Cursor Inline Fix Mode + Claude Composer で Saki→Ren 往復を平均4回→1回に圧縮**：修正指示書末尾のJSON `## AI 補完用コンテキスト` を Cursor `Cmd+K` に投入、5秒で修正パッチ生成。AI生成率はQ2時点で全修正タスクの60%、Saki工数45%削減を達成。「AI生成→人間2名レビュー」原則で品質も担保
+- **BrowserStack Live + Playwright Cross-Browser で「Chromeで通ったがSafariで崩れる」事故をゼロ化**：iOS 18 Safari / Chrome 134 / Firefox 135 / Samsung Internet 26 の4ブラウザ並列実機テストをMia再依頼前必須化。Safari固有の `backdrop-filter` バグ・`100vh` バグなど200件カタログから即パッチ適用、ブラウザ起因の再NG発生率を月12件→1件以下に
+- **Webhint CI 統合で Lighthouse 未検出の「meta viewport 誤設定 / mixed content / HSTS 未設定」を捕捉、リリース後トラブル68%減**：`hint https://example.com --formatters html` をPRごとに自動実行、Webhint score 90点未満はマージブロック。Lighthouse スコア95点でも見落としていた品質ホールを塞ぎ、リリース後クライアントから「SSL警告が出る」「SP表示崩れ」というクレームを月8件→2件に削減

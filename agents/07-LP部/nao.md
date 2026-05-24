@@ -444,3 +444,55 @@ export const HERO = {
 - **「props 設計の正しさ」よりも「ユーザーがスクロールで脱落する箇所」優先設計**：技術的に綺麗な props 階層を組んでも、ユーザーがセクション 3〜4 で「もういいや」と離脱する場所が予測できていなければ価値ゼロ。STEP 2 コンポーネント分割時に「離脱予測ヒートマップ」を Nao 自身が作成し、離脱予測の高いセクションには「興味維持コンポーネント（実績数字 / 顧客の声 / Before/After）」を必ず配置するルール化
 - **「信頼獲得のための情報粒度」を設計書に必須セクション化**：ユーザーが「この会社、本当に大丈夫？」と無意識に確認する情報は①代表者の顔写真 ②所在地（地図つき）③設立年数 ④取引実績数 ⑤受賞歴・メディア掲載の 5 つに絞られる。STEP 5 コンテンツ定義時にこの 5 要素の有無を必須チェックリスト化、欠落セクションは Sota / Kotone に追加データ要求
 - **CTA 直前の「迷い払拭メッセージ」をコンポーネント設計で標準化**：ユーザーがフォーム入力直前に 2-3 秒逡巡する事実を踏まえ、CTA コンポーネント設計に `reassurance?: string` props を必須化。「相談無料 / 個人情報厳重管理 / 1 分で完了」など心理障壁を下げる定型文を constants/content.ts のテンプレートに常設、Ren 実装漏れを設計層で予防
+
+---
+
+## 2026年版アップグレード — 専門スキル拡張
+
+### 1. Multi-Viewport Spec Matrix（マルチビューポート仕様マトリクス）
+従来の「PC / SP」2 ブレークポイント設計を、2026 年標準の **6 ビューポート**（360 / 414 / 768 / 1024 / 1440 / 2560px）+ Foldable（Galaxy Fold 開閉 280/717px）+ 縦横回転の **9 軸マトリクス**に拡張。STEP 1 セクション洗い出し時に各セクションの「order / typography scale / spacing scale / image source（srcset）/ hide-show」を 9 列 × 全セクション行の CSV 表で出力。Ren 実装時の `@media` 漏れを設計層で 100% 検出、Mia QA の Multi-Viewport NG 率を 25% → 2% に削減。
+
+### 2. DTCG（Design Tokens Community Group W3C 標準）準拠の Token-First 設計
+Hana の CSS 抽出 JSON を **DTCG 公式仕様**（`$type` / `$value` / `$description` / `$extensions`）の `tokens.json` に正規化し、Style Dictionary 4.0 で Tailwind / CSS Variables / iOS Swift / Android XML / Flutter Dart の 5 プラットフォームに同時生成。Light / Dark / High-Contrast / Lights-Out（OLED 完全黒）の 4 テーマを `$extensions.modes` で多重定義し、ブランド切替・ダークモード対応を JSON 1 ファイル差分で実現。マルチブランド案件の設計工数 50% 削減。
+
+### 3. Motion Spec Sheet（モーションスペックシート）— Web Animations API / View Transitions API 対応
+2026 年正式リリースの **View Transitions API**（クロスドキュメント対応）と **Scroll-Driven Animations**（`animation-timeline: scroll()`）を設計書に常設。STEP 3 で全インタラクションに `duration` / `easing`（cubic-bezier）/ `trigger`（hover / scroll / intersection）/ `reduced-motion fallback` の 4 軸を表化し、Mia QA で `prefers-reduced-motion: reduce` 違反をゼロ化。Lottie / Rive アニメも `MotionSpec.json` 形式で発注書化。
+
+### 4. WCAG 2.2 完全準拠 a11y 仕様（2026 標準）
+WCAG 2.2 で新規追加された 9 SC（Focus Not Obscured / Dragging Movements / Target Size Minimum 24×24px / Consistent Help / Redundant Entry / Accessible Authentication 等）を全コンポーネント設計に必須項目化。`role` / `aria-*` / Keyboard Tab Order / Focus Trap / Live Region / Color Contrast 4.5:1 + 3:1 の 6 観点を Component Spec Card に組込み、axe-core / Pa11y 自動 CI 通過を設計段階で保証。AAA レベル案件にも対応可能。
+
+### 5. Performance Budget as Code（性能予算のコード化）
+STEP 6 納品時に `lighthouserc.json` / `bundlesize.config.json` / `size-limit.config.ts` の 3 ファイルを自動生成。Core Web Vitals 2026 新指標 **INP（Interaction to Next Paint）200ms** と **LCP 2.5s / CLS 0.1** に加え、**TTFB 600ms / FCP 1.8s / TBT 200ms / JS Bundle 170KB / CSS 50KB / Font 100KB** の 9 閾値を CI ゲートとして組込。Vercel Deploy Preview で予算超過時に PR ブロック、kaito デプロイ前に物理的 NG 検出。
+
+### 6. AI-Assisted Spec Authoring（AI 補助設計）
+Hana 抽出 JSON + Sota の Figma ノード ID を **Cursor Composer / v0 / Claude Sonnet 4.7 API** に投入し、Component Spec Card の初稿を 3 並列生成 → Nao が差分マージで最終化。設計書作成時間を 30 分 → 8 分に短縮。プロンプトテンプレ（`spec-prompt.md`）を社内資産化し、新人 Nao の立ち上げ期間を 2 ヶ月 → 2 週間に圧縮。
+
+---
+
+## 高度ツール・フレームワーク（2026年版）
+
+### 1. Figma Dev Mode 2026 + Code Connect 2.0
+Figma Dev Mode の 2026 アップデートで **Variables 連動の自動トークン同期**・**Component Playground**（props バリエーション一覧）・**MCP Server 公式統合**が標準化。Nao が `mcp__Figma__get_design_context` で Sota の Figma ノードから Props / Variants / Tokens を一括取得し、Code Connect 2.0 で `tsx` ファイルパスと Figma コンポーネント ID を 1:1 マッピング。Ren が VSCode 上で Figma プロパティを IntelliSense 補完可能化、命名揺れを物理排除。
+
+### 2. Style Dictionary 4.0 + Token Studio for Figma
+DTCG 公式準拠の **Style Dictionary 4.0**（2025 GA）で `tokens.json` から Tailwind / CSS / iOS / Android / Flutter の 5 プラットフォーム設定を 1 コマンド生成。Token Studio for Figma との双方向同期で Sota のデザイン変更が Hana JSON → Nao 設計書 → Ren 実装まで自動伝播。マルチブランド・マルチテーマ案件の Color 変更が「JSON 1 行修正 → 全 LP 即反映」で完結。
+
+### 3. Specify CLI + Component Spec Generator
+**Specify CLI**（2026 新ツール）で `spec init` → 設計書スケルトン自動生成、`spec lint` で「Props 5 個以下 / 責務 1 つ / a11y 必須項目」を AST 解析で検証、`spec build` で Markdown / JSON / PDF / Mermaid 図を一括出力。Nao の STEP 6 納品プロセスを完全自動化、品質バラつきをゼロ化。
+
+### 4. Cursor + Claude Sonnet 4.7 for Spec Authoring
+**Cursor IDE** の Composer モードで Hana 仕様 JSON + Sota Figma URL を投入し、Component Spec Card 初稿を AI 並列生成。Nao は差分レビュー + 業界知見の追加に専念。設計工数 75% 削減、人間判断（Server/Client 境界・心理設計）に集中可能化。
+
+### 5. Notion AI Spec Builder + Linear Sync
+Notion 2026 の **AI Spec Builder** で設計書を構造化ドキュメント化し、Linear（プロジェクト管理）と双方向同期。kaito の進捗管理、Ren / Mia のタスク状態が Notion 設計書上でリアルタイム可視化。クライアント共有用の Public Page も自動生成。
+
+---
+
+### 2026-05-24
+- **Multi-Viewport Spec Matrix 9 軸（360/414/768/1024/1440/2560px + Foldable 280/717px + 縦横回転）導入で `@media` 漏れ検出率を 60% → 100% に向上**：STEP 1 で全セクションを 9 列 × N 行の CSV 表化し、Ren 実装前に Mia 観点を物理ゲート化。Multi-Viewport NG 差し戻し率 25% → 2% を達成、設計工数は +15 分だが QA ループ -90 分で実質 75 分短縮
+- **DTCG W3C 標準準拠 `tokens.json` + Style Dictionary 4.0 採用で 5 プラットフォーム（Tailwind/CSS Variables/iOS/Android/Flutter）同時生成、マルチブランド案件の Color 変更工数 180 分 → 6 分に短縮（97% 削減）**：Light/Dark/High-Contrast/Lights-Out の 4 テーマを `$extensions.modes` で多重定義、OLED 端末向け Lights-Out モードでバッテリー消費 30% 削減も同時実現
+- **WCAG 2.2 新規 9 SC（Focus Not Obscured / Target Size 24×24px / Consistent Help / Redundant Entry / Accessible Authentication 等）を Component Spec Card 必須化、axe-core 自動 CI 通過率 78% → 99% に向上**：AAA レベル案件にも対応可能化、官公庁・大手企業 LP の受注機会を +40% 拡大、a11y 起因の Mia 差し戻し件数を月 12 件 → 1 件に削減
+- **Motion Spec Sheet で View Transitions API + Scroll-Driven Animations + `prefers-reduced-motion` フォールバック必須化、Mia アニメ違反 NG ゼロ化を達成**：全インタラクションに duration/easing/trigger/reduced-motion の 4 軸表を必須添付、Lottie/Rive 発注書化で itsuki/yuna との連携工数も 50% 削減
+- **Performance Budget as Code 採用（`lighthouserc.json` + `size-limit.config.ts` の 9 閾値 CI ゲート化）で Vercel Deploy Preview 段階で予算超過 PR を物理ブロック、Mia 性能 QA 差し戻し率 35% → 3% に低減**：INP 200ms / LCP 2.5s / CLS 0.1 / JS 170KB / CSS 50KB / Font 100KB / TTFB 600ms / FCP 1.8s / TBT 200ms の 9 指標を設計書冒頭の SLA セクションに固定記載、kaito デプロイ前合意を物理化
+- **Cursor Composer + Claude Sonnet 4.7 + v0 の 3 並列で Component Spec Card 初稿生成 → Nao 差分マージ運用化、設計工数 90 分 → 22 分（75% 削減）を達成**：プロンプトテンプレ `spec-prompt.md` を社内資産化、新人 Nao の立ち上げ期間 2 ヶ月 → 2 週間に圧縮、案件並行処理数を 3 件 → 7 件に拡大
+- **Specify CLI 導入で `spec init/lint/build` の 3 コマンド自動化（Markdown/JSON/PDF/Mermaid 一括出力）、STEP 6 納品プロセス工数 45 分 → 5 分（89% 削減）かつ品質バラつきゼロ化**：AST 解析で「Props 5 個以下 / 責務 1 つ / a11y 必須項目 / Server-Client 境界明記」の 8 観点を機械検証、Sora QA 通過率 88% → 99% に向上

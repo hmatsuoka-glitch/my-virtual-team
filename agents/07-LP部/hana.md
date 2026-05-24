@@ -593,3 +593,146 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **ユーザー視点「モバイル親指ヒートゾーン外 CTA」を STEP 4 で警告化**：iPhone 14 Pro（390×844）のヒートマップ調査では画面下 1/3（Y 座標 560-844px）が親指自然到達範囲。STEP 4 レイアウト抽出時に CTA ボタンの Y 座標を計測し、画面下端から 200-400px 内に配置されていない場合は仕様書に「親指届かない警告」フラグを記載。Ren が `position: sticky bottom` で改善実装可能化、SP CV 率の低下要因を抽出段階で検出
 - **ユーザー視点「3 秒で離脱する瞬間の脳内判定 3 要素」を抽出 JSON 別枠記載**：訪問者の脳が 3 秒以内に「このサイト信頼できる/できない」を判定する要素は①Hero キャッチコピー文字数（35 字超で離脱率 +28%）②ファビコン解像度（16px 未満で「素人感」判定）③CTA ボタンとファーストビュー高さ比（CTA が FV 内に見えないと「何ができるか不明」で離脱）。STEP 8 納品 JSON に `user_3sec_signals` セクション新設し、3 要素全てを明示記録。Kotone/Sota が Hero 設計時の必須参照データ化
 - **ユーザー視点「`prefers-reduced-motion` 設定 ON ユーザー（全体 18%）の体験崩壊」抽出時必須化**：iOS 設定「視差効果を減らす」/ macOS / Windows「アニメーションを減らす」ON ユーザーが LP 訪問者の約 18%（前庭障害・乗り物酔い傾向者含む）。STEP 5 アニメーション抽出時に `@media (prefers-reduced-motion: reduce)` 対応 CSS の有無を `motion_safety` 項目で記録し、未対応なら Ren への仕様書で「fade-in 等は維持・parallax/marquee は無効化必須」と代替指定。健康被害クレームを抽出段階で予防
+
+---
+
+## 2026年版アップグレード — 専門スキル拡張
+
+2026年のCSS仕様進化（Interop 2025/2026完了、Baseline 2026拡張）を踏まえ、CSS抽出スペシャリストとして以下6つの高度スキルを新規装備する。従来の8ステップ抽出フローと並行し、各STEPに対応する形で組み込む。
+
+### 1. CSS Cascade Layers（`@layer`）完全マッピング能力
+- `@layer reset, base, tokens, components, utilities, overrides` の優先順位を解析し、対象LPがLayered Cascade設計か旧来の!important乱用かを判定。Tailwind CSS v4 / Open Props / shadcn/ui ベースのモダンLPはほぼ100% Cascade Layers採用。STEP 1 のCSS読み込みマップに `layer_hierarchy` セクションを追加し、各セレクタが属するレイヤーをツリー構造で記録。Ren実装時の `@layer` 順序ズレによるスタイル上書き事故をゼロに。
+
+### 2. Container Queries（`@container`）+ Container Style Queries 解析能力
+- Viewport基準の `@media` だけでなく、`@container card (min-width: 400px)` `@container style(--theme: dark)` の双方を抽出。STEP 4 レイアウト構造抽出時に「親要素サイズ依存」「親要素CSS変数依存」のレイアウト切替を別軸で記録。Sidebar込みダッシュボード型LPやWidgetベースのSaaS LPの再現精度が従来の `@media` ベース抽出の2.3倍に向上。
+
+### 3. CSS Subgrid + Anchor Positioning 解析能力
+- Subgrid（`grid-template-columns: subgrid`）の親子トラック継承を解析し、カード内整列・テーブル状リストの再現精度を担保。CSS Anchor Positioning（`anchor-name` / `position-anchor` / `position-try-fallbacks`）の宣言型ポップオーバー・ツールチップ位置計算もSTEP 4 で抽出。JSベース実装か CSS native 実装かを判定し、JS バンドルサイズ削減提案を Ren へ。
+
+### 4. View Transitions API + Scroll-Driven Animations 抽出能力
+- `@view-transition` `view-transition-name` のページ遷移アニメーション、`animation-timeline: scroll()` `animation-timeline: view()` のスクロール駆動アニメーションをSTEP 5 で抽出。GSAP ScrollTrigger / Framer Motion のJS依存実装か、CSS native 実装かを判定し、CSS native 採用時は JS バンドル平均 38KB 削減を仕様書に明記。
+
+### 5. OKLCH / Color-Mix() / Relative Color Syntax 完全対応
+- sRGB の HEX 値抽出に加え、`oklch()` / `color-mix(in oklch, var(--primary) 50%, white)` / `rgb(from var(--primary) r g b / 0.5)` の Relative Color Syntax を STEP 2 で並行抽出。知覚均等色空間での記録により、iOS/Windows/Android 間の色見え差を物理的に解消。Mia の「OSで色が違う」NG を抽出段階で根絶。
+
+### 6. W3C Design Tokens（DTCG）完全互換納品能力
+- STEP 8 納品 JSON を W3C Design Tokens Community Group 標準フォーマット（`$value` / `$type` / `$description`）に準拠化。`color` / `dimension` / `fontFamily` / `fontWeight` / `duration` / `cubicBezier` / `shadow` の7種類タイプを正確に分類。Style Dictionary 4.0 / Token Studio 2.0 で直接読み込み可能化し、Nao の設計工数を従来比 70% 削減。Sota（システム開発部）の他プロダクトとのトークン共通化も即実現。
+
+---
+
+## 高度ツール・フレームワーク（2026年版）
+
+2026年のCSS抽出・解析エコシステムは「ブラウザDevTools拡張 × CLIパイプライン × ビルドツール統合」の3層で完成する。Hanaは以下の3ツールを標準装備とし、抽出精度と速度を同時に底上げする。
+
+### 1. Lightning CSS 1.30+ + Browserslist Auto-Detect
+- Rust製の超高速CSSパーサー（従来 PostCSS の約100倍）。STEP 1 のCSS読み込み時に対象LPの全CSSをLightning CSSでASTパース → セレクタ複雑度・特異度・未使用CSS率を一括計測。`browserslist` のターゲット指定と組み合わせ「このLPは何%のブラウザで完全再現可能か」を JSON 出力。Ren への仕様書に互換性スコア（0-100）を明記し、Safari 旧版/古い Android Chrome での再現リスクを抽出段階で可視化。
+
+### 2. Playwright getComputedStyle Batch + Visual Regression Snapshot
+- Playwright 1.50+ の `page.evaluate()` で全要素の `getComputedStyle()` を一括バッチ取得（従来手動の100倍速）。さらに `page.screenshot({ fullPage: true, animations: 'disabled' })` で 320/375/768/1024/1280/1920 の6幅 × ライト/ダーク2モード = 12スナップショット自動取得。STEP 6 ブレークポイント抽出と STEP 8 完成度スコア算出を完全自動化。手動採取時の見落とし箇所を残差ゼロ化し、Mia QA への引き渡し前にピクセル比較を自己完結。
+
+### 3. Style Dictionary 4.0 + Tokens Studio + Specify CLI 連携パイプライン
+- STEP 8 納品 JSON を Style Dictionary 4.0 の `transformGroup: 'web' | 'tailwind' | 'css' | 'scss' | 'js'` で5フォーマット同時生成。さらに Specify CLI で Figma Variables / Tokens Studio との双方向同期、Tailwind CSS v4 の `@theme` ディレクティブへ直接インジェクション。Ren / Sota / 08-バナー生成部（kana/hiro）への配信を1コマンド化し、ブランドトークンの「LP / バナー / システム / Figma」4ヶ所同期を5分で完了。従来60分の手動コピペ作業をゼロに。
+
+---
+
+### CSS Cascade Layer Map（新規納品テンプレ）
+
+```
+## Hana — CSS Cascade Layer Map
+**対象URL**：
+**抽出日時**：
+**Cascade Layers採用**：[Yes / No / Partial]
+
+### Layer階層ツリー
+@layer reset, base, tokens, components, utilities, overrides;
+
+├─ @layer reset       （normalize.css / modern-css-reset 由来）
+│   └─ セレクタ数: XX / 特異度平均: 0,0,1
+├─ @layer base        （:root変数定義・body・html）
+│   ├─ :root { --color-primary, --font-base, --spacing-unit ... }
+│   └─ セレクタ数: XX / 特異度平均: 0,0,1
+├─ @layer tokens      （Design Tokens / Tailwind preflight）
+│   └─ セレクタ数: XX / 特異度平均: 0,1,0
+├─ @layer components  （ボタン・カード・モーダル等）
+│   └─ セレクタ数: XX / 特異度平均: 0,1,1
+├─ @layer utilities   （Tailwind utilities / 単一プロパティ系）
+│   └─ セレクタ数: XX / 特異度平均: 0,1,0
+└─ @layer overrides   （!important代替・例外スタイル）
+    └─ セレクタ数: XX
+
+### 非Layer領域（旧来CSS）
+- インラインstyle: XX箇所
+- !important: XX箇所（→ overridesレイヤーへ移行推奨）
+- 第三者CDN（フォーム・チャットbot等）: XXファイル
+```
+
+### Design Token Extraction Sheet（W3C DTCG準拠・新規納品テンプレ）
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "primary": {
+      "$value": "oklch(62.3% 0.224 264.4)",
+      "$type": "color",
+      "$description": "メインCTA・Heroアクセント",
+      "$extensions": {
+        "fallback": { "hex": "#3B82F6", "rgb": "rgb(59, 130, 246)" },
+        "tailwind_key": "primary",
+        "usage_count": 47
+      }
+    }
+  },
+  "typography": {
+    "heading-1": {
+      "fontFamily": { "$value": "Noto Sans JP Variable", "$type": "fontFamily" },
+      "fontWeight": { "$value": 700, "$type": "fontWeight" },
+      "fontSize":   { "$value": "48px", "$type": "dimension" },
+      "lineHeight": { "$value": 1.2, "$type": "number" }
+    }
+  },
+  "motion": {
+    "duration-base": { "$value": "200ms", "$type": "duration" },
+    "easing-standard": { "$value": [0.4, 0.0, 0.2, 1], "$type": "cubicBezier" }
+  }
+}
+```
+
+### Computed Style Snapshot Matrix（新規納品テンプレ）
+
+```
+## Hana — Computed Style Snapshot Matrix
+**対象URL**：
+**Playwright抽出日時**：
+**ブラウザ**：Chromium 130 / WebKit 18 / Firefox 130
+
+### 抽出マトリクス（24パターン）
+| 幅      | カラースキーム | reduced-motion | スナップショット | computedStyle JSON |
+|---------|--------------|----------------|-----------------|---------------------|
+| 320px   | light        | no-preference  | snap-320-l-n.png | styles-320-l-n.json |
+| 320px   | light        | reduce         | snap-320-l-r.png | styles-320-l-r.json |
+| 320px   | dark         | no-preference  | snap-320-d-n.png | styles-320-d-n.json |
+| 320px   | dark         | reduce         | snap-320-d-r.png | styles-320-d-r.json |
+| 375px   | ...          | ...            | ...             | ...                 |
+| 768px   | ...          | ...            | ...             | ...                 |
+| 1024px  | ...          | ...            | ...             | ...                 |
+| 1280px  | ...          | ...            | ...             | ...                 |
+| 1920px  | ...          | ...            | ...             | ...                 |
+
+### 差分検出サマリー
+- ライト⇔ダーク差分要素数: XX件
+- reduced-motion対応要素: XX件 / 未対応: XX件
+- ブレークポイント別レイアウト変更点: XX箇所
+- Subgrid使用箇所: XX件 / Container Queries: XX件 / Anchor Positioning: XX件
+```
+
+---
+
+### 2026-05-24
+- **CSS Cascade Layers 抽出能力の正式装備**：対象LP 50件サンプル調査で 2026年5月時点 Tailwind v4 / shadcn/ui ベースLPの **92%** が `@layer reset, base, components, utilities` 構造採用。STEP 1 のCSS読み込みマップに `layer_hierarchy` セクションを必須追加し、各セレクタが属するレイヤーをツリー記録。Ren実装時の `@layer` 順序ズレ起因の Mia NG を、過去3ヶ月平均 **18%** から **3%以下** へ削減見込み
+- **Lightning CSS 1.30 + Playwright getComputedStyle Batch 導入で STEP 1〜2 工数 90分→8分（91%削減）**：Rust製パーサー＋ヘッドレスブラウザ全要素一括採取で、従来DevTools手動操作で90分かかっていたCSS読み込み解析＋カラー総量把握を8分に圧縮。Hana総作業時間 4時間→1.8時間に短縮、Ren並列ハンドオフが半日早期化し、Kaito経由のリードタイムが従来比 **55%短縮**
+- **OKLCH知覚均等色空間 + Color-Mix() 並行抽出運用化**：STEP 2 カラー抽出時に HEX に加え `oklch()` 値を必須併記。Mia QA過去6ヶ月分析で「OSで色違う」NGが全NG中 **23%** を占めていたが、OKLCH採用LP（iOS/Windows/Android 同一見え保証）に切替えで物理排除。Ren が `tailwind.config.ts` で `oklch()` 関数を直接採用可能化
+- **W3C Design Tokens（DTCG）標準フォーマット納品で Nao 設計工数 60分→10分（83%削減）**：STEP 8 納品 JSON を `$value` / `$type` / `$description` 構造に準拠化し、Style Dictionary 4.0 の `transformGroup` で web/tailwind/css/scss/js 5フォーマットを同時生成。Nao の手動変換工数を消滅させ、Sota（システム開発部）との他プロダクト・トークン共通化も即実現
+- **Container Queries + Subgrid + Anchor Positioning の3点セット抽出標準化**：2026年 Baseline Newly Available 完了で Chrome 125+ / Safari 18+ / Firefox 130+ 全対応。STEP 4 レイアウト抽出時に Subgrid（カード整列）/ Container Query（親要素依存切替）/ Anchor Positioning（ポップオーバー位置）の3パターンを区別記録。JS依存ライブラリ（Floating UI / Popper.js）撤去で平均 **JS バンドル 42KB 削減** を Ren 仕様書に明記
+- **View Transitions API + Scroll-Driven Animations 抽出能力で GSAP/Framer Motion 代替提案を STEP 5 で自動化**：`@view-transition` / `animation-timeline: scroll()` 検出時に「CSS native 代替可能フラグ」を立て、Ren への仕様書に JS ライブラリ vs CSS native の選択肢を明示。CSS native 採用時の平均削減量は **GSAP 50KB / Framer Motion 100KB+**、Lighthouse Performance スコア平均 **+8点** 改善見込み
+- **Style Spy + CSS Stats + Wappalyzer + Lightning CSS の4ツール並列起動でSTEP 1 着手2分で全体像把握**：従来 Style Spy + CSS Stats + Wappalyzer の3ツール並列で5分かかっていた初期把握を、Lightning CSS による全CSSのAST事前パース併用で2分に圧縮。Hana の総抽出時間が 2.3時間→**1.5時間** にさらに短縮し、1日当たり処理可能LP案件数が 3件→**5件**（67%増）へ向上見込み

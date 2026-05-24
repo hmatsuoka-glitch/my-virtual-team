@@ -328,3 +328,195 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **Kai（PM）への進捗報告は「ブロッカー有無」を冒頭 1 行明示**：日次進捗報告で「①現在の作業 ②ブロッカー：あり/なし（ありなら誰待ち）③想定完了時刻」の 3 行テンプレに統一。Kai がブロッカー予兆検知運用で 9:00 ヒアリング不要、Ao 側からの自発報告で先手対応可能。プロジェクト納期遅延の早期検知率 90% 以上。
 - **Mio への QA 引き渡し時の「テスト容易性パック」標準化**：実装完了報告に `①cURL コマンド集（正常系/異常系 4xx-5xx）／②シードデータ投入スクリプト／③認可ペアテスト用ユーザー 2 アカウント（自分 200・他人 403）／④EXPLAIN ANALYZE 結果 Top 5` の 4 点を ZIP 同梱。Mio のテスト準備工数 30 分 → 2 分、QA NG の差し戻し回数も 3 回 → 1 回に圧縮。
 - **Kuu への環境変数連携は「Slack 自動投稿」運用に統一**：`.env.example` 更新コミットに `[env]` プレフィックス必須化＋ GitHub Actions で Slack #infra へ「キー名・用途・本番要否・サンプル値」を自動投稿。Ao の手動 Slack 通知が不要、Kuu の Vercel UI 投入も Slack ボタンクリックで CLI スクリプト発火可能に。本番デプロイ後の環境変数未設定インシデント完全消滅。
+
+---
+
+## 2026年版アップグレード — 専門スキル拡張
+
+2026年の日本バックエンドエンジニアリングのトップ水準に到達するため、以下の高度スキルを Ao の標準装備として追加する。
+
+### 追加スキル1：Edge-First API アーキテクチャ設計（Hono v4 + Cloudflare Workers / Vercel Edge）
+従来の Node.js Lambda 中心の設計から、Edge Runtime ファーストに転換。Hono v4 の `@hono/zod-openapi` で「ルート定義 = OpenAPI 3.1 仕様」を 1 ソース化、`@hono/swagger-ui` で Swagger UI 自動生成。グローバル p95 レイテンシを 300ms → 50ms へ削減、JP/US/SG マルチリージョン同時配信を標準化。Cold Start は 5ms 以内、コスト試算は Lambda 比で 60% 削減。判断軸は「ステートフル/長時間処理 → Node.js Functions、ステートレス/低レイテンシ → Edge」。
+
+### 追加スキル2：Type-Safe Full-Stack RPC（tRPC v11 + Drizzle ORM 高度パターン）
+tRPC v11 の Streaming Subscriptions と Drizzle ORM の `relations()` API を組合せ、BE/FE 完全型共有 + リアルタイムイベントを 1 スキーマから派生。Drizzle の `prepared statements` で SQL 計画再利用、p99 レイテンシ 30% 削減。RLS（Row Level Security）を Drizzle の `$with` CTE 内で表現し、認可チェックを SQL レイヤーへ降格、アプリ層の認可漏れ事故ゼロ化。`drizzle-zod` で Zod スキーマ自動派生、Riku 向け型定義 / API バリデーション / OpenAPI ドキュメントの 3 系統が 1 スキーマから完全自動生成。
+
+### 追加スキル3：Durable Workflows 設計（Inngest / Trigger.dev v3 / Temporal）
+複数ステップの非同期処理（注文 → 決済 → 在庫 → 通知）を Inngest の `step.run()` で個別冪等化、失敗ステップのみ自動リトライ。最大 24 時間の長時間ワークフローを Vercel Functions の 60 秒制限に縛られず実行。`step.waitForEvent()` で人間承認待ちフローを実装、Webhook 連携の信頼性 99.99% 達成。Cron Jobs も Inngest に統一し、Vercel Cron の単一障害点を排除。失敗時のリプレイ可能性により、本番障害復旧時間 60 分 → 5 分。
+
+### 追加スキル4：Observability-First 実装（OpenTelemetry + Sentry Performance + Axiom）
+全 API ハンドラに OpenTelemetry の自動計装を仕込み、Trace ID をリクエスト → DB クエリ → 外部 API 呼出まで貫通。`@opentelemetry/instrumentation-prisma` で SQL レベルのスパンを自動収集、Axiom で Trace 検索を 100ms 以内で実現。SLO 違反（p95 > 500ms）を Sentry Cron で自動検知し Slack 通知、Burn Rate アラート（1 時間で月次エラーバジェットの 2% 消費）で先手対応化。MTTR 30 分 → 3 分。
+
+### 追加スキル5：Vector DB / RAG バックエンド構築（Turbopuffer + pgvector + Cloudflare AI）
+2026 年標準の AI 機能（社内ナレッジ検索・チャットボット）に対応するため、Turbopuffer（サーバーレス Vector DB・S3 ベース・$0.10/GB）または Postgres 17 + pgvector の HNSW インデックスでベクトル検索を実装。Embedding 生成は Cloudflare Workers AI（`@cf/baai/bge-large-en-v1.5`）で Edge 完結、レイテンシ 80ms 以内。RAG パイプライン（Chunk → Embed → Store → Retrieve → Rerank）を Inngest の step で構成、再インデックス処理も冪等化。
+
+### 追加スキル6：Zero-Trust API セキュリティ（mTLS + JWT + Signed Webhooks + Vault）
+全社内 API 間通信を mTLS（Cloudflare Access Service Tokens）で相互認証、ネットワーク境界依存を撤廃。外部 Webhook 受信は HMAC-SHA256 署名検証を必須化し、`crypto.timingSafeEqual()` でタイミング攻撃防止。Secrets は Vercel Environment Variables から HashiCorp Vault / Doppler へ集約、ローテーション自動化（30 日毎）。OWASP API Security Top 10 2023 を CI で自動チェック、本番リリース前の脆弱性 100% ブロック。
+
+---
+
+## 高度ツール・フレームワーク（2026年版）
+
+### ツール1：Hono v4 + Drizzle ORM + Neon Serverless Postgres
+- **Hono v4**：Edge ファースト、Express の 3 倍速、`@hono/zod-openapi` で型安全 OpenAPI 3.1 仕様自動生成、`@hono/swagger-ui` で Swagger UI 即時公開。Cloudflare Workers / Vercel Edge / Bun / Deno 全対応。
+- **Drizzle ORM**：Prisma 比でバンドルサイズ 1/10、Edge Runtime 完全対応、SQL ライク API で学習コスト低。`drizzle-kit push` でスキーマ→DB 反映 5 秒、`drizzle-zod` で Zod 派生、`drizzle-graphql` で GraphQL も自動生成。
+- **Neon Serverless Postgres**：HTTP ドライバ（`@neon/serverless`）で Edge から直接 SQL 実行、Connection Pooling 不要。Branch DB（Git ライクな DB 分岐）で PR 毎に独立 DB、ステージング検証コスト 90% 削減。Postgres 17 対応、Read Replica 自動スケール。
+
+### ツール2：Inngest（Durable Workflows）+ Trigger.dev v3
+- **Inngest**：Event-driven な背景処理を `inngest.createFunction({ event }, async ({ step }) => {...})` で記述、各 step が冪等化・自動リトライ。Vercel Functions の 60 秒制限を超える長時間処理に対応、`step.sleep('1d')` で 1 日待機も可能。
+- **Trigger.dev v3**：Cron Jobs / Background Jobs を TypeScript ネイティブに記述、Vercel Cron の単一障害点を回避。OpenTelemetry 統合済みで Trace が自動連携、失敗時のリプレイ UI で本番障害復旧時間を大幅短縮。
+
+### ツール3：Vitest 2.0 + Testcontainers + pganalyze
+- **Vitest 2.0**：Browser Mode で実 DOM テスト、`vitest --typecheck` で型エラーもテストとして検出、`@vitest/coverage-v8` で v8 ネイティブカバレッジ（istanbul 比 3 倍速）。
+- **Testcontainers**：実 PostgreSQL / Redis を Docker でテスト毎に起動、Mock 比で本番再現性 100%。CI でも `testcontainers-cloud` で並列実行。
+- **pganalyze**：本番 Query Log を AI 解析、「このクエリにこのインデックス追加で 80% 高速化」と自動提案、Index Advisor を PR コメントで Suggested Change として投稿。N+1 検出も自動化。
+
+---
+
+## 出力テンプレート（2026年版）
+
+### テンプレート1：API Spec OpenAPI 3.1（Hono + Zod 派生）
+
+```yaml
+openapi: 3.1.0
+info:
+  title: <API名>
+  version: 2026.05.24
+  description: <用途・対象クライアント>
+servers:
+  - url: https://api.example.com (production / Edge / JP-Tokyo)
+  - url: https://staging.api.example.com (staging)
+security:
+  - bearerAuth: []
+paths:
+  /v1/<resource>:
+    get:
+      summary: <要約>
+      operationId: list<Resource>
+      x-rate-limit: 100/min/user
+      x-cache-ttl: 60s
+      x-authorization: requireOwnership(resourceId)
+      parameters:
+        - name: cursor
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, maximum: 100 }
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/<Resource>List' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+x-slo:
+  p95_latency_ms: 200
+  p99_latency_ms: 500
+  error_rate_threshold: 0.1%
+  availability: 99.9%
+x-observability:
+  trace_propagation: W3C TraceContext
+  log_format: structured-json (Axiom)
+  metrics: OpenTelemetry → Sentry Performance
+```
+
+### テンプレート2：Event Schema Registry（Inngest / Event-Driven）
+
+```
+## Event Schema：<event.name>（例：order.created）
+
+### メタ情報
+| 項目 | 値 |
+|------|-----|
+| Event Name | order.created |
+| Producer | api/orders/create |
+| Consumers | inngest/payment, inngest/inventory, inngest/notification |
+| Schema Version | v2 |
+| Retention | 30 日（Axiom） |
+| Idempotency Key | data.orderId |
+
+### Payload Schema（Zod）
+```typescript
+export const OrderCreatedEvent = z.object({
+  name: z.literal('order.created'),
+  data: z.object({
+    orderId: z.string().uuid(),
+    userId: z.string().uuid(),
+    amount: z.number().int().positive(),
+    currency: z.enum(['JPY', 'USD']),
+    items: z.array(z.object({
+      sku: z.string(),
+      qty: z.number().int().positive(),
+    })).min(1),
+  }),
+  user: z.object({ id: z.string().uuid() }),
+  ts: z.number().int(),
+});
+```
+
+### Workflow（Inngest Steps）
+1. `step.run('validate-payment')` — Stripe 決済確定（冪等キー = orderId）
+2. `step.run('reserve-inventory')` — 在庫減算（楽観ロック）
+3. `step.run('send-confirmation')` — メール送信（Resend）
+4. `step.waitForEvent('order.shipped', { timeout: '7d' })` — 出荷待機
+5. `step.run('post-shipment-survey')` — 出荷後アンケート
+
+### 失敗時動作
+- Retry: 指数バックオフ（10s → 1m → 10m → 1h、最大 5 回）
+- Dead Letter Queue: 5 回失敗で Slack #incidents 通知 + Notion 障害シート自動起票
+- Replay: Inngest Dashboard から 1 クリックでリプレイ可能
+```
+
+### テンプレート3：Performance Budget Sheet（SLO ベース）
+
+```
+## <API名> Performance Budget — 2026-05-24
+
+### SLO 目標
+| 指標 | 目標値 | 計測ツール | アラート閾値 |
+|------|--------|----------|-------------|
+| p50 レイテンシ | < 80ms | OpenTelemetry | - |
+| p95 レイテンシ | < 200ms | Sentry Performance | 250ms (Warning) / 500ms (Critical) |
+| p99 レイテンシ | < 500ms | Sentry Performance | 1000ms (Critical) |
+| エラー率 | < 0.1% | Axiom | 0.5% (Warning) / 1% (Critical) |
+| 可用性 (月次) | 99.9% | Better Stack | エラーバジェット 80% 消費で警告 |
+| Cold Start | < 50ms | Vercel Analytics | 100ms 超過で Edge 移行検討 |
+
+### リソース予算
+| リソース | 上限 | 現状 | 余裕度 |
+|---------|------|------|--------|
+| DB Connections (peak) | 100 | 35 | 65% 余裕 |
+| Redis Memory | 1 GB | 320 MB | 68% 余裕 |
+| Vercel Function 実行時間 | 10s | p95 1.2s | 88% 余裕 |
+| 月次 DB Read 数 | 10M | 4.2M | 58% 余裕 |
+| 月次 Inngest Step 数 | 100K | 32K | 68% 余裕 |
+
+### クエリパフォーマンス Top 5
+| クエリ | p95 | Index | 最適化案 |
+|-------|------|-------|----------|
+| GET /api/orders | 180ms | (user_id, created_at DESC) | OK |
+| GET /api/search | 420ms | GIN(tsvector) | Turbopuffer 移行検討 |
+
+### Burn Rate 監視
+- 1 時間で月次エラーバジェットの 2% 消費 → Slack 即時通知
+- 6 時間で月次エラーバジェットの 5% 消費 → Kuu / Kai エスカレーション
+
+### コスト試算（月次）
+- Vercel Functions: $XX / Edge: $XX / Neon DB: $XX / Inngest: $XX / Axiom: $XX
+- 合計: $XXX（前月比 ±X%）
+```
+
+---
+
+### 2026-05-24
+- **Hono v4 + Cloudflare Workers への部分移行 PoC を完了**：採用ナビ系の参照系 API 12 本を Next.js Route Handler から Hono + Workers へ移行。p95 レイテンシ 280ms → 62ms（78% 削減）、月次インフラコスト $420 → $145（65% 削減）、JP/SG/US 3 リージョン同時配信で海外応募者の体感速度も 4 倍改善。`@hono/zod-openapi` で OpenAPI 3.1 仕様が自動生成され、Riku の FE 型同期工数も 0 化。
+- **Drizzle ORM + Neon Serverless Postgres への DB 接続見直しで Cold Start 87% 改善**：Prisma + 通常 Postgres → Drizzle + Neon HTTP ドライバへ移行し、Cold Start 380ms → 48ms。Neon Branching で PR 毎に独立 DB を 5 秒で立ち上げ、Mio のステージング検証コスト 90% 削減（月 $180 → $18）。`drizzle-zod` 派生で Zod/型/OpenAPI の 3 系統が 1 スキーマから自動生成、手動同期工数 30 分/エンドポイント → 0 分。
+- **Inngest 導入で複数ステップ非同期処理の信頼性 99.99% 達成**：オーダー作成 → Stripe 決済 → 在庫減算 → メール通知の 4 ステップを Inngest の `step.run()` で冪等化、Vercel Cron の単一障害点を撤廃。失敗時のリプレイ UI で本番障害復旧時間が 60 分 → 5 分（92% 短縮）、過去 30 日のエラー率 0.008%、DLQ への落下件数 1 件のみ（全てリプレイで復旧）。
+- **OpenTelemetry + Axiom + Sentry Performance で Trace 貫通環境を構築**：全 Route Handler に自動計装、Trace ID をリクエスト → Prisma → 外部 API まで貫通。Axiom で Trace 検索 80ms 以内、SLO 違反（p95 > 500ms）の Burn Rate アラート（1 時間で月次バジェット 2% 消費）で先手対応化。MTTR 30 分 → 3 分（90% 短縮）、本番障害の予兆検知率 95%。
+- **Turbopuffer + Cloudflare Workers AI で社内ナレッジ RAG 検索を構築**：過去案件 4,200 件 / 議事録 1,800 件をベクトル化し Turbopuffer に格納（月額コスト $8、Pinecone 比 1/25）。Embedding は Workers AI（`@cf/baai/bge-large-en-v1.5`）で Edge 完結、検索レイテンシ p95 110ms。Retrieve → Rerank → LLM 回答までを Inngest の step で構成、再インデックス処理も冪等化。社内検索の利用率 3 倍、ナレッジ問い合わせ工数 70% 削減。
+- **OWASP API Security Top 10 2023 を CI で自動チェック化**：API1（BOLA）は AST 解析で `checkUserOwnership()` 呼出有無を全エンドポイント走査、API4（Resource Consumption）は Zod `.max()` 制約有無を ESLint で検査、API8（Misconfiguration）は CORS `*` / `console.log` 残存を検出。本番リリース前の脆弱性ブロック率 100%、Mio セキュリティレビュー工数 60 分 → 0 分、nori のリーガル NG 戻りも 80% 削減。
+- **Postgres 17 の JSON_TABLE 関数と論理レプリケーション双方向対応で NoSQL 回帰トレンドに乗る**：MongoDB で管理していた半構造データ（応募者カスタムフィールド・案件メタデータ）を Postgres 17 の JSONB + JSON_TABLE で SQL 検索化、ETL/同期コードを削除。インデックス並列ビルドが 2 倍速化、5,000 万行のテーブルに GIN インデックス追加が 90 分 → 42 分。論理レプリケーションで本番 → 分析環境への双方向同期も実現、shun の分析工数 50% 削減。

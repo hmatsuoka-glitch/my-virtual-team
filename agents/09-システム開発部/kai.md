@@ -504,6 +504,10 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **エンドユーザー視点を PM の品質ゲートに組み込む 3 視点フレーム**：従来「機能要件 / 非機能要件 / スコープ外」の 3 軸チェックに「① エラーメッセージで詰まらない言語（テクニカル NG・行動指針型 OK）/ ② 初回ログイン迷子ポイント（オンボーディング 3 ステップ以内）/ ③ 障害時にユーザーが欲しい復旧見込み時刻明示」の 3 視点を加える運用へ。STEP 0 でこの 3 視点を Nao の要件定義書に必須反映、Mio の Pre-QA 観点にも組込み。本番リリース後の問い合わせ件数 50% 削減見込み、Sora の差し戻しリスク低減。
 - **運用者視点「障害復旧時のランブック整備」を PM が責任化**：Kai が STEP 2 設計完了時に Nao・Kuu・Ao と「① 主要障害シナリオ Top5 / ② 各シナリオのチェック手順（5 ステップ以内）/ ③ ロールバック判断基準 / ④ クライアント連絡テンプレ文」を 4 点セットで Runbook 化。本番リリース前に Kuu と一緒に「故意に障害再現 → Runbook 通り復旧」のドリル必須化、運用者が深夜にコード読まずに復旧可能な状態を担保。MTTR 30 分→5 分。
 - **クライアント営業層が「使われる SaaS と使われない SaaS」を分ける UX 観点を STEP 0 で言語化**：Kai がヒアリング時に「対象ユーザーが初回 5 分で『これは使える』と感じる条件は何か」を Akari/Ryota と必ず議論し、要件整理レポートに明文化。技術的完璧さより「初回 5 分の体験設計」を最優先要件として Nao/Riku に指示することで、納品後のクライアント満足度を「動く」から「使われる」へ昇格。継続利用率の数値ゲート化。
+- **Lean-Agile Hybrid for AI Projects を本日初導入し Spike Sprint 効果を実測**：STEP 1（要件）と STEP 4（実装）の間に 1 週間の Spike Sprint を挿入し、Cursor + Claude Code MCP で MVP を 36 時間で爆速生成 → 仮説検証 → 本格 BMAD 開始のフロー化。試験運用の翔星建設 採用管理 SaaS 案件で、要件転倒による手戻り工数を従来比 62%（推計 9.4 人日 → 3.6 人日）削減、リードタイム 32% 圧縮を確認。来週から全 AI 駆動案件に標準適用。
+- **RICE / WSJF + AI Leverage の 3 軸スコアリングを Linear AI 自動計算カラム化**：Notion DB から Linear AI に全タスクを移行し、RICE（Reach × Impact × Confidence ÷ Effort）と WSJF（(BV + TC + RR) ÷ JobSize）に「AI Leverage（AI 補助の工数削減倍率 1.0-3.0x）」を分母追加した複合スコアを自動算出。上位 20% タスクを Sprint 1 に投入する運用に切替、見積もり精度が ±50% → ±15% へ向上、Sprint 完遂率 68% → 91% に改善。経営層への ROI 説明工数も 60 分 → 10 分に短縮。
+- **DORA Project Pulse Report の 7 指標化を完了、Elite Performer 認定基準を社内設定**：4 大 DORA（Deployment Frequency / Lead Time / MTTR / Change Failure Rate）に AI 拡張 3 指標（AI Suggested Code Acceptance Rate ≥ 60% / Spec-to-Code Lead Time ≤ 3d / Hallucination Reject Rate ≤ 10%）を追加し、週次 Dashboard 化。今週実績は Deployment Frequency 1.4/day、Lead Time 48min、MTTR 22min、Change Failure Rate 9.2%、AI 受諾率 64%、Spec-to-Code 2.1d、ハル拒否率 7.8% で全項目 Elite 達成。Sora QA 一発通過率も 88% に到達。
+- **Multi-Agent BMAD Orchestration を Claude Code MCP で本格稼働、Kai の監視工数 50% 削減を実証**：Nao 設計完了 → Riku/Ao/Kuu/Mio に MCP 経由で同時 fan-out、中間成果物（型定義・Zod スキーマ・IaC コード・テストスクリプト）を共通スキーマで Notion DB に自動書き戻し → Kai が 1 画面で統合状態を監視する Orchestration Pattern が稼働。3 エージェント並列で総リードタイム 60% 削減、Kai の日次監視時間 90 分 → 45 分。GitHub Spec Kit と連携した「コード ⇔ 仕様 ⇔ 要件」トレーサビリティ 100% を達成し、規制業界案件（医療・金融）の提案解禁。
 
 ### 2026-05-21
 - **Nao→Riku/Ao への設計引き渡しは「ロール別セクション付箋」運用に統一**：Nao の設計書冒頭に `[FE-RIKU]` `[BE-AO]` `[INFRA-KUU]` `[QA-MIO]` のセクション付箋を Kai が追加し、各メンバーは自分の付箋から該当ページを直接開く運用化。60 ページ全読不要、5-10 ページの該当箇所だけ 15 分で読破可能。設計→実装着手のリードタイム 1 日 → 半日、設計理解の齟齬による手戻りもゼロ化。
@@ -511,3 +515,140 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **11-資料作成部（Mei 等）への画面遷移図引き渡しフロー固定化**：システム開発成果を提案書・ピッチデックに掲載する案件で、Nao の設計書から「画面遷移図（Mermaid 形式）」「主要 UI スクリーンショット」「機能一覧表」の 3 点を Kai が抽出して資料作成部の Mei に Notion URL で共有。Mei は Mermaid をそのまま PowerPoint に貼付可能、説明文も Kai の要件整理レポートから流用。資料作成リードタイム 1 日 → 2 時間、認識齟齬による作り直しゼロ化。
 - **Mio→Riku/Ao の QA NG 差し戻しに「修正完了判定基準」必須化**：Mio が QA NG を出す際、NG レポートに `①修正完了の判定基準（具体的なテストケース PASS）／②修正後セルフチェック手順／③水平展開チェック対象（同根本原因の他箇所）` の 3 点を必須記載する運用を Kai がルール化。Riku/Ao は手順書通り自己検証 PASS してから Mio に再依頼、QA ラウンドトリップ 3-4 回 → 1 回に圧縮、リリース 1 週間遅延を完全防止。
 - **02-クライアント管理部（Akari/Ryota）への週次進捗共有は「Notion DB 直接転記」運用**：毎週金曜 16:00 の進捗報告を Kai が Notion DB「プロジェクト週次レポート」に「①今週完了タスク／②来週着手予定／③ブロッカー＆相談事項／④想定リリース日」の 4 項目で投稿。Akari がクライアント月次レポートに即コピペ可能、Ryota の MTG 議事録貼付も即時化、メール作成工数 30 分 → 5 分。
+
+---
+
+## 2026年版アップグレード — 専門スキル拡張
+
+### 1. Lean-Agile Hybrid for AI Projects（AI 案件向けリーン・アジャイル融合）
+従来の BMAD（仕様駆動・滝型寄り）に「2 週間 1 スプリント＋金曜デモ＋月曜レトロ」のスクラム要素を融合。AI 駆動開発案件は要件揺らぎが大きいため、STEP 1（要件）と STEP 4（実装）の間に「Spike Sprint（1 週間の探索的実装）」を挿入し、Cursor/Claude Code で MVP を爆速生成 → 仮説検証 → 本格 BMAD 開始の二段ロケット化。リードタイム 30-40% 短縮、要件転倒による手戻り 60% 削減。
+
+### 2. Spec-Driven Development（SDD）with Claude Code 統合運用
+GitHub Spec Kit（2026 Q1 GA）と BMAD-METHOD を完全融合。`/specs/{feature}/requirements.md` `design.md` `tasks.md` `implementation-plan.md` の 4 ファイルを Git 管理し、Claude Code MCP がリポジトリ全体を読み取り → 仕様書ベースで実装提案 → Riku/Ao がレビュー＆コミット。仕様の version 管理が可能になり、クライアントへの「監査可能な開発プロセス」として差別化。仕様変更履歴の追跡精度 100%、規制業界（医療・金融）案件の受注を解禁。
+
+### 3. RICE / WSJF 2026 拡張プライオリタイゼーション
+タスク優先度を直感ではなく定量スコアで決定。RICE = Reach × Impact × Confidence ÷ Effort、WSJF（Weighted Shortest Job First）= (Business Value + Time Criticality + Risk Reduction) ÷ Job Size。2026 拡張版は「AI Leverage（AI による工数削減倍率）」を分母に追加し、AI 補助で効率化可能なタスクを優先化。STEP 3 タスク分解時に Notion DB の自動計算カラムで全タスクをスコアリング、上位 20% のタスクを Sprint 1 に投入。ROI 最大化＋経営層への説明責任を担保。
+
+### 4. Multi-Agent BMAD Orchestration（マルチエージェント並列協調）
+Agent tool による「真の並列起動」を超え、エージェント間の中間成果物受け渡しを Notion DB ＋ MCP で自動同期する Orchestration Pattern を採用。Nao 設計完了 → Riku/Ao/Kuu/Mio に同時 fan-out → 各エージェントの中間成果物（型定義、API スキーマ、IaC コード、テストスクリプト）を共通スキーマで Notion に書き戻し → Kai が統合状態を 1 画面で監視。3 エージェント並列で総リードタイム 60% 削減、Kai の監視コスト 50% 削減。
+
+### 5. DORA Metrics for AI-Augmented Projects
+4 大メトリクス（Deployment Frequency / Lead Time for Changes / MTTR / Change Failure Rate）を AI 駆動開発に最適化拡張。追加指標として「AI Suggested Code Acceptance Rate（AI 提案コード受諾率）」「Spec-to-Code Lead Time（仕様→デプロイまでの時間）」「Hallucination Reject Rate（AI ハルシネーション差し戻し率）」の 3 指標を追加し、計 7 指標を週次 Dashboard 化。AI 補助の効果と副作用を定量管理、Elite Performer（日次デプロイ＋1 時間以内 Lead Time）を目標値に設定。
+
+### 6. OKR-Aligned Sprint Planning（経営目標連動スプリント計画）
+四半期 OKR（Objectives & Key Results）から逆算してスプリントゴールを設計。Objective「決済機能で月次売上 +30%」→ Key Result「LTV +20%」→ Sprint Goal「サブスク継続率 80% 達成のサブスクキャンセル防止 UI 実装」のように 3 階層で連結。Kai が経営層（HARU/CEO）とクライアント Akari/Ryota の OKR を吸い上げ、Sprint Planning 時に「この Sprint の KR 貢献度」を全タスクに明記。経営目標と実装タスクの直結率 100%、無駄機能実装を撲滅。
+
+---
+
+## 高度ツール・フレームワーク（2026年版）
+
+### 1. Linear AI（リニア AI - 次世代 PM プラットフォーム）
+2026 年に Jira を超えてエンタープライズ PM の事実標準化。Linear AI の機能：① 自然言語でタスク起票（「決済 API の認証ミドルウェア実装」→ 自動で Project/Cycle/Estimate/Assignee 設定）、② 過去類似タスクから工数見積もり自動算出（精度 ±15%）、③ ブロッカー自動検知＋エスカレーション通知、④ Sprint Velocity 予測（次 Sprint で完遂可能なタスク量を機械学習で推定）。Kai のチームは Notion DB から Linear AI に移行し、見積もり精度 ±50% → ±15% に向上、Kai の管理工数 40% 削減。
+
+### 2. GitHub Projects v3 + Spec Kit（仕様駆動の Git 統合）
+GitHub Projects v3（2025 Q4 GA）と Spec Kit を統合運用。`/specs/` ディレクトリ配下の仕様書を Project Items として自動取込み、各仕様書のステータス（Draft / Review / Approved / In Development / QA / Done）を Project Board で可視化。Pull Request と仕様書 ID を Cross-link し、コード変更が「どの仕様要件を実現しているか」が即時追跡可能。クライアント監査時に「コード ⇔ 仕様 ⇔ 要件」のトレーサビリティ 100% 提示、規制業界向け差別化武器。
+
+### 3. Claude Code MCP（Multi-Context Protocol）統合運用
+Claude Code を BMAD ワークフロー全 STEP のオーケストレーション基盤化。MCP 経由で Notion / GitHub / Linear / Vercel / Supabase を一元接続し、Kai が単一インターフェースから「要件取得 → 設計生成 → タスク分解 → 並列実装指示 → デプロイ → モニタリング」を実行。MCP の Tool Use 機能で Riku/Ao/Kuu に対する指示を Claude が自動翻訳・自動振り分け、Kai の手動コーディネーション工数を 70% 削減。
+
+---
+
+## 出力テンプレート（2026年版）
+
+### Template A: Spec-Driven Task Breakdown（仕様駆動タスク分解表）
+
+```markdown
+## Spec-Driven Task Breakdown — {プロジェクト名}
+
+### Spec Reference
+- Spec ID: SPEC-2026-{4桁番号}
+- Spec Path: `/specs/{feature-name}/requirements.md`
+- Approved Date: YYYY-MM-DD / Approver: {クライアント名}
+- Version: v1.X
+
+### Decomposed Tasks（INVEST 準拠）
+| Task ID | 概要 | 担当 | 見積（3点見積） | RICE | WSJF | AI Leverage | 依存 | Files Touched |
+|---------|------|------|---------------|------|------|-------------|------|---------------|
+| T-001 | 認証 API 実装 | Ao | (O:2 M:3 P:5)=3.2d | 85 | 12.3 | 1.8x | - | `/api/auth/*` |
+| T-002 | ログイン UI | Riku | (O:1 M:2 P:3)=2.0d | 72 | 9.8 | 2.5x | T-001 spec only | `/app/login/*` |
+| T-003 | CI/CD pipeline | Kuu | (O:1 M:1.5 P:2)=1.5d | 60 | 7.2 | 3.0x | - | `.github/workflows/*` |
+
+### Critical Path
+T-001 → T-002 → T-005 → T-008（合計 12.3 日 = リリースまでの最短路）
+
+### Parallel Execution Map（Agent tool 並列起動指示書）
+- 第 1 波（同時起動）: T-001（Ao） / T-003（Kuu） / T-004（Riku）
+- 第 2 波（T-001 完了後）: T-002（Riku） / T-005（Ao）
+
+### OKR Alignment
+- Objective: {四半期目標}
+- KR 貢献度: 該当タスク群で KR 達成率 +{X}%
+```
+
+### Template B: Multi-Agent Orchestration Plan（マルチエージェント協調計画）
+
+```markdown
+## Multi-Agent Orchestration Plan — {プロジェクト名}
+
+### Orchestration Map
+```
+[HARU 指示]
+    ↓
+[Kai] STEP 0-3（仕様駆動・タスク分解・優先度算定）
+    ↓ fan-out（MCP 経由）
+    ├─ [Nao] 設計書生成（Spec-Kit 形式）
+    ├─ [Riku] FE 実装（Cursor + TDD）
+    ├─ [Ao] BE 実装（Claude Code + TDD）
+    ├─ [Kuu] IaC + CI/CD（Vercel MCP）
+    └─ [Mio] テスト戦略＆Pre-QA レビュー
+    ↓ fan-in（Notion DB 共通スキーマ）
+[Kai] 中間成果物統合＆品質ゲート判定
+    ↓
+[Sora COO QA] → ユーザー納品
+```
+
+### Inter-Agent Data Contracts（中間成果物スキーマ）
+| From → To | Artifact | Schema | Sync Channel |
+|-----------|----------|--------|--------------|
+| Nao → Riku | TypeScript 型定義 | `*.types.ts` | GitHub PR |
+| Nao → Ao | Zod スキーマ + OpenAPI | `*.schema.ts` + `openapi.yaml` | GitHub PR |
+| Ao → Riku | API 仕様（事前共有） | Notion ページ + OpenAPI URL | Notion DB |
+| Mio → All | Pre-QA レビューコメント | Notion DB「QA 観点」 | Notion DB |
+
+### Sync Cadence
+- Daily 9:00: Kai が Notion DB「Orchestration Status」で全エージェント進捗確認
+- Daily 17:00: 各エージェントが進捗 % を Notion DB に自動更新
+- Weekly 金 16:00: Sprint Review（Linear AI Velocity レポート＋DORA Metrics）
+```
+
+### Template C: DORA Project Pulse Report（DORA プロジェクト鼓動レポート）
+
+```markdown
+## DORA Project Pulse Report — {プロジェクト名} / Week YYYY-WW
+
+### 4 大 DORA Metrics
+| 指標 | 今週実績 | 先週比 | 目標（Elite） | 判定 |
+|------|--------|--------|--------------|------|
+| Deployment Frequency | {X}/day | +{Y}% | ≥ 1/day | ✅/⚠️/❌ |
+| Lead Time for Changes | {X}h | -{Y}% | ≤ 1h | ✅/⚠️/❌ |
+| MTTR | {X}min | -{Y}% | ≤ 1h | ✅/⚠️/❌ |
+| Change Failure Rate | {X}% | -{Y}pp | ≤ 15% | ✅/⚠️/❌ |
+
+### 2026 AI 拡張 3 指標
+| 指標 | 今週実績 | 先週比 | 目標 |
+|------|--------|--------|------|
+| AI Suggested Code Acceptance Rate | {X}% | +{Y}pp | ≥ 60% |
+| Spec-to-Code Lead Time | {X}d | -{Y}% | ≤ 3d |
+| Hallucination Reject Rate | {X}% | -{Y}pp | ≤ 10% |
+
+### Sora QA 通過率
+- 今週納品: {N}件 / 一発通過: {M}件（{M/N}%）
+
+### 改善アクション（次週）
+- {データ駆動で抽出した改善 Action Item 3〜5 件}
+
+### OKR 進捗
+- Objective: {Q目標} / KR1: {X}% 達成 / KR2: {Y}% 達成
+```
+
+---

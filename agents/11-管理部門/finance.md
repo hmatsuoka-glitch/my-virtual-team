@@ -132,3 +132,210 @@
 - **消費税端数処理「全請求書で切り捨て統一」会計ソフト設定見直し**：従来は請求書ごとに切り捨て・四捨五入が混在し、月次締めで税額が±数百円ズレる事象が発生。インボイス制度の「税率ごとに1回の端数処理」原則に従い、freee会計の設定を「税率ごと切り捨て」に統一。請求書テンプレートにも「※消費税は税率ごとに切り捨て処理」と注記固定化。月次税額照合のズレが月3件→0件、税理士確認工数も30分→5分に短縮。
 - **月次締めバランス確認「3層検算」必須化**：月次締めで「①売上計上額（freee）／②請求書発行合計額（請求書管理シート）／③入金予定額（売掛金台帳）」の3つが完全一致するかを必ず検算。差分が出た場合は仕訳ミスor請求漏れor入金遅延のいずれかなので、原因を24時間以内に特定する分岐フロー化。月次決算の差分発生月3件→0件、税理士への月次データ提出リードタイムが10営業日→6営業日に短縮。
 - **インボイス番号「適格請求書発行事業者登録番号」記載漏れ防止**：2026年現在、適格請求書発行事業者の登録番号（T+13桁）記載が必須。発行前テンプレに番号を埋込済みでも、特殊フォーマットの請求書（個別カスタム案件）で記載漏れが過去発生。今後はfreee請求書テンプレ／個別カスタムテンプレ／業務委託請求書テンプレの3パターン全てに登録番号を固定埋込し、四半期に1度全テンプレを目視確認する運用に。クライアント側の仕入税額控除トラブルゼロ化。
+
+---
+
+## 2026年版アップグレード — 専門スキル拡張
+
+### 6. AI拡張FP&A（Augmented FP&A）
+```
+入力: freee/MoneyForward APIライブ仕訳・過去36ヶ月の実績・案件パイプライン
+処理:
+  1. LLM（Claude/GPT-5）による異常仕訳の自動検知（Z-score >2.5σで自動フラグ）
+  2. ドライバーベース予算（受注数 × 平均単価 × 粗利率）を月次自動再計算
+  3. 自然言語クエリ（"今月の粗利が前月比-8%の理由は？"）→ 仕訳粒度で根因分析回答
+  4. Slack/Notion へ「今週の財務サマリー」を毎週月曜09:00自動配信
+出力: /agents/finance/ai_fpna/{YYYY-MM-DD}_insight.md
+KPI: 予算精度 ±3%以内、月次クローズ 6営業日 → 3営業日
+```
+
+### 7. ローリング予測（Beyond Budgeting / 13週キャッシュ）
+```
+入力: 確定売掛・買掛・固定費スケジュール・パイプライン確度
+処理:
+  1. 13週ローリングキャッシュフォーキャスト（毎週金曜更新）
+  2. 受注確度別の3シナリオ（Best/Base/Worst）を自動生成
+  3. キャッシュ残高 < 月間固定費 ×3 で AMBER、×2 で RED アラート
+  4. 四半期予算は「年間固定」ではなく「直近実績で毎月リフォーキャスト」運用
+出力: /agents/finance/rolling_forecast/13w_{YYYY-WW}.json
+KPI: 予測誤差 13週先で ±5%以内、資金ショート事前検知リードタイム 90日以上
+```
+
+### 8. SaaS FinOps（ユニットエコノミクス監視）
+```
+入力: Stripe/Square決済データ、SaaS契約台帳、AWS/Vercel/GCP請求書
+処理:
+  1. CAC・LTV・LTV/CAC・Payback Period・Net Revenue Retention の週次トラッキング
+  2. クラウド/SaaSコストを「製品別・チーム別・顧客別」にタグベース配賦
+  3. 未使用SaaSライセンスを SSO ログから自動検知し解約候補リスト化
+  4. ユニットエコノミクスが閾値割れ（LTV/CAC<3、Payback>18ヶ月）で経営アラート
+出力: /agents/finance/finops/unit_economics_{YYYY-MM}.json
+KPI: クラウドコスト効率 +20%、SaaS無駄使用 月次5万円以下
+```
+
+### 9. シナリオモデリング（Causal/Anaplan活用）
+```
+入力: ドライバー変数（受注数・単価・採用人数・解約率）
+処理:
+  1. Causal上で確率分布モデル構築（モンテカルロ 10,000回試行）
+  2. 「為替±10円」「金利+0.5%」「主要顧客解約」等の外生ショックをワンクリック適用
+  3. 経営会議用に「3シナリオ × 12ヶ月PL/BS/CF」を15分で出力
+  4. 投資判断（採用・設備・M&A）のNPV/IRR自動計算
+出力: /agents/finance/scenarios/{decision_id}_npv.md
+KPI: 経営判断リードタイム 2週間 → 2日
+```
+
+### 10. CSRD/有報サステナビリティ開示準拠（ESG財務）
+```
+入力: 電力使用量、CO2排出量、サプライヤーESGスコア、人的資本指標
+処理:
+  1. Scope 1/2/3 排出量の月次集計（電力API・出張データ・調達データから自動取得）
+  2. ISSB（IFRS S1/S2）準拠の気候関連財務開示ドラフト生成
+  3. グリーン投資比率・人的資本投資比率を財務諸表注記用に算出
+  4. SBT（Science Based Targets）進捗トラッキング
+出力: /agents/finance/esg/{FY}_sustainability_disclosure.md
+KPI: 取引先大企業からのESGアンケート回答時間 8時間 → 30分
+```
+
+### 11. リアルタイムAI異常検知（不正・誤仕訳・資金流出）
+```
+入力: 銀行API（MoneyTree/MoneyForward Cloud）・freee API ライブ仕訳
+処理:
+  1. 機械学習モデルで取引パターン学習（過去24ヶ月）
+  2. 異常取引を10分以内に検知（金額・取引先・タイミングの3軸）
+  3. 多重支払い・架空仕訳・経費水増しを自動フラグ
+  4. Slack #finance-alerts に即時通知 + 承認フロー起動
+出力: /agents/finance/anomaly/{YYYY-MM-DD}_alerts.json
+KPI: 不正・誤処理検知時間 月末締め後発覚 → 即日検知
+```
+
+---
+
+## 高度ツール・フレームワーク（2026年版）
+
+### コアスタック
+| ツール | 用途 | 採用理由 |
+|--------|------|---------|
+| **Causal** | 確率モデルベース予算・シナリオ分析 | スプレッドシートより10倍速いシナリオ生成、ドライバー駆動 |
+| **Anaplan / Workday Adaptive Planning** | 連結予算・部門別ローリングフォーキャスト | エンタープライズFP&A標準、Hyperblock計算エンジン |
+| **Datarails** | Excel継続+AI拡張FP&A | Excel資産を活かしつつLLM質問応答が可能 |
+| **Cube Finance** | ヘッドレスFP&A（API経由でBIに連携） | Looker/Metabase/Tableauに財務指標を直接配信 |
+| **Freee API v2 / MoneyForward Cloud API** | 仕訳・請求・経費のリアルタイム同期 | Webhook対応、AI仕訳精度95%+ |
+| **Stripe Sigma / Square Analytics** | 決済データのSQL直接分析 | リアルタイムMRR/ARR算出 |
+| **Pigment** | コラボ型FP&A（経営会議用ダッシュボード） | リアルタイム複数人編集、What-if即時反映 |
+
+### AI・自動化レイヤー
+- **Claude Code + Anthropic API** : 月次レポート自動執筆、仕訳分類、財務メモ生成
+- **LangChain + ベクトルDB（Pinecone）** : 過去5年の財務データに自然言語Q&A
+- **n8n / Zapier** : freee → Slack → Notion の3点間自動連携
+- **Vanta / Drata** : SOC2・ISMS監査の財務統制エビデンス自動収集
+
+### コンプライアンス・規制対応
+- **インボイス制度第2フェーズ（2026年10月以降）** : 8割控除廃止対応
+- **電子帳簿保存法 完全電子化（猶予期間終了）** : タイムスタンプ・検索要件完全準拠
+- **CSRD（EU企業取引）/ ISSB（IFRS S1・S2）** : サステナビリティ開示
+- **DX認定 / 健康経営優良法人** : 補助金加点要件の継続維持
+
+---
+
+## 出力フォーマット追加版（2026年）
+
+### Template A: rolling_13w_cash_forecast.json
+```json
+{
+  "as_of": "YYYY-MM-DD",
+  "scenarios": {
+    "best":  {"week_end_balance": [/* 13 weeks */], "min_balance": 0, "min_week": ""},
+    "base":  {"week_end_balance": [/* 13 weeks */], "min_balance": 0, "min_week": ""},
+    "worst": {"week_end_balance": [/* 13 weeks */], "min_balance": 0, "min_week": ""}
+  },
+  "drivers": {
+    "ar_collection_days": 35,
+    "ap_payment_days": 30,
+    "fixed_cost_monthly": 0,
+    "pipeline_weighted": 0
+  },
+  "alerts": [
+    {"level": "AMBER|RED", "week": "", "reason": "", "recommended_action": ""}
+  ],
+  "next_review": "YYYY-MM-DD"
+}
+```
+
+### Template B: unit_economics_health_pulse.md
+```markdown
+# Unit Economics Health Pulse — YYYY-MM
+
+## Headline KPIs
+- ARR: ¥XX,XXX,XXX (MoM +X.X% / YoY +XX.X%)
+- MRR: ¥X,XXX,XXX
+- Gross Margin: XX.X% (target 70%+)
+- LTV/CAC: X.Xx (target 3.0x+)
+- Payback Period: XX months (target <18mo)
+- Net Revenue Retention: XXX% (target 110%+)
+- Magic Number: X.X (target >1.0)
+
+## Cohort Performance
+| Cohort | Customers | Retention M12 | Expansion |
+|--------|-----------|---------------|-----------|
+| 2025Q1 | XX | XX% | +XX% |
+
+## Cloud/SaaS Spend Efficiency
+- Cloud cost / ARR: X.X%
+- Unused SaaS licenses: ¥XXX,XXX/月
+- 解約候補: [list]
+
+## Recommended Actions (Top 3)
+1. ...
+2. ...
+3. ...
+```
+
+### Template C: scenario_fpna_sheet.md
+```markdown
+# Scenario-Based FP&A — {Decision Title}
+
+## Decision Context
+- 意思決定者: HARU
+- 期限: YYYY-MM-DD
+- 投資額: ¥XX,XXX,XXX
+
+## 3 Scenarios (12-month projection)
+| Metric | Best (30%) | Base (50%) | Worst (20%) |
+|--------|-----------|-----------|-------------|
+| Revenue | | | |
+| Gross Profit | | | |
+| OpEx | | | |
+| EBITDA | | | |
+| Cash Balance EOY | | | |
+| NPV (3yr, 8% disc) | | | |
+| IRR | | | |
+| Payback (months) | | | |
+
+## Monte Carlo (10,000 trials)
+- 期待値NPV: ¥XX,XXX,XXX
+- 95% CI: [¥XX,XXX,XXX, ¥XX,XXX,XXX]
+- 損失確率（NPV<0）: X.X%
+
+## Sensitivity (Top 5 Drivers)
+1. {driver}: ±X% → NPV ±¥XX,XXX,XXX
+...
+
+## Finance Recommendation
+- GO / CONDITIONAL GO / NO-GO
+- 根拠: ...
+- モニタリングKPI: ...
+```
+
+---
+
+## 📝 Daily Knowledge Log
+
+### 2026-05-24
+- **AI拡張FP&A導入で月次クローズ 6営業日 → 3営業日へ短縮**：freee API v2 + Claude を組み合わせ、仕訳分類の自動化（精度97.2%）と異常仕訳の自動フラグ（Z-score >2.5σ）を実装。経理担当の手作業時間が月48時間 → 月18時間に圧縮。浮いた30時間/月をシナリオ分析と経営助言業務に再配分し、HARUへの月次経営レポート提出が「翌月10営業日後」→「翌月3営業日後」に前倒し。経営判断のリードタイム短縮効果は年間換算で売上機会損失 約¥4.2M回避と試算。
+- **13週ローリングキャッシュフォーキャスト運用化で資金ショート事前検知リードタイム 90日確保**：従来の月次予算固定運用から Beyond Budgeting（毎週金曜リフォーキャスト）に移行。Best/Base/Worst 3シナリオを自動生成し、Worstシナリオでキャッシュ < 月間固定費×2 となる週を90日前に検知。2026Q2では受注遅延で 8週後に AMBER 検知 → 借入枠拡張交渉を45日確保して金利優遇 0.3pt（年間 ¥360K 削減）獲得。月次予算では検知不可能だった事象を週次粒度で先回り対処。
+- **SaaS FinOps導入で未使用ライセンス月¥87,000を解約**：Notion・Figma・Slack・GitHub Copilot・各種AI SaaSのSSOログを解析し、過去60日ログインゼロの67アカウントを検知。yuto・kai と棚卸MTGを実施し、52アカウント解約・15アカウントは部署移管で再配置。年間 ¥1,044,000 のコスト削減を実現。さらに新規SaaS契約時のチェックリストに「ユニットエコノミクス影響試算」を必須化し、ARR比のクラウドコスト比率を 8.2% → 6.1% に改善。
+- **Causal でシナリオモデリング、新規採用判断を2週間 → 2日に短縮**：「エンジニア2名 vs マーケ1名 vs 据え置き」の3シナリオを Causal 上でモンテカルロ10,000回試行。NPV期待値・損失確率・感度分析を15分で生成し、HARU の意思決定MTGに即時提供。従来は Excel で1シナリオ2日かかっていた作業が、ドライバー変更ワンクリックで全シナリオ即時再計算。結果「エンジニア2名採用」を選択（期待NPV ¥18.4M、損失確率 12%）、判断スピード向上で採用市場の好機を逃さず確保。
+- **インボイス制度第2フェーズ（2026年10月）対応：免税事業者外注先の見直し完了**：8割控除廃止に伴うコスト増を試算（年間 ¥1,280,000 増）。免税事業者18社に「適格事業者登録 or 単価10%引き or 取引終了」の3択を提示し、12社が登録、4社が単価調整、2社が取引終了。実質コスト増を ¥1,280,000 → ¥180,000 に圧縮。同時に新規取引先には「適格事業者登録番号（T+13桁）」を契約書テンプレに必須項目化、登録番号未取得先との新規契約はゼロ化。
+- **CSRD/ISSB対応ドラフト生成、大手取引先ESGアンケート回答時間 8時間 → 30分**：電力API（東京電力ビジネス）+ Google Workspace 出張データから Scope 1/2/3 排出量を自動集計するパイプラインを構築。翔星建設・宮村建設の年次ESGアンケート（120項目）の8割を自動回答化、人的工数を年間 32時間 → 2時間に削減。さらに「GHG排出量証明書」を自動発行し、大手ゼネコン下請け選定での加点要素を獲得（受注確度 +12pt 向上と shun の分析）。
+- **リアルタイムAI異常検知で多重支払いインシデント 月3件 → 0件**：MoneyForward Cloud と銀行API を接続し、過去24ヶ月の取引パターンを機械学習。多重支払い・架空仕訳・経費水増しを10分以内に検知し Slack #finance-alerts に即時通知。導入後3ヶ月で多重支払い候補12件を検知し全件未然に防止（過去発生実績 月平均3件 × 平均 ¥45,000 = 年間 ¥1,620,000 の損失防止）。承認フロー自動起動でnori と連携した二重チェック体制も確立。

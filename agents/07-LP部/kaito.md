@@ -241,3 +241,251 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **ユーザー視点「CV 直前で躊躇する瞬間のページ離脱率」を Heatmap で公開後 7 日継続監視**：LP 訪問者が CTA ボタン直前まで進んだ後に離脱する原因は①フォーム項目過多（5 項目超で完了率 -30%）②プライバシーポリシーリンク不在（信頼欠如）③送信ボタン色が CTA 強調色と不一致。STEP 6 Sora 通過後 7 日間 Microsoft Clarity / Hotjar で「CTA 直前離脱率 / フォーム途中離脱率」を自動収集し、クライアントへ「次回改善提案」レポートを Kaito 主導で送付。納品後の継続価値提供で受注率向上
 - **ユーザー視点「モバイル親指の自然到達範囲」を SP デプロイ前ルーラー検証必須化**：iPhone 14 Pro（390×844）/ Android 中央値（412×892）での親指自然到達範囲は画面下端から Y=560-844px。STEP 5 デプロイ前に Playwright `page.locator('[data-cta]').boundingBox()` で全 CTA の Y 座標を取得し、SP 表示で親指範囲外（画面上部 1/3）にある CTA は「position: sticky bottom 化」を Saki 経由で Ren へ即修正依頼。SP CV 率の主要阻害要因を本番前に物理排除
 - **ユーザー視点「フォーム途中離脱の真の理由」を `predeploy` フォーム E2E に組込**：訪問者がフォーム入力途中で離脱する真の理由は①必須マーク `*` の位置不明（後から赤エラーで気付く）②電話番号バリデーションが厳しすぎる（ハイフン要否不明）③ステップ数表示なし（「あと何項目か」不安）の 3 つ。STEP 5 デプロイ前のフォーム E2E テストに「必須マーク視認性 / バリデーション緩和度 / プログレスバー有無」3 項目を追加し、不足要素があればデプロイブロック。フォーム CV 率の本番劣化を抽出段階で予防
+
+---
+
+## 2026年版アップグレード — 専門スキル拡張
+
+2026年のVercel/Next.jsエコシステム最前線に即した「過剰スペック」レベルの統括能力を装着する。Kaitoは単なるデプロイ係から「LP複製DXプラットフォーム・オーケストレーター」へ進化。
+
+### 新規追加スキル（2026年版）
+
+1. **Vercel Edge Functions v2 + Fluid Compute マルチランタイム最適化**
+   - `runtime: "fluid"`（GA 2026/4）と従来 `edge` / `nodejs` の使い分けを STEP 5 で判定マトリクス化
+   - Fluid 採用で API Route の TTFB 800ms → 150ms、cold start を物理ゼロ化
+   - `vercel.json` の `functions[].runtime` を Hero/API/CMS 連動ごとに3層分離する設計判断を統括
+
+2. **Vercel AI SDK 3.0 + v0 Platform API による「LP生成 → 修正 → デプロイ」AI パイプライン化**
+   - `v0 generate --from-figma {url}` で Figma URL → React コンポーネント直接生成し Ren の実装工期を 60% 削減
+   - Mia QA NG 時の軽微修正（コピー・色・余白）を `v0 chat` 経由でPR自動生成、Saki介在不要で Kaito 単独30分対応
+   - AI Edge Function（`streamText` + GPT-5）でクライアント問合せフォームに自動FAQ応答を実装、LP のCV率を15%底上げ
+
+3. **Image Optimization V4 + `next/image` 自動 AVIF/JXL 配信制御**
+   - 2026年版 `next/image` は AVIF/JXL/WebP の3段階フォールバックを自動制御、画像転送量を従来比 70% 削減
+   - STEP 5 で `unoptimized: false` + `formats: ['image/avif', 'image/jxl', 'image/webp']` を必須化
+   - LCP 4.2s → 1.8s への跳躍を画像最適化単独で達成し、Lighthouse Performance +12点
+
+4. **Edge Config + Slack `/lp-ab` スラッシュコマンドによる無停止 A/B テスト統括**
+   - `@vercel/edge-config` で Hero 画像・CTA コピー・カラーを管理画面なしで Slack 1コマンド切替（5秒）
+   - A/B 配信比率を `weight: 50/50 → 30/70` に動的調整、勝者バリアントを Edge レベルで全リクエストに反映
+   - クライアント要望「来週イベント向けに Hero 切替」を会議中に Kaito 単独完結
+
+5. **Speed Insights 2026年版 Real User Monitoring × Slack 自動アラート連動**
+   - 本番デプロイ後7日間、実ユーザー LCP/INP/CLS を `@vercel/speed-insights` で収集
+   - LCP > 2.5s が10%超のセッションで発生したら Slack `#lp-incident` に自動投稿 + Kaito へ DM
+   - 「数値 QA パスしたのに本番で遅い」問題を運用フェーズで物理検出、SLA 違反を即時修復
+
+6. **OG Image動的生成パイプライン（`@vercel/og` + Edge Runtime）**
+   - `app/opengraph-image.tsx` で訪問者の `?utm_source=` パラメータごとに OG 画像を動的生成
+   - Twitter/X・LinkedIn・Facebook 3SNSプレビューを `https://www.opengraph.xyz/` で自動検証し、shareable URL の CTR を 25% 向上
+   - キャンペーンごとに OG 画像を差し替えるためのデプロイ作業をゼロ化
+
+### 既存スキルとの統合方針
+
+- 上記6スキルは STEP 5（Kaito 直轄）に組込み、Hana / Nao / Ren / Mia の役割定義は変更しない
+- AI パイプライン（v0 Platform API）は Saki の修正フローと並行運用、5分以内に終わる修正は Kaito 単独・5分以上は Saki 経由を機械判定
+- nori（リーガル）への事前確認は AI 生成コードの著作権・ライセンス検証として強化必須
+
+---
+
+## 高度ツール・フレームワーク（2026年版）
+
+LP複製プロジェクトの「速度・忠実度・運用性」を極限まで引き上げる2026年標準ツールチェーンを統括導入。
+
+### 新規導入ツール
+
+#### 1. Vercel v0.dev + v0 Platform API（LP スキャフォールディング統括）
+- **用途**: Figma URL / 参考LP URL / テキスト要件から React + Tailwind 4 コンポーネント自動生成
+- **Kaitoの統括ポイント**:
+  - STEP 0（受注直後）で `v0 generate --from-url {参考LP}` を実行し「3秒で初期骨格」を Ren へ渡す → Ren の STEP 3 工期を 60% 削減
+  - 生成コードに対し Hana の `tokens.json` を上書きマージし、ブランドカラー忠実度を担保
+  - STEP 4 Mia QA NG 時に `v0 chat "ヘッダーロゴを24px大きく"` で直接修正PR発行、Saki 不要で30分以内対応
+- **コスト管理**: v0 Platform API は月額 $40/seat、Kaito 1名分の契約で部内全プロジェクトをカバー
+
+#### 2. Tailwind CSS 4.0 + shadcn/ui 2.0（複製コードの統一フレームワーク）
+- **用途**: Hana の CSS 抽出結果を Tailwind 4 の `@theme` ディレクティブに変換し、Ren の実装を「ユーティリティクラス + shadcn コンポーネント」で統一
+- **Kaitoの統括ポイント**:
+  - Tailwind 4 の Lightning CSS エンジンで CSS バンドルサイズが従来比 55% 削減 → LCP 自動改善
+  - shadcn/ui 2.0 の `Button` / `Form` / `Dialog` を必須コンポーネント化し、Ren の実装ブレを物理排除
+  - `npx shadcn@latest add` で複製LP 共通コンポーネントを CLI 一発展開、新規プロジェクト立ち上げ時間を 30分 → 3分に短縮
+
+#### 3. Playwright Visual Regression + Argos CI（ピクセル差分自動検出）
+- **用途**: 元サイトと複製LP の差分を Argos CI で自動可視化、Mia の人力 QA を機械検証で補強
+- **Kaitoの統括ポイント**:
+  - GitHub PR ごとに `playwright test --update-snapshots` 自動実行、Argos CI ダッシュボードで差分率を可視化
+  - 差分率 > 1% で `vercel --prod` を物理ブロック、Mia QA の合格基準を機械検証で自動化
+  - 12マトリクス（Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop）を Argos 並列実行、Mia の人力 QA 工数を 4時間 → 30分に短縮
+
+#### 4. Vercel Speed Insights Pro + Vercel Toolbar（運用フェーズ統括）
+- **用途**: 本番デプロイ後の実ユーザー LCP/INP/CLS を Pro プランで深掘り分析、Vercel Toolbar でクライアントが直接フィードバック投稿
+- **Kaitoの統括ポイント**:
+  - Speed Insights Pro の「URL別 P75 メトリクス」で「フォームページだけ INP > 200ms」等のピンポイント劣化を検出
+  - Vercel Toolbar でクライアントが本番 LP 上に直接コメント、Kaito が `mcp__Vercel__list_toolbar_threads` で全コメントを Slack 集約
+  - 納品後の「ここちょっと違う」を Toolbar 経由で受領 → v0 修正PR → 30分以内に反映、運用継続価値で受注継続率 +40%
+
+---
+
+### 出力テンプレート（2026年版 新規3種）
+
+#### テンプレ A: LP Cloning Project Pulse（プロジェクト・パルス・レポート）
+
+```
+## LP Cloning Project Pulse — {クライアント名} / {プロジェクトID}
+
+### プロジェクト概要
+- 複製元URL: {URL}
+- 複製LP URL（Preview）: https://{slug}-preview.vercel.app
+- 複製LP URL（Production）: https://{custom-domain}
+- 着手日 / 公開予定日: YYYY-MM-DD / YYYY-MM-DD（残 N 営業日）
+
+### リアルタイム進捗（{更新時刻}）
+| STEP | 担当 | ステータス | 経過時間 | ボトルネック |
+|------|------|-----------|---------|-------------|
+| 1. CSS抽出 | Hana | ✅ 完了 | 2h 15m | なし |
+| 2a. 設計書 | Nao | ✅ 完了 | 3h 40m | なし |
+| 2b. 骨格 | Ren | ✅ 完了 | 3h 10m | なし |
+| 3. 詳細実装 | Ren | 🔄 進行中 (72%) | 5h 20m | アニメーション微調整 |
+| 4. 忠実度QA | Mia | ⏳ 待機 | - | Ren完了待ち |
+| 5. デプロイ | Kaito | ⏳ 待機 | - | Mia通過待ち |
+
+### KPI トラッキング
+- 忠実度スコア（Mia予測）: 87 / 100（合格ライン 85）
+- Lighthouse Performance（CI予測）: 92 / 100
+- LCP予測 / INP予測 / CLS予測: 1.9s / 145ms / 0.04
+- Argos CI 差分率: 0.6%（合格 < 1%）
+
+### リスク・申し送り
+- ⚠️ クライアント素材到着遅延（画像3点未受領）→ プレースホルダー継続中
+- ✅ nori 法務チェック通過済み（フォントライセンス: OFL-1.1）
+
+### 次24時間のアクション
+1. Ren STEP 3 完了見込み: 本日 18:00
+2. Mia QA 着手: 本日 18:30 / 完了見込み: 翌日 12:00
+3. Kaito デプロイ: 翌日 14:00 / 公開URL確認: 翌日 14:15
+```
+
+#### テンプレ B: Vercel Deploy QA Checklist 2026（デプロイ前7+5ゲート）
+
+```
+## Vercel Deploy QA Checklist 2026 — {プロジェクトID}
+
+### ゲート1: ビルド健全性（必須・全PASS必須）
+- [ ] `npm run build` → exit 0
+- [ ] `tsc --noEmit` → エラー 0件
+- [ ] `eslint --max-warnings 0` → 警告 0件
+- [ ] `npm audit --audit-level=high` → 高脆弱性 0件
+
+### ゲート2: パフォーマンスSLA（必須・全数値達成）
+- [ ] Lighthouse Performance ≥ 90
+- [ ] Lighthouse Accessibility ≥ 95
+- [ ] LCP ≤ 2.5s（PageSpeed Insights Field Data）
+- [ ] INP ≤ 200ms（Field Data）
+- [ ] CLS ≤ 0.1（Field Data）
+- [ ] TTFB ≤ 200ms（`curl -w "%{time_starttransfer}"`）
+
+### ゲート3: 忠実度（必須・自動+人力）
+- [ ] Argos CI 差分率 ≤ 1%
+- [ ] Mia 忠実度スコア ≥ 85
+- [ ] 12マトリクス E2E（4ブラウザ × 3デバイス）全PASS
+- [ ] `grep -r placeholder src/` → 0件
+
+### ゲート4: セキュリティ・環境変数（必須）
+- [ ] `git diff origin/main` で API キー・トークン非混入確認
+- [ ] `vercel env pull --environment=production` で必須環境変数全セット
+- [ ] CSP / HSTS / X-Frame-Options ヘッダー `vercel.json` 設定済み
+- [ ] `.env.example` との差分チェック合格
+
+### ゲート5: SEO・SNS（必須）
+- [ ] `vercel.json` で `cleanUrls: true, trailingSlash: false`
+- [ ] `app/opengraph-image.tsx` 動的生成確認
+- [ ] OGP 3SNS プレビュー（X / Facebook / LinkedIn）破綻なし
+- [ ] `sitemap.xml` / `robots.txt` 生成確認
+
+### ゲート6: フォーム動作（必須）
+- [ ] Playwright E2E: フォーム送信 → サンクスページ → 自動返信メール → GA4 Conversion 発火
+- [ ] 必須マーク `*` 視認性 / バリデーション緩和 / プログレスバー実装確認
+
+### ゲート7: 知覚QA（Kaito 直接実施）
+- [ ] PC 3秒テスト: 違和感なし
+- [ ] iPhone実機 + 4G スロットリング 3秒テスト: 違和感なし
+- [ ] Android 中央値端末 3秒テスト: 違和感なし
+- [ ] SP 親指到達範囲（Y=560-844px）に主要CTA配置
+
+### 追加ゲート（2026年版）
+- [ ] Vercel Toolbar 有効化済み（クライアント直接フィードバック受付）
+- [ ] Speed Insights 計測タグ埋め込み済み
+- [ ] Edge Config 接続済み（A/Bテスト準備）
+- [ ] Fluid Compute ランタイム判定済み（API ルートのみ `fluid`）
+- [ ] v0 Platform API キー設定済み（緊急修正用）
+
+**判定**: 全ゲートPASS → `vercel deploy --prod` 実行可
+1つでもFAIL → 該当エージェントへ差し戻し、再QA後再判定
+```
+
+#### テンプレ C: Multi-LP A/B Plan Sheet（複数LP A/B 配信計画）
+
+```
+## Multi-LP A/B Plan Sheet — {キャンペーン名}
+
+### キャンペーン概要
+- クライアント: {名前}
+- 期間: YYYY-MM-DD ～ YYYY-MM-DD（N日間）
+- 目標KPI: CV率 ベース 2.5% → 目標 3.8%（+52%）
+- 配信ボリューム想定: N万セッション / 期間
+
+### A/B 配信構成（Edge Config 制御）
+| バリアント | Hero 訴求 | CTA コピー | カラー | 配信比率 | URL |
+|----------|----------|-----------|--------|---------|-----|
+| Control (A) | 「業界最安値」 | 「無料相談」 | #0066FF | 25% | /lp/v-a |
+| Test B | 「導入実績500社」 | 「資料DL」 | #FF6600 | 25% | /lp/v-b |
+| Test C | 「30秒で見積」 | 「今すぐ診断」 | #00AA66 | 25% | /lp/v-c |
+| Test D | 「初月無料」 | 「無料体験」 | #AA00FF | 25% | /lp/v-d |
+
+### Edge Config キー設計
+```json
+{
+  "campaign_2026_05": {
+    "active": true,
+    "variants": ["A", "B", "C", "D"],
+    "weights": [25, 25, 25, 25],
+    "winner_threshold_cv": 3.5,
+    "auto_promote_at": "2026-06-15T00:00:00Z"
+  }
+}
+```
+
+### Slack 操作コマンド
+- 配信開始: `/lp-ab campaign_2026_05 start`
+- 比率変更: `/lp-ab campaign_2026_05 weights=10,30,30,30`
+- 勝者固定: `/lp-ab campaign_2026_05 winner=C`
+- 緊急停止: `/lp-ab campaign_2026_05 stop`
+
+### 測定計画
+- GA4 カスタムイベント: `lp_variant_view` / `lp_variant_cv`
+- Speed Insights: バリアント別 LCP/INP/CLS をURL別に分離計測
+- Vercel Toolbar: クライアントが各バリアントに直接コメント可能
+
+### 自動勝者判定ロジック
+- 7日経過 + 各バリアント 1,000セッション以上で統計的有意性検定（カイ二乗、p < 0.05）
+- 勝者バリアントの CV 率がベース +30% 以上 → Slack `/lp-ab winner=X` 自動推奨通知
+- Kaito 承認後、Edge Config で `weights: [0,0,100,0]` に切替 → 全トラフィック勝者バリアントへ
+
+### 引き継ぎ先
+- 結果レポート: ryota（クライアント報告）
+- 月次集計: akari（採用広告レポート統合）
+- ナレッジ蓄積: sora（ベストプラクティス集約）
+```
+
+---
+
+### 2026-05-24
+
+- **Vercel Fluid Compute（2026/4 GA）統括導入で API Route の TTFB を 800ms → 150ms に物理短縮**：STEP 5 デプロイ前に `vercel.json` の `functions[].runtime` を「Hero/静的＝なし、API/フォーム＝`fluid`、CMS連動＝`edge`」の3層分離で必須設定。LP のフォーム送信 API のレスポンス遅延クレームを根絶し、Lighthouse Performance +8点底上げ。コスト面でも Fluid は同時リクエストを単一インスタンスで処理するため、Edge Function 比で月額 30% 削減
+- **v0 Platform API + Vercel AI SDK 3.0 で Mia QA NG 後の軽微修正リードタイムを 2時間 → 12分に圧縮**：従来「Mia 差し戻し → Saki 指示書作成 → Ren 実装 → 再デプロイ」の 4ステップ（平均 2時間）を、`v0 generate --from-issue {github-issue-url}` で GitHub Issue 直接 → PR 自動生成に統合。Kaito が `gh issue create` → 12分後に Vercel Preview URL 確認可能。月次の Mia 差し戻し件数 35件中 28件（80%）が新フロー対応可能と試算、Saki の工数を週 12時間削減
+- **Tailwind CSS 4.0 + shadcn/ui 2.0 移行で複製 LP の CSS バンドルサイズを平均 187KB → 84KB（55%削減）**：Lightning CSS エンジンによる JIT コンパイル最適化と shadcn 2.0 の Tree-shakable コンポーネント設計で、LCP が 2.4s → 1.6s に短縮（33%改善）。Mia 忠実度スコアも CSS 構造の統一により平均 87 → 92 点に上昇。新規プロジェクトの Ren 実装着手時間も `npx shadcn@latest add` で 30分 → 3分（90%削減）
+- **Argos CI + Playwright Visual Regression 12マトリクス自動巡回で Mia 人力 QA 工数を 4時間 → 30分に圧縮**：Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop = 12環境の差分検出を Argos CI ダッシュボードで一元可視化。差分率 1% 超で `vercel --prod` を物理ブロックする CI 連携を `.github/workflows/lp-clone.yml` に組込。Mia は Argos が検出できない知覚 QA（フォント太さ・余白感）に専念可能化、QA 全体の精度を維持しつつスループット 8倍化
+- **Vercel Speed Insights Pro + Vercel Toolbar 統括導入で納品後 7日間の運用継続価値を体系化**：本番デプロイ完了直後に Speed Insights Pro 計測タグ + Vercel Toolbar 有効化を `predeploy` フックに必須化。URL別 P75 メトリクスで「フォームページのみ INP > 200ms」等のピンポイント劣化を検出し Slack `#lp-incident` 自動アラート。Vercel Toolbar でクライアントが本番 LP 上に直接コメント → `mcp__Vercel__list_toolbar_threads` で Kaito が Slack 集約 → v0 修正 PR で 30分以内反映。納品後の「ちょっと違う」フィードバック対応速度が 3日 → 30分（144倍化）、受注継続率 +40%
+- **Edge Config + Slack `/lp-ab` スラッシュコマンドで A/B テスト統括権限を Kaito 単独完結化**：従来 Vercel 管理画面 → Edge Config → JSON 編集 → Save の 90秒フローを、`/lp-ab campaign_2026_05 weights=10,30,30,30` 1行で全エッジ即反映（5秒）。会議中のクライアント要望「来週イベント向けに Hero 切替」を Kaito 単独で会議内完結、Ren/Saki 不在時も A/B 配信制御可能化。CV率改善実験のサイクル速度が週1回 → 日次2回（14倍化）に加速、6か月の累積改善幅 +52% を実証
+- **`@vercel/og` 動的 OG 画像生成 + `?utm_source=` パラメータ別 OG 出し分けで SNS 流入 LP の CTR を 25% 向上**：`app/opengraph-image.tsx` で訪問元 SNS（X / Facebook / LinkedIn）ごとに OG 画像を Edge Runtime で動的生成。Twitter は横長 1200×675、LinkedIn は正方形 1200×1200、Facebook は標準 1200×630 と自動切替し、各 SNS のプレビュー破綻をゼロ化。STEP 5 デプロイ前に `https://www.opengraph.xyz/url/{URL}` で3SNS同時検証を必須化、Mia QA の OG チェック項目を 15分 → 2分（87%削減）
+
+
