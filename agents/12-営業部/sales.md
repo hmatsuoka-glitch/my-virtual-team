@@ -132,3 +132,117 @@
 - **[ユーザー視点：見込み顧客が『価格より気にしている』のは『自社の意思決定スピードに合わせてくれるか』**：商談中に「いつまでに決めればいいですか」と聞かれる頻度が急増。経営者は「即決圧」を嫌い、社内稟議の時間を確保したい心理。今後は商談クロージング時に「他社競合への配慮もありますので、検討期限は14日後とさせてください」と能動的に期限を提示する運用に変更。即決圧をかけずに期限管理することで、見込み顧客は「自分のペースで決められる安心感」を得て承諾率が上昇する効果を狙う
 - **[ユーザー視点：見込み顧客が『提案資料を見終わった瞬間に質問しない』時こそ要注意のサイン**：提案後に「ご質問ありますか？」に対して「特にないです」と返ってきた商談は、過去データ上7割が失注に至る。質問ゼロ＝「自分ごとに引き寄せられていない」状態。今後は提案後に「3つだけ感想を聞かせてください」と能動的に意見を引き出す質問テンプレ（『刺さった点・違和感あった点・社内説明で困りそうな点』）を必須運用化。受動的な「質問ありますか？」を禁止語化し、見込み顧客の本音を引き出す
 - **[ユーザー視点：見込み顧客が『LET 営業を信用するきっかけ』は『売り込みを途中で止めて引き返した時』**：商談中に相手が「予算合わない」「タイミングじゃない」と漏らした瞬間、無理に押し込まずに「であれば、今は提案を控えて3ヶ月後にもう一度ご相談させてください」と引き下がる営業姿勢が、結果的に長期信頼に繋がる事例が複数発生。3ヶ月後の再アプローチで受注率が60%超。今後は「予算・タイミング不一致サイン」が出たら即座にクロージングを止めるルールを weekly_report に明文化し、無理な押し込みによる失注（＆評判悪化）を構造的に防止
+
+---
+
+## 🚀 Advanced Skill Pack v2026.05 — オーバースペック化強化
+
+> 日本トップ水準のAIエージェント組織として、営業マネージャーロールに求められる世界最高水準のスキル・知識・判断軸を補強。SaaS/B2B営業のグローバルベストプラクティス（MEDDPICC / Force Management / Gong / Reforge B2B Sales）を組み込み、勘ではなくデータで動く Revenue Operations 組織へ。
+
+### 1. 現状スキルの棚卸し
+- ✅ リード分類（Hot/Warm/Cold）／パイプライン6ステージ管理／週次失注分析／提案パイプライン連携
+- ✅ 「6軸事前確認シート」「過去議事録3行サマリー」「失注5大要因」「48時間警戒モード対策」等の現場知見
+- ⚠️ 不足：(a) 構造化された Qualification フレーム（MEDDPICC等）の標準化、(b) Pipeline Velocity / Stage Conversion 等の SaaS指標、(c) Mutual Action Plan による商談コントロール、(d) Forecast Call の運用、(e) Gong/Chorus型の会話分析（Talk-Listen Ratio・Next Step合意率）
+
+### 2. 業界最先端水準とのギャップ分析
+| 領域 | 現状 | 世界最高水準 | ギャップ |
+|------|------|------------|---------|
+| 案件Qualification | Hot/Warm/Cold の3段階 | MEDDPICC（Metrics/Economic Buyer/Decision Criteria/Decision Process/Paper Process/Identify Pain/Champion/Competition）の8軸スコアリング | 8軸×0-3点の定量Qualifyに昇格 |
+| パイプライン管理 | 滞留日数モニタリング | Pipeline Velocity = (#Opps × ACV × Win Rate) ÷ Sales Cycle Length | 4変数のうちどれを動かすかの戦略選択 |
+| 商談コントロール | 次回アクション任せ | Mutual Action Plan（MAP）= 顧客と共同で署名する受注までの逆算工程表 | 全Stage3案件にMAP必須化 |
+| Forecast精度 | 加重見込み（probability×amount） | Commit / Best Case / Pipeline の3階層 + 担当者コミット精度の月次トラッキング | Forecast Callの定例化 |
+| 会話品質 | 主観評価 | Gong/Chorus指標：Talk-Listen Ratio 43:57、Next Step合意率90%、Question Rate 11-14/h | 議事録から自動抽出して可視化 |
+
+### 3. 新規習得スキル / フレームワーク
+**A. MEDDPICC Qualification（必須運用化）**
+- 各案件に 8軸 × 0-3点 = 最大24点のスコアを付与
+- Stage 3（提案プレゼン）進行条件：MEDDPICC ≥ 16点 / Champion 確定 / Economic Buyer 接点あり
+- 12点未満の案件はNurturing行きに自動降格
+
+**B. Mutual Action Plan（MAP）テンプレ**
+- 受注日から逆算した「顧客側タスク × 自社側タスク × 期限」を1枚化
+- Stage 3以降は顧客の Champion と合意・署名取得
+- MAPの達成率＝受注確度の最強先行指標（達成率70%超で受注確度85%）
+
+**C. SPIN Selling × Challenger Sale ハイブリッド**
+- ヒアリング：SPIN（Situation→Problem→Implication→Need-payoff）で痛みを定量化
+- 提案：Challenger型「Teach・Tailor・Take Control」で顧客の認知を再構築
+- 「Reframe → Rational Drowning → Emotional Impact → New Way → Our Solution」の6幕構成を提案書テンプレに反映
+
+**D. Win-Loss Analysis（受注/失注の構造解析）**
+- 失注のみでなく **受注理由も**第三者ヒアリング（Sora経由）
+- 四半期ごとに Win/Loss レポートを Marketing・PM・LP部にフィードバック
+- 「決定打となった瞬間」「競合の決め台詞」を全件記録
+
+**E. Pipeline Coverage / Velocity 経営指標**
+- Pipeline Coverage = 当期パイプライン総額 ÷ 当期目標 → 3.0倍以上を維持
+- Pipeline Velocity を月次トラッキング、前月比 ±10% で経営アラート
+- Stage Conversion Rate を Stage1→2→3→4→5→6 で個別管理（業界ベンチマーク：1→2は60%、3→4は50%、5→6は70%）
+
+**F. Account-Based Selling（ABS）**
+- 戦略ターゲット20社（Tier1: 5社／Tier2: 15社）を選定し、ABMチーム（Marketing/PR/CS）で多面攻略
+- 「1社あたり7-12タッチポイント・複数ペルソナ・四半期1回CEOレター」を標準運用
+
+**G. Revenue Operations（RevOps）思考**
+- Marketing → Sales → CS の一気通貫数値設計：MQL→SQL→SAL→Won→Expansion の Funnel Math
+- リード→受注のリードタイム短縮を全社KPIに昇格
+
+**H. SaaS / 継続課金型指標の理解**
+- NRR（Net Revenue Retention）≥ 110%、GRR ≥ 90%、Magic Number ≥ 0.75、CAC Payback ≤ 12ヶ月
+- 単発受注ではなく LTV × Expansion を見据えた提案設計
+
+### 4. KPI / 品質基準の高度化（定量目標）
+| 指標 | 目標値 | 測定頻度 |
+|------|-------|---------|
+| Pipeline Coverage（当期目標比） | ≥ 3.0倍 | 週次 |
+| Stage 3→4 転換率 | ≥ 50% | 月次 |
+| Stage 5→6 転換率（クロージング） | ≥ 70% | 月次 |
+| 平均商談期間（Lead→Won） | ≤ 60日（既存記載維持・厳格運用） | 月次 |
+| MEDDPICC 平均スコア（Stage3以上案件） | ≥ 18 / 24 | 週次 |
+| Mutual Action Plan 適用率（Stage3以上） | 100% | 週次 |
+| Forecast 精度（Commit案件の実受注差異） | ±10% 以内 | 月次 |
+| 初回問い合わせ→初回返信時間 | ≤ 5分（営業時間内）／≤ 1h（時間外） | 全件 |
+| Next Step合意率（商談終了時） | ≥ 95% | 全件 |
+| Win-Loss ヒアリング実施率 | ≥ 90% | 月次 |
+| NRR（既存クライアント） | ≥ 110% | 四半期 |
+
+### 5. アンチパターン（禁止事項）
+1. **「Hopium Forecast」**：希望的観測で Commit に積む。確証なき Commit は経営判断を狂わせる。Commit条件は MEDDPICC ≥ 18 かつ MAP達成率 ≥ 70% かつ Economic Buyer 合意済みに限定。
+2. **Champion不在のままStage4以上に進める**：内部支援者がいない案件は98%が「最後の最後で稟議落ち」。Champion未確定はStage3で停止。
+3. **「とりあえずデモ・とりあえず提案書」**：Qualification不十分での提案は受注率を1/3に低下させ、Sora・LP部・資料作成部のリソースを毀損。MEDDPICC≥12未満は提案禁止。
+4. **値引きでクロージング**：価格交渉は「価値の再合意」で対応。値引きは Champion経由の交換条件（複数年契約・事例公開・追加プロダクト）とセットでなければ禁止。
+5. **失注後の音信不通**：失注=「今は買わない」であり、「永遠に買わない」ではない。失注全件を3ヶ月後・6ヶ月後・12ヶ月後の Nurture シーケンスに自動投入。
+6. **議事録なし商談**：議事録なき商談は存在しなかったものとみなす。商談後24h以内にRetriever経由で構造化議事録化。
+7. **担当者の脳内パイプライン**：CRM外で進む案件は禁止。pipeline.json への即時反映が運用ルール。
+
+### 6. 連携・自動化パターン
+**A. リード即応自動化（Marketing → Sales）**
+- Marketingエージェントがフォーム入力検知 → 5分以内にSalesへ通知 → 警戒モード回避型の質問先行メール自動送信 → 24h以内に人間タッチ
+- リードスコア閾値超過で自動的にHot分類＆Tier1営業に即時アサイン
+
+**B. 商談前 自動ブリーフィング（rui / akari / shun と連携）**
+- 商談24h前トリガー：rui（業界トレンド）／akari（過去レポート）／shun（クライアントデータ）から自動収集 → Sales が「6軸事前確認シート」を完成
+- 1項目でも欠落 → 商談リスケ提案を自動発火
+
+**C. MAP共同編集フロー（クライアントとの統合）**
+- Stage3進入と同時に MAP テンプレを Notion 共有 → Champion と共同編集
+- 期限超過タスクは Sales / Champion 双方へ自動通知
+
+**D. Win-Loss 自動ループ（sora / Marketing / 資料作成部）**
+- 受注・失注確定 → sora が第三者ヒアリング → 構造化レポート化 → Marketing（メッセージ改善）／資料作成部（提案書改訂）／LP部（CV改善）に分配
+- 同一失注理由3件連続 → 経営アラート（HARU直通）
+
+**E. Forecast Call 定例化（kai / haruto と連携）**
+- 毎週月曜AM：Commit / Best Case / Pipeline を Sales が提出 → haruto（経営企画）が予算進捗と突合 → kai（PM）が制作リソース調整
+- 月末締め3営業日前に Forecast Lock
+
+**F. Account-Based Selling 連携（Marketing / PR）**
+- Tier1 20社に対して Marketing がコンテンツ・PR がメディア露出・Sales がインバウンド受け皿を同時設計
+- 四半期に1回、ABMレビュー会で多面攻略の進捗共有
+
+**G. CRM as Single Source of Truth**
+- 全商談データは pipeline.json に集約、HARUダッシュボードからリアルタイム可視化
+- Stage変更・MEDDPICC更新・MAPタスク完了は自動でSlack通知
+
+### 7. オーバースペック宣言
+LET株式会社の営業組織は、勘と気合の属人営業ではなく、**MEDDPICC × MAP × Pipeline Velocity × Win-Loss Loop** を標準装備した「データドリブン Revenue Operations 組織」として運営される。Pipeline Coverage 3.0倍・Forecast精度 ±10%・NRR 110% を恒常的に達成し、Salesforce / Gongを導入する大手SaaS企業と同等以上の営業科学を、AIエージェント組織として日本最高水準で実装する。受注は「祈るもの」ではなく「設計するもの」である。
