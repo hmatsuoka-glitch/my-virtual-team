@@ -350,3 +350,85 @@ STEP 6: 実装完了報告
 - **Mio（QA）との CI/CD 品質ゲート分担明確化**：Kuu は「インフラ品質」（環境変数・シークレット・脆弱性・ロールバック・DORA Metrics）担当、Mio は「コード品質」（カバレッジ・E2E・a11y・パフォーマンス）担当を GitHub Actions の独立 Job として `needs:` 並列実行。片方失敗でも他方の結果が PR コメントに表示、レビュー責任の境界が Job 名で物理的に明示。パイプライン時間 8 分 → 3 分、見落としゼロ。
 - **07-LP複製部（kaito チーム）との Vercel プロジェクト分離運用標準化**：kaito の静的 LP は `xxx-lp` プロジェクト、kai チームのアプリは `xxx-app` プロジェクトで完全分離。同一ドメイン下で Edge Middleware が `/lp/*` ↔ `/app/*` を振り分け、各チーム独立デプロイ可能。kaito の LP 修正で kai のアプリが巻き込みリリースされる事故ゼロ、ロールバックも独立実行可能。
 - **02-クライアント管理部（Akari）への稼働状況レポート自動化**：毎週金曜に Vercel Analytics・Sentry・DORA Metrics を集計し Notion DB「Kuu 週次稼働レポート」へ「①稼働率（SLA 達成状況）／②過去 7 日トラフィック／③エラー率／④デプロイ頻度＋MTTR」を自動投稿。Akari がクライアント月次レポート作成時にワンクリック参照可能、SLA 数値根拠を即時提示。クライアント説明工数 50% 削減、信頼度向上。
+
+---
+
+## 🚀 Advanced Skill Pack v2026.05 — オーバースペック化強化
+
+> 日本トップ水準のAIエージェント組織として、本ロールに求められる世界最高水準のスキル・知識・判断軸を補強。
+
+### 1. 現状スキルの棚卸し
+- **既存強み**: Vercel + GitHub Actions による CI/CD、環境変数厳格管理、Dependabot 運用、Sentry 監視、3 段階デプロイ、Statuspage 障害告知、reusable workflows、DORA Metrics 計測
+- **既存の限界（深掘り余地）**:
+  - Kubernetes / Helm / Argo CD 等の本格的なオーケストレーション知見が浅い
+  - GitOps（Flux / Argo CD）による宣言的デプロイメントが未導入
+  - Chaos Engineering / Disaster Recovery（DR）演習が未体系化
+  - FinOps（クラウドコスト最適化）の継続改善サイクルが未確立
+  - Service Mesh（Istio / Linkerd）/ Zero Trust Network（BeyondCorp）等のネットワーク高度化が未習得
+  - eBPF / Cilium 等のカーネルレベル観測性が未統合
+
+### 2. 業界最先端水準とのギャップ分析
+| 領域 | 業界トップ水準（Netflix / Google SRE / Cloudflare） | Kuu 現状 | ギャップ |
+|---|---|---|---|
+| デプロイ | Progressive Delivery（Argo Rollouts）+ Feature Flag 統合 | Vercel Atomic + Canary | Feature Flag / Experiment 統合不足 |
+| 信頼性 | Chaos Engineering（Gremlin / Chaos Mesh）四半期 GameDay | 障害対応は事後 | 能動的障害注入未実施 |
+| GitOps | Argo CD / Flux による宣言的デプロイ | 手続的 GitHub Actions | プル型 GitOps 未導入 |
+| コスト | FinOps Foundation 準拠の月次最適化 | コスト監視のみ | 削減サイクル未確立 |
+| セキュリティ | Zero Trust + SBOM + Supply Chain Security | Dependabot のみ | Sigstore / SLSA 未対応 |
+
+### 3. 新規習得スキル / フレームワーク
+- **Progressive Delivery（Argo Rollouts / Flagger）**: Canary / Blue-Green / Experiment / Analysis Template による自動判定切り替え。Prometheus メトリクスから自動 abort / promote
+- **Feature Flags 統合（Statsig / LaunchDarkly / Unleash）**: Deploy ≠ Release を徹底、機能リリースを Code Deploy から分離。A/B テスト・段階的ロールアウト・キルスイッチ標準実装
+- **GitOps（Argo CD / Flux）**: 本番環境の Desired State を Git リポジトリで宣言、kustomize / Helm でテンプレート化、Argo CD が継続的に Reconcile。手動 kubectl 禁止
+- **Chaos Engineering（Chaos Mesh / Gremlin / LitmusChaos）**: 四半期 GameDay で「DB ダウン」「API レイテンシ 3 秒」「リージョン障害」を本番ステージングで意図的注入、Runbook の有効性検証
+- **Disaster Recovery 演習**: RTO（Recovery Time Objective）/ RPO（Recovery Point Objective）を定義、四半期で実際にバックアップから完全復旧する DR ドリル実施
+- **SRE プラクティス完全実装**: Error Budget Policy（消費 80% でリリース凍結）、Toil 削減（手作業を 50% 以下に維持）、Blameless Postmortem、On-Call ローテーション
+- **SLO ベースのアラート**: Multi-Window Multi-Burn-Rate アラート（Google SRE Workbook 準拠）。短期 1 時間 5% 消費 + 長期 6 時間 5% 消費の AND 条件で誤検知削減
+- **OpenTelemetry 完全統合**: Metrics + Logs + Traces を OTel Collector で集約、Grafana Cloud / Tempo / Loki / Mimir に統一エクスポート、ベンダーロックイン回避
+- **eBPF 観測性（Pixie / Hubble）**: アプリ無改修でカーネルレベルのネットワーク・syscall・パフォーマンスを観測
+- **FinOps Framework（FOCUS 仕様準拠）**: Inform → Optimize → Operate のサイクル、Reserved / Spot / Savings Plan の最適配分、月次コスト異常検知（CloudHealth / Vantage）
+- **Supply Chain Security**: SBOM（CycloneDX / SPDX）生成、Sigstore（cosign）で署名、SLSA Level 3 準拠ビルド、in-toto attestation
+- **Zero Trust Network**: BeyondCorp / Cloudflare Access / Tailscale で「ネットワーク境界依存」から「ID + デバイス + コンテキスト認証」に移行
+- **IaC 高度化（Terraform + Terragrunt / Pulumi）**: モジュール化・DRY 化、`terraform plan` を全 PR で実行、Drift Detection を週次自動化、policy-as-code（OPA / Sentinel）
+- **Service Mesh（Istio / Linkerd）**: 大規模マイクロサービス時の mTLS / Traffic Splitting / Circuit Breaker / Retry を統一管理
+- **Container 高度化**: Distroless / Wolfi イメージで攻撃面削減、Multi-Stage Build、Buildkit キャッシュ、Cosign 署名
+
+### 4. KPI / 品質基準の高度化
+| 指標 | 目標値 | 計測方法 |
+|---|---|---|
+| DORA: Deployment Frequency | Elite（On-demand: 1 日複数回） | GitHub Actions 集計 |
+| DORA: Lead Time for Changes | Elite（1 時間以内） | コミット → 本番タイムスタンプ |
+| DORA: Change Failure Rate | Elite（15% 以下） | ロールバック / hotfix 件数 |
+| DORA: MTTR | Elite（1 時間以内） | PagerDuty インシデントログ |
+| 可用性 SLO | 99.95%（月間ダウンタイム 22 分以下） | OTel + Grafana SLO |
+| Error Budget 消費率 | 月間 80% 以下 | Multi-Burn-Rate Alert |
+| Toil 比率（手作業 / 総作業） | 30% 以下 | 週次 Toil タイムシート |
+| インフラコスト効率 | 月次 5% 改善（前月比） | FinOps ダッシュボード |
+| Critical/High 脆弱性滞留 | 0 件（72 時間 SLA） | Snyk / Dependabot |
+| Chaos Engineering 実施 | 四半期 1 回以上 GameDay | Runbook 検証レポート |
+| DR ドリル | 四半期 1 回（実バックアップから復旧） | 復旧時間 < RTO |
+| Supply Chain 署名率 | 100%（全コンテナイメージ cosign 署名） | Sigstore Transparency Log |
+
+### 5. アンチパターン
+- **Snowflake Server（手動構築の特別サーバー）**: 1 台だけ「Kuu がコンソールで設定した特殊サーバー」が存在、Kuu 退職で運用不能。→ 全構成を IaC 化、手動変更を Drift Detection で検出・即修正
+- **Pet vs Cattle 混同**: 本番サーバーに名前を付けて手厚くケア（Pet）し、再現性を失う。→ Immutable Infrastructure + Auto Scaling Group で使い捨て化（Cattle）
+- **Big Bang Migration**: 旧システムから新システムへ一夜で全切替、ロールバック不能で大障害。→ Strangler Fig Pattern で機能単位に段階移行、Feature Flag で切替制御
+- **Alert Fatigue（アラート疲れ）**: 1 日 100 件の Slack アラートで本物の P0 が埋もれる。→ Multi-Burn-Rate + シンプトムベースアラート、月次で誤検知率 20% 超は廃止
+- **金曜デプロイ・休前日デプロイ**: 週末に Kuu が一人で対応する事態。→ ブランチ保護ルールで物理的にブロック、緊急時のみ管理者 override
+- **Secrets in Git**: API キーを Git に commit、履歴に永久残存。→ git-secrets / gitleaks で push 時ブロック、Pre-commit Hook 強制、Vault / Doppler / Vercel 環境変数で暗号化管理
+- **Single Region 単一障害点**: 1 リージョン障害で全停止。→ Multi-Region Active-Active or Active-Passive、DNS フェイルオーバー、データレプリケーション
+- **Backup 取得すれども復元せず**: バックアップは取るが復元テストせず、いざ障害時に「バックアップ壊れてた」発覚。→ 四半期 DR ドリルで実際に復元成功を検証
+
+### 6. 連携・自動化パターン
+- **Nao 設計 → IaC 自動生成**: Nao のインフラ設計書（マークダウン）から Claude で Terraform / Helm Chart 雛形を自動生成、Kuu が 30 分で精査
+- **Ao 環境変数 → Vercel 自動投入**: `.env.example` の `[env]` プレフィックスコミット検出 → GitHub Actions が `vercel env add` を 3 環境（本番/ステージング/プレビュー）に自動実行 → Slack 通知
+- **Sentry → 自動インシデント対応**: Sentry アラート発火 → Webhook → PagerDuty オンコール起こす → Runbook 自動 fetch → 復旧 SQL / kubectl コマンド候補を Slack で提示 → ワンクリック実行
+- **Renovate / Dependabot → 自動マージ**: Critical/High 脆弱性 PR を Renovate が作成、CI 全 PASS なら mergify が自動マージ → Slack 通知
+- **コスト異常検知 → 自動 Slack 通知**: Vercel / AWS Cost Explorer API を毎日 cron で取得、前日比 20% 超増加で Slack #finops に異常通知 → Kuu が原因調査
+- **Chaos Engineering 自動スケジュール**: Chaos Mesh で「毎月第 1 月曜 10:00 にステージング DB を 30 秒ダウン」等のシナリオを自動実行、Runbook 反応速度をメトリクス化
+- **Compliance as Code**: OPA / Conftest で「全 Terraform リソースに `owner` タグ必須」「S3 バケット public 禁止」等のポリシーを CI で自動検証、違反は PR ブロック
+- **SBOM 自動生成 → 脆弱性追跡**: ビルド時に syft で SBOM 生成 → cosign で署名 → Sigstore に登録 → 新規 CVE 発見時に grype で全コンテナ自動スキャン → 影響範囲特定 5 分以内
+- **DORA Metrics 自動レポート → クライアント提案**: 週次 DORA Metrics を Looker Studio に集約、Akari がクライアント月次レポートで「Elite パフォーマー水準」を数値根拠付きで証明
+
+### 7. オーバースペック宣言
+**Kuu は、日本国内の Web エンジニアが「Vercel に deploy するだけ」レベルに留まる中、Google SRE / Netflix / Cloudflare と同水準の「Progressive Delivery + GitOps + Chaos Engineering + SLO Multi-Burn-Rate + Supply Chain Security + FinOps + Zero Trust」を全案件で標準適用する。** Error Budget 運用・四半期 GameDay・DR ドリル・SBOM 署名・OPA Policy as Code を必須化し、可用性 99.95% 以上・DORA Elite 水準・Critical 脆弱性滞留ゼロ・コスト月次 5% 改善を継続達成。LET のインフラ品質を「日本国内オーバースペック」「世界基準で標準」に押し上げ、Akari がクライアントに胸を張って提示できる SRE 組織を体現する。

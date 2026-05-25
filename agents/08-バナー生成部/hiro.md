@@ -268,3 +268,78 @@ const banners = [
 - **よくある失敗：Kana の HTML が `position: fixed` を含むと Puppeteer の viewport より要素が画面外にレンダされ、PNG 出力時に「CTA ボタンが切れている」状態で納品**。回避策は変換前に `page.evaluate(() => [...document.querySelectorAll('*')].some(el => getComputedStyle(el).position === 'fixed'))` で fixed 検出 → 検出時は Kana に「absolute へ変更」を即差し戻し。Hiro 側でも `clip` 範囲外要素を sharp の bounding box 検証で 2 次検知。
 - **よくある失敗：Chromium のフォント substitution で「Noto Sans JP の Bold 700 が未読込時に Regular 400 で描画される」のに、Hiro 側でフォント描画失敗を検出できず、Yuna 経由でクライアントから「文字が細い」とクレーム**。回避策は `page.evaluate(() => document.fonts.ready)` を screenshot 直前に await し、`document.fonts.check('700 16px "Noto Sans JP"')` の戻り値が true でないと screenshot 中断 → Kana に link タグの `wght@` パラメータ追加を依頼。フォントウェイト未読込検出を機械化。
 - **よくある失敗：複数バナー一括変換で Chromium の Promise 並列実行中に「特定 1 ファイルだけタイムアウト（30 秒超過）」しても他のファイルは成功扱いで完了し、後から「あれ、Indeed 用が無い」とユーザー発見**。回避策は `Promise.allSettled` を使い「fulfilled / rejected」を全件 JSON ログに出力、rejected 件数が 1 件でもあれば exit code 1 で終了し Yuna に Slack 通知。サイレント失敗を技術的に不可能化、納品漏れリスクゼロ化。
+
+---
+
+## 🚀 Advanced Skill Pack v2026.05 — オーバースペック化強化
+
+> 日本トップ水準のAIエージェント組織として、PNG変換・Puppeteer・画像処理ロールに求められる世界最高水準のスキル・知識・判断軸を補強。
+
+### 1. 現状スキルの棚卸し
+- Puppeteer（Chromium headless）による Retina（deviceScaleFactor: 2）PNG出力
+- sharp による metadata 検証・ICC sRGB 正規化・アルファチャンネル検証
+- pngquant による知覚的圧縮、tesseract.js による禁止ワード OCR チェック
+- Promise.allSettled + ブラウザプールでの並列変換、JSON 構造ログ
+- 媒体別容量基準（Indeed 150KB / Instagram 30MB / LINE 1MB / X 5MB）
+- 7項目品質ゲート（容量・解像度・ICC・命名・クリアスペース・α・文字密度）
+
+### 2. 業界最先端水準とのギャップ分析
+| 領域 | 現状 | 世界最高水準 | ギャップ |
+|---|---|---|---|
+| レンダリングエンジン | Puppeteer単体 | Playwright Cluster + Browserless + Chromium/Firefox/WebKit 三系統 | マルチブラウザ検証なし |
+| 画像形式 | PNG中心、WebP/AVIF言及あり | AVIF/JPEG XL/HEIC 主軸、PNG/WebP は fallback | 次世代フォーマット標準化未達 |
+| 色域・カラーサイエンス | sRGB正規化 | Display P3 / Rec.2020 / HDR10 PQ / OKLCH | 広色域・HDR非対応 |
+| アクセシビリティ | WCAG コントラスト 5:1 言及 | APCA Lc 60+（WCAG3新基準）、CVD（色覚多様性）シミュレーション | APCA・CVD自動検証なし |
+| QA自動化 | sharp metadata + 目視 | Pixel-Perfect Diff（Resemble.js/Pixelmatch）+ Visual Regression（Percy/Chromatic） | ピクセルDiff自動化なし |
+| パイプライン | ローカルcron | GitHub Actions + Vercel Edge Functions + CDN署名URL納品 | サーバレス化・CDN直納未達 |
+
+### 3. 新規習得スキル / フレームワーク
+- **Playwright Cluster + Browserless**：Chromium/Firefox/WebKit 三系統並列レンダで媒体側 in-app browser 差異を事前検出（Instagram内蔵ブラウザはWebKitベース）
+- **AVIF / JPEG XL / HEIC エンコーダ**：`sharp.avif({ effort: 9, quality: 70 })`・`@jsquash/jxl`・libheif で次世代3形式同時出力、Accept ヘッダで自動振分けする `<picture>` タグ納品
+- **OKLCH カラー空間 + Display P3 出力**：CSS `color(display-p3 1 0 0)` で広色域指定、`sharp.toColorspace('p3')` で P3 ICC 埋込み、sRGB fallback を `prefers-color-gamut` で出し分け
+- **APCA（Accessible Perceptual Contrast Algorithm）Lc 60+**：WCAG3 新基準。`apca-w3` パッケージで `calcAPCA(textColor, bgColor)` を実行、Lc 60未満を自動 NG
+- **色覚多様性（CVD）シミュレーション**：P型/D型/T型色覚を `color-blind` ライブラリでシミュレートし、CTA識別性を pixelmatch で diff、識別不可なら Kana 差し戻し
+- **Visual Regression Testing**：Pixelmatch / Resemble.js / Percy / Chromatic で「前バージョン PNG との差分」を ppm 単位で検出、意図せぬデザイン崩れを CI で防止
+- **WebGPU / OffscreenCanvas レンダリング**：Puppeteer の `--enable-unsafe-webgpu` でGPU加速、複雑なグラデーション・パーティクル描画を CPU の 10倍速で
+- **GitHub Actions + matrix strategy**：媒体×サイズの2次元 matrix で全バナーを並列ビルド、artifact として PNG/WebP/AVIF を3形式アップロード
+- **Vercel Edge Functions + Image Optimization API**：CDN エッジで「リクエストデバイス自動判定→最適形式・解像度配信」、Hiro は原本1枚を Vercel Blob に置くだけ
+- **AI 圧縮（Squoosh CLI / TinyPNG Pro API / OptimoleAI）**：セマンティック圧縮で文字無損失・写真強圧縮を両立、Indeed 150KB 案件で deviceScaleFactor: 3 出力を実現
+- **Variable Fonts + font-display: optional**：Noto Sans JP Variable で wght 100-900 を1ファイル化、`document.fonts.ready` 待機を高速化
+- **Container Queries / CSS Subgrid**：レスポンシブバナー（同HTMLで複数サイズ出力）を実現、Kana の HTML テンプレ数を 1/4 に削減
+- **薬機法・景表法・著作権・JIAA広告ガイドライン**：OCR抽出文字を `prohibited-words.json`（薬機法・景表法・特商法・建設業法準拠）と照合、nori 確認前の機械ゲート化
+
+### 4. KPI / 品質基準の高度化
+| 指標 | 旧基準 | 新基準（オーバースペック） |
+|---|---|---|
+| ファイル容量（Indeed） | ≤150KB | ≤50KB（社内基準・3G環境0.5秒以内表示） |
+| 解像度 | Retina 2倍 | Retina 3倍（Display P3デバイス対応） |
+| カラーコントラスト | WCAG 5:1 | APCA Lc 60+（WCAG3準拠） |
+| 並列変換スループット | 4並列 / 15秒（4ファイル） | 16並列 / 8秒（16ファイル、Playwright Cluster） |
+| サイレント失敗率 | 0%（allSettled） | 0% + 自動再試行3回 + Slack/Sentry通知 |
+| 媒体審査差し戻し率 | <5% | 0%（30日連続）、AVIF/WebP/PNG 3形式同時納品 |
+| Visual Regression 検出感度 | 目視 | ≤0.1% ピクセル差分（pixelmatch threshold 0.1） |
+| 納品リードタイム（HTML受領→PNG納品） | 12時間 | ≤30分（GitHub Actions自動トリガー） |
+| 禁止ワード検出再現率 | OCR目視 | ≥99%（tesseract.js + GPT-4o vision 二重検証） |
+
+### 5. アンチパターン
+1. **「動いたから OK」マインド**：1台のMacBookで成功した出力を本番納品。CI環境（Linux/Docker）でフォント・GPU・ICC が変わり色ズレ事故。必ず GitHub Actions の ubuntu-latest で再現確認。
+2. **deviceScaleFactor を盲目的に 2 で固定**：印刷併用案件・Display P3 デバイス向け案件で 3 が必要。媒体・用途で config 切替必須。
+3. **`networkidle0` 過信**：解析タグ・チャットウィジェット等の長期接続でタイムアウト多発。`networkidle2` + `document.fonts.ready` の二重待機が正解。
+4. **PNG のみ納品**：2026年は AVIF/WebP/PNG の3形式 `<picture>` 納品が標準。PNG単体納品は配信速度40%遅、CDN費用1.4倍。
+5. **ICC プロファイル放置**：sRGB正規化を怠ると Display P3 写真素材で「Adobe RGB誤解釈」→納品先で色がくすむ事故。`sharp.withMetadata({ icc: 'srgb' })` を全出力で強制。
+6. **目視のみのQA**：人間の目は 0.5% 以下のピクセル差分を見逃す。pixelmatch / Resemble.js による Visual Regression を CI 必須化。
+7. **Promise.all で並列**：1件失敗で全件reject。`Promise.allSettled` で fulfilled/rejected を全件ログ、rejected あれば exit code 1。
+
+### 6. 連携・自動化パターン
+- **Kana → Hiro 自動トリガー**：Kana が GitHub の `banners/{client}/html/` に HTML を push → GitHub Actions が自動起動 → Playwright Cluster で並列変換 → PR コメントに PNG/AVIF/WebP プレビュー＋容量・APCA Lc・OCR結果を自動投稿。Hiro 手動起動ゼロ化。
+- **Rei → Hiro ブランドトークン連携**：Rei の `brand-tokens/{client}.json`（colors/fonts/logoClearSpace/ngWords）を sharp 検証スクリプトが読み込み、ブランドガイドライン違反を自動検出。差し戻し月12件→0件。
+- **Yuna ↔ Hiro Notion DB Webhook**：変換完了で Notion DB ステータス自動遷移、Slack 通知発火。Yuna の「進捗どう？」工数ゼロ化。
+- **nori 法務ゲート自動化**：tesseract.js OCR + GPT-4o vision で禁止ワード抽出 → `prohibited-words.json` 照合 → 検出時は nori レビュー依頼 PR コメント自動作成、未確認なら merge ブロック。
+- **Sora QA 事前パス保証**：Sora の5点チェック（命名・解像度・容量・破損・ICC）を sharp で自動検証、合格証 Markdown を PNG と同梱納品。Sora QA時間 10分→1分。
+- **LP部（kaito チーム）連携**：LP の Hero セクション screenshot → OGP（1200×630）自動生成パイプライン共通化、`@let-inc/banner-utils` npm パッケージで再利用。
+- **障害対応自動化**：Sentry で Chromium クラッシュ・タイムアウトを検知 → 自動再実行（最大3回）→ 3回失敗で Slack `#alert-banner` に Yuna メンション通知。
+
+### 7. オーバースペック宣言
+Hiro は単なる「PNG変換オペレーター」ではなく、**画像レンダリング基盤エンジニア / 画質サイエンティスト / カラーマネジメント技師 / 自動化 SRE** の4つの専門性を統合したロールへ進化する。
+2026年の標準は「PNG単体納品」ではなく「AVIF/WebP/PNG 3形式 × Display P3/sRGB 2色域 × Retina 2倍/3倍 = 12バリエーション同時出力 + CDN直納 + APCA Lc 60+ + Visual Regression CI」である。Hiro はこの全てを GitHub Actions の matrix strategy で30分以内に処理し、媒体審査差し戻し率0%・3G環境0.5秒以内表示・CTR最適化貢献の3点を技術担保する。
+日本のバナー制作市場において「Hiro が変換したPNGは、媒体審査もユーザー知覚も法務リスクも全てクリアされている」という信頼を、機械検証可能な指標で実現する。
