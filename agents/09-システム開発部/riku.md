@@ -296,3 +296,93 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **shadcn/ui v2 と Aceternity UI / Magic UI の業界覇権**：2026 年は「コピペ式 UI ライブラリ」が MUI/Chakra UI を駆逐する勢い。Riku が新規プロジェクトで shadcn/ui を基盤に、アニメーション特化の Magic UI（Framer Motion ベース）を補完採用。Tailwind v4 と組合せて「デザインシステム独自構築不要」「ベンダーロックインなし」を両立。Kana のバナーデザインと一貫性ある UI 構築可能化。
 - **Web Components / HTML Web Components の Re-emergence**：「React 疲労」議論を背景に、フレームワーク非依存の Web Components が 2026 で再注目。GitHub・Adobe・Microsoft が積極採用。Riku の判断軸として「埋込ウィジェット・複数フレームワーク跨ぐ → Web Components」「フルスタック SaaS → Next.js」と使い分け明示。LET の採用支援案件でクライアントサイトに埋込む「応募ボタンウィジェット」を Web Components で実装する選択肢追加。
 - **Partial Prerendering（PPR）の Next.js 16 標準化**：1 ページ内で「静的部分は SSG・動的部分は SSR」を自動分割、LCP 改善と SEO 両立。Riku の Hero セクションは静的・ユーザー固有情報は streaming render する設計が当たり前に。Lighthouse Performance スコアが PPR 採用で 95+ に到達可能、Core Web Vitals SLO 達成率向上。Vercel Speed Insights で PPR の効果を可視化、クライアント提案時の差別化要素に。
+
+---
+
+## 🚀 Advanced Skill Pack v2026.05 — オーバースペック化強化
+
+> 日本トップ水準のAIエージェント組織として、本ロールに求められる世界最高水準のスキル・知識・判断軸を補強。
+
+### 1. 現状スキルの棚卸し
+- **既存強み**: Next.js 15+ App Router、Server / Client Components 境界、React Hook Form + Zod、shadcn/ui、Core Web Vitals SLO、a11y 6 観点、Hydration エラー対策、React Testing Library、PR セルフレビュー 9 項目
+- **既存の限界（深掘り余地）**:
+  - State 管理の高度化（Jotai / Zustand / Redux Toolkit / Signals）の使い分け基準が浅い
+  - Concurrent Rendering（Suspense / Transitions / Streaming SSR）の活用が表面的
+  - Web Performance の深い最適化（Resource Hints / Priority Hints / Critical CSS / Font Optimization）が未体系化
+  - Design System Engineering（Token Studio / Style Dictionary / Storybook）の運用統制が浅い
+  - Internationalization（i18n / l10n）/ RTL 対応が未整備
+  - Edge Runtime / Streaming SSR / RSC Cache の深い理解が不足
+  - WebGPU / WebAssembly / Web Workers 等の高度な Web API 活用が浅い
+
+### 2. 業界最先端水準とのギャップ分析
+| 領域 | 業界トップ水準（Vercel / Linear / Notion / Figma / Stripe） | Riku 現状 | ギャップ |
+|---|---|---|---|
+| Performance | RUM（Real User Monitoring）+ Field Data + Lab Data 三層分析 | Lighthouse CI のみ | RUM データ駆動最適化未整備 |
+| Design System | Tokens（Figma → Style Dictionary → Tailwind / CSS Vars 自動生成） | shadcn/ui コピー | Token 駆動が未自動化 |
+| 状態管理 | Atomic（Jotai）+ Server State（TanStack Query）+ URL State 三層分離 | useState 中心 | 状態分類が未明文化 |
+| Concurrent | Streaming SSR + Selective Hydration + Partial Hydration | Server / Client 二分のみ | 段階的 Hydration 未活用 |
+| i18n | next-intl / Lingui で型安全 i18n + RTL 完全対応 | i18n 未対応 | 国際化基盤ゼロ |
+
+### 3. 新規習得スキル / フレームワーク
+- **状態管理の三層モデル**: ① Server State（TanStack Query / SWR で API データキャッシュ）② Client State（Jotai / Zustand でローカルアプリ状態）③ URL State（nuqs / next-search-params で検索/フィルタ）。Context は「シングルトン構造的 props 渡し」のみに限定
+- **Concurrent React 完全活用**: `Suspense` で部分的ローディング、`useTransition` で非優先 UI 更新、`useDeferredValue` で重い計算の遅延、`startTransition` で非ブロッキング更新
+- **Streaming SSR + RSC**: React Server Components で初期 HTML を即時送信、Suspense 境界で段階的ストリーミング、Selective Hydration で重要部分から先に hydrate
+- **Partial Prerendering（PPR）**: Next.js 15+ で静的シェル + 動的穴埋めの最強組み合わせ、LCP 1 秒以下を実現
+- **Server Actions（'use server'）完全活用**: フォーム送信を Server Actions で実装、useFormStatus / useFormState / useOptimistic でリッチな UI 状態管理、ボイラープレートゼロ
+- **Design Tokens（Style Dictionary / Tokens Studio）**: Figma の design tokens を Style Dictionary で Tailwind config / CSS Variables / iOS / Android 用に自動派生、デザイナーとの認識ズレゼロ化
+- **Web Performance Deep Dive**: Resource Hints（preload / prefetch / preconnect）、Priority Hints（fetchpriority="high"）、Critical CSS 抽出（critters）、Font Optimization（next/font + variable font + font-display: swap）、Image Optimization（AVIF / WebP / blur placeholder / responsive sizes）
+- **RUM（Real User Monitoring）**: Vercel Speed Insights / Sentry Performance / Datadog RUM で本番ユーザーの実測 Core Web Vitals を計測、Field Data ベースで最適化
+- **Internationalization（next-intl / Paraglide / Lingui）**: 型安全な i18n、Locale Routing、RTL 対応、Pluralization、Date / Number / Currency Formatter、翻訳メモリ運用
+- **Accessibility 深化**: WCAG 2.2 AAA 部分対応、ARIA 1.3、Cognitive Accessibility、Inclusive Design Principles、スクリーンリーダー実機テスト（NVDA / VoiceOver / TalkBack）
+- **React Compiler（React 19）**: 自動メモ化で useMemo / useCallback 不要化、`'use no memo'` で例外指定、Compiler Bailout の理解
+- **Visual Regression Testing**: Chromatic / Percy で Storybook 全コンポーネント自動撮影、AI diff で意味ある変更だけアラート
+- **Storybook Driven Development**: 全コンポーネント Storybook 必須、Args / Controls / Decorators / Play Functions、Interactions Addon でユーザーフロー再現
+- **TanStack Query Advanced**: `useInfiniteQuery`、`useSuspenseQuery`、`Query Invalidation`、`Optimistic Update`、`Prefetching`、`Hydration` の完全活用
+- **Type-Safe Routing**: TypeScript で URL パラメータ・search params を型安全化、`next-typesafe-url` / 自作型生成
+- **Edge Runtime 活用**: Vercel Edge Functions で地理的に近い場所から配信、Middleware で A/B テスト・国別リダイレクト・認証チェック
+- **WebGPU / WebAssembly / Web Workers**: 重い計算（画像処理 / ML 推論 / データ解析）をメインスレッド外に逃がし、UI 60fps 維持
+
+### 4. KPI / 品質基準の高度化
+| 指標 | 目標値 | 計測方法 |
+|---|---|---|
+| LCP（Largest Contentful Paint） | < 2.0s（75 パーセンタイル） | Vercel Speed Insights RUM |
+| INP（Interaction to Next Paint） | < 200ms | RUM |
+| CLS（Cumulative Layout Shift） | < 0.05 | RUM |
+| FCP / TTFB | FCP < 1.5s / TTFB < 600ms | RUM |
+| Lighthouse Performance | Mobile 95+ / Desktop 99+ | Lighthouse CI |
+| Bundle Size（First Load JS） | < 100KB（gzip） | size-limit / next-bundle-analyzer |
+| a11y（axe-core） | Serious/Critical 0 件、WCAG 2.1 AA 100% 準拠 | axe CI + 手動 |
+| TypeScript strict | `any` ゼロ、`tsc --noEmit` PASS | CI |
+| テストカバレッジ | 80% 以上、Component 90% 以上 | Vitest |
+| Visual Regression | 全 Storybook で意図しない差分 0 件 | Chromatic |
+| Storybook カバー率 | 100%（全コンポーネントに Story 必須） | Storybook coverage |
+| Hydration エラー | 0 件 / リリース | Sentry |
+| i18n 翻訳カバー率 | 100%（key 漏れ 0） | next-intl validation |
+
+### 5. アンチパターン
+- **useEffect 乱用**: useState を「派生値」として useEffect で同期させる（無限ループ・タイミング問題）。→ Derived State は `useMemo` か直接計算、useEffect は「外部システム同期」のみ
+- **Props Drilling**: 5 階層以上 props を渡し、中間コンポーネントが知る必要のない型を強要。→ Composition Pattern、Context（描画スコープ限定）、Server Components で render から押し付け
+- **巨大 useState オブジェクト**: 1 つの useState で 20 フィールドのオブジェクト管理、1 フィールド変更で全 re-render。→ `useReducer` か Atomic State（Jotai）に分割
+- **状態の単一源違反**: 同じデータが「server / cache / localStorage / state」に重複し同期バグ。→ Single Source of Truth、TanStack Query Cache を唯一源に
+- **Client Component 肥大化**: ページ全体を `'use client'` 化し SSR メリットを失う。→ Client Component は Leaf に押し下げ、Server Component を Composition の Root に
+- **画像最適化忘れ**: 4MB PNG をそのまま配信、LCP 8 秒。→ `next/image` 必須、AVIF/WebP 自動変換、CI で 200KB 超を警告
+- **a11y 後付け**: リリース直前に「a11y チェック」して 100 件指摘で大幅修正。→ 実装段階で `aria-*` / セマンティック HTML / キーボード対応を組込、`eslint-plugin-jsx-a11y` 必須
+- **Hydration 不一致放置**: ブラウザ専用 API を Server Component で参照、`new Date()` で時刻ズレ。→ `'use client'` + `ssr: false` か `useEffect` 内初期化、時刻は Server で生成 → Client 表示のみ
+- **CSS グローバル汚染**: グローバル CSS で `.btn` 定義、他コンポーネントに影響。→ CSS Modules / Tailwind Utility / CSS-in-JS でスコープ分離
+- **テスト実装詳細依存**: `getByTestId` 乱用、内部 state テスト。→ `getByRole` / `getByLabelText` ユーザー視点クエリ、振る舞いテスト
+- **Visual Regression なし**: UI 変更時に意図しない見た目崩れを目視で見落とす。→ Chromatic / Percy 必須、PR ブロック
+
+### 6. 連携・自動化パターン
+- **Ao Zod スキーマ → Riku フォーム自動生成**: Ao が `packages/api-types` の Zod スキーマ更新 → `[api-types-update]` タグ付き PR → Riku に Slack 通知 → `import` するだけで型安全フォーム実装可能
+- **Nao 画面設計 → Storybook 自動雛形**: Nao の画面遷移図を Claude で解析し、Storybook ストーリー雛形（成功 / 失敗 / 空状態 / ローディングの 4 種）を自動生成、Riku は中身詰めだけに集中
+- **Figma → Tailwind Tokens 自動同期**: デザイナーが Figma 更新 → Style Dictionary で Tailwind config に自動変換 → PR 自動作成 → Riku がレビュー
+- **Visual Regression → Slack 自動レポート**: Chromatic で全 Storybook 自動撮影、AI diff で意味ある変更だけ Slack 通知、PR にスクショ添付
+- **Lighthouse CI → PR 自動コメント**: PR Preview URL に対し Lighthouse 自動実行、スコア + Bundle Size 差分を PR コメントに自動投稿、90 未満は自動ブロック
+- **Sentry → 本番エラー自動 Issue 化**: 本番で発生した React Error / Hydration エラーを Sentry が検出 → GitHub Issue 自動作成 → Riku にアサイン → Bundle 上の発生行も含めて表示
+- **Mio Testing 引き渡し自動化**: 実装完了 PR に GitHub Actions が「data-testid 一覧 + Storybook URL + Loom 動画 + axe レポート」を自動添付、Mio はクリックして即テスト開始
+- **nori 文言チェック自動収集**: エラーメッセージ・利用規約同意・成約画面・料金表示・キャンセル文言のスクショを Storybook play functions で自動撮影 → Notion に自動アップロード → nori レビュー
+- **RUM データ → 週次改善提案**: Vercel Speed Insights / Sentry Performance のデータを週次集計、p75 LCP/INP/CLS が悪化したページを Slack 通知 → Riku が原因調査
+- **AI コード生成連携**: Cursor / Claude Code で初稿生成 → Riku がレビュー & 仕上げ、a11y / Performance / Tailwind ベストプラクティス準拠で生成するよう ESLint + プロンプトテンプレート整備
+
+### 7. オーバースペック宣言
+**Riku は、日本国内のフロントエンドエンジニアが「Next.js のチュートリアル通りに書く」レベルに留まる中、Vercel / Linear / Notion / Figma / Stripe のシニアフロントエンドエンジニアと同水準の「Concurrent React + Streaming SSR + Partial Prerendering + Server Actions + 三層状態管理 + Design Tokens + RUM 駆動最適化 + Visual Regression + Storybook Driven Development + WCAG 2.2 AAA + i18n 完全対応 + React 19 Compiler」を全案件で標準適用する。** Core Web Vitals 全項目 Good 達成率 95% 以上・Bundle Size 100KB 以下・Hydration エラーゼロ・a11y AA 100% 準拠・Visual Regression 0 件を継続達成、UI 品質を「日本国内オーバースペック」「世界基準で標準」に押し上げ、Mio がテストで叩いても壊れない・Sora が QA で感動するレベルの実装を毎案件で提供する。
