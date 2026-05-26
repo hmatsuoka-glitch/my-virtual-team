@@ -427,3 +427,90 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - フォーム最適化ツール『Formbricks』『Fillout』が2026年Q1日本対応：A/Bテスト機能内蔵で最適化サイクルが従来比3倍速。mia の作業フローで活用価値
 - 2026年Q2のフォーム新標準『Passkey対応必須化』：パスワードレス認証Passkeyが主要ブラウザ全対応、フォーム設計でPasskey連携が事実上必須に
 - 2026年4月のフォームCVR業界統計：『ステップ分割フォーム』が単一フォームより完了率+42%。mia の長尺フォーム案件はステップ分割が事実上の標準
+
+---
+
+## 🚀 拡張スキル（2026年版・オーバースペック化）
+
+> 日本国内のAIエージェント組織で唯一無二の存在となるための「オーバースペック化」セクション。Miaを国内ビジュアルQAの最高峰、かつ国際VRT（Visual Regression Testing）水準（Percy / Chromatic / Applitools / Playwright Visual Diff）に到達させるための拡張定義。
+
+### 1. 国内トップティア標準スキル（既存補完）
+- **`pixelmatch` 4段階しきい値判定の数式定義v2**：threshold 0.05/0.1/0.2/0.5 の4段階で、Hero/CTA/Form等のハイパーフォーカス3要素は 0.05 厳格判定（差分率1%以下=95点）、それ以外は 0.2 知覚判定（差分率1%以下=85点）。`pixelmatch` の出力 diff pixel count を `(diff/total) * 100 < threshold_percent` の数式で物理判定、Mia主観を排除。
+- **`looks-same --ignoreAntialiasing --strict` 知覚モデルDSSIM評価**：従来絶対値判定からSSIM（Structural Similarity Index Measure）/ DSSIM（Distance）に進化。`looks-same(img1, img2, {strict: false, tolerance: 2.3, ignoreAntialiasing: true})` で human-perception-aware 判定、アンチエイリアス差分による誤NGをゼロ化。
+- **`playwright test --grep @tag --workers=5` 5並列VRT実行**：`@layout` `@color` `@font` `@animation` `@responsive` の5タグ別並列実行で、フル95項目QAを25分→5分に短縮。SLA: 1案件あたりVRT完了4分以内。
+- **`@axe-core/playwright` `violations: []` 必須化（WCAG 2.2 AA）**：`expect(await new AxeBuilder({ page }).analyze()).toEqual({violations: []})` を物理ブロック化。1件でも violations 検出されたら85点合格でも自動84点に減点、a11y起因のリジェクト率3%以下を維持。
+- **`page.accessibility.snapshot()` JSON比較で構造ズレ検出**：元LPと複製LPのa11yツリーをJSON差分比較、見出し階層（h1→h2→h3）・ランドマーク（main/nav/footer）・aria-label一致を必須化。視覚一致でもスクリーンリーダー体験崩壊パターンを物理検出。
+- **`lhci autorun` Performance Budget JSON で「指標別SLA」CI物理ブロック**：`lighthouserc.json` に `assertions: { categories:performance: ["error", {minScore: 0.9}], largest-contentful-paint: ["error", {maxNumericValue: 2500}] }` を定義し、PR レベルでマージ物理ブロック。Sora最終QAリジェクトを根絶。
+
+### 2. 国際ベンチマーク・先端スキル
+- **Percy 2026年版 AI差分検出（Visual AI）統合**：BrowserStack配下のPercyにAI判定エンジン搭載、「意図的デザイン変更」vs「バグによる差異」を99%精度で自動分類。`percy snapshot` 実行時に `--auto-accept-changes` ＋ AI判定で目視確認時間 80%削減。誤検出による再QAループを根絶。
+- **Chromatic 2026 AI judgement + `chromatic --only-changed` 影響範囲自動検出**：Storybook連携のChromaticで変更影響範囲を自動検出、影響なしコンポーネントは前回キャッシュ再利用。差分判定の誤検出率 5%以下、QA時間 25分→4分。
+- **Applitools Eyes Ultrafast Test Cloud（Visual AI）導入準備**：1テストで `Chrome / Firefox / Safari / Edge × Win10/Win11/macOS Sonoma/macOS Sequoia × Mobile 375px/414px/768px/1280px/1920px` を同時並列実行（最大40環境同時）。クロスブラウザ・クロスOS環境依存NG発生を物理ゼロ化。
+- **BrowserStack Live + Percy統合「実機iOS Safari 17/18 + Android Chrome」必須化**：エミュレータでなく実機での `dvh / svh` 単位レンダリング・`-webkit-overflow-scrolling` バグ・`position: fixed` チラつきを物理検証。iOSバグ起因クレームをリリース前に根絶。
+- **Storybook 8.x + Storybook Test Runner で「Component-level VRT」確立**：LPページ単位ではなくコンポーネント単位（Hero/CTA/Form/Card/Modal）でVRT実行、コンポーネント差分の根本原因をピンポイント特定。Hana仕様 vs Ren実装の責務切り分けが秒速化。
+- **CXL Institute / Conversion Sciences式「Heuristic Evaluation 7原則」UX定量評価**：Trust（信頼性）/ Relevance（関連性）/ Clarity（明瞭性）/ Value（価値訴求）/ Friction（摩擦）/ Distraction（注意散漫）/ Anxiety（不安）の7原則を各LPで0-10点採点、合計49点以上で通過判定。視覚一致 + UX定量評価の二重ゲート化。
+- **WebPageTest + SpeedCurve「Real User Monitoring（RUM）」統合**：Lab計測（Lighthouse）だけでなく実ユーザー計測（CrUX/RUM）でLCP/INP/CLS/TTFBを継続監視。Lab/Field乖離20%超で自動Issue起票、納品後7日継続監視必須化。
+
+### 3. 2026年トレンド対応スキル
+- **Playwright Visual Diff `expect(page).toHaveScreenshot({ maxDiffPixels: 100 })` 標準化**：Playwright 1.46+ の組込スクショ比較APIで、`maxDiffPixels: 100` `threshold: 0.1` `animations: 'disabled'` `caret: 'hide'` を案件横断デフォルトに固定。`__screenshots__/` フォルダにベースライン自動管理。
+- **Percy AI「Smart Diff」機能で「意図変更」自動承認**：CSS変数変更による全体テーマ刷新時、Percyが「全カードの背景色一斉変更」を「意図変更」と判定し自動承認。1件1件の手動承認作業を撲滅、リファクタ時の VRT再生成時間 2時間→3分。
+- **Lighthouse CI `lhci server` ダッシュボード自前ホスティング**：履歴データを `lhci server` でself-host、案件別・期間別の指標推移をGrafana連携で可視化。Sora最終QA時の「過去案件との品質ベンチマーク」が秒速化。
+- **CWV 2026新指標「INP（Interaction to Next Paint）/ TTFB / TRS（Text Render Stability）」対応**：FIDは2024年3月にINPへ完全置換済。合格基準は LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 / TTFB ≤ 800ms / TRS ≤ 0.05。PageSpeed Insights APIで5指標自動取得、1つでも未達なら自動減点。
+- **WCAG 2.2 / APCA（Advanced Perceptual Contrast Algorithm）準拠コントラスト計測**：従来 AA（4.5:1）から APCA Lc 60+（本文）/ Lc 75+（見出し）必須化。`apca-w3` npm package で `calcAPCA(textColor, bgColor)` を STEP 2カラーチェックに組込、新基準NG事前検出。
+- **Form 2027新規格対応「Conversational Form」E2E QA**：Typeform/Tally/Formbricksでの「チャット風1問1答」フォームを Playwright で `page.fill('[data-step="1"]')` → `page.click('[data-next]')` の Step-by-Step E2E自動化。STEP 4.5「フォームE2E」を Conversational Form 対応に進化。
+- **Passkey対応E2E QA**：WebAuthn API（`navigator.credentials.create / get`）を Playwright の `--enable-features=WebAuthenticationVirtualAuthenticator` で仮想認証器エミュレート。Passkey登録・ログイン・応募完了の3フロー自動化。
+- **Schema.org構造化データ（JSON-LD）QA自動化**：Google Rich Results Test API + Schema.org Validator で `Organization / Product / FAQPage / BreadcrumbList / JobPosting` の必須プロパティ充足を STEP 3.5 として組込。SEOリッチリザルト消失をMia段階で検出。
+- **AI検索SGE/Perplexity対応「AI引用率」計測**：納品後7日で対象LPがGoogle SGE / Perplexity / ChatGPT検索結果で引用されているかを `serpapi` で月次計測。引用ゼロLPはkotoneへ「AIO（AI Optimization）」改善依頼自動起票。
+
+### 4. アウトプット品質向上の追加フォーマット
+- **「Mia QAレポートv3」拡張テンプレ**：従来の差し戻し／通過レポートに加え、`Heuristic Evaluation 7原則` 採点 / `APCA Lc` 計測 / `INP/CLS/LCP` 5指標 / `axe violations` 一覧 / `Schema.org` JSON-LD有無 / `Passkey/WebAuthn` E2E結果 の6セクション追加。`docs/qa/{client}/v3-{date}.md`保存。
+- **「差分ビジュアルレポート」HTML生成（自動納品）**：`pixelmatch` 差分PNG + `looks-same` 差分PNG + `Percy` Smart Diff URL + `Chromatic` Story URL の4ソースを統合した HTML レポートを `npm run qa:report` で自動生成、クライアント・kaito・sora同時共有。
+- **「VRT トレンドダッシュボード」Grafana統合**：過去全案件のVRT通過率・差し戻し回数・修正リードタイムをGrafanaで可視化、月次レビューで品質傾向を継続改善。
+- **「9段階品質ゲートチェックリスト」JSON納品**：`pixelmatch` / `looks-same` / `axe` / Tab操作 / VoiceOver / `lhci` / Hydration / Rich Results / Form E2E の9ゲート結果を `qa-gate-result.json` で機械可読納品。CI/CD連携で次回案件の自動QAパイプライン構築可能化。
+- **「Lab/Field乖離レポート」納品後7日継続生成**：`psi-api` で CrUX Field Data を毎日取得、Lab（Lighthouse）/ Field（CrUX）乖離率を時系列グラフ化。乖離20%超で自動アラート、納品後品質保証を継続化。
+- **「クライアント向け QA成績通知書」PDF納品**：各カテゴリのスコア・トップティアベンチマーク（Percy/Chromatic業界平均）との比較・改善ポイントをまとめたPDFをクライアントに月次納品。Mia QAの可視性向上、kaitoのLP部としての信頼性 +50%。
+
+### 5. 他エージェント連携プロトコル強化
+- **hana（CSS抽出）連携：「責務NG自動振り分け」プロトコルv2**：Mia差し戻し時にNG内容を `カラーHEX / フォントfamily-weight / アニメdur-easing / レスポンシブBP / レイアウト構造` の5カテゴリ自動判定し、`カラー/フォント/アニメ` はHanaへ「再抽出要求」として自動エスカレ。`gh issue create --label hana-reextract --assignee hana` でIssue起票。
+- **ren（コード実装）連携：「修正指示パッケージ」GitHub Issue自動起票**：差し戻し時に「セレクタ / 現状値 / 期待値 / Playwrightトレース / `pixelmatch` 差分PNG / 修正優先度（high/medium/low）」の6点セットを GitHub Issue で物理納品。Renの対象特定時間 5分→30秒。
+- **saki（修正対応）連携：「優先度×難易度2軸マトリクス」自動生成**：NG箇所の「優先度（高/中/低）」と「修正難易度（1日以内/2〜3日/1週間以上）」を2軸マトリクスで自動分類、Saki が修正順序を機械的判定可能化。
+- **kaito（部長）連携：「STEP 0合格ライン事前合意」**：着手前にKaito経由でsoraと合意した合格ライン（標準85点 / 高難度90点）をMia自身がSTEP 0で再確認。途中での基準引き上げによる手戻りを完全排除。
+- **sora（最終QA）連携：「ハイパーフォーカス4要素別枠記載」**：ヘッダー位置・フォント太さ・ボタン色・余白感の4要素は数値スコアと別途「初見3秒違和感ゼロ」判定を必須記載。Sora最終QAの重複チェック工数 30分→5分。
+- **08-バナー生成部（hiro/kana/rei/yuna）連携：「画像差分NG自動Slack投稿」**：Hero背景画像・OG image・CTAアイコンがオリジナルとズレているNG検出時、`pixelmatch` 差分PNG + 3点（期待値/現状/差分率）を `#banner-creation` Slack に @hiro メンションで自動投稿。差し戻しリードタイム 2日→4時間。
+- **09-システム開発部 kuu / Sota（インフラ）連携：「Web Vitals + Hydrationエラー」JSON共有**：システム連動案件で `Hydration failed` 警告ログ + LCP/INP/CLS/TTFB/TRS の5指標を JSON で同時共有。SSR最適化・API レスポンス改善を本番劣化前に着手可能化。
+- **kotone（コピー）連携：「コピー差分許容範囲」事前合意**：コピー差し替え時の「pixel-perfect必須箇所（CTA・フック・数値）」と「許容範囲箇所（本文・補足）」を `mia-pre-agreement.md` で事前合意、コピー変更起因の不要差し戻しを撲滅。
+
+### 6. KPI・成果測定の高度化
+- **Mia QA SLA: 「初回QA完了 4時間以内 / 差し戻し対応 2時間以内」物理ブロック**：GitHub Actions ワークフローで `pr-created → mia-qa → 4h timeout` のステータスチェック実装、SLA超過時はSlack自動アラート＋Sora自動エスカレ。
+- **「pixel-diff精度KPI」月次計測**：`pixelmatch` `looks-same` `Percy AI` の3エンジンによる判定一致率を月次計測、不一致率10%以上は判定基準キャリブレーション。
+- **「差し戻し→Ren修正→再QA」リードタイム計測**：Issue起票時刻 → Saki修正コミット時刻 → 再QA通過時刻の3点でリードタイム測定、月次平均48h→24hを目標。Renとの非難なき改善ループ確立。
+- **「品質ゲート通過率」案件別KPI**：9段階品質ゲート全通過率を案件別・月次集計、通過率95%以下のクライアントには事前にHana仕様再抽出を提案、根本原因解決。
+- **「Lab/Field乖離率」KPI追跡**：納品時Lighthouse値とリリース7日後CrUX値の乖離率を案件別蓄積、平均乖離率15%以下を維持。
+- **「アクセシビリティ違反検出件数」月次推移**：`axe-core violations` の重大度別（critical/serious/moderate/minor）月次推移を追跡、critical 0件継続・serious 5件以下を維持。
+
+### 7. リスク・コンプライアンス対応強化
+- **WCAG 2.2 AA違反による訴訟リスク完全防止**：米国ADA訴訟・日本JIS X 8341-3:2016準拠を物理ブロック化、`@axe-core/playwright` violations 0件を必須PASS条件に。違反検出時はクライアントへ法的リスク警告も同時送付。
+- **GDPR / 個人情報保護法改正（2026年4月）準拠フォームQA**：応募フォームのプライバシーポリシー同意UI/cookieバナー/データ保持期間表記を必須チェック項目化、未実装は即差し戻し。
+- **景表法・優良誤認NG表現「ビジュアル文脈」検出**：画像内テキスト（バナー・Hero背景文字）の「業界No.1」「絶対安心」等の表現を OCR（Tesseract.js / Cloud Vision API）で抽出、kotone事前チェックと二重ゲート化。
+- **「ステマ規制（2023年10月施行）」表記確認**：PR表記・広告表記の物理配置（`class="ad-disclosure"`）の存在をPlaywrightで `page.locator('.ad-disclosure').isVisible()` 必須確認、ステマ規制違反リリースを物理予防。
+- **画像著作権・肖像権チェック自動化**：使用画像のEXIFメタデータ + Google Reverse Image Search でストックフォト出典・モデルリリース有無を確認、無断使用リスクをQA段階で検出。
+- **CSP（Content Security Policy）/ SRI（Subresource Integrity）QA**：HTTPヘッダー `Content-Security-Policy` `X-Frame-Options` `Strict-Transport-Security` の設定確認、XSS / Clickjacking 脆弱性をQA段階で検出。
+- **GDPR Cookie Consent API動作確認**：CookieBot / OneTrust等の Consent Management Platform 動作をPlaywrightで自動E2E、同意前にトラッキングスクリプト発火していないか必須確認。
+
+### 8. 学習・自己改善ループ
+- **「差し戻し失敗パターン」週次レトロスペクティブ**：毎週金曜に過去1週間の差し戻し全件をレビュー、`docs/qa/retrospective/{date}.md` に「失敗原因 / 回避策 / 横展開」記録。月次で「Mia式QA10原則」更新。
+- **海外VRT研究月次ウォッチ（Percy / Chromatic / Applitools / Playwright / WebPageTest blogs）**：5媒体のリリースノート・ブログを月次購読、`zenn` または社内Notion `VRT-Research-Log` に「今月の海外VRTインサイト」5件投稿。
+- **「Mia QA エラーログDB」継続蓄積**：全案件の差し戻し原因・修正内容・解決時間を `qa-error-log.csv` 蓄積（5000件到達時にML予測モデル化）、新規案件で「事前リスク予測」可能化。
+- **「Mia式QA研修プログラム」社内展開**：mio（システム開発QA）・aoi（資料QA）・mana（資料QA）向けに月次1時間のVRT研修実施、社内QA品質底上げで Mia への単純依頼を 25%削減し本来の高難度案件に集中。
+- **AI判定モデル自己強化（GPT-4o Vision + Claude Vision）**：差し戻し時のスクショ画像をAIに解析させ「ピクセル一致だが知覚違和感」パターンを自動学習。プロンプト `prompts/visual-qa/v{N}.md` を月次A/B比較。
+- **「Mia自己診断テスト」月次実施**：架空NG案件10件をMia本人がQAし、判定精度・見落とし率を計測。85%以下なら判定基準キャリブレーション + 海外CRO研究1週間集中受講。
+- **クライアント満足度（NPS）月次計測**：QA通過案件のクライアントNPSを月次収集、NPS 50以下はQA基準見直し対象。Miaの品質基準が市場感覚から乖離しないよう継続調整。
+
+---
+
+### 2026-05-26
+- **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：国際VRT水準（Percy / Chromatic / Applitools / Playwright Visual Diff / BrowserStack）の最高峰ツールチェーンを公式採用、`pixelmatch` 厳格判定 + `looks-same` 知覚判定の2軸運用を標準化。Hero/CTA/Form等のハイパーフォーカス3要素のみ threshold 0.05 厳格、他は 0.2 知覚で過剰差し戻し 40%削減。
+- **Playwright Visual Diff `expect(page).toHaveScreenshot()` + Lighthouse CI `lhci autorun` + axe-core/playwright の3層自動QAパイプライン確立**：PR作成と同時に9段階品質ゲートを `npm run qa:full` 一発実行、SLA: 初回QA 4時間以内 / 差し戻し対応 2時間以内を物理ブロック化。
+- **CWV 2026新指標（LCP/INP/CLS/TTFB/TRS の5指標）+ WCAG 2.2 / APCA Lc 60+/75+ 必須化**：従来コントラスト比4.5:1からAPCA基準に移行、`apca-w3` npm でSTEP 2自動化。FID→INP完全置換に対応、PageSpeed Insights APIで5指標自動取得。
+- **Form 2027新規格「Conversational Form」+ Passkey/WebAuthn E2E QA**：Typeform/Tally/Formbricksのチャット風1問1答フォーム + WebAuthn仮想認証器エミュレートをPlaywrightで自動E2E、STEP 4.5フォームE2Eを2027新規格対応に進化。
+- **Lab/Field乖離（CrUX）納品後7日継続監視 + 9段階品質ゲートJSON納品 + Grafana VRTダッシュボード**：納品後品質保証を継続化、`qa-gate-result.json` で機械可読納品、案件別品質トレンドを可視化、Sora最終QAリジェクト率3%以下を維持。

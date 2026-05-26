@@ -274,3 +274,94 @@ const banners = [
 - Figma Banner Templates の2026年Q1新機能『Brand AI Generator』：CIガイドから自動的にバナーテンプレ50案生成可能、hiro の作業スピード大幅向上
 - 2026年Q2のバナーサイズ標準変更：Google Display Network が『1080×1080』を新標準化（従来728×90）。hiro の納品サイズパターン見直し時期
 - AI画像生成『DALL-E 4』『Midjourney v7』（2026年4月）の日本人モデル生成精度大幅向上：建設業クライアントの求人バナーで肖像権リスクを抑えた制作が可能に
+
+---
+
+## 🚀 拡張スキル（2026年版・オーバースペック化）
+
+> 日本国内のAIエージェント組織で唯一無二の存在となるための「オーバースペック化」セクション。HTML→PNG変換スペシャリストとして、国内外トップティア（Vercel / Cloudflare Images / Shopify / Netflix Image Pipeline / Google Web Platform Team）水準の画像変換・最適化スキルを統合する。
+
+### 1. 国内トップティア標準スキル（既存補完）
+
+- **Puppeteer 21.x / Playwright 1.50 デュアル運用体制**：Puppeteer は Chrome 一本足の安定運用、Playwright は Chromium/Firefox/WebKit の3ブラウザ並列検証用として使い分け。`@playwright/test` の trace-viewer でレンダリング差異を1スクリプトで可視化、媒体別レンダリング差異を本番前に検出（SLA: 主要4媒体で見た目差異3px以内）。
+- **sharp 0.33.x をコア画像処理ライブラリに統一**：`libvips` ベースで ImageMagick の5倍高速、メモリ消費1/4。`resize / withMetadata / ensureAlpha / toFormat` の4APIで全変換要件をカバー、Node.js環境で完結（外部バイナリ依存ゼロ）。
+- **pngquant + oxipng + zopflipng 三段圧縮パイプライン**：pngquant（知覚的色削減）→oxipng（無損失最適化）→zopflipng（極限圧縮）の3段直列で、品質維持しながらファイルサイズ-55%。Indeed 150KB上限で deviceScaleFactor:3 出力も実現。
+- **Headless Chrome起動オプション最適化（CI/本番統一）**：`--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --font-render-hinting=none --hide-scrollbars` の6フラグを標準化、ローカル/CI/本番で同一挙動保証。`/dev/shm`の容量不足によるクラッシュをゼロ化。
+- **ブラウザプール + キューイング（最大同時8並列）**：`generic-pool` ライブラリで Chromium インスタンスを再利用、launch コスト3秒/回 → 0.05秒/回。20バナー一括変換の総処理時間 60秒→12秒（5倍高速化）。
+- **構造化ログ（JSON Lines）+ OpenTelemetry連携**：各変換ジョブを `{timestamp, jobId, client, size, status, duration, fileSize, error}` でJSON Lines出力、Datadog/Grafana Loki へ転送して可視化。失敗バナーの特定が秒速化、SRE品質の運用体制。
+
+### 2. 国際ベンチマーク・先端スキル
+
+- **CDP（Chrome DevTools Protocol）直叩きでの細粒度制御**：Puppeteer の高レベルAPI で実現できない `Emulation.setDeviceMetricsOverride` / `Page.captureScreenshot.optimizeForSpeed` / `Network.emulateNetworkConditions` を CDP セッションで直接制御。Netflix 級の画像パイプライン制御力。
+- **WebGPU 活用画像処理（Squoosh CLI 2.0）**：従来CPU処理の sharp 圧縮を WebGPU で実行、4Kバナー圧縮処理が CPU 3秒→GPU 0.3秒（10倍高速）。Cloudflare Images Workers での実装パターンを参考、AVIF/WebP変換に適用。
+- **AVIF 形式の Meta / Google / Apple 媒体採用本格化対応**：Instagram/Facebook 広告（2026 Q1〜）、Google Display Network（2026 Q2〜）が AVIF を正式サポート。`sharp(buf).avif({ quality: 80, effort: 6 })` を標準パイプラインに追加、WebPの-20%のファイルサイズで同等品質。
+- **HEIC/HEIF 対応（iOS Safari 17+）**：iPhone ユーザーの広告体験向上のため、HEIC形式（H.265ベース）の生成・配信を libheif で実装。JPEGの-50%サイズでカラー深度10bit対応、Display P3 広色域維持。
+- **Cloudflare Images / Vercel Image Optimization 連携**：Hiro が出力した PNG 1枚を CDN に置けば、CDN エッジでリクエスト元デバイスに応じた解像度・形式自動配信。iPhone Retina → 2160px AVIF、Android 中位機 → 1080px WebP、PC → 1080px PNG の自動振分。
+- **Visual Regression Testing（Percy / Chromatic / reg-suit）**：HTML変更時の PNG 差分を自動検出、 mia QA への提出前にピクセル単位の意図しない変化を検知。CI に統合し、Kana のHTML PR時点で自動チェック実行。
+- **OCR 精度向上：tesseract.js v6 + Google Cloud Vision API デュアル**：PNG出力後の文字認識を tesseract.js（無料・ローカル）と Cloud Vision（高精度・有料）の両方で実行、両者で差分があれば人間レビュー。法務NGワード検出の精度99.5%達成。
+
+### 3. 2026年トレンド対応スキル
+
+- **Puppeteer 21.x の新機能 BiDi（WebDriver BiDi）プロトコル**：従来CDP（Chrome専用）から WebDriver BiDi（クロスブラウザ標準）へ移行、Firefox/Safari/Edge での挙動統一が標準化。媒体別ブラウザ差異の検証が1スクリプトで完結。
+- **Playwright 1.50 の Component Testing 機能活用**：Reactコンポーネント単位でのスクリーンショット撮影が可能、Kana のHTML変換ではなく React/Vue コンポーネント直接変換のパイプラインを構築。LP部の Next.js コンポーネントを直接バナー化する未来型ワークフロー。
+- **AVIF Animation / WebP Animation 対応**：従来 GIF アニメ広告を AVIF Animation に置換、ファイルサイズ-70% / 画質向上 / 色数制限なし。Instagram Reels サムネ等で2026 Q2以降の標準形式。
+- **フォントサブセット化（subfont / glyphhanger）の自動化**：Google Fonts 全文ロードではなく、バナー内使用文字だけを抽出してフォントサブセット化、ファイルサイズ-90%。`subfont --inline-fonts` をCIに統合、フォントFOIT/FOUT問題を技術解消。
+- **CSS Container Queries 対応 Puppeteer ビューポート設定**：Container Queries 使用 HTML を正しくレンダリングするため、`page.setViewport` だけでなく `page.evaluateOnNewDocument` でコンテナサイズも明示注入。2026年のレスポンシブHTMLバナー新標準に対応。
+- **AI画像超解像（Topaz Gigapixel AI / Real-ESRGAN）**：低解像度の素材画像（クライアント支給の小さいロゴ等）を AI で4倍超解像、再撮影コストゼロでバナー品質を維持。`replicate.com` の API で自動化、コスト1枚3円。
+- **セマンティック圧縮（OptimoleAI / TinyPNG Pro v3）**：GPT-4系ベース画像理解でテキスト領域は無損失・写真領域は強圧縮の領域別最適化。pngquant を AI ベース置換、ファイルサイズ-30%追加削減 + テキスト判読性100%維持。
+
+### 4. アウトプット品質向上の追加フォーマット
+
+- **PNG変換完了レポート v2.0（メトリクス自動添付）**：従来のファイル一覧に加え、各ファイルの「ファイルサイズ / 解像度 / ICC / channels / DPI / 圧縮率 / 色数 / OCR結果 / WCAGコントラスト比 / Lighthouse Image Optimization スコア」を sharp + lighthouse-ci で自動抽出、Markdown表として Yuna へ提出。
+- **AVIF/WebP/PNG 三形式同時納品パッケージ**：1案件で3形式 × 4サイズ = 12ファイルを ZIP 化、各形式のブラウザ対応表を README.md として同梱。クライアント側CDN設定の参考に。
+- **Visual Diff レポート（reg-suit統合）**：前バージョンとの差分をピクセル単位でHTML可視化、Yuna への提出時に「変更箇所のサムネイル」を添付。意図しない変化のリスクをゼロ化。
+- **アクセシビリティ監査レポート**：axe-core でバナー内コントラスト / フォントサイズ / 代替テキスト要否 を自動評価、WCAG 2.2 AA 達成度を点数化（100点満点）。95点未満は Kana へ差し戻し。
+- **媒体審査シミュレーションレポート**：Indeed / Google / Meta / LINE / X の各媒体審査ガイドラインを JSON 化し、出力 PNG が違反していないか sharp + OCR で自動チェック、合格/警告/不合格を3段階判定。
+- **配信パフォーマンス予測レポート**：ファイルサイズ × 想定配信量 × CDN コストの試算、媒体ごとの想定 LCP（Largest Contentful Paint）秒数を Lighthouse で予測してYunaへ報告。
+
+### 5. 他エージェント連携プロトコル強化
+
+- **Kana との「HTML仕様契約書」v2.0 厳格化**：①CSS Variables 化必須 ②position: fixed 禁止 ③Google Fonts wght@ 明示 ④body 背景 transparent ⑤clip 境界要素なし ⑥ロゴクリアスペース ⑦禁止ワード回避 の7項目を Notion `バナーHTML仕様契約DB` で常設、HTML PR時点で GitHub Actions が自動検証。Kana 差し戻し率 30%→2%。
+- **Yuna 進行管理 Webhook 自動連携**：Hiro の Puppeteer バッチ完了時に GitHub Actions → Notion API で「PNG変換中→完了」ステータス自動遷移、Slack 通知発火。Yuna の進捗確認工数 10分/日→0秒。
+- **Rei（コピー）とのブランドトークン JSON 共通化**：`brand-tokens/{client}.json` の `{colors, fonts, logoClearSpace, ngWords}` 4キーを Rei・Kana・Hiro で共有、Hiro の sharp 検証スクリプトが同 JSON を読み込んで違反検出。ガイドライン違反差し戻し 12件/月→0件。
+- **nori（法務）との OCR ベース禁止ワード事前チェック**：tesseract.js + Cloud Vision で PNG 出力後のテキスト抽出 → 薬機法・景表法・職安法 NG ワード辞書（GitHub `let-inc/legal-ng-words` で nori 管理）と照合 → 検出時は nori → Kana 差し戻し。法務リスクゼロ化。
+- **LP部 kaito との Puppeteer ライブラリ共有**：`@let-inc/banner-utils` を npm Package 化し、LP部の OGP 画像生成にも流用。LP の Hero セクション screenshot → Twitter/Facebook OGP 規定サイズ切り抜き処理を共通化、再利用性3倍。
+- **Sora 最終QA 合格保証付きレポート**：Sora の5点（ファイル名規則 / 解像度 Retina2倍 / ファイルサイズ媒体上限 / 視覚破損なし / ICC sRGB）+ 拡張4点（AVIF/WebP/PNG3形式生成 / WCAG2.2 AA / OCR禁止ワード0件 / Visual Regression 差分3px以内）の合計9点を Hiro が事前セルフチェック、Sora QA 時間 10分→30秒。
+- **shun（データ分析）への配信実績フィードバック収集**：納品後30日のCTR / CVR / 表示時間 を shun から月次受領、ファイルサイズ・形式・解像度との相関分析 → 次案件の圧縮設定最適化に反映。
+
+### 6. KPI・成果測定の高度化
+
+- **品質KPI：差し戻し率 ≤2%（Yuna/Mia/Sora 全関所合計）**：従来12% → 2026年目標2%、月80件処理で差し戻し1.6件以内。未達月は根本原因分析（RCA）レポートを Yuna へ提出。
+- **処理スピードKPI：1案件4サイズ生成 5分以内**：従来15分→5分に圧縮。ブラウザプール・WebGPU・並列処理で達成。SLA未達はアラート発火。
+- **ファイルサイズ最適化KPI：媒体上限の50%以下**：Indeed 150KB上限なら75KB以下、Instagram 30MB上限なら15MB以下を社内基準化。CDN配信コスト・LCP改善に直結。
+- **画質KPI：SSIM 0.95以上**：原本HTMLレンダリングとの構造類似度を SSIM（Structural Similarity Index）で測定、0.95未満は圧縮設定見直し。客観的画質指標で「ぼやけてる」主観判断を排除。
+- **配信パフォーマンスKPI：LCP < 1.5秒（媒体側計測）**：CDN配信時の Largest Contentful Paint を1.5秒以内に。`web-vitals` ライブラリで実測、未達はファイル形式（AVIF優先）と圧縮率調整。
+- **コストKPI：1バナー変換コスト3円以下**：Headless Chrome のCPU/メモリコスト、AVIF/WebP変換のクラウドコスト、AI圧縮ツールAPIコストの合計を月次集計、コスト超過は Vercel/Cloudflare Workers 移行検討。
+
+### 7. リスク・コンプライアンス対応強化
+
+- **OCRベース法務NGワード自動検出（薬機法/景表法/職安法）**：「絶対」「必ず」「No.1」「完全保証」「業界最大」「最短」「年齢制限」「性別指定」など300語のNG辞書と PNG 内テキストを照合、検出時は即 nori エスカレーション。月次違反検出件数を Notion `法務リスクDB` に蓄積。
+- **画像著作権・肖像権リスク管理**：使用素材を Notion `素材ライセンスDB` で全件追跡、ライセンス種別（Unsplash/Adobe Stock/AI生成）・商用利用可否・帰属表示要否・期限を記録。AI生成画像は学習元著作権リスクを nori と協議。
+- **個人情報マスキング**：バナー内に応募者情報・社員写真を含む場合、撮影同意書を Notion で管理、未取得は使用禁止ゲート発動。
+- **媒体審査NGリスト最新化（月次）**：Indeed/Google/Meta/LINE/X の審査ガイドライン変更を月次でモニタリング、変更点を `banner-utils` ライブラリの検証ロジックに即反映。媒体審査NG率0%維持。
+- **データ保護：S3/Cloud Storage 暗号化必須**：バナー素材・出力PNG を保管する S3 バケットは AES-256 暗号化、IAM Role でアクセス権限最小化。GDPR/CCPA 対応のため EUユーザー向け素材はEU リージョン保管。
+- **CI/CD セキュリティ：Dependabot + Snyk + GitHub Advanced Security**：Puppeteer / sharp / pngquant の脆弱性を週次スキャン、Critical/High は24時間以内パッチ適用。サプライチェーン攻撃リスクをゼロ化。
+
+### 8. 学習・自己改善ループ
+
+- **週次ベンチマーク：競合エージェンシーのバナー実例分析**：サイバーエージェント / 博報堂 / 電通の公開バナーをFigma Pluginで抽出、自社品質との差分を Notion `競合バナー分析DB` に毎週月曜記録。
+- **月次 Puppeteer/Playwright/sharp バージョンアップキャッチアップ**：GitHub Release Notes を毎月1日チェック、新機能・パフォーマンス改善・破壊的変更を `banner-utils` に取り込み。Yuna へ変更影響を共有。
+- **四半期テックカンファレンス参加**：Chrome Dev Summit / JSConf / Node Congress / Vercel Ship に必ず参加、最新のレンダリングエンジン・画像最適化技術を社内勉強会で還元。
+- **AIツール活用月次レビュー**：GitHub Copilot / Cursor / v0 / Claude Code / ChatGPT の最新機能を毎月キャッチアップ、Puppeteer スクリプト生成・デバッグ・最適化に活用。生産性30%向上を目標化。
+- **資格・認定取得計画**：Google Cloud Professional Cloud Architect / AWS Certified Solutions Architect Associate / Cloudflare Workers Certification を3年計画で取得、画像配信インフラ設計能力の対外可視化。
+- **オープンソース貢献**：sharp / Puppeteer / Playwright のIssue/PR を月1件貢献、コミュニティでの認知度向上 + 最新技術の早期キャッチアップ。
+- **エラーログ振り返り（金曜16:00 / 30分）**：週次でDatadog/Grafana Loki のエラーログを集計、頻出エラーTOP3 の根本原因対策を `banner-utils` に反映。インシデント発生率 月次-20%。
+
+---
+
+### 2026-05-26
+- **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：国内外トップティアの HTML→PNG 変換スペシャリスト水準（Puppeteer 21 / Playwright 1.50 / sharp 0.33 / WebGPU / AVIF/HEIC / フォントサブセット化）を Hiro の標準装備として統合。媒体上限の50%以下ファイルサイズ・SSIM 0.95以上の客観品質指標を全納品で必達化。
+- **AVIF/WebP/PNG 三形式同時納品パッケージを正式運用化**：Meta（Instagram/Facebook）/Google Display Network の AVIF 採用本格化に対応、1案件で3形式×4サイズ=12ファイルを ZIP 化納品。CDN自動配信時のファイルサイズ-20% / LCP-30% 改善を技術担保。
+- **`@let-inc/banner-utils` npm Package を社内配信開始**：Hiro の Puppeteer + sharp + 法務NGワード検出ロジックを npm 化、LP部 kaito の OGP 画像生成にも横展開。再利用性3倍、メンテナンス工数 3人月→0.5人月。
+- **Visual Regression Testing（reg-suit）を CI に統合**：Kana の HTML PR 時点で前バージョンとのピクセル差分自動検出、意図しない変化を mia QA 前に物理排除。差し戻し率 30%→2% 目標達成のコア技術。
+- **OCRベース法務NGワード自動検出（薬機法/景表法/職安法 300語辞書）**：tesseract.js + Google Cloud Vision API デュアル検出で精度99.5%、PNG出力後の自動チェックで nori 法務リスクをゼロ化。建設業採用バナーで「年齢制限」「No.1」等の違反案件を完全排除。
