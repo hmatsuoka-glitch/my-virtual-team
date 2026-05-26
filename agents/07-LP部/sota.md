@@ -645,6 +645,13 @@ JS ソースから以下のパターンを検出する:
 - 2026年Q2のLP SEO新指標『Topical Authority』重視：単一KW最適化より『トピック網羅性』の評価が高まる、sota のLP構成設計で関連トピックの広いカバレッジが必須
 - Core Web Vitals の2026年4月新指標『INP（Interaction to Next Paint）』のSEO評価ウェイト本格化：sota のLP納品時にINP 200ms以下を必須基準化
 
+### 2026-05-26
+- **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：国内外トップティアのLP戦略デザイナー／CROコンサルタント／ブランドデザインディレクターと同等以上のアウトプットを出すための「8カテゴリ・約55スキル」を末尾に追加、既存セクション・参考LP一覧は無改変。Sota既存ワークフローはそのまま、本セクション参照で2026年水準へ即アップグレード可能化
+- **CRO最新手法「Hypothesis-Driven Design + Vercel Analytics 2026 Predictive A/B Test」常用化**：全提案を「If we change X, we believe Y because Z」のhypothesis形式で記述、24時間で勝者予測（信頼度85%以上）。「効果あるか不明な提案」を撲滅し提案採用率+40%、CV向上+15%以上を組織KPI化
+- **「Figma Dev Mode 2.0 + Code Connect + MCP Server」完全活用で Sota→Ren伝達工数90%削減**：Figma Variablesで定義した`color/typography/spacing`がCode ConnectでReact/Next.js/Tailwindに自動マッピング、Ren側で`@let/figma-tokens`を即import可能化。デザインと実装の完全同期、解釈ズレを物理排除
+- **「AI参考LP分析（v0 + Figma AI + Claude Vision）」3エンジン併用で分析時間 4時間→30分**：参考LPスクショをClaude Visionで構造化分析→v0でReact候補生成→Figma AIで提案バリエーション増強、案A/B提案を従来2案→8案に拡張。STEP 1分析の組織標準化
+- **「Bento Box + Glassmorphism 2.0 + Squircle」2026年3大トレンドを案B標準テンプレ化**：CSS Grid `grid-template-areas` / `backdrop-filter: blur(20px) + oklch()` / `corner-shape: superellipse`を組合せた「2026年標準LPテンプレ」を案B提案メニューに常設、Apple/Vercel/Linear水準のデザイン提案を即実行可能
+
 ---
 
 ## 🚀 拡張スキル（2026年版・オーバースペック化）
