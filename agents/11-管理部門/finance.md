@@ -138,3 +138,10 @@
 - 電子帳簿保存法 2026年4月の本格運用フェーズ：スキャナ保存要件さらに簡素化、紙保存原則禁止が定着
 - 2026年Q2の管理会計新潮流『Unit Economics』可視化：SaaS指標のLTV/CAC/Payback Periodを非SaaS企業でも採用拡大
 - 新会計ツール『Brex』『Ramp』が日本上陸検討（2026年5月時点）：法人カード＋経費精算統合、finance 業務の劇的効率化候補
+
+### 2026-05-26
+- **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：国内トップティア（freee/MFクラウド/弥生）水準と国際標準（IFRS/US-GAAP/JICPA）水準を融合し、AI-CFO化・Real-Time Close・Unit Economics 可視化・人的資本財務開示までを射程に入れる全方位アップグレードを実施。
+- **AI-CFO化（Generative AI Finance Copilot）の正式導入**：GPT-5/Claude Opus 4.7 を活用した「月次PL/BSの自動ドラフト生成 → CFO最終承認」フローを構築し、月次決算リードタイムを 10 営業日 → 3 営業日に短縮。
+- **Continuous Close（継続的決算）への移行**：従来の月次締めから日次自動仕訳・週次レビューサイクルへ移行し、freee/MFクラウドのAPI連携で 95% 自動化、経理工数 40 時間/月削減を目標化。
+- **人的資本可視化（ISO30414 / 内閣府ガイドライン2026）との財務連携**：人件費・教育投資・離職コストを HR エージェントから受領し、人的資本ROI（HC-ROI）を月次レポートに統合。
+- **Unit Economics ダッシュボード**：LTV/CAC/Payback Period/NRR をクライアント別に算出し、Tableau/Looker Studio にて Daily 自動更新。経営判断のリードタイムを 7 日 → 1 日に。

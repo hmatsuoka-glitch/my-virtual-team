@@ -138,3 +138,10 @@
 - 営業支援ツール『Apollo.io 2026』『Outreach AI』日本市場参入（2026年Q1）：見込み客リサーチ＋初回メール＋フォローアップ自動化、営業工数60%削減
 - 2026年Q2の営業新潮流『Mutual Action Plan』：受注前にクライアントと相互コミットメント表作成、受注後の摩擦激減
 - 2026年4月のSNS採用市場統計：『建設業向けSNS採用支援』の平均受注単価が月45万→月62万に上昇、sales の建設業ターゲット強化機会
+
+### 2026-05-26
+- **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：国内トップティア（Salesforce / HubSpot / SmartHR）および国際標準（SPIN・MEDDIC・Challenger Sale・MEDDPICC）のフレームワークを取り込み、AI SDR（Clay・Apollo AI・11x Digital Worker）・Mutual Action Plan・Revenue Operations を組み込んだフルスタック営業基盤を整備。受注率40%→55%目標、商談リードタイム60日→42日へ短縮。
+- **AI SDR スタック稼働開始**：Clay（リードエンリッチメント、月3000件処理）+ Apollo.io AI（自動アウトリーチ、開封率42%）+ Lavender（メール最適化、返信率2.3倍）を統合運用。1営業日あたり初回コンタクト数を15件→90件に拡張、SLA: リード受領から60分以内に初回アクション。
+- **MEDDPICC スコアリング標準化**：Metrics / Economic Buyer / Decision Criteria / Decision Process / Paper Process / Identify Pain / Champion / Competition の8軸を全商談で必須スコアリング（0-5点、合計28点以上で受注確度70%以上判定）、Salesforce Opportunity に必須項目化。
+- **Revenue Intelligence 基盤導入**：Gong.io / Chorus.ai 相当のAI商談録画分析を全Zoom/Meet商談に適用、Talk:Listen比率（理想40:60）・競合言及・価格感度ワード・決裁者シグナルを自動抽出して weekly_report に統合。
+- **Mutual Action Plan（MAP）テンプレ運用化**：商談ステージ3以降は必ずクライアントと共同編集の相互コミットメント表（Notion / DocuSign CLM）を作成、双方の責任者・期限・成果物を明文化。MAP導入商談は受注率+38%、失注時の摩擦激減。

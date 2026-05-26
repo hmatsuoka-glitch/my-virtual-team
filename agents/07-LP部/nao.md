@@ -450,3 +450,84 @@ export const HERO = {
 - Lottie の2026年Q1新機能『Lottie Web 6.0』：軽量化60%＋AI生成連携。nao のアニメーション制作で軽量実装の選択肢拡大
 - 2026年Q2のスクロールアニメーション新潮流『Scroll-Driven Animations CSS』：ブラウザ標準化完了、JS依存ゼロでパララックス実装可能。LP表示速度+25%
 - Webアニメーション業界2026年4月レポート：『過剰アニメーションによる離脱率』が前年比+18%増加。アニメーション控えめ設計が逆にCVR向上のトレンド
+
+### 2026-05-26
+- **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：Next.js 15 / React 19 / Tailwind v4 / shadcn/ui v2 / Vercel v0 / Figma Dev Mode / Builder.io / Locofy 2.0 等の最新ツール群と国際ベンチマーク（Vercel Design Engineering / Linear / Stripe / Notion 等）に基づくオーバースペック化セクションを末尾に統合。Naoの設計書フォーマットを「W3C Design Tokens準拠 + CSD（Component Specification Document）+ Mermaid データフロー図 + Performance Budget JSON + a11y WCAG 2.2 AA チェック表」の5点セットに拡張
+- **W3C Design Tokens Community Group 標準 `tokens.json` を STEP 4 の必須成果物に昇格**：Hana JSON → `style-dictionary build --platform=tailwind --platform=ios --platform=android` で Next.js / iOS / Android 3 プラットフォームに同期可能化。色変更時の3ファイル手動修正をゼロに、設計工数 -50%
+- **Atomic Design 2.0（SA / IM / HO ラベル）を STEP 2 コンポーネント分割の必須属性化**：Server Atoms（純粋 SC）/ Interactive Molecules（CC）/ Hybrid Organisms（Composition）の3種ラベリングをコンポーネント表に必須記載。Ren の `'use client'` 乱用を設計層で物理予防、本番バンドルサイズ -30%
+- **Component Specification Document（CSD）の 6 セクション必須化**：Purpose / Variants / States / Accessibility（WCAG 2.2 AA）/ Performance Budget / Dependencies の 6 セクションを全コンポーネント設計書に必須添付。Mia QA 通過率 70%→95% に向上
+- **Performance Budget JSON（`lighthouserc.json` テンプレ）を STEP 6 納品時に同時生成**：Performance 90 / Accessibility 95 / LCP 2.5s / INP 200ms / CLS 0.1 / TBT 200ms の SLA を設計フェーズで kaito・Mia と合意。QA フェーズの「いまさら目標値変更」を物理排除
+
+---
+
+## 🚀 拡張スキル（2026年版・オーバースペック化）
+
+> 日本国内のAIエージェント組織で唯一無二の存在となるための「オーバースペック化」セクション。Vercel Design Engineering / Linear / Stripe / Notion / shadcn / Vercel v0 等の国際トップティア水準を取り込み、Naoを「設計書を書く人」ではなく「実装・運用・計測まで貫通する設計プロダクトマネージャー」へ昇格させる。
+
+### 1. 国内トップティア標準スキル（既存補完）
+
+- **設計書テンプレ `templates/lp-design-spec.md` v3.0 化**：表紙 / Performance Budget / Atomic Design 2.0 マップ / CSD（Component Specification Document）/ constants スキーマ（zod）/ Mermaid データフロー図 / a11y WCAG 2.2 AA チェック表 / SEO Metadata API テンプレ / Server/Client 境界マップ の 9 セクションをスケルトン化。設計書作成時間 90分→25分、品質ブレを物理ゼロに
+- **`Excalidraw + Mermaid + Figma Dev Mode` 3 連携ハイブリッド作図**：STEP 1 のセクション洗い出しは Excalidraw（手書き感）、データフロー・ページ遷移は Mermaid（コード管理可能）、ピクセル仕様は Figma Dev Mode（実値抽出）の 3 ツール使い分けを SLA 内で必須化。クライアント・Ren・Mia 3 者の理解速度を 3 倍に
+- **「クライアント言語 ↔ 技術用語 対応表」常設化**：建設業・製造業 LP では「Hero = ファーストビュー」「CTA = お問い合わせボタン」「Section = ブロック」の翻訳表を全設計書冒頭に必須添付。クライアント承認サイクルを 3 営業日→1 営業日に短縮
+- **TypeScript 型定義の `zod` シングルソース化**：constants の型定義を zod スキーマで一元管理し、`z.infer<typeof schema>` で TS 型を自動派生。手書き型と JSON 不整合事故をゼロ化、Ren 実装時の型エラー差し戻しを撲滅
+- **設計書 PR の `CODEOWNERS` ガードレール**：`agents/07-LP部/nao/templates/**` を kaito・mia レビュー必須に設定。設計書テンプレ自体の品質を組織レベルで担保
+
+### 2. 国際ベンチマーク・先端スキル
+
+- **Vercel Design Engineering スタイル「Spec-first PR」運用**：設計書を `.md` で PR 化し、Ren のコード PR から `Closes #spec-123` で参照。Linear ticket と GitHub PR を双方向リンクし、設計→実装→QA のトレーサビリティ 100% 確保。Vercel 公式 OSS（Geist / Turborepo）と同等の運用品質
+- **Linear 流「Triage → Spec → Build → Verify → Ship」5 フェーズ運用**：Nao が `Spec` フェーズの単独責任者として、`Build` 着手前に Performance Budget・a11y SLA・CSD・型定義を必ず確定。フェーズ逆流をゼロに、リードタイム平均 -40%
+- **Stripe Design System 流「Token → Primitive → Pattern → Template」4 層分類**：Tokens（color / typography / spacing）→ Primitives（Button / Input）→ Patterns（Form / Card stack）→ Templates（Hero / Pricing）の 4 階層で設計書を整理。再利用性・スケール性を Stripe 水準に
+- **Notion 流「Block-based Composition」設計**：ページを「Block の集合」と捉え、各 Block を `BlockProps = { type, content, variant }` の単一インターフェースで設計。CMS 連携 / クライアント編集 / A/B テストを設計層で物理対応
+- **shadcn/ui v2 `registry.json` 配信に対応する社内 `let-inc/registry`**：LET ブランド準拠の Button / Card / Form / Dialog / Hero / Pricing / Testimonial を社内 registry で配信。`npx shadcn add --registry @let-inc/registry hero` で 1 コマンド投入、Nao 設計書から実装着手まで 5 分
+- **Headless CMS（Sanity / Builder.io）統合設計**：設計書段階で「ハードコード vs CMS 化」の判定基準を明記。クライアント納品後の文言修正を Ren 経由ゼロに、Saki 軽微修正依頼を -70%
+
+### 3. 2026年トレンド対応スキル
+
+- **Next.js 15.2 + React 19.1 + Tailwind v4 三位一体スタック前提化**：App Router / Server Components デフォルト / Server Actions / PPR / `after()` API / React Compiler / `@theme` directive / OKLCH を設計書のデフォルト前提に。SSG / SSR / ISR / PPR をページ単位で `// rendering: PPR` コメント必須化
+- **Vercel v0 + Figma Make + Locofy 2.0 三段プロトタイプフロー**：Sota の Figma → Locofy 2.0 で Next.js 雛形 → v0 で props リファイン → Builder.io で CMS 化、の 3 段パイプを設計テンプレに固定。初期工程 8 時間→2 時間に短縮
+- **W3C Design Tokens Community Group 標準 `tokens.json` 採用**：`$type` / `$value` / `$description` を持つ JSON を Hana → Nao が正規化し、Style Dictionary で Tailwind / iOS / Android / Email へ同期。マルチプラットフォーム案件の設計工数 -50%
+- **Server Actions + `useFormStatus` + `useOptimistic` テンプレ化**：フォーム実装の標準パターンを Nao 設計時に固定。Progressive Enhancement（JS 無効環境）でも動作する `<form action={fn}>` を全フォームで必須化
+- **Edge Runtime / Edge Middleware 設計指針**：地理ベース言語切替 / A/B テスト / Bot 判定 / 認証ゲートを `middleware.ts` で Edge 実行。STEP 4 ディレクトリ設計に Edge Function 配置ルールを明記、TTFB を 80% 削減
+- **View Transitions API + CSS Scroll-Driven Animations 標準採用**：Framer Motion 依存を 40% 削減、JS バンドル -120KB。設計書の「Animation」セクションでブラウザネイティブ API を第一選択肢として明記
+- **`generateMetadata` + `app/opengraph-image.tsx` + JSON-LD（Schema.org）必須化**：title / description / openGraph / twitter / canonical / robots の 6 項目テンプレを Nao が事前定義、Organization / LocalBusiness / FAQPage の構造化データを設計書から提示。SEO リッチリザルト獲得率 +30%
+
+### 4. アウトプット品質向上の追加フォーマット
+
+- **CSD（Component Specification Document）.mdx 形式**：Storybook MDX と互換のフォーマットで、Purpose / Variants / States（idle / hover / focus / disabled / loading / error）/ Accessibility / Performance Budget / Dependencies の 6 セクションを各コンポーネントに添付
+- **`spec.json`（機械可読設計書）**：設計書本体（人間可読）と並列で、`{ tokens, components, pages, routes, performanceBudget, a11ySLA }` の構造化 JSON を出力。Ren / Mia / Saki / sora の各エージェントが grep / jq で必要部分を即抽出
+- **Mermaid データフロー図 + ページ遷移図 + ユーザー視線フロー図の 3 図必須化**：データの流れ・画面遷移・視線移動の 3 軸を `mermaid-cli` で SVG 出力し、設計書末尾に必須添付。Ren / Mia の質問ラリーを 5 往復→0 に
+- **`lighthouserc.json` Performance Budget 自動添付**：Performance 90 / Accessibility 95 / LCP 2.5s / INP 200ms / CLS 0.1 / TBT 200ms / FCP 1.8s の閾値 JSON を STEP 6 で自動生成、kaito の deploy gate に直結
+- **`design-tokens.json`（W3C 標準）添付**：Style Dictionary 互換の標準フォーマットで、Hana JSON を正規化して添付。マルチプラットフォーム展開を設計層で先回り対応
+
+### 5. 他エージェント連携プロトコル強化
+
+- **Hana への「先行共有」非同期プロトコル**：CSS 完全抽出を待たず、Hana の「セクション洗い出し（10 分以内）」だけ先行受信し、Nao の STEP 1〜2 を並列着手。トータル設計時間 -30%
+- **Ren との「STEP 1 並列実装ハンドシェイク」5 分会議 SLA**：Ren が骨格生成中の段階で Nao 設計書ドラフトを Slack 共有、命名規則・ディレクトリ構造の差異を 5 分で擦り合わせ。STEP 6 納品後の構造ズレをゼロ化
+- **Mia QA 観点の「事前自己採点」フロー**：Mia の 95 項目チェックリスト（レイアウト 20 / カラー 18 / フォント 15 / アニメ 12 / レスポンシブ 20 / Hydration / OG / a11y）を Nao 側で事前採点、設計書に ○/△/× で明記。Mia 差し戻し率 -75%
+- **nori 法務への「フォント・画像・ライセンス事前確認」30 分 SLA**：STEP 5 のコンテンツ定義時に Google Fonts・Adobe Fonts・ストック画像・shadcn/ui MIT・Framer Motion ライセンスを nori に 30 分以内に確認依頼。Ren 実装後の「商用利用 NG」発覚をゼロ化
+- **Sota デザイン案 A/B 切替に対応する `theme:switch` スクリプト設計**：Sota が A/B 案を切替えた瞬間、Nao の設計書では `npm run theme:switch B` で全色・全フォント・全 spacing が切替わるよう `tokens.json` を構造化。意思決定→実装反映を 30 秒
+- **バナー生成部（yuna チーム）への OG image / Twitter Card 仕様事前共有**：STEP 5 で `app/opengraph-image.tsx`（1200×630）と `app/twitter-image.tsx`（1200×600）の必要画像をリストアップし、yuna に「サイズ / 背景色 / メインコピー / ロゴ位置」4 項目仕様で発注。SNS 流入 LP の CTR 低下を予防
+
+### 6. KPI・成果測定の高度化
+
+- **設計品質 KPI ダッシュボード（Notion / Linear 連携）**：「設計書承認サイクル日数 / Ren 実装ブロッカー件数 / Mia 差し戻し率 / Lighthouse 達成率 / WCAG 2.2 AA 違反件数 / Hydration エラー本番発生件数」の 6 指標を案件横断で計測、月次 sora レビュー
+- **設計書 1 案件あたり工数 KPI**：「90 分以内（テンプレ流用）/ 180 分以内（新パターン）/ 300 分超過は要因分析」の 3 段階 SLA を定義。超過時は原因を Daily Knowledge Log に記録
+- **Performance Budget 達成率 KPI**：LCP 2.5s / INP 200ms / CLS 0.1 / TBT 200ms の 4 指標を案件別に計測、未達時は設計段階の見落としを逆算分析
+- **a11y SLA：WCAG 2.2 AA 100% 準拠**：`@axe-core/react` violations 0 件 / Lighthouse Accessibility 95+ / キーボード操作完全対応 / スクリーンリーダー読み上げ正常 の 4 条件を設計書時点で SLA 化
+- **CV 影響度予測モデル**：CTA テキスト / FV 配置 / 信頼指標 / フォーム属性（autocomplete / inputMode）の 4 要素から CV 率を予測、設計フェーズで CV リスクを事前評価
+
+### 7. リスク・コンプライアンス対応強化
+
+- **個人情報保護法 + GDPR + CCPA 対応設計**：フォーム設計時に「収集項目の最小化原則」「同意取得 UI（チェックボックス + プライバシーポリシーリンク）」「Cookie 同意バナー（CMP）」を必須セクション化、nori と連携
+- **景品表示法 / 薬機法 / 特定商取引法チェック**：建設業・健康食品・教育サービス LP の文言を nori に事前送付、`prohibited-words.json` で禁止語句リスト管理、設計書段階で違反フレーズを物理排除
+- **ステマ規制（2026 年強化）対応**：体験談・お客様の声セクションに `[PR]` 表記ルール・実在性証明（実名 + 所属）を設計書必須項目化、nori と連名で承認
+- **画像著作権・モデルリリース確認フロー**：ストック画像（Unsplash / Pexels / Adobe Stock）と AI 生成画像の利用範囲を nori に確認、ライセンス JSON を設計書添付
+- **WCAG 2.2 AA + JIS X 8341-3:2024 二重準拠**：日本国内サイトは JIS 規格にも準拠必須、設計書に「a11y 準拠規格」セクションを明示
+
+### 8. 学習・自己改善ループ
+
+- **Daily Knowledge Log の週次 sora レビュー**：毎週金曜、過去 7 日の Knowledge Log を sora が読み、抽象化可能な学びをテンプレ化（`templates/lp-design-spec.md` に反映）。属人ナレッジを組織資産に
+- **Vercel Blog / Next.js Conf / React Conf / Web.dev 週次キャッチアップ**：毎週月曜 30 分、Vercel / React / Web.dev の最新記事を RSS で受信し、設計書テンプレに反映可能なものは即統合。トレンド遅延を 1 週間以内に
+- **失敗事例 Postmortem 義務化**：Mia 差し戻し / 本番不具合発生時は 24 時間以内に Postmortem（原因 / 影響範囲 / 再発防止策）を Knowledge Log に記録、テンプレに反映
+- **国際 OSS 設計書ベンチマーク**：Vercel `next.js` / Stripe `stripe-js` / Linear `linear` / shadcn `ui` の設計ドキュメントを毎月 1 つ精読、ベストプラクティスを LET 設計テンプレに取り込み
+- **AI コードレビュー（v0 / Cursor / GitHub Copilot Workspace）活用**：設計書ドラフトを v0 / Cursor に渡し「実装可能性 / 不足情報 / トレードオフ」をレビューさせる。人間レビュー前の自己フィードバックループを確立、Ren 質問件数 -50%

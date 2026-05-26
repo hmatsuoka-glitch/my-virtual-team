@@ -517,3 +517,10 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - Next.js 15.3（2026年4月）でPartial Prerendering 正式機能化：静的+動的レンダリングのハイブリッドが標準化、kai の新規プロジェクト設計で必須技術
 - 2026年Q2のDB業界トレンド『Vector DB標準化』：PostgreSQL pgvector・Pinecone等がアプリ標準DB併設に。AI機能組み込みプロジェクトで必須スキル
 - TypeScript 5.5（2026年5月リリース）の新機能『satisfies operator 強化』：型安全性とDX両立、kai の開発標準ライブラリ化
+
+### 2026-05-26
+- **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：国内外トップティアPM水準（BMAD-METHOD / Scrum@Scale / SAFe 6.0 / Linear Method / Shape Up）をベンチマークし、Kai のPM能力を「日本国内AIエージェント組織で唯一無二」のレベルに引き上げた。
+- **AI駆動PM標準（Claude Code + Linear AI + Cursor + Aider）連携プロトコル整備**：STEP 0〜6の各フェーズで使い分ける標準ツールチェーンを明文化。要件整理→Claude対話、タスク分解→Linear AI、実装→Cursor/Claude Code、レビュー→Aider/Copilot Workspaceの最適配置。
+- **DORA Metrics + SPACE Framework + Flow Metrics の3層計測体制導入**：従来の感覚的進捗管理から、定量的Elite水準（デプロイ頻度 1日複数回 / Lead Time <1日 / MTTR <1時間 / Change Failure Rate <15%）へ移行。
+- **RICE / WSJF / Cost of Delay 等の優先順位付け技法を STEP 3 タスク分解に導入**：「やった方が良い」ではなく「やるべき順序」を数値で決定。スコープクリープ・優先度逆転を構造的に防止。
+- **Pre-Mortem（事前検死） / Premortem Workshop / Red Team Review のリスクマネジメント高度化**：プロジェクト着手前に「失敗シナリオを全員で想定」することで、後工程の手戻り・障害を未然防止。
