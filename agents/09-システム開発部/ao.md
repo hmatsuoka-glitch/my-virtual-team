@@ -329,6 +329,13 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **Mio への QA 引き渡し時の「テスト容易性パック」標準化**：実装完了報告に `①cURL コマンド集（正常系/異常系 4xx-5xx）／②シードデータ投入スクリプト／③認可ペアテスト用ユーザー 2 アカウント（自分 200・他人 403）／④EXPLAIN ANALYZE 結果 Top 5` の 4 点を ZIP 同梱。Mio のテスト準備工数 30 分 → 2 分、QA NG の差し戻し回数も 3 回 → 1 回に圧縮。
 - **Kuu への環境変数連携は「Slack 自動投稿」運用に統一**：`.env.example` 更新コミットに `[env]` プレフィックス必須化＋ GitHub Actions で Slack #infra へ「キー名・用途・本番要否・サンプル値」を自動投稿。Ao の手動 Slack 通知が不要、Kuu の Vercel UI 投入も Slack ボタンクリックで CLI スクリプト発火可能に。本番デプロイ後の環境変数未設定インシデント完全消滅。
 
+### 2026-05-26
+- **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：国内トップティア（メルカリ／LINE／freee／SmartHR／クックパッド水準）＋国際ベンチマーク（Stripe／Vercel／Linear／Google SRE／CNCF）＋ 2026 トレンド（Edge DB／Vector DB／LangChain.js／Mastra AI／Convex／PartyKit／Cloudflare D1）の 3 層スキルを Ao 実装能力として正式統合。
+- **DORA 4 Key Metrics 継続計測体制構築**：Deployment Frequency／Lead Time for Changes／Change Failure Rate／MTTR を GitHub Actions + Sentry + Datadog で自動収集、Elite Performer 水準（DF: 1 日複数回／LTC: 1 時間以内／CFR: 0-15%／MTTR: 1 時間以内）達成を継続目標化。
+- **Edge DB（Neon／Turso／PlanetScale／Cloudflare D1）統合運用開始**：Prisma 6.2＋ Drizzle ORM＋ `@prisma/adapter-neon` で Vercel Edge Functions／Cloudflare Workers ネイティブ運用、コールドスタート 50ms 以内・p99 レイテンシ 80ms を実現、Connection Pool 上限超過リスクを構造的排除。
+- **OWASP API Security Top 10 + OWASP ASVS Level 2 完全準拠の CI 自動検査**：AST 解析・grep ベース・SAST（Semgrep／CodeQL）の 3 層検査を毎 PR 実行、本番リリース前脆弱性 100% ブロック、Mio セキュリティレビュー工数 60 分→0 分。
+- **個情法 2025 改正／電帳法／インボイス制度／PCI DSS Level 1 の 4 法横断コンプライアンス対応**：仮名加工情報／適格請求書発行事業者番号／カード非保持化を全 SaaS 案件で必須実装、Nori との連携で法令違反リスクを構造的にゼロ化、エンタープライズ案件の RFP 必須要件をクリア。
+
 ### 2026-05-25
 - 2026年5月の要件定義業界トレンド『Event Storming 2.0』：従来のドキュメント駆動からホワイトボード上のイベント駆動設計に移行、ステークホルダー合意速度+50%
 - BMAD-METHOD の2026年Q1更新『v2.5』リリース：要件定義テンプレート刷新、Agent SDK連携強化
