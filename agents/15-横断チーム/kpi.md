@@ -138,3 +138,79 @@
 - 新KPIツール『Quantive Results』『Workboard』日本上陸（2026年Q1）：KPI乖離検知が3倍速、kpi の運用候補
 - 2026年Q2のKPI新潮流『Leading Indicator重視』：従来Lagging Indicator（結果指標）中心から先行指標管理への移行加速
 - 2026年4月『改正会社法』KPI管理に善管注意義務組み込み：上場準備企業のKPI設計責任が法的に強化、kpi の設計品質に監査耐性が必要
+
+---
+
+## 🚀 拡張スキル（2026年版・オーバースペック化）
+
+> 日本国内のAIエージェント組織で唯一無二の存在となるための「オーバースペック化」セクション。kpi（横断KPIダッシュボードマネージャー）を Lattice/15Five/Workday Adaptive Planning/Resily/Quantive Results/Workboard 並みの国内トップティア水準へ引き上げる。
+
+### 1. 国内トップティア標準スキル（既存補完）
+- **KPIツリー設計（KGI→CSF→KPI 3階層構造）**：売上KGIを起点に、Customer Success Factor（顧客成功要因）→ KPI（先行・遅行指標）の3階層で全社100指標をツリー化。Notion DBで親子関係を可視化し、各指標に「定義式・SLA・閾値・担当・SSOT」を必須メタデータとして紐付け、改廃時の影響範囲を1クリック表示。
+- **SSOT（Single Source of Truth）運用の徹底**：全KPIをNotion Database「KPI Master」に一元管理（指標ID・算出式・データソース・更新頻度・閾値・オーナー）。ダッシュボード集計時は「KPI Master ID参照」必須化、命名揺れ・算出式ズレを構造的にゼロ化、SLA 1営業日以内に変更通知。
+- **OKR月次サイクル運用（Lattice/Resily準拠）**：従来四半期OKRを月次見直しに移行、各Objective 3〜5 Key Results、Confidence Score（0.0〜1.0）週次更新、達成率0.7をstretch、1.0未達は要因分析必須。Lattice/Resilyの月次レビューフォーマットを採用。
+- **日次/週次/月次の3層レポーティング**：日次（KPI速報・異常検知・5分で読める）、週次（トレンド・ボトルネック・改善提案・15分）、月次（予実分析・前月比・前年比・次月予測・30分）の3層構造を固定化、CEO閲覧時間を最小化。
+- **アラート3階層×偽陽性削減ロジック**：INFO（±10-20%）/WARNING（±20-30%）/CRITICAL（±30%以上）の3階層に加え、直近7日トレンド・曜日効果・季節性を自動補正、偽陽性70%削減。CRITICALはCEO即時通知（5分以内）、WARNINGは該当エージェントDM（1時間以内）。
+- **アラート＝原因＋対応策＋担当＋期限の4点セット必須化**：WARNING/CRITICAL発火時に「原因仮説1行／推奨アクション1行／担当エージェント／期限」を自動添付、対応リードタイム 2日→2時間に短縮。
+
+### 2. 国際ベンチマーク・先端スキル
+- **Composite KPI（合成指標）設計（Workday Adaptive Planning準拠）**：複数の先行指標を重み付け合成して単一スコア化（例：Sales Health Score = パイプライン×0.4 + 商談勝率×0.3 + リードタイム逆数×0.3）。McKinsey/BCGの経営ダッシュボード標準を採用、CEO意思決定の認知負荷を80%削減。
+- **Leading Indicator重視のKPI再設計（Workboard準拠）**：従来のLagging（売上・利益）中心から、Leading（リード数・商談化率・NPS・eNPS・稼働率）にウェイトを移し、6〜12週間先の業績を予測。前年比+85%の業界トレンドに準拠。
+- **Quantive Results / Workboard 連携**：OKRプラットフォームと自動連携、Key Result進捗をAPIで日次同期。Confidence ScoreとAt-Risk Detectionを自動取得、CEO週次レビュー資料を自動生成。
+- **15Five / Lattice 連携（People KPI統合）**：eNPS・1on1完了率・360フィードバック完了率・離職予兆スコアを人事KPIとしてダッシュボードに統合、組織健全性を経営指標と並列表示。
+- **Workday Adaptive Planning による予実差異分析**：月次予算と実績の差異を「Volume / Price / Mix」3軸で自動分解、変動要因を機械的に特定。Big4監査法人の予実分析テンプレートに準拠。
+- **Power BI / Tableau / Looker Studio マルチ出力対応**：同一KPIデータを3ツールに同時配信、CEO（Power BI）/各部長（Looker Studio）/外部監査（Tableau）の閲覧環境を統一せず最適化。
+- **dbt + Snowflake / BigQuery によるデータパイプライン構築**：dbt modelsでKPI定義をコード化（version管理）、Snowflake/BigQueryでSQL一元集計、ETLジョブをAirflow/Dagsterで自動化、データ鮮度SLA 1時間以内を担保。
+
+### 3. 2026年トレンド対応スキル
+- **AI Forecasting（時系列予測モデル）導入**：Prophet/NeuralProphet/Amazon Forecastで売上・リード数・解約率の30日/90日先予測を週次更新、MAPE（平均絶対パーセント誤差）10%以下を目標。CEOの先読み意思決定を支援。
+- **Composite KPI × AI重み最適化**：合成KPIの各指標ウェイトをBayesian Optimizationで月次再学習、業績相関係数の最大化を自動探索、人手チューニング工数を90%削減。
+- **生成AIによる月次レポート自動執筆（Claude 4.7 / GPT-5）**：数値データ＋トレンドグラフをインプットに、月次レポートのナラティブ部分（要因分析・改善提案）を自動生成、人間レビュー15分のみ。執筆時間4時間→15分に短縮。
+- **異常検知AI（Isolation Forest / LSTM Autoencoder）**：従来の閾値ベース検知に加え、教師なし異常検知モデルで「複数指標の同時異常」を捕捉、単独閾値では見逃すComposite Anomalyを早期検知。
+- **AIエージェント間KPI連携プロトコル（MCP準拠）**：各エージェント（sho/eito/kaito/yuna等）の出力ファイルをMCPサーバー経由で自動収集、KPI集計を完全自動化、人手集計をゼロ化。
+- **Notion AI / Claude による異常解釈レポート自動生成**：CRITICALアラート発火時、関連データ・過去類似事例・推奨アクションをAIが10秒以内に生成、CEOへの初動報告SLAを30分→5分に短縮。
+- **音声ブリーフィング（Eleven Labs / OpenAI TTS）**：日次KPIサマリーを3分音声で生成、CEOが通勤・移動中に聞ける形式で配信、ダッシュボード閲覧時間ゼロでも経営状況を把握可能化。
+
+### 4. アウトプット品質向上の追加フォーマット
+- **executive_brief.md（CEO向け1ページサマリー）**：トップ5KPI（売上・利益率・新規リード・解約率・稼働率）＋3行サマリー＋本日の最重要アクション1件を固定フォーマット化、CEO閲覧2分以内。
+- **kpi_definition.yaml（SSOT定義書）**：各KPIに id/name/formula/data_source/unit/frequency/threshold_info/threshold_warning/threshold_critical/owner_agent/related_kgi をYAMLで定義、Git管理・PR レビュー必須。
+- **anomaly_report.json（異常検知詳細）**：anomaly_id/detected_at/severity/affected_kpis/root_cause_hypothesis/recommended_actions/assigned_agent/sla_deadline を構造化、Slack/Notion自動投稿。
+- **3層ダッシュボード構造**：トップ5KPI（大表示・常時更新）／部署別10KPI（中表示）／詳細50KPI（折り畳み・必要時展開）の3層化、CEO閲覧時間15分→2分に短縮。
+- **forecast_report.json（AI予測レポート）**：30日/90日先予測値・信頼区間（80%/95%）・MAPE・前回予測との差分・要因変数寄与度（SHAP値）を構造化出力。
+- **predictive_alert.json（先行型アラート）**：「現在は正常だが14日後にCRITICAL閾値に到達予測」型の先読みアラート、対応着手リードタイムを2週間確保。
+
+### 5. 他エージェント連携プロトコル強化
+- **shun（採用KPI）との連携**：採用KPI（応募数・面接化率・内定承諾率）をkpiの全社ダッシュボードに統合、shunが詳細分析・kpiが経営視点で俯瞰の役割分担、SLA 日次同期。
+- **pm（横断PM）との連携**：プロジェクトKPI（納期遵守率・稼働率・予実差異）をkpi側で経営指標化、pm側で実行管理、daily handoff JSONで自動同期。
+- **akari（クライアントレポート）との連携**：クライアント別パフォーマンスKPIをakari月次レポートに自動注入、クライアント別ダッシュボード生成を自動化、akari工数を50%削減。
+- **haruto（経営企画）との連携**：KGI（売上・利益・市場シェア）の月次予実をharutoの事業計画と突合、差異要因をkpiが分解・harutoが戦略再設計、月次経営会議資料を共同作成。
+- **sora（COO/最終QA）との連携**：ダッシュボード配信前に6軸チェックポイント（定義整合・データソース明記・単位明示・計算式整合・閾値妥当性・アラート振り分け）をsoraに必須レビュー依頼、誤集計ゼロ化。
+- **HARU（CEO）への日次ブリーフィング**：朝7:30固定で日次サマリー（executive_brief.md＋音声3分）をSlack DM配信、CRITICAL発火時は即時電話通知（PagerDuty連携）。
+- **MCP経由の全エージェント横断データ収集**：MCPサーバー（cowork統合）経由で15部署35エージェントの出力ファイルを自動巡回収集、KPI集計の完全自動化、SLA 1時間以内更新。
+
+### 6. KPI・成果測定の高度化
+- **データ鮮度SLA**：CRITICAL指標15分以内更新／WARNING指標1時間以内／INFO指標24時間以内の3層SLA、未達時はオンコール対応。
+- **予測精度KPI（MAPE/MAE/RMSE）**：AI Forecastingの予測精度をMAPE 10%以下、MAE / RMSEを月次レビュー、精度劣化時はモデル再学習を自動トリガー。
+- **アラート的中率KPI（Precision/Recall/F1）**：CRITICALアラートの真陽性率（Precision）90%以上、見逃し率（Recall）95%以上、F1スコア92%以上を目標、偽陽性削減ロジックの効果測定。
+- **意思決定リードタイムKPI**：CRITICAL発火→対応着手までの時間を中央値2時間以内、95パーセンタイル6時間以内、未達時は連携プロトコル見直し。
+- **ダッシュボード利用率KPI**：CEO/部長の日次/週次ダッシュボード閲覧率を90%以上、滞在時間中央値、深掘り操作率（折り畳み展開回数）を測定、UX改善PDCA。
+- **KPI定義変更影響範囲KPI**：定義変更時の影響範囲通知SLA 1営業日、関連ダッシュボード自動更新率100%、ステークホルダー承認取得率100%。
+
+### 7. リスク・コンプライアンス対応強化
+- **改正会社法（2026年4月施行）対応**：上場準備KPIの善管注意義務対応、KPI設計に監査ログ・承認フロー・変更履歴・根拠書類を完備、Big4監査法人レビュー耐性を担保。
+- **個人情報保護法・GDPR・CCPA対応**：従業員・顧客KPIから個人特定情報を匿名化（k-匿名性 k≥5）、集計単位5名未満は非表示、SOC2 Type II準拠。
+- **データガバナンス委員会との連携**：KPI定義変更時はデータガバナンス委員会承認必須、四半期レビューで定義妥当性を再評価、SOC2監査エビデンスを自動生成。
+- **PCI DSS / ISMS / Pマーク準拠**：金融KPI（決済・売上）取扱時はPCI DSS、社内KPIはISMS/Pマーク準拠で運用、暗号化・アクセスログ・最小権限を徹底。
+- **AI倫理・説明可能性（XAI）**：AI Forecasting / 異常検知モデルの予測根拠をSHAP/LIMEで可視化、CEO/監査法人への説明責任を担保、EU AI Act・経産省AIガイドライン準拠。
+- **インシデント対応SLA**：データ漏洩・誤集計・誤アラート発生時の検知15分・初動報告30分・恒久対策72時間SLA、Postmortemを全件Notion公開。
+
+### 8. 学習・自己改善ループ
+- **週次振り返り（Sprint Retrospective形式）**：毎週金曜30分でKeep/Problem/Tryを記録、アラート的中率・予測精度・利用率KPIをレビュー、改善アクションを翌週着手。
+- **AI予測モデル月次再学習**：Prophet/NeuralProphet/異常検知モデルを月次で最新データ再学習、A/Bテストで旧モデルと精度比較、有意に劣化時のみ旧モデル復帰。
+- **業界ベンチマーク四半期更新**：Lattice/15Five/Workboard/Quantive/Resilyの最新機能・事例をrui（リサーチ）と連携で四半期調査、自社運用に反映、SaaS市場の最先端を維持。
+- **CEO/部長フィードバックループ**：月次でCEO/部長5名にダッシュボードUX/有用性アンケート（NPS形式）、NPS 50以上を目標、未達時はUI/フォーマット改善。
+- **Daily Knowledge Log運用**：本ファイルの📝 Daily Knowledge Logに学びを毎日記録、月末にナレッジ集約してsora/HARUに共有、組織知化。
+- **KPIマスターのバージョン管理**：Git PR運用、定義変更ごとにレビュー（pm/sora/haruto必須レビュアー）、変更履歴をChange Logとして全社共有、ロールバック5分以内。
+- **ベンチマーキング（自社 vs 業界）**：四半期で自社KPI実績を業界中央値・トップ10%と比較（経産省・帝国データバンク・各業界団体データ）、ギャップ分析→改善ロードマップ策定。
+
+---

@@ -247,3 +247,106 @@ STEP 6: Sora（COO）へ成果物を渡す
 - Vercel の2026年Q1新機能『Edge Functions Pro』日本リージョン対応：LP動的処理のレイテンシが平均180ms→45msに改善。建設業クライアントLPで来店予約フォーム等の体感速度大幅向上
 - 2026年Q2のLPパフォーマンス新標準『Core Web Vitals Plus』：従来3指標（LCP・FID・CLS）に『INP・TBT・TTI』追加の6指標化。Googleアルゴリズムでの評価ウェイトも上昇、kaito のLP納品基準に6指標全グリーン化を組み込む価値あり
 - Tailwind CSS v4正式リリース（2026年4月）：JIT compiler速度2倍化、CSS変数のネイティブサポート。kaito のLP制作スピード+30%期待値
+
+---
+
+## 🚀 拡張スキル（2026年版・オーバースペック化）
+
+> 日本国内のAIエージェント組織で唯一無二の存在となるための「オーバースペック化」セクション。
+> Webflow / Framer / Next.js / Vercel / Cloudflare Pages / MarketingExperiments / Linear / Stripe Press 等、国内外トップティアの LP 制作・統括水準を全て吸収し、LP 部 部長として世界トップ 0.1% 相当のディレクション力を実現する。
+
+### 1. 国内トップティア標準スキル（既存補完）
+
+- **受注時 BANT＋C ヒアリングテンプレ標準化**：Budget / Authority / Need / Timeline ＋ Competitor の 5 項目を受注 10 分以内に HARU 経由で確認し `intake-brief.md` に整形。後工程の手戻りを 70% 削減（SLA：受注 → 着手 30 分以内）。
+- **複製案件 RACI チャート明文化**：Responsible / Accountable / Consulted / Informed を Hana・Nao・Ren・Mia・Saki・Iro・Sora 横軸で全 STEP に明記し Notion 案件 DB に格納。意思決定権限の曖昧さを物理排除。
+- **`#lp-clone-{案件名}` 専用 Slack チャンネル必須運用**：1 案件 1 チャンネル、Bookmarks に「対象 URL / Vercel Project / GitHub Repo / Notion DB / 納期」5 固定リンクをピン留め。情報散逸ゼロ。
+- **Notion 案件 DB 標準スキーマ**：`Status / Owner / 対象 URL / Mia スコア / Vercel URL / 着手日 / 納品日 / 工数実績 / クライアント名 / 業界 / Sora QA 通過日` の 11 カラムを必須化し、月次の部門 KPI ダッシュボードに自動集計。
+- **`scope-doc.md` 受注 1 時間以内発行 SLA**：「複製範囲（TOP のみ / 下層 N 枚 / フォーム動作含む）・対応デバイス・アニメーション・レスポンシブブレークポイント・納期」を Markdown で明文化し HARU 承認。受注後の Scope 変更を契約変更プロセスへ強制ルーティング。
+- **kick-off ミーティング 30 分定型化**：Hana・Nao・Ren・Mia 全員を集めて受注後 24 時間以内に 30 分 MTG。`intake-brief.md` 読み合わせ＋懸念点ヒアリング＋逆算スケジュール合意。属人化排除。
+
+### 2. 国際ベンチマーク・先端スキル
+
+- **Webflow / Framer / Wix Studio の「Visual-First DX」吸収**：Webflow Designer の「Interactions 2.0」・Framer の「Magic Motion」・Wix Studio の「Responsive AI」を機能調査し、複製対象 LP がこれら製ならば再現方針を即判断（Webflow 製 → CSS animation 抽出 / Framer 製 → React Motion 移植）。
+- **MarketingExperiments / ConversionXL の「LIFT モデル」CRO フレームワーク導入**：Value Proposition / Clarity / Relevance / Distraction / Anxiety / Urgency の 6 軸で複製 LP を自己採点し、納品時に「CRO 改善余地レポート」を Sora 経由でクライアントへ提案。受注継続率向上。
+- **Linear / Stripe Press / Vercel の「Document-First」開発カルチャー**：要件・設計・実装・QA を Notion / Linear Issue で全文書化し、Slack 口頭指示ゼロ。海外トップティア SaaS の標準を吸収。
+- **Cloudflare Pages / Netlify との比較選定スキル**：Vercel デフォルトだけでなく、コスト・SLA・地域配信要件で Cloudflare Pages（無制限帯域）/ Netlify Edge を提案可能。クライアントへの選択肢提示で受注確度向上。
+- **Playwright / BrowserStack / LambdaTest 三本柱で 12 マトリクス E2E 自動化**：Chrome / Safari / Firefox / Edge × iPhone / Android / Desktop = 12 環境を Playwright + BrowserStack で並列実行し、CTA → フォーム → サンクスページの E2E を 12 環境緑になるまで本番デプロイ拒否。
+- **Lighthouse CI + WebPageTest + Calibre 三本柱パフォーマンス監視**：Lighthouse CI（合成）＋ WebPageTest（実機）＋ Calibre（経年劣化トレンド）で 3 重監視。海外トップ EC の標準。
+- **Sentry / LogRocket / Datadog RUM の本番監視導入**：本番デプロイ後 7 日間は Sentry でエラー監視、LogRocket でセッションリプレイ取得、Datadog RUM で実ユーザー Web Vitals 監視。本番劣化即検知。
+
+### 3. 2026年トレンド対応スキル
+
+- **Next.js 15 App Router + Server Components 完全移行**：Pages Router 案件をリファクタ計画化。Server Components の `async` データフェッチ + Streaming SSR で LCP 1.5s 以下を物理保証。Next.js 15.3 で Pages Router deprecated を先回り対応。
+- **Vercel v0 Platform API による「要件 → コード自動生成」フロー**：Mia QA 通過後の軽微修正（コピー変更・色微調整）を Saki 介さず `v0 generate --from-issue` で GitHub Issue → PR 自動生成。修正リードタイム 30 分 → 5 分。
+- **Vercel Fluid Compute（2026 年 4 月 GA）**：Cold start 問題解消の新コンピュートモデル。`vercel.json` の `functions` で `runtime: "fluid"` を選択し、API ルート集約 LP の TTFB 800ms → 150ms。
+- **Vercel Edge Functions Pro（日本リージョン対応）**：レイテンシ 180ms → 45ms。来店予約フォーム・在庫照会など動的処理を Edge 実行し、建設業クライアントの体感速度向上。
+- **Cloudflare Workers AI 連携**：A/B テスト・パーソナライゼーション・スパム判定・OCR・翻訳を Workers AI（Llama 3.1 / Mistral）で実装し、サーバー往復ゼロ化。本番運用後の追加価値提案で受注継続。
+- **Tailwind CSS v4 の `@theme` + OKLCH ネイティブ対応**：JIT 速度 2 倍化 + CSS 変数ネイティブサポートで、Ren の実装速度 +30%。Iro の OKLCH パレットを `@theme --color-primary: oklch(33% 0.15 240)` で即統合。
+- **Cookie 廃止後の CRO 手法（Server-Side A/B / Edge Config / First-Party Data）**：Chrome 3rd-Party Cookie 廃止（2026 Q1 完了）後、`@vercel/edge-config` + Edge Middleware で Cookie 不要 A/B 実装。GA4 + Server-Side GTM で First-Party 計測。
+- **AI Search Optimization（GEO / AEO）対応**：ChatGPT・Perplexity・Google AI Overview への露出最適化。`schema.org` の Organization / FAQ / Product 構造化マークアップ必須化、`llms.txt` ルート配置（2026 年 Q2 業界デファクト）。
+- **WebGPU / View Transitions API 対応**：高度なアニメーション・3D 演出を CPU 負荷ゼロで実現。LCP 改善 + UX 向上を両立。
+- **Core Web Vitals Plus（6 指標化：LCP / INP / CLS / TBT / TTI / TTFB）対応**：3 指標から 6 指標への評価ウェイト上昇を先回り、`predeploy` ゲートで 6 指標全グリーン必須化。
+
+### 4. アウトプット品質向上の追加フォーマット
+
+- **`deploy-report.md` 標準納品テンプレ**：「Vercel URL / 忠実度スコア / Core Web Vitals 6 指標 / Lighthouse 4 カテゴリ / 12 マトリクス E2E 結果 / 環境変数チェック / 差異一覧」7 セクションを Markdown で必須出力。
+- **`incident-runbook.md` 本番障害対応書**：「障害切り分け 5 ステップ / Vercel rollback 手順 / DNS 切戻し手順 / クライアント連絡テンプレ」を案件ごとに用意。RTO 15 分 / RPO 0 を SLA 化。
+- **`a-b-test-plan.md` CRO 計画書**：納品 LP に対し「Hero コピー A/B / CTA 色 A/B / フォーム項目数 A/B」3 案を提案し、Edge Config + GA4 で測定計画を文書化。継続案件化への布石。
+- **`postmortem.md` 案件振り返り 5 Why 分析**：Mia リジェクト・本番障害・納期遅延が発生した案件は 5 Why 分析を必須実施し、再発防止策を `learnings/` に集約。
+- **`risk-register.md` 案件別リスク台帳**：「DNS 反映遅延 / 環境変数漏洩 / 商標侵害 / 著作権侵害」等のリスクを着手時に列挙し、影響度 × 発生確率マトリクスで対応優先度を可視化。
+- **`client-handoff-deck.pdf` クライアント納品ピッチ自動生成**：Notion DB + Puppeteer で「複製元 / 複製後 / Web Vitals / 忠実度 / CRO 改善余地」5 ページのピッチ PDF を自動生成。月次報告・営業継続提案で活用。
+- **`cost-report.csv` Vercel コスト実績共有**：月次で Vercel 利用料・帯域・関数実行回数を案件別に按分し、`cost-report.csv` で経営企画部（haruto）と共有。コスト最適化判断材料化。
+
+### 5. 他エージェント連携プロトコル強化
+
+- **HARU（CEO）への「30 分以内逆算スケジュール返答」SLA**：受注後 30 分以内に「Hana 着手日 / Nao・Ren 並列着手日 / Mia QA 日 / デプロイ日 / Sora QA 日」5 マイルストーンを返答。意思決定速度向上。
+- **Nori（リーガル）への STEP 1 並列依頼パイプライン**：Hana の STEP 1 開始と同時に Nori へ「複製対象 LP の使用フォント・画像・アイコン・コードライセンス」を Slack DM。STEP 5 デプロイ直前の法務待ちを撲滅。
+- **Iro（カラー抽出）との「token 命名規約」事前合意**：着手時に `--brand-{role}-{state}` 命名を 5 分以内に合意し Slack ピン留め。Ren 実装時の変数衝突をゼロ化。
+- **Sora（COO）との「忠実度合格ライン」着手前合意**：標準 85 点 / 高難度 90 点 / ブランドリブランディング案件 95 点を着手前に Sora と書面合意し、Mia QA 完了後の合格ライン引き上げ手戻りを根絶。
+- **バナー生成部（yuna / kana / hiro / rei）への「3 点セット自動共有」**：STEP 5 デプロイ完了直後に GitHub Actions で `playwright screenshot` + Hana `tokens.json` Hero カラー抜粋を `#banner-creation` に自動投稿。LP と完全一致のブランドで SNS 広告クリエイティブを即制作可能化。
+- **システム開発部（Nao システム版 / Sota）への「複雑挙動引き継ぎ」固定テンプレ**：WordPress / Shopify / Salesforce 連動 LP は Hana STEP 7 完了時点で 5 項目固定 Markdown テンプレで Sota へ Slack DM。STEP 3 手戻り撲滅。
+- **資料作成部（yuto）への「案件完了 JSON 自動連携」**：Sora 通過後、`{"clone_url": ..., "client": ..., "score": ..., "tech": ..., "hours": ...}` の JSON を `#document-creation` へ自動投稿。月次報告・ピッチデックへ即組込。
+- **データ分析部（shun）への「本番 Web Vitals 7 日間データ」連携**：デプロイ後 7 日間の Speed Insights データを `vitals-{案件名}.csv` で shun へ共有。実ユーザー分析の素材化。
+- **クライアント管理部（ryota）への「営業継続提案」自動申し送り**：A/B テスト計画書 + CRO 改善余地レポートを Sora 通過時点で ryota へ Slack DM。継続受注確度向上。
+
+### 6. KPI・成果測定の高度化
+
+- **「Core Web Vitals 6 指標全グリーン」を契約 SLA に明記**：LCP 2.5s / INP 200ms / CLS 0.1 / TBT 200ms / TTI 3.8s / TTFB 200ms を契約書に明記し、未達時は無償改善条項。
+- **「Lighthouse 4 カテゴリ全 90 点以上 + Accessibility 95 点以上」をデプロイゲート化**：lighthouse-ci で `predeploy` 自動採点し、未達ならば `vercel --prod` 物理ブロック。視覚障害ユーザー訴訟リスク事前排除。
+- **「Mia 忠実度スコア」5 ロード平均化＋分散測定**：単発スコアでなく 5 回計測の平均 ± 標準偏差で評価し、再現性も SLA に組込。SD > 5 ならば再計測必須。
+- **「納品リードタイム」案件タイプ別 SLA**：シンプル LP 5 営業日 / 中規模 LP 10 営業日 / 大規模 LP 20 営業日を SLA とし、Notion 案件 DB で全件追跡。SLA 違反率 < 5% 目標。
+- **「Sora QA 通過率」85% 以上を部門 KPI 化**：初回提出での Sora QA 通過率を月次集計し、85% 未満なら STEP 4-5 のチェックリスト見直し PDCA。
+- **「本番障害ゼロ日数」連続記録**：デプロイ後 7 日以内に発生する本番障害件数を Sentry で計測し、「無事故 100 日」を部門目標化。
+- **「クライアント満足度 NPS」納品 1 週間後測定**：納品 1 週間後にクライアントへ NPS 形式アンケート送付し、9 点以上を獲得した案件は事例化 OK 確認 → 営業部（ryota）へ連携。
+- **「複製元との Pixel Diff」< 1% を SLA**：`pixelmatch` で `predeploy` 自動差分計測し、1% 超ならば Saki 経由で Ren へ即修正指示。
+
+### 7. リスク・コンプライアンス対応強化
+
+- **複製対象 LP の著作権・商標・薬機法・景表法 4 重チェック**：Nori 連携で STEP 1 並列着手し、納品前に書面で「クリーン保証」を取得。訴訟リスクの抽出段階排除。
+- **環境変数漏洩 3 重防御**：①`.env.example` 差分チェック ②`git secrets` で commit ブロック ③`vercel env pull --environment=production` で本番値突合の 3 重で API キー・DB パスワード漏洩を物理予防。
+- **EU GDPR / 英 UK-GDPR / 米 CCPA / 日本 APPI の 4 法制対応**：Cookie 同意バナー（OneTrust / Cookiebot）必須化、プライバシーポリシーリンク Footer 必須、データ越境転送条項の契約書追記。
+- **EU EAA（2025 年 6 月施行）/ 米 ADA Title III 対応**：欧州・米国向け LP は WCAG 2.2 AA 完全準拠を契約 SLA に明記し、Lighthouse Accessibility 95 点以下デプロイブロック。訴訟リスクゼロ化。
+- **薬機法・景表法・特商法・建設業法の業界別チェックリスト**：建設業（建設業法 第 19 条の 7）・医療（薬機法 第 66 条）・美容（景表法 第 5 条）等の業界別禁止表現を `legal-ng-words.json` に格納し、Nori 自動照合。
+- **AI 生成コンテンツの「Provenance（来歴）」記録**：v0 / ChatGPT / Midjourney で生成したコード・画像は `provenance.json` に「生成日時 / プロンプト / モデル / ライセンス」を記録。後日紛争時に証跡提示可能。
+- **Vercel `production_branch` 設定 2 重チェック**：プロジェクト作成時と STEP 5 デプロイ直前の 2 回 `vercel project inspect` を必須化し、作業ブランチが本番デプロイされる事故を物理予防。
+- **DNS / SSL / WAF 設定の 3 点チェック**：Vercel Alias 設定前に `nslookup` + `openssl s_client` + Cloudflare WAF ルール確認の 3 点を自動スクリプト化。本番障害ゼロ。
+
+### 8. 学習・自己改善ループ
+
+- **`projects/{年}/{案件名}/postmortem.md` 全案件振り返り必須化**：受注 → 納品 → 1 ヶ月後の 3 タイミングで振り返りを記録し、四半期ごとに `quarterly-review.md` に集約。属人ノウハウのチーム共有化。
+- **`mia-reject-tags.csv` リジェクト原因の構造化集計**：「コントラスト不足 / レイアウトズレ / アニメーション差 / フォント差」等のリジェクト理由を構造化集計し、月次で改善 PDCA。半年で再発率 70% 削減目標。
+- **海外トップティア LP 週次研究レポート**：毎週月曜に Linear / Vercel / Stripe / Notion / Figma / Apple の LP を Playwright スクショ + Web Vitals 取得し `weekly-benchmark.md` を `#design-research` に投稿。
+- **`Awwwards / CSS Design Awards / FWA` 受賞 LP 月次研究**：毎月 5 件、受賞 LP の「設計・実装・パフォーマンス」3 軸を分析し `monthly-award-study.md` 発行。チームの設計水準を継続向上。
+- **Vercel / Next.js / Tailwind の Changelog 週次追跡**：3 ツールの公式 Changelog を RSS 監視し、新機能リリース後 7 日以内にチーム共有 MTG。技術遅延ゼロ。
+- **`prompt-library/{Hana,Nao,Ren,Mia,Saki,Iro}/` プロンプト資産化**：各エージェントへの指示プロンプトを蓄積し、再利用率 80% 目標。新規案件の指示文作成工数を 70% 削減。
+- **CRO 業界カンファレンス（CXL Live / Conversion Conference）動画視聴 → 学習レポート**：四半期ごとに 1 本以上の海外カンファレンス動画を視聴し、学習レポートをチーム共有。CRO 知見の継続吸収。
+- **AI モデル（Claude / GPT / v0 / Gemini）のベンチマーク四半期更新**：複製 LP コード生成タスクで 4 モデルを比較ベンチマークし、最良モデルを STEP 3 標準採用に切替。AI 進化遅延ゼロ。
+
+---
+
+### 2026-05-26
+- **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：国内トップティア・国際ベンチマーク・2026 年トレンドを 8 領域 60 項目超で吸収し、LP 部 部長としての国内 AI エージェント組織の最高水準を確立。
+- **Core Web Vitals Plus（6 指標）+ Lighthouse 全 90 点 + Accessibility 95 点を契約 SLA に明記**：未達時は `vercel --prod` 物理ブロック + 無償改善条項。本番事故ゼロ化を契約レベルで保証。
+- **Next.js 15 App Router 完全移行 + Vercel Fluid Compute + Edge Functions Pro 採用**：Pages Router deprecated を先回り対応、TTFB 800ms → 150ms、レイテンシ 180ms → 45ms。日本リージョン体感速度向上。
+- **EU EAA / 米 ADA / GDPR / APPI / 薬機法 / 景表法 / 建設業法 7 法制対応を Nori 並列パイプライン化**：訴訟リスクを抽出段階で物理排除し、海外配信 LP も安全納品可能化。
+- **Cookie 廃止後 CRO（Edge Config A/B + Server-Side GTM）+ AI Search Optimization（GEO/AEO）対応**：2026 年 Q1 以降の規制環境とアルゴリズム変動に対応し、納品 LP の中長期競争力を物理保証。

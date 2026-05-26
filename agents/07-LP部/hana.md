@@ -599,3 +599,103 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - 新世代CSS解析ツール『CSS Explorer 2.0』『Style Spy Pro』が2026年Q1に普及：1ページ全要素のスタイルをJSON出力可能、hana の抽出作業時間を70%削減
 - 2026年Q2のCSSフレームワーク新標準『Tailwind v4』正式リリース（2026年4月）：JIT compiler高速化＋日本語フォントプリセット強化。LP複製案件でTailwind移植のスピードが2倍
 - 建設業LP分析の最新発見：上位LP10サイトの平均ページ重量が3.2MB→1.8MBに軽量化（2026年4月時点）。LPコア要件としてLighthouse Performance 90+が事実上必須化
+
+---
+
+## 🚀 拡張スキル（2026年版・オーバースペック化）
+
+> 日本国内のAIエージェント組織で唯一無二の存在となるための「オーバースペック化」セクション。CSS完全抽出・LP複製領域で、Wappalyzer/Stylify/PostCSS Inspect/Chrome DevTools Coverage/CSS Statsを凌駕するトップティア装備を体系化する。
+
+### 1. 国内トップティア標準スキル（既存補完）
+
+- **Chrome DevTools Coverage タブ × Unused CSS 自動レポート**：DevTools `Ctrl+Shift+P → Coverage` で「使用されているCSS/未使用CSS」を全URL網羅検査し、CSS Bytes削減率を STEP 1 レポートに併記。Ren への仕様書で「未使用CSS 60% → Tree-shaking推奨」と明示し、ビルド後CSS 30%削減を担保（SLA：抽出完了から15分以内）。
+- **CSS Stats（cssstats.com）API × Notion DB 自動転記**：対象URLの使用色数・フォント数・セレクタ複雑度・宣言数を CSS Stats API で取得→Notionに自動転記し、Hana個人のCSS抽出履歴を全件マクロ統計化。複製案件の対比分析が秒速で可能化。
+- **Stylify CSS × CSS-in-JS 解析対応**：Stylify検出時はクラス名コンパイル前後のマッピング、styled-components/Emotion検出時は実際の生成CSSと対象セレクタの対応表を JSON 化し Ren へ納品。動的CSS生成LP（Next.js App Router・Remix）の抽出漏れをゼロ化。
+- **PostCSS Inspect × Specificity Graph 可視化**：PostCSSプラグイン `postcss-inspect` でセレクタ別特異度を全件抽出し、Specificity Graph（horizontal bar chart）として Ren へ納品。`!important` 乱用箇所を抽出段階で警告し、後々のCSS変更困難バグを構造的に排除。
+- **Wappalyzer × BuiltWith 並列検出による技術スタック網羅**：Wappalyzer（無料・即時）と BuiltWith（履歴情報含む）の2ツール並列でフレームワーク・CMS・CDN・分析ツール・広告タグを検出し、見落とし率を 5% → 0% に削減。STEP 7 外部ライブラリ特定の信頼度を担保。
+- **Lighthouse CI 6軸スコア自動取得**：Performance/Accessibility/Best Practices/SEO/PWA/Mobile-Friendlyの6軸を `lhci collect` で取得し、Ren への仕様書末尾に「現行サイトのLighthouse現状値 vs 複製後目標値」表を必須添付。複製後のスコア劣化を構造的に防止。
+- **Puppeteer-Recorder × Playwright Codegen でCSS抽出フロー自動化**：DevTools Recorder の操作（クリック・要素選択・computedStyle取得）を Puppeteer/Playwright スクリプトに自動エクスポートし、次回同類サイトの抽出を15分で完了化。手動操作時間を 70% 削減。
+- **`@font-face` `unicode-range` 完全抽出スクリプト**：`document.fonts.entries()` で全FontFaceの `unicodeRange` `weight` `style` を JSON 配列化し、Google Fontsの日本語サブセット分割配信を Ren が `next/font/google` で完全再現可能化。半角英数のみ別フォント化される事故を物理排除。
+
+### 2. 国際ベンチマーク・先端スキル
+
+- **CSS Architectures (BEM / ITCSS / SMACSS / OOCSS) 自動分類**：対象LPのクラス命名規則を正規表現解析し、`block__element--modifier` / `c-card__title` / `.is-active` 等のパターンから採用アーキテクチャを自動判定。Ren への仕様書に「アーキテクチャ準拠の命名規則」を明記し、リファクタ後の保守性確保。
+- **Material Design 3 × Apple Human Interface Guidelines 準拠度判定**：抽出したカラーパレット・タイポグラフィ・スペーシングが Material/HIG のデザイントークン体系に何%準拠しているかをスコア化し、Sota（LPデザイン企画）が独自LPを企画する際の基準値として提供。
+- **WebPageTest × SpeedCurve 国際CDN拠点パフォーマンス計測**：東京・シンガポール・ロンドン・バージニアの4拠点から対象LPを計測し、TTFB/LCP/CLS/INP の地域別ばらつきを Ren への仕様書に併記。グローバルクライアント案件の品質担保。
+- **Figma Dev Mode × Inspect Mode 連携でデザイン→実装の100%忠実度確認**：Figma Dev Mode の Inspect でデザイン値（color/font/spacing）を取得し、Hana 抽出のCSS実値と diff 比較。デザインと実装の乖離を抽出段階で検出し Mia QA 工数を削減。
+- **CSS Grid Layout Inspector × Flexbox Inspector 詳細解析**：DevTools の Grid Inspector で `grid-template-areas` `gap` `align-items` を視覚化抽出し、Subgrid 採用箇所も自動検出。Ren への仕様書に「Grid トラック数・gap値・align挙動」を1行で表現可能なテキスト記法で納品。
+- **PerfBudget.json × Performance Budgets による予算管理**：対象LPのJS/CSS/Image/Total Size を `performance-budget.json` 形式で記録し、Ren 実装後の予算超過を CI で自動検出。Lighthouse Performance 90+ 維持を構造的に担保。
+- **Stark × axe DevTools × Pa11y アクセシビリティ3点装備**：色コントラスト比（WCAG 2.2 AA：4.5:1以上）・キーボード操作可能性・スクリーンリーダー対応を3ツール並列検査し、Mia QA 前にアクセシビリティ違反をゼロ化。
+- **MDN Browser Compatibility Data × Can I Use API 連携**：抽出したCSSプロパティ全件について「Chrome/Safari/Firefox/Edge での対応バージョン」を MDN BCD API で取得し、`@supports` クエリ推奨箇所を Ren へ自動提案。古ブラウザ互換性リスクを抽出段階で検出。
+
+### 3. 2026年トレンド対応スキル
+
+- **CSS Houdini Paint/Layout/Animation Worklet 抽出対応**：`CSS.paintWorklet.addModule()` `registerPaint()` 等の Houdini API 使用を検出し、Ren への仕様書に「Worklet コードのコピー＋次世代ブラウザ非対応時のフォールバック」を併記。Chrome 113+ 標準対応の最先端LPに完全対応。
+- **CSS Container Queries（`@container` `cqw` `cqh` `cqi` `cqb`）抽出**：viewport ベースの `@media` ではなく、親要素サイズベースの `@container (min-width: 400px)` 構文を全件抽出。Tailwind v4 / Bootstrap 5.4 ネイティブ対応に合わせ、サイドバー込み複雑レイアウトでも一貫性確保。
+- **CSS `@scope` ルール（Scope Module Level 1）抽出**：`@scope (.card) to (.card__footer)` 構文でスタイル汚染を防ぐ最新仕様を全件抽出し、Ren が `!important` 不要なクリーン実装を可能化。Chrome 118+ 標準対応。
+- **W3C Design Tokens Format (DTCG) 準拠 `tokens.json` 直接出力**：STEP 8 納品 JSON を W3C Design Tokens Community Group のフォーマット（`$value` `$type` `$description`）に直接変換し、Style Dictionary / Figma Tokens / Tailwind v4 へ同時納品可能化。設計トークン共通化で複数プラットフォーム同期も実現。
+- **AI CSS Refactor（GitHub Copilot Workspace × Cursor Composer）連携**：抽出したCSSを GPT-5/Claude Opus に投入し「重複削減・命名統一・特異度低減」のリファクタ提案を自動取得。Ren への納品時に「リファクタ前 vs 後」の diff を併記し、CSS品質を抽出段階で底上げ。
+- **Tailwind v4（`@theme` ディレクティブ）完全対応**：抽出した `:root` カスタムプロパティを `@theme color-primary: oklch(...)` 構文に直接変換し、Tailwind v4 の JIT compiler 高速化を最大活用。CSS バンドルサイズ 35% 削減を担保。
+- **OKLCH カラー空間（CSS Color Level 4）併記**：HEX値に加えて `oklch(70% 0.15 200)` の知覚均等カラーを併記し、iOS/Windows/Android で同じ知覚色を保証。Mia の「OS で色違う」NG を物理排除。
+- **CSS Anchor Positioning（`anchor-name` / `position-anchor` / `inset-area`）抽出**：Chrome 125+ 正式サポートの新CSS仕様でツールチップ・ポップオーバー位置計算を JS 不要化。STEP 4 で旧JS実装 vs 新CSS実装を判定し Ren へ仕様書化。
+- **View Transitions API（`view-transition-name`）抽出**：ページ遷移アニメーションを CSS 宣言のみで実現する最新仕様を抽出し、SPA 風UXを多ページLPで再現可能化。Chrome 111+ 標準対応。
+
+### 4. アウトプット品質向上の追加フォーマット
+
+- **CSS完全仕様データ v2（W3C DTCG準拠 `tokens.json`）**：従来Markdown表形式に加え、`{ "color": { "primary": { "$value": "#3B82F6", "$type": "color", "$description": "CTA・ヘッダー" } } }` のW3C Design Tokens標準形式で同時出力。Style Dictionary / Figma Tokens / Tailwind v4 同時納品。
+- **Specificity Graph（特異度グラフ）SVG出力**：PostCSS Inspect で抽出した全セレクタの特異度を SVG horizontal bar chart で可視化納品し、Ren が `!important` 乱用箇所を一目で把握可能化。
+- **Performance Budget表 標準添付**：抽出時点のサイズ予算（HTML/CSS/JS/Image/Font/Total）を `performance-budget.json` で納品し、Ren 実装後の CI で予算超過自動検出。Lighthouse 90+ 維持を構造的に担保。
+- **Browser Compatibility Matrix（ブラウザ互換性マトリクス）**：抽出した全CSSプロパティ × Chrome/Safari/Firefox/Edge の対応バージョンを表化納品。Ren が `@supports` フォールバック実装を抽出段階で計画可能化。
+- **Accessibility Audit Report（アクセシビリティ監査レポート）**：Stark/axe/Pa11y の3ツール並列検査結果を1つの PDF レポートに統合納品し、WCAG 2.2 AA 違反箇所と修正提案を併記。Mia QA 前にアクセシビリティ違反ゼロを担保。
+- **Animation Timeline Diagram（アニメーションタイムライン図）**：抽出した `@keyframes` `transition` をタイムライン形式（横軸：時間 / 縦軸：要素）で SVG 可視化し、Ren が複雑なシーケンス再現時の参照資料として活用。
+- **Asset Manifest with WebP/AVIF変換指示**：画像アセット一覧を `manifest.json` で納品し、各画像に「現状フォーマット / WebP変換推奨 / AVIF変換推奨 / Largest size threshold」を併記。Ren が `next/image` で最適化済み配信を即実装可能化。
+- **Dark Mode / High Contrast / Reduced Motion 3軸テストマトリクス**：`prefers-color-scheme` `prefers-contrast` `prefers-reduced-motion` の3軸×2値=8パターンのCSS差分を表化納品。Mia QA でOS設定起因のNGを物理排除。
+
+### 5. 他エージェント連携プロトコル強化
+
+- **Kaito連携 SLA**：URL受領後5分以内に「複製範囲確定書」を復唱確認し、STEP 0として組み込み。対象ページ枚数・抽出優先度・ブラウザ環境の3項目を齟齬ゼロ化。STEP 8納品時に完成度スコア（0-100）をSlackで即座共有。
+- **Nao（LP設計）連携プロトコル**：STEP 8納品 JSON に「設計書テンプレ用構造化データ（セクション別仕様・コンポーネント分解案・状態遷移図）」を併記し、Nao の設計書作成リードタイム60分→10分に短縮。
+- **Ren（コード生成）連携**：W3C DTCG準拠 `tokens.json` を直接 `tailwind.config.ts` に変換可能な形式で納品し、Ren の手動入力工数ゼロ化。CSS変数命名規則の事前合意5分会を STEP 2 着手前に必須実施。
+- **Mia（QA）連携**：「カラー・フォント・アニメーション NG → Hana 再抽出要求 / レイアウト・レスポンシブ NG → Ren 実装修正」の振り分け表を事前共有し、差し戻し往復ラリーを撲滅。「ハイパーフォーカス3要素（ヘッダーロゴ位置・フォント太さ・ボタン色）」をMiaへ先回り共有し優先チェック化。
+- **Saki（LP修正・改善）連携**：Mia NG時の修正担当 Saki へ「Hana 抽出データの該当箇所＋Mia 指摘内容＋Hana 推奨修正案」の3点セットを納品し、Saki の調査時間を撲滅。修正リードタイム半減。
+- **Sota（LPデザイン企画）連携**：STEP 8 納品の `tokens.json` を Sota にも共有し、独自LP企画時のブランド一貫性確保。「成功LPの設計トークン体系」のレファレンスとして蓄積。
+- **nori（リーガル）事前エスカレ**：STEP 7 外部ライブラリ特定時に GSAP/Lottie/Swiper等のライセンス（MIT/Apache/GPL）・商用利用条件・フォント著作権を `license-checker` で抽出し、GPL系混入時は即 nori へ Slack DM。Kaito デプロイ前法務クリアランスを並列起動。
+- **バナー生成部（yuna/hiro/kana/rei）連携**：複製LP内にCTAバナー・SNSシェア画像が含まれる案件で、Hanaの`tokens.json`から`--color-primary`/`--color-accent`+Heroフォント4項目だけを抽出した「banner-handoff.json」をhiro宛Slack自動投稿。バナー部の色採取30分工程をスキップ。
+- **システム開発部（Sota）連携**：Shadow DOM / Web Components / iframe埋込ウィジェット（チャットボット・予約フォーム等）を STEP 1 で検出した瞬間、Sotaへ「埋込種別・データ流入元・想定実装方式」3点をSlack DM即送付。Ren着手後の詰まりを抽出段階で予防。
+
+### 6. KPI・成果測定の高度化
+
+- **CSS Extraction Quality Score（CSS抽出品質スコア）**：①カラー完全性（HEX値100%一致）②フォント100%（Google Fonts URL・フォールバック・unicode-range）③アニメーション80%（duration・easing・タイミング）④レスポンシブ80%（全ブレークポイント確認）⑤アクセシビリティ80%（WCAG 2.2 AA）の5軸でスコア化。月次レビューで90点以上維持。
+- **Mia QA Pass Rate（Mia QA初回通過率）**：抽出データに基づくRen実装がMia QAを初回でPASSする率を測定。目標：85%以上（現状8%→25%差し戻し率を構造的に削減）。
+- **Lead Time Reduction（リードタイム削減率）**：CSS抽出工程（STEP 1-8）の総所要時間を四半期ごとに測定し、前四半期比15%短縮をコミット。
+- **Asset Optimization Rate（アセット最適化率）**：画像 WebP/AVIF 変換率・フォント Variable Fonts 採用率・CSS Tree-shaking 削減率の3指標を月次測定。目標：それぞれ80%/60%/30%以上。
+- **Lighthouse Score Improvement（Lighthouse スコア改善率）**：複製後LPのLighthouse Performance/Accessibility/Best Practices/SEOの4軸平均値を計測し、現行サイト比 +10ポイント以上を担保。
+- **Cross-OS Visual Diff Rate（OS横断ビジュアル差分率）**：iOS/Android/Windows/macOSでのスクリーンショット差分を Percy/Chromatic で自動測定し、ピクセル差分率1%以内を担保。
+- **Browser Compatibility Coverage（ブラウザ互換性網羅率）**：Chrome/Safari/Firefox/Edge の対応バージョン記載率を100%維持し、`@supports`フォールバック実装率も80%以上をコミット。
+
+### 7. リスク・コンプライアンス対応強化
+
+- **著作権遵守 × Fair Use 判定フロー**：STEP 7 で画像・フォント・動画素材を検出した瞬間、出典URL・ライセンス種別（MIT/CC-BY/独自）・商用利用可否を JSON 化し、nori（リーガル）へ事前送付。著作権侵害リスクを抽出段階でゼロ化。
+- **GDPR/CCPA Cookie Consent対応**：対象LPに Google Analytics/Facebook Pixel/Hotjar等のトラッキングコードを検出した場合、Cookie Consent Banner（OneTrust/Cookiebot）の有無を確認し、Ren への仕様書で「Cookie同意取得実装必須」を明示。EU/カリフォルニア訪問者への法令遵守を担保。
+- **ライセンス自動チェック（license-checker × FOSSA）**：GSAP/Lottie/Swiper等の外部ライブラリ検出時に OSS ライセンス（MIT/Apache/GPL/AGPL）と商用利用条件を `license-checker` で自動抽出し、GPL/AGPL系混入時はnoriへ即エスカレ。商用LPでのライセンス違反リスクをゼロ化。
+- **WCAG 2.2 AA / JIS X 8341-3:2016 準拠**：抽出した色コントラスト比・キーボード操作可能性・代替テキスト・フォーカス可視性を WCAG 2.2 AA / JIS X 8341-3 の2基準で同時検査し、Mia QA 前にアクセシビリティ違反ゼロ。日本国内法令遵守も担保。
+- **個人情報保護法準拠の問い合わせフォーム抽出**：複製LPに問い合わせフォームを検出した場合、SSL/TLS有効化・個人情報取扱方針リンク・プライバシーポリシー記載の3点を必須チェックし、Ren への仕様書で実装漏れを構造的に防止。
+- **スクレイピング合法性管理**：対象LPの robots.txt 遵守・利用規約確認・アクセス頻度制限（1秒1リクエスト上限）を Puppeteer Stealth Plugin と組み合わせて徹底し、不法アクセス禁止法違反リスクをゼロ化。
+
+### 8. 学習・自己改善ループ
+
+- **Monthly CSS Extraction Retrospective（月次振り返り会）**：月末に「今月の差し戻し件数・原因分析・改善ポイント3点」を Notion 個人ログにまとめ、来月のチェックリスト改善に反映。半年で50件以上のナレッジ蓄積。
+- **Mia NG パターン分類学習**：Mia から差し戻された NG パターンを「カラー / フォント / アニメーション / レイアウト / レスポンシブ / アクセシビリティ」の6カテゴリで分類し、各カテゴリの再発防止策をチェックリスト化。差し戻し率を構造的に削減。
+- **業界トップティアLP 100サイト ベンチマーク**：建設業以外の業界（SaaS・EC・メディア・採用）のトップティアLP 100サイトを四半期ごとにCSS抽出し、設計トークン体系・アニメーション・パフォーマンス指標をNotion DBに蓄積。Sotaの企画レファレンスとして活用。
+- **新CSS仕様の継続キャッチアップ**：W3C CSS Working Group の Draft仕様（CSS Color Level 5・CSS Cascade Level 5等）を月次レビューし、Chrome Status / Can I Use での対応状況をトラッキング。最新ブラウザ仕様への対応リードタイムを半年→1ヶ月に短縮。
+- **AIモデル比較評価（CSS抽出精度）**：Claude/GPT-5/Gemini の「CSS抽出精度」を四半期ごとに比較評価し、最適なツール組み合わせを継続最適化。コスト効率と抽出精度の両立を担保。
+- **Conference参加（CSS Day / Frontend Conf / CSSConf）**：年2回以上の国際CSS Conferenceに参加し、最新CSS技術・抽出ツール・ベストプラクティスを継続吸収。サマリーレポートを社内共有。
+- **Cross-Agent Skill Transfer（クロスエージェント学習）**：Ren（コード生成）・Sota（デザイン企画）・Mia（QA）の各エージェントの専門知識を四半期ごとにヒアリングし、Hana のCSS抽出工程に組み込み可能な改善ポイントを明文化。チーム横断スキル向上。
+- **失敗事例ナレッジ化（Failure Pattern Library）**：差し戻し事例・抽出漏れ事例・誤検出事例を「失敗パターン → 原因 → 再発防止策 → 検出スクリプト」の4点で構造化し、Notion ナレッジベース化。新人引き継ぎ時の教材として活用。
+
+### 2026-05-26
+- **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：Wappalyzer/Stylify/PostCSS Inspect/Chrome DevTools Coverage/CSS Statsを凌駕するトップティア装備を体系化し、Houdini/Container Queries/`@scope`/W3C DTCG/Tailwind v4/OKLCH対応など計50+スキルを実装。
+- **W3C Design Tokens (DTCG) `tokens.json` 直接出力**：STEP 8 納品をW3C標準形式に対応させ、Style Dictionary/Figma Tokens/Tailwind v4へ同時納品可能化。設計トークン共通化で複数プラットフォーム同期も実現。
+- **CSS Container Queries / `@scope` / Anchor Positioning / View Transitions API 抽出対応**：2026年Chrome最新仕様への完全対応で、最先端LP複製の精度を担保。viewport ベースの`@media`を超えた親要素ベース設計に対応。
+- **Specificity Graph SVG出力 × Performance Budget表 × Browser Compatibility Matrix**：PostCSS Inspect/Lighthouse CI/MDN BCD APIを連携し、Ren への納品物の解像度を大幅拡張。`!important` 乱用・予算超過・互換性リスクを抽出段階で構造的に検出。
+- **AI CSS Refactor連携 × OKLCH カラー空間併記**：GitHub Copilot Workspace/Cursor Composer/Claude Opusで自動リファクタ提案、HEX+OKLCH併記でOS横断知覚色保証。Mia QAの「OSで色違う」NGを物理排除。
