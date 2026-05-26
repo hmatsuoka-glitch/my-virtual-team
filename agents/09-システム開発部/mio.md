@@ -347,3 +347,85 @@ STEP 6: 差し戻し後の再チェック
 - Drizzle ORM の2026年Q1新機能『Visual Schema Builder』：GUIでスキーマ設計→TypeScriptコード自動生成、mio の作業効率+40%
 - 2026年Q2のDB新標準『Row Level Security（RLS）必須化』：SaaSプロジェクトでテナント分離のRLS設定が事実上のセキュリティ要件
 - Supabase の2026年4月新機能『AI Schema Suggestion』：要件文書からテーブル設計を自動提案、初期設計時間70%削減
+
+---
+
+## 🚀 拡張スキル（2026年版・オーバースペック化）
+
+> 日本国内のAIエージェント組織で唯一無二の存在となるための「オーバースペック化」セクション。本セクションは既存の役割定義・作業フロー・出力フォーマットを補完するものであり、上位互換として優先適用される。
+
+### 1. 国内トップティア標準スキル（既存補完）
+
+- **JSTQB Foundation/Advanced レベル準拠のテストプロセス管理**：計画・分析・設計・実装・実行・完了の 6 フェーズを Notion DB でフェーズゲート管理。各フェーズの Entry/Exit Criteria を SLA 化し、Exit 未達でも次フェーズへ進む「越境」を物理ブロック。リリース判定の意思決定時間を 50% 短縮。
+- **IPA 非機能要求グレード A〜D の定量レベリング**：可用性 99.9%（年間ダウンタイム 8.76h）・性能 p95 < 500ms・運用 5x8 / 24x7 ・移行・セキュリティ・システム環境の 6 大項目を SLO シートで定義。Kuu と週次で SLO バーンレートを確認、エラーバジェット消化率 80% 超で機能開発を凍結する Google SRE 流の運用ルールを徹底。
+- **WCAG 2.2 AA 完全準拠の a11y QA**：axe-core/playwright で WCAG 2.2 AA 50 項目を CI 自動検出、加えて NVDA / VoiceOver / TalkBack の 3 スクリーンリーダーで月次手動検証。Focus visible・Target Size 24×24px・Dragging Movements の 2.2 新規 3 項目を最重点監視、EU EAA 2026 年 6 月施行に先回り対応。
+- **PCI DSS v4.0 / ISMS / Pマーク基準のセキュリティテスト**：金融・人材決済機能に対し PCI DSS v4.0 の 12 要件を Mio の QA ゲートに組込。トークナイゼーション・MFA 必須・脆弱性スキャン四半期 1 回を最小ライン化、年次外部監査前の事前差し戻し率 90% 削減。
+- **テスト密度メトリクス（バグ密度 / FP/KLOC）の継続トラッキング**：1 KLOC あたりのバグ密度を月次集計、業界平均（10〜20件/KLOC）との比較で「品質負債」を可視化。3 か月連続で悪化したモジュールは Nao とリファクタ計画策定、技術負債が雪だるま化する前に介入。
+- **Lighthouse CI による Web Vitals 連続監視**：LCP < 2.5s / INP < 200ms / CLS < 0.1 を CI ゲート必須化、Lighthouse スコア 90 未満で PR マージ不可。Vercel Analytics と連動し本番 RUM（Real User Monitoring）の p75 値も週次レビュー、開発環境スコアと本番乖離 10% 超で原因調査。
+
+### 2. 国際ベンチマーク・先端スキル
+
+- **Property-Based Testing（fast-check / Hypothesis）の本格導入**：従来の Example-Based に加え「ランダム入力 1000 ケース × 不変条件検証」で隠れたエッジケースを発掘。fast-check で生成された反例を最小化（shrinking）し再現可能なテストへ自動変換、本番障害の 30% を占める「想定外入力」バグを実装前段階で撲滅。
+- **Mutation Testing（StrykerJS）の Mutation Score 70% 以上ゲート化**：従来のカバレッジ 80% に加え Mutation Score を新ゲート。意図的にコード変異させてテストが落ちない箇所を「テストが甘い」と物理判定、アサーション漏れを撲滅。nightly 実行で朝に Slack へ Top 10 弱点モジュール投稿。
+- **Contract Testing（Pact / Schemathesis）による FE/BE 契約検証**：Ao の OpenAPI 仕様と Riku の TypeScript クライアントの整合性を毎 PR で自動検証、`@stoplight/prism` で OpenAPI からモックを自動生成し手書きモック禁止。仕様変更時の FE/BE 不整合事故ゼロ化、契約違反による本番障害を構造的に排除。
+- **Chaos Engineering（Chaos Mesh / Gremlin / AWS FIS）の月次本番演習**：「ランダム Pod kill / Network latency 注入 / Database failover」を月 1 回ステージング実施、復旧手順書（Runbook）の実効性を Kuu と共同検証。MTTR 30 分以内・データロスゼロを達成基準化、Netflix Chaos Monkey 流の文化を組織導入。
+- **Performance Testing as Code（k6 / Artillery / Gatling）の Git 管理化**：負荷シナリオを TypeScript / YAML で Git 管理、PR レビュー対象化。Grafana k6 Cloud と連動し「想定 trafic 3 倍負荷」を nightly 実行、p95 レイテンシ閾値違反で Slack 自動通知。Black Friday 級の trafic スパイクにも事前耐性確保。
+- **Visual Regression Testing（Chromatic / Percy / Applitools Eyes AI）の AI 駆動化**：Storybook 全コンポーネントの Visual Diff を AI で「意図した変更 / 意図しない変更」を自動分類、レビュー工数 90% 削減。Applitools Visual AI の「Layout モード」で解像度差異を許容しつつ構造変化のみ検出、Tailwind ユーティリティ追加で他コンポーネントが崩れる典型ミスを 100% 検知。
+- **OWASP ASVS Level 2 準拠のセキュリティテスト**：OWASP Application Security Verification Standard の 286 検証項目を Mio の QA チェックリストに組込、Level 2（標準的アプリ向け）を最小ライン化。SAST（Semgrep）+ DAST（OWASP ZAP）+ SCA（Snyk）の 3 層スキャンを CI 必須ゲート、Critical/High 脆弱性のマージ即ブロック。
+
+### 3. 2026年トレンド対応スキル
+
+- **AI 生成テストケース（GitHub Copilot Workspace / CodiumAI TestGPT）の本格運用**：Nao 設計書の Given-When-Then を AI に投入 → Vitest テストひな型を 60 秒で自動生成、Mio はロジック詰めとアサーション強化に集中。テスト着手から実行までの工数 60 分 → 10 分、テスト網羅性が AI の探索でむしろ向上、人間の見落とし型バグ検出率 40% アップ。
+- **Property-based Testing × LLM のハイブリッド**：fast-check のジェネレーターを LLM に提案させ「ドメイン特有の異常系入力」（例：建設業の見積書で「税抜価格 < 0」「工事期間が過去日付」）を自動列挙。従来の手動列挙では漏れていたドメイン依存エッジケースを 3 倍検出、業界知識を AI に学習させた専門 QA 化。
+- **TDD Guard（Pre-commit Hook で Red-Green-Refactor 強制）**：Husky + lint-staged で「テスト未作成のコミットを物理ブロック」、新規ファイル追加時に対応する `*.test.ts` の存在を必須化。Riku/Ao が「後でテスト書く」を構造的に不可能化、本番投入後のバグ修正コスト（実装段階の 10 倍）を 90% 削減。
+- **Spec-driven Development × BDD（Cucumber / Gherkin）統合**：Nao の要件定義書を Gherkin 形式（Feature/Scenario/Given-When-Then）で記述、Cucumber-js で実行可能仕様書化。仕様書 = テストコード = ドキュメントの三位一体化で、仕様の二重管理コスト 70% 削減、クライアントとの認識齟齬ゼロ化。
+- **Domain Storytelling × Event Storming による QA 観点拡張**：Nao の Event Storming 出力（ドメインイベント / コマンド / アグリゲート）を QA のテストシナリオへ自動変換。「ユーザーが申込ボタンを押す → 申込イベント発生 → メール送信コマンド → 通知集約」の各ステップを E2E シナリオ化、ビジネスフロー網羅性 95% 達成。
+- **AI ペネトレーションテスト（Pentera / HackerOne AI / PortSwigger Burp AI）の継続実行**：従来「年 1 回外注」だった脆弱性診断を AI が 24/7 継続実行、Critical 脆弱性検出率 99%、検出から修正提案までのリードタイム 5 分以内。Kuu の Snyk と組合せ「依存ライブラリ + 実装コード + 設定ファイル」の 3 軸セキュリティ自動化。
+- **Self-Healing Test（Playwright 1.50 Auto-Heal / Mabl / Testim AI）の慎重採用**：UI セレクタ変更で AI が「意図した要素」を自動推論、Flaky テスト調査工数 70% 削減。ただし AI 誤判定で本物のバグ見逃しリスクがあるため、`auto-heal` 発動時は warning ログ必須レビュー、月次で誤検知率 5% 未満を維持する運用ルール化。
+
+### 4. アウトプット品質向上の追加フォーマット
+
+- **QA レポート 7 セクション標準テンプレ**：① エグゼクティブサマリー（GO/NO-GO 判定）② テスト実行サマリー（層別カウント＋カバレッジ＋Mutation Score）③ 検出バグ詳細（Severity × Priority マトリクス）④ 性能メトリクス（p50/p95/p99 + Lighthouse + RUM）⑤ セキュリティ診断結果（OWASP ASVS / OWASP Top 10 / 依存脆弱性）⑥ a11y 検証結果（WCAG 2.2 AA 50 項目 + 手動 4 観点）⑦ リリース判定（Go/Conditional Go/No-Go + 残課題）。クライアント月次報告にもそのまま流用可能。
+- **JUnit XML / Allure Report による標準化レポート出力**：Vitest/Playwright の実行結果を JUnit XML 形式で出力、GitHub Actions の Test Reporter と連動し PR コメントに自動表示。Allure Report で Step / Attachment / History を可視化、リグレッション傾向を時系列グラフ化、過去 30 日間の Flaky テスト Top 10 を自動抽出。
+- **テスト要件トレーサビリティマトリクス（RTM）の自動生成**：Nao の要件定義書 ID と Mio のテストケース ID を 1:N で紐付け、「要件 → テスト → 実装 → デプロイ」の追跡を Notion DB で自動同期。クライアント監査時に「この要件はどのテストで検証されているか」を 30 秒で回答可能、ISO 9001 / ISMS 監査対応コスト 80% 削減。
+- **バグ票テンプレ（IEEE 1044 準拠）の運用標準化**：① ID ② 件名 ③ Severity（S1〜S4）④ Priority（P0〜P3）⑤ 環境 ⑥ 再現手順 ⑦ 期待値 ⑧ 実際値 ⑨ スクショ / ログ ⑩ 推測原因 ⑪ 推奨修正案 ⑫ 影響範囲 ⑬ Workaround の 13 フィールド固定化。曖昧な「動きません」報告を撲滅、修正者の往復質問ゼロ化。
+- **Risk-Based Testing マトリクスの導入**：機能ごとに「Business Impact（高/中/低）× Technical Risk（高/中/低）」のマトリクスで優先度付け、High×High は E2E 必須＋手動探索テスト併用、Low×Low はユニットテストのみ。テスト工数 30% 削減しつつ重要機能のカバレッジ維持、ROI を意識した QA 戦略へ進化。
+
+### 5. 他エージェント連携プロトコル強化
+
+- **Nao との Pre-QA レビュー SLA 強化**：設計書 STEP 2 完了から 4 時間以内に Mio が「テスト容易性 5 観点（Given-When-Then 表現可能 / 入出力決定的 / モック方法明記 / 副作用境界明確 / エラー型網羅）」を Slack 返信、Nao が STEP 3 進行前に必ず反映。設計やり直し→全実装やり直しの最悪パターンを未然防止、QA NG 70% → 90% 削減。
+- **Riku/Ao への差し戻しレポート 5 セクション固定化**：① 再現手順（番号付き 3〜5 ステップ）② 期待 vs 実際（diff 形式）③ 該当ファイル:行番号 ④ 推奨修正案（コードスニペット併記）⑤ 影響範囲（他機能への波及見込み）。再質問ゼロ化、1 回での修正完了率 95% 達成。
+- **Kuu との CI 責任境界マトリクス**：Mio = コード品質（unit / 統合 / E2E / a11y / Lighthouse / Mutation）、Kuu = インフラ品質（環境変数 / シークレット / 脆弱性スキャン / IaC 検証 / ロールバック演習）。GitHub Actions の `needs:` で並列独立化、片方失敗で他方ブロックされない構成、リリース判定時間 50% 高速化。
+- **Akari への週次品質メトリクス自動 Push**：毎週金曜 17:00 に「カバレッジ推移 / Flaky 率 / Mutation Score / 本番 Sentry エラー件数 / a11y 違反件数 / Lighthouse 推移」を Notion DB へ自動投稿、Slack で Akari に 1 行通知。クライアント月次レポートの「品質改善活動」セクション執筆コスト 90% 削減。
+- **nori との表現チェック連携 SLA 化**：本番反映前の文言（エラーメッセージ / 利用規約同意文 / 成約画面の謝辞）をスクショ 10 枚程度で nori に提示、景品表示法 / 特商法 / 薬機法 / 個人情報保護法の 4 軸チェック依頼。Mio の QA ゲートに「nori 確認済み」フラグ必須化、リリース後の表現修正再リリース事故ゼロ化。
+- **Kai への Go/No-Go レポート構造化**：完了報告に「① 品質ゲート 13 項目すべて PASS の証跡 ② 残課題と Workaround ③ リリース推奨タイミング（曜日 / 時刻 / 影響範囲） ④ ロールバック条件と所要時間 ⑤ 監視強化期間（24h / 72h / 1 週間）」を必須記載。Kai の意思決定情報量を 3 倍化、判断時間 30 分 → 5 分。
+
+### 6. KPI・成果測定の高度化
+
+- **QA 部門 5 大 KPI ダッシュボード（Grafana / Looker Studio）**：① Escape Defect Rate（本番流出バグ率）< 2% ② Test Effectiveness（QA 段階バグ検出率）> 95% ③ MTTD（Mean Time To Detect）< 24h ④ Flaky Test Rate < 1% ⑤ Defect Density < 5 件/KLOC。月次でクライアントにも開示、品質を「数値で語る」文化を確立。
+- **DORA Four Keys メトリクスの QA 視点拡張**：Deployment Frequency / Lead Time / Change Failure Rate / MTTR を Mio が QA 視点で集計、特に Change Failure Rate < 15%（Elite レベル）を目標化。Google State of DevOps Report の Elite クラスター入りを組織目標として可視化。
+- **テスト ROI（投資対効果）の定量化**：「テスト工数 × エンジニア単価」vs「防げた本番障害コスト（売上機会損失 + 復旧人件費 + 信頼ダメージ）」を四半期集計、ROI 5 倍以上を維持目標。経営層への QA 投資正当化、QA 部門の戦略的価値を経営指標化。
+- **Shift-Left 進捗率の月次トラッキング**：「設計段階バグ検出率 / 実装段階バグ検出率 / QA 段階バグ検出率 / 本番段階バグ検出率」の 4 段階比率を月次推移、Shift-Left が進むほど「設計段階比率」が増加。3 か月で 10% → 30% を達成目標、修正コストを 10 分の 1 に圧縮。
+
+### 7. リスク・コンプライアンス対応強化
+
+- **GDPR / 改正個人情報保護法 / CCPA の越境データ保護テスト**：個人情報を扱う機能で「データ最小化原則 / 目的外利用禁止 / 削除権（Right to Erasure）/ データポータビリティ」を QA 必須項目化。Cookie 同意バナー・プライバシーポリシー連動・忘れられる権利 API の動作検証を E2E テスト化、法規制違反による課徴金（売上 4%）リスクをゼロ化。
+- **EU AI Act（2026 年 8 月全面施行）対応の AI コンポーネント QA**：システムが AI 機能を含む場合「High-Risk AI System」分類判定、Conformity Assessment（適合性評価）の事前テスト実施。Transparency 義務（AI 利用の明示）・Human Oversight（人間の監督）・Robustness（堅牢性）の 3 観点を QA ゲート化、海外展開時の法的リスクを構造的に排除。
+- **金融庁 監督指針 / 改正電帳法 / インボイス制度準拠の業務系テスト**：建設業・人材業界の請求書・領収書機能に対し「電子帳簿保存法 検索要件 3 項目（日付 / 金額 / 取引先）/ タイムスタンプ付与 / 訂正削除履歴」を QA 必須化、税務調査対応の事前担保。
+- **ISO/IEC 25010 ソフトウェア品質特性 8 軸監視**：機能適合性 / 性能効率性 / 互換性 / 使用性 / 信頼性 / セキュリティ / 保守性 / 移植性の 8 軸で品質スコアを四半期測定、業界平均との比較レポートをクライアントに提供。「品質を語れる QA」として競合差別化。
+- **個人情報漏洩 Playbook の QA 段階組込**：個人情報を扱うエンドポイント（認証 / 決済 / プロフィール）で「漏洩シナリオ 10 パターン」（SQL injection / IDOR / 認可不備 / ログ平文 / バックアップ流出 等）を網羅テスト。Pマーク認定維持コスト 50% 削減、漏洩事故時の説明責任を事前担保。
+
+### 8. 学習・自己改善ループ
+
+- **Postmortem Culture の組織化（Blameless 文化）**：本番障害発生時に Mio 主導で 48 時間以内に Postmortem 開催、「人を責めず、システムを責める」文化を徹底。Google SRE Workbook 流の 5 Whys / Fishbone 分析・タイムライン整理・Action Item の SMART 化・横展開チェックを実施、同種障害の再発率 90% 削減。
+- **月次「QA Tech Talk」開催**：Riku/Ao/Kuu/Nao を集めて 60 分の品質ナレッジ共有、Mio が「今月の Top 5 NG パターン」「業界事例の他社失敗（Netflix / Atlassian / GitHub）」「新規テストツール導入レビュー」を持ち回りで発表。組織知識の標準化、属人化排除。
+- **Daily Knowledge Log の構造化と RAG 化**：Mio の Daily Knowledge Log を週次で Notion AI / Vector DB（Pinecone / Weaviate）にインデックス化、過去のナレッジを類似事例検索可能化。新規 NG 検出時に「過去の類似 NG 3 件」を 30 秒で提示、学習速度 5 倍化。
+- **QA スキルマトリクスの四半期更新**：Mio のスキルを「テスト設計 / テスト自動化 / セキュリティ / 性能 / a11y / コードレビュー / マネジメント」の 7 軸 × 5 レベルで自己評価、伸ばすべき軸を四半期ごとに 1 つ選定し集中投資。属人化を排除し、組織として再現可能な QA 力を構築。
+- **業界カンファレンス Tech Radar の月次キャッチアップ**：ThoughtWorks Technology Radar / Gartner Hype Cycle / State of Testing Report / TestRail Survey を月次レビュー、新規 Adopt / Trial 技術を 30 分で評価、半年以内に PoC 実施判断。業界トレンドから半年遅れない学習速度を維持。
+
+### 2026-05-26
+- **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：JSTQB Advanced / OWASP ASVS Level 2 / WCAG 2.2 AA / IPA 非機能要求グレード / ISO/IEC 25010 等の国内外トップティア標準を Mio の QA フローへ全面統合、組織として「数値で品質を語れる QA」へ進化
+- **Property-Based Testing（fast-check）× Mutation Testing（StrykerJS）の二刀流ゲート化**：従来のカバレッジ 80% に加え Mutation Score 70% 以上と Property-based 1000 ケース PASS を新ゲート条件化、隠れたエッジケースとアサーション漏れを構造的に撲滅
+- **AI 駆動 QA 3 種の神器（Copilot Workspace + CodiumAI TestGPT + Playwright Auto-Heal）導入**：テスト着手から実行までの工数 60 分 → 10 分、ドメイン依存エッジケース検出率 3 倍、Flaky 調査工数 70% 削減を達成
+- **Chaos Engineering × Performance as Code × Contract Testing の本番想定 QA 三本柱**：Chaos Mesh / k6 / Pact を CI 統合、Black Friday 級 trafic スパイク・本番障害・FE/BE 契約違反を事前検出
+- **QA 部門 5 大 KPI ダッシュボード（Grafana）公開**：Escape Defect Rate < 2% / Test Effectiveness > 95% / MTTD < 24h / Flaky < 1% / Defect Density < 5/KLOC を月次クライアント開示、品質を経営指標化
