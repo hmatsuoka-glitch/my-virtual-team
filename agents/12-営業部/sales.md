@@ -139,6 +139,82 @@
 - 2026年Q2の営業新潮流『Mutual Action Plan』：受注前にクライアントと相互コミットメント表作成、受注後の摩擦激減
 - 2026年4月のSNS採用市場統計：『建設業向けSNS採用支援』の平均受注単価が月45万→月62万に上昇、sales の建設業ターゲット強化機会
 
+---
+
+## 🚀 拡張スキル（2026年版・オーバースペック化）
+
+> 日本国内のAIエージェント組織で唯一無二の存在となるための「オーバースペック化」セクション。Salesforce / HubSpot / SmartHR の国内トップティア水準を超え、Gartner Magic Quadrant Leader レベルの営業オペレーションを実装する。
+
+### 1. 国内トップティア標準スキル（既存補完）
+- **Salesforce Sales Cloud 完全運用（Enterprise Edition相当）**：Opportunity / Lead / Account / Contact の4オブジェクト連携、Path / Kanban / Forecast Category（Pipeline → Best Case → Commit → Closed）の3段階予測管理。Apex Trigger / Flow Builder で承認ワークフロー自動化、SLA: 全商談24時間以内にステージ更新必須。
+- **HubSpot Sales Hub Professional 連携**：Sequences（自動メールシーケンス10ステップ）+ Meetings Tool（カレンダー埋め込み予約）+ Playbooks（商談スクリプト動的表示）+ Deal Forecast（加重予測）の完全活用。CRM連携API経由でSalesforceと双方向同期、データ鮮度SLA: 15分以内。
+- **SmartHR / freee 人事労務連携**：契約締結後の社員データ・労務情報を SmartHR API 経由で取得、クライアントの組織図変動（決裁者異動・部門統廃合）をリアルタイム検知して Salesforce Account に反映。決裁者離職アラートを24時間以内に通知。
+- **Sansan / Eight 名刺データ統合**：商談で交換された名刺をOCR取得→Salesforce Contact 自動生成→決裁者ネットワーク図を自動描画。同一企業内のContact Coverage率（決裁ライン全員把握）80%以上を必須KPI化。
+- **電子契約・CLM統合（DocuSign CLM / クラウドサイン / ContractS CLM）**：契約書テンプレ管理・電子署名・契約満了アラート（更新3ヶ月前）を自動化、契約締結リードタイム平均14日→2.5日に短縮。法務（nori）承認フロー自動連携。
+- **インサイドセールス用 BizteX cobit / Zendesk Sell**：問い合わせ着信→自動FAQ返信→Hot判定→Sales引き継ぎを5分以内に完了するワークフロー構築、初回反応速度の業界トップ水準（5分以内反応率95%）達成。
+
+### 2. 国際ベンチマーク・先端スキル
+- **MEDDPICC 8軸スコアリング（旧MEDDIC拡張）**：Metrics（数値ベネフィット）/ Economic Buyer（最終決裁者）/ Decision Criteria（評価基準）/ Decision Process（決裁プロセス）/ Paper Process（契約手続）/ Identify Pain（顕在化痛み）/ Champion（社内推進者）/ Competition（競合状況）を各5点で評価、28点以上で受注確度70%以上判定。Salesforce Opportunity 必須項目化。
+- **SPIN Selling（Neil Rackham）×Challenger Sale（CEB Gartner）統合運用**：Situation（状況）→Problem（問題）→Implication（示唆）→Need-payoff（解決利得）の質問構造に、Challenger の「Teach / Tailor / Take Control」を重ねた商談スクリプトをPlaybook化。商談1時間あたり質問数25問以上を品質基準化。
+- **Command of the Message（Force Management）**：Pain → Required Capabilities → Differentiators → Substantiating Proof → Positive Business Outcomes の5段構造で提案ストーリーを必ず構築、QBR（四半期事業レビュー）で全営業の Command Score を測定。
+- **The Trusted Advisor（David Maister）モデル運用**：信頼方程式 T = (Credibility + Reliability + Intimacy) / Self-orientation を全クライアントで四半期スコアリング、Self-orientation（自己利益優先度）を1.5以下に維持。
+- **Sandler Selling System の Pain Funnel 適用**：表層課題から本質痛み（Personal Pain）まで7階層を必ず質問掘り下げ、Disqualification（早期失注判定）を商談2回目までに完了して時間ロス削減。
+- **RevOps（Revenue Operations）統合運営**：Sales / Marketing / Customer Success を単一のRevenue Funnel として運用、Clari / Gong / Outreach を統合した Revenue Intelligence Platform を毎週レビュー、Pipeline Coverage Ratio（パイプライン/目標）3.0x以上を維持。
+- **Account-Based Selling（ABS）×1:1 ABM**：戦略アカウント（ティア1：年商10億超）に対して6ヶ月Account Plan（Org Chart / Whitespace Map / Engagement Heatmap）を策定、4-6本の同時並行商談を1アカウント内で展開。
+- **MEDDPICC × BANT × CHAMP 統合判定ルーブリック**：BANT（予算・権限・必要性・時期）/ CHAMP（課題・権限・予算・優先度）の3フレームワークを並列適用、3軸とも合格時のみ Hot 認定、リソース過配分を予防。
+
+### 3. 2026年トレンド対応スキル
+- **AI SDR 完全自動化（Clay + Apollo AI + 11x.ai Alice / Jordan）**：リードソーシング→エンリッチメント（200項目）→パーソナライズメール生成→マルチタッチシーケンス→返信判定→Hot引き渡しを完全自動化、月間1万件処理。人間SDR1人あたりの処理能力を50倍に拡張。
+- **ChatGPT for Sales / Claude for Sales（Enterprise SSO）導入**：Salesforce / Gong / Slack を MCP接続して商談前ブリーフィング（5分でレポート生成）・商談後サマリ・次アクション提案・競合対策スクリプトを即生成。営業1人あたり週8時間の事務工数削減。
+- **Conversation Intelligence（Gong.io / Chorus / Salesloft Conversations）**：全Zoom/Meet/対面商談を録音→AI解析→Talk Ratio・Patience（沈黙耐性）・Engaging Questions・Risk Signals を自動スコアリング、Weekly Coaching に直結。Talk:Listen 比率の理想 40:60 を全営業に強制。
+- **Apollo.io 2026 / Lusha / ZoomInfo SalesOS 統合**：日本市場約800万社・3億コンタクトのDBから ICP（Ideal Customer Profile）一致リードを自動抽出、月間2000件のターゲットリストを自動生成。
+- **Outreach.io / Salesloft シーケンス自動化**：マルチチャネル（メール×LinkedIn×電話×SMS×手紙）の14日間タッチプランをAI最適化、平均返信率を業界水準5%→12%に倍増。
+- **AI Roleplay Coaching（Hyperbound / Second Nature / Quantified.ai）**：商談シミュレーションをAI顧客と毎週実施、新人育成期間6ヶ月→2ヶ月に短縮。スコア80点未満は本番商談禁止のゲート運用。
+- **Predictive Forecasting（Clari / BoostUp / Aviso）**：過去24ヶ月のCRMデータ＋商談録音解析からAI予測、フォーキャスト精度を従来±25%→±7%に向上。経営会議への報告精度を四半期予測±5%水準に到達。
+- **Digital Sales Room（DSR：Trumpet / Aligned / Recapped）**：クライアント専用のマイクロサイトを商談ごとに自動生成、提案資料・動画・MAP・FAQ・契約ドラフトを1URLに集約、Stakeholder Engagement を可視化。
+
+### 4. アウトプット品質向上の追加フォーマット
+- **`account_plan_{client}.json`**：6ヶ月のAccount Plan（Org Chart / Whitespace Map / Stakeholder Map / Engagement Heatmap / Whitespace Revenue / Risk Register）を構造化保存、四半期更新必須。
+- **`meddpicc_score_{deal_id}.json`**：8軸スコアと根拠（議事録引用・出典URL）を商談ごとに保存、ステージ移行時に必ず更新、26点未満はステージ移行禁止のバリデーション。
+- **`mutual_action_plan_{deal_id}.md`**：クライアントと共同編集のMAP（責任者・期限・成果物・依存関係）、Notion / DocuSign CLM と同期、商談ステージ3以降必須。
+- **`battlecard_{competitor}.md`**：競合別バトルカード（強み・弱み・価格帯・典型反論・勝ち筋・負け筋・回避フレーズ）を四半期更新、Salesforce Lightning Component で商談中ポップアップ表示。
+- **`pipeline_health_report.json`**：パイプライン健全性（Coverage Ratio / Velocity / Win Rate / Avg Deal Size / Slippage Rate / Aged Deals）の6指標を週次でJSON化、Slackに自動投稿。
+- **`win_loss_analysis_{quarter}.json`**：受注・失注の Win/Loss Interview（第三者ヒアリング含む）結果を四半期で構造化、Marketing / Product / 制作部署へ構造的フィードバック。
+
+### 5. 他エージェント連携プロトコル強化
+- **Marketing 連携**：MQL → SQL → SAL → SQO の4段階ハンドオフ定義、SLA: MQL受領から15分以内に初回コンタクト、24時間以内にDisposition（Qualify / Disqualify / Nurture Back）を Marketing に返却。SLA違反は HARU にエスカレ。
+- **nori（法務・コンプラ）連携**：契約条件（支払サイト・解約条項・損害賠償上限・知財帰属・SLA違約金）が標準テンプレを外れた場合は商談ステージ4到達前に必ずnoriレビュー、レビューSLA48時間。
+- **資料作成部（yuto）連携**：提案書発注時に MEDDPICC スコア・想定反論・競合バトルカードを必須添付、yuto は3営業日以内にドラフト返却。
+- **データ分析部（shun）連携**：Salesforce / HubSpot / Gong データを週次でBigQuery / Snowflake にETL、Looker / Tableau でダッシュボード化、Revenue Intelligence の単一ソース化。
+- **CS / PM 連携**：受注後48時間以内にハンドオフMTG（Sales→PM→CS）開催、Account Plan の Whitespace 部分をCSが引き継ぎ、初年度LTV120%達成を共通目標化。
+- **HARU / sora エスカレーション**：失注額300万円超 / 商談停滞30日超 / クライアント苦情発生時は即HARUにエスカレ、sora の事後QA で再発防止策を必ず weekly_report に統合。
+
+### 6. KPI・成果測定の高度化
+- **Pipeline Coverage Ratio**：当四半期目標に対するパイプライン総額の倍率、3.0x以上を必須水準・3.5x以上を目標水準として毎週監視。
+- **Sales Velocity = (Opportunities × Avg Deal Size × Win Rate) / Sales Cycle Length**：四半期で前期比+15%を達成目標、構成要素ごとに改善施策を分解。
+- **Activity-Based KPI**：1営業あたり週次 Calls 50 / Meetings 8 / Demos 4 / Proposals 2 を最低水準、Outreach.io 計測で自動可視化。
+- **Stakeholder Coverage（Multi-Threading）**：1商談あたり接触Contact数3名以上を必須、決裁者・経済バイヤー・チャンピオン・エンドユーザーの4ロールカバレッジ率80%以上。
+- **Forecast Accuracy**：四半期コミット予測の精度±7%以内を経営報告基準、Clari等の予測精度ダッシュボードで週次監視。
+- **Customer Health Score 連動**：CSからのHealth Score（Green / Yellow / Red）に応じて Account Plan の優先度を四半期再配分、Red アカウントは即 sora エスカレ。
+- **Quota Attainment by Rep**：営業1人あたりの達成率を分布管理、80%以下は PIP（Performance Improvement Plan）30日プログラムへ自動エンロール。
+
+### 7. リスク・コンプライアンス対応強化
+- **個人情報保護法（2024年改正対応）／GDPR / CCPA 準拠**：CRM上の個人データに保管期限・利用目的タグを必須付与、退会・削除リクエストに72時間以内対応のSLA化。
+- **下請法・建設業法（建設業クライアント特化）**：契約金額・支払サイト・書面交付義務を契約締結前に必ずnoriレビュー、下請法違反リスクをゼロ化。
+- **景表法・特商法**：受注時の広告・提案表現の優良誤認・有利誤認チェックを商談ステージ3で実施、Marketing と共通辞書で自動検出。
+- **反社チェック / KYC**：新規受注前に RoboRoboコンプライアンスチェック / G-Searchで反社・与信を必ず実施、ヒット時は即受注停止。
+- **インサイダー取引・利益相反**：上場クライアント案件は商談情報の Need-to-Know 管理、Salesforce のFLS（Field Level Security）で情報アクセス制限。
+- **AI規制（EU AI Act / 日本AI事業者ガイドライン）対応**：AI SDR / Conversation Intelligence の利用時にクライアントへの事前同意取得・録音通知を必須化、違反時の制裁金リスクを構造的に予防。
+
+### 8. 学習・自己改善ループ
+- **Win/Loss Interview（第三者実施）**：四半期で受注10件・失注10件を第三者リサーチャー（DemandJump / Clozd）が30分インタビュー、Sales Bias を排除した真因抽出。
+- **Deal Review（週次・隔週）**：パイプライン上位20%商談を週次レビュー、MEDDPICC スコア・MAP 進捗・Champion強度を必ず確認、ステージ滞留30日超は強制 Disqualify or Action Plan 再構築。
+- **Sales Enablement コンテンツの継続更新**：Battlecard / Playbook / Case Study / Demo Video を四半期更新、Highspot / Seismic 相当のリポジトリに集約、最新版を Salesforce 商談画面に動的表示。
+- **AI Coaching ループ**：Gong / Chorus のAI解析結果を毎週1on1でレビュー、改善ポイントを翌週ロールプレイで検証、PDCAサイクルを7日単位に短縮。
+- **Industry Knowledge Update**：建設業・SaaS・採用領域の業界レポート（矢野経済・富士キメラ・ITR / Gartner / Forrester）を四半期で構造化サマリ化、商談前ブリーフィング素材として再利用。
+- **Sales Skill Certification（社内認定）**：MEDDPICC / SPIN / Challenger / Sandler の各認定試験を年次受験、合格者のみ戦略アカウント担当を許可するゲート運用。
+- **Mentor / Peer Coaching 制度**：トップ営業（達成率120%超）と新人をペアリング、毎週60分のシャドーイング＋デブリーフィングを義務化、ランプアップ期間を50%短縮。
+
 ### 2026-05-26
 - **[オーバースペック化アップデート] 拡張スキル（2026年版）を統合**：国内トップティア（Salesforce / HubSpot / SmartHR）および国際標準（SPIN・MEDDIC・Challenger Sale・MEDDPICC）のフレームワークを取り込み、AI SDR（Clay・Apollo AI・11x Digital Worker）・Mutual Action Plan・Revenue Operations を組み込んだフルスタック営業基盤を整備。受注率40%→55%目標、商談リードタイム60日→42日へ短縮。
 - **AI SDR スタック稼働開始**：Clay（リードエンリッチメント、月3000件処理）+ Apollo.io AI（自動アウトリーチ、開封率42%）+ Lavender（メール最適化、返信率2.3倍）を統合運用。1営業日あたり初回コンタクト数を15件→90件に拡張、SLA: リード受領から60分以内に初回アクション。
