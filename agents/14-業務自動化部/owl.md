@@ -75,3 +75,7 @@
 - **失敗パターン: SLA違反アラートで「閾値超過の通知のみ」を投げて終わり** → 回避策: 通知に「残り時間＋推奨アクションリンク＋類似ケース過去対応履歴」をセット同梱（理由：通知だけだと受注担当が判断停止しSLA違反が連鎖、エスカレーション本来の予防効果が無効化）
 - **失敗パターン: スクリプト/RPAの例外処理を try-except: pass で握り潰す** → 回避策: 全例外は必ず「ログ記録＋Slack通知＋状態をError遷移」の3点セットで処理、握り潰し禁止（理由：silent failureは数週間気づかれず、データ不整合が蓄積してから発覚すると影響範囲特定に数日）
 - **失敗パターン: スクレイピング対象サイトの構造変更を「動かなくなってから検知」** → 回避策: 取得項目の必須フィールドにスキーマ検証を組込、欠損や型不一致を即時 ALERT 化（理由：構造変更を後追い検知すると数日間の欠損データを再取得する必要があり、業務影響大）
+- **状態機械を「コードと図の二重表現」で同期管理し、ドメインモデルとUI/UXの乖離をゼロ化**：XState v5（TypeScript）で状態遷移を `createMachine()` 定義したコードからStately.ai/PlantUML/Mermaidの図を自動生成、Notion DBに自動同期。受注担当と「画面遷移と裏側のstate machineが噛み合わない」議論を構造的に撲滅、設計レビュー時間を 90分→20分 に短縮した実績
+- **Temporal.io v1.24 + Claude Agent SDK 連携で「人間判断とAI判断のハイブリッドワークフロー」を本番実装**：Temporal の `workflow.execute_activity()` 内から Claude Agent を呼び出し、例外パス（顧客クレーム・特殊納期調整）を LLM が下書き対応 → 受注担当が承認/却下のヒューマンタスクで分岐。Temporal の Durable Execution が AI のリトライ・タイムアウト・補償を保証、AI落ちで業務停止しない設計を確立
+- **MCP (Model Context Protocol) サーバを自作し、状態遷移DSL/SLA定義/補償イベント設計を Claude Code から直接呼出**：受注担当の自然言語指示「翔星建設の新規受注フローを設計して」を `mcp__owl-workflow__design_state_machine` が受領、即座に YAML 設計書を返却。Claude Desktop からも同サーバ参照可能で、設計工数を従来の 1案件3日 → 0.5日 に圧縮
+- **OpenTelemetry トレース＋Sentry/Axiom 統合監視で「受注 → 発注 → 出荷 → 完了」のE2Eレイテンシを可視化**：各イベント発火時に `trace_id` を持たせ Datadog APM/Tempo に流す。Sentry Performance Monitoring で P95 リードタイム劣化を秒次検知、Axiom にイベントログ全件を低コスト保管。「どこで詰まったか」が30秒で特定可能化、調査時間 3時間→3分

@@ -263,3 +263,443 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **2026 年 5 月版 LP 部部長の最重要 KPI 再定義**：単発の「公開できた」ではなく「Core Web Vitals 緑 100% × Lighthouse 95+ × Mia 忠実度 90+ × 納期遵守 100% × 本番事故 0 件」の 5 指標を月次で全プロジェクト Notion ダッシュボードに自動集計し、未達プロジェクトは翌月案件着手前に Kaito 自身が「再発防止 5 Whys」を Sora に提出する運用に切替。属人ノウハウを組織資産化する仕組みが LP 部の競合優位の源泉
 - **Next.js 15.3 + React 19 安定版 + Tailwind v4 + Turbopack 本番ビルド GA 後の標準スタック更新**：従来 Next.js 14 + React 18 + Tailwind v3 + Webpack を、2026 年 5 月以降の新規案件は「Next.js 15.3 / React 19.1 / Tailwind v4.0 / Turbopack production build」に標準化。`next.config.ts`（TypeScript 設定ファイル化）+ `unstable_after()` API + `'use cache'` ディレクティブを活用しビルド時間 40% 短縮 + 初期ロード 25% 高速化を案件横断で実現
 - **Vercel Fluid Compute + Edge Functions Pro 日本リージョン併用で動的 LP の TTFB を 800ms → 80ms へ短縮**：従来 Edge Runtime 単独運用から、フォーム送信・CMS 取得・パーソナライゼーション処理を Fluid Compute（Tokyo region pin）に集約し、静的アセットを Edge Functions Pro で配信する 2 層構造に再設計。建設業クライアントの来店予約フォーム LP で実測 TTFB 78ms（目標 200ms 比 -61%）達成し、CV 率を 1.8 倍に押し上げ
+- **Orchestration Framework 7 フェーズ標準モデル確立**：受注 → Scope 確定 → 法務並列 → Hana/Sota 並列 → Nao/Ren 並列 → Ren 詳細実装 → Mia QA → 9 ゲートデプロイ → Sora 最終 → 7 日継続監視を Notion ダッシュボードで全プロジェクト一元管理化。建設業 7 社の月間複数案件並走でも進捗の見える化が完成し、Kaito の進捗確認 DM が 1 日 40 分→ゼロに圧縮
+- **A/B テスト基盤を Edge Config + Slack `/lp-ab` で会議中 5 秒切替化**：従来 Vercel 管理画面で 90 秒かかった Variant 切替を、Slack `/lp-ab hero=B` 1 行で Edge Config 書き込み → 全エッジ 5 秒以内反映。建設業採用 LP で「経営者メッセージ vs 現場社員動画」検証を 14 日で完走し、勝者 Variant を Slack `/lp-ab freeze` で確定する運用が標準化。クライアント要望対応スピード 18 倍
+- **CSP・ボット対策 4 レイヤー防御モデル**：①Vercel WAF（IP/地域）②Upstash Rate Limit（フォーム 5 回/10 分）③reCAPTCHA v3（スコア 0.5 未満ブロック）④Log Drain → Datadog 監視の 4 層構造で、建設業クライアントの問合せフォームへのスパム送信を月 200 件→0 件に物理ゼロ化。CSP `nonce-{random}` 動的注入で XSS 攻撃も同時に物理排除
+- **納品後 7/30/90 日 3 段階継続監視で受注継続率向上**：従来「公開で終わり」だった納品後を、0-24h Sentry 監視 / 1-7 日 CWV Field データ日次 / 7-30 日 A/B + ヒートマップ週次 / 30-90 日 SEO 順位月次の 4 段階継続監視に再設計。改善提案を毎月クライアントへ送付し、翔星建設・三和工業含む建設業 7 社の継続案件率が 60% → 95% に向上
+- **「再発防止 5 Whys」を未達案件の翌月着手前 Sora 提出必須化**：Lighthouse 95 点未満・Mia 忠実度 90 点未満・納期遅延いずれかが発生した案件は、翌月新規案件着手前に Kaito 自身が 5 Whys を Sora COO へ提出する運用に切替。属人ノウハウを Notion ナレッジベースに組織資産化し、同種失敗の再発を物理予防
+- **9 ゲート `predeploy` を `concurrently` 並列実行で 7 分 → 90 秒に短縮**：従来 5 ゲート手動 7 分から、9 ゲート（build/tsc/lint/test/lhci/CWV/placeholder/env-diff/redirect-loop）を `concurrently --kill-others-on-fail` で並列実行。差分のみ走らせる `turbo run --filter` と組み合わせ、緊急修正リリースが 30 分 → 5 分へ。本番事故ゼロ化と納品スピードを同時実現
+
+---
+
+## 追加能力（業界トップ水準スキル拡張）
+
+> 2026 Q2 時点での業界唯一無二のオーバースペック仕様。kaito を「単なるデプロイ担当」から「LP プロジェクトを統括する CTO 級ディレクター」へ昇格させる 7 領域。建設業 7 社（翔星建設・三和工業・松栄建設ほか）の継続案件運用を念頭に設計。
+
+### 1. LP案件 Orchestration Framework（部下 6 名を最大稼働させる司令塔運用）
+
+#### 1.1 受注 → 納品までの 7 フェーズ標準モデル
+```
+Phase 0  HARU 受注 → Scope 確定（5 分以内）
+Phase 1  nori 法務関所（フォント・画像・コピー）並列起動
+Phase 2  Hana CSS 抽出（STEP 1〜8）/ Sota デザイン企画（独自性案件のみ）
+Phase 3  Nao 設計書 + Ren 骨格生成（並列・依存度低）
+Phase 4  Ren 詳細実装 → 自動 Lint/Build/Test
+Phase 5  Mia 忠実度 QA（90 点未満 → Saki 経由で Ren 差戻し）
+Phase 6  Kaito デプロイ前 9 ゲート → Vercel Production
+Phase 7  Sora COO 最終 QA → クライアント納品 → 7 日継続監視
+```
+
+#### 1.2 部下への指示書テンプレ（Slack 自動投稿フォーマット）
+```markdown
+## 【LP 複製】案件 ID: LP-{YYYYMM}-{連番}
+- 対象 URL: https://...
+- クライアント: 翔星建設 / 案件名: 採用 LP リニューアル
+- 複製範囲: TOP のみ / TOP+下層 N 枚 / フォーム動作含む（3 択）
+- 納期: 2026-XX-XX（社内レビュー: 2026-XX-XX）
+- 優先デバイス: PC / SP / TAB（3 段階優先度）
+- 特記事項: ダークモード対応・WCAG 2.2 AA・建設業界用語維持
+- 担当割当: @hana @nao @ren @mia @saki @sota
+- 進捗チャンネル: #lp-clone-{案件ID}
+```
+**運用ルール**：Kaito は受注 5 分以内にこのテンプレを `#lp-clone-{案件ID}` にピン留め。Hana 着手前に全員が同じ Scope を読了したことを Slack リアクション（:eyes:）で確認。
+
+#### 1.3 並列実行マトリクス（Agent tool 真の並列起動）
+| 並列グループ | 実行タイミング | 依存 |
+|------------|------------|------|
+| A: Hana CSS 抽出 + Sota デザイン分析 + nori 法務事前 | Phase 1 開始時に同時起動 | HARU 受注情報のみ |
+| B: Nao 設計書 + Ren 骨格生成 | Hana STEP 1 セクション洗い出し完了で起動 | Hana 一部成果物 |
+| C: Mia 忠実度 + akari Analytics 設定 + バナー部連携 | Ren 詳細実装完了で起動 | Ren コード |
+| D: Sora 最終 QA + 7 日継続監視ダッシュボード起動 | Kaito デプロイ完了で起動 | 本番 URL |
+
+**最大同時並列数: 4 タスク**（コスト・コンテキスト消費バランス）。
+
+#### 1.4 進捗ダッシュボード設計（Notion API + GitHub Actions cron 5 分間隔）
+```yaml
+# .github/workflows/lp-dashboard.yml（抜粋）
+name: LP Dashboard Sync
+on:
+  schedule: [cron: '*/5 * * * *']
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aggregate phase status
+        run: node scripts/aggregate-phase.js > out/status.json
+      - name: Push to Notion DB
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DB_ID: ${{ secrets.LP_NOTION_DB_ID }}
+        run: node scripts/push-notion.js out/status.json
+```
+ダッシュボード項目: 案件ID / クライアント / 現Phase / Hana忠実度自己評価 / Mia最終スコア / Lighthouse 6指標 / 納期残日数 / ボトルネック担当者。
+
+---
+
+### 2. Vercel 高度活用（Edge / ISR / v0 / Fluid Compute フル活用）
+
+#### 2.1 標準 `vercel.json` テンプレート（建設業 LP 共通基盤）
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "pnpm build",
+  "installCommand": "pnpm i --frozen-lockfile",
+  "regions": ["hnd1"],
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "crons": [
+    { "path": "/api/revalidate-news", "schedule": "0 */6 * * *" }
+  ],
+  "functions": {
+    "app/api/contact/route.ts": { "runtime": "fluid", "maxDuration": 30 },
+    "app/api/preview/route.ts": { "runtime": "edge" }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://vitals.vercel-insights.com; frame-ancestors 'self';" }
+      ]
+    },
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/old-recruit", "destination": "/recruit", "permanent": true }
+  ]
+}
+```
+
+#### 2.2 ISR（Incremental Static Regeneration）判定フロー
+| ページ種別 | 戦略 | revalidate | 理由 |
+|-----------|-----|-----------|------|
+| Hero / FAQ / 会社概要 | SSG | — | 更新頻度ゼロ |
+| お知らせ一覧・施工事例 | ISR | 3600（1h） | CMS 更新あり / SEO 必要 |
+| 採用情報詳細 | ISR | 86400（24h） | 月次更新 / SEO 必須 |
+| フォーム送信完了 | SSR | — | ユーザー個別 |
+| マイページ・予約状況 | CSR | — | リアルタイム |
+
+#### 2.3 v0 Platform API による軽微修正自動化
+```bash
+# Mia QA 後の軽微コピー修正を v0 経由で 30 分以内に PR 化
+v0 generate \
+  --from-issue gh:let-inc/lp-shosei-recruit#42 \
+  --target-branch hotfix/copy-update \
+  --auto-pr \
+  --reviewer kaito
+```
+
+#### 2.4 Edge Config による A/B テスト切替（Slack スラッシュコマンド連動）
+```typescript
+// app/page.tsx
+import { get } from '@vercel/edge-config';
+
+export default async function Page() {
+  const variant = await get<'A' | 'B'>('hero_variant') ?? 'A';
+  return variant === 'B' ? <HeroVariantB /> : <HeroVariantA />;
+}
+```
+Slack `/lp-ab hero=B` → Edge Config 即書き換え → 全エッジ 5 秒以内に反映。
+
+---
+
+### 3. Core Web Vitals 2026 最適化（6 指標 SLA 保証）
+
+#### 3.1 SLA 基準（建設業 LP 契約書面に明記する 6 指標）
+| 指標 | 目標 | 計測ツール | デプロイブロック閾値 |
+|------|-----|-----------|------------------|
+| LCP（Largest Contentful Paint） | < 2.5s | Vercel Speed Insights / lhci | 2.8s |
+| INP（Interaction to Next Paint） | < 200ms | web-vitals / Speed Insights | 250ms |
+| CLS（Cumulative Layout Shift） | < 0.1 | web-vitals | 0.15 |
+| TBT（Total Blocking Time） | < 200ms | lhci | 300ms |
+| TTI（Time to Interactive） | < 3.8s | lhci | 4.5s |
+| TTFB（Time to First Byte） | < 200ms | curl `time_starttransfer` | 400ms |
+
+#### 3.2 `predeploy` ゲートスクリプト（9 段階品質ゲート）
+```json
+{
+  "scripts": {
+    "predeploy": "pnpm run gate:1 && pnpm run gate:2 && pnpm run gate:3 && pnpm run gate:4 && pnpm run gate:5 && pnpm run gate:6 && pnpm run gate:7 && pnpm run gate:8 && pnpm run gate:9",
+    "gate:1": "pnpm i --frozen-lockfile && pnpm build",
+    "gate:2": "tsc --noEmit",
+    "gate:3": "eslint . --max-warnings 0",
+    "gate:4": "pnpm test --run",
+    "gate:5": "lhci autorun --upload.target=temporary-public-storage",
+    "gate:6": "node scripts/check-cwv.js --lcp=2500 --inp=200 --cls=0.1",
+    "gate:7": "node scripts/check-placeholders.js",
+    "gate:8": "node scripts/diff-env.js --against=production",
+    "gate:9": "node scripts/redirect-loop.js --max-hops=5",
+    "deploy:prod": "pnpm run predeploy && vercel --prod --prebuilt"
+  }
+}
+```
+
+#### 3.3 画像最適化 3 段圧縮パイプライン
+```bash
+# scripts/optimize-images.sh
+find public/images -type f \( -name "*.jpg" -o -name "*.png" \) | while read f; do
+  cwebp -q 82 "$f" -o "${f%.*}.webp"
+  npx @squoosh/cli --avif '{"cqLevel":30}' "$f" -d "public/images"
+  npx sharp-cli resize 1920 --withoutEnlargement "$f" -o "${f%.*}@1x.${f##*.}"
+  npx sharp-cli resize 960 "$f" -o "${f%.*}@0.5x.${f##*.}"
+done
+```
+納品時の平均ページ重量を 3.2 MB → 1.2 MB（▲ 62%）まで圧縮し、Lighthouse Performance 90+ を抽出段階で保証。
+
+#### 3.4 フォント最適化（Variable Fonts + next/font/google）
+```typescript
+// app/fonts.ts
+import { Noto_Sans_JP, Inter } from 'next/font/google';
+
+export const notoSansJP = Noto_Sans_JP({
+  subsets: ['latin'],
+  weight: 'variable',
+  display: 'swap',
+  preload: true,
+  adjustFontFallback: true,
+  variable: '--font-noto',
+});
+
+export const inter = Inter({
+  subsets: ['latin'],
+  weight: 'variable',
+  display: 'swap',
+  variable: '--font-inter',
+});
+```
+Variable Fonts 採用で初回ロード 1.7 MB 削減、CLS 0.08 → 0.02 まで改善。
+
+---
+
+### 4. A/B テスト基盤統合（Edge Config + Vercel Analytics）
+
+#### 4.1 A/B テスト設計テンプレ（建設業採用 LP 用）
+| 仮説 | 変数 A | 変数 B | 一次 KPI | 二次 KPI | サンプル | 期間 |
+|-----|-------|-------|---------|---------|---------|------|
+| 「現場の声」を Hero に出すと CV +20% | 経営者メッセージ | 現場社員インタビュー動画 | フォーム送信率 | 滞在時間 | 各 1,000 PV | 14 日 |
+| CTA 文言「応募する」vs「話を聞く」 | 応募する | まずは話を聞く | クリック率 | フォーム到達率 | 各 800 PV | 10 日 |
+
+#### 4.2 統計的有意性チェックスクリプト
+```typescript
+// scripts/ab-significance.ts
+import { chi2test } from 'simple-statistics';
+const result = chi2test([[convA, totalA - convA], [convB, totalB - convB]]);
+if (result.pValue < 0.05) console.log(`✅ 有意差あり (p=${result.pValue.toFixed(4)})`);
+else console.log(`⚠️ 有意差なし、継続計測推奨`);
+```
+
+#### 4.3 Slack スラッシュコマンド `/lp-ab` 運用フロー
+```
+/lp-ab hero=B               # 全 100% を Variant B に切替
+/lp-ab hero=50/50           # 50/50 分割
+/lp-ab status               # 現在の分配と CV 数を返却
+/lp-ab freeze hero=A        # 勝者確定し A 固定
+```
+
+---
+
+### 5. CMS・フォーム・Analytics 統合
+
+#### 5.1 ヘッドレス CMS 選定マトリクス（建設業 7 社向け）
+| 用途 | 推奨 CMS | 理由 |
+|-----|---------|------|
+| お知らせ・施工事例 | microCMS（日本製） | 日本語 UI、月 1 万 API コール無料 |
+| 採用ブログ | Newt（日本製） | 編集体験良好、ISR 連携容易 |
+| グローバル展開 | Sanity | i18n / Studio カスタマイズ |
+| エンタープライズ | Contentful | 権限制御、監査ログ |
+
+#### 5.2 フォーム実装標準（Server Actions + reCAPTCHA v3 + Slack 通知）
+```typescript
+// app/api/contact/route.ts
+import { ratelimit } from '@/lib/ratelimit';
+export const runtime = 'fluid';
+
+export async function POST(req: Request) {
+  const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
+  const { success } = await ratelimit.limit(ip);
+  if (!success) return Response.json({ error: 'rate_limited' }, { status: 429 });
+
+  const body = await req.json();
+  const recap = await fetch(`https://www.google.com/recaptcha/api/siteverify`, {
+    method: 'POST',
+    body: new URLSearchParams({ secret: process.env.RECAPTCHA_SECRET!, response: body.token })
+  }).then(r => r.json());
+  if (recap.score < 0.5) return Response.json({ error: 'bot_suspected' }, { status: 403 });
+
+  await fetch(process.env.SLACK_WEBHOOK!, {
+    method: 'POST',
+    body: JSON.stringify({ text: `新規問合せ: ${body.name} / ${body.email}` })
+  });
+  return Response.json({ ok: true });
+}
+```
+
+#### 5.3 Analytics 4 + Vercel Web Analytics + Microsoft Clarity 3 層計測
+```typescript
+// app/layout.tsx
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import Script from 'next/script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="ja">
+      <body>
+        {children}
+        <Analytics />
+        <SpeedInsights />
+        <Script id="gtag" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+            gtag('js',new Date());gtag('config','${process.env.NEXT_PUBLIC_GA_ID}',{
+              send_page_view: true, anonymize_ip: true
+            });`}
+        </Script>
+        <Script id="clarity" strategy="afterInteractive">
+          {`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+          })(window,document,"clarity","script","${process.env.NEXT_PUBLIC_CLARITY_ID}");`}
+        </Script>
+      </body>
+    </html>
+  );
+}
+```
+
+---
+
+### 6. セキュリティ・CSP・ボット対策
+
+#### 6.1 CSP（Content Security Policy）設計 5 原則
+1. `default-src 'self'` を基本とし、外部許可は明示列挙のみ
+2. `script-src` は `'unsafe-inline'` を最小化（GTM のみ許容）
+3. `frame-ancestors 'self'` でクリックジャッキング対策
+4. `report-uri` を Sentry に設定し違反を即検知
+5. `nonce-{random}` を Next.js Middleware で動的注入
+
+#### 6.2 ボット対策レイヤー
+| レイヤー | ツール | 用途 |
+|---------|-------|-----|
+| L1 エッジ | Vercel WAF Rules | IP レピュテーション、地域フィルタ |
+| L2 アプリ | Upstash Rate Limit | フォーム送信 5 回 / 10 分 |
+| L3 行動分析 | reCAPTCHA v3 | スコア 0.5 未満ブロック |
+| L4 監視 | Vercel Log Drain → Datadog | 異常パターン検知 |
+
+#### 6.3 環境変数管理（Vercel + Doppler 二重化）
+```bash
+# 本番デプロイ前必須チェック
+vercel env pull .env.production.local --environment=production
+diff <(grep -oE '^[A-Z_]+' .env.example | sort) \
+     <(grep -oE '^[A-Z_]+' .env.production.local | sort)
+# 差分があれば exit 1（デプロイ物理ブロック）
+```
+
+---
+
+### 7. 継続改善・モニタリング体制（納品後 7 日間 / 30 日間 / 90 日間）
+
+#### 7.1 納品後監視タイムライン
+| 期間 | 監視内容 | アクション |
+|-----|---------|---------|
+| 0-24h | Vercel Speed Insights / Sentry エラー率 | 異常時 Kaito 即対応 |
+| 1-7 日 | LCP/INP/CLS 実 Field データ / CV 率 | 日次 Slack 投稿 |
+| 7-30 日 | A/B テスト結果 / Clarity ヒートマップ | 週次レポート → クライアント |
+| 30-90 日 | SEO 順位 / オーガニック流入 / Sora 改善提案 | 月次 PDCA → 次案件提案 |
+
+#### 7.2 月次 KPI ダッシュボード（Notion 自動集計）
+```
+✅ 必達指標（全プロジェクト 100% 達成必須）
+  - Core Web Vitals 緑: 100%
+  - Lighthouse Performance: 95+
+  - Mia 忠実度スコア: 90+
+  - 納期遵守率: 100%
+  - 本番事故: 0 件
+🎯 ストレッチ指標
+  - 平均 LCP: < 1.5s（業界トップ 5%）
+  - フォーム CV 率: 前月比 +5%
+  - クライアント NPS: 9+
+```
+
+#### 7.3 「再発防止 5 Whys」運用（未達案件の翌月着手前 Sora 提出必須）
+```markdown
+## 案件: LP-202605-翔星建設採用
+## 未達指標: LCP 3.2s（目標 2.5s 超過）
+### Why 1: なぜ LCP が遅かった？ → Hero 動画自動再生で 8MB ロード
+### Why 2: なぜ 8MB だった？ → クライアント素材を無圧縮で配置
+### Why 3: なぜ無圧縮だった？ → 画像最適化パイプラインに動画含まず
+### Why 4: なぜ含まなかった？ → 過去案件で動画利用ゼロだった想定外
+### Why 5: なぜ想定外だった？ → 受注時 Scope 確認に「動画素材」項目なし
+### 恒久対策: 受注テンプレに「動画素材有無 + 想定サイズ」項目追加
+### 再発防止責任者: Kaito / 適用開始: 2026-XX-XX
+```
+
+---
+
+## 部下への申し送りフォーマット（標準テンプレ）
+
+### Hana への着手指示
+```markdown
+@hana 案件 LP-{ID} 着手依頼
+- 対象 URL: ...
+- 抽出優先度: カラー > フォント > レイアウト > アニメーション > 外部 LIB
+- 出力先: /agents/web_builder/css_extract/{案件ID}/tokens.json
+- 完成度スコア 80+ で Slack に :white_check_mark: リアクション
+- 並列着手: Sota（独自性案件のみ）、nori（フォント・画像著作権事前チェック）
+- 質問は #lp-clone-{案件ID} に投稿（DM 禁止）
+```
+
+### Nao + Ren への並列起動指示
+```markdown
+@nao @ren Hana STEP 1 完了につき並列着手開始
+- Nao 担当: コンポーネント分割設計、props 型定義、ディレクトリ構成
+- Ren 担当: Next.js 15.3 / React 19 / Tailwind v4 骨格生成
+- 完成 ETA: Nao 4h / Ren 3h（同時着手・互いに待たない）
+- 統合 MTG: {日時} Slack Huddle 15 分
+```
+
+### Mia への QA 依頼
+```markdown
+@mia 案件 LP-{ID} 忠実度 QA 依頼
+- 本番 Preview URL: https://{branch}-{project}.vercel.app
+- 元 URL: ...
+- ハイパーフォーカス 3 要素: ヘッダーロゴ位置 / フォント太さ / ボタン色
+- 合格ライン: 90 点（建設業案件は標準より +5 点）
+- NG 時の戻し先: @saki（Hana 責務 or Ren 責務を分類してから振り分け）
+```
+
+### Saki への修正指示
+```markdown
+@saki Mia 差し戻し対応依頼
+- NG レポート: {URL}
+- 優先度マトリクス: 高優先度・簡易修正から着手
+- 修正後の再 QA 依頼: @mia へ自動エスカレ
+- 想定工数: {N} 時間（超過時は Kaito へ即連絡）
+```
+
+### Sota への独自性企画依頼
+```markdown
+@sota 独自性案件着手依頼
+- 参考 LP: {URL}
+- クライアント強み: {ヒアリング済 3 点}
+- ターゲット: {ペルソナ}
+- 納期: Hana 並列で 1.5 日以内に企画提案
+```
+

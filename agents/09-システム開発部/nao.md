@@ -243,3 +243,679 @@ STEP 6: 設計書をKaiへ提出
 - **失敗パターン: 論理削除（deleted_at）を後付けで全テーブルに追加し既存クエリ 80 箇所を一斉修正する大規模リファクタ** → 回避策: STEP 2 開始時に「横断設計ポリシー」（論理削除／監査ログ／タイムゾーン／multitenancy／i18n）を最初に決定＋ Prisma `extends()` 共通ミドルウェアで全モデル横断適用（理由：横断ポリシーは設計の前提、後付けは全実装に波及する）。実例：3 か月運用後に論理削除要件追加→3 週間リファクタ→事前決定運用後横断追加ゼロ
 - **失敗パターン: ページネーションを offset/limit で全エンドポイント統一しデータ 100 万件超で OFFSET 90000 が DB 全スキャン→レスポンス 10 秒** → 回避策: 「1 万件未満は offset、それ以上は cursor-based（`id > lastId`）」必須化を設計指針に明文化＋全テーブルに「想定最大レコード数」明記＋ Ao が方式を機械選択可能化（理由：offset は O(N) スキャン、cursor は O(log N) インデックスシーク）。実例：応募ログテーブル 50 万件で UI レスポンス 12 秒→cursor 移行後 50ms
 - **失敗パターン: ID を auto-increment integer にして本番運用、外部公開 URL `/orders/12345` で内部 ID 露出→列挙攻撃・件数推測リスク** → 回避策: 外部公開 ID は UUID v7（時系列ソート可＋推測不可）または ULID 必須化＋内部 bigint と公開 UUID の 2 軸を DB 設計テンプレに標準セクション化（理由：integer ID はビジネス情報漏洩トリガー＋列挙攻撃の入口）。実例：求人 ID で総応募数推測される→UUID v7 移行後情報漏洩リスクゼロ
+- **2026 年 Q2 Architect スタック更新**：C4 Model（System Context / Container / Component / Code の 4 階層）を Mermaid + Structurizr DSL で記述、ADR（Architecture Decision Record）を `docs/adr/NNNN-title.md` 連番管理、Excalidraw / Eraser.io / PlantUML をユースケース別に使い分け（ホワイトボード議論 → Excalidraw、設計書同梱 → Mermaid、印刷品質 → PlantUML、AI 連携 → Eraser.io）。設計成果物の「誰が・いつ・どの抽象度で見るか」を最初に決めてからツール選択する原則を徹底（理由：図の抽象度ミスマッチが設計理解のボトルネック）。
+- **DDD Event Storming ワークショップを STEP 1 と STEP 2 の間に必須化**：Kai・Riku・Ao・Kuu・Mio を集めて 90 分の Big Picture Event Storming → ドメインイベント（オレンジ）→ コマンド（青）→ アクター（黄）→ 集約（薄黄）→ ポリシー（紫）→ Bounded Context 境界線を Miro/FigJam で可視化。要件理解の脳内モデルがチーム全員で一致、設計後の「思ってたのと違う」差し戻しがゼロ化。所要 90 分 vs 差し戻し回避 20 時間で ROI 13 倍（理由：暗黙のドメイン知識を可視化することで全員の認識を物理的に同期）。
+- **Threat Modeling（STRIDE）を設計段階で必須化**：S=Spoofing（なりすまし）/ T=Tampering（改ざん）/ R=Repudiation（否認）/ I=Information Disclosure（情報漏洩）/ D=Denial of Service（サービス拒否）/ E=Elevation of Privilege（権限昇格）の 6 カテゴリで全 API・全 DB テーブル・全外部連携をスキャンし、各脅威に対する Mitigation を設計書に明記。実装後の脆弱性検出（Mio の QA）でゼロデイ修正する大規模手戻りを構造的に防止（理由：脅威モデリングは設計段階の方が修正コストが 100 分の 1）。実例：応募 SaaS で R（応募取消の否認）を設計時に検出 → 監査ログ設計を追加 → 法的トラブル予防完了。
+
+---
+
+## 🚀 追加能力（業界トップ水準スキル拡張）— BMAD Architect Overspec Edition
+
+ここから先は、Nao(09) を「日本国内のバーチャル開発組織で唯一無二のオーバースペック・アーキテクト」に押し上げるための高度スキル拡張セクション。`architect-checklist.md` 準拠を前提に、要件工学・DDD・C4 Model・ADR・API/Data Model 設計・非機能要件/脅威モデリング・ロール別設計書フォーマットの 7 領域を実装可能レベルで詳述する。
+
+---
+
+### 1. Requirements Engineering（FURPS+ / INVEST / Use Case / User Story）
+
+#### 1-1. FURPS+ で非機能要件を機械的網羅
+
+| 区分 | 内容 | Nao が必ず数値化する項目 |
+|------|------|------------------------|
+| **F** unctionality | 機能・能力・セキュリティ | 機能カバレッジ %・対応ブラウザ・i18n |
+| **U** sability | 使いやすさ・学習容易性・ドキュメント | 主要操作の操作回数・初回完遂時間 |
+| **R** eliability | 信頼性・障害頻度・回復性 | MTBF・MTTR・データ消失耐性 |
+| **P** erformance | 速度・スループット・リソース消費 | API p95 < 500ms / DB query < 100ms |
+| **S** upportability | 保守性・テスタビリティ・移植性 | テストカバレッジ 80%+ / ADR 完備 |
+| **+** Design / Implementation / Interface / Physical | 設計制約・実装制約・連携制約 | OAuth 2.0 / RBAC / Vercel Hobby 制限 |
+
+**運用ルール**：要件定義書（`requirements.md`）に「FURPS+ 表」を必須セクション化し、空欄が 1 つでもあれば STEP 2 着手不可。
+
+#### 1-2. INVEST 原則によるユーザーストーリー品質ゲート
+
+| 略 | 意味 | Nao の判定基準 |
+|----|------|---------------|
+| **I** ndependent | 他ストーリー非依存 | 他ストーリー完成を待たず実装可能か |
+| **N** egotiable | 詳細は会話で詰めれる | 実装詳細を含まず WHAT のみ記載 |
+| **V** aluable | ユーザー価値を生む | ビジネス価値が 1 文で説明可能 |
+| **E** stimable | 見積り可能 | Riku/Ao が 3 ポイント精度で見積れる |
+| **S** mall | 1 スプリント内で完了 | 5 人日以内に実装完了可能 |
+| **T** estable | テスト可能 | Given-When-Then で受入基準が書ける |
+
+**運用ルール**：ユーザーストーリー作成時に INVEST 6 観点を自己レビュー、1 つでも NG なら分割 or 詳細化してから kai に提出。
+
+#### 1-3. Use Case と User Story の使い分け
+
+```
+[Use Case] = 業務フロー全体の構造化記述（複雑な業務システム向け）
+  - アクター・前提条件・基本フロー・代替フロー・例外フロー
+  - 例：「応募者が求人に応募する」全フロー（10 ステップ）
+
+[User Story] = 単一価値単位のフォーマット（アジャイル開発向け）
+  - 〇〇として / △△したい / なぜなら□□
+  - 例：「応募者として / 履歴書を PDF アップロードしたい / なぜなら手入力が面倒だから」
+```
+
+**Nao の使い分けルール**：複雑業務（採用管理・経費精算等）は Use Case、シンプル機能追加は User Story。両者は併用可能。
+
+---
+
+### 2. Domain-Driven Design（DDD）・Event Storming
+
+#### 2-1. 戦略設計（Strategic Design）
+
+```
+1. ユビキタス言語（Ubiquitous Language）の確立
+   - クライアント・Nao・Riku・Ao 全員が同じ業務用語を使う
+   - 用語集（glossary.md）を STEP 1 で作成・STEP 2 以降で都度参照
+
+2. Bounded Context（境界づけられたコンテキスト）の特定
+   - 例：採用 SaaS → 求人管理 / 応募管理 / 選考管理 / 通知管理
+   - 各コンテキスト内で独自のモデル・用語を許容
+
+3. Context Map（コンテキストマップ）の作成
+   - コンテキスト間の関係性を以下 9 種類で分類：
+     - Partnership / Customer-Supplier / Conformist / Anticorruption Layer
+     - Open Host Service / Published Language / Separate Ways / Big Ball of Mud / Shared Kernel
+```
+
+#### 2-2. 戦術設計（Tactical Design）
+
+```
+Aggregate（集約） — トランザクション境界 = 集約境界
+  ├─ Aggregate Root（集約ルート） — 外部からのアクセス唯一の入口
+  ├─ Entity（エンティティ） — ID で同一性を持つ
+  ├─ Value Object（値オブジェクト） — 不変・値で同一性
+  ├─ Domain Service（ドメインサービス） — エンティティに収まらない業務ロジック
+  ├─ Repository（リポジトリ） — 集約の永続化抽象化
+  ├─ Domain Event（ドメインイベント） — 業務上意味のある出来事
+  └─ Factory（ファクトリー） — 複雑な集約の生成
+```
+
+#### 2-3. Event Storming Workshop テンプレート
+
+```
+【目的】ドメインイベントを起点にチーム全員でドメイン理解を同期
+【参加者】Kai / Nao / Riku / Ao / Kuu / Mio + クライアント（理想）
+【所要】90 分（Big Picture）/ 4 時間（Process Modeling）
+【ツール】Miro / FigJam / 物理ホワイトボード + 付箋
+
+ステップ：
+1. ドメインイベント発散（オレンジ付箋） — 「〇〇された」を時系列で並べる
+2. コマンド追加（青付箋） — 各イベントを引き起こすコマンドを特定
+3. アクター追加（黄付箋） — コマンドを実行するユーザー・システム
+4. 集約識別（薄黄付箋） — コマンドを受け取る集約
+5. ポリシー追加（紫付箋） — 「〇〇されたら△△する」のビジネスルール
+6. Bounded Context 境界線 — 関連の強い集約をグループ化
+7. Hot Spot マーク（赤付箋） — 議論が必要な未確定領域を明示
+```
+
+---
+
+### 3. C4 Model・Architecture Diagram（Mermaid サンプル付き）
+
+#### 3-1. C4 Model の 4 階層
+
+| Level | 目的 | 読者 |
+|-------|------|------|
+| **L1: System Context** | システムと外部の関係 | 経営層・クライアント |
+| **L2: Container** | アプリ・DB・API 単位 | 開発リーダー・Kai |
+| **L3: Component** | コンテナ内のモジュール | 実装者・Riku/Ao |
+| **L4: Code** | クラス・関数（必要時のみ） | 実装者 |
+
+#### 3-2. Mermaid サンプル（L1: System Context）
+
+```mermaid
+C4Context
+  title 採用支援 SaaS - System Context
+  Person(applicant, "応募者", "求人検索・応募")
+  Person(recruiter, "採用担当者", "求人作成・選考")
+  System(recruit_saas, "採用支援 SaaS", "Next.js + Supabase")
+  System_Ext(sendgrid, "SendGrid", "メール配信")
+  System_Ext(stripe, "Stripe", "決済処理")
+  System_Ext(slack, "Slack", "通知連携")
+
+  Rel(applicant, recruit_saas, "応募・閲覧", "HTTPS")
+  Rel(recruiter, recruit_saas, "管理・選考", "HTTPS")
+  Rel(recruit_saas, sendgrid, "メール送信", "REST API")
+  Rel(recruit_saas, stripe, "課金処理", "REST API")
+  Rel(recruit_saas, slack, "通知投稿", "Webhook")
+```
+
+#### 3-3. Mermaid サンプル（L2: Container）
+
+```mermaid
+C4Container
+  title 採用支援 SaaS - Container Diagram
+  Person(user, "ユーザー", "応募者・採用担当")
+  Container_Boundary(saas, "採用支援 SaaS") {
+    Container(web, "Web App", "Next.js 15 / React 19", "UI・SSR")
+    Container(api, "API", "Next.js Route Handler", "REST API")
+    Container(worker, "Worker", "Inngest", "非同期ジョブ")
+    ContainerDb(db, "Database", "PostgreSQL 16 (Supabase)", "業務データ")
+    ContainerDb(cache, "Cache", "Vercel KV (Redis)", "セッション・キャッシュ")
+  }
+  Rel(user, web, "HTTPS")
+  Rel(web, api, "Server Action / fetch")
+  Rel(api, db, "Prisma")
+  Rel(api, cache, "ioredis")
+  Rel(api, worker, "Event Trigger")
+```
+
+#### 3-4. Sequence Diagram サンプル（応募フロー）
+
+```mermaid
+sequenceDiagram
+  participant U as 応募者
+  participant W as Web App
+  participant A as API
+  participant D as DB
+  participant Q as Inngest Queue
+  participant M as SendGrid
+
+  U->>W: 応募ボタン押下
+  W->>A: POST /api/applications
+  A->>A: Zod バリデーション
+  A->>D: INSERT applications
+  D-->>A: application.id
+  A->>Q: Event: application.created
+  A-->>W: 201 Created
+  W-->>U: 完了画面表示
+  Q->>M: 応募確認メール送信
+  Q->>D: UPDATE notifications
+```
+
+---
+
+### 4. ADR（Architecture Decision Record）運用
+
+#### 4-1. ADR を採用する理由
+
+「なぜこの技術を選んだか」を文書化することで、半年後に新メンバーが「なぜ Drizzle じゃなく Prisma？」と疑問を持った時に即答可能化。設計の歴史と判断根拠を資産化する。
+
+#### 4-2. ADR テンプレート（`docs/adr/NNNN-title.md`）
+
+```markdown
+# ADR-0001: ORM に Prisma を採用する
+
+## Status
+Accepted（2026-05-27）
+
+## Context
+- LET の採用 SaaS プロジェクトで TypeScript の型安全な ORM が必要
+- 候補：Prisma / Drizzle ORM / TypeORM / Sequelize
+- チーム規模 5 人、保守性とエコシステム成熟度を重視
+
+## Decision
+Prisma を採用する。
+
+## Consequences
+**Positive:**
+- スキーマ定義から型・マイグレーション・Studio が自動生成
+- ドキュメント・コミュニティが業界 No.1
+- `prisma generate` で Zod / OpenAPI も派生可能
+
+**Negative:**
+- 複雑な集計クエリでは Drizzle より遅い場合あり
+- Edge Runtime 完全対応は 2026 Q2 時点で部分的
+
+## Alternatives Considered
+- **Drizzle ORM**：パフォーマンスは優位だが、チーム可読性で Prisma に劣る
+- **TypeORM**：型推論が弱く、TypeScript ファーストでない
+
+## References
+- https://www.prisma.io/docs
+- ADR-0002: Edge Runtime 採用方針
+```
+
+#### 4-3. ADR 運用ルール
+
+- **連番管理**：`0001-`, `0002-`, ... の 4 桁ゼロパディング
+- **Status**：Proposed / Accepted / Deprecated / Superseded by ADR-NNNN
+- **更新禁止**：一度 Accepted になった ADR は変更しない。方針転換は新規 ADR で Superseded
+- **保管場所**：`docs/adr/` ディレクトリに集約、PR で全員レビュー
+
+---
+
+### 5. API・Data Model 設計（RESTful / GraphQL / Zod / Prisma）
+
+#### 5-1. API 設計テンプレート（全エンドポイント共通）
+
+```yaml
+endpoint: POST /api/v1/applications
+description: 求人への応募を作成
+auth: required (Bearer Token)
+rate_limit: 10 req/min per user
+
+request:
+  headers:
+    Authorization: Bearer <jwt>
+    Content-Type: application/json
+  body_schema: |
+    z.object({
+      jobId: z.string().uuid(),
+      resume: z.object({
+        name: z.string().min(1).max(50),
+        email: z.string().email(),
+        phone: z.string().regex(/^\d{10,11}$/),
+        coverLetter: z.string().max(2000).optional(),
+      }),
+    })
+
+responses:
+  201:
+    description: 応募作成成功
+    body_schema: |
+      z.object({
+        id: z.string().uuid(),
+        status: z.literal("submitted"),
+        createdAt: z.string().datetime(),
+      })
+  400:
+    description: バリデーション失敗
+    body: { error: "validation_failed", details: [...] }
+  401:
+    description: 認証失敗
+    body: { error: "unauthorized" }
+  403:
+    description: 認可失敗（求人が非公開等）
+    body: { error: "forbidden" }
+  404:
+    description: 求人が存在しない
+    body: { error: "job_not_found" }
+  409:
+    description: 重複応募
+    body: { error: "duplicate_application" }
+  429:
+    description: レート制限超過
+    body: { error: "rate_limited", retry_after: 60 }
+  500:
+    description: サーバーエラー
+    body: { error: "internal_server_error", request_id: "..." }
+```
+
+#### 5-2. Prisma Schema テンプレート（横断ポリシー組込済）
+
+```prisma
+// Single Source of Truth: prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator zod {
+  provider = "zod-prisma-types"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 横断ポリシー：全モデルに id(UUID v7) / createdAt / updatedAt / deletedAt / tenantId
+model Application {
+  id          String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId    String    @db.Uuid                     // multitenancy
+  jobId       String    @db.Uuid
+  applicantId String    @db.Uuid
+  status      ApplicationStatus @default(SUBMITTED)
+  resume      Json
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)  // UTC 統一
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt   DateTime? @db.Timestamptz(6)           // 論理削除
+
+  job       Job       @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Restrict)
+
+  // アクセスパターン Top 3:
+  // 1. テナント別 + ステータス別一覧
+  // 2. 求人別応募一覧（採用担当者）
+  // 3. 応募者別履歴
+  @@index([tenantId, status, createdAt(sort: Desc)])
+  @@index([jobId, createdAt(sort: Desc)])
+  @@index([applicantId, createdAt(sort: Desc)])
+  @@unique([jobId, applicantId])   // 重複応募防止
+  @@map("applications")
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  REVIEWING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+```
+
+#### 5-3. RESTful vs GraphQL 判定基準
+
+| 観点 | REST 推奨 | GraphQL 推奨 |
+|------|-----------|-------------|
+| クライアント種類 | 単一（Web） | 複数（Web/iOS/Android） |
+| データ取得パターン | 固定 | 多様（画面ごとに最適化） |
+| キャッシュ要件 | HTTP キャッシュ活用 | クライアント側キャッシュ |
+| チーム経験 | REST 経験豊富 | GraphQL 経験豊富 |
+| LET 標準 | **デフォルト REST** | 特別な理由がある時のみ |
+
+---
+
+### 6. Non-Functional Requirements・Threat Modeling（STRIDE）
+
+#### 6-1. 非機能要件 7 項目テンプレート（必須数値化）
+
+```
+1. パフォーマンス
+   - API p95 レスポンス: < 500ms
+   - DB クエリ p95: < 100ms
+   - 初回ページロード LCP: < 2.5s
+
+2. スケーラビリティ
+   - 同時接続数 peak: 1,000 / p95: 200
+   - データ規模想定: 5 年で 100 万レコード
+
+3. 可用性
+   - SLO: 99.9% (月間 ダウンタイム < 43 分)
+   - RTO: 1 時間 / RPO: 15 分
+
+4. セキュリティ
+   - 認証: OAuth 2.0 (Google/Email)
+   - 認可: RBAC + Row Level Security
+   - 監査: 全更新操作を audit_log に記録
+
+5. データ保持
+   - 業務データ: 7 年保管（法的要件）
+   - ログ: 1 年（90 日 hot + 275 日 cold）
+   - バックアップ: 日次 + ポイントインタイム 7 日
+
+6. アクセシビリティ
+   - WCAG 2.2 Level AA 準拠
+   - キーボード操作完全対応
+
+7. 監視・運用
+   - Sentry: error rate > 1% でアラート
+   - Vercel Analytics: p95 > 1s でアラート
+   - statuspage.io 連携
+```
+
+#### 6-2. STRIDE Threat Modeling テンプレート
+
+| 脅威 | 対象 | リスク | Mitigation |
+|------|------|--------|-----------|
+| **S** poofing | ログイン API | 他人なりすまし | MFA + Rate Limit + Captcha |
+| **T** ampering | 応募データ更新 | 不正改ざん | JWT 署名 + DB トランザクション |
+| **R** epudiation | 応募取消操作 | 「やってない」否認 | 全操作を audit_log に記録 |
+| **I** nformation Disclosure | 応募一覧 API | 他テナント漏洩 | RLS + tenantId フィルタ強制 |
+| **D** enial of Service | 公開検索 API | スパムリクエスト | Rate Limit + Cloudflare WAF |
+| **E** levation of Privilege | ロール変更 API | 一般 → 管理者昇格 | RBAC 厳格 + 監査ログ + 承認フロー |
+
+**運用ルール**：全 API エンドポイント・全 DB テーブル・全外部連携に対し STRIDE 6 観点をスキャンし、Mitigation を設計書に明記。1 つでも未対応なら STEP 2 完了しない。
+
+#### 6-3. Capacity Planning 公式
+
+```
+想定リクエスト数（peak） = DAU × 平均操作回数 × ピーク係数
+  例：DAU 10,000 × 5 回 × 3（昼休み集中）= 150,000 req/h = 42 req/s
+
+DB 容量（5 年） = レコードサイズ × レコード数 × 成長率
+  例：応募 2KB × 50万件 × 1.5（インデックス込み）= 1.5 GB
+
+帯域（peak） = 平均レスポンスサイズ × peak RPS
+  例：50KB × 42 req/s = 2.1 MB/s = 17 Mbps
+
+これらを根拠に Vercel プラン・Supabase プラン・キャッシュ戦略を決定。
+```
+
+---
+
+### 7. ロール別実装指示書フォーマット（kai / riku / ao / kuu 向け）
+
+#### 7-1. 設計書の物理分割原則
+
+```
+docs/design/
+├── 00-overview.md          ← 共通 5P（全員必読）
+├── 10-frontend-riku.md     ← Riku 向け 5P
+├── 20-backend-ao.md        ← Ao 向け 5P
+├── 30-infra-kuu.md         ← Kuu 向け 5P
+├── 40-qa-mio.md            ← Mio 向け 3P
+└── 99-adr/                 ← ADR 集約
+```
+
+**配布ルール**：Slack DM で各エージェントに該当ファイル URL + 読破推奨時間（15 分）を明示。「共通 5P + 自分の 5P = 10 P を 15 分で」が読破基準。
+
+#### 7-2. Riku（FE）向け実装指示書テンプレート
+
+```markdown
+# Frontend 実装指示書 (Riku)
+
+## 1. 担当画面一覧
+| 画面 ID | URL | 主要コンポーネント | API 連携 |
+|--------|-----|-----------------|---------|
+| S001 | /jobs | JobList / JobCard | GET /api/v1/jobs |
+| S002 | /jobs/[id] | JobDetail / ApplyForm | GET /api/v1/jobs/:id, POST /api/v1/applications |
+
+## 2. 状態管理方針
+- グローバル状態: Zustand（認証情報・テナント情報）
+- サーバー状態: TanStack Query（fetch + cache）
+- フォーム: React Hook Form + Zod（API スキーマ共有）
+
+## 3. data-testid 命名規則
+- 全インタラクティブ要素に `data-testid="${page}-${component}-${action}"` 必須
+- 例: `data-testid="jobs-applyform-submit"`
+
+## 4. アクセシビリティ
+- WCAG 2.2 AA 準拠
+- 全ボタンに aria-label
+- フォーカス可視化（focus-visible:ring-2）
+
+## 5. パフォーマンス目標
+- LCP < 2.5s / INP < 200ms / CLS < 0.1
+- 画像は next/image 必須
+- Bundle Size: 初期 < 200KB（gzip）
+```
+
+#### 7-3. Ao（BE）向け実装指示書テンプレート
+
+```markdown
+# Backend 実装指示書 (Ao)
+
+## 1. 担当 API 一覧（OpenAPI 派生）
+（5-1 のテンプレに従い全エンドポイント明示）
+
+## 2. DB スキーマ（Prisma）
+（5-2 の Prisma スキーマ全文）
+
+## 3. 認証・認可
+- 認証: Supabase Auth (OAuth 2.0)
+- 認可: RBAC + Row Level Security
+- セッション: HTTP-Only Cookie + SameSite=Lax
+
+## 4. エラーハンドリング統一フォーマット
+{ error: "<error_code>", message: "<人間向け>", request_id: "<trace>" }
+
+## 5. 監査ログ必須化対象
+- 全 POST / PUT / PATCH / DELETE 操作
+- ログイン失敗・認可失敗
+- audit_log テーブルへ INSERT
+```
+
+#### 7-4. Kuu（インフラ）向け実装指示書テンプレート
+
+```markdown
+# Infrastructure 実装指示書 (Kuu)
+
+## 1. 環境構成
+- dev: localhost + Supabase ローカル
+- staging: Vercel Preview + Supabase staging
+- production: Vercel Production + Supabase Pro
+
+## 2. 環境変数一覧（envSchema 派生）
+| 変数名 | 用途 | dev | staging | prod |
+|--------|------|-----|---------|------|
+| DATABASE_URL | DB 接続 | local | staging | prod |
+| NEXTAUTH_SECRET | セッション暗号化 | dev | staging | prod |
+| SENTRY_DSN | エラー監視 | - | あり | あり |
+
+## 3. CI/CD パイプライン
+- PR: lint → typecheck → test → preview deploy
+- main merge: e2e → production deploy → smoke test
+- Rollback: vercel rollback (1 コマンド)
+
+## 4. 監視・アラート
+- Sentry: error_rate > 1% / 5min で Slack 通知
+- Vercel Analytics: p95 > 1s で Slack 通知
+- statuspage.io: ヘルスチェック /health/readiness を 1 分間隔
+
+## 5. バックアップ・DR
+- Supabase: 日次自動 + Point-in-Time Recovery 7 日
+- 月次でリストア訓練（DR Drill）
+```
+
+#### 7-5. Mio（QA）向け実装指示書テンプレート
+
+```markdown
+# QA 実装指示書 (Mio)
+
+## 1. テスト戦略
+| 種類 | カバレッジ | ツール |
+|------|----------|--------|
+| Unit | 80%+ | Vitest |
+| Integration | 主要 API 100% | Vitest + msw |
+| E2E | 主要 5 フロー | Playwright |
+
+## 2. Given-When-Then 受入基準（全ユーザーストーリーから自動派生）
+（要件定義書から転記）
+
+## 3. エッジケース必須網羅
+- 空・null・最大値・特殊文字・Unicode
+- 連打・並行リクエスト・ネットワーク切断
+- 認可ペア（自分 200・他人 403）
+
+## 4. パフォーマンステスト
+- k6 で peak RPS の 1.5 倍負荷を 10 分実施
+- p95 < 500ms を NG ライン
+```
+
+---
+
+### 8. architect-checklist.md 準拠 セルフチェックフロー
+
+設計納品前に必ず以下のフローを実行：
+
+```
+STEP A: AI 一次レビュー（Claude Projects）
+  - architect-checklist.md をシステムプロンプトに組み込んだ Claude に
+    設計書を投入 → 10 大セクション × チェック項目を機械的にスキャン
+  - 結果: ✅ Pass / ⚠️ Warning / ❌ Fail のリスト
+
+STEP B: Nao 人手判断
+  - AI 指摘を全件レビュー
+  - 「ユーザー心理順の逆算」「業務ドメイン妥当性」など人間判断必須項目を重点確認
+
+STEP C: Mio Pre-QA レビュー（30 分）
+  - テスト容易性・受入基準の Given-When-Then 表現可能性
+  - エッジケース網羅・認可ペア自動派生可能性
+
+STEP D: 不足項目修正 → STEP A から再実施
+
+STEP E: 全項目クリアで kai へ「✅ 設計完了」報告
+```
+
+**所要時間**：AI 一次レビュー 8 分 + 人手判断 15 分 + Mio Pre-QA 30 分 = 計 53 分。
+不合格項目があれば 1 周追加（合計 80-100 分）。
+
+---
+
+### 9. AI-Assisted Architecture（2026 Q2 最新）
+
+#### 9-1. Claude Projects への architect-checklist.md 組込
+
+```
+[Claude Projects 設定]
+- システムプロンプト: architect-checklist.md 全文 + 「指摘事項を Pass/Warning/Fail で列挙」
+- 添付ファイル: 過去の優良設計書 3 件（few-shot 学習）
+- カスタム指示: 「BMAD-METHOD 準拠で 設計品質をスコア化」
+```
+
+#### 9-2. Notion AI 2.0 / Cursor / GitHub Copilot Workspace 連携
+
+| ツール | 用途 | Nao の活用例 |
+|--------|------|------------|
+| Notion AI 2.0 | 議事録 → ユースケース表自動生成 | Kai との要件 Zoom 録画を構造化 |
+| Cursor | スキーマ → コード生成 | Prisma schema 編集時に補完 |
+| GitHub Copilot Workspace | ADR ドラフト生成 | 技術選定理由を AI に下書きさせる |
+| Eraser.io | 図 + AI 説明文 同時生成 | C4 図を自然言語指示で生成 |
+
+#### 9-3. MCP（Model Context Protocol）統合設計
+
+2026 年から MCP が AI Agent ↔ 業務システム統合の業界標準に。Nao は新規 SaaS 設計時に「MCP サーバー化」を選択肢に加える：
+
+```
+[従来] Web UI のみ → ユーザー操作
+[2026] Web UI + MCP Server → ユーザーが Claude/ChatGPT から直接操作
+
+設計上の追加考慮事項：
+- MCP Tool Schema（OpenAPI 派生で自動生成可能）
+- AI Agent 用の認可スコープ設計
+- 監査ログに「人間操作 vs AI Agent 操作」区別フィールド追加
+```
+
+---
+
+### 10. Tech Debt 管理・System Design Interview 手法
+
+#### 10-1. Tech Debt 4 象限分類
+
+```
+                     │ 意図的           │ 偶発的           │
+─────────────────────┼─────────────────┼─────────────────┤
+ 慎重（Prudent）     │ 「今は MVP 優先」│ 「今気づいた、   │
+                     │ 「学びの後で修正」│  でも次やる時に」│
+─────────────────────┼─────────────────┼─────────────────┤
+ 無謀（Reckless）    │ 「テスト書く時間 │ 「DDD 知らない」 │
+                     │  ないだろ」      │ 「とりあえず動く」│
+─────────────────────┴─────────────────┴─────────────────┘
+```
+
+**運用ルール**：Tech Debt は `docs/tech-debt.md` に「象限・想定返済期限・利息（運用コスト増）」を記録。Sprint 容量の 20% を返済枠として確保。
+
+#### 10-2. System Design Interview 手法を設計に流用
+
+業界トップ企業（Google / Meta / Amazon）の System Design Interview 評価軸を Nao の設計レビューに流用：
+
+```
+1. Requirements Clarification（要件明確化）
+   - Functional / Non-Functional の両方を聞く
+   - 規模見積もり（DAU / Storage / Bandwidth）
+
+2. High-Level Design（高レベル設計）
+   - C4 L1-L2 相当の図
+   - データフローの可視化
+
+3. Deep Dive（詳細設計）
+   - DB スキーマ・API・認証
+   - 性能ボトルネック特定
+
+4. Scale & Bottleneck（スケール対策）
+   - 100x ユーザー時のボトルネック予測
+   - キャッシュ・シャーディング・CDN 戦略
+
+5. Trade-offs（トレードオフ）
+   - 整合性 vs 可用性
+   - レイテンシ vs スループット
+```
+
+**Nao の活用**：設計レビュー時に上記 5 観点を Self-Q&A 形式で実施。「100x で何が壊れるか」を必ず想定。
+
+---
+
+## 📝 Daily Knowledge Log（業界トップ水準スキル拡張版）
+
+### 2026-05-27（追加：Architect Overspec 実務知見）
+
+- **FURPS+ × INVEST × MoSCoW の 3 種同時適用で要件品質スコア化**：要件定義書の各機能に「FURPS+ 5 区分の数値目標」「INVEST 6 観点の Pass/Fail」「MoSCoW 4 段階の優先度」を 3 軸スコアリング、合計 15 項目で機能品質を可視化。合計 80% 未満なら STEP 2 着手しない厳格運用（理由：要件品質の劣化は後工程で 10 倍コスト）。実例：採用 SaaS で要件品質 65% → 設計戻り 3 回 → 3 軸運用後 1 回。
+- **Event Storming Workshop 90 分の ROI 13 倍**：Big Picture Event Storming（90 分）で得られる「Bounded Context 境界線 + ドメインイベント時系列」が設計後の「思ってたのと違う」差し戻し 20 時間を構造的に予防（理由：暗黙のドメイン知識を物理可視化することで全員の脳内モデルが同期）。Miro/FigJam テンプレを LET 標準化、新規案件で必ず実施。
+- **C4 Model + Mermaid + Structurizr DSL の 3 段活用**：ホワイトボード議論 = Excalidraw、設計書同梱 = Mermaid、公式ドキュメント = Structurizr DSL（IDE 自動同期可）。図の抽象度を読者層で使い分け、L1（経営層）/ L2（リーダー）/ L3（実装者）の物理分離で「誰向けの図か」を明確化（理由：図の抽象度ミスマッチが設計理解のボトルネック）。実例：クライアント説明 = L1 / Kai 説明 = L2 / Riku/Ao 説明 = L3 で読破時間 70% 短縮。
+- **ADR 連番運用で「なぜこれ選んだ？」議論の半年後再発をゼロ化**：`docs/adr/0001-orm-prisma.md` から連番管理、Status（Proposed/Accepted/Deprecated/Superseded）で進化を追跡。一度 Accepted は変更禁止、方針転換は新規 ADR で Superseded（理由：意思決定の歴史を資産化することで組織知識が個人依存から離脱）。新メンバー onboarding 時間が 8 時間 → 2 時間に短縮。
+- **STRIDE Threat Modeling × DREAD スコアリングで脅威優先度可視化**：S/T/R/I/D/E 6 カテゴリで全 API・全 DB・全外部連携をスキャン、各脅威に DREAD（Damage/Reproducibility/Exploitability/Affected Users/Discoverability）5 軸スコアを付与、合計 30 点中 20 点以上の脅威は STEP 2 完了前に Mitigation 必須（理由：脅威モデリングは設計段階の方が修正コストが 100 分の 1）。実例：応募 SaaS で R（応募取消否認）DREAD 22 点 → 監査ログ設計追加 → 法的トラブル予防完了。
+- **Capacity Planning の 3 公式で設計段階のインフラ見積精度 95%**：① 想定 peak RPS = DAU × 操作回数 × ピーク係数 ② DB 容量 5 年 = レコードサイズ × 件数 × 成長率 ③ 帯域 peak = 平均レスポンス × peak RPS。3 公式で算出した数値を根拠に Vercel/Supabase プラン選定、Kuu のインフラ設計に連動（理由：勘での見積もりは本番運用 3 か月後に破綻、数値根拠なら予測精度 95%）。実例：採用 SaaS 設計時 peak 42 RPS 算出 → Vercel Pro 妥当性確認 → 本番運用半年後ピーク 38 RPS で予測精度 90%。
+- **AI-Assisted Architecture で設計工数 60% 削減**：Claude Projects に architect-checklist.md + 過去優良設計書 3 件を組込、Notion AI 2.0 で議事録→ユースケース表自動生成、Cursor で Prisma schema 補完、Eraser.io で C4 図 + 説明文同時生成。Nao は「人間判断必須項目（業務ドメイン妥当性・ユーザー心理順）」に時間集中（理由：機械的チェックは AI 委譲、創造的判断に人手集中の役割分担最適化）。実例：設計工数 16 時間 → 6 時間（60% 削減）、品質スコアは 92% → 95% で同時向上。
+

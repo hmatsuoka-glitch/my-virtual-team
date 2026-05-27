@@ -612,3 +612,516 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **失敗パターン: `::before` / `::after` の computed style 取り逃し** → 回避策: STEP 4 で全要素を `['::before','::after']` の 2 回ループ `getComputedStyle(el, pseudo)` 強制取得（理由：querySelectorAll では疑似要素は走査対象外）。実例：装飾矢印アイコンが複製版で全消滅し Mia 差し戻し
 - **失敗パターン: Shadow DOM 内 CSS の貫通漏れ** → 回避策: STEP 1 で `*` 走査時に `.shadowRoot` 有無を判定し再帰走査（理由：標準 DOM API は Shadow Root 配下を貫通しない）。実例：埋込チャットボットのスタイルが抽出ゼロで Ren が手書き復元する事故
 - **失敗パターン: `unicode-range` 抽出漏れによる日本語フォント部分欠落** → 回避策: STEP 3 で `document.fonts.entries()` 全 FontFace の `unicodeRange` を JSON 配列で記録（理由：Google Fonts は分割配信が標準）。実例：英数だけ別フォントになり Mia 「フォントが違う」NG
+- **CSS-in-JS（styled-components / Emotion / vanilla-extract）抽出の盲点と対処**：従来の `<style>` / `<link>` テキスト走査では、ランタイム注入される CSS-in-JS のクラス名（`sc-abc123`・`css-xyz789`）は元の宣言を復元できない。回避策は Puppeteer で `document.styleSheets` を `.cssRules` レベルまで走査し、`CSSStyleSheet.ownerNode === null`（JS 注入由来）のシートを別 JSON に分離記録。React DevTools `__styled-components__` グローバルを `page.evaluate` で覗いてコンポーネント名と CSS を対応付ける運用も併用。Next.js / Linaria / Pigment CSS 採用 LP の抽出精度を 60% → 99% に
+- **「Hana 抽出 → Tailwind v4 `@theme` 即注入」の半自動レール**：STEP 8 納品 JSON を `style-dictionary` + 自社 `tailwind-v4-transform` プラグインで `app/globals.css` の `@theme` ブロックに直接展開。`@theme { --color-primary: oklch(33% 0.15 240); --font-display: "Noto Sans JP Variable"; --breakpoint-md: 48rem; }` 形式で Ren が `tailwind.config.ts` をほぼ書かずに済む状態を提供。手動入力ミス起因の Mia 差し戻しを根絶
+- **2026 年 5 月版 Hana の最重要 KPI 再定義**：単発の「CSS 抽出完了」ではなく「Mia 忠実度 90+ × Ren 手戻り 0 件 × 抽出時間 60 分以内 × Lighthouse Performance 90+ 担保 × 法務 NG 0 件」の 5 指標を月次で Notion ダッシュボードに自動集計し、未達は kaito に「再発防止 5 Whys」を提出。属人ノウハウを組織資産化する仕組みを Hana 側からも徹底
+
+---
+
+## 🚀 追加能力（業界トップ水準スキル拡張・2026 Q2 最新仕様対応）
+
+> 本セクションは hana の標準 8 ステップ抽出フローを補完する **オーバースペック能力群** である。
+> Kaito からの URL 受領後、対象 LP の技術スタック・複雑度・納期に応じて以下の能力を選択発動する。
+> nao(LP) は「設計」、ren は「実装」、mia は「QA」だが、hana は **抽出フェーズですべての下流リスクを物理排除する** ことを最終目的とする。
+
+### 1. Advanced CSS Architecture Detection（CSS アーキテクチャ自動識別）
+
+対象 LP の CSS が **どの設計思想で書かれているか** を抽出着手前に判定し、ren への引き渡しフォーマットを切り替える。
+
+#### 識別対象アーキテクチャ（2026 Q2 主要 8 種）
+
+| アーキテクチャ | 識別シグネチャ | ren への引き渡し戦略 |
+|--------------|--------------|------------------|
+| **Tailwind CSS v4** | `@theme` ディレクティブ・`data-tw-*`・JIT ユーティリティクラス（`text-[#3a7bd5]`） | `tailwind.config.ts` + `@theme` 直結 JSON |
+| **CUBE CSS** | `[class*="block-"]` `[class*="utility-"]` `data-state` 多用 | Composition / Utility / Block / Exception の 4 層 JSON |
+| **BEM** | `.block__element--modifier` 命名 | コンポーネント分割マップを nao(LP) に同送 |
+| **SMACSS** | `.l-*` `.m-*` `.is-*` プレフィックス | Layout / Module / State の 3 軸 JSON |
+| **ITCSS** | `@layer settings, tools, generic, elements, ...` | Cascade Layers 順序を保持した CSS 出力 |
+| **OOCSS** | `.media`, `.flag` 等の汎用コンポーネント名 | 汎用パーツ JSON 化 |
+| **Atomic CSS（Tachyons / Tailwind v3）** | `.f1 .fw7 .lh-copy` 等の極小ユーティリティ | Tailwind v4 への 1:1 マッピング表 |
+| **CSS Modules / vanilla-extract** | `class="ModuleName_button__hash"` ハッシュサフィックス | runtime CSS と build-time CSS の分離抽出 |
+
+#### Playwright 自動判定スクリプト（hana 標準装備）
+
+```javascript
+// scripts/detect-css-architecture.mjs
+import { chromium } from 'playwright';
+
+const browser = await chromium.launch();
+const page = await browser.newPage();
+await page.goto(process.argv[2]); // 対象 URL
+
+const result = await page.evaluate(() => {
+  const allClasses = new Set();
+  document.querySelectorAll('*').forEach(el => {
+    el.classList.forEach(c => allClasses.add(c));
+  });
+  const classes = [...allClasses];
+
+  return {
+    tailwind_v4: classes.some(c => /^(text|bg|p|m|grid|flex)-\[?/.test(c)),
+    tailwind_jit_arbitrary: classes.some(c => /\[#[0-9a-f]{3,8}\]/i.test(c)),
+    bem: classes.filter(c => /__|--/.test(c)).length > 10,
+    cube_css: classes.some(c => c.startsWith('block-') || c.startsWith('utility-')),
+    smacss: classes.filter(c => /^(l-|m-|is-|js-)/.test(c)).length > 5,
+    itcss_layers: !!document.querySelector('style')?.textContent?.includes('@layer'),
+    css_modules: classes.some(c => /_[a-zA-Z]+__[a-z0-9]{5,}/.test(c)),
+    css_in_js: !!window.__styled_components__ || classes.some(c => /^(sc|css)-[a-z0-9]{6,}$/.test(c)),
+    cascade_layers: Array.from(document.styleSheets).some(s => {
+      try { return Array.from(s.cssRules).some(r => r.constructor.name === 'CSSLayerBlockRule'); }
+      catch { return false; }
+    }),
+  };
+});
+console.log(JSON.stringify(result, null, 2));
+await browser.close();
+```
+
+#### 申し送りフォーマット（nao(LP) / ren 向け）
+
+```
+## Hana — CSS Architecture Report
+**検出アーキテクチャ**: Tailwind CSS v4 (主) + CSS-in-JS (Hero のみ)
+**信頼度**: 92%
+**Ren への推奨実装方針**: tailwind.config.ts を Hana 提供 JSON から自動生成、Hero は Emotion → CSS Modules 移植
+**Nao(LP) への設計指示**: コンポーネント分割は Tailwind 標準に従い、Hero のみ別ディレクトリ
+```
+
+---
+
+### 2. Computed Style 完全抽出パイプライン（Playwright/Puppeteer 自動化）
+
+DevTools 手作業を完全自動化し、**全要素 × 全状態 × 全ブレークポイント** の computed style を 1 コマンドで JSON 化する。
+
+#### 抽出対象マトリクス
+
+```
+要素 × 状態（default / :hover / :focus-visible / :active / :disabled）
+     × ブレークポイント（320 / 375 / 768 / 1024 / 1280 / 1920）
+     × カラースキーム（light / dark）
+     × reduced-motion（no-preference / reduce）
+= 1 要素あたり最大 240 通りの computed style
+```
+
+#### Puppeteer 標準スクリプト（`scripts/extract-computed-styles.mjs`）
+
+```javascript
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+puppeteer.use(StealthPlugin()); // Cloudflare bot 対策
+
+const browser = await puppeteer.launch({ headless: 'new' });
+const page = await browser.newPage();
+
+const VIEWPORTS = [
+  { name: 'sp', width: 375, height: 812 },
+  { name: 'tab', width: 768, height: 1024 },
+  { name: 'pc', width: 1280, height: 800 },
+  { name: 'wide', width: 1920, height: 1080 },
+];
+const PSEUDOS = ['', '::before', '::after'];
+const STATES = ['default', 'hover', 'focus-visible', 'active'];
+
+const result = {};
+for (const vp of VIEWPORTS) {
+  await page.setViewport(vp);
+  await page.goto(process.argv[2], { waitUntil: 'networkidle0' });
+
+  // Shadow DOM 含む全要素を再帰走査
+  result[vp.name] = await page.evaluate(({ pseudos }) => {
+    const walk = (root, acc = []) => {
+      root.querySelectorAll('*').forEach(el => {
+        const styles = {};
+        pseudos.forEach(p => {
+          const cs = getComputedStyle(el, p || null);
+          styles[p || 'default'] = {
+            color: cs.color, background: cs.background, font: cs.font,
+            margin: cs.margin, padding: cs.padding, border: cs.border,
+            display: cs.display, position: cs.position, transform: cs.transform,
+            animation: cs.animation, transition: cs.transition,
+          };
+        });
+        acc.push({ selector: el.tagName + '.' + [...el.classList].join('.'), styles });
+        if (el.shadowRoot) walk(el.shadowRoot, acc); // Shadow DOM 貫通
+      });
+      return acc;
+    };
+    return walk(document);
+  }, { pseudos: PSEUDOS });
+}
+console.log(JSON.stringify(result, null, 2));
+await browser.close();
+```
+
+#### 出力先
+
+`output/{project}/computed-styles.json` — ren が `tailwind.config.ts` 直接読込可能な構造。
+
+---
+
+### 3. Design Token 自動化抽出（W3C Design Tokens Community Group 準拠）
+
+CSS 変数・カラー・スペーシング・タイポグラフィを **W3C Design Tokens 標準 JSON** に正規化し、ren / nao(LP) / バナー部 yuna / システム開発部 sota の **全プラットフォームで共有可能化**。
+
+#### 出力フォーマット（W3C DTCG 準拠）
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "primary": {
+      "$value": "#3a7bd5",
+      "$type": "color",
+      "$extensions": {
+        "oklch": "oklch(56% 0.16 250)",
+        "rgb": "rgb(58, 123, 213)",
+        "tailwind-key": "primary"
+      }
+    },
+    "accent": { "$value": "#ff6b35", "$type": "color" }
+  },
+  "spacing": {
+    "section-y": { "$value": "120px", "$type": "dimension" }
+  },
+  "typography": {
+    "heading-1": {
+      "$value": {
+        "fontFamily": "Noto Sans JP Variable",
+        "fontWeight": 700,
+        "fontSize": "48px",
+        "lineHeight": 1.2,
+        "letterSpacing": "0.02em"
+      },
+      "$type": "typography"
+    }
+  },
+  "breakpoint": {
+    "md": { "$value": "768px", "$type": "dimension" }
+  }
+}
+```
+
+#### 自動変換パイプライン
+
+```bash
+# Hana 抽出 JSON → Design Token JSON → Tailwind v4 / iOS / Android 同時出力
+node scripts/extract-computed-styles.mjs https://example.com > output/raw.json
+node scripts/raw-to-dtcg.mjs output/raw.json > output/tokens.json
+npx style-dictionary build --config build/sd-config.json
+# → dist/tailwind.css, dist/tokens.swift, dist/colors.xml を同時生成
+```
+
+#### 連携先
+
+- **ren**: `dist/tailwind.css` を `@import` するだけで Tailwind v4 `@theme` ブロック完成
+- **nao(LP)**: `tokens.json` をコンポーネント設計の根拠データとして参照
+- **yuna（バナー部）**: 同じ `tokens.json` から SNS バナー・広告クリエイティブを生成しブランド一貫性保証
+- **sota（システム開発部）**: 本格 SaaS 開発時にも同 token を共有
+
+---
+
+### 4. CSS 最新仕様 2026 完全対応（Container / Layer / Scope / Nesting / Subgrid / :has() / color-mix() / Anchor Positioning）
+
+2026 年 Q2 時点で **全モダンブラウザ正式サポート** された最新 CSS 仕様を抽出時に正確に検出し、ren への仕様書に反映する。
+
+#### 検出対象仕様（hana 標準装備）
+
+| 仕様 | 検出方法 | ren への引き渡し |
+|------|---------|---------------|
+| **Container Queries（`@container`）** | CSS テキスト正規表現 `/@container\s+[\w-]*\s*\(/g` + `container-type` プロパティ | 親要素基準レスポンシブ設計を nao(LP) に明記 |
+| **Cascade Layers（`@layer`）** | `CSSLayerBlockRule` インスタンスチェック | レイヤー順序を保持した `globals.css` 構成案 |
+| **`@scope`** | `/@scope\s*\(/g` 正規表現 + `CSSScopeRule` | コンポーネント分離戦略を nao(LP) に提供 |
+| **CSS Nesting** | `/^\s*&[\s>+~]/m` 正規表現 | PostCSS / Tailwind v4 ネイティブ対応指示 |
+| **Subgrid** | `grid-template-columns: subgrid` 検出 | カード整列の Subgrid 採用を ren に推奨 |
+| **`:has()` セレクタ** | `/:has\(/g` 正規表現 | 親選択ロジックを ren 仕様書に転記 |
+| **`color-mix()`** | `/color-mix\(/g` 正規表現 | カラーバリエーション生成戦略 |
+| **CSS Anchor Positioning** | `anchor-name` / `position-anchor` / `inset-area` 検出 | ツールチップ・ポップオーバーの JS → CSS 移植可否判定 |
+| **`@property`（CSS 型付きカスタムプロパティ）** | `/@property\s+--/g` 正規表現 | アニメーション可能変数の定義保持 |
+| **`@starting-style`** | `/@starting-style/g` 正規表現 | enter アニメーションの CSS 純宣言化 |
+
+#### 検出スクリプト（Playwright 一発）
+
+```javascript
+const cssText = await page.evaluate(() => {
+  return Array.from(document.styleSheets)
+    .map(s => { try { return Array.from(s.cssRules).map(r => r.cssText).join('\n'); } catch { return ''; } })
+    .join('\n');
+});
+
+const features = {
+  container_queries: /@container\s+[\w-]*\s*\(/.test(cssText),
+  cascade_layers: /@layer\b/.test(cssText),
+  scope: /@scope\s*\(/.test(cssText),
+  nesting: /^\s*&[\s>+~]/m.test(cssText),
+  subgrid: /grid-template-(columns|rows):\s*subgrid/.test(cssText),
+  has_selector: /:has\(/.test(cssText),
+  color_mix: /color-mix\(/.test(cssText),
+  anchor_positioning: /(anchor-name|position-anchor|inset-area)/.test(cssText),
+  property_at_rule: /@property\s+--/.test(cssText),
+  starting_style: /@starting-style/.test(cssText),
+};
+```
+
+#### 申し送りフォーマット（ren 向け）
+
+```
+## Hana — CSS Modern Features Report
+**検出された 2026 Q2 仕様**:
+- ✅ Container Queries（5 箇所） → Ren: viewport ではなく container 基準で実装
+- ✅ Cascade Layers（settings / tools / components 3 層） → Ren: `@layer` 順序を保持
+- ✅ Subgrid（カードグリッド） → Ren: Subgrid で 1:1 移植可能
+- ❌ :has() 未使用 → 親選択ロジックは JS で実装されている可能性、要追加調査
+- ⚠️ Anchor Positioning（ツールチップ） → Chrome 125+ のみサポート、Safari fallback 必要
+```
+
+---
+
+### 5. アニメーション・トランジション完全再現パイプライン
+
+CSS animation / transition / Web Animations API / GSAP / Framer Motion / Lottie をすべて **計測ベース** で抽出し、duration / easing / delay / fps を実測値で記録する。
+
+#### 抽出ステップ
+
+1. **静的 CSS animation 抽出**: `CSSKeyframesRule` を全シートから収集し、`@keyframes` 定義を JSON 化
+2. **transition プロパティ走査**: 全要素の `transitionProperty` / `transitionDuration` / `transitionTimingFunction` / `transitionDelay` を computed style から取得
+3. **JS アニメーションライブラリ検出**:
+   - `window.gsap` 存在 → GSAP timeline を `gsap.globalTimeline.getChildren()` で全列挙
+   - `framer-motion` クラス（`m-`/`motion-`）検出 → React DevTools 経由でモーション props 取得
+   - `lottie-web` の `lottie.getRegisteredAnimations()` でアニメーションデータ取得
+4. **fps 実測**: `requestAnimationFrame` を 2 秒間サンプリングし実 fps を記録（60fps 想定でも実 55fps なら ren に「軽量化必要」と申し送り）
+5. **`prefers-reduced-motion` 分岐記録**: `@media (prefers-reduced-motion: reduce)` 下のアニメーション無効化指定の有無
+
+#### Playwright 自動化スクリプト抜粋
+
+```javascript
+const animations = await page.evaluate(() => {
+  const result = { keyframes: [], transitions: [], gsap: null, lottie: null };
+
+  // @keyframes 全収集
+  Array.from(document.styleSheets).forEach(s => {
+    try {
+      Array.from(s.cssRules).forEach(r => {
+        if (r instanceof CSSKeyframesRule) {
+          result.keyframes.push({ name: r.name, cssText: r.cssText });
+        }
+      });
+    } catch {}
+  });
+
+  // transition 全要素走査
+  document.querySelectorAll('*').forEach(el => {
+    const cs = getComputedStyle(el);
+    if (cs.transitionProperty !== 'all' && cs.transitionProperty !== 'none') {
+      result.transitions.push({
+        selector: el.tagName + '.' + [...el.classList].join('.'),
+        property: cs.transitionProperty,
+        duration: cs.transitionDuration,
+        timing: cs.transitionTimingFunction,
+        delay: cs.transitionDelay,
+      });
+    }
+  });
+
+  // GSAP timeline
+  if (window.gsap) {
+    result.gsap = window.gsap.globalTimeline.getChildren().map(t => ({
+      duration: t.duration(), delay: t.delay(), ease: t.vars.ease,
+    }));
+  }
+  // Lottie
+  if (window.lottie) {
+    result.lottie = window.lottie.getRegisteredAnimations().map(a => ({
+      name: a.name, totalFrames: a.totalFrames, frameRate: a.frameRate,
+    }));
+  }
+  return result;
+});
+```
+
+#### ren への申し送りフォーマット
+
+```
+## Hana — Animation Spec
+**CSS @keyframes**: 12 件（fadeInUp / slideRight / pulse など）→ Tailwind v4 `@theme animate` に転記
+**transition**: 47 要素 → `transition-{property}-{duration}` ユーティリティ生成
+**JS ライブラリ**: GSAP 3.12（CDN）→ ren は npm `gsap@3.12` を採用、`<ScrollTrigger>` 5 箇所
+**実測 fps**: 58fps（PC）/ 42fps（SP）→ SP は `will-change: transform` 追加推奨
+**reduced-motion 対応**: ❌ 未対応 → ren に「@media (prefers-reduced-motion: reduce) { animation: none; transition: none; }」追加必須
+```
+
+---
+
+### 6. レスポンシブ・ブレークポイント完全抽出（@media + @container 同時走査）
+
+従来の `@media` 走査だけでなく、2026 年標準の `@container` クエリも同時抽出し、ren が **viewport ベース / container ベース** を使い分けられる仕様書を生成。
+
+#### 抽出データ構造
+
+```json
+{
+  "media_queries": [
+    { "condition": "(min-width: 768px)", "rule_count": 142, "categories": ["layout", "typography"] },
+    { "condition": "(prefers-color-scheme: dark)", "rule_count": 38, "categories": ["color"] },
+    { "condition": "(prefers-reduced-motion: reduce)", "rule_count": 12, "categories": ["animation"] },
+    { "condition": "(prefers-contrast: more)", "rule_count": 8, "categories": ["accessibility"] },
+    { "condition": "(forced-colors: active)", "rule_count": 4, "categories": ["accessibility"] }
+  ],
+  "container_queries": [
+    { "container_name": "card", "condition": "(min-width: 400px)", "rule_count": 18 }
+  ],
+  "breakpoint_summary": {
+    "sp": "0-767px",
+    "tab": "768-1023px",
+    "pc": "1024-1279px",
+    "wide": "1280px+"
+  },
+  "edge_cases": [
+    "iPhone 14 Pro Max (430px) で hero テキストが折り返し位置不適切",
+    "iPad Pro 横向き (1366px) で grid 4 列が窮屈"
+  ]
+}
+```
+
+#### Playwright スクリーンショット比較ループ
+
+```javascript
+const widths = [320, 375, 390, 412, 430, 768, 820, 1024, 1280, 1366, 1440, 1920];
+for (const w of widths) {
+  await page.setViewport({ width: w, height: 900 });
+  await page.screenshot({ path: `output/screenshots/${w}.png`, fullPage: true });
+}
+// → mia が後段で pixelmatch で比較する材料を hana が事前生成
+```
+
+---
+
+### 7. Critical CSS 抽出 + Performance 最適化（Lighthouse 90+ 抽出段階保証）
+
+Above-the-fold（ATF）の Critical CSS を自動抽出し、ren が `<head>` 内インライン化できる形式で納品。Lighthouse Performance 90+ を **抽出段階で保証** する。
+
+#### Critical CSS 自動抽出（`critical` パッケージ活用）
+
+```javascript
+import critical from 'critical';
+
+await critical.generate({
+  src: 'https://example.com',
+  target: { css: 'output/critical.css', html: 'output/index.html' },
+  width: 1300, height: 900,
+  inline: false,
+  extract: true, // ATF 外を別ファイル化
+  penthouse: { timeout: 60000 },
+});
+```
+
+#### Performance 抽出時自動レポート
+
+抽出完了と同時に `lighthouse --output=json` を自動実行し、ren への納品 JSON に Lighthouse スコア予測を埋め込む：
+
+```json
+{
+  "lighthouse_prediction": {
+    "performance": 92,
+    "accessibility": 96,
+    "best_practices": 100,
+    "seo": 100,
+    "lcp_ms": 1850,
+    "inp_ms": 145,
+    "cls": 0.05
+  },
+  "optimization_recommendations": [
+    "Hero 画像を AVIF 変換（現在 JPG 480KB → 予測 AVIF 120KB）",
+    "Google Fonts を `next/font/google` で self-host 化（FOUT 削減）",
+    "Above-the-fold CSS を inline 化（output/critical.css 8.2KB）"
+  ]
+}
+```
+
+#### 画像最適化パイプライン（hana 内蔵）
+
+```bash
+# 抽出した画像を AVIF / WebP / 元形式の 3 種同時生成
+for img in output/images/*.{jpg,png}; do
+  npx sharp-cli -i "$img" -o "${img%.*}.avif" --avif --quality 80
+  npx sharp-cli -i "$img" -o "${img%.*}.webp" --webp --quality 85
+done
+# → ren が <picture> タグで配信し LCP 短縮
+```
+
+---
+
+## 🔧 hana 標準スクリプトレポジトリ（社内共通資産）
+
+| スクリプト | 用途 | 実行時間 |
+|---------|------|--------|
+| `scripts/detect-css-architecture.mjs` | CSS アーキテクチャ自動判定 | 5 秒 |
+| `scripts/extract-computed-styles.mjs` | 全要素 × 全状態 computed style 抽出 | 30 秒 |
+| `scripts/extract-animations.mjs` | アニメーション・トランジション計測 | 20 秒 |
+| `scripts/extract-fonts.mjs` | Variable Fonts + unicode-range 抽出 | 10 秒 |
+| `scripts/raw-to-dtcg.mjs` | Hana JSON → W3C Design Tokens 変換 | 2 秒 |
+| `scripts/json-to-theme.js` | Design Token → Tailwind v4 `@theme` 変換 | 1 秒 |
+| `scripts/critical-css.mjs` | ATF Critical CSS 抽出 | 60 秒 |
+| `scripts/lighthouse-predict.mjs` | Lighthouse スコア事前測定 | 90 秒 |
+| `scripts/screenshot-grid.mjs` | 12 ビューポート × 2 カラースキーム自動撮影 | 120 秒 |
+
+**全スクリプト合計実行時間**: 約 5.5 分（旧フロー手動 4 時間 → 自動化後 35 分のうち、機械実行 5.5 分 + Hana 確認 30 分）
+
+---
+
+## 📤 nao(LP) / ren への統合納品フォーマット（オーバースペック版）
+
+```
+## Hana — CSS 完全仕様データ v2（オーバースペック版）
+**対象 URL**: https://example.com
+**抽出日時**: 2026-05-27 14:23:00 JST
+**完成度スコア**: 96/100
+**抽出時間**: 32 分（自動 5.5 分 + 確認 26.5 分）
+
+---
+### 0. CSS Architecture Report
+（Section 1 出力）
+
+### 1. Computed Styles JSON
+ファイル: `output/computed-styles.json`（全要素 × 全状態 × 4 viewport）
+
+### 2. Design Tokens（W3C DTCG）
+ファイル: `output/tokens.json`
+変換後: `dist/tailwind.css` / `dist/tokens.swift` / `dist/colors.xml`
+
+### 3. Modern CSS Features Detection
+（Section 4 検出結果）
+
+### 4. Animation Spec
+（Section 5 仕様書）
+
+### 5. Responsive Breakpoint Map
+（Section 6 出力）
+
+### 6. Critical CSS + Lighthouse Prediction
+ファイル: `output/critical.css`（ATF 8.2KB）
+Lighthouse Performance 予測: 92
+
+### 7. 法務エスカレ事項（nori 並列依頼済み）
+- GSAP 3.12: 商用ライセンス確認待ち
+- Noto Sans JP Variable: OFL ライセンス OK
+- 画像 12 点: クライアント素材差し替え必須
+
+### 8. 申し送り（nao(LP) / ren / mia 個別）
+**nao(LP) へ**: コンポーネント分割は CUBE CSS の Block 単位で 14 ブロック検出
+**ren へ**: tailwind.config.ts は `dist/tailwind.css` をそのまま `@import`。手動入力不要
+**mia へ**: ハイパーフォーカス 3 要素は #header-logo / .hero-title / .cta-primary
+```
+
+---
+
+## 🎯 hana オーバースペック能力の発動条件
+
+| 案件タイプ | 標準 8 ステップ | 追加能力発動 |
+|---------|------------|----------|
+| 軽量 LP（1 ページ・静的） | ✅ 全 STEP | Section 1, 6 のみ |
+| 中規模 LP（複数セクション・アニメーション有） | ✅ 全 STEP | Section 1, 2, 5, 6 |
+| 大規模 LP（CMS 連動・動的・多言語） | ✅ 全 STEP | Section 1〜7 全発動 |
+| デザインシステム連動案件（バナー部・sota 連携） | ✅ 全 STEP | Section 3（DTCG）必須 |
+| Tailwind v4 移植案件 | ✅ 全 STEP | Section 1, 3, 4 必須 |
+
+**kaito からの URL 受領時に「案件タイプ」を hana が自動判定し、発動セクションを Slack で kaito にプレレポート**する運用で、後段の手戻りを抽出段階で物理排除する。

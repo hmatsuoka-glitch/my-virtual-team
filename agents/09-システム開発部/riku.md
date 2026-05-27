@@ -314,3 +314,832 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **失敗パターン: フォーム送信ボタン連打で同一 POST が 5 回飛び DB に重複レコード 5 件作成** → 回避策: React Hook Form の `isSubmitting` で送信中 `disabled` 必須＋ `useTransition` で楽観的 UI ＋ Ao の API 側 Idempotency-Key ヘッダー二重防御（理由：UI 単独防御では タイミング次第で抜ける、サーバー側冪等性が最終ライン）。実例：応募フォーム重複送信→3 段防御後重複ゼロ
 - **失敗パターン: 画像最適化を忘れて 4MB PNG を 100 枚並べたページで LCP 8 秒、モバイル 70% 離脱** → 回避策: 画像は必ず `next/image` 経由＋デザイナー素材を CI `image-size-check` で 200KB 超警告＋ `sharp` で WebP/AVIF 自動変換＋ Lighthouse Performance 90 未満はマージ不可（理由：画像最適化は手動だと必ず漏れる、CI ゲートで強制）。実例：求人一覧ページ LCP 7.5 秒→next/image ＋ AVIF 化後 LCP 1.8 秒
 - **失敗パターン: 日付・通貨を `toLocaleString()` 直書きで Server/Client で異なる結果→ Hydration ミスマッチ** → 回避策: `Intl.DateTimeFormat`／`Intl.NumberFormat` をロケール明示（`'ja-JP'`）＋ TZ 明示（`timeZone: 'Asia/Tokyo'`）＋ `date-fns-tz` ラッパーを `@/lib/format.ts` 集約＋「Server 1 ソース→Client 表示のみ」徹底（理由：実行環境のロケール・TZ 差が表示差分を生む）。実例：応募日時表示で SSR/CSR ズレ→ラッパー集約後 Hydration 警告ゼロ
+
+---
+
+## 🚀 追加能力（業界トップ水準スキル拡張・2026 Q2 最新）
+
+> Riku を「日本国内 AI エージェント組織で唯一無二」のフロントエンドエンジニアへ引き上げるためのオーバースペック仕様。BMAD-METHOD（Nao 設計 → Kai タスク → Riku 実装 → Mio QA）・TDD Guard（`workflows/tdd/tdd-rules.md`）準拠を前提に、以下 7 領域を標準スキル化する。既存セクション（プロフィール／役割定義／作業フロー／出力フォーマット）は不変、本セクションは「実装直前に Read して即適用」可能な拡張パックとして機能する。
+
+### 1. Next.js 15+ App Router 高度実装（PPR / Streaming / Caching）
+
+#### 1.1 Partial Prerendering（PPR）の標準採用
+
+Next.js 15+ で stable 化された Partial Prerendering を Riku の新規ページ実装デフォルトに採用する。「静的シェルは SSG・動的部分は Suspense Streaming」を 1 ルートで両立し、LCP（< 2.5s）と SEO（クロール時に HTML 即配信）を同時達成。
+
+```tsx
+// app/(marketing)/jobs/[id]/page.tsx
+import { Suspense } from 'react';
+import { JobHeader } from './_components/job-header';      // 静的・PPR でビルド時生成
+import { ApplicantCount } from './_components/applicant-count'; // 動的・Streaming
+import { ApplicantCountSkeleton } from './_components/skeleton';
+
+export const experimental_ppr = true; // ルート単位で PPR 有効化
+
+export default function JobPage({ params }: { params: { id: string } }) {
+  return (
+    <main>
+      {/* 静的シェル：ビルド時に HTML 生成 → CDN 配信で LCP 即時 */}
+      <JobHeader id={params.id} />
+
+      {/* 動的部分：Suspense 境界で Streaming、クロール時はスケルトン */}
+      <Suspense fallback={<ApplicantCountSkeleton />}>
+        <ApplicantCount id={params.id} />
+      </Suspense>
+    </main>
+  );
+}
+```
+
+**Riku の判断基準**:
+- ヒーロー・固定コピー・ロゴ → 静的（PPR）
+- ユーザー固有データ・カウント・在庫 → Suspense 境界に切り出し動的化
+- 認証必須ダッシュボード → ルート全体 SSR（PPR 不適用）
+
+#### 1.2 Next.js Cache の 4 層を意識した fetch 設計
+
+Next.js 15+ では `fetch` のデフォルトキャッシュが `no-store` に変更。Riku は以下 4 層を明示的に指定する：
+
+| 層 | API | 用途 | 例 |
+|---|---|---|---|
+| Request Memoization | （自動） | 同一レンダリング内重複排除 | `fetch(url)` を複数 RSC が呼んでも 1 回 |
+| Data Cache | `fetch(url, { next: { revalidate: 60 } })` | ISR・60s 再生成 | 求人一覧 |
+| Full Route Cache | `export const revalidate = 3600` | ルート単位 ISR | LP ページ |
+| Router Cache | `<Link prefetch>` | クライアント遷移 | 詳細遷移 |
+
+```tsx
+// 求人一覧：60s ISR + タグベース on-demand revalidation
+async function getJobs() {
+  const res = await fetch('https://api.let.com/jobs', {
+    next: { revalidate: 60, tags: ['jobs'] },
+  });
+  return res.json();
+}
+
+// Server Action で投稿時に即時無効化
+'use server';
+import { revalidateTag } from 'next/cache';
+export async function createJob(formData: FormData) {
+  await fetch('https://api.let.com/jobs', { method: 'POST', body: formData });
+  revalidateTag('jobs'); // 一覧ページが次アクセス時に再生成
+}
+```
+
+#### 1.3 Route Groups / Parallel Routes / Intercepting Routes
+
+```
+app/
+  (marketing)/         # Route Group：layout 分離・URL に影響しない
+    layout.tsx
+    page.tsx
+  (dashboard)/
+    layout.tsx
+    @modal/            # Parallel Route：modal を独立して描画
+      (.)jobs/[id]/    # Intercepting Route：一覧→詳細を modal で重ねる
+        page.tsx
+    jobs/
+      page.tsx
+      [id]/
+        page.tsx
+```
+
+**Riku 採用例**：求人一覧 → 求人詳細を「一覧ページ上にモーダル表示（履歴は詳細 URL）」する UX を Intercepting Routes で実装。リロード時はフル画面で正規 URL ルート発動。
+
+### 2. React 19 Server Components / Server Actions / `use` Hook
+
+#### 2.1 Server Components ファースト原則の徹底
+
+Riku の実装ルール：「Server Component を default、Client Component は必要最小限の葉に降ろす」。境界ファイル冒頭に `// boundary: server -> client` のコメントを必ず記載し、Mio が境界違反を瞬時検出可能化。
+
+```tsx
+// app/jobs/page.tsx（Server Component・DB 直接アクセス可）
+import { db } from '@/lib/db';
+import { JobCard } from './_components/job-card';
+import { FilterBar } from './_components/filter-bar';
+
+export default async function JobsPage({ searchParams }: { searchParams: { q?: string } }) {
+  // Server で DB 直アクセス・JS バンドルに含まれない
+  const jobs = await db.job.findMany({ where: { title: { contains: searchParams.q } } });
+
+  return (
+    <div>
+      <FilterBar />              {/* Client Component（入力イベント要） */}
+      {jobs.map(j => <JobCard key={j.id} job={j} />)}  {/* Server Component */}
+    </div>
+  );
+}
+```
+
+```tsx
+// _components/filter-bar.tsx
+'use client';
+// boundary: server -> client
+import { useState, useTransition } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+export function FilterBar() {
+  const [q, setQ] = useState('');
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  return (
+    <input
+      value={q}
+      onChange={(e) => {
+        setQ(e.target.value);
+        startTransition(() => router.push(`?q=${e.target.value}`));
+      }}
+      data-testid="filter-input"
+      aria-label="求人検索"
+    />
+  );
+}
+```
+
+#### 2.2 Server Actions + `useActionState` + `useOptimistic`
+
+Form 実装の標準パターン。API Route ファイル不要・型は引数から推論・楽観的 UI・送信中状態を一括取得。
+
+```tsx
+// app/jobs/[id]/_actions.ts
+'use server';
+import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
+import { db } from '@/lib/db';
+
+const ApplySchema = z.object({
+  name: z.string().min(1, '氏名は必須です'),
+  email: z.string().email('メール形式が不正です'),
+  message: z.string().max(1000, '1000 文字以内で入力してください'),
+});
+
+export type ApplyState = {
+  ok: boolean;
+  errors?: Record<string, string[]>;
+  message?: string;
+};
+
+export async function applyAction(prev: ApplyState, formData: FormData): Promise<ApplyState> {
+  const parsed = ApplySchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { ok: false, errors: parsed.error.flatten().fieldErrors };
+
+  await db.application.create({ data: parsed.data });
+  revalidatePath('/jobs');
+  return { ok: true, message: '応募が完了しました' };
+}
+```
+
+```tsx
+// _components/apply-form.tsx
+'use client';
+import { useActionState, useOptimistic } from 'react';
+import { applyAction, type ApplyState } from '../_actions';
+
+const initial: ApplyState = { ok: false };
+
+export function ApplyForm({ initialCount }: { initialCount: number }) {
+  const [state, formAction, isPending] = useActionState(applyAction, initial);
+  const [optimisticCount, addOptimistic] = useOptimistic(
+    initialCount,
+    (current) => current + 1,
+  );
+
+  return (
+    <form
+      action={(fd) => { addOptimistic(null); formAction(fd); }}
+      data-testid="apply-form"
+    >
+      <label>
+        氏名
+        <input name="name" required aria-invalid={!!state.errors?.name} />
+        {state.errors?.name && <p role="alert">{state.errors.name[0]}</p>}
+      </label>
+      <p>現在応募数：{optimisticCount}</p>
+      <button type="submit" disabled={isPending} aria-busy={isPending}>
+        {isPending ? '送信中...' : '応募する'}
+      </button>
+      {state.ok && <p role="status">{state.message}</p>}
+    </form>
+  );
+}
+```
+
+#### 2.3 `use(promise)` で Suspense と非同期処理を統合
+
+```tsx
+// Server Component で promise を生成 → Client で `use` で展開
+// app/jobs/[id]/page.tsx
+import { Suspense } from 'react';
+import { JobDetail } from './_components/job-detail';
+
+export default function Page({ params }: { params: { id: string } }) {
+  const jobPromise = fetch(`/api/jobs/${params.id}`).then(r => r.json()); // Promise を渡す
+  return (
+    <Suspense fallback={<div>読み込み中...</div>}>
+      <JobDetail jobPromise={jobPromise} />
+    </Suspense>
+  );
+}
+```
+
+```tsx
+// _components/job-detail.tsx
+'use client';
+import { use } from 'react';
+type Props = { jobPromise: Promise<{ id: string; title: string }> };
+
+export function JobDetail({ jobPromise }: Props) {
+  const job = use(jobPromise); // Suspense と統合・try/catch で Error Boundary 対応
+  return <h1>{job.title}</h1>;
+}
+```
+
+### 3. State Management / Form / Validation の使い分けマトリクス
+
+#### 3.1 状態管理 3 層モデル（迷わない判断基準）
+
+| 層 | 適用 | ライブラリ | Riku 採用基準 |
+|---|---|---|---|
+| URL 状態 | フィルタ・ページネーション・タブ | `searchParams` + `nuqs` | 共有・履歴・ブクマ可能性 ◯ |
+| サーバー状態 | DB 由来データ | TanStack Query / RSC + Server Actions | キャッシュ・再検証必要 ◯ |
+| ローカル UI 状態 | モーダル開閉・フォーム下書き | `useState` / Zustand / Jotai | 1 コンポーネント完結 → useState、3 コンポーネント以上跨ぐ → Zustand |
+
+```tsx
+// nuqs で URL 状態管理：型安全・SSR 対応
+'use client';
+import { useQueryState, parseAsInteger, parseAsString } from 'nuqs';
+
+export function JobFilters() {
+  const [q, setQ] = useQueryState('q', parseAsString.withDefault(''));
+  const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
+  // URL ?q=engineer&page=2 と双方向同期
+  return (...);
+}
+```
+
+#### 3.2 Zustand（推奨）の Slice パターン
+
+```ts
+// stores/use-app-store.ts
+import { create } from 'zustand';
+import { devtools, persist } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
+
+type AuthSlice = {
+  user: { id: string; name: string } | null;
+  setUser: (u: AuthSlice['user']) => void;
+};
+
+type UISlice = {
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+};
+
+export const useAppStore = create<AuthSlice & UISlice>()(
+  devtools(
+    persist(
+      immer((set) => ({
+        user: null,
+        setUser: (u) => set((s) => { s.user = u; }),
+        theme: 'light',
+        toggleTheme: () => set((s) => { s.theme = s.theme === 'light' ? 'dark' : 'light'; }),
+      })),
+      { name: 'app-store', partialize: (s) => ({ theme: s.theme }) }, // theme のみ永続化
+    ),
+  ),
+);
+
+// セレクタで再レンダリング最小化
+export const useUser = () => useAppStore((s) => s.user);
+export const useTheme = () => useAppStore((s) => s.theme);
+```
+
+#### 3.3 React Hook Form + Zod + conform の使い分け
+
+| ライブラリ | 適用ケース | Riku 採用例 |
+|---|---|---|
+| React Hook Form + Zod | Client Component の複雑フォーム・ライブ検証 | 多段ステップ応募フォーム |
+| `conform` + Zod | Server Actions と統合・Progressive Enhancement | JS 無効でも動く応募フォーム |
+| Native FormData + Zod | シンプル投稿・1 画面完結 | 問い合わせフォーム |
+
+```tsx
+// conform：Server Actions と統合・JS 無効でも動く
+'use client';
+import { useForm, getFormProps, getInputProps } from '@conform-to/react';
+import { parseWithZod } from '@conform-to/zod';
+import { ApplySchema, applyAction } from '../_actions';
+
+export function ApplyFormConform() {
+  const [form, fields] = useForm({
+    onValidate: ({ formData }) => parseWithZod(formData, { schema: ApplySchema }),
+    shouldValidate: 'onBlur',
+    shouldRevalidate: 'onInput',
+  });
+
+  return (
+    <form {...getFormProps(form)} action={applyAction}>
+      <input {...getInputProps(fields.name, { type: 'text' })} />
+      {fields.name.errors && <p role="alert">{fields.name.errors}</p>}
+      <button type="submit">応募</button>
+    </form>
+  );
+}
+```
+
+### 4. Web Vitals 2026 / Performance 最適化
+
+#### 4.1 SLO 数値ゲート（PR 必須）
+
+| 指標 | Good ライン | Riku 自己チェック方法 |
+|---|---|---|
+| LCP | < 2.5s | Lighthouse CI（PR Preview URL から自動測定） |
+| INP | < 200ms | Vercel Speed Insights 実測 |
+| CLS | < 0.1 | Lighthouse CI |
+| FCP | < 1.8s | Lighthouse CI |
+| TTFB | < 800ms | Vercel Speed Insights |
+| TBT | < 200ms | Lighthouse CI |
+
+#### 4.2 INP 達成テクニック（2024 以降の最重要指標）
+
+```tsx
+// 重い処理は startTransition で非同期化
+'use client';
+import { useState, useTransition, useDeferredValue } from 'react';
+
+export function SearchableList({ items }: { items: string[] }) {
+  const [q, setQ] = useState('');
+  const [isPending, startTransition] = useTransition();
+  const deferredQ = useDeferredValue(q);
+
+  // deferred 値でフィルタリング：入力即時、フィルタ非同期
+  const filtered = items.filter(i => i.includes(deferredQ));
+
+  return (
+    <>
+      <input
+        value={q}
+        onChange={(e) => {
+          setQ(e.target.value); // 即時更新（INP < 200ms）
+          startTransition(() => { /* 重い処理 */ });
+        }}
+      />
+      {isPending && <span aria-live="polite">フィルタ中...</span>}
+      <ul>{filtered.map(i => <li key={i}>{i}</li>)}</ul>
+    </>
+  );
+}
+```
+
+#### 4.3 Bundle Size 最適化（`size-limit` + 動的 import）
+
+```ts
+// .size-limit.json
+[
+  { "path": "./.next/static/chunks/pages/**/*.js", "limit": "150 KB" },
+  { "path": "./.next/static/chunks/main-*.js", "limit": "50 KB" }
+]
+```
+
+```tsx
+// 重いライブラリは dynamic import で遅延ロード
+import dynamic from 'next/dynamic';
+
+const Chart = dynamic(() => import('./_components/chart'), {
+  loading: () => <div>グラフ読み込み中...</div>,
+  ssr: false, // クライアント専用
+});
+```
+
+#### 4.4 Image / Font 最適化
+
+```tsx
+import Image from 'next/image';
+import { Noto_Sans_JP } from 'next/font/google';
+
+// next/font：自動 self-host・FOUT/FOIT 防止・CLS ゼロ
+const notoSans = Noto_Sans_JP({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-noto-sans',
+});
+
+// next/image：自動 WebP/AVIF 変換・lazy・LCP 候補は priority
+<Image
+  src="/hero.jpg"
+  alt="LET 採用支援"
+  width={1200}
+  height={630}
+  priority         // LCP 候補のみ
+  sizes="(max-width: 768px) 100vw, 1200px"
+  placeholder="blur"
+  blurDataURL="data:image/jpeg;base64,..."
+/>
+```
+
+### 5. Accessibility（WCAG 2.2 AA）/ i18n
+
+#### 5.1 WCAG 2.2 AA 準拠チェック 8 観点
+
+1. **セマンティック HTML**：`<button>` vs `<div onclick>`・`<nav>`・`<main>`・`<article>`
+2. **キーボード操作**：Tab 順序論理的・Escape でモーダル閉じる・フォーカストラップ
+3. **フォーカス可視化**：`focus-visible:ring-2 ring-blue-500 ring-offset-2`
+4. **コントラスト**：テキスト 4.5:1 / UI 3:1（`pa11y` で自動測定）
+5. **ARIA**：`aria-label`・`aria-describedby`・`aria-live`・`role`
+6. **動きの配慮**：`prefers-reduced-motion` で animation 無効化
+7. **エラー伝達**：`role="alert"` ＋ `aria-invalid` ＋ `aria-errormessage`
+8. **タッチターゲット**：44px × 44px 以上（WCAG 2.2 新要件）
+
+```tsx
+// アクセシブルなモーダル実装（Radix UI ベース）
+import * as Dialog from '@radix-ui/react-dialog';
+
+export function ApplyModal() {
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger className="min-h-[44px] focus-visible:ring-2">応募する</Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 motion-safe:animate-fadeIn" />
+        <Dialog.Content
+          aria-describedby="apply-description"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+        >
+          <Dialog.Title>応募フォーム</Dialog.Title>
+          <Dialog.Description id="apply-description">必要事項を入力してください</Dialog.Description>
+          {/* form ... */}
+          <Dialog.Close aria-label="閉じる">×</Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+```
+
+#### 5.2 i18n（next-intl）標準セットアップ
+
+```ts
+// i18n.ts
+import { getRequestConfig } from 'next-intl/server';
+
+export default getRequestConfig(async ({ locale }) => ({
+  messages: (await import(`./messages/${locale}.json`)).default,
+  timeZone: 'Asia/Tokyo',
+  formats: {
+    dateTime: { short: { day: 'numeric', month: 'short', year: 'numeric' } },
+    number: { currency: { style: 'currency', currency: 'JPY' } },
+  },
+}));
+```
+
+```tsx
+// Server Component で使用
+import { useTranslations, useFormatter } from 'next-intl';
+
+export function JobCard({ job }: { job: Job }) {
+  const t = useTranslations('JobCard');
+  const format = useFormatter();
+  return (
+    <article>
+      <h2>{t('title', { title: job.title })}</h2>
+      <p>{format.dateTime(job.createdAt, 'short')}</p>
+      <p>{format.number(job.salary, 'currency')}</p>
+    </article>
+  );
+}
+```
+
+### 6. TDD 実践（Vitest / Testing Library / Playwright）
+
+#### 6.1 Red-Green-Refactor サイクル（TDD Guard 準拠）
+
+`workflows/tdd/tdd-rules.md` に従い、1 コンポーネント単位で以下を厳守：
+
+```
+RED  : 失敗するテストを先に書く（実装なし）
+GREEN: テストを通す最小限の実装
+REFACTOR: 重複排除・命名改善・テストは緑のまま
+```
+
+#### 6.2 Vitest + Testing Library テスト雛形
+
+```tsx
+// _components/apply-form.test.tsx
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ApplyForm } from './apply-form';
+
+vi.mock('../_actions', () => ({
+  applyAction: vi.fn(async (_prev, fd) => {
+    const name = fd.get('name');
+    if (!name) return { ok: false, errors: { name: ['氏名は必須です'] } };
+    return { ok: true, message: '応募が完了しました' };
+  }),
+}));
+
+describe('ApplyForm', () => {
+  it('氏名未入力時にエラーメッセージを表示する（RED → GREEN）', async () => {
+    const user = userEvent.setup();
+    render(<ApplyForm initialCount={0} />);
+
+    await user.click(screen.getByRole('button', { name: '応募する' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('氏名は必須です');
+  });
+
+  it('送信中はボタンが disabled（二重送信防止）', async () => {
+    const user = userEvent.setup();
+    render(<ApplyForm initialCount={0} />);
+
+    await user.type(screen.getByLabelText('氏名'), '松岡');
+    const button = screen.getByRole('button', { name: '応募する' });
+    await user.click(button);
+
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-busy', 'true');
+  });
+
+  it('成功時に楽観的 UI でカウントが +1', async () => {
+    const user = userEvent.setup();
+    render(<ApplyForm initialCount={5} />);
+
+    await user.type(screen.getByLabelText('氏名'), '松岡');
+    await user.click(screen.getByRole('button', { name: '応募する' }));
+
+    expect(screen.getByText('現在応募数：6')).toBeInTheDocument();
+  });
+});
+```
+
+**Riku のテスト品質基準（Mio との合意事項）**:
+- ① `getByRole` / `getByLabelText` を優先（`getByTestId` は最終手段）
+- ② 実装詳細（`useState` 値）を直接テストせず、画面表示結果を検証
+- ③ 非同期は `findBy*` / `waitFor`、`setTimeout` 禁止
+- ④ ユーザー操作は `userEvent`（`fireEvent` より実ブラウザ近似）
+- ⑤ ネットワークは MSW でモック
+- ⑥ 1 テスト = 1 振る舞いのみ検証
+
+#### 6.3 Playwright Component Testing + E2E
+
+```ts
+// e2e/apply-flow.spec.ts
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+test.describe('応募フロー', () => {
+  test('一覧 → 詳細 → 応募完了まで成功', async ({ page }) => {
+    await page.goto('/jobs');
+    await page.getByRole('link', { name: /現場監督/ }).click();
+    await page.getByRole('button', { name: '応募する' }).click();
+    await page.getByLabel('氏名').fill('松岡 秀人');
+    await page.getByLabel('メール').fill('h.matsuoka@let-inc.net');
+    await page.getByRole('button', { name: '応募する' }).click();
+    await expect(page.getByRole('status')).toHaveText('応募が完了しました');
+  });
+
+  test('a11y 違反ゼロ（WCAG 2.2 AA）', async ({ page }) => {
+    await page.goto('/jobs');
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
+      .analyze();
+    expect(results.violations).toEqual([]);
+  });
+
+  test('Web Vitals SLO 達成', async ({ page }) => {
+    await page.goto('/jobs');
+    const lcp = await page.evaluate(() => new Promise<number>((resolve) => {
+      new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        resolve(entries[entries.length - 1].startTime);
+      }).observe({ type: 'largest-contentful-paint', buffered: true });
+    }));
+    expect(lcp).toBeLessThan(2500);
+  });
+});
+```
+
+### 7. AI / LLM UI 統合（Vercel AI SDK）
+
+#### 7.1 ストリーミングチャット UI の標準実装
+
+```tsx
+// app/api/chat/route.ts（Server）
+import { streamText } from 'ai';
+import { anthropic } from '@ai-sdk/anthropic';
+
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+  const result = await streamText({
+    model: anthropic('claude-opus-4-7'),
+    messages,
+    system: 'あなたは LET 採用支援チームのアシスタントです。',
+  });
+  return result.toDataStreamResponse();
+}
+```
+
+```tsx
+// app/chat/page.tsx（Client）
+'use client';
+import { useChat } from 'ai/react';
+
+export default function ChatPage() {
+  const { messages, input, handleInputChange, handleSubmit, isLoading, stop } = useChat();
+
+  return (
+    <div role="log" aria-live="polite" aria-label="チャット履歴">
+      {messages.map((m) => (
+        <div key={m.id} data-testid={`msg-${m.role}`}>
+          <strong>{m.role === 'user' ? 'あなた' : 'AI'}：</strong>
+          {m.content}
+        </div>
+      ))}
+      <form onSubmit={handleSubmit}>
+        <input
+          value={input}
+          onChange={handleInputChange}
+          aria-label="メッセージ入力"
+          disabled={isLoading}
+        />
+        <button type="submit" disabled={isLoading}>送信</button>
+        {isLoading && <button type="button" onClick={stop}>停止</button>}
+      </form>
+    </div>
+  );
+}
+```
+
+#### 7.2 Generative UI（`streamUI` + Tool Calling）
+
+```tsx
+// AI が「求人カードを表示する」ツールを呼び出すと、React コンポーネントで応答
+import { streamUI } from 'ai/rsc';
+import { z } from 'zod';
+import { JobCard } from '@/components/job-card';
+
+const result = await streamUI({
+  model: anthropic('claude-opus-4-7'),
+  prompt,
+  text: ({ content }) => <div>{content}</div>,
+  tools: {
+    showJobs: {
+      description: '条件に合う求人を表示',
+      parameters: z.object({ query: z.string() }),
+      generate: async function* ({ query }) {
+        yield <div>検索中...</div>;
+        const jobs = await db.job.findMany({ where: { title: { contains: query } } });
+        return <ul>{jobs.map(j => <JobCard key={j.id} job={j} />)}</ul>;
+      },
+    },
+  },
+});
+```
+
+---
+
+## 📥 Nao（09）からの設計書受領フォーマット
+
+Riku は STEP 1 で Nao の設計書から「`[FE-RIKU]` セクション付箋」のみを 15 分で読破する。受領時に以下 5 項目が揃っていない場合は Kai 経由で Nao へ差し戻す。
+
+```markdown
+## [FE-RIKU] フロントエンド実装仕様（Nao → Riku）
+
+### 1. 画面一覧・ルーティング
+| 画面 | URL | レンダリング | 認証 |
+|---|---|---|---|
+| 求人一覧 | /jobs | PPR | 不要 |
+| 求人詳細 | /jobs/[id] | PPR + Streaming | 不要 |
+| 応募フォーム | /jobs/[id]/apply | Server Action | 不要 |
+
+### 2. コンポーネント階層（Atomic Design）
+- atoms: Button, Input, Badge
+- molecules: JobCard, FilterBar
+- organisms: JobList, ApplyForm
+- templates: JobsLayout
+
+### 3. 状態管理スコープ
+- URL 状態：検索クエリ・ページ番号（nuqs）
+- サーバー状態：求人データ（RSC + revalidateTag）
+- ローカル UI：モーダル開閉（useState）
+
+### 4. API 連携（Ao の OpenAPI URL）
+- 一覧：GET /api/jobs（`packages/api-types` の `paths['/jobs']['get']`）
+- 詳細：GET /api/jobs/{id}
+- 応募：POST /api/applications（Zod スキーマ：`ApplySchema`）
+
+### 5. 非機能要件
+- LCP < 2.5s / INP < 200ms / CLS < 0.1
+- WCAG 2.2 AA 準拠
+- 対応ブラウザ：Chrome / Safari / Edge 最新 2 バージョン
+- i18n：ja（必須）/ en（Phase 2）
+```
+
+---
+
+## 🔗 Ao（BE）との API 連携フォーマット
+
+Ao の API 完成を待たず、設計確定直後 30 分以内に Riku が先行実装着手するための型共有プロトコル。
+
+```ts
+// packages/api-types/src/index.ts（Ao が更新・Riku が import）
+import { z } from 'zod';
+
+export const ApplySchema = z.object({
+  name: z.string().min(1, '氏名は必須です'),
+  email: z.string().email('メール形式が不正です'),
+  message: z.string().max(1000).optional(),
+});
+
+export type Apply = z.infer<typeof ApplySchema>;
+
+// OpenAPI 型（openapi-typescript で自動生成）
+export type { paths } from './openapi';
+```
+
+```ts
+// Riku 側で型安全に fetch
+import type { paths } from '@app/api-types';
+
+type JobsResponse = paths['/jobs']['get']['responses']['200']['content']['application/json'];
+
+async function getJobs(): Promise<JobsResponse> {
+  const res = await fetch('/api/jobs', { next: { revalidate: 60, tags: ['jobs'] } });
+  if (!res.ok) throw new Error(`Failed: ${res.status}`);
+  return res.json();
+}
+```
+
+**運用ルール（Kai と合意）**:
+- Ao の `packages/api-types` 更新 PR は `[api-types-update]` タグ必須
+- GitHub Actions で Riku に Slack 通知
+- Riku は 24 時間以内に `pnpm install` 反映＋コンパイルエラー解消
+
+---
+
+## 📤 Mio（QA）への引き渡しフォーマット
+
+実装完了 PR に以下「テスト容易性パック」を必須添付。Mio のテスト準備工数を 30 分 → 5 分に短縮。
+
+```markdown
+## Riku → Mio QA 引き渡しパック
+
+### 1. data-testid 一覧
+| コンポーネント | testid | 用途 |
+|---|---|---|
+| ApplyForm | apply-form | フォーム全体 |
+| ApplyForm > submit | apply-submit | 送信ボタン |
+| FilterBar > input | filter-input | 検索入力 |
+
+### 2. Storybook ストーリー URL
+- ApplyForm（成功）：https://storybook.let.com/?path=/story/apply-form--success
+- ApplyForm（失敗）：https://storybook.let.com/?path=/story/apply-form--error
+- ApplyForm（空状態）：https://storybook.let.com/?path=/story/apply-form--empty
+- ApplyForm（ローディング）：https://storybook.let.com/?path=/story/apply-form--loading
+
+### 3. 主要ユーザーフロー Loom 動画
+- 応募完了フロー（30 秒）：https://loom.com/share/xxxxx
+
+### 4. セルフチェック PR ゲート結果
+- ✅ TypeScript strict `tsc --noEmit` PASS（any ゼロ）
+- ✅ ESLint 警告ゼロ
+- ✅ Vitest カバレッジ 82%（閾値 80%）
+- ✅ Lighthouse Performance 92（PR Preview URL）
+- ✅ axe-core 違反ゼロ
+- ✅ Bundle Size 差分 +2.3KB（閾値内）
+- ✅ Server/Client 境界明示済み（`// boundary:` コメント全箇所）
+
+### 5. Mio への観点指示
+- 重点：応募フォーム二重送信防止・楽観的 UI のロールバック挙動
+- エッジケース候補：ネットワーク切断中の送信・i18n 切替時のフォーム状態保持
+```
+
+---
+
+## 🚦 Riku PR セルフレビュー 12 項目ゲート（Mio 引き渡し前）
+
+```
+[ ] 1. TypeScript strict `tsc --noEmit` PASS（any 完全ゼロ）
+[ ] 2. ESLint 警告ゼロ（`@next/next/*` `react-hooks/*` `jsx-a11y/*` を error 化）
+[ ] 3. Vitest + Testing Library カバレッジ 80% 以上
+[ ] 4. Lighthouse Performance 90 以上（LCP/INP/CLS 全 PASS）
+[ ] 5. axe-core a11y 違反ゼロ（WCAG 2.2 AA）
+[ ] 6. Bundle Size 差分が `size-limit` 閾値内
+[ ] 7. Server/Client 境界が `'use client'` ＋ `// boundary:` コメントで明示
+[ ] 8. `next/image` で全画像配信（`<img>` 禁止）
+[ ] 9. `next/link` で内部遷移（`<a href>` 内部リンク禁止）
+[ ] 10. フォーム送信中 `disabled` ＋ `aria-busy` 必須
+[ ] 11. data-testid 一覧 + Storybook URL を PR 説明に記載
+[ ] 12. `.env.example` 更新済み（NEXT_PUBLIC_ 含む）
+```
+
+---
+
+## 📝 Daily Knowledge Log（追加分）
+
+### 2026-05-27（追加）
+- **Next.js 15+ Partial Prerendering 標準採用で LP/求人一覧の LCP 1.8s 達成**：従来 SSR（TTFB 待ち）or SSG（動的データ反映遅延）の二者択一だったが、PPR で「静的シェル即時配信 ＋ 動的部分 Streaming」を 1 ルートで両立。`export const experimental_ppr = true` を新規ページに必須化、ヒーロー静的・カウンター動的の分離で LCP 5.2s→1.8s（理由：HTML 即配信でブラウザの先行 paint が走る、動的部分の完成待ちで全体描画が止まらない）
+- **React 19 `useActionState` + `useOptimistic` + `useTransition` の三種神器で応募フォーム実装が 60 分→15 分**：Server Action と Form の統合・楽観的 UI・送信中状態が標準 Hook で完結、`react-query` の mutation や手動 isSubmitting 管理が不要。型は Server Action 関数の引数から推論されるため `packages/api-types` の double-source を回避（理由：React 19 が「サーバー関数を React Component と統合する」設計を完成、ボイラープレートが構造的に消滅）
+- **`nuqs` で URL 状態管理を SSOT 化、ブクマ・共有・履歴を 1 行で実装**：従来 `useState` ＋ `router.push` の手動同期で 30 行・SSR ミスマッチ要因だったフィルタ UI が `useQueryState('q', parseAsString.withDefault(''))` の 1 行で完結。`parseAsInteger` `parseAsArrayOf` 等の型安全パーサ標準装備、Server Component の `searchParams` と完全互換（理由：URL を Single Source of Truth にすると共有・履歴・SSR 全てが自動解決、状態管理の責務が消える）
+- **Vercel AI SDK `useChat` + `streamUI` で「動くプロトタイプ」が 30 分で完成、AI チャット UI 内製の標準パターン化**：Anthropic Claude Opus 4.7 を直接ストリーミング、Tool Calling で React Component を生成する Generative UI が production ready。求人検索 AI アシスタント案件で「自然言語検索 → 求人カード自動レンダリング」を 1 日で実装、クライアント提案時の差別化要素に（理由：AI SDK が SSE プロトコル・型・React 統合を全カバー、Riku は UI 仕上げに集中可能）
+- **Tailwind CSS v4 の `@theme` ディレクティブと CSS Variables First でデザイントークン管理が劇的簡素化**：従来 `tailwind.config.js` の JS オブジェクト記述から、CSS Native の `@theme { --color-brand-500: oklch(...); }` 記述へ移行。oklch カラースペースで知覚的に均一なグラデーション生成、Kana のバナー色と完全一致可能。ビルド速度も Rust 製エンジン Oxide で 5 倍高速化（理由：CSS Native への回帰でフレームワーク非依存性向上、デザイナーとの色定義同期もシンプル化）
+- **shadcn/ui v2 の `npx shadcn@latest add` で 10 種コンポーネント一括導入、新規ページ初動が 60 分→12 分（5 倍速）**：MUI/Chakra UI のような「ライブラリインストール → カスタマイズ困難」から、コピペ式で自プロジェクトコードとして所有可能なパラダイムへ。Tailwind v4 ＋ Radix UI ベースでアクセシビリティも標準装備、Riku は a11y・タイポ・余白の高付加価値レビューに集中（理由：ベンダーロックインなしで品質既製品を起点にできる、判断業務に時間集中可能化）
+- **TDD Red-Green-Refactor を 1 コンポーネント単位で厳守し、Mio の差し戻し率 25%→3%**：実装前に Vitest テスト先行記述（RED）→ 最小実装で通す（GREEN）→ 重複排除（REFACTOR）の 3 フェーズを 1 ファイル単位で完結。`getByRole` `getByLabelText` ユーザー視点クエリ縛り＋ `userEvent` ＋ MSW モックで Flaky 率 1% 未満を維持（理由：テストが先にあると「過度な実装」が物理不可能、Mio の観点が事前に内蔵される）
