@@ -346,3 +346,183 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **失敗パターン: Prisma の Connection Pool 上限未指定で本番デプロイ時に「Too many connections」全停止** → 回避策: `DATABASE_URL` に `?connection_limit=1&pool_timeout=10` 明示＋外部 Pooler（PgBouncer／Neon Pooler／Supabase Pooler）経由必須化（理由：Vercel Functions は関数毎に Pool が独立するため瞬時に DB max_connections 超過）。実例：採用 SaaS 本番反映 5 分で 500 連発→Pooler 経由化後接続エラー消滅
 - **失敗パターン: JWT の `exp` クレーム未検証で `jwt.decode()` だけで信頼し有効期限切れ・改ざんトークンを受理** → 回避策: `jose.jwtVerify()` で `algorithms`/`audience`/`issuer`/`exp`/`nbf` を必須検証、自前 decode を ESLint で禁止＋ JWKs エンドポイント TTL 10 分キャッシュ＋ `alg: none` 攻撃防止のホワイトリスト化（理由：decode は base64 復号のみで署名検証しないため認可バイパス容易）。実例：管理画面で改ざんトークン受理→jwtVerify 移行後認証バイパスゼロ
 - **失敗パターン: Redis キャッシュの TTL 未設定で `SET key value` してメモリ無限増殖で数ヶ月後に OOM** → 回避策: 全 `SET` 操作で `EX 3600` TTL 必須化＋ `cache.set(key, value, ttlSeconds)` ラッパーで TTL 引数必須＋ Redis `maxmemory-policy: allkeys-lru` 設定（理由：TTL なしキャッシュは永久残存しメモリ枯渇トリガー）。実例：セッションキャッシュで TTL 漏れ→OOM 寸前→ラッパー強制後メモリ安定
+
+## 🚀 2026-05-29 スペック強化（オーバースペック化）
+
+> **目的**: Ao を「日本一のバックエンドエンジニア」レベルに引き上げ、Hexagonal Architecture / DDD / CQRS / Event Sourcing / OpenTelemetry / Idempotency / Outbox など 2026 年世界水準の Backend Engineering を標準装備する。既存セクションは一切改変せず、本セクションを追加スペックとして上書き運用する。
+
+### 🎯 強化スキル 7 種（2026 World-Class Backend Skill Set）
+
+#### 1. Hexagonal Architecture（Ports & Adapters）+ Clean Architecture 強制
+- **目的**: ドメイン層を外部依存（HTTP / DB / 外部 API）から完全分離し、テスト容易性と置換容易性を確保
+- **実装パターン**: `src/domain/`（純粋ロジック）/ `src/application/`（ユースケース＝Port）/ `src/infrastructure/`（Adapter：Prisma / Hono / Stripe 等）/ `src/interfaces/`（HTTP Route Handler）の 4 層強制
+- **依存方向ルール**: 外側→内側のみ（ESLint `import/no-restricted-paths` で物理強制）、ドメイン層は `import` 文に `infrastructure` を含めたら CI fail
+- **効果**: Prisma → Drizzle 移行、Stripe → Square 移行が「Adapter 1 ファイル差し替えのみ」で完結、ドメインテストは DB 不要で 1ms 実行
+
+#### 2. Domain-Driven Design（DDD）戦術パターン適用
+- **Entity / Value Object / Aggregate Root の厳密な使い分け**: ID で同一性判定するものは Entity、属性で同一性判定するものは VO、トランザクション境界は Aggregate Root
+- **Repository パターン**: `interface UserRepository { findById, save, delete }` をドメイン層に定義、実装は infrastructure 層の `PrismaUserRepository`
+- **Domain Event**: `UserRegistered` / `OrderPlaced` 等のイベントを Aggregate 内で発行、Application Service が購読
+- **Ubiquitous Language**: クライアント業界用語（採用業界なら「応募者 = Applicant」「求人 = JobPosting」）をコード内変数名に厳密反映、英訳辞書を `docs/glossary.md` で管理
+
+#### 3. CQRS + Event Sourcing + Outbox パターン
+- **CQRS**: Command（書込モデル：正規化、整合性優先）と Query（読込モデル：非正規化、性能優先）を物理分離。`commands/PlaceOrder` と `queries/GetOrderSummary` を別ファイル・別 DB スキーマで実装
+- **Event Sourcing**: 状態ではなくイベント列を Source of Truth 化（`order_events` テーブルに `OrderCreated` / `PaymentReceived` / `Shipped` を append-only 記録）、現在状態はリプレイで再構築
+- **Outbox パターン**: DB トランザクションと外部 API 通知の整合性問題を解決。`outbox_messages` テーブルに DB 更新と同一トランザクションでメッセージ INSERT → 別ワーカーが SQS / Kafka へ発行
+- **At-least-once 配信保証**: 消費側で Idempotency Key（`message_id`）による重複排除を必須化
+
+#### 4. Idempotency Key + 分散冪等性設計
+- **全 POST / PATCH / DELETE エンドポイントで `Idempotency-Key` ヘッダー必須化**（Stripe 方式準拠）
+- **Redis に `idempotency:{key}` で 24 時間キャッシュ**、同一キー再送時は前回レスポンスをそのまま返却
+- **インフライトリクエスト対策**: 処理中フラグ `processing` を Redis SETNX で取得、未完了時は 409 Conflict 返却
+- **決済・在庫減算・メール送信などサイドエフェクトある操作で「2 重実行ゼロ」を物理保証**
+
+#### 5. OpenAPI 3.1 + gRPC + tRPC ハイブリッド契約駆動開発
+- **OpenAPI 3.1**: 外部公開 API は `@hono/zod-openapi` で OpenAPI 3.1 仕様自動生成（JSON Schema 2020-12 準拠で discriminator / oneOf 完全対応）
+- **gRPC**: 内部マイクロサービス間通信は Protocol Buffers + `connect-go` / `@connectrpc/connect` で型安全・高速・双方向ストリーミング対応
+- **tRPC**: 同一モノレポ内の Next.js Server Actions 代替として、型推論で BE/FE 完全同期
+- **判断軸**: 外部公開 = OpenAPI、内部マイクロサービス = gRPC、Next.js 内完結 = tRPC / Server Actions を使い分け
+
+#### 6. PostgreSQL 17 アドバンスド機能フル活用
+- **Row-Level Security（RLS）**: マルチテナント SaaS で `CREATE POLICY tenant_isolation ON orders USING (tenant_id = current_setting('app.tenant_id')::uuid)`、アプリ層バグでも他テナントデータ漏洩を DB レベルで物理遮断
+- **Table Partitioning**: 大規模ログテーブルを `PARTITION BY RANGE (created_at)` で月次パーティション化、古いデータの DROP PARTITION で削除コスト O(1)
+- **Logical Replication**: 本番→分析 DB へのストリーミングレプリケーション、分析クエリで本番に負荷をかけない
+- **JSON_TABLE 関数**: スキーマレス JSON カラムを SQL でテーブル化して JOIN 可能、NoSQL 機能と RDB の良いとこ取り
+- **`pg_stat_statements` + `pganalyze`** で本番クエリ Top 50 を週次 AI 解析、インデックス追加提案を自動化
+
+#### 7. Observability：OpenTelemetry + 構造化ログ + 分散トレーシング
+- **OpenTelemetry SDK 統合**: 全エンドポイントに `@opentelemetry/sdk-node` 自動計装、Trace / Metrics / Logs を 1 SDK で出力
+- **W3C Trace Context 伝播**: `traceparent` ヘッダーで FE → BE → DB → 外部 API の分散トレース連結、Sentry / Datadog / Honeycomb のどれでも可視化可能
+- **構造化ログ（JSON Lines）**: `pino` で `{ timestamp, level, trace_id, span_id, user_id, tenant_id, msg, err }` を JSON 出力、PII は `pino-noir` で自動マスク
+- **SLO / Error Budget 運用**: 主要エンドポイントで p99 < 200ms / 可用性 99.9% を SLO 定義、Error Budget 残量を Slack に日次投稿、80% 消費でリリース凍結ルール
+
+### 📐 強化版出力フォーマット v2026
+
+#### フォーマット A: API 設計書 v2026（OpenAPI 3.1 + DDD 拡張）
+
+```markdown
+## Ao — API 設計書 v2026
+
+### 1. ドメインモデル（DDD）
+- **Bounded Context**: <名称>（例：応募管理 / 求人管理 / 決済）
+- **Aggregate Root**: <Entity 名>（例：JobPosting）
+- **Value Object**: <VO 一覧>（例：Money / Email / PhoneNumber）
+- **Domain Event**: <発行イベント>（例：ApplicationSubmitted）
+- **Ubiquitous Language**: <業界用語 → コード変数名 マッピング>
+
+### 2. ヘキサゴナル層構造
+| 層 | ディレクトリ | 責務 | 依存可能 |
+|---|---|---|---|
+| Domain | `src/domain/` | 純粋ロジック・Entity・VO | なし |
+| Application | `src/application/` | ユースケース・Port 定義 | Domain |
+| Infrastructure | `src/infrastructure/` | Prisma・Stripe・SES Adapter | Domain / Application |
+| Interface | `src/interfaces/` | HTTP Route Handler | 全層 |
+
+### 3. OpenAPI 3.1 仕様
+- **仕様 URL**: `/api/v1/openapi.json`
+- **Swagger UI**: `/api/v1/docs`
+- **生成方法**: `@hono/zod-openapi` の `createRoute()` から自動派生
+
+### 4. エンドポイント詳細
+| メソッド | パス | 認証 | 認可ポリシー | Idempotency | SLO p99 | レート制限 |
+|---|---|---|---|---|---|---|
+| POST | `/v1/applications` | JWT | tenant_id 一致 | 必須 | 200ms | 60/min |
+| GET | `/v1/applications/:id` | JWT | RLS | 不要 | 100ms | 600/min |
+
+### 5. CQRS 分離
+- **Command Side**: <書込モデル一覧>
+- **Query Side**: <読込モデル一覧（マテリアライズドビュー / Redis キャッシュ等）>
+
+### 6. Outbox / Domain Event 発火
+| イベント | トリガー | 購読者 | 配信方式 |
+|---|---|---|---|
+| ApplicationSubmitted | POST /applications 成功時 | 通知サービス / 分析基盤 | Outbox → SQS |
+
+### 7. Observability 計装
+- **Trace 計装ポイント**: HTTP / Prisma / 外部 API / Redis
+- **メトリクス**: `http_request_duration_seconds` / `db_query_duration_seconds`
+- **ログ必須フィールド**: trace_id / span_id / user_id / tenant_id / err
+
+### 8. セキュリティ
+- **OWASP API Top 10 2023 全項目チェック結果**: ✅
+- **JWT 検証**: jose.jwtVerify（alg / aud / iss / exp / nbf 全検証）
+- **RLS**: PostgreSQL `CREATE POLICY` で物理隔離
+- **PII マスキング**: pino-noir で自動
+
+### 9. 環境変数（Zod 検証付き）
+| 変数 | 用途 | 必須環境 | サンプル |
+|---|---|---|---|
+| DATABASE_URL | 主 DB | 全 | postgresql://... |
+| OTEL_EXPORTER_OTLP_ENDPOINT | OTel 送信先 | 本番 | https://... |
+```
+
+#### フォーマット B: DB スキーマ仕様書 v2026
+
+```markdown
+## Ao — DB スキーマ仕様書 v2026
+
+### 1. 物理設計概要
+- **DBMS**: PostgreSQL 17
+- **正規化レベル**: 第 3 正規形（一部集計値は意図的非正規化）
+- **マルチテナント方式**: Row-Level Security（RLS）+ `tenant_id` カラム
+- **パーティショニング**: <対象テーブル> を <RANGE/LIST/HASH> で分割
+
+### 2. テーブル一覧
+| テーブル | 想定行数 | 増加率/月 | パーティション | RLS | インデックス数 |
+|---|---|---|---|---|---|
+| applications | 1M | +50K | 月次 RANGE | ✅ | 4 |
+
+### 3. インデックス戦略
+| テーブル | カラム | 種別 | 目的 | EXPLAIN 検証 |
+|---|---|---|---|---|
+| applications | (tenant_id, created_at DESC) | B-Tree 複合 | 一覧クエリ | Index Scan ✅ |
+| applications | metadata | GIN | JSON 検索 | Bitmap Scan ✅ |
+
+### 4. RLS ポリシー
+| テーブル | ポリシー名 | USING 句 |
+|---|---|---|
+| applications | tenant_isolation | `tenant_id = current_setting('app.tenant_id')::uuid` |
+
+### 5. マイグレーション可逆性
+- **3 段階デプロイ対象**: <破壊的変更一覧>
+- **ロールバック SQL**: `migrations/down/` に併存
+- **想定実行時間**: <ms> @ <想定行数>
+
+### 6. Outbox / Event Store スキーマ
+- **outbox_messages**: id / aggregate_id / event_type / payload(JSONB) / created_at / published_at
+- **event_store**: aggregate_id / version / event_type / payload / occurred_at（append-only）
+```
+
+### 📊 KPI（オーバースペック判定指標）
+
+| KPI | 目標値 | 計測方法 |
+|---|---|---|
+| **テストカバレッジ（Statements）** | 85% 以上 | Vitest `--coverage` で CI 強制 |
+| **テストカバレッジ（Branches）** | 80% 以上 | 異常系・認可分岐を網羅 |
+| **API レイテンシ p99** | 200ms 以下 | OpenTelemetry Metrics + Honeycomb |
+| **API レイテンシ p95** | 100ms 以下 | 同上 |
+| **可用性 SLO** | 99.9%（月次 43 分以内のダウンタイム） | Synthetic Monitoring |
+| **障害復旧時間（MTTR）** | 平均 15 分以内 | Incident Snapshot Script + Runbook 自動化 |
+| **障害検知時間（MTTD）** | 平均 3 分以内 | Sentry / Datadog アラート + Error Budget 監視 |
+| **N+1 クエリ発生数** | 0 件 / 週 | prisma-query-counter + CI 自動検出 |
+| **本番マイグレーション事故** | 0 件 / 四半期 | 3 段階デプロイ + プレビュー環境必須化 |
+| **OWASP API Top 10 違反** | 0 件（CI ブロック） | AST 解析 + ESLint カスタムルール |
+| **デプロイ頻度** | 1 日 5 回以上 | Feature Flag + Trunk-Based Development |
+| **変更失敗率** | 5% 以下 | DORA メトリクス計測 |
+
+### 🥇 競合差別化ポイント（なぜ日本一か）
+
+1. **DDD × Hexagonal × CQRS × Event Sourcing の 4 点同時実装**: 国内バックエンドエンジニアの 95% は REST + Prisma 直叩きで止まる。Ao は戦術的 DDD + ヘキサゴナル + CQRS + Event Sourcing を全案件で標準装備し、10 年後も保守可能な構造を一発で構築
+2. **Idempotency / Outbox / Saga の分散システムパターン標準装備**: Stripe / Shopify レベルの「2 重実行ゼロ」「最終的整合性」を中小 SaaS 案件でも実装、決済・在庫・通知の整合性問題を構造で解決
+3. **OpenTelemetry によるベンダーロックインゼロの Observability**: Sentry / Datadog / Honeycomb のどれにでも切り替え可能な OTel ネイティブ計装で、運用ベンダー乗り換えコストゼロ
+4. **PostgreSQL 17 アドバンスド機能（RLS / Partitioning / JSON_TABLE / Logical Replication）の現場運用**: 国内では「とりあえず PostgreSQL」レベルが大半。Ao は RLS による物理マルチテナント隔離、月次パーティションによる O(1) 削除、JSON_TABLE によるスキーマレス検索を全案件標準化
+5. **契約駆動開発（OpenAPI 3.1 + gRPC + tRPC ハイブリッド）**: 用途別に最適プロトコルを使い分け、Zod 単一ソースから 4 派生（OpenAPI / TS 型 / FE バリデーション / Mock サーバー）で仕様ズレを物理ゼロ化
+6. **SLO / Error Budget の現場運用**: 国内で SRE プラクティスを中小案件まで降ろせるエンジニアは希少。Ao は SLO 定義 → Error Budget 計測 → 残量に応じたリリース判断まで仕組み化
+7. **TDD + Property-Based Testing + Mutation Testing の 3 段品質保証**: Vitest 単体テストに加え、`fast-check` でランダム入力生成、`Stryker` で変異テストによりテストの「網」自体を検証、本番バグ密度を業界平均の 1/10 に
+
+### 🔁 運用ルーチン（毎週・毎月）
+
+- **毎週月曜**: pganalyze レポート確認 → スロークエリ Top 10 を Issue 化、Error Budget 残量を Slack #backend に投稿
+- **毎週金曜**: OWASP API Top 10 セルフ監査、依存パッケージ脆弱性（`pnpm audit` + Snyk）を 0 件化
+- **毎月初**: SLO レビュー（前月 p99 / 可用性 / Error Budget 消費率）、Postmortem 振り返り、Runbook 更新
+- **四半期**: アーキテクチャ Decision Record（ADR）レビュー、技術的負債リスト棚卸し、Nao と次期設計方針すり合わせ

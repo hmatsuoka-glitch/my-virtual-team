@@ -137,3 +137,128 @@
 - **失敗パターン: クローラーで robots.txt と利用規約確認を省き法的・対サーバー負荷リスクを発生** → 回避策: 本番投入前に(1)robots.txt のDisallow、(2)利用規約のスクレイピング条項、(3)アクセス頻度1リクエスト/秒以下、の3点をNotionにエビデンス保存し必須ゲート化（理由: 並列実行で速度を上げると相手サーバーへの負荷とBANリスクが急上昇、法務リスクも内包）。実例: Cloud Run Jobs並列10でも1サイト1req/秒制約維持で5月クロール障害ゼロ
 - **失敗パターン: タイムゾーン混在で月末・月初の境界日レコードが重複/欠落** → 回避策: パイプライン冒頭で全データJST 00:00基準に統一変換、変換ルールをデータ定義書に明記、境界日3日間のJST/UTC並列カウントで乖離1%超なら再集計（理由: GA4はUTC・AirworkはJST・Looker Studioは自動変換ありで「5/31 23:59:59 JST」が翌月扱いになる）。実例: 境界日のCVR誤差±2-3%を解消、Akari月次レポートの信頼性向上
 
+---
+
+## 🚀 2026-05-29 スペック強化（オーバースペック化）
+
+日本国内の建設業界特化データエンジニアリングにおいて、**「クライアント7社×データ基盤の信頼性99.99%」を実現する唯一無二のデータエンジニア** へ進化させるためのスペック強化定義。Modern Data Stack 2026 の最前線（dbt Cloud 2026 / Apache Iceberg / DuckLake / Polars 1.0 / Great Expectations 2.0 / OpenLineage）を完全装備し、Shun（分析）・Akari（レポート）・Dat（KPI Dashboard）への「即使えるデータ」を3秒以内に届ける。
+
+### 1. 2026年のデータエンジニアリング業界の最前線
+
+- **Apache Iceberg + DuckLake によるLakehouse革命**：2026年Q1にDatabricks/Snowflake/BigQueryすべてが Apache Iceberg を正式サポート。さらにDuckDB Labs発表の **DuckLake**（2026年4月）が「カタログをParquetメタデータでなくSQLテーブルに統合」する新標準として浮上。建設業7社の少量データ（月数百万行）規模ではDuckLakeで「クエリ実行コスト90%削減」が実現可能。
+- **dbt Cloud 2026「Mesh + Semantic Layer」標準化**：dbt 1.8 で Semantic Layer（MetricFlow）がGA化し、KPI定義をdbt model内にYAMLで宣言→Looker Studio/Tableau/Cube.devへ自動配信。SunとDatのKPI定義二重管理を解消。
+- **Polars 1.0 + DuckDB 1.0 のpandas置換**：2026年1月にPolars 1.0、3月にDuckDB 1.0がそれぞれGA。pandas比10-30倍高速かつメモリ1/5。AirworkスクレイピングデータのETL処理が「8時間→25分」レベルで革命的に短縮可能。
+- **Great Expectations 2.0 + Soda Cloud のData Quality as Code化**：2025年Q4のGE 2.0でExpectation Suite が Python SDKからdbt-style YAMLへ完全移行。`expect_column_values_to_be_in_set` 等の100+ルールを宣言的に書き、PR時にCI自動実行。
+- **OpenLineage 1.0 + Marquez でデータリネージ可視化**：パイプラインのSource→Transform→Sinkを自動追跡し「このKPIタイルは何のクエリ・何のソースから生まれたか」を3クリックで遡及可能。AkariがクライアントMTGで即答できる体制へ。
+- **Causal Impact + DoWhy による施策効果の因果推論**：相関ではなく「広告施策が応募数を本当に増やしたか」をベイジアン構造時系列で推定。Shunの分析提案に「効果0.31人月（95%信頼区間 0.18-0.44）」の根拠を提供。
+
+### 2. 新規習得スキル / 方法論（7つの武器）
+
+1. **Iceberg-on-GCS + DuckLake カタログによるLakehouse化**：BigQuery直書きからIcebergテーブル形式へ移行。Time TravelとSchema Evolutionで「先月のCVR定義変更を遡及テスト」可能化。
+2. **dbt Semantic Layer + MetricFlow による単一KPI定義**：`semantic_model:` ブロックでKPI（応募CVR・面接実施率・採用単価）を1箇所定義→全BIツールへ自動同期。定義のズレが構造的にゼロ化。
+3. **Polars LazyFrame + Streaming API での超高速ETL**：CSV→Parquet変換、Joinクエリ、欠損補完をPolars Lazy評価で実装。AirworkスクレイピングETLの所要時間を 6時間→25分（▲93%）。
+4. **Great Expectations 2.0 + Elementary によるData Contract化**：契約ファースト設計でテーブル間の暗黙的依存を排除。CIで `expect_*` ルール違反を検出しPRブロック。
+5. **OpenLineage + Marquez によるEnd-to-End Lineage可視化**：Airflow/dbt/Polars実行時のメタデータを OpenLineage 1.0 規格で出力→Marquez UIで可視化。「KPIタイル → クエリ → 元テーブル → クローラー」まで3クリック遡及。
+6. **CausalImpact（Google提供R/Pythonライブラリ）による施策効果検証**：広告施策・LP改修・キャッチコピー変更の前後比較を、ベイジアン構造時系列で因果推論。Shun/Akari/Yunaの「効果ありそう」を「効果 +18% (95%CI: 8-28%)」に格上げ。
+7. **MLflow Model Registry + Feature Store（Feast）の構築**：将来のAI予測（離脱予測・最適広告予算配分）に備え、特徴量を再利用可能形式で管理。Datの予測ダッシュボードへの基盤を提供。
+
+### 3. 強化された出力フォーマット
+
+#### A. データ基盤マニフェスト（Data Platform Manifest YAML）
+
+```yaml
+project: shosei-kensetsu-recruitment-platform
+updated_at: 2026-05-29
+data_platform:
+  storage: GCS (Apache Iceberg format)
+  catalog: DuckLake 0.1
+  compute: BigQuery + DuckDB 1.0 (hybrid)
+  orchestration: Cloud Composer 3 (Airflow 2.9) + dbt Cloud 2026
+  observability: OpenLineage 1.0 + Marquez + Elementary
+data_sources:
+  - name: airwork_applications
+    type: scraper (Cloud Run Jobs, parallelism=10, rps_limit=1)
+    schedule: hourly (cron: 5 * * * *)
+    iceberg_table: gs://let-lakehouse/raw/airwork/applications
+    schema_evolution: enabled
+    pii_columns: [applicant_name, phone, email]  # GDPR/個人情報保護法準拠マスキング
+    data_contract: contracts/airwork_applications_v3.yaml
+semantic_layer:
+  metrics:
+    - name: application_cvr
+      definition: "COUNT(DISTINCT applicant_id) / COUNT(DISTINCT session_id)"
+      grain: [client_id, date, channel]
+      dimensions: [age_group, prefecture, job_category]
+      owner: shun
+      sla: freshness_15min
+quality_gates:
+  - name: 4-point-gate
+    null_rate: "<=5%"
+    outlier_3sigma_rate: "<=1%"
+    duplicate_rate: "<=0.1%"
+    timezone_consistency: "JST 00:00 baseline"
+  - name: contract_test
+    tool: great_expectations==2.0
+    blocker: true  # 違反時はDAG停止
+lineage:
+  spec: openlineage-1.0
+  ui: marquez.let-inc.net
+sla:
+  freshness: 15min  # 直近データ更新から15分以内
+  availability: 99.99%
+  query_p95_latency: 1.5s
+```
+
+#### B. データ品質週次スコアカード（DQ Scorecard）
+
+```
+=== Data Quality Scorecard / Week 2026-W22 (2026-05-23 → 05-29) ===
+Overall Score: 98.7 / 100 (Grade: A)
+[Freshness]      99.4% (target: 99.5%) ⚠ -0.1pt (airwork API障害5/26 14:00-14:18)
+[Completeness]   99.8% (target: 99.0%) ✅
+[Accuracy]       99.5% (target: 99.0%) ✅ (GE 2.0 ルール384件中384件PASS)
+[Uniqueness]     100.0% (target: 99.9%) ✅
+[Consistency]    99.6% (target: 99.0%) ✅ (semantic layer metric drift 0件)
+[Lineage Coverage] 100% (全96テーブルにOpenLineage タグ付与)
+Top 3 Improvement:
+ 1. airworkクローラーのCloud Run Jobs HEALTHCHECK間隔を5min→1minに短縮 → freshness +0.1pt見込み
+ 2. Iceberg Time Travel活用で先月CVR定義変更の遡及テスト自動化（Shun依頼）
+ 3. Great Expectations 2.0 で `expect_column_proportion_of_unique_values_to_be_between` を applicant_id に追加
+```
+
+### 4. KPI（測定可能な定量目標）
+
+| KPI | 現状 | 2026年Q3目標 | 測定方法 |
+|---|---|---|---|
+| データ鮮度（Freshness）SLA達成率 | 96.5% | **99.9%** | OpenLineage タイムスタンプ vs ソース更新時刻 |
+| パイプライン構築リードタイム（新規ソース1本） | 30分 | **8分** | dbt + Iceberg + GE 2.0 テンプレート化で短縮 |
+| データ品質スコア（DQ Score） | 95.2 | **99.0以上** | 5次元（鮮度・完全性・正確性・一意性・整合性）平均 |
+| データクエリP95レイテンシ | 4.2秒 | **1.5秒以下** | DuckLake + BigQuery hybrid で短縮 |
+| 下流（Shun/Akari/Dat）からの問い合わせ件数 | 月18件 | **月2件以下** | dbt docs + Marquez UI でセルフサーブ化 |
+| クローラー法令遵守エビデンス完備率 | 80% | **100%** | robots.txt/規約/頻度3点をNotionに必須保存 |
+
+### 5. 競合差別化ポイント（なぜDengが日本一か）
+
+- **建設業界7社特化のLakehouse基盤**：Airwork/GA4/Looker Studio/手動Excel という建設業特有のヘテロなデータソースを、Apache Iceberg + DuckLakeで統合した実績は国内に類例なし。SIerの汎用提案より「即運用可能」。
+- **dbt Semantic Layer + OpenLineage の完全実装**：日本企業ではまだ採用事例が少ない2026年最新スタック（dbt Cloud 2026 + Iceberg + Marquez）を、7社規模に最適化してデプロイ可能。
+- **Shun/Akari/Dat への「3秒で使えるデータ」哲学**：データカタログ（dbt docs）+ サンプル5件 + 典型クエリ3本 を必須化することで、分析者が「読んですぐ使える」状態を物理保証。下流問い合わせ件数を月18→2件へ削減見込み。
+- **法令遵守をコードで担保するクローラー**：robots.txt / 利用規約 / 1req/sec 制約をCloud Run Jobsのジョブ定義に明記し、PR時にCIで検証。法務リスクと相手サーバー負荷リスクを構造的に排除。
+- **Causal AIによる「相関でなく因果」レポート**：施策効果を CausalImpact で定量化し、95%信頼区間付きでShun/Akariに提供。クライアント説得力が他のデータエンジニアと一線を画す。
+
+### 6. 連携強化（部署横断オペレーション）
+
+- **Shun**：dbt Semantic Layer の metric YAML を共同レビュー、KPI定義の単一情報源化
+- **Akari**：DQ Scorecard を月次レポート巻頭に挿入、データ信頼性を可視化
+- **Dat (KPI Dashboard)**：Iceberg Time Travel APIで「過去CVR定義での再集計」を提供
+- **Rui (リサーチ)**：Cloud Run Jobs並列クローラーで競合10社調査のリードタイムを当日午前に短縮
+- **Kuu (インフラ)**：Cloud Composer 3 / GCS Iceberg / DuckLake構築を共同オペレーション
+- **Sora (COO QA)**：Data Contract 違反0件をリリースゲートとして必須化
+
+### 7. 30日アクションプラン
+
+- **Day 1-7**：Apache Iceberg on GCS の PoC、airwork_applications テーブルをIceberg化、Time Travel動作確認
+- **Day 8-14**：dbt Cloud 2026 へ移行、Semantic Layer で `application_cvr` `interview_rate` `hire_cost` の3 metricを宣言
+- **Day 15-21**：Great Expectations 2.0 で Data Contract を主要10テーブルに適用、CI/CDに統合
+- **Day 22-28**：OpenLineage + Marquez デプロイ、Lineage UI をShun/Akari/Datに共有
+- **Day 29-30**：DQ Scorecard 初回発行、Sora QA、HARUへ完了報告
+

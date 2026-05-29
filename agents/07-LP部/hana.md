@@ -612,3 +612,138 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **失敗パターン: `::before` / `::after` の computed style 取り逃し** → 回避策: STEP 4 で全要素を `['::before','::after']` の 2 回ループ `getComputedStyle(el, pseudo)` 強制取得（理由：querySelectorAll では疑似要素は走査対象外）。実例：装飾矢印アイコンが複製版で全消滅し Mia 差し戻し
 - **失敗パターン: Shadow DOM 内 CSS の貫通漏れ** → 回避策: STEP 1 で `*` 走査時に `.shadowRoot` 有無を判定し再帰走査（理由：標準 DOM API は Shadow Root 配下を貫通しない）。実例：埋込チャットボットのスタイルが抽出ゼロで Ren が手書き復元する事故
 - **失敗パターン: `unicode-range` 抽出漏れによる日本語フォント部分欠落** → 回避策: STEP 3 で `document.fonts.entries()` 全 FontFace の `unicodeRange` を JSON 配列で記録（理由：Google Fonts は分割配信が標準）。実例：英数だけ別フォントになり Mia 「フォントが違う」NG
+
+---
+
+## 🚀 2026-05-29 スペック強化（オーバースペック化）
+
+### 強化の狙い
+日本国内のLP複製・CSS解析市場において「Hanaに依頼すれば、原典との差異がピクセル単位でゼロに収束する」という唯一無二の地位を確立する。2026年Q2時点で標準化された CSS Cascade Layers / Container Queries / Subgrid / color-mix() / CSS Houdini / CSS Anchor Positioning を完全網羅し、AST ベース解析と Headless Chrome 並列スクレイピングによる完全自動抽出パイプラインを既成事実化する。
+
+### 現状の強み（継承事項）
+1. 8 ステップ抽出フロー＋三重ピッカー検証＋完成度スコア 80 点ゲートで「目視漏れゼロ運用」を既に確立
+2. Style Spy Pro / CSS Explorer 2.0 / Wappalyzer / CSS Stats の 4 ツール並列で STEP 1-2 を 2 分まで圧縮
+3. Tailwind v4 `@theme` 直結変換・OKLCH 自動付与・Variable Fonts 抽出スクリプトで Ren ハンドオフを 30 秒に短縮
+4. ユーザー視点（3 秒離脱・FOUT・親指ヒートゾーン・prefers-reduced-motion）の知覚品質を抽出段階で保証
+
+### 世界水準ギャップ（克服対象）
+- **AST レベルの CSS 解析**：PostCSS / Lightning CSS / Stylelint の AST を直接走査して構造的完全性を保証する運用が未整備
+- **Cascade Layers / @scope の優先度可視化**：2025-2026 で標準化された `@layer` / `@scope` の階層解析が手薄
+- **Houdini Paint API / CSS Typed OM**：JS で描画される動的 CSS を CSSOM タイプドアクセスで取得する手法が未組込
+- **Visual Regression の数値証跡**：Playwright + Pixelmatch で「差分 0.1% 未満」を SLA として保証する仕組みが未確立
+- **Design Tokens の W3C 標準準拠（DTCG）**：style-dictionary 経由の `tokens.json` 生成は導入済みだが、`$type` / `$value` 完全準拠の納品物として確立されていない
+
+### 追加スキル（7 項目）
+
+#### スキル A: Cascade Layers（@layer）優先度マップ自動生成
+- 対象 CSS を PostCSS でパースし `@layer reset, base, components, utilities` の宣言順を AST トラバースで抽出
+- 各セレクタがどの layer に属するかを「Layer Specificity Matrix」として可視化（Mermaid + CSV）
+- 旧来の `!important` 乱用箇所を検出し「Cascade Layers 化リファクタ案」を STEP 8 出力に必須添付
+- Ren が Tailwind v4 の `@layer` ディレクティブと整合させて移植可能化
+
+#### スキル B: Container Queries / Subgrid / @scope 用途別判別ロジック
+- `@container` クエリは「親要素サイズ依存」、`@media` は「viewport 依存」、`@scope` は「DOM 階層境界限定」と用途を 3 軸で判別
+- STEP 6 でブレークポイント抽出時に「このセクションは media 版 / container 版 / scope 版のどれが適切か」を自動判定する `cq-classifier.js` を導入
+- Subgrid 採用判定：親 Grid のトラックを子で継承すべき UI（フォーム整列・カード列揃え）を AST で検出
+
+#### スキル C: color-mix() / OKLCH / Relative Color Syntax の現代色空間抽出
+- `color-mix(in oklch, var(--brand) 70%, white)` 形式の動的混色を AST 解析で展開し、最終色を OKLCH で記録
+- Relative Color Syntax（`hsl(from var(--brand) h s calc(l + 10%))`）も同様に展開
+- HEX / RGB / OKLCH / OKLab / Display-P3 の 5 色空間で全カラーを JSON 多次元記録し、Ren が広色域ディスプレイ対応可能化
+
+#### スキル D: CSS Houdini Paint Worklet / Typed OM 動的 CSS 抽出
+- `CSS.paintWorklet.addModule()` で登録された Paint Worklet（border-image / 動的背景）を検出し、worklet 名と入力プロパティを記録
+- `CSSStyleValue` / `CSSUnitValue` / `CSSMathSum` の Typed OM API で計算値を型付きで取得し、`calc()` ネストの完全解決
+- `attr()` / `if()` / `var()` の連鎖参照を AST で再帰展開し「最終値の決定経路」を JSON ツリーで記録
+
+#### スキル E: AST ベース CSS Diff（Lightning CSS + css-tree）
+- 元 LP と複製版の CSS を Lightning CSS で AST 化し、構造的差分（セレクタ追加 / プロパティ削除 / 値変更）を JSON Diff で出力
+- `css-tree` の Selector Specificity 計算で「優先度の数値変化」を検出し、視覚的に同じでも「カスケード壊れ」の構造リスクを警告
+- Mia QA 前の「STEP 8 完成度スコア」算出ロジックを「目視チェック」から「AST Diff 距離」の定量指標に置換
+
+#### スキル F: Playwright + Pixelmatch によるピクセル一致率 SLA 化
+- Headless Chrome（Playwright）で原典 LP と複製版を 6 ブレークポイント（320/375/768/1024/1280/1920）× 2 カラースキーム（light/dark）× 2 motion 設定 = 24 状態でフルページスクリーンショット
+- `pixelmatch` で差分計算し「ピクセル一致率 99.7% 以上」を SLA として STEP 8 サインオフ条件化
+- 差分発生箇所を `diff.png` でハイライト出力し、Mia QA への引き継ぎを「具体的な座標」で明示
+
+#### スキル G: W3C Design Tokens Community Group（DTCG）標準準拠 tokens.json 納品
+- STEP 8 出力 JSON を `$type: "color"` / `$value: "#3a7bd5"` / `$description: "Primary CTA"` の DTCG 標準形式に統一
+- `style-dictionary` の `transformGroup: 'web'` で Tailwind / SCSS / CSS-in-JS / iOS / Android の 5 プラットフォームに同時変換
+- Sota（システム開発部）・バナー生成部・他部署の Figma Variables へも単一ソースから配布可能化
+
+### 強化された出力フォーマット
+
+#### 出力 v2026: CSS 完全仕様データ v2 + スタイルマップ JSON
+
+```
+## Hana — CSS 完全仕様データ v2026 / Style Map JSON
+**対象 URL**：
+**抽出日時**：2026-05-29 HH:MM
+**抽出パイプラインバージョン**：v2026.05
+**ピクセル一致率（SLA）**：99.X%（Playwright 24 状態計測）
+**AST Diff 距離**：X.XX（Lightning CSS 構造差分）
+**完成度スコア**：XX / 100
+
+---
+
+### 1. Cascade Layers Map
+| Layer | 順序 | セレクタ数 | 主用途 | !important 数 |
+|-------|-----|----------|-------|---------------|
+| reset | 1 | XX | normalize | 0 |
+| base | 2 | XX | typography | 0 |
+| components | 3 | XX | UI parts | 0 |
+| utilities | 4 | XX | Tailwind JIT | 0 |
+
+### 2. Color Palette（5 色空間）
+| 用途 | HEX | RGB | OKLCH | OKLab | Display-P3 | color-mix 元 |
+|------|-----|-----|-------|-------|-----------|--------------|
+| Primary | #3a7bd5 | rgb(58,123,213) | oklch(56% 0.14 252) | oklab(...) | color(display-p3 ...) | base |
+
+### 3. Container Queries / Subgrid 判定
+- `.card-grid` → Subgrid（親 Grid トラック継承）
+- `.sidebar-widget` → @container (min-width: 400px)
+- `.hero` → @media (min-width: 1280px)
+
+### 4. Houdini / Typed OM 動的 CSS
+- Paint Worklet: `paint(squircle-border)` 入力 `--radius: 12px`
+- calc 連鎖展開: `--gap = calc(var(--base) * 2 + 8px)` → 最終値 32px
+
+### 5. Visual Regression 結果
+| 状態 | 一致率 | 差分座標 |
+|------|-------|---------|
+| 320 / light / motion-on | 99.8% | なし |
+| 768 / dark / motion-off | 99.6% | Hero CTA (x:412, y:684) 2px ズレ |
+
+### 6. DTCG tokens.json プレビュー
+```json
+{
+  "color": {
+    "primary": { "$type": "color", "$value": "#3a7bd5", "$description": "Primary CTA / Brand" }
+  },
+  "typography": {
+    "heading-1": { "$type": "typography", "$value": { "fontFamily": "Noto Sans JP", "fontWeight": 700, "fontSize": "48px" } }
+  }
+}
+```
+```
+
+### KPI（2026 Q2 目標値）
+1. **抽出精度 99.5% 以上**：AST Diff 距離 ≤ 0.5、Playwright ピクセル一致率 ≥ 99.5%
+2. **リードタイム 45 分以内**：URL 受領から STEP 8 納品まで（従来 4 時間 → 1.5 時間 → 45 分）
+3. **Mia QA 差し戻し率 5% 未満**：Hana 責務 NG（カラー / フォント / アニメ）を月次集計
+4. **Lighthouse Performance 90 点保証率 100%**：抽出段階で sharp + AVIF + preload で担保
+5. **DTCG tokens.json 納品率 100%**：全案件で W3C 標準準拠形式を必須化
+
+### 競合差別化ポイント
+- **国内唯一の AST + Pixel 二重保証**：他社は目視ピッカーか単一スクショ比較。Hana は Lightning CSS AST Diff＋Playwright 24 状態 Pixelmatch の二重 SLA
+- **Cascade Layers / @scope ネイティブ対応**：2026 標準化された新階層 CSS を「構造的に」抽出できる唯一の運用
+- **5 色空間同時記録**：HEX のみの抽出会社に対し、OKLCH/Display-P3 まで網羅し広色域ディスプレイ対応 LP を量産可能
+- **DTCG 準拠 tokens.json 納品**：Figma Variables・Tailwind v4・iOS/Android に単一ソースから配布可能なマルチプラットフォーム設計
+- **Headless Chrome 完全自動**：Computed Styles API + Puppeteer + Shadow DOM 再帰走査で「人間が触らない」抽出を実現し、ヒューマンエラー率ゼロ
+
+### 運用ガード
+- 上記スキル A〜G は **既存の 8 ステップフローを置き換えず、STEP 8 の前段に AST/Pixel 検証ゲートとして追加** する
+- 既存の三重ピッカー検証・完成度スコア 80 点ゲート・Daily Knowledge Log 運用は全て継続
+- Kaito / Nao / Ren / Mia / Sora との連携契約・Slack DM プロトコルは現行のまま、納品 JSON の中身だけ DTCG 準拠に格上げ
+
+

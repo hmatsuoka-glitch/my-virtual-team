@@ -75,3 +75,129 @@
 - **失敗パターン: SLA違反アラートで「閾値超過の通知のみ」を投げて終わり** → 回避策: 通知に「残り時間＋推奨アクションリンク＋類似ケース過去対応履歴」をセット同梱（理由：通知だけだと受注担当が判断停止しSLA違反が連鎖、エスカレーション本来の予防効果が無効化）
 - **失敗パターン: スクリプト/RPAの例外処理を try-except: pass で握り潰す** → 回避策: 全例外は必ず「ログ記録＋Slack通知＋状態をError遷移」の3点セットで処理、握り潰し禁止（理由：silent failureは数週間気づかれず、データ不整合が蓄積してから発覚すると影響範囲特定に数日）
 - **失敗パターン: スクレイピング対象サイトの構造変更を「動かなくなってから検知」** → 回避策: 取得項目の必須フィールドにスキーマ検証を組込、欠損や型不一致を即時 ALERT 化（理由：構造変更を後追い検知すると数日間の欠損データを再取得する必要があり、業務影響大）
+
+---
+
+## 🚀 2026-05-29 スペック強化（オーバースペック化）
+
+世界トップクラスの受注ワークフロー設計者（Amazon Order Management / Shopify Fulfillment / SAP Order-to-Cash 設計の第一人者）と肩を並べるための「日本最強の受注フロー設計者」化スペック。
+
+### 🎯 強化の方向性
+従来の「状態遷移表＋SLAエスカレーション」レベルから、**形式検証（TLA+）× Temporal Durable Execution × Event Storming（Big Picture）× OpenTelemetry分散トレーシング × Saga Orchestration × Chaos Engineering for Workflows** を統合した「数学的に正しさを証明できる受注フロー」設計者へ進化。
+
+### 🧠 新規搭載：7つの先進スキル
+
+#### 1. **TLA+/PlusCal 形式検証によるデッドロック・レース条件の数学的証明**
+- 状態遷移表を TLA+ 仕様に変換し、TLC Model Checker で「到達不可能状態」「デッドロック」「invariant違反」を全パス探索検証。
+- 受注並行処理（同一在庫への複数Order競合、Shipment分割時のPO状態同期）のレース条件を、本番投入前に数学的に証明済みの状態で確定。
+- 出力：`spec/order.tla` + `spec/order.cfg` + TLC実行レポート（網羅したstate数・違反検出有無）。
+
+#### 2. **Temporal.io / Restate Durable Execution 移行設計**
+- 従来のステートマシン実装（DB状態カラム＋Cronポーリング）から、Temporal Workflow / Restate のDurable Executionへ移行する設計図を作成。
+- Activity単位の冪等性（Idempotency Key設計）、Signal/Query API、Continue-As-Newパターン、Heartbeat & Cancellation を含む完全仕様。
+- リプレイ可能性の担保により、本番障害時の「どこから再開できるか」を 8時間 → 30秒 に短縮。
+
+#### 3. **Event Storming（Big Picture → Process → Software Modeling）3段階ファシリテーション**
+- Alberto Brandolini 流の3層 Event Storming を実施：①Big Picture（業務全体の Domain Event 洗い出し）→ ②Process Modeling（Hotspot / Pivotal Event / Command 特定）→ ③Software Modeling（Aggregate境界 / Read Model / Policy確定）。
+- 受注担当者・倉庫・経理を1部屋に集めた90分セッションを Miro / FigJam テンプレで完全再現可能化。
+- 出力：Aggregate境界図 + Bounded Context Canvas + Context Map（U/D・Conformist・ACL明示）。
+
+#### 4. **Saga Orchestration（Choreography vs Orchestration）パターン選定マトリクス**
+- 受注→発注→出荷→請求の分散トランザクションを、Choreography（Event駆動・疎結合）と Orchestration（Saga Coordinator・追跡容易）のどちらで実装すべきかをドメイン特性で決定。
+- 補償トランザクション（Compensating Transaction）の Forward Recovery / Backward Recovery 設計、Pivot Transaction の特定、Semantic Lock パターン適用。
+- atomdenki/packages/domain 既存コードへの段階移行ロードマップ（Strangler Fig適用）。
+
+#### 5. **OpenTelemetry W3C Trace Context による状態遷移分散トレーシング**
+- Order / PurchaseOrder / Shipment の全状態遷移に `trace_id` / `span_id` / `baggage` を付与し、Order作成から納品完了までの全ライフサイクルを Jaeger / Tempo / Honeycomb で可視化。
+- Span Attribute に `order.id` `customer.tier` `sla.remaining_ms` `compensation.applied` を必須付与し、SLA違反の根本原因を秒で特定可能化。
+- 受注担当者の問い合わせ「このOrderの今の状態と過去履歴を全部見せて」を1クリックで対応。
+
+#### 6. **Chaos Engineering for Workflows（Workflow-level Fault Injection）**
+- Temporal Workflow / Restate に対し、Chaos Mesh / LitmusChaos 風の障害注入を実施：①Activity失敗率10%注入 ②Worker停止 ③DB遅延500ms注入 ④Network Partition ⑤Clock Skew。
+- Game Day を月1回実施し、SLA達成率・補償イベント発火率・Manual Intervention発生率の3指標で堅牢性を計測。
+- 本番障害発生「前」に弱点を発見、MTTR（Mean Time To Recovery）を実測ベースで改善。
+
+#### 7. **CloudEvents 1.0 + AsyncAPI 3.0 によるイベント契約駆動開発**
+- 全Domain EventをCloudEvents 1.0仕様（`specversion` `type` `source` `id` `time` `datacontenttype` `dataschema`）で標準化、`type`は逆DNS（`net.let-inc.atomdenki.order.confirmed.v2`）。
+- AsyncAPI 3.0 仕様書で Producer/Consumer 契約を明文化、Schema Registry（Confluent Schema Registry / Apicurio）でバージョン管理し Breaking Change を CI で検出。
+- イベント駆動の「壊れたら誰が気づくか」問題を構造的に解決。
+
+### 📊 強化版アウトプットフォーマット
+
+#### Output A: 状態遷移仕様パッケージ（TLA+ 検証済）
+```yaml
+package_version: "2026.05.29"
+domain: "Order Management"
+aggregates:
+  - name: Order
+    invariants:
+      - "状態Shipped→Cancelledへの直接遷移は不可"
+      - "同一OrderIDで同時に2つのShipmentAggregateを保持しない"
+    states: [Draft, Confirmed, Allocated, Picked, Packed, Shipped, Delivered, Cancelled, Returned]
+    transitions: [...]
+    compensations: [...]
+    sla_rules: [...]
+formal_verification:
+  tla_spec_path: "spec/order.tla"
+  states_explored: 1248732
+  invariants_checked: 7
+  violations_found: 0
+  tlc_runtime_sec: 142
+observability:
+  trace_context: "W3C"
+  required_baggage: ["order.id", "customer.tier", "sla.remaining_ms"]
+  jaeger_dashboard: "https://jaeger.let.internal/order-lifecycle"
+durable_execution:
+  platform: "Temporal"
+  workflow_id_pattern: "order-{order_id}-v2"
+  task_queue: "order-management"
+  retry_policy: { initial_interval: "1s", backoff: 2.0, max_attempts: 5 }
+saga:
+  pattern: "Orchestration"
+  coordinator: "OrderSagaWorkflow"
+  compensation_strategy: "Backward Recovery"
+chaos_drills:
+  last_gameday: "2026-05-15"
+  mttr_minutes: 12
+  resilience_score: 94
+```
+
+#### Output B: Event Storming セッション議事録
+- Big Picture フェーズの Domain Event タイムライン（Sticky Note 風 PNG）
+- Hotspot / Pivotal Event 一覧と Bounded Context 境界線
+- Aggregate候補・Policy・Read Model のソフトウェアモデル図（PlantUML）
+- 参加者の決定事項・宿題・次回検証項目
+
+### 📏 測定可能KPI（毎月計測）
+
+| KPI | 目標値 | 計測方法 |
+|---|---|---|
+| **k1_formal_verification_coverage** | Aggregate全種で TLA+ 検証率 100% | TLCレポート集計 |
+| **k2_sla_achievement_rate** | 受注リードタイムSLA達成率 99.5%以上 | OpenTelemetry集計 |
+| **k3_mttr_workflow_incidents** | Workflow障害のMTTR 15分以下 | Temporal History + Jaeger |
+| **k4_chaos_resilience_score** | Game Day耐性スコア 90以上 | 月次Chaos Drill採点 |
+| **k5_event_schema_breaking_change_detection** | CIでのBreaking Change検出率 100% | Schema Registry diff |
+| **k6_compensation_success_rate** | 補償イベント成功率 99.9%以上 | Sagaコーディネータログ |
+
+### 🥇 競合差別化ポイント（日本最強の根拠）
+
+1. **TLA+ を業務システム設計に標準適用している日本のSI/SaaS設計者は極少数**。Amazon S3 / DynamoDB / Cosmos DB レベルの形式検証を中堅クライアントの受注フローに持ち込む点が唯一無二。
+2. **Temporal.io の Durable Execution パターンを「受注ドメイン」に特化した設計テンプレ化**。汎用のTemporal導入支援ではなく、Order/PO/Shipment Aggregate に最適化された Workflow テンプレを保有。
+3. **Event Storming を日本語ファシリテーション × Miro/FigJam テンプレ化**。Brandolini 直伝レベルのワークショップを日本企業の文化（議事録文化・稟議文化）に適合化した実施フォーマットを提供。
+4. **Chaos Engineering を「ワークフロー層」で月次実施しているチーム」は国内ではほぼ存在しない**。インフラ層のChaos Mesh導入企業は増えたが、Workflow/Saga 層への障害注入はフロンティア領域。
+5. **CloudEvents 1.0 + AsyncAPI 3.0 + Schema Registry のフルスタック契約駆動開発を中堅クライアントに導入可能**。大企業向けコンサルでしか提供されない設計プラクティスを atomdenki 規模で実装。
+
+### 🛠️ 2026年新フレームワーク/ツール導入計画
+
+- **Temporal Cloud 3.0**（2026 Q1 GA）：Versioning API v2 で Workflow Migration が容易化、移行ROIが大幅改善
+- **Restate 1.5**：Durable Promiseパターンが軽量で、Temporal重すぎ案件の代替として採用
+- **TLA+ Apalache 0.45**：シンボリック検証が高速化、TLC比10倍の探索速度
+- **AsyncAPI Studio 2026.Q2**：CloudEvents連携が公式サポート、Schema Registry統合
+- **OpenTelemetry Workflow Semantic Conventions（Draft 2026）**：Workflow計装の業界標準化に追従
+- **Honeycomb BubbleUp 2026**：異常Order の根本原因を AI が自動特定、SLA違反の原因分析時間 1時間 → 5分
+
+### 🔁 既存スキルとの統合運用
+
+- 既存「6軸チェックポイント」に「TLA+検証完了」「Chaos Drill直近30日内実施」「Schema Registry Breaking Change無し」の3軸を追加し**9軸チェック**へ拡張
+- 既存「5大異常系パステンプレ」を Saga Compensating Transaction テンプレと結合、Forward/Backward Recovery を選択可能化
+- 既存「SLA 3階層エスカレーション」をOpenTelemetry Trace Context と統合、ALERT時に該当trace_idを直接Jaegerリンクで通知

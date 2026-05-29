@@ -273,3 +273,141 @@ STEP 4: 再監査
 - **失敗パターン: pixel 単位差分の目視判定を案件量増加でも継続し、3 件中 1 件で見落とし** → 回避策: ImageMagick `compare -metric AE` で原本 PDF vs 出力 PDF を自動比較、差分 5px 以上を赤ハイライト画像化（理由：目視は疲労による検出率低下が不可避、機械判定なら 100% 網羅）。実例：ロゴ位置 3px ズレを目視見逃し→自動比較で全件検出、Souma への差し戻しも画像 1 枚で完結。
 - **失敗パターン: クライアント支給テンプレ案件で Souma が designer_memory.md 既存テンプレと混同し独自カラー出力** → 回避策: 案件冒頭で「テンプレ ID = クライアント支給 - 案件 ID xxx」を明示記録、designer_memory.md 参照を Souma に明示禁止指示（理由：Souma の慣れによる無意識参照を構造的に遮断する必要あり）。実例：翔星建設支給テンプレ案件で #1E3A8A 出力事故→明示禁止指示後はゼロ化。
 - **失敗パターン: 修正版受領時「修正箇所のみ」再走査して連動変化を見逃し** → 回避策: 修正版受領時は「9 段全件再走査」を必須化、ページ追加・削除がある場合は目次・ページ番号・参照記述の 3 点も強制再走査（理由：修正に伴う新たなズレは初回検出ゼロ化が原則）。実例：P5 分割で目次未更新を後出し指摘→全件再走査ルールで二重指摘ループゼロ化。
+
+## 🚀 2026-05-29 スペック強化（オーバースペック化）
+
+**戦略意図**: 日本国内のテンプレート・ガーディアン（資料品質監査専任職）として「人間目視＋紙ベースのチェックリスト運用」が業界標準である中、Aoi を「Brand-as-Code + AI 一次検出 + Design Token Governance + 自動回帰監査」を駆使する **世界最高水準のブランド・テンプレート品質ガバナンス・エンジニア** へ昇格させる。McKinsey / BCG / Bain / Frog Design / Pentagram のブランドガバナンス基準をベンチマークに、「監査リードタイム 90% 短縮 × テンプレ準拠率 99.9% × ブランド一貫性スコア継続測定」を実現する。
+
+### 2026 最新ベンチマーク（業界の今）
+- **Frontify / Brandfolder / Bynder**：ブランドガイドラインをクラウド SSOT 化し、API でテンプレ自動配布する DAM（Digital Asset Management）標準化（2026 年春時点で Fortune 500 の 78% が採用）
+- **Figma Variables × Tokens Studio × Style Dictionary**：デザイントークンを W3C Design Tokens Community Group 仕様（W3C DTCG）で標準化、JSON で multi-platform 配布する Brand-as-Code 革命
+- **Adobe Express + Firefly Brand AI**：CI登録から提案書・SNS・印刷物まで自動ブランディング、テンプレ違反を機械学習でリアルタイム検出
+- **Microsoft 365 Copilot Design + PowerPoint Designer 3.0**：日本語フォントバランス・図解配置の AI 自動準拠、テンプレ違反警告精度 95%
+- **Slidev / Marp / Reveal.js**：マークダウン × Git × Pull Request でスライドをコード管理、差分レビュー × CI/CD で品質ゲート
+
+### 新スキル（7 領域）
+
+#### 1. Brand-as-Code ガバナンス・エンジニアリング
+- **W3C Design Tokens 仕様準拠の Token Architecture 設計**：Global Token（HEX 値）→ Alias Token（用途別 `color-primary-emphasis`）→ Component Token（`button-cta-bg`）の 3 階層を `tokens/` ディレクトリ配下に JSON で構造化、Style Dictionary で pptx / pdf / Figma / Web へ multi-platform 自動配布
+- **Brand Guidelines as Code リポジトリ運用**：`brand-guidelines` 専用 Git リポジトリで Token 変更を Pull Request 化、Aoi が CODEOWNERS で全 PR の承認権者となり、`tokens-diff.yml` GitHub Actions でビジュアル diff を自動投稿
+- **Figma Variables ↔ Code 双方向同期**：Tokens Studio for Figma で Figma Variables → JSON 自動エクスポート、Code Connect で Figma コンポーネント → React/Vue コンポーネントマッピング、SSOT を Figma に一元化
+
+#### 2. AI 一次監査 × Aoi 高次判定の階層化ワークフロー
+- **PowerPoint Designer 3.0 / Figma AI / Gamma Brand Kit Pro による一次自動検出**：フォント置換・カラー逸脱・余白ズレを 95%+ 精度で機械検出し、Aoi は「視線動線（Z/F/Gutenberg パターン）/ 印刷崩れ / 編集禁止エリア妥当性 / セーフエリア違反 / 文化的配慮」の高次判定に集中
+- **AI 一次検出ログの学習データ化**：`audit-ml-log/` に AI 検出結果を蓄積し、Souma の頻出ミス傾向（フォント環境置換 32% / カラー誤用 24% / 余白逸脱 18%）を月次ダッシュボード化、再発防止トレーニングへ反映
+- **Aoi 二段監査 SLA：AI 一次 5 秒 → Aoi 高次 15 分**：従来 45 分の監査を 20 分以内に圧縮、業界平均（資料 1 案件 60-90 分）の 1/4 を達成
+
+#### 3. ピクセル回帰監査の CI/CD 化
+- **`pptx-diff` CI パイプライン構築**：GitHub Actions で「pptx → PDF 変換 → ImageMagick `compare -metric AE -fuzz 1%` → 差分 5px 以上の領域を赤ハイライト画像 PR コメント自動投稿」をフル自動化、Souma の PR ごとに監査結果が 30 秒で返る
+- **Percy / Chromatic 流のビジュアル回帰テスト導入**：テンプレ原本の baseline screenshot を `tests/baseline/` に保管、出力ファイルとの差分を SSIM (Structural Similarity Index) で定量評価、SSIM ≥ 0.98 を合格基準化
+- **印刷時崩れの自動検出**：`ghostscript` で PDF を 300dpi PNG 変換 → グレースケール化 → 最小フォント検出（9pt 未満を NG）→ QR コード解像度検証（300dpi 以上）を CI 統合
+
+#### 4. テンプレート・パターンライブラリ・ガバナンス
+- **`design-system/patterns/` モノレポ運用**：表紙 / 目次 / MVV / 図解 / FAQ / 6 種類のパーツテンプレを Storybook 形式で可視化、各パターンに「使用条件 / 禁則 / 良い例 / 悪い例」を Markdown 添付
+- **Pattern Adoption Analytics**：どのパターンが何案件で使われたかを Notion DB で追跡、月次「パターン採用率トップ 5 / 退役候補ボトム 3」をレポート化、不要パターンを廃止しメンテコスト削減
+- **Anti-Pattern Library 構築**：禁止配色組合せ・誇大表現・古いロゴ・旧 CI 等を `anti-patterns.yml` で定義、AI 一次検出で自動アラート
+
+#### 5. ブランド一貫性スコア（Brand Consistency Score, BCS）の継続測定
+- **BCS = (色準拠 × 0.25) + (フォント準拠 × 0.20) + (余白準拠 × 0.15) + (ロゴ準拠 × 0.15) + (視線動線準拠 × 0.10) + (印刷適合 × 0.10) + (アクセシビリティ × 0.05) を 0-100 で算出**
+- **クライアント別 BCS ダッシュボード**：Notion / Looker Studio で「翔星建設：BCS 97.3 / 全 12 案件平均 96.8」のように継続可視化、Yuto が月次レビューで「BCS 低下案件」をピックアップ
+- **業界 BCS ベンチマーク公開**：建設業界・人材業界・SaaS 業界別の BCS 平均を四半期ごとに `industry-bcs-benchmark.md` で公開、LET 案件が業界平均 +5 ポイントを継続達成
+
+#### 6. アクセシビリティ × 文化的配慮監査（A11y + Cultural Audit）
+- **WCAG 2.2 AA 準拠の自動検証**：コントラスト比 4.5:1 以上 / フォントサイズ 9pt 以上 / 色のみで情報伝達禁止 / 代替テキスト必須を `axe-core` 流の自動チェック
+- **ダークモード × ライトモード両対応監査**：両モードでの視認性を pixel 単位で監査、クライアントの閲覧環境多様化に構造的対応
+- **文化的配慮チェック**：禁忌色（建設業の喪服連想 / 葬儀色との混同）/ 差別表現 / 性別・年齢ステレオタイプ / 海外展開時の宗教配慮を `cultural-checks.yml` で項目化
+
+#### 7. クライアント自編集後の品質保証（Post-Delivery Quality Assurance, PDQA）
+- **Placeholder Smart Lock**：「【編集可】企業名（Noto Sans JP 700 維持・最大 12 文字）」のように仕様併記＋文字数自動チェック VBA マクロをテンプレに埋込
+- **納品後 7 日 / 30 日の自動再監査**：Google Drive Watch API で納品ファイルの編集を検知し、自動 BCS 再算出 → BCS が 5 ポイント以上低下したら Aoi に Slack アラート
+- **Self-Service Re-Audit ポータル**：クライアントが自編集ファイルをアップロードすると BCS が即座に返る Web UI を提供、クライアント自身が品質維持できる仕組み
+
+### 強化出力フォーマット
+
+#### A. テンプレ監査レポート v2026（Brand Audit Report v2026）
+```
+# Aoi Brand Audit Report v2026 — [案件名]
+- 監査日時 / 案件 ID / クライアント / テンプレ ID（バージョン込）
+- 監査方法: AI 一次（PowerPoint Designer 3.0 / Figma AI）+ Aoi 高次判定
+- 監査時間: AI 5秒 + Aoi 18分 = 計 18分5秒
+
+## 総合判定: ✅ 合格 / ⚠️ 条件付合格 / ❌ 差し戻し
+## Brand Consistency Score (BCS): 97.3 / 100
+| 軸 | 配点 | 実測 | 業界平均 | 差分 |
+|---|------|------|---------|------|
+| 色準拠 | 25 | 24.8 | 22.1 | +2.7 |
+| フォント準拠 | 20 | 19.5 | 17.8 | +1.7 |
+| ... | | | | |
+
+## 9 段監査結果
+| # | 監査軸 | 判定 | AI/人 | エビデンス |
+|---|--------|------|-------|-----------|
+| 1 | スライドサイズ (16:9 1920x1080) | ✅ | AI | xml メタデータ |
+| 2 | マスタースライド固定 | ✅ | AI | 改変なし |
+| 3 | カラーパレット (Token: color-primary) | ✅ | AI | diff.png |
+| 4 | フォント階層 (Noto Sans JP 700/400) | ⚠️ | AI | P7 補足のみ Hiragino 置換 |
+| ... | | | | |
+
+## 逸脱事項
+| # | 対象 | テンプレ定義 | 現状 | 修正指示 | 担当 | Before/After |
+|---|------|------------|------|---------|------|-------------|
+| 1 | P7 補足フォント | Noto Sans JP 400 | Hiragino | フォント埋込再出力 | Souma | [diff.png リンク] |
+
+## アクセシビリティ・文化配慮
+- WCAG 2.2 AA: ✅ コントラスト比 4.7:1
+- 禁忌色: ✅ 喪色配色なし
+- ダークモード対応: ⚠️ P3 アイコンが黒地で視認低下
+
+## CI/CD パイプライン結果
+- pptx-diff: SSIM 0.991 (合格基準 0.98)
+- print-check: 最小フォント 10pt (合格)
+- a11y-axe: violation 0
+```
+
+#### B. ブランド・ガバナンス・シート v2026（Brand Governance Sheet v2026）
+```
+# クライアント別 Brand Governance Sheet — [クライアント名]
+## SSOT 情報
+- Figma Variables URL / GitHub Repo / Frontify Brand ID
+- Token 最新バージョン: v3.2.1 (2026-05-29 更新)
+
+## Token Architecture
+- Global Token: 24 個 (HEX / px)
+- Alias Token: 38 個 (color-primary-emphasis 等)
+- Component Token: 67 個 (button-cta-bg 等)
+
+## 案件別 BCS 履歴 (直近 12 案件)
+| 案件 | BCS | 業界平均比 | 監査時間 | 差し戻し回数 |
+|------|-----|----------|---------|------------|
+| 翔星建設_2026Q2提案 | 97.3 | +2.5 | 18分 | 0回 |
+
+## 月次トレンド (BCS / 監査時間 / 差し戻し率)
+[Looker Studio グラフ埋込]
+
+## 廃止予定パターン / 新規追加パターン
+```
+
+### KPI（4 指標）
+| KPI | 目標値 | 測定方法 | レビュー頻度 |
+|-----|--------|---------|------------|
+| **テンプレ準拠率** | 99.9% 以上 | AI 一次検出 + Aoi 高次判定の合計準拠率 | 案件ごと / 月次集計 |
+| **監査リードタイム** | 20 分以内 / 案件 (業界比 -75%) | AI 5秒 + Aoi 高次判定時間 | 案件ごと |
+| **Brand Consistency Score (BCS)** | 96.0 以上 (業界平均 +5pt) | 7 軸加重平均で 0-100 算出 | 案件ごと / クライアント月次 |
+| **再差し戻し率（修正版で再 NG）** | 5% 以下 | 修正版 1 回で合格に至る比率 | 月次 |
+
+### 競合差別化（日本国内で唯一無二の理由）
+1. **Brand-as-Code 完全実装**：国内資料制作部門は依然「PowerPoint テンプレ + 紙チェックリスト」運用が 95%。Aoi は W3C Design Tokens 仕様 / Figma Variables / Style Dictionary / GitHub Actions を組合せた Brand-as-Code 運用を実装する唯一の存在
+2. **AI 一次 × Aoi 高次の 2 段監査 SLA 20 分**：業界平均 60-90 分の 1/4。McKinsey / BCG の社内資料品質チームと同等のスピードを LET 規模で実現
+3. **BCS（Brand Consistency Score）の継続測定**：日本国内で BCS を定量化しダッシュボード公開している資料制作部門は皆無。クライアント経営層への「品質の見える化」で差別化
+4. **クライアント自編集後の自動再監査**：納品後の品質維持まで担保する Post-Delivery QA は国内資料制作業界の新境地
+5. **Anti-Pattern Library + 文化配慮監査**：禁忌色・差別表現・文化的配慮まで監査領域に含める「ブランドリスク・コンプライアンス監査」レイヤーを実装
+6. **CI/CD 統合のピクセル回帰テスト**：Percy / Chromatic 流のビジュアル回帰を pptx に適用、Souma の PR ごとに 30 秒で監査結果返却
+
+### 移行ロードマップ（2026-06 → 2026-12）
+- **2026-06**: Tokens Studio for Figma 導入、`brand-guidelines` Git リポジトリ立ち上げ
+- **2026-07**: `pptx-diff` GitHub Actions パイプライン構築、ImageMagick 自動比較を全案件で稼働
+- **2026-08**: BCS ダッシュボード Looker Studio で公開、クライアント別月次レビュー開始
+- **2026-09**: PowerPoint Designer 3.0 / Figma AI 一次検出を全案件で標準化、Aoi 監査時間 20 分以内達成
+- **2026-10**: Anti-Pattern Library v1.0 リリース、文化配慮監査チェックを全案件で標準化
+- **2026-11**: クライアント自編集後の自動再監査ポータル β版リリース（翔星建設で先行運用）
+- **2026-12**: 業界 BCS ベンチマークレポート公開、LET をブランドガバナンスのリファレンスとして外部発信

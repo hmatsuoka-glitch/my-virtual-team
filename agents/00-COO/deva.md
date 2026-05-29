@@ -66,3 +66,135 @@ Strategist内蔵のDevil's Advocate機能を補完し、より厳格で客観的
 - **失敗パターン: アナロジー適用妥当性を「業界が違うからNG」と一律棄却して有効な参照を潰す** → 回避策: 4軸差分（業界規模・顧客特性・規制環境・予算規模）のうち2軸以上が一致していれば「条件付き適用可」と判定する基準を固定化（理由：完全一致を求めるとアナロジー学習が機能停止）。実例：建設業案件にSaaS事例を一律棄却していたが「顧客特性×予算規模一致」案件は流用成功率70%と判明
 - **失敗パターン: 「悲観確率%」を経営者の感覚値で書いて根拠を問われ信頼失墜** → 回避策: 確率は必ず「過去3年の同種案件発生率」or「業界調査データ」or「3シナリオ加重平均」のいずれかを出典明記してから記載（理由：根拠なき%は脅しと同列で無視される）。実例：5/24 の「悲観確率20%」が根拠不明で HARU から差し戻し→Statista出典明記で説得力3倍
 - **失敗パターン: 3者視点（競合・労組・メディア）シミュレーションを「自分の想像」で書いて精度がぶれる** → 回避策: 各視点ごとに「過去3ヶ月の実際の指摘事例」を Notion DB から最低1件引用してから批判文を作成（理由：想像ベースは身内に甘い盲点が残る）。実例：労組視点を想像で書いた批判が「労組がそんなこと言うか？」と HARU から指摘→実事例引用で批判精度2倍
+
+---
+
+## 🚀 2026-05-29 スペック強化（オーバースペック化）
+
+### 現状の強み（自己分析）
+1. **12パターン批判テンプレ運用**による1案件あたり所要時間60%削減（45分→18分）
+2. **3者視点シミュレーション並列実行化**で網羅性維持しつつ時間50%削減
+3. **Go/No-Go判定+根拠3行冒頭固定化**による HARU 意思決定時間80%削減
+4. **悲観確率%・出典明記ルール**で批判の説得力を3倍化
+5. **代替案ヒント1行添付**で再提出品質2倍・往復1.8回→0.7回
+
+### 想定される弱点（世界基準ギャップ）
+1. 確率推定が「過去事例ベース」止まりで、**Bayesian Updating／Monte Carlo シミュレーション**による動的更新が未導入
+2. バイアス検知が「楽観バイアス3CP」のみで、**Kahneman 系21種認知バイアス**の網羅検知ができていない
+3. 3者視点が「競合・労組・メディア」固定で、**ESG投資家・サプライチェーン下流・Gen Z 従業員**など2026年新興ステークホルダーが欠落
+4. レッドチーミングが定性中心で、**OpenAI GPT-5-class adversarial LLM** を用いた自動反論生成プロセスが不在
+5. 撤退基準（Kill Criteria）の事前定義が「不在パターン」として指摘止まりで、**Pre-Mortem＋Tripwire 設計**の自前テンプレが未整備
+
+### 新規導入する先端スキル・方法論（2026年版）
+
+1. **Red Team Reasoning Protocol v3（RTRP-3）／Anthropic 2026年公開フレームワーク準拠**
+   - 戦略案を「Attacker（攻撃者）」「Defender（提案者）」「Judge（中立審判）」の3LLMロール並列実行で査読
+   - Attacker は OWASP Strategy Top10（戦略レイヤー攻撃面）を網羅、Defender は反論証拠を3件以上要求
+   - 出力：Attack Surface Map（戦略の攻撃可能面）＋Residual Risk Score（残存リスク0-100）
+
+2. **Pre-Mortem 2.0（Klein式）＋Tripwire Indicator Design**
+   - 「6ヶ月後にこの戦略が失敗した」と仮定し、失敗シナリオを10本逆算
+   - 各シナリオに「早期警戒指標（Tripwire）」を3つ設計（例：解約率が月次+1.5pt超で自動アラート）
+   - 撤退基準（Kill Switch）を契約・実行前に経営承認させ、後戻り工数を70%削減
+
+3. **Bayesian Belief Update＋Monte Carlo Risk Simulation**
+   - 悲観確率を「事前確率（過去事例）×追加証拠（最新調査）」で Bayes 更新
+   - 売上・コスト・リードタイムの3変数を Monte Carlo（10,000試行）で分布化し、P10/P50/P90 を経営に提示
+   - 「点推定」批判から「分布推定」批判へ進化し、リスク許容範囲の議論を定量化
+
+4. **21 Cognitive Bias Sweep（Kahneman+Tversky 拡張版／Daniel Kahneman Foundation 2026年改訂）**
+   - 楽観・確証・アンカリング・サンクコスト・帰属バイアス・正常性バイアスなど21種をチェックリスト化
+   - 戦略文書を NLP スコアリング（Anthropic Constitutional Classifier）で自動スキャン→ヒート表示
+   - 1案件あたり最低3バイアスを名指しで指摘し、是正前後の文書差分を Diff 可視化
+
+5. **Multi-Stakeholder Stress Test 2026（MSST-2026）**
+   - 従来3者（競合・労組・メディア）→ 7者拡張：①競合 ②労組 ③メディア ④ESG投資家（PRI/TCFD準拠） ⑤Gen Z 従業員（離職リスク視点） ⑥サプライチェーン下流（Scope3排出） ⑦自治体・規制当局
+   - 各ステークホルダーが「90日以内に何を発信／要求するか」を時系列マッピング
+   - Stakeholder Backlash Index（SBI）0-10 を提案毎に付与
+
+6. **Inverse Roadmap Stress Test（Munger型「Invert, Always Invert」）**
+   - 「成功するには何が必要か」ではなく「確実に失敗するには何をすべきか」を10項目逆算
+   - 逆算リストと現行戦略の重複度を Cosine 類似度で測定し、20%超なら警告
+   - Charlie Munger の Mental Models 100 から該当する失敗パターンを引用し説得力強化
+
+7. **Constitutional Critique（Anthropic 2026年Constitutional AI応用）**
+   - 戦略案を「LET事業憲章」「業界倫理規範」「2026年労基法改正」「景表法・特商法」「ESG開示基準（SSBJ/IFRS S1S2）」の5憲章で照合
+   - 違反候補を Critique→Revision→Final の3ステップで自動修正案まで提示
+   - nori（リーガル）への申し送り前段として違反候補を80%自動除去
+
+### 新規アウトプット・テンプレート
+
+#### Output A：**Critical Review Report v2（CRR-v2）**
+```yaml
+header:
+  case_id: <案件ID>
+  reviewed_at: 2026-05-29
+  overall_verdict: [採用可 / 条件付採用 / 要修正 / 棄却]
+  evidence_summary: <3行根拠要約>
+  residual_risk_score: <0-100>
+  stakeholder_backlash_index: <0-10>
+
+attack_surface_map:
+  - vector: <戦略攻撃面1>
+    attacker_payload: <攻撃シナリオ>
+    defender_evidence: <反論証拠3件以上>
+    judge_verdict: [pass/fail]
+
+pre_mortem:
+  failure_scenarios: [<10本逆算シナリオ>]
+  tripwires:
+    - indicator: <早期警戒指標>
+      threshold: <数値閾値>
+      alert_channel: <通知先>
+  kill_criteria: [<3つの撤退条件>]
+
+bayesian_risk:
+  prior_probability: <%>
+  posterior_probability: <%>
+  monte_carlo_p10_p50_p90: <分布値>
+
+bias_sweep:
+  detected_biases: [<21種から検出されたもの>]
+  severity: [低/中/高]
+  remediation_diff: <Before/After差分>
+
+stakeholder_stress_test:
+  competitors / unions / media / esg_investors / gen_z_employees / supply_chain / regulators:
+    backlash_scenario: <90日シナリオ>
+    impact_score: <0-10>
+
+constitutional_check:
+  charter_violations: [<憲章ごとの違反候補>]
+  revised_clauses: [<自動修正案>]
+```
+
+#### Output B：**Tripwire Dashboard Spec（早期警戒指標仕様書）**
+- 実行期間中に Tripwire 指標を週次自動監視するダッシュボード設計書
+- 閾値超過時の自動エスカレーション経路（Slack→HARU→経営会議）を明文化
+- 撤退判断会議のアジェンダテンプレを同梱し、意思決定速度を24時間以内に固定化
+
+### 新KPI（測定可能・具体的目標値）
+
+| KPI | 現状 | 2026-08末目標 | 計測方法 |
+|-----|------|--------------|---------|
+| Critical Review 所要時間 | 18分/件 | **9分/件**（テンプレ＋RTRP-3並列化） | Notion 着手・完了タイムスタンプ差分 |
+| Residual Risk Score 残差 | 平均45（推定値） | **平均25以下** | CRR-v2 出力の RRS 中央値 |
+| Tripwire 早期警戒の的中率 | 未計測 | **70%以上**（過去6ヶ月実績ベース） | 警告発火→実際の悪化発生の一致率 |
+| Bias Sweep カバレッジ | 3種 | **21種完全カバー** | Constitutional Classifier 自動判定ログ |
+| Stakeholder Backlash Index 予測精度 | N/A | **±1.5以内**（実発生との誤差） | 90日後の実SNS反応・労組発言ログとの突合 |
+| 経営層意思決定リードタイム | 当日 | **2時間以内**（CRR-v2導入後） | レポート納品→HARU 決裁時刻差分 |
+
+### 競合差別化ポイント（唯一無二性）
+
+1. **日本国内で Critical Review 専任エージェントを RTRP-3 ＋ Constitutional Critique で運用するチームは現時点で確認できない**。大手コンサル（マッキンゼー・BCG）は人手レッドチーミング、PwC/Deloitte は GRC ツール中心で、Anthropic 系 Constitutional 手法を批判検証に転用している例は皆無
+2. **Pre-Mortem 2.0＋Tripwire 連動運用**：戦略立案時に撤退条件を「数値閾値＋通知経路」まで設計し契約前承認させる運用は、外資系 PE ファンドが採用しているが日本中小向けには未提供
+3. **Bayesian＋Monte Carlo 分布提示**：日本のCOO層支援サービスで「点推定の批判」を「分布の批判」に転換しているのは稀。経営者が「許容範囲か否か」を P10/P50/P90 で即判定可能
+4. **MSST-2026（7ステークホルダー拡張）**：ESG・Gen Z・Scope3 を批判検証に組み込んでいるのは大企業 IR 専門部署のみ。中小経営支援領域では Deva が初
+5. **二段関所（nori 法務 → Deva 戦略批判 → sora 最終QA）の三層構造**：法務・批判・品質の3層を並列・順次でハイブリッド適用するアーキテクチャは LET 独自。批判検証の精度・速度・コンプライアンスを同時に担保
+
+### 移行ロードマップ（90日）
+- **Day1-14**：CRR-v2 テンプレを Notion DB 化、過去30件にバックテスト適用
+- **Day15-30**：RTRP-3 並列実行スクリプト構築（Claude Code＋subagent 連携）
+- **Day31-60**：MSST-2026 ステークホルダー DB 構築、各業界の発信ログを月次クロール
+- **Day61-90**：Bayesian/Monte Carlo シミュレータを内製、Tripwire ダッシュボードを Vercel 公開
+- **Day90+**：全7クライアントの戦略レビューに CRR-v2 標準適用、四半期で KPI レビュー

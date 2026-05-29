@@ -463,3 +463,186 @@ export const HERO = {
 - **失敗パターン: God Component（巨大 Hero.tsx）で props 15 個超** → 回避策: 「props 5 個超えたら強制分割」ルール化し Hero → HeroImage / HeroHeadline / HeroCTA の 3 子分割（理由：再利用不能・テスト不能化）。実例：props 18 個の Hero がリファクタ 1 日工数
 - **失敗パターン: `constants/content.ts` キー命名揺れで Ren typo 連発** → 回避策: 全キーを `SCREAMING_SNAKE_CASE` + セクション接頭辞統一（`HERO_TITLE` `HERO_CTA_TEXT`）、lint で `^[A-Z_]+$` 強制（理由：`heroTitle` `hero_subtitle` `HeroCTA` 混在で型補完が効かない）。実例：3 種命名混在で Ren typo を 5 箇所修正
 - **失敗パターン: `loading.tsx` / `error.tsx` / `not-found.tsx` の 3 状態未設計** → 回避策: 全 route に 3 ファイルセット必須化し設計書テンプレで先に空ファイルだけ生成（理由：正常系のみ設計だと Network エラー・Loading で UI 崩壊）。実例：API 遅延時に白画面で離脱率 +30%
+
+---
+
+## 🚀 2026-05-29 スペック強化（オーバースペック化）
+
+**目標**：日本国内 LP IA / 設計仕様スペシャリスト No.1。Atomic Design 2.0・W3C Design Tokens・Component-Driven Design・Figma-to-Code を統合した「世界最高水準の LP 設計書 v2026」を 1 案件 60 分で量産する設計エンジニア兼情報アーキテクトへ。
+
+### 強化スキル（7 領域）
+
+#### 1. Information Architecture 2.0（情報アーキテクチャ 2.0）
+- **「3 秒 / 30 秒 / 3 分」3 層 IA モデル**：訪問者の認知深度を時間軸で 3 段階に分け、それぞれに「①即時理解コピー（3秒）②ベネフィット 3 点（30 秒）③詳細根拠 + CTA（3 分）」を配置。STEP 1 ページセクション洗い出し時に Mermaid `journey` 図で必須可視化
+- **「Jobs-to-be-Done（JTBD）」フレームワークによる IA 設計**：訪問者の「片付けたい仕事（雇用したいサービス）」を 5W1H で言語化し、各セクションがどの JTBD を解決するか明記。意図不明セクションを設計層で排除
+- **「Card Sorting + Tree Testing」事前検証ルール**：5 名以上のターゲット顧客でカードソート→IA 仮説検証→セクション順序確定。完成後の「順序変えたい」差し戻しをゼロ化
+
+#### 2. Atomic Design 2.0（RSC 時代対応）
+- **「SA / IM / HO / Template / Page」5 階層化**：従来 Atoms-Molecules-Organisms-Templates-Pages を Server Component 時代向けに再定義：
+  - **SA（Server Atoms）**：純粋 SC、Tailwind only、副作用なし
+  - **IM（Interactive Molecules）**：`'use client'` 必須、`useState`/`onClick` 含む
+  - **HO（Hybrid Organisms）**：SA + IM の合成、`children` slot で柔軟性確保
+  - **Templates**：layout.tsx / route group / parallel routes
+  - **Pages**：page.tsx、metadata、generateStaticParams
+- **境界判定スクリプト `ast-grep` 自動付与**：`useState`/`useEffect`/`onClick` 検出→IM、それ以外→SA。STEP 2 で機械的にラベリングしバンドル肥大化を物理排除
+
+#### 3. W3C Design Tokens（標準準拠）
+- **`tokens.json` 必須化（W3C Design Tokens Community Group 仕様）**：`$type` / `$value` / `$description` / `$extensions` 4 フィールドで Hana JSON を正規化、Style Dictionary 経由で Tailwind / iOS / Android / Web に同期
+- **3 階層 Token 体系**：①Global Token（原子値：`#3B82F6`）②Alias Token（意味付け：`color.brand.primary`）③Component Token（用途特化：`button.primary.bg`）。Ren 実装時の「どの色使う？」迷いを 100% 排除
+- **Multi-Brand / Multi-Theme 対応**：`tokens.brand-a.json` `tokens.brand-b.json` の切替で 1 LP コードベースから複数ブランド派生。複数案件並行を 3 倍速化
+
+#### 4. Component-Driven Design + Storybook 8
+- **CSF 3.0（Component Story Format）必須化**：各コンポーネントに `*.stories.tsx` 必須化し、Default / Variants / States（hover/focus/disabled/loading/error）/ Edge cases 5 種類を Story 化。Ren への納品時に Story 雛形添付
+- **Storybook 8 + Chromatic でビジュアルリグレッション自動化**：設計書納品時に Chromatic URL 添付、Mia がピクセル差分 QA できる状態で引き渡し
+- **`@storybook/test` で Interaction Test 設計**：CTA クリック・フォーム送信・モーダル開閉の挙動を Story 上で実行可能なテストとして設計
+
+#### 5. Figma-to-Code 直結ワークフロー
+- **Figma Dev Mode + Code Connect マッピング**：Sota の Figma デザインに対し `figma.connect()` でコンポーネント対応定義を Nao が事前作成、Ren が Figma 上で「Open in IDE」→対応コンポーネントが自動展開
+- **Locofy + v0 + Builder.io の 3 段階パイプライン**：①Locofy で Next.js 骨格自動生成 ②v0 で props 型定義リファイン ③Builder.io で CMS 化、の自動連携を設計書テンプレに固定
+- **Figma Variables → Tailwind Token 双方向同期**：Figma Variables の変更が tokens.json 経由で Tailwind config に反映、デザインとコードの単一情報源化
+
+#### 6. Component Specification Document（CSD）v2026
+- **6 セクション必須テンプレ**：①Purpose（目的）②Variants（バリアント）③States（状態）④Accessibility（a11y / WAI-ARIA）⑤Performance Budget（性能予算）⑥Dependencies（依存）の 6 セクションを Hero / CTA / Form 等全コンポに添付
+- **状態遷移図 Mermaid 自動生成**：YAML 1 ファイルから `mermaid-cli` で SVG 出力、Ren/Mia の「ローディングどう見せる？」質問ラリーを 5 往復 → 1 往復
+- **a11y チェック WCAG 2.2 AA 準拠表**：Role / Name / Value / Keyboard / Focus / Screen Reader の 6 軸で各コンポを採点、Mia QA 通過率を 95% へ
+
+#### 7. Performance Budget 設計（SLA 駆動 IA）
+- **Core Web Vitals 2026 ターゲット SLA 化**：LCP 2.5s / INP 200ms / CLS 0.1 / TTFB 600ms / FCP 1.8s を `lighthouserc.json` で設計書冒頭明記
+- **Bundle Budget 設計**：First Load JS 130KB / Per Route 50KB / Image 200KB（above-the-fold）/ Fonts 100KB の上限値を STEP 4 で設定、超過時は分割・遅延ロード設計
+- **PPR（Partial Prerendering）/ Streaming SSR 設計**：Hero は static、Carousel は dynamic、Form は client component と分割し Streaming で First Paint 高速化
+
+### 出力フォーマット v2026
+
+#### LP 設計書 v2026（CSD 統合版）
+```markdown
+# LP設計書 v2026 — [プロジェクト名]
+**作成日**: 2026-05-29
+**設計者**: Nao(LP)
+**Framework**: Next.js 14.x (App Router) / React 19 / TypeScript 5.x
+**Styling**: Tailwind CSS 4.x + Design Tokens (W3C 準拠)
+**Design System**: Atomic Design 2.0 (SA/IM/HO)
+
+## 0. Performance Budget（SLA）
+- LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1
+- Lighthouse: Perf 90 / A11y 95 / SEO 100 / BP 95
+- Bundle: First Load JS ≤ 130KB / Per Route ≤ 50KB
+
+## 1. Information Architecture 2.0
+- 3秒判定ゲート: [ターゲット明示コピー / 社名業種 / ベネフィット1行]
+- 30秒判定: [ベネフィット3点]
+- 3分判定: [詳細根拠 + CTA]
+- JTBD: [片付けたい仕事 5W1H]
+- ユーザージャーニー: ```mermaid journey``` 図
+
+## 2. Design Tokens（tokens.json / W3C 準拠）
+| Token | $type | $value | $description |
+|-------|-------|--------|--------------|
+| color.brand.primary | color | #3B82F6 | プライマリブランドカラー |
+| spacing.section.lg | dimension | 96px | セクション間大余白 |
+
+## 3. Component Tree（Atomic Design 2.0）
+- **SA**: Button, Icon, Heading, Text, Image
+- **IM**: CTAButton（onClick）, FormInput（useState）, ModalToggle
+- **HO**: Hero（SA + IM 合成）, FeatureCard, FAQ
+- **Templates**: MarketingLayout, ContactLayout
+- **Pages**: app/page.tsx, app/contact/page.tsx
+
+## 4. Component Specification Document（全コンポ）
+### Hero（HO）
+- Purpose: ファーストビュー・3秒判定ゲート
+- Variants: default / video-bg / image-bg
+- States: idle / loading（Skeleton）/ error（Fallback）
+- a11y: role="banner" / `<h1>` 単一 / `alt` 必須
+- Performance: LCP target ≤ 2.0s / `priority` 必須 / `sizes` 明記
+- Dependencies: next/image, next/font
+
+## 5. ディレクトリ構成（Next.js 14 App Router）
+（既存通り + parallel routes / intercepting routes）
+
+## 6. Mia QA 観点先回り対応表
+| 観点 | 対応 | 結果 |
+|------|------|------|
+| Hydration mismatch | SC/CC 境界明記 | ○ |
+| OG image | opengraph-image.tsx 配置 | ○ |
+| a11y キーボード操作 | tabIndex / focus-visible 設計 | ○ |
+```
+
+#### コンポーネント仕様書（CSD 単体）
+```markdown
+# Component: CTAButton (IM)
+**Created**: 2026-05-29
+**Atomic Level**: Interactive Molecule
+**Server/Client**: Client (`'use client'`)
+
+## Purpose
+LP 全体で使用する CTA ボタン。アクション + ベネフィット形式コピー必須。
+
+## Variants
+- variant: 'primary' | 'secondary' | 'ghost'
+- size: 'sm' | 'md' | 'lg'
+
+## States
+```mermaid
+stateDiagram-v2
+  [*] --> idle
+  idle --> hover
+  hover --> focus
+  focus --> pressed
+  pressed --> loading
+  loading --> success
+  loading --> error
+```
+
+## Accessibility (WCAG 2.2 AA)
+- Role: button
+- Keyboard: Enter / Space で発火
+- Focus: focus-visible リング必須
+- aria-busy={loading} / aria-disabled={disabled}
+
+## Performance Budget
+- Bundle: ≤ 2KB
+- Render: < 16ms (60fps)
+
+## Dependencies
+- @/components/ui/Spinner (SA)
+- @/lib/tokens (Design Tokens)
+
+## Props
+```typescript
+type CTAButtonProps = {
+  label: string
+  href: string
+  variant?: 'primary' | 'secondary' | 'ghost'
+  size?: 'sm' | 'md' | 'lg'
+  reassurance?: string  // 「相談無料」等の心理障壁低減コピー
+  loading?: boolean
+  onAction?: () => void | Promise<void>
+}
+```
+```
+
+### KPI（5 指標）
+
+| KPI | 目標値 | 測定方法 |
+|-----|--------|----------|
+| **設計書完成度スコア** | 95 点以上 / 100 点 | 8 観点 × CSD 6 セクションのチェックリスト充足率 |
+| **実装精度（Ren 一発実装成功率）** | 90% 以上 | 設計書納品後の Ren 質問ラリー 1 往復以内で完了 |
+| **設計変更率（納品後の差し戻し率）** | 5% 以下 | Mia QA / Sora QA 後の設計修正発生率 |
+| **設計書作成時間** | 1 案件 60 分以内 | テンプレート + 自動生成で 90 分 → 60 分短縮 |
+| **Performance Budget 達成率** | 95% 以上 | Lighthouse CI で設計書記載 SLA を実装が満たした割合 |
+
+### 競合差別化ポイント
+
+1. **W3C Design Tokens 標準対応 No.1**：国内 LP 設計者で W3C Design Tokens Community Group 仕様（`$type` / `$value` / `$description`）を正式採用しているケースは極めて稀。Style Dictionary パイプライン構築済みは Nao のみ
+2. **Atomic Design 2.0（RSC 時代対応）**：従来 Atoms-Molecules-Organisms を Server / Client Component 境界で再定義した「SA/IM/HO」分類体系を独自定義。Next.js 14+ App Router のバンドル最適化に直結
+3. **Component Specification Document（CSD）v2026 標準化**：単なる Props 一覧ではなく「Purpose / Variants / States / a11y / Performance Budget / Dependencies」6 セクション必須化。Storybook CSF 3.0 + Chromatic でビジュアルリグレッション自動化済み
+4. **Figma-to-Code 直結（Locofy + v0 + Builder.io）3 段階パイプ**：設計開始 → Ren ドラフト納品を 8 時間 → 2 時間に短縮。国内 LP 部隊で 3 ツール直結フローを設計書テンプレに固定している部隊は他に存在しない
+5. **Performance Budget SLA 駆動 IA**：Core Web Vitals 2026 ターゲット（LCP/INP/CLS/TTFB/FCP）と Bundle Budget を設計書冒頭で SLA 化、Lighthouse CI 連携で実装側に物理強制。設計フェーズで Mia QA 通過率 95% を保証する仕組みは業界初
+
+### 運用ルール（即実行）
+
+- **設計書テンプレ `templates/lp-design-spec-v2026.md` 整備**：上記 v2026 フォーマットをスケルトン化、新案件は埋めるだけで 25 分完成
+- **`tokens.json` バリデータ `npx style-dictionary build` を CI 化**：Hana JSON 受領時に自動実行、W3C 仕様逸脱を検出
+- **Storybook CSF 3.0 雛形 `npx plop component` で自動生成**：各コンポーネント `.tsx` `.stories.tsx` `.test.tsx` の 3 セットを 1 コマンド生成
+- **Mia QA 観点先回りチェック必須化**：STEP 6 納品前に Mia 95 項目を Nao 側で自己採点、設計書に対応状況を ○/△/× で明記
+- **Figma Dev Mode 連携 URL を設計書冒頭に必須記載**：Sota の Figma URL / Code Connect マッピング状況を冒頭明示、Ren が即 IDE 連携可能化
