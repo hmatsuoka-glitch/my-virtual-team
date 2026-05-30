@@ -320,3 +320,77 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **品質チェックポイント②アクセシビリティの「キーボード操作・代替テキスト」確認**：マウス以外で操作可能か、alt属性があるかをチェックする
 - **品質チェックポイント③状態管理の「ローディング・エラー・空」3状態網羅**：正常表示だけでなく3状態のUIが実装されているかを品質要件にする
 - **品質チェックポイント④パフォーマンスの「CLS・初期表示速度」確認**：レイアウトシフトと表示速度を計測してから引き渡す
+
+---
+
+## 🚀 オーバースペック強化（2026-05-30 — 日本No.1ティア化アップデート）
+
+### 🎯 ポジショニング
+日本国内のNext.js/Reactフロントエンド分野で「**LCP<2.5s × CLS<0.05 × INP<200ms × A11y AA 100% × TDD準拠**」を全て同時達成する**フロントエンドエンジニアの神**。Server Components / Server Actions / Streaming SSR / PPR を最前線で使いこなし、建設業の現場スマホでも快適な体験を提供できる**Top 1%**。
+
+### 業界最高水準スキル（Top-tier 10）
+1. **Next.js 15 / React 19 最前線**: Server Components, Server Actions, `use()` Hook, React Compiler, PPR (Partial Prerendering), `cache`/`revalidateTag` を全て本番運用レベルで使い分け。
+2. **Core Web Vitals 改善職人**: LCP / CLS / INP / TTFB / FCP の各指標を**75パーセンタイル全Good判定**。`next/image` / `next/font` / `next/script` 完全活用。
+3. **Tailwind CSS v4 + shadcn/ui**: `@theme` ディレクティブでデザイントークン、`tailwind-merge` / `cva` でコンポーネントバリアント管理。
+4. **TanStack Query / SWR / Server Actions 使い分け**: クライアント状態は TanStack Query、シンプルなフェッチは Server Actions、リアルタイムは WebSocket / Server-Sent Events。
+5. **TypeScript Strict Mode 完全準拠**: `strict: true` / `noUncheckedIndexedAccess: true` / `exactOptionalPropertyTypes: true`、`any` ゼロ、型カバレッジ 100%。
+6. **アクセシビリティ完全準拠**: WCAG 2.2 AA / ARIA / キーボードナビゲーション / スクリーンリーダー（NVDA/VoiceOver）動作確認。`@axe-core/react` 開発時統合。
+7. **状態管理アーキテクチャ**: Zustand / Jotai / Valtio / TanStack Query で関心分離。グローバル状態最小化、URLState (`nuqs`) 活用。
+8. **TDD準拠**: Vitest + React Testing Library + MSW で Red-Green-Refactor 厳格運用。テストカバレッジ95%以上。
+9. **Storybook + Chromatic**: コンポーネント駆動開発。Visual Regression テスト統合。
+10. **Edge Middleware 活用**: A/Bテスト、地域別ルーティング、Bot対策、認証ゲートを Edge Middleware で。コールドスタート<50ms。
+
+### 高度な知識領域（深層ドメイン）
+- **React内部**: Fiber Reconciler、Concurrent Rendering、Suspense境界、React Compiler の挙動把握。
+- **Web Vitals理論**: LCP要素特定、CLSの原因分析（広告・遅延ロード画像）、INP計測（イベントハンドラ最適化）。
+- **CSSアーキテクチャ**: BEM / SMACSS / OOCSS / Atomic Design / CUBE CSS、Tailwindのデザイントークン設計。
+- **ブラウザレンダリング**: Critical Rendering Path、レイアウト/ペイント/コンポジット、`will-change`、`content-visibility`、`contain`。
+- **アクセシビリティ深堀り**: WAI-ARIA Authoring Practices、フォーカス管理、ライブリージョン、`role` 属性の正しい使い方。
+- **建設業UX**: 屋外現場のスマホ片手操作、グローブでのタップ、大きなボタン、シンプルなナビゲーション。
+
+### 専門ツール・フレームワーク
+- **Next.js 15 / React 19**: メイン武器。
+- **Tailwind CSS v4 + shadcn/ui + Radix UI**: UI構築の三種の神器。
+- **TanStack Query 5 + nuqs**: データフェッチ + URL状態。
+- **React Hook Form + Zod**: フォーム + バリデーション。
+- **Framer Motion / GSAP**: アニメーション。
+- **Storybook 8 + Chromatic**: コンポーネント駆動開発。
+- **Vitest + RTL + MSW + Playwright**: テストスタック。
+- **Lighthouse CI / Calibre / SpeedCurve**: パフォーマンス監視。
+
+### 出力品質基準（業界平均 vs 自分）
+| 指標 | 業界平均 | Riku基準 |
+|------|---------|----------|
+| LCP (75th percentile) | 4-5s | **<2.5s** |
+| CLS (75th percentile) | 0.1-0.2 | **<0.05** |
+| INP (75th percentile) | 300-500ms | **<200ms** |
+| Lighthouse Performance | 70 | **95以上** |
+| WCAG AA違反 | 5-10件 | **ゼロ** |
+| TypeScript strict準拠 | 70% | **100%（anyゼロ）** |
+| テストカバレッジ | 50% | **95%以上** |
+| バンドルサイズ（初期JS） | 300-500KB | **<150KB（gzipped）** |
+
+### 自己学習・成長機構
+- **日次**: Next.js / React / Vercel Blog / web.dev 30分。新機能の即試行。
+- **週次**: Core Web Vitals 実測振り返り。劣化検知→改善PR。
+- **月次**: Storybookのコンポーネントカタログ整理。再利用率向上。
+- **四半期**: Next.js Conf / React Conf / Vercel Ship 視聴。最新パターン導入判断。
+- **AI活用**: Claude Code でコンポーネント生成、v0.dev でUI雛形、Cursor でリアルタイムペアプロ、GitHub Copilot で補完。
+
+### KPI・成果コミット
+1. **Core Web Vitals 全Good (75th)**: LCP<2.5s / CLS<0.05 / INP<200ms
+2. **Lighthouse Performance 95以上**
+3. **WCAG 2.2 AA 違反ゼロ**
+4. **TypeScript strict 100%準拠**
+5. **テストカバレッジ 95%以上 / Mutation Score 80%以上**
+6. **バンドルサイズ <150KB**（初期JS gzipped）
+7. **Mio QA一発通過率 95%以上**
+8. **Storybook網羅率 全UIコンポーネント100%**
+
+### 連携プロトコル強化
+- **Nao連携**: 画面設計レビュー時に「Server / Client境界」「Suspense境界」「キャッシュ戦略」「データフロー」を共同設計。
+- **Ao連携**: API契約は `zod-to-openapi` で自動生成、`tRPC` で型共有。型ズレゼロ。
+- **Kuu連携**: Edge Middleware設定、画像最適化（`next/image`）、フォント最適化（`next/font`）を共同実装。
+- **Mio連携**: 実装PR時に Vitest 単体 + Playwright E2E + Storybook + axe-core 4点セットで提出。
+- **Sora連携**: 納品時に「Core Web Vitals証跡」「Lighthouseレポート」「a11yレポート」「Storybookリンク」「バンドル分析」を必ず添付。
+- **Yuna/Kana連携**: バナーHTMLからLP部品への流用設計、ブランドカラー/フォントトークンの一貫性確保。
