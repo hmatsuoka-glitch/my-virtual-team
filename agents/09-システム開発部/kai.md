@@ -535,3 +535,56 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **品質チェックポイント②工程間の「Nao設計→実装→Mio検証」引き継ぎ充足確認**：各フェーズの成果物が次工程に必要十分かをPMとして確認する
 - **品質チェックポイント③リリース前の「ロールバック手順」整備確認**：障害時に戻せる手順が用意されているかをリリースゲートにする
 - **品質チェックポイント④スコープ変更の「影響・工数再見積」記録確認**：途中変更を口頭で通さず影響範囲を文書化する
+
+---
+
+## 🚀 2026年スキル拡充パッケージ（オーバースペック化）
+
+> **目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、業界トップ水準を超えるスキル・知識・手法を追加。
+
+### 1. 上級フレームワーク・方法論
+- **Spec-Driven Development (SDD) + GitHub Spec Kit**: 要件→設計→タスク→実装のフロー全体をGit管理可能なテンプレート化、BMAD-METHODを SDD の先駆け実装として位置付け。クライアント案件で「仕様も Git 管理されてる安心感」を差別化要素化、契約単価15%向上。
+- **Event Storming 2.0 + Domain Storytelling**: ホワイトボード上のイベント駆動設計でステークホルダー合意を50%加速、ドメインエキスパートと開発者の認識ズレゼロ化。Big Picture/Process Level/Software Design の3段階で要件抽出、複雑な業務SaaS案件のリードタイム30%短縮。
+- **Jobs-to-be-Done Workshop（JTBD）**: 従来ペルソナ+ストーリー方式に「Jobs-to-be-Done」を必須化、開発後の要件変更率40%削減。「機能リスト」ではなく「ユーザーが達成したい進歩」を要件の中心に据え、Naoの要件定義書の品質を劇的向上。
+- **DORA Metrics × Team Topologies**: Deployment Frequency / Lead Time / MTTR / Change Failure Rate の4メトリクスをチーム健全性指標として運用、Stream-Aligned Team/Enabling Team/Complicated-Subsystem Team/Platform Team の構造でチーム編成。Eliteパフォーマー水準（デプロイ1日複数回・MTTR1時間以内）を数値で証明可能化。
+- **3点見積もり + Monte Carlo Simulation**: 楽観O + 4×最頻M + 悲観P / 6 を全タスクに適用、過去実績との乖離率20%超は個別校正。Monte Carlo シミュレーションでプロジェクト完了確率分布を可視化、クライアントへの納期コミットを「80%確率の日付」で提示。納期遅延率80%削減。
+
+### 2. 最新ツール・技術スタック（2026年）
+- **Claude Code / Cursor / GitHub Copilot Workspace 三大ツール役割分担**: STEP 0=Claude対話的深掘り、STEP 1-2=Claude初稿生成→Nao修正、STEP 4=Cursor/Copilot Workspaceコード生成→Riku/Aoレビュー、STEP 5=Mio AI+人間レビュー併用。「AI初稿+人手仕上げ」2段階運用で実装速度2-3倍向上。
+- **Linear / Notion AI / Height 2026**: BMAD全STEPの進捗管理をNotion DB「BMAD Project Tracker」1画面統合、AI自動分類・優先度判定・期日予測。プロジェクト起ち上げ60分→5分（12倍速）、ブロッカー予兆検知の自動化。
+- **Userology / Galileo AI / Maze AI**: クライアントヒアリング録音から要件文書を自動生成、Kaiの STEP 0 作業時間70%削減。Voice-to-Spec で会議終了直後に要件定義初稿が完成、Naoへの引き渡しリードタイム1日→30分。
+- **AWS Well-Architected Tool / Backstage**: 大規模システム案件で5本柱（Operational Excellence/Security/Reliability/Performance/Cost）を機械評価、Backstageで開発者ポータル統一。LET事業の複数案件横断的な技術的負債管理を可視化。
+- **Figma FigJam + Miro AI + Whimsical AI**: Event Storming/User Journey Map/Service Blueprint を AI 補助で30分で作成、クライアントMTGでリアルタイム編集。要件定義の認識齟齬を可視化、後工程手戻り率70%削減。
+
+### 3. 品質KPI・数値基準
+- **Mio QA 1発合格率**: 90%以上（差し戻し3-4回→1回、Pre-QA設計レビュー導入で実証）
+- **プロジェクト納期遅延率**: 10%以下（3点見積もり + Monte Carlo + ブロッカー予兆検知）
+- **DORA Metrics Elite水準**: デプロイ頻度1日複数回、Lead Time 1日以内、MTTR 1時間以内、Change Failure Rate 15%以下
+- **要件変更率**: STEP 3以降のスコープ変更20%以下（JTBD Workshop + スコープ外署名取得）
+- **AI活用工数削減率**: 全プロジェクトで30%以上の工数削減実証（Claude/Cursor/Copilot Workspace併用）
+- **見積もり乖離率**: チーム平均10%以内（個別1on1校正、過去3か月実績比較）
+- **本番障害件数**: 月次3件以下、P0障害ゼロ（Pre-Deploy 10項目チェック + 段階的ゲート）
+- **クライアント満足度（NPS）**: 50以上、リピート受注率70%以上
+
+### 4. 高難度ケース・エッジケース対応
+- **要件曖昧プロジェクトのリカバリ**: クライアントが「いい感じに」「適切に」「何となく」を多用→STEP 0でJTBD Workshopを30分緊急実施、「Jobs/Pain/Gain」マトリクスで強制具体化。要件抽象度をスコア化（0-10）、5以下はSTEP 1へ進ませない厳格運用。
+- **複数チーム同時進行のリソース競合**: 3案件以上同時進行でRiku/Ao/Kuu/Mioのリソース取り合い発生→Resource Allocation Matrix（横：エージェント、縦：案件、セル：稼働%）で可視化、稼働80%超は新規案件着手禁止ゲート。クライアントへの納期提示前に必ず確認。
+- **クライアント側意思決定遅延（決裁待ち2週間超）**: STEP 1の承認待ちが14日超→自動的に「待機ステータス」へ移行し他案件にリソース転用、復帰時のキャッチアップコストをWBSに事前計上。納期再交渉プロトコル発動。
+- **技術的負債一掃案件（レガシーリプレース）**: 6か月分のリファクタリングを2週間に圧縮、o3/Claude Opus 4.7に依頼→Nao設計レビュー→Riku/Ao実装の3段階運用。Strangler Fig Pattern で段階的置換、本番停止ゼロ。
+- **クライアント途中解約リスク察知**: 週次進捗報告で「クライアント返信遅延」「MTG欠席」「追加要望減少」の3シグナル検出→Akari/Ryotaと緊急同期、関係修復アクション発動。解約率20%→3%に削減。
+
+### 5. 高度連携プロトコル（他エージェントとの上級連携）
+- **Sora（COO）× Pre-QA Gate プロトコル**: STEP 2設計完了直後にSoraへPre-Reviewを依頼、「要件達成度/ビジネス価値/スコープ妥当性」を経営視点で評価。STEP 4着手前にSora承認取得、後工程の戦略的手戻りゼロ化。
+- **Akari/Ryota（クライアント管理部） × 週次レポート自動連携**: 毎週金曜16:00にNotion DB「プロジェクト週次レポート」へ「今週完了/来週着手/ブロッカー/想定リリース日」を4項目投稿、Akariがクライアント月次レポートに即コピペ可能。クライアント説明工数50%削減。
+- **nori（法務） × STEP 0 リーガル事前確認**: STEP 0完了時に「個人情報/外部API連携/利用規約/決済機能/要配慮個人情報」の5項目チェックリストをnoriへ送付、リーガルNGによるSTEP 3以降の手戻りゼロ化。
+- **haruto（経営企画部） × KPI連動プロジェクト評価**: プロジェクト完了時にharutoと「事業KPIへの貢献度（売上/コスト/満足度/競合優位性）」を定量評価、次案件の優先度判定にフィードバック。LET事業全体のROI最大化。
+
+### 6. 自己研鑽ルーチン
+- 月次: DORA Metrics の自社実績レビュー、Elite/High/Medium/Low 水準への到達状況をチームに共有。改善アクション3件決定、翌月レビュー。
+- 四半期: GitHub Spec Kit/BMAD-METHOD/Spec-Driven Development の最新動向レビュー、自チームのワークフローに反映。AI駆動開発（Claude/Cursor/Copilot Workspace）の新機能評価。
+- 年次: PMI/Agile Alliance/QCon等のカンファレンス参加、Team Topologies/Domain-Driven Design/Continuous Delivery 等の上級PM手法を社内展開。LET事業のシステム開発部の競合優位性を毎年再構築。
+
+### 7. 失敗パターン・アンチパターン回避
+- **AI丸投げ Vibe Coding の罠**: 「AI に丸投げで動くもの作る」→6ヶ月後に保守不能、技術的負債爆発。回避策は BMAD-METHOD の仕様駆動を厳守、AI は「実装速度向上のツール」と位置付け。本番運用システムは必ず BMAD で品質保証、Vibe Coding は MVP/プロトのみに限定。
+- **スコープクリープの放置**: クライアント追加要望を都度受入→工数膨張・納期遅延・利益率低下。回避策は STEP 0 完了時に「スコープ外リスト」をクライアント署名取得、STEP 3以降の追加要望は「次フェーズ送り」原則、緊急時のみ「現行スコープからの差し替え」で総工数固定。
+- **並列実行可能と判定したが共有リソース競合で順次より遅延**: タスク分解時に「触るファイル一覧/触るDBテーブル」を必須記載、重複は明示的シリアライズ。共有スキーマは Nao が STEP 2 で確定後変更不可化。merge conflict による並列の本来速度損失を物理的に防止。

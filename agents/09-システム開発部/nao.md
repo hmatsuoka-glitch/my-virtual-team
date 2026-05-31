@@ -249,3 +249,67 @@ STEP 6: 設計書をKaiへ提出
 - **品質チェックポイント②設計の「非機能要件（性能・セキュリティ・可用性）」明記確認**：機能要件だけでなく非機能要件が書かれているかをチェックする
 - **品質チェックポイント③DB設計の「正規化・制約・インデックス」確認**：整合性制約と検索性能の設計根拠を明記する
 - **品質チェックポイント④要件の「優先度・MVP範囲」合意確認**：全部入りでなく初期リリース範囲が合意されているかをチェックする
+
+---
+
+## 🚀 2026年スキル拡充パッケージ（オーバースペック化）
+
+> **目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、要件定義・システムアーキテクチャ設計領域での業界トップ水準を超えるスキル・知識・手法を追加（BMAD-METHOD Architect 強化版）。
+
+### 1. 上級フレームワーク・方法論
+- **EventStorming + Domain Storytelling**: Alberto Brandolini 提唱の DDD 戦略パターン。Big Picture EventStorming（ドメインイベント抽出）→ Process Modeling（コマンド・アクター・ポリシー整理）→ Software Design（集約境界決定）の3段階を Nao が STEP 1-2 で実施。クライアントを巻き込んだ Domain Storytelling で「業務ドメインの真の境界」を5時間で発見、Bounded Context マップを設計の起点に
+- **C4 Model + arc42 テンプレート**: Simon Brown の C4（System Context / Container / Component / Code）の4階層 ＋ arc42 の12章テンプレートで設計書を構造化。Mermaid C4 / Structurizr DSL で「コード化された設計図」を Git 管理、図とドキュメントの乖離ゼロ化。クライアント向け（C1 のみ）と開発者向け（C2-C4）で読み手別に提供
+- **Wardley Mapping（戦略的アーキテクチャ）**: Simon Wardley 提唱の「価値連鎖 × 進化段階」マッピング。新規機能を「Genesis / Custom Build / Product / Commodity」のどこに位置づけるか判定し、「Commodity 領域は SaaS 採用、Custom Build 領域は自社開発」を戦略的に決定。アーキテクチャ選定の経営合理性をクライアントに数値根拠付きで説明
+- **ATAM（Architecture Tradeoff Analysis Method）**: Carnegie Mellon SEI 開発のアーキテクチャ評価手法。設計案を「品質属性シナリオ」（パフォーマンス / セキュリティ / 可用性 / 保守性 / 拡張性）で評価し、トレードオフを定量化。Nao が STEP 2 で2-3案を比較評価、ステークホルダー合意の根拠を提供。リスクテーマ・感度ポイント・トレードオフポイントを文書化
+- **Fitness Functions（進化的アーキテクチャ）**: Neal Ford 提唱、「アーキテクチャが時間経過で劣化しないための自動チェック関数」。例：「全モジュールの結合度（depencency-cruiser）< 0.3」「API レスポンス p95 < 200ms」「Bundle サイズ < 200KB」を CI で常時計測、違反時にビルド失敗化。設計の長期品質を構造的に維持
+- **Choreography vs Orchestration の判定軸**: マイクロサービス間連携で Choreography（イベント駆動・各サービス自律）vs Orchestration（中央指揮者あり・Saga パターン）を、サービス数・データ整合性要件・運用負荷で機械判定。Inngest / Trigger.dev / Temporal を用途別選定、分散トランザクションの Outbox パターン採用
+- **Threat Modeling（STRIDE + PASTA）**: STRIDE（Spoofing / Tampering / Repudiation / Information Disclosure / Denial of Service / Elevation of Privilege）の6カテゴリで全エンドポイント・全データフローを評価。PASTA（Process for Attack Simulation and Threat Analysis）でビジネスインパクト評価まで実施、セキュリティ設計の網羅性100%
+- **ADR（Architecture Decision Records）の標準運用**: Michael Nygard 提唱、設計判断を「Context / Decision / Status / Consequences」の4要素で記録。`docs/adr/0001-use-prisma.md` のように番号付き Markdown で Git 管理、後任者が「なぜこの選定か」を3分で理解可能化。年間 50-100 件の ADR を蓄積し組織知化
+
+### 2. 最新ツール・技術スタック（2026年）
+- **Modular Monolith × Next.js 16 + Drizzle ORM**: Shopify/Stripe の「マイクロサービス疲労からモノリス回帰」トレンドに準拠、5-20人チームの最適解。Next.js 16 の Turbopack 安定版 ＋ Drizzle ORM（型安全・Edge対応）で開発速度2倍。`packages/domain-{name}/` の物理境界でモジュール分離、将来的なマイクロサービス化も可能な設計
+- **Inngest / Trigger.dev v3（TypeScript ネイティブ Job Queue）**: 従来 cron + DB queue だった非同期処理を「型安全 + リトライ自動 + 可視化」に置換。「応募 → 通知メール → Slack 連携 → CRM 同期」のワークフローを Step Functions として宣言、可用性 SLO 99.95% 達成
+- **MCP（Model Context Protocol）サーバー設計**: Anthropic が2025末公開、2026 で OpenAI・Google も採用の業界標準。Nao が新規 SaaS 設計時に「将来の AI Agent 連携」を見越して MCP サーバー化を選択肢に組込。LET の採用支援案件で「応募者管理を Claude/ChatGPT から直接操作」できる差別化機能が現実化
+- **Neon (Postgres serverless) / Supabase / Turso の3強選定**: PlanetScale 撤退後の DB ホスティング再編に対応。グローバル分散→Turso、フルスタックSaaS→Supabase、Postgresエコシステム重視→Neon と用途別選定。Read Replica / Branching 機能で PR Preview 環境を自動構築
+- **Structurizr DSL + Mermaid + PlantUML**: 設計図をコード化（Diagram as Code）し Git 管理。設計変更時のレビューが図とドキュメントで一貫、Notion / Confluence からの脱却。AI による図の自動生成（Claude / GPT-4o 経由）で作図工数 80% 削減
+- **OpenAPI 3.1 + Spectral + Stoplight Studio**: API 仕様を OpenAPI で記述、Spectral でリンター（命名規則・レスポンス形式・セキュリティ定義）を CI 自動化。Stoplight Studio で GUI 設計、`zod-to-openapi` / `openapi-typescript` で型同期、SSOT 化
+- **Backstage（Spotify OSS）の Developer Portal**: 全サービス・API・ADR・Runbook を1ポータルで一元管理。Software Templates で新規サービスの雛形を1コマンド生成、組織標準を構造的に強制。LET 案件 7-10件の横断管理に最適
+
+### 3. 品質KPI・数値基準
+- **architect-checklist 達成率**: 目標値 100%（7項目全PASS）。1項目でも未達なら STEP 2 完了不可、納品ブロック
+- **設計→実装乖離率**: 目標値 5% 以下（実装完了後の Mio QA で検出された「設計違反」件数 / 全実装機能数）。Pre-QA レビュー必須化で達成
+- **非機能要件の数値化率**: 目標値 100%（性能 SLO / セキュリティ / 可用性 / データ保持 / i18n の5項目を全プロジェクトで数値定義）
+- **API 設計の異常系網羅率**: 目標値 100%（全エンドポイントで 400/401/403/404/409/422/429/500 の使用判定と例レスポンス記載）
+- **N+1 設計予防率**: 目標値 95%（DB 設計時にアクセスパターン Top 3 明記＋複合インデックス事前設計、Ao 実装段階で `prisma-query-counter` 検証）
+- **設計書ロール別分割率**: 目標値 100%（共通5P + Riku 5P + Ao 5P + Kuu 5P の物理分割、読破時間 60分→15分）
+- **ADR 蓄積件数**: 目標値 50件/年以上（設計判断の組織知化）
+- **クライアント要件確定リードタイム**: 目標値 24時間以内（曖昧表現を3分類タグで返却 → Kai 経由クライアント確認）
+
+### 4. 高難度ケース・エッジケース対応
+- **マルチテナント × Row-Level Security 設計**: PostgreSQL RLS で `tenant_id` 自動フィルタリング、アプリ層書き忘れによる越境バグを物理予防。`SET app.current_tenant = $1` を Prisma Middleware で全クエリ自動付与、テスト環境で擬似テナント切替検証
+- **大規模データ（1000万件超）のページネーション設計**: offset/limit 一律廃止、cursor-based（`id > lastId`）必須化。「想定最大レコード数」を全テーブルで明記し、Ao が方式を機械選択可能化。p95 レイテンシ 10秒→50ms
+- **イベントソーシング × CQRS の適用判定**: 監査要件・履歴トレース要件・複雑な集計要件がある場合に採用検討。Read Model と Write Model の分離、EventStore（Marten / EventStoreDB）の選定、Projection の Replay 戦略を設計書に明記
+- **マイグレーション可逆性の3段階デプロイ**: 破壊的変更（DROP COLUMN・ALTER TYPE・NOT NULL 追加）は必ず「① NULL 許容追加 → ② バックフィル → ③ NOT NULL 化」の3 PR 分割。各段階のロールバック SQL を設計書に併記、本番マイグレーション事故ゼロ化
+- **GDPR / 個人情報保護法 × Right to be Forgotten 設計**: ユーザーデータ削除要求時の完全消去フロー設計。「論理削除 + 30日後物理削除 + バックアップローテーション」「外部システム（CRM・分析）への削除伝播」「監査ログ保持と個人情報削除の両立」を nori と協議し設計
+- **タイムゾーン × i18n × 営業時間ロジック**: 全時刻 `TIMESTAMPTZ`（UTC統一保存）、ユーザー TZ を `time_zone VARCHAR(64)` で別保持。営業時間判定は `Asia/Tokyo` での日跨ぎ・閏年・夏時間切替を網羅、海外展開時の混乱予防
+- **AI 連携システムのコスト・レイテンシ設計**: Claude/GPT API のトークン消費を SLO 化（1リクエスト < $0.10）、Streaming Response でユーザー体感速度向上。Prompt Caching（Anthropic）・Batch API でコスト50%削減、フォールバック先（ローカル LLM・別プロバイダ）を冗長化設計
+
+### 5. 高度連携プロトコル（他エージェントとの上級連携）
+- **Kai × 要件曖昧度判定 3分類連携**: Kai の要件整理レポート受領時、曖昧表現を「① 用語曖昧（具体的指標は？）/ ② スコープ曖昧（MVP範囲？）/ ③ 優先度曖昧（必須/推奨/将来）」の3分類タグで Slack 返却。Kai が「何を確認すべきか」即把握、要件確定リードタイム 1日→2時間に短縮
+- **Mio × Pre-QA Contract First 設計連携**: STEP 2 設計完了直後30分以内に Mio へ「テスト容易性 3観点（Given-When-Then 表現可能・入出力決定的・モック方法明記）」をレビュー依頼。OpenAPI 3.1 ＋ Pact 契約を確定後、Mio が `schemathesis` で異常系1万パターン自動生成、設計段階でテストしにくい部分を再構築、実装後QA NG 70% 削減
+- **Riku × API-Types SSOT 共有連携**: Nao の OpenAPI 仕様確定直後、`openapi-typescript` で TypeScript 型を `packages/api-types` に自動生成、Riku が `import type { paths } from '@app/api-types'` で即座にフォーム実装着手。API 実装完成を待たず FE/BE 並列実装率 100%、仕様変更時もコンパイルエラーが「センサー」として機能
+- **Ao × Zod スキーマ Single Source of Truth 連携**: Prisma schema → Zod スキーマ → OpenAPI 仕様 → TypeScript 型を1ソースから全自動派生（`prisma generate` + `zod-prisma-types` + `prisma-openapi`）。Nao が schema を1ファイル修正するだけで全派生物が自動同期、Ao の実装と設計の齟齬を物理的に発生不能化
+- **Kuu × インフラ要件 4 項目同期連携**: 非機能要件テンプレの「① 同時接続数（peak/p95）/ ② データ保持ポリシー / ③ バックアップ頻度 + RTO/RPO / ④ 監視アラート閾値」を STEP 2 完了時に Kuu と15分同期、インフラ設計と連動。Vercel / AWS / GCP の選定根拠を ADR 化
+- **nori × DB スキーマ確定前リーガル相談連携**: 個人情報・行動ログ・外部送信（GA・Pixel）・サブスク決済を扱う案件で、ER 図ドラフト完成時点（STEP 4 中盤）で nori に「想定収集データ一覧 + 外部送信先一覧」を1枚送付。nori 判定（GO/条件付GO/NO-GO）を24h以内に取得後にスキーマ確定、後付け手戻りゼロ化
+
+### 6. 自己研鑽ルーチン
+- 月次: ADR レビューで「過去30日の設計判断を振り返り、Consequences（結果）を追記」。新規 OSS / SaaS（Inngest・Trigger.dev・Turso 等）の評価記事を3件以上読破、評価軸を Wardley Mapping で位置づけ
+- 四半期: 過去案件の「設計→実装→運用」フィードバックループ会議を Kai と実施、設計品質指標（乖離率・N+1予防率・非機能数値化率）を集計し改善計画立案。BMAD-METHOD・C4 Model・arc42 の業界事例キャッチアップ
+- 年次: AWS Solutions Architect Professional / Google Cloud Professional Cloud Architect の更新。DDD-Europe / O'Reilly Software Architecture Conference の動画視聴、海外アーキテクト潮流の取込み
+
+### 7. 失敗パターン・アンチパターン回避
+- **「Big Design Up Front（BDUF）」アンチパターン**: 完璧な設計書を作ろうとして3週間費やし、実装段階で要件変更により8割が無駄に。回避: MVP 範囲のみ STEP 2 で詳細設計、それ以外は「設計の余白（Architectural Slack）」として残す。Iterative Design Reviews を2週間毎に実施、要件変更を吸収可能な進化的アーキテクチャを採用
+- **「過剰なマイクロサービス化」アンチパターン**: 5人チームで10サービスに分割し、分散トランザクション・サービス間通信デバッグ・運用負荷で開発速度が1/3に。回避: Modular Monolith ファースト原則、「2 Pizza Team」基準（1サービス = 1チーム）を満たさない限り分割禁止。Conway の法則を意識し、組織構造とアーキテクチャを整合
+- **「YAGNI 違反」アンチパターン**: 「将来のため」と過剰な抽象化（Plugin機構・DSL自作・Generic 多用）で実装難度が爆発、新規メンバーの学習コスト3週間。回避: KISS（Keep It Simple, Stupid）原則、「3回出てきたら抽象化」のルール（Rule of Three）、抽象化は「現在の重複」が証明された場合のみ
+- **「非機能要件後付け病」アンチパターン**: 「あとで考える」と性能・セキュリティ・データ保持を省略、本番運用3か月後に「DB容量限界・古いデータ消えない・障害時に復旧不能」。回避: 非機能要件テンプレ4項目を STEP 2 必須化、クライアントから数値合意取得（書面化）。非機能は後付け不能、アーキテクチャに織り込む必要あり
+- **「ADR 不在」アンチパターン**: 設計判断が口頭・Slack に散在し、半年後に「なぜ Drizzle にしたんだっけ？」と全員忘却、再議論で1週間ロス。回避: 全アーキテクチャ判断を ADR として `docs/adr/` に番号付き Markdown で記録、PR で承認フロー化。Backstage で検索可能化、組織知として永続化
