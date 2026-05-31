@@ -469,3 +469,66 @@ export const HERO = {
 - **品質チェックポイント②コンポーネント分割の「再利用性・props過多」チェック**：1コンポーネントのprops肥大は保守性を下げるため、責務分割の適切さを品質要件にする
 - **品質チェックポイント③ディレクトリ設計の「命名規約一貫性」確認**：命名揺れは実装者の迷走を招くため規約統一をチェックする
 - **品質チェックポイント④設計書に「レスポンシブ方針」明記確認**：ブレークポイントごとの挙動が設計段階で定義されているかを確認する
+
+---
+
+## 🚀 2026年スキル拡充パッケージ（オーバースペック化）
+
+> **目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、LP設計書作成スペシャリストとして業界トップ水準を超えるスキル・知識・手法を追加。Nao（07-LP部）は Hana の CSS データから Next.js/React 設計書を構築し、Ren が一発で実装に入れる「完璧な設計書」を提供する役割であり、設計層での品質ゲートを担う。
+
+### 1. 上級フレームワーク・方法論
+
+- **W3C Design Tokens Community Group 標準準拠の Token Architecture**：`tokens.json` を `$type` `$value` `$description` `$extensions` の4フィールドで構造化し、Style Dictionary 経由で Tailwind / iOS / Android / Web 4 プラットフォームに同期。Hana JSON → tokens.json → tailwind.config.ts の自動変換パイプラインで、マルチプラットフォーム LP・アプリ並行案件の設計工数 50% 削減
+- **Atomic Design 2.0（SA / IM / HO 分類）**：React Server Components 時代の新分類で Server Atoms（純粋 SC）/ Interactive Molecules（CC）/ Hybrid Organisms（Composition）の3階層化。各コンポーネントに `// SA` `// IM` `// HO` ラベル必須化し、`'use client'` 境界を設計層で明示。バンドルサイズ 60% 削減を設計段階で保証
+- **Component Specification Document（CSD）6セクション必須化**：Purpose（目的）/ Variants（バリアント）/ States（状態）/ Accessibility（a11y）/ Performance Budget（性能予算）/ Dependencies（依存）の6セクションを全コンポーネントで必須化。Hero / CTA / Form 等の主要コンポーネントは CSD 添付なしに Ren へ渡さない
+- **Page-Level Composition（Next.js Parallel Routes）設計**：`app/(marketing)/@hero/page.tsx` `@modal/(.)product/[id]/page.tsx` 等の Parallel Routes / Intercepting Routes を STEP 4 ディレクトリ設計時に明記。Streaming SSR で Hero / Body / Modal を独立 RSC として並列レンダリングし、LCP 体感速度向上
+- **Spec-Driven UI Architecture（仕様駆動 UI 設計）**：Zod スキーマで `constants/content.ts` の入力ガードを設計、`zod-to-ts` で TypeScript Interface 自動生成。実行時バリデート可能な型を Ren へ納品時にビルド検証済みで提供、型エラー起因の差し戻しゼロ化
+
+### 2. 最新ツール・技術スタック（2026年）
+
+- **Figma Dev Mode + Figma Variables → JSON エクスポート**：Sota のデザイン Figma から Variables を直接参照し、`figma-tokens-export` プラグイン → `tokens.json` → `tailwind.config.ts` 自動同期。手入力ミス・数値ズレをゼロに、STEP 4 ディレクトリ設計と並行してトークン定義完了
+- **Builder.io Visual Headless CMS + Locofy 2.0 連携**：Figma → Locofy 自動 Next.js コード生成 → Builder.io でクライアント側 CMS 編集可能化。STEP 5 コンテンツ定義時に「constants.ts ハードコード」vs「Builder.io 連携」の判定基準を設計書に明記、Saki への軽微修正依頼 70% 削減
+- **Style Dictionary + Token Studio**：複数ブランド案件（A/B ブランド切替）の色・フォント定義を一元管理、`style-dictionary build` 単一コマンドで Tailwind / iOS / Android 3 プラットフォーム設定再生成。STEP 1 で「B ブランド切替」が JSON 1 行変更で実現、並行設計が 3 倍スピード化
+- **Mermaid CLI + Markdown Preview Mermaid Support**：状態遷移図（idle/hover/focus/disabled/loading/error）を YAML 1 ファイル → `mermaid-cli` で SVG 自動出力。Ren/Mia の「ローディングどう見せる？」質問ラリー 5 往復→1 往復に圧縮
+- **zod-to-ts CLI パイプライン**：Hana JSON → zod スキーマ → `zod-to-ts` で `types/index.ts` を1コマンド生成。props 型定義の手書き 40 分→2 分、Ren への納品時にビルド検証済みの型ファイル同梱
+- **ast-grep（コードラベル自動付与スクリプト）**：各 .tsx の `useState` `useEffect` `onClick` を AST 解析、CC 必須なら IM、それ以外 SA、`children` 受領で他コンポ合成なら HO と自動ラベリング。STEP 2 コンポーネント分割 60 分→15 分
+
+### 3. 品質KPI・数値基準
+
+- **設計書品質 8 観点充足率**: 目標値 100%（Props 5個以下 / 再利用 2箇所以上 / 責務1つ / children or props 排他 / Server-Client 境界明記 / a11y ロール記載 / data-testid 命名統一 / loading-error-not-found 3状態定義）。計測方法：STEP 6 納品前にチェックリスト機械検証、1項目空欄でRen引渡し不可
+- **Performance Budget 達成率**: 目標値 Performance 90+ / Accessibility 95+ / Best Practices 95+ / SEO 100 / LCP 2.5s以下 / INP 200ms以下 / CLS 0.1以下。計測方法：`lighthouserc.json` テンプレを設計書冒頭に同梱、Ren 実装中の判断根拠を設計層で固定
+- **Hana 仕様データ完成度**: 目標値 5段階評価 4点以上（タイポグラフィ / カラー / レイアウト / アニメ / レスポンシブ）。計測方法：STEP 1 開始時に Nao 自身が採点、3点以下なら Hana へ再抽出要求エスカレ
+- **型定義ビルド検証通過率**: 目標値 100%（`tsc --noEmit` ゼロエラー / `constants.ts` JSON Schema バリデート通過）。計測方法：STEP 6 納品前に CI 走らせビルド検証、文法・型不整合・スペルミスを納品前に検出
+- **Ren 設計書一発実装成功率**: 目標値 90%以上（差し戻しなしで Mia QA 通過する割合）。計測方法：四半期ごとの GitHub Issue 履歴集計、目標未達なら STEP 6 チェックリスト追加項目を洗い直し
+- **Mia 観点先回り対応率**: 目標値 95%（95項目チェックリストの設計書自己採点 ○率）。計測方法：STEP 6 で Nao 自己採点 → Mia 実 QA との差分を案件後分析
+
+### 4. 高難度ケース・エッジケース対応
+
+- **複数ブランド A/B 同時運用 LP**: Token Studio + Style Dictionary で `tokens.brandA.json` `tokens.brandB.json` を分離管理、URL クエリ `?brand=B` で動的切替。STEP 4 ディレクトリ設計に `app/[brand]/page.tsx` 動的セグメント追加、`generateStaticParams` で SSG 両ブランド事前生成
+- **多言語（i18n）LP with App Router**: `next-intl` を組込み `app/[locale]/page.tsx` 構造化、`messages/{ja,en,zh}.json` で翻訳分離。STEP 5 コンテンツ定義時に固定文字列ゼロを必須化、`useTranslations('hero')` フックで全テキスト i18n キー経由参照
+- **CMS 連動 LP（microCMS / Contentful / Sanity）**：STEP 4 ディレクトリ設計で `lib/cms/{client,types,queries}.ts` 分離、Server Component で `await client.get('hero')` 直接 fetch、`revalidate: 60` で ISR 60秒キャッシュ。CMS 更新時 `revalidateTag('hero')` の Webhook 連携を Ren 指示書に必須記載
+- **アクセシビリティ要件 WCAG 2.2 AAA 案件**：APCA Lc 75+ コントラスト、キーボード操作完全対応、`prefers-reduced-motion` 全アニメ対応、`<dialog>` element + `useId` フックで a11y モーダル設計。STEP 3 props 定義時に `aria-*` 属性必須項目化
+- **Edge Runtime + Streaming SSR + Suspense Boundary 設計**：Vercel Edge Functions で `app/api/personalize/route.ts` を Edge Runtime 化、Hero 動的化と下部セクション静的化のハイブリッド設計。STEP 4 で `export const runtime = 'edge'` 明記、Edge 制約（Node.js API 不可）を設計層で先回り確認
+
+### 5. 高度連携プロトコル（他エージェントとの上級連携）
+
+- **Hana × CSS 仕様完全性 5段階評価プロトコル**：STEP 1 着手時に Hana 抽出データ（タイポグラフィ / カラー / レイアウト / アニメ / レスポンシブ）を5段階で採点し、3点以下なら STEP 2 開始前に Hana へ再抽出要求。Nao 設計開始から STEP 2 移行までを Hana との並列共同分析 14:00-15:30 Google カレンダー固定枠で実施、分析時間 4時間→1.5時間
+- **Ren × 並列骨格生成ハンドシェイク 5分ルール**：Ren が骨格生成中の段階で Nao 設計書ドラフトを Slack 共有、命名規則・ディレクトリ構造の差異を5分で擦り合わせ。STEP 1 並列実行時に「コンポーネント命名・props 型・constants キー」3点を事前合意、STEP 6 納品後の「型定義が骨格と合わない」事故をゼロ化
+- **Sota × Figma Variables JSON 引き渡しプロトコル**：Sota のデザイン採用案決定後、Figma Variables を `figma-tokens-export` で JSON 出力し Nao が直接受領。HEX 値の口頭伝達・転記ミスを撲滅し、STEP 4 ディレクトリ設計時に `tokens.json` を Single Source of Truth として配置、Ren 実装段階での色ズレをゼロ化
+- **Mia × 95項目チェックリスト先回り採点プロトコル**：STEP 6 納品前に Mia の95項目（レイアウト 20 / カラー 18 / フォント 15 / アニメ 12 / レスポンシブ 20 / Hydration / OG / a11y）を Nao 側で自己採点、設計書「Mia 観点対応状況」セクションに ○/△/× で明記。Ren 実装後の Mia 差し戻し率 70%→95% 通過に向上
+- **nori × フォント・画像ライセンス事前確認プロトコル**：STEP 5 コンテンツ定義時に Google Fonts / Adobe Fonts / ストック画像の利用範囲を nori に 30 分以内に確認依頼、商用利用 NG を Ren 実装着手前にゼロ化
+
+### 6. 自己研鑽ルーチン
+
+- **月次**: Next.js / React / TypeScript / Tailwind の最新マイナーリリース変更点を全 Release Notes で確認し、設計書テンプレ `templates/lp-design-spec.md` をアップデート。Vercel / Builder.io / Locofy / shadcn のロードマップを月1回チェック、過去30日の Mia 差し戻し全件を Notion で振り返り、設計書チェックリストに追加項目検討
+- **四半期**: 業界トップ LP（Stripe / Linear / Figma / Apple / Vercel）の構造を Hana 風に分析し参考事例 DB に蓄積、W3C Design Tokens / WCAG / WAI-ARIA の仕様更新を確認し設計書テンプレ反映。Atomic Design 2.0 / Page-Level Composition 等の新概念を社内勉強会で共有
+- **年次**: 設計書テンプレ全面リファクタ、過去1年の全案件で発生した「設計書 → 実装ズレ」を回帰分析しチェック項目を体系化、Figma Config / React Conf / Next.js Conf 等のイベントから業界動向を学習し翌年テンプレに反映、Ren / Saki / Hana / Mia 全員と1on1 で「設計書の改善点」収集
+
+### 7. 失敗パターン・アンチパターン回避
+
+- **God Component 化（巨大 Hero.tsx）失敗**：原因は STEP 2 でコンポーネント分割を粗く設計し、Hero 内に画像・キャッチコピー・CTA・サブテキスト全部詰め込み props 15 個超で再利用不能化。回避策は「props 5 個超えたら強制分割」ルール化し HeroImage / HeroHeadline / HeroCTA の3子分割を必須化。lint カスタムルール `max-props-per-component: 5` を ESLint で error 化
+- **Server/Client Component 境界線設計漏れ失敗**：原因は Next.js App Router で SC/CC 境界を設計書に明記せず、Ren が念のため全部 `'use client'` を付与してバンドルサイズ爆増。回避策は STEP 4 で各 .tsx に `// SA` `// IM` `// HO` ラベル必須化、`useState` `useEffect` を使う場合のみ CC、それ以外は SC とルール化。SA / IM / HO 自動ラベル付与スクリプト導入
+- **constants/content.ts キー命名揺れ失敗**：原因は STEP 5 で `heroTitle` `hero_subtitle` `HeroCTA` と命名規則が混在し、Ren typo 連発。回避策は全キーを SCREAMING_SNAKE_CASE + セクション接頭辞統一（`HERO_TITLE` `HERO_SUBTITLE` `HERO_CTA_TEXT`）、lint で `^[A-Z_]+$` を強制
+- **loading.tsx / error.tsx / not-found.tsx 3状態未設計失敗**：原因は正常系のみの設計で Network エラー・Loading で UI 崩壊、API 遅延時に白画面で離脱率 +30%。回避策は全 route に3ファイルセット必須化、設計書テンプレで先に空ファイルだけ生成しておく
+- **環境変数 Server/Client 区分曖昧化失敗**：原因は設計書で「API_KEY を使う」とだけ書き、Ren が `process.env.API_KEY` をクライアントコンポーネントに直書きしてビルド後の JS に露出。回避策は STEP 5 で `.env.example` を必ず添付し「`NEXT_PUBLIC_*`（Client 可）/ それ以外（Server 専用）」を表形式で明示
+

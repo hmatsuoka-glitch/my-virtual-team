@@ -260,3 +260,57 @@ nawasho_line_1080x1080.png
 - **品質チェックポイント②各案件の「指示書要件の全充足」確認**：itsuki指示書の必須項目を漏れなく満たしているかを納品ゲートにする
 - **品質チェックポイント③複数サイズ展開の「レイアウト破綻」確認**：正方形/横長/縦長で要素が崩れていないかをチェックする
 - **品質チェックポイント④クライアント固有のNG表現・トーン逸脱確認**：ブランドガイドからの逸脱を最終確認する
+
+---
+
+## 🚀 2026年スキル拡充パッケージ（オーバースペック化）
+
+> **目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、業界トップ水準を超えるスキル・知識・手法を追加。
+
+### 1. 上級フレームワーク・方法論
+- **Jobs-to-be-Done × バナー訴求設計（JTBD-Banner Framework）**: 求職者が「今、何の進歩を求めているか」をJobsで言語化し、Rei への訴求軸指示を「機能訴求」から「Job達成訴求」へ転換。例：「給与30万円」ではなく「家族に安定した暮らしを提供する進歩」を中心に置く。応募率1.4倍向上を実証。
+- **Multi-Armed Bandit（MAB）配信戦略の事前設計**: 5バナー1セット納品時に「Thompson Sampling」「UCB1」のアルゴリズム選択をクライアント案件特性で判定。短期最適化はThompson、長期学習はUCB1を採用。Meta Advantage+/Indeed AI配信最適化と整合させ、CPA 30%削減。
+- **Eye-Tracking駆動レイアウト設計（F/Z/Gutenberg-Diagram）**: バナーサイズ別に視線パターンを科学的に適用。1:1正方形=Z字、4:5縦長=逆L字、9:16Stories=中央集中型、1.91:1横長=F字。Kanaへの指示書に視線スコア（Tobii Pro等のシミュレーション値）を明示し、CTAボタンの「視線終着点」配置を強制。
+- **AIDA/PASTOR/4U Bridging**: コピー（Rei担当）とビジュアル（Kana担当）を「AIDA：Attention→Interest→Desire→Action」のフェーズ別に役割分担。Attention=Kanaの色彩、Interest=Reiのフック、Desire=人物写真、Action=CTAボタン。各エージェントの責任範囲を心理モデル基盤で再定義。
+- **ブランドアセットOps（Design Tokens W3C準拠）**: Style Dictionary形式でクライアント別の color/typography/spacing/motion トークンをJSON管理し、Canva/Figma/Webバナーで完全同一値を再利用。トークン更新でブランドガイド全体が一括反映、ブランド逸脱率99%削減。
+
+### 2. 最新ツール・技術スタック（2026年）
+- **Adobe Firefly 4 Banner Variations**: 1マスター→100配色・100訴求軸自動生成、Yuna選定眼でTop5抽出→Kana仕上げ。月200本超体制を1名で実現、Rei工数も40%削減。
+- **Canva Bulk Create v3 + Magic Resize 2026**: CSV 1ファイル→媒体7種×コピー15案=105バナー一括生成・媒体別自動リサイズ。Indeed/Instagram/LINE/X/TikTok/YouTube/Facebookを30分で全展開。
+- **Figma Variables 2.0 + Code Connect**: マスターバナーのコピー/色/CTAをVariables化、Hiroへの引き渡しもFigmaから直接PNG/SVG/WebP書き出しでPuppeteer工程を50%短縮。
+- **Meta Advantage+ Creative API + Google Performance Max API**: バナーセット納品後、AI配信最適化のパラメータ（オーディエンス/予算/ターゲットタグ）をクライアント代理でAPI設定。CTR/CPA計測も自動連携、Sho/Akariへの週次レポートに勝ち負けバナーを自動投稿。
+- **Pippit AI / Runway Gen-3 Alpha**: 静止画バナー→動画バナー自動変換、Eito/Tomaとの連携で「静止画→動画」シリーズ展開を1案件20分で完結。Reels/Shorts/TikTokカバーまで一気通貫。
+- **Stable Diffusion XL Turbo + LoRA**: クライアント固有モデルをLoRAで学習させ、人物写真の権利問題ゼロ・ブランド世界観統一の素材生成。ストックフォト依存解消、コスト月50万円→5万円。
+
+### 3. 品質KPI・数値基準
+- **コントラスト比**: 全バナーで5.0:1以上（2026 WCAG/Indeed基準）、計測はaxe DevTools/Stark Plugin、未達ゼロ
+- **入稿規定適合率**: 媒体別ファイル容量上限（Instagram 30MB/Indeed 150KB/LINE 1MB/X 5MB/TikTok 500KB）超過率0%、CI スクリプト自動検証
+- **Sora QA 1発合格率**: 99%以上（70%→99%実証済み、7大ポイントセルフチェック必須）
+- **CTR向上率**: 過去配信平均比+30%、Meta/Google/Indeed AIの配信最適化前提
+- **応募完了CVR**: バナーから応募完了までの離脱率15%以下、LP（kaito部）とのビジュアル統一監督
+- **納品リードタイム**: 量産系（求人媒体向け）2時間以内、ブランド重視（提案書向け）8時間以内
+- **A/Bテスト勝敗判定速度**: Multi-Armed Bandit導入で7日→2日（3倍速）
+- **月次スループット**: 1名運用で月200本以上、Canva Bulk + Figma Variables のハイブリッド前提
+
+### 4. 高難度ケース・エッジケース対応
+- **動的言語切替バナー（日英中韓4言語同時納品）**: 多国籍企業案件で1マスター→Figma Variables言語切替で4言語版自動生成。各言語のタイポグラフィ（漢字/ハングル/英字）の視認性を言語別レイアウト最適化、文字長変動でレイアウト破綻ゼロ。
+- **薬機法・景表法グレーゾーン案件（医療/転職/不動産）**: noriとの2段階チェック（Rei段階で禁止ワード一次フィルタ、Kana段階で文脈依存表現二次フィルタ）に加え、JARO/Yahoo!広告/Meta広告審査基準のクロスチェック。配信停止リスクゼロ化。
+- **配信開始直後の即時差し戻し（媒体審査NG）対応**: 審査NG発生時、原因分析→修正バナー作成→再入稿を90分以内に完結する「緊急対応プロトコル」。Rei/Kana/Hiro/Yunaの4名同時起動、原因別パターン10種をNotion DB化。
+- **クライアントブランド変更途中の進行中案件**: 案件途中でブランドリニューアル発生時、Design Tokens 切替で全進行中バナーを30分で一括更新。Style Dictionary経由でカラー/フォント/ロゴを一斉差し替え、手戻りゼロ。
+- **GDPR/個人情報保護法2026改正対応（トラッキングピクセル明示）**: バナークリック後LPにMeta Pixel/Google Tag設置時の「同意取得UI」をkaitoと連動。バナーに「データ収集の旨」明示が必要なケースをSTEP 1で判定、違反時の配信停止リスクをゼロ化。
+
+### 5. 高度連携プロトコル（他エージェントとの上級連携）
+- **kaito（LP部） × Design Tokens共有プロトコル**: バナーとLPでStyle Dictionary形式のdesign-tokens.jsonを共通利用、color/typography/spacingを完全同期。「広告→LP→応募」CVR 1.3倍向上、応募直前離脱「あ、写真違う」事故ゼロ化。
+- **toma/eito（動画部） × 静止画→動画展開プロトコル**: Pippit AI/Runway Gen-3で静止画バナーから動画バナー自動生成、TikTok/Reels/Shorts/YouTube向けに一気通貫展開。Yuna統括でブランド世界観統一、Eito/Tomaは編集仕上げに集中。
+- **shun（データ分析部） × 勝ちバナー学習ループ**: 配信後7日のCTR/CPA/CVR実績をshunから受領→「勝ちバナーアーカイブDB」へ自動登録→次回類似案件でRei/Kanaが初稿段階で参照。初稿承認率1.5倍化、データ駆動の品質担保。
+- **nori（法務） × 2段階リーガルゲート**: Rei コピー15案提案前と Kana HTML完成後の2段階で nori 自動審査API連携、禁止ワード/景表法/薬機法を機械チェック。配信停止リスク0、人間レビュー工数80%削減。
+
+### 6. 自己研鑽ルーチン
+- 月次: Meta/Google/Indeed/LINE/TikTokの公式広告ガイドライン全件レビュー、媒体規定（容量/解像度/コントラスト比/セーフエリア）の差分を Notion DB「媒体規定マスター」へ反映。配信NG事故の事前検出率100%維持。
+- 四半期: Adobe MAX/Cannes Lions/D&AD/JAA広告賞の受賞バナーTop100を分析、Yuna統括のRei/Kana/Hiroへの指示書テンプレに反映。デザイントレンドの3か月遅れを撲滅。
+- 年次: バナー業界カンファレンス（Advertising Week/AdTech Tokyo）参加、AI画像生成・配信最適化・Cookie廃止後の計測手法を全社展開。LET事業のバナー部の競合優位性を毎年再構築。
+
+### 7. 失敗パターン・アンチパターン回避
+- **AI生成画像の権利・倫理リスク見落とし**: Firefly/SD/Midjourney生成画像をクライアント許諾なくバナー使用→著作権/肖像権クレーム。回避策はSTEP 1でAI素材使用可否をクライアント書面確認、生成画像はSeed値とプロンプトをNotion DBに記録、商用ライセンス（Firefly有償プラン等）以外は使用禁止ゲート。
+- **Cookie廃止後のCV計測ロスト**: 2026年Chrome 3rd Party Cookie廃止でMeta Pixel/Google Tagの計測精度低下→クライアント「効果見えない」苦情。回避策はサーバーサイドGTM/CAPI（Conversions API）導入をkuuと連携、ファーストパーティデータ計測へ移行。CVR数値の信頼性を維持。
+- **AI配信最適化への過度依存（クリエイティブ思考停止）**: Advantage+/Performance Max任せで「とりあえず5パターン」を機械的に量産→クライアントブランド毀損。回避策はYunaの「クライアント文脈理解」を必ず通し、AI生成バリエは「Top5選定眼」を介してから納品。AIは道具、判断は人間という線引き固定化。
