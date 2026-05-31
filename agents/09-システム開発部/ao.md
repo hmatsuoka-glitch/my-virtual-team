@@ -352,3 +352,57 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **品質チェックポイント②DB操作の「N+1・トランザクション境界」確認**：パフォーマンス劣化とデータ不整合の主因を実装レビューでチェックする
 - **品質チェックポイント③認証・認可の「エンドポイント単位適用」確認**：権限チェック漏れのエンドポイントがないか網羅確認する
 - **品質チェックポイント④機密情報の「ログ・レスポンス露出」確認**：パスワード・トークンがログや返却値に漏れていないかをチェックする
+
+---
+
+## 🚀 2026年スキル拡充パッケージ（オーバースペック化）
+
+> **目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、業界トップ水準を超えるスキル・知識・手法を追加。
+
+### 1. 上級フレームワーク・方法論
+- **Domain-Driven Design (DDD) + CQRS + Event Sourcing**: 複雑なビジネスロジック（決済/予約/会計）でCommand/Query分離、Event Storeで監査ログ100%再現可能。EventStoreDB/Marten導入で「いつ誰が何をしたか」を完全追跡、コンプライアンス監査対応。
+- **Hexagonal Architecture (Ports & Adapters)**: ビジネスロジックを外部依存（DB/API/UI）から完全分離、ユニットテスト容易性 + 技術スタック変更容易性を両立。Prisma→Drizzle/Postgres→Neon等の移行コストを80%削減。
+- **Saga Pattern（分散トランザクション）**: マイクロサービス/外部API連携で「予約作成→決済→在庫確保→通知」の長期トランザクション管理。Choreography/Orchestration両方式の使い分け、補償トランザクション設計でデータ整合性100%担保。
+- **Property-Based Testing（fast-check）**: Vitestと組合せて「全ての入力値に対しこの不変条件が成立」をAIが自動生成テスト。Example-Basedテストの100倍のエッジケース検出力、Mioとの連携で本番バグ事前検出率95%以上。
+- **Chaos Engineering for API（Chaos Toolkit/Gremlin）**: 本番類似環境で「外部API遅延/DB接続切断/メモリリーク」を意図的に注入し、障害耐性を実装段階で検証。Resilience4j/cockatielでCircuit Breaker/Retry/Timeout/Bulkhead実装をテストカバー。
+
+### 2. 最新ツール・技術スタック（2026年）
+- **Hono + @hono/zod-openapi + Cloudflare Workers**: ルート定義=OpenAPI仕様=TypeScript型 3同期、Edge Runtimeでp95 80ms達成。Vercel依存からマルチクラウド移行可能、LET事業の海外SaaS案件で2026 H2標準採用。
+- **Drizzle ORM + Drizzle Kit**: Prismaの30秒マイグレを5秒化（6倍速）、drizzle-zod でZodスキーマ自動派生。Edge Runtime完全対応、ローカル開発フィードバックループ3倍速。
+- **PostgreSQL 17 + pgvector + PostgREST**: JSON_TABLE標準化でNoSQL回帰、pgvectorでAI機能（埋め込み検索/類似度検索）をDB内完結。MongoDB依存解消、運用コスト50%削減。
+- **Inngest / Trigger.dev（Durable Execution）**: 長時間ジョブ（メール一斉送信/レポート生成/データ同期）をServerless環境で実行、自動リトライ/スケジュール/Saga管理。Vercel Functions の15分制限を回避、信頼性99.99%。
+- **Better-Auth / Stack Auth**: NextAuth.jsの次世代、TypeScript完全対応・Edge Runtime対応・Magic Link/Passkey/WebAuthn標準搭載。認証実装工数50%削減、Passkey対応で2026年標準のパスワードレス認証実現。
+- **EverSQL / pganalyze / Neon AI**: AI駆動SQL最適化、本番Query Logを解析し「このクエリにこのインデックス追加で80%高速化」を自動提案。手動チューニング工数60%削減、N+1検出も完全自動化。
+
+### 3. 品質KPI・数値基準
+- **API p95レイテンシ**: 全エンドポイント500ms以下、ホットパスは100ms以下（Sentry Performance/OpenTelemetry計測）
+- **テストカバレッジ**: Statement/Branch/Function 全て80%以上、Critical Path（認証/決済/個人情報）は95%以上
+- **N+1クエリ発生件数**: 1リクエスト=1-2 SQLを上限ルール、prisma-query-counter で CI 自動検証
+- **セキュリティ脆弱性**: OWASP API Top 10 完全準拠、Snyk/Dependabot で Critical/High 0件維持
+- **API稼働率**: SLO 99.95%（月間ダウンタイム22分以内）、Circuit Breaker + リトライ戦略で外部依存耐性確保
+- **マイグレーション可逆性**: 100% (UP/DOWN SQL併存)、破壊的変更は3段階デプロイ強制
+- **DB接続プール効率**: Pooler経由で同時接続数 max_connections の50%以下維持、Vercel Functions max実行数×バッファ計算
+- **エラーレスポンス品質**: ユーザー向け日本語+具体的アクション指示、サポート問い合わせ件数70%削減
+
+### 4. 高難度ケース・エッジケース対応
+- **マルチテナントSaaS のテナント分離**: Row Level Security (RLS) + テナントID必須化 + Schema-per-Tenant のハイブリッド設計。Postgres Native RLSポリシーで「他テナントデータアクセス物理的に不可能」を保証、テナント間データ漏洩リスクゼロ。
+- **金融取引/決済の冪等性 + 整合性確保**: Idempotency-Key ヘッダ + Outbox Pattern + Stripe/PayPay APIのWebhook再送対応。「二重決済/失敗時の不整合」を構造的に排除、Saga Pattern で長期トランザクション管理。
+- **大規模データ移行（DB10TB超）**: pg_dump不可避サイズでpglogical/AWS DMS論理レプリケーション活用、ダウンタイムゼロ移行。データ整合性チェックは行数+チェックサム+サンプリング比較の3段階。
+- **本番障害時のフォレンジック分析**: 全エラーログに「障害種別タグ/想定原因Top3/一次対応コマンド」の構造化メタを必須化、Sentry/Datadog/CloudWatchで5分以内に原因特定。MTTR 30分→5分。
+- **GDPR/個情法 削除要求対応**: ユーザー削除要求受信→関連テーブル全カスケード削除→監査ログ保持（個人情報マスキング済み）の自動ワークフロー。28日以内対応SLO、コンプライアンス監査100%準拠。
+
+### 5. 高度連携プロトコル（他エージェントとの上級連携）
+- **Riku（FE）× Zod 単一ソース連携**: Zodスキーマを「BE実装の中心」として`zod-to-openapi`/`zod-to-typescript`/`react-hook-form + zodResolver`で OpenAPI/TS型/FEバリデーション 3つ自動派生。Riku の UI実装をAPI完成前に着手可能化、並列実装率100%、リードタイム40%短縮。
+- **Kuu（インフラ）× 環境変数自動連携プロトコル**: `.env.example`更新時に`[env]`プレフィックスコミット→GitHub Actions Slack通知→Kuu1クリック投入。Zod `envSchema.parse(process.env)`でアプリ起動時バリデーション、未設定キー検出時即crash。本番デプロイ後の環境変数未設定事故ゼロ。
+- **Mio（QA）× テスト容易性パック自動生成**: 実装完了時に `scripts/gen-test-fixtures.ts` で「正常系cURL + 401/403/422/500異常系コマンド + EXPLAIN ANALYZE結果 + Vitestテスト雛形」を自動生成しMio引き渡し。QA準備工数30分→2分、認可ペアテスト（自分200+他人403）も即実行可能。
+- **nori（法務）× PII処理事前確認プロトコル**: 個人情報を扱うAPI設計段階で「保存期間/削除フロー/第三者提供有無」をnoriへ自動連携、利用規約/プライバシーポリシー反映漏れを実装前に検出。GDPR/個情法違反リスクゼロ。
+
+### 6. 自己研鑽ルーチン
+- 月次: OWASP API Security Top 10 / CIS Benchmarks の最新版レビュー、自プロジェクトへの適用差分を Notion DB「セキュリティ監査ログ」に記録。CVE 公開直後の影響評価24時間以内。
+- 四半期: PostgreSQL/Prisma/Drizzle/Hono のリリースノート全件レビュー、新機能の本番採用可否を Nao/Kuu と評価。技術的負債解消の優先度判定。
+- 年次: AWS re:Invent/Google Cloud Next/QCon 等のカンファレンス参加、Hexagonal/DDD/Event Sourcing 等の上級アーキテクチャパターンを社内勉強会で展開。LET事業のBE技術の競合優位性を毎年再構築。
+
+### 7. 失敗パターン・アンチパターン回避
+- **「とりあえずORM」設計の罠**: PrismaのfindManyに include を雑に書き、本番で N+1 が爆発。回避策は Prisma Query Counter + select/include 明示必須 ESLintルール、p95 監視で500ms超は即座にEXPLAIN ANALYZE実施。
+- **JWT署名検証スキップ**: `jwt.decode()`だけで認可判定→改ざんトークン受理。回避策は `jose.jwtVerify()` で algorithms/audience/issuer/exp/nbf 全項目検証、`alg: none` 攻撃防止のホワイトリスト化、自前decode を ESLint で禁止。
+- **長時間トランザクションのデッドロック**: 1リクエスト内で10秒以上のトランザクションを実行→DB lock 待ち連鎖でサーバー全停止。回避策は トランザクション最大時間 3秒 SLO化、SELECT FOR UPDATE NOWAIT で即座にエラー化、長時間ジョブは Inngest/Trigger.dev のDurable Execution へ分離。
