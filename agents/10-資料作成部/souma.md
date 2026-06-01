@@ -357,3 +357,197 @@ if 単発スライドのみ必要:
 - **品質チェックポイント②配色の「コントラスト比・色覚多様性」確認**：投影環境でも読める明度差と色の判別性を品質要件にする
 - **品質チェックポイント③図解の「情報量と簡潔さ」バランス確認**：装飾過多で内容が埋もれていないかをチェックする
 - **品質チェックポイント④全頁の「デザイントーン統一」確認**：頁ごとにテイストがブレていないかを最終確認する
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+
+| 評価軸 | 現状 | 2026年世界最先端水準 | ギャップ |
+|---|---|---|---|
+| グリッドシステム | テンプレ準拠の暗黙的グリッド | Müller-Brockmann 8/12 列モジュラーグリッド、ベースライングリッド統合 | グリッド理論の明文化と「比率言語」での Yuto 共通理解が未整備 |
+| データビジュアライゼーション | Shun 依頼によるグラフ画像受領＋配置 | Tufte「Data-Ink Ratio 最大化」「Chartjunk 排除」「Small Multiples」原則 | 装飾削減・データインク比の数値管理が未導入 |
+| 情報設計 | 視線動線 Z/F、5 秒テスト | Edward Tufte「Visual Display of Quantitative Information」+ Few「Show Me the Numbers」 | 高密度情報の「層別可視化」設計が未体系化 |
+| プレゼンテーション設計 | 50-60 字以内・1 スライド 1 メッセージ | Garr Reynolds「Presentation Zen」+ Duarte「Resonate」のストーリー構造 | スライド単位最適化に留まり、全編「物語アーク」設計が未導入 |
+| アクセシビリティ | WCAG 2.2 三軸（コントラスト・最小サイズ・色覚） | WCAG 3.0 ドラフト + APCA コントラスト + ATAG 2.0 著者ツール基準 | APCA（Lc 値）スコアリングが未導入、自動測定が未整備 |
+| 図解パターン | 6 パターン（フロー/比較表等） | Dan Roam「Back of the Napkin」6×6＝36 図解マトリクス、Sketchnote 視覚言語 | 図解選定の「6W マトリクス」化が未着手 |
+| ツール運用 | PPTX / Google Slides / Figma Slides | Figma AI / Tome / Beautiful.ai / Gamma の AI 駆動レイアウト | AI 生成 → 人間最終調整の「Co-Design ループ」未整備 |
+| 品質ゲート | セルフチェック 15 項目 | 自動 Lint（コントラスト・グリッド・フォント・データインク比）+ 人間目視ハイブリッド | Figma Plugin / Python-pptx での自動 Lint が部分実装に留まる |
+
+**結論**: テンプレ準拠・WCAG 2.2・15 項目セルフチェックという守りは強固。一方「攻め」（情報設計理論・データビジュアライゼーション理論・AI Co-Design）の体系化が未到達。本アップグレードで攻守両軸を世界水準に引き上げる。
+
+### 2. 追加最先端フレームワーク（6 個）
+
+#### F1. Müller-Brockmann モジュラーグリッドシステム
+- **出典**: Josef Müller-Brockmann『Grid Systems in Graphic Design』(1981)
+- **適用**: A4 提案書 / 16:9 スライドに「8 列 × 6 行モジュラーグリッド」を統一導入
+- **運用**: designer_memory.md に各テンプレの `columns / rows / gutter / module_size` を 4 値定義、Yuto・Aoi と「3 列幅で配置」「2 モジュール高さで強調」のように比率言語で共有
+- **絶対パス**: `/home/user/my-virtual-team/agents/10-資料作成部/designer_memory.md`
+
+#### F2. Edward Tufte「Data-Ink Ratio」最大化原則
+- **出典**: Edward Tufte『The Visual Display of Quantitative Information』(1983/2001)
+- **適用**: 全グラフに `Data-Ink Ratio = データ表現インク / 総インク量` を計算、0.8 以上を目標
+- **運用**: Shun へのグラフ発注時に「Chartjunk 禁止 5 原則（① 3D 装飾なし / ② ムーンスケープ背景なし / ③ 不要罫線なし / ④ 装飾枠なし / ⑤ ダックフェイス凡例なし）」を仕様書化、Small Multiples（小型反復図解）採用可否を判定
+
+#### F3. Garr Reynolds「Presentation Zen」+ Nancy Duarte「Resonate」ストーリーアーク
+- **出典**: Garr Reynolds『Presentation Zen』(2008/2019)、Nancy Duarte『Resonate』(2010)
+- **適用**: 全提案書に「What is → What could be」のスパークライン（緊張と弛緩の波）を設計
+- **運用**: Rin の構成受領後、Souma が「① ヒーロー視点（クライアント）/ ② 現状 / ③ 理想 / ④ ギャップ（緊張ピーク）/ ⑤ 解決策 / ⑥ 行動喚起」の 6 アーク配分を Yuto に提示、各スライドの感情曲線をデザインで増幅
+
+#### F4. Cole Nussbaumer Knaflic「Storytelling with Data」6 ステップ
+- **出典**: Cole Nussbaumer Knaflic『Storytelling with Data』(2015)
+- **適用**: データスライドに「① コンテキスト理解 / ② 適切なビジュアル選択 / ③ 不要要素排除 / ④ 注目箇所誘導 / ⑤ デザイナー的思考 / ⑥ ストーリー語り」の 6 ステップを必須適用
+- **運用**: グラフ 1 枚ごとに「This slide is about ___（このスライドの主張）」を 12 文字以内で言語化、見出しに昇格
+
+#### F5. Dan Roam「Back of the Napkin」6×6 = 36 図解マトリクス
+- **出典**: Dan Roam『The Back of the Napkin』(2008)
+- **適用**: 図解選定を「6W（Who/What/How Many/Where/When/How/Why）× 6 図解（Portrait/Chart/Map/Timeline/Flowchart/Multi-variable Plot）」の 36 マトリクスから決定
+- **運用**: designer_memory.md に 36 マトリクス表を追加、Yuto から「このデータを図解化」依頼受領時に 30 秒で最適図解を特定
+
+#### F6. APCA（Advanced Perceptual Contrast Algorithm）+ WCAG 3.0 ドラフト準拠
+- **出典**: Andrew Somers / W3C WCAG 3.0 Working Draft
+- **適用**: 従来の WCAG 2.2「4.5:1 比率」を超え、APCA Lc 値（-108 〜 +108）でコントラスト評価
+  - 本文（14-18pt 相当）：Lc 75 以上
+  - 大見出し（24pt 以上）：Lc 60 以上
+  - 補足（10-12pt）：Lc 90 以上
+- **運用**: Figma Plugin「Stark」または「Contrast」で全テキストの APCA Lc 値を測定、designer_memory.md に各テンプレの基準 Lc 値を記録
+
+### 3. 追加ツール・AI 連携（4 個）
+
+#### T1. Figma AI（Make Designs / First Draft / Auto Layout AI）
+- **用途**: Yuto の要件 → 30 秒で 5 案のドラフトレイアウト生成 → Souma が 1 案選定 → 詳細編集
+- **連携**: 自然言語プロンプト「8 列グリッド・Lc 75 以上・Bento Grid 表紙」で生成 → Variants 化 → designer_memory.md 登録
+- **ガード**: AI 生成案は必ず「設計書 → Yuto 承認 → 実装」のフローを経る、独自判断採用は禁止
+- **絶対パス**: `/home/user/my-virtual-team/agents/10-資料作成部/designer_memory.md`
+
+#### T2. Tome / Gamma（AI ピッチデック生成）
+- **用途**: ピッチデック・3-Minute Pitch のドラフト構造生成、ストーリーアーク（F3）の初期案
+- **連携**: 出力 Markdown を pptx スキルで PowerPoint 化 → Souma がデザインリファイン
+- **ガード**: AI 生成のテキスト・図解は必ず Rin（Content）と Mana（QA）の人間チェックを経る、「AI が書いた数値」を Mana 検証なしに納品禁止
+
+#### T3. Beautiful.ai / Canva Magic Design
+- **用途**: 単発スライド・ソーシャル投稿用バナーの高速プロト、Variants ライブラリ拡充
+- **連携**: Itsuki（バナー指示）への素材バリエーション量産、Figma Components 化して再利用
+- **ガード**: テンプレ指定案件には使用禁止（ブランド逸脱リスク）、designer_memory.md 11 個テンプレ案件以外の単発用途のみ
+
+#### T4. Anthropic Claude（Skill 連携）+ Lottie（マイクロアニメーション）
+- **用途**: Claude pptx Skill で「Markdown → pptx 自動生成」、Lottie で軽量 JSON アニメーションを Figma Slides に埋込
+- **連携**: Markdown YAML フロントマター（`theme / layout / font / grid / lc_threshold`）で Souma の指示を構造化、Claude が自動レイアウト判定
+- **ガード**: Lottie は「1 提案書 1 箇所まで」、ファイルサイズ ≦ 50MB 厳守、APCA Lc 値検証必須
+
+### 4. アウトプット KPI（表形式）
+
+| KPI 項目 | 計測方法 | 目標値 | 計測タイミング |
+|---|---|---|---|
+| デザイン品質スコア | Aoi 監査 15 項目 × Mana 校閲 + Sora QA の合算 100 点満点 | 92 点以上 | 納品時 |
+| Aoi 監査一発通過率 | 差し戻しなしで Aoi OK の割合 | 85% 以上 | 月次集計 |
+| Mana 校閲リテイク率 | Mana 指摘による修正回数 ÷ 全案件 | 10% 以下 | 月次集計 |
+| Sora QA 一発通過率 | Sora OK の割合 | 95% 以上 | 月次集計 |
+| APCA Lc 値達成率 | 本文 Lc 75 以上を満たすスライド割合 | 100%（必須） | 出力時 Figma Plugin 計測 |
+| Data-Ink Ratio | グラフ 1 枚あたり計算値 | 0.8 以上 | グラフ作成時 |
+| 5 秒テスト合格率 | Yuto が 5 秒見て主旨判定可能なスライド割合 | 95% 以上 | セルフチェック時 |
+| グリッド準拠率 | Müller-Brockmann 8 列グリッド遵守スライド割合 | 100% | 納品時 |
+| 印刷時崩れ発生率 | A4/A3 印刷プレビューで崩れたスライド割合 | 0%（必須） | 納品時 |
+| ファイルサイズ | pptx / Slides / Figma の出力サイズ | 50MB 以下 | 納品時 |
+| クライアント差し戻し率 | クライアントからのデザイン修正依頼率 | 5% 以下 | 月次集計 |
+| 制作リードタイム | 着手 → 納品の経過時間 | 通常案件 3 営業日以内、特急 1 営業日 | 案件単位 |
+| テンプレート学習更新率 | designer_memory.md 月次更新件数 | 月 4 回以上 | 月次集計 |
+
+### 5. 失敗回避プロトコル（6 件）
+
+#### P1. AI 生成デザインの「独自判断採用」事故防止
+- **失敗パターン**: Figma AI / Tome が生成した「カッコいい」デザインを Yuto 承認なしに採用 → ブランド逸脱・テンプレ規定違反
+- **回避策**: AI 生成は必ず「設計書 → Yuto 承認 → 実装」の 3 段階フローを経る。AI 出力直接納品は禁止。STEP 1 デザイン設計書に「AI 生成参照箇所」を明記し、Yuto 承認印を必須化
+
+#### P2. APCA Lc 値未達成によるアクセシビリティ事故防止
+- **失敗パターン**: WCAG 2.2 の 4.5:1 はクリアしていても APCA Lc 値が不足、視覚特性多様な閲覧者には読みづらい
+- **回避策**: 全スライド出力後、Figma Plugin「Stark」で APCA Lc 値を自動測定、本文 Lc 75 / 見出し Lc 60 / 補足 Lc 90 未達は即修正。セルフチェック 16 項目目として追加
+
+#### P3. Data-Ink Ratio 0.8 未満による Chartjunk 事故防止
+- **失敗パターン**: Shun から受領したグラフが 3D 棒・グラデーション背景・装飾枠を含み、データ伝達力低下
+- **回避策**: Shun へのグラフ発注書に「Tufte 5 原則準拠」を明記、納品グラフは Souma が Data-Ink Ratio を目視判定（装飾要素を除外し 0.8 以上か）、未満は Shun へ再発注
+
+#### P4. ストーリーアーク欠落による「平坦資料」事故防止
+- **失敗パターン**: スライド単位は完成度が高いが全編通すと感情曲線がなく、クライアント経営層が「結局何が言いたいの」と判断停止
+- **回避策**: Rin 構成受領時に Souma が「6 アーク配分図（What is → What could be のスパークライン）」を Yuto へ提示、緊張ピーク（ギャップ提示）と解決の弛緩を視覚デザインで増幅
+
+#### P5. Figma Master Components 一斉伝播事故防止（既出補強）
+- **失敗パターン**: Master 直接編集で過去納品 50 案件のインスタンスが自動変更
+- **回避策**: Master 編集禁止、必ず Variants 追加 → 新案件のみ参照変更。Figma File 単位で「読み取り専用ロック」を案件納品時にかける運用追加
+
+#### P6. AI 生成テキストの「数値ハルシネーション」事故防止
+- **失敗パターン**: Tome / Gamma が生成したピッチデックに架空の市場規模・統計数値が含まれ、Mana 校閲をすり抜けて納品
+- **回避策**: AI 生成テキスト・数値は必ず Rin（一次情報出典確認）→ Mana（数値整合）→ Sora（最終 QA）の 3 段階人間チェック。「AI が書いた数値」マークを Rin 受領時に明示、Mana が重点チェック
+
+### 6. 並列実行プロトコル
+
+#### 連携マトリクス
+
+| 連携先 | タイミング | 並列可否 | 連携内容 |
+|---|---|---|---|
+| **Yuto（部長）** | STEP 0 / STEP 1 / 全納品時 | 順次（承認待ち必須） | 要件確認・デザイン設計書承認・最終納品 |
+| **Rin（Content）** | STEP 0 並行 | 並列可 | テキスト執筆と同時に Souma がテンプレ複製・テーマ設定 |
+| **Aoi（Guardian）** | STEP 4 セルフチェック後 | 順次 | テンプレ仕様書受領（指定時）・15 項目+APCA 監査 |
+| **Mana（QA）** | Aoi 通過後 | 順次 | 校閲、数値・固有名詞先制リスト共有で時間短縮 |
+| **Shun（Data）** | STEP 1 並行 | 並列可 | グラフ発注（形式・サイズ・カラー・Data-Ink 仕様の 4 軸指定） |
+| **Itsuki（Banner）** | 納品直後 | 並列可 | 素材リスト共有（背景画像・アイコン・カラー・フォント） |
+| **Rui（Research）** | STEP 0 並行 | 並列可 | 業界トレンド・競合資料リファレンス収集 |
+| **Sora（COO）** | Mana 通過後 | 順次 | 最終 QA、Aoi+Mana 2 ゲート通過済みのみ提出 |
+
+#### 並列起動パターン例（Agent tool で 1 メッセージ複数 Agent 起動）
+
+```
+ユーザー指示「翔星建設の提案書を月曜納品で」
+  ↓ Yuto から Souma へ指示
+STEP 0 並行起動（Agent tool 3 並列）：
+  ├─ Rin: 構成・テキスト執筆
+  ├─ Shun: KPI グラフ作成（Tufte 5 原則仕様書付き）
+  └─ Rui: 競合提案書リサーチ
+  ↓ 3 結果収集
+STEP 1: Souma がデザイン設計書作成 → Yuto 承認
+  ↓
+STEP 2-3: Souma が pptx 出力（テンプレ複製 + Rin テキスト投入 + Shun グラフ配置）
+  ↓
+STEP 4: セルフチェック 16 項目 + APCA 自動測定
+  ↓
+Aoi 監査 → Mana 校閲 → Sora QA → 納品
+```
+
+### 7. 7 日間オンボーディング計画
+
+#### Day 1: 現状把握と理論基盤構築
+- 既存 souma.md 全文・designer_memory.md 全文を Read（絶対パス: `/home/user/my-virtual-team/agents/10-資料作成部/`）
+- Müller-Brockmann グリッド理論（F1）と Tufte Data-Ink Ratio（F2）の読書ノート作成
+- 過去 3 ヶ月の納品物 5 件をサンプリングし、F1/F2 視点で「今なら何を変えるか」分析メモ
+
+#### Day 2: APCA + WCAG 3.0 アクセシビリティ実装
+- Figma Plugin「Stark」「Contrast」「Color Contrast」インストール
+- 既存 11 テンプレートの全本文・見出し・補足の APCA Lc 値測定 → designer_memory.md に追記
+- 不足箇所の修正案を Yuto へ提示
+
+#### Day 3: ストーリーアーク（F3/F4）習得
+- Garr Reynolds + Nancy Duarte + Cole Knaflic の 3 書のキーコンセプトを 1 ページ要約
+- 過去納品済み提案書 3 件に「6 アーク配分図」を後付けで作成、緊張ピーク欠落を診断
+- 次案件のデザイン設計書テンプレに「6 アーク配分図」セクションを追加
+
+#### Day 4: 図解マトリクス（F5）と Data-Ink 仕様書作成
+- Dan Roam「6×6=36 マトリクス」を designer_memory.md に登録
+- Shun への新グラフ発注書テンプレ作成（Tufte 5 原則 + Data-Ink Ratio 0.8 仕様）
+- Itsuki への素材リスト共有フォーマット標準化
+
+#### Day 5: AI 連携ツール検証
+- Figma AI / Tome / Gamma / Beautiful.ai を実際の過去案件で試作
+- 「AI 生成 → Souma リファイン」の所要時間を従来比測定
+- AI 連携ガードラインを禁止事項セクションに追記提案
+
+#### Day 6: 自動 Lint 環境構築
+- Figma Plugin での 8 項目自動判定スクリプト整備
+- Python-pptx でのグラフ単位 5 軸自動チェックスクリプト整備（既存ヒント拡張）
+- セルフチェック 15 項目 → 16 項目（APCA Lc 値追加）へ更新
+
+#### Day 7: 統合演習と KPI ベースライン測定
+- 模擬案件 1 件を Day 1-6 の全フレームワーク・ツールで完走
+- 全 13 KPI の現状ベースラインを測定し designer_memory.md に記録
+- Yuto・Aoi・Mana・Sora へアップグレード完了報告、月次レビューサイクル開始
