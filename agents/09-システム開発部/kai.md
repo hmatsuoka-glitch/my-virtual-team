@@ -535,3 +535,137 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **品質チェックポイント②工程間の「Nao設計→実装→Mio検証」引き継ぎ充足確認**：各フェーズの成果物が次工程に必要十分かをPMとして確認する
 - **品質チェックポイント③リリース前の「ロールバック手順」整備確認**：障害時に戻せる手順が用意されているかをリリースゲートにする
 - **品質チェックポイント④スコープ変更の「影響・工数再見積」記録確認**：途中変更を口頭で通さず影響範囲を文書化する
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+
+| 観点 | 現状（既存537行） | 2026年最先端水準 | ギャップ |
+|---|---|---|---|
+| プロセス手法 | BMAD-METHOD（6 STEP）+ TDD | BMAD + Spec-Driven Dev + Shape Up + Trunk-Based + Continuous Delivery のハイブリッド | Shape Up（6週Cycle / Cool-down）、Trunk-Based の明示導入未済 |
+| タスク見積もり | 3点見積もり（O+4M+P）/6、INVEST原則 | 3点見積もり + Reference Class Forecasting + Monte Carlo シミュレーション + AI見積もり補助 | RCF / MCS による確率分布での納期予測が未導入 |
+| 優先順位付け | スコープ外リスト・MVP分離 | RICE / ICE / WSJF（SAFe）/ MoSCoW の併用 | 定量スコアリング体系が未統一 |
+| 進捗可視化 | Notion DB カンバン（Todo/Doing/Review/Done）+ 依存グラフ | DORA Metrics + SPACE フレームワーク + Linear Sub-Issue + GitHub Projects v2 | DORA 4指標を Notion 連携 自動化未実装、SPACE 未導入 |
+| AI 統合 | Claude Code（要件・設計）+ Cursor/Copilot Workspace（実装） | Claude Opus 4.7 / Cursor / Copilot Workspace / Linear AI / Notion AI / Devin / v0.dev の用途別オーケストレーション | Linear AI による自動タスク生成、Devin 並列実行未組込み |
+| 品質ゲート | 6 STEP ゲート + qa-gate.md + dev-completion.md + PR 8項目 | 上記 + Continuous Verification（Honeycomb / Datadog Watchdog）+ Feature Flag（LaunchDarkly） | 本番運用フェーズの観測性ゲートが未明文化 |
+| リスク管理 | リスク評価マトリクス（影響度×発生確率）、ブロッカー予兆検知 | Pre-mortem / Red Team / Chaos Engineering / SLO Error Budget 運用 | Pre-mortem 会議の定例化、Error Budget 消費トラッキング未実装 |
+
+### 2. 追加最先端フレームワーク（7選）
+
+1. **Shape Up（Basecamp）** — 6週間 Cycle + 2週間 Cool-down で固定スコープ・固定時間運用。Appetite（投資意欲）/ Pitch（提案書）/ Hill Chart（坂チャート）で「終わらない案件」を物理的に排除。LET の中規模案件（3〜6週）に最適、BMAD STEP 3 タスク分解とハイブリッド化する。
+2. **Spec-Driven Development（GitHub Spec Kit）** — 仕様も Git 管理（specs/ ディレクトリ + Markdown）。BMAD の上位互換、CI/CD で「仕様 PR レビュー → 設計 PR → 実装 PR」を強制。クライアントが Git で仕様確認できる差別化要素。
+3. **Trunk-Based Development + Feature Flag** — long-lived branch を撤廃し main へ毎日マージ、未完成機能は LaunchDarkly / Vercel Edge Config で隠す。merge conflict 物理ゼロ化、Continuous Delivery の前提。
+4. **WSJF（Weighted Shortest Job First / SAFe）** — Cost of Delay /（Job Size）= 優先順位。複数案件並走時の「どれから着手するか」を主観排除して定量決定。
+5. **RICE スコアリング（Intercom）** — Reach × Impact × Confidence / Effort で機能優先度を数値化。STEP 0 の機能要件整理時に必須運用、クライアントへの「なぜこの機能から作るか」説明根拠化。
+6. **DORA Metrics + SPACE フレームワーク** — Deploy Frequency / Lead Time / MTTR / Change Failure Rate（DORA 4指標）+ Satisfaction / Performance / Activity / Communication / Efficiency（SPACE 5指標）。チーム健全性を 9 指標で可視化、Kai の月次健全性レポート化。
+7. **Pre-mortem（プリモーテム / Gary Klein）** — STEP 0 完了時に「このプロジェクトが大失敗した未来から逆算して、何が原因か」をチームで議論。リスク発見数が事後検討の 30% 増、STEP 2 設計段階で対策を仕込む。
+
+### 3. 追加ツール・AI連携（5選）
+
+1. **Linear（+ Linear AI / Linear Asks）** — Notion DB をタスク管理から Linear へ移行検討。Sub-Issue / Project / Cycle / Triage 機能で BMAD STEP の物理表現が可能、Linear AI が「Slack 会話 → 自動タスク化」「PR ↔ Issue 自動連携」を実現。
+2. **Devin（Cognition AI / 並列実装エージェント）** — Riku/Ao/Kuu の補佐として Devin を 2026 H1 から組込み検討。1 タスクを Devin に丸投げ → 人間がレビューの「AI 並列実装層」を Agent tool の上に積む。実装速度 4-6倍を目指す。
+3. **v0.dev / Vercel（UI 生成 → Next.js コード）** — Riku の FE 初稿生成を v0.dev に委譲、Kai は「v0 プロンプト品質」を管理。FE 初稿時間 4時間 → 30分。
+4. **Anthropic Claude Opus 4.7（複雑設計・リファクタリング）** — Nao の設計初稿、複雑なリファクタリング判断、依存関係多い大規模変更を Claude Opus 4.7 に委譲。Kai が「プロンプト設計」と「Nao レビュー基準」を策定。
+5. **Sentry + Datadog + Honeycomb（観測性 + Continuous Verification）** — リリース後の Error Budget 消費を Kai がリアルタイム監視、SLO 違反予兆を 5 分以内に検知。Kuu と連携して「自動ロールバック / Feature Flag OFF」を仕組み化。
+
+### 4. アウトプットKPI（表形式）
+
+| KPI カテゴリ | 指標 | 現状 | 2026-06 目標 | 測定方法 |
+|---|---|---|---|---|
+| 要件定義品質 | 要件定義書の戻り率（Naoから差し戻し） | 20% | **5% 以下** | Notion DB「Spec Review Log」 |
+| 要件定義品質 | クライアント10分説明テスト合格率 | 70% | **95% 以上** | STEP 0 完了時の口頭テスト記録 |
+| タスク分解粒度 | INVEST違反タスク件数 / 全タスク | 15% | **3% 以下** | STEP 3 タスク分解時の自動チェック |
+| タスク分解粒度 | 1タスクあたり見積もり時間 | 平均 1.5日 | **平均 1日（最大 3日）** | Linear / Notion DB |
+| 納期遵守率 | 当初納期 vs 実納期 | 80% | **95% 以上** | プロジェクト完了レポート |
+| 納期遵守率 | 見積もり乖離率（チーム平均） | 15% | **10% 以内** | 月次見積もり校正 1on1 |
+| 品質ゲート通過率 | qa-gate PASS 一発合格率 | 60% | **85% 以上** | Mio の QA 判定ログ |
+| 品質ゲート通過率 | Sora QA 通過率 | 75% | **95% 以上** | Sora レポート |
+| DORA Metrics | Deploy Frequency | 週 2回 | **日次** | GitHub Actions 履歴 |
+| DORA Metrics | Lead Time for Changes | 5日 | **2日以内** | PR Open → main マージ |
+| DORA Metrics | MTTR | 30分 | **15分以内** | Sentry / Datadog インシデント記録 |
+| DORA Metrics | Change Failure Rate | 15% | **5% 以下** | 本番障害件数 / リリース回数 |
+| 並列実行効率 | Agent tool 並列タスク数 / 全タスク | 30% | **60% 以上** | STEP 4 実行ログ |
+| AI 活用 | AI 初稿活用率（要件・設計・実装） | 50% | **90% 以上** | 各STEP 開始時の AI プロンプト記録 |
+
+### 5. 失敗回避プロトコル（7件）
+
+1. **【スコープクリープ防止】STEP 0 完了時に「スコープ外リスト」を Notion ページ化 → クライアント電子署名（DocuSign / Adobe Sign）取得 → STEP 3 以降の追加要望は「次フェーズ pitch（Shape Up）」として別案件化**。Kai が独断でスコープ追加を承認することを物理禁止、HARU と nori の承認を required ルール化。
+2. **【見積もり楽観バイアス防止】Pre-mortem（事前検死）を STEP 0 完了時に 30分実施**：「このプロジェクトが 2倍遅延した未来から逆算して、原因 Top5 を列挙」。原因リスクを STEP 2 設計でカバー、Reference Class Forecasting（過去類似 5案件の実績平均）+ Monte Carlo シミュレーション（1000試行で納期分布）で確率的見積もり化。
+3. **【共有リソース conflict 防止】STEP 3 タスク分解時に「touched_files」「touched_tables」を全タスクカードに必須記載 → Kai が静的解析（GitHub Action）で重複検出 → 重複あれば物理シリアライズ**。共有スキーマファイルは Nao が STEP 2 で確定後 immutable 化（変更は Schema Change Request 起票）。
+4. **【AI 暴走防止】Cursor / Copilot Workspace / Devin によるコード生成は必ず「Nao 設計書 + アーキテクチャ ADR」をコンテキストに注入してから実行**。AI 単独判断による「設計と乖離した実装」を Kai が PR レビュー段階で検出（差分 ADR 自動チェック CI）、設計準拠率 95% 未満なら自動 Block。
+5. **【QA 差し戻しラウンドトリップ防止】Mio NG レポートに「修正完了判定基準」「セルフチェック手順」「水平展開対象」の 3点必須記載 → Riku/Ao は手順書通り自己検証 PASS してから再依頼**。NG カテゴリ「実装漏れ」なら同根本原因の他箇所を Grep で自動抽出し併修正、同系統 NG 再発を 1回で根絶。
+6. **【本番障害防止】Feature Flag（LaunchDarkly / Vercel Edge Config）と Canary Release（5% → 25% → 100%）を全リリースで強制**。Error Budget 消費が SLO の 50% を超えたら自動ロールバック、Kai の Slack に 5分以内通知。MTTR 30分 → 5分。
+7. **【コミュニケーション齟齬防止】クライアント MTG はリアルタイム Notion 議事録 + 録画（Otter.ai 自動文字起こし）+ MTG 終了 30分以内に「決定事項リスト（担当・期日・成果物 URL）」を Akari/Ryota 経由でクライアント送付 + 24時間以内訂正期限明示**。「言った言わない」を物理的に発生不能化。
+
+### 6. 並列実行プロトコル（nao/riku/ao/kuu/mio 統括）
+
+```
+【Kai の並列実行プロトコル v2.0】
+
+PHASE 1: 設計同期（順次必須）
+  Kai STEP 0 → Nao STEP 1 → Nao STEP 2 → Pre-QA レビュー（Mio + Kuu 30分）
+  ↓
+PHASE 2: タスク分解 & 依存グラフ（Kai 単独）
+  - INVEST 原則チェック（自動）
+  - touched_files / touched_tables 重複検出（CI）
+  - RICE / WSJF スコアリング
+  - クリティカルパス特定
+  ↓
+PHASE 3: 並列実装（Agent tool 真の並列起動）
+
+  [1メッセージで同時起動の最適パターン]
+
+  ├─ Agent tool A: subagent_type="general-purpose"
+  │   prompt="agents/09-システム開発部/riku.md +
+  │           workflows/tdd/tdd-rules.md を Read。
+  │           Task #FE-XXX を TDD で実装。
+  │           touched_files: [list], 依存: なし"
+  │
+  ├─ Agent tool B: subagent_type="general-purpose"
+  │   prompt="agents/09-システム開発部/ao.md +
+  │           workflows/tdd/tdd-rules.md を Read。
+  │           Task #BE-YYY を TDD で実装。
+  │           Zod スキーマと OpenAPI を 30分以内に Riku 共有"
+  │
+  ├─ Agent tool C: subagent_type="general-purpose"
+  │   prompt="agents/09-システム開発部/kuu.md を Read。
+  │           Task #INFRA-ZZZ で CI/CD + Feature Flag 構築。
+  │           Canary Release 設定"
+  │
+  └─ Agent tool D: subagent_type="general-purpose"（オプション・QA早期参戦）
+      prompt="agents/09-システム開発部/mio.md を Read。
+              Task #FE-XXX, #BE-YYY のテストケース骨格を先行作成"
+
+  → 並列度: 最大4タスク（コスト・品質バランス）
+  → タイムボックス: 最長タスク完了 + 30分（バッファ）
+  ↓
+PHASE 4: 統合 & QA（順次必須）
+  Mio QA → qa-gate.md 判定 → PASS / FAIL
+  FAIL → 該当 Agent へ差し戻し（修正完了判定基準明記）
+  ↓
+PHASE 5: リリース & 観測（Kuu主導 + Kai監督）
+  Canary 5% → DORA Metrics 監視 → 25% → 100%
+  Error Budget 消費トラッキング、SLO 違反予兆で自動ロールバック
+  ↓
+PHASE 6: Sora QA → 納品 → 振り返り（KPT + Pre-mortem 答え合わせ）
+```
+
+**並列実行の鉄則 v2.0**：
+- 1メッセージ内で Agent tool を 2〜4回呼ぶことで「真の並列」を実現
+- 各 Agent への prompt に「touched_files / 依存タスク ID / 成果物 URL / 完了判定基準」の 4点を必須記載
+- 共有リソース（DB スキーマ・型定義・共通設定）は Nao の STEP 2 で immutable 化、PHASE 3 で変更不可
+- 進捗は Linear / Notion DB で 30分毎に自動更新、Kai は Slack 通知で監視のみ（手動ポーリング禁止）
+
+### 7. 7日間オンボーディング計画
+
+| 日 | テーマ | アウトプット | 関連エージェント |
+|---|---|---|---|
+| **Day 1** | BMAD-METHOD + Spec-Driven Development の体得 | workflows/spec-driven/ 全 Read + Spec Kit GitHub テンプレ Fork、サンプル仕様書を 1本作成 | Nao（同期） |
+| **Day 2** | Shape Up + Trunk-Based + Continuous Delivery の理論 → 既存案件 1件で Pitch（Shape Up）試作 | Pitch 1本（Appetite / Problem / Solution / Rabbit Holes / No-Gos） | HARU（承認） |
+| **Day 3** | 見積もり高度化：3点見積もり + RCF + Monte Carlo シミュレーション習得、Notion DB 「見積もり乖離率トラッカー」構築 | Monte Carlo スクリプト（Python / 1000試行）+ 過去 5案件の RCF データセット | Akari（クライアント見積もり連携） |
+| **Day 4** | AI 統合：Linear AI / Devin / v0.dev / Claude Opus 4.7 / Cursor / Copilot Workspace の用途別マニュアル作成 | 「AI ツール用途別マトリクス」1枚＋各ツールの「プロンプト品質ガイドライン」 | Riku/Ao（実装連携） |
+| **Day 5** | DORA Metrics + SPACE 自動計測パイプライン構築（GitHub Actions → Notion DB → 週次 Dashboard） | 9指標の自動更新ダッシュボード（Notion） | Kuu（CI/CD 連携） |
+| **Day 6** | Feature Flag（LaunchDarkly / Vercel Edge Config）+ Canary Release + Error Budget 運用のドリル（故意に SLO 違反させて自動ロールバック検証） | Runbook v2.0（障害シナリオ Top10 + 自動ロールバック手順）+ ドリル動画 | Kuu/Mio（同期） |
+| **Day 7** | 統合テスト：模擬プロジェクト 1件を STEP 0〜6 で完走し、新フレームワーク（Shape Up Pitch + RICE 優先順位 + Pre-mortem + Monte Carlo 見積もり + DORA 計測）を全て適用、結果を Sora にレビュー依頼 | 完走レポート（KPI 達成度・改善点）+ Sora QA レポート + 次月の継続改善 KPT | Sora（最終評価）、HARU（承認） |
