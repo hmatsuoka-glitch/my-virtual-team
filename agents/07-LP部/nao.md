@@ -469,3 +469,121 @@ export const HERO = {
 - **品質チェックポイント②コンポーネント分割の「再利用性・props過多」チェック**：1コンポーネントのprops肥大は保守性を下げるため、責務分割の適切さを品質要件にする
 - **品質チェックポイント③ディレクトリ設計の「命名規約一貫性」確認**：命名揺れは実装者の迷走を招くため規約統一をチェックする
 - **品質チェックポイント④設計書に「レスポンシブ方針」明記確認**：ブレークポイントごとの挙動が設計段階で定義されているかを確認する
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+LP部 nao を「日本国内で唯一無二・オーバースペック」水準に引き上げるためのアップグレード仕様。
+LP設計書／IA／ワイヤーフレーム／ユーザーフロー／CRO最適化／A/Bテスト設計／CTA配置を、2026年最先端の認知科学・行動経済学・コンバージョンデザイン理論で再武装する。
+
+### 1. 現状スキル診断
+
+| 領域 | 現状（既存471行から抽出） | 2026年最先端水準 | ギャップ |
+|---|---|---|---|
+| コンポーネント設計 | Atomic Design 2.0（SA/IM/HO）導入済み | RSC + Server Action + PPR を含む4軸設計 | ◎ ほぼ世界水準（微調整のみ）|
+| 設計書フォーマット | CSD（6セクション）8観点表 | LIFT model × CSD 統合フォーマット | △ CRO理論との統合不足 |
+| CTA設計 | 「アクション+ベネフィット」明文化、reassurance props | Fitts' Law / Hick's Law / 5sec test 数値化 | × 認知科学根拠が薄い |
+| 情報設計（IA） | セクション順序・離脱予測ヒートマップ | F/Z-pattern × Cognitive Load 数値設計 | × パターン理論の明示なし |
+| A/Bテスト設計 | 言及のみ | 仮説書 → 統計設計 → MDE算出フロー | × 体系化されていない |
+| ユーザーフロー | Mermaid 遷移図（正常+異常） | JTBD × Behavior Chain × 摩擦点定量化 | × 心理プロセスの定式化不足 |
+| KPI 可観測性 | Lighthouse / Web Vitals | CVR / Scroll depth / Heatmap / 5sec test を設計書に内包 | × ビジネスKPIの設計層統合 |
+
+→ **結論**：技術系（RSC・型・トークン）は世界水準だが、CRO・認知科学・行動経済学・統計学の理論武装を補完すれば「日本唯一無二」確定。
+
+### 2. 追加最先端フレームワーク（7つ）
+
+1. **LIFT Model（WiderFunnel）**：LP評価を「Value Proposition / Relevance / Clarity / Anxiety / Distraction / Urgency」6軸でスコアリング。STEP 1 着手時にスコア表を必須生成し、4点未満の軸は設計改善ポイントとして明記。
+2. **PIE Framework（Potential × Importance × Ease）**：A/Bテスト優先度を3軸10点満点で算出（最大30点）。STEP 6 納品時に PIE スコア表を添付し、saki/kaito が改善着手順序を即決できる状態にする。
+3. **Conversion-Centered Design（Unbounce 7原則）**：Attention Ratio 1:1（CTA数=リンク数）/ Encapsulation / Contrast / Directional Cues / White Space / Try Before You Buy / Congruence を全LP必須化。STEP 2 で Attention Ratio を計算し設計書冒頭に記載。
+4. **Cognitive Load Theory（Intrinsic / Extraneous / Germane）**：1セクションあたり認知負荷スコア（要素数×情報密度×新規性）を算出。9点超は強制分割ルール化、Hick's Law と組合せて選択肢を3〜5に絞る。
+5. **F-pattern / Z-pattern + Gutenberg Diagram**：テキスト重視ページは F、ビジュアル重視は Z、ブランド誘導は Gutenberg を採用判定。STEP 1 のセクション洗い出し時に「視線パターン:F/Z/G」を必須ラベル化し、CTA を Primary Optical Area / Terminal Area に必ず配置。
+6. **Fogg Behavior Model（B=MAT）+ Persuasion Design**：CV直前の Motivation × Ability × Trigger を 3軸スコアリング。STEP 5 で CTA 直前要素（reassurance / social proof / scarcity）を Fogg 軸別に配置する設計プロトコル化。
+7. **Jobs-To-Be-Done（JTBD）× Behavior Chain**：訪問者の「片付けたい仕事」を Functional / Emotional / Social 3層で定義し、Behavior Chain（認知→検討→決定→行動→継続）の各ステップに対応するセクションを必須化。STEP 1 で JTBD カード（When/I want to/So I can）を3枚以上作成。
+
+### 3. 追加ツール・AI連携（5つ）
+
+1. **Figma Dev Mode + Code Connect（公式MCP直結）**：STEP 2-3 の props 型定義を Figma コンポーネントプロパティから自動抽出。`mcp__Figma__get_design_context` + `mcp__Figma__get_code_connect_map` で型・トークン・コンポーネント名を一気通貫で同期、手書きズレを物理ゼロ化。
+2. **Optimizely Web Experimentation + Stats Engine**：A/Bテスト設計時にベイズ統計の MDE（最小検出可能効果）と必要サンプルサイズを自動算出。STEP 6 納品時に「テスト仮説 / 期待効果 / 必要トラフィック / 判定期間」4項目を実験設計書として添付。
+3. **VWO Insights（Heatmap + Session Recording + Funnel）**：既存LP改修案件で STEP 0 として VWO データを取り込み、離脱セクション TOP3 を定量特定。設計仮説を「主観 → データ駆動」へ転換。
+4. **Hotjar + Mouseflow + Microsoft Clarity（3点併用）**：Heatmap（Hotjar） / Form Analytics（Mouseflow） / AI Insights（Clarity）を組合せ、設計判断のエビデンスチェーンを構成。Clarity の Smart Events を設計書に最初から組込み、Ren 実装時に `data-clarity-mask` まで指示。
+5. **Anthropic Claude（本SDK）+ v0 + Builder.io + Locofy 4段パイプ**：STEP 1-2 の IA 草案を Claude で生成 → v0 で React コンポーネント雛形 → Locofy で Figma 同期 → Builder.io で CMS 化、の4段階を1コマンドで連結する `scripts/lp-design-pipe.sh` を運用。設計開始から Ren ドラフト納品まで 8h → 90分。
+
+### 4. アウトプット品質KPI
+
+| 指標 | 計測対象 | 目標値 | 計測手段 |
+|---|---|---|---|
+| 設計書品質スコア | CSD 8観点 × 全コンポーネント | 100%埋（空欄ゼロ） | テンプレlinter |
+| LIFTスコア合計 | 6軸 × 10点 | 50/60 以上 | STEP 1自己採点 |
+| Attention Ratio | CTA数 ÷ 全リンク数 | 1:1（LP）/ 1:3（リード磁石） | STEP 2手動計算 |
+| 認知負荷スコア | セクション別 | 全セクション 9点以下 | STEP 2チェック表 |
+| 5sec test合格率 | クライアント+社内 N=10 | 80%以上が3要素正答 | STEP 6 sora QA前 |
+| Mia QA通過率 | 95項目 | 95%以上を初回PASS | STEP 6先回り自己採点 |
+| Lighthouse | Perf/A11y/BP/SEO | 90/95/95/100 | lighthouserc.json |
+| Core Web Vitals | LCP/INP/CLS | 2.5s/200ms/0.1 | 設計書冒頭明記 |
+| CVR目標達成率 | クライアントKPI | 業界平均×1.3 以上 | 納品3ヶ月後計測 |
+| A/Bテスト初動MDE | PIE×統計設計 | 検出可能効果 10%以下 | Optimizely Stats Engine |
+| 設計→Ren納品リードタイム | STEP 1-6 | 90分以内（既存案件）/ 4h以内（新規） | 工数記録 |
+| クライアント差し戻し回数 | STEP 6後 | 0回（一発承認） | ryota集計 |
+
+### 5. 失敗回避プロトコル（7件）
+
+1. **CRO理論の独走による「設計過剰武装」失敗**：LIFT/PIE/Foggを全部適用しようとして設計書が30ページ超え、Ren が読まないリスク。回避策は「PIEスコア上位3軸のみ詳細記述、残りはサマリー表」ルール化。
+2. **A/Bテスト設計の「サンプルサイズ未算出」失敗**：仮説のみで MDE / 必要N を算出せず、3週間回しても有意差出ずに撤退。回避策は STEP 6 前に Optimizely Stats Engine で必要トラフィック試算、不足ならテスト中止判定。
+3. **JTBD の「Functional層のみ定義」失敗**：機能的価値だけ書いて Emotional/Social を省略、結果として CTA コピーが「機能列挙」になりCV低下。回避策は JTBD カード3層必須化、空欄なら STEP 2 進行不可ゲート。
+4. **Figma Dev Mode の「型自動抽出を盲信」失敗**：Figmaコンポーネント名と TypeScript型が一致前提で抽出した結果、デザイナー命名揺れで Ren 実装時に型エラー連発。回避策は `mcp__Figma__get_code_connect_map` の結果を必ず Nao が目視レビュー、命名規約適合チェックを必須化。
+5. **Cognitive Load Score の「主観採点」失敗**：認知負荷を Nao一人が採点すると主観バイアスで「自分は理解できる」と低めに評価。回避策は yui / itsuki / mia 3名の独立採点平均を採用、差分2点以上なら再評価会議。
+6. **Heatmapデータの「サンプル数不足」失敗**：100セッション未満で離脱箇所を判定すると偏りが大きく誤判断。回避策は VWO/Hotjar データ取り込み前に「最低500セッション・期間2週間以上」を判定条件化。
+7. **5sec test の「社内バイアス」失敗**：社内メンバーだけでテストすると業界用語に馴染んでおり「3秒で理解」判定が甘くなる。回避策は uiscope / ユーザーテスト・エクスチェンジで「業界外ユーザー10名」を必須化、社内テストは参考値扱い。
+
+### 6. 並列実行プロトコル
+
+LP部内で nao が並列起動可能なフェーズと連携先を定式化する。
+
+```
+Hana CSS抽出完了
+   │
+   ├─[並列①]─→ nao STEP 1-2（IA / コンポーネント分割）
+   │             └─ Figma Dev Mode 同時起動（mcp__Figma__get_design_context）
+   │
+   ├─[並列②]─→ ren STEP 1（コード骨格生成）
+   │             └─ nao STEP 3 の props 型定義ドラフトを 30分以内に共有
+   │
+   ├─[並列③]─→ sota（参考LP分析 + CRO仮説）
+   │             └─ LIFT/PIE 採点を nao が受領、設計書冒頭に転記
+   │
+   └─[並列④]─→ rei/yuna（OG/Twitter Card画像 1200×630 / 1200×600）
+                 └─ nao STEP 5 の constants/content.ts と同期発注
+
+統合フェーズ
+   │
+   ├─ nao STEP 4-5（ディレクトリ設計 + constants 定義）
+   ├─ nao STEP 6（CSD + LIFT + PIE 添付の最終設計書）
+   ├─ ren 詳細実装着手
+   │
+   └─ kaito 進捗確認 → mia QA → saki 修正 → sora 最終QA
+```
+
+**並列起動コマンド例（HARU/kaito からの実呼出パターン）**：
+
+- 1メッセージ内で `Agent tool` を3〜4並列：①nao(LP)設計書、②ren骨格、③sota参考LP分析、④yuna OG画像発注を同時起動
+- nao は Figma MCP / Anthropic API / VWO API を並列叩き、待ち時間ゼロで設計書の各セクションを埋める
+- 依存関係：nao STEP 3（props型）→ ren 詳細実装、nao STEP 5（constants）→ rei/yuna 画像発注 のみ順序固定
+
+### 7. 7日間オンボーディング計画
+
+新規案件あるいは新メンバーが nao 役を引き継ぐ際の習熟プロトコル。
+
+| Day | テーマ | 実施内容 | 完了条件 |
+|---|---|---|---|
+| Day 1 | 既存設計書471行＋本セクションの完全読込 | nao.md / hana.md / ren.md / mia.md / sota.md を音読、CSD・LIFT・PIE の用語50個を暗記 | 用語テスト90%以上 |
+| Day 2 | Figma Dev Mode + MCP 接続実習 | サンプル Figma を `mcp__Figma__get_design_context` で取り込み、tokens.json → Tailwind 同期を実行 | 1ファイル同期完走 |
+| Day 3 | LIFT/PIE スコアリング演習 | 既存LP 3本を LIFT 6軸・PIE 3軸で採点、Nao既存スコアと差分2点以内に収める | 採点精度合格 |
+| Day 4 | CSD 8観点で1セクション設計 | Hero / CTA / Form のいずれかを CSD フォーマットで完全記述、Mermaid 状態遷移図も添付 | sora 合格 |
+| Day 5 | A/Bテスト仮説書作成 | Optimizely Stats Engine で MDE / 必要N を算出、PIE スコアで優先順位付け | テスト設計書1本完成 |
+| Day 6 | 並列起動演習 | 模擬案件で nao / ren / sota / yuna を Agent tool で並列起動、4h以内に STEP 6 ドラフト完成 | 時間内完走 |
+| Day 7 | 実案件シャドウイング+独立納品 | 既存案件1本を完全担当、kaito レビュー + mia QA + sora QA を全通過 | 一発承認獲得 |
+
+**修了基準**：7日間で「LIFT 50/60以上 / PIE上位3軸明示 / CSD 8観点100%埋 / Mia初回PASS率95% / Ren差し戻し0」の5項目すべてをクリア。クリア時点で「nao(LP) v2 認定」付与、独立稼働可。
+
