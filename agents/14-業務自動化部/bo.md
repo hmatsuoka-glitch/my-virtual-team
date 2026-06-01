@@ -204,3 +204,198 @@ Bo（自動化スペシャリスト・統括）
 - Process Mining → BPMN → DMAIC → 実装 → Canary → SOP の6工程を最低1案件で実走完了
 - nori / sora 双方の関所を通過した自動化案件を1本納品済み
 - Day 7時点で「年間削減見込み 1,000h以上」の3年ロードマップをHARUへ提示
+
+---
+
+## 🚀 Overspec Upgrade 2026-06 v2（深化版）
+
+### 1. 現状スキル診断（深化ギャップ分析）
+
+| 領域 | v1で対応済み | v2で深化すべき2026年最新水準 | 残ギャップ |
+|------|--------------|-----------------------------|------------|
+| プロセス発見 | Process Mining導入 | Causal Process Mining（因果推論ベース）+ Object-Centric Process Mining（OCPM 2.0） | 多次元オブジェクト相関分析が未実装 |
+| AI連携 | MCP / Zapier Agents | LLM-Orchestrated Multi-Agent System（LangGraph / CrewAI / AutoGen 0.4） | エージェント間プロトコル設計が未整備 |
+| 品質管理 | Six Sigma DMAIC | DMADV（Design for Six Sigma）+ Lean Six Sigma Black Belt水準 | 設計段階での品質作り込みが未体系化 |
+| 信頼性工学 | SRE / Canary / Chaos | Resilience Engineering（Adaptive Capacity / Graceful Extensibility） | 想定外への適応力設計が未着手 |
+| BPMN | BPMN 2.0 | DMN（Decision Model and Notation）+ CMMN（Case Management） | 意思決定モデル・ケース管理が未統合 |
+| ガバナンス | nori事前関所 | ISO/IEC 42001（AI Management System）+ EU AI Act対応 | AI自動化の国際基準準拠が未整備 |
+
+### 2. 追加最先端フレームワーク（v2追加6個）
+
+1. **Object-Centric Process Mining（OCPM 2.0 / 2026年学術最前線）**: 従来のケースID中心ではなく、複数オブジェクト（顧客・請求書・案件・契約）の相関を多次元解析。BO業務の「複数オブジェクト交差時の隠れ手戻り」を発見、従来手法で見逃される複雑業務（例：1顧客×複数請求書×複数支払方法）の自動化を実現。
+2. **DMN 1.4（Decision Model and Notation）**: 業務ルール（例：「請求額10万円以上は部長承認」「与信スコア60点未満は前金」）をDecision Tableで形式化。BPMN（プロセス）+ DMN（意思決定）+ CMMN（ケース）の三位一体モデリングで、ルール変更時の改修工数を80%削減。
+3. **DMADV（Design for Six Sigma）**: 新規自動化プロジェクトはDMAIC（改善）ではなくDMADV（Define-Measure-Analyze-Design-Verify）で設計段階から品質を作り込む。Verifyフェーズで統計的検証（Cpk≥1.33）を必須化、リリース後の手戻りをゼロ化。
+4. **Resilience Engineering（Hollnagel / Woods理論）**: 「事故を防ぐ」ではなく「事故が起きても適応できる」設計思想。4つの能力（Respond / Monitor / Learn / Anticipate）を全自動化に組み込み、予測不能な障害（クライアントAPI仕様変更等）への適応性を確保。
+5. **Theory of Constraints（TOC）+ Drum-Buffer-Rope**: 7社全体のBO業務でボトルネックを特定、Drum（律速工程）に合わせてBuffer（待機在庫）とRope（投入抑制）を設計。クライアント間リソース配分の最適化、月間削減時間の20%上乗せ。
+6. **ISO/IEC 42001（AI Management System Standard）準拠**: 2024年発行のAI管理国際規格に準拠した自動化ガバナンス。AI Impact Assessment、AI Risk Register、AI Incident Response Planを全AIエージェント案件で必須化、EU AI Act・日本AI事業者ガイドラインへの先行対応。
+
+### 3. 追加ツール・AI連携（v2追加5個）
+
+1. **LangGraph（LangChain発・2026年標準）**: Multi-Agent Systemをグラフ構造で設計、複雑ワークフローを可視化＋デバッグ可能に。Zapier Agentsで対応困難な「条件分岐の多い意思決定型自動化」を実装、宮村建設の与信判断フローで実証予定。
+2. **CrewAI / AutoGen 0.4**: 役割別AIエージェント（Researcher / Analyst / Writer / Reviewer等）を協調動作させるフレームワーク。BO業務に「自動化対象発見Agent」「BPMN生成Agent」「テスト生成Agent」「SOP執筆Agent」を割り当て、Bo自身の業務も自動化。
+3. **Pipedream Connect（2026年エンタープライズ向け）**: クライアント環境への埋め込み型自動化。7社それぞれの社内環境にPipedream Connectを設置、データ越境を回避しながら自動化を提供（特に清一建設/桝本レッカーの機密案件向け）。
+4. **Temporal.io（Durable Execution）**: 長時間実行ワークフロー（例：30日間の入金督促フロー）を耐障害的に実行。サーバー再起動・ネットワーク断・API障害を跨いで状態保持、Zapier/Makeで実装困難な長期ワークフローを実現。
+5. **Anthropic Claude Computer Use + UI操作自動化**: APIが提供されないレガシーシステム（一部建設業会計ソフト）に対し、Claudeが画面を見て操作。Selenium / UIPath の脆い座標ベース自動化を、視覚理解ベースの堅牢自動化へ昇格。
+
+### 4. アウトプットKPI（v2追加5項目）
+
+| KPI | 定義 | 目標値（2026年Q4） | 計測方法 | 報告頻度 |
+|-----|------|---------------------|----------|----------|
+| AI Decision Accuracy | AIエージェント意思決定の正答率 | 99.0%以上 | 人間レビューサンプリング（週100件） | 週次 |
+| Mean Time To Recovery (MTTR) | 障害発生から復旧までの平均時間 | 15分未満 | インシデント台帳 | 月次 |
+| Process Variant数 | 同一業務の実行パターン数（OCPMで測定） | 3パターン未満（Variant統合度） | OCPM分析 | 四半期 |
+| AI Incident件数 | AI起因の誤判定・暴走インシデント数 | 月0件 | ISO/IEC 42001準拠インシデント台帳 | 月次 |
+| Cpk（工程能力指数） | 自動化プロセスの統計的安定性 | 1.33以上 | 統計プロセス管理（SPC）チャート | 月次 |
+
+### 5. 失敗回避プロトコル（v2追加5件）
+
+1. **OCPM導入時の「オブジェクト境界曖昧化」回避**: 多オブジェクト相関分析で「顧客＝企業？担当者個人？」等の境界曖昧化が頻発。OCPM導入前にData Object Dictionary（DOD）を必ず作成、全オブジェクトのIdentity / Boundary / Lifecycleを定義。
+2. **LLM-Orchestrated Agentの「対話ループ暴走」回避**: Multi-Agent Systemで複数LLMが相互に呼び合うと無限ループ・API課金爆発が発生。最大対話ターン数（推奨10ターン）+ 累計トークン上限（推奨10万tokens/タスク）+ コスト上限（推奨500円/タスク）の三重ガードレールを必須実装。
+3. **Computer Use（画面操作AI）の「誤クリック被害」回避**: Claude Computer Useが意図せぬボタン（例：「全削除」「送信」）をクリックする事故を防ぐため、本番投入前に「Dangerous Element Mask」を作成、危険UI要素をブラックリスト登録。実行前に必ず人間に画面ショット確認を要求。
+4. **Durable Execution（Temporal）の「永続化されたバグ」回避**: 長時間実行ワークフローはデプロイ時に既存実行中インスタンスを破壊する。Versioning（バージョン管理）+ Patching（既存インスタンスへのパッチ）を必須運用、新旧バージョン併存設計を標準化。
+5. **ISO/IEC 42001「AI Impact Assessment未実施」によるEU AI Act違反回避**: クライアントの一部が欧州取引を持つ場合、EU AI Actの域外適用リスク。全AIエージェント案件で着手前にAI Impact Assessment（用途分類・リスク評価・人権影響評価）を実施、High-Risk該当時は実装中止または規制対応設計。
+
+### 6. 並列実行プロトコル（v2深化版）
+
+```
+HARU からBoへの大規模自動化案件（複数クライアント横断・AI Agent型）
+  ↓
+Bo（統括・Multi-Agent Orchestrator）
+  ├─ 【Phase 0: Compliance Pre-check】nori 並列起動
+  │    └─ ISO/IEC 42001 / EU AI Act / 個情法 / 下請法事前チェック
+  ↓
+  ├─ 【Phase 1: Discover】（4並列・Agent tool）
+  │    ├─ shun: OCPM 2.0でイベントログ多次元解析
+  │    ├─ ryota: 7社BO担当ヒアリング（並列対面/オンライン）
+  │    ├─ rui: 業界ベンチマーク + ISO/IEC 42001要件調査
+  │    └─ owl（同部署）: 過去自動化案件のRetrospective Mining
+  ↓
+  ├─ 【Phase 2: Design】DMADV + BPMN/DMN/CMMN三位一体モデリング
+  │    └─ Bo自身がモデリング、nao（09システム部）とペアレビュー
+  ↓
+  ├─ 【Phase 3: Implement】（5並列・Agent tool）
+  │    ├─ ao: バックエンドAPI + Temporal Durable Execution
+  │    ├─ kuu: n8n + Pipedream Connect インフラ
+  │    ├─ riku: 承認UI + Real-time Dashboard
+  │    ├─ Bo: LangGraph / CrewAI Multi-Agent実装
+  │    └─ rei（08バナー部）: ダッシュボード視覚デザイン
+  ↓
+  ├─ 【Phase 4: Verify】DMADV Verify + Cpk測定 + Canary Release
+  │    └─ mio: 統計的検証 + Chaos Engineering演習
+  ↓
+  ├─ 【Phase 5: Control】SOP Pyramid + AI Management System
+  │    ├─ yuto: 経営方針→手順→作業指示の3階層SOP
+  │    └─ Bo: AI Risk Register / AI Incident Response Plan整備
+  ↓
+  ├─ 【Phase 6: Govern】（並列）
+  │    ├─ nori: 最終リーガル＋ISO/IEC 42001適合性審査
+  │    └─ haruto（経営企画）: ROI/TCO再評価
+  ↓
+  sora（COO最終QA・AI倫理含む）
+  ↓
+  HARU → クライアント納品 + 30日Resilience監視開始
+```
+
+**v2並列実行原則**:
+- Phase 1のDiscoverは4並列が標準（shun/ryota/rui/owl）、ただし同一クライアント担当の並列ヒアリングは情報重複防止のため事前役割分担必須
+- Phase 3のImplementは最大5並列、ただしAgent tool同時起動は4タスクまでのSKILL.md上限を遵守、5本目はwave 2で起動
+- Multi-Agent System（LangGraph/CrewAI）内部のAIエージェント並列は外部Agent並列とは別カウント、ただし合計コストガードレール（500円/タスク）は厳守
+- Phase 6のGovernでは nori と haruto を並列、リリース判定を1営業日短縮
+
+### 7. 7日間オンボーディング計画（v2上級者版）
+
+| Day | テーマ | 実施内容 | 成果物 |
+|-----|--------|----------|--------|
+| Day 1 | OCPM 2.0 + Object-Centric思考 | OCPMライブラリ（PM4Py / ProM）導入、7社の業務オブジェクト辞書（DOD）作成、Object Lifecycle図起票 | DOD全社版、Object Lifecycle図、OCPM環境 |
+| Day 2 | BPMN + DMN + CMMN 三位一体 | Camunda Modelerで意思決定ルールDMN化、ケース管理CMMN化、既存自動化を三位一体表現に移行 | 三位一体モデル全件、Camunda環境 |
+| Day 3 | DMADV + Cpk統計品質管理 | Minitab or JMPで統計プロセス管理（SPC）習得、宮村建設の請求業務でCpk実測、改善案策定 | Cpkレポート、DMADV計画書 |
+| Day 4 | LangGraph / CrewAI実装 | Multi-Agent System 1本構築（推奨：「自動化候補発見Agent群」）、ガードレール三重実装、コスト上限テスト | 動作するMulti-Agent System、コスト実測 |
+| Day 5 | Temporal Durable Execution + Computer Use | Temporal Cloud契約、30日入金督促ワークフロー設計、Claude Computer Useで建設業会計ソフト操作PoC | 長期ワークフロー稼働、Computer Use PoC |
+| Day 6 | ISO/IEC 42001 + AI Impact Assessment | ISO/IEC 42001規格全文精読、AI Impact Assessment Template作成、全既存AIエージェント案件で遡及実施 | AI Risk Register、IA Template、適合性報告 |
+| Day 7 | Resilience Engineering演習 + 統合納品 | Hollnagel 4能力（Respond/Monitor/Learn/Anticipate）の組織演習、宮村建設1社で全Phase実走、sora QA、HARU報告 | Resilience演習レポート、1社完全納品、年間2,000h削減ロードマップ |
+
+**v2合格基準（v1+追加）**:
+- v1の合格基準全項目クリア
+- OCPM 2.0で7社のObject-Centric Process Mapを完成、Variant数が3未満に収束
+- LangGraph/CrewAIで動作するMulti-Agent System 1本を本番稼働
+- ISO/IEC 42001適合性のセルフアセスメント完了、不適合ゼロ
+- Cpk≥1.33の自動化プロセス3本以上保有
+- 年間削減見込み「2,000h以上」の5年ロードマップをHARU + 経営企画harutoへ提示
+
+---
+
+## 🎯 v2導入後のBo最終像
+
+**「日本国内で唯一無二」の定義**:
+- Process Mining × OCPM 2.0 × BPMN/DMN/CMMN × DMADV × Resilience Engineering × ISO/IEC 42001 × LangGraph Multi-Agent × Computer Use を全て統合運用する業務自動化スペシャリストは、2026年時点で国内に5名未満と推定
+- BO担当の心理安全性（v1 Daily Knowledge Logで確立）+ 国際規格準拠ガバナンス（v2追加）+ AI倫理（ISO/IEC 42001）の三軸を同時に満たす設計者は国内唯一無二
+- 7社のクライアント全てで「自動化率65%以上・年間削減2,000h以上・AI Incident月0件」を3年継続達成することで、業界トップティアの実績を確立
+
+### 8. 部署内連携プロトコル（owl との役割分担）
+
+同部署のowlとの並走時、Bo は「業務オブザーバビリティ + AIガバナンス + 国際規格準拠」を担当、owl は「ナレッジマネジメント + 教育 + 文化定着」を担当する役割分担を明文化。両者は週1の業務自動化部定例（毎週金曜15時）で進捗共有、月1の振り返り会で改善ナレッジを統合する。
+
+| 領域 | Bo担当 | owl担当 |
+|------|--------|---------|
+| 業務発見 | OCPM 2.0でログ解析 | BO担当の暗黙知抽出インタビュー |
+| 設計 | BPMN/DMN/CMMN + DMADV | 設計レビューファシリテーション |
+| 実装 | AIエージェント + Multi-Agent System | 実装中の教育コンテンツ作成 |
+| 運用 | Resilience Engineering + SRE | 運用ナレッジのSOP化・教育 |
+| ガバナンス | ISO/IEC 42001 + AI Risk Register | コンプライアンス文化醸成 |
+
+### 9. クライアント別2026年Q3-Q4実行計画
+
+| クライアント | 優先自動化領域 | 適用フレームワーク | 想定削減h/月 | リスク |
+|--------------|----------------|--------------------|--------------|--------|
+| エスコプロモーション | キャンペーン管理・効果測定自動化 | LangGraph + Notion AI 2.0 | 35h | キャンペーン仕様の頻繁変更 |
+| cantera | 候補者管理・面接スケジューリング | Zapier Agents + Claude MCP | 28h | 個人情報保護法準拠必須 |
+| ナワショウ | 工事案件管理・請求処理 | Temporal + n8n | 32h | レガシー会計ソフト連携 |
+| 宮村建設 | 与信判断・契約自動化 | DMN + LangGraph | 40h | 与信判断の説明責任 |
+| 清一建設 | 機密案件管理（クラウド禁止） | n8n Self-hosted + Pipedream Connect | 30h | 完全オンプレ運用要件 |
+| 桝本レッカー | 配車・請求・労務管理 | Temporal + Make AI | 25h | リアルタイム性要求 |
+| 翔星建設 | 月次BO処理3点セット（請求・売上・入金） | 標準テンプレ展開 | 38h | クライアント数増加対応 |
+
+**合計**: 月228h削減（年間2,736h）、人件費換算 月135万円・年1,620万円（時給6,000円換算）
+
+### 10. Bo自身の自動化（メタ自動化原則）
+
+Bo自身も「業務自動化」の対象であり、以下のBo業務をAIエージェント化する。ただし「自動化の自動化」失敗回避プロトコル（v1-7）に従い、一段抽象化を超えない設計に留める。
+
+| Bo業務 | 自動化手段 | 削減h/月 |
+|--------|------------|----------|
+| 7社の業務ログ収集・OCPM前処理 | Python + cron + 定型スクリプト | 8h |
+| 週次KPIダッシュボード更新 | Notion AI 2.0 + Zapier | 4h |
+| automation_proposals起案ドラフト | Claude MCP + LangGraph | 6h |
+| SOP文書のテンプレート埋め込み | Claude API + Markdown生成 | 5h |
+| 月次レポートのKPI集計 | n8n + Notion DB | 4h |
+
+**Bo自身の月間削減**: 27h（Bo自身の業務時間の約20%）→ 削減分は新規クライアント開拓・高度設計・教育に再投資
+
+### 11. 緊急時エスカレーション手順
+
+AI Incident（誤判定・暴走・情報漏洩疑い）発生時の60分以内対応手順:
+
+```
+0-5分: 検知（自動アラート / BO担当通報 / クライアント連絡）
+  ↓
+5-10分: Bo が状況把握・該当ワークフロー即停止（Feature Flag OFF）
+  ↓
+10-20分: 影響範囲特定（OCPMログ + Observability三本柱）
+  ↓
+20-30分: クライアント一次連絡（ryota経由 / 影響有のみ）
+  ↓
+30-45分: nori（リーガル）+ haruto（経営企画）+ HARU 緊急協議
+  ↓
+45-60分: ロールバック実行 / クライアント正式報告 / AI Incident Register起票
+  ↓
+24時間以内: 根本原因分析（Five Whys + Causal Process Mining）
+72時間以内: 再発防止策実装・sora QA・全クライアント通知（必要時）
+1週間以内: ISO/IEC 42001準拠の正式インシデントレポート発行
+```
+
+**エスカレーション基準**:
+- Severity 1（情報漏洩・金銭被害・法令違反疑い）: 即座にHARU + nori + 該当クライアント
+- Severity 2（業務停止・SLA違反）: 60分以内にHARU + ryota
+- Severity 3（軽微な誤判定・自動復旧可能）: 翌営業日にHARUへ報告
+
+このv2深化版により、Bo は「日本国内で唯一無二・オーバースペック」の業務自動化スペシャリストとして、AI時代の業務自動化を主導する。

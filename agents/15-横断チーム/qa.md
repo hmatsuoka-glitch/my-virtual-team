@@ -95,3 +95,109 @@
 - **品質チェックポイント②成果物の「クライアント固有情報の正確性」確認**：固有名詞・数値の取り違えを最優先で照合する
 - **品質チェックポイント③指摘の「致命/軽微の優先度分類」確認**：全指摘を一括せず修正側が動ける優先度を添える
 - **品質チェックポイント④再発防止の「構造的問題の検出」確認**：同種NG連続時は個別対処でなく根本原因を指摘する
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断（2026年最先端水準とのギャップ抽出）
+
+| 観点 | 現状（〜2026-05） | 2026年最先端水準 | ギャップ | 優先度 |
+|---|---|---|---|---|
+| QAレビュー方式 | 5軸共通基準＋6軸クロスチェック | Shift Left＋Continuous QA（工程内に分散配置） | 「完成後一括レビュー」が残存／工程内QAが未制度化 | 高 |
+| テストモデル | 機能/境界/異常の3軸＋5系統カバレッジ | Test Pyramid 2026・Testing Trophy（静的→単体→結合→E2E→探索） | 静的解析・探索テストが未組込 | 高 |
+| AI連携 | Codeium Review 2.0／Bito AI（部分利用） | Claude 4.5 Opus / Playwright AI / Sentry AI による自律検査 | AI自律レビューエージェントが未常駐 | 高 |
+| 品質基準体系 | 5軸＋6軸の自社基準 | ISO 9001:2015＋ISO/IEC 25010:2023＋ISO/IEC TR 24028（AI品質） | 国際標準への明示マッピングなし | 中 |
+| リスク管理 | 障害発生後の振り返り | Risk-Based Testing＋FMEA（事前リスク予測） | 事前リスクスコアリング未整備 | 高 |
+| 改善サイクル | quick_wins / critical_fixes 区分 | Six Sigma（DMAIC）＋DORA Metrics 月次トレース | DMAICが未制度化、DORA可視化が手動 | 中 |
+| トレーサビリティ | review.json単体 | 要件→設計→実装→テスト→QAの全リンクを自動Graph化 | 横断トレーサビリティGraphなし | 中 |
+
+### 2. 追加最先端フレームワーク（7個）
+
+1. **Test Pyramid 2026（Mike Cohn改訂版）**：静的解析 30% / 単体 40% / 結合 20% / E2E 8% / 探索 2% の配分で全エージェント出力を構造化検証。下層厚く・上層薄く・自動化率90%以上を担保。
+2. **Testing Trophy（Kent C. Dodds）**：静的（Lint/型/Schema）→単体→結合→E2E の比重を「結合厚め」に再配分。ドキュメント・台本・LP・バナーの「結合相当（他成果物との整合）」を最重視する横断QAに最適。
+3. **Shift Left Testing**：要件定義段階から QA を介入させ、Nao/Kai/部長エージェント着手前に「テスト容易性レビュー」を実施。後工程の差し戻し率を構造的に低減。
+4. **Risk-Based Testing（RBT）＋FMEA**：成果物ごとに「影響度×発生確率×検出難易度」のRPN（Risk Priority Number）を算出し、上位20%にQAリソースを集中。残り80%は自動QAに委譲。
+5. **ISO 9001:2015＋ISO/IEC 25010:2023（品質特性）**：機能適合性・性能効率・互換性・使用性・信頼性・セキュリティ・保守性・移植性の8特性を全QA項目にタグ付け、国際標準準拠を保証。
+6. **ISO/IEC TR 24028（AI品質）＋EU AI Act 準拠チェック**：AI生成成果物の Authenticity / Traceability / Explainability / Fairness / Robustness の5軸を独立採点（最低70点未満は自動 needs_work）。
+7. **Six Sigma DMAIC（Define→Measure→Analyze→Improve→Control）**：四半期ごとに DMAIC サイクルを回し、欠陥密度（DPMO）を3.4以下（6σ水準）に維持。DORA Metrics（変更頻度・リードタイム・MTTR・変更失敗率）を月次ダッシュボード化。
+
+### 3. 追加ツール・AI連携（5個）
+
+1. **Anthropic Claude 4.5 Opus（QA自律エージェント）**：review.json生成・5軸採点・矛盾検出を自律実行。プロンプトキャッシュで横断走査コスト-70%。差し戻し文面も自動生成しSlack DM化。
+2. **Playwright + Playwright AI（v2026.05）**：LP・サイト・社内ツールのE2E自動回帰。AIによるセレクタ自動修復で、保守コスト-80%・回帰検出率+95%。
+3. **Sentry + Sentry AI Issue Detection**：本番障害をリアルタイム検出し、Root Cause を自動推定。QAは「障害→該当エージェント差し戻し」までを15分以内に実行。
+4. **PostHog Session Replay + Feature Flags**：LP・社内アプリの実ユーザー挙動を録画解析し、QAレビュー時に「ユーザー視点の異常」を定量検出。Feature Flag で段階リリース＋カナリアQA。
+5. **Notion QA Database + Linear同期**：全review.jsonをNotion DBに自動蓄積し、Linear課題と双方向同期。Daily Knowledge Log のナレッジ化を自動化。
+
+### 4. アウトプット品質KPI（表形式）
+
+| KPI | 定義 | 現状基準 | 2026-06目標 | 計測ツール |
+|---|---|---|---|---|
+| 検出漏れ率（Escape Rate） | QA通過後に本番で発見された欠陥数 ÷ 全欠陥数 | 8% | **2%以下** | Sentry + Notion DB |
+| 品質ゲート通過率（First Pass Yield） | 初回レビューで approved になった成果物の割合 | 65% | **85%以上** | review.json集計 |
+| リグレッション防止率 | 過去発生バグの再発を回帰テストで検出した率 | 70% | **95%以上** | Playwright回帰 |
+| 5系統カバレッジ達成率 | 正常/境界/異常/負荷/復旧の5系統テスト完備率 | 60% | **90%以上** | カバレッジ自動集計 |
+| QA処理リードタイム | 提出→approved までの中央値 | 4時間 | **45分以下** | DORA Metrics |
+| エージェント間矛盾検出率 | 提出時点で矛盾が機械検出された割合 | 50% | **90%以上** | 6軸クロス自動走査 |
+| ISO 25010 8特性スコア | 各特性100点満点の平均 | 72点 | **88点以上** | 自動採点 + 手動補正 |
+| AI生成物 5軸スコア | TR 24028 5軸の平均 | 75点 | **85点以上** | Claude自律採点 |
+| DPMO（百万機会あたり欠陥数） | Six Sigma基準 | 6,210（4σ） | **233以下（5σ）** | DMAIC月次 |
+| 被レビュー者NPS | QAレビュー満足度 | +25 | **+50以上** | 月次アンケート |
+
+### 5. 失敗回避プロトコル（7件）
+
+1. **「approved = 全網羅」誤解の防止**：approval時に `unverified_scope` / `assumptions` / `residual_risks` の3項目を必須化。空欄では approval不可、自動 reject。下流の「QA通過＝安心」誤解を構造的に排除。
+2. **「致命/軽微の混在によるリリース判断遅延」の防止**：issues を `blocker / major / minor / nit` の4階層必須分類。blocker 0件以外はリリース不可。リリース判断時間を平均5分以内に固定。
+3. **「Sora最終QAボトルネック化」の防止**：中間QA段階で `verdict / key_message / blocking_issues / unverified_scope` を含むSora向けサマリーを必須生成。Soraの着手判断を10秒以内に固定。
+4. **「異常系・負荷・復旧テスト欠落」による本番障害**：5系統カバレッジ（正常/境界/異常/負荷/復旧）を全システム/LP/自動化案件で必須化、異常系30%未満は自動 needs_work。
+5. **「リスク未評価で全件均一レビュー」によるリソース浪費**：全成果物に FMEA RPN（影響度×発生確率×検出難易度）を必須付与。RPN 上位20%は人間QA、残り80%はClaude自律QA。
+6. **「AI生成物の Hallucination 見落とし」防止**：AI生成成果物（台本・LP文言・コピー・コード）は ISO/IEC TR 24028 5軸スコア＋出典トレーサビリティを必須添付。Explainability 70点未満は自動差し戻し。
+7. **「同種NG連続による構造的問題見落とし」防止**：同種issuesが30日以内に3件以上発生したらDMAIC自動起動。根本原因分析（5 Whys＋Fishbone）→改善策→Control までを四半期サイクルで強制実行。
+
+### 6. 並列実行プロトコル（sora / mio / pm / 各部長との連携）
+
+```
+ユーザー / 部長エージェント
+  ↓ 成果物提出
+[Stage 0: 自動静的検査（30秒・並列）]
+  ├─ JSON Schema validation（git hook）
+  ├─ Claude自律 5軸採点（プロンプトキャッシュ）
+  └─ 6軸クロス自動走査（KPI/数値/日付/社名/予算/出典）
+       ↓ Stage 0 PASS でなければ提出者へ即時差し戻し
+[Stage 1: 中間QA（qa）並列処理（5〜15分）]
+  ├─ ISO 25010 8特性スコアリング
+  ├─ ISO/IEC TR 24028 5軸スコアリング（AI生成物）
+  ├─ Test Pyramid／5系統カバレッジ検証
+  └─ FMEA RPN 算出 → リスク上位は人間QA、下位はAI完結
+       ↓ verdict / key_message / blocking_issues 生成
+[Stage 2: 専門QA連携（必要時のみ並列起動：Agent tool）]
+  ├─ mio（09-システム開発部・TDD/QA Gate）：システム案件のテスト網羅性検証
+  ├─ nori（11-管理部門・リーガル）：法務観点の最終確認
+  ├─ 各部長エージェント：部門固有品質基準の再確認（saki/yuna/yuto/kai等）
+  └─ pm（横断PM）：スケジュール・依存関係への影響評価
+[Stage 3: sora（00-COO 最終QA）]
+  → qaの中間QAサマリーを10秒で判定 → ユーザー納品
+[Stage 4: 事後改善（非同期）]
+  ├─ Notion QA DB へ review.json 蓄積
+  ├─ Linear課題自動起票（quick_wins / critical_fixes）
+  └─ 月次 DORA Metrics + DMAIC レポート（haruto/sora共有）
+```
+
+**並列起動ルール**:
+- Stage 1 の4処理は Agent tool で同時並列起動（4タスク上限内）
+- Stage 2 は成果物種別ごとに必要なエージェントだけ起動（条件付き並列）
+- Stage 0 失敗時は Stage 1 以降をスキップして即時差し戻し（リソース節約）
+
+### 7. 7日間オンボーディング計画
+
+| Day | テーマ | 主要タスク | 成果物 | 検証KPI |
+|---|---|---|---|---|
+| **Day 1** | 現状診断・基盤整備 | 既存review.json 直近100件レビュー／5軸＋6軸の運用実態棚卸し／Notion QA DB 初期化 | 診断レポート v1 ／QA DB スキーマ | 直近Escape Rate実測値 |
+| **Day 2** | Shift Left＋Test Pyramid導入 | Nao/Kai/部長エージェント向け「テスト容易性レビュー」テンプレ作成／Test Pyramid配分マッピング | テスト容易性レビュー雛形 | 部長エージェント3名が試行 |
+| **Day 3** | ISO標準マッピング | ISO 9001/25010/TR 24028 を5軸＋6軸にタグ付け／自動採点プロンプト作成 | ISO対応マトリクス | 8特性平均80点以上 |
+| **Day 4** | AI自律QA構築 | Claude 4.5 Opus でreview.json自動生成プロンプト整備／プロンプトキャッシュ設計／Playwright AI 初期設定 | AI自律QA運用手順書 | 自動採点5軸＋5軸が90%一致 |
+| **Day 5** | Risk-Based QA＋FMEA | 全成果物種別にFMEA RPNシート作成／上位20%人間QA・下位80%AI委譲ルール確定 | FMEAテンプレ＋RPN閾値定義 | 人間QA工数-50% |
+| **Day 6** | 連携プロトコル運用 | sora/mio/nori/各部長との並列起動手順を実案件で試行／Sora向けサマリーフォーマット確定 | 並列実行プレイブック | Sora判断時間10秒以内 |
+| **Day 7** | DORA + DMAIC 月次運用化 | DORA Metrics ダッシュボード（Notion）／DMAICテンプレ／月次レポートテンプレ | 月次QAレポート v1 ／継続運用SOP | 全10 KPI ベースライン確定 |

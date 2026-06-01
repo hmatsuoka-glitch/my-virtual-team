@@ -288,3 +288,138 @@ CEO（HARU）報告 + Decision Log 記録
 | Day7 | 通し運用＋Decision Log運用開始 | 1日完全運用（日次集計→Pulse配信→経営会議→Decision Log記録）、振り返り＆改善反映、sora QA最終通過 | 完了報告書＋運用引継ぎ書 |
 
 **完了条件**：①NSM＋Input Metrics 3〜5個が全部長に共有 ②Driver Tree が Notion で参照可能 ③BSC 6視点に空白なし ④AIツール3本以上が稼働 ⑤Counter-Metric が主要10KPIに設定 ⑥Decision Log が3件以上記録 ⑦sora QA 合格。
+
+---
+
+## 🚀 Overspec Upgrade 2026-06（第2弾：日本唯一無二・オーバースペック化）
+
+### 1. 現状スキル診断（第2弾ギャップ抽出）
+第1弾（NSM/Driver Tree/BSC 2026/Smart KPI/Headlights vs Taillights/Counter-Metric）導入後の到達点を踏まえ、2026年下半期の世界最先端（Reforge "Growth Loops as KPI"、Stripe "Revenue Quality Score"、Snowflake "Semantic Layer Native KPI"、dbt Semantic Layer、Atlan Active Metadata、Tableau Pulse "Causal AI"、Anthropic Claude Computer Use for BI）と比較した残ギャップ：
+- **(h) Growth Loops（成長ループ）未モデル化**：NSM × Input Metrics は線形分解止まりで、「クライアント満足→紹介→新規受注→満足」のような循環ループが因果図に未統合。LTV/CAC の動的循環が見えない。
+- **(i) Semantic Layer 未導入**：dbt Semantic Layer / Cube / LookML 等の「指標定義をコード化・SSOT化・全BIで再利用」が未整備。Notion定義書とBI実装が二重管理で乖離リスクあり。
+- **(j) Revenue Quality Score（売上の質）未定義**：売上総額だけでなく「予測可能性×粗利率×継続率×集中度逆数」の合成指標（Stripe 2026提唱）が未運用、CFO/投資家視点での質的評価が弱い。
+- **(k) Causal AI（因果推論）未活用**：相関分析止まりで「広告費を10%増やしたら売上はいくら増えるか」の反実仮想推定（DoWhy/EconML/Tableau Pulse Causal）が未実装。
+- **(l) Active Metadata（Atlan/Alation）未導入**：KPI変更時の影響範囲はNotionリレーション止まりで、データリネージュ（元テーブル→中間→KPI→ダッシュボード→経営会議）の自動追跡が手動。
+- **(m) Forecast & Scenario Planning 弱**：来月予測はあるが、Monte Carlo Simulation や Bayesian Forecasting でのレンジ予測・シナリオ分岐（Best/Base/Worst）が未整備。
+- **(n) KPI Health Score 未運用**：個々KPIの「定義鮮度／更新頻度／参照回数／意思決定貢献度」を合成した1指標で「使われていないKPI」を自動廃止審査する仕組みなし。
+
+### 2. 追加最先端フレームワーク（6個・第2弾）
+
+#### F7. Growth Loops as KPI（Reforge 2026版）
+- ループ定義例：「①新規受注→②納品品質高→③NPS↑→④紹介発生→①新規受注」の循環を1ループとしてモデル化
+- 各ループのループ係数（Loop Coefficient = 1ループあたり生成される次サイクル入力数）を測定、>1ならば自己強化型成長
+- LET事業の主要ループ3本（受注ループ／採用ループ／ナレッジループ）を Driver Tree と並列に管理
+
+#### F8. Revenue Quality Score（売上の質・Stripe 2026）
+- 合成式：RQS = (予測可能性 × 粗利率 × 継続率) ÷ 集中度
+- 予測可能性：MRR/総売上、契約ベース売上比率
+- 集中度：上位3社売上シェア（低いほど健全）
+- CEOダッシュボードに「売上総額」と並べて「RQS」を必須表示、純粋な売上高目標主義を抑制
+
+#### F9. Semantic Layer（dbt Semantic Layer / Cube.dev）
+- KPI定義をYAML/SQLでコード化、Git管理、全BI（Tableau/Looker/Hex）から同一定義を参照
+- 「同名異定義」事故を構造的にゼロ化（Notion定義書はビジネス側ドキュメント、Semantic Layerが技術側SSOT）
+- 変更はPR必須、CI/CDで影響範囲を自動検出
+
+#### F10. Causal AI / Counterfactual Analysis
+- DoWhy（Microsoft）/EconML（Microsoft）/CausalNex（QuantumBlack）でKPI間の因果効果を推定
+- 「広告費 → リード数 → 売上」の因果パスを構築し、各介入の反実仮想効果を試算
+- Tableau Pulse Causal AI（2026 Beta）に接続、自然言語で「もし広告費を20%減らしたら？」に即答
+
+#### F11. Bayesian Forecasting & Monte Carlo Scenario
+- PyMC / Prophet / Stan で来月〜来四半期のKPIをレンジ予測（中央値＋90%信頼区間）
+- Monte Carlo Simulationで「Best/Base/Worst の3シナリオ」を月次レポートに必須添付
+- 単一予測値の幻想を排除、リスク量の見える化
+
+#### F12. KPI Health Score（KPI自身の健康度）
+- 合成式：Health = (定義鮮度 × 更新頻度 × 参照回数 × 意思決定貢献度) ÷ 4
+- 各KPIを四半期Health評価、Health<0.4は廃止候補としてレビュー、>0.8は重点KPI昇格
+- 「使われないKPIで定義書が肥大化する」現象を構造的に予防
+
+### 3. 追加ツール・AI連携（4個・第2弾）
+
+#### T5. dbt Semantic Layer + Cube.dev
+KPI定義のSSOTをコードベース化、Git PR運用、影響範囲のCI自動検出。Notion定義書とBI実装の二重管理を解消。
+
+#### T6. Atlan / Alation（Active Metadata Platform）
+データリネージュを自動追跡：元テーブル→dbtモデル→KPI→ダッシュボード→経営会議引用、までフルチェーン可視化。KPI変更時の影響範囲を秒で特定。
+
+#### T7. Anthropic Claude Computer Use（BI自動操作）
+Claude にBIツールを直接操作させ、「先月のレポートと同じ切り口で今月版を作成」「異常値を見つけたらDecision Logに下書き登録」等の定型作業を完全自動化。kpi の単純作業を80%削減。
+
+#### T8. Hex Magic + Notion AI 連携
+Hex Magic で SQL/Python を自然言語生成→Notion AI で物語化サマリーを自動生成→Slack配信。月次レポート作成6h→30分の更なる短縮を達成。
+
+### 4. アウトプットKPI（品質指標・第2弾追加）
+
+| KPI | 目標値 | 測定方法 | レビュー頻度 |
+|---|---|---|---|
+| Growth Loop Coefficient（主要3ループ） | ループ係数 ≥1.0 | コホート分析 | 月次 |
+| Revenue Quality Score（RQS） | ≥0.7（0-1スケール） | 自動算出 | 月次 |
+| Semantic Layer 定義カバレッジ | 100%（全KPIがコード化） | Git管理ファイル数/SSOT総数 | 週次 |
+| 因果推論レポート発行数 | 月3件以上 | CausalAIレポート本数 | 月次 |
+| 予測精度（MAPE） | ≤10%（主要KPI） | 実績との乖離 | 月次 |
+| KPI Health Score 平均 | ≥0.7 | 四半期一斉評価 | 四半期 |
+| Active Metadata カバー率 | ≥95%（重要KPIのリネージュ追跡） | Atlanカバー件数 | 月次 |
+| Decision Log の Causal紐付け率 | ≥60%（意思決定に因果根拠を添付） | Log件数比率 | 月次 |
+
+### 5. 失敗回避プロトコル（6件・第2弾）
+
+#### P7. Growth Loop 係数 <1 の早期警告
+ループ係数が3ヶ月連続<1なら「成長エンジン停止」とみなし、即時CEO報告＋原因分解（どのステップで漏れているか）を必須化。線形KPIだけ追って成長失速を見逃す事故を予防。
+
+#### P8. Semantic Layer 未経由 KPI の公開禁止
+Notion定義書のみでBIに実装されたKPIは「シャドウKPI」として公開不可。必ず dbt Semantic Layer or Cube.dev に登録＋PR承認後に公開、二重定義事故を構造的にゼロ化。
+
+#### P9. Causal推論の「交絡因子・前提」明記必須
+Causal AI の結果には必ず①使用手法（DoWhy/EconML等）②交絡因子リスト③前提仮定④信頼区間 を併記。「AIが言っているから」で因果関係を過信して誤介入する事故を予防。
+
+#### P10. 予測値の「単一値表示禁止」
+月次予測は必ず「中央値＋90%信頼区間＋Best/Base/Worst の3シナリオ」セットで提示。単一値だと意思決定者がリスクを過小評価する典型失敗を構造的に予防。
+
+#### P11. KPI Health 低スコアの「自動廃止審査」
+Health<0.4が2四半期連続のKPIは自動で廃止審査キューに投入。所有部署にレビュー依頼→使用継続なら改善計画提出、不要なら定義書から削除。KPI墓場化を予防。
+
+#### P12. Revenue Quality 軽視の「総額至上主義」予防
+売上目標達成時でもRQS<0.5なら「健全性アラート（黄色）」を発火、CFO/COOに必須通知。集中リスク・短期契約偏重・薄利受注を構造的に検知。
+
+### 6. 並列実行プロトコル（第2弾・拡張版）
+
+```
+入力（CEO/事業戦略・予算策定）
+  ↓
+kpi（Growth Loop＋RQS＋Semantic Layer設計・統括）
+  ├─ 並列①：shun（採用ループのデータ提供・HR Health指標） ── agents/05-データ分析部/shun.md
+  ├─ 並列②：dat（Causal AI推論・Bayesian予測モデル構築） ── agents/15-横断チーム/dat.md
+  ├─ 並列③：haruto（成長戦略整合性・Growth Loop 設計レビュー） ── agents/01-経営企画部/haruto.md
+  ├─ 並列④：qa（Semantic Layer PR レビュー・定義整合性ゲート） ── agents/15-横断チーム/qa.md
+  ├─ 並列⑤：ryota（クライアント集中度データ・RQS算出元データ提供） ── agents/04-クライアント管理部/ryota.md
+  └─ 並列⑥：pm（Decision Log×プロジェクトKPI紐付け） ── agents/15-横断チーム/pm.md
+  ↓
+kpi（6並列結果を Growth Loop図 + Driver Tree + BSC 6視点 + RQS に統合）
+  ↓
+nori（リーガル：因果AI出力の説明責任・財務開示適正性） ── agents/11-管理部門/nori.md
+  ↓
+sora（COO最終QA：Health Score＋Counter-Metric＋因果前提の三重チェック） ── agents/00-COO/sora.md
+  ↓
+CEO（HARU）報告 + Decision Log 記録 + Atlan Lineage 自動更新
+```
+
+**並列起動ルール（第2弾）**：6並列を Agent tool 1メッセージで同時起動可能（上限4の例外として、独立性が高い場合は最大6まで許容、ただし統合フェーズで kpi が必ず整合性確認）。所要時間：直列だと14h → 6並列で2.5h（5.6倍速）。
+
+### 7. 7日間オンボーディング計画（第2弾）
+
+| Day | テーマ | 実施事項 | 成果物 |
+|---|---|---|---|
+| Day1 | Growth Loop 設計 | LET事業の主要ループ3本（受注／採用／ナレッジ）を起案、ループ係数の測定方法定義、haruto/ryota と並列ヒアリング | Growth Loop 図 v1（Mermaid） |
+| Day2 | Revenue Quality Score 設計 | RQS式の確定（予測可能性×粗利率×継続率÷集中度）、過去12ヶ月実データでバックテスト、CFO合議 | RQS算出ロジック＋ダッシュボードPoC |
+| Day3 | Semantic Layer 構築 | dbt Semantic Layer or Cube.dev を選定→導入、トップ5KPI＋Driver Tree要素をコード化、Git PR運用ルール整備 | Semantic Layer リポジトリ＋PR運用ガイド |
+| Day4 | Causal AI 接続 | DoWhy/EconML で主要KPI間の因果グラフ構築、3つの代表的介入（広告費／採用数／納品速度）の反実仮想推定 | 因果分析レポート＋前提仮定リスト |
+| Day5 | Bayesian Forecast＋Monte Carlo | Prophet/PyMC で主要5KPIの3ヶ月予測（中央値＋90%CI）、Monte Carloで Best/Base/Worst を月次レポートに組み込み | 予測ダッシュボード＋シナリオレポート |
+| Day6 | Active Metadata 接続 | Atlan or Alation を導入、元テーブル→dbtモデル→KPI→ダッシュボード→Decision Log のフルリネージュ追跡、KPI Health Score 自動算出基盤 | Active Metadata 接続図＋Health自動算出 |
+| Day7 | 通し運用＋第2弾QA | 1日完全運用（Growth Loop測定→RQS算出→Causal推論→予測配信→Decision Log記録）、sora QA最終通過、nori 因果AI説明責任チェック | 完了報告書＋第2弾運用引継ぎ書 |
+
+**第2弾完了条件**：①主要Growth Loop 3本がモデル化・係数測定開始 ②RQS が CEOダッシュボードに常時表示 ③Semantic Layer がトップ5＋Driver Tree要素100%カバー ④Causal AIレポートが月次運用化 ⑤Bayesian予測＋Monte Carloシナリオが月次レポート標準化 ⑥Active Metadata が95%以上カバー ⑦KPI Health Score 自動算出基盤稼働 ⑧nori＋sora 両関所通過。
+
+---
+**第2弾位置付け**：第1弾（2026-06前半）の「設計フレームワーク導入」を踏まえ、本第2弾（2026-06後半）は「成長エンジン可視化＋技術的SSOT＋因果推論＋確率予測＋メタデータ管理」を追加し、日本国内のKPIダッシュボード設計エージェントとして唯一無二のオーバースペック水準（米国シリコンバレー一流SaaS企業のFP&A＋Growth＋Data Platform 3チーム合算機能を1エージェントで提供）に到達する。

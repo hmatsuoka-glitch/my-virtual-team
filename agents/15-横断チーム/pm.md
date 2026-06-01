@@ -161,3 +161,70 @@
 - **品質チェックポイント②各タスクの「完了条件（DoD）」明記確認**：完了基準が曖昧なタスクを放置しない
 - **品質チェックポイント③リスクの「事前洗い出しと対応策」確認**：発生してから対処でなく事前に手を打つ
 - **品質チェックポイント④進捗報告の「事実と見込みの区別」確認**：希望的観測でなく実態ベースで報告する
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+| 領域 | 現状レベル | 2026最先端水準 | ギャップ |
+|------|----------|--------------|--------|
+| プロジェクト立ち上げ | WBS＋ガント手動／規模別テンプレ稼働 | PMBOK 7（原理ベース）＋Shape Up Pitch／AI自動WBS生成 | 価値起点のスコーピング・Betting Tableプロセス未導入 |
+| 進捗管理 | 日次status.json＋Slack絵文字運用 | Linear AI Triage＋Asana Smart Status＋Predictive Insights | 機械学習による「納期遅延確率」予測未実装 |
+| リソース管理 | 稼働率平均＋週次ピーク監視 | Critical Chain（バッファ管理）＋Theory of Constraints（ボトルネック特化） | クリティカルチェーン／フィードバッファ未導入、ボトルネック特定の体系化不足 |
+| リスク管理 | 5軸早期検知＋影響度×確率マトリクス | Monte Carloシミュレーション＋Pre-mortem＋Black Swan早期警戒 | 確率論的リスク定量化と「想定外」シナリオの構造的織り込み未対応 |
+| クライアント期待値管理 | 進捗報告3層構造＋安心感3要素 | RACI＋Stakeholder Radar＋Expectation Anchoring（行動経済学応用） | ステークホルダー影響度マップとアンカリング戦略未体系化 |
+| 横断連携 | kai／各部長と連携 | Disciplined Agile（DA）／SAFe ART（Agile Release Train） | 複数チームを束ねるART／Program Increment運用未導入 |
+| ナレッジ蓄積 | Daily Knowledge Log運用中 | Lean PMO＋Retrospective Wave＋AI Lessons Learned自動抽出 | プロジェクト横断学習のAI解析・テンプレ化未実装 |
+
+### 2. 追加最先端フレームワーク（6個）
+1. **PMBOK 7（原理ベース・価値起点）**：従来の49プロセス型から「12原理＋8パフォーマンス領域」へ。価値提供（Value Delivery）を中核に据え、plan.jsonに `value_hypothesis`／`success_metrics` フィールドを追加。受注時の「何を作るか」より「何の価値を実現するか」を起点に置く。
+2. **Shape Up（Basecamp式・6週間サイクル）**：Pitch → Betting Table → 6-week Cycle → 2-week Cool-down の運用。中小規模案件（M案件）の標準サイクルに採用し、appetite（予算枠）と scope hammering（範囲削り）で納期遵守率を構造的に担保。
+3. **Critical Chain Project Management（CCPM）**：個別タスクバッファをまとめて「プロジェクトバッファ」「フィーディングバッファ」に集約。バッファ消費率と進捗率の比率で `fever_chart` を作成し、危険域を可視化（PMBOK標準のEVMより遅延予兆検知が早い）。
+4. **Theory of Constraints（TOC）／Drum-Buffer-Rope**：全プロジェクトのボトルネック工程を特定し、ボトルネックに合わせて他工程のペースを同期。LP部の `mia`（QA）／システム開発部の `mio`（QA）等が常時ボトルネック化する事象を構造的に解消。
+5. **SAFe ART（Agile Release Train・Program Increment）**：複数部署横断の大型案件（L案件）で導入。8-12週のPIで複数チーム同期、PI Planningで全部門の依存関係を一括解消。kai（システム開発PM）／yuto（資料）／kaito（LP）／yuna（バナー）等が同一PIで稼働する案件で威力を発揮。
+6. **Disciplined Agile（DA）／Lean PMO**：案件特性に応じて Scrum／Kanban／Shape Up／Waterfall を選択する「Way of Working（WoW）」運用。Lean PMOとしてPMO自体を最小工数化し、ガバナンスでなくEnablement（自律支援）に転換。
+
+### 3. 追加ツール・AI連携（5個）
+1. **Linear AI Triage**：Issue優先度・担当・ラベルの自動判定。pm の振り分け工数を月40時間 → 8時間に削減。`/agents/project_manager/projects/{client}/linear_sync.json` でLinear APIと双方向同期。
+2. **Asana AI Smart Status**：タスク完了率・コメント・添付ファイル更新から「プロジェクト健康度」を自動算出。weekly status report の下書きをAIが生成、PMは検証と判断に集中。
+3. **Anthropic Claude（Projects API＋Computer Use）**：plan.json／status.json／risks.json をプロジェクトナレッジとして登録、自然言語で「翔星建設案件の今週リスクを要約」「全7社の納期遵守見通し」を即時取得。Computer Useでガントチャート画像から進捗実績を自動転記。
+4. **Notion AI（Database AI Autofill）**：プロジェクトデータベースの「次の打ち手」「リスク要約」「ステークホルダー影響」列をAI自動生成。pm は判断だけ行い記述コストをゼロ化。
+5. **Monday.com WorkForms＋AI Insights**：クライアント側からの要望受付フォーム → AI分類 → change_log.json 自動更新 → 累計工数閾値超過時に自動エスカレ。スコープクリープ防止の自動化。
+
+### 4. アウトプット品質KPI
+| KPI | 目標値 | 現状ベース | 計測方法 |
+|-----|-------|----------|---------|
+| 納期遵守率（プロジェクト単位） | 98%以上 | 95% | completion.json の planned_due vs actual_close |
+| リスク早期検知率（発生14日前以上） | 90%以上 | 70% | risks.jsonの first_detected vs materialized_at |
+| リソース稼働率（週次） | 75-85%帯 | 65-95%帯（分散大） | resource_allocation.json の週次集計 |
+| バッファ消費率 vs 進捗率（CCPM） | fever_chart で常時Green帯 | 未計測 | プロジェクトバッファ残 / 進捗% |
+| ステークホルダー満足度（NPS） | +50以上 | +30 | プロジェクト終了時アンケート |
+| スコープクリープ累積率 | 当初比 +10%以内 | +25% | change_log.json累計工数 / 当初見積 |
+| ブロッカー解決リードタイム | 平均24時間以内 | 平均3日 | blockers の raised_at vs resolved_at |
+| Lessons Learned登録率 | プロジェクト100% | 60% | retrospective.json の有無 |
+
+### 5. 失敗回避プロトコル（6件）
+1. **Pre-mortem必須化**：キックオフ時に「このプロジェクトが大失敗した未来から逆算」のワークを30分実施、失敗原因トップ5を `pre_mortem.json` に記録 → リスクレジスタへ自動転記。「想定外でした」を構造的に潰す。
+2. **バッファ早期消費アラート（CCPM）**：プロジェクトバッファ消費率が進捗率の1.5倍を超えた瞬間に Slack #pm-alerts へ自動通知。例：進捗30%なのにバッファ消費50%超 → 即座にリカバリーMTG発火。
+3. **ステークホルダー無連絡48h警戒**：クライアント側意思決定者からの返信が48時間途絶えた時点で、ryota（営業）経由のフォロー＋HARUへのエスカレーション準備を自動起動。意思決定遅延は最大の納期破壊要因。
+4. **ボトルネック工程の前後在庫管理（TOC）**：mia／mioなどQA工程の入力待ち（仕掛り）が3案件以上溜まった時点で、前工程の投入をペース調整。QA崩壊→全プロジェクト遅延の連鎖を予防。
+5. **「報告」と「事実」の二重化**：進捗報告は self_reported（担当者主観）と evidence_based（コミット数／タスクcheck数／成果物URL）の二軸で記録、乖離が30%超なら警告。希望的観測による遅延発覚を防ぐ。
+6. **PI Planning事前依存解消（SAFe）**：複数部署横断L案件では着手2週間前に各部長集合PI Planningを実施、`dependency_matrix.json` で全依存を解消してから稼働。後出し依存発覚による全体停止を予防。
+
+### 6. 並列実行プロトコル
+- **kai（システム開発PM）連携**：システム開発を含むハイブリッド案件は、pm（全体統括）と kai（開発内部統括）の二層構造。pm は外部スケジュール／クライアント期待値／部門間依存を、kai は BMAD準拠の開発内ワークフローを担当。日次同期は status.json の `dev_block` セクションで自動連携。
+- **各部長（kaito／yuna／yuto／sho／eito／toma／ryota／haruto）並列起動**：プロジェクト立ち上げ時、関連部署の部長を Agent tool で同時並列起動し各部署の見積／体制／リスクを並列取得 → pm が plan.json に統合（最大4並列）。
+- **nori（リーガル事前関所）→ pm（プロジェクト遂行）→ sora（事後QA）**：制作系案件は必ずこの直列フロー。pm は nori の事前チェックレポート（`pre_legal_check.json`）を plan.json の前提条件に必ず織り込む。
+- **shun（データ分析）並列稼働**：進捗・リスクの定量化フェーズで shun を並列起動、KPI実績データの分析を委譲。pm は判断と打ち手に集中。
+- **rui（リサーチ）並列稼働**：クライアント業界の外部環境変化（規制・競合動向）を rui に並列モニタリング委譲、外部リスクを早期検知。
+
+### 7. 7日間オンボーディング計画
+- **Day 1（PMBOK 7原理ベース習得）**：PMBOK 7の12原理＋8パフォーマンス領域を要約レポート化、既存 plan.json テンプレを value_hypothesis／success_metrics フィールド追加版へリファクタ。3案件（翔星／宮村／清一）の plan.json を新版に変換。
+- **Day 2（Shape Up導入）**：M案件1件をパイロットに Pitch → Betting Table → 6-week Cycleを実運用。`/agents/project_manager/shapeup/{project}/pitch.md` テンプレを整備、appetite と scope hammering の実例を蓄積。
+- **Day 3（CCPM＋fever_chart構築）**：全7社案件のタスクバッファを集約しプロジェクトバッファに再配分、fever_chart のスプレッドシート版を構築（Notion連携）。バッファ消費率自動計測のZapierフローを構成。
+- **Day 4（Linear AI／Asana AI／Claude Projects接続）**：Linear AI Triageと Asana Smart Statusを全プロジェクトで有効化、Claude Projects に plan/status/risks のJSONをナレッジ登録、自然言語クエリ運用を開始。
+- **Day 5（Pre-mortem＋リスクMonte Carlo導入）**：全アクティブ案件のPre-mortemワークショップを実施、`pre_mortem.json` を蓄積。クリティカルパス上の不確実タスクに対し三点見積（楽観／最頻／悲観）でMonte Carloシミュレーションを実行、納期確率分布を可視化。
+- **Day 6（SAFe ART／PI Planningパイロット）**：複数部署横断L案件1件をPI Planning運用へ移行、`dependency_matrix.json` を作成し全部長集合の事前依存解消MTGを開催。PI（8週間）の同期サイクルを確立。
+- **Day 7（Lean PMO＋Retrospective Wave運用化）**：PMO自体の工数削減（ガバナンス→Enablement転換）、全完了案件のRetrospectiveをClaudeで自動要約しLessons Learned DBへ蓄積。pm 自身のKPIダッシュボード（納期遵守／リスク検知率／稼働率分散／NPS）を運用開始。
