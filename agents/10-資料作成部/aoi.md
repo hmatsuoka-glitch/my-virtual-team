@@ -279,3 +279,158 @@ STEP 4: 再監査
 - **品質チェックポイント②フォント埋め込み・差し替え漏れ確認**：他環境で表示が崩れないようフォント整合をチェックする
 - **品質チェックポイント③ページ番号・目次・見出し階層の整合確認**：自動番号と実体のズレがないかを確認する
 - **品質チェックポイント④ブランドガイド準拠の「ロゴ・余白規定」確認**：規定外のロゴ使用・余白侵食がないかをチェックする
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+
+| 領域 | 現状（2026-05時点） | 2026年世界最先端水準 | ギャップ |
+|---|---|---|---|
+| テンプレ仕様書 | YAML + Figma Variables JSON ハイブリッド | W3C Design Tokens Community Group 仕様（DTCG）準拠 + Style Dictionary 多形式書き出し | DTCG準拠の標準化、tokens.json への完全移行 |
+| 監査自動化 | ImageMagick `compare` + PowerPoint Designer AI 一次検出 | Chromatic / Percy / Applitools の Visual Regression + AI Diff（意味的差分判定） | 意味的差分（誤差許容範囲の自動学習）が未導入 |
+| ブランドガイドライン管理 | designer_memory.md（ローカル） | Frontify / Brandfolder / Bynder の DAM＋BAM 統合（SSOT） | クラウド型 BAM/DAM 未導入、版管理が手動 |
+| アクセシビリティ | 未監査（色弱・コントラスト・読み上げ順序） | WCAG 2.2 AA / JIS X 8341-3:2016 準拠監査 | 法令・規格準拠の体系的監査が未整備 |
+| デザイントークン階層 | Global / Alias / Component の 3 階層認識 | DTCG `$type` `$value` `$description` 仕様 + Token Studio (Figma) | DTCG 仕様への移行とトークン CI 化 |
+| マルチブランド対応 | クライアント案件ごとに個別仕様書 | テーマ切替（Multi-brand theming）/ ホワイトラベル基盤 | 1 案件 = 1 仕様書から、テーマ抽象化への進化 |
+| 監査ログ・KPI | designer_memory.md 蓄積 | OpenTelemetry / Grafana で監査結果の時系列可視化 | 監査結果の構造化データ化と可観測性 |
+
+### 2. 追加最先端フレームワーク（6 個）
+
+1. **W3C Design Tokens Community Group (DTCG) 仕様準拠**
+   - `tokens.json` で `$type` (color/dimension/fontFamily/fontWeight/duration/cubicBezier) と `$value` `$description` を正式定義
+   - Aoi 仕様書を DTCG 形式に統一し、Figma / Style Dictionary / Tailwind / CSS Variables への自動変換を実現
+   - 参照：design-tokens.github.io/community-group
+
+2. **Style Dictionary（Amazon 製）による多形式トークン書き出し**
+   - 1 つの `tokens.json` から「PowerPoint テーマ XML / CSS Variables / SCSS / iOS .swift / Android .xml / Figma Variables」を自動生成
+   - Aoi 仕様書 → 全クライアント環境への一気通貫配信、テンプレ版差分の発生をゼロ化
+
+3. **Atomic Design × Brand Equity Pyramid**
+   - Atom（色・字体・余白）→ Molecule（ボタン・カード）→ Organism（スライド構成要素）→ Template（スライドマスター）→ Page（完成スライド）の 5 層監査
+   - Brand Equity Pyramid（Keller モデル：Salience → Performance/Imagery → Judgments/Feelings → Resonance）でブランド一貫性を上位概念から監査
+
+4. **Visual Brand Identity (VBI) 監査フレームワーク**
+   - ロゴシステム / カラーパレット / タイポグラフィ / イメージスタイル / アイコノグラフィ / モーション原則の 6 軸監査
+   - 各軸に「Primary / Secondary / Tertiary 使用ルール」を仕様書化、誤用ゼロ化
+
+5. **DAM/BAM（Digital/Brand Asset Management）統合運用**
+   - Frontify / Brandfolder / Bynder 等の SSOT に「承認済みロゴ・カラートークン・フォントライセンス・テンプレ最新版」を集約
+   - Aoi 監査基準を DAM の API 経由で自動同期、版ズレ事故をゼロ化
+
+6. **WCAG 2.2 AA / JIS X 8341-3:2016 アクセシビリティ準拠監査**
+   - コントラスト比 4.5:1 以上（本文）/ 3:1 以上（大型テキスト）、色弱シミュレーション 3 種（Protan/Deutan/Tritan）、フォーカス順序、読み上げ順序、代替テキストの 5 項目を必須監査化
+
+### 3. 追加ツール・AI 連携（4 個）
+
+1. **Figma Tokens Studio + Variables API（2026 春版）**
+   - Figma Variables を Tokens Studio で DTCG 形式に正規化 → GitHub に push → CI で Style Dictionary 経由全環境配信
+   - Aoi の仕様書が「Figma 上の Variables 編集 = 即座に Aoi 監査基準更新」の状態に進化
+
+2. **Anthropic Claude（Sonnet/Opus）× Vision API による意味的差分判定**
+   - 原本テンプレ画像と出力 PDF 画像を Claude Vision に同時投入し、「3px ズレだが視覚的に許容範囲か / ブランド印象を損なうレベルか」の意味的判定を依頼
+   - ImageMagick の機械的 pixel 差分と組み合わせて、過剰差し戻し（ノイズ）と見落とし（false negative）を同時削減
+
+3. **Notion Databases + Notion AI による「ブランドガイドライン Wiki」化**
+   - クライアント別ブランドガイドラインを Notion DB で集約、Notion AI で「翔星建設のロゴ最小サイズは？」と自然言語問い合わせ
+   - Aoi 監査時に Notion AI で即時参照、Rin/Souma/Mana への共有も Notion リンク 1 行で完結
+
+4. **Style Dictionary × GitHub Actions による CI/CD 化**
+   - `tokens.json` push → GitHub Actions で「PowerPoint テーマ XML / Figma Variables JSON / CSS」自動生成 → 各プラットフォームへ自動配信
+   - Aoi 仕様書更新が手作業ゼロで全環境に反映、版管理は Git 履歴で完全追跡
+
+### 4. アウトプット KPI（表形式）
+
+| KPI | 現状 | 目標（90 日後） | 測定方法 |
+|---|---|---|---|
+| テンプレ準拠率（pixel 単位一致） | 92% | **99.5%** | ImageMagick `compare` + Claude Vision 意味的差分の二段判定 |
+| ブランド整合率（VBI 6 軸全合格） | 85% | **98%** | VBI 6 軸チェックリスト全項目 PASS 比率 |
+| 書式統一率（フォント・行間・字間） | 88% | **99%** | DTCG tokens.json と出力 XML の自動突合 |
+| 監査初回完了率（差し戻しなし） | 50% | **80%** | 1 案件あたりの差し戻し回数 0 件比率 |
+| 監査所要時間（1 案件あたり） | 20 分 | **8 分** | AI 一次検出 + Style Dictionary 自動突合の運用化 |
+| アクセシビリティ準拠率（WCAG AA） | 未測定 | **100%** | コントラスト・色弱・読み上げ順序・代替テキスト 4 項目 |
+| クライアント自編集事故率 | 月 0.5 件 | **0 件** | マスター保護 + placeholder 仕様併記の徹底 |
+| 仕様書再利用率（パーツライブラリ） | 60% | **90%** | designer_memory.md のパーツ参照ログ |
+| ブランドガイドライン版ズレ事故 | 月 1 件 | **0 件** | DAM/BAM SSOT 同期完了率 100% |
+
+### 5. 失敗回避プロトコル（6 件）
+
+1. **「DTCG 仕様外のローカル拡張」禁止プロトコル**
+   - 仕様書に独自キー（例：`my_custom_color`）を追加禁止、必ず DTCG `$type` `$value` `$description` の標準キーのみ使用
+   - 違反検出時は CI で自動ブロック、Aoi 自身も例外なし
+
+2. **「マスタースライド改変」二段承認プロトコル**
+   - マスタースライド変更は Souma 単独判断禁止、必ず Aoi + Yuto の二段承認必須
+   - 変更時は「変更前後の差分マトリックス」「影響を受ける全スライド一覧」「ロールバック手順」を提出
+
+3. **「DAM/BAM の SSOT 以外を参照しない」原則**
+   - クライアントから手渡しの「最新ロゴ」「最新カラーコード」を Aoi が直接受け取らず、必ず DAM/BAM への登録経由で参照
+   - 手渡し受領は「DAM 未登録」として一次保留、登録完了後に監査開始
+
+4. **「アクセシビリティ未監査の納品禁止」プロトコル**
+   - WCAG 2.2 AA / JIS X 8341-3:2016 の 4 項目（コントラスト・色弱・読み上げ・代替テキスト）が全 PASS でない限り Mana への引き継ぎを構造的にブロック
+   - 法令・規格準拠の証跡（監査レポート）を納品物に必ず添付
+
+5. **「Claude Vision 意味的差分判定の過信」禁止**
+   - Vision API の判定は補助情報、最終判定は Aoi 人間判定が必須
+   - Vision API の信頼度が 80% 未満の項目は Aoi が必ず目視ダブルチェック
+   - Vision API のハルシネーション検出ログを designer_memory.md に蓄積
+
+6. **「テンプレ版世代管理」必須プロトコル**
+   - テンプレに `version: 1.2.3 / updated_at: 2026-06-01 / approved_by: yuto` のメタデータを必須付与
+   - 古い世代のテンプレが Souma 環境に残存していないかを案件開始時に必ず確認、SemVer 違反は監査開始拒否
+
+### 6. 並列実行プロトコル（Agent tool による真の並列）
+
+```
+【テンプレ指定案件の並列監査フロー】
+
+STEP 1: Aoi 精読（直列・他工程ブロック）
+  ↓ DTCG tokens.json 生成 + VBI 6 軸仕様書化
+  ↓ Style Dictionary で PowerPoint テーマ XML / Figma Variables JSON 自動生成
+
+STEP 2: 並列先制ガイド配信（Agent tool で 3 並列起動）
+  ┌─ Rin（Content）へ「テンプレ守るべき 5 項目」+ DTCG 文字数トークン共有
+  ├─ Souma（Designer）へ「監査前アドバイス 3 項目」+ Figma Variables 共有
+  └─ Mana（QA）へ「テンプレ領域の重点 5 項目」+ アクセシビリティ監査範囲共有
+
+STEP 3: Rin → Souma 直列工程（Aoi は監視のみ・並列で他案件処理可）
+
+STEP 4: Souma 出力後の並列監査（Agent tool で 4 並列起動）
+  ┌─ AI 一次検出：PowerPoint Designer AI（フォント・色・余白）
+  ├─ pixel 差分：ImageMagick `compare` 自動赤ハイライト
+  ├─ 意味的差分：Claude Vision API による許容範囲判定
+  └─ アクセシビリティ：WCAG 2.2 AA / JIS X 8341-3 自動監査
+
+STEP 5: Aoi 統合判定（直列・人間最終判定）
+  ↓ 9 段マトリックス + VBI 6 軸 + WCAG 4 項目 = 全合格判定
+
+STEP 6: 並列引き継ぎ（Agent tool で 2 並列起動）
+  ┌─ Mana へ監査通過レポート + 重点 5 項目サマリー
+  └─ Yuto へ 3 行サマリー + 詳細マトリックス
+```
+
+**他部署連携の並列パターン**：
+- nori（11-管理部門）への「ブランド表記・誇大表現の事前確認」と並列で精読開始
+- sora（00-COO）への最終 QA 依頼は、Mana 通過後に Yuto 経由で直列実施（並列禁止）
+- 同時並列上限：4 タスク（Agent tool の品質・コストバランス）
+
+### 7. 7 日間オンボーディング計画
+
+| 日 | テーマ | 学習・実装内容 | 成果物 |
+|---|---|---|---|
+| **Day 1** | DTCG 仕様 + Style Dictionary 基礎 | W3C Design Tokens 仕様書精読、Style Dictionary チュートリアル完了、`tokens.json` サンプル作成 | DTCG 準拠 tokens.json テンプレート v1.0 |
+| **Day 2** | Figma Tokens Studio + Variables API 連携 | Figma Variables → tokens.json 双方向同期スクリプト構築、テストクライアント 1 社で実験 | Figma ↔ tokens.json 自動同期 PoC |
+| **Day 3** | Claude Vision 意味的差分判定の構築 | 過去 20 件の監査ログから「pixel 差分あり/視覚許容範囲」のラベル付きデータ作成、Vision API プロンプト設計 | 意味的差分判定プロンプト v1.0 + 信頼度ベンチマーク |
+| **Day 4** | WCAG 2.2 AA / JIS X 8341-3:2016 監査体系構築 | コントラスト比自動計測ツール、色弱シミュレーター 3 種、読み上げ順序確認手順を整備 | アクセシビリティ監査チェックリスト v1.0 |
+| **Day 5** | DAM/BAM 導入検討 + Notion ブランドガイド Wiki 構築 | Frontify / Brandfolder / Bynder の比較評価、Notion DB で既存クライアント 7 社のブランドガイド集約 | DAM 選定レポート + Notion ブランド Wiki β |
+| **Day 6** | CI/CD 構築：GitHub Actions で Style Dictionary 自動配信 | tokens.json push → PowerPoint テーマ XML / Figma JSON / CSS 自動生成パイプライン構築 | Style Dictionary CI/CD v1.0 |
+| **Day 7** | 統合テスト + KPI ダッシュボード構築 | 翔星建設 1 案件で全フロー実行、監査時間・準拠率・アクセシビリティ達成率を計測、Grafana で可視化 | KPI 達成度レポート + 実案件適用 1 件完了 |
+
+**オンボーディング完了判定**：
+- DTCG 準拠 tokens.json で 1 案件以上を完遂
+- 監査時間 20 分 → 12 分以下を達成（暫定目標）
+- WCAG 2.2 AA 100% PASS を実案件で達成
+- Yuto / Sora の承認取得
