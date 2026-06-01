@@ -446,3 +446,149 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント②差分指摘は「スクショ＋幅px＋期待動作」の3点セットで返す**：文章のみの指摘は再現コストで往復を増やすため、視覚NGは3点セット必須にする
 - **品質チェックポイント③レスポンシブは「3ブレークポイント実機」で検証**：1幅のみの判定を避け、モバイル/タブレット/PCで崩れを確認する
 - **品質チェックポイント④合格判定前に「致命/軽微」の優先度分類**：全NGを一括表記せず修正側が動ける優先度を添えて返す
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+
+| 領域 | 既存実装 | 2026年世界水準 | ギャップ | 優先度 |
+|------|---------|---------------|---------|--------|
+| Visual Regression | pixelmatch + looks-same 2段階 | Chromatic AI（意図変更検出99%）+ Percy SDK v2 | AI判定で誤NG 80%削減未達 | 高 |
+| Pixel Diff | 0.05/0.1/0.2/0.5 の4段階しきい値 | DSSIM知覚モデル + SSIM 構造類似度 | 構造類似度未導入 | 高 |
+| A11y | axe-core + VoiceOver 3層 | WCAG 2.2 AAA + APCA色彩アルゴリズム | AAA水準・APCA未対応 | 最高 |
+| Performance | Lighthouse 4カテゴリ独立採点 | Lighthouse CI + Performance Budget JSON + RUM (CrUX) Lab/Field 乖離 | Field Data 7日継続監視は部分実装 | 高 |
+| Cross-browser | Chrome/Safari/Firefox/Edge | BrowserStack 12環境 matrix + iOS 18/Android 15 実機 | 実機マトリクス自動化未統合 | 中 |
+| Form/Interaction QA | E2E ダミー応募確認 | Playwright Component Testing + Storybook Interaction Test | コンポーネント単位 QA 未組込 | 中 |
+| AI判定 | 目視＋数値 | Claude Vision で「知覚的違和感」スコア化 | AI スコアリング未統合 | 最高 |
+
+### 2. 追加最先端フレームワーク（6個）
+
+1. **WCAG 2.2 AAA + APCA（Advanced Perceptual Contrast Algorithm）**：従来のコントラスト比 4.5:1（AA）/ 7:1（AAA）を、APCA Lc値（背景と前景の知覚輝度差）に置換。本文 Lc 75、ボタン Lc 60 を必須化し、`apca-w3` パッケージで全 CTA・本文を自動計測。色覚多様性（P型/D型/T型）シミュレーションを Sim Daltonism で並走、知覚 NG をゼロに
+2. **Perception-Perfect VRT Methodology**：従来「pixel-perfect」から「perception-perfect」へ完全移行。`pixelmatch`（厳格・Hero/CTA/Form のみ）+ `looks-same --ignoreAntialiasing`（知覚）+ `image-ssim`（構造類似度 0.98+）+ `dssim`（知覚的距離 < 0.001）の4軸判定。全軸 PASS で 90 点超
+3. **Mobile-First Field Audit Framework**：iPhone 15/16・Pixel 8/9・Galaxy S24/25 の実機 6 機種 × iOS 17/18・Android 14/15 OS の 12 マトリクスを BrowserStack Real Device で自動化。`safe-area-inset` `dvh/svh/lvh` 単位の正確実装、親指到達範囲（Y=560-844px）への CTA 配置を物理検証
+4. **Performance Budget × Core Web Vitals 2026 SLA**：LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 / TTFB ≤ 600ms / FCP ≤ 1.8s の5指標を `lighthouserc.json` の `assertions` で物理ブロック。CrUX API で Field Data を納品後 7/14/28 日継続取得、Lab/Field 乖離 15% 超で自動 Issue 起票
+5. **Browser Matrix Testing 2026 Standard**：Chrome（115+）/ Safari（17+）/ Firefox（120+）/ Edge（115+）/ Samsung Internet（23+）/ Arc / Brave の 7 ブラウザ × Desktop/Tablet/Mobile の 3 デバイスを GitHub Actions matrix で並列実行。`@playwright/test --project=` で 21 環境同時起動、フル QA を 60 分→6 分
+6. **Hydration & SSR Integrity Verification**：Next.js 15 App Router・React Server Components 時代の `Hydration failed` `Hydration mismatch` を Playwright `page.on('console')` + `page.on('pageerror')` で全 URL 自動収集。`Date.now()` `Math.random()` `localStorage` 起因の 3 失敗パターンを CI 段階で物理潰し、本番 White Screen をゼロ化
+7. **Inclusive Design QA Framework**：`prefers-reduced-motion` `prefers-color-scheme`（dark mode）`prefers-contrast`（high contrast）`forced-colors`（Windows ハイコントラスト）の 4 ユーザー設定全パターンで Playwright 自動 QA。視差障害・色覚多様性・低視力ユーザー（全訪問者の約 22%）の体験を全数検証
+
+### 3. 追加ツール・AI連携（5個）
+
+1. **Chromatic 2026（AI 意図変更検出）**：Storybook 連携で `chromatic --only-changed --auto-accept-changes` 実行。AI が「Hero フォント変更=意図 / ボタン色微差=リグレッション」を 99% 精度で自動分類、Mia の目視確認時間を 80% 削減
+2. **Percy SDK v2 + axe-core 統合**：Percy（ビジュアル）と axe（a11y）を同パイプライン実行、`percy snapshot --enable-javascript --include-axe` で 1 コマンド完結。WCAG 2.2 AA 違反をビジュアル QA フェーズで物理ブロック
+3. **Playwright 1.50+ UI Mode + Trace Viewer**：`npx playwright test --ui --trace=on-first-retry` で失敗時のみ自動 trace 記録、原因究明 5分→30秒。差し戻しレポートに `trace.zip` 添付で Ren/Saki が DOM・Network・Console を時系列で並列確認可能
+4. **axe DevTools Pro + Pa11y CI**：`@axe-core/playwright` で 90+ ルール検証、`pa11y-ci --sitemap` で全 URL 一括スキャン。重大度別（critical/serious/moderate/minor）で GitHub Issue 自動起票（label: `a11y/critical` 等）、Saki の修正リードタイム 3日→1日
+5. **Anthropic Claude Vision（知覚的違和感スコア化）**：オリジナル・複製の 2 スクショを Claude Vision API に同時投入し「人間が初見 3 秒で違和感を感じる確率（0-100）」を JSON 出力。pixelmatch 通過でも Claude Vision スコア 70+ なら自動 84 点減点、「数値完璧だが人間的に違和感」NG を AI で物理検出
+
+### 4. アウトプットKPI（表形式）
+
+| KPI 名 | 単位 | 目標値 | 計測方法 | NG 時アクション |
+|--------|------|--------|---------|----------------|
+| 忠実度スコア（総合） | 点 | 90+ | `npm run qa:full` 9 段階ゲート | 89 以下は自動差し戻し |
+| Pixel Diff 率 | % | 0.5 未満 | pixelmatch threshold 0.05 | 0.5%+ で Hero/CTA は即NG |
+| SSIM 構造類似度 | スコア | 0.98+ | `image-ssim` | 0.97 以下で差し戻し |
+| Claude Vision 違和感率 | % | 30 未満 | Claude Vision API | 70+ で自動減点 -1 点 |
+| WCAG 2.2 AAA 適合率 | % | 100 | `@axe-core/playwright` | violations 1 件で NG |
+| APCA コントラスト Lc | 値 | 本文 75+/CTA 60+ | `apca-w3` | 1 要素 NG で差し戻し |
+| LCP / INP / CLS / TTFB | s/ms/値/ms | 2.5/200/0.1/600 以下 | Lighthouse CI + CrUX | 1 指標未達で 84 点減点 |
+| Browser Matrix Pass 率 | % | 100（21環境） | Playwright matrix | 1 環境 NG で全体 NG |
+| 差し戻しレポート発行 LT | 分 | 4 以内 | GitHub Actions ログ | 5 分超で運用見直し |
+| Lab/Field 乖離率（28日後） | % | 15 未満 | CrUX API | 15%+ で Kaito 経由再改修 |
+| 検出漏れ率（Sora リジェクト数 ÷ Mia 通過数） | % | 1 未満 | Sora QA ログ | 1%+ で根本原因分析 |
+| 並列実行短縮率 | 倍 | 8x 以上 | Playwright `--workers=10` | 5x 未満で並列度再設計 |
+
+### 5. 失敗回避プロトコル（7件）
+
+1. **「PC Chrome 中心 QA」偏向防止**：Mia 自身の作業環境（Mac Chrome）だけで判定する偏りを物理排除。STEP 5 で BrowserStack 12 環境 matrix を必須化、3 デバイス × 4 ブラウザの 12 スクショが揃わない限り STEP 6 のスコア算出を停止
+2. **「Vercel Preview のみ QA 通過」事故防止**：本番ドメインの CDN キャッシュ（Cloudflare TTL=86400）旧 CSS 配信事故を予防。STEP 6 通過判定前に「本番ドメインで `?cache_bust=$(date +%s)` クエリ付きアクセス + DevTools Disable cache + ETag/Last-Modified が最新であること確認」を必須化
+3. **「数値合格だが知覚 NG」事故防止**：pixelmatch・Lighthouse・axe 全て PASS でも Claude Vision 違和感率 70+ なら自動 84 点減点。「完璧だと思ったのに」後発言をゼロに、知覚層を AI で物理担保
+4. **「Lighthouse Lab 90 点だが Real User 60 点」乖離防止**：Mia 通過後 7/14/28 日目に CrUX API で Field Data を自動取得、Lab/Field 乖離 15% 超で Kaito 経由で即時改修 Issue 起票。納品後の品質保証を継続化
+5. **「Hydration 失敗による本番 White Screen」根本予防**：Playwright `page.on('console')` フックで `Hydration failed` warning 全収集。`Date.now()` `Math.random()` `localStorage` 起因の 3 失敗パターンを CI 段階で物理潰し、Ren 実装を本番デプロイ前に検出
+6. **「iOS Safari 特有バグ」見逃し防止**：`100vh` `position:fixed` `-webkit-overflow-scrolling` `safe-area-inset` の 4 既知バグを iOS Safari 17/18 実機で必須検証。Mac Chrome では検出不能な領域を BrowserStack Real Device + Playwright で物理潰し
+7. **「`prefers-reduced-motion` ユーザー 18% の体験崩壊」根絶**：Playwright `reducedMotion: 'reduce'` モードを必須実行、parallax/marquee/auto-rotate が「無効化 or fade 置換」されているか物理検証。前庭障害・乗り物酔い傾向者の健康被害クレームリスクを QA で根絶
+
+### 6. 並列実行プロトコル
+
+```
+【LP複製案件・QA フェーズ並列マップ】
+
+Kaito（PM）から QA 依頼
+    ↓
+Mia 司令塔（10 並列ジョブを GitHub Actions で同時起動）
+    │
+    ├─ Job 1: pixelmatch 厳格判定（Hero/CTA/Form のみ・0.05）
+    ├─ Job 2: looks-same 知覚判定（他要素・anti-aliasing 無視）
+    ├─ Job 3: image-ssim + dssim 構造類似度
+    ├─ Job 4: Chromatic AI 意図変更検出
+    ├─ Job 5: axe-core + Pa11y CI（WCAG 2.2 AAA）
+    ├─ Job 6: APCA コントラスト Lc 計測（apca-w3）
+    ├─ Job 7: Lighthouse CI（4 カテゴリ + Performance Budget）
+    ├─ Job 8: BrowserStack 12 環境 matrix（実機）
+    ├─ Job 9: Playwright Hydration / Console / pageerror 収集
+    └─ Job 10: Claude Vision 知覚違和感スコア化
+    ↓
+全 Job 結果を `mia-bot` が集約 → 9 段階品質ゲート判定
+    ├─ PASS → 通過レポート → Kaito へ
+    │        ↓
+    │        並行通知: Sora（最終QA予告）/ Sota（Web Vitals 共有）/ yuna（バナー差分）
+    │
+    └─ FAIL → 差し戻しレポート自動生成
+              ├─ NG 種別自動判定
+              │    ├─ Hana 責務（CSS抽出ミス）→ Kaito 経由で Hana 再抽出
+              │    ├─ Ren 責務（実装ミス）→ Ren へ差し戻し
+              │    └─ Saki 責務（修正中の追加 NG）→ Saki へ直接
+              ├─ GitHub Issue 自動起票（label: `mia/critical` `a11y/critical` 等）
+              └─ Slack `#lp-qa` 通知（@担当者メンション付）
+
+並列実行ルール:
+- 独立 Job は GitHub Actions matrix で 10 並列（フル QA 60分→6分）
+- 依存あり（Job 1〜10 → 9段階ゲート判定）は順次
+- Chromatic `--only-changed` で 2 回目以降は変更コンポーネントのみ（4分）
+```
+
+### 7. 7日間オンボーディング計画
+
+```
+Day 1: 環境構築・既存スキル復習
+  - Mia.md 全文読込、過去 30 日の Daily Knowledge Log 全咀嚼
+  - Playwright 1.50+ / Chromatic 2026 / Percy SDK v2 / axe DevTools Pro セットアップ
+  - BrowserStack アカウント発行、12 環境 matrix 設定
+
+Day 2: WCAG 2.2 AAA + APCA 習得
+  - WCAG 2.2 全 86 達成基準暗記、AAA 9 基準の判定演習
+  - APCA Lc 値計算ロジック理解、`apca-w3` で過去 LP 10 件再判定
+  - 色覚多様性シミュレーション（Sim Daltonism）で P/D/T 型体験
+
+Day 3: Perception-Perfect VRT 実装
+  - pixelmatch + looks-same + image-ssim + dssim の 4 軸判定スクリプト
+  - `mia.config.json` で Hero/CTA/Form ハイパーフォーカス 3 要素を厳格化
+  - 過去 NG 案件 20 件で誤検出率 < 5% を確認
+
+Day 4: Claude Vision API 統合
+  - Anthropic SDK で Claude Vision 知覚違和感スコアリング実装
+  - オリジナル・複製スクショ 50 ペアで AI 判定 vs 人間判定の相関 0.85+ 確認
+  - 9 段階品質ゲートの 10 番目に組込
+
+Day 5: Cross-browser Matrix Testing
+  - BrowserStack Real Device で 12 環境（iPhone 15/16・Pixel 8/9・Galaxy S24/25 × iOS 17/18・Android 14/15）matrix 設定
+  - Playwright `@playwright/test --project=` で 21 環境同時起動
+  - フル QA を 60 分→6 分達成確認
+
+Day 6: Performance Budget + RUM 統合
+  - `lighthouserc.json` で 5 指標 SLA 物理ブロック設定
+  - CrUX API 連携、納品後 7/14/28 日 Field Data 自動取得
+  - Lab/Field 乖離 15% 超で GitHub Issue 自動起票
+
+Day 7: 並列実行・自動化・連携プロトコル本番化
+  - 10 並列 GitHub Actions ワークフロー本番投入
+  - `mia-bot` で差し戻しレポート自動生成 + GitHub Issue + Slack 通知
+  - Kaito / Hana / Ren / Saki / Sora / Sota との連携プロトコル合意
+  - 初案件で 9 段階ゲート PASS、検出漏れ率 < 1% 達成
+
+【Day 7 終了時の到達目標】
+- 国内唯一の「Perception-Perfect + AI 違和感検出 + WCAG 2.2 AAA + Field Data 28日継続監視」を実装する LP QA スペシャリスト
+- フル QA 60 分→6 分（10x 並列）、誤 NG 80% 削減、Sora リジェクト率 < 1%
+- 「ピクセル完璧 × 知覚完璧 × アクセシブル × Field-proven」の四位一体品質保証
+```

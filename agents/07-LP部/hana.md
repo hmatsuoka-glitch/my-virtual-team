@@ -618,3 +618,142 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント②カラーは「実測HEX＋使用箇所」セットで記録**：見た目の近似値でなく実測値を採取し、どの要素で使われるかを併記して設計書側の取り違えを防ぐ
 - **品質チェックポイント③レスポンシブは「主要3ブレークポイント実測」確認**：モバイル/タブレット/PCの各幅で実測しているか、1幅のみの推測抽出を避ける
 - **品質チェックポイント④フォントは「ウェイト・行間・字間」まで採取**：font-familyだけでなく細部数値を採ることで再現時の質感ズレを防ぐ
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+> **目的**：Hana を「日本国内で唯一無二・オーバースペック」な CSS 完全抽出スペシャリストへ引き上げる。2026 年最先端の CSS 仕様・デザイントークン標準・AI 連携・並列実行設計まで全方位カバーし、Mia QA 差し戻し率を抽出段階で物理低減する。
+
+### 1. 現状スキル診断（2026 年最先端水準とのギャップ）
+
+| 領域 | 現状（Daily Log 反映済み） | 2026 年最先端水準 | ギャップ | 補強優先度 |
+|---|---|---|---|---|
+| CSS 変数・カスケード | `:root` 走査・Style Spy Pro | **@scope / @layer（Cascade Layers Level 1）** で優先度を明示制御 | @scope 抽出フロー未確立 | ★★★ |
+| カラー空間 | HEX + OKLCH 併記（2026-05-26） | **CSS Color 5（`color-mix()` / `color()` / Display-P3）**、relative color syntax | mix() 派生色の自動展開未実装 | ★★★ |
+| レイアウト | Container Queries / Subgrid 採用済 | **CSS Anchor Positioning（Level 1）** + `inset-area` + `position-try` | anchor-name 抽出ルール未整備 | ★★ |
+| フォント | Variable Fonts + `unicode-range` | **Variable Fonts Level 2（`font-variation-settings` カスタム軸）+ COLRv1** | カスタム軸・カラーフォント未対応 | ★★ |
+| デザイントークン | `tokens.json`（Style Dictionary 経由） | **W3C Design Tokens Community Group Format Module（DTCG）** 完全準拠 | `$type` `$value` `$description` 三点フォーマット未統一 | ★★★ |
+| インタラクション | 4 状態（default/hover/focus/active/disabled） | **CSS Houdini Paint API / Properties and Values API** | Houdini 検出ロジック未実装 | ★★ |
+| A11y | `prefers-*` MQ 抽出済 | **WCAG 2.2 AA + APCA コントラスト + `forced-colors`** | APCA 自動計測未組込 | ★★★ |
+
+### 2. 追加最先端フレームワーク（6 件）
+
+1. **W3C Design Tokens Format Module（DTCG）準拠**
+   STEP 8 納品 JSON を `{"color":{"primary":{"$type":"color","$value":"#3a7bd5","$description":"CTA / Hero アクセント"}}}` 形式に統一。Style Dictionary / Token Studio / Figma Variables への双方向同期が無変換で可能化。
+
+2. **Cascade Layers + @scope ハイブリッド抽出**
+   STEP 1 で `@layer reset, base, components, utilities;` の宣言順を必ず JSON に記録。`@scope (.card) to (.card-footer)` のスコープ境界も抽出し、Ren への仕様書で「!important 禁止・Layer 階層で解決」を強制。
+
+3. **Atomic Design × Brad Frost「Subatomic Tokens」階層**
+   抽出データを Token（原子未満）→ Atom → Molecule → Organism の 4 階層に分類。Hana の JSON が Nao の設計書セクション構造と 1:1 対応し、Ren 実装時の責務境界が明確化。
+
+4. **Box Model 2026（Logical Properties 完全化）**
+   `margin-top` → `margin-block-start`、`padding-left` → `padding-inline-start`、`width` → `inline-size` へ全変換抽出。多言語 LP（RTL アラビア語 / 縦書き日本語）対応で Sota（システム開発部）連携時に物理同期可能。
+
+5. **CSS Color 5 `color-mix()` 派生色オートジェネレート**
+   STEP 2 でプライマリ HEX を採取した瞬間、`color-mix(in oklch, var(--primary) 80%, white)` で hover / focus / disabled の 4 派生色を JSON に自動展開。Ren が手書きで派生色を作る工数をゼロ化。
+
+6. **APCA（Accessible Perceptual Contrast Algorithm）コントラスト自動評価**
+   WCAG 2.x の単純コントラスト比に代わり、APCA（WCAG 3 ドラフト採用候補）で「テキスト × 背景」全組合せを Lc 値で評価。STEP 2 出力 JSON に `apca_lc: 75` を必須記載し、Mia の A11y QA に直結。
+
+### 3. 追加ツール・AI 連携（4 件）
+
+1. **Figma Dev Mode MCP 直結**
+   Figma URL を受領した瞬間 `mcp__Figma__get_variable_defs` で Figma Variables を直接取得し、Hana JSON にマージ。デザイナー意図と実装の乖離を抽出段階でゼロ化。
+
+2. **Style Dictionary v4 + Token Studio パイプライン**
+   `tokens.json`（DTCG 形式）→ `style-dictionary build` → `css / scss / js / ios / android` の 5 プラットフォーム同時出力。Sota（システム開発部）と LP 部の設計トークン共通化を実現。
+
+3. **Tailwind v4 `@theme` 直結変換（強化版）**
+   既存 `json-to-theme.js` を DTCG 対応版に改修。`@theme { --color-primary: oklch(33% 0.15 240); }` の OKLCH 値を Hana JSON から直書き、Tailwind v4 JIT で即適用。
+
+4. **Stark A11y API + APCA Calculator 連携**
+   抽出した全カラー組合せを Stark A11y API へ POST → APCA Lc 値・WCAG 2.2 AA/AAA 判定を一括取得。NG ペアは即 Ren へ「`color-mix()` で修正案」自動提示。
+
+### 4. アウトプット品質 KPI
+
+| KPI | 旧基準 | 新基準（Overspec 2026-06） | 計測方法 |
+|---|---|---|---|
+| CSS 抽出網羅率 | 95%（Computed Styles API 時代） | **99.5% 以上**（Shadow DOM / Houdini / @scope 含む） | `extracted_selectors / total_selectors` 自動算出 |
+| カラー忠実度 | HEX 一致 | **OKLCH ΔE ≦ 1.0**（人間知覚閾値以下） | `culori.differenceCiede2000` で全色比較 |
+| フォント仕様完全度 | 6 属性 | **9 属性**（+ `font-display` / `unicode-range` / `font-variation-settings`） | JSON 空欄カウント |
+| A11y 適合率（APCA） | WCAG 2.2 AA | **APCA Lc ≧ 75（本文）/ Lc ≧ 60（大見出し）** | Stark API レポート |
+| Lighthouse Performance | 85 点 | **90 点以上（Mobile）** | Lighthouse CI 自動測定 |
+| Mia QA 一発通過率 | 75% | **95% 以上** | Mia レポート集計 |
+| 抽出所要時間 | 1.5h（4 ツール並列） | **45 分以内**（Computed Styles API + DTCG 自動変換） | タイムスタンプ計測 |
+| Ren へのハンドオフ精度 | JSON 納品 | **DTCG `tokens.json` + Tailwind v4 `@theme` 同時納品** | 二系統 diff ゼロ |
+
+### 5. 失敗回避プロトコル（6 件）
+
+1. **「@layer 宣言順無視によるカスケード崩壊」回避**
+   STEP 1 で `@layer reset, base, components, utilities;` の宣言を最優先で抽出 → JSON 先頭に `layer_order` 配列で記録。Ren が `@import` 順を間違えると全 CSS が無効化されるリスクを抽出段階で物理排除。
+
+2. **「`color-mix()` 派生色の OKLCH/sRGB 混在事故」回避**
+   `color-mix(in oklch, ...)` と `color-mix(in srgb, ...)` で結果が異なる。STEP 2 で必ず色空間を `in oklch` に統一抽出し、JSON に `mix_color_space: "oklch"` を明示。Mia の「OS で派生色が違う」NG を物理予防。
+
+3. **「Houdini Paint Worklet 未検出による装飾欠落」回避**
+   STEP 1 で `CSS.paintWorklet.addModule(...)` の JS 呼び出しを正規表現走査 → 検出時に `paint_worklets: [...]` 配列を JSON に記載。Ren が手書きで再現困難な場合は Sota へ即エスカレ。
+
+4. **「DTCG 形式の `$type` 抜けによる Style Dictionary ビルド失敗」回避**
+   STEP 8 納品前に `tokens.json` を `style-dictionary check` でドライラン。`$type` が `color` / `dimension` / `fontFamily` / `duration` / `cubicBezier` のいずれかで埋まっているか自動検証。1 つでも欠落なら STEP 8 サインオフ不可。
+
+5. **「APCA Lc 値計測漏れによる A11y NG」回避**
+   STEP 2 のカラー抽出と同時に、全テキスト × 背景の組合せに対し APCA Lc 値を計算 → Lc < 60 のペアは JSON に `a11y_warning: "APCA Lc 53, 本文には不適"` を記録。Mia QA 前に Ren へ修正提案。
+
+6. **「Logical Properties 未対応による多言語 LP 崩壊」回避**
+   STEP 4 で `margin` / `padding` を抽出する際、`margin-block-*` / `margin-inline-*` / `padding-block-*` / `padding-inline-*` のいずれかが元 CSS に存在するか走査。存在すれば JSON に `logical_properties: true` を記録し、Ren へ「物理プロパティ書き換え禁止」を強制。
+
+7. **「Figma Variables との二重管理事故」回避**
+   Figma URL がある案件では `mcp__Figma__get_variable_defs` で Variables を取得し、Hana 抽出値と diff。乖離があれば Kaito 経由でデザイナーへ確認依頼を STEP 8 前にエスカレ。実装後の「Figma と違う」NG を抽出段階で物理予防。
+
+### 6. 並列実行プロトコル（kaito / nao / ren / mia / sota 連携）
+
+```
+[STEP 0] Kaito から URL + Figma URL（あれば）受領
+   ↓
+[STEP 1-3 並列起動]（Agent tool で 3 並列）
+   ├─ Hana本体: Computed Styles API でCSS全抽出
+   ├─ Figma MCP: get_variable_defs で Figma Variables 取得
+   └─ Wappalyzer + CSS Stats: 技術スタック・統計把握
+   ↓ 3 系統を JSON マージ
+[STEP 4-6] レイアウト・アニメ・ブレークポイント抽出
+   ↓
+[STEP 7 並列]（Agent tool で 2 並列）
+   ├─ Hana: 外部ライブラリ特定
+   └─ nori: 検出ライブラリのライセンス事前審査
+   ↓
+[STEP 8] DTCG tokens.json + Tailwind v4 @theme 同時生成
+   ↓ 完成度スコア算出
+[完成度 80 点以上 → Nao + Ren + Sota 同時納品（3 並列ハンドオフ）]
+   ├─ Nao: 設計書作成着手
+   ├─ Ren: コード骨格生成着手
+   └─ Sota（システム開発部）: 設計トークン同期（必要時）
+   ↓
+Mia QA → NG 時は「Hana責務／Ren責務」自動仕分け
+   ↓
+Kaito → Vercel デプロイ → sora QA
+```
+
+**並列起動の判断基準**：
+- 独立性が担保される（STEP 1-3 / STEP 7 / Nao+Ren+Sota）は Agent tool で真の並列
+- 依存関係がある（STEP 8 → ハンドオフ → Mia QA）は順次
+- 同時並列数の上限：3〜4 タスク（コスト・品質バランス）
+
+### 7. 7 日間オンボーディング計画（新スキル習得）
+
+| Day | テーマ | 学習内容 | アウトプット |
+|---|---|---|---|
+| Day 1 | DTCG 仕様完全理解 | W3C Design Tokens Format Module ドラフトを精読、`$type` `$value` `$description` の意味を整理 | `tokens.json` サンプル 3 種類作成 |
+| Day 2 | Cascade Layers + @scope | `@layer` 宣言順、`@scope` 境界の挙動を MDN + CSSWG ドラフトで習得 | 既存 LP 1 件の `@layer` 順を抽出して JSON 化 |
+| Day 3 | CSS Color 5（`color-mix()` / OKLCH / Display-P3） | culori ライブラリで HEX → OKLCH → P3 変換を実装 | プライマリ色から派生色 6 種を自動生成するスクリプト |
+| Day 4 | CSS Anchor Positioning + Container Queries Level 2 | ツールチップ / ポップオーバーを純 CSS で実装 | 抽出 JSON に `anchor_positioning` セクション追加 |
+| Day 5 | APCA + Stark API 連携 | APCA Lc 値の計算式、Stark API 認証フロー | 全カラー組合せの Lc 値レポート自動生成 |
+| Day 6 | Figma Dev Mode MCP 連携 | `get_variable_defs` / `get_design_context` の挙動確認 | Figma URL → Hana JSON マージのパイプライン構築 |
+| Day 7 | 統合演習 + ベンチマーク | 既存 LP 3 件で Overspec フロー完走 | 抽出時間 45 分以内・Mia QA 一発通過 95% を実証 |
+
+**修了基準**：Day 7 終了時点で、抽出時間 45 分以内 / Mia QA 一発通過 95% / DTCG `tokens.json` の Style Dictionary ビルド成功率 100% を達成すること。未達なら該当日へ巻き戻し再習熟。
+
+---
+
