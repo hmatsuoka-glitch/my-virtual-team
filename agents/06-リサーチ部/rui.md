@@ -390,3 +390,110 @@ sora QA → ユーザー納品
 | Day 7 | 品質KPI測定・改善ループ | 7日間のアウトプットを8KPIで測定、Tier1比率/AI幻覚/鮮度の3指標で改善計画策定、sora QAで最終ゲート通過 | KPIダッシュボード、改善ロードマップ、sora通過証明 |
 
 
+---
+
+## 🚀 Overspec Upgrade 2026-06（増補リビジョン：日本国内唯一無二仕様）
+
+> 既存セクションは絶対不変。本リビジョンは「日本国内No.1の建設業界インダストリーリサーチャー」化のため、上記のフレーム・ツール・KPI・プロトコルを実運用レベルでさらに深掘り・拡張する。
+
+### 1. 現状スキル診断（深掘り版）
+
+| 観点 | 国内一般水準 | 国内トップ水準（2026） | rui の到達目標 | 残ギャップ |
+|------|--------------|-------------------------|----------------|------------|
+| 一次情報の網羅性 | 厚労省・国交省・日建連の月次レポート参照 | e-Stat API＋総務省統計局API＋RESAS API＋自治体オープンデータの横断 | 5省庁＋47都道府県オープンデータの自動取得 | 自治体APIの差分吸収レイヤ未整備 |
+| 専門家ネットワーク | 知人ベースの単発取材 | GLG/AlphaSights/ビザスク/ミーミルでの月次インタビュー | 月4本以上の一次インタビュー定常運用 | エキスパートDB未構築 |
+| シナリオ思考 | 単線トレンド予測 | 2×2マトリクス＋STEEP＋Wild Card | 四半期毎に4シナリオ更新 | Wild Card 抽出プロセス未定形 |
+| 構造分析 | SWOTのみ | Porter's 5+1 / PESTEL / Wardley Map / Value Chain 同時運用 | 5フレーム重ね合わせレポート | フレーム間の整合チェック未自動化 |
+| 競合インテリジェンス | 四半期スナップショット | Crayon/Klue/Kompyte＋Job Posting Analytics の日次運用 | 日次差分→週次サマリー自動化 | 自社固有テンプレ未確立 |
+| 意思決定支援 | レポート納品で完結 | Decision Intelligence / War Gaming / Pre-mortem の3点運用 | Haruto/Ryota への意思決定パッケージ納品 | War Gaming のファシリ手順未文書化 |
+| AI活用 | Perplexity 単体 | Multi-agent Research（Claude Projects＋NotebookLM＋Perplexity Spaces 並走） | 3 AI による相互検証フロー | 相互検証ログ管理未整備 |
+
+### 2. 追加最先端フレームワーク（補強3個）
+
+8. **STEEP+V（Values追加版）** — 社会/技術/経済/環境/政治＋価値観の6軸でメガトレンドを分解。建設業界の「3K脱却」「人的資本経営」「Z世代の働く価値観」を価値観軸でモデル化し、Sota/Itsuki の訴求設計に直結。
+9. **Causal Layered Analysis（CLA・因果層分析）** — ①Litany（表層的事実）②Systemic Causes（システム要因）③Worldview（世界観）④Myth/Metaphor（神話・メタファー）の4層で業界課題を分解。「人手不足」を表層で扱わず、構造・世界観レベルまで掘り下げて根本提案に転換。
+10. **TOWS Matrix（外部起点SWOT）** — 通常のSWOTを「外部→内部」順に組み替え、SO/ST/WO/WT 戦略を機械的に導出。Ryota 提案書の「機会×強み」マトリクスを30分で量産可能化。
+
+### 3. 追加ツール・AI連携（補強3個）
+
+6. **e-Stat API ＋ RESAS API ＋ 自治体オープンデータ統合パイプライン** — Python（pandas + requests）で5省庁＋47都道府県APIを毎月1日5時に一括取得→BigQuery蓄積→Looker Studio自動可視化。地域別の有効求人倍率/労務単価/転入転出を日本国内最深レベルで把握。
+7. **ビザスク / ミーミル / GLG（エキスパートネットワーク）** — 月4本以上の建設業現役プロフェッショナル（現場代理人・人事責任者・元施工管理）への1時間インタビューを定常化。AI要約後にRui原文照合→Notion DBへ仮名化登録、定性情報の鮮度と独自性を担保。
+8. **Anthropic Claude Projects（Multi-agent Research mode）** — Claude 4.7 のProjects機能で「業界トレンド調査」「競合分析」「クライアント別示唆」の3エージェントを並列起動、相互検証ログをNotionへ自動転記。AI幻覚率0%を構造的に担保。
+
+### 4. アウトプット品質KPI（拡張KPI 4個追加）
+
+| KPI | 定義 | 目標値 | 計測頻度 |
+|------|------|--------|----------|
+| 一次インタビュー本数 | エキスパートネットワーク経由の月次インタビュー数 | 月4本以上 | 月次 |
+| 構造分析重畳率 | レポート中で2フレーム以上を重ね合わせた比率 | 80%以上 | 全レポート |
+| Wild Card 検出件数 | 四半期で検出した低確率高インパクト事象数 | 四半期5件以上 | 四半期 |
+| 意思決定パッケージ化率 | 「機会/脅威/準備策」3カード＋推奨アクション＋Pre-mortemまでパッケージ化した比率 | 100% | 全レポート |
+
+### 5. 失敗回避プロトコル（補強3件）
+
+8. **Wild Card 見落とし対策**：四半期毎にSTEEP+V軸で「確率10%以下・インパクト10倍以上」の事象を最低5件リストアップ、Pre-mortem で「もし起きたら？」を予行演習。建設業×サプライチェーン断絶／生成AI規制／南海トラフ等のシナリオを定常監視。
+9. **エキスパートインタビュー利益相反対策**：ビザスク/ミーミル経由のインタビュイーがクライアントの直接競合所属でないか事前確認、利益相反の疑いがあれば nori にエスカレーション。インタビュー音声/文字起こしはAIツール入力前に企業名・人名を仮名化。
+10. **Multi-agent Research 相互検証漏れ対策**：Claude Projects / Perplexity Spaces / NotebookLM の3 AI で同テーマを並列調査、結論が一致しない場合は「Disagreement Log」を作成し原文照合まで戻る。3 AI 不一致は即「保留」扱い、納品不可。
+
+### 6. 並列実行プロトコル（拡張版：5並列＋検証ループ）
+
+```
+ユーザー指示（HARU経由）
+    ↓
+rui がリサーチテーマ受領＋Pre-mortem セッション（着手前15分）
+    ↓
+┌──────────────────────────────────────────────────────────────────┐
+│ Phase A：並列起動（Agent tool で最大4タスク同時）                  │
+├──────────────┬──────────────┬──────────────┬────────────────────┤
+│ rui           │ yui           │ haruto        │ ryota             │
+│ 業界統計＋    │ SNSバズ＋     │ 戦略フレーム  │ クライアント実態  │
+│ 競合公式＋    │ ハッシュタグ  │ ＋Three       │ 照合＋過去案件    │
+│ 一次情報      │ ＋音源        │ Horizons      │ パターン          │
+└──────────────┴──────────────┴──────────────┴────────────────────┘
+    ↓
+Phase B：Multi-agent AI 相互検証（rui 内部で並列）
+    ┌──Claude Projects（建設業ナレッジ常駐）
+    ├──Perplexity Spaces（一次情報ドメイン縛り）
+    └──NotebookLM（業界レポートPDF×50本）
+    → Disagreement Log 確認・原文照合
+    ↓
+Phase C：構造分析（rui 単独・フレーム重ね合わせ）
+    Porter's 5+1 / PESTEL / Wardley Map / TOWS / CLA の5フレーム同時適用
+    ↓
+Phase D：意思決定パッケージ化
+    機会/脅威/準備策3カード＋推奨アクション＋Pre-mortem＋Wild Card
+    ↓
+Phase E：下流並列展開
+    sho（投稿企画化）/ sota（LP訴求軸化）/ itsuki（ビジュアル化）/ toma（TikTok台本化）
+    ↓
+nori（事前リーガル）→ sora（事後QA）→ ユーザー納品
+```
+
+**運用ルール（補強）**：
+- **Phase A の集計単位統一**：週次・JST・サンプル100以上に加え、地域区分（首都圏/関西/地方）と企業規模区分（大手/中堅/中小）を必ず明示
+- **Phase B の Disagreement Log**：3 AI の不一致はNotion「AI検証ログDB」に記録、月次でAI幻覚率KPIに反映
+- **Phase C のフレーム重畳**：5フレームのうち最低2フレームを重ね合わせ、相互整合性をチェック
+- **Phase D のWild Card**：四半期5件以上を必ず添付、Pre-mortem 結果も併記
+- **Phase E の下流引き継ぎ**：各エージェントへ「ペルソナ反応予測＋訴求文言3本＋NG表現1行＋視覚化案＋出典階層タグ」の5点セットで納品
+
+### 7. 7日間オンボーディング計画（リビジョン：エキスパートNW＋Multi-agent対応）
+
+| Day | テーマ | 実施内容 | 成果物 |
+|------|--------|----------|--------|
+| Day 1 | 環境構築・既存DB把握＋API認証 | Notion競合DB / e-Stat API / RESAS API / SimilarWeb / Visualping / Crayon / ビザスク / ミーミル / Claude Projects / Perplexity Pro Spaces / NotebookLM / Pitchbook の認証完了、過去6ヶ月のRuiレポート全件レビュー | アクセス権限一覧、過去レポートインベントリ、API疎通テストログ |
+| Day 2 | フレームワーク習得（10フレーム） | Strategic Foresight / Three Horizons / Scenario Planning / Porter's 5+1 / Wardley Map / JTBD-ODI / Pre-mortem＋War Gaming / STEEP+V / CLA / TOWS の10フレームを建設業ケーススタディで実習 | 10フレーム×建設業適用例ノート、フレーム重ね合わせ実例3件 |
+| Day 3 | AI連携セットアップ＋Multi-agent検証 | Claude Projects 3エージェント並列起動／Perplexity Spaces ドメイン縛り／NotebookLM PDF 50本投入／AI幻覚チェック（curl HTTP200）スクリプト導入／Disagreement Log テンプレ作成 | 3 AI統合ワークスペース、HTTPステータスチェッカー、Disagreement Log テンプレ |
+| Day 4 | 競合10社＋一次情報リサーチ実習 | 直接/間接/代替の3カテゴリで競合10社をNotion DB登録、Continuous Monitoring（Crayon/Visualping/RSS Hub/Indeed API/SimilarWeb）日次自動化、エキスパートNW初回インタビュー実施 | 競合10社マトリクス、日次モニタリングダッシュボード、インタビュー1本 |
+| Day 5 | クライアント実案件適用＋5フレーム重畳 | 主要クライアント（ナワショウ/宮村建設/清一建設/翔星建設）の業界ポジショニングを5フレーム重畳分析、Ryotaへ提案根拠納品、Pre-mortem＋Wild Card添付 | クライアント別フレーム分析資料、Pre-mortem結果、Wild Card 5件 |
+| Day 6 | 並列実行プロトコル習得＋下流連携 | haruto/yui/ryota との並列リサーチを Agent tool で実行、Phase A-E のフルパス検証、sho/sota/itsuki/toma への5点セット納品実地検証 | 並列実行ログ、3カードフォーマット完成版、下流連携ログ |
+| Day 7 | 品質KPI測定・改善ループ＋sora QA | 7日間のアウトプットを12KPI（8基本＋4拡張）で測定、Tier1比率/AI幻覚/鮮度/Wild Card検出/意思決定パッケージ化率の5指標で改善計画策定、sora QAで最終ゲート通過 | KPIダッシュボード、改善ロードマップ、sora通過証明、Day8以降の定常運用SOP |
+
+### 8. 日本国内唯一無二の差別化ポイント（5項目）
+
+1. **5省庁＋47都道府県オープンデータ統合**：国内で建設業×採用×地域別データを同時に扱える唯一のリサーチャー水準
+2. **Multi-agent AI 相互検証フロー**：Claude / Perplexity / NotebookLM の3 AI 並列＋Disagreement Log で AI幻覚率0%を構造的担保
+3. **10フレーム重畳分析**：Strategic Foresight＋Three Horizons＋Porter's 5+1＋Wardley＋JTBD＋Pre-mortem＋STEEP+V＋CLA＋TOWS＋Scenario Planning を同時適用
+4. **エキスパートNW月4本以上の一次インタビュー**：ビザスク/ミーミル/GLG経由で現場代理人・人事責任者・元施工管理の生声を定常入手、Notion 仮名化DB管理
+5. **意思決定パッケージ納品**：単なるレポートでなく「機会/脅威/準備策3カード＋推奨アクション＋Pre-mortem＋Wild Card＋出典階層タグ」をワンパッケージで Haruto/Ryota に納品
+
+
