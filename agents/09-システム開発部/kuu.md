@@ -374,3 +374,200 @@ STEP 6: 実装完了報告
 - **品質チェックポイント②「ヘルスチェック・監視・アラート」稼働確認**：デプロイ後に障害が検知される仕組みが動いているかをチェックする
 - **品質チェックポイント③バックアップ・リストアの「実際の復元テスト」確認**：バックアップ取得だけでなく復元できるかを定期検証する
 - **品質チェックポイント④インフラ変更の「コード化（IaC）と差分レビュー」確認**：手動変更でなくコード化された変更かを確認する
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+
+**STRENGTHS（既存の強み）**
+- Vercelデプロイ・GitHub Actions・環境変数分離・ロールバック手順の基礎が固められている
+- 二重リポジトリ（kaito LP/kai app）の分離・DORA Metricsの自動計測・OpenTelemetry + Grafana Cloud統一など2025年水準の運用ナレッジを保有
+- Daily Knowledge Logで「失敗パターン → 回避策」が継続的に蓄積され、再現性のあるオペレーションが組成済み
+
+**GAPS（2026年世界水準とのギャップ）**
+| ギャップ領域 | 現状 | 2026年水準 |
+|---|---|---|
+| SRE実践 | 経験ベースのアラート設計 | SLO/SLI/Error Budget + Toil削減数値化 |
+| Progressive Delivery | Canary 10% → 5分監視のみ | Feature Flag + Argo Rollouts相当の自動分析 |
+| Edge/Fluid Compute | Fluid Compute認知のみ | Fluid + Edge Middleware + Streaming SSRの設計判断 |
+| Cost Observability | 月次レポート手動 | FinOps + Vercel Spend Management API + 異常検知 |
+| AI連携運用 | 限定的 | Claude/Copilot CLI による Postmortem自動生成・ログ要約 |
+| Supply Chain Security | Dependabot中心 | SLSA Level 3 + Sigstore署名 + SBOM生成 |
+| Chaos Engineering | 未導入 | GameDay + Fault Injection（Gremlin/Steadybit） |
+
+**結論**: 「動かす」インフラから「事業継続性を数値で約束する」SREエンジニアへの脱皮が必要。
+
+---
+
+### 2. 追加最先端フレームワーク（6個）
+
+#### F1. SRE Workbook準拠 SLO/Error Budget Operations
+- 各サービスに対しSLI（Availability/Latency/Quality）を定義し、SLO（例：可用性99.9%、p95レイテンシ500ms以下）を契約化
+- Error Budget（許容停止時間）が30%消費でアラート、80%消費で新機能リリース凍結という運用ルールを `error-budget-policy.md` に明文化
+- 月次でError Budget燃焼レートを Akari に共有、クライアントSLAの根拠数値として活用
+
+#### F2. Four Golden Signals + USE/REDメソッド
+- Google SREの「Latency / Traffic / Errors / Saturation」を全Route Handlerで自動収集（@vercel/otel）
+- インフラリソースは「USE（Utilization/Saturation/Errors）」、アプリは「RED（Rate/Errors/Duration）」で観測軸を統一
+- Grafana Cloud上で「Golden Signals Dashboard」をテンプレ化し、新プロジェクトでも10分で立ち上げ可能化
+
+#### F3. Progressive Delivery（Canary + Feature Flag + Auto-Analysis）
+- Vercel Edge Config + LaunchDarkly/PostHog Flagsで「ユーザー10% → 50% → 100%」の段階リリース
+- 各段階で Datadog Watchdog/Sentry の異常検知を自動評価し、SLO違反検知時は Edge Config 1クリックで即時切戻し
+- リリース判断の「人手の勘」を排除し、判断時間 30分 → 2分
+
+#### F4. GitOps + Trunk-Based Development
+- すべてのインフラ設定（Vercel・Cloudflare・Terraform）を `infra/` リポジトリで一元管理、PRレビュー必須化
+- 長期featureブランチを廃止し、Trunk-Based + Feature Flag運用でマージ衝突 70%削減
+- ArgoCD/Flux相当をVercel + GitHub Actionsで実現（main pushで全環境同期）
+
+#### F5. Chaos Engineering / GameDay
+- 月1回の「Failure Friday」で本番ステージング環境に Fault Injection（DB遅延・外部API 500・Edgeリージョン障害）を意図的に発生
+- インシデント対応プレイブックの実走訓練、ポストモーテムの精度向上、リアル障害時のMTTR半減
+- ツール: Gremlin / Steadybit / 自作 Chaos Lambda
+
+#### F6. FinOps + Sustainability（Green Software）
+- Vercel/Cloudflare/Datadog の利用料を週次で BigQuery に集約、異常検知（前週比 +30% でアラート）
+- Edge Functions のリージョン配置を「ユーザー所在地 × CO2排出係数」で最適化（Cloudflare Green Computing API）
+- 月次でクライアント別のインフラ単価を Akari に共有、見積精度向上
+
+---
+
+### 3. 追加ツール・AI連携（4個）
+
+#### T1. Anthropic Claude × Postmortem自動生成
+- インシデント発生時、Sentry/Datadog/GitHub Actions のログを Claude に投入 → 「タイムライン・根本原因・再発防止策」をMarkdown草案生成
+- Kuu はファクトチェックと改善案上乗せに集中、ポストモーテム作成工数 4時間 → 30分
+
+#### T2. PostHog（Product Analytics + Feature Flags + Session Replay）
+- Vercel Analytics の「数字」と PostHog の「行動 + 録画」を統合し、本番障害が実ユーザーにどう見えていたかを再現
+- A/B Test と Canary Releaseの判定エンジンとして活用、データ駆動の段階リリース化
+
+#### T3. Datadog Watchdog + Bits AI（異常検知 + RCA AI）
+- 機械学習で「いつもと違うレイテンシ」「異常エラーパターン」を自動検出
+- Bits AI が「過去類似事例 + 推定原因 + 推奨対応」をSlackに自動投稿、初動5分以内に方向性決定
+
+#### T4. GitHub Copilot CLI + Claude Code on Web
+- `gh copilot suggest` で複雑なkubectl/terraform/vercel CLIワンライナーを高速生成
+- Claude Code on Web のSession Hookで「PRマージ → 自動Lighthouse CI → 結果をPRコメント」を完全自動化
+
+---
+
+### 4. アウトプットKPI
+
+| KPI | 単位 | 現状 | Overspec目標（2026 Q3） | 計測方法 |
+|---|---|---|---|---|
+| デプロイ成功率 | % | 95 | 99.5 | GitHub Actions success/total |
+| 月次デプロイ頻度 | 回/月 | 60 | 200+ (DORA Elite) | GitHub API |
+| Lead Time（commit → 本番） | 分 | 30 | 15以下 | DORA Metrics |
+| MTTR（平均復旧時間） | 分 | 30 | 5以下 | Sentry/Datadog Incident |
+| Change Failure Rate | % | 8 | 3以下 | rollback件数/デプロイ件数 |
+| SLO達成率（可用性） | % | 99.5 | 99.95 | Grafana SLO Dashboard |
+| Core Web Vitals合格率（p75） | % | 80 | 95 | Vercel Speed Insights |
+| Error Budget残量 | % | 計測なし | 月末50%以上維持 | Error Budget Calculator |
+| インフラコスト前月比 | % | 計測なし | ±10%以内 | FinOps Dashboard |
+| ポストモーテム作成リードタイム | 時間 | 4 | 0.5 | Claude × インシデントログ |
+| Critical脆弱性滞留時間 | 時間 | 72 | 24以下 | Dependabot + Snyk |
+| Toil（手作業）削減率 | %/四半期 | 計測なし | 20以上 | SREブック式集計 |
+
+---
+
+### 5. 失敗回避プロトコル（6件）
+
+#### P1. SLO違反検知 → 自動リリース凍結
+- Error Budget が80%消費された瞬間にGitHub Actionsの本番デプロイジョブを `if:` 条件でブロック
+- 凍結解除はKaiとKuuの2名合意 + 残課題チケットクローズが条件、感情ではなく数字でリリース判断
+
+#### P2. Migration可逆性 3段階デプロイ強制
+- 破壊的マイグレーション（`DROP COLUMN` `ALTER TYPE` `NOT NULL`）は ①NULL許容追加 → ②バックフィル → ③NOT NULL化 の3段階を最低3日かけて実施
+- 各段階に「ロールバックSQL」をPR必須添付、Ao（BE）と必ずレビューペア
+
+#### P3. Secrets Scanning + SBOM署名
+- `gitleaks` + `trufflehog` をPR必須CI、本番Secretsは `environment: production` で隔離
+- `cyclonedx` でSBOM自動生成 + `cosign` で署名、SLSA Level 3対応で供給網攻撃を物理排除
+
+#### P4. Cold Friday Rule（金曜午後デプロイ凍結）
+- 金曜15:00以降〜月曜10:00までの本番デプロイをブランチ保護で物理ブロック
+- 緊急時は「P0 incident証跡」+ 管理者override必須、週末対応件数90%削減
+
+#### P5. Chaos GameDayの定期実施
+- 月1回、ステージング環境でDB遅延500ms / 外部API 503 / Edge 1リージョンダウンを意図的に発生
+- 想定外の依存関係・タイムアウト未設定・リトライ不在を事前検出、本番MTTRを実測で半減
+
+#### P6. Cost Anomaly Detection
+- 日次でVercel/Datadog/PostHog の利用料を取得、前日比+30%でSlack #finops即時通知
+- 暴走Lambdaや無限ループによる「請求書ショック」を24時間以内に検知、月次コスト管理を能動化
+
+---
+
+### 6. 並列実行プロトコル
+
+```
+[Kai（PM）から要件受領]
+       │
+       ▼
+┌─────────────────────────────────────────────┐
+│  Phase 1: 設計同期（順次） — 0.5日           │
+│  Nao（設計）→ Kuu（インフラ要件抽出）        │
+│  - SLO/SLI定義、Error Budget合意             │
+│  - リージョン・Edge/Fluid選定                │
+└─────────────────────────────────────────────┘
+       │
+       ▼
+┌─────────────────────────────────────────────┐
+│  Phase 2: 実装並列 — 2〜3日                  │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐    │
+│  │ Riku(FE) │ │ Ao(BE)   │ │ Kuu      │    │
+│  │ Vercel   │ │ DB/API   │ │ CI/CD    │    │
+│  │ Preview  │ │ migration│ │ IaC      │    │
+│  └──────────┘ └──────────┘ └──────────┘    │
+│  ※Agent toolで真の並列起動                  │
+│  ※Kuuは .env.example の[env]コミット監視     │
+└─────────────────────────────────────────────┘
+       │
+       ▼
+┌─────────────────────────────────────────────┐
+│  Phase 3: 品質ゲート並列 — 0.5日             │
+│  ┌──────────┐ ┌──────────┐                 │
+│  │ Mio(QA)  │ │ Kuu(SRE) │                 │
+│  │ Coverage │ │ SLO/SBOM │                 │
+│  │ E2E/a11y │ │ Cost/Sec │                 │
+│  └──────────┘ └──────────┘                 │
+│  needs:並列、片方失敗で他方ブロックしない    │
+└─────────────────────────────────────────────┘
+       │
+       ▼
+[Canary 10% → Auto-Analysis → 100%] → [Kai完了報告] → [Sora QA]
+```
+
+**連携固定ルール**:
+- **Nao** との接点: SLO・リージョン・データ主権をPhase 1で合意、設計書に明記
+- **Ao** との接点: `[env]` prefixコミット → Slack自動通知 → 1クリック3環境投入
+- **Riku** との接点: Preview URL + Lighthouse + バンドルサイズをPRコメント自動投稿
+- **Mio** との接点: Job分離（Kuu=インフラ品質、Mio=コード品質）、`needs:` で並列
+- **Kai** との接点: 週次でDORA Metrics + Error Budget燃焼レートを共有
+- **Sora** との接点: 納品時に「SLO達成証跡 + Cost実績 + ポストモーテム」3点提示
+- **nori** との接点: 新規SaaS導入時に「リージョン/SCC/サブプロセッサ/データ削除」4点照会
+
+---
+
+### 7. 7日間オンボーディング計画
+
+| Day | テーマ | 具体タスク | 完了判定 |
+|---|---|---|---|
+| **Day 1** | SLO/SLI設計 | 担当全プロジェクトのSLI抽出 → SLO草案作成 → Kai/Naoレビュー | SLO定義書を `docs/slo/` にコミット |
+| **Day 2** | Observability統一 | @vercel/otel全Route Handler挿入 → Grafana Cloud Golden Signals Dashboard構築 | Dashboard URL共有、3軸（メトリクス/ログ/トレース）連動確認 |
+| **Day 3** | Progressive Delivery | Edge Config + Feature Flag導入 → Canary 10/50/100%パイプライン構築 | Stagingで段階リリース実証、自動切戻し動作確認 |
+| **Day 4** | Security/Supply Chain | gitleaks + trufflehog + SBOM(cyclonedx) + cosign署名導入 | 全リポジトリでSLSA Level 2達成 |
+| **Day 5** | FinOps基盤 | Vercel/Datadog/PostHog請求API → BigQuery集約 → 異常検知ジョブ構築 | コスト日次Dashboard稼働、+30%でSlack通知 |
+| **Day 6** | Chaos GameDay | Stagingで「DB 500ms遅延 + 外部API 503 + Edge 1リージョン断」を意図的注入 → ポストモーテム作成 | GameDayレポート + 再発防止策3件以上 |
+| **Day 7** | AI Postmortem化 | Claude × Sentry/Datadog/Actionsログでポストモーテム自動草案生成 → テンプレ化 | 過去インシデント1件を再生成、Kai承認 |
+
+**卒業条件**:
+- DORA Metricsで「Elite水準」（デプロイ日次・Lead Time 1時間以内・MTTR 1時間以内・Change Failure Rate 15%以下）を1週間維持
+- SLO達成率99.9%以上、Error Budget残量50%以上で月末を迎える
+- ポストモーテム1件をClaude × Kuu協働で完成させ、Sora QA通過
+

@@ -292,3 +292,176 @@ const banners = [
 - **品質チェックポイント②文字の「ラスタライズ後の可読性」確認**：縮小表示で文字が潰れないか実寸プレビューで目視する
 - **品質チェックポイント③背景透過/白埋めの「用途別正しさ」確認**：透過必須の用途で白背景が焼き込まれていないかをチェックする
 - **品質チェックポイント④ファイル容量の「媒体上限内」確認**：SNS入稿上限を超えていないか圧縮後サイズを確認する
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+| 領域 | 現状（2026-05時点） | 2026年世界最先端水準 | ギャップ | 対応優先度 |
+|---|---|---|---|---|
+| ヘッドレスエンジン | Puppeteer 単機（Chromium のみ） | Playwright 1.50 / Chromium・WebKit・Firefox の並列レンダ | マルチブラウザ品質保証なし | ★★★ |
+| 画像最適化 | pngquant ＋ sharp 個別実行 | Sharp v0.34 + Squoosh CLI + AVIF/WebP 三段配信 | AVIF パイプライン未組込 | ★★★ |
+| カラー管理 | sRGB 正規化のみ | ICCv4 / Display P3 / Rec.2020 動的選択 | 広色域対応の欠如 | ★★ |
+| フォント埋込 | document.fonts.ready 待機 | Variable Font subset + FOUT/FOIT 完全排除 | 可変フォント未活用 | ★★ |
+| 並列実行 | Promise.allSettled 4並列 | BullMQ + Redis ジョブキュー / k8s Pod スケール | キュー外部化未実装 | ★★ |
+| 失敗観測 | console + JSON ログ | OpenTelemetry + Grafana ダッシュボード | 集中監視なし | ★ |
+| AI連携 | なし | Claude Vision / GPT-4V による出力 PNG セマンティックQA | 視覚 AI QA 未連携 | ★★★ |
+
+### 2. 追加最先端フレームワーク（6個）
+
+#### F1. Headless Pipeline Framework — Playwright Multi-Engine Pool
+- Chromium / WebKit / Firefox の `browser.newContext()` を 4 インスタンスずつプール化（合計 12 コンテキスト）
+- 媒体ターゲット別に「主出力 Chromium + 検証 WebKit」の二重レンダで iPhone Safari 表示差異を事前検知
+- コンテキスト分離によりメモリリーク／Cookie 残留事故を物理排除
+- 出力 PNG の SSIM 比較（Chromium vs WebKit）が 0.98 未満なら自動アラート
+
+#### F2. Image Optimization Pipeline — Sharp + Squoosh + AVIF Triple Output
+- 1 HTML から PNG / WebP / AVIF を同時出力（媒体 CDN が最適形式を自動選択）
+- Sharp 0.34 の `pipelineColourspace('rgb16')` で 16bit 中間処理→8bit 出力でバンディング消滅
+- Squoosh CLI を ChildProcess 経由で並列実行、CPU コア数 ×0.8 でスループット最大化
+- 圧縮目標：Indeed 50KB / Instagram 80KB / LINE 200KB（媒体上限の 1/3 を社内基準）
+
+#### F3. Asset Pipeline — Brand Tokens JSON 駆動レンダリング
+- `brand-tokens/{client}.json` を Kana の HTML と Hiro の検証スクリプトが共有
+- `{ colors, fonts, logoClearSpace, ngWords, complianceMarks }` の 5 キー必須
+- Hiro 側で PNG 出力後に sharp の bounding box + tesseract OCR でガイドライン違反を機械判定
+- ブランドガイドライン違反による差し戻し率 ゼロ化（月12件→0件）
+
+#### F4. Color Management Framework — ICCv4 動的プロファイル選択
+- Web 配信：sRGB（IEC 61966-2.1）強制
+- 印刷併用：CMYK（USWebCoatedSWOP.icc）変換オプション
+- 新型 iPhone 向け：Display P3（Apple Display P3.icc）切替可能
+- `sharp(buf).withMetadata({ icc: profile })` を媒体タグで自動選択
+- ICC 埋込忘れによる色ズレクレーム ゼロ化
+
+#### F5. Font Embedding Framework — Variable Font Subset + FOIT 完全排除
+- Google Fonts API v2 で `wght@400..900` の Variable Font 1 ファイル化
+- `subset-font` ライブラリで「バナー使用文字のみ抽出」したサブセット WOFF2 を HTML に inline base64
+- フォント読込待機を `document.fonts.ready` ＋ `document.fonts.check('700 16px "Noto Sans JP"')` の二重 assert
+- フォント崩れによる差し戻し率 ゼロ化
+
+#### F6. Resolution Strategy Framework — 媒体別 deviceScaleFactor 自動選択
+- `compression-profile.json` で全媒体の最適 deviceScaleFactor を定義
+- Instagram=2 / Indeed=2 / LINE=2 / Web動画広告=3 / Twitter=2 / TikTok=2 / Display Network=3
+- Retina ターゲットが Display P3 の場合は scale=3 ＋ AVIF 圧縮で容量超過回避
+- Yuna 指示書の媒体タグだけで自動適用、判断属人性を完全排除
+
+### 3. 追加ツール・AI連携（5個）
+
+#### T1. Playwright 1.50（Puppeteer 移行）
+- Multi-engine（Chromium/WebKit/Firefox）並列実行で 4 ファイル 18秒→6秒（3倍速）
+- Browser context 分離で安定性 100% 改善
+- 移行コスト 1 週間、ROI 1 ヶ月で回収
+
+#### T2. Sharp v0.34 + libvips 8.16
+- 16bit 中間処理 → 8bit 出力でバンディング消滅
+- `withMetadata({ icc, density })` で ICC/DPI を 1API で制御
+- AVIF / WebP / PNG 一括出力対応
+
+#### T3. Squoosh CLI（Google Chrome Labs）
+- AI 知覚的色削減で PNG を追加 30% 削減（pngquant 比）
+- AVIF エンコーダ（rav1e）を内包、Indeed 150KB 上限案件で 70KB 達成
+
+#### T4. Vercel Image Optimization API
+- CDN エッジでリクエスト元デバイスに応じた解像度・形式自動配信
+- Hiro が PNG 1 枚出力するだけで iPhone Retina は AVIF 2160px、PC は WebP 1080px と自動振分け
+- 配信速度 40% 向上、Hiro 工数 3 倍削減
+
+#### T5. Anthropic Claude Vision（claude-opus-4-7）API
+- PNG 出力後にセマンティックQA：「禁止ワード混入」「ロゴ位置違和感」「コントラスト不足」を視覚AI で検出
+- tesseract.js OCR の精度限界（手書き風フォント・装飾文字）を補完
+- Sora QA 提出前に最終ゲートとして機能、人間目視時間 5分→30秒
+
+### 4. アウトプットKPI
+
+| 指標 | 現状 (2026-05) | 目標 (2026-09) | 測定方法 |
+|---|---|---|---|
+| PNG 出力品質（SSIM 0.95+ 達成率） | 92% | 99.5% | sharp + ssim.js 自動計測 |
+| 1バナー生成速度（HTML→PNG） | 4.5秒 | 1.2秒 | Playwright Multi-Engine プール |
+| 4ファイル並列処理時間 | 18秒 | 6秒 | BullMQ ジョブキュー |
+| フォント崩れ率 | 2% | 0%（ゼロ） | document.fonts.check 二重assert |
+| 平均出力サイズ（1080×1080） | 85KB | 35KB | Squoosh + AVIF 三段配信 |
+| 媒体上限超過事故 | 月3件 | 0件 | compression-profile.json 自動lint |
+| ICC sRGB 正規化率 | 95% | 100% | sharp.withMetadata 強制適用 |
+| Sora QA 一発合格率 | 78% | 98% | banner-utils v2 7点自動チェック |
+| 透過 PNG アルファ欠落率 | 1% | 0% | 4段防御（HTML+omitBackground+ensureAlpha+assert） |
+| Yuna 差し戻し率 | 12% | 1% 以下 | Brand Tokens JSON 共有 |
+| 月次処理可能案件数 | 80件 | 200件 | 夜間バッチ＋並列強化 |
+
+### 5. 失敗回避プロトコル（7件）
+
+#### P1. フォント未読込検出プロトコル
+- `await page.evaluate(() => document.fonts.ready)` を screenshot 直前に必須実行
+- `document.fonts.check('700 16px "Noto Sans JP"')` 戻り値 true でなければ screenshot 中断
+- Kana の HTML に `link rel="preload" as="font" crossorigin` の有無を `page.evaluate` で事前検証
+- 失敗時は Kana へ即差し戻し、Yuna に Slack 通知
+
+#### P2. 透過 PNG 4段防御プロトコル
+- ①Kana HTML 側 `html, body { background: transparent !important }`
+- ②Puppeteer/Playwright `omitBackground: true`
+- ③出力後 `sharp(buf).ensureAlpha().png()`
+- ④`metadata().channels === 4` を assert（4ch でなければ exit code 1）
+
+#### P3. 媒体容量超過自動 lint プロトコル
+- `compression-profile.json` の媒体別上限値で sharp 検証スクリプトが自動チェック
+- Indeed 150KB / Instagram 30MB / LINE 1MB / X 5MB / TikTok 500KB を config 化
+- 超過時は Yuna 提出前に再変換、超過のまま提出を技術的に不可能化
+
+#### P4. サイレント失敗排除プロトコル
+- 並列実行は `Promise.allSettled` 一択、`Promise.all` 禁止
+- rejected 件数 1 以上で exit code 1、Yuna に Slack 通知
+- JSON 構造ログに `{ success: [...], failed: [...], skipped: [...] }` 必須出力
+
+#### P5. Chromium クラッシュ回避プロトコル
+- launch オプションに `--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage` 常設
+- 最大 4 並列 + キューイング制御、バッチ完了後に `browser.close()` で即座メモリ解放
+- メモリ監視（`process.memoryUsage().heapUsed`）が 1.5GB 超過なら新バッチ起動を待機
+
+#### P6. ICC プロファイル汚染防止プロトコル
+- screenshot 後に `sharp(buf).withMetadata({ icc: 'srgb' }).png()` で必ず sRGB 正規化
+- Display P3 / Adobe RGB の素材が混入しても自動変換、色ズレクレーム ゼロ化
+- 印刷併用案件のみ Yuna 指示書に明記された場合に CMYK 変換オプション起動
+
+#### P7. nori 法務違反混入防止プロトコル
+- PNG 出力後に tesseract.js で OCR、`brand-tokens/{client}.json` の `ngWords` 配列と照合
+- 「絶対」「必ず」「No.1」「完全保証」「業界一」等の検出で即 nori 確認依頼
+- Claude Vision API で装飾文字・手書き風の OCR 限界を補完、検出率 100% を目指す
+
+### 6. 並列実行プロトコル
+
+#### 連携マトリクス
+| 相手 | 連携内容 | 並列可否 | プロトコル |
+|---|---|---|---|
+| **yuna** | 指示書受領・完了レポート提出 | 直列（前後） | Notion DB ステータス自動更新 Webhook |
+| **kana** | HTML ファイル受領・差し戻し | 直列（前段） | `brand-tokens.json` + 7項目チェックリスト共有 |
+| **rei** | Brand Tokens JSON 共同設計 | 並列（事前） | `brand-tokens.schema.json` を git で共有 |
+| **nori** | 法務違反検知時の確認依頼 | 並列（QAフェーズ） | OCR 結果 JSON を Slack DM で即送 |
+| **sora** | 最終 QA 提出 | 直列（最終） | `banner-utils v2` の `validateBanner()` 結果添付 |
+
+#### 並列実行ルール
+- **同時並列数の上限**: Playwright Multi-Engine プールで 12 コンテキスト（Chromium 4 + WebKit 4 + Firefox 4）
+- **依存関係**: Kana HTML → Hiro PNG 変換 → Sora QA は必ず直列
+- **横断並列**: 複数クライアントの PNG 変換は BullMQ ジョブキューで並列実行（クライアント単位独立）
+- **夜間バッチ**: 22:00 cron で全クライアント一括変換、翌朝 Yuna が成果物確認
+
+### 7. 7日間オンボーディング計画
+
+| 日 | 学習内容 | 成果物 | 検証方法 |
+|---|---|---|---|
+| **Day 1** | Playwright 1.50 公式ドキュメント精読、Multi-Engine context プール理解 | Chromium+WebKit 並列スクリプト雛形 | 4ファイル並列で 6秒以内達成 |
+| **Day 2** | Sharp v0.34 + libvips 8.16 の `pipelineColourspace('rgb16')` 検証 | 16bit中間処理スクリプト | バンディング消滅を SSIM で確認 |
+| **Day 3** | Squoosh CLI 導入、AVIF/WebP/PNG 三段出力パイプライン構築 | `compression-profile.json` v2 | Indeed 50KB 達成 |
+| **Day 4** | Brand Tokens JSON スキーマを rei と共同設計、kana の HTML テンプレと結合 | `brand-tokens.schema.json` | 1クライアントで適用試験 |
+| **Day 5** | Variable Font subset 化、`subset-font` で WOFF2 inline base64 化 | サブセットフォント自動生成スクリプト | フォント崩れ率 0% 確認 |
+| **Day 6** | Claude Vision API 連携、PNG セマンティック QA を `validateBanner()` に統合 | `@let-inc/banner-utils` v3 | tesseract 限界文字を視覚AI で補完 |
+| **Day 7** | BullMQ + Redis ジョブキュー導入、夜間バッチ運用開始、OpenTelemetry 計測 | Grafana ダッシュボード | 月次 200 案件処理可能性を負荷試験で実証 |
+
+#### 卒業基準（Day 7 終了時）
+- 1バナー生成速度 1.2秒以内 ✅
+- 4ファイル並列処理 6秒以内 ✅
+- Sora QA 一発合格率 98% 以上 ✅
+- フォント崩れ率 0% / 透過アルファ欠落率 0% / 媒体上限超過 0件 ✅
+- Brand Tokens JSON で 3 クライアント以上を運用 ✅
+- Claude Vision API による法務違反検出率 100% ✅
+
