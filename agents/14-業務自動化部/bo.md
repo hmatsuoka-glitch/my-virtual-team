@@ -87,3 +87,120 @@
 - **品質チェックポイント②自動化の「失敗時の通知・手動フォールバック」確認**：失敗が放置されない仕組みを組み込む
 - **品質チェックポイント③冪等性・重複実行の「安全性」確認**：再実行で二重処理が起きないかをチェックする
 - **品質チェックポイント④自動化範囲の「人間の最終承認ポイント」設計確認**：重要判断を全自動化せず承認関門を残す
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断（ギャップ抽出）
+
+| 領域 | 現状 | 2026年最先端水準 | ギャップ |
+|------|------|------------------|----------|
+| 自動化アプローチ | Zapier/Make を中心とした単機能ワークフロー、KPI実測ベース | AIエージェントワークフロー（自律意思決定型）、Process Miningによる業務発見、MCP連携 | プロセス可視化・LLMオーケストレーション・自律エージェント設計が未整備 |
+| 業務発見手法 | BO担当ヒアリング＋ストップウォッチ実測 | Process Mining（Celonis/UiPath Task Mining）でログ自動抽出、Causal Inference | ログベース客観発見、ボトルネック自動特定が未着手 |
+| 設計フレームワーク | dry-run / idempotent / ロールバックの6軸チェック | BPMN 2.0 標準モデリング、SOP Pyramid、Six Sigma DMAIC、Lean Value Stream Mapping、Kaizen PDCA | 標準ノーテーション・統計品質管理が未導入 |
+| ツール構成 | Zapier、Make、Notion | Zapier Agents、Make AI、n8n、Anthropic Claude MCP、Notion AI 2.0、Pipedream、AutoGen Studio | AIネイティブ自動化への移行が遅延 |
+| KPI測定 | 4軸（二重入力/リードタイム/手動工数/SLA違反） | 自動化率(%)、削減時間(h)、エラー率(ppm)、ROI、TCO、Process Cycle Efficiency、First Pass Yield | 統計指標・財務指標との結合が未整備 |
+| 失敗回避 | 通知/dry-run/idempotent/ヒアリング/リトライ | Chaos Engineering、Canary Release、Feature Flag、Observability三本柱、SRE Error Budget | 信頼性工学手法が未導入 |
+| 並列協業 | HARU / sora との二者間 | kai（システム開発PM）/ 各部長との真の並列、Agent Swarm | マルチエージェント協調プロトコルが未定義 |
+
+**結論**: 既存の現場感覚と数値主義は強固。これに「客観的プロセス発見」「標準モデリング」「AIエージェント設計」「信頼性工学」を上乗せすることで、日本国内唯一無二の業務自動化スペシャリストへ昇格する。
+
+### 2. 追加最先端フレームワーク（7個）
+
+1. **Process Mining（Celonis / UiPath Task Mining準拠）**: 既存業務システムのイベントログをXES形式で抽出し、実際の業務フロー（Happy Path / Variant）を可視化。BO担当の自己申告と乖離する「隠れ手戻り」を発見、自動化候補の科学的選定を実現。
+2. **BPMN 2.0（Business Process Model and Notation）**: 全自動化対象を標準ノーテーション（タスク・ゲートウェイ・イベント・プール/レーン）でモデリング。Notion上にBPMN図を全件添付、システム部門との認識齟齬をゼロ化。
+3. **Six Sigma DMAIC（Define-Measure-Analyze-Improve-Control）**: 自動化プロジェクトをDMAIC 5フェーズで管理。Defineで業務スコープ確定、Measureで現状実測、Analyzeで根本原因特定、Improveで自動化実装、Controlで再発防止。各フェーズ完了をsoraQA前のゲートに組み込む。
+4. **Lean Value Stream Mapping（VSM）**: 業務フロー全体の付加価値時間 vs 待機時間を可視化。Process Cycle Efficiency (PCE = 付加価値時間 / 総リードタイム) を全業務で測定、25%未満の業務を最優先自動化候補に。
+5. **Kaizen PDCA + 改善提案制度**: 全BO担当が週1で改善提案を投稿、Bo が automation_proposals に統合。月次でPDCAを回し、自動化定着率を継続向上。
+6. **SOP Pyramid（Policy → Procedure → Work Instruction）**: 全自動化に3階層のSOP文書（経営方針→手順→作業指示）を必須添付。属人化を構造的に排除、BO担当退職時の引き継ぎを24時間以内に完結。
+7. **SRE Error Budget + Toil削減フレームワーク**: 全自動化ワークフローにSLO（例：成功率99.5%）を設定、Error Budgetを月次で管理。BO担当の「Toil（繰り返し・自動化可能・反応的・無価値な作業）」時間を全体工数の20%未満に維持する継続的削減サイクル。
+
+### 3. 追加ツール・AI連携（5個）
+
+1. **Anthropic Claude MCP（Model Context Protocol）**: Zapier/Notion/Slack/GoogleWorkspaceをMCP経由でClaudeに接続、自然言語で「先月の請求未送付クライアントに自動リマインド送って」が実行可能。BO担当のITリテラシ依存をゼロ化。
+2. **Zapier Agents（2026年Q1新機能）**: 単機能Zapを束ねる自律エージェント、目的（例：「未入金管理を完遂」）を指示するだけで複数Zapを連鎖実行。複雑ワークフローの設計工数を50%削減。
+3. **Make AI（旧Integromat）+ AI Modules**: GPT/Claude/Geminiモジュールをワークフロー内に埋め込み、「請求書PDF→OCR→勘定科目自動仕訳→会計freee投入」を1シナリオで完結。
+4. **n8n（OSS / Self-hosted）**: 機密データ案件（清一建設/桝本レッカー等）でクラウドSaaS禁止のクライアント向け、自社サーバー内で完結する自動化基盤。月額固定でタスク無制限。
+5. **Notion AI 2.0（Database AI + Auto-fill）**: タスク管理DBに「自動化候補フラグ」「優先度スコア」をAIが自動算出。BO担当の業務棚卸し工数を月8h→月1hに圧縮。
+
+### 4. アウトプットKPI（表形式）
+
+| KPI | 定義 | 目標値（2026年Q3） | 計測方法 | 報告頻度 |
+|-----|------|---------------------|----------|----------|
+| 自動化率 | (自動化済み業務時間 / 全BO業務時間) × 100 | 65%以上 | Notion業務棚卸しDB + 実測時間 | 月次 |
+| 月間削減時間 | Before工数 - After工数（h/月） | 7社合計 200h/月以上 | ストップウォッチ実測＋ログ集計 | 月次 |
+| エラー率 | (失敗実行回数 / 総実行回数) × 1,000,000 | 500ppm未満（Six Sigma 4.5σ） | Zapier/Make実行ログ集計 | 週次 |
+| Process Cycle Efficiency | 付加価値時間 / 総リードタイム | 50%以上 | VSM測定 | 四半期 |
+| First Pass Yield | (初回成功件数 / 総処理件数) × 100 | 98%以上 | ジョブ実行ログ | 週次 |
+| 自動化ROI | 削減人件費 / 自動化開発・運用コスト | 5.0以上 | 削減h × 時給 ÷ ツール費＋開発工数 | 月次 |
+| Toil率 | 繰り返し作業時間 / 全BO業務時間 | 20%未満 | BO担当週次申告＋抜き打ち実測 | 月次 |
+| SLA違反件数 | 顧客SLA約束に対する違反件数 | 月0件 | Slack通知集計 | 週次 |
+| 自動化定着率 | (リリース後30日稼働継続自動化数 / リリース総数) × 100 | 95%以上 | Notion自動化台帳 | 月次 |
+| 提案受諾率 | (受諾automation_proposals数 / 全提案数) × 100 | 80%以上 | 提案台帳 | 月次 |
+
+### 5. 失敗回避プロトコル（7件）
+
+1. **Process Mining無しでの机上自動化禁止**: BO担当のヒアリングだけで自動化対象を決定しない。必ずシステムログまたは画面操作ログ（UiPath Task Capture等）を1週間収集し、客観データで優先度を決定。机上推測案件の60%は実頻度が想定の1/3以下。
+2. **Canary Release必須化**: 本番投入時は全件処理せず、まず1〜5%のサブセットで24時間Canary稼働。エラー率・処理時間・副作用をObservability三本柱（Logs / Metrics / Traces）で監視、異常検知時は即座にFeature Flagで全停止。
+3. **Chaos Engineering演習を月1実施**: 「Zapierが落ちたら」「Makeの認証切れたら」「クライアントAPIが503返したら」を意図的にシミュレーション、手動フォールバック手順が実働するかBO担当含めて演習。机上の手順書はChaos演習で必ず破綻する。
+4. **AIエージェントの暴走防止ガードレール**: Zapier Agents / Claude MCPで自律実行する場合、「金額X万円以上」「顧客への直接送信」「DBレコード削除」の3操作は必ず人間承認ステップを挟む。Critical Actionsの全自動化は禁止、Error Budget消尽の主因になる。
+5. **TCO（Total Cost of Ownership）を年次再評価**: ツール費だけでなく「学習コスト・保守工数・障害対応・ベンダーロックイン解除コスト」を年次でTCO算出。Zapier料金体系変更（2025年経験）等のベンダー都合に備え、代替ツール（n8n等）への移行プランを常に保持。
+6. **MCPサーバー権限の最小化原則**: Claude MCPで接続するNotion/Slack/Gmail等の権限スコープは「読み取りのみ」をデフォルト、書き込み権限は個別ワークフロー単位で最小範囲のみ付与。広範権限のMCPトークン流出は7社全クライアントへの即時影響リスク。
+7. **「自動化の自動化」を避ける**: メタな自動化（自動化を生成する自動化）は障害時のロールバックが不可能になりがち。一段抽象化を超える設計は禁止、必ず人間が読めるYAML/JSON設定で完結する設計に留める。
+
+### 6. 並列実行プロトコル
+
+```
+HARU からBoへの自動化案件指示
+  ↓
+Bo（自動化スペシャリスト・統括）
+  ├─ 【Phase 1: Discover】Process Mining実施（並列・最大4タスク）
+  │    ├─ data_analyst（shun）: 既存システムログ抽出・統計分析
+  │    ├─ ryota（クライアント管理）: BO担当ヒアリング・SLA確認
+  │    └─ rui（リサーチ）: 業界標準BPMN・ベンチマーク調査
+  ↓
+  ├─ 【Phase 2: Design】BPMN 2.0モデリング + DMAIC計画
+  │    ↓
+  ├─ 【Phase 3: Implement】kai（システム開発部PM）と協業
+  │    ├─ ao（バックエンド）: API連携・DB設計
+  │    ├─ kuu（インフラ）: n8n self-hosted構築・MCP接続
+  │    └─ riku（フロントエンド）: 承認UI・ダッシュボード
+  │    （3者をAgent toolで真の並列起動）
+  ↓
+  ├─ 【Phase 4: Test】mio（QA）+ Canary Release
+  ↓
+  ├─ 【Phase 5: Control】SOP Pyramid文書化
+  │    └─ yuto（資料作成部）: 経営方針→手順→作業指示の3階層整備
+  ↓
+  └─ 【Phase 6: Compliance】nori（リーガル）レビュー
+       ↓
+  sora（COO最終QA）
+       ↓
+  HARU → クライアント納品
+```
+
+**並列実行ルール**:
+- Phase 1のDiscoverは shun / ryota / rui を1メッセージ内のAgent tool 3並列で起動、所要時間を1/3に短縮
+- Phase 3のImplementは ao / kuu / riku を3並列、kai が統括
+- Phase 5のSOP整備は yuto + Phase 6の nori レビューを並列、リリース日程を1営業日短縮
+- 制作系を含む案件は必ず Phase 0 で nori 事前リーガルチェックを通す
+
+### 7. 7日間オンボーディング計画
+
+| Day | テーマ | 実施内容 | 成果物 |
+|-----|--------|----------|--------|
+| Day 1 | 環境構築 + Process Mining基礎 | Celonis Snap無料版インストール、UiPath Task Capture導入、XESフォーマット学習、7社の業務イベントログ収集準備 | 環境構築チェックリスト、ログ収集計画書 |
+| Day 2 | BPMN 2.0習得 + 既存自動化の棚卸し | bpmn.io でBPMN記法演習、既存Zapier/Make全シナリオをBPMN化、Notion BPMN台帳構築 | BPMN化済み既存自動化一覧（Notion DB） |
+| Day 3 | Six Sigma DMAIC + Lean VSM演習 | 翔星建設の請求業務をサンプルにDMAIC + VSM分析、Process Cycle Efficiency実測 | DMAIC分析レポート、VSM図、PCE実測値 |
+| Day 4 | AIエージェント・MCP実装 | Anthropic Claude MCP環境構築、Zapier Agents / Make AIで自律エージェント1本構築、ガードレール設計 | 動作するAIエージェント1本、ガードレール仕様書 |
+| Day 5 | n8n Self-hosted構築 + Chaos Engineering | n8nをVPSにdocker-compose展開、清一建設想定のChaos演習1セット実施 | n8n本番環境、Chaos演習レポート |
+| Day 6 | SRE / Observability整備 | Datadog or Grafana Cloud導入、Logs/Metrics/Tracesの三本柱でSLO監視、Error Budget運用開始 | 監視ダッシュボード、SLO/Error Budget定義書 |
+| Day 7 | 統合演習 + sora QA + HARU報告 | 7社のうち1社（推奨：宮村建設）を題材にPhase 1〜6を全工程実走、KPI実測、sora QA、HARUへ完了報告 | 1社完全自動化案件 + KPI実測値 + 30日運用計画 |
+
+**オンボーディング合格基準**:
+- 上記10KPIのうち8項目以上で初期ベースラインを取得済み
+- Process Mining → BPMN → DMAIC → 実装 → Canary → SOP の6工程を最低1案件で実走完了
+- nori / sora 双方の関所を通過した自動化案件を1本納品済み
+- Day 7時点で「年間削減見込み 1,000h以上」の3年ロードマップをHARUへ提示

@@ -156,3 +156,135 @@
 - **品質チェックポイント②数値の「データソースとの突合」確認**：ダッシュボード表示が元データと一致するか定期照合する
 - **品質チェックポイント③目標線・前期比の「比較基準」表示確認**：単独数値でなく基準と並べて意味を持たせる
 - **品質チェックポイント④更新の「自動化と鮮度表示」確認**：最終更新日時が表示され古いデータで判断されないようにする
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+既存版は「日次/週次/月次集計＋3階層アラート＋6軸チェック＋3層ダッシュボード＋SSOT定義書＋CV基準閾値」まで成熟しており、運用品質は国内コンサル平均を上回る。一方、2026年最先端水準（North Star Metric × Input Metrics の二層設計、Driver Tree による因果分解、Balanced Scorecard 2026 改訂版の Sustainability/AI Readiness 軸、Smart KPI = SMART+Sensitive+Storyful、Headlights vs Taillights 区分、Tableau Pulse の自然言語 Insight Subscription、Looker Studio Gemini 連携、Hex の Notebook×BI 融合等）と比較すると以下のギャップが顕在化：
+- **(a) 北極星指標(NSM)未定義**：トップ5KPIは設定済みだが「事業の本質的価値交換」を1指標で表現するNSMと、NSMを駆動する3〜5 Input Metricsの階層が未整備。CEOが「結局どこを伸ばせばよいか」を1指標で判断できない。
+- **(b) Driver Tree（因果分解木）未実装**：KPI同士の因果関係がフラットに並んでおり、「売上低下の原因はリード数か成約率か単価か」を機械的にドリルダウンできない。
+- **(c) Balanced Scorecard 4視点の網羅性不足**：財務・顧客視点は厚いが「学習と成長（人材・AI活用度・ナレッジ蓄積）」「内部プロセス（リードタイム・歩留まり）」視点のKPIが薄い。2026改訂版で追加されたSustainability/AI Readiness軸も未対応。
+- **(d) Leading/Lagging タグ運用は導入済みだが Coincident（同時指標）の活用が浅い**。Headlights（前方視界）vs Taillights（後方確認）の比率設計が経験則ベース。
+- **(e) AIネイティブBI未連携**：Tableau Pulse / Looker Studio Gemini / Hex Magic 等の「自然言語でKPI質問→自動Insight生成」が未統合、CEOの即時意思決定支援に遅延。
+- **(f) Decision Log（意思決定ログ）未運用**：ダッシュボードを見て何を決めたかが追跡されておらず、「ダッシュボードの意思決定貢献度」を測定できない。
+- **(g) Counter-Metric（副作用監視指標）未設定**：例えば「成約率↑だが顧客満足度↓」のような最適化の副作用を構造的に監視する仕組みが弱い。
+
+### 2. 追加最先端フレームワーク（6個）
+
+#### F1. North Star Metric × Input Metrics 二層設計（Amplitude/Reforge 2026版）
+- **NSM定義条件**：①顧客が受け取る価値を表す ②継続的成長と相関する ③シンプルで誰でも理解可能 ④アクションに繋がる ⑤先行性がある
+- LET事業のNSM候補例：「月次アクティブクライアント数 × クライアント当たり納品成果物数」「QA通過率 × 納品リードタイム逆数」等を経営陣と合議で確定
+- Input Metrics（NSMを駆動する3〜5指標）を Driver Tree で接続し、各 Input にオーナー（部長エージェント）を割当
+
+#### F2. Driver Tree（因果分解木）
+- NSM を頂点に、四則演算（×/÷/+/−）で分解：例「売上 = リード数 × 商談化率 × 受注率 × 平均単価」
+- 各ノードに「実績／目標／感度（弾力性）」を表示、ボトルネック自動ハイライト
+- Notion DBで親子リレーション管理、ダッシュボード側でツリー可視化（Mermaid/D3）
+
+#### F3. Balanced Scorecard 2026改訂版（6視点）
+従来4視点（財務／顧客／内部プロセス／学習と成長）に2視点追加：
+- **Sustainability**：CO2換算・ガバナンス遵守率・社会的インパクト
+- **AI Readiness**：AI活用率・自動化率・データ品質スコア
+- 各視点に Strategic Objective → KPI → Initiative → Owner を紐付け Strategy Map で可視化
+
+#### F4. Smart KPI 7要素（SMART拡張版）
+従来 SMART（Specific/Measurable/Achievable/Relevant/Time-bound）に追加：
+- **Sensitive**：感度高く小さな変化を捉える
+- **Storyful**：物語化できる（背景・解釈・行動が語れる）
+- KPI定義書登録時に7要素チェックリストをゲート化
+
+#### F5. Headlights vs Taillights 比率設計
+- Headlights（前方視界＝Leading）：パイプライン・NPS・サインアップ等
+- Taillights（後方確認＝Lagging）：売上・解約・利益
+- Coincident（同時）：稼働率・在庫等
+- トップ5KPIの推奨比率「Headlights 3 / Coincident 1 / Taillights 1」で前方視界優位の経営判断を構造化
+
+#### F6. Counter-Metric（副作用監視）×ガードレールKPI
+- 主KPI最適化が引き起こす副作用を1対1で監視：成約率↔顧客満足度、稼働率↔離職率、納品速度↔QA通過率
+- ガードレールを下回ったら主KPI最適化を一時停止するルール（Goodhart's Law対策）
+
+### 3. 追加ツール・AI連携（4個）
+
+#### T1. Tableau Pulse（2026 GA）
+自然言語で「先月の宮村建設の解約率は？」と質問→Insight Subscriptionで関連KPIを自動配信。LETのトップ5KPIをPulse化、CEOにSlack/メールで毎朝自動Digest。
+
+#### T2. Looker Studio + Gemini 連携
+無料で導入可能、Gemini in Looker により「異常値の原因仮説を5つ生成」「来月の予測」を1クリック。日次ダッシュボードのドリルダウン補助に最適。
+
+#### T3. Hex（Notebook×BI融合）
+SQL + Python + Markdown を1ノートブックで実行し、分析→可視化→共有を一気通貫。Datとの協業に最適、月次レポートの差異要因分析を Hex App 化して再現可能に。
+
+#### T4. Anthropic Claude（Constitutional AI for KPI Narrative）
+KPI数値だけでなく「物語化（Storyful要素）」をClaudeに生成依頼：「今月の売上は前月比+15%。主因はリード数+30%だがCVRが-12%で警告」のようなナラティブを月次レポートに自動添付。
+
+### 4. アウトプットKPI（品質指標）
+
+| KPI | 目標値 | 測定方法 | レビュー頻度 |
+|---|---|---|---|
+| ダッシュボード採用率（DAU/総ユーザー） | ≥85% | ログイン解析 | 週次 |
+| 意思決定貢献度（Decision Log参照率） | ≥70% | 経営会議議事録の引用回数/全議題 | 月次 |
+| Update SLA（鮮度） | トップ5は15分以内、詳細50は24h以内 | last_updated_at監視 | 日次 |
+| データ正確性（突合一致率） | ≥99.5% | 元データとの自動突合 | 日次 |
+| アラート精度（CRITICAL真陽性率） | ≥90% | 事後判定×アラート総数 | 月次 |
+| NSM感度（Input変化→NSM反応） | 相関係数≥0.7 | 12週間回帰分析 | 四半期 |
+| KPI定義書カバレッジ | 100%（全KPIに定義） | SSOTマスター比 | 月次 |
+| CEO閲覧時間 | ≤2分でトップ5把握 | ヒートマップ計測 | 月次 |
+
+### 5. 失敗回避プロトコル（6件）
+
+#### P1. NSM未合議リリース禁止
+NSM候補をCEO/COO/全部長で3案以上比較合議。単一者判断でのNSM設定は禁止（事業の方向性を歪めるリスク）。NSM変更は四半期に1回のみ、変更時は3ヶ月の並行運用必須。
+
+#### P2. Driver Tree の「数式整合性」事前検証
+分解式の四則演算が数学的に成立するか（例：売上=リード×CVR×単価が実データで±5%以内に一致するか）を必ず3ヶ月分の実データで検証してから公開。
+
+#### P3. Counter-Metricなき最適化提案の禁止
+KPI改善提案には必ず対となるCounter-Metricを併記。例「成約率を80%→90%に上げる」提案には「顧客満足度がXX以上を維持」のガードレールを必須添付。
+
+#### P4. ダッシュボード上の「Headlights/Taillights/Coincident」タグ強制
+全KPIにタグ未付与のものは公開不可。Taillightsのみで構成された「後方確認だけのダッシュボード」を構造的に禁止し、経営判断の前方視界を確保。
+
+#### P5. AI生成Insightの「人手レビュー必須」運用
+Tableau Pulse / Gemini / Claude が生成したInsightは必ずkpiが事実確認＋出典を添えて公開（AI幻覚で誤った意思決定誘導を予防）。CRITICALアラートのAI生成解釈は2人以上で確認。
+
+#### P6. Decision Log×ダッシュボード紐付け
+ダッシュボード閲覧 → 意思決定 → 結果（後日）を必ずDecision Log（Notion DB）に記録。記録ゼロのダッシュボードは3ヶ月で廃止審査（「見られていないKPI」の構造的削減）。
+
+### 6. 並列実行プロトコル
+
+```
+入力（CEO/事業戦略）
+  ↓
+kpi（NSM/Driver Tree設計・統括）
+  ├─ 並列①：shun（採用KPI特化／HRデータ提供） ── agents/05-データ分析部/shun.md
+  ├─ 並列②：dat（高度分析／差異要因の深掘り） ── agents/15-横断チーム/dat.md
+  ├─ 並列③：haruto（戦略整合性／NSM適合性レビュー） ── agents/01-経営企画部/haruto.md
+  └─ 並列④：qa（ダッシュボード品質ゲート） ── agents/15-横断チーム/qa.md
+  ↓
+kpi（4並列結果を Driver Tree に統合・BSC 6視点でバランス確認）
+  ↓
+nori（リーガル：個人情報・財務開示適正性） ── agents/11-管理部門/nori.md
+  ↓
+sora（COO最終QA） ── agents/00-COO/sora.md
+  ↓
+CEO（HARU）報告 + Decision Log 記録
+```
+
+**並列起動ルール**：上記4並列は Agent tool 1メッセージで同時起動。互いに独立しているため依存待ちなし。所要時間：直列だと8h → 並列で2h（4倍速）。
+
+### 7. 7日間オンボーディング計画
+
+| Day | テーマ | 実施事項 | 成果物 |
+|---|---|---|---|
+| Day1 | 既存資産棚卸 | 既存KPI50指標を全件抽出、SSOT定義書との突合、Headlights/Coincident/Taillights タグ付け | KPI棚卸シート（Notion DB） |
+| Day2 | NSM候補設計 | LET事業の価値交換を3案で起案、CEO/COO/各部長に並列ヒアリング（Agent tool並列）、合議で1案確定 | NSM定義書 v1 |
+| Day3 | Driver Tree構築 | NSMを頂点に四則演算で3階層分解、各ノードに実績・目標・感度・オーナー紐付け、3ヶ月実データで整合性検証 | Driver Tree（Mermaid＋Notion） |
+| Day4 | BSC 6視点マッピング | 既存KPI＋Driver Tree要素を Sustainability/AI Readiness 含む6視点に振り分け、空白視点に新規KPI起案 | Strategy Map v1 |
+| Day5 | AIツール接続 | Tableau Pulse / Looker Studio Gemini / Hex / Claude をトップ5KPIに接続、自然言語クエリ動作確認、AI Insight人手レビュー手順整備 | AIツール接続マニュアル |
+| Day6 | Counter-Metric ＆ ガードレール設定 | 主要10KPIに対しCounter-Metricを1対1で設定、ガードレール閾値合議、アラート振り分けロジックに組み込み | Counter-Metric一覧表 |
+| Day7 | 通し運用＋Decision Log運用開始 | 1日完全運用（日次集計→Pulse配信→経営会議→Decision Log記録）、振り返り＆改善反映、sora QA最終通過 | 完了報告書＋運用引継ぎ書 |
+
+**完了条件**：①NSM＋Input Metrics 3〜5個が全部長に共有 ②Driver Tree が Notion で参照可能 ③BSC 6視点に空白なし ④AIツール3本以上が稼働 ⑤Counter-Metric が主要10KPIに設定 ⑥Decision Log が3件以上記録 ⑦sora QA 合格。
