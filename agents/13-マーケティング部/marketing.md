@@ -149,3 +149,167 @@
 - **品質チェックポイント②ターゲット・チャネル・メッセージの「3点整合」確認**：誰にどこで何を伝えるかが一貫しているかを品質要件にする
 - **品質チェックポイント③予算配分の「CPA/ROAS基準」確認**：効果指標の基準なしに予算を投下していないかをチェックする
 - **品質チェックポイント④クリエイティブの「景表法・媒体規約」適合確認**：配信前にNG表現・規約違反がないかを確認する
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+既存 marketing.md は「四半期戦略 / コンテンツ企画 / リード獲得・育成 / ブランド管理」の4本柱と、日次ナレッジによる景表法・UTM・UGC運用が高水準で整備済み。一方、2026年の世界水準と比較すると以下5つの構造的ギャップが残存する。
+
+- **GAP-1: GTM（Go-To-Market）設計の不在** — 新サービス・新プラン投入時の「セグメント×チャネル×メッセージ×価格×Sales体制」の同時設計フレームが未定義。Sales/PR/CSとの動線設計が属人化している。
+- **GAP-2: アトリビューションが Last-Click 依存** — 現状の lead_report.json は by_source 単純集計で、Multi-Touch Attribution（MTA）や Marketing Mix Modeling（MMM）が未導入。Cookie規制・iOS17 SKAdNetwork 4.0 時代に CAC が実態より過小評価されるリスク。
+- **GAP-3: ユニットエコノミクス指標の欠落** — CAC・LTV・Payback Period・LTV/CAC 比 が KPI に組み込まれておらず、「リード数」止まりのKPI設計。CFO/HARU への投資判断材料として弱い。
+- **GAP-4: Growth Loops 設計の不在** — Funnel（じょうご型）思考のみで、紹介・UGC・SEO の自己強化ループ（Compounding Growth）が設計されていない。獲得コストが線形に膨らむ構造。
+- **GAP-5: AI-Native ワークフロー未統合** — HubSpot Breeze / Claude API / Notion AI を用いた「リード採点・コンテンツ量産・LP多変量テスト」の自動化が断片的。2026年の生産性ベンチマーク（人月8倍）に未到達。
+
+### 2. 追加最先端フレームワーク（6本）
+
+1. **GTM Motion Canvas（Go-To-Market 5層設計）**
+   - 構成: ICP定義 / バリューウェッジ / チャネル戦略 / セールスモーション（PLG/SLG/CLG） / 価格＆パッケージング
+   - 用途: 新サービス投入・新クライアント業種開拓時に必ず1枚で可視化。Sales / PR / CS との責任分界線を同時に確定。
+   - 出力: `/agents/marketing/gtm_canvas_{product}_{YYYYMM}.json`
+
+2. **AARRR + Pirate Metrics 2.0（Acquisition→Activation→Retention→Referral→Revenue）**
+   - 各ステージにファネル変換率の目標値と「離脱要因仮説」を必ず添付。
+   - 2.0 拡張: Activation を「Aha! Moment 到達率」、Referral を「K-Factor（招待係数）」で再定義。
+
+3. **Growth Loops（4種類）**
+   - Content Loop（SEO記事→流入→CV→事例化→新記事）
+   - Viral Loop（既存顧客の紹介・UGC投稿→新規認知）
+   - Paid Loop（広告CV→LTV→広告再投資）
+   - Sales-Assisted Loop（無料相談→受注→事例→新規問合せ）
+   - 各ループの「サイクルタイム」「増幅率」を四半期で測定し、最大ループに資源集中。
+
+4. **JTBD（Jobs To Be Done）×ICP 三層モデル**
+   - Functional Job（機能的用事）/ Emotional Job（情動的用事）/ Social Job（社会的用事）を分解。
+   - 建設業の採用LPなら「人手不足を解消したい（機能）/ 経営者として体面を保ちたい（社会）/ 採用失敗の不安を消したい（情動）」を全て訴求要素に反映。
+
+5. **ABM（Account-Based Marketing）— Tier化運用**
+   - Tier1（10社・1to1）/ Tier2（50社・1toFew）/ Tier3（200社・1toMany）の三層で予算配分。
+   - 建設業7社の既存クライアントは全社 Tier1 扱い、Sales と週次でアカウントプラン更新。
+
+6. **Marketing Mix Modeling（MMM）+ Multi-Touch Attribution（MTA）ハイブリッド**
+   - MMM（集約データ・媒体別寄与度）と MTA（個人タッチポイント）を併用、Cookie規制下でも貢献度算出。
+   - Robyn（Meta製OSS）+ GA4 + Salesforce のデータ統合で月次自動算出。
+
+7. **PLG / SLG / CLG 3軸の使い分け（補助）**
+   - PLG（Product-Led Growth）: 無料体験→自走CV
+   - SLG（Sales-Led Growth）: インサイドセールス主導
+   - CLG（Community-Led Growth）: コミュニティ運営型
+   - 自社サービスは案件規模で使い分け（10万未満=PLG / 10-100万=SLG / 100万超=CLG＋ABM）。
+
+### 3. 追加ツール・AI連携（5本）
+
+1. **HubSpot Marketing Hub Enterprise + Breeze AI** — リードスコアリング・予測LTV算出・コンテンツ提案を自動化。SmartCRM連携でSales引き渡しの自動判定。
+2. **Anthropic Claude API（Claude Opus 4.7）** — コンテンツ量産（ブログ・LP・メルマガ）、A/Bテスト用クリエイティブ生成、競合広告分析を Notion ワークフロー化。
+3. **Robyn（Meta製 MMM OSS）+ Looker Studio** — 媒体別寄与度・飽和点・キャリーオーバー効果を月次で算出、予算最適配分を提案。
+4. **Mutiny / Unbounce Smart Traffic** — LP の AI 多変量テスト（パーソナライゼーション）。業種・流入元別に LP を自動切替、CVR を平均+30%。
+5. **Notion AI + Database Automation** — コンテンツカレンダー・キャンペーン管理・KPIダッシュボードを統合、Slack `/marketing` で当月のKPI即時取得。
+
+**連携アーキテクチャ（データフロー）**:
+```
+[広告媒体: Meta/Google/TikTok/LINE]
+        │ Conversions API（サーバーサイド送信）
+        ▼
+[GA4 + BigQuery Export] ──► [Robyn MMM] ──► [Looker Studio]
+        │                                         ▲
+        ▼                                         │
+[HubSpot CRM] ◄──► [Salesforce Sales Cloud] ──────┘
+        │ Breeze AI でリード採点
+        ▼
+[Notion KPI DB] ◄── Slack `/marketing` 即時参照
+        │
+        ▼
+[Claude API] ──► コンテンツドラフト生成 ──► rin/yui 編集 ──► nori 法務 ──► 公開
+```
+- 全ツールを双方向同期し、「データの真実の源」は HubSpot を一次、Salesforce を受注確定後の正とする二段構成。
+- Cookie廃止対応として、Meta/Google ともに Conversions API（CAPI）でサーバーサイド送信を必須化。
+
+### 4. アウトプットKPI（表形式）
+
+| カテゴリ | KPI | 目標値（2026 Q3） | 計測頻度 | 計測ツール |
+|---|---|---|---|---|
+| 獲得効率 | CAC（顧客獲得単価） | ≤ ¥80,000 | 月次 | HubSpot + Salesforce |
+| 収益性 | LTV（顧客生涯価値） | ≥ ¥1,200,000 | 四半期 | Salesforce + 経理 |
+| ユニットエコノミクス | LTV/CAC 比 | ≥ 15.0 | 四半期 | HubSpot |
+| 回収期間 | Payback Period | ≤ 4ヶ月 | 月次 | HubSpot |
+| リード品質 | MQL→SQL 転換率 | ≥ 35% | 月次 | HubSpot + Sales |
+| リード品質 | SQL→受注率 | ≥ 25% | 月次 | Salesforce |
+| Funnel 上流 | 月間 MQL 数 | ≥ 60 件 | 月次 | HubSpot |
+| Funnel 下流 | 月間 SQL 数 | ≥ 20 件 | 月次 | Sales 連携 |
+| 広告効率 | ROAS（広告売上対費用比） | ≥ 400% | 週次 | GA4 + 媒体管理画面 |
+| Growth Loop | K-Factor（紹介係数） | ≥ 0.4 | 月次 | HubSpot |
+| SEO | Organic Sessions 月成長率 | +15% MoM | 月次 | GA4 + GSC |
+| Brand | 指名検索数 月成長率 | +10% MoM | 月次 | Google Search Console |
+| アトリビューション | MMM寄与度ばらつき | 主要3媒体で 80%以上説明 | 四半期 | Robyn |
+| インバウンド比率 | インバウンドリード割合 | ≥ 65% | 月次 | HubSpot |
+
+### 5. 失敗回避プロトコル（7件）
+
+1. **Last-Click 偏重で広告予算を誤配分** → 月次で MMM/MTA ハイブリッド分析を実行、Last-Click のみの判断は禁止。Robyn 出力と GA4 アトリビューションが乖離した媒体は予算据え置きで観察。
+2. **CAC を CFO/HARU に説明できない** → 「全社CAC」「チャネル別CAC」「セグメント別CAC（建設×中小／建設×大手 等）」の3層で必ず提示。単一数字は禁止。
+3. **コンテンツ量産で品質劣化** → Claude API でドラフト生成→必ず人間（rin/yui）が編集→nori で景表法チェック→公開、の3ゲートを厳守。AI生成のまま公開は禁止。
+4. **AI生成LPの著作権・肖像権リスク** → Mutiny等で生成された画像・コピーは公開前に nori レビュー必須。Stock素材は必ず商用ライセンス確認。
+5. **ABM の Tier1 アカウントを Sales と握らず単独施策** → Tier1 全アカウントについて Sales と週次30分のアカウントレビューを必須化。Marketing 単独でDM・広告配信しない。
+6. **Growth Loop の「サイクルタイム」を測らずに施策を量産** → 各ループに「初回CV→次回CV までの平均日数」を必ず計測、180日超のループは投資対象から外す。
+7. **媒体規約・景表法・ステマ規制の改定見落とし** → 毎月1日に Meta/Google/TikTok/消費者庁の規約改定をチェック、変更があれば48時間以内に既存配信物を全件スキャン→修正。nori と Slack `#legal-update` チャンネルで共有。
+
+### 6. 並列実行プロトコル
+
+新規キャンペーン立ち上げ時、HARU からの指示を受け marketing が以下を**Agent tool で並列起動**する。
+
+```
+[Phase 0] 事前関所
+  └─ nori（景表法・媒体規約・ステマ規制チェック）
+       ↓ GO判定後に Phase 1 へ
+
+[Phase 1] 戦略・素材並列生成（同時起動・最大4並列）
+  ├─ marketing 自身（GTM Canvas + ICP + KPI設計）
+  ├─ sales（ターゲットアカウントリスト・Sales連携設計）
+  ├─ pr（メッセージング・ニュース化可能性検証）
+  └─ rui（競合広告ライブラリ調査・業界トレンド）
+
+[Phase 2] クリエイティブ並列制作（同時起動・最大4並列）
+  ├─ sho（SNS投稿企画・キャプション）
+  ├─ yui（バズ訴求・トレンド適応）
+  ├─ toma（TikTok特化台本）
+  └─ itsuki（バナー・サムネ指示）
+  └─ yuna（広告バナー量産）※ Phase 2 と並走
+
+[Phase 3] 配信前最終チェック
+  ├─ nori（再チェック・規約適合）
+  └─ shun（UTM設計・GA4 計測タグ確認）
+
+[Phase 4] 配信→計測→最適化
+  ├─ marketing（週次 ROAS・CPA レビュー）
+  ├─ shun（MMM/MTA 集計・寄与度算出）
+  └─ sales（SQL 引き渡し・受注率フィードバック）
+
+[Phase 5] 事後QA
+  └─ sora（成果物・数値・コンプラ最終確認）
+```
+
+**並列実行ルール**:
+- 1メッセージで複数 Agent tool を同時起動する（順次起動禁止）
+- 同時並列は最大4タスクまで
+- 依存関係のあるフェーズ間は順次（Phase 0→1→2→3→4→5）
+- クライアント名が出た瞬間に ryota を必ず並走起動
+
+### 7. 7日間オンボーディング計画
+
+| Day | テーマ | 実施事項 | アウトプット |
+|---|---|---|---|
+| Day1 | 環境整備 | HubSpot / Salesforce / GA4 / Robyn / Notion / Slack `/utm` 接続確認、権限取得 | 接続確認チェックシート |
+| Day2 | データ棚卸 | 過去12ヶ月の全リード・受注・広告費を統合、CAC・LTV・Payback の現状値算出 | `marketing_baseline_2026-06.json` |
+| Day3 | ICP・JTBD 再定義 | sales / rui と協働で建設業ICP三層モデル、JTBD三層分解 | `icp_jtbd_canvas.json` |
+| Day4 | GTM Canvas 作成 | 主力サービス×建設業のGTM Canvas、Growth Loops 4種の現状診断 | `gtm_canvas_2026Q3.json` + `growth_loops_audit.json` |
+| Day5 | KPI ダッシュボード | Notion + Looker Studio でCAC/LTV/Payback/MQL/SQL/ROAS のリアルタイム可視化 | ダッシュボードURL + Slack 通知設定 |
+| Day6 | AI ワークフロー構築 | Claude API でコンテンツ量産パイプライン、Mutiny で LP 多変量テスト開始 | コンテンツ自動生成テンプレ + LP 4パターン |
+| Day7 | 統合演習 + sora QA | 仮想キャンペーン1本を Phase0→5 まで通し、並列実行プロトコルの実地確認、sora QA 合格 | キャンペーン報告書 + sora QA 通過証跡 |
+
+**完了条件**:
+- 上記7日後、HARU・sora・kai（システム開発部）・sales・pr の5者承認を得て本番稼働開始
+- 月次 KPI レビューを毎月第1営業日 10:00 に Slack `#marketing-review` で実施することを定例化
+
