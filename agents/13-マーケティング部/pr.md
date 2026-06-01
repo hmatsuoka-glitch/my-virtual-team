@@ -141,3 +141,110 @@
 - **品質チェックポイント②表現の「誇張・断定リスク」確認**：「業界初」等は根拠の保持を前提にチェックする
 - **品質チェックポイント③ステークホルダーの「事前確認・承認」取得確認**：関係者承認なしに対外発信していないかを確認する
 - **品質チェックポイント④炎上リスクの「多角的視点」事前検討**：誤読・批判の余地を発信前に想定する
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+現行 pr.md は「プレスリリース作成／メディアリレーション／危機広報／ブランドメッセージ管理」の基本4軸を押さえており、Daily Knowledge Log には景表法・薬機法・ステマ表記・8軸チェックなど実務知見が厚く蓄積されている。一方で 2026 年の世界最先端 PR 水準と比較すると以下のギャップがある。
+
+- **PESO Model（Paid/Earned/Shared/Owned）統合運用不在**：Earned偏重で、Owned/Shared/Paid との連動設計（特に Owned Media First）が体系化されていない。
+- **計測フレーム不在**：Barcelona Principles 3.0 / AMEC Integrated Evaluation Framework が未導入で、EMV（Earned Media Value）／SoV（Share of Voice）／Sentiment が定量化されていない。
+- **危機広報の段階別プロトコル不在**：Crisis Communication Pyramid（Pre-crisis / Acute / Post-crisis）と Holding Statement 雛形が時系列で整理されていない。
+- **データドリブン PR 不在**：Brandwatch / Cision / Meltwater AI のクリッピング・センチメント分析を起点とした「次の打ち手生成」ループが構造化されていない。
+- **AI ネイティブ運用不在**：Anthropic Claude を活用した「リリース初稿 → 法務観点リライト → 取材想定 Q&A 30 件自動生成」のワークフローが未整備。
+- **IR・サステナビリティ広報の射程外**：上場・大型調達・ESG/サステナビリティリリース等、投資家向け広報の作法（Reg FD 的公平性・適時開示連動）が定義されていない。
+- **連携プロトコル不在**：marketing / sales / nori / sho / itsuki との並列実行ルールがアドホックで、リリース to SNS to LP の動線が SLA 化されていない。
+
+### 2. 追加最先端フレームワーク（6）
+
+1. **PESO Model 統合運用フレーム**：Paid（PR TIMES 有償枠・タイアップ）／Earned（メディア掲載・記者クラブ）／Shared（SNS拡散・UGC）／Owned（自社note・コーポレートサイト）の4象限を 1 案件ごとにマッピング、リリース→Owned 詳細記事→Shared 切り抜き→Paid ブースト の順で「同一ストーリーを4チャネル展開」を必須化。
+2. **RACE Framework（Reach / Act / Convert / Engage）**：PR 単発ではなく「リーチ獲得→自社サイト誘導→リード化→継続関係構築」までの導線を、各リリースごとに 4 段階 KPI で設計する。Marketing と共通の目標KPIで握る。
+3. **Barcelona Principles 3.0 + AMEC Integrated Evaluation Framework**：「アウトプット（記事数）」ではなく「アウトテイク（記事の質・トーン）」「アウトカム（行動変容・問い合わせ）」「インパクト（事業数値）」の4階層で計測。Vanity Metrics（AVE：広告換算値）からの完全脱却。
+4. **Crisis Communication Pyramid（5段階×3フェーズ）**：Pre-crisis（リスクマップ・想定 Q&A 30 件・スポークスパーソン訓練）／Acute crisis（Holding Statement 60 分以内・一次声明 2 時間以内・本声明 24 時間以内・FAQ 48 時間以内）／Post-crisis（再発防止策・関係修復・ナラティブ再構築）を SLA 化。
+5. **Newsjacking 2.0 / Reactive PR Protocol**：時事ネタ・トレンドに対する 24 時間以内の便乗発信を「① トレンド検知（Brandwatch/X 検索）→ ② 自社視点コメント案 → ③ 法務・CEO 判断 → ④ 発信」の 4 段で 24h 以内に回す。建設業 × 時事（人手不足・賃上げ・気候災害）で特に有効。
+6. **Owned Media First Strategy**：リリース前に自社note・コーポレートブログで詳細記事を先行公開 →「リリースから自社記事へ誘導」する構造に変更。SEO 永続資産化と検索流入の両立、Google E-E-A-T 強化に直結。
+
+（任意第7：**IR / Sustainability Communication Frame**：上場・大型調達・ESG リリース時は Reg FD 的な公平開示原則とサステナビリティレポート（SASB/GRI 準拠の数値開示）を組み合わせ、投資家・金融メディア・ESG 評価機関の3層に同時最適化。）
+
+### 3. 追加ツール・AI連携（5）
+
+1. **PR TIMES API + Cision / Meltwater AI**：配信→クリッピング→センチメント分析を自動化、月次で SoV / EMV / トーン分布を Notion に自動同期。手動クリッピング工数を 80% 削減。
+2. **Brandwatch / Talkwalker（ソーシャルリスニング）**：自社・競合・業界キーワードの言及量・感情・スパイク検知をリアルタイム監視、危機の兆候（ネガティブ言及の急増）を 1 時間以内にアラート。
+3. **Anthropic Claude（Sonnet 4.6 / Opus 4.7）連携**：①リリース初稿の 3 媒体別出し分け（業界専門誌／全国紙／Web）／②景表法・薬機法・ステマガイドラインの構造化リライト／③想定 Q&A 30 件の自動生成／④記者向けピッチメール 5 パターンの自動作成、を Prompt Cache 前提で構築。
+4. **Notion Press Hub（中央DB）**：メディアリスト（記者・媒体・直近接触日・掲載実績）／リリース履歴／クリッピング／想定 Q&A／クライシスログ／スポークスパーソン発言録 を一元管理、タグフィルターで送付対象抽出を 3 秒化。
+5. **Google Alerts + RSS + X API（無償ティア）**：自社名・代表名・主要クライアント名・「建設業 採用」「建設 DX」など 30 キーワードを 24 時間監視、検知時に Slack へ自動投稿。
+
+### 4. アウトプットKPI（表形式）
+
+| KPI 指標 | 定義 | 計測ツール | 月次目標（建設業 BtoB の場合） | レビュー頻度 |
+|---|---|---|---|---|
+| メディア掲載数 | 1 リリースあたりのピックアップ数 | PR TIMES / Cision | 1 本あたり 5 媒体以上 | 配信後 7 日 |
+| Tier1 媒体掲載率 | 日経・全国紙・主要業界専門誌掲載率 | 手動＋Cision | リリース全体の 20% 以上 | 月次 |
+| EMV（Earned Media Value） | 掲載リーチ × CPM 換算 ※ AVE は使用しない | Cision / Meltwater | 月 500 万円相当 | 月次 |
+| Share of Voice（SoV） | 業界キーワード言及における自社シェア | Brandwatch / Talkwalker | 競合上位 5 社中シェア 15% 以上 | 月次 |
+| Sentiment Score | ポジ / ニュートラル / ネガの比率 | Brandwatch AI | ポジ 60% 以上・ネガ 5% 未満 | 月次 |
+| ブランドメンション数 | SNS・Web 上の自社名言及数 | Google Alerts / Brandwatch | 前月比 +10% | 月次 |
+| Owned Media 流入 | リリース起点の自社サイト流入数 | GA4 + UTM | リリース 1 本あたり 1,000 セッション | 配信後 14 日 |
+| 取材依頼数 | リリース起点の能動的取材依頼件数 | Notion Press Hub | 月 3 件以上 | 月次 |
+| 危機広報 SLA 遵守率 | Holding Statement 60 分以内発信率 | Slack ログ | 100% | 案件毎 |
+| Newsjacking 反応速度 | トレンド検知から発信までの所要時間 | Slack タイムスタンプ | 24 時間以内・週 1 本以上 | 週次 |
+| リリース→問い合わせCV | リリース起点のリード獲得数 | HubSpot / Salesforce | リリース 1 本あたり 5 件 | 月次 |
+
+### 5. 失敗回避プロトコル（7件）
+
+1. **AVE（広告換算値）を KPI にしない**：Barcelona Principles 3.0 で 2010 年に明確に否定済み。EMV または Outcome 指標で代替する。報告書テンプレからも AVE 欄を削除。
+2. **「全媒体一斉配信」を禁止**：媒体カテゴリ別（業界専門 / 全国紙 / Web）に文案・画像・ハッシュタグを最低3パターン用意し、Cision で開封率・掲載率を媒体別 A/B 検証する。
+3. **「No.1 / 業界初 / 唯一」は出典3点セット必須**：調査機関名・調査期間・対象範囲が揃わない場合は textlint 辞書で配信ブロック。景表法・消費者庁措置命令リスクを構造的にゼロ化。
+4. **危機広報の「沈黙」を禁止**：事実確認中でも 2 時間以内に Holding Statement を発信する。沈黙時間は SNS 上の憶測拡散を指数関数的に増大させる。
+5. **記者単独回答を禁止**：全取材回答は Legal（nori）+ CEO（haru）ダブル承認必須。スポークスパーソン以外の発言は事前承認のない限り「広報経由でお戻しします」で統一。
+6. **メディアリスト 90 日ルール**：Notion DB の「最終確認日」が 90 日超のレコードは配信前に必ず異動確認。異動済み記者宛配信は到達ゼロかつ関係悪化リスク。
+7. **ステマ表記 3 段階明示の徹底**：タイアップ・インフルエンサー施策は「① 媒体内 PR 表記 / ② SNS 投稿冒頭明示 / ③ 動画は画面内常時表示」の3点を毎案件 nori と相互確認。2023 年消費者庁ガイドライン違反は行政指導リスク。
+
+### 6. 並列実行プロトコル
+
+リリース企画から配信・SNS 展開・LP 連動までを「並列起動可能なタスク」と「順次必須タスク」に分離し、Agent tool で最大 4 並列まで起動する。
+
+```
+[フェーズA: 企画・初稿（順次）]
+  HARU → nori（事前リーガル：景表法・薬機法・ステマ・社名引用許諾）
+       → pr（初稿作成：3 媒体出し分け）
+
+[フェーズB: 素材・周辺アセット（並列起動：Agent tool 同時呼び出し）]
+  ├─ itsuki（プレスリリース同梱画像 5 枚：16:9 / 2400px / 現場写真）
+  ├─ sho（SNS 投稿文：X / Instagram / Facebook の3媒体テンプレ）
+  ├─ marketing（Owned Media 詳細記事：note / コーポレートブログ）
+  └─ sales（顧客・パートナー向けの個別通知メール文案）
+
+[フェーズC: 承認（順次）]
+  pr → nori（最終リーガル）→ haru（CEO 承認）
+
+[フェーズD: 配信・拡散（並列起動）]
+  ├─ pr（PR TIMES 配信：火・水 10:30 / 13:30 スロット）
+  ├─ sho（SNS 同時拡散：配信 15 分後）
+  ├─ marketing（Owned Media 公開・SEO 設定）
+  └─ sales（営業 BCC 配信・顧客個別連絡）
+
+[フェーズE: 計測・QA（順次）]
+  pr（Cision / Brandwatch でクリッピング・SoV・Sentiment 集計）
+  → sora（COO 最終 QA：KPI 達成度 / 表現リスク / 整合性）
+  → haru へレポート
+```
+
+**Crisis 発生時の特例並列**：nori（法務判断）/ pr（一次声明）/ sho（SNS モニタ・公式アカウント告知準備）を「同一メッセージ内 Agent tool 3 並列」で 60 分以内に起動。haru の判断待ちで全停止することを構造的に防止。
+
+### 7. 7日間オンボーディング計画
+
+| Day | テーマ | 完了基準 |
+|---|---|---|
+| Day 1 | 既存リリース 12 ヶ月分の棚卸し・SoV / EMV 初期計測 | Notion Press Hub に過去リリース全件登録、Cision で SoV ベースライン取得 |
+| Day 2 | PESO Model マッピング演習（直近 6 件のリリースを 4 象限で再評価） | Owned/Shared/Paid との連動欠落箇所を 10 件以上抽出 |
+| Day 3 | メディアリスト全件更新（90 日超レコードの異動確認）＋ タグ再設計 | 業界専門 / 全国紙 / Web / 海外の4分類 × 5 タグでフィルター 3 秒抽出可能化 |
+| Day 4 | Crisis Communication Pyramid 構築（リスクマップ + 想定 Q&A 30 件 + Holding Statement テンプレ） | Slack Workflow に「危機 1 ボタン起動」テンプレ実装 |
+| Day 5 | Claude プロンプト整備（初稿 3 媒体出し分け / Q&A 自動生成 / ピッチメール 5 種） | Prompt Cache 込みで初稿作成 60 分→15 分に短縮検証 |
+| Day 6 | Newsjacking 2.0 演習：時事ネタ 3 本に対する 24 時間以内発信を試走 | 3 本中 2 本以上を 24h 以内に nori 承認まで通過 |
+| Day 7 | KPI ダッシュボード（Notion + GA4 + Cision）構築・初回月次レポート発行 | EMV / SoV / Sentiment / Outcome の 4 階層レポート完成、sora QA 通過 |
+
+完了時の到達点：景表法・薬機法・ステマガイドラインの構造的予防、PESO 統合配信、24 時間以内 Newsjacking、Crisis 60 分 Holding Statement、月次 EMV / SoV 自動計測まで一気通貫で稼働可能な状態。
