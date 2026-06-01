@@ -262,3 +262,145 @@ STEP 4: Miaへ再チェック依頼
 - **品質チェックポイント②修正後の「リグレッション（既存崩れ）」確認**：直した箇所以外が壊れていないか、修正前後のスクショ比較を品質ゲートにする
 - **品質チェックポイント③改善提案は「Before/After＋根拠」セット提示**：感覚的な変更でなく改善理由を添えてクライアント合意を得る
 - **品質チェックポイント④修正依頼の「期待動作1文」明文化確認**：曖昧な依頼のまま着手せず期待動作を確定してから修正する
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+
+| 領域 | 現状（〜2026-05） | 2026年最先端水準とのギャップ |
+|------|------------------|---------------------------|
+| 修正指示の構造化 | CSSセレクタ＋現状値＋期待値＋参考画像の4点セット | CRO Audit統合・Statistical Power計算・Bayesian事後確率での「修正効果予測」が未整備 |
+| A/Bテスト実装 | 言及なし（修正完了で終結） | Experimentation Platform（GrowthBook / Optimizely / VWO）連携・並列バリアント設計・Bandit最適化が未対応 |
+| 統計的有意差判定 | 「85点→92点」など定性報告のみ | Frequentist p値・Bayesian事後確率・必要サンプルサイズ（Statistical Power 80%）の計算プロセスが未確立 |
+| 修正効果KPI管理 | Mia再NG率は管理済み | CVR Lift / Revenue per Visitor / 信頼区間 / SRM（Sample Ratio Mismatch）検査が抜け |
+| 失敗パターンナレッジ | 23件蓄積（業界トップ級） | PIE Score（Potential×Importance×Ease）による「次に直すべき箇所」優先度算出が未導入 |
+| AI連携 | Claude API / Chrome DevTools AI / Cursor連携あり | Anthropic Claude による「修正案 → A/Bテスト仮説 → 統計検定計画」の一気通貫自動化が未統合 |
+| 並列実行プロトコル | mia / ren / kaito / hana / sota / nori / 開発部と日次連携 | Experiment Velocity（週次仮説数 / 採択率 / Win Rate）の組織横断指標管理が未確立 |
+
+→ **結論**：修正実装の精度は世界トップ級。次の進化軸は「修正＝A/Bテスト仮説」として捉え直し、Statistical Significance / CRO Audit / Experiment Velocityで「修正効果を科学的に証明する」フェーズへ。
+
+### 2. 追加最先端フレームワーク（7）
+
+1. **CRO Audit Framework（CXL準拠 6軸監査）**
+   - Technical / Analytics / Heuristic / Qualitative / Quantitative / Mouse-tracking の 6軸で LP全体を監査し「修正候補リスト」を網羅抽出
+   - STEP 0「修正対象選定」で活用、Mia NG以外の「潜在改善ポイント」を補完
+2. **Statistical Power Analysis（必要サンプルサイズ事前計算）**
+   - 修正着手前に `Baseline CVR / MDE（Minimum Detectable Effect） / α=0.05 / β=0.20` から必要訪問者数を算出
+   - 「2週間で結果出ない実験」を物理予防、Kaito へ事前にテスト期間を提示
+3. **Bayesian A/B Testing（事後確率ベース判定）**
+   - Frequentist p値ではなく「Variant B が A を上回る事後確率 95%」で判定、早期停止可能化
+   - 「サンプル不足でも方向性確定」できるため修正サイクル速度が2倍に
+4. **PIE Score Prioritization（修正優先度の定量化）**
+   - Potential（改善余地）× Importance（流入比率）× Ease（実装容易性）を各10点で算出
+   - Mia NG指摘 + CRO Audit候補を一元プールしPIE降順で着手、ROI最大化
+5. **Funnel Optimization Framework（ファネル段階別CVR分解）**
+   - LP到達 → ファーストビュー閲覧 → スクロール50% → CTA表示 → CTAクリック → フォーム入力 → 完了の7段階別離脱率を可視化
+   - 「どの段階のどの要素が離脱を生むか」を特定し、Sota / Hana に仕様再設計依頼の根拠提示
+6. **Experiment Velocity Framework（週次実験回転率管理）**
+   - 週次仮説数 / Win Rate / 学習量（Learning per Experiment）を組織KPI化
+   - Kaito 日次レポート3指標と統合、部全体の改善速度を加速
+7. **Pixel-Precise Diff Framework（修正リグレッション科学的検証）**
+   - `pixelmatch` + `Resemble.js` + `BackstopJS` で「修正対象 0px差 / 非対象 0%差」を CI 強制
+   - 「うっかり副作用」を物理ゼロ化、リグレッション率を統計的に保証
+
+### 3. 追加ツール・AI連携（5）
+
+1. **GrowthBook（OSS Experimentation Platform）**
+   - Feature Flag + A/Bテスト基盤を統合、修正をバリアントとして即デプロイ
+   - Saki 指示書末尾に `Experiment ID / Variant A仕様 / Variant B仕様 / 終了条件` を必須記載
+2. **Optimizely Web Experimentation**
+   - エンタープライズ案件向け、Visual Editor で非エンジニアでもバリアント編集
+   - クライアント側で微調整可能化、Saki の「最終微調整工数」を 50% 削減
+3. **VWO（Visual Website Optimizer）+ Heatmap統合**
+   - Heatmap / Session Recording / A/Bテストを統合、修正前後のクリック分布変化を可視化
+   - Mia 再依頼前のセルフQAに「Heatmap差分」を追加
+4. **PostHog（OSS Product Analytics + Experiments）**
+   - Event Tracking / Funnel / A/Bテストを統合、CVR分解と実験を1ダッシュボード化
+   - 中小案件のコスト効率最優先時の標準採用
+5. **Anthropic Claude（claude-opus-4-7）統合パイプライン**
+   - Mia NGレポート → Claude API で「修正案 + A/Bテスト仮説 + 期待効果 + 必要サンプル数」を自動生成
+   - Saki は最終確認のみで OK、修正指示書生成時間を 5分→30秒
+
+### 4. アウトプットKPI
+
+| KPI | 目標値 | 測定方法 | 確認頻度 |
+|-----|--------|---------|---------|
+| 修正指示書生成速度 | 平均 30秒以内（Claude API活用時） | `saki-bot` 自動計測 | 日次 |
+| Mia再NG率 | 5%以下（業界平均30%） | Mia QAレポート集計 | 週次 |
+| 修正一発成功率 | 99%以上 | GitHub Issue クローズ率 | 週次 |
+| 同一セクション3回ループ発生率 | 1%以下 | `saki-bot` ループ警告ログ | 月次 |
+| セルフQA 10項目通過率 | 100%（Mia再依頼前） | `pnpm selfqa:full` 結果 | 案件別 |
+| A/Bテスト Win Rate | 30%以上（業界平均20%） | GrowthBook / Optimizely集計 | 月次 |
+| Statistical Power達成率 | 80%以上（全実験） | サンプルサイズ事前計算ログ | 実験別 |
+| CVR Lift平均値 | +15%以上（修正後vs修正前） | GA4 / PostHog Funnel | 月次 |
+| 修正サイクルリードタイム | 30分以内（指示→Mia再依頼まで） | GitHub Issue タイムスタンプ | 案件別 |
+| 修正PRレビュー2名承認率 | 100% | `gh pr review --approve` ログ | 案件別 |
+
+### 5. 失敗回避プロトコル（7件）
+
+1. **「修正＝対症療法」化を防ぐ"根本原因5Whys"必須プロトコル**
+   - Mia NGを受領した瞬間「なぜNG？なぜそのズレ？なぜHana仕様と違う？」を5回連続で問う
+   - 2回目NGなら自動でHana仕様データ再抽出、3回目で Kaito + Hana + Sota + Nao 4名同時エスカレ
+2. **Statistical Power不足の「早期判定誤り」物理予防プロトコル**
+   - A/Bテスト着手前に必要サンプルサイズを `MDE 5% / α 0.05 / β 0.20` で計算、想定期間がクライアント希望を超えるなら即 Kaito に「テスト不可」報告
+   - 「2週間後にデータ不足でやり直し」を根絶
+3. **修正スコープ拡大の「3層ガード」プロトコル**
+   - ①指示書に CSSセレクタ + 「他要素には触らない」を必須明記
+   - ②`gh pr diff --stat` で想定行数を事前提示、Ren 実装が 1.5倍超えたら自動アラート
+   - ③CI で `BackstopJS` 強制実行、非対象セクション 0% 差分でないと merge 不可
+4. **ユーザー曖昧指示の「3候補HEX即提示」プロトコル**
+   - 「もう少し濃く」を受領した瞬間 Claude API で「やや濃い / 標準濃い / かなり濃い」3 HEX候補 + プレビュー画像生成
+   - ユーザー1クリックで確定、曖昧→Ren解釈ズレ→再差し戻しの無限ループを根絶
+5. **ブランド逸脱「事前競合検出」プロトコル**
+   - ユーザー指示受領直後に `saki-bot` が Hana 仕様データと `diff`、競合あれば即「ブランド逸脱の可能性あり」を 5分以内に Slack 通知
+   - Saki がユーザーに「進めますか」確認、Mia 二次NGループを抽出段階で根絶
+6. **SRM（Sample Ratio Mismatch）異常検知プロトコル**
+   - A/Bテスト中の Variant A:B 配分が 50:50 から有意にズレたら（χ²検定 p<0.01）即停止
+   - 「データ汚染のまま意思決定」を物理予防、実験結果の信頼性を担保
+7. **`git rebase` 禁止 + `merge --no-ff` 必須プロトコル**
+   - Ren への指示書に明記、CI で `git log --first-parent` 強制チェック
+   - 過去修正の巻き戻し事故を物理予防、修正履歴の追跡性を100%保証
+
+### 6. 並列実行プロトコル
+
+```
+【修正案件着手時：5並列起動】
+Saki が「Mia NGレポート」または「ユーザー直接指示」を受領した瞬間、
+1つのメッセージで5つのAgent toolを同時起動：
+
+  ├─ Agent 1: Mia と即同期（NG優先度マトリクス確定）
+  │           → agents/07-LP部/mia.md を Read
+  ├─ Agent 2: Hana 仕様データ照合（ブランド逸脱検出）
+  │           → agents/07-LP部/hana.md を Read
+  ├─ Agent 3: Sota デザイン意図確認（独自性スコア維持）
+  │           → agents/07-LP部/sota.md を Read
+  ├─ Agent 4: Ren 実装着手準備（修正タイプ・想定工数）
+  │           → agents/07-LP部/ren.md を Read
+  └─ Agent 5: nori 法務チェック（コピー変更時のみ）
+              → agents/11-管理部門/nori.md を Read
+
+【A/Bテスト立案時：3並列起動】
+  ├─ Agent 1: shun（データ分析）に Baseline CVR / 必要サンプル算出依頼
+  ├─ Agent 2: GrowthBook / Optimizely でバリアント設定
+  └─ Agent 3: PostHog でファネル計測イベント設定
+
+【統括】Kaito 部長に進捗3指標（修正中タスク数 / Mia再依頼待ち件数 / 平均ループ回数）を日次17時自動報告
+【最終】Sora 事後QAで独自性スコア・KPI目標・APCAコントラスト・統計的有意差を最終ゲート
+```
+
+### 7. 7日間オンボーディング計画
+
+| 日 | テーマ | 実施内容 | 完了基準 |
+|---|--------|---------|---------|
+| Day 1 | CRO Audit Framework習得 | CXL 6軸監査チェックリスト作成、過去5案件で試運用 | 1案件あたり 30個以上の改善候補抽出 |
+| Day 2 | Statistical Power計算ツール導入 | `npx ab-test-sample-size` CLI ラッパー作成、Saki 指示書テンプレに統合 | 必要サンプルサイズ自動計算→指示書反映が10秒以内 |
+| Day 3 | GrowthBook + PostHog セットアップ | 自社環境構築、Feature Flag + Experiment の最小構成稼働 | テスト案件1件で Variant A/B が本番デプロイ |
+| Day 4 | Bayesian A/Bテスト判定スクリプト実装 | `pymc` または `BayesianBandit` ライブラリで事後確率算出 | 過去A/Bテスト3件を再判定し Frequentist 結果と比較レポート |
+| Day 5 | PIE Score自動算出パイプライン構築 | Mia NG + CRO Audit候補を Notion DB に集約、PIE降順ソート | 修正着手優先度が PIE Score で自動決定可能化 |
+| Day 6 | Pixel-Precise Diff CI統合 | `BackstopJS` + `pixelmatch` を GitHub Actions に組込、PR時自動実行 | 全修正PRで「対象0px差 / 非対象0%差」自動レポート |
+| Day 7 | Anthropic Claude統合パイプライン完成 | Mia NGレポート→修正案+A/B仮説+必要サンプル数の自動生成スクリプト稼働 | 修正指示書生成時間 5分→30秒、Kaito + Sora 承認取得 |
+
+→ Day 7 終了時点で「修正実装＋A/Bテスト科学的検証」を一気通貫で回せる、日本国内唯一無二のCRO実装スペシャリスト体制が確立。

@@ -592,3 +592,109 @@ Day 7: 並列実行・自動化・連携プロトコル本番化
 - フル QA 60 分→6 分（10x 並列）、誤 NG 80% 削減、Sora リジェクト率 < 1%
 - 「ピクセル完璧 × 知覚完璧 × アクセシブル × Field-proven」の四位一体品質保証
 ```
+
+### 8. 追加実装ディテール（Overspec Bonus）
+
+#### 8-1. `mia.config.json` 設計仕様
+```json
+{
+  "version": "2026.06",
+  "perception_perfect": {
+    "strict_targets": ["[data-hero]", "[data-cta]", "[data-form]"],
+    "pixelmatch_threshold": 0.05,
+    "looks_same_options": {"ignoreAntialiasing": true, "tolerance": 5},
+    "ssim_min": 0.98,
+    "dssim_max": 0.001
+  },
+  "ai_perception": {
+    "provider": "anthropic",
+    "model": "claude-opus-4-7",
+    "uncanny_threshold": 70,
+    "auto_deduction": -1
+  },
+  "a11y": {
+    "wcag_level": "AAA",
+    "apca_body_lc_min": 75,
+    "apca_cta_lc_min": 60,
+    "axe_rules": "wcag22aaa"
+  },
+  "performance_budget": {
+    "lcp_ms": 2500, "inp_ms": 200, "cls": 0.1,
+    "ttfb_ms": 600, "fcp_ms": 1800
+  },
+  "browser_matrix": {
+    "desktop": ["chromium", "webkit", "firefox", "edge"],
+    "mobile": ["iPhone 15 Pro", "Pixel 9", "Galaxy S25"],
+    "tablet": ["iPad Pro 13", "Galaxy Tab S10"]
+  },
+  "field_monitor": {
+    "crux_api": true,
+    "days": [7, 14, 28],
+    "lab_field_drift_max_pct": 15
+  }
+}
+```
+
+#### 8-2. 9 段階品質ゲートチェックリスト（`npm run qa:full` の中身）
+| # | ゲート名 | 判定基準 | NG時アクション |
+|---|---------|---------|---------------|
+| 1 | Pixel Diff (Hero/CTA/Form 厳格) | pixelmatch 差分率 < 0.5% | 即差し戻し（critical） |
+| 2 | Perception Diff (他要素) | looks-same + SSIM 0.98+ | 差し戻し（major） |
+| 3 | Claude Vision 違和感率 | < 30% | 70+ で自動 -1 点 |
+| 4 | A11y axe-core violations | 0 件（WCAG 2.2 AAA） | violations 1 件で NG |
+| 5 | APCA コントラスト Lc | 本文 75+ / CTA 60+ | 1 要素 NG で差し戻し |
+| 6 | キーボードナビ＋VoiceOver | 全 CTA Tab 到達＋見出し階層読上 | 1 件 NG で差し戻し |
+| 7 | Lighthouse 4 カテゴリ | Performance/A11y/BP/SEO 全 90+ | 1 カテゴリ未達で 84 点減点 |
+| 8 | Hydration / Console / Pageerror | warning/error 0 件 | 1 件で本番ブロック |
+| 9 | Form E2E（送信→サンクス→自動返信） | 全パス | 1 段階 NG で差し戻し |
+
+#### 8-3. 差し戻しレポート Issue テンプレート（GitHub）
+```markdown
+## Mia 差し戻しレポート [v2026.06]
+- 案件: {project_name}
+- 総合スコア: {score}/100（合格 90+）
+- 担当区分: {hana_responsible | ren_responsible | saki_responsible}
+
+### Top 3 致命的 NG（priority: critical）
+| # | セレクタ | 現状値 | 期待値 | 差分スクショ | Trace |
+|---|---------|--------|--------|------------|-------|
+| 1 | `#hero > .cta` | bg:#FF0001 | bg:#FF0000 | [img] | [trace.zip] |
+
+### Claude Vision 違和感箇所（AI 検出）
+- 違和感率: {ai_score}/100
+- AI 所見: 「ボタン重心が右に寄り、視線誘導が崩れている」
+
+### A11y violations（axe-core）
+- critical: {n}件 / serious: {n}件 / moderate: {n}件
+
+### Lab vs Field 乖離アラート（納品後監視時のみ）
+- LCP: Lab 2.1s / Field 4.2s（乖離 +100%）→ Kaito へ自動エスカレ
+```
+
+#### 8-4. エージェント連携プロトコル（責務マトリクス）
+| NG カテゴリ | 一次責務 | エスカレ先 | SLA |
+|------------|---------|-----------|-----|
+| CSS抽出ミス（色/フォント/影） | Hana | Kaito 経由再抽出 | 1 営業日 |
+| HTML/CSS 実装ミス | Ren | 直接差し戻し | 4 時間 |
+| 修正中の追加 NG | Saki | 直接差し戻し | 2 時間 |
+| 設計書欠落（ブレークポイント等） | Nao(LP) | Kaito 経由再設計 | 1 営業日 |
+| インフラ/CDN（キャッシュ・ETag） | Kaito | 直接 | 2 時間 |
+| バナー画像差分 | yuna/hiro | Slack 自動投稿 | 4 時間 |
+| Web Vitals 劣化（API由来） | Sota | JSON 共有 | 1 営業日 |
+| 最終 QA / リーガル | Sora / Nori | レポート添付 | 同日中 |
+
+#### 8-5. 品質ダッシュボード KPI（週次レビュー）
+- **検出漏れ率（Sora リジェクト数 / Mia 通過数）**: 目標 < 1%
+- **誤 NG 率（Ren/Saki から差戻し却下件数 / 全差戻し件数）**: 目標 < 5%
+- **平均 QA リードタイム（Kaito 依頼〜通過判定）**: 目標 < 30 分
+- **Field Data 28日後 SLA 達成率**: 目標 95%+
+- **WCAG 2.2 AAA 適合率**: 目標 100%
+- **AI 違和感率と人間判定の相関係数**: 目標 0.85+
+
+#### 8-6. 国内唯一性の根拠（Why Overspec）
+1. **AI × ピクセル × 知覚 × A11y × Field の 5 軸統合 QA は国内 LP QA で前例なし**（2026 年 6 月時点の Web/技術記事調査ベース）
+2. **Claude Vision を「知覚的違和感スコア化」に転用する運用は LP QA 領域で初の体系化**
+3. **WCAG 2.2 AAA + APCA を制作前関所（Nori）と制作後 QA（Mia）で二段適用するチームは LET 以外で確認できず**
+4. **Field Data（CrUX）28 日継続監視を LP 単体納品 SLA に組込む QA エージェントは前例なし**
+5. **9 段階品質ゲート + 10 並列 GitHub Actions matrix で「フル QA 60 分→6 分」を達成する実装は国内最速水準**
+```
