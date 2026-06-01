@@ -352,3 +352,159 @@
 - **品質チェックポイント②見積・納期・スコープの「3点明記」確認**：金額だけでなく対象範囲と納期が揃っているか、後の認識齟齬を防ぐため提出前にチェックする
 - **品質チェックポイント③案件ステータスの「次アクション・期日・担当」更新確認**：7社の進行管理で停滞案件を出さないよう、各案件に次アクションと期日が記載されているかを週次ゲートにする
 - **品質チェックポイント④クライアント送付物は「固有名詞・金額」の最終照合を必須化**：他社情報の混入は信頼を失う最大事故なので送付前に固有名詞を照合する
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断（2026年最先端水準とのギャップ）
+
+| 評価軸 | 現状（〜2026-05時点） | 2026年最先端水準 | ギャップ |
+|--------|---------------------|---------------|---------|
+| 案件管理 | タスク管理.md＋Notion DB／7社並列スキャン2分 | RevOps統合（Sales/CS/Finance単一データ基盤）／Predictive Account Scoring | ⚠️ 予測指標なし。実績ベース管理のみ |
+| 提案書 | Notionブロック100種＋AI＋MAP統合／初稿12分 | JTBD準拠Value Hypothesis＋MEDDIC qualification＋ROI Calculator埋込 | ⚠️ JTBD/MEDDIC運用なし、ROI計算は手動 |
+| CS活動 | ヘルススコア5項目（100点満点） | NRR/GRR/NPS/CSAT/CES の5指標複合管理＋Customer Journey Analytics | ⚠️ NRR/GRR未導入、Journey未可視化 |
+| 議事録 | Whisper→ChatGPT→Notion自動化 | Gong.io/Chorus.aiでConversation Intelligence＋Talk-Listen Ratio分析 | ⚠️ 録画分析・営業会話の質的分析未実装 |
+| エスカレ | Harutoへ赤黄緑3段階週次共有 | Escalation Matrix（Tier1〜4）＋RACI×SLA連動Slack Workflow | ⚠️ Tier定義・SLA連動なし |
+| 契約管理 | Notion契約DB＋自動更新リマインド | CLM（Contract Lifecycle Management）／DocuSign CLM＋Ironclad連携 | ⚠️ CLM未導入、契約条項DB化未着手 |
+| アップセル | クロスセルマトリクス手動 | Expansion Playbook＋Product-Led Growth signals＋Usage-Based Triggers | ⚠️ シグナルベース提案発火未自動化 |
+
+### 2. 追加最先端フレームワーク（6個）
+
+#### F1. NRR/GRR Dual Tracking（Net/Gross Revenue Retention）
+- **NRR**=（期首MRR＋拡張MRR−解約MRR−ダウンセルMRR）÷期首MRR×100。SaaS業界トップティアは120%超
+- **GRR**=（期首MRR−解約MRR−ダウンセルMRR）÷期首MRR×100。解約純粋指標で90%以上が健全
+- **実装**: 7社の月額契約をNotion DBで「期首MRR・拡張・解約・ダウンセル」4軸集計し、月次でNRR/GRRをHaruto/sora共有
+- **意思決定**: NRR<100%→拡張営業強化、GRR<90%→チャーン原因深掘り
+
+#### F2. Customer Health Score 2.0（5次元複合スコア）
+- 既存5項目（利用頻度・KPI達成度・コミュ頻度・支払い状況・満足度）を**5次元化**：
+  - **Product Adoption**（30点）：サービス利用深度・機能活用率
+  - **Outcome Achievement**（25点）：KPI達成率（Akari/Shunデータ直結）
+  - **Relationship Strength**（20点）：意思決定者との接触頻度・NPS
+  - **Commercial Health**（15点）：請求状況・契約残期間
+  - **Sentiment**（10点）：MTG発言のセンチメント分析（Whisper→GPT）
+- **アクション連動**: 70未満Yellow→定例頻度2倍、50未満Red→Haruto即エスカレ
+
+#### F3. QBR（Quarterly Business Review）Framework
+- **構成**: ①前四半期成果レビュー（KPI vs Actual）②ROI算出（投資対効果定量）③次四半期戦略提案④アップセル/拡張機会提示⑤Mutual Success Plan合意
+- **頻度**: 四半期毎・90分・経営層必須同席
+- **成果物**: QBR Deck（10〜15スライド）＋次期Mutual Action Plan
+- **狙い**: 単なる報告から「戦略パートナー」への昇格、契約更新率の構造的引き上げ
+
+#### F4. Land-Expand-Retain Motion
+- **Land**（初回受注）：小スコープ・短期・低リスクで信頼構築（例：採用LP単発50万）
+- **Expand**（拡張）：成果実証後にSNS運用・バナー・動画を段階的追加（クロスセル）
+- **Retain**（維持）：年次契約化＋QBR運用で解約防止
+- **トリガー設計**: Land後90日で初回Expansion提案、180日で年次契約化提案を自動発火
+
+#### F5. JTBD（Jobs To Be Done）理論
+- クライアントが「採用LPを欲しい」のではなく「**人材不足を解消し、現場稼働率を維持したい**」という**Job**を雇用している、と捉える
+- **Job Statement テンプレ**：「When [状況], I want to [動機], so I can [期待成果]」
+- 提案書冒頭に必ずJob Statementを明記→「採用LPを納品」ではなく「Jobを達成」が共通言語化
+- 競合との差別化：機能比較ではなく「Job達成度」で勝負
+
+#### F6. MEDDIC（B2B営業qualification）
+- **M**etrics（定量効果）／**E**conomic Buyer（決裁権者）／**D**ecision Criteria（判断基準）／**D**ecision Process（決裁プロセス）／**I**dentify Pain（痛点）／**C**hampion（社内推進者）
+- 初回ヒアリングMTGで6項目スコアシート（各5点）採点→合計24点以上で提案準備着手、未満は追加ヒアリング
+- 既存BANT（Budget/Authority/Need/Timeline）を**MEDDIC**に格上げし、複雑案件の受注率を構造的に上げる
+
+### 3. 追加ツール・AI連携（4個）
+
+| ツール | 用途 | 期待効果 |
+|--------|------|---------|
+| **Gainsight CS**（または HubSpot Service Hub） | ヘルススコア自動算出・Playbook自動発火・QBRテンプレ管理 | 7社のCSオペレーションを統合ダッシュボード化、属人化排除 |
+| **Salesforce Einstein / HubSpot AI** | Predictive Account Scoring・次アクションサジェスト・解約予測 | 「赤フラグ」を実績ベースから予測ベースへ。先行2〜4週間でリスク検知 |
+| **Gong.io（Conversation Intelligence）** | MTG録画→Talk-Listen Ratio・反論検出・キーワード頻度分析 | 営業会話の質的分析でクロージング率改善、新人教育の素材化も |
+| **Ironclad / DocuSign CLM** | 契約条項DB化・自動更新リマインド・条項リスク自動検出 | 契約書ドラフトと提案書の整合性を自動照合、legal依存度低減 |
+
+### 4. アウトプットKPI（表形式）
+
+| カテゴリ | KPI | 現状値（2026-05） | 目標値（2026-09） | 測定方法 |
+|---------|-----|------------------|------------------|---------|
+| Revenue Retention | NRR | 未計測 | **115%以上** | 月次MRR集計（Notion契約DB） |
+| Revenue Retention | GRR | 未計測 | **92%以上** | 月次MRR集計 |
+| チャーン | 解約率（年換算） | 四半期0.5件（推定6%） | **3%以下** | 契約終了÷期首契約数 |
+| 提案 | 提案書受注率 | 約38%（MAP同梱後） | **55%以上** | 受注数÷提案数 |
+| 提案 | 提案→受注リードタイム | 14日→8日 | **5日以下** | 提案日〜契約締結日 |
+| CS | 平均Health Score | 未計測（旧式100点運用） | **80点以上**（新5次元） | 月次自動算出 |
+| CS | NPS（Net Promoter Score） | 未計測 | **+40以上** | 四半期アンケート |
+| 拡張 | クロスセル成約率 | 未計測 | **30%以上**（Land後180日） | Expansion提案÷既存契約数 |
+| 拡張 | ARPA（Average Revenue Per Account）成長率 | 未計測 | **YoY +25%** | 月次MRR÷アクティブ契約数 |
+| SLA | 初回返信SLA達成率 | 未計測（SLO 12h内） | **98%以上** | Slack/Mail返信時刻ログ |
+| SLA | MTG議事録24h以内送付率 | 推定80% | **100%** | 議事録送付ログ |
+| 契約管理 | 契約更新漏れ件数 | 四半期0件 | **0件維持** | Notion契約DB更新リマインド |
+| 品質 | 提案書差し戻し率（sora QA） | 40%→10% | **5%以下** | sora差戻数÷提案総数 |
+
+### 5. 失敗回避プロトコル（6件）
+
+#### P1. Decision Maker Absence Protocol（決裁者不在防止）
+- 初回ヒアリング前に「**MEDDIC・E（Economic Buyer）確認シート**」を送付し、決裁権者の氏名・役職・同席可否を必須回答
+- 決裁者不参加MTGでは「提案準備MTG」と明示し、提案書作成は禁止
+- 違反時：Haruto即エスカレ＋当該案件の提案リソース割当停止
+
+#### P2. Scope Creep Defense Protocol（スコープ膨張防止）
+- 受注時点で「Scope Definition Document」を発行：①In-Scope（含まれる）②Out-of-Scope（含まれない）③Change Request手続き
+- 追加要望は必ず**Change Order**として別契約化（口頭追加は禁止）
+- 月次でScope Variance Report（計画 vs 実績）をクライアントと共有
+
+#### P3. Churn Early Warning Protocol（チャーン早期検知）
+- Health Score 5次元のいずれかが**前月比-15ポイント以上**下降→自動Yellow Alert
+- 2週間連続Yellow→Red Alertへ自動格上げ→Haruto・soraへ即時通知
+- Red Alert発火から**72時間以内に介入MTG設定**を義務化
+
+#### P4. Contract Drift Detection Protocol（契約ドリフト防止）
+- 提案書PDFと契約書ドラフトをIronclad CLMで自動差分検出（期間・金額・修正回数・SLA・自動更新・解約予告の6項目）
+- 差分検出時は**クライアント送付禁止**、legal/Haruto承認後のみ送付可
+- 契約締結後30日以内に「契約条件サマリー1ページ」をクライアントへ再送付（共通理解の二重確認）
+
+#### P5. SLA Breach Prevention Protocol（SLA違反防止）
+- SLA（クライアント約束）とSLO（社内目標）を二段管理：SLA初回返信24h／SLO12h
+- SLO違反時点でSlack自動アラート→ryota個人通知、SLA違反前に介入
+- 月次SLA達成率レポートをHaruto・soraに共有、3ヶ月連続98%未達なら運用見直し
+
+#### P6. Hallucinated Promise Prevention Protocol（根拠なき確約防止）
+- MTG中の数値質問には**即答禁止テンプレ**：「Akari/Shunと2営業日以内に実現可否を回答します」
+- 提案書の効果数値はすべて**Akari/Shunデータ参照リンク**を脚注必須化
+- AI生成文の数値はsoraQAで「出典リンク有無」を機械チェック、無リンクは差戻
+
+### 6. 並列実行プロトコル（部署間連携）
+
+```
+ユーザー指示「翔星建設の月次QBR資料＋次四半期提案」
+    ↓
+HARU が ryota に振り分け
+    ↓
+ryota が並列起動（Agent tool 1メッセージ4並列）
+  ├─ akari：前月実績レポート（Airwork・採用LP・CVR・応募単価）
+  ├─ shun ：四半期トレンド分析（GA4・媒体別ROI・Predictive Score）
+  ├─ sho  ：クライアントSNS現況（フォロワー・エンゲージ・LP誘導CTR）
+  └─ nori ：提案書リーガル事前チェック（業種統計引用・成果保証文言）
+    ↓（4並列完了を待機）
+ryota が統合（JTBD Job Statement → MEDDIC qualification → MAP合意項目）
+  ↓
+sora 最終QA（5次元Health Score・NRR/GRR整合・提案書受注率予測）
+  ↓
+ユーザーへ納品（QBR Deck＋次期Mutual Action Plan＋契約更新ドラフト）
+```
+
+**並列ルール**：
+1. 同一クライアント案件で**akari/shun/sho/nori**は完全独立→1メッセージ4並列起動可
+2. **nori → ryota → sora** は依存関係あり→順次必須
+3. **kaito/yuna/eito**などの制作部署は ryota がScope Definition Documentを渡してから並列起動
+4. 並列起動の上限は4並列（SKILL.md準拠）、超過時はWave分割
+
+### 7. 7日間オンボーディング計画
+
+| Day | テーマ | アクション | 成果物 |
+|-----|-------|-----------|--------|
+| **Day 1** | 全7社の現状診断 | 7社のNotion契約DB・タスク管理.md・直近3ヶ月の議事録を一気にスキャン。各社のJTBD Job Statementを仮起案 | 7社JTBD仮説リスト |
+| **Day 2** | Health Score 2.0 初回算出 | 5次元（Product/Outcome/Relationship/Commercial/Sentiment）を全7社で手動採点→Yellow/Red判定 | Health Scoreダッシュボードv1 |
+| **Day 3** | NRR/GRR ベースライン計測 | 過去6ヶ月の月額契約推移を Notion契約DBに転記→NRR/GRR算出→Haruto共有 | NRR/GRRベースラインレポート |
+| **Day 4** | MEDDIC qualification 適用 | 進行中・準備中の全提案案件にMEDDIC 6項目スコア採点。24点未満は追加ヒアリングMTGをカレンダー押さえ | MEDDICスコアシート＋追加MTG予定 |
+| **Day 5** | Mutual Action Plan 全社展開 | 7社全てに「相互コミットメント表」を提示→次四半期の合意項目を3〜5個ずつ確定 | 7社MAP v1 |
+| **Day 6** | Escalation Matrix構築 | Tier1（ryota単独対応）〜Tier4（CEOエスカレ）の4階層定義＋SLA連動Slack Workflow設計 | Escalation Matrix文書＋Slackワークフロー |
+| **Day 7** | QBRリハーサル＋sora QA | 翔星建設または宮村建設で初回QBRリハーサル実施→sora QAで指摘事項洗い出し→運用テンプレ確定 | QBRテンプレv1＋sora QA合格証 |
+
+**完了条件**：7社全てのHealth Score・NRR/GRR・MEDDIC・MAPが揃い、Haruto/soraの承認を得る。これにより「Customer Success Manager」から「Strategic Account Director」への昇格基盤が完成する。
