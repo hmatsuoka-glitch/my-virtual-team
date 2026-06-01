@@ -143,3 +143,74 @@
 - **品質チェックポイント②取得データの「件数・NULL率・型」の3指標サニティチェック**：クローラ出力を格納前に件数の前日比・NULL率・スキーマ型をチェックし、異常値は格納を止める
 - **品質チェックポイント③タイムゾーン・文字コードの統一確認**：複数ソース統合時のTZ/エンコーディング不整合は集計を静かに狂わせるため、変換層で統一されているかをチェックする
 - **品質チェックポイント④パイプライン障害時の「アラート＋リカバリ手順」整備確認**：失敗が検知されず古いデータが配信される事故を防ぐため、監視と復旧手順がドキュメント化されているかを確認する
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+| 領域 | 現状（〜2026-05時点） | 2026年最先端水準 | ギャップ |
+|---|---|---|---|
+| データ取り込み | クローラー＋Airflow手書きETL／JSON出力 | Declarative ELT（dbt + Fivetran/Airbyte）＋CDC（Change Data Capture）＋イベント駆動 | ❌ CDC未導入／❌ 宣言型ELT未統一 |
+| 変換層 | dbt model化を開始 | dbt Mesh（複数プロジェクト連携）／SQLMesh／semantic layer による KPI定義の単一ソース化 | ⚠️ Mesh／Semantic Layer 未導入 |
+| データ品質 | 4点ゲート＋3階層アラート | Great Expectations 1.x／Soda Cloud／Monte Carlo データオブザーバビリティ＋自動データドリフト検知 | ⚠️ オブザーバビリティ単発で、データリネージ可視化未整備 |
+| データガバナンス | カタログ手書き→dbt docs 自動化 | OpenMetadata／DataHub による全社カタログ＋PII自動検出＋アクセスポリシー as Code | ❌ PII自動分類未実装 |
+| MLOps連携 | 分析系（Shun）への提供のみ | Feature Store（Feast）／オンライン特徴量配信／モデル再学習トリガー | ❌ Feature Store 未保有 |
+| ストリーミング | バッチ中心（hourly〜daily） | Kafka／Materialize／RisingWave による秒〜分単位リアルタイム集計 | ❌ ストリーミング基盤未整備 |
+| AI連携 | クエリ手書き／Looker Studio埋込 | Text-to-SQL（Vanna.AI／LangChain SQL Agent）＋AI Data Quality Copilot | ⚠️ Text-to-SQL の社内導入未着手 |
+
+### 2. 追加最先端フレームワーク（6個）
+1. **dbt Mesh + SQLMesh ハイブリッド**: 部署別dbtプロジェクト（05-データ／04-クライアント／02-SNS）をMesh化し、SQLMeshで「仮想環境＋差分実行＋自動ロールバック」を取り込み。デプロイ事故率を構造的にゼロ化。
+2. **Great Expectations 1.x + Soda Core デュアル品質ゲート**: GEで「契約ベース」、Soda Coreで「SLA監視」を二重実装。4点ゲートを20点に拡張し、`expectation_suite` を Git管理＋PRレビュー化。
+3. **OpenMetadata + Amundsen 統合カタログ**: dbt docs を取り込み、PII自動分類（PresidioベースのNERでメール／電話／応募者名を自動マスク候補化）まで一気通貫。
+4. **Feast Feature Store**: 採用CVR・SNS Save Rate・建設業地域別ヒートマップを「特徴量」として登録し、Shun／Akari／Dat の分析・MLモデルへ統一APIで提供。
+5. **Materialize（or RisingWave）ストリーミングSQL**: Airwork応募イベントをKafka経由で取り込み、「直近5分の応募CVR」を秒単位で更新するマテリアライズドビューを構築。
+6. **DataContract CLI（PyDantic-based Data Contracts）**: 上流（クローラー）と下流（Shun／Akari／Dat）の間に「データ契約」をYAMLで定義。スキーマ破壊変更を PR時点でCIブロック。
+7. **DuckDB + MotherDuck ローカル巨大データ解析**: 数十GBのログを Snowflake課金せずローカル分析。Shun との探索的分析セッションで「秒で集計」を実現。
+
+### 3. 追加ツール・AI連携（5個）
+1. **Vanna.AI（Text-to-SQL）+ 社内データカタログRAG**: Akari／Ryotaが日本語で「翔星建設の先月CVR」と聞くと、dbt semantic layer 経由でSQL自動生成＋実行＋根拠カラムの提示。
+2. **Monte Carlo Data Observability（または Bigeye）**: 自動異常検知（ボリューム／鮮度／スキーマ／分布）。学習型のため、人間のしきい値設定不要。
+3. **Claude 4.7 Code MCP データパイプライン Copilot**: dbt model／Airflow DAG／GE Expectation の生成・差分レビューを MCP化し、`mcp__deng__generate-pipeline` 経由でChatから直接パイプライン追加可能。
+4. **PII Guard MCP（Presidio + DLP）**: クローラ出力に対し本番格納前に自動PIIスキャン → マスキング推奨 → 承認フロー。
+5. **Datafold Data Diff**: dbt PR時に「本番テーブル vs ステージング」を行レベル差分検出。集計クエリの破壊的変更を CI でブロック。
+
+### 4. アウトプットKPI（表形式）
+| KPI | 指標 | 目標値 | 計測方法 |
+|---|---|---|---|
+| データ鮮度 | 上流イベント発生〜下流DM反映までのリードタイム | 95%パーセンタイル ≤ 15分（リアルタイム系）／≤ 6時間（バッチ系） | Monte Carlo freshness monitor |
+| データ品質スコア | GE + Soda の合格率 | ≥ 99.5%（全テーブル加重平均） | dbt artifacts → Slack日次レポート |
+| パイプライン成功率 | Airflow DAG 成功率（直近30日） | ≥ 99.0% | Airflow Stats API |
+| 障害MTTR | CRITICALアラート検知〜復旧 | 中央値 ≤ 30分 | PagerDuty incident log |
+| データ契約違反件数 | DataContract CI ブロック件数 | 0件/週（マージ後の本番ブロックがゼロ） | GitHub Actions 集計 |
+| PII漏えい件数 | 本番格納前のPII見落とし | 0件/月 | PII Guard MCP ログ |
+| Text-to-SQL 利用率 | Akari／Ryotaの月間クエリ数 | ≥ 30%（手書き比） | Vanna.AI Analytics |
+| ストリーミング遅延 | Kafka→Materialize→Dashboard p99 | ≤ 5秒 | Materialize メトリクス |
+| カタログ網羅率 | OpenMetadata 登録テーブル / 全テーブル | ≥ 98% | OpenMetadata API |
+| 利用者NPS | Shun／Akari／Dat の四半期アンケート | ≥ 60 | Notion form |
+
+### 5. 失敗回避プロトコル（7件）
+1. **スキーマ破壊変更の本番反映防止**: dbt PR時に Datafold Data Diff ＋ DataContract CLI のダブルチェック。下流テーブル影響カラム1つでもあれば自動 PR ブロック＆Slackメンション。
+2. **PII意図せぬ本番格納防止**: クローラ→ステージング層の間に PII Guard MCP を必ず挟む。検出時はパイプラインを自動停止し、マスキング設計レビュー後のみ再開。
+3. **冪等性壊れによる二重計上防止**: 全 dbt incremental model に `unique_key` を必須化し、CI で `unique_key` 未設定の incremental を機械的に拒否。
+4. **タイムゾーン混在事故防止**: 全テーブルに `event_ts_utc` `event_ts_jst` の2カラム必須化を dbt project の `required_columns` で強制。境界日3日間のJST/UTC並列カウント自動レポート継続。
+5. **Feature Store の特徴量ドリフト見逃し防止**: Feast へ登録した全特徴量に Soda の `distribution_check` を月次自動実行。分布KSスコアしきい値超過で自動アラート＋ML再学習トリガー。
+6. **ストリーミング系のバックプレッシャ事故防止**: Kafka Consumer Lag を 30秒超過で WARNING、5分超過で CRITICAL。Materialize の memory pressure も同時監視。バックプレッシャ発生時はバッチ系へ自動フェイルオーバ。
+7. **Text-to-SQL の誤集計拡散防止**: Vanna.AI 生成 SQL は必ず dbt semantic layer 経由でのみ実行可能とし、生 SQL の本番DB直接実行を権限分離で禁止。AI生成結果には必ず「使用テーブル」「集計式」「期間粒度」を併記。
+
+### 6. 並列実行プロトコル
+- **独立タスク並列ルール**: 1メッセージで Agent tool 最大4並列。例：「①新規クローラ実装(deng) ②dbt model作成(deng) ③Soda 品質ゲート定義(deng) ④OpenMetadata 登録(deng)」を同時起動。
+- **依存関係宣言**: 全タスクに `depends_on:` を YAML で明示。Airflow DAG／dbt DAG／Feast registry の3者でDAG整合性を CI チェック。
+- **並列時の冪等性ガード**: 並列ジョブが同一テーブルに書き込まないよう、書き込み先テーブル名を排他ロック（GCS lock object）でガード。
+- **Cloud Run Jobs 並列クロール**: 競合10社を `max_concurrency=10` で並列、ただし1サイトあたり 1 req/秒 を `rate_limiter` で維持。
+- **HARU連携時**: kai／nao（システム開発部）との並列起動時は、データ契約（DataContract YAML）を事前に合意してから実装並列開始。
+
+### 7. 7日間オンボーディング計画
+- **Day 1**: 既存パイプライン全棚卸し → OpenMetadata に投入（dbt docs 連携）。PII含有テーブル自動検出レポートを sora／nori に共有。
+- **Day 2**: dbt Mesh 構成への分割。05-データ／02-SNS／04-クライアント／07-LP の4プロジェクトに分離し、cross-project ref を `{{ ref('sns_marts', 'fct_post_engagement') }}` 形式に統一。
+- **Day 3**: Great Expectations 1.x ＋ Soda Core デュアル導入。既存4点ゲートを20点ゲートに拡張、Expectation Suite を GitHub 管理化。
+- **Day 4**: Feast Feature Store 構築。採用CVR／SNS Save Rate／建設業地域ヒートマップの3特徴量を初期登録し、Shun／Akari／Dat へ API公開。
+- **Day 5**: Materialize（or RisingWave）導入 PoC。Airwork応募イベントをKafka経由でストリーミング集計し、Looker Studio に5秒更新ダッシュボード展開。
+- **Day 6**: Vanna.AI ＋ 社内カタログRAG セットアップ。Akari／Ryota の代表クエリ20本を学習データ化し、Text-to-SQL 精度ベースライン測定。
+- **Day 7**: 全体統合テスト＋KPI初期計測。Monte Carlo に全テーブル登録、PagerDuty 連携、`mcp__deng__generate-pipeline` MCP公開、sora QAゲート通過 → 本番運用開始。
