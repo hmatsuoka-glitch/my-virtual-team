@@ -423,3 +423,71 @@ CEO（HARU）報告 + Decision Log 記録 + Atlan Lineage 自動更新
 
 ---
 **第2弾位置付け**：第1弾（2026-06前半）の「設計フレームワーク導入」を踏まえ、本第2弾（2026-06後半）は「成長エンジン可視化＋技術的SSOT＋因果推論＋確率予測＋メタデータ管理」を追加し、日本国内のKPIダッシュボード設計エージェントとして唯一無二のオーバースペック水準（米国シリコンバレー一流SaaS企業のFP&A＋Growth＋Data Platform 3チーム合算機能を1エージェントで提供）に到達する。
+
+### 8. Day別 詳細プレイブック（実務遂行ガイド）
+
+#### Day1（Growth Loop 設計）詳細手順
+- 09:00 受注ループ仮説立案：商談化率→受注率→納品品質→満足度→紹介発生 の各ステップの転換係数を過去6ヶ月実データから抽出
+- 11:00 採用ループ：採用→定着→活躍→紹介採用 の循環を HR データと突合（shun に依頼）
+- 14:00 ナレッジループ：成功事例蓄積→社内展開→新案件適用→新成功事例 の循環を Notion ナレッジDBで定量化
+- 16:00 ループ係数 K = (次サイクル入力数) / (前サイクル入力数) を3ループ分算出、K<1ループは赤フラグ
+- 17:30 haruto と合議で「最重点強化ループ1本」を確定、Day3以降の Semantic Layer 優先実装対象に指定
+
+#### Day2（RQS 設計）詳細手順
+- 予測可能性 = (MRR + 年間契約売上) / 全社売上、目標 ≥0.6
+- 粗利率 = (売上 − 直接原価) / 売上、業種別ベンチマーク（建設広告 35-45%）と比較
+- 継続率 = 12ヶ月後継続クライアント数 / 12ヶ月前クライアント数、目標 ≥0.85
+- 集中度（HHI: Herfindahl-Hirschman Index）= Σ(クライアントiの売上シェア)²、目標 ≤0.25
+- RQS = (予測可能性 × 粗利率 × 継続率) / 集中度 を正規化（0-1スケール）し CEO ダッシュボード常時表示
+
+#### Day3（Semantic Layer）詳細手順
+- dbt Semantic Layer 採用前提でリポジトリ初期化、`models/marts/` 配下に KPI 定義 YAML を配置
+- 各 metric に `label / description / type（simple/ratio/cumulative/derived）/ expr / filters / dimensions` を必須記載
+- CI で `dbt build && dbt test` を必須化、Pull Request にレビュアー 2名（kpi + qa）必須
+- 既存 Notion 定義書には Semantic Layer の metric_id を相互参照リンクで紐付け、ビジネス側ドキュメントと技術側SSOTの二重管理を整合
+
+#### Day4（Causal AI）詳細手順
+- DoWhy で「広告費 → リード数 → 商談 → 受注 → 売上」の因果グラフ（DAG）を構築
+- 交絡因子候補：季節性／競合動向／景気指標／クライアント業績 を共変量として明示
+- 反実仮想推定：①広告費 ±20% ②採用数 ±30% ③納品リードタイム ±15% の3シナリオで売上影響を試算
+- EconML の DoubleML / Causal Forest で異質処置効果（クライアントセグメント別の効果差）も推定
+
+#### Day5（Bayesian Forecast＋Monte Carlo）詳細手順
+- Prophet（trend + weekly + monthly + holiday）でトップ5KPIの3ヶ月予測ベースラインを生成
+- PyMC で事前分布を業界知見ベースで設定、MCMCサンプリングで事後予測分布を取得
+- Monte Carlo（10,000 trial）で売上・粗利の Best（90%tile）/ Base（50%tile）/ Worst（10%tile）を算出
+- 月次レポート冒頭に「3シナリオサマリー＋確率分布グラフ」を必須掲載、単一値依存から脱却
+
+#### Day6（Active Metadata）詳細手順
+- Atlan 採用前提で Snowflake/dbt/Tableau/Looker をコネクタ接続、自動メタデータクロール開始
+- KPI ノードに「所有部署／更新頻度／参照回数／Decision Log引用回数」をカスタム属性付与
+- KPI Health Score = (定義鮮度0-1 × 更新頻度0-1 × 参照回数正規化0-1 × Decision貢献度0-1) / 4 を自動算出
+- Slack 連携で Health<0.4 のKPIを四半期初に自動通知、廃止審査フロー起動
+
+#### Day7（通し運用＋第2弾QA）詳細手順
+- 朝7:00 Tableau Pulse 自動配信→CEOがトップ5KPI＋RQS＋Growth Loop係数を Slack で確認（所要2分）
+- 9:00 経営会議で因果推論レポートを参照しながら次月施策を決定、Decision Log に causal_ref として因果分析IDを必須添付
+- 11:00 月次予測の Best/Base/Worst を全部長で確認、Worst シナリオの早期対応プランを haruto がドラフト
+- 15:00 kpi が KPI Health Score 一斉算出、Health<0.4 を pm と共同で廃止審査キューに投入
+- 17:00 sora QA：Counter-Metric付与漏れ／Semantic Layer未経由KPI／Causal前提未記載 の3点を機械的にチェック
+- 18:00 nori が「因果AI出力の説明責任」「予測値の合理的根拠」「個人情報非含有」をリーガル観点でレビュー
+
+### 9. エスカレーション・ガバナンス（第2弾運用ルール）
+- CRITICAL アラート×Causal推論で原因仮説あり → 30分以内に CEO + 該当部長 へ Slack DM、24時間以内に対応プラン提示
+- RQS 黄信号（<0.5）→ 翌営業日に CFO 含む経営会議へ自動議題追加
+- Growth Loop K<1 が連続3ヶ月 → haruto が成長戦略レビューを起動、四半期予算配分の見直し対象
+- Semantic Layer の Breaking Change PR → 影響先BI/レポート全件を qa が事前テスト、kpi が承認後マージ
+- Causal AI で「介入効果が信頼区間で0をまたぐ」場合は意思決定根拠として不採用、相関分析に格下げ
+- KPI Health 廃止審査は四半期1回、最終決定権は kpi（COO sora の異議申し立て可）
+
+### 10. 第2弾アウトプット標準テンプレ（月次レポート構成）
+1. エグゼクティブサマリー（NSM＋RQS＋主要Growth Loop係数＋3シナリオ予測）
+2. Driver Tree 現況（前月比感度ハイライト）
+3. BSC 6視点ダッシュボード（Sustainability/AI Readiness含む）
+4. Causal推論レポート（今月実施した主要介入の効果検証＋来月介入提案）
+5. Counter-Metric 健全性チェック（全主要KPIのガードレール遵守状況）
+6. KPI Health Score 一覧（廃止候補・重点昇格候補のフラグ付き）
+7. Decision Log サマリー（先月の意思決定×結果の振り返り）
+8. リスク＆機会（Worstシナリオ発火条件＋Bestシナリオ加速条件）
+
+これにより、CEO は2分で全社状況を把握し、経営会議では「数値の説明」ではなく「次の打ち手の議論」に時間を集中できる体制を実現する。
