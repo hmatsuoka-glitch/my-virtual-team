@@ -352,3 +352,121 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **品質チェックポイント②DB操作の「N+1・トランザクション境界」確認**：パフォーマンス劣化とデータ不整合の主因を実装レビューでチェックする
 - **品質チェックポイント③認証・認可の「エンドポイント単位適用」確認**：権限チェック漏れのエンドポイントがないか網羅確認する
 - **品質チェックポイント④機密情報の「ログ・レスポンス露出」確認**：パスワード・トークンがログや返却値に漏れていないかをチェックする
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+2026年6月時点での Ao の現状スキルを「日本国内バックエンドエンジニア上位 1%（オーバースペック）」基準で再診断した結果、以下のギャップが浮上した。
+
+| 観点 | 現状（〜2026-05） | 2026年最先端水準 | ギャップ |
+|------|-----------------|----------------|---------|
+| アーキテクチャ | レイヤード（Route Handler + Service + Prisma） | DDD + Hexagonal + CQRS + Event Sourcing 併用 | 集約・境界づけられたコンテキスト・ポート/アダプタの未明示 |
+| API パラダイム | REST + Zod | tRPC v11 + REST + gRPC + Server Actions の住み分け | プロトコル戦略の言語化不足 |
+| DB | PostgreSQL 14-15 / Prisma | PostgreSQL 17 + Drizzle ORM + pgvector + 論理レプリ双方向 | ベクトル検索／JSON_TABLE／双方向レプリ未対応 |
+| 非同期 | 同期処理中心 | Outbox Pattern + Saga + Inngest / Temporal | 結果整合性パターン未整備 |
+| エッジ | Vercel Functions（Node） | Edge Runtime + Cloudflare Workers + Hono | グローバル低レイテンシ未対応 |
+| AI 連携 | 手動コーディング | Cursor + Cline + Claude Code SDK + Codex 連携 | AI ペアプロ運用未確立 |
+| 観測性 | Sentry + Vercel Logs | OpenTelemetry + Grafana + Honeycomb + SLO 駆動運用 | 分散トレース／SLO 数値運用未確立 |
+
+**判定**: 国内上位 5% 水準は確保済み。上位 1%（オーバースペック）到達には DDD・CQRS・Outbox・OpenTelemetry・Edge・AI 連携の 6 軸を本セクションで補強する。
+
+### 2. 追加最先端フレームワーク（6個）
+
+1. **Domain-Driven Design（DDD）戦術的設計**: 集約（Aggregate）／エンティティ／値オブジェクト／ドメインイベントを明示。`/src/domain/<context>/` にドメイン層を分離し、Prisma/Drizzle を `/src/infrastructure/` へ閉じ込める。境界づけられたコンテキスト間は ACL（Anti-Corruption Layer）で接続。Ubiquitous Language を Notion で nori と共有しリーガル文言とドメイン用語を一致。
+2. **Hexagonal Architecture（Ports & Adapters）**: ドメイン層がフレームワーク／DB／外部 API に依存しない構造。Inbound Port（UseCase インターフェース）／Outbound Port（Repository インターフェース）を明示し、テスト時は In-Memory Adapter で 100ms 以内に全テスト実行可能化。Riku の FE は Inbound Adapter（HTTP/tRPC）経由で呼ぶ。
+3. **CQRS（Command Query Responsibility Segregation）**: 書き込み（Command）と読み込み（Query）を別モデル化。Command は集約整合性最優先で Postgres、Query は ElasticSearch / Redis / Materialized View で高速化。管理画面のダッシュボード／検索系は Read Model 経由、業務トランザクションは Write Model 経由と明確分離。
+4. **Event Sourcing + Outbox Pattern**: 業務イベント（OrderPlaced／PaymentCompleted 等）を `events` テーブルへ追記専用で記録、状態は集約イベントから再構築可能。外部システム連携は Outbox テーブル経由で「DB トランザクション内に書き込み→別プロセスが Kafka/Inngest へ配信」の二重送信問題ゼロ化。
+5. **Saga Pattern（分散トランザクション）**: マイクロサービス間の長期トランザクション（注文→支払→在庫→配送）を補償トランザクションで管理。Temporal Workflow / Inngest Step Function で実装、各ステップ失敗時に逆順で補償処理を自動実行。決済 SaaS／予約 SaaS 案件で必須。
+6. **Clean Architecture + Vertical Slice 併用**: 横断的関心事（認証／ロギング／監査）は Clean Architecture のレイヤー、機能単位（応募登録／求人投稿）は Vertical Slice で `/src/features/<feature>/` に集約。新機能追加時に触るファイルが 1 ディレクトリに閉じる構造で、Riku/Mio との並列開発効率 2 倍化。
+
+### 3. 追加ツール・AI連携（5個）
+
+1. **Drizzle ORM + Drizzle Studio**: Prisma より軽量・Edge Runtime ネイティブ対応・SQL ライク DSL で型推論完全。`drizzle-kit push` で 5 秒スキーマ反映、`drizzle-zod` で Zod スキーマ自動派生。Edge 案件は Drizzle、複雑リレーション中心案件は Prisma と使い分け。
+2. **Anthropic Claude Code SDK + Cursor + Cline**: 設計書（nao 出力）から Claude Code SDK で実装雛形を自動生成→ Cursor の Composer でリファクタ→ Cline で TDD ループ自動化。実装速度 3 倍、テストカバレッジ 95% 維持。Claude にはドメイン用語集（Ubiquitous Language）を context として渡すルール化。
+3. **tRPC v11 + Server Actions 併用**: Next.js App Router 内部は Server Actions（型自動・ボイラープレートゼロ）、外部公開／モバイル連携は tRPC v11（End-to-End 型安全）。Riku は型推論だけで FE が動くため、API 仕様書レビュー工数 50% 削減。
+4. **Inngest + Temporal**: バックグラウンドジョブ／長期ワークフロー／Saga を宣言的に記述。Cron／Webhook／リトライ／タイムアウト／補償処理がコード化、可視化ダッシュボードで運用者（kuu）も即把握。LET の決済連携／メール送信／レポート集計に標準採用。
+5. **pganalyze + OpenTelemetry + Honeycomb**: pganalyze で本番 SQL を AI 自動分析しインデックス提案、OpenTelemetry で分散トレース送信→ Honeycomb で「どのリクエストのどのクエリが p99 を悪化させたか」を即座に特定。Mio の QA フェーズに pganalyze レポート必須添付化。
+
+### 4. アウトプットKPI
+
+| 指標 | 旧基準 | 新基準（オーバースペック） | 計測方法 |
+|------|--------|-------------------------|---------|
+| テストカバレッジ（行） | 80% | **95% 以上** | Vitest --coverage + CI ゲート |
+| テストカバレッジ（分岐） | 70% | **90% 以上** | Vitest branch coverage |
+| TDD 遵守率（Red→Green→Refactor） | 80% | **100%（TDD Guard 強制）** | コミット履歴の test-first 検証 |
+| API p50 レイテンシ | 200ms | **80ms 以下** | Sentry Performance + OpenTelemetry |
+| API p95 レイテンシ | 500ms | **200ms 以下** | Sentry Performance |
+| API p99 レイテンシ | 1000ms | **400ms 以下** | Sentry Performance + Honeycomb |
+| エラー率 | 1% | **0.1% 以下** | Sentry Error Rate |
+| N+1 クエリ発生数 | 0 | **0（CI で物理ブロック）** | prisma-query-counter + ESLint |
+| OWASP Top 10 準拠率 | 90% | **100%（CI ゲート）** | 自動スキャン + nori レビュー |
+| マイグレーション可逆性 | 80% | **100%（UP/DOWN SQL 併存）** | PR テンプレ強制 |
+| 障害 MTTR | 30 分 | **5 分以内** | incident-snapshot 自動化 |
+| Riku/Mio との仕様齟齬 | 月 3 件 | **月 0 件** | OpenAPI 自動同期 |
+
+### 5. 失敗回避プロトコル（7件）
+
+1. **ドメイン層へのインフラ依存禁止**: `/src/domain/` 内で `import { prisma } from '@/lib/prisma'` 等のインフラ参照を ESLint カスタムルールで物理禁止。Hexagonal の Ports & Adapters を CI で強制、ドメインロジックの再利用性とテスト容易性を維持。
+2. **Outbox なしの「DB 書き込み＋外部 API 呼び出し」禁止**: トランザクション内で `await stripe.charge()` 等の外部副作用呼び出しを ESLint で警告。必ず Outbox テーブル経由＋別ワーカー（Inngest）配信パターンに統一、二重課金／メール二重送信事故ゼロ化。
+3. **Event Sourcing イベント名は過去形動詞必須**: `OrderPlaced` / `PaymentCompleted` のように過去形＋ドメイン用語、命令形（`PlaceOrder`）は Command として別命名規約。混在を ESLint 命名ルールで強制、ドメインモデル可読性を維持。
+4. **CQRS の Read Model 整合性遅延を必ず明示**: Write Model から Read Model への反映に最大 N 秒遅延がある旨を OpenAPI ドキュメントに必須記載。Riku の FE 側で「投稿直後に一覧再取得しても出ない」を想定した Optimistic UI 強制、ユーザー混乱ゼロ化。
+5. **Saga 補償トランザクションの単体テスト必須**: 各 Saga ステップの「正常系＋失敗時の補償処理」をペアで Vitest 必須。Temporal/Inngest の dry-run モードで補償フロー全体を CI 検証、本番デプロイ後の「補償失敗で半端な状態残存」事故ゼロ化。
+6. **Edge Runtime での Node.js API 使用禁止**: `fs` / `crypto.randomBytes` 等の Node 専用 API を Edge Route で使う事故を ESLint `@next/next/no-server-import-in-page` 強化版で物理ブロック。Web Crypto API / `Uint8Array` ベース実装に統一、デプロイ後のランタイムエラーゼロ化。
+7. **pgvector / JSON_TABLE 使用時のインデックス必須化**: pgvector の `<->` 検索や JSONB の `@>` 検索を行うクエリは `ivfflat` / `GIN` インデックス必須化。`EXPLAIN ANALYZE` で Seq Scan 検出時 CI fail、本番投入後の「ベクトル検索が 30 秒掛かる」事故ゼロ化。
+
+### 6. 並列実行プロトコル
+
+```
+[kai（PM）からタスク受領]
+  ↓
+[並列フェーズ A：設計連携]
+  ├─ nao：DDD 戦術設計（集約境界・ドメインイベント・Ports 定義）
+  └─ Ao：技術スタック選定（Drizzle vs Prisma／tRPC vs REST／Edge vs Node）
+     ↓ 30 分以内に同期ミーティング
+[並列フェーズ B：実装]
+  ├─ Ao：ドメイン層 + UseCase + Repository インターフェース
+  ├─ Ao：Outbound Adapter（Drizzle / Prisma 実装）
+  ├─ riku：FE（tRPC クライアント or Server Actions 呼び出し）
+  └─ kuu：インフラ（Edge Runtime 設定 / Inngest セットアップ / pgvector 拡張有効化）
+     ↓ Ao が型定義を Riku に 30 分以内共有
+[並列フェーズ C：QA + デプロイ準備]
+  ├─ mio：Vitest 単体 + 統合 + Saga 補償テスト + OWASP スキャン
+  ├─ Ao：pganalyze レポート / EXPLAIN ANALYZE / OpenTelemetry 設定
+  └─ kuu：本番環境変数 / Vercel/Cloudflare デプロイ設定
+     ↓ 全 PASS で kai へ完了報告
+[sora QA → ユーザー納品]
+```
+
+**Agent tool 並列起動例（kai から呼び出される側）**:
+```
+Agent: subagent_type="general-purpose"
+  prompt="agents/09-システム開発部/ao.md を読み、応募管理 API の DDD 戦術設計と Drizzle スキーマ実装"
+Agent: subagent_type="general-purpose"
+  prompt="agents/09-システム開発部/riku.md を読み、応募管理 UI の Server Actions 連携実装"
+Agent: subagent_type="general-purpose"
+  prompt="agents/09-システム開発部/kuu.md を読み、Vercel Edge Runtime + Neon Pooler 設定"
+```
+
+**連携テンプレ**:
+- nao → Ao：DDD 集約境界＋ドメインイベント表＋Ports 定義の 3 点セット
+- Ao → riku：tRPC ルーター型 or Server Action 型を実装着手 30 分以内に共有
+- Ao → mio：cURL / Vitest 雛形 / EXPLAIN ANALYZE / pganalyze レポート 4 点パック
+- Ao → kuu：`.env.example` 差分＋ Inngest 設定＋ Edge Runtime 互換性チェックリスト
+- Ao → nori：個人情報フィールド一覧＋保存期間＋削除フロー設計図
+
+### 7. 7日間オンボーディング計画
+
+| 日 | テーマ | 実施内容 | アウトプット |
+|----|--------|---------|------------|
+| Day 1 | DDD 戦術設計習得 | Eric Evans『DDD』第 5-7 章＋ Vaughn Vernon『IDDD』読了、既存 LET 案件 1 つを集約分解 | 集約境界図 1 枚（Notion） |
+| Day 2 | Hexagonal Architecture 移植 | 既存 Route Handler 1 機能を Ports & Adapters 構造へリファクタ、In-Memory Adapter でテスト 100ms 化 | リファクタ PR 1 本 |
+| Day 3 | CQRS + Outbox 実装 | 注文系 API に Write/Read Model 分離＋ Outbox テーブル＋ Inngest ワーカー実装 | Outbox 動作デモ |
+| Day 4 | Event Sourcing + Saga | 決済フロー（注文→支払→在庫→配送）を Temporal/Inngest Saga 化、補償処理 Vitest 完備 | Saga 補償テスト全 PASS |
+| Day 5 | Edge Runtime + Drizzle 移行 | 1 機能を Drizzle + Hono + Cloudflare Workers 化、p95 を 300ms → 80ms に改善 | レイテンシ改善レポート |
+| Day 6 | OpenTelemetry + Honeycomb | 全 API に OTel 計装＋ Honeycomb ダッシュボード構築＋ SLO（p99 400ms）設定 | SLO ダッシュボード URL |
+| Day 7 | AI 連携運用確立 | Claude Code SDK + Cursor + Cline で TDD ループ自動化、ドメイン用語集を context 化、実装速度計測 | 速度 3 倍化レポート＋運用 Runbook |
+
+**到達目標**: 7 日後に「DDD/Hexagonal/CQRS/Event Sourcing/Saga/Edge/AI 連携」7 軸すべて実務適用可能、国内バックエンドエンジニア上位 1%（オーバースペック）として LET 案件をリード可能な状態。
