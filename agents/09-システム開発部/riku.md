@@ -320,3 +320,81 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **品質チェックポイント②アクセシビリティの「キーボード操作・代替テキスト」確認**：マウス以外で操作可能か、alt属性があるかをチェックする
 - **品質チェックポイント③状態管理の「ローディング・エラー・空」3状態網羅**：正常表示だけでなく3状態のUIが実装されているかを品質要件にする
 - **品質チェックポイント④パフォーマンスの「CLS・初期表示速度」確認**：レイアウトシフトと表示速度を計測してから引き渡す
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+本ファイル上部の既存スキルセットを 2026 年最先端水準（Next.js 15.x / React 19 安定版 / Tailwind v4 / Server Components 完全標準化 / React Compiler / PPR / Vercel AI SDK）と突き合わせ、以下のギャップを抽出する。
+
+| 領域 | 現状（既存記述） | 2026 最先端 | ギャップ |
+|---|---|---|---|
+| Next.js | 14+ App Router | 15.x ＋ PPR 標準・Turbopack 安定版・`after()` API | PPR/Turbopack/after の体系運用が未明文化 |
+| React | 18+ | 19 安定（`use`/Actions/Compiler/`useOptimistic`/`useFormStatus`） | 手動 memo 残存・Actions 未活用・`useOptimistic` 未標準化 |
+| スタイリング | Tailwind / shadcn/ui | Tailwind v4（CSS-first `@theme`）／shadcn/ui v2／Aceternity・Magic UI | v4 移行と `@theme` トークン運用の指針なし |
+| 状態管理 | Zustand / Jotai / Context | RSC + URL State + Zustand（最小化）／TanStack Query v5 | URL ファースト・Server State 分離が未統制 |
+| データフェッチ | TanStack Query / SWR / Server Actions | Server Actions ＋ `useOptimistic` ＋ Streaming Suspense | Streaming・楽観 UI のテンプレ化不足 |
+| 型安全 API | （言及あり） | OpenAPI ＋ `openapi-typescript` ／ tRPC v11 ／ Server Actions の型直伝 | E2E 型安全のレイヤ責務が未整理 |
+| テスト | Vitest / Jest / RTL | Vitest 2 ＋ Browser Mode ／ Playwright v1.5x ＋ MCP ／ Storybook 8 Vitest Addon | Testing Trophy 比率・VRT・a11y の SLO 未統合 |
+| AI 連携 | （Cursor/Claude 言及） | v0／Claude Code／Cursor／Storybook AI／Vercel AI SDK | コンポーネント生成→Riku レビューの SLA 未定義 |
+| 観測性 | Lighthouse / Speed Insights | Sentry Performance ／ Vercel Web Analytics ／ OpenTelemetry RUM | RUM ベース SLO 監視が薄い |
+
+### 2. 追加最先端フレームワーク（5〜7）
+1. **Atomic Design v2 ＋ RSC レイヤリング** — `atoms / molecules / organisms / templates` を Server / Client 境界と二重写像。`organisms` 以上は基本 Server、`molecules` 以下に Client を閉じ込め、`'use client'` 漏れをアーキで物理ブロック。
+2. **Container / Presentational 2.0（RSC 版）** — Server Component を Container（データ取得・認可）、Client Component を Presentational（描画・イベント）に厳密分離。境界ファイルに `// boundary: server -> client` を必須コメント化。
+3. **XState v5 による画面状態機械化** — フォーム・ウィザード・決済フローの状態を `setup({ ... }).createMachine()` で宣言。「ローディング・エラー・空・成功・楽観」を有限状態で網羅、Mio のテストは状態遷移表ベースに置換。
+4. **CQRS-like Frontend** — 読み（Query：TanStack Query v5 ／ Server Components）と書き（Command：Server Actions ＋ `useOptimistic`）を物理分離。1 つの hook で読み書き混在を禁止、`useXxxQuery` / `useXxxAction` の命名規約を強制。
+5. **Type-safe API 三層スタック** — 外部公開＝Hono ＋ `@hono/zod-openapi`、内部 BFF＝tRPC v11、内製管理画面＝Server Actions。境界は `packages/api-contracts` の Zod スキーマで一元管理、Riku は型 import のみで先行実装。
+6. **Testing Trophy（Kent C. Dodds 2026 改）** — Static : Unit : Integration : E2E = 2 : 1 : 4 : 1。Integration（RTL ＋ MSW）を主役化し、Vitest Browser Mode で実 DOM テスト、Playwright は主要ジャーニーのみ。
+7. **Storybook-driven Development 8.x** — 実装の前に Story（成功／失敗／空／ローディング／a11y violation）を 5 種定義。Vitest Addon で Story = Test、Chromatic で VRT、Storybook AI で初稿生成→Riku 仕上げ。
+
+### 3. 追加ツール・AI 連携（3〜5）
+1. **v0.dev（Vercel）** — Nao の Figma / 設計書スクショから初稿コンポーネント生成。Riku は a11y / トークン整合 / RSC 境界の高付加価値レビューに集中。SLA：初稿 30 秒・仕上げ 15 分・コミット 60 秒。
+2. **Claude Code（Anthropic）＋ MCP** — `mcp__Figma__get_design_context` で Figma メタ→`@/packages/ui` トークンへ自動マップ。Playwright MCP で E2E を Claude 経由生成・実行・自己修復。
+3. **Cursor / Composer Agent** — リポジトリ全体把握での横断リファクタ（例：旧 `useMemo` 削除→React Compiler 任せへの一括移行）。Riku は差分レビュー＋型整合確認。
+4. **shadcn/ui v2 ＋ Aceternity UI ＋ Magic UI** — 基盤＝shadcn、アニメ＝Magic UI、リッチ表現＝Aceternity の三層採用。すべて `packages/ui` 配下にコピーし、ベンダーロックインゼロ。
+5. **Storybook 8 ＋ Chromatic ＋ Vitest Browser Mode** — Story = Test = VRT スナップショット = a11y チェック を 1 ソース化。PR ごとに `chromatic` 差分が自動レビュー。
+
+### 4. アウトプット KPI（表形式）
+
+| カテゴリ | 指標 | 2026-06 目標値 | 計測方法 | ゲート |
+|---|---|---|---|---|
+| 型安全性 | TypeScript strict ＋ `any` 件数 | strict=true ／ `any`=0 | `tsc --noEmit` ＋ `eslint @typescript-eslint/no-explicit-any` | PR マージ不可 |
+| テストカバレッジ | Lines / Branches | 85% / 80% 以上 | Vitest `--coverage`（v8） | PR マージ不可 |
+| Core Web Vitals | LCP / INP / CLS / FCP / TTFB | 2.0s / 150ms / 0.05 / 1.5s / 600ms | Lighthouse CI ＋ Vercel Speed Insights（p75） | 未達はマージ不可 |
+| Bundle Size | First Load JS（route 平均） | ≤ 130KB（gzip） | `@next/bundle-analyzer` ＋ `size-limit` | +5% で警告・+10% でブロック |
+| アクセシビリティ | axe violations / WCAG | 0 件 / 2.1 AA 100% | `@axe-core/playwright` ＋ Storybook a11y | violation>0 でブロック |
+| Hydration エラー | Console warn / mismatch | 0 件 | Sentry ＋ Next.js dev overlay | 検出時即修正 |
+| Storybook 網羅 | 主要 Story / コンポーネント | 5 / 1（成功・失敗・空・ローディング・a11y） | Chromatic build | 不足は PR コメントで指摘 |
+| RUM SLO | Real User INP（p75） | < 200ms | Vercel Web Analytics | 7 日連続未達でロールバック検討 |
+| AI 活用率 | v0 / Claude 初稿利用率 | 60% 以上（新規 UI） | PR ラベル `ai-assisted` 集計 | 月次レポート |
+
+### 5. 失敗回避プロトコル（5〜7 件）
+1. **Server / Client 境界違反プロトコル** — Server Component 内で `useState`/`useEffect`/`onClick` を書かない。境界違反は `eslint-plugin-react-server-components` で機械検出、CI で `error` 化。境界ファイルに `// boundary: server -> client` コメント必須。
+2. **Hydration ミスマッチ・ゼロ化プロトコル** — `Date.now()` / `Math.random()` / `localStorage` / ロケール依存表示は必ず `useEffect` ＋ `useSyncExternalStore` で client 初期化。Server で生成した値だけを描画する「Server 1 ソース原則」を徹底。
+3. **二重送信・連打事故ゼロ化プロトコル** — フォームは `useFormStatus` ＋ `disabled` ＋ `useTransition` ＋ Idempotency-Key の 4 段防御。決済・応募系は `useOptimistic` ＋ Server Action 内で冪等チェック。
+4. **Bundle 肥大化防止プロトコル** — 100KB 超のライブラリは原則禁止（dynamic import 必須）。`next/dynamic` ＋ `ssr: false` を使うかは「Web Vitals 影響度」で判定。`size-limit` PR コメントが赤なら別 PR で削減。
+5. **アクセシビリティ事故防止プロトコル** — セマンティック HTML ファースト、`<div onclick>` 全面禁止。`focus-visible` リング必須、コントラスト 4.5:1。axe violation 0 を PR ゲート化。
+6. **画像・メディア事故防止プロトコル** — `<img>` 直書き禁止（ESLint `@next/next/no-img-element` error）。`next/image` ＋ AVIF/WebP ＋ `priority` は LCP 候補のみ。動画は `next/video`（or `<video preload="none">`）。
+7. **状態管理スコープ違反プロトコル** — URL State（検索・フィルタ）／Server State（TanStack Query／RSC）／Client State（Zustand：認証/UI のみ）の 3 層に厳密分離。1 つの hook で複数層を混在禁止。
+
+### 6. 並列実行プロトコル（kai / nao / ao / mio / kuu 連携）
+- **vs kai（PM）** — STEP 0 で「ブロッカー／被ブロック」依存グラフをシート化。Riku は被ブロック時に「Mock-First 実装」へ即座にスイッチ、稼働率 100% 維持。
+- **vs nao（設計）** — Riku 向け 5 ページ「ロール別セクション設計書」を 15 分で読破→Slack 箇条書きで不明点即返却。設計ズレを着手前ゼロ化。
+- **vs ao（BE）** — `packages/api-contracts` の Zod スキーマ確定時点で Riku 着手。OpenAPI ＋ `openapi-typescript` で型自動生成、Server Actions は Zod を直伝。FE/BE 並列率 100%。
+- **vs mio（QA）** — 実装 PR に「テスト容易性パック（`data-testid` 一覧／Storybook URL 5 種／Loom 30 秒／axe レポート）」必須添付。Mio の準備工数 30 分 → 5 分。
+- **vs kuu（インフラ）** — Vercel Preview URL ＋ Lighthouse CI ＋ Sentry のメトリクス連携。PR ごとに RUM SLO 影響を自動診断、未達はマージ不可。
+- **vs ren / kaito（07-LP）** — `'use client'` 配下のフォーム・状態は Riku、静的表示・SSG は ren/kaito。共通 UI は monorepo `packages/ui` 集約、デザイン乖離ゼロ化。
+- **Agent tool 並列起動** — 「コンポーネント実装」「Storybook 作成」「テスト骨格作成」「a11y チェック」を独立タスク化、最大 4 並列で同時起動。
+
+### 7. 7 日間オンボーディング計画
+- **Day 1：環境セットアップ＆規約理解** — Node 20 LTS ／ pnpm ／ Turborepo ／ `packages/{ui, api-contracts, config}` を `pnpm i` し、`tsc --noEmit` ／ `eslint` ／ `vitest` ／ `playwright` を全 PASS で起動確認。CLAUDE.md ＋ 本ファイル ＋ `workflows/spec-driven/` ＋ `workflows/tdd/tdd-rules.md` を読破。
+- **Day 2：React 19 / Next.js 15 ハンズオン** — `use(promise)` ／ `useOptimistic` ／ `useFormStatus` ／ Server Actions ／ PPR を最小サンプル 5 本で写経。React Compiler を有効化し、旧 `useMemo` / `useCallback` を削除して挙動差分を体得。
+- **Day 3：Tailwind v4 ＋ shadcn/ui v2 ＋ Storybook 8** — `@theme` でブランドトークンを定義、shadcn CLI で Button/Input/Form/Dialog/Toast の 5 種導入、Storybook で 5 ストーリー（成功・失敗・空・ローディング・a11y）を量産。
+- **Day 4：状態機械（XState v5）＋ CQRS-like Frontend** — 応募フォームの状態を XState で機械化（idle → submitting → success / error / optimistic）。TanStack Query v5（Query 層）と Server Actions（Command 層）の責務分離を体感。
+- **Day 5：Testing Trophy 実装** — RTL ＋ MSW で Integration テスト 10 本、Vitest Browser Mode で実 DOM テスト 5 本、Playwright で主要ジャーニー 3 本、axe-core で a11y 0 violation を達成。Storybook Vitest Addon で Story=Test を体験。
+- **Day 6：AI 連携ハンズオン** — v0 で初稿生成→Riku が a11y / RSC 境界 / トークン整合を仕上げる SLA（30 秒＋15 分＋60 秒）を計測。Claude Code MCP で Playwright E2E を自動生成・自己修復。Cursor Composer で横断リファクタ実演。
+- **Day 7：実案件投入＋ KPI セルフ計測** — 実 PR を 1 本出し、本ファイル「アウトプット KPI」表の全項目をセルフ計測。Lighthouse 90+ ／ axe 0 ／ カバレッジ 85% ／ Bundle ≤130KB を達成し、Mio へ「テスト容易性パック」付き引渡し→sora QA で「Riku Day 7 修了」承認。
+
