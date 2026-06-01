@@ -266,3 +266,160 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **品質チェックポイント②工程間の「成果物受け渡し基準」充足確認**：Hana抽出→Nao設計→Ren実装→Mia検証の各引き継ぎで必須項目が揃っているかを部長として関門チェックする
 - **品質チェックポイント③最終納品前の「Mia忠実度スコア合格ライン」確認**：忠実度チェックv2の合格基準を満たしているかを納品判定にする
 - **品質チェックポイント④納期遅延リスクの「ボトルネック工程」早期把握**：7名チームの並行作業で詰まっている工程を日次で把握し再配分する
+
+
+---
+
+## 🚀 Overspec Upgrade 2026-06
+
+### 1. 現状スキル診断
+- **強み**：Hana/Nao/Ren/Mia/Saki の5名チーム統括、7ゲート品質チェック、Vercel `--prebuilt` デプロイ、Core Web Vitals 3指標SLA、12ブラウザマトリクス自動巡回、Slack次担当者自動メンション運用、Lighthouse CI 90点ゲート、E2E フォーム送信検証、4G実機シークレットモードの3秒体感テスト、`v0 Platform API`連携、Edge Config Slackスラッシュコマンド操作までを既に運用済。
+- **2026年最先端水準とのギャップ**：
+  1. **Next.js 15.3 + React 19 Server Actions / PPR（Partial Prerendering）GA** のフル活用設計図がチーム標準フローに未組込（App Router 100%移行は方針合意済だが、PPR の `experimental_ppr` フラグ前提のセクション切り分けルールが未明文化）。
+  2. **Vercel AI SDK 4.x + AI Gateway** を活かしたパーソナライズLP（訪問者属性別ヒーロー差替）の Edge Functions 実装パターンが未整備。
+  3. **Core Web Vitals 2026 新規指標（INP / TTFB / TBT）** までは触れているが、SLA 契約レベルの数値定義と `predeploy` 自動測定の統合が部分的。
+  4. **アクセシビリティ AAA 準拠 + EU European Accessibility Act 2025/06 施行**への対応（コントラスト比 7:1、フォーカス順序、reduced-motion）が、Mia QA基準としては未数値化。
+  5. **Pixel-Perfect Reproduction の客観指標化**（SSIM / pixelmatch / Resemble.js の3手法併用）と「人間知覚 NG ⇔ 数値 OK」のギャップ閉じが手動運用のまま。
+  6. **Figma Dev Mode MCP / Cursor Composer / Claude Code Subagent** を Hana/Ren 工程に直結させた「設計→実装」の AI パイプラインが部分導入。
+  7. **Performance Budget（バイト数・リソース数の事前上限契約）** が JS 200KB / CSS 50KB / 画像 1MB といった部署標準値として未確定。
+
+### 2. 追加最先端フレームワーク（7個）
+
+#### F1. Pixel-Perfect Reproduction Triple-Validation Framework
+- **構成**：①`pixelmatch`（ピクセル単位差分） ②`Resemble.js`（知覚色差 ΔE2000） ③`SSIM`（構造類似度） の3指標を同時計測。
+- **合格基準**：pixelmatch 差分率 ≤1% / Resemble misMatchPercentage ≤2% / SSIM ≥0.95 の全てを満たす。
+- **運用**：STEP 4 Mia QA 直後に GitHub Actions `visual-regression.yml` で自動実行。1指標でも未達なら Saki へ「どの指標が落ちたか」を自動分類して差し戻し。
+
+#### F2. Progressive Enhancement + Graceful Degradation 2026 Edition
+- **3層設計**：① Core Layer（HTML+CSS のみで CV 完結） ② Enhanced Layer（JS 有効時のアニメ・パララックス） ③ Premium Layer（AI パーソナライズ・WebGL）。
+- **運用**：Ren 実装時に `data-enhancement-level` 属性で層を明示、`predeploy` で「JS 無効でフォーム送信可」を Playwright で物理検証。
+
+#### F3. Performance Budget Contract Framework
+- **契約数値**（部署標準）：JS bundle ≤200KB gzip / CSS ≤50KB gzip / 画像合計 ≤1MB / Font ≤100KB / Total Page Weight ≤1.5MB / Request 数 ≤50。
+- **運用**：`next.config.js` の `experimental.bundlePagesRouterDependencies` + `@next/bundle-analyzer` で STEP 5 時点の実測値を出力、Budget 超過時は `vercel --prod` 物理ブロック。
+
+#### F4. Atomic Design × shadcn/ui 2026 Component Library Framework
+- **5階層**：Atoms（Button/Input/Label）→ Molecules（FormField/Card）→ Organisms（Hero/Pricing）→ Templates（LP Layout）→ Pages（実LP）。
+- **運用**：Nao 設計書で必ず5階層に分解、Ren 実装時は shadcn/ui v2 ＋ Radix UI Primitives を基盤に再利用率 60% 以上を確保。新規 LP 案件のリードタイムを 40% 短縮。
+
+#### F5. Core Web Vitals 2026 Six-Metric Optimization Framework
+- **6指標 SLA**：LCP ≤2.5s / INP ≤200ms / CLS ≤0.1 / TTFB ≤200ms / TBT ≤200ms / FCP ≤1.8s（全グリーン）。
+- **運用**：`predeploy` で `lhci autorun` + `web-vitals` フィールドデータ Speed Insights 24h 平均を取得、6指標すべて達成しないとデプロイブロック。
+
+#### F6. AI-Driven Personalization at Edge Framework
+- **構成**：Vercel Edge Middleware で訪問者の Geo / Device / Referrer を判定 → Vercel AI SDK 経由で Hero コピー・CTA テキストをパーソナライズ。
+- **運用**：Edge Config に5パターンのコピー JSON を保持、`vercel.json` の `middleware.ts` で 30ms 以内に差し替え。CV率 +15-25% を目標KPIに。
+
+#### F7. Accessibility AAA + EU EAA Compliance Framework
+- **準拠基準**：WCAG 2.2 AAA（コントラスト 7:1、フォーカスインジケータ ≥3:1、`prefers-reduced-motion` 対応、フォームエラー読み上げ）+ EU European Accessibility Act（2025/06施行）+ JIS X 8341-3:2016 AA。
+- **運用**：`@axe-core/playwright` を `predeploy` に組込、AAA 違反 0 件かつ Lighthouse Accessibility 100点でないとブロック。
+
+### 3. 追加ツール・AI連携（5個）
+
+#### T1. Vercel v0.dev v2 + v0 Platform API
+- **用途**：Hana の CSS 抽出結果 + Nao の設計書を v0 API へ投入し、React コンポーネント雛形を 30秒で生成。Ren の初期実装工数を 60% 削減。
+- **連携**：`@vercel/v0-sdk` を `package.json` に追加、`v0 generate --from-spec design.md` で自動生成。
+
+#### T2. Cursor Composer + Claude Code Subagent 並列実装
+- **用途**：Ren が複数セクション（Hero / Features / Pricing / FAQ / Footer）を Cursor Composer の Multi-File Edit で並列実装。各セクションを Subagent に分担。
+- **連携**：`.cursorrules` に Hana の `tokens.json` を埋め込み、デザイントークンと完全一致のコードを保証。
+
+#### T3. Figma Dev Mode MCP + Code Connect
+- **用途**：複製対象に Figma デザインが存在する場合、Figma MCP（`mcp__Figma__get_design_context` / `get_variable_defs`）で公式トークン・コンポーネント仕様を直接取得。Hana の CSS 抽出と二重検証。
+- **連携**：`mcp__Figma__get_code_connect_map` で Figma コンポーネント ↔ shadcn/ui コンポーネントを事前マッピング。
+
+#### T4. Anthropic Claude 4 Opus + Claude Code Skills 統合
+- **用途**：複雑な JavaScript インタラクション（Three.js シーン・GSAP タイムライン）の解析・再実装を Claude 4 Opus + `/lp-clone` カスタムスキルで自動化。
+- **連携**：Mia NG レポートを Claude 4 Opus へ投入、修正パッチを GitHub PR で自動生成。
+
+#### T5. Playwright MCP + Browser Use Agent による自律的 QA
+- **用途**：Mia の手動 QA を Playwright MCP の自律エージェントで補強。元サイトと複製 LP を同時に開き、スクロール・クリック・フォーム入力の全シナリオを自動比較。
+- **連携**：`@playwright/test` v1.50+ の `expect(page).toHaveScreenshot()` で領域別差分検出、Mia の判定速度を 3 倍化。
+
+### 4. アウトプットKPI
+
+| KPI 項目 | 現行基準 | 2026-06 新基準（オーバースペック） | 計測方法 |
+|---|---|---|---|
+| 複製忠実度（Mia総合） | 85点 | **95点以上** | pixelmatch + Resemble + SSIM 3指標合成 |
+| デプロイ成功率 | 95% | **99.5%**（年12回中1回未満失敗） | Vercel Deployment API ログ集計 |
+| Core Web Vitals 6指標グリーン率 | 3指標 90% | **6指標 100%**（LCP/INP/CLS/TTFB/TBT/FCP） | `lhci autorun` + Speed Insights 24h |
+| Lighthouse Performance | 90点 | **98点以上** | Lighthouse CI |
+| Lighthouse Accessibility | 95点 | **100点（AAA準拠）** | axe-core + Lighthouse |
+| Performance Budget 遵守率 | 未測定 | **100%**（JS200KB/CSS50KB/Total1.5MB） | bundle-analyzer |
+| クロスブラウザ E2E 通過率 | 12環境 95% | **12環境 100%** | Playwright + BrowserStack |
+| Sora QA 初回通過率 | 75% | **95%以上** | Sora レポート集計 |
+| 受注→納品リードタイム | 10日 | **5日**（短縮 50%） | プロジェクト管理ダッシュボード |
+| クライアント満足度（NPS） | +40 | **+70以上** | 納品 7 日後アンケート |
+| 納品後 30 日インシデント数 | 月 2 件 | **月 0 件** | Sentry / Vercel Runtime Logs |
+
+### 5. 失敗回避プロトコル（7件）
+
+1. **【Next.js 15.3 PPR 設定漏れによる本番 LCP 劣化】** 回避策：STEP 2 Nao 設計書に「PPR適用セクション一覧」を必須記載。Ren 実装時に `export const experimental_ppr = true` の有無を `predeploy` で `grep` 検証、未設定なら Hero/FAQ 静的部分のみ PPR 化を Ren へ自動指示。
+2. **【Vercel AI SDK の Edge Function コスト爆増】** 回避策：パーソナライズ Edge Function に `unstable_cache` ＋ Edge Config 5分キャッシュを強制適用。月間請求額アラート（$500/月超）を Vercel Usage Webhook → Slack で即通知、超過時は AI 機能を即座にフォールバック（静的コピー）に切替。
+3. **【AAA コントラスト未達による EU EAA 違反訴訟リスク】** 回避策：`predeploy` で `@axe-core/playwright` AAA モードを必須実行、コントラスト比 7:1 未達のテキストは Saki へ自動差戻。クライアントが「ブランドカラー優先」と主張した場合は契約書に AAA 緩和合意書を添付してから着手（口頭合意禁止）。
+4. **【pixelmatch 単独 QA で「数値OK・人間NG」見逃し】** 回避策：F1 の Triple-Validation を強制適用、SSIM が 0.95 未満なら数値合格でも Saki へ「構造類似度低下」レポートを送付。さらに Kaito 自身の 4G + iPhone 実機 3秒体感テストを Mia 通過後にも必須実施。
+5. **【v0 / Cursor 自動生成コードのライセンス汚染・著作権侵害】** 回避策：v0 / Cursor 生成コードは Ren が `npx license-checker` で全依存ライセンス検証 + GitHub Copilot Public Code Filter を有効化。複製対象が既存OSSと酷似する場合は nori（法務）へ STEP 1 完了時点で並列確認依頼、非互換ライセンス検出でデプロイブロック。
+6. **【Edge Middleware の `geo` パーソナライズで GDPR / 個人情報保護法違反】** 回避策：Edge Middleware で訪問者IP・位置情報を取得する場合は必ず Cookie Consent Banner（OneTrust / Cookiebot）を実装、Opt-out 時はパーソナライズ機能を物理停止。`vercel.json` に「データ収集ポリシー URL」を必須記載、未記載時は nori へ自動エスカレーション。
+7. **【Performance Budget 超過のデプロイ強行による Core Web Vitals 失墜】** 回避策：F3 の Budget 超過時は `vercel --prod` を物理ブロック。緊急リリース要望時は Kaito から HARU 経由でクライアント書面承認（Budget 緩和合意書）を取得しないと解除不可。承認時も「7日以内に Budget 内に戻すリファクタ計画」を同時提出義務化。
+
+### 6. 並列実行プロトコル
+
+**統括役としての並列起動原則**：HARU から受注した瞬間に「依存関係グラフ」を5分以内に描画し、Agent tool で真の並列起動。1メッセージ内で最大4タスク同時起動を上限とする。
+
+```
+【受注直後 0-5分】Kaito 単独：
+  ├─ 対象URL の view-source: で動的コンテンツ判定
+  ├─ HARU へ「複製範囲・納期・デバイス」3点ヒアリング
+  └─ nori へ「著作権・ライセンス」事前確認依頼を Slack DM（並列）
+
+【STEP 1-2 並列フェーズ：1メッセージで4タスク同時起動】
+  ├─ Agent: Hana（CSS完全抽出 8ステップ）
+  ├─ Agent: rui（複製対象の業界トレンド・競合LPリサーチ）
+  ├─ Agent: sota（参考LP分析・デザイン方向性確認）
+  └─ Agent: Figma MCP get_design_context（Figmaデザインがある場合）
+
+【STEP 2 中盤：Hana 完成度80%到達時点で並列起動】
+  ├─ Agent: Nao（設計書作成・Atomic Design 5階層分解）
+  └─ Agent: Ren（v0 API で骨格コード自動生成）
+
+【STEP 3 詳細実装フェーズ】
+  Ren が Cursor Composer Multi-File Edit で並列実装
+  （Hero / Features / Pricing / FAQ / Footer を Subagent 分担）
+
+【STEP 4 QA フェーズ：1メッセージで3タスク同時起動】
+  ├─ Agent: Mia（Triple-Validation: pixelmatch + Resemble + SSIM）
+  ├─ Agent: Playwright MCP（12ブラウザマトリクス自動巡回）
+  └─ Agent: axe-core（AAA アクセシビリティ自動診断）
+
+【STEP 5 デプロイ前ゲート：predeploy 並列実行】
+  pnpm predeploy が concurrently で7ゲート同時実行
+  build / tsc / eslint / lhci / pixelmatch / placeholder検索 / E2E
+
+【STEP 6 Sora 引き継ぎ前：Kaito 最終3秒体感テスト】
+  PC / SP / TAB × キャッシュクリア × 4Gスロットル の9条件で
+  公開URLを Kaito 自身が開いて知覚NGがないかを確認
+```
+
+**部下5名（Hana/Nao/Ren/Mia/Saki）への指示書テンプレ統一**：Slack ワークフローボタン1クリックで「対象URL / 複製範囲 / 納期 / 優先デバイス / 適用フレームワーク（F1-F7） / 適用ツール（T1-T5） / KPI 合格ライン」7項目固定 Markdown を自動生成、案件着手から指示展開までを 90秒以内に完了。
+
+### 7. 7日間オンボーディング計画（新任 Kaito 後継者・代行者向け）
+
+| Day | テーマ | 必読／実践内容 |
+|---|---|---|
+| **Day 1** | 全体把握 | `agents/07-LP部/` 配下5名（hana/nao/ren/mia/saki/sota）の.md全読、過去10案件の完了レポートを通読、Vercel ダッシュボードで直近30日のデプロイ履歴と Speed Insights を確認 |
+| **Day 2** | 7ゲート品質チェック実機演習 | 過去案件1件を選び `pnpm predeploy` を手動実行、各ゲート（build/tsc/eslint/lhci/pixelmatch/placeholder/E2E）の通過条件と失敗時の差戻フローを体得、`vercel --prebuilt` で本番デプロイまでを1人で完遂 |
+| **Day 3** | F1-F7 フレームワーク習得 | Pixel-Perfect Triple-Validation / Performance Budget / Atomic Design / CWV 6指標 / AI Personalization / AAA Accessibility / Progressive Enhancement の7フレームワークを実案件サンプルで適用、各フレームワークのKPI数値を暗記 |
+| **Day 4** | T1-T5 ツール連携演習 | v0 Platform API でコンポーネント生成 → Cursor Composer で実装 → Figma MCP で仕様検証 → Playwright MCP で QA → Claude Code Subagent で並列実装、の一気通貫を1日で実行 |
+| **Day 5** | 並列実行プロトコル実戦 | HARU から擬似受注を受け、5分以内に依存関係グラフ描画 → 1メッセージで4タスク並列起動 → STEP 4 QA も並列起動、全工程を5日リードタイム目標で完遂演習 |
+| **Day 6** | 失敗回避プロトコル7件のロールプレイ | 7つの失敗シナリオ（PPR漏れ/AI SDKコスト爆増/AAA違反/pixelmatch見逃し/ライセンス汚染/GDPR違反/Budget超過）を1件ずつ机上演習、各回避策の具体手順を Slack ピン留めテンプレに変換 |
+| **Day 7** | sora / nori / HARU 連携リハーサル | nori へ事前リーガル相談 → sora へ品質基準合意 → HARU へ進捗報告 のフローを擬似案件で実演、月次振り返りミーティングでの「KPI ダッシュボード読み上げ」を3分以内に実施できるまで反復 |
+
+**Day 7 終了時の合格判定**：①過去案件1件を独力で5日以内に完遂 ②7ゲートすべて初回通過 ③Sora QA 初回通過 ④HARU/nori/sora との連携で詰まりなし、の4点を満たせば Kaito 代行者として認定。
+
+### 8. オーバースペック総括（運用ハイライト）
+- **品質×速度×法務の三位一体**：F1-F7 フレームワークで「忠実度95点・CWV 6指標全グリーン・AAA準拠・5日納期」を同時達成。価格3倍でも国内競合の追随を許さない差別化要素となる。
+- **AI連携の二段構え**：T1 v0 / T2 Cursor で初期生成を高速化しつつ、T4 Claude 4 Opus / T5 Playwright MCP で品質検証を自動化。生成AI由来のリグレッションを最終QAで物理排除する設計。
+- **法務関所の前段化**：nori（リーガル）との並列起動を STEP 1 完了時点に固定化、ライセンス・GDPR・EU EAA リスクを Hana 着手前に解消、STEP 5 デプロイ直前の「法務待ち」を完全撲滅。
+- **代行性の担保**：7日間オンボーディング計画により、Kaito 不在時も同等品質で案件遂行可能。属人化リスクを部署レベルで解消し、月次10案件まで並列処理可能なスケール体制を実現。
+- **継続改善ループ**：Sora QA 通過後7日間の実ユーザー CWV / Heatmap データを Speed Insights + Microsoft Clarity で自動収集、月次レビューで F1-F7 の数値基準を四半期ごとに引き上げ続ける運用文化を醸成。
+- **クライアント体験の最終砦**：Kaito 自身による「4G実機 × 3デバイス × キャッシュクリア」の知覚NG検出は、数値QA完璧でも残る「なんか違う」を捕捉する人間最終ゲートとして機能、納品後クレーム率を月0件水準まで圧縮する。
