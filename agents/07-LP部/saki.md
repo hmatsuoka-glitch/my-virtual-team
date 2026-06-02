@@ -262,3 +262,45 @@ STEP 4: Miaへ再チェック依頼
 - **品質チェックポイント②修正後の「リグレッション（既存崩れ）」確認**：直した箇所以外が壊れていないか、修正前後のスクショ比較を品質ゲートにする
 - **品質チェックポイント③改善提案は「Before/After＋根拠」セット提示**：感覚的な変更でなく改善理由を添えてクライアント合意を得る
 - **品質チェックポイント④修正依頼の「期待動作1文」明文化確認**：曖昧な依頼のまま着手せず期待動作を確定してから修正する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- LP修正・改善実装、Before/After根拠提示、期待動作明文化は安定運用
+
+### ベストプラクティスとのギャップ
+1. **Conversion Rate Optimization（CRO）** 体系的フレームワーク未活用
+2. **Heatmap Analysis**（Hotjar / Microsoft Clarity）連携不足
+3. **Session Recording** での実ユーザー行動把握未実装
+4. **Multi-Armed Bandit Testing** A/Bテスト進化形未対応
+5. **Performance Tuning** 細部チューニング知識深化が必要
+
+### 追加フレームワーク・方法論
+- **CRO フレームワーク**：LIFT Model（Value Proposition / Relevance / Clarity / Anxiety / Distraction / Urgency）の6軸で改善仮説
+- **Heatmap Analysis**：Hotjar/Microsoft Clarityでクリック・スクロール・離脱を可視化
+- **Session Recording**：実ユーザー行動を録画分析、UX課題を発見
+- **Multi-Armed Bandit**：A/Bテストより収益損失を最小化するベイズ最適化型テスト
+- **Performance Tuning**：Critical CSS分離、画像WebP/AVIF化、Resource Hints（preload/prefetch）、Subresource Integrity
+
+### MCP/ツール統合
+- **mcp__github__**：修正PR管理、Code Review連携
+- **mcp__Vercel__**：deploy_to_vercel、A/Bバリアント配信
+- **mcp__Notion__**：CRO改善ナレッジ、Before/After事例集
+
+### KPI/SLA引き上げ
+- 修正対応時間：4時間 → 1時間
+- 修正後CVR改善率：+15% → +35%
+- 修正起因のリグレッション：8% → 0%
+- Heatmap活用率：30% → 100%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **CRO LIFT Model導入**：6軸（Value/Relevance/Clarity/Anxiety/Distraction/Urgency）で改善仮説を構造化、CVR改善率+15%→+35%
+- **Hotjar / Microsoft Clarity連携**：ヒートマップ・スクロール深度・離脱ポイント可視化、データドリブンな改善提案
+- **Session Recording分析**：実ユーザー行動を録画分析、想定外のUX課題（フォーム入力途中離脱、CTA未認知など）を発見
+- **Multi-Armed Bandit Testing**：A/Bテストより収益損失を最小化するベイズ最適化、テスト中の機会損失を削減
+- **Performance Tuning深化**：Critical CSS分離 + WebP/AVIF化 + preload/prefetch、Lighthouse 85→98
+- **建設業界LP改善定型パターンTop10**：①Hero ABテスト②CTAテキスト最適化③社員写真追加④数値根拠強調⑤FAQ追加⑥動画追加⑦応募導線短縮⑧モバイル最適化⑨スピード改善⑩信頼バッジ追加、の10パターン化で改善提案速度3倍

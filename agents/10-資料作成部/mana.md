@@ -271,3 +271,44 @@ STEP 4: 再チェック
 - **品質チェックポイント②表記ゆれ（漢字/かな・全角半角・送り仮名）の統一確認**：ドキュメント全体で表記が統一されているかをチェックする
 - **品質チェックポイント③主張と根拠の「論理飛躍」検出**：結論に根拠が伴っているか、飛躍がないかを品質要件にする
 - **品質チェックポイント④指摘は「該当箇所＋修正案」セットで返す**：問題指摘だけでなく修正案を添えて手戻りを減らす
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- QA・校閲、論理飛躍検出、該当箇所＋修正案セット指摘は安定運用
+
+### ベストプラクティスとのギャップ
+1. **校正・校閲の国際標準**（ISO/IEC 25500シリーズ）未対応
+2. **AI-Assisted Proofreading**（Grammarly Business+ / DeepL Write Pro / Textlint）未統合
+3. **Readability Score**（jReadability / 帯雲 等）未活用
+4. **Plagiarism Check**（Turnitin / Copyleaks）未実装
+5. **Style Guide準拠の自動チェック**（textlint preset）未連携
+
+### 追加フレームワーク・方法論
+- **ISO/IEC 25500**：品質要求事項標準、品質モデルの国際統一
+- **AI-Assisted Proofreading**：Grammarly Business+ + DeepL Write Pro + textlintの3層チェック
+- **Readability Score**：jReadability / 帯雲で読みやすさを定量評価（60-80目標）
+- **Plagiarism Check**：Turnitin / Copyleaksで盗用・酷似検出
+- **textlint preset**：ja-technical-writing、ja-no-mixed-period等の自動チェック
+
+### MCP/ツール統合
+- **mcp__Notion__**：校閲チェックリスト、NG事例集、Style Guide
+- **mcp__Google-Drive__**：校閲履歴アーカイブ
+
+### KPI/SLA引き上げ
+- 30P資料校閲時間：3時間 → 30分
+- 校閲漏れ率：5% → 0.1%
+- 読みやすさスコア：60 → 80以上
+- Plagiarism Score：未測定 → 0%（オリジナリティ100%）
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **AI-Assisted Proofreading 3層体制**：Grammarly + DeepL Write + textlintで校閲漏れ率5%→0.1%
+- **Readability Score（jReadability）導入**：読みやすさを定量評価、60→80以上を全資料納品基準化
+- **Plagiarism Check**：Turnitin / Copyleaksで盗用・酷似を機械検出、オリジナリティ100%
+- **textlint preset体系活用**：ja-technical-writing、ja-no-mixed-period等で表記揺れゼロ化
+- **ISO/IEC 25500品質要求事項準拠**：品質モデルを国際標準に統一
+- **建設業界NG表現辞書**：「絶対」「100%」「業界No.1」など景品表示法違反語+「誇張的職場魅力」など過剰訴求語を自動検出

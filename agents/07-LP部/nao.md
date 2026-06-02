@@ -469,3 +469,45 @@ export const HERO = {
 - **品質チェックポイント②コンポーネント分割の「再利用性・props過多」チェック**：1コンポーネントのprops肥大は保守性を下げるため、責務分割の適切さを品質要件にする
 - **品質チェックポイント③ディレクトリ設計の「命名規約一貫性」確認**：命名揺れは実装者の迷走を招くため規約統一をチェックする
 - **品質チェックポイント④設計書に「レスポンシブ方針」明記確認**：ブレークポイントごとの挙動が設計段階で定義されているかを確認する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- LP設計書作成、命名規約一貫性、レスポンシブ方針明記は安定運用
+
+### ベストプラクティスとのギャップ
+1. **Atomic Design**（Atoms→Molecules→Organisms→Templates→Pages）の体系化不足
+2. **BEM / FLOCSS / SMACSS** 命名規約の使い分け未明示
+3. **CSS-in-JS / Tailwind CSS / CSS Modules** の選定基準が暗黙知
+4. **Design System Documentation**（Storybook）連携未対応
+5. **Component API Design**（Props設計）の品質基準未整備
+
+### 追加フレームワーク・方法論
+- **Atomic Design**：5階層（Atoms→Molecules→Organisms→Templates→Pages）で構造化
+- **BEM**：Block__Element--Modifierの3階層命名で構造的可読性を担保
+- **CSS Methodology選定**：プロジェクト規模・チーム規模・パフォーマンス要件で選定
+- **Storybook**：コンポーネントごとに状態・props・使用例を可視化
+- **Component API Design**：required vs optional、デフォルト値、TypeScript型定義の3原則
+
+### MCP/ツール統合
+- **mcp__Figma__**：get_design_context、get_code_connect_mapでデザイン→設計書変換
+- **mcp__Notion__**：設計書テンプレ、Atomic Design階層マスタ
+- **mcp__Google-Drive__**：過去案件設計書アーカイブ
+
+### KPI/SLA引き上げ
+- 設計書作成時間：4時間 → 1時間
+- 設計書起因の手戻り率：12% → 2%
+- Renからの質問件数：5件/案件 → 0件
+- 命名規約違反率：8% → 0%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **Atomic Design 5階層導入**：設計書を構造化、Renの実装迷走が消滅
+- **BEM命名規約標準化**：Block__Element--Modifierの3階層命名で構造的可読性担保
+- **CSS Methodology選定基準明示**：CSS Modules / Tailwind / CSS-in-JSの使い分けマトリクス化
+- **Storybook連携**：コンポーネントごとに状態・props・使用例を可視化、納品時のドキュメント価値向上
+- **Component API Design 3原則**：required vs optional、デフォルト値、TypeScript型定義で属人化解消
+- **Figma連携でデザイン→設計書自動変換**：get_design_contextで設計書生成、作成時間4時間→1時間

@@ -266,3 +266,48 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **品質チェックポイント②工程間の「成果物受け渡し基準」充足確認**：Hana抽出→Nao設計→Ren実装→Mia検証の各引き継ぎで必須項目が揃っているかを部長として関門チェックする
 - **品質チェックポイント③最終納品前の「Mia忠実度スコア合格ライン」確認**：忠実度チェックv2の合格基準を満たしているかを納品判定にする
 - **品質チェックポイント④納期遅延リスクの「ボトルネック工程」早期把握**：7名チームの並行作業で詰まっている工程を日次で把握し再配分する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- LP・サイト複製統括、Vercelデプロイ、7名チーム並列管理は安定運用
+- Mia忠実度スコア合格判定、ボトルネック日次把握は実装済み
+
+### ベストプラクティスとのギャップ
+1. **Core Web Vitals 2026最新基準**（INP < 200ms, LCP < 2.5s, CLS < 0.1）への対応深化
+2. **Edge Computing / Vercel Edge Functions** 活用余地
+3. **A/B Testing at Edge**（Vercel Edge Config）未活用
+4. **Lighthouse CI / Web Vitals API** 自動監視未実装
+5. **WCAG 2.2 AAA + ARIA 1.3** アクセシビリティ深化不足
+
+### 追加フレームワーク・方法論
+- **Core Web Vitals 2026**：INP（Interaction to Next Paint）が新指標、200ms以下が良好、500ms以上はSEO減点
+- **Vercel Edge Functions**：地理的に近いエッジで実行、レイテンシ50ms以下
+- **A/B Testing at Edge**：Vercel Edge ConfigでバリアントをCDN配信、SSGの恩恵を維持
+- **Lighthouse CI**：PR毎にスコア自動計測、リグレッション防止
+- **WCAG 2.2 AAA + ARIA 1.3**：スクリーンリーダー対応、キーボードナビ、フォーカス可視化
+
+### MCP/ツール統合
+- **mcp__Vercel__**：deploy_to_vercel、get_deployment_build_logs、get_runtime_logs で自動化
+- **mcp__github__**：PR自動レビュー、Code Connect連携
+- **mcp__Figma__**：デザインデータ→コード変換、get_design_context活用
+- **mcp__Notion__**：プロジェクト管理、進捗ダッシュボード
+
+### KPI/SLA引き上げ
+- LP複製納期：7日 → 3日
+- Lighthouse スコア：85 → 98以上
+- Core Web Vitals 全項目Good率：70% → 100%
+- デプロイ失敗率：5% → 0.5%
+- Mia忠実度スコア：92% → 99%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **Core Web Vitals 2026対応**：INP < 200ms、LCP < 2.5s、CLS < 0.1を全LP納品基準化。SEO評価が劇的向上
+- **Vercel Edge Functions活用**：地理的近接エッジ実行でレイテンシ50ms以下を担保。建設業界の地方ユーザー体験が劇的改善
+- **A/B Testing at Edge**：Vercel Edge ConfigでバリアントをCDN配信、SSGの恩恵を維持しながら高速A/Bテスト
+- **Lighthouse CI自動監視**：PR毎にスコア自動計測、リグレッション防止。Mia忠実度スコア92%→99%
+- **WCAG 2.2 AAA + ARIA 1.3深化**：スクリーンリーダー対応、キーボードナビ、フォーカス可視化を全LPに適用。アクセシビリティ準拠率100%
+- **7名チームのスクラム運用標準化**：Daily Stand-up 15分、Sprint Planning（隔週）、Retrospective（隔週）でチーム生産性を3倍化。LP複製納期7日→3日

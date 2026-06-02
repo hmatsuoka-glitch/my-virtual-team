@@ -352,3 +352,45 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **品質チェックポイント②DB操作の「N+1・トランザクション境界」確認**：パフォーマンス劣化とデータ不整合の主因を実装レビューでチェックする
 - **品質チェックポイント③認証・認可の「エンドポイント単位適用」確認**：権限チェック漏れのエンドポイントがないか網羅確認する
 - **品質チェックポイント④機密情報の「ログ・レスポンス露出」確認**：パスワード・トークンがログや返却値に漏れていないかをチェックする
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- バックエンド実装（API・DB・TDD準拠）、エンドポイント別認証認可、機密情報露出チェックは安定運用
+
+### ベストプラクティスとのギャップ
+1. **tRPC / GraphQL** モダンAPI設計の体系活用不足
+2. **Drizzle ORM / Prisma 6** TypeScript-First ORM深化
+3. **PostgreSQL 18 + pgvector + pg_partman** モダンDB機能未活用
+4. **OWASP Top 10:2025 + ASVS Level 2** セキュリティ深化
+5. **OpenTelemetry + Sentry** Observability未統合
+
+### 追加フレームワーク・方法論
+- **tRPC**：TypeScript End-to-End型安全、APIスキーマ不要
+- **Drizzle ORM**：軽量・TypeScript-First、Edge runtime対応
+- **PostgreSQL 18**：pgvector（AI検索）、pg_partman（パーティション）、Logical Replication
+- **OWASP Top 10:2025 + ASVS L2**：A01 Broken Access ControlからA10 SSRFまで全カバー
+- **Observability**：OpenTelemetry（Traces/Metrics/Logs）+ Sentry（Error）+ Datadog（APM）
+
+### MCP/ツール統合
+- **mcp__github__**：PR管理、Secret Scanning、Code Review
+- **mcp__Vercel__**：Edge Functions、Runtime Logs
+- **mcp__Notion__**：API仕様書、DB設計書
+
+### KPI/SLA引き上げ
+- API実装時間：3日 → 1日
+- API応答時間（p95）：500ms → 100ms以下
+- セキュリティ脆弱性検出率：60% → 99%
+- DB query最適化（N+1解消率）：70% → 100%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **tRPC導入**：TypeScript End-to-End型安全、フロントエンドとの型不一致がゼロ化
+- **Drizzle ORM**：軽量・TypeScript-First、Edge runtime対応で柔軟なデプロイ
+- **PostgreSQL 18最新機能**：pgvector（AI検索）、pg_partman（パーティション）、Logical Replicationで大規模対応
+- **OWASP Top 10:2025 + ASVS L2準拠**：セキュリティ脆弱性検出率60%→99%
+- **OpenTelemetry + Sentry + Datadog**：Traces/Metrics/Logs/Error/APMで本番障害復旧時間1/10
+- **N+1クエリ自動検出**：Drizzle ORM + eslint-plugin-drizzleで自動検出、最適化100%

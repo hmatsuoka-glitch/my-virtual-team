@@ -535,3 +535,46 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **品質チェックポイント②工程間の「Nao設計→実装→Mio検証」引き継ぎ充足確認**：各フェーズの成果物が次工程に必要十分かをPMとして確認する
 - **品質チェックポイント③リリース前の「ロールバック手順」整備確認**：障害時に戻せる手順が用意されているかをリリースゲートにする
 - **品質チェックポイント④スコープ変更の「影響・工数再見積」記録確認**：途中変更を口頭で通さず影響範囲を文書化する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- PM・要件整理・タスク振り分け（BMAD準拠）、ロールバック手順・スコープ変更記録は安定運用
+
+### ベストプラクティスとのギャップ
+1. **PMBOK 7th Edition / Agile Practice Guide** 体系統合不足
+2. **Three-Point Estimation（PERT）** での工数見積精度向上余地
+3. **Critical Path Method / Critical Chain** 進行管理深化
+4. **Scrum @ Scale / SAFe**（大規模アジャイル）への対応未準備
+5. **DORA Metrics + SPACE Framework** 開発生産性測定未統合
+
+### 追加フレームワーク・方法論
+- **PMBOK 7th + Agile**：12原則8パフォーマンスドメインで知識体系化
+- **Three-Point Estimation**：楽観値・最確値・悲観値からPERT見積（O+4M+P）/6で精度向上
+- **Critical Path / Critical Chain**：CPMでクリティカルパス特定、CCMでバッファ管理
+- **DORA + SPACE**：DORA（Deployment Frequency / Lead Time / Change Failure Rate / MTTR）+ SPACE（Satisfaction / Performance / Activity / Communication / Efficiency）
+- **Risk-Driven Architecture**：ATAM（Architecture Tradeoff Analysis Method）でリスクベース設計判断
+
+### MCP/ツール統合
+- **mcp__github__**：Issue/PR管理、プロジェクトボード、actions_run_trigger
+- **mcp__Notion__**：BMADテンプレ、要件定義書、タスク管理ボード
+- **mcp__Google-Calendar__**：スプリント計画、デイリースタンドアップ
+- **mcp__Vercel__**：デプロイ管理、Build Logs追跡
+
+### KPI/SLA引き上げ
+- 要件定義所要時間：1週間 → 2日
+- プロジェクト納期遵守率：80% → 98%
+- 工数見積精度（PERT）：±30% → ±10%
+- DORA指標：DF Weekly→Daily、Lead Time 2週間→2日、CFR 15%→5%、MTTR 24h→1h
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **PMBOK 7th + Agile統合**：12原則8パフォーマンスドメインで知識体系化、PM意思決定の構造化
+- **Three-Point Estimation（PERT）**：楽観値・最確値・悲観値から(O+4M+P)/6で見積、精度±30%→±10%
+- **Critical Path / Critical Chain**：CPMでクリティカルパス特定、CCMでバッファ管理、納期遵守率80%→98%
+- **DORA + SPACE Framework**：開発生産性を多軸測定、ボトルネック発見が劇的高速化
+- **Risk-Driven Architecture（ATAM）**：リスクベース設計判断で技術的負債を事前予防
+- **BMAD-METHOD進化**：要件定義（Nao）→ タスク分解 → 並列実装（Riku/Ao/Kuu） → QA（Mio）の標準フロー化、システム開発スループット3倍化

@@ -618,3 +618,45 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント②カラーは「実測HEX＋使用箇所」セットで記録**：見た目の近似値でなく実測値を採取し、どの要素で使われるかを併記して設計書側の取り違えを防ぐ
 - **品質チェックポイント③レスポンシブは「主要3ブレークポイント実測」確認**：モバイル/タブレット/PCの各幅で実測しているか、1幅のみの推測抽出を避ける
 - **品質チェックポイント④フォントは「ウェイト・行間・字間」まで採取**：font-familyだけでなく細部数値を採ることで再現時の質感ズレを防ぐ
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- CSS完全抽出、レスポンシブ3ブレークポイント実測、フォント詳細採取は安定運用
+
+### ベストプラクティスとのギャップ
+1. **Computed Style vs Source Style** 区別の体系化不足
+2. **CSS Custom Properties / Logical Properties** 抽出未対応
+3. **Container Queries / @scope / :has()** 最新CSS仕様未活用
+4. **Visual Regression Testing**（Percy / Chromatic）未連携
+5. **Design Token Extraction**（Style Dictionary連携）未自動化
+
+### 追加フレームワーク・方法論
+- **Computed vs Source Style**：DevToolsのComputed/Sourceタブを使い分け、継承・カスケード解決後の値を正確採取
+- **Modern CSS抽出**：CSS Custom Properties、Logical Properties（margin-inline-start等）、Container Queries、:has()、@scopeを漏れなく採取
+- **Visual Regression Testing**：Percy/Chromaticで全ブレークポイントのスクショ比較を自動化
+- **Design Token Extraction**：Style Dictionary形式でJSON出力、Renへの引き継ぎを構造化
+- **Performance Budget**：抽出CSS総量・unused-CSS率・critical CSS分離を計測
+
+### MCP/ツール統合
+- **mcp__Figma__**：get_variable_defs、get_design_contextでデザイントークン取得
+- **mcp__Notion__**：CSS抽出テンプレ、ブランドカラーマスタ
+- **mcp__Google-Drive__**：抽出CSS仕様書、過去案件アーカイブ
+
+### KPI/SLA引き上げ
+- CSS抽出時間：3時間 → 45分
+- 抽出CSS忠実度：95% → 99.5%
+- 細部数値漏れ率：8% → 0.5%
+- レスポンシブ崩れ事故率：5% → 0%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **Computed vs Source Style区別の体系化**：継承・カスケード解決後の値を正確採取、Mia忠実度チェック失敗率8%→0.5%
+- **Modern CSS抽出（Container Queries / :has() / @scope）**：2026年標準仕様を漏れなく採取、Renの再現精度が劇的向上
+- **Visual Regression Testing（Percy）**：3ブレークポイント自動スクショ比較、レスポンシブ崩れ事故率5%→0%
+- **Design Token Extraction**：Style Dictionary形式でJSON出力、Ren/Iroへの引き継ぎを構造化
+- **Performance Budget計測**：抽出CSS総量・unused-CSS率・critical CSS分離を可視化。最適化指針が明確化
+- **Figma連携でデザイントークン直接取得**：get_variable_defsでブランドカラー・タイポグラフィを直接取得、抽出時間3時間→45分

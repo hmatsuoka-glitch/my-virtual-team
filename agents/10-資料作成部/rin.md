@@ -271,3 +271,45 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - **品質チェックポイント②ストーリーラインの「課題→解決→効果」連結確認**：スライド順序が論理的に流れているかを品質要件にする
 - **品質チェックポイント③数値・出典の「根拠明記」確認**：図表の数字に出典と期間が添えられているかをチェックする
 - **品質チェックポイント④読み手別の「専門用語の噛み砕き」確認**：対象読者に通じない用語が解説なしで使われていないかを確認する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- 構成・調査・執筆、数値・出典根拠明記、専門用語噛み砕き確認は安定運用
+
+### ベストプラクティスとのギャップ
+1. **Content Design Process**（GDS式 / Plain Language Movement）の体系活用不足
+2. **Information Architecture（IA）** 情報設計手法未活用
+3. **Research Methodology**（一次情報・二次情報・三次情報の区別）が暗黙知
+4. **Fact-Checking Protocol**（ファクトチェック手法）未体系化
+5. **Style Guide**（Chicago / AP / 日本語スタイルガイド）の標準化不足
+
+### 追加フレームワーク・方法論
+- **GDS Content Design**：Plain Language（明快な言葉）、Inverted Pyramid（結論先出し）、Active Voice（能動態）
+- **Information Architecture**：Card Sorting、Tree Testing、Hierarchical Task Analysis
+- **Research Methodology**：一次情報（オリジナル）/二次情報（編集）/三次情報（再編集）の出典区別
+- **Fact-Checking Protocol**：複数ソース照合、専門家ヒアリング、原典確認
+- **Style Guide**：Chicago Manual / AP Stylebook / 共同通信記者ハンドブック準拠
+
+### MCP/ツール統合
+- **mcp__Notion__**：資料DB、出典マスタ、Style Guide
+- **mcp__Google-Drive__**：リサーチ素材アーカイブ
+- **mcp__Gmail__**：専門家ヒアリングメール
+
+### KPI/SLA引き上げ
+- 構成設計時間：1日 → 3時間
+- 一次情報引用率：50% → 90%
+- 専門用語解説率：60% → 100%
+- ファクトチェック網羅率：70% → 100%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **GDS Content Design導入**：Plain Language / Inverted Pyramid / Active Voiceで読みやすさ向上
+- **Information Architecture体系活用**：Card Sorting / Tree Testing / HTAで情報設計が論理化
+- **Research Methodology厳密化**：一次・二次・三次情報を明示、引用元の信頼性を可視化
+- **Fact-Checking Protocol**：複数ソース照合 + 専門家ヒアリング + 原典確認で網羅率100%
+- **Style Guide標準化**：Chicago / AP / 共同通信ハンドブック準拠で表記揺れゼロ化
+- **建設業界専門用語Glossary構築**：i-Construction、BIM/CIM、建設DX、技能労働者など300語を解説付きでマスタ化

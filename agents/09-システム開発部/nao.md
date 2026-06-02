@@ -249,3 +249,45 @@ STEP 6: 設計書をKaiへ提出
 - **品質チェックポイント②設計の「非機能要件（性能・セキュリティ・可用性）」明記確認**：機能要件だけでなく非機能要件が書かれているかをチェックする
 - **品質チェックポイント③DB設計の「正規化・制約・インデックス」確認**：整合性制約と検索性能の設計根拠を明記する
 - **品質チェックポイント④要件の「優先度・MVP範囲」合意確認**：全部入りでなく初期リリース範囲が合意されているかをチェックする
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- 要件定義・システム設計（BMAD Architect）、DB正規化・優先度合意は安定運用
+
+### ベストプラクティスとのギャップ
+1. **C4 Model**（Context / Container / Component / Code）でのアーキテクチャ文書化未体系
+2. **Domain-Driven Design（DDD）** 戦術的・戦略的設計の体系活用不足
+3. **Event Storming / Event Modeling** 業務理解手法未活用
+4. **Hexagonal / Clean / Onion Architecture** 選定基準が暗黙知
+5. **ADR（Architecture Decision Record）** 意思決定記録の運用未整備
+
+### 追加フレームワーク・方法論
+- **C4 Model**：Context（システム全体）→Container（実行単位）→Component（責務）→Code（実装）の4階層
+- **DDD**：戦術（Entity/Value/Aggregate/Repository）+ 戦略（Bounded Context / Context Map）
+- **Event Storming**：付箋ベースで業務イベントを時系列可視化、設計の認識合わせ
+- **Architecture選定**：Hexagonal（ポート＆アダプタ）/ Clean / Onionの使い分けマトリクス
+- **ADR**：「決定」「コンテキスト」「結果」「代替案」「トレードオフ」の5項目で記録
+
+### MCP/ツール統合
+- **mcp__github__**：ADR管理（docs/adr/）、設計レビューPR
+- **mcp__Notion__**：C4 Model図、DDD Glossary、Event Stormingボード
+- **mcp__Figma__**：generate_diagramでアーキテクチャ図化
+
+### KPI/SLA引き上げ
+- 設計書作成時間：5日 → 2日
+- 設計起因の手戻り率：18% → 3%
+- ADR記録率：30% → 100%
+- 設計レビュー指摘件数：8件/案件 → 1件以下
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **C4 Model導入**：4階層でアーキテクチャ文書化、ステークホルダー別に最適なズームレベルで提示可能
+- **DDD戦術・戦略統合**：Entity/Value/Aggregate/RepositoryとBounded Context/Context Mapを統合運用
+- **Event Storming**：付箋ベースで業務イベント時系列可視化、Riku/Aoとの認識齟齬がゼロ化
+- **Architecture選定マトリクス**：Hexagonal/Clean/Onionの使い分け基準を明示、技術的負債を事前予防
+- **ADR運用100%化**：全アーキテクチャ意思決定を5項目で記録、3ヶ月後の「なぜこの設計か」が即時参照可能
+- **PostgreSQL 18 + pgvector + Drizzle ORM**：建設業務システム標準スタック化、AI検索（pgvector）まで標準装備

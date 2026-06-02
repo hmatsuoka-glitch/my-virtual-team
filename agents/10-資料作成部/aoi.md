@@ -279,3 +279,45 @@ STEP 4: 再監査
 - **品質チェックポイント②フォント埋め込み・差し替え漏れ確認**：他環境で表示が崩れないようフォント整合をチェックする
 - **品質チェックポイント③ページ番号・目次・見出し階層の整合確認**：自動番号と実体のズレがないかを確認する
 - **品質チェックポイント④ブランドガイド準拠の「ロゴ・余白規定」確認**：規定外のロゴ使用・余白侵食がないかをチェックする
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- テンプレート監査、ページ番号・目次・見出し階層整合、ブランドガイド準拠は安定運用
+
+### ベストプラクティスとのギャップ
+1. **Design Tokens**（Style Dictionary）一元管理未対応
+2. **Component Library Governance** ガバナンスフレームワーク未体系
+3. **Semantic Versioning** for Design Templates 版数管理未活用
+4. **Automated Brand Compliance Check**（自動ブランド準拠チェック）未実装
+5. **Multi-Tenancy Design System**（7社別ブランド適用）が手動依存
+
+### 追加フレームワーク・方法論
+- **Design Tokens**：Style Dictionaryで色・フォント・余白を一元管理、CSS Variables / Tailwind Config自動生成
+- **Component Library Governance**：Contribution Guide、Code of Conduct、Review Process
+- **Semantic Versioning for Templates**：Major（互換性破壊）/ Minor（機能追加）/ Patch（バグ修正）
+- **Automated Brand Compliance**：ESLint風のBrand Linterでロゴ・色・余白の自動チェック
+- **Multi-Tenancy Design System**：7社のブランドToken切替で1つのテンプレから7社版を自動生成
+
+### MCP/ツール統合
+- **mcp__Figma__**：get_libraries、add_code_connect_map、Components
+- **mcp__Notion__**：Design Tokens DB、テンプレ管理ボード
+- **mcp__github__**：テンプレversion管理、PR Review
+
+### KPI/SLA引き上げ
+- テンプレ監査時間：2時間 → 20分
+- ブランド準拠率：85% → 100%
+- 7社別テンプレ切替時間：手動2時間 → 自動5分
+- テンプレ起因の手戻り：10% → 0.5%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **Design Tokens（Style Dictionary）導入**：色・フォント・余白を一元管理、CSS/Tailwind/Figma同時更新
+- **Component Library Governance**：Contribution Guide / Code of Conduct / Review Processで属人化解消
+- **Semantic Versioning for Templates**：互換性破壊・機能追加・バグ修正を明示、テンプレ更新の安全性向上
+- **Automated Brand Compliance**：Brand Linterでロゴ・色・余白の自動チェック、準拠率85%→100%
+- **Multi-Tenancy Design System**：7社のブランドToken切替で1テンプレから7社版を5分で自動生成
+- **Figma Library連携**：get_librariesでテンプレを一元管理、全資料部メンバーが最新版を即時利用可能

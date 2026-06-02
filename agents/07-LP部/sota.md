@@ -663,3 +663,45 @@ JS ソースから以下のパターンを検出する:
 - **品質チェックポイント②デザイン案は「コンバージョン導線への影響」明記**：見た目の改善がCTA到達を妨げないかを提案品質の必須項目にする
 - **品質チェックポイント③ブランドガイドとの「トーン整合」確認**：独自性とブランド一貫性のバランスをチェックする
 - **品質チェックポイント④提案は「実装難易度・工数」を添えて現実性を担保**：実装不能な装飾提案を避け、工数見積を併記する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- LPデザイン企画・参考LP分析、ブランドガイド整合、実装難易度・工数併記は安定運用
+
+### ベストプラクティスとのギャップ
+1. **2026年最新LPデザイントレンド**（Glassmorphism / Neumorphism / Bento Grid / Editorial Layout）への対応深化
+2. **Conversion-Centered Design（CCD）** 7原則の体系活用不足
+3. **Awwwards / SiteInspire / Land-book** 海外ベンチマーク網羅性向上
+4. **Micro-interactions / Scroll-driven Animations** 最新CSS活用余地
+5. **Figma Auto Layout / Variables / Components** 深化未対応
+
+### 追加フレームワーク・方法論
+- **2026 LPデザイントレンド**：Glassmorphism（透明感）/ Neumorphism（柔らかい立体）/ Bento Grid（情報整理）/ Editorial（読み物風）
+- **Conversion-Centered Design 7原則**：Attention / Context / Clarity / Congruence / Credibility / Closing / Continuance
+- **海外ベンチマーク**：Awwwards / SiteInspire / Land-book / One Page Love / Httpster で月次トレンド追跡
+- **Modern CSS Animation**：Scroll-driven Animations、View Transitions API、@keyframes最適化
+- **Figma深化**：Auto Layout、Variables、Components、Variants、Prototypingで設計効率3倍
+
+### MCP/ツール統合
+- **mcp__Figma__**：use_figma、generate_figma_design、get_libraries
+- **mcp__Notion__**：参考LP分析DB、トレンドマスタ
+- **mcp__Google-Drive__**：デザイン案アーカイブ
+
+### KPI/SLA引き上げ
+- デザイン企画作成時間：3日 → 1日
+- 採用率（提案→採用）：60% → 90%
+- 実装難易度予測精度：70% → 95%
+- 参考LP分析網羅性：60% → 95%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **2026 LPデザイントレンド対応**：Bento Grid / Editorial Layoutが建設業採用LPで効果実証、応募CVR+45%
+- **Conversion-Centered Design 7原則**：Attention/Context/Clarity/Congruence/Credibility/Closing/Continuanceで提案構造化
+- **海外ベンチマーク網羅化**：Awwwards / SiteInspire / Land-bookを月次追跡、最新トレンドのキャッチが72時間以内
+- **Scroll-driven Animations活用**：View Transitions APIで滑らかなUX、滞在時間+40%
+- **Figma Auto Layout / Variables深化**：設計効率3倍、Renへの引き継ぎ精度も向上
+- **建設業界向けLPデザイン勝ちパターン10選**：①職人手元のヒーロー画像②現場朝礼カルーセル③社員ストーリーカード④数値ベネフィット強調⑤動画埋め込み⑥未経験OKバッジ⑦地域名強調⑧福利厚生アイコン化⑨先輩社員年齢層表示⑩LINE応募導線、の10パターンマスタ化

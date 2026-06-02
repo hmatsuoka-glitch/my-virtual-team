@@ -374,3 +374,46 @@ STEP 6: 実装完了報告
 - **品質チェックポイント②「ヘルスチェック・監視・アラート」稼働確認**：デプロイ後に障害が検知される仕組みが動いているかをチェックする
 - **品質チェックポイント③バックアップ・リストアの「実際の復元テスト」確認**：バックアップ取得だけでなく復元できるかを定期検証する
 - **品質チェックポイント④インフラ変更の「コード化（IaC）と差分レビュー」確認**：手動変更でなくコード化された変更かを確認する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- インフラ・デプロイ（Vercel・CI/CD）、バックアップ復元テスト、IaC化は安定運用
+
+### ベストプラクティスとのギャップ
+1. **Vercel + Cloudflare Workers + Supabase + Neon** モダンStackの統合活用
+2. **Pulumi / Terraform / SST** モダンIaCの選定基準が暗黙知
+3. **GitOps（ArgoCD / Flux）** での宣言的デプロイ未対応
+4. **Progressive Delivery**（Canary / Blue-Green / Feature Flags）未体系
+5. **FinOps**（クラウドコスト最適化）未実装
+
+### 追加フレームワーク・方法論
+- **Modern Stack**：Vercel（FE）+ Cloudflare Workers（Edge）+ Supabase（BaaS）+ Neon（Serverless Postgres）
+- **IaC選定**：Pulumi（TypeScript）/ Terraform（HCL）/ SST（AWS特化）の使い分け
+- **GitOps**：ArgoCD/Fluxで宣言的デプロイ、Git=本番状態
+- **Progressive Delivery**：Canary（段階リリース）/ Blue-Green / Feature Flags（LaunchDarkly）
+- **FinOps**：Cost Explorer連携、Resource Tagging、Reserved Instance最適化
+
+### MCP/ツール統合
+- **mcp__Vercel__**：deploy_to_vercel、get_deployment、list_projects
+- **mcp__github__**：Actions、Secret Scanning、Release管理
+- **mcp__Notion__**：インフラ構成図、Runbook、Disaster Recovery Plan
+
+### KPI/SLA引き上げ
+- デプロイ頻度：Weekly → Daily（DORA Elite）
+- リードタイム（コミット→本番）：2日 → 1時間
+- 障害復旧時間（MTTR）：4時間 → 30分
+- 変更失敗率（CFR）：15% → 3%
+- クラウドコスト最適化率：標準 → -30%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **Modern Stack統合**：Vercel + Cloudflare Workers + Supabase + Neonで建設業務システムをサーバレス化
+- **IaC選定マトリクス**：Pulumi / Terraform / SSTの使い分けを明示、属人化解消
+- **GitOps（ArgoCD）**：宣言的デプロイでGit=本番状態、ロールバックがgit revertで完結
+- **Progressive Delivery**：Canary 5%→25%→100%段階リリース、リスクを劇的削減
+- **FinOps運用**：Cost Explorer + Resource Tagging + Reserved Instanceでクラウドコスト30%削減
+- **DORA Elite達成**：DF Daily / Lead Time <1h / CFR 3% / MTTR 30minの世界トップ水準

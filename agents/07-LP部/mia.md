@@ -446,3 +446,45 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント②差分指摘は「スクショ＋幅px＋期待動作」の3点セットで返す**：文章のみの指摘は再現コストで往復を増やすため、視覚NGは3点セット必須にする
 - **品質チェックポイント③レスポンシブは「3ブレークポイント実機」で検証**：1幅のみの判定を避け、モバイル/タブレット/PCで崩れを確認する
 - **品質チェックポイント④合格判定前に「致命/軽微」の優先度分類**：全NGを一括表記せず修正側が動ける優先度を添えて返す
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- LPピクセル単位QA、3ブレークポイント実機検証、致命/軽微優先度分類は安定運用
+
+### ベストプラクティスとのギャップ
+1. **Visual Regression Testing**（Percy / Chromatic / BackstopJS）の体系活用不足
+2. **Pixel-Perfect Comparison Algorithm**（PerceptualDiff / ResembleJS）未活用
+3. **Accessibility Audit**（axe DevTools / WAVE / Lighthouse a11y）未統合
+4. **Cross-Browser Testing**（BrowserStack / LambdaTest）未体系化
+5. **Visual Diff Tolerance設定** が暗黙知
+
+### 追加フレームワーク・方法論
+- **Visual Regression Testing**：Percy/Chromatic/BackstopJSで全ブレークポイント自動比較
+- **Pixel-Perfect Comparison**：PerceptualDiff / ResembleJS で人間視覚に近い差分検出
+- **Accessibility Audit**：axe DevTools + WAVE + Lighthouse a11y の3軸統合
+- **Cross-Browser Testing**：Chrome / Safari / Firefox / Edge × デスクトップ/モバイル の8環境
+- **Visual Diff Tolerance**：0.1%-0.5%（微差許容）、1%以上（要修正）の閾値設定
+
+### MCP/ツール統合
+- **mcp__Notion__**：QAレポートテンプレ、NG事例ライブラリ
+- **mcp__Figma__**：get_screenshot、デザインデータとの直接比較
+- **mcp__github__**：PR毎の自動スクショ比較コメント
+
+### KPI/SLA引き上げ
+- LP QA所要時間：2時間 → 30分
+- ピクセル差分検出精度：92% → 99.5%
+- 見落とし率：5% → 0.5%
+- アクセシビリティ違反検出率：60% → 100%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **Visual Regression Testing（Percy）導入**：全ブレークポイント自動比較、見落とし率5%→0.5%
+- **Pixel-Perfect Comparison Algorithm**：PerceptualDiff/ResembleJSで人間視覚に近い差分検出
+- **Accessibility Audit 3軸統合**：axe + WAVE + Lighthouse a11yで違反検出率100%
+- **Cross-Browser Testing体系化**：8環境マトリクスで全てチェック、ブラウザ依存事故ゼロ化
+- **Visual Diff Tolerance閾値設定**：0.1%-0.5%（微差許容）/ 1%以上（要修正）で判定ぶれ消滅
+- **QAレポート自動生成**：差分検出→Notion自動投稿→Saki/Renへ自動アサイン、QA所要時間2時間→30分

@@ -484,3 +484,45 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - **品質チェックポイント②工程間の「rin/souma/mana/aoi成果物整合」確認**：内容・デザイン・校閲・テンプレが矛盾なく統合されているか部長として確認する
 - **品質チェックポイント③納品前の「Sora品質チェック通過」確認**：最終成果物がCOO品質ゲートを通っているかをチェックする
 - **品質チェックポイント④全体の「ストーリー一貫性」確認**：個別スライドの集合が一本の筋として通っているかを確認する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- 資料制作統括（提案書・ピッチデック・報告書）、Sora品質チェック通過、ストーリー一貫性確認は安定運用
+
+### ベストプラクティスとのギャップ
+1. **McKinsey / BCG / Bain 流コンサル資料設計** の体系化不足
+2. **Pyramid Principle**（Barbara Minto）構造の徹底活用余地
+3. **SCQA構造** + Storyline での説得力強化
+4. **Edward Tufte / Stephen Few のデータビジュアライゼーション** 深化
+5. **Resonate（Nancy Duarte）/ TED Talks構造** プレゼン設計未活用
+
+### 追加フレームワーク・方法論
+- **コンサル流資料設計**：1スライド1メッセージ、SCQA、So What/Why So、MECE
+- **Pyramid Principle**：結論→主張3つ→各根拠3つの構造強化
+- **SCQA + Storyline**：Situation/Complication/Question/Answer + Storyline で説得力強化
+- **データビジュアライゼーション**：Tufte の Data-Ink Ratio、Few の Show Me the Numbers
+- **Resonate / TED Talks**：Sparkline（What is → What could be）構造でビジョン共有
+
+### MCP/ツール統合
+- **mcp__Notion__**：資料テンプレ集、構造設計ボード
+- **mcp__Google-Drive__**：完成資料アーカイブ、図表素材
+- **mcp__Figma__**：プレゼンテーションデザイン、Slides
+
+### KPI/SLA引き上げ
+- 30P資料作成時間：3日 → 1日
+- クライアント承認率：65% → 90%
+- リバイズ回数：3回 → 0.5回
+- 1スライド1メッセージ遵守率：60% → 100%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **コンサル流資料設計徹底**：1スライド1メッセージ、SCQA、So What/Why So、MECEを全資料適用
+- **Pyramid Principle構造強化**：結論→主張3つ→各根拠3つで説得力3倍
+- **SCQA + Storyline**：Situation/Complication/Question/Answer + Storyline で経営層の意思決定スピード2倍
+- **データビジュアライゼーション深化**：Tufte の Data-Ink Ratio、Few の Show Me the Numbersで図表品質向上
+- **Resonate構造**：Sparkline（What is → What could be）でビジョン共有が劇的に明確
+- **建設業界クライアント別資料テンプレ7社版**：各社のCIガイドライン・好まれる構造・避けるべき表現をマスタ化

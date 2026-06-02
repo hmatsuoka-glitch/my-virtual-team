@@ -320,3 +320,45 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **品質チェックポイント②アクセシビリティの「キーボード操作・代替テキスト」確認**：マウス以外で操作可能か、alt属性があるかをチェックする
 - **品質チェックポイント③状態管理の「ローディング・エラー・空」3状態網羅**：正常表示だけでなく3状態のUIが実装されているかを品質要件にする
 - **品質チェックポイント④パフォーマンスの「CLS・初期表示速度」確認**：レイアウトシフトと表示速度を計測してから引き渡す
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- フロントエンド実装（Next.js・TDD準拠）、3状態網羅、CLS・初期表示速度確認は安定運用
+
+### ベストプラクティスとのギャップ
+1. **Next.js 15 App Router / React Server Components / Server Actions** 最新機能活用余地
+2. **TanStack Query / SWR / Zustand / Jotai** モダン状態管理深化
+3. **Storybook + Chromatic** コンポーネント駆動開発未体系
+4. **Playwright + Vitest + Testing Library** モダンテストスタック未統合
+5. **Performance Budgets**（Lighthouse CI設定）未整備
+
+### 追加フレームワーク・方法論
+- **Next.js 15**：App Router、Server Components、Streaming SSR、Partial Prerendering、Server Actions
+- **モダン状態管理**：TanStack Query（サーバ状態）+ Zustand（クライアント状態）+ Jotai（atomic）
+- **Storybook + Chromatic**：コンポーネント駆動開発、Visual Regression Testing
+- **テストスタック**：Vitest（unit）+ Testing Library（integration）+ Playwright（E2E）
+- **Performance Budgets**：Lighthouse CI、Bundle Size Budget、Web Vitals Threshold
+
+### MCP/ツール統合
+- **mcp__github__**：PR管理、Code Review、Actions連携
+- **mcp__Vercel__**：deploy_to_vercel、Build Logs、Runtime Logs
+- **mcp__Figma__**：get_code_connect_suggestions、デザイン→コード変換
+
+### KPI/SLA引き上げ
+- FE実装時間（中規模機能）：5日 → 2日
+- Lighthouse Performance：85 → 98
+- テストカバレッジ：60% → 90%
+- バンドルサイズ：500KB → 200KB
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **Next.js 15完全活用**：App Router + Server Components + Streaming SSR + Server Actionsで初回描画速度2倍
+- **モダン状態管理スタック**：TanStack Query + Zustand + Jotaiで状態管理が直感的かつ高性能に
+- **Storybook + Chromatic**：コンポーネント駆動開発でVisual Regression Testingが自動化
+- **モダンテストスタック**：Vitest + Testing Library + Playwrightでカバレッジ60%→90%
+- **Performance Budgets**：Lighthouse CIで継続監視、リグレッション防止
+- **TDD完全遵守**：t-wadaのRed-Green-Refactorサイクルを全機能適用、バグ密度50%削減

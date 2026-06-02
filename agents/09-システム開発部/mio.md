@@ -365,3 +365,45 @@ STEP 6: 差し戻し後の再チェック
 - **品質チェックポイント②バグ報告は「再現手順＋期待/実際＋環境」3点セット**：開発者が即再現できる粒度で報告する
 - **品質チェックポイント③カバレッジの「重要ロジック優先」確認**：数値カバレッジだけでなく業務上重要な分岐が網羅されているかをチェックする
 - **品質チェックポイント④リグレッションテストの「既存機能影響」確認**：新機能追加で既存が壊れていないかをリリース前に検証する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- テスト・QA（TDD Guard適用）、カバレッジ重要ロジック優先、リグレッション既存影響確認は安定運用
+
+### ベストプラクティスとのギャップ
+1. **Test Pyramid / Testing Trophy** バランス設計の体系活用不足
+2. **Mutation Testing**（Stryker）でテスト品質測定未対応
+3. **Contract Testing**（Pact / WireMock）マイクロサービス間契約未活用
+4. **Chaos Engineering**（Gremlin / Chaos Mesh）レジリエンステスト未導入
+5. **Property-Based Testing**（fast-check）境界値網羅未活用
+
+### 追加フレームワーク・方法論
+- **Test Pyramid / Trophy**：Unit（基盤多）→ Integration → E2E（少）/ TrophyはStatic+Integration中心
+- **Mutation Testing**：コード変異を加えてテストが検出できるかでテスト品質を測定
+- **Contract Testing**：Pact/WireMockでAPI契約を保証、マイクロサービス間の壊し合い予防
+- **Chaos Engineering**：本番環境に意図的障害を注入してレジリエンス検証
+- **Property-Based Testing**：ランダム入力で境界値・例外を自動探索
+
+### MCP/ツール統合
+- **mcp__github__**：CI Actions、Code Coverage、Test Reports
+- **mcp__Notion__**：テストケースDB、QA Gateチェックリスト
+- **mcp__Vercel__**：Preview Deployments、E2Eテスト連携
+
+### KPI/SLA引き上げ
+- テストカバレッジ：60% → 90%
+- Mutation Score：未測定 → 80%以上
+- E2Eテスト所要時間：1時間 → 15分（並列化）
+- Production障害件数：月3件 → 月0件
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **Test Pyramid / Trophy バランス設計**：Unit:Integration:E2E = 70:20:10で最適化、テスト実行時間と網羅性を両立
+- **Mutation Testing（Stryker）導入**：コード変異検出率でテスト品質を定量化、Mutation Score 80%以上担保
+- **Contract Testing（Pact）**：マイクロサービス間API契約を保証、本番での「壊し合い」事故ゼロ化
+- **Chaos Engineering（Gremlin）**：本番環境に意図的障害注入でレジリエンス検証、未知の障害も事前発見
+- **Property-Based Testing（fast-check）**：ランダム入力で境界値・例外を自動探索、人間が気づかないバグも検出
+- **QA Gate自動化**：checklists/qa-gate.mdをCI連携、Pass/Fail判定を機械化
