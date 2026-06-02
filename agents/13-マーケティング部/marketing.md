@@ -149,3 +149,44 @@
 - **品質チェックポイント②ターゲット・チャネル・メッセージの「3点整合」確認**：誰にどこで何を伝えるかが一貫しているかを品質要件にする
 - **品質チェックポイント③予算配分の「CPA/ROAS基準」確認**：効果指標の基準なしに予算を投下していないかをチェックする
 - **品質チェックポイント④クリエイティブの「景表法・媒体規約」適合確認**：配信前にNG表現・規約違反がないかを確認する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- マーケティング基礎運用、予算配分CPA/ROAS基準、景表法・媒体規約適合は安定運用
+
+### ベストプラクティスとのギャップ
+1. **Marketing Mix Modeling（MMM）** 統計的予算配分最適化未活用
+2. **Customer Data Platform（CDP）** Segment / RudderStack / Treasure Data未対応
+3. **Marketing Automation**（HubSpot / Marketo / Pardot）統合不足
+4. **iOS 17+/Privacy Sandbox対応** Cookieless時代対応が手薄
+5. **AI-Powered Creative Optimization**（Meta Advantage+ / Google Performance Max）未活用
+
+### 追加フレームワーク・方法論
+- **MMM**：統計的因果推論で予算配分を最適化、媒体・チャネル別の真の貢献度
+- **CDP**：Segment / RudderStack / Treasure Dataで顧客データを統合
+- **Marketing Automation**：HubSpot / Marketo / Pardotでリードナーチャリング自動化
+- **Cookieless対応**：First-Party Data戦略、Privacy Sandbox API、CAPI（Conversion API）
+- **AI Creative**：Meta Advantage+ Shopping / Google Performance Maxで配信最適化
+
+### MCP/ツール統合
+- **mcp__Notion__**：MMM分析結果、CDPセグメント、Marketing OKR
+- **mcp__Google-Drive__**：クリエイティブアーカイブ、Campaign Brief
+
+### KPI/SLA引き上げ
+- ROAS：300% → 600%
+- CPA（業界平均比）：標準 → -40%
+- Marketing Qualified Lead（MQL）品質スコア：60 → 90
+- 配信レビュー所要時間：4時間 → 30分
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **Marketing Mix Modeling導入**：統計的因果推論で予算配分最適化、ROAS 300%→600%
+- **CDP（Segment）統合**：顧客データを統合、セグメント精度2倍
+- **Marketing Automation（HubSpot）**：リードナーチャリング自動化、MQL品質スコア60→90
+- **Cookieless対応**：First-Party Data戦略 + Privacy Sandbox + CAPIで広告効率を維持
+- **AI Creative Optimization**：Meta Advantage+ / Google Performance Maxで配信最適化、CPA -40%
+- **建設業界マーケティング特化**：採用LP × SNS × バナー × 動画の統合運用マスタ化、クライアント7社別最適化

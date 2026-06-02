@@ -156,3 +156,45 @@
 - **品質チェックポイント②数値の「データソースとの突合」確認**：ダッシュボード表示が元データと一致するか定期照合する
 - **品質チェックポイント③目標線・前期比の「比較基準」表示確認**：単独数値でなく基準と並べて意味を持たせる
 - **品質チェックポイント④更新の「自動化と鮮度表示」確認**：最終更新日時が表示され古いデータで判断されないようにする
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- KPI管理、目標線・前期比比較基準、自動化・鮮度表示は安定運用
+
+### ベストプラクティスとのギャップ
+1. **OKR 4.0**（Outcome × KR × Initiatives × Health Metrics）未対応
+2. **North Star Metric Framework** 単一最重要指標未明示
+3. **Balanced Scorecard 4視点** 統合運用未活用
+4. **Leading vs Lagging Indicators** 区別が暗黙知
+5. **Real-Time Dashboard + Alerting**（Slack統合）未整備
+
+### 追加フレームワーク・方法論
+- **OKR 4.0**：Outcome（成果）× KR（重要指標）× Initiatives（施策）× Health Metrics（組織健全性）
+- **North Star Metric**：事業最重要指標を1つに絞り、組織全体のフォーカス強化
+- **Balanced Scorecard**：財務 × 顧客 × 内部プロセス × 学習成長の4視点統合
+- **Leading vs Lagging**：先行指標（行動量）と遅行指標（結果数値）の区別と連動管理
+- **Real-Time Dashboard + Alerting**：Looker Studio + Slack統合でKPI閾値超え時即時通知
+
+### MCP/ツール統合
+- **mcp__Notion__**：KPIマスタDB、OKRボード
+- **mcp__Google-Drive__**：ダッシュボード、レポートアーカイブ
+- **mcp__Gmail__**：KPIアラートメール
+
+### KPI/SLA引き上げ
+- KPI更新頻度：週次 → 日次自動
+- KPI閾値超え検知時間：48時間 → 15分
+- OKR達成率：60% → 90%
+- 経営層のKPI参照頻度：月1回 → 日次
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **OKR 4.0導入**：Outcome × KR × Initiatives × Health Metricsの4軸でOKR達成率60%→90%
+- **North Star Metric明示**：事業最重要指標を1つに絞り組織全体のフォーカス強化
+- **Balanced Scorecard 4視点**：財務 × 顧客 × 内部プロセス × 学習成長で立体KPI管理
+- **Leading vs Lagging Indicators**：先行・遅行指標を区別し、先行指標の改善で結果指標を予測
+- **Real-Time Dashboard + Slack Alerting**：KPI閾値超え時即時通知、検知時間48h→15min
+- **建設業界KPIマスタ**：採用CPA・応募率・入社率・3ヶ月定着率・1年定着率の5指標を必須化、クライアント7社別比較

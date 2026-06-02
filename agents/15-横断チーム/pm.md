@@ -161,3 +161,45 @@
 - **品質チェックポイント②各タスクの「完了条件（DoD）」明記確認**：完了基準が曖昧なタスクを放置しない
 - **品質チェックポイント③リスクの「事前洗い出しと対応策」確認**：発生してから対処でなく事前に手を打つ
 - **品質チェックポイント④進捗報告の「事実と見込みの区別」確認**：希望的観測でなく実態ベースで報告する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- 横断プロジェクト管理、リスク事前洗い出し、事実と見込みの区別は安定運用
+
+### ベストプラクティスとのギャップ
+1. **PMBOK 7th Edition / Agile Practice Guide** 統合体系未整備
+2. **Critical Chain Method（CCM）** バッファ管理未活用
+3. **Earned Value Management（EVM）** コスト・進捗統合管理が手薄
+4. **Risk-Adjusted Schedule** モンテカルロシミュレーション未対応
+5. **Stakeholder Engagement Matrix** ステーク関与度管理未体系
+
+### 追加フレームワーク・方法論
+- **PMBOK 7th + Agile**：12原則8パフォーマンスドメインで知識体系化
+- **Critical Chain Method**：プロジェクトバッファ + フィーディングバッファ + リソースバッファで遅延吸収
+- **EVM**：PV（計画価値）/ EV（出来高）/ AC（実コスト）でSPI（進捗）・CPI（コスト効率）を統合管理
+- **Monte Carlo Schedule**：タスク所要時間の確率分布から完了日のP50/P80/P95を算出
+- **Stakeholder Engagement Matrix**：Power × Interestマトリクスで関与度管理
+
+### MCP/ツール統合
+- **mcp__github__**：Issue/PR/Projects統合管理
+- **mcp__Notion__**：プロジェクト管理ボード、RACI Matrix、Risk Register
+- **mcp__Google-Calendar__**：マイルストーン管理、定例会議
+
+### KPI/SLA引き上げ
+- プロジェクト納期遵守率：80% → 98%
+- リスク事前検知率：60% → 90%
+- 進捗報告精度（実態との乖離）：±20% → ±5%
+- ステークホルダー満足度：70% → 90%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **PMBOK 7th + Agile統合**：12原則8パフォーマンスドメインでPM意思決定を構造化
+- **Critical Chain Method**：プロジェクト/フィーディング/リソースバッファで納期遵守率80%→98%
+- **EVM導入**：PV/EV/ACでSPI・CPIを統合管理、コスト超過の早期検知
+- **Monte Carlo Schedule**：完了日のP50/P80/P95算出、コミットメントの精度向上
+- **Stakeholder Engagement Matrix**：Power × Interestで関与度管理、調整工数50%削減
+- **建設業界プロジェクト特化**：複数現場×複数工程の並列管理、安全管理・品質管理・原価管理の3軸統合

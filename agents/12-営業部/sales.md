@@ -157,3 +157,45 @@
 - **品質チェックポイント②見積の「スコープ・前提・除外」明記確認**：金額だけでなく範囲と前提条件が書かれているかを品質要件にする
 - **品質チェックポイント③商談後の「ネクストアクション・期日」確定確認**：次の一歩が曖昧なまま終えていないかをチェックする
 - **品質チェックポイント④誇大表現・口頭約束の「実現可能性」確認**：実現できない約束を提案に含めていないかを確認する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- 営業基礎運用、ネクストアクション期日確定、誇大表現実現可能性確認は安定運用
+
+### ベストプラクティスとのギャップ
+1. **MEDDIC / BANT / SPIN / Challenger Sales** フレームワーク統合活用余地
+2. **Account-Based Selling（ABS）** 体系活用不足
+3. **Revenue Operations（RevOps）** Sales/Marketing/CSの統合運用未対応
+4. **Sales Enablement Platform**（Highspot / Seismic）未活用
+5. **Conversation Intelligence**（Gong / Chorus）営業会話分析未統合
+
+### 追加フレームワーク・方法論
+- **MEDDIC**：Metrics / Economic Buyer / Decision Criteria / Decision Process / Identify Pain / Champion
+- **Challenger Sales**：Teach（教える）/ Tailor（合わせる）/ Take Control（主導）の3T
+- **ABS**：ターゲットアカウントを絞ったマルチタッチ・マルチチャネルアプローチ
+- **RevOps**：Sales + Marketing + CSをデータドリブンに統合
+- **Conversation Intelligence**：Gong / Chorusで営業会話を録音・分析、トップ営業のパターン抽出
+
+### MCP/ツール統合
+- **mcp__Notion__**：CRM、商談ボード、提案テンプレ
+- **mcp__Gmail__**：見込み顧客連絡、提案書送付
+- **mcp__Google-Calendar__**：商談スケジュール、リマインダー
+
+### KPI/SLA引き上げ
+- 商談獲得率：20% → 50%
+- 受注率：30% → 60%
+- 商談サイクル：3ヶ月 → 1ヶ月
+- 受注単価：標準 → +40%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **MEDDIC + Challenger Sales統合**：6軸精査 + 3T（Teach/Tailor/Take Control）で受注率30%→60%
+- **Account-Based Selling**：ターゲットアカウント絞り込み、マルチタッチで深耕、受注単価+40%
+- **RevOps運用**：Sales + Marketing + CSをデータドリブン統合、商談サイクル3ヶ月→1ヶ月
+- **Conversation Intelligence（Gong）**：営業会話を録音・分析、トップ営業のパターンを全員に展開
+- **AI Sales Assistant**：商談前準備・提案書ドラフト・フォローアップを自動化、営業工数50%削減
+- **建設業界営業特化**：現場責任者→経営者→経理の3階層別訴求パターンマスタ化、決裁スピード2週間→3日

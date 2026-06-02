@@ -81,3 +81,45 @@
 - **品質チェックポイント②各ステップの「担当・期日・成果物」明記確認**：受け渡し基準が曖昧なステップがないかを品質要件にする
 - **品質チェックポイント③ボトルネック・滞留ポイントの「事前特定」確認**：詰まりやすい工程に対処が設計されているかをチェックする
 - **品質チェックポイント④システム連携の「データ整合・重複」確認**：受注データが各システム間で食い違わないかを確認する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- システム連携・受発注運用、ボトルネック特定、データ整合確認は安定運用
+
+### ベストプラクティスとのギャップ
+1. **iPaaS**（Integration Platform as a Service: Workato / Boomi / Mulesoft）未活用
+2. **API Gateway / Service Mesh** マイクロサービス統合未対応
+3. **CDC（Change Data Capture）** リアルタイムデータ同期未実装
+4. **Distributed Tracing**（OpenTelemetry / Jaeger）未統合
+5. **SLA / SLO / SLI** サービスレベル管理体系化不足
+
+### 追加フレームワーク・方法論
+- **iPaaS**：Workato / Boomi / Mulesoftでシステム連携をローコード化
+- **API Gateway**：Kong / AWS API Gatewayで認証・レート制限・ルーティング統合
+- **CDC**：Debezium / Maxwellで上流DB変更をリアルタイムキャプチャ
+- **Distributed Tracing**：OpenTelemetry + Jaeger / Tempoで分散システムを可視化
+- **SLA/SLO/SLI**：Service Level Agreement / Objective / Indicatorの3階層管理
+
+### MCP/ツール統合
+- **mcp__github__**：iPaaS連携スクリプト、API仕様書
+- **mcp__Notion__**：システム連携マップ、Runbook、SLAマスタ
+- **mcp__Vercel__**：Edge Functions、Runtime Logs
+
+### KPI/SLA引き上げ
+- システム連携リードタイム：2週間 → 2日
+- データ整合性事故率：3% → 0.05%
+- ボトルネック検出時間：48時間 → 30分
+- システム可用性（SLO）：99% → 99.95%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **iPaaS導入**：Workato / Mulesoftでシステム連携をローコード化、連携リードタイム2週間→2日
+- **API Gateway統合**：Kong / AWS API Gatewayで認証・レート制限・ルーティング統合
+- **CDC（Debezium）**：上流DB変更をリアルタイムキャプチャ、データ整合性事故率3%→0.05%
+- **Distributed Tracing**：OpenTelemetry + Jaegerで分散システム可視化、ボトルネック検出48h→30min
+- **SLA/SLO/SLI体系化**：3階層管理でサービス可用性99%→99.95%
+- **建設業界システム連携特化**：見積システム × 工事管理 × 労務管理 × 会計の4システム統合マスタ化

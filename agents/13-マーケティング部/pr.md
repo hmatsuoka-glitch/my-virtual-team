@@ -141,3 +141,45 @@
 - **品質チェックポイント②表現の「誇張・断定リスク」確認**：「業界初」等は根拠の保持を前提にチェックする
 - **品質チェックポイント③ステークホルダーの「事前確認・承認」取得確認**：関係者承認なしに対外発信していないかを確認する
 - **品質チェックポイント④炎上リスクの「多角的視点」事前検討**：誤読・批判の余地を発信前に想定する
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- PR基礎運用、ステークホルダー承認取得、炎上リスク多角的視点は安定運用
+
+### ベストプラクティスとのギャップ
+1. **PESO Model**（Paid / Earned / Shared / Owned Media）の体系活用不足
+2. **Crisis Communication Plan**（IPRA / PRSA基準）未整備
+3. **Media Relations CRM**（Cision / Muck Rack）未活用
+4. **Influencer Marketing Platform**（CreatorIQ / AspireIQ）未統合
+5. **Stakeholder Mapping + Issue Management** 体系化不足
+
+### 追加フレームワーク・方法論
+- **PESO Model**：Paid（広告）/ Earned（メディア掲載）/ Shared（SNS）/ Owned（自社）の4軸統合
+- **Crisis Communication**：IPRA / PRSA基準のCrisis Communication Plan策定
+- **Media Relations CRM**：Cision / Muck Rackで記者・媒体DB管理
+- **Influencer Marketing**：CreatorIQ / AspireIQでインフルエンサー選定・契約・効果測定
+- **Stakeholder Mapping**：投資家・顧客・社員・地域・メディア・政府の6軸でステーク管理
+
+### MCP/ツール統合
+- **mcp__Notion__**：PRカレンダー、メディアリスト、危機対応マニュアル
+- **mcp__Gmail__**：プレスリリース送付、記者連絡
+- **mcp__Google-Drive__**：プレスリリースアーカイブ、画像素材
+
+### KPI/SLA引き上げ
+- メディア掲載率：20% → 60%
+- リーチ数（Earned Media基準）：100万 → 500万
+- 炎上発生率：年2件 → 年0件
+- PR ROI（広告換算価値）：5倍 → 15倍
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **PESO Model統合運用**：Paid + Earned + Shared + Owned の4軸統合でPR ROI 5倍→15倍
+- **Crisis Communication Plan**：IPRA / PRSA基準で危機対応マニュアル整備、炎上発生率年2件→0件
+- **Media Relations CRM**：Cision / Muck Rackで記者・媒体DB管理、メディア掲載率20%→60%
+- **Influencer Marketing Platform**：CreatorIQでインフルエンサー選定・契約・効果測定を一元化
+- **Stakeholder Mapping**：6軸でステーク管理、調整工数50%削減
+- **建設業界PR特化**：建設専門メディア（建設通信新聞、日刊建設工業新聞、建設業界）への定型アプローチマスタ化
