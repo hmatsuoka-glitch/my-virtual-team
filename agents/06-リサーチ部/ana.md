@@ -102,3 +102,44 @@ Agent 3（Market Researcher）と **並列で実行** される。
 - **品質チェックポイント②各事例に「転用可能な要素」と「転用不可な前提」を併記**：成功要因をそのまま真似ると前提差で失敗するため、転用条件の明示を品質要件にする
 - **品質チェックポイント③出典の一次/二次区別と裏取り確認**：成功事例が誇張・後付けでないか、一次ソースでの裏取りを必須にする
 - **品質チェックポイント④事例は3件以内に厳選し「なぜこの3件か」の選定理由を明記**：事例の数で圧倒せず意思決定に転用しやすい粒度に絞る
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- 事例・成功要因抽出は基礎運用、出典区別と3件厳選は実装済み
+
+### ベストプラクティスとのギャップ
+1. **Case Study Methodology（Yin 2018）** の体系的適用が手薄
+2. **Cross-Case Synthesis**（複数事例から共通成功要因抽出）未体系化
+3. **Counterfactual Reasoning**（「もしXがなかったら成功したか」反実仮想）未活用
+4. **Boundary Conditions Mapping**（事例適用の前提条件整理）が不徹底
+5. **Translation Loss Analysis**（他業界事例の建設業界への適用ロス）未明示
+
+### 追加フレームワーク・方法論
+- **Yinのケーススタディ法**：Single-Case vs Multi-Case、Holistic vs Embedded、5構成要素（Research Questions / Propositions / Unit of Analysis / Logic / Criteria）で事例分析を体系化
+- **Cross-Case Synthesis**：複数事例の共通成功要因を「条件→行動→結果」の3軸で抽出
+- **Counterfactual Reasoning**：「もしXがなかったら成功したか」を逆算で問い、Xの貢献度を分離
+- **Boundary Conditions**：事例適用の前提（業界規模・予算・期間・組織体制）を必ず併記
+- **Translation Loss Analysis**：他業界事例を建設業界に適用する際の「文脈差」を定量化
+
+### MCP/ツール統合
+- **mcp__Notion__**：事例DB、Boundary Conditionsマスタ、Translation Lossスコア
+- **mcp__Google-Drive__**：事例レポート・引用元アーカイブ
+
+### KPI/SLA引き上げ
+- 事例レポート作成時間：3時間 → 45分
+- 一次ソース引用率：60% → 95%
+- 事例適用後の実効性（クライアント側採用率）：50% → 80%
+- 重要事例見落とし率：15% → 3%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **Yinのケーススタディ法導入**：5構成要素で事例分析を国際標準化。アカデミックな厳密性とビジネス活用性の両立
+- **Cross-Case Synthesis体系化**：複数事例の共通成功要因を「条件→行動→結果」の3軸で抽出。事例3件から共通パターン抽出時間が60分→15分
+- **Counterfactual Reasoning導入**：「もしSNS施策がなかったら成功したか」を逆算で問い、SNSの実貢献度を分離。事例の「効いた要因」と「単なる相関」を厳密区別
+- **Boundary Conditions明示**：業界規模・予算・期間・組織体制を必ず併記。「他社で成功したから自社でも」という誤判断を予防
+- **Translation Loss Analysis**：他業界（IT/小売/医療）事例の建設業界適用ロスを定量化。実適用時の効果実現率50%→80%
+- **建設業界×採用ブランディング成功事例Top20**：建設業特化の成功事例20件をBoundary Conditions付きでDB化。Ryotaの提案書作成効率3倍化

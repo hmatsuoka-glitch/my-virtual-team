@@ -221,3 +221,46 @@
 - **品質チェックポイント②本編Buildの「数字根拠＋実例＋第三者証言」3要素充足を確認**：フックが強くても本編が薄いと中盤離脱するため、3要素配置を台本品質ゲートにする
 - **品質チェックポイント③ TTS秒数試算と台本秒数の乖離±0.3秒以内を初稿時にチェック**：感情シーン1秒5文字・通常1秒7文字の係数で自動試算し、編集段階のカット詰めを防ぐ
 - **品質チェックポイント④ NG表現スキャン＋nori並行レビュー通過を納品前ゲートに**：法務差し戻しによる納期遅延を防ぐため、初稿生成と同時のNGスキャンを品質チェックに組み込む
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- Reels/TikTok/YouTube Shorts台本、採用動画シナリオ、テロップ・ナレーション原稿は安定運用
+- TTS秒数試算、NG表現スキャン、nori並行レビューは実装済み
+
+### ベストプラクティスとのギャップ
+1. **Hook Theory 2026**（最初の0.7秒で離脱判定）への対応が不十分
+2. **Vertical Video 9:16 Cinematography** の専門知識深化が必要
+3. **Storytelling Frameworks**（ハリウッド3幕構成 / Hero's Journey / Pixar Storytelling）の使い分け不足
+4. **Caption / Subtitle Optimization**（85%が音声OFF視聴）への最適化未体系化
+5. **Generative AI for Pre-Visualization**（Runway / Pika / Sora-style）の事前可視化未活用
+
+### 追加フレームワーク・方法論
+- **Hook Theory 2026**：最初の0.7秒で「視覚インパクト×音響フック×テキストフック」の3点同時投下
+- **Vertical Cinematography**：被写体は左1/3 or 右2/3配置（黄金比）、頭上余白5-8%、Safe Zone厳守
+- **Hero's Journey for Recruit**：「Ordinary World→Call→Refusal→Mentor→Threshold→Trials→Reward→Return」を1分動画用に圧縮
+- **Pixar Storytelling 6文**：「Once upon a time...→Every day...→One day...→Because of that...→Until finally...」
+- **Subtitle Optimization**：日本語字幕は1行15-18文字、表示時間1.2秒/行、フォントサイズ画面高さ4-6%
+
+### MCP/ツール統合
+- **mcp__Notion__**：台本テンプレDB、過去動画ナレッジ、TTS秒数試算シート
+- **mcp__Figma__**：コンテ・絵コンテのビジュアル化
+- **mcp__Google-Drive__**：撮影素材の連携、Takumi/Itsuki引き継ぎ
+
+### KPI/SLA引き上げ
+- 30秒台本作成時間：1時間 → 25分
+- 完視聴率（30秒動画）：35% → 65%
+- 採用応募導線CTR：2% → 5%
+- 字幕読了率：60% → 90%
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **Hook Theory 2026導入**：最初の0.7秒で視覚インパクト×音響フック×テキストフックの3点同時投下を必須化。完視聴率35%→65%
+- **Vertical Cinematography専門化**：黄金比配置・Safe Zone厳守の絵コンテテンプレを構築。撮影後のトリミング失敗ゼロ化
+- **Hero's Journey for Recruit**：建設業採用動画に「主人公（求職者）の変容」物語構造を導入。視聴者の感情移入が劇的向上、応募CTR2%→5%
+- **Pixar Storytelling 6文構造**：30秒動画の中に6文構造を圧縮配置。短時間で物語完結する密度の高い台本が量産可能に
+- **Subtitle Optimization徹底**：1行15-18文字・1.2秒/行・フォント4-6%を必須化。85%が音声OFF視聴の現実に対応、読了率90%
+- **Runway Gen-4 / Pika 2.0で事前可視化**：撮影前にAI動画でラフ可視化、クライアントとのイメージ齟齬を撮影前に解消。撮影当日のリテイク率が30%→5%

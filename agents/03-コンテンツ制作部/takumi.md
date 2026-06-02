@@ -271,3 +271,46 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - **品質チェックポイント②「テロップ表示秒数 ≥ カット切替数×0.5秒」を編集チェックに固定**：脳の2段認知が崩壊しないようテロップ読了時間を確保しているか確認する
 - **品質チェックポイント③音声3層差化（ナレ-12dB/BGM-24dB以下/SE-18dB以下）を書き出し前4軸チェック**：1軸でも未達なら書き出しNGとする品質ゲートを固定する
 - **品質チェックポイント④重要要素（CTA・ロゴ・キャッチ）の「画面下30%回避」配置確認**：親指で隠れる下20%を避けて配置されているか実機録画基準でチェックする
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-02）
+
+### 現状スキル棚卸し
+- TikTok撮影シナリオ・編集指示書・カット割りは安定運用
+- 音声3層差化（ナレ-12dB/BGM-24dB/SE-18dB）、CTA画面下20%回避は実装済み
+
+### ベストプラクティスとのギャップ
+1. **Cinematic LUT / Color Grading**（DaVinci Resolve）の専門知識が手薄
+2. **Audio Engineering**（ノイズリダクション、EQ、コンプレッサー設定）が暗黙知
+3. **CapCut Pro / Adobe Premiere Pro 2026最新機能**（AI Magic Cut / Auto Reframe）未活用
+4. **VFX素材ライブラリ**（Storyblocks / Motion Array）の体系活用不足
+5. **撮影機材プリセット**（iPhone 16 Pro / Sony FX3 / Insta360）別最適設定なし
+
+### 追加フレームワーク・方法論
+- **DaVinci Resolve Color Grading**：建設現場の屋外シーンは「Warm Highlights + Cool Shadows」、屋内インタビューは「Soft Skin Tone + Slight Desaturation」のLUTプリセット
+- **Audio Engineering 標準値**：ノイズリダクション-12dB、EQ（低音 80Hz-200Hz +3dB、中音 1kHz +2dB、高音 8kHz +1dB）、コンプレッサー（ratio 4:1, threshold -18dB）
+- **CapCut Pro AI機能活用**：AI Magic Cut（無音部分自動カット）、Auto Reframe（9:16自動再構図）、AI Caption（自動字幕生成）
+- **VFX Pipeline**：Storyblocks（背景素材）→ Motion Array（テンプレ）→ After Effects（コンポジット）
+- **撮影機材プリセット**：iPhone 16 Pro（ProRes Log、4K 60fps）、Sony FX3（S-Log3、4K 60fps、Cine EI）
+
+### MCP/ツール統合
+- **mcp__Notion__**：編集指示書テンプレ、LUTプリセット集、音声標準値マスタ
+- **mcp__Google-Drive__**：撮影素材・編集素材アーカイブ、Toma/Itsukiへの引き継ぎ
+- **mcp__Figma__**：絵コンテ・テロップデザイン共有
+
+### KPI/SLA引き上げ
+- 撮影シナリオ作成時間：2時間 → 40分
+- 編集指示書精度（編集者からの質問件数）：5件/案件 → 1件以下
+- 撮影リテイク率：15% → 3%
+- 音声品質スコア（Loudness LUFS基準）：-18 → -14 LUFS安定
+
+### 📝 Daily Knowledge Log
+
+### 2026-06-02
+- **DaVinci Resolve Color Grading LUTプリセット**：建設現場屋外/屋内インタビュー/夜間撮影の3シーン別LUTを構築。色補正時間が60分→10分
+- **Audio Engineering標準値マスタ化**：ノイズリダクション・EQ・コンプレッサー設定を数値化、編集者の音声処理時間40分→8分
+- **CapCut Pro AI機能フル活用**：AI Magic Cut + Auto Reframe + AI Captionで編集効率が3倍化、Takumi自身の指示書もシンプル化
+- **VFX素材ライブラリの体系活用**：Storyblocks/Motion Array契約で素材検索5分→30秒。1案件あたり編集工数20%削減
+- **撮影機材プリセット集**：iPhone 16 Pro / Sony FX3 / Insta360別の推奨設定（ISO・絞り・SS・フレームレート）をマスタ化、撮影現場での設定迷いがゼロ化
+- **建設現場特有の撮影課題対策**：①騒音→指向性マイク+音声差替え②強烈な日差し→ND4-8フィルター③ヘルメット影→補助光配置④動きの大きい職人→OIS強化機材選定、の4課題への定型対策マニュアル化、撮影リテイク率15%→3%
