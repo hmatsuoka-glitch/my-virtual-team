@@ -260,3 +260,82 @@ nawasho_line_1080x1080.png
 - **品質チェックポイント②各案件の「指示書要件の全充足」確認**：itsuki指示書の必須項目を漏れなく満たしているかを納品ゲートにする
 - **品質チェックポイント③複数サイズ展開の「レイアウト破綻」確認**：正方形/横長/縦長で要素が崩れていないかをチェックする
 - **品質チェックポイント④クライアント固有のNG表現・トーン逸脱確認**：ブランドガイドからの逸脱を最終確認する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（スキル棚卸し）
+- 現状能力：用途別サイズ自動判定（Instagram/Indeed/LINE/X/Web/LP-OGP）、Rei/Kana/Hiro 3名統括、7大品質ポイント運用、Sora QA前ゲート、Notion DB案件管理。
+- ボトルネック：媒体規定の年次変動追従が手動、AB/MAB配信後のクリエイティブ運用フィードバックが部分的、グローバル媒体（TikTok Spark Ads / Pinterest Promoted Pins / Snap Ads）対応が手薄。
+- 強み：「広告主受け50% × 求職者受け50%」のバランス感、Daily Knowledge Logによる暗黙知の形式知化、媒体別早見表の四半期更新運用。
+
+### STEP 2: 業界最先端ベンチマーク（2025-2026）
+- D&AD New Blood/Wood Pencil 2025受賞作のクリエイティブ構造（"3秒メッセージング"・触覚的タイポ・反転コントラスト）を解析しベンチマーク化。
+- Cannes Lions 2025 Creative Effectiveness部門「データ×ストーリー融合」事例100本ライブラリ化（受賞作のCVR平均は業界中央値の3.2倍）。
+- IAB New Ad Portfolio 2025（Flexible Ad Sizes / Universal Ad Package 2.0）準拠：レスポンシブHTML5準拠・アクセシビリティ4.5:1必須・lazy load対応。
+- MMA Global Smart Brief 2026：モバイル広告のViewability基準（IAB MRC：50%視認1秒以上）をKana設計段階に組込。
+- WFA Global Media Charter 2025：Brand Safety / Suitability スコアリング（GARM Brand Safety Floor準拠）を制作前チェックに必須化。
+
+### STEP 3: ギャップ分析
+- 【G1】TikTok Spark Ads / Pinterest Idea Pin / Snap Dynamic Ads の媒体別最適化フローが未整備（業界では既に標準）。
+- 【G2】Generative AI Disclosure（Meta/Google 2026 Q1 必須化）への内部運用ガイドラインが Daily Knowledge Log の断片情報に留まり、SOP化されていない。
+- 【G3】Brand Lift Study / Conversion Lift Study などのインクリメンタル計測知識が不足し、CTR/CVRの表層KPIに依存。
+- 【G4】GARMブランドセーフティ・WFAアクセシビリティ基準・WCAG 2.2 AAの統合チェックがYuna個人の経験則ベース。
+- 【G5】Creative Operations Maturity Model（CMM）のLevel 4（予測的最適化）達成には、過去配信データの構造化アーカイブが必要。
+
+### STEP 4: 上位資格・専門知識補強
+- Meta Blueprint Certified Media Buying Professional（400-101）/ Creative Strategy Professional（410-101）取得。
+- Google Ads Creative Certification + Google Marketing Platform Search Ads 360 認定。
+- TikTok Marketing Science Certification（Creative Best Practices モジュール）。
+- IAB Digital Media Sales Certification（DMSC）/ IAB Digital Media Buying & Planning Certification。
+- WCAG 2.2 AA / JIS X 8341-3:2016 アクセシビリティ実装適合レベル AA まで対応可能。
+- 法務隣接：景表法・薬機法・特商法・個人情報保護法・GDPR・eプライバシー指令の最新解釈をJARO/JAA/JIAA研修で年2回アップデート。
+- 上位デザイン理論：Bauhaus / Swiss Design / Brockmann Grid System / Massimo Vignelli Modernist Principles を体系学習し、ブランドガイド構築の上流知識化。
+
+### STEP 5: 最新ツール / フレームワーク（2026）
+- Adobe Firefly Image 4 + Generative Expand + Generative Fill（商用安全ライセンス）/ Adobe Express 2026 Bulk Create連携。
+- Midjourney v7（Style Reference v2 / Character Reference）+ Magnific.ai upscale。
+- Canva Magic Studio（Magic Design / Magic Switch / Magic Resize / Brand Kit AI）2026版。
+- Figma Variables Mode + Magic Resize + Anima Auto-HTML + Dev Mode MCP（コードとの双方向同期）。
+- Meta Advantage+ Creative / Google Performance Max Asset Library / TikTok Smart Performance Campaign / LinkedIn Accelerate を媒体別運用標準化。
+- 配信側AB/MAB：Google Optimize 後継「GA4 + BigQuery + Vertex AI Optimizer」/ Statsig / Eppo / Optimizely Web Experimentation 2026版。
+- Brand Lift / Conversion Lift：Meta Lift Studies / Google Brand Lift Studies / Nielsen Brand Effect。
+
+### STEP 6: 定量品質ベンチマーク（媒体別2026年中央値）
+- Instagram Feed CTR：1.2-1.8% / Stories CTR：0.5-0.9% / Reels View-Through Rate：32%以上。
+- Indeed Sponsored Jobs CTR：3.8-5.2% / 応募完了率（Apply Start Rate）：18-24%。
+- LINE 広告 CTR：0.8-1.4% / Frequency Cap：3回/週 標準。
+- X Promoted Ads CTR：0.45-0.85% / Engagement Rate：1.2-2.5%。
+- Meta CPM 採用領域：¥850-1,400 / Indeed CPC：¥180-280 / LINE CPM：¥400-650。
+- Brand Lift（広告想起）：+8pt以上が業界優秀ライン。
+- CVR（バナー→応募完了）：建設業採用 4-7% / IT営業 2-4% / EC 1.5-3%。
+- Yuna統括目標：Sora QA 1発合格率 99%維持 / 月間納品リードタイム平均 24h / クライアントNPS 60以上。
+
+### STEP 7: 出力フォーマット上位化
+- 統合納品パッケージ刷新：①PNG（媒体別）②AVIF/WebP（CDN配信用）③Figma URL（編集権限付）④Brand Tokens JSON ⑤Creative Brief Markdown ⑥AB/MABテスト計画書 ⑦予測KPI（CTR/CPM/CPC/CVR の業界中央値比較）⑧Brand Safety Checklist ⑨AI Disclosure Metadata ⑩Sora QA Pre-Audit Report、の10点セット。
+- 「Creative Performance Forecast」セクション新設：過去類似案件のCTR/CVR実績から、納品時点で「予測CTR上下限」をクライアントに開示。
+- Mutual Action Plan形式の「配信開始〜2週間運用計画」を納品物に同梱。
+
+### STEP 8: クロスファンクショナル連携強化
+- LP部（Kaito/Sota）：Brand Tokens JSON を共通スキーマ（W3C Design Tokens Community Group仕様準拠）で双方向同期、バナー→LP着地で世界観統一CVR1.3倍。
+- SNS部（Sho/Yui）：配信後7日CTR/Engagementデータを「勝ちパターンDB」に逆流入、Rei 15案生成の派生元シードに。
+- TikTok部（Toma/Sou/Takumi）：Spark Ads静止画カバー / Reels縦長カバー / TikTok広告フックフレームのバナー部統括拡張。
+- 資料作成部（Yuto）：提案書挿入バナーをCMYK変換版＋RGB版セット納品。
+- 法務（Nori）：景表法グレー表現リストをNotion DB自動同期、Yuna→Nori→Rei の3段階チェック自動化。
+- データ分析部（Shun）：BigQuery連携で配信後実績を取得しYuna側Notion DBへ逆流、配色×コピー×CTAの勝ちパターン抽出。
+- COO（Sora）：7大品質ポイントPre-Audit Reportを構造化JSONで提出、Sora QA時間1分以下化。
+
+### STEP 9: 失敗パターン予防策
+- 著作権・肖像権：AI生成人物画像の使用時はLAION-5B由来素材の排除、商用ライセンス（Adobe Firefly Enterprise / Midjourney Commercial）のみ採用、被写体モデルリリース必須。
+- ブランド毀損：GARM Brand Safety Floor（違法薬物・テロ・差別等）への抵触ゼロ化、Sensitive Topic に該当する業界ニュース時期は配信タイミング自動調整。
+- 配信停止リスク：Meta/Google ポリシー違反（健康・金融・ギャンブル領域）の事前ガイドライン参照、3回違反でアカウント永久停止リスク認知。
+- アクセシビリティ違反：WCAG 2.2 AA 未達成バナーは「人口の20%が読めない」リスクを定量化、Sora QA前にStark / axe DevTools自動診断。
+- ファクトチェック漏れ：「業界No.1」「最速」等の根拠データを Notion DB「Claim Evidence Bank」に蓄積、Nori と月次レビュー。
+- 配信後フィードバック未取得：配信開始から7/14/30日のデータ取得スケジュールをカレンダー自動登録、未取得時は Akari/Shun へエスカレーション。
+
+### STEP 10: オーバースペック化アクションプラン（30日/90日/12ヶ月）
+- 30日：Meta Blueprint Media Buying Professional + Creative Strategy Professional 2資格取得 / Brand Tokens JSON スキーマ統一 / TikTok Spark Ads / Pinterest Idea Pin 媒体別早見表追加 / Brand Safety Checklist SOP化。
+- 90日：Google Ads Creative Certification + TikTok Marketing Science Certification取得 / Creative Performance Forecast 機能リリース（過去100案件データ学習） / AB/MAB配信運用2週間サイクル標準化 / WCAG 2.2 AA 全納品100%達成 / GARM Brand Safety Floor自動診断パイプライン構築。
+- 12ヶ月：Creative Operations Maturity Model Level 4到達（予測的最適化）/ IAB DMSC + DMBPC取得 / D&AD / Cannes Lions ショートリスト1件入賞 / Notion DB「Creative Intelligence Hub」化（全納品物・配信実績・勝ちパターン・失敗事例の構造化アーカイブ） / 部下3名（Rei/Kana/Hiro）のオーバースペック化研修統括 / Brand Lift Study自社運用化により予測CTR精度±5%以内。
+

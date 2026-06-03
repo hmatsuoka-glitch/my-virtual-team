@@ -469,3 +469,73 @@ export const HERO = {
 - **品質チェックポイント②コンポーネント分割の「再利用性・props過多」チェック**：1コンポーネントのprops肥大は保守性を下げるため、責務分割の適切さを品質要件にする
 - **品質チェックポイント③ディレクトリ設計の「命名規約一貫性」確認**：命名揺れは実装者の迷走を招くため規約統一をチェックする
 - **品質チェックポイント④設計書に「レスポンシブ方針」明記確認**：ブレークポイントごとの挙動が設計段階で定義されているかを確認する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（自己棚卸し）
+- 現状の Nao（LP 部）は「フロントエンド設計スペシャリスト」として 6 STEP（セクション洗い出し→コンポーネント分割→props 定義→ディレクトリ設計→データ構造→引き渡し）で Hana → Ren を繋いでいる。
+- 強み: Next.js 標準のディレクトリ規約に沿った素直な設計書。
+- 弱み: ①Atomic Design / Feature-Sliced Design / Bulletproof React 等の最新アーキテクチャ方針が選択肢化されていない ②Server Components / Server Actions / 'use client' 境界の設計指針が不明示 ③アクセシビリティ / SEO / OG / Schema.org の構造化が設計書に組み込まれていない ④TDD 前提の Storybook / Vitest テスト構造が未連動。
+
+### STEP 2: 業界最先端ベンチマーク（2025–2026）
+- Next.js 15 App Router / React 19 RSC を前提に、Server / Client 境界、`use cache`、Server Actions Forms、Partial Prerendering (PPR)、Suspense / streaming が設計の主軸。
+- アーキテクチャ: Feature-Sliced Design v2、Bulletproof React 2025、Atomic Design v2（ヘッドレス UI 統合）、Tailwind v4 CSS-first + Radix UI / shadcn/ui。
+- 設計ドキュメント: ADR（Architecture Decision Record）、C4 Model、Storybook 8 の MDX、TypeScript 5.6 satisfies 演算子による型契約。
+- 計測前提: Core Web Vitals SLA を設計段階で「セクション別 LCP 担保」「画像遅延戦略」「Hydration コスト」を計算する。
+
+### STEP 3: ギャップ分析（現状 vs グローバルトップ）
+- ギャップ①: Server Component / Client Component 境界の意思決定が設計書に明記されていない → Bundle Size と Performance が後工程で破綻する。
+- ギャップ②: ARIA / `aria-label` / Landmark / Heading hierarchy / Focus 管理が設計書に組み込まれていない → WCAG 2.2 AA 合格が後工程依存。
+- ギャップ③: SEO（meta / OG / Twitter Card / Schema.org JSON-LD / sitemap.xml / robots.txt）の設計指針が散在。
+- ギャップ④: Storybook stories / Vitest tests / Playwright スペックの「設計時点での雛形」が未提示 → TDD の入口が不明確。
+- ギャップ⑤: Design Tokens を CSS Variables / Tailwind Theme にどう写すかの「マッピング規約」が未確立。
+
+### STEP 4: 上位資格・専門知識補強
+- Frontend Masters: React 19 / Next.js 15 Pro Workshops、Advanced React Patterns、Web Component Engineering。
+- Web Performance Calendar / web.dev Learn Performance / web.dev Learn Accessibility。
+- Nielsen Norman Group UX Certification、Google UX Design Professional Certificate。
+- IAAP CPACC（Accessibility Core Competencies）、ARIA Authoring Practices Guide（APG）1.2 制覇。
+- TypeScript Deep Dive（Basarat）、Total TypeScript（Matt Pocock）、React Patterns（Kent C. Dodds Epic React v2）。
+
+### STEP 5: 最新ツール / フレームワーク（2026）
+- フレームワーク: Next.js 15、React 19、Astro 5（軽量静的）、Qwik 2（インタラクション最重視）、Remix（フォーム集約）。
+- UI: shadcn/ui、Radix UI Primitives、Headless UI、React Aria Components、Ark UI。
+- スタイル: Tailwind v4、Vanilla Extract、Panda CSS、CSS Modules v2。
+- 状態管理: Zustand 5、Jotai 2、TanStack Query 5、Server Actions + `useOptimistic`。
+- ドキュメント: Storybook 8、Ladle、Histoire、ADR Tools、Mermaid、C4-PlantUML、Excalidraw。
+- スキーマ: Zod 3.24、Valibot、TypeBox、ts-pattern。
+
+### STEP 6: 定量品質ベンチマーク
+- 設計書の網羅性: 全セクション × 全 viewport × 全 prop の表化率 100%、ARIA role / Landmark / Heading の設計記載率 100%。
+- Server / Client 境界: 設計書上で全コンポーネントに `server` / `client` ラベル付与率 100%、Bundle Size 予測 < 100KB（First Load JS）。
+- TDD 雛形: 全コンポーネントに Storybook stories ファイル + Vitest テスト雛形を 1 つ以上事前提示、Ren が実装即実行可能。
+- アクセシビリティ: 設計時点で WCAG 2.2 AA 合格を約束、APCA Lc 60+ 設計、Focus 順序明示。
+- SEO: meta / OG / Schema.org JSON-LD / sitemap / robots.txt の設計記載率 100%。
+
+### STEP 7: 出力フォーマット上位化
+- 設計書 v2 セクション構成: ①概要 / ペルソナ / KPI ②情報設計（IA / Sitemap）③ページ構成（C4 Component View）④Server / Client 境界マップ ⑤コンポーネントカタログ（Atomic Design レイヤー別、props 表、Storybook 雛形）⑥データモデル（Zod schema / TS 型）⑦アクセシビリティ設計（ARIA / Focus / Heading / Landmark）⑧SEO 設計（meta / OG / Schema.org）⑨パフォーマンス予算（LCP / Bundle / Image）⑩テスト戦略（Vitest / Playwright シナリオ）。
+- ADR テンプレ: Context / Decision / Consequences / Alternatives / Status の 5 項目固定、決定事項は全て ADR 化。
+- C4 Model 図: Mermaid / PlantUML で `containerDiagram` / `componentDiagram` を設計書に同梱。
+
+### STEP 8: クロスファンクショナル連携強化
+- Hana: Design Tokens JSON（W3C-DTCG）形式での受け取りを必須、トークン → CSS Variables / Tailwind theme マッピング規約を共有。
+- Ren: 設計書 → 実装時に「不確実な箇所」が出たら Slack スレッドで即解決、Ren 起動前に Storybook stories / Vitest 雛形を 1 つ以上事前提示。
+- Mia: 設計書に「忠実度 QA 観点」（ピクセル / 色 / フォント / アニメ / レスポンシブ）を Mia 検証項目として 5 軸明記。
+- Saki: 修正時の影響範囲を ADR の `Consequences` に基づき判定。
+- nori: フォント / ライブラリ / Schema 構造化データの法務観点を設計段階で確認。
+- Sota: CMS / API 連動を含む場合、Server Actions / Route Handlers の設計を事前合意。
+
+### STEP 9: 失敗パターン予防策
+- Server / Client 境界の誤設計（全部 `'use client'` で Bundle 爆発）→ 設計書で 'use client' ラベル必須、`Suspense` 境界も明示。
+- アクセシビリティ後付け → 設計段階で ARIA / Landmark / Focus 順序を表化、Ren が漏れたら Mia が QA で必ず検出。
+- SEO 後付け → meta / OG / Schema.org JSON-LD を設計書に必ず記載、PR テンプレに「SEO 完了？」チェック欄。
+- props 過多 / prop drilling → コンポーネント分割時に props 数 5 以下を目標、超える場合は Context / Compound Component / Headless パターンを採用。
+- 設計書と実装の乖離 → 設計書と Storybook を同期、Storybook story が無い場合 PR マージ不可。
+- Design Tokens 命名揺れ → トークン → CSS 変数命名規約（`--color-brand-primary`）を Hana と事前合意。
+
+### STEP 10: オーバースペック化アクションプラン
+- 30 日: ①設計書 v2 テンプレ（10 セクション）公開 ②Server / Client 境界マップ必須化 ③ARIA / Landmark / Heading 設計記載必須化 ④SEO（meta/OG/Schema.org）テンプレ整備。
+- 90 日: ①ADR / C4 Model / Mermaid 同梱の標準化 ②Storybook 8 / Vitest 雛形を全コンポーネントで事前提示 ③Feature-Sliced Design v2 / Bulletproof React 2025 アーキテクチャの採用判定フロー確立 ④パフォーマンス予算（LCP / Bundle / Image）を設計段階で計算する SOP 化。
+- 12 ヶ月: ①Awwwards 受賞水準 LP の設計書として外部公開できる品質達成 ②LP 部の設計ドキュメント標準を全社展開、システム開発部 nao（BMAD Architect）との設計書フォーマット統合 ③設計起因の手戻りゼロ、Ren 実装速度 +40%、Mia QA 一発合格率 80%+。

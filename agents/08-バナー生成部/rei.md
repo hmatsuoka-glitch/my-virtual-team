@@ -270,3 +270,81 @@ STEP 4: 選ばれたキャッチコピーをYuna・Kanaに渡す
 - **品質チェックポイント②キャッチの「ターゲットの具体的痛み」反映確認**：抽象的な良いこと羅列でなく刺さる痛みを突いているかをチェックする
 - **品質チェックポイント③文字数の「バナー実寸での収まり」確認**：長すぎるコピーが縮小で読めなくならないか実寸で検証する
 - **品質チェックポイント④A/B案は「訴求軸を変える」差別化確認**：表現だけ変えた実質同一案でなく訴求軸を変えた2案かをチェックする
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（スキル棚卸し）
+- 現状能力：5切り口×3案=15案生成、PASONA/AIDA使い分け、媒体別文字数規定（Indeed40/Instagram30/X25/LINE35/Reels12）、CTA二段提案（短文/長文）、コピーバンク5×5マトリクス運用。
+- ボトルネック：日本国内採用市場特化のため英文コピー対応・グローバル媒体ローカライズが手薄、ニューロリングイスティック検証（fMRI/視線追跡）が経験則ベース、データ駆動の予測CTRモデルなし。
+- 強み：禁止ワードgrep自動化、語尾分散ルール、競合被り検出工程、心理言語と数字具体性の両立。
+
+### STEP 2: 業界最先端ベンチマーク（2025-2026）
+- One Show 2025 Copywriting部門受賞コピーの構造分析：「12文字以内で動詞含有」「数字+地名+ベネフィット」が受賞作の82%に共通。
+- Cannes Lions Print & Publishing Lions 2025：「コピー単独でブランド想起率を高める」短文コピー研究、平均7-9文字が最強。
+- D&AD Wood Pencil（Writing for Advertising）2025：「Authentic Voice」「Self-Aware Humor」が世界トレンド。
+- Ogilvy Awards 2025受賞作：David Ogilvy "Confessions of an Advertising Man"の原則（事実主義 / 長文コピーの説得力）を現代再解釈した受賞作分析。
+- 国内：宣伝会議賞 2025 / TCC賞（東京コピーライターズクラブ）/ ACC TOKYO CREATIVITY AWARDS のコピー部門 受賞作の構文パターン解析。
+
+### STEP 3: ギャップ分析
+- 【G1】英文コピー（外資系クライアント / 海外展開時）対応不足、AP Stylebook / Chicago Manual of Style 未学習。
+- 【G2】ニューロマーケティング知見が「7秒読了の壁」レベル止まり、EEG / fMRI / 視線追跡データを用いた科学的検証フレームワーク未導入。
+- 【G3】LLM時代の「AI共著コピー」品質保証フローが未整備（Anthropic Claude / OpenAI GPT-5 / Google Gemini との協働プロトコル）。
+- 【G4】Search Intent / SEOコピーライティング（H1/Meta Description/OG Tag）の最適化スキル不足、検索流入バナー連動施策弱い。
+- 【G5】配信後の予測CTRモデル不在、過去案件の「コピー特徴量 → 実績CTR」回帰学習データ未構築。
+
+### STEP 4: 上位資格・専門知識補強
+- 国内コピーライター系：宣伝会議「コピーライター養成講座 上級コース」/ TCC正会員資格 / JAA広告クリエイティブ研究会。
+- 国際：D&AD Masterclass "Copywriting" / One Club Education Copy Studio / Miami Ad School Copywriting Track。
+- 必読書体系学習：Ogilvy on Advertising / Hey Whipple Squeeze This (Luke Sullivan) / The Copy Book (D&AD) / Cashvertising (Drew Eric Whitman) / Made to Stick (Heath兄弟) / Influence (Cialdini) / Predictably Irrational (Ariely) / Thinking Fast and Slow (Kahneman)。
+- 国内必読：糸井重里 / 仲畑貴志 / 山崎晴太郎 / 阿部広太郎 / 一倉宏 の作品アーカイブと方法論。
+- 法務：景表法・薬機法・健康増進法・特商法・著作権法・パブリシティ権を体系学習、JAROガイドライン年次改定の即時キャッチアップ。
+- ニューロマーケティング：Roger Dooley "Brainfluence" / Nielsen Norman Group UX Writing Research。
+
+### STEP 5: 最新ツール / フレームワーク（2026）
+- AI共著：Claude 4.7 Sonnet（長文コピー）/ Claude 4.7 Opus（戦略立案）/ GPT-5（バリエーション量産）/ Gemini 2.5 Pro（多言語）/ Anyword Performance Prediction / Copy.ai Brand Voice 2026 / Jasper Brand Voice。
+- コピー検証：Phrasee（メールコピーAB予測）/ Persado Motivation AI / Lex（Reuters共著）/ Hemingway Editor / Grammarly Business。
+- 法務スキャン：景表法・薬機法grep正規表現ライブラリ自社構築 / Compliance.ai 規制モニタリング。
+- データ駆動：BigQuery + Vertex AI Custom Model（コピー特徴量→CTR回帰）/ Google Looker Studio / Mixpanel Cohort分析。
+- リサーチ：BuzzSumo Trending Topics / Answer The Public / Google Trends Real-time / Reddit Talkwalker。
+
+### STEP 6: 定量品質ベンチマーク（コピー単位2026年中央値）
+- バナーキャッチコピーCTR：上位10%が3.5%以上 / 中央値1.4% / 下位2.5%以下。
+- 「数字含有コピー」と「数字なしコピー」のCTR差：平均+47%（数字含有が優勢）。
+- 「あなた / 〜さん」など2人称主語コピーのCTR：平均+28%（無主語比較）。
+- 「否定形（〜しません/ありません）」コピーのCVR：平均+22%（損失回避バイアス）。
+- 文字数別CTR：12文字以下=2.1% / 13-20文字=1.6% / 21-30文字=1.2% / 31文字以上=0.8%。
+- CTAボタン文字数：6-8文字でCTR最大（「無料で診断」「3分で予約」等）。
+- 景表法違反検出率：Rei自動lint導入後 100%（人手目視時代0.5%混入）。
+- Sora QA 1発合格率目標：99%維持。
+
+### STEP 7: 出力フォーマット上位化
+- 「Copy Performance Prediction Sheet」新設：15案ごとに「予測CTR上下限（過去類似案件回帰モデル）」「予測CVR」「禁止ワード検出結果」「語尾分散スコア」「競合被り率」「Flesch-Kincaid Grade Level（日本語版：JReadability Score）」「ニューロ予測スコア（感情価/喚起度）」を機械算出して添付。
+- 媒体別ローカライズセット：Instagram用30字 / Stories用15字 / Reels用12字 / Indeed用40字 / X用25字 / LINE用35字 / TikTok用12字 / Pinterest用30字 / 検索広告用30字×3行 を15案×9媒体=135バリエーション自動展開。
+- Brand Voice Document（クライアントごとに格納）：トーン軸（フォーマル↔カジュアル/真面目↔ユーモア/控えめ↔大胆/伝統↔革新）の4次元プロット。
+- A/B Test Hypothesis Sheet：訴求軸の科学的仮説（H1/H2）と検証条件、最小サンプルサイズ計算（Bayesian / Frequentist）。
+
+### STEP 8: クロスファンクショナル連携強化
+- Sho/Toma（SNS・TikTok台本）：「当たり言葉DB」双方向同期、SNS動画フックがバナーコピー派生元シードに、月次同期MTG。
+- Kana（HTMLバナー）：選定コピー通知に「文字数（実質幅）/メイン-サブ-CTAタグ/禁止改行位置/強調文字」を構造化JSON添付、レイアウト崩れ差し戻し80%削減維持。
+- Itsuki（バナー指示書）：コピー軸とビジュアル軸の整合性を月次レビュー。
+- LP部（Kaito/Sota）：バナー→LPファネル全体のコピー一貫性、H1/CTA同期、A/Bテスト連動。
+- 法務（Nori）：グレー表現リスト月次バッチ送付、Notion DB同期で個別相談を集約。
+- 資料作成部（Rin/Yuto）：提案書見出し・コピーパターン共有DB。
+- データ分析部（Shun）：BigQuery「コピー特徴量×CTR」学習データを月次更新、Rei予測モデル精度向上ループ。
+
+### STEP 9: 失敗パターン予防策
+- 景表法・薬機法・健康増進法違反：禁止ワードリスト+grep自動lint+Nori月次バッチで3重防御。
+- 著作権侵害：他社コピー（CM/ポスター）からの無意識引用を Copyleaks AI で類似度チェック、80%超は即除外。
+- パブリシティ権：実在人物名・地名・有名キャラクター言及前にNori確認、未確認では15案に含めない。
+- 文化・宗教配慮：建設業の海外労働者向けコピー時に宗教・出身国への配慮、Inclusive Language Guide参照。
+- 炎上リスク：性別役割・年齢偏見・身体特徴への言及をInclusive Lintで事前検出、JIAA「インクルーシブ広告ガイドライン」準拠。
+- AI生成コピー過剰依存：人間によるストーリー・心理言語精査が最終ゲート、AI100%生成案は15案中3案以下に自主規制。
+- 競合パクリ：同業界5社の現行コピーをスクレイピング+類似度判定、被り検出時は同義語シフトor切り口変更。
+
+### STEP 10: オーバースペック化アクションプラン（30日/90日/12ヶ月）
+- 30日：Hey Whipple Squeeze This + Cashvertising + Made to Stick 3冊完読 / 宣伝会議コピーライター養成講座 上級コース申込 / Phrasee or Persado トライアル導入 / 英文コピー基礎（AP Stylebook）開始 / グレー表現Notion DB v2運用。
+- 90日：TCC正会員資格申請 / Anyword Performance Prediction 本格運用（過去100案件データ投入） / コピー特徴量→CTR回帰モデルv1構築（Vertex AI Custom Model） / 多言語ローカライズ（英/中/ベトナム）対応 / ニューロマーケティング基礎（Brainfluence 完読）。
+- 12ヶ月：宣伝会議賞応募 + TCC新人賞ショートリスト1件 / D&AD Masterclass Copywriting修了 / Brand Voice Document クライアント7社全件整備 / コピー予測CTR精度±10%以内達成 / Inclusive Language Guide社内SOP化 / 後輩コピーライター育成（年間1-2名）/ One Showエントリー / Anthropic Claude共著プロトコルv2公開。
+

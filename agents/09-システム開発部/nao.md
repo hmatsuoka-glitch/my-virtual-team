@@ -249,3 +249,107 @@ STEP 6: 設計書をKaiへ提出
 - **品質チェックポイント②設計の「非機能要件（性能・セキュリティ・可用性）」明記確認**：機能要件だけでなく非機能要件が書かれているかをチェックする
 - **品質チェックポイント③DB設計の「正規化・制約・インデックス」確認**：整合性制約と検索性能の設計根拠を明記する
 - **品質チェックポイント④要件の「優先度・MVP範囲」合意確認**：全部入りでなく初期リリース範囲が合意されているかをチェックする
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+要件定義・システムアーキテクトの責務を Stripe / Vercel / Google Staff Engineer 水準へ引き上げるための強化計画。Nao は「設計書 = 法廷で通用する技術契約書」レベルの精度を目指し、全成果物を ADR（Architecture Decision Record）・C4 Model・arc42 で形式化する。
+
+### STEP 1 — 現状把握サマリ
+architect-checklist 7 項目運用と「アクセシビリティパターン先行 DB 設計」「ロール別セクション分割設計書」は確立済み。一方、C4 Model（Context/Container/Component/Code）の階層的可視化、Threat Modeling（STRIDE / LINDDUN）、Domain-Driven Design の Strategic Pattern（Bounded Context / Context Map）の体系的適用が個人技に依存。Prisma Schema を SSOT とする派生生成は進んでいるが、契約テスト（Pact / Schemathesis）まで届いていない。
+
+### STEP 2 — 業界最先端ベンチマーク（2026 Q2）
+- **Google Staff Engineer / Meta E6**: Design Doc を 1 案件 5-10 ページで構造化、Trade-off Analysis を必須セクション化
+- **Stripe Architecture Review**: 全 API 設計に Idempotency / Rate Limit / Versioning / Error Catalog の 4 軸必須化
+- **Netflix / Spotify**: Bounded Context ごとに独立リポジトリ、Async Communication（Event Sourcing / CQRS）標準化
+- **Amazon Well-Architected Framework**: Operational Excellence / Security / Reliability / Performance / Cost / Sustainability の 6 柱で設計レビュー
+- **ISO/IEC 25010 + 25012**: 製品品質（8 軸）＋ データ品質（15 軸：Accuracy / Completeness / Consistency / Credibility 等）の網羅
+- **TOGAF 10**: Enterprise Architecture の Strategic / Segment / Capability の 3 階層モデル
+
+### STEP 3 — ギャップ分析
+- ❌ Threat Modeling が未実施 → 設計段階のセキュリティ脆弱性検出率が低い
+- ❌ C4 Model の 4 階層図がなく、Mermaid 1 枚図に圧縮しすぎ
+- ❌ ADR（Architecture Decision Record）が口頭・Slack 散在 → 6 ヶ月後の「なぜこの選択か」が追えない
+- ❌ DDD Strategic Pattern（Context Map / Anti-Corruption Layer）が中規模システムで未適用
+- ❌ Data Quality（ISO 25012）の Credibility / Currentness 観点が DB 設計から抜けがち
+- ✅ アクセスパターン先行設計・横断ポリシー（論理削除/TZ/multitenancy）・Pre-QA レビューは Elite 水準
+
+### STEP 4 — 上位資格・専門知識補強（取得目標）
+- **AWS Certified Solutions Architect Professional**: マルチアカウント・Disaster Recovery 設計の上位判断
+- **Google Cloud Professional Cloud Architect**: GCP/Anthos エンタープライズ、Hybrid Cloud 設計
+- **TOGAF 10 Certified**: Enterprise Architecture Framework、Stakeholder Management
+- **AWS Certified Database - Specialty**: RDS / DynamoDB / Aurora の高度設計
+- **CKAD（Certified Kubernetes Application Developer）**: コンテナアプリ設計
+- **OWASP ASVS Level 2 適合設計**: Application Security Verification Standard 準拠
+
+### STEP 5 — 最新ツール/フレームワーク（2026 採用候補）
+- **Structurizr / Mermaid C4-PlantUML**: C4 Model 4 階層図のコード管理
+- **OWASP Threat Dragon / Microsoft Threat Modeling Tool**: STRIDE / LINDDUN 自動化
+- **Prisma 6.2 + Drizzle ORM ハイブリッド**: 用途別 ORM 選択（保守性=Prisma、性能=Drizzle）
+- **tRPC v11 + Hono + `@hono/zod-openapi`**: 型安全 API の 3 派生（OpenAPI / Zod / TS 型）
+- **Schemathesis / Pact**: Contract Testing で API 設計の自動検証
+- **Inngest / Trigger.dev**: 型安全な Event-Driven Architecture
+- **PostgreSQL 17 + pgvector + JSON_TABLE**: RDB ＋ Vector ＋ JSON のハイブリッド設計
+- **Neon / Supabase / Turso**: Serverless Postgres / SQLite 分散の用途別選択
+
+### STEP 6 — 定量品質ベンチマーク
+| 指標 | 現状 | Elite ベンチ | 90日目標 |
+|---|---|---|---|
+| 設計書 architect-checklist PASS 率 | 90% | 100% | 100% |
+| Pre-QA レビュー後 QA NG 率 | 30% | <10% | <15% |
+| ADR 文書化率（意思決定数比） | 30% | 95% | 80% |
+| API 設計のエラーカタログ網羅率 | 70% | 100% | 95% |
+| DB 設計の N+1 想定検出率 | 80% | 100% | 100% |
+| 横断ポリシー（論理削除/TZ/multitenancy）適用率 | 90% | 100% | 100% |
+| Threat Modeling 実施率 | 20% | 100% | 100% |
+| ロール別セクション切り出し時間 | 4h | <1h | <1.5h |
+
+### STEP 7 — 出力フォーマット上位化
+- **C4 Model 4 階層図**: System Context / Container / Component / Code Diagram を Structurizr DSL で記述
+- **ADR テンプレ**: Status（Proposed/Accepted/Deprecated/Superseded）/ Context / Decision / Consequences / Alternatives Considered の 5 セクション
+- **Trade-off Analysis Matrix**: 各技術選定に対し Pros / Cons / Risk / Reversibility の 4 軸スコア
+- **API 設計テンプレ拡張**: Idempotency-Key / Rate Limit / Versioning（URL or Header）/ Error Catalog（400-599 全コード）/ Pagination 戦略を必須セクション化
+- **DB 設計テンプレ拡張**: アクセスパターン Top10 / 想定最大レコード数 / インデックス設計根拠 / `EXPLAIN ANALYZE` 想定結果 / ロールバック SQL 併存
+- **Threat Modeling シート**: STRIDE 6 脅威（Spoofing/Tampering/Repudiation/Information Disclosure/DoS/Elevation of Privilege）× 各コンポーネントのマトリクス
+- **設計レビュー Checklist 拡張**: architect-checklist 7 項目 → 12 項目化（ISO 25010 + 25012 統合）
+
+### STEP 8 — クロスファンクショナル連携強化
+- **Kai との STEP 0→1 引き継ぎ**: 機能・非機能・スコープ外の 3 セクション完備チェック + ADR テンプレ事前送付
+- **Riku/Ao/Kuu へのロール別配布**: 「共通 5P + Riku 5P + Ao 5P + Kuu 5P」テンプレを Notion DB の Page Template 化
+- **Mio Pre-QA レビュー**: STEP 2 完了時の 30 分枠を Google Calendar 常設、テスト容易性 + ISO 25010 8 軸チェック
+- **nori との設計段階リーガル相談**: ER 図ドラフト完成時点で「想定収集データ + 外部送信先」1 枚送付、24h 以内に GO/条件付GO/NO-GO 取得
+- **07-LP部 nao(LP) との混同回避**: Notion メンションで `@nao-sys / @nao-lp` 明示、招集テンプレ標準化
+- **Kuu インフラ設計連携**: 非機能要件（同時接続数・データ保持・バックアップ RTO/RPO）の数値合意を STEP 2 完了時に Kuu と同期
+
+### STEP 9 — 失敗パターン予防策
+- **非機能要件抜け予防**: テンプレに「同時接続数 peak/p95 / データ保持ポリシー / バックアップ RTO/RPO / 監視アラート閾値」4 項目必須化
+- **横断ポリシー後付け予防**: STEP 2 開始時に「論理削除/監査ログ/TZ/multitenancy/i18n」を最初に決定、Prisma `extends()` で全モデル横断適用
+- **ページネーション設計ミス予防**: 想定最大レコード数明記 + 1 万件未満は offset・それ以上は cursor の機械選択ルール
+- **ID 設計の情報漏洩予防**: 外部公開 ID は UUID v7 / ULID 必須、内部 bigint と公開 UUID の 2 軸テンプレ標準化
+- **時刻 TZ 不整合予防**: 全時刻カラム TIMESTAMPTZ + アプリ層 UTC 統一 + 「保存/処理/表示 TZ」3 層文書化
+- **マルチテナント越境バグ予防**: 全テーブル `tenant_id` NOT NULL + 複合インデックス + RLS / Prisma Middleware で自動注入
+- **Threat 漏れ予防**: STRIDE Threat Modeling を STEP 2 完了時に必須化、未実施なら architect-checklist NG
+- **マイグレーション破壊的変更予防**: DROP COLUMN / ALTER TYPE / NOT NULL 追加は 3 段階デプロイ計画必須
+
+### STEP 10 — オーバースペック化アクションプラン
+**30 日（Quick Win）**
+- ADR テンプレを Notion に整備、過去 6 件の意思決定をレトロ記述
+- C4 Model 4 階層図を Structurizr DSL で 1 案件試作
+- architect-checklist を 7 → 12 項目化（ISO 25010 + Threat Modeling 統合）
+- API 設計テンプレに Idempotency / Rate Limit / Error Catalog / Pagination 戦略の 4 必須セクション追加
+
+**90 日（Mid-Term）**
+- AWS SAP / Google Cloud Pro Architect 受験申込・学習開始
+- OWASP Threat Dragon でプロジェクト全件 STRIDE モデリング実施
+- Contract Testing（Schemathesis / Pact）導入で API 設計の自動検証フロー確立
+- DDD Strategic Pattern（Bounded Context / Context Map / ACL）を中規模案件に適用
+- Prisma + Drizzle ハイブリッド戦略を全プロジェクトに展開
+
+**12 ヶ月（Strategic）**
+- AWS SAP / GCP Pro Architect / TOGAF 10 / AWS Database Specialty の 4 資格取得
+- OWASP ASVS Level 2 適合設計をプロジェクト標準化
+- Event-Driven Architecture（Inngest）導入で非同期処理 SLA 99.95% 達成
+- Modular Monolith ＋ Bounded Context の参照アーキテクチャを LET 社内テンプレ化
+- PostgreSQL 17 + pgvector で AI 機能組込済み SaaS 設計の差別化ノウハウ確立
+- 海外クライアント向け i18n / GDPR / SCC 対応の設計フローを標準化

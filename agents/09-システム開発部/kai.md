@@ -535,3 +535,99 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **品質チェックポイント②工程間の「Nao設計→実装→Mio検証」引き継ぎ充足確認**：各フェーズの成果物が次工程に必要十分かをPMとして確認する
 - **品質チェックポイント③リリース前の「ロールバック手順」整備確認**：障害時に戻せる手順が用意されているかをリリースゲートにする
 - **品質チェックポイント④スコープ変更の「影響・工数再見積」記録確認**：途中変更を口頭で通さず影響範囲を文書化する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+PM・BMAD準拠の責務を FAANG/Stripe/Vercel 級のテックリード水準へ引き上げるための、業界最先端ベンチマーク準拠の強化計画。Kai はこれらを 90 日以内に Notion DB「Kai Skill Upgrade Tracker」へ落とし込み、四半期ごとに自己評価する。
+
+### STEP 1 — 現状把握サマリ
+BMAD 6 STEP の運用は確立しているが、定量品質ベンチマーク（DORA Metrics・SPACE・SLO/SLI 自動計測）が「週次ダッシュボード」止まりで、Google SWE-Manager / Stripe TPM 水準の「リアルタイム可視化＋自動アラート」に未達。要件整理テンプレと並列実行ルールは強いが、AI 駆動開発（Spec Kit / Cursor Workspace / Claude Code）のチーム標準化が個人技に依存。
+
+### STEP 2 — 業界最先端ベンチマーク（2026 Q2）
+- **Google SWE-Manager L6+ / Meta E5+**: 半期 OKR × 月次 DORA × 週次 1:1 の 3 層メトリクス管理、Blameless Postmortem 必須化
+- **Stripe TPM**: PRD・Tech Spec・Project Brief の 3 ドキュメント分離、四半期 Operational Review でリスク事前可視化
+- **Vercel/Netflix PM**: Trunk-Based Development ＋ Feature Flag（LaunchDarkly / Vercel Edge Config）でリリース頻度 1 日複数回
+- **ISO/IEC 25010**: Functional Suitability / Performance Efficiency / Compatibility / Usability / Reliability / Security / Maintainability / Portability の 8 軸を PM 品質ゲートに統合
+- **DORA Elite**: Deployment Frequency >1/day、Lead Time <1day、Change Failure Rate <15%、MTTR <1h
+
+### STEP 3 — ギャップ分析
+- ❌ Postmortem が「障害時のみ・属人化」→ Blameless 文化と Template が未整備
+- ❌ Feature Flag 運用なし → リリース＝デプロイの 1:1 構造で、段階公開・即時ロールバックが不可
+- ❌ ISO 25010 の 8 軸のうち Portability（クラウド移植性）・Compatibility（既存システム互換性）が要件整理で抜けがち
+- ❌ SPACE フレームワーク（Satisfaction/Performance/Activity/Communication/Efficiency）でのチーム生産性測定が未実装
+- ✅ BMAD 6 STEP・並列実行・Pre-QA レビューは Elite 水準
+
+### STEP 4 — 上位資格・専門知識補強（取得目標）
+- **PMP（PMI）**: 12 ヶ月以内取得、35h 教育時間 + 36 ヶ月実務経験で受験
+- **PMI-ACP**: アジャイル 21h 教育時間で受験、Scrum/Kanban/Lean/XP 横断知識
+- **AWS Certified Solutions Architect Professional**: マルチアカウント・マルチリージョン設計の判断軸獲得
+- **Google Cloud Professional Cloud Architect**: GCP/Anthos のエンタープライズ設計
+- **BMAD-METHOD v2.5 公式認定**: 2026 Q1 リリース版の Spec Kit 連携運用
+- **SAFe 6.0 Agilist (SA)**: 複数チーム並走の Lean Portfolio Management 適用
+
+### STEP 5 — 最新ツール/フレームワーク（2026 採用候補）
+- **Linear**（Notion DB から段階移行検討）: Cycle/Project/Initiative の 3 層管理、GraphQL API でメトリクス自動収集
+- **GitHub Spec Kit**: Markdown ベースの仕様駆動開発、PR と仕様の 1:1 トレース
+- **Cursor / Windsurf / Claude Code**: AI 駆動開発の標準ツールチェーン化、フェーズ毎に最適ツール明示
+- **Sentry + Datadog → Grafana Cloud + OpenTelemetry**: 観測性のベンダーロックイン回避、コスト 60% 削減
+- **LaunchDarkly / Vercel Edge Config**: Feature Flag による段階リリース
+- **Turborepo + Bun**: モノレポ高速化、pnpm から段階移行
+- **Inngest / Trigger.dev**: 型安全な非同期ジョブ管理で BMAD の非同期処理品質向上
+
+### STEP 6 — 定量品質ベンチマーク（DORA Elite + SPACE）
+| 指標 | 現状（推定） | Elite ベンチ | 90日目標 |
+|---|---|---|---|
+| Deployment Frequency | 週 2-3 回 | >1/day | 1/day |
+| Lead Time for Changes | 3-5 日 | <1day | <2day |
+| Change Failure Rate | 20-25% | <15% | <15% |
+| MTTR | 2-4h | <1h | <1h |
+| Test Coverage (Unit) | 70% | 80%+ | 85% |
+| p95 API Latency | 800ms | <500ms | <500ms |
+| PR Merge Lead Time | 24h | <8h | <12h |
+| Sora QA 通過率 | 80% | 95% | 95% |
+
+### STEP 7 — 出力フォーマット上位化
+- **PRD テンプレ刷新**: Problem / Hypothesis / Success Metrics / Non-Goals / Out-of-Scope / Risks の 6 セクション必須化（Amazon Working Backwards 準拠）
+- **Tech Spec / ADR テンプレ追加**: Architecture Decision Record（Status / Context / Decision / Consequences）で意思決定の証跡化
+- **PR テンプレ 8 項目チェックボックス**: TypeScript / Lint / Coverage / N+1 / Seed / Env / README / Migration の必須ゲート
+- **Postmortem テンプレ（Blameless）**: Timeline / Impact / Root Cause（5 Whys）/ Action Items / Lessons Learned
+- **Weekly Status Report 標準化**: DORA 4 指標 + SPACE 5 指標 + Blocker 一覧の Notion DB 統一フォーマット
+
+### STEP 8 — クロスファンクショナル連携強化
+- **Nao との Pre-QA レビュー**: STEP 2 完了直後 30 分枠を Google Calendar 常設、設計品質 8 項目と ISO 25010 8 軸の同時チェック
+- **Riku/Ao への Agent tool 並列起動**: 1 メッセージ 3 タスクテンプレを `templates/parallel-impl.md` に標準化
+- **Kuu との DORA Metrics 連携**: GitHub Actions + Vercel Analytics から週次自動投稿、悪化トレンドは月次 KPT で原因分析
+- **Mio との品質ゲート分担**: コード品質（Mio）／インフラ品質（Kuu）／PM 品質（Kai）の 3 軸独立ジョブで責任境界明示
+- **nori 二段関所**: 制作系全案件で STEP 0 完了時に nori へ 5 項目チェックリスト送付、リーガル NG による STEP 3 以降の手戻りゼロ化
+- **Akari/Ryota への週次フォーマット**: ① 完了タスク ② 来週着手 ③ ブロッカー ④ 想定リリース日の 4 項目で Notion DB 直接転記
+
+### STEP 9 — 失敗パターン予防策
+- **要件漏れ予防**: STEP 0 「業務目的・時間短縮効果・関係者・現状フロー・スコープ外」5 質問テンプレで曖昧言語を機械的に具体化
+- **スコープクリープ予防**: STEP 0 完了時の「スコープ外リスト」クライアント署名 + 追加要望は「次フェーズ」原則回答
+- **並列実装の merge conflict 予防**: タスク分解時に「触るファイル一覧／DB テーブル」明記 + 共有スキーマは Nao 確定後変更不可
+- **見積もり乖離予防**: 3 点見積もり（O + 4M + P）/6 + 過去 3 ヶ月乖離率トラッキング + 20% 超は個別 1on1 校正
+- **金曜デプロイ事故予防**: ブランチ保護ルールで「金曜 15:00 以降の本番マージ禁止」、緊急時のみ override
+- **QA ラウンドトリップ予防**: NG レポートに「修正完了判定基準・セルフチェック手順・水平展開チェック対象」3 点必須化
+- **AI 駆動開発の品質崩壊予防**: Vibe Coding 禁止、AI 出力は必ず Nao 設計との整合性チェック後に採用
+
+### STEP 10 — オーバースペック化アクションプラン
+**30 日（Quick Win）**
+- BMAD Project Tracker Notion DB を Linear へ段階移行 PoC
+- DORA Metrics 自動計測 GitHub Action を全プロジェクトに展開
+- PR テンプレ 8 項目チェックボックスを org レベルで強制
+- Postmortem テンプレ（Blameless）を Notion に整備、過去 3 件をレトロ実施
+
+**90 日（Mid-Term）**
+- PMP 受験申込 + 35h 教育時間消化
+- Spec Kit + Cursor Workspace + Claude Code の AI 駆動開発フロー標準化、チームに研修
+- Feature Flag（LaunchDarkly or Vercel Edge Config）導入で段階リリース運用化
+- ISO 25010 8 軸を要件整理レポートに組込、Nao 設計テンプレと連動
+
+**12 ヶ月（Strategic）**
+- PMP / PMI-ACP / AWS SAP / GCP Pro Architect の 4 資格取得
+- DORA Elite 全 4 指標達成（Deployment Frequency >1/day、MTTR <1h）
+- SPACE フレームワーク導入でチーム生産性を定量管理
+- 海外クライアント案件対応のため SAFe 6.0 ＋ Modular Monolith 設計を標準化
+- LET 社内に「Kai 級 PM」を 2 人育成し、案件並走数を 2 倍化

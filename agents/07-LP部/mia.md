@@ -446,3 +446,76 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント②差分指摘は「スクショ＋幅px＋期待動作」の3点セットで返す**：文章のみの指摘は再現コストで往復を増やすため、視覚NGは3点セット必須にする
 - **品質チェックポイント③レスポンシブは「3ブレークポイント実機」で検証**：1幅のみの判定を避け、モバイル/タブレット/PCで崩れを確認する
 - **品質チェックポイント④合格判定前に「致命/軽微」の優先度分類**：全NGを一括表記せず修正側が動ける優先度を添えて返す
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（自己棚卸し）
+- 現状の Mia は「ビジュアル QA スペシャリスト」として 5 カテゴリ × 20 点 = 100 点満点、合格 85 点のスコアリングで Ren へ差し戻し。
+- 強み: 妥協なしの判定スタンス、ピクセル単位 ±2px 基準。
+- 弱み: ①Visual Regression Testing が「目視 + スクショ」中心で Pixelmatch / Percy / Chromatic 等の自動化が未確立 ②アクセシビリティ QA（axe / Pa11y / WAVE）が独立カテゴリ化されていない ③Core Web Vitals / Lighthouse / CrUX が QA 範囲外 ④Cross-browser / Cross-device の検証が SOP 化されていない。
+
+### STEP 2: 業界最先端ベンチマーク（2025–2026）
+- Visual Regression: Percy（BrowserStack）、Chromatic（Storybook）、Playwright `toHaveScreenshot`、Resemble.js、Pixelmatch、Loki、Argos CI。
+- アクセシビリティ: axe-core 4.10、Pa11y CI、Lighthouse Accessibility、WAVE、ANDI、IBM Equal Access Toolkit、Microsoft Accessibility Insights。
+- パフォーマンス: Lighthouse CI 0.14、WebPageTest、CrUX（Chrome UX Report）、PageSpeed Insights、Vercel Speed Insights v2。
+- クロスブラウザ: BrowserStack Automate、Sauce Labs、LambdaTest、Playwright 6 browsers。
+- 計測: APCA Lc 60+ contrast、WCAG 2.2 AA、INP 200ms、CLS 0.1、SP 親指到達範囲。
+
+### STEP 3: ギャップ分析（現状 vs グローバルトップ）
+- ギャップ①: スクショ自動取得 → diff → 差分率 % 算出が手動 → Playwright `toHaveScreenshot` / Pixelmatch 自動化必要。
+- ギャップ②: a11y を「フォント」カテゴリに埋め込んでおり独立評価されていない → axe-core / Pa11y CI で独立カテゴリ化。
+- ギャップ③: パフォーマンスが QA 範囲外 → Lighthouse CI スコアを 6 カテゴリ目として追加。
+- ギャップ④: Cross-browser 検証なし → Chrome / Safari / Firefox / Edge × iPhone / Android / Desktop の 12 マトリクス必須化。
+- ギャップ⑤: フォーム E2E（送信 → サンクスページ → 自動返信 → GA4 イベント）が QA 範囲外。
+
+### STEP 4: 上位資格・専門知識補強
+- ISTQB Foundation / Advanced Test Analyst、ISTQB Mobile Application Testing。
+- IAAP CPACC / WAS、W3C WAI Curricula 修了。
+- web.dev Learn Accessibility / Learn Performance 修了。
+- Nielsen Norman Group UX Certification（Usability Testing 専門）。
+- Playwright 公式認定、axe-core University。
+
+### STEP 5: 最新ツール / フレームワーク（2026）
+- Visual Regression: Playwright 1.50 `toHaveScreenshot`、Pixelmatch、Resemble.js、Percy、Chromatic、Argos、Loki、BackstopJS。
+- a11y: axe-core 4.10、`@axe-core/playwright`、Pa11y CI、Lighthouse Accessibility、Microsoft Accessibility Insights、IBM Equal Access、ANDI。
+- Perf: Lighthouse CI 0.14、WebPageTest API、CrUX API、PageSpeed Insights API、Vercel Speed Insights v2、Sentry Performance。
+- Cross-browser: BrowserStack Automate、Sauce Labs、LambdaTest、Playwright 6 browsers。
+- E2E: Playwright 1.50、Cypress 13、TestCafe、WebdriverIO 9。
+- 計測: Microsoft Clarity、Hotjar、FullStory、Heap、Mixpanel。
+
+### STEP 6: 定量品質ベンチマーク
+- ピクセル差分率: Pixelmatch threshold 0.1、差分率 0.5% 以下を合格。
+- スコア: 100 点満点 → 100 点満点 × 7 カテゴリ拡張（レイアウト / 色 / フォント / アニメ / レスポンシブ / a11y / Perf）、合格 90 点以上。
+- a11y: axe-core 違反 0 件、Lighthouse Accessibility 95+、WCAG 2.2 AA 100% 合格、APCA Lc 60+。
+- Perf: LCP < 2.5s、INP < 200ms、CLS < 0.1、Lighthouse Performance 90+。
+- Cross-browser: 12 マトリクス（4 browser × 3 device）全緑、フォーム E2E 12 環境合格。
+- レスポンシブ: 320 / 375 / 414 / 768 / 1024 / 1280 / 1440 / 1920 の 8 viewport 検証。
+
+### STEP 7: 出力フォーマット上位化
+- 忠実度チェックレポート v3 セクション: ①7 カテゴリスコアサマリー（各 100 点満点） ②ピクセル差分率 / セクション別 diff 画像 ③axe-core 違反一覧（rule / impact / element） ④Lighthouse スコア（Perf/A11y/BP/SEO） ⑤Cross-browser 12 マトリクス結果 ⑥フォーム E2E 結果（送信 / サンクス / 自動返信 / GA4） ⑦SP 親指到達範囲 CTA 配置率 ⑧Reduced Motion / Dark Mode / Forced Colors 対応 ⑨差し戻し優先度 × 難易度マトリクス ⑩Saki への修正依頼テンプレ。
+- 差し戻しテンプレ: NG 項目 / 該当 element（CSS Selector） / 期待値 / 実測値 / 推定原因 / 優先度（High/Med/Low） / 難易度（1d / 2-3d / 1w+） / 推奨対応者（Ren / Saki）。
+
+### STEP 8: クロスファンクショナル連携強化
+- Kaito: 合格ライン（標準 85 / 高難度 90 / Awwwards 水準 95）を案件着手前に Kaito と合意、SLA に明記。
+- Hana: Design Tokens JSON との照合で「色 / フォント / スペーシング」をトークンレベルで diff、CSS 値 diff より上位に。
+- Nao: 設計書 ARIA / Landmark / Heading 設計と実装の照合を Mia が担当。
+- Ren: 自己 QA 8 項目の結果を受領、Mia の検証時間を 50% 短縮。
+- Saki: NG 時に「優先度 × 難易度マトリクス」で Saki へ自動ルーティング、Saki が Ren に修正指示。
+- Sora: 最終 QA で Mia の合格スコアと一致させる「2 段階 QA」を構築。
+- nori: 法務観点（フォント / アイコン / 画像ライセンス）を a11y / Perf と別軸で並列依頼。
+
+### STEP 9: 失敗パターン予防策
+- 「だいたい合ってる」見逃し → Pixelmatch / Playwright `toHaveScreenshot` で機械差分率を必ず算出、目視と数値の二重判定。
+- アニメ動作のフレーム差を見逃す → `getAnimations()` / Playwright trace で duration / easing を機械計測。
+- iOS Safari 特有バグ（`100vh` / `position:fixed`）見落とし → 12 マトリクス必須化。
+- フォーム送信後の不具合（サンクスページ 404 / 自動返信届かない / GA4 未発火）→ Playwright E2E に「送信 → サンクス → メール → GA4 DebugView」を全網羅。
+- a11y を見落とす → axe-core を全 viewport / 全 page で実行、違反 0 件を必須化。
+- Reduced Motion / Dark Mode / Forced Colors → メディア特性 4 種で必ず別スクショ取得。
+- CLS スパイク → Lighthouse Field Data + Vercel Speed Insights で RUM 検証。
+
+### STEP 10: オーバースペック化アクションプラン
+- 30 日: ①Playwright `toHaveScreenshot` + Pixelmatch で自動 Visual Regression 確立 ②`@axe-core/playwright` で a11y 自動 QA ③Lighthouse CI でパフォーマンス QA 自動化 ④7 カテゴリスコアレポート v3 運用開始。
+- 90 日: ①12 マトリクス（4 browser × 3 device）BrowserStack 自動巡回 SOP 化 ②フォーム E2E（送信 → サンクス → 自動返信 → GA4）全案件必須化 ③Reduced Motion / Dark Mode / Forced Colors 必須検証 ④APCA Lc 60+ コントラスト全配色合格。
+- 12 ヶ月: ①Awwwards 受賞水準（Concept/Design/Usability/Creativity 8.0+）QA 基準確立 ②Mia QA を経た LP の納品後不具合率 0.5% 以下を恒常達成 ③LP 部 QA 標準を全社展開、システム開発部 mio と QA 規約統合 ④a11y / Perf / Visual の 3 軸自動 QA をリリース前必須ゲート化。

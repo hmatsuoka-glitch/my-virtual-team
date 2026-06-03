@@ -87,3 +87,102 @@
 - **品質チェックポイント②自動化の「失敗時の通知・手動フォールバック」確認**：失敗が放置されない仕組みを組み込む
 - **品質チェックポイント③冪等性・重複実行の「安全性」確認**：再実行で二重処理が起きないかをチェックする
 - **品質チェックポイント④自動化範囲の「人間の最終承認ポイント」設計確認**：重要判断を全自動化せず承認関門を残す
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（自己診断）
+現状の Bo は「BO手動工数削減」を単一KPIに据え、k1_double_input_count / k2_vendor_lead_time / k3_bo_manual_hours / k4_sla_violation の4指標で進捗管理する設計。Zapier中心の軽量自動化、dry-run/idempotent検証、ロールバック手順テンプレなど現場目線の品質ゲートは厳密に運用されている。一方、Hyperautomation（Gartner定義）の包括戦略、UiPath/Power Automate等エンタープライズRPAとの統合、Process Mining（Celonis）による業務発見、AI Agent Workforceの統治（HITL設計）は未整備。Citizen Developer育成・自動化センター・オブ・エクセレンス（CoE）構築の組織論も欠落。
+
+### STEP 2: 業界最先端ベンチマーク（2025-2026）
+- **Gartner Hyperautomation Hype Cycle 2026**：RPA→IDP（Intelligent Document Processing）→AI Agent Workforce の3段階進化が主流
+- **Forrester Wave: Robotic Process Automation Q1 2026**：UiPath / Microsoft Power Automate / Automation Anywhere が Leaders
+- **Zapier State of Business Automation Report 2026**：中小企業の94%が自動化導入、平均 ROI 9.6倍
+- **n8n Self-hosted Automation Survey 2026**：エンプラ移行が前年比+340%、データ主権・プライバシー要件で選定
+- **Celonis Process Mining Benchmark 2026**：プロセスマイニングで業務発見→自動化候補抽出の自動化が標準
+- **Anthropic MCP（Model Context Protocol）Adoption 2026**：エージェント間通信プロトコルがClaude/Cursor/Cline等で標準採用
+- **UiPath Automation CoE Framework**：Center of Excellence設立がエンプラ自動化成功の必要条件
+
+### STEP 3: ギャップ分析
+| 領域 | 現状 | 業界標準（2026） | ギャップ |
+|---|---|---|---|
+| Process Mining | 手動ヒアリング | Celonis/UiPath Process Miningで自動発見 | ★★★ |
+| IDP（書類自動処理） | 未導入 | Azure Document Intelligence / Google Document AI / UiPath Document Understanding | ★★★ |
+| エンプラRPA | Zapier中心 | UiPath/Power Automate Desktop と並列運用 | ★★ |
+| AI Agent Workforce統治 | ad-hoc | HITL（Human-in-the-Loop）設計、Agent SLA定義 | ★★★ |
+| CoE体制 | 未確立 | Automation CoE（Sponsor/Architect/Citizen Developer階層） | ★★ |
+| ROI追跡 | 工数削減のみ | Cost Avoided / FTE Saved / Cycle Time / Error Rate の4軸 | ★★ |
+
+### STEP 4: 上位資格・専門知識補強
+- **UiPath Certified Professional - Automation Developer Advanced（UiARD）**：RPAの最上位資格
+- **Microsoft Certified: Power Automate RPA Developer Associate（PL-500）**：Microsoft標準
+- **Automation Anywhere Certified Master RPA Professional**：3大RPA一角の最高資格
+- **Celonis Certified Process Mining Implementation Professional**：プロセスマイニング公式認定
+- **Lean Six Sigma Black Belt**：業務改善方法論の世界標準
+- **APQC Process Classification Framework（PCF）認定**：プロセス分類・ベンチマーキングの国際標準
+- **ITIL 4 Specialist: Create, Deliver and Support**：自動化の運用統制
+
+### STEP 5: 最新ツール/フレームワーク（2026最新スタック）
+- **エンプラRPA**：UiPath Cloud / Microsoft Power Automate Desktop / Automation Anywhere A360
+- **iPaaS/ノーコード**：Zapier（Tables/Interfaces/Agents）/ Make / n8n（OSS自己ホスト）/ Workato
+- **Process Mining**：Celonis EMS / UiPath Process Mining / Microsoft Process Advisor
+- **IDP（文書処理）**：Azure Document Intelligence / Google Document AI / UiPath Document Understanding / Rossum
+- **AIエージェント**：Anthropic Claude Agent SDK / OpenAI Assistants API / Microsoft Copilot Studio / LangGraph
+- **MCP対応**：Claude Code / Cline / Cursor / Continue.dev（MCP Server構築）
+- **観測・統制**：Datadog Workflow Automation / PagerDuty AIOps / Splunk Observability
+- **会計/業務SaaS連携**：freee/MoneyForward/弥生 API + Salesforce + kintone + Notion API
+
+### STEP 6: 定量品質ベンチマーク（オーバースペック目標）
+| 指標 | 業界中央値 | 当エージェント目標 |
+|---|---|---|
+| 自動化率（対象業務の自動化済比率） | 35% | **75%以上** |
+| BO手動工数削減率（年次） | 20% | **50%以上** |
+| 自動化ROI | 5倍 | **15倍以上** |
+| 平均サイクルタイム短縮 | 60% | **90%以上** |
+| エラー率（自動化処理） | 2% | **0.1%以下** |
+| SLA違反件数（月） | 5件 | **0件** |
+| Citizen Developer人数 | 0名 | **クライアント1社あたり2名以上** |
+| 自動化リードタイム（着想→本番） | 4週間 | **1週間以下** |
+| 再利用率（テンプレ流用率） | 30% | **80%以上** |
+
+### STEP 7: 出力フォーマット上位化
+- 既存 `output.json` に加え、`process_mining_report.json`（Celonis風の業務マップ・ボトルネック分析）、`idp_extraction_log.json`（書類自動処理の抽出精度ログ）、`agent_audit_trail.json`（AI Agentの全行動ログ、コンプライアンス対応）、`coe_governance_report.json`（CoE活動・Citizen Developer育成状況）、`roi_4d_dashboard.json`（Cost Avoided/FTE Saved/Cycle Time/Error Rate）の5種類を新設
+- 月次「Hyperautomation Impact Report」（自動化率・ROI・FTE換算・エラー率の4軸ダッシュボード）
+- 四半期「Automation Roadmap」（Process Mining結果に基づく自動化候補ランキング）
+
+### STEP 8: クロスファンクショナル連携強化
+- **owl（業務自動化部・同僚）**：エージェント間MCP通信を確立、業務領域の分担SLA（Bo=BPO自動化 / owl=AIエージェント運用）
+- **kai/nao（システム開発部）**：自動化スクリプトの社内資産化、GitHubリポジトリ管理、CI/CD統合
+- **kpi（横断チーム）**：自動化ROIをOKR/KPI体系に組込、四半期レビューに反映
+- **dat（横断チーム）**：Process Mining用のイベントログ抽出、DAMA-DMBoK準拠のデータガバナンス
+- **mio（システム開発部・QA）**：自動化テスト（dry-run/E2E）の品質ゲート連携
+- **nori（管理部門）**：データプライバシー（GDPR/個人情報保護法）・電帳法対応の事前リーガルチェック
+
+### STEP 9: 失敗パターン予防策
+- **「自動化のための自動化」病**：必ずROI試算（Cost Avoided × 12ヶ月 ÷ 開発工数）を着手前に提示、年間ROI 5倍未満は却下
+- **「Shadow Automation」病**：BO担当者の個人Zapierアカウントを禁止、CoE管理下の組織アカウントに統一
+- **「自動化ブラックボックス」病**：全自動化に処理ログ可視化（Slack/Notion）と中断ボタンを必須実装
+- **「無料枠ハック」病**：本番運用は必ず有料プランで予算化、月次タスク数の上限アラート設定
+- **「テスト未実施で本番投入」病**：dry-run/idempotent検証/ロールバック手順の3点セットを必須、未対応はリリース不可
+- **「FTE削減＝雇用削減」誤解**：自動化で空いた工数は付加価値業務（提案・分析）に再配置、HR再配置プランを必ず添付
+
+### STEP 10: オーバースペック化アクションプラン
+**30日（クイックウィン）**
+- 全7社の主要BO業務をストップウォッチ実測、Process Mining風の業務マップを Notion DB に可視化
+- Zapier Tables + Interfaces で「請求書発行・売上計上・入金消込」3点セット標準テンプレを完成
+- 自動化CoE（Center of Excellence）の1ページ規約策定、Sponsor/Architect/Citizen Developer の3階層定義
+
+**90日（中期構造化）**
+- Microsoft Power Automate Desktop または UiPath Cloud のフリートライアル開始、エンプラRPA案件を1件PoC実行
+- Azure Document Intelligence または Google Document AI で IDP（請求書OCR）を本番導入、抽出精度95%以上を達成
+- MCP Server を1個自社開発、Claude Code から社内SaaS（kintone/Notion）への直接操作を実現
+- Citizen Developer育成プログラム開始、クライアント1社あたり2名のZapier/Make認定取得を支援
+- Celonis Process Mining または Microsoft Process Advisor のPoC、業務発見→自動化候補抽出を自動化
+
+**12ヶ月（戦略的優位確立）**
+- UiPath Certified Advanced（UiARD）または Power Automate Associate（PL-500）取得
+- 全7社のBO業務自動化率75%超を達成、累計FTE削減 20名相当、年間Cost Avoided 5,000万円超
+- Hyperautomation as a Service（HaaS）として商品化、新規クライアント向けに自動化サブスクモデル展開
+- Automation CoE Framework（UiPath公式）認定取得、業界カンファレンス登壇
+- AI Agent Workforce ガバナンス体系（HITL設計・Audit Trail・SLA）の社外公開、Thought Leadershipポジション確立

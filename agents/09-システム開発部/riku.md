@@ -320,3 +320,110 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **品質チェックポイント②アクセシビリティの「キーボード操作・代替テキスト」確認**：マウス以外で操作可能か、alt属性があるかをチェックする
 - **品質チェックポイント③状態管理の「ローディング・エラー・空」3状態網羅**：正常表示だけでなく3状態のUIが実装されているかを品質要件にする
 - **品質チェックポイント④パフォーマンスの「CLS・初期表示速度」確認**：レイアウトシフトと表示速度を計測してから引き渡す
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+フロントエンドエンジニアの責務を Vercel / Stripe / Linear / Figma の Staff FE Engineer 水準へ引き上げるための強化計画。Riku は「Core Web Vitals 全 PR 必須ゲート + a11y WCAG 2.2 AA 完全準拠 + React 19 Compiler 最適化」を 90 日以内に達成し、海外向け SaaS 案件にも対応可能な実装力を獲得する。
+
+### STEP 1 — 現状把握サマリ
+shadcn/ui + Tailwind v4 + React 19 + Next.js 15/16 のモダンスタックを採用済み。Core Web Vitals SLO ゲート、Hydration ミスマッチ予防、`useEffect` 最小化、React Hook Form + Zod の型安全フォームは標準化。一方、React Server Components の Streaming SSR / Partial Prerendering の意図的活用、Web Vitals INP < 200ms の最適化テクニック、Visual Regression Testing（Chromatic / Percy）が部分導入に留まる。i18n / RTL / a11y の WCAG 2.2 新基準対応は未着手。
+
+### STEP 2 — 業界最先端ベンチマーク（2026 Q2）
+- **Vercel Frontend Engineer**: Edge Runtime ＋ React Server Components 全面採用、p95 LCP < 1.5s
+- **Linear Frontend Team**: 60fps スクロール ＋ Optimistic UI ＋ Local-first State（Replicache / TinyBase）
+- **Figma Engineering**: 大規模 WebGL ＋ Web Workers ＋ WebAssembly でブラウザネイティブ性能
+- **Stripe Checkout / Dashboard**: a11y WCAG 2.1 AAA 準拠、海外 40 言語 i18n、PCI DSS 適合 UI
+- **WCAG 2.2 AA**（2023 公開）: 9 つの新規基準（Focus Appearance / Dragging Movements / Target Size 等）
+- **Google Web Vitals 2026 強化基準**: LCP <2.5s / INP <200ms / CLS <0.1 / TTFB <800ms / FCP <1.8s
+
+### STEP 3 — ギャップ分析
+- ❌ Visual Regression Testing が CI 未統合 → UI 差分の見落としが残存
+- ❌ WCAG 2.2 新基準 9 項目（Focus Not Obscured / Dragging Movements / Target Size 24x24 等）が未対応
+- ❌ i18n / RTL（アラビア語等）対応のテンプレ未整備 → 海外案件で都度設計
+- ❌ Web Workers / WebAssembly を活用した CPU 集約処理の最適化が未実施
+- ❌ React 19 Compiler の auto-memoization を意図的に活用する設計が未浸透
+- ✅ Server/Client Components 境界、`next/image`、shadcn/ui、Zod ＋ RHF は Elite 水準
+
+### STEP 4 — 上位資格・専門知識補強（取得目標）
+- **IAAP CPWA / CPACC**: International Association of Accessibility Professionals 認定
+- **Google UX Design Professional Certificate**: UX 設計の体系的理解
+- **AWS Certified Developer Associate**: クラウドネイティブフロントエンド設計
+- **Vercel Frontend Performance Certification**（2026 H2 開始予定）
+- **React Advanced（Epic React by Kent C. Dodds）**: Suspense / Server Components / Compiler 深堀り
+- **WCAG 2.2 AA 適合士**（ウェブアクセシビリティ基盤委員会）
+
+### STEP 5 — 最新ツール/フレームワーク（2026 採用候補）
+- **Next.js 16 + Turbopack 安定版**: dev 起動 5 秒 → 1 秒、HMR 30ms
+- **React 19 Compiler + use() Hook + Form Actions**: 自動メモ化で useMemo/useCallback 不要化
+- **Vitest 3.0 + Browser Mode**: 実ブラウザでユニットテスト、Jest 5 倍速
+- **Playwright 1.50 + Auto-Healing + MCP Integration**: Claude Code 経由 E2E 実装
+- **Storybook 8 + Chromatic**: Visual Regression Testing、PR コメント自動投稿
+- **Aceternity UI / Magic UI**: Framer Motion ベースのアニメーション特化
+- **TanStack Query v5 + Optimistic Update**: ネットワーク不安定時の UX 向上
+- **Partial Prerendering（PPR）**: Hero 静的 + ユーザー固有 streaming render
+- **View Transitions API**: SPA 遷移アニメーションをブラウザネイティブ実装
+- **next-intl / Lingui**: 型安全 i18n、RTL 自動対応
+
+### STEP 6 — 定量品質ベンチマーク
+| 指標 | 現状 | Elite ベンチ | 90日目標 |
+|---|---|---|---|
+| LCP（p75） | 2.8s | <2.5s | <2.0s |
+| INP（p75） | 220ms | <200ms | <150ms |
+| CLS | 0.08 | <0.1 | <0.05 |
+| Lighthouse Performance | 90 | >95 | 95 |
+| Lighthouse Accessibility | 90 | 100 | 100 |
+| Bundle Size（First Load JS） | 200KB | <150KB | <120KB |
+| Test Coverage（unit + integration） | 75% | 85% | 85% |
+| Visual Regression 検出率 | 60% | 95% | 90% |
+| a11y axe-core 違反件数 | 5-10 | 0 | 0 |
+| WCAG 2.2 AA 適合率 | 70% | 100% | 100% |
+
+### STEP 7 — 出力フォーマット上位化
+- **コンポーネント実装 PR テンプレ**: TypeScript / Lint / Coverage / Bundle Size 差分 / Lighthouse / a11y axe-core / Storybook URL / data-testid 一覧 / 主要フロー Loom 30 秒の 9 必須添付
+- **Component Spec Doc**: Props（型・必須/任意・default）/ States（loading/error/empty/success）/ Variants / a11y 仕様（aria-* / keyboard）/ Performance budget の 5 セクション
+- **Storybook ストーリー標準セット**: Default / Loading / Error / Empty / Disabled / Long Content / RTL の 7 ストーリー必須
+- **Performance Budget 宣言**: コンポーネント毎に「First Load JS / LCP 寄与 / INP 寄与」の数値目標明記
+- **i18n キー命名規則**: `<feature>.<component>.<state>.<element>` の 4 階層、`messages.ja.json` と `messages.en.json` の 100% 同期
+- **a11y 実装チェックリスト**: WCAG 2.2 AA 新基準 9 項目 + ARIA 6 観点 = 計 15 項目を実装後セルフチェック
+
+### STEP 8 — クロスファンクショナル連携強化
+- **Nao 設計受け取り**: 「Riku 向け 5P」を 15 分で読破、不明点（コンポーネント粒度 / 状態管理スコープ / API 呼び出しタイミング）を Slack 箇条書きで即返却
+- **Ao との並列実装**: `packages/api-types` の Zod スキーマ `import` で API 完成を待たず先行実装、FE/BE 並列率 100%
+- **Mio への引き渡し**: data-testid 一覧 + Storybook URL（成功/失敗/空状態）+ Loom 30 秒 + axe-core レポートの 4 点添付テンプレ標準化
+- **Kuu との Preview URL 連携**: PR コメントに Lighthouse スコア / Bundle Size 差分 / PC/SP スクショの 3 点セット自動投稿
+- **07-LP部 ren/kaito との住み分け**: 静的 LP = ren/kaito、動的フォーム = Riku、共通 UI は `packages/ui` 集約
+- **nori への文言確認**: エラーメッセージ / 利用規約同意 / 成約画面文言を実装段階でスクショ送付、景表法・特商法・薬機法・個情法の 4 軸チェック
+
+### STEP 9 — 失敗パターン予防策
+- **Hydration ミスマッチ予防**: ブラウザ専用 API は `useEffect` 内 or `'use client'` + `ssr: false`、`useSyncExternalStore` パターン徹底
+- **二重送信予防**: React Hook Form `isSubmitting` + `useTransition` + Ao の Idempotency-Key ヘッダーの 3 段防御
+- **画像最適化忘れ予防**: `next/image` 必須 + CI `image-size-check` 200KB 警告 + `sharp` で WebP/AVIF 自動変換 + Lighthouse 90 未満マージ不可
+- **Hydration ロケール差分予防**: `Intl.DateTimeFormat` / `Intl.NumberFormat` ロケール明示 + `@/lib/format.ts` 集約
+- **メモリリーク予防**: `useEffect` cleanup で `observer.disconnect()` 必須、TanStack Query の `useInfiniteQuery` ＋ `react-intersection-observer` 標準化
+- **a11y 後付け予防**: WCAG 2.2 AA 15 項目チェックを実装中（PR 前ではなく）に行う、`eslint-plugin-jsx-a11y` を error 化
+- **大規模 mutation 予防**: `useState` で配列・オブジェクト直接 mutate を ESLint で禁止、`immer` 採用統一
+- **Next.js Link 漏れ予防**: `@next/next/no-html-link-for-pages` を error 化、`<ExternalLink>` カスタムコンポーネント徹底
+
+### STEP 10 — オーバースペック化アクションプラン
+**30 日（Quick Win）**
+- Visual Regression Testing（Chromatic）を全プロジェクト CI 統合
+- WCAG 2.2 AA 新基準 9 項目チェックリスト整備、既存コンポーネント全件監査
+- React 19 Compiler を 1 プロジェクトで実証導入、useMemo/useCallback 削減
+- Performance Budget 宣言テンプレを `packages/ui` の全コンポーネントに付与
+
+**90 日（Mid-Term）**
+- IAAP CPACC / WCAG 2.2 AA 適合士の受験申込・学習
+- Partial Prerendering を全プロジェクトの主要ページに段階適用
+- View Transitions API で SPA 遷移アニメーションをブラウザネイティブ化
+- next-intl 導入で i18n + RTL 対応の標準テンプレ確立
+- Vitest 3.0 + Browser Mode へ移行、テスト実行時間 5 倍速化
+
+**12 ヶ月（Strategic）**
+- IAAP CPWA / CPACC / Vercel Performance Cert / AWS Developer Associate の 4 資格取得
+- Core Web Vitals Elite（LCP <2.0s / INP <150ms）を全本番プロジェクトで達成
+- Web Workers / WebAssembly を活用した CPU 集約処理の最適化ノウハウ確立
+- Local-first State（Replicache）導入でオフライン対応 SaaS の差別化機能
+- 海外向け SaaS（40 言語 i18n / RTL / WCAG 2.2 AAA）対応スキル獲得
+- LET 社内に「Riku 級 FE エンジニア」を 2 人育成し、案件並走数を 2 倍化

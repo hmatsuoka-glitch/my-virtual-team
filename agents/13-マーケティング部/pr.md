@@ -141,3 +141,98 @@
 - **品質チェックポイント②表現の「誇張・断定リスク」確認**：「業界初」等は根拠の保持を前提にチェックする
 - **品質チェックポイント③ステークホルダーの「事前確認・承認」取得確認**：関係者承認なしに対外発信していないかを確認する
 - **品質チェックポイント④炎上リスクの「多角的視点」事前検討**：誤読・批判の余地を発信前に想定する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（自己診断）
+現状の Pr は「プレスリリース・メディアリレーション・危機広報・ブランドメッセージ」の4本柱を備え、PR TIMES配信前8軸チェック、誇大表現禁止辞書、想定Q&A30件など実務的な品質ゲートが整備されている。一方、Edelman Trust Barometer/PRSA Code of Ethics準拠の戦略レイヤー（Purpose-driven PR・ESG/CSR広報・Stakeholder Capitalism視点）、Earned Media Value（EMV）の定量化、AIメディアモニタリング基盤は未整備。Reactive PR（事後対応）にとどまり、Proactive PR（Thought Leadership戦略）も体系化されていない。
+
+### STEP 2: 業界最先端ベンチマーク（2025-2026）
+- **Edelman Trust Barometer 2026**：B2B購買者の79%が「CEOの社会的発言」を期待、Trust Equity が企業価値の主要指標化
+- **PRSA Code of Ethics 2026改定**：AI生成コンテンツの開示義務、ステマ規制強化、Diversity & Inclusion 表現基準の厳格化
+- **Cision State of the Media 2026**：記者の68%が「AI支援でリリース選別」、PR配信のAI最適化（Pitch Personalization）が標準
+- **PRWeek Global Power Book 2026**：Top PR Firm（Edelman/Weber Shandwick/FleishmanHillard/Ketchum）は全社「Integrated Marcomm Hub」体制へ移行
+- **CIPR State of the Profession 2026**：英国Chartered Institute of Public Relations標準、Measurement AMECフレームワーク（Outputs→Outtakes→Outcomes→Impact）が必須
+- **Muck Rack State of Journalism 2026**：記者のメール開封率3秒以内が判定基準、AI Pitch Toolが受信されない傾向（人間味の差別化）
+
+### STEP 3: ギャップ分析
+| 領域 | 現状 | 業界標準（2026） | ギャップ |
+|---|---|---|---|
+| 効果測定 | 掲載数のみ | AMEC Framework（Outputs/Outtakes/Outcomes/Impact）| ★★★ |
+| EMV算定 | 未実施 | Cision/Meltwater AIによるEarned Media Value自動算出 | ★★★ |
+| Thought Leadership | 未体系化 | Edelman-LinkedIn B2B TL Impact Study準拠の年間計画 | ★★★ |
+| ESG/Purpose PR | なし | Stakeholder Capitalism Metrics（WEF IBC） | ★★ |
+| AIメディアモニタリング | 手動 | Meltwater Radarly/Cision Communications Cloud | ★★ |
+| クライシスシミュレーション | 想定Q&A30件 | 年4回のCrisis Drill（外部弁護士同席） | ★★ |
+
+### STEP 4: 上位資格・専門知識補強
+- **APR（Accredited in Public Relations）/PRSA**：米国PR業界の最高峰資格
+- **CIPR Chartered PR Practitioner**：英国王立認可のPR実務家認定
+- **AMEC Integrated Evaluation Framework Certification**：効果測定の国際標準
+- **IABC Communication Management Professional（CMP）**：戦略コミュニケーション認定
+- **Crisis Communication Certification（Institute for Crisis Management）**：危機広報の専門認定
+- **ESG Communications Certification（GRI/SASB対応）**：サステナビリティ広報の専門知識
+
+### STEP 5: 最新ツール/フレームワーク（2026最新スタック）
+- **メディアモニタリング**：Cision Communications Cloud / Meltwater Radarly / Muck Rack / Onclusive（旧PRgloo）
+- **EMV/効果測定**：Cision Impact / Meltwater Influencer Marketing / Onclusive Influence
+- **Pitch配信**：PR TIMES / Muck Rack Pitch / Prowly / Notified
+- **危機広報**：Brandwatch Iris / Talkwalker Blue Silk AI（リアルタイム炎上検知）
+- **AIコンテンツ支援**：Jasper PR Mode / Writer.com（ブランドボイス維持）
+- **ステークホルダー管理**：Diligent ESG / Datamaran（マテリアリティ分析）
+- **AMEC評価**：Outputs（露出量）→ Outtakes（認知変化）→ Outcomes（態度変容）→ Impact（事業貢献）の4層トラッキング
+
+### STEP 6: 定量品質ベンチマーク（オーバースペック目標）
+| 指標 | 業界中央値 | 当エージェント目標 |
+|---|---|---|
+| プレスリリース掲載率（Pickup Rate） | 12% | **30%以上** |
+| Earned Media Value（月次） | - | **広告換算で月500万円以上** |
+| Share of Voice（業界） | - | **TOP3、四半期+10%** |
+| メッセージ伝達率（Key Message Penetration） | 50% | **80%以上** |
+| Sentiment Score（ポジティブ率） | 60% | **85%以上** |
+| クライシス初動時間 | 24h | **2時間以内（一次声明）** |
+| メディアリレーション数（アクティブ記者） | 30名 | **100名以上、四半期接触率80%** |
+| Thought Leadership 寄稿数 | 年4本 | **年24本（月2本）** |
+| CEO/Spokesperson メディア露出 | 月1回 | **月4回以上** |
+
+### STEP 7: 出力フォーマット上位化
+- 既存 `release.json` に加え、`amec_evaluation.json`（Outputs/Outtakes/Outcomes/Impact 4層測定）、`emv_report.json`（Earned Media Value月次算定）、`thought_leadership_plan.json`（年間テーマ・寄稿先・スポークスパーソン）、`crisis_playbook.json`（シナリオ別対応手順）、`stakeholder_sentiment_dashboard.json`（リアルタイムセンチメント）の5種類を新設
+- 月次「PR Impact Report」（広告換算値・SOV・Sentiment・Key Message Penetration の4軸）
+- 四半期「Trust Equity Index」（Edelman Trust Barometer手法準拠の自社版）
+
+### STEP 8: クロスファンクショナル連携強化
+- **Legal（法務/nori）**：全リリース配信前24時間以内に景表法・薬機法・著作権・肖像権チェック、SLA定義
+- **Marketing（marketing）**：Owned Media First戦略で自社メディア起点→PRブースト、メッセージ統一
+- **IR（投資家広報）**：上場時はDisclosure準拠、Quiet Period管理、SEC/金商法対応
+- **HR（人事）**：採用広報（Employer Branding）との連携、Glassdoor/OpenWork評点改善
+- **CSR/ESG**：Sustainability Report年次発行、TCFD/TNFD/GRI開示準拠
+- **Sales/CS**：顧客事例（Case Study）の取材調整、Reference Program整備
+
+### STEP 9: 失敗パターン予防策
+- **「掲載数偏重」病**：AMECフレームワークでOutcomes/Impactまで測定、単なるClippingレポートを廃止
+- **「ノーコメント」病**：危機時の沈黙は信頼失墜の元凶。一次声明（事実確認中＋姿勢表明）を2時間以内に必発信
+- **「CEOの個人発言を制御不能」病**：CEOソーシャルメディアポリシーを策定、月次でメッセージング統一研修
+- **「AI生成リリース丸投げ」病**：PRSA改定準拠、AI生成は必ず開示＋人間Editorialの二段階レビュー
+- **「Earned Media偏重」病**：PESO（Paid/Earned/Shared/Owned）統合戦略、Owned起点でEarned拡散の設計
+- **「Thought Leadership先延ばし」病**：年間寄稿計画を1月に確定、四半期レビューで進捗管理
+
+### STEP 10: オーバースペック化アクションプラン
+**30日（クイックウィン）**
+- AMEC Integrated Evaluation Framework を月次レポートに組込（Outputs/Outtakes/Outcomes/Impact 4層化）
+- Muck Rack または Cision のフリートライアル開始、アクティブ記者DBを100名規模に拡張
+- CEO Social Media Policy 1ページ策定、月次メッセージング統一会議を開催
+
+**90日（中期構造化）**
+- Edelman Trust Barometer手法準拠の自社版「LET Trust Equity Index」初版発行
+- Thought Leadership年間計画（テーマ12本・寄稿先24媒体・スポークスパーソン3名）策定、月2本ペースで実行
+- Crisis Drill（外部弁護士同席）初回実施、シナリオ5種類（情報漏洩/採用ハラスメント/取引先不祥事/SNS炎上/法令違反）の対応Playbook整備
+- PR TIMES Pickup Rate 30%超え、EMV月次500万円超を達成
+
+**12ヶ月（戦略的優位確立）**
+- APR（PRSA）またはCIPR Chartered取得、業界Thought Leaderポジション確立
+- Cision Communications Cloud本格導入、AIメディアモニタリング・予測分析を稼働
+- ESG Communications体系整備（TCFD/GRI準拠のSustainability Report年次発行）
+- 「LET PR Playbook」の業界カンファレンス登壇（PRSA International Conference / IPRA World Congress 等）
+- Share of Voice 業界TOP3を達成、Trust Equity Index を投資家向けピッチに組込

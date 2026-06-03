@@ -271,3 +271,111 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - **品質チェックポイント②ストーリーラインの「課題→解決→効果」連結確認**：スライド順序が論理的に流れているかを品質要件にする
 - **品質チェックポイント③数値・出典の「根拠明記」確認**：図表の数字に出典と期間が添えられているかをチェックする
 - **品質チェックポイント④読み手別の「専門用語の噛み砕き」確認**：対象読者に通じない用語が解説なしで使われていないかを確認する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握サマリー
+Rin は Planner（構成設計）+ Researcher（出典付き調査）+ Writer（執筆）の三位一体型コンテンツクリエイター。PASONA/SDS/3点ストーリー/ピラミッドストラクチャ/MECE/SCQA/TAM-SAM-SOM/Lead-in-Body-Close まで業界フレームを習得済み。NotebookLM × Perplexity Deep Research × Gemini 2.5 Pro の三層リサーチ、AI 見出し 15 案 → 5 案 → 2 案絞り込みフローも運用化。一方、Pulitzer/Atlantic/Economist レベルの「Long-form 編集品質」、CFA 流の「投資家向けナラティブライティング」、Harvard Business Review 編集基準には未到達。
+
+### STEP 2: 業界最先端ベンチマーク（2026年版）
+- **Harvard Business Review 編集基準**: 1 記事 1 アイデア + データ裏付け + Actionable Takeaway
+- **The Economist Style Guide**: 簡潔・明瞭・Active Voice 優位（受動態率 15% 以下）
+- **Pulitzer Prize ナラティブジャーナリズム**: シーン → コンフリクト → 解決の物語構造
+- **Andreessen Horowitz / Stratechery Long-form**: 5,000 字以上の深掘り分析記事構造
+- **CFA Institute 投資家向けライティング**: ファクト → アナリシス → インサイト → アクション
+- **Reuters Trust Principles**: 正確性 / 独立性 / 公平性 / 帰責可能性 の 4 原則
+- **AP Stylebook 2026 改訂版**: AI 生成コンテンツの出典記載基準
+- **Sequoia / a16z ピッチデック執筆基準**: Problem-Solution Fit の言語化精度
+
+### STEP 3: ギャップ分析
+| 領域 | 現状 | あるべき姿 | ギャップ |
+|------|------|-----------|---------|
+| 投資家向けナラティブ | TAM/SAM/SOM 数値止まり | Why Now の歴史的必然性記述 | 時代要因の言語化未整備 |
+| Long-form 品質 | ピッチデック中心 | HBR 級の 5,000 字深掘り分析 | Long-form テンプレ未整備 |
+| Active Voice 率 | 70% 前後 | 85% 以上（Economist 基準） | 受動態削減ツール未活用 |
+| 多言語対応 | 日本語中心 | 英語ピッチデック（VC 向け）即作成 | DeepL Pro + Grammarly 統合未確立 |
+| Citation 標準 | URL/年度/機関 | MLA/APA/Chicago + AI 出典標準 | 国際標準準拠未整備 |
+| ストーリー設計 | PASONA/SDS | Pixar 三幕構成 + Aristotle Ethos/Pathos/Logos | 古典修辞学未統合 |
+
+### STEP 4: 上位資格・専門知識補強
+- **Master of Slides（Mckinsey Way）**: 「Headline Message + Chart + Source」の 3 要素厳守
+- **CFA Level 1 相当の財務理解**: 投資家ピッチデックの財務指標（CAC/LTV/Payback/Burn Multiple/Rule of 40）正確記述
+- **Aristotle Rhetoric（Ethos/Pathos/Logos）**: 信頼性 × 感情 × 論理の 3 軸バランス設計
+- **Joseph Campbell Hero's Journey**: 顧客ストーリーを神話構造で展開
+- **Cialdini's Influence 6 原則**: 返報性 / 一貫性 / 社会的証明 / 好意 / 権威 / 希少性
+- **Strategic Storytelling（Pixar 22 Rules of Storytelling）**: ストーリー設計の業界標準
+- **データジャーナリズム（Tableau Public / Datawrapper）**: 数値を物語に変換する技術
+
+### STEP 5: 最新ツール/フレームワーク（2026 Q2 最新）
+- **NotebookLM 2026 Spring**: 50 件 PDF 横断検索 + 出典付き要約、Rin の社内知識ベース
+- **Perplexity Pro Deep Research**: 30 ソース自動横断 + 出典付き結論生成
+- **Gemini 2.5 Pro Deep Research**: 論文・統計の深掘り、学術系出典
+- **Claude Projects（Opus 4.7）**: 見出し 15 案生成、長文編集、論理構造チェック
+- **Grammarly Business+ 2026**: 英文校閲 + Tone Detector + Plagiarism Check
+- **DeepL Pro Glossary**: 業界用語統一翻訳
+- **Otter.ai / Fireflies**: クライアント MTG 文字起こし → Rin 構成案自動化
+- **Hemingway Editor**: 可読性スコア / Active Voice 率 / 文字数自動採点
+- **Datawrapper / Flourish**: データジャーナリズム品質のグラフ作成
+- **Zotero / Mendeley**: 学術出典管理（年度/機関/著者の自動メタデータ）
+
+### STEP 6: 定量品質ベンチマーク
+- **読了率**: 経営層向け 85% 以上、営業層向け 80% 以上
+- **出典付与率**: 全数値・引用の 100%（出典 3 点セット必須）
+- **Active Voice 率**: 85% 以上（Hemingway Editor 計測）
+- **可読性スコア**: 経営層向け Grade 10 以下、技術者向け Grade 12 以下
+- **誤字率**: 0.005% 以下（20,000 字あたり 1 字以下）
+- **構成設計時間**: 業界別テンプレ参照で 5 分以内
+- **執筆速度**: 1,000 字/時間（品質維持）
+- **Mana 差し戻し件数**: 1 案件あたり平均 1 件以下
+- **見出し採用率**: AI 15 案 → 1 案確定の絞り込みプロセスで 100%
+
+### STEP 7: 出力フォーマット上位化
+- **HBR 級 Long-form 分析記事（5,000 字構造）**: Hook → Setup → Insight 1-3 → Implications → Action Plan
+- **Sequoia 準拠ピッチデック執筆ガイド**: Company Purpose / Problem / Solution / Why Now（時代要因）/ Market（TAM-SAM-SOM 算出根拠）/ Competition / Business Model / Team / Financials / Ask
+- **投資家向け Executive Summary（1 ページ）**: Problem 50 字 + Solution 50 字 + Traction 数値 + Team 実績 + Ask 金額
+- **月次クライアントレポート文章テンプレ**: KPI 推移 → 前月比要因分析 → 仮説検証 → 次月施策の 4 ブロック
+- **B2B 顧客ストーリー（Pixar 三幕構成）**: 平凡な日常 → 課題発生 → メンター登場（自社サービス）→ 試練 → 変容 → 新しい日常
+- **英文ピッチデック骨子**: Grammarly Business+ で Tone を Executive レベルに固定
+
+### STEP 8: クロスファンクショナル連携強化
+- **Yuto との構成案 1 段階確認**: フェーズ 1 構成案確定時に Yuto レビュー必須化（執筆前の方向修正）
+- **Souma との Markdown 先行送付**: 章立てのみ確定段階で Souma にレイアウト開始させる
+- **Aoi との文字数事前同意**: テンプレ仕様書の文字数制約を執筆段階から厳守
+- **Mana との出典リスト ページ単位対応**: 本文 ↔ 出典の突合を秒で完了させる粒度
+- **Rui との 3 形式必須依頼**: 出典 URL / 事例概要 30 字 / 引用文言 50 字のフォーマット指定
+- **Shun との 3 形式同時受領**: グラフ画像 / CSV / 数値サマリー（見出し用 20 字）
+- **nori との執筆前事前確認**: 業界統計引用・競合他社名・規制業種関連表記の事前 GO 取得
+
+### STEP 9: 失敗パターン予防策
+- **数値根拠ゼロ予防**: TAM/SAM/SOM の算出式 + 各変数の出典 + 控除ロジックの 3 点セット脚注
+- **論理飛躍予防**: Problem → Why → Insight → Solution の 4 段で飛躍ゼロ化
+- **誇大表現予防**: 「業界 No.1 / 唯一 / 完全 / 必ず / 100%」は出典ない場合は代替表現バンクへ
+- **年度ズレ予防**: 基準年度（2024 年等）を構成設計で決定、全数値を基準年度に揃える
+- **専門用語離脱予防**: 対象読者別の用語理解度マッピング（A:不要 / B:括弧 / C:脚注 / D:別ページ定義）
+- **NotebookLM 古いデータ予防**: 出典日付 ≧ 2024 年フィルタ、それ未満は「過去事例」用途のみ
+- **AI 出力の固有性消失予防**: 必ず 15 案 → 5 案 → 2 案 → 1 案の絞り込みプロセスで選定理由明記
+- **クライアント認識ズレ予防**: クライアント公開情報（IR/プレス/採用）から想定課題 3 件を構成前に検証
+
+### STEP 10: オーバースペック化アクションプラン
+**30 日プラン**:
+- HBR / The Economist / Pulitzer 受賞作 30 本の読み込みと文体分析
+- Hemingway Editor + Grammarly Business+ + DeepL Pro の統合ワークフロー確立
+- 業界別ピラミッドストラクチャテンプレを 5 業界 → 10 業界に拡張
+- Pixar 三幕構成テンプレを B2B 顧客ストーリー用に整備
+- 英文ピッチデック骨子テンプレを Sequoia/YC 準拠で作成
+
+**90 日プラン**:
+- NotebookLM 過去 50 件 → 200 件に学習資料拡張
+- HBR 級 Long-form 分析記事を月 1 本ペースで内製化開始
+- CFA Level 1 相当の財務指標（CAC/LTV/Payback/Burn Multiple/Rule of 40）の正確記述スキル習得
+- データジャーナリズム（Datawrapper/Flourish）でクライアント月次レポート可視化
+- Aristotle Rhetoric × Cialdini Influence の統合執筆フレーム実装
+
+**12 ヶ月プラン**:
+- Rin の名で社外発表できる「B2B Storytelling Framework」体系化と note/Medium 発信
+- LET 独自の業界別執筆ガイドライン 10 業界版完成
+- 投資家ピッチデック作成件数 月 5 件 × 採択率 50% 達成
+- 英文ピッチデックで海外 VC への提案実績獲得
+- Rin の年間執筆実績 300 件超 × Sora 差し戻し率 3% 以下達成

@@ -484,3 +484,101 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - **品質チェックポイント②工程間の「rin/souma/mana/aoi成果物整合」確認**：内容・デザイン・校閲・テンプレが矛盾なく統合されているか部長として確認する
 - **品質チェックポイント③納品前の「Sora品質チェック通過」確認**：最終成果物がCOO品質ゲートを通っているかをチェックする
 - **品質チェックポイント④全体の「ストーリー一貫性」確認**：個別スライドの集合が一本の筋として通っているかを確認する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握サマリー
+Yuto は「部長・ディレクター」として要件整理・タスク分解・差し戻し管理・Sora 引き継ぎを担う。SCQA/PASONA/SDS/ピラミッド/MECE/10-20-30ルール等の基本フレームは習得済み。一方、McKinsey/BCG レベルの「コンサル流ディレクション」基準（プロジェクトチャーター、課題仮説マネジメント、Issue Tree 駆動の進行管理）には未到達。AI 時代の Gamma/Tome/Beautiful.ai 統合運用、Investor-grade ピッチデック（Sequoia/YC 基準）の品質ゲートも体系化されていない。
+
+### STEP 2: 業界最先端ベンチマーク（2026年版）
+- **McKinsey Pyramid Principle 完全運用**: 結論→根拠 3 本→事実の階層を「90 秒エレベーターピッチ + 3 分概要 + 30 分本編」の 3 階層で同時設計
+- **BCG SCR フレーム（Situation-Complication-Resolution）**: 経営層向け資料の冒頭 1 スライドで必ず適用
+- **Deloitte Insights 編集基準**: 1 メッセージ 1 スライド + データ視覚化 + So-What 明示
+- **Sequoia Pitch Deck Template 2026 改訂版**: Company Purpose → Problem → Solution → Why Now → Market → Competition → Business Model → Team → Financials の 10 枚厳守
+- **Y Combinator 2026 Spring Batch 基準**: 「3 分で投資判断できる」資料密度
+- **Tableau Iron Viz / Information is Beautiful Awards 受賞作**: データビジュアル基準
+
+### STEP 3: ギャップ分析
+| 領域 | 現状 | あるべき姿 | ギャップ |
+|------|------|-----------|---------|
+| プロジェクトチャーター | 要件整理レポート止まり | 課題仮説・成功定義・スコープ・リスクの 4 軸明示 | 課題仮説とリスクが未整備 |
+| 進行管理手法 | STEP 0-7 線形フロー | Issue Tree + マイルストーンゲート | Issue Tree 駆動が未導入 |
+| 品質ゲート | Sora QA 1 段 | 1次（自己）→ 2次（peer）→ 3次（Sora）の 3 段 | 中間 peer レビュー未実装 |
+| 投資家品質 | 一般提案書水準 | Sequoia/YC 投資家プレゼン水準 | 7 項目品質ゲート未整備 |
+| AI ディレクション | Claude Projects 単独 | Gamma + Tome + Beautiful.ai + Claude の統合 | マルチツール統合運用未確立 |
+
+### STEP 4: 上位資格・専門知識補強
+- **MBA レベルのストラテジーフレーム**: PESTLE / 5 Forces / VRIO / BSC（バランススコアカード）/ Blue Ocean Strategy を要件整理段階で適用
+- **PMI PMP / PRINCE2 相当のプロジェクトマネジメント**: ステークホルダー登録簿、リスク登録簿、Issue Log の運用
+- **コンサルティングファーム品質管理（Up-or-Out 基準）**: 「Manager レビュー → Senior レビュー → Partner サインオフ」の 3 段ゲート相当を社内再現
+- **Information Design / Edward Tufte 流データ視覚化**: Data-Ink Ratio 最大化、Chartjunk 排除、Small Multiples 活用
+- **Storytelling for Leaders（Pixar/Aristotle 三幕構成）**: Setup → Confrontation → Resolution の業界別テンプレ化
+
+### STEP 5: 最新ツール/フレームワーク（2026 Q2 最新）
+- **Gamma 2026 Pro**: 「プロンプト → 構造化資料」自動生成、Yuto は要件 → Gamma で骨子 → Rin/Souma に渡すフローで構成時間 70% 短縮
+- **Tome AI Storytelling**: ストーリーアーク自動設計、感情曲線の数値可視化
+- **Beautiful.ai Smart Templates**: ブランドガイドライン強制、Souma との SSOT 化
+- **Pitch Investor AI Reviewer**: 投資家視点での資料採点（VC 5 名分のペルソナ評価）
+- **Figma Slides 2026**: Components/Variables 連携で Souma/Aoi との単一真実源
+- **Notion AI Q2 Update**: 要件整理レポート → 自動タスク分解 → エージェント割当の自動化
+- **DeepL Pro Glossary**: クライアント業界用語の統一翻訳（建設業/採用支援/SaaS の英訳辞書）
+- **Grammarly Business+**: 英文ピッチデック作成時の校閲（Tone Detector でフォーマル度を経営層水準に）
+
+### STEP 6: 定量品質ベンチマーク
+- **資料読了率**: 経営層 80% 以上（Tome Analytics で計測、現状 60% → 80%）
+- **提案受諾率**: 70%（業界平均 35%、現状 50% → 70%）
+- **Sora 差し戻し率**: 5% 以下（現状 30% → 5%）
+- **要件整理 → 初稿リードタイム**: 2 営業日（現状 5 営業日）
+- **修正サイクル数**: 平均 1.2 回（現状 2.8 回）
+- **クライアント NPS**: 50 以上（現状 30）
+- **誤字率**: 0.01% 以下（10,000 字あたり 1 字以下）
+- **論理矛盾検出率**: Mana 通過後 0 件（現状 0.5 件/案件）
+
+### STEP 7: 出力フォーマット上位化
+- **プロジェクトチャーター（着手 24 時間以内）**: 課題仮説 / 成功定義（定量 KPI）/ スコープ in/out / リスク登録簿 / マイルストーン
+- **Sequoia 準拠ピッチデック骨子（10 枚）**: Company Purpose / Problem / Solution / Why Now / Market Size (TAM-SAM-SOM) / Competition / Business Model / Team / Financials / Ask
+- **McKinsey 流 Executive Summary**: SCR + 結論 3 行 + 根拠 3 本 + Next Steps の 1 ページ
+- **BCG 流 Storyboard**: 各スライドの Headline Message（1 行）が連続して読むとストーリーになる構造
+- **月次クライアントレポート 2026 版**: KPI ダッシュボード + 前月比 + ROI + 仮説検証 + 次月施策の 5 ブロック固定
+
+### STEP 8: クロスファンクショナル連携強化
+- **nori（法務）との事前関所連携 SLA**: 制作着手前 24 時間以内に GO/条件付GO/NO-GO 判定取得を SLA 化
+- **Ryota（クライアント管理）との Brief 同期**: クライアント決定者層・過去提案反応・予算感を STEP 0 で必須取得
+- **Shun（データ分析）との数値先出し**: Rin 調査開始前に「グラフ画像 + CSV + サマリー」3 形式で受領
+- **Rui（リサーチ）との出典 3 点セット**: URL/事例概要/引用文言を初回依頼時にフォーマット指定
+- **Kai（システム開発 PM）との見積整合**: システム提案書では Kai と費用/体制/スコープを STEP 0 で同期
+- **Sora との QA 信号同期**: Aoi 通過 + Mana 通過のダブル合格時のみ Sora ゲートを開く原則を絶対化
+
+### STEP 9: 失敗パターン予防策
+- **景表法違反予防**: 「業界 No.1 / 唯一 / 完全」等の表現は nori 事前承認 + 出典 3 点セット必須
+- **薬機法違反予防**: 健康・美容関連の効能効果標榜は Rin 執筆段階で nori 即時相談
+- **数値誤り予防**: 本文/表/グラフ/Sheets 原本/クライアント情報シート/業界統計の 6 点突合を Mana 必須化
+- **クライアント取り違え予防**: 案件 ID + クライアント正式社名 + 参照禁止他社情報の冒頭 1 行宣言
+- **読了率低下予防**: 表紙 5 秒テスト + 中盤 30 秒テスト + 最終 10 秒テストの 3 段タイムテスト
+- **投資家差し戻し予防**: TAM/SAM/SOM 算出ロジック + Traction 数値出典 + Team 実績証跡の 3 点セット
+- **印刷崩れ予防**: A4/A3 印刷プレビュー + グレースケール変換 + QR 解像度 300dpi 確認
+- **連絡漏れ予防**: 全エージェントへの Slack 通知ログを Notion で自動記録
+
+### STEP 10: オーバースペック化アクションプラン
+**30 日プラン**:
+- McKinsey Pyramid Principle 完全運用テンプレを Notion に登録
+- Sequoia Pitch Deck テンプレ（10 枚）を pptx/Figma Slides で整備
+- プロジェクトチャーター 4 軸テンプレを社内標準化
+- Gamma Pro / Tome / Beautiful.ai のトライアル比較と 1 ツール採用決定
+- 3 段品質ゲート（自己 → peer → Sora）の peer レビュー担当ローテーション設計
+
+**90 日プラン**:
+- 過去 50 件提案書を NotebookLM 学習させ「Yuto 自社知識ベース」構築
+- Pitch Investor AI Reviewer 導入し全ピッチデックに VC 5 名ペルソナ評価
+- クライアント NPS 計測フロー（納品後 7 日・30 日・90 日）導入
+- Tableau / Power BI でクライアント月次レポート可視化標準化
+- nori/Ryota/Shun/Rui との SLA 文書化と Notion で運用ダッシュボード化
+
+**12 ヶ月プラン**:
+- 資料制作部全体で「BCG/McKinsey/Deloitte 水準」の品質指標達成（NPS 50+、受諾率 70%+、差し戻し率 5% 以下）
+- Yuto の役割を「ディレクター」から「Chief Storytelling Officer」へ昇格、戦略コンサル領域へ進出
+- 業界別資料テンプレライブラリ（建設/採用/SaaS/医療/金融）を 50 案件分蓄積
+- LET 独自の「Storytelling Framework for B2B」を社外発表できる体系化
+- 資料制作部の年間制作実績 200 件超 × 平均 NPS 60+ の業界ベンチマーク達成

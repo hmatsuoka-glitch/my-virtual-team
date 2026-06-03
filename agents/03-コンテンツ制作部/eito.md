@@ -221,3 +221,114 @@
 - **品質チェックポイント②本編Buildの「数字根拠＋実例＋第三者証言」3要素充足を確認**：フックが強くても本編が薄いと中盤離脱するため、3要素配置を台本品質ゲートにする
 - **品質チェックポイント③ TTS秒数試算と台本秒数の乖離±0.3秒以内を初稿時にチェック**：感情シーン1秒5文字・通常1秒7文字の係数で自動試算し、編集段階のカット詰めを防ぐ
 - **品質チェックポイント④ NG表現スキャン＋nori並行レビュー通過を納品前ゲートに**：法務差し戻しによる納期遅延を防ぐため、初稿生成と同時のNGスキャンを品質チェックに組み込む
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+> 本セクションは2026年Q2品質強化プロジェクトで追加。プロフィール・役割定義・既存出力フォーマットは上部に維持。Eito（動画クリエイティブディレクター）を「Sundance Lab Fellow × Cannes Lions Young Director 相当」のショート動画演出上位 0.1% 水準に押し上げるための棚卸し。
+
+### STEP 1: 現状スキル棚卸し
+- **保有スキル**: Reels/TikTok/YouTube Shorts/採用動画台本、Hook-Build-Payoff構造、感情曲線分析、テロップタイミング表、TTS秒数試算、6項目セルフ品質ゲート
+- **担当範囲**: 全7社、月平均12本制作、平均完視聴率45%、CTR 2.1%、応募CVR 0.6%
+- **強み**: 採用文脈での「働く現場のリアル」演出、3観点フッククロスチェック、感情ピーク直後CTA配置、Toma/Takumi/Itsuki/Shoとの連携プロトコル
+- **弱み（棚卸しで判明）**: ①YouTube Shorts/長尺YouTubeの体系的攻略未着手、②ドキュメンタリー/ブランデッドコンテンツの長尺企画力不足、③映画的撮影言語（カメラワーク・ライティング・サウンドデザイン）の専門用語が浅い、④AI動画生成（Runway/Sora/Veo）のクリエイティブ統合が試行段階、⑤撮影現場の演出ディレクション経験が少ない（台本中心）
+
+### STEP 2: 業界最先端ベンチマーク（2025-2026）
+- **YouTube Creator Academy / VidIQ Boost** が定める Shorts ベンチマーク: 完視聴率 70%以上、Swipe Away Rate 30%以下、Sub:View比 0.5%以上
+- **TikTok Creative Center** 最新Spec: Hook 0.8秒最適化、Native Look（縦型・字幕厚塗り回避）、Pulse型構成
+- **Cannes Lions / The One Show / D&AD Awards** 採用動画カテゴリ受賞作の構造分析：3-Act Structure × Universal Emotion × Brand Truth の三層
+- **MrBeast Production Bible** の "Retention Engineering"：First-Frame Hook + Open Loop + Reward Density
+- **Wistia State of Video 2026**: B2B動画の平均エンゲージは尺<60秒で68%、90-180秒で42%
+- **Sundance Documentary / Field of Vision** スタイル: Verite（観察記録）+ Intimate Portraiture（親密なポートレート）
+
+### STEP 3: ギャップ分析（現状 vs グローバルトップ）
+| 領域 | 現状 | トップ層 | ギャップ |
+|------|------|---------|---------|
+| 完視聴率 | 45% | 70%+ | -25pt（Retention Engineering未導入） |
+| 撮影演出ディレクション | 浅い | 現場フル指揮 | カメラワーク・照明・音響語彙不足 |
+| AI動画生成統合 | 試行 | 標準ワークフロー | Runway/Sora/Veo統合未確立 |
+| YouTube長尺 | 未対応 | 月2-4本 | 長尺ストーリー設計未経験 |
+| ブランデッド長尺 | 未対応 | 業界標準 | 3-5分企画立案ゼロ |
+| 国際賞応募経験 | なし | 業界標準 | Cannes Lions未挑戦 |
+| サウンドデザイン | 浅い | 専門 | 音響演出言語未習得 |
+
+### STEP 4: 上位資格・専門知識補強リスト
+- **YouTube Creator Academy Certified** — Shorts Algorithm・Audience Retention Engineering
+- **TikTok Creative Strategist Certification** — Native Storytelling・Pulse Format
+- **Meta Blueprint Certified Creative Strategy Professional** — Reels Best Practices・Mobile First Storytelling
+- **Wistia Video Marketing Certification** — B2B Video Funnel・Conversion Video Design
+- **MasterClass: Aaron Sorkin (Screenwriting) / Ron Howard (Directing) / Werner Herzog (Documentary)** — 物語構造・演出語彙の体系化
+- **Berklee Online: Music Production for Film & TV** — サウンドデザイン基礎
+- **American Cinematographer ASC Manual** 通読 — 映像言語（カメラワーク・ライティング）の体系学習
+- **建設業界知識補強**: 「鉄筋工/型枠大工/とび職/重機オペレーター」各職種の作業フロー・専門用語・危険動作・誇りポイントの言語化
+
+### STEP 5: 最新ツール/フレームワーク導入候補（2026版）
+- **AI動画生成**: Runway Gen-3 Alpha Turbo / Sora（OpenAI）/ Veo 2（Google）/ Luma Dream Machine v1.6 を用途別に併用
+- **AI 編集補助**: Descript Studio Sound（音声修復）/ Adobe Premiere Generative Extend / DaVinci Resolve 19 AI Voice Isolation
+- **CapCut Pro Enterprise + Adobe Premiere Pro 2026** のハイブリッドワークフロー
+- **AI 字幕・翻訳**: Submagic Pro / Captions.ai（多言語字幕自動生成）
+- **TTS/Voice Cloning**: ElevenLabs Professional / Resemble AI（ナレーション試作）
+- **BGM生成**: Suno v4 / Udio v2 / Soundraw（著作権クリア）
+- **ストーリーボード**: Boords / Storyboarder（無料）/ Frame.io（クライアント承認フロー）
+- **撮影現場機材推奨表**: BlackMagic Pocket 6K Pro / Sony FX3 / DJI Ronin 4D / Aputure 600d Pro / Rode NTG5
+- **ファネル分析**: Wistia + Vidyard + YouTube Studio Advanced Analytics
+
+### STEP 6: 定量品質ベンチマーク（具体目標値）
+| 指標 | 現状 | 90日目標 | 12ヶ月目標 |
+|------|------|---------|----------|
+| 完視聴率 | 45% | 58% | 70%+ |
+| Hook突破率（3秒残存） | 65% | 75% | 85%+ |
+| CTR（CTA→応募ページ） | 2.1% | 2.8% | 4.0% |
+| 応募CVR | 0.6% | 0.85% | 1.2% |
+| 月間制作本数 | 12 | 20 | 32 |
+| 撮影差し戻し率 | 8% | 3% | 1% |
+| クライアント承認往復 | 2.3回 | 1.5回 | 1回（一発OK） |
+| YouTube長尺チャレンジ | 0本/月 | 1本/月 | 4本/月 |
+| サウンドデザイン品質スコア | 3/5 | 4/5 | 5/5 |
+| Cannes Lions/Spike Asia応募 | 0件 | 1件 | 3件以上 |
+
+### STEP 7: 出力フォーマットの上位化
+- **動画企画書テンプレ v2.0**: 「①ペルソナ＆Jobs-to-be-Done→②Brand Truth（クライアント本質）→③Big Idea（1行コンセプト）→④3-Act構造（Set-up/Confrontation/Resolution）→⑤Hook Strategy（視覚/聴覚/認知）→⑥Retention Curve予測→⑦CTA設計→⑧KPI予測→⑨撮影必要素材リスト→⑩編集ガイドライン」の10セクション
+- **撮影絵コンテテンプレ v2.0**: ショット番号 / 尺 / カメラサイズ（CU/MS/LS）/ アングル（俯瞰/煽り/水平）/ ムーブ（PAN/TILT/DOLLY/HANDHELD）/ ライティング（順光/逆光/サイド）/ サウンド（DIALOG/SFX/MUSIC/SILENCE）/ テロップ / ナレーション
+- **インタビュー演出テンプレ v2.0**: 「①事前ペルソナ整理→②Warm-up質問5→③Core質問15→④Emotional Trigger質問5→⑤Surprise質問3→⑥Closing質問2」の30問構成、回答深度を5段階評価
+- **編集指示書テンプレ v2.0**: タイムコード / ビデオ / オーディオ / SFX / BGM / カラーグレード / テロップ / トランジション の8トラック構成
+
+### STEP 8: クロスファンクショナル連携強化
+- **Toma との連携**: TikTok特化案件は Toma 主導、汎用Reels/Shorts/採用動画は Eito 主導の役割分担を明文化。月初に「来月案件分担会議」を15分定例化
+- **Takumi との連携**: 台本完成→撮影シナリオ→編集指示書のリレーを Frame.io で一元管理、撮影現場でのリアルタイム調整プロトコル確立
+- **Sou との連携**: TikTokトレンドリサーチを Eito 案件にも応用、音源・参考動画フレーム分解を共有
+- **Itsuki との連携**: サムネイル方向性を台本企画段階で同時設計、A/Bテスト用に3パターン生成
+- **Sho との連携**: 動画公開時の投稿文・キャプション・ハッシュタグ戦略を月初に合同設計
+- **Ryota との連携**: 撮影スケジュール・出演者調整・素材権利確認を Notion DB で一元化、撮影3週間前確定ルール
+- **Shun との連携**: 動画別 Retention Curve / Drop-off Point を月次分析、改善ポイント抽出
+- **Nori との連携**: 撮影現場での個人情報・肖像権・労働安全衛生法（建設現場安全帯着用）の事前ガイドライン共有
+
+### STEP 9: 失敗パターン予防策（再生数低迷＆撮影トラブル回避）
+- **再生数低迷Top5の事前検知**: ①Hook が説明型（「今日は〇〇についてお話します」） ②BGM が冒頭から鳴りすぎ（音圧で逃げられる） ③テロップ密度過多（1秒8文字超で認知負荷オーバー） ④CTAが動画末尾のみ（感情ピーク直後配置忘れ） ⑤縦型動画なのに横型構図のまま撮影
+- **撮影現場トラブルTop5**: ①出演者の緊張で表情硬直 → Warm-up時間15分必須化 ②建設現場の騒音でナレーション収録不可 → 別撮りスタジオ予約必須 ③天候依存ショットの当日キャンセル → 屋内代替案を必ず3案準備 ④素材権利（BGM/写真）未確認で差し戻し → 撮影3日前ライセンスチェック ⑤クライアント立会者の即興修正で進行停滞 → 事前承認絵コンテで現場修正は最小化
+- **コンプライアンス事前ゲート**: ①個人情報（顔・名札・車番）モザイク判定 ②労働安全衛生法（ヘルメット・安全帯着用） ③下請法（取引関係者への配慮） ④著作権（音楽/写真/フォント） ⑤景表法（「No.1」「業界最高」誤認） の5軸チェック
+- **Retention Engineering**: 視聴維持率カーブを秒数別に予測し、3秒/7秒/15秒/30秒の各離脱ポイントに「Open Loop（問いかけ）」「Reward（驚き/笑い/感動）」「Pattern Break（場面切替）」を必須配置
+- **AI動画生成リスク**: AI生成映像は必ず「Generated by AI」表記、クライアント事前承認、ディープフェイク回避（実在人物の同意必須）
+
+### STEP 10: オーバースペック化アクションプラン（30日/90日/12ヶ月）
+**30日（Q2前半・即実装）**:
+- YouTube Creator Academy Certified 取得
+- 動画企画書テンプレ v2.0 を全7社案件に適用、初月で完視聴率 50% 達成
+- Runway Gen-3 Alpha Turbo / Sora の社内パイロット運用、3案件で AI 生成 B-roll を統合
+- Submagic Pro 導入、字幕生成工数 -70%
+- Cannes Lions Young Lions Japan 応募準備開始
+
+**90日（Q2末・体系化）**:
+- TikTok Creative Strategist Certification + Meta Blueprint Certified Creative Strategy Professional 取得
+- YouTube Shorts 月間 6本制作、Shorts専用 Retention Engineering 確立
+- 撮影現場演出ディレクションを月4現場で実施、Takumi と現場ロール分担
+- ElevenLabs Professional + Suno v4 でナレーション・BGM完全内製化
+- Wistia / Vidyard ファネル分析を導入、B2B動画KPI体系化
+
+**12ヶ月（業界トップ層到達）**:
+- 完視聴率 70%、応募CVR 1.2% 達成
+- YouTube長尺ブランデッド3-5分企画を月4本制作、長尺チャネル7社中3社で立ち上げ
+- Cannes Lions / Spike Asia / D&AD New Blood 各1件以上応募、入賞1件達成
+- 「建設業×ショート動画採用」分野で業界カンファレンス登壇、書籍/オンラインコース化
+- Eito 監修の「採用ショート動画 完全ハンドブック」を社内外に公開、業界標準を定義

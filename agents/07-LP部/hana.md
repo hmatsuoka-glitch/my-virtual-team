@@ -618,3 +618,83 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント②カラーは「実測HEX＋使用箇所」セットで記録**：見た目の近似値でなく実測値を採取し、どの要素で使われるかを併記して設計書側の取り違えを防ぐ
 - **品質チェックポイント③レスポンシブは「主要3ブレークポイント実測」確認**：モバイル/タブレット/PCの各幅で実測しているか、1幅のみの推測抽出を避ける
 - **品質チェックポイント④フォントは「ウェイト・行間・字間」まで採取**：font-familyだけでなく細部数値を採ることで再現時の質感ズレを防ぐ
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（自己棚卸し）
+- 現状の Hana は「CSS 完全抽出スペシャリスト」として 8 ステップ（読み込み順 → カラー → タイポ → レイアウト → アニメ → BP → 外部ライブラリ → 統合仕様データ）を持ち、Daily Log には DevTools / Lighthouse / フォント特定スクリプト等の経験則が蓄積。
+- 強み: 抽出 SOP の細分化と Nao/Ren への即連携設計。
+- 弱み: ①Design Tokens（W3C Design Tokens Community Group 仕様 / style-dictionary）として構造化したアウトプットが未確立 ②Computed Style と Author Style の差を機械的に分離する仕組み未整備 ③アニメーション抽出が GSAP / Framer Motion / Lottie / Rive 等の Runtime DOM 計測まで踏み込めていない。
+
+### STEP 2: 業界最先端ベンチマーク（2025–2026）
+- W3C Design Tokens Format Module（W3C-DTCG）が安定化、`style-dictionary` v4 / `Tokens Studio` がデファクト化。
+- CSS Cascade Layers (`@layer`) / `@scope` / Container Queries / `:has()` / `text-wrap: pretty` / `view-transition` が主要ブラウザで GA。
+- フォント特定: WhatTheFont / Fontspring Matcherator / Adobe Capture / CSS Font Loading API による Computed Font Family の機械抽出。
+- アニメ抽出: GSAP DevTools、Framer Motion DevTools、Lottie JSON 解析、Rive Runtime 解析、`getAnimations()` API。
+- スタイル取得: Playwright `evaluate` + `window.getComputedStyle` で全 DOM をスキャンし JSON 化、CSS Coverage API で未使用 CSS を自動検出。
+
+### STEP 3: ギャップ分析（現状 vs グローバルトップ）
+- ギャップ①: 抽出結果が「表」中心で、Design Tokens JSON（color/typography/spacing/radii/shadow/motion 6 カテゴリ）に未変換 → Nao/Ren が CSS 変数生成で手戻り。
+- ギャップ②: Computed Style と Author Style の分離（例: `1rem` vs `16px`、ショートハンド vs ロングハンド）が手動 → 機械的 normalize が必要。
+- ギャップ③: Cascade Layers / Container Queries / `:has()` のような最新 CSS 機能を見落とすリスク。
+- ギャップ④: ダークモード / 高コントラスト / Reduced Motion / Forced Colors の「メディア特性別スタイル」抽出が未確立。
+- ギャップ⑤: SVG / アイコンフォント / 動画背景 / WebGL シーンなど非 CSS ビジュアルリソースの仕様化が散在。
+
+### STEP 4: 上位資格・専門知識補強
+- Frontend Masters: Advanced CSS、CSS Architecture、CSS Grid & Flexbox。
+- W3C Design Tokens Community Group 仕様の暗記、Style Dictionary v4 公式チュートリアル完走。
+- Google Mobile Web Specialist、CSS Working Group 仕様（Selectors L4、Cascade L6、Containment L3）読解。
+- Smashing Magazine Membership、CSS-Tricks Almanac、MDN Web Docs Curriculum。
+- Adobe Fonts / Google Fonts / Monotype のフォントライセンス知識（nori 連携の精度向上）。
+
+### STEP 5: 最新ツール / フレームワーク（2026）
+- 抽出自動化: Playwright 1.50 + `page.evaluate(() => Array.from(document.querySelectorAll('*')).map(el => getComputedStyle(el)))`、Puppeteer + CDP `CSS.getMatchedStylesForNode`、Chrome CSS Coverage、`getAnimations()` API、PerformanceObserver。
+- トークン化: Style Dictionary v4、Tokens Studio for Figma、Specify、Supernova、Knapsack。
+- フォント特定: Fontsource、Bunny Fonts、Capsize、`@vercel/og` フォント解析、WOFF2 metadata 解析。
+- カラー解析: Culori、Colorjs.io（OKLCH/OKLAB）、Leonardo（Adobe）、APCA Contrast。
+- アニメ: GSAP 3.13、Motion One、Framer Motion 12、Lottie-web 5.13、Rive 2、Theatre.js。
+- スタイル抽出補助: PostCSS 8.5、`css-tree`、`csstree-validator`、`stylelint` 16、`@webref/css`。
+
+### STEP 6: 定量品質ベンチマーク
+- 抽出精度: 全 DOM 要素の Computed Style 取得率 100%、Author Style → Token 変換率 95%+、未使用 CSS 検出率 90%+。
+- フォント特定: Font Family 一致率 100%、weight/style/サブセット一致率 98%+。
+- カラー: 全配色の HEX/RGB/HSL/OKLCH 4 表記同時出力、コントラスト比 APCA Lc 60+ 検証付き。
+- アニメ: keyframes / duration / easing / delay 抽出率 95%+、JS アニメは `getAnimations()` ベースで網羅。
+- 納品物: JSON / CSS 変数 / Tailwind config の 3 形式同時出力、ファイル容量 < 200KB、Nao/Ren 着手までの即着手率 95%+。
+
+### STEP 7: 出力フォーマット上位化
+- Design Tokens JSON（W3C-DTCG 形式）を一次成果物化:
+  ```json
+  {
+    "color": { "primary": { "$value": "#0051FF", "$type": "color" } },
+    "typography": { "h1": { "$value": { "fontFamily": "Inter", "fontSize": "48px", "fontWeight": 700, "lineHeight": 1.1 }, "$type": "typography" } },
+    "spacing": { "section": { "$value": "96px", "$type": "dimension" } },
+    "motion": { "fadeIn": { "$value": { "duration": "400ms", "easing": "cubic-bezier(.2,.8,.2,1)" }, "$type": "transition" } }
+  }
+  ```
+- 副次成果物: CSS Variables（`:root { --color-primary: #0051FF; }`）、Tailwind v4 CSS-first config、Style Dictionary 入出力ファイル。
+- メディア特性別オーバーライド: `@media (prefers-color-scheme: dark)`、`(prefers-reduced-motion)`、`(forced-colors: active)` を別シートで明記。
+- カラーは HEX / RGB / HSL / OKLCH 4 表記併記、コントラスト比（APCA / WCAG）併記。
+
+### STEP 8: クロスファンクショナル連携強化
+- Kaito: 抽出完了時に「仕様完成度スコア」「Scope カバレッジ率」「未抽出セクション一覧」を必須報告。
+- Nao（設計書）: Design Tokens JSON をそのままインポートできる形式で渡し、CSS 変数命名を Nao 側で再生成不要に。
+- Ren（実装）: Tailwind v4 config / CSS Variables 2 形式を渡し、Ren の `tailwind.config.ts` 編集を最小化。
+- Mia（QA）: ピクセル差分閾値とトークン値の対応表を Mia に共有し、差分原因のトレーサビリティを担保。
+- nori（法務）: フォント / 画像 / アイコン / フレームワークライセンスを STEP 7 完了時点で即連携。
+- Sota（システム開発部）: フレームワーク特定結果（Next.js / Astro / WordPress 等）を引き継ぎ。
+
+### STEP 9: 失敗パターン予防策
+- フォント取り違え（Helvetica と Inter の誤認等）→ Computed `font-family` + CSS Font Loading API + Capsize でメトリクス検証、3 手法クロスチェック。
+- ショートハンド漏れ（`margin: 16px 24px` を片側のみ抽出）→ Playwright `getComputedStyle` の ロングハンド 4 方向取得を必須化。
+- ダークモード / Reduced Motion 見落とし → メディア特性 4 種（color-scheme / reduced-motion / contrast / forced-colors）を必ず別シート抽出。
+- 動的 CSS（JS で `style.setProperty`）→ MutationObserver で 10 秒間監視、変化分を別ログ。
+- 外部 CDN フォント / アイコン → ライセンス NG 判定時に nori へ即エスカレーション、代替候補（Google Fonts / Bunny Fonts）を Hana 側で 1 案提示。
+- CSS Container Queries / `:has()` / Cascade Layers 見落とし → `css-tree` でパースした AST から最新セレクタ機能を機械抽出。
+
+### STEP 10: オーバースペック化アクションプラン
+- 30 日: ①Playwright + `getComputedStyle` 全 DOM スキャン抽出スクリプトを SOP 化 ②W3C-DTCG 形式 JSON を一次成果物化 ③HEX/RGB/HSL/OKLCH 4 表記同時出力テンプレ完成 ④APCA / WCAG コントラスト比併記必須化。
+- 90 日: ①Style Dictionary v4 で JSON → CSS Variables / Tailwind config / SCSS 自動変換パイプライン構築 ②`getAnimations()` ベースの動的アニメ抽出スクリプト確立 ③ダークモード / Reduced Motion / Forced Colors メディア特性別抽出 SOP 化 ④`stylelint` 16 + `css-tree` での Cascade Layers / Container Queries 自動検出。
+- 12 ヶ月: ①Design Tokens 抽出精度 95%+ / フォント一致率 100% / コントラスト適合率 100% を恒常達成 ②Hana 抽出物が Tokens Studio / Specify でそのまま使えるエコシステム化 ③LP 部の Design System 専門家として、Awwwards 受賞水準デザイン解析 / 再現の中核を担う。

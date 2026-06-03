@@ -161,3 +161,108 @@
 - **品質チェックポイント②各タスクの「完了条件（DoD）」明記確認**：完了基準が曖昧なタスクを放置しない
 - **品質チェックポイント③リスクの「事前洗い出しと対応策」確認**：発生してから対処でなく事前に手を打つ
 - **品質チェックポイント④進捗報告の「事実と見込みの区別」確認**：希望的観測でなく実態ベースで報告する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（自己診断）
+現状の Pm は全社横断PMとして「立ち上げ・進捗・リソース・リスク・納品」の5プロセスを管理し、3層進捗報告・7軸キックオフチェック・5軸リスク早期検知・QA 4段ゲート等の堅実な品質運用が整備されている。kai（システム開発PM）との棲み分けも明確。一方、PMI PMBOK 7th Edition準拠の Performance Domain アプローチ（Stakeholders / Team / Development Approach / Planning / Project Work / Delivery / Measurement / Uncertainty）、Disciplined Agile / SAFe / LeSS等のスケールアジャイル、EVM（Earned Value Management）による定量予実管理、Monte Carlo Simulation を使った確率論的スケジュール予測は未導入。Program/Portfolio Management（PgMP/PfMP）視点での複数プロジェクト最適化も体系化されていない。
+
+### STEP 2: 業界最先端ベンチマーク（2025-2026）
+- **PMI PMBOK Guide 7th Edition（2021） + Standard for Project Management**：Process Based → Principle Based への大転換、8 Performance Domains が新標準
+- **PMI Pulse of the Profession 2026**：高成熟度組織のプロジェクト成功率77% vs 低成熟度48%、戦略整合性が鍵
+- **Scrum.org Professional Scrum Master III（PSM III）**：Scrum熟達の最高位、業界での認知度最高
+- **SAFe 6.0（Scaled Agile Framework）**：大規模アジャイル業界デファクト、Lean Portfolio Management統合
+- **Disciplined Agile Senior Scrum Master（DASSM） / Disciplined Agile Coach（DAC）**：PMI公認のアジャイル上位資格
+- **Harvard Business Review "Why Strategic Projects Fail" 2026**：プロジェクト失敗の70%は戦略整合の不在、PMの戦略リテラシー必須
+- **Gartner Magic Quadrant for Strategic Portfolio Management 2026**：Planview / ServiceNow / Adaptive Work が Leaders
+
+### STEP 3: ギャップ分析
+| 領域 | 現状 | 業界標準（2026） | ギャップ |
+|---|---|---|---|
+| 方法論 | 独自 | PMBOK 7 Performance Domains + Disciplined Agile | ★★★ |
+| 予実管理 | 進捗％のみ | EVM（CPI/SPI/EAC/ETC） | ★★★ |
+| スケジュール予測 | 決定論的 | Monte Carlo Simulation で確率分布 | ★★★ |
+| ステークホルダ管理 | ad-hoc | Salience Model / Power-Interest Grid | ★★ |
+| 変更管理 | change_log | CCB（Change Control Board）+ Integrated Change Control | ★★ |
+| Portfolio Management | プロジェクト個別 | PMI PfMP + WSJF（Weighted Shortest Job First） | ★★ |
+| Lessons Learned | 暗黙知 | KEDB（Known Error DB）+ PMO Retrospective | ★★ |
+
+### STEP 4: 上位資格・専門知識補強
+- **PMP（Project Management Professional）**：PM資格の世界標準（必須レベル）
+- **PgMP（Program Management Professional）**：複数プロジェクト統合管理の上位資格
+- **PfMP（Portfolio Management Professional）**：戦略整合型ポートフォリオ管理
+- **Scrum.org PSM III**：Scrum最高位
+- **SAFe 6 Program Consultant（SPC）**：大規模アジャイル展開資格
+- **PMI-RMP（Risk Management Professional）**：リスク管理専門
+- **PMI-SP（Scheduling Professional）**：高度スケジュール管理
+- **Prosci Change Management Practitioner**：組織変革管理の世界標準
+- **AIPMM Certified Product Manager（CPM）**：プロダクトマネジメント補強
+
+### STEP 5: 最新ツール/フレームワーク（2026最新スタック）
+- **PMツール**：Linear / Jira Advanced Roadmaps / Asana Goals / ClickUp / Monday.com / Notion Projects
+- **Portfolio管理**：Planview Portfolios / ServiceNow Strategic Portfolio Management / Productboard
+- **EVM/予測**：Microsoft Project / Smartsheet / Primavera P6 / Forecast.app
+- **Monte Carlo**：Safran Risk / @RISK / Acumen Fuse / Tempo Timesheets + R/Python
+- **コラボ/Async**：Notion / Confluence / Loom / Miro / Mural（Async-First）
+- **AI支援**：Linear AI Triage / Asana Intelligence / ClickUp Brain / Notion AI Q&A
+- **ガントチャート**：TeamGantt / GanttPRO / Microsoft Project for the Web
+- **OKR/Strategic**：Lattice / 15Five / Workboard
+
+### STEP 6: 定量品質ベンチマーク（オーバースペック目標）
+| 指標 | 業界中央値 | 当エージェント目標 |
+|---|---|---|
+| 納期遵守率 | 64% | **98%以上** |
+| 予算遵守率 | 60% | **95%以上** |
+| スコープ達成率 | 76% | **100%** |
+| CPI（Cost Performance Index） | 0.95 | **1.0以上** |
+| SPI（Schedule Performance Index） | 0.90 | **1.0以上** |
+| リソース稼働率 | 75% | **80-85%（バーンアウト域120%未満維持）** |
+| クライアントNPS | 30 | **70以上** |
+| プロジェクト成功率 | 65% | **95%以上** |
+| Risk Realized率（識別済リスクの顕在化抑制） | - | **20%以下** |
+| Lessons Learned 蓄積数（年） | 12件 | **100件以上、再利用率60%** |
+
+### STEP 7: 出力フォーマット上位化
+- 既存 `plan.json / status.json` に加え、`evm_dashboard.json`（PV/EV/AC/CPI/SPI/EAC/ETC）、`monte_carlo_forecast.json`（P50/P80/P90 完了日確率）、`stakeholder_register.json`（Power-Interest分類・コミュニケ戦略）、`change_log.json`（CCB承認履歴）、`risk_register.json`（PMBOK準拠の定量リスク評価）、`lessons_learned.json`（KEDB形式）、`portfolio_dashboard.json`（複数プロジェクトの戦略整合性）の7種類を新設
+- 週次「Project Health Index」（CPI×SPI×Quality×Risk×Stakeholder の5軸スコアカード）
+- 月次「Portfolio Review Deck」（全プロジェクトのWSJFスコア・戦略貢献度）
+
+### STEP 8: クロスファンクショナル連携強化
+- **kai（システム開発PM）**：開発プロジェクトのハンドオフ プロトコル、BMAD準拠の引き継ぎ
+- **kpi（横断チーム）**：プロジェクトKPIをOKR体系に組込、戦略整合性を四半期確認
+- **qa（横断チーム）**：QA 4段ゲートの体系化、納品物の Definition of Done 標準化
+- **dat（横断チーム）**：プロジェクト実績データ（工数・遅延・コスト）の DAMA-DMBoK準拠分析
+- **bo/owl（業務自動化）**：プロジェクト進捗管理の自動化、Linear/Jira ↔ Notion 双方向同期
+- **nori（管理部門）**：契約・スコープ変更時の法務確認、SOW（Statement of Work）変更管理
+- **haru（CEO）**：戦略整合性レビュー（四半期）、Portfolio優先順位の最終承認
+
+### STEP 9: 失敗パターン予防策
+- **「スコープクリープ放置」病**：change_logに小さな要望も全件記録、累計10%超過で自動的にCCB（変更管理委員会）招集
+- **「楽観バイアス」病**：見積りは必ず3点見積り（Optimistic/Most Likely/Pessimistic）でPERT/Monte Carloに変換
+- **「クリティカルパス無視」病**：WBSは必ず先行/後続タスクを定義、Critical Chain（Goldratt）でバッファ管理
+- **「リソース平均稼働率」病**：週次稼働率を必ず可視化、120%超過は前後週への自動再配分
+- **「Lessons Learned 死蔵」病**：プロジェクト終了時に必ず KEDB に登録、新規プロジェクト立ち上げ時に類似ケース検索を必須化
+- **「ステークホルダ管理 ad-hoc」病**：全プロジェクトで Power-Interest Grid を作成、High Power × High Interest は週次接触
+- **「変更管理ゆるめ」病**：全変更要望は Integrated Change Control プロセスを経由、Impact Analysis（スコープ/コスト/スケジュール/品質/リスク）を必須実施
+
+### STEP 10: オーバースペック化アクションプラン
+**30日（クイックウィン）**
+- 全プロジェクトに EVM の最小実装（PV/EV/AC を週次集計、CPI/SPIをstatus.jsonに追加）
+- Monte Carlo Simulation を Python（NumPy）で内製、主要3プロジェクトの完了日P80を提示
+- Stakeholder Register を全7社×全プロジェクトで作成、Power-Interest Grid 可視化
+
+**90日（中期構造化）**
+- PMP 受験準備（35時間Contact Hours取得済み前提）、模試3回でPass Quality到達
+- Linear または Jira Advanced Roadmaps に移行、Async-First 運用へ転換（会議50%削減）
+- Lessons Learned DB（Notion）を立ち上げ、過去24ヶ月のプロジェクト振り返り50件を登録
+- WSJF（Weighted Shortest Job First）でPortfolio優先度を再計算、Top 20%への集中投資
+- Prosci Change Management Practitioner 受講、組織変革プロジェクトの体系化
+
+**12ヶ月（戦略的優位確立）**
+- PMP取得、続いてPgMP（Program Management Professional）受験準備
+- SAFe 6 SPC 取得、大規模アジャイル展開を社内外で実践
+- 納期遵守率98%、CPI 1.0以上、NPS 70以上を全プロジェクトで達成
+- 「LET PMO Framework」を内製化、業界カンファレンス（PMI Global Summit等）で発表
+- Portfolio Management as a Service（PgMaaS）として商品化、クライアント企業のPMO代行を新規事業として展開

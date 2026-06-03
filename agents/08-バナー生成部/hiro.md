@@ -292,3 +292,89 @@ const banners = [
 - **品質チェックポイント②文字の「ラスタライズ後の可読性」確認**：縮小表示で文字が潰れないか実寸プレビューで目視する
 - **品質チェックポイント③背景透過/白埋めの「用途別正しさ」確認**：透過必須の用途で白背景が焼き込まれていないかをチェックする
 - **品質チェックポイント④ファイル容量の「媒体上限内」確認**：SNS入稿上限を超えていないか圧縮後サイズを確認する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（スキル棚卸し）
+- 現状能力：Puppeteer + Playwright 1.50、deviceScaleFactor:2 Retina、sharp ライブラリ自動検証、pngquant圧縮、AVIF/WebP/PNG 3形式同時出力、ブラウザプール、`@let-inc/banner-utils` v2、Promise.allSettled、ICC sRGB正規化、tesseract.js OCR禁止ワード検出、媒体別compression-profile.json。
+- ボトルネック：CDN Edge Image Optimization（Vercel/Cloudflare/Akamai）連携が部分的、AVIF v3 (HDR/10bit)対応未着手、機械学習ベース圧縮（OptimoleAI/TinyPNG Pro）試験段階。
+- 強み：透過4段防御、ファクト検証スクリプト、CI/CD組込、夜間バッチ運用、Notion DB Webhook自動更新。
+
+### STEP 2: 業界最先端ベンチマーク（2025-2026）
+- AVIF v3 (AV1 Image File Format)：HDR / 10-12bit / Wide Color Gamut対応 / iOS 17 Safari 100%サポート / Android Chrome 113+ 標準。
+- WebP 2 (Pika) / JPEG XL：Lossless+Lossyハイブリッド、ファイルサイズ JPEG比60%減。
+- Core Web Vitals 2026：LCP <2.5s / INP <200ms / CLS <0.1 を満たす画像配信が SEO必須要件。
+- Cloudflare Images / Vercel Image Optimization / Akamai Image & Video Manager のCDN Edge最適化が業界標準。
+- IAB Tech Lab "Future of Ad Specs" 2025：HDR広告 / Variable Bitrate / Dynamic Creative Optimization (DCO) 対応。
+- Google PageSpeed Insights / Lighthouse v12 / WebPageTest による定量計測標準化。
+
+### STEP 3: ギャップ分析
+- 【G1】HDR画像（Display P3 / Rec.2020 / 10-12bit）対応未着手、新型iPhone/Macの広色域端末で旧来sRGBに固定変換しているため広告品質が頭打ち。
+- 【G2】CDN Edge Image Optimization未統合、デバイス別自動配信（Vercel/Cloudflare/Akamai）の運用標準化が部分的。
+- 【G3】JPEG XL / WebP 2 / AVIF v3 等の次世代フォーマット対応評価不足。
+- 【G4】機械学習ベース圧縮（Google Squoosh ML / OptimoleAI GPT圧縮）の本番採用未済。
+- 【G5】Core Web Vitals / Lighthouse監査の自動化レベルが部分的、CI/CD組込が一部プロジェクトのみ。
+
+### STEP 4: 上位資格・専門知識補強
+- Google Mobile Web Specialist / Google Cloud Professional Cloud Architect。
+- AWS Certified DevOps Engineer Professional / Cloudflare Image Optimization Specialist。
+- ISTQB Foundation Level + Advanced Level Test Automation Engineer。
+- 必読・体系学習：High Performance Browser Networking (Ilya Grigorik) / Designing Data-Intensive Applications (Kleppmann) / Web Performance in Action (Wagner) / Color Management for Photographers (Andrew Rodney) / The Reproduction of Colour (Hunt)。
+- 画像処理理論：Discrete Cosine Transform (DCT) / Wavelet Transform / Perceptual Color Quantization の数学的理解、JPEG XL / AVIF / WebP の圧縮原理を体系学習。
+- 色彩科学：CIE 1931 / CIE 1976 / CIELAB / OKLCH / ICC v4 Profile仕様の実務適用。
+
+### STEP 5: 最新ツール / フレームワーク（2026）
+- Playwright 1.50 + Chromium 130 + WebKit 18 + Firefox 132 マルチブラウザ並列。
+- 画像処理：sharp 0.34（libvips 8.16）/ ImageMagick 7.2 / VIPS / Squoosh CLI 2.0 / ffmpeg 7.1。
+- 圧縮：pngquant 3.0 / mozjpeg 4.2 / cwebp 1.5 / avifenc 1.0 / jxlinfo (JPEG XL) / OptimoleAI / TinyPNG Pro。
+- CDN：Vercel Image Optimization API / Cloudflare Images / Cloudflare Polish / Akamai Image & Video Manager / AWS CloudFront Image Optimization。
+- CI/CD：GitHub Actions / Vercel Deployments / Lighthouse CI / Visual Regression Test (Percy / Chromatic / BackstopJS)。
+- モニタリング：Datadog RUM / New Relic Browser / Sentry Performance / Core Web Vitals 2026 ダッシュボード。
+- メタデータ：ExifTool 13 / sharp metadata API / IPTC Photo Metadata 2025。
+
+### STEP 6: 定量品質ベンチマーク（2026年中央値）
+- ファイル容量（媒体別上限）：Indeed 150KB / Instagram 30MB / LINE 1MB / X 5MB / TikTok 500KB / Facebook 30MB / Pinterest 32MB / LinkedIn 5MB。
+- 社内基準（媒体上限の50%以下）：Indeed 50KB / Instagram 80KB / LINE 400KB。
+- Core Web Vitals：LCP <2.5s / INP <200ms / CLS <0.1。
+- 解像度：deviceScaleFactor 2(Retina) 標準 / 3(超Retina)選択肢。
+- ICC：sRGB標準 / Display P3 オプション。
+- 圧縮率：媒体別compression-profile（Indeed quality:80 / Instagram quality:85 / LINE quality:85 / X quality:85）。
+- 並列変換速度：Playwright `browser.newContext()` プール4個で4ファイル6秒（Puppeteer比3倍速）。
+- 自動検証率：sharp + tesseract.js で6観点自動判定 (容量/解像度/ICC/ロゴクリアスペース/アルファ4ch/文字密度)。
+- Sora QA Hiro責任4点 1発合格率：99%。
+
+### STEP 7: 出力フォーマット上位化
+- 「Image Optimization Report」自動生成：①ファイル容量×媒体別上限比 ②解像度×deviceScaleFactor ③ICC profile name ④アルファチャンネル有無 ⑤Lighthouse Performance Score ⑥WebPageTest Speed Index ⑦Core Web Vitals (LCP/INP/CLS) ⑧Visual Regression Diff（前回版との差分） ⑨OCR禁止ワード検出結果 ⑩HDR対応有無、の10項目を Markdown table で自動出力。
+- 3形式同時納品（PNG/WebP/AVIF）+ CDN URL（Vercel/Cloudflare）の選択肢提供。
+- Variable Bitrate JSON（媒体別最適配信レシピ）同梱。
+- CI/CD Status：GitHub Actions Workflow Run URL / Lighthouse CI Result URL / Visual Regression Test Report URL。
+
+### STEP 8: クロスファンクショナル連携強化
+- Kana：`@let-inc/banner-utils` 共通ライブラリv3で「validateBanner(path)」1関数集約、HTMLコメント `<!-- HIRO-CHECK -->` 規約共有。
+- Yuna：Notion DB Webhook自動更新（PNG変換中→完了）、Slack通知連動、案件可視性リアルタイム化。
+- LP部（Hana/Ren/Kaito）：LP OGP画像（1200×630）Puppeteer自動生成、Twitter Card / Facebook OG共通化。
+- 資料作成部（Souma）：印刷向けCMYK変換パイプライン（ImageMagick `-colorspace CMYK -profile USWebCoatedSWOP.icc`）。
+- SNS部（Sho/Yui）：投稿予約システム連携、ファイル名規則 `{client}_{用途}_{投稿予定日YYYYMMDD}_{サイズ}.png` で逆引き対応。
+- データ分析部（Shun）：配信実績データのBigQuery連携、Core Web Vitals監視結果フィードバック。
+- 法務（Nori）：tesseract.js OCR禁止ワード自動検出→Slackバッチ送付→Nori月次レビュー。
+- COO（Sora）：7点セルフチェック JSON 必須添付、Sora QA時間 1分以下化。
+
+### STEP 9: 失敗パターン予防策
+- Promise.all サイレント失敗：必ず `Promise.allSettled` + rejected件数1以上で exit code 1 + Slack通知の3点防御。
+- 透過PNG事故：HTML `html, body { background: transparent !important }` + Puppeteer `omitBackground: true` + `sharp(buf).ensureAlpha()` + `metadata().channels === 4` assert の4段防御。
+- フォント未読込：`page.evaluate(() => document.fonts.ready)` + `document.fonts.check('700 16px "Noto Sans JP"')` 検証。
+- 容量超過：媒体別compression-profile.json + sharp自動lint、Sora提出前に再変換。
+- ICC色ズレ：`sharp(buf).withMetadata({ icc: 'srgb' })` 強制正規化、Display P3 / Adobe RGB のまま納品禁止。
+- Chromium起動失敗：`--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage` 3フラグ常設、CI環境同構成。
+- ブラウザプール枯渇：Playwright `browser.newContext()` 4個プール + 終了処理 finally 確実実行。
+- HDR非対応：旧来sRGBへ強制変換すると新型端末で色域損失、Yuna指示書でHDR要求案件は別パイプライン。
+- セキュリティ：Puppeteer/Playwrightバージョン月次update、CVE-2025-xxxx等のCritical脆弱性即パッチ適用。
+- AI生成画像メタデータ：C2PA (Content Authenticity Initiative) 準拠の`AI生成`タグをEXIFに自動埋め込み、Meta/Google審査ポリシー違反予防。
+
+### STEP 10: オーバースペック化アクションプラン（30日/90日/12ヶ月）
+- 30日：Playwright 1.50移行完了 / sharp 0.34 + libvips 8.16 アップデート / AVIF v3 試験導入 / Lighthouse CI 全プロジェクト組込 / Visual Regression Test (Percy) 導入。
+- 90日：Vercel Image Optimization API 統合 / Cloudflare Images / Polish 連携 / `@let-inc/banner-utils` v3公開 (validateBanner集約・HDR対応・C2PA) / JPEG XL 検証 / Core Web Vitals 全クライアント計測。
+- 12ヶ月：Google Mobile Web Specialist + ISTQB Test Automation Engineer取得 / HDR広告本番採用（Display P3 / Rec.2020）/ 機械学習ベース圧縮（Squoosh ML or OptimoleAI）本番化 / CDN Edge Image Optimization フル自動化 / 1名で「画像最適化エンジニア + Webパフォーマンスエキスパート + ブラウザ自動化スペシャリスト + DevOps」の4役兼任のオーバースペック化完成 / 後輩エンジニア1-2名育成 / 社内Tech Blog執筆。
+

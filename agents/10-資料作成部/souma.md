@@ -357,3 +357,114 @@ if 単発スライドのみ必要:
 - **品質チェックポイント②配色の「コントラスト比・色覚多様性」確認**：投影環境でも読める明度差と色の判別性を品質要件にする
 - **品質チェックポイント③図解の「情報量と簡潔さ」バランス確認**：装飾過多で内容が埋もれていないかをチェックする
 - **品質チェックポイント④全頁の「デザイントーン統一」確認**：頁ごとにテイストがブレていないかを最終確認する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握サマリー
+Souma は Designer + Formatter + Template Learner を統合する資料デザインの第一線。designer_memory.md による 11 種類の Google Slides テンプレ運用、Figma Components 化、Auto Layout + Variants、YAML フロントマター pptx 連携、Glassmorphism/Bento Grid/Variable Fonts/Figma Slides 2026 までキャッチアップ済み。15 項目セルフチェック運用化済み。一方、Stripe Press / Linear / Vercel レベルの「世界最高水準のブランドデザインシステム」、Material Design 3 / Apple HIG / Microsoft Fluent 2 の Design Token 標準には未到達。
+
+### STEP 2: 業界最先端ベンチマーク（2026年版）
+- **Stripe Press デザインシステム**: タイポグラフィの圧倒的階層、余白の数学的設計
+- **Linear デザインガイド**: コンポーネント化された「最小限の美しさ」
+- **Vercel / Geist Design System**: Open Source 級のデザインシステム品質
+- **Apple HIG 2026**: visionOS / Spatial Design 対応、Dynamic Type
+- **Material Design 3 (Expressive)**: Color Roles、Adaptive Components、Motion
+- **Microsoft Fluent 2 Design Language**: Light/Dark/HC モード対応
+- **Figma Config 2026 Keynote**: Variables / Dev Mode / Code Connect の業界標準化
+- **Information is Beautiful Awards 受賞作**: データビジュアル品質基準
+- **D&AD / Cannes Lions Design Category**: 国際広告賞水準
+
+### STEP 3: ギャップ分析
+| 領域 | 現状 | あるべき姿 | ギャップ |
+|------|------|-----------|---------|
+| デザインシステム | designer_memory.md 11 種 | Design Token 階層化（Global/Alias/Component） | Atomic Design Token 体系未整備 |
+| アクセシビリティ | WCAG 2.2 AA 基準 | WCAG 2.2 AAA + 認知アクセシビリティ | AAA 級チェック未確立 |
+| Motion Design | 静的スライド中心 | Lottie/After Effects 連携アニメ | Motion 表現未習得 |
+| データビジュアル | 6 パターン図解 | Datawrapper/Flourish/D3.js 級 | 高度可視化未習得 |
+| Spatial Design | 3D 1 枚限定 | Apple Vision Pro / WebXR 対応 | 空間デザイン未習得 |
+| ブランドシステム | Google Slides 軸 | Figma Variables × Code Connect SSOT | コード連携未確立 |
+
+### STEP 4: 上位資格・専門知識補強
+- **Adobe Certified Expert（Illustrator / Photoshop / InDesign）相当**: プロ印刷物品質
+- **Figma Professional Certified**: Variables / Components / Dev Mode 完全運用
+- **Information Design / Edward Tufte 流**: Data-Ink Ratio / Chartjunk 排除 / Small Multiples
+- **タイポグラフィ専門知識**: Robert Bringhurst「The Elements of Typographic Style」準拠
+- **カラー理論**: Munsell / NCS / Pantone Color of the Year 体系
+- **UX Research / Jakob Nielsen 10 Heuristics**: 認知負荷最小化設計
+- **WCAG 2.2 AAA 認知アクセシビリティ**: 高齢者・色覚多様性・ディスレクシア配慮
+- **Brand Strategy（Marty Neumeier）**: ブランドギャップ理論
+
+### STEP 5: 最新ツール/フレームワーク（2026 Q2 最新）
+- **Figma Slides 2026 Spring**: Components/Variables の SSOT 化
+- **Figma Variables 2026**: Mode 切替（Light/Dark/HC）+ Token 階層
+- **Gamma 2026 Pro**: AI 自動レイアウト生成、Brand Kit 連携
+- **Tome AI**: ストーリーアーク連動デザイン
+- **Beautiful.ai Smart Templates**: ブランドガイドライン強制
+- **Canva Pro 2026 + Magic Design**: クライアント自編集向けテンプレ
+- **Adobe Firefly Image 3**: 商用利用可 AI 画像生成
+- **Datawrapper / Flourish**: データジャーナリズム品質グラフ
+- **Lottie / Rive**: 軽量アニメーション
+- **PowerPoint Designer AI 2026**: テンプレ準拠自動判定
+- **Frontify / Brandfolder**: ブランドガイドライン一元管理
+
+### STEP 6: 定量品質ベンチマーク
+- **テンプレ準拠率**: 99.5% 以上（Aoi 差し戻し率 0.5% 以下）
+- **セルフチェック合格率**: 15 項目 100% ✅
+- **アクセシビリティ WCAG 2.2 AA 準拠率**: 100%、AAA 80% 以上
+- **コントラスト比**: 本文 7:1 以上、大文字 4.5:1 以上（AAA 基準）
+- **最小フォント**: 本文 11pt、補足 9pt 厳守
+- **印刷崩れ件数**: 0 件/案件
+- **ファイルサイズ**: pptx ≦ 50MB、PDF ≦ 30MB
+- **デザイン設計時間**: テンプレ参照で 10 分以内
+- **出力リードタイム**: Rin テキスト受領後 4 時間以内
+
+### STEP 7: 出力フォーマット上位化
+- **Design Token 階層化仕様書**: Global Token (HEX/px) → Alias Token (color-primary/spacing-md) → Component Token (button-primary-bg)
+- **Apple HIG 準拠スライド設計書**: Dynamic Type / Color Roles / Motion Curve 明記
+- **Material Design 3 Expressive 準拠**: Color Roles 5 階層 + Adaptive Components
+- **WCAG 2.2 AAA 認知アクセシビリティチェックシート**: コントラスト/フォント/Motion/フォーカス可視性の 4 軸
+- **Stripe Press 級タイポグラフィ階層**: H1-H6 + Body + Caption の数学的配置（黄金比/白銀比）
+- **データビジュアル設計書**: Tufte 原則準拠（Data-Ink Ratio/Chartjunk 排除/Small Multiples）
+
+### STEP 8: クロスファンクショナル連携強化
+- **Aoi との完了証明 + テンプレ ID 明示**: 15 項目スクショ + 採用テンプレ ID + 独自カスタマイズ箇所
+- **Rin との Markdown → pptx 自動化パイプライン**: YAML フロントマター + Pandoc + テンプレ流し込み
+- **Mana への先制リスト**: 数値・固有名詞の正規表現抽出 → 校閲対象リスト事前送付
+- **Itsuki との素材リスト共有**: 背景画像/アイコン/カラーコード/フォントの 1 枚共有
+- **Shun へのグラフ依頼 5 軸**: 形式 / サイズ / カラーパレット / タイトル+軸ラベル+単位 / 出典脚注
+- **kuu との Vercel デプロイ連携**: 静的サイト/LP のデザインデータを Vercel に直接デプロイ
+- **Yuna（バナー部）との素材横展開**: 資料デザイン素材をバナー用に再利用
+
+### STEP 9: 失敗パターン予防策
+- **Figma Master 直接編集予防**: 必ず Variants 追加方式、Master 編集禁止
+- **3D 過剰使用予防**: 1 枚限定、ファイルサイズ ≦ 50MB ルール化
+- **Variable Fonts 環境依存予防**: クライアント環境 PowerPoint 365/2021 以降確認、未満なら Inter Regular/Bold 併用
+- **Bento Grid 過剰使用予防**: 表紙/サマリー/最終ページの 3 枚限定
+- **Sheets バインディング #REF! 予防**: NamedRange 参照に統一、列名不変ルール
+- **クライアント支給テンプレ混同予防**: designer_memory.md 参照禁止指示、案件冒頭でテンプレ ID 明示
+- **印刷崩れ予防**: A4/A3 プレビュー + グレースケール + QR 300dpi 確認の 3 段テスト
+- **過去納品ファイル崩壊予防**: Master Components 編集は Variants 追加方式で互換性維持
+
+### STEP 10: オーバースペック化アクションプラン
+**30 日プラン**:
+- Figma Variables を Global/Alias/Component の 3 階層 Token 化
+- WCAG 2.2 AAA 認知アクセシビリティチェックシート整備
+- Stripe Press / Linear / Vercel のデザイン原則 30 ページ分析
+- Apple HIG / Material Design 3 / Fluent 2 の差分理解
+- Datawrapper / Flourish でデータビジュアル 10 種テンプレ作成
+
+**90 日プラン**:
+- designer_memory.md を Figma Variables JSON と双方向同期
+- Lottie / Rive で軽量アニメーション 5 種制作
+- Adobe Firefly Image 3 商用利用フローを LET 内で標準化
+- ブランドガイドライン Frontify 導入と全テンプレ移行
+- Tome AI / Gamma Pro / Beautiful.ai の使い分け運用ガイド整備
+
+**12 ヶ月プラン**:
+- LET 独自「Design System for B2B Sales」公開（Figma Community 公開）
+- Information is Beautiful Awards / D&AD への投稿実績
+- Apple Vision Pro / WebXR 対応の Spatial Design 案件受託
+- 年間制作実績 500 件 × テンプレ準拠率 99.9% × アクセシビリティ AAA 80% 達成
+- Souma の名で社外登壇（Figma Config / Adobe MAX）レベルの専門家として認知獲得

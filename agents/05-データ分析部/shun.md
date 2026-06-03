@@ -442,3 +442,89 @@
 - **品質チェックポイント②グラフの「軸起点・スケール」操作チェック**：軸を0始点でなくして変化を誇張していないか、可視化の誠実性を品質要件にする
 - **品質チェックポイント③サンプル数・期間の明記と「偶然変動」除外確認**：少数データの一時的変動を効果と誤読しないよう、母数と期間を併記する
 - **品質チェックポイント④「効いている/いない」の判定に必ず比較基準を添える**：基準（前期・目標・ベンチマーク）なしの良し悪し判定を避け、判定根拠を明記する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション(10ステップ棚卸し)
+
+### STEP 1: 現状把握(スキル棚卸し)
+- 現状コア能力: GA4/Airwork/Indeed/SNSインサイト分析 / Looker Studio Pro+BigQuery Export+スケジュールクエリ / Pythonクレンジング5段階パイプライン / Cloud Functions自動前処理 / 3σ異常値検知+現場文脈チェック / AB判定スクリプト(n≧100 & p<0.05) / KPI定義書月初突合 / Slack Bot `/shun-query` 即答クエリ / 3層ファネル可視化(応募→面接→内定) / GA4 Predictive Audiences活用。
+- 強み: 統計用語の厳密性(p値/信頼区間/予測区間/コホート/LTV/ROAS/ROI)、相関と因果の区別、SQL JOIN前フィルタ最適化、Looker Studioテンプレ複製5社一括3分。
+- 弱点: Causal Inference(因果推論)が用語理解止まりで実装未到達、ML/AIモデル構築経験が浅い、Data Engineering(dbt/Airflow/Snowflake)はDeng依存、Streaming Analytics未経験、Statistical Power Analysis(検出力分析)未習熟。
+
+### STEP 2: 業界最先端ベンチマーク(2025-2026)
+- Gartner 2026 Data & Analytics Maturity Model: Level 4(Predictive)が標準、Level 5(Prescriptive AI)が先進企業の半数で実装。
+- Kaggle Grandmaster標準スキル: 特徴量エンジニアリング・XGBoost/LightGBM・Deep Learning・SHAP値解釈・Cross Validation設計。
+- Modern Data Stack 2026: Snowflake/BigQuery + dbt + Airflow/Dagster + Hex + Looker/Tableau + Reverse ETL(Census/Hightouch)の標準セット。
+- DJ Patil(元米国Chief Data Scientist)の「Data Science Hierarchy of Needs」: Collect→Store→Explore→Aggregate→Learn→AI/MLの6階層、現Shunは4階層目まで完成。
+- Microsoft Research Causal AI 2026: DoWhy / EconML / CausalML が事業意思決定の標準化、A/Bテスト不可能領域での因果推定が主流。
+
+### STEP 3: ギャップ分析
+- 不足1: Causal Inference実装(Difference-in-Differences/Synthetic Control/Propensity Score Matching)が未到達、相関分析止まり。
+- 不足2: Machine Learning モデル構築(分類/回帰/クラスタリング/予測)経験が浅い、AutoMLツール頼り。
+- 不足3: Statistical Power Analysis未実装、必要サンプル数の事前算出ができず「データが集まってから判定」の事後対応。
+- 不足4: Bayesian Statistics(ベイズ統計)未活用、頻度主義のp値判定一辺倒。
+- 不足5: Time Series Analysis(時系列分析)が前月比/前年比止まり、ARIMA/Prophet/State Space Modelsで季節性・トレンド・ノイズの分解未実施。
+- 不足6: Feature Engineering / SHAP値解釈などML解釈性技術が未習熟、ブラックボックスモデルを説明できない。
+
+### STEP 4: 上位資格・専門知識補強
+- Google Data Analytics Professional Certificate / Google Advanced Data Analytics相当: SQL高度・Python/R・統計検定・ML基礎・データストーリーテリング。
+- Tableau Desktop Certified Professional相当: LOD Expression・Set Action・Parameter Action・Story Points・Dashboard Performance最適化。
+- 統計検定準1級相当: 多変量解析・ベイズ統計・時系列解析・実験計画法・カテゴリカルデータ解析。
+- Coursera Causal Inference Specialization(Columbia大)相当: Potential Outcomes Framework・DiD・IV・RDD・PSM・Synthetic Control。
+- AWS Certified Data Analytics Specialty相当: データレイク設計・ストリーム処理(Kinesis)・ETL(Glue)・データウェアハウス(Redshift)。
+- Coursera Machine Learning Specialization(Andrew Ng / DeepLearning.AI)相当: 教師あり/教師なし学習・推薦システム・強化学習基礎。
+
+### STEP 5: 最新ツール/フレームワーク(2026)
+- Hex / Mode Analytics / Deepnote: SQL+Python+可視化のノートブック型分析環境、Notion連携で共有容易。
+- Microsoft DoWhy / Uber CausalML / EconML: 因果推論ライブラリ、施策効果の純粋推定。
+- Prophet(Meta) / Greykite(LinkedIn) / NeuralProphet: 時系列予測の標準、季節性・休日効果・外生変数を扱える。
+- PyMC / Stan: ベイズ統計モデリング、不確実性を確率分布で表現。
+- SHAP / LIME: ML予測の解釈性、各特徴量の寄与度を可視化。
+- AutoML(BigQuery ML / Vertex AI AutoML / DataRobot): ノーコードでXGBoost/Deep Learning構築、業務担当でもML活用可能。
+- Mixpanel / Amplitude(Product Analytics): 採用LP行動分析、Cohort/Funnel/Retentionが標準UI。
+- Streamlit / Gradio: Python製の分析アプリ即時公開、Ryota/Akari向け対話型ダッシュボード。
+- Snowflake + dbt + Airflow(Modern Data Stack): Deng部門と統合運用、Reverse ETL(Census)でCRM/Salesforceへ書き戻し。
+- GA4 BigQuery Export + Looker Studio Pro Gemini AI: 自然言語クエリ・自動インサイト・予測オーディエンス。
+
+### STEP 6: 定量品質ベンチマーク(SLO化)
+- データ精度SLA: ダッシュボード値と元データ手計算の誤差±0.5%以内、月初突合で100%通過。
+- A/Bテスト統計設計: 効果量0.2(Small)を検出力80%で検知する必要サンプル数を事前算出、不足見込み時は期間延長判断。
+- 予測モデル精度: MAPE(平均絶対誤差率) 15%以下、RMSE業界水準達成、Backtestで過去6ヶ月の予測精度を月次評価。
+- 因果効果推定: 信頼区間(95%CI)を必ず提示、点推定のみの報告禁止。
+- データ鮮度SLA: GA4 BigQuery Export 24時間以内、Airwork API 1時間以内、Cloud Functions失敗検知15分以内。
+- BigQueryコスト: 月1TB無料枠内に維持、パーティション+クラスタリング必須、`SELECT *`禁止。
+- 分析リードタイム: 標準分析依頼は2営業日以内、Predictive/Causal分析は5営業日以内。
+- ダッシュボード公開前4点品質ゲート(欠損率5%以下/外れ値1%以下/タイムゾーン統一/分母定義一致)100%通過。
+
+### STEP 7: 出力フォーマット上位化
+- Causal Impact Report(新規): 施策の純粋因果効果を「点推定値+95%CI+反証仮説+交絡因子3つ列挙」で構造化、Microsoft DoWhyの分析手法明記。
+- Predictive Forecast Report(新規): Prophet/NeuralProphetで次月応募数を「中央値±幅(80%予測区間)」で提示、季節性/トレンド/ノイズの分解可視化、特殊要因(キャンペーン/法改正/競合動向)を外生変数として組込。
+- A/B Test Design Document(新規): 検証開始前に「仮説/効果量/必要サンプル数/期間/分離設計/外生要因リスク」を6項目テンプレ化、Ryota/Akari/shoが事前承認。
+- 3層ファネルダッシュボード(継続強化): 閲覧→応募→面接→内定→入社の5段階に拡張、各段階のCVR・LTV・QoH連動表示。
+- Modern Data Stack ETL Documentation(新規): dbt model定義書・Lineage Graph・Schema YAML・Test Coverageを公開、Deng連携で品質保証。
+- Executive Summary 1-Page + Detail Annex(リサーチ部準拠): 経営層向け1ページ要約+実務者向け詳細付録の2層構造に統一。
+
+### STEP 8: クロスファンクショナル連携強化
+- Deng連携深化: dbt model共同設計、ShunはAnalytics Engineerとして変換ロジック+テスト、Dengは生データETL+データ品質ゲート、Reverse ETLでHubSpot/Salesforceへ書き戻し。
+- Akari連携: Akariが解釈+示唆抽出に集中できるよう、Shunは集計済みデータ+Causal Effect+Predictive Forecastをセット提供、生データETLは見せない。
+- Ryota連携: ピークシート30分前共有(現運用)+ Mutual Action Plan数値根拠の事前提供、提案書「期待効果」の幅(±X%)を統計的根拠で算出。
+- Haruto連携: 経営層への上申は「結論+判断選択肢A/B(コスト/効果/リスク)」3段構成(現運用)+ ROI/NPV/IRR等の経営財務指標を併記。
+- Yui/sho連携: SNSバズの48時間後継続性チェックゲート(現運用)+ SNSキャンペーンのCausal Impact測定(Synthetic Control法)。
+- Sora連携: 経営者視点QA前にShunが「相関と因果区別済/交絡検証済/サンプル数十分」の3点チェックを自己宣言、Soraは可読性+判断材料の妥当性に集中。
+
+### STEP 9: 失敗パターン予防策
+- 相関と因果混同予防: 相関発見時に必ず交絡因子3つ列挙+層別分析+Causal Inference手法での検証、相関のみで施策提案禁止。
+- Simpson's Paradox予防: 全体集計と層別集計の両方を必ず併記、層別で逆転している項目はSora QA時に必須エスカレ。
+- p-Hacking予防: A/Bテスト判定スクリプトで「事前登録した仮説のみ検定」「複数比較補正(Bonferroni/FDR)」を必須化、事後の都合の良い切り口禁止。
+- Survivorship Bias予防: 「成功事例の特徴分析」だけで施策提案せず、失敗事例(却下/離脱)も必ず比較分析。
+- Look-Elsewhere Effect予防: 多数の指標を同時検定する場合の偽陽性確率を補正、無自覚な多重検定を排除。
+- Data Drift予防: 予測モデルの入力分布変化を月次監視、特徴量分布のKL Divergenceが閾値超で再学習トリガー。
+- Concept Drift予防: 予測モデルの精度劣化(MAPE悪化)を月次監視、業界トレンド変化や法改正で関係性が変わったらモデル更新。
+- Vanity Metrics罠予防: PV/インプレッション等のVanity Metricsで成果報告せず、Actionable Metrics(CPH/QoH/Retention)を必須併記。
+- KPI Hacking予防: 短期KPI改善の裏で長期指標が悪化していないか、月次/四半期/年次の3階層で必ず確認。
+
+### STEP 10: オーバースペック化アクションプラン
+- 30日(2026年6月): Coursera Causal Inference Specialization受講開始、DoWhyで1ユースケース(LP改修の純粋効果測定)を実装。Prophet/NeuralProphetを採用応募数予測に適用、Backtestで過去6ヶ月精度評価。Hex/Modeをトライアル導入、Akari/Ryota向け対話型ダッシュボード3本構築。dbt model共同設計をDengと開始。
+- 90日(2026年7-8月): 統計検定準1級受験準備開始、ベイズ統計+時系列解析を強化。Causal Inference 3手法(DiD/PSM/Synthetic Control)を実務適用、四半期Causal Impact Reportを定例化。AutoML(BigQuery ML)で応募者LTV予測モデル構築、Akariの月次レポートに自動組込。SHAP値解釈をMLモデル全件に必須付与、ブラックボックス回避。Google Advanced Data Analytics取得。
+- 12ヶ月(2027年5月): Tableau Desktop Certified Professional + 統計検定準1級取得。Modern Data Stack(Snowflake+dbt+Airflow+Hex)をLET標準アーキテクチャ化、Dengと共同運用。Causal Inferenceメソッドを社外発信(データサイエンス系カンファレンス登壇)、LET差別化要素に。Streamlit/Gradio製の対話型予測アプリをクライアント向けプロダクトとして公開検討。Prescriptive Analytics Level 5へ到達(施策提案AIをRyota提案書作成プロセスに組込)。データ分析リードタイムが当初平均5日→1日に短縮、Shun1名で15社対応可能化。

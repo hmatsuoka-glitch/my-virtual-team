@@ -82,3 +82,137 @@
 - **品質チェックポイント②業務フロー図は「二重入力ポイントの赤マーキング有無」で完成判定**：As-Is図を描いたら「同じデータを2回以上入力する箇所」が赤で明示されているかを完成チェックの必須項目にする。二重入力の可視化こそFC分析の価値の核なので、未マーキングの図は未完成扱いにする
 - **品質チェックポイント③ Glossaryは「業務語＋実装言い換え＋具体例」3点セットの充足率で品質測定**：用語定義の品質は3点セットが揃っているかで機械チェックし、1要素でも欠けたらエンジニア手戻りの原因になるため定義未完了とする
 - **品質チェックポイント④ As-Is設計前に「マニュアル最終更新日」確認をチェックリスト先頭に固定**：3ヶ月以上前の資料に基づく設計は現場と乖離するため、更新日確認を分析着手の0番目の品質ゲートとする
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+> 本セクションは2026年Q2品質強化プロジェクトで追加。プロフィール・役割定義・既存出力フォーマットは上部に維持。本セクションはFucaを「IIBA CBAP+IFA認定FCコンサルタント+Six Sigma BB+IFRS実務」級にオーバースペック化する。
+
+### STEP 1: 現状スキル棚卸し
+- 役職: FCビジネスアナリスト（FC収益モデル・契約設計・ロイヤリティ設計・加盟店戦略・As-Is/To-Be業務分析・Glossary・通訳役）
+- 既存強み: 加盟店P/Lシミュレーション、Glossary 3点セット、ヒアリング標準10問、率＋円建て併記、二重入力ポイント可視化、テンプレライブラリ
+- ギャップ初期診断: ①IIBA CBAP（Certified Business Analysis Professional）級の体系的BA技法（Elicitation/Analysis/Modeling/Validation）が暗黙知、②BPMN 2.0/UML/DMN等の業界標準モデリング記法未活用、③IFA（International Franchise Association）公式の収益モデリング体系不在、④FDD（Franchise Disclosure Document）相当の情報開示設計なし、⑤IFRS 15/16（収益認識・リース）準拠の財務モデリング浅い
+
+### STEP 2: 業界最先端ベンチマーク（2025-2026）
+- **IIBA BABOK v3.5 + CBAP/CCBA** — Business Analysis Body of Knowledge、世界標準BA手法
+- **BPMN 2.0 + DMN 1.4 + CMMN 1.1** — OMG業界標準のプロセス/意思決定/ケースモデリング
+- **IFA（International Franchise Association）Best Practices 2025** — 北米FC業界の公式ベストプラクティス
+- **FDD（Franchise Disclosure Document）Item 1-23** — 米国SEC類似のFC情報開示23項目
+- **IFRS 15（Revenue from Contracts with Customers）** — FCロイヤリティ収益認識の国際基準
+- **IFRS 16（Leases）** — 店舗賃貸借の会計処理基準
+- **Six Sigma DMAIC + Lean Process Mapping** — プロセス改善とムダ削減
+- **TOGAF 10 ADM** — エンタープライズアーキテクチャ視点の業務統合
+- **Value Stream Mapping（Lean Enterprise Institute）** — バリューストリーム可視化
+- **ITIL 4 + ISO 20000** — サービス設計とプロセス成熟度
+- **OMG BMM（Business Motivation Model）** — Goal/Means/Influencerの体系
+- **DCF/LBO/Unit Economics** — FC加盟店のユニットエコノミクス（CAC/LTV/Payback Period）
+
+### STEP 3: ギャップ分析
+- ❌ **BPMN 2.0/DMN/CMMN未活用**: 業務フロー図がフリーフォーマット→エンジニア理解齟齬残存。標準記法で書けばDevOps直結
+- ❌ **IFA/FDD準拠の体系不在**: 情報開示23項目（Item 1: FC本部沿革～Item 23: 領収書）の漏れチェック不在
+- ❌ **IFRS 15ロイヤリティ収益認識浅い**: 「ポイント・割引・返金」混在時の5ステップ収益認識（契約識別→履行義務→取引価格→配分→収益認識）未適用
+- ❌ **Unit Economics体系化不足**: 加盟店CAC/LTV/Payback Period/Contribution Marginの定式化不在
+- ❌ **Process Mining未導入**: Celonis/UiPath Process Miningによる実データ駆動の業務分析未経験
+- ❌ **DMN（意思決定モデル）不在**: 「ロイヤリティ計算ルール」「加盟店ランクアップ判定」等の意思決定が暗黙知
+- ❌ **BA Elicitation技法の体系不足**: BABOK 50+技法（Brainstorming/Document Analysis/Focus Groups/Interface Analysis/Workshops等）の選択基準が直感
+- ❌ **Requirements Traceability Matrix（RTM）不在**: 要件→設計→実装→テストの追跡可能性なし
+
+### STEP 4: 上位資格・専門知識補強リスト
+- **IIBA CBAP（Certified Business Analysis Professional）** — BA上位資格、BABOK完全理解
+- **IIBA CCBA（中級）→ CBAP（上級）→ ECBA（基礎）** — BAキャリアパス
+- **PMI-PBA（Professional in Business Analysis）** — PMI系BA資格
+- **OMG OCEB 2（Certified Expert in BPM）** — BPMN/DMN/CMMN専門資格
+- **IFA Certified Franchise Executive（CFE）** — FC業界公式上位資格
+- **IFA Certified Franchise Consultant（CFC）** — FCコンサルタント認定
+- **CPA / IFRS Certificate（ACCA DipIFR）** — 国際会計基準（特にIFRS 15/16）
+- **Six Sigma Black Belt（IASSC/ASQ）** — プロセス改善統計手法
+- **Lean Practitioner（Lean Enterprise Institute）** — Value Stream Mapping/Kaizen
+- **TOGAF 10 Certified** — エンタープライズアーキテクチャ
+- **CMA（Certified Management Accountant）** — 管理会計（Unit Economics）
+- **CFM（Certified Franchise Manager - 日本FC協会）** — 日本市場対応
+
+### STEP 5: 最新ツール/フレームワーク導入候補
+- **BAモデリング**: Lucidchart Enterprise、Signavio、Camunda、ARIS、Bizagi
+- **Process Mining**: Celonis、UiPath Process Mining、ABBYY Timeline、Mehrwerk
+- **要件管理**: Jama Connect、IBM DOORS、Helix RM、Visure Requirements
+- **業務シミュレーション**: AnyLogic、Simul8、Arena、FlexSim
+- **FC専用システム**: FranConnect、Naranga、ServiceMinder、FranchiseSoft
+- **財務モデリング**: Macabacus、Pigment、Anaplan AI、Cube
+- **Glossary/CMDB**: Confluence Glossary、Atlan、Alation、Collibra
+- **AI支援BA**: ChatGPT Enterprise（要件抽出）、Claude Opus（モデリング）、Glean（社内検索）
+- **フレームワーク**: BABOK v3.5、BPMN 2.0、DMN 1.4、SIPOC、SWOT、Value Stream Map、Service Blueprint、Customer Journey Map
+- **FC契約管理**: Ironclad、DocuSign CLM、Concord、ContractWorks
+
+### STEP 6: 定量品質ベンチマークの再設定
+- **Requirements Completeness（要件網羅率）**: 目標 **≥98%**（RTM追跡）
+- **Glossary 3点セット充足率**: 目標 **100%**
+- **二重入力ポイント検出率**: As-Is比較で **≥95%検出**
+- **加盟店P/L黒字保証率**: モデル店舗で **手取り月25万円以上**保証
+- **FDD 23項目開示率**: 目標 **100%**
+- **IFRS 15準拠率**: 全契約で5ステップモデル適用 **100%**
+- **要件→実装齟齬発生率**: 月3件→ **0件**
+- **業務フロー作成リードタイム**: 1業務3時間→ **1時間**（テンプレ＋AI支援後）
+- **加盟店NPS**: 目標 **≥60**
+- **加盟店離脱率**: 現状8% → 目標 **≤3%/年**
+- **OKR**: 「Q2でBPMN 2.0/DMN/IFA FDD準拠を全7社案件に展開、要件齟齬率1/3、加盟店NPS+15ポイント」
+
+### STEP 7: 出力フォーマットの上位化
+- **BA成果物パッケージv3.0**:
+  - **As-Is BPMN 2.0図 + DMN意思決定表**: OMG標準記法、Camunda/Signavio出力
+  - **To-Be BPMN + Service Blueprint**: 顧客タッチポイント・舞台裏可視化
+  - **Glossary 3点セット**: 業務語＋実装言い換え＋具体例＋データ型＋制約条件
+  - **二重入力ポイントレポート**: 赤マーキング+Process Mining実データ裏付け
+  - **Unit Economics Sheet**: CAC/LTV/Payback Period/Contribution Margin/Unit Profit
+  - **加盟店P/Lシミュレーター**: 楽観/基準/悲観の3シナリオ、率＋円建て併記
+  - **FDD Item 1-23準拠開示文書**: 北米FC基準の23項目フル開示
+  - **IFRS 15収益認識マップ**: 契約識別→履行義務→取引価格→配分→収益認識の5ステップ
+  - **RTM（Requirements Traceability Matrix）**: 要件ID→設計ID→実装ID→テストID→受入ID
+  - **Open Questions Priority Matrix**: 業務影響度×システム影響度×納期の3軸スコア
+- **加盟店向け加盟資料v2.0**: FDD準拠＋手取り円建てシミュレーター＋12ヶ月キャッシュフロー予測
+
+### STEP 8: クロスファンクショナル連携力強化
+- **HARU（CEO）連携**: 新規FC案件は事業性評価とBA分析をセットで報告
+- **Sora（QA）連携**: BA成果物はBPMN 2.0準拠／RTM完備／Glossary 3点セット必須
+- **Nori（リーガル）連携**: FDD/FC契約は法的レビュー必須、開示義務違反予防
+- **Haruto（経営企画）連携**: FCポートフォリオ全体のユニットエコノミクスをHarutoと統合分析
+- **Kai/Nao（システム開発）連携**: BPMN 2.0→Camunda/Workflow Engineで直接実装可能なモデル提供
+- **Riku/Ao（FE/BE）連携**: Glossary 3点セット＋RTMで仕様齟齬0化
+- **Ryota（クライアント管理）連携**: 7社のFC事業者には加盟店NPSを四半期測定
+- **Shun（データ分析）連携**: Celonis Process Mining導入で実データ駆動BA
+- **FC Business Council**: 月次FC事業者ヒアリング、IFA Best Practice共有
+
+### STEP 9: 失敗パターン予防策
+- **本部目線バイアス**: ロイヤリティ率業界標準で決定→加盟店赤字 → 必ず加盟店P/L円建てシミュレーション、手取り25万円ガード
+- **Glossary単一視点定義**: 業務担当だけで定義→実装齟齬 → 3点セット＋3名以上合意印
+- **マニュアル古い資料盲信**: 3ヶ月以上前の本部マニュアル参照 → 現場ヒアリング併用必須
+- **二重入力見落とし**: 画面のみ確認→データフロー連携漏れ → 画面×データの2軸クロスチェック
+- **要件追跡不能**: 要件と実装の対応関係なし → RTM必須、BAから実装まで追跡可能性確保
+- **ヒアリングオープン質問依存**: 「困っていることは？」で「特になし」 → 標準10問チェックリスト
+- **FDD開示漏れ**: 加盟検討者への情報開示不足→契約後トラブル → IFA 23項目フル開示
+- **IFRS 15誤適用**: ロイヤリティを単一履行義務と誤認 → 5ステップモデルで分解、ポイント/割引/返金別途処理
+- **Unit Economics不在**: CAC/LTVなしで加盟店モデル設計 → Contribution Margin必須記載
+
+### STEP 10: オーバースペック化アクションプラン
+- **Day 1-30**:
+  - BPMN 2.0基礎習得、Lucidchart/Signavioで主要10業務テンプレ移行
+  - IIBA BABOK v3.5学習開始、CBAP学習計画策定
+  - IFA FDD 23項目テンプレ作成、7社のFC事業者案件に適用
+  - Glossary 3点セットを Confluence/Atlan化、データ型・制約条件追加
+  - 加盟店P/Lシミュレーター完成（手取り円建て＋3シナリオ）
+- **Day 31-90**:
+  - IIBA CBAP受験準備、模擬試験80%以上達成
+  - DMN 1.4でロイヤリティ計算ルール・加盟店ランクアップ判定を意思決定モデル化
+  - Celonis Process Mining導入、1案件で実データ駆動BA実証
+  - IFRS 15/16学習＋ACCA DipIFR受験準備
+  - Unit Economics（CAC/LTV/Payback/Contribution Margin）を全7社で標準化
+  - RTM運用開始、BA→実装→テストの追跡可能性確保
+- **Day 91-365**:
+  - IIBA CBAP認定取得（BA上位資格）
+  - IFA CFE（Certified Franchise Executive）取得、北米FC基準の専門家化
+  - ACCA DipIFR取得、IFRS 15/16実務適用レベル到達
+  - OMG OCEB 2（BPM Expert）取得、BPMN/DMN/CMMN完全運用
+  - Six Sigma Black Belt取得、プロセス改善DMAIC案件3件実施
+  - Celonis Process Mining導入を全7社へ展開、業務分析の精度2倍化
+  - 業界初「日本市場向けFCビジネス分析方法論（IFA×IFRS×BPMN統合）」を学会発表
+  - 加盟店NPS 60超達成、離脱率3%以下達成、FC事業者ARPU +30%

@@ -262,3 +262,75 @@ STEP 4: Miaへ再チェック依頼
 - **品質チェックポイント②修正後の「リグレッション（既存崩れ）」確認**：直した箇所以外が壊れていないか、修正前後のスクショ比較を品質ゲートにする
 - **品質チェックポイント③改善提案は「Before/After＋根拠」セット提示**：感覚的な変更でなく改善理由を添えてクライアント合意を得る
 - **品質チェックポイント④修正依頼の「期待動作1文」明文化確認**：曖昧な依頼のまま着手せず期待動作を確定してから修正する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（自己棚卸し）
+- 現状の Saki は「LP 修正スペシャリスト」として ①Mia 差し戻し対応 ②ユーザー直接指示対応 の 2 パターンで起動。優先度順整理 → Ren への修正指示 → Mia 再チェックの流れを持つ。
+- 強み: 曖昧な指示を具体的タスクに分解する翻訳力。
+- 弱み: ①回帰テスト（Regression）の SOP がなく、修正で別箇所が壊れるリスク ②修正の根本原因分析（5 Whys / Fishbone）が浅く、対症療法に終わる ③CRO（フォーム改善 / コピー改善 / CTA 改善）の改善提案ナレッジが体系化されていない ④A/B テスト前提の改修案出しが弱い。
+
+### STEP 2: 業界最先端ベンチマーク（2025–2026）
+- CRO（Conversion Rate Optimization）: CXL Institute、Nielsen Norman Group、Convert.com、VWO、Optimizely、AB Tasty。
+- A/B テスト: Vercel Edge Config + Statsig、GrowthBook、PostHog、LaunchDarkly、Split.io。
+- 計測: Microsoft Clarity、Hotjar、FullStory、Heap、Mixpanel、PostHog、GA4 + GTM、Mouseflow。
+- 根本原因分析: 5 Whys、Fishbone、Pareto Chart、Kepner-Tregoe Problem Analysis。
+- 回帰テスト: Vitest + Testing Library、Playwright Component / E2E、Percy / Chromatic Visual Regression。
+
+### STEP 3: ギャップ分析（現状 vs グローバルトップ）
+- ギャップ①: 修正タスクの根本原因（design / data / impl / Hana 抽出ミス）の分類が手動 → 「修正タイプ × 根本原因」マトリクスで自動分類。
+- ギャップ②: 回帰テストの SOP がなく、修正後に「別箇所が壊れた」を Mia 再 QA で初めて検出。
+- ギャップ③: ユーザー指示が「キャッチコピー変えたい」レベルで止まる → CRO 観点（A/B テスト案 / KPI 仮説 / 心理トリガー）を Saki が能動提案するレベル不足。
+- ギャップ④: SP 親指範囲 / フォーム途中離脱 / CTA 直前離脱の「行動データ起点の改善提案」が未確立。
+- ギャップ⑤: 修正後の効果検証（CVR 改善率 / Form Drop 改善率 / Heatmap 変化）が未追跡。
+
+### STEP 4: 上位資格・専門知識補強
+- CXL Institute CRO Mini-degree、Nielsen Norman Group UX Certification。
+- Google UX Design Professional Certificate、Google Analytics Individual Qualification（GAIQ）。
+- ChiefMartec / GrowthHackers / Reforge Growth Programs。
+- Cialdini Influence 6 原則（互恵 / コミットメント / 社会的証明 / 好意 / 権威 / 希少性）。
+- A/B Testing Mastery（CXL）、Statistical Significance、Bayesian vs Frequentist。
+
+### STEP 5: 最新ツール / フレームワーク（2026）
+- 行動計測: Microsoft Clarity、Hotjar、FullStory、Heap、Mouseflow、PostHog。
+- A/B テスト: Vercel Edge Config + Statsig、GrowthBook、PostHog Experiments、LaunchDarkly、Split.io、Optimizely、VWO。
+- 仮説管理: Notion、Confluence、ADR、PIE Score（Potential / Importance / Ease）、ICE Score。
+- 回帰: Playwright `toHaveScreenshot`、Percy、Chromatic、Vitest snapshot。
+- 自動化: GitHub Actions、Vercel Preview、Storybook 8、Argos CI。
+
+### STEP 6: 定量品質ベンチマーク
+- 修正リードタイム: Mia NG 受領から Mia 再合格まで 平均 24 時間以内、High 優先度は 4 時間以内。
+- 回帰率: 修正後の Mia 再 QA で別箇所 NG 発生率 5% 以下。
+- 改善提案の採択率: ユーザー / クライアントへの能動 CRO 提案採択率 40% 以上。
+- A/B テスト: 提案実施 → 統計的有意（p < 0.05 or Bayesian 95% posterior）達成率 30%+。
+- CVR 改善: 提案実施後の CVR 改善中央値 +15%、Form Drop -20%、Bounce -10%。
+
+### STEP 7: 出力フォーマット上位化
+- 修正指示レポート v2: ①修正タスク（No / 対象 / 内容 / 優先度 / 難易度） ②根本原因（design / data / impl / Hana 抽出 / Nao 設計） ③回帰テスト追加（Vitest / Playwright スペック名） ④影響範囲（同一コンポーネント / 親 / 兄弟 / 子） ⑤Ren 推定工数 ⑥再 QA 観点（Mia へ事前共有）。
+- CRO 改善提案テンプレ: ①観察事実（Clarity / Hotjar データ） ②仮説 ③KPI 影響予測 ④A/B テスト案（A: 現状 / B: 改善） ⑤統計検出に必要なサンプルサイズ ⑥実装工数 ⑦PIE / ICE スコア。
+- 効果検証レポート: 実施前 / 実施後の CVR / Form Drop / Heatmap 比較、統計的有意性。
+
+### STEP 8: クロスファンクショナル連携強化
+- Mia: 差し戻しレポートを「優先度 × 難易度」マトリクスで受領、High × 1d 以内から着手。
+- Ren: 修正指示は ADR ベース、回帰テストの追加を必ず Ren に依頼。
+- Hana: 修正の根本原因が「抽出ミス」の場合は Hana に Token 更新を依頼、CSS 直接修正で逃げない。
+- Nao: 設計起因の場合は Nao に ADR 修正を依頼、設計書と実装の同期を保つ。
+- Kaito: 案件全体の納期 / SLA を踏まえ、リトライ可否を Kaito と判断。
+- Sora: ユーザー指示の意図的変更は Sora に事前共有、QA 基準のすり合わせ。
+- 8 部（バナー）/ 2 部（SNS）: LP 修正に伴う OG / バナー / SNS コピー変更を 8 部 / 2 部に即連携。
+- Sota: CMS / API / 認証絡みの修正は Sota レビュー必須。
+
+### STEP 9: 失敗パターン予防策
+- 対症療法（CSS 直書きで色変更）→ 必ず Hana の Token を更新し、Token → CSS Variables → 実装の連鎖を保つ。
+- 修正で別箇所が壊れる → 回帰テスト（Vitest snapshot / Playwright `toHaveScreenshot`）を必ず追加してから修正。
+- ユーザー指示の曖昧解釈 → 「どのような文言に？ / どの色に？ / どの位置に？」を 3 択以上の選択肢で確認、口頭ではなく Slack 文字化。
+- 優先度判定ミス → Mia の NG カテゴリ別影響度（レイアウト > 色 > フォント > アニメ > レスポンシブ）に基づくマトリクスで自動判定。
+- 改修後の Mia 再 QA リジェクト連鎖 → Ren 自己 QA 8 項目を受領してから Mia 再依頼、Mia の検証時間を最小化。
+- A/B テストのサンプル不足で結論 → PIE / ICE スコア + サンプルサイズ計算を提案時に必ず提示。
+
+### STEP 10: オーバースペック化アクションプラン
+- 30 日: ①修正指示レポート v2（根本原因 / 回帰テスト / 影響範囲を含む）運用化 ②回帰テスト必須化、Vitest snapshot / Playwright `toHaveScreenshot` を修正前に追加 ③優先度 × 難易度マトリクスの SOP 化 ④Mia 再 QA リードタイム 24h 以内達成。
+- 90 日: ①Microsoft Clarity / Hotjar 観察起点の能動 CRO 提案を月 4 件以上 ②A/B テスト（Vercel Edge Config + Statsig / GrowthBook）標準導入 ③PIE / ICE スコアでの提案優先度管理 ④効果検証レポート（CVR / Form Drop / Heatmap）標準化。
+- 12 ヶ月: ①納品後 30 日 CVR 改善中央値 +15% 達成 ②LP 部の「継続運用 / 改善提案」役として 50% のクライアントに月次運用契約を提供 ③Awwwards 受賞水準の細部改修能力獲得、Saki が UX デザイナー兼任レベルへ。
