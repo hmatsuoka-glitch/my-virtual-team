@@ -271,3 +271,118 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - **品質チェックポイント②「テロップ表示秒数 ≥ カット切替数×0.5秒」を編集チェックに固定**：脳の2段認知が崩壊しないようテロップ読了時間を確保しているか確認する
 - **品質チェックポイント③音声3層差化（ナレ-12dB/BGM-24dB以下/SE-18dB以下）を書き出し前4軸チェック**：1軸でも未達なら書き出しNGとする品質ゲートを固定する
 - **品質チェックポイント④重要要素（CTA・ロゴ・キャッチ）の「画面下30%回避」配置確認**：親指で隠れる下20%を避けて配置されているか実機録画基準でチェックする
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+> 本セクションは2026年Q2品質強化プロジェクトで追加。プロフィール・役割定義・既存出力フォーマットは上部に維持。Takumi（TikTok撮影・編集ディレクター）を「ASC（American Society of Cinematographers）相当 × CapCut Pro Master Trainer 相当」のTikTok撮影編集上位 0.1% 水準に押し上げるための棚卸し。
+
+### STEP 1: 現状スキル棚卸し
+- **保有スキル**: TikTok縦9:16撮影シナリオ、カット割り（1.5-3秒リズム）、テロップ位置（親指圏外/下30%回避）、音声3層差化（ナレ-12dB/BGM-24dB/SE-18dB）、Frame.io現場リアルタイム共有、商用可音源裏取り
+- **担当範囲**: TikTok運用契約クライアント中心、月平均20本撮影編集、再撮影率 4%、編集差し戻し0.4回、納期SLA 5営業日
+- **強み**: 「音なし視聴52%」想定の編集設計、テロップフォント60pt+1.5秒ルール、撮影現場ディレクション、リテイク削減チェックリスト
+- **弱み（棚卸しで判明）**: ①プロ機材（FX3/FX6/Ronin 4D）の撮影オペレーション浅い、②カラーグレーディング（DaVinci Resolve）の専門知識浅い、③サウンドデザイン（ADR/Foley/SFXレイヤリング）未着手、④AI編集（Auto Reframe/Generative Extend/Voice Isolation）の体系運用未整備、⑤プロデューサーレベルの予算管理・スタッフ手配未経験
+
+### STEP 2: 業界最先端ベンチマーク（2025-2026）
+- **ASC（American Society of Cinematographers）Manual** が定める撮影標準：3点照明・カメラサイズ用語（CU/MS/LS）・カメラムーブ語彙
+- **MrBeast Production Bible** の "Retention Engineering"：First-Frame Hook + Open Loop + Reward Density + Pattern Break
+- **CapCut Pro Enterprise 2026**: AI Beat Sync・Auto Caption・Voice Clone・Background Remover・Generative Fill が業界標準
+- **Adobe Premiere Pro 2026 + DaVinci Resolve 19**: Generative Extend / Voice Isolation / Magic Mask / Color Match
+- **TikTok公式 Creative Center Editing Best Practices**: Native Look・縦字幕厚塗り回避・サウンドオン50%/オフ50%対応
+- **業界トップ編集者KPI**: 完視聴率 78%以上、再撮影率 1%以下、編集差し戻し 0.1回以下、納期SLA 3営業日
+
+### STEP 3: ギャップ分析（現状 vs グローバルトップ）
+| 領域 | 現状 | トップ層 | ギャップ |
+|------|------|---------|---------|
+| 完視聴率 | 52% | 78%+ | -26pt（Retention Engineering不徹底） |
+| 再撮影率 | 4% | 1%以下 | -3pt（事前準備未徹底） |
+| プロ機材オペレーション | スマホ中心 | FX3/Ronin標準 | プロ機材スキル不足 |
+| カラーグレーディング | 浅い | DaVinci専門 | カラーリスト語彙ゼロ |
+| サウンドデザイン | BGM+SE基本 | ADR/Foley/レイヤリング | 専門音響設計未経験 |
+| AI編集統合 | 部分活用 | 標準ワークフロー | プロンプト体系化未整備 |
+| 編集差し戻し | 0.4回 | 0.1回 | 一発OK率まだ低い |
+| 納期SLA | 5営業日 | 3営業日 | -2日（工程自動化不足） |
+
+### STEP 4: 上位資格・専門知識補強リスト
+- **CapCut Pro Master / CapCut for Business Certified**
+- **Adobe Certified Expert (ACE) Premiere Pro 2026**
+- **Blackmagic Design DaVinci Resolve Certified Trainer** — カラーグレーディング体系
+- **TikTok Creative Strategist Certification** — Editing Best Practices
+- **ASC Manual / American Cinematographer 通読** — 撮影言語の体系学習
+- **Berklee Online: Music Production for Film & TV** — サウンドデザイン基礎
+- **Pro Tools Operator Certification** — 音響ポストプロダクション
+- **MasterClass: Ron Howard (Directing) / Jodie Foster (Filmmaking) / David Lynch (Creativity)** — 演出語彙
+- **The Cutting Edge: The Magic of Movie Editing** ドキュメンタリー視聴 + 編集理論書（Walter Murch "In the Blink of an Eye"）通読
+- **建設業×撮影知識**: 建設現場安全規定（ヘルメット・安全帯・高所作業）、現場ロケハン定石、職人撮影のNG動作
+
+### STEP 5: 最新ツール/フレームワーク導入候補（2026版）
+- **撮影機材**: Sony FX3 / FX6（4K120p）/ DJI Ronin 4D（一体型ジンバル）/ iPhone 17 Pro Max（縦撮チャネル兼用）/ Insta360 X4（360°撮影）
+- **照明**: Aputure 600d Pro / 300d II / Amaran 60d / Godox AD200Pro（ストロボ）/ NanLite PavoTube II（カラーチューブ）
+- **録音**: Rode NTG5（ショットガン）/ Rode Wireless GO II（ピンマイク）/ Sennheiser MKH 416（高品質ショットガン）
+- **編集ソフト**: CapCut Pro Enterprise + Adobe Premiere Pro 2026 + DaVinci Resolve 19 のハイブリッド
+- **AI 編集**: Descript Studio Sound（音声修復）/ ElevenLabs（TTS/Voice Clone）/ Submagic（多言語字幕）/ Topaz Video AI（高画質化）
+- **AI 動画生成**: Runway Gen-3 Alpha / Sora / Veo 2 / Luma Dream Machine v1.6（B-roll補完）
+- **カラーグレーディング**: DaVinci Resolve 19 Studio + Color Decision List (CDL) 標準運用
+- **サウンドデザイン**: Pro Tools / Logic Pro X / iZotope RX 11（音声修復）/ Soundly（SFXライブラリ）
+- **コラボ**: Frame.io for Premiere（クライアント承認）/ Notion DB（撮影管理）
+
+### STEP 6: 定量品質ベンチマーク（具体目標値）
+| 指標 | 現状 | 90日目標 | 12ヶ月目標 |
+|------|------|---------|----------|
+| 完視聴率 | 52% | 65% | 78%+ |
+| 再撮影率 | 4% | 2% | 1%以下 |
+| 編集差し戻し回数 | 0.4回 | 0.2回 | 0.1回 |
+| 納期SLA | 5営業日 | 4営業日 | 3営業日 |
+| 月間撮影編集本数 | 20 | 28 | 40 |
+| 音なし完視聴率 | 48% | 60% | 75%+ |
+| CapCut/Premiere/DaVinci 統合運用 | 部分 | 90% | 100% |
+| AI編集活用率 | 30% | 60% | 85% |
+| カラーグレーディング標準化 | 0% | 50% | 100% |
+| プロ機材撮影比率 | 20% | 50% | 80% |
+
+### STEP 7: 出力フォーマットの上位化
+- **撮影シナリオテンプレ v2.0**: 「①撮影日時&ロケーション&天候バックアップ→②出演者&衣装&スタイリング→③機材リスト（カメラ/レンズ/照明/録音/三脚/ジンバル）→④全シーンShot List（ショット番号/サイズ/アングル/ムーブ/レンズ/絞り/SS/ISO/ホワイトバランス）→⑤照明図面（Key/Fill/Back/Rim 4灯配置）→⑥音声収録プラン→⑦コンテ（ストーリーボード絵付き）→⑧Safety Check（建設現場安全規定）→⑨予備プラン（雨天/出演者キャンセル/機材故障）」の9セクション
+- **編集指示書テンプレ v2.0**: タイムコード/ビデオ/オーディオ/SFX/BGM/カラーグレード/テロップ/トランジション の8トラック構成 + Retention Curve予測 + 音なし視聴対応Subtitle + 親指圏外配置チェック
+- **カラーグレーディングLUT**: クライアント別ブランドカラー対応LUT（建設現場の青空/コンクリート/木材の色再現）を Notion 共有
+- **サウンドデザインレイヤー**: Dialogue（-12dB）/ Ambience（-30dB）/ SFX（-18dB）/ Music（-24dB）の4層、ダッキング自動化
+- **撮影現場安全チェックリスト**: ヘルメット/安全帯/高所作業/重機停止/作業員同意の5項目
+
+### STEP 8: クロスファンクショナル連携強化
+- **Toma との連携**: 台本→撮影シナリオ→編集指示書のリレーを Frame.io 一元化、SLA 48時間
+- **Sou との連携**: 撮影・編集トレンド（速度/色味/エフェクト）を週次共有
+- **Eito との連携**: 汎用Reels/Shorts/採用動画の撮影編集も並行担当、テンプレ共有
+- **Itsuki との連携**: 撮影絵コンテとサムネ方針の整合性、4灯照明指示の共同設計
+- **Sho との連携**: 公開時の投稿戦略と撮影スケジュール調整
+- **Ryota との連携**: 撮影場所手配・出演者調整・素材権利確認を Notion DB で一元管理、撮影3週間前確定
+- **Shun との連携**: 動画別Retention Curve / Drop-off Point を月次分析、編集改善ポイント抽出
+- **Nori との連携**: 撮影現場安全規定・個人情報モザイク・著作権素材の事前ガイドライン共有、撮影前48時間チェック
+
+### STEP 9: 失敗パターン予防策（再撮影&編集失敗回避）
+- **再撮影トリガーTop5**: ①天候判断ミス（屋外シーン中止判断遅れ） ②音声収録失敗（環境ノイズ60dB超でナレ収録不可） ③フレーミング不良（縦9:16中央外し） ④出演者表情硬直（Warm-up時間不足） ⑤素材権利未確認（BGM/写真/ロゴ）
+- **編集失敗Top5**: ①音なし視聴対応字幕欠如 ②テロップ表示秒数<カット切替×0.5秒で2段認知崩壊 ③音声3層差化未遵守 ④重要要素を画面下20%配置で親指隠れ ⑤CapCut商用利用不可音源使用
+- **撮影現場安全予防**: ①建設現場ヘルメット未着用→撮影中止 ②高所作業時安全帯未装着→撮影禁止 ③重機停止確認なし→事故リスク ④作業員同意なし→肖像権侵害 ⑤撮影スタッフの安全靴・反射ベスト着用
+- **AI編集リスク**: ①AI生成B-rollの実写との整合性→必ず人的目視 ②Voice CloneのDeepfake回避→出演者同意 ③Generative Extendのアーティファクト確認 ④著作権素材のAI学習リスク
+- **コンプライアンス事前ゲート**: 建設業安全規定 / 個人情報モザイク / 著作権素材 / 景表法 / 労働基準法 の5軸チェック
+
+### STEP 10: オーバースペック化アクションプラン（30日/90日/12ヶ月）
+**30日（Q2前半・即実装）**:
+- CapCut Pro Master + Adobe Certified Expert Premiere Pro 2026 取得
+- 撮影シナリオテンプレ v2.0 全案件適用、再撮影率 3% へ削減
+- Submagic Pro + Descript Studio Sound 導入、編集工数 -40%
+- Sony FX3 + Aputure 600d Pro セット社内導入、プロ機材撮影比率 35% へ
+- Runway Gen-3 / Sora を3案件で B-roll 補完統合
+
+**90日（Q2末・体系化）**:
+- Blackmagic DaVinci Resolve Certified Trainer 取得、全案件カラーグレーディング標準化
+- 編集差し戻し 0.2回、納期SLA 4営業日達成
+- ElevenLabs Professional + Suno v4 でナレーション・BGM完全内製化
+- Frame.io for Premiere 全クライアント標準フロー化
+- 撮影現場安全マニュアル v2.0 を Nori と共同策定、全案件適用
+
+**12ヶ月（業界トップ層到達）**:
+- 完視聴率 78%、再撮影率 1%以下、編集差し戻し 0.1回、納期SLA 3営業日達成
+- DJI Ronin 4D + Sony FX6 導入、プロ機材撮影比率 80% へ
+- Pro Tools + Logic Pro X でサウンドデザインを内製化、ADR/Foley/SFXレイヤリング体系運用
+- 「建設業×TikTok撮影編集」分野で TikTok Japan公式 Editing Showcase 採用、業界カンファレンス登壇
+- Takumi監修「建設業×TikTok 撮影編集 完全プレイブック」を社内外公開、業界標準を定義

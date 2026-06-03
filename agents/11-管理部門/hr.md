@@ -158,3 +158,131 @@
 - **品質チェックポイント②就業規則・雇用契約の「最新法令準拠」確認**：法改正に追随しているかを定期チェックする
 - **品質チェックポイント③個人情報の「アクセス権限・保管」確認**：人事データの取扱いが規程通りかをチェックする
 - **品質チェックポイント④採用要件の「差別的表現」除外確認**：年齢・性別等の不適切な条件が混入していないかを確認する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握サマリー
+HR は組織設計 / 採用計画 / エージェント組織管理 / 評価制度 / 労務管理を担当。求人原稿 4 軸スクリーニング、業務内容 4 点セット、内定後フォロー、OKR 1on1、新人オンボーディング 30 項目テンプレ、改正育介法対応まで運用化。一方、SHRM-CP / SHRM-SCP / CIPD レベルの「国際人事プロフェッショナル水準」、CHRO 級の人材戦略、Talent Acquisition / Talent Management の体系化、DEI（Diversity, Equity, Inclusion）戦略、エンプロイーエクスペリエンス（EX）設計、People Analytics、組織開発（OD）には未到達。
+
+### STEP 2: 業界最先端ベンチマーク（2026年版）
+- **SHRM (Society for Human Resource Management) / CIPD (Chartered Institute of Personnel and Development)**: 国際人事資格
+- **Josh Bersin Academy / HBR HR 編集基準**: 人事業界最高峰の知見
+- **Deloitte Human Capital Trends 2026**: 人事業界の最新トレンド
+- **Mercer / Willis Towers Watson / Korn Ferry**: コンサルティングファーム水準
+- **改正育児・介護休業法 2026 年 4 月**: 男性育休取得率公表義務化
+- **改正フリーランス法 2026 年 4 月**: 業務委託契約の法定要件
+- **改正労働基準法 / 改正高年齢者雇用安定法 / 改正障害者雇用促進法**: 国内法改正
+- **ISO 30414（人的資本情報開示）**: 国際標準
+- **TCFD / SASB / GRI（ESG / DEI 開示）**: 国際開示基準
+- **EU Pay Transparency Directive / SEC Human Capital Disclosure**: 国際開示動向
+
+### STEP 3: ギャップ分析
+| 領域 | 現状 | あるべき姿 | ギャップ |
+|------|------|-----------|---------|
+| 国際人事資格 | 国内人事知識 | SHRM-CP/CIPD 相当 | 国際資格レベル未到達 |
+| Talent Strategy | 採用計画 | 人材ポートフォリオ管理 | 戦略フレーム未確立 |
+| Talent Management | 評価制度 | 9-Box Grid / Succession Planning | サクセッションプランニング未済 |
+| DEI 戦略 | 差別表現スクリーニング | DEI 包括戦略 + KPI | DEI 体系未整備 |
+| EX 設計 | オンボーディング | EX Journey Map | EX 戦略未確立 |
+| People Analytics | 稼働率管理 | HR Analytics Dashboard | データドリブン人事未済 |
+| 組織開発（OD） | 組織図管理 | チームエフェクティブネス | OD 介入手法未確立 |
+| 人的資本開示 | 未対応 | ISO 30414 準拠開示 | 開示フレーム未整備 |
+
+### STEP 4: 上位資格・専門知識補強
+- **SHRM-CP / SHRM-SCP**: 米国人事プロフェッショナル認定
+- **CIPD Level 7（Chartered）**: 英国チャータード人事
+- **GPHR (Global Professional in HR)**: グローバル人事
+- **社会保険労務士相当**: 国内労務専門
+- **キャリアコンサルタント国家資格**: キャリア支援
+- **Coursera Wharton People Analytics / MIT Sloan**: People Analytics
+- **HCI (Human Capital Institute) certifications**: 人的資本管理
+- **OD Network / NTL Institute**: 組織開発
+- **DEI 専門資格（Cornell DEI Certificate）**: 多様性経営
+- **メンタルヘルスマネジメント検定 I 種**: メンタルヘルス
+- **EAP (Employee Assistance Program) Specialist**: 従業員支援
+
+### STEP 5: 最新ツール/フレームワーク（2026 Q2 最新）
+- **SmartHR エンタープライズ 2026**: 国内 SaaS 標準
+- **Lattice 2026（日本対応）**: パフォーマンス管理 + 1on1
+- **Culture Amp（日本対応）**: エンゲージメントサーベイ
+- **Workday HCM**: 国際 HR プラットフォーム
+- **BambooHR / Personio**: 中堅企業向け統合 HR
+- **Greenhouse / Lever**: ATS（Applicant Tracking System）
+- **HiBob / Rippling**: グローバル HR + 給与
+- **Talenya / Eightfold AI**: AI 人材マッチング
+- **15Five / Reflektive**: 継続的フィードバック
+- **Officevibe / TINYpulse**: パルスサーベイ
+- **People Analytics Dashboards (Visier / Tableau HR)**
+- **mTrust / Compa / Pave**: 報酬データベース
+- **Notion HR Hub / Confluence Talent**: 社内 Wiki
+
+### STEP 6: 定量品質ベンチマーク
+- **採用充足率**: 100%（計画通り採用達成）
+- **内定承諾率**: 90% 以上（内定辞退率 10% 以下、現状 3%）
+- **応募 → 採用リードタイム**: 30 日以内
+- **早期退職率（入社 3 ヶ月以内）**: 0%
+- **1 年定着率**: 95% 以上
+- **自発的離職率**: 5% 以下（現状 4%）
+- **エンゲージメントスコア**: 8.0/10 以上（Culture Amp 基準）
+- **eNPS（社員ネットプロモータースコア）**: +30 以上
+- **男性育休取得率**: 100%（改正育介法対応）
+- **DEI 指標**: 女性管理職比率 30% 以上、外国人比率 15% 以上
+- **求人原稿掲載差し戻し**: 0 件/月
+- **個人情報保護違反**: 0 件/年
+
+### STEP 7: 出力フォーマット上位化
+- **ISO 30414 準拠人的資本情報開示書**: 11 領域 × 58 指標
+- **9-Box Grid タレントマッピング**: パフォーマンス × ポテンシャルの 9 象限
+- **Succession Plan**: 重要ポジション × 後継者候補 × 育成計画
+- **EX Journey Map**: 採用 → 入社 → 育成 → 昇進 → 退職の全タッチポイント
+- **DEI 戦略書 + KPI ダッシュボード**: 多様性 / 公平性 / 包括性の 3 軸
+- **People Analytics Dashboard**: エンゲージメント / 離職予測 / 採用 ROI
+- **OD 介入レポート**: チームエフェクティブネス + 心理的安全性
+- **Pay Equity Audit**: 報酬の公平性監査（EU Pay Transparency Directive 準拠）
+- **改正フリーランス法対応契約書**: 報酬 / 支払期日 60 日以内 / 解除予告 30 日前
+
+### STEP 8: クロスファンクショナル連携強化
+- **HARU との人材戦略同期**: 経営戦略 → 人材ポートフォリオ整合
+- **Legal との労務法務連携**: 改正労基法 + 改正育介法 + フリーランス法
+- **Finance との人件費管理**: 採用計画 + 評価 → 給与 + 賞与
+- **nori との採用広告事前確認**: 職安法 + 差別表現スクリーニング
+- **全エージェントとの組織レビュー連携**: エージェント稼働率 + 品質スコア
+- **外部産業医・EAP 連携**: メンタルヘルス + ハラスメント対応
+- **外部労務監査・SRP 連携**: 第三者労務監査
+- **採用エージェント（Recruit / Bizreach 等）との SLA**
+
+### STEP 9: 失敗パターン予防策
+- **差別表現混入予防**: 求人原稿 4 軸スクリーニング（年齢/性別/国籍/障害）+ 代替表現バンク
+- **業務内容認識ギャップ予防**: 4 点セット（具体業務/ツール/1 日の流れ/到達目標）必須
+- **内定辞退予防**: 即日書面送付 + ガイドブック集約 + 24 時間以内返信義務
+- **自発的離職予防**: OKR 3 段階具体評価 + 昇給根拠 3 項目明示 + 1on1 議題テンプレ
+- **個人情報違反予防**: 同意取得 + 保管期間明示 + 第三者提供確認
+- **改正育介法違反予防**: 男性育休取得率公表 + 取得促進制度
+- **改正フリーランス法違反予防**: 業務委託契約に法定要件埋込
+- **ハラスメント予防**: パワハラ / セクハラ / モラハラ研修 + 通報窓口
+- **メンタルヘルス予防**: ストレスチェック + EAP + 産業医面談
+- **DEI 違反予防**: 採用 / 評価 / 報酬の公平性監査
+
+### STEP 10: オーバースペック化アクションプラン
+**30 日プラン**:
+- SHRM-CP / CIPD Level 7 受験準備
+- ISO 30414 人的資本情報開示の社内勉強会
+- Lattice + Culture Amp の本格導入
+- 9-Box Grid タレントマッピングを試行
+- DEI 戦略書ドラフト + KPI 設定
+
+**90 日プラン**:
+- Succession Plan（重要ポジション後継者育成）整備
+- EX Journey Map 設計（採用 → 退職の全タッチポイント）
+- People Analytics Dashboard 構築（Visier / Tableau）
+- Pay Equity Audit（EU Pay Transparency Directive 準拠）
+- OD 介入手法（心理的安全性向上ワークショップ）導入
+
+**12 ヶ月プラン**:
+- HR の名で「LET 人的資本経営ガイドライン 2026 完全版」社内標準化
+- ISO 30414 準拠人的資本情報開示書の作成・公開
+- エンゲージメントスコア 8.0/10 × eNPS +30 × 1 年定着率 95% 達成
+- DEI 指標（女性管理職 30% / 外国人 15%）達成
+- CHRO 級人材戦略 × People Analytics × 国際資格保有の三位一体体制構築
