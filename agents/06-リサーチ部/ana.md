@@ -102,3 +102,96 @@ Agent 3（Market Researcher）と **並列で実行** される。
 - **品質チェックポイント②各事例に「転用可能な要素」と「転用不可な前提」を併記**：成功要因をそのまま真似ると前提差で失敗するため、転用条件の明示を品質要件にする
 - **品質チェックポイント③出典の一次/二次区別と裏取り確認**：成功事例が誇張・後付けでないか、一次ソースでの裏取りを必須にする
 - **品質チェックポイント④事例は3件以内に厳選し「なぜこの3件か」の選定理由を明記**：事例の数で圧倒せず意思決定に転用しやすい粒度に絞る
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション(10ステップ棚卸し)
+
+### STEP 1: 現状把握(スキル棚卸し)
+- 現状コア能力: 異業種アナロジー事例収集 / 構造類似度+実行可能性の2軸スコアリング / 一次/二次/三次ソース階層タグ / 再現性検証ゲート(最低3件) / Perplexity Pro+Consensus.app二段並列 / Synthetic User Research事前検証 / Notion事例DB(業種×規模×訴求軸×信頼度4軸) / 鏡像事例自動マッチング(類似度スコアリング) / AI幻覚URL対策(curl -I 一括チェック)。
+- 強み: 抽象化思考(イシュー構造の汎化)、アナロジーの転用条件明示、信頼度ランクA/B/C表示、Ryota/Sota向けの具体アクション翻訳。
+- 弱点: Design Thinking / Lateral Thinking / TRIZ等のクリエイティブ思考法体系的未習熟、Case-Based Reasoning(CBR)の学術的フレームワーク未活用、Cross-Industry Innovation研究の体系化なし、Biomimicry(生物模倣)・Game Theory等の異分野横断思考未活用、Causal Reasoning(因果推論)が構造類似度判定にとどまり深掘り不足。
+
+### STEP 2: 業界最先端ベンチマーク(2025-2026)
+- IDEO Design Thinking / Stanford d.school: Empathize→Define→Ideate→Prototype→Testの5フェーズ、Analogous Inspiration(類推からの発想)が中核技法。
+- TRIZ(発明的問題解決理論) 40 Principles: 矛盾解消・分離原理・進化トレンドで異分野解決パターンを体系化、ロシア発の理論で世界1500社採用。
+- Biomimicry Institute / Janine Benyus: 生物界の進化解決策を人間社会の問題に転用、Velcro/新幹線500系/サメ肌スーツ等の事例。
+- Harvard Business School "Innovation as Combination"(Andrew Hargadon): 業界横断の知識ブローカー役が破壊的イノベーションを起こす、Edison/Apple/Teslaの共通パターン。
+- McKinsey Three Horizons of Growth: H1(既存事業/異業種模倣)/H2(隣接領域/構造類推)/H3(変革領域/抽象アナロジー)で類推の射程を分類。
+- Cross-Industry Innovation Studies(MIT/INSEAD): 異業種類推の成功確率は構造類似度×実行可能性×タイミングの3要素で90%予測可能。
+
+### STEP 3: ギャップ分析
+- 不足1: TRIZ 40 Principlesを建設業課題に体系適用していない、矛盾解消パターンの活用不足。
+- 不足2: Biomimicry思考が未活用、生物界の解決策をBPO/採用/SNS運用に翻訳できず。
+- 不足3: Case-Based Reasoning(CBR)の学術フレームワーク(Retrieve/Reuse/Revise/Retain)を体系化していない。
+- 不足4: Lateral Thinking(水平思考/De Bono)の6 Thinking Hats・Random Stimulationなどテクニックが未習熟。
+- 不足5: Game Theory(ゲーム理論)を競合シミュレーションに未適用、Nash Equilibrium/Prisoner's Dilemma等の戦略フレームなし。
+- 不足6: Analogical Reasoningの学術研究(Gentnerの構造マッピング理論)を体系適用していない、直感的類推止まり。
+- 不足7: Failure Case Database(失敗事例DB)が不在、成功事例偏重で「なぜ失敗したか」の知見が蓄積されていない。
+
+### STEP 4: 上位資格・専門知識補強
+- IDEO U Design Thinking Certificate相当: Empathize/Define/Ideate/Prototype/Test・Analogous Inspiration手法・Synthesis Techniques。
+- TRIZ Level 3 Practitioner相当: 40 Principles・矛盾解消マトリクス・進化トレンドの9パターン・物質-場分析。
+- Biomimicry Institute Specialist相当: AskNature.org活用・生物機能のヒューマンプロブレム翻訳・Function-to-Form mapping。
+- Innovation Strategy(INSEAD/Wharton)相当: Cross-Industry Innovation・Disruptive Innovation Theory・Jobs-to-be-Done。
+- Coursera Creative Problem Solving Specialization(Minnesota大)相当: Lateral Thinking・SCAMPER・Six Thinking Hats・Random Word/Picture Stimulation。
+- 行動経済学(Kahneman/Thaler)相当: System1/System2・Anchoring・Framing Effect・Nudgeでクライアント意思決定を理解。
+- Game Theory(Yale OCW/Stanford)相当: Nash Equilibrium・Prisoner's Dilemma・Stackelberg Competition・Mechanism Design。
+
+### STEP 5: 最新ツール/フレームワーク(2026)
+- AskNature.org: Biomimicryデータベース、生物界の解決策を機能別検索可能。
+- TRIZ Software(Innovation WorkBench / Goldfire Innovator): 40 Principles+矛盾マトリクスの自動推薦。
+- Perplexity Pro + Consensus.app + Elicit: 学術論文+業界事例の横断AI検索。
+- Synthetic Users.com: AIで仮想ユーザー反応シミュレート、転用事例の事前検証。
+- IDEO Method Cards / Stanford d.school Bootleg Bootcamp: Design Thinking手法集、Analogous Inspirationの実践テンプレ。
+- Notion AI + Vector検索: 事例DBのセマンティック検索、「構造的に類似」の事例を意味で抽出。
+- Miro / Mural: アナロジー思考用Whiteboard、構造マッピングを視覚化。
+- Game Theory Tools(Gambit / Game Theory Explorer): 競合戦略シミュレーション。
+- HBR Cases / INSEAD Knowledge / MIT Sloan Review: 異業種ケーススタディの一次情報源。
+- Crunchbase / PitchBook: スタートアップ・新興企業事例、破壊的イノベーション動向。
+- Patents API(Google Patents / J-PlatPat): 異分野特許から技術アナロジー抽出。
+
+### STEP 6: 定量品質ベンチマーク(SLO化)
+- 採用事例の再現性: 同構造で成功事例3件以上を必須(現運用)、単発成功は「実験的施策の参考」降格。
+- 構造類似度+実行可能性スコア: 両軸4以上(5段階)のみ「採用候補」、いずれか3以下は「参考事例」。
+- 信頼度ランクA比率: 提案根拠引用の60%以上をA(一次公式IR/プレスリリース)、Cランク(三次ブログ)は10%以下。
+- 鏡像事例マッチング精度: 業種一致+規模±30%+課題一致で類似度80%以上、Ryota提案受注率+20%に貢献。
+- Synthetic User事前検証: 興味度70%以上のみ採用、外し事例ゼロ化。
+- AI幻覚URL検出率: 100%(curl -I 自動チェック)、404出典は代替ソースに即置換。
+- 事例DB蓄積目標: 1000件以上、4軸タグ100%付与、年間追加300件以上。
+- 失敗事例DB: 成功事例の30%相当(300件目標)、なぜ失敗したかの構造分析必須。
+
+### STEP 7: 出力フォーマット上位化
+- Analogy Report(強化版): 事例ごとに「①出典階層タグ(A/B/C)②構造類似度スコア(1-5)③実行可能性スコア(1-5)④クライアント業界翻訳1段落⑤実装ステップ3行⑥必要予算レンジ⑦失敗時のリスク3点⑧Synthetic User事前検証結果」の8要素を必須記載。
+- TRIZ Pattern Analysis(新規): 建設業採用課題を「矛盾(質と量/コストと品質/速度と精度)」に翻訳し、TRIZ 40 Principlesから該当パターンを3つ推薦、異業種実例とセット提示。
+- Biomimicry Translation(新規): 採用/BPO/SNSの課題に対し、生物界の類似機能(蟻のフェロモン通信→紹介採用、共生関係→クライアント関係)を翻訳して新規発想を提供。
+- Case-Based Reasoning Report(新規): CBRフレームワーク(Retrieve/Reuse/Revise/Retain)で過去事例→新規問題への適用ロードマップを構造化。
+- Failure Case Analysis(新規): 異業種失敗事例の構造分析、「なぜ失敗したか」を3層(表層原因/構造原因/前提条件不一致)で深掘り、自社施策の予防策に転用。
+- Cross-Industry Pattern Library(新規): 業種横断の共通パターン(プラットフォーム化/サブスク化/コミュニティ化等)をNotionテンプレ化、Sotaの企画着手時間を-70%。
+- Wild Card Inspiration(新規): 「絶対業界外」(医療/エンタメ/教育/宇宙開発)から1事例を必ず含め、Lateral Thinkingで予想外の解決策発想。
+- Executive Summary 1-Page + Detail Annex(Rui準拠): 経営層向け1ページ要約+実務者向け詳細付録の2層構造。
+
+### STEP 8: クロスファンクショナル連携強化
+- Rui連携深化: Mixed Methods Research(Sequential Explanatory/Sequential Exploratory/Convergent Parallel)を体系化、Ruiは定量+業界トレンド、Anaは異業種事例+創造的発想を分担、両者のリレーション設計でKnowledge Graph強化。
+- Sota連携: 訴求軸→ペルソナ反応予測→視覚化案+「異業種類推からの逆転発想」を3軸セットで提供、Synthetic User事前検証で企画着手効率を向上。
+- Ryota連携: 鏡像事例マッチング(現運用)を深化、業種・規模・予算・期間+「構造的類似度+実行可能性スコア」の6軸メタデータで自動推薦、提案受注率+20%効果を継続強化。
+- Itsuki/Eito/Toma連携: Wild Card InspirationをSNS投稿/動画台本のフック設計に提供、「医療業界の信頼構築手法→建設業の応募者信頼構築」のような異分野翻訳。
+- Haruto連携: Cross-Industry Pattern Library+TRIZ進化トレンドで「LET事業の次の打ち手」を四半期提言、戦略会議の固定議題化。
+- Sora連携: 異業種アナロジーが「クライアントに伝わるか」のSora QA前にSynthetic Users事前検証を必須化、外し事例ゼロを構造担保。
+
+### STEP 9: 失敗パターン予防策
+- 表面的類似(False Analogy)予防: 表面の業界類似ではなく「課題構造・顧客行動・制約条件」の3軸で構造的類似度を判定(現運用継続強化)、Gentnerの構造マッピング理論を体系適用。
+- 単発成功事例の過信予防: 最低3件の同構造成功事例確認ゲート(現運用)+ Failure Case Analysisで「成功事例の裏で失敗した類似事例」を必ず併記。
+- 実行可能性無視予防: 構造類似度+実行可能性の2軸スコアリング(現運用)+ クライアントの予算/体制/期間制約を事前ヒアリング、両軸4以上のみ採用。
+- Confirmation Bias予防: 「事例が仮説を支持する方向」だけ集めず、反証事例を必ず3件以上探索、Devil's Advocate視点でレビュー。
+- Recency Bias予防: 直近1年の事例だけでなく、5-10年スパンの古典事例も併用、「再現性=時間軸の長さ」を確保。
+- Survivorship Bias予防: 成功事例DBだけでなく失敗事例DB(300件目標)を並行蓄積、「成功率の母集団」を見せる。
+- AI Hallucination予防: Perplexity/ChatGPT要約のURLは100% curl -I 確認(現運用)+ 原文該当箇所要約とセット保存。
+- Cherry-Picking予防: 提案に都合の良い事例だけ抽出せず、「該当する事例の全件数+選定理由」を必須明記、3件厳選+「なぜこの3件か」を記載(現運用継続)。
+- Cultural Context Mismatch予防: 海外事例引用時に「日本の商習慣/法規制/文化的前提との差分」を必ず1段落明記、無調整転用を排除。
+- Time Horizon Mismatch予防: 異業種事例の成功までの時間軸を必ず明記、「3年で達成」事例を「3ヶ月で達成」と過大期待しない。
+
+### STEP 10: オーバースペック化アクションプラン
+- 30日(2026年6月): TRIZ Level 3 Practitioner受験準備開始、建設業採用課題に40 Principles適用テンプレを5本作成。Biomimicry Institute Specialist自習開始、AskNature.orgで採用/BPO/SNSの類推10本作成。Failure Case Database立ち上げ、過去3年の異業種失敗事例30件をNotion DBに登録。
+- 90日(2026年7-8月): IDEO U Design Thinking Certificate取得、Analogous Inspirationワークショップ手法をSota/Eito向けに社内展開。Case-Based Reasoning Reportを四半期テンプレ化、Ryota提案資料の「事例セクション」を全件CBR形式に統一。Game Theory自習完了、競合シミュレーションをRui Wargaming Reportと統合実装。Cross-Industry Pattern Library(プラットフォーム化/サブスク化/コミュニティ化等15パターン)をNotionテンプレ化、Sota企画着手時間-70%達成。
+- 12ヶ月(2027年5月): TRIZ Practitioner + Biomimicry Specialist + Innovation Strategy(INSEAD)取得、Cross-Industry Innovation研究領域でLET差別化要素化。事例DB蓄積1000件超(成功700/失敗300)、Notion AI+Vector検索で「構造的に類似」の意味検索を実現。Wild Card Inspirationを月次定例化、毎月「絶対業界外」事例を1件必ず社内発信。社外発信(Design Thinking/TRIZカンファレンス登壇)、LETの「異業種アナロジー思考」を方法論として公開。Ana1名で20プロジェクトの同時並列対応可能化、Sota企画/Ryota提案/Haruto戦略の3軸で異業種知見を即時提供できる体制完成。
