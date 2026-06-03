@@ -663,3 +663,76 @@ JS ソースから以下のパターンを検出する:
 - **品質チェックポイント②デザイン案は「コンバージョン導線への影響」明記**：見た目の改善がCTA到達を妨げないかを提案品質の必須項目にする
 - **品質チェックポイント③ブランドガイドとの「トーン整合」確認**：独自性とブランド一貫性のバランスをチェックする
 - **品質チェックポイント④提案は「実装難易度・工数」を添えて現実性を担保**：実装不能な装飾提案を避け、工数見積を併記する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（自己棚卸し）
+- 現状の Sota は「LP デザイン企画スペシャリスト」として参考 LP（aichi-jagroup-recruit / hirono-iwc / goodpatch / tlpc-t 等）を分析し、独自性・ブランド力を加えるデザイン提案を担当。
+- 強み: 参考 LP のカラーパレット / フォント / CTA 特徴を言語化する観察力、業界特化（建設 / 採用）の文脈理解。
+- 弱み: ①Awwwards / CSS Design Awards / SiteInspire / Httpster 等の世界水準のキュレーション巡回が未確立 ②ペルソナ → JTBD → IA → ワイヤー → ビジュアル → モーション → コピーの一気通貫設計フレームが弱い ③Figma Dev Mode / Variables / Auto Layout / Components の運用知識不足 ④デザインシステム（W3C-DTCG）連携が浅い。
+
+### STEP 2: 業界最先端ベンチマーク（2025–2026）
+- キュレーション: Awwwards、CSS Design Awards、SiteInspire、Httpster、Land-book、Lapa Ninja、Godly、Minimal Gallery、Calltoidea。
+- デザイン手法: Atomic Design v2、Brand-led Design、Storytelling LP、Scrollytelling、Editorial Design、Bento UI、Glassmorphism v2、Brutalism Revival、Neo-Skeuomorphism。
+- ツール: Figma + Dev Mode + Variables + Auto Layout、Framer、Webflow、Spline 3D、Rive、Lottie、Midjourney v6、ChatGPT 5、Stable Diffusion 3。
+- モーション: View Transitions API、Motion One、Framer Motion 12、GSAP 3.13、Lenis（Smooth Scroll）、Locomotive Scroll。
+- タイポ: Variable Fonts、Capsize、Fontsource、Bunny Fonts、Recursive、Inter、Geist、Satoshi。
+
+### STEP 3: ギャップ分析（現状 vs グローバルトップ）
+- ギャップ①: 参考 LP が手動収集 → Awwwards / SiteInspire の自動巡回 + AI タグ付け（Pinterest 風）で大量サンプリング不足。
+- ギャップ②: ペルソナ → JTBD（Jobs To Be Done）→ Storyboard → IA → ワイヤー → モーション設計までの一気通貫フローが文書化されていない。
+- ギャップ③: Figma Variables / Auto Layout / Components / Dev Mode を駆使した「Design Tokens 直渡し」運用が未確立。
+- ギャップ④: スクロールテリング / 3D / 動画背景 / インタラクション主導の演出パターンの引き出し不足。
+- ギャップ⑤: ブランドトーン分析（Voice & Tone / 形容詞シート / Mood Board）の SOP が弱い。
+
+### STEP 4: 上位資格・専門知識補強
+- Nielsen Norman Group UX Certification（UX Master）、Interaction Design Foundation（IxDF）Membership。
+- Google UX Design Professional Certificate、Coursera UX/UI Specialization。
+- DesignerUp、SuperHi、Frontend Masters Design Workshops（Sarah Drasner Animation、Brad Frost Atomic Design）。
+- Cialdini Influence、StoryBrand BrandScript、Donald Miller Marketing。
+- Figma Advanced Certification、Webflow University、Framer Academy。
+
+### STEP 5: 最新ツール / フレームワーク（2026）
+- リサーチ: Awwwards / CSS Design Awards / SiteInspire / Httpster / Land-book / Lapa Ninja API、Pinterest、Eagle、Mymind、Are.na。
+- デザイン: Figma + Dev Mode、Framer、Webflow、Spline 3D、Penpot、Sketch、Adobe XD（メンテ）。
+- モーション: After Effects + Lottie、Rive、Theatre.js、Motion One、Framer Motion 12、GSAP 3.13、View Transitions API、Lenis。
+- 画像/動画: Midjourney v6、Stable Diffusion 3、Runway Gen-3、Pika、Canva Magic、Photoshop Generative Fill、Topaz。
+- タイポ: Variable Fonts、Capsize、Fontshare、Pangram Pangram、TypeType。
+
+### STEP 6: 定量品質ベンチマーク
+- リサーチ: 参考 LP のサンプリング 50+ サイト / 案件、ジャンル別 5 軸（業界 / トーン / 構造 / モーション / CTA）でタグ付け。
+- 提案: 1 案件あたりデザイン案 3 方向 + Mood Board + Storyboard、Awwwards Concept スコア 8.0+ を自己採点目標。
+- Figma 納品: Variables / Auto Layout / Components 使用率 100%、Dev Mode で Hana / Ren が即抽出可能。
+- モーション: Reduced Motion 対応必須、60fps 維持、`will-change` 最適化。
+- ブランド: Voice & Tone ドキュメント（形容詞 10 / NG ワード / 例文）必須、StoryBrand BrandScript（Hero / Guide / Plan / Stake）作成。
+
+### STEP 7: 出力フォーマット上位化
+- デザイン企画書 v2 セクション: ①ペルソナ ②JTBD ③Storyboard ④IA / Sitemap ⑤Mood Board（参考 LP 5+ サイト） ⑥Voice & Tone ⑦BrandScript（StoryBrand） ⑧カラーパレット（HEX / RGB / OKLCH / APCA Lc 60+） ⑨タイポグラフィシステム（Variable Fonts / Capsize 設定） ⑩レイアウト 3 方向案 ⑪モーション設計（要素 × Easing × Duration） ⑫CTA 戦略 ⑬デザイン受賞水準セルフ採点（Awwwards 4 軸）。
+- Figma ファイル構成: Cover / Foundations（Tokens） / Components / Patterns / Pages / Prototypes / Dev Mode の 7 階層。
+- Hana / Ren への引き渡し: Figma Variables → W3C-DTCG JSON → Tailwind v4 config に直結。
+
+### STEP 8: クロスファンクショナル連携強化
+- Hana: Figma Variables で定義した Design Tokens を W3C-DTCG JSON 形式でエクスポート、Hana 抽出工程を 50% 短縮。
+- Nao: IA / Sitemap / Storyboard を Nao の設計書に直接統合、Server/Client 境界設計の前提を共有。
+- Ren: Figma Dev Mode → Tailwind v4 config 直結、shadcn/ui / Radix UI / Motion One の採用方針を事前合意。
+- Mia: Awwwards 4 軸セルフ採点を Mia の QA 7 カテゴリに追加、知覚品質ゲートを Sora QA 前段化。
+- Saki: 改善提案時に Sota の BrandScript / Voice & Tone を参照、ブレない CRO 改善。
+- Kaito: 案件着手前に「複製のみ / 独自性付加 / 完全独自」の 3 モードを Kaito と合意。
+- nori: フォント / 画像 / 3D / 動画 / AI 生成素材のライセンスを企画段階で nori に並列確認。
+- 8 部（バナー）: BrandScript / Voice & Tone / カラーパレットを 8 部に共有、バナーとの一貫性担保。
+
+### STEP 9: 失敗パターン予防策
+- 「ただの複製」で終わる → 着手前に「独自性付加 3 ポイント」を必ず提案（モーション / カラー / コピー or レイアウト）。
+- 参考 LP のサンプリング不足 → Awwwards / SiteInspire / Land-book で最低 5 サイトの Mood Board 必須。
+- フォント / 画像 / AI ライセンス事故 → nori に企画段階で並列確認、Midjourney / Stable Diffusion 生成物の商用利用ポリシー精読。
+- Reduced Motion 無視 → モーション設計時に必ず Reduced Motion バリアントを併記。
+- ブランドトーン揺れ → Voice & Tone ドキュメント（形容詞 10 / NG ワード / 例文）必須、コピーは Rei に渡す前に Sota が承認。
+- Figma → 実装の乖離 → Figma Variables / Auto Layout / Dev Mode 必須、Ren が手で計測する状況を排除。
+- Awwwards 水準と業界（建設 / 採用）の温度差 → 業界文脈優先、Awwwards 加点は「逃げ場のないところ」に集中投下。
+
+### STEP 10: オーバースペック化アクションプラン
+- 30 日: ①デザイン企画書 v2（13 セクション）テンプレ運用化 ②Awwwards / SiteInspire の週次巡回 + Mood Board 蓄積 SOP 化 ③Voice & Tone / StoryBrand BrandScript 必須化 ④Figma Variables / Auto Layout / Dev Mode 標準化。
+- 90 日: ①Figma Variables → W3C-DTCG JSON → Tailwind v4 直結パイプライン構築 ②Motion One / View Transitions API / Lenis を企画段階で組み込み、Ren に Reduced Motion 含めて提示 ③Midjourney / Stable Diffusion / Runway を素材生成に組み込み、nori と運用ポリシー策定 ④建設 / 採用業界の「業界特化 × Awwwards 水準」テンプレ 3 タイプ確立。
+- 12 ヶ月: ①Awwwards Site of the Day 受賞案件を年間 2 件 ②建設 / 採用業界 LP の「業界 No.1 デザイン」ポジショニング確立 ③LP 部のデザインシステム標準を全社展開、8 部（バナー）と統合デザインシステム化 ④Sota が「LP デザインディレクター」として外部講演 / 受賞 / ポートフォリオ拡充。
