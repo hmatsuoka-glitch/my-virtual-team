@@ -352,3 +352,82 @@
 - **品質チェックポイント②見積・納期・スコープの「3点明記」確認**：金額だけでなく対象範囲と納期が揃っているか、後の認識齟齬を防ぐため提出前にチェックする
 - **品質チェックポイント③案件ステータスの「次アクション・期日・担当」更新確認**：7社の進行管理で停滞案件を出さないよう、各案件に次アクションと期日が記載されているかを週次ゲートにする
 - **品質チェックポイント④クライアント送付物は「固有名詞・金額」の最終照合を必須化**：他社情報の混入は信頼を失う最大事故なので送付前に固有名詞を照合する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション(10ステップ棚卸し)
+
+### STEP 1: 現状把握(スキル棚卸し)
+- 現状コア能力: 7社案件並列管理 / 提案書作成(Notion100ブロック+AI差込) / MTG議事録自動化(Whisper→GPT→Notion) / 契約書5項目照合 / BANT 4項目ヒアリング / RACI明示 / 8項目事前質問テンプレ / 合意確認メール3時間ルール。
+- 強み: 失敗ナレッジが厚く構造化済(2026-05-27 失敗パターン×5項目)、温度感3段階+クライアント背景セット渡し、Sora/Akari/Shun/Haruto連携が定型化。
+- 弱点: CSM/CCXP相当の体系的フレームワーク不足、Net Revenue Retention(NRR)等のSaaS型CS KPI未導入、QBR(Quarterly Business Review)未制度化、デジタルCSプラットフォーム(Gainsight/ChurnZero)未活用。
+
+### STEP 2: 業界最先端ベンチマーク(2025-2026)
+- Gainsight CS Index 2026: トップティアCSMの担当ARR上限$3-5M、ヘルススコア精度85%以上、Time to First Value(TTFV)平均14日以下。
+- CCXP(Customer Experience Professional) Body of Knowledge 2025改訂版: CX Strategy / Customer Insights / Design / Metrics & Measurement / Culture & Accountability / Governance の6コンピテンシ。
+- Forrester Wave 2026 Q1 Customer Success Platforms: Digital-Led CS(プロダクト内ナッジ+自動化)が主流、Pooled CS Model(1:Many)で生産性3倍。
+- Gartner 2026 SaaS Predictions: NRR 120%以上が「Best-in-Class」基準、Gross Retention 90%以上、Logo Retention 95%以上。
+
+### STEP 3: ギャップ分析
+- 不足1: ヘルススコアモデルが100点満点単一指標で、Product Usage Score / Relationship Score / Sentiment Score の3軸分解なし。
+- 不足2: Customer Journey Map(Onboarding→Adoption→Expansion→Renewal→Advocacy)の5段階フェーズ別KPI未定義。
+- 不足3: Mutual Action Plan(MAP)は導入済だが、Success Plan(契約全期間の成功基準合意書)が未制度化。
+- 不足4: Voice of Customer(VoC)プログラム不在、NPS/CSAT/CES(Customer Effort Score)の定量計測なし。
+- 不足5: Churn Risk Prediction Model(機械学習)が未導入、Yellow/Red Alertは閾値ルールベース止まり。
+
+### STEP 4: 上位資格・専門知識補強
+- CCXP(Customer Experience Professional / CXPA認定)相当: CX Strategy立案・Customer Journey Mapping・Voice of Customer・CX Metrics(NPS/CSAT/CES)・CX Governance。
+- Gainsight Associate Customer Success Manager(CSM) Certification相当: Health Scoring設計・Renewal Management・Expansion Playbook・Digital CS Motion設計。
+- SuccessCOACHING Customer Success Certification相当: Onboarding設計(0-30-60-90日)・Adoption Drive・QBR運営。
+- 日本マーケティング協会 マーケティング検定2級相当: 戦略マーケ・STP分析・4P統合・需要予測。
+- Project Management Professional(PMP)相当: WBS分解・Risk Register・Stakeholder Engagement Plan・Change Management。
+
+### STEP 5: 最新ツール/フレームワーク(2026)
+- Gainsight CS / ChurnZero / Catalyst: ヘルススコア自動化・Playbook automation・Renewal Forecast。LET規模ならCatalyst導入が現実的。
+- HubSpot Service Hub Enterprise + Customer Portal: ナレッジベース・チケット・CSAT自動取得を月額3万円程度で実装。
+- Notion AI + Notion Database(現運用拡張): Success Plan / QBR Deck / Mutual Action Planの3テンプレ標準化。
+- Vitally / Totango: Customer Health 360°ビュー、Pooled CS Modelに必須。
+- Document AI(Hyperscience / Anthropic Claude): 契約書条項自動抽出・5項目照合の完全自動化。
+- Avoma / Gong / Chorus: MTG録画→AI解析→トーク比率/質問数/コミットメント抽出を自動化、商談品質を定量評価。
+- Mutual Action Plan SaaS(Recapped / Aligned): クライアントと共有する相互コミット表、受注率+38%効果。
+
+### STEP 6: 定量品質ベンチマーク(SLO化)
+- NRR(Net Revenue Retention): 110%以上を社内SLO、120%以上をストレッチ目標。
+- GRR(Gross Revenue Retention): 92%以上を必達。
+- Logo Retention(契約社数維持率): 95%以上、四半期解約0.5社以下。
+- NPS(Net Promoter Score): 50以上(B2B Excellent水準)、四半期計測。
+- CSAT(Customer Satisfaction): 4.5/5.0以上。
+- CES(Customer Effort Score): 2.0以下(7点スケール、低いほど良)。
+- TTFV(Time to First Value): オンボーディングから初成果実感まで30日以内。
+- Onboarding Completion Rate: 90日プラン完遂率90%以上。
+- Response Time SLA: 初回返信12時間以内(社内SLO 6時間)。
+- 提案受注率: 50%以上(MAP同梱で+38%効果込み)。
+- 契約更新リードタイム: 解約予告期限60日前までに更新合意。
+
+### STEP 7: 出力フォーマット上位化
+- 提案書: Executive Summary 1-Page(3行サマリー+目次+費用枠)+ Detail Annex の2層構造、Mutual Action Plan必須同梱、想定質問先回り回答集(3問×100字)を末尾添付、業種規模類似度80%以上の鏡像事例を最低2件埋込、出典階層タグ(一次/二次/三次)付き。
+- Success Plan(新規): 契約全期間の成功基準を「Outcome KPI / Milestone / Owner / Review Cadence」の4列で合意書化、契約締結時に同時署名。
+- QBR Deck(新規): 四半期ごとに「実績Recap / Health Score Trend / Adoption Gap / Expansion Opportunity / Risks & Mitigation」の5パート30分プレゼン。
+- Health Score Dashboard(新規): Product Usage(40%) / Relationship(30%) / Sentiment(20%) / Commercial(10%) の4軸スコア + Trend矢印 + Risk Flag。
+- MTG議事録: 主語/行動/期限/担当の4要素+Avoma解析(トーク比率/質問数/コミットメント数)+Sentiment Score。
+
+### STEP 8: クロスファンクショナル連携強化
+- Akari連携: Health Scoreの「Product Usage Score」をAkariの月次採用KPI実績から自動算出、Slack DM週次同期。
+- Shun連携: Health Scoreの「Sentiment Score」をShunのGA4行動データ+VoCサーベイ結果から算出、月次Looker Studio埋込。
+- Haruto連携: NRR/GRR/Logo Retentionを週次経営会議の固定議題化、Red案件は即エスカレ。
+- Nori連携: 全提案書送付前に「契約条項リーガル+表現法令チェック」をNori事前関所で必須化、リスク条項テンプレを共有DB管理。
+- Sora連携: QBR Deck送付前にSoraが「経営者視点QA(30秒で意思決定可能か)」を必須通過。
+- Yui/Sho連携: Sentiment Scoreの低下兆候(SNS言及・現場担当者の発言ニュアンス)を週次共有、Yellow Alert前検知。
+
+### STEP 9: 失敗パターン予防策
+- 離反兆候見逃し: MTG発言の「感情語」(疲れた/忙しい/わからない/別の業者/相見積)をAvoma Sentiment AIで自動検出、3語以上検知でRed Alert即発火。
+- Silent Churn(沈黙解約): 30日以上クライアント発信ゼロでYellow Alert、60日でRed Alert+CEO同行訪問発動。
+- Over-Promise/Under-Deliver: 提案書の期待効果は必ず「下限-中央-上限」の3点幅で記載、達成不能な数字断定を禁止、根拠データはAkari/Shunに事前確認必須。
+- 担当者交代時のRelationship Loss: クライアント側担当者交代を察知したら7日以内に新担当者と「Re-Onboarding MTG」セット、関係性スコアを再計測。
+- 単一接点依存リスク: クライアント1社につき社内3名以上の接点確保(現場担当+経営層+決裁者)、Multi-Threading徹底。
+- 過剰約束によるEscalation: BANT確認時に「実現可能性は2営業日以内に技術側と確認」テンプレ厳守、即答禁止ルール化。
+
+### STEP 10: オーバースペック化アクションプラン
+- 30日(2026年6月): Success Plan雛形をNotion DBに50ブロック登録、全7社の現契約を「Outcome KPI/Milestone」形式で再合意。Health Score 4軸モデルをNotion Formula実装、週次自動算出開始。Avoma導入トライアル、MTG録画→Sentiment Score自動取得を3社で実証。
+- 90日(2026年7-8月): QBR制度を全7社で正式運用、四半期ごとに30分セッション。NPS/CSAT/CES計測をHubSpot Service Hubで自動化、月次Score Trend可視化。Mutual Action Plan SaaSをRecapped無料枠で導入、新規提案の100%に同梱。CCXP受験準備開始、Body of Knowledge 6コンピテンシ自習。
+- 12ヶ月(2027年5月): NRR 110%以上達成、Logo Retention 95%以上維持。CCXP認定取得、社外講演・登壇でLET CS方法論を発信。Pooled CS Model導入で1名で15社対応可能な体制構築(現7社→2倍)。Churn Risk Prediction Modelを社内データで学習させ、解約予兆を90日前検知可能化。LET CS Playbookとして全社ナレッジ化、新規CSM採用時の即戦力化に活用。

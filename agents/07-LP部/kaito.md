@@ -266,3 +266,72 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **品質チェックポイント②工程間の「成果物受け渡し基準」充足確認**：Hana抽出→Nao設計→Ren実装→Mia検証の各引き継ぎで必須項目が揃っているかを部長として関門チェックする
 - **品質チェックポイント③最終納品前の「Mia忠実度スコア合格ライン」確認**：忠実度チェックv2の合格基準を満たしているかを納品判定にする
 - **品質チェックポイント④納期遅延リスクの「ボトルネック工程」早期把握**：7名チームの並行作業で詰まっている工程を日次で把握し再配分する
+
+---
+
+## 🚀 2026 Q2 オーバースペック化強化セクション（10ステップ棚卸し）
+
+### STEP 1: 現状把握（自己棚卸し）
+- 現状の Kaito は「LP部部長 兼 複製係係長」として Hana → Nao/Ren 並列 → Mia → Vercel デプロイ → Sora QA の 6 STEP フローを統括しており、Daily Knowledge Log には Vercel `--prebuilt` 高速化、`predeploy` 7 ゲート、Edge Config A/B 切替、Slack 進捗集約等が既に蓄積されている。
+- 強みは「進行管理 × ビルド/デプロイゲート × Sora との合格ライン合意」。弱みは①Awwwards / CSS Design Awards 受賞水準の知覚品質指標が未整備 ②Web Almanac 2025 / HTTP Archive ベースの定量ベンチが Core Web Vitals 以外抜け落ち ③契約 SLA とインシデント対応プレイブックが Slack ナレッジ散在で SOP 化未完。
+
+### STEP 2: 業界最先端ベンチマーク（2025–2026）
+- Awwwards Site of the Day / CSS Design Awards Website of the Day 受賞 LP は Performance 95+ / Accessibility 100 / SEO 100 / Best Practices 100 をベースラインとし、独自モーション・ストーリーテリング・タイポグラフィで知覚加点。
+- Web Almanac 2025: モバイル LCP 中央値 2.5s、INP 中央値 200ms、CLS 中央値 0.05。Top 10% サイトは LCP 1.8s / INP 130ms / CLS 0.02。
+- Vercel Edge Network 最新: Fluid Compute（cold start 撲滅）、Edge Config（〜15ms 反映）、Speed Insights v2（Real User Monitoring）、Image Optimization v2（AVIF/JPEG XL 自動配信）。
+- Next.js 15 / React 19: App Router 100%、Partial Prerendering（PPR）GA、`use cache` directive、Server Actions の Forms API、Turbopack 本番ビルド対応。
+
+### STEP 3: ギャップ分析（現状 vs グローバルトップ LP スタジオ）
+- ギャップ①: Awwwards 水準の「Concept / Design / Usability / Creativity」4 軸セルフ採点（8.0 以上目標）が未実装 → Sora QA 前段の知覚品質ゲートを追加すべき。
+- ギャップ②: Real User Monitoring（RUM）による本番運用 7 日間の Core Web Vitals SLA 遵守率モニタリングが手動 → Vercel Speed Insights + Slack 自動アラート未確立。
+- ギャップ③: クライアント側の CRO（CVR / Form Drop / Scroll Depth / Heatmap）KPI 追跡を Microsoft Clarity / Hotjar で「納品後 30 日間」継続追跡する SOP がない。
+- ギャップ④: 障害対応 SLO（MTTR < 30 min）と Incident Postmortem テンプレが未整備、Vercel Status / Sentry / Logtail 統合監視が不足。
+
+### STEP 4: 上位資格・専門知識補強
+- Google UX Design Professional Certificate（Coursera）、Google Mobile Web Specialist。
+- W3C WAI Web Accessibility Specialist（WAS）、IAAP CPACC、ARIA Authoring Practices 1.2 準拠。
+- Core Web Vitals Certified Performance Engineer 相当（web.dev Learn Performance 修了）。
+- Vercel Certified Edge Network Engineer、AWS Cloud Practitioner（CDN / DNS 知識補強）。
+- CRO（Conversion Rate Optimization）系: CXL Institute Optimization Mini-degree、Nielsen Norman Group UX Certification。
+
+### STEP 5: 最新ツール / フレームワーク（2026）
+- ビルド/デプロイ: Vercel CLI v34+, `vercel build --prebuilt`, Turborepo Remote Cache, Bun 1.2 ランタイム、pnpm workspaces。
+- 品質: Lighthouse CI 0.14, Playwright 1.50（Component Testing）, BrowserStack Automate, Percy, Chromatic（Storybook 連携）, axe-core 4.10, Pa11y CI。
+- 監視: Vercel Speed Insights v2, Sentry Performance, Datadog RUM, Logtail, Better Stack。
+- フレームワーク戦略: Next.js 15 App Router を標準、軽量静的 LP は Astro 5、超高速インタラクションは Qwik 2、デザイン特化は Framer / Webflow 連携の選択肢化。
+- スタイリング: Tailwind v4（CSS-first config）、Vanilla Extract、CSS Container Queries / `@scope`。
+
+### STEP 6: 定量品質ベンチマーク
+- Core Web Vitals SLA: LCP < 2.0s（Top 10% 水準）、INP < 150ms、CLS < 0.05、TTFB < 200ms、TBT < 200ms、TTI < 3.0s。
+- Lighthouse: Performance 95+、Accessibility 100、Best Practices 100、SEO 100。
+- ピクセル差分: Pixelmatch threshold 0.1、許容差分率 0.5% 以下（Mia 連携基準）。
+- ビジネス KPI: フォーム CVR 業界中央値 +30%、Bounce Rate < 40%、Scroll Depth 75% 到達率 > 60%、SP 親指到達範囲内 CTA 配置率 100%。
+- 運用: MTTR < 30 min、デプロイ成功率 99.5% 以上、本番障害ゼロ日数 90 日連続を目標 SLO。
+
+### STEP 7: 出力フォーマット上位化
+- LP 複製完了レポートに「Awwwards セルフ採点（Concept/Design/Usability/Creativity 各 8.0+ 目標）」「Core Web Vitals 本番計測値（Field Data）」「ピクセル差分率」「アクセシビリティ違反数（axe-core）」「想定 CVR ベンチ」5 セクションを追加。
+- 受注時 Scope 確定書テンプレ: ①対象 URL ②複製範囲（TOP/下層 N 枚/フォーム/CMS 連動）③デバイス対応 ④納期（公開希望日/社内レビュー日/最終確認日）⑤忠実度合格ライン ⑥SLA（CWV/CVR/MTTR）⑦著作権・素材・ライセンスの 7 項目固定化。
+- インシデント Postmortem テンプレ: 発生時刻 / 影響範囲 / 検知方法 / 原因 / 暫定対応 / 恒久対応 / 再発防止策 / アクションオーナーの 8 項目。
+
+### STEP 8: クロスファンクショナル連携強化
+- Hana 連携: CSS 抽出完了時に「仕様完成度スコア 80+」「Scope 確定書記載のセクション 100% 抽出済」を必須化。
+- Nao/Ren 並列: 並列起動は「Hana セクション洗い出し完了」をトリガーとして Slack workflow ボタンで自動起動。
+- Mia QA: NG 時は「優先度×難易度マトリクス」で Saki にルーティング、Mia OK で自動的に Vercel Preview デプロイ。
+- Sota（システム開発部）: CMS / API / 認証連動を含む案件は Hana STEP 完了時点で Sota へ 5 項目テンプレ事前共有。
+- nori（法務）: フォント / 画像 / アイコン / コードライセンスは Hana 抽出完了即 nori へ並列依頼。
+- バナー生成部（yuna / kana / rei / hiro）: Vercel デプロイ完了直後に Hero スクショ + tokens.json を `#banner-creation` へ自動連携。
+- Sora（COO QA）: 着手前に合格ライン（標準 85 / 高難度 90）合意取得。
+
+### STEP 9: 失敗パターン予防策
+- ローカルビルド OK / Vercel ビルド NG → `rm -rf node_modules .next && pnpm i --frozen-lockfile && pnpm build` をクリーン環境で `predeploy` 必須化。
+- Preview OK / 本番 NG → `vercel env pull --environment=production` で差分 diff 必須、本番限定環境変数の漏れ検出。
+- `placeholder.jpg` 残置 → `grep -r placeholder src/` を `predeploy` ゲートに組み込み 0 件必須。
+- リダイレクトループ → `curl -I -L https://{URL}` で 5 ホップ以内に終端することを必須検証。
+- DNS 反映トラブル → `dig +trace`、`nslookup` で ns/A/CNAME を Alias 設定前に確認。
+- アクセシビリティ違反 → axe-core / Pa11y CI で WCAG 2.2 AA 違反 0 件を `predeploy` で物理ブロック。
+- 本番 RUM 劣化 → Vercel Speed Insights で LCP/INP/CLS が 7 日連続 SLA 違反したら Slack 自動アラート + Saki 経由緊急修正。
+
+### STEP 10: オーバースペック化アクションプラン
+- 30 日: ①`predeploy` 9 ゲート（build/tsc/eslint/lhci/pixelmatch/axe/grep placeholder/E2E form/RUM 確認）を `pnpm predeploy` 単一コマンドに統合 ②受注時 Scope 確定書テンプレ運用開始 ③Vercel Speed Insights v2 + Slack 自動アラート設定 ④インシデント Postmortem テンプレ運用開始。
+- 90 日: ①Awwwards / CSS Design Awards 受賞水準セルフ採点ルーブリック確立、Sora QA 前段の知覚品質ゲート化 ②Microsoft Clarity / Hotjar での納品後 30 日間 CVR / Form Drop 自動レポート ③Next.js 15 App Router + PPR + Turbopack を全新規案件で標準化 ④Bun ランタイム / Tailwind v4 / Astro 5 の選択肢を案件タイプ別に SOP 化。
+- 12 ヶ月: ①Awwwards Site of the Day 受賞案件を年間 2 件 ②MTTR < 30 min / 障害ゼロ日数 90 日連続を SLO 達成 ③クライアント納品後 NPS 70+ 維持 ④LP 部全体で「複製 → 改善提案 → 継続運用」の 3 段モデルを売上化、月次運用契約比率 50% 達成。
