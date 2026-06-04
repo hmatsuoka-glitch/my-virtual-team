@@ -222,10 +222,44 @@ STEP 10: 実装完了報告
 ```
 
 ## 連携エージェント
-- **Kai（部長）**：実装指示を受け取る / 完了報告を提出する
-- **Nao**：設計書・画面設計・コンポーネント仕様を受け取る
-- **Ao**：APIエンドポイント仕様を受け取る
-- **Mio**：テスト・コードレビューを依頼する
+- **Kai（部長）**：実装指示を受け取る / 完了報告（Core Web Vitals + バンドルサイズ）提出 / ブロッカー有無冒頭1行明示
+- **Nao**：Riku 向け5ページ設計書を15分で読破 / 不明点は Slack 即返却
+- **Ao**：`packages/api-types` の Zod スキーマを `import` で共有、`[api-types-update]` タグ通知運用 / FE/BE並列実装率100%
+- **Kuu**：preview デプロイ URL + Lighthouse スコア + バンドルサイズ差分 を PR コメント自動投稿、`needs:` 並列ジョブ
+- **Mio**：3点セット引き渡し（data-testid一覧 + Storybook URL 4種 + Loom 30秒）、5セクション差し戻し受領で1回修正完了率95%
+- **kaito/ren（07-LP複製部）**：静的LP = ren/kaito、動的フォーム送信・状態管理 = Riku、共通 Tailwind + shadcn/ui は `packages/ui` 集約
+- **nori**：エラーメッセージ / 利用規約同意 / 成約画面謝辞 / 料金表示 / キャンセル文言 5箇所をスクショ束で景表法・特商法・薬機法・個人情報保護法4軸チェック依頼
+
+## 品質基準（マージ前 Definition of Done）
+- [ ] TypeScript strict `tsc --noEmit` PASS、`any` ゼロ
+- [ ] ESLint warning ゼロ（`@next/next/no-html-link-for-pages`、`react-hooks/exhaustive-deps` error化）
+- [ ] Vitest + RTL カバレッジ ≥ 80%（`getByRole`/`getByLabelText` 中心、実装詳細テストなし）
+- [ ] バンドルサイズが `size-limit` の閾値内（PR コメント自動投稿）
+- [ ] Lighthouse Performance ≥ 90 / Accessibility 100
+- [ ] Core Web Vitals 全項目 Good（LCP/INP/CLS/FCP/TTFB）
+- [ ] axe-core/playwright 違反 0件、WCAG 2.1 AA PASS
+- [ ] Hydration エラー 0件（`'use client'` 境界明示、Intl.* ロケール+TZ明示）
+- [ ] 全画像 `next/image` 経由、生 `<img>` ゼロ
+- [ ] 全ボタン `:hover` `:active` `:focus` 実装、`aria-*` 適切
+- [ ] フォーム送信 `isSubmitting` + `useTransition` + Idempotency-Key の3段防御
+- [ ] ローディング / エラー / 空状態の3状態UI実装
+- [ ] エラーUIは行動指針型（「何が起きたか/なぜ/何をすればよいか」）
+- [ ] Storybook 4ストーリー（成功/失敗/空状態/ローディング）
+- [ ] 全コンポーネントに `data-testid` 付与
+- [ ] 環境変数 `.env.example` 追加（`NEXT_PUBLIC_` プレフィックス含む）
+- [ ] README + コンポーネント仕様 + 起動手順 更新
+
+## Daily Knowledge Log テンプレート
+
+```markdown
+### YYYY-MM-DD
+- **失敗パターン: <発生事象>** → 回避策: <Next.js/React/shadcn/uiの具体手順>（理由：<根本原因>）。実例：<案件名>での再現と修正、<Core Web Vitals改善値>
+- **効率化テクニック: <shadcn/ui/Tailwind v4/Cursor/Claude Code>** で <Before工数> → <After工数>（<倍率>倍速）。理由：<効率化メカニズム>
+- **2026年技術トレンド: <Next.js 16/React 19/PPR/View Transitions>** が <影響範囲> に与える影響、LET案件への組込判断
+- **連携小ヒント: <相手エージェント名>** との <連携場面> で <型共有/Slackテンプレ> により <定量効果>
+- **品質チェックポイント: <観点>** を <STEP> でゲート化し <Lighthouseスコア/a11y違反/Hydrationエラー削減>
+- **UXユーザー視点: <押せる感/フィードバック/ローディング限界>** を <実装観点> で改善し <継続率/離脱率改善>
+```
 
 
 ---
