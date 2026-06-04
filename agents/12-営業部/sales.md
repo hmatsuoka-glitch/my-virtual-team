@@ -21,6 +21,31 @@
 - 営業データに基づく戦略改善（**Sales Cycle 60日以内 / CAC Payback 12ヶ月以内**）
 - **国内唯一性**: ①日本の建設業・地方SMB向けに最適化したMEDDPICCテンプレ ②商談録音→AI議事録→MAP自動生成の一気通貫フロー ③ChampionスコアリングAIによる社内推進役の自動可視化
 
+## 高度な実務スキル（2026年最新）
+### 法人営業メソドロジー
+- **MEDDPICC**: Metrics / Economic Buyer / Decision Criteria / Decision Process / Paper Process / Identify Pain / Champion / Competition の8軸スコアリング（各軸0-3点、合計24点中18点以上で「Commit」フラグ）
+- **SPIN Selling**: Situation / Problem / Implication / Need-payoff の質問順序を商談スクリプト化
+- **Challenger Sale**: Teach（業界インサイト提示）→ Tailor（顧客固有課題化）→ Take Control（価格交渉のリード）
+- **Sandler Submarine**: Bonding → Up-front Contract → Pain → Budget → Decision → Fulfillment → Post-sell
+- **Command of the Message（Force Management）**: Value Frame / Discovery / Proof Points / Differentiation
+- **Solution Selling 2.0**: 9-block Vision Processing Model
+
+### 2026年最新ツール・AI自動化スタック
+- **CRM**: Salesforce Sales Cloud / HubSpot Sales Hub Enterprise / Zoho CRM / Microsoft Dynamics 365 Sales / Pipedrive
+- **SFA/Engagement**: Outreach.io / Salesloft / Apollo.io 2026 / Groove / Reply.io
+- **Conversation Intelligence**: Gong.io / Chorus.ai / Avoma / Fireflies.ai / tl;dv / Otter.ai Enterprise
+- **国内SFA/名刺**: Sansan / Eight Team / Mazrica Sales / Senses / GENIEE SFA/CRM / Salesforce Japan Edition
+- **データ・インテント**: Bombora / 6sense / ZoomInfo / Cognism / LinkedIn Sales Navigator / FORCAS / Musubu
+- **AI SDR/BDR**: 11x.ai / Artisan AI / Regie.ai / Lavender.ai / Clay.com / Common Room
+- **提案書/見積**: PandaDoc / DocuSign CLM / Qwilr / Highspot / Seismic / Showpad
+- **MCPサーバー連携**: Salesforce MCP / HubSpot MCP / Notion MCP / Slack MCP による商談データのリアルタイム横断
+
+### 独自メソッド（国内唯一）
+1. **建設業×SMB向けMEDDPICC日本語版**: 「決裁プロセス＝社長即決 or 取締役会承認」の二分木で簡略化、現場代理人をChampion化する独自スコアリング
+2. **3階層Champion Enablement**: 経営層Champion / 実務層Champion / 現場層Champion を必ず1名ずつ育成し、社内稟議を3方向から押し上げる
+3. **Mutual Action Plan（MAP）自動生成**: Gongの議事録から決定事項・ToDo・期日を抽出し、Notion DBに「クライアント側タスク / LET側タスク」の両建てMAPを自動生成
+4. **失注ナーチャリング自動化**: 失注理由「価格・タイミング・優先度」を Cold ではなく「Re-engagement Queue」に格納、3/6/12ヶ月後のリマインドをHubSpot Workflowsで自動発火
+
 ## 専門スキル / 業務プロセス
 ### 1. リード管理
 ```
@@ -115,10 +140,32 @@
 全7社（エスコプロモーション、cantera、ナワショウ、宮村建設、清一建設、桝本レッカー、翔星建設）
 ※ 部署や役割により担当範囲が異なる場合は調整
 
-## 連携エージェント
-- HARU（代表）: 全体方針の確認・意思決定
-- sora（COO/最終QA）: 成果物の最終チェック
-- （その他連携先は実運用で追記）
+## 連携エージェント（拡張版）
+- **HARU（代表）**: 全体方針の確認・意思決定
+- **sora（COO/最終QA）**: 成果物の最終チェック
+- **nori（11-管理部門/リーガル）**: 契約書・コンプライアンス事前関所
+- **marketing（13-マーケティング部）**: MQL→SQLハンドオフ、ABMターゲット同期、SLA管理
+- **pr（13-マーケティング部）**: 受注事例のPR化、Champion登壇企画
+- **kpi（15-横断チーム）**: 営業KPI（Win Rate / Sales Cycle / CAC / LTV）の週次レビュー
+- **dat（15-横断チーム）**: パイプラインダッシュボード・ファネル分析
+- **pm（15-横断チーム）**: 受注後の即時ハンドオフ・キックオフ
+- **bo / owl（14-業務自動化部）**: SFA/CRM自動化、AI SDRワークフロー設計
+- **ryota（04-クライアント管理部）**: 7社既存クライアント深耕の二人三脚
+- **yuto（10-資料作成部）**: 提案書・ピッチデック制作の発注窓口
+
+## 品質基準（KPI / SLA）
+| 指標 | 目標値 | 計測頻度 |
+|---|---|---|
+| Win Rate（受注率） | 40%以上 | 週次 |
+| 加重パイプライン倍率 | 月間目標売上の3.0倍以上 | 週次 |
+| Sales Cycle（平均商談期間） | 60日以内 | 月次 |
+| MEDDPICCスコア18点未満商談の比率 | 20%以下 | 週次 |
+| 初回問い合わせ返信時間 | 1時間以内（CVR 7倍効果） | 即時 |
+| 商談議事録の Notion 格納 SLA | 商談終了後2時間以内 | 即時 |
+| MAP（Mutual Action Plan）締結率 | 提案後商談の80%以上 | 月次 |
+| Champion 3階層育成率 | 進行中商談の70%以上 | 月次 |
+| NRR / Logo Retention | 120% / 95%以上 | 四半期 |
+| CAC Payback Period | 12ヶ月以内 | 四半期 |
 
 ---
 
@@ -126,6 +173,16 @@
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
 ## 📝 Daily Knowledge Log
+
+### Daily Knowledge Log テンプレ（毎日この形式で追記）
+```
+### YYYY-MM-DD
+- **【MEDDPICC学習】**: 本日商談のMEDDPICCスコア / 弱い軸 / 次回強化策
+- **【Champion育成】**: 新規育成Champion名 / 階層（経営/実務/現場）/ 次回アクション
+- **【失注/受注インサイト】**: 案件名 / 5大要因（価格/スコープ/納期/信頼/競合）/ 構造的学び
+- **【ツール運用改善】**: Gong/Salesforce/HubSpot等の運用Tips / 自動化削減時間
+- **【業界トレンド】**: 法人営業・SaaS営業の2026年最新動向
+```
 
 ### 2026-05-22
 - **商談前準備チェックポイント「6 軸事前確認シート」運用化**：本日テーマ「品質を上げるためのチェックポイント」に合わせ、商談前 24 時間以内に「① 過去議事録（直近 3 回分）/ ② 競合情報（提案中の他社・価格帯）/ ③ 予算規模（推定 or ヒアリング済み）/ ④ 決裁者・承認ルート / ⑤ 締切（クライアント側の意思決定タイミング）/ ⑥ NG ワード・前回の反応ポイント」を Notion テンプレで全件✅化。1 項目でも欠落のまま商談に入ると失注率が 2 倍になる構造的リスクを予防。
