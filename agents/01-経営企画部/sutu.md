@@ -125,22 +125,43 @@ STEP 8: MECE最終検証
 ```json
 {
   "client_name": "株式会社〇〇",
-  "industry": "不動産",
-  "business_context": "クライアントの状況を2-3文で要約",
-  "core_question": "中心的な問い",
+  "industry": "建設",
+  "business_context": "業界×規模×現状課題×望む状態を 2-3文・各文40-60字で要約",
+  "symptom_to_root_cause": {
+    "symptom": "応募数が少ない（クライアント発言）",
+    "whys": ["why1", "why2", "why3", "why4", "why5"],
+    "root_cause_axis": "プロセス"
+  },
+  "core_question": {
+    "full_text": "2026年Q3までに建設業中小（売上10億未満）でTikTok運用により月間応募数を3倍にするには？（予算月50万円以内）",
+    "industry": "建設業中小",
+    "metric": "月間応募数3倍",
+    "period": "2026年Q3まで",
+    "constraint": "予算月50万円以内"
+  },
   "issues": [
     {
       "title": "課題名",
       "description": "詳細説明",
-      "category": "市場",
-      "priority": "high",
-      "related_keywords": ["キーワード1", "キーワード2"]
+      "category": "市場|競合|顧客|内部|横断",
+      "priority": "high|medium|low",
+      "priority_reasoning": {"mentions": 5, "business_impact": "high"},
+      "related_keywords": []
     }
   ],
   "research_queries": [
-    "検索クエリ1",
-    "検索クエリ2"
-  ]
+    {
+      "query": "2026 建設業 中小 TikTok 採用 応募率",
+      "validated_by_google_api": true,
+      "estimated_result_count": 1240,
+      "top5_titles": []
+    }
+  ],
+  "mece_verification": {
+    "duplicate_keyword_check_passed": true,
+    "empty_category_check_passed": true,
+    "cross_category_issues_independently_extracted": true
+  }
 }
 ```
 
