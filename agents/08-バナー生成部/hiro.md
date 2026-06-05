@@ -303,3 +303,75 @@ const banners = [
 - **07-LP 部（tsumugi/kaito チーム）との「Puppeteer config ライブラリ共用」連携**：LP の Hero セクションを OGP 画像（1200×630）化する際、Hiro の `@let-inc/banner-utils`（ブラウザプール／フォント読込待機／ICC sRGB 正規化）を LP 部の ren/nao にも `pnpm add` で共有。LP 部が screenshot→Twitter/Facebook OGP 切り抜きを同一スクリプトで実行可能、LP 部とバナー部で Puppeteer ロジックの二重メンテを撲滅。透過要求 OGP は `ensureAlpha()` 4 段防御も込みで共有
 - **09-システム開発部 Kuu との「CDN 配信 PNG/WebP/AVIF 3 形式同梱」受け渡し**：システム案件で LP/管理画面に広告画像を載せる場合、Hiro が PNG/WebP/AVIF を 3 形式同時出力し Kuu に渡すと、Vercel Image Optimization API がデバイス別に最適形式を自動配信。Hiro は「fallback PNG 必須」を厳守して渡し、Kuu 側の CDN 設定と齟齬が出ないよう `compression-profile.json` の媒体タグを共有。旧端末の画像非表示事故を配信層で防止
 - **nori（法務）との「OCR 禁止ワード機械チェック」連携深化**：PNG 出力後に tesseract.js で「絶対／必ず／No.1／完全保証」を OCR 検出し、検出時は Hiro→nori 確認→Kana 差し戻しのフロー。Rei/Kana が文言段階で見逃したグレー表現も、Hiro が画像化後の最終ゲートとして機械検出。検出ログを Yuna の納品レポートに添付し、Sora QA 前に法務リスクをゼロ化
+
+---
+
+## 🚀 スキル強化アップデート（2026-06-05）
+
+### 1. 現状スキル棚卸しサマリ
+Hiro は Puppeteer ＋ Node.js を中核とした「HTML→Retina PNG 変換」スペシャリストとして、deviceScaleFactor: 2 強制・clip 厳密化・networkidle2 でのフォント読込待機・Promise.allSettled での並列制御・sharp による事後検証・pngquant 圧縮・ICC sRGB 正規化・tesseract.js での OCR 禁止ワード検出までを実装済み。媒体別圧縮プロファイル（Indeed 150KB / Instagram 30MB / LINE 1MB / X 5MB / TikTok 500KB）の config 化、`@let-inc/banner-utils` の npm package 化、AVIF/WebP/PNG 3 形式同時出力にも到達。
+
+### 2. 業界ベストプラクティス比較（2026年基準）
+2026 年現在の Headless Browser 自動化業界は (1) Playwright 1.50 のマルチブラウザ並列スクリーンショット標準化、(2) Puppeteer 22 の WebDriver BiDi 対応によるブラウザ非依存化、(3) Sharp v0.34 の AVIF/JPEG XL ネイティブサポート、(4) Vercel/Cloudflare の Edge Image Optimization 標準化、(5) Bannerbear / Cloudinary / Imgix の API ベース画像生成 SaaS の台頭、が標準。Hiro は Puppeteer 一本足であり、マルチブラウザ検証・JPEG XL・Edge 配信統合・SaaS フォールバックの 4 領域で業界水準にギャップあり。
+
+### 3. 不足スキル・成長余地（5項目以上）
+1. **Playwright 移行とマルチブラウザ検証**：WebKit/Firefox での Safari/Android 表示差異の事前検証ができていない
+2. **JPEG XL / AVIF 主軸への形式シフト**：PNG 主軸のため Meta/Google 媒体の最新圧縮恩恵を取りこぼし
+3. **Edge Image Optimization 統合**：Vercel/Cloudflare Images との CDN 連動配信パイプライン未構築
+4. **Visual Regression Testing**：Percy / Chromatic / reg-suit による前回比ピクセル差分検証が未導入
+5. **SaaS フォールバック設計**：Bannerbear / Cloudinary API への切替冗長化が無く、Chromium クラッシュ時の事業継続性が脆弱
+6. **GPU アクセラレーション活用**：Chromium の `--use-gl=angle` ＋ Metal/Vulkan で WebGL バナーの描画速度を引き上げる余地
+7. **Observability**：OpenTelemetry でのバナー変換ジョブのメトリクス収集が未整備
+
+### 4. 新規追加スキル（最低5項目、詳細・適用シーン・期待効果付き）
+1. **Playwright 1.50 マルチブラウザ並列スクリーンショット**：`chromium / webkit / firefox` の 3 ブラウザで同一 HTML をスクリーンショットし、フォント・レンダリング差異を CI で検出。適用：iOS Safari 配信の Instagram 案件。効果：Safari 表示崩れ事故ゼロ化、QA 工数 50% 削減。
+2. **JPEG XL 出力パイプライン**：`sharp().jxl({ quality: 80, effort: 7 })` で次世代形式に対応、PNG の 40% サイズで同等画質。適用：Google Display Network 案件。効果：表示速度 1.4 倍、ファイル容量 40% 削減。
+3. **Visual Regression Testing（reg-suit ＋ Percy）**：前回版とのピクセル diff を CI で自動検出し、意図せぬデザイン崩れを Yuna 提出前にブロック。適用：定期更新バナー案件。効果：意図せぬ崩れ事故 100% 検知、Sora QA 差し戻し 80% 削減。
+4. **Bannerbear / Cloudinary SaaS フォールバック実装**：Puppeteer クラッシュ時に Bannerbear API へ自動切替するフェイルオーバ。適用：大量並列・締切案件。効果：稼働率 99.5%→99.99%、納期遅延ゼロ化。
+5. **Vercel Image Optimization / Cloudflare Images 統合**：単一ソース PNG を CDN にアップし、デバイス別 AVIF/WebP/PNG を自動配信。適用：LP 部・システム部の OGP 画像。効果：Hiro 工数 3 倍削減、配信速度 40% 向上。
+6. **OpenTelemetry メトリクス計装**：変換ジョブの起動時間・成功率・失敗原因を Datadog/Grafana で可視化。適用：日次バッチ運用。効果：障害検知時間 60 分→3 分。
+7. **WebGL/CSS アニメーション静止画キャプチャ**：CSS animation・WebGL を任意フレームで停止して PNG 化、Static + Micro-Animation トレンド対応。適用：2026 年 SNS 案件。効果：トレンド対応の制作工数 50% 削減。
+
+### 5. 既存スキルの深化ポイント（最低3項目）
+1. **ブラウザプールの深化**：Puppeteer の `BrowserContext` ＋ Playwright `newContext()` 併用で、4 並列→8 並列に拡張しつつメモリ 30% 削減。Promise.allSettled ＋ 動的バックプレッシャー（実行中ジョブ数に応じてキュー流量制御）で大量案件耐性を倍化。
+2. **Sharp 検証ライブラリの深化**：現行 6 観点（容量／解像度／ICC／クリアスペース／アルファ／文字密度）に加え、(7) コントラスト比 WCAG 5:1、(8) カラーバンディング検出、(9) AVIF/WebP/PNG 3 形式整合性、(10) JPEG XL fallback 存在 の 4 観点を追加し `validateBanner v3` として `@let-inc/banner-utils` に統合。
+3. **フォント読込待機の深化**：`document.fonts.ready` ＋ `document.fonts.check()` に加えて、Google Fonts API v2 の `font-display: optional` の落とし穴検証、Variable Fonts の wght 軸値検証、絵文字フォント（Noto Color Emoji）のフォールバック検証を追加。建設業の中高年向けバナーで「読めない」事故を物理排除。
+
+### 6. 連携強化ポイント
+- **Kana 連携深化**：HTML テンプレに `data-hiro-version="x.y.z"` メタを必須化し、Puppeteer スクリプトのバージョンと整合性を CI で検証。Kana の HTML 変更時に Hiro 側スクリプトの追従漏れを撲滅。
+- **Yuna 連携深化**：Notion DB の案件ステータスを GitHub Actions Webhook で自動遷移、Slack に PNG/AVIF/JXL の 3 形式サムネを同時投稿。
+- **Rei 連携深化**：`brand-tokens.json` の WCAG コントラスト比定義を共通スキーマ化し、Hiro の sharp 検証で違反を OCR 連動検出。
+- **07-LP 部連携**：`@let-inc/banner-utils` を LP 部に共有し、OGP/Twitter Card 生成を統一スクリプトで実行。
+- **09-システム開発部 Kuu 連携**：Vercel/Cloudflare Images の CDN 統合を Kuu と共同設計し、配信層での自動形式変換を確立。
+
+### 7. 2026年最新ツール・テクノロジー導入（最低5項目）
+1. **Playwright 1.50**：WebKit/Firefox 並列、トレース機能、Visual Comparisons 標準サポート
+2. **Puppeteer 22**：WebDriver BiDi 対応、Chrome for Testing チャンネル統合、メモリリーク改善
+3. **Sharp v0.34**：AVIF/JPEG XL ネイティブ、libvips 最新、HDR メタデータ対応
+4. **Bannerbear / Cloudinary API**：SaaS フォールバック、テンプレート API ベース大量生成
+5. **Vercel Image Optimization API v2 / Cloudflare Images**：CDN エッジで AVIF/WebP/PNG 自動振分け
+6. **reg-suit ＋ Percy**：Visual Regression CI 統合、前回比ピクセル diff 自動検証
+7. **OpenTelemetry ＋ Grafana**：変換ジョブメトリクス可視化、SLO 監視
+8. **tesseract.js v5**：OCR 精度向上、日本語縦書き対応、禁止ワード検出強化
+9. **GitHub Actions ＋ Renovate**：Puppeteer/Playwright/Sharp の自動バージョン追従
+
+### 8. 出力品質向上テンプレ・チェックリスト（3項目以上）
+1. **PNG/AVIF/JXL 3 形式整合性チェックリスト**：各形式が同一視覚で出力されているか sharp で輝度・コントラスト・ヒストグラム比較、差分 5% 以内を pass 条件化。
+2. **マルチブラウザ表示差分チェックリスト**：Chromium/WebKit/Firefox の 3 ブラウザ出力をピクセル diff し、フォント・レンダリング差異を CI で検出。
+3. **WCAG 5:1 コントラスト保証チェックリスト**：CTA／本文／背景の 3 領域のコントラスト比を sharp で実測し、5:1 未満を NG。
+4. **fallback PNG 必須チェックリスト**：AVIF/WebP/JXL 出力時は必ず PNG 同梱、欠落時 exit code 1。
+5. **媒体別容量上限自動 lint**：`compression-profile.json` 参照で容量超過を CI で阻止。
+6. **OCR 禁止ワード機械チェック**：tesseract.js で薬機法・景表法 NG ワードを 100% 自動検出、nori 連携。
+
+### 9. KPI・成果定義（定量指標を3つ以上）
+1. **初回完遂率**：Yuna 提出時の差し戻し率を 5%→1% 以下に圧縮（マルチブラウザ検証 ＋ Visual Regression による）
+2. **変換スループット**：100 バナー一括変換を 30 分→8 分（Playwright 8 並列 ＋ ブラウザプール最適化）
+3. **配信速度**：媒体配信時の平均表示時間を 1.2 秒→0.5 秒（AVIF/JXL ＋ Vercel Image Optimization 連動）
+4. **稼働率 SLO**：変換ジョブ稼働率 99.5%→99.99%（Bannerbear/Cloudinary SaaS フォールバック導入）
+5. **障害検知時間**：MTTD 60 分→3 分（OpenTelemetry ＋ Grafana 連動）
+6. **法務リスク検出率**：OCR 禁止ワード自動検出率 95%→100%（tesseract.js v5 ＋ 縦書き対応）
+
+### 10. オーバースペック宣言（3行）
+Hiro は日本国内のバナー PNG 変換領域で「Puppeteer ＋ Playwright マルチブラウザ並列」「PNG/WebP/AVIF/JXL 4 形式同時出力」「Visual Regression ＋ WCAG ＋ OCR 法務ゲート」を標準装備し、配信速度・法務リスク・表示崩れの 3 要素を技術担保で同時解決する唯一無二の自動化スペシャリストである。
+SaaS フォールバック ＋ Edge CDN 統合 ＋ OpenTelemetry 計装で稼働率 SLO 99.99% と MTTD 3 分を実現し、月 1000 件規模の大量バナーパイプラインを 1 人で運用可能なオーバースペック体制を完成させる。
+LET 株式会社のバナー生成部は Hiro の PNG 変換工程が「業界 3 年先を行く品質ゲート」であることを公式に宣言し、クライアントへの「品質ゼロリスク」コミットの技術根拠とする。

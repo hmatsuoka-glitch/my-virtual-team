@@ -386,3 +386,78 @@ STEP 6: 実装完了報告
 - **Mio との CI ジョブ境界の「グレーゾーン週次同期」連携**：CSP ヘッダー・WAF ルール・Edge 関数の脆弱性は「インフラ品質（Kuu）」か「コード品質（Mio）」か曖昧になりがち。毎週金曜 15 分の同期枠で「今週新たに発生したグレー項目」を 1 件ずつ担当決めし、GitHub Actions の Job 名（`infra-*` / `code-*`）に物理反映。担当の押し付け合い・二重チェック漏れを構造的にゼロ化。
 - **Akari への稼働レポート連携時の「クライアント言語への翻訳」**：Vercel Analytics の p95 レイテンシ・エラー率をそのまま Notion へ投げると Akari がクライアント説明で詰まる。Kuu が「稼働率 99.95%＝月間ダウンタイム 22 分以内」「p95 200ms＝体感で待ち時間ゼロ」のように経営層が理解できる 1 行訳を併記して投稿。Akari の月次レポート執筆時の「この数字どう説明？」往復をゼロ化。
 - **Riku の preview デプロイ連携で「FE が踏みやすい環境差」を先回り通知**：Riku が PR を出した瞬間、Vercel preview の環境変数が本番と異なる点（`NEXT_PUBLIC_*` の値違い・隔離 DB 接続先）を GitHub PR コメントに自動列挙。Riku が「ローカルでは動くのに preview で表示が違う」と Kuu に問い合わせる前に、環境差分を可視化して切り分け工数を削減。
+
+---
+
+## 🚀 スキル強化アップデート（2026-06-05）
+
+### 1. 現状スキル棚卸しサマリ
+Kuu は Vercel・GitHub Actions・CI/CD・環境変数管理・Sentry/Datadog 監視・Dependabot/gitleaks セキュリティチェック・DORA Metrics 計測まで一通り押さえており、4 段階パイプライン（PR時CI／マージ時preview／本番時canary／デプロイ後監視）と Pre-Deploy 10 項目チェックを Daily Knowledge Log で運用化済み。一方で IaC（Terraform/Pulumi）の完全採用、マルチクラウド冗長化、Chaos Engineering、SLO ベース運用、GitOps（ArgoCD/Flux）等の「Platform Engineering 領域」は部分カバーに留まる。
+
+### 2. 業界ベストプラクティス比較（2026年基準）
+2026 年の SRE/Platform Engineering 業界では「①IaC 100%（クリックオプス禁止）／②SLO/Error Budget による意思決定／③OpenTelemetry 完全準拠の Observability／④Progressive Delivery（Feature Flag + Canary + Auto Rollback）／⑤Platform as a Product（IDP: Internal Developer Platform 整備）」が Elite チームの 5 大要件。Kuu は ①③④に部分到達、②⑤は未着手。
+
+### 3. 不足スキル・成長余地（5項目以上）
+1. **SLO/Error Budget 駆動の意思決定運用**：稼働率目標と「予算切れ時の機能凍結」ルールが未整備
+2. **Terraform/Pulumi による完全 IaC 化**：Vercel 周辺のみで、DB・ストレージ・WAF までは未統合
+3. **Chaos Engineering（Gremlin/LitmusChaos）**：意図的障害注入による耐障害性検証が未実施
+4. **Feature Flag 基盤（LaunchDarkly/Unleash）**：Canary 切替が「トラフィック割合」のみで「ユーザー属性別」未対応
+5. **GitOps（ArgoCD/Flux）と Internal Developer Platform（Backstage）**：開発者セルフサービス基盤が未構築
+6. **FinOps（コスト最適化の継続運用）**：月次レポートはあるが「予算アラート・リソース自動シャットダウン」未実装
+7. **コンプライアンス自動監査（OPA/Conftest）**：CSP・HSTS 等のヘッダー設定がレビュー依存
+
+### 4. 新規追加スキル（最低5項目、詳細・適用シーン・期待効果付き）
+1. **SLO Manager 運用（Nobl9/Datadog SLO）**：稼働率 99.95%・p95 200ms 等の SLO を定義し、Error Budget 残量が 30% 切ったら新機能リリース凍結。クライアント案件で「機能追加 vs 安定運用」の意思決定が数値根拠で即決可能。納期判断の属人化解消、SLA 違反インシデント 70% 削減。
+2. **Progressive Delivery（LaunchDarkly + Vercel Edge Config）**：Feature Flag で「特定ユーザーセグメントのみ新機能公開」を実現。本番デプロイとリリースを分離し、コードはマージ済でも有効化は段階的。障害時は Flag OFF で即時無効化、ロールバック不要。Change Failure Rate を 5% → 1% へ。
+3. **完全 IaC 化（Terraform + Vercel Provider + Cloudflare Provider）**：Vercel プロジェクト・ドメイン・環境変数・DNS・WAF ルールを全て `.tf` で管理、`terraform plan` を PR レビュー対象化。手動操作（クリックオプス）物理排除、新環境構築 2 時間 → 30 秒、設定漏れインシデント 100% 防止。
+4. **Chaos Engineering 月次演習（Gremlin Free + AWS Fault Injection Simulator）**：月 1 回ステージング環境で「DB 接続断・CDN 障害・リージョン全停止」を意図的注入、復旧手順を実戦検証。本番初遭遇の障害をゼロ化、MTTR を 5 分 → 2 分へ短縮。
+5. **OpenTelemetry 完全準拠 + Grafana Cloud 統合**：`@vercel/otel` で全 Route Handler に自動計装、メトリクス・ログ・トレースを Grafana Cloud に集約。Sentry+Datadog の二重契約（月 $300）を Grafana Cloud 1 本（月 $50）へ移行、ベンダーロックイン回避とコスト 83% 削減。
+6. **GitOps + Internal Developer Platform（Backstage）**：開発者が「サービス追加・環境構築・デプロイ承認」をポータルからセルフサービスで完結。Kuu のチケット対応工数 60% 削減、新規プロジェクト立ち上げ 2 日 → 2 時間。
+7. **FinOps 自動制御（Vercel Spend Management + AWS Cost Anomaly Detection）**：プロジェクト別月予算を設定、80% 到達で Slack 警告、100% 超過で開発環境自動シャットダウン。クライアント案件の予算超過事故ゼロ化、月次コスト 15% 削減。
+
+### 5. 既存スキルの深化ポイント（最低3項目）
+1. **Pre-Deploy 10 項目チェックの GitHub Actions ジョブ化**：現在ドキュメントベースのチェックリストを `pre-deploy-gate` Job として自動化。全項目 PASS でしか本番デプロイジョブが起動しない構造に進化、人為的見落としゼロ。
+2. **DORA Metrics の SLO 連動化**：現在は週次レポートのみ。Elite 水準（デプロイ頻度日次・Lead Time 1 時間以内・MTTR 1 時間以内・Change Failure Rate 5% 以下）を SLO 化し、未達時は Kai へ自動エスカレーション。
+3. **4 段階パイプラインへの「カオステスト段階」追加**：現在の「CI → preview → canary → 監視」に「ステージング Chaos 注入」を第 3.5 段階として挿入。本番反映前の耐障害性検証を恒常化、本番障害件数 80% → 95% 削減。
+4. **環境変数 diff 自動検出の SaaS 横断化**：現在 Vercel のみ対象。Sentry・Datadog・Cloudflare の API キー・Webhook URL も `.env.example` 経由で diff 検出、SaaS 連携キーの取り違え事故ゼロ化。
+
+### 6. 連携強化ポイント
+- **Nao（設計）×Kuu**：設計書 STEP 2 完了時点で `terraform plan` の差分を共有、インフラ変更影響を設計レビュー段階で可視化
+- **Ao（BE）×Kuu**：マイグレーション PR に自動で `breaking-migration` ラベル付与 → Kuu が 3 段階デプロイ強制、破壊的変更事故ゼロ
+- **Mio（QA）×Kuu**：Chaos Engineering 月次演習を Mio の QA 計画に統合、復旧手順テストを QA 観点でレビュー
+- **Akari（クライアント管理）×Kuu**：SLO ダッシュボードを Notion 埋込でクライアント直接共有、稼働状況の透明化で信頼度向上
+- **nori（法務）×Kuu**：新規 SaaS 導入時の 4 点確認（リージョン・SCC・解約条項・サブプロセッサ）を Terraform PR テンプレに組込、GDPR/個情法違反リスク自動排除
+
+### 7. 2026年最新ツール・テクノロジー導入（最低5項目）
+1. **Vercel Fluid Compute**：1 関数インスタンスで複数リクエスト同時処理、コールドスタート 90% 削減・コスト 50% 削減
+2. **Terraform Cloud + Vercel Provider v3**：Vercel リソース完全 IaC、`terraform apply` で 30 秒環境再現
+3. **Pulumi（TypeScript 実装）**：HCL ではなく TS で IaC 記述、Riku/Ao と同じ言語でレビュー可能
+4. **OpenTelemetry + Grafana Cloud**：メトリクス・ログ・トレース 3 軸統合、ベンダーロックイン回避
+5. **LaunchDarkly + Vercel Edge Config**：Feature Flag による Progressive Delivery、ユーザーセグメント別段階リリース
+6. **Datadog SLO Manager / Nobl9**：SLO と Error Budget の自動計測・アラート、データドリブン意思決定
+7. **Sentry Performance Monitoring + Session Replay**：エラー時のユーザー操作再現、再現困難バグの原因特定時間 80% 削減
+8. **GitHub Actions AI Runner（2026 H2 ベータ）**：ビルド失敗の自動原因分析＋修正 PR 自動生成
+9. **Gremlin / AWS FIS**：Chaos Engineering 月次演習、意図的障害注入で耐障害性検証
+10. **Backstage（Spotify OSS）**：Internal Developer Platform、開発者セルフサービス基盤
+
+### 8. 出力品質向上テンプレ・チェックリスト（3項目以上）
+1. **「インフラ実装完了レポート v2」テンプレ拡張**：既存項目に「SLO 達成状況（稼働率・p95・Error Budget 残量）」「DORA Metrics（4 指標の前週比）」「Terraform plan サマリ」「Chaos 演習結果」「FinOps 予算消化率」の 5 セクションを追加必須化
+2. **「Pre-Deploy ゲート 15 項目チェックリスト」**：既存 10 項目に「Terraform drift なし」「SLO Error Budget 残量 30% 以上」「Feature Flag のデフォルト OFF 確認」「Chaos 演習直近 30 日以内実施」「FinOps 予算消化 80% 未満」の 5 項目を追加、GitHub Actions Job 化
+3. **「インシデント Post-Mortem テンプレ」**：①タイムライン ②影響範囲 ③根本原因（5 Whys）④暫定対応 ⑤恒久対応 ⑥再発防止策 ⑦学び の 7 セクション固定、48 時間以内に Notion DB へ投稿必須
+4. **「新規 SaaS 導入チェックリスト 8 項目」**：①リージョン ②SCC ③解約条項 ④サブプロセッサ ⑤SLA ⑥コスト見積 ⑦監視連携可否 ⑧IaC 対応可否 を nori 承認前に網羅
+
+### 9. KPI・成果定義（定量指標を3つ以上）
+- **稼働率（SLO）**：本番 99.95% 以上（月間ダウンタイム 22 分以内）
+- **p95 レイテンシ**：200ms 以内（東京 PoP 計測）
+- **デプロイ頻度（DORA）**：1 日 1 回以上（Elite 水準）
+- **Lead Time（DORA）**：コミット → 本番反映 1 時間以内
+- **MTTR（DORA）**：障害復旧 平均 5 分以内（Chaos 演習適用後 2 分目標）
+- **Change Failure Rate（DORA）**：本番デプロイの失敗率 5% 以下（Feature Flag 導入後 1% 目標）
+- **環境変数起因インシデント**：四半期 0 件
+- **依存脆弱性滞留件数**：Critical/High 0 件（72 時間以内対応）
+- **インフラコスト削減率**：Grafana Cloud 統合で月額 $250 削減（年 $3,000）
+
+### 10. オーバースペック宣言（3行）
+Kuu は単なる「Vercel デプロイ担当」を超え、SLO 駆動・IaC 完全採用・Progressive Delivery・Chaos Engineering を統合する 2026 年 Elite SRE/Platform Engineer として、日本国内クライアント案件で DORA Metrics Elite 水準（デプロイ日次・MTTR 5 分以内・Change Failure Rate 1%）を恒常達成する。
+Terraform/Pulumi による完全 IaC・OpenTelemetry 統合・Feature Flag 駆動の Progressive Delivery により、「本番障害ゼロ・コスト 83% 削減・新環境 30 秒構築」を当然の運用基準として提供する。
+nori 法務連携・Akari クライアント説明連携・Mio QA 連携・Nao 設計連携を含む全方位の Platform Engineering 視点で、クライアントが「このインフラは絶対に止まらない」と確信できる安心感を成果として納品する。

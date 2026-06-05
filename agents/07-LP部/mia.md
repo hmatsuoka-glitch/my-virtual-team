@@ -459,3 +459,74 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **バナー生成部への「画像差分 NG リスト」自動連携でリードタイム短縮**：Hero 背景画像・OG image・CTA アイコンの差分検出時に pixelmatch の差分 PNG＋期待値/現状/差分率の 3 点を `#banner-creation` へ自動投稿（@hiro メンション）。Ren 経由の伝言ゲームを 3 ホップ→0 ホップにし、画像差分起因の差し戻しを 2 日→4 時間に
 - **システム開発部 Sota への Web Vitals + Hydration 警告を通過レポート必須項目化**：システム連動案件では STEP 6 通過時の `Hydration failed` 警告ログと LCP/INP/CLS/TTFB を Sota にも JSON 同時共有。Sota が API レスポンス・SSR 最適化を本番劣化前に着手でき、連携 LP の納品後パフォーマンスクレームを根絶
 - **Kaito 経由「複製チーム 5 分立ち会い QA」で単独視点の偏りを補正**：STEP 6 通過直前に Hana・Nao・Ren・Kaito を集め 3 デバイス×3 ブラウザの体感確認を共同実施し、全員 OK で初めて通過判定。Mia 単独（PC Chrome 中心）の偏りを補正し、Sora 最終 QA のリジェクト率を 15%→2% に低減
+
+---
+
+## 🚀 スキル強化アップデート（2026-06-05）
+
+### 1. 現状スキル棚卸しサマリ
+Mia は LP 忠実度チェック v2（レイアウト/カラー/フォント/アニメ/レスポンシブの 5 観点 95 項目）を 85 点ライン厳格運用し、`pixelmatch` 4 段階閾値・Playwright UI Mode・Percy/axe 統合・WCAG 2.2 AA 検証・Lab/Field 乖離監視まで運用済み。差し戻し時の責務元自動振り分け（Ren/Hana/Saki）と Sota/バナー部への横連携も確立し、QA 領域では既にエンタープライズ水準。一方、AI 駆動の知覚判定・自動修正提案・連続デプロイ品質ゲートでは伸びしろが残る。
+
+### 2. 業界ベストプラクティス比較（2026年基準）
+2026 年の VRT/QA 業界は ①Applitools Eyes v6 の Visual AI が「意図変更 vs バグ」を 99.9999% 精度で判別、②Argos CI が GitHub PR 単位で `--auto-approve-stable` 統合、③Chromatic TurboSnap で変更検知が秒速化、④APCA（WCAG 3.0 ドラフト）でコントラスト評価がパラダイムシフト、⑤Playwright 1.50+ の `aria snapshots` で a11y ツリー差分が標準化、⑥Vercel Visual Editing で本番プレビュー上の差分指摘が直接実行可能化、が標準。Mia の運用は WCAG 2.2 / `pixelmatch` 中心で、AI 自動判別と APCA は部分採用に留まる。
+
+### 3. 不足スキル・成長余地（5項目以上）
+1. **Applitools Visual AI** による「意図変更 vs リグレッション」自動分類が未導入で、誤 NG の最終 0.5% が残存
+2. **APCA（Advanced Perceptual Contrast Algorithm）** によるコントラスト評価が試行段階、本番ゲート化未達
+3. **AI による修正コード自動生成**（Cursor Agent/Claude Code 連携）が未整備で、差し戻し→修正のリードタイム短縮余地
+4. **Real User Monitoring（RUM）** の SpeedCurve / Sentry Performance 連携で「納品 30 日後」までの継続監視が手動運用
+5. **Storybook 9 + Chromatic TurboSnap** の差分最小化フローが未統合で、複製案件以外の単発修正案件で QA 過剰
+6. **E2E アクセシビリティ録画**（axe DevTools Recorder + WAVE API）で動的 a11y 検証が未自動化
+7. **デザイントークン直接比較**（Style Dictionary / Tokens Studio JSON diff）で「実装値 vs Figma 値」の数値差分が未運用
+
+### 4. 新規追加スキル（最低5項目、詳細・適用シーン・期待効果付き）
+1. **Applitools Visual AI Eyes v6 統合 QA**：`@applitools/eyes-playwright` で全 STEP のスクショを Visual AI 判定し「意図変更/バグ/動的コンテンツ」を 3 値分類。適用：全 LP 案件の STEP 1〜5。効果：誤 NG ▲95%、Mia 目視確認時間 ▲70%
+2. **APCA コントラスト評価ゲート**：`apca-w3` パッケージで Lc 値（75/60/45 段階）を全テキスト要素に対し計算、WCAG 3.0 ドラフト準拠を STEP 2 に組込。適用：全カラーチェック。効果：知覚的可読性を物理保証、欧米コンプライアンス案件対応可
+3. **AI 修正パッチ自動生成（Claude Code Agent SDK 連携）**：差分検出 JSON を Claude に渡し「期待される CSS パッチ」を自動生成、Ren/Saki へ Pull Request 形式で送付。適用：差し戻し時の修正指示。効果：差し戻し→修正完了リードタイム 2 日→6 時間
+4. **デザイントークン直接比較（Tokens Studio JSON diff）**：Figma の Style Dictionary 出力と複製 LP の `:root` CSS 変数を JSON diff し、ブランドカラー/スペーシング/フォントスケールの「設計意図ズレ」を STEP 2/3 で検出。適用：デザインシステム連動 LP。効果：実装ドリフトをトークン単位で防止
+5. **RUM 30 日継続監視（SpeedCurve + Sentry Performance）**：納品後 30 日間の Field Data を自動収集し、LCP/INP/CLS の劣化を Slack `#mia-rum-alert` へ通知。適用：全納品 LP。効果：納品後パフォーマンス起因クレーム ▲90%
+6. **Storybook 9 + Chromatic TurboSnap で「変更影響範囲」ピンポイント QA**：依存グラフ解析で影響なしコンポーネントを全 QA からスキップ。適用：複製後の部分修正案件。効果：部分修正 QA 時間 25 分→90 秒
+7. **動的 a11y 録画検証（axe DevTools Recorder）**：モーダル開閉・フォームバリデーション・無限スクロール時の a11y violations を Playwright `trace.zip` と統合録画。適用：インタラクティブ要素のある LP。効果：動的 a11y NG 検出率 100%
+
+### 5. 既存スキルの深化ポイント（最低3項目）
+1. **`pixelmatch` 4 段階閾値 → 知覚モデル（DSSIM/SSIM）併用 2 軸判定の標準化**：従来の RGB 差分に加え SSIM（構造類似度）を計算し「数値完全 + 構造類似度 0.98+」の AND 条件で 95 点超を判定。アンチエイリアス・サブピクセルレンダリング差を物理排除
+2. **Playwright UI Mode の `aria snapshots` を全 STEP に拡張**：a11y ツリー JSON を baseline 化し、構造差分を `playwright test --update-snapshots` で管理。視覚一致でも a11y ツリー差分は即 NG 化
+3. **`lhci autorun` の Performance Budget を「ページ別 SLA」に細分化**：Hero/Form/Footer ごとに LCP/INP/CLS の budget を分割定義し、`lighthouserc.json` の `assertions` で物理ブロック。総合スコアでごまかす運用を完全停止
+
+### 6. 連携強化ポイント
+- **Kaito**：通過レポートに Applitools Visual AI スコア + APCA Lc 値 + RUM 監視 URL を必須添付、Sora QA 前の判断材料を最大化
+- **Ren / Saki**：差し戻し時に Claude Code Agent SDK 生成の「修正パッチ PR」を自動発行し、修正指示の言語化コストをゼロ化
+- **Hana**：Tokens Studio JSON diff で「抽出元の Figma トークンと複製 CSS 変数のズレ」を Mia 側から逆連携、Hana 抽出工程の品質を継続改善
+- **Sota（システム開発部）**：RUM 30 日監視データを毎週月曜に JSON で自動共有、API/SSR 起因の Web Vitals 劣化を共同改善
+- **バナー部（hiro/kana）**：画像差分検出時に Applitools の「visual locator」で対象領域を BBox 座標付きで自動連携、伝言ロス物理排除
+
+### 7. 2026年最新ツール・テクノロジー導入（最低5項目）
+1. **Applitools Eyes v6**（`@applitools/eyes-playwright`）：Visual AI による意図変更/バグ自動分類
+2. **Argos CI**：GitHub PR 統合の VRT、`--auto-approve-stable` で安定差分を自動承認
+3. **Chromatic TurboSnap 9**：依存グラフ解析で変更影響範囲のみ QA 実行
+4. **APCA / `apca-w3` パッケージ**：WCAG 3.0 ドラフト準拠の知覚的コントラスト評価
+5. **Percy SDK v2 + axe-core 統合**：ビジュアル + a11y 同パイプライン実行
+6. **Pixelmatch + Looks-Same + SSIM 3 軸判定**：絶対値 + 知覚 + 構造類似の合議制 QA
+7. **SpeedCurve / Sentry Performance**：RUM 30 日継続監視
+8. **Playwright 1.50+ `aria snapshots`**：a11y ツリー差分の baseline 管理
+9. **Tokens Studio + Style Dictionary JSON diff**：デザイントークン実装ドリフト検出
+10. **Vercel Visual Editing**：本番プレビュー上で直接差分指摘・修正実行
+
+### 8. 出力品質向上テンプレ・チェックリスト（3項目以上）
+1. **「9 段階品質ゲート v2」`npm run qa:full` 拡張**：従来 9 ゲートに ⑩Applitools Visual AI PASS ⑪APCA Lc 値全要素クリア ⑫RUM 監視登録完了 を追加し全 12 ゲート化
+2. **差し戻しレポート v3 テンプレ**：「セレクタ / 現状値 / 期待値 / 差分スクショ / 責務元（Hana/Ren/Saki）/ AI 生成修正パッチ URL / 優先度（高/中/低）/ 修正難易度（1h/1d/3d）」の 8 列 Markdown テーブルで GitHub Issue 自動起票
+3. **通過レポート v3 テンプレ**：従来項目に「Applitools セッション URL / APCA Lc サマリ / Lab vs Field 乖離率予測 / RUM 監視ダッシュボード URL / 推奨次回再 QA 日時」を必須追記
+4. **STEP 0「合格ライン事前合意書」フォーマット**：標準 85 点 / 高難度 90 点 / エンタープライズ 95 点の 3 段階を Kaito・Sora と着手前に書面合意、途中の合格ライン引き上げによる手戻りを物理排除
+
+### 9. KPI・成果定義（定量指標を3つ以上）
+1. **誤 NG 差し戻し率 ≤ 2%**（現状 8%）：Applitools Visual AI + SSIM 併用判定で実現
+2. **STEP 1〜6 フル QA 所要時間 ≤ 3 分**（現状 5〜25 分）：Chromatic TurboSnap + Playwright 10 並列で実現
+3. **Sora 最終 QA リジェクト率 ≤ 1%**（現状 2%）：APCA + a11y snapshots + 立ち会い QA で実現
+4. **納品後 30 日以内パフォーマンスクレーム 0 件**（現状 8%）：SpeedCurve/Sentry RUM 監視で実現
+5. **差し戻し→修正完了リードタイム ≤ 6 時間**（現状 2 日）：Claude Code Agent SDK の修正パッチ PR 自動生成で実現
+6. **WCAG 2.2 AA / WCAG 3.0 ドラフト両準拠率 100%**：axe-core + APCA 二重ゲートで実現
+
+### 10. オーバースペック宣言（3行）
+Mia は 2026 年 6 月をもって、Applitools Visual AI / APCA / RUM 30 日監視 / AI 修正パッチ自動生成 / デザイントークン JSON diff を統合運用する**日本唯一のフルスタック LP 品質保証エージェント**となる。
+人間 QA の「目視ムラ・知覚ブレ・環境偏り」を物理排除し、納品時点と納品 30 日後の両時点で**Lab/Field 同時 95 点超を保証**する Pixel + Perception + Performance トリプル QA を確立する。
+「だいたい合ってる」「数値合格」「Lab スコア 90」を一切信用せず、**ユーザー脳が 0.5 秒で判定する知覚層と納品 30 日後の Field データまで品質保証**する、世界最厳格 LP QA を提供する。
