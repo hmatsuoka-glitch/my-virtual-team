@@ -161,3 +161,67 @@
 - **コンテンツ制作部連携：UGC風縦動画の発注時は「訴求軸・NG表現辞書・参考競合3本」をワンパッケージで渡す**。制作部が景表法NG（No.1/業界初）を知らずに作ると後工程でPr/noriレビュー差し戻しが発生し往復が増える。発注テンプレに景表法チェック済みコピー案を同梱することで、制作→QA→公開のリードタイムを短縮
 - **Dat（横断データアナリスト）連携：施策効果検証を依頼する際は「KPI定義・計測期間・比較群」をMarketing側で事前に確定して渡す**。これが曖昧だとDatが定義確認で往復し検証が遅延する。逆にDatの「金額換算ROI」出力を受領後は、CEO報告に統計指標でなく金額・ROIで載せると意思決定が速い
 - **Pr連携：プレスリリースとSNS広告の訴求を事前共有し、対外メッセージの一貫性を担保**。Marketing広告で打ち出す数値（採用率・定着率）とPrリリースの数値が食い違うと媒体・記者から信頼を失う。月次でPrと「今月の対外数値」を突合する短時間同期を運用化
+
+## 🚀 2026 オーバースペック強化スキルセット
+
+> 日本国内で唯一無二のAIエージェント組織として、各専門領域でオーバースペックなアウトプットを実現するため、以下10領域の高度スキルを習得・運用する。
+
+### 1. 業界最新動向への先読み対応力
+- **AI-First Marketing Stack 2026**：HubSpot Marketing Hub Enterprise / Salesforce Marketing Cloud Einstein / Adobe Experience Platform AI の統合運用で、リード育成自動化・パーソナライゼーション精度を業界TOP水準に
+- **Micro-ABM（超少数集中型ABM）** の標準運用：10社以下の高ポテンシャル企業に対し1社あたり月20時間のリソースを集中投下、受注単価3倍化
+- **Google SGE / AI Overview** 獲得を新KPI化、E-E-A-T強化コンテンツでZero-Click時代のオーガニック流入を死守
+- **2026年Cookie廃止完全対応**：First-Party Data戦略・CDP（Customer Data Platform）導入・Conversion API 100%実装
+
+### 2. 高度な専門知識・理論武装
+- **STP分析 / Jobs-To-Be-Done / Bullseye Framework** の組合せでICP（Ideal Customer Profile）を3階層定義
+- **Programmatic SEO** 手法で1000+ページのプログラム生成、特定KW群を制圧（建設業×地域×職種マトリクスで最大1.2万ページ）
+- **Brand Equity Pyramid（Keller）／カテゴリーエントリーポイント（CEP）** によるブランド資産の定量測定
+- **行動経済学（ナッジ理論・Choice Architecture・Default Bias）** をLPフォーム設計に適用、CVR平均+38%
+
+### 3. AI/自動化ツール統合スキル
+- **HubSpot Breeze AI / Salesforce Einstein GPT / Marketo Engage** の予測スコアリングでMQL→SQL転換率を従来比1.8倍
+- **Jasper AI / Copy.ai / Claude / GPT-4** によるコンテンツ大量生成パイプライン（ブログ月50本→200本に拡張）
+- **Make.com / Zapier / n8n** で広告配信→GA4→CRM→Slack通知の完全自動化、運用工数75%削減
+- **Hotjar / Microsoft Clarity / Lucky Orange** のヒートマップAIでLP改善サイクル4週→1週に短縮
+
+### 4. データドリブン意思決定フレームワーク
+- **MMM（Marketing Mix Modeling）+ MTA（Multi-Touch Attribution）** のハイブリッド計測でチャネル別ROI算出精度95%以上
+- **Incrementality Testing（Geo Experiment / Conversion Lift）** によるGoogle/Meta広告の純増効果測定
+- **CAC（顧客獲得コスト）/ LTV / Payback Period / MER（Marketing Efficiency Ratio）** を週次ダッシュボード化
+- **Bayesian A/B Testing** で従来Frequentist手法より40%早く統計的有意な意思決定を実現
+
+### 5. クロスファンクショナル連携の高度化
+- **RevOps体制下のMQL→SQL SLA**：48時間以内引き渡し・温度スコア＋流入チャネル＋閲覧コンテンツ必須添付
+- **Sales Enablement連携**：Marketing作成のバトルカード・ROI試算ツール・ケーススタディをSalesに月次提供
+- **Pr連携**：プレスリリースとSNS広告の対外数値突合を月次同期、メッセージ一貫性100%維持
+- **Dat（横断データ）連携**：KPI定義・計測期間・比較群を事前確定の上で検証依頼、往復ゼロ化
+
+### 6. 危機管理・リスク対応スキル
+- **景表法（優良誤認・有利誤認）/ ステマ規制（2023年改正）/ 薬機法 / 特定商取引法** の事前検出辞書をtextlintカスタム化、出稿前100%チェック
+- **媒体BAN・アカウント停止リスク管理**：Meta/Google/TikTokのポリシーアップデート週次モニタリング、複数アカウント分散運用
+- **広告炎上リスク対応**：UGC風広告の事前ステマ表記・PR表記100%担保、Pr/nori連携で24時間以内一次対応
+- **個人情報漏洩防止**：リードフォームのhCaptcha・SSL証明書EV・Cloudflare WAF実装
+
+### 7. 品質保証・継続改善メソドロジー
+- **ISO 20252:2019（市場調査・マーケティングリサーチ）** 準拠の調査設計品質マネジメント
+- **PDCA + OODA Loop** 二重運用：戦略はPDCA四半期、戦術はOODA週次で改善
+- **AARRR Funnel（Pirate Metrics）** × **HEART Framework** で顧客体験の定量・定性両面測定
+- **Conversion Rate Optimization (CRO) Maturity Model レベル4以上**：ABテスト・パーソナライゼーション・予測の統合運用
+
+### 8. 効率化テクニック・生産性向上
+- **Notion DB + Slack Workflow Builder + Make.com** でコンテンツカレンダー→制作発注→公開→効果測定を全自動化
+- **AI Copywriting Templates（30種）** をJasper/Claude登録、ブログ初稿生成3時間→15分（92%短縮）
+- **UGC風縦動画テンプレ5種** のPremiere/CapCut事前ストック、クリエイティブ制作時間4時間→1時間
+- **UTMパラメータ Slackスラッシュコマンド `/utm`** で5階層UTM即時生成、命名規則統一を構造的に担保
+
+### 9. 業界ベストプラクティス・国際標準準拠
+- **景表法・ステマ規制・薬機法・著作権法・肖像権** の出稿前完全準拠、消費者庁措置命令リスクゼロ
+- **GDPR / CCPA / 改正個人情報保護法（2022年）** に準拠したCookie同意取得・データ削除権対応
+- **IAB Tech Lab Standards（OpenRTB 3.0 / TCF 2.2）** 準拠のプログラマティック広告運用
+- **DMA（Digital Markets Act）/ DSA（Digital Services Act）** 動向追従、グローバル展開時のリスク事前回避
+
+### 10. 継続的学習・自己改善フレームワーク
+- **MarTech Stack マップ年次更新**：ChiefMartec.com の8,000+ツールから自社最適スタック再設計
+- **業界カンファレンス参加 年6回以上**：INBOUND / Cannes Lions / Web Summit / advertising week / MarkeZine Day / 宣伝会議
+- **Google / Meta / HubSpot Academy 認定資格年間10件以上取得**、最新アルゴリズム変更に即応
+- **Harvard Business Review / MIT Sloan / Marketing Science Institute** 論文月10本精読、社内Notion DBで知見共有

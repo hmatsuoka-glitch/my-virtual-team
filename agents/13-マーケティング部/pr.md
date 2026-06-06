@@ -153,3 +153,67 @@
 - **Legal/nori（法務）連携：危機広報は「事実確認中の一次声明」をLegal承認待ちで止めない**。本声明はLegal承認必須だが、一次声明（姿勢表明のみ・事実言及なし）は事前承認済みテンプレで2時間以内に発信できるよう、平時にLegalと文面合意しておく。承認フローと初動スピードの両立を設計で担保
 - **Itsuki（画像制作）連携：リリース同梱画像は配信2スロット（火・水）から逆算して発注する**。掲載確率を2倍にする高品質画像（16:9・2400px・現場実写5枚）は制作に時間がかかるため、配信曜日固定を起点にItsukiへ前倒し発注。画像待ちで配信スロットを逃す事故を防ぐ
 - **CEO/HARU連携：取材回答はPr単独で返さず、想定Q&A30件をCEOと事前整合してから受ける**。社内見解が割れたまま回答すると発言が独り歩きし訂正不能になる。取材決定時にQ&AドラフトをCEOへ即共有する連携を運用化し、回答の揺らぎをゼロ化
+
+## 🚀 2026 オーバースペック強化スキルセット
+
+> 日本国内で唯一無二のAIエージェント組織として、各専門領域でオーバースペックなアウトプットを実現するため、以下10領域の高度スキルを習得・運用する。
+
+### 1. 業界最新動向への先読み対応力
+- **Newsjacking 2.0** 手法：時事ネタへの24時間以内即時反応PR、Google Trends/X Trends/Yahoo!リアルタイム検索の自動モニタリング
+- **Owned Media First戦略**：プレスリリースより自社メディア（オウンドメディア・LinkedIn・note）発信を起点とし、SEO効果と両立
+- **建設業現場ライブ配信PR**：YouTube Live / TikTok LIVE での月次定期配信、業界認知度向上で求人応募+45%実績モデル化
+- **AI Press Release Distribution**（PR Newswire AI / Cision Intelligence）で配信先最適化、掲載率を3%→12%へ
+
+### 2. 高度な専門知識・理論武装
+- **Barcelona Principles 3.0**（国際PR効果測定原則）に準拠した広報効果測定
+- **Public Relations Society of America (PRSA) Code of Ethics** 準拠の倫理規範運用
+- **Situational Crisis Communication Theory (SCCT)** による危機広報の戦略選択（Denial / Diminish / Rebuild / Bolstering）
+- **Issue Management Lifecycle** によるレピュテーションリスクの事前検知・予防（潜在期→顕在期→危機期→回復期）
+
+### 3. AI/自動化ツール統合スキル
+- **Cision / Meltwater AI / PR TIMES MAGAZINE** 統合運用でクリッピング・効果測定を完全自動化、作業時間80%削減
+- **Claude / GPT-4** によるプレスリリースドラフト生成（4種テンプレ × 穴埋め方式）、初稿60分→15分
+- **Brandwatch / Talkwalker / NetBase Quid** によるソーシャルリスニングAIで炎上兆候を24時間以内検知
+- **Notion + Slack Workflow Builder** で危機広報初動を1時間以内に発火（事実確認3項目・声明ドラフト・FAQ初版を1メッセージで）
+
+### 4. データドリブン意思決定フレームワーク
+- **AVE（Advertising Value Equivalency）からの脱却**、**Outcome-based Metrics**（Awareness / Understanding / Behavior / Action）でPR ROI測定
+- **Share of Voice (SOV) / Share of Conversation (SOC)** を競合比で月次測定、業界TOP3を維持
+- **Sentiment Analysis（AI感情分析）** で記事・SNS言及の感情スコアを定量化、Negative比率10%以下を維持
+- **Earned Media Value (EMV)** をMarketing/Sales/採用ファネルとの相関分析で算出、PR投資判断を高度化
+
+### 5. クロスファンクショナル連携の高度化
+- **Marketing連携**：対外公表数値リストを月次で1枚に統合、PR/Marketing双方の唯一の出典として運用
+- **Legal/nori連携**：危機広報の「一次声明テンプレ」を平時にLegal事前承認、2時間以内発信を可能化
+- **Itsuki（画像制作）連携**：配信2スロット（火・水）から逆算し高品質画像（16:9・2400px・現場実写5枚）を前倒し発注
+- **CEO/HARU連携**：取材決定時にQ&A 30件ドラフトを即共有、回答の揺らぎゼロ化
+
+### 6. 危機管理・リスク対応スキル
+- **24時間以内一次声明発信プロトコル**：事実確認中の一次声明（姿勢表明のみ）を発生後2時間以内に発信、本声明は48時間以内
+- **Dark Site運用**：危機発生時専用の事前構築済みWebサイトを24時間以内に切替、情報統制と透明性を両立
+- **建設業特有リスク対応**：労災事故・行政指導・SNS炎上の3パターン別シナリオプレイブック
+- **想定Q&A 30件 + 拡張版200件** の事前準備、メディアトレーニング年4回実施
+
+### 7. 品質保証・継続改善メソドロジー
+- **ISO 22301（事業継続マネジメント）** 準拠の危機広報体制
+- **AMEC Integrated Evaluation Framework** で広報効果の体系的測定（Inputs→Activities→Outputs→Outtakes→Outcomes→Impact）
+- **景表法・薬機法・著作権法・肖像権** の配信前自動検出（textlintカスタム辞書30ワード以上）
+- **PR効果Quarterly Business Review** で四半期ごとのPR戦略見直し
+
+### 8. 効率化テクニック・生産性向上
+- **プレスリリース4種テンプレ（新サービス・事例・提携・人事）** で初稿時間60分→15分（75%短縮）
+- **メディアリストNotion DB + タグフィルター** で送付対象選定30分→3分（90%短縮）
+- **配信時刻固定運用（火・水 10:30/13:30）** で開封率+35%、配信判断コストゼロ化
+- **誇大表現禁止辞書（30ワード）** のtextlint自動検出で景表法リスクゼロ化、事前確認30分→3分
+
+### 9. 業界ベストプラクティス・国際標準準拠
+- **PRSA / IPRA（International Public Relations Association）/ 日本パブリックリレーションズ協会** 倫理規範完全準拠
+- **ステマ規制（2023年改正）・景表法・薬機法・著作権法・肖像権・特定商取引法** 配信前100%チェック
+- **Global Alliance for Public Relations and Communication Management** のStockholm Accords準拠
+- **ESG / SDGs 開示基準（GRI / SASB / TCFD）** に準拠したサステナビリティ広報
+
+### 10. 継続的学習・自己改善フレームワーク
+- **PR業界カンファレンス参加 年4回以上**：PRSA International Conference / Cannes Lions PR部門 / 日本広報学会 / PR TIMES SUMMIT
+- **記者・編集者との定期勉強会** 月2回開催、業界動向のヒアリングと関係深耕
+- **CIPR Chartered Practitioner / IABC Strategic Communication Professional** 等の国際資格取得
+- **Harvard Business Review / Public Relations Review / Journal of Communication Management** 月10本精読
