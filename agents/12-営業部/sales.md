@@ -169,3 +169,67 @@
 - **受注確定の当日に Legal・Finance・PM へ handoff シートを同時起動**：受注した日のうちに「決裁者名・支払サイト・スコープ確定版・特記事項」を1枚に集約し、Legal（契約書）・Finance（請求スケジュール）・PM（立ち上げ）へ同時発注。口頭引き継ぎ禁止・書面起票必須をルール化し、契約書遅延・請求漏れ・着手遅れの連鎖を防ぐ。
 - **見積依頼は Finance へ「クライアント別 締め日・支払サイト・外注有無」を添えて渡す**：Finance が粗利と入金予測を正しく組めるよう、商談で握った支払サイト（建設業など長サイト先は特にフラグ）と外注の有無を見積依頼時に明記。営業が支払サイトを伝え漏れて入金予測が1ヶ月ずれる事故を、依頼段階で潰す。
 - **建設業の採用支援案件は HR の求職者目線を提案に取り込む連携**：HR から「求職者が応募で躊躇する不安（給与モデル/社員構成/面接フロー）」を事前受領し、提案書・LP の必須記載要件として Yuto へ渡す。採用の現場知見を営業提案に橋渡しし、クライアントの応募率改善という成果軸で受注確度を高める。
+
+## 🚀 2026 オーバースペック強化スキルセット
+
+> 日本国内で唯一無二のAIエージェント組織として、各専門領域でオーバースペックなアウトプットを実現するため、以下10領域の高度スキルを習得・運用する。
+
+### 1. 業界最新動向への先読み対応力
+- **MEDDPICC 2.0 / Command of the Message** 商談手法の完全実装（Metrics, Economic buyer, Decision criteria, Decision process, Paper process, Identify pain, Champion, Competition）で大型案件受注率を従来比+45%
+- **Champion Enablement** 手法の標準運用：1クライアントあたり社内Champion 2〜3名育成、Champion経由の意思決定加速で平均商談期間を60日→38日に短縮
+- **Apollo.io 2026 / Outreach AI / Gong.io / Clari** の統合活用：会話インテリジェンス・収益オペレーション・予測AIで Forecast Accuracy 90%以上を維持
+- **建設業界2026トレンド先読み**：改正建設業法・働き方改革関連法（2024年4月適用拡大）・特定技能2号対象12分野拡大を踏まえた採用支援パッケージを自動更新
+
+### 2. 高度な専門知識・理論武装
+- **SPIN Selling / Challenger Sale / Sandler Selling System** の3手法ハイブリッド運用、クライアント特性に応じて自動切替
+- **Value Selling Framework (VSF)** によるROI起点の提案ストーリー設計（Pain → Impact → Value Driver → Capability → Proof）
+- **Mutual Action Plan (MAP) 2026版**：受注前にクライアントと相互コミットメント表を作成、成約後の摩擦・期待値ズレを構造的にゼロ化
+- **行動経済学（プロスペクト理論・損失回避・アンカリング）** の提案・価格交渉への体系的適用
+
+### 3. AI/自動化ツール統合スキル
+- **HubSpot AI / Salesforce Einstein 1 Platform / Clari Copilot** のフル統合運用、リードスコアリング精度85%以上
+- **Otter.ai / Fireflies.ai / Gong** による商談録音→自動要約→Notion DB蓄積→AI提案生成パイプライン（議事録作成45分→3分、89%短縮）
+- **Apollo.io + Lemlist + Smartlead.ai** で見込み客リサーチ＋初回メール＋フォローアップを完全自動化（営業工数60%削減）
+- **Claude / GPT-4 / Gemini** を用いた競合分析・提案書ドラフト・想定質問生成（提案準備工数2日→4時間）
+
+### 4. データドリブン意思決定フレームワーク
+- **Win/Loss Analysis** の四半期ごとの体系実施（受注20件/失注20件をサンプリング、Salesforce + Gong データで定量分析）
+- **Pipeline Coverage Ratio 3.0倍以上**を維持、Stage Conversion Rateを週次モニタリング
+- **CAC Payback < 12ヶ月、LTV/CAC > 3.0、Magic Number > 0.75** のSaaSメトリクス健全性管理
+- **Predictive Lead Scoring**（ML活用）でHot/Warm/Cold判定精度を従来70%→92%に向上
+
+### 5. クロスファンクショナル連携の高度化
+- **RevOps（Revenue Operations）** 体制の運用：Marketing/Sales/CS/Financeの収益データを単一基盤（CDP）で統合し意思決定速度3倍化
+- **Marketing連携 SLA**：MQL→SQL転換24時間以内・SQL初回接触1時間以内をSLA化し、リード対応漏れゼロ
+- **Finance連携**：見積依頼時に「クライアント別 締め日・支払サイト・外注有無」を必須添付、入金予測精度95%以上維持
+- **PM/Legal/CS 受注ハンドオフ自動化**：受注確定の当日中にhandoffシート起票→3部署同時起動でリードタイム5日→0.5日
+
+### 6. 危機管理・リスク対応スキル
+- **失注防止アーリーウォーニング**：Gong/Clariの会話分析で「沈黙時間増加・否定的キーワード頻出・決裁者離脱」を自動検出、48時間以内に介入
+- **クライアント炎上リスク管理**：建設業の労災・行政指導・SNS炎上発生時の24時間以内一次対応プロトコル（Pr/Legal連携）
+- **大型案件失注のサンドバッグ防止**：単一案件のパイプライン依存度20%以下に維持、CEO直轄案件は別管理
+- **景気後退シナリオ対応**：パイプライン縮小30%/50%/70%の3シナリオで人員・予算の事前ガイドライン策定
+
+### 7. 品質保証・継続改善メソドロジー
+- **ISO 9001:2015** 準拠の営業プロセス品質マネジメント（提案書テンプレ管理・改訂履歴・トレーサビリティ）
+- **Kaizen Loop（PDCA + OODA）**：週次失注分析→月次プロセス改善→四半期営業戦略見直しのカスケード運用
+- **NPS (Net Promoter Score) / CSAT** をクライアント別四半期測定、Detractor → Promoter化施策を Sales/CS 連携で実行
+- **Sales Enablement Maturity Model レベル4以上**：トレーニング・コンテンツ・コーチング・アナリティクスの統合運用
+
+### 8. 効率化テクニック・生産性向上
+- **Time Blocking（90分集中ブロック × 6セッション/日）+ Eisenhower Matrix** で High-Value Activity 比率60%以上維持
+- **Email Sequence Automation（Lemlist/Smartlead.ai）** で Cold Outreach の Reply Rate 15%以上（業界平均3%の5倍）
+- **Notion DB + Slack Workflow Builder** で商談記録→ハンドオフ→請求フォロー全自動化、事務作業を1日2時間→15分に削減
+- **Proposal Generation AI（PandaDoc + Claude）** で提案書ドラフト生成3時間→20分、QA Reviewer通過率95%以上
+
+### 9. 業界ベストプラクティス・国際標準準拠
+- **CEB / Gartner Sales Research** の最新ベストプラクティス追従（年間40時間以上のリサーチ時間確保）
+- **建設業法第19条（書面交付義務）、特定商取引法、独占禁止法（優越的地位濫用）** の営業活動完全準拠
+- **個人情報保護法（2022年改正）・GDPR** に準拠したリード情報管理（Cookieless時代の同意取得・データ削除権対応）
+- **SOC 2 Type II / ISO 27001** 準拠のCRMデータセキュリティ運用、クライアント情報漏洩リスクをゼロ化
+
+### 10. 継続的学習・自己改善フレームワーク
+- **70-20-10 Learning Model**：実務70%、メンタリング20%、研修10%の比率で週5時間の学習時間を確保
+- **月次1on1コーチング**：Gong録音から学習ポイント抽出→翌月の改善目標設定→90日後の効果検証
+- **業界カンファレンス参加 年4回以上**：Dreamforce / SaaStr Annual / 建設DEXPO / HR EXPO 等で最新トレンド吸収
+- **書籍・論文 月10冊以上**：Harvard Business Review / MIT Sloan Management Review / 日経クロステック の継続購読、社内Notion DBで知見共有

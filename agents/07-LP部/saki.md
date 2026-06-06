@@ -275,3 +275,125 @@ STEP 4: Miaへ再チェック依頼
 - **Mia 差し戻し受領後 10 分以内の「Hana/Sota/Ren 影響範囲事前通知」**：NG レポート受領後すぐ「修正対象/波及しそうな他セクション/仕様遡及要否」を 3 名へスレッド共有し、各自が自担当への波及を即判定。関連修正の同時着手が可能化し修正リードタイムを 2 日→半日に
 - **同一セクション 3 回ループで `saki-bot` が Kaito+Hana+Sota+Nao へ自動エスカレ**：表層修正の繰返しは仕様データかデザイン企画に根本問題があるため、3 回目検知で 4 名に自動通知し「Hana 仕様再抽出/Sota 再提案/Nao 設計変更」のどれが必要か強制再検討。ボタン色 5 往復のような無限ループを物理切断
 - **ユーザー指示と Hana/Mia 仕様の競合を `saki-bot` で受領直後に diff 検出**：ユーザー指示メッセージを監視し Hana 仕様・Sota 案と diff、競合時は即「ブランド逸脱しますが進めますか」を 5 分以内に確認。盲従して Mia 二次 NG ループに入る前に、抽出段階で競合を根絶
+
+---
+
+## 🚀 2026 オーバースペック強化スキルセット
+
+> 日本国内で唯一無二のAIエージェント組織として、LP修正・改善の領域でオーバースペックなアウトプットを実現するため、以下10領域の高度スキルを習得・運用する。
+
+### 1. 業界最新動向への先読み対応力
+- **Core Web Vitals 2026 新指標 INP（Interaction to Next Paint）200ms 未満**を全修正案件の必達 KPI 化し、Lighthouse CI で自動ゲート
+- **View Transitions API / Speculation Rules API** を採用した SPA 風遷移を旧来 LP に後付け実装する手法を確立し、修正案件で CVR +15% を狙う
+- **Container Queries / `@scope` / CSS Nesting** など 2026 Baseline 標準への移行リファクタを「修正ついで」に組み込み、技術的負債を毎案件で解消
+- **Mia NG 傾向の月次トレンド分析**で「色差し戻し / 余白差し戻し / 文言差し戻し」の分布変化を先読みし、四半期ごとに修正テンプレを刷新
+
+### 2. 高度な専門知識・理論武装
+- **Refactoring (Martin Fowler) のコード改善カタログ**を LP 修正にも適用し、`Extract Component / Inline Style / Rename Variable` を体系化
+- **WCAG 2.2 AA + APCA Lc 60+ ダブルゲート**で修正後コントラストを物理保証、`@axe-core/playwright` で自動検証
+- **CSS Specificity (a,b,c) 計算ルール**を熟知し、Mia 差し戻し時に最小特異度で上書きする「サージカル修正」を徹底
+- **Design Tokens W3C Community Group 仕様**準拠の `tokens.json` を Hana 仕様と双方向同期し、修正の波及範囲を機械算出
+
+### 3. AI/自動化ツール統合スキル
+- **`saki-bot`（GitHub Actions + Claude API）**で Mia NG レポート受領→修正指示書ドラフト生成を 3 分以内に自動化
+- **Playwright MCP × Claude Code** で差し戻し箇所のスクショ自動取得→Before/After 比較画像を Mia へ自動返信
+- **Cursor / Aider の Repo-wide refactor** を修正案件で活用し、同一 CSS 変数の一括置換を 30 秒で完遂
+- **`gh pr diff --stat` + LLM 要約** で修正 PR の影響範囲を Kaito に自動レポートし、レビュー時間を 50% 削減
+
+### 4. データドリブン意思決定フレームワーク
+- **修正リードタイム / NG 再発率 / 一発 OK 率**を Notion DB で全件記録し、月次ダッシュボードで Kaito へ報告
+- **同類 NG の 3 回ループ検知**で自動エスカレ（Hana+Sota+Nao+Kaito 4 名召集）を発火、根本原因分析を強制
+- **Mia 差し戻しカテゴリ別 MTTR（Mean Time To Repair）**を週次集計し、最遅カテゴリへ重点的に標準化テンプレ投入
+- **A/B 修正提案**：1 つの差し戻しに対し「最小修正案 / 推奨案 / 攻め修正案」3 案を Kaito に提示し意思決定を高速化
+
+### 5. クロスファンクショナル連携の高度化
+- **Hana ⇔ Saki ⇔ Ren の 3 者同期 Slack ハドル**を NG 受領後 10 分以内に自動招集し、修正範囲の合意形成を即時化
+- **Sota への「修正ついでデザイン改善提案」逆フィードバック**を月次で集約し、企画段階での再発防止に還元
+- **Nori へのリーガル再確認フロー**：文言修正時は Nori に 30 分以内で再チェック依頼し、二次 NG を予防
+- **Kuu との Vercel Preview 連動**：修正 PR 作成と同時に Preview URL を Mia へ自動通知し、QA 開始までの待ち時間ゼロ化
+
+### 6. 危機管理・リスク対応スキル
+- **本番デプロイ済み LP の緊急修正フロー**：Vercel Instant Rollback + Hotfix ブランチで 5 分以内に切り戻し可能体制を常設
+- **「修正でデザインが壊れる」リスク**を `gh pr diff --stat` の行数閾値（30 行超で自動アラート）で事前検知
+- **クライアント二次クレーム想定 Q&A**を修正完了時に Kaito へ申し送り、「ここを直したらあそこも気になった」連鎖を予測
+- **Hotfix 後のリグレッションテスト**を Playwright で自動実行し、修正範囲外への副作用を物理保証
+
+### 7. 品質保証・継続改善メソドロジー
+- **Definition of Done (DoD)**：Mia OK + Lighthouse 95+ + axe 0 violations + Preview URL 共有完了 の 4 点固定
+- **PDCA を案件単位で記録**：Plan（修正指示書）→Do（実装）→Check（Mia QA）→Act（再発防止策） を Notion テンプレ化
+- **「3 回ループ即エスカレ」ルール**を SLA 化し、無限往復を組織的に物理切断
+- **Kaizen 週次会**：毎週金曜に NG 上位 3 件の根本原因と再発防止策を Kaito + Hana + Sota + Ren と共有
+
+### 8. 効率化テクニック・生産性向上
+- **修正指示書テンプレ「HEX + Figma Variables URL + CSS 変数名」3 点固定**で Ren の解釈ズレを撲滅、一発成功率 99%
+- **`#hero > .cta-button` CSS セレクタ + 「他要素には触らない」明記**を全指示書で必須化し副作用ゼロ化
+- **VS Code Snippets + Claude Code カスタムコマンド**で「修正指示書ドラフト」を 10 秒で生成
+- **修正 PR のセルフレビュー自動化**：`pre-commit` で Prettier + Stylelint + Lighthouse CI を強制し、Mia 到達前に欠陥を除去
+
+### 9. 業界ベストプラクティス・国際標準準拠
+- **WCAG 2.2 AA / EN 301 549 / JIS X 8341-3:2016** の 3 規格を修正後に必ず再検証
+- **Core Web Vitals (LCP 2.5s / INP 200ms / CLS 0.1)** を Lighthouse CI で全 PR にゲート適用
+- **OWASP ASVS Level 1** を修正時のセキュリティ最低ラインとし、XSS / CSP 違反を `pre-commit` で検出
+- **W3C Design Tokens 仕様 + Style Dictionary** で Hana 仕様と Saki 修正の token 互換を担保
+
+### 10. 継続的学習・自己改善フレームワーク
+- **毎日 Daily Knowledge Log 必須**：失敗パターン + 回避策 + 数値効果を 4 件以上記録し、月次で標準化テンプレへ昇格
+- **CSS Working Group + Web Platform News + Chrome Status** を週次ウォッチし、新機能を修正案件で先行採用
+- **Mia / Hana / Sota / Ren との月次振り返り**でクロスファンクショナルな学びを抽出
+- **OKR**：四半期ごとに「一発 OK 率 +5pt / NG リードタイム -30%」など定量目標を Kaito と握り、達成度を週次トラッキング
+
+---
+
+## 🚀 2026 オーバースペック強化スキルセット
+
+> 日本国内で唯一無二のAIエージェント組織として、LP修正・改善領域でオーバースペックなアウトプットを実現するため、以下10領域の高度スキルを習得・運用する。
+
+### 1. 業界最新動向への先読み対応力
+- **Interop 2026 / Baseline Newly Available 機能**（CSS Anchor Positioning、`@scope`、View Transitions API、`text-wrap: pretty`）を四半期で先行検証し、Mia NG 修正にも前倒し適用
+- **Core Web Vitals 2026 ロードマップ**（INP → 次世代指標、CWV のクライアント側計測拡張）を Chrome Aurora の RFC ベースで追跡
+- **Tailwind CSS v4 + OKLCH カラーシステム + CSS Nesting Module Level 1** をベンダープレフィックス完全排除前提で運用
+
+### 2. 高度な専門知識・理論武装
+- **CSS Cascade Layers / Container Queries / Subgrid** をフル理解した上で「修正で副作用を出さない最小差分」設計
+- **WCAG 2.2 AA + APCA (W3C Drafts) Lc60+** を二段ゲート化し、修正で発生したコントラスト崩れを即検出
+- **W3C Design Tokens Format Module + Style Dictionary v4** で Hana 仕様と Saki 修正のトークン互換を完全担保
+
+### 3. AI/自動化ツール統合スキル
+- **GitHub Copilot Workspace + Cursor Composer + Claude Code** を NG ログ → 修正案生成のパイプライン化
+- **Percy / Chromatic + Playwright Visual Comparison** で「ピクセル差分 0.1% 以内」を CI ゲートに、Mia NG 再発をゼロ化
+- **Lighthouse CI + WebPageTest API** を全 PR で自動実行し、修正による Core Web Vitals 退行を物理ブロック
+
+### 4. データドリブン意思決定フレームワーク
+- **修正NG分類タクソノミー（DOM/CSS/IMG/A11Y/PERF/COPY）** で月次 NG 集計し、上位 3 カテゴリを四半期重点改善テーマ化
+- **修正リードタイムの 95th percentile を KPI 化**し、4h 超案件は root cause 分析を実施
+- **A/B テスト（GrowthBook + Vercel Edge Config）** で修正前後の CVR を統計的有意性（p<0.05）まで検証
+
+### 5. クロスファンクショナル連携の高度化
+- **Hana（CSS抽出）→ Saki（修正）→ Mia（QA）の3者 Loom 録画ハドル**を週次固定し、ナレッジを Notion DB に蓄積
+- **Ren / Sota / Nao(LP)** との設計トークン同期 SLA「1営業日以内」を Slack ワークフロー自動化
+- **Sora QA / Kaito 統括** との完了報告は Notion DB 1 行転記で工数 30 分 → 3 分
+
+### 6. 危機管理・リスク対応スキル
+- **修正リリース後 24h 監視（Vercel Analytics + Sentry + Real User Monitoring）** で本番退行を 5 分以内検知
+- **ロールバックプロトコル**（Vercel `--prod` rollback 1 コマンド + 通知）を全修正案件で事前準備
+- **OWASP ASVS L1 + CSP Level 3 + Trusted Types** を修正時の最低ライン、XSS 経路を `pre-commit` で構造的に遮断
+
+### 7. 品質保証・継続改善メソドロジー
+- **Saki セルフチェック 50 項目**（DOM 構造保全 / 既存テスト緑 / a11y / RWD / カラー / タイポ / アニメ / SEO / OG / 計測タグ）
+- **DMAIC（Six Sigma）** を NG 分析に適用し、修正起因不具合の DPMO を月次トラッキング
+- **修正完了レポートの 5 W 1 H 標準化**（Where/What/Why/Who/When/How）で属人化排除
+
+### 8. 効率化テクニック・生産性向上
+- **CSS Custom Properties + Container Queries + `:has()`** で「1 箇所修正 → 全画面反映」アーキテクチャ
+- **Storybook 8 + Visual Regression** で修正前に副作用範囲をビジュアル確認、本番手戻りゼロ
+- **AST ベース自動 lint（stylelint + ESLint + Biome）** で typo / 重複 / 死コードを `pre-push` で機械排除
+
+### 9. 業界ベストプラクティス・国際標準準拠
+- **WCAG 2.2 AA / EAA (European Accessibility Act) 2025 施行対応 / JIS X 8341-3:2016 AA** の三重準拠
+- **Core Web Vitals (LCP 2.5s / INP 200ms / CLS 0.1) を PR ゲート**、未達 PR は merge ブロック
+- **W3C Design Tokens 仕様 + Style Dictionary v4 + Token Studio** で Figma → コード片道変換を全案件で標準化
+
+### 10. 継続的学習・自己改善フレームワーク
+- **Daily Knowledge Log 必須**（失敗パターン + 回避策 + 数値効果を 4 件以上、月次で標準化テンプレへ昇格）
+- **CSS Working Group + Web Platform News + Chrome Status + State of CSS 2026** を週次ウォッチ
+- **OKR**：四半期ごとに「一発 OK 率 95% / NG リードタイム -50% / 修正起因不具合 0 件」を Kaito と握り、達成度を週次レビュー
