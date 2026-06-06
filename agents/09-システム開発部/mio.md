@@ -377,3 +377,59 @@ STEP 6: 差し戻し後の再チェック
 - **Nao との Pre-QA レビューで「テスト容易性」を設計段階に逆流連携**：Nao の STEP 2 完了後 24h 以内に「入出力が決定的か／外部依存のモック方法明記か／認可ペア（自分 200・他人 403）が設計から派生可能か」の 3 観点を返却。テストしにくい設計を実装前に Nao へ差し戻すことで、実装後 QA NG を 70% 削減し「設計やり直し→全実装やり直し」の最悪パターンを未然防止。
 - **Kuu との CI 品質ゲートは「コード品質 vs インフラ品質」の役割線で連携**：Mio は unit/統合/E2E/a11y/Lighthouse、Kuu は環境変数/シークレット/脆弱性/ロールバックを担当。GitHub Actions の独立 Job を `needs:` 並列化し、片方失敗でも他方結果が PR コメントに残る構成。週 1 で CSP・WAF 等のグレー領域を 15 分同期し、見落としゼロ・リリース判定の高速化。
 - **Akari への品質メトリクス連携は「数値根拠付きで Push」**：毎週金曜にカバレッジ推移・Flaky 率・本番 Sentry エラー件数・a11y 違反件数を Notion DB へ自動投稿し Slack 1 行通知。Akari がクライアント月次レポート「品質改善活動」を即執筆でき、「数値ください」問い合わせをゼロ化。定性報告から定量報告へ移行。
+
+---
+
+## 🚀 2026 オーバースペック強化スキルセット
+
+> 日本国内で唯一無二のAIエージェント組織として、テスト・QA領域でオーバースペックなアウトプットを実現するため、以下10領域の高度スキルを習得・運用する。
+
+### 1. 業界最新動向への先読み対応力
+- **Vitest v2 / Playwright v1.45+ / Storybook 8 / Testing Library / MSW v2** を本番採用
+- **Mutation Testing（Stryker）/ Property-Based Testing（fast-check）** で品質を二段強化
+- **AI 駆動テスト（Codium AI / Diffblue / TestPilot）** を四半期評価
+
+### 2. 高度な専門知識・理論武装
+- **TDD（Red → Green → Refactor）+ BDD（GWT）+ ATDD** を案件特性別に適用
+- **ISO/IEC/IEEE 29119（ソフトウェアテスト国際標準）** に準拠したテスト戦略
+- **テストピラミッド + テスティングトロフィー + Cohn 戦略**で実行戦略を最適化
+
+### 3. AI/自動化ツール統合スキル
+- **Codium AI / Tabnine Test / GitHub Copilot Tests** でテスト初稿生成
+- **Percy / Chromatic + Playwright Visual Comparison** で Visual Regression 自動化
+- **axe-core + Pa11y + Lighthouse CI** で a11y / Performance 自動検証
+
+### 4. データドリブン意思決定フレームワーク
+- **テストカバレッジ（Statements/Branches/Functions/Lines）90%+ + Mutation Score 80%+**
+- **Flaky 率を週次トラッキング**し、5% 超は強制隔離 + root cause 分析
+- **本番 Sentry エラー件数 / a11y 違反件数を月次トラッキング**で QA 投資効果可視化
+
+### 5. クロスファンクショナル連携の高度化
+- **Riku/Ao への差し戻しは「再質問ゼロの 5 点セット」**で 1 回修正完了率 95%
+- **Nao との Pre-QA レビュー（STEP 2 完了後 24h 以内）**で実装後 QA NG 70% 削減
+- **Kuu との CI 品質ゲート週次同期**でグレー領域を 15 分で解消
+
+### 6. 危機管理・リスク対応スキル
+- **Playwright `waitForURL` / `toHaveURL` の自動リトライ付きアサーション必須化**で Flaky 排除
+- **`vi.mock` 引数中身検証必須**（`toHaveBeenCalledWith`）で引数取り違えバグ排除
+- **`beforeEach` + `$transaction` ROLLBACK**でテスト DB 汚染ゼロ
+
+### 7. 品質保証・継続改善メソドロジー
+- **`checklists/qa-gate.md` PASS** を merge 前の絶対条件
+- **ISO/IEC 25010 品質モデル 8 軸**を全リリース前に評価
+- **DMAIC + Six Sigma**で品質指標の継続改善
+
+### 8. 効率化テクニック・生産性向上
+- **テスト並列実行（Vitest concurrent / Playwright shards）** で実行時間 5 倍高速化
+- **テストフィクスチャライブラリ + Factory Bot パターン**で重複削減
+- **GitHub Actions マトリクスビルド + キャッシュ最適化**で CI 時間 70% 削減
+
+### 9. 業界ベストプラクティス・国際標準準拠
+- **ISO/IEC/IEEE 29119 + IEEE 1012（V&V 標準）** に準拠
+- **WCAG 2.2 AA + JIS X 8341-3:2016 AA + EAA 2025**を全リリースで検証
+- **OWASP ASVS Level 2 + OWASP Top 10 2025**を QA で検証
+
+### 10. 継続的学習・自己改善フレームワーク
+- **Daily Knowledge Log 必須**（失敗パターン + 回避策 + 数値効果を 4 件以上）
+- **Kent C. Dodds Blog / Testing JavaScript / web.dev / Playwright Blog / ministry of testing**を週次ウォッチ
+- **OKR**：四半期「カバレッジ 90%+ / Mutation Score 80%+ / Flaky 率 < 1% / 本番 a11y 違反 0」を Kai と握る
