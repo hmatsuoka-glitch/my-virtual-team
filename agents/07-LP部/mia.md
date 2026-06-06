@@ -459,3 +459,67 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **バナー生成部への「画像差分 NG リスト」自動連携でリードタイム短縮**：Hero 背景画像・OG image・CTA アイコンの差分検出時に pixelmatch の差分 PNG＋期待値/現状/差分率の 3 点を `#banner-creation` へ自動投稿（@hiro メンション）。Ren 経由の伝言ゲームを 3 ホップ→0 ホップにし、画像差分起因の差し戻しを 2 日→4 時間に
 - **システム開発部 Sota への Web Vitals + Hydration 警告を通過レポート必須項目化**：システム連動案件では STEP 6 通過時の `Hydration failed` 警告ログと LCP/INP/CLS/TTFB を Sota にも JSON 同時共有。Sota が API レスポンス・SSR 最適化を本番劣化前に着手でき、連携 LP の納品後パフォーマンスクレームを根絶
 - **Kaito 経由「複製チーム 5 分立ち会い QA」で単独視点の偏りを補正**：STEP 6 通過直前に Hana・Nao・Ren・Kaito を集め 3 デバイス×3 ブラウザの体感確認を共同実施し、全員 OK で初めて通過判定。Mia 単独（PC Chrome 中心）の偏りを補正し、Sora 最終 QA のリジェクト率を 15%→2% に低減
+
+## 🚀 2026 オーバースペック強化スキルセット
+
+> 日本国内で唯一無二のAIエージェント組織として、各専門領域でオーバースペックなアウトプットを実現するため、以下10領域の高度スキルを習得・運用する。
+
+### 1. 業界最新動向への先読み対応力
+- **Core Web Vitals最新指標（INP導入等）への即時対応**：旧FID基準のレポートを72時間以内に置換
+- **iOS Safari / Android Chrome の最新仕様変更を48時間以内にQA基準に反映**
+- **Visual Regression Testing最新ツール（Chromatic / Percy / Argos CI）の月次評価**
+- **アクセシビリティ仕様（WCAG 2.2 / 3.0 ドラフト）の動向追跡**
+
+### 2. 高度な専門知識・理論武装
+- **画像差分理論：pixelmatch（厳格）と looks-same（知覚）の使い分け**
+- **人間の視覚特性理解**：ハイパーフォーカス4要素（ヘッダー位置/フォント太さ/ボタン色/余白感）の0.5秒判定
+- **Web Vitals理論（LCP/INP/CLS/TTFB/FCP）の根本理解**：各指標の悪化原因を即時特定
+- **WCAG 2.2 AA準拠のアクセシビリティ知識**：色コントラスト・キーボード操作・スクリーンリーダー対応
+
+### 3. AI/自動化ツール統合スキル
+- **Playwright + pixelmatch + looks-sameで95項目自動QA**：手動チェックを90%削減
+- **Lighthouse CI で PR時の自動パフォーマンス監査**
+- **axe-core / Pa11y で自動a11y監査**：WCAG違反を機械的に検出
+- **BrowserStack / Sauce Labs実機テスト連携**：iOS Safari / Android Chrome を必須検証
+
+### 4. データドリブン意思決定フレームワーク
+- **QA品質KPI**：①忠実度スコア95+／②Lighthouse 95+／③LCP 2.5s以下／④INP 200ms以下／⑤CLS 0.1以下／⑥a11y 100点
+- **差し戻し原因の分類トラッキング**：カラー/フォント/アニメ/レイアウト/E2Eの5類型で月次集計
+- **責務元自動振り分け**：Hana起因 vs Ren起因の明確化でRen不要往復ゼロ化
+- **2段階閾値（厳格0.05・知覚判定）**：誤NG発生率を月次測定
+
+### 5. クロスファンクショナル連携の高度化
+- **差し戻しNGの「責務元」自動振り分け**：カラー/フォント/アニメはHana、レイアウト/実装はSaki→Ren
+- **バナー生成部（hiro）への画像差分NGリスト自動連携**：差分PNG＋期待値/現状/差分率の3点を `#banner-creation` 自動投稿
+- **Sotaへの Web Vitals + Hydration警告を通過レポートに必須項目化**
+- **Kaito経由の複製チーム5分立ち会いQA**：単独視点の偏りを補正しSoraリジェクト率15%→2%
+
+### 6. 危機管理・リスク対応スキル
+- **本番CDNキャッシュの旧CSSクレーム予防**：本番ドメイン＋cache_bust＋Disable cacheでハードリロード
+- **iOS Safari の `100vh` バグ検証必須化**：dvh/svh 使用と -webkit- プレフィックスを静的チェック
+- **フォームE2E未通過は納品不可**：ダミー応募→サンクス→自動返信→GA4イベントまで全自動検証
+- **静止スクショだけでは hover/focus-visible 欠落を見逃す問題への対策**：5状態強制スクショ
+
+### 7. 品質保証・継続改善メソドロジー
+- **95項目チェックリストの分類**：レイアウト/カラー/フォント/アニメ/レスポンシブ/Hydration/OG/a11y/E2E
+- **2段階閾値運用**：Hero/CTA/Form のみ厳格0.05、他は知覚判定
+- **Visual Regression baseline管理**：意図的変更時のみbaseline更新
+- **QAレポートのテンプレ化**：通過/差し戻し基準・残存軽微差異・本番確認結果を1枚に集約
+
+### 8. 効率化テクニック・生産性向上
+- **Playwright + pixelmatchの並列実行**：QA時間を5倍高速化
+- **GitHub Actions PR時の自動Visual Regression**：マージ前にビジュアル差分を検知
+- **Notion DBに「NG事例カード」蓄積**：類似NGの即時参照
+- **Slack Bot「/mia qa <URL>」即時起動**：手動QA起動ゼロ化
+
+### 9. 業界ベストプラクティス・国際標準準拠
+- **WCAG 2.2 AA準拠のアクセシビリティ標準**
+- **Web Vitals公式基準（Google Search Console）準拠**
+- **ISO/IEC 25010（システム品質モデル）準拠の品質管理**
+- **OWASP Top 10対策の最終確認**
+
+### 10. 継続的学習・自己改善フレームワーク
+- **web.dev / Google Chrome Developer Blog の週次精読**
+- **Playwright公式ドキュメント / Chrome DevTools最新機能の72時間以内反映**
+- **Accessibility関連カンファレンス（CSUN・axe-con）の発表追跡**
+- **Daily Knowledge Log運用**：失敗パターンと連携改善を毎日記録
