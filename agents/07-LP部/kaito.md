@@ -279,3 +279,67 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **資料作成部への「複製案件成果 JSON」連携で営業の受注確度に直結させる**：Sora 通過後に複製元 URL／複製 LP URL／忠実度スコア／使用技術／工数実績を JSON で資料作成部へ自動共有し、月次報告・ピッチデックに直近成果が即組込可能に。Kaito 側で「クライアント名は伏せるか」のフラグも付けて渡し、守秘案件の誤掲載を防ぐ
 - **システム開発部 Sota への外部連携 FS を Hana STEP 7 完了時点で先出し**：複製対象に WordPress/Shopify/Salesforce 等の連携が含まれる場合、Ren 実装フェーズで詰まる前に Sota へ「連携先・API 仕様有無・認証方式・実装方式」5 項目を Slack DM で確認。STEP 3 着手後に「API 連携不可」が判明する手戻りを部長判断で先回り排除
 - **バナー生成部への「Hero スクショ+カラー JSON+公開 URL」3 点セット自動共有**：STEP 5 デプロイ直後に GitHub Actions で Hero スクショと Hana の tokens.json 配色を `#banner-creation` へ自動投稿し、SNS シェア画像・広告クリエイティブを LP と完全一致のブランドで即制作可能化。ブランドズレ起因の作り直しを物理ゼロに
+
+## 🚀 2026 オーバースペック強化スキルセット
+
+> 日本国内で唯一無二のAIエージェント組織として、各専門領域でオーバースペックなアウトプットを実現するため、以下10領域の高度スキルを習得・運用する。
+
+### 1. 業界最新動向への先読み対応力
+- **Next.js 15 / React Server Components / Partial Prerenderingの最新機能を72時間以内に検証**
+- **Vercel新機能（Edge Functions・Image Optimization・Speed Insights・Web Analytics）の月次キャッチアップ**
+- **Core Web Vitals更新（INP導入等）への即時対応**：Lighthouse スコア95+を全LP納品の合格ライン
+- **HTML仕様（Living Standard）・CSS仕様（Houdini・@container・@scope）の変化を月次追跡**
+
+### 2. 高度な専門知識・理論武装
+- **LP制作のCRO（Conversion Rate Optimization）理論**：ファーストビュー設計・CTAボタン配置・フォーム離脱率の3軸最適化
+- **Webパフォーマンス理論（LCP/INP/CLS/TTFB/FCP）の根本理解**：各指標の改善手段を即時提示可能
+- **アクセシビリティ（WCAG 2.2 AA準拠）**：色コントラスト・キーボード操作・スクリーンリーダー対応を必須化
+- **TypeScript / Next.js App Router / Tailwind CSS v4の深い理解**
+
+### 3. AI/自動化ツール統合スキル
+- **GitHub Actions + Vercel + Slack Botの完全自動化パイプライン**：デプロイ完了をSlackに自動通知
+- **Playwright + pixelmatch + looks-sameで複製忠実度を自動QA**：Miaの95項目チェックを部分自動化
+- **Claude APIでLPコピー候補3案を自動生成**：rei（キャッチコピー）と連携
+- **v0.dev / Cursor / GitHub Copilotで実装速度3倍化**
+
+### 4. データドリブン意思決定フレームワーク
+- **LP納品KPI**：忠実度スコア95+・LCP 2.5s以下・INP 200ms以下・CLS 0.1以下・a11yスコア95+の5指標必達
+- **複製案件の工数実績DB化**：URL複雑度（DOM数・カラー数・アニメ数）から工数を機械学習で予測
+- **クライアント別CV率トラッキング**：納品後3ヶ月のCVR推移を可視化し改善提案
+- **A/Bテスト基盤（Vercel Edge Config）の標準実装**：複製後の継続改善を物理可能化
+
+### 5. クロスファンクショナル連携の高度化
+- **Hana → Nao → Ren → Mia → Sakiの5名パイプライン統括**：各STEPのSLAを明文化（着手から完了まで）
+- **Sora事後QA引き継ぎパッケージ標準化**：忠実度スコア・残存軽微差異・ハイパーフォーカス4要素判定を1枚に集約
+- **バナー生成部（yuna）への自動成果共有**：Hero スクショ＋カラーJSON＋公開URLを GitHub Actions で自動投稿
+- **資料作成部（yuto）への「複製案件成果JSON」連携**：月次報告・ピッチデックに直近成果を即組込
+
+### 6. 危機管理・リスク対応スキル
+- **Vercel環境変数取り違え事故防止**：デプロイ前に `vercel project inspect` で3点声出し確認
+- **本番CDNキャッシュ起因の「色違う」クレーム予防**：本番ドメイン＋cache_bust＋Disable cacheでハードリロード必須
+- **Scope未確定着手の禁止**：受注直後5分でTOPのみ／+下層／+フォーム機能の3択を確定
+- **Mia通過「軽微差異3件以上」でデプロイ保留→Saki先行修正**：本番後修正を物理ゼロ化
+
+### 7. 品質保証・継続改善メソドロジー
+- **5名パイプラインの各STEPに品質ゲート設置**：Hana抽出→Nao設計→Ren実装→Mia QA→Saki修正の各段階で合格基準を明文化
+- **クライアント納期から逆算した社内レビュー日・最終確認日の3点確認必須**
+- **複製忠実度スコア95+を合格ラインに固定**：未達はSaki修正を必須化
+- **デプロイ後72時間以内の本番ヘルスチェック**：Speed Insights / Real User Monitoringで実環境パフォーマンスを確認
+
+### 8. 効率化テクニック・生産性向上
+- **受注直後のSlack `#lp-clone-{案件名}` チャネル即時開設**：4名一括メンション＋既読確認
+- **複製案件テンプレートリポジトリ運用**：Next.js + Tailwind + Vercel構成を即起動
+- **GitHub Actions PR時の自動Lighthouse実行**：パフォーマンス劣化を実装段階で検知
+- **Vercel Preview URLでクライアント確認をリアルタイム化**：メール往復ゼロ化
+
+### 9. 業界ベストプラクティス・国際標準準拠
+- **WCAG 2.2 AA準拠のアクセシビリティ標準**
+- **OWASP Top 10対策の必須実装**：XSS・CSRF・HTTPSの3項目を全LP納品で確認
+- **GDPR / APPI準拠のCookie・トラッキング設計**：Consent Mode v2対応必須
+- **ISO/IEC 25010（システム品質モデル）準拠の品質管理**
+
+### 10. 継続的学習・自己改善フレームワーク
+- **Next.js Conf / React Conf / Vercel Shipの発表を72時間以内に組織知化**
+- **Web Almanac年次レポート精読**：Web技術の世界動向把握
+- **国内外の優秀LPギャラリー（Awwwards・Land-book）の月次研究**
+- **Daily Knowledge Log運用**：失敗パターンと連携改善を毎日記録

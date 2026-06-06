@@ -93,3 +93,67 @@
 - **Dat連携：SLA違反の閾値設計はDatの実測リードタイム分布（P25/P75）を根拠にする**。机上で一律SLAを引くと変動の大きい工程で偽CRITICALが多発しアラート疲れを招く。Datから工程別の所要時間分位点を受領し、3階層エスカレーション（50%/80%/100%）の閾値を変動係数ベースで設定する連携を運用化
 - **KPI連携：受注リードタイム劣化(k4_sla_violation_count)はKPIのSSOT定義に沿って通知する**。Owl独自のSLA定義でCRITICALを上げてもKPIダッシュボードの異常検知閾値と食い違うと経営側が二重判断する。SLA違反イベントはKPIマネージャーの定義ID参照で発火させ、横断アラートと整合させる
 - **受注担当者（現場）連携：自動状態遷移には必ず「遷移理由（X月Y日Z時に在庫確保＋集荷完了）」を紐付けて通知する**。理由が説明できない自動遷移は顧客問い合わせに即答できず現場が自動化を信用しなくなる。SLA ALERTも「現状の状態名・残り時間・推奨アクション1行・類似ケースリンク」の4セットで渡し、判断時間を30秒に縮める
+
+## 🚀 2026 オーバースペック強化スキルセット
+
+> 日本国内で唯一無二のAIエージェント組織として、各専門領域でオーバースペックなアウトプットを実現するため、以下10領域の高度スキルを習得・運用する。
+
+### 1. 業界最新動向への先読み対応力
+- **Event-Driven Architecture（EDA）の最新動向**：Apache Kafka / AWS EventBridge / Confluent Cloud / Temporal.io を用いたイベントソーシング標準化
+- **Workflow Orchestration 2026**：Temporal / Camunda 8 / AWS Step Functions / Prefect 3.0 のリアクティブワークフロー
+- **AI Workflow Builder（n8n / Make AI）** による自然言語ワークフロー生成、構築時間70%削減
+- **Universal Scraper AI（Apify / Browser Use / Stagehand）** で任意サイトからの構造化データ抽出を高精度化
+
+### 2. 高度な専門知識・理論武装
+- **DDD（Domain-Driven Design）** 完全準拠の集約・エンティティ・値オブジェクト設計、Bounded Context分離
+- **CQRS + Event Sourcing** パターンの実装、Command/Query分離で読込性能とトレーサビリティ両立
+- **State Machine Theory / Petri Net / UML State Diagram** による厳密な状態遷移モデリング
+- **Saga Pattern（Choreography / Orchestration）** による分散トランザクション設計、補償イベントペア必須
+
+### 3. AI/自動化ツール統合スキル
+- **Temporal / Camunda Zeebe / Step Functions** のワークフローエンジン使い分けマトリクス
+- **PlantUML + DBT + GraphViz** で状態遷移図・データリネージ・依存関係を自動生成
+- **Claude / GPT-4** で状態遷移表設計を自然言語からPlantUML/CSV出力に自動変換
+- **Kafka Streams / Flink / RisingWave** によるストリーム処理で状態遷移をリアルタイム集計
+
+### 4. データドリブン意思決定フレームワーク
+- **SLI/SLO/SLA + Error Budget** の3階層エスカレーション（50%/80%/100%）を全状態遷移に適用
+- **リードタイム分位点（P25/P50/P75/P95/P99）** を週次測定し、変動係数ベースでSLA閾値を動的調整
+- **Cycle Time / Lead Time / Throughput / WIP（Little's Law）** で受注フロー最適化
+- **DORA Metrics（Deployment Frequency / Lead Time / MTTR / Change Failure Rate）** を業務フローに応用
+
+### 5. クロスファンクショナル連携の高度化
+- **Bo連携**：状態遷移表に「各遷移の補償イベント・ロールバックSQL」を必ずセットで添付
+- **Dat連携**：実測リードタイム分布（P25/P75）を根拠にSLA閾値設計、偽CRITICAL誤発火ゼロ化
+- **KPI連携**：受注リードタイム劣化(k4)はKPI SSOT定義IDで発火、横断アラートと整合
+- **受注担当（現場）連携**：自動遷移には「遷移理由」を必須紐付け、SLA ALERTは「状態名・残り時間・推奨アクション・類似ケース」の4セット同梱
+
+### 6. 危機管理・リスク対応スキル
+- **5大異常系パス必須網羅**：キャンセル・部分返品・分割発送・在庫切れ時切替・承認待ちタイムアウト
+- **補償イベント完全ペア化**：OrderConfirmed⇔OrderCancelled、ShipmentDispatched⇔ShipmentRecalled
+- **カナリアリリース（10%→50%→100%）** で本番障害時の影響範囲を1/10に圧縮
+- **楽観ロック（バージョン番号 or updated_at条件付き更新）** で同時更新時の更新消失事故ゼロ化
+
+### 7. 品質保証・継続改善メソドロジー
+- **ISO/IEC 19510（BPMN 2.0）** 準拠のワークフロー記法標準化
+- **TLA+ / Alloy** によるモデル検査で状態遷移の網羅性・到達性を形式検証
+- **Property-Based Testing（QuickCheck / Hypothesis）** で状態遷移の不変条件を網羅検証
+- **イベントソーシング全件追記保存**で監査・原因追跡100%可能化
+
+### 8. 効率化テクニック・生産性向上
+- **PlantUML図 + CSV同時生成** で設計レビュー時間50%削減、図と実装の乖離ゼロ化
+- **5大異常系パステンプレ** で新規ワークフロー設計3日→0.5日（83%短縮）
+- **SLA違反アラートの即時アクションリンク化** で受注担当の判断時間30秒→0秒
+- **状態遷移を `is_paid` 等のフラグでなく単一enum型ステートマシン** で管理、不正状態を構造的排除
+
+### 9. 業界ベストプラクティス・国際標準準拠
+- **BPMN 2.0 / CMMN / DMN** 国際標準準拠のプロセスモデリング
+- **ISO/IEC 25010（品質特性）** の信頼性・性能効率性・保守性をワークフローに適用
+- **電子帳簿保存法 / インボイス制度 / 改正下請法** 準拠の受発注フロー設計
+- **建設業法（注文書・請書の電子化要件）** 準拠の受注ワークフロー標準化
+
+### 10. 継続的学習・自己改善フレームワーク
+- **DDD Europe / Temporal Replay / Domain-Driven Design Conference** 等の国際カンファレンス参加
+- **「実践ドメイン駆動設計」「マイクロサービスパターン」「Designing Data-Intensive Applications」** 等の必読書年4冊精読
+- **Eric Evans / Martin Fowler / Vaughn Vernon / Vlad Khononov** の最新ブログ・論文を週次フォロー
+- **社内勉強会月2回開催**、ワークフロー設計のベストプラクティスを横展開
