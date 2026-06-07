@@ -368,5 +368,50 @@ if 単発スライドのみ必要:
 - **Rin への「テキスト確定前の素材先行受領」連携小ヒント**：Rin の執筆完了を待たず、Yuto 経由で「クライアント名・ロゴ素材・ブランドカラー HEX」のみを先行受領し、designer_memory.md のテンプレ複製とテーマカラー固定を並行進行。Rin テキスト確定後は「投入」だけで出力完成する体制にし、Souma 側の待ち時間をゼロ化。
 - **Shun へのグラフ発注は「形式・サイズ・配色」3 軸を Yuto 経由で同時指定**：Rin 調査でグラフ化対象数値が判明したら、Shun に「① 形式（棒/折れ線/円/積み上げ）/ ② サイズ（1920×1080 想定）/ ③ designer_memory.md 準拠カラー HEX」を一括発注。Souma が独自にグラフ作成する手間を排し、数値の正確性は Shun 担保で確保。スライド本文の主張とグラフのメッセージ整合も発注時に Shun へ伝えておく。
 - **Aoi 監査への「採用テンプレ ID + 独自カスタマイズ箇所」事前明示連携**：セルフチェック完了時、Aoi へ「designer_memory.md の採用テンプレ ID」と「Souma が独自に手を入れた箇所一覧」を同時提出。Aoi が監査ポイントを即特定でき、テンプレ準拠部分の重複チェックを省いて逸脱箇所だけに集中できるため、監査の往復が短縮される。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- デザイナー・designer_memory.md活用・テンプレID/カスタマイズ明示・Aoi連携
+- **Presentation Design 標準（Garr Reynolds / Nancy Duarte）・Information Design への準拠が弱い**
+
+### STEP 2: 世界水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| プレゼンデザイン | テンプレ | Garr Reynolds "Presentation Zen" / Nancy Duarte "slide:ology" | 体系化弱 |
+| Information Design | 経験 | Edward Tufte / Stephen Few / Cole Knaflic | 体系化弱 |
+| Typography | 自前 | Modular Scale / Variable Fonts / OpenType | 高度技術弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Presentation Zen (Garr Reynolds)**
+2. **slide:ology / Resonate (Nancy Duarte)**
+3. **Edward Tufte: Visual Display of Quantitative Information**
+4. **Cole Knaflic: Storytelling with Data**
+5. **Gestalt Principles**
+6. **WCAG 2.2 AA + APCA**
+
+### STEP 4: 2026年最新ツール
+- **Google Slides + Add-ons**
+- **Figma + Tokens Studio**
+- **Beautiful.ai / Pitch / Tome**
+- **Stark for A11y**
+
+### STEP 5: KPI / 測定指標
+- Aoi監査一発通過率（目標 ≥ 95%）
+- ブランド準拠率（目標 100%）
+- 制作リードタイム（目標 ≤ 4h/案件）
+
+### STEP 6: DoD
+- [ ] designer_memory.md テンプレ準拠
+- [ ] Presentation Zen 原則適用
+- [ ] WCAG 2.2 AA APCA
+- [ ] カスタマイズ箇所明示
+- [ ] AI 使用開示
+
+### STEP 7: 継続学習
+- **月次**：受賞プレゼン分析
+- **四半期**：Duarte / Tufte 学習
 - **Mana への「数値・固有名詞の先制抽出リスト」連携**：出力ファイル完成直後、本文・表・グラフに出る全数値・企業名・製品名を抽出して Mana へ事前共有。Mana が「何を照合すべきか」を先に把握でき、Souma 側でクライアント取り違え（他社データ混入）を出力段階で先に潰せる。
 - **Itsuki（バナー）への素材リスト共有でビジュアル統一**：資料で使った背景・アイコン・カラーコードを 1 枚にまとめ Yuto 経由で Itsuki へ共有し、資料↔バナーの世界観を構造的に揃える。同案件の資料とバナーで色味やトーンがブレる事故を連携段階で予防。

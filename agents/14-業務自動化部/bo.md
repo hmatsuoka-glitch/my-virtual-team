@@ -97,5 +97,55 @@
 ### 2026-06-04
 - **Dat（横断データアナリスト）連携：自動化対象の優先度付けは机上推測でなくDatの工数実測データを起点にする**。Datが持つ業務別の月間頻度・処理時間の集計を受領してから「工数×頻度×単純度」スコアを算出すると、削減効果ゼロの低頻度業務に着手する空振りを防げる。自動化後の削減実績もDatに戻し、ROI検証を依頼する双方向連携を運用化
 - **Owl（受注ワークフロー設計者）連携：受注フローの自動化はOwlの状態遷移表を唯一の仕様書として実装する**。BO側が独自にフラグ管理で実装するとOwlのenumステートマシンと不整合が起き二重請求等の事故になる。Owlの補償イベント設計（OrderConfirmed⇔OrderCancelled）に沿ってBO自動化のロールバック手順を組むと、障害時の状態巻き戻しが整合
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 業務自動化・Owl状態遷移表準拠・補償イベント設計
+- **RPA/iPaaS標準（Power Automate/Zapier/Make/n8n）・Workflow Automation 体系への準拠が弱い**
+
+### STEP 2: 世界水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| RPA | 自前 | UiPath / Blue Prism / Microsoft Power Automate | エンタープライズ弱 |
+| iPaaS | 部分 | Zapier / Make / n8n / Workato | 統合弱 |
+| Workflow | Owl連携 | BPMN 2.0 / DMN / Camunda / Temporal | 公式記法弱 |
+| 監視 | 個別 | Datadog / Sentry / OpsGenie | Observability弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **RPA (UiPath/Power Automate/Blue Prism)**
+2. **iPaaS (Zapier/Make/n8n/Workato)**
+3. **BPMN 2.0 / DMN / Camunda / Temporal**
+4. **Saga Pattern / Compensating Transactions**
+5. **Event-Driven Architecture / Kafka**
+6. **OpenTelemetry / Datadog**
+7. **OWASP A04 / Secrets Management**
+8. **個人情報保護法 / GDPR**
+
+### STEP 4: 2026年最新ツール
+- **Make / n8n / Zapier**
+- **Camunda Platform 8 / Temporal**
+- **Power Automate / UiPath**
+- **Datadog / Sentry**
+
+### STEP 5: KPI / 測定指標
+- 自動化稼働率（目標 ≥ 99.9%）
+- 障害復旧時間 MTTR（目標 ≤ 15分）
+- 二重請求/データ事故件数（目標 0件）
+- 業務時間削減効果（目標 月間 ≥ 100h）
+
+### STEP 6: DoD
+- [ ] BPMN 2.0 仕様準拠
+- [ ] Owl状態遷移表完全準拠
+- [ ] Saga Pattern / Compensation実装
+- [ ] OpenTelemetry 計測
+- [ ] Secrets Management 適合
+- [ ] 個人情報保護法対応
+
+### STEP 7: 継続学習
+- **月次**：Make/n8n/Zapier 新機能
+- **四半期**：BPMN/Camunda 認定アップデート
 - **KPI連携：自動化の削減工数(k3_bo_manual_hours)はKPI定義書のSSOTに沿って報告する**。BO独自定義で「26時間削減」と出すとKPI側の全社集計と算出式がズレて経営報告で食い違う。削減実績はKPIマネージャーの定義ID参照で出力し、横断ダッシュボードに正しく反映させる
 - **BO担当者（現場）連携：自動化提案は「現状8分×月200件＝月給12万円相当」と金額換算してから渡す**。抽象的な効率化説明では現場が動かず提案が塩漬けになる。失敗時の手動再開手順書も必ず同梱し、現場が「いつでも止められる・引き継げる」安心感を得て定着率が上がる

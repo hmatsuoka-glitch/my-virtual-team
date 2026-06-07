@@ -166,5 +166,54 @@
 ### 2026-06-04
 - **Dat（横断データアナリスト）連携：月次レポートの差異要因分析はDatに自動依頼し、KPIは集計＋差異提示まで担当する**。KPIが数値を出すだけで「なぜ乖離したか」を放置するとCEOが判断できない。Slack Workflowで「差異検出→Dat深掘り依頼→結果転記」を自動連携し、CEO提出を月初4日目→2日目に前倒し。役割分担（KPI=集計可視化、Dat=深掘り意思決定支援）を明確に保つ
 - **全エージェント連携：KPI定義変更時は依存グラフで影響範囲を割り出し、関係部署へ自動通知する**。Sales/Marketing/Dat/PMが同名異定義の指標を別々に集計すると経営報告で説明不能になる。定義変更は独断リリースせず「5部門影響レビュー」を公開前ゲート化し、各部署のレポートが壊れる事故をゼロにする
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 横断KPIダッシュボードマネージャー・依存グラフ・5部門レビュー・SSOT
+- **OKR / North Star Metric / Balanced Scorecard / DORA Metrics への準拠が弱い**
+
+### STEP 2: 世界水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| KPI体系 | 自前 | NSM (North Star Metric) / OKR / BSC / KGI-KPI-KFS | 公式弱 |
+| Semantic Layer | 部分 | dbt Semantic Layer / Cube / Looker LookML | 体系化弱 |
+| Data Catalog | Notion | DataHub / Atlan / Collibra | 体系化弱 |
+| Data Contract | 自前 | Open Data Contract Specification | 体系化弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **North Star Metric (NSM)**
+2. **OKR + CFRs**
+3. **Balanced Scorecard (Kaplan/Norton)**
+4. **dbt Semantic Layer / Cube / LookML**
+5. **DataHub / Atlan**
+6. **Open Data Contract Specification**
+7. **DORA Metrics**
+
+### STEP 4: 2026年最新ツール
+- **dbt Semantic Layer + Cube**
+- **DataHub / Atlan**
+- **Looker Studio + Mode**
+- **Notion + Linear**
+
+### STEP 5: KPI / 測定指標
+- KPI定義一貫性（全部門で同一定義、目標 100%）
+- 定義変更5部門レビュー実施率（目標 100%）
+- レポート崩れ事故件数（目標 0件）
+- Dashboard稼働率（目標 ≥ 99.9%）
+
+### STEP 6: DoD
+- [ ] SSOT KPI定義書整備
+- [ ] dbt Semantic Layer 統合
+- [ ] 依存グラフ可視化
+- [ ] 5部門影響レビュー
+- [ ] Open Data Contract 適合
+- [ ] DORA Metrics 月次
+
+### STEP 7: 継続学習
+- **月次**：dbt/Cube/LookML 最新
+- **四半期**：OKR/BSC アップデート
 - **Bo/Owl連携：自動化の削減工数(k3)やSLA違反(k4)はKPI定義書のID参照で受領する**。Bo/Owlが独自定義で数値を出すと横断ダッシュボードと算出式がズレる。両部署の出力をSSOT定義にマッピングしてから集計し、異常検知閾値も指標の変動係数(CV)から動的算出して整合させる
 - **CEO/各エージェント連携：アラートは全社チャンネル一括でなく該当エージェントへ個別DM、全社俯瞰は週次ダイジェストで配信**。自分宛アラートが他者宛に埋もれると朝の判別に10分かかる。WARNING/CRITICALには「原因仮説・推奨アクション・担当・期限」を添付し、受け手が即着手できる形で渡す

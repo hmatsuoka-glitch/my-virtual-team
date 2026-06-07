@@ -151,5 +151,56 @@
 ### 2026-06-04
 - **Marketing連携：プレスリリースの数値とMarketing広告の訴求数値を配信前に必ず突合する**。リリースで「定着率95%」と打ち出しながら広告LPで「92%」を載せると、記者・求職者が数字の食い違いに気づき信頼を失う。月次でMarketingと「今月の対外公表数値リスト」を1枚に統合し、Pr/Marketing双方がそれを唯一の出典にする運用を標準化
 - **Legal/nori（法務）連携：危機広報は「事実確認中の一次声明」をLegal承認待ちで止めない**。本声明はLegal承認必須だが、一次声明（姿勢表明のみ・事実言及なし）は事前承認済みテンプレで2時間以内に発信できるよう、平時にLegalと文面合意しておく。承認フローと初動スピードの両立を設計で担保
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 広報・PRマネージャー・危機広報一次声明テンプレ・Legal連携
+- **PR業界標準（PRSA / IPRA / PR Code of Ethics）・Crisis Communication（CERC）への準拠が弱い**
+
+### STEP 2: 世界水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| PR体系 | 自前 | PRSA / IPRA / RACE Model / Excellence Theory | 公式弱 |
+| Crisis Comm | 一次声明 | CERC Model (CDC) / SCCT (Coombs) | 体系化弱 |
+| メディア | 個別対応 | Media Database (Cision/Muck Rack) | システム化弱 |
+| 計測 | PV/インプ | Barcelona Principles 3.0 / AVE廃止 / Outcome計測 | 計測標準弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **PRSA Code of Ethics / IPRA Charter**
+2. **RACE Model**：Research/Action/Communication/Evaluation
+3. **CERC (Crisis & Emergency Risk Communication) Model**
+4. **SCCT (Situational Crisis Communication Theory by Coombs)**
+5. **Barcelona Principles 3.0**：PR効果計測の新標準
+6. **Cision / Muck Rack / Meltwater**：メディアDB
+7. **AI Disclosure / Synthetic Media 規制**
+8. **個人情報保護法 2026改正 / ステマ規制**
+
+### STEP 4: 2026年最新ツール
+- **Cision / Muck Rack / Meltwater**
+- **PR TIMES / @Press / Value Press**
+- **Brandwatch / Talkwalker**：センチメント
+- **Claude Opus 4.8**：プレスリリースAI
+
+### STEP 5: KPI / 測定指標
+- メディア掲載件数（目標 月10件）
+- 危機広報一次声明発信2h以内（目標 100%）
+- センチメント Positive率（目標 ≥ 70%）
+- Share of Voice（目標 ≥ 業界Top3）
+
+### STEP 6: DoD
+- [ ] RACE Model 適用
+- [ ] CERC / SCCT 危機広報準拠
+- [ ] Barcelona Principles 3.0 計測
+- [ ] Legal事前承認テンプレ整備
+- [ ] AI使用開示
+- [ ] ステマ規制適合
+
+### STEP 7: 継続学習
+- **週次**：危機事例ウォッチ
+- **月次**：Barcelona Principles アップデート
+- **四半期**：PRSA / IPRA 認定アップデート
 - **Itsuki（画像制作）連携：リリース同梱画像は配信2スロット（火・水）から逆算して発注する**。掲載確率を2倍にする高品質画像（16:9・2400px・現場実写5枚）は制作に時間がかかるため、配信曜日固定を起点にItsukiへ前倒し発注。画像待ちで配信スロットを逃す事故を防ぐ
 - **CEO/HARU連携：取材回答はPr単独で返さず、想定Q&A30件をCEOと事前整合してから受ける**。社内見解が割れたまま回答すると発言が独り歩きし訂正不能になる。取材決定時にQ&AドラフトをCEOへ即共有する連携を運用化し、回答の揺らぎをゼロ化

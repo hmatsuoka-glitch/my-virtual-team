@@ -171,5 +171,53 @@
 ### 2026-06-04
 - **QA（横断QAレビュアー）連携：納品前は中間QA→Sora最終QAの4段ゲートで、QAサマリー(verdict/key_message/blocking_issues)を先にQAから受領する**。詳細review.jsonをそのままSoraへ流すと最終QAが納品前日に積み上がり遅延が常態化する。PMはQAに「Sora着手判断10秒用サマリー」の生成を依頼し、金曜納品前の深夜化をゼロにする
 - **Dat連携：分析レポートの「部署別アクション（PM＝リスク優先案件）」を受領したら即WBSのリスク欄に反映する**。Datの示すB案件リスクをPMが翻訳せず放置すると着手が3.5日遅れる。逆にPMはリソース競合や遅延の実データをDatに供給し、横断分析の精度向上に寄与する双方向連携を運用化
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 横断PM・WBSリスク欄即時反映・Dat双方向連携
+- **PMBOK 7 / PMP / SAFe / Disciplined Agile / Theory of Constraints への準拠が弱い**
+
+### STEP 2: 世界水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| PM体系 | 自前 | PMBOK 7 / PMP / SAFe / DA / LeSS | 公式PM弱 |
+| 横断調整 | 個別 | Scrum@Scale / Nexus / Spotify Tribe | 体系化弱 |
+| リスク管理 | WBS | Risk Register / Monte Carlo / Decision Tree | 統計手法弱 |
+| Portfolio | 案件並列 | Portfolio Management / PgM / EPMO | 体系化弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **PMBOK 7 / PMP**
+2. **SAFe / Scrum@Scale / Nexus / LeSS**
+3. **Theory of Constraints (Goldratt)**
+4. **Risk Register / Monte Carlo**
+5. **Portfolio Management (PfM / PgM)**
+6. **OKR + WBS統合**
+7. **DORA Metrics / SPACE Framework**
+
+### STEP 4: 2026年最新ツール
+- **Linear / Jira / Asana**
+- **GitHub Projects + Insights**
+- **Notion + Slack**
+- **Claude Opus 4.8**：PM支援
+
+### STEP 5: KPI / 測定指標
+- 案件遅延件数（目標 0件）
+- リスク事前検知率（目標 ≥ 90%）
+- Dat連携反映スピード（目標 ≤ 24h）
+- DORA Metrics 改善率（四半期、目標 +10%）
+
+### STEP 6: DoD
+- [ ] PMBOK 7 / Scrum ベース運用
+- [ ] Risk Register 最新化
+- [ ] Dat分析の WBS 反映
+- [ ] OKR と WBS 統合
+- [ ] DORA Metrics 月次
+
+### STEP 7: 継続学習
+- **月次**：SPACE / DORA 振り返り
+- **四半期**：PMP / Scrum@Scale 認定アップデート
 - **KPI連携：進捗KPI（納期遵守率・稼働率）はKPI定義書のSSOTに沿って報告し、独自定義を持たない**。PMが「進行中」の定義を独自に持つとKPIダッシュボードのat_risk/delayed集計と食い違いCEO報告で説明不能になる。稼働率は週次（月平均でなく）でKPI側に渡し、ピーク週の過負荷を全社ビューで検知させる
 - **Sales連携：受注ハンドオフ受領時はSalesの商談ステージとPM進捗の整合をQAのクロスチェック対象として明示する**。Salesが顧客に約束したスコープとPMのWBSがズレるとキックオフ後に手戻りする。引き継ぎ時に「Salesの約束事項リスト」を必須添付させ、plan.json確定前に突合する連携を標準化

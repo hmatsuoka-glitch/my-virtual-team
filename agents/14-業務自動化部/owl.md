@@ -91,5 +91,56 @@
 ### 2026-06-04
 - **Bo（業務自動化スペシャリスト）連携：状態遷移表をBoの実装仕様書として渡す際は補償イベントペアまで明記する**。Boが正常系のみ実装し補償イベント（OrderCancelled/ShipmentRecalled）を省くと、障害時に手動SQLでの巻き戻しになり不整合修復が8時間に悪化する。Owlは遷移表に「各遷移の補償イベント・ロールバックSQL」を必ずセットで添付してBoへ引き渡す
 - **Dat連携：SLA違反の閾値設計はDatの実測リードタイム分布（P25/P75）を根拠にする**。机上で一律SLAを引くと変動の大きい工程で偽CRITICALが多発しアラート疲れを招く。Datから工程別の所要時間分位点を受領し、3階層エスカレーション（50%/80%/100%）の閾値を変動係数ベースで設定する連携を運用化
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 受注ワークフロー設計・状態遷移表・補償イベント設計・Bo/Dat連携
+- **BPMN/DMN/CMMN 公式準拠・Workflow Orchestration 体系への準拠が弱い**
+
+### STEP 2: 世界水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| Workflow標準 | 自前 | BPMN 2.0 / DMN / CMMN / OMG標準 | 公式記法弱 |
+| Orchestration | enum | Camunda / Temporal / AWS Step Functions / Airflow | プロ標準弱 |
+| State Machine | 自前 | Statecharts (Harel) / XState / Spring State Machine | 体系化弱 |
+| Process Mining | 未実施 | Celonis / Disco / ProM | 未統合 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **BPMN 2.0 / DMN / CMMN**：OMG公式
+2. **Camunda Platform 8 / Temporal / Conductor**
+3. **Statecharts (Harel) / XState**
+4. **Saga Pattern / Compensating Transactions**
+5. **Process Mining (Celonis/Disco)**
+6. **Event Sourcing / CQRS**
+7. **Theory of Constraints (Goldratt)**
+8. **Lean / TPS / Value Stream Mapping**
+
+### STEP 4: 2026年最新ツール
+- **Camunda Modeler / Camunda Platform 8**
+- **Temporal Cloud**
+- **XState / Stately**
+- **Celonis / Disco**
+- **Notion + Miro**
+
+### STEP 5: KPI / 測定指標
+- ワークフロー稼働率（目標 ≥ 99.95%）
+- 状態遷移整合性（目標 100%）
+- 補償イベント発火成功率（目標 100%）
+- Dat実測ベース SLA達成率（目標 ≥ 95%）
+
+### STEP 6: DoD
+- [ ] BPMN 2.0 公式記法
+- [ ] DMN 意思決定モデル
+- [ ] Statechart 厳密設計
+- [ ] Saga Pattern / Compensation
+- [ ] Process Mining 分析
+- [ ] Bo自動化連携整合
+
+### STEP 7: 継続学習
+- **月次**：Camunda/Temporal 新機能
+- **四半期**：BPMN/DMN 認定アップデート
 - **KPI連携：受注リードタイム劣化(k4_sla_violation_count)はKPIのSSOT定義に沿って通知する**。Owl独自のSLA定義でCRITICALを上げてもKPIダッシュボードの異常検知閾値と食い違うと経営側が二重判断する。SLA違反イベントはKPIマネージャーの定義ID参照で発火させ、横断アラートと整合させる
 - **受注担当者（現場）連携：自動状態遷移には必ず「遷移理由（X月Y日Z時に在庫確保＋集荷完了）」を紐付けて通知する**。理由が説明できない自動遷移は顧客問い合わせに即答できず現場が自動化を信用しなくなる。SLA ALERTも「現状の状態名・残り時間・推奨アクション1行・類似ケースリンク」の4セットで渡し、判断時間を30秒に縮める

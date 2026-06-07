@@ -167,5 +167,57 @@
 ### 2026-06-04
 - **クロージング前に PM・資料作成部へ実現可能性を確認してから確約する連携**：納期・スコープ・追加対応を口頭確約する前に、必ず PM/資料作成部（Yuto）へ「この条件で着手可能か」を確認。未確認事項は「持ち帰り→翌日回答」に固定し、商談メモに「確約済み/要確認」タグを付ける。営業が現場無視で約束して着手後に実現不能が判明する信頼失墜を、連携で構造的に予防。
 - **受注確定の当日に Legal・Finance・PM へ handoff シートを同時起動**：受注した日のうちに「決裁者名・支払サイト・スコープ確定版・特記事項」を1枚に集約し、Legal（契約書）・Finance（請求スケジュール）・PM（立ち上げ）へ同時発注。口頭引き継ぎ禁止・書面起票必須をルール化し、契約書遅延・請求漏れ・着手遅れの連鎖を防ぐ。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 営業マネージャー・handoffシート同時起動・Legal/Finance/PM連携
+- **B2B営業標準（MEDDIC/Challenger/Sandler/SPIN）・Revenue Operations への準拠が弱い**
+
+### STEP 2: 世界水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| 営業手法 | 自前 | MEDDIC / MEDDPICC / Challenger Sale / SPIN / Sandler | 公式メソド弱 |
+| RevOps | 部分 | Revenue Operations / RevOps Co-op / Pipeline Velocity | 体系化弱 |
+| CRM | Notion | Salesforce / HubSpot Sales Hub / Pipedrive | エンタープライズ弱 |
+| Account Mgmt | 7社並列 | ABM (Account-Based Marketing) / Tier化 | 体系化弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **MEDDIC / MEDDPICC**：B2Bクオリフィケーション
+2. **Challenger Sale**：教えて差別化
+3. **SPIN Selling**：Situation/Problem/Implication/Need-payoff
+4. **Sandler Sales / Solution Selling**
+5. **Account-Based Marketing (ABM)**
+6. **Pipeline Velocity / Win Rate / ASP**
+7. **Customer Health Score**
+8. **下請法 / 改正景表法 / ステマ規制**
+
+### STEP 4: 2026年最新ツール
+- **HubSpot Sales Hub / Salesforce**
+- **Gong / Chorus**：商談AI分析
+- **Clari / Outreach / Apollo**
+- **Linear / Notion**
+- **Claude Opus 4.8**：提案書AI
+
+### STEP 5: KPI / 測定指標
+- Win Rate（目標 ≥ 40%）
+- Pipeline Velocity（目標 業界平均比 +30%）
+- 受注リードタイム（目標 ≤ 30日）
+- handoff 当日完了率（目標 100%）
+- NRR（目標 ≥ 120%）
+
+### STEP 6: DoD
+- [ ] MEDDIC 全要素埋め込み
+- [ ] handoff シート当日Legal/Finance/PM
+- [ ] Customer Health Score 算出
+- [ ] 下請法 / 景表法 / ステマ規制適合
+- [ ] AI使用開示
+
+### STEP 7: 継続学習
+- **週次**：Gong/Chorus 商談分析
+- **月次**：MEDDIC スコア更新
+- **四半期**：Challenger/SPIN 認定アップデート
 - **見積依頼は Finance へ「クライアント別 締め日・支払サイト・外注有無」を添えて渡す**：Finance が粗利と入金予測を正しく組めるよう、商談で握った支払サイト（建設業など長サイト先は特にフラグ）と外注の有無を見積依頼時に明記。営業が支払サイトを伝え漏れて入金予測が1ヶ月ずれる事故を、依頼段階で潰す。
 - **建設業の採用支援案件は HR の求職者目線を提案に取り込む連携**：HR から「求職者が応募で躊躇する不安（給与モデル/社員構成/面接フロー）」を事前受領し、提案書・LP の必須記載要件として Yuto へ渡す。採用の現場知見を営業提案に橋渡しし、クライアントの応募率改善という成果軸で受注確度を高める。

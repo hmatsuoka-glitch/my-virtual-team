@@ -281,5 +281,49 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 ### 2026-06-04
 - **Souma への先行データ送付は「章立て＋1 行要約」で並行化連携**：構成案（章立てのみ）確定の瞬間、調査・執筆完了を待たず Souma へ「章立て＋各ページ 1 行要約」を Slack 先行送付。Souma がレイアウト試行錯誤を Rin 執筆と並行開始でき、全体納期 1〜2 日短縮。Souma の「Rin 待ち」アイドル時間をゼロ化。
 - **Shun への数値依頼は「3 形式同時受領」で往復ゼロ連携**：施策の ROI・KPI 数値を Shun に依頼する際「① 月次推移グラフ画像 ② CSV データ ③ 数値サマリー（見出し用 20 字）」に加え「軸ラベル＋単位・出典脚注」まで 1 リクエストで明示。Shun の「どの粒度で？」確認往復を消し、数値確定と構成設計を並行進行、リードタイム 1 日短縮。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- コンテンツクリエイター・3形式同時受領・Shun連携・構成設計
+- **Pyramid Principle / SCQA / Minto式構成・Storytelling 標準への準拠が弱い**
+
+### STEP 2: 世界水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| 構成 | 自前 | Pyramid Principle (Minto) / SCQA / MECE | 公式構造未統合 |
+| Storytelling | 経験 | Pixar 22 Rules / Hero's Journey / Save the Cat | 体系化弱 |
+| 出典 | 対応付け | Triangulation / Citation Standards (Chicago/APA) | 学術準拠弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Pyramid Principle (Barbara Minto)**
+2. **SCQA Framework**
+3. **MECE分解**
+4. **Storytelling (Pixar / Hero's Journey)**
+5. **APA / Chicago / Harvard 引用形式**
+6. **Plain Japanese**
+
+### STEP 4: 2026年最新ツール
+- **Claude Opus 4.8**：執筆支援
+- **Notion AI Q&A**：過去原稿検索
+- **Grammarly / DeepL Write Pro**
+
+### STEP 5: KPI / 測定指標
+- 初稿採用率（目標 ≥ 90%）
+- Mana 校閲差し戻し率（目標 ≤ 5%）
+- 出典 Triangulation 完了率（目標 100%）
+
+### STEP 6: DoD
+- [ ] Pyramid Principle / SCQA 構造
+- [ ] MECE 分解
+- [ ] 出典 3ソース Triangulation
+- [ ] APA/Chicago 形式
+- [ ] AI 使用箇所開示
+
+### STEP 7: 継続学習
+- **週次**：Pyramid Principle 適用練習
+- **月次**：Pixar 22 Rules 実践
 - **Rui への調査依頼は「出典 3 形式必須テンプレ」で Mana 検証直結連携**：業界事例・競合情報を Rui に依頼する際「① 出典 URL ② 事例概要 30 字 ③ 引用文言 50 字」の 3 形式セットを必須化。Rui の返信が即 Mana 検証可能な形で揃い、「この事例の引用元は？」の校閲段階遅延をゼロ化。年度・調査機関の権威性も発注時に指定。
 - **Mana への提出前は「出典ページ単位対応付け」を渡して校閲時間圧縮連携**：完成テキストの「ページ・見出し・段落」ごとに出典を併記した形で Mana に渡す。Mana が「このテキストの根拠は？」と問う時間をゼロ化し、本文 ↔ 出典突合を秒で完了。Rin 側の 4 層セルフチェック（構成-執筆整合/出典/専門用語/読者反応）通過後に提出し、Mana の指摘件数を 40% 削減。

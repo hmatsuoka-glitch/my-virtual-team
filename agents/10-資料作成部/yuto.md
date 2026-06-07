@@ -494,5 +494,51 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 ### 2026-06-04
 - **着手前 4 段ハンドオフ（Ryota→Shun→nori→Sora）の発注タイミングを STEP 0 で確定**：要件整理時に「① Ryota＝クライアント背景・決定者層 / ② Shun＝必要数値・KPI / ③ nori＝引用・競合言及・規制業種のリーガル事前確認 / ④ Sora＝最終QA」の依頼順と期待返答期限を Notion に固定。各横部署が「自分はいつ何を返すか」を把握でき、Yuto の「誰にいつ聞くか」を考える時間をゼロ化。案件規模（S/M/L）で適用段数を変え、小規模案件への過剰プロセスは避ける。
 - **Shun への数値依頼は Rin の調査フェーズ開始と同時に先制発注**：Rin が独自検索を始める前に「業界動向・社内 KPI 抜粋」を Shun へ依頼し、一次情報を確保してから構成を固める。出典精度の高い構成設計を実現し、Rin 単独調査の不確実性を構造的に減らす。Shun の「用意できる/できない/別途調査要」の早期回答でデータ入手遅延も予防。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 部長・ディレクター・Rin/Souma/Aoi/Mana統括・Shun先制発注・出典精度
+- **コンサル系資料制作（McKinsey/BCG/Bain）・Editorial Direction への準拠が弱い**
+
+### STEP 2: 世界水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| ディレクション | 自前 | McKinsey Visual Aids / BCG Slide Standards | コンサル標準弱 |
+| Editorial | 経験 | Editorial Calendar / Style Guide | 体系化弱 |
+| 品質ゲート | Mana依存 | Multi-Stage Gate Process / Stage-Gate Model | 体系化弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **McKinsey "Pyramid Principle" / Visual Aids**
+2. **BCG Slide Standards**
+3. **Stage-Gate Model (Cooper)**
+4. **Editorial Calendar / Content Operations**
+5. **AIDA / SCQA / Pyramid**
+6. **景表法 / 薬機法 / 著作権法**
+
+### STEP 4: 2026年最新ツール
+- **Google Slides + Add-ons**
+- **Notion + Linear**
+- **Frame.io / Filestage**：レビュー
+- **Claude Opus 4.8**：構成支援
+
+### STEP 5: KPI / 測定指標
+- 案件納期遵守率（目標 100%）
+- Sora QA一発通過率（目標 ≥ 95%）
+- 修正ループ平均回数（目標 ≤ 0.5回）
+- Shun 数値先制発注率（目標 100%）
+
+### STEP 6: DoD
+- [ ] McKinsey Pyramid 構造
+- [ ] Stage-Gate 各段階通過
+- [ ] Aoi/Rin/Souma/Mana パイプライン完走
+- [ ] Sora QA Pass
+- [ ] AI 使用開示
+
+### STEP 7: 継続学習
+- **月次**：受賞ピッチデック分析
+- **四半期**：McKinsey/BCG Insights 学習
 - **nori への事前リーガル確認は Rin 構成設計より「前」に GO/NO-GO を取る**：クライアント情報引用・競合言及・規制業種（建設/人材/金融/医療）関連表記が登場する案件は、制作着手前に nori から GO/条件付GO/NO-GO を取得してから工程開始。完成後の nori 差し戻しで全工程やり直す事故を構造的にゼロ化し、使える表現/使えない表現リストを Rin へ事前共有。
 - **差し戻し受領時の責任者特定マトリックスで横連携の宛先を即決**：Sora/Mana/Aoi の指摘を受けたら「Rin＝文章・論理 / Souma＝ビジュアル・出力 / Aoi＝テンプレ準拠 / Mana＝誤字・数値」へ即マッピングし、複数領域横断の指摘は分解して各担当へ個別発行。指摘が宙に浮く・二重対応になる事故を防ぐ。

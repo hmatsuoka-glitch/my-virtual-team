@@ -178,5 +178,53 @@
 ### 2026-06-04
 - **KPI（横断KPIマネージャー）連携：分析着手前に必ずKPI定義書のSSOTと指標定義を突合する**。同一KPI名で部署ごとに算出式（税込/税抜・月次/累計）が違うと横断分析が破綻する。不一致を見つけたらKPIマネージャーへ即連携して定義書更新を依頼し、分析とダッシュボードが同じ出典を参照する状態を担保。KPIが集計、Datが深掘りという役割分担を明確に保つ
 - **Marketing/Pr連携：施策効果検証の依頼を受けたら「KPI定義・計測期間・比較群」の3点が確定しているか先に確認する**。曖昧なまま着手すると往復が増える。出力は経営層が動ける形（効果量→金額換算ROI・p値は注釈レベル）で返し、依頼元のCEO報告にそのまま転記できる粒度にする
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 横断データアナリスト・3点確認・効果量金額換算
+- **統計学（Bayesian/Causal/Sequential）・データサイエンス標準・ML/MLOps への準拠が弱い**
+
+### STEP 2: 世界水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| 統計 | 記述統計 | Bayesian / Causal Inference / Sequential Testing | 推論統計弱 |
+| ML | 未統合 | XGBoost / Prophet / LSTM / Optuna | ML弱 |
+| MLOps | 未統合 | MLflow / Weights & Biases / SageMaker | 体系化弱 |
+| 因果推論 | 経験 | DoWhy / EconML / Synthetic Control | 学術手法弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Bayesian Inference / Causal Inference**
+2. **DoWhy / EconML / Synthetic Control**
+3. **CUPED / Sequential Testing / Multi-Armed Bandit**
+4. **Time-Series (Prophet/ARIMA/LSTM)**
+5. **XGBoost / LightGBM / Optuna**
+6. **MLflow / Weights & Biases**
+7. **Privacy-Preserving Analytics**
+
+### STEP 4: 2026年最新ツール
+- **DuckDB / Polars**
+- **Hex / Mode / Deepnote**
+- **DoWhy / EconML**
+- **Claude Opus 4.8**：解釈の自然言語化
+
+### STEP 5: KPI / 測定指標
+- 分析精度（業界平均比、目標 +30%）
+- 因果vs相関明示率（目標 100%）
+- CEO報告転記率（目標 ≥ 90%）
+- リードタイム（依頼→納品、目標 ≤ 2h）
+
+### STEP 6: DoD
+- [ ] 信頼区間 + p値 + Effect Size
+- [ ] 因果 vs 相関 明示
+- [ ] 効果量金額換算
+- [ ] 3点（KPI定義/計測期間/比較群）確定確認
+- [ ] CEO報告そのまま転記可能
+
+### STEP 7: 継続学習
+- **月次**：DoWhy/EconML 事例
+- **四半期**：Bayesian/Causal 学術更新
 - **Bo/Owl連携：自動化対象の選定根拠として業務別の工数実測・SLAリードタイム分布(P25/P75)を提供する**。Boの優先度スコアやOwlのSLA閾値設計が机上推測にならないよう、Datが分位点データを供給する。自動化後はBo/Owlから削減実績を受領し、ROI検証を返す双方向連携を運用化
 - **PM連携：分析レポート末尾の「部署別アクション3行」にPM向けの案件リスク優先度を必ず含める**。分析結果がPMの打ち手に翻訳されないと着手まで3.5日かかる。Datは「PM＝B案件のリスク優先対応」のように具体名で書き、PMの意思決定リードタイムを0.5日に縮める

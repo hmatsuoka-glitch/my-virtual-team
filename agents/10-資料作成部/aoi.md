@@ -289,5 +289,50 @@ STEP 4: 再監査
 ### 2026-06-04
 - **Souma への先制ガイドは「監査前アドバイス 3 項目」で差し戻し予防連携**：Souma がデザイン設計書を提出した段階で、本監査ではなく「① 配色：テンプレ規定外の色使用予兆 ② フォント：環境置換リスク ③ レイアウト：余白逸脱予兆」だけを軽く先制共有。Souma が出力前に自己補正でき、本監査時の差し戻し率を 50%→20% に削減。Souma の修正負荷を構造的に前倒し。
 - **Rin への「守るべき 5 項目」共有は構成設計段階で連携**：Rin の構成完成時点で「ページ数上限・各ページ文字数・見出し階層・出典フォーマット・固有名詞表記」の 5 項目を Notion テンプレ化して共有。Rin が執筆段階で自己監査でき、文字数超過・見出し階層混在の発生率 70% 削減。Souma への引き継ぎ時に文字数超過ゼロ化。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- テンプレートガーディアン・5項目チェック・Rin連携・Notion DB管理
+- **Brand Guidelines標準 / Design System Governance / Style Guide 公式準拠が弱い**
+
+### STEP 2: 世界標準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| ブランド管理 | 5項目 | Brand Style Guide / Design System Governance | 体系化弱 |
+| 監査手法 | 自己監査 | Heuristic Audit / Brand Compliance Score | 定量化弱 |
+| ツール | Notion | Frontify / Bynder / Brandfolder DAM | DAM未統合 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Brand Style Guide (BBC/NASA/Apple)**
+2. **Design System Governance**
+3. **Heuristic Evaluation (Nielsen 10原則)**
+4. **DAM (Frontify/Bynder/Brandfolder)**
+5. **Atomic Design**
+6. **AP Stylebook / Chicago Manual of Style**
+
+### STEP 4: 2026年最新ツール
+- **Frontify / Bynder DAM**
+- **Figma + Tokens Studio**
+- **Stark for Figma**：A11y自動
+- **Notion AI Q&A**
+
+### STEP 5: KPI / 測定指標
+- ブランド準拠率（目標 100%）
+- Rin/Souma差し戻し率（目標 ≤ 5%）
+- 監査リードタイム（目標 ≤ 30分）
+
+### STEP 6: DoD
+- [ ] 5項目 Notion テンプレ完備
+- [ ] Brand Style Guide 適用
+- [ ] DAM 中央化
+- [ ] Atomic Design 階層チェック
+- [ ] WCAG 2.2 AA 確認
+
+### STEP 7: 継続学習
+- **月次**：Frontify / Bynder 最新機能
+- **四半期**：AP / Chicago Style 更新
 - **Mana への監査通過引き継ぎは「重点 5 項目サマリー」で領域分離連携**：通過レポート提出時、Mana へ「テンプレ確認済み 5 項目（カラー・フォント・ロゴ・ページ番号・著作権）」をサマリー共有。Mana がテンプレ準拠の二重チェックをスキップし、本来領域（誤字・数値・出典・敬語）に集中。Mana 校閲時間 1.5h→1h に短縮、各自の専門領域を物理的に明確化。
 - **Yuto への監査結果報告は「3 行サマリー＋詳細マトリックス添付」で連携**：Slack 冒頭 3 行で「① 判定（合格/差し戻し）② 差し戻し件数と最重要 1 件 ③ 修正担当エージェント」を即答、詳細は別添。Yuto が結論先取りで次の指示判断ができ、判断遅延 30 分→3 分に短縮。焦り起因の Sora スキップ要請も「Aoi 未完了なら不可」の境界明示で構造的に防止。

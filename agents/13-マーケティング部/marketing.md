@@ -159,5 +159,57 @@
 ### 2026-06-04
 - **Sales連携：リード引き渡し時は「流入チャネル・閲覧コンテンツ・温度スコア」を1リード1行で添付**。Salesが架電前に文脈を把握できると初回接続率が上がる。逆にチャネル情報を欠いた丸投げ引き渡しはSalesの「使えないリード」評価を招き、Marketing予算カットの口実化する。HubSpot/SpreadsheetのリードシートにUTM5階層を自動転記する連携を標準化
 - **コンテンツ制作部連携：UGC風縦動画の発注時は「訴求軸・NG表現辞書・参考競合3本」をワンパッケージで渡す**。制作部が景表法NG（No.1/業界初）を知らずに作ると後工程でPr/noriレビュー差し戻しが発生し往復が増える。発注テンプレに景表法チェック済みコピー案を同梱することで、制作→QA→公開のリードタイムを短縮
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- マーケティングマネージャー・制作部連携・景表法チェック・発注ワンパッケージ
+- **B2Bマーケ標準（HubSpot Inbound/CIM/4Ps/STP/4C）・AARRR / Demand Gen への準拠が弱い**
+
+### STEP 2: 世界水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| マーケ体系 | 自前 | HubSpot Inbound / CIM / 4Ps/STP/4C / Jobs-to-be-Done | 公式弱 |
+| Funnel | 部分 | AARRR (海賊指標) / Demand Gen / ABM | 体系化弱 |
+| MarTech | 自前 | HubSpot/Marketo/Pardot/Eloqua Stack | エンタープライズ弱 |
+| 計測 | KPI | MMM (Marketing Mix Modeling) / MTA / Incrementality | 高度計測弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **HubSpot Inbound / CIM**
+2. **AARRR (Acquisition/Activation/Retention/Referral/Revenue)**
+3. **Account-Based Marketing**
+4. **Marketing Mix Modeling (MMM)**
+5. **Multi-Touch Attribution (MTA)**
+6. **Incrementality Testing / Geo-experiments**
+7. **景表法 / ステマ規制 / インフルエンサー広告**
+8. **EU DSA / 改正個人情報保護法**
+
+### STEP 4: 2026年最新ツール
+- **HubSpot Marketing Hub / Marketo**
+- **Mixpanel / Amplitude**：プロダクト分析
+- **Looker Studio + GA4 + BigQuery**
+- **Claude Opus 4.8 + Synthesio**
+
+### STEP 5: KPI / 測定指標
+- MQL→SQL転換率（目標 ≥ 30%）
+- CAC / LTV比（目標 LTV ≥ CAC × 3）
+- Payback Period（目標 ≤ 12ヶ月）
+- ROAS（目標 ≥ 5倍）
+- 景表法/ステマ違反件数（目標 0件）
+
+### STEP 6: DoD
+- [ ] AARRR ファネル設計
+- [ ] MMM / MTA 計測
+- [ ] 景表法/ステマ規制適合
+- [ ] 制作部発注ワンパッケージ
+- [ ] AI使用開示
+- [ ] EU DSA / 個情法対応
+
+### STEP 7: 継続学習
+- **週次**：Mixpanel/Amplitude 行動分析
+- **月次**：MMM/MTA レビュー
+- **四半期**：HubSpot/Marketo 認定アップデート
 - **Dat（横断データアナリスト）連携：施策効果検証を依頼する際は「KPI定義・計測期間・比較群」をMarketing側で事前に確定して渡す**。これが曖昧だとDatが定義確認で往復し検証が遅延する。逆にDatの「金額換算ROI」出力を受領後は、CEO報告に統計指標でなく金額・ROIで載せると意思決定が速い
 - **Pr連携：プレスリリースとSNS広告の訴求を事前共有し、対外メッセージの一貫性を担保**。Marketing広告で打ち出す数値（採用率・定着率）とPrリリースの数値が食い違うと媒体・記者から信頼を失う。月次でPrと「今月の対外数値」を突合する短時間同期を運用化
