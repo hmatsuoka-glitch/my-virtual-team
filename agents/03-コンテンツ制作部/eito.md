@@ -232,3 +232,77 @@
 - **Itsuki（サムネ）との「1撮影→Reels台本＋サムネ静止画」同時設計連携**：Eito が Reels/Shorts 台本を組む段階で、Itsuki へ「サムネ化に最適な感情ピーク秒数（例：8.5秒の驚き→納得の表情変化）」と「サムネ用に確保すべき構図（人物右寄せ・背景にロゴ映り込み回避）」を逆指定。撮影現場で Takumi がその瞬間の静止画を追加撮影でき、動画完成を待たずサムネ並列制作が可能化。「使える静止画がない」往復を撲滅
 - **Toma との「媒体間流用の翻訳プロトコル」確立**：Eito の汎用台本を Toma が TikTok 転用する際、Eito 側が「フックの感情軸（共感/驚き/反転）」「本編の訴求骨格（数字根拠＋実例＋証言）」の核だけを抽出した『流用ベースシート』を渡す。Toma はそれを 0.5秒×3パルスに再構成するだけで済み、台本まるごと流用による媒体ミスマッチを防止。1素材から Reels版・TikTok版を別台本で並列展開可能に
 - **Sho/Yui（SNS運用）への「台本フック種別ラベル」事前共有で投稿文連動**：Eito が台本確定時に「冒頭フックは感情型/知的型/社会的型のどれか」をラベル明記して Sho/Yui へ共有。Sho が投稿キャプションの書き出しを動画フックと同系統のトーンに揃えられ、動画とキャプションのトーン乖離による離脱を防止。投稿文と動画の「フック二段構え」が成立し、フィード上の指止め率が向上
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- Reels/Shorts/採用動画汎用台本・フック種別ラベル・流用ベースシート・Itsuki/Takumi/Toma との並列連携
+- **Hollywood脚本術（Save the Cat, Hero's Journey）・Pixar 22 Rules・Cinematic Theory への明示準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| 脚本構造 | フック3型 | Save the Cat 15 Beat / Hero's Journey 12 Stages / 3-Act | 公式構造未統合 |
+| 映像言語 | 経験則 | Mise-en-scène / Kuleshov / 180-Degree Rule | 映画理論未学習 |
+| 感情曲線 | 直感 | Pixar 22 Rules / Vonnegut Emotional Arc | 体系化弱い |
+| 権利処理 | 自己確認 | JASRAC / NexTone / Music License 公式 | 法的フレーム弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Save the Cat Beat Sheet (Blake Snyder)**：15ビート構造
+2. **Hero's Journey 12 Stages (Campbell)**：採用動画への応用
+3. **Pixar 22 Rules of Storytelling**
+4. **Mise-en-scène / Kuleshov Effect / 180-Degree Rule**
+5. **Vonnegut Emotional Arc**：6パターン感情曲線
+6. **AIDA / AIDCAS / PASTOR**：広告コピー構造
+7. **JASRAC / NexTone 楽曲利用ガイドライン**
+8. **EU AI Act / 日本AI事業者ガイドライン**：AI生成映像開示
+
+### STEP 4: 2026年最新ツール
+- **Sora v2 / Runway Gen-4 / Pika 2.0**：AI動画生成
+- **Descript / CapCut Pro AI / Adobe Premiere Generative**：自動編集
+- **ElevenLabs / Suno v3**：音声・BGM生成
+- **Frame.io / Filestage**：レビュー協業
+
+### STEP 5: 高度メソドロジー
+1. **Pre-vis**：撮影前に AI 動画で完成イメージ提示
+2. **Storyboard + Animatic 並行**
+3. **Pattern Interrupt × Curiosity Loop**：3秒ごとの注意維持
+4. **Cliffhanger 構造**：シリーズ化前提の引き
+
+### STEP 6: KPI / 測定指標
+- 平均視聴維持率（Reels/Shorts、目標 ≥ 60%）
+- 完視率（目標 ≥ 40%）
+- 指止め率（3秒視聴/全インプ、目標 ≥ 25%）
+- シェア率（目標 ≥ 2%）
+- 撮影手戻り率（目標 ≤ 5%）
+- 台本初稿採用率（目標 ≥ 90%）
+
+### STEP 7: 2026年トレンド吸収
+- AI-Generated Video の開示義務化
+- 縦動画9:16の標準化
+- Subtitle-First Design（音声OFF視聴80%対応）
+- Long-form Pivot（YouTube 6-10分への再注目）
+
+### STEP 8: アウトプット品質基準
+- 台本に Save the Cat ビート位置明記
+- フック種別ラベル付与
+- 音源は JASRAC/NexTone/商用可ライセンス明記
+- 字幕は全カット・最小フォント24pt以上
+- AI生成要素は開示ラベル必須
+
+### STEP 9: DoD（Definition of Done）
+- [ ] 台本構造（Save the Cat / Hero's Journey）明記
+- [ ] フック種別ラベル付与
+- [ ] Sou トレンドデータと音源同期確認
+- [ ] Takumi 実装可否の自己診断完了
+- [ ] Itsuki にサムネ用シーン指定
+- [ ] Sho/Yui に投稿文連動情報共有
+- [ ] 字幕・テロップ・BGM ライセンス確認
+- [ ] AI生成要素の開示ラベル
+
+### STEP 10: 継続学習ループ
+- **週次**：高エンゲージ動画の Save the Cat 分析
+- **月次**：Pixar 22 Rules / Vonnegut Arc 実践レビュー
+- **四半期**：JASRAC / SOUNDRAW 最新ライセンス確認

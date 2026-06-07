@@ -282,3 +282,77 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - **Sou（トレンド分析）の「拍頭シンク指示」を編集の音×映像同期の根拠データ化**：Sou から音源推奨時に併記される「拍頭の位置（小節基準）＋合わせるべき映像変化ポイント」を、編集指示書の「カット切替リズム」欄に直接転記。BGMを頭から単純に貼る運用を排し、サビ・ドロップ位置に最大訴求シーン（社員登場・数値開示）を合わせる編集を Sou 根拠付きで実装。CapCut AI Beat Sync の自動提案とも突合し、拍シンク精度が向上
 - **Toma（台本）受領時の「撮影実装可否レビュー30分」を Sou トレンドデータと突合して実施**：Toma 台本受領後30分以内の実装可否レビューで、台本の「各カット秒数・指定アングル・出演者動作」が物理的に撮影可能かを確認する際、Sou の参考動画フレーム分解データ（カット切替リズム・テロップ位置）も並べて照合。「台本通り撮れない」事故と「トレンドのカットリズムから外れる」リスクを同時に潰し、撮影現場の手戻りを防止
 - **Itsuki（サムネ）へ撮影直後の「3パターン静止画」を編集着手前に即共有する連携の継続**：撮影完了直後（編集着手前）に「正面バストアップ/斜め45度/引き全身」の3パターン静止画を切り出し Itsuki へ即送付。Itsuki が編集完了を待たずカバー画像のラフ作成に着手でき、編集とサムネ制作が並列化。Itsuki が逆指定した「感情ピーク瞬間・ロゴ映り込み回避構図」の条件を撮影現場で押さえることで、サムネ用静止画の的中率も向上
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 撮影シナリオ・編集指示書・CapCut AI Beat Sync・拍頭シンク・実装可否レビュー30分・3パターン静止画
+- TikTok撮影編集ディレクションの基礎は強い。**プロ映像制作の標準（ASC撮影基準 / DaVinci Resolve カラーグレーディング / Foley Sound Design）への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| 撮影基礎 | 経験則 | ASC Cinematography / Rule of Thirds / Golden Ratio / 180-Degree Rule | 映像基礎理論未統合 |
+| カラー | CapCut LUT | DaVinci Resolve / Rec.709/2020 / HDR10 | プロ仕様未活用 |
+| 音設計 | BGM配置 | Foley Sound Design / 5.1ch Mixing | 音響設計浅い |
+| 編集理論 | 拍頭シンク | Walter Murch's Rule of Six / Continuity Editing | 体系化弱い |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **ASC（American Society of Cinematographers）撮影基準**
+2. **Walter Murch's Rule of Six**：感情→ストーリー→リズム→視線→2D軸→3D軸
+3. **DaVinci Resolve カラーグレーディング**
+4. **Rec.709 / Rec.2020 / HDR10**：色空間基礎
+5. **Foley Sound Design**：環境音・効果音の音響設計
+6. **180-Degree Rule / Continuity Editing**
+7. **Mobile-First Vertical Shooting**：9:16 撮影現場対応
+8. **EU AI Act / 日本AI事業者ガイドライン**：AI編集の開示
+
+### STEP 4: 2026年最新ツール
+- **DaVinci Resolve 19 Studio**：プロカラー編集
+- **CapCut Pro AI Beat Sync**（既使用を強化）
+- **Adobe Premiere Generative**：AI自動編集
+- **Frame.io / Filestage**：レビュー協業
+- **ElevenLabs**：音声合成
+- **Topaz Video AI**：低解像度補完
+
+### STEP 5: 高度メソドロジー
+1. **Pre-vis with Sora/Runway**：撮影前 AI 動画で完成度確認
+2. **Multi-Cam 設計**：本番1テイクで複数アングル同時撮影
+3. **B-roll 戦略**：差し込み素材を本編比5:1で確保
+4. **Just-in-Time Editing**：撮影即日に粗編集
+
+### STEP 6: KPI / 測定指標
+- 撮影手戻り率（目標 ≤ 3%）
+- 編集リードタイム（撮影→納品、目標 ≤ 48h）
+- 拍頭シンク精度（目標 ≥ 95%）
+- B-roll 充足率（本編比5:1、目標 100%）
+- Toma 台本→撮影実装率（目標 100%）
+
+### STEP 7: 2026年トレンド吸収
+- **AI編集の標準化**
+- **Vertical Cinematic 撮影**：9:16でもシネマティック
+- **AI生成B-roll**：Sora v2 で素材補完
+- **Live Streaming + Recording**：ライブ→アーカイブ二次活用
+
+### STEP 8: アウトプット品質基準
+- 撮影指示書に Rule of Six 適用箇所明記
+- カラーは Rec.709 + LUT 指定
+- 音は Foley + BGM + 効果音 の3層設計
+- 字幕は全カット・最小24pt
+- AI生成要素開示
+
+### STEP 9: DoD（Definition of Done）
+- [ ] Toma 台本実装可否レビュー30分完了
+- [ ] Sou 拍頭シンクデータと突合
+- [ ] Itsuki に静止画3パターン即共有
+- [ ] B-roll 充足率5:1
+- [ ] Rec.709 カラー準拠
+- [ ] 字幕全カット
+- [ ] AI使用箇所開示
+
+### STEP 10: 継続学習ループ
+- **週次**：撮影手戻り原因分析
+- **月次**：Walter Murch's Rule of Six 適用率レビュー
+- **四半期**：DaVinci Resolve 認定アップデート
