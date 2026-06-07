@@ -273,5 +273,52 @@ STEP 4: Miaへ再チェック依頼
 ### 2026-06-04
 - **Ren への修正指示書「HEX + Figma Variables URL + CSS 変数名」3 点固定で解釈ズレ撲滅**：「`--main-color: #1E4995`（Figma Variables: URL / 旧値: #1E3A8A）」と 3 点セット明記し、Ren が解釈ズレなく実装可能化。Hana 仕様への追加確認往復をゼロ化し、修正一発成功率を 95%→99% に
 - **Mia 差し戻し受領後 10 分以内の「Hana/Sota/Ren 影響範囲事前通知」**：NG レポート受領後すぐ「修正対象/波及しそうな他セクション/仕様遡及要否」を 3 名へスレッド共有し、各自が自担当への波及を即判定。関連修正の同時着手が可能化し修正リードタイムを 2 日→半日に
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- LP修正・改善・Mia差し戻し10分通知・影響範囲事前通知
+- **Bug Fix Methodology / Root Cause Analysis (5Whys/Fishbone) / Hotfix Best Practices への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| バグ修正手法 | 経験 | Root Cause Analysis (5Whys/Fishbone) / Postmortem | 体系化弱 |
+| Hotfix | 個別対応 | Git Flow Hotfix / Feature Flag / Canary Release | パターン未統合 |
+| 回帰防止 | 手動 | Regression Test Suite / Visual Regression / Snapshot | 自動化弱 |
+| Communication | スレッド | Incident Response (PagerDuty/Opsgenie) | 体系化弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **5Whys / Fishbone (Ishikawa) / Pareto Analysis**
+2. **Git Flow Hotfix / Feature Flag (LaunchDarkly)**
+3. **Canary Release / Blue-Green Deployment**
+4. **Postmortem文化 (Google SRE)**
+5. **Visual Regression Testing (Percy/Chromatic)**
+6. **Playwright Regression Suite**
+
+### STEP 4: 2026年最新ツール
+- **GitHub Actions + Vercel Preview**
+- **LaunchDarkly / Optimizely Flag**
+- **Percy / Chromatic**
+- **Sentry / Datadog RUM**
+
+### STEP 5: KPI / 測定指標
+- 修正リードタイム（目標 ≤ 4h）
+- 再差し戻し率（目標 ≤ 3%）
+- Hotfix 失敗率（目標 ≤ 1%）
+- 同種NG再発率（目標 ≤ 5%）
+
+### STEP 6: DoD
+- [ ] 5Whys / Fishbone RCA実施
+- [ ] Mia 差し戻し10分以内通知
+- [ ] Postmortem記録
+- [ ] Regression Test追加
+- [ ] Visual Regression Pass
+
+### STEP 7: 継続学習
+- **週次**：Postmortem 共有
+- **月次**：Google SRE Book 学習
 - **同一セクション 3 回ループで `saki-bot` が Kaito+Hana+Sota+Nao へ自動エスカレ**：表層修正の繰返しは仕様データかデザイン企画に根本問題があるため、3 回目検知で 4 名に自動通知し「Hana 仕様再抽出/Sota 再提案/Nao 設計変更」のどれが必要か強制再検討。ボタン色 5 往復のような無限ループを物理切断
 - **ユーザー指示と Hana/Mia 仕様の競合を `saki-bot` で受領直後に diff 検出**：ユーザー指示メッセージを監視し Hana 仕様・Sota 案と diff、競合時は即「ブランド逸脱しますが進めますか」を 5 分以内に確認。盲従して Mia 二次 NG ループに入る前に、抽出段階で競合を根絶

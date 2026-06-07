@@ -627,5 +627,53 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 ### 2026-06-04
 - **Iro（ブランドカラー抽出）との CSS 変数命名を STEP 2 着手前に合意する連携**：複製LPに新規ブランドカラーを被せる案件で、自分の抽出する `tokens.json` のキー命名（`--primary` `--accent`）と、Iroがロゴから設計する CSS 変数定義書のキーが食い違うと、Ren の Tailwind `extend.colors` で衝突して色が出ないNGが発生。STEP 2 着手前にIroと「プロジェクト接頭辞（`--brand-`）」をSlack 5分会で合意し、抽出キーと設計キーを完全一致させる。OKLCH 併記も両者で揃え、Iroのダークモード L値反転パレットと自分の抽出色が同じ色空間で接続するよう統一。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- CSS完全抽出・tokens.json生成・Iro命名合意・OKLCH色空間統一
+- **W3C Design Tokens 標準 / Style Dictionary / CSS Specification Compliance への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| Design Tokens | tokens.json | W3C Design Tokens Format / Style Dictionary / Tokens Studio | 標準準拠弱 |
+| CSS Extract | 手動+ツール | Wappalyzer / Stylify / BuiltWith / Sitespeed.io | 自動抽出深化 |
+| 色空間 | OKLCH | CIE LAB / DCI-P3 / Display P3 / HDR | 高度色空間 |
+| Accessibility | 部分対応 | WCAG 2.2 AA/AAA / APCA コントラスト | A11y未統合 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **W3C Design Tokens Format Module**
+2. **Style Dictionary / Tokens Studio for Figma**
+3. **OKLCH / Display P3 / DCI-P3**：広色域対応
+4. **WCAG 2.2 AA/AAA + APCA (Advanced Perceptual Contrast Algorithm)**
+5. **CSS Specification (Cascade Layers, Container Queries)**
+6. **PostCSS / Lightning CSS**：抽出最適化
+7. **Computed Styles API**：ブラウザDevTools活用
+
+### STEP 4: 2026年最新ツール
+- **Stylify / Penpot / Tokens Studio**
+- **Wappalyzer / BuiltWith**：技術スタック検出
+- **Lighthouse / WebPageTest**：性能監査
+- **Claude Opus 4.8 + Playwright MCP**：自動抽出
+
+### STEP 5: KPI / 測定指標
+- CSS抽出網羅率（目標 ≥ 99%）
+- Token化率（目標 ≥ 95%）
+- WCAG 2.2 AA準拠率（目標 100%）
+- Iro/Ren差し戻し率（目標 ≤ 5%）
+
+### STEP 6: DoD
+- [ ] W3C Design Tokens Format準拠
+- [ ] OKLCH + Display P3 併記
+- [ ] WCAG 2.2 AA コントラスト確認
+- [ ] Iro命名規則完全一致
+- [ ] tokens.json + style-dictionary.json 両形式出力
+
+### STEP 7: 継続学習
+- **月次**：W3C Design Tokens 仕様更新
+- **四半期**：CSS 仕様アップデート学習
 - **バナー生成部（hiro/kana/rei/yuna）へ Hero カラー＋フォント4項目を STEP 8 同時投函**：複製LP内にCTAバナー・SNSシェア画像が含まれる案件で、`tokens.json` から `--color-primary` `--color-accent` とHeroの `font-family` `font-weight` の4項目だけ抽出した「banner-handoff.json」をhiro宛に自動投稿。バナー部がゼロからカラーピッカーで色採取する30分工程をスキップし、LPとバナーのブランド一貫性を物理保証。Iroの設計パレットがある案件はIro版を優先採用し二重採取を排除。
 - **Sota（システム開発部）への埋込ウィジェット事前エスカレを STEP 1 検出時点で実施**：複製対象に `<custom-element>` `<iframe>`（チャットボット・予約フォーム）を検出した瞬間、Ren単独では再現困難な領域としてSotaへ「埋込種別・データ流入元・想定実装方式」3点をSlack DM即送付。Renが知らずに着手しSTEP 4で詰まる事故を抽出段階で予防。Shadow DOM 内 CSS の `.shadowRoot` 再帰走査結果もSotaに渡し、社内システムとLPで設計トークンを共通化。

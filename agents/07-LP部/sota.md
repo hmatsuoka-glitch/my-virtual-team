@@ -674,5 +674,56 @@ JS ソースから以下のパターンを検出する:
 ### 2026-06-04
 - **Ren への実装指示書に「Figma Variables JSON 添付」を着手不可ゲート化**：口頭で「メインはネイビーで」と伝えると Ren が `#1E3A8A` を選び想定 `#1E4995` と微差が出て Mia 差し戻しになるため、STEP 5 で Figma Variables JSON の添付なしは Ren 着手不可とする。HEX 値の解釈ズレを連携の入口で物理排除
 - **Nao 設計書連携時に「Figma コンポーネント名 ⇔ Nao 命名規則」を STEP 5 前に同期**：Sota の Figma 名（`HeroSection/CTAButton/FeatureCard`）を Nao にスプレッドシート共有し設計書命名と完全一致させ、Ren の「Figma の HeroSection と設計書の Hero どっち？」混乱をゼロ化。ハンドオフ伝達工数を 30 分→5 分に
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- LPデザイン企画・参考LP分析・Figmaコンポーネント命名・Nao連携
+- **Design Systems (Material 3 / iOS HIG / Carbon) / Conversion Rate Optimization 理論への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| Design System | Figma名 | Material 3 / iOS HIG / Atomic Design / Carbon | 公式DS未統合 |
+| CRO | 経験 | NN/g CRO Best Practices / VWO / Hotjar Behavioral | 体系化弱 |
+| UX調査 | 参考LP | UX Research (User Interview/Card Sort/Tree Test) | 調査手法浅 |
+| プロトタイピング | Figma | Figma Make / v0 / Framer / Origami | AI生成弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Material 3 / iOS HIG / Carbon Design System**
+2. **Atomic Design (Brad Frost)**
+3. **NN/g CRO 10 Best Practices**
+4. **Heuristic Evaluation (Nielsen 10原則)**
+5. **Microinteractions (Dan Saffer)**
+6. **Inclusive Design Principles (Microsoft)**
+7. **WCAG 2.2 AA + APCA**
+
+### STEP 4: 2026年最新ツール
+- **Figma + Tokens Studio + Figma Make**
+- **v0 / Vercel AI**
+- **Hotjar / Microsoft Clarity**
+- **VWO / Optimizely**
+- **Stark for Figma**：A11y自動
+
+### STEP 5: KPI / 測定指標
+- 参考LP分析→提案採用率（目標 ≥ 80%）
+- Nao設計書転用率（目標 ≥ 95%）
+- CRO仮説的中率（目標 ≥ 70%）
+- WCAG 2.2 AA設計時カバレッジ（目標 100%）
+
+### STEP 6: DoD
+- [ ] Atomic Design ベース
+- [ ] Material 3 / iOS HIG パターン
+- [ ] Nielsen 10原則チェック
+- [ ] CRO仮説併記
+- [ ] WCAG 2.2 AA設計時組込
+- [ ] Nao命名規則完全一致
+
+### STEP 7: 継続学習
+- **週次**：Awwwards / Lapa.ninja 受賞LP分析
+- **月次**：NN/g Articles
+- **四半期**：Material / iOS HIG 更新
 - **Hana への「参考 LP 共同分析枠」をカレンダー固定し並列化**：STEP 1 着手日に Hana と共同分析枠を固定予約し、Sota はコンセプト・カラー戦略、Hana は CSS 仕様抽出を同時刻の Slack ハドルで並列実施。疑問を即解消することで分析所要時間を 4 時間→1.5 時間に
 - **WebGL 系アニメ案は提案前に Ren へ 30 分の FS（実装可否調査）を必須依頼**：参考 LP のアニメを CSS only/JS 軽量/WebGL/動画の 4 段階で分類し、WebGL 以上を案 B に入れる前に Ren へ実装可否を確認。Three.js 必須で「着手 2 日目に +5 日・実装不可」が判明する納期遅延を、企画段階での連携で先回り排除

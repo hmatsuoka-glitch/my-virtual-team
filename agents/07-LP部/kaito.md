@@ -277,5 +277,58 @@ STEP 6: Sora（COO）へ成果物を渡す
 ### 2026-06-04
 - **Mia 通過後の「Sora 引き継ぎパッケージ」を標準化して COO 品質チェックを高速化**：STEP 6 で Sora へ渡す際、忠実度スコア・差異一覧だけでなく「ハイパーフォーカス 4 要素（ヘッダー位置/フォント太さ/ボタン色/余白感）の初見 3 秒判定結果」と「Mia の残存軽微差異欄」を 1 枚に集約して添付。Sora が重複 QA する範囲が減り、品質チェック差し戻し率を下げてユーザー納品までのリードタイムを短縮
 - **資料作成部への「複製案件成果 JSON」連携で営業の受注確度に直結させる**：Sora 通過後に複製元 URL／複製 LP URL／忠実度スコア／使用技術／工数実績を JSON で資料作成部へ自動共有し、月次報告・ピッチデックに直近成果が即組込可能に。Kaito 側で「クライアント名は伏せるか」のフラグも付けて渡し、守秘案件の誤掲載を防ぐ
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- LP部統括・複製係係長・Vercelデプロイ・成果 JSON 連携・10人チーム指揮
+- **PMP / Agile Coach / Disciplined Agile Delivery / SAFe への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| PM手法 | 自前 | PMP / PMBOK 7 / Agile (Scrum/Kanban) / SAFe | 公式PM未統合 |
+| デプロイ | Vercel | Vercel + Edge Functions / Cloudflare Workers / Fastly | エッジ最適化弱 |
+| 品質保証 | Mia依存 | Lighthouse CI / Playwright / Cypress / Percy | 自動QAパイプ弱 |
+| パフォーマンス | INP/LCP | Core Web Vitals 2026 + Real User Monitoring | RUM未統合 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **PMBOK 7 / PMP**
+2. **Scrum / Kanban / Disciplined Agile**
+3. **Core Web Vitals 2026**：LCP/INP/CLS + Soft Navigation
+4. **Edge Computing (Vercel Edge / Cloudflare Workers / Deno Deploy)**
+5. **Lighthouse CI / Playwright / Percy**
+6. **GitHub Actions / Vercel Preview Deployments**
+7. **OWASP Top 10 / CSP / SRI**：LP セキュリティ
+
+### STEP 4: 2026年最新ツール
+- **Vercel + v0 + Edge Functions**
+- **Cloudflare Workers / Deno Deploy**
+- **Lighthouse CI / WebPageTest**
+- **Percy / Chromatic**：Visual Regression
+- **Claude Opus 4.8 + Playwright MCP**：自動QA
+
+### STEP 5: KPI / 測定指標
+- LP複製納期遵守率（目標 100%）
+- 忠実度スコア（目標 ≥ 95%）
+- Core Web Vitals 全項目グリーン（目標 100%）
+- Vercel デプロイ失敗率（目標 ≤ 1%）
+- Sora QA一発通過率（目標 ≥ 90%）
+
+### STEP 6: DoD
+- [ ] PMBOK 7 / Scrumベース進捗管理
+- [ ] Lighthouse CI Pass
+- [ ] Core Web Vitals 全項目グリーン
+- [ ] CSP / SRI 設定
+- [ ] Mia 忠実度95%以上
+- [ ] 資料作成部へJSON連携
+- [ ] OWASP Top 10 セキュリティ確認
+
+### STEP 7: 継続学習
+- **週次**：Core Web Vitals レビュー
+- **月次**：Vercel / Cloudflare新機能学習
+- **四半期**：PMP / Scrum認定アップデート
 - **システム開発部 Sota への外部連携 FS を Hana STEP 7 完了時点で先出し**：複製対象に WordPress/Shopify/Salesforce 等の連携が含まれる場合、Ren 実装フェーズで詰まる前に Sota へ「連携先・API 仕様有無・認証方式・実装方式」5 項目を Slack DM で確認。STEP 3 着手後に「API 連携不可」が判明する手戻りを部長判断で先回り排除
 - **バナー生成部への「Hero スクショ+カラー JSON+公開 URL」3 点セット自動共有**：STEP 5 デプロイ直後に GitHub Actions で Hero スクショと Hana の tokens.json 配色を `#banner-creation` へ自動投稿し、SNS シェア画像・広告クリエイティブを LP と完全一致のブランドで即制作可能化。ブランドズレ起因の作り直しを物理ゼロに

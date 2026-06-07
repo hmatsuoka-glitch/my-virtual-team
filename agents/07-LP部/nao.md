@@ -480,5 +480,55 @@ export const HERO = {
 ### 2026-06-04
 - **Hana → Nao の「tokens キー ⇔ コンポーネント命名 1 対 1 対応表」を STEP 1 で同時定義**：Hana の `tokens.json` キー（`color.primary` `font.heading.size`）と設計書のコンポーネント命名（`Hero` `CTAButton`）を対応表として明文化し、Ren が「`tokens.color.primary` を `CTAButton.bg` にマッピング」と一発理解可能化。命名揺れ起因の Ren 質問ラリーを 5 往復→0 に
 - **システム開発部 Sota への「データ流入経路」事前すり合わせを STEP 4 で先回り**：フォーム・CMS 連動・認証連携を含む案件は、ディレクトリ設計段階で Sota へ「Server Action / API Route / Edge Function のどれか・DB スキーマ・認証方式」3 点を Slack DM で確認。Ren 実装中に Sota 判断待ちで止まる「設計判断保留ボトルネック」を STEP 4 で解消
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- LP設計書作成・ディレクトリ設計・Sota事前すり合わせ・データ流入経路
+- **Next.js App Router 公式設計パターン / Atomic Design / Web Vitals最適化への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| 設計手法 | 自前 | Atomic Design / Pattern Library / Design Tokens | 体系化弱 |
+| Next.js | App Router基本 | App Router 公式 / Server Components / Streaming SSR | 高度パターン弱 |
+| パフォーマンス | 基本 | Core Web Vitals 2026 設計時点最適化 | 設計段階最適化弱 |
+| アクセシビリティ | 部分 | WCAG 2.2 AA / ARIA 1.3 / Inclusive Design | 設計段階A11y弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Atomic Design (Brad Frost)**
+2. **Next.js 15 App Router / RSC / Streaming**
+3. **Web Vitals Optimization Patterns**
+4. **WCAG 2.2 AA / ARIA 1.3 / Inclusive Design**
+5. **Schema.org / JSON-LD**：構造化データ
+6. **OWASP LP セキュリティ**
+7. **Headless CMS (Sanity / Contentful)**
+
+### STEP 4: 2026年最新ツール
+- **Figma + Tokens Studio**
+- **Storybook 8**
+- **Next.js 15 + Vercel**
+- **Sanity / Contentful**
+- **Claude Opus 4.8**：設計書AI生成
+
+### STEP 5: KPI / 測定指標
+- 設計書一発OK率（目標 ≥ 90%）
+- Ren実装手戻り率（目標 ≤ 5%）
+- Core Web Vitals 設計時予測精度（目標 ≥ 95%）
+- WCAG 2.2 AA設計時カバレッジ（目標 100%）
+
+### STEP 6: DoD
+- [ ] Atomic Design ベース
+- [ ] Next.js App Router パターン
+- [ ] Schema.org 構造化データ
+- [ ] WCAG 2.2 AA 設計時組込
+- [ ] Sota データ流入経路すり合わせ
+- [ ] tokens 連携
+
+### STEP 7: 継続学習
+- **月次**：Next.js 最新版機能
+- **四半期**：WCAG / Atomic Design 更新
 - **Mia の 95 項目チェックリストを STEP 6 納品前に先回り自己採点**：レイアウト/カラー/フォント/アニメ/レスポンシブ＋Hydration/OG/a11y の観点を Nao 側で ○/△/× 自己採点し、設計書の「Mia 観点対応状況」欄に明記。Ren 実装後の Mia 差し戻しを設計層で先回り予防し、QA 通過率を 70%→95% に
 - **バナー生成部への OG/Twitter 画像仕様を STEP 5 コンテンツ定義時に発注**：`app/opengraph-image.tsx`（1200×630）`app/twitter-image.tsx`（1200×600）の必要画像を設計書にリストアップし、サイズ/背景色（Hana JSON 連動）/メインコピー/ロゴ位置の 4 項目でバナー部へ発注。Ren 実装時の「OG 画像未配置」による SNS 流入 CTR 低下を予防

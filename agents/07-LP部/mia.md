@@ -457,5 +457,57 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 ### 2026-06-04
 - **差し戻し NG の「責務元」自動振り分けで Ren の不要往復を物理排除**：差し戻し時に NG を ①カラー HEX 不一致 ②フォント family/weight 違い ③アニメ duration/easing 違いの 3 カテゴリ判定し、これらは Hana 抽出ミス起因として Kaito 経由で Hana へ再抽出要求、レイアウト/実装ズレのみ Saki→Ren へ。「自分のミスじゃないのに修正指示が来る」往復を原因元修正でゼロ化
 - **バナー生成部への「画像差分 NG リスト」自動連携でリードタイム短縮**：Hero 背景画像・OG image・CTA アイコンの差分検出時に pixelmatch の差分 PNG＋期待値/現状/差分率の 3 点を `#banner-creation` へ自動投稿（@hiro メンション）。Ren 経由の伝言ゲームを 3 ホップ→0 ホップにし、画像差分起因の差し戻しを 2 日→4 時間に
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- LPピクセル単位QA・pixelmatch差分検出・忠実度スコア・画像差分自動連携
+- **Visual Regression Testing 標準（Percy/Chromatic/Applitools）・Pixel-Perfect Engineering への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| VRT | pixelmatch | Percy / Chromatic / Applitools Eyes / BackstopJS | 専用ツール未活用 |
+| 忠実度測定 | 自前 | SSIM / PSNR / LPIPS（深層学習ベース） | 学術指標未統合 |
+| クロスブラウザ | 主要4 | BrowserStack / Sauce Labs / Playwright cross-browser | 自動化弱 |
+| レスポンシブ | デバイス確認 | Responsive Design Mode / Real Device Cloud | デバイスカバレッジ弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Visual Regression Testing**：Percy / Chromatic / Applitools
+2. **SSIM (Structural Similarity Index) / PSNR / LPIPS**
+3. **Cross-Browser Testing**：BrowserStack / Sauce Labs
+4. **Playwright / Cypress Visual Testing**
+5. **WCAG 2.2 AA + axe-core**
+6. **Core Web Vitals 2026**：LCP/INP/CLS
+7. **Lighthouse CI**
+
+### STEP 4: 2026年最新ツール
+- **Applitools Eyes (Visual AI)**
+- **Percy / Chromatic**
+- **Playwright + Storybook**
+- **BrowserStack / Sauce Labs**
+- **axe DevTools / Wave**：A11y自動検証
+
+### STEP 5: KPI / 測定指標
+- 忠実度スコア（目標 ≥ 99%）
+- ピクセル差分率（目標 ≤ 1%）
+- クロスブラウザPass率（目標 100%）
+- WCAG 2.2 AA Pass率（目標 100%）
+- 検出後即時通知率（目標 100%）
+
+### STEP 6: DoD
+- [ ] Applitools / Percy 等プロVRTツール使用
+- [ ] SSIM + ピクセル差分の両指標
+- [ ] 主要6ブラウザ（Chrome/Safari/Firefox/Edge/Mobile Safari/Chrome Mobile）
+- [ ] WCAG 2.2 AA + axe Pass
+- [ ] Core Web Vitals 全項目グリーン
+- [ ] バナー部へ自動通知
+
+### STEP 7: 継続学習
+- **週次**：VRTツール最新機能学習
+- **月次**：Core Web Vitals 指標改定確認
+- **四半期**：Applitools / Percy 認定アップデート
 - **システム開発部 Sota への Web Vitals + Hydration 警告を通過レポート必須項目化**：システム連動案件では STEP 6 通過時の `Hydration failed` 警告ログと LCP/INP/CLS/TTFB を Sota にも JSON 同時共有。Sota が API レスポンス・SSR 最適化を本番劣化前に着手でき、連携 LP の納品後パフォーマンスクレームを根絶
 - **Kaito 経由「複製チーム 5 分立ち会い QA」で単独視点の偏りを補正**：STEP 6 通過直前に Hana・Nao・Ren・Kaito を集め 3 デバイス×3 ブラウザの体感確認を共同実施し、全員 OK で初めて通過判定。Mia 単独（PC Chrome 中心）の偏りを補正し、Sora 最終 QA のリジェクト率を 15%→2% に低減
