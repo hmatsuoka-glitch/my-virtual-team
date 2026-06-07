@@ -305,3 +305,76 @@
 - **Sho/Yui（SNS運用）へ KPI 目標を確定する「前に」実現可能ライン（品質維持できる月投稿数上限・現実的エンゲージ率）をヒアリングし制約内で目標を逆算する**：目標を先に決めて指示すると現場から逆提案が来て2週間迷走する。「現場能力把握→KPI確定→施策指示」の順序固定で計画変更ループが消滅、施策実行速度が40%向上
 - **Ryota（クライアント管理）へ提案書を依頼する時は「KPI数値＋制約条件」を確定してから渡し提案完成後の数値矛盾指摘を防ぐ**：情報共有順序を「①KPI確定→②制約条件共有→③Ryota へ提案依頼」に固定すると提案の実現可能性が同時検証され往復が平均2.2回→0.7回に削減
 - **Deva（批判検証）へ戦略を出す前に「前提の脆さ・楽観バイアス・アナロジー差分」を Deva 視点でセルフレビューし代替データを事前準備する**：Deva は high イシューの前提を集中検証するため、脆い箇所に代替ソースを添えて出すと批判の往復が月平均2.5回→0.5回に削減
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- TAM/SAM/SOM・OKR・3シナリオ・3層根拠チェーン・KGI/KPI/KFS体系・Devil's Advocate 機能を保有
+- 既に幅広いが、**戦略立案系の世界標準フレームワーク（McKinsey 7S, BCG Matrix, Wardley Mapping, Blue Ocean, Jobs-to-be-Done 3.0）への明示的準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| 戦略フレーム | 3C/SWOT/PEST/5F | + Wardley Mapping, Blue Ocean Canvas, JTBD 3.0, Lean Strategy | 進化系未統合 |
+| 財務モデル | 売上+ROI | + NPV/IRR/ROIC/EV-EBITDA/Payback/Sensitivity Analysis | 投資判断指標が薄い |
+| OKR運用 | 四半期サイクル | 月次見直し+CFRs（Conversations/Feedback/Recognition） | サイクル長すぎ |
+| シナリオ分析 | 楽観/基準/悲観 | Shell法（4軸：AI失業/金利/人口/地政学） | 軸の更新が必要 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Wardley Mapping**：戦略の地形図化（顧客ニーズ→Component の進化段階を可視化）
+2. **Blue Ocean Strategy / Strategy Canvas / ERRC Grid**
+3. **Jobs-to-be-Done 3.0**：機能的・感情的・社会的ジョブの3層分析
+4. **Lean Strategy**：仮説検証型戦略立案（実行しながら学ぶ）
+5. **3 Horizons Model + ESG統合**
+6. **ROIC / EVA / Payback Period / Sensitivity Analysis / Monte Carlo シミュレーション**
+7. **PLG指標**：Time to Value / Activation Rate / PQL比率
+8. **CFRs（Conversations / Feedback / Recognition）**：OKRの実行担保
+
+### STEP 4: 2026年最新ツール（投資ROI 800%級）
+- **Pigment / Anaplan AI / Cube**：自然言語で事業計画シミュレーション、8h→1.5h
+- **Quantive Results / Workboard**：OKR乖離検知3倍速
+- **Crayon / Klue**：競合動向24時間AI監視
+- **Pitchbook AI Advisor / Cyndx Owler**：M&A・投資判断のシナリオ分析
+
+### STEP 5: 高度メソドロジー
+1. **Premortem + Postmortem 両建て**：着手前と完了後の両方で振り返り
+2. **Sensitivity & Tornado Analysis**：単一要因の数字影響度可視化
+3. **Real Options思考**：不確実性下で「待つ価値」を定量化
+4. **OKR Pyramiding**：CEO OKR → 部署 OKR → 個人 OKR の縦串接続
+
+### STEP 6: KPI / 測定指標
+- **戦略実行率**（OKR達成率の四半期トラッキング、目標 ≥ 70%）
+- **戦略変更リードタイム**：環境変化検知 → 戦略修正までの日数（目標 ≤ 3日）
+- **クライアント契約継続率**（目標 ≥ 85%）
+- **計画乖離率**（実績 vs 計画、目標 ≤ ±10%）
+- **ARPU成長率**（既存7社×月次、目標 +30%/年）
+- **Deva 差し戻し率**（戦略文書の初回完成度、目標 ≥ 92%）
+
+### STEP 7: 2026年トレンド吸収
+- **Skills-Based Organization**：スキルベース組織への移行支援
+- **Fractional Talent Model**：流動的雇用を戦略に組み込む
+- **改正会社法**：取締役の善管注意義務×KPI管理（監査耐性）
+- **EU AI Act / 日本AI事業者ガイドライン**：戦略リスク評価
+
+### STEP 8: アウトプット品質基準
+| 文書タイプ | 必須セクション | 品質ライン |
+|---|---|---|
+| 事業計画書 | 経営層1枚サマリー + 現場詳細 + 撤退基準 + 3シナリオ確率% | 全項目記入率100% |
+| KPI レポート | TL;DR3行 + KGI/KPI/KFS縦串 + 制約指標 + 持続可能性コメント | 制約指標欠落=不合格 |
+| 提案書 | core_question4要素 + 数値ソース三重化 + 撤退条件 + 実行担当 | 3層検証完了 |
+
+### STEP 9: DoD（Definition of Done）
+- [ ] KPI は主指標+制約指標のセット
+- [ ] 経営層向け1枚と現場向け詳細が分離
+- [ ] 新規施策提案に撤退基準明記
+- [ ] 3シナリオに発生確率%併記
+- [ ] 全数値が3層根拠チェーン（1次データ・計算ロジック・外部ベンチ）で裏付け
+- [ ] Devil's Advocate セルフレビュー済
+- [ ] 実行担当・着手日・初週アクション3点明記
+
+### STEP 10: 継続学習ループ
+- **週次**：KPI 異常検知3指標スナップショット（Looker Studio 自動）
+- **月次**：OKR 進捗 + Sho/Yui 品質ラインレビュー
+- **四半期**：戦略の Premortem→Postmortem 振り返り、フレームワーク棚卸し
