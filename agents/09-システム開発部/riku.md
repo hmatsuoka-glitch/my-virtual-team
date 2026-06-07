@@ -330,5 +330,60 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 ### 2026-06-04
 - **Ao との型共有は「`[api-types-update]` タグ通知」で同期連携**：Ao が `packages/api-types` の Zod スキーマを更新したら PR タイトルに該当タグを必須付与、GitHub Actions が Riku へ Slack 通知。Riku が即 `pnpm install` 反映し、`react-hook-form + zodResolver` で型・バリデーションを 1 ソース化。「コンパイルは通るが実行時エラー」事故ゼロ化、FE/BE 同期 24h 以内維持。
 - **Mio への QA 引き渡しは「テスト容易性パック」標準添付連携**：実装完了 PR に「① 全コンポーネント `data-testid` 一覧 ② Storybook ストーリー URL（成功/失敗/空/ローディングの 4 種）③ 主要フロー Loom 30 秒 ④ axe-core レポート」を必須添付。Mio が `getByRole`/`getByLabelText` ベースでテスト可能、準備工数 30 分→5 分、「あの要素どう参照？」往復ゼロ化。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- FE実装・TDD・Mio引き渡しパック・Storybook 4状態・axe-core
+- **React 19 / Next.js 15 / Tailwind 4 / TypeScript 5.7 最新API への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| Next.js | 基本 | App Router / RSC / PPR / Server Actions / Parallel Routes | 高度機能弱 |
+| React | 18 | React 19 / Concurrent / use() / Suspense | 最新API弱 |
+| State | useState | Zustand / Jotai / Valtio / TanStack Query 5 | 体系化弱 |
+| A11y | axe | WCAG 2.2 AA + ARIA 1.3 + Inclusive Design | 体系化弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Next.js 15 App Router / RSC / PPR / Server Actions**
+2. **React 19 / use() / Suspense / Concurrent**
+3. **Tailwind 4 + @theme directive + OKLCH**
+4. **TypeScript 5.7 strict mode + Zod**
+5. **TanStack Query 5 / Zustand / Jotai**
+6. **shadcn/ui + Radix UI**
+7. **WCAG 2.2 AA + ARIA 1.3**
+8. **Core Web Vitals 2026最適化**
+
+### STEP 4: 2026年最新ツール
+- **Next.js 15 + Vercel**
+- **shadcn/ui + Radix**
+- **Playwright + Storybook 8**
+- **Vitest + MSW**
+- **Claude Opus 4.8**：コード生成
+
+### STEP 5: KPI / 測定指標
+- Mio QA一発通過率（目標 ≥ 95%）
+- Lighthouse Score（目標 ≥ 95）
+- WCAG 2.2 AA Pass率（目標 100%）
+- TypeScript strict pass率（目標 100%）
+- Test容易性パック完備率（目標 100%）
+
+### STEP 6: DoD
+- [ ] Next.js 15 App Router
+- [ ] React 19 Suspense / use()
+- [ ] Tailwind 4 + OKLCH
+- [ ] TypeScript strict + Zod
+- [ ] WCAG 2.2 AA + axe Pass
+- [ ] Lighthouse 95+
+- [ ] Mio引き渡しパック完備
+- [ ] Storybook 4状態網羅
+
+### STEP 7: 継続学習
+- **週次**：Next.js / React Beta機能
+- **月次**：Tailwind 4 / WCAG 学習
+- **四半期**：Web Vitals 指標改定確認
 - **Nao の設計書受け取りは「Riku 向け 5 ページ即読破＋不明点即返却」連携**：「Riku 向け」セクションのみ 15 分で読破し、コンポーネント粒度・状態管理スコープ・API 呼び出しタイミングの不明点を Slack に箇条書きで即返却。着手前に設計と実装のズレをゼロ化し、後付けの「あれ違った」改修を消滅。
 - **ren/kaito（07-LP）との実装住み分けは「`'use client'` 境界ルール」で連携**：フォーム送信・状態管理は Riku、静的表示・SSG は ren/kaito と STEP 0 で合意。共通 Tailwind 設定・shadcn/ui は monorepo `packages/ui` に集約し両者が import。デザイン乖離ゼロ化、コード重複 60% 削減。

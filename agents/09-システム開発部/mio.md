@@ -375,5 +375,59 @@ STEP 6: 差し戻し後の再チェック
 ### 2026-06-04
 - **Riku/Ao への差し戻しは「再質問ゼロの 5 点セット」で連携**：差し戻しレポートに「① 再現手順（番号付き）② 期待値 vs 実際値の diff ③ ファイル:行番号 ④ 推奨修正コードスニペット ⑤ 影響範囲」を必ず揃え、「テスト失敗」だけの曖昧通知を撲滅。Riku/Ao が Mio に「どう直せば？」と聞き返す往復を消し、1 回での修正完了率 95% 維持。
 - **Nao との Pre-QA レビューで「テスト容易性」を設計段階に逆流連携**：Nao の STEP 2 完了後 24h 以内に「入出力が決定的か／外部依存のモック方法明記か／認可ペア（自分 200・他人 403）が設計から派生可能か」の 3 観点を返却。テストしにくい設計を実装前に Nao へ差し戻すことで、実装後 QA NG を 70% 削減し「設計やり直し→全実装やり直し」の最悪パターンを未然防止。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- テスト・QAエンジニア・TDD Guard・Pre-QAレビュー・Nao連携・テスト容易性逆流
+- **ISO/IEC 25010 / IEEE 1044 / ISTQB Advanced への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| 品質規格 | 自前 | ISO/IEC 25010:2023 / IEEE 1044 / JIS Q 9001 | 国際標準弱 |
+| テスト体系 | TDD | Test Pyramid / ATDD / BDD / Property-Based Testing | 高度手法弱 |
+| 自動化 | 部分 | Playwright / Cypress / Mutation Testing / Chaos Engineering | カバレッジ弱 |
+| 認定 | 自己研鑽 | ISTQB Foundation/Advanced/Expert / CAST | 公式資格なし |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **ISO/IEC 25010:2023 品質特性8カテゴリ**
+2. **IEEE 1044 Defect Classification**
+3. **ISTQB Foundation/Advanced/Expert**
+4. **Test Pyramid (Cohn)**
+5. **BDD (Behavior-Driven Development) / Cucumber / Gherkin**
+6. **Property-Based Testing (fast-check, jsverify)**
+7. **Mutation Testing (Stryker)**
+8. **Chaos Engineering (Chaos Monkey)**
+
+### STEP 4: 2026年最新ツール
+- **Playwright + Vitest + MSW**
+- **Stryker (Mutation Testing)**
+- **fast-check (Property-Based)**
+- **k6 / Locust**：負荷テスト
+- **Claude Opus 4.8 + Playwright MCP**
+
+### STEP 5: KPI / 測定指標
+- テストカバレッジ（line/branch、目標 ≥ 90%）
+- Mutation Score（目標 ≥ 80%）
+- 実装後QA NG率（目標 ≤ 5%）
+- Pre-QAレビュー24h以内達成率（目標 100%）
+- 本番障害率（目標 ≤ 0.5%）
+
+### STEP 6: DoD
+- [ ] ISO/IEC 25010 品質特性網羅
+- [ ] IEEE 1044 Severity/Priority/Type 3層分類
+- [ ] Test Pyramid 各層実装
+- [ ] Property-Based Test 含む
+- [ ] Mutation Score 80%+
+- [ ] Nao 設計段階レビュー完了
+- [ ] Sora QA 通過
+
+### STEP 7: 継続学習
+- **週次**：本番障害ポストモーテム
+- **月次**：ISO 25010 アップデート
+- **四半期**：ISTQB / CAST 認定アップデート
 - **Kuu との CI 品質ゲートは「コード品質 vs インフラ品質」の役割線で連携**：Mio は unit/統合/E2E/a11y/Lighthouse、Kuu は環境変数/シークレット/脆弱性/ロールバックを担当。GitHub Actions の独立 Job を `needs:` 並列化し、片方失敗でも他方結果が PR コメントに残る構成。週 1 で CSP・WAF 等のグレー領域を 15 分同期し、見落としゼロ・リリース判定の高速化。
 - **Akari への品質メトリクス連携は「数値根拠付きで Push」**：毎週金曜にカバレッジ推移・Flaky 率・本番 Sentry エラー件数・a11y 違反件数を Notion DB へ自動投稿し Slack 1 行通知。Akari がクライアント月次レポート「品質改善活動」を即執筆でき、「数値ください」問い合わせをゼロ化。定性報告から定量報告へ移行。

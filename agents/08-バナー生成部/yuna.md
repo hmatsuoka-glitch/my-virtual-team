@@ -269,5 +269,52 @@ nawasho_line_1080x1080.png
 
 ### 2026-06-04
 - **07-LP 部（Kaito/tsumugi）との「バナー写真↔LP ヒーロー画像の世界観統一」STEP 1 確認**：バナーと LP のビジュアルがズレると応募直前で「騙された感」を察知され離脱する。Yuna が STEP 1 で LP 部と「使用写真・色・キャッチ訴求軸」を必ず確認し、`design-tokens.json` を共通利用。LP の HARU レビュー済み素材のみを Kana に渡す運用で後戻り防止、CVR 1.3 倍。LP↔バナーの「広告→着地→応募」を一貫設計
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- バナー生成部統括・rei/kana/hiro指揮・LP連携・design-tokens.json共通利用
+- **Creative Operations 標準（Adobe Creative Cloud / Brandfolder）・Production Management への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| Creative Ops | 自前 | Adobe Workfront / Brandfolder / Frontify | 体系化弱 |
+| 量産パイプ | Kana手動 | Bannerflow / Celtra / Smartly.io 自動量産 | 自動化弱 |
+| ブランド管理 | Notion | Brand Asset Management (Bynder, Frontify) | DAM未統合 |
+| パフォーマンス | CTR追跡 | Creative Performance Score / AI Optimization | AI最適化弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Adobe Workfront / Frontify**
+2. **Bannerflow / Celtra / Smartly.io**：プログラマティック広告
+3. **Digital Asset Management (DAM)**
+4. **Creative Performance AI**：Google Performance Max
+5. **景表法 / 薬機法 / 業界別広告ガイドライン**
+6. **IAB Display Standards**
+
+### STEP 4: 2026年最新ツール
+- **Figma + Tokens Studio**
+- **Bannerflow / Smartly.io**：プログラマティック
+- **Frontify**：DAM
+- **Claude Opus 4.8**：レビュー支援
+
+### STEP 5: KPI / 測定指標
+- バナー納期遵守率（目標 100%）
+- LP↔バナー世界観整合率（目標 100%）
+- 部署内修正回数（目標 ≤ 0.5回）
+- CVR 1.3倍以上達成率（目標 ≥ 80%）
+
+### STEP 6: DoD
+- [ ] LP部 design-tokens.json 共有確認
+- [ ] HARU レビュー済み素材のみKanaへ
+- [ ] rei→kana→hiro パイプライン完走
+- [ ] 景表法 / 募集要項 nori 通過
+- [ ] CTR/CVR モニタリング
+
+### STEP 7: 継続学習
+- **月次**：プログラマティック広告動向
+- **四半期**：DAM / Creative Ops 学習
 - **11-資料作成部（Mei 等）へのバナー提供は「縦横比/スライド位置/印刷有無」3 点ヒアリング先行**：提案書・ピッチデック挿入向けバナー依頼時、Yuna が Rei/Kana 着手前に 3 項目を確認。印刷出力ありなら Hiro に CMYK 変換版もセット依頼、PowerPoint 挿入なら 16:9 セーフエリア確保を Kana に指示。資料作成部からの後追い修正リクエスト 70% 削減
 - **03-データ分析部との A/B テスト結果フィードバックループで初稿品質を底上げ**：配信後 7 日経過バナーの CTR/CPA/CVR をデータ分析部から受領し、勝ちパターン（配色・コピー軸・CTA 配置）を Notion DB「勝ちバナーアーカイブ」に登録。次回類似業種案件で Rei/Kana が初稿段階で参照、初稿承認率 1.5 倍。月次振り返り MTG に Sho/Itsuki も同席させ横断知見化

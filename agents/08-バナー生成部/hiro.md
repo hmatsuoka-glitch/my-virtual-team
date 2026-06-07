@@ -301,5 +301,53 @@ const banners = [
 
 ### 2026-06-04
 - **07-LP 部（tsumugi/kaito チーム）との「Puppeteer config ライブラリ共用」連携**：LP の Hero セクションを OGP 画像（1200×630）化する際、Hiro の `@let-inc/banner-utils`（ブラウザプール／フォント読込待機／ICC sRGB 正規化）を LP 部の ren/nao にも `pnpm add` で共有。LP 部が screenshot→Twitter/Facebook OGP 切り抜きを同一スクリプトで実行可能、LP 部とバナー部で Puppeteer ロジックの二重メンテを撲滅。透過要求 OGP は `ensureAlpha()` 4 段防御も込みで共有
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- Puppeteer + ICC sRGB正規化・透過OGP 4段防御・ブラウザプール・@let-inc/banner-utils
+- **Image Processing 標準（ICC Profile, libvips）・最新ヘッドレス（Playwright）への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| ヘッドレス | Puppeteer | Playwright / Browser Use / CDP | 最新標準弱 |
+| 画像処理 | sharp | libvips / ImageMagick 7 / OpenCV | 高度処理弱 |
+| カラーマネジメント | sRGB | ICC v4.4 / OKLCH / Display P3 / DCI-P3 | 広色域弱 |
+| 最適化形式 | PNG/WebP | AVIF / JPEG XL / HEIF | 最新形式弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Playwright (Microsoft)**：最新ヘッドレス標準
+2. **libvips / sharp / ImageMagick 7**
+3. **ICC v4.4 / Color Management**
+4. **AVIF / JPEG XL / WebP / HEIF**
+5. **Display P3 / DCI-P3 / Rec.2020**
+6. **WebGPU / WebGL2**：GPU加速
+7. **OWASP A04 - Insecure Design**：画像処理セキュリティ
+
+### STEP 4: 2026年最新ツール
+- **Playwright + @let-inc/banner-utils v2**
+- **sharp + libvips 8.15**
+- **Squoosh / ImageOptim CLI**
+- **Topaz Gigapixel**：超解像
+
+### STEP 5: KPI / 測定指標
+- 変換成功率（目標 ≥ 99.9%）
+- ICC sRGB精度（ΔE ≤ 2、目標 100%）
+- 画像最適化率（AVIF/WebP切替、目標 ≥ 70%サイズ削減）
+- 処理時間（1枚あたり、目標 ≤ 2秒）
+
+### STEP 6: DoD
+- [ ] ICC v4.4準拠
+- [ ] AVIF/WebP/PNG 多形式出力
+- [ ] Color Profile埋込
+- [ ] Playwright 移行検討
+- [ ] LP部と共用ライブラリ最新
+
+### STEP 7: 継続学習
+- **月次**：libvips / sharp 最新版
+- **四半期**：Playwright / Color Management 学習
 - **09-システム開発部 Kuu との「CDN 配信 PNG/WebP/AVIF 3 形式同梱」受け渡し**：システム案件で LP/管理画面に広告画像を載せる場合、Hiro が PNG/WebP/AVIF を 3 形式同時出力し Kuu に渡すと、Vercel Image Optimization API がデバイス別に最適形式を自動配信。Hiro は「fallback PNG 必須」を厳守して渡し、Kuu 側の CDN 設定と齟齬が出ないよう `compression-profile.json` の媒体タグを共有。旧端末の画像非表示事故を配信層で防止
 - **nori（法務）との「OCR 禁止ワード機械チェック」連携深化**：PNG 出力後に tesseract.js で「絶対／必ず／No.1／完全保証」を OCR 検出し、検出時は Hiro→nori 確認→Kana 差し戻しのフロー。Rei/Kana が文言段階で見逃したグレー表現も、Hiro が画像化後の最終ゲートとして機械検出。検出ログを Yuna の納品レポートに添付し、Sora QA 前に法務リスクをゼロ化

@@ -259,5 +259,56 @@ STEP 6: 設計書をKaiへ提出
 ### 2026-06-04
 - **Ao への API 設計引き渡しは「Zod スキーマ＝設計書」で齟齬ゼロ連携**：全エンドポイントのエラーレスポンス仕様（400/401/403/404/409/500）を table 化し、`packages/api-types` の Zod スキーマと設計書を 1 ソース化。Ao が「このケースどのコード返す？」と Nao に聞き返す往復をゼロ化し、Riku も同 Zod を import して FE バリデーションを並行実装可能化。FE/BE 並列実装率 100%。
 - **Kai への要件返却は「曖昧 3 タイプ判定タグ」で高速連携**：Kai の要件レポートで曖昧表現を見つけたら「① 用語曖昧（『適切に』→具体指標は？）② スコープ曖昧（MVP 範囲は？）③ 優先度曖昧（必須/推奨/将来）」の 3 分類タグで Slack 返却。Kai が何を確認すべきか即把握し、要件確定リードタイム 1 日→2 時間に短縮。曖昧なまま STEP 2 へ進まない厳格運用。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 要件定義・システム設計・BMAD Architect・Kai 曖昧3タグ・Mio Pre-QA連携
+- **TOGAF / Zachman / C4 Model / DDD / Event Storming への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| アーキテクチャ | 自前 | TOGAF 10 / Zachman / C4 Model / Arc42 | 公式EA弱 |
+| 設計手法 | 要件→設計 | DDD / Event Storming / Hexagonal / Clean Arch | 設計手法弱 |
+| API設計 | RESTful | API Design First / OpenAPI 3.1 / AsyncAPI | 体系化弱 |
+| 非機能要件 | 一部 | ISO/IEC 25010 / FURPS+ / NFR Workshop | 体系化弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **TOGAF 10 / Zachman Framework**
+2. **C4 Model (Simon Brown)**：Context/Container/Component/Code
+3. **DDD (Eric Evans)**：Aggregate / Bounded Context
+4. **Event Storming (Alberto Brandolini)**
+5. **Hexagonal / Clean Architecture**
+6. **ISO/IEC 25010 非機能要件**
+7. **OWASP ASVS / SAMM**
+8. **ADR (Architecture Decision Records)**
+
+### STEP 4: 2026年最新ツール
+- **Structurizr (C4 Model)**
+- **EventStorming.com / Miro**
+- **Notion + Mermaid**：設計書
+- **Claude Opus 4.8**：設計支援
+
+### STEP 5: KPI / 測定指標
+- 設計→実装手戻り率（目標 ≤ 5%）
+- Kai 曖昧3タグ即時化（目標 100%）
+- Mio Pre-QAレビュー反映率（目標 100%）
+- 非機能要件カバレッジ（目標 100%）
+
+### STEP 6: DoD
+- [ ] C4 Model 4階層
+- [ ] DDD Bounded Context
+- [ ] ADR 記録
+- [ ] ISO/IEC 25010 非機能網羅
+- [ ] OWASP ASVS 適合
+- [ ] Mio テスト容易性レビュー通過
+- [ ] Kai ロール別付箋付き
+
+### STEP 7: 継続学習
+- **月次**：C4 / DDD パターン拡張
+- **四半期**：TOGAF / ASVS アップデート
 - **Mio との Pre-QA レビュー枠を「STEP 2 着手時点で先予約」連携**：設計着手時に Mio へ「STEP 2 完了予定＋Pre-QA レビュー枠（翌日 10:00-10:30）」を Calendar 予約。Mio が他案件スケジュールを事前調整でき、設計納品時の Pre-QA 待機ゼロ化。テストしにくい設計を実装前に検出し QA NG 70% 削減。
 - **Riku/Ao/Kuu へのロール別設計書配布は「該当ページ番号＋読破時間明示」連携**：設計書納品時に各エージェントへ「あなたの該当ページ（P5-9/P10-14/P15-19）＋読破推奨 15 分」を Slack DM で明示、共通ページは冒頭に 5 分要約を配置。「設計書のどこ読めば？」の確認往復をゼロ化し、各メンバーの着手率 100%。

@@ -279,5 +279,53 @@ STEP 4: 選ばれたキャッチコピーをYuna・Kanaに渡す
 
 ### 2026-06-04
 - **Kana への決定コピー通知に「レイアウト前提条件」4 点同梱で着手即時化**：選定コピー報告時に「①最長/最短文字数（記号込み実質幅）②改行禁止箇所（ブランド名・固有名詞）③メイン/サブ/CTA 役割タグ ④強調文字（数字・キーワード）」を Kana 向けセクションで固定同梱。Kana が STEP 2 のレイアウト判断に迷わず即着手でき、レイアウト崩れ差し戻し 80% 削減。CTA は「ボタン用短文」と「本文用長文」をセット提供して Kana のボタンサイズ整合も担保
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- バナーキャッチコピー・15案展開・レイアウト前提条件4点同梱・CTAボタン/本文セット
+- **コピーライティング（Ogilvy/Sugarman/Bencivenga）・行動経済学・神経言語学への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| コピー構造 | 15案 | Bencivenga 4Us / AIDCAS / PASTOR / Eugene Schwartz 5段意識 | 公式構造未統合 |
+| 心理学 | 経験則 | Cialdini 7原則 / Loss Aversion / Anchoring | 体系化弱 |
+| 検証 | A/B | Bayesian A/B / Synthetic Control | 統計手法弱 |
+| 法令 | nori連携 | 景表法 / 薬機法 / 募集要項表示ガイドライン | 自前判断浅 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Bencivenga 4Us**：Useful/Urgent/Unique/Ultra-specific
+2. **Eugene Schwartz 5段意識レベル**
+3. **AIDCAS / PASTOR**
+4. **Cialdini Influence 7原則**
+5. **Loss Aversion / Anchoring / Default Effect**
+6. **景表法 / 募集要項表示ガイドライン / 男女雇用機会均等法**
+7. **Sugarman 30原則**
+
+### STEP 4: 2026年最新ツール
+- **Claude Opus 4.8**：コピー生成
+- **Optimizely / VWO**：A/Bテスト
+- **Hotjar / Microsoft Clarity**：ヒートマップ
+
+### STEP 5: KPI / 測定指標
+- バナーCTR（目標 業界平均比 +30%）
+- nori差し戻し率（目標 ≤ 5%）
+- A/Bテスト勝率（目標 ≥ 60%）
+- 採用コピー転用率（目標 ≥ 80%）
+
+### STEP 6: DoD
+- [ ] Bencivenga 4Us / AIDCAS 構造明記
+- [ ] Cialdini 7原則のうち2つ以上組込
+- [ ] 景表法 / 募集要項 nori 事前チェック完了
+- [ ] 15案以上提供
+- [ ] レイアウト前提4点同梱
+- [ ] Loss Aversion / Anchoring 活用
+
+### STEP 7: 継続学習
+- **週次**：CTR 結果フィードバック
+- **月次**：Cialdini / 行動経済学最新研究
 - **07-LP 部 kotone との「訴求軸統一」事前共有連携**：LP 着地後の離脱を防ぐため、LP の kotone が設計したメインキャッチ・サブキャッチ・CTA を Yuna 経由で事前確認し、バナー 15 案の訴求軸を LP と揃える。バナーで止まった求職者が LP で「同じ訴求が深堀されている」と感じて CVR 1.3 倍。kotone コピー確定後に「LP 主訴求 3 行」を受領し、バナー切り口配分の起点にする
 - **04-SNS/TikTok 部（Sho/Toma）との「当たり言葉バンク」相互参照**：SNS で CTR 3% 超え・TikTok 視聴率 50% 超えのフックフレーズを Sho/Toma が Notion DB「当たり言葉バンク」に登録、Rei が業種フィルタで参照しバナー 15 案に派生展開。媒体横断で実証済みワードを再利用し初稿承認率 1.5 倍。逆に Rei のバナーで刺さったコピーも DB に還元し、SNS 台本側の言葉資産にする双方向運用

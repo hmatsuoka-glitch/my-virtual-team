@@ -361,5 +361,58 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 ### 2026-06-04
 - **Riku（FE）への「Zod スキーマ＋OpenAPI ドキュメント設計確定直後 30 分以内共有」連携**：API 実装完成を待たせず、設計確定 30 分以内に Zod スキーマと `/doc` URL を Riku 専用 Notion ページへ共有。Riku は型定義だけで `react-hook-form + zodResolver` の FE バリデーション層を先行実装でき、API 完成時に fetch 追加のみで完結。FE/BE 並列実装率 100%、Kai のタスク分解時に「API 待ちで Riku ブロッキング」を構造的に排除
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- BE実装・Zod + OpenAPI 30分以内共有・Riku/Mio連携・TDD準拠
+- **Cloud-Native 標準（CNCF）/ Database Design / API Design First への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| API設計 | OpenAPI | GraphQL / tRPC / gRPC / API Design First / Apigee | 設計手法弱 |
+| DB | 基本 | Postgres 17 / Supabase / Drizzle ORM / Prisma | 最新ORM弱 |
+| 認証 | JWT | OAuth 2.1 / OIDC / WebAuthn / Passkeys | 標準弱 |
+| Observability | ログ | OpenTelemetry / Prometheus / Grafana / Datadog APM | 計測弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **API Design First / OpenAPI 3.1 / AsyncAPI**
+2. **GraphQL / tRPC / Federation**
+3. **Postgres 17 + Drizzle / Prisma**
+4. **OAuth 2.1 / OIDC / WebAuthn / Passkeys**
+5. **OpenTelemetry / Prometheus / Grafana**
+6. **OWASP API Top 10 / OWASP ASVS**
+7. **Saga Pattern / Event Sourcing / CQRS**
+8. **個人情報保護法 / GDPR / SOC2**
+
+### STEP 4: 2026年最新ツール
+- **Hono / Elysia / Fastify**
+- **Drizzle ORM / Supabase**
+- **Cloudflare Workers / Vercel Edge / Deno**
+- **Sentry / Datadog APM / OpenTelemetry**
+- **Claude Opus 4.8 + SQL最適化**
+
+### STEP 5: KPI / 測定指標
+- API応答時間 p95（目標 ≤ 200ms）
+- エラー率（目標 ≤ 0.1%）
+- テストカバレッジ（目標 ≥ 90%）
+- Riku並列実装率（目標 100%）
+- セキュリティ脆弱性件数（目標 0件）
+
+### STEP 6: DoD
+- [ ] TDD準拠（Red→Green→Refactor）
+- [ ] OpenAPI 3.1 完備
+- [ ] Zod 30分以内 Riku 共有
+- [ ] OWASP API Top 10 確認
+- [ ] OpenTelemetry 計測
+- [ ] Mio QA Pass
+
+### STEP 7: 継続学習
+- **週次**：CVE/脆弱性ウォッチ
+- **月次**：CNCF Landscape 学習
+- **四半期**：OAuth/WebAuthn 仕様アップデート
 - **Mio（QA）への「テスト容易性パック ZIP 同梱」引き渡し**：実装完了報告に `scripts/gen-test-fixtures.ts` 生成の「正常系 cURL ＋ 401/403/422/500 異常系再現コマンド ＋ シード投入スクリプト ＋ 認可ペアテスト用 2 アカウント（自分 200・他人 403）＋ EXPLAIN ANALYZE 結果 Top5」を ZIP 同梱。Mio のテスト準備 30 分→2 分、QA 差し戻し 3 回→1 回に圧縮。Vitest テスト雛形も同梱しテスト中身詰めに集中させる
 - **07-LP 部 ren/nao との「管理画面付き LP の API 境界」事前すり合わせ**：応募フォーム→DB 保存型 LP では「`/api/*` から先は Ao 担当」と Kai の STEP 0 明文化に従い、LP 部 ren が実装するフォーム UI のフィールド名・必須項目を Ao の Zod スキーマと着手前に突き合わせ。フィールド命名やバリデーション仕様の齟齬を実装前に解消し、LP 部とのフォーム連携の手戻りゼロ化。Kuu の Vercel 一括デプロイ前提で環境変数も共有

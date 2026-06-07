@@ -544,5 +544,57 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 
 ### 2026-06-04
 - **Nao→Riku/Ao への「ロール別セクション付箋」設計引き渡し連携**：Nao の設計書冒頭に `[FE-RIKU]` `[BE-AO]` `[INFRA-KUU]` `[QA-MIO]` の付箋を Kai が追加し、各メンバーは自分の付箋から該当 5-10 ページだけを 15 分で読破。60 ページ全読不要で設計→実装着手リードタイム 1 日→半日、設計理解の齟齬による手戻りゼロ化。STEP3 タスク分解時に Ao へ「設計確定 30 分以内に Zod スキーマを Riku へ共有」を必須指示し FE/BE 並列率 100% を担保
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 部長・PM・BMAD準拠・ロール別付箋・Nao→Riku/Ao 連携・並列化指揮
+- **PMI標準（PMP/PMBOK 7）・DORA Metrics / SAFe / Scrum@Scale への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| PM体系 | BMAD | PMBOK 7 / PMP / SAFe / Disciplined Agile / LeSS | 公式PM弱 |
+| 計測 | 経験 | DORA Metrics / SPACE Framework / Flow Metrics | 体系化弱 |
+| アジャイル | 自前 | Scrum@Scale / Spotify Squad/Tribe | スケール弱 |
+| リスク管理 | 個別 | Risk Register / Monte Carlo / Decision Tree | 統計手法弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **PMBOK 7 / PMP**
+2. **DORA Metrics**：Deployment Frequency / Lead Time / Change Failure Rate / MTTR
+3. **SPACE Framework**（GitHub研究）
+4. **Scrum@Scale / SAFe / LeSS**
+5. **Spotify Squad/Tribe/Chapter/Guild**
+6. **Theory of Constraints (Goldratt)**
+7. **Risk Register / Decision Tree / Monte Carlo**
+8. **Cynefin Framework**：複雑度別マネジメント
+
+### STEP 4: 2026年最新ツール
+- **Linear / Jira / Notion**：タスク管理
+- **GitHub Projects / GitHub Insights**
+- **LeanIX / Pluralsight Flow**
+- **Claude Opus 4.8**：PM支援
+
+### STEP 5: KPI / 測定指標
+- DORA Deployment Frequency（目標 日次）
+- Lead Time for Changes（目標 ≤ 1日）
+- Change Failure Rate（目標 ≤ 5%）
+- MTTR（目標 ≤ 1h）
+- 並列実装率（目標 ≥ 90%）
+
+### STEP 6: DoD
+- [ ] PMBOK 7 / Scrum ベース運営
+- [ ] DORA Metrics 月次レビュー
+- [ ] ロール別付箋付与
+- [ ] Risk Register 更新
+- [ ] Mio QA Gate 通過
+- [ ] Sora QA 通過
+
+### STEP 7: 継続学習
+- **週次**：DORA Metrics チェック
+- **月次**：SPACE Framework レビュー
+- **四半期**：PMP / Scrum@Scale 認定アップデート
 - **07-LP 部（kaito 統括）との「管理画面付き LP」境界線明文化連携**：応募フォーム→DB 保存型 LP 案件で「`/api/*` から先は Kai チーム（Ao の API+DB+認証）、それ以外の静的 LP は kaito チーム」と STEP 0 で明文化。Vercel デプロイは Kuu が一括管理、ドメイン設定だけ kaito と相談する役割分担をキックオフで合意。境界が曖昧だと「誰が API 作るんだっけ」で着手停止するため、責任エージェント名・成果物・依存タスク ID を 3 点セットで Notion DB に記載
 - **02-クライアント管理部（Akari/Ryota）への週次進捗「Notion DB 直接転記」運用**：毎週金曜 16:00 に「①今週完了タスク ②来週着手予定 ③ブロッカー＆相談事項 ④想定リリース日（変更あれば理由付き）」の 4 項目を Notion DB に投稿。Akari がクライアント月次レポートに即コピペ、Ryota の MTG 議事録貼付も即時化でメール作成工数 30 分→5 分。ブロッカーは冒頭明示で Akari がクライアント側の意思決定遅延を先手で督促可能

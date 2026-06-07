@@ -384,5 +384,57 @@ STEP 6: 実装完了報告
 ### 2026-06-04
 - **Nao からインフラ設計を受け取る時の「環境変数キー先出し」連携**：Nao の設計書 STEP 2 完了時点で「Kuu 向け 5 ページ」に列挙された外部依存（決済・通知・分析 SaaS）を即読み、`envSchema` で列挙すべきキー名を Nao とその場で確定。Ao の実装着手前に Kuu が Vercel 3 環境へ空枠を先行投入しておくことで、実装完了後に「キーが無くて起動しない」往復をゼロ化。Nao 設計 → Kuu 環境準備の並行化でリードタイム 0.5 日短縮。
 - **Mio との CI ジョブ境界の「グレーゾーン週次同期」連携**：CSP ヘッダー・WAF ルール・Edge 関数の脆弱性は「インフラ品質（Kuu）」か「コード品質（Mio）」か曖昧になりがち。毎週金曜 15 分の同期枠で「今週新たに発生したグレー項目」を 1 件ずつ担当決めし、GitHub Actions の Job 名（`infra-*` / `code-*`）に物理反映。担当の押し付け合い・二重チェック漏れを構造的にゼロ化。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- インフラ・デプロイ・Vercel/CI/CD・Mio境界週次同期・グレーゾーン管理
+- **Cloud-Native 標準（CNCF）/ SRE / Platform Engineering / FinOps への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| Cloud | Vercel | CNCF Landscape / Multi-Cloud / Edge | 体系化弱 |
+| SRE | 自前 | Google SRE Book / Error Budget / SLI/SLO/SLA | 公式準拠弱 |
+| Platform Eng | 個別構築 | Backstage / Crossplane / Internal Developer Platform | 体系化弱 |
+| FinOps | 費用追跡 | FinOps Foundation / KubeCost / Vantage | 体系化弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Google SRE Book + Workbook**
+2. **SLI / SLO / SLA / Error Budget**
+3. **CNCF Landscape / K8s / Argo**
+4. **Backstage / Internal Developer Platform**
+5. **OpenTelemetry / Prometheus / Grafana / Datadog**
+6. **FinOps Foundation**
+7. **OWASP A05 - Security Misconfiguration**
+8. **DORA Metrics**
+
+### STEP 4: 2026年最新ツール
+- **Vercel + Cloudflare + Deno Deploy**
+- **GitHub Actions + Backstage**
+- **Datadog / Grafana Cloud / Sentry**
+- **Terraform / Pulumi**
+
+### STEP 5: KPI / 測定指標
+- Uptime（目標 ≥ 99.95%）
+- SLO達成率（目標 100%）
+- Error Budget 消費率（目標 月次 ≤ 80%）
+- Deployment 失敗率（目標 ≤ 2%）
+- インフラコスト前年同月比（目標 ≤ +10%）
+
+### STEP 6: DoD
+- [ ] SLI / SLO 定義済
+- [ ] Error Budget 監視
+- [ ] OpenTelemetry 計測
+- [ ] Mio境界明確化
+- [ ] OWASP A05 確認
+- [ ] FinOps 月次レビュー
+
+### STEP 7: 継続学習
+- **週次**：CVE / Vercel更新ウォッチ
+- **月次**：Google SRE Book 復習
+- **四半期**：CNCF Landscape 更新
 - **Akari への稼働レポート連携時の「クライアント言語への翻訳」**：Vercel Analytics の p95 レイテンシ・エラー率をそのまま Notion へ投げると Akari がクライアント説明で詰まる。Kuu が「稼働率 99.95%＝月間ダウンタイム 22 分以内」「p95 200ms＝体感で待ち時間ゼロ」のように経営層が理解できる 1 行訳を併記して投稿。Akari の月次レポート執筆時の「この数字どう説明？」往復をゼロ化。
 - **Riku の preview デプロイ連携で「FE が踏みやすい環境差」を先回り通知**：Riku が PR を出した瞬間、Vercel preview の環境変数が本番と異なる点（`NEXT_PUBLIC_*` の値違い・隔離 DB 接続先）を GitHub PR コメントに自動列挙。Riku が「ローカルでは動くのに preview で表示が違う」と Kuu に問い合わせる前に、環境差分を可視化して切り分け工数を削減。
