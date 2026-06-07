@@ -361,5 +361,76 @@
 
 ### 2026-06-04
 - **Shun・Akari・Rui の3者数値を提案書に同梱する「根拠トリオ」連携**：クライアント経営者MTG用の提案書「現状課題」を作る際、Shunから「自社実績数値（応募CVR・応募単価）」、Akariから「その数字のビジネス翻訳（機会損失額）」、Ruiから「業界相場・競合動向（一次/二次ソース階層タグ付き）」の3点を同一フォーマットで集約。1つの主張に「自社実績＋金額換算＋業界文脈」の三層根拠が揃うため、経営者の「で、うちはどうなの？業界比は？」という質問が事前に解消され、即決率が向上。3者への発注は提案MTG日から逆算して水曜までに一括依頼するルール化。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- 7社案件管理・提案書作成・根拠トリオ連携・MTG議事録・優先順位スコア管理
+- 案件管理基礎は強い。**国際営業標準（Sandler/Challenger Sale/MEDDIC）・CRM体系（Salesforce, HubSpot Sales Hub）・Customer Success Framework への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| 営業手法 | 提案書中心 | MEDDIC / Challenger Sale / Sandler / SPIN Selling | 営業方法論未統合 |
+| クライアント階層 | 7社並列 | Tier-based Account Management / TAM/SAM分類 | 階層化弱い |
+| Customer Success | 提案ベース | CS Playbook / Health Score / NPS / QBR | CS体系弱い |
+| 契約管理 | 単発提案 | LCV / NRR / Churn / Renewal Forecast | 継続収益管理弱 |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **MEDDIC / MEDDPICC**：B2B大型案件のクオリフィケーション
+2. **Challenger Sale**：教えて差別化する営業
+3. **SPIN Selling**：Situation/Problem/Implication/Need-payoff
+4. **Account-Based Management (ABM)**：重要顧客深耕
+5. **QBR (Quarterly Business Review)**：四半期定例
+6. **Customer Health Score**：契約継続予測
+7. **LCV / NRR / Net Revenue Retention**
+8. **下請法 / 独占禁止法 / 改正景表法 2026**
+
+### STEP 4: 2026年最新ツール
+- **HubSpot Sales Hub / Salesforce CRM**
+- **Gong / Chorus**：商談録音AI分析
+- **Clari / Outreach**：パイプライン管理
+- **Notion + Slack 連携**：案件管理ハブ
+- **Claude Opus 4.8**：提案書自動生成
+
+### STEP 5: 高度メソドロジー
+1. **MEDDIC スコアリング**：案件健康度の数値化
+2. **Buyer Persona Mapping**：意思決定者・推薦者・拒否者の特定
+3. **Win/Loss Analysis**：受失注の根本原因分析
+4. **Pipeline Velocity Optimization**
+
+### STEP 6: KPI / 測定指標
+- 提案書即決率（目標 ≥ 60%）
+- NRR（Net Revenue Retention）（目標 ≥ 120%）
+- Time-to-Proposal（目標 ≤ 5営業日）
+- 案件健康度MEDDICスコア（目標 ≥ 80）
+- 月次案件遅延件数（目標 0件）
+
+### STEP 7: 2026年トレンド吸収
+- Account-Based Marketing 拡大
+- AI営業支援標準化
+- 改正景表法（誇大広告の規制強化）
+- 下請法改正
+
+### STEP 8: アウトプット品質基準
+- 提案書に MEDDIC 全要素埋め込み
+- 根拠トリオ（Shun/Akari/Rui）の3層揃え
+- 経営層向けサマリー + 詳細提案の分離
+- 撤退基準と継続条件明記
+
+### STEP 9: DoD（Definition of Done）
+- [ ] MEDDIC 全要素埋め込み済
+- [ ] 根拠トリオ3層揃え
+- [ ] Haruto KPI整合性確認
+- [ ] Sora QA通過
+- [ ] クライアントHealth Score算出
+- [ ] QBR スケジュール組み込み
+
+### STEP 10: 継続学習ループ
+- **週次**：MEDDIC スコア更新
+- **月次**：Win/Loss分析・QBR準備
+- **四半期**：Challenger Sale / SPIN認定アップデート
 - **Hana/Iro（LP部）への発注時「クライアントCI・トーン背景」事前エンコード**：建設業クライアントの採用LP複製・新規制作をtsumugi経由でHana/Iroに回す際、単なる「LP作成」ではなく「①クライアントのブランドカラー指定有無（CIガイドPDFの有無）／②訴求トーン（翔星建設＝采配の自由度重視・落ち着いた信頼感）／③NG表現（過度な若者向けポップ訴求は経営者が嫌う）」の3点を発注書に明記。Iroのパレット設計・Hanaの抽出が「クライアント意図ズレ」で差し戻される事故を発注段階で予防。
 - **Deng（データ基盤）の「データソース出所メタ」を提案書脚注に直結**：提案書の数値根拠を厚くする際、Shun経由でDengのデータカタログ「業務イベント定義（応募完了＝Airworkフォーム送信時刻）・抽出時刻・集計式」を脚注リンク化。クライアントから「この数字どこから？」と問われた瞬間にデータ基盤レベルまで遡って即答可能になり、数値の信頼性が一段上がる。Akari→Ryota→sora→クライアントの数字バトンリレーにDengの出所メタを足すことで連続性を担保。

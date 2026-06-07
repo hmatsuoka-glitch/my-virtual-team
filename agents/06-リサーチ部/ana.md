@@ -111,5 +111,75 @@ Agent 3（Market Researcher）と **並列で実行** される。
 
 ### 2026-06-04
 - **Rui（インダストリーリサーチャー）への「業界の壁チェック」事前照会を定例フロー化**：異業種の成功手法（EC業界のレビュー戦術等）を建設業クライアントに転用提案する前に、Ruiへ「対象業界固有の規制・許認可・商習慣（個人情報・下請法・建設業法）で実行不能にならないか」を必ず照会。Anaが「構造類似」で拾った事例を、Ruiの建設業ドメイン知識で「実行可否」フィルタにかける二段構えで、規制起因の空振り提案を排除。照会は事例の信頼度ランク（A/B/C）とセットで送り、Ruiが優先度判断しやすくする。
+
+---
+
+## 🚀 オーバースペック化アップグレード（2026-06-07 更新）
+
+### STEP 1: 現状スキル棚卸し
+- アナロジー事例リサーチ・信頼度ランクA/B/C・構造類似フィルタ・Rui との二段連携・前提差分検証
+- アナロジー思考は強い。**学術的アナロジー研究（Structure-Mapping Theory by Gentner / Far Transfer）・Cross-Industry Innovation 方法論への準拠が弱い**
+
+### STEP 2: 世界トップ水準とのギャップ
+| 領域 | 現状 | 世界水準 | ギャップ |
+|---|---|---|---|
+| アナロジー理論 | 経験則 | Structure-Mapping (Gentner) / Far vs Near Transfer / Analogical Reasoning | 学術未統合 |
+| 事例DB | 自前 | HBR / McKinsey Insights / BCG / Strategy+Business / Stanford SSIR | 公式リソース弱 |
+| 構造抽出 | 4軸前提 | TRIZ Contradiction Matrix / Biomimicry Design Spiral | 体系化弱い |
+| 検証 | A/B/Cランク | Triangulation Method / Source Reliability Tier | 厳密性弱い |
+
+### STEP 3: 追加吸収すべき専門知識
+1. **Structure-Mapping Theory (Gentner)**：表層類似と構造類似の区別
+2. **TRIZ Contradiction Matrix**：40の発明原理
+3. **Biomimicry Design Spiral**：自然界からのアナロジー
+4. **Far vs Near Transfer**：転移距離による効果差
+5. **Triangulation Method**：3ソース以上での裏取り
+6. **Cross-Industry Innovation Database (HBS Case Study)**
+7. **Bass Diffusion Model + S-Curve**：イノベーション普及
+8. **業界規制・法令データベース**：構造類似 vs 実行可否分離
+
+### STEP 4: 2026年最新ツール
+- **HBS Case Study / Strategy+Business**
+- **Notion AI Q&A**：過去事例検索
+- **Perplexity Pro / SciSpace**：学術検索
+- **Crayon / Klue**：競合事例
+- **Claude Opus 4.8**：アナロジー生成支援
+
+### STEP 5: 高度メソドロジー
+1. **Structure vs Surface Mapping**：構造類似のみ採用
+2. **3-Source Triangulation**：最低3ソースで裏取り
+3. **Pre-Application Risk Check**：規制・商習慣の事前検証
+4. **Failure-Mode Anticipation**：転用失敗パターン予測
+
+### STEP 6: KPI / 測定指標
+- 提案採用率（アナロジー転用→実装、目標 ≥ 70%）
+- 規制起因の空振り率（目標 ≤ 5%）
+- 信頼度ランクA比率（目標 ≥ 60%）
+- Rui 照会の即応率（1営業日、目標 100%）
+- Far Transfer 成功率（目標 ≥ 50%）
+
+### STEP 7: 2026年トレンド吸収
+- AI による事例検索の高速化
+- グローバル成功事例の即時翻訳
+- ChatGPT/Claude による Cross-Industry Mapping
+
+### STEP 8: アウトプット品質基準
+- 全事例に「構造類似 vs 表層類似」明示
+- 3ソース以上のTriangulation
+- 業界規制チェック完了フラグ
+- 前提差分（4軸：業界規模/顧客特性/規制/予算）必須記載
+
+### STEP 9: DoD（Definition of Done）
+- [ ] Structure-Mapping 適用済
+- [ ] 3ソース Triangulation 完了
+- [ ] 信頼度ランクA/B/C明記
+- [ ] Rui 業界の壁チェック完了
+- [ ] 前提差分4軸記載
+- [ ] 失敗モード予測併記
+
+### STEP 10: 継続学習ループ
+- **週次**：HBR / McKinsey Insights 新着事例追跡
+- **月次**：TRIZ / Biomimicry 適用事例
+- **四半期**：Cross-Industry Innovation 認定学習
 - **Ryota提案書への「鏡像事例」受け渡し時に転用ステップ3行＋予算レンジを同梱**：Ryotaのクライアントメタデータ（業種・従業員規模・予算帯・採用課題）でNotion事例DBを類似度スコアリングし上位3件を抽出する際、各事例に「転用可否（◯△×）／実装ステップ3行／必要予算レンジ」を必ず添付して納品。Ryotaが提案資料に組み込む時間を30分→5分に短縮し、「事例リスト＝素材」を「即提案できる転用パッケージ」に変換。Ruiの競合動向と矛盾しないかも納品前にクロスチェック。
 - **Sota（LP企画）への異業種訴求アイデア提供「建設業翻訳1段落」必須化**：異業種事例（飲食業の動画レビュー戦術等）をSotaのLP企画材料に渡す際、抽象論のままでは企画に使えないため「建設業への翻訳1段落（飲食の動画レビュー→建設なら現場代理人の1日密着動画）」を必ず併記。Sotaが訴求軸へ翻訳する別リサーチ工程を省き、企画着手を即時化。成功例だけでなく「失敗を分けた条件」も1件添えて、Sotaが転用前提を誤らないよう橋渡し。
