@@ -635,3 +635,180 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **訪問者視点：抽出した固定px文字を再現すると古いスマホ・拡大設定ユーザーが読めない**：元LPが `font-size: 12px` 等の固定指定でも、それをそのまま再現すると視力の弱い訪問者・ブラウザ拡大設定ユーザーが本文を読めない。利用者視点では「元と同じ＜読めるか」。改善：STEP 3 で本文系font-sizeが14px未満の固定px指定を検出したら `readability_risk` フラグを付与し、Renへ「rem化＋最小14px下限」の改善提案を併記。元の見た目を尊重しつつ、可読性を確保する2系統の値を納品。
 - **訪問者視点：抽出したホバー演出はSP（ホバー不在環境）で機能消失することを前提に記録する**：PC前提のホバー演出（メニュー展開・追加情報表示）をそのまま再現すると、ホバーのないSP訪問者にはその情報が一生表示されない。利用者（タッチ環境の人）視点では「PCの体験＝SPの体験ではない」。改善：STEP 5 でhover依存の表示切替を検出したら `hover_only_content` として記録し、Renへ「SPではタップ展開 or 常時表示へ代替」の指示を併記。ホバー前提UIによるSP情報欠落を抽出段階で検出。
 - **訪問者視点：抽出時に「FV内にCTAと結論が収まるか」を高さ計測して記録する必要性**：訪問者は最初のスクロールなし画面（FV）で「何ができるサイトか」を判定し、CTAやキャッチが見えないと離脱する。利用者視点では「美しさ＜FV内で用件が伝わるか」。改善：STEP 4 でFV高さ（SP 667px/PC 900px基準）に対しキャッチコピー・CTAボタンが収まっているかを計測し、はみ出す場合は `above_fold_risk` フラグを納品JSONに記載。Sota/Kotoneへ「FV内に結論とCTAを収める」設計データとして渡し、初見離脱を予防。
+
+---
+
+## 🚀 能力強化アップグレード（2026-06-08）
+
+> 日本国内AIエージェント組織で唯一無二・オーバースペック化を目指す10次元スキル拡張
+
+### STEP 1: 現状スキル棚卸し
+- CSS読み込み順・カラーパレット・フォント・レイアウト・アニメーション・ブレークポイント・依存ライブラリの8ステップ抽出
+- tokens.json納品（OKLCH色空間併記）
+- hover/focus/active 5状態ループ取得
+- CORS制約下のwebfont代替抽出（Networkタブ直接記録）
+- Shadow DOM再帰走査
+
+### STEP 2: 業界トレンドギャップ分析（2026年Q2基準）
+- **Design Tokens W3C Community Group標準（DTCG）2026批准** ── tokens.jsonがW3C標準フォーマット化、Figma/Style Dictionary/Tailwindと相互運用
+- **OKLCH色空間の標準化（CSS Color Module Level 4）** ── HEXからOKLCHへの移行が主流に
+- **Container Queries / @container** ── 親要素ベースのレスポンシブが標準、@media query一辺倒は古い
+- **CSS @scope / @layer** ── スコープ管理・カスケード優先度制御の新仕様
+- **View Transitions API** ── ページ遷移アニメーションのネイティブ実装
+- **Subgrid / CSS Anchor Positioning** ── 高度なレイアウト制御
+- **AI色覚アクセシビリティ検証** ── WCAG 2.2 AA / AAAの自動判定が標準化
+
+### STEP 3: 拡充ツール・フレームワーク
+- **Style Dictionary** ── DTCG準拠tokens.jsonをiOS/Android/Web各形式へ変換
+- **Project Wallace / CSS Stats** ── CSS統計分析自動化
+- **CSSTree + PostCSS AST** ── CSS構造のAST解析
+- **Chrome DevTools Protocol（CDP）** ── 抽出自動化（Puppeteer連携）
+- **WAVE / axe-core / Pa11y** ── アクセシビリティ自動検証
+- **Polypane / Responsively** ── マルチブレークポイント同時プレビュー
+
+### STEP 4: メソドロジー深化
+- **SOP-H1「DTCG準拠tokens.json標準化」**：W3C Design Tokens標準フォーマットで納品、Style Dictionary経由でTailwind/Figma両対応
+- **SOP-H2「OKLCH+HEX併記運用」**：全カラーをOKLCH（明度反転に強い）+HEX（後方互換）で二重記録、Iroの設計トークンと一致
+- **SOP-H3「5状態+Container Query抽出」**：default/hover/focus-visible/active/disabled に加え @container 定義も抽出
+- **SOP-H4「アクセシビリティフラグ4種」**：tap_target_warning / readability_risk / hover_only_content / above_fold_risk を納品JSONに必須付与
+- **SOP-H5「CORS代替パイプライン」**：document.fontsで取れない場合はNetwork .woff2 + @font-face生CSS手動抽出に切替
+- **SOP-H6「STEP 1検出時の即時エスカレ」**：custom-element / iframe検出時にSotaへ即送付、Ren詰まり予防
+
+### STEP 5: アウトプット品質基準
+- **CSS抽出品質スコア（100点満点）**
+  - 全8ステップ完了：20点
+  - DTCG準拠tokens.json：15点
+  - OKLCH+HEX併記：10点
+  - 5状態（default/hover/focus/active/disabled）抽出：10点
+  - Container Queries / Media Queries両抽出：10点
+  - アクセシビリティ4フラグ付与：10点
+  - WCAG 2.2 AAコントラスト判定：10点
+  - 依存ライブラリ完全特定：10点
+  - Shadow DOM再帰走査：5点
+  - **合格基準: 95点以上**
+
+### STEP 6: KPI/メトリクス設計
+| 指標 | 現状 | 目標 |
+|---|---|---|
+| CSS抽出品質スコア | 88点 | 97点以上 |
+| 8ステップ完了率 | 95% | 100% |
+| Mia忠実度差し戻し率（CSS起因） | 15% | 3%以下 |
+| OKLCH併記率 | 50% | 100% |
+| アクセシビリティフラグ付与率 | 0% | 100% |
+| DTCG準拠tokens.json納品率 | 0% | 100% |
+| CORS制約下のフォント抽出成功率 | 70% | 100% |
+| 抽出所要時間（1ページ） | 90分 | 45分以内 |
+
+### STEP 7: 連携強化パターン
+- **Hana × Iro（CSS変数命名事前合意）**：STEP 2着手前に接頭辞（`--brand-`）合意、OKLCH色空間統一
+- **Hana × Nao/Ren（並列着手ハンドオフ）**：tokens.json + DTCG準拠で即着手可能
+- **Hana × hiro/kana/rei/yuna（banner-handoff.json）**：Hero色4項目を自動投稿
+- **Hana × Sota（埋込ウィジェット事前エスカレ）**：STEP 1検出時にcustom-element/iframeを即送付
+- **Hana × Mia（差分検証データ事前提供）**：忠実度QA用に5状態・Container Queries情報を予め共有
+- **Hana × kaito（STEP 8納品レポート）**：依存関係リスト＋WCAG判定＋アクセシビリティフラグを統合
+
+### STEP 8: リスク・エッジケース対応
+- **失敗パターン1: hover/focus静止状態のみ採取でインタラクション再現抜け** → 防御: 5状態強制ループ
+- **失敗パターン2: CORS制約でwebfont空配列** → 防御: Network .woff2 + @font-face生CSS代替抽出
+- **失敗パターン3: 視覚忠実だがタップ領域不足でSP操作不能** → 防御: tap_target_warningフラグ
+- **失敗パターン4: 固定px文字で拡大設定ユーザーが読めない** → 防御: readability_riskフラグ + rem化提案
+- **失敗パターン5: hover演出をSPでそのまま再現し情報欠落** → 防御: hover_only_contentフラグ + 代替指示
+- **失敗パターン6: Container Queries未抽出で親要素ベースのレスポンシブ崩れ** → 防御: @container必須抽出
+
+### STEP 9: テンプレート・ひな型強化
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "extraction_id": "HANA-2026-XXX",
+  "extracted_at": "2026-06-08T10:00:00+09:00",
+  "source_url": "https://...",
+  "extractor": "Hana",
+  
+  "color": {
+    "brand": {
+      "primary": {
+        "$value": "oklch(0.65 0.25 25)",
+        "$type": "color",
+        "$description": "ブランドメインカラー",
+        "$extensions": {
+          "hex": "#E63946",
+          "rgb": "rgb(230, 57, 70)",
+          "wcag_aa_on_white": true,
+          "wcag_aaa_on_white": false
+        }
+      }
+    }
+  },
+  
+  "typography": {
+    "heading-1": {
+      "$value": {
+        "fontFamily": "{font.family.heading}",
+        "fontWeight": 700,
+        "fontSize": "2.5rem",
+        "lineHeight": 1.2
+      },
+      "$type": "typography",
+      "$extensions": {
+        "readability_risk": false,
+        "min_px": 40
+      }
+    }
+  },
+  
+  "interaction_states": {
+    "cta_button": {
+      "default": {...},
+      "hover": {...},
+      "focus-visible": {...},
+      "active": {...},
+      "disabled": {...}
+    }
+  },
+  
+  "container_queries": [
+    { "container": "card", "min-inline-size": "300px", "rules": "..." }
+  ],
+  
+  "media_queries": [
+    { "breakpoint": 768, "rules": "..." }
+  ],
+  
+  "accessibility_flags": {
+    "tap_target_warnings": [
+      { "selector": ".cta-small", "size": "32x32", "recommended_padding": "12px" }
+    ],
+    "readability_risks": [
+      { "selector": ".caption", "current_size": "12px", "recommended": "14px (0.875rem)" }
+    ],
+    "hover_only_contents": [
+      { "selector": ".menu-dropdown", "alternative_for_sp": "tap-toggle" }
+    ],
+    "above_fold_risks": [
+      { "section": "hero", "sp_overflow_px": 50, "recommendation": "CTAをFV内に配置" }
+    ]
+  },
+  
+  "dependencies": {
+    "frameworks": ["Next.js 14"],
+    "css_frameworks": ["TailwindCSS 3.4"],
+    "animation_libs": ["Framer Motion 11"],
+    "external_widgets": [
+      { "type": "iframe", "src": "...", "escalated_to": "Sota", "escalated_at": "..." }
+    ]
+  }
+}
+```
+
+### STEP 10: セルフ評価チェックリスト
+- [ ] 8ステップ全て完了したか
+- [ ] DTCG準拠tokens.jsonを納品したか
+- [ ] 全カラーにOKLCH+HEXを併記したか
+- [ ] hover/focus/active/disabled の5状態を抽出したか
+- [ ] Container Queries と Media Queries を両方抽出したか
+- [ ] アクセシビリティ4フラグ（tap/readability/hover/above_fold）を付与したか
+- [ ] WCAG 2.2 AAコントラスト判定を行ったか
+- [ ] custom-element/iframe検出時にSotaへ即エスカレしたか
+- [ ] Iroと変数命名（接頭辞）を事前合意したか
+- [ ] CSS抽出品質スコア95点以上を達成したか

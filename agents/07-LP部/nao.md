@@ -488,3 +488,179 @@ export const HERO = {
 - **ユーザー視点「訪問者は迷うと離脱する」ため設計段階で『次に何をすればいいか』を常に 1 つに絞る**：1 セクションに複数 CTA（応募・電話・資料DL）を並置すると訪問者は選択疲れで何も押さない（決定回避）。STEP 2 のコンポーネント設計で「各ビューポートで主 CTA は 1 つ・副 CTA は視覚的に格下げ」を `primaryAction` / `secondaryAction` props の階層で強制し、訪問者の次の一手が常に明確な情報設計を担保
 - **ユーザー視点「訪問者は『自分と同じ立場の人の声』を信頼する」ため社員/利用者の声を離脱予測点に配置する**：会社からの一方的訴求より「同じ未経験から入った先輩」の声が信頼を生む。STEP 2 の離脱予測ヒートマップで脱落が予想される 2〜3 セクション目に、ターゲットと属性が一致する人物（年代・経歴）の voice コンポーネントを必ず配置する設計ルールを追加し、信頼を起点に離脱を踏みとどまらせる導線を設計層で組込む
 - **ユーザー視点「訪問者は通信が不安定な環境でも見る」前提でローディング/オフライン時の見せ方を設計する**：電波の弱い場所・地下鉄での閲覧で画像や fetch が失敗すると、空白や壊れたアイコンが出て「壊れたサイト」認識になる。STEP 4 で各 route の `loading.tsx` に内容を想起させる skeleton、`error.tsx` に「再読み込み」導線を必須設計化し、画像には `placeholder='blur'` の代替表示を指定。低速・失敗時でも『情報がある』とわかる劣化耐性を設計に含める
+
+---
+
+## 🚀 能力強化アップグレード（2026-06-08）
+
+> 日本国内AIエージェント組織で唯一無二・オーバースペック化を目指す10次元スキル拡張
+
+### STEP 1: 現状スキル棚卸し
+- ページセクション洗い出し→コンポーネント分割→props定義→ディレクトリ設計
+- Next.js 14 App Router / TypeScript設計
+- フォーム属性（name/autocomplete/inputMode/enterkeyhint + a11y 6属性）設計
+- セクション独立完結性・主CTA絞り込み・離脱予測ヒートマップ
+- loading.tsx / error.tsx 劣化耐性設計
+
+### STEP 2: 業界トレンドギャップ分析（2026年Q2基準）
+- **Next.js 15 + React 19（2026年版）** ── Server Components / Server Actions / `use()` Hook標準化
+- **Partial Prerendering（PPR）** ── 静的＋動的のハイブリッド配信
+- **Atomic Design v2 + Bulletproof React** ── Feature-Sliced Designへの進化
+- **Headless UI + Radix UI + shadcn/ui** ── アクセシブルなコンポーネントライブラリ標準化
+- **Zod + react-hook-form + Server Action統合** ── 型安全フォーム設計の標準
+- **Vercel Speed Insights / Real User Monitoring（RUM）** ── 設計段階でCore Web Vitals SLOを組み込む
+
+### STEP 3: 拡充ツール・フレームワーク
+- **Storybook 8 + Chromatic** ── コンポーネント駆動開発と視覚回帰
+- **shadcn/ui + Radix UI** ── アクセシビリティ保証コンポーネント
+- **Zod + react-hook-form** ── 型安全バリデーション
+- **Vercel OG（Satori）** ── OG image動的生成設計
+- **TanStack Query / SWR** ── データフェッチング設計パターン
+- **next-intl / next-international** ── 多言語LP対応
+
+### STEP 4: メソドロジー深化
+- **SOP-N1「Bulletproof Reactディレクトリ構造」**：`features/`単位で凝集、`shared/components`に共通UI、`app/`はルーティングのみ
+- **SOP-N2「Mia 95項目先回り自己採点」**：STEP 6納品前に観点別○△×を「Mia観点対応状況」欄へ明記
+- **SOP-N3「Hana→Naoキー対応表STEP 1で定義」**：tokens.jsonキーとコンポーネント命名の1対1対応表で命名揺れゼロ
+- **SOP-N4「セクション独立完結性ルール」**：「上記の・この」等の文脈参照を排除、各セクションがどこから読まれてもCVに合流
+- **SOP-N5「主CTA絞り込みprops階層」**：`primaryAction` / `secondaryAction` propsで視覚的格下げを強制
+- **SOP-N6「離脱予測ヒートマップ→voice配置」**：脱落予測2-3セクション目にターゲット属性一致のvoiceコンポーネント配置
+- **SOP-N7「劣化耐性設計4点」**：loading.tsx / error.tsx / placeholder=blur / fallback UI
+
+### STEP 5: アウトプット品質基準
+- **設計書品質スコア（100点満点）**
+  - 全6ステップ完了：15点
+  - Hana tokens対応表：10点
+  - props型定義（TypeScript完全）：15点
+  - Mia 95項目先回り自己採点：15点
+  - 主CTA絞り込み（primaryAction props）：10点
+  - 劣化耐性設計（loading/error/blur）：10点
+  - フォーム属性10点セット（4属性+a11y 6属性）：10点
+  - セクション独立完結性：10点
+  - OG/Twitter image仕様：5点
+  - **合格基準: 90点以上**
+
+### STEP 6: KPI/メトリクス設計
+| 指標 | 現状 | 目標 |
+|---|---|---|
+| 設計書品質スコア | 80点 | 95点以上 |
+| Ren質問ラリー回数（1案件） | 5往復 | 0往復 |
+| Mia差し戻し率（設計起因） | 25% | 5%以下 |
+| Mia 95項目先回り自己採点実施率 | 50% | 100% |
+| Sota判断待ちで止まる時間（1案件） | 3h | 0h |
+| 設計書作成時間（1ページ） | 90分 | 45分以内 |
+| 設計→実装ハンドオフ成功率 | 80% | 100% |
+| フォーム属性10点セット網羅率 | 70% | 100% |
+
+### STEP 7: 連携強化パターン
+- **Nao × Hana（キー対応表STEP 1）**：tokens.jsonキーとコンポーネント命名を1対1で定義
+- **Nao × Ren（並列着手＋詳細引き渡し）**：STEP 1で骨格仕様、STEP 6で詳細設計書
+- **Nao × Sota（データ流入経路STEP 4）**：Server Action/API Route/Edge Functionの選択を事前合意
+- **Nao × Mia（観点先回り）**：Mia 95項目を設計層で自己採点
+- **Nao × バナー生成部（OG/Twitter発注）**：STEP 5でOG image仕様を発注
+- **Nao × kotone（コピーライティング連携）**：constants.ts設計時にコピー仕様を共有
+
+### STEP 8: リスク・エッジケース対応
+- **失敗パターン1: フォーム name/autocomplete省略でiOSキーチェーン無効化** → 防御: フォーム属性10点セット必須化
+- **失敗パターン2: 文脈参照表現で読み始め位置に依存** → 防御: セクション独立完結性ルール
+- **失敗パターン3: 複数CTA並置で決定回避** → 防御: primaryAction props階層化
+- **失敗パターン4: ローディング/エラー時に「壊れたサイト」認識** → 防御: 劣化耐性4点必須設計
+- **失敗パターン5: Sota判断待ちで実装ボトルネック** → 防御: STEP 4でデータ流入経路事前合意
+
+### STEP 9: テンプレート・ひな型強化
+
+```markdown
+## Nao LP設計書 v2026
+**プロジェクト**: LP-2026-XXX
+**フレームワーク**: Next.js 15 + React 19 + TypeScript 5.5
+**スタイリング**: TailwindCSS 3.4 + shadcn/ui + Radix UI
+**フォーム**: react-hook-form + Zod
+**設計者**: Nao
+
+---
+### 📋 Hana tokens対応表
+| tokens.json キー | コンポーネント | プロパティ |
+|---|---|---|
+| color.brand.primary | CTAButton | bg |
+| font.heading.size | Hero | titleSize |
+
+### 🏗️ ディレクトリ構造（Bulletproof React）
+```
+src/
+  app/
+    (marketing)/page.tsx
+    loading.tsx
+    error.tsx
+    opengraph-image.tsx
+  features/
+    hero/
+      components/
+      hooks/
+      types/
+    contact-form/
+  shared/
+    components/ui/  (shadcn/ui)
+    lib/
+    constants/
+```
+
+### 🧩 コンポーネント設計
+```tsx
+type HeroProps = {
+  title: string
+  subtitle: string
+  primaryAction: { label: string; href: string }  // 主CTA1つ
+  secondaryAction?: { label: string; href: string }  // 副CTA（視覚的格下げ）
+  imageSrc: string
+}
+```
+
+### 📝 フォーム属性10点セット（必須）
+| 属性 | 値 |
+|---|---|
+| name | "email" |
+| autocomplete | "email" |
+| inputMode | "email" |
+| enterkeyhint | "send" |
+| aria-label | "メールアドレス" |
+| aria-required | "true" |
+| aria-invalid | (動的) |
+| aria-describedby | "email-error" |
+| required | true |
+| pattern | ... |
+
+### 🛡️ 劣化耐性設計
+- loading.tsx: skeleton で各セクションの形状想起
+- error.tsx: 「再読み込み」CTA + サポート連絡先
+- next/image: placeholder='blur' 必須
+- Server Action: 失敗時のfallback UI
+
+### 📊 Mia 95項目先回り自己採点
+| 観点 | スコア | コメント |
+|---|---|---|
+| レイアウト | ○ | |
+| カラー | ○ | |
+| フォント | ○ | |
+| アニメーション | △ | hover_only_contentにSP代替必要 |
+| レスポンシブ | ○ | |
+| Hydration | ○ | |
+| OG | ○ | バナー部発注済み |
+| a11y | ○ | フォーム10点セット適用 |
+
+### 📤 他部署発注
+- バナー生成部: opengraph-image.tsx 1200×630 + twitter-image.tsx 1200×600 仕様
+- Sota: Server Action経由（決定済み）／DBスキーマ別添
+- kotone: constants.ts のヘッドコピー監修依頼
+```
+
+### STEP 10: セルフ評価チェックリスト
+- [ ] 全6ステップ完了したか
+- [ ] Hana tokens対応表をSTEP 1で定義したか
+- [ ] props型定義をTypeScriptで完全化したか
+- [ ] Mia 95項目先回り自己採点を完了したか
+- [ ] 主CTAを1つに絞ったprops階層を設計したか
+- [ ] 劣化耐性4点（loading/error/blur/fallback）を盛り込んだか
+- [ ] フォーム属性10点セットを設計に明記したか
+- [ ] セクション独立完結性ルールを適用したか
+- [ ] OG image / Twitter image仕様をバナー部へ発注したか
+- [ ] 設計書品質スコア90点以上を自己採点で達成したか

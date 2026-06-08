@@ -309,3 +309,181 @@ const banners = [
 - **ユーザー視点：ダークモードユーザーが「白背景バナーで目が痛む」体験を出力段で検出**：夜間スマホをダークモードで使うユーザーは、白背景 PNG が突然眩しく感じて 0.2 秒で反射的にスワイプ。Hiro が PNG 出力後に sharp で平均輝度を算出し、輝度 90% 超の白基調バナーには「ダーク版必要」フラグを Yuna レポートに付記。媒体のダーク自動切替に備え、白基調案件は WebP/AVIF と並びダーク版出力も推奨する運用化
 - **ユーザー視点：通信制限ユーザーの「ぼやけた低品質版を見せられる屈辱」を 3 形式同梱で回避**：月末速度制限下のユーザーは媒体 CDN が自動配信する低品質版で「ぼやけたバナー」を見せられる。Hiro が PNG/WebP/AVIF の 3 形式を必ずセット出力し「軽量だがシャープな AVIF」が制限ユーザーにも届く設計を徹底。fallback PNG 欠落チェックを exit code 1 で物理強制し、旧端末・制限ユーザー双方の「画像が出ない/汚い」体験をゼロ化
 - **ユーザー視点：高齢求職者が「明るさ最大・コントラスト低設定」で淡色を見落とす**：建設業の中高年ターゲットは老眼・画面設定の都合で淡いグラデーションや薄いグレー文字を見落とす。Hiro が出力 PNG を「iPhone 明るさ 100%・True Tone OFF」相当でプレビューし、文字と背景の輝度差を sharp で実測。淡色文字（輝度差 60% 未満）は Kana に差し戻し、中高年案件は「濃い文字・太字・大サイズ」を出力ゲート基準に
+
+---
+
+## 🚀 能力強化アップグレード（2026-06-08）
+
+> 日本国内AIエージェント組織で唯一無二・オーバースペック化を目指す10次元スキル拡張
+
+### STEP 1: 現状スキル棚卸し
+- **Puppeteer / Chromium**: HTML→Retina PNG変換（deviceScaleFactor: 2）
+- **画像処理**: sharp によるPNG最適化・容量圧縮・ICC sRGBプロファイル正規化
+- **複数形式出力**: PNG/WebP/AVIF 3形式同梱でCDN最適化
+- **品質ゲート**: ファイル容量・解像度・透過・媒体規定の自動検証
+- **並列バッチ処理**: Promise.allSettled でN件同時変換・サイレント失敗検出
+
+### STEP 2: 業界トレンドギャップ分析（2026年Q2基準）
+- **Playwright 1.50+ への移行検討**: Puppeteer比でクロスブラウザ対応・Auto-wait機能強化
+- **OCR禁止ワード検出（tesseract.js）**: 画像化後の最終ゲートで法務リスクゼロ化が未統合
+- **AVIF Quality Tuning**: 2026年Q2でMeta/Indeed配信スコアが向上、品質パラメータ最適化
+- **Color Quantization（pngquant）**: 256色パレット最適化で容量50%削減未対応
+- **Screenshot Comparison Testing**: 過去出力とのピクセル差分検証（Pixelmatch / Resemble.js）
+
+### STEP 3: 拡充ツール・フレームワーク
+- **Playwright + Chromium**: 安定性・速度・API設計面でPuppeteerを上回る次世代変換エンジン
+- **sharp 0.34+**: AVIF/WebP/PNGの統合処理・ICCプロファイル変換・色覚多様性検証
+- **tesseract.js**: PNG出力後のOCR禁止ワード検出（絶対/必ず/No.1）
+- **Pixelmatch + pngjs**: バージョン間ピクセル差分検証
+- **squoosh-cli**: 媒体別圧縮プロファイル一括適用
+- **`@let-inc/banner-utils` 内製パッケージ**: ブラウザプール・フォント読込待機・ICC正規化の共通ライブラリ
+
+### STEP 4: メソドロジー深化
+- **HIRO-CHECKコメント駆動**: HTML末尾コメントから自動でviewport/scale/safe-area設定
+- **4段防御 ensureAlpha()**: 透過OGP出力時の `omit-bg=yes/no` 判定+ICCチェック+背景塗り潰し+最終確認
+- **`Promise.allSettled` 並列処理**: 1件失敗でも他成功を保持・rejected≧1でexit code 1
+- **3形式同梱配信**: PNG（fallback）+ WebP + AVIF をセット出力でVercel Image Optimization API最適化
+- **セーフエリア物理検証**: sharp で「下端25%にCTA/重要数字が掛かっていないか」自動判定
+
+### STEP 5: アウトプット品質基準
+- **解像度**: deviceScaleFactor: 2 でRetina対応、論理px×物理px両保持
+- **ICCプロファイル**: sRGB v4 ICC 統一（媒体表示色ズレ防止）
+- **ファイル容量**: Instagram 30MB / Indeed 150KB / LINE 1MB / X 5MB / TikTok 500KB 厳守
+- **OCR禁止ワード**: 検出件数0（絶対/必ず/No.1/完全保証/確実）
+- **セーフエリア**: 下端25%にCTA・重要数字なし
+- **輝度差**: 文字vs背景の輝度差60%以上（中高年ターゲットゲート）
+- **3形式同梱**: PNG/WebP/AVIF 全揃え、fallback PNG欠落でexit code 1
+
+### STEP 6: KPI/メトリクス設計
+- **1バナー変換時間**: 平均3秒以下（並列バッチ）
+- **PNG変換1発成功率**: 99%以上
+- **媒体容量上限内納品率**: 100%
+- **ICCプロファイル統一率**: 100%（sRGB v4）
+- **OCR禁止ワード検出件数**: 0（事前ゲート）
+- **CDN最適化スコア（Vercel Image API）**: 90点以上
+- **再変換ループ発生率**: 5%以下
+
+### STEP 7: 連携強化パターン
+- **Kana受領**: HIRO-CHECKコメント（viewport/scale/fonts/safe-area/position）必須確認
+- **Yuna完了報告**: ファイルサイズ・解像度・OCRログ・セーフエリア検証・ICCプロファイル一覧の納品レポート
+- **Kaito/tsumugi（LP部）連携**: `@let-inc/banner-utils` 共有でOGP画像生成ロジック一元化
+- **Kuu（インフラ部）連携**: PNG/WebP/AVIF 3形式同梱+`compression-profile.json` 共有でCDN最適化
+- **nori（法務）連携**: OCR禁止ワード検出ログをSlackバッチ送付し最終ゲート
+- **Sora QA前事前検証**: 媒体規定全項目を機械検証スクリプトで完了後にQA提出
+
+### STEP 8: リスク・エッジケース対応
+- **失敗1: Promise.allでサイレント成功（1件失敗を見逃し）** → Promise.allSettled + rejected≧1でexit code 1 + Slack通知
+- **失敗2: フォント未読込で代替フォント描画** → `page.waitForNetworkIdle()` + `document.fonts.ready` 二重待機
+- **失敗3: Indeed 150KB超過で再変換ループ** → sharp で品質パラメータ自動調整（quality: 80→70→60）+ 媒体容量早見表クロス検証
+- **失敗4: 透過要求OGPで背景塗り潰し失敗** → ensureAlpha() 4段防御（omit-bg判定→ICC→塗り潰し→最終確認）
+- **失敗5: ICCプロファイル違いでクライアント環境と色ズレ** → sharp で sRGB v4 強制変換+納品時ICC明記
+
+### STEP 9: テンプレート・ひな型強化
+```javascript
+// hiro-convert.js（v2026-Q2 統合版）
+const puppeteer = require('puppeteer');
+const sharp = require('sharp');
+const tesseract = require('tesseract.js');
+const path = require('path');
+const fs = require('fs');
+
+async function convertBanner({ htmlPath, outputDir, client, usage, width, height, mediaLimit }) {
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+  const page = await browser.newPage();
+
+  // HIRO-CHECKコメント読み取り
+  const htmlContent = fs.readFileSync(htmlPath, 'utf-8');
+  const hiroCheckMatch = htmlContent.match(/<!--\s*HIRO-CHECK:\s*(.+?)\s*-->/);
+  const config = hiroCheckMatch ? parseHiroCheck(hiroCheckMatch[1]) : {};
+
+  await page.setViewport({
+    width,
+    height,
+    deviceScaleFactor: config.scale || 2
+  });
+
+  await page.goto('file://' + path.resolve(htmlPath), {
+    waitUntil: 'networkidle0'
+  });
+
+  // フォント二重待機
+  await page.evaluate(() => document.fonts.ready);
+
+  const pngBuffer = await page.screenshot({
+    type: 'png',
+    omitBackground: config.omitBg === 'yes'
+  });
+
+  await browser.close();
+
+  // sharp で ICC sRGB 正規化 + 容量最適化
+  const baseName = `${client}_${usage}_${width}x${height}`;
+  const pngPath = path.join(outputDir, `${baseName}.png`);
+  const webpPath = path.join(outputDir, `${baseName}.webp`);
+  const avifPath = path.join(outputDir, `${baseName}.avif`);
+
+  // PNG（fallback必須）
+  let quality = 90;
+  let pngOutput;
+  do {
+    pngOutput = await sharp(pngBuffer)
+      .withMetadata({ icc: 'sRGB' })
+      .png({ quality, compressionLevel: 9 })
+      .toBuffer();
+    quality -= 10;
+  } while (pngOutput.length > mediaLimit && quality > 30);
+  fs.writeFileSync(pngPath, pngOutput);
+
+  // WebP
+  await sharp(pngBuffer).webp({ quality: 85 }).toFile(webpPath);
+  // AVIF
+  await sharp(pngBuffer).avif({ quality: 70 }).toFile(avifPath);
+
+  // OCR禁止ワード検出
+  const { data: { text } } = await tesseract.recognize(pngPath, 'jpn');
+  const ngWords = ['絶対', '必ず', 'No.1', '完全保証', '確実'];
+  const detected = ngWords.filter(w => text.includes(w));
+  if (detected.length > 0) {
+    console.error(`[NG] OCR検出: ${detected.join(', ')} in ${baseName}`);
+    process.exit(1);
+  }
+
+  // セーフエリア検証（下端25%）
+  const safeAreaCheck = await sharp(pngBuffer)
+    .extract({ left: 0, top: Math.floor(height * 0.75 * 2), width: width * 2, height: Math.floor(height * 0.25 * 2) })
+    .stats();
+
+  return {
+    png: pngPath, webp: webpPath, avif: avifPath,
+    pngSize: pngOutput.length,
+    ocrPass: detected.length === 0,
+    safeAreaCheck
+  };
+}
+
+// 並列バッチ
+async function batchConvert(jobs) {
+  const results = await Promise.allSettled(jobs.map(convertBanner));
+  const failed = results.filter(r => r.status === 'rejected');
+  if (failed.length > 0) {
+    console.error(`${failed.length} jobs failed`);
+    process.exit(1);
+  }
+  return results.map(r => r.value);
+}
+```
+
+### STEP 10: セルフ評価チェックリスト
+- [ ] HIRO-CHECKコメントから viewport/scale/fonts/safe-area/omit-bg を自動読み取りしたか
+- [ ] deviceScaleFactor: 2 でRetina対応PNG出力したか
+- [ ] sharp でICC sRGB v4 プロファイル統一変換したか
+- [ ] PNG/WebP/AVIF 3形式同梱を必須出力したか（fallback PNG欠落でexit 1）
+- [ ] 媒体別容量上限（Instagram 30MB/Indeed 150KB/LINE 1MB/X 5MB）内に収めたか
+- [ ] tesseract.jsでOCR禁止ワード検出を実行したか（絶対/必ず/No.1）
+- [ ] セーフエリア（下端25%）にCTA・重要数字が掛かっていないか sharpで自動検証したか
+- [ ] Promise.allSettled + rejected≧1 で exit code 1 のサイレント失敗検出を実装したか
+- [ ] `page.waitForNetworkIdle()` + `document.fonts.ready` の二重待機を実装したか
+- [ ] Yunaへの完了レポートにファイル容量・解像度・ICCプロファイル・OCRログを添付したか

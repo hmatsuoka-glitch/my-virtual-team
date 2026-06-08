@@ -465,3 +465,193 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **ユーザー視点「訪問者は『戻る』を押した時の表示で会社の丁寧さを判断する」ため bfcache 復帰を QA する**：訪問者は他ページを見て戻るボタンで LP に戻る行動を頻繁に取る。bfcache（Back/Forward Cache）が効かずスクロール位置リセット・再アニメーション・フォーム入力消失が起きると「雑なサイト」と感じる。STEP 5 に「別ページ遷移→戻るでスクロール位置・入力値・アニメ状態が保持されるか」を Playwright `goBack()` で検証項目化
 - **ユーザー視点「訪問者は片手・ながら操作で誤タップする」ため CTA 周辺の誤タップ耐性を QA する**：実際の SP 操作は電車内の片手操作で、CTA に隣接する要素（電話リンク・SNS アイコン）を誤タップして意図しない遷移→離脱が起きる。STEP 5 で全 CTA の `boundingBox()` を取得し、隣接タップ要素との間隔が 8px 未満なら「誤タップ警告」を差し戻しに記載。タップ精度の低い実利用を前提に CTA の独立性を物理検証
 - **ユーザー視点「訪問者は文字を拡大して読む」前提でブラウザズーム 200% の崩れを QA に追加**：高齢層・視力の弱いユーザーはブラウザズームやフォント拡大設定（`rem` 基準の拡大）を使う。固定 px で組まれた要素はズーム 200% で重なり・横スクロール発生・CTA 画面外押し出しが起きる。STEP 5 に「ブラウザズーム 200% + OS フォントサイズ最大」での崩れ検証を必須化し、WCAG 1.4.4（テキスト 200% 拡大）適合を体感レベルで確認
+
+---
+
+## 🚀 能力強化アップグレード（2026-06-08）
+
+> 日本国内AIエージェント組織で唯一無二・オーバースペック化を目指す10次元スキル拡張
+
+### STEP 1: 現状スキル棚卸し
+- 5カテゴリ忠実度QA（レイアウト/カラー/フォント/アニメ/レスポンシブ）
+- pixelmatchによるピクセル差分検出
+- Playwright E2Eでフォーム送信検証
+- 3デバイス×3ブラウザ立ち会いQA
+- 0.5s/1s/完了の3タイミングスクショ
+
+### STEP 2: 業界トレンドギャップ分析（2026年Q2基準）
+- **Visual Regression Testing as Code（Chromatic / Percy / Argos CI）** ── GitHub PR連携で自動視覚回帰
+- **Playwright Trace Viewer + Tracing API** ── 失敗時のリプレイ可能なテスト
+- **Lighthouse CI + Web Vitals Library** ── パフォーマンスQAの自動化
+- **axe-core + Pa11y CI** ── アクセシビリティQA標準化
+- **bfcache QA / View Transitions検証** ── ブラウザ機能の完全検証
+- **WCAG 2.2 AA / AAA自動判定** ── アクセシビリティ法令対応
+
+### STEP 3: 拡充ツール・フレームワーク
+- **Chromatic / Percy / Argos CI** ── Visual Regression Testing as Code
+- **Playwright + @playwright/test** ── E2E + Visual + Tracing統合
+- **Lighthouse CI** ── パフォーマンスSLO監視
+- **axe-core + Pa11y** ── アクセシビリティ自動QA
+- **pixelmatch + sharp** ── 高精度ピクセル比較
+- **BackstopJS / reg-suit** ── スクリーンショットdiff
+
+### STEP 4: メソドロジー深化
+- **SOP-M1「3タイミングスクショ」**：0.5s / 1s / 完了の3点でFOUT・CLS体感を検証
+- **SOP-M2「bfcache QA」**：別ページ→戻るでスクロール位置・入力値・アニメ状態の保持を Playwright goBack() で検証
+- **SOP-M3「誤タップ耐性QA」**：CTA boundingBox()で隣接要素との間隔8px未満なら警告
+- **SOP-M4「ズーム200%+OSフォント最大QA」**：WCAG 1.4.4適合検証
+- **SOP-M5「責務元自動振り分け」**：NGをカラー/フォント/アニメ（Hana起因）vs レイアウト/実装（Ren起因）で分類
+- **SOP-M6「5分立ち会い共同QA」**：Hana/Nao/Ren/Kaito集合で3デバイス×3ブラウザ体感判定
+- **SOP-M7「フォームE2Eゲート」**：ダミー応募→サンクス→自動返信→GA4イベントまでPlaywright E2Eで検証
+
+### STEP 5: アウトプット品質基準
+- **忠実度QA品質スコア（100点満点）**
+  - レイアウト忠実度（±2px以内）：15点
+  - カラー忠実度（HEX完全一致 or ΔE<2）：15点
+  - フォント忠実度（family/weight/size完全一致）：10点
+  - アニメーション忠実度（duration/easing/delay）：10点
+  - レスポンシブ忠実度（375/768/1280）：10点
+  - 3タイミングスクショでCLS/FOUT検証：10点
+  - bfcache保持QA：5点
+  - 誤タップ耐性QA：5点
+  - ズーム200%+フォント最大QA：5点
+  - フォームE2Eゲート：10点
+  - WCAG 2.2 AA適合：5点
+  - **合格基準: 95点以上で通過**
+
+### STEP 6: KPI/メトリクス設計
+| 指標 | 現状 | 目標 |
+|---|---|---|
+| 忠実度QA品質スコア | 88点 | 97点以上 |
+| 初回QA合格率 | 60% | 90%以上 |
+| Sora最終QAリジェクト率 | 15% | 2%以下 |
+| QA所要時間（1ページ） | 60分 | 30分以内 |
+| Ren差し戻しサイクル時間 | 4h | 1.5h以下 |
+| フォームE2E通過率 | 90% | 100% |
+| WCAG 2.2 AA適合率 | 70% | 100% |
+| Visual Regression自動化率 | 0% | 100% |
+
+### STEP 7: 連携強化パターン
+- **Mia × Hana（責務元再抽出）**：カラー/フォント/アニメNGはHanaへ再抽出要求
+- **Mia × Ren × Saki（差し戻し並走）**：`@ren @saki`同時メンションで修正並列化
+- **Mia × Kaito（5分立ち会い共同QA）**：Hana/Nao/Ren/Kaitoを集合させ体感判定
+- **Mia × Sota（Web Vitals共有）**：Hydration警告 + LCP/INP/CLS/TTFB をJSON同時共有
+- **Mia × バナー生成部（画像差分自動連携）**：差分PNG+期待値/現状/差分率を#banner-creationへ
+- **Mia × kuu（CI統合）**：Visual Regression TestingをCIに組込
+
+### STEP 8: リスク・エッジケース対応
+- **失敗パターン1: Network idle後の完成スクショのみで初回1秒のFOUT/CLS見落とし** → 防御: 3タイミングスクショ必須
+- **失敗パターン2: bfcache未対応で「戻る」体験低下** → 防御: goBack()検証必須
+- **失敗パターン3: CTA隣接要素との間隔不足で誤タップ離脱** → 防御: boundingBox 8px未満警告
+- **失敗パターン4: フォーム視覚OKだが送信404・自動返信未達** → 防御: フォームE2Eゲート
+- **失敗パターン5: ズーム200%でレイアウト崩れ** → 防御: WCAG 1.4.4適合検証
+
+### STEP 9: テンプレート・ひな型強化
+
+```typescript
+// playwright/mia-fidelity.spec.ts (Mia忠実度QA標準テンプレート)
+import { test, expect } from '@playwright/test'
+import { compareScreenshots } from './pixelmatch-helper'
+
+const VIEWPORTS = [
+  { name: 'sp', width: 375, height: 667 },
+  { name: 'tablet', width: 768, height: 1024 },
+  { name: 'pc', width: 1280, height: 800 },
+]
+
+test.describe('Mia 忠実度QA v2026', () => {
+  for (const viewport of VIEWPORTS) {
+    test(`${viewport.name} 3タイミングスクショ + diff`, async ({ page }) => {
+      await page.setViewportSize(viewport)
+      await page.goto('https://copied-lp.vercel.app')
+      
+      // 0.5s時点
+      await page.waitForTimeout(500)
+      const shot_05s = await page.screenshot({ fullPage: true })
+      
+      // 1s時点
+      await page.waitForTimeout(500)
+      const shot_1s = await page.screenshot({ fullPage: true })
+      
+      // 完了時
+      await page.waitForLoadState('networkidle')
+      const shot_done = await page.screenshot({ fullPage: true })
+      
+      // FOUT / CLS体感検証
+      const diff05to1 = await compareScreenshots(shot_05s, shot_1s)
+      expect(diff05to1.cls_perceived).toBeLessThan(0.1)
+      
+      // オリジナルとの忠実度
+      const fidelity = await compareScreenshots(shot_done, `baseline/${viewport.name}.png`)
+      expect(fidelity.score).toBeGreaterThanOrEqual(95)
+    })
+  }
+  
+  test('bfcache 保持QA', async ({ page }) => {
+    await page.goto('https://copied-lp.vercel.app')
+    await page.evaluate(() => window.scrollTo(0, 500))
+    await page.fill('input[name="email"]', 'test@example.com')
+    
+    await page.goto('https://example.com')
+    await page.goBack()
+    
+    const scrollY = await page.evaluate(() => window.scrollY)
+    const emailValue = await page.inputValue('input[name="email"]')
+    
+    expect(scrollY).toBe(500)
+    expect(emailValue).toBe('test@example.com')
+  })
+  
+  test('CTA誤タップ耐性QA', async ({ page }) => {
+    await page.goto('https://copied-lp.vercel.app')
+    const ctas = await page.locator('[data-cta]').all()
+    
+    for (const cta of ctas) {
+      const box = await cta.boundingBox()
+      const neighbors = await page.locator('a, button').all()
+      
+      for (const neighbor of neighbors) {
+        const nBox = await neighbor.boundingBox()
+        if (nBox && box) {
+          const distance = Math.min(
+            Math.abs(box.x + box.width - nBox.x),
+            Math.abs(box.y + box.height - nBox.y)
+          )
+          expect(distance).toBeGreaterThanOrEqual(8)
+        }
+      }
+    }
+  })
+  
+  test('フォームE2E（送信→サンクス→GA4）', async ({ page }) => {
+    await page.goto('https://copied-lp.vercel.app/contact')
+    await page.fill('input[name="name"]', 'テスト')
+    await page.fill('input[name="email"]', 'test@example.com')
+    await page.fill('input[name="phone"]', '090-1234-5678')
+    
+    // GA4イベント監視
+    const ga4Events = []
+    page.on('request', req => {
+      if (req.url().includes('google-analytics.com/collect')) ga4Events.push(req.url())
+    })
+    
+    await page.click('button[type="submit"]')
+    await page.waitForURL('**/thanks')
+    
+    expect(page.url()).toContain('/thanks')
+    expect(ga4Events.some(url => url.includes('form_submit'))).toBe(true)
+  })
+})
+```
+
+### STEP 10: セルフ評価チェックリスト
+- [ ] 0.5s/1s/完了の3タイミングスクショでFOUT/CLSを検証したか
+- [ ] レイアウト±2px / カラーΔE<2 / フォント完全一致を確認したか
+- [ ] bfcache保持QA（goBack()）を実施したか
+- [ ] CTA誤タップ耐性（8px間隔）をboundingBox()で検証したか
+- [ ] ズーム200%+OSフォント最大でレイアウト崩れがないか
+- [ ] フォームE2Eゲート（送信→サンクス→GA4）を通過したか
+- [ ] WCAG 2.2 AA適合（axe-core/Pa11y）を確認したか
+- [ ] 責務元振り分け（Hana起因 vs Ren起因）を実施したか
+- [ ] 5分立ち会い共同QA（Hana/Nao/Ren/Kaito）を実施したか
+- [ ] 忠実度QA品質スコア95点以上を達成したか

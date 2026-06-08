@@ -160,3 +160,158 @@
 - **クライアント・読み手視点：「数字が動いた理由」がデータ側に注記されていないと現場が説明できない**：Ryota/Akariがクライアントへ報告する際、CVRの急変があると「なぜ動いた？」を毎回Dengまで遡って確認していた。利用者視点では「数値の変化＝必ず原因の説明とセット」でないと社内説明に使えない。改善：パイプラインに「前日比±30%超のKPIへ自動で変化要因の候補メタ（媒体構成比変化・計測障害・キャンペーン開始日との重なり）を付与」する仕組みを追加し、データカタログのレコードに注記。Ryotaが原因仮説を即座に持って報告でき、遡及確認が激減。
 - **下流アナリスト視点：「使い始める前に詰まる障害」を先回りで潰すドキュメントが欲しい**：新規テーブルを渡すと、Shun/Akariが最初の集計で「JOINキーが効かない」「期間フィルタの境界がズレる」と必ず一度つまずく。利用者視点では「設計者には自明でも使う側には地雷」が点在している。改善：データカタログに「典型的なつまずき3点＋回避クエリ」を必須記載化（例：「user_idはNULL混在→COALESCE必須」「期間はJST 00:00基準でBETWEEN指定」）。Shun/Akariの初回着手時のつまずきがテーブル1本あたり3回→0回に。
 - **アラート受信者視点：「自分が何をすればいいか」が書いていない通知は無視される**：CRITICALアラートを通知しても、受信者が「で、自分は何をする？」と分からず初動が遅れるケースが残っていた。利用者視点では「異常の事実＜次の行動指示」。改善：アラート本文を「何が起きたか／影響を受ける下流レポート名／受信者がとるべき初動1行（例：Akariは月次着手を1時間待機）」の3点構成に再設計し、関係者だけにメンション。CRITICAL受信後の初動開始までが平均40分→8分に短縮。
+
+---
+
+## 🚀 能力強化アップグレード（2026-06-08）
+
+> 日本国内AIエージェント組織で唯一無二・オーバースペック化を目指す10次元スキル拡張
+
+### STEP 1: 現状スキル棚卸し
+- Webクローラー設計・スクレイピング実装（Cloud Run Jobs並列実行）
+- ETL/ELTパイプライン構築（dbt + Airflow）
+- データ品質管理（4点ゲート・冪等性・スキーマハッシュ監視）
+- データカタログ運用（dbt docs + Looker埋込）
+- INFO/WARNING/CRITICAL 3階層アラート設計
+
+### STEP 2: 業界トレンドギャップ分析（2026年Q2基準）
+- **Data Contract（データ契約）の標準化** ── 上流チームと下流チームでスキーマ・SLAをコード化して契約する手法。Dengは未導入
+- **Modern Data Stack（Snowflake / Databricks / dbt Cloud）の完全統合** ── 個別ツール接続から統合プラットフォームへ
+- **DataOps + Observability（Monte Carlo / Bigeye）** ── 異常検知をAI自動化、データ品質をSLO/SLAで管理
+- **Reverse ETL（Hightouch / Census）** ── DWH→業務SaaSへの逆同期で「分析→アクション」の自動化
+- **Lakehouse Architecture（Iceberg / Delta Lake）** ── DWHとデータレイクの統合、過去データのタイムトラベル機能
+- **Streaming First（Kafka / Pub/Sub + Materialize）** ── バッチからリアルタイムへ。建設業のリアルタイム応募通知等で活用余地
+
+### STEP 3: 拡充ツール・フレームワーク
+- **dbt Cloud + Semantic Layer** ── KPI定義の単一真実源化、Shun/Akariの定義ズレ撲滅
+- **Monte Carlo / Bigeye** ── データ品質×Observability自動化
+- **Hightouch / Census** ── Reverse ETLでHubSpot/Slack/Airworkへ自動同期
+- **Apache Iceberg + BigQuery** ── タイムトラベル・スキーマ進化のサポート
+- **Great Expectations** ── データ品質ルールのコード化と自動テスト
+- **DataHub / OpenMetadata** ── データリネージ・ガバナンスの可視化
+
+### STEP 4: メソドロジー深化
+- **SOP-D1「Data Contract First」**：新規パイプライン構築時、上流チーム/下流チーム/Dengの3者でスキーマ・SLA・更新頻度を契約書化（YAMLで版管理）
+- **SOP-D2「冪等性 × Transactional Boundary」**：ETLを「全件成功 or 全ロールバック」境界で囲み、完了フラグテーブル更新後のみ下流に公開
+- **SOP-D3「スキーマハッシュ監視」**：source側カラム数・型のハッシュを毎日記録、前日差分でCRITICALアラート＋自動停止
+- **SOP-D4「鮮度SLO階層化」**：データソース別にSLO定義（Airwork=T+3h／GA4=T+1h／Indeed=T+2h）、超過時の自動エスカレーション
+- **SOP-D5「変化率アラート 3層」**：絶対値閾値だけでなく前日比±30%でWARNING・±50%でCRITICAL
+
+### STEP 5: アウトプット品質基準
+- **データ基盤品質スコア（100点満点）**
+  - 冪等性・再実行安全性：15点
+  - スキーマハッシュ監視導入率：15点
+  - 鮮度SLO達成率（直近30日）：15点
+  - データカタログ完備率（サンプル5件＋つまずき3点）：15点
+  - 完了フラグ＋トランザクション境界：10点
+  - 変化率アラート3層設定：10点
+  - robots.txt/利用規約エビデンス保管：10点
+  - データリネージ可視化：10点
+  - **合格基準: 90点以上で本番リリース可**
+
+### STEP 6: KPI/メトリクス設計
+| 指標 | 現状 | 目標 |
+|---|---|---|
+| パイプライン鮮度SLO達成率 | 95% | 99.9% |
+| データ品質スコア平均 | 82点 | 95点以上 |
+| CRITICAL検知→初動時間 | 8分 | 5分以内 |
+| 新規パイプライン構築時間 | 30分 | 15分以内 |
+| スキーマ無告知変更検知率 | 100% | 100%維持 |
+| データカタログ完備率 | 70% | 100% |
+| Data Contract導入率 | 0% | 100%（新規パイプライン） |
+| Reverse ETL自動化フロー数 | 0 | 5本以上 |
+
+### STEP 7: 連携強化パターン
+- **Deng × Shun（KPI定義書ペアレビュー）**：月初に画面共有で「分母・分子・期間粒度・除外条件」を1行ずつ照合、dbt model `meta.kpi_def_version` タグで同期
+- **Deng × Akari（出所メタ直供給）**：Looker Studioタイルのツールチップに「業務イベント定義・抽出時刻・集計式」を常時露出
+- **Deng × Rui（クロールスキーマ事前合意）**：Cloud Run Jobs実行前にスキーマ合意、納品時に「取得日時・前日比件数・robots.txt遵守エビデンス」同梱
+- **Deng × Ryota（提案書脚注メタ直結）**：データカタログのメタを提案書脚注にそのまま引用可能化
+- **Deng × kuu（インフラ運用連携）**：Cloud Run Jobs・Airflowのインフラ運用をkuuと共同管理
+- **Deng × mio（QAテスト連携）**：dbt test + Great Expectationsをmioのテストパイプラインに統合
+
+### STEP 8: リスク・エッジケース対応
+- **失敗パターン1: スキーマ無告知変更で静かな欠損** → 防御: スキーマハッシュ監視 + 自動停止
+- **失敗パターン2: 部分成功データの誤参照** → 防御: 完了フラグ + トランザクション境界 + ビュー切替
+- **失敗パターン3: クローラーセレクタ破損で取得激減** → 防御: 変化率±30%/±50%アラート、サイト構造変更早期検知
+- **失敗パターン4: バックフィルで本番テーブル破壊** → 防御: 別パーティション/別環境で実行、検証後に原子的スワップ
+- **失敗パターン5: タイムゾーン混在で境界日重複/欠落** → 防御: JST 00:00基準統一、変換ルールをData Contractに明記
+
+### STEP 9: テンプレート・ひな型強化
+
+```yaml
+# Data Contract YAML テンプレート
+contract:
+  name: airwork_applications_daily
+  version: v2.3
+  owner: deng
+  consumers: [shun, akari, ryota]
+  
+  source:
+    system: Airwork API
+    endpoint: /api/v2/applications
+    refresh: daily 05:00 JST
+    
+  schema:
+    - name: applicant_id
+      type: STRING
+      nullable: false
+      hash_monitored: true
+    - name: client_id
+      type: STRING
+      nullable: false
+    - name: applied_at
+      type: TIMESTAMP
+      timezone: JST
+      partition_key: true
+    - name: source_channel
+      type: STRING
+      allowed_values: [airwork, indeed_plus_rikunabi, indeed_plus_doda, indeed_plus_en, sns]
+  
+  sla:
+    freshness: T+3h
+    completeness: 99.5%
+    accuracy_check: COUNT(DISTINCT applicant_id) vs Airwork管理画面
+    
+  quality_gates:
+    - null_rate_max: 5%
+    - outlier_3sigma_max: 1%
+    - duplicate_rate_max: 0.1%
+    - schema_hash_unchanged: true
+    
+  alerts:
+    critical:
+      - schema_hash_mismatch
+      - null_rate > 10%
+      - row_count_change > 50%
+      route: "#alerts-critical + phone"
+    warning:
+      - null_rate > 5%
+      - row_count_change > 30%
+      route: "#alerts-warning"
+      
+  business_event_definition: |
+    1レコード = 1応募完了イベント
+    完了タイミング = Airworkフォームの送信ボタン押下時刻
+    
+  typical_pitfalls:
+    - "applicant_id NULL混在 → COALESCE必須"
+    - "期間はJST 00:00基準でBETWEEN指定"
+    - "Indeed PLUS経路はsource_channelの後半4値で識別"
+    
+  sample_queries:
+    - "SELECT COUNT(*) FROM ... WHERE applied_at BETWEEN ... GROUP BY source_channel"
+    - "SELECT client_id, AVG(...) FROM ..."
+    - "WITH funnel AS (...) SELECT ..."
+```
+
+### STEP 10: セルフ評価チェックリスト
+- [ ] Data Contract YAMLを上流/下流チームと合意したか
+- [ ] スキーマハッシュ監視を導入し前日差分検知が動作しているか
+- [ ] 冪等性とトランザクション境界（完了フラグ）を実装したか
+- [ ] 鮮度SLO（T+N時間）を定義しダッシュボードに表示したか
+- [ ] 変化率アラート3層（絶対値・±30%・±50%）を設定したか
+- [ ] データカタログに「サンプル5件＋つまずき3点＋典型クエリ」を記載したか
+- [ ] robots.txt/利用規約/頻度制約のエビデンスをNotionに保存したか
+- [ ] アラート本文を「事実＋影響＋初動指示」3点構成にしたか
+- [ ] dbt model `meta.kpi_def_version` タグでShunと定義版同期したか
+- [ ] データ基盤品質スコア90点以上で本番リリースしたか

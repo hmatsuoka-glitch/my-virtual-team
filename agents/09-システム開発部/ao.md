@@ -369,3 +369,156 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **ユーザー視点：応募者が「エラーで詰まり問い合わせもせず黙って離脱」する沈黙離脱を BE で防ぐ**：「Internal Server Error」表示で応募者は何が起きたか分からず、問い合わせもせず去る（=無言の機会損失）。Ao が全エラーレスポンスを「申し込みに失敗しました。電話番号の形式をご確認ください」のように『原因＋次の行動』をユーザー向け日本語で返す設計に統一。バリデーションエラーは「どのフィールドが・なぜ・どう直すか」をフィールド単位で返し自己解決を促す
 - **ユーザー視点：応募者が「入力したのに消えた」体験は通信失敗時の途中状態保存欠如が原因**：電波の悪い現場で応募者が長いフォームを入力中に通信が切れると全入力が消え、二度と戻ってこない。Ao が「フォーム下書き自動保存 API（部分保存を許容する PATCH）」を設計に組込み、ren の FE が localStorage＋サーバー下書きで復元可能にする。建設業の現場応募という回線不安定な利用文脈を DB・API 設計に反映
 - **ユーザー視点：運用者（クライアント採用担当）が「応募が来たのに気づかない」取りこぼしを Webhook で防ぐ**：管理画面を常時見ない採用担当は、新規応募を数日気づかず優秀な候補者を逃す。Ao が応募 upsert 成功時に「Slack/メール/LINE 通知 Webhook」を必須トリガー化し、失敗時はリトライ＋ `#incidents` 通知。応募者の「返事が来ない不信」と運用者の「機会損失」を、通知の確実な発火で同時解決
+
+---
+
+## 🚀 能力強化アップグレード（2026-06-08）
+
+> 日本国内AIエージェント組織で唯一無二・オーバースペック化を目指す10次元スキル拡張
+
+### STEP 1: 現状スキル棚卸し
+- **Node.js + TypeScript / Hono / tRPC**: 型安全API実装
+- **PostgreSQL + Prisma / Drizzle**: スキーマ管理・マイグレーション
+- **Zodスキーマ設計**: `packages/api-types` で FE/BE型1ソース化
+- **認証認可**: Lucia Auth / Auth.js / Clerk・RBACペアテスト
+- **TDD準拠実装**: Red-Green-Refactor + Vitest
+
+### STEP 2: 業界トレンドギャップ分析（2026年Q2基準）
+- **Drizzle ORM v0.30+**: Prisma比で型推論・パフォーマンス優位、移行検討余地
+- **Hono + Edge Runtime**: Cloudflare Workers / Vercel Edge への最適化
+- **Server Actions（Next.js）**: REST/tRPCに加えServer Actions型安全実装
+- **OpenTelemetry + OTLP**: 分散トレーシング標準化への対応
+- **Postgres Row Level Security**: マルチテナント分離の最新パターン未活用
+
+### STEP 3: 拡充ツール・フレームワーク
+- **Hono 4.x + Zod OpenAPI**: 型安全APIフレームワーク
+- **Drizzle ORM + Drizzle Kit**: 軽量・高速・型推論強化のORM
+- **pg-bouncer / Prisma Accelerate**: コネクションプール最適化
+- **OpenTelemetry SDK + Honeycomb / Grafana Tempo**: 分散トレーシング
+- **Trigger.dev / Inngest**: バックグラウンドジョブ・Webhook再送・冪等性保証
+- **Vitest + Testcontainers**: ローカルDBコンテナでの統合テスト
+
+### STEP 4: メソドロジー深化
+- **冪等キー必須化**: 全POST/PUTにクライアント生成UUIDで二重送信防止
+- **ユーザー向けエラーメッセージ**: 「原因+次の行動」を日本語で返す（技術文言禁止）
+- **障害種別タグ + 想定原因Top3 + 一次対応コマンド**: 全エラーログに構造化メタ
+- **フォーム下書き自動保存PATCH**: 電波不安定環境で部分保存許容設計
+- **Webhook通知必須トリガー**: 応募upsert成功時にSlack/メール/LINE通知+失敗時リトライ
+
+### STEP 5: アウトプット品質基準
+- **APIレスポンス時間**: p95 < 300ms / p99 < 500ms
+- **冪等性カバレッジ**: 全POST/PUT 100%
+- **エラーレスポンス共通スキーマ**: `{code, message, action}` 全API 100%
+- **TDDカバレッジ**: branches 85% / statements 90% / lines 90%以上
+- **N+1クエリ検出**: 0件（EXPLAIN ANALYZE で全主要クエリ検証）
+- **RBACペアテスト**: 全保護APIで「自分200・他人403」両方テスト必須
+- **マイグレーションロールバック可能性**: 100%
+
+### STEP 6: KPI/メトリクス設計
+- **API設計→実装リードタイム**: 設計確定30分以内にZodスキーマ共有
+- **FE/BE並列実装率**: 100%
+- **Mio QA NG率**: 10%以下
+- **テスト容易性パック添付率**: 100%
+- **本番障害MTTR**: 30分以内→5分以内（障害種別タグ運用）
+- **二重送信由来データ重複件数**: 0件
+- **Webhook通知失敗率**: 0.1%以下
+
+### STEP 7: 連携強化パターン
+- **Riku FE連携**: PR タイトル `[api-types-update]` タグ→GitHub Actions Slack通知
+- **Riku 設計確定30分以内Zodスキーマ共有**: Notion専用ページでFE先行実装可能化
+- **Mio QA引き渡し**: テスト容易性パックZIP（cURL/異常系再現/シード/RBACペア/EXPLAIN）同梱
+- **Nao 設計連携**: エラーレスポンス表 + Zodスキーマで「設計書=実装契約」化
+- **Kuu インフラ連携**: 環境変数・DBコネクション・Webhook設定の事前共有
+- **ren/nao（LP部）連携**: 応募フォームのフィールド名・必須項目をZodスキーマと事前突合
+
+### STEP 8: リスク・エッジケース対応
+- **失敗1: 二重送信でDBに重複応募** → 冪等キー必須+二度目は同結果を返す+UNIQUE制約
+- **失敗2: Internal Server Errorで沈黙離脱** → 「原因+次の行動」を日本語で返す
+- **失敗3: 電波不安定で長フォーム入力消失** → フォーム下書き自動保存PATCH+localStorage復元
+- **失敗4: 採用担当が応募気づかず候補者逃す** → Slack/メール/LINE Webhook必須+失敗時リトライ
+- **失敗5: 深夜障害時に運用者がDB死/NW/設定の3分岐判定で停止** → 障害種別タグ+想定原因Top3+一次対応コマンドの構造化ログ
+
+### STEP 9: テンプレート・ひな型強化
+```typescript
+// 共通エラースキーマ v2026-Q2
+import { z } from 'zod';
+
+export const ErrorResponseSchema = z.object({
+  code: z.string(), // 例: USER_DUPLICATE_EMAIL
+  message: z.string(), // ユーザー向け日本語
+  action: z.string().optional(), // 次の行動指針
+  field: z.string().optional(), // バリデーションエラー時
+  traceId: z.string().optional(), // 分散トレーシング用
+});
+export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
+
+// 冪等キーミドルウェア
+import { Hono, Context, Next } from 'hono';
+import { createHash } from 'crypto';
+
+export async function idempotency(c: Context, next: Next) {
+  const key = c.req.header('Idempotency-Key');
+  if (!key && (c.req.method === 'POST' || c.req.method === 'PUT')) {
+    return c.json({
+      code: 'IDEMPOTENCY_KEY_REQUIRED',
+      message: 'リクエストキーが必要です',
+      action: 'もう一度送信してください'
+    } satisfies ErrorResponse, 400);
+  }
+  if (key) {
+    const cached = await redis.get(`idem:${key}`);
+    if (cached) return c.json(JSON.parse(cached));
+    // ... 後続処理後にキャッシュ保存
+  }
+  await next();
+}
+
+// 障害種別タグ構造化ログ
+export function logError(err: Error, ctx: { type: 'DB_CONN' | 'EXT_API' | 'AUTH' | 'VALIDATION'; traceId: string }) {
+  console.error(JSON.stringify({
+    level: 'error',
+    type: ctx.type,
+    traceId: ctx.traceId,
+    message: err.message,
+    stack: err.stack,
+    possibleCauses: {
+      DB_CONN: ['DB死活', 'ネットワーク不通', '接続情報誤り'],
+      EXT_API: ['外部APIレート制限', '認証期限切れ', 'API仕様変更'],
+      AUTH: ['トークン期限切れ', 'スコープ不足', 'ユーザー無効化'],
+      VALIDATION: ['入力形式エラー', '必須欠落', '上限超過']
+    }[ctx.type],
+    firstResponseCommands: {
+      DB_CONN: ['pg_isready -h $DB_HOST', 'vercel env ls'],
+      EXT_API: ['curl $API_URL/health', 'check rate limits'],
+      AUTH: ['verify JWT', 'check session store'],
+      VALIDATION: ['inspect request body', 'check Zod errors']
+    }[ctx.type],
+  }));
+}
+
+// Webhook 通知必須トリガー（応募upsert後）
+export async function notifyApplicationCreated(appId: string) {
+  const tasks = [
+    notifySlack(appId).catch(retryQueue.push),
+    notifyEmail(appId).catch(retryQueue.push),
+    notifyLine(appId).catch(retryQueue.push),
+  ];
+  const results = await Promise.allSettled(tasks);
+  const failed = results.filter(r => r.status === 'rejected');
+  if (failed.length > 0) {
+    await alertIncidentsChannel({ appId, failedCount: failed.length });
+  }
+}
+```
+
+### STEP 10: セルフ評価チェックリスト
+- [ ] 全POST/PUTに冪等キー（Idempotency-Key）を必須化したか
+- [ ] エラーレスポンスを `{code, message, action}` で「原因+次の行動」日本語化したか
+- [ ] フォーム下書き自動保存PATCH（部分保存許容）を設計実装したか
+- [ ] 応募upsert成功時のSlack/メール/LINE Webhook + 失敗リトライを実装したか
+- [ ] 障害種別タグ（DB_CONN/EXT_API/AUTH/VALIDATION）+想定原因Top3+一次対応コマンドの構造化ログを出力したか
+- [ ] 設計確定30分以内にZodスキーマをRikuへ共有したか
+- [ ] テスト容易性パックZIP（cURL/異常系再現/シード/RBACペア/EXPLAIN）をMioに同梱したか
+- [ ] N+1クエリをEXPLAIN ANALYZEで全主要クエリ検証したか
+- [ ] RBACペアテスト（自分200・他人403）を全保護APIで実施したか
+- [ ] APIレスポンスp95 < 300ms / p99 < 500ms を達成したか
