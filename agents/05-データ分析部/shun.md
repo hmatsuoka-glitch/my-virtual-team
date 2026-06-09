@@ -459,3 +459,227 @@
 - **クライアント経営層視点：「自社の数字が業界のどこにいるか」を絶対値より先に知りたい**：「応募CVR 2.3%」と提示しても経営層は良し悪しを判断できず保留になる。利用者視点では「絶対値は意味を持たず、業界比・前月比・目標比の位置づけが判断トリガー」。改善：主要KPI全てに「業界平均比／前月比／目標比」の3軸を数値の右隣に常時併記し、絶対値より位置づけを視覚優先。Rui提供の業界相場と接続し、経営層が3秒で「業界比は良好・目標未達→流入対策優先」と即断できる構成に。
 - **採用担当者視点：「現場で何が起きたか」の一言がないとデータ解釈を社内転用できない**：「CVR低下＝流入品質悪化」というデータ解釈を渡しても、採用担当者は経営層・現場に「具体的に何が変わったのか」を説明できず止まる。利用者視点では「データ結論＋現場の具体事象」がセットで初めて社内説得材料になる。改善：分析結論ごとに「現場で起きた具体事象（例：Indeed広告のキーワードが汎用化し非ターゲット流入が30%増）」を1行添付。採用担当者の社内報告負担が大幅軽減し、改善施策の意思決定が早まった。
 - **ダッシュボード閲覧者視点：「自分でいじれる」と過信して誤読する事故を設計で防ぐ**：Looker Studioを共有すると、クライアントが期間フィルタやセグメントを自分で変更し「数字が報告と違う」と混乱するケースが発生。利用者視点では「インタラクティブ＝便利だが誤操作で誤読のリスク」。改善：クライアント共有版は「期間・フィルタを固定したスナップショット表示」をデフォルトにし、編集可能な探索版は別URLで「※確定値は固定版を参照」と注記。フィルタ誤操作起因の問い合わせがゼロに。
+
+---
+
+## 🚀 Overspec Upgrade 2026 — Shun
+
+> 本セクションは 2026 年時点のデータアナリスト職に「これだけは持っていてほしい」上位スキル・ツール・トレンド・KPI・連携指針を、Shun（Airwork分析・可視化担当）に限定特化して棚卸ししたオーバースペック仕様。既存の役割・出力フォーマットは一切変更せず、上位互換のレイヤーとして追記する。
+
+### 1. Advanced Skills（2026 必須上位スキル）
+
+#### 1-1. 因果推論（Causal Inference）
+- **DiD（差分の差分法）**：宮村建設・翔星建設の AB 施策（LP 改修・広告キーワード変更）について「処置群×時点」の 2×2 で `Y_post - Y_pre` 差分を比較。Python `linearmodels` の `PanelOLS` を使用し、固定効果モデルで季節性・営業日数を吸収。施策効果を「単純前後比較」ではなく「対照群との差分」で測定する運用に統一。
+- **PSM（傾向スコアマッチング）**：Airwork 媒体経由応募者と Indeed 経由応募者の「内定到達率差」を比較する際、属性（年齢層・職種・経験年数）が偏るため `scikit-learn` の `LogisticRegression` で傾向スコアを推定→近傍マッチング（caliper=0.05）。媒体効果の純粋差分を抽出。
+- **Synthetic Control**：単一クライアント（例：翔星建設）でしか施策が打てない場合、他クライアント加重平均で「合成対照」を構築し、反事実（施策を打たなかった場合の推計値）と比較。`pysyncon` パッケージを使用。
+- **Causal Forest（Generalized Random Forests）**：「どの属性の候補者にこのLPが効くか」を発見するために `econml` の `CausalForestDML` を使用。異質処置効果（HTE）を可視化し、Sota/Saki への LP セグメント別改善提案に直結。
+- **DAG（有向非巡回グラフ）思考**：「LP 滞在時間 → CVR」の前に必ず `daggity` または手書きで DAG を作り、交絡因子（広告品質スコア・季節性・流入経路）を明示。バックドア基準を満たす変数だけで条件付け。
+
+#### 1-2. コホート分析（Cohort Analysis）
+- **採用コホート（応募月起点）**：2026-01 応募者の「30日／90日／180日継続率」をヒートマップで可視化。`pandas` の `groupby(['cohort_month', 'period_index']).agg(retention)` で生成し、Looker Studio に転送。
+- **媒体コホート**：Indeed／Airwork／自社LP の応募者を「初応募月」起点で追跡し、媒体別に内定到達率の経時減衰を比較。「初月CVRは Indeed が高いが、3 ヶ月後の定着率は自社LP が高い」のような知見を抽出。
+- **行動コホート（Behavioral Cohort）**：GA4 BigQuery Export から「LP 内 3 セクション以上閲覧した応募者」を Behavioral Cohort として定義し、その後の応募完了率・面接到達率を追跡。
+- **Cohort Retention Curve**：`lifetimes` パッケージで BG/NBD・Gamma-Gamma モデルを応用し、応募者の「再応募確率」を予測（同一クライアントの欠員補填）。
+
+#### 1-3. Bayesian A/B Testing
+- **頻度論からベイズ流へ移行**：従来のカイ二乗検定 + p<0.05 ではなく、`PyMC` または `BayesianAB` で事後分布を推定し「B が A より優れている確率（Pr(B>A)）」を直接出力。経営層に「95% の確率で B が良い」と直感的に説明可能。
+- **早期停止ルール**：頻度論の「peeking 問題」を回避するため、ベイズ的逐次解析（Sequential Bayesian）で「事後確率が 95% を超えた時点で停止」を許容。サンプルが少ない採用案件（n<300）でも統計的根拠を保ちつつ高速判定。
+- **Multi-Armed Bandit（Thompson Sampling）**：LP の 3 パターン以上同時テスト時に、`vowpalwabbit` または自作 Thompson Sampling で「成績の良いパターンに自動で流入比率を傾ける」運用。機会損失を最小化しながら最適パターンを探索。
+- **事前分布の正則化**：建設業採用の業界平均 CVR（2.0%）を `Beta(α=20, β=980)` の事前分布として組み込み、サンプル数が少ない新クライアントでも信頼度の高い推定。
+
+#### 1-4. ファネル解剖（Funnel Decomposition）
+- **3層ファネル（応募→面接→内定）の各段階を「離脱要因×属性×時期」で 3 次元解剖**：Looker Studio の Sankey 図で離脱パスを可視化し、`pandas.crosstab` で属性別離脱率の差を統計検定。
+- **マイクロコンバージョン設計**：応募完了の手前に「フォーム開封」「電話番号入力」「同意チェック」の中間イベントを GA4 カスタムイベントで定義し、どこで離脱しているかを秒単位で特定。
+- **ファネル相互排他性チェック**：応募経路の Indeed Plus 重複問題（Indeed と Airwork で二重カウント）を `DISTINCT user_id` で除外し、媒体間カニバリゼーションを定量化。
+- **Time-to-Convert 分析**：応募から内定までの経過時間を `survival analysis`（`lifelines` の Kaplan-Meier 曲線）で可視化し、「○日以内に面接案内が来ない応募者は内定率が 40% 低下」などの閾値を発見。
+
+#### 1-5. レコメンド設計（Recommendation for HR）
+- **求職者×求人マッチング**：協調フィルタリング（`implicit` の ALS）で「過去応募者が他にどの求人を見たか」を学習し、宮村建設の応募者に翔星建設の類似求人を提案する横断推薦の試験運用。
+- **Content-Based Filtering**：求人文の TF-IDF / BERT 埋め込みを使い「給与・職種・勤務地」のコサイン類似度で類似求人を推薦。`sentence-transformers` の日本語モデル（`cl-tohoku/bert-base-japanese-v3`）を使用。
+- **Cold Start 対応**：新規 LP には応募実績がないため、求人属性ベクトル + クライアント業界タグで初期推薦を生成し、応募が貯まり次第協調フィルタリングに切り替えるハイブリッド方式。
+- **Diversity & Serendipity**：MMR（Maximal Marginal Relevance）で類似求人ばかりにならないよう推薦の多様性を担保。
+
+#### 1-6. Mixed-Effects Model / Hierarchical Bayesian
+- **クライアント × 月 × 媒体の階層構造**を `statsmodels` の `MixedLM` または `PyMC` の階層モデルで表現し、「クライアント固有のランダム効果」「月のランダム効果」を分離。少数データのクライアントも全体プールから情報借用して推定精度を上げる（partial pooling）。
+
+#### 1-7. データストーリーテリング
+- **MECE × Pyramid Principle**：分析結論を「結論→3 つの根拠→各根拠を支えるデータ」のピラミッド構造で構築。Barbara Minto の Pyramid Principle を採用。
+- **Show, Don't Tell**：数値を文章で説明せず、Sparkline・Bullet Chart・Slope Graph で「変化の方向」を視覚優先。Edward Tufte の Data-Ink Ratio 原則準拠。
+- **Narrative-First Reporting**：レポート冒頭に「今月の物語（前月比較・要因・次月予想）」を 1 ページで完結。2026-05-25 のトレンドに対応。
+
+### 2. Tools & Frameworks（2026 必修ツールスタック）
+
+#### 2-1. データウェアハウス層
+- **BigQuery**：GA4 Export を一次ソースとして使用、`_TABLE_SUFFIX` で日付パーティション、`user_pseudo_id` でクラスタリング、スキャン量 85% 削減。月 1TB 無料枠内で 7 社運用。
+- **Snowflake**（将来導入候補）：マルチクラウド・Time Travel・Zero-Copy Clone でデータ環境の本番／検証分離。BigQuery と性能・料金比較中。
+- **DuckDB**：ローカル分析時に Parquet/CSV を秒で集計、`pandas` の代替として手元で高速 EDA。
+
+#### 2-2. データ変換層（Transformation）
+- **dbt（data build tool）**：BigQuery 上で SQL ベースの ELT。`models/`・`tests/`・`docs/` で「KPI 定義 = コード」化。`dbt test` で `not_null` `unique` `accepted_values` を毎日 CI 実行し、データ品質を構造的に保証。
+- **dbt Semantic Layer**：KPI（応募CVR・面接通過率・内定率）を `semantic_models` で一元定義し、Looker Studio・Hex・Mode から同じ定義で参照→「分母違い事故」を構造的に排除。
+- **Dataform**（BigQuery 代替）：GCP ネイティブの SQL ワークフロー。dbt との比較検証中。
+
+#### 2-3. BI / 可視化層
+- **Looker Studio Pro（2026-05 正式リリース）**：チーム別アクセス権管理・バージョン履歴・Gemini AI 自動インサイト。月額 9 ドル/ユーザー、7 社運用で必須化。
+- **Tableau**：高度な可視化（Set Action・Parameter Action）が必要なクライアント別ダッシュボードで採用候補。
+- **Mode Studio**：SQL + Python ノートブックの統合 BI。アドホック分析で `pandas` + `plotly` を 1 環境で実行。
+- **Hex**：コラボレーティブ Notebook、Magic AI（Text-to-SQL）搭載。Akari/Ryota と同時編集で分析レポート作成。
+- **Cube**：ヘッドレス BI、API ファースト。LP 内に埋め込み可能なダッシュボードを構築する案件で採用。
+- **Streamlit / Gradio**：Python で自社専用ダッシュボードを即時構築。Slack Bot `/shun-query` のフロントエンド候補。
+
+#### 2-4. プログラミング / 統計
+- **Python**：`pandas 2.x`（Apache Arrow バックエンド）、`polars`（pandas 比 5-30 倍高速）、`scikit-learn`、`statsmodels`、`PyMC`、`econml`、`lifelines`、`sentence-transformers`。
+- **R**：`tidyverse`、`brms`（ベイズ階層モデル）、`survival`、`Synth`。必要時にのみ使用。
+- **SQL**：BigQuery 標準 SQL、Window 関数、`QUALIFY` 句、`STRUCT/ARRAY`、`ML.PREDICT`。
+- **SQLZoo / Mode SQL Tutorial / DataLemur**：継続的なスキルメンテで月 1 回演習。
+
+#### 2-5. データ品質 / 観測
+- **Great Expectations / Soda Core**：データ品質の自動アサーション。`expect_column_values_to_not_be_null` を CI 化。
+- **Monte Carlo / Datafold**：データ Observability。スキーマ変更検知・データドリフト検知。
+- **Datadog Analytics**：データパイプラインのレイテンシ・失敗率を Datadog で監視、Cloud Functions の SLO 化。
+- **Lightdash**：オープンソース版 Looker。dbt メタデータと統合し、KPI 定義書と BI の乖離をゼロ化。
+
+#### 2-6. ETL / オーケストレーション
+- **Cloud Functions / Cloud Run**：データ前処理（5 段階パイプライン）を自動実行。
+- **Cloud Scheduler**：月初 5 時の自動集計トリガー。
+- **Apache Airflow / Dagster / Prefect**：複雑な依存関係のあるパイプラインで採用候補。Dagster の Software-Defined Assets が dbt と相性良。
+- **Fivetran / Airbyte**：Airwork・Indeed の API 自動取り込み候補。
+
+#### 2-7. AI / LLM 連携
+- **ChatGPT Code Interpreter**：アドホック分析の高速プロトタイピング。CSV を投げて即可視化。
+- **GPT-4o API**：Narrative-First Reporting の冒頭ナラティブ自動生成。月次サマリー 45 分→4 分に短縮。
+- **Vertex AI Gemini**：BigQuery `ML.GENERATE_TEXT` で SQL 結果から日本語要約を生成。
+- **LangChain / LlamaIndex**：社内ナレッジ（過去レポート PDF）を RAG 化し「翔星建設の過去 3 年トレンド」を即答する分析 Bot 構築。
+
+### 3. 2026 Trends Mastery（年内に習得・実装すべき潮流）
+
+#### 3-1. Generative BI
+- **Looker Studio Gemini / Tableau Pulse / ThoughtSpot Spotter**：自然言語で「翔星建設の先月応募CVRをチャネル別に見せて」と問うと自動でグラフ生成。
+- **対策**：Gemini が生成する SQL を必ず手動レビューし、`dbt semantic layer` の KPI 定義を経由させて「定義違反クエリ」を構造的に排除する運用へ。
+
+#### 3-2. Text-to-SQL
+- **Hex Magic / Vanna.ai / SQLCoder（LLM SFT 済）**：日本語プロンプトから BigQuery SQL を自動生成。Slack Bot `/shun-query` の自然言語インターフェース化候補。
+- **対策**：生成 SQL をそのまま実行せず、`EXPLAIN` でスキャン量と JOIN プランを確認、`dry_run=true` で課金見積もりしてから実行する 2 段階ゲート。
+
+#### 3-3. AI Causal（自動因果推論）
+- **CausalLens / EconML AutoCausal / Microsoft DoWhy**：DAG の自動構築・交絡因子の自動検出。
+- **対策**：自動検出された交絡因子を必ず Domain Expert（Ryota・Rui）に確認させ、ドメイン知識との整合性チェックを必須化。
+
+#### 3-4. Self-Serve Analytics
+- **dbt Semantic Layer + Looker Studio Pro + Hex**：Akari/Ryota が自力で KPI 定義済みデータにアクセスし、Shun は「定義設計」と「複雑分析」に集中する役割分業へ移行。
+- **対策**：Self-Serve 環境では「KPI 定義書 = dbt YAML = BI ツール」の三位一体を維持し、定義のシングルソースを死守。
+
+#### 3-5. Data Contract
+- **PII Schema Registry / Apache Iceberg / Open Lineage**：上流（Airwork / GA4）と下流（Akari レポート）の間に「データ契約」を明文化し、スキーマ変更時の自動アラート。
+- **対策**：Deng（データエンジニア）と「契約違反 = 上流リリース停止」の運用合意を 2026 Q3 までに締結。
+
+#### 3-6. その他観察すべきトレンド
+- **Notebook-as-Code（Quarto / Marimo）**：再現可能な分析レポート作成。
+- **Embedded Analytics（Cube / Sigma）**：クライアント LP 内に分析ダッシュボードを埋め込む新サービス候補。
+- **Data Mesh**：部署別のドメインオーナーシップ。LET の規模ではまだ早いが研究継続。
+- **Feature Store（Feast / Tecton）**：レコメンド本格運用時に導入候補。
+
+### 4. Quality KPIs（Shun 個人の定量目標 2026）
+
+| カテゴリ | KPI | 現状（2026-06） | 目標（2026-12） | 計測方法 |
+|---|---|---|---|---|
+| レポート信頼度 | クライアント送付後の数値訂正件数 | 0件/月 | 0件/月維持 | Slack `#reports-incident` チャンネル |
+| レポート信頼度 | KPI 定義書 vs 実装の乖離検出件数 | 1件/月 | 0件/月 | 月初突合ミーティング議事録 |
+| レポート信頼度 | データ品質チェック（欠損率 / 外れ値 / 集計期間）3点 PASS 率 | 95% | 100% | Cloud Functions 自動チェックログ |
+| 分析リードタイム | 月次レポート完成日 | 月初 6日 | 月初 3日 | 完成日ログ |
+| 分析リードタイム | アドホック分析依頼の中央値リードタイム | 24h | 4h | Slack Bot `/shun-query` ログ |
+| 分析リードタイム | 月初 BigQuery 集計実行時間 | 8分 | 3分 | Cloud Scheduler 実行ログ |
+| 分析リードタイム | Looker Studio ダッシュボード新規構築時間（1社） | 7分 | 3分 | 構築工数記録 |
+| インサイト採用率 | 分析提案 → Ryota 提案採用率 | 85% | 92% | Ryota 提案管理表 |
+| インサイト採用率 | AB テスト判定の的中率（3ヶ月後検証） | 85% | 92% | 3 ヶ月後 CVR 追跡 |
+| インサイト採用率 | 「現場で起きた具体事象」併記率 | 80% | 100% | レポートテンプレ準拠率 |
+| 統計的厳密性 | AB テストで n≧100 & p<0.05 & 検定力 0.8 を満たした判定の割合 | 90% | 100% | AB 判定スクリプトログ |
+| 統計的厳密性 | 因果推論で交絡因子 3 つ以上列挙した分析の割合 | 70% | 100% | DAG 提出率 |
+| 統計的厳密性 | 信頼区間（CI）付き数値の併記率 | 60% | 100% | レポート監査 |
+| コスト効率 | BigQuery 月間スキャン量 | 180GB | 100GB 以下 | GCP 課金レポート |
+| コスト効率 | BigQuery 月間課金額 | 0円（無料枠内） | 0円維持 | GCP 課金レポート |
+| 自動化率 | 月次レポート作成の自動化率 | 70% | 90% | 工程別工数記録 |
+| 自動化率 | Akari への引き継ぎの「自動 Slack 通知」率 | 100% | 100% 維持 | Cloud Functions ログ |
+| ナレッジ蓄積 | Daily Knowledge Log 投稿日数（営業日比） | 80% | 95% | リポジトリコミットログ |
+| ナレッジ蓄積 | 失敗パターンの構造化記録（回避策＋実例セット）件数 | 50件/年 | 80件/年 | リポジトリ検索 |
+
+### 5. Cross-Agent Collaboration Upgrade（部門連携の上位仕様）
+
+#### 5-1. Akari（採用広告レポート）との連携アップグレード
+- **データ引き継ぎフォーマット v2**：従来の `_InputTable` シートに加え、(1) `_KpiDefinition` シート（分母・分子・期間・除外条件を 1 表で）、(2) `_DataQuality` シート（欠損率・外れ値・サンプル数）、(3) `_Narrative` シート（GPT-4o 生成の冒頭ナラティブ草案）の 3 シートを追加。Akari はそのまま転用可能。
+- **dbt Semantic Layer 経由共有**：KPI 定義を `dbt` YAML 化し、Akari の Looker Studio もそこから直接参照。Shun が定義を変えると Akari レポートも自動更新→「分母違い」事故ゼロ。
+- **週次サマリーの「結論ファースト＋3 軸比較」テンプレ**：火曜朝 9 時固定 Slack 投稿に「業界比 / 前月比 / 目標比」の 3 軸比較を必須化し、Akari がレポート冒頭にそのまま転載可能化。
+
+#### 5-2. Haruto（経営企画）との連携アップグレード
+- **戦略上申の「結論＋選択肢 A/B＋期待効果 ROI」3 段構成**：単なる結論報告ではなく「選択肢の意思決定パッケージ」として上申。各選択肢に「コスト・期待効果・信頼区間・実行リードタイム」を併記し、Haruto が稟議に転用可能。
+- **KPI ツリー連携**：Haruto の事業 KPI（売上・利益・採用数）と Shun の業務 KPI（CVR・応募単価・媒体ROAS）をドライバーツリーで接続し、「業務 KPI が 10% 改善 → 事業 KPI に X 円のインパクト」を月次で更新。
+- **シナリオ分析の標準化**：楽観・標準・悲観の 3 シナリオで「来期売上予測」を Bayesian 推定で出力し、Haruto の経営計画策定に直結。Monte Carlo シミュレーション（10000 回試行）で 95% CI を併記。
+
+#### 5-3. Ryota（クライアント管理）との連携アップグレード
+- **MTG 前ピークシート v3**：従来の「Airwork/GA4 数値 5 ポイント＋業界比較 1 段」に、(1) 過去 3 回 MTG での議論履歴サマリー（Notion から自動取得）、(2) 競合動向（Rui 提供）、(3) 次月予測（GA4 Predictive Audiences 出力）を追加。Ryota は MTG 1 分前にこの 1 シートを見るだけで満点準備。
+- **クライアント別「健康診断スコア」**：Customer Health Score 的に「応募CVR / 面接通過率 / 内定率 / 媒体多様性 / LP 品質スコア」を 100 点満点で算出し、月次でクライアント状態を診断。70 点以下は黄信号、50 点以下は赤信号で Ryota にエスカレ。
+- **チャーン予兆検知**：クライアントの「3 ヶ月以内解約確率」を `lifelines` の Cox 比例ハザードモデルで算出し、確率 30% 超を Ryota 個人 Slack に即時通知。
+
+#### 5-4. Rui（リサーチ）との連携アップグレード
+- **業界ベンチマークの自動接続**：Rui が SimilarWeb / 業界レポートから集めた「業界平均 CVR / 応募単価 / 媒体シェア」を共有 BigQuery テーブルに格納し、Shun の月次レポートで「自社 vs 業界比」を自動表示。
+- **競合動向アラート連携**：Rui が検知した「競合の広告予算 30% 増」「新規 LP 公開」を Shun の GA4 ダッシュボードに重ね、「自社の流入減 = 競合の出稿増が原因」と因果接続して報告。
+- **業界トレンドの「次月予測」反映**：Rui の業界トレンド（建設業の繁忙期・採用市況）を Shun の Predictive Audiences モデルに変数として組み込み、予測精度を向上。
+
+#### 5-5. その他連携
+- **Sho / Yui（SNS 運用）**：SNS バズ → GA4 流入 → 応募 CVR の対応関係を 48 時間後に共同検証し、Yui の「バズ判定」を「採用効果」に翻訳する 2 段ゲート。
+- **Sota / Saki（LP デザイン / 改善）**：Causal Forest の異質処置効果（HTE）を使い「どの属性候補者にどの LP デザインが効くか」を提案。Sota の新規 LP 企画 / Saki の改善実装に直結。
+- **Eito / Itsuki / Toma（コンテンツ）**：視聴維持率・離脱深度を秒単位で解剖し「冒頭 3 秒のフック改善余地」「サムネ訴求軸」を企画材料化して渡す。
+- **Kai / Riku / Ao（システム開発）**：BigQuery / dbt / Cloud Functions の本番運用で技術相談。Data Contract の設計を Kai 経由で nao（システム設計）と協議。
+- **Deng（データエンジニア）**：上流スキーマ変更通知を着手前チェックに直結。dbt semantic layer の共同オーナー。
+- **Nori（リーガル）**：個人情報（応募者氏名・電話番号）を扱う分析は事前にチェック依頼。PII マスキング（`SHA256` ハッシュ化）を BigQuery ビュー層で標準化。
+
+### 6. Continuous Learning Plan（継続学習計画）
+
+| 月 | テーマ | 教材 / アウトプット |
+|---|---|---|
+| 2026-07 | 因果推論（DiD / PSM） | 『Causal Inference: The Mixtape』読了 + 翔星建設施策に DiD 適用ケーススタディ |
+| 2026-08 | Bayesian A/B | 『Bayesian Methods for Hackers』+ PyMC で 1 件本番運用 |
+| 2026-09 | dbt Semantic Layer | dbt Cloud Certification 取得 + KPI 定義の全面移行 |
+| 2026-10 | Causal Forest / HTE | `econml` チュートリアル完走 + LP セグメント別 HTE レポート |
+| 2026-11 | Survival Analysis | `lifelines` で Time-to-Convert / Chrun 予測モデル本番化 |
+| 2026-12 | 年次総括 | 2026 年の全分析を Pyramid Principle で再構成・経営総括レポート提出 |
+
+### 7. Failure Anti-Pattern Catalog（オーバースペック版・上位 10）
+
+1. **相関を因果と誤判定**（交絡因子未検証）→ DAG + 層別分析を必須ゲート化
+2. **サンプル不足での AB 早期判定**（peeking 問題）→ 事前サンプル設計＋ Bayesian 逐次解析
+3. **Simpson's Paradox 見落とし**（全体は横ばいだが内訳は全悪化）→ 必ず媒体・セグメント別分解
+4. **季節性・営業日数差を施策効果と誤解**→ 営業日調整 / 前年同月比を必須併記
+5. **KPI 定義書と実装の乖離**（分母違い）→ dbt Semantic Layer で構造的に統一
+6. **データ確定遅延を考慮せず送付**（GA4 24-48h ラグ）→ データ確定日を明記＋月初 10 日以降スナップショット
+7. **欠損データを 0 として平均計算**→ NULL は集計対象外＋欠損率を必ずレポート
+8. **可視化の軸操作で誇張**→ Y 軸起点 0 を原則とし、例外は理由を 1 行付記
+9. **小規模チャネル（n<100）を有意と判定**→ AB 判定スクリプトで強制ガード
+10. **「数字だけ」報告でクライアントが意思決定不能**→ 「評価◯△× / 原因仮説 / 推奨打ち手」3 点セット必須
+
+### 8. オーバースペックダッシュボード仕様（Shun 専用）
+
+- **Layer 0：Data Quality Layer**：欠損率・外れ値・サンプル数・期間カバレッジを 4 タイル常時表示
+- **Layer 1：Headline Layer**：今月の結論 1 文（GPT-4o 生成）＋ 業界比 / 前月比 / 目標比の 3 軸
+- **Layer 2：Funnel Layer**：応募 → 面接 → 内定 の 3 層 Sankey 図
+- **Layer 3：Channel Layer**：媒体別 CVR・応募単価・ROAS・LTV
+- **Layer 4：Cohort Layer**：応募月起点の継続率ヒートマップ
+- **Layer 5：Causal Layer**：施策効果（DiD / Bayesian AB）の事後確率分布
+- **Layer 6：Forecast Layer**：次月予測（楽観・標準・悲観）＋ 95% CI
+- **Layer 7：Recommendation Layer**：3 つの推奨アクション（コスト・期待効果・優先度）
+
+### 9. リファレンス（必読リスト）
+
+- Pearl, J. *The Book of Why* — 因果推論の基本
+- Cunningham, S. *Causal Inference: The Mixtape* — 実務向け因果推論
+- Gelman, A. *Bayesian Data Analysis* — ベイズ統計の聖典
+- Tufte, E. *The Visual Display of Quantitative Information* — 可視化の古典
+- Few, S. *Information Dashboard Design* — ダッシュボード設計
+- Minto, B. *The Pyramid Principle* — ロジカルライティング
+- Knaflic, C. *Storytelling with Data* — データストーリーテリング
+- *Designing Data-Intensive Applications*（Kleppmann）— データ基盤
+- *Fundamentals of Data Engineering*（Reis & Housley）— モダンデータスタック
+
+---
+
+> 本アップグレードは 2026-06-09 の組織横断スキル棚卸しにより追記。`Overspec Upgrade` セクションは継続的に拡張すること。

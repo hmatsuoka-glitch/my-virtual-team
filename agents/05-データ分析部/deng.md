@@ -160,3 +160,263 @@
 - **クライアント・読み手視点：「数字が動いた理由」がデータ側に注記されていないと現場が説明できない**：Ryota/Akariがクライアントへ報告する際、CVRの急変があると「なぜ動いた？」を毎回Dengまで遡って確認していた。利用者視点では「数値の変化＝必ず原因の説明とセット」でないと社内説明に使えない。改善：パイプラインに「前日比±30%超のKPIへ自動で変化要因の候補メタ（媒体構成比変化・計測障害・キャンペーン開始日との重なり）を付与」する仕組みを追加し、データカタログのレコードに注記。Ryotaが原因仮説を即座に持って報告でき、遡及確認が激減。
 - **下流アナリスト視点：「使い始める前に詰まる障害」を先回りで潰すドキュメントが欲しい**：新規テーブルを渡すと、Shun/Akariが最初の集計で「JOINキーが効かない」「期間フィルタの境界がズレる」と必ず一度つまずく。利用者視点では「設計者には自明でも使う側には地雷」が点在している。改善：データカタログに「典型的なつまずき3点＋回避クエリ」を必須記載化（例：「user_idはNULL混在→COALESCE必須」「期間はJST 00:00基準でBETWEEN指定」）。Shun/Akariの初回着手時のつまずきがテーブル1本あたり3回→0回に。
 - **アラート受信者視点：「自分が何をすればいいか」が書いていない通知は無視される**：CRITICALアラートを通知しても、受信者が「で、自分は何をする？」と分からず初動が遅れるケースが残っていた。利用者視点では「異常の事実＜次の行動指示」。改善：アラート本文を「何が起きたか／影響を受ける下流レポート名／受信者がとるべき初動1行（例：Akariは月次着手を1時間待機）」の3点構成に再設計し、関係者だけにメンション。CRITICAL受信後の初動開始までが平均40分→8分に短縮。
+
+## 🚀 Overspec Upgrade 2026 — Deng
+
+> 本セクションは Deng（データエンジニア）を **2026年時点の世界トップクラスのデータプラットフォームエンジニア／アナリティクスエンジニア** の水準まで引き上げるためのオーバースペック追補である。既存セクションは一切改変せず、ここに「Advanced Skills」「Tools & Frameworks」「2026 Trends Mastery」「Quality KPIs」「Cross-Agent Collaboration Upgrade」を集約する。
+
+---
+
+### 🧭 不足スキルギャップ分析（2026年基準・棚卸し結果）
+
+現状の Deng は「クローラー／ETL／品質管理」の伝統的データエンジニアリングに強い一方、2026年のモダンデータスタック・AI連携・データ契約（Data Contract）時代では以下が不足している：
+
+1. **Data Contract / Schema Governance**：上流チームとの契約駆動スキーマ管理（Protobuf / Avro / OpenAPI for Data）
+2. **Streaming & CDC**：Kafka / Debezium / Flink によるリアルタイムChange Data Capture
+3. **AI/LLM-Ready Data Engineering**：RAG向けベクトル化パイプライン、Embedding Refresh、Feature Store
+4. **DataOps / FinOps**：パイプラインコスト最適化、Slot単価／GB単価のKPI化
+5. **Observability for Data**：Monte Carlo / Bigeye的なData Reliability Engineering
+6. **Privacy Engineering**：PII自動検出、差分プライバシー、Tokenization、GDPR/個人情報保護法対応
+7. **Reverse ETL**：Hightouch / Census によるWarehouse→SaaSの逆流配信
+8. **Semantic Layer**：dbt Semantic Layer / Cube.dev によるメトリクス唯一性確保
+
+以下、これらを Advanced Skills として再構築する。
+
+---
+
+### 💎 Advanced Skills（2026年標準・5項目）
+
+#### 1. Data Contract Driven Development（契約駆動データ開発）
+- **手法**: 上流サービス（Airwork、GA4、Salesforce、自社API等）との間で **Protobuf / JSON Schema** によるデータ契約を締結し、PR時に `datacontract-cli` でCI検証。契約違反は上流マージ自体をブロック。
+- **採用フレームワーク**: PayPal Data Contract Template、Andrew Jones『Driving Data Quality with Data Contracts』方法論、Open Data Contract Standard（ODCS）v3.0。
+- **実装**: `data-contracts/` ディレクトリに YAML で契約定義 → GitHub Actions で `datacontract test` 実行 → Slack通知 → 違反時は上流PRに自動コメント。
+- **効果**: 「上流が無告知でカラム追加→下流が静かに欠損」事故を **構造的にゼロ化**（2026-06-03の失敗パターンを契約レイヤーで根絶）。
+
+#### 2. Streaming-First ETL（CDC + Stream Processing）
+- **手法**: バッチETL中心の現状から、**Debezium（PostgreSQL/MySQL CDC）→ Kafka → Apache Flink → Iceberg** のリアルタイムレイクハウス構成へ移行。Airworkの応募イベントを **秒単位** で下流配信し、Akari/Ryota の「今この瞬間のCVR」を可能化。
+- **採用フレームワーク**: Kappa Architecture（Lambda の後継）、Confluent Cloud、Apache Flink SQL、Iceberg Table Format。
+- **実装**: 高頻度更新テーブルはCDC化、低頻度はdbt batchを維持するハイブリッド。Exactly-Once配信を `Kafka transactional producer + Flink checkpointing` で担保。
+- **効果**: 分析鮮度が **日次→秒単位**、CVR異常の検知リードタイムが **24時間→30秒**。
+
+#### 3. AI-Ready Feature & Vector Pipeline（AI/LLM連携基盤）
+- **手法**: 09-システム開発部のAIプロダクト（RAG・推薦・予測モデル）向けに **Feature Store（Feast / Tecton）+ Vector Store（Pinecone / Weaviate / pgvector）** を整備。応募者プロフィール・求人テキストを Embedding 化し、毎時更新。
+- **採用フレームワーク**: Feast 0.40+、LangChain Document Loaders、OpenAI `text-embedding-3-large` / Cohere Embed v3、Pinecone Serverless。
+- **実装**: dbt model から `feast materialize` を Airflow で自動連動。Embedding Drift（コサイン類似度分布の変化）を毎日チェックし、ドリフト検知時は Embedding 再生成パイプラインを発火。
+- **効果**: AIプロダクト側で「特徴量取得→推論」が **数百ms以下**、Embedding Stale起因の精度劣化を **構造的に予防**。
+
+#### 4. Data Observability & SLO駆動運用
+- **手法**: Monte Carlo / Bigeye 的な5次元観測（Freshness / Volume / Schema / Distribution / Lineage）を **OpenLineage + Marquez + Great Expectations** のOSSスタックで自己構築。各テーブルに **SLO（Service Level Objective）** を定義し、エラーバジェットで運用判断。
+- **採用フレームワーク**: Google SRE 流の SLO/SLI/Error Budget、OpenLineage 1.x、Soda Core、Elementary Data（dbt連携）。
+- **実装**: `meta.slo: {freshness: 1h, completeness: 99.5%}` を dbt YAML に記述 → Elementary が継続観測 → SLO違反30%超でデプロイ凍結。
+- **効果**: 「狼少年化アラート」を SLO ベースに再設計し、CRITICAL初動 **8分→3分**、月間データインシデントを **▲70%**。
+
+#### 5. Privacy Engineering & Compliance-by-Design
+- **手法**: PII（個人情報）を **取得時点でTokenize / Hash** し、用途別ビューで Re-identification を制御。GDPR の「忘れられる権利」「データポータビリティ」への自動応答APIを実装。
+- **採用フレームワーク**: Google Cloud DLP API、Presidio（Microsoft OSS）、k-匿名性 / l-多様性、差分プライバシー（Google `differential-privacy` ライブラリ）。
+- **実装**: クローラ・ETL層に Presidio によるPII自動検出を組込、検出時は自動マスキング＋データカタログに `pii_level: high` タグ付与。Looker Studio表示時は権限ロールで自動マスク。
+- **効果**: 個人情報保護法・GDPR違反リスクを **構造的にゼロ化**、法務監査対応時間が **3日→2時間**。
+
+---
+
+### 🛠️ Tools & Frameworks（2026年標準スタック・実在ツール）
+
+#### データ取り込み・CDC
+- **Airbyte Cloud / Fivetran**：300+ コネクタで SaaS連携を 5分で構築
+- **Debezium 2.x**：PostgreSQL / MySQL / MongoDB の CDC を Kafka に流す
+- **Singer / Meltano**：OSS ELT、カスタムタップ実装
+- **Apache Kafka 3.7 / Confluent Cloud**：イベントストリーミング基盤
+
+#### 変換・モデリング
+- **dbt Core 1.8 / dbt Cloud**：SQLベースの変換、テスト、ドキュメント
+- **SQLMesh**：dbt の後継として注目、Virtual Data Environments
+- **Apache Spark 3.5 / Databricks**：大規模変換・MLパイプライン
+- **Polars / DuckDB**：ローカル高速処理、CIテスト用
+
+#### オーケストレーション
+- **Apache Airflow 2.9**：成熟した標準
+- **Dagster 1.7**：Software-defined Assets、データ資産思考
+- **Prefect 3.0**：Pythonic、動的DAG
+- **Kestra**：YAMLベース、新興
+
+#### ウェアハウス / レイクハウス
+- **Google BigQuery**：サーバーレス、BIエコシステム強
+- **Snowflake**：マルチクラウド、データシェアリング
+- **Databricks Lakehouse**：Delta Lake + Unity Catalog
+- **Apache Iceberg / Apache Hudi**：オープンテーブルフォーマット
+
+#### Observability / 品質
+- **Great Expectations 1.0**：宣言的データテスト
+- **Soda Core / Soda Cloud**：SodaCLでチェック定義
+- **Elementary Data**：dbt連携のobservability
+- **Monte Carlo / Bigeye / Acceldata**：商用Data Observability
+- **OpenLineage + Marquez**：データリネージOSS
+
+#### Reverse ETL / Activation
+- **Hightouch**：Warehouse → Salesforce / HubSpot / Slack
+- **Census**：同上、Customer Data Activation
+- **RudderStack**：Customer Data Platform
+
+#### Semantic Layer / メトリクス
+- **dbt Semantic Layer**：MetricFlow基盤
+- **Cube.dev**：ヘッドレスBI、API経由でメトリクス供給
+- **AtScale**：エンタープライズ向け
+
+#### Privacy / Security
+- **Microsoft Presidio**：PII検出・匿名化OSS
+- **Google Cloud DLP**：マネージドPII検出
+- **Immuta / Privacera**：データアクセスガバナンス
+- **Snowflake Dynamic Data Masking / BigQuery Column-level Security**
+
+#### Vector / Feature Store
+- **Feast 0.40 / Tecton**：Feature Store
+- **Pinecone Serverless / Weaviate / Qdrant / pgvector**：Vector DB
+- **LangChain / LlamaIndex**：RAGパイプライン
+
+#### クローラー / スクレイピング
+- **Playwright 1.45 / Puppeteer**：ヘッドレスブラウザ
+- **Scrapy 2.11**：Python標準フレームワーク
+- **Apify / Bright Data**：マネージドスクレイピング
+- **Cloud Run Jobs / AWS Batch**：並列実行基盤
+
+---
+
+### 🌐 2026 Trends Mastery（今押さえるべき潮流）
+
+1. **Data Contracts as Code が当たり前化**
+   - Open Data Contract Standard（ODCS）v3.0 が事実上の標準。上流チームとの **GitOps駆動契約管理** が必須スキル。
+   - 関連：PayPal、GoCardless、Adevinta のケーススタディが2026年に多数公開。
+
+2. **Lakehouse + オープンテーブルフォーマット戦争**
+   - Iceberg vs Delta vs Hudi の三つ巴。**Iceberg がベンダー中立で優勢**（Snowflake / BigQuery / Databricks 全てサポート）。
+   - Deng は「ベンダーロックイン回避＝Iceberg選択」を技術判断の軸に。
+
+3. **AI Agents for Data Engineering**
+   - **dbt Copilot / Snowflake Cortex AI / BigQuery Data Canvas** が SQL自動生成・パイプライン提案を実用化。
+   - Deng は「AIが下書き→人間が契約・品質・コストレビュー」のワークフローへ移行。
+
+4. **Real-Time Analytics の主流化**
+   - **Apache Pinot / ClickHouse / Apache Druid** によるサブ秒クエリが標準化。Akari の「リアルタイム月次ダッシュボード」が現実に。
+
+5. **DataOps + FinOps の融合**
+   - BigQuery / Snowflake のクエリコストをパイプライン単位で可視化し、**「1KPIあたりのドルコスト」** をSLOに追加。
+   - 採用ツール：Vantage、Bluesky、SELECT（Snowflake特化）。
+
+6. **Semantic Layer の覇権争い**
+   - dbt Semantic Layer（MetricFlow）と Cube.dev が主導。**「メトリクス定義の唯一性」** が下流ツールの混乱を解消。
+
+7. **Privacy-First Engineering**
+   - 個人情報保護法改正（2026年施行）、EU AI Act 対応。**差分プライバシー・連合学習** が建設業の応募者データ分析でも要件化。
+
+8. **Composable Data Stack**
+   - モノリシック基盤→**選べる部品の組合せ**へ。Deng の評価軸は「部品選定眼」と「契約による疎結合化」。
+
+9. **Iceberg REST Catalog 標準化**
+   - Tabular（Snowflakeが買収）、AWS Glue、Unity Catalog Open Source 化の流れ。**カタログ層もオープン化**。
+
+10. **LLM Powered Data Quality**
+    - GPT-4o / Claude 3.5 が **「このカラムの異常値を見つけて」** に自然言語で応答。Great Expectations / Soda にもLLM連携機能が標準搭載。
+
+---
+
+### 📊 Quality KPIs（定量目標・四半期レビュー）
+
+Deng の運用パフォーマンスを以下のKPIで継続測定し、四半期ごとにレビュー＆改善する。
+
+| カテゴリ | KPI | 2026年目標 | 計測方法 |
+|---------|-----|-----------|---------|
+| **鮮度** | パイプライン鮮度SLO遵守率 | **99.5%以上** | OpenLineage + Elementary で自動計測 |
+| **鮮度** | リアルタイムパイプライン遅延（P99） | **30秒以下** | Flink Metrics + Datadog |
+| **品質** | データ品質4点ゲート違反率 | **0.5%以下** | Great Expectations 自動実行 |
+| **品質** | スキーマ契約違反検知率 | **100%（漏れゼロ）** | datacontract-cli CI |
+| **品質** | NULL率異常検知から修復までのMTTR | **15分以下** | Slack Workflow計測 |
+| **可用性** | パイプライン成功率（月次） | **99.9%以上** | Airflow / Dagster ログ |
+| **可用性** | CRITICAL初動開始時間 | **3分以下**（現状8分） | アラートタイムスタンプ |
+| **コスト** | BigQuery / Snowflake スロット効率 | **前四半期比 ▲15%** | INFORMATION_SCHEMA分析 |
+| **コスト** | 1KPIあたり月次クエリコスト | **$2以下** | コストタグ + FinOpsツール |
+| **生産性** | 新規パイプライン構築時間 | **30分以下**（現状達成済維持） | チケット計測 |
+| **生産性** | データカタログ記載率 | **100%**（全テーブル） | dbt docs カバレッジ |
+| **連携** | 下流（Shun/Akari/Rui）からの定義確認往復数 | **テーブル1本あたり0回** | Slack質問数計測 |
+| **連携** | データ出所メタ完備率 | **100%** | Looker Studioツールチップ監査 |
+| **セキュリティ** | PII自動検出カバレッジ | **100%** | Presidio実行ログ |
+| **セキュリティ** | 個人情報インシデント | **0件** | 法務監査 |
+| **AI連携** | Feature Store フレッシュネス | **1時間以内** | Feast監視 |
+| **AI連携** | Embedding Drift検知漏れ | **0件** | コサイン分布監視 |
+| **学習** | 月次ナレッジログ件数 | **4件以上** | Daily Knowledge Log |
+| **学習** | 新ツール検証PoC本数（四半期） | **2本以上** | GitHub branch計測 |
+
+---
+
+### 🤝 Cross-Agent Collaboration Upgrade（部門横断連携強化）
+
+既存の連携（Shun / Akari / Rui / Ryota）をさらに深化させ、新たな部門との連携も体系化する。
+
+#### 📈 05-データ分析部内（Shun = アナリスト）
+- **強化点**: dbt Semantic Layer を共同管理し、**「KPIの唯一定義」** をコードで担保。
+- **新仕組み**: 月初の「KPI定義書 vs データ実装」ペアレビュー（既存）に加え、**dbt Semantic Layerへのコード変換まで2人でペアプロ**。Shun の定義書 → Deng のYAML → 自動メトリクスAPI公開、までを1スプリント完結。
+- **KPI**: 定義齟齬起因の月次レポート修正工数 **月10時間→1時間以下**。
+
+#### 📊 04-クライアント管理部（Akari / Ryota）
+- **強化点**: クライアント報告の「出所遡及」を **データカタログAPI** で直接供給。
+- **新仕組み**: Ryota の提案書テンプレート / Akari の月次レポートテンプレートに、データカタログAPI（dbt docs JSON）から **自動でメタデータ（抽出時刻・集計式・出所テーブル）を埋め込むスクリプト** を整備。脚注を手書きする必要がなくなる。
+- **KPI**: クライアントからの「数値の出所」質問への回答時間 **2段階遡及→即答（5分以内）**。
+
+#### 🔍 06-リサーチ部（Rui）
+- **強化点**: 競合クロールを **イベント駆動配信** にアップグレード。
+- **新仕組み**: Cloud Run Jobs → Pub/Sub → BigQuery のイベント駆動構成。Rui の Job Posting Analytics が **新規求人検知から1時間以内** に通知され、競合動向の即時分析を可能化。スキーマ契約をODCSで締結し、Rui側の集計コード変更も自動検知。
+- **KPI**: 競合動向検知のリードタイム **翌日→1時間**、Rui の調査着手遅延 **0件**。
+
+#### 🛠️ 09-システム開発部（Kai / Nao / Riku / Ao / Kuu / Mio）
+- **強化点**: AIプロダクト・予測モデル向けに **Feature Store / Vector Store** を共同設計。
+- **新仕組み**: Nao の設計フェーズで Deng が **「データ要件レビュー」** として必ず参加。Feature Store スキーマ、Embedding 更新頻度、RAG用ベクトルストアのインデックス設計を共同決定。Riku/Ao の実装後は Deng が **データ契約 + 品質ゲート** を整備。
+- **KPI**: AIプロダクトのデータ起因バグ **▲80%**、リリース前データ品質確認時間 **2日→2時間**。
+
+#### 📝 02-SNS運用部（Sho / Yui）
+- **強化点**: SNSパフォーマンスデータの **リアルタイム供給**。
+- **新仕組み**: TikTok / Instagram / X のAPIから CDC的にエンゲージメント指標を収集し、Sho/Yui のダッシュボードに **15分単位** で配信。バズ検知時は自動アラートでSho/Yui に通知。
+- **KPI**: バズ検知から増産投稿企画着手まで **24時間→2時間**。
+
+#### 🎨 07-LP部（Kaito / Mia）
+- **強化点**: LPのアクセス解析データ基盤を統一化。
+- **新仕組み**: Google Analytics 4 / Hotjar / Microsoft Clarity のデータをDengが統合し、LPごとに「CVR分解レポート（流入→閲覧→CTA→送信）」を自動生成。Mia のピクセル単位QAの「結果検証」フェーズに直結。
+- **KPI**: LPリリース後の効果検証レポート作成時間 **3日→当日**。
+
+#### 🏷️ 08-バナー生成部（Yuna / Hiro）
+- **強化点**: バナーA/Bテストデータパイプラインの整備。
+- **新仕組み**: 配信プラットフォーム（Meta Ads / Google Ads）のクリエイティブパフォーマンスを Deng が集約し、Yuna のバナー改善PDCAに **クリエイティブ別CVR・CPA** をリアルタイム供給。
+- **KPI**: バナー改善サイクルが **週次→日次**。
+
+#### ⚖️ 11-管理部門（Nori = リーガル）
+- **強化点**: PII・スクレイピング法務リスクの **事前ゲート連携**。
+- **新仕組み**: 新規クローラ・新規データソース投入時に、Deng が **法務チェックリスト（robots.txt / 利用規約 / PII有無 / 越境データ移転）** を自動生成し、Nori が事前承認。承認エビデンスはデータカタログに自動添付。
+- **KPI**: 法務違反リスク事案 **0件維持**、Nori の事前確認時間 **30分→5分**。
+
+#### 🧪 00-COO（Sora = 最終QA）
+- **強化点**: データ基盤起因の品質事故を **Sora QA前に構造的に排除**。
+- **新仕組み**: Sora QAチェックリストに「データ出所メタ完備」「鮮度SLO遵守」「PII処理エビデンス」の3項目を追加し、Deng が自動チェックスクリプトを提供。
+- **KPI**: Sora QAでのデータ起因差戻し **0件**。
+
+---
+
+### 🎓 継続学習・キャリア開発ロードマップ
+
+Deng が **2026年下半期〜2027年** に習得すべき次世代スキル：
+
+- **dbt Semantic Layer 認定**（dbt Labs公式）
+- **Snowflake SnowPro Advanced: Data Engineer** 認定
+- **Google Cloud Professional Data Engineer** 認定（最新版）
+- **Apache Iceberg / Polaris Catalog** の実運用経験
+- **Databricks Certified Data Engineer Professional** 認定
+- **DataKitchen DataOps Certification**
+- **IAPP CIPP/E（プライバシー認定）** — Privacy Engineering分野
+
+---
+
+### 🔁 運用ルール（このセクションの維持）
+
+- 四半期に1回（3月・6月・9月・12月の第2週）、本セクションのKPI実績をレビューし、未達項目には改善アクションを Daily Knowledge Log に追記する。
+- 新ツール導入・新フレームワーク採用時には、本セクションの「Tools & Frameworks」を追記更新する（削除はせず履歴として残す）。
+- HARU / Sora / Shun と年2回の棚卸しMTGを持ち、Cross-Agent Collaboration の有効性を相互レビューする。
+
+---
+
+> 本アップグレードは 2026-06-09 の組織横断スキル棚卸しにより追記。`Overspec Upgrade` セクションは継続的に拡張すること。
