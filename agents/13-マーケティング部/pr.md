@@ -164,3 +164,65 @@
 - プレスリリースは「見出し・リード・本文・会社概要」の定型骨格を流用すると起案が速い
 - メディアリストは媒体別の関心テーマ・担当を台帳化すると、毎回の宛先選定が不要になる
 - 危機広報は想定Q&Aを平時にテンプレ準備すると、発生時の初動が劇的に速まる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. PESOモデル統合配信設計（Paid / Earned / Shared / Owned 4象限運用）
+- フレームワーク：PESOモデル（Gini Dietrich提唱）を全PR案件の起点に固定し、Paid（PR TIMES有料配信・タイアップ広告）、Earned（記者経由の記事化）、Shared（X/Instagram拡散）、Owned（自社ブログ・採用ページ）の4象限で配信設計書を起案する。
+- ツール：PR TIMES（Paid）、@Press（Paid併用）、Meltwater（Earned計測）、Brandwatch（Shared計測）、Notion DB（Owned連携管理）。
+- KPI：4象限合算 Media Impressions 月次500万 reach 以上、Earned/Paid比率 1.5以上、Owned流入のCV率2.5%以上、Shared拡散の二次リーチ係数2.0以上。
+- ステップフロー：①トピック起案→②4象限配分比率決定（数値根拠付き）→③媒体別文案出し分け→④配信→⑤Meltwater/Brandwatchで象限別計測→⑥週次で配分比率を再調整。
+
+### 2. SCCT（Situational Crisis Communication Theory）準拠の危機広報3階層判定
+- フレームワーク：Coombs提唱SCCTで危機タイプを「Victim Cluster / Accidental Cluster / Preventable Cluster」の3階層に判定し、それぞれ「Deny / Diminish / Rebuild」戦略を機械的に選択する。
+- ツール：Notion 危機判定マトリクス、Slack Workflow（即時起動）、Talkwalker（リアルタイム感情分析）、Cision PR Newswire（一次声明配信）。
+- KPI：一次声明発信 2時間以内100%、本声明 24時間以内100%、Sentiment Polarity Score（-1〜+1）を危機発生72時間後に -0.3以上へ復帰、二次炎上発生率 5%未満、Trust Index ≥75（RepTrak基準）の維持。
+- ステップフロー：①Talkwalkerで発火検知→②3クラスター判定→③SCCT戦略テーブルから声明テンプレ選択→④Legal承認待ちで一次発信→⑤本声明確定→⑥72時間Sentiment追跡→⑦RepTrak Trust Index再計測。
+
+### 3. RACE PRプランニング（Research / Action / Communication / Evaluation）
+- フレームワーク：John Marston提唱RACEモデルを四半期PR計画の標準骨格に採用し、各フェーズの成果物を必ず1枚にまとめる。
+- ツール：Muck Rack（Research：記者DB/関心テーマ追跡）、Prowly（Action：配信管理）、Cision PR Newswire（Communication：配信実行）、Meltwater（Evaluation：効果測定）。
+- KPI：Research段階で記者ペルソナ50件以上、Actionで配信計画12本/Q以上、Communicationで掲載率20%以上、EvaluationのShare of Voice（SOV%）競合平均比 1.3倍以上。
+- ステップフロー：①Muck RackでRリサーチ→②Prowlyで配信スケジュール組成→③Cisionで実配信→④Meltwaterで定量評価→⑤四半期RACEレビュー会で次期計画反映。
+
+### 4. Two-Way Symmetric Model（双方向対称型）でのメディアリレーション
+- フレームワーク：Grunig & HuntのExcellence Theoryに基づくTwo-Way Symmetric Modelを採用し、一方的な情報発信ではなく記者・読者との双方向フィードバックループを構築する。
+- ツール：Muck Rack（記者の最近の執筆傾向追跡）、Notion DB（接触履歴・関心テーマ・フィードバックログ）、Meltwater（読者反応の定量化）。
+- KPI：記者1人あたり年間接触回数4回以上、記者フィードバック反映率80%以上、同一記者からの追加取材依頼発生率30%以上、関係維持KPI（最終接触90日以内）100%。
+- ステップフロー：①Muck Rackで記者の最新記事・関心テーマ把握→②Notion接触履歴を踏まえた個別ピッチ→③配信→④記者からのフィードバック収集→⑤次回ピッチに反映→⑥四半期で関係性スコア更新。
+
+### 5. AVE換算メディア価値（Advertising Value Equivalent）と新指標Barcelona Principles 3.0
+- フレームワーク：AVE（広告換算価値）を経営報告用、Barcelona Principles 3.0（AMEC策定）を実運用評価に併用し、二重指標で経営/現場の両方を説得する。
+- ツール：Meltwater（AVE自動算出）、Cision（メディアクリッピング）、Brandwatch（Outcome計測）、Talkwalker（Outtake計測）。
+- KPI：月次AVE換算メディア価値 500万円以上、Outputs（掲載本数）月20本以上、Outtakes（メッセージ認知率）40%以上、Outcomes（行動変容/問い合わせ）月50件以上、Impact（事業KPI連動）採用応募数+15%。
+- ステップフロー：①MeltwaterでAVE自動集計→②CisionクリッピングをOutputs集計→③Brandwatch/TalkwalkerでOuttake/Outcome計測→④月次Barcelona Principles 3.0レポート発行→⑤経営報告にAVE併記。
+
+### 6. IPRA Code of Conduct準拠の倫理コンプライアンス
+- フレームワーク：IPRA（国際PR協会）Code of Conductの全16条項を社内PR運用規程に落とし込み、配信前チェックシートに統合する。
+- ツール：Notion 倫理チェックシート（IPRA16条＋景表法＋ステマ規制連動）、textlint カスタム辞書（誇大表現自動検出）、nori（法務）連携Slack Workflow。
+- KPI：配信前IPRA16条チェック実施率100%、誇大表現検出時の修正完了率100%、ステマ規制違反検出ゼロ、訂正リリース発行ゼロ、外部監査スコア95点以上。
+- ステップフロー：①リリース起案→②textlintで誇大表現自動検出→③IPRA16条チェックシート手動レビュー→④nori（法務）承認→⑤CEO承認→⑥配信→⑦四半期で監査ログ集計。
+
+### 7. RepTrak Trust Index & Edelman Trust Barometer連動の信頼可視化
+- フレームワーク：Reputation Institute RepTrakの7次元（Products/Innovation/Workplace/Governance/Citizenship/Leadership/Performance）と、Edelman Trust Barometer業界比較を半期で計測し、PR活動が信頼指標に与える影響を可視化する。
+- ツール：RepTrak調査ツール（外部委託）、Edelman Trust Barometerレポート（業界別データ取得）、Brandwatch（オンライン上の信頼関連発話追跡）。
+- KPI：Trust Index ≥75維持、RepTrak7次元のうちWorkplace次元 ≥80（採用PR連動）、Edelman業界平均比 +5pt以上、信頼関連ポジティブ発話比率 70%以上。
+- ステップフロー：①半期RepTrak調査実施→②Edelman業界比較→③7次元のうち弱点次元特定→④弱点次元向けPR施策3本立案→⑤Brandwatchで発話追跡→⑥半期で再計測。
+
+### 8. Image Repair Theory（Benoit）×Excellence Theoryでのレピュテーション復旧
+- フレームワーク：W.L. BenoitのImage Repair Theory 5戦略（Denial / Evasion of Responsibility / Reducing Offensiveness / Corrective Action / Mortification）と、Grunig Excellence Theoryを組み合わせた復旧戦略マトリクスを使用する。
+- ツール：Talkwalker（リアルタイム感情変化追跡）、Meltwater（メディア言及量変化）、RepTrak（信頼指数復旧計測）、Cision（声明配信）。
+- KPI：危機発生72時間後のSentiment Polarity Score -0.3以上、30日後 0以上、90日後 +0.2以上、Trust Index復旧率（危機前水準の90%以上を6ヶ月以内）、ネガティブメディア言及量を30日で50%減。
+- ステップフロー：①危機タイプ判定→②Benoit 5戦略から最適組み合わせ選択→③声明発信→④Talkwalker/Meltwaterで日次トラッキング→⑤30/60/90日チェックポイント→⑥RepTrakで復旧確認。
+
+### 9. Newsjacking 2.0 × 共同通信PR Wire即応配信オペレーション
+- フレームワーク：時事ネタへの即時反応PR（Newsjacking 2.0、David Meerman Scott提唱）を24時間以内発信オペレーションに体系化し、業界トレンドに自社の独自視点を即座に重ねる。
+- ツール：Talkwalker（トレンド検知）、共同通信PR Wire（全国紙即時配信）、ValuePress（Webメディア即時配信）、Notified（マルチチャネル同時配信）。
+- KPI：時事ネタ検知→配信までのリードタイム24時間以内100%、Newsjackingリリースの掲載率35%以上（通常リリースの12%対比）、Share of Voice即時+10pt、SNS二次拡散reach 100万以上。
+- ステップフロー：①Talkwalkerでトレンド検知→②自社視点との接続可否を15分で判定→③CEO/Legal即時承認→④共同通信PR Wire＋ValuePress同時配信→⑤Notifiedで多チャネル展開→⑥24時間後にSOV/掲載率測定。
+
+### 10. PESO×4象限合算ダッシュボードと月次経営報告自動化
+- フレームワーク：Cision PR Newswire / Meltwater / Brandwatch / Talkwalker / Muck Rack / Prowly の6ツール出力をBI（Notion DB＋Looker Studio）に統合し、PESO 4象限×Barcelona Principles 3.0×RepTrak の三軸ダッシュボードを構築する。
+- ツール：Cision、Meltwater、Brandwatch、Talkwalker、Muck Rack、Prowly、Notion DB、Looker Studio、Notified（配信実績取得）。
+- KPI：月次ダッシュボード更新リードタイム 24時間以内、データ統合完全率100%、経営報告書作成時間 8時間→1時間、Media Impressions / SOV% / AVE / Trust Index / Sentiment Polarity Score の5指標を1枚に集約、ROI（PR投資対効果）3.0以上。
+- ステップフロー：①6ツールのAPIをNotion DBに日次連携→②Looker Studioで象限別可視化→③月初に自動レポート生成→④経営会議で意思決定→⑤翌月施策に反映→⑥四半期でKPI閾値見直し。

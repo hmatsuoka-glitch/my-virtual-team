@@ -172,3 +172,76 @@
 - コンテンツ戦略はカレンダーでテーマを先に四半期分埋めると、毎回ネタ出しするより制作が速く一貫性も出る
 - リード獲得は流入経路別のCV率を定点比較すると、効果の低い施策を早期に切れて予算効率が上がる
 - 定番コンテンツ（事例・ノウハウ）はテンプレ化して量産すると、ゼロ企画より速い
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. North Star Metric（Sean Ellis流）駆動の戦略ピラミッド構築
+- North Star Metric（NSM）を「月間有効リード数 × MQL→SQL転換率 × 平均受注単価」の単一複合指標で定義し、全部署のOKR頂点に据える。
+- Sean Ellis Test（PMF判定：必須回答40%以上）を四半期に1回、既存リード母集団300名以上に実施し、PMFスコアを定量追跡する。
+- John Doerr『Measure What Matters』のOKRフレームでNSMを年次Objective化し、四半期Key Resultsへ分解（例：MQL→SQL転換率 ≥25%、CAC payback <12ヶ月）。
+- Looker Studio Pro上にNSMダッシュボードを構築し、日次でSlack配信、HARU/sora/Sales/Datが同一KPIを共有する。
+- NSM未達月は即RICEスコアリングで施策再優先度づけ、低スコア施策を即停止する運用ガード。
+- ステップ：①NSM定義合意（CEO/COO）→②OKR分解→③Looker StudioダッシュボードSQL定義→④Slack日次配信→⑤週次NSMレビュー会。
+
+### 2. AARRR + Bowtie Funnel 2026によるカスタマージャーニー再設計
+- Dave McClureのAARRR（Acquisition/Activation/Retention/Referral/Revenue）に2026年版Bowtie Funnel（Acquisition→Conversion→Onboarding→Adoption→Expansion→Advocacy）を統合し、6段階の歩留まり指標を整備。
+- 各ステージにGate KPIを設定（Acquisition CTR ≥2%/Activation率 ≥40%/Retention 30日 ≥60%/Referral係数 ≥0.3/Expansion NRR ≥110%）。
+- Segment CDPでステージ遷移イベントを統一スキーマ化、Iterableでステージ別自動シナリオを発火させる。
+- 月次でBowtie離脱率ヒートマップをLooker Studio Proで可視化、最大離脱ポイントに翌月予算の40%を集中投下するルールを採用。
+- ステップ：①現状ファネル数値棚卸→②6段階Gate KPI設定→③Segment実装→④Iterableシナリオ設計→⑤月次ヒートマップレビュー。
+
+### 3. ICP（Ideal Customer Profile）2026版とJTBD（Jobs-to-Be-Done）の二層定義
+- ICPを「ファーモグラフィック（業種・従業員規模・売上）×テクノグラフィック（保有SaaS・採用媒体）×ビヘイビアグラフィック（直近の採用意向シグナル）」の3層で再定義し、合致スコア80以上をMQL化条件とする。
+- Clayton Christensen流JTBDで顧客の「機能的Job/感情的Job/社会的Job」を3-on-3インタビュー（3社×3役職）で四半期更新する。
+- Bombora/6senseのインテントデータを取り込み、Customer.ioでJob別自動セグメント配信、開封率ベンチ35%以上を必達。
+- HubSpot Marketing Hub上にICPスコアプロパティを実装し、80未満リードはSales引き渡しから除外する運用ガード。
+- ステップ：①3層ICP定義→②JTBDインタビュー設計→③Bomboraインテント連携→④HubSpotスコア実装→⑤Sales引き渡しゲート化。
+
+### 4. RICEプライオリタイゼーションによる施策ポートフォリオ最適化
+- 全マーケ施策をRICE（Reach×Impact×Confidence÷Effort）で四半期始めにスコアリングし、上位70%だけに予算配分する。
+- Reach（月間影響リード数）は実測値、Impact（NSM押上係数）は0.25/0.5/1/2/3の5段階、Confidence（実証度）は%、Effort（人月）で算出。
+- Productboard/Notion DBでRICEスコアを管理し、スコア更新は月次でRICEレビュー会を開催（Marketing/Sales/Dat同席）。
+- スコア下位30%は「Sunset Backlog」へ移動し、復活は新エビデンス提示時のみ許可するゲート運用。
+- ステップ：①施策棚卸→②RICE変数定義→③Notion DB化→④四半期スコアリング会→⑤Sunset Backlog運用。
+
+### 5. MMM（Marketing Mix Modeling）+ MTAハイブリッド計測体制
+- Meta Robyn/Google LightweightMMMで媒体別ROI貢献度を四半期推計し、Cookie廃止時代でも媒体間配分を客観化する。
+- MTA（Multi-Touch Attribution）はSegment+Rudderstack経由でGA4・各広告媒体に統一ID付与、ファネル接点ごとの貢献度を日次トラッキング。
+- MMM ROI lift +15%以上の媒体は翌月予算を1.3倍に自動増額、-10%以下の媒体は0.7倍に自動減額するルールベース運用。
+- Snowplowで自社ファーストパーティイベントを収集しMMMモデルの精度を高める（モデル決定係数R² ≥0.85を必達）。
+- ステップ：①Snowplow導入→②Robyn環境構築→③四半期MMM実施→④月次MTA可視化→⑤予算自動増減ルール実装。
+
+### 6. CDP（Customer Data Platform）統合とリアルタイムオーディエンス設計
+- Segment CDP/mParticle/Tealium/Rudderstackから自社ユースケースに最適なCDPを選定し、全タッチポイントのイベントスキーマをCDP TrackingPlanで統一管理。
+- Klaviyo（EC寄り）/Customer.io（SaaS寄り）/Iterable（オムニチャネル）を要件比較し、メイン配信基盤を1つに集約してデータ分断を防ぐ。
+- リアルタイムオーディエンスを「直近7日サイト訪問×特定コンテンツ閲覧×職種マッチ」の3条件AND組成、配信開封率 ≥40%を必達基準とする。
+- Forrester Wave Q2 2026 CDPレポート/Gartner Hype Cycle 2026の最新ポジションを四半期にレビューし、ベンダーロックインリスクを年次再評価。
+- ステップ：①CDP要件定義→②Tracking Plan策定→③ベンダー選定→④オーディエンス組成→⑤年次ベンダー評価。
+
+### 7. CAC Payback < 12ヶ月 / LTV/CAC ≥3 の財務規律ガード
+- CAC（顧客獲得コスト）= 月次マーケ総費用 ÷ 新規受注社数 を毎月末に算出し、Payback期間12ヶ月超なら翌月の有料広告10%自動削減ルール。
+- LTV（生涯価値）= 平均月次粗利 × 平均継続月数 で算出し、LTV/CAC比率 ≥3 を全チャネルの最低基準とする。
+- HubSpot Marketing Hub × Salesforce連携でCAC/LTVをチャネル別に分解、ROAS低位チャネルは即予算停止。
+- 四半期に1回、CFO役（haruto）と財務レビューを行い、CAC payback悪化トレンドが2四半期続いたら戦略再設計フラグを立てる。
+- ステップ：①CAC/LTV算出ロジック合意→②チャネル別分解→③月次ダッシュボード化→④自動削減ルール実装→④CFOレビュー。
+
+### 8. Bain Net Promoter System（NPS 2.0）とリファラルループ設計
+- Bain & Company発のNet Promoter System（NPS）を四半期に1回顧客全社へ配信し、NPS ≥40 をAdvocacy Gateとして必達。
+- Detractor（0-6点）には48時間以内にCEO/COOが直接ヒアリングするClosed-Loop運用、Promoter（9-10点）には自動でリファラルプログラム招待をIterableで配信。
+- リファラル係数（K-factor）≥0.3、紹介経由CACは通常CACの50%以下を必達、達成チャネルは予算1.5倍化。
+- Bloomreachのパーソナライズエンジンで紹介経由訪問者に専用LPを動的出し分け、CVR +30%を必達。
+- ステップ：①NPS配信設計→②Closed-Loop運用→③リファラルプログラム実装→④Bloomreach動的LP連携→⑤K-factor月次レビュー。
+
+### 9. Programmatic SEO × E-E-A-T 強化のコンテンツ戦略
+- Google SGE/AI Overview獲得を新NSMの一角とし、E-E-A-T（Experience/Expertise/Authoritativeness/Trustworthiness）の4軸でコンテンツを四半期監査。
+- Programmatic SEOで「業種×地域×職種」の3次元キーワード掛け合わせ1000ページを自動生成、Optimizelyで見出しA/Bテストを並走、CTR ≥3.5%を必達。
+- Pardot/Marketo Engage（Adobe）のフォーム埋込でコンテンツ→リード化を自動化、コンテンツ別MQL寄与をHubSpot Marketing Hubで日次計測。
+- AI生成コンテンツには必ず実在の専門家（建設業経営者・現場社員）の一次情報を引用しE-E-A-Tスコアを担保、人手レビューゲートをnori（リーガル）と連動。
+- ステップ：①3次元KW設計→②生成テンプレ構築→③E-E-A-T監査→④A/Bテスト並走→⑤MQL寄与計測。
+
+### 10. AIマーケスタック×Gartner Hype Cycle 2026 ベースの技術投資ロードマップ
+- Gartner Hype Cycle 2026 for Digital Marketingの「Plateau of Productivity入りした技術」のみをマーケスタック導入候補とし、Peak of Inflated Expectationsの新技術はPoCに留める導入規律。
+- Forrester Wave Q2 2026のLeaderポジションのみを本番採用、Strong Performer以下はPoC予算（年次総予算の5%以内）に制限。
+- HubSpot Marketing Hub（ハブ）+ Klaviyo or Customer.io（配信）+ Segment（CDP）+ Snowplow（イベント）+ Looker Studio Pro（BI）+ Robyn（MMM）の6層を標準スタック化。
+- 半期に1回、技術投資レビューを開催し、各ツールのROI（生産性向上時間×時給換算）を金額算出、ROI <2 のツールは契約解除フラグ。
+- ステップ：①Hype Cycleレビュー→②Forrester Waveレビュー→③6層スタック合意→④半期ROIレビュー→⑤解約/更新判断。
