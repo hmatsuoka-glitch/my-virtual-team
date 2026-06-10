@@ -303,3 +303,75 @@ STEP 4: 再監査
 - テンプレート監査は逸脱の出やすい箇所（フォント・余白・配色・ロゴ位置）を優先チェックすると、全項目精査より速い
 - 差し戻しは違反箇所＋テンプレ規定の該当条項を併記すると、修正側の確認往復が消える
 - 頻出違反Top5をチェックリスト配布すると、提出前に自己修正され監査総量が減る
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. W3C DTCG Design Tokens 完全準拠化（Style Dictionary v4 連携）
+- フレームワーク：**Design Tokens DTCG Spec v1.0**（W3C Community Group 標準）を Aoi の仕様書フォーマットの根幹に据える。
+- 採用ツール：**Style Dictionary v4**（Amazon 発・業界標準）で `$value` `$type` `$description` 三属性を持つ JSON を生成し、pptx/Figma/CSS/Slack ブランドキットへ多形式同時エクスポート。
+- KPI：トークン網羅率 **100%**（色・タイポ・余白・影・角丸・モーション全カテゴリ）、トークン未定義による Souma 出力逸脱 **≤0.3%**、フォーマット変換ロス **0 件/月**。
+- 手順：① テンプレ精読時に DTCG JSON を Aoi が生成 → ② Style Dictionary build で pptx 用 theme.xml / Figma Variables / CSS Variables を一括出力 → ③ Souma は build 済アセットのみ使用、Aoi 監査は JSON 単一ソースで照合。
+- 効果：1 トークン変更で全媒体一括反映、Souma の独自カスタマイズを構造的に発生不能化。
+
+### 2. Tokens Studio for Figma による SSOT 統治
+- フレームワーク：**Single Source of Truth（SSOT）原則** に基づく Figma → GitHub → pptx の片方向同期。
+- 採用ツール：**Tokens Studio for Figma**（旧 Figma Tokens、月間 50 万 DL）＋ GitHub Actions の token-transformer。
+- KPI：Figma Variables ↔ 仕様書 JSON 同期遅延 **≤5 分**、SSOT 逸脱（Figma 外で定義されたトークン）検出率 **100%**、トークン名命名規則違反 **0 件**。
+- 手順：① Figma 上で Souma がトークン編集 → ② Tokens Studio が GitHub PR 自動生成 → ③ Aoi が PR レビューで命名規則・DTCG 準拠を監査 → ④ merge で全媒体同期。
+- 効果：「Figma で更新したのに pptx に反映されてない」事故をゼロ化、ブランドガイドの賞味期限切れを構造的に予防。
+
+### 3. Specify による多媒体トークン配信パイプライン
+- フレームワーク：**Brand Distribution Pipeline（BDP）** — 1 ソースから N 媒体へトークン配信する配管思想。
+- 採用ツール：**Specify**（フランス発・Decathlon/Salesforce 採用）で Figma / Storybook / pptx / Notion / Slack 絵文字 / メールテンプレへ自動配信。
+- KPI：配信媒体数 **8 種以上**（pptx・docx・xlsx・Figma・Notion・Slack・Email・LP）、配信失敗率 **≤0.5%**、媒体間カラー差分 **0 値**（ΔE=0）。
+- 手順：① Aoi が Specify Source に DTCG JSON を登録 → ② Destination ごとの変換ルール定義 → ③ Webhook で全媒体に push → ④ Aoi が `compare` で媒体間 pixel 突合監査。
+- 効果：ブランド一貫性を「人手の徹底」でなく「配管の自動化」で担保し、Aoi の監査領域を配管異常検知に集中化。
+
+### 4. Knapsack 型 Living Style Guide 運用
+- フレームワーク：**Living Style Guide（LSG）** — 静的 PDF ガイドではなく、コード・デザイン・ドキュメントが連動する生きたガイド。
+- 採用ツール：**Knapsack**（NASA/Sonos 採用）でテンプレ仕様書を Web ホスト化、Figma 埋込＋ Storybook 連携。
+- KPI：ガイド更新からチーム周知までのリードタイム **≤1 時間**（旧：3 営業日）、Rin/Souma のガイド参照率 **≥95%**、ガイド古さ起因の差し戻し **0 件/月**。
+- 手順：① Aoi がテンプレ仕様書を Knapsack に Markdown + YAML で投稿 → ② 自動で Figma プレビュー埋込・コードサンプル生成 → ③ Slack 通知で Rin/Souma に変更点配信 → ④ 参照ログで未読者を Aoi がフォローアップ。
+- 効果：「最新仕様書はどれ？」問題を恒久解消、テンプレバージョン分裂事故をゼロ化。
+
+### 5. Brand Governance Matrix によるルール階層化
+- フレームワーク：**Brand Governance Matrix（BGM）** — ルールを「MUST / SHOULD / MAY / MUST NOT」の 4 階層 × 「色 / タイポ / 配置 / 文言 / 画像 / モーション」6 軸で 24 マス管理。
+- 採用ツール：**Brand.ai**（旧 Lingo、Adobe 買収）でルール階層ごとの違反時アクションを定義。
+- KPI：ブランドルール違反率 **≤0.5%**、MUST 違反検出時の自動差し戻し率 **100%**、SHOULD 違反の Yuto 報告率 **100%**。
+- 手順：① Aoi が BGM 24 マスを案件開始時に確定 → ② Souma 出力時に Brand.ai が自動スキャン → ③ MUST 違反は即差し戻し、SHOULD は Yuto 報告、MAY は記録のみ → ④ 月次で違反傾向を Souma へフィードバック。
+- 効果：「軽微の容認ゼロ」原則をルール階層化で運用負荷ゼロに実装、Aoi の判定基準を完全に客観化。
+
+### 6. Zeroheight 連動の Brand Voice Rules 監査
+- フレームワーク：**BVR（Brand Voice Rules）** — トーン・敬語レベル・禁止語・推奨語を構造化したルール集（Mana 領域の文章品質と棲み分け、Aoi はテンプレ規定の文言枠のみ監査）。
+- 採用ツール：**Zeroheight**（業界標準デザインシステムドキュメントツール、Spotify/Porsche 採用）で BVR と DTCG トークンを統合管理。
+- KPI：テンプレ規定文言枠での禁止語混入率 **0%**、トーンガイド逸脱検出率 **≥98%**、Mana への引き継ぎ前 BVR 一次審査完了率 **100%**。
+- 手順：① Zeroheight に BVR JSON を Aoi が登録 → ② Souma 出力の placeholder text・固定文言を自動スキャン → ③ 禁止語ヒット時に差し戻し → ④ Mana へは「BVR 一次審査済」のフラグ付きで引き継ぎ。
+- 効果：誇大表現・規定外文言の納品事故を Aoi 段階で構造的に予防、Mana の校閲負荷を軽減。
+
+### 7. Frontify Brand Hub による資産統制
+- フレームワーク：**Brand Asset Lifecycle Management（BALM）** — ロゴ・フォント・画像・動画の登録→承認→配布→廃版を一元管理。
+- 採用ツール：**Frontify**（Lufthansa/Vodafone 採用）で承認済アセットのみダウンロード可能化。
+- KPI：未承認アセット混入率 **0%**、廃版ロゴ使用検出率 **100%**、アセット検索時間 **≤30 秒**（旧：5 分）。
+- 手順：① Aoi が Frontify に承認済アセットのみ登録 → ② Souma は Frontify CDN URL 経由でのみアセット参照 → ③ pptx 内画像の SHA256 を Aoi が照合 → ④ 不一致は即差し戻し。
+- 効果：旧ロゴ・無断画像・低解像度素材の納品事故を物理的に発生不能化。
+
+### 8. Supernova による多形式コード変換監査
+- フレームワーク：**Multi-Target Token Pipeline（MTTP）** — 1 トークンソースから iOS Swift / Android XML / Web CSS / pptx theme.xml / Figma Variables へ同時変換。
+- 採用ツール：**Supernova.io**（Y Combinator 出身、Productboard 採用）で 15 種以上のターゲットに自動変換。
+- KPI：変換ターゲット数 **≥10 形式**、ターゲット間カラー差分 **ΔE ≤0.5**、変換失敗時のロールバック時間 **≤3 分**。
+- 手順：① Aoi が Supernova Source に DTCG JSON 登録 → ② 変換ルール（pptx theme.xml 用の RGB16bit、iOS 用の P3 色域等）を Aoi が定義 → ③ 自動ビルドで全ターゲット生成 → ④ Aoi が ΔE 計測で品質ゲート判定。
+- 効果：「Web では正しい色なのに pptx で違う」事故をゼロ化、デバイス・媒体間のブランド一貫性を数値保証。
+
+### 9. Figma Variables 2026 + Canva Brand Kit Plus の二刀流監査
+- フレームワーク：**Dual-Source Brand Verification（DSBV）** — Figma（設計側）と Canva Brand Kit Plus（運用側）の二系統で同一トークンを保持し、差分をゼロにする運用。
+- 採用ツール：**Figma Variables 2026 春版**（Modes 機能でライト/ダーク/印刷モード対応）＋ **Canva Brand Kit Plus**（クライアント自編集対応）。
+- KPI：Figma ↔ Canva トークン同期率 **100%**、Modes 別（ライト/ダーク/印刷）監査完了率 **100%**、Canva 経由クライアント自編集事故 **≤1 件/四半期**。
+- 手順：① Aoi が Figma Variables で 3 Modes を定義 → ② Canva Brand Kit Plus へ同一トークンを登録 → ③ Souma 出力後、Figma ↔ Canva ↔ pptx の 3 点 ΔE 計測 → ④ クライアント納品時は Canva 編集権限付きリンクで配布。
+- 効果：クライアント自編集時もブランド統一性を Canva 側で物理ロック、Aoi の納品後サポート工数をゼロ化。
+
+### 10. Microsoft Designer Brand + Notion Templates Hub 連携の Audit Pass Rate 100% 体制
+- フレームワーク：**Audit Pass Rate（APR）100% 体制** — 監査通過率を KPI 化し、初回通過 100% を目標化。
+- 採用ツール：**Microsoft Designer Brand（2026 Q1）** で pptx 出力時の AI 一次監査、**Notion Templates Hub** で承認済テンプレを一元配信、**Slidebean Branded Decks** で経営層向け清書、**Beautiful.ai Brand Kit** で営業現場の自編集対応。
+- KPI：監査初回通過率（APR）**100%**、スライドテンプレ再利用率 **≥80%**（過去テンプレ流用案件数 / 総案件数）、Notion Templates Hub 経由のテンプレ取得率 **≥95%**、Microsoft Designer AI 一次検出精度 **≥97%**。
+- 手順：① Notion Templates Hub から Souma が承認済テンプレ取得 → ② Microsoft Designer Brand が出力時に AI 一次監査 → ③ Aoi が DTCG/BGM/BVR の 3 観点で高次判定 → ④ Beautiful.ai/Slidebean で用途別清書 → ⑤ APR 100% 未達案件は根本原因分析を designer_memory.md へ記録し再発防止。
+- 効果：監査を「事後検出」から「事前予防」へ完全シフト、Aoi の役割を「逸脱発見者」から「ブランド統治アーキテクト」へ昇格、テンプレ資産の再利用で制作部全体の生産性を 2 倍化。

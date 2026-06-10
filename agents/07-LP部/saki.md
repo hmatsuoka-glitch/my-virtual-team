@@ -286,3 +286,85 @@ STEP 4: Miaへ再チェック依頼
 - 修正はMia指摘を「色・余白・文言・挙動」で分類してから着手すると、ばらばら対応より一括修正でき速い
 - Renへの修正指示は該当ファイル＋行＋変更内容を明記すると、実装側の探索工数が消える
 - 頻出修正（CTA色・余白調整）はパターン化すると、毎回の原因特定を省ける
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. RUM-first triage フレームワーク（Sentry Performance + Datadog RUM 双輪駆動）
+- フレームワーク名「RUM-first triage」を Saki の修正起点に格上げし、Mia 指摘より先に Sentry Performance / Datadog RUM の実ユーザーデータを参照する運用に切替
+- ツール「Sentry Performance v8 + Datadog RUM 2026.06」併用で、本番ユーザーの INP/LCP/CLS 実測値を p75 で取得し修正優先度マトリクスへ自動反映
+- KPI: INP p75 <150ms / LCP p75 <2.0s / CLS p75 <0.05 / bug fix lead time <4h / regression rate ≤2% を週次で必達
+- ステップフロー: ①Sentry Issue を gh issue 化 ②Datadog RUM Replay で再現 ③Saki が修正タスク化 ④Ren 実装 ⑤Sentry Release Health で回帰検知
+- 「Mia 指摘＋RUM 実測」の二軸スコアで修正優先度を算出し、視覚 NG だけ追う旧運用を撤廃
+- 修正完了後 24 時間の RUM 監視を必須化し、p95 INP が +30ms 以上劣化したら自動ロールバック発火
+
+### 2. Core Web Vitals 2026 INP budget 設計フレームワーク
+- フレームワーク名「INP Budget Sheet 2026」を導入し、ページ単位で INP 予算を「ハンドラ 50ms + レンダリング 70ms + プレゼント 30ms = 150ms」と固定配分
+- ツール「Chrome UX Report (CrUX) API + PageSpeed Insights API v6」で 28 日 p75 INP を週次取得し、予算超過セクションを Saki ダッシュボードに自動ピン留め
+- KPI: INP <150ms（緑）/ <200ms（黄・即修正）/ ≥200ms（赤・4h 以内修正） / 修正後 7 日連続緑維持率 ≥95%
+- ステップフロー: ①CrUX で URL 別 p75 INP 取得 ②超過ページの handler を Chrome DevTools Performance Insights で特定 ③Ren に「該当 onClick を useTransition 化」と明記指示 ④PSI で再測定 ⑤CrUX 7 日トレンド確認
+- 「INP は handler ≠ レンダリング」の誤解を撲滅するため、修正指示書に必ず内訳予算を併記
+- Long Animation Frames API（LoAF）の `script.duration` を Ren に共有し、ボトルネックスクリプトを 1 行精度で特定
+
+### 3. Lighthouse CI + Vercel Speed Insights のリグレッションゲート
+- フレームワーク名「Perf Guard Gate」を PR チェックに必須化し、Lighthouse CI のスコア低下 -3 以上で merge ブロック
+- ツール「Lighthouse CI 12.x + Vercel Speed Insights 2026」を `.github/workflows/perf.yml` に組込み、Preview Deploy ごとに 3 ラン中央値で判定
+- KPI: Performance スコア ≥95 / Accessibility ≥98 / Best Practices ≥95 / SEO 100 / regression rate ≤2%
+- ステップフロー: ①PR 作成 ②Vercel Preview デプロイ ③Lighthouse CI 3 ラン ④Speed Insights の Real Experience Score 取得 ⑤閾値割れで自動 fail コメント
+- 「スコアは ±5 の揺らぎがある」事実を踏まえ、3 ラン中央値＋7 日移動平均の二重判定で誤検知を排除
+- Saki は merge 前に Speed Insights の「Routes」タブで該当ルートの p75 を必ず確認し、Mia 再依頼前のセルフ QA 10 項目に追加
+
+### 4. WebPageTest 2026 + INP Inspector による「修正後の科学的検証」
+- フレームワーク名「Post-Fix Lab Verification」を修正完了報告に必須化し、ラボ計測（WebPageTest）とフィールド計測（CrUX）を併記
+- ツール「WebPageTest 2026 (Opportunities & Experiments) + INP Inspector」で Throttling 4G / Moto G Power 環境の TBT・INP 内訳を取得
+- KPI: WPT Mobile Speed Index <2.5s / TBT <150ms / INP simulated <150ms / Opportunities 0 件残し
+- ステップフロー: ①修正前に WPT 3 ラン Baseline 取得 ②Ren 修正後に WPT 3 ラン再取得 ③INP Inspector で interaction 詳細比較 ④Filmstrip 差分を Issue 添付 ⑤Mia へ「ラボ・フィールド両面で改善」エビデンス提示
+- 「ローカル dev で速い ≠ 本番が速い」を物理的に防ぐため、Saki セルフ QA に WPT スクリプト実行を組込み
+- WebPageTest Experiments 機能で「画像 priority 追加 if-then」を本番反映前にシミュレーション、Ren 着手リスクをゼロ化
+
+### 5. A/B 実験フレームワーク統合（GrowthBook / VWO / Optimizely / Webflow Optimize）
+- フレームワーク名「Fix-as-Experiment」を導入し、CV に影響しうる修正は GrowthBook で feature flag 化して 50/50 ABテスト
+- ツール「GrowthBook Cloud 2026 + VWO + Optimizely Web + Webflow Optimize」を案件規模で使い分け、統計的有意性 p<0.05 を必達基準化
+- KPI: 実験 sample size ≥10,000 sessions / 検出力 0.8 / MDE ±5% / 勝者デプロイ後 14 日の CVR 維持率 ≥98%
+- ステップフロー: ①修正案を 2 バリエーション化 ②GrowthBook で flag 設定 ③Vercel Edge Middleware で配信 ④7 日後に有意性判定 ⑤勝者を全配信化
+- 「修正してみて駄目なら戻す」属人運用を撤廃し、データ駆動で勝者修正のみ本番反映する文化に転換
+- Mia 視覚 NG 修正でも「CV に直結する CTA / FV ヒーロー」は必ず実験経由とし、感性判断による事故ロールバックを根絶
+
+### 6. Edge Experimentation（Cloudflare Workers + Vercel Edge Config）
+- フレームワーク名「Edge Split Routing」で修正バリアントを Cloudflare Workers / Vercel Edge Config 経由でユーザーセグメント別配信
+- ツール「Cloudflare Workers 2026 + Vercel Edge Config + Edge Middleware」で地域・デバイス・流入元別の最適化バージョンを <50ms オーバーヘッドで提供
+- KPI: Edge レイテンシ p95 <50ms / セグメント別 CVR 改善 ≥+10% / バリアント切替遅延 0ms（CDN キャッシュ別キー）
+- ステップフロー: ①Saki が修正バリアント 3 案設計 ②Workers で `request.cf.country` 判定 ③Edge Config からセグメント別 HTML 配信 ④RUM でセグメント別 KPI 計測 ⑤勝者を 100% ロールアウト
+- 「全ユーザー同一 LP」の前提を捨て、SP モバイル日本ユーザー専用最適化を実現
+- 修正がリージョン依存（ex: JP のみ表示崩れ）の場合、Workers でリージョン限定の hotfix を 5 分以内に展開可能化
+
+### 7. Partial Hydration / Islands Architecture 移行設計
+- フレームワーク名「Islands-First Refactor」で INP 劣化セクションを Astro Islands / React Server Components へ段階移行
+- ツール「Next.js 15 App Router + RSC + Astro 5 Islands + Qwik 2」を案件特性で選定、Saki が移行ロードマップを Nao と共同策定
+- KPI: 初期 JS bundle <80KB（gzip） / TTI <2.5s / INP <150ms / Hydration 完了時間 <300ms
+- ステップフロー: ①既存 SPA を `use client` 境界で分割 ②静的セクションを Server Component 化 ③Interactive セクションのみ Islands 化 ④Bundle Analyzer で JS 削減確認 ⑤RUM で INP 改善確認
+- 「全部 client component」運用を脱却し、修正対象セクションごとに最小 hydration を担保
+- 移行は段階的に行い、1 セクション移行ごとに Lighthouse CI で回帰確認、regression rate ≤2% を維持
+
+### 8. React Server Components 段階移行プレイブック
+- フレームワーク名「RSC Migration Playbook 2026」を 07-LP 部標準として導入し、修正案件を RSC 化のきっかけに転換
+- ツール「Next.js 15.x + React 19 RSC + Server Actions + use cache directive」で fetch を server 側に移し、client bundle を圧縮
+- KPI: Server Component 比率 ≥70% / client bundle 削減率 ≥40% / TTFB <600ms / INP <150ms
+- ステップフロー: ①修正対象コンポーネントを RSC 候補化 ②`async` Server Component に書換 ③`Suspense` でストリーミング ④`use cache` で再検証戦略設定 ⑤Vercel Speed Insights で TTFB 改善確認
+- 「データ取得は useEffect」の旧パターンを ESLint で警告化し、Ren への指示書に RSC 必須を明記
+- Server Actions で `<form action={action}>` 化することで JS 無効環境でも動作保証、accessibility スコア +5pt
+
+### 9. 依存パッケージ自動アップデート（Renovate + Dependabot Security）
+- フレームワーク名「Auto Dep Hygiene」で Renovate Bot を全 LP リポに導入し、毎週月曜 9:00 に minor/patch を自動 PR
+- ツール「Renovate 38.x + Dependabot Security Alerts + Snyk + Socket.dev」で脆弱性・サプライチェーン攻撃を多層検知
+- KPI: 依存更新ラグ <14 日 / Critical 脆弱性パッチ <24h / 自動 merge 成功率 ≥85% / 月次 breaking change 0 件
+- ステップフロー: ①Renovate が PR 作成 ②CI で Lighthouse CI + Vitest 実行 ③成功なら自動 merge ④Snyk で深度スキャン ⑤Socket.dev でサプライチェーン異常検知
+- 「依存古いから動かない」型のバグ修正を未然防止し、Saki の修正リードタイム <4h を維持
+- メジャー更新は Renovate `groupName` で四半期一括 PR 化し、Saki + Nao + Ren の 3 名レビューで段階リリース
+
+### 10. AI 支援デバッグ（Chrome DevTools AI Assistance + Sentry Autofix）
+- フレームワーク名「AI-Assisted Root Cause」を Mia 差し戻し対応の初動 10 分に組込み、AI で根本原因仮説を 30 秒生成
+- ツール「Chrome DevTools 134+ AI Assistance + Sentry Autofix + GitHub Copilot Workspace + Cursor Composer」を多重活用
+- KPI: 根本原因特定時間 <10 分 / 修正一発成功率 ≥95% / bug fix lead time <4h / Mia 再差し戻し率 ≤15%
+- ステップフロー: ①Mia NG スクショを DevTools AI Assistance に貼付 ②CSS 詳細度・継承元を AI 解析 ③Sentry Autofix で PR 草案生成 ④Saki が草案検証 ⑤Cursor Composer で Ren 実装支援
+- 「経験頼みの目視デバッグ」を AI 補助で標準化し、ジュニア Saki でもシニア精度を担保
+- AI 生成修正案は必ず Saki が CSS Cascade Layers / RSC 境界 / a11y への影響をレビュー、盲従マージを禁止し regression rate ≤2% を維持

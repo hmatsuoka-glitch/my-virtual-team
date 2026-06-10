@@ -374,3 +374,92 @@
 - 7社の案件進行は「ステータス・次アクション・期日」の3列ダッシュボードに集約すると、各案件を個別に追うより俯瞰が速く抜け漏れが減る
 - 提案書は過去受注案件のテンプレを複製して差分編集すると、白紙作成より速く通過率も安定する
 - SNS運用ルールのOK/NGはNotion単一シートを正版にすると、Slack散在情報での認識ズレと再確認が消える
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. MEDDPICC商談クオリフィケーション7軸を初回MTGで完全充足
+- 2026年のB2B商談クオリフィケーション標準は MEDDPICC（Metrics / Economic Buyer / Decision Criteria / Decision Process / Paper Process / Identify Pain / Champion / Competition）
+- 既存のBANT 4項目を MEDDPICC 7軸に拡張し、初回ヒアリングテンプレを8項目→11項目へ刷新する
+- Metrics（数値目標）：応募月N人・採用単価Y円・歩留まり率Z% を必ず3軸で確認する
+- Economic Buyer（最終決裁者）と Champion（社内推進者）を別人として識別し、両者の役職・在籍年数・過去決裁案件を Notion CRM に記録する
+- Paper Process（押印フロー）の所要日数を初回MTGで確認し、契約クロージング日数の見積もり精度を ±2日に高める
+- Salesforce Sales Cloud Einsteinの MEDDPICC スコアリング機能で各案件をリアルタイム採点し、7軸全て埋まるまで提案着手を禁止
+- 運用フロー：初回MTG → MEDDPICC 11項目記入 → Einsteinスコア70点未満なら2回目ヒアリング必須 → 70点以上で提案着手
+- KPI目標：MEDDPICC導入後の商談勝率 35%→52%、初回提案空振り率 月2件→0件
+
+### 2. NRR≥110%／GRR≥95%を北極星KPIに据えた Gainsight 連動ヘルススコア v2
+- 2026年のCS業界標準KPIは NRR（Net Revenue Retention）≥110%・GRR（Gross Revenue Retention）≥95%・Logo Churn ≤5%
+- 既存のヘルススコア100点満点を Gainsight CS Cloudに移行し、自社カスタム配点（利用30/KPI25/コミュ20/支払15/満足10）を保ちつつAI予測解約確率を追加
+- 各クライアントのMRR・契約残月数・利用ログから Gainsight Horizon AI が90日以内の解約確率を週次算出し、確率20%超で Red Alert を自動発火
+- 7社のNRR・GRR・EBV（Expansion Bookings Value）を Notion ダッシュボードに統合し、Harutoの週次定例で30秒で全社ヘルス把握を可能にする
+- 運用フロー：毎週月曜朝 Gainsight 自動同期 → AI解約確率20%超を抽出 → 当週中にリカバリMTG設定 → 翌週ヘルススコア再計測
+- KPI目標：NRR 95%→112%、GRR 88%→96%、Logo Churn 12%→4%、CSAT 4.2→4.6（5点満点）
+- Red Alert発火から介入着手までのリードタイムを48時間→4時間に短縮
+
+### 3. QBR（Quarterly Business Review）テンプレを ChurnZero 連動で四半期固定運用
+- 2026年のCS標準セレモニーは QBR（Quarterly Business Review）：四半期に1度クライアント経営層と「成果振り返り＋次四半期計画」を90分で実施する
+- ChurnZero の QBR Builder で7社全クライアントに四半期1回の QBR を強制スケジューリングし、抜け漏れをゼロ化する
+- QBRアジェンダ固定6セクション：①前四半期KPI実績 vs 目標 ②達成/未達の要因分析 ③EBV機会の特定 ④次四半期戦略 ⑤Mutual Action Plan 更新 ⑥Executive Sponsor 確認
+- 既存の月次レビューを「軽量MTG」として残しつつ、QBR を「経営層との戦略MTG」と明確に位置付ける二層構造に再設計
+- 運用フロー：四半期初月初週 ChurnZero 自動アジェンダ生成 → Akari/Shunから前Q実績データ受領 → QBR本番 → 議事録を Notion CRMへ同期 → 次Q目標値を Gainsight に登録
+- KPI目標：QBR実施率 100%（7社×4回＝28回/年）、QBR後のExpansion成約率 25%→48%、契約更新意向確認の前倒し成功率 60%→95%
+- QBR1回あたり EBV 平均60万円 の上積みを目標化
+
+### 4. RACI/RAPID 二刀流マトリクスで7社×複数部署案件の決裁ボトルネックを解体
+- 既存の RACI（R/A/C/I）に加え、Bain考案の RAPID（Recommend / Agree / Perform / Input / Decide）を併用し、意思決定プロセスの可視化を二段強化する
+- RACIは「タスク担当」を、RAPIDは「意思決定構造」を表現する。両者の役割定義の混同を Notion DB で構造的に防ぐ
+- 各案件の意思決定マトリクスを Notion Database View で「行=決定事項／列=R/A/P/I/D」の5列で表現し、Dは必ず1名のみ記入を Validation で強制
+- LP案件・SNS案件・提案案件の3カテゴリで Decide 権限保有者の役職を事前定義（LP=kaito、SNS=sho、提案=ryota）
+- 運用フロー：案件起票時に RAPID マトリクス記入必須 → Decide欠如の案件は Notion Formula で赤色表示 → 朝スキャンで Decide 補完を即実行
+- KPI目標：決裁ストップ起因の案件遅延 月3件→0件、複数部署案件の平均クロージング日数 14日→7日、決裁者交代時の引き継ぎ漏れ ゼロ化
+
+### 5. JTBD（Jobs To Be Done）インタビューでクライアント本音の課題構造を再設計
+- 表層ヒアリング（「応募を増やしたい」）の3階層下にある「経営者が雇いたい人物像・採用後に解決したい現場ジョブ」を JTBD 5問テンプレで掘り下げる
+- JTBD 5問：①その採用で何を達成したいか ②達成できなかった時の損失は何か ③過去どんな手段を試したか ④代替手段は何か ⑤理想の応募者像を1人挙げると誰か
+- Catalyst Software の JTBD Interview Library を参照し、7社全クライアントで年2回の JTBD 深掘りMTG を実施する
+- 既存の月次MTG（成果報告）とは別枠で「JTBD MTG（60分）」を四半期に1回設定し、提案の根拠を表層から深層へ転換する
+- 運用フロー：JTBD 5問記入 → クライアントの言葉ママで Notion 保存 → 提案書「現状課題」セクションに JTBD 引用を必須化 → 経営者は「自分の言葉が反映された」と判断スピードが3倍
+- KPI目標：JTBD 引用提案の受注率 +28%、クライアント NPS 32→58（業界平均45を超え）、JTBD インタビュー実施率 7社×2回/年＝14回完全実施
+
+### 6. Land-Expand-Renew 3フェーズ戦略で EBV を月次トラッキング
+- 既存契約のライフサイクルを Land（新規契約）→ Expand（追加発注）→ Renew（更新）の3フェーズで明確化し、各フェーズ別の CS 活動密度を Vitally で管理する
+- Land フェーズ：契約締結〜90日のオンボーディング集中期間、CS活動週3回（Slack3・MTG1）
+- Expand フェーズ：90日〜契約終了2ヶ月前、アップセル・クロスセル提案を月1回必須化、EBV を月次計測
+- Renew フェーズ：契約終了2ヶ月前〜更新締結、QBR連動で更新MTG を3週間前にセット、NPS 50以上のクライアントは自動更新条項提案
+- EBV（Expansion Bookings Value）の月次目標：7社合計で月100万円、四半期300万円、年1,200万円
+- 運用フロー：Vitally の Lifecycle Stage 自動判定 → フェーズ別タスクテンプレ自動展開 → 月末 EBV 集計 → Haruto 週次定例で進捗共有
+- KPI目標：EBV 達成率 95%、Expand フェーズの追加発注率 35%→62%、Renew フェーズの更新率 78%→94%
+
+### 7. Account Mapping「Powered Org Chart」でクライアント組織内のキーパーソン網羅
+- 2026年の Account-Based Selling 2.0 では、クライアント組織内の Champion / Economic Buyer / Detractor を組織図上で可視化する Powered Org Chart が標準
+- EverAfter の Account Mapping 機能で、7社全クライアントの組織図を Notion CRM に取り込み、各人物の影響力スコア（1-5）を四半期ごとに更新する
+- 影響力スコア5＝Economic Buyer、4＝Champion、3＝Neutral、2＝Skeptic、1＝Detractor の5段階で全関係者を分類する
+- Detractor（社内反対派）が判明したクライアントは、Detractor の懸念を提案書「リスク・前提」欄で先回り解消する戦術を必須化
+- 運用フロー：四半期初月に組織図再ヒアリング → EverAfter で更新 → 影響力スコア集計 → Detractor 識別 → 提案書修正
+- KPI目標：組織図網羅率 80%→100%、Detractor 懸念の事前解消率 0%→80%、決裁者交代起因の失注 四半期1件→0件
+- 担当窓口の人物名・役職・在籍年数・過去発言を Notion CRM の人物カードに集約
+
+### 8. Slack Connect + HubSpot Service Hub による「24時間以内返信SLA」自動化
+- 2026年のCS標準SLAは「初回返信4時間以内・解決提案24時間以内」。Slack Connect でクライアント企業と直接接続したチャンネルに HubSpot Service Hub のチケット管理を連動する
+- クライアントからの問い合わせを Slack Connect で受信 → HubSpot Service Hub へ自動チケット化 → 4時間以内に Acknowledgement 返信を Workflow で強制
+- 返信遅延が発生した場合は Slack DM で ryota にエスカレ、6時間超過で Haruto へ自動エスカレーション
+- 既存の Gmail メール対応を Slack Connect に段階移行し、7社のうち翔星建設・宮村建設の2社で先行運用開始
+- 運用フロー：問い合わせ受信 → 自動チケット化 → SLA計測開始 → 4時間Alert → 24時間Alert → 解決・クローズ
+- KPI目標：初回返信4時間以内達成率 75%→98%、24時間解決率 60%→90%、CSAT 4.2→4.7、Slack Connect 移行クライアント数 2社→7社（2026年Q3まで）
+
+### 9. Hightouch Reverse ETL で Akari/Shun データを Gainsight に自動同期し提案精度を底上げ
+- Akari（採用広告レポート）・Shun（Airworkデータ分析）・Deng（データ基盤）の3者数値を、Hightouch Reverse ETL で Gainsight CS Cloud に自動同期する
+- 同期項目：応募CVR・応募単価・媒体別実績・採用人数・LP遷移率・SNSフォロワー増減 を15分間隔で更新
+- Gainsight 内で「クライアント実績の閾値超過アラート」を設定し、応募CVR 業界平均比-20% を下回ったら即 Alert 発火
+- 提案書作成時に Gainsight の最新数値を Notion AI に取り込み、AI第1稿の数字根拠精度を向上させる
+- 運用フロー：データ更新（Airwork/GA4）→ Hightouch 同期 → Gainsight 閾値判定 → Alert 発火 → ryota が72時間以内に介入提案
+- KPI目標：データ齟齬起因の数字訂正依頼 月3件→0件、Alert発火から提案着手までのリードタイム 1週間→2日、提案書の数字根拠引用率 60%→100%
+
+### 10. Notion AI Account Hub + Totango で「7社×40指標」を1画面ダッシュボード化
+- 7社×40指標（NRR・GRR・MRR・契約残月数・ヘルススコア・解約確率・EBV・QBR実施有無・JTBD更新月・RACI完備度・Detractor有無・SLA達成率・MEDDPICC充足率・CSAT・NPS・利用頻度等）を Totango Spark で統合管理する
+- Notion AI Account Hub で「7社統合ダッシュボード v3」を構築し、Totango から週次自動同期する
+- ダッシュボード3層構造：①7社俯瞰（赤黄緑＋NRR・GRR・解約確率）②各社詳細（40指標）③個別案件（提案中・進行中・完了）
+- 朝スキャン5秒で「赤フラグ案件のみピン留め」「NRR<100%社のみ強調」を実現する
+- 運用フロー：毎朝7時 Totango → Notion 自動同期 → ryota が朝スキャン5秒 → 赤案件のみ Slack DM で即対応指示 → 夕方17時 Notion 締め
+- KPI目標：朝スキャン時間 30秒→5秒、赤案件の即日対応率 60%→100%、月次ダッシュボード集計工数 8時間→0時間（完全自動化）、データ可視化カバレッジ 60指標→40指標完全網羅
+- ryota単独の管理キャパが7社→15社まで拡張可能になり、リフトラインのレバレッジを確保

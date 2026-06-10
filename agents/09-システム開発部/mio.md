@@ -389,3 +389,75 @@ STEP 6: 差し戻し後の再チェック
 - テストは影響範囲の大きい正常系・境界値を優先設計すると、全網羅より速く重大バグを先に検出できる
 - バグ報告は「再現手順・期待値・実際値」の3点テンプレにすると、Ao/Rikuの修正往復が減る
 - 回帰テストを自動化スイート化すると、修正毎の手動再確認工数が消える
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Test Pyramid（Mike Cohn）からTesting Trophy（Kent C. Dodds）へのハイブリッド構造運用
+- フレームワーク：Test Pyramid（Unit60/Integration30/E2E10）とTesting Trophy（Static/Unit/Integration主体/E2E）の二段運用を導入する。
+- ツール：Vitest 3.0（Unit/Integration）＋Playwright 1.50（E2E）＋TypeScript strict＋ESLint `typescript-eslint` v8で静的層を担保する。
+- KPI：Statement Coverage ≥85%、Branch Coverage ≥80%、Integration層比率30〜50%、E2E実行時間 ≤5分、CI総時間 ≤8分。
+- ステップ：STEP1 Naoの設計書から「フロント主導案件＝Trophy／API主導案件＝Pyramid」を判定する。STEP2 各層の目標カバレッジを `vitest.config.ts` の `coverage.thresholds` に明示する。STEP3 Playwrightは「クリティカル5フロー」に絞り E2E肥大化を物理ブロックする。STEP4 CI上で構造比率を `coverage-summary.json` から自動算出しSlack投稿する。
+- 期待効果：「カバレッジ高いがバグ多い」状態を構造比率KPIで撲滅し、本番Escape Defect Rateを ≤1%に維持する。
+
+### 2. Mutation Testing（StrykerJS）による「テストの強度」可視化
+- フレームワーク：Mutation Testing（変異体注入→生存率測定）でアサーション強度を定量化する。
+- ツール：StrykerJS 8（@stryker-mutator/core ＋ @stryker-mutator/vitest-runner）をnightly GitHub Actionsで実行する。
+- KPI：Mutation Score ≥75%、Survived Mutants（生存変異体）週次 ≤20件、High-priority Survived ≤0件、実行時間 ≤30分。
+- ステップ：STEP1 PR毎ではなくnightly専用ジョブ（02:00 JST）でStrykerを起動する。STEP2 `stryker.conf.mjs` で `mutate: ['src/**/*.ts']`・`thresholds: { high: 80, low: 60, break: 75 }` を設定する。STEP3 結果HTMLレポートをGitHub Pagesに公開し、Survived Mutantsを `mio-quality` Slackチャンネルへ自動投稿する。STEP4 朝レビューで「最重要Survived 3件」を該当エージェント（Riku/Ao）へ差し戻す。
+- 期待効果：カバレッジ85%でMutation Score40%の「見せかけテスト」を構造検出し、本番バグ流出を90%削減する。
+
+### 3. Contract Testing（Pact）でFE-BE間の契約破壊を実装段階でブロック
+- フレームワーク：Consumer-Driven Contract Testing（Pact仕様v4）でFEが期待するAPI形状をBEが保証する。
+- ツール：Pact JS 13（@pact-foundation/pact）＋ Pact Broker（OSS）＋ OpenAPI 3.1スキーマと `openapi-msw` 連携で msw 2.5 モック自動生成する。
+- KPI：Contract Verification成功率 100%、契約破壊検出時間 ≤5分、本番デプロイ後のFE-BE不整合インシデント ≤0件/四半期、契約数 ≥API総数の80%。
+- ステップ：STEP1 Riku（FE）がPact Consumer Testで期待レスポンスを記述する。STEP2 Pact Brokerへ契約publishする。STEP3 Ao（BE）のCIで `pact-verifier` がProvider実装と契約を検証する。STEP4 仕様変更時はOpenAPIスキーマから `openapi-msw` でmswモック自動再生成し、Mioの手書きモック工数をゼロ化する。
+- 期待効果：「FEはモックで通るがBE結合で500エラー」の典型障害を実装段階で物理ブロックし、Escape Defect Rateを ≤0.5%に維持する。
+
+### 4. Property-Based Testing（fast-check）で境界値の網羅性を数学的に保証
+- フレームワーク：Property-Based Testing（QuickCheck系）で「全ての入力で成り立つ性質」を1000ケース自動生成検証する。
+- ツール：fast-check 3.20 ＋ Vitest 3 統合（`@fast-check/vitest`）＋ shrink機能で最小反例を自動抽出する。
+- KPI：重要ロジックのProperty Test適用率 ≥30%、shrink後の最小反例検出時間 ≤10秒、Property違反検出時の本番未流出率 100%、生成ケース数 ≥1000/プロパティ。
+- ステップ：STEP1 純粋関数（バリデーション、金額計算、日付計算、文字列正規化）を対象選定する。STEP2 `fc.assert(fc.property(fc.string(), fc.integer({min:0,max:1000}), (s,n) => fn(s,n) === expected))` 形式で性質を記述する。STEP3 失敗時はshrinkで最小反例を取得し、ユニットテストへ昇格する。STEP4 nightly実行で `numRuns: 10000` の徹底スキャンを行う。
+- 期待効果：手書きでは絶対に到達しない境界値（Unicode制御文字、最大整数±1、空配列、深いネスト）を自動探索し、境界値起因のFlaky率を ≤0.5%に圧縮する。
+
+### 5. Visual Regression Testing（Chromatic）でUI崩れをPR段階で100%検出
+- フレームワーク：Visual Regression Testing（Storybook駆動）でコンポーネント単位の見た目差分を自動検出する。
+- ツール：Storybook 8.4 ＋ Chromatic（TurboSnap有効）＋ Playwright Visual Comparisons（`toHaveScreenshot()` ピクセル閾値0.1%）の二重ガード。
+- KPI：UI回帰検出率 ≥99%、誤検知率 ≤2%、Chromaticビルド時間 ≤3分、視覚差分レビュー時間 ≤5分/PR、本番UI崩れインシデント ≤0件/月。
+- ステップ：STEP1 Riku実装の全UIコンポーネントにStorybookストーリーを義務化する（`*.stories.tsx` 必須）。STEP2 PRごとにChromaticがTurboSnapで変更コンポーネントのみ撮影しdiff生成する。STEP3 Mioが差分UIを2分でApprove/Denyする。STEP4 E2EフローはPlaywrightの `expect(page).toHaveScreenshot('flow.png', { maxDiffPixelRatio: 0.001 })` で全体回帰を保証する。
+- 期待効果：Tailwindユーティリティ追加で他コンポーネントの余白が崩れる典型ミスを100%検知し、本番デプロイ後の見た目バグを90%削減する。
+
+### 6. Performance Testing（k6 + Lighthouse CI）の二軸負荷検証
+- フレームワーク：Performance Pyramid（Lighthouse=単発計測／k6=継続負荷／Gatling=エンタープライズ負荷）の三層構造で運用する。
+- ツール：Lighthouse CI 0.14（PR毎）＋ k6 0.55（nightly、想定traffic×3倍）＋ Grafana k6 Cloud でp95/p99可視化する。
+- KPI：Lighthouse Performance ≥90、LCP ≤2.5s、CLS ≤0.1、INP ≤200ms、k6 p95レイテンシ ≤500ms、エラー率 ≤0.1%、想定traffic×2倍で5分連続耐久。
+- ステップ：STEP1 `lighthouserc.json` に `assertions: { 'categories:performance': ['error', {minScore: 0.9}] }` を設定しPRブロック条件化する。STEP2 k6スクリプト（`k6 run --vus 100 --duration 5m`）をnightlyで実行する。STEP3 データ量10倍・100倍シナリオを月次実行しN+1とインデックス不足を早期検出する。STEP4 閾値違反をSlack `mio-perf` チャンネルへ自動通知する。
+- 期待効果：「本番リリース前1回のみ負荷試験」の典型運用を脱し、3か月後のデータ増加による劣化を構造的に予防する。
+
+### 7. Chaos Engineering（Chaos Mesh / Toxiproxy）で復元力を実測
+- フレームワーク：Chaos Engineering（Netflix Simian Army由来）で「壊れた状態の挙動」を意図的に観測する。
+- ツール：Toxiproxy 2.9（ネットワーク遅延・切断注入）＋ Chaos Mesh 2.7（K8s環境）＋ Playwright `context.setOffline(true)` でFE側もカオス注入する。
+- KPI：Chaos実験成功率 ≥95%、平均復旧時間（MTTR）≤30秒、リトライ成功率 ≥99%、ユーザー体感ダウンタイム ≤5秒、月次Chaos実験回数 ≥4回。
+- ステップ：STEP1 Toxiproxyで「DB接続500ms遅延」「外部API完全停止」「ネットワーク帯域90%カット」の3シナリオを定義する。STEP2 ステージング環境でカオス注入下E2Eを実行する。STEP3 FE側の自動リトライ・オフラインバナー・データ保持を `expect(page.getByRole('alert')).toContainText('再接続中')` で検証する。STEP4 結果をPostmortem形式でNotion DBに記録し、改善策をNao設計書へ逆流させる。
+- 期待効果：地下鉄やエレベーターでの操作・外部API障害・DB遅延等の実利用環境の脆弱性を本番前に100%検出し、SLA 99.9%を維持する。
+
+### 8. BDD（Cucumber）とGiven-When-Then駆動の受入テスト自動化
+- フレームワーク：BDD（Behavior-Driven Development）＋ Gherkin構文でステークホルダー共通言語化する。
+- ツール：Cucumber.js 11 ＋ Playwright連携（`@cucumber/cucumber` ＋ `playwright-bdd`）＋ Notion DB上で Feature ファイル管理する。
+- KPI：受入基準カバー率 100%、Feature→自動テスト変換時間 ≤30分/シナリオ、Naoの受入基準とテスト1:1対応率 100%、クライアントレビュー時間 ≤15分。
+- ステップ：STEP1 Nao設計書の受入基準を `Feature: 応募フォーム送信 / Scenario: 正常系 / Given ログイン済み / When フォーム送信 / Then 成功画面表示` のGherkin形式で必須化する。STEP2 `playwright-bdd` で `*.feature` → Playwright テストコード自動生成する。STEP3 クライアント月次レポートに Feature ファイルそのままを添付し、QA透明性を担保する。STEP4 nori（リーガル）が Feature 内の文言を事前チェックする。
+- 期待効果：「実装後にテスト設計」の手戻りを撲滅し、設計→受入テスト→E2Eの一貫性を100%担保する。
+
+### 9. Security Testing 多層防御（OWASP ZAP + Snyk + Semgrep + Trivy）
+- フレームワーク：OWASP Top 10 2021＋ SAST（静的解析）＋ DAST（動的解析）＋ SCA（依存解析）＋ Container Scanの4層構造で運用する。
+- ツール：OWASP ZAP 2.15（DAST）＋ Snyk Code/Open Source（SCA）＋ Semgrep（SAST、`p/owasp-top-ten` ルールセット）＋ Trivy 0.58（コンテナ脆弱性）＋ Pentera AI（継続的ペネトレ）。
+- KPI：Critical脆弱性 0件、High脆弱性 ≤3件（48h以内修正）、依存脆弱性Critical滞留 ≤0件、ペネトレ検出率 ≥99%、SAST False Positive率 ≤10%。
+- ステップ：STEP1 PRごとにSemgrep（10秒）＋Snyk（30秒）でSAST/SCAを実行する。STEP2 nightlyでZAP Baseline Scan（5分）＋ZAP Full Scan（30分）をステージングに対し実行する。STEP3 リリース前にTrivyでDockerイメージスキャンする。STEP4 月次でPentera AIによる継続ペネトレを実施し、OWASP A01〜A10の検出率を可視化する。
+- 期待効果：「年1回外注のセキュリティ監査」から「継続的セキュリティテスト」へ移行し、本番脆弱性流出率を ≤0.1%に維持する。
+
+### 10. Flaky Test撲滅プログラム（ISO/IEC/IEEE 29119 準拠の品質ガバナンス）
+- フレームワーク：ISO/IEC/IEEE 29119（ソフトウェアテスト国際標準）準拠の Test Quality Management System を構築する。
+- ツール：Vitest 3 `--retry` ＋ Playwright `retries: 2` ＋ BuildPulse（Flaky検出SaaS）＋ Datadog CI Visibility（テスト実行履歴の分析）。
+- KPI：Flaky Test Rate ≤0.5%、隔離後修正時間 ≤48時間、Flaky起因の本物バグ見逃し ≤0件、テスト実行履歴30日保持率 100%、Quarantine滞留 ≤5件。
+- ステップ：STEP1 Vitest/Playwrightの `retry: 1` 設定でリトライ成功テストを自動Flaky判定する。STEP2 BuildPulseがFlaky検知でGitHub Issue自動起票＋ `@quarantine` タグ付与する。STEP3 48時間以内に修正完了またはテスト削除をルール化（責任者：直近で該当ファイルを編集したエージェント）。STEP4 月次でFlaky Rateを Akari の品質レポートに数値投稿し、Kai/Sora への透明性を確保する。
+- 期待効果：「Flakyだから無視」文化を撲滅し、CI信頼度を95%以上維持、本物バグの見逃しを構造的にゼロ化する。

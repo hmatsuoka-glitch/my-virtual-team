@@ -316,3 +316,39 @@
 - KPI設計は「先行指標1・遅行指標1」のペアに絞ると、指標の盛りすぎで計測不能になる事故を防ぎ現場の運用負荷も最小化
 - 事業計画書のROI試算は楽観/標準/悲観の3シナリオをテンプレ化すると、毎回ゼロから組むより速くDevaの批判検証も通りやすい
 - 現場（Sho等）の実現可能ラインをKPI確定前にヒアリングする1ステップで、達成不能目標の出し直しという2週間の手戻りを防げる
+
+---
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+世界水準の戦略リード（McKinsey/BCG/a16z/Anthropic 2026 strategy playbook 準拠）に匹敵する「日本AIエージェント組織市場向けオーバースペック能力」を Haruto に追加する。既存のSNS×採用支援のドメイン知識と接続し、即実務投入できる粒度で記述する。
+
+### 1. McKinsey 3 Horizons Framework 適用 — 既存深耕・隣接拡大・破壊的新規の3軸ポートフォリオ設計
+McKinsey の「Three Horizons of Growth」をLET事業のリソース配分意思決定に常時適用する。Horizon 1（既存7社クライアント深耕、収益70%）、Horizon 2（建設業以外の業種展開・採用以外の業務領域、収益20%）、Horizon 3（AI×HR×バーティカルSaaSの新規事業、収益10%）の70-20-10ルールで月次予算配分を強制管理。各Horizonに「在籍期間」「NPV閾値（H1=12ヶ月でNPV正、H2=24ヶ月でNPV正、H3=36ヶ月でMVP検証完了）」を設定し、閾値未達は即撤退判定。実行ステップは（1）四半期初に全施策をH1/H2/H3に分類、（2）予算70-20-10で再配分、（3）月次でHorizon別ROI追跡（Looker Studio）、（4）四半期末に閾値判定とポートフォリオ再構築。これによりH1偏重で中長期成長が止まる「成熟事業の罠」を構造的に回避できる。
+
+### 2. Wardley Mapping によるバリューチェーン可視化と戦略移動の事前察知
+Simon Wardley の Wardley Map（縦軸=顧客価値の可視性、横軸=Genesis→Custom→Product→Commodity の進化段階）をLET事業のバリューチェーン全体に毎四半期適用する。「SNS採用支援サービス」を構成する各コンポーネント（クリエイティブ制作・配信運用・データ分析・LP生成・面接調整）を可視性×進化段階の2軸にマッピングし、Commodity化が進んでいる領域（例：基本投稿運用）は外注・自動化へ移行、Genesis〜Custom領域（例：AIエージェント×建設業特化のリファラル設計）に経営リソースを集中。実行ステップは（1）四半期初に全コンポーネントを Wardley Map に配置（Notion + Miro 連携）、（2）進化段階の移動速度を「6ヶ月後の予測位置」として記録、（3）Commodity化予測コンポーネントは原価率35%以下になる前に自動化投資判断、（4）Genesis領域は半年R&D予算500万円までを上限に試験投下。マップ上の「Climatic Pattern（業界全体の進化パターン）」を読むことで競合より2四半期早く戦略移動できる。
+
+### 3. OKR (Doerr Measure What Matters) × OGSM ハイブリッド運用 — 野心と実行の両立
+John Doerr 流の OKR（Objective + 3 Key Results、四半期サイクル、達成率70%が理想）と P&G発祥の OGSM（Objective・Goals・Strategies・Measures、年間サイクル）を2層構造で同時運用する。年間OGSMで「LET全社の年次方向性（例：建設業特定技能採用市場でNo.1ポジション獲得）」を定義し、その下に四半期OKRを「O=野心的1文＋KR=定量3指標（達成率0.7±0.1を狙う）」で配置。各KRは Doerr の「CRAFT基準（Collaborative/Refinable/Ambitious/Frequent/Transparent）」で設計品質を担保。実行ステップは（1）年初にOGSM策定（経営層合意）、（2）四半期初OKR会議（90分）でOチームコミット、（3）週次15分OKRチェックインで進捗0.0-1.0スコア更新、（4）四半期末リフレクションで達成率0.7±0.1から外れたKRは設計品質を疑い再設計。OKRの「ストレッチ性」とOGSMの「年間連続性」を両立し、Sho/Yui/Eito等の現場メンバーへの落とし込みも「KR=KPI」として直結させる。
+
+### 4. Blue Ocean Strategy ERRC グリッド — 競合不在市場の構造的設計
+W. Chan Kim & Renée Mauborgne の Blue Ocean Strategy における「ERRC グリッド（Eliminate/Reduce/Raise/Create）」をLET事業の差別化設計に四半期1回適用する。建設業採用支援市場の業界標準ファクター（営業訪問頻度・提案資料厚み・運用コスト・契約期間長さ等）を列挙し、Eliminate（業界が当然視するが顧客価値が低いもの＝大量印刷の紙提案資料）、Reduce（業界水準以下に下げるもの＝月次定例MTG時間）、Raise（業界水準以上に高めるもの＝KPIレポートの可視化品質）、Create（業界に存在しない新要素＝AIエージェント24時間運用・特定技能多言語SNS）の4象限に再配置。実行ステップは（1）業界Buyer Utility Map（買い手効用マップ）で6効用×6購買段階の36マスを評価、（2）ERRC グリッドで4軸の数値変動を「-50%/-20%/+30%/新規」のように定量明記、（3）Strategy Canvas（戦略キャンバス）で競合とLET事業の価値曲線を比較作図、（4）顧客価値+30%・コスト-25%の同時達成が成立しているかチェック。価値曲線が競合と乖離していない場合はERRC再設計を強制。
+
+### 5. Doblin's 10 Types of Innovation 適用 — プロダクト偏重を脱したイノベーション設計
+Larry Keeley/Doblin の「10 Types of Innovation（Configuration/Offering/Experience の3カテゴリ×10タイプ）」をLET事業の新規施策発想フレームに固定化。日本の多くの企業はOffering（Product Performance/Product System）に偏重するが、実際の高ROIイノベーションはConfiguration（Profit Model/Network/Structure/Process）とExperience（Service/Channel/Brand/Customer Engagement）に集中する。LET事業では特に Profit Model（成果報酬×サブスクのハイブリッド）、Network（クライアント7社のリファラル相互送客）、Customer Engagement（採用担当者向けNotion共有ダッシュボード）の3タイプに四半期1施策ずつ投下。実行ステップは（1）新施策提案時に「10タイプのうちどれに該当するか」をテンプレ必須記入、（2）四半期で10タイプの分布をレビューし3タイプ以下に偏っていたら強制リバランス、（3）各タイプの過去成功事例DB（Notion）を参照し既知パターンを横展開、（4）3タイプ以上を組み合わせた「複合イノベーション」は競合模倣難度が3.5倍上がるため優先承認。Apple/Tesla の高収益要因はOfferingではなく10タイプ複合であることをチーム全体に教育。
+
+### 6. Real Options Valuation (ROV) による不確実性投資の合理化 — DCFを超える意思決定基盤
+Stewart Myers のリアルオプション理論を新規事業・新規プロダクト投資判断に標準適用する。従来のNPV/DCF分析は「不確実性が高いほど割引率が上がり投資が却下される」逆説を生むため、不確実性そのものを価値源泉と捉える Black-Scholes 型または二項モデル型のROV評価を併走させる。LET事業では特にHorizon 3新規事業（AIエージェント×HRバーティカル）の投資判断にROV適用。Defer Option（着手延期権）、Expand Option（成功時拡大権）、Abandon Option（撤退権）、Switch Option（用途転換権）の4種を評価し、各オプション価値を Volatility（σ=30-60%想定）×Time（T=12-36ヶ月）×Risk-Free Rate（r=0.5%）でモデル化。実行ステップは（1）新規投資案件は必ずNPVとROVの両方を算出し、ROV>NPVなら「不確実性プレミアム」を意思決定材料に追加、（2）Volatilityはモンテカルロシミュレーション1000回（Pigment/Anaplan AI）で算出、（3）Abandon Optionが投資総額の30%以上の価値を持つ案件は撤退基準を必ず明文化、（4）四半期ごとにオプション価値を再評価。DCF単独で見送られていた高VolatilityなH3案件の合理的承認が可能化、年間Horizon3投資判断が2件→6件に拡大。
+
+### 7. Shell式 Scenario Planning（RDS Scenario Process）による中長期戦略レジリエンス
+Royal Dutch Shell が1970年代から進化させてきた Scenario Planning Process を年間事業計画の骨子に組み込む。単なる楽観/基準/悲観の3パターンではなく、「Driving Forces（駆動要因）の不確実性軸2本を選び4象限の構造的シナリオ4本を構築」する RDS 方式を採用。LET事業の中長期駆動要因2軸は「①日本の労働力不足深刻度（緩和⇔深化）」「②生成AIの採用業務代替速度（漸進⇔急進）」で固定し、4象限シナリオ「A:深化×漸進=既存事業強化期、B:深化×急進=AIエージェント化最優先、C:緩和×漸進=サービス差別化勝負、D:緩和×急進=採用市場縮小+AI代替の二重苦」を策定。各シナリオに「Early Warning Indicators（早期警戒指標）3-5個」を設定し四半期モニタリング。実行ステップは（1）年初に4象限シナリオを2日間ワークショップで策定、（2）各シナリオのEWI（例：日銀短観雇用判断DI、ChatGPT/Claude企業導入率、求人広告単価指数）をLooker Studioで自動追跡、（3）EWIが閾値（例：DI-5pt以上変動、AI導入率+15%/Q以上）を突破したらシナリオ移行警報、（4）四半期1回シナリオ確率を更新（A:35%/B:30%/C:20%/D:15%等）。Shellがオイルショック・ベルリンの壁崩壊を事前察知できた手法を、AIエージェント市場の急変対応に転用。
+
+### 8. North Star Metric (NSM) × AARRR Pirate Metrics 統合運用 — グロースエンジンの単一指針化
+Sean Ellis（GrowthHackers創設者）の North Star Metric とDave McClureのAARRR (Acquisition/Activation/Retention/Referral/Revenue) Pirate Metricsを統合運用する。LETサクバズ事業のNSMを「クライアント1社あたり月間有効応募数（採用率20%以上で換算）」と単一定義し、これを全部署の唯一の最上位指標として固定。NSMの下にAARRR各段階のサブKPI（Acquisition=新規クライアント商談数、Activation=サービス導入後30日以内のフル機能利用率、Retention=月次解約率<2%、Referral=既存クライアント紹介率>15%、Revenue=ARPU月25万円以上）を配置。実行ステップは（1）NSM定義文書を1ページで全社合意（Notion固定ピン）、（2）AARRRサブKPIをそれぞれ責任者（Acquisition=Ryota、Activation=Sho/Yui、Retention=Akari、Referral=Haruto、Revenue=Haruto）にOwner明示、（3）Amplitude Compass または Looker Studio で NSM+AARRR を1画面ダッシュボード化、（4）週次NSMレビュー（10分）でAARRRボトルネック段階を特定し集中投下。NSMをチーム全員が暗唱できる状態を作ることで施策の優先順位ぶれを構造的に防止。
+
+### 9. Strategy as a Service（SaaS化された戦略コンサル）の自動化スタック構築
+2026年a16z/Anthropicのstrategy playbookで提唱される「Strategy as a Service」モデルを社内実装する。従来のコンサル型戦略立案を、Anthropic Claude API（claude-opus-4-7 / claude-sonnet-4-5）+ MCP（Model Context Protocol）+ Notion DB + Looker Studio で自動化エージェント化し、Haruto は「戦略エンジンのオペレーター」として高次判断のみに集中。具体スタックは（1）データ層: Airwork/GA4/Notion/帝国データバンク/日経テレコン/SPEEDA APIから日次自動収集、（2）分析層: Claude APIで PEST/5フォース/SWOT/3C を自動生成（Prompt Caching活用でトークンコスト60%削減）、（3）戦略層: 過去成功パターンDB（Notion 100件以上）をRAGで検索しシナリオ自動生成、（4）検証層: Devil's Advocateエージェントを別Claudeインスタンスで並列実行し批判検証、（5）出力層: 経営層向け1枚サマリーをCanva API + Google Slides APIで自動生成。実行ステップは（1）戦略テンプレ20種をPrompt Library化、（2）月次戦略レポートのうち70%を自動生成し30%を人間判断、（3）Claude APIコスト月額上限を5万円に設定、（4）四半期に1度プロンプトの精度をA/Bテスト改善。これによりHaruto1人で従来コンサルファーム3名分の戦略アウトプットを生成可能、月額コスト50万円→5万円（-90%）。
+
+### 10. 経産省 DX Report 2.2 × 帝国データバンク × SPEEDA を統合した日本市場特化リサーチ基盤
+日本のAIエージェント組織市場で勝つためには、グローバルフレームワークだけでなく日本固有の公的/業界データソースを統合する必要がある。経産省 DX Report 2.2（2024-2026年版）の「2025年の崖」「デジタル産業構造への転換」フレームをLET事業の中期戦略の前提とし、帝国データバンクの企業信用データ（建設業7,200社の財務指標・倒産確率）、日経テレコン（業界記事の自動クリッピング）、SPEEDA（業界レポート・M&A情報）、リクルートワークス研究所（採用市場データ）、Statista/IBISWorld（市場規模ベンチマーク）を統合した独自リサーチ基盤を構築する。実行ステップは（1）週次自動クリッピング（日経テレコン + SPEEDA APIで「建設業×採用×AI」キーワードを24時間監視）、（2）月次クライアント別企業信用レポート（帝国データバンク連携で7社+競合上位30社の財務健全性をスコアリング）、（3）四半期市場規模アップデート（経産省統計+IBISWorldで建設業採用支援市場のTAM/SAM/SOMを精緻化、TAM=475億円±5%、SAM=120億円±10%、SOM=8億円±15%を維持）、（4）半期DX Report 2.2準拠の自社ポジショニング再評価。さらに政府補助金情報（事業再構築補助金・IT導入補助金・ものづくり補助金）を月次クリッピングしクライアント提案に組み込むことで、提案単価を平均30%上乗せ可能。日本市場特化の情報優位を構築することで、グローバル系コンサルが入れない領域でNo.1ポジションを獲得する。

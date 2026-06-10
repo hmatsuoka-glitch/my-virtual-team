@@ -309,3 +309,35 @@ STEP 4: 差し戻し後の再チェック
 - 品質チェックは「指示乖離→数値整合→論理整合」の順で走らせると、差し戻し率の高い指示乖離を先に弾けて後工程の精査が無駄にならず効率的
 - 差し戻し時は修正箇所を「該当行＋期待値＋現状値」の3点セットで返すと、担当の往復確認が消え再提出が1回で通る
 - 頻出の差し戻し理由Top5をチェックリスト化し提出側に事前配布すると、初回品質が上がりQA総量が減る
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. ISO/IEC 25010:2023 8品質特性フルカバレッジQAマトリクス — 国際標準準拠の8軸並列評価
+全成果物を ISO/IEC 25010:2023 の8品質特性（Functional Suitability / Performance Efficiency / Compatibility / Interaction Capability / Reliability / Security / Maintainability / Flexibility）に1案件1マトリクスで写像し、各軸0-5点の Likert 評価＋証跡リンクを Notion DB（`sora_iso25010_matrix`）に格納する。総合スコア32点未満は自動 NO-GO、32-36点は条件付GO、37点以上のみ通過とする閾値を固定。LP・提案書・SNS投稿・システム成果物すべてに同一マトリクスを適用することで、案件タイプ横断の品質一貫性を担保。月次で軸別平均スコアの推移を可視化し、3ヶ月連続で軸スコアが3.5未満の場合は該当部署のテンプレート改定を HARU に上申する。
+
+### 2. Six Sigma DMAIC + FMEA RPN による予防的品質設計 — 重大欠陥のRPN125超は自動差し戻し
+新規案件カテゴリ立ち上げ時に Six Sigma DMAIC（Define→Measure→Analyze→Improve→Control）を1サイクル回し、想定される欠陥モードを FMEA（Failure Mode and Effects Analysis）で洗い出す。各欠陥モードに Severity（1-10）× Occurrence（1-10）× Detection（1-10）の RPN（Risk Priority Number）スコアを付与し、RPN ≥ 125 は事前予防策を必須実装、RPN ≥ 200 は案件着手前の HARU 承認必須。算出した RPN テーブルは `checklists/fmea-{案件タイプ}.md` に格納し、四半期ごとに RPN 再計算を義務化。Control 工程では SPC（統計的工程管理）の3σ管理図で差し戻し率を監視し、UCL を超えた週は即時 A3 レポート起票。
+
+### 3. AI ジャッジ・オーケストレーション（Claude QA + GPT Reviewer + Copilot Reviewer 3者合議制） — 機械的1次審査を3モデル並列で実行
+全成果物の1次審査を Claude 3.7 Sonnet QA Mode、GPT-5 Reviewer、GitHub Copilot Reviewer の3モデルに並列投入し、各モデルから「合格/条件付/不合格」と根拠を構造化JSONで取得。3者全員一致で合格 → Sora は5分の最終確認のみ／2対1分岐 → Sora が10分の精査／全員不合格 → 即座に差し戻し、というトリアージで人的工数を65%削減する。各モデルの判定一致率（Inter-Rater Reliability / Cohen's κ）を週次で測定し、κ < 0.6 のモデルはプロンプトを再調整。Claude QA の system プロンプトは `prompts/sora-ai-judge-v3.md` に版管理し、誤判定事例を即時 fine-tune データに蓄積する。
+
+### 4. ISO 9001:2015 Annex SL + JIS Q 9001:2015 整合のQMS運用 — 是正処置CAPAをNotion DBで管理
+案件横断の品質マネジメントシステムを ISO 9001:2015 Annex SL 構造（4. 組織の状況 / 5. リーダーシップ / 6. 計画 / 7. 支援 / 8. 運用 / 9. パフォーマンス評価 / 10. 改善）に整合させ、JIS Q 9001:2015 の用語定義（不適合・是正処置・予防処置・継続的改善）を Sora 内部用語として完全統一。差し戻し発生時は Notion DB `sora_capa_register` に「不適合内容／根本原因（5 Whys）／是正処置／有効性検証日／再発検証結果」を必須記入し、CAPA（Corrective and Preventive Action）クローズまで自動リマインド。月次で CAPA クローズ率95%以上、是正処置の有効性検証100%実施を KPI として HARU に報告。
+
+### 5. DORA Quality Gate Metrics の制作物転用 — 制作Lead Time / Change Failure Rate / MTTR を週次ダッシュボード化
+ソフトウェア開発の DORA Metrics（Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR）をマーケ・制作物に翻訳し、(1) 納品頻度=週あたり納品案件数、(2) 制作リードタイム=受注→納品の中央値（時間）、(3) 差し戻し率=Change Failure Rate相当（%）、(4) 修正MTTR=NG発生→再OKまでの中央値（時間）の4指標を Datadog Quality Insights に流し込みリアルタイム可視化。Elite 基準は「リードタイム ≤ 24h／差し戻し率 ≤ 5%／修正MTTR ≤ 2h」と定義し、3指標 Elite 達成部署には HARU 経由でインセンティブ申請。週次レビューで Bottleneck 部署を自動ハイライトし、構造的問題を即時是正。
+
+### 6. NPS-VOC 連動 デリバリースコアリング — 納品後72時間以内にクライアント満足度を計測しQA基準にフィードバック
+納品後72時間以内にクライアント担当者へ NPS（Net Promoter Score: 0-10）と VOC（Voice of Customer: 自由記述）を取得する Typeform を自動送付し、結果を Notion DB `sora_nps_voc` に蓄積。Detractor（0-6点）が出た案件は 5 Whys + フィッシュボーン図（石川ダイアグラム）で根本原因分析し、72時間以内に CAPA 登録。月次 NPS が+30未満の案件タイプはQAチェックリストの該当項目を強化し、VOC テキストを KH Coder でテキストマイニング、頻出キーワード Top10 をチェック項目に逆輸入。これにより「内部QA通過 ≠ 顧客満足」のギャップを構造的に解消し、NPS と QA スコアの相関係数 0.7 以上を四半期目標とする。
+
+### 7. ブランドボイス自動リグレッションテスト — Grammarly Business+ × DeepL Write Pro × Notion AI 2.0 三段機械検査
+クライアント別の Brand Voice Guideline（トーン・禁止語・推奨語・敬語レベル・絵文字使用可否）を JSON 形式で `guidelines/brand-voice/{client_id}.json` に保管し、納品前に Grammarly Business+ Style Guide 機能で文法・トーン適合度（90%以上必須）、DeepL Write Pro で表現自然度、Notion AI 2.0 でブランドボイス整合度（カスタム評価プロンプト）を3段並列で自動スキャン。3ツールいずれかで不適合検出時は該当箇所を Notion DB `sora_brand_voice_ng` に記録し、トレンド分析で月次のブランドドリフトを可視化。クライアントごとに月次ブランドボイス整合スコアを算出し、85%未満は該当部長へ強制リブリーフィング。
+
+### 8. SRE エラーバジェット型 差し戻し許容枠管理 — 各部署に月次差し戻し率上限を割当て、超過時はリリース凍結
+SRE の Error Budget 概念を QA に応用し、各部署（07-LP / 08-バナー / 10-資料 / 09-システム / 02-SNS / 03-コンテンツ）に月次の「差し戻し許容率」を SLO として設定（例: LP複製 ≤ 8% / バナー ≤ 5% / 提案書 ≤ 10% / システム ≤ 3% / SNS ≤ 7% / TikTok台本 ≤ 12%）。月次差し戻し率がバジェットの50%超過時点で部長へ Yellow Alert、80%超過で Red Alert、100%超過時は該当部署の新規案件着手を48時間凍結し、緊急 A3 改善レポート提出を義務化。SLO ダッシュボードは Datadog Quality Insights で日次更新し、HARU と部長全員にリアルタイム共有。
+
+### 9. 現場品質監査ゲンバ・コンテンツ・オーディット — 月次でクライアント現場運用を観察し A3 レポートで改善提案
+製造業のゲンバ歩き（Gemba Walk）をマーケ・制作物に応用し、月次で主要クライアント7社の納品物実運用現場（経営会議・営業現場・採用面接・SNS運用画面・Airwork管理画面）を ryota 経由で観察。「①作業者が成果物のどこで手が止まるか／②どの情報を探す時間が長いか／③どの数値を社内転記しているか／④どの図表を他資料に流用しているか」の4観点を A3 用紙1枚（Toyota A3 Problem Solving 形式: 背景／現状／目標／要因分析／対策／実行計画／効果検証）に集約し、HARU と該当部長に提出。発見された UX ギャップは翌月の QA チェックリストに反映し、納品物の「実運用適合度スコア」（5段階）を新KPIとして追加。
+
+### 10. JIRA Advanced Roadmaps + Confluence Quality Hub による QA トレーサビリティ完全自動化 — 全成果物の品質履歴を10年保管
+全案件の QA ワークフロー（受領→1次AI審査→Sora最終審査→差し戻し→再審査→納品→NPS収集→CAPA）を JIRA Advanced Roadmaps の Custom Workflow として実装し、各ステージのタイムスタンプ・担当者・判定結果・添付証跡を自動記録。判定の根拠ドキュメント・チェックリストバージョン・FMEA RPN テーブル・ブランドボイス JSON は Confluence Quality Hub にバージョン管理で保管し、JIRA チケットから双方向リンク。これにより「2026年Q1のクライアントAの提案書はどのチェックリストv番号で誰がどう判定したか」を10年後も30秒で再現可能とし、ISO 9001 監査・PマークSC審査・クライアントからの遡及検証要請に即応。年次で QA トレーサビリティの完全性監査を実施し、欠落チケットゼロを KPI とする。

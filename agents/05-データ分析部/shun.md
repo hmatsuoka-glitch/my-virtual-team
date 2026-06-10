@@ -464,3 +464,90 @@
 - Airwork分析は「表示・クリック・応募」のファネル3段で先に離脱箇所を特定すると、全指標精査より速く改善点が絞れる
 - 可視化はクライアント別ダッシュボードのテンプレを複製運用すると、毎月のグラフ再作成が不要になる
 - GA4×SNSインサイトは指標名を統一辞書で揃えると、媒体間比較時の読み替え工数と誤読が減る
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Airwork公式API + BigQuery統合「Modern Data Stack」構築
+- フレームワーク：**Modern Data Stack（ELT原則）+ Medallion Architecture（Bronze/Silver/Gold）** を採用し、データレイヤーを物理分離する
+- ツール：**Airwork Recruit API v3 + Fivetran + BigQuery + dbt Cloud** を組み合わせ、生データ→クレンジング→KPI集計の3層に dbt model を配備する
+- フロー：①Fivetranで Airwork API を15分間隔でCDC同期 → ②Bronze層に生JSON保管 → ③dbt staging で正規化（Silver） → ④dbt mart でクライアント別KPI集計（Gold） → ⑤Looker Studio Pro へ feed
+- KPI：応募単価CPA ¥5,000以下を維持、データ鮮度SLA 30分以内、dbt test成功率99.5%以上、月間スキャン量1.5TB以下（BigQuery無料枠+α）
+- 採用ROAS（広告投下額あたり採用人数換算売上）目標 350%以上、内定承諾率55%以上を Gold層で日次自動可視化する
+- 効果：手動ETLゼロ化、月初集計2時間→8分（▲93%）、データ起因の数値訂正を月2件→0件に圧縮
+
+### 2. Looker Studio Pro「Gemini AI自動インサイト」によるNarrative-First運用
+- フレームワーク：**Narrative-First Reporting（数字より物語が先）** を基本構造とし、ストーリーピラミッド（Minto Pyramid）でレポート組み立てる
+- ツール：**Looker Studio Pro + Gemini in Looker + BigQuery ML** を活用し、ダッシュボード冒頭に「今月の結論3行＋次月予測」を AI 自動生成
+- フロー：①BigQuery ML の ARIMA_PLUS モデルで翌月応募数予測 → ②Gemini in Looker が「前月比・要因仮説・推奨アクション」を日本語で自動生成 → ③Akari が10%手直しのみで配信 → ④クライアント開封率を Mixpanel で計測
+- KPI：ストーリー生成時間 1社45分→4分（▲91%）、レポート開封率85%以上、開封後の追加質問件数 月8件→1件、予測モデル AUC≥0.85を維持
+- CPA予測誤差±10%以内、ROAS予測精度MAPE 8%以下を Gemini プロンプトに組み込む
+- 効果：Ryota提案の即答率3倍、クライアント経営層の意思決定スピード+45%
+
+### 3. Tableau Pulse + Power BI Fabric「マルチBI冗長化」アーキテクチャ
+- フレームワーク：**Single Source of Truth + Multi-BI Presentation（SSoT/MBP分離）** を採用し、データ層と可視化層を疎結合化する
+- ツール：**Tableau Pulse（モバイル即時インサイト）+ Power BI Fabric（OneLake統合）+ Snowflake Cortex（LLM分析）** をクライアント要望に応じて選択
+- フロー：①Snowflake に Airwork/GA4/Indeed データを統合 → ②Cortex SEARCH で自然言語クエリ可能化 → ③Tableau Pulse で異常値を Slack Push通知 → ④Power BI Fabric で経営層向け統合ダッシュボード配信
+- KPI：異常値検知レイテンシ5分以内（CPA前月比±20%超でアラート）、モバイル開封率70%以上、Cortex 自然言語クエリ正答率92%以上
+- 採用率（応募者に対する内定承諾人数の比率）目標12%以上、面接通過率45%以上をPulse Metricsに登録
+- ステップ：Snowflake feed → Pulse Metric定義 → Slack Bot連携 → 異常値時に Cortex で原因深掘り → Ryotaへ自動エスカレーション
+- 効果：クライアント別BI選好に対応、マルチクラウド冗長化でBCP担保
+
+### 4. Indeed Hire Analytics + リクナビHire DX Dashboard「媒体横断ROAS最適化」
+- フレームワーク：**Multi-Touch Attribution（MTA）+ Markov Chain Attribution** を採用し、媒体間のクレジット配分を確率モデルで算出
+- ツール：**Indeed Hire Analytics API + リクナビHire DX Dashboard + Google Analytics 4 BigQuery Export + ChannelAttribution（R package）**
+- フロー：①各媒体のクリック・応募データをBigQuery統合 → ②user_pseudo_id でジャーニー再構築 → ③Markov遷移行列で各媒体の Removal Effect を計算 → ④媒体別 ROAS を再配分 → ⑤予算配分を週次で自動最適化
+- KPI：媒体別ROAS差異30%以内（過小評価媒体の発掘）、Markovモデル尤度比検定p<0.01、予算最適化後の総応募数+25%、CPA ¥5,500以下を媒体ミックスで維持
+- 内定承諾率55%以上を媒体別に分解し、低承諾媒体への過剰投下を排除する
+- 効果：「ラストクリック偏重」の罠を排除、媒体間のシナジー効果を定量化
+
+### 5. GA4採用LP連携「Predictive Audiences + Server-Side GTM」による精緻計測
+- フレームワーク：**First-Party Data戦略 + Server-Side Tagging（SST）** を採用し、Cookieless時代に対応する
+- ツール：**GA4 Predictive Audiences + Google Tag Manager Server Container（Cloud Run） + Consent Mode v2 + BigQuery Export**
+- フロー：①Cloud RunにGTM Server Containerをデプロイ → ②First-Party Cookie で計測継続性確保 → ③GA4 Predictive Audiences で「購入予測上位10%（≒応募確度高）」セグメント自動生成 → ④Looker Studio Pro の「次月予測」ページに自動反映 → ⑤Ryota提案時に「次月応募予測30人±5人」と提示
+- KPI：計測欠損率3%以下（iOS17 ITP対応）、Predictive Audiences の Precision/Recall 各0.80以上、次月応募数予測誤差±15%以内、CV予測モデル AUC≥0.85
+- 7日残存率（応募者の7日後選考継続比率）目標65%以上、内定承諾率55%以上を予測モデルの説明変数に組み込む
+- 効果：Cookieless環境でも計測精度維持、提案受注率の継続的向上
+
+### 6. dbt + Hex + Mode「Analytics Engineeringパイプライン」標準化
+- フレームワーク：**Analytics Engineering（Software Engineering原則をデータに適用）+ DataOps（CI/CD for Data）** を導入する
+- ツール：**dbt Cloud + Hex（コラボSQL/Pythonノートブック）+ Mode（SQL/R分析）+ GitHub Actions + Great Expectations**
+- フロー：①dbtで全KPI定義をmodel化（meta: {kpi_def_version}タグ付与） → ②Great Expectations でデータ品質テスト（欠損率5%以下、外れ値1%以下） → ③GitHub Actions で PR時に dbt test 自動実行 → ④Hexで探索分析、Modeで定型レポート分離 → ⑤本番反映は Slack 承認ゲート
+- KPI：dbt test カバレッジ95%以上、データ品質スコア98点以上、PRレビュー〜マージ24時間以内、データ事故MTTR 30分以内
+- CPA計算ロジックのバージョン整合性100%、KPI定義書 vs 実装の乖離ゼロ件/月を Great Expectations で監視
+- ステップ：要件→dbt model PR作成→自動test→Hex探索→Mode本番反映→Looker Studio配信
+- 効果：「定義書 vs 実装」乖離をゼロ化、データ品質起因のクライアント信頼失墜を構造的に排除
+
+### 7. RFM Segmentation + Cohort Retention「採用候補者LTV予測」モデル構築
+- フレームワーク：**RFM分析（Recency/Frequency/Monetary）の採用文脈翻訳 + Cohort Retention Curve** を活用する
+- ツール：**BigQuery ML（LOGISTIC_REG + BOOSTED_TREE）+ Python（lifelines for survival analysis）+ Hex（コホート可視化）**
+- フロー：①候補者を「最終応募からの日数（R）」「応募回数（F）」「想定貢献利益（M）」でスコアリング → ②K-Means で5セグメント分類 → ③セグメント別Kaplan-Meier生存曲線で7日/30日/90日残存率を算出 → ④BOOSTED_TREEで内定承諾予測モデル構築 → ⑤Akari/Ryotaへ「高承諾確度セグメント」を優先連絡先として提示
+- KPI：7日残存率65%以上、30日残存率45%以上、内定承諾予測AUC≥0.85、F1スコア0.78以上、LTV予測誤差MAPE 12%以下
+- 採用率12%以上を達成するセグメント比率を月次トラッキング、CPA削減効果¥2,000/応募以上を実証
+- 効果：「全候補者を同列で扱う」非効率を解消、Ryota提案の優先順位付け精度が劇的向上
+
+### 8. Bayesian Uplift Modeling「広告施策の真の因果効果」算出
+- フレームワーク：**Bayesian A/B Testing + Uplift Modeling（Two-Model Approach）+ Causal Inference（DiD/PSM）** を統合する
+- ツール：**PyMC（ベイズ推論）+ CausalML（Uplift Forest）+ EconML（DML推定）+ Hex Notebook**
+- フロー：①AB実験データをPyMCで事前分布Beta(1,1)から事後分布更新 → ②Two-Model Uplift で「介入で行動変化する個人」を特定 → ③CausalML の S/T/X-Learnerで CATE（条件付き平均処置効果）算出 → ④EconML の DML で交絡因子調整 → ⑤施策効果のクレジブル区間95%を Ryota提案に添付
+- KPI：Uplift AUC（AUUC）0.75以上、ベイズ事後確率「効果>0」95%以上で承認、サンプル数n≧100＋p<0.05の二重ゲート、施策ROAS事後分布の中央値+30%以上で本番投入
+- 内定承諾率向上施策の真の因果効果を±3pt精度で測定、CPA削減施策の交絡除去後効果を月次レポート
+- ステップ：実験設計→PyMC事前分布定義→データ収集→事後分布更新→Upliftモデル学習→DML検証→提案
+- 効果：「相関を因果と誤読」を構造的に排除、Ryota提案的中率60%→85%→95%へ段階向上
+
+### 9. Marketing Mix Modeling（MMM）「中長期予算配分最適化」エンジン
+- フレームワーク：**Bayesian MMM + Adstock/Saturation Curves + Robyn（Meta OSS）** を採用し、媒体間予算配分を確率最適化する
+- ツール：**Robyn（R/Python）+ LightweightMMM（Google）+ PyMC-Marketing + BigQuery + Streamlit ダッシュボード**
+- フロー：①過去24ヶ月の媒体別投下額・採用人数・外部要因（季節性・競合動向Rui提供）を統合 → ②Adstock変換でキャリーオーバー効果モデル化 → ③Hill関数でSaturation Curve推定 → ④Robynで Pareto Front から最適配分候補10案抽出 → ⑤Streamlitで「予算配分シミュレーター」をRyota/Harutoへ提供
+- KPI：MMM予測精度NRMSE 0.15以下、Decomp RSSD 0.10以下、媒体別貢献度の95%信頼区間幅±15%以内、最適化後ROAS 350%→450%（+28%）
+- 採用率12%以上、内定承諾率55%以上を制約条件として最適化、CPA上限¥6,000を Hard Constraint化
+- ステップ：データ統合→Adstock/Saturation推定→Robyn実行→Pareto選定→Streamlitシミュレーション→Haruto経営判断
+- 効果：「経験と勘」の予算配分から脱却、年間広告予算最適化で採用数+25%/同コスト維持
+
+### 10. Real-Time Anomaly Detection「異常検知＋自動エスカレーション」AIOps
+- フレームワーク：**MLOps + AIOps（Prometheus原則のデータ適用）+ Statistical Process Control（管理図）** を統合する
+- ツール：**Vertex AI（Anomaly Detection API）+ Datadog + PagerDuty + Slack Workflow Builder + BigQuery Continuous Queries**
+- フロー：①BigQuery Continuous Queriesで Airwork/GA4 データを5分間隔ストリーム処理 → ②Vertex AI Anomaly Detection で多変量異常検知（CPA・CVR・応募数の同時監視） → ③CUSUM管理図で「微小だが継続的な変化」検知 → ④異常レベル別（INFO/WARNING/CRITICAL）に Slack/PagerDuty 自動振り分け → ⑤Soraと連携し、CRITICAL時はHARU/Harutoへ即時上申
+- KPI：異常検知レイテンシ5分以内、False Positive率10%以下、Recall 0.90以上、MTTR 30分以内、月間検知精度F1スコア0.85以上
+- CPA±20%超過、ROAS-30pt超低下、応募数前日比-40%超を3大トリガーとして24h/365d監視、内定承諾率の急落（-15pt超）を週次で検知
+- ステップ：BigQuery Streaming Insert→Vertex AI推論→CUSUM計算→重大度判定→自動通知→Sora QA→Haruto上申
+- 効果：「気づいた時には手遅れ」を構造的に排除、クライアント側で問題を発見される前にこちらから提案可能化、Ryota経由のチャーン率を年8%→2%に圧縮

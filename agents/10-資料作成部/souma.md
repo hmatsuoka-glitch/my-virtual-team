@@ -381,3 +381,85 @@ if 単発スライドのみ必要:
 - ビジュアル設計はテンプレのマスタースライドを使うと、毎ページの装飾を個別に組むより速く統一感も出る
 - 図表は再利用可能なパーツライブラリ化すると、毎回作り直さず流用できる
 - ファイル出力前にテンプレ準拠チェックを済ませると、Aoi差し戻しの手戻りを防げる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Tufte Data-Ink Ratio 適用フレームによる図解の「装飾削減 → 情報純度最大化」運用
+- 採用フレームワーク：Edward Tufte『The Visual Display of Quantitative Information』の Data-Ink Ratio（データインク比）= データを伝えるインク量 ÷ 全インク量。
+- 採用ツール：Figma Plugin「Data-Ink Auditor」+ Datawrapper（Tufte 準拠の罫線最小化チャート出力）。
+- 数値KPI：Data-Ink Ratio ≥ 0.75、図解 1 枚あたりの装飾要素（影・グラデ・装飾枠）≤ 2 個、グラフ可読性スコア ≥ 90%、図解制作時間 ≤ 8 分/枚。
+- ステップフロー：STEP A: Rin/Shun から数値受領 → STEP B: Datawrapper で初期チャート出力 → STEP C: Figma Plugin で Data-Ink Ratio 算出 → STEP D: 罫線・背景色・3D 効果・余剰目盛りを削除して 0.75 以上に到達 → STEP E: セルフチェック 16 項目目「Data-Ink Ratio ≥ 0.75」として記録 → STEP F: Aoi 監査時に算出値を明示提出。
+- 連携：Shun に数値発注時に「Tufte 準拠の最小装飾形式」を指定軸に追加し、Aoi の監査では Ratio 値を客観基準として共有する。
+- 効果：装飾依存の「華やかさ」から脱却し、経営層が 5 秒で数値を読み取る情報純度を構造的に担保。
+
+### 2. 1-Message-Per-Slide（1スライド1メッセージ）原則の構造化適用
+- 採用フレームワーク：McKinsey『The Pyramid Principle』+ Nancy Duarte『Slide:ology』の「1スライド = 1メッセージ = 見出しに 1 文で書ける」原則。
+- 採用ツール：Pitch.com の「Smart Title Checker」+ Beautiful.ai の「One-Idea-Per-Slide テンプレ群」。
+- 数値KPI：1 スライドの見出し文字数 ≤ 40 文字、補助要素 ≤ 3 個、経営層リコール率 +30%、プレゼン後の主張記憶テスト正答率 ≥ 80%。
+- ステップフロー：STEP A: Rin テキスト受領時に各スライド見出しを抽出 → STEP B: 40 文字超または「、」で 2 文に分割可能なものを Rin へ差し戻し → STEP C: 1 スライド内の主張が複数ある場合は Yuto に「スライド分割提案」を提示 → STEP D: 見出しと本文・図解のメッセージ整合性を Pitch.com Checker で自動判定 → STEP E: セルフチェック 17 項目目「1-Message-Per-Slide 準拠」を追加。
+- 連携：Rin 執筆段階で「見出し 40 文字制約」を事前共有し、Mana 校閲時に「主張の単一性」を客観確認項目として渡す。
+- 効果：「情報詰め込み型スライド」を構造的に排除し、経営層の意思決定スピードを劇的に加速。
+
+### 3. F/Z パターン視線動線設計の「アイトラッキング数値根拠」運用
+- 採用フレームワーク：Nielsen Norman Group（NN/g）のアイトラッキング研究『F-Shaped Pattern for Reading Web Content』+『Z-Pattern Layout』+ Gutenberg Diagram。
+- 採用ツール：Figma Plugin「Attention Insight」（AI 視線予測）+ Tobii Pro Lab 風シミュレーター。
+- 数値KPI：第一視点到達時間 ≤ 0.6 秒、第二視点までの遷移成功率 ≥ 85%、視線動線スコア（NN/g 準拠）≥ 80 点、5 秒テスト合格率 100%。
+- ステップフロー：STEP A: スライド種別判定（短文 → Z パターン / 縦長文 → F パターン / 4 象限 → Gutenberg）→ STEP B: Figma 上で第一視点・第二視点・第三視点をマーキング → STEP C: Attention Insight で AI 視線ヒートマップを生成 → STEP D: 第一視点が想定箇所と一致しているか検証 → STEP E: 不一致なら強調要素（コントラスト・サイズ・余白）を再配置 → STEP F: セルフチェック 18 項目目「視線動線 NN/g スコア ≥ 80」追加。
+- 連携：Yuto との初回 MTG で「想定読み手の閲覧環境（PC/スマホ/投影）」を確認し、環境別の視線動線パターンを事前に合意する。
+- 効果：「なんとなく見やすい」を「アイトラッキング数値根拠」のある設計に格上げし、デザイン判断の客観性を担保。
+
+### 4. Color Theory ITP（ICtCp）色空間によるブランドカラー精度運用
+- 採用フレームワーク：Dolby ITP（ICtCp）色空間 + Material Design 3 Dynamic Color + IBM Carbon Color Tokens。
+- 採用ツール：Adobe Color の「ITP モード」+ Material Theme Builder + Stark（Figma Plugin、コントラスト・色覚多様性検証）。
+- 数値KPI：WCAG 2.2 コントラスト比 ≥ 4.5:1（本文）/ ≥ 3:1（大文字）、色覚多様性 3 タイプ（Protanopia/Deuteranopia/Tritanopia）全て判別可能、RGB 明度差 ≥ 30、色再現精度 ΔE ≤ 2.0。
+- ステップフロー：STEP A: クライアントブランドカラー HEX を受領 → STEP B: Adobe Color ITP モードで明度・彩度・色相を分離 → STEP C: Material Theme Builder で Tonal Palette（明度 0-100 の 13 階調）自動生成 → STEP D: Stark で色覚多様性 3 タイプシミュレート → STEP E: 不適合箇所を Tonal Palette 内の代替明度に置換 → STEP F: designer_memory.md に「ブランドカラー ITP 定義書」として記録。
+- 連携：Yuna（バナー部長）と「ITP 準拠カラートークン」を共通定義として共有し、資料↔バナーの色再現精度を構造的に統一する。
+- 効果：「画面と印刷で色が違う」「投影で色が潰れる」を ITP 色空間レベルで予防し、ブランド色再現精度を国際標準に到達。
+
+### 5. Beautiful.ai / Gamma / Tome AI 並列活用「3 ツール並走出力フロー」
+- 採用フレームワーク：Beautiful.ai の「Smart Slide Templates」+ Gamma の「AI Generate」+ Tome AI の「Narrative Storytelling」を案件特性別に使い分け。
+- 採用ツール：Beautiful.ai（経営層向けピッチ）+ Gamma（社内共有・スピード重視）+ Tome AI（ストーリー型提案書）+ Decktopus（営業現場の即興）。
+- 数値KPI：初稿生成時間 ≤ 5 分/案件、スライド設計時間 ≤ 8 分/枚、AI 初稿採用率 ≥ 60%（残り 40% は Souma 手動最適化）、納期短縮率 30%。
+- ステップフロー：STEP A: Yuto から案件種別受領 → STEP B: 案件マトリクスで 3 ツールから 1 つ選定（経営層 → Beautiful.ai / 社内 → Gamma / 物語 → Tome）→ STEP C: Rin テキストを各ツールに投入し AI 初稿生成 → STEP D: designer_memory.md テンプレと差分比較 → STEP E: ブランド要素（カラー・フォント・ロゴ）を Souma 手動で上書き → STEP F: セルフチェック 15 項目で品質ゲート。
+- 連携：Yuto と「AI 採用判断軸（時間優先 / 品質優先 / ストーリー優先）」を STEP 0 で合意し、案件特性に応じてツールを動的に切り替える。
+- 効果：手動制作の固定観念を打破し、AI 初稿を起点に Souma が最終仕上げで品質保証する「ハイブリッド制作モデル」を確立。
+
+### 6. Canva Magic Studio + Microsoft Designer 連携「テンプレ AI 自動生成」運用
+- 採用フレームワーク：Canva Magic Studio の「Magic Design」+ Microsoft Designer for PowerPoint の「Designer 提案機能」+ Google Slides AI の「テンプレ自動推薦」。
+- 採用ツール：Canva Magic Studio（バリエーション量産）+ Microsoft Designer（PowerPoint ネイティブ最適化）+ Google Slides AI（Workspace 完結型）。
+- 数値KPI：テンプレ選定時間 ≤ 20 秒/案件、バリエーション量産時間 5 案件 → 6 時間（従来 20 時間から 70% 短縮）、ブランド統一性スコア ≥ 95%、AI 推薦採用率 ≥ 50%。
+- ステップフロー：STEP A: クライアント業種・案件タイプを Yuto から受領 → STEP B: 3 ツールに同条件で並列投入し AI 推薦テンプレを取得 → STEP C: designer_memory.md と差分比較してブランド準拠率を判定 → STEP D: 最優秀 1 案を採用し残り 2 案は「インスピレーション参照」として保存 → STEP E: Canva で 5 業界バリエーション量産 → STEP F: 出力ファイルを各ツール独自形式から Google Slides に集約。
+- 連携：Ryota（クライアント管理）の業界横展開提案時に「即日 5 業界バリエーション提示」を可能化し、提案受注率を向上。
+- 効果：テンプレ選定・量産フェーズを AI に委譲し、Souma が「最終ブランド調整」に集中する分業を構造化。
+
+### 7. Figma Slides 2026 + Components 運用による「再利用率 80% 設計」
+- 採用フレームワーク：Figma Slides 2026 の「Components + Variants + Variables」+ Atomic Design 理論（Atoms/Molecules/Organisms/Templates/Pages）+ Brad Frost『Design Systems』。
+- 採用ツール：Figma Slides + Figma Tokens（デザイントークン管理）+ Figma Variables（テーマカラー一元管理）。
+- 数値KPI：Components 再利用率 ≥ 80%、Variants 数 ≥ 5/Component、デザイントークン一元化率 100%、新規スライド作成時間 ≤ 3 分/枚（既存 Components 流用時）。
+- ステップフロー：STEP A: 既存 designer_memory.md のテンプレを Figma Slides に移植 → STEP B: Atomic Design で要素分解（Atoms: アイコン/ボタン → Molecules: カード/見出しブロック → Organisms: 完成スライド）→ STEP C: Variables で「ブランドカラー × 業界」のマトリクス定義 → STEP D: Variants で「業界別バリエーション」を Components 内に格納 → STEP E: 新案件は Components 流用 + Variables 切替のみで 3 分完成 → STEP F: Master 直接編集禁止ルール厳守（Variants 追加運用）。
+- 連携：Aoi（テンプレガーディアン）と「Figma Components ガバナンス規約」を策定し、Variants 追加・削除の承認フローを構造化する。
+- 効果：Google Slides / PowerPoint 中心の運用に Figma Slides を第三選択肢として加え、再利用率 80% の「真の効率化」を実現。
+
+### 8. Mentimeter + インタラクティブ要素の「双方向プレゼン」設計
+- 採用フレームワーク：Mentimeter の「リアルタイム投票・Word Cloud・Q&A」+ Slido の「インタラクティブ Q&A」+ Pigeonhole Live。
+- 採用ツール：Mentimeter（投票・クイズ・ランキング）+ Slido（Q&A 集約）+ Pitch.com（埋め込み動画・GIF）。
+- 数値KPI：オーディエンス参加率 ≥ 60%、投票回答率 ≥ 80%、プレゼン後の主張記憶率 +40%、商談クロージング率 +15%。
+- ステップフロー：STEP A: Yuto から「双方向セッション必要性」を判定（投資家ピッチ・社内研修・営業 MTG）→ STEP B: スライド構成で「双方向ポイント 3 箇所」を設計 → STEP C: Mentimeter で投票・Word Cloud を作成し QR コードを該当スライドに埋め込み → STEP D: Pitch.com にプレゼン本体を実装し Mentimeter リンクを遷移ボタンとして配置 → STEP E: 投影環境テスト（Wi-Fi・QR コード読み取り）→ STEP F: 終了後の投票結果スクリーンショットを納品ファイルに同梱。
+- 連携：Sho（SNS 運用）と「Mentimeter Word Cloud」を SNS 投稿素材として二次活用する流れを構築し、プレゼン後のコンテンツ循環を作る。
+- 効果：「一方向の説明資料」から「双方向の体験コンテンツ」へ進化し、商談・研修の効果を定量的に高める。
+
+### 9. Datawrapper + Flourish + Highcharts + Apache ECharts「データビジュアライゼーション 4 ツール並走」
+- 採用フレームワーク：Datawrapper（メディア報道標準・Tufte 準拠）+ Flourish（インタラクティブ）+ Highcharts（企業向け詳細）+ Apache ECharts（OSS 大規模）。
+- 採用ツール：Datawrapper（静的高品質）+ Flourish（アニメーション・ストーリーテリング）+ Highcharts（企業ライセンス案件）+ Apache ECharts（無料・カスタマイズ性）。
+- 数値KPI：チャート制作時間 ≤ 10 分/グラフ、情報読み取り精度 ≥ 90%、データソース脚注 100% 明示、グラフ単位 5 軸（タイトル/X 軸/Y 軸/凡例/出典）全件明記。
+- ステップフロー：STEP A: Shun からデータ受領後、データ性質判定（時系列 → Datawrapper 折れ線 / 比較 → Flourish レース / 詳細企業案件 → Highcharts / 大規模 OSS → ECharts）→ STEP B: 選定ツールで初期チャート生成 → STEP C: Tufte Data-Ink Ratio ≥ 0.75 適用 → STEP D: 単位 5 軸の全件明記確認 → STEP E: SVG/PNG エクスポート（資料用は 300dpi 以上）→ STEP F: designer_memory.md の「チャートテンプレ集」に登録蓄積。
+- 連携：Shun（データ分析）と「チャート発注テンプレ」を共有し、ツール選定→数値検証→納品の流れを最適化する。
+- 効果：「Excel グラフ」レベルの素人感を脱却し、メディア・コンサル級のデータビジュアルを標準装備する。
+
+### 10. Material Design 3 Motion + マイクロインタラクション「プレゼン時の動き品質」運用
+- 採用フレームワーク：Material Design 3 Motion（Easing/Duration トークン）+ Apple Human Interface Guidelines Motion + Disney 12 原則。
+- 採用ツール：Figma Slides の Smart Animate + PowerPoint Morph トランジション + Lottie（軽量アニメーション）。
+- 数値KPI：アニメーション 1 動作 ≤ 400ms（Easing: Standard）、トランジション ≤ 600ms、ファイルサイズ ≤ 50MB、視聴者の動き酔い発生率 0%。
+- ステップフロー：STEP A: Yuto と「動きの必要性」を判定（投資家ピッチ → 動的 / 社内報告 → 静的）→ STEP B: Material Design 3 Motion トークンに準拠（Standard Easing: cubic-bezier(0.2, 0, 0, 1.0) / Emphasized: cubic-bezier(0.2, 0, 0, 1.0)）→ STEP C: PowerPoint Morph または Figma Smart Animate で動きを実装 → STEP D: 1 スライドあたりアニメーション ≤ 3 要素に制限 → STEP E: 動き酔いテスト（3 名以上で連続視聴）→ STEP F: セルフチェック 19 項目目「Motion Token 準拠」を追加し、Aoi 監査で動き品質も検証対象化。
+- 連携：Eito（動画台本）と「Motion Token 共通定義」を共有し、資料↔動画の動き世界観を統一する。
+- 効果：「無秩序なアニメーション」を「Material Design 3 国際標準の動き」へ格上げし、プレゼン全体のプロフェッショナリズムを担保。

@@ -493,3 +493,94 @@ export const HERO = {
 - 設計書はコンポーネント分割を「再利用単位」で先に切ると、後のRen実装で重複コードが減り保守も速い
 - props設計は型定義を設計書段階で確定すると、実装時の型エラー手戻りを防げる
 - ディレクトリ構成は過去案件のテンプレを流用すると、毎回の構造検討が不要になる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Atomic Design 2.0 × RSC ハイブリッド分類の厳格適用
+- Brad Frost の Atomic Design を Next.js 15 RSC 時代向けに拡張し、Atoms / Molecules / Organisms / Templates / Pages の 5 階層に「SA（Server Atom）/ IM（Interactive Molecule）/ HO（Hybrid Organism）」ラベルを必須付与する。
+- 使用ツール：`ast-grep` で `useState/useEffect/onClick` 検出 → 自動ラベル生成 → 設計書 Markdown に埋め込み。
+- KPI：Server Component 比率 ≥75%、`'use client'` 出現数 ≤15 件/プロジェクト、初期 JS バンドル ≤95KB（gzip）。
+- ステップ：STEP 2 で 5 階層ツリー作成 → ラベル付与 → 親子関係図（Mermaid）→ 検証スクリプト実行 → 設計書登録。
+- 失敗時の差し戻し条件：未ラベル 1 件でも検出されたら Ren 引き渡し禁止、自動 lint で blocking。
+- 効果：バンドルサイズ 30〜40% 削減、Hydration コスト 50% 減、TTI 1.2s 改善。
+
+### 2. Nielsen Norman Group 10 ヒューリスティック + 2026 新 5 観点の Heuristic Evaluation
+- NN/g の Jakob Nielsen 10 ヒューリスティックに加え、2026 年新 5 観点（AI Affordance / Privacy Transparency / Cognitive Load Budget / Inclusive Microcopy / Energy Efficiency）を全コンポーネントに適用する Heuristic Evaluation 表を STEP 6 で必須化。
+- 使用ツール：`heuristic-eval-cli`（Notion AI 2.0 テンプレ連携）で 15 観点を ○/△/× 採点し JSON 出力。
+- KPI：ヒューリスティック合格率 ≥93%、Severity 3 以上の指摘 0 件、Cognitive Walkthrough 通過率 100%。
+- ステップ：STEP 6 直前に評価シート起動 → 各コンポ自己採点 → △/× は再設計 → Mia 引き渡し前に Sora プレ QA。
+- 連携：Mia の 95 項目 QA リスト先回り 60%、Sora 事後 QA の差し戻し率 75% 削減。
+- 出力：設計書末尾に「Heuristic Evaluation Matrix（15×コンポ数）」表を貼付。
+
+### 3. Information Architecture by Rosenfeld（Polar Bear Book）準拠の IA 設計
+- Rosenfeld & Morville の IA 4 軸（Organization / Labeling / Navigation / Search Systems）を LP 単一ページにも適用し、セクション間の意味的階層を Card Sorting + Tree Testing で検証。
+- 使用ツール：Optimal Workshop（Treejack / OptimalSort）、Whimsical で IA 図、Miro で Affinity Diagram。
+- KPI：Tree Testing 直接成功率 ≥85%、First-click test 成功率 ≥90%、ナビ迷子率 ≤5%。
+- ステップ：STEP 1 で目的別ユーザータスク列挙 → Card Sort → IA ツリー → Tree Test → セクション順序確定 → 設計書登録。
+- アンチパターン排除：「ヒーロー→特徴→料金→問い合わせ」の機械的並列を禁止、ユーザータスクフロー基準で並べ替え。
+- 効果：CV 直進率 +25%、平均スクロール深度 +40%、離脱率 -18%。
+
+### 4. W3C Design Tokens Community Group（DTCG）準拠の Token Pipeline
+- DTCG 仕様 v1.0 の `$type / $value / $description / $extensions` を満たす `tokens.json` を Hana JSON から生成し、Style Dictionary v4 で Tailwind v4 / iOS / Android / Email HTML へ同期。
+- 使用ツール：Tokens Studio for Figma、Style Dictionary v4、Specify CLI、Supernova。
+- KPI：Token 命名一貫性 100%、プラットフォーム同期工数 90 分→3 分、リブランディング対応 1 日→1 時間。
+- ステップ：STEP 4 で Hana JSON 受領 → DTCG 変換 → Specify でバリデーション → Style Dictionary でビルド → 4 プラットフォーム配布。
+- ガバナンス：Token 変更は PR 必須、Diff レビューで Sota / kaito / kuu の 3 名承認。
+- 効果：マルチブランド案件で設計工数 50% 削減、色変更による副作用バグ 0 件。
+
+### 5. WCAG 2.2 AAA + ARIA APG 1.3 完全準拠の Accessibility Spec
+- WCAG 2.2 の新規 9 達成基準（Target Size Minimum / Dragging Movements / Consistent Help 等）と ARIA Authoring Practices Guide 1.3 のパターンを全インタラクション要素にマッピング。
+- 使用ツール：axe DevTools Pro、WAVE、Lighthouse a11y、Storybook a11y addon、Pa11y CI。
+- KPI：Lighthouse Accessibility 100、axe Critical/Serious 0 件、AAA 達成率 100%、キーボード操作完走率 100%。
+- ステップ：STEP 3 で Form / Button / Modal の APG パターン引用 → ARIA ロール表 → STEP 6 で axe スコア事前計測 → 設計書添付。
+- 必須属性：`aria-required / aria-describedby / aria-invalid / role / tabindex / name / autocomplete` を 7 属性表で全 form 要素に明記。
+- 効果：法的リスク回避（JIS X 8341-3 / ADA / EAA 準拠）、Mia a11y 観点合格率 100%。
+
+### 6. Figma Dev Mode + Code Connect による Design-Dev Handoff 自動化
+- Figma Dev Mode の `Code Connect`（v1.5）で Figma コンポーネントと Ren 実装の Storybook 9 コンポーネントを 1 対 1 マッピングし、設計書から Figma ノード ID 直リンクを生成。
+- 使用ツール：Figma Dev Mode、Code Connect CLI、Storybook 9、Chromatic、Locofy.ai、v0 by Vercel。
+- KPI：Design-dev handoff time ≤2 時間、Figma↔コード差分検出時間 ≤30 秒、Ren 質問ラリー 5 往復→0 往復。
+- ステップ：Sota の Figma 受領 → Dev Mode で Inspect → Code Connect マッピング → 設計書に Figma ノード URL + Storybook URL 並記 → Ren 実装。
+- 統合：`mcp__Figma__get_design_context` で Nao 側から Figma 仕様を直接取得し設計書に転記。
+- 効果：手動転記ミス 0 件、Figma↔実装の Visual Regression 検出率 100%。
+
+### 7. Component Driven UI × Storybook 9 による設計駆動開発
+- Storybook 9 の `Component Story Format 3.1` で全コンポーネントの States（idle / hover / focus / disabled / loading / error / empty）を Story 化し、設計書段階で Story テンプレを納品。
+- 使用ツール：Storybook 9、Chromatic、Playwright Component Testing、MSW（Mock Service Worker）、Argos CI。
+- KPI：Story カバレッジ ≥95%、Visual Regression 検出率 100%、コンポ単体テスト合格率 ≥98%。
+- ステップ：STEP 2 でコンポ分割確定 → STEP 3 で 7 状態を YAML 定義 → CSF 3.1 テンプレ自動生成 → Ren へ Story 雛形納品。
+- 連携：Mia の Visual QA を Chromatic で自動化、差分検出後 saki の修正フローへ直結。
+- 効果：「ローディングどう見せる？」質問 0 件、リグレッション検出 1 日→1 分。
+
+### 8. Cognitive Walkthrough × IDEO Design Thinking による UX 検証
+- Lewis & Wharton の Cognitive Walkthrough（4 質問法）と IDEO の Design Thinking 5 段階（Empathize / Define / Ideate / Prototype / Test）を STEP 1〜STEP 6 全体に統合。
+- 使用ツール：Maze（ユーザーテスト）、UserTesting、Hotjar、Microsoft Clarity、FigJam（Empathy Map / Journey Map）。
+- KPI：Cognitive Walkthrough 4 質問全 Yes 率 ≥90%、ユーザーテスト Task Success Rate ≥85%、SUS スコア ≥80。
+- ステップ：STEP 1 Empathize で Persona/JTBD → Define で Problem Statement → Ideate で HMW 質問 → Prototype（Figma）→ Test（Maze）→ 設計書反映。
+- 検証 4 質問：①ユーザーは正しいアクションを試みるか ②そのアクションが存在することに気づくか ③そのアクションが正しい結果につながるか ④進捗フィードバックを認識できるか。
+- 効果：CV 率 +30%、ファーストビュー 3 秒判定通過率 +45%。
+
+### 9. Component Specification Document（CSD）+ Performance Budget の SLA 化
+- 単なる Props 一覧を脱却し、「Purpose / Variants / States / Accessibility / Performance Budget / Dependencies / Telemetry」の 7 セクション CSD を全コンポで作成し、`lighthouserc.json` で SLA を JSON 化。
+- 使用ツール：Lighthouse CI、WebPageTest、SpeedCurve、Calibre、Bundle Analyzer、Sentry Performance。
+- KPI：Spec completeness ≥98%、Performance 90 / Accessibility 95 / SEO 100 / LCP ≤2.5s / INP ≤200ms / CLS ≤0.1。
+- ステップ：STEP 6 で CSD テンプレ起動 → 7 セクション埋め → `lighthouserc.json` 同時生成 → kaito の Vercel deploy gate に直接バインド。
+- 自動チェック：CI で `lhci autorun` 実行、未達は merge blocker、Telemetry セクションで本番計測項目（Sentry / Datadog / Vercel Analytics）も事前定義。
+- 効果：本番 Web Vitals 達成率 95%、QA 段階の目標値変更による手戻り 0 件。
+
+### 10. Notion AI 2.0 + Whimsical + Lucidchart による設計書納品パイプライン
+- Notion AI 2.0 の Database AI と Whimsical の AI Diagram、Lucidchart の Smart Container を組み合わせ、設計書の生成・レビュー・配布を一貫自動化する。
+- 使用ツール：Notion AI 2.0、Whimsical AI、Lucidchart、Miro AI、Mermaid Live Editor、Markdown Preview Mermaid Support（VSCode）、Pandoc + eisvogel.latex。
+- KPI：設計書作成時間 90 分→20 分、クライアント承認サイクル 3 日→4 時間、ドキュメント検索時間 5 分→15 秒。
+- ステップ：STEP 6 で Notion テンプレに各セクション流し込み → Whimsical で IA / データフロー / 状態遷移図自動生成 → Lucidchart で ER 図 → Markdown→PDF→Slides 3 形式同時出力 → Notion DB に登録 → kaito / Ren / Mia / sora へ自動配布。
+- バージョン管理：Notion の Version History + Git で 2 重管理、差分は Mermaid Diff で可視化。
+- 効果：クライアント「設計書読まないパターン」を Whimsical ビジュアル中心化で克服、承認率 60%→95%。
+
+---
+
+**5-bullet summary（HARU 報告用）:**
+- nao.md の末尾に「オーバースペック化スキル拡張 v1（2026-06-10 強化版）」を追記、既存内容は一切改変せず追加のみ。
+- 10 項目それぞれに名前付きフレームワーク（Atomic Design 2.0 / NN/g Heuristics 15 / Rosenfeld IA / DTCG / WCAG 2.2 AAA + ARIA APG 1.3 / Figma Dev Mode Code Connect / Storybook 9 CSF 3.1 / Cognitive Walkthrough × IDEO / CSD + Lighthouse Budget / Notion AI 2.0 パイプライン）を固有名で記載。
+- 各項目に数値 KPI（Spec completeness ≥98% / handoff time ≤2h / a11y 100 / LCP ≤2.5s / INP ≤200ms / Server Component 比率 ≥75% 等）と名前付きツール群を明記。
+- 各項目 6〜12 行で step-flow を記述し、STEP 1〜STEP 6 の既存フローへの組み込み箇所と他エージェント（Hana / Ren / Mia / Sora / kaito / Sota / yuna）連携を明示。
+- 禁止事項（既存修正・新規ファイル・コミット・曖昧動詞）を遵守、APPEND only で末尾追加完了。

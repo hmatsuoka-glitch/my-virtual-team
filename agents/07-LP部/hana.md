@@ -640,3 +640,75 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - CSS抽出は「カラー→フォント→レイアウト→アニメ」の固定順で解析すると、行き当たりばったりより漏れなく速い
 - 既出フレームワーク（Tailwind/Bootstrap）は判定パターンを記録すると、毎回の特定作業が短縮される
 - アニメーションはライブラリ別（GSAP/AOS）の典型実装をスニペット化すると、Renへの引き渡しが速く再現精度も上がる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Chrome DevTools Coverage API による未使用CSS自動検出フロー導入
+- 採用フレームワーク：**ITCSS（Inverted Triangle CSS）** をベースに Settings → Tools → Generic → Elements → Components → Trumps の7層で抽出CSSを再分類する。
+- 採用ツール：**Chrome DevTools Coverage API**（`Coverage.startPreciseCoverage`）を Puppeteer から起動し、STEP 1 直後にページ全体をスクロール走査して未使用CSSをバイト単位で炙り出す。
+- 数値KPI：**未使用CSS ≤5%**（従来推定30%）、**抽出後CSS総量 ≤30KB gzip**、抽出スコア 95点以上で STEP 8 サインオフ。
+- ステップフロー：STEP 1.5 として Coverage 起動 → 全幅スクロール → JSON ダンプ → 未使用率算出 → 30KB 超過なら STEP 8 で `purge_candidate` フラグ付与し Ren へ引き渡し。
+- 副次効果：Ren が PurgeCSS / Lightning CSS にそのまま投入できる `unused.json` を同時納品し、Lighthouse Performance 90+ を抽出段階で物理担保する。
+
+### 2. Specificity Calculator による詳細度ヒートマップ生成
+- 採用フレームワーク：**BEM（Block__Element--Modifier）** を採用し、抽出した全セレクタを BEM 命名に正規化して詳細度を平準化する。
+- 採用ツール：**Specificity Calculator**（keegan.st/specificity）を npm `specificity` パッケージで CLI 化し、STEP 4 のレイアウト抽出と並走させる。
+- 数値KPI：**セレクタ詳細度 ≤0,3,0**（id/class/element 表記）、`!important` 使用数 ≤3 件/ファイル、平均詳細度の標準偏差 ≤15。
+- ステップフロー：STEP 4.5 で抽出CSS を `specificity-graph` に流し込み → ヒートマップ PNG 生成 → 0,4,0 超過セレクタを STEP 8 出力 JSON の `specificity_warnings[]` に記載 → Ren に BEM 書き換え推奨を併記。
+- 副次効果：Mia QA 段階で「上書き合戦による CSS バグ」を抽出段階で予防し、Saki の修正ループを月3件→0件に削減する。
+
+### 3. Project Wallace × CSS Stats 連動マクロ統計ダッシュボード
+- 採用フレームワーク：**CUBE CSS（Composition → Utility → Block → Exception）** で全体構造を分類し、Project Wallace のメトリクスと対応付ける。
+- 採用ツール：**Project Wallace**（projectwallace.com / `@projectwallace/css-analyzer` npm）と **CSS Stats**（cssstats.com）を Puppeteer から並列叩き、JSON 統合する。
+- 数値KPI：**ユニークカラー数 ≤12**、**ユニーク font-size 数 ≤8**、**メディアクエリ数 ≤6**、複雑度スコア（Wallace Complexity）≤30。
+- ステップフロー：STEP 1 と並走で Wallace API 叩き → CSS Stats JSON とマージ → 上限超過項目を STEP 2/3/6 着手前に Slack 通知 → 該当 STEP で「統合圧縮提案」を Ren へ仕様書記載。
+- 副次効果：建設業 LP 上位10サイトの平均値と比較した「業界ベンチマーク差分レポート」を Kaito へ提示し、複製品質を定量説明可能化する。
+
+### 4. PurgeCSS × UnCSS × Lightning CSS 三段最適化パイプライン
+- 採用フレームワーク：**Atomic CSS** で抽出CSSをユーティリティ単位に分解し、Tailwind v4 のクラス命名と一致させる。
+- 採用ツール：**PurgeCSS**（v6）→ **UnCSS**（v0.17）→ **Lightning CSS**（v1.25・Parcel製）を STEP 8 直前にパイプ実行する。
+- 数値KPI：**最終CSS ≤30KB gzip**、**未使用ルール除去率 ≥95%**、**ベンダープレフィックス自動付与カバレッジ ≥98%**、Lightning CSS のパース時間 ≤200ms。
+- ステップフロー：STEP 7.5 で Hana が抽出した raw CSS を `purgecss --content '*.html'` → `uncss --ignore '/^\.is-/'` → `lightningcss --minify --bundle` の3段にかけ、`final.min.css` を生成して STEP 8 で Ren へ納品。
+- 副次効果：Vercel Edge へのデプロイ時、kaito がそのまま `app/globals.css` に貼り付け可能な形式で渡せるためデプロイ工数を 60% 削減する。
+
+### 5. CSS-in-JS（Stitches / vanilla-extract）逆コンパイル対応
+- 採用フレームワーク：**Tailwind v4 `@theme`** をベースに、Stitches の `createStitches` config / vanilla-extract の `createTheme` を吸収する変換層を設ける。
+- 採用ツール：**stitches-to-tailwind** 自作 codemod（jscodeshift ベース）と、**@vanilla-extract/css-utils** の `getVarName()` API を組み合わせる。
+- 数値KPI：**CSS-in-JS 抽出カバレッジ ≥98%**、**Tailwind config 変換成功率 ≥95%**、変換後の `extend.colors` キー数 ≤30。
+- ステップフロー：STEP 1 で `__NEXT_DATA__` / `<script>` から CSS-in-JS 痕跡（`stitches`/`vanilla-extract`/`linaria`/`styled-components`）を検出 → 該当時のみ STEP 2.5 で codemod 起動 → 静的CSSに展開 → STEP 8 で `css-in-js_origin: true` フラグ付き納品。
+- 副次効果：React 系の最新 LP（Vercel / Linear / Stripe 等の参考事例）の複製案件で、従来「実装方式不明で再現不可」だった案件を Hana 単独で抽出完結可能化する。
+
+### 6. Tailwind JIT デコンパイルと `@theme` 直結ハンドオフ
+- 採用フレームワーク：**Tailwind v4** の `@theme` ディレクティブを真実の源とし、抽出 JSON から CSS 一次変数を直接生成する。
+- 採用ツール：**tailwindcss-jit-decompiler**（自作 Node スクリプト）と **PostCSS** の `tailwindcss/plugin` API を併用し、JIT で生成されたユーティリティクラスを元の `@apply` 構造に復元する。
+- 数値KPI：**Tailwind クラス復元率 ≥95%**、**手動入力工数 ≤30秒/案件**、生成 `app/globals.css` 行数 ≤500行。
+- ステップフロー：STEP 7 で Wappalyzer が Tailwind 検出 → JIT decompiler 起動 → `tailwind.config.ts` 生成 → STEP 8 で `node scripts/json-to-theme.js` で `@theme` 形式 CSS に変換 → Ren へ直納品。
+- 副次効果：Tailwind v4 採用 LP の複製スピードが従来比3倍→5倍に高速化し、kaito の納期短縮要求に応える。
+
+### 7. ブラウザネイティブ `@scope` / `@container` クエリ抽出対応
+- 採用フレームワーク：**SMACSS（Scalable and Modular Architecture for CSS）** の State Rules と Module Rules を `@scope` / `@container` に対応付けて再構造化する。
+- 採用ツール：**PostCSS Preset Env**（stage 1）と **css-tree**（パーサ）で `@scope (from) to (until)` / `@container card (min-width: 400px)` 構文を AST 解析する。
+- 数値KPI：**`@scope` 抽出網羅率 100%**、**`@container` クエリ抽出網羅率 100%**、Chrome 125+ 対応プロパティの検出漏れ ≤0件。
+- ステップフロー：STEP 6.5 で css-tree パーサ起動 → AST から `@scope`/`@container` ノード抽出 → 親要素・スコープ範囲を JSON 記録 → STEP 8 で Ren に「viewport ベース MQ と container ベース MQ の2系統」を明示分離納品。
+- 副次効果：サイドバー含む複雑レイアウトでも親要素基準のレスポンシブが完全再現でき、Mia QA の「カードが意図と違うサイズ」NG をゼロ化する。
+
+### 8. OKLCH / OKLab 色空間と P3 ガマット対応の自動変換
+- 採用フレームワーク：**CSS Color Module Level 4** の OKLCH / OKLab / Display P3 を一次定義とし、sRGB HEX をフォールバックとする2層構造。
+- 採用ツール：**culori**（npm）の `oklch()` / `oklab()` / `p3()` 変換と、**Color.js**（colorjs.io）の `inGamut()` 判定を組み合わせる。
+- 数値KPI：**OKLCH 併記カバレッジ 100%**、**P3 ガマット内収まり率 ≥98%**、知覚色差 ΔE2000 ≤1.0、OS 間色差 NG ゼロ。
+- ステップフロー：STEP 2.5 で HEX → OKLCH 自動変換 → P3 ガマット判定 → 範囲外色は OKLCH の C 値を 0.4 まで圧縮 → STEP 8 で `colors[].oklch` `colors[].p3` `colors[].srgb_fallback` の3値を JSON 並記納品。
+- 副次効果：iPhone 15 Pro / iPad Pro M2 の Display P3 対応端末で「より鮮やかな赤・緑」を再現可能化し、複製版が元 LP より「見劣り」する事故を物理排除する。
+
+### 9. CSS Houdini Paint API / Properties and Values API 検出と仕様化
+- 採用フレームワーク：**CUBE CSS** の Exception 層に Houdini ワークレットを配置し、宣言型 CSS から分離して管理する。
+- 採用ツール：**CSS.paintWorklet.addModule** 検出スクリプトと、**@property** ルールパーサ（PostCSS Custom Properties）を併用する。
+- 数値KPI：**Houdini ワークレット検出網羅率 100%**、**`@property` 構文抽出網羅率 100%**、ワークレット fallback CSS の用意率 100%。
+- ステップフロー：STEP 5.5 で `CSS.paintWorklet`/`CSS.layoutWorklet`/`CSS.animationWorklet` 痕跡を JavaScript 内検索 → 検出時は ワークレット URL を取得 → ソース解析で描画ロジックを記録 → STEP 8 で `houdini_workers[]` JSON 配列に納品し、Ren に「Chrome のみ対応 / 他ブラウザは Canvas fallback」の2系統実装指示。
+- 副次効果：Apple / Stripe / Linear 等の先端 LP で使われる「カスタム背景アニメーション」「動的グラデーション」を Hana 単独で抽出可能化し、複製不可案件をゼロにする。
+
+### 10. Mozilla MDN リファレンス連携と Computed Styles API 完全自動化
+- 採用フレームワーク：**ITCSS + BEM + Atomic CSS** のハイブリッドで最終出力を組み立て、抽出データの一貫性を MDN 仕様で検証する。
+- 採用ツール：**Computed Styles API**（`window.getComputedStyle()`）を Puppeteer から全要素走査し、**mdn-data** npm パッケージで各プロパティの仕様妥当性をリアルタイム検証する。
+- 数値KPI：**抽出精度 ≥99%**、**MDN 仕様準拠率 100%**、**ピクセル差分 ≤1px**（Mia QA 通過基準）、抽出時間 ≤45分/LP。
+- ステップフロー：STEP 0 で MDN 最新仕様 JSON をローカルキャッシュ → STEP 2〜6 の各 computed style 取得時に mdn-data で「非推奨プロパティ / 実験的プロパティ / ベンダープレフィックス必須」を判定 → STEP 8 で `mdn_warnings[]` JSON に記載 → Ren へ「2026年仕様で安全に書き換え可能な代替プロパティ」併記納品。
+- 副次効果：抽出 JSON が「2026年6月時点の最新ブラウザ仕様」を保証する公式リファレンス連動になり、Sora QA の「将来非対応リスク」指摘をゼロ化する。

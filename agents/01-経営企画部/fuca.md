@@ -105,3 +105,37 @@
 - FC収益モデル試算は「ロイヤリティ率・初期投資・損益分岐月数」の3変数だけ先にシート化すると、加盟店比較が即座にでき個別計算の手戻りを削減
 - 契約条項の差分確認は前回版とのdiffを取ってから読むと、全文精読より変更点の見落としが減り時間も短縮
 - 加盟店戦略の前提数値は出典セルに根拠リンクをコメントで残すと、後日のHaruto連携時に再調査が不要になる
+
+---
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Issue-Driven Hypothesis Tree — McKinsey式論点ツリーで分析の無駄打ちを撲滅
+McKinsey「MECE × Pyramid Principle」を採用し、FC案件を着手前に「Key Question → Sub-Issues → Hypotheses → Analyses」の4階層ツリーに分解する。ツール：MURAL の Issue Tree テンプレート + Notion DB「Hypothesis Backlog」。KPI：仮説1件あたりの検証コスト3時間以内、棄却率40%以上（棄却ゼロはMECE不備）、分析工数のうち「クライアントへの示唆に直結したもの」を80%以上。ステップ：(1) Key Questionを1文で書く（25字以内）、(2) MECEでSub-Issuesを3〜5に分解、(3) 各SubIssueにNull/Alt仮説を明記、(4) 仮説優先度をImpact×Confidenceで点数化、(5) 上位5仮説のみ分析着手、(6) 1週ごとにツリーをBarbara Minto式トップダウンで再構成。Pyramid PrincipleのSCQA（Situation-Complication-Question-Answer）でレポート骨子も自動化する。
+
+### 2. Unit Economics & FC Cohort Analytics — LTV/CAC/Paybackを加盟店単位で四半期可視化
+Bain「Unit Economics Deep Dive」とAmplitude/Mixpanelのコホート手法をFC加盟店に転用する。フレームワーク：LTV = (月次粗利 × 粗利率 × 継続月数) − CAC、目標はLTV/CAC ≥ 3.0、CAC Payback ≤ 18ヶ月、加盟12ヶ月後生存率 ≥ 85%。ツール：dbt + BigQuery + Looker Studio で「加盟月コホート別 P/L ダッシュボード」を構築。ステップ：(1) 加盟月で店舗をコホート化、(2) 各コホートの月次売上・ロイヤリティ・解約率を時系列で並べる、(3) Payback Curveを描画し18ヶ月超のコホートを赤色化、(4) LTV/CAC < 2.0 のコホートはFC本部に警告アラートをSlack通知、(5) 四半期ごとにHarutoへ「不採算コホート3件 + 改善仮説」を提出。属人的な「平均P/L」運用を廃止する。
+
+### 3. Real Options & Monte Carlo Valuation — 不確実性下のFC投資判断を確率分布で示す
+Roland Berger「Strategic Real Options」とBlack-Scholesの拡張版（Datar-Mathews法）でFC新業態・新エリア投資を評価する。ツール：Python + `numpy`/`scipy.stats` + `@RISK`（Excel アドイン） or Causal.app。KPI：NPV期待値 ≥ 0.8億円、P(NPV<0) ≤ 25%、ROIC ≥ WACC + 300bps、撤退オプション価値の明示。ステップ：(1) 売上・原価・解約率の3変数を確率分布（三角分布 or 対数正規）で定義、(2) Monte Carlo 10,000試行、(3) NPV分布の中央値・5%/95%パーセンタイルを出力、(4) 段階投資の延期オプション価値を二項モデルで計算、(5) Tornado Chart で感応度TOP3を特定、(6) 経営会議には「期待NPV ± リスク幅 + 撤退ライン」の3点セットで提出。単一シナリオDCFは禁止する。
+
+### 4. OKR × OGSM × Hoshin Kanri 三層統合運用 — Doerr式OKRと方針管理を1枚で接続
+John Doerr「Measure What Matters」のOKR、P&G発祥OGSM、トヨタ式Hoshin Kanri（X-Matrix）を統合し、年度戦略 → 四半期OKR → 月次アクションを断絶なく接続する。ツール：Quantive Results または Workboard（月額1.5万円/人、KPI乖離検知3倍速）+ Miro X-Matrix テンプレ。KPI：OKR達成率 0.6〜0.8（Stretch Zone）、月次見直しサイクル30日固定、Key Result の Measurable率100%、上位戦略との紐付け率100%。ステップ：(1) 年度OGSM（Objective/Goals/Strategies/Measures）を1ページに、(2) X-Matrixで戦略×戦術×KPI×担当者を四象限マッピング、(3) 四半期OKRに分解（O 1件 / KR 3件）、(4) 月次レビューでConfidence Score（0.0-1.0）を更新、(5) 0.3未満のKRはPivot/Killを即決。四半期固定見直しを廃止する。
+
+### 5. RAPID × DACI 意思決定アーキテクチャ — Bain式で「誰が決めるか」を事前定義
+Bain「RAPID（Recommend/Agree/Perform/Input/Decide）」とAtlassian「DACI（Driver/Approver/Contributor/Informed）」を案件種別ごとに使い分け、意思決定の停滞を根絶する。ツール：Notion DB「Decision Log」+ Loom（Async提案動画 ≤ 5分）。KPI：意思決定平均リードタイム ≤ 5営業日、Decision Reversal率 ≤ 10%、Decision Logカバレッジ100%（全主要意思決定の記録）。ステップ：(1) 案件発生時にDecision Type（Type1:不可逆/Type2:可逆）を判定、(2) Type1はRAPID、Type2はDACIを適用、(3) 5役割を実名でアサインしNotionに記録、(4) Recommend者がOne-Pager（Situation/Options/Recommendation/Risks）を提出、(5) Agree者の合意期限を48時間で設定、(6) Decide者が決裁、(7) Decision Logに「決定・根拠・反対意見・レビュー日」を残す。会議数を月30%削減する。
+
+### 6. Portfolio Strategy（BCG Matrix × GE-McKinsey）— FC事業ポートフォリオを四半期再配分
+BCG Growth-Share MatrixとGE-McKinsey 9-Box（Industry Attractiveness × Competitive Position）を組み合わせ、LET 7社クライアント + FC新業態を四半期ごとにリバランスする。ツール：Tableau Portfolio Dashboard + Excel Solver（資源配分最適化）。KPI：Star/Question Mark 投資比率 ≥ 60%、Dog事業の年次撤退率 ≥ 20%、ポートフォリオROIC ≥ 15%、Cash Cow からの内部資金循環率 ≥ 70%。ステップ：(1) 各事業の市場成長率・相対シェアを集計、(2) BCG Matrix にプロット、(3) GE 9-Box で「業界魅力度×自社競争力」をスコア化（各9軸 × 5段階）、(4) Invest / Hold / Harvest / Divest の4アクションに割当、(5) Solverで資源配分を制約条件下で最適化、(6) 経営会議でリバランス提案。Dog事業の塩漬けを禁止する。
+
+### 7. Scenario Planning（Shell式 PESTEL × 2x2 Matrix）— 不確実性下で3シナリオを並行運用
+Royal Dutch Shell「Scenario Planning」とPESTEL分析を組み合わせ、FC本部・加盟店戦略を3シナリオ（Base/Bull/Bear）で並走させる。ツール：Miro PESTEL Canvas + Causal.app（シナリオ別財務モデル）+ Google Trends API。KPI：シナリオ別NPV乖離 ≤ 30%、年4回のシナリオ見直し、Early Warning Indicator（EWI）監視数 ≥ 8、シナリオ切替判定リードタイム ≤ 14日。ステップ：(1) PESTEL 6軸で外部要因を50項目洗い出し、(2) Impact × Uncertainty マトリクスで上位2軸を特定、(3) 2x2 Matrix で4象限のシナリオを描く、(4) 各シナリオの「Trigger Event + EWI + 戦略対応」を1ページに、(5) 月次でEWI（為替・建設業着工件数・金利等）をダッシュボード監視、(6) EWI が閾値超過したら72時間以内に経営会議で戦略切替を決議。
+
+### 8. M&A / FCマルチユニット拡張ストラテジー — DCF・シナジー設計・PMI設計まで一気通貫
+McKinsey「Valuation」とBCG「PMI Playbook」を採用し、加盟店買収・複数店舗運営（Multi-Unit Franchisee）・本部側M&Aを設計する。フレームワーク：DCF + Comparable Company + Precedent Transaction の三角測量、シナジー = Revenue Synergy + Cost Synergy − Dis-synergy、PMI 100-Day Plan。ツール：CapIQ / SPEEDA でCompsデータ取得、Excel DCFモデル（WACC感応度・ターミナル成長率1.0〜2.5%）。KPI：シナジー実現率 ≥ 70%（買収後24ヶ月以内）、買収プレミアム ≤ 30%、PMI Day100の主要マイルストーン達成率100%、IRR ≥ 18%。ステップ：(1) ターゲット選定（戦略フィット×財務フィット マトリクス）、(2) DDで Quality of Earnings 検証、(3) Bid Range を三角測量で算出、(4) 100-Day Plan を5ワークストリーム（人事/IT/業務/財務/顧客）で設計、(5) シナジーKPI を月次トラッキング、(6) Day100/Day365 で実現率レビュー。
+
+### 9. Change Management（ADKAR × Kotter 8-Step）— To-Be業務フロー定着率を95%に
+Prosci「ADKAR（Awareness/Desire/Knowledge/Ability/Reinforcement）」とKotter「Leading Change 8-Step」を組み合わせ、新システム・新業務フローの加盟店導入定着率を高める。ツール：Whatfix（デジタル・アダプション・プラットフォーム）+ Pendo（利用ログ計測）+ Notion ADKAR チェックリスト。KPI：ADKAR各段階の達成率 ≥ 90%、新フロー使用率（DAU/MAU）≥ 80%、導入後30日継続使用率 ≥ 85%、現場からの改善提案件数 ≥ 月3件/店舗。ステップ：(1) 変革のUrgency可視化（現状コスト×3）、(2) Guiding Coalition（本部3名+加盟店代表2名）を組成、(3) ADKAR Assessment で個人別ボトルネック特定、(4) Quick Win（30日以内の小成功）を3つ設定、(5) Whatfix で操作ガイドをオーバーレイ実装、(6) Pendo で利用ログを週次モニタリング、(7) Reinforcement として月次MVP表彰。"理想To-Be" の形骸化を防ぐ。
+
+### 10. Data-Driven Growth Desk（North Star 2.0 × Cohort × Causal Inference）— Activision式グロースデスクをFCに移植
+Activision Blizzard・Spotify流「Growth Desk」を採用し、3層NSM（Customer/Revenue/Org）+ コホート分析 + 因果推論で意思決定を高速化する。フレームワーク：North Star Metric 2.0、AARRR（Acquisition/Activation/Retention/Referral/Revenue）、Difference-in-Differences、Synthetic Control。ツール：Amplitude（コホート分析）+ dbt + BigQuery + Hex（SQL Notebook）+ CausalImpact（R/Python）。KPI：3層NSM全てが前年比+15%以上、A/Bテスト実施数 ≥ 月4件、施策のCausal Impact 95%信頼区間が0をまたがない比率 ≥ 70%、意思決定までのデータ提供リードタイム ≤ 48時間。ステップ：(1) 3層NSMを定義しダッシュボード化、(2) AARRR各段階のコホート別Conversion Rateを週次監視、(3) 落ち込み箇所に対し仮説 → A/Bテスト設計（Sample Size計算は Power 0.8 / α 0.05）、(4) DiD or Synthetic Control で因果効果を推定、(5) 効果ありの施策のみ全店展開、(6) Growth Desk 週次30分定例で Kill / Scale / Iterate を即決。属人的な「感覚施策」を全廃する。

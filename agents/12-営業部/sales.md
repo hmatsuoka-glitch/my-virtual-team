@@ -180,3 +180,76 @@
 - 商談パイプラインはステージ別（リード→商談→受注）に集約すると、案件を個別に追うより俯瞰が速く失注予兆も拾える
 - 提案資料は受注実績テンプレを複製して差分編集すると、白紙作成より速く通過率も安定
 - 新規開拓はターゲットリストの優先度（業種×規模）を先に固定すると、闇雲なアプローチより効率的
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. MEDDPICC 商談クオリフィケーション完全実装
+- **フレームワーク**: MEDDPICC（Metrics / Economic Buyer / Decision Criteria / Decision Process / Identify Pain / Champion / Competition / Paper Process）を全商談2回目までに 8 項目完全埋め込み運用化。
+- **ツール**: Salesforce Sales Cloud + Einstein Activity Capture で 8 項目を商談オブジェクトのカスタム必須フィールド化、未充足時はステージ移行不可ロック。
+- **KPI**: MEDDPICC 充足率 ≥85%、Win Rate ≥30%、Forecast 精度誤差 ≤10%。
+- **ステップ**: 初回ヒアリング→ Metrics（顧客の数値課題）特定→ Economic Buyer 同席合意→ Champion 育成→ Paper Process（稟議フロー）逆算→ Close Plan 確定。
+- **失敗時**: Champion 不在のまま Stage 3 進入禁止、Cold 降格運用で歩留まり改善。
+- **連携**: Salesforce → HubSpot Sales Hub に同期し、マーケ側ナーチャリング再起動を自動化。
+
+### 2. Challenger Sale（教える営業）導入
+- **フレームワーク**: Challenger Sale の「Teach・Tailor・Take Control」3 段階を商談スクリプト化、顧客が気づいていない盲点を提示して主導権を握る。
+- **ツール**: Gong.io 通話解析で「Teaching Moment（顧客の認知が変わった瞬間）」を AI 抽出、トップ営業の発話パターンを全員に横展開。
+- **KPI**: Teaching Moment 発生率 ≥3 回/商談、Win Rate ≥30%、ACV ¥800 万 → ¥1,200 万へ単価向上。
+- **ステップ**: 業界インサイト準備→ Reframe（顧客の前提を覆す問い）→ Rational Drowning（数値で痛みを可視化）→ Emotional Impact → New Way 提示→ Our Solution。
+- **国内補強**: ナレッジワークのセールスイネーブルメント機能で Teaching コンテンツを部署共有資産化。
+
+### 3. SPIN Selling × Sandler System ハイブリッドヒアリング
+- **フレームワーク**: SPIN（Situation / Problem / Implication / Need-payoff）で痛みを構造化し、Sandler の Pain Funnel で痛みの深さを 7 階層掘り下げる。
+- **ツール**: Chorus.ai 通話録画で Implication 質問の頻度を計測、トップ 20% の発話比率（営業 30% / 顧客 70%）を全員基準化。
+- **KPI**: Implication 質問発話数 ≥5 回/商談、Deal cycle ≤45 日、商談 2 回目進行率 ≥70%。
+- **ステップ**: Situation（現状把握）→ Problem（顕在課題）→ Implication（放置時の損失額算定）→ Need-payoff（解決時の便益）→ Sandler Pain Funnel で「Tell me more / Be more specific / Example?」反復。
+- **禁止事項**: 営業発話比率 50% 超は即赤信号、Gong アラート連携。
+
+### 4. BANT+CHAMP リードクオリフィケーション統合
+- **フレームワーク**: BANT（Budget / Authority / Need / Timeline）に CHAMP（Challenges / Authority / Money / Prioritization）を重ね、リード Hot/Warm/Cold 判定を 8 項目スコアリング化。
+- **ツール**: Apollo.io + ZoomInfo Intent Data で 6sense シグナルを統合、企業 Intent スコア 70 以上を Hot 自動振り分け。
+- **KPI**: SQL 転換率 ≥40%、初回商談 → 2 回目進行率 ≥65%、Pipeline Velocity（金額×Win率÷日数）月次 +20%。
+- **ステップ**: Marketing 連携 MQL 受領→ 6sense Intent スコア確認→ BANT+CHAMP スコアリング→ Hot/Warm/Cold 自動振り分け→ Outreach シーケンス起動。
+- **国内補強**: Sansan で名刺データを Salesforce へ自動同期、決裁者の役職階層を組織図化。
+
+### 5. RevOps Pipeline Velocity 最適化（Clari 導入）
+- **フレームワーク**: RevOps（Revenue Operations）思想で Sales / Marketing / CS を統合し、Clari Revenue Operations Platform で Pipeline Velocity を週次計測。
+- **ツール**: Clari Forecast + Salesforce Einstein Forecasting で AI 予測精度を ±10% に固定、Slipped Deal（先送り案件）を自動検知。
+- **KPI**: Pipeline Velocity 月次 ¥1.5 億、Quota Attainment ≥90%、Forecast Accuracy ≥95%、滞留日数（ステージ別）≤14 日。
+- **ステップ**: 月初 Pipeline Review → Clari で Slipped Deal 抽出→ Champion 再起動 or Cold 降格判断→ 週次 Forecast Roll-up → 月末締め予測差異分析。
+- **連携**: HiCustomer で受注後 CS 健康度を可視化し、Churn 予兆を Sales に逆フィードバック。
+
+### 6. Sales Engagement Platform（Outreach / Salesloft）多段シーケンス
+- **フレームワーク**: Outreach の Sequence 機能で「メール×電話×LinkedIn×SMS」14 タッチを 21 日間に自動配信、Salesloft Cadence で A/B テスト。
+- **ツール**: Outreach AI + Salesloft Rhythm で送信時刻・件名・本文を AI 最適化、開封率 45% / 返信率 12% を標準化。
+- **KPI**: 初回返信率 ≥12%、シーケンス完走率 ≥80%、SQL 創出単価 ≤¥5,000、ACV ¥800 万。
+- **ステップ**: ICP（理想顧客プロファイル）定義→ Apollo.io でリスト抽出→ Outreach Sequence 設計（Day1 メール / Day3 電話 / Day5 LinkedIn / Day7 メール…）→ A/B テスト→ 勝ちパターン横展開。
+- **国内補強**: ベルフェイスでオンライン商談を録画→ Gong 解析、訪問なし完結を標準化。
+
+### 7. LinkedIn Sales Navigator × ICP/Persona 新規開拓
+- **フレームワーク**: ICP（Ideal Customer Profile）× Persona（決裁者・推進者・利用者）の 3 階層マッピングで Sales Navigator の Account Lists を構築。
+- **ツール**: Sales Navigator Advanced + Apollo.io + ZoomInfo の 3 点クロスで Job Change Alert / Funding Alert を Slack 通知。
+- **KPI**: Sales Navigator InMail 返信率 ≥18%、新規アカウント開拓数 月 30 社、ACV ¥800 万、Win Rate ≥30%。
+- **ステップ**: ICP 定義（業種 / 売上 / 従業員数 / Tech Stack）→ Sales Navigator で 500 社抽出→ Persona 3 階層特定→ Apollo で連絡先取得→ InMail テンプレ A/B → 商談化。
+- **禁止事項**: ICP 外アカウントへのアプローチ禁止、Cold 案件は 14 日で自動 Nurture 降格。
+
+### 8. Mutual Action Plan（MAP）× Champion Enablement
+- **フレームワーク**: Mutual Action Plan（顧客と相互コミット表）を商談 Stage 3 で必ず締結、Champion を社内 2 名以上育成。
+- **ツール**: Notion DB + Salesforce で MAP テンプレ運用、Champion 育成度を 5 段階スコアリング、ナレッジワークで Champion 向け資料を自動配信。
+- **KPI**: MAP 締結率 ≥80%、Champion 2 名以上案件の Win Rate ≥55%、Deal cycle ≤45 日、Quota attainment ≥90%。
+- **ステップ**: Stage 3 進入時に MAP ドラフト提示→ 顧客と共同編集→ マイルストーン（稟議日 / 決裁会議 / 契約日）相互合意→ Champion へ社内説明資料提供→ 週次同期。
+- **国内補強**: ベルフェイスで Champion 同席の社内勉強会を録画支援、社内浸透を肩代わり。
+
+### 9. 6sense Intent Data × ABM（Account Based Marketing）連携
+- **フレームワーク**: 6sense Intent Data で「購買意欲シグナル」を企業単位で検知し、ABM 戦略で Sales / Marketing が同一アカウントを攻略。
+- **ツール**: 6sense + ZoomInfo Intent + Drift（チャットボット）で Web 訪問者を企業特定、Intent スコア 70+ を Hot リスト化。
+- **KPI**: ABM ターゲット 100 社で Win Rate ≥40%、ACV ¥1,500 万、Pipeline 創出 ¥3 億 / 四半期、Quota attainment ≥90%。
+- **ステップ**: ABM ターゲット 100 社定義→ 6sense で Intent スコア監視→ スコア 70+ で Sales + Marketing 同時アプローチ→ Drift で Web 接客→ 個別 LP 提示→ 商談化。
+- **連携**: Mantle で SaaS 連携状況を可視化し、競合製品リプレース案件を優先攻略。
+
+### 10. Gong.io / Chorus.ai 通話解析による営業コーチング
+- **フレームワーク**: Gong.io + Chorus.ai で全通話を AI 解析、トップパフォーマーの「Talk-to-Listen 比率」「Question Rate」「Filler Word 頻度」を全員ベンチマーク化。
+- **ツール**: Gong Smart Trackers でキーワード（競合名 / 価格 / 反論）の発生を自動検知、Coaching Dashboard で個別フィードバック。
+- **KPI**: Talk-to-Listen 比率 30:70、Question Rate ≥15 問/商談、Win Rate ≥30%、新人 Ramp-up 期間 6 ヶ月→3 ヶ月へ短縮。
+- **ステップ**: 全通話自動録画→ Gong AI 解析→ 週次 1on1 で 3 場面ピックアップ→ トップ営業の同場面と比較→ 改善アクション 1 つ宣言→ 翌週検証。
+- **国内補強**: ベルフェイス + Gong 連携で日本語商談も完全解析、OneCal で商談スケジュール多重ブッキング防止。

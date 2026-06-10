@@ -295,3 +295,106 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - 資料は構成（見出し骨格）を先に確定してから本文を書くと、書き直しが減り全体が速い
 - 情報収集は出典をその場でリンク記録すると、執筆後の裏取り再調査が不要になる
 - 定番セクション（背景・課題・提案・効果）はテンプレ流用すると白紙より速い
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Minto Pyramid Principle × NotebookLM 二段並列で結論ファースト構造を 5 分で確定
+- バーバラ・ミント『考える技術・書く技術』のピラミッド原則を Rin の構成設計フェーズ第一手として適用する。
+- 頂点メッセージ 1 件、キーライン 3 件、支持事実 9 件の「1-3-9 構造」を Notion Q&A データベースに事前蓄積する。
+- NotebookLM に過去 50 件提案書 PDF を学習させ、新案件受領時に「業界 × 読者層」を入力して類似構造を即座に検索する。
+- Rin はキーライン候補 3 件に対し「Why 下→上 / So What 上→下」の双方向論理検証を 90 秒で実施する。
+- 構成設計フェーズの所要時間を従来 90 分から 5 分に短縮（94% 削減）する。
+- KPI: ピラミッド整合性スコア 4.5/5 以上、構成段階での Yuto 初回承認率 80% 以上、論理飛躍指摘ゼロを担保する。
+- 各キーラインに対し独立した出典 10 件以上を NotebookLM 横断検索で確保する。
+- Mana の校閲段階での「論理矛盾」指摘を 100% 予防する数値ターゲットを Rin 自身で計測する。
+
+### 2. SCQA（McKinsey Storyline）× Claude Projects Canvas で章冒頭 100 字の説得力を構造化
+- McKinsey 提唱の Situation → Complication → Question → Answer 4 段階を全章のリード文に強制適用する。
+- Claude Projects Canvas に「業界 × 読者層 × 訴求軸」プロンプトを投入し SCQA 4 段リード文 15 案を 30 秒生成する。
+- Rin は AI 15 案を 5 案に絞り、各案に「なぜこの SCQA が効くか」選定理由を 1 行併記する。
+- Situation で読者の共通認識を呼び覚まし、Complication で具体的脅威を明示する 2 段で離脱率 40% 削減を実現する。
+- Question で読者の脳内疑問を言語化し、Answer で本章本文への橋渡しを完成させる構造を作る。
+- KPI: 章冒頭離脱率 10% 以下、章末アクション喚起率 60% 以上、エグゼクティブ初回サインオフ率 80% 以上を計測する。
+- 各 SCQA リード文に対し出典 10 件以上の裏付けを Perplexity Deep Research で並行確保する。
+- Claude Projects Canvas で 15→5→2→1 の 4 段絞り込みを Notion テンプレ化し、選定責任を Rin が握る構造を維持する。
+
+### 3. StoryBrand SB7（Donald Miller）× Perplexity Spaces でクライアント主役のナラティブ提案書を構築
+- Donald Miller『StoryBrand SB7』の Character → Problem → Guide → Plan → CTA → Avoid Failure → Achieve Success の 7 段を提案書全体に貫通させる。
+- クライアントを Character（主人公）に、Rin の自社サービスを Guide（案内人）に配置し「主役の取り違え」を構造的に防ぐ。
+- Perplexity Spaces に「クライアント IR・プレスリリース・採用情報」を投入し Problem 抽出を 15 分で完了する。
+- Plan セクションでは 3 ステップ以内の具体的アクションを必ず明示し、抽象的提案を構造的に排除する。
+- Avoid Failure で「現状放置のコスト」、Achieve Success で「導入後の新世界」を数値付きで対比表示する。
+- KPI: 提案書受託率 50% 以上、クライアント側 NPS 4.5/5 以上、初回提出時の経営層サインオフ率 80% 以上を計測する。
+- Problem セクションには出典 10 件以上の業界統計を埋め込み、主観的課題定義を排除する。
+- Microsoft Copilot Researcher で競合 3 社の提案書構造を分析し、SB7 差別化要素を構成段階で確定する。
+
+### 4. SUCCESs（Made to Stick・Heath 兄弟）× Notion AI 2.0 で記憶定着率を構造的に担保
+- チップ＆ダン・ヒース『Made to Stick』の Simple / Unexpected / Concrete / Credible / Emotional / Stories の 6 原則を各スライドに採点表形式で適用する。
+- Notion AI 2.0 に「SUCCESs 採点ルーブリック」を実装し、執筆完了時に各スライドへ自動 6 軸スコアリングする。
+- Simple は「1 スライド 1 メッセージ・20 字フレーズ」、Unexpected は「業界常識への反証」を必須化する。
+- Concrete は「固有名詞・数値・期日」の 3 点セット、Credible は「出典 10 件以上の権威性」を担保する。
+- Emotional は「顧客 1 社の固有エピソード」、Stories は「As-Is → To-Be → How の 3 点ストーリー」で実装する。
+- KPI: SUCCESs 総合スコア 4.5/6 以上、1 時間後の記憶定着率テストで主要メッセージ想起率 80% 以上を計測する。
+- 各原則に対する裏付け出典 10 件以上を Notion AI 2.0 のデータベースリレーションで自動紐付けする。
+- 採点 4.0 未満のスライドは Rin が Souma 引き渡し前に必ず再執筆する基準を厳格運用する。
+
+### 5. BCG Storyline × Microsoft Copilot Researcher で「Governing Thought」を全章貫通させる
+- BCG 流ストーリーラインの Governing Thought（統治思想）= 資料全体を貫く 1 メッセージを構成設計の最初の 30 分で確定する。
+- Microsoft Copilot Researcher に「クライアント業界・案件テーマ・LET 独自 Insight」を投入し Governing Thought 候補 10 案を 5 分で生成する。
+- Rin が 10 案を 3 案に絞り、Yuto 経由で haruto（経営企画）の経営層視点レビューを 5 分で受領する。
+- Governing Thought 確定後、全章タイトル・全スライド見出しが Governing Thought を支持しているか「逆ピラミッド検証」を実施する。
+- 章タイトルだけ読んで Governing Thought が再構成できるか Rin がセルフテストし、再構成不可なら章タイトルを再執筆する。
+- KPI: Governing Thought 整合性スコア 4.5/5 以上、全章タイトルからの再構成成功率 90% 以上、経営層初回サインオフ率 80% 以上を計測する。
+- Governing Thought の裏付け出典 10 件以上を Microsoft Copilot Researcher のソース引用機能で自動収集する。
+- Yuto 提出前の最終チェックで「Governing Thought が 1 文で言えるか」を Rin が口頭テストで自己検証する。
+
+### 6. Beyond Bullet Points（Atkinson）× ChatGPT Pro Canvas で箇条書きを排除しナラティブスライドへ転換
+- Cliff Atkinson『Beyond Bullet Points』の 3 幕構成（Setting → Conflict → Resolution）を各スライドに適用する。
+- 従来の箇条書き 5 行スライドを「1 スライド 1 完結文＋ビジュアル 1 点」のナラティブ構造に転換する。
+- ChatGPT Pro Canvas に既存箇条書きスライドを投入し「ナラティブ変換 → 視覚化候補抽出」を 1 分で実施する。
+- Setting（前提共有）→ Conflict（課題提起）→ Resolution（解決提示）の 3 幕で読み手の感情移入を構造化する。
+- Souma へのハンドオフ時に「箇条書きゼロ・1 完結文・ビジュアル指示」の 3 セットで渡し、レイアウト試行錯誤を 40% 削減する。
+- KPI: ナラティブスライド比率 80% 以上、聴衆エンゲージメントスコア 4.5/5 以上、3 分要約テスト合格率 90% 以上を計測する。
+- 各 Resolution セクションには支持事実 10 件以上を脚注として埋め込み、説得力を担保する。
+- ChatGPT Pro Canvas で生成したナラティブ案を Rin が「クライアント固有性」観点で必ず編集し、汎用化事故を予防する。
+
+### 7. Save the Cat for Business（Blake Snyder 改訂版）× Notion AI 2.0 で提案書の感情曲線を 15 ビートで設計
+- 映画脚本術「Save the Cat」の 15 ビート構造をビジネス提案書に逆輸入し、Opening Image → Theme Stated → Set-up → Catalyst → Debate → Break into Two → B Story → Fun and Games → Midpoint → Bad Guys Close In → All Is Lost → Dark Night of the Soul → Break into Three → Finale → Final Image を提案書スライド配置にマッピングする。
+- Notion AI 2.0 に「15 ビート → 提案書スライド対応表」を実装し、Rin が新案件受領時に 10 分で全スライドの感情役割を確定する。
+- Catalyst（業界変化の到来）と All Is Lost（現状放置の最悪シナリオ）を数値付きで対比し、危機感を構造的に喚起する。
+- Midpoint（自社サービスの転換点提示）と Finale（導入後の新世界）の感情ピークを Rin が 4 点マッピングで明示配置する。
+- 絵コンテ手法と組み合わせ、各ビートに対応するスライドのビジュアル要素・固有名詞・数値を一覧化する。
+- KPI: 感情曲線 4 ピーク全配置 100%、クライアント感情移入度スコア 4.5/5 以上、提案書受託率 50% 以上を計測する。
+- 各ビートに対する裏付け出典 10 件以上を Notion AI 2.0 の Q&A 機能で自動検索可能化する。
+- 説明書化した提案書事故を構造的にゼロ化し、ドラマ構造を Rin が責任を持って設計する。
+
+### 8. AIDA × Cialdini 7 Principles × Claude Projects で説得力を 2 軸で立体化
+- 古典 AIDA（Attention → Interest → Desire → Action）とロバート・チャルディーニ『影響力の武器』7 原則（Reciprocity / Commitment / Social Proof / Authority / Liking / Scarcity / Unity）を直交軸で適用する。
+- Attention セクションに Authority（業界権威データ）と Social Proof（導入企業数）を組み合わせ説得力を立体化する。
+- Interest セクションに Reciprocity（無料診断・初回特典）と Liking（クライアント業界共通言語）を埋め込む。
+- Desire セクションに Scarcity（限定枠・期間）と Commitment（小さな YES の積み上げ）を構造化する。
+- Action セクションに Unity（同じ業界・同じ目標）の最終訴求を配置し CTA 確率を最大化する。
+- Claude Projects に「AIDA 4 段 × Cialdini 7 原則」の 28 マス採点表を実装し、執筆完了時に Rin が自動採点する。
+- KPI: 28 マス採点平均スコア 4.5/5 以上、CTA クリック率（メール添付資料）30% 以上、初回受託率 50% 以上を計測する。
+- 各原則の裏付け出典 10 件以上を業界統計・公式調査機関から確保し、根拠ゼロの感情訴求を排除する。
+
+### 9. TAM/SAM/SOM × Perplexity Spaces × ChatGPT Pro Canvas で市場規模の算出ロジックを完全透明化
+- ピッチデックの TAM/SAM/SOM スライドに必ず「算出式・各変数の出典・控除ロジック」の 3 点セット脚注を配置する。
+- Perplexity Spaces に「業界統計・人口動態・単価相場」を投入し、TAM 算出に必要な変数候補を 10 分で抽出する。
+- ChatGPT Pro Canvas に Fermi 推定式（人口 × 単価 × 採用率等）を投入し、複数シナリオ（楽観・標準・悲観）を並列計算する。
+- TAM → SAM の絞り込みでは「地域限定・規模限定・チャネル限定」の 3 軸控除を明示し、機械的に SOM を算出する。
+- 算出式の各変数には出典 10 件以上の業界統計を脚注で添付し、投資家の「数字の透明性」要求に構造対応する。
+- KPI: TAM/SAM/SOM 算出ロジック整合性スコア 5/5、投資家初回サインオフ率 80% 以上、差し戻し率 10% 以下を計測する。
+- 基準年度（2024 年実績ベース等）を構成設計フェーズで確定し、全変数を基準年度に揃える運用を厳格適用する。
+- Yuto 経由で nori（法務）に「算出ロジックの広告法・景表法適合性」を執筆段階で事前確認し、後付け修正を予防する。
+
+### 10. Long-form Analysis × Notion Q&A × Microsoft Copilot Researcher で経営層向け深掘りレポートを 30 ページ生成
+- a16z / Stratechery 流の Long-form 分析（5,000 字以上の深掘り）を経営層向け意思決定資料の新標準として確立する。
+- Notion Q&A データベースに「業界トレンド・競合動向・規制動向・技術動向」の 4 軸を実装し、Rin が新案件受領時に即時検索可能化する。
+- Microsoft Copilot Researcher で 30 ページレポートの章立て候補を 5 分で生成し、Rin が編集して構成確定する。
+- 各章は SCQA リード文 → ピラミッド本文 → Lead-in/Body/Close 3 段構造で執筆し、論理的深度を担保する。
+- Long-form レポートと「3 分要約版エグゼクティブサマリー」「10 分プレゼン版ピッチデック」の 3 形態を Pandoc + テンプレ流し込みで自動派生生成する。
+- KPI: Long-form レポート総ページ数 20-30 ページ、引用出典数 100 件以上（全主張に対し平均 10 件以上）、経営層滞在読了時間 30 分以上を計測する。
+- 全章末に「Key Takeaway 3 点」を 60 字以内で要約配置し、飛ばし読み読者も核心を掴める二層構造を作る。
+- 1 案件 1 Markdown SSOT 原則を厳守し、Long-form / Pitch Deck / Executive Summary の 3 形態を 10 分で派生生成可能な構造を維持する。
+

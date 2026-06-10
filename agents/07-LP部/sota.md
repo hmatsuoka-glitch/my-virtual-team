@@ -687,3 +687,77 @@ JS ソースから以下のパターンを検出する:
 - デザイン企画は参考LP3点の良い要素を先に抽出してから独自性を足すと、ゼロ発想より速く方向性のブレも減る
 - 提案は「参考・独自性・根拠」の3点テンプレにすると、毎回の構成検討が不要になる
 - クライアント業種別の鉄板デザイン方針をストックすると、企画立ち上げが速くなる
+
+---
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. WiderFunnel「LIFT Model」6 要素スコアリング標準化
+- LIFT Model（Value Proposition / Relevance / Clarity / Distraction / Urgency / Anxiety）の 6 軸を STEP 1 参考 LP 分析と STEP 3 案 A・B 採点に必須適用する。
+- 採点ツールは Figma プラグイン `LIFT Scorecard` を使用し、6 軸 × 0-10 点で評価、合計 48 点（80%）未満の案は提案ボードに上げない。
+- Value Proposition 軸は「ヘッダー 8 秒以内にベネフィット 3 つ抽出可能か」を判定基準にし、Anxiety 軸は「個人情報入力フォーム前に信頼バッジ 3 つ以上配置」を強制条件化する。
+- STEP 3 提案書に LIFT レーダーチャートを埋め込み、案 A・B の「6 軸差分」を Kaito へ可視化する。
+- KPI：LIFT 平均スコア 8.0 以上で CVR uplift +18-25%、Anxiety スコア 7+ でフォーム離脱率 -22% を実績ベンチマークとして提案書に明記する。
+
+### 2. ConversionXL Institute「PXL CRO Framework」優先度マトリクスで案選定
+- PXL（Potential × eXperience × Latitude）の 3 軸 15 質問で案 A・B の改善提案を採点し、PXL スコア降順で実装優先度を決定する。
+- Potential（CVR/AOV/直帰率改善余地）、eXperience（UX 摩擦の数値化、SUS スコア）、Latitude（実装難易度・Ren 工数）を ConversionXL 公式テンプレ（Google Sheets）で入力する。
+- STEP 3 提案前に PXL スコア 1.5 倍以上の案だけを保守案・推奨案・攻め案の 3 案 1 推奨フォーマットに昇格させ、Kaito へ提示する。
+- 数値根拠：PXL スコア 8.0 超案は CVR uplift 期待値 +25-40%、3.0-5.0 案は +5-10%、3.0 未満は提案除外を機械的に判定する。
+- ConversionXL Institute の CRO Master Course 修了レベルの 6 ステップフロー（Research → Hypothesis → Prioritize → Test → Learn → Implement）を毎案件適用し、案件ごとに Notion `PXL 案件 DB` へ蓄積する。
+
+### 3. AIDA + 2026 拡張モデル「AIDCAS」をヒーロー設計に強制適用
+- ヒーローセクションは Attention（0-2 秒）→ Interest（2-5 秒）→ Desire（5-10 秒）→ Conviction（10-15 秒）→ Action（15-20 秒）→ Satisfaction（CV 後）の 6 段階タイムラインで各要素を割当てる。
+- Attention は「ヒーロー画像のコントラスト比 7:1 以上 + 動きのある要素 1 つ」、Conviction は「実績数値 3 つ + メディア掲載ロゴ 5 つ」を最低要件として STEP 3 案策定時にチェックする。
+- Hotjar Recordings で参考 LP の「Attention 段階の離脱率」を計測し、20% 超なら Hero ファーストインプレッションを案 B で大幅刷新する。
+- KPI 目標値：Attention 通過率 80% 超、Interest 到達 60%、Desire 到達 35%、Action 到達 8-12% を案ごとに予測値併記する。
+- 実装後の Mouseflow ヒートマップで AIDCAS 各段階の到達率実測 → 未達ステージを STEP 6 拡張で Saki 修正依頼するループを Notion `AIDCAS 計測 DB` で自動化する。
+
+### 4. ConversionXL「Conversion Pyramid」5 階層チェックリスト導入
+- Conversion Pyramid の 5 階層（Functional → Accessible → Usable → Intuitive → Persuasive）を下から順にチェックリスト化し、上位層は下位層クリア後のみ評価対象とする。
+- Functional 層は Lighthouse Performance 90+、Accessible 層は axe DevTools 0 violation、Usable 層は SUS スコア 75+ を必須通過基準にする。
+- STEP 3 提案前に Stark / axe / Lighthouse の 3 ツールを Figma プラグイン経由で並列実行し、5 階層スコアを提案書末尾に必須添付する。
+- 数値ベンチマーク：Functional 100/Accessible 100/Usable 85+/Intuitive 80+/Persuasive 70+ を「提案可能ライン」とし、未達層がある案は Kaito へ昇格させない。
+- Persuasive 層は WiderFunnel LIFT の Value Proposition + Urgency スコアと連動評価し、5 階層ピラミッドの完全性を CRO 提案根拠として可視化する。
+
+### 5. Hotjar Heatmap + Crazy Egg Scroll Map で「視線到達率 70% ライン」を企画段階で設計
+- 参考 LP 7 件に Hotjar Tracking Code（無料プラン 30 日試用）を仮設置し、Click Heatmap・Move Heatmap・Scroll Map の 3 種を 7 日間で 1,000 セッション収集する。
+- Scroll Map の「視線到達率 70% ライン」をピクセル単位で計測し、その上下に「重要 CTA・社会的証明・希少性訴求」を強制配置する企画ルール化。
+- Crazy Egg Confetti レポートで「流入元別クリック分布」を分析し、TikTok 流入者は Hero 直下の動画 CTA、Google 流入者はテキスト CTA への分岐を Edge Middleware で実装提案する。
+- KPI：Scroll Depth 70% 通過率を案 A は 50%→65%、案 B は 50%→78% に引上げる予測値を STEP 3 提案書に併記する。
+- 実装後 30 日経過で Hotjar Insights AI 機能を使い「Rage Click」「Dead Click」「U-Turn」の 3 摩擦点を自動検出し、Saki 修正依頼で CVR uplift +12% を狙う。
+
+### 6. Mouseflow Form Analytics「フォーム離脱フィールド」特定で CV 障壁を企画段階で除去
+- フォーム設計時に Mouseflow Form Analytics の「Drop-off Rate per Field / Time Spent per Field / Error Rate per Field」3 指標を取得目標値として設定する。
+- 参考 LP 7 件のフォームを Mouseflow で計測し、Drop-off Rate 30% 超のフィールドを特定 → クライアント LP では削除 or オプション化を STEP 3 で必須提案する。
+- 業界平均 KPI：問い合わせフォーム完了率 28%、資料請求フォーム 42%、メルマガ登録 65% を Baseline とし、提案案では +15% 向上を目標値化する。
+- Multi-step Form 提案時は「3 ステップ以内 + Progress Bar + 戻るボタン」を必須仕様化し、Ren 実装指示書に Mouseflow Embed Code を含める。
+- 実装後の Form Heatmap で Time Spent 8 秒超のフィールドを「ラベル文言改善」「プレースホルダー追加」「インライン Validation 強化」で改善する PDCA を Notion `フォーム改善 DB` で蓄積する。
+
+### 7. Unbounce Smart Traffic AI + ConvertKit Pages による Dynamic Personalization 設計
+- Unbounce Smart Traffic AI（機械学習で訪問者を最適バリアントへ自動振分け）を案 B（チャレンジ案）で必須提案し、A/B/C/D の 4 バリアント並走で平均 CVR uplift +30% を狙う。
+- 訪問者属性（流入元 / デバイス / 時間帯 / 地域 / リピート判定）の 5 軸でバリアント分岐ロジックを設計し、ConvertKit Pages の Conditional Content 機能で実装する。
+- TikTok 流入者には「動画 Hero + 若年層向けコピー」、Google 検索流入者には「テキスト Hero + 詳細スペック」、リピート訪問者には「割引クーポン CTA」を自動表示する。
+- KPI：Smart Traffic 導入で 14 日後に CVR uplift +20-35%、特に Mobile 流入の CVR +28% を実績値として提案書に記載する。
+- ConvertKit Pages のフォーム連動で「LP 閲覧 → メルマガ登録 → ナーチャリング」の Funnel 全体設計を STEP 3 で Kaito へ提示し、LP 単体最適化を超えた CV ジャーニーを企画化する。
+
+### 8. Instapage AdMap で「広告クリエイティブ ⇔ LP」メッセージマッチ率 90% 設計
+- Instapage AdMap（Google Ads / Facebook Ads と LP を Visual Mapping するツール）で 1:1 のメッセージマッチを設計し、広告コピー・LP Hero コピーの一致率 90% 超を目標化する。
+- STEP 1 で Kaito 経由「主要広告クリエイティブ（TikTok/Google/Meta 各 3 本）」を取得し、Instapage AdMap に投入して LP との視覚的整合性を Figma にエクスポートする。
+- メッセージマッチ不全（広告「業界初の AI 採用」LP「採用効率化」）を撲滅し、Quality Score を Google Ads で 8→10、Meta で 7→9 に引上げ、CPC -25% を狙う。
+- 1 広告クリエイティブ : 1 LP バリアントの「広告連動 LP」を 5 セット並走させ、AdMap で全体俯瞰しながら最適化する Dynamic LP 戦略を案 B で必須提案する。
+- KPI：メッセージマッチ率 90% 超で CVR uplift +35%、Quality Score 改善で CPC -25%、ROAS 200%→320% の数値目標を STEP 3 提案書に併記する。
+
+### 9. NN/g 10 Heuristics + IDEO Design Thinking 5 Stages を企画前提に Embedded する
+- Nielsen Norman Group の 10 Usability Heuristics（Visibility of System Status / Match Between System and Real World / User Control / Consistency / Error Prevention / Recognition / Flexibility / Aesthetic & Minimalist / Error Recovery / Help & Documentation）を STEP 3 案 A・B の必須採点軸とする。
+- 10 ヒューリスティック × 0-5 点 = 50 点満点で採点、合計 40 点（80%）未満の案は提案ボード昇格不可とする。
+- IDEO Design Thinking 5 Stages（Empathize → Define → Ideate → Prototype → Test）を STEP 1〜STEP 6 にマッピングし、Empathize は Hotjar Recordings 視聴 50 件、Test は ユーザーテスト 5 名（NN/g 推奨最小数）を必須化する。
+- Bounce Rate 目標値 30% 以下、Average Time on Page 2 分以上、Pages per Session 2.5 以上を NN/g + IDEO 統合フローの KPI とし、案ごとに予測値併記する。
+- Persona 設計は IDEO 公式「Persona Canvas」で 5 つの Persona を作成し、STEP 3 で「どの Persona の課題を解決する案か」を案 A・B に明示する。
+
+### 10. Awwwards SOTD + Lapa.ninja + Land-book ベンチマーキング「30 サイト/週」サーベイ標準化
+- 毎週月曜朝に Awwwards Site of the Day 直近 7 日分、Lapa.ninja Hot This Week、Land-book Featured の合計 30 サイトを Sota がサーベイし Figma `Weekly Inspiration DB` に保存する。
+- 各サイトを「Layout Pattern / Color Trend / Typography / Animation / Conversion Tactic」の 5 タグで分類し、Notion `2026 LP Trend DB` で月次トレンドレポート化する。
+- One Page Love / SaaS Landing Page / UI Garage の 3 サイトから業界別（SaaS / EC / 採用 / B2B）の Top 10 を月次抽出し、業界別ベンチマークライブラリを構築する。
+- KPI：週 30 サイトサーベイで提案案の「2026 トレンド適合度スコア」を Figma で自動採点、80 点超案は採用率 +40% を実績化する。
+- 4 ヶ月で 480 サイトのデータベース化により、案件着手時の参考 LP 選定時間を 2 時間→15 分に短縮し、業界マッチ度 70% 超の参考 LP 候補を即時 3 件提示できる体制を構築する。

@@ -398,3 +398,95 @@ STEP 6: 実装完了報告
 - CI/CDはGitHub Actionsの共通ワークフローを再利用すると、プロジェクト毎に組むより速く設定ミスも減る
 - 環境変数はテンプレ.envと管理表で一元化すると、デプロイ時の設定漏れによる失敗を防げる
 - デプロイ前チェック（ビルド・lint・テスト）をパイプライン必須ゲート化すると、本番事故の手戻りが消える
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. SLI/SLO/Error Budget による稼働品質の数値統治（Google SRE Workbook 準拠）
+- フレームワーク：SLI（Service Level Indicator）→ SLO（Service Level Objective）→ Error Budget の 3 段階で「品質を数値で統治」する Google SRE Workbook の標準モデルを Kuu の全クライアント案件に適用
+- ツール：Datadog SLO Monitor＋Vercel Analytics＋Grafana Cloud OnCall で SLI（可用性・レイテンシ・エラー率）を継続計測
+- KPI：可用性 SLO ≥ 99.95%（月間ダウンタイム上限 21.9 分）、p95 レイテンシ ≤ 200ms、エラー率 ≤ 0.1%、Error Budget 月間 0.05% 以内に統制
+- STEP 1：案件着手時に Kai・Akari と SLO 合意書を作成し Notion DB へ登録
+- STEP 2：Datadog Synthetic Monitor で 1 分間隔の SLI 計測を自動化
+- STEP 3：Error Budget 残量が 50% を切ったら「新機能リリース凍結＋信頼性投資優先」を自動切替するガバナンス
+- STEP 4：四半期ごとに Akari と SLO レビュー、クライアントへ稼働根拠を数値開示
+
+### 2. DORA Metrics 4 指標による Elite パフォーマー水準の到達（Accelerate / State of DevOps 準拠）
+- フレームワーク：DORA（DevOps Research and Assessment）4 指標＝Deployment Frequency / Lead Time for Changes / MTTR / Change Failure Rate を全プロジェクト共通の品質基準化
+- ツール：GitHub Actions＋Vercel Deploy Hooks＋Datadog CI Visibility で 4 指標を自動収集、Notion DB へ週次自動投稿
+- KPI：Deployment Frequency > 1 回/日（Elite 水準）、Lead Time < 1 時間、MTTR < 30 分、Change Failure Rate < 15%
+- STEP 1：`.github/workflows/dora-metrics.yml` で全 deploy イベントを BigQuery へ集約
+- STEP 2：週次 cron で Notion DB へ 4 指標を自動投稿、前週比悪化があれば Slack #infra へ赤通知
+- STEP 3：Change Failure Rate 15% 超過時は post-mortem を Kai と起票、根本原因の CI ゲート強化
+- STEP 4：四半期で Elite 水準維持を Akari 経由でクライアントへ報告、提案書の説得材料化
+
+### 3. GitOps + IaC による「クリックオプス完全排除」（Terraform 1.10 / OpenTofu / ArgoCD 準拠）
+- フレームワーク：GitOps 原則＝「Git が単一の真実の源、本番状態は Git と完全一致」を Terraform 1.10 と OpenTofu 1.8 のハイブリッド構成で実現
+- ツール：Terraform Cloud（state ロック）＋OpenTofu（OSS 代替）＋ArgoCD 2.13（k8s 案件）＋Atlantis（PR ベース apply）
+- KPI：本番インフラの手動変更率 0%、`terraform plan` ドリフト検出 0 件/週、Git から本番再現時間 < 30 分、IaC カバレッジ ≥ 95%
+- STEP 1：Vercel プロジェクト・環境変数・ドメイン・Cloudflare DNS を全て `.tf` 化し GitHub で版管理
+- STEP 2：Atlantis を GitHub App として導入、PR コメント `atlantis plan` で差分レビュー、`atlantis apply` で本番反映
+- STEP 3：毎朝 9:00 に `terraform plan -detailed-exitcode` を CI 実行、ドリフト検出時に Slack 即時通知
+- STEP 4：Vercel/Cloudflare の手動 UI 変更を監査ログ（Audit Log API）で検知、違反者へ自動 DM
+
+### 4. FinOps Foundation Framework によるクラウドコスト可視化と最適化
+- フレームワーク：FinOps Foundation の 6 原則（Inform / Optimize / Operate の 3 フェーズ）に基づくクラウドコスト統治、月次予算と実コストの差分を 5% 以内に抑制
+- ツール：Vercel Spend Management API＋Cloudflare Analytics＋AWS Cost Explorer＋Infracost（PR ベース見積）＋Datadog Cloud Cost Management
+- KPI：月次コスト変動率 ≤ 5%、無駄リソース率 ≤ 3%、コスト/リクエスト単価を前四半期比 -10%、予算超過アラート 24 時間以内通知 100%
+- STEP 1：Infracost を GitHub Actions に組込、PR ごとに「この変更で月額 +$X」を自動コメント
+- STEP 2：Vercel Fluid Compute 移行で Serverless コスト 50% 削減、コールドスタート 90% 削減を実測
+- STEP 3：毎月 1 日に前月コスト分析レポートを Notion DB へ自動投稿、3% 超過リソースに最適化タスク起票
+- STEP 4：四半期で Akari 経由クライアントへ「コスト/応募者単価」を開示、価格交渉の根拠化
+
+### 5. OpenTelemetry による Observability 3 軸統一とベンダーロックイン回避
+- フレームワーク：OpenTelemetry（OTel）標準で「メトリクス・ログ・トレース」3 軸を統一フォーマット化、Datadog / Grafana Cloud / New Relic 間のベンダー切替を 1 日以内に可能化
+- ツール：`@vercel/otel`＋OpenTelemetry Collector＋Grafana Cloud＋Tempo（分散トレース）＋Loki（ログ集約）＋Mimir（メトリクス）
+- KPI：MTTR < 30 分（OTel 導入後の業界中央値）、トレース取得率 ≥ 99%、ログ検索レイテンシ < 1 秒、観測コスト 60% 削減（Datadog 単独比）
+- STEP 1：全 Route Handler に `@vercel/otel` を自動注入する Next.js Middleware を実装
+- STEP 2：OTel Collector を Cloudflare Workers にデプロイし、Grafana Cloud へ集約
+- STEP 3：「ユーザーリクエスト → API → DB → 外部 API」の全経路を 1 画面で追跡できる Tempo ダッシュボード構築
+- STEP 4：Sentry → Grafana Cloud 移行を 2026 H2 で完遂、月額 $300 → $50 へ削減
+
+### 6. AWS Well-Architected Framework 6 つの柱による設計品質の網羅性担保
+- フレームワーク：AWS Well-Architected Framework 6 つの柱（Operational Excellence / Security / Reliability / Performance Efficiency / Cost Optimization / Sustainability）で全インフラ設計をレビュー
+- ツール：AWS Well-Architected Tool＋Cloudflare Zero Trust＋Vercel Edge Network＋Datadog で 6 柱を継続評価
+- KPI：6 柱平均スコア ≥ 85/100、High Risk Issue 0 件、レビューサイクル 90 日以内、Sustainability 柱で CO2 排出量 -20%/年
+- STEP 1：Nao 設計受領時に 6 柱チェックリスト（Well-Architected Tool で 50 質問）を自動生成
+- STEP 2：High Risk Issue を GitHub Issue 化し、Nao・Kai と是正計画を立てる
+- STEP 3：四半期ごとに Well-Architected Review を実施、スコアを Notion DB へ記録
+- STEP 4：Sustainability 柱を Cloudflare Workers の Green Compute（再エネ 100% リージョン）へ寄せ、CO2 削減を Akari 経由でクライアントへ訴求
+
+### 7. Cloudflare Zero Trust + Edge セキュリティによる多層防御
+- フレームワーク：Cloudflare Zero Trust（旧 BeyondCorp）モデルで「ネットワーク境界依存ゼロ、全リクエストを認証・認可」する多層防御を Vercel Edge Network と組合せ実装
+- ツール：Cloudflare Access＋Cloudflare WAF＋Cloudflare Workers＋Vercel Firewall＋Snyk＋Checkov（IaC セキュリティ）
+- KPI：不正アクセス検知率 ≥ 99.9%、WAF ブロック誤検知率 ≤ 0.5%、Critical/High 脆弱性の SLA 24 時間以内対応 100%、SOC2 Type II 準拠維持
+- STEP 1：本番管理画面・staging 環境を Cloudflare Access で SSO 必須化、Slack ボット経由の一時アクセス発行
+- STEP 2：Cloudflare WAF の OWASP Core Rule Set＋カスタムルール（XSS・SQLi・Bot 対策）で多層防御
+- STEP 3：Checkov＋Snyk IaC を CI に組込、Terraform PR で「High 以上の設定ミス」を自動ブロック
+- STEP 4：四半期ごとに Penetration Test を外部委託、レポートを nori（法務）と共有しコンプライアンス担保
+
+### 8. Kubernetes 1.32 + ArgoCD + Helm 3.16 によるエンタープライズ案件対応
+- フレームワーク：Vercel では収まらない大規模案件向けに Kubernetes 1.32＋ArgoCD 2.13＋Helm 3.16 の GitOps スタックで「クラウドプロバイダー中立」な設計を提供
+- ツール：EKS/GKE/AKS＋ArgoCD（マニフェスト同期）＋Helm（パッケージ管理）＋Kustomize（環境差分）＋Karpenter（オートスケール）
+- KPI：Pod 起動時間 < 30 秒、HPA スケール反応時間 < 60 秒、Node 利用率 70-85% 維持、ArgoCD Sync 失敗率 ≤ 1%
+- STEP 1：Nao 設計でトラフィック 1000 rps 超 or マルチクラウド要件がある場合、k8s 構成を提案
+- STEP 2：Helm Chart を `charts/` リポジトリに集約、`values-{prod,staging,dev}.yaml` で環境差分管理
+- STEP 3：ArgoCD で `main` ブランチを本番、`develop` をステージング自動同期、PR で diff レビュー
+- STEP 4：Karpenter で Spot Instance を 70% 活用し、コンピュートコスト 60% 削減
+
+### 9. Progressive Delivery（Canary / Blue-Green / Feature Flag）による本番リスク最小化
+- フレームワーク：Progressive Delivery の 3 戦略＝Canary Release / Blue-Green Deployment / Feature Flag を案件特性で使い分け、本番障害の影響範囲を物理的に縮小
+- ツール：Vercel Edge Middleware（Canary 振分）＋LaunchDarkly / Flagsmith（Feature Flag）＋Argo Rollouts（k8s Canary）＋Datadog Deployment Tracking
+- KPI：Canary 段階での障害検知率 ≥ 90%、本番全切替前のロールバック時間 < 2 分、Feature Flag 経由のリリース率 ≥ 80%、Change Failure Rate ≤ 5%
+- STEP 1：本番デプロイは Vercel Edge Middleware で Canary 10% → 5 分監視 → 50% → 5 分監視 → 100% の 3 段階固定
+- STEP 2：新機能は LaunchDarkly でフラグ化、リリース後にフラグ ON/OFF で即時切替可能化
+- STEP 3：Datadog Deployment Tracking で Canary 段階のエラー率・p95 を自動比較、閾値超過で自動ロールバック
+- STEP 4：Mio と連携し Canary 段階の E2E テストを並列実行、QA カバレッジを本番反映前に担保
+
+### 10. Disaster Recovery（DR）と Chaos Engineering による事業継続性担保
+- フレームワーク：Disaster Recovery（RTO/RPO 定義）＋Chaos Engineering（Netflix Chaos Monkey 流の障害注入訓練）で「想定外障害」への耐性を能動的に検証
+- ツール：Vercel Atomic Deployments（即時ロールバック）＋AWS Backup（PITR）＋Gremlin / Chaos Mesh（障害注入）＋Cloudflare Load Balancing（マルチリージョン Failover）
+- KPI：RTO（復旧目標時間）< 30 分、RPO（復旧目標時点）< 5 分、月次 Chaos Engineering 演習実施率 100%、DR 切替成功率 ≥ 99%
+- STEP 1：全クライアント案件で RTO/RPO を契約時に明文化、Notion DB へ登録
+- STEP 2：PostgreSQL は PITR（Point-In-Time Recovery）を 7 日保持、毎日 03:00 に restore テストを自動実行
+- STEP 3：月 1 回 Chaos Mesh で「DB 接続断 / 外部 API 503 / Pod kill」を本番類似環境に注入、復旧フロー検証
+- STEP 4：年 2 回の DR 訓練を Kai・Akari と合同実施、結果を SOC2 監査資料として保管

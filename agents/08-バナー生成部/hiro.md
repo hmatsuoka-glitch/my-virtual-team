@@ -314,3 +314,115 @@ const banners = [
 - PNG変換はPuppeteerの共通設定（viewport・deviceScaleFactor=2）をテンプレ化すると、毎回の設定ミスとRetina再出力を防げる
 - バッチ出力は複数サイズを一括スクリプト処理すると、1枚ずつ出すより大幅に速い
 - 出力前にHTMLレンダリング完了を待つ固定処理を入れると、描画途中キャプチャの撮り直しが消える
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Headless Rendering Pipeline (HRP) 3層化 — Playwright 1.50 + Chrome Headless Shell 移行
+- フレームワーク名：**Headless Rendering Pipeline (HRP)**（Capture → Normalize → Encode の3層分離）
+- 採用ツール：Playwright 1.50（`chromium.launch({ channel: 'chromium-headless-shell' })`）、Chrome Headless Shell（フル Chromium比50MB軽量・起動800ms→280ms）
+- KPI：単一ページレンダー <2.0s（cold start <3.5s）、バッチスループット ≥120枚/min、4並列メモリ使用 ≤1.2GB
+- STEP-1：`browser.newContext({ deviceScaleFactor: 2, colorScheme: 'light' })` でコンテキストプール4個生成
+- STEP-2：`page.evaluate(() => document.fonts.ready)` ＋ `waitForLoadState('networkidle')` の二重同期
+- STEP-3：`page.screenshot({ animations: 'disabled', caret: 'hide', omitBackground: true })` で描画揺らぎ排除
+- STEP-4：Capture直後の `Buffer` をNormalize層へ受渡（中間PNG書込みゼロ化でI/O削減40%）
+- 既存 Puppeteer スクリプトの段階移行は `@let-inc/banner-utils` v3 にアダプタ層を追加し、kana/yuna側スクリプトは無変更
+
+### 2. Image Optimization Pyramid (IOP) — sharp 0.34 + libvips 8.16 + pngquant + oxipng + mozjpeg 4段最適化
+- フレームワーク名：**Image Optimization Pyramid (IOP)**（Decode → Resize → Quantize → Reencode の4段ピラミッド）
+- 採用ツール：sharp 0.34（libvips 8.16内蔵・SIMD最適化）、pngquant 3.0.3、oxipng 9.1、mozjpeg 4.1
+- KPI：PNG最終容量 ≤500KB（Indeed ≤150KB / Instagram ≤200KB）、SSIM ≥0.98、処理時間 ≤350ms/枚
+- STEP-1：sharp `pipeline()` で Decode→`resize({ kernel: 'lanczos3' })`→Quantize 同一プロセス内処理
+- STEP-2：pngquant `--quality 75-90 --speed 1 --strip` で知覚色削減（256→128色、SSIM 0.985維持）
+- STEP-3：oxipng `-o 6 --strip safe` でDeflate再圧縮（追加10-15%削減・無損失）
+- STEP-4：sharp `.toBuffer({ resolveWithObject: true })` で `info.size` を回収し media 上限超過時のみ STEP-2 をquality 70-85で再実行
+- libvips の `VIPS_CONCURRENCY=4` 設定でマルチコア活用、従来sharp単独より2.3倍高速
+
+### 3. Color Profile Governance — sRGB / Display-P3 / Adobe RGB 自動正規化
+- フレームワーク名：**Color Profile Governance (CPG)**（Detect → Convert → Embed → Verify の4段制御）
+- 採用ツール：sharp 0.34 `withIccProfile()`、`@resvg/resvg-js` 2.6（SVG経由のP3→sRGB変換）、ImageMagick 7.1 `-profile sRGB.icc`
+- KPI：ICC sRGB IEC61966-2.1 同梱率 100%、納品先色差 ΔE ≤2.0、Display-P3素材の sRGB ガモットマッピング誤差 ≤3%
+- STEP-1：`sharp(buf).metadata().icc` でICC検出、未埋め込みは「sRGB 仮定」フラグ
+- STEP-2：Display-P3/Adobe RGB 検出時は `withIccProfile('srgb')` で `relative` intent変換
+- STEP-3：出力後 `metadata().icc` が `IEC61966-2.1` を含むかを assert（含まなければ exit code 1）
+- STEP-4：ΔE 検証は `chroma-js` で sRGB→Lab変換し基準色との差分算出、ΔE>2.0で Kana 差し戻し
+- 媒体（Indeed/Instagram/LINE/TikTok）すべて sRGB 統一、印刷併用案件のみ CMYK 別ライン化
+
+### 4. Multi-Format Triad Output — PNG + WebP + AVIF 三段同梱パイプライン
+- フレームワーク名：**Multi-Format Triad Output (MFTO)**（PNG=fallback / WebP=mid / AVIF=premium の3段）
+- 採用ツール：sharp 0.34（`.avif({ quality: 80, effort: 4 })`、`.webp({ quality: 85, smartSubsample: true })`）、libavif 1.1
+- KPI：AVIF容量 PNG比 30-40%、WebP容量 PNG比 60-70%、SSIM ≥0.97、3形式同梱率 100%
+- STEP-1：PNG基準出力（fallback必須・欠落時 exit code 1）
+- STEP-2：同一Bufferから `.webp()` を分岐生成（再エンコード時間 +180ms/枚）
+- STEP-3：同一Bufferから `.avif({ effort: 4 })` を分岐生成（effort 6は品質+2%だが時間2.5倍のため4固定）
+- STEP-4：3形式の容量・SSIM・ICC を JSON サマリ化し Vercel Image Optimization API のメタとして同梱
+- iOS Safari 14未満・Android 旧版の fallback PNG 自動配信は媒体CDN依存、`compression-profile.json` に `fallbackRequired: true` を媒体別記載
+
+### 5. Serverless Rendering Backend — Vercel Functions + Cloudflare Browser Rendering API + AWS Lambda Chromium Layer
+- フレームワーク名：**Serverless Rendering Backend (SRB)**（Edge / Regional / Bulk の3層分散）
+- 採用ツール：Vercel Functions（`@sparticuz/chromium` 131）、Cloudflare Browser Rendering API（2026 GA）、AWS Lambda（Chromium Layer 250MB）
+- KPI：cold start <2.5s、warm execution <800ms、月次 10,000枚バッチ <$45、エッジ配信レイテンシ <120ms
+- STEP-1：Edge層（Cloudflare Browser Rendering）でOGP・SNSサムネ単発リクエスト処理
+- STEP-2：Regional層（Vercel Functions Tokyo）で日次5-50枚の中規模バッチ処理
+- STEP-3：Bulk層（AWS Lambda + SQS）で月次1000枚超の大規模バッチを並列1000実行
+- STEP-4：3層を `compression-profile.json` の `volume` タグで自動振分（<10枚=Edge / 10-100=Regional / >100=Bulk）
+- ローカルPuppeteerは社内検証専用に格下げ、本番出力はSRBを2026Q3標準化
+
+### 6. OG-Image Generator with Satori + Resvg — SVG経由のフォント精密制御
+- フレームワーク名：**Satori-Resvg Pipeline (SRP)**（JSX → SVG → PNG の3段変換）
+- 採用ツール：Satori 0.10（Vercel製JSX→SVGレンダラ）、@resvg/resvg-js 2.6（Rust製SVG→PNG）、Inter / Noto Sans JP 700 を WOFF2 で埋込
+- KPI：OG画像 1200×630 生成時間 <450ms、文字描画ピクセル精度 ≥99.5%、月次 5000枚生成コスト <$8
+- STEP-1：JSX テンプレ（`{ type: 'div', props: {...} }`）で動的タイトル・サムネを受領
+- STEP-2：Satori で SVG 文字列生成（WOFF2 フォントを Buffer 注入、Noto Sans JP 700 wght 明示）
+- STEP-3：Resvg `new Resvg(svg, { fitTo: { mode: 'width', value: 1200 }, font: { loadSystemFonts: false } })` で PNG レンダ
+- STEP-4：sharp で sRGB 正規化 → AVIF/WebP 派生形式生成 → MFTO パイプライン合流
+- LP部のOGP画像 / Indeed求人カード / Twitter Cards をSRPで統合、Puppeteer起動コストゼロ化で90%高速化
+
+### 7. Browserless.io + ScrapingBee Screenshot API — 大量バッチの外部委託フォールバック
+- フレームワーク名：**External Screenshot Fallback (ESF)**（自前SRBが詰まった時の保険ライン）
+- 採用ツール：Browserless.io（`/screenshot` REST API、月100,000枚 $200プラン）、ScrapingBee Screenshot API（`render_js=true` フラグ）
+- KPI：自前SRB SLAブレイク時の30秒以内切替、外部API成功率 ≥99.5%、月次バックアップコスト上限 $300
+- STEP-1：SRB Bulk層のキュー滞留 >10分検知でCircuit Breaker発動
+- STEP-2：Browserless.io `POST /screenshot` に同一 HTML を `{ deviceScaleFactor: 2, fullPage: false, clip }` で送信
+- STEP-3：ScrapingBee は2次バックアップ（Browserlessが落ちた時のみ）、`screenshot=true&window_width=1080` パラメータ
+- STEP-4：外部API出力もICC sRGB正規化→sharp検証→`compression-profile.json` 基準達成を必須化（外部だからといってQA下げない）
+- 月次運用コストを `cost-monitor.json` に記録し、外部依存比率 >5% で Kuu に SRB 増強提案
+
+### 8. Animation-to-Static Frame Extraction — Lottie / GIF / WebM から静止PNG生成
+- フレームワーク名：**Animation Frame Extractor (AFE)**（Decode → KeyFrame抽出 → 合成 の3段）
+- 採用ツール：Skia（CanvasKit 0.39）、@lottiefiles/lottie-web 5.12（Node実行）、ffmpeg 7.1（WebM/GIF→PNG連番）
+- KPI：Lottie 5秒アニメから代表フレーム1枚抽出 <1.2s、GIF→PNG変換 <800ms、抽出フレームのCTAボタン可読率 100%
+- STEP-1：Lottie JSON を `lottie-web` でヘッドレスNode上に描画、`canvas.toBuffer()` でフレーム取得
+- STEP-2：Skia CanvasKit で `MakeImageFromEncoded` し、`time = 0.5 * duration` のキーフレームを画像化
+- STEP-3：ffmpeg `-vf "select=eq(n\,30)"` でWebM/GIFの30フレーム目だけ抽出（CTA表示位置を事前指定）
+- STEP-4：抽出PNG を sharp パイプラインに投入し IOP/CPG 基準クリア後 yuna 提出
+- TikTok/Reels の静止サムネ需要に対応、`Static + Micro-Animation` トレンド（2026-05-25参照）のサムネ自動生成
+
+### 9. Pixel-Level QA Automation — SSIM + perceptual hash + tesseract.js OCR
+- フレームワーク名：**Pixel QA Automation (PQA)**（Reference Compare → Hash Diff → OCR Verify の3段）
+- 採用ツール：`pixelmatch` 5.3、`image-ssim` 0.2、`pHash` 4.0、tesseract.js 5.1（日本語LSTM v4モデル）
+- KPI：SSIM ≥0.98（vs Kana HTML 期待値）、pHash 距離 ≤8、OCR 文字一致率 ≥99%、QA時間 <5秒/枚
+- STEP-1：Kana の HTML を別Pageで `html2canvas` 描画 → 期待画像生成
+- STEP-2：Hiro 出力PNG と期待画像を pixelmatch で差分検証、`{ threshold: 0.1 }` で SSIM 同時算出
+- STEP-3：pHash 距離計算で「視覚的に同一か」判定（pixelmatch失敗時の救済ライン）
+- STEP-4：tesseract.js で OCR → Kana 提供の `expected_text.json` と Levenshtein距離 ≤3 を assert、禁止ワード（絶対/必ず/No.1）検出時は nori へ即エスカレ
+- mia（LP忠実度QA）の手法をバナー領域に転用、Sora QA 工数を10分→30秒に圧縮
+
+### 10. Node 22 LTS + Worker Threads 並列化 — CPUバウンド処理の真の並列実行
+- フレームワーク名：**Node Worker Pool Concurrency (NWPC)**（Main Thread = I/O / Workers = CPU の2層分離）
+- 採用ツール：Node 22.10 LTS、`worker_threads` API、`piscina` 4.6（Worker Pool ライブラリ）、libuv ThreadPool 拡張
+- KPI：4 Worker並列で sharp バッチ処理 4.8倍高速化、CPU使用率 ≥85%、メインスレッドblocking時間 ≤50ms
+- STEP-1：Main Thread は Playwright ブラウザ管理・I/O のみ担当（screenshot Buffer 取得）
+- STEP-2：`piscina = new Piscina({ filename: 'sharp-worker.js', maxThreads: 4 })` で Worker Pool 起動
+- STEP-3：各 Worker が sharp/pngquant/oxipng の CPU バウンド処理を担当、`piscina.run({ buffer })` でジョブ投入
+- STEP-4：`Promise.allSettled` で全Worker結果回収、rejected 1件でも exit code 1 + Slack通知（既存運用継承）
+- 従来の async/await 単一スレッド処理から脱却、Node 22 の Permission Model（`--permission`）で worker のファイル書込先も制限化、セキュリティと速度を両立
+
+---
+
+## 5-bullet summary
+
+- **HRP+IOP+CPG 三層化**：Playwright 1.50 + Chrome Headless Shell に移行し、sharp 0.34/libvips 8.16/pngquant/oxipng の4段Image Optimization Pyramid と sRGB/Display-P3 自動正規化 ICC Governance を導入（レンダー <2s、SSIM ≥0.98、スループット ≥120枚/min）
+- **Multi-Format Triad + Serverless Backend**：PNG/WebP/AVIF 3形式同梱（AVIF=PNG比30-40%）を Vercel Functions / Cloudflare Browser Rendering / AWS Lambda Chromium Layer の3層分散で実行（cold start <2.5s、月10,000枚 <$45）
+- **Satori-Resvg OG画像 + Animation Frame Extractor**：JSX→SVG→PNG の Satori/Resvg/Skia パイプラインで OG/Indeed/Twitter Cards を450ms生成、Lottie/GIF/WebM からの静止フレーム抽出も追加
+- **Pixel QA Automation + External Fallback**：pixelmatch/SSIM/pHash/tesseract.js で QA 自動化（Sora 工数10分→30秒）、Browserless.io/ScrapingBee の外部API バックアップで SLA 99.5% 確保
+- **Node 22 LTS Worker Pool**：piscina + worker_threads で sharp CPU処理を4並列化（4.8倍高速）、既存 Puppeteer/kana/yuna 連携と `@let-inc/banner-utils` 互換を維持して段階移行

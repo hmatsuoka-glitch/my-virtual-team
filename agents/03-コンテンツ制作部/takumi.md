@@ -293,3 +293,75 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - 撮影シナリオは「カット割り・テロップ位置・BGM」をタイムコード表で一覧化すると、編集側の解釈ブレと手戻りが減る
 - 頻用の効果音・トランジションはプリセット名で指示すると、口頭説明より速く編集者の検索時間も消える
 - Souのトレンド音源情報を絵コンテに直接埋め込むと、撮影〜編集で音源差し替えの往復が不要になる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. CapCut Pro AI Beat Sync × 8-Beat編集リズム標準化
+- フレームワーク：**8-Beat Editing Rhythm**（1小節=8拍をカット切替の最小単位とする）
+- ツール：**CapCut Pro AI Beat Sync**（2026年5月β版）
+- ステップ流れ：①BGM選定後、AI Beat Syncに楽曲をロード ②拍頭8点をタイムラインにマーカー自動配置 ③拍頭1・3・5・7に主要カット切替、拍頭2・4・6・8にテロップ更新を割付 ④拍頭1にフック・拍頭8にCTA・拍頭5にサビ（最大訴求シーン）を厳密配置 ⑤実機プレビュー再生で同期±0.1秒以内を確認
+- KPI：3秒hook retention 75%以上、avg watch time 12秒以上、loop replay rate 1.6倍以上
+- 編集指示書テンプレに「8-Beat Map」セクションを新設し、Toma台本・Souトレンド分析と拍位置を突合する運用を標準化
+
+### 2. Adobe Premiere Pro AI Auto Reframe × 9:16/4:5/1:1マルチフォーマット並列書き出し
+- フレームワーク：**Cross-Format Cascade**（1素材→3アスペクト並列展開）
+- ツール：**Adobe Premiere Pro AI Auto Reframe（Sensei駆動）**
+- ステップ流れ：①4K縦撮影素材（3840×2160）を1440×2560タイムラインに配置 ②Auto Reframeで被写体自動追従の9:16/4:5/1:1の3シーケンスを生成 ③親指圏（下20%）と顔重心の自動配置をフレーム単位でレビュー ④NVENC/Apple Silicon Media Engineで3アスペクトを並列書き出し ⑤Frame.io共有でRyota経由クライアントへ即送付
+- KPI：completion % 60%以上（9:16基準）、CPM 35%削減、書き出し時間1案件30分→8分
+- TikTok/Reels/Instagramフィードの3チャネル同時運用を1素材で実現し、撮影ROIを3倍化
+
+### 3. DaVinci Resolve 19 AI × LUTカラーグレーディングのクライアント別資産化
+- フレームワーク：**Tension Curve mapping**（映像の感情曲線を色温度カーブと同期）
+- ツール：**DaVinci Resolve 19 AI Magic Mask / Neural Engine Color Match**
+- ステップ流れ：①撮影RAW素材をResolveに取込 ②Neural Engine Color Matchで参考リファレンス画像の色温度を自動マッチ ③Magic Maskで人物・背景を自動分離して個別グレーディング ④クライアント7社×LUT3種（ウォーム/ニュートラル/クール）=21LUTを.cubeファイルで資産化 ⑤Tension Curveに沿ってフック=高彩度・本編=自然・CTA=ウォーム回帰の3段階カラーカーブを適用
+- KPI：avg watch time +15%、3秒hook retention 78%以上、クライアント別ブランド色再現率95%以上
+- 建設業案件は「ホワイトバランス5600K固定＋LUTウォーム系（信頼感）」を全社標準として固定
+
+### 4. Final Cut Pro 11 Magnetic Timeline × J-cut/L-cut自然連結技法
+- フレームワーク：**Hook-Build-Payoff（3-Act for shorts）**＋J-cut/L-cut音声先行接続
+- ツール：**Final Cut Pro 11 Magnetic Timeline（2026年新版）**
+- ステップ流れ：①Hook（0-1.5秒）はパルス3連で視覚優先 ②Build（1.5-10秒）でL-cut（前シーン音声を次シーン映像に先送り）を3点配置し心理的連続性を担保 ③Payoff（10-15秒）でJ-cut（次シーン音声を前シーン映像に先送り）でCTA前への期待醸成 ④Magnetic Timelineの自動隙間補正で黒コマ・フリッカーをゼロ化 ⑤書き出し前にRoles機能で音声3層（ナレ/BGM/SE）を-12/-24/-18dB自動ノーマライズ
+- KPI：completion % 65%以上、loop replay rate 1.8倍、シーン繋ぎ違和感クレーム月3件→0件
+- 編集指示書テンプレに「J/L-cut配置マップ」欄を新設し、編集者の主観判断を排除
+
+### 5. Frame.io V4 × 撮影現場リアルタイムレビュー＋クライアント承認ワークフロー
+- フレームワーク：**Tension Curve mapping**（撮影現場での感情ピーク即時可視化）
+- ツール：**Frame.io V4（Adobe Cloud統合・2026年版）**
+- ステップ流れ：①撮影機材iPhone/α7Ⅳに**Frame.io Camera to Cloud**を常駐 ②撮影完了即RAWアップロード（5G/Wi-Fi6E自動切替） ③Ryota経由でクライアント・出演者がスマホブラウザで時間軸コメント投稿 ④NG素材は撮影現場で即再撮影（編集着手前に解消） ⑤Approval Workflowで「撮影→編集→書き出し→納品」の4ゲートをデジタル承認化
+- KPI：再撮影日程調整月2-3件→0件、納期2営業日短縮、クライアント承認リードタイム48時間→4時間
+- 全7社の標準フローに昇格し、撮影現場の意思決定速度を10倍化
+
+### 6. Descript Studio × AI Auto-Captions建設専門用語カスタム辞書化
+- フレームワーク：**8-Beat Editing Rhythm**（テロップ更新を拍頭2・4・6・8に同期）
+- ツール：**Descript Studio AI Transcription + Overdub（2026年日本語対応強化版）**
+- ステップ流れ：①撮影音声をDescriptに取込 ②AI Auto-Captionsで日本語自動字幕生成（精度97%） ③建設用語カスタム辞書（足場/型枠/鉄筋/躯体/玉掛け/段取り/ヤード/養生 等80語）で一括置換 ④フォントサイズ60pt以上・コントラスト4.5:1以上・表示1.5秒以上の3条件AND自動チェック ⑤Overdubで誤録音箇所のナレーション差替えを音声合成で実装
+- KPI：音なし完視聴率（mute completion）70%以上、テロップ作成時間30分→3分、専門用語誤変換月5件→0件
+- 編集指示書テンプレに「専門用語辞書ID＋差し替え一覧」欄を必須記載化
+
+### 7. Wondershare Filmora AI × Jump-Cut Beat Editingでフック離脱率削減
+- フレームワーク：**Hook-Build-Payoff** × **Jump-Cut Beat Editing**（0.3-0.5秒間隔で同被写体の異アングルを連続切替）
+- ツール：**Wondershare Filmora 14 AI Smart Cutout**
+- ステップ流れ：①撮影現場で「同シーン×3アングル」（正面/斜め45度/引き全身）を必ず撮影 ②Filmora AI Smart Cutoutで被写体を自動切り抜き ③0.3秒/0.4秒/0.5秒のジャンプカットを拍頭1-3に配置（パルス3連と同期） ④各カットで効果音「ドンッ」「ピコッ」「シュッ」を-18dBで重ねる ⑤テロップは拍頭2・4に瞬間表示（0.8秒以内）し視覚情報を加速
+- KPI：3秒hook retention 80%以上（業界平均55%）、0-3秒離脱率-35%、avg watch time +20%
+- フック0.5秒の3パルス構造を機械的に量産できるテンプレ運用を確立
+
+### 8. Riverside.fm AI Studio × ハイブリッド撮影（リモート出演者＋現場社員）の音声品質統一
+- フレームワーク：**Tension Curve mapping**（リモート/現場双方の感情ピークを音声品質で同期）
+- ツール：**Riverside.fm AI Studio（2026年4K対応版）**
+- ステップ流れ：①現場社員はα7Ⅳ＋ピンマイク、リモート出演者（社長・本社人事）はRiverside.fm経由で4K収録 ②Riverside Magic Audioで両者の音声をAI自動ノーマライズ・ノイズ除去 ③個別トラックでDLしPremiere ProのRolesで-12dB統一 ④L-cutで現場映像にリモート社長の声を先行配置し「現場×経営」の階層感を演出 ⑤書き出し時にラウドネス-14LUFS（TikTok推奨値）に統一
+- KPI：avg watch time 13秒以上、現場×リモートMIX案件納期-30%、音声品質クレーム0件
+- 採用動画で「現場社員のリアル＋経営層メッセージ」を1動画に統合する高品質案件に対応
+
+### 9. ARRI ALEXA Mini LF × ScreenFlowハイブリッド撮影で大型クライアント案件のシネマ品質確保
+- フレームワーク：**3-Act for shorts**（Setup/Confrontation/Resolution）＋**Tension Curve mapping**
+- ツール：**ARRI ALEXA Mini LF（4.5K LF ProRes 4444 XQ）＋ScreenFlow 11**
+- ステップ流れ：①大型クライアント案件（採用ブランディング動画）はALEXA Mini LFで4.5K収録 ②Log C3ガンマで14ストップのダイナミックレンジを確保 ③現場のメイキング映像はScreenFlowで画面録画＋スマホ撮影をピクチャインピクチャ合成 ④Resolve Neural Engineで4.5K→1440×2560にダウンコンバート（モアレ・エイリアシング除去） ⑤Tension Curveに沿ってSetup（0-3秒）=シネマ広角、Confrontation（3-10秒）=寄りのバストアップ、Resolution（10-15秒）=ロングショットで余韻
+- KPI：completion % 70%以上、ブランディング動画の応募単価-40%、クライアント満足度NPS+50
+- 月1-2件の大型案件で「TikTok最適化されたシネマ品質」を競合差別化として確立
+
+### 10. Loom Recording AI × クライアント内製化支援の編集レクチャー資産化
+- フレームワーク：**Hook-Build-Payoff**（レクチャー動画自体もショート構造で設計）
+- ツール：**Loom Recording AI（2026年AI Summary対応版）＋CapCut Symphony日本語版**
+- ステップ流れ：①Takumiが画面録画でCapCut Symphony操作手順を5分以内のチャプター化Loomで収録 ②Loom AI Summaryで自動要約・章立て・タイムスタンプ生成 ③クライアント7社×操作テーマ10種=70本のレクチャー資産化 ④クライアントが質問発生→Loomリンク即送付で自走化 ⑤閲覧分析（avg watch time / completion %）で理解度の低いチャプターを特定し再収録
+- KPI：内製化クライアント編集支援工数月10時間→1時間、レクチャー完視聴率65%以上、クライアント自走率80%以上
+- 「外注頼みではない内製化伴走パートナー」のポジショニングを確立し、月額契約継続率を+25%

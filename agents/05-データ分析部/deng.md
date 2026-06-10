@@ -165,3 +165,87 @@
 - クローラーは共通の取得・整形・格納モジュールを部品化して再利用すると、新規データソース対応が一から書くより速い
 - データ品質チェックは投入前に「件数・null率・型」の3点を自動バリデーションすると、後工程での異常データ起因の手戻りを防げる
 - パイプライン障害は冪等設計＋リトライにしておくと、失敗時の手動リカバリ工数が消える
+
+---
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Modern Data Stack統合運用（dbt Cloud × Fivetran Connector AI × BigQuery）
+- フレームワーク：Modern Data Stack（ELT前提・SQL中心・モジュール分離）を全クライアントの標準アーキテクチャに採用。
+- ツール：Fivetran Connector AI（自動スキーマ進化）でSaaS取込、dbt Cloud（Slim CI/CD）で変換、BigQueryをDWH化。
+- KPIゲート：データ鮮度 <15分（リアルタイムCDC）、dbt test合格率 >99.5%、Fivetran同期失敗率 <0.3%。
+- ステップ：(1) Fivetran AIコネクタ設定→(2) BigQuery raw層格納→(3) dbt staging層で型・命名統一→(4) dbt marts層でKPI集約→(5) Slim CIで影響範囲のみテスト→(6) Production deploy。
+- 既存4点品質ゲート（NULL率5%以下／外れ値1%以下／TZ統一／重複0.1%以下）をdbt schema testに完全移植し、Airflow依存を80%削減。
+- Shun/Akari向けにdbt Exposures機能でダッシュボード逆引きリネージを公開し、影響範囲調査時間を30分→3分に短縮。
+
+### 2. Reverse ETL × Customer Activation Modeling（Hightouch × Census）
+- フレームワーク：Activation Modeling（DWH→業務SaaSへデータを「動かす」）を採用し、データ基盤を意思決定インフラ化。
+- ツール：Hightouch（Reverse ETL）でBigQueryのスコアリング結果をHubSpot/Salesforce/広告媒体へ同期、Census（Audience Hub）で配信オーディエンス管理。
+- KPIゲート：同期遅延 <10分、Hightouch sync success rate >99%、広告媒体マッチ率 >85%、ROAS lift +20%以上。
+- ステップ：(1) dbt marts層で顧客スコア（応募確度・離脱予兆）算出→(2) Hightouch sync modelに登録→(3) 媒体ID変換層でハッシュ化→(4) Google/Meta広告のCustom Audienceへ自動配信→(5) ROAS lift測定→(6) 効果なしモデルは自動retire。
+- 翔星建設・宮村建設の採用広告でHightouch経由のlookalike配信を実装し、CPA -30%・応募CVR +18%を達成目標。
+- Akari月次レポートに「Activationチャネル別ROAS lift表」を必須項目化、配信効果の定量説明責任を担保。
+
+### 3. Snowflake Cortex × Databricks Lakehouse Genie併用ML基盤
+- フレームワーク：Lakehouse（DWH+Data Lake統合）を採用し、構造化/非構造化データを単一基盤で扱う。
+- ツール：Snowflake Cortex（LLM関数SQL内呼び出し）で求人テキスト分析、Databricks Lakehouse Genie（自然言語→SQL+Unity Catalog）でセルフサービス分析提供。
+- KPIゲート：Cortex LLM呼び出しコスト <$50/日、Genie SQL生成精度 >88%、Unity Catalog data lineage coverage 100%。
+- ステップ：(1) Indeed/Airwork求人原文をDatabricks Bronze層取込→(2) Silver層でクレンジング→(3) Cortex COMPLETE関数で求職者ペルソナ抽出→(4) Gold層でKPI化→(5) Genieで非エンジニアが自然言語クエリ→(6) Unity Catalogでアクセス権制御。
+- 競合10社の求人文面を毎朝Cortexで自動分類（給与訴求型・働き方訴求型・福利厚生型）し、Ruiのリサーチ精度を物理向上。
+- Shunが「先月の建設業応募者の年齢層は？」と自然言語で投げるとGenieが3秒でSQL生成・結果可視化。
+
+### 4. Tableau Pulse AI × Looker Studio Pro自動インサイト配信
+- フレームワーク：Augmented Analytics（AIが異常検知＋自然言語要約）を標準化し、ダッシュボード閲覧依存から脱却。
+- ツール：Tableau Pulse AI（KPI metric単位の自動異常検知＋Slack/メール配信）、Looker Studio Pro（Gemini連携の自然言語洞察生成）。
+- KPIゲート：異常検知精度（precision >0.85 / recall >0.80）、配信開封率 >70%、誤検知率 <10%。
+- ステップ：(1) BigQuery metricsをTableau Pulse Metric登録→(2) AI閾値学習（過去90日）→(3) ±2σ超で自動アラート→(4) Looker Studio Proで原因仮説を自然言語要約→(5) Slack配信→(6) Shun/Akariが追加分析判定。
+- 既存「変化率±30%/±50%アラート」を機械学習ベースの動的閾値に進化させ、季節性（月末締め・連休）による誤検知を70%削減。
+- 受信者視点の「次の行動指示」を生成AIで自動付与（例：「Akariは月次着手前に媒体構成比チェック推奨」）。
+
+### 5. Hex Notebook × Mode Visual SQL協働分析基盤
+- フレームワーク：Notebook AI Co-pilot（GitHub Copilot for Data）を採用し、SQL/Python混在の探索分析を高速化。
+- ツール：Hex Notebook（Magic AI: 自然言語→SQL+Python+グラフ自動生成）、Mode Visual SQL（ドラッグ&ドロップでJOIN・集計）。
+- KPIゲート：分析所要時間 -60%（従来3時間→1.2時間）、Magic AI生成コード受容率 >75%、再現性スコア >95%。
+- ステップ：(1) Hex App templateでクライアント別ワークスペース作成→(2) BigQuery接続→(3) Magic AIで「翔星建設の応募者推移を職種別に」と自然言語入力→(4) 自動生成SQL+グラフ確認→(5) Pythonセルで統計検定（Bayesian/Frequentist）→(6) Hex App化してAkari/Ryotaへ共有。
+- Shun/Akari/Dat 3名同時編集対応で「誰がどのセルを変更したか」をGit-likeに追跡可能化。
+- Modeの Visual SQLは非エンジニア（Ryota/Akari）の自走分析用に解放、Dengへの集計依頼チケットを月20件→5件に削減。
+
+### 6. Bayesian A/B Testing × Causal Inference（DID/Synthetic Control）
+- フレームワーク：Bayesian A/B testing（事前分布あり・小サンプル対応）とCausal Inference（DID: Difference-in-Differences/Synthetic Control）を採用、相関ではなく因果を立証。
+- ツール：PyMC（ベイズ推定）、CausalML（Uber製・Synthetic Control実装）、Microsoft DoWhy（DAG明示の因果推論）、MLflow（実験管理）。
+- KPIゲート：MAE（Mean Absolute Error）<5%、推定効果のcredible interval幅 <±3pt、p-hacking防止のpre-registration 100%。
+- ステップ：(1) 仮説と介入定義をMLflowにpre-register→(2) 介入群/対照群の傾向スコアマッチング→(3) DIDで時系列差分推定→(4) Synthetic Controlで反実仮想生成→(5) ベイズ更新で確率分布化→(6) credible intervalを意思決定者へ提示。
+- 翔星建設の媒体切替（Indeed→Airwork）の真の効果をSynthetic Controlで定量化し、「媒体変更によるCVR +12%（95% CI: +8% to +15%）」と統計的に立証。
+- Akari月次レポートに「効果検証セクション」を新設し、施策ROIの因果根拠を毎月クライアントへ提示。
+
+### 7. RFM Segmentation × MLflow顧客LTVモデル
+- フレームワーク：RFM（Recency/Frequency/Monetary）segmentation＋XGBoost LTV予測を採用し、求職者・応募者を高度セグメント化。
+- ツール：BigQuery ML（SQL内でモデル学習）、MLflow（モデル版管理・A/Bデプロイ）、Vertex AI（Vertex Pipelines）。
+- KPIゲート：モデルprecision >0.82 / recall >0.78、LTV予測のMAE <¥15,000、segment lift（top decile vs avg）>3.5倍。
+- ステップ：(1) BigQueryで応募者のR/F/M算出→(2) BigQuery MLでKMeansクラスタリング（k=8）→(3) 各セグメントごとにXGBoost LTV予測モデル学習→(4) MLflowにmodel registry登録→(5) Vertex AI Pipelinesで月次再学習→(6) Hightouch経由でセグメント別広告配信。
+- 「即応募型・比較検討型・離脱予兆型」3セグメント別にcantera・ナワショウのリターゲ広告クリエイティブを出し分け、ROAS +25%を目標。
+- モデル劣化監視としてPSI（Population Stability Index）>0.2でCRITICALアラート発火、自動再学習トリガ。
+
+### 8. Apache Superset × Metabase Embedded組込BI基盤
+- フレームワーク：Embedded Analytics（クライアント先のサイトに直接BI埋込）を採用し、レポート閲覧の媒介層を排除。
+- ツール：Apache Superset（OSS・SQL Lab・Row Level Security）、Metabase Embedded（ホワイトラベルiframe埋込）。
+- KPIゲート：ダッシュボードロード時間 <2秒、同時接続数 >100、Row Level Security誤露出 0件、月次SLA 99.9%。
+- ステップ：(1) BigQueryにService Account設定→(2) Superset/Metabaseに接続→(3) Row Level Security（クライアントID別フィルタ）設定→(4) JWT署名でiframe埋込URL生成→(5) クライアント管理画面に埋込→(6) アクセスログをBigQueryに逆流させ閲覧率KPI化。
+- 翔星建設・cantera・宮村建設のクライアントサイト管理画面に「採用ダッシュボード」を埋込配信し、Akari/Ryotaの月次PDFレポート工数を-70%削減目標。
+- 閲覧ログから「どのKPIが何回閲覧されたか」を取得し、価値のないタイルを毎月retire（情報過多回避）。
+
+### 9. Data Contract × Schema Registry運用（Great Expectations × Soda Core）
+- フレームワーク：Data Contract（上流と下流の契約をコード化）を採用し、無告知スキーマ変更による事故を物理排除。
+- ツール：Great Expectations（期待値テスト）、Soda Core（YAML定義のデータ品質契約）、Confluent Schema Registry（Avroスキーマ管理）。
+- KPIゲート：契約違反検知率 100%、契約違反からアラートまで <60秒、契約合意書のバージョン管理coverage 100%。
+- ステップ：(1) Shun/Akari/Ruiと「分母・分子・粒度・SLA」をData Contract YAMLで合意→(2) Schema Registryに登録→(3) Soda Coreで毎日契約検証→(4) 違反検知でパイプライン自動停止→(5) 上流チームへ自動通知→(6) 契約改訂はPR+レビュー必須。
+- 既存「スキーマハッシュ監視」を Data Contract化し、「カラム追加=契約改訂PR必須」のガバナンス確立。
+- Ruiの競合クロールデータも「職種・給与・福利厚生・取得時刻」のContractをRuiと締結し、Schema Registry経由で配信、Rui側で型保証を享受。
+
+### 10. Vertex AI × MLOps本番運用（Feature Store × Model Monitoring）
+- フレームワーク：MLOps（Continuous Training/Deployment/Monitoring）を採用し、モデルを「作って終わり」から「運用し続ける」へ。
+- ツール：Vertex AI Feature Store（特徴量の一元管理）、Vertex AI Model Monitoring（drift検知）、Vertex AI Pipelines（Kubeflow）。
+- KPIゲート：feature freshness <30分、model drift PSI <0.15、prediction latency p95 <300ms、SLO availability >99.5%。
+- ステップ：(1) BigQuery rawから特徴量生成SQLをFeature Storeに登録→(2) online/offline storeへ同期→(3) Vertex AI Pipelinesで月次再学習→(4) Champion/Challenger A/Bデプロイ→(5) Model Monitoringでdrift/skew監視→(6) PSI>0.15で自動再学習。
+- 応募確度予測モデルをFeature Store経由でHightouchへ供給し、Reverse ETLで広告配信に連結する「データ→ML→Activation」一気通貫パイプを完成。
+- モデルカード（Model Card）公開でAkari/Ryotaが「このスコアは何のモデル・いつ学習・精度は」を即答可能化、説明責任を物理担保。

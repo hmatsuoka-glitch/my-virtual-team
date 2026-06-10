@@ -282,3 +282,95 @@ nawasho_line_1080x1080.png
 - 用途別の最適サイズ判定は媒体別規格表を参照テンプレ化すると、毎回の規格調査が不要になり指示が速い
 - ディレクションは「サイズ・トレンド要素・優先訴求」を1枚にまとめてKana/Hiroへ渡すと往復が減る
 - 頻出の差し戻し理由（文字切れ・解像度）を発注前チェックに入れると、再制作を防げる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Holistic Creative Effectiveness Score（HCES）統合品質指標の導入
+- フレームワーク：Kantar Link AI と WARC の Holistic Creative Effectiveness Score を Yuna 統括用に再定義し、Attention（注目）・Branding（ブランド想起）・Affinity（共感）・Persuasion（説得）の 4 軸を 100 点満点で採点する。
+- 使用ツール：Kantar Link AI（事前評価）／Realeyes（視線追跡 AI）／Neurons Predict AI（脳波シミュレーション）の 3 点併用で初稿時点に予測スコアを取得する。
+- 数値 KPI：HCES 総合 70 点以上を Sora QA 提出ゲートに固定し、Attention ≥ 75／Branding ≥ 65／Affinity ≥ 70／Persuasion ≥ 65 を分解 KPI として設定する。
+- ステップフロー：STEP 6.5（新設）で Kana の HTML を Realeyes に投入 → 視線ヒートマップを取得 → ロゴ・CTA・キャッチが 1.5 秒以内に注視されているか測定する。
+- 未達時の挙動：HCES 70 点未満は Yuna が「どの軸が低いか」を Rei／Kana へ即フィードバックし、Attention 低なら配色／構図、Branding 低ならロゴ拡大／反復を指示する。
+- 効果：従来の感覚評価から科学的根拠付きディレクションに転換し、配信開始後の CTR ≥ 0.8%、ブランド想起率 +12% を実現する。
+- ベンチマーク：Coca-Cola／Toyota が採用する Brand Equity Index と統合し、月次で「クライアント別 HCES 推移グラフ」を Akari レポートに組込む。
+
+### 2. Predictive Creative Scoring（PCS）による初稿事前判定
+- フレームワーク：Pencil Pro と AdCreative.ai の Predictive Creative Scoring を Yuna 起ち上げ工程に組込み、Kana 着手前に「過去配信データ × 業種 × 媒体」で初稿スコアを予測する。
+- 使用ツール：AdCreative.ai Creative Insights（業種ベンチマーク）／Pencil Pro（過去配信 CTR との突合）／Marpipe Dynamic Product Ads（DPA 用ベンチ）の 3 点で予測値を取得する。
+- 数値 KPI：PCS 予測スコア 7.5/10 以上をクライアント提示の最低基準、6.0 未満なら Yuna が Rei に「コピー差し戻し」を即指示する。
+- ステップフロー：STEP 4 直後（Rei コピー選定後）に PCS 投入 → 6.0 未満なら Rei が即追加 5 案生成 → 全案 PCS 通過後に Kana 着手する。
+- 業種別ベンチマーク：建設業採用は PCS 業種平均 6.8、IT 採用は 7.2、飲食採用は 7.5 を Notion DB「PCS 業種ベンチマーク」で管理する。
+- 効果：Kana 手戻り率 35% → 8% に圧縮、初稿一発承認率 70% → 92% に向上する。
+- 連携：PCS 結果を「勝ちバナーアーカイブ」に紐付け、過去勝ちパターンとの相関を四半期で検証する。
+
+### 3. NN/g Banner Heuristics に基づくユーザビリティ採点
+- フレームワーク：Nielsen Norman Group の Banner Blindness 研究と Heuristic Evaluation 10 原則をバナー特化に翻訳し、「視認性／可読性／一貫性／フィードバック／エラー予防」の 5 軸 ×10 点で採点する。
+- 使用ツール：Hotjar Heatmap（実機ヒートマップ）／Lookback.io（ユーザーテスト）／VWO Creative Studio（A/B テスト）を Sora QA 前に併用する。
+- 数値 KPI：NN/g 採点 40/50 点以上を Sora 提出ゲート、特に「視認性 ≥ 8／可読性 ≥ 8」を必達ラインに設定する。
+- ステップフロー：STEP 7（Yuna 統括チェック）で 5 軸を Kana／Hiro に分担採点させ、未達項目は即修正のフィードバックを Notion DB チェックリストで管理する。
+- Banner Blindness 対策：「典型バナー構図（右上 CTA・中央キャッチ）」から意図的に外し、ドキュメンタリー風レイアウトを 30% 混在させ視認停止率 +18% を実現する。
+- 効果：実機テスト時の「広告スキップ率」65% → 42% に低減、CTR ≥ 0.8% を持続的に達成する。
+- 月次運用：NN/g 採点平均を Akari の月次レポートに統合し、クライアントへ「ユーザビリティ改善トレンド」として可視化する。
+
+### 4. Brand Equity Index（BEI）連動ブランド一貫性監査
+- フレームワーク：Interbrand と Kantar BrandZ の Brand Equity Index を Yuna 運用に転用し、「ロゴ視認性／配色一致／トーン整合／メッセージ一貫」の 4 軸 ×25 点で監査する。
+- 使用ツール：Frontify（ブランドガイドライン管理）／Brandfolder（資産統制）／Bynder（DAM）／Canva Brand Kit／Figma AI Variables（デザイントークン）を統合運用する。
+- 数値 KPI：BEI 80/100 点以上を全納品物の必達ラインとし、ブランド想起率 +X%（業種平均 +15%）を月次測定する。
+- ステップフロー：STEP 1 で `design-tokens.json` を LP 部から受領 → STEP 5 で Kana が Figma AI Variables に注入 → STEP 7 で BEI スコアリングを実施する。
+- Coca-Cola／Toyota ベンチマーク：両社の「ブランド一貫性 KPI」を参考に、ロゴクリアスペース・公式パレット遵守を 100% 強制する DAM 連携ガードレールを敷く。
+- 効果：配信後ブランド想起率 +18%、応募 LP 直帰率 -22% を実現し、「広告→着地→応募」の一貫設計を完成する。
+- 監査頻度：四半期で全クライアントの BEI 推移を Akari レポートに組込み、ブランド毀損リスクを早期検知する。
+
+### 5. Creative Wear-out Detection（CWD）配信疲労 4 週検知システム
+- フレームワーク：Smartly.io と Bannerflow の Creative Wear-out 理論を採用し、「CTR 半減週」を 4 週以内に検知して自動リフレッシュトリガーを発火する。
+- 使用ツール：Smartly.io Creative Performance（配信疲労 AI 検知）／Bannerflow Insights（自動入替）／Meta Advantage+ Creative（自動最適化）を統合する。
+- 数値 KPI：Creative Wear-out 4 週以内検知率 95%、CTR 半減前に新クリエイティブ投入率 100% を達成する。
+- ステップフロー：配信 7／14／21／28 日目に Shun（データ分析）から CTR を自動受領 → CTR 初週比 70% 以下で「黄信号」、50% 以下で「赤信号」を Yuna に通知する。
+- リフレッシュ運用：赤信号検知時に Yuna が「勝ちバナーアーカイブ」から類似勝ちパターンを呼出し → Rei に追加 5 案生成依頼 → 48 時間以内に新バナー配信開始する。
+- 効果：配信疲労による CPA 高騰を月次 30% → 8% に圧縮、年間広告効率 +25% を実現する。
+- アーカイブ運用：4 週で疲労したバナーは「疲労パターン DB」に登録し、次回類似業種で「避けるべき構図」として参照する。
+
+### 6. Multi-Variant Generation（MVG）AI 量産パイプライン
+- フレームワーク：Celtra と Stensul の Modular Creative Production を採用し、1 マスター → 50-200 バリエーション自動生成を Yuna 統括で運用する。
+- 使用ツール：Celtra Creative Automation（DCO 量産）／Stensul Email Production（テンプレ統制）／Adobe Express AI（Variables）／Canva Magic Studio Brand Kit（一括出力）を統合する。
+- 数値 KPI：1 案件あたり納品バリエーション 5 本 → 50 本（10 倍化）、バリエーション生成時間 8 時間 → 30 分（16 倍速）を達成する。
+- ステップフロー：STEP 5 で Kana が Figma AI Variables にマスター登録 → STEP 6 で Hiro が Celtra/Canva Bulk Create に CSV 投入 → 50 バリエーション一括 PNG 書出する。
+- DCO 連携：Meta Advantage+ Creative／Google Performance Max に 50 バリエーション同時投入 → AI が「ユーザー × 配信枠」最適組合せを自動選択する。
+- 効果：月 200 本→ 1500 本納品体制を 1 名運用で実現、クライアント単価 +40%（量産プラン上乗せ）を獲得する。
+- 品質統制：50 バリエーション全てに BEI 80 点以上を強制し、Stensul テンプレ統制でブランド毀損を物理排除する。
+
+### 7. Figma AI Variables × Design Tokens 統合自動化
+- フレームワーク：Figma AI Variables と W3C Design Tokens Community Group 仕様を採用し、「ブランド色／フォント／余白／ロゴサイズ」を構造化管理する。
+- 使用ツール：Figma AI Variables（変数管理）／Tokens Studio（W3C 仕様準拠）／Style Dictionary（コード変換）／Frontify（ブランド連携）を統合運用する。
+- 数値 KPI：色変更時の修正工数 1/3 → 1/10（5 分以内）、デザイントークン整合率 100% を達成する。
+- ステップフロー：STEP 1 で LP 部から `design-tokens.json` 受領 → Tokens Studio で Figma AI Variables に同期 → Kana が Variables 参照のみで HTML 生成する。
+- ハンドオフ統制：Rei／Kana／Hiro 全員が同じトークン体系を参照し、「色コード手書き禁止・Variables 参照のみ」を運用ルール化する。
+- 効果：クライアント別色違いバリエーション 20 本生成が 2 時間 → 15 分（8 倍速）、ブランド毀損事故ゼロ化を実現する。
+- 連携：LP 部の Hana／Ren と同一トークン体系を使い「バナー → LP」の世界観統一を物理保証する。
+
+### 8. Inclusive Design Audit（IDA）アクセシビリティ統合監査
+- フレームワーク：WCAG 2.2 AAA と Microsoft Inclusive Design Toolkit を採用し、「色覚異常／視覚障害／文字認識／文化的配慮」の 4 軸で監査する。
+- 使用ツール：Stark（WCAG 自動チェック）／Colorblindly（色覚シミュレーション）／Adobe Color Accessibility Tools／axe DevTools を Sora QA 前に併用する。
+- 数値 KPI：WCAG 2.2 AAA コントラスト比 7:1 以上（2026 年厳格化）、色覚異常 3 型（P／D／T）全てで判読率 100% を達成する。
+- ステップフロー：STEP 7 で Kana が Stark スキャン → 未達ならコントラスト調整 → Colorblindly で 3 型シミュ確認 → 全パス後に Sora 提出する。
+- 文化的配慮：建設業採用バナーで「特定性別・年齢偏向のない人物配置」を Inclusive Design Toolkit 基準で監査し、応募者母集団 +25% 拡大する。
+- 効果：応募 LP 直帰率 -18%、媒体側差し戻し（コントラスト不足）ゼロ化、ブランド評価 +12% を実現する。
+- 法令対応：2026 年改正障害者差別解消法に対応し、配信停止リスクを物理排除する。
+
+### 9. Cross-Channel Orchestration（CCO）媒体横断統括
+- フレームワーク：Sprinklr と Hootsuite の Cross-Channel Orchestration を採用し、「Indeed／Meta／LINE／X／TikTok／LP」の 6 媒体を一元統括する。
+- 使用ツール：Sprinklr Marketing Cloud（媒体横断統制）／Hootsuite Composer（同時配信）／Smartly.io（媒体最適化）／Bannerflow（DCO 配信）を統合する。
+- 数値 KPI：媒体横断キャンペーン立上時間 2 日 → 4 時間、媒体別最適化率 100%（規格・トーン・タイミング）を達成する。
+- ステップフロー：STEP 1 で「6 媒体配信マトリクス」を Yuna が定義 → 媒体別アスペクト比・容量・文化トーンを Notion DB に展開 → Rei／Kana が並列着手する。
+- 媒体別最適化：Indeed（信頼感重視）／Meta（視覚インパクト）／LINE（親しみやすさ）／X（速報性）／TikTok（縦長動的）／LP（一貫性）を Yuna が即判定する。
+- 効果：媒体横断 CTR 平均 0.65% → 0.92%、CPA 平均 ¥3,200 → ¥2,100 に改善し、応募率 +35% を実現する。
+- 連携：Sho（SNS）／Toma（TikTok）／Kaito（LP）と週次連携 MTG で配信戦略を統一する。
+
+### 10. Continuous Learning Loop（CLL）勝ちパターン自己進化システム
+- フレームワーク：Marpipe と VWO Creative Studio の Continuous Learning Loop を採用し、「配信データ → 勝ちパターン抽出 → 次案件初稿反映」の自動ループを構築する。
+- 使用ツール：Marpipe Creative Testing（勝ちパターン AI 抽出）／VWO Creative Studio（実験管理）／Notion DB「勝ちバナーアーカイブ」／Pencil Pro（学習データ蓄積）を統合する。
+- 数値 KPI：配信後 7 日で勝ちパターン抽出率 100%、次案件初稿への反映率 95%、初稿承認率 70% → 95% を達成する。
+- ステップフロー：配信開始 → 7 日後に Shun から CTR/CPA/CVR 受領 → Marpipe が「配色・コピー軸・CTA 配置・人物配置」を AI 抽出 → Notion DB 自動登録 → 次案件 STEP 4 で Rei/Kana が自動参照する。
+- 業種別学習：建設業／IT／飲食／医療など業種別に「勝ちパターン辞書」を構築し、新規案件着手時に「業種 × 訴求軸 × 媒体」で類似パターンを即引き当てる。
+- 効果：CTR 平均 +28%、CPA 平均 -32%、年間広告効率 +45% を実現し、Yuna の選定眼を組織知化する。
+- 月次振り返り：Shun／Akari／Sho／Itsuki と月次 MTG で「学習ループ精度」を検証し、四半期で「勝ちパターン辞書」の精度を 10% 向上させる。

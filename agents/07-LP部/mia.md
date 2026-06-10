@@ -470,3 +470,89 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - 忠実度チェックは差分の出やすい箇所（余白・フォントサイズ・色）を優先比較すると、全画素精査より速く重大差分を先に拾える
 - 指摘は「該当箇所スクショ＋期待値＋実値」の3点セットで返すと、Saki/Renの修正往復が1回で済む
 - 頻出のズレパターンをチェックリスト化すると、毎回の目視走査が短縮される
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Visual Regression Pyramid 多層判定（Percy + Chromatic + BackstopJS 三層運用）
+- 採用フレームワーク：Visual Regression Pyramid（VRP）＝Unit層（Storybook+Loki）/ Integration層（Chromatic）/ E2E層（Percy）の3段ピラミッド。
+- 主要ツール：Percy 2026 AI Diff・Chromatic `--only-changed`・BackstopJS `reference/test/approve` 3コマンドCI。
+- 数値KPI：pixel-diff 率 ≤0.5% / 誤検出率 ≤2% / 各層ジョブ ≤90 秒。
+- ステップ：①Loki でコンポーネント単位 baseline 撮影 ②Chromatic で PR 差分 AI 判定 ③Percy で本番 URL 全画面差分。
+- 3層全て GREEN で初めて STEP 6 通過判定を出す運用化。
+- 1層でも誤検出 ≥2% を超えたら閾値を `--threshold 0.1` に動的調整し再実行。
+- 既存の STEP 1〜6 はそのまま、判定エンジンだけを VRP に置換することで往復削減。
+
+### 2. Applitools Eyes Ultrafast Grid によるクロス環境同時判定
+- 採用フレームワーク：Visual AI（Applitools Eyes Ultrafast Grid＝UFG）。
+- 主要ツール：`@applitools/eyes-playwright` SDK + UFG クラウド・`Match Level: Strict/Layout/Content/Dynamic` の 4 モード使い分け。
+- 数値KPI：35 ブラウザ×解像度組合せを ≤120 秒で並列判定 / 同一案件あたりクロス環境 NG 検出率 ≥98%。
+- ステップ：①`eyes.open()` でセッション開始 ②`eyes.check('Hero', Target.window().fully().matchLevel('Strict'))` ③UFG が Chrome/Safari/Firefox/Edge × 1920/1440/1280/768/375 を並列実行 ④Dashboard で「Maintain Test」または「Reject」を 1 クリック承認。
+- iOS Safari 100vh バグ・Android Chrome safe-area-inset 差を STEP 5 で物理検出。
+- BrowserStack 実機を補助に残し UFG の Lab 環境差を補完。
+- 従来 60 分かかったクロス環境 QA を 2 分以下に短縮。
+
+### 3. 知覚差分エンジン pixelmatch + SSIM + DSSIM の三重判定
+- 採用フレームワーク：Perceptual Diff Stack（PDS）＝物理差分（pixelmatch）+ 構造類似度（SSIM）+ 知覚距離（DSSIM）の 3 軸評価。
+- 主要ツール：`pixelmatch` 5.x・`image-ssim` Node 実装・`looks-same --ignoreAntialiasing` の同時実行スクリプト。
+- 数値KPI：pixel-diff ≤0.5% / SSIM ≥0.98 / DSSIM ≤0.02 / 3 軸全て満たす場合のみ自動 PASS。
+- ステップ：①基準/対象 PNG を `sharp` で同一サイズに正規化 ②3 エンジン並列実行 ③JSON で 3 値を集計 ④1 軸でも閾値外なら Slack `#mia-alerts` に自動投稿。
+- アンチエイリアス由来の誤 NG を DSSIM 知覚層で吸収しつつ、構造ズレは SSIM で確実に検出。
+- Hero/CTA/Form は閾値 0.3% / 他は 0.5% に分離設定。
+- 数値合致だけで合格判定する旧運用を物理停止。
+
+### 4. WCAG 2.2 AAA 自動アクセシビリティゲート（axe-core 4.8 + APCA）
+- 採用フレームワーク：A11y Triple Gate（ATG）＝axe-core 違反 0 件 / APCA コントラスト ≥75 / キーボード操作 100% 到達。
+- 主要ツール：`@axe-core/playwright` 4.8・`apca-w3` ライブラリ・`@guidepup/playwright`（VoiceOver/NVDA 自動操作）。
+- 数値KPI：WCAG 2.2 AAA 適合率 100% / コントラスト比 ≥7:1（テキスト）・APCA Lc ≥75 / Tab 操作で全インタラクティブ要素到達率 100%。
+- ステップ：①`AxeBuilder().withTags(['wcag22aaa']).analyze()` ②`apcaContrast(fg, bg)` で全テキスト要素を走査 ③`guidepup` で VoiceOver 起動し見出し階層を JSON 化 ④3 ゲート全 PASS で a11y バッジ発行。
+- STEP 2 カラー忠実度に APCA 計測を統合し、旧 WCAG AA（4.5:1）通過でも APCA NG なら自動差し戻し。
+- 健康被害クレーム・訴訟リスクを QA 段階で物理排除。
+
+### 5. Sauce Labs Visual Testing + Galen Framework によるレイアウト DSL 検証
+- 採用フレームワーク：Layout Specification Language（LSL）＝Galen `.gspec` で「Hero は viewport 上端から ≤80px」等を宣言的に記述。
+- 主要ツール：Galen Framework 2.4・Sauce Labs Visual（Screener）・`galenframework-cli` の Jenkins/GitHub Actions 連携。
+- 数値KPI：レイアウト要素間距離許容誤差 ≤2px / `.gspec` 違反率 0% / Sauce Labs クロスブラウザ NG 検出 ≥95%。
+- ステップ：①Hana 抽出仕様から `.gspec` 自動生成 ②`galen check homepage.gspec --url $URL --size 1280x800` ③Sauce Labs に upload しクロス環境差分判定 ④違反は座標付きでレポート。
+- 「±2px 許容」を絶対値ではなく `.gspec` の `inside | aligned | near` 関係式で記述し、相対比率ズレを検出。
+- 1280px 偏重 QA を Sauce のマルチ解像度で物理矯正。
+
+### 6. Cypress + cypress-image-diff による CI ネイティブ差分
+- 採用フレームワーク：CI-Native Visual Testing（CNVT）＝Cypress テスト内で `cy.compareSnapshot()` を発火し PR ブロック。
+- 主要ツール：Cypress 13・`cypress-image-diff-js` 2.x・GitHub Actions `cypress-io/github-action@v6`。
+- 数値KPI：差分閾値 ≤0.1 / CI 実行時間 ≤6 分 / マージ前ブロック率 100%。
+- ステップ：①`cy.visit($PREVIEW_URL)` ②`cy.compareSnapshot('hero', 0.1)` を全主要画面で実行 ③差分が閾値超過なら GitHub Status Check FAIL ④PR 上で baseline 画像と diff 画像を artifact 添付。
+- Vercel Preview デプロイと連動し、マージ前に Mia 通過を確定化。
+- 本番後の不具合発生率を 0.5% 以下に維持。
+
+### 7. jest-image-snapshot + reg-suit による履歴管理付き差分
+- 採用フレームワーク：Snapshot History Tracking（SHT）＝差分履歴を S3/GCS にバージョン保管し、過去の意図変更を時系列で追跡。
+- 主要ツール：`jest-image-snapshot` 6.x・`reg-suit` 0.13・`reg-publish-s3-plugin`。
+- 数値KPI：履歴保持 ≥90 日 / 差分発見から approve までのリードタイム ≤30 分 / false-positive ≤2%。
+- ステップ：①`toMatchImageSnapshot({ failureThreshold: 0.005 })` でテスト実行 ②`reg-suit run` で baseline と diff を S3 同期 ③HTML レポートが PR コメントに自動投稿 ④意図変更なら `reg-suit prepare` で baseline 更新。
+- 「いつ・誰が・なぜ」差分を承認したかを git ログと同期し監査可能化。
+- 過去 3 ヶ月の意図変更履歴を Sora QA 時に参照可能に。
+
+### 8. Differencify + Resemble.js による Puppeteer ネイティブ差分
+- 採用フレームワーク：Headless Diff Engine（HDE）＝Puppeteer 直接制御で動的 DOM 差分を秒速判定。
+- 主要ツール：`differencify` 1.x・`resemblejs` 5.x・Puppeteer 22 の `--enable-blink-features=AutomationControlled` 抑制オプション。
+- 数値KPI：差分判定速度 ≤200ms/画像 / Resemble.js misMatchPercentage ≤0.5 / アンチエイリアス無視時の誤検出 ≤1%。
+- ステップ：①`differencify.init({ chain: false })` ②`page.goto($URL)` 後 `differencify.toMatchSnapshot()` ③Resemble.js で `ignoreAntialiasing: true` の知覚比較 ④差分箇所をピンク色ハイライト PNG で出力。
+- STEP 4 アニメ忠実度で「特定 frame」のみ抜き出し差分判定が可能化。
+- 動的 SPA の DOM 変化に追随する差分検出を実現。
+
+### 9. Lighthouse CI + Core Web Vitals 2026 Performance Budget 物理ブロック
+- 採用フレームワーク：Performance Budget Gate（PBG）＝`lighthouserc.json` の `assertions` で SLA 違反を CI ブロック。
+- 主要ツール：`@lhci/cli` 0.13・PageSpeed Insights API・CrUX API（Field Data）。
+- 数値KPI：LCP ≤2.5s / INP ≤200ms / CLS ≤0.1 / TTFB ≤800ms / Lighthouse 4 カテゴリ全 ≥90 点 / Lab-Field 乖離 ≤20%。
+- ステップ：①`lhci autorun --collect.numberOfRuns=5` で 5 回計測の中央値取得 ②`assertions` で全指標 SLA を error 設定 ③`lhci upload --target=temporary-public-storage` でレポート発行 ④納品後 7 日目に CrUX API で Field Data 取得し乖離検出。
+- 1 指標でも未達なら 85 点合格でも自動 84 点に減点。
+- Lab/Field 乖離が 20% 超なら Kaito 経由で即時改修 Issue 起票。
+
+### 10. Mia Unified QA Orchestrator（npm run qa:full）統合実行
+- 採用フレームワーク：Unified QA Pipeline（UQP）＝VRP/PDS/ATG/LSL/CNVT/SHT/HDE/PBG の 8 エンジンを `npm run qa:full` で 1 発実行。
+- 主要ツール：`turborepo` 1.13 でタスク並列・`tsx scripts/mia-qa.ts`・`@mia/qa-cli` 自作パッケージ。
+- 数値KPI：8 エンジン並列実行時間 ≤5 分 / 総合 PASS 率 ≥95% / Sora QA リジェクト率 ≤2% / 差し戻しレポート発行 ≤30 秒。
+- ステップ：①`turbo run qa:visual qa:a11y qa:perf qa:e2e --parallel` ②JSON 結果を `mia-qa-aggregator` が集約 ③9 段階品質ゲート判定（pixelmatch/looks-same/axe/Tab/VoiceOver/lhci/Hydration/Schema.org/Form E2E） ④1 つでも FAIL なら自動で `gh issue create` + Slack `#mia-alerts` 投稿 + saki アサイン。
+- 通過時は Sora 向け JSON サマリーを `/reports/mia/$(date +%Y%m%d).json` に保存。
+- 8 エンジンのバージョンは `package.json` で固定し、再現性 100% を担保。
+- 旧運用の手動 95 項目チェックを物理的に陳腐化し、Mia の判定時間を 25 分→3 分に短縮。

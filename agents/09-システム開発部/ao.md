@@ -374,3 +374,95 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - API実装は共通のエラーハンドリング・認証ミドルウェアを部品化すると、エンドポイント追加が一から書くより速い
 - DB設計はマイグレーションをスキーマ変更単位で分割すると、ロールバックと差分レビューが速い
 - 入力バリデーションをスキーマ定義から自動生成すると、手書きの抜けと修正工数を削減
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Hexagonal Architecture × DDD ドメイン分離による境界明示化
+- Hexagonal Architecture（Ports & Adapters）を採用し、ドメイン層を `core/`・アダプタ層を `infra/` に物理分離する
+- DDD の集約ルート（Aggregate Root）を `Order`・`Application` 単位で定義し、トランザクション境界と一致させる
+- Port インターフェース（`UserRepository`・`PaymentGateway`）を `core/ports/` に定義し、Drizzle ORM 実装は `infra/adapters/` に隔離する
+- 依存方向は常に「外→内」のみ許容し、ESLint `eslint-plugin-boundaries` で逆方向 import を CI ブロックする
+- ドメイン層は外部 I/O 依存ゼロでユニットテスト可能化し、テストカバレッジ ≥85% を達成する
+- ステップフロー：①ユースケース抽出 → ②集約境界決定 → ③Port 定義 → ④Adapter 実装 → ⑤Boundaries ESLint 適用
+- 効果：ORM 差し替え工数を従来 5 日 → 0.5 日に圧縮、ドメインロジック単体テスト実行時間 30 秒 → 3 秒に短縮
+
+### 2. CQRS + Event Sourcing による読み書きパス分離
+- CQRS パターンで Command 系（書き込み）と Query 系（読み取り）のスキーマ・ハンドラを物理分離する
+- Command 側は Drizzle ORM + PostgreSQL 17 で正規化、Query 側は Materialized View + Redis 8 で非正規化キャッシュする
+- Event Sourcing として `domain_events` テーブルに不変イベントログを append-only 記録し、状態は再生で復元可能化する
+- イベントスキーマは Zod で型定義し、`@event-driven-io/emmett` でイベントストア抽象化する
+- Query 側 p99 レイテンシ <50ms、Command 側 p95 <100ms、エラー率 ≤0.1% を SLO 化し pganalyze で常時監視する
+- ステップフロー：①Command/Query 分離 → ②イベント定義 → ③Projection 構築 → ④Redis キャッシュ層 → ⑤SLO ダッシュボード
+- 効果：読み取り p99 を 300ms → 40ms（7.5 倍高速化）、監査ログ要件を Event Sourcing で自動充足
+
+### 3. Saga パターン × Temporal.io 耐久ワークフロー
+- 複数サービス跨ぎのトランザクション（注文 → 支払い → 在庫 → 通知）を Saga パターンで分散管理する
+- Temporal.io の Durable Execution で「最大 1 回実行」「自動リトライ」「補償トランザクション」を宣言的に記述する
+- 各 Activity は冪等性キー（UUID v7）必須化し、Temporal Workflow ID を `saga-{orderId}` で一意化する
+- 失敗時は逆順で Compensation Activity（refund・stockRestore・cancelNotification）を Temporal が自動実行する
+- Workflow p95 完了時間 <500ms、補償成功率 ≥99.9%、Activity リトライ上限 5 回（exponential backoff 100→3200ms）を設定する
+- ステップフロー：①Saga 境界定義 → ②Workflow/Activity 分離 → ③冪等性キー実装 → ④Compensation 実装 → ⑤Temporal UI 監視
+- 効果：分散トランザクションの整合性保証を手動 try-catch から宣言的記述へ移行、データ不整合インシデント年間 12 件 → 0 件
+
+### 4. Outbox パターンによる確実なイベント配信
+- DB トランザクション内で `outbox_events` テーブルに同時 INSERT し、Kafka 3.8 への配信は別プロセスで非同期実行する
+- Debezium CDC（Change Data Capture）で PostgreSQL 17 の WAL を Kafka に流し、メッセージロス 0 を保証する
+- Outbox レコードは `published_at` 列で配信済み判定、未配信レコードを 5 秒間隔でポーリング配信する
+- Kafka トピックは `domain.{aggregate}.events` 命名規約、パーティションキーは集約 ID で順序保証する
+- メッセージ配信成功率 ≥99.99%、Outbox → Kafka 配信遅延 p95 <2 秒、リトライ上限 10 回を SLO 化する
+- ステップフロー：①Outbox テーブル定義 → ②トランザクション内 INSERT → ③Debezium 設定 → ④Kafka コンシューマ実装 → ⑤Lag 監視
+- 効果：「DB 更新したのにイベント未配信」のデータ整合性事故ゼロ化、メッセージ重複は冪等コンシューマで吸収
+
+### 5. OpenAPI 3.1 × tRPC v11 ハイブリッド API ゲートウェイ
+- 外部公開 API は OpenAPI 3.1（JSON Schema 2020-12 準拠）で仕様駆動、社内 BFF は tRPC v11 で型直結する
+- Hono + `@hono/zod-openapi` で Zod スキーマから OpenAPI 仕様自動生成、Swagger UI を `/doc` で公開する
+- tRPC v11 の `inferProcedureInput/Output` で Riku の FE と型を完全共有、ボイラープレート 0 化する
+- API バージョニングは `/v1/`・`/v2/` URL パスで明示、Deprecation ヘッダで廃止予告（最低 6 ヶ月猶予）する
+- 全エンドポイント p95 <100ms、エラー率 ≤0.1%、OpenAPI 仕様カバレッジ 100%、契約テスト Pact で前方互換性検証する
+- ステップフロー：①Zod 定義 → ②Hono ルート登録 → ③OpenAPI 自動生成 → ④tRPC ルーター派生 → ⑤Pact 契約テスト
+- 効果：仕様書と実装の乖離を型レベルでゼロ化、FE/BE 並列実装率 100%、外部開発者オンボーディング 3 日 → 半日
+
+### 6. gRPC + GraphQL Federation 2.5 マイクロサービス連携
+- 内部マイクロサービス間通信は gRPC（Protocol Buffers）で型安全＋低レイテンシ通信、p99 <20ms を達成する
+- 外部 BFF レイヤは GraphQL Federation 2.5 で複数サービスを統合し、N+1 は DataLoader で自動バッチング解決する
+- `@apollo/federation` の `@key`・`@external`・`@requires` ディレクティブで Entity 関連を宣言する
+- gRPC は `connect-es` で TypeScript ネイティブ実装、`buf` で .proto Lint・Breaking Change 検出を CI 強制する
+- Federation Gateway p95 <150ms、N+1 検出は `graphql-query-complexity` で複雑度 1000 超過を 400 で拒否する
+- ステップフロー：①.proto 定義 → ②connect-es 実装 → ③Subgraph 定義 → ④Federation Gateway 構築 → ⑤Complexity 制限
+- 効果：マイクロサービス間レイテンシを REST 比 60% 削減、FE は単一 GraphQL エンドポイントで全データ取得
+
+### 7. PostgreSQL 17 + pgvector ハイブリッド検索基盤
+- PostgreSQL 17 の `JSON_TABLE` 関数で JSONB カラムを SQL 検索可能化、NoSQL からの RDB 回帰を実現する
+- pgvector 拡張で埋め込みベクトル（OpenAI text-embedding-3-large、3072 次元）を `vector(3072)` 列に格納する
+- HNSW インデックス（`hnsw (embedding vector_cosine_ops)`）で類似検索 p99 <50ms、再現率 ≥95% を達成する
+- ハイブリッド検索：全文検索（`tsvector` + GIN）+ ベクトル検索（pgvector + HNSW）を RRF（Reciprocal Rank Fusion）で統合する
+- 論理レプリケーション双方向対応（PostgreSQL 17 新機能）でマルチリージョン書き込み、RPO <1 秒を保証する
+- ステップフロー：①pgvector インストール → ②embedding 生成バッチ → ③HNSW インデックス構築 → ④RRF クエリ実装 → ⑤レプリケーション設定
+- 効果：別途 Pinecone/Weaviate 不要で月額インフラコスト 30 万円削減、検索レイテンシ 800ms → 45ms に短縮
+
+### 8. BullMQ × Redis 8 高信頼ジョブキュー
+- Redis 8 を BullMQ のバックエンドとし、メール送信・PDF 生成・Webhook 配信を非同期化する
+- Job は `attempts: 5`、`backoff: { type: 'exponential', delay: 1000 }`、`removeOnComplete: { age: 86400 }` で標準化する
+- Rate Limiter（`limiter: { max: 100, duration: 1000 }`）で外部 API（Stripe・SendGrid）の Rate Limit を吸収する
+- Dead Letter Queue（DLQ）に失敗ジョブを自動退避し、Bull Board UI で運用者が手動再実行可能化する
+- ジョブ処理成功率 ≥99.9%、p95 処理時間 <5 秒、DLQ 滞留率 ≤0.1%、Worker 同時実行数 50 を SLO 化する
+- ステップフロー：①Queue/Worker 分離 → ②Job スキーマ定義 → ③Rate Limiter 設定 → ④DLQ ハンドラ → ⑤Bull Board デプロイ
+- 効果：同期処理で 30 秒待たせていた PDF 生成を非同期化し API p95 を 30 秒 → 80ms に短縮
+
+### 9. OWASP ASVS 4 L2+ セキュリティ強化
+- OWASP ASVS 4.0 Level 2 を最低基準とし、決済・PII 扱う案件は Level 3 を必須化する
+- JWT/OIDC 認証は `jose` ライブラリで `algorithms: ['RS256']`・`audience`・`issuer`・`exp`・`nbf` を必須検証する
+- 全 API に Rate Limit（`@upstash/ratelimit` で IP 単位 100req/min、ユーザー単位 1000req/min）を必須適用する
+- Helmet ミドルウェアで CSP・HSTS・X-Frame-Options を強制、依存脆弱性は `pnpm audit` + Snyk で CI ブロックする
+- セキュリティテストは OWASP ZAP の自動スキャンを週次実行、Critical/High 脆弱性は 24 時間以内に修正する SLO 設定する
+- ステップフロー：①ASVS 自己評価 → ②jose 認証実装 → ③Rate Limit 適用 → ④Helmet 設定 → ⑤ZAP 週次スキャン
+- 効果：ペネトレーションテスト指摘事項 年間 25 件 → 2 件、認証バイパス・SQLi・XSS インシデント完全ゼロ化
+
+### 10. OpenTelemetry × Sentry 統合オブザーバビリティ
+- OpenTelemetry SDK で Trace・Metrics・Logs を統一収集し、Sentry Performance + Grafana Tempo に配信する
+- 全 Route Handler に自動計装（`@opentelemetry/instrumentation-http`・`-pg`・`-redis`）を適用しコード変更ゼロ化する
+- Trace ID を構造化ログに必ず付与し、Sentry エラーから DB クエリまで 1 クリックで遡及可能化する
+- SLO ダッシュボード：API p95 <100ms・エラー率 ≤0.1%・DB クエリ p99 <50ms・Apdex ≥0.95 を Grafana で常時可視化する
+- Burn Rate Alert（1 時間で月間エラーバジェット 10% 消費）を Slack #incidents に自動通知、MTTR <15 分を達成する
+- ステップフロー：①OTel SDK 導入 → ②自動計装適用 → ③Sentry/Tempo 配信 → ④SLO ダッシュボード → ⑤Burn Rate Alert
+- 効果：障害原因特定時間 30 分 → 3 分、SLO 違反の予兆検知率 ≥90%、運用者の深夜対応負荷を構造的に削減

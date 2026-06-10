@@ -557,3 +557,85 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - 要件はタスク分解時に「依存関係・工数・担当」を最初に確定すると、後の手戻りと待ち時間が減り並列化できる
 - 進捗管理はステータス3段（未着手/進行/完了）のかんばんに集約すると、口頭確認より把握が速い
 - 頻出の要件抜け（非機能要件・エラー時挙動）をヒアリングテンプレに入れると、後工程の出戻りを防げる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. DORA Metrics エリートパフォーマー水準を常時 Dashboard 計測
+- 採用フレームワーク: **DORA Metrics**（Google Cloud DevOps Research）4 指標で開発生産性を定量化する
+- 採用ツール: **GitHub Projects v2 + Datadog DORA Metrics Dashboard** で main ブランチ push と本番デプロイから自動算出
+- 目標 KPI: Deploy Frequency >1/day（1 日 1 回以上）、Lead Time for Changes <1 day（コミット→本番 24 時間以内）、Change Failure Rate <5%（リリース 100 本中 NG 5 本以下）、MTTR <1 hour（障害検知→復旧 60 分以内）
+- STEP 0 で Kai がクライアントに「Elite 水準でリリース運用する」と数値合意取得し、Kuu の CI/CD 設計・Ao の自動テスト・Mio の QA ゲート全てがこの 4 数値を直接押し上げる責務を負う
+- 週次レビューで 4 指標を Notion DB「DORA トラッカー」に転記、Medium 水準（DF: 月 1 回／LT: 1 週〜1 か月）へ落ちた指標は Kai が翌週の改善 OKR に登録し原因分析する
+- 単一指標だけ良化させると他が悪化するトレードオフ（DF↑で CFR↑）を防ぐため、4 指標を Kiviat チャートで常時可視化し均衡を Kai が判定する
+
+### 2. SPACE フレームワークで開発者生産性を多次元計測
+- 採用フレームワーク: **SPACE Framework**（Microsoft Research / Nicole Forsgren 2021）= Satisfaction & Well-being / Performance / Activity / Communication & Collaboration / Efficiency & Flow
+- 採用ツール: **LinearB + Notion 開発者サーベイ + GitHub Insights** で「数値が取れる指標」と「サーベイで取る指標」を組み合わせ計測する
+- 目標 KPI: Satisfaction NPS >40、PR Review Time <4 hour、Activity（commit/day）>3、Slack 同期コミュニケーション率 <30%（残り 70% は非同期）、Flow（中断なき集中時間）>2 hour/day
+- Kai が月次 1on1 で Riku/Ao/Kuu/Mio から SPACE 5 軸サーベイを取得、特に Flow と Satisfaction を最重視し「集中時間を奪う MTG」を月単位で削減対象化する
+- Activity（コミット数・PR 数）だけで評価する古典的アンチパターンを禁止、5 軸を組み合わせて初めて健全な生産性が見える原則を徹底する
+- Performance は DORA 4 指標、Activity は LinearB の cycle time / PR throughput で自動集計、Communication は Slack Analytics で同期/非同期比率を計測し総合判定
+
+### 3. RICE スコアリングで機能優先順位を定量決定
+- 採用フレームワーク: **RICE Prioritization**（Intercom 開発）= Reach × Impact × Confidence ÷ Effort のスコア式
+- 採用ツール: **Notion DB「Feature Backlog」+ Linear Initiative** に RICE 4 列を必須プロパティ化し、PRD ごとに自動算出する
+- 目標 KPI: Backlog 上位 10 件の平均 RICE スコア >50、Effort >5 人日のエピックは Confidence >80% を強制、四半期で実装した機能の Reach 実測値が見積もりの ±30% 以内
+- Reach: 影響を受けるユーザー数（実測 DAU から算出）／Impact: Massive=3, High=2, Medium=1, Low=0.5, Minimal=0.25 の 5 段階／Confidence: 80%/50%/20% の 3 段階（憶測なら 20%）／Effort: 人日換算
+- Kai が STEP 0 でクライアント要望リストを RICE スコアに変換、上位 3 件のみ MVP スコープに入れ残りは「次フェーズ」へ送る運用でスコープクリープを構造的に防ぐ
+- Confidence 50% 未満の機能は「PoC または ユーザーインタビュー実施後に再評価」と判定し、いきなり実装着手するアンチパターンを禁止する
+
+### 4. WSJF（Weighted Shortest Job First）で SAFe 6.0 準拠の経済的優先順位付け
+- 採用フレームワーク: **WSJF**（SAFe 6.0 / Don Reinertsen）= Cost of Delay ÷ Job Size、CoD = User-Business Value + Time Criticality + Risk Reduction & Opportunity Enablement
+- 採用ツール: **Jira Advanced Roadmaps + ProductPlan** で WSJF スコアをエピック単位に必須計上し、ガントチャート優先度に直結させる
+- 目標 KPI: 四半期エピック上位 5 件の平均 WSJF スコア >15、Time Criticality >5 のエピックは 2 週間以内着手必須、Job Size >13 ストーリーポイントは分割を強制
+- 各因子はフィボナッチ数列（1, 2, 3, 5, 8, 13, 21）でチームが相対見積もり、Kai が Planning Poker 形式で Nao/Riku/Ao/Kuu/Mio に投票させ合議形成する
+- RICE が「機能単位の優先度」なのに対し WSJF は「エピック・大規模ワーク単位の経済合理性」を扱う住み分けを Kai が STEP 0 で明確化、両者を使い分ける
+- WSJF 計算により「短期で高価値のエピック」を機械的に上位化し、「PM の好み」「クライアントの声の大きさ」で優先順位が歪むバイアスを排除する
+
+### 5. BMAD-METHOD × Spec Kit ハイブリッド運用で仕様を Git 管理
+- 採用フレームワーク: **BMAD-METHOD + GitHub Spec Kit**（2026 Q1 リリース）で要件→設計→タスク→実装の全フェーズを Git ブランチで版管理
+- 採用ツール: **GitHub Spec Kit + Linear Spec Sync** で `specs/` ディレクトリに要件・設計・タスクを Markdown 配置し PR レビュー対象化
+- 目標 KPI: 仕様変更 PR の平均レビュー時間 <2 hour、仕様→実装の Trace 率 100%（実装 PR は必ず spec PR を Closes 参照）、仕様 PR の Approval Rate >90%
+- STEP 1 要件定義書は `specs/{feature}/requirements.md`、STEP 2 設計書は `specs/{feature}/design.md`、STEP 3 タスクは `specs/{feature}/tasks.md` に配置し、各 STEP 完了時に PR Merge をゲートとする
+- 仕様変更があれば必ず spec PR を起票し Nao がレビュー→ Approve→ 実装着手の順序を守る、Notion DB 並走運用は「ステータス可視化用ダッシュボード」に限定する
+- 仕様の差分が `git log specs/` で歴代追跡可能になり、「いつ誰がなぜスコープを変えたか」が永続記録される、クライアント納品物に Spec Kit リポジトリを同梱し透明性で差別化する
+
+### 6. Kanban + WIP Limits で仕掛り在庫を物理制限し Lead Time を圧縮
+- 採用フレームワーク: **Kanban Method**（David Anderson）+ WIP Limits（Work In Progress 上限値）
+- 採用ツール: **Linear Cycles + Kanban Board** で各列（Todo / Doing / Review / Done）に WIP 上限を設定、超過時は新規着手をブロック
+- 目標 KPI: Doing 列 WIP 上限 = チーム人数 ÷ 2（5 人なら 3 枚まで）、Review 列 WIP 上限 = 2 枚、ストーリー平均 Cycle Time <3 day、Throughput >8 stories/sprint
+- Little's Law（Cycle Time = WIP ÷ Throughput）に基づき Kai が WIP 上限を調整、上限超過の警告が出たら Riku/Ao/Kuu に「新規着手禁止、Doing 完了優先」を即時指示する
+- Doing 列が詰まる根本原因（Review 待ち渋滞・依存ブロッカー・設計手戻り）を Cumulative Flow Diagram で可視化、Kai が週次でボトルネック工程に Riku/Ao の人員シフトを判断する
+- スクラム的スプリント区切りを置かず Continuous Flow を採用、クライアント要望の緊急差し込みは「Expedite Lane（最優先レーン WIP 上限 1 枚）」で隔離処理し通常タスクの遅延を防ぐ
+
+### 7. INVEST 原則 + Cohn ストーリーポイント見積もりでタスク分解品質を担保
+- 採用フレームワーク: **INVEST 原則**（Bill Wake）+ **Mike Cohn ストーリーポイント**（フィボナッチ数列の相対見積もり）
+- 採用ツール: **Linear Estimates + Planning Poker（Pointing Poker）** で全タスクを 1/2/3/5/8/13 のフィボナッチ数列で見積もる
+- 目標 KPI: タスク Size 平均 ≤5 SP、13 SP 超は強制分割、Planning Poker の意見差 >3 段階のタスクは合議で再見積もり、Sprint Velocity の標準偏差 <20%
+- INVEST 6 観点（Independent / Negotiable / Valuable / Estimable / Small / Testable）を STEP 3 タスク分解時の必須チェックリスト化、Small 違反（>8 SP）は更に分解、Testable 違反は受入基準（Given-When-Then）を補完する
+- Velocity の過去 3 スプリント移動平均で次スプリントのコミットメント上限を決定、楽観バイアスによる過剰コミットを禁止する
+- ストーリーポイント=人日換算ではなく「相対的な複雑度」と定義、時間換算で議論が紛糾するアンチパターンを禁止し、Kai が Planning Poker のファシリテーションで複雑度の合意形成だけに集中させる
+
+### 8. Definition of Done + Three Amigos + BDD Gherkin で品質基準を共通言語化
+- 採用フレームワーク: **Definition of Done**（Scrum Guide）+ **Three Amigos**（PM/Dev/QA 三者会議）+ **BDD Gherkin**（Given-When-Then）
+- 採用ツール: **Cucumber + Linear Acceptance Criteria + Notion DoD チェックリスト** でストーリーごとに DoD 8 項目と Gherkin シナリオを必須化
+- 目標 KPI: DoD 8 項目達成率 100%（未達は Done 移動不可）、Gherkin シナリオ書かれたストーリー率 100%、Three Amigos MTG 30 分以内完了、受入基準起因の手戻り率 <5%
+- DoD 8 項目: ①コードレビュー Approve ②単体テストカバレッジ >80% ③ E2E テスト PASS ④ Lint/Type エラーゼロ ⑤ドキュメント更新 ⑥環境変数 `.env.example` 更新 ⑦マイグレーション可逆性確認 ⑧ステージング動作確認
+- Three Amigos は STEP 2 設計直後に Kai（PM）+ Nao（Dev 代表）+ Mio（QA）で 30 分実施、Gherkin シナリオを 3 者合意で起票し設計段階で受入基準を確定させる
+- Gherkin の `Given <前提> When <操作> Then <結果>` 形式で受入基準を書くと Cucumber で自動テスト化可能、要件→テストコードの Trace を機械化し人手の差し戻しゼロを目指す
+
+### 9. MoSCoW 法 + ICE Score でクライアント要望の合意形成を加速
+- 採用フレームワーク: **MoSCoW 法**（Must / Should / Could / Won't）+ **ICE Score**（Impact × Confidence × Ease）
+- 採用ツール: **Notion DB「要望トラッカー」+ AHA! Roadmap** で要望ごとに MoSCoW タグと ICE スコア（各 1-10）を必須プロパティ化
+- 目標 KPI: MVP スコープの Must 比率 100%、Should 比率 <30%、Could/Won't は次フェーズ送り、ICE スコア >150 の要望は最優先実装、要望合意 MTG 時間 <60 分
+- STEP 0 でクライアント要望をホワイトボードに全列挙し、その場で MoSCoW タグ付け→ ICE スコア投票→上位確定の順で 60 分以内に MVP スコープ合意を取り付ける
+- ICE は「短期判断用の簡易スコア」、RICE は「中期判断用の精密スコア」、WSJF は「経済合理性判断用」と Kai が使い分け、フェーズと判断粒度で最適化する
+- Won't 項目は「やらないことリスト」としてクライアント署名取得、後日の「やっぱりこれも」要望に対し合意文書を根拠に「次フェーズ対応」を断定的に回答可能化する
+
+### 10. Notion AI for PRD + Sprint Velocity 平滑化で計画精度を AI 補助
+- 採用フレームワーク: **Notion AI for PRD**（自然言語→構造化 PRD 自動生成）+ **Sprint Velocity Smoothing**（移動平均 + Yesterday's Weather 法）
+- 採用ツール: **Notion AI + Shortcut Velocity Chart + Linear Insights** で PRD 初稿を AI 生成し、過去 6 スプリント Velocity の中央値で次スプリント計画を組む
+- 目標 KPI: PRD 作成工数 4 hour → 1 hour（Notion AI 初稿生成）、Velocity 移動平均 = 30 SP/sprint ±10%、計画達成率 >90%、AI 初稿の Nao 修正率 <30%
+- Notion AI に「クライアント要望」「業務目的」「ユースケース 3 件」を入力すると、機能要件・非機能要件・スコープ外・ユーザーストーリー・受入基準の初稿が 5 分で生成、Nao が修正に集中可能
+- Yesterday's Weather 法 = 「昨日の天気が今日の予報の最良推定」、過去 3 スプリントの Velocity 中央値を次スプリントの上限値とし、楽観バイアスを構造的に排除する
+- AI 初稿の品質を担保するため、Notion AI のプロンプトテンプレを Kai が「クライアント業界別（建設業 / SaaS / 採用支援）」に 5 種類用意、業界文脈を AI に与えて初稿の的中率を上げる

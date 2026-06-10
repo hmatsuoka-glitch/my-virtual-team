@@ -344,3 +344,107 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - UI実装は共通コンポーネント（ボタン・フォーム・モーダル）を部品化して再利用すると、画面追加が速い
 - 状態管理は方針を最初に固定すると、後からの全面リファクタという手戻りを防げる
 - Tailwindの頻用パターンをプリセット化すると、毎回のクラス組み立て時間を短縮
+
+---
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. RSC（React Server Components）アーキテクチャ完全移行 — Next.js 15 App Router × React 19
+- フレームワーク基盤：Next.js 15 App Router ＋ React 19 RSC を採用し、原則「Server Components ファースト・Client Components 最小化」のアーキテクチャに統一する。
+- 使用ツール：`next@15`／`react@19`／`@vercel/og`／`react-server-dom-webpack`。
+- KPI：Client Component 比率 ≤ 25%、JS バンドル ≤ 80KB（initial route）、TTFB < 200ms、LCP < 2.0s。
+- STEP 1：Nao 設計書からデータ取得層を抽出し Server Component に隔離する。
+- STEP 2：イベント駆動部（onClick／onChange／useState）を `'use client'` 境界に降ろす。
+- STEP 3：Server → Client は props バケツリレーのみ、逆方向は Server Actions 経由に固定する。
+- STEP 4：`size-limit` を CI に組み込み、initial JS バンドル 80KB を PR ゲート化する。
+- STEP 5：Vercel Speed Insights で TTFB／LCP を本番計測し SLO 未達はロールバック対象にする。
+
+### 2. Server Actions ＋ Suspense ストリーミング設計 — API Route レス化
+- フレームワーク基盤：Next.js 15 Server Actions ＋ React 19 `use(promise)` ＋ `<Suspense>` ストリーミング描画で、API Route を廃止し型安全な RPC に置換する。
+- 使用ツール：`next-safe-action`／`zod@4`／`react@19` の `useActionState`／`useOptimistic`。
+- KPI：Server Action 実装比率 100%（管理画面 CRUD）、INP < 150ms、Form 楽観更新の Time to First Feedback < 50ms。
+- STEP 1：Server Action を `app/actions/*.ts` に集約し `'use server'` ディレクティブで宣言する。
+- STEP 2：Zod 4 スキーマでリクエスト／レスポンスを型固定し `next-safe-action` で認可ミドルウェアを噛ます。
+- STEP 3：`useActionState` ＋ `useOptimistic` で送信中 UI を即時更新し二重送信を `isPending` でブロックする。
+- STEP 4：`<Suspense fallback>` を 3 階層（Page／Section／Card）に配置しストリーミング HTML 配信する。
+- STEP 5：Playwright 1.50 で「送信→楽観 UI→確定」の 3 状態を E2E 検証し INP 150ms 以下を保証する。
+
+### 3. Tailwind v4 ＋ shadcn/ui ＋ Radix Primitives デザインシステム — Atomic Design 準拠
+- フレームワーク基盤：Atomic Design（atoms／molecules／organisms／templates）に Tailwind v4 の CSS-first 設定＋shadcn/ui CLI＋Radix Primitives を組み合わせ、デザイントークン SSOT を構築する。
+- 使用ツール：`tailwindcss@4`／`@radix-ui/react-*`／`shadcn@latest`／`class-variance-authority`／`tailwind-variants`。
+- KPI：デザイントークン重複 0、CSS バンドル ≤ 30KB、コンポーネント再利用率 ≥ 80%、a11y axe-core 違反 0。
+- STEP 1：`@theme` ブロックにブランドカラー／タイポグラフィ／間隔を 1 ファイル定義する。
+- STEP 2：`shadcn@latest add` で 15 コンポーネントを `packages/ui` に配備し CVA で variant 化する。
+- STEP 3：Radix Primitives で a11y を担保（Dialog／Popover／Combobox）し ARIA を手書きしない。
+- STEP 4：Storybook 9 に全 variant ストーリーを登録し Chromatic でビジュアルリグレッション化する。
+- STEP 5：axe-core ＋ `@storybook/addon-a11y` で違反 0 を CI ゲートに固定する。
+
+### 4. Vitest 3 ＋ React Testing Library ＋ MSW 2.5 によるテスト網羅 — Beck 流 TDD
+- フレームワーク基盤：Kent Beck の TDD（Red→Green→Refactor）を Vitest 3 ＋ RTL ＋ MSW 2.5 で実装し、Trophy Model（Unit:Integration:E2E = 1:3:2）配分で網羅する。
+- 使用ツール：`vitest@3`／`@testing-library/react`／`msw@2.5`／`@vitest/coverage-v8`／`@vitest/browser`。
+- KPI：Test coverage ≥ 85%、Flaky 率 < 1%、テスト実行時間 < 30s、Mutation Score ≥ 70%（Stryker）。
+- STEP 1：機能着手前に Red フェーズで `getByRole`／`getByLabelText` ベースの失敗テストを書く。
+- STEP 2：Green フェーズで最小実装→Refactor で重複除去、Branch Coverage ≥ 80% を維持する。
+- STEP 3：MSW 2.5 で API 層をモックし、`http.post` ハンドラで成功／失敗／空状態 3 ケースを定義する。
+- STEP 4：Vitest Browser Mode で実ブラウザ実行し JSDOM 差異バグを排除する。
+- STEP 5：`vitest --coverage` を PR ゲート化、85% 未満はマージブロックする。
+
+### 5. Playwright 1.50 ＋ MSW による E2E ＆ ビジュアルリグレッション — Container/Presenter 分離
+- フレームワーク基盤：Container／Presenter パターンで責務分離した上で、Playwright 1.50 の `@playwright/test` ＋ MSW Service Worker モードで E2E ＋ ビジュアルリグレッションを統合する。
+- 使用ツール：`@playwright/test@1.50`／`msw@2.5`（Service Worker）／`@axe-core/playwright`／`playwright-lighthouse`。
+- KPI：主要 10 フロー E2E カバレッジ 100%、Flaky 率 < 0.5%、Visual Regression diff threshold < 0.1%、a11y 違反 0。
+- STEP 1：Container（データ取得・状態）と Presenter（純粋表示）を分離し Presenter を Storybook 単独テスト可能化する。
+- STEP 2：Playwright Trace Viewer ＋ `test.step()` でフロー分解可能なログを残す。
+- STEP 3：MSW を Service Worker モードで本番ビルドに注入し、決定論的 E2E を実現する。
+- STEP 4：`@axe-core/playwright` で全フロー a11y 違反 0 を検証する。
+- STEP 5：`playwright-lighthouse` で Lighthouse スコア ≥ 98 を PR Preview URL 上で自動測定する。
+
+### 6. TanStack Query 6 ＋ Zustand 5 ＋ Zod 4 状態管理 3 層モデル
+- フレームワーク基盤：「Server State（TanStack Query 6）／Client UI State（Zustand 5）／Form State（React Hook Form ＋ Zod 4）」の 3 層分離を厳格運用する。
+- 使用ツール：`@tanstack/react-query@6`／`zustand@5`／`zod@4`／`react-hook-form`／`@hookform/resolvers`。
+- KPI：状態管理コード重複 0、Cache Hit Rate ≥ 70%、無駄な再レンダー検出 0（React DevTools Profiler）、Form エラー検出率 99%。
+- STEP 1：API レスポンスは全て TanStack Query 経由、`queryKey` 命名規約を `[domain, action, params]` で統一する。
+- STEP 2：UI モーダル開閉・サイドバー状態は Zustand に集約し `selector` で再レンダー局所化する。
+- STEP 3：Form は React Hook Form `register` ＋ Zod 4 `safeParse` で非制御＋型安全化する。
+- STEP 4：Server State を `dehydrate`／`hydrate` で SSR ストリーミングに組み込む。
+- STEP 5：React DevTools Profiler を CI で実行し commit 数 ≥ 3 のコンポーネントを警告する。
+
+### 7. Biome ＋ Bun ＋ Turbopack による次世代開発基盤
+- フレームワーク基盤：ESLint／Prettier を Biome lint に統合、Node.js を Bun runtime に置換、Webpack を Turbopack に完全移行し、開発体験を 10 倍化する。
+- 使用ツール：`@biomejs/biome`／`bun@1.2+`／`next@15` の Turbopack stable／`oxlint`（補完）。
+- KPI：dev 起動時間 < 1s、HMR < 50ms、Lint 実行 < 3s、CI 実行時間 -60%、type coverage ≥ 95%。
+- STEP 1：`biome.json` で Lint ＋ Format ＋ Import Sort を 1 設定に統合する。
+- STEP 2：`bun install` で依存解決を pnpm 比 25 倍高速化、`bun test` で Vitest 互換テストを並列実行する。
+- STEP 3：`next dev --turbo` を全プロジェクトで standard 化し Webpack 設定を削除する。
+- STEP 4：`type-coverage` で TypeScript 型カバレッジ 95% 以上を CI ゲート化する。
+- STEP 5：GitHub Actions に Bun キャッシュを設定し CI 実行時間 60% 削減を達成する。
+
+### 8. Web Vitals Library ＋ Lighthouse CI ≥ 98 パフォーマンスガバナンス
+- フレームワーク基盤：Google `web-vitals` ライブラリで RUM（Real User Monitoring）を実装、Lighthouse CI でスコア 98 以上を物理ゲート化する。
+- 使用ツール：`web-vitals@4`／`@lhci/cli`／`vercel-speed-insights`／`@vercel/analytics`／`bundle-analyzer`。
+- KPI：Lighthouse Performance ≥ 98、LCP < 2.0s、INP < 150ms、CLS < 0.05、Bundle ≤ 80KB、Speed Index < 1.5s。
+- STEP 1：`onLCP`／`onINP`／`onCLS` を `app/_components/WebVitalsReporter.tsx` で計測し Analytics に送出する。
+- STEP 2：Lighthouse CI を GitHub Actions に組み込み PR Preview URL を 3 回測定平均で判定する。
+- STEP 3：`@next/bundle-analyzer` で chunk サイズを可視化、80KB 超は code-splitting を強制する。
+- STEP 4：`React.startTransition`／`useDeferredValue` で重い処理を非同期化し INP < 150ms を死守する。
+- STEP 5：本番 RUM データを Vercel Speed Insights で監視、p75 SLO 未達 7 日連続でアラート発火する。
+
+### 9. View Transitions API ＋ Web Components 2026 ＋ PPR モダンレンダリング
+- フレームワーク基盤：View Transitions API（Chrome 125+）でページ遷移アニメーションを CSS 化、Web Components で埋込ウィジェット化、Next.js 15 PPR（Partial Prerendering）で静的＋動的を 1 ページ内自動分割する。
+- 使用ツール：`next@15` PPR／`view-transition-name` CSS／`Lit@3`（Web Components）／`@webcomponents/custom-elements`。
+- KPI：ページ遷移 < 300ms（体感）、PPR 静的領域比率 ≥ 60%、Web Components 埋込先サイト Performance ≥ 90、LCP < 2.0s。
+- STEP 1：`document.startViewTransition()` で SPA 内ページ遷移をクロスフェード／Hero アニメーション化する。
+- STEP 2：Hero／ヘッダー／フッターを PPR 静的領域に配置、ユーザー固有情報のみ動的ストリーミングする。
+- STEP 3：採用案件のクライアントサイト埋込ウィジェットを Lit 3 Web Components で実装する。
+- STEP 4：Shadow DOM でスタイル隔離し埋込先 CSS との競合を 0 化する。
+- STEP 5：Chrome DevTools Performance タブで View Transitions の 60fps 維持を検証する。
+
+### 10. Storybook 9 ＋ Chromatic ＋ Code Connect デザイン↔実装ブリッジ
+- フレームワーク基盤：Storybook 9 ＋ Chromatic ＋ Figma Code Connect で「Figma デザイン → コードコンポーネント → ストーリー → ビジュアルリグレッション」の双方向ブリッジを構築する。
+- 使用ツール：`storybook@9`／`chromatic`／`@figma/code-connect`／`@storybook/addon-a11y`／`@storybook/test`。
+- KPI：全コンポーネント Storybook 登録率 100%、Visual diff threshold < 0.1%、Figma ↔ コード乖離 0、デザインレビュー時間 -70%。
+- STEP 1：`packages/ui` 配下の全コンポーネントに variant 別ストーリー（Default／Hover／Disabled／Loading／Error）を登録する。
+- STEP 2：`@figma/code-connect` で Figma コンポーネント ID と React コンポーネントをマッピングする。
+- STEP 3：Chromatic で PR 毎にビジュアルリグレッションを実行し diff 0.1% 超は承認必須化する。
+- STEP 4：`@storybook/test` で interaction testing を実装し Storybook 単体で E2E 相当の検証を行う。
+- STEP 5：Sota／Kana のデザインレビューを Storybook URL 共有で完結させレビュー時間 70% 削減する。

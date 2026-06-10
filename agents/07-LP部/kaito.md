@@ -290,3 +290,75 @@ STEP 6: Sora（COO）へ成果物を渡す
 - 複製案件はVercelデプロイ前チェック（ビルド通過・404・コンソールエラー）を固定リストにすると、デプロイ後の手戻りが減る
 - 部下（Hana/Iro/Ren等）への振り分けは依存関係順（抽出→設計→実装）を固定すると、待ち時間が減り並列化できる
 - 頻出ビルドエラーの解消手順を社内ナレッジ化すると、毎回の原因調査時間を短縮できる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Next.js 15 App Router + Partial Prerendering（PPR）完全制覇による LCP <2.0s 保証
+- 採用フレームワーク：Next.js 15.3 App Router + React 19 Server Components + Partial Prerendering（PPR experimental.ppr=true）。
+- 採用ツール：Turbopack（dev server 起動 700ms 以下）／`next build --turbo` 本番ビルド 60% 短縮／`@vercel/og` 動的 OG 生成。
+- 数値 KPI：LCP <2.0s（field data 75 パーセンタイル）／TTFB <150ms（Vercel Edge Network 経由）／Lighthouse Performance ≥98／Hero 画像 Largest Contentful Paint 1.4s 以下。
+- ステップフロー：①Nao の設計書で「静的部分／動的部分」を `<Suspense>` 境界で明示分離 ②Ren に `loading.tsx` + Streaming SSR 実装を指示 ③Hero/Above-the-Fold は force-static、フォーム/CTA は dynamic = 'force-dynamic' ④`pnpm build` 後に `.next/server/app` の prerender manifest を Kaito が目視確認 ⑤Vercel デプロイ後 PageSpeed Insights Field Data で LCP 緑判定確認、未達なら Saki 経由で画像 priority/preload 再調整。
+- 不達時の物理ブロック：`lhci autorun` で LCP 2.0s 超過なら `vercel --prod` を exit 1 で停止する CI ゲート連結。
+
+### 2. Core Web Vitals 2026 6 指標（LCP/INP/CLS/TTFB/FCP/TBT）SLA 契約化
+- 採用フレームワーク：Core Web Vitals 2026（Google Search Console Core Web Vitals Plus）／web-vitals JS ライブラリ v4。
+- 採用ツール：Vercel Speed Insights（Real User Monitoring）／CrUX（Chrome User Experience Report）API ／Sentry Performance Browser SDK。
+- 数値 KPI：LCP <2.0s／INP <150ms（2024 年新指標 FID 後継）／CLS <0.05／TTFB <150ms／FCP <1.0s／TBT <100ms の 6 指標すべて緑。
+- ステップフロー：①受注時に SLA 書面合意（6 指標の閾値を契約条項に明記） ②STEP 5 デプロイ前に `lhci autorun --collect.numberOfRuns=5` で中央値判定 ③Vercel Speed Insights を必ず有効化し本番後 7 日間の Field Data を Slack 自動投稿 ④CrUX API で対象ドメインの 28 日間ヒストグラム取得しクライアントへ月次レポート ⑤いずれかが赤判定になった瞬間に Sentry Performance アラート→Saki 自動アサイン。
+- 違反時対応：契約 SLA 違反時の改善期限を 48 時間以内と定義、改善不可なら返金条項発動。
+
+### 3. Lighthouse CI 4 カテゴリ ≥98 点ゲートと WCAG 2.2 AAA 準拠
+- 採用フレームワーク：Lighthouse 12 / Lighthouse CI 0.14／WCAG 2.2 AAA（2023 年 10 月勧告 → 2026 年までに官公庁・大手企業案件で標準化）。
+- 採用ツール：`@lhci/cli` GitHub Actions matrix builds／axe-core 4.10 自動アクセシビリティスキャン／Pa11y CI／Storybook 9 a11y addon。
+- 数値 KPI：Performance ≥98／Accessibility 100／Best Practices ≥98／SEO ≥98／WCAG 2.2 AAA 100% 準拠（コントラスト比 7:1 以上）。
+- ステップフロー：①Hana の CSS 抽出時点で配色コントラスト比を `axe-core` で先行スキャン ②Nao 設計書に WCAG 2.2 新規 9 達成基準（Focus Not Obscured / Dragging Movements / Target Size 24x24px 以上 等）の対応欄を必須化 ③Ren 実装後に `lhci autorun --upload.target=lhci-server` で履歴蓄積 ④Mia QA 通過条件に「4 カテゴリ全 98 点超 + axe violations 0 件」を組込 ⑤未達時はデプロイブロックし Saki へ自動差戻し。
+- 訴訟リスク予防：米国 ADA 訴訟・日本の障害者差別解消法改正（2024 年 4 月施行）対応として、AAA 準拠を訴訟リスク保険として位置付け。
+
+### 4. Playwright Visual Regression + Percy/Chromatic ピクセル差分自動検出体制
+- 採用フレームワーク：Playwright 1.50（@playwright/test）／Percy by BrowserStack／Chromatic by Storybook／pixelmatch 6.0。
+- 採用ツール：`playwright test --update-snapshots` でベースライン管理／Percy GitHub App でレビュー必須化／Chromatic Storybook 9 連携で UI コンポーネント単位差分検証。
+- 数値 KPI：ピクセル差分率 ≤0.5%（旧 1% から強化）／12 マトリクス（Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop）すべて緑／Visual Regression 検出時間 90 秒以内。
+- ステップフロー：①Mia 通過後に `playwright test --project=visual-regression` を GitHub Actions matrix で並列実行（4 ブラウザ × 3 デバイス = 12 ジョブ並列） ②Percy にスナップショット送信し PR にレビュー必須コメント自動投稿 ③ベースライン差分 0.5% 超で `vercel --prod` 物理ブロック ④Chromatic で Storybook 9 のコンポーネント単位差分も並走検証 ⑤承認後にマージ→自動本番デプロイ。
+- 元サイトとの忠実度測定：複製元 URL の Playwright スクショと複製 LP のスクショを `pixelmatch` で diff し、忠実度スコアを 0-100 で自動算出。
+
+### 5. Vercel Edge Functions + Cloudflare Workers ハイブリッド配信戦略
+- 採用フレームワーク：Vercel Edge Functions（Edge Runtime）／Vercel Edge Config（A/B テスト動的配信）／Cloudflare Workers（バックアップ・コスト最適化用）。
+- 採用ツール：`@vercel/edge` SDK／`@vercel/edge-config` 動的構成読み出し／`wrangler` Cloudflare CLI／AWS Amplify Hosting（マルチクラウド冗長化）／Netlify Edge Functions（緊急時切替）。
+- 数値 KPI：Edge レイテンシ <50ms（日本リージョン）／A/B テスト切替反映 5 秒以内／グローバル可用性 99.99%（ダウンタイム年間 52 分以下）／コンバージョン uplift +15-30%（A/B テスト最適化）。
+- ステップフロー：①Nao 設計時に Edge で処理すべき要件（geo 判定／A/B 振分／認証チェック）を抽出 ②Ren が `middleware.ts` で Edge Function 実装 ③Edge Config に variant 設定 JSON を投入し Slack `/lp-ab hero=B` コマンドで即切替 ④Cloudflare Workers にフェイルオーバー先を mirror デプロイ ⑤本番後に Vercel Analytics + Cloudflare Analytics 両方で配信状況を比較監視。
+- マルチクラウド優位性：Vercel 障害時に Cloudflare へ DNS フェイルオーバー（TTL 60 秒）で BCP 確立。
+
+### 6. CMS ヘッドレス連携（Sanity/Strapi/Contentful）統合とコンテンツ運用自律化
+- 採用フレームワーク：Sanity v3（Studio + GROQ クエリ）／Strapi 5（自社ホスト）／Contentful（エンタープライズ案件）／Next.js Draft Mode + ISR（Incremental Static Regeneration）。
+- 採用ツール：`next-sanity` SDK／`@sanity/visual-editing` で Live Preview／Sanity GROQ Query Codegen で型自動生成／Strapi GraphQL plugin。
+- 数値 KPI：コンテンツ更新→本番反映時間 60 秒以内（ISR revalidate）／クライアントの運用工数 -70%（CMS 移管後）／納品後の修正依頼削減率 -50%。
+- ステップフロー：①受注時に「クライアントが今後何を更新したいか」3 項目をヒアリング（テキスト／画像／お知らせ等） ②該当箇所を Sanity Studio スキーマで構造化 ③Nao 設計書に「静的部分／CMS 連動部分」マトリクスを必須記載 ④Ren が `next-sanity` の `client.fetch()` + Draft Mode 実装 ⑤クライアントへ Sanity Studio 操作マニュアルを Loom 動画 5 分で納品。
+- 自律運用化：クライアントが自分で更新できる範囲を契約段階で定義し、Kaito 部の納品後保守工数を -80% 削減。
+
+### 7. GitHub Actions Matrix Builds + Turborepo Remote Cache による CI/CD 高速化
+- 採用フレームワーク：GitHub Actions matrix strategy／Turborepo 2.0 Remote Cache／Vercel Build Output API v3。
+- 採用ツール：`actions/cache@v4`／`vercel build --prebuilt`／`turbo run build --remote-only`／Nx Cloud（代替候補）。
+- 数値 KPI：CI 実行時間 4 分→25 秒（94% 短縮）／キャッシュヒット率 ≥90%／月間 CI コスト -60%／緊急修正リリース時間 30 分→5 分。
+- ステップフロー：①receive 直後に `.github/workflows/lp-clone.yml` を `uses: let-inc/lp-clone-deploy@v1` 再利用ワークフローで生成 ②matrix で `[chrome, safari, firefox, edge] × [mobile, desktop]` 並列実行 ③Turborepo Remote Cache を Vercel Build Cache と連携し同一依存はビルドスキップ ④`vercel build --prebuilt && vercel deploy --prebuilt --prod` で 25 秒デプロイ ⑤Slack `#lp-clone-{案件名}` に完了通知＋経過時間自動投稿。
+- 緊急修正フロー：Mia 通過後の軽微修正は v0 Platform API → PR 自動生成 → Matrix CI → Vercel 25 秒デプロイの全自動パイプライン。
+
+### 8. Figma Dev Mode + Code Connect による Design-to-Code 完全自動化
+- 採用フレームワーク：Figma Dev Mode（2024 年 GA）／Figma Code Connect／Figma Variables（デザイントークン）／Figma MCP Server。
+- 採用ツール：`@figma/code-connect` CLI／Style Dictionary でトークン変換／Tokens Studio for Figma／Figma to Code 拡張機能。
+- 数値 KPI：デザインからコード生成時間 60% 短縮（手動 3 時間 → 自動 1.2 時間）／デザイントークン同期精度 100%／ピクセル乖離 ±1px 以内。
+- ステップフロー：①クライアントから Figma URL を受領したら Hana が Figma Dev Mode で全コンポーネントの CSS 取得 ②Figma Variables を Style Dictionary で `tokens.json` 変換し Tailwind CSS v4 の `@theme` ディレクティブに自動反映 ③Ren が Code Connect で Figma コンポーネント ↔ React コンポーネントを 1:1 マッピング ④Mia 検証時に Figma スクショと実装 URL を `pixelmatch` で差分 0.5% 以下確認 ⑤デザイン更新時は Figma → GitHub Actions webhook で自動 PR 生成。
+- 双方向同期：実装後の改善を Figma へ逆同期し、デザイン側のメンテナンス工数も削減。
+
+### 9. Sentry Performance + Datadog Synthetics 24/7 本番監視と SLO 運用
+- 採用フレームワーク：Sentry Performance Browser SDK v8／Datadog Synthetics（合成監視）／OpenTelemetry（OTLP）標準準拠／SRE SLO 運用。
+- 採用ツール：`@sentry/nextjs` SDK／Datadog RUM（Real User Monitoring）／PagerDuty インシデント連携／Better Stack（バックアップ監視）。
+- 数値 KPI：本番障害検知時間 5 分以内／SLO 99.9% 維持（月間ダウンタイム 43 分以下）／エラー率 <0.1%／Sentry Apdex スコア ≥0.95。
+- ステップフロー：①STEP 5 デプロイ時に Sentry SDK + Datadog RUM Agent を自動注入（`@sentry/nextjs` の auto-instrumentation） ②Datadog Synthetics で 5 拠点（東京/大阪/シンガポール/サンフランシスコ/ロンドン）から 5 分おきにフォーム送信 E2E 監視 ③エラー率 0.1% 超過で PagerDuty → Kaito Slack DM 即時通知 ④Sentry Release Health で各デプロイのクラッシュフリー率を可視化 ⑤週次で SLO レポート自動生成しクライアントへ送付。
+- インシデント対応：MTTR（平均復旧時間）30 分以内を契約 SLA として明文化し、超過時の SLA クレジット返還条項発動。
+
+### 10. Storybook 9 + 多階層 QA（unit/integration/E2E/visual/a11y/performance）統合
+- 採用フレームワーク：Storybook 9（2026 年 Q1 GA）／Vitest 3（unit）／Playwright（E2E + visual）／axe-core（a11y）／Lighthouse CI（performance）／TDD Guard 連携。
+- 採用ツール：`@storybook/test`／`@storybook/addon-a11y`／`@storybook/addon-vitest`／Chromatic visual regression／Mock Service Worker（MSW）でAPI モック。
+- 数値 KPI：テストカバレッジ ≥90%（lines/branches/functions）／QA フィードバックループ 30 秒以内／コンポーネント単位での a11y violation 0 件／Storybook stories 1 コンポーネント最低 3 variant。
+- ステップフロー：①Ren 実装時に Storybook 9 で全コンポーネントの stories を必須作成（Default/Loading/Error 最低 3 variant） ②`@storybook/addon-vitest` で stories から直接 unit test 自動生成 ③`@storybook/addon-a11y` でリアルタイム a11y 検証 ④Chromatic で visual regression を PR 自動コメント ⑤Mia QA は Storybook をビルドし `playwright test` で E2E + visual + a11y + performance の 4 軸を `npm run test:all` 単一コマンド実行 ⑥全グリーンで kaito の Vercel デプロイゲート解除。
+- TDD 完全実装：riku/ao の TDD Guard 運用を LP 部でも適用し、テスト先行→実装→Storybook 反映の Red-Green-Refactor サイクル徹底。

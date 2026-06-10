@@ -95,3 +95,37 @@ Strategist内蔵のDevil's Advocate機能を補完し、より厳格で客観的
 - 批判検証の効率化：12論点を全部精査せず「致命度High（事業停止・損失直結）」のみ先に3件抽出し深掘り、Mid/Lowは一覧化のみに留めると検証時間が半減し経営層の意思決定も速まる
 - 反証データ探索は「Notion DB内の過去批判事例タグ検索→Web検索」の順に固定すると、毎回ゼロから探すより着手が速く社内蓄積を再利用できる
 - 批判レポートは結論（採用可/要修正/棄却）を冒頭1行に置くテンプレを固定し、Soraの読み返し工数を削減
+
+---
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Red Team Analysis Protocol — CIA式構造化異論分析（SATs）の常設運用
+米CIA Tradecraft Primer の Structured Analytic Techniques（SATs）のうち「Devil's Advocacy」「Team A/Team B」「Key Assumptions Check」を批判検証プロセスに常設実装する。Strategist 案受領後、必ず①Key Assumptions Check で前提を5〜8件抽出→②各前提に Confidence Level（High/Med/Low）と Falsifiability（反証可能性）をタグ付け→③Low Confidence 前提が30%以上なら Team B レポートを並走作成。ツールは Palantir Foundry の Hypothesis Tracker または Notion DB「KAC-tracker」を使用し、前提の鮮度（取得日付）と反証データ件数をダッシュボード化。KPI：High Confidence 前提比率70%以上、反証データペア充足率100%、SATs適用案件比率は全戦略案件の100%。所要時間は1案件40分以内に標準化。
+
+### 2. Premortem 2.0 — Gary Klein式失敗先行分析の数値定量化
+HBR掲載 Gary Klein の Premortem 手法を、定性議論ではなく定量Bayesian確率モデルで実装する。Strategist 案を「12ヶ月後に失敗した」と仮定し、失敗要因を Fishbone Diagram（4M＋環境）で30件抽出→Monte Carlo シミュレーション（@RISK または Python pymc）で各要因の事後確率を算出→失敗確率15%超の要因のみを批判レポートに掲載。ツール：Crystal Ball、Causal、または GitHub の `pymc-devs/pymc`。KPI：失敗要因網羅率（事後検証時）90%以上、シミュレーション再現性CV（変動係数）0.1以下、Premortem実施から批判レポート提出までのリードタイム48時間以内。実行ステップ：(1) 仮想失敗宣言→(2) 要因ブレスト→(3) 確率分布定義→(4) 1万回試行→(5) 上位5要因を批判項目化。
+
+### 3. Cognitive Bias Forensics — Kahneman式バイアス検出24チェック
+Daniel Kahneman『Thinking, Fast and Slow』および Heuer『Psychology of Intelligence Analysis』の認知バイアス24項目（Anchoring、Confirmation、Survivorship、Availability、Sunk Cost、Planning Fallacy 等）を批判検証チェックリスト化。Strategist 案の各論点に対し、24項目のうち該当バイアスを自動マッピングするスプレッドシート（Google Sheets ＋ Apps Script）を運用。検出ツール：Roam Research の「Bias Tag」プラグイン、または独自Notion DB「Bias-Forensics」。KPI：1案件あたり最低3バイアス検出、誤検出率（後日 false positive と判明）10%以下、検出後の Strategist 修正反映率80%以上。実行手順：(1) 案文を段落単位に分解→(2) 24項目チェックボックス埋め→(3) 該当バイアスごとに反証データ要求→(4) Strategist へ修正指示書発行。
+
+### 4. Adversarial Stress Test — Goldman Sachs式三層ストレスシナリオ
+金融機関の Stress Testing 手法（Fed CCAR / 欧州 EBA Stress Test）を経営戦略批判に応用。ベース／アドバース／セバリー・アドバースの3シナリオで戦略の耐久性を試算。ツール：Moody's Analytics Stress Tester、または Python `statsmodels` ＋ Excel テンプレ。各シナリオで売上・利益・キャッシュフローの感度を試算し、Severely Adverse 下で営業利益が赤字化するなら戦略を「条件付き採用」以下と判定。KPI：Severely Adverse 耐性ライン（営業利益マージン-5%以上維持）、シナリオ作成所要時間2時間以内、感度分析変数は最低7変数（需要・単価・人件費・原材料・為替・金利・規制コスト）。実行：(1) マクロ前提セット定義→(2) 戦略の P/L 連動式モデル化→(3) 各シナリオでKPI再計算→(4) 閾値割れ項目を批判レポート化。
+
+### 5. Bayesian Decision Quality Scoring — Annie Duke式意思決定品質スコアリング
+Annie Duke『Thinking in Bets』の Decision Quality Framework を導入し、批判レポートに Decision Quality Score（DQS）を必須添付。6軸（Frame・Alternatives・Information・Values・Reasoning・Commitment）を各10点で評価し合計60点満点でスコア化。ツール：Decision Education Foundation の DQ Worksheet、または Notion DB「DQ-Score」。KPI：採用可判定の閾値はDQS48点以上、要修正は36〜47点、棄却は35点以下と固定。スコア間の評価者間信頼性（Krippendorff's α）0.7以上を維持。実行ステップ：(1) Strategist 案を6軸に分解→(2) 各軸のエビデンス点数化→(3) 加重平均→(4) 閾値判定→(5) 批判レポート冒頭にDQS表記。
+
+### 6. Pre-Litigation Risk Audit — リーガル＆訴訟リスクの事前監査
+法務リスクは nori 担当だが、Deva は「訴訟になった場合の経営影響シミュレーション」を独立して実施。米 LexisNexis CourtLink、日本の TKC LEX/DB、Westlaw Edge で過去5年の類似訴訟判例を最低10件検索し、平均賠償額・勝訴率・和解期間を抽出。Strategist 案の各施策に対し「訴訟確率×期待損失額（Expected Loss）」を算出し、Expected Loss が年間売上の0.5%超なら批判レポートに「リーガルストレス」として明示。KPI：判例検索網羅性10件/案件、Expected Loss 算定誤差±20%以内、リーガルストレス検出から nori への申し送りまで24時間以内。
+
+### 7. Counterfactual Analysis — Judea Pearl式因果反実仮想推論
+Judea Pearl『The Book of Why』のCausal Inference / Counterfactual を導入。Strategist 案が依拠する「もし○○なら△△」の因果主張に対し、DAG（Directed Acyclic Graph）を `DAGitty` または `dowhy`（PyWhy）で可視化し、共通原因・媒介変数・選択バイアスを構造的に検出。KPI：因果主張1件あたりDAG生成必須、Backdoor Path 検出率90%以上、Counterfactual 妥当性チェック（do-calculus適用）が全因果主張の100%。実行：(1) 因果主張を「介入X→結果Y」に抽出→(2) DAG作図→(3) Confounder 同定→(4) 反実仮想シナリオでY値を再推定→(5) 元主張との差分を批判項目化。所要時間1主張あたり30分以内。
+
+### 8. Wargaming Simulation — Booz Allen式競合反応シミュレーション
+Booz Allen Hamilton および RAND Corporation の Business Wargaming 手法を四半期ごとに実施。戦略案を実行した場合の競合3社（実名でロール設定）の対抗手をターン制で3手先まで読み、自社戦略の優位性が3手後に維持されているかを判定。ツール：Hadron Wargame Platform、または独自 Miro テンプレ「Compete-3Turn」。KPI：3手後の Market Share 予測誤差±5%、Wargame セッション所要時間90分以内、競合の対抗手のうち実行確率70%超の手を最低2件特定。実行：(1) 競合役割をDeva＋Strategist＋第三者で配役→(2) 自社→競合A→競合B→競合Cの順で3ターン→(3) 各ターン後にKPI再計算→(4) 自社優位性が崩れたターンを特定→(5) 撤退基準を批判レポートに追記。
+
+### 9. Quantified Falsifiability Standard — Popper式反証可能性の数値化
+Karl Popper の反証可能性原理を実務化。戦略案の主要主張ごとに「どの観測値が出たら主張が間違いと確定するか」の Falsification Trigger を必ず明記要求する。ツール：Notion DB「Falsifiability-Tracker」、または Airtable「Refutation-Log」。各主張は (a) 観測指標、(b) 閾値、(c) 観測期間、(d) 観測担当者の4項目セットで定義し、欠落があれば即「反証不能仮説」として要修正判定。KPI：主張あたり Falsification Trigger 充足率100%、平均観測期間90日以内、反証発火後の戦略停止リードタイム5営業日以内。実行：(1) Strategist 案から主張抽出→(2) 4項目セット定義要求→(3) 欠落時は差し戻し→(4) 全充足後に採用可判定。
+
+### 10. Reproducibility & Audit Trail — 監査可能な批判ログのGit管理
+全批判検証プロセスを再現可能・監査可能な形で記録するため、Git ベースのバージョン管理を導入。批判レポート（Markdown）、根拠データ（CSV）、シミュレーションコード（Python/R）を1案件1リポジトリでGitHub Private Repo「let-deva-audit」に格納し、コミットハッシュを批判レポートに必ず記載。ツール：GitHub Enterprise、DVC（Data Version Control）、MLflow（モデル管理）。KPI：1案件あたりコミット最低5件、再現実行成功率100%（6ヶ月後に別担当が同じ結論を再現可能）、監査要求時の引き渡しリードタイム1営業日以内。実行：(1) 案件受領時に Repo 自動生成（GitHub Actions テンプレ）→(2) 各検証ステップでコミット→(3) Pull Request 形式で Sora QA レビュー→(4) merge 後にレポート発行→(5) コミットハッシュをレポート末尾に明記。これにより6ヶ月後の事後検証や金融機関・監査法人からの照会に即応可能。

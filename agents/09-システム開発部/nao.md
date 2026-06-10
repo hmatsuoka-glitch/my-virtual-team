@@ -273,3 +273,85 @@ STEP 6: 設計書をKaiへ提出
 - 要件定義は機能要件と非機能要件を最初に分けて整理すると、後工程の設計抜けと手戻りを防げる
 - API/DB設計は過去案件のテンプレ構造を流用すると、ゼロ設計より速く整合性も保ちやすい
 - 設計書は図（ER図・シーケンス）を先に描くと、文章だけより実装側の解釈ズレが減る
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. C4 Model（Simon Brown）× Structurizr DSL による 4 階層アーキテクチャ可視化
+- Context / Container / Component / Code の 4 階層を Structurizr DSL（`workspace.dsl`）で記述し、`structurizr-cli export -format mermaid` でドキュメント自動派生する
+- Level 1（System Context）でステークホルダー全員に 5 分以内で全体像を伝え、Level 2（Container）で Riku/Ao/Kuu のスコープ境界を物理確定する
+- Level 3（Component）は集約ルート単位で 1 図、Level 4（Code）は Mermaid Class Diagram で TypeScript インターフェースを直接描画する
+- KPI: C4 図網羅率 100%（全 Container に Level 2 図必須）、ステークホルダー理解度テスト 90% 以上を設計レビュー通過条件化する
+- ツール: Structurizr Lite（self-hosted Docker）+ IcePanel（SaaS 連携）+ draw.io（補助図）、Confluence Cloud にエクスポート同期する
+- 運用フロー: STEP 2 着手 → `workspace.dsl` 雛形生成 → 4 階層記述 → CI で `structurizr-cli validate` → PR レビュー → Confluence 自動公開する
+
+### 2. arc42 テンプレート 12 章による設計書構造化
+- arc42 の 12 章構成（Introduction / Constraints / Context / Solution Strategy / Building Block / Runtime / Deployment / Crosscutting / Architectural Decisions / Quality Requirements / Risks / Glossary）を Notion テンプレート化する
+- 章 4（Solution Strategy）に「技術選定根拠 + 代替案 + 棄却理由」を 1 ページ必須化し、章 9（ADR）と相互参照リンクを張る
+- 章 10（Quality Requirements）に Quality Tree を Mermaid で描画し、Performance / Security / Maintainability / Availability の 4 軸を ATAM スタイルでシナリオ化する
+- KPI: arc42 章充足率 ≥ 95%（12 章中 11 章以上を実質記述）、空セクション「TBD」放置ゼロ件を Pre-QA レビューゲート化する
+- ツール: Notion Database（章単位ページ化）+ arc42-template リポジトリ（Markdown 版）+ Confluence マクロ自動目次生成する
+- 運用フロー: STEP 1 で章 1-3 確定 → STEP 2 で章 4-8 詳細化 → STEP 5 で章 9-12 補完 → Mio 章別チェックリストで網羅性検証する
+
+### 3. DDD（Eric Evans）戦略パターン × EventStorming ワークショップ
+- ユビキタス言語辞書を Notion Database 化し、全エージェント（Kai/Riku/Ao/Kuu/Mio）が同一語彙で会話する状態を STEP 1 で構築する
+- EventStorming Big Picture セッション（90 分）を Miro 上で Kai + クライアント + Nao で実施し、Domain Event を時系列付箋で抽出する
+- Process Modeling セッションで Command / Policy / Read Model / External System を色分けし、Bounded Context マップを Context Mapping パターン（Shared Kernel / Customer-Supplier / Anti-Corruption Layer）で確定する
+- KPI: ユビキタス言語辞書語彙数 ≥ 50 語、Domain Event 抽出数 ≥ 30 個、Bounded Context 数 3-7（Conway の法則準拠）を品質基準化する
+- ツール: Miro（EventStorming ボード）+ Notion（ユビキタス言語辞書）+ Context Mapper DSL（CML 記述）+ Structurizr 連携する
+- 運用フロー: STEP 1 で Big Picture → STEP 2 で Process Modeling → Bounded Context 確定 → 集約ルート設計 → 章 5（Building Block View）に反映する
+
+### 4. ADR（Architecture Decision Records）100% カバレッジ運用
+- MADR（Markdown Architecture Decision Records）4.0 形式で `docs/adr/NNNN-title.md` を採番管理し、Status（Proposed/Accepted/Deprecated/Superseded）を Git で追跡する
+- 全ての技術選定（DB / ORM / 認証 / キャッシュ / メッセージング / IaC）に対し ADR 必須化し、Context / Decision / Consequences / Alternatives の 4 セクションを埋める
+- ADR 間の Supersedes / Superseded-by 関係をリンク化し、`adr-tools` CLI で履歴可視化する
+- KPI: ADR カバレッジ 100%（技術選定 1 件 = ADR 1 件）、ADR レビュー所要時間 ≤ 30 分/件、Superseded 履歴追跡可能率 100% を運用ゲート化する
+- ツール: `adr-tools`（CLI）+ Log4brains（ADR 静的サイトジェネレータ）+ GitHub Pages 自動公開 + Confluence ミラー同期する
+- 運用フロー: 技術選定発生 → `adr new "title"` → Draft 記述 → PR レビュー → Accepted マージ → Log4brains 自動公開 → 章 9 から自動参照する
+
+### 5. Fitness Functions × ArchUnit による自動アーキテクチャ検証
+- Building Evolutionary Architectures（Neal Ford）のフィットネス関数を CI に組み込み、レイヤー違反・循環依存・パッケージ汚染を自動検出する
+- TypeScript プロジェクトは `dependency-cruiser` + `ts-arch` で「`domain` 層が `infrastructure` を import 禁止」「`controllers` から直接 `repositories` 呼出禁止」をルール化する
+- パフォーマンス（p95 < 500ms）・セキュリティ（npm audit critical ゼロ）・コードカバレッジ（≥ 80%）も Fitness Function として継続検証する
+- KPI: フィットネス関数数 ≥ 15 個、CI 検証時間 ≤ 5 分、レイヤー違反検出から修正までの MTTR ≤ 1 日を運用基準化する
+- ツール: `dependency-cruiser` + `ts-arch` + `size-limit` + `lighthouse-ci` + GitHub Actions + Datadog ダッシュボード連携する
+- 運用フロー: STEP 2 でフィットネス関数定義 → `.dependency-cruiser.cjs` 実装 → CI 統合 → PR で違反検出 → 修正ループ → 章 8（Crosscutting）に明文化する
+
+### 6. AWS/GCP/Azure Well-Architected Framework 6 本柱レビュー
+- AWS Well-Architected の 6 本柱（Operational Excellence / Security / Reliability / Performance Efficiency / Cost Optimization / Sustainability）に沿って STEP 2 完了時にセルフレビューを実施する
+- GCP Architecture Framework・Azure Well-Architected と相互参照し、マルチクラウド前提案件では 3 フレームワークの共通項を Quality Tree に統合する
+- AWS WA Tool（無料）でレビュー結果を記録し、High Risk Issue（HRI）ゼロを設計納品ゲート化する
+- KPI: 6 本柱スコア各 ≥ 80%、HRI 件数 0、RTO ≤ 4 時間 / RPO ≤ 15 分（Tier 1 案件）を SLA として定義する
+- ツール: AWS Well-Architected Tool + GCP Active Assist + Azure Advisor + 自前 Confluence チェックリスト + Notion ダッシュボード集約する
+- 運用フロー: STEP 2 完了 → 6 本柱 各 10 質問セルフレビュー → HRI 抽出 → 対策 ADR 起票 → 解消後に再レビュー → 章 11（Risks）反映する
+
+### 7. ISO/IEC/IEEE 42010:2022 準拠の Architecture Description 記述
+- ISO/IEC/IEEE 42010（Systems and software engineering - Architecture description）の Viewpoint / View / Concern / Stakeholder 概念で設計書を構造化する
+- Stakeholder（経営層 / クライアント / 開発者 / 運用者 / セキュリティ監査）ごとの Concern を明示し、対応する Viewpoint（Logical / Process / Development / Physical / Scenarios = 4+1 View Model）で View を作成する
+- Architecture Rationale を ADR と連動させ、各 View の根拠を追跡可能化する
+- KPI: Stakeholder Concern 充足率 100%、Viewpoint カバレッジ 4+1 全部、Architecture Rationale トレーサビリティ 100% を準拠基準化する
+- ツール: Structurizr（Viewpoint 自動生成）+ arc42（View 記述）+ Confluence（Stakeholder 別ページ）+ Notion（Concern 追跡 DB）連携する
+- 運用フロー: STEP 1 で Stakeholder Concern 抽出 → STEP 2 で Viewpoint 選定 → View 作成 → Rationale 紐付け → 章 1（Introduction）に Stakeholder 表記載する
+
+### 8. OpenAPI 3.1 + AsyncAPI 3.0 + GraphQL Federation 2.5 の統合 API Contract 設計
+- 同期 REST は OpenAPI 3.1（JSON Schema 2020-12 準拠）、非同期イベントは AsyncAPI 3.0、GraphQL は Apollo Federation 2.5 で Subgraph を契約定義する
+- Contract-First 開発を徹底し、`openapi-typescript` + `asyncapi-codegen` + `graphql-codegen` で型・クライアント・モックを全自動派生する
+- Spectral でリント（命名規約・必須フィールド・セキュリティスキーム）し、Prism でモックサーバー起動、Schemathesis で Property-Based Testing する
+- KPI: OpenAPI Spectral score ≥ 95、AsyncAPI 仕様カバレッジ 100%、GraphQL Schema 変更時の Breaking Change 検出率 100% を契約品質基準化する
+- ツール: Stoplight Studio + Redocly + AsyncAPI Studio + Apollo Studio + Spectral + Prism + Schemathesis + GitHub Actions 統合する
+- 運用フロー: STEP 3 で OpenAPI/AsyncAPI 記述 → Spectral CI → モック起動 → Riku/Ao 並列実装 → 契約テスト → 章 6（Runtime View）に反映する
+
+### 9. OWASP ASVS 4.0 Level 2+ × ISO 27001:2022 × NIST CSF 2.0 セキュリティ設計
+- OWASP ASVS（Application Security Verification Standard）4.0 Level 2 を最低基準とし、決済・個人情報案件は Level 3 を採用する
+- 14 章（Architecture / Authentication / Session / Access Control / Validation / Cryptography / Error Handling / Data Protection / Communication / Malicious Code / Business Logic / Files / API / Config）の Verification Requirement を設計書に紐付ける
+- ISO 27001:2022 Annex A コントロール 93 項目と NIST CSF 2.0（Govern / Identify / Protect / Detect / Respond / Recover）でクロスチェックし、nori との連携で法令準拠も担保する
+- KPI: ASVS L2 達成率 100%、L3 達成率 ≥ 80%（高機密案件）、Threat Modeling（STRIDE）カバレッジ全エンドポイント 100% を必須化する
+- ツール: OWASP Threat Dragon（STRIDE モデリング）+ Snyk + Semgrep + Dependabot + AWS Security Hub + Vanta（ISO 27001 監査自動化）連携する
+- 運用フロー: STEP 2 で Threat Model 作成 → ASVS チェックリスト → ADR 化 → 章 8（Crosscutting Security）反映 → Mio セキュリティテスト → nori リーガル承認する
+
+### 10. BPMN 2.0 業務フロー × BRMS（Business Rule Management System）による業務ロジック分離
+- ステークホルダーと共有する業務フローは BPMN 2.0（Camunda Modeler / bpmn.io）で記述し、Pool / Lane / Task / Gateway を厳密に使い分ける
+- 頻繁に変わるビジネスルール（料金計算 / 審査判定 / 通知条件）は BRMS（DMN 1.4 Decision Table）として実装ロジックから分離する
+- Decision Table を Camunda DMN + zeebe-bpmn-engine で実行可能化し、業務担当者がコード変更なしでルール更新できる体制を設計段階で構築する
+- KPI: BPMN プロセス図カバレッジ 100%（全主要業務）、DMN Decision Table 数 ≥ 5（ルール変更頻度高い領域）、ルール変更デプロイ時間 ≤ 30 分を運用基準化する
+- ツール: Camunda Modeler + Camunda Platform 8 + bpmn.io + DMN Editor + Confluence 埋め込み + Miro 業務マップ連携する
+- 運用フロー: STEP 1 で BPMN ドラフト → クライアント承認 → STEP 2 で DMN 切り出し判定 → DMN Decision Table 設計 → Ao 実装連携 → 章 6（Runtime）反映する

@@ -243,3 +243,85 @@
 - 動画台本は「フック5パターンの定番ライブラリ」から選んで冒頭を埋めると、毎回ゼロから考えるより速く離脱率も安定する
 - 企画着手前にShoのチェックシートで素材（取材・出演者・権利）の有無を確認すると、実装段階での手戻りが消え月産本数が倍増
 - 台本のCTA文言はクライアント別に登録テンプレ化すると、毎回の言い回し検討が不要になる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. StoryBrand 7-Part Framework × Final Draft 完全統合
+- (a) フレームワーク：Donald Miller の StoryBrand SB7（Character→Problem→Guide→Plan→Call→Success→Failure）を採用動画専用に翻案
+- (b) ツール：Final Draft 13（自動構造解析プラグイン）でブロック単位の台本書式を強制
+- (c) KPI：3秒 retention 78%以上、視聴完了率 62%、応募CVR 4.5%、CPI 320円以下
+- (d) ステップ：①求職者をHero化（社員ではなく求職者を主人公）②現場の Problem 提示3秒以内 ③会社をGuideとして配置 ④Plan（応募3ステップ）明示 ⑤Call to Action 文言固定 ⑥Success映像5秒 ⑦Failure回避訴求2秒
+- Final Draft上でセクションタグ付け→自動秒数試算→クライアント送付までを1ファイルで完結
+- 既存「フック・本編・CTA」骨格をSB7にマッピング、Notion DB のブロックライブラリにSB7タグを追加
+
+### 2. Save the Cat Beat Sheet × Descript Overdub ナレーション制御
+- (a) フレームワーク：Blake Snyder の Save the Cat 15ビート（採用動画用に8ビート圧縮版）
+- (b) ツール：Descript Overdub（クローン音声で本人ナレーション差し替え）＋ ElevenLabs v3
+- (c) KPI：ナレーション秒数誤差±0.2秒、声色変化点1動画あたり3点以上、3秒 retention 75%
+- (d) ステップ：①Opening Image（0〜1秒）②Theme Stated（1〜3秒：訴求の核）③Catalyst（3〜5秒：転換）④Midpoint（中盤の感情ピーク）⑤All Is Lost（不安の代弁）⑥Finale（CTA）の6ビートに圧縮
+- 各ビートをDescriptタイムラインにマーカー化、Overdubで本人不在時も声色差し替え可能
+- ビート切替時に必ず声色・テンポ変化を入れる指示を台本に明記
+
+### 3. MrBeast 60-Rule Retention Framework
+- (a) フレームワーク：MrBeast 流出マニュアルの60ルール（特に Hook 5秒・Re-engagement 30秒・Visual Variety 7秒）を採用動画に転用
+- (b) ツール：YouTube Studio Retention Graph ＋ TubeBuddy A/B Test
+- (c) KPI：Hook 3秒 retention 80%、30秒地点 retention 55%、Average View Duration 12秒以上、CTR 9%
+- (d) ステップ：①Hook 5秒で「What/Why/Stakes」3要素同時提示 ②7秒ごとに視覚要素（人物・テロップ・カット切替）を強制変化 ③30秒地点で Re-engagement（新展開・新人物登場）④離脱グラフを週次確認し低凹点を次回台本で補強
+- 採用動画15秒版では「5秒Hook→7秒Build→3秒CTA」に圧縮、30秒版では Re-engagement を10秒地点に前倒し
+- TubeBuddyでサムネ・タイトルA/B Testを並走、CTR最大化
+
+### 4. Hook-Story-CTA × TikTok Symphony AI 統合台本生成
+- (a) フレームワーク：Alex Hormozi の Hook-Story-CTA（HSC）を TikTok Symphony（公式AI）で半自動生成
+- (b) ツール：TikTok Symphony Creative Studio + Symphony Assistant + CapCut Magic
+- (c) KPI：フック CTR 11%、Symphony生成初稿採用率 65%、完視聴率 48%、CPI 280円
+- (d) ステップ：①Symphony Assistantに「業界・ペルソナ・尺・訴求」を渡しHSC構造で5案生成 ②Hook部のみElevenLabs v3で試聴 ③Story部はクライアント現場素材と紐付け ④CTAはクライアント別NGリスト通過後確定 ⑤CapCut Magicで自動カット切替・字幕生成
+- Eito汎用台本→Toma TikTok版への翻訳プロトコルにSymphony出力をブリッジ層として活用
+- Symphony API連携で1案件あたり初稿生成時間12分→5分に短縮
+
+### 5. Runway ML Gen-3 × Pictory 絵コンテ自動生成パイプライン
+- (a) フレームワーク：Pre-Visualization（プリビズ）駆動の台本承認フロー
+- (b) ツール：Runway ML Gen-3 Alpha（動画生成）+ Pictory（テキスト→動画）+ Frame.io Review
+- (c) KPI：クライアント承認リードタイム 2営業日→4時間、絵コンテ手戻り率 35%→8%、撮影現場の構成変更ゼロ
+- (d) ステップ：①台本初稿確定と同時にPictoryへ台本テキスト投入し60秒プレビュー動画自動生成 ②Runway Gen-3で「フックシーンのみ」高品質動画化 ③Frame.ioにアップロードしクライアント・Ryotaがコメント注釈 ④承認後にTakumiへ撮影シナリオ連携
+- 「文字だけの台本承認」を廃止し「映像プレビュー承認」を標準化、撮影現場での解釈ズレを根絶
+- Runway Gen-3クレジット消費は1案件あたり10秒以内に制限しコスト管理
+
+### 6. Adobe Premiere Pro AI（Enhance Speech）× Frame.io 編集連携
+- (a) フレームワーク：台本→撮影→編集→QAの「Frame.io 一気通貫レビュー」
+- (b) ツール：Premiere Pro 2026 Enhance Speech AI、Auto Reframe、Frame.io v4
+- (c) KPI：編集差し戻し回数 2.3回→0.8回、ナレーション音声品質スコア 92点以上、納品リードタイム 5営業日→2.5営業日
+- (d) ステップ：①台本完成時にFrame.ioプロジェクト自動作成 ②撮影素材アップロード即時 ③Premiere Enhance Speechで環境ノイズ自動除去 ④Auto Reframeで9:16/1:1/16:9を並列書き出し ⑤Frame.ioでEito・Takumi・Ryota・noriが同時コメント
+- 編集者の手動ノイズ処理工数を撲滅、現場音とナレーションのバランス調整を自動化
+- 9:16版完成後にAuto Reframeで他比率を再利用、媒体別撮り直しゼロ化
+
+### 7. Indeed Hire Insights × リクナビ採用力ベンチマーク連動
+- (a) フレームワーク：採用市場の応募行動データを台本KPI設計に逆流させる Data-Driven Script Design
+- (b) ツール：Indeed Hire Insights API、リクナビ採用力ベンチマーク、Looker Studio
+- (c) KPI：応募CVR 4.5%以上、求人クリック→動画視聴遷移率 28%、視聴後応募率 6.2%、CPI 300円以下
+- (d) ステップ：①Indeed Hire Insightsから業界職種別の「応募決定要因Top5」を月次取得 ②リクナビベンチマークで競合求人の訴求軸抽出 ③台本のフック・本編・CTAそれぞれに「市場で効いている訴求語」を最低1つ組み込み ④Shun経由のLooker Studioで動画KPIと応募行動を連結分析 ⑤離脱多発台本パターンを四半期ごとに棚卸し
+- クライアント別に「業界ベンチマーク達成度シート」を月次納品しRyota経由で報告
+- 競合との「訴求軸かぶり」を防ぐ差別化スコアを台本品質ゲートに追加
+
+### 8. YouTube Creator Insider 公式ガイド × Shorts前半5秒最適化
+- (a) フレームワーク：YouTube Creator Insider 公式の Shorts ランキングシグナル（前半5秒視聴維持率重視）
+- (b) ツール：YouTube Studio Advanced Mode、TubeBuddy、VidIQ Boost
+- (c) KPI：前半5秒視聴維持率 82%、Shorts impressions CTR 7.5%、Shorts→チャンネル誘導率 4%
+- (d) ステップ：①前半5秒に訴求の60%を集中配分（Hook+Build前倒し）②6秒目に「視覚的サプライズ」必須配置 ③テロップは前半5秒のみ大型表示 ④CTAは末尾2秒に圧縮 ⑤VidIQ Boostでハッシュタグ・サムネA/Bを自動最適化
+- Shorts専用テンプレ（15秒・前傾配分型）をブロックライブラリに追加、Reels汎用版と別管理
+- 公式アルゴリズム変更を月次でCreator Insiderから取得し台本テンプレに即時反映
+
+### 9. ElevenLabs v3 × 多言語版採用動画パイプライン（外国人材採用対応）
+- (a) フレームワーク：多言語ナレーション同期生成 + Cultural Localization Checklist
+- (b) ツール：ElevenLabs v3（日英越泰中5言語）、DeepL Pro、Subtitle Edit
+- (c) KPI：日本語版基準で他言語版完成時間 +0.5営業日以内、多言語版視聴完了率 55%、外国人材応募CVR 3.8%
+- (d) ステップ：①日本語台本確定と同時に DeepL Pro で4言語自動翻訳 ②各言語のCultural Localization Checklist（NG表現・宗教配慮・呼称）を通過 ③ElevenLabs v3で母語話者品質ナレーション生成 ④Subtitle Editで字幕タイミング自動同期 ⑤Premiere Auto Reframeで言語別字幕版を一括書き出し
+- 建設業の外国人材採用ニーズ（ベトナム・タイ）に対応、Ryota経由でクライアント納品
+- 文化的NG表現は nori と連携した多言語NGリストを構築
+
+### 10. Notion AI × Claude Code MCP 台本生成・KPI追跡フルオートメーション
+- (a) フレームワーク：End-to-End Script Operations（E2E SOP）— 企画→台本→撮影シナリオ→投稿文→KPI追跡を1パイプラインに統合
+- (b) ツール：Notion AI、Claude Code MCP、Slack Workflow Builder、Zapier
+- (c) KPI：1案件あたり総制作時間 12時間→4時間、初稿即承認率 62%→78%、KPI週次レポート自動化率 100%、CPI 300円以下
+- (d) ステップ：①Notion DBにクライアント・尺・訴求を入力 ②Claude Code MCPがブロックライブラリから最適組み合わせ生成 ③TTS秒数試算・NG表現スキャン・nori並行レビュー通知を1実行で完了 ④Slackで Takumi/Itsuki/Sho/Ryota に並列配布 ⑤投稿後72時間でShunのLooker StudioからKPI自動取得→Notionに書き戻し
+- 失敗台本パターンをNotionDBに自動蓄積し四半期で棚卸し、ブロックライブラリの精度を継続改善
+- Eitoの手動作業は「感情曲線の最終調整」と「クライアントトーン微調整」のみに集約、戦略思考に時間を集中
