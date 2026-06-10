@@ -104,3 +104,47 @@
 - 受注フローはボトルネック工程をリードタイム計測で特定してから改善すると、勘で直すより効果が大きい
 - 承認ステップは並列化できる箇所を洗い出すと、直列待ちが減り全体リードタイムが短縮
 - 頻出の差し戻し理由を受注フォーム側でバリデーションすると、後工程の手戻りを未然に防げる
+
+---
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. BPMN 2.0準拠の受注ステートマシン正規化
+受注ドメインを OMG BPMN 2.0 仕様（ISO/IEC 19510:2013）に準拠してモデル化し、Camunda Platform 8.5 の Zeebe エンジンに `bpmn.xml` で投入する。`Camunda Modeler 5.27` で Order/PO/Shipment の3階層 Collaboration Diagram を作成、`bpmnlint` で構造検証を実行する。手順は (1) AS-IS フロー収集 → (2) BPMN要素マッピング（Task/Gateway/Event）→ (3) Zeebe Deploy → (4) Operate コンソールで実行確認。SLA違反率を四半期で 12% → 2.5% に低減し、Process Cycle Time を P75 で 48h → 18h に圧縮する。
+日本固有の「稟議文化（順次承認）」を BPMN の Parallel Gateway + 期限付き Boundary Event で並列化し、稟議リードタイムを平均 5営業日 → 1.5営業日へ短縮する。`Zeebe Process Instance Migration` 機能で本番フロー差分更新を無停止運用し、年間ダウンタイムを 0分維持する。
+
+### 2. Temporal.io 1.24 によるDurable Execution実装
+受注ワークフローを Temporal Cloud（東京リージョン `ap-northeast-1`）の Worker SDK（TypeScript 1.10.x）で実装、Activity単位で自動リトライ・補償・タイムアウトを宣言型で記述する。手順は (1) `WorkflowDefinition` を `@workflow` デコレータで定義 → (2) `proxyActivities` で在庫照会・PO発行・出荷指示を分離 → (3) `defineSignal/defineQuery` でキャンセル受付 → (4) `tctl workflow list` で実行履歴監査。Activity失敗時の自動リトライ成功率 99.95%、人手介入を月150件 → 月8件に削減する。
+日本の商習慣「分割納品（一注文・複数納期）」を ChildWorkflow パターンで親注文配下に N 個の SubShipment を並列起動し、各 SubShipment の状態を `Workflow.await()` で同期、現状の Excel での進捗管理を完全廃止する。Event History は GCS にエクスポートし、電子帳簿保存法（2024年1月施行・タイムスタンプ要件）に適合する7年保管を実現する。
+
+### 3. Event-driven Saga Pattern + Outbox Pattern実装
+分散トランザクションの整合性を Chris Richardson 著『Microservices Patterns』準拠の Saga（Orchestration型）で保証し、`Debezium 2.7` の Outbox Event Router で PostgreSQL 16 → Apache Kafka 3.7 への CDC を構築する。手順は (1) `outbox_events` テーブル定義 → (2) Debezium Connector を Strimzi 0.42 で K8s 起動 → (3) Saga Orchestrator に Axon Framework 4.10 を採用 → (4) `@SagaEventHandler` で補償ロジック実装。At-least-once配信での重複イベント抑止に Idempotency-Key + Redis 7.4 を併用、メッセージ重複率を 0.001% 以下に維持する。
+日本の受発注EDI（JCA手順、流通BMS）との接続時、レガシー手順の固定長フォーマットを Apache Camel 4.7 の `dataformat-bindy` で変換し Kafka に正規化、伝統的EDIと近代マイクロサービスを橋渡しする。EDI接続先50社、月次トランザクション量 30万件で配信遅延 P99 を 800ms 以下に保つ。
+
+### 4. AI-Augmented Process Mining（Celonis EMS 11.x）
+受注フローの実態を Celonis Execution Management System のイベントログ抽出（Vertica DB ベース）で可視化、`Celonis Process AI` の LLM分析で隠れた手戻りループ・例外パスを自動検出する。手順は (1) SAP S/4HANA・kintone・Salesforce から CSV/JSON で Event Log 抽出 → (2) Case ID + Activity + Timestamp の3列正規化 → (3) Process Explorer で variant分析（上位10 variant がトラフィックの 85%カバー）→ (4) Conformance Checker で AS-IS vs TO-BE 乖離率測定。リワーク削減で年間人件費を 1,200万円削減する。
+日本特有「FAX注文・電話受注の手作業デジタル化工程」を Celonis の Task Mining（社員PC操作ログ収集）で計測、`Power Automate Desktop 2.50` での UI Automation 候補を月50プロセス自動抽出する。Top 10 自動化候補で年間 4,800時間の手作業を削減、ROI 6ヶ月以内回収を保証する。
+
+### 5. Conformance Testing & Property-Based Testing
+状態遷移ロジックの正当性を Hypothesis 6.108（Python）または fast-check 3.20（TypeScript）の Property-Based Testing で網羅検証し、`@given(states=state_machines())` でランダム状態列を10,000パターン生成する。手順は (1) 状態モデルを TLA+ 1.8 の PlusCal で形式定義 → (2) TLC Model Checker で不変条件（例：「キャンセル済かつ出荷済」が同時成立しない）を全状態空間探索 → (3) Hypothesis で同等プロパティを実装テストに反映 → (4) GitHub Actions の `pytest-hypothesis` を PR毎に CI実行。状態遷移由来のバグ検出率を従来テストの 3.2倍に向上する。
+日本企業特有「年度末締め月次バッチ処理（3/31 23:59 イベント爆発）」を Hypothesis の `@settings(deadline=None, max_examples=50000)` で年度跨ぎイベントを集中生成、年度切替時の状態不整合を本番投入前に完全排除する。本番障害件数を年12件 → 年0件に圧縮する。
+
+### 6. Real-time SLA Monitoring with OpenTelemetry + Grafana Tempo
+受注プロセス全工程に OpenTelemetry SDK 1.27 の `@traced` デコレータで分散トレース計測を埋め込み、Grafana Tempo 2.5 + Prometheus 2.54 + Loki 3.1 の LGTM スタックに送信する。手順は (1) `otel-collector` を K8s DaemonSet 配置 → (2) Span Attributes に `order.id` `customer.id` `sla.deadline` を必須付与 → (3) Tempo の TraceQL で `{span.sla.remaining < 20%}` 検索 → (4) Grafana Alerting で Slack `#order-sla-alerts` 自動通知。SLA違反予兆検知率を 92% に到達、事後対応から事前対応への転換を完了する。
+日本の「営業時間外SLA計算」を Prometheus Recording Rules で `business_hours_elapsed_seconds{calendar="ja_business"}` メトリックを定義、土日祝（内閣府『国民の祝日』API連携）を除外計算する。週末跨ぎの偽CRITICALアラートを月平均35件 → 月0件に削減し、アラート信頼度を 99% に回復する。
+
+### 7. Workflow-as-Code (n8n 1.55 + LangGraph 0.2) AI Orchestration
+ワークフロー自動化基盤を n8n 1.55 のセルフホスト版（Docker Compose / PostgreSQL backend）と LangGraph 0.2.x のステートグラフを組み合わせ、AI判断（受注内容の自動分類・与信判定）を組込む。手順は (1) n8n の `Webhook Trigger` で受注フォーム受信 → (2) `LangGraph StateGraph` で `intake → classify → credit_check → approve` の有向グラフ定義 → (3) Anthropic Claude Opus 4.7 API で受注内容を `JSON Schema 2020-12` validated 出力に強制 → (4) 与信OKなら Temporal Workflow に signal 送信。受注処理の自動化率を 35% → 88% に向上する。
+日本特有「請求書建て複数案件まとめ請求」要件を LangGraph の `Conditional Edge` で月末バッチノードへルーティング、freee API 1.5 / マネーフォワード API v3 と双方向同期する。請求書作成工数を月160時間 → 月25時間に削減、入金消込精度を 99.8% に維持する。
+
+### 8. Compliance-by-Design（電帳法・インボイス制度・GDPR三層対応）
+受注関連帳票を電子帳簿保存法（2024年1月施行・スキャナ保存要件）、インボイス制度（適格請求書発行事業者番号 T+13桁検証）、GDPR Article 30（処理活動記録）の3制度同時準拠で設計する。手順は (1) 帳票PDF/A-3形式（ISO 19005-3）で保存 → (2) `セイコーソリューションズ クロノトラスト` でタイムスタンプ付与 → (3) 適格請求書番号を国税庁 公表サイト Web API（毎日0時更新差分）で検証 → (4) 個人情報項目を `Vault by HashiCorp 1.17` の Transform Engine で FPE (Format-Preserving Encryption) 適用。法令違反リスクを構造的にゼロ化し、税務調査対応時間を 80時間 → 4時間に短縮する。
+日本特有「取引先マスタの登録番号一括検証バッチ」を Argo Workflows 3.5 の CronWorkflow で毎日2:00 JST 実行、`T1234567890123` 形式の13桁番号を国税庁 API で `200 OK / 404 Not Found` 判定し、失効事業者を Slack `#invoice-compliance-alert` に当日通知する。インボイス未対応取引による仕入税額控除漏れを年間ゼロ化する。
+
+### 9. Distributed State Recovery（Event Sourcing + CQRS with EventStoreDB 24.x）
+状態遷移履歴を EventStoreDB 24.6（gRPC接続）に追記型で保存し、CQRS パターンで Read Model を PostgreSQL 16 / Elasticsearch 8.15 に投影、過去任意時点の状態を完全復元可能にする。手順は (1) `$ce-Order` カテゴリストリームに `OrderCreated` `OrderConfirmed` `OrderCancelled` イベントを `eventType`+`data` で append → (2) Projection Manager で `fromCategory('Order').foreachStream()` の Continuous Projection 定義 → (3) Read Model を Debezium で Elasticsearch に CDC同期 → (4) `@SubscribeToAll` の Persistent Subscription で監査ログを GCS に永続化。状態巻き戻し時間を 60分 → 90秒に短縮する。
+日本の「税務調査対応 7年保管要件」と「個別取引照会の即時応答要件」を EventStoreDB の Stream Truncation を無効化＋GCS Coldline 階層化で両立、ストレージコストを月額 30万円 → 月額 4.5万円に抑える。法定保存期間内の任意イベント復元時間を 24時間 → 30秒に圧縮する。
+
+### 10. Chaos Engineering for Workflow Resilience（Litmus 3.10 + Gremlin Free）
+本番受注ワークフローの障害耐性を CNCF Litmus 3.10 の ChaosExperiment と Gremlin Free のネットワーク障害注入で検証し、Saga補償ロジック・Temporal Retry・Outbox再送の3層リカバリを実証する。手順は (1) `LitmusChaos Operator` を K8s namespace `litmus` に Helm install → (2) `pod-network-loss` `kafka-broker-pod-failure` `postgres-restart` の3シナリオを ChaosEngine CRD で定義 → (3) `chaos-runner` を CI Stage の Pre-Prod で週1自動実行 → (4) SLO `99.95%` 以上を維持する Probe を pass/fail 判定。本番MTTR を 45分 → 6分に短縮する。
+日本企業の「月末月初の受注ピーク（平常時の4.5倍トラフィック）」を Gremlin の `cpu-attack 80%` + Locust 2.31 の `users=5000 spawn-rate=100` を組み合わせて本番相当負荷で月次リハーサル、月末障害発生件数を年12件 → 年1件に削減する。事業継続計画（BCP）演習として経営層へ月次レポートを提出し、IT-BCP の ISO 22301 認証取得を支援する。

@@ -110,3 +110,85 @@
 - BPO自動化は定型業務を「頻度×工数」で先にスコアリングすると、効果の高い業務から着手でき投資対効果が最大化
 - 自動化フローは共通部品（入力受付・通知・記録）を再利用すると、新規業務の自動化が一から組むより速い
 - 自動化後はエラー時の手動フォロー手順をセットで用意すると、例外発生時の停止を防げる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Celonis Process Mining 4-stage（Discover→Enhance→Monitor→Predict）による業務可視化
+- Celonis EMS 2026 と UiPath Process Mining を併用し、SAP/Salesforce/kintone のイベントログを抽出して Discover 段階で全プロセスバリエーションを Conformance Score 化する。
+- Enhance 段階で逸脱パターン（Rework Loop / Manual Intervention）をヒートマップ化し、月間 400 件超の逸脱から自動化候補 Top10 を Throughput Time 基準で抽出する。
+- Monitor 段階では Celonis Action Flow で SLA 違反トリガを Slack 通知し、 k4_sla_violation_count を月 35 件 → 3 件以下に削減する。
+- Predict 段階で ABBYY Timeline の予測モデルを統合し、月末締めの遅延リスクを 72 時間前に検知して BO 担当に再配置指示を出す。
+- 工数実測値を Dat と相互照合し、削減見込み h/月 を「現状実測 × 自動化率 90%」で算出して automation_proposals に必須記載する。
+- KPI: manual hours saved 240h/月、FTE節減 1.5人、error rate ≤0.1%、ROI 380%（12ヶ月以内回収）。
+
+### 2. n8n Self-host + Anthropic MCP による AI Agent Workforce 構築
+- n8n 1.x Self-host（Docker Compose）に Anthropic MCP Server を接続し、Claude Sonnet 4.7 をオーケストレータに据えた AI Agent Pipeline を構築する。
+- 7社共通の請求書発行・売上計上・入金消込フローを MCP Tool として登録し、Claude が自然言語指示で n8n Workflow を実行する。
+- LangGraph 0.3 と CrewAI 0.80 で「データ抽出 Agent → 検証 Agent → 実行 Agent → 報告 Agent」の4ロール分業を組み、ステップ間に Human-in-the-loop ゲートを必須挿入する。
+- Workato Recipe IQ を参考に、月次バッチを Cron でなく Event-driven（kintone Webhook）に切り替え、レイテンシを 24h → 5分に短縮する。
+- 全実行ログを Notion DB に自動転記し、台帳化と監査証跡を同時実現する。
+- KPI: manual hours saved 180h/月、FTE節減 1.1人、error rate ≤0.05%、ROI 320%。
+
+### 3. Hyperautomation Framework（Gartner 4-layer）による全社展開
+- Gartner Hyperautomation 4-layer（Discovery / Automation / Augmentation / Orchestration）を社内ガイドラインに採用し、各レイヤーに責任エージェントを配置する。
+- Discovery は Celonis、Automation は n8n + Make.com、Augmentation は Microsoft Copilot Studio + OpenAI Operator、Orchestration は Temporal Workflow で統括する。
+- Temporal の Durable Execution で長時間ワークフロー（与信 → 契約 → 請求の3ヶ月パイプライン）の状態を永続化し、障害時の自動再開を保証する。
+- 各レイヤーの SLA を 99.5% / 99.9% / 99.95% / 99.99% に段階設定し、Datadog + Grafana で可観測化する。
+- 月次 Steering Committee で 4-layer 別の KPI ダッシュボードをレビューし、投資配分を四半期ごとに最適化する。
+- KPI: manual hours saved 360h/月、FTE節減 2.3人、error rate ≤0.08%、ROI 410%。
+
+### 4. Citizen Developer Governance（Power Platform CoE Starter Kit準拠）
+- Microsoft Power Platform CoE Starter Kit を参考に、BO 担当者向けの市民開発者ガバナンスを構築し、Power Automate と Make.com の野良フロー化を防ぐ。
+- 環境を Dev / Test / Prod の3層に分離し、DLP（Data Loss Prevention）ポリシーでクライアント情報の外部API送信を遮断する。
+- 全市民開発者に Workato Automation Pro 認定 or UiPath Citizen Developer Foundation を必修化し、四半期ごとの Recertification を実施する。
+- フロー登録時に「Owner / Backup Owner / 業務影響度 S/A/B / 復旧手順URL」の4項目を必須メタデータ化し、属人化を構造的に防ぐ。
+- 月次でガバナンスダッシュボードを Yuto に提出し、放置フローを30日基準で自動アーカイブする。
+- KPI: 野良フロー件数 80件 → 5件以下、引き継ぎ工数 8h → 1h、コンプライアンス違反 0件、ROI 300%。
+
+### 5. RPA TCO Model（5年総保有コスト試算）による投資判断高度化
+- UiPath / Automation Anywhere / BluePrism / ロボパット / WinActor / Autoジョブ名人 の TCO（Total Cost of Ownership）を「ライセンス + インフラ + 運用 + 保守 + 教育」の5項目で5年試算する。
+- 国産（ロボパット DX 月3.5万円/ロボ、WinActor 年90万円、Autoジョブ名人 年60万円）と海外（UiPath Enterprise $420/月、Automation Anywhere $750/月）を比較し、業務特性別に最適ツールを選定する。
+- 5年 TCO を automation_proposals.cost_5y フィールドに必須記載し、ROI 300% 未満の案件は不採択とする。
+- 為替リスク（1USD=160円基準、±10%感度分析）を加味し、海外ツール採用時は年次見直し条項を契約に含める。
+- 既存 Zapier / Make.com の月額課金推移を Dat に依頼して可視化し、年間課金 24万円超過時に n8n Self-host への移行判断を発動する。
+- KPI: TCO削減 35%、ROI ≥300% 案件のみ採択、不採算自動化件数 0件、年間ライセンス費 50万円削減。
+
+### 6. Claude Computer Use + Anthropic MCP によるレガシーシステム自動操作
+- Claude Computer Use API（claude-opus-4-7）で、API非公開のレガシー会計ソフト・基幹システムを画面操作レベルで自動化する。
+- Anthropic MCP の Filesystem / Slack / GitHub サーバーを組み合わせ、操作ログを自動的に Notion 台帳と GitHub Issue に同期する。
+- Playwright + Robocorp RPA Framework を補完に使い、Computer Use が苦手な高速繰り返し処理（1秒未満の連続クリック）は Playwright に委譲する。
+- 全操作に「Screenshot 前後比較 + OCR検証」を必須化し、UI 変更による誤操作を即時検知する。
+- 月1回の Computer Use 実行コスト（$15/Mtokens 想定）を予算化し、API課金 ≤8万円/月で運用する。
+- KPI: レガシー操作工数 60h/月 → 6h/月、error rate ≤0.1%、UI変更検知率 100%、ROI 350%。
+
+### 7. dbt Cloud Jobs + Airflow Apache によるデータパイプライン自動化
+- dbt Cloud Jobs（dbt-core 1.8）で7社の Airwork / GA4 / kintone データを Snowflake/BigQuery に統合変換し、Airflow 2.9 DAG で日次バッチ化する。
+- Airflow の SLA Miss Callback で BO 担当者に Slack 通知し、データ遅延を 24h → 30分以内に検知する。
+- dbt の Source Freshness Check で上流データの鮮度を監視し、API 仕様変更によるサイレント停止を自動検知する。
+- 全 DAG に Idempotent 保証（execution_date ベースの partition 上書き）を必須実装し、リトライ時の二重集計を構造的に防ぐ。
+- Datadog APM で DAG 実行時間を可視化し、月次で実行時間 Top10 をリファクタ対象として Dat と協議する。
+- KPI: データ集計工数 80h/月 → 8h/月、データ鮮度遅延 0件、二重集計 0件、ROI 330%。
+
+### 8. GitHub Actions + Temporal Workflow による Infrastructure as Code 自動化
+- GitHub Actions（self-hosted runner）で全自動化スクリプトを CI/CD パイプライン化し、本番反映前の dry-run / idempotent / rollback 検証を自動実行する。
+- Temporal Workflow（Temporal Cloud $200/月）で長時間処理（30分超）の状態管理を永続化し、Worker クラッシュ時の自動再開を保証する。
+- スクリプトの本番デプロイ前に「Static Analysis（Ruff / mypy）→ Unit Test（pytest carbo 80%）→ dry-run on staging → Manual Approval → Prod Deploy」の5段階ゲートを必須化する。
+- Secret 管理は GitHub Actions Secrets + Vault で2重化し、平文流出を構造的に防ぐ。
+- 全リリースを GitHub Release で版管理し、障害時に1コマンドで前バージョン rollback できる体制を整える。
+- KPI: 本番事故 0件、デプロイ頻度 週1 → 日1（5倍高速化）、ロールバック時間 1h → 5分、ROI 310%。
+
+### 9. Process Mining × OpenAI Operator による自律改善ループ
+- ABBYY Timeline で月次プロセスマイニングを実行し、Top5 の Bottleneck を特定 → OpenAI Operator（GPT-5 Computer Use 後継）に改善案を自動起票させる。
+- Operator が n8n Workflow の改善PRを GitHub に自動作成し、Kai/Nao がレビューしてマージ承認する半自動ループを構築する。
+- 改善前後の Throughput Time / Error Rate / Cost per Transaction を Celonis ダッシュボードで自動比較し、効果のあった改善のみ本採用する。
+- 効果なし or マイナス効果の改善は自動 revert し、Operator の学習データに NG事例として蓄積する。
+- 月次で「Operator 提案件数 / 採用率 / 削減効果」を Yuto に報告し、AI 自律改善の ROI を可視化する。
+- KPI: 自律改善提案 月20件、採用率 ≥40%、削減工数 80h/月、error rate ≤0.05%、ROI 360%。
+
+### 10. Pipedream + Workato Connector による SaaS統合ハブ構築
+- Pipedream（$29/月 Business プラン）で 2,500+ SaaS コネクタを活用し、Zapier では実現困難な複雑な分岐ロジックを Code Step（Node.js/Python）で実装する。
+- Workato の Recipe IQ Pattern Library を参考に、7社共通の「リード受領 → CRM登録 → メール通知 → タスク化」フローを Pipedream に移植し、Zapier 課金を年24万円削減する。
+- 全 Workflow に OpenTelemetry トレースを埋め込み、Datadog で End-to-End レイテンシを可視化する。
+- Pipedream の Connect SDK で社内 React ダッシュボードに「自動化ジョブ実行ボタン」を埋め込み、BO 担当者が Slack コマンドなしで GUI 操作できる導線を整える。
+- 月次で SaaS 連携先 API のレート制限到達状況をレビューし、超過時は Bulk API 切替 or 実行時刻分散で対処する。
+- KPI: SaaS連携工数 50h/月 → 5h/月、Zapier課金 -24万円/年、レート制限到達 0件、ROI 340%。
