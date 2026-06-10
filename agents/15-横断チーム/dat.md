@@ -191,3 +191,105 @@
 - 横断分析は「問い→必要データ→分析手法」の順で設計すると、データを集めてから考えるより速く無駄な収集が減る
 - 全社データは指標定義を統一辞書で揃えると、部署間比較時の読み替えと誤集計を防げる
 - 定番分析（部署別生産性・案件収益性）はテンプレ化すると、毎回の設計が不要になる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. Modern Data Stack 構築運用（dbt Cloud + Snowflake + Fivetran）
+- フレームワーク: dbt Labs の Analytics Engineering 標準と Kimball Dimensional Modeling を採用し、staging / intermediate / mart の 3 層構造で全社 DWH を構築する。
+- ツール: Snowflake（XS warehouse, auto-suspend 60s）+ dbt Cloud（CI ジョブ）+ Fivetran（HubSpot / GA4 / Salesforce コネクタ）+ Monte Carlo（Observability）。
+- KPI: dbt test カバレッジ 95%、source freshness 違反 0 件/週、Snowflake コスト ≤ 月額 1,200 USD、incremental モデル比率 70%。
+- 手順1: Fivetran で 7 社 SaaS から Snowflake `RAW` スキーマへ 15 分間隔同期する。
+- 手順2: dbt staging で命名規約 `stg_<source>__<entity>` と型統一を行い、`not_null` / `unique` / `relationships` テストを必ず付与する。
+- 手順3: intermediate で業務ロジックを実装し、mart 層で `fct_revenue` / `dim_customer` を Kimball 準拠で公開する。
+- 手順4: dbt Cloud で main マージ時に CI ジョブを走らせ、`dbt build --select state:modified+ --defer` で差分のみテストする。
+- 手順5: Monte Carlo の freshness / volume / schema アラートを Slack `#data-incident` に流し、SLA 30 分以内に Dat が一次対応する。
+
+### 2. 因果推論による施策評価（CausalImpact + DoWhy + Diff-in-Diff）
+- フレームワーク: Google CausalImpact（BSTS）と Microsoft DoWhy の 4 step framework（Model → Identify → Estimate → Refute）を組み合わせ、A/B 不能領域（オフライン施策・地域限定広告）の効果を推定する。
+- ツール: Python 3.11 + DoWhy 0.11 + EconML 0.15 + statsmodels の Difference-in-Differences、可視化は Plotly。
+- KPI: 推定 ATE の 95% 信頼区間幅 ≤ 推定値の 40%、Placebo Test 不合格率 0%、Refutation 4 種（random common cause / placebo treatment / data subset / unobserved cause）全通過率 100%。
+- 手順1: 介入前 90 日のコントロール時系列（同業他クライアント KPI）を Snowflake から抽出する。
+- 手順2: CausalImpact で介入前後 28 日の counterfactual を BSTS で生成し、posterior tail-area p ≤ 0.05 を有意とする。
+- 手順3: DoWhy で DAG（介入→媒介→結果）を `gml_graph` で記述し、backdoor criterion で識別可能性を検証する。
+- 手順4: DiD で `did_model = PanelOLS(...)` を実行し、parallel trends assumption を pre-period 回帰で確認する。
+- 手順5: Refutation を 4 種全実行し、結果が頑健な場合のみ「金額換算 ROI + 95%CI」で経営層へ報告する。
+
+### 3. リアルタイム異常検知パイプライン（Prophet + Isolation Forest + Soda Core）
+- フレームワーク: Facebook Prophet による時系列予測残差と scikit-learn Isolation Forest による多変量外れ値検知を組み合わせた 2 段検知、データ品質は Soda Core の SodaCL（Soda Checks Language）で宣言する。
+- ツール: Prefect 2.x で 1 時間ごとのスケジュール、Soda Cloud で品質スコア可視化、PagerDuty で重大度 P2 以上を通知。
+- KPI: 異常検知 Precision ≥ 0.85、Recall ≥ 0.90、MTTD（平均検知時間）≤ 15 分、誤検知率 ≤ 5%。
+- 手順1: Snowflake 上の KPI テーブルから過去 730 日を Prophet に学習させ、yhat_upper / yhat_lower を算出する。
+- 手順2: 実測値が信頼区間外に出た瞬間を 1 次異常としてフラグする。
+- 手順3: Isolation Forest（contamination=0.02）で売上 / CV / コスト / リードの 4 次元同時外れ値を 2 次検知する。
+- 手順4: Soda Core の `freshness < 6h` `row_count > 1000` `missing_count(col) = 0` を SodaCL で全テーブル定義する。
+- 手順5: 検知時は Slack + PagerDuty に「KPI 名 / 乖離値 / 想定要因 TOP3 / 推奨アクション」を構造化メッセージで送出する。
+
+### 4. 顧客 LTV / チャーン予測モデル（XGBoost + SHAP + MLflow）
+- フレームワーク: BG/NBD（Beta Geometric / NBD）と Gamma-Gamma の lifetimes ライブラリで LTV を確率モデル化、解約予測は XGBoost 2.0 のロジスティック分類で実装する。
+- ツール: lifetimes 0.11 + XGBoost 2.0 + SHAP 0.45 + MLflow 2.12（モデル管理）+ Feast（feature store）。
+- KPI: LTV MAPE ≤ 18%、Churn 予測 AUC ≥ 0.82、PR-AUC ≥ 0.65、SHAP 上位 5 特徴量の業務妥当性レビュー通過率 100%。
+- 手順1: Feast で顧客特徴量（last_purchase_days / freq / monetary / CS 接触回数）を online / offline 二重供給する。
+- 手順2: BG/NBD で購買頻度、Gamma-Gamma で平均購買額をフィットし、12 ヶ月先 LTV の点推定と 95%CI を算出する。
+- 手順3: XGBoost で `early_stopping_rounds=50`、5-fold StratifiedKFold で AUC を評価する。
+- 手順4: SHAP TreeExplainer で `summary_plot` と `dependence_plot` を生成し、上位特徴を CS Agent に説明する。
+- 手順5: MLflow Model Registry で `Staging` → `Production` 昇格を承認制とし、月次で PSI ≥ 0.2 のドリフトを再学習トリガーにする。
+
+### 5. ベイズ A/B テスト基盤（PyMC + Multi-Armed Bandit）
+- フレームワーク: PyMC 5.x によるベイズ推論で「勝率（probability of being best）」を直接算出、Thompson Sampling のマルチアームバンディットで自動配分する。
+- ツール: PyMC 5.10 + ArviZ + GrowthBook（feature flag + experimentation）+ Snowflake `EXPERIMENT_EVENTS` テーブル。
+- KPI: 必要サンプルサイズ削減率 ≥ 30%（vs 頻度論）、posterior の HDI 95% が判断閾値を跨がないこと、覗き見問題による偽陽性率 ≤ 1%。
+- 手順1: GrowthBook で feature flag を割り当て、`exposure` イベントを Snowflake に書き込む。
+- 手順2: 事前分布 Beta(1,1) を CV、Normal(0, σ²) を客単価に設定する。
+- 手順3: PyMC でサンプリング（NUTS、4 chains × 2000 draws）し、`az.summary` で r_hat ≤ 1.01 を確認する。
+- 手順4: `P(B > A) ≥ 0.95` かつ HDI が ±5% を超えない場合のみ勝者宣言する。
+- 手順5: 勝者宣言後は Thompson Sampling に切替え、敗者アームの曝露を 5% 以下に絞り「学習しながら稼ぐ」運用に移行する。
+
+### 6. リバースETL と Activation Layer（Hightouch + Census）
+- フレームワーク: a16z 提唱の Modern Data Stack における Reverse ETL レイヤを構築し、DWH の分析結果を SaaS（HubSpot / Salesforce / Slack / 広告媒体）に逆同期する Data Activation を標準化する。
+- ツール: Hightouch（メイン）+ Census（バックアップ）+ Snowflake mart 層 + Segment（CDP）。
+- KPI: Activation 到達率 ≥ 99.5%、同期遅延 ≤ 10 分、Audience 作成リードタイム ≤ 30 分、施策起動までの「分析→行動」リードタイム ≤ 2 時間。
+- 手順1: dbt mart で `audience_high_ltv_at_risk` などビジネス用途別の Audience モデルを公開する。
+- 手順2: Hightouch で sync を作成し、HubSpot の `lifecycle_stage` カスタムプロパティへマッピングする。
+- 手順3: Identity Resolution（email / user_id）を Segment Unify で名寄せし、重複配信を 0 件化する。
+- 手順4: Sync 失敗時は Hightouch の Alerts → Slack `#activation-alerts` に通知、Dat が 30 分以内に root cause 報告する。
+- 手順5: 同期結果（広告 CTR / メール開封率）を Snowflake に逆流させ、Closed Loop Analytics で ROI を即日検証する。
+
+### 7. データガバナンスとコンプライアンス（DAMA-DMBOK + 個人情報保護法）
+- フレームワーク: DAMA-DMBOK2 の 11 knowledge area を参照し、特に Data Quality / Metadata / Security / Privacy を優先実装、GDPR + 改正個人情報保護法（2026 改正対応）に準拠する。
+- ツール: Atlan（Data Catalog）+ Immuta（Policy as Code）+ Snowflake Dynamic Data Masking + OneTrust（同意管理）。
+- KPI: Catalog 化率 ≥ 95%、PII カラムのマスキング適用率 100%、データ削除リクエスト SLA ≤ 30 日（法定）、内部監査指摘 0 件/四半期。
+- 手順1: Atlan で全テーブルに owner / steward / business_glossary を必須タグ付け、未タグは CI で reject する。
+- 手順2: Immuta で `role:analyst` には PII カラム（email / phone）を SHA-256 ハッシュ化、`role:admin` のみ raw 参照可とする。
+- 手順3: Snowflake で `MASKING POLICY mask_pii` を定義し、列レベルセキュリティを宣言的に管理する。
+- 手順4: OneTrust から削除リクエスト（DSR）を Webhook 受信し、`DELETE FROM ... WHERE user_id = ?` を 7 営業日以内に実行する。
+- 手順5: 四半期ごとに Privacy Impact Assessment（PIA）を全データフローに実施し、リスクレベル High は経営報告する。
+
+### 8. セマンティックレイヤと AI アナリスト統合（Cube + LangChain Text-to-SQL）
+- フレームワーク: Cube.dev のセマンティックレイヤで「1 つの KPI 定義 = 1 つの実装」を実現し、LangChain SQL Agent と Vanna.AI を組み合わせた Text-to-SQL でビジネスユーザーの自己解決を支援する。
+- ツール: Cube Cloud + LangChain 0.2 + Vanna.AI + OpenAI GPT-4o + Slack ChatBot UI。
+- KPI: Text-to-SQL 正答率 ≥ 92%、ビジネスユーザーの SQL 依頼削減率 ≥ 60%、KPI 定義の重複実装 0 件、Cube クエリ p95 レイテンシ ≤ 800ms。
+- 手順1: Cube schema で `measures: { revenue: { sql: "amount", type: "sum" } }` のように業務語彙で定義する。
+- 手順2: Vanna.AI に過去 6 ヶ月の SQL 履歴と DDL を学習させ、RAG ベクトル DB を構築する。
+- 手順3: Slack で `@dat-bot 先月の翔星建設の CV 数は？` と質問可能にする。
+- 手順4: LangChain Agent が Cube API 経由でクエリを生成、結果は Plotly でビジュアル化して Slack に返す。
+- 手順5: 誤回答時は人間がフィードバックし、Vanna.AI に教師データとして追加学習させる継続改善ループを運用する。
+
+### 9. 経営ダッシュボードと Decision Intelligence（Gartner DI + Looker LookML）
+- フレームワーク: Gartner の Decision Intelligence 3 layer（Decision Modeling / Decision Augmentation / Decision Automation）を経営ダッシュボードに実装し、AARRR（Pirate Metrics）と North Star Metric 2.0 を経営層へ提示する。
+- ツール: Looker（LookML）+ Sigma Computing（探索用）+ Hex（ノートブック）+ Notion（経営報告アーカイブ）。
+- KPI: 経営層の意思決定リードタイム ≤ 2 営業日、ダッシュボード閲覧完了率 ≥ 80%、各 finding の「確度ラベル」付与率 100%、ROI ≥ 300% の施策推奨を月 3 件以上。
+- 手順1: LookML で `model: company_kpi` を SSOT として定義し、全 BI クエリを Looker 経由に統一する。
+- 手順2: Decision Modeling 層で「採用拡大すべきか」など意思決定ツリーを DMN（Decision Model and Notation）で図示する。
+- 手順3: Augmentation 層で過去 36 ヶ月の類似意思決定の結果を ML で類推し、推奨アクションを 3 件提示する。
+- 手順4: Automation 層で「広告予算を媒体間で自動再配分」など低リスク意思決定は人間承認なしで実行する。
+- 手順5: 経営 MTG 後 24 時間以内に Notion に「決定事項 / 根拠データ / 振り返り日付」を構造化記録する。
+
+### 10. データチーム運用と FinOps（DataOps + Snowflake Cost Optimization）
+- フレームワーク: DataKitchen の DataOps Manifesto と FinOps Foundation の Crawl / Walk / Run 成熟度モデルを採用、データ基盤コストを可視化・最適化する。
+- ツール: Datafold（data diff）+ Recce（dbt PR レビュー）+ SELECT.dev（Snowflake コスト分析）+ GitHub Actions CI/CD。
+- KPI: Snowflake コスト前月比削減率 ≥ 10%、PR レビュー lead time ≤ 4 時間、本番データ事故 0 件/月、Warehouse credit utilization ≥ 70%。
+- 手順1: 全 dbt model 変更 PR で Datafold が prod vs PR の data diff を自動コメントし、想定外の行数変化を検知する。
+- 手順2: Recce で PR レビュアーが「impact radius」（影響を受ける downstream model）をビジュアル確認する。
+- 手順3: SELECT.dev で Warehouse / Query / User 別コストを日次トラッキングし、TOP10 高コストクエリを週次でリファクタする。
+- 手順4: `auto_suspend = 60` `auto_resume = true` `min/max_cluster_count` を Warehouse ごとに最適化する。
+- 手順5: 月次 FinOps レビューで「コスト / クエリ性能 / ビジネス価値」の 3 軸スコアカードを発行し、ROI 低い基盤投資は廃止判断する。

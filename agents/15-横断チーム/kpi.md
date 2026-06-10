@@ -179,3 +179,85 @@
 - 全社KPIは異常検知の閾値を事前設定すると、全数値を目視するより速く異常だけ拾える
 - 日次/週次/月次レポートは同一テンプレの粒度違いにすると、毎回の作り分け工数を削減
 - ダッシュボードはデータ取得を自動更新化すると、手動集計の締め作業が消える
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. OKR（Doerr "Measure What Matters"）×Quantive Results 連携運用
+- フレームワーク：John Doerr『Measure What Matters』準拠のObjective 1個＋Key Results 3〜5個構成を全社／部門／チームの3階層でカスケードする。
+- 採用ツール：Quantive Results（旧Gtmhub）をSSOTに据え、Notion AI OKRを補助のドラフト生成エンジンとして併用する。
+- KPI指標：四半期KR達成率（Attainment）70〜80%を「stretch goal適正レンジ」とし、95%超は目標が緩い・40%未満は設計過大として再設定する。
+- カスケード深度：KPIカスケード深度（depth）を最低3層（全社→部門→個人/エージェント）に強制し、各KRの親子リンク欠落率0%をQuantiveのバリデーターで担保する。
+- 週次運用：週次Check-in遵守率（weekly review compliance）95%以上を必須化し、未提出者はSlack Workflowで自動リマインダー＋翌週金曜の経営会議冒頭で晒し上げる。
+- ステップフロー：① Quantiveで前期Retro → ② 全社Objective確定 → ③ 部門Objective起票 → ④ 個人KR紐付け → ⑤ 週次Check-in → ⑥ 四半期Scoring → ⑦ Notion AI OKRで次期ドラフト自動生成。
+
+### 2. Balanced Scorecard（Kaplan/Norton）4視点ダッシュボード
+- フレームワーク：Robert Kaplan & David Norton『The Balanced Scorecard』の4視点（Financial / Customer / Internal Process / Learning & Growth）を全社ダッシュボードのトップ層に固定配置する。
+- 採用ツール：Tableau Pulse をBSC可視化レイヤーに採用し、各視点に最低5KPIを配置、AIインサイトで「視点間の因果連鎖」を自動説明する。
+- KPI指標：Financial視点は営業利益率20%以上、Customer視点はNPS+40以上、Internal Processはリードタイム短縮率年20%、Learning & Growthは従業員エンゲージメントスコア4.2/5.0以上を閾値化する。
+- 因果連鎖検証：Strategy Mapを四半期に1回更新し、Learning & Growth → Internal Process → Customer → Financialの因果リンクが統計的に有意（p<0.05）であるかをTableau Pulseで自動検定する。
+- カスケード：BSC 4視点を部門KPIへブレイクダウンし、4視点カバー率（各部門がN視点中いくつ持つか）100%を義務化、偏りを構造的に防止する。
+- ステップフロー：① Strategy Map起票 → ② 4視点別KPI定義 → ③ Tableau Pulseに登録 → ④ 月次BSCレビュー → ⑤ 因果リンク統計検定 → ⑥ Strategy Map更新。
+
+### 3. V2MOM（Salesforce Marc Benioff方式）全社アラインメント
+- フレームワーク：Salesforce創業者Marc BenioffのV2MOM（Vision / Values / Methods / Obstacles / Measures）を全社・部門・個人の3階層で年次起票する。
+- 採用ツール：Notion AI OKR上にV2MOMテンプレートを実装し、Lattice OKRと双方向同期、全社V2MOMをCEO直下のNotionページにSSOTとして配置する。
+- KPI指標：V2MOM作成完了率100%（年度開始から2週間以内）、Measures条項のSMART準拠率95%以上、Obstacles明示率（リスクを言語化した割合）100%を必須化する。
+- アラインメント検証：全社Vision→部門Methods→個人Measuresのトレーサビリティを四半期にAuditし、未接続項目を0件にする。
+- 浸透度測定：全社V2MOM浸透度サーベイを四半期に実施し、「自分のMeasuresが全社Visionにどう貢献するか説明できる」回答率90%以上を維持する。
+- ステップフロー：① CEO起票 → ② 部長カスケード起票 → ③ 個人/エージェント起票 → ④ Lattice同期 → ⑤ 四半期Audit → ⑥ 浸透度サーベイ → ⑦ 翌期V2MOM改訂。
+
+### 4. North Star Framework（Amplitude）プロダクト/事業の単一指標経営
+- フレームワーク：Amplitude『North Star Playbook』準拠のNorth Star Metric（NSM）1個＋Input Metrics 3〜5個構成を事業単位で定義する。
+- 採用ツール：Amplitude NotebooksでNSM定義書を管理し、Looker Studio Pro で経営層向け可視化、Tableau Pulse でドリルダウン分析を担う。
+- KPI指標：LET全社NSMを「月次アクティブクライアント数×案件継続率」と定義し、Input Metricsを①新規受注社数、②月次稼働案件数、③NPS、④解約率の4つに固定する。
+- 先行/遅行構成：Input Metricsは必ずleading 2＋lagging 2の構成にし、NSMだけでなく入力指標で異常を6週間前に検知できるよう設計する。
+- ダッシュボード階層：トップ層NSM（1指標・大表示）→ Input Metrics（4指標・中表示）→ Diagnostic Metrics（20指標・折り畳み）の3層で、CEO閲覧時間2分以内を担保する。
+- ステップフロー：① NSM候補ブレインスト → ② Input Metrics仮説 → ③ Amplitudeで相関検証 → ④ NSM確定 → ⑤ Looker Studio Proで可視化 → ⑥ 週次NSM Movement Review → ⑦ 四半期NSM再評価。
+
+### 5. Pirate Metrics AARRR×Bowtie Funnel 2026 統合計測
+- フレームワーク：Dave McClureのAARRR（Acquisition / Activation / Retention / Referral / Revenue）に、Winning by Design提唱の2026年版Bowtie Funnel（獲得側＋成功側の対称構造）を統合する。
+- 採用ツール：Amplitude（プロダクトAARRR）＋HubSpot Revenue Analytics（Bowtie）＋Looker Studio Pro（統合ダッシュボード）の3点セットで運用する。
+- KPI指標：Acquisition CPA上限¥15,000、Activation率40%以上、30日Retention率25%以上、Referral係数K>0.4、月次ARPU¥80,000以上を全社閾値化する。
+- Bowtie右側（成功側）：Impact / Expansion / Advocacyの3段階を追加計測し、NRR（Net Revenue Retention）120%以上、Expansion売上比率30%以上を必須KPIにする。
+- ステージ間転換率：各ステージ間の転換率を週次で可視化し、最弱ステージ（ボトルネック）を自動ハイライトしてDat/Sales/CSへ改善依頼を自動起票する。
+- ステップフロー：① 全ステージのイベント定義 → ② Amplitude/HubSpotでトラッキング実装 → ③ ステージ転換率算出 → ④ ボトルネック特定 → ⑤ 改善仮説起票 → ⑥ A/Bテスト → ⑦ Bowtie全体最適化レビュー。
+
+### 6. GQM（Goal-Question-Metric, Victor Basili）KPI設計品質ゲート
+- フレームワーク：Victor Basili提唱のGQM（Goal → Question → Metric）パラダイムを全KPI新設時の必須プロセスとし、「なぜそのKPIを測るか」の論理を強制する。
+- 採用ツール：Notion DatabaseにGQMテンプレート（Goal/Question/Metric 3列）を実装し、KPI定義書登録前のレビューゲートとして機能させる。
+- KPI指標：新設KPIのGQM準拠率100%、1Goal当たりQuestion数2〜5個、1Question当たりMetric数1〜3個を構造的に強制する。
+- 品質基準：各MetricにSMART（Specific/Measurable/Achievable/Relevant/Time-bound）準拠チェックを実施し、5項目全クリア率95%以上を必須化する。
+- 廃止判定：四半期にGQMレビューを実施し、「Goalに紐付かないorphan metric」「Questionに答えていないmetric」を検出して廃止候補リストに自動振り分け、KPIインフレを構造的に防ぐ。
+- ステップフロー：① Goal明文化 → ② Question分解 → ③ Metric設計 → ④ SMARTチェック → ⑤ Notion登録 → ⑥ 四半期GQMレビュー → ⑦ orphan metric廃止。
+
+### 7. Lattice OKR×Asana Goals 個人〜全社接続レイヤー
+- フレームワーク：Lattice OKRを個人パフォーマンス連動レイヤー、Asana Goalsをプロジェクト/タスク連動レイヤーとして二重実装し、OKRと日次業務を切断させない。
+- 採用ツール：Lattice OKR（人事連携）＋Asana Goals（タスク連携）＋Zapier/Make連携で双方向同期、Quantive Results をマスターとして上書きルールを明確化する。
+- KPI指標：個人KR×日次タスクの紐付け率90%以上、OKR進捗とAsanaタスク完了率の相関係数0.7以上、四半期末のOKR-Performance Reviewリンク率100%を担保する。
+- カスケード可視化：Asana Goals のPortfolio View で全社→部門→チーム→個人の4階層カスケードを一画面表示し、断絶（未接続）箇所を赤ハイライトする。
+- 人事評価連動：Lattice上でOKR達成度を人事評価の30%ウェイトで自動反映、残り70%は行動評価（Values準拠）とし、結果評価と行動評価のバランスを設計する。
+- ステップフロー：① Quantiveで全社OKR確定 → ② Lattice同期 → ③ Asana Goals起票 → ④ 日次タスク紐付け → ⑤ 週次Check-in → ⑥ 四半期Performance Review → ⑦ 評価連動。
+
+### 8. Ally.io（Microsoft Viva Goals）AI駆動KPI異常検知
+- フレームワーク：Microsoft Viva Goals（旧Ally.io）のAIアシスタント機能を活用し、KPIの予測偏差・季節性補正・先行指標シグナルを自動検知する。
+- 採用ツール：Viva Goals（OKR管理＋AI予測）＋Azure Anomaly Detector（時系列異常検知）＋Power BI（経営層可視化）の3点構成。
+- KPI指標：AIによる異常検知精度（Precision）85%以上・再現率（Recall）80%以上を四半期に評価し、偽陽性率15%以下を維持する。
+- 季節性補正：曜日効果・月次効果・四半期効果を自動学習し、補正後の異常検知でCRITICALアラートの本物率（True Positive Rate）90%以上を担保する。
+- 予測偏差アラート：四半期末OKR達成率の予測値が70%を下回った時点で自動的にCEO＋該当部長にエスカレーション、リカバリープラン起票を強制する。
+- ステップフロー：① Viva Goalsに過去2年データ投入 → ② AI学習 → ③ 予測モデル検証 → ④ 季節性補正 → ⑤ 異常検知運用 → ⑥ 月次精度評価 → ⑦ モデル再学習。
+
+### 9. RICE/ICE×Weighted Scoring KPI優先順位付け
+- フレームワーク：Intercom提唱のRICE（Reach×Impact×Confidence÷Effort）とSean EllisのICE（Impact×Confidence×Ease）を組み合わせ、KPI改善施策の優先順位を定量化する。
+- 採用ツール：Productboard（プロダクト施策スコアリング）＋Notion Database（汎用スコアリング）＋Looker Studio Pro（スコア可視化）。
+- KPI指標：施策起票時のRICEスコア算出率100%、上位20%施策への投資配分80%（Pareto原則準拠）、施策実行後の予測Impact vs 実績Impact乖離率20%以内を維持する。
+- 信頼度補正：Confidenceスコア（0-100%）を必ず明記し、Confidence60%未満の施策は事前にPoC検証を必須化、博打的KPI改善を構造的に防ぐ。
+- 廃止施策の学習：実績Impactが予測の50%未満だった施策をPostmortem対象とし、次回類似施策のConfidence補正係数に反映、組織学習をスコアリングに統合する。
+- ステップフロー：① 施策ブレインスト → ② RICE/ICEスコア算出 → ③ 上位施策選定 → ④ 実行 → ⑤ 実績計測 → ⑥ 予測vs実績Postmortem → ⑦ 補正係数更新。
+
+### 10. KPI Maturity Model 全社成熟度評価×継続改善ループ
+- フレームワーク：Gartner『Analytics Maturity Model』とTDWI『Business Intelligence Maturity Model』をハイブリッドし、Level 1（Reactive）〜Level 5（Optimized）の5段階でLET全社のKPI運用成熟度を年次評価する。
+- 採用ツール：Tableau Pulse（成熟度ダッシュボード）＋Quantive Results（OKR成熟度）＋Notion（成熟度評価レポート）の3点連携。
+- KPI指標：年次成熟度評価でLevel 3（Defined）以上を全部門で達成、Level 4（Managed）以上の部門比率を年20%ずつ引き上げ、3年でLevel 5達成部門を50%以上にする。
+- 評価軸：① KPI定義の明確性、② データ品質、③ 自動化率、④ 意思決定への活用度、⑤ 継続改善ループの5軸で各5段階評価、合計25点満点でスコアリングする。
+- ベンチマーキング：建設業界・人材業界の同規模他社とDORA Metrics／McKinsey Analytics Maturity Index で年次ベンチマーク比較、業界中央値+30%以上のポジションを維持する。
+- ステップフロー：① 5軸成熟度評価 → ② スコアリング → ③ Gap分析 → ④ 改善ロードマップ策定 → ⑤ 四半期進捗レビュー → ⑥ 年次再評価 → ⑦ 業界ベンチマーク比較 → ⑧ 次年度目標設定。

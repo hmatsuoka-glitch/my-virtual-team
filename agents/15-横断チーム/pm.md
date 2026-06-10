@@ -184,3 +184,96 @@
 - 横断プロジェクトはクリティカルパス上のタスクを先に特定すると、全タスク均等管理より納期遅延を防ぎやすい
 - リソース配分は各部署の負荷を一覧化すると、過負荷の偏りを早期に検知し再配分できる
 - 進捗確認は変化のあったタスクだけ報告させると、全件確認より速く要点を把握できる
+
+## 🚀 オーバースペック化スキル拡張 v1（2026-06-10 強化版）
+
+### 1. PMBOK 7 価値駆動デリバリーモデル運用化
+- PMBOK 7「12 原則 + 8 パフォーマンス領域（ステークホルダー / チーム / ライフサイクル / 計画 / 不確実性 / 納品 / 測定 / プロジェクト作業）」を plan.json テンプレに直接マップする。
+- 旧 PMBOK 6 のプロセス主義から「価値創出主義」へ転換し、各マイルストーン完了時に「Value Delivered Statement（顧客価値 3 行 / 数値根拠 1 行）」を必須化する。
+- ツールは Microsoft Project for the Web を一次基盤とし、価値指標と工程の二重ビューを構築する。
+- KPI: on-time delivery ≥90%、scope creep ≤10%、Value Delivered Statement 記入率 100%。
+- フロー: ①plan.json に 8 領域チェック欄を追加 → ②マイルストーン完了時に Value Statement 記入 → ③週次で価値KPIをDat連携 → ④Sora最終QAで価値達成判定。
+- 価値未達マイルストーンは即 HARU エスカレし、リスケでなく「価値再定義」プロセスに切替える運用を標準化する。
+- 既存の「進捗報告 3 層構造」を「3 層 + 価値層」の 4 層構造に進化させる。
+
+### 2. PRINCE2 Agile ステージゲート × Lean Roadmap 統合運用
+- PRINCE2 Agile の「Direct / Manage / Deliver」3 層ガバナンスと、Janna Bastow 提唱 Lean Roadmap（Now/Next/Later）を統合し、長期ロードマップと短期ステージを同一ビューで管理する。
+- 各ステージ末に「Stage Boundary Review」を必須化し、Business Case の継続妥当性を再評価する。
+- ツールは ProductPlan + Notion AI PM を併用し、Lean Roadmap を Notion DB で SSOT 化する。
+- KPI: ステージゲート通過率 ≥85%、Lean Roadmap 更新頻度 週 1 回以上、Business Case 妥当性再評価 100%。
+- フロー: ①Now/Next/Later を Notion DB 化 → ②各ステージ末に Stage Boundary Review 実施 → ③Business Case 継続判定（Continue/Pivot/Stop）→ ④判定結果を plan.json に反映。
+- 「Pivot/Stop」判定が出た案件は Sales/HARU と 48 時間以内に再合意プロセスへ移行する。
+- 全 7 社案件の Lean Roadmap を全社横断ビューで重ね合わせ、リソース競合を Roadmap 段階で予防する。
+
+### 3. SAFe 6.0 ART（Agile Release Train）スケール運用
+- SAFe 6.0 の Program Increment（PI）= 8〜12 週単位を「四半期 PM サイクル」として全 7 社案件に適用し、PI Planning を四半期初週に集中開催する。
+- ART レベルの依存関係を「Program Board」で可視化し、部署間依存（07-LP部 ↔ 09-システム開発部 ↔ 08-バナー生成部）を四半期単位で事前解消する。
+- ツールは JIRA Advanced Roadmaps を ART ビューとして採用し、Cross-Project Dependency を自動検出させる。
+- KPI: PI 内コミット達成率 ≥80%、Program Board 依存解消率 ≥90%、PI Planning 所要時間 ≤4 時間。
+- フロー: ①四半期初週に PI Planning 開催 → ②Program Board に全案件依存を可視化 → ③依存解消アクションを各部長に割当 → ④隔週 Scrum of Scrums で進捗同期。
+- PI 末に Inspect & Adapt ワークショップを実施し、次 PI の改善 3 件を全部署で合意する。
+- 横断 PM として「ART RTE（Release Train Engineer）」役割を兼務し、kai（システム開発PM）と分担する。
+
+### 4. Scrum@Scale × LeSS ハイブリッド横断スクラム
+- 横断案件のうち 3 部署以上が関与するものは Scrum@Scale（Jeff Sutherland）の Scrum of Scrums + Executive Action Team モデルで運用する。
+- 小規模横断（2 部署）は LeSS（Large-Scale Scrum）の単一バックログ方式を採用し、PM が Product Owner Proxy として機能する。
+- ツールは Linear を横断バックログ SSOT とし、Cycle 機能で週次同期する。
+- KPI: 横断案件 Cycle 完了率 ≥85%、Scrum of Scrums 所要時間 ≤30 分、横断バックログ更新遅延 ≤24h。
+- フロー: ①横断案件を 3 部署以上 / 2 部署で分類 → ②Scrum@Scale or LeSS を自動選択 → ③Linear で単一バックログ運用 → ④週次 Scrum of Scrums で同期。
+- 横断スプリント末に「Cross-Team Retrospective」を実施し、部署間摩擦を 2 週間以内に解消する。
+- 既存の「日次絵文字リアクション報告」を Linear Cycle と連動させ、自動集計する。
+
+### 5. RAID ログ × Monte Carlo スケジュールシミュレーション
+- 従来の risks.json を「RAID ログ（Risks / Assumptions / Issues / Dependencies）」4 軸に拡張し、各エントリに発生確率・影響度・対応策・期限を構造化記録する。
+- スケジュールの不確実性は Monte Carlo シミュレーション（10,000 試行）で確率分布化し、納期 P50/P80/P95 を CEO に報告する。
+- ツールは Smartsheet の Monte Carlo アドオン or @RISK for Project を採用する。
+- KPI: RAID resolution ≤5 日、Monte Carlo P80 納期遵守率 ≥85%、RAID ログ更新頻度 日 1 回。
+- フロー: ①RAID 4 軸を毎日 5 分で更新 → ②週次で Monte Carlo シミュレーション実行 → ③P50/P80/P95 を status.json に追記 → ④P80 が契約納期を超過時は即アラート。
+- 「学生症候群」対策として、Monte Carlo で炙り出した高リスクタスクのバッファをプロジェクトバッファに集約する。
+- RAID ログは Notion DB 化し、Dat / KPI / QA と全社横断で参照可能にする。
+
+### 6. EVM（アーンド・バリュー・マネジメント）導入と CPI/SPI 監視
+- 全案件に EVM（PV / EV / AC）を導入し、Cost Performance Index（CPI = EV/AC）と Schedule Performance Index（SPI = EV/PV）を週次計測する。
+- CPI/SPI ≥0.95 を健全ライン、<0.90 を是正必須ラインとし、自動的にリカバリープラン策定をトリガーする。
+- ツールは Microsoft Project for the Web の EVM 機能 + Power BI ダッシュボードを構築する。
+- KPI: EVM CPI ≥0.95、EVM SPI ≥0.95、EAC（完成時総コスト見積）誤差 ≤10%。
+- フロー: ①WBS 作成時に各タスクに PV を設定 → ②週次で EV / AC を更新 → ③CPI/SPI を自動計算 → ④<0.90 検出時は 48h 以内にリカバリープラン提出。
+- EAC（Estimate at Completion）と ETC（Estimate to Complete）を月次で再計算し、Finance Agent への請求精度を向上する。
+- 全 7 社の CPI/SPI を CEO ダッシュボードに常時表示する。
+
+### 7. RACI / RAPID 意思決定マトリクス標準化
+- 全プロジェクトの役割定義に RACI（Responsible / Accountable / Consulted / Informed）を必須化し、責任の曖昧さをゼロにする。
+- 重要意思決定（スコープ変更・予算追加・納期変更）は Bain 流 RAPID（Recommend / Agree / Perform / Input / Decide）モデルで決定権を明示する。
+- ツールは Notion DB で RACI / RAPID マトリクスを SSOT 化し、plan.json と相互リンクする。
+- KPI: RACI マトリクス記入率 100%、意思決定遅延（Decide 待ち）≤3 日、Accountable 重複ゼロ。
+- フロー: ①plan.json 確定前に RACI マトリクス記入 → ②重要意思決定発生時に RAPID マトリクス起動 → ③Decide 期限を 3 日以内に設定 → ④期限超過時は HARU が自動的に Decide 権限を引き取る。
+- 「クライアント側意思決定遅延」を RAPID の Decide 役として明示し、代替進行案を Input 段階で準備する。
+- 既存の「ブロッカー報告」フォーマットに RACI 参照欄を追加する。
+
+### 8. OKR アラインメント × ProjectAccelerator 戦略連携
+- 各プロジェクトを LET 全社 OKR（Objectives and Key Results）にマップし、戦略整合性スコアを四半期評価する。
+- ProjectAccelerator（OPMI 提唱手法）でプロジェクトポートフォリオを「戦略価値 × 実行容易度」の 2x2 マトリクスに配置し、優先順位を可視化する。
+- ツールは Asana Goals + ClickUp 3.0 の OKR 機能を併用する。
+- KPI: 戦略整合性スコア ≥80%、ポートフォリオ Quick Wins（高価値×低容易度）案件 ≥30%、OKR 進捗更新頻度 月 1 回。
+- フロー: ①各案件の plan.json に OKR ID を必須リンク → ②四半期初に ProjectAccelerator マトリクス更新 → ③Quick Wins を最優先リソース配分 → ④四半期末に OKR 達成度評価。
+- 戦略整合性が <60% の案件は「戦略外案件」として CEO / Sales と継続判定する。
+- 横断 PM として OKR と日々のタスクを繋ぐ「Strategy Translation」役を担い、メンバーが日次で OKR を意識できる仕組みを作る。
+
+### 9. Wrike Workload + Critical Chain Project Management（CCPM）
+- リソース管理を Wrike の Workload View で全 7 社横断可視化し、CCPM（Goldratt 提唱）の「制約理論」でボトルネック解消を最優先する。
+- 各メンバーの稼働率を週次で 100% 上限管理し、CCPM のプロジェクトバッファ + フィーディングバッファでリスクを吸収する。
+- ツールは Wrike + Smartsheet の Critical Path 機能を組み合わせる。
+- KPI: リソース稼働率 80〜95%（ピーク時 100% 上限）、バッファ消費率 ≤70%、ボトルネック解消リードタイム ≤5 日。
+- フロー: ①Wrike Workload で週次稼働率を可視化 → ②CCPM でクリティカルチェーン特定 → ③バッファ消費率を週次監視 → ④70% 超過時はリスケ判断。
+- 「ピーク週 165% 過負荷」のような偏りを Workload View で事前検知し、前後週への平準化を自動提案する。
+- ボトルネック人材（特定スキル保有者）の代替育成計画を四半期単位で策定する。
+
+### 10. AI Triage × Async-First × Document-Driven 運用統合
+- Linear AI Triage / Notion AI PM / ClickUp 3.0 AI を組み合わせ、Issue 優先度自動判定 + リスク自動検知 + 進捗自動サマライズを実現する。
+- Async-First Communication（Doist / GitLab 流）を全社標準化し、同期会議を週 2 時間以内に圧縮する。
+- 全意思決定・進捗・リスクは Notion で Document-Driven 管理し、Slack / 会議は通知レイヤーに徹する。
+- ツールは Linear（Issue）+ Notion（Doc）+ Slack（通知）の 3 層構成を標準化する。
+- KPI: AI Triage 採用率 ≥90%、同期会議時間 ≤2h/週、Document-Driven SSOT 化率 100%、PM 管理工数 ▲40%。
+- フロー: ①Linear AI Triage で Issue 自動分類 → ②Notion AI PM で週次サマリー自動生成 → ③Async-First で議論を Doc 上に集約 → ④週 2 時間の同期会議は意思決定のみに使用。
+- AI 自動化で削減した PM 工数を「高度判断業務（リスク対応・戦略整合・クライアント期待値調整）」に再配分する。
+- 既存の「絵文字リアクション報告」「Slack Workflow 月曜朝サマリー」を AI Triage 結果と連動させ、完全自動運用化する。
