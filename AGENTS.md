@@ -47,7 +47,8 @@ my-virtual-team/
 │   ├── 12-営業部/sales.md
 │   ├── 13-マーケティング部/{marketing,pr}.md
 │   ├── 14-業務自動化部/{bo,owl}.md
-│   └── 15-横断チーム/{dat,kpi,pm,qa}.md
+│   ├── 15-横断チーム/{dat,kpi,pm,qa}.md
+│   └── 16-建設業DXシステム部/gen.md
 # AGENTS_TREE:END
 ├── workflows/                  # BMAD-METHOD準拠ワークフロー
 │   ├── spec-driven/            # 要件→設計→タスク→実装
