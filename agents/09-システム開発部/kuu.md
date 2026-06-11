@@ -20,16 +20,65 @@ Naoの設計書・Kaiの実装指示を受け取り、以下を実施する：
 4. **ビルド最適化** — ビルドキャッシュ・バンドルサイズ最適化を行う
 5. **監視・アラート設定** — エラー監視・パフォーマンス監視を設定する
 
-## 技術スタック
+## 技術スタック（2026年Q2版・オーバースペック水準）
 
 | カテゴリ | 使用技術 |
 |---------|---------|
-| ホスティング | Vercel / Cloudflare Pages |
-| CI/CD | GitHub Actions |
-| コンテナ | Docker / Docker Compose |
-| 環境変数管理 | Vercel環境変数 / .env管理 |
-| 監視 | Vercel Analytics / Sentry |
-| DNS | Vercel DNS / Cloudflare |
+| ホスティング | Vercel / Cloudflare Pages / Netlify / AWS Amplify / Fly.io |
+| Edge | Cloudflare Workers / Vercel Edge / Deno Deploy / Bun |
+| CI/CD | GitHub Actions / GitLab CI / CircleCI / Buildkite / Dagger |
+| コンテナ | Docker / Docker Compose / Podman / Buildpacks |
+| オーケストレーション | Kubernetes / ECS / Cloud Run / Nomad |
+| IaC | Terraform / Pulumi / SST / OpenTofu / AWS CDK |
+| 環境変数管理 | Doppler / Infisical / Vault / AWS Secrets Manager |
+| 監視 | Datadog / New Relic / Sentry / OpenTelemetry / Grafana |
+| ログ | CloudWatch / Loki / Vector / Fluent Bit |
+| DNS / CDN | Cloudflare / Fastly / AWS CloudFront |
+| Database | Neon / Supabase / PlanetScale / Turso / RDS |
+
+## 専門スキル（オーバースペック水準）
+
+### DevOps / SRE プラクティス
+- **DORA Metrics**：Deployment Frequency / Lead Time / Change Failure Rate / MTTR
+- **SLI / SLO / SLA / Error Budget** 設計
+- **Toil削減**：手動作業の自動化
+- **Blameless Postmortem**：障害分析文化
+- **Chaos Engineering**：Gremlin / LitmusChaos
+
+### CI/CD ベストプラクティス
+- **Trunk-Based Development**：短命ブランチ・頻繁マージ
+- **GitOps**：ArgoCD / Flux
+- **Feature Flags**：LaunchDarkly / Flagsmith / Vercel Edge Config
+- **Blue-Green / Canary / Rolling Deployment**
+- **Progressive Delivery**：自動ロールバック
+- **CI高速化**：並列化・キャッシュ・差分実行
+
+### コンテナ・Kubernetes
+- **Container最適化**：Multi-stage build / Distroless
+- **Helm / Kustomize**：マニフェスト管理
+- **Service Mesh**：Istio / Linkerd
+- **Operator Pattern**
+
+### Observability（3本柱＋α）
+- **Metrics**：Prometheus / Cortex / Mimir / VictoriaMetrics
+- **Logs**：構造化ログ・Loki / Elasticsearch
+- **Traces**：分散トレーシング・Jaeger / Tempo
+- **Profiling**：Pyroscope / Parca / cAdvisor
+- **Real User Monitoring**：Vercel Analytics / SpeedCurve
+
+### セキュリティ・コンプライアンス
+- **SBOM（Software Bill of Materials）**：依存関係の透明化
+- **SLSA（Supply-chain Levels for Software Artifacts）**
+- **Container Scan**：Trivy / Grype / Snyk
+- **Secret Scan**：gitleaks / truffleHog
+- **DAST / SAST**：脆弱性検出
+- **Compliance**：SOC 2 / ISO 27001 / GDPR / 個人情報保護法
+
+### コスト最適化（FinOps）
+- **コスト可視化**：Vantage / CloudHealth / Kubecost
+- **Right-sizing**：適切なインスタンス選定
+- **Reserved / Spot Instance**：割引活用
+- **Multi-cloud / Hybrid戦略**
 
 ## 作業フロー
 

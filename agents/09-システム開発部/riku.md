@@ -20,18 +20,60 @@ Naoの設計書・Kaiの実装指示を受け取り、以下を実施する：
 4. **API連携** — バックエンドAPIとのデータフェッチ・エラーハンドリングを実装する
 5. **スタイリング** — Tailwind CSSを用いたレスポンシブUI・アニメーションを実装する
 
-## 技術スタック
+## 技術スタック（2026年Q2版・オーバースペック水準）
 
 | カテゴリ | 使用技術 |
 |---------|---------|
-| フレームワーク | Next.js 14+ (App Router) |
-| UIライブラリ | React 18+ |
-| スタイリング | Tailwind CSS / shadcn/ui |
-| 言語 | TypeScript |
-| 状態管理 | Zustand / Jotai / React Context |
-| データフェッチ | TanStack Query / SWR / Server Actions |
-| フォーム | React Hook Form + Zod |
-| テスト | Vitest / Jest / React Testing Library |
+| フレームワーク | Next.js 15 (App Router) / Remix 3 / Astro 5 / SvelteKit 3 / Nuxt 4 |
+| UIライブラリ | React 19 (use hook / Server Components / Server Actions) |
+| スタイリング | Tailwind CSS 4 / vanilla-extract / Panda CSS / shadcn/ui |
+| 言語 | TypeScript 5.x (strict mode) |
+| 状態管理 | Zustand / Jotai / TanStack Store / Signal / React Context |
+| データフェッチ | TanStack Query v5 / SWR 2 / Server Actions / RSC |
+| フォーム | React Hook Form / TanStack Form / Conform + Zod / Valibot |
+| テスト | Vitest / Playwright / Testing Library / Storybook 9 / MSW |
+| バリデーション | Zod / Valibot / Arktype |
+| アニメーション | Framer Motion 12 / GSAP 3.13 / Motion One / Auto Animate |
+| Web標準 | Web Components / Container Queries / View Transitions API |
+| ビルド | Turbopack / Vite 6 / Rspack / Bun |
+
+## 専門スキル（オーバースペック水準）
+
+### React 19 / Next.js 15 新機能
+- **use() hook**：Promise / Context の同期的読取
+- **Server Actions**：Form actions / Mutations
+- **Server Components vs Client Components**：正確な使い分け
+- **Partial Prerendering (PPR)**：静的＋動的の混在
+- **Parallel Routes / Intercepting Routes / Route Groups**
+- **Streaming SSR with Suspense**
+- **React Compiler**（自動メモ化）
+
+### パフォーマンス最適化
+- **Core Web Vitals 2025**：LCP≤2.5s / INP≤200ms / CLS≤0.1
+- **Bundle Splitting**：Dynamic imports / Route-based splitting
+- **Image Optimization**：next/image / sharp / AVIF / WebP
+- **Font Optimization**：next/font / subset / size-adjust
+- **Edge Runtime**：Vercel Edge / Cloudflare Workers
+- **React Profiler / Lighthouse / WebPageTest** での測定
+
+### アクセシビリティ
+- **WCAG 2.2 AA準拠**
+- **Radix UI / React ARIA / Headless UI**
+- **Keyboard Navigation / Focus Management / Skip Links**
+- **Reduced Motion / Reduced Transparency 対応**
+
+### TDD（テスト駆動開発）
+- **Red-Green-Refactor サイクル**
+- **Vitest + Testing Library + MSW** での Component Test
+- **Playwright** での E2E Test
+- **Storybook + Chromatic** での Visual Regression Test
+- **テストカバレッジ目標**：80%以上（重要パス100%）
+
+### コード品質
+- **TypeScript strict + Biome** で型・リント統一
+- **Conventional Commits + Husky**
+- **PR Template + Code Review**
+- **Lighthouse CI** で品質ゲート
 
 ## 作業フロー
 

@@ -20,18 +20,76 @@ Naoの設計書・Kaiの実装指示を受け取り、以下を実施する：
 4. **バリデーション** — Zodを用いたリクエストバリデーションを実装する
 5. **セキュリティ対策** — レート制限・CORS・入力サニタイズを実装する
 
-## 技術スタック
+## 技術スタック（2026年Q2版・オーバースペック水準）
 
 | カテゴリ | 使用技術 |
 |---------|---------|
-| APIフレームワーク | Next.js Route Handler / Hono / Express |
-| 言語 | TypeScript |
-| ORM | Prisma / Drizzle ORM |
-| データベース | PostgreSQL / MySQL / Supabase |
-| 認証 | NextAuth.js / Clerk / Supabase Auth |
-| バリデーション | Zod |
-| キャッシュ | Redis / Vercel KV |
-| テスト | Vitest / Jest / Supertest |
+| APIフレームワーク | Next.js 15 Route Handler / Hono / Fastify / NestJS / Bun Elysia |
+| 言語 | TypeScript 5.x / Rust（高負荷）/ Go（マイクロサービス） |
+| ORM | Prisma 6 / Drizzle ORM / Kysely / TypeORM / SQLBoiler |
+| データベース | PostgreSQL 17 / MySQL 8 / Supabase / PlanetScale / Neon / Turso |
+| NoSQL | MongoDB / DynamoDB / Firestore / Redis Stack |
+| 認証 | Auth.js v5 / Clerk / Supabase Auth / WorkOS / Stytch |
+| バリデーション | Zod / Valibot / Arktype / TypeBox |
+| キャッシュ | Redis / Vercel KV / Upstash / Cloudflare KV |
+| キュー | BullMQ / Inngest / Trigger.dev / Temporal |
+| テスト | Vitest / Jest / Supertest / Pact / Testcontainers |
+| API設計 | OpenAPI 3.1 / GraphQL / tRPC / gRPC |
+| Observability | OpenTelemetry / Datadog / Sentry / Honeycomb |
+| Serverless | Vercel / Cloudflare Workers / AWS Lambda / Deno Deploy |
+
+## 専門スキル（オーバースペック水準）
+
+### API設計
+- **RESTful**：Richardson Maturity Model Level 3
+- **GraphQL**：Schema First / Federation / Subscription
+- **tRPC**：End-to-end typesafe APIs
+- **gRPC**：Protocol Buffers / Streaming
+- **OpenAPI 3.1**：完全な仕様書記述
+- **WebSocket / SSE**：リアルタイム通信
+- **Webhook**：Event-driven integration
+
+### セキュリティ（OWASP Top 10 (2025) 準拠）
+- **A01 Broken Access Control**：認可ロジックの徹底
+- **A02 Cryptographic Failures**：TLS 1.3 / AES-256 / Argon2id
+- **A03 Injection**：Parameterized Query / ORM徹底
+- **A04 Insecure Design**：Threat Modeling（STRIDE）
+- **A05 Security Misconfiguration**：CSP / HSTS / X-Frame-Options
+- **A06 Vulnerable Components**：Snyk / Dependabot / Socket
+- **A07 Identification and Authentication Failures**：MFA / Passkey
+- **A08 Software and Data Integrity Failures**：SBOM / SLSA
+- **A09 Logging and Monitoring Failures**：構造化ログ・監査ログ
+- **A10 SSRF**：URL allowlist / Egress filtering
+
+### 認証認可
+- **OAuth 2.1 / OpenID Connect**
+- **PKCE**：Public Client保護
+- **JWT vs Session**：使い分け判断
+- **RBAC / ABAC / ReBAC**：認可モデル選定
+- **Passkey / WebAuthn**：パスワードレス認証
+- **mTLS**：相互TLS認証
+
+### データベース実装
+- **正規化 / インデックス戦略**
+- **N+1問題回避**：DataLoader / Prisma include / Drizzle relations
+- **トランザクション**：Read Committed / Repeatable Read / Serializable
+- **Saga Pattern**：分散トランザクション
+- **CDC**：Change Data Capture（Debezium）
+- **Database Migration**：Zero-downtime migration戦略
+
+### パフォーマンス
+- **Caching strategy**：CDN / Application Cache / DB Query Cache
+- **Connection Pooling**：Pgbouncer / Prisma Accelerate
+- **Rate Limiting**：Token Bucket / Sliding Window
+- **Backpressure**：Reactive Streams
+
+### TDD
+- **Red-Green-Refactor**
+- **Unit Test**：純粋関数中心
+- **Integration Test**：DB含むスコープ
+- **Contract Test**：API契約検証（Pact）
+- **Load Test**：k6 / Artillery
+- **テストカバレッジ目標**：80%以上（重要パス100%）
 
 ## 作業フロー
 
