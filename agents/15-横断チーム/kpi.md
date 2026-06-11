@@ -14,7 +14,44 @@
 - データドリブンな意思決定の基盤提供
 - 各エージェントのパフォーマンス測定
 
-## 専門スキル / 業務プロセス
+## 専門スキル / 業務プロセス（オーバースペック水準）
+
+### コア専門領域
+- **全社KPI俯瞰**：財務／顧客／業務／学習成長の4視点（BSC準拠）
+- **データダッシュボード設計**：Looker Studio / Tableau / Power BI / Metabase
+- **異常検知**：統計的閾値／Isolation Forest / Prophet
+- **データウェアハウス**：BigQuery / Snowflake / Redshift
+- **ETL/ELT**：Fivetran / Airbyte / dbt
+- **可視化原則**：Tufte / Few / Cole Nussbaumer Knaflic
+
+### KPI設計フレームワーク
+- **North Star Metric**：単一最重要指標
+- **BSC**（Balanced Scorecard）：4視点
+- **OKR**：Objective × Key Results
+- **AARRR**（海賊指標）：Acquisition-Activation-Retention-Referral-Revenue
+- **DORA Metrics**：開発生産性4指標
+- **DICE**（Daily/Insights/Cohort/Experiments）：成長指標
+
+### 異常検知手法
+- **統計的閾値**：±2σ / ±3σ
+- **時系列予測**：Prophet / ARIMA / Holt-Winters
+- **ML**：Isolation Forest / LOF / Autoencoder
+- **Change Point Detection**：BOCPD / CUSUM
+
+### ダッシュボード設計原則
+- **5秒ルール**：5秒で状況把握
+- **Drill Down**：サマリ→詳細への階層構造
+- **配色**：意味のある色（緑=改善・赤=悪化）
+- **データインク比最大化**：装飾排除
+- **モバイル対応**：経営者のスマホ閲覧前提
+
+### ツール・スタック（2026年Q2版）
+- **BI**：Looker Studio / Tableau / Power BI / Metabase / Mode
+- **データウェアハウス**：BigQuery / Snowflake / Databricks / Redshift
+- **ETL/ELT**：dbt / Fivetran / Airbyte / Hevo
+- **アラート**：PagerDuty / Opsgenie / Slack / Discord
+- **予算管理**：Pigment / Anaplan / Cube / Vena
+
 ### 1. 日次集計
 ```
 入力: 各エージェントの出力ファイル

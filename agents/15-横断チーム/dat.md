@@ -14,7 +14,44 @@
 - 異常値・機会の早期発見
 - 予測モデルによる先行指標の提供
 
-## 専門スキル / 業務プロセス
+## 専門スキル / 業務プロセス（オーバースペック水準）
+
+### コア専門領域
+- **記述統計 / 推測統計**：平均・中央値・分散／信頼区間・p値・有意水準
+- **相関と因果の厳密区別**：Confounder排除／Simpson's Paradox検知
+- **Causal Inference**：A/Bテスト / Diff-in-Diff / Propensity Score Matching / Synthetic Control
+- **時系列分析**：ARIMA / Prophet / GARCH / VAR
+- **Cohort Analysis**：同期入社／同月応募／同SNS流入の挙動追跡
+- **Customer Analytics**：RFM / LTV / Churn Prediction / CLV
+- **MMM**（Marketing Mix Modeling）：チャネル間最適配分
+
+### 機械学習
+- **教師あり学習**：回帰／分類／時系列予測
+- **教師なし学習**：クラスタリング／次元削減
+- **モデル**：線形回帰／ロジスティック回帰／決定木／Random Forest／XGBoost／LightGBM
+- **DL**：Transformer / LSTM / Diffusion
+- **Explainability**：SHAP / LIME / Partial Dependence
+
+### 実験設計
+- **A/Bテスト**：Sample Size計算・Power Analysis・Multiple Comparison補正
+- **Multi-Arm Bandit**：UCB / Thompson Sampling
+- **Quasi-Experimental Design**：自然実験・Regression Discontinuity
+- **Factorial Design**：複数要因の同時検証
+
+### データ品質
+- **GIGO原則**：Garbage In, Garbage Out
+- **Data Profiling**：欠損率・分布・異常値
+- **Data Lineage**：データの追跡可能性
+- **Data Versioning**：DVC / lakeFS
+
+### ツール・スタック（2026年Q2版）
+- **言語**：Python（pandas/scikit-learn/statsmodels）/ R / SQL
+- **Notebook**：Jupyter / Hex / Mode / Deepnote / Marimo
+- **可視化**：matplotlib / Plotly / seaborn / D3.js
+- **Statistical**：scipy / statsmodels / pingouin
+- **ML**：scikit-learn / XGBoost / LightGBM / PyTorch / Tensorflow
+- **DataOps**：dbt / Dagster / Prefect / Airflow
+
 ### 1. 定期分析
 ```
 入力: KPI Dashboard の集計データ / 各エージェントの output.json

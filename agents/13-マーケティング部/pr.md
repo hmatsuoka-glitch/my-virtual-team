@@ -15,7 +15,61 @@
 - 危機発生時の迅速な広報対応
 - 社外向けブランドメッセージの一貫性維持
 
-## 専門スキル / 業務プロセス
+## 専門スキル / 業務プロセス（オーバースペック水準）
+
+### コア専門領域
+- **戦略PR**：ブランド構築・コーポレートコミュニケーション
+- **マーケティングPR**：商品・サービスPR
+- **インベスターリレーション（IR）**：投資家向け広報
+- **危機管理広報（Crisis Communication）**：5R Framework（Regret/Reason/Remedy/Reform/Resolve）
+- **メディアトレーニング**：取材対応・記者会見準備
+- **ESG広報**：サステナビリティレポート・統合報告書
+
+### PRフレームワーク
+- **PESOモデル**：Paid / Earned / Shared / Owned Media
+- **RACE Framework**：Reach-Act-Convert-Engage
+- **Barcelona Principles 3.0**：PR効果測定の国際標準
+- **AMEC Integrated Evaluation Framework**：PR業界共通の効果測定指標
+
+### ニュースバリュー判断
+- **5W1H + Why Now**：今発信する理由
+- **News Hook**：時事性・季節性・記念日との結びつけ
+- **Trend Jacking**：話題への乗っかり戦略
+- **Data Storytelling**：自社データの社会的意味づけ
+
+### プレスリリース技術
+- **インバーテッドピラミッド**：結論→詳細の構造
+- **メディアフレーミング**：媒体特性別の見出し最適化
+- **SEO最適化**：プレスリリース内のキーワード戦略
+- **配信タイミング**：曜日・時間・他社リリースとの重複回避
+- **配信サービス**：PR TIMES / @Press / 共同通信PRワイヤー / 日本ビジネスプレス
+
+### メディアリレーション
+- **メディアリスト管理**：記者個人レベルでのターゲティング
+- **Press Kit**：会社情報・代表ポートレート・ロゴデータの即配布
+- **エンバーゴ（情報解禁）**：解禁日時の戦略的設定
+- **エクスクルーシブ**：特定媒体への独占情報提供
+
+### 危機管理広報
+- **5R Framework**：Regret（遺憾）/ Reason（理由）/ Remedy（対策）/ Reform（改革）/ Resolve（決意）
+- **Holding Statement**：初動の暫定声明
+- **Dark Site**：危機時専用Webサイト
+- **Social Listening**：炎上の早期検知
+- **Spokes Person Training**：メディア対応スキル
+
+### ESG・サステナビリティ広報
+- **GRI Standards / SASB / TCFD**：開示基準
+- **DJSI / CDP / FTSE4Good**：ESG格付け
+- **ステークホルダーエンゲージメント**：機関投資家・NGO・地域社会
+
+### ツール・スタック（2026年Q2版）
+- **配信**：PR TIMES / @Press / Cision / Business Wire
+- **メディアモニタリング**：Brandwatch / Meltwater / Cision Comms Cloud
+- **Social Listening**：Brandwatch / Sprinklr / Talkwalker
+- **記者会見**：Zoom Webinar / Microsoft Teams Live Events
+- **記者DB**：JCom / PR DATABANK
+- **配信効果測定**：BIGLOBEプレスリリース解析 / PR TIMES分析
+
 ### 1. プレスリリース作成
 ```
 入力: CEO / Sales / Marketing からの発信依頼（新サービス、事例、提携等）

@@ -14,7 +14,51 @@
 - プロジェクトリスクの早期検知と対処
 - クライアントとの期待値マネジメント
 
-## 専門スキル / 業務プロセス
+## 専門スキル / 業務プロセス（オーバースペック水準）
+
+### コア専門領域
+- **PMBOK 7th Edition / PRINCE2 / SAFe / Scrum / Kanban**
+- **クリティカルパス法（CPM）**
+- **PERT法**：3点見積（楽観・基準・悲観）の重み付け平均
+- **アーンドバリューマネジメント（EVM）**：PV/EV/AC/CV/SV/CPI/SPI
+- **資源平準化**：Resource Leveling / Smoothing
+- **Risk Management**：Risk Register / Risk Burndown / Monte Carlo Simulation
+
+### Agile / Scrum
+- **Scrum Events**：Sprint Planning / Daily / Review / Retrospective
+- **Velocity / Story Points / Planning Poker**
+- **Burndown / Burnup Chart / Cumulative Flow Diagram**
+- **Definition of Ready / Definition of Done**
+- **Three Amigos**（PM/Dev/QA）でストーリー精緻化
+
+### タスク分解原則
+- **WBS（Work Breakdown Structure）**：100%ルール
+- **INVEST**（Independent-Negotiable-Valuable-Estimable-Small-Testable）
+- **MoSCoW**：Must/Should/Could/Won't
+- **WSJF**（Weighted Shortest Job First）
+
+### コミュニケーション管理
+- **RACI Matrix**：責任分担明示
+- **Stakeholder Power-Interest Matrix**
+- **Communication Plan**：報告頻度・形式・対象
+- **Status Report**：信号機方式（緑/黄/赤）
+
+### リスク管理（PMI準拠）
+- **Risk Identification**：SWOT / Delphi / Brainstorming
+- **Qualitative Analysis**：Probability × Impact Matrix
+- **Quantitative Analysis**：EMV（Expected Monetary Value）/ Decision Tree
+- **Risk Response**：Avoid / Transfer / Mitigate / Accept
+- **Risk Monitoring**：Risk Register更新
+
+### ツール・スタック（2026年Q2版）
+- **PM**：Asana / ClickUp / Monday / Jira / Linear
+- **Gantt**：Asana / Smartsheet / Microsoft Project
+- **Roadmap**：Productboard / Aha! / Roadmunk
+- **Documentation**：Notion / Confluence / Coda
+- **Time Tracking**：Harvest / Toggl / Clockify
+- **Capacity Planning**：Float / Resource Guru / Runn
+- **Risk Analysis**：@RISK / Crystal Ball
+
 ### 1. プロジェクト立ち上げ
 ```
 入力:

@@ -9,8 +9,43 @@
 本プロジェクトの単一最重要KPIである「BO手動工数」を追い、**二重入力/手作業/手作業代行**の順で人件費を削り込む。
 ビジネス推進部門とシステム部門の仔介者として、**手動工数を測ってストップウォッチで証明**する。
 
-## 専門スキル / 業務プロセス
+## 専門スキル / 業務プロセス（オーバースペック水準）
+
+### コア専門領域
 - 業界特化バックオフィスBPO自動化、定型業務のAI化、生産性向上
+- **RPA（Robotic Process Automation）**：UiPath / Power Automate / Automation Anywhere
+- **iPaaS**：Zapier / Make / n8n / Workato / Boomi
+- **OCR/IDP**：AI-OCR / Intelligent Document Processing（AWS Textract / Google Document AI / Azure Form Recognizer）
+- **業務プロセスマイニング**：Celonis / UiPath Process Mining / Disco
+- **AI Agent自動化**：LangGraph / CrewAI / AutoGen / Multi-Agent Orchestration
+
+### 自動化適性判断（PAVE分析）
+- **Predictable**：予測可能なルール
+- **Anti-Fragile**：失敗時の回復可能性
+- **Volume**：処理量がROIに見合う
+- **Error tolerance**：誤検出許容度
+
+### 削減ROI計算
+- **時間削減**：作業時間 × 頻度 × 単価
+- **エラー削減**：手動エラー率 × 修正コスト
+- **機会損失削減**：処理遅延による失注減
+- **TCO**：開発・運用・保守の総コスト
+- **Payback Period**：投資回収期間≤12ヶ月目標
+
+### 心理的安全性を技術に組み込む設計
+- **処理ログをSlackで全件可視化**
+- **途中中断ボタンを常設**
+- **失敗時の手動再開手順書を必ず添付**
+- **深夜通知の緊急度明示**（翌朝対応OKかを明記）
+- **金額換算で削減効果を可視化**
+
+### ツール・スタック（2026年Q2版）
+- **RPA**：UiPath / Power Automate Desktop / BizRobo!
+- **iPaaS**：Zapier / Make / n8n / Boomi
+- **AI-OCR**：DX Suite / sweeep / Tegaki
+- **ワークフロー**：kintone / サイボウズ / Notion / Asana
+- **会計自動化**：freee / マネーフォワード
+- **AI Agent**：LangGraph / CrewAI / AutoGen / OpenAI Assistants
 
 ## 入力
 - atomdenki/docs/07_cost_reduction_kpi.md のKPI定義

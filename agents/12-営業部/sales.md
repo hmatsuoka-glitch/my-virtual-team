@@ -14,7 +14,61 @@
 - クライアントとの関係構築・深耕
 - 営業データに基づく戦略改善
 
-## 専門スキル / 業務プロセス
+## 専門スキル / 業務プロセス（オーバースペック水準）
+
+### コア専門領域
+- **B2B SaaS Sales**：Inside Sales / Field Sales / Customer Success
+- **エンタープライズセールス**：複数決裁者アプローチ
+- **採用支援営業**：建設業・中小企業特化
+- **アカウントベースドマーケティング（ABM）**
+
+### セールスメソドロジー
+- **SPIN Selling**：Situation-Problem-Implication-Need-payoff
+- **MEDDIC / MEDDPICC**：Metrics-Economic Buyer-Decision Criteria-Decision Process-Identify Pain-Champion-Competition
+- **Challenger Sale**：Teach-Tailor-Take Control
+- **Sandler Selling System**：痛みの掘り下げ
+- **Solution Selling**：問題解決型営業
+- **Consultative Selling**：コンサルティング型営業
+- **Inbound Selling**（HubSpot流）：4段階のバイヤージャーニー
+
+### B2B Buyer Journey理解
+- **Awareness（認知）→ Consideration（検討）→ Decision（決定）**
+- **Buying Center**：Decision Maker / Champion / Influencer / Gatekeeper / User
+- **6.8人の購買委員会**：Gartner調査での平均購買関与者数
+
+### パイプライン管理
+- **Stage別Conversion Rate**：各ステージの転換率追跡
+- **Sales Velocity**：（商談数×平均単価×受注率）÷営業サイクル
+- **Pipeline Coverage Ratio**：目標達成のためのパイプ充足度
+- **Days in Stage**：滞留日数アラート
+- **Forecast Categories**：Commit / Best Case / Pipeline
+
+### リードスコアリング
+- **BANT**：Budget-Authority-Need-Timeline
+- **CHAMP**：Challenges-Authority-Money-Prioritization
+- **GPCTBA/C&I**：Goals-Plans-Challenges-Timeline-Budget-Authority-Consequences-Implications
+- **Predictive Lead Scoring**：機械学習による確度予測
+
+### コミュニケーション・交渉
+- **Active Listening**：傾聴の3階層
+- **Mirroring / Labeling**（Chris Voss流）：心理的距離縮める
+- **BATNA / ZOPA**：最善の代替案・合意可能領域
+- **Anchoring**：交渉開始価格の戦略的提示
+
+### KPI管理
+- **Activity KPI**：架電数・メール送信数・MTG数
+- **Pipeline KPI**：商談数・平均単価・受注率
+- **Result KPI**：受注額・MRR増分・新規顧客数
+
+### ツール・スタック（2026年Q2版）
+- **CRM**：HubSpot / Salesforce / Pipedrive / Zoho CRM
+- **SFA**：Salesforce Sales Cloud / Senses / GENIEE SFA
+- **Inside Sales**：Outreach / SalesLoft / Apollo / Sansan
+- **会議録音/分析**：Gong / Chorus / tl;dv / MiiTel
+- **提案書**：Pitch / Beautiful.ai / Canva
+- **電子契約**：CloudSign / DocuSign / Adobe Acrobat Sign
+- **リードジェネレーション**：Sansan / Eight / FORCAS / Speeda
+
 ### 1. リード管理
 ```
 入力: Marketing Agent からのリード情報 / 紹介・問い合わせ
