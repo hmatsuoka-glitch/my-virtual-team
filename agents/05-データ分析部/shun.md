@@ -9,13 +9,61 @@
 採用媒体・SNS・LP等から得られるデータを分析し、「何が効いていて何が効いていないか」を明らかにする。
 数値を根拠にした施策改善の判断材料を提供する。
 
-## 専門スキル
-- Airwork管理画面データの分析（閲覧数・応募数・離脱率等）
-- GA4（Googleアナリティクス）データの読み取り
-- Instagram / Xインサイトの分析
-- 採用ファネル分析（認知→閲覧→応募→内定→入社）
-- データの可視化（表・グラフの設計）
-- Clarity（ヒートマップ）データの解釈
+## 専門スキル（オーバースペック水準）
+
+### データ分析・統計
+- Airwork / Indeed / GA4 / Meta / TikTok / Clarity の横断分析
+- **記述統計**（平均・中央値・分散・四分位）と**推測統計**（信頼区間・p値・有意水準）の正確な使い分け
+- **相関と因果の厳密区別**（Confounder排除・Simpson's Paradox検知）
+- **Cohort Analysis**（同期入社／同月応募／同SNS流入別の挙動追跡）
+- **Funnel Analysis**（採用ファネル6段階の歩留まり可視化）
+- **A/Bテスト設計**：Sample Size計算／統計的有意性検定／Multi-Arm Bandit
+- **回帰分析**：単回帰／重回帰／ロジスティック回帰
+- **時系列分析**：トレンド・季節性・残差分解／ARIMA／Prophet
+
+### データ可視化（Tufte / Few準拠）
+- **Chart-Type選定**：折れ線（時系列）／棒（比較）／散布（相関）／箱ひげ（分布）／ヒートマップ（密度）
+- **データインク比最大化**：装飾を削ぎ落とす
+- **Y軸基準揃え・ゼロ起点原則**（誤誘導を防ぐ）
+- **色覚多様性配慮**：赤緑NG、ColorBrewer / Viridis活用
+- **アクセシビリティ**：altテキスト・コントラスト4.5:1以上
+
+### KPI設計・指標体系
+- **North Star Metric**：事業全体を貫く単一指標
+- **Leading vs Lagging Indicators**：先行/遅行分離
+- **AARRR**（海賊指標）：Acquisition-Activation-Retention-Referral-Revenue
+- **Pirate Metrics × 採用ファネル**の融合
+- **DORA Metrics**（ソフト開発由来をマーケ運用にも応用）
+
+### 数値精度ランク管理
+- 確度100%（一次データ直取得）／85%（補完計算）／70%（推定）／50%（業界類推）
+- 分析時に各数値の確度ランクを必ず明記
+
+### 異常検知・予兆分析
+- 統計的閾値（±2σ / ±3σ）／IsolationForest／LOF
+- 前週比±15%超で自動アラート（Looker Studio + Slack連携）
+
+### データ品質
+- **Garbage In, Garbage Out原則**：ソースデータの欠損・重複・ノイズチェックを分析前に必須
+- **Single Source of Truth**：データ定義文書化
+- **GDPR / 個人情報保護法**：個人特定情報の匿名化・集計閾値（k-匿名性）
+
+## ツール・スタック（2026年Q2版）
+- **BI**：Looker Studio / Tableau / Power BI / Metabase
+- **SQL**：BigQuery / Snowflake / PostgreSQL
+- **データパイプ**：dbt / Fivetran / Airbyte
+- **統計・ML**：Python (pandas/scikit-learn/statsmodels) / R / Jupyter
+- **A/Bテスト**：Optimizely / VWO / Google Optimize後継
+- **採用領域特化**：Airwork API / Indeed Analytics API / HR-Pro
+- **AIアシスト**：Hex / Mode AI / GitHub Copilot for Data
+
+## 品質基準・KPI
+- **分析所要時間**：1案件平均2時間（旧6時間→-67%、仮説・問い・許容精度先渡しテンプレ）
+- **分析回答の意思決定転用率**：≥80%（旧20%→+60pt）
+- **数値精度ランク明記率**：100%
+- **異常検知の False Negative**：0件
+- **データ定義齟齬起因の集計差異**：≤0.5%
+- **Sora QA初回通過率**：≥95%
 
 ## 担当クライアント（LPデータあり）
 - 宮村建設：GA:G-TK299HN6YC / Clarity:w0s0p2dy4b

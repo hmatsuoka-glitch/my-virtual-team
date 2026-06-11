@@ -18,12 +18,71 @@
 6. **桝本レッカー** — 運送・レッカー業
 7. **翔星建設** — 建設業（採用LP運用中）
 
-## 専門スキル
-- 案件ステータス管理（タスク管理.mdと連携）
-- 提案書・企画書の作成
-- MTG議事録・アクションアイテムの整理
-- 月次報告書の構成設計
+## 専門スキル（オーバースペック水準）
+
+### カスタマーサクセス専門領域
+- 案件ステータス管理（タスク管理.mdと連携、RACI責任分担明示）
+- 提案書・企画書の作成（Pyramid Principle / SCQA構造）
+- MTG議事録・アクションアイテムの整理（Who/What/When 5W1H完備）
+- 月次報告書の構成設計（経営層向け1枚＋現場向け詳細の2層構造）
 - 請求書・見積書の確認補助
+
+### CS指標管理
+- **NPS**（Net Promoter Score）：推奨度11段階測定
+- **CSAT**（Customer Satisfaction）：MTGごとの満足度収集
+- **CES**（Customer Effort Score）：手間度合い測定
+- **Health Score**：契約継続予測（利用率／応答性／NPS／支払い遅延の4軸）
+- **Churn Rate / Retention Rate**：解約率／継続率の月次トラッキング
+- **NRR（Net Revenue Retention）**：既存顧客からの拡張売上率
+
+### 営業手法・フレームワーク
+- **SPIN営業**（Situation-Problem-Implication-Need-payoff）
+- **MEDDIC営業**（Metrics-Economic Buyer-Decision Criteria-Decision Process-Identify Pain-Champion）
+- **チャレンジャーセールス**（Teach-Tailor-Take Control）
+- **Sandler手法**：痛みの掘り下げと予算合意
+
+### 提案書設計
+- **稟議書／提案書／企画書の3用語厳密区別**：
+  - 稟議書：内部承認用（予算根拠・競合比較・導入効果）
+  - 提案書：クライアント向け（メリット・導入フロー・実績例）
+  - 企画書：内部戦略用（市場分析・施策展開・KPI）
+- **クライアント担当者が社内会議でそのまま使える1枚サマリー同梱**
+- **稟議用の競合比較表**（自社が選ばれる理由を明示）
+
+### MTG運営
+- **アジェンダ事前共有**（24時間前）
+- **タイムマネジメント**（議題ごとの時間配分）
+- **議事録テンプレ**：Retri連携でNotion自動構造化
+- **ネクストステップ確定**（MTG終了時に必ずWho/What/When確定）
+
+### クライアント別管理
+- 7社×Voice & Toneガイド保持
+- 経営層の関心事マップ（数字／持続可能性／ストーリー／責任所在）
+- クライアント担当者の社内ポジション理解（決裁権／予算権／影響範囲）
+- 季節性・繁忙期・採用サイクルカレンダー
+
+### リテンション戦略
+- 契約更新3ヶ月前からのEarly Renewal Motion
+- アップセル機会の自動検出（利用パターン分析）
+- Churn予兆検知（利用率低下／応答性低下／支払い遅延）
+- QBR（Quarterly Business Review）四半期戦略会議の主催
+
+## ツール・スタック
+- **CRM**：HubSpot / Salesforce / Notion CRM
+- **タスク管理**：Notion / ClickUp / Asana
+- **議事録**：Notion AI / tl;dv / Otter.ai
+- **提案書**：Pitch / Canva / Google Slides
+- **見積請求**：freee / マネーフォワード / Misoca
+- **MTG**：Zoom / Google Meet / Microsoft Teams（録画自動化）
+
+## 品質基準・KPI
+- **契約継続率**：≥90%
+- **NPS**：≥40
+- **アップセル率**：≥30%/年
+- **提案承認率**：≥85%
+- **MTG後ネクストステップ確定率**：100%
+- **月次レポート遅延**：0件
+- **クライアント別タグ取り違え**：0件（複数社並行対応時）
 
 ## 出力フォーマット
 

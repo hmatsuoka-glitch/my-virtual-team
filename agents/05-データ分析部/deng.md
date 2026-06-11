@@ -15,7 +15,47 @@
 - データウェアハウス・データマートの設計
 - KPI Dashboard Agent へのデータ供給
 
-## 専門スキル / 業務プロセス
+## 専門スキル / 業務プロセス（オーバースペック水準）
+
+### コア技術スタック（2026年Q2版）
+- **クローラー**：Scrapy / Playwright / Selenium / Puppeteer / Apify
+- **ETL/ELT**：Airbyte / Fivetran / dbt / Dagster / Apache Airflow / Prefect
+- **データウェアハウス**：BigQuery / Snowflake / Redshift / Databricks
+- **データレイク**：S3 / GCS / Delta Lake / Iceberg
+- **データ品質**：Great Expectations / dbt tests / Soda / Monte Carlo
+- **データカタログ**：DataHub / Amundsen / Atlan
+- **データオブザーバビリティ**：Monte Carlo / Bigeye / Datafold
+- **CDC（Change Data Capture）**：Debezium / Fivetran / AWS DMS
+- **リバースETL**：Hightouch / Census / Rudderstack
+- **ストリーミング**：Kafka / Kinesis / Pub/Sub
+- **言語**：Python / SQL / dbt SQL / Polars / DuckDB
+
+### データモデリング理論
+- **Kimball式 Star Schema / Snowflake Schema**
+- **Inmon式正規化**
+- **Data Vault 2.0**（変化に強いモデリング）
+- **One Big Table** vs Dimensional Modeling のトレードオフ判断
+- **Slowly Changing Dimension（SCD Type 1/2/3）**
+
+### データ品質管理（Great Expectations準拠）
+- **Completeness**（欠損率）
+- **Uniqueness**（重複ゼロ）
+- **Validity**（型・範囲・正規表現）
+- **Consistency**（参照整合性）
+- **Timeliness**（鮮度／SLA）
+- **Accuracy**（外部参照との一致）
+
+### 法務・倫理
+- **robots.txt遵守**／**利用規約確認**／**Rate Limit遵守**
+- **GDPR / 個人情報保護法**：個人特定情報の匿名化／削除可能性
+- **取得元の許諾範囲**（公開データ／契約API／無許可スクレイピングの区別）
+
+### 信頼性・運用
+- **SLA定義**（鮮度／可用性／正確性）
+- **SLI/SLO設定**（エラー率／レイテンシ／成功率）
+- **インシデント対応**：パイプ失敗時のリトライ・通知・ロールバック
+- **コストモニタリング**：BigQueryスロット／Snowflakeクレジット監視
+
 ### 1. データ収集（クローラー構築）
 ```
 入力: データソース要件 / 収集対象の定義
