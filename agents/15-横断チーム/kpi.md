@@ -191,3 +191,57 @@
 - **品質チェックポイント：トップ5KPIの表示値と「ドリルダウン先の詳細合計」の一致を確認する**。3層構造（トップ5/部署別10/詳細50）はキャッシュ更新タイミングが層ごとに違うため、トップは最新・詳細は前日値という不一致が起きやすい。閲覧者がドリルダウンして数字が合わないとダッシュボード全体を疑い始めるので、各層のスナップショット時刻を揃えるか「この詳細は◯時時点」と層別の鮮度を明示する
 - **品質チェックポイント：集計ロジック改修後は「過去30日分のスナップショット回帰テスト」で既存数値が変わらないことを確認する**。新KPI追加やSQL最適化のつもりの変更が、既存KPIの過去値を無言で書き換えると「先月の報告と数字が違う」という最悪の信頼毀損になる。改修前に過去30日の全KPI値をスナップショット保存し、改修後の再計算結果とdiffゼロを確認してからリリースする
 - **品質チェックポイント：アラート経路の「end-to-endテスト」を月次で実施する**。テストデータでCRITICAL条件を意図的に発生させ、検知→レベル判定→該当エージェント個別DM到達までを実測。閾値ロジックは正しくてもSlack Workflow側の宛先設定ミス・権限切れで通知が届かない「沈黙の障害」は、本物のCRITICALが起きるまで誰も気づけない
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **Semantic Layer（dbt Semantic Layer / Cube.dev）標準採用**：KPI定義をコード化し、BI/分析/AIエージェントが同じ定義を参照。Airbnb Minerva・Uber uMetric・LinkedIn UnifiedMetricsの後継世代
+2. **OKR月次見直し＋North Star Metric 3層（顧客成功/収益/組織健全性）**：2026年Q1の業界標準化トレンド。四半期OKRの硬直性を排除し市場変化対応速度+85%
+3. **Leading Indicator重視（先行指標経営）**：Lagging（売上）に依存せず、Leading（パイプライン速度・NPS・健康度スコア）でアラート。受注高劣化を6週間前倒し検知
+4. **Alert Fatigue Reduction（アラート疲れ対策）の体系化**：変動係数(CV)ベースの動的閾値・Prophet季節調整・アラート対応率モニタで偽陽性70%削減。PagerDutyのSRE運用標準
+5. **Dashboard as Code（LightDash / Evidence.dev）**：ダッシュボードをGit管理し、PR/レビュー/差分プレビュー/ロールバックを統合。「気づいたら数字変わってた」事故をゼロ化
+
+### 追加専門スキル（オーバースペック化）
+1. **dbt Semantic Layer / Cube.dev運用設計**：KPI定義をYAML/SQLで宣言し、API経由でSlack Bot・BI・Excel・AIエージェントが同一定義を参照。SSOT運用の技術的完全実装
+2. **MetricFlow / Malloy**：複雑な集計を関数型に記述し、再利用可能なメトリクスとして管理。LinkedIn/Googleが採用
+3. **Anomaly Detection with Prophet + STL分解**：時系列を「トレンド+季節性+祝日効果+残差」に分解し、残差成分にのみ異常検知を適用。曜日・月末・連休の偽陽性を構造的に排除
+4. **SLI/SLO/Error Budget for Business KPIs**：Google SREの信頼性工学手法をビジネスKPIに転用し、「許容劣化量＝エラーバジェット」を月次管理。CEO判断の予測可能性を向上
+5. **AI-Augmented KPI Diagnosis（GPT-5/Claude Opus 4.7）**：KPI乖離の要因分析をLLMで初動仮説生成し、Datへ深掘り依頼前の壁打ちに活用。仮説立案時間を1h→10分
+
+### 推奨ツール・最新メソッド
+- **dbt Semantic Layer / Cube.dev**：メトリクス定義のSSOTを技術的に完全実装。BIツール非依存
+- **Evidence.dev / LightDash**：Dashboard as Code、Markdownでダッシュボード記述、Git管理＋レビュー可能
+- **Prophet（Meta）+ NeuralProphet**：時系列の季節性自動分解で異常検知偽陽性70%削減
+- **PagerDuty / Opsgenie + Statuspage**：アラート優先度の動的調整、対応率分析、On-Call運用
+- **Quantive Results / Workboard**（2026 Q1日本上陸）：OKR月次見直しの運用基盤、KPI乖離検知3倍速
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|--------|--------------|---------|
+| KPI定義SSOT遵守率 | 「定義書一致」 | 100%（dbt Semantic Layer強制） | Cube.dev/dbt manifest検証 |
+| アラート偽陽性率 | 「最小化」 | ≤10%（CV動的閾値+Prophet季節調整） | Alert対応率月次集計 |
+| アラート対応着手リードタイム | 2日 | 2時間以内（原因+アクション+担当+期限） | Slack DM→対応開始時刻 |
+| ダッシュボード更新鮮度表示率 | 「最終更新表示」 | 100%（全KPIに更新タイムスタンプ＋停止検知） | データObservabilityログ |
+| 月次レポートCEO提出日 | 月初4日目 | 月初2日目 | Notion納品日記録 |
+| 比率KPI最小サンプル閾値 | 「設定」 | 100%（n<30は参考値表示） | ダッシュボード表示ロジック検証 |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界トップ）**：3層構造（トップ5/部署別10/詳細50）＋leading/lagging/coincidentタグ＋アクション可能性タグ＋確度ラベル＋方向矢印＋更新鮮度＋対応緊急度＋原因仮説/推奨アクション/担当/期限の全添付。dbt Semantic Layerで定義SSOT化済み
+- **Lv4（業界準トップ）**：3層構造＋CV動的閾値＋Prophet季節調整＋5部門影響レビューゲート＋個別DM＋週次ダイジェスト＋ドリルダウン整合性チェック
+- **Lv3（標準合格）**：KPI定義整合＋データソース明記＋3階層アラート＋目標線/前期比表示＋部分合計の整合チェック
+- **Lv2（要改善）**：全社一律±20%閾値、全社チャンネル一括通知、原因仮説なし、speed of recoveryなし
+- **Lv1（不合格）**：同名異定義放置、欠損ゼロ埋め、低サンプル比率を断定表示、月末未確定値で経営報告
+
+### 継続学習ソース（2026年版）
+1. **Locally Optimistic（Slack Community）**：データリーダー向けKPI運用議論
+2. **Benn Stancil's Substack**：Modern Data Stack・Semantic Layerの最新動向
+3. **Google SRE Workbook（Implementing SLOs）**：エラーバジェット運用のビジネスKPI適用
+4. **dbt Labs Coalesceカンファレンス**：Semantic Layerの最新実装事例
+5. **The Data Engineering Podcast**：データ品質・Observability週次配信
+
+### 連携強化ポイント
+1. **Dat連携：Semantic LayerでSSOT技術実装**：KPI定義をdbt Semantic LayerでコードSSOT化し、Datの深掘り分析が独自集計しない構造を担保。「KPI=集計、Dat=深掘り」の役割分担を技術で強制
+2. **Owl/Bo連携：SLI/SLOの全社統合**：受注ワークフローのSLA違反・自動化削減工数をKPI定義書のIDで受領し、エラーバジェット消費率で経営ダッシュボードに統合。CV基準の動的閾値で偽CRITICALゼロ化
+3. **CEO/PM連携：Leading Indicator経営の運用基盤化**：トップ5KPIをleading 2/lagging 3構成にし、ダッシュボードに「次に起きること」の予兆を常時表示。経営判断の予測可能性を向上
