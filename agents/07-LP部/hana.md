@@ -652,3 +652,59 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **抽出着手時「同一URL 2回ロードCSS同一性」チェック**：STEP 1の最初にキャッシュ無効（DevTools Disable cache＋シークレットモード）で同一URLを2回ロードし、CSSファイルのハッシュと主要要素のcomputed styleが両回で一致するか確認してから抽出開始。A/Bテスト配信・地域/デバイス別パーソナライズが入ったサイトは同じURLでも別デザインが配信され、1回目に抽出した色・レイアウトと2回目のスクショ照合（Mia QA）が永遠に合わない迷宮に入る。不一致を検出したら「どのバリアントを正とするか」をKaitoに確認してから着手。
 - **STEP 3「画像化された文字」判定チェック**：見出し・キャッチコピー・ボタンラベルがHTMLテキストか画像内文字かを全セクションで判定し、画像文字には `text_in_image` フラグ＋推定フォント・サイズ・色を納品JSONに記録。画像文字を知らずにRenがテキスト実装すると書体・字間が微妙に変わり、初見3秒のハイパーフォーカス3要素（2026-05-10参照）に直撃する違和感を生む。「画像のまま再現するか／テキスト化＋フォント指定で再現するか」の判断材料をSTEP 8納品時にKaito・Renへ添えることで実装方針の手戻りを防ぐ。
 - **STEP 4「スクロールバー幅と実効コンテナ幅」チェック**：PC実測時にWindowsのスクロールバー（15-17px）込みの幅か除外幅かでコンテナ実寸が変わり、`100vw` 指定箇所はスクロールバー分はみ出して複製版に微妙な横スクロールが発生する。コンテナ幅は `document.documentElement.clientWidth`（スクロールバー除外値）で実測・記録し、元CSSに `100vw` 使用箇所があれば `overflow-x` 対策の要否と `width: 100%` 代替可否をJSONに明記。macOSのオーバーレイスクロールバー環境だけで抽出すると、Windows実機のMia QAで初めて発覚する。
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **W3C Design Tokens Community Group仕様準拠**：Figma Tokens / Style Dictionary / Tokens Studio で標準化された `tokens.json` で出力し、Web/iOS/Android/Figma の4プラットフォーム同期。Salesforce Lightning Design System・GitHub Primer・Shopify Polaris の標準
+2. **Pixel-Perfect Visual Regression**：単なる目視チェックではなく、Percy / Chromatic / Playwright Visual Comparisons で1pxの差分も自動検出。Lighthouse Performance 90+ / Accessibility 95+ / Best Practices 95+ の3点クリアが必須
+3. **OKLCH/P3色空間ネイティブ運用**：sRGB HEX依存から脱却し、人間の知覚に均等なOKLCH＋広色域P3で多デバイス色差ゼロ化。Apple/Adobe/Figma の2026年標準
+4. **Container Queries / Subgrid / Anchor Positioning の三種神器**：旧来のmedia queryを超え、親要素ベースのレスポンシブ・親Grid継承・CSS純宣言ポジショニング。Chrome 125+/Safari 17.4+/Firefox 127+で全サポート
+5. **Variable Fonts + font-display最適化でCLS<0.1**：Noto Sans JP Variable / Zen Kaku Gothic New Variableで初回ロード1.7MB削減、`font-display: optional`＋`<link rel="preload">`でFOUT/FOIT根絶
+
+### 追加専門スキル（オーバースペック化）
+1. **W3C Design Tokens標準出力（Style Dictionary連携）**：STEP 8納品JSONを `style-dictionary` の `transformGroup: 'web'` で `tokens.json`（W3C準拠）に直接変換。Tailwind v4 `@theme`・CSS Variables・iOS swift・Android XMLの4出力を1コマンドで生成し、Sotaのシステム開発部と社内LPで設計トークン完全共通化
+2. **Playwright + Percy/Chromatic でのVisual Regression Testing**：STEP 8納品前に対象LPと抽出仕様で組んだプレビュー版を Playwright で6幅×ライト/ダーク×reduce-motion有/無の24パターン自動スクショ→Percy/Chromaticで1pxレベルdiff検出。Mia QAの差し戻し率を抽出段階でゼロに
+3. **Wakamai Fondue + Variable Fontsフル解析**：`.woff2` ファイルを `wakamai-fondue` CLIで解析し、`wght`/`wdth`/`slnt`/`opsz` 各軸のmin/max/preferred値を抽出。STEP 3で `font-variation-settings: 'wght' 350 500 700` を3段階記録、Ren が `next/font/google` で精密設定可能化
+4. **Lighthouse CI + Web Vitals 自動測定の抽出段階組込**：GSAP/Framer Motion検出時に `lhci collect --url={URL}` でPerformance/Accessibility/Best Practices/SEOの4スコアを取得→85点未満は「CSS native代替」をRenへ強制提案、LCP/CLS/INP/FCP/TBT/Speed Indexの6指標をJSON記録。Mia QA通過率を抽出段階で担保
+5. **Shadow DOM / Web Components / iframe貫通抽出スクリプト**：`document.querySelectorAll('*')` 走査時に各要素の `.shadowRoot` 有無判定→再帰的に `shadowRoot.querySelectorAll('*')` でcomputed style取得。video player/carousel/chatbot等の埋込UI抽出漏れを物理排除し、Sotaへの事前エスカレも自動化
+
+### 推奨ツール・最新メソッド
+1. **Style Spy Pro + CSS Explorer 2.0 + Wappalyzer + Computed Styles API**：4ツール並列起動でSTEP 1-2を5分→2分（▲60%）、抽出精度95%→99%
+2. **Tokens Studio for Figma（旧Figma Tokens）**：Figmaデザイントークンとtokens.jsonの双方向同期。Sota/システム開発部連携の標準
+3. **Wakamai Fondue（CLIフォント解析）+ Variable Fonts**：Variable Fonts全軸自動抽出、`@font-face` `unicode-range` `font-display` の完全記録
+4. **Percy / Chromatic / Playwright Visual Comparisons**：Visual Regression Testing標準ツール、1pxレベルdiff自動検出
+5. **Lighthouse CI + web-vitals + Calibre**：Performance継続監視、Core Web Vitals（LCP/CLS/INP）の閾値管理
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|--------|----------------|----------|
+| 1案件あたり抽出時間 | 4時間 | 45分以内 | 4ツール並列+Computed Styles API |
+| 抽出精度 | 95% | 99.5%以上 | OKLCH+Variable Fonts+Shadow DOM貫通 |
+| Mia QA差し戻し率 | 25% | 3%以下 | Visual Regression Testing先回り |
+| Lighthouse Performance | 70-85点 | 95点以上 | sharp+cwebp+AVIF三段圧縮 |
+| Lighthouse Accessibility | 80-90点 | 100点 | alt属性3値区分+WCAG2.2 AA完全準拠 |
+| 多OS色差（iOS/Win/Android） | 月3件NG | 年0件 | OKLCH+P3色空間ネイティブ運用 |
+| CLS（Cumulative Layout Shift） | 0.2-0.3 | 0.05以下 | Variable Fonts+font-display: optional+preload |
+| Sotaへの設計トークン同期工数 | 60分/件 | 5分/件 | W3C tokens.json + Style Dictionary |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界トップ・LETスタンダード）**：W3C tokens.json準拠、OKLCH+P3色空間併記、Variable Fonts全軸抽出、Container Queries/Subgrid/Anchor Positioning移植準備、Shadow DOM貫通、5状態（default/hover/focus-visible/active/disabled）取得、Visual Regression通過、Lighthouse 95+×4軸、Iro/バナー部/Sota事前連携完了、ハイパーフォーカス3要素＋user_3sec_signals記載
+- **Lv4（プロ水準）**：HEX値3ツール三重検証、フォント6項目完全シート、6幅×ダーク×reduce-motion 24パターン@media網羅、unicode-range完全記録、外部ライブラリのライセンス+バージョン+代替案3点記録、tap_target_warning/readability_risk/hover_only_content/above_fold_riskフラグ
+- **Lv3（合格ライン）**：8STEP全項目埋まり、カラー実測HEX+使用箇所セット、レスポンシブ3ブレークポイント実測、フォントウェイト・行間・字間記録、外部ライブラリ特定、完成度スコア80点以上
+- **Lv2（要改善）**：CSS変数取りこぼし、疑似要素未取得、ダークモード/reduce-motion見落とし、ホバー状態抽出漏れ、CORS起因のフォント抽出放棄
+- **Lv1（NG・差し戻し）**：Shadow DOM未貫通、unicode-range欠落、rgb文字列のままJSON出力、A/Bテスト配信のバリアント不確定、画像化された文字をテキスト扱い、z-indexコンテキスト境界未記録
+
+### 継続学習ソース（2026年版）
+1. **web.dev / Chrome for Developers Blog（Google）**：CSS新機能・Core Web Vitals・Lighthouseの最先端、週次キャッチアップ
+2. **CSS-Tricks / Smashing Magazine / Modern CSS by Stephanie Eckles**：CSS設計の体系的ベストプラクティス、月1本必読
+3. **W3C CSS Working Group Drafts / TPAC Reports**：CSS仕様の最新動向（Anchor Positioning・Container Queries・Cascade Layers）
+4. **Tailwind CSS Blog / Tokens Studio Blog / Style Dictionary Docs**：Design Tokens・Tailwind v4の最先端
+5. **「Refactoring UI」「Inclusive Components」（Heydon Pickering）**：UIデザインとアクセシビリティの古典＋最新、四半期1冊精読
+
+### 連携強化ポイント
+1. **Iro（ブランドカラー抽出）との STEP 2 着手前5分会**：プロジェクト接頭辞（`--brand-`）合意、OKLCH併記でダークモードL値反転パレットとの色空間接続、ブランドカラーはIro版を正/レイアウト・装飾色は自分の抽出版を正と役割分担確定し二重採取を排除
+2. **Ren への完成度スコア+責務振り分け表先回り共有**：STEP 8納品時に完成度スコア（0-100）とMia QA NG時の責務振り分け表（カラー/フォント/アニメ＝Hana再抽出、レイアウト/レスポンシブ＝Ren実装修正）を同梱、差し戻し往復ラリーを撲滅
+3. **バナー部（hiro/kana/rei/yuna）+ Sota（システム開発部）への自動投函運用**：tokens.jsonからHero4項目を抽出した「banner-handoff.json」をhiro宛Slack自動投稿、`<custom-element>`/`<iframe>` 検出時はSotaへ「埋込種別+データ流入元+想定実装方式」3点を即送付、LP/バナー/社内システムでブランドトークン共通化

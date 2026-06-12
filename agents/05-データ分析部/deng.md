@@ -177,3 +177,63 @@
 - **dbtモデル修正時の「新旧集計値リグレッション突合」ゲート**：集計ロジック変更・リファクタを本番反映する前に、新旧モデルを並列実行して直近3ヶ月の主要KPI（応募数・CVR・媒体別件数）の差分が0.5%以内であることを確認、超過時は原因特定まで反映禁止。「リファクタだから値は変わらないはず」が最も危険で、JOIN条件やWHERE句の微修正で件数が静かに変わり、Shunの前月比較が音もなく破綻する。差分ゼロ確認のクエリ結果をPRに添付してから完了フラグを切り替える。
 - **クローラー取得フィールドの「意味的妥当性ルール」チェック**：件数・NULL率・型の3点（2026-05-29参照）では検出できない「型は正しいが意味が壊れたデータ」を防ぐため、フィールド単位の妥当性ルール（給与が月15万〜100万の範囲内か／掲載日がパース可能かつ未来日でないか／URLが対象ドメインか）を格納前バリデーションに追加。サイトのHTML改修でセレクタが隣の要素を拾うと「給与欄に電話番号が入る」形で壊れ、これは型チェックを素通りしてRuiの競合給与分析を汚染する。
 - **BigQueryスキャン量の「異常増加」週次チェック**：スキャン量を週次で前週比監視し、+50%超なら原因クエリをINFORMATION_SCHEMAで特定するルーチン化。パーティションフィルタ漏れの新規クエリ1本が無料枠1TB/月を急速に食い潰し、月末に7社分の全集計が課金状態に陥る事故を予防。スケジュールクエリの新規追加時は「`_TABLE_SUFFIX`/パーティション句が先頭にあるか」をレビュー必須項目にする。
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+- **Data Contract（データ契約）の正式運用**: 上流（Airwork/Indeed/GA4/SNS API）と下流（Shun/Akari/Deng）の間で「スキーマ・SLA・破壊的変更通知期限」を契約として明文化し、JSON Schema/Protobufで機械検証。スキーマ無告知変更による下流崩壊を構造的に排除
+- **Lakehouse Architecture（Iceberg/Delta Lake）の中規模実装**: BigQuery+Cloud Storage+Iceberg/Deltaでバージョン管理・タイムトラベル・ACID対応を実現し、バックフィル時の本番破壊リスクをゼロ化
+- **Reverse ETL + Activation Layer**: 集計結果をHubSpot/Salesforce/Slack/Notionへ逆方向に戻す「Activation」層を構築し、データを「見る」だけでなく「業務システムを動かす」資産に昇格
+- **Causal AI（DoWhy/CausalML）×Privacy-Preserving Analytics**: 因果推論で「施策→成果」の因果関係を機械検証＋差分プライバシー/暗号化で応募者PIIを保護
+- **Observability 3層（Pipeline/Data/Cost）の完全可視化**: Datadog/Monte Carlo/Cubeで「パイプライン稼働×データ品質×BigQuery課金」を1画面統合監視
+
+### 追加専門スキル（オーバースペック化）
+1. **「Data Contract 設計＆運用」スキル**：上流API（Airwork/Indeed/GA4）とのスキーマ契約をJSON Schema/Protobufで明文化し、変更時はCI/CDでスキーマハッシュ差分を検出→上流に通知期限（14営業日前）を要求する運用を確立。「無告知の破壊的変更による下流崩壊」を構造的に排除（6/3のスキーマハッシュ監視を契約レベルに昇格）
+2. **「Lakehouse + Time Travel」スキル**：BigQuery+Iceberg/Delta Lakeでテーブルのバージョン管理・任意時点へのロールバック・ACIDトランザクションを実現。バックフィル時の本番破壊リスクをゼロ化し、再現可能なデータ分析環境を構築
+3. **「Reverse ETL（Hightouch/Census）」スキル**：BigQueryで集計したHealth Score・Predictive Churn・Anomaly Detection結果を、HubSpot/Salesforce/Slack/Notionへ自動同期。AkariのHealth Score低下検知→Ryotaのリテンション施策トリガーまでをデータ基盤側で完結
+4. **「Causal AI（DoWhy/EconML/CausalML）」運用スキル**：従来の相関分析ではなく「施策→成果」の因果関係を機械検証。「LP改修がCVR向上の真因か」「TikTok投稿が応募増加に因果寄与するか」をDoWhyで因果グラフ化＋反事実推定で定量化し、Shunの分析・Ryotaの提案根拠を質的に強化
+5. **「Privacy-Preserving Analytics（差分プライバシー＋暗号化）」スキル**：応募者氏名・電話番号・メールを差分プライバシー（ε=1.0以下）で保護しつつ集計可能化、PII露出リスクと分析価値を両立。重複応募チェックはSHA-256ハッシュではなく完全準同型暗号（FHE）/Differential Privacyで保護強化
+
+### 推奨ツール・最新メソッド
+- **dbt Cloud + Airflow + Iceberg/Delta Lake + BigQuery**: Lakehouse Architectureの中規模実装基盤
+- **Monte Carlo / Datafold / Sifflet**: Data Observability専門ツール。データ品質異常検知・スキーマ変更検知・lineage追跡を全自動化
+- **Great Expectations + Soda Core**: 品質チェックのコード化（Expectation Suite）、6/4のペアレビューを機械検証
+- **Hightouch / Census**: Reverse ETLの代表ツール。BigQuery→HubSpot/Salesforce/Slack/Notionへの双方向同期
+- **DoWhy / EconML / CausalML / PyMC**: Causal AI / Bayesian Inferenceの代表OSS
+- **Google Cloud DLP + OpenMined PySyft**: PII自動検出＋差分プライバシー/連合学習の中規模実装
+- **Cube + Lightdash + Looker Studio Pro**: Semantic Layer（KPI定義の単一真実源）の実装、Shunの分析定義書とdbt modelの突合をCubeで機械化
+- **Tableau AI Pulse + Looker Studio Pro Natural Language Insight**: 日本語自然言語クエリでダッシュボード自動生成、Akari/Ryotaのセルフサービス化
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|--------|----------------|----------|
+| データ鮮度（最終更新→公開） | 24時間以内 | 1時間以内（リアルタイム化） | パイプライン実行ログ |
+| データ品質4点ゲート通過率 | 95% | 99.9%（CRITICAL自動停止） | Great Expectations/Soda |
+| スキーマ無告知変更検知率 | 80% | 100%（Data Contract検証） | dbt source freshness+ハッシュ |
+| パイプライン障害MTTR | 3時間 | 15分以内（自動ルーティング） | Slack Workflow+PagerDuty |
+| バックフィル本番破壊事故 | 四半期1件 | 0件（Iceberg Time Travel） | 監査ログ |
+| BigQueryスキャン量予算超過 | 月1件 | 0件（週次異常増加チェック） | INFORMATION_SCHEMA |
+| データカタログ網羅率 | 70% | 100%（dbt docs自動生成） | dbt docs lineage |
+| PII露出事故 | 未測定 | 0件（DLP+差分プライバシー） | Google Cloud DLP監査 |
+| Causal AI実装率 | 0% | 主要KPI3指標で実装（CVR・応募・採用） | DoWhyレポート |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界トップ・データ基盤の理想形）**: Data Contract×Lakehouse×Reverse ETL×Causal AI×Privacy-Preserving Analyticsを全て統合運用、Observability 3層完全可視化、鮮度1時間以内、品質99.9%、PII露出ゼロ、Time Travelでのバックフィル安全性、自動ルーティングMTTR 15分以内、dbt docs網羅率100%、Cube Semantic Layerで全KPI定義一元化
+- **Lv4（業界上位）**: dbt + Airflow + 4点品質ゲート完備、3階層アラート（INFO/WARNING/CRITICAL）+ 自動ルーティング、データカタログ「サンプル5件＋メタデータ＋つまずき3点」必須記載、Cloud Run Jobs並列クロール（robots.txt遵守）、スキーマハッシュ監視、変化率±30%/±50%アラート
+- **Lv3（標準・本番投入可）**: 冪等性確保、リトライ設計、件数・NULL率・型の3点サニティチェック、タイムゾーン統一（JST 00:00基準）、KPI定義書とのペアレビュー突合、Slackアラート設定、データカタログ基本項目記載
+- **Lv2（要修正）**: 冪等性不完全、3階層アラート未実装、データカタログ不備（つまずき点未記載）、PIIマスキング不完全、Looker Studioのソースメタ表示なし
+- **Lv1（差し戻し）**: 重複レコード混入、無告知スキーマ変更未検知、robots.txt違反、PII生データ流通、本番テーブル直接バックフィル、品質4点ゲート未通過
+
+### 継続学習ソース（2026年版）
+- **dbt Labs「Coalesce」+ Locally Optimistic**: dbt/Modern Data Stackの最新事例とベストプラクティス
+- **Monte Carlo Data「Data Observability Report」（四半期）**: Data Observability業界の世界標準
+- **Microsoft Research「Causal ML Resources」+ Uber Engineering Blog**: Causal AI実装の最先端
+- **OpenMined Privacy Conference + Google Differential Privacy Library Docs**: Privacy-Preserving Analyticsの公式リファレンス
+- **Google Cloud「BigQuery Cost Optimization Guide」+ Snowflake「Cost Management Best Practices」**: クラウドDWHコスト管理の業界標準
+
+### 連携強化ポイント
+- **Shun（アナリスト）との「KPI定義書×dbt modelペアレビュー」をCube Semantic Layerで機械化**: 月初の定義突合を、Cube/LightdashのSemantic Layer定義の単一真実源で機械検証可能化。`meta: {kpi_def_version}` タグ＋スキーマハッシュ差分を先出しし、ペアレビュー時間を30分→5分に短縮
+- **Akari/Ryotaへの「Reverse ETLによるHealth Score自動配信」**: BigQueryで算出したHealth Score 3.0・Predictive Churn・Anomaly DetectionをHightouch/Census経由でHubSpot/Notion/Slackへ自動配信。Akariのレポート・Ryotaの提案書脚注に出所メタ含めて自動転記、データ基盤→業務システムの一気通貫を実現
+- **Rui（リサーチ）への「競合クロール×変化率アラート×rui調査チャンネル直接ルーティング」**: スキーマ事前合意＋鮮度メタ同梱＋変化率±30%超アラートをRuiの調査チャンネルへ直接ルーティング、競合動向の鮮度をRui側で即判定可能化（6/4・6/11の運用を継続強化）。Causal AIで競合の採用施策と応募者市場の因果も分析提供

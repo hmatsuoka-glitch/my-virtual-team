@@ -483,3 +483,65 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **比較スクショの「撮影条件4点統一」確認**：元 LP と複製 LP を別タイミング・別条件で撮ると、ズーム率・フォントキャッシュ有無・OS のフォントレンダリング差・スクロールバー有無で偽差分が出て誤 NG の温床になる。差分判定前に「同一マシン・同一ブラウザ・ズーム100%・フォント読込完了後（document.fonts.ready 待ち）」の4条件が両スクショで揃っているかをチェックリスト化
 - **Cookie バナー・チャットウィジェット等「サードパーティ動的要素の差分除外指定」**：元 LP にだけ出る同意バナー・営業チャット・A/B テスト枠が pixelmatch 差分を汚し、本質でない NG を Ren に投げてしまう。STEP 1 で動的サードパーティ要素を洗い出し、Playwright の `mask` オプションで両側から除外してから差分計算。除外した要素は通過レポートに「比較対象外リスト」として明記し、暗黙の未検証範囲を残さない
 - **「コンテンツ可変長」ストレステストを STEP 5 に追加**：QA 時の文言は元 LP と同一長のため折返しが綺麗でも、納品後にクライアントが長い社名・長い実績文言へ差し替えた瞬間カードの高さ不揃い・ボタン2段折れが起きる。代表コンポーネント（Card/CTA/見出し）にダミー長文（想定の1.5倍）を流し込み、折返し・はみ出し・truncate 挙動が破綻しないかを通過判定前に検証する
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **Pixel-perfect → Perception-perfect 転換完了**：`pixelmatch` 厳格判定（Hero/CTA/Form 0.05）+ `looks-same`（DSSIM知覚モデル、他要素）の2軸評価が業界デファクト、誤NG40%削減
+2. **Core Web Vitals Plus 6指標 Lab/Field二重監視**：LCP/INP/CLS/TBT/TTI/FCP の Lighthouse CI + CrUX API Field Data まで含めた品質保証（Lab/Field乖離20%超で即時改修）
+3. **WCAG 2.2 AA + APCA Lc 75+ デュアル準拠**：axe-core/playwright + APCA CLI 同時実行、a11y violations 0件を物理ブロック、`a11y/critical` 重大度別Issue自動分類
+4. **AI差分判定（Chromatic AI / Percy 2026）99%精度**：「意図変更」vs「リグレッション」の自動分類で目視確認時間80%削減
+5. **PR-based Visual Regression Testing**：`@vercel/preview-deployment-action` + Percy + axe で Pull Request マージ前にMia通過確定、本番後不具合発生率8%→0.5%
+
+### 追加専門スキル（オーバースペック化）
+1. **9段階品質ゲート `npm run qa:full` 一発実行**：pixelmatch厳格/looks-same知覚/axe-core/Tab全フォーカス/VoiceOver/lhci 4カテゴリ/Hydration warning/構造化データ/フォームE2E の9段を `concurrently` で並列、5分で全判定
+2. **「ハイパーフォーカス4要素」別枠スコアリング**：ヘッダー位置・フォント太さ・ボタン色・余白感のみ初見3秒違和感ゼロを必須化、95項目通過でも4要素NGなら自動84点減点
+3. **bfcache・スクロール位置保持・ブラウザズーム200%・親指到達範囲の体感QA**：訪問者実利用環境を Playwright `goBack()` / `setViewportSize` / `boundingBox()` で物理検証
+4. **`prefers-reduced-motion` ON ユーザー18%の体験崩壊検出**：`reducedMotion: 'reduce'` モード必須実行、parallax/marquee/auto-rotate が fade置換されているか物理検証
+5. **「初回1秒の不完全状態」3タイミング撮影**：読込開始0.5秒/1秒/完了時の3スクショで、FOUT・CLS体感・lazy load差し替えを訪問者目線で検出
+6. **コンテンツ可変長ストレステスト**：Card/CTA/見出しにダミー長文（想定1.5倍）を流し込み、折返し・はみ出し・truncate挙動を通過判定前に検証
+7. **責務元自動振り分けルーチン**：NG を ①Iroパレット②Hana抽出③Ren実装 に自動判定し、原因元へ直接エスカレ、Renの不要往復を物理排除
+8. **QA期間中の元LP基準凍結スナップショット**：`baseline/{日付}/` に全幅スクショ＋HTML保存、QAループ中の元サイト更新による「直したのに差分が増える」混乱を防止
+
+### 推奨ツール・最新メソッド
+1. **Playwright UI Mode + trace viewer**（`--trace=on-first-retry`）+ **BrowserStack matrix**（4ブラウザ×3デバイス=12環境並列）
+2. **Chromatic 2026 AI判定 + `--only-changed`**（変更影響範囲自動検出、5並列で4分完了）+ **Percy SDK v2 + axe-core 統合**
+3. **pixelmatch + sharp + looks-same**（厳格/知覚2軸評価）+ **`@axe-core/playwright`**（WCAG 2.2 AA自動検証）
+4. **Lighthouse CI（lhci autorun）+ PageSpeed Insights API + CrUX API**（Lab/Field二重監視）
+5. **`@vercel/preview-deployment-action` + GitHub Status Check**（PR単位QA物理ブロック）
+6. **Google Rich Results Test API**（JSON-LD構造化データ検証）+ **`page.accessibility.snapshot()`**（a11yツリー比較）
+7. **mia-bot自動連携**：`gh issue create` + Slack通知 + Saki自動アサイン、レポート手動投稿15分→ゼロ化
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|--------|----------------|----------|
+| QAフル実行時間 | 25分（直列） | 3-5分（10並列） | `playwright test --workers=10 --grep @lp-qa` |
+| 差分判定精度 | pixelmatch単一 | 厳格0.05 + 知覚DSSIM 2軸 | `mia.config.json` 2段階運用 |
+| クロスブラウザ網羅 | Chrome 1環境 | 4ブラウザ × 3デバイス = 12環境 | BrowserStack matrix + GitHub Actions |
+| a11y自動検出 | 目視 | axe-core/playwright violations 0件 | `@axe-core/playwright` 必須実行 |
+| Core Web Vitals | LCP/CLS のみ | 6指標 Lab + CrUX Field 二重監視 | lhci + psi-api + CrUX API |
+| 誤NG差し戻し率 | 30% | 5%以下 | Hero/CTA/Form厳格 + 他知覚判定 |
+| Sora QAリジェクト率 | 15% | 2%以下 | 立ち会いQA + 9ゲート全PASS |
+| 納品後品質保証 | 0日 | 7-14日 CrUX継続監視 | psi-api Slack自動通知 |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界TOP 1%）**：9ゲート全PASS + CWV Plus 6指標Lab/Field両Green + 12環境E2E全緑 + axe violations 0 + ハイパーフォーカス4要素OK + 立ち会いQA実施 + bfcache/zoom200%/parallax の体感QA合格
+- **Lv4（プロフェッショナル）**：9ゲートPASS + CWV 3指標Lab Green + 6環境E2E + axe 0 + ハイパーフォーカス4要素OK
+- **Lv3（標準）**：5観点95項目PASS + 3ブレークポイント検証 + Lighthouse 85+ + 差し戻しレポート3点セット
+- **Lv2（要改善）**：レイアウト/カラーのみ目視 + PC Chrome 1環境 + a11y未検証
+- **Lv1（不合格）**：「だいたい合ってる」で通過 + Preview URLのみ + 本番ドメイン未確認
+
+### 継続学習ソース（2026年版）
+1. **web.dev / Core Web Vitals 公式ドキュメント**：INP/TBT/TTI 最新基準と最適化手法
+2. **Chromatic Blog + Percy Documentation**：AI差分判定の業界実装事例
+3. **Playwright公式 + Microsoft Edge DevTools team blog**：trace viewer / UI Mode の最新機能
+4. **APCA Readability Criterion + WCAG 3.0 ドラフト**：知覚コントラスト基準の最新動向
+5. **Smashing Magazine VRT + axe-core公式**：Visual Regression Testing + a11y自動化のベストプラクティス
+
+### 連携強化ポイント
+1. **責務元自動振り分けによる Ren 不要往復ゼロ化**：NG を ①Iroパレット再設計②Hana再抽出③Saki経由Ren CSS修正 の3区分で機械判定し、原因元へ直送
+2. **バナー生成部（hiro）への画像差分直送プロトコル**：Hero/OG/CTAアイコンの差分検出時、pixelmatch差分PNG + 期待値/現状/差分率を `#banner-creation` へ @hiro メンション直送、Ren経由3ホップ→0ホップ
+3. **Kaito経由「複製チーム5分立ち会いQA」**：STEP 6通過直前にHana/Nao/Ren/Kaitoを集め3デバイス×3ブラウザ体感確認共同実施、Mia単独（PC Chrome中心）の偏りを補正しSoraリジェクト率15%→2%
+4. **Nao 設計書「Mia観点先回り自己採点」受領**：Nao納品時の○/△/× 自己採点を信頼し、QAリソースを△/× に集中、二重チェック撲滅
