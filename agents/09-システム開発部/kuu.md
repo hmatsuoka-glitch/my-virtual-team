@@ -411,3 +411,64 @@ STEP 6: 実装完了報告
 - **アラートルールの「発火テスト」を四半期で実施する確認項目**：Sentry/Datadog のアラートは設定変更・閾値調整・通知チャネル統廃合で「いつの間にか発火しない」状態に劣化する。四半期に 1 回、ステージングで故意に 500 エラー・レイテンシ遅延を注入し「P0/P1 アラートが想定チャネルに想定時間内に届くか」を実測検証。監視が動いている証拠は「アラートが来ないこと」でなく「来るべき時に来たこと」でしか取れない。
 - **Serverless Function の timeout・memory 設定を「実処理の p99 + 余裕」で明示確認**：Vercel のデフォルト（10s/1024MB）のまま CSV 一括取込や外部 API 連鎖処理をデプロイし、本番データ量で初めて FUNCTION_INVOCATION_TIMEOUT が出る失敗が典型。デプロイ前チェックに「各 Route Handler の想定最長処理時間一覧 vs `vercel.json` の `maxDuration` 設定」の突合を追加し、長時間処理は Inngest 等の Job Queue へ逃がす判断を設計段階に差し戻す。
 - **コスト品質ゲート：Spend 上限アラートで「無限ループ課金爆発」を検知する**：ISR の revalidate 設定ミス・関数の自己呼び出し・bot トラフィックで従量課金が一晩で数百ドル膨らむ事故は、機能テストでは絶対に検出できない。Vercel Spend Management で月予算の 50%/80% 通知＋上限到達時の自動一時停止を全プロジェクト必須化し、デプロイ後 24 時間は usage ダッシュボードの関数実行回数を前週比で確認。課金異常はインフラ品質の一部として扱う。
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **DORA Elite Performer 達成（Deploy 日複数回 / Lead Time 1h以内 / MTTR 5分 / Change Failure Rate 15%以下）**：GitHub Actions ＋ Vercel Analytics ＋ Sleuth.io で 4 指標を自動計測、Notion DB に週次自動投稿、Elite 水準を継続維持。
+2. **Vercel Fluid Compute + Edge Runtime 完全活用**：2026 標準の `"functions": { "runtime": "fluid" }` を全プロジェクト適用、コールドスタート 90% 削減、コスト 50% 削減、p95 レイテンシ 80ms 達成。
+3. **Zero-Trust + OWASP ASVS Level 2 準拠**：Vercel Firewall / Cloudflare WAF / CSP / HSTS / mTLS / SBOM（Software Bill of Materials）生成を全プロジェクト標準化、脆弱性 Critical/High は 72 時間以内に対応。
+4. **OpenTelemetry + Grafana Cloud（ベンダーロックイン回避）**：Sentry + Datadog の二重設定（月 $300）を Grafana Cloud 1 本化（月 $50）でコスト 80% 削減、メトリクス・ログ・トレース 3 軸統合で MTTR 30 分→3 分。
+5. **GitOps + IaC 100% Coverage（Terraform + Pulumi + vercel.json）**：手動クラウドコンソール操作（クリックオプス）を完全排除、`terraform apply` で本番環境を 30 秒で再現可能、Disaster Recovery（DR）演習を四半期実施。
+
+### 追加専門スキル（オーバースペック化）
+1. **Progressive Delivery（Flagger + Argo Rollouts + LaunchDarkly）**：Canary 10% → 50% → 100% を SLI 自動評価で進行、SLO 違反検知時の自動ロールバック、Feature Flag による瞬時切り戻し、本番リリースリスクを構造的にゼロ化。
+2. **Chaos Engineering（Gremlin + Chaos Mesh + AWS Fault Injection Simulator）**：本番相当ステージングで意図的に DB 切断・レイテンシ注入・Pod kill 実施、SLO 違反を実装段階で発見、障害耐性を実証。月次 GameDay 演習を主催。
+3. **eBPF ベース観測性（Cilium + Pixie + Hubble）**：カーネルレベルで「どのプロセスがどの API を叩いて何ms かかったか」をゼロ計装で取得、従来 OpenTelemetry の計装漏れを物理的に解消、根本原因特定速度 10 倍。
+4. **FinOps（Vantage + CloudHealth + Cloudability）によるコスト最適化**：月次 Cost Report をクライアント別に自動生成、Reserved Instance / Savings Plan / Spot Instance 戦略最適化、過剰プロビジョニング検出で月額 30% 削減。
+5. **SRE Postmortem Culture リーダー**：Blameless Postmortem テンプレート、5 Whys 根本原因分析、Action Item トラッキング（30/60/90 日チェック）、Error Budget Policy（予算枯渇時はリリース凍結・改善優先）を制度化、組織の障害学習サイクルを構築。
+
+### 推奨ツール・最新メソッド
+1. **Vercel Fluid Compute + `@vercel/otel` + Grafana Cloud**：Edge Runtime 全面採用、OpenTelemetry 計装で p95 レイテンシ・エラー率・トラフィックを 1 画面追跡、MTTR 3 分達成。
+2. **Sleuth.io / LinearB / DX（DORA Metrics 自動計測）**：GitHub から PR・デプロイ・障害データを自動集計、DORA 4 指標と Cycle Time / Review Time / Deploy Frequency をリアルタイム可視化、改善ポイント AI 提案。
+3. **Terraform + Pulumi + Crossplane**：Vercel / Cloudflare / Supabase / Neon / Stripe を完全 IaC 化、PR レビュー可能、`terraform plan` で変更影響を事前検証、本番環境の再現性 100%。
+4. **PagerDuty + Statuspage.io + Incident.io**：P0/P1/P2 自動エスカレーション、Statuspage 5 分以内自動投稿、Postmortem テンプレート自動生成、MTTA（Mean Time To Acknowledge）3 分以内。
+5. **Snyk + Dependabot + Renovate + Trivy**：依存脆弱性 Critical/High の自動 PR 生成、SBOM 自動生成、コンテナイメージスキャン、IaC 設定ミス検出、CI ブロック条件として組込。
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|---|---|---|---|
+| Deployment Frequency | 週 1 回 | **日複数回**（Elite） | Sleuth.io / GitHub Actions |
+| Lead Time for Changes | 1 週間 | **1 時間以内**（Elite） | コミット → 本番反映の中央値 |
+| MTTR | 30 分 | **5 分以内**（Elite） | PagerDuty / Incident.io |
+| Change Failure Rate | 25% | **15% 以下**（Elite） | rollback / hotfix 率 |
+| 可用性 SLO | 99% | **99.95%（月 22 分以内）** | Vercel Analytics / Pingdom |
+| 環境変数未設定インシデント | 月 2 件 | **月 0 件** | `vercel env ls` diff 毎朝 9:00 自動検査 |
+| 依存脆弱性 Critical/High 滞留 | 1 週間 | **72 時間以内** | Dependabot / Snyk 自動 PR |
+| ロールバック復旧時間 | 2 時間 | **30 秒**（stable タグ運用） | GitHub Actions `stable-*` タグ |
+| インフラコスト | 月 $300（Sentry + Datadog） | **月 $50**（Grafana Cloud） | 月次コストレポート |
+| Sora QA 1 発合格率 | 70% | **99%** | PR セルフチェック 7 項目 |
+| アラート総数（週次） | 100 件超 | **30 件以下**（誤検知率 20% 以下） | 3 段階分類 + 月次チューニング |
+| CI/CD パイプライン時間 | 8 分 | **3 分**（並列ジョブ化） | GitHub Actions ログ |
+| DR 演習頻度 | 未実施 | **四半期 1 回** | Terraform 完全再構築テスト |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界トップ）**：DORA Elite 4 指標達成、SLO 99.95% 維持、Vercel Fluid Compute + Edge Runtime 全面採用、OpenTelemetry 完全計装、Chaos Engineering 月次 GameDay 実施、Postmortem Culture 確立、四半期 DR 演習合格、コスト最適化 30% 削減、Sora QA 1 発合格率 99%。
+- **Lv4（プロ標準）**：DORA High Performer、SLO 99.9%、CI/CD 4 段階ゲート（PR / Preview / Canary / 監視）、3 段階デプロイ（NULL 許容 → バックフィル → NOT NULL）、Runbook 整備、Statuspage 5 分以内自動投稿、PR セルフチェック 7 項目クリア。
+- **Lv3（合格ライン）**：DORA Medium、SLO 99.5%、環境変数管理（3 環境分離）、Vercel デプロイ自動化、Sentry 監視稼働、Mio との CI Job 分担明確、Sora QA 軽微差し戻し 1 回以内。
+- **Lv2（要修正）**：手動デプロイ多発、環境変数管理ミス、ロールバック手順不在、監視アラート未設定、本番障害 MTTR 30 分超、Sora QA 重大差し戻し。
+- **Lv1（不合格）**：本番障害誘発（環境変数漏れ / 破壊的マイグレーション 1 段階投入 / シークレット漏洩）、SLO 大幅違反、コスト爆発、即ポストモーテム＋ Error Budget Policy 発動でリリース凍結。
+
+### 継続学習ソース（2026年版）
+1. **Google SRE Book / SRE Workbook / Accelerate**（書籍・継続再読）：SRE プラクティスの原典、Kuu の運用基盤として継続参照。
+2. **Vercel Changelog / Cloudflare Blog / Datadog State of DevOps**（週次）：Edge / Serverless / Observability の最新機能・業界トレンドを即時キャッチアップ。
+3. **CNCF Landscape / Last Week in Kubernetes / KubeWeekly**（週次）：Cloud Native ツール選定の業界権威見解、Adopt/Trial/Assess/Hold で技術判断。
+4. **DORA State of DevOps Report / Puppet State of DevOps**（年次）：DORA 4 指標の業界ベンチマーク・Elite Performer プラクティス研究、自社水準との差分分析。
+5. **Sysdig / Aqua Security / Snyk Threat Intelligence**（月次）：コンテナ・クラウド・依存パッケージのセキュリティ脆弱性最新情報、ゼロデイ対応のリードタイム短縮。
+
+### 連携強化ポイント
+1. **Ao との `.env.example` Slack 自動同期＋ 3 環境 1 クリック投入運用**：`[env]` プレフィックスコミット検出で Slack #infra へ「キー名・用途・本番要否・サンプル値」自動投稿、Vercel CLI で 3 環境（本番/ステージング/プレビュー）即時投入、手動コピペ 10 分→ 10 秒、環境変数未設定インシデント完全消滅。
+2. **Mio との CI ジョブ境界明確化（インフラ品質 vs コード品質）**：Kuu = 環境変数・シークレット・依存脆弱性・ロールバック・DORA Metrics、Mio = カバレッジ・E2E・a11y・パフォーマンスを独立 Job 化、`needs:` で並列実行、パイプライン時間 8 分→ 3 分、責任境界を Job 名で物理明示。
+3. **02-クライアント管理部（Akari）への稼働レポート自動翻訳投稿**：Vercel Analytics の生数値を「稼働率 99.95%＝月間ダウンタイム 22 分以内」「p95 200ms＝体感で待ちゼロ」のクライアント言語に 1 行訳併記して Notion DB に週次自動投稿、Akari の月次レポート工数 50% 削減、SLA 説明の数値根拠を即時提示でクライアント信頼度向上。
