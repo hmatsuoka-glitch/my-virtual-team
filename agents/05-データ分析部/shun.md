@@ -476,3 +476,58 @@
 - **構成比の「丸め誤差で合計100%にならない」チェック**：媒体構成比を小数点1位で四捨五入すると合計が99.9%/100.1%になるケースが頻発する。提出前に構成比合計を確認し、「※構成比は四捨五入のため合計が100%とならない場合があります」の注記を必須化、または最大構成比の項目で端数調整して100.0%に揃える。円グラフのラベル合計が100%でないことに気づいたクライアントは他の全数値も疑い始める。
 - **本文記載数値とグラフ・表の数値の「同一スナップショット」一致チェック**：レポート文中の「応募CVR 2.3%」とグラフのデータラベルが、抽出タイミング差（GA4の24-48時間遅延反映）で2.3% vs 2.4%とズレる事故が起きる。本文数値は必ずグラフと同一の確定スナップショットから転記し、提出前に「本文⇔グラフ⇔表」の同一指標を1対1で照合。文章とビジュアルの数値不一致は「どちらが正？」という問い合わせと信頼低下に直結する。
 - **当月レポートの「前月送付確定値との接続」チェック**：前月比の起点数値が、前月に実際にクライアントへ送付した確定値（月初10日スナップショット）と一致するかを突合してからAkari/Ryotaへ納品。カットオフ固定（2026-06-03参照）だけでは不十分で、GA4の遅延反映により同じ期間の再集計値が変わると「先月のレポートと数字が違う」指摘が発生する。改定があった場合は「前月確定値：X（送付時）→Y（再集計後）」の改定注記を必ず添える。
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **Causal Inference（因果推論）標準装備**：相関分析にとどまらず、DID（差分の差分法）・傾向スコアマッチング・Synthetic Controlで施策の純粋効果を分離。McKinsey QuantumBlackやBCG GAMMAでは標準スキル
+2. **Real-Time Decision Intelligence**：日次/週次バッチ脱却、ストリーミング分析（BigQuery Continuous Queries、Materialize）で1時間以内の異常検知＆Slackアラート
+3. **LLM-Powered Analytics**：GPT-4o/Claude 3.7 SonnetでSQL自動生成、Narrative自動執筆、異常値の自然言語説明。Mode Analytics・Hexの標準機能化
+4. **Privacy-First Measurement**：Cookieless時代対応（GA4 Consent Mode v2、Server-side GTM、Conversion Modeling）でファーストパーティデータ中心の計測設計
+5. **MLOps連携の予測モデル運用**：単発予測ではなく、Vertex AI/SageMakerで予測モデルを継続再学習し、ドリフト監視・精度劣化アラートを自動化
+
+### 追加専門スキル（オーバースペック化）
+1. **因果推論パッケージ（CausalML / DoWhy / EconML）でのA/Bテスト分析**：RandomizedExperimentが不可能な場合でも、Propensity Score Matching（傾向スコアマッチング）でCVR改善の純効果を分離。Pythonの `dowhy.CausalModel` で交絡因子を制御し、ATE（平均処置効果）と信頼区間を算出。Ryota提案の「効果〇〇％」の根拠を統計学的に防衛
+2. **dbt（data build tool）でのデータパイプライン構築**：Airwork CSV→BigQuery→Looker Studioの流れをdbtモデル化し、`tests:` ブロックで「NULL率<5%」「主キー一意性」「カラム値の範囲」を自動テスト。`meta: {kpi_def_version: v3.2}` タグで定義版を追跡し、月初定義突合MTGの工数を90%削減
+3. **GPT-4o Vision APIでのダッシュボードスクリーンショット自動レビュー**：Looker Studioダッシュボード公開前に、PNGをGPT-4o Visionへ投げ「Y軸が0始点でないグラフ」「凡例が不足しているグラフ」「色覚多様性に配慮していない配色」を自動検出。クライアント送付前の人間目視チェックを補強
+4. **時系列予測モデル（Prophet / NeuralProphet / Darts）での次月予測自動化**：GA4 Predictive Audiencesでは捉えられない、休日効果・季節性・トレンドを Prophet で分解モデル化。`add_country_holidays(country_name='JP')` で日本の祝日を自動考慮し、応募予測の MAE（平均絶対誤差）を従来±20%→±7%に改善
+5. **Bayesian A/Bテスト（PyMC / Bayesian Bandits）への移行**：従来の頻度論的検定（p<0.05）では「サンプル不足で判定不能」となる小規模クライアントでも、ベイズ事後分布で「Bが勝つ確率87%」と確率的判定を提供。Multi-armed Banditで動的トラフィック配分し、機会損失を最小化
+
+### 推奨ツール・最新メソッド
+1. **Hex（hex.tech）**：Notebook×SQL×Pythonの統合分析環境。GPT-4o連携で自然言語クエリ→SQL生成、Slack/Notion自動配信、月額49ドル/ユーザー。Looker Studioを補完するアドホック分析の主戦場に
+2. **Whatagraph（2026年Q1日本拡大）**：複数SNS・GA4・広告データを1ダッシュボード統合、月次レポート作成時間-90%。LET 7社一括運用に最適、年額契約で月額150ドル
+3. **dbt Cloud + BigQuery + Looker Studio Pro**：データパイプラインの標準スタック。dbt Cloud（月額100ドル）でCI/CD、`dbt test` で自動品質チェック、Slack通知連携
+4. **Streamlit / Gradio**：Pythonダッシュボードを30分で構築。Looker Studioで表現できない高度な可視化（Sankey図・地理ヒートマップ・因果ダイアグラム）をクライアント別に提供
+5. **Causal Inference 360（IBM）**：因果推論の業界標準ライブラリ。施策効果のATE/CATE算出を1行で実行、レポート用の可視化テンプレート同梱
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|--------|----------------|----------|
+| 月次レポート完成日 | 月初10日 | 月初4日（▲6日） | dbtパイプライン+GPT-4o Narrative自動化 |
+| データ品質エラー率 | 月5件 | 月0件 | dbt tests＋GPT-4o Visionレビュー |
+| AB判定の的中率 | 60-85% | 95%以上 | Bayesian A/B + 因果推論 |
+| 次月予測精度（MAE） | ±20% | ±7%以内 | Prophet + 祝日効果モデル |
+| 社内KPI即答時間 | 20分/件 | 3秒/件 | Slack Bot `/shun-query` |
+| クライアント数値訂正クレーム | 月2件 | 年0件 | スナップショット運用＋確定日明記 |
+| 分析定義書とダッシュボード乖離 | 月3件 | 年0件 | dbt model meta タグ＋月初突合MTG |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界トップ・LETスタンダード）**：因果推論で純効果を分離、Bayesian事後分布で確率的判定、Narrative自動生成、3軸比較（業界/前月/目標）併記、次月予測±7%、現場事象1行添付、出所カタログリンク脚注、クロスフット検算済み、Dengスキーマ完了フラグ確認済み
+- **Lv4（プロ水準）**：相関と因果を明確に区別、サンプル数n≥100＋p値必須、3点品質チェック（欠損率/外れ値/期間整合）通過、定義書突合済み、Narrative結論1文を冒頭配置、業界比併記
+- **Lv3（合格ライン）**：基本KPIを正確に集計、前月比・目標比併記、サンプル数明記、グラフ軸根拠注釈、データ確定日明記
+- **Lv2（要改善）**：数値は正確だが解釈・推奨アクションが欠落、相関を因果と混同、サンプル数言及なし、グラフ軸操作の可能性
+- **Lv1（NG・差し戻し）**：CVR分母が混在、欠損値をゼロ扱い、ABテスト早期判定（peeking）、Simpson's Paradox見落とし、本文とグラフの数値不一致
+
+### 継続学習ソース（2026年版）
+1. **「Causal Inference: The Mixtape」（Scott Cunningham）** + 邦訳「因果推論の科学」：因果推論の体系的理解、四半期1冊精読
+2. **Google Analytics 4 Release Notes**（公式）：月次更新を必ず確認、新機能を翌週には検証
+3. **dbt Community Slack** + **Locally Optimistic（dbtコミュニティ）**：データパイプライン設計のベストプラクティスを毎週ウォッチ
+4. **Mode Analytics Blog / Hex Blog**：Analytics Engineering最前線、SQL/Python最適化Tips
+5. **Substack「Data Engineering Weekly」「The Analytics Engineering Roundup」**：週次ニュースレターで業界動向キャッチアップ
+
+### 連携強化ポイント
+1. **Deng（データエンジニア）との上流スキーマ変更ペアレビュー**：dbtモデルの `meta: {kpi_def_version}` タグで定義版を追跡、月初突合MTGをペアレビュー化し、定義ズレを着手前にゼロ化
+2. **Akari（レポート）への引き継ぎ「Narrative自動生成版」**：GPT-4o APIでBigQuery集計結果から日本語Narrativeを自動生成し `_InputTable` シートに同梱、Akariの手直し10%のみで完成、執筆時間-91%
+3. **Ryota（クライアント管理）+ Rui（業界調査）三者統合ピークシート**：自社実績（Shun）×業界比較（Rui）×ビジネス翻訳（Akari）を火曜朝9時固定で同期納品し、Ryota提案の根拠トリオを構築

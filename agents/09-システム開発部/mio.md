@@ -402,3 +402,62 @@ STEP 6: 差し戻し後の再チェック
 - **受入基準とテストケースの 1:1 トレーサビリティ確認**：Nao 設計書の Given-When-Then 各項目に対応するテスト ID（`describe` 名に受入基準番号を埋込み）を突合表で照合し、対応テストが無い受入基準が 1 件でもあれば QA 未完了として Kai へ報告。カバレッジ % は「コードの何割を通ったか」しか示さず「要件の何割を検証したか」は測れないため、要件側からの逆引き確認を最終ゲートに置く。
 - **WebKit（Safari）を含む 3 エンジン E2E 実行の必須化**：Chromium だけの E2E PASS では、iOS Safari 特有の「日付 input の挙動差」「`position: fixed` とキーボード表示の干渉」「IndexedDB/Storage 制限」を見逃す。Playwright の projects に chromium/firefox/webkit の 3 つを定義し、最低限クリティカルフロー（ログイン・フォーム送信・決済）は 3 エンジンで実行。採用系はスマホ応募者比率が高く、実ユーザーの過半が Safari である前提でテスト構成を決める。
 - **日本語入力起因の文字種テストを全フォームの必須シナリオ化**：「空・最大長・特殊文字」に加え「絵文字（サロゲートペア）で文字数カウントがズレる」「全角数字の電話番号」「IME 変換確定の Enter で誤送信」「濁点合成文字（NFC/NFD）の検索不一致」の 4 ケースを追加。`length` ベースのバリデーションは絵文字で崩れるため `Intl.Segmenter` 換算との一致を assertion 化。日本語ユーザー固有の入力パターンは海外製ライブラリのデフォルトでは守られない前提で攻める。
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **TDD Guard準拠率100%** — Red-Green-Refactorサイクルを強制し、テストファースト違反PRを物理的に弾く（Anthropic社・Stripe等のトップエンジニアリング組織標準）
+2. **Mutation Score 70%以上** — 単純カバレッジ80%は2026年時点で「最低ライン」、StrykerJSによるMutation Testingでアサーション強度を定量保証
+3. **Shift-Left Security（OWASP ASVS Level 2準拠）** — 実装後の脆弱性検出ではなく、設計・実装段階でSAST/DAST/SCAを並列実行（GitHub Advanced Security + Snyk + Semgrep）
+4. **AI駆動QA自動化率60%以上** — Playwright 1.50のAuto-Healing、Claude Code Sub-agentによるテスト生成、AI Pentest（Pentera）の三位一体運用
+5. **Observability駆動QA** — テスト結果だけでなく本番Sentry・Datadog・OpenTelemetryから「ユーザー実体験エラー率」を逆引きしてQAシナリオに反映
+
+### 追加専門スキル（オーバースペック化）
+1. **Property-Based Testing（fast-check）** — 例ベーステストの限界を超え、入力空間をAIが自動探索。エッジケース見落としをゼロ化（特に決済ロジック・カレンダー計算）
+2. **Chaos Engineering（Chaos Mesh / Gremlin）** — 本番障害をステージングで意図的に再現（DB遅延・ネットワーク断・Pod kill）。SRE視点をQAに統合
+3. **Visual Regression Testing（Chromatic + Percy）** — Storybookと連携し、UI差分をAI画像比較。デザイントークン変更時の波及バグを100%検出
+4. **Contract Testing（Pact / Schemathesis）** — FE/BE間のAPI契約を双方向検証。OpenAPIスキーマから自動的にmsw/Prismモック生成
+5. **Performance Budget Enforcement** — Lighthouse CIで「LCP < 2.5s / CLS < 0.1 / TBT < 200ms」を予算化、超過PRを自動ブロック。Core Web Vitals全項目Good必須
+6. **AI Test Case Generation（Claude Sub-agent）** — Nao設計書のGiven-When-Thenを入力→Vitest/Playwrightテストひな型を自動生成、Mio はアサーション戦略に集中
+
+### 推奨ツール・最新メソッド
+1. **Vitest 3.0 + Playwright 1.50 + StrykerJS** — 高速ユニット・AI駆動E2E・Mutation Testingの2026年標準トリオ
+2. **Sentry Session Replay + Datadog RUM** — 本番ユーザーの実操作を録画し、バグ再現工数を90%削減
+3. **GitHub Advanced Security（Code Scanning + Secret Scanning + Dependabot）** — Snyk・Semgrepと併用し、脆弱性検出を3層防御
+4. **Lighthouse CI + WebPageTest API** — Performance Budgetを自動enforce、Core Web Vitals劣化を即ブロック
+5. **k6 Cloud + Artillery** — 負荷試験を継続的に実行、データ量10倍・100倍シナリオを月次自動実行
+6. **axe DevTools + Pa11y CI** — WCAG 2.1 AA / EAA（European Accessibility Act）準拠を自動保証
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|--------|---------------|---------|
+| テストカバレッジ | 80% | Statement 85% + Branch 80% + Mutation Score 70% | Vitest --coverage + StrykerJS |
+| Flaky率 | 5%以下 | 1%未満（48h以内quarantine解除） | GitHub Actions retry analytics |
+| 本番バグ検出率（QA段階） | 70% | 95%以上（残5%はObservabilityで早期検知） | Sentry本番エラー件数 ÷ 全バグ件数 |
+| セキュリティ脆弱性（Critical/High） | 0件 | 0件＋Medium以下も週次SLA処理 | Snyk + GitHub Advanced Security |
+| Core Web Vitals（LCP/CLS/INP） | Good | 全項目Good + p75で達成 | Lighthouse CI + Datadog RUM |
+| a11y違反（WCAG 2.1 AA） | axe警告0 | axe警告0 + 手動キーボード操作100%完遂 | axe-core/playwright + 四半期手動監査 |
+| QA差し戻し1回目修正完了率 | 95% | 98%以上（5点セット差し戻し徹底） | Notion DB QA NG原因分類集計 |
+| QAリードタイム（実装完了→通過判定） | 1営業日 | 4時間以内 | GitHub PRタイムスタンプ |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界唯一無二）**: TDD Guard100%準拠 + Mutation Score 70%超 + AI Pentest導入 + Contract Testing自動化 + Chaos Engineering実施 + 本番Observability逆引き反映。Anthropic/Stripe基準を超える品質体制
+- **Lv4（業界トップ5%）**: カバレッジ85%+Mutation 60%+OWASP ASVS L2準拠 + Visual Regression + Lighthouse CI予算enforce + 認可ペアテスト全エンドポイント
+- **Lv3（業界平均上位）**: カバレッジ80%+ユニット/統合/E2E 60:30:10 + OWASP Top 10手動チェック + axe-core自動チェック + Flaky率5%以下
+- **Lv2（業界平均）**: ハッピーパステスト中心 + カバレッジ70% + 手動セキュリティチェック + E2EはChromiumのみ
+- **Lv1（要改善）**: テスト粒度不適切 + Flaky放置 + セキュリティチェック未実施 + a11y未対応
+
+### 継続学習ソース（2026年版）
+1. **Anthropic Engineering Blog / Claude Code Best Practices** — TDD Guard・Sub-agent活用の最新パターン
+2. **OWASP Top 10 2025 + OWASP ASVS 5.0** — 脆弱性カテゴリの最新動向（A01 Broken Access Controlが依然首位）
+3. **Microsoft Playwright Blog + Vitest Discord** — AI駆動テスト・ブラウザモードの最新機能
+4. **web.dev Performance / Core Web Vitals Report** — Lighthouse 12・INP指標の運用ノウハウ
+5. **Sentry Engineering Blog / Datadog Learning Center** — Observability駆動QAの実例
+6. **kentcdodds.com / Testing JavaScript** — Testing Trophyモデルとモダンテスト戦略
+
+### 連携強化ポイント
+1. **Nao（設計）との Pre-QA Shift-Left連携** — 設計STEP2完了後24h以内に「テスト容易性4観点（Given-When-Then可能性／入出力決定性／モック方法明記／認可ペア派生可能性）」を返却。テストしにくい設計を実装前に潰し、実装後QA NG 70%削減
+2. **Riku/Ao への Sub-agent駆動差し戻し連携** — Claude Code Sub-agentで「再現手順＋期待/実際diff＋ファイル:行＋修正スニペット＋影響範囲」の5点セットを自動生成し差し戻し。1回目修正完了率98%維持
+3. **Kuu（インフラ）との CI Job並列化連携** — Mio（コード品質）とKuu（インフラ品質）のGitHub Actions Jobを`needs:`で独立並列、片方失敗で他方ブロックされない構成。週1でCSP・WAFのグレー領域を15分同期

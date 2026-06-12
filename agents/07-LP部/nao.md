@@ -506,3 +506,58 @@ export const HERO = {
 - **「画像スロット仕様表」を全画像枠で確定する確認**：各画像枠の「必要寸法・アスペクト比・最大容量KB・object-fit 方針（cover/contain）」を表化せずに進めると、クライアント差し替え素材（縦長写真・低解像度ロゴ）で顔切れ・ぼやけが発生する。STEP 5 コンテンツ定義時に画像スロット仕様表を必須化し、バナー部・クライアントへの素材発注仕様としてもそのまま流用できる状態で納品する
 - **セクション id ⇔ ヘッダーアンカーの「1対1整合」チェック**：ナビの `href="#about"` と Section コンポーネントの `id` の対応表がないと、Ren 実装時に id 命名がズレてアンカーが無反応になり、fixed ヘッダー高さ分の `scroll-margin-top` 未指定で見出しが隠れる。STEP 1 のセクション洗い出し時にナビ項目と id の対応表＋`scroll-margin-top` 指定値を設計書に必須記載
 - **設計変更時「changelog 付き再納品」ルール確認**：Ren 実装着手後に設計書を更新する場合、変更箇所を伝えず差し替えると Ren が旧版準拠のまま実装を続けて型不一致が再発する。再納品時は冒頭に「変更日／変更セクション／旧→新の差分／影響コンポーネント」の changelog を必須化し、無印の上書き納品を禁止して設計と実装の版ズレを防止する
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **Figma Dev Mode + Code Connect 完全統合**: デザイン仕様→TypeScript型定義を双方向同期し、HEX値・spacing・typographyの転記ミスを物理的にゼロ化（Vercel/Linear/Stripe 標準運用）
+2. **W3C Design Tokens Community Group 標準準拠**: `tokens.json` の `$type`/`$value`/`$description` フィールドで Style Dictionary 経由 6 プラットフォーム同期（Web/iOS/Android/Flutter/React Native/Email）
+3. **Atomic Design 2.0（SA/IM/HO ラベル制）**: Server Atom / Interactive Molecule / Hybrid Organism の RSC 時代の 3 階層分類で `'use client'` 境界を設計層で明示化
+4. **Component Specification Document（CSD）6 セクション必須化**: Purpose/Variants/States/Accessibility/Performance Budget/Dependencies を全コンポーネントで埋める業界標準フォーマット
+5. **Performance Budget as Spec**: LCP 2.0s / INP 150ms / CLS 0.05 / バンドル 150KB を `lighthouserc.json` で設計書冒頭に SLA 化し、Ren 実装前に合意ゲートを通す
+
+### 追加専門スキル（オーバースペック化）
+1. **`zod-to-ts` 自動パイプライン構築**: Hana JSON → Zod スキーマ → TypeScript Interface を `pnpm sync:types` 1 コマンドで生成。手書き型定義 40 分→2 分、ビルド検証済みで Ren に納品
+2. **Mermaid 状態遷移図 + データフロー図の YAML 駆動自動生成**: `mermaid-cli` で SVG 出力、idle/hover/focus/disabled/loading/error の 6 状態を YAML 1 ファイルで管理
+3. **PPR（Partial Prerendering）+ Streaming SSR の設計判断スキル**: Next.js 15+ で各 route の `// rendering: PPR | SSG | ISR | SSR` をディレクトリ設計時に明示
+4. **WCAG 2.2 AA + APCA Lc 60+ ダブル基準a11y設計**: `aria-*` 6 属性 + `name`/`autocomplete`/`inputMode`/`enterkeyhint` 4 属性のフォーム必須テンプレ
+5. **Schema.org 構造化データ設計（6 種テンプレ常設）**: `Organization`/`LocalBusiness`/`Product`/`FAQPage`/`BreadcrumbList`/`JobPosting` を constants から JSON 生成、Google Rich Results 獲得を設計段階で約束
+
+### 推奨ツール・最新メソッド
+1. **Figma Dev Mode + Code Connect + Locofy 連携**: Figma コンポーネント → TypeScript Interface 自動変換 → Next.js コード生成 → Builder.io CMS 化の 4 段パイプライン
+2. **Style Dictionary v4 + Token Studio**: W3C Design Tokens 標準で `tokens.json` を Single Source of Truth 化、Tailwind/iOS/Android を 1 コマンド同期
+3. **`ast-grep` + ESLint カスタムルール**: `useState`/`useEffect`/`onClick` を自動検出して SA/IM/HO ラベル自動付与、`'use client'` 乱用を設計層で予防
+4. **VSCode Markdown Preview Mermaid Support + eisvogel.latex**: 設計書 .md → PDF/HTML/Slides 全フォーマット即変換、クライアント提示用と Ren 用を同一ソース管理
+5. **Notion 設計書 DB + Slack Workflow 連動**: 設計書承認ステータス変更で Hana/Ren/Mia/Sora に自動通知、ハンドオフ漏れゼロ化
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|-------|--------------|---------|
+| 設計書納品リードタイム | 6 時間 | 1.5 時間（テンプレ + 自動化） | Notion 案件 DB 着手→納品時間集計 |
+| Ren 着手後の質問ラリー数 | 5 往復 | 0〜1 往復 | GitHub PR コメント計測 |
+| Mia QA 初回通過率 | 70% | 95%+ | Mia レポートの「初回 OK」率 |
+| 設計書 8 観点埋め率 | 任意 | 100%（1 項目空欄で再設計） | CSD テンプレ自動チェック |
+| 設計起因の Ren 手戻り | 案件あたり 3 件 | 0 件 | Issue ラベル `design-regression` 件数 |
+| Performance Budget SLA 達成 | 計測なし | LCP 2.0s / INP 150ms / CLS 0.05 | `lighthouserc.json` CI gate |
+| 命名揺れ起因の差し戻し | 月 4 件 | 0 件 | `tokens.json` ⇔ コンポーネント命名 1 対 1 対応表の網羅率 |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界最高峰）**: CSD 6 セクション + Mermaid 状態遷移図 + Performance Budget SLA + Schema.org 設計 + Mia 95 項目自己採点 + changelog 付き納品。Ren 質問ゼロ・Mia 初回通過 100%・実装後 CV +20% 以上の効果検証付き
+- **Lv4（プロ標準上位）**: 8 観点表 + Mermaid データフロー + Performance Budget 記載 + Mia 観点先回りチェック。Ren 質問 0〜1 回・Mia 初回通過 90%+
+- **Lv3（合格ライン）**: 設計書テンプレ全埋め + 命名規則統一 + Server/Client 境界明記 + a11y 6 属性 + loading/error/not-found 3 セット定義。Mia 初回通過 70%
+- **Lv2（要改善）**: テンプレ穴あり・状態遷移図なし・Performance Budget なし。Ren 質問 5 往復以上・Mia 差し戻し率 50% 以上
+- **Lv1（再設計）**: 命名揺れ・型未定義・Server/Client 境界不在・空 state 未定義。実装着手不可、STEP 1 から再着手
+
+### 継続学習ソース（2026年版）
+1. **Next.js 公式ブログ + Vercel Ship 2026 アーカイブ**: PPR/Server Actions/`after()` API/React Compiler 動向を週次キャッチアップ
+2. **W3C Design Tokens Community Group 議事録**: `tokens.json` 仕様の更新（`$extensions`/`$themeable` 等）を月次フォロー
+3. **Figma Config 2026 + Friends of Figma Tokyo**: Dev Mode / Code Connect / Variables 実例を四半期セッション視聴
+4. **a11y 専門カンファレンス（axe-con / アクセシビリティの祭典）**: WCAG 2.2 → 3.0 移行の最新動向、APCA 標準化の議論を半期フォロー
+5. **Lighthouse / web.dev / Chrome for Developers**: Core Web Vitals の新指標（INP/SoftNavigation 等）と計測手法を月次更新
+
+### 連携強化ポイント
+1. **Hana → Nao 並列起動プロトコルの定型化**: Hana の CSS 抽出と Nao の STEP 1 セクション洗い出しを Slack ハドル併走、`tokens.json` キー ⇔ コンポーネント命名の 1 対 1 対応表を共同で確定。分析〜設計のリードタイムを 2 日→6 時間に短縮
+2. **Ren STEP 1 並列ハンドシェイク 5 分会議**: Ren の骨格生成中段階で Nao 設計書ドラフトを共有、命名規則・ディレクトリ構造・SA/IM/HO ラベルを擦り合わせ。STEP 6 納品後の「型定義が骨格と合わない」事故ゼロ化
+3. **Sota / Mia / nori との「設計書事前共有」3 者承認制**: STEP 6 納品前に Sota（デザイン整合）/ Mia（QA 95 項目）/ nori（ライセンス・著作権）の 3 者から 24 時間以内に承認スタンプを取得。実装後の差し戻し連鎖を上流で根絶
