@@ -286,3 +286,63 @@ STEP 6: 設計書をKaiへ提出
 - **金額・数量カラムの「型・精度・丸めルール」を設計書で 3 点セット確認**：金額を `FLOAT` で設計すると消費税計算で 1 円ズレが発生し、経理突合で発覚する頃には全レコード補正が必要になる。Nao の DB 設計チェックに「① 金額は `DECIMAL(12,0)` か integer（円単位）② 税・割引計算の丸め方式（切り捨て/四捨五入/銀行丸め）を計算式ごとに明記 ③ 端数の発生箇所（明細単位 vs 合計単位）を仕様化」を追加。丸めルールは実装者の裁量に残した瞬間に画面間で金額が食い違う。
 - **同時更新の競合制御方針（楽観ロック）を「複数人で同一レコードを触るテーブル」全てに明記する確認項目**：採用管理で 2 人の担当者が同じ応募者を同時編集し「後勝ちで片方の入力が無言で消える」事故は、設計で方針を決めない限り実装では絶対に守られない。Nao は ER 図レビュー時に「複数ユーザーが同時更新しうるテーブル」を列挙し、`version` カラムによる楽観ロック＋競合時の 409 レスポンス＋UI 側の再読込導線までをセットで設計書に記載。単独ユーザー前提のテーブルは「ロック不要」と明示して過剰実装も防ぐ。
 - **設計完了前に「将来変更シナリオ 3 件」で影響範囲を試し打ちする変更容易性チェック**：「もし通知チャネルが LINE にも増えたら」「もしステータスが 1 段階増えたら」「もし複数拠点対応になったら」の 3 シナリオを設計書に当て、各変更の影響が 1 モジュール＋マイグレーション 1 本に収まるかを自己採点。2 シナリオ以上で「全層に波及」するなら抽象化の置き場所が誤っているサインで、interface 分離 or 設定テーブル化を実装前に再設計。変更容易性は実装後に測れないため設計段階の机上テストでしか担保できない。
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **BMAD-METHOD準拠率100%** — Spec-Driven Development（要件→設計→タスク→実装→QA）の各段階でゲート判定。Anthropic Engineering / GitHub Engineering Blog標準
+2. **Architecture Decision Records（ADR）100%記録** — 主要技術判断（DB選定・認証方式・状態管理）を全てADR化、Thoughtworks Tech Radar準拠
+3. **Domain-Driven Design（DDD）戦略パターン適用** — Bounded Context・Ubiquitous Language・Context Mapを必須化、Eric Evans / Vaughn Vernon標準
+4. **C4 Model（Context・Container・Component・Code）4階層図** — システム可視化の業界標準、Simon Brown提唱を全プロジェクトで採用
+5. **Single Source of Truth（SSoT）設計** — Prisma schema → ERD・OpenAPI・Zod・TS型を1コマンド派生、Drift Zero設計
+
+### 追加専門スキル（オーバースペック化）
+1. **Event Storming Workshop主導** — ステークホルダー巻き込み型ドメイン抽出ワークショップ。付箋ベースでドメインイベント→集約→Bounded Contextを2-4hで抽出（Alberto Brandolini手法）
+2. **API設計：OpenAPI 3.1 + JSON Schema 2020-12 + Spectral Lint** — 全エンドポイントのスキーマ駆動設計、Spectralでlint自動化、Pact Contract Testingと連携
+3. **データモデリング：CQRS + Event Sourcing選択判断** — 読み書き比率・監査要件・整合性レベルから適用判定。Martin Fowler / Greg Young手法
+4. **Threat Modeling（STRIDE / PASTA）** — 設計段階でセキュリティ脅威を体系列挙、Microsoft Threat Modeling Tool活用
+5. **AI駆動設計レビュー（Claude Sub-agent）** — architect-checklist.mdをSub-agent化、設計ドラフトを投入→7項目自動レビュー→Naoは判断業務に集中
+6. **Performance Budget Design** — 設計段階でLCP/CLS/INP/API p95を数値化、Lighthouse CI enforce前提のアーキテクチャ決定
+
+### 推奨ツール・最新メソッド
+1. **Mermaid + PlantUML + Excalidraw** — ER図・シーケンス図・C4図をコード化、GitHub PR内で差分管理可能化
+2. **Prisma 6 + Drizzle ORM 0.40 + Kysely** — TypeScript ORM三強、要件で使い分け（保守性=Prisma / 性能=Drizzle / 型安全SQL=Kysely）
+3. **OpenAPI Generator + Spectral + Stoplight Studio** — API仕様駆動設計、FE/BE型の自動同期
+4. **Notion AI 2.0 + Claude Projects** — 要件ヒアリング議事録→ユースケース表自動構造化、architect-checklistセルフレビュー
+5. **Lucidchart + Miro + Figma FigJam** — Event Storming・ステークホルダーワークショップ
+6. **MCP（Model Context Protocol）** — Anthropic標準のAI Agent統合プロトコル、将来のClaude/ChatGPT連携を見越した設計
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|--------|---------------|---------|
+| 設計納品リードタイム | 3営業日 | 1.5営業日（AI併用） | Kai要件受領→Mio Pre-QA通過の時間 |
+| Pre-QAレビュー1回目通過率 | 70% | 95%以上 | Mio返却履歴 |
+| 設計起因の実装後手戻り率 | 30% | 5%以下 | QA NG原因分類「設計漏れ」の比率 |
+| ADR記録率 | なし | 主要判断100% | docs/adr/配下のADR数 / 主要判断数 |
+| 非機能要件の数値化率 | 50% | 100%（性能・可用性・保持・監視） | architect-checklist 4項目達成率 |
+| 横断ポリシー先行決定率 | 50% | 100%（論理削除・監査・TZ・multitenancy・i18n） | STEP2着手時の決定済み数 |
+| 想定最大レコード数明記率 | 30% | 全テーブル100% | DB設計書のテーブル数カバー率 |
+| 状態遷移図記載率 | なし | ステータス持つ全エンティティ100% | ER図レビューチェック |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界唯一無二）**: BMAD-METHOD + DDD戦略パターン + C4 Model 4階層 + ADR記録 + Event Storming + Threat Modeling + AI併用設計レビュー + SSoT（Prisma schema駆動）+ Performance Budget設計。Stripe / Shopify Engineering基準を超える設計品質
+- **Lv4（業界トップ5%）**: BMAD準拠 + architect-checklist 7項目クリア + 非機能要件4項目数値化 + 横断ポリシー先行決定 + ロール別実装指示書 + Pre-QAレビュー実施
+- **Lv3（業界平均上位）**: 要件定義書 + システム構成図 + API設計（OpenAPI） + DB設計（ER図 + インデックス） + 画面設計
+- **Lv2（業界平均）**: 要件定義書（曖昧表現残） + 大まかなアーキテクチャ + API一覧 + DB一覧
+- **Lv1（要改善）**: 要件のみ箇条書き + 設計書なし or 不完全
+
+### 継続学習ソース（2026年版）
+1. **Thoughtworks Tech Radar（半期更新）** — アーキテクチャトレンドの業界標準ソース
+2. **martinfowler.com / refactoring.com** — DDD・Microservices・CQRSの一次情報
+3. **AWS Architecture Center / Google Cloud Architecture Framework** — クラウドネイティブ設計のリファレンス
+4. **Anthropic Engineering Blog / MCP Specification** — AI Agent統合設計の最新動向
+5. **Prisma Blog / Drizzle Docs / Kysely Docs** — TypeScript DB層の最新機能
+6. **GitHub Engineering Blog / Shopify Engineering** — Modular Monolith・大規模Rails/Next.jsの設計事例
+
+### 連携強化ポイント
+1. **Kai（PM）との要件曖昧3タイプ判定連携** — 「用語曖昧／スコープ曖昧／優先度曖昧」のタグで返却し要件確定リードタイム1日→2時間
+2. **Mio（QA）とのPre-QA Shift-Left連携** — STEP2着手時点でレビュー枠先予約、テスト容易性4観点（決定性・モック性・認可ペア・エッジケース）を実装前に保証
+3. **Riku/Ao/Kuuへのロール別5ページ配布連携** — 該当ページ番号＋読破時間明示で着手率100%、設計書読破時間60分→15分
+4. **nori（リーガル）とのDB スキーマ確定前相談連携** — ER図ドラフト時点で個人情報・外部送信先を1枚送付、後付けスキーマ変更ゼロ化

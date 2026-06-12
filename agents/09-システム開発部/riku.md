@@ -357,3 +357,67 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **可変長テキストの「最長・最短・改行なし英数連続」3 パターン表示確認**：短いダミーデータでは完璧な UI が、本番の長い会社名・URL 混じりの自己 PR で崩れる。全テキスト表示要素に `line-clamp` or `truncate` ＋ `title` 属性の方針を決め、確認時は「最大文字長」「1 文字」「`aaaa...` の改行されない連続英数（`overflow-wrap: anywhere` が無いとはみ出す）」の 3 パターンを Storybook ストーリーに常設。文字長は実装者が制御できない外部入力である前提で UI を組む。
 - **ブラウザ戻る/進むでフィルタ・スクロール位置が復元されるかの確認項目**：検索条件やタブ選択を `useState` だけで持つと、詳細ページから戻った瞬間に一覧の絞り込みが全消えし、ユーザーは「また最初から選び直し」で離脱する。フィルタ・ページ番号・タブは URL searchParams（`useSearchParams`＋`router.replace`）に同期し、戻る操作後に「同じ絞り込み状態・同じスクロール位置」へ復元されるかを E2E の必須シナリオ化。状態の置き場所判断に「リロード・戻るで残すべきか」を必ず含める。
 - **重なり順（stacking context）の組み合わせ確認：モーダル×トースト×ドロップダウン**：個別には正しい `z-index` でも、`transform` や `filter` が新しい stacking context を作り「モーダルの上に出るべきトーストが背後に隠れる」事故が起きる。重なり系 UI は `z-index` の場当たり加算でなく、トークン化した階層定義（base 0 / dropdown 1000 / modal 1300 / toast 1400）を `packages/ui` で一元管理し、QA 前に「モーダル表示中にトースト発火」「ドロップダウン開いたままモーダル起動」の組み合わせを実画面で確認する。
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **TDD準拠率100%（Red-Green-Refactor）** — テスト先行実装、TDD Guardによる物理強制。Kent Beck / Vercel社推奨
+2. **Core Web Vitals全項目Good（p75）** — LCP < 2.5s / INP < 200ms / CLS < 0.1、Lighthouse CI enforce、web.dev 2026標準
+3. **React 19 Compiler + Next.js 16（Turbopack）採用** — 手動メモ化ゼロ、HMR 30ms、Vercel公式推奨スタック
+4. **WCAG 2.1 AA + EAA（European Accessibility Act 2026/6施行）準拠** — axe-core自動 + 四半期手動監査、a11y法的義務化対応
+5. **Server Components First + Partial Prerendering（PPR）** — JSバンドル40%削減、SEO/SSR/CSRハイブリッド、Next.js 16標準
+
+### 追加専門スキル（オーバースペック化）
+1. **React 19新機能フル活用** — `use(promise)`/Server Actions/`<form action>`/React Compiler自動メモ化を全プロジェクトで標準採用
+2. **Partial Prerendering（PPR）設計** — 1ページ内で静的/動的を自動分割、Hero即表示+ユーザー情報streaming、Lighthouse 95+達成
+3. **Animation Performance（GPU-accelerated）** — Framer Motion / Magic UI / View Transitions APIで60fps維持、`will-change`/`transform`戦略
+4. **Real User Monitoring（RUM）統合** — Vercel Speed Insights + Datadog RUMで本番ユーザー実体験を計測、p75/p95劣化を即検知
+5. **Edge Runtime最適化** — Vercel Edge Functions / Cloudflare Workersで世界各拠点からのレスポンス < 100ms
+6. **Component-Driven Development（Storybook 8 + Chromatic）** — 全コンポーネントに4状態ストーリー（正常/ローディング/エラー/空）+ Visual Regression自動化
+7. **Type-Safe Routing（Next.js typedRoutes + nuqs）** — URL searchParamsをZod型安全化、戻る/進むでフィルタ復元100%
+
+### 推奨ツール・最新メソッド
+1. **Next.js 16 + React 19 + Turbopack** — 2026年Vercel公式推奨スタック、dev起動1秒、HMR 30ms
+2. **shadcn/ui v2 + Tailwind CSS v4 + Magic UI** — コピペ式UIライブラリ三強、デザインシステム独自構築不要
+3. **TanStack Query v5 + TanStack Router** — サーバー状態管理＋型安全ルーティング、optimistic update標準
+4. **Zustand 5 + Jotai 2 + Valtio** — クライアント状態管理、用途別使い分け（global=Zustand / atomic=Jotai / proxy=Valtio）
+5. **Vitest 3 + Playwright 1.50 + Storybook 8 + Chromatic** — テスト・ストーリー・Visual Regressionの2026年標準セット
+6. **Lighthouse CI + Vercel Speed Insights + Sentry Session Replay** — Performance Budget enforce + 本番RUM + ユーザー操作録画の三位一体
+7. **axe-core/playwright + Pa11y CI + WAVE** — a11y自動チェック三層、WCAG 2.1 AA / EAA準拠保証
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|--------|---------------|---------|
+| LCP（Largest Contentful Paint） | < 2.5s | < 2.0s（p75） | Lighthouse CI + Vercel Speed Insights |
+| INP（Interaction to Next Paint） | < 200ms | < 150ms（p75） | Vercel Speed Insights RUM |
+| CLS（Cumulative Layout Shift） | < 0.1 | < 0.05（p75） | Lighthouse CI |
+| Lighthouse Performance | 90+ | 95+（モバイル） | Lighthouse CI PR enforce |
+| JS Bundle Size（First Load） | 300KB | 200KB以下 | size-limit + bundle-analyzer |
+| TypeScript any使用 | 0件 | 0件（strict mode + noUncheckedIndexedAccess） | tsc --strict |
+| a11y違反（WCAG 2.1 AA） | axe警告0 | axe警告0 + 手動キーボード100%完遂 | axe-core/playwright + 四半期監査 |
+| テストカバレッジ | 80% | Statement 85% + Mutation Score 70% | Vitest --coverage + StrykerJS |
+| Hydration Mismatch | 0件 | 0件（CI ESLint enforce） | Next.js build log監視 |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界唯一無二）**: Next.js 16 + React 19 Compiler + PPR + Server Components First + TDD準拠100% + Core Web Vitals全Good（p75）+ WCAG 2.1 AA手動監査済 + Storybook 4状態 + RUM導入 + Visual Regression。Vercel / Linear / Notion基準を超えるFE品質
+- **Lv4（業界トップ5%）**: Next.js 15 App Router + Server Components + Lighthouse 90+ + axe-core自動 + TypeScript strict + TanStack Query + React Hook Form + Zod + data-testid付与
+- **Lv3（業界平均上位）**: Next.js + Tailwind + shadcn/ui + レスポンシブ対応 + 基本的なa11y（alt属性・semantic HTML）+ ローディング/エラー/空状態
+- **Lv2（業界平均）**: React + CSS + 機能実装のみ + レスポンシブ未完全 + a11y未対応 + パフォーマンス未測定
+- **Lv1（要改善）**: 動くだけ + Hydrationエラー + バンドル肥大 + 型any多用
+
+### 継続学習ソース（2026年版）
+1. **Vercel Blog / Next.js Docs / React Docs（公式）** — App Router・Server Components・React 19の一次情報
+2. **web.dev / web.dev/measure** — Core Web Vitals・Lighthouse最新動向（Google公式）
+3. **Lee Robinson（Vercel VP）/ Dan Abramov / Theo（t3.gg）の YouTube** — モダンFE実装パターンの最前線
+4. **Anthropic Engineering Blog / Claude Code Best Practices** — AI駆動コーディングの実践事例
+5. **Smashing Magazine / CSS-Tricks / Josh Comeau's Blog** — UI/UX実装ノウハウ
+6. **Kent C. Dodds Blog / Testing JavaScript** — TDD・Testing Trophy・Componentテスト戦略
+
+### 連携強化ポイント
+1. **Ao（BE）との型共有連携 `packages/api-types`** — Zodスキーマ1ソース化、`[api-types-update]`タグ通知でFE/BE並列実装率100%
+2. **Mio（QA）への「テスト容易性パック」連携** — data-testid一覧 + Storybook 4状態 + Loom 30秒 + axe-coreレポートを必須添付、Mio準備工数30分→5分
+3. **Nao（設計）の「Riku向け5ページ」即読破連携** — 15分で読破、不明点はSlack箇条書きで即返却、後付け改修ゼロ
+4. **Kuu（インフラ）との Vercel Preview環境差通知連携** — `NEXT_PUBLIC_*`値差・隔離DB接続先をPRコメント自動列挙、環境差起因の切り分け高速化
+5. **ren/kaito（07-LP部）との `'use client'`境界連携** — フォーム/状態管理=Riku、SSG静的表示=ren/kaito、共通UIは`packages/ui`集約でコード重複60%削減

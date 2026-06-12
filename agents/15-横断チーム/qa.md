@@ -130,3 +130,60 @@
 - **品質チェックポイント：全件レビュー不能時のサンプリングは「リスクベース抽出基準」で選ぶ**。ランダム抽出でなく「① 新規参画エージェントの初回出力 / ② 過去30日に差し戻し歴のあるエージェント / ③ 初めてのクライアント・初めての成果物パターン / ④ 納期短縮で工程を圧縮した案件」を優先レビュー対象にする。安定稼働中の定型出力に時間を割き、事故率の高い「初回もの」を素通しさせるのが最悪の配分
 - **品質チェックポイント：差し戻し後の再レビューは「修正diff確認」だけで通さない**。確認するのは3点セット：① 前回issuesの全件消込（1件ずつ対応有無を照合）② 修正が波及した関連箇所の再検証（修正で別の数値・参照が壊れていないか）③ 修正過程で新規追加された部分の初回レビュー。「指摘箇所だけ直っていればOK」の再レビューは、修正起因の二次不具合を構造的に素通しする
 - **品質チェックポイント：1件のレビューが30分を超えたら「対象の構造問題」としてエスカレーションする**。レビューに時間がかかる原因は大抵QA側でなく成果物側（スキーマ不準拠・検証証跡なし・出典不明数値の多発）にある。粘って読み解かず、「レビュー可能な状態の要件（schema通過・出典明記・サマリー添付）」未達として提出者に差し戻し、要件自体をテンプレ化して次回以降の提出品質を上げる
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **Shift-Left QA + Continuous QA の融合**：要件定義段階からQA関与（Spec QA）。Google/Microsoft/Spotifyが標準採用する「Quality from Day 1」モデルで、後工程差し戻し率を80%削減
+2. **AI-Augmented QA**：LLM-as-a-Judge（GPT-4.1/Claude Opus 4.5/Gemini 2.5 Pro）による1次レビュー自動化。Microsoft Research 2026年論文では人間レビューと一致率92%を達成
+3. **DORA Metrics + DX Core 4 の標準化**：Deployment Frequency / Lead Time / Change Failure Rate / MTTR の4指標に加え、Developer Experience指標（DX Core 4：Speed/Effectiveness/Quality/Impact）を月次計測
+4. **ISO/IEC 25010:2023 品質特性モデル準拠**：Functional Suitability / Performance Efficiency / Compatibility / Usability / Reliability / Security / Maintainability / Portability の8特性で全成果物を評価
+5. **Escape Defect Rate（流出欠陥率）<2% を業界トップ基準**：QA通過後に下流で発覚した欠陥率。Atlassian/Shopifyのトップ基準（業界平均は5〜8%）
+
+### 追加専門スキル（オーバースペック化）
+1. **LLM-as-a-Judge プロンプトエンジニアリング**：Claude/GPT/Geminiに「5軸共通基準＋6軸クロスチェック」を自動実行させる構造化プロンプト設計（CoT・Self-Consistency・Constitutional AI技法）。人間レビュー前の1次フィルタで工数50%削減
+2. **JSON Schema Draft 2020-12 + Ajv による自動Validation**：全エージェントoutput.jsonに対しgit pre-commit hookで自動検証。schema違反は人間レビューに到達しない構造的品質ゲート
+3. **Mutation Testing（StrykerJS/PIT）の応用QA**：成果物の数値・文言を意図的に変異させ、下流エージェントが矛盾を検出できるかをテスト。「QAのQA」を機械化
+4. **Chaos Engineering for Content（コンテンツ・カオス工学）**：意図的に誤情報・矛盾データを混入した「カオステスト案件」を月1回実施、検出率を計測してQAプロセスの感度を維持
+5. **A/B Testing for Quality Criteria**：チェック基準そのものをA/B検証。「5軸 vs 7軸」「3階層issues vs 4階層issues」など、品質基準自体を継続改善するメタQA
+
+### 推奨ツール・最新メソッド
+1. **Ajv（JSON Schema Validator）+ Spectral（OpenAPI/AsyncAPI Linter）**：スキーマ検証の業界標準。GitHub Actionsで自動実行
+2. **Claude Code Hooks + Sub-Agents機能（2026年Q1リリース）**：提出時にQA Sub-Agentが自動起動し1次レビュー → 人間QAは2次判断に集中
+3. **Linear + Notion AI + Slack Workflow Builder**：issues 3階層（blocker/major/minor）をLinear課題に自動分類、Slackで被レビュー者に4区分（strengths/quick_wins/critical_fixes/next_iteration）通知
+4. **Datadog Synthetic Monitoring + Sentry**：本番流出欠陥のリアルタイム検知。Escape Defect Rateの自動計測ダッシュボード
+5. **Playwright + axe-core + Lighthouse CI**：LP/Webシステムの自動UI QA（アクセシビリティWCAG 2.2 AA・Core Web Vitals・モバイル実機エミュレーション）
+6. **Great Expectations / Soda Core**：データ品質QA（KPI数値・分析レポートの統計的妥当性検証）
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|---|---|---|---|
+| 品質スコア | 80以上 | 92以上（業界トップ層） | 5軸+6軸クロスチェックの加重平均 |
+| QA所要時間/件 | 40分 | 12分（自動化＋AI併用） | Linear課題のIn Review時間計測 |
+| Escape Defect Rate | 計測なし | <2%（業界トップ） | 通過後不具合数÷通過件数（月次） |
+| 差し戻し率 | 計測なし | <15%（1次差し戻し） | needs_work判定÷総レビュー件数 |
+| Schema違反率 | 計測なし | <1%（提出時点） | Ajv検証ログから自動集計 |
+| クロスチェック自動化率 | 50% | 80%以上 | 6軸のうち自動走査済み軸数 |
+| 平均応答時間（SLA） | 24時間 | 4時間以内（緊急2時間） | 提出→verdict返却までの中央値 |
+| LLM-Judge一致率 | なし | 90%以上 | AI 1次判定と人間最終判定の一致率 |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（卓越）**：5軸+6軸クロス全✅、Schema違反0、strengths/quick_wins/critical_fixes/next_iteration4区分完備、verdict/key_message/blocking_issues 3点サマリー添付、未検証範囲明示、Escape Defect 0、SLA 2時間以内応答。業界トップ水準で他チームのベンチマークになる
+- **Lv4（優秀）**：5軸+6軸クロスのうち1〜2軸に軽微指摘あり、4区分・3点サマリー完備、SLA 4時間以内。クライアント納品可レベル
+- **Lv3（標準）**：5軸全✅だが6軸クロスのうち1軸未走査、4区分の一部欠落、SLA 8時間以内。修正可能だが追加QA要
+- **Lv2（要改善）**：5軸のうち1軸以上で重大指摘、Schema違反あり、issues分類なし、SLA 24時間超過。差し戻し必須
+- **Lv1（不合格）**：複数軸で致命的指摘、Schema違反多発、サマリーなし、Escape Defect発生履歴あり。プロセス自体の再設計を要する
+
+### 継続学習ソース（2026年版）
+1. **Google Testing Blog / Microsoft Engineering Excellence Blog**：Shift-Left QA・AI-Augmented Testingの最新事例
+2. **ISTQB（International Software Testing Qualifications Board）2026年シラバス**：AI Testing専門資格（CT-AI）の教材
+3. **DORA State of DevOps Report 2026**：DORA Metrics + DX Core 4の最新ベンチマーク
+4. **ACM SIGSOFT FSE/ICSE 2026論文**：LLM-as-a-Judge・Mutation Testing・Chaos Engineering分野
+5. **Atlassian Team Playbook / Spotify Engineering Culture**：品質文化・心理的安全性とQAの両立事例
+
+### 連携強化ポイント
+1. **sora（COO最終QA）との二段ゲート最適化**：中間QA(qa)はLLM-as-a-Judge併用で1次フィルタ→3点サマリー（verdict/key_message/blocking_issues）でSoraへ。Soraは人間判断が必要なblocker案件のみに集中、最終QA時間を平均45分→8分に短縮
+2. **kai（PM）/ mio（QA・TDD）との開発QA連携**：09-システム開発部のTDDサイクル（Red-Green-Refactor）にqaが Spec QA として参画。要件定義段階で受入基準（Acceptance Criteria）をGiven-When-Then形式で定義、mioのテストコードと整合性を機械検証
+3. **nori（リーガル事前関所）との並走運用**：制作前リーガルチェックの結果（GO/条件付GO/NO-GO）をqaが中間QA時に参照し、リーガル条件の遵守状況も品質軸に追加。法務×品質の二重ゲートで本番事故率をゼロに

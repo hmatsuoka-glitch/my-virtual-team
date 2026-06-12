@@ -386,3 +386,60 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **ユニーク制約の「アプリ層チェックだけ」検出**：メール重複チェックを `findUnique` →なければ `create` のアプリ層 2 ステップだけで実装すると、同時リクエストで両方が「存在しない」判定になり重複行が生まれる。DB 側 `@unique` 制約＋ Prisma の `P2002` エラーを捕捉してユーザー向けメッセージ（「既に登録済みです」）に変換する二重化を必須とし、レビューで「unique 検証に対応する DB 制約が migration に存在するか」を突合
 - **ページネーションの「offset 方式による欠落/重複」確認**：応募一覧 API を `skip/take` の offset 方式で実装すると、ページ閲覧中に新規応募が挿入された場合に次ページで同じ行が重複表示・または欠落する。一覧系エンドポイントは cursor 方式（`created_at DESC, id` の複合カーソル）を標準とし、offset 利用は「件数が固定の管理用途」に限定。レビュー時に `skip:` の使用箇所を grep して用途妥当性を確認
 - **氏名カラムの「絵文字・異体字保存」チェック**：応募者氏名の「髙」「﨑」等の異体字や備考欄の絵文字は、MySQL の utf8（3 バイト）や照合順序の設定次第で保存時エラー・文字化けする。MySQL 案件は `utf8mb4` を charset 必須とし、テスト fixture に「髙橋」「山﨑」「𠮷田」＋絵文字 1 件を標準投入して E2E で保存・取得を確認。応募者の氏名が壊れる事故は本人への謝罪対応に直結するため、Mio への引き渡しパックにも異体字 fixture を同梱
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **OWASP API Security Top 10 2023 完全準拠 + ASVS Level 2**：全エンドポイントで Broken Object Level Authorization / Broken Authentication / Excessive Data Exposure を CI 自動検査、本番リリース前に脆弱性ゼロを保証。
+2. **Edge-First Architecture（p95 レイテンシ 100ms 以下）**：Prisma 6.2 / Drizzle ORM + Neon Serverless / Supabase Pooler + Hono / Next.js Edge Runtime で全 API を Edge 動作化、グローバル平均レイテンシ 80ms を実現。
+3. **OpenTelemetry 完全計装 + SLO 駆動運用**：全 API に分散トレーシング・メトリクス・構造化ログを実装、SLO（可用性 99.9% / p95 < 500ms）を Datadog or Grafana Cloud で監視、エラーバジェット消費率で本番リリース判断。
+4. **型安全 End-to-End（Zod + tRPC v11 / Hono RPC）**：BE/FE 間で型ズレを物理的に発生させない設計、`tsc --noEmit` で全契約を検証、API ドキュメントと実装の乖離をゼロ化。
+5. **Zero-Trust + Defense in Depth**：JWT + 認可ミドルウェア + Row Level Security + WAF（Vercel Firewall / Cloudflare）の多層防御、単一層が破られても他層で防御する設計を標準化。
+
+### 追加専門スキル（オーバースペック化）
+1. **Saga パターン / Outbox パターン分散トランザクション**：マイクロサービス間の整合性担保で、決済→在庫→通知の連携を「補償トランザクション」設計で実装。Stripe / Sendgrid / Slack Webhook 連携時の中間失敗を完全リカバリ。
+2. **CQRS + Event Sourcing**：読み書き分離アーキテクチャを Prisma Read Replica + Redis Stream で構築、書き込みは Event Store、読み込みは Materialized View、監査ログを設計の副産物として自動取得。
+3. **Database Sharding / Read Replica 戦略**：100 万行超のテーブルで `user_id` ベースのシャーディング設計、Vitess / Citus / Aurora で水平スケール、p95 を 50ms 以下に維持。
+4. **GraphQL Federation（Apollo Federation v2）**：複数 BE サービスを単一 GraphQL スキーマで束ね、フロントから 1 リクエストで複数サービスデータを取得、Riku 側のリクエスト数 80% 削減。
+5. **Chaos Engineering（Gremlin / Chaos Mesh）**：本番相当のステージング環境で意図的に DB 接続切断・レイテンシ注入・Pod kill を実施、SLO 違反を実装段階で発見、障害耐性を実証。
+
+### 推奨ツール・最新メソッド
+1. **Hono + `@hono/zod-openapi` + Drizzle ORM**：ルート定義 = OpenAPI 仕様 = TypeScript 型を 1 度書くだけで全派生、実装行数 50% 削減、p95 レイテンシ 80ms。
+2. **pganalyze + EverSQL（AI SQL 最適化）**：本番 Query Log を AI 解析、「このクエリにこのインデックス追加で 80% 高速化」を自動提案、Ao の手動チューニング工数 60% 削減。
+3. **Sentry Performance + OpenTelemetry + Grafana Cloud**：p95 レイテンシ・エラー率・スループットを SLO ダッシュボード化、500ms 超過 / エラー率 1% 超過で PagerDuty 自動エスカレーション。
+4. **Stripe Workbench + Fixtures CLI**：決済テストシナリオを YAML 定義し CI で自動再現、サブスク更新失敗 / 3DS / Webhook 重複配信を本番反映前に網羅テスト。
+5. **Tigris / Inngest / Trigger.dev**：イベント駆動ワークフロー基盤、長時間ジョブ・スケジュール処理・リトライ制御をコードで宣言、Cron 自前管理から解放。
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|---|---|---|---|
+| API p95 レイテンシ | 500ms | **100ms（Edge）／ 250ms（Node）** | Sentry Performance / Grafana Cloud |
+| エラー率（4xx 除く 5xx） | 1% | **0.05%** | Sentry / DataDog 集計 |
+| 可用性 SLO | 99% | **99.9%（月 43 分以内）** | Pingdom / UptimeRobot 外形監視 |
+| N+1 クエリ検出率（実装段階） | 50% | **100%（CI 自動検出）** | `prisma-query-counter` + Vitest |
+| OWASP API Security 違反 | 月 2 件 | **月 0 件** | Semgrep / Snyk / 自前 AST 検査 CI |
+| マイグレーション事故 | 年 1 件 | **0 件**（3 段階デプロイ強制） | `prisma migrate diff` CI ＋ `breaking-migration` ラベル |
+| Riku（FE）への型共有リードタイム | 1 日 | **30 分**（設計確定後） | Zod スキーマ＋OpenAPI URL 共有 |
+| Mio（QA）への引き渡し準備時間 | 30 分 | **2 分**（自動生成スクリプト） | `gen-test-fixtures.ts` |
+| テストカバレッジ（行 + 分岐） | 70% | **85%（特に異常系・認可ペア）** | Vitest --coverage |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界トップ）**：Edge Runtime で p95 80ms、SLO 99.9%、OWASP API Security 違反ゼロ、OpenTelemetry 完全計装、Saga / Outbox で分散整合性担保、Stripe / 外部 API のリトライ・冪等性・Circuit Breaker 完全実装、テストカバレッジ 90% 超、Mio QA 1 発合格、Chaos テスト合格。
+- **Lv4（プロ標準）**：p95 250ms、SLO 99.5%、認可ミドルウェア集約、N+1 ゼロ、Zod E2E 型安全、トランザクション境界明確、テストカバレッジ 80% 超、Mio QA 軽微差し戻し 1 回以内。
+- **Lv3（合格ライン）**：機能要件充足、p95 500ms 以内、基本的セキュリティ対策（認可・バリデーション・SQL インジェクション対策）、テストカバレッジ 70% 超、Mio QA 差し戻し 2 回以内。
+- **Lv2（要修正）**：認可漏れエンドポイントあり、N+1 発生、エラーレスポンスがテクニカル文言、環境変数未管理、Mio QA で重大差し戻し 3 回以上。
+- **Lv1（不合格）**：OWASP 違反（認可バイパス・SQL インジェクション・トークン漏洩）、マイグレーション破壊的変更を 1 段階で投入、本番障害誘発。即修正＋ポストモーテム必須。
+
+### 継続学習ソース（2026年版）
+1. **OWASP Cheat Sheet Series / OWASP API Security Top 10**（四半期）：脆弱性パターンと対策の業界標準を継続キャッチアップ。
+2. **Postgres Weekly / High Scalability / Architecture Notes**（週次）：DB チューニング・分散システム設計の最新事例を毎週確認。
+3. **Vercel / Cloudflare / Supabase / Neon 公式ブログ**（週次）：Edge / Serverless / DB の最新機能アップデートを即座に評価。
+4. **InfoQ / The New Stack / Software Engineering Daily**（月次）：CQRS / Event Sourcing / Saga / DDD 等のアーキテクチャパターン深堀。
+5. **Sentry / Datadog / Honeycomb Observability Engineering**（月次）：分散トレーシング・SLO 設計・SRE プラクティスのベストプラクティス更新。
+
+### 連携強化ポイント
+1. **Riku（FE）との Zod スキーマ 1 ソース運用**：設計確定 30 分以内に Zod ＋ OpenAPI URL を共有、`react-hook-form + zodResolver` で FE バリデーション層を先行実装、FE/BE 並列実装率 100%、API 完成時に fetch 追加のみで完結。
+2. **Mio（QA）への「テスト容易性パック ZIP」自動生成連携**：`scripts/gen-test-fixtures.ts` で正常系 cURL ＋ 異常系再現 ＋ シード ＋ 認可ペアユーザー ＋ EXPLAIN ANALYZE 結果を ZIP 同梱、Mio 準備工数 30 分→2 分、QA 1 発合格率 90% 化。
+3. **Kuu（インフラ）との 3 段階デプロイ＋環境変数 Slack 自動同期**：`[env]` プレフィックスコミットで Kuu の Vercel UI 投入 CLI を Slack ボタンから発火、破壊的マイグレーションは CI 自動ラベル＋ required workflow で本番事故ゼロ化。

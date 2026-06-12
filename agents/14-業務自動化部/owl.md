@@ -116,3 +116,57 @@
 - **品質チェックポイント：同一イベントに複数遷移がある場合の「ガード条件の排他性・網羅性」を真理値表で検証する**。例：`PaymentReceived` 受信時に「全額入金→Confirmed／一部入金→PartiallyPaid」と分岐するなら、ガード条件が重複せず（排他）かつ全ケースをカバー（網羅）しているかを条件の組み合わせ表で確認。排他漏れは非決定的遷移、網羅漏れはイベント握り潰しになり、どちらも再現困難な不整合を生む
 - **品質チェックポイント：設計ドキュメントの状態遷移表と packages/domain の実装enumを「差分突合スクリプト」で照合してからレビューに出す**。設計書には書いたが実装に存在しないstate、逆に実装だけに残った廃止予定stateの「片側残存」は、レビューで図だけ見ても検出できない。state名・イベント名の双方向diffをCIで回し、差分ゼロを設計レビューの前提条件にする
 - **品質チェックポイント：タイマー起動イベント（承認待ちタイムアウト等）は「発火時点で前提条件が今も成立しているか」の再検証ガードを必須にする**。タイマー登録時点と発火時点で状態が変わっている（例：タイムアウト発火直前に承認済みになった）ケースで、古い前提のまま遷移すると承認済み案件をキャンセルする事故になる。全タイマーイベントに「現在stateの再チェック→不成立なら no-op」を設計段階でレビュー項目化する
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **Event-Driven Architecture (EDA) + Outbox Pattern**：状態変更を必ずイベントとして永続化し、外部システムへの通知はOutboxテーブル経由でAt-Least-Once配信。Stripe/Shopifyの受注基盤に採用される国際標準
+2. **Saga Pattern（補償トランザクション）**：分散システムでの長時間トランザクションを「ローカル更新+補償イベント」で実現。Microsoftの`.NET eShop`、UberのCadence/Temporal採用が業界標準化
+3. **Observable Workflow（OpenTelemetry標準）**：全状態遷移にtrace_id/span_idを付与し、Datadog/Honeycomb/Tempoで遷移経路を可視化。MTTR（平均修復時間）50%短縮が業界ベンチマーク
+4. **State Machine as Code（XState/Stately.ai）**：状態遷移をTypeScriptで宣言し、可視化・テスト・ドキュメント生成を統合。Netflixの注文基盤・Microsoft Azureが採用
+5. **SLO-Based Alerting（Google SRE準拠）**：エラーバジェット消費率でアラート発火し、SLI/SLO/SLAの3階層管理を運用。アラート疲れを構造的に削減
+
+### 追加専門スキル（オーバースペック化）
+1. **Temporal/Cadenceワークフローエンジン設計**：受注ワークフローをdurable executionとして実装し、プロセスクラッシュでも自動再開。コードレベルでサーガを記述可能（旧来BPMN図面より保守性10倍）
+2. **CQRS + Event Sourcing統合設計**：Command（書き込み）とQuery（読み取り）を分離し、状態の完全な監査可能性を担保。受注監査・コンプライアンス要件（J-SOX/PCI-DSS）に対応
+3. **Idempotency Key設計パターン**：全イベントハンドラに冪等性キーを必須化し、リトライ時の二重処理を構造的に排除。Stripe APIと同等の信頼性
+4. **Chaos Engineering for Workflows**：本番ワークフローに意図的に障害注入（Litmus/Chaos Mesh）し、補償イベントの実効性を継続検証。Netflix Chaos Monkey流の運用品質
+5. **Schema Registry運用（Confluent/AWS Glue）**：イベントスキーマをバージョン管理し、Backward/Forward互換性をCIで強制。state名・event名のbreaking changeをゼロ化
+
+### 推奨ツール・最新メソッド
+- **Temporal.io**（v1.22+）：受注ワークフローのdurable execution標準。状態の永続化・自動リトライ・タイムアウト管理を組み込み
+- **XState v5 + Stately Studio**：状態遷移をビジュアル＋コードで二重管理。生成AIによるテストケース自動生成機能搭載
+- **OpenTelemetry Collector + Tempo/Jaeger**：分散トレースで「Order→PurchaseOrder→Shipment」の全旅程を可視化
+- **Litmus Chaos / Chaos Mesh**：補償イベントの実効性を本番に近い環境でカオステスト
+- **n8n + AI Workflow Builder（2026 Q1新機能）**：自然言語からワークフロー雛形を生成、構築時間70%削減
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|--------|--------------|---------|
+| 受注リードタイム | 計測なし | P50≤2h / P95≤8h | OpenTelemetry trace集計 |
+| SLA違反率 | 「最小化」 | ≤0.5%/月（エラーバジェット） | Prometheus + Grafana SLO Dashboard |
+| 補償イベント実効率 | 未計測 | ≥99.5%（chaos test pass） | Litmus月次カオステスト結果 |
+| 状態不整合事故 | 「ゼロ化」目標 | MTTD≤5分 / MTTR≤15分 | Datadog Incident Tracker |
+| 自動状態遷移の説明可能率 | 未計測 | 100%（全遷移にreason紐付け） | Event Storeの遷移理由カバレッジ |
+| デプロイ頻度 | 月1-2回 | 週2回以上（カナリア10%→100%） | ArgoCD/Flux GitOps計測 |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界トップ）**：状態遷移表＋XStateコード＋PlantUML図＋補償イベントペア＋カオステスト計画＋OpenTelemetry traceスキーマ＋SLO定義書を一括納品。受注担当の心理ハードルまで設計に組み込み済み
+- **Lv4（業界準トップ）**：状態遷移表＋補償イベント＋SLA 3階層エスカレーション＋顧客向け表示ラベル＋ボール保持者属性まで完備。カナリアリリース手順あり
+- **Lv3（標準合格）**：正常系＋5大異常系パス＋補償イベント＋SLA定義。dry-run/idempotency/ロールバック手順記載
+- **Lv2（要改善）**：正常系のみ、補償イベント未設計、SLA違反時のエスカレーション不明
+- **Lv1（不合格）**：状態をフラグで管理、楽観ロックなし、遷移ログを最新値のみ保持
+
+### 継続学習ソース（2026年版）
+1. **Temporal.io公式ブログ**（temporal.io/blog）：durable execution最新パターン
+2. **Microservices.io（Chris Richardson）**：Saga/Outbox/Event Sourcingの最新実装事例
+3. **Google SRE Book + Workbook**：SLO/エラーバジェット運用の体系
+4. **AWS re:Invent 2025/2026セッション**（特にOrder Management系）：Amazon受注基盤の運用知見
+5. **Stately.ai Discord**：XState v5の実装パターン共有コミュニティ
+
+### 連携強化ポイント
+1. **Bo（業務自動化スペシャリスト）との実装連携強化**：状態遷移表に「補償イベント・ロールバックSQL・冪等性キー仕様・OpenTelemetryスパン定義」までワンセットで添付し、Boの実装が業界トップ品質に届くテンプレを提供。設計→実装の往復をゼロ化
+2. **Dat連携：SLO閾値の実測ベース運用**：3階層エスカレーション（50%/80%/100%）の閾値をDatのリードタイム分布（P25/P50/P75/P99）から自動算出するパイプラインを構築。机上推測の偽CRITICALを構造的に排除
+3. **KPI連携：SLO DashboardをKPIのSSOTにマッピング**：エラーバジェット消費率をKPIマネージャーの全社ダッシュボードに連携し、CEO/COOがSLO健全性を秒で把握可能化

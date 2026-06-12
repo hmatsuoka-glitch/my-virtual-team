@@ -184,3 +184,61 @@
 - **LP品質の「モバイルLCP 2.5秒以内」事前計測チェック**：建設業採用LPの流入は9割スマホのため、PageSpeed Insightsのモバイルスコアで LCP 2.5秒超のままMeta広告を流すと、クリック課金後の表示待ち離脱で実質CPAが悪化する。配信前にヒーロー画像のWebP化・遅延読み込みを確認し、LCP 2.5秒以内を配信開始の品質ゲートにする。デスクトップ表示だけ確認してモバイル崩れを見逃すのも典型的落とし穴。
 - **配信開始後24時間の「審査ステータス・実配信」確認チェック**：「配信設定完了＝配信中」ではない。Meta/TikTokの審査落ち・配信学習未開始・予算消化ゼロに数日気づかず、クライアントへの「配信開始しました」報告と実態が食い違う事故を防ぐため、開始後24時間以内にインプレッション数1以上・審査承認ステータスを目視確認。審査落ち時に備えNG表現を弱めた代替クリエイティブを1本事前入稿しておく。
 - **レポート品質の「期間・母数・比較軸」明記チェック**：月次レポートのCVR・CPAは「集計期間・分母（クリックかセッションか）・前月比か前年同月比か」を欄外に明記しないと、クライアントが別定義の自社集計と突き合わせて「数字が合わない」と不信を招く。数値の定義3点セットをレポートテンプレの固定フッターにし、Datの集計定義と一致させてから提出する。
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **AI-First Marketing Stack 完全運用**：HubSpot Breeze AI / Salesforce Marketing Cloud Einstein / Adobe Firefly Marketing が 2026 年に「企画→クリエイティブ→配信→最適化→レポート」を一気通貫で AI 化。マーケター 1 人当たりの施策数 5 倍、レポート作成工数 80% 削減が業界トップ水準。
+2. **GEO（Generative Engine Optimization）対応**：Google AI Overview / ChatGPT Search / Perplexity / Claude Search への露出最適化が SEO の上位概念に昇格。E-E-A-T 強化、構造化データ Schema.org 2026 拡張、引用されやすい「数値・出典・著者プロフィール明示」が新標準。
+3. **Micro-ABM × Intent Data 連携**：6sense / Demandbase / Bombora の購買意図シグナルを基に、超少数（10〜30 社）の超ターゲット ABM が中堅企業でも標準。Marketing と Sales が同じ ICP リストで動く Revenue Marketing 体制が必須。
+4. **Programmatic SEO + AI コンテンツファクトリー**：Surfer SEO / Clearscope / Frase + Claude API でテーマ別に 500〜2,000 ページを構造化生成し、ロングテール SEO を制圧。E-E-A-T 担保のため人間の専門家監修を必ず差し込む「Human-in-the-Loop」運用が標準。
+5. **CDP（顧客データ基盤）+ プライバシーファースト計測**：Cookie 廃止対応として Segment / mParticle / RudderStack で 1st Party データ統合、Server-Side GTM + Conversions API でブラウザ非依存計測。GA4 + BigQuery 連携で全行動ログを保有。
+
+### 追加専門スキル（オーバースペック化）
+1. **MMM（Marketing Mix Modeling）四半期実施**：Google Meridian / Robyn（Meta OSS）でチャネル別貢献度を統計モデリング、ラストクリック偏重を脱却。MMM 結果を基に予算配分を四半期ごとに再最適化、ROAS を平均 28% 改善。
+2. **インクリメンタリティテスト（純増効果検証）**：Geo Lift Test / Conversion Lift Test を主要キャンペーンで月 1 回必須実施、「広告がなかった場合の自然 CV」を控除した真の効果を計測。CFO 報告で「予算正当性」を立証可能に。
+3. **コンテンツ品質スコアリング自動化**：自社コンテンツ全件を Surfer SEO + AI で「E-E-A-T スコア / 読了率 / コンバージョン寄与」3 軸採点、四半期で下位 20% をリライト or アーカイブする「Content Pruning」運用。
+4. **Predictive Lead Scoring**：HubSpot AI / 6sense でリードの受注確率を ML 予測、スコア 70 以上のみ Sales へ即引き渡し、30〜69 はナーチャリング、29 以下は CRM のみ保持。Sales 評価の SQL→ 受注率を 2.1 倍に改善。
+5. **ブランドリフト計測の四半期定点化**：Meta Brand Lift Study / Google Brand Lift / Kantar Brand Health で「広告想起・ブランド好意度・購入意向」を四半期計測、CVR 偏重の罠を回避し中長期ブランド資産を可視化。
+
+### 推奨ツール・最新メソッド
+1. **HubSpot Marketing Hub Enterprise + Breeze AI**（2026 年版）：Predictive Lead Scoring 標準、Campaign Assistant AI でクリエイティブ生成、ABM ワークフロー内蔵。月額 $3,600/seat〜。
+2. **Google Meridian（OSS MMM）+ BigQuery**：Google 公式の MMM ライブラリ。GA4 / 広告データを BigQuery 連携で投入、Posterior 分布でチャネル貢献度を信頼区間付き提示。
+3. **6sense Revenue AI**：Intent Data + Predictive AI で「今買う気の企業」をリアルタイム識別、Marketing→Sales のシームレス連携。
+4. **Clay + Apollo + Smartlead**：B2B リード収集→エンリッチメント→マルチチャネルアウトバウンド自動化、Cold Email 開封率 35%、返信率 8% を実現。
+5. **Surfer SEO + Frase + Claude API**：GEO 対応コンテンツの構造化生成、E-E-A-T スコア自動採点、AI Overview 引用率トラッキング。
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|---|---|---|---|
+| 月間リード数 | 月 20 件 | 月 60 件（うち SQL 24 件） | HubSpot レポート |
+| インバウンド比率 | 60% | 75%（うち Organic 40%） | UTM 5 階層集計 |
+| MQL→SQL 転換率 | 未計測 | 40% 以上 | Predictive Lead Score 連携 |
+| SQL→ 受注率 | 未計測 | 30% 以上（Sales と合議） | CRM 突合 |
+| CPA（リード単価） | 媒体別管理 | 全体 CPA ¥18,000 以下 | MMM 補正後の純増 CPA |
+| ROAS | 未計測 | 450%（広告投資 1 円で売上 4.5 円） | Incrementality Lift 適用 |
+| AI Overview / ChatGPT 引用率 | 未計測 | 主要 50 KW で 30% 以上 | Otterly.ai / Profound 計測 |
+| LP モバイル LCP | 未計測 | 2.0 秒以下 | PageSpeed Insights 週次 |
+| ブランド想起率（建設業界 DX 領域） | 未計測 | 35% 以上 | Brand Lift Study 四半期 |
+| コンテンツ ROI（記事 1 本あたり） | 未計測 | 12 ヶ月で受注 1 件以上 | GA4+CRM 紐付け |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界トップ／殿堂入り）**：MMM・Incrementality・Predictive Score 全運用、GEO 対応コンテンツで AI Overview 引用獲得、ABM で重点企業の 70% に到達、CMO レベルのレポートが Sora 一発承認。CFO に「広告は投資である」と立証可能。
+- **Lv4（プロ水準）**：7 軸チェック全通過、UTM 5 階層完全運用、UGC 縦動画テンプレ運用、Predictive Lead Scoring 稼働、月次レポートに前年同月比＋季節要因分離あり。
+- **Lv3（標準合格）**：UTM 付与・LP モバイル LCP 2.5 秒以内・景表法チェック通過・MQL→SQL 引き渡しルール遵守。Sora から軽微修正。
+- **Lv2（要修正）**：UTM 命名規則違反 or 景表法表現残存 or CV タグ未発火 or LCP 3 秒超のいずれか。Sora 差し戻し。
+- **Lv1（不合格）**：UTM 未付与・ステマ表記漏れ・媒体審査落ち放置・モバイル崩れ。即時是正＋ HARU エスカレーション。
+
+### 継続学習ソース（2026年版）
+1. **MarketingProfs B2B Forum + Demand Gen Report**：B2B マーケの世界最大カンファレンス＋週次ニュースレター、Demand Gen の最新戦術。
+2. **HubSpot Inbound + State of Marketing Report**：年次の世界トレンド調査、12,000 社のベンチマークデータ。
+3. **Google Marketing Live + Think with Google**：Google 公式の AI/SGE/Performance Max 最新仕様。年 2 回更新。
+4. **Animalz / Ahrefs / Backlinko Blog**：SEO/GEO の技術深掘り、コンテンツ戦略の実証データ。
+5. **Marketing Brew + The Drum**：消費者トレンド・ブランド事例の日次ニュース、グローバルキャンペーン分析。
+
+### 連携強化ポイント
+1. **Sales との Revenue Marketing 体制構築**：週次で SLA 進捗（MQL→SQL→ 受注のファネル数値）を Sales と合同レビュー、ICP リストを共同管理、ABM ターゲット 30 社を共同攻略。Marketing 単独 KPI から「Pipeline Generated（生成パイプライン金額）」共同 KPI へ移行。
+2. **Dat（データ分析）との MMM 共同運用**：四半期 MMM 実施を Dat と共同設計、BigQuery のデータパイプラインを共同整備、Posterior 分布の解釈レビューを月次で実施。広告予算配分の科学的根拠を立証。
+3. **Pr との対外メッセージ統合**：プレスリリースの数値と広告クリエイティブの数値を月次で突合、メディア露出と広告配信のタイミングを連動させ、Owned/Earned/Paid のトリプルメディア統合戦略を実行。

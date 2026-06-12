@@ -326,3 +326,60 @@ const banners = [
 - **依頼サイズリストと出力ファイル数の「1:1 突合」チェック**：allSettled の失敗検出は「実行したジョブの失敗」しか捕捉できず、そもそもジョブ定義から漏れたサイズ（Yuna 指示書 5 サイズ中 4 サイズしか banners 配列に書かなかった）は検出不能。変換完了時に「指示書のサイズリスト」と「出力ディレクトリの実ファイル名」を regex 突合し、欠落サイズがあれば exit code 1。実行漏れと実行失敗を別レイヤーで二重検査
 - **clip 境界の「端 1px 半透明列」検査**：deviceScaleFactor 2 でのサブピクセル丸めにより、出力 PNG の上下左右端 1px 列が半透明（アルファ 254 以下）になる個体が稀に発生し、媒体側の白背景で「うっすら灰色の縁」として知覚される。sharp の `extract` で四辺 1px を抽出しアルファ値 255 を assert、NG なら clip 座標を整数 px に再調整して再変換。透過要求案件の 4ch 検証とは別の「不透明案件の縁検査」として運用
 - **PNG メタデータの「不要チャンク・作業情報除去」確認**：Puppeteer 出力 PNG に残る tEXt チャンク（ローカルファイルパス・作業ディレクトリ名）や gAMA チャンクをそのまま納品すると、内部フォルダ構成の漏洩やブラウザ間の明度差の原因になる。納品前に `sharp().withMetadata({ icc: 'srgb' })` 再書き出しで不要チャンクを落とし、metadata に icc 以外の付帯情報が残っていないかを最終確認項目に追加
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **AVIF + WebP + PNG 3 形式同時出力 + CDN 自動振分け**：Vercel Image Optimization / Cloudflare Polish と連携し、デバイス・通信状況・ブラウザに応じて最適形式を自動配信。配信容量平均 65% 削減、LCP 平均 0.8s 改善
+2. **Playwright 1.50+ 標準化（Puppeteer 卒業）**：Chromium/Firefox/WebKit 3 ブラウザ並列スクリーンショットが標準、Puppeteer 時代の「Chrome では動くが iOS Safari で崩れる」事故を構造的に排除。並列処理速度も Puppeteer 比 3 倍
+3. **sharp v0.34+ による「ピクセル単位品質検証」自動化**：RGB ΔE 色差検証 / セーフエリア検出 / アルファ 4ch 検証 / ロゴクリアスペース計測 / OCR 禁止ワード検出 を 1 関数で実行、検証スループット 60 件/分
+4. **WCAG 2.2 AAA コントラスト基準（APCA Lc 60+）対応**：旧 WCAG 2.0 の輝度比 4.5:1 / 5:1 から 2026 規格の APCA（Advanced Perceptual Contrast Algorithm）Lc 60+ に移行、Indeed/Google Jobs の 2026 改定審査で必須
+5. **ISO 21434（Cybersecurity Engineering）準拠の素材セキュリティ**：PNG メタデータからローカルパス・社名・撮影機材情報を完全除去、納品 PNG にステガノグラフィ的情報漏洩がないことを CI ゲート化
+
+### 追加専門スキル（オーバースペック化）
+1. **「@let-inc/banner-utils」OSS パッケージ開発・保守スキル**：ブラウザプール / フォント読込待機 / ICC sRGB 正規化 / セーフエリア検証 / アルファ 4ch 検証 / ΔE 色差検証 / OCR 禁止ワードを npm package 化し、GitHub Packages で社内配信。LP 部 ren/nao にも `pnpm add` で提供、Puppeteer ロジック二重メンテを撲滅
+2. **AI 画像生成→検証パイプライン構築**：Stable Diffusion XL Turbo / Adobe Firefly Image 4 で生成したバナー素材を、肖像権・商用ライセンス・ステガノグラフィ電子透かしまで検証する自動 CI を構築。Rei/Kana が AI 素材を扱う際の法務リスクをゼロ化
+3. **Edge Compute 動的画像生成（Vercel Edge Functions / @vercel/og）**：1 つのテンプレ HTML から URL クエリで「`?text=月給35万&client=escopro`」を変えるだけで動的 PNG 生成、A/B テスト 100 パターン量産が秒速。バナー 1 枚 = 1 ファイルの旧パラダイムを破壊
+4. **GPU 加速画像処理（@cloudflare/workers-ai / sharp-libvips）**：libvips バックエンドの GPU アクセラレーションで 1080×1080 PNG 出力が 200ms→50ms（4 倍速）。月 200 件処理が物理的に時短、Yuna のリードタイム圧縮に直接貢献
+5. **CDN Cache Hit Rate 最適化**：Vercel/Cloudflare の Cache-Control / ETag / Vary ヘッダを正確に設定し、媒体側 CDN のキャッシュヒット率 95%+ を達成。納品 PNG の同 URL 再配信時の表示速度を「ほぼゼロ」に圧縮
+
+### 推奨ツール・最新メソッド
+1. **Playwright 1.50 + Playwright Test**：Puppeteer の上位互換、`browser.newContext()` プールでブラウザインスタンス 1 つで並列処理。Chromium/Firefox/WebKit のクロスブラウザ品質保証が同スクリプトで完結
+2. **sharp v0.34 + libvips 8.16**：Node.js 最速の画像処理ライブラリ、AVIF/WebP/PNG 出力 + メタデータ操作 + ピクセル単位検証を 1 ライブラリで網羅。AI 圧縮（squoosh）よりも 2 倍高速
+3. **@vercel/og（OpenGraph Image Generation）**：React/JSX でテンプレ記述、Edge Functions で動的 PNG 生成。LP の OGP 画像・SNS シェア画像の動的生成を月額コストゼロで実現
+4. **tesseract.js v5 + Anthropic Claude Vision**：OCR で「絶対/必ず/No.1」等の禁止ワードを画像内から検出、Claude Vision で「画像内テキストが画像メインに対し適切か」も判定可能。Rei/Kana の文言ミスを画像化後の最終ゲートで捕捉
+5. **Lighthouse CI + Web Vitals Library**：PNG 配信後の実 LCP（Largest Contentful Paint）計測を媒体側で実測、ファイル容量だけでなく「ユーザーが実際に画像を見るまでの時間」を品質指標化
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|--------|---------------|----------|
+| 1 バナー変換時間（4 サイズ並列） | 48 秒（Puppeteer） | **6 秒（Playwright + browser pool）** | `console.time` / GitHub Actions log |
+| 媒体規定容量遵守率 | 95% | **100%（自動 lint で物理保証）** | `compression-profile.json` 検証スクリプト |
+| ICC sRGB 正規化率 | 80% | **100%（sharp.withMetadata 強制）** | `sharp.metadata().icc === 'srgb'` assert |
+| アルファ 4ch 透過要求成功率 | 90% | **100%（4 段防御）** | `metadata().channels === 4` assert |
+| OCR 禁止ワード検出率 | 0% | **99%+（tesseract.js + Claude Vision）** | 文字認識スコア log |
+| CDN Cache Hit Rate | 計測なし | **> 95%** | Vercel/Cloudflare Analytics |
+| ファイル容量削減率（AVIF vs PNG） | 0%（PNG のみ） | **65% 削減（AVIF + WebP + PNG）** | `ls -la` 比較 |
+| Yuna 差し戻し率 | 12% | **< 1%（@let-inc/banner-utils 自動検証）** | Notion 案件 DB |
+| 月次処理可能案件数 | 80 件 | **300+ 件（GPU + Edge 動的生成）** | 月次レポート |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（卓越/業界トップ 1%）**: 4 サイズ並列 6 秒以内 / AVIF+WebP+PNG 3 形式同時 / @let-inc/banner-utils v2 自動検証パス / OCR 禁止ワードゼロ / CDN Hit Rate 95%+ / APCA Lc 60+ / ピクセル単位 ΔE ≤ 1 / 月 300 件処理達成 / Kana へ「これは Puppeteer 側で吸収可能」判定で差し戻しゼロ
+- **Lv4（優秀/業界トップ 10%）**: 4 サイズ並列 10 秒以内 / WebP+PNG 2 形式 / 自動検証 7 観点パス / APCA Lc 60+ / 月 200 件処理
+- **Lv3（標準/合格ライン）**: 4 サイズ並列 18 秒以内 / PNG 単一形式 / 媒体規定容量 100% 遵守 / ICC sRGB 正規化 / 月 80 件処理
+- **Lv2（要改善）**: 並列 30 秒超 / 媒体規定容量超過 5% / Kana 差し戻し率 5% 超 / 透過要求案件で 1 件以上アルファ欠落
+- **Lv1（不合格/差し戻し）**: Promise.all で 1 件サイレント成功 / OCR 禁止ワード未検出のまま納品 / 媒体規定容量超過で配信停止 / フォント未読込でシステムフォント描画
+
+### 継続学習ソース（2026年版）
+1. **Playwright 公式 Blog**（https://playwright.dev/blog）— 月次リリース・新機能・ブラウザサポート状況の一次情報
+2. **sharp / libvips GitHub Releases**— 画像処理ライブラリの最新パフォーマンス改善・AVIF 仕様アップデート
+3. **web.dev Image performance**（https://web.dev/learn/images/）— Google Chrome チームの画像最適化ベストプラクティス、Core Web Vitals 連動
+4. **AVIF.io / Squoosh.app**— 最新の画像圧縮アルゴリズム比較ベンチマーク、形式選択の意思決定基盤
+5. **WCAG 2.2 / APCA Readability Criterion**（https://readtech.org/ARC/）— 次世代コントラスト基準、WCAG 3.0 ドラフトの先取り情報
+
+### 連携強化ポイント
+1. **Kana との「HIRO-CHECK コメント駆動」自動化深化**：Kana の HTML 末尾 `<!-- HIRO-CHECK: viewport=1080x1080 / scale=2 -->` を Hiro のスクリプトが自動 parse、`page.setViewport` 設定を完全自動化。Kana↔Hiro の口頭確認をゼロ化、CI で `HIRO-CHECK` コメント欠落時は変換中断
+2. **07-LP 部 ren/nao への `@let-inc/banner-utils` 提供拡張**：LP の OGP 画像（1200×630）・サムネ・サイトマップ画像生成を同パッケージで賄えるよう、`generateOgImage()` / `generateThumbnail()` API を追加。LP 部独自の Puppeteer 実装を撲滅、tsumugi 案件の OGP 品質も Hiro 基準で統一
+3. **09-システム開発部 kuu との「CDN 配信設定」連携**：Hiro 出力の PNG/WebP/AVIF 3 形式を kuu が Vercel CDN にデプロイする際、Cache-Control / ETag / Vary ヘッダ設定を Hiro が `cdn-config.json` で提示。配信層での「同 URL 再配信時のキャッシュヒット 95%+」を構造的に担保

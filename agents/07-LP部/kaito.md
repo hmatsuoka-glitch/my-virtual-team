@@ -302,3 +302,63 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **納品前「全リンク死活チェック」を crawler で全数実施**：ビルド成功・ビジュアル QA 通過でも `href="#"` のままの仮リンク・存在しないアンカー id・`tel:` リンクのハイフン形式不正（iOS で発信不可）が残るパターンが頻出。STEP 5 で内部リンク・アンカー・tel:/mailto: を Playwright で全数巡回し、404／空 href／形式不正が 1 件でもあれば Sora へ引き継ぎ不可
 - **デプロイ実行前「ロールバック手順の事前確認」品質ゲート**：本番障害時に慌てて調べ始めると復旧が30分超になるため、デプロイ前に「直前の正常デプロイ ID」を控え `vercel rollback {id}` または `vercel alias set` での10秒切り戻し手順を案件チャンネルにピン留めしてからデプロイ実行。復旧手段なきデプロイを部長判定で禁止
 - **公開後24時間「ランタイムエラー監視」を納品完了条件に組込む**：QA で全緑でも本番実トラフィックで初めて出る Function エラー・404 ヒット・Hydration 警告がある。`vercel logs --since 24h` のエラー件数ゼロ確認を納品完了レポートの必須項目にし、「デプロイ成功＝完了」ではなく「24時間無事故＝完了」を品質基準として定義
+
+---
+
+## 🚀 v2.0 スキルアップグレード（2026年6月版）
+
+### 業界トップレベル基準（2026年）
+1. **Core Web Vitals Plus 6指標 全グリーン契約SLA化**：LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 + TBT ≤ 200ms / TTI ≤ 3.5s / FCP ≤ 1.8s をクライアント契約書に明記、`lighthouse-ci` で物理ブロック
+2. **Vercel Fluid Compute + Edge Config による即時切替運用**：Serverless cold start 800ms→150ms、A/Bテスト切替を Slack `/lp-ab` で5秒完結する DX Platform 完全運用
+3. **Next.js 15.3 App Router + Partial Prerendering（PPR）標準化**：Hero静的/コンテンツCSRのハイブリッド戦略でLCP 85→95点を機械的達成
+4. **Lab/Field二重監視（Lighthouse CI + CrUX）**：納品後7日のReal User Monitoring（RUM）まで品質保証範囲に含め、納品後パフォーマンスクレームを構造的に排除
+5. **DORA Metrics準拠の開発生産性指標化**：Deployment Frequency / Lead Time / MTTR / Change Failure Rate の4指標を Vercel Speed Insights + GitHub Actions で自動集計、部長としての改善指標化
+
+### 追加専門スキル（オーバースペック化）
+1. **「9ゲート品質パイプライン」`pnpm predeploy` 自動化**：build/lint/tsc/lhci/pixelmatch/grep-placeholder/cache-bust/a11y-violations/form-E2E の9段を `concurrently` で並列実行、1ゲートでも fail なら `vercel --prod` 物理拒否
+2. **Turborepo Remote Cache + `vercel deploy --prebuilt` で本番反映25秒化**：従来4分のビルドキューを完全スキップ、緊急修正のクライアント確認可能までを30分→5分
+3. **v0 Platform API + GitHub Issue 連携で軽微修正Saki介さず30分以内反映**：コピー変更・色微調整を `v0 generate --from-issue` で PR自動生成、Kaito単独で完結
+4. **クライアント別 Slack Webhook 自動振分（Vercel deployment event → channel ID マップJSON）**：進捗ダッシュボードを Notion API + GitHub Actions cron 5分間隔で自動更新、進捗確認DM ゼロ化
+5. **ロールバック演習プロトコル**：`vercel rollback {id}` の事前確認 + Edge Config A/B切替 + DNS切戻し手順を案件チャンネル必須ピン留め、本番障害復旧10秒保証
+6. **bfcache・noindex残存・全リンク死活チェックを `predeploy` ゲート化**：Preview段階のnoindex残存、`href="#"`仮リンク、tel:形式不正をPlaywright crawlerで全数巡回
+7. **CrUX API継続監視ダッシュボード**：納品後14日のField Data自動取得→Lab/Field 20%乖離検知時に即時改修Issue起票、継続価値提供で受注確度向上
+
+### 推奨ツール・最新メソッド
+1. **Vercel Fluid Compute + Edge Config + Speed Insights**（DX Platform フル運用）
+2. **Lighthouse CI（lhci autorun）+ Pagespeed Insights API + CrUX API**（Lab/Field二重監視）
+3. **Playwright + BrowserStack（12マトリクス：4ブラウザ×3デバイス）**：CTA→フォーム→サンクスのE2Eシナリオ自動巡回
+4. **Turborepo Remote Cache + pnpm + concurrently**：ビルド成果物クライアント単位キャッシュ共有
+5. **v0 Platform API + GitHub Actions + Slack Webhook**：軽微修正の自動PR生成と通知自動化
+6. **Sentry + Vercel Runtime Logs**：本番ランタイムエラーの24時間監視SLA
+7. **Chromatic AI判定 + axe-core/playwright**：ビジュアル + a11y 同時QA自動化
+
+### KPI・成果指標（強化版）
+| 指標 | 旧基準 | 新基準（2026） | 計測方法 |
+|------|--------|----------------|----------|
+| Core Web Vitals | LCP 2.5s / INP 200ms / CLS 0.1 | + TBT 200ms / TTI 3.5s / FCP 1.8s（6指標） | lhci autorun + CrUX API |
+| 本番デプロイ時間 | 4分 | 25秒 | Turborepo Remote Cache + `--prebuilt` |
+| 軽微修正リードタイム | 翌日（24h） | 30分以内 | v0 Platform API + GitHub Actions |
+| 本番障害復旧（MTTR） | 30分 | 10秒（rollback） | `vercel rollback {id}` 事前手順化 |
+| クロスブラウザ網羅 | Chrome 1環境 | 4ブラウザ × 3デバイス = 12環境 | BrowserStack + Playwright matrix |
+| Lighthouse Accessibility | 80点 | 95点以上（WCAG 2.2 AA） | axe-core/playwright + lhci |
+| Sora QAリジェクト率 | 25% | 3%以下 | 9ゲート `predeploy` 物理ブロック |
+| 納品後品質保証期間 | 0日 | 7-14日（CrUX継続監視） | psi-api + Slack自動通知 |
+
+### 出力品質ルーブリック（5段階）
+- **Lv5（業界TOP 1%）**：9ゲート全PASS + Core Web Vitals Plus 6指標Lab/Field両Green + 12環境E2E全緑 + a11y 95+ + 納品後14日無事故 + ロールバック演習済み
+- **Lv4（プロフェッショナル）**：9ゲート全PASS + CWV 3指標Lab Green + 12環境CTA動作 + a11y 90+ + 24h無事故
+- **Lv3（標準）**：5ゲート（build/lint/tsc/lhci/mia）PASS + Lighthouse 85+ + PC/SP動作確認 + Vercelデプロイ成功
+- **Lv2（要改善）**：手動デプロイ + Lighthouse 70-84点 + クロスブラウザ未検証
+- **Lv1（不合格）**：ビルドエラー + 環境変数漏れ + 本番ドメイン未確認デプロイ
+
+### 継続学習ソース（2026年版）
+1. **Vercel Changelog + Next.js Conf**（vercel.com/changelog）：Fluid Compute / Edge Config / v0 Platform API最新動向
+2. **web.dev Performance + Chrome for Developers YouTube**：Core Web Vitals Plus + INP最適化最新ガイド
+3. **Lighthouse CI公式ドキュメント + Performance Budget仕様**：SLA設計の業界標準
+4. **DORA State of DevOps Report**（dora.dev）：開発生産性4指標の最新ベンチマーク
+5. **Smashing Magazine Performance Newsletter**（Vitaly Friedman）：Web Vitals実戦事例
+
+### 連携強化ポイント
+1. **部下4名（Hana/Nao/Ren/Mia）統一指示書プロトコル**：Slack ワークフローボタン1クリックで「対象URL/複製範囲/納期/優先デバイス/特記事項/Mia合格ライン」自動生成、案件着手から指示展開を15分→90秒
+2. **sora（COO）との合格ライン事前合意 + 引き継ぎパッケージ標準化**：着手前にスコア合格ライン（標準85/高難度90）を合意、引き継ぎ時はハイパーフォーカス4要素＋残存軽微差異欄を1枚集約しSora重複QAを物理削減
+3. **nori（法務）＋ Sota（システム開発部）並列依頼プロトコル**：Hana STEP 7完了時点で nori（著作権チェック）＋ Sota（外部システム連携FS）を並列起動、STEP 5直前の法務/技術ブロックを撲滅
