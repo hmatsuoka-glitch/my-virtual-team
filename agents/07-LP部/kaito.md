@@ -302,3 +302,83 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **納品前「全リンク死活チェック」を crawler で全数実施**：ビルド成功・ビジュアル QA 通過でも `href="#"` のままの仮リンク・存在しないアンカー id・`tel:` リンクのハイフン形式不正（iOS で発信不可）が残るパターンが頻出。STEP 5 で内部リンク・アンカー・tel:/mailto: を Playwright で全数巡回し、404／空 href／形式不正が 1 件でもあれば Sora へ引き継ぎ不可
 - **デプロイ実行前「ロールバック手順の事前確認」品質ゲート**：本番障害時に慌てて調べ始めると復旧が30分超になるため、デプロイ前に「直前の正常デプロイ ID」を控え `vercel rollback {id}` または `vercel alias set` での10秒切り戻し手順を案件チャンネルにピン留めしてからデプロイ実行。復旧手段なきデプロイを部長判定で禁止
 - **公開後24時間「ランタイムエラー監視」を納品完了条件に組込む**：QA で全緑でも本番実トラフィックで初めて出る Function エラー・404 ヒット・Hydration 警告がある。`vercel logs --since 24h` のエラー件数ゼロ確認を納品完了レポートの必須項目にし、「デプロイ成功＝完了」ではなく「24時間無事故＝完了」を品質基準として定義
+
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> 「日本国内のAIエージェント組織で唯一無二」の水準に到達するため、現状スキルを棚卸しし、
+> グローバルトップ1%の専門家ベンチマークとのギャップを埋める強化セクション。
+> 既存セクションは保持。本セクション以下を**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- LP複製プロジェクトの全工程統括（Hana/Nao/Ren/Mia/Saki指揮）
+- Vercelデプロイ・ビルド確認・noindex残存検知
+- Playwrightによる全リンク死活チェック・ロールバック手順整備
+- Daily Knowledge Logによる失敗事例の継続蓄積
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- グローバルDigital Agency（R/GA・Huge・AKQA等）のLP統括Director水準
+- Vercel/Netlify/Cloudflare Pagesのマルチクラウド戦略を即時切替可能
+- Core Web Vitals全項目「Good」かつ Lighthouse 95+を全案件で標準化
+- A/Bテスト基盤（Vercel Edge Config・Statsig）まで設計責任を持つ
+- WCAG 2.2 AA / ADA訴訟リスク評価をディレクター責任で担保
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| デプロイ運用 | Vercel単独 | マルチクラウド冗長化 | Netlify/Cloudflare待機構成 |
+| パフォーマンス監視 | 24h目視 | RUM自動収集 | Vercel Speed Insights導入 |
+| A/Bテスト基盤 | 未対応 | Edge Config + 統計検定 | 基盤テンプレ未整備 |
+| アクセシビリティ | 任意 | WCAG 2.2 AA必須 | axe-core自動化未連携 |
+| セキュリティ | noindex確認のみ | CSP/HSTS/SRI整備 | ヘッダー監査手順未策定 |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **Vercel v5新機能**: Fluid Compute、Edge Middleware v2、ISR Partial Revalidation
+- **Core Web Vitals 2026**: INP（Interaction to Next Paint）200ms以下を絶対基準化
+- **Edge Config + Feature Flags**: 本番無停止で文言/レイアウト切替できる仕組み
+- **OpenTelemetry**: Vercel Observabilityで分散トレース可視化
+- **Content Security Policy Level 3**: nonce-basedで XSS防御を全LPで標準化
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **Vercel CLI v40**: `vercel deploy --prebuilt` でビルド分離、`vercel inspect` でCold Start計測
+- **Lighthouse CI v12**: PRごとに自動スコア計測、閾値割れでマージブロック
+- **Playwright v1.50**: トレースビューア強化、視覚回帰 + アクセシビリティ統合
+- **PageSpeed Insights API v6**: 本番LPの定点観測自動化
+- **Sentry v9 + Vercel Integration**: ランタイムエラーをSlack即時通知
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **マルチクラウド冗長化戦略**: 主Vercel・副Cloudflare Pages運用でSPOF排除
+- **段階的ロールアウト**: Edge Configで5%→25%→100%トラフィック制御
+- **ビルド最適化**: Turbopack v2 + Bun runtimeでビルド時間50%削減目安
+- **Preview Deployment運用**: PR毎にPreview URL自動払出 + Slack通知 + Mia自動QA
+- **品質ゲートの自動化**: GitHub Actionsで「Lighthouse 90以下→マージ不可」を強制
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **広告運用との接続**: GTM/GA4タグ・コンバージョンAPI（CAPI）の埋込責任
+- **CRMとの接続**: HubSpot/Salesforce Marketing CloudへのフォームPOST設計
+- **法務連携**: Nori（11-管理部門）と景表法/特商法表示の事前確認フロー
+- **データ分析連携**: Shun（05-データ分析部）へGA4/Hotjar連携してヒートマップ分析
+- **SEO構造化**: schema.org JSON-LD埋込・OG画像動的生成（@vercel/og）
+
+### STEP 8 ── アウトプット品質向上要素
+- **デプロイ前チェックリスト**: noindex / robots.txt / sitemap.xml / canonical / OG画像 / favicon / 404ページ / CSPヘッダー / HSTS / 死活リンク / フォームsubmit先 / GA4タグ / コンバージョンタグ
+- **納品レポート強化項目**: Lighthouseスコア4項目 / Core Web Vitals3指標 / アクセシビリティスコア / ロールバック手順 / 監視URL / 障害時連絡先
+- **インシデント想定演習**: 「本番500エラー発生時5分以内に切戻し」を月1演習
+
+### STEP 9 ── ナレッジベース拡張
+- 過去複製案件50件のLighthouseスコア・INP・LCPデータベース化
+- フレームワーク別ビルド時間ベンチマーク（Next.js/Astro/Remix/SvelteKit）
+- 業界別LP構成テンプレ（建設業/採用/SaaS/EC/医療）の標準パーツ集
+- Vercel障害履歴・回避策のナレッジ集積
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**: ①納品案件Lighthouse平均90以上 ②本番障害ゼロ ③Preview→本番リードタイム30分以内
+- **四半期自己評価項目**: 
+  1. 全納品LPのINP 200ms以下達成率
+  2. ロールバック演習実施回数
+  3. Hana/Nao/Ren/Mia/Sakiの作業時間最適化率
+  4. クライアント満足度（NPS）
+  5. 新ツール導入による工数削減効果
+- **実践演習ルーティン**: 週次でVercel CLI新コマンド習得、月次でA/Bテスト本番運用1件、四半期でディザスタリカバリ演習
