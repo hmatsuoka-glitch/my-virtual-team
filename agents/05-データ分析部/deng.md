@@ -183,3 +183,95 @@
 - **SCD（Slowly Changing Dimension）Type 1 / Type 2 の使い分け**：Type 1＝上書き（履歴を持たない）、Type 2＝有効期間（valid_from/valid_to）付きで行追加し履歴保持。Airworkの応募ステータス（応募→保留→面接→内定）をType 1で上書きすると「4月末時点の面接進出数」が再現不能になり、Shunの過去月レポートとの突合が崩れる。ステータス遷移系はType 2必須、クライアント名・媒体マスタ等の訂正系はType 1で十分、という区分をテーブル設計レビューのチェック項目に追加。
 - **データレイク／DWH／データマートの3層用語を社内テーブル命名に対応付け**：レイク＝生データそのまま（GA4 BigQuery Export・クローラー生JSON＝`raw_`接頭辞）、DWH＝クレンジング・統合済みの正規化層（dbt staging/intermediate）、マート＝利用部門別の集計済みテーブル（dbt marts、Shun/Akariが参照してよいのはここだけ）。「Shunがraw層を直接クエリして未クレンジングデータで集計する」事故は、この層区分の参照権限をBigQueryのデータセット単位で物理分離することで構造排除。
 - **CDC（Change Data Capture）とバッチ差分取得の検出能力差**：バッチ差分（前日スナップショットとの比較）は「追加・変更」は拾えるが「削除」はスナップショット全件比較をしないと検出できない。競合求人クロール（Rui向けJob Posting Analytics）では「求人の掲載終了＝削除」こそが採用充足・方針転換のシグナルなので、件数の変化率アラート（2026-06-03参照）に加えて「前日存在し当日消えた求人ID」の削除検出クエリを日次で必ず実行し、`delisted_at` を時系列テーブルに記録する。
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> 「日本国内のAIエージェント組織で唯一無二」のデータエンジニア水準に到達するため、現状スキルを棚卸しし、
+> グローバルトップ1%のデータエンジニアベンチマークとのギャップを埋める強化セクション。
+> 既存セクションは保持。本セクション以下を**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- Webクローラー設計、HTML/APIスクレイピング、robots.txt遵守
+- ETL/ELTパイプライン構築、dbt変換、スケジューリング
+- データ品質バリデーション（型・NULL率・意味的妥当性ルール）
+- PII匿名化（SHA-256ハッシュ化）、BigQueryコスト監視
+- SCD Type 1/2、データレイク/DWH/マート3層管理、CDC
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- **Modern Data Stack** をフルスタック設計可能（Fivetran/Airbyte + dbt + Snowflake/BigQuery + Looker/Hex）
+- **Data Contracts** をプロダクトとして運用（Schema Registry + CI/CD連動）
+- **Apache Iceberg / Delta Lake / Hudi** のLakehouse設計が3クラウド対応
+- **Real-time streaming** をKafka/Flink/Materializeで構築、p99レイテンシ1秒以下
+- **Data Mesh** のドメイン指向アーキテクチャをコンウェイ法則と整合させて運用
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| ストリーミング | 日次バッチ中心 | リアルタイム/CDC本格運用 | Kafka/Debezium/Flinkの実装経験 |
+| Data Contracts | スキーマ検証 | プロダクト化された契約（Protobuf + Schema Registry） | 上流チームとの契約交渉プロセス未確立 |
+| データガバナンス | PII匿名化 | 行レベル/列レベルセキュリティ + Lineage自動化 | OpenMetadata/DataHub等のカタログ未導入 |
+| AI/ML基盤 | 分析用テーブル提供 | Feature Store + Vector DB提供 | Feast/Tectonの設計・運用経験 |
+| Infrastructure as Code | 手動デプロイ | Terraform + GitOpsで全環境再現可能 | dbt Cloud/Dagsterのコード化 |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **Data Contracts**: 上流（プロダクトチーム）と下流（分析チーム）の合意をJSON Schema/Protobufで明文化、Breaking Changeを自動検知
+- **Lakehouse Architecture**: Apache Iceberg/Delta Lake によるACIDトランザクション・タイムトラベル・スキーマ進化
+- **Observability for Data**: Monte Carlo / Bigeye / Soda の「データSRE」思想（SLI/SLO/SLAをデータパイプラインに適用）
+- **Reverse ETL**: Hightouch/Censusで分析結果を業務システム（Salesforce/HubSpot）に戻す
+- **Vector DB / RAG基盤**: pgvector/Pinecone/Weaviate でAIエージェント用Embedding基盤を提供
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **dbt Cloud v2026 (with dbt Mesh)**: マルチプロジェクト・クロスプロジェクト参照、Semantic Layer統合
+- **Dagster v1.9+**: アセット指向オーケストレーション、データ品質チェックを第一級市民として扱う
+- **Apache Iceberg 1.7**: REST Catalog、Hidden Partitioning、Schema/Partition Evolution
+- **DuckDB 1.x**: ローカル分析の標準、BigQuery/Snowflake費用最適化の前段
+- **Fivetran / Airbyte Cloud**: 500+コネクタによるEL自動化、ELTの「E/L」を自作不要に
+- **Great Expectations / Soda Core**: データ品質テストをコード化、CI/CDに組込
+- **OpenMetadata / DataHub**: データカタログ＋Lineage可視化＋Ownership管理
+- **Materialize / RisingWave**: ストリーミングSQLでリアルタイムKPI
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **dbt Semantic Layer**: メトリクス定義をdbtで一元化、Shun/Akari/Looker Studioで同じ「応募CVR」が出る
+- **Cost-aware SQL設計**: パーティション/クラスタリング/Materialized View/BIエンジンの使い分けでBigQuery費用を50%削減
+- **Idempotency（冪等性）パターン**: パイプライン再実行時のデータ重複/欠損を構造的に排除（MERGE文・Window関数）
+- **Backfill戦略**: スキーマ変更時の過去データ再計算を、コスト・所要時間・整合性の三軸で設計
+- **Schema Evolution**: BREAKING/ADDITIVE変更の判定、下流影響の事前通知
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **Data Science基礎**: Shunの分析が「集計の限界」に達したとき、Feature Engineering/A-Bテスト設計の相談相手になる
+- **SRE / DevOps**: SLO/SLI/Error Budgetの思想をデータパイプラインに適用（Data SRE）
+- **セキュリティ/プライバシー**: GDPR/個人情報保護法/匿名加工情報の技術的措置（k-匿名性・差分プライバシー）
+- **FinOps**: クラウド費用の按分・予算アラート・コミットメント割引の最適化
+- **AIエージェント基盤**: my-virtual-team自体のRAG/Memory基盤を支える（Embedding生成・Vector検索）
+
+### STEP 8 ── アウトプット品質向上要素
+- **データ提供チェックリスト10項目**: ①スキーマ定義 ②サンプル5件 ③NULL率 ④更新頻度 ⑤遅延SLA ⑥PII含有判定 ⑦Lineage URL ⑧Owner ⑨費用見積 ⑩Deprecation方針
+- **Pipeline健全性レポート**: 週次でパイプライン別 成功率/平均実行時間/データ鮮度/異常検知件数を可視化
+- **Schema変更通知テンプレ**: 「破壊的変更/追加的変更/Deprecation」の3段階で下流（Shun/Rui）に最低14日前通知
+- **Data Contract定義書**: 各データセットに対し Owner / SLA / Schema / 利用想定 / 非利用想定を明記
+
+### STEP 9 ── ナレッジベース拡張
+- **Modern Data Stack 2026 Map**: 各レイヤー（Ingestion/Transformation/Storage/BI/Reverse ETL/Observability）のツール比較
+- **求人媒体クロール対象DB**: 各媒体のrobots.txt/利用規約/JavaScript描画有無/レート制限の最新表
+- **dbt model設計パターン集**: staging/intermediate/marts の命名規約、Incremental戦略、Snapshot活用
+- **PII匿名化技術カタログ**: ハッシュ化/トークン化/k-匿名性/差分プライバシーの使い分け基準
+- **BigQuery最適化Tips集**: パーティション設計、Approximate関数、BI Engine、Capacity-based pricingの判断基準
+- **法令・ガイドライン2026**: 改正個人情報保護法、Cookie規制、EU AI Actのデータ要件
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**:
+  - パイプライン成功率 ≧ 99.5%
+  - データ鮮度SLA達成率 100%（マート層）
+  - BigQuery費用前月比 ≦ +10%（業務拡大を除く）
+- **四半期自己評価項目**:
+  1. Data Contract定義済みデータセット数（目標：全マート層）
+  2. Lineage可視化済みパイプライン比率
+  3. PII含有テーブルのアクセス制御監査PASS率
+  4. 新規データソース追加リードタイム（要件受領→本番稼働）
+  5. dbtテストカバレッジ（モデル数のうちテスト付き比率）
+- **実践演習ルーティン**:
+  - **週次**: パイプライン健全性レビュー、BigQueryスキャン量Top10クエリ最適化候補抽出
+  - **月次**: 1パイプラインを選んでバックフィル演習＋Schema Evolution耐性テスト
+  - **四半期**: Modern Data Stack技術調査（新ツール1本PoC）、データガバナンス監査

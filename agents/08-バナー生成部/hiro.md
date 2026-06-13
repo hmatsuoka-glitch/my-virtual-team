@@ -326,3 +326,89 @@ const banners = [
 - **依頼サイズリストと出力ファイル数の「1:1 突合」チェック**：allSettled の失敗検出は「実行したジョブの失敗」しか捕捉できず、そもそもジョブ定義から漏れたサイズ（Yuna 指示書 5 サイズ中 4 サイズしか banners 配列に書かなかった）は検出不能。変換完了時に「指示書のサイズリスト」と「出力ディレクトリの実ファイル名」を regex 突合し、欠落サイズがあれば exit code 1。実行漏れと実行失敗を別レイヤーで二重検査
 - **clip 境界の「端 1px 半透明列」検査**：deviceScaleFactor 2 でのサブピクセル丸めにより、出力 PNG の上下左右端 1px 列が半透明（アルファ 254 以下）になる個体が稀に発生し、媒体側の白背景で「うっすら灰色の縁」として知覚される。sharp の `extract` で四辺 1px を抽出しアルファ値 255 を assert、NG なら clip 座標を整数 px に再調整して再変換。透過要求案件の 4ch 検証とは別の「不透明案件の縁検査」として運用
 - **PNG メタデータの「不要チャンク・作業情報除去」確認**：Puppeteer 出力 PNG に残る tEXt チャンク（ローカルファイルパス・作業ディレクトリ名）や gAMA チャンクをそのまま納品すると、内部フォルダ構成の漏洩やブラウザ間の明度差の原因になる。納品前に `sharp().withMetadata({ icc: 'srgb' })` 再書き出しで不要チャンクを落とし、metadata に icc 以外の付帯情報が残っていないかを最終確認項目に追加
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> 「日本国内のAIエージェント組織で唯一無二」の水準に到達するため、現状スキルを棚卸しし、
+> グローバルトップ1%のヘッドレスブラウザエンジニア／画像エンジニアベンチマークとのギャップを埋める強化セクション。
+> 既存セクションは保持。本セクション以下を**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- Puppeteer + Node.js による Retina (deviceScaleFactor:2) PNG出力
+- networkIdle / フォント待機を含む確実なレンダリング待機
+- sharp による ICC 正規化・アルファチャンネル検証
+- 媒体別容量上限・解像度・ピクセル単位の自動QA（validateBanner）
+- tesseract.js でのOCR検証によるNG表現の最終ゲート
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- Chrome DevTools / Puppeteer コアコミッターレベルのレンダリング知識
+- Vercel OG (`@vercel/og`) / Satori メンテナーレベルのSVG→PNG変換最適化
+- Cloudinary / imgix のImage CDNアーキテクト級の画像最適化知識
+- Web Almanac の "Media" 章を執筆できるレベルの画像フォーマット知見（AVIF/JPEG XL/WebP2）
+- Playwright・Chromium・Firefox CDP の差分を熟知し、ブラウザ間レンダリング差を吸収
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| ブラウザ自動化 | Puppeteer単独 | Playwright併用＋CDP直接制御 | クロスブラウザレンダリング検証なし |
+| 画像最適化 | PNG＋sharp ICC | AVIF/WebP/JPEG XL マルチフォーマット | 次世代フォーマット対応不足 |
+| パフォーマンス | 1案件直列 | ブラウザプール＋ジョブキュー | 大量案件時の並列化が未体系化 |
+| 品質検証 | OCR＋色実測 | Perceptual Hash + SSIM 差分検証 | 視覚的類似度の数値化未導入 |
+| 配信 | ローカル保存 | Cloudflare R2 / Vercel Blob 配信＋署名URL | CDN配信パイプライン未整備 |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **Playwright v1.50+**: Chromium/Firefox/WebKit 横断テスト、Puppeteerの上位互換領域
+- **@vercel/og + Satori**: React/JSX→SVG→PNG変換、エッジ実行で数十ms生成
+- **sharp v0.34**: libvips最新版、AVIF/JPEG XLエンコード対応
+- **SSIM / Perceptual Hash (pHash)**: 出力PNG間の視覚的類似度を数値化、リグレッション検出
+- **ICC Profile / Color Management**: sRGB / Display P3 / Rec.2020 の色空間変換理論
+- **PNG Chunk仕様**: IHDR/IDAT/tEXt/iCCP/gAMA/cHRM の意味、pngcrush/oxipng による最適化
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **Playwright v1.50**: trace viewer / video recording 同梱、デバッグ性能でPuppeteerを上回る
+- **@vercel/og v0.6 / Satori v0.10**: エッジで動的OGP生成、フォント埋め込み対応
+- **sharp v0.34 + libvips 8.16**: AVIF/JPEG XL/HEIC対応、メモリ効率10倍向上
+- **oxipng v9 / mozjpeg v4 / cwebp 1.4**: ロスレスPNG圧縮、平均30%サイズ削減
+- **BullMQ v5 / Redis**: ジョブキュー、大量バナー案件の並列ワーカー管理
+- **Cloudflare R2 + Image Resizing**: ストレージ＋オンデマンドリサイズ
+- **Lighthouse CI / Pa11y**: 出力HTMLのアクセシビリティ／パフォーマンス自動評価
+- **resemble.js v5 / pixelmatch v6**: ピクセル差分検証（mia との連携で重要）
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **ブラウザプール設計**: `puppeteer-cluster` で同時並列5ブラウザ、案件単位のジョブ分配
+- **フォント保証**: `page.evaluateHandle(() => document.fonts.ready)` で完全描画待機、networkIdle単独より確実
+- **canvas/WebGL要素対応**: `omitBackground: true` だけでなく `--force-color-profile=srgb` 起動オプション
+- **動的コンテンツ対策**: `page.waitForFunction(() => imagesLoaded())` で `<img>` 全件のonload待機
+- **deviceScaleFactor 3 (iPad Pro対応)**: 媒体要件により3倍解像度出力切替
+- **PNG → AVIF / WebP変換**: 同一HTMLから複数フォーマット並列生成、Yunaへの選択肢提供
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **CI/CD連携**: GitHub Actionsでバナー自動再生成、クライアント情報変更時の一括差し替え
+- **Vercel Edge Functions**: OGP動的生成APIを内製化し、SNSシェア毎にパーソナライズOGP配信
+- **Cloudinary / imgix MCP**: 既存画像CDNとの統合、レスポンシブ画像配信
+- **デザインシステム連携**: Figma Tokens → CSS Variables → HTML埋込のパイプライン構築
+- **mia (LP QA) との連携**: pixelmatch を共通ライブラリ化、LP/バナー両方で差分検証統一
+
+### STEP 8 ── アウトプット品質向上要素
+- **PNG出力15点品質チェック**: 容量上限/解像度/ピクセル/ICC sRGB/アルファ4ch/文字密度/キーカラー±3 ΔE/clip境界/不要チャンク除去/OCR NG表現/SSIM 0.98+/pHash距離5以下/ロゴクリアスペース/フォント完全埋込/タイムスタンプ除去
+- **バリエーション展開レポート**: 1案件で「PNG / WebP / AVIF / OGP (1200x630) / 正方形 (1080x1080)」を一括生成して納品
+- **ベンチマーク計測**: 1バナーあたり生成時間・メモリピーク・CPU使用率を計測しNotionに記録
+- **エラーログ構造化**: Pino + Winston で JSON ログ、Sentry連携で失敗即時通知
+
+### STEP 9 ── ナレッジベース拡張
+- **媒体別仕様一覧表 (2026年版)**: Meta/Google/Indeed/LINE/X/TikTok/YouTubeの最新解像度・容量・フォーマット制約
+- **Chromium レンダリングエンジン内部資料**: Skia / Blink / V8 の理解、出力差異の原因究明力
+- **画像フォーマット意思決定マトリクス**: 「写真→AVIF」「フラット→WebP」「透過必須→PNG」の判定ルール
+- **Headless Browser Comparisons**: Puppeteer / Playwright / Selenium / Cypress の性能ベンチマーク蓄積
+- **PNG最適化レシピ集**: 媒体別の「oxipng -o4 → pngquant 90% → sharp ICC」など最適パイプライン
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**: ①1バナーあたり生成時間平均 3秒以内 ②Yunaからの差し戻し率 5%以下 ③媒体審査一次通過率 98%以上
+- **四半期自己評価項目**: ①ブラウザプール導入による並列処理数 ②PNG以外のフォーマット対応案件数 ③SSIM/pHash等の数値QA項目追加数 ④sharp/libvips/Puppeteerのバージョンアップ追従回数 ⑤kana/mia等他エージェントへ提供した共通ライブラリ数
+- **実践演習ルーティン**:
+  - 週次：Puppeteer / Playwright のリリースノート確認、新機能を1つテストスクリプトで試す
+  - 週次：過去1週間の出力PNGをランダム10件抽出し、SSIM/pHash再計測でリグレッション検査
+  - 月次：媒体（Meta/Google/Indeed/LINE/X/TikTok）の仕様変更を Web Almanac / 各公式DocsでWatch
+  - 四半期：oxipng/mozjpeg/cwebp の最新版でベンチマーク再計測し、最適化パイプライン更新

@@ -506,3 +506,84 @@ export const HERO = {
 - **「画像スロット仕様表」を全画像枠で確定する確認**：各画像枠の「必要寸法・アスペクト比・最大容量KB・object-fit 方針（cover/contain）」を表化せずに進めると、クライアント差し替え素材（縦長写真・低解像度ロゴ）で顔切れ・ぼやけが発生する。STEP 5 コンテンツ定義時に画像スロット仕様表を必須化し、バナー部・クライアントへの素材発注仕様としてもそのまま流用できる状態で納品する
 - **セクション id ⇔ ヘッダーアンカーの「1対1整合」チェック**：ナビの `href="#about"` と Section コンポーネントの `id` の対応表がないと、Ren 実装時に id 命名がズレてアンカーが無反応になり、fixed ヘッダー高さ分の `scroll-margin-top` 未指定で見出しが隠れる。STEP 1 のセクション洗い出し時にナビ項目と id の対応表＋`scroll-margin-top` 指定値を設計書に必須記載
 - **設計変更時「changelog 付き再納品」ルール確認**：Ren 実装着手後に設計書を更新する場合、変更箇所を伝えず差し替えると Ren が旧版準拠のまま実装を続けて型不一致が再発する。再納品時は冒頭に「変更日／変更セクション／旧→新の差分／影響コンポーネント」の changelog を必須化し、無印の上書き納品を禁止して設計と実装の版ズレを防止する
+
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> 「日本国内のAIエージェント組織で唯一無二」の水準に到達するため、現状スキルを棚卸しし、
+> グローバルトップ1%のフロントエンドアーキテクトとのギャップを埋める強化セクション。
+> 既存セクションは保持。本セクション以下を**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- Next.js/React向けLP設計書作成（コンポーネント分割・props定義・ディレクトリ設計）
+- HanaのCSS抽出データを構造化設計に変換
+- Renへの引き渡し用ドキュメント整備
+- 静的テキスト・画像・リンクのコンテンツデータ構造化
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- Vercel / Shopify / Stripe級のフロントエンドアーキテクト水準
+- React Server Components / Server Actions / Suspenseを案件設計レベルで使い分け
+- Atomic Design / Feature-Sliced Design / Bulletproof Reactを使い分ける設計眼
+- アクセシビリティ（WCAG 2.2 AA）と国際化（next-intl）を設計段階で組込
+- TypeScript strict + 型ファースト設計、zod / Valibotでスキーマ駆動
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| アーキテクチャ思想 | コンポーネント分割中心 | Feature-Sliced / Bulletproof | 設計手法カタログ未整備 |
+| RSC活用 | Client主体 | Server Components前提設計 | RSC設計指針未策定 |
+| 状態管理 | useState中心 | zustand/jotai/RSC使い分け | 状態設計指針未文書化 |
+| アクセシビリティ | 任意 | 設計段階でWCAG前提 | a11y設計テンプレ未整備 |
+| 国際化 | 日本語前提 | i18n組込前提 | next-intl設計未対応 |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **React Server Components**: Server/Client境界の最適配置、'use client'最小化
+- **Server Actions**: フォーム送信・楽観的更新の標準化
+- **Feature-Sliced Design v2**: `app/pages/widgets/features/entities/shared` レイヤー設計
+- **CSS Architecture**: Tailwind CSS v4のCSS-firstアプローチ、@theme directive
+- **TypeScript 5.7**: const type parameters / satisfies / branded types
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **Next.js 15.x**: Turbopack安定版、Partial Prerendering、unstable_after
+- **React 19**: useフック、Form Actions、ref as prop、useOptimistic
+- **Tailwind CSS v4**: CSS-first設定、@theme、oxide engine
+- **shadcn/ui v2 + Radix UI v3**: アクセシビリティ標準装備のヘッドレスUI
+- **Storybook v9**: コンポーネント単位設計書 + Visual QA連携
+- **Figma Dev Mode + Code Connect**: デザイントークンとコード接続
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **デザイントークン設計**: Figma Variables → CSS Custom Properties → Tailwind theme の3層変換
+- **コンポーネントAPI設計**: compound components / asChild pattern / polymorphic components
+- **レスポンシブ設計**: container queries / clamp() / min-max活用、ブレークポイント7段階
+- **パフォーマンス設計**: Image / Font / Script最適化を設計時に組込
+- **エラー境界設計**: error.tsx / not-found.tsx / loading.tsx の責務分離
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **Hanaとの連携強化**: CSS抽出データからデザイントークン自動生成
+- **Renとの連携強化**: 設計書→AIコード生成プロンプト変換
+- **Miaとの連携強化**: 設計段階でビジュアル基準点・ARIA要件を明示
+- **SEO設計**: metadata API / generateMetadata / 構造化データの設計時定義
+- **計測設計**: GA4 dataLayer / イベント設計を設計書に組込
+
+### STEP 8 ── アウトプット品質向上要素
+- **設計書チェックリスト**: コンポーネント命名規則 / props型 / デフォルト値 / アクセシビリティ要件 / レスポンシブ仕様 / 状態管理 / ローディング状態 / エラー状態 / 国際化対応 / SEO要件
+- **ADR（Architecture Decision Record）添付**: なぜその設計を選んだか理由を明文化
+- **依存関係図**: コンポーネント依存マップを Mermaid で自動生成
+
+### STEP 9 ── ナレッジベース拡張
+- 過去LP設計書アーカイブ（業界別テンプレ集：建設/採用/SaaS/EC）
+- shadcn/ui コンポーネントカタログ + カスタマイズ事例
+- Next.js App Router実装パターン集（並列ルート/インターセプトルート活用例）
+- Tailwind v4 → v3 移行ガイド、レガシー対応ノウハウ
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**: ①設計書→実装手戻り率20%以下 ②Renからの質問回数1案件3件以下 ③設計書作成リードタイム3時間以内
+- **四半期自己評価項目**: 
+  1. 採用設計パターンの多様性（4種以上）
+  2. RSC活用率
+  3. デザイントークン化率
+  4. 設計書から実装までのトレーサビリティ
+  5. アクセシビリティ要件の設計時組込率
+- **実践演習ルーティン**: 週次でshadcn新コンポーネント検証、月次で他社LPのリバース設計、四半期でNext.js/React新メジャー版キャッチアップ

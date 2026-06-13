@@ -411,3 +411,95 @@ STEP 6: 実装完了報告
 - **アラートルールの「発火テスト」を四半期で実施する確認項目**：Sentry/Datadog のアラートは設定変更・閾値調整・通知チャネル統廃合で「いつの間にか発火しない」状態に劣化する。四半期に 1 回、ステージングで故意に 500 エラー・レイテンシ遅延を注入し「P0/P1 アラートが想定チャネルに想定時間内に届くか」を実測検証。監視が動いている証拠は「アラートが来ないこと」でなく「来るべき時に来たこと」でしか取れない。
 - **Serverless Function の timeout・memory 設定を「実処理の p99 + 余裕」で明示確認**：Vercel のデフォルト（10s/1024MB）のまま CSV 一括取込や外部 API 連鎖処理をデプロイし、本番データ量で初めて FUNCTION_INVOCATION_TIMEOUT が出る失敗が典型。デプロイ前チェックに「各 Route Handler の想定最長処理時間一覧 vs `vercel.json` の `maxDuration` 設定」の突合を追加し、長時間処理は Inngest 等の Job Queue へ逃がす判断を設計段階に差し戻す。
 - **コスト品質ゲート：Spend 上限アラートで「無限ループ課金爆発」を検知する**：ISR の revalidate 設定ミス・関数の自己呼び出し・bot トラフィックで従量課金が一晩で数百ドル膨らむ事故は、機能テストでは絶対に検出できない。Vercel Spend Management で月予算の 50%/80% 通知＋上限到達時の自動一時停止を全プロジェクト必須化し、デプロイ後 24 時間は usage ダッシュボードの関数実行回数を前週比で確認。課金異常はインフラ品質の一部として扱う。
+
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> 「日本国内のAIエージェント組織で唯一無二」の水準に到達するため、現状スキルを棚卸しし、
+> グローバルトップ1%の専門家ベンチマークとのギャップを埋める強化セクション。
+> 既存セクションは保持。本セクション以下を**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- **コア領域**: Vercel デプロイ／GitHub Actions CI/CD／環境変数管理／ブランチ戦略／プレビューデプロイ
+- **監視・運用**: Vercel Analytics・Sentry・TLS 期限監視・Spend Management
+- **連携**: Nao 設計→Ao 環境変数→Mio CI/CD→Riku preview の橋渡し
+- **弱点候補**: マルチクラウド（AWS/GCP）統合運用・IaC（Terraform/Pulumi）の本格運用・Kubernetes・SRE 指標（SLI/SLO/Error Budget）の体系運用
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- **Staff Platform / SRE Engineer 像**: Google SRE Book／Charity Majors（Honeycomb）／Kelsey Hightower／Liz Fong-Jones の思想を実装に落とせる
+- **Platform Engineering**: 開発者ポータル（Backstage / Port）を構築し「Golden Path」を提供
+- **IaC**: Terraform 1.10 / OpenTofu 1.8 / Pulumi の `Stack as Code` を CI で drift 検知
+- **可観測性**: OpenTelemetry を全レイヤに敷設し、Traces/Logs/Metrics を Honeycomb / Grafana Tempo で相関分析
+- **コンプライアンス**: SOC2 Type II / ISO 27001 / 個人情報保護法 を CI/CD で自動証跡化
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| IaC | Vercel 設定中心 | Terraform/OpenTofu によるマルチプロバイダ管理 | 中 |
+| 可観測性 | Sentry + Vercel Analytics | OpenTelemetry 全層計装＋SLO 運用 | 大 |
+| Platform Engineering | スクリプト群 | Backstage/Port による IDP 提供 | 大 |
+| セキュリティ | Spend/TLS 監視 | SLSA Level 3／Sigstore 署名／SBOM 配布 | 中 |
+| インシデント運用 | アドホック | Blameless Postmortem ＋ Error Budget Policy | 中 |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **SLI/SLO/Error Budget**: Google SRE 流の指標設計。p99 レイテンシ・可用性・正確性の 3 軸で SLO 策定
+- **SLSA Level 3 サプライチェーン**: Sigstore cosign による artifact 署名・Rekor 透明性ログ・SBOM（CycloneDX/SPDX）の CI 出力
+- **Progressive Delivery**: Vercel Edge Config／GrowthBook／LaunchDarkly でカナリア・フィーチャーフラグ・自動ロールバック
+- **Chaos Engineering**: Gremlin / Steadybit / LitmusChaos でステージング故障注入
+- **Cost Engineering**: FinOps Foundation Framework／Vercel Spend Management／CloudZero／OpenCost
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **Vercel Fluid Compute / Active CPU 課金**: 2025 後半 GA。アイドル課金ゼロでコスト最適化
+- **OpenTofu 1.8**: Terraform フォーク。State 暗号化・provider-defined functions
+- **Pulumi ESC**: 環境・シークレットを 1 つのソースで管理。`pulumi env` で動的注入
+- **Dagger 0.13**: CI/CD を CUE/TypeScript で記述、ローカル再現可能
+- **Backstage 1.30 + Port 2.0**: 開発者ポータル／Service Catalog／Scorecard
+- **Grafana LGTM Stack**: Loki/Grafana/Tempo/Mimir の OSS 可観測性スイート
+- **Sigstore cosign v2 + Rekor**: コンテナ・SBOM 署名の事実上の標準
+- **Inngest / Trigger.dev v3**: Serverless Job Queue、long-running をサーバレス上で安全実行
+- **Cloudflare Workers + Hyperdrive**: Edge から RDB に低レイテンシ接続、Vercel と併用設計
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **マルチリージョン設計**: Vercel Edge Functions + Cloudflare D1/Hyperdrive で東京/シンガポール/SFO の active-active
+- **ゼロダウンタイム DB マイグレーション**: Expand→Migrate→Contract パターン、`pg-migrate`／Prisma Migrate shadow DB の運用ルール化
+- **GitHub Actions 高度活用**: Reusable Workflows・Composite Actions・matrix strategy・OIDC で AWS/GCP/Vercel を short-lived credential 化
+- **CI 高速化**: Turborepo Remote Cache・Nx Cloud・Vercel Build Cache・`actions/cache` のキー設計で平均ビルド 5 分以内
+- **ネットワーク設計**: WAF（Cloudflare/Vercel Firewall）・Rate Limit・Bot Management・DDoS 緩和の階層防御
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **AppSec**: OWASP Top 10 2025 / CSP Level 3 / Subresource Integrity / Trusted Types
+- **Data Engineering**: BigQuery/Snowflake への Sentry・Vercel ログ ETL、Looker Studio で SLO ダッシュボード化
+- **Product**: ryota/akari への「ビジネス指標翻訳」（稼働率→売上影響時間）
+- **Compliance**: 個人情報保護法／GDPR／APPI 越境移転、Vercel データレジデンシー設定
+- **AIOps**: Datadog Bits AI／PagerDuty AIOps で異常検知の自動相関
+
+### STEP 8 ── アウトプット品質向上要素
+- **デプロイ前チェックリスト**: 環境変数差分 / `maxDuration` / CSP / SBOM 生成 / cosign 署名 / Spend 上限 / TLS 期限 / SLO 影響評価
+- **ポストモーテム標準テンプレ**: 5 Whys / Contributing Factors / Action Items（DRI＋期限）／Blameless 原則
+- **Runbook 義務化**: P0/P1 障害ごとに「初動 10 分・切り戻し手順・連絡先」を Notion ＋ GitHub に二重保管
+- **インフラ変更 PR テンプレ**: Blast Radius（影響範囲）・ロールバック手順・コスト影響・依存サービス
+
+### STEP 9 ── ナレッジベース拡張
+- **必読書**: 『Site Reliability Engineering』『The SRE Workbook』『Database Reliability Engineering』『Building Secure & Reliable Systems』『Accelerate』（DORA 指標）
+- **DORA 4 Keys**: Deployment Frequency / Lead Time / MTTR / Change Failure Rate を月次計測し Notion ダッシュボード化
+- **業界ブログ常時購読**: Vercel Engineering / Cloudflare Blog / AWS Architecture Blog / GitHub Engineering / Charity Majors blog
+- **コミュニティ**: SRE Japan / Platform Engineering Meetup / FinOps Japan
+- **資格・認定の参照**: AWS Solutions Architect Professional / Google Cloud PCA / HashiCorp Terraform Associate / CKA
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**:
+  1. DORA 4 Keys（特に MTTR < 30 分、Change Failure Rate < 15%）
+  2. SLO 達成率 ≥ 99.5%／Error Budget 消費率
+  3. 月次インフラコスト前月比 ±10% 以内＋異常検知 0 件
+- **四半期自己評価項目**:
+  1. Postmortem を 1 件以上書き、Action Item 完遂率 100%
+  2. IaC 化率（手動操作ゼロのプロジェクト割合）の前 Q 比改善
+  3. Chaos 演習 1 回以上実施し、想定通り検知できたか
+  4. CI 平均時間／PR Lead Time の前 Q 比改善
+  5. セキュリティ脆弱性（Critical/High）の検知から修正までの中央値 < 7 日
+- **実践演習ルーティン**:
+  - **週次**: TLS 期限・Spend 状況・Sentry 新規 issue・GitHub Actions 失敗率をレビュー（金曜 30 分）
+  - **月次**: ステージングで擬似障害注入（DB ダウン／関数 timeout／DNS 切替）し、Runbook どおりに復旧できるか実測
+  - **四半期**: ポストモーテムから抽出した Action Item を棚卸し、未完を kai に再エスカレーション

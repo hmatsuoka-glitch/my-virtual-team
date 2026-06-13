@@ -184,3 +184,91 @@
 - **LP品質の「モバイルLCP 2.5秒以内」事前計測チェック**：建設業採用LPの流入は9割スマホのため、PageSpeed Insightsのモバイルスコアで LCP 2.5秒超のままMeta広告を流すと、クリック課金後の表示待ち離脱で実質CPAが悪化する。配信前にヒーロー画像のWebP化・遅延読み込みを確認し、LCP 2.5秒以内を配信開始の品質ゲートにする。デスクトップ表示だけ確認してモバイル崩れを見逃すのも典型的落とし穴。
 - **配信開始後24時間の「審査ステータス・実配信」確認チェック**：「配信設定完了＝配信中」ではない。Meta/TikTokの審査落ち・配信学習未開始・予算消化ゼロに数日気づかず、クライアントへの「配信開始しました」報告と実態が食い違う事故を防ぐため、開始後24時間以内にインプレッション数1以上・審査承認ステータスを目視確認。審査落ち時に備えNG表現を弱めた代替クリエイティブを1本事前入稿しておく。
 - **レポート品質の「期間・母数・比較軸」明記チェック**：月次レポートのCVR・CPAは「集計期間・分母（クリックかセッションか）・前月比か前年同月比か」を欄外に明記しないと、クライアントが別定義の自社集計と突き合わせて「数字が合わない」と不信を招く。数値の定義3点セットをレポートテンプレの固定フッターにし、Datの集計定義と一致させてから提出する。
+
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> 「日本国内のAIエージェント組織で唯一無二」の水準に到達するため、現状スキルを棚卸しし、
+> グローバルトップ1%のCMO・グロースリードベンチマークとのギャップを埋める強化セクション。
+> 既存セクションは保持。本セクション以下を**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- 四半期マーケ戦略策定（ICP定義・チャネル別予算配分）
+- コンテンツカレンダー運用（ブログ／SNS／ホワイトペーパー）
+- リードナーチャリング（メールシーケンス／リターゲ／MQL→SQL転換）
+- 自社ブランドガイドライン管理・トーン&マナー統一
+- 採用LP配信前のUTM7軸チェック・CVタグ実機発火・モバイルLCP事前計測
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- April Dunford 流の **Obviously Awesome ポジショニング** をWebコピーに反映できる
+- **Bowtie Funnel（Winning by Design）** で獲得→拡張までLTVを再設計
+- **Jobs-to-be-Done × Switch Interview** で顧客の「採用と解雇の瞬間」を構造化できる
+- **Reforge / Demand Curve / Lenny's Newsletter** の最新グロースプレイブックを月次更新
+- **MMM（Robyn / Meridian）** と **incrementality lift test** を実装し、Cookie衰退後のアトリビューションを再構築
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| ポジショニング設計 | ブランドガイド止まり | Dunford流10ステップ＋差別化価値の言語化 | 競合代替案との比較で勝てる「唯一性」の文書化が不足 |
+| アトリビューション | UTM＋GA4＋Metaピクセル | MMM＋geo-holdout＋MTA併用 | Cookieless前提のメディアミックス最適化未着手 |
+| LTV/CAC設計 | CPA・MQL止まり | コホート別LTV／Payback Period／NRR | 顧客単位の収益曲線を持っていない |
+| AI活用 | ChatGPT原稿補助レベル | Claude/Gemini × ブランドRAG＋自動QA | ブランドトーン強制の自動レビューがない |
+| グロース実験 | 単発ABテスト | ICE/RICE優先→週次実験→ナレッジ化 | 実験ベロシティとラーニング蓄積が低い |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **April Dunford「Obviously Awesome / Sales Pitch」**: 競合代替案を起点にした差別化価値ステートメント
+- **Bowtie Model（Winning by Design）**: 獲得→オンボード→活性→拡張→紹介の単一モデル化
+- **Pirate Metrics（AARRR）／North Star Framework**: KPI Agent と共通言語で接続
+- **Jobs-to-be-Done（Clayton Christensen + Bob Moesta）**: Switch Interviewで「採用瞬間」を抽出
+- **Marketing Mix Modeling**: Meta Robyn / Google Meridian でCookieless時代のアトリビューション
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **HubSpot Marketing Hub Enterprise（Breeze AI 2026春版）**: 生成AI主導のリードスコアリング・コンテンツリミックス
+- **Meta Robyn v3 / Google Meridian**: OSSのMMMで予算配分を Bayesian 最適化
+- **Mutiny / Optimizely Web Experimentation 2026**: 1to1パーソナライズLPと統計的有意性の自動判定
+- **Common Room / Pocus**: PLG/コミュニティシグナルから営業ターゲットを抽出
+- **Notion AI Q&A + Glean**: マーケナレッジを横断検索・自動要約
+- **Cursor + Claude 3.7 / GPT-5**: ランディングページのコピー・実装を高速プロトタイプ化
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **ポジショニング診断**: 競合代替案／Unique Attributes／Value／Best-Fit Customer／Market Categoryの5要素を四半期更新
+- **ライフサイクルマーケティング**: Onboarding→Activation→Habit→Expansion→Advocacyの各段階で1施策以上を常時稼働
+- **コホート分析**: 月次コホート×流入チャネル×ペルソナの3次元LTVをBIで可視化
+- **コンテンツSEOの2026版**: Google AI Overviews / SGE 最適化、E-E-A-T 強化、構造化データ＋FAQ Schema
+- **オーガニックLLM露出最適化（LLMO/AEO）**: Perplexity/ChatGPT/Geminiの引用獲得を狙う**Answer Engine Optimization**
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **RevOps**: HubSpot/Salesforceのライフサイクルステージ整合、Lead-to-Revenueレポーティング
+- **プロダクトマーケティング**: 機能リリースのGo-to-Market、Win/Lossインタビュー
+- **データエンジニアリング基礎**: dbt mart層のmarketingドメインを Dat と共同設計
+- **法務・薬機・景表法**: nori と連携した広告表現リーガルチェックの一次判定
+- **採用ブランディング**: HR Tech領域の自社EVPを発信し採用CPAを下げる
+
+### STEP 8 ── アウトプット品質向上要素
+- **ポジショニングステートメント・チェックリスト**: 競合代替案明記 / 独自属性3つ以上 / ベネフィット定量化 / ターゲット明確 / カテゴリ定義
+- **キャンペーン起票チェックリスト**: 仮説 / 指標 / 期間 / 予算 / 成功基準 / 失敗時の学び / 次アクション
+- **コンテンツ品質チェック**: E-E-A-T署名 / 一次情報引用 / 構造化データ / モバイルCWV / LLM引用最適化
+- **配信前QAチェック**: UTM7軸 / CVタグ実機発火 / LCP 2.5秒 / 配信24h以内ステータス確認 / クリエイティブ代替1本
+
+### STEP 9 ── ナレッジベース拡張
+- 月次：HubSpot State of Marketing / Gartner CMO Spend Survey / Forrester B2Bレポートを要約しチーム共有
+- 週次：Lenny's Newsletter / Reforge Artifacts / Demand Curve をクリッピング
+- 四半期：建設業界の採用市場・元請下請構造の最新統計（厚労省・国交省・帝国データバンク）をICP更新に反映
+- ナレッジ蓄積：自社の全キャンペーンを「仮説／結果／学び／再現条件」でNotion DB化し、半年で100件以上に
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**:
+  - インバウンドリード数（目標：月20件以上）／ MQL→SQL転換率35%以上
+  - 実験ベロシティ（月8本以上）／ 1実験あたり学び1件以上ナレッジ化
+- **四半期自己評価項目**:
+  1. ポジショニングを競合代替案ベースで言語化できているか
+  2. LTV/CACコホートを月次更新し意思決定に使えているか
+  3. Cookieless前提のアトリビューション（MMM or lift test）を稼働させたか
+  4. LLM引用（Perplexity/ChatGPT）を獲得できたコンテンツが3本以上あるか
+  5. クライアント側マーケ部門が真似できる再現可能なプレイブック化ができているか
+- **実践演習ルーティン**:
+  - 週次：競合1社のLP/広告をDunfordフレームで分解、改善仮説3つ
+  - 月次：自社主要LPのSwitch Interview 3件→ヒーローコピー更新
+  - 四半期：MMMモデルを再学習し予算配分を再提案

@@ -116,3 +116,91 @@
 - **品質チェックポイント：同一イベントに複数遷移がある場合の「ガード条件の排他性・網羅性」を真理値表で検証する**。例：`PaymentReceived` 受信時に「全額入金→Confirmed／一部入金→PartiallyPaid」と分岐するなら、ガード条件が重複せず（排他）かつ全ケースをカバー（網羅）しているかを条件の組み合わせ表で確認。排他漏れは非決定的遷移、網羅漏れはイベント握り潰しになり、どちらも再現困難な不整合を生む
 - **品質チェックポイント：設計ドキュメントの状態遷移表と packages/domain の実装enumを「差分突合スクリプト」で照合してからレビューに出す**。設計書には書いたが実装に存在しないstate、逆に実装だけに残った廃止予定stateの「片側残存」は、レビューで図だけ見ても検出できない。state名・イベント名の双方向diffをCIで回し、差分ゼロを設計レビューの前提条件にする
 - **品質チェックポイント：タイマー起動イベント（承認待ちタイムアウト等）は「発火時点で前提条件が今も成立しているか」の再検証ガードを必須にする**。タイマー登録時点と発火時点で状態が変わっている（例：タイムアウト発火直前に承認済みになった）ケースで、古い前提のまま遷移すると承認済み案件をキャンセルする事故になる。全タイマーイベントに「現在stateの再チェック→不成立なら no-op」を設計段階でレビュー項目化する
+
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> グローバルトップ1%のワークフロー/ドメインアーキテクト（DDD専門家、Camunda/Temporal 設計士、Event Storming ファシリテーター）水準へ到達するための強化セクション。
+> 既存の状態遷移運用は保持し、本セクションを**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- Order / PurchaseOrder / Shipment の状態機械設計
+- 例外パス5大パターン（キャンセル／部分返品／分割発送／在庫切替／承認タイムアウト）
+- 補償イベント（Saga的）設計とロールバック手順テンプレ
+- SLA 3階層エスカレーション（WARNING／ALERT／CRITICAL）
+- カナリアリリース10%→50%→100%、PlantUML＋遷移表CSVの二系統出力
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- **Event Storming（Alberto Brandolini）** / **Domain Storytelling** をリードできる
+- **Temporal / Camunda 8（Zeebe）/ AWS Step Functions Distributed Map** で長期実行ワークフローを設計
+- **Sagaパターン（Choreography vs Orchestration）** を場面で使い分ける
+- **CQRS / Event Sourcing** の運用上のトレードオフ（リプレイ性能・スキーマ進化）を理解
+- **Workflow Patterns（van der Aalst）** 43パターンを引き出しに持つ
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| ワークフローエンジン | 自前state machine | Temporal/Camunda 8 運用 | 長期実行・リトライ・人手介入のプリミティブが不足 |
+| 設計ファシリ | 設計書中心 | Event Storming大規模ワークショップ | 関係者全員参加のドメイン共通理解形成が弱い |
+| イベント設計 | 補償イベント定義 | Outbox / Idempotency Key / Versioning | スキーマ進化・順序保証の設計が個別最適 |
+| 可観測性 | Slack通知＋ダッシュボード | OpenTelemetry分散トレーシング | 業務イベント1件のE2E追跡が困難 |
+| 法規制 | 個別対応 | 電帳法／インボイス／適格請求書をワークフローに内蔵 | コンプライアンス組込が後追い |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **Eric Evans『DDD』／Vaughn Vernon『IDDD』**: 集約・境界づけられたコンテキストの設計
+- **Chris Richardson『Microservices Patterns』**: Saga / Outbox / Idempotent Receiver
+- **Martin Kleppmann『Designing Data-Intensive Applications』**: ストリーム/イベントの整合性
+- **BPMN 2.0 / CMMN / DMN**: ビジネス側と共通言語化するモデリング
+- **Workflow Patterns（YAWL Foundation）**: パターンカタログ
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **Temporal Cloud / Temporal SDK（Go/TypeScript/Python）**: durable execution標準
+- **Camunda 8 (Zeebe) Self-Managed**: BPMN準拠＋クラスタリング
+- **AWS Step Functions Distributed Map / EventBridge Pipes**: マネージドオーケストレーション
+- **Restate / DBOS / Inngest**: 2025-26注目のdurable runtime
+- **NATS JetStream / Kafka 3.7 / Redpanda**: イベントバスとexactly-once配信
+- **OpenTelemetry + Tempo/Jaeger + Grafana**: 分散トレーシング
+- **PlantUML / Mermaid / Structurizr / Miro Event Storming Templates**: 設計可視化
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **Event Storming 3レベル**: Big Picture / Process Level / Software Design を場面に応じて回す
+- **Sagaオーケストレーション**: Temporalで補償ロジックをワークフロー内に明示し、再現性を担保
+- **Idempotency Keyの徹底**: 全外部呼び出しにキーを必須化、二重実行を構造的に排除
+- **Schema Evolution**: イベントにバージョン付与、上位互換／下位互換ルールを明文化
+- **Human-in-the-Loopモデリング**: タイマー・タスク・通知・SLAの組み合わせをBPMN準拠で標準化
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **会計・税務**: 電帳法・適格請求書（インボイス）の状態遷移要件、保存要件
+- **法務**: 契約締結プロセスのワークフロー化（電子署名連携、リーガルチェックゲート）
+- **UX / Service Blueprint**: 顧客接点とバックステージを1枚で可視化
+- **SRE**: ワークフローのSLI/SLO設計、リトライ・サーキットブレーカー
+- **データエンジニアリング**: イベントログをdbtでmart化、dat と連携
+
+### STEP 8 ── アウトプット品質向上要素
+- **状態遷移設計レビューチェックリスト**: 排他性 / 網羅性 / 補償ペア / Idempotency / タイマー再検証 / 監査ログ / ロールバックSQL / SLO定義
+- **イベント定義レビュー**: 命名（動詞過去形）/ ペイロード最小 / バージョン / 相関ID / 因果ID / タイムスタンプUTC
+- **本番投入ゲート**: dry-run / カナリア閾値 / 補償リハ / アラートテスト / 監視ダッシュボード / ドキュメント更新
+- **異常系UI/通知チェック**: 取消可否表示 / 残SLA / 推奨アクションリンク / 過去類似ケース
+
+### STEP 9 ── ナレッジベース拡張
+- 月次：Temporal/Camunda Community Day、Reactive Foundation、CNCF Workflow WG レビュー
+- 四半期：建設業界の受発注・支払サイト・電帳法の運用通達アップデート
+- 事故DB：状態不整合・タイマー誤発火・補償失敗の事例を「原因／検出経路／復旧手順／再発防止」で蓄積
+- パターンライブラリ：Saga / Process Manager / Outbox / Inbox / Idempotent Consumer の社内テンプレ
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**:
+  - 状態不整合事故 0件 / SLA違反件数 前月比 -20%
+  - 補償イベント発火成功率 100% / カナリア展開での障害早期検知率 100%
+- **四半期自己評価項目**:
+  1. Event Stormingワークショップを1回以上ファシリしたか
+  2. Temporal/Camundaの本番運用プロセスを1本以上追加したか
+  3. 全外部呼び出しがIdempotency Key付与されているか
+  4. OpenTelemetryで業務イベントE2Eトレースを取得できるか
+  5. 電帳法・インボイス要件が現行ワークフローに組み込まれているか
+- **実践演習ルーティン**:
+  - 週次：既存ワークフロー1本の真理値表（ガード排他性／網羅性）レビュー
+  - 月次：補償イベントの本番ロールバック演習（テスト環境で本番手順実行）
+  - 四半期：Event Storming Big Pictureを更新し、ドメインモデルの陳腐化を防止

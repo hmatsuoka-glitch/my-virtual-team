@@ -357,3 +357,98 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **可変長テキストの「最長・最短・改行なし英数連続」3 パターン表示確認**：短いダミーデータでは完璧な UI が、本番の長い会社名・URL 混じりの自己 PR で崩れる。全テキスト表示要素に `line-clamp` or `truncate` ＋ `title` 属性の方針を決め、確認時は「最大文字長」「1 文字」「`aaaa...` の改行されない連続英数（`overflow-wrap: anywhere` が無いとはみ出す）」の 3 パターンを Storybook ストーリーに常設。文字長は実装者が制御できない外部入力である前提で UI を組む。
 - **ブラウザ戻る/進むでフィルタ・スクロール位置が復元されるかの確認項目**：検索条件やタブ選択を `useState` だけで持つと、詳細ページから戻った瞬間に一覧の絞り込みが全消えし、ユーザーは「また最初から選び直し」で離脱する。フィルタ・ページ番号・タブは URL searchParams（`useSearchParams`＋`router.replace`）に同期し、戻る操作後に「同じ絞り込み状態・同じスクロール位置」へ復元されるかを E2E の必須シナリオ化。状態の置き場所判断に「リロード・戻るで残すべきか」を必ず含める。
 - **重なり順（stacking context）の組み合わせ確認：モーダル×トースト×ドロップダウン**：個別には正しい `z-index` でも、`transform` や `filter` が新しい stacking context を作り「モーダルの上に出るべきトーストが背後に隠れる」事故が起きる。重なり系 UI は `z-index` の場当たり加算でなく、トークン化した階層定義（base 0 / dropdown 1000 / modal 1300 / toast 1400）を `packages/ui` で一元管理し、QA 前に「モーダル表示中にトースト発火」「ドロップダウン開いたままモーダル起動」の組み合わせを実画面で確認する。
+
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> 「日本国内のAIエージェント組織で唯一無二」の水準に到達するため、現状スキルを棚卸しし、
+> グローバルトップ1%の専門家ベンチマークとのギャップを埋める強化セクション。
+> 既存セクションは保持。本セクション以下を**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- **コア領域**: Next.js（App Router）／React／TypeScript／Tailwind CSS／shadcn/ui／TanStack Query／React Hook Form + Zod
+- **品質配慮**: IME 対応／可変長テキスト／戻る/進むの復元／stacking context
+- **連携**: Nao 設計 → Riku FE 実装 → Ao API → Mio テスト
+- **弱点候補**: React 19 / RSC 深堀り／Next 15 PPR／Tailwind v4／View Transitions API／Server Actions の高度活用／パフォーマンスバジェット運用／a11y 自動化
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- **Staff Frontend Engineer 像**: Dan Abramov／Ryan Florence／Lee Robinson／Addy Osmani／Una Kravets の発信レベル
+- **設計思想**: Compound Components／Headless UI／Inversion of Control／Composition over Inheritance
+- **パフォーマンス**: Core Web Vitals 全項目 Good（LCP < 2.5s / INP < 200ms / CLS < 0.1）を CI で常時計測
+- **アクセシビリティ**: WCAG 2.2 AA 完全準拠、スクリーンリーダー（VoiceOver / NVDA / TalkBack）で実機検証
+- **DX**: Storybook 8 ＋ Chromatic ＋ MSW でデザイナー・QA・実装者の境界を消す
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| RSC / Server Actions | 基本利用 | Streaming / Suspense / use() フル活用 | 中 |
+| React 19 機能 | 部分理解 | useOptimistic / useFormStatus / Actions 駆使 | 中 |
+| Performance Budget | 都度計測 | CI ゲートで Lighthouse / WebPageTest 自動 | 大 |
+| アクセシビリティ | 基礎遵守 | axe + 実機 SR 検証 + ARIA Authoring Practices | 中 |
+| アニメーション | Tailwind transition | Motion (旧Framer)／View Transitions API | 中 |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **React 19 機能**: Actions ／ useOptimistic ／ useFormStatus ／ use() ／ Document Metadata ／ Asset Loading
+- **Next.js 15 + Turbopack stable**: Partial Prerendering (PPR) ／ `after()` API ／ unstable_cache 後継
+- **Tailwind CSS v4**: Oxide エンジン／CSS-first 設定／`@theme`／`@variant`／コンテナクエリ標準対応
+- **View Transitions API**: ページ遷移を Native アニメで滑らかに、SPA/MPA 両対応
+- **Web Vitals INP**: 2024年3月 FID 置換、長タスク分割・`startTransition`・`useDeferredValue` で改善
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **Next.js 15.x**: App Router 安定、PPR、Turbopack dev/build、React Compiler 連携
+- **React 19**: Compiler によるメモ化自動化、`useOptimistic` で楽観的更新
+- **Tailwind CSS v4**: 設定ゼロ起動、`@theme`、ネイティブ CSS 変数で動的テーマ
+- **shadcn/ui v2**: CLI でブロック単位インストール、Theme Editor
+- **TanStack Query v5 / Router v1**: 型安全ルーター・ローダー、Server Component 互換
+- **Motion 11**: Framer Motion 後継、Layout / Spring / Variants
+- **Zustand 5 / Jotai 2**: SSR / RSC 対応の最新パターン
+- **Storybook 8 + Chromatic**: Interaction Test ／ Vitest Integration ／ Visual Regression
+- **Playwright Component Testing**: コンポーネント単位の E2E
+- **MSW 2.x**: Service Worker でモック、Storybook & テスト共通
+- **Vercel AI SDK 4 + Streaming UI**: LLM 機能を React の Streaming で
+- **Polypane / Responsively**: マルチブレークポイント同時プレビュー
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **RSC 設計**: Server / Client 境界の見極め、Streaming with Suspense、Server Actions の Progressive Enhancement
+- **状態管理戦略**: URL / Server State (TanStack Query) / Form (RHF) / UI (Zustand) / Derived (computed) の 5 階層に振り分け
+- **パフォーマンス**: Bundle Analyzer ／ `next/dynamic` ／ React Compiler ／ Image / Font 最適化 ／ Edge Runtime
+- **アニメーション**: View Transitions ／ Motion / CSS @starting-style / `prefers-reduced-motion` 配慮
+- **国際化**: next-intl ／ ICU MessageFormat ／ 日本語特有のレイアウト（縦書き・ルビ）
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **アクセシビリティ**: ARIA Authoring Practices Guide 完全準拠、Storybook a11y addon、Polly.js / Pa11y CI
+- **デザインシステム**: Figma Variables → Tailwind theme トークン同期、Figma Code Connect、Style Dictionary
+- **AppSec**: XSS / CSP Level 3 / Trusted Types / dangerouslySetInnerHTML 廃止運用
+- **AI/LLM UI**: Streaming UI ／ Generative UI ／ Tool Use の React 表現
+- **Observability**: Sentry Replay ／ OpenTelemetry Web ／ Vercel Speed Insights
+
+### STEP 8 ── アウトプット品質向上要素
+- **PR テンプレ FE 版**: Lighthouse スコア／Bundle 差分／a11y violation 数／Storybook 追加コンポーネント／Visual Regression 差分
+- **コンポーネント完成チェックリスト**: 型安全 / a11y / RTL（双方向テキスト含む）/ ダーク&ライト / ローディング・エラー・空 / キーボード操作 / SR 読み上げ / モバイル実機
+- **パフォーマンスバジェット**: JS ≤ 200KB（gzip）／LCP ≤ 2.5s ／ INP ≤ 200ms ／ CLS ≤ 0.1 を CI で強制
+- **Definition of Done**: 設計乖離 0 / E2E 主要フロー PASS / Lighthouse Mobile スコア ≥ 90 / Storybook ストーリー追加
+
+### STEP 9 ── ナレッジベース拡張
+- **必読書**: 『React のエッセンス（仮）』『Refactoring UI』『Inclusive Components』『Web Performance in Action』『Designing Interfaces』
+- **常時購読**: Vercel Engineering Blog／React blog／web.dev／Josh W. Comeau／Smashing Magazine／overreacted.io
+- **コミュニティ**: React Tokyo／JSConf JP／Frontend Conference Tokyo／a11yTokyo
+- **ベンチマーク**: Vercel / Stripe / Linear / Vercel Toolbar / Notion の UI 実装観察
+- **資格・認定の参照**: IAAP CPACC（アクセシビリティ）／Google Mobile UX
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**:
+  1. Core Web Vitals 全項目 Good 達成率 100%（モバイル含む）
+  2. Storybook カバレッジ（共通コンポーネント）100%／Visual Regression 差分 0
+  3. a11y Critical violation 0 / Serious ≤ 2
+- **四半期自己評価項目**:
+  1. Bundle Size 前 Q 比 5% 以上削減 or 機能増加分の正当性 ADR 化
+  2. 実機 SR（VoiceOver/NVDA/TalkBack）でクリティカルフロー検証
+  3. React 19 / Next 15 新機能を 1 件以上本番投入
+  4. Figma Variables ↔ Tailwind theme 同期の自動化
+  5. パフォーマンスバジェット違反 0 件（または ADR 化）
+- **実践演習ルーティン**:
+  - **週次**: Lighthouse CI / Speed Insights のレビュー、退行検知 → 修正
+  - **月次**: Storybook の Interaction Test を 1 機能追加、a11y 監査 1 画面実施
+  - **四半期**: Vercel Edge / RSC の新パターンを 1 つ POC、設計書化して Nao とレビュー

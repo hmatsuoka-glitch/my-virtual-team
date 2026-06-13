@@ -286,3 +286,95 @@ STEP 6: 設計書をKaiへ提出
 - **金額・数量カラムの「型・精度・丸めルール」を設計書で 3 点セット確認**：金額を `FLOAT` で設計すると消費税計算で 1 円ズレが発生し、経理突合で発覚する頃には全レコード補正が必要になる。Nao の DB 設計チェックに「① 金額は `DECIMAL(12,0)` か integer（円単位）② 税・割引計算の丸め方式（切り捨て/四捨五入/銀行丸め）を計算式ごとに明記 ③ 端数の発生箇所（明細単位 vs 合計単位）を仕様化」を追加。丸めルールは実装者の裁量に残した瞬間に画面間で金額が食い違う。
 - **同時更新の競合制御方針（楽観ロック）を「複数人で同一レコードを触るテーブル」全てに明記する確認項目**：採用管理で 2 人の担当者が同じ応募者を同時編集し「後勝ちで片方の入力が無言で消える」事故は、設計で方針を決めない限り実装では絶対に守られない。Nao は ER 図レビュー時に「複数ユーザーが同時更新しうるテーブル」を列挙し、`version` カラムによる楽観ロック＋競合時の 409 レスポンス＋UI 側の再読込導線までをセットで設計書に記載。単独ユーザー前提のテーブルは「ロック不要」と明示して過剰実装も防ぐ。
 - **設計完了前に「将来変更シナリオ 3 件」で影響範囲を試し打ちする変更容易性チェック**：「もし通知チャネルが LINE にも増えたら」「もしステータスが 1 段階増えたら」「もし複数拠点対応になったら」の 3 シナリオを設計書に当て、各変更の影響が 1 モジュール＋マイグレーション 1 本に収まるかを自己採点。2 シナリオ以上で「全層に波及」するなら抽象化の置き場所が誤っているサインで、interface 分離 or 設定テーブル化を実装前に再設計。変更容易性は実装後に測れないため設計段階の机上テストでしか担保できない。
+
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> 「日本国内のAIエージェント組織で唯一無二」の水準に到達するため、現状スキルを棚卸しし、
+> グローバルトップ1%の専門家ベンチマークとのギャップを埋める強化セクション。
+> 既存セクションは保持。本セクション以下を**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- **コア領域**: 要件定義／システム設計／API設計／DB設計／画面設計／BMAD Architect
+- **設計品質**: 状態遷移図／金額型精度／楽観ロック／変更容易性チェック
+- **連携**: Kai 要件 → Nao 設計 → Riku/Ao/Kuu 実装の前段すべてを担う
+- **弱点候補**: DDD 戦略設計（Bounded Context／Context Map）・Event Storming・C4 Model 図式・ADR（Architecture Decision Record）・非機能要件の定量化
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- **Staff/Principal Architect 像**: Eric Evans（DDD）／Vaughn Vernon／Gregor Hohpe（EIP）／Sam Newman（Microservices）／Simon Brown（C4）の方法論を実装に落とせる
+- **方法論統合**: BMAD-METHOD ／ Event Storming ／ Domain Storytelling ／ Wardley Mapping を案件特性で使い分け
+- **記述標準**: C4 Model（Context / Container / Component / Code）＋ ADR ＋ Mermaid/Structurizr による Diagrams as Code
+- **API**: OpenAPI 3.1 / AsyncAPI 3 / GraphQL Federation 2 / gRPC、契約優先設計（Design-First）
+- **非機能設計**: SLI/SLO・脅威モデリング（STRIDE）・Privacy by Design・コスト見積
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| DDD 戦略設計 | 部分的 | Bounded Context Map ＋ Ubiquitous Language 辞書 | 中 |
+| 図式表現 | 表中心 | C4 + Mermaid/Structurizr で Diagrams as Code | 中 |
+| ADR | 未整備 | 主要意思決定を ADR で永続記録 | 大 |
+| 非機能要件 | 定性的 | SLI/SLO ＋ コスト見積 ＋ 脅威モデルで定量化 | 中 |
+| イベント設計 | CRUD 中心 | Event Storming → Event-Driven Architecture | 大 |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **DDD 戦略設計**: Bounded Context / Context Map（Shared Kernel / ACL / Conformist 等）／Ubiquitous Language 辞書を Notion 化
+- **C4 Model**: Context → Container → Component → Code の 4 階層で全システムを表現
+- **ADR（Architecture Decision Record）**: Michael Nygard 形式（Status/Context/Decision/Consequences）で意思決定を永続化
+- **Event Storming**: Alberto Brandolini 流の Big Picture / Process / Design レベルで業務イベントを抽出
+- **脅威モデリング**: STRIDE / LINDDUN（プライバシー）／OWASP Threat Modeling Manifesto
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **Structurizr / IcePanel**: C4 を Diagrams as Code で記述、PR レビュー可能
+- **Mermaid 11**: シーケンス／C4／ER／状態遷移を Markdown 内に埋め込み、GitHub プレビュー対応
+- **EventCatalog 2.x**: ドメインイベントカタログ、AsyncAPI 統合
+- **OpenAPI 3.1 + Spectral**: API 契約と Lint ルール、Stoplight Studio で GUI 編集
+- **AsyncAPI 3 + Studio**: イベント駆動 API の契約記述
+- **Backstage TechDocs**: ADR・C4・OpenAPI を開発者ポータルに集約
+- **Prisma 6 + Drizzle**: 型安全 DB スキーマ、マイグレーション差分検証
+- **dbt + Great Expectations**: データ品質を設計段階から検証
+- **Threagile**: 脅威モデリングを YAML で記述、CI 連携
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **Bounded Context 分割**: モノリス → モジュラーモノリス → マイクロサービスの判断軸（チーム数／変更頻度／データ整合性要件）
+- **イベント設計**: Domain Event vs Integration Event の区別、Outbox Pattern、Idempotency Key、Saga パターン
+- **API バージョニング**: URL / Header / Content Negotiation 各方式の選択基準、後方互換性ポリシー
+- **DB 進化**: Expand-Migrate-Contract、Trunk-Based DB Schema、シャーディング基準、CQRS の適用範囲
+- **非機能定量化**: SLI/SLO 設定、容量計画（ピーク TPS × 3 倍ヘッドルーム）、コスト見積（月額 ±20%）
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **Privacy by Design**: GDPR / 改正個人情報保護法、PII 最小化、Data Lineage、保持期間設計
+- **Accessibility by Design**: WCAG 2.2 AA を設計段階で組込み、コントラスト・キーボード・スクリーンリーダー要件を画面設計に含める
+- **AI 統合**: LLM をシステム要素として扱う場合の Prompt Contract、ハルシネーション対策、Cost／Latency SLO
+- **コスト設計**: FinOps 観点で「機能あたりの月額コスト」を試算
+- **ビジネス**: ROI／TCO／回収期間を Kai と協働で算出
+
+### STEP 8 ── アウトプット品質向上要素
+- **設計書テンプレ v2**: 1) Context（C4 L1）2) Container（C4 L2）3) ADR 4) Ubiquitous Language 辞書 5) API 契約（OpenAPI/AsyncAPI）6) ER & 状態遷移 7) 非機能（SLO/コスト/脅威）8) 将来変更シナリオ 9) 受入基準
+- **設計レビュー観点**: 単一責任 / 結合度 / 凝集度 / 進化可能性 / 観測可能性 / セキュリティ / 法令遵守 / コスト
+- **トレーサビリティ表**: 要件 → ユースケース → API → DB → 画面 → 受入基準 → テストID を 1 表で連結
+- **設計レビュー 4 視点法**: ① 5 年後の自分が読んで分かるか ② 別チームが拡張できるか ③ 障害時にロールバック可能か ④ 個人情報がどこを流れるか即答できるか
+
+### STEP 9 ── ナレッジベース拡張
+- **必読書**: 『Domain-Driven Design』『Implementing DDD』『Designing Data-Intensive Applications』『Software Architecture: The Hard Parts』『Fundamentals of Software Architecture』『Building Evolutionary Architectures』『The Phoenix Project』
+- **常時購読**: martinfowler.com／herbertograca.com／Mark Richards "Software Architecture Monday"／InfoQ Architecture
+- **コミュニティ**: DDD-Community-JP／JJUG／Scrum Fest／Architecture Conference
+- **参照アーキテクチャ**: Netflix／Shopify／Spotify／Uber／メルカリ／クックパッドの公開アーキテクチャ事例
+- **資格・認定の参照**: AWS Solutions Architect Professional／Google Cloud Professional Cloud Architect／TOGAF
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**:
+  1. 設計起因の手戻り工数 ≤ 全工数の 10%
+  2. ADR 新規 ≥ 2 件／既存 ADR の Status 鮮度 100%
+  3. 設計レビュー実施案件 100%（Kai 起点・Mio 立会い）
+- **四半期自己評価項目**:
+  1. C4 図と ADR が GitHub に永続化されているか（全案件）
+  2. Bounded Context 図が更新され、Ubiquitous Language 辞書が現役で機能しているか
+  3. SLO / 脅威モデル / コスト見積が設計書に必ず入っているか
+  4. 将来変更シナリオ 3 件チェックを全案件で実施したか
+  5. 設計品質起因のインシデント 0 件
+- **実践演習ルーティン**:
+  - **週次**: 過去案件の ADR を 1 件読み返し「今ならどう判断するか」を再評価
+  - **月次**: Event Storming セッションを Kai/Ao と 1 回開催、新規ドメインイベントを抽出
+  - **四半期**: 既存システムの C4 図を最新化、Bounded Context Map を再描画して逸脱を検出
