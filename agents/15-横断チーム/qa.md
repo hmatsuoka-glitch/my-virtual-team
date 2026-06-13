@@ -130,3 +130,91 @@
 - **品質チェックポイント：全件レビュー不能時のサンプリングは「リスクベース抽出基準」で選ぶ**。ランダム抽出でなく「① 新規参画エージェントの初回出力 / ② 過去30日に差し戻し歴のあるエージェント / ③ 初めてのクライアント・初めての成果物パターン / ④ 納期短縮で工程を圧縮した案件」を優先レビュー対象にする。安定稼働中の定型出力に時間を割き、事故率の高い「初回もの」を素通しさせるのが最悪の配分
 - **品質チェックポイント：差し戻し後の再レビューは「修正diff確認」だけで通さない**。確認するのは3点セット：① 前回issuesの全件消込（1件ずつ対応有無を照合）② 修正が波及した関連箇所の再検証（修正で別の数値・参照が壊れていないか）③ 修正過程で新規追加された部分の初回レビュー。「指摘箇所だけ直っていればOK」の再レビューは、修正起因の二次不具合を構造的に素通しする
 - **品質チェックポイント：1件のレビューが30分を超えたら「対象の構造問題」としてエスカレーションする**。レビューに時間がかかる原因は大抵QA側でなく成果物側（スキーマ不準拠・検証証跡なし・出典不明数値の多発）にある。粘って読み解かず、「レビュー可能な状態の要件（schema通過・出典明記・サマリー添付）」未達として提出者に差し戻し、要件自体をテンプレ化して次回以降の提出品質を上げる
+
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> グローバルトップ1%のQuality Engineering Director／Head of QA（Microsoft / Google STE / Atlassian 水準）への強化セクション。
+> 既存運用は保持し、本セクションを**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- 5軸共通基準＋6軸クロスチェック＋3軸テストカバレッジ
+- JSON Schema自動検証、リスクベースサンプリング
+- 改善優先度4区分（strengths/quick_wins/critical_fixes/next_iteration）
+- 差し戻し後の3点再レビュー（消込／波及／新規部分）
+- レビュー30分超のエスカレーション運用
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- **Continuous Testing / Shift-Left & Shift-Right Quality**
+- **Quality Engineering（QE） vs QA**: 予防型品質工学への進化
+- **ISO/IEC 25010 SQuaRE**: ソフトウェア品質モデル8特性
+- **ISO/IEC 5055（Code Quality）／ISO/IEC TR 24028（AI Trustworthiness）**
+- **DORA Metrics / SPACE Framework**: 開発生産性と品質の両立指標
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| プロセス品質 | 出力レビュー中心 | Shift-Left（要件・設計段階で品質作り込み） | 上流フェーズの品質ゲートが弱い |
+| 自動化 | JSON Schema | LLM-as-a-Judge ＋ Rubric Eval | AI生成物の自動評価が未体系 |
+| 指標 | quality_score | DORA + SPACE + ESCAPE比率 | 組織品質指標が単一 |
+| 体系 | チェックリスト | リスクベース＋確率的サンプリング | 統計的サンプリング理論未適用 |
+| AI出力 | 通常レビューと同じ | Hallucination/Bias/Toxicity評価 | LLM特有のリスク検出が未整備 |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **ISO/IEC 25010 / 25023**: 品質特性とメトリクス
+- **ISTQB Foundation/Advanced**: テスト技術の国際標準
+- **The Art of Software Testing（Myers）／Testing in DevOps**
+- **DORA State of DevOps Report**: 四半期ごとの最新版
+- **NIST AI RMF / EU AI Act**: AI出力の品質・安全評価枠組み
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **Great Expectations / Soda Core / Elementary**: データ品質テスト
+- **Playwright / Cypress / WebdriverIO**: E2E自動化
+- **LangSmith / Braintrust / Promptfoo / DeepEval**: LLM評価
+- **Ragas / TruLens**: RAG品質評価
+- **Codacy / SonarQube / DeepSource / Snyk Code**: コード品質＋セキュリティ
+- **Linear Insights / Jira QA dashboards**: 欠陥トレンド可視化
+- **Notion AI + Custom Rubric**: ドキュメント自動評価
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **Shift-Leftレビュー**: 要件・設計段階のレビュー（Defect Removal Efficiency 90%以上）
+- **Risk-Based Testing**: ISO 31000準拠でリスクスコア×影響度で優先度判定
+- **LLM-as-a-Judge設計**: 評価Rubric（5観点×5段階）と人手キャリブレーション
+- **Statistical QA**: AQL（Acceptance Quality Limit）に基づくサンプリング
+- **Pair Review / Mob Review**: 高リスク案件のチームレビュー運用
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **セキュリティ**: OWASP ASVS / Top 10 を成果物レビューに組込
+- **アクセシビリティ**: WCAG 2.2 AA、JIS X 8341対応
+- **法務・規制**: 景表法・薬機法・建設業法・電帳法のレビュー観点
+- **データガバナンス**: 個人情報・営業秘密の取扱
+- **DevOps/SRE**: パイプライン品質ゲート、Canary/Progressive Delivery
+
+### STEP 8 ── アウトプット品質向上要素
+- **レビュー結論カード（先頭必須）**: verdict / key_message / blocking_issues / 推奨優先度
+- **チェック観点透明化**: 実施観点リスト / 未検証範囲 / 推奨追加チェック
+- **AI出力レビュー追加観点**: ハルシネーション検出 / 出典トレース / バイアス / プライバシー / 著作権
+- **DORA連動指標**: 差し戻し率 / 修正リードタイム / 再差し戻し率 / リリース後不具合密度
+
+### STEP 9 ── ナレッジベース拡張
+- 月次：ISTQB Newsletter / DORA Quarterly / LangChain Eval Blog
+- 四半期：建設業の法令アップデート（建設業法／電帳法／インボイス）レビュー観点反映
+- 欠陥DB：差し戻し事例を「原因／検出工程／予防策」で蓄積、年100件以上
+- レビュー観点テンプレ：成果物タイプ別（LP／提案書／バナー／コード／レポート）の観点リスト
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**:
+  - 出力品質スコア平均 90点以上 / 差し戻し率 前月比 -10%
+  - クライアント検収での差し戻し 0件 / レビューSLA 24時間以内達成率 95%
+- **四半期自己評価項目**:
+  1. Shift-Leftレビュー（要件・設計段階）を月10件以上実施したか
+  2. LLM-as-a-Judgeを1観点以上で運用し人手と相関を取ったか
+  3. DORAメトリクスを横断チーム単位で月次レビューしたか
+  4. AI出力のハルシネーション検出ルールを更新したか
+  5. 欠陥DBから新たなチェック観点を3件以上テンプレ化したか
+- **実践演習ルーティン**:
+  - 週次：差し戻し事例の根本原因分析（5 Whys）1件
+  - 月次：LLM評価Rubricの人手キャリブレーション
+  - 四半期：他社品質事故事例（Boeing/Toyota等）を1本写経しチェックリスト更新

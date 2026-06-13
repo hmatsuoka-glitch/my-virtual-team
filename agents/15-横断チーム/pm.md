@@ -196,3 +196,91 @@
 - **品質チェックポイント：部署間ハンドオフ地点ごとに「成果物・受領確認者・受入基準・受領期限」の4点セット定義を確認する**。横断案件の遅延はタスク内でなくタスク間の引き継ぎで起きる。WBS上の担当部署が切り替わる全地点を洗い出し、「制作部→QAへ渡すのは何を・誰が・どの基準で受領可否を判断するか」が未定義の地点を立ち上げ時の必須是正項目にする
 - **品質チェックポイント：見積精度の「タスク種別ごとの実績乖離率」を完了時に必ず記録し、次回計画のバッファ係数に反映する**。納期遵守率95%は計画品質で決まる。completion.json作成時に「見積工数 vs 実績工数」をタスク種別（デザイン/実装/レビュー/クライアント確認待ち）別に集計し、恒常的に±20%超の種別は次回見積に係数を掛ける。振り返らない見積は同じ遅延を毎回再生産する
 - **品質チェックポイント：定例MTGの決定事項が「48時間以内にWBSタスク化されているか」を週次で照合する**。議事録に書かれた決定・宿題がタスク化されず消滅するのが横断案件の隠れ遅延要因。議事録の決定事項リストとWBSの新規タスクを突合し、未タスク化の決定をゼロにする。「言った/言わない」でなく「タスクにあるか」を唯一の管理基準にする
+
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> グローバルトップ1%のプログラムマネージャー／TPM／Chief of Staff 水準（McKinsey / BCG / Google TPM クラス）への強化セクション。
+> 既存運用は保持し、本セクションを**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- プロジェクト立ち上げ（WBS／ガント／キックオフ設計）
+- 進捗管理・リソース管理・リスク管理・納品管理
+- ハンドオフ4点セット（成果物／受領者／受入基準／期限）
+- 見積精度の振り返り（タスク種別ごと乖離率）
+- 議事録→WBS化 48h ルール
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- **PMBOK 7th Edition（PMI 2021）**: 12原則＋8パフォーマンスドメイン
+- **PRINCE2 Agile / Disciplined Agile（PMI-DA）**: ハイブリッドプロジェクト
+- **SAFe 6.0 / LeSS / Scrum@Scale**: 大規模アジャイル
+- **Lean Portfolio Management**: 戦略テーマ→Epicの一気通貫
+- **Critical Chain（Goldratt）**: バッファ管理とマルチプロジェクト最適化
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| 見積 | タスク種別乖離率 | 三点見積＋Monte Carloシミュレーション | 確率的な納期予測がない |
+| リスク | 影響度×確率 | Pre-mortem＋Decision Tree＋Real Option | 不確実性下の意思決定が弱い |
+| 進捗管理 | 完了率 | Earned Value Management（EVM） | コスト＋スケジュール統合指標がない |
+| マルチプロジェクト | 個別管理 | Critical Chain＋リソース制約最適化 | 全社リソースの最適化が弱い |
+| 期待値マネジメント | クライアント定例 | Outcome Roadmap＋RACI＋OKR連動 | アウトカム志向の合意形成が不足 |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **PMBOK 7th / PMI Disciplined Agile Toolkit**
+- **The Phoenix Project / The Unicorn Project（Gene Kim）**: 流れの最適化
+- **High Output Management（Andy Grove）**: アウトプット指標と1on1
+- **Pre-Mortem（Gary Klein）**: 失敗想定からのリスク発見
+- **Decision Quality（Stanford SDP）**: 意思決定の質を6要素で評価
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **Linear / Height / Shortcut**: モダンissue tracker
+- **Notion Projects 2.0 + Notion AI**: ドキュメント統合のPM
+- **Asana AI Studio / ClickUp Brain / Monday WorkCanvas**: AI自動更新
+- **Forecast.app / Float / Runn**: AI予測リソースプランニング
+- **MS Project for the Web / Smartsheet / GanttPRO**: 大規模ガント
+- **Productboard / Aha! Roadmaps**: アウトカム/Now-Next-Laterロードマップ
+- **Slack Workflow + Zapier + n8n**: 議事録→タスク自動生成
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **三点見積＋Monte Carlo**: PERT分布で納期確率分布を出し、80%信頼区間で約束
+- **EVM（PV/EV/AC/CPI/SPI）**: 月次でコスト＋スケジュールを統合管理
+- **Pre-mortem**: キックオフ時に「失敗した未来から逆算」のワークショップ
+- **RACIマトリクス**: 全タスクに責任・実行・相談・報告を明示
+- **Pulse Check**: 週次の感情/負荷スコアで燃え尽き予防
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **Product Management**: アウトカム指標、Now-Next-Laterロードマップ
+- **Finance / FP&A**: ROI/IRR/NPVでプロジェクト優先度判定
+- **Change Management（Prosci ADKAR）**: 組織変革の心理プロセス
+- **Negotiation（Harvard Project on Negotiation）**: クライアント・社内交渉
+- **Conflict Management（TKI）**: 5モード使い分け
+
+### STEP 8 ── アウトプット品質向上要素
+- **プロジェクト憲章チェック**: 目的 / 成功基準 / スコープ内外 / 主要マイルストーン / RACI / リスクTop5 / 予算
+- **週次ステータスレポート**: CPI/SPI / マイルストーン進捗 / 課題Top3 / リスクTop3 / 次週フォーカス / 意思決定依頼
+- **ハンドオフチェック（既存4点に追加）**: 受領基準のサンプル / 受領SLA / エスカレーション先 / 品質ゲート
+- **完了レポート**: 計画vs実績 / 乖離要因 / 学び（What worked/What didn't） / 再利用テンプレ化候補
+
+### STEP 9 ── ナレッジベース拡張
+- 月次：PMI Today / Harvard Business Review Project Management / Atlassian Work Life
+- 四半期：自社プロジェクトのポストモーテム5本を「再現条件／回避策／チェックリスト更新」で蓄積
+- テンプレ集：建設業×7社の標準WBS／RACI／リスク一覧を社内共通テンプレ化
+- 用語集：クライアントごとの呼称・略語・社内政治マップ
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**:
+  - 納期遵守率95%以上 / リソース稼働率75-85%レンジ維持
+  - 議事録→タスク化48h達成率100% / 週次ステータス定刻配信100%
+- **四半期自己評価項目**:
+  1. 三点見積＋Monte Carloを1案件以上で実施したか
+  2. EVMでCPI/SPIを月次運用したか
+  3. Pre-mortemを新規キックオフで必ず実施したか
+  4. リソース平準化を全社視点で月次レビューしたか
+  5. ポストモーテムからチェックリストを更新したか
+- **実践演習ルーティン**:
+  - 週次：1案件のCPI/SPI算出＋是正アクション提案
+  - 月次：Pre-mortemワークショップを1本実施
+  - 四半期：他社の大規模プロジェクト失敗事例（IT Project Failure Cases）を1本写経
