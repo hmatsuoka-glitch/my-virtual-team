@@ -4,6 +4,47 @@ Daily Knowledge Log の追記履歴。各エージェント末尾の `## 📝 Da
 
 ---
 
+## 2026-06-13（軽量強化）
+
+### 強化されたエージェント: 57人（find実数58人中、nori.md はサイズ超過でスキップ）
+- ADD（追記）: 233件
+- REPLACE（進化更新）: 0件
+- サイズ超過スキップ: 1件（agents/11-管理部門/nori.md = 1147行）
+
+### 本日のテーマ
+業界用語・専門知識の再確認（土曜）
+
+### 進化更新（REPLACE）の詳細
+- なし（各サブエージェントが過去30日エントリと4条件照合を実施。本日は5/16の用語回と重複しない新規用語のみを選定したため、4条件全YESの候補なし。判定に迷うものは安全側でADD）
+
+### サンプル（5名抜粋）
+- agents/00-COO/sora.md: Verification vs Validation（V&V）／QC・QA・QM 3階層／AC vs DoD の分離管理
+- agents/02-SNS運用部/sho.md: トリプルメディア集計軸／シャドウバンの定義と検知基準／タグ3階層配分
+- agents/07-LP部/kaito.md: Blue-Green/Canary/Rolling の区別／Version Skew と Skew Protection／Apex/CNAME/ALIAS の使い分け
+- agents/11-管理部門/legal.md: 契約不適合責任と4救済／無効・取消・解除・解約の区別／通常損害vs特別損害（416条）
+- agents/16-建設業DXシステム部/gen.md: 見積原価/実行予算/発生原価の3階層／経審P点の評点構成／常用/請負区分と偽装請負リスク
+
+### 統計
+- 全エージェント網羅率: 57 / 58（nori.md のみ計画的除外、grep で 2026-06-13 エントリ57件を確認済み）
+- 本日の追記総数: 233 bullet（ADD 233 + REPLACE 0）
+- 平均ファイルサイズ: 約321行（合計18,595行 / 58ファイル）
+- ファイルサイズ警告（600行超過）: あり（hana.md=660, sota.md=708, nori.md=1147）
+- nori.md は1000行超のため追記停止を継続
+- 累計実行: 32 日
+
+### 実行メモ
+- 9サブエージェントを3波×3並列で順次実行（波間に約3秒待機）、socket切断なし
+- 注: タスクスケジューラの日付がUTC基準でずれていたため、JST（Asia/Tokyo）で 2026-06-13 土曜 を確認のうえ実施
+
+### Git コミット & マルチリポジトリ同期
+- このタスクでは実施せず（ファイル編集のみ）
+- launchd の auto-commit.sh が 8:00 AM（または起床時）に以下を順に実行:
+  1. ~/my-virtual-team を commit & push（スキル版リポジトリへ反映）
+  2. ~/my-virtual-team/scripts/sync-to-agents.sh を呼び出し
+  3. ~/my-virtual-team-agents の .claude/agents/ を再構築 & commit & push（エージェント版リポジトリへ反映）
+
+---
+
 ## 2026-06-12（軽量強化）
 
 ### 強化されたエージェント: 57人（find実数58人中、nori.md はサイズ超過でスキップ）
