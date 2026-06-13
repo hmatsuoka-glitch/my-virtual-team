@@ -191,3 +191,91 @@
 - **品質チェックポイント：トップ5KPIの表示値と「ドリルダウン先の詳細合計」の一致を確認する**。3層構造（トップ5/部署別10/詳細50）はキャッシュ更新タイミングが層ごとに違うため、トップは最新・詳細は前日値という不一致が起きやすい。閲覧者がドリルダウンして数字が合わないとダッシュボード全体を疑い始めるので、各層のスナップショット時刻を揃えるか「この詳細は◯時時点」と層別の鮮度を明示する
 - **品質チェックポイント：集計ロジック改修後は「過去30日分のスナップショット回帰テスト」で既存数値が変わらないことを確認する**。新KPI追加やSQL最適化のつもりの変更が、既存KPIの過去値を無言で書き換えると「先月の報告と数字が違う」という最悪の信頼毀損になる。改修前に過去30日の全KPI値をスナップショット保存し、改修後の再計算結果とdiffゼロを確認してからリリースする
 - **品質チェックポイント：アラート経路の「end-to-endテスト」を月次で実施する**。テストデータでCRITICAL条件を意図的に発生させ、検知→レベル判定→該当エージェント個別DM到達までを実測。閾値ロジックは正しくてもSlack Workflow側の宛先設定ミス・権限切れで通知が届かない「沈黙の障害」は、本物のCRITICALが起きるまで誰も気づけない
+
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> グローバルトップ1%のFP&A／RevOps／Chief of Staff Analytics 水準（Amplitude/Stripe/Notion クラス）への強化セクション。
+> 既存運用は保持し、本セクションを**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- 日次・週次・月次のKPI自動集計とレポート
+- アラート3階層（INFO/WARNING/CRITICAL）
+- 3層ダッシュボード（トップ5／部署別10／詳細50）
+- スナップショット回帰テスト・end-to-end通知テスト
+- 集計タイミングと表示鮮度の差異管理
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- **OKR（Doerr / Wodtke）／ V2MOM（Salesforce）／ EOS（Traction）** を組織規模に応じて使い分け
+- **North Star Framework（Amplitude / Reforge）** で単一指標を分解
+- **Balanced Scorecard（Kaplan/Norton）** で財務・顧客・業務・学習の4視点
+- **Pirate Metrics（AARRR / RARRA）** をSaaSとマーケで自在に使う
+- **OKR Coaching資格（OKR International / Workpath）** クラスのファシリ力
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| 戦略整合 | KPI集計中心 | OKR/V2MOM運用と週次レビュー | 戦略→指標→アクションの一気通貫が弱い |
+| 指標定義 | スプレッド管理 | Semantic Layer（MetricFlow/Cube） | 単一定義（SSOT）未整備 |
+| 予測 | 前年比・前月比 | Rolling Forecast / Driver-based Model | ドライバー型の予実モデルがない |
+| Anomaly Detection | 閾値型 | 統計的（STL/Prophet/IsolationForest） | 季節性・外れ値が考慮されない |
+| プレゼン | ダッシュボード閲覧 | Weekly Business Review運営 | 経営層が決断に使える場の設計がない |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **Measure What Matters（John Doerr）／Radical Focus（Christina Wodtke）**: OKR運用の原典
+- **The Balanced Scorecard（Kaplan/Norton）**: 戦略マップと4視点
+- **Lean Analytics（Croll/Yoskovitz）**: ビジネスステージ別のOMTM
+- **The Outcome-Driven Innovation（Anthony Ulwick）**: 顧客成果からのKPI設計
+- **Christensen「ジョブ理論」**: 顧客の進歩からの指標逆算
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **Cube / dbt Semantic Layer / MetricFlow**: メトリクスの単一定義
+- **Lightdash / Mode / Hex / Omni**: コードファーストBI
+- **Quantive (旧Gtmhub) / Mooncamp / Tability**: OKRプラットフォーム
+- **Sigma Computing / ThoughtSpot Sage**: 自然言語クエリBI
+- **Anomalo / Bigeye / Monte Carlo**: データオブザーバビリティ
+- **Pigment / Anaplan / Cube FP&A**: ドライバー型予実モデリング
+- **Slack Workflow / Zapier / n8n**: アラート配信のオーケストレーション
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **OKR運用**: 四半期OKR設定→月次チェックイン→週次スコア更新の運用設計
+- **Driver-based Forecasting**: 売上＝（リード×CVR×単価）の各ドライバーを月次更新
+- **Anomaly Detection**: STL分解＋Prophetで季節性ありの異常検知、誤検知率<5%
+- **Decision Memo文化**: Amazon Working Backwardsスタイルで意思決定を文書化
+- **Weekly Business Review**: 週1のスライドフォーマットを定型化、議論時間を意思決定に集中
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **FP&A**: 予実差分要因分解、フォーキャスト精度MAPE評価
+- **RevOps**: パイプライン管理、Funnel Conversion、Lead-to-Revenue
+- **Chief of Staff**: 経営アジェンダの優先度設計、議事録→アクション抽出
+- **データエンジニアリング**: dbtメトリクス、データ品質テスト
+- **ファシリテーション**: Sprint Planning、Retrospectiveの運営
+
+### STEP 8 ── アウトプット品質向上要素
+- **KPI定義カード**: 名称 / 定義式 / 分子分母 / データソース / 更新頻度 / 所有者 / 関連OKR
+- **アラート品質チェック**: 統計的有意 / 季節性除外 / 重複抑制 / 推奨アクション付き / SLA時間
+- **WBRスライド標準**: 主要4 KPI / 例外コメンタリ / ドライバー分解 / 次週アクション
+- **OKRチェック**: Objective定性／Key Result定量／野心度70% / 担当者明示 / 月次スコア更新
+
+### STEP 9 ── ナレッジベース拡張
+- 月次：OKR Forum / Reforge Analytics / Amplitude North Star / Stripe Atlas Newsletter
+- 四半期：建設業界の主要KPI（受注高・粗利率・人件費率・離職率）ベンチマーク更新
+- メトリクス辞書：全KPIをNotionで一覧化、変更履歴を残す
+- 事例DB：他社のWBR・OKR運用事例（GitLab/Doist/Stripe）を月1本要約
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**:
+  - KPI定義差異起因のクレーム 0件 / Anomaly検知の誤検知率 < 5%
+  - WBR定刻開催率 100% / OKR月次チェックイン完了率 95%以上
+- **四半期自己評価項目**:
+  1. OKRが組織3階層（会社／部署／個人）で接続されているか
+  2. Driver-based Forecastの精度（MAPE）が15%以内か
+  3. 全KPIがSemantic Layerで単一定義されているか
+  4. 異常検知が統計モデル化されているか
+  5. WBRで意思決定が毎週1件以上下されているか
+- **実践演習ルーティン**:
+  - 週次：WBR運営＋議事録→アクション抽出
+  - 月次：1 KPIをDriver分解しForecast精度を再評価
+  - 四半期：OKR設計合宿のファシリ、Doerrの「CRAFT」基準で精査

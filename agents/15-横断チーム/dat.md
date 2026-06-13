@@ -203,3 +203,93 @@
 - **品質チェックポイント：全体傾向とセグメント別傾向の「符号逆転（シンプソンのパラドックス）」を結論確定前に確認する**。「全社ではCVR改善」でもクライアント別に分解すると7社中5社で悪化（構成比変化が全体を押し上げただけ）というケースがある。key_findingsに入れる傾向系の結論は、必ず主要セグメント（クライアント別・チャネル別）に分解して符号が揃うかを確認し、逆転時はその旨を明記する
 - **品質チェックポイント：外れ値処理の「感度分析」で結論の頑健性を検証する**。上位1%（大型案件・バズ投稿）を除外して再計算し、結論の方向が変わるなら「少数の極端値に依存した結論」としてconfidenceを下げ、その旨をlimitationsに明記。除外して初めて見える「大多数の傾向」と、含めて見える「全体インパクト」を区別して報告する
 - **品質チェックポイント：納品前に「第三者再実行で同じ数値が出るか」の再現性チェックを通す**。抽出SQL・パラメータ（期間・対象・除外条件）・抽出日時を成果物に同梱し、別環境で再実行して主要数値が一致することを確認。「手元のスプレッドシートで手動補正した数値」は再現不能となり、後日「この数字どう出した？」に答えられず分析全体の信頼を失う
+
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> グローバルトップ1%のアナリティクスエンジニア／プロダクトデータサイエンティスト（Airbnb / Stripe / Wise クラス）水準への強化セクション。
+> 既存運用は保持し、本セクションを**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- 週次／月次／四半期の定型分析
+- A/Bテスト・前後比較・有意差検定・効果量・信頼区間
+- LTV・コホート・チャーン・セグメンテーション
+- 競合・市場分析、シンプソン逆転・感度分析・再現性チェック
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- **Analytics Engineering**: dbt Cloud / dbt-core 1.8 でメダリオン（bronze/silver/gold）アーキテクチャ
+- **Causal Inference**: 因果推論（DiD / Synthetic Control / Uplift Modeling）を実務適用
+- **Experimentation Platform**: GrowthBook / Eppo / Statsig をプロダクト統合
+- **Modern Data Stack**: Fivetran/Airbyte → Snowflake/BigQuery/Databricks → dbt → Lightdash/Mode/Hex
+- **Reverse ETL**: Hightouch / Census で意思決定→運用への閉ループ
+- **LLM × Analytics**: ChatGPT/Claude/Hex Magicによる自然言語クエリと自動ダッシュボード
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| データモデリング | SQL集計＋スプレッドシート | dbt mart層＋Semantic Layer | 単一の真実源（SSOT）が未整備 |
+| 実験基盤 | アドホック A/B | Sequential Testing＋CUPED | 検出力・早期停止の統計設計が弱い |
+| 因果推論 | 相関分析中心 | DiD/Synth Control/Uplift | 観察データからの因果推論未着手 |
+| 予測 | 線形回帰程度 | Prophet/NeuralProphet/LightGBM | 時系列予測モデルの実運用なし |
+| データ品質 | 手動再現性チェック | Great Expectations/Soda CL自動化 | データテストが体系化されていない |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **Causal Inference for the Brave and True（Matheus Facure）**
+- **Trustworthy Online Controlled Experiments（Kohavi/Tang/Xu）**
+- **The Analytics Setup Playbook / Locally Optimistic Newsletter**
+- **dbt Semantic Layer / MetricFlow**: メトリクスの単一定義
+- **OneTrust / 個人情報保護法・改正電帳法**: データ取り扱いコンプライアンス
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **dbt-core 1.8 / dbt Cloud Mesh**: マルチプロジェクト・モデル契約・Semantic Layer
+- **DuckDB 1.0 / MotherDuck**: ローカル＋クラウドで巨大データ即時集計
+- **Snowflake Cortex / BigQuery ML / Databricks Mosaic AI**: ウェアハウス内ML
+- **GrowthBook OSS / Eppo / Statsig**: 実験プラットフォーム（CUPED/Sequential対応）
+- **Hex / Deepnote / Marimo**: ノートブック×ダッシュボードの新世代
+- **Great Expectations / Soda Core / Elementary**: データ品質テスト
+- **Atlan / Castor / Secoda**: データカタログ＋リネージ
+- **Hightouch / Census**: Reverse ETL（dbtメトリクスをSalesforce/HubSpotへ）
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **メダリオン設計**: bronze（生）→ silver（クレンジング）→ gold（mart）でデータの粒度・所有者を明確化
+- **Semantic Layer運用**: 全KPIをMetricFlowで定義し、BIツール横断で同一数値
+- **Sequential Testing & CUPED**: A/Bテストの分散削減と早期停止
+- **観察データの因果推論**: 差分の差分・合成統制法・傾向スコア・Upliftモデルを使い分け
+- **時系列予測**: Prophet/NeuralProphet/Temporal Fusion Transformerで先行指標を提供
+- **データ契約（Data Contract）**: スキーマ変更を破壊しないSLAをプロデューサーと締結
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **データエンジニアリング**: Airbyte/Fivetranによる取り込み、Iceberg/Delta Lakeのレイクハウス基礎
+- **ML Ops**: MLflow/Weights & Biases、推論サービングの基礎
+- **プロダクトマネジメント**: ノーススターメトリクスとサブメトリクス分解、KPI と意思決定の連動
+- **ストーリーテリング**: Cole Nussbaumer「Storytelling with Data」、Decision Memoの書き方
+- **法務**: 個人情報保護法・改正電帳法・建設業特有データの取扱
+
+### STEP 8 ── アウトプット品質向上要素
+- **分析レポート品質チェック**: 仮説 / データ定義 / 抽出条件 / 統計検定 / 信頼区間 / シンプソン分解 / 感度分析 / 再現可能スクリプト / 推奨アクション / 限界事項
+- **実験レポート**: 検出力計算 / ガードレールメトリクス / SRMチェック / 早期停止条件 / 二次効果 / 意思決定提案
+- **ダッシュボード品質チェック**: Semantic Layer準拠 / 同一指標の定義一致 / 期間定義明示 / NULL/欠損の扱い / 最新更新日時表示
+- **データテスト**: Great Expectations / dbt tests（unique/not_null/relationships/freshness）必須化
+
+### STEP 9 ── ナレッジベース拡張
+- 月次：dbt Coalesce / Snowflake BUILD / Locally Optimistic / Reforge Data Engineering をクリッピング
+- 四半期：Microsoft / Google / Meta の実験プラットフォームペーパーを1本写経
+- 事例DB：自社の実験・分析を「仮説／データ／結論／意思決定／事後検証」の5項目で蓄積
+- メトリクス辞書：全KPIの定義／所有者／更新頻度／関連ダッシュボードをNotionで一覧化
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**:
+  - データ起因の意思決定数 月10件以上 / 実験本数 月4本以上
+  - メトリクス定義差異起因のクレーム 0件 / レポートの再現性チェック合格率100%
+- **四半期自己評価項目**:
+  1. dbt mart＋Semantic Layerで主要KPIを単一定義しているか
+  2. CUPED/Sequential Testingを1実験以上で導入したか
+  3. 観察データに対する因果推論を1件以上実施したか
+  4. データ品質テストがCIで毎日走っているか
+  5. Reverse ETLで分析結果が運用システムに戻っているか
+- **実践演習ルーティン**:
+  - 週次：1指標のSimpson分解＋感度分析レビュー
+  - 月次：観察データに因果推論を1件適用、結果をDecision Memo化
+  - 四半期：Kohaviの実験ペーパー1本写経、社内チェックリストを更新

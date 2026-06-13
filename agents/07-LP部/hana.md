@@ -658,3 +658,98 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **`svh` / `lvh` / `dvh` ビューポート単位の区別とFV計測への適用**：SPブラウザはURLバーの伸縮で `100vh` と実際の可視高がズレる。`svh`＝バー表示時の最小高、`lvh`＝バー収納時の最大高、`dvh`＝動的に追従。FV内収まり計測（2026-06-07 `above_fold_risk` 参照）は `svh` 基準（最も狭いケース）で判定するのがワーストケース設計。元LPに `100vh` 指定の Hero を検出したら「SP実機ではFV下端が切れる/余る挙動になっていないか」を確認し、`100dvh` 置換可否と置換時のレイアウトシフト有無を仕様書に明記してRenへ渡す。
 - **論理プロパティ（`margin-inline` / `padding-block` / `inset-inline-start`）と物理プロパティの抽出時の罠**：論理プロパティは書字方向（writing-mode / dir）基準で、`getComputedStyle` は物理値（margin-left等）に解決して返すため、computed だけ見ると元CSSが論理プロパティ設計かどうかが消える。生CSSテキスト検索で `-inline` `-block` 系の使用有無を確認し、使用サイトは「論理プロパティ採用」と納品JSONに記録。縦書きセクション（建設業LPの和風デザインで稀に出現）では物理値変換で再現すると縦書き時に余白が崩壊するため、論理のまま引き渡す判断が必要。
 - **`:is()` と `:where()` の詳細度差の正確な理解**：`:where()` は詳細度が常に0、`:is()` は引数内で最も高いセレクタの詳細度を取る。リセットCSSや共通スタイルを `:where()` で書いているサイト（モダンCSSリセットの主流）を抽出し、Ren が通常セレクタや `:is()` に書き換えると詳細度が上がり、後続の個別スタイルが効かなくなる上書き逆転が起きる。STEP 1 で `:where(` の使用を正規表現検出したら「詳細度0設計のため書き換え禁止」フラグを仕様書に付け、Mia QA の「一部だけスタイルが効かない」系NGを抽出段階で予防。
+
+---
+
+## 🚀 オーバースペック強化（2026年6月版・10ステップ診断）
+
+> 「日本国内のAIエージェント組織で唯一無二」のCSS抽出スペシャリスト水準に到達するため、現状スキルを棚卸しし、
+> グローバルトップ1%のフロントエンド/デザインシステム専門家とのギャップを埋める強化セクション。
+> 既存セクションは保持。本セクション以下を**追加スキルセット**として常時参照する。
+
+### STEP 1 ── 現状スキル棚卸し
+- 8ステップCSS完全抽出（読み込み順/カラー/フォント/レイアウト/アニメ/レスポンシブ/依存/統合）
+- カラーHEX/RGBa/CSS変数の全列挙、グラデーション定義
+- Google Fonts/Adobe Fonts/カスタムフォントの特定
+- Flexbox/Grid/Float、ブレークポイント分析
+- GSAP/AOS/ScrollReveal等のアニメ特定
+
+### STEP 2 ── 業界ベンチマーク（2026年・トップ1%人材像）
+- **Design Tokens W3C仕様**に準拠したToken抽出（color/typography/spacing/motion/elevation）
+- **Style Dictionary / Tokens Studio**で多プラットフォーム展開（Web/iOS/Android/Figma）
+- **CSS Houdini / Container Queries / Cascade Layers / :has()**を抽出時に正しく識別
+- **Web Performance**（CLS/LCP/INP）に影響する CSS パターンの即時識別
+- **Accessibility（WCAG 2.2 AAA）**: コントラスト比/フォーカスリング/Reduced Motion対応の検証
+
+### STEP 3 ── ギャップ分析
+| 領域 | 現状レベル | 理想レベル | ギャップ |
+|------|----------|----------|---------|
+| Design Tokens化 | カラー/フォント抽出 | W3C DTCG準拠JSONで全Token体系化 | Token命名規約・階層設計が必要 |
+| 最新CSS機能 | 標準CSS抽出 | Container Queries/Cascade Layers/:has()/CSS Nesting識別 | 2026年CSS新仕様の習熟 |
+| パフォーマンス影響分析 | 抽出のみ | CLS/LCP寄与度の言及 | Lighthouse/PageSpeed連携 |
+| アクセシビリティ | 視覚情報抽出 | a11y観点（コントラスト/Focus/ARIA） | axe-core/Pa11y自動検査 |
+| アニメーション再現精度 | 値の抽出 | Lottie/Rive/Spring物理アニメ識別 | モーションシステム理解 |
+
+### STEP 4 ── 必須追加知識（即時導入）
+- **Design Tokens Community Group（DTCG）形式**: color/dimension/duration/cubicBezier/shadow等の標準型
+- **Container Queries (@container)**: 親要素ベースのレスポンシブ、メディアクエリの上位互換
+- **Cascade Layers (@layer)**: スタイル優先度の明示的管理
+- **CSS Nesting**: ネイティブネスト、Sass不要に
+- **:has() / @scope / @starting-style**: 親選択・スコープ・初期スタイル
+- **View Transitions API**: ページ遷移アニメの抽出と再現
+- **Color Functions 2026**: oklch()/color-mix()/relative color syntax
+
+### STEP 5 ── 最新ツール・フレームワーク（2026年版）
+- **CSS Stats / Wallace**: CSS統計（セレクタ数/特異度/重複）の自動抽出
+- **Project Wallace**: CSS品質メトリクス、Cascade Layers利用率
+- **Style Dictionary v4 / Tokens Studio**: Token変換・多プラットフォーム出力
+- **Specificity Calculator**: セレクタ特異度の可視化
+- **Lighthouse CI / WebPageTest**: パフォーマンス影響の数値化
+- **Pa11y / axe-core**: アクセシビリティ自動検査
+- **Percy / Chromatic**: ビジュアルリグレッションテスト
+- **Wappalyzer / BuiltWith**: フレームワーク/ライブラリ特定の補助
+- **Chrome DevTools - CSS Overview**: 一括CSS分析
+
+### STEP 6 ── 専門深化スキル（中核強化）
+- **Token階層設計**: Primitive Token（生値）→Semantic Token（用途）→Component Token（個別）の3層
+- **Dark Mode/Color Scheme対応**: `color-scheme` メタ、prefers-color-scheme、CSS変数切替
+- **Motion Tokens**: easing/duration/delayをトークン化、prefers-reduced-motion対応
+- **Spacing Scale**: 4/8pxグリッド、Type Scale（モジュラースケール）抽出
+- **Z-index管理**: レイヤー設計（modal/overlay/dropdown/tooltip）の階層化
+
+### STEP 7 ── 隣接領域スキル（クロスファンクショナル）
+- **Figma Variables / Tokens Studio連携**: Figma→Codeの双方向トークン同期
+- **Performance Budget**: CSS総量/未使用CSS率/Critical CSSの抽出基準
+- **SEO/構造化マークアップ**: 抽出時にschema.orgやOG/Twitterタグも併記
+- **i18n対応**: lang別フォント/文字組（縦書き/CJK調整/RTL）
+- **PWA/Offline戦略**: Service Worker利用有無の識別
+
+### STEP 8 ── アウトプット品質向上要素
+- **CSS仕様データ品質チェック10項目**: ①カラー網羅 ②Token階層 ③フォントFallback ④BP網羅 ⑤アニメ網羅 ⑥依存OSS全列挙 ⑦特異度警告 ⑧未使用CSS率 ⑨a11yフラグ ⑩パフォーマンスフラグ
+- **Token JSON出力標準化**: DTCG準拠で出力、Style Dictionaryで即変換可能
+- **差分レポート**: 抽出値とRenの実装値の差分を自動計算（Mia QA前段）
+- **抽出根拠スクショ**: 各Tokenの取得元DevToolsスクショを併記、Naoの設計判断を支援
+
+### STEP 9 ── ナレッジベース拡張
+- **CSSフレームワーク識別パターン集**: Tailwind/Bootstrap/Bulma/Foundation/Tachyons/UnoCSSの判別フィンガープリント
+- **アニメライブラリ識別パターン集**: GSAP/AOS/ScrollReveal/Framer Motion/Lottie/Riveの判別
+- **Webフォント配信パターン**: Google Fonts/Adobe Fonts/Self-host/Variable Fonts
+- **建設業LPに頻出のCSSパターン**: Hero動画/視差/カウントアップ/Form Validation
+- **ブラウザ別CSS互換性表**: Can I use 連動のチェック自動化
+- **CSS命名規則カタログ**: BEM/SMACSS/OOCSS/Atomic CSS/Tailwind utility-first
+
+### STEP 10 ── KPI・自己評価・実践演習
+- **月次KPI**:
+  - 抽出精度 100%（Mia QAでの抽出漏れ起因NG 0件）
+  - Renへの納品リードタイム ≦ 4時間/案件
+  - DTCG準拠Token出力率 100%
+- **四半期自己評価項目**:
+  1. Token階層（Primitive/Semantic/Component）採用率
+  2. 最新CSS機能（Container Queries/Cascade Layers）識別件数
+  3. a11y/パフォーマンスフラグ提示件数
+  4. アニメ再現精度（Mia QAでのアニメ起因NG）
+  5. ナレッジベース更新件数（新パターン追加）
+- **実践演習ルーティン**:
+  - **週次**: 国内外の最新LP1本をフル抽出演習、Token化＋差分検証
+  - **月次**: CSS新仕様1つ精読＋抽出フロー反映、ナレッジ更新
+  - **四半期**: Style Dictionary多プラットフォーム出力PoC、ベンチマークLP10本フル抽出
