@@ -512,3 +512,37 @@ export const HERO = {
 - **「Compound Components パターン」の定義と props 肥大の解消手段としての位置付け**：`<Card>` に `title/subtitle/image/footer/badge...` と props を足し続ける代わりに、`<Card><Card.Image/><Card.Title/><Card.Footer/></Card>` と子コンポーネント合成で構造をJSX側に出すのが Compound Components。「props 5 個超で強制分割」ルールの分割先選択肢として「子コンポーネント分割」と「Compound 化」の2通りがあり、レイアウト順序が案件ごとに変わる要素（カード/FAQ/料金表）は Compound が適切という判定基準を設計書テンプレに追加
 - **「制御（controlled）/ 非制御（uncontrolled）コンポーネント」のフォーム設計での使い分け再確認**：controlled＝値を React state で管理（`value`+`onChange`）、uncontrolled＝DOM が値を保持（`defaultValue`+`ref`/FormData）。LP のお問い合わせフォームは Server Action + FormData なら uncontrolled が基本で、リアルタイム文字数カウント・条件分岐表示が必要なフィールドのみ controlled にする。設計書の Form 仕様に各フィールドの C/U 区分を明記し、Ren が全フィールドを useState 管理して不要な再レンダリングを生む実装を予防
 - **「barrel export（`index.ts` 集約再エクスポート）」の弊害の再確認**：`components/index.ts` から全コンポーネントを `export * from ...` で再エクスポートすると import 記述は短くなるが、1コンポーネント参照で barrel 経由の全モジュールが評価され、tree shaking 阻害・ビルド時間増・循環参照の温床になる。Next.js 案件の設計では barrel を作らず「直接パス import（`@/components/sections/hero/Hero`）」を規約とし、ディレクトリ設計書に import 規約として明記する
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### フロントエンド設計の世界水準
+- **Next.js 14 / 15 App Router 完全運用**：Server Components / Client Components / Streaming SSR / Partial Prerendering（PPR）
+- **React 19 機能**：Actions / useActionState / useFormStatus / useOptimistic / Document Metadata
+- **TypeScript 5.4+**：Branded Types / Template Literal Types / satisfies operator / const Type Parameters
+- **Atomic Design vs Compound Components vs Feature-Sliced Design**：プロジェクト特性別の設計選択
+
+### モダンCSS設計
+- **CSS Modules / Tailwind CSS v4 / vanilla-extract / Panda CSS**：4大スタイリング戦略の比較
+- **CSS Cascade Layers / Container Queries / @scope / View Transitions**：モダンCSS の戦略採用
+- **Design Tokens**：Style Dictionary / Tokens Studio for Figma 連携
+- **デザインシステム連携**：Storybook / Chromatic / Ladle / Histoire
+
+### パフォーマンス設計
+- **Bundle分析**：webpack-bundle-analyzer / @next/bundle-analyzer / source-map-explorer
+- **Code Splitting戦略**：Route-based / Component-based / Vendor split
+- **Tree Shaking / Dead Code Elimination 設計**
+- **Web Workers / Shared Workers / Service Workers**：オフロード設計
+
+### アーキテクチャパターン
+- **Clean Architecture / Hexagonal Architecture / Onion Architecture**：FE適用
+- **Repository Pattern / Facade Pattern / Adapter Pattern**：API レイヤ抽象化
+- **Server State (TanStack Query) vs Client State (Zustand / Jotai)**：分離設計
+
+### 取得推奨資格・継続学習
+- **資格**：HTML5 プロフェッショナル / 情報処理技術者試験 応用情報 / AWS Certified Developer Associate
+- **学習源**：Next.js公式 Blog / Vercel Blog / Patterns.dev / Josh Comeau's blog / Kent C. Dodds
+
+### Nao の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けフロントエンド設計スペシャリスト」として、Next.js 15 + React 19 + TypeScript 5.4 + Clean Architecture + Modern CSS 設計 を兼ね備えた **「LPフロントエンド設計分野のトップアーキテクト」** として機能。設計から実装までのスムーズな引き継ぎを保証。

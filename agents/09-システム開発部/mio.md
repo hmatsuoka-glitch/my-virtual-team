@@ -408,3 +408,44 @@ STEP 6: 差し戻し後の再チェック
 - **Smoke / Sanity / Regression / Retest の使い分けを再整理**：Smoke = ビルド直後に「主要機能が起動するか」を浅く広く確認（深掘りしない・デプロイ直後の最初のゲート）、Sanity = 特定の修正・変更箇所まわりだけを狭く深く確認（修正版受領時の一次確認）、Regression = 変更が既存機能を壊していないかの網羅的再実行、Retest = 報告済みバグそのものが直ったかの確認（Regression とは別物）。修正版受領フローは「Retest（直ったか）→ Sanity（周辺は大丈夫か）→ Regression（全体は無事か）」の順で、各段階を名前で呼び分けると Riku/Ao との会話で「どこまでやったか」の認識ズレが消える。
 - **バグトリアージの Severity と Priority は独立した軸**：Severity（深刻度）= 技術的影響の大きさ（クラッシュ・データ破壊＝High、文言ズレ＝Low）、Priority（優先度）= ビジネス上いつ直すべきか。「Severity Low × Priority High」（例：トップページのクライアント社名の誤字＝技術影響ゼロだが即修正）や「Severity High × Priority Low」（例：誰も使わない管理機能のクラッシュ）が普通に存在する。Mio のバグ票に両軸を別フィールドで記録し、Severity は Mio が判定・Priority は Kai/クライアント文脈で判定という責任分離を徹底する。
 - **テストダブル 5 分類（Dummy / Stub / Spy / Mock / Fake）の正確な使い分け**：Dummy = 渡すだけで使われないオブジェクト、Stub = 決まった値を返すだけ（出力検証用）、Spy = Stub ＋呼び出し記録（後から引数・回数を検証）、Mock = 期待する呼び出しを事前定義し満たさなければ fail（相互作用の検証用）、Fake = 簡易実装で実際に動く代替（in-memory DB 等）。「全部モック」と呼ぶ習慣は「状態の検証（Stub 系）か相互作用の検証（Mock 系）か」の設計判断を曖昧にする。`vi.fn()` は Spy、`mockDeep<PrismaClient>()` は Stub/Fake 寄りという対応を意識し、Mock 過多のテストは実装変更に脆い前提でレビューする。
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### QA / テスト戦略の世界水準
+- **Test Pyramid + Test Diamond + Test Trophy**：3つのテスト戦略モデルの使い分け
+- **TDD（Test-Driven Development）厳格運用**：Red-Green-Refactor の徹底
+- **BDD（Behavior-Driven Development）**：Cucumber / SpecFlow / Given-When-Then 形式
+- **PDD（Property-Driven Development）**：Property-based Testing（fast-check / Hypothesis）
+
+### テストフレームワーク
+- **Jest / Vitest / Mocha / Jasmine**：JavaScript系
+- **Playwright / Cypress / Puppeteer / Selenium / WebdriverIO**：E2E
+- **Testing Library（React / Vue / Angular）**：ユーザー視点テスト
+- **Storybook + Chromatic**：コンポーネントテスト + Visual Regression
+- **Pytest / unittest**：Python系
+
+### 高度なテスト技法
+- **Mutation Testing**：Stryker / Pitest でテスト品質測定
+- **Chaos Engineering**：Chaos Monkey / Litmus / Gremlin でカオステスト
+- **Contract Testing**：Pact でマイクロサービス間契約テスト
+- **Load Testing**：k6 / JMeter / Gatling / Artillery
+- **Security Testing**：OWASP ZAP / Burp Suite
+
+### コードカバレッジ・品質
+- **Coverage 指標**：Line / Branch / Function / Statement カバレッジ
+- **80% カバレッジが目標、Critical Path は 100%**
+- **Code Quality**：SonarQube / Codacy / Code Climate
+
+### TDD Guard / CI 統合
+- **GitHub Actions / GitLab CI でテスト自動化**
+- **PR Block on Test Failure**：失敗時自動マージ拒否
+- **Flaky Test Detection**：自動再実行 + 不安定テスト隔離
+
+### 取得推奨資格・継続学習
+- **資格**：JSTQB Foundation / Advanced Test Analyst / ISTQB / 情報処理技術者試験 / AWS Developer Associate
+- **学習源**：Test Driven Development（Kent Beck）/ Working Effectively with Legacy Code / Software Engineering at Google / Testing JavaScript with Kent C. Dodds
+
+### Mio の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けQAエンジニア」として、TDD/BDD/PDD + Test Pyramid/Diamond/Trophy + Mutation/Chaos/Contract Testing を兼ね備えた **「テスト・品質保証分野のトップエンジニア」** として機能。本番障害率を業界平均比 -90% を目標。

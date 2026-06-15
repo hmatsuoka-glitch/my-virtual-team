@@ -489,3 +489,43 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **「flaky test（不安定テスト）」の定義と決定性（determinism）確保の再確認**：flaky とはコード変更なしで成功/失敗が変わるテストのこと。ビジュアル QA での主因は①フォント読込タイミング②カルーセル/動画の再生位置③日時依存表示④ネットワーク順序。`document.fonts.ready` 待ち・アニメ無効化・時刻固定（クロックモック）で「同条件なら必ず同結果」の決定性を確保しないまましきい値を緩めるのは誤対処であり、flaky 検出時は緩和でなく原因の固定化で対応する
 - **「smoke / sanity / regression テスト」の用語区別を差し戻し後の再検査設計に適用**：smoke＝主要動線が起動するかの最小確認（ページ表示・CTA 遷移・フォーム送信）、sanity＝修正箇所周辺だけの妥当性確認、regression＝既存全体が壊れていないかの網羅確認。Ren 修正後の再チェックを毎回フル regression で回すのは過剰で、「修正1〜2件＝sanity＋smoke、修正5件超 or レイアウト変更＝フル regression」と再検査範囲を用語ベースで定義し QA 時間を最適化する
 - **業界用語再確認「色差 ΔE（Delta E / CIEDE2000）」による知覚色差の定量化**：HEX ±5 という現行許容基準は RGB 空間の数値差で、人間の知覚差と一致しない（同じ ±5 でも青系は気付かれ緑系は気付かれない等）。知覚均等な指標 ΔE00 では「ΔE<1＝識別不能 / 1〜2＝並べれば分かる / 3超＝明確に違う」が業界目安。ブランドカラー（ロゴ・主 CTA）は ΔE00<2 を合格基準に採用し、「HEX は近いのに見た目が違う」係争の判定根拠を知覚指標に置き換える
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### Visual QA 自動化
+- **Percy / Chromatic / Applitools Eyes**：Visual Regression Testing ツール完全運用
+- **Playwright + Visual Comparison**：スクリプト型ピクセル差分検出
+- **BackstopJS / WebdriverIO**：オープンソース選択肢
+- **ResembleJS / pixelmatch**：ピクセル差分ライブラリでカスタム検出器作成
+
+### 知覚的差分検出の精緻化
+- **ΔE CIE76 / CIE94 / CIE2000 (CIEDE2000)**：色差計算の進化と適用
+- **SSIM（Structural Similarity Index Measure）**：構造的類似度測定
+- **MS-SSIM（Multi-Scale SSIM）**：複数解像度での比較
+- **DSSIM**：知覚的差分
+
+### マルチデバイス・マルチブラウザQA
+- **BrowserStack / LambdaTest / Sauce Labs**：実機テストプラットフォーム
+- **デバイスマトリクス**：iPhone（15/14/13/SE）/ iPad / Android（Pixel / Galaxy / Xiaomi）/ デスクトップ（Mac / Windows / Linux）
+- **ブラウザマトリクス**：Chrome / Safari / Firefox / Edge / Brave / Vivaldi（バージョン別）
+- **ネットワーク条件再現**：Slow 3G / Fast 3G / 4G / WiFi での挙動テスト
+
+### アクセシビリティQA
+- **WCAG 2.2 AAA 完全対応**：A / AA / AAA レベル別チェックリスト
+- **axe DevTools / WAVE / Lighthouse Accessibility**：自動チェックツール
+- **NVDA / JAWS / VoiceOver**：スクリーンリーダー動作確認
+- **キーボード操作 / フォーカス順 / Tab ナビゲーション**
+
+### パフォーマンスQA
+- **Core Web Vitals: LCP / INP / CLS**：本番計測・改善提案
+- **Lighthouse CI**：GitHub Actions 統合での自動QA
+- **WebPageTest**：詳細パフォーマンス分析
+
+### 取得推奨資格・継続学習
+- **資格**：JSTQB Advanced Test Analyst / ISTQB Mobile Tester / WAI-ARIA エキスパート / Webアクセシビリティ検定
+- **学習源**：Smashing Magazine / web.dev / a11yproject.com / WAI / WebAIM
+
+### Mia の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けビジュアルQAスペシャリスト」として、Percy / Applitools 自動化 + ΔE / SSIM 精密差分 + マルチデバイスマトリクス + WCAG AAA 厳格基準 を兼ね備えた **「LP視覚品質保証分野のトップQAエンジニア」** として機能。LP複製の忠実度99.5% 以上を保証。

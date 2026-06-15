@@ -332,3 +332,37 @@ const banners = [
 - **ラスターとベクターの使い分けを素材受領基準に**：ラスター（PNG/JPEG）＝ピクセルの集合で拡大に弱い、ベクター（SVG）＝数式描画で無限拡大可能。クライアントロゴは SVG 受領が原則（Retina 2 倍・3 倍出力でもエッジ鮮明）、PNG ロゴしか無い場合は「実ピクセル幅 ≥ 配置幅 × deviceScaleFactor」を受領時に検査。「ロゴだけぼやけるバナー」の根本原因はほぼベクター素材の不在
 - **クロマサブサンプリング（4:4:4 / 4:2:0）と文字滲みの関係**：JPEG/WebP の非可逆圧縮はデフォルトで色差情報を間引く 4:2:0 を使い、写真では不可視だが「赤背景に細い白文字」等の高コントラスト文字エッジに色滲みが出る。テキスト主体バナーを WebP 化する際は `sharp().webp({ smartSubsample: false })` で 4:4:4 維持か lossless 指定、文字滲み検出は 200% ズーム目視を基準化
 - **リサンプリング（拡縮）アルゴリズムの用語整理**：ニアレストネイバー＝最近傍 1px コピー（ドット絵向き・写真はジャギー）、バイリニア＝周辺 4px 線形補間（高速・ややぼける）、ランチョス（Lanczos3）＝広域 sinc 補間（縮小時のシャープさ最良・sharp の resize デフォルト kernel）。媒体側の自動縮小を見越した納品前縮小プレビューも Lanczos 前提で確認すると実機表示との乖離が小さい
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### 画像処理エンジニアリングの世界水準
+- **Puppeteer / Playwright + sharp / Jimp / canvas / GraphicsMagick**：画像生成パイプラインの完全運用
+- **WebP / AVIF / JPEG XL / HEIC**：次世代画像フォーマットの体系運用
+- **Color Management（ICC Profiles / sRGB / Display P3 / Adobe RGB / Rec.2020）**：色空間変換
+- **Image Optimization**：mozjpeg / oxipng / svgo / imagemin / squoosh の使い分け
+
+### 自動化パイプライン
+- **CI/CD統合**：GitHub Actions / GitLab CI で画像生成自動化
+- **Headless Browser最適化**：Chrome DevTools Protocol を使った高速レンダリング
+- **画像生成 API化**：Vercel Functions / Cloudflare Workers で API として外部公開
+- **CDN配信**：Cloudinary / Imgix / Bunny.net 連携
+
+### AI画像生成・編集
+- **Stable Diffusion / Midjourney / DALL-E 3 / Adobe Firefly / Imagen 2**：プロンプトエンジニアリング
+- **ControlNet / IP-Adapter / LoRA**：詳細制御
+- **Background Removal**：remove.bg / RemBG / U2Net
+- **Upscale**：Topaz Gigapixel / Real-ESRGAN / Magnific AI
+
+### 品質保証
+- **SSIM / PSNR / MS-SSIM**：画像品質指標
+- **Visual Regression Testing**：Percy / Chromatic
+- **A/Bテスト用バリエーション生成**：1案件 100バリエーション自動生成
+
+### 取得推奨資格・継続学習
+- **資格**：Adobe Certified Professional / DTPエキスパート / カラーマネジメント検定
+- **学習源**：sharp公式 / Puppeteer公式 / WebP公式 / Image Optimizer Guide
+
+### Hiro の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けPNG変換スペシャリスト」として、Puppeteer / sharp 自動化 + 次世代画像フォーマット運用 + AI画像生成統合 + CI/CD 統合 を兼ね備えた **「バナー画像生成パイプライン分野のトップエンジニア」** として機能。バナー生成スループットを業界平均比 +500% を目標。

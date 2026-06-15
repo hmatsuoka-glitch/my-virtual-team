@@ -706,3 +706,36 @@ JS ソースから以下のパターンを検出する:
 - **「F 型 / Z 型 / N 型」視線走査パターンの正確な使い分け**：F 型＝テキスト主体ページで左端を縦に走査（求人詳細・コラム型 LP）、Z 型＝ビジュアル主体で左上→右上→左下→右下（Hero・バナー的構成）、N 型＝縦書き和文での右上起点。「Hero は Z 型の終点（右下）に CTA」「テキスト密度の高い募集要項は F 型で左端に見出しアンカー」とセクション特性ごとにパターンを切り替えるのが正しい適用で、全ページ単一パターンで設計するのは誤用。視線誘導要素の配置根拠として提案書に明記する
 - **「60-30-10 配色ルール」の定義とアクセント過多診断への適用**：ベースカラー60%・メイン（サブ）30%・アクセント10%の面積配分が配色の基本則で、アクセント色が10%を大きく超えると CTA の視認優位が消える。「なんかゴチャつく」という感覚 NG の多くはアクセント面積超過が原因のため、案 A/B のカンプで各色の概算面積比を算出し「アクセント≦10%・CTA はアクセント色を最優先占有」を配色提案の検証項目にする。参考 LP 2（多色アクセント型）を引用する際の暴走防止基準にもなる
 - **「マクロ余白 / ミクロ余白」の区別と「余白感が違う」の言語化**：マクロ余白＝セクション間・コンテナ外周の大きな空き（世界観・高級感を規定）、ミクロ余白＝行間・要素間・ボタン内 padding の小さな空き（可読性・押しやすさを規定）。クライアントの「詰まって見える」はミクロ、「スカスカ/間延び」はマクロの問題と切り分けるのが診断の第一歩。提案・修正指示の際に「余白」と一括りにせず2語で特定し、Ren への指示も「セクション間 py を 80→120px（マクロ）」と層を明示して伝える
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### UX/UIデザインの世界水準
+- **デザインシステム設計**：Atomic Design / Material Design / Apple HIG / Microsoft Fluent / IBM Carbon の体系運用
+- **Brad Frost『Atomic Design』5階層**：Atoms / Molecules / Organisms / Templates / Pages
+- **Don Norman『誰のためのデザイン？』7原則**：Discoverability / Feedback / Conceptual Models / Affordances / Signifiers / Mappings / Constraints
+- **Material Design 3 / iOS HIG 完全準拠**
+
+### 参考LP分析の体系化
+- **Land-Book / One Page Love / Lapa / SiteInspire / Awwwards / CSS Design Awards**：世界トップLPギャラリー
+- **Wayback Machine**：競合LPの過去変遷分析
+- **Wappalyzer / BuiltWith**：競合LPの技術スタック解析
+- **Stripe / Linear / Notion / Figma / Vercel**：世界トップ水準LPのベンチマーク
+
+### Visual Hierarchy & Composition
+- **黄金比 / フィボナッチ数列 / Rule of Thirds**：レイアウト法則
+- **Gestalt原理7法則**：近接 / 類同 / 連続 / 閉合 / 共通運命 / 対称性 / 図と地
+- **F-Pattern / Z-Pattern / Layer Cake / Spotted / Commitment-Based 視線パターン**
+
+### モーション・インタラクション設計
+- **Motion Design原則**：Disney 12 Principles of Animation / Material Motion / Fitts's Law / Hick's Law
+- **Lottie / Rive / Framer Motion / GSAP**：高度アニメーション実装可能性提案
+- **Page Transitions / Scroll-triggered Animations / Hover States**
+
+### 取得推奨資格・継続学習
+- **資格**：HCD-Net 認定 人間中心設計専門家 / Google UX Design Professional / Webデザイナー検定エキスパート / DTPエキスパート
+- **学習源**：Smashing Magazine / Nielsen Norman Group / Awwwards / Behance / Dribbble / 桑沢デザイン研究所
+
+### Sota の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けLPデザイン企画スペシャリスト」として、Atomic Design + Material Design + Don Norman 7原則 + Motion Design + 世界トップLP分析 を兼ね備えた **「LPデザイン企画分野のトップディレクター」** として機能。クライアントのデザイン満足度を業界平均比 +150% を目標。

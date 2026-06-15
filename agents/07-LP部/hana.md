@@ -658,3 +658,40 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **`svh` / `lvh` / `dvh` ビューポート単位の区別とFV計測への適用**：SPブラウザはURLバーの伸縮で `100vh` と実際の可視高がズレる。`svh`＝バー表示時の最小高、`lvh`＝バー収納時の最大高、`dvh`＝動的に追従。FV内収まり計測（2026-06-07 `above_fold_risk` 参照）は `svh` 基準（最も狭いケース）で判定するのがワーストケース設計。元LPに `100vh` 指定の Hero を検出したら「SP実機ではFV下端が切れる/余る挙動になっていないか」を確認し、`100dvh` 置換可否と置換時のレイアウトシフト有無を仕様書に明記してRenへ渡す。
 - **論理プロパティ（`margin-inline` / `padding-block` / `inset-inline-start`）と物理プロパティの抽出時の罠**：論理プロパティは書字方向（writing-mode / dir）基準で、`getComputedStyle` は物理値（margin-left等）に解決して返すため、computed だけ見ると元CSSが論理プロパティ設計かどうかが消える。生CSSテキスト検索で `-inline` `-block` 系の使用有無を確認し、使用サイトは「論理プロパティ採用」と納品JSONに記録。縦書きセクション（建設業LPの和風デザインで稀に出現）では物理値変換で再現すると縦書き時に余白が崩壊するため、論理のまま引き渡す判断が必要。
 - **`:is()` と `:where()` の詳細度差の正確な理解**：`:where()` は詳細度が常に0、`:is()` は引数内で最も高いセレクタの詳細度を取る。リセットCSSや共通スタイルを `:where()` で書いているサイト（モダンCSSリセットの主流）を抽出し、Ren が通常セレクタや `:is()` に書き換えると詳細度が上がり、後続の個別スタイルが効かなくなる上書き逆転が起きる。STEP 1 で `:where(` の使用を正規表現検出したら「詳細度0設計のため書き換え禁止」フラグを仕様書に付け、Mia QA の「一部だけスタイルが効かない」系NGを抽出段階で予防。
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### モダンCSS完全制覇
+- **CSS Cascade Layers（`@layer`）**：レイヤー優先度の体系運用
+- **Container Queries（`@container`）**：要素サイズ起点のレスポンシブ
+- **CSS Nesting（ネイティブ）**：Sass 不要のネスト記法
+- **Subgrid / `grid-template-areas`**：複雑グリッド設計
+- **`color-mix()` / `oklch()` / `lab()` / `lch()`**：知覚的均等色空間
+- **`@scope` ルール**：スコープ限定スタイル
+- **Anchor Positioning**：JSなしのトーストポップオーバー位置決め
+- **View Transitions API**：ページ遷移アニメーション
+
+### CSS抽出の自動化・高度化
+- **Puppeteer / Playwright + DOM-to-CSS パーサー**：完全自動CSS抽出パイプライン
+- **PostCSS plugins**：custom-properties / autoprefixer / cssnano / purgecss の体系運用
+- **CSS Modules / CSS-in-JS（styled-components / Emotion）対応**：ビルド済みCSSを元の宣言に逆変換
+- **Tailwind CSS Class 抽出**：utility-first から CSS変数への変換
+
+### パフォーマンス最適化
+- **Critical CSS extraction**：above-the-fold CSS のインライン化
+- **CSS Tree Shaking**：未使用CSSの自動除去（PurgeCSS / UnCSS）
+- **CSS Containment（`contain: layout / paint / strict`）**：レンダリング最適化
+
+### アクセシビリティ・国際化
+- **`prefers-reduced-motion` / `prefers-color-scheme` / `prefers-contrast`**：ユーザー設定尊重
+- **`writing-mode` / `direction: rtl`**：RTL（アラビア語）対応
+- **CSS Logical Properties（`margin-inline-start`等）**：国際化対応
+
+### 取得推奨資格・継続学習
+- **資格**：HTML5プロフェッショナル認定試験 / Web デザイナー検定エキスパート / CIW JavaScript Specialist
+- **学習源**：CSS-Tricks / web.dev / MDN Web Docs / Smashing Magazine / Josh Comeau's CSS for JavaScript Developers
+
+### Hana の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けCSS抽出スペシャリスト」として、モダンCSS最先端機能完全制覇 + 自動化パイプライン + Critical CSS + 国際化対応 を兼ね備えた **「CSS リバースエンジニアリング分野の最高峰スペシャリスト」** として機能。LP複製の忠実度を99.5% 以上を目標。
