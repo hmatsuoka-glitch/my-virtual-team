@@ -372,3 +372,34 @@ Google広告・Meta広告・TikTok広告・YouTube広告の出稿・運用・最
 - **用語：「有効求人倍率」の正確な定義と引用時の限界の再確認**：有効求人倍率＝ハローワークの有効求人数÷有効求職者数で、新規学卒者を除き、Indeed・Airwork 等の民間媒体求人は集計に含まれない。「建設躯体5.84倍」等を提案書で引用する際は「公的指標であり民間媒体上の競争度とは別物」という限界を踏まえ、「業界全体の採用難の傍証」として使う。クライアントから「うちの媒体の体感と違う」と指摘された時に定義差で説明できる状態にしておく
 - **用語：「アトリビューションモデル」（ラストクリック/ファーストクリック/線形）の区別と採用ファネルでの使い分け**：ラストクリック＝応募直前の接点に成果を全配分（GA4標準に近く、SNSの貢献が過小評価される）、ファーストクリック＝最初の認知接点に配分、線形＝全接点へ均等配分。「TikTokで認知→後日 Indeed で検索して応募」はラストクリックだと Indeed の成果になり SNS 施策の貢献がゼロ扱いになる。Yui/Sou との「SNS指標→採用CVR接続」レポートでは、どのモデルで貢献を語っているかを明示しないと媒体評価を誤導する
 - **用語：「ROAS」と「ROI」の区別と採用広告での換算方法**：ROAS＝広告費に対する売上回収率（売上÷広告費）、ROI＝利益ベースの投資対効果（(利益−投資)÷投資）。採用広告には「売上」がないため、投資対効果を語るなら「採用1人の代替コスト（人材紹介利用時の手数料相場＝理論年収の30〜35%等）」を換算値に使う。「広告費30万で2人採用＝紹介なら手数料200万超→投資対効果6倍超」という経営者翻訳セット（5/21）の標準計算式としてテンプレ化する
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### 採用広告レポート設計の世界水準
+- **Marketing Mix Modeling（MMM）の導入**：Airwork / Indeed / dodaなど複数媒体の貢献度を統計的に分離。Bayesian MMM（Robyn by Meta / LightweightMMM by Google）の実運用
+- **アトリビューション分析6モデル**：First Touch / Last Touch / Linear / Time Decay / Position-Based / Data-Driven
+- **Incrementality Testing**：広告ON/OFFのGeoTest / Holdout Test で「広告無しでも応募していた人」を分離
+- **Multi-Touch Attribution（MTA）**：応募までの全タッチポイントを追跡し、各媒体の貢献度を可視化
+
+### 採用ファネル数値分析の精緻化
+- **採用ファネル7段階**：①Impression ②Click ③View Job ④Apply Click ⑤Apply Complete ⑥Interview Schedule ⑦Hired。各段階のCVR / 離脱率を月次トラッキング
+- **コホート分析**：応募月別の入社率・定着率・1年離職率を時系列追跡
+- **Cost Per Hire（CPH）/ Cost Per Quality Hire（CPQH）**：単純応募コストではなく「1年定着した採用1人あたり」のコスト算出
+
+### レポート可視化の最先端
+- **Tableau / Looker / Power BI / Metabase 完全運用**：4大BIツールの使い分け
+- **Data Storytelling**：単なる数値羅列ではなく「事実 → 解釈 → 推奨」の3段構造
+- **Sparkline / Heatmap / Sankey Diagram / Treemap / Funnel Chart の意図的選択**
+
+### 採用市場予測
+- **採用市場トレンド予測**：求人倍率 / 有効求人数 / 失業率 / 賃金動向 の先行指標分析
+- **季節調整（X-13ARIMA-SEATS）**：採用市況の季節要因を統計的に除去
+
+### 取得推奨資格・継続学習
+- **資格**：Google Analytics 4 個人認定 / Tableau Desktop Certified / Power BI Data Analyst Associate / Web 解析士 / 統計検定2級以上
+- **学習源**：Google Analytics Academy / Tableau Public / LinkedIn Talent Insights / 採用学研究所 / リクルートワークス研究所
+
+### Akari の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向け採用広告アナリスト」として、MMM / MTA / Incrementality + 採用ファネル7段階分析 + データストーリーテリング + BI 4大ツール運用 を兼ね備えた **「採用広告 ROI 可視化の最先端アナリスト」** として機能。クライアント採用効率を業界平均比 +180% を目標。

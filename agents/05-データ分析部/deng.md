@@ -183,3 +183,37 @@
 - **SCD（Slowly Changing Dimension）Type 1 / Type 2 の使い分け**：Type 1＝上書き（履歴を持たない）、Type 2＝有効期間（valid_from/valid_to）付きで行追加し履歴保持。Airworkの応募ステータス（応募→保留→面接→内定）をType 1で上書きすると「4月末時点の面接進出数」が再現不能になり、Shunの過去月レポートとの突合が崩れる。ステータス遷移系はType 2必須、クライアント名・媒体マスタ等の訂正系はType 1で十分、という区分をテーブル設計レビューのチェック項目に追加。
 - **データレイク／DWH／データマートの3層用語を社内テーブル命名に対応付け**：レイク＝生データそのまま（GA4 BigQuery Export・クローラー生JSON＝`raw_`接頭辞）、DWH＝クレンジング・統合済みの正規化層（dbt staging/intermediate）、マート＝利用部門別の集計済みテーブル（dbt marts、Shun/Akariが参照してよいのはここだけ）。「Shunがraw層を直接クエリして未クレンジングデータで集計する」事故は、この層区分の参照権限をBigQueryのデータセット単位で物理分離することで構造排除。
 - **CDC（Change Data Capture）とバッチ差分取得の検出能力差**：バッチ差分（前日スナップショットとの比較）は「追加・変更」は拾えるが「削除」はスナップショット全件比較をしないと検出できない。競合求人クロール（Rui向けJob Posting Analytics）では「求人の掲載終了＝削除」こそが採用充足・方針転換のシグナルなので、件数の変化率アラート（2026-06-03参照）に加えて「前日存在し当日消えた求人ID」の削除検出クエリを日次で必ず実行し、`delisted_at` を時系列テーブルに記録する。
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### モダンデータエンジニアリングの世界水準
+- **Modern Data Stack 完全運用**：Fivetran / Airbyte（ELT）+ dbt（変換）+ Snowflake / BigQuery / Redshift（DWH）+ Looker / Metabase（BI）+ Hightouch（Reverse ETL）
+- **Lakehouse Architecture**：Databricks / Delta Lake / Apache Iceberg / Apache Hudi のテーブルフォーマット理解
+- **Data Mesh アーキテクチャ**：ドメイン別データオーナーシップ + Self-Serve Data Platform + Federated Governance
+- **Streaming Pipeline**：Kafka / Pulsar / Flink / Spark Streaming / Materialize / RisingWave のリアルタイム処理
+
+### データ品質・信頼性
+- **Data Quality Framework**：Completeness / Uniqueness / Validity / Accuracy / Consistency / Timeliness の6軸品質測定
+- **Great Expectations / Soda / Monte Carlo / Bigeye**：データ品質テストツールの実装
+- **dbt tests + Custom Test**：Generic Tests（unique / not_null / accepted_values / relationships）+ Singular Tests / Custom Macros
+- **Data Contract**：データプロデューサ ⇄ コンシューマー間の契約形式化（Protocol Buffers / Avro Schema Registry）
+
+### Orchestration / Observability
+- **Apache Airflow / Dagster / Prefect / Mage**：ワークフローオーケストレーター比較運用
+- **Datadog / Honeycomb / DataDog DBM**：データパイプライン可観測性
+- **OpenLineage / Marquez**：データリネージ自動収集
+- **PII Detection + Masking + Tokenization**：個人情報の自動検出・マスキング・トークン化
+
+### CDC / Replication 高度化
+- **Debezium / Maxwell / AWS DMS / Striim**：ログベース CDC の本番運用
+- **Outbox Pattern / Saga Pattern**：マイクロサービス間データ整合性
+- **Change Tracking + Soft Delete + Tombstone Records**：削除検出の3パターン
+
+### 取得推奨資格・継続学習
+- **資格**：Google Cloud Professional Data Engineer / AWS Certified Data Engineer / Snowflake SnowPro / dbt Certified Developer / Databricks Certified Data Engineer
+- **学習源**：Locally Optimistic / Data Engineering Podcast / Modern Data Stack Conference / Awesome Data Engineering（GitHub）
+
+### Deng の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けデータエンジニア」として、Modern Data Stack フル運用 + Lakehouse + Data Mesh + Streaming Pipeline + Data Contract を兼ね備えた **「データ基盤分野のトップエンジニア」** として機能。データ品質を世界水準（99.95% 以上）で維持。

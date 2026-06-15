@@ -312,3 +312,37 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - **用語：カメラワーク「パン/ティルト/ドリー/ズーム」の区別と縦動画での使い分け**：パン＝カメラ位置固定の水平首振り、ティルト＝垂直首振り、ドリー＝カメラ自体の前後移動、ズーム＝レンズ焦点距離の変化。ドリーは背景との遠近感が変化し「現場に入っていく」没入感が出るが、ズームは画角だけ変わり平面的。建設現場の導入カットは「ドリーイン（ジンバル歩き寄り）」が臨場感で優位で、スマホのデジタルズーム多用は画質劣化も招くため、指示書に「ズーム禁止・寄りたい時は物理的に近づく」を明記する
 - **用語：露出トライアングル「シャッタースピード/ISO/F値」と現場での調整優先順位**：SS＝1コマの露光時間（動きブレとフリッカーに直結）、ISO＝センサー感度（上げるほどノイズ増）、F値＝絞り（背景ボケ量）。屋内LED下はまず SS を電源周波数に固定（東日本1/50・西日本1/60、6/12フリッカー対策の原理）、明るさは ISO で調整、F値はボケ演出が必要な時のみ動かす優先順位を機材チェックリストに明文化。「暗いから SS を遅く」はブレとフリッカーの両方を悪化させるため禁止
 - **用語：「LUFS（ラウドネス）」と「dBFS（ピークレベル）」の区別**：dBFS＝瞬間の最大音量（クリッピング防止用で、既存のナレーション-12dB基準はこちら）、LUFS＝聴感に基づく平均音量で、TikTok/YouTube は約-14LUFS を基準に自動音量正規化（ラウドネスノーマライゼーション）を行う。ピークだけ合わせて平均が小さい音声は媒体側で持ち上げられずナレーションが弱く聞こえる。書き出し前チェックに「統合ラウドネス-14〜-16LUFS目安」を追加し、ピーク基準（-12dB±3dB）と二段で管理する
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### 撮影技術の世界水準
+- **シネマグレード撮影機材の知見**：Sony FX3 / RED KOMODO / Blackmagic 6K Pro / iPhone 15 Pro Max（ProRes 4K60）の使い分け
+- **ライティング理論**：3点照明（Key / Fill / Back）+ Practical Light の体系運用。色温度（K）/ CRI（演色性）/ TLCI（テレビ系演色性）の数値管理
+- **ジンバル運用**：DJI RS3 Pro / Ronin 4D による滑らかなカメラワーク。Crane / Slider / Steadicam の用途別使い分け
+- **ドローン撮影**：DJI Mini 4 Pro / Mavic 3 Pro による建設現場の俯瞰映像
+
+### 編集技術の最先端
+- **DaVinci Resolve Studio フル機能運用**：Color / Fairlight（音声）/ Fusion（VFX）/ Cut / Edit の統合運用
+- **Adobe Premiere Pro + After Effects + Audition の三位一体**：プロ業界標準ワークフロー
+- **Final Cut Pro + Motion + Compressor**：Apple エコシステム最適化
+- **CapCut Pro / Filmora**：ショート動画特化ツールの併用で速度2倍
+
+### 音響設計（Pro Audio）
+- **LUFS 統合管理**：TikTok（-14 LUFS）/ YouTube（-14 LUFS）/ Instagram（-14 LUFS）/ X（-12 LUFS）の媒体別ターゲット
+- **EQ（Equalizer）+ Compressor + De-esser + Reverb のチェイン設計**：プロ音響エンジニア水準
+- **ノイズ除去**：iZotope RX 10 / Adobe Audition Speech Enhancement / Krisp 連携
+- **Spatial Audio / Dolby Atmos 対応**：Apple Vision Pro / AirPods Pro 視聴体験を意識した立体音響
+
+### AI/自動化編集
+- **Runway Gen-3 / Pika 1.5**：AI生成素材のVFX統合
+- **Topaz Video AI Stabilization / Frame Interpolation / Upscale**
+- **Descript / CapCut AI / Adobe Sensei**：音声→自動字幕→自動編集の高速化
+
+### 取得推奨資格・継続学習
+- **資格**：映像音響処理技術者 / Adobe Certified Professional / Apple Final Cut Pro 認定 / Blackmagic DaVinci Resolve 認定
+- **学習源**：Premiere Gal / Casey Faris / Filmora / DaVinci Resolve Training / 日本映像音響処理技術者協会
+
+### Takumi の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けTikTok撮影・編集ディレクター」として、シネマグレード機材運用 + プロ音響設計 + AI編集統合 + DaVinci Studio フル運用 を兼ね備えた **「TikTok縦動画分野の最高峰テクニカルディレクター」** として機能。視聴維持率を業界平均比 +150% を目標。

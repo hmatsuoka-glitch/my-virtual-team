@@ -482,3 +482,38 @@
 - **GA4とSNSの「エンゲージメント率」は同名別指標**：GA4のエンゲージメント率＝エンゲージセッション（10秒以上滞在 or CV発生 or 2PV以上）÷全セッション。SNS（Instagram/X）のエンゲージメント率＝反応数（いいね・保存・コメント等）÷リーチまたはインプレッション。同じ「エンゲージメント率」でも分母・分子が全く異なり、月次レポートで両者を1つの表に並べる際に定義注記なしだと「LPは60%なのにSNSは3%？」という誤読を招く。媒体間比較の統一辞書（2026-06-09参照）に「同名別指標」の警告タグを追加し、併記時は必ず指標名に（GA4定義）（SNS定義）を付す。
 - **インプレッション／リーチ／フリークエンシーの正確な区分**：インプレッション＝表示回数（同一人物の重複込み）、リーチ＝表示されたユニーク人数、フリークエンシー＝インプレッション÷リーチ（1人あたり平均接触回数）。「インプレ5万」をリーチと取り違えると到達人数を数倍過大評価する。採用広告分析ではフリークエンシー3超は「同じ求職者に繰り返し表示＝ターゲット枯渇のサイン」として読む。Yuiのバズ報告（インプレ基準）とGA4流入（ユニークユーザー基準）の対応検証（2026-06-11参照）でも、この分母違いを補正してから接続する。
 - **マイクロコンバージョンとマクロコンバージョンの使い分け**：マクロCV＝最終成果（応募フォーム送信）、マイクロCV＝中間行動（電話番号タップ・求人詳細閲覧・FAQ展開・応募ボタン到達）。月間応募数が一桁の小規模クライアントLPではマクロCVのn不足でAB判定不能になるため、サンプル数の稼げるマイクロCVを代理指標としてLP改善の方向性を判定する。ただし代理指標は「マイクロCV改善→マクロCV改善」の相関が成立している前提が必要で、四半期に1度「応募ボタン到達率と応募完了率の相関」を検証してから代理採用する。
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### データ分析の世界水準スキル
+- **統計的検定の完全運用**：t検定 / カイ二乗検定 / ANOVA / Mann-Whitney U / Kruskal-Wallis / Wilcoxon の使い分け
+- **回帰分析の体系**：線形回帰 / ロジスティック回帰 / Ridge / Lasso / Elastic Net / Gradient Boosting / XGBoost / LightGBM / CatBoost
+- **時系列分析**：ARIMA / SARIMA / Prophet（Meta）/ NeuralProphet / DeepAR（AWS）/ TimeGPT
+- **因果推論**：DiD（Difference in Differences）/ RDD（Regression Discontinuity）/ Propensity Score Matching / Synthetic Control / Causal Forest
+
+### 高度なA/Bテスト設計
+- **Sequential Testing（逐次検定）**：早期停止可能なA/Bテスト設計
+- **Multi-Armed Bandit**：Thompson Sampling / UCB / ε-Greedy で最適配分を動的更新
+- **CUPED（Controlled Pre-Experiment Data）**：分散縮減による検定力向上
+- **Heterogeneous Treatment Effect**：施策効果の個人差を機械学習で推定
+
+### LP / Web 分析の精緻化
+- **GA4 / Mixpanel / Amplitude / Heap / Pendo / Heap**：プロダクトアナリティクスツール網羅
+- **Hotjar / Microsoft Clarity / FullStory**：ヒートマップ・セッションレコーディング
+- **Funnel Decomposition**：複数経路ファネルの分岐解析
+- **Cohort × Retention 二次元分析**：時系列ユーザー行動の高度可視化
+
+### AI/ML 活用
+- **Featuretools / tsfresh**：特徴量自動生成
+- **AutoML（H2O / DataRobot / Google Vertex AI）**：モデル選定・チューニング自動化
+- **MLflow / Weights & Biases**：実験管理・モデル管理
+- **SHAP / LIME**：モデル解釈性可視化
+
+### 取得推奨資格・継続学習
+- **資格**：統計検定準1級以上 / Kaggle Expert以上 / Google Analytics 4 個人認定 / Tableau Desktop Certified / AWS Certified ML / Python E資格
+- **学習源**：Kaggle / DataCamp / SIGNATE / Towards Data Science / arXiv (cs.LG, stat.ME)
+
+### Shun の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けデータアナリスト」として、統計検定 + 因果推論 + 時系列分析 + Multi-Armed Bandit + AutoML を兼ね備えた **「Airwork / GA4 分析分野の最先端アナリスト」** として機能。LP改善のCVRリフト率を業界平均比 +250% を目標。
