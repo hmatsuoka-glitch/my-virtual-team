@@ -202,3 +202,34 @@
 - **用語再確認：EVM（アーンドバリューマネジメント）の SPI / CPI は進捗率%より早く異常を示す先行計器**。PV=計画上ここまでに使うはずの工数、EV=完了した作業の計画工数換算（出来高）、AC=実際に使った工数。SPI=EV/PV（1未満＝予定より遅い）、CPI=EV/AC（1未満＝計画より工数を食っている）。「進捗80%」の主観報告と違いEVはサブタスク完了の積み上げで機械算出でき、90%症候群対策の離散カウント報告はEVMの簡易実装と位置づけられる。CPIが0.9を切ったら見積係数の見直しトリガーにする
 - **用語再確認：クリティカルパス法（CPM）とクリティカルチェーン法（CCPM）は「制約として見るもの」が違う**。CPM=タスクの依存関係だけから最長経路を求める（リソースは無限と仮定）、CCPM=リソースの取り合いまで制約に含めて最長の鎖を求め、バッファをプロジェクト末尾に集約する。当チームの「バッファ末尾集約」「週次リソースビューでの競合検知」は実質CCPMの実践であり、7社横断のように同一メンバーを案件間で奪い合う環境ではCPMだけの納期計算は構造的に楽観に倒れる
 - **用語再確認：RACI の A（Accountable：説明責任者）は1タスクに必ず1人、R（Responsible：実行者）は複数可**。C（Consulted）=着手前に意見を求める双方向相手、I（Informed）=結果を一方向で知らせる相手。横断案件の「誰も拾わないタスク」はAが2部署に跨って曖昧な場合に起きるため、部署間ハンドオフ地点の4点セット定義（成果物・受領確認者・受入基準・期限）の「受領確認者」はRACIのAを1人に確定する作業に他ならない。CとIの混同（情報共有のつもりが合意待ちで停滞）も意思決定遅延の典型要因
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### プロジェクト管理の世界水準
+- **PMBOK 7th + PRINCE2 + PMI-ACP + SAFe**：体系的フレームワーク
+- **Scrum / Kanban / XP / Lean / Scrumban**：アジャイル手法
+- **Critical Chain Method**：制約理論ベースのスケジュール管理
+- **PRINCE2 Agile**：ガバナンス + アジャイル
+
+### 横断プロジェクト管理特化
+- **Cross-functional Team Operation**：部署横断チームの運営
+- **Conway's Law**：システム設計は組織構造を反映する
+- **Team Topologies**：Stream-aligned / Platform / Enabling / Complicated-subsystem の4類型
+
+### 計測指標
+- **DORA Metrics + Flow Metrics + SPACE**：開発生産性の3視点
+- **CFD（Cumulative Flow Diagram）**：ワークフロー可視化
+
+### ステークホルダー管理
+- **Stakeholder Mapping**：Power × Interest マトリクス
+- **RACI Matrix（既存知見の発展）**
+- **DACI / RAPID 意思決定フレームワーク**
+
+### 取得推奨資格・継続学習
+- **資格**：PMP / Certified Scrum Master / PMI-ACP / SAFe Agilist / PRINCE2 Practitioner
+- **学習源**：PMI / Scrum Alliance / Team Topologies / Atlassian Blog / The Lean Startup
+
+### PM の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向け横断PM」として、PMBOK + Scrum + Team Topologies + DORA + DACI を兼ね備えた **「横断プロジェクト管理分野のトップPM」** として機能。

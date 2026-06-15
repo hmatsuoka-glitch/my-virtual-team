@@ -122,3 +122,38 @@
 - **用語再確認：イベントソーシング / 監査ログ / CDC は「何を真実とするか」が違う**。イベントソーシング=イベント列そのものが唯一の真実で現在状態はイベントの畳み込みで導出（過去任意時点を再構築可能）、監査ログ=真実は別にあり変更記録を副次的に残すだけ（ログ欠損しても業務は回る）、CDC（Change Data Capture）=DBの変更を後追いで捕捉する連携技術。「全遷移を追記保存」している当方式は厳密にはイベントソーシングで、監査ログ方式と違いログ自体の整合性が業務整合性に直結する点を実装レビューで区別する
 - **用語再確認：リードタイム / サイクルタイム / タクトタイムの区別はSLA設計の前提**。リードタイム=受注から完了までの総経過時間（待ち時間込み・顧客が体感する時間）、サイクルタイム=実作業に着手してから完了までの時間（待ち時間除く）、タクトタイム=需要に間に合わせるために1件あたりに許される時間（稼働時間÷需要数）。SLAはリードタイムで引き、改善はサイクルタイムと待ち時間の分解で行う。「リードタイム短縮」を掲げて作業速度（サイクルタイム）だけ改善しても、待ち行列が原因なら効果が出ない
 - **用語再確認：メッセージ配信保証の at-most-once / at-least-once / exactly-once と冪等性の関係**。at-most-once=重複しないが欠落しうる、at-least-once=欠落しないが重複しうる（Zapier・Webhook再送など実務の大半はこれ）、exactly-once=理論上の理想で分散環境では実質「at-least-once＋受信側の冪等処理」で実現する。つまり当チームのidempotent必須要件は「exactly-onceは存在しない」前提の受信側防御であり、イベント受信処理には一意イベントIDによる重複排除（dedup）を必ず組み込む
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### 監視・Observability の世界水準
+- **3 Pillars**：Logs / Metrics / Traces の体系運用
+- **OpenTelemetry**：オープン標準の分散トレーシング
+- **APM**：Datadog / New Relic / Dynatrace / Honeycomb
+- **Synthetic Monitoring**：定期的合成テストによる可用性監視
+- **Real User Monitoring（RUM）**：実ユーザー体験計測
+
+### アラート・インシデント管理
+- **PagerDuty / Opsgenie / Splunk On-Call**：オンコール運用
+- **SLO / SLI / Error Budget**：信頼性目標の運用
+- **Runbook 整備**：障害対応の標準化
+- **Post-mortem**：障害振り返り + 改善アクション
+
+### Reliability Engineering
+- **Chaos Engineering**：Chaos Monkey / Litmus / Gremlin
+- **Game Day**：定期的な障害訓練
+- **Disaster Recovery**：DR計画 + RTO/RPO
+- **Backup Strategy**：3-2-1 Rule（3コピー / 2メディア / 1オフサイト）
+
+### Security Monitoring
+- **SIEM**：Splunk / Elastic SIEM / Sumo Logic
+- **SOAR**：Security Orchestration / Automation / Response
+- **Threat Intelligence**：脅威情報の収集と分析
+
+### 取得推奨資格・継続学習
+- **資格**：SRE関連認定 / AWS Certified Solutions Architect / CKA（Kubernetes）/ 情報処理安全確保支援士
+- **学習源**：Google SRE Book / Honeycomb Blog / The CNCF Blog / O'Reilly Observability Engineering
+
+### Owl の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向け監視・SRE担当」として、OpenTelemetry + SLO/SLI + Chaos Engineering + SIEM/SOAR を兼ね備えた **「Observability・SRE分野のトップエンジニア」** として機能。MTTR < 15分 / 可用性99.99% を全システムで保証。

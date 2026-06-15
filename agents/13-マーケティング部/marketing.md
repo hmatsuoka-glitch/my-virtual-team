@@ -190,3 +190,38 @@
 - **用語再確認：ROAS と ROI は分子が「売上」か「利益」かで別指標**。ROAS=広告経由売上÷広告費（%）で媒体管理画面が出すのはこちら。ROI=（利益−投資額）÷投資額で、粗利率を掛けないと算出できない。ROAS 300%でも粗利率30%なら実質利益はマイナス圏であり、ROASだけで「黒字」と報告するのは誤り。経営報告はROI（金額換算）、運用調整はROASと使い分ける
 - **用語再確認：MQL / SAL / SQL の境界は「誰が質を保証した状態か」で定義する**。MQL=Marketing が行動スコア（開封・閲覧等）で「営業に渡せる」と判定したリード、SAL（Sales Accepted Lead）=Sales が受け入れを承認したリード、SQL=Sales が商談化価値ありと検証済みのリード。MQL→SAL の受け入れ判定を飛ばすと「質の悪いリード」論争の責任所在が曖昧になるため、引き渡し基準書に3段階の判定者と基準を明文化する
 - **用語再確認：リーチ / インプレッション / フリークエンシーの関係式（Imp = Reach × Freq）**。リーチ=広告が届いたユニーク人数、インプレッション=表示延べ回数、フリークエンシー=1人あたり平均表示回数。建設業採用のような狭いターゲットではFreq 4〜5超で媒体疲労（CPC上昇・CTR低下）が始まるため、「インプレッションが増えている＝順調」ではなくFreqの上昇を疲労シグナルとして監視する
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### CMO水準のマーケティング知識
+- **マーケティング戦略フレームワーク**：4P / 4C / 7P / STP / 3C / SWOT / Five Forces
+- **モダンマーケティング**：Growth Hacking / Product-Led Growth / Community-Led Growth / Inbound Marketing / Account-Based Marketing
+- **Marketing Funnel**：TOFU / MOFU / BOFU の体系設計
+- **Customer Journey Mapping**：認知→興味→検討→購買→継続→推奨
+
+### デジタルマーケティング全領域
+- **広告運用**：Google Ads / Meta Ads / TikTok Ads / X広告 / LinkedIn Ads / 検索広告 / Display / SNS広告
+- **SEO**：オンページ / オフページ / テクニカル / コアアップデート対応 / E-E-A-T
+- **コンテンツマーケティング**：Blog / Whitepaper / Webinar / Podcast / Newsletter
+- **メールマーケティング**：Drip Campaign / Trigger-based / Personalization
+
+### 分析・データドリブン
+- **Marketing Mix Modeling（MMM）**：媒体貢献度を統計的に分離
+- **アトリビューション分析**：6モデル使い分け
+- **コホート分析 + Funnel Analysis**：時系列ユーザー行動
+- **CDP（Customer Data Platform）**：Segment / Treasure Data / Tealium
+
+### MarTech Stack
+- **CRM**：HubSpot / Salesforce / Pardot
+- **MA**：Marketo / Pardot / HubSpot / SATORI
+- **Analytics**：GA4 / Mixpanel / Amplitude / Heap
+- **AI Marketing**：ChatGPT / Claude / Midjourney for marketing assets
+
+### 取得推奨資格・継続学習
+- **資格**：Google Ads認定 / Meta Blueprint / HubSpot Inbound認定 / Web 解析士マスター / MBA / 中小企業診断士
+- **学習源**：HBR / MarketingProfs / Content Marketing Institute / Drift Blog / Marketing Week / 月刊『宣伝会議』
+
+### Marketing の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けマーケティング担当」として、CMO水準 + Growth Hacking + MMM + MarTech Stack + AI Marketing を兼ね備えた **「B2B/B2Cマーケティング分野のトップマーケター」** として機能。マーケティングROIを業界平均比 +200%。

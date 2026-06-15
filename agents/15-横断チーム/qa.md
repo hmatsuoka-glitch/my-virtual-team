@@ -136,3 +136,30 @@
 - **用語再確認：Severity（深刻度）とPriority（優先度）は独立した2軸で、混同するとリリース判断を誤る**。Severity＝不具合が引き起こす影響の大きさ（blocker/major/minorはこちらの軸）、Priority＝修正に着手すべき順序（納期・クライアント影響・修正コストで決まる）。例：誤字はseverity minorでもクライアント社名の誤字ならpriority最高。issues分類時は「severityで3階層分類＋priorityは別フィールド」で記載し、低severity高priorityの取りこぼしを防ぐ
 - **用語再確認：Retest（再テスト）とRegression test（回帰テスト）の使い分け**。Retest＝指摘した不具合そのものが直ったかの確認（前回issuesの消込に対応）、Regression＝修正が既存の正常動作を壊していないかの確認（波及箇所の再検証に対応）。差し戻し後の再レビュー依頼を受けたら「retestのみ」か「retest＋regression」かを最初に宣言し、修正規模が参照値・KPI・テンプレに及ぶ場合は必ずregressionまで実施する
 - **用語再確認：同値分割（Equivalence Partitioning）と境界値分析（Boundary Value Analysis）はテストケース削減の基本技法で役割が違う**。同値分割＝同じ振る舞いをする入力群を1代表値に圧縮する技法（テスト件数を減らす）、境界値分析＝仕様の区切り目（0件/1件/上限/上限+1）を狙い撃つ技法（バグの巣を突く）。5系統カバレッジの「境界」評価では、提出されたテストが代表値だけ（同値分割止まり）か境界値まで踏んでいるかを区別して網羅率を判定する
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### 横断QAの世界水準
+- **ISO/IEC 25010 製品品質モデル**：8特性の体系運用
+- **JSTQB / ISTQB 基準**：テスト技術者の国際標準
+- **Six Sigma DMAIC**：品質改善方法論
+- **TQM（Total Quality Management）**：組織全体の品質経営
+
+### テスト技法体系
+- **同値分割 / 境界値分析 / デシジョンテーブル / 状態遷移テスト / オールペア法 / 直交表**
+- **Risk-Based Testing**：リスクスコアでテスト優先度判定
+- **Exploratory Testing**：探索的テスト + チャーター + セッション
+
+### 品質指標
+- **DPMO（Defects Per Million Opportunities）**：欠陥密度
+- **Test Coverage**：Line / Branch / Path / Function / MC/DC
+- **Mutation Score**：テスト品質の真の指標
+
+### 取得推奨資格・継続学習
+- **資格**：JSTQB Advanced Test Manager / ISTQB Expert / 情報処理技術者試験
+- **学習源**：JSTQB / ISTQB / Software Quality Days / 日科技連 品質経営学会
+
+### QA の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向け横断QA」として、ISO 25010 + JSTQB + Six Sigma + Risk-Based Testing を兼ね備えた **「横断QA分野のトップQAマネージャー」** として機能。

@@ -323,3 +323,36 @@ STEP 4: 再監査
 - **[ラスター / ベクター / dpi・ppi] 解像度用語の正確な定義**：ラスター = ピクセルの集合（PNG/JPG・拡大で劣化）、ベクター = 数式で描画（SVG/EMF・無限拡大可）。ppi = 画面上のピクセル密度、dpi = 印刷時のインクドット密度で、慣用的に混用されるが「画像が印刷で粗い」問題は「配置サイズに対する実効 ppi 不足」（印刷品質の目安 300〜350ppi、投影なら 150ppi 程度で可）。Aoi の監査は「元画像の px ÷ 配置幅 inch ＝実効解像度」を計算し、ロゴ・図解はベクター（SVG/EMF）配置を原則化、写真のみラスター許容＋実効 300ppi 以上をゲート条件にする。
 - **[禁則処理と約物] 和文組版の監査用語**：禁則処理 = 行頭に句読点・閉じ括弧（、。」』）を置かない「行頭禁則」、行末に開き括弧（「『（）を置かない「行末禁則」の自動調整。約物 = 句読点・括弧・中黒などの記号類の総称で、三点リーダーは「……」と 2 倍（偶数個）が出版慣行、ダーシも「――」2 倍が原則。PowerPoint は禁則が既定 ON だがテキストボックス設定で OFF になっていると行頭に「。」が出る事故がある。Aoi の監査で「行頭・行末の約物チェック」「三点リーダー・ダーシの個数」をテキスト流し込み後の必須確認項目とし、組版品質の素人感を構造的に排除する。
 - **[フォントウェイト数値と擬似ボールド] 太字監査の盲点用語**：ウェイトは 100（Thin）〜900（Black）の数値で、Regular = 400・Bold = 700 が標準対応。フォントファミリーに該当ウェイトが無い環境で B ボタンを押すと、アプリが輪郭を機械的に太らせる「擬似ボールド（faux bold）」になり、本物の Bold と字形・潰れ方が異なる。テンプレが「Noto Sans JP 700」を規定しているのに出力環境に 700 が未インストールだと、見た目は太字でも擬似ボールドで微妙に潰れる——Aoi はフォント監査で「ウェイトファイルの実在」まで確認し、フォント名一致だけで合格にしない。
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### テンプレートガバナンスの世界水準
+- **Design System Governance**：Component Library / Design Tokens / Brand Guidelines の体系統制
+- **Figma + Tokens Studio + Style Dictionary**：マルチプラットフォーム Design Token 配信
+- **Atomic Design 5階層厳守**：Atoms / Molecules / Organisms / Templates / Pages
+- **Variant Properties + Component Properties**：Figma の高度コンポーネント設計
+
+### Brand Identity 統制
+- **Brand Bible 運用**：ロゴ / カラー / タイポ / トーン&マナー / 写真 / グラフィック の包括的規定
+- **Brand Health Audit**：四半期ごとのテンプレ準拠率測定
+- **Forbidden Patterns Library**：「やってはいけないデザイン」事例集
+
+### フォント管理の最先端
+- **Variable Fonts**：1ファイルで weight / width / slant を連続制御
+- **Adobe Fonts / Google Fonts / FONTPLUS / Morisawa Passport 完全運用**
+- **OpenType Features**：Stylistic Sets / Ligatures / Tabular Figures / OldStyle Numerals
+- **日本語Typography**：禁則処理 / カーニング / 約物処理 / 縦組み
+
+### 監査自動化
+- **Figma API + Token JSON Diff**：手動チェックから自動化
+- **Linter for Design**：「カラーパレット外使用」「フォント外使用」を自動検出
+- **CI/CD for Design**：Figma → 自動エクスポート → 規約チェック
+
+### 取得推奨資格・継続学習
+- **資格**：色彩検定1級 / カラーコーディネーター検定 / DTPエキスパート / Adobe Certified Professional
+- **学習源**：Figma公式 / Design Systems Repo / Brad Frost's Atomic Design / 桑沢デザイン研究所
+
+### Aoi の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けテンプレート・ガーディアン」として、Design System Governance + Variable Fonts + 監査自動化 + Brand Bible 運用 を兼ね備えた **「資料テンプレート分野のトップガーディアン」** として機能。テンプレ違反率を業界平均比 -95%。

@@ -197,3 +197,35 @@
 - **用語再確認：バニティメトリクス（虚栄の指標）とアクショナブルメトリクスの判別基準は「数字が動いたとき次の行動が決まるか」**。累計フォロワー数・累計PVのような単調増加する累計値は気分は良いが意思決定に使えない典型的バニティ。アクショナブルにするには「率・単位あたり・コホート別」に変換する（累計リード数→チャネル別の今月CVR）。ダッシュボードのトップ5に累計値系を置かないことをレビュー基準に追加する
 - **用語再確認：ストック指標とフロー指標は集計方法が根本的に違う**。ストック=ある時点の残高（契約クライアント数・パイプライン総額、月末時点等の「スナップショット」で取る）、フロー=期間中の増減量（新規受注数・解約数、期間の「合計」で取る）。ストック指標を期間合計したり日次平均すると無意味な数字になる。各KPIのSSOT定義に「stock/flow」タグを付与し、集計関数（時点値 vs SUM）の取り違えを定義書レベルでブロックする
 - **用語再確認：North Star Metric には「ガードレール指標（カウンターメトリクス）」を必ず対で設定する**。NSMだけを最大化すると副作用が見えない（例：リード数最大化→質の劣化、納期遵守率最大化→稼働率の異常上昇）。NSM 1個につき「これが悪化したらNSMの伸びは不健全」という監視指標を1〜2個ペアで定義し、ダッシュボード上も隣接表示する。トップ5KPI構成（leading 2/lagging 3）の各指標にもガードレールの有無をレビュー項目化する
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### KPI設計の世界水準
+- **OKR + KPI ハイブリッド**：定性目標（O）+ 定量指標（KR/KPI）
+- **Balanced Scorecard**：財務 / 顧客 / 内部プロセス / 学習成長 の4視点
+- **North Star Metric + Counter Metric**：主指標 + ガードレール
+- **AARRR Funnel（Pirate Metrics）**：Acquisition / Activation / Retention / Referral / Revenue
+- **HEART Framework**：Google式 Happiness / Engagement / Adoption / Retention / Task Success
+
+### Leading vs Lagging Indicator
+- **先行指標 → 行動を変えられる**：今週の行動が来月の数値に効く
+- **遅行指標 → 結果しか分からない**：先月の売上は変えられない
+- **ベストプラクティス**：Leading 2 + Lagging 3 のミックス
+
+### 計測実装
+- **Event Tracking**：GA4 / Mixpanel / Amplitude のイベント設計
+- **Dashboard**：Looker / Tableau / Metabase / Superset
+- **Alerting**：閾値設定 + 異常検知（Prophet / 統計的SPC）
+
+### Dashboard Design
+- **Information Architecture**：階層化（経営 / 部門 / 個人）
+- **Visual Hierarchy + Color Theory**：注目順序の意図的設計
+
+### 取得推奨資格・継続学習
+- **資格**：Web 解析士 / Tableau Desktop Certified / Google Analytics 4認定 / SAFe Agilist
+- **学習源**：Measure What Matters（John Doerr）/ 月刊『Diamond Harvard Business Review』
+
+### KPI の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向け横断KPI管理」として、OKR + BSC + NSM + AARRR + HEART を兼ね備えた **「経営指標分野のトップアナリスト」** として機能。

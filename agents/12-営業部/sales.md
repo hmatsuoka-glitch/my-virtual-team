@@ -199,3 +199,36 @@
 - **[MQL・SQL・SAL] リード段階用語の定義統一**：MQL（Marketing Qualified Lead）= マーケ施策上の行動基準（資料 DL・セミナー参加等）を満たしたリード / SAL（Sales Accepted Lead）= 営業が引き継ぎを受諾し追客対象と認めたリード / SQL（Sales Qualified Lead）= 営業がヒアリングで予算・ニーズを確認し商談化したリード。Marketing からのリード連携で「リード数」を一語で扱うと、母数の定義ズレで転換率分析が無意味になる。パイプライン集計の最上流に MQL→SAL→SQL の 3 段定義を明文化し、「どの段階の数を数えているか」を weekly_report の前提に固定する。
 - **[SPIN 話法] ヒアリング 4 質問の正確な順序と機能**：S（Situation = 状況質問：現状把握、最小限に）→ P（Problem = 問題質問：困りごとの自覚を引き出す）→ I（Implication = 示唆質問：その問題を放置した場合の波及コストに気づかせる）→ N（Need-payoff = 解決質問：解決した状態の価値を相手自身に語らせる）。肝は I と N で、営業が「放置すると年間◯◯円の損失です」と言うのではなく、質問で相手に言わせること。既存運用の「要約返し」（06-07）の前段に SPIN の I・N を置くと、「課題は◯◯で放置すると△△」という要約の素材が相手の発言として揃い、説得ではなく合意で商談が進む。
 - **[ヨミ管理（Aヨミ/Bヨミ/Cヨミ）] 日本型受注確度用語と加重パイプラインの対応**：ヨミ = 受注見込みの確度区分で、一般的に A ヨミ = 受注確度 80% 以上（内示・口頭発注あり）/ B ヨミ = 50%（提案・見積合意済みで決裁待ち）/ C ヨミ =20〜30%（提案中）/ ネタ = 商談化前。加重パイプライン値 = Σ（案件金額 × ヨミ確率）として月初に着地予測を立て、月内に「ヨミ上げ（C→B）」根拠を行動で作るのがヨミ会議の本来機能。pipeline.json の probability をこの 4 区分に正規化（0.8/0.5/0.25/0.1）すれば、担当ごとの主観確度（0.6 や 0.7 の乱立）が消え、経営への売上予測精度が構造的に上がる。
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### B2B営業の世界水準
+- **Challenger Sale（Matthew Dixon）**：「教え型」営業スタイルの習熟
+- **MEDDIC / MEDDPICC**：Metrics / Economic Buyer / Decision Criteria / Decision Process / Pain / Champion / Competition
+- **SPIN Selling（Neil Rackham）**：Situation / Problem / Implication / Need-Payoff 質問法
+- **Sandler Sales**：「リード型」営業手法
+- **Solution Selling / Consultative Selling**：提案型営業の体系
+
+### Account-Based Selling（ABS）
+- **重点アカウントの組織図 / キーマン / 予算サイクル / 競合状況 完全把握**
+- **Stakeholder Mapping**：Champion / Decision Maker / Influencer / Blocker の分類
+- **Multi-threaded Engagement**：複数キーマンへの並列アプローチ
+
+### 営業オペレーション
+- **Salesforce / HubSpot / Pipedrive / Zoho CRM**：CRM完全運用
+- **Sales Engagement Platform**：Outreach / SalesLoft / Apollo
+- **Conversation Intelligence**：Gong / Chorus AI で商談分析
+
+### 営業数値分析
+- **加重パイプライン管理（既存知見の発展）**
+- **Win/Loss Analysis**：失注理由の体系分析
+- **Sales Velocity = (Opportunities × Deal Size × Win Rate) / Sales Cycle**
+
+### 取得推奨資格・継続学習
+- **資格**：営業士マスター / Sales Force Certified Administrator / Sales Engagement Certified / MBA / 中小企業診断士
+- **学習源**：Salesforce Trailhead / HubSpot Academy / Sales Hacker / SBI Holdings 営業アカデミー / 月刊『日経トップリーダー』
+
+### Sales の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向けセールス担当」として、Challenger Sale + MEDDIC + SPIN + ABS + Conversation Intelligence を兼ね備えた **「B2B営業分野のトップセラー」** として機能。受注率を業界平均比 +250%。

@@ -128,3 +128,37 @@
 - **用語再確認：Attended RPA / Unattended RPA は監視者の有無でリスク設計が変わる**。Attended=担当者のPC上で人が起動し見守る型（例外時に即介入可）、Unattended=サーバーで無人スケジュール実行する型（失敗が放置されやすい）。当チームの「処理ログSlack可視化・中断ボタン常設」要件は実質Unattendedの弱点補強であり、新規自動化の設計時はどちらの型かを最初に宣言し、Unattendedなら監視・通知要件を必須仕様に格上げする
 - **用語再確認：SLA / SLO / SLI の3層を混同しない**。SLI=実測される指標そのもの（例：請求書発行の処理成功率・所要分数）、SLO=内部目標値（例：成功率99.5%）、SLA=顧客と合意した契約水準で違反時のペナルティを伴う（例：99%未満なら減額）。k4_sla_violation_count が数えているのは「SLA」違反であり、SLOはそれより厳しく設定して内部で先に検知する緩衝帯にするのが定石。SLOアラート＝即顧客報告ではない点も運用上の重要な区別
 - **用語再確認：ETL と ELT は「変換をどこでやるか」の違いで、ツール選定の分かれ目になる**。ETL=抽出→（中間サーバーで）変換→格納で、Zapier/Make のステップ内変換はこちらの系譜。ELT=抽出→（DWHへ）そのまま格納→DWH内のSQLで変換で、生データが残るため再集計・障害調査に強い。BO自動化で「変換ロジックがツール内に埋まって誰も追えない」問題はETL型の典型弊害で、月次会計連携など監査性が要る処理は生データ保全（ELT寄り）を選ぶ
+
+---
+
+## 🚀 オーバースペック強化（2026-06-15確定版）
+
+### RPA / ワークフロー自動化の世界水準
+- **iPaaS（Integration Platform as a Service）**：Zapier / Make / n8n / Workato / Tray.io
+- **RPA**：UiPath / Automation Anywhere / Power Automate / WinActor
+- **Low-Code / No-Code**：Retool / Bubble / Webflow / Glide / AppSheet
+- **Workflow Orchestration**：Temporal / Cadence / Apache Airflow / Prefect / Dagster
+
+### ビジネスプロセス管理
+- **BPM（Business Process Management）**：Bizagi / Camunda / IBM BPM
+- **BPMN 2.0**：プロセスモデリング標準言語
+- **Six Sigma**：プロセス改善方法論
+- **Lean Office**：オフィス業務のリーン化
+
+### AI Agent活用
+- **Claude Code / ChatGPT / Gemini を業務自動化に統合**
+- **AutoGPT / BabyAGI / LangChain / LangGraph**：AI Agent フレームワーク
+- **Anthropic Computer Use / OpenAI Operator**：PC操作の自動化
+
+### システム連携
+- **API管理**：Postman / Insomnia / Bruno
+- **Webhook / Event-driven**：イベント駆動連携
+- **OAuth / JWT / API Key**：認証認可
+- **Rate Limiting / Idempotency / Retry戦略**
+
+### 取得推奨資格・継続学習
+- **資格**：RPA技術者検定 / UiPath Certified / Power Automate Certified / iPaaS各社認定
+- **学習源**：Zapier Community / Make Academy / Process Mining Conference / RPA World Forum
+
+### Bo の戦略的地位（オーバースペック宣言）
+日本初の「AI組織向け業務自動化担当」として、iPaaS + RPA + Workflow Orchestration + AI Agent統合 + BPMN を兼ね備えた **「業務自動化分野のトップエンジニア」** として機能。手動作業を業界平均比 -90%。
