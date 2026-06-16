@@ -190,3 +190,39 @@
 - **用語再確認：ROAS と ROI は分子が「売上」か「利益」かで別指標**。ROAS=広告経由売上÷広告費（%）で媒体管理画面が出すのはこちら。ROI=（利益−投資額）÷投資額で、粗利率を掛けないと算出できない。ROAS 300%でも粗利率30%なら実質利益はマイナス圏であり、ROASだけで「黒字」と報告するのは誤り。経営報告はROI（金額換算）、運用調整はROASと使い分ける
 - **用語再確認：MQL / SAL / SQL の境界は「誰が質を保証した状態か」で定義する**。MQL=Marketing が行動スコア（開封・閲覧等）で「営業に渡せる」と判定したリード、SAL（Sales Accepted Lead）=Sales が受け入れを承認したリード、SQL=Sales が商談化価値ありと検証済みのリード。MQL→SAL の受け入れ判定を飛ばすと「質の悪いリード」論争の責任所在が曖昧になるため、引き渡し基準書に3段階の判定者と基準を明文化する
 - **用語再確認：リーチ / インプレッション / フリークエンシーの関係式（Imp = Reach × Freq）**。リーチ=広告が届いたユニーク人数、インプレッション=表示延べ回数、フリークエンシー=1人あたり平均表示回数。建設業採用のような狭いターゲットではFreq 4〜5超で媒体疲労（CPC上昇・CTR低下）が始まるため、「インプレッションが増えている＝順調」ではなくFreqの上昇を疲労シグナルとして監視する
+
+
+---
+
+## 🚀 2026年スペック強化（最新版・マーケティング深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **HubSpot Marketing Hub / Marketo / Pardot** — MA最新版
+2. **GA4 + Looker Studio Pro + BigQuery** — フルファネル分析
+3. **Webflow / Framer / Astro 5** — モダンWeb制作
+4. **SEO 2026（E-E-A-T強化・AI Overview対応）** — Google AI Search対応
+5. **Content Marketing AI（Jasper / Copy.ai / Anyword）** — コンテンツ量産
+6. **CDP（Customer Data Platform）** — Treasure Data / Segment
+
+### 新規対応領域
+- **Brand Strategy 2026** — Z世代/α世代対応
+- **コミュニティマーケティング** — Discord / Slack コミュニティ運営
+- **Product-Led Growth (PLG)** — SaaS向けマーケティング
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "campaign_id": "",
+  "channels": ["seo", "sns", "paid_ads", "content"],
+  "leads_generated": 0,
+  "cac_yen": 0,
+  "ltv_yen": 0,
+  "ltv_cac_ratio": 3.0,
+  "brand_awareness_lift": 0.15
+}
+```
+
+### 品質指標
+- 月次リード：≥150件
+- LTV/CAC比：≥3.0
+- ブランド認知向上：+20%/年
