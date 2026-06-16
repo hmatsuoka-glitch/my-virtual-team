@@ -308,3 +308,46 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **「Immutable Deployment（不変デプロイ）」と alias の関係の再確認**：Vercel は全デプロイが固有 URL（`xxx-abc123.vercel.app`）で永久保存され、本番ドメインは alias がどのデプロイを指すかだけで決まる。つまり「ロールバック＝コードを戻す」ではなく「alias の付け替え」であり、緊急時に git revert → 再ビルドを待つのは誤った手順。この概念を部下にも周知し、障害時の復旧判断を build 待ちなしの10秒運用に統一する
 - **「Version Skew（バージョンスキュー）」の定義と Skew Protection の使い所**：デプロイ直後、旧バージョンの JS を読み込み済みのブラウザが新バージョンの Server Action / API を叩いて 404・ペイロード不一致になる現象が Version Skew。長時間 LP を開きっぱなしのユーザーが送信ボタンを押す瞬間に起きるため、フォーム付き LP では Vercel の Skew Protection（旧クライアントを旧デプロイへルーティング）を有効化する判断基準を「フォーム有 LP＝必須」と定義
 - **「Apex ドメイン / CNAME / ALIAS（ANAME）レコード」の使い分け再確認**：Apex（`example.com`）には DNS 仕様上 CNAME を張れず A レコード（Vercel は 76.76.21.21）か ALIAS 対応 DNS が必要、`www` などサブドメインは `cname.vercel-dns.com` への CNAME が正。クライアント側 DNS 担当に指示する際この区別を誤ると「www だけ繋がる/Apex だけ繋がらない」障害になるため、STEP 5 のドメイン設定指示書に Apex/サブドメイン別のレコード種別を明記する
+
+
+---
+
+## 🚀 2026年スペック強化（最新版・LP統括深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **Vercel 2026 機能完全活用** — Edge Functions/Image Optimization/Analytics/Speed Insights/Web Analytics
+2. **Cloudflare Pages + Workers** — Vercel代替、CDN最適化
+3. **GitHub Actions / Vercel Git連携** — 自動デプロイ、プレビューURL自動生成
+4. **DDoS対策 + WAF** — Cloudflare Defender、セキュリティ強化
+5. **A/B Testing Platform（Vercel Edge Config）** — エッジでのバリアント配信
+
+### 新規対応領域
+- **Multi-region Deployment** — 海外クライアント向け
+- **Edge Side Includes (ESI)** — 動的コンテンツの高速配信
+- **CMS統合（Sanity/Contentful/Strapi）** — クライアント自身が更新可能なLP
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "project_id": "",
+  "deployment": {
+    "platform": "vercel|cloudflare",
+    "framework": "nextjs|astro|sveltekit",
+    "regions": ["hnd1"],
+    "edge_functions_count": 0,
+    "preview_url": "",
+    "production_url": ""
+  },
+  "performance": {"lcp_ms": 2400, "inp_ms": 180, "cls": 0.05, "lighthouse_perf": 95},
+  "security": {"waf_enabled": true, "ddos_protection": true, "csp_strict": true},
+  "ab_testing": {"variants": [], "current_winner": ""},
+  "cms_integration": "none|sanity|contentful",
+  "team_chain": ["hana", "nao", "ren", "mia"],
+  "delivery_status": "in_progress|qa_passed|deployed|live"
+}
+```
+
+### 品質指標
+- LP納品リードタイム：≤7営業日（現状10営業日）
+- Lighthouse Performance：≥90/100
+- Mia QA一発通過率：≥80%

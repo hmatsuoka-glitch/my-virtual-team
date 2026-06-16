@@ -658,3 +658,40 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **`svh` / `lvh` / `dvh` ビューポート単位の区別とFV計測への適用**：SPブラウザはURLバーの伸縮で `100vh` と実際の可視高がズレる。`svh`＝バー表示時の最小高、`lvh`＝バー収納時の最大高、`dvh`＝動的に追従。FV内収まり計測（2026-06-07 `above_fold_risk` 参照）は `svh` 基準（最も狭いケース）で判定するのがワーストケース設計。元LPに `100vh` 指定の Hero を検出したら「SP実機ではFV下端が切れる/余る挙動になっていないか」を確認し、`100dvh` 置換可否と置換時のレイアウトシフト有無を仕様書に明記してRenへ渡す。
 - **論理プロパティ（`margin-inline` / `padding-block` / `inset-inline-start`）と物理プロパティの抽出時の罠**：論理プロパティは書字方向（writing-mode / dir）基準で、`getComputedStyle` は物理値（margin-left等）に解決して返すため、computed だけ見ると元CSSが論理プロパティ設計かどうかが消える。生CSSテキスト検索で `-inline` `-block` 系の使用有無を確認し、使用サイトは「論理プロパティ採用」と納品JSONに記録。縦書きセクション（建設業LPの和風デザインで稀に出現）では物理値変換で再現すると縦書き時に余白が崩壊するため、論理のまま引き渡す判断が必要。
 - **`:is()` と `:where()` の詳細度差の正確な理解**：`:where()` は詳細度が常に0、`:is()` は引数内で最も高いセレクタの詳細度を取る。リセットCSSや共通スタイルを `:where()` で書いているサイト（モダンCSSリセットの主流）を抽出し、Ren が通常セレクタや `:is()` に書き換えると詳細度が上がり、後続の個別スタイルが効かなくなる上書き逆転が起きる。STEP 1 で `:where(` の使用を正規表現検出したら「詳細度0設計のため書き換え禁止」フラグを仕様書に付け、Mia QA の「一部だけスタイルが効かない」系NGを抽出段階で予防。
+
+
+---
+
+## 🚀 2026年スペック強化（最新版・CSS抽出深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **CSS Cascade Layers (@layer)** — モダンCSSの階層管理、@layer reset/components/utilities
+2. **Container Queries (@container)** — レスポンシブの新標準、メディアクエリを超える
+3. **CSS Subgrid + Grid Level 3** — 複雑レイアウトの完全解析
+4. **CSS Anchor Positioning** — 2026年Q1サポート、Popover/Tooltip位置の正確再現
+5. **View Transitions API** — ページ遷移アニメーションの抽出と再現
+6. **Browser DevTools MCP / Playwright Codegen** — CSSアーキテクチャの自動解析
+
+### 新規対応領域
+- **CSS-in-JS（styled-components/Emotion）抽出** — JSベースのスタイル解析
+- **Tailwind v4 / Open Props** — 最新ユーティリティの完全マッピング
+- **Web Animations API + GSAP 3.13** — JSアニメーションの完全抽出
+- **CSS Nesting Native対応**
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "css_architecture": "cascade_layers|css_modules|css_in_js|tailwind_v4",
+  "container_queries_used": true,
+  "subgrid_used": true,
+  "view_transitions_used": false,
+  "animation_library": "gsap|framer_motion|aos|none",
+  "tokens_exported": {"colors": [], "spacing": [], "typography": []},
+  "extraction_completeness": 1.0,
+  "responsive_breakpoints": [375, 768, 1024, 1440, 1920]
+}
+```
+
+### 品質指標
+- CSS再現率：≥99%
+- 抽出時間：≤2時間/LP

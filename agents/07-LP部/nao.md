@@ -512,3 +512,38 @@ export const HERO = {
 - **「Compound Components パターン」の定義と props 肥大の解消手段としての位置付け**：`<Card>` に `title/subtitle/image/footer/badge...` と props を足し続ける代わりに、`<Card><Card.Image/><Card.Title/><Card.Footer/></Card>` と子コンポーネント合成で構造をJSX側に出すのが Compound Components。「props 5 個超で強制分割」ルールの分割先選択肢として「子コンポーネント分割」と「Compound 化」の2通りがあり、レイアウト順序が案件ごとに変わる要素（カード/FAQ/料金表）は Compound が適切という判定基準を設計書テンプレに追加
 - **「制御（controlled）/ 非制御（uncontrolled）コンポーネント」のフォーム設計での使い分け再確認**：controlled＝値を React state で管理（`value`+`onChange`）、uncontrolled＝DOM が値を保持（`defaultValue`+`ref`/FormData）。LP のお問い合わせフォームは Server Action + FormData なら uncontrolled が基本で、リアルタイム文字数カウント・条件分岐表示が必要なフィールドのみ controlled にする。設計書の Form 仕様に各フィールドの C/U 区分を明記し、Ren が全フィールドを useState 管理して不要な再レンダリングを生む実装を予防
 - **「barrel export（`index.ts` 集約再エクスポート）」の弊害の再確認**：`components/index.ts` から全コンポーネントを `export * from ...` で再エクスポートすると import 記述は短くなるが、1コンポーネント参照で barrel 経由の全モジュールが評価され、tree shaking 阻害・ビルド時間増・循環参照の温床になる。Next.js 案件の設計では barrel を作らず「直接パス import（`@/components/sections/hero/Hero`）」を規約とし、ディレクトリ設計書に import 規約として明記する
+
+
+---
+
+## 🚀 2026年スペック強化（最新版・設計深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **Atomic Design 2.0** — Brad Frost最新版、Token/Component/Pattern階層
+2. **Compound Component Pattern** — React Context + Children パターン
+3. **Design Tokens W3C Standard** — Style Dictionary、Figma Tokens連携
+4. **Component-Driven Development（CDD）** — Storybook 9での設計可視化
+5. **Server/Client Component設計** — RSC境界の意図的設計
+
+### 新規対応領域
+- **アクセシビリティ・ファースト設計** — WCAG 2.2 AA組み込み
+- **Performance Budget** — 各コンポーネント単位の予算配分
+- **AI支援設計（v0.dev / Anima / Figma Make）** — Figma→コード自動化
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "design_id": "",
+  "atomic_design_layers": {"atoms": [], "molecules": [], "organisms": [], "templates": [], "pages": []},
+  "tokens": {"colors": "", "spacing": "", "typography": ""},
+  "component_count": 0,
+  "rsc_boundary": [],
+  "storybook_coverage_pct": 100,
+  "performance_budget_kb": 150,
+  "wcag_aa_designed_in": true
+}
+```
+
+### 品質指標
+- 設計書精度：Ren実装での質問≤2回/LP
+- 設計時間：≤4時間/LP
