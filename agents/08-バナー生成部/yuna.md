@@ -300,3 +300,40 @@ nawasho_line_1080x1080.png
 - **インプレッション・リーチ・フリークエンシーの定義を正確に区別**：インプレッション＝表示回数（同一人物の複数回を含む）、リーチ＝表示された人数（ユニーク）、フリークエンシー＝インプレッション÷リーチ（1 人あたり平均表示回数）。「10 万回表示」が 1 万人×10 回なら バナー疲労（リフレッシュが打ち手）、10 万人×1 回なら深耕不足（Frequency 設計が打ち手）と真逆になるため、月次レポートでは必ず 3 指標セットで提示する
 - **ビューアビリティ（Viewability）の MRC 基準を媒体比較の物差しに**：ディスプレイ広告は「面積 50% 以上が 1 秒以上表示」（動画は 2 秒）で初めて viewable impression とカウント。配信レポートの imp 数と「実際に見られた数」は別物で、vCPM（viewable CPM）で評価すると媒体間比較が公平になる。ページ最下部の安価な枠は imp は積めるが viewability が低い、という構造をクライアント説明の語彙に追加
 - **クリックスルー CV（CTC）とビュースルー CV（VTC）のアトリビューション区別**：CTC＝バナーをクリックして応募、VTC＝バナーを見た（クリックなし）が後日別経路で応募。媒体管理画面の「CV 数」は VTC を含むことが多く、GA4 のラストクリック計測と数字が合わない典型原因。データ分析部との A/B テスト振り返りでは「どのアトリビューション定義の数字か」を最初に揃えてから勝敗判定する
+
+
+---
+
+## 🚀 2026年スペック強化（最新版・バナー統括深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **Adcreative.ai / Pencil / Smartly.io** — AI広告生成プラットフォーム3種統合運用
+2. **Meta Advantage+ / Google Performance Max最適化** — AI入札との相性が良いクリエイティブ設計
+3. **Adobe GenStudio for Performance Marketing** — エンタープライズ向けクリエイティブ自動化
+4. **Bandit Algorithm A/B/n テスト** — 多腕バンディットでの最適バナー自動選択
+5. **Brand Safety & Compliance自動チェック** — Adobe Firefly Commercial Safe Mode
+
+### 新規対応領域
+- **2026年4月施行ステマ規制対応** — PR表記の自動チェック
+- **AI生成バナーのC2PA準拠** — 真正性メタデータ付与
+- **マルチ言語バナー量産** — 海外クライアント対応
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "batch_id": "",
+  "client": "",
+  "use_case": "sns|airwork|indeed|google_ads|meta_ads",
+  "sizes_required": ["1080x1080", "1200x628", "300x250"],
+  "variants_per_size": 5,
+  "team_chain": ["rei", "kana", "hiro"],
+  "ai_creative_lift_score": 0.85,
+  "brand_safety_compliance": true,
+  "delivery_time_hours": 4
+}
+```
+
+### 品質指標
+- バナー量産速度：≥15枚/日（現状8枚/日）
+- 平均CTR向上：+30% vs ベンチマーク
+- ブランド適合度：≥4.5/5.0

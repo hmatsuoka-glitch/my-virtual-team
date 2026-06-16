@@ -363,3 +363,40 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **デバウンス（debounce）とスロットリング（throttle）の使い分けを正確に**：debounce = 最後のイベントから一定時間入力が止まるまで実行を遅延（検索ボックスのインクリメンタルサーチ・リサイズ完了後の再計算向き）、throttle = どれだけ連発しても一定間隔で最大 1 回実行（スクロール連動 UI・ドラッグ追従向き）。逆に使うと「スクロール中ずっと無反応（debounce 誤用）」「検索 API が打鍵ごとに飛ぶ（throttle 誤用）」になる。React では再レンダリングで関数が作り直されると効かないため、`useMemo`/`useRef` でインスタンスを固定するか TanStack Pacer 等を使うのが前提知識。
 - **Cookie 属性（HttpOnly / Secure / SameSite）と Web Storage の使い分け基準**：HttpOnly = JS から読めない（XSS でのトークン窃取を防ぐ）、Secure = HTTPS のみ送信、SameSite=Lax（デフォルト・他サイトからの POST には送られない）/ Strict / None（クロスサイト埋め込みに必要・Secure 必須）。localStorage = 永続・タブ間共有・JS から常に読める（＝XSS に弱く認証トークン保存は不適）、sessionStorage = タブ単位・閉じると消える。原則「セッション認証は HttpOnly Cookie、UI 設定など漏れても無害なものだけ localStorage」。Riku はフォームの CSRF 対策が SameSite 前提か token 前提かを Ao と用語レベルで揃える。
 - **CSS 単位 em / rem / vw / dvh の正確な基準と 2026 モバイル実装での選択**：em = 親（フォント文脈では自身）のフォントサイズ基準で入れ子で複利的に増減、rem = ルート（html）基準で予測可能——コンポーネント余白・文字は rem 優先が原則。vh はモバイルのアドレスバー伸縮を無視して「100vh が画面からはみ出す」古典バグを生むため、動的に追従する dvh（dynamic viewport height）/ 最小の svh / 最大の lvh を使い分ける。全画面モーダルやヒーローは `100dvh`、固定フッターの逃げ計算は `svh` 基準が安全。`px` 固定はユーザーのブラウザ文字サイズ設定（a11y）を殺すため、メディアクエリも rem ベースで書く。
+
+
+---
+
+## 🚀 2026年スペック強化（最新版・フロントエンド深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **Next.js 15 App Router + RSC + Server Actions** — 最新Next.js完全運用
+2. **React 19 + use() Hook + Compiler** — React Forget による自動最適化
+3. **TypeScript 5.6+ + Effect-TS** — 関数型エラーハンドリング
+4. **TanStack Query v5 / Suspense for Data Fetching** — モダンデータ取得
+5. **Zustand / Jotai / Valtio** — 軽量State管理3種
+6. **Bun + Turbopack** — 高速ビルド、Webpack代替
+7. **TDD with Vitest 2.0 + Playwright Component Testing**
+
+### 新規対応領域
+- **Edge Runtime対応** — Vercel Edge / Cloudflare Workers
+- **WebAssembly統合** — Rust/Go コードのフロント実行
+- **PWA / Web Push** — オフライン対応、通知
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "story_id": "",
+  "framework": "nextjs15",
+  "test_coverage_pct": 90,
+  "lighthouse_perf": 95,
+  "bundle_size_kb": 120,
+  "rsc_used": true,
+  "tdd_red_green_refactor_count": 12
+}
+```
+
+### 品質指標
+- テストカバレッジ：≥90%
+- TDD遵守率：100%
+- Lighthouse Performance：≥95

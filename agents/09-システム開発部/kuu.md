@@ -417,3 +417,40 @@ STEP 6: 実装完了報告
 - **復旧系メトリクス用語 RTO / RPO / MTTR / MTTA / MTBF の使い分け**：RTO（Recovery Time Objective）= 障害から「何分以内にサービス復旧するか」の目標、RPO（Recovery Point Objective）= 「何分前までのデータ喪失を許容するか」（バックアップ頻度の根拠）、MTTR = 平均復旧時間（実績値）、MTTA = アラートから対応開始までの平均反応時間、MTBF = 故障間隔の平均（信頼性指標）。RTO/RPO は「目標（設計値）」、MTTR/MTTA は「実績（運用値）」という軸の違いを混同すると、クライアントへの「RPO 1 時間です」が実は無根拠になる。Kuu は非機能要件ヒアリングで RTO/RPO を数値合意し、バックアップ頻度・リージョン構成をそこから逆算する。
 - **Cache-Control ディレクティブの正確な意味の再整理**：`no-cache` = 「キャッシュ禁止」ではなく「再検証（revalidate）必須で保存は可」、完全禁止は `no-store`。`max-age` = ブラウザ向け、`s-maxage` = CDN（共有キャッシュ）向けで Vercel Edge は s-maxage を優先。`stale-while-revalidate` = 期限切れキャッシュを返しつつ裏で再取得（ISR の HTTP 版）、`immutable` = ハッシュ付きアセットで再検証自体を省略。no-cache を「キャッシュされない」と誤解して付けると CDN ヒット率が壊滅する典型事故があるため、Kuu はレスポンスヘッダー設計時にこの語義で必ずレビュー。
 - **DNS レコード種別と CAA レコードの証明書発行への影響**：A = IPv4 / AAAA = IPv6 / CNAME = 別名（zone apex には置けないため Vercel は ALIAS/ANAME 相当か A レコードで対応）/ TXT = 所有権検証・SPF / CAA = 「どの認証局（CA）が証明書を発行してよいか」の制限。CAA に `letsencrypt.org` のみ許可を書いた状態で Vercel（Let's Encrypt 以外も使用）へ移管すると証明書自動更新が silent に失敗する——06-12 の TLS 期限監視と対になる根本原因の用語知識。ドメイン移管・切替時は `dig CAA` での事前確認を手順に含める。
+
+
+---
+
+## 🚀 2026年スペック強化（最新版・インフラ深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **Vercel 2026 / Cloudflare Workers / Fly.io / Railway** — エッジ4プラットフォーム
+2. **Docker + OrbStack / Podman** — 軽量コンテナ
+3. **Kubernetes（必要時のみ） + Helm + ArgoCD** — エンタープライズ向け
+4. **Terraform / Pulumi 3 / OpenTofu** — IaC 3種
+5. **GitHub Actions / GitLab CI / CircleCI** — CI/CD最新
+6. **OpenTelemetry + Datadog / Honeycomb / Sentry** — Observability
+
+### 新規対応領域
+- **FinOps** — クラウドコスト最適化、リザーブドインスタンス
+- **GreenOps** — カーボンフットプリント削減
+- **GitOps + ArgoCD** — Pull型デプロイ
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "infra_id": "",
+  "platform": "vercel|cloudflare|aws",
+  "iac_tool": "terraform|pulumi",
+  "ci_cd": "github_actions",
+  "uptime_sla": 0.999,
+  "deployment_frequency_per_day": 5,
+  "monthly_cost_usd": 200,
+  "carbon_footprint_kg_co2": 5
+}
+```
+
+### 品質指標
+- Uptime：≥99.9%
+- デプロイ頻度：≥5回/日
+- MTTR：≤30分

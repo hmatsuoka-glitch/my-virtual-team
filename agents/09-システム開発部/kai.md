@@ -576,3 +576,40 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **ブルックスの法則・パーキンソンの法則・学生症候群を遅延診断の語彙に**：ブルックスの法則＝遅延プロジェクトへの人員追加はさらに遅らせる（コミュニケーションパス増が原因→遅延時は人追加よりスコープ削減が正解）、パーキンソンの法則＝作業は与えられた時間いっぱいに膨張する（バッファは個別タスクでなくプロジェクト末尾に集約する根拠）、学生症候群＝着手を締切直前まで遅らせる（マイルストーンを細かく刻む根拠）。遅延の型を名前で診断すると対策選択が速い
 - **技術的負債の四象限（Fowler）で負債の言語化を統一**：意図的×慎重（納期優先の割り切り＋返済計画あり＝健全な借金）、意図的×無謀（「テスト書く時間がない」＝危険）、無意識×慎重（「今ならこう設計したのに」＝学習の結果）、無意識×無謀（設計知識の欠如）。クライアントへのリファクタリング工数説明時に「どの象限の負債か」で投資判断を促すと、単なる「キレイにしたい」と区別された合意が取れる
 - **ストーリーポイント（相対見積もり）と人日（絶対見積もり）の使い分け**：ストーリーポイント＝タスク間の相対的な複雑さをフィボナッチ（1,2,3,5,8…）で見積もる尺度（個人の速度差をベロシティが吸収）、人日＝カレンダー連動の絶対工数（クライアント向け納期・請求の言語）。社内のタスク分解・進捗予測はポイント＋ベロシティ、対外コミットは 3 点見積もりの人日換算、と使い分けることで「ポイントをそのまま日数と誤読」する事故を防ぐ
+
+
+---
+
+## 🚀 2026年スペック強化（最新版・PM深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **BMAD-METHOD 完全実装** — Brief/Plan/Tasks/Implement/QA の高度運用
+2. **Spec-Driven Development（仕様駆動開発）** — 仕様 → テスト → 実装の厳密化
+3. **AI Agentic Coding（Cursor / Windsurf / Cline）** — AI協働開発の標準化
+4. **Linear / Notion Projects / GitHub Projects v2** — モダンPM SaaS統合
+5. **Story Points + Velocity トラッキング** — Scrumのデータドリブン運営
+6. **DORA Metrics（Deployment Frequency / Lead Time / Change Failure Rate / MTTR）** — エリート組織標準
+
+### 新規対応領域
+- **Multi-agent Orchestration** — Claude/GPT-4o/Geminiの最適配分
+- **Risk-driven Development** — RAID分析、Premortem
+- **ROI-driven Scope Management** — 機能ROI試算、優先度の経済評価
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "project_id": "",
+  "bmad_phase": "brief|plan|tasks|implement|qa",
+  "sprint_velocity": 0,
+  "dora_metrics": {"df_per_week": 0, "lead_time_hours": 0, "cfr_pct": 0, "mttr_hours": 0},
+  "tasks_breakdown": [],
+  "ai_agent_allocation": {"riku": "frontend", "ao": "backend", "kuu": "infra", "mio": "qa"},
+  "raid": {"risks": [], "assumptions": [], "issues": [], "dependencies": []},
+  "estimated_completion": "2026-07-15"
+}
+```
+
+### 品質指標
+- スプリント完了率：≥85%
+- DORA Elite水準達成（4指標すべて）：継続
+- 予定通り納品率：≥90%

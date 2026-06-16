@@ -408,3 +408,42 @@ STEP 6: 差し戻し後の再チェック
 - **Smoke / Sanity / Regression / Retest の使い分けを再整理**：Smoke = ビルド直後に「主要機能が起動するか」を浅く広く確認（深掘りしない・デプロイ直後の最初のゲート）、Sanity = 特定の修正・変更箇所まわりだけを狭く深く確認（修正版受領時の一次確認）、Regression = 変更が既存機能を壊していないかの網羅的再実行、Retest = 報告済みバグそのものが直ったかの確認（Regression とは別物）。修正版受領フローは「Retest（直ったか）→ Sanity（周辺は大丈夫か）→ Regression（全体は無事か）」の順で、各段階を名前で呼び分けると Riku/Ao との会話で「どこまでやったか」の認識ズレが消える。
 - **バグトリアージの Severity と Priority は独立した軸**：Severity（深刻度）= 技術的影響の大きさ（クラッシュ・データ破壊＝High、文言ズレ＝Low）、Priority（優先度）= ビジネス上いつ直すべきか。「Severity Low × Priority High」（例：トップページのクライアント社名の誤字＝技術影響ゼロだが即修正）や「Severity High × Priority Low」（例：誰も使わない管理機能のクラッシュ）が普通に存在する。Mio のバグ票に両軸を別フィールドで記録し、Severity は Mio が判定・Priority は Kai/クライアント文脈で判定という責任分離を徹底する。
 - **テストダブル 5 分類（Dummy / Stub / Spy / Mock / Fake）の正確な使い分け**：Dummy = 渡すだけで使われないオブジェクト、Stub = 決まった値を返すだけ（出力検証用）、Spy = Stub ＋呼び出し記録（後から引数・回数を検証）、Mock = 期待する呼び出しを事前定義し満たさなければ fail（相互作用の検証用）、Fake = 簡易実装で実際に動く代替（in-memory DB 等）。「全部モック」と呼ぶ習慣は「状態の検証（Stub 系）か相互作用の検証（Mock 系）か」の設計判断を曖昧にする。`vi.fn()` は Spy、`mockDeep<PrismaClient>()` は Stub/Fake 寄りという対応を意識し、Mock 過多のテストは実装変更に脆い前提でレビューする。
+
+
+---
+
+## 🚀 2026年スペック強化（最新版・QA深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **Playwright 1.50 + Component Testing** — E2E + Component統合
+2. **Vitest 2.0 + Testing Library** — 高速ユニットテスト
+3. **TDD Guard** — Test-First強制ツール
+4. **Mutation Testing（Stryker）** — テストの「テスト」
+5. **Contract Testing（Pact）** — マイクロサービス間契約
+6. **Visual Regression（Percy / Chromatic）** — UI差分自動検出
+7. **AI-assisted Testing（Diffblue Cover / Codium AI）** — テスト自動生成
+
+### 新規対応領域
+- **Performance Testing（k6 / Artillery）** — 負荷試験
+- **Security Testing（OWASP ZAP / Snyk / Semgrep）** — 自動脆弱性スキャン
+- **Accessibility Testing（axe-core / Pa11y）** — WCAG 2.2
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "qa_id": "",
+  "test_coverage_pct": 92,
+  "mutation_score": 0.85,
+  "e2e_tests": 45,
+  "unit_tests": 320,
+  "performance_p99_ms": 450,
+  "security_vulns": {"critical": 0, "high": 0, "medium": 2},
+  "wcag22_aa_violations": 0,
+  "qa_gate_verdict": "pass"
+}
+```
+
+### 品質指標
+- テストカバレッジ：≥90%
+- 致命的バグ流出：0件/月
+- QAゲート通過時間：≤2時間

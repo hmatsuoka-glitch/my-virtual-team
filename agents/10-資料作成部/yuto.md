@@ -526,3 +526,38 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - **[RACI チャート] 責任分担の業界標準用語**：R（Responsible = 実行責任者）/ A（Accountable = 説明責任者・最終承認者、必ず 1 名）/ C（Consulted = 事前相談先）/ I（Informed = 事後報告先）の 4 区分でタスク × 担当を整理するマトリクス。資料案件に当てはめると「執筆 = R:Rin / A:Yuto / C:nori / I:Sora」のように、従来の「責任者特定マトリックス（Rin=文章/Souma=ビジュアル）」を国際標準の語彙で表現でき、A が 2 名いる（= 承認が曖昧）状態を構造的に検出できる。差し戻し振り分けの判定根拠としても「この指摘の R は誰か」で会話が短縮。
 - **[初校・再校・責了・校了・念校] 校正工程の業界用語と Mana 工程への対応付け**：初校 = 最初の校正刷り（Mana 1 回目チェックに相当）/ 再校 = 修正反映後の 2 回目 / 責了 = 「残修正は制作側の責任で直して完了」とする承認（軽微修正のみなら再提出不要）/ 校了 = 修正なしで完成確定 / 念校 = 校了後の最終念押し確認。Yuto が Mana の合否報告を「校了」「責了（軽微 2 件は Souma 責任修正）」の用語で受ければ、「通過したが微修正あり」の曖昧な状態が消え、Sora 提出可否の判定が一義化する。責了案件は修正完了スクショの添付を条件にする。
 - **[ガバニングメッセージ] スライドタイトルとの区別**：ガバニング（governing message）= そのスライドで読み手に持ち帰らせる主張 1 文（「SNS 採用は競合比 3 倍の応募効率」のような結論文）。スライドタイトル = 領域ラベル（「市場環境」「競合比較」等の名詞句）であり主張ではない。コンサル業界標準は「タイトル行にガバニングを置き、ガバニングだけ縦に読めば資料全体のストーリーが通る」設計。Yuto の STEP 3.5 眼通し「全見出し階層」確認を「全ガバニングの縦読みでストーリーが成立するか」と定義し直すと、Rin への差し戻し指示も「P5 はタイトルでありガバニングになっていない」と具体化できる。
+
+
+---
+
+## 🚀 2026年スペック強化（最新版・資料制作統括深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **Gamma App / Tome / Beautiful.ai 2026版** — AI資料生成プラットフォーム3種
+2. **Pitch / Canva for Teams / Google Slides AI** — エンタープライズプレゼンツール
+3. **McKinsey/BCG/Deloitte スライドフレームワーク** — トップコンサル流の構成法
+4. **Storyline Mapping（Nancy Duarte式）** — プレゼン物語構造設計
+5. **Pyramid Principle for Decks** — Barbara Minto式の頂点法
+
+### 新規対応領域
+- **AI Generated Slide Decks** — テキスト→完成スライド自動化
+- **Interactive Decks（Pitch / Decktopus）** — クリック分岐型資料
+- **Video-embedded Decks** — 動画埋め込みプレゼン
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "deck_id": "",
+  "purpose": "proposal|pitch|report|workshop",
+  "audience": "executive|practitioner|public",
+  "structure": "scqa|pyramid|aida",
+  "slide_count": 20,
+  "team_chain": ["aoi", "rin", "souma", "mana"],
+  "ai_generated_ratio": 0.3,
+  "delivery_format": "pdf|pptx|keynote|google_slides"
+}
+```
+
+### 品質指標
+- 資料制作リードタイム：≤3日（中規模）
+- クライアント承認率：≥85%

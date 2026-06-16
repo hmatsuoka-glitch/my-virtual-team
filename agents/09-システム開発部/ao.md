@@ -392,3 +392,41 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **ハッシュ化・暗号化・エンコードの 3 用語を混同しない**：ハッシュ化＝不可逆（パスワードは bcrypt/argon2id、復元不能であることが正しさ）、暗号化＝鍵で可逆（保存する個人情報は AES-256-GCM、鍵管理が本体）、エンコード＝誰でも可逆（base64 は秘匿性ゼロ）。要件文書の「パスワードを暗号化して保存」はハッシュ化が正、「base64 で暗号化」はセキュリティ対策にならない、とレビュー時の指摘基準を用語レベルで固定
 - **OIDC の 3 トークン（ID／アクセス／リフレッシュ）の役割区別**：ID トークン＝「誰がログインしたか」の認証の証明（クライアントが検証し表示名等に使用）、アクセストークン＝「API を叩く権限」の認可キー（Bearer で送付、検証主体はリソースサーバー）、リフレッシュトークン＝両者の再発行用（最長寿命のため httpOnly Cookie 等で厳重保管）。ID トークンを API 認可に流用する実装は典型的な誤用としてレビューで検出する
 - **OLTP と OLAP の区別をクエリ配置の判断軸に**：OLTP＝大量の小さな読み書き（応募登録・一覧表示、行指向＋インデックスが命）、OLAP＝少数の重い集計分析（月次レポート、列指向・フルスキャン前提）。本番 OLTP の DB に管理画面の重い集計クエリを直接打つと応募 API のレイテンシが巻き添えになるため、集計はリードレプリカか夜間バッチの集計テーブル（マテリアライズドビュー）へ分離する、を設計標準の用語として固定
+
+
+---
+
+## 🚀 2026年スペック強化（最新版・バックエンド深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **Hono / Elysia / Effect** — モダンTypeScript backend framework
+2. **Drizzle ORM / Prisma 6** — Type-safe ORM最新版
+3. **PostgreSQL 17 + pgvector** — Vector検索統合
+4. **Redis 7 / Upstash / Cloudflare KV** — エッジキャッシュ
+5. **tRPC 11 / GraphQL Yoga 5** — Type-safe API
+6. **Bun + Deno 2** — 高速ランタイム
+7. **OpenTelemetry + Honeycomb** — 観測可能性
+
+### 新規対応領域
+- **AI Agent Backend** — Claude Agent SDK / OpenAI Agents SDK統合
+- **Background Jobs（BullMQ / Inngest / Trigger.dev）** — ジョブキュー
+- **Event-Driven（EventBridge / Kafka）** — 非同期処理
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "api_id": "",
+  "framework": "hono|elysia|nestjs",
+  "db": "postgres17|sqlite|mongodb",
+  "orm": "drizzle|prisma6",
+  "test_coverage_pct": 90,
+  "p99_latency_ms": 200,
+  "rps_capacity": 1000,
+  "openapi_spec_url": ""
+}
+```
+
+### 品質指標
+- API応答時間：p99 ≤500ms
+- テストカバレッジ：≥90%
+- ダウンタイム：≤0.1%/月
