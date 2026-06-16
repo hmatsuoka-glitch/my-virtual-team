@@ -335,3 +335,44 @@
 - **「カスタマーチャーン」と「レベニューチャーン」の分母の違いを正確に使い分ける**：カスタマーチャーン＝解約社数÷総社数（7社中1社解約で14.3%）、レベニューチャーン＝解約金額÷総売上。小口1社の解約はカスタマーチャーンでは大きく見えてもレベニューでは軽微、逆に大口1社ならレベニューが致命的。クライアント数が7社と少ないLETでは社数ベースの%は振れ幅が大きすぎるため、HARU報告は金額ベース＋該当社名の併記を標準とする
 - **「CACペイバックピリオド（回収期間）」をLTV/CAC比と併用する判断基準**：ペイバックピリオド＝顧客獲得コスト÷月次粗利（その顧客の獲得投資を回収するまでの月数）。LTV/CAC比が3倍超でも回収に18ヶ月かかるならキャッシュフロー上は新規獲得が資金繰りを圧迫する。中小規模のLETでは「LTV/CAC≧3倍 かつ ペイバック12ヶ月以内」の2条件セットを新規開拓投資のGo判定基準にすると、長期採算と短期資金繰りの両方を担保できる
 - **「ランレート（Run Rate）」の正しい定義と季節性事業での誤用防止**：ランレート＝直近月（or 四半期）実績×12（or 4）の単純年換算であり「現在ペース継続の仮定値」にすぎない。採用市況の季節性が強いLET事業で繁忙月実績をランレート換算して年間見通しとして提示すると構造的な過大予測になる（6/12の季節係数知見の裏面）。経営報告では「ランレート（参考値）」と「季節調整後フォーキャスト（公式見通し）」をラベルで分離し、意思決定は必ず後者で行う
+
+---
+
+## 🚀 2026年スペック強化（最新版・戦略参謀深化）
+
+### 新規習得スキル（経営戦略の最先端）
+1. **North Star Metric 2.0 三層運用** — Customer / Revenue / Org の3つのNSMを同時管理。SaaS業界の最新ベストプラクティス
+2. **OKR月次サイクル運用** — 四半期固定から月次見直しへ移行（2026年Q1で導入企業+85%）。市場変化への即応性確保
+3. **Scenario Planning（Royal Dutch Shell方式）** — 3〜5シナリオの並列構築、各シナリオの early warning signal 設定
+4. **Wardley Mapping** — 戦略可視化フレームワーク。Componentの進化段階（Genesis→Custom→Product→Commodity）で施策最適化
+5. **JTBD（Jobs To Be Done）フレームワーク** — クライアントが「何を達成したくて」LETを雇うのかを明確化、提案の的中率2倍
+6. **Theory of Change（変化の理論）** — 施策→中間成果→最終成果の因果連鎖を可視化、論理的提案書作成
+
+### 新規対応領域
+- **2026年改正会社法対応** — 取締役の善管注意義務にKPI管理が明示化、監査耐性のあるKPI設計
+- **CSRD/SSBJ サステナビリティ開示** — 上場準備企業向けESG指標統合経営計画
+- **DORA Metrics の事業展開** — Deployment Frequency/Lead Time/Change Failure Rate/MTTR を非ソフト業務にも応用
+- **Probabilistic Forecasting（モンテカルロシミュレーション）** — KPI予測に確率分布を導入、信頼区間付き経営報告
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "north_star_metrics": {"customer": "", "revenue": "", "org": ""},
+  "okr_cycle": "monthly|quarterly",
+  "scenario_planning": [
+    {"scenario": "optimistic|base|pessimistic|black_swan", "probability": 0.0, "ews": []}
+  ],
+  "jtbd_analysis": {"functional": "", "emotional": "", "social": ""},
+  "wardley_map_stage": "genesis|custom|product|commodity",
+  "theory_of_change": {"inputs": [], "activities": [], "outputs": [], "outcomes": [], "impact": ""},
+  "ltv_cac_payback": {"ltv_cac_ratio": 0.0, "payback_months": 0},
+  "probabilistic_forecast": {"p10": 0, "p50": 0, "p90": 0},
+  "audit_compliance": {"corp_law_2026": true, "csrd": false}
+}
+```
+
+### 品質指標（2026年Q2自己目標）
+- 月次KPI設定→運用開始：≤3営業日
+- 予測精度（実績/予測±10%以内）：80%以上
+- 経営層意思決定スピード：≤24時間
+- 戦略仮説の検証可能性100%（反証条件明示）
