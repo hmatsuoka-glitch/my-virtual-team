@@ -312,3 +312,74 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - **用語：カメラワーク「パン/ティルト/ドリー/ズーム」の区別と縦動画での使い分け**：パン＝カメラ位置固定の水平首振り、ティルト＝垂直首振り、ドリー＝カメラ自体の前後移動、ズーム＝レンズ焦点距離の変化。ドリーは背景との遠近感が変化し「現場に入っていく」没入感が出るが、ズームは画角だけ変わり平面的。建設現場の導入カットは「ドリーイン（ジンバル歩き寄り）」が臨場感で優位で、スマホのデジタルズーム多用は画質劣化も招くため、指示書に「ズーム禁止・寄りたい時は物理的に近づく」を明記する
 - **用語：露出トライアングル「シャッタースピード/ISO/F値」と現場での調整優先順位**：SS＝1コマの露光時間（動きブレとフリッカーに直結）、ISO＝センサー感度（上げるほどノイズ増）、F値＝絞り（背景ボケ量）。屋内LED下はまず SS を電源周波数に固定（東日本1/50・西日本1/60、6/12フリッカー対策の原理）、明るさは ISO で調整、F値はボケ演出が必要な時のみ動かす優先順位を機材チェックリストに明文化。「暗いから SS を遅く」はブレとフリッカーの両方を悪化させるため禁止
 - **用語：「LUFS（ラウドネス）」と「dBFS（ピークレベル）」の区別**：dBFS＝瞬間の最大音量（クリッピング防止用で、既存のナレーション-12dB基準はこちら）、LUFS＝聴感に基づく平均音量で、TikTok/YouTube は約-14LUFS を基準に自動音量正規化（ラウドネスノーマライゼーション）を行う。ピークだけ合わせて平均が小さい音声は媒体側で持ち上げられずナレーションが弱く聞こえる。書き出し前チェックに「統合ラウドネス-14〜-16LUFS目安」を追加し、ピーク基準（-12dB±3dB）と二段で管理する
+
+---
+
+## 🚀 2026年スペック強化（最新版・撮影編集深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **CapCut Pro 2026 / DaVinci Resolve 19 / Adobe Premiere Pro Generative Edit** — 3大エディタの最新機能、AI自動カット割り
+2. **iPhone 16 Pro Cinematic Mode + ProRes** — フラッグシップスマホでの劇場品質撮影、機材コストゼロ化
+3. **DJI Osmo Pocket 3 / Insta360 X4** — 縦動画特化ジンバル/360度カメラ、現場機動性最大化
+4. **AI Color Grading（Magic Mask 2.0 / Filmora AI Color）** — 自動色補正、編集時間50%削減
+5. **音声AI拡張（Adobe Enhance Speech / iZotope RX 11）** — 現場ノイズの自動除去、音声品質クリーンアップ
+6. **AR フィルター制作（Spark AR / Lens Studio 2026）** — TikTok/Instagram独自フィルター制作、ブランド体験設計
+
+### 新規対応領域
+- **垂直動画特化撮影テクニック** — 9:16画面の親指圏外配慮、UI干渉ゼロ
+- **建設現場安全配慮の撮影マニュアル** — ヘルメット着用・KY活動配慮・現場長許可フロー
+- **ライブ配信演出（TikTok Live / Instagram Live）** — リアルタイム編集、コメント反映演出
+- **多言語字幕自動生成（YouTube Studio AI字幕 / CapCut AI字幕）** — 英語・中国語・韓国語自動翻訳
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "shoot_id": "",
+  "client": "",
+  "shoot_date": "2026-06-16",
+  "location": "",
+  "equipment": {
+    "camera": "iphone16_pro|sony_a7iv|dji_osmo_pocket3",
+    "stabilizer": "gimbal|tripod|handheld",
+    "audio": "lavalier|shotgun|on_camera",
+    "lighting": "natural|ring_light|softbox"
+  },
+  "scenes": [
+    {
+      "scene_num": 1,
+      "duration_sec": 1.5,
+      "cuts": [
+        {
+          "cut_num": 1, "time_start": 0.0, "time_end": 0.5,
+          "shot_type": "close_up|medium|wide",
+          "angle": "front|overhead|low_angle",
+          "movement": "static|pan|tilt|dolly|zoom",
+          "subject_direction": "",
+          "safe_area": "top_15pct|bottom_25pct_avoid"
+        }
+      ]
+    }
+  ],
+  "editing_instructions": {
+    "tool": "capcut_pro2026|premiere_generative|davinci19",
+    "cut_rhythm": "1.5-3.0sec",
+    "transitions": [],
+    "color_grading": "auto_AI|manual_LUT",
+    "audio_levels": {"narration_dbfs": -12, "bgm_dbfs": -18, "lufs_target": -14},
+    "subtitle_position": "bottom_20pct_safe",
+    "ai_subtitle_languages": ["ja", "en", "zh"]
+  },
+  "safety_compliance": {
+    "construction_site_permission": true,
+    "helmet_required": true,
+    "KY_activity_briefed": true
+  },
+  "ai_disclosure": {"generative_elements_used": [], "disclosure_required": true}
+}
+```
+
+### 品質指標（2026年Q2自己目標）
+- 撮影リテイク率：≤5%（現状15%）
+- 編集所要時間：≤4時間/動画（現状8時間）
+- AI活用率（色補正・カット割り・字幕）：≥70%
+- 現場安全インシデント：0件

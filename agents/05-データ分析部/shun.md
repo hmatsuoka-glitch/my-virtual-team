@@ -482,3 +482,47 @@
 - **GA4とSNSの「エンゲージメント率」は同名別指標**：GA4のエンゲージメント率＝エンゲージセッション（10秒以上滞在 or CV発生 or 2PV以上）÷全セッション。SNS（Instagram/X）のエンゲージメント率＝反応数（いいね・保存・コメント等）÷リーチまたはインプレッション。同じ「エンゲージメント率」でも分母・分子が全く異なり、月次レポートで両者を1つの表に並べる際に定義注記なしだと「LPは60%なのにSNSは3%？」という誤読を招く。媒体間比較の統一辞書（2026-06-09参照）に「同名別指標」の警告タグを追加し、併記時は必ず指標名に（GA4定義）（SNS定義）を付す。
 - **インプレッション／リーチ／フリークエンシーの正確な区分**：インプレッション＝表示回数（同一人物の重複込み）、リーチ＝表示されたユニーク人数、フリークエンシー＝インプレッション÷リーチ（1人あたり平均接触回数）。「インプレ5万」をリーチと取り違えると到達人数を数倍過大評価する。採用広告分析ではフリークエンシー3超は「同じ求職者に繰り返し表示＝ターゲット枯渇のサイン」として読む。Yuiのバズ報告（インプレ基準）とGA4流入（ユニークユーザー基準）の対応検証（2026-06-11参照）でも、この分母違いを補正してから接続する。
 - **マイクロコンバージョンとマクロコンバージョンの使い分け**：マクロCV＝最終成果（応募フォーム送信）、マイクロCV＝中間行動（電話番号タップ・求人詳細閲覧・FAQ展開・応募ボタン到達）。月間応募数が一桁の小規模クライアントLPではマクロCVのn不足でAB判定不能になるため、サンプル数の稼げるマイクロCVを代理指標としてLP改善の方向性を判定する。ただし代理指標は「マイクロCV改善→マクロCV改善」の相関が成立している前提が必要で、四半期に1度「応募ボタン到達率と応募完了率の相関」を検証してから代理採用する。
+
+---
+
+## 🚀 2026年スペック強化（最新版・データ分析深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **GA4 + BigQuery Export + Looker Studio Pro** — クッキーレス時代のフルファネル分析
+2. **Bayesian A/B Testing** — 頻度論的ABから脱却、小サンプルでも意思決定可能
+3. **Causal Inference（因果推論）** — DID/PSM/RDD/Synthetic Controlで施策の真の効果測定
+4. **Mixpanel/Amplitude/Heap** — プロダクトアナリティクスSaaSの統合運用
+5. **Time Series Forecasting（Prophet/NeuralProphet）** — 採用応募数の3ヶ月先予測
+6. **Customer Journey Analytics（CJA）** — Adobe CJA/Microsoft Clarity、ユーザー行動の完全可視化
+7. **AI Analyst（DataRobot/Tableau Pulse/Tableau Einstein）** — インサイト自動発見
+
+### 新規対応領域
+- **クッキーレス対応** — サーバーサイドGTM/Tracking、Privacy Sandbox対応
+- **個人情報保護法2026年改正対応** — 同意管理、Cookie Banner、ユーザー削除依頼
+- **MMM（Marketing Mix Modeling）** — チャネル間貢献度の統計的分解
+- **CDP（Customer Data Platform）** — Treasure Data/Segment、統合顧客プロファイル
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "analysis_id": "",
+  "client": "",
+  "period": "",
+  "data_sources": ["airwork", "indeed", "ga4", "sns_insights"],
+  "macro_cv": {"applies": 0, "trend": "+15%"},
+  "micro_cv": {"phone_tap": 0, "detail_view": 0, "form_reach": 0},
+  "funnel_analysis": {},
+  "bayesian_ab_test": {"posterior_winning_prob": 0.85, "lift_estimate": 0.15, "credible_interval_95": [0.05, 0.25]},
+  "causal_inference": {"method": "DID|PSM|RDD", "ATE": 0.0, "p_value": 0.05},
+  "mmm_attribution": {},
+  "ai_generated_insights": [],
+  "predictive_forecast_3months": {"applies": [], "confidence_interval": []},
+  "privacy_compliance": {"cookieless_ready": true, "consent_management": true}
+}
+```
+
+### 品質指標（2026年Q2自己目標）
+- インサイト的中率：≥80%
+- 分析リードタイム：≤4時間（現状8時間）
+- A/Bテスト判定精度：±5%以内
+- 予測精度（3ヶ月先）：MAPE≤15%

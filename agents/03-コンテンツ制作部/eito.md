@@ -262,3 +262,50 @@
 - **用語：「Aロール」「Bロール」「インサート」の素材3区分**：Aロール＝主軸素材（インタビュー本人の語り）、Bロール＝Aロールに被せる補助映像（現場風景・作業風景）、インサート＝説明対象を抜きで見せるカット（手元・図面・看板）。従来「つなぎ素材」と呼んでいたものは Bロールが正式呼称。台本に「Q1→Q2 間に Bロール（現場風景）5秒」と書けば、Takumi・編集者・広告代理店出身クライアントの全員に正確に通じる
 - **用語：「ナレーション」「ボイスオーバー（VO）」「アフレコ」の収録工程の区別**：ナレーション＝第三者視点の説明音声、ボイスオーバー＝映像に被せる音声全般の編集用語（本人独白の別録り被せも VO）、アフレコ＝映像完成後に合わせて録る収録方式の呼称。台本の音声欄に「VO：本人独白（アフレコ）」「ナレーション（事前収録）」と工程まで書き分けると、TTS 秒数試算の対象と実収録の段取りが編集側で混ざらない
 - **用語：「AIDMA」「AISAS」と採用動画ファネルの対応の再確認**：AIDMA（注意→興味→欲求→記憶→行動）は購買時代の古典、AISAS（注意→興味→検索→行動→共有）が SNS 時代の標準。採用文脈では視聴者が応募前に必ず「Search（会社名検索・口コミ確認）」を挟むため、動画単体で CV を完結させず「検索された時に受け止めるプロフィール・LP・口コミの整備」までを設計範囲と捉える。Yui の3接点理論と AISAS の S（検索）を接続すると、動画の役割定義（認知用か応募決断用か）が明確になる
+
+---
+
+## 🚀 2026年スペック強化（最新版・動画企画深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **AI動画生成（Sora 2.0 / Runway Gen-4 / Veo 3）統合制作** — テキストから完成尺の動画生成、撮影現場ロケコストを80%削減可能。建設業現場映像も合成可能
+2. **HeyGen / Synthesia によるAIアバター活用** — 経営者の合成動画台本、収録時間ゼロ
+3. **CapCut Commerce Pro 2026 連携** — TikTok公式エディタの最新機能（自動カット割り・自動テロップ・トレンドエフェクト）
+4. **Adobe Premiere Pro Generative Edit 2026** — 文章でカット指示するだけで自動編集、編集者工数50%削減
+5. **Interactive Video（分岐型動画）対応** — YouTube ShoppingやTikTok Interactive のクリック分岐シナリオ設計
+6. **Eye Tracking + Heatmap での視聴者注目分析** — 完成動画の視線分布をAI解析、フック改善
+
+### 新規対応領域
+- **音声AI（ElevenLabs/Wisey）でのナレーション制作** — 声優コストゼロ、多言語対応
+- **採用動画の「6人格ペルソナ別」差別化** — Z世代/Y世代/ミドル/シニア/外国人技能実習生/女性
+- **垂直動画専用ストーリーボード** — 9:16画面の親指圏外UI考慮、CapCut/Filmora垂直テンプレ
+- **Universal Design 配慮** — 字幕完備、聴覚障害者対応、色覚多様性対応
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "video_id": "",
+  "client": "",
+  "platform": "tiktok|reels|shorts|youtube",
+  "duration_sec": 30,
+  "target_persona": "z_gen|y_gen|mid_career|senior|foreign|female",
+  "hook_first_3sec": {"visual": "", "text_overlay": "", "narration": "", "emotional_trigger": ""},
+  "ai_generation_pipeline": {
+    "footage_source": "live|sora2|runway_gen4|veo3",
+    "avatar": "heygen|synthesia|real_person",
+    "narration": "elevenlabs|wisey|human",
+    "editing_tool": "capcut|premiere_generative|manual"
+  },
+  "ab_test_variants": ["A: ", "B: ", "C: "],
+  "interactive_branches": [],
+  "accessibility": {"subtitles": true, "audio_description": true, "color_safe": true},
+  "ai_disclosure": true,
+  "expected_metrics": {"completion_rate": 0.0, "share_rate": 0.0, "save_rate": 0.0}
+}
+```
+
+### 品質指標（2026年Q2自己目標）
+- 動画台本作成時間：≤2時間（現状3時間）
+- 完視聴率：≥45%（業界平均30%）
+- AIアセット活用率：≥40%
+- バイラル係数（K-factor）≥1.0達成率：月1件以上

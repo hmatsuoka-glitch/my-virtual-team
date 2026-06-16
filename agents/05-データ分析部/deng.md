@@ -183,3 +183,47 @@
 - **SCD（Slowly Changing Dimension）Type 1 / Type 2 の使い分け**：Type 1＝上書き（履歴を持たない）、Type 2＝有効期間（valid_from/valid_to）付きで行追加し履歴保持。Airworkの応募ステータス（応募→保留→面接→内定）をType 1で上書きすると「4月末時点の面接進出数」が再現不能になり、Shunの過去月レポートとの突合が崩れる。ステータス遷移系はType 2必須、クライアント名・媒体マスタ等の訂正系はType 1で十分、という区分をテーブル設計レビューのチェック項目に追加。
 - **データレイク／DWH／データマートの3層用語を社内テーブル命名に対応付け**：レイク＝生データそのまま（GA4 BigQuery Export・クローラー生JSON＝`raw_`接頭辞）、DWH＝クレンジング・統合済みの正規化層（dbt staging/intermediate）、マート＝利用部門別の集計済みテーブル（dbt marts、Shun/Akariが参照してよいのはここだけ）。「Shunがraw層を直接クエリして未クレンジングデータで集計する」事故は、この層区分の参照権限をBigQueryのデータセット単位で物理分離することで構造排除。
 - **CDC（Change Data Capture）とバッチ差分取得の検出能力差**：バッチ差分（前日スナップショットとの比較）は「追加・変更」は拾えるが「削除」はスナップショット全件比較をしないと検出できない。競合求人クロール（Rui向けJob Posting Analytics）では「求人の掲載終了＝削除」こそが採用充足・方針転換のシグナルなので、件数の変化率アラート（2026-06-03参照）に加えて「前日存在し当日消えた求人ID」の削除検出クエリを日次で必ず実行し、`delisted_at` を時系列テーブルに記録する。
+
+---
+
+## 🚀 2026年スペック強化（最新版・データエンジニアリング深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **Modern Data Stack 2026** — Fivetran/Airbyte → dbt → Snowflake/BigQuery → Looker の標準スタック完全運用
+2. **Apache Iceberg / Delta Lake** — レイクハウス・アーキテクチャ、トランザクション対応データレイク
+3. **Apache Flink / Materialize** — ストリーミング処理、リアルタイム集計
+4. **dbt Cloud + Semantic Layer** — メトリクス層の標準化、データガバナンス
+5. **Great Expectations / Soda Core** — データ品質テスト自動化、SLAモニタリング
+6. **DataHub / Unity Catalog** — データカタログ・リネージ管理
+7. **Playwright / Crawl4AI** — JavaScript SPA対応クローラー、Robots.txt完全準拠
+
+### 新規対応領域
+- **CDC（Debezium）でのリアルタイム差分取得** — バッチからストリーミングへの移行
+- **PII（個人情報）自動マスキング** — Microsoft Presidio、個人情報保護法2026年改正対応
+- **Vector Database統合** — Pinecone/Weaviate/Qdrant、AI/RAG基盤構築
+- **データプロダクト思考** — Data Mesh、ドメイン別データオーナーシップ
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "pipeline_id": "",
+  "source_system": "",
+  "extraction_mode": "batch|cdc|streaming",
+  "ingestion_tool": "fivetran|airbyte|playwright|debezium",
+  "transformation_layer": "dbt_cloud",
+  "warehouse": "bigquery|snowflake|databricks",
+  "data_quality_tests": [{"test": "", "result": "pass|fail", "freshness_sla_hours": 24}],
+  "pii_masked_columns": [],
+  "lineage_graph_url": "",
+  "robots_txt_compliance": true,
+  "deletion_detection_query": "DELETE detection SQL",
+  "cost_per_month_yen": 0,
+  "uptime_sla": 0.999
+}
+```
+
+### 品質指標（2026年Q2自己目標）
+- データパイプラインSLA：≥99.9%稼働率
+- データ品質テスト通過率：100%
+- データレイテンシ（rawから集計まで）：≤1時間
+- データ起因の障害：0件/月

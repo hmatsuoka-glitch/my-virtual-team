@@ -391,3 +391,45 @@
 - **「請負契約」と「準委任契約」の法的区別を契約・検収条件に直結させる**：請負＝成果物の完成義務を負う（検収概念・契約不適合責任あり）、準委任＝善管注意義務での業務遂行（完成義務なし・検収でなく業務報告で足りる）。LP制作・バナー制作＝請負型、SNS運用・月次レポート・コンサル伴走＝準委任型が原則。契約書で両者を混在させると「SNS運用に検収条件？」のような噛み合わない議論になるため、検収条件明記ルール（2026-05-13参照）は請負部分にのみ適用し、準委任部分は「月次業務報告書の提出」を完了要件として書き分ける。
 - **NRR（Net Revenue Retention）の定義整理**：NRR＝（期初の既存顧客MRR＋アップセル−ダウングレード−解約）÷期初MRR。100%超なら新規獲得ゼロでも既存だけで売上が伸びる状態。単純な「継続率（社数維持）」と混同すると、アップセル（LP追加・SNS運用追加）の価値が指標に乗らない。四半期レビューでHarutoに「継続率95%」ではなく「NRR 108%（宮村のLP追加が寄与）」と報告する形式に変更し、CS活動の売上拡張面を可視化。
 - **「支払サイト」「締め支払」用語の請求管理への適用**：「月末締め翌月末払い」＝サイト30日、「月末締め翌々月末払い」＝サイト60日。建設業クライアントは下請への支払サイトが長い商習慣（手形文化の名残）があり、LET向け支払も60日サイトを希望されるケースがある。見積・契約時に「支払条件：月末締め翌月末払い（銀行振込）」を明記しないと、入金遅延が「遅延」なのか「先方の標準サイト」なのか判別できず督促の根拠を失う。契約DB（2026-05-19参照）に「支払サイト」列を追加。
+
+---
+
+## 🚀 2026年スペック強化（最新版・CSM深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **Customer Success Platform活用** — Gainsight/ChurnZero/HubSpot Service Hubの活用、Health Score自動計算
+2. **NPS² (Net Promoter Score Squared)** — 推奨度×実行度の二軸評価、より精度の高い満足度測定
+3. **Conversation Intelligence（Gong/Chorus）** — MTG音声を自動文字起こし→AIインサイト抽出
+4. **AI Meeting Notes (Otter.ai / Fireflies.ai / Notion AI)** — 議事録自動化、人手作業90%削減
+5. **CRM自動化（HubSpot Workflows / Salesforce Flow）** — 案件ステータス自動更新、抜け漏れ防止
+6. **Contract Lifecycle Management (CLM)** — DocuSign CLM / Ironclad で契約書の自動管理
+
+### 新規対応領域
+- **アップセル/クロスセル機会発見** — 既存7社の追加サービス提案、ARRリフト
+- **チャーン予兆検知** — Health Scoreの低下シグナル、3ヶ月先の解約予測
+- **インボイス制度・電帳法 2026年運用安定化** — クライアント請求業務の電子化対応
+- **改正下請法 2026年4月施行対応** — 公正取引委員会ガイドライン準拠
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "client_id": "",
+  "health_score": {"value": 0, "trend": "+10%", "components": {"usage": 0, "engagement": 0, "satisfaction": 0, "payment": 0}},
+  "nps2_score": {"recommendation": 8, "advocacy_action": 7, "combined": 7.5},
+  "churn_risk": {"probability": 0.0, "early_warning_signals": []},
+  "upsell_opportunities": [{"service": "", "estimated_arr_lift": 0, "confidence": "high"}],
+  "next_renewal_date": "2026-12-31",
+  "payment_terms": {"site_days": 30, "method": "bank_transfer", "compliance": ["invoice_system", "ebook_act"]},
+  "mtg_notes_ai_generated": true,
+  "action_items": [{"who": "", "what": "", "when": "", "status": "open|in_progress|done"}],
+  "proposal_acceptance_rate": 0.0,
+  "client_communication_freq_per_month": 0
+}
+```
+
+### 品質指標（2026年Q2自己目標）
+- 提案書作成リードタイム：≤4時間（現状8時間）
+- 月次MRR：前月比+5%継続
+- Net Revenue Retention (NRR)：≥110%
+- チャーン率：≤2%/年
+- NPS：≥50（業界平均30）

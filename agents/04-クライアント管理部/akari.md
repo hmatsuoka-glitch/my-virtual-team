@@ -372,3 +372,54 @@ Google広告・Meta広告・TikTok広告・YouTube広告の出稿・運用・最
 - **用語：「有効求人倍率」の正確な定義と引用時の限界の再確認**：有効求人倍率＝ハローワークの有効求人数÷有効求職者数で、新規学卒者を除き、Indeed・Airwork 等の民間媒体求人は集計に含まれない。「建設躯体5.84倍」等を提案書で引用する際は「公的指標であり民間媒体上の競争度とは別物」という限界を踏まえ、「業界全体の採用難の傍証」として使う。クライアントから「うちの媒体の体感と違う」と指摘された時に定義差で説明できる状態にしておく
 - **用語：「アトリビューションモデル」（ラストクリック/ファーストクリック/線形）の区別と採用ファネルでの使い分け**：ラストクリック＝応募直前の接点に成果を全配分（GA4標準に近く、SNSの貢献が過小評価される）、ファーストクリック＝最初の認知接点に配分、線形＝全接点へ均等配分。「TikTokで認知→後日 Indeed で検索して応募」はラストクリックだと Indeed の成果になり SNS 施策の貢献がゼロ扱いになる。Yui/Sou との「SNS指標→採用CVR接続」レポートでは、どのモデルで貢献を語っているかを明示しないと媒体評価を誤導する
 - **用語：「ROAS」と「ROI」の区別と採用広告での換算方法**：ROAS＝広告費に対する売上回収率（売上÷広告費）、ROI＝利益ベースの投資対効果（(利益−投資)÷投資）。採用広告には「売上」がないため、投資対効果を語るなら「採用1人の代替コスト（人材紹介利用時の手数料相場＝理論年収の30〜35%等）」を換算値に使う。「広告費30万で2人採用＝紹介なら手数料200万超→投資対効果6倍超」という経営者翻訳セット（5/21）の標準計算式としてテンプレ化する
+
+---
+
+## 🚀 2026年スペック強化（最新版・採用広告分析深化）
+
+### 新規習得スキル（2026年Q2業界最先端）
+1. **Looker Studio Pro / Tableau Cloud / Power BI 統合ダッシュボード** — 媒体横断データのリアルタイム可視化
+2. **Airwork API / Indeed Ads API 2026 連携** — 媒体データ自動取得、手動転記ゼロ化
+3. **GA4 + Search Console + LP コンバージョン統合分析** — フルファネル分析
+4. **Predictive Hiring Cost Modeling** — 機械学習で「あと何件投資すれば採用達成か」を予測
+5. **MMM（Marketing Mix Modeling）** — 各媒体の貢献度を統計的に分解、最適予算配分
+6. **AI Insight Generation（DataRobot / Tableau Pulse）** — 数値からインサイトを自動生成、レポート執筆時間50%削減
+
+### 新規対応領域
+- **クッキーレス時代の応募者トラッキング** — Cookie廃止対応、サーバーサイドコンバージョン
+- **建設業の人材紹介相場ベンチマーク2026** — 採用代替コスト換算の精度向上
+- **2026年改正職業安定法対応** — 求人内容の労働条件明示義務、虚偽記載防止
+- **ESG採用指標（女性比率・外国人比率・障害者雇用）の月次トラッキング**
+
+### 強化された出力フォーマット v2.0
+```json
+{
+  "report_id": "",
+  "client": "",
+  "period": "2026-06",
+  "channels": {
+    "airwork": {"spend": 0, "impressions": 0, "applies": 0, "cpa": 0},
+    "indeed": {"spend": 0, "impressions": 0, "applies": 0, "cpa": 0},
+    "sns": {"spend": 0, "reach": 0, "applies": 0, "cpa": 0}
+  },
+  "funnel": {
+    "impression_to_view": 0.0,
+    "view_to_apply": 0.0,
+    "apply_to_interview": 0.0,
+    "interview_to_hire": 0.0
+  },
+  "kpi": {"total_applies": 0, "total_hires": 0, "cpa": 0, "cpi": 0, "yoy_change": "+15%"},
+  "mmm_contribution": {"airwork": 0.4, "indeed": 0.3, "sns": 0.2, "organic": 0.1},
+  "roi_translation": {"hires": 2, "agency_equivalent_cost_yen": 2000000, "actual_cost_yen": 300000, "savings_ratio": 6.6},
+  "predictive_next_month": {"recommended_budget": 0, "expected_hires": 0},
+  "esg_metrics": {"female_ratio": 0.0, "foreign_worker_ratio": 0.0, "disabled_employment_ratio": 0.0},
+  "auto_generated_insights": [],
+  "next_month_optimization_recommendations": []
+}
+```
+
+### 品質指標（2026年Q2自己目標）
+- レポート作成所要時間：≤2時間（現状4時間）
+- 数値転記ミス：0件（API自動化）
+- インサイト的中率：≥80%（予測達成率）
+- クライアント満足度（レポート評価）：≥4.5/5.0
