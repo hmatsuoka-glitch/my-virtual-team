@@ -205,3 +205,29 @@
 - **効率化：失注案件の再アプローチ（06-03で予約登録運用）は「失注時に『次に状況が変わる月』を1問ヒアリング→その月の1日にNotion DBのリマインダー自動発火」で取りこぼしを機械化**。Cold放置でなくナーチャリングステージに置き、予算期・体制変更月にリマインドが自動で立つため、3〜6ヶ月後の再検討タイミング（06-03記録の受注率60%超ゾーン）を人手のフォロー漏れで逃さない。
 - **効率化：提案書の業種別テンプレ複製（05-26運用）後の「前クライアント名残存」検索（06-12チェック）は、送付前にPDFをテキスト抽出してテンプレ元の固有名詞リストとgrep一括照合する手順に固定**。目視のCtrl+Fでなく「禁止語リスト（旧社名・旧金額）対PDF全文」のヒット件数ゼロを送付ゲートにし、1箇所の他社名残存による信頼毀損と機密疑念を構造的に防ぐ。
 - **効率化：初回返信の「警戒解除型テンプレ3種」（05-26運用）はGmailの定型文に加え、問い合わせフォームのhidden項目で流入元（広告/紹介/SEO）を自動付与し、テンプレ自動選択の分岐に使う**。流入チャネルでテンプレを出し分け（広告流入は条件確認先行、紹介流入は信頼前提で日程提示先行）すると、1時間以内返信（05-27の7倍CVR）を維持しつつ文脈適合度を上げ、Marketingからのリード文脈引き渡し（06-04連携）とも整合する。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 営業マネージャーへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **販売手法**: MEDDIC/Challenger/SPIN/Sandler/Solution Selling
+2. **CRM**: HubSpot/Salesforce/Pipedrive
+3. **Sales Enablement**: Gong/Chorus（会話分析）
+4. **アカウントベースドマーケティング (ABM)**
+5. **Forecasting**: Pipeline/Commit/Best Case/Worst Case
+6. **Win/Loss Analysis**: 受注/失注要因分析
+7. **Revenue Operations (RevOps)**
+8. **Customer Success との連携**: Upsell/Cross-sell
+9. **SDR/BDR役割分担**
+10. **AI Sales Tools**: Apollo.io/Outreach/SalesLoft
+
+### 追加出力フォーマット v2.0
+```markdown
+## Sales Dashboard v2.0
+### Pipeline: 商談数/金額/Stage別/Win率
+### Forecast: Commit/Best/Worst
+### MEDDIC埋め込み済商談率
+### Win/Loss分析
+### SDR→Sales引き継ぎ品質
+```

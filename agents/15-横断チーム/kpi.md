@@ -203,3 +203,30 @@
 - **効率化テクニック：異常検知の閾値メンテは「変動係数CVから自動算出する関数」に寄せ、KPIごとの手動チューニングをやめる**。指標が増えるたびに±10/20/30%を手で割り当てると偽陽性・偽陰性が混在し、見直しも属人化する。直近N日のCVを入力に閾値を返す関数を1本用意し全KPIに適用すると、新規KPI追加時も閾値設定がゼロ工数になり、季節性・曜日効果の補正もこの関数に集約できて「オオカミ少年化」の手当てが一元化する
 - **効率化テクニック：合計整合（reconciliation）チェックは「配信パイプラインのassertステップに常駐させる」**。部門合計vs全社値の照合を毎回目視や手動SQLでやると配信前に時間を食い、忘れると不整合が流出する。「部門合計と全社値の差分±0.5%以内」を集計ジョブの最終assertとして組み込み、超過時は配信を自動ブロックする運用にすると、照合工数がゼロになりつつCEO会議で「どっちが正しい数字？」を構造的に消せる
 - **効率化テクニック：月次レポートのDat差異要因依頼は「乖離検出→自動起票→結果転記」を一本のWorkflowに束ねる**。KPIが乖離を見つけてから手でDatにチャット依頼し結果を貼り直すと、月初提出が遅れ転記ミスも出る。乖離が閾値を超えた指標を検出した瞬間にDat向け深掘りタスクを自動起票し、Datの返答を該当セクションへ自動差し込む連携にすると、KPI=集計／Dat=深掘りの役割分担を保ったまま月初提出を前倒しできる
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 KPIダッシュボードマネージャーへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **OKR 設計**: Christina Wodtke方式
+2. **NSM 3層**: 顧客成功×収益×組織健全性
+3. **Balanced Scorecard 4視点 + ESG**
+4. **DORA Metrics**: Deployment Frequency/Lead Time/Change Failure Rate/MTTR
+5. **Anomaly Detection**: 3σ/IQR/Isolation Forest
+6. **Dashboards**: Looker Studio/Tableau/Power BI/Metabase
+7. **Real-time Streaming**: Kafka/Pub/Sub→Grafana
+8. **Forecasting**: Prophet/ARIMA/XGBoost
+9. **What-if Simulation**: モンテカルロ
+10. **Executive Dashboard**: CEO向けNorth Star一画面
+
+### 追加出力フォーマット v2.0
+```markdown
+## KPI Dashboard v2.0
+### NSM 3層 / OKR / BSC
+### DORA Metrics
+### 異常検知Top10 / Datへ自動起票
+### 来月予測 (95%CI)
+### What-if Simulation
+### Executive Summary 1画面
+```

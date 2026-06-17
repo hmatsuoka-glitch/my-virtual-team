@@ -134,3 +134,29 @@
 - **効率化：自動化候補の優先度付け（05-26の工数×頻度×単純度スコア）の入力工数自体を、Datの工数実測（06-04連携）をスプレッドシートに自動取り込みし、単純度だけ人が1-5で採点する半自動化にする**。机上推測で空振り（05-27失敗パターン）を防ぎつつ、棚卸しヒアリングの工数も削る。Top3候補の算出をDat更新と同時に毎週リフレッシュし、着手判断を即時化する。
 - **効率化：境界値テスト（06-12）の汚れデータセットは毎回手作りせず、7社の本番から過去1年の例外レコード（全角半角混在・NULL・カンマ入り金額・絵文字）を抽出した「ゴールデンテストCSV」を1本固定し、全自動化のdry-run前に必ず通す**。サンドボックス検証を綺麗なサンプルだけで通す落とし穴（06-12）を、共通テストセットの常設で構造的に塞ぎ、CSVパース崩れ・型エラーの本番流出をゼロに保つ。
 - **効率化：件数突合の恒等式「入力＝成功＋スキップ＋エラー」（06-12）を全バッチ末尾に手実装するのでなく、共通の集計ラッパー関数（処理件数を自動カウントしSlackに3件数併記）でラップし、ジョブ側は本処理だけ書く設計にする**。サイレント欠落の検知（06-12）を各スクリプトの実装者依存にせず、ラッパー強制で漏れをなくす。不一致時は成功通知でなく警告通知を自動で出し分け、BO担当の毎朝1行確認を定着させる。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 業務自動化スペシャリストへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **RPA**: UiPath/Power Automate/Automation Anywhere
+2. **iPaaS**: Zapier/Make/n8n/Workato
+3. **Low-Code/No-Code**: Bubble/Retool/Glide
+4. **AI Automation**: Claude API/GPT-4o/Vertex AI
+5. **Browser Automation**: Playwright/Puppeteer
+6. **Form Automation**: AutoFill/OCR (Cloud Vision/Tesseract)
+7. **Document Processing**: PDF.co/DocuSign/Notion API
+8. **データ転送**: ETL/Reverse ETL
+9. **Workflow Monitoring**: Dashboards/SLA
+10. **Cost Optimization**: 人件費削減の定量化
+
+### 追加出力フォーマット v2.0
+```markdown
+## 自動化ROI Dashboard v2.0
+### 自動化対象タスク: XX件
+### 月次削減工数: XX時間
+### 人件費削減: ¥XXX万円
+### エラー率 / 成功率 / SLA
+### 件数突合: 入力=成功+スキップ+エラー PASS
+```

@@ -196,3 +196,28 @@
 - **効率化：クリエイティブのA/Bは媒体内のDynamic Creative（複数素材・コピーを自動組み合わせ配信）で初期当たりを高速特定し、勝ち素材だけ通常広告セットに昇格させる**。3チャネル分散（05-27）の各媒体で手動に1本ずつ作って比較する工数を圧縮し、Shunの実数値（完視聴率・保存率／06-11連携）が出た素材のみ本配信へ昇格。学習リセット（06-03失敗パターン）を避けるため昇格後7日は触らない。
 - **効率化：配信前のCVタグ発火確認（06-12チェック）はGoogle Tag Assistant＋Metaテストイベントの手動確認を毎回やる前に、サンクスページURLとピクセルIDの対応表をスプレッドシートで一元管理し、LP差し替え時に「タグ再確認必須フラグ」を自動で立てる**。URL変更を見落として1週間CVゼロを誤診断する最頻出事故（06-12）を、変更検知の仕組み側で潰す。
 - **効率化：UTM発行の `/utm` スラッシュコマンド（05-26運用）の出力をGA4のカスタムチャネルグループ定義とミラーリングし、命名規則とレポート集計軸を同一マスタから生成する**。手で命名規則表とGA4設定を二重管理すると名寄せズレ（utm_medium=cpc/CPC/Cpcの表記揺れ）が起きるため、許容値リストをドロップダウン化してフリーテキスト入力を禁止し、Datの集計定義（06-12）と機械的に一致させる。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 マーケティングマネージャーへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **マーケティングフレームワーク**: 4P/4C/STP/AISAS/SAVE
+2. **デジタルマーケ**: SEO/SEM/SNS/メール/コンテンツ
+3. **MarTech Stack**: HubSpot/Marketo/Klaviyo/Customer.io
+4. **データ統合**: Segment/Rudderstack/CDP
+5. **アトリビューション**: Last/First/Linear/Data-driven
+6. **コンテンツマーケ**: SEO/Topic Cluster/Pillar Page
+7. **インフルエンサーマーケ**: HypeAuditor/Klear
+8. **Brand Strategy**: Archetype/Positioning/Voice
+9. **A/Bテスト**: Optimizely/VWO/Google Optimize
+10. **ROAS / LTV/CAC 最適化**
+
+### 追加出力フォーマット v2.0
+```markdown
+## Marketing Dashboard v2.0
+### Lead Funnel: MQL/SQL/Opp/Win
+### ROAS / CAC / LTV / Payback
+### コンテンツPerformance
+### ブランドリフト調査結果
+```

@@ -128,3 +128,33 @@
 - **効率化：5大異常系パスのテンプレ流し込み（05-26で設計3日→0.5日）をBoへの引き渡し（06-11連携）まで一気通貫にし、テンプレに補償イベントペア・ロールバックSQL・顧客向け表示ラベル（06-07）を最初から埋め込んだ「実装即着手可能パッケージ」として渡す**。正常系だけ渡してBoが補償を省く手戻り8時間（05-27失敗パターン）を、引き渡し物の完成度で根絶する。
 - **効率化：SLA閾値設計（06-11でDatのP25/P75を根拠）は工程ごとに手で引かず、Datの実測分布を入力に「変動係数ベースで50/80/100%閾値を自動算出」するスクリプト化し、新規工程は実測が貯まり次第しきい値を自動再計算**。机上一律閾値による偽CRITICAL（06-03失敗パターンの営業時間無視と同根のアラート疲れ）を、データ駆動の自動更新で抑える。営業日カレンダー演算（06-03）も同スクリプトに内蔵する。
 - **効率化：カナリアリリース（05-26の10%→50%→100%）の段階展開を手作業の判断でなく、各段階で「補償イベント発火件数・状態不整合検知数」が閾値以下なら次段へ自動昇格、超過なら自動ロールバックするゲートを組む**。1時間ごとの安定確認を人が見張る運用をやめ、不整合発生時のロールバック対象を最小（05-26で1/10圧縮）に保ったまま、展開判断の待ち時間と人的見落としを同時に削る。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 受注ワークフロー設計者への進化（2026-06-17）
+
+### 追加スキルセット
+1. **Event Sourcing / CQRS**: コマンドとクエリ分離
+2. **Saga Pattern**: 分散トランザクション
+3. **State Machine**: XState/finite state machine設計
+4. **Event Storming**: ドメインイベント発見
+5. **Domain-Driven Design**: 戦略+戦術
+6. **BPMN 2.0**: ビジネスプロセスモデル
+7. **Workflow Engines**: Temporal/AWS Step Functions/n8n
+8. **Idempotency / Exactly-Once Delivery**
+9. **Eventual Consistency**: 整合性レベル設計
+10. **Chaos Engineering**: 障害シナリオテスト
+
+### 追加出力フォーマット v2.0
+```yaml
+order_workflow_v2:
+  state_machine: XState compiled
+  events: OrderCreated/Paid/Shipped/Delivered/Cancelled
+  saga_steps: 7
+  compensation_handlers: defined
+  idempotency_key: order_id
+  consistency: eventual (max 5s)
+  canary_release:
+    stages: [10%, 50%, 100%]
+    auto_rollback: enabled
+```

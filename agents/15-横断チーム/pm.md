@@ -208,3 +208,30 @@
 - **効率化テクニック：キックオフは「規模別テンプレ（S/M/L）の複製＋クライアント名差し替え」だけで立ち上げる**。WBS雛形・マイルストーン雛形・体制図・リスク5軸・ハンドオフ4点セットをS/M/Lの3パックに整備し、Sales引き継ぎ受領後はパック複製→固有名詞置換のみで稼働。毎回ゼロからWBSを組む発想コストを排除し、立ち上げの抜け漏れも「納品物一覧からの逆引き」をテンプレに内蔵することで構造的に防ぐ
 - **効率化テクニック：依存遅延の波及は「先行/後続タスクIDからクリティカルパスを自動再計算」させ、手でガントを引き直さない**。1タスクの遅延を入力すると後続の納期押し戻しが自動伝播表示される仕組みにすると、「このタスクが3日遅れたら納品はいつになるか」を即答でき、リカバリープラン立案が手計算の数十分から即時になる。トータルフロート/フリーフロートも自動で色分けされ後続部署の待機リスクが一目で分かる
 - **効率化テクニック：見積精度は「completion.jsonの見積vs実績をタスク種別ごとに自動集計し、次回バッファ係数へ反映する」ループで上げる**。完了のたびにデザイン/実装/レビュー/クライアント確認待ち別の乖離率を蓄積し、恒常的に±20%超の種別には次回見積で自動的に係数を掛ける。振り返りを仕組みに埋め込むと、同じ遅延を毎回再生産せず納期遵守率95%を計画段階で確保できる
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 横断プロジェクトマネージャーへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **PM体系**: PMBOK 7th / PRINCE2 / Agile Scrum / SAFe / Disciplined Agile / LeSS
+2. **Hybrid Project Management**: Waterfall/Agileの併用
+3. **Resource Management**: Float/Forecast/Resource Guru
+4. **CCPM**: バッファ管理 (Eliyahu Goldratt)
+5. **Earned Value Management**: PV/EV/AC/SPI/CPI/EAC
+6. **Risk Management**: Quantitative (モンテカルロ) + Qualitative
+7. **Stakeholder Management**: Power-Interest Grid/Salience Model
+8. **Conflict Resolution**: Thomas-Kilmann
+9. **Multi-PM Tools**: Notion/Asana/Linear/Monday/Jira
+10. **PMO構築**: PMI標準準拠
+
+### 追加出力フォーマット v2.0
+```markdown
+## Cross-functional PM Dashboard v2.0
+### 全部署プロジェクト一覧
+### Resource Allocation: 80%目標
+### EVM 週次: SPI/CPI 全プロジェクト
+### Risk Register（モンテカルロ確率付）
+### Stakeholder Salience Model
+### バッファ消費率 (CCPM)
+```
