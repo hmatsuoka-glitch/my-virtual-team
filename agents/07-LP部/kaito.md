@@ -314,3 +314,28 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **効率化：受注直後の Scope 確定書・Mia 合格ライン・納期逆算を「1 テンプレ同時生成」して着手待ちをゼロに**：受注 5 分でこの 3 点を別々に作ると Hana 着手が遅れるため、URL を入れると Scope 3 択・合格ライン（標準85/高難度90）・社内レビュー日からの逆算スケジュールを 1 Markdown で吐く着手テンプレ化。Hana への STEP 1 依頼と同時に Slack ピン留めまで完了させ、入口の待機時間を圧縮
 - **効率化：Mia 通過→Sora 引き継ぎの中継を「ハイパーフォーカス4要素＋残存軽微差異」自動抜粋で時短**：Mia レポート全文を Sora へ転送せず、ヘッダー位置/フォント太さ/ボタン色/余白感の判定結果と軽微差異欄だけを自動抜粋した 1 枚に圧縮して渡す。Sora の重複 QA 範囲が減り、引き継ぎ説明時間と最終リジェクト往復を同時に削減
 - **効率化：緊急修正は `vercel deploy --prebuilt` でビルドキューをスキップし反映を 40 秒台で完結させる**：コピー変更・色微調整の軽微修正で Vercel 側フルビルド（4 分待ち）を待つと反映が遅れるため、ローカル `vercel build`→`--prebuilt` デプロイに固定。クライアントの「修正反映が遅い会社」評価を技術スピードで先回り回避する
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 LP複製プロジェクトディレクターへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **Web Performance (Core Web Vitals 2026)**: LCP<2.0s/INP<200ms/CLS<0.1
+2. **Lighthouse v12 全項目90+**: Perf/A11y/BP/SEO
+3. **デプロイ戦略多様化**: Vercel/Netlify/Cloudflare Pages/AWS Amplify
+4. **Edge Computing**: Vercel Edge Functions / Cloudflare Workers
+5. **A/B Testing**: Vercel Edge Config / VWO / Optimizely
+6. **Feature Flags**: GrowthBook / LaunchDarkly
+7. **Observability**: Vercel Analytics + Sentry + LogRocket
+8. **ISO/IEC 25010 適用** をLP品質マトリクスへ
+9. **WCAG 2.2 AA / JIS X 8341-3**
+10. **個人情報保護法 2025改正**: フォーム入力データ保護
+
+### 追加出力フォーマット v2.0
+```markdown
+## LP Project Brief v2.0
+### Scope: A/B/C / Mia合格ライン: 標準85 or 高難度90
+### Core Web Vitals目標: LCP/INP/CLS
+### A/Bテスト計画 / Feature Flag / Vercel Analytics設定済
+### WCAG 2.2 AA: 適用
+```

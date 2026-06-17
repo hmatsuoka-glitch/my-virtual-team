@@ -664,3 +664,35 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **z-index・カスケードレイヤー・スタッキングコンテキストを「重なり順マップ」として1JSONに統合記録**：z-indexスタッキングコンテキスト境界（2026-06-12参照）とカスケードレイヤー宣言順（2026-06-13参照）を別々に確認していたのを、position/transform/opacity/filter/`@layer` を要素ツリーで一括走査し「どのコンテキスト・どのレイヤー内での値か」を1つの `stacking_map` JSONに統合。値だけコピーして固定ヘッダーがモーダルに被る／レイヤー逆転で上書き関係が崩れるNGを、Renが実装前にツリーで把握でき重なり系の手戻りを排除。
 - **抽出着手時の「2回ロード同一性＋CORS可否＋Shadow DOM有無」をSTEP 0プリフライトで一括判定**：A/Bテスト配信検知（2026-06-12参照）・CORSフォント取得可否（2026-06-03参照）・Shadow DOM貫通（2026-05-20参照）を着手後にバラバラに踏んでいたのを、STEP 1冒頭でシークレット2回ロードのCSSハッシュ照合＋`document.fonts`空判定＋`.shadowRoot`走査を1スクリプトで先行実行。バリアント配信・クロスオリジン・埋込ウィジェットを着手前に検出し、抽出途中で詰まって戻る事故をゼロに。不一致時はどのバリアントを正とするかKaitoへ即確認。
 - **Iroとの色キー命名合意とバナー部への4項目投函をSTEP 2着手前後の定型2アクションに固定**：Iroとのブランド色/装飾色の役割分担＋`--brand-`接頭辞合意（2026-06-11参照）をSTEP 2着手前の5分会、banner-handoff.json（`--color-primary`/`--color-accent`/Hero `font-family`/`font-weight`の4項目）の自動投函（2026-06-11参照）をSTEP 8同時、と前後の固定アクションに定式化。Iro設計版がある案件は色採取をIro優先で二重化せず、Renの `extend.colors` キー衝突NGとバナー部のカラーピッカー30分工程を同時に排除。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 CSS抽出スペシャリストへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **CSS Modern Features**: Container Queries / :has() / @scope / Subgrid / @layer / Anchor Positioning
+2. **CSS Architecture**: ITCSS / BEM / SMACSS / CUBE CSS / Atomic
+3. **CSS-in-JS**: styled-components / emotion / vanilla-extract
+4. **Animation Libraries**: GSAP / Framer Motion / AOS / Lottie / Motion One / View Transitions API
+5. **Color Theory**: OKLCH/OKLab, P3色域, Display P3
+6. **Typography**: Variable Fonts / Font Loading API / font-display swap
+7. **Responsive Modern**: Container Queries / Fluid Typography (clamp) / Logical Properties
+8. **Browser DevTools深掘り**: Style/Computed/Layers/Coverage/Performance
+9. **CSS逆解析ツール**: Stylify / WhatRuns / CSS Used
+10. **Accessibility**: forced-colors / prefers-reduced-motion / focus-visible
+
+### 追加出力フォーマット v2.0
+```yaml
+css_extraction_spec_v2:
+  framework_detected: Tailwind v3.4
+  color_space: OKLCH
+  brand_colors:
+    primary: oklch(0.65 0.18 250)
+  fluid_typography:
+    body: "clamp(1rem, 0.95rem + 0.25vw, 1.125rem)"
+  container_queries: detected
+  animation_libs: ["GSAP 3.12", "Framer Motion 11"]
+  iro_handoff:
+    brand_color_key: "--brand-primary"
+    accent_color_key: "--color-accent"
+```

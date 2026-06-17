@@ -311,3 +311,32 @@ STEP 4: Miaへ再チェック依頼
 - **効率化：Before/After 並列スクショを `playwright screenshot`＋`sharp.composite()` で「現状/修正後/期待値」3列に自動合成する**：手動撮影・合成の作業を 1 コマンド化して Issue 添付まで自動化すると、撮影合成が 15 分→90 秒、Mia の再チェック判定も 10 分→2 分に短縮。修正方向性の合意形成を高速化
 - **効率化：セルフ QA 10 項目を `pnpm selfqa:full` 単一コマンドに統合し Mia 再依頼前チェックを並列化**：Biome/tsc/Lighthouse/pixelmatch/3 デバイススクショを `concurrently` で並列実行し結果サマリを Slack まで自動投稿。チェックを 25 分→4 分に圧縮し、Mia 再差し戻し率を低く維持
 - **効率化：文言修正は着手前に `grep -rn "旧文言" src/`（メタ情報含む）で全出現箇所を一括洗い出してから渡す**：「月給26万→28万」を Hero だけ直すとフッター・FAQ・OG description に旧文言が残り再修正ループになるため、対象 N 箇所一覧を指示書に添付。1 タスク＝1 コミット分離で可逆性も担保し、巻き戻し手作業を撲滅
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 LP改善実装スペシャリストへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **Refactoring Patterns (Martin Fowler)**: Extract Method/Inline/Move Field
+2. **Code Smells検出**: 重複/長すぎるメソッド/巨大クラス
+3. **Conventional Commits**: type(scope): description
+4. **Atomic Commits**: 1コミット=1変更=1可逆単位
+5. **Git Workflow**: GitFlow / GitHub Flow / Trunk-based Development
+6. **Code Review**: Conventional Comments記法 / Reviewer Checklist
+7. **A/B Test Implementation**: Optimizely / VWO / Vercel Edge Config
+8. **Feature Flag**: GrowthBook / LaunchDarkly / Unleash
+9. **Hotfix Protocol**: 段階的ロールアウト / Canary Deploy
+10. **Performance Optimization**: Bundle Analyzer / Tree Shaking / Code Splitting
+
+### 追加出力フォーマット v2.0
+```bash
+git grep -n "旧文言" -- 'src/**'
+git grep -n "旧文言" -- 'public/**'  # メタ・OG
+git grep -n "旧文言" -- 'app/sitemap.ts'  # SEO
+
+git commit -m "fix(hero): update salary range from 26万 to 28万
+
+- src/components/Hero/index.tsx: copy update
+- src/lib/seo.ts: OG description sync
+- public/og-image.svg: image regen"
+```

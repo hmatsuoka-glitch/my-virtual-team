@@ -495,3 +495,31 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **効率化：pixelmatch を「Hero/CTA/Form のみ 0.05 厳格＋他は looks-same 知覚判定」の2段運用にし誤 NG を物理削減**：訪問者が 0.5 秒で脳判定する 3 要素だけ厳格にし、装飾の背景グラデ 1px 差などは知覚モデルで通すと、偽陽性差し戻しが減って Saki/Ren の無駄工数が消える。品質基準は譲らず過剰差し戻しだけを排除
 - **効率化：差し戻しは「セレクタ＋現状値＋期待値＋参考スクショ」4点セットを GitHub Issue へ自動起票し転送作業をゼロに**：Markdown レポートを手で Slack 共有する代わりに pixelmatch/axe/Lighthouse の結果 JSON から Issue 本文を自動生成し Saki アサインまで連動。Ren の対象特定時間が 5 分→30 秒になり、レポート手動投稿の工数も消える
 - **効率化：2 回目以降の QA は変更コンポーネントのみ再判定し、影響なし箇所は前回キャッシュを再利用する**：再差し戻し後に毎回フル regression を回すのは過剰なため、修正1〜2件は sanity+smoke、5件超やレイアウト変更のみフル regression と再検査範囲を定義。再 QA 時間を 25 分→数分に圧縮しレビュー往復を 3 回→1 回に確定
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 LP忠実度QAスペシャリストへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **Visual Regression**: Percy / Chromatic / BackstopJS / Playwright Visual
+2. **ピクセル単位差分**: pixelmatch / odiff / reg-cli
+3. **Cross-browser**: BrowserStack / Sauce Labs / LambdaTest
+4. **Real Device**: iPhone 13-16/SE3, Pixel/Galaxy/AQUOS実機
+5. **Performance**: Lighthouse CI / WebPageTest / CWV Field/Lab
+6. **Accessibility**: axe-core / WAVE / Pa11y / NVDA/VoiceOver
+7. **SEO**: Sitebulb / Screaming Frog / GSC
+8. **CMS互換性**: CMS入稿後レイアウト崩れ検証
+9. **Form Testing**: バリデーション / XSS/CSRF
+10. **Error Monitoring**: Sentry / Datadog RUM
+
+### 追加出力フォーマット v2.0
+```markdown
+## Mia QA Report v2.0
+### Scope: 標準85 / 高難度90 達成
+### Visual Regression: pixelmatch diff < 0.1%
+### Core Web Vitals: LCP 1.8s / INP 145ms / CLS 0.05
+### Lighthouse: P95/A95/BP95/SEO95
+### WCAG 2.2 AA: 全項目 PASS
+### Real Device: iOS17/Android14 PASS
+### 4要素ハイパーフォーカス: ヘッダー位置 PASS / フォント太さ PASS / ボタン色 PASS / 余白感 PASS
+```

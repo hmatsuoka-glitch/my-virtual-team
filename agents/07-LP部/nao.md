@@ -518,3 +518,33 @@ export const HERO = {
 - **効率化：Hana の JSON から `zod-to-ts` で `types/index.ts` を CLI 1 コマンド生成し props 型の手書きを廃止**：JSON Schema→Zod→TypeScript Interface のパイプラインで実行時バリデート可能な型を自動生成し、Ren へはビルド検証済みの型ファイルを添付。手書きタイポ起因の型エラー差し戻しをゼロに
 - **効率化：状態遷移（idle/hover/focus/disabled/loading/error）を YAML 1 ファイル→`mermaid-cli` で SVG 自動出力し質問ラリーを潰す**：「ローディングどう見せる？」「エラー時は？」の Ren/Mia 質問を設計図で先回り回答する運用に変えると、実装時の判断迷いラリーが 5 往復→1 往復に。状態定義を視覚化して設計層で確定させる
 - **効率化：Mia の95項目を STEP 6 納品前に「○/△/×」自己採点し、QA を△/×に集中させて通過率を底上げ**：レイアウト/カラー/フォント/アニメ/レスポンシブ＋Hydration/OG/a11y を設計側で先回り採点し設計書に明記すると、Mia が○項目を流し見でき QA が高速化。Ren 実装後の Mia 差し戻しを設計層で予防し通過率 70%→95% に
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 LP設計書スペシャリストへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **設計書フォーマット国際標準**: arc42 / C4 Model / 4+1 View Model
+2. **Design System駆動**: Atomic Design / CDD (Component-Driven Development)
+3. **Information Architecture**: 8つのIA原則 / Card Sorting / Tree Test
+4. **UX Heuristic**: Nielsen 10原則 / Shneiderman 8 Golden Rules
+5. **Accessibility-First**: WCAG 2.2 / WAI-ARIA / Inclusive Design 7原則
+6. **Performance Budget**: 設計時にCWV目標明記
+7. **Component Spec**: Props / States / Events / Variants
+8. **Design Tokens**: W3C Design Tokens Format Module
+9. **Storybook統合設計**: Documentation Driven Development
+10. **Component Library連携**: shadcn/ui / Radix UI / Headless UI
+
+### 追加出力フォーマット v2.0
+```markdown
+## LP Design Spec v2.0 (arc42準拠)
+### Context: ターゲット/競合/制約
+### Solution Strategy
+### Building Blocks: Atomic Design
+### Component Spec
+- Header: Props/States/Events/Variants
+### Design Tokens (W3C準拠)
+### Performance Budget: LCP<2s/CLS<0.1
+### Accessibility: WCAG 2.2 AA達成項目
+### Mia 95項目自己採点: ○85/△8/×2
+```

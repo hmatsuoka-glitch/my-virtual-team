@@ -712,3 +712,32 @@ JS ソースから以下のパターンを検出する:
 - **効率化：案 A・案 B のカラートークンを Figma から JSON 書き出し→`tailwind.config` の `colors.optionA/optionB` を同時生成する**：「ユーザーが案 B 採用」と決まった瞬間の Ren 着手前準備をゼロにでき、A/B/カスタム混合も即対応。案切替の実装を 2 時間→1 行変更で完結
 - **効率化：提案 PDF を `react-pdf` で「現状色/案A色/案B色/期待効果」テーブル自動レイアウト生成し資料作成を 60 分→8 分に**：Google Slides 手作業を JSON 入力→React コンポーネント→PDF 出力に集約し、案件ごとに変数だけ差し替える運用に。Before/After カラーサンプル埋め込みで意思決定も加速
 - **効率化：業界別「信頼 5 要素」（建設＝現場写真/職人/重機/資格証/創業年数 等）を Notion DB 化し業界選択でテンプレ自動展開する**：業界知識を脳内記憶からデータベース化すると企画ヒアリングの項目漏れがゼロになり、提案前にクライアントから「この要素が足りない」と言われる前に先回り。新人への引き継ぎも 5 分で完結
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 LPデザイン企画スペシャリストへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **LP Storytelling**: AIDA/PASONA/QUEST/StoryBrand 7-Part
+2. **CRO**: Hotjar/Optimizely/VWO 知見
+3. **Heuristic**: Nielsen 10 / Shneiderman 8原則
+4. **Psychological Triggers**: Cialdini 6原則 + 損失回避 + 社会的証明 + アンカリング
+5. **F-Pattern / Z-Pattern**: 視線誘導理論
+6. **Heatmap分析**: スクロール深度・クリック分布
+7. **Above the Fold最適化**: 3秒ルール
+8. **CTA Optimization**: 文言/色/サイズ/位置のA/Bテスト
+9. **Mobile-First Design**: SP70%流入前提
+10. **競合LP分析**: Wayback Machine / Visualping
+
+### 追加出力フォーマット v2.0
+```markdown
+## LPデザイン企画書 v2.0
+### Storytelling: AIDA / PASONA選択
+### Above the Fold (3秒ルール): Hero copy / Sub copy / CTA / Visual
+### F-Pattern視線誘導
+### CRO仮説: 仮説A/B
+### Cialdini原則適用: Scarcity/Social Proof
+### 業界別信頼5要素適用
+### CTA配置: Header/Mid/Footer 3点
+### Mobile-First: 60%以上のスクロール深度
+```
