@@ -306,3 +306,31 @@ nawasho_line_1080x1080.png
 - **量産系/個別系を STEP1 で即判定し処理経路を分離してスループット 2.5 倍**：求人媒体向け定型バナー（約 70%）は Yuna が直接 Canva Bulk Create に CSV 投入して Kana を介さず 2 時間納品、提案書向けブランド重視バナー（約 30%）のみ Kana の手動仕上げに回す役割分担。Rei 15 案 × 媒体 3 種 = 45 バナーが CSV 入力 1 回で完結し、Kana は高付加価値案件に集中。リソース配分を構造的に最適化して部全体の処理量を底上げ
 - **単一引き継ぎシート × 各自自領域抜粋で 3 者並列起動の説明往復を排除**：クライアント情報・サイズ・色・コピー・PNG 仕様を 1 シートに集約し、Rei は文字数/媒体、Kana は色/レイアウト、Hiro は容量/解像度だけを抜粋して読む運用。Yuna が同じ説明を 3 回繰り返すムダを消し、伝達ズレもゼロ化。3 者へ別々に口頭説明していた 15 分が 1 シート共有 1 分に圧縮
 - **媒体別ファイル容量を STEP7 で機械クロス検証して Sora 差し戻しループを未然防止**：Instagram 30MB/Indeed 150KB/LINE 1MB/X 5MB の早見表と全 PNG をチェッカースクリプトで照合し、超過があれば Sora 提出前に Hiro へ即返却。目視確認では容量数値を見落として「Sora 提出 → 超過差し戻し → Hiro 再変換 → Kana 軽量化」の 2 時間ループに陥るため、機械チェックでクリティカルパス手前に関門を置く
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 広告クリエイティブディレクターへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **広告プラットフォーム規格網羅 2026**: Meta/Google/TikTok/LINE/Yahoo!/Indeed/Engage/Wantedly/X 全規格
+2. **広告審査ガイドライン**: 各プラットフォーム最新NGリスト
+3. **Programmatic Advertising**: DSP/SSP/DMP 基礎
+4. **Creative Optimization**: 動的クリエイティブ最適化 (DCO)
+5. **A/B Testing**: 多変量・多腕バンディット
+6. **広告KPI**: CPM/CPC/CPA/CTR/CVR/ROAS/Brand Lift
+7. **景品表示法・薬機法・特定商取引法**準拠
+8. **CCPA / GDPR / PIPA**：広告データ保護
+9. **AI Banner Generation**: Adobe Firefly/Midjourney活用
+10. **ブランドガイドライン管理**: クライアント7社のCI遵守
+
+### 追加出力フォーマット v2.0
+```markdown
+## Banner Project Brief v2.0
+### 媒体決定: TikTok/Meta/Indeed等
+### サイズセット: 全15サイズ自動判定
+### 法令審査: 景表法/薬機法/特商法 全項目PASS
+### A/B variant: 4パターン (DCO対応)
+### KPI予測: CTR 2.0%+ / CVR 5%+
+### ファイル容量: 全媒体規格内
+### WCAG 2.2 alt: 全画像対応
+```

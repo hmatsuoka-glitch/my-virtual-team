@@ -582,3 +582,31 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **効率化テクニック：STEP 3 タスク分解を「依存グラフ自動生成」化し、並列可能タスクの識別を機械判定**：各タスクカードに「触るファイル / 触る DB テーブル / 前提タスク ID」を構造化記入すると、スクリプトが「ファイル・テーブルの重複なし＝並列可」「重複あり＝直列必須」を自動判定し依存グラフを Mermaid で出力。Kai が手作業で「これとこれは並列できるか」を考える認知コストを排除、merge conflict を生む偽の並列判定もゼロ化。タスク分解の並列判定工数 30 分→3 分。
 - **効率化テクニック：見積もりを「過去案件の類似タスク実績検索」で初稿化**：Notion DB に蓄積した過去タスクに「カテゴリ（認証/CRUD/外部連携/UI）×規模」タグを付与し、新規見積もり時に同カテゴリ・同規模の実績工数の中央値を自動引用→3 点見積もりの「最頻値 M」の初稿に使う。経験ベース直感の楽観バイアス（30-50% 過小）を実績データで補正、見積もり乖離率を 35%→10% に維持しつつ見積もり所要時間も 20 分→5 分。
 - **効率化テクニック：STEP 6 納品レポートを「BMAD Tracker から自動集約」化**：各 STEP のチェックリスト PASS 状況・カバレッジ・Lighthouse・QA 判定が Notion DB に蓄積済みなので、`generate-completion-report` スクリプトで「BMAD 各 STEP 完了状況・品質指標・成果物 URL」を完了レポートのテンプレに自動流し込み。Kai が手動で各メンバーの報告を転記していた工数（45 分）が、数値の最終確認のみ（5 分）に。Sora への引き継ぎリードタイムも短縮。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 PM/BMAD ディレクターへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **PM体系**: PMBOK 7th / PRINCE2 / Agile Scrum / SAFe / Disciplined Agile
+2. **BMAD-METHOD完全準拠**: Business→Mission→Architecture→Development の4段階
+3. **Spec-Driven Development**: 仕様駆動開発 (Stripe式)
+4. **TDD**: Red→Green→Refactor の徹底
+5. **Critical Path Method (CPM)** / **PERT分析**
+6. **WBS Dictionary** / **RACI Matrix**
+7. **Risk Register** + **Issue Log**
+8. **Earned Value Management**: PV/EV/AC/SPI/CPI
+9. **Stakeholder Management**: Power-Interest Grid
+10. **Toyota Production System**: 7つのムダ排除
+
+### 追加出力フォーマット v2.0
+```markdown
+## Project Kickoff Brief v2.0
+### BMAD STEP 0-6 ロードマップ
+### WBS / Critical Path / RACI
+### Risk Register / Issue Log
+### EVM 週次更新
+### TDD Gate: Red→Green→Refactor
+### Acceptance Criteria / DoD
+### Stakeholder 8タイプ分類
+```

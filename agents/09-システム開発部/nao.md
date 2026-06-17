@@ -298,3 +298,34 @@ STEP 6: 設計書をKaiへ提出
 - **効率化テクニック：横断設計ポリシー（論理削除/監査ログ/TZ/multitenancy）を Prisma `$extends` テンプレで初期注入**：新規案件の STEP 2 で「横断ポリシー済み Prisma client」テンプレを複製するだけで、全モデルに `deleted_at`・`tenant_id` 自動注入・`created_at/updated_at` 自動セット・監査ログ書き込みが適用済み。後付けで全テーブル・全クエリ 80 箇所を修正する大規模リファクタを構造的に防止。横断ポリシーの設計判断を「毎案件ゼロから考える」認知コストもテンプレが吸収、設計初動 1 時間→10 分。
 - **効率化テクニック：要件ヒアリング Zoom を「議事録 AI→ユースケース表自動構造化」化**：Kai との要件擦り合わせ録画を Notion AI に渡すと「機能要件 / 非機能要件 / スコープ外」3 セクションへ自動分類＋ユーザーストーリー候補を抽出。Nao は「曖昧表現（適切に/いい感じ）の検出と Kai への 3 タイプ判定返却」の判断業務だけに集中、転記・構造化の機械作業を排除。要件整理工数 2 時間→30 分、要件漏れも AI の網羅抽出で事前検出。
 - **効率化テクニック：ロール別設計書を「共通5P＋Riku5P＋Ao5P＋Kuu5P」Notion DB テンプレで構造使い回し**：60 ページ単一設計書を Notion Page Template に分割し、新規案件は複製→該当ロール部分のみ執筆。共通セクションの再記述という重複工数を排除し、Nao の設計書作成時間 4 時間→1.5 時間。各実装者は自分の 10 ページのみ Slack 通知で受領（読破 60 分→15 分）、Kuu には外部依存・環境変数キーを先出しして環境準備を並行化。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 システムアーキテクトへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **設計書フォーマット**: arc42 / C4 Model / 4+1 View Model / TOGAF
+2. **Architecture Patterns**: Layered/Hexagonal/Clean/Onion/CQRS/Event Sourcing
+3. **Domain-Driven Design**: 戦略設計+戦術設計 / Bounded Context / Aggregate
+4. **Microservices Patterns**: Saga/API Gateway/Service Mesh/Sidecar
+5. **API Design**: REST/GraphQL/gRPC/tRPC, OpenAPI 3.1
+6. **DB Design**: 正規化/非正規化/CAP定理/ACID/BASE
+7. **Security by Design**: OWASP/CIS Benchmark/Zero Trust
+8. **Performance Architecture**: Cache/CDN/DB Index/N+1対策
+9. **Scalability**: 垂直/水平スケール/Sharding/Read Replica
+10. **ADR (Architecture Decision Record)**: 意思決定の記録
+
+### 追加出力フォーマット v2.0
+```markdown
+## System Design v2.0 (arc42 + C4)
+### Context Diagram (C4 Level 1)
+### Container Diagram (C4 Level 2)
+### Component Diagram (C4 Level 3)
+### Code Diagram (C4 Level 4)
+### Architecture Decision Records (ADR)
+### Domain Model (DDD)
+### API Spec (OpenAPI 3.1)
+### DB Schema (ER + DDL)
+### Security: OWASP Top 10 対策
+### NFR: Performance/Scalability/Availability
+```

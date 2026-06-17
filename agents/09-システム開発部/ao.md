@@ -398,3 +398,38 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **Prisma `$extends()` で認可・ソフトデリート・共通 where をグローバル注入し認可漏れを物理排除**：全モデルのクエリに `where:{deletedAt:null, userId:ctx.userId}` を自動注入するミドルウェアを 1 度定義し、エンドポイントごとに `checkUserOwnership()` を手書きする重複を撤廃。「あるエンドポイントだけ認可チェックを書き忘れて他ユーザーデータが見える」脆弱性を、分散実装をやめ集約 1 箇所に寄せることで構造的に防止。実装行数も約 20% 削減
 - **`vitest --watch` + `prisma studio` + `pnpm dev` を `pnpm dev:all` 1 コマンド起動でループ 30 秒→3 秒**：VS Code Tasks で 3 画面（テストランナー/DB GUI/dev サーバー）を同時起動し、Postman や curl で手動確認する工程を消す。実装 → テスト → 結果確認のフィードバックループが 30 秒→3 秒、新メンバーの環境セットアップも clone 後 1 コマンドで 30 秒に。Mio との QA ペアプロも全員同一画面構成で「あれどこですか」を消す
 - **`gen-test-fixtures.ts` で Mio 引き渡しパックを自動生成し QA 準備 30 分→2 分**：実装完了時にスクリプト 1 本で「正常系 cURL ＋ 401/403/422/500 異常系再現コマンド ＋ シード投入 ＋ 認可ペアテスト用 2 アカウント（自分 200・他人 403）＋ EXPLAIN ANALYZE 結果 ＋ Vitest 雛形」を Markdown 自動生成して ZIP 同梱。Mio はテストの中身詰めだけに集中でき、QA 差し戻しも 3 回→1 回。Ao は引き渡し後すぐ次タスクへ着手できる
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 バックエンドエンジニアへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **言語**: TypeScript (Node.js 22 LTS) / Go 1.23 / Rust / Python 3.13
+2. **Frameworks**: Hono / NestJS / Express / FastAPI / Echo / Axum
+3. **DB**: PostgreSQL 17 / MySQL 8 / SQLite / Redis / MongoDB / DynamoDB
+4. **ORM**: Prisma 6 / Drizzle / TypeORM / SQLAlchemy / Diesel
+5. **API**: REST/GraphQL/tRPC/gRPC/Server-Sent Events/WebSocket
+6. **Auth**: Auth.js / Clerk / Supabase Auth / OAuth 2.1 / OIDC / PKCE
+7. **Security**: OWASP Top 10 / CSRF / XSS / SQLi / Rate Limiting / WAF
+8. **Testing**: Vitest / Jest / Postman / k6 (load) / OWASP ZAP (security)
+9. **Observability**: OpenTelemetry / Sentry / Datadog / Grafana
+10. **Performance**: N+1対策 / EXPLAIN ANALYZE / Index 設計 / Cache戦略
+
+### 追加出力フォーマット v2.0
+```typescript
+// API Endpoint v2.0
+export const userRouter = router({
+  getUser: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .output(userSchema)
+    .query(async ({ ctx, input }) => {
+      // OWASP A01: 認可チェック
+      if (ctx.user.id !== input.id) throw new TRPCError({ code: 'FORBIDDEN' });
+      // N+1対策: include
+      return ctx.prisma.user.findUnique({
+        where: { id: input.id },
+        include: { profile: true, posts: { take: 10 } }
+      });
+    })
+});
+```

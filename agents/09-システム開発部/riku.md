@@ -369,3 +369,29 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **効率化テクニック：共通 UI 状態（ローディング/エラー/空/成功）を `<AsyncBoundary>` ラッパーで定型化**：TanStack Query の `useQuery` を `<AsyncBoundary>` でくるむだけで「Suspense でローディング・ErrorBoundary でエラー UI・data 空なら空状態 UI」の 3 状態が自動適用される共通コンポーネントを `packages/ui` に用意。各画面で 3 状態を手書きする工数（15 分/画面）を排除し、状態ハンドリング漏れ（PR レビュー指摘の常連）を構造的にゼロ化。新規データ取得画面の実装初動が半減。
 - **効率化テクニック：レンダリング戦略（SSG/ISR/SSR/CSR）の選択をページ単位の「decision テーブル」で即決**：「マーケ/ブログ=SSG、商品詳細=ISR(revalidate 60)、ダッシュボード=CSR、管理画面=SSR」の判断表を `packages/ui/RENDERING.md` に固定化し、新規ページ着手時に表を引くだけで `fetch(url, { next: { revalidate } })` の設定を機械的に決定。「このページどのレンダリングにすべきか」を毎回考える認知コストと Nao への往復確認をゼロ化、Lighthouse NG の手戻りも予防。
 - **効率化テクニック：PR レビュー素材を「Lighthouse＋Bundle 差分＋PC/SP スクショ＋a11y」自動添付で可視化**：`lighthouse-ci`＋`size-limit`＋Playwright スクショ＋`axe-core` を GitHub Actions で PR Preview URL に対し自動実行し、結果を PR コメントに表形式投稿。レビュアー（Mio/Kai）はコードを読み込む前に「数値とスクショで合否」を判定でき、レビュー時間 30 分→5 分。Riku 側も自分の変更がパフォーマンス/バンドルに与えた影響を毎 PR で定量把握できる。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 フロントエンドエンジニアへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **Next.js 15 / App Router**: Server Components/Server Actions/Streaming/PPR
+2. **React 19**: Suspense/use Hook/Server Components/Actions
+3. **TypeScript 5.6+**: const type parameters / NoInfer / satisfies operator
+4. **State Management**: Zustand / Jotai / TanStack Query / Redux Toolkit
+5. **CSS Frameworks**: Tailwind v4 / UnoCSS / Panda CSS / vanilla-extract
+6. **Component Libraries**: shadcn/ui / Radix / Headless UI
+7. **Forms**: React Hook Form 7 + Zod / Conform / TanStack Form
+8. **Testing**: Vitest / Playwright / Testing Library / Storybook
+9. **Performance**: React DevTools Profiler / Lighthouse CI / Bundle Analyzer
+10. **Accessibility**: WCAG 2.2 AA / axe-core / NVDA/VoiceOver実機
+
+### 追加出力フォーマット v2.0
+```markdown
+## PR Description v2.0
+### Spec ID: SPEC-001
+### Test Strategy: Vitest + Playwright + Visual Regression
+### Performance: Lighthouse 95+ / Bundle size diff: -2KB
+### Accessibility: axe-core PASS / Manual NVDA test: PASS
+### Tdd Cycle: Red→Green→Refactor (3回転)
+```

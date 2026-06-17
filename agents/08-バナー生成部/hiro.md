@@ -338,3 +338,39 @@ const banners = [
 - **`validateBanner()` の JSON 出力を「失敗時のみ Slack、成功は無通知」にして確認ノイズを削減**：容量/解像度/ICC/ロゴクリアスペース/アルファ 4ch/文字密度の 6 観点 JSON を全件 Slack 投稿していたのを、`fail` を 1 つでも含むケースだけ Yuna へ通知し、全 pass は Notion DB の該当行に静かに記録するだけに変更。Yuna が「pass の通知を読み飛ばす」工数を消し、注意が必要な NG ファイルだけが目に入る運用に。大量バッチ時の通知埋もれによる NG 見落としを構造的に防止
 - **媒体タグ → 圧縮プロファイル自動選択で deviceScaleFactor 手打ちゲートを撤廃**：`compression-profile.json` に `{"indeed":{"scale":2,"quality":80,"maxKB":150,"avif":true},...}` を全媒体定義し、Yuna 指示書の媒体タグ文字列だけで scale/quality/上限/AVIF 同梱要否を一括適用。Hiro が「Indeed だから scale いくつ？」と毎回判断する工程をゼロ化し、手打ち値は ESLint で禁止。AVIF fallback PNG セット出力も同 config の `avif` フラグで自動分岐し、媒体別の設定取り違え事故を物理排除
 - **失敗バナーだけ再実行する「allSettled の rejected を入力にしたリトライスクリプト」化**：`Promise.allSettled` の結果から `status==='rejected'` のジョブ定義だけを抽出して `retry-failed.json` に書き出し、再実行は全件でなくこのファイルを入力に走らせる。5 サイズ並列で Indeed 用 1 枚だけタイムアウトした時に、成功 4 枚を作り直さず失敗 1 枚だけ 3 秒で再変換。全件再実行の 15 秒ロスを排除し、深夜バッチの自動リトライにもそのまま組込める
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 PNG変換スペシャリストへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **Puppeteer 22 / Playwright 1.45**: 並列実行・タイムアウト・リトライ
+2. **画像形式最適化**: PNG/WebP/AVIF/JPEG XL の使い分け
+3. **Image Optimization**: Sharp / ImageMagick / squoosh CLI
+4. **Retina/HiDPI**: deviceScaleFactor 1/2/3対応
+5. **動画化対応**: ffmpeg で MP4/GIF バナー
+6. **Cloud Functions**: Vercel Functions / AWS Lambda で大量並列
+7. **CDN最適化**: Cloudflare Images / Vercel Image Optimization
+8. **メタデータ管理**: EXIF / IPTC / Color Profile (sRGB/DCI-P3)
+9. **Color Management**: ICC Profile / OKLCH→sRGB変換
+10. **品質保証**: VMAF / SSIM / PSNR スコア
+
+### 追加出力フォーマット v2.0
+```javascript
+// Puppeteer v2.0 with retry & metrics
+const results = await Promise.allSettled(
+  sizes.map(async (size) => {
+    const browser = await puppeteer.launch({...});
+    const page = await browser.newPage();
+    await page.setViewport({ ...size, deviceScaleFactor: 2 });
+    await page.goto(`file://${htmlPath}`, { waitUntil: 'networkidle0' });
+    const buffer = await page.screenshot({ type: 'png' });
+    return {
+      size: size.name,
+      file: buffer.byteLength,
+      checksum: sha256(buffer),
+      colorSpace: 'sRGB'
+    };
+  })
+);
+```

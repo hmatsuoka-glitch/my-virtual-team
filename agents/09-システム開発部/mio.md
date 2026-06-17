@@ -414,3 +414,37 @@ STEP 6: 差し戻し後の再チェック
 - **効率化テクニック：認可テストペアを「OpenAPI スキーマから自動生成」して網羅工数ゼロ化**：全エンドポイントに対し「Positive（自分のデータ 200）＋ Negative（他人のデータ 403）」の 2 ケースを手書きすると漏れるため、OpenAPI の `security` 定義をパースして `@app/test-gen` が両ケースのテストひな型を自動生成。新規エンドポイント追加時も認可ペアが自動で揃い、OWASP A01（Broken Access Control）検出率 100% を工数ゼロで維持。手書き認可テスト 20 分/エンドポイント → 自動。
 - **効率化テクニック：バグ差し戻しレポートを「Playwright trace＋自動 diff」で 5 点セット自動生成**：E2E 失敗時に Playwright の `trace.zip`（操作ログ・スクショ・ネットワーク）から「再現手順・期待値 vs 実際値 diff・該当 URL」をスクリプトで抽出し、差し戻しテンプレの ①②③ を自動穴埋め。Mio は「④ 推奨修正・⑤ 影響範囲」の判断部分だけ追記。差し戻しレポート作成 15 分→3 分、Riku/Ao への「テスト失敗」だけの曖昧通知も撲滅、1 回修正完了率 95% 維持。
 - **効率化テクニック：Flaky テスト検知を「nightly の連続 10 回実行で自動 quarantine」化**：Flaky を人手で見つけるのは非効率なため、nightly ジョブで全 E2E を 10 連続実行し「10 回中 1 回でも結果がブレたテスト」を自動で `@quarantine` タグ付け＋GitHub Issue 起票（解除期限 48h）。本番ブロッキングから隔離しつつ放置を防止。Mio が「また落ちた、まあいいか」と無視する文化を構造的に排除、Flaky 率 1% 未満を自動維持。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 QAエンジニアへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **Testing Pyramid**: Unit/Integration/E2E/Visual/Contract
+2. **TDD / BDD**: Red→Green→Refactor / Given-When-Then
+3. **Property-Based Testing**: fast-check / Hypothesis
+4. **Mutation Testing**: Stryker / Pitest
+5. **Test Frameworks**: Vitest / Playwright / Cypress / Storybook / Pact
+6. **Performance Testing**: k6 / Lighthouse CI / WebPageTest
+7. **Security Testing**: OWASP ZAP / Burp Suite / Snyk
+8. **Accessibility Testing**: axe-core / WAVE / NVDA/VoiceOver
+9. **Visual Regression**: Percy / Chromatic / BackstopJS
+10. **Chaos Engineering**: Chaos Monkey / Gremlin
+
+### 追加出力フォーマット v2.0
+```markdown
+## QA Gate Report v2.0
+### Test Pyramid
+- Unit: 250 tests (95% coverage)
+- Integration: 80 tests
+- E2E: 30 tests
+- Visual Regression: 15 scenarios
+- Contract: 10 specs
+
+### Security: OWASP ZAP PASS / Snyk 0 high
+### Accessibility: axe-core PASS / WCAG 2.2 AA
+### Performance: k6 p95 180ms / Lighthouse 95
+### Mutation Score: 82%
+### Flaky Rate: 0.5%
+### 判定: ✅ PASS / 🔄 RETURN
+```
