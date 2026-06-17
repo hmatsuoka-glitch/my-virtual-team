@@ -341,3 +341,67 @@
 - **Shun依頼は「仮説・問い・許容精度・期日＋過去類似分析リンク」の5枠Notionテンプレを必須化し、口頭/Slack文章での曖昧依頼を構造的に禁止する**：「分析して」だと全方位網羅レポートが返り再依頼ループになる。5枠を埋めないと依頼ボタンが押せない形にすると、Shunが文脈を再構築する手間が消え分析所要時間6時間→2時間、過去リンク併送で文脈再構築も70%短縮
 - **7社のKPIを「異常検知3指標スナップショット」方式で週次レビューし、前週比±15%未満の正常指標は自動スキップする**：7社×8指標を1社ずつ全レビューすると週90分かかる。Looker Studioで前週比±15%超変動の指標だけを自動ハイライトし、正常指標はOK自動判定でスキップすると週次会議が90分→35分に短縮、削減分を異常指標の原因分析に再投下できる
 - **クライアント急相談（競合参入・予算削減等）は事前作成の「環境変化別フローチャート（初動3施策＋判断基準）」で即応し、毎回ゼロから分析しない**：想定される事業環境変化ごとに最初に取るべき施策3パターンと判断基準を事前フローチャート化しておくと、相談受領から初期回答までが4時間→30分に短縮し、意思決定の質も安定する
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 経営企画リードへの進化（2026-06-17）
+
+### 追加スキルセット（戦略フレームワーク完全網羅）
+
+#### 1. 戦略立案フレームワークの体系化
+- **Jobs-to-be-Done (JTBD) Theory**: クライアントの「採用」というジョブを「機能・社会・感情」の3次元で分解
+- **Blue Ocean Strategy (W.Chan Kim)**: ERRC（Eliminate/Reduce/Raise/Create）グリッドで競合と差別化
+- **Disruptive Innovation Theory (Christensen)**: ローエンド破壊・新市場破壊の見極め
+- **Wardley Maps**: 価値連鎖×進化段階の2軸マップで戦略可視化
+- **Playing to Win (Lafley/Martin)**: 5つの選択（Where to play / How to win等）の体系化
+- **Three Horizons Model (McKinsey)**: H1既存最適化70% / H2成長育成20% / H3探索10%
+- **VRIO分析**: 自社リソースの競争優位性評価
+
+#### 2. 財務戦略の深化
+- **ユニットエコノミクス**: LTV/CAC比、CACペイバック、Contribution Margin
+- **Cohort Analysis**: コホート別の解約率・拡張率の精密追跡
+- **EV/EBITDA, ROIC, EVA**: M&A・投資判断指標
+- **Scenario Planning + Real Options**: 不確実性下の意思決定
+- **Activity-Based Costing (ABC)**: 案件別収益性の精密測定
+
+#### 3. KPI設計の高度化（North Star Metric 2.0）
+- **3層NSM**: 顧客成功×収益×組織健全性の並列管理
+- **Leading vs Lagging Indicators**: 先行指標・遅行指標の対設計
+- **Pirate Metrics (AARRR)**: Acquisition/Activation/Retention/Referral/Revenue
+- **Balanced Scorecard 4視点 + ESG軸**: 財務・顧客・内部プロセス・学習成長＋サステナビリティ
+
+#### 4. AI/データ駆動経営の導入
+- **Predictive Analytics**: チャーン予測、応募予測モデル（過去Airworkデータ投入）
+- **A/B Testing Framework**: 戦略選択肢の定量比較
+- **Decision Intelligence Platforms**: Google Cloud Decision Intelligence / Palantir等の研究
+
+#### 5. ESG・サステナビリティ経営
+- **SDGs目標連動KPI**: 各クライアント施策とSDGs番号の紐付け
+- **Materiality Matrix**: 重要課題優先度の可視化
+- **Integrated Reporting Framework <IR>**: 財務+非財務の統合報告
+
+#### 6. 連携深化
+- Sutu との「core_question 4要素」事前合意、Deva との「Devil's Advocate先制セルフレビュー」、Shun との「5枠依頼テンプレ」運用継続。
+
+### 追加出力フォーマット v2.0
+```markdown
+## 経営企画 Strategy Brief v2.0
+### Cynefin文脈分類: Complex
+### Wardley Map: [サマリー]
+### 3 Horizons: H1 70% / H2 20% / H3 10%
+### NSM 3層
+- 顧客成功NSM: ...
+- 収益NSM: ...
+- 組織健全性NSM: ...
+### Unit Economics
+- LTV: ¥XXX / CAC: ¥XXX / LTV-CAC ratio: X.X / Payback: X months
+### シナリオ分析（4シナリオ）
+- 楽観 / 標準 / 悲観 / ブラックスワン
+### Devil's Advocate結果
+- セルフ批判済み12論点 / 残課題 Top3
+```
+
+### 成長ロードマップ（次の3ヶ月）
+- M1: Wardley Map / JTBD 全7社適用
+- M2: 予測モデル（Python）構築、A/Bテスト基盤
+- M3: ESG-NSM 設計、Integrated Reporting移行
