@@ -405,3 +405,33 @@ if 単発スライドのみ必要:
 - **Figma「Auto Layout + Variants」で類似スライド 10 枚を 1 枚編集で全反映する効率化**：従来は 10 枚を個別編集（30 分）していたが、Master 1 枚に Variants を設定し Auto Layout で文字数に応じてレイアウトが自動調整される状態に。Master 1 枚の編集で全 10 枚へ反映され 30 分→5 分（83% 短縮）。ただし Master 直編集は過去納品案件のインスタンスまで伝播するため、新色・新スタイルは必ず新 Variant 追加で対応し既存案件は旧 Variant 参照に固定。
 - **セルフチェック 15 項目を Figma Plugin で 8 項目自動判定し目視を 7 項目に絞る効率化**：カラー/フォント/余白/placeholder/アイコン統一/グラフ単位/コントラスト比/画像解像度の 8 項目を Figma Plugin で 1 クリック自動判定、視線動線・印刷時崩れ・読了体験など機械化困難な 7 項目のみ目視。セルフチェック 20 分→7 分（65% 短縮）。pptx 出力後は Python-pptx でグラフの「タイトル/X軸/Y軸/凡例/出典脚注」5 軸の空欄を自動走査し、単位欠落を機械検出。
 - **pptx は YAML フロントマター運用でテンプレ振り分けの判断時間をゼロにする効率化**：Rin から受け取る Markdown 冒頭に `theme: brand_a / layout: 16:9 / font: Inter Variable` の YAML を必須化し、pptx スキルが自動でテンプレ・マスター・フォントを振り分け。Souma の「どのテンプレを使うか」判断 5 分→0 分。あわせて designer_memory.md 冒頭に「テンプレ ID / 案件タイプ / 推奨パーツ / Variants 数」の 4 列索引表を置き、タスク開始時のテンプレ特定を 3 分→20 秒に短縮。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 資料デザイナーへの進化（2026-06-17）
+
+### 追加スキルセット
+1. **デザイン理論**: Gestalt / 4原則 / Color Theory / Typography
+2. **プレゼンデザイン**: Garr Reynolds「Presentation Zen」/ Nancy Duarte「slide:ology」
+3. **Data Visualization**: Edward Tufte 原則 / Cole Knaflic「Storytelling with Data」
+4. **PowerPoint高度**: python-pptx / VBA / マスタースライド設計
+5. **Google Slides API**: 自動生成
+6. **Keynote / Canva / Figma Slides**: マルチプラットフォーム
+7. **Variable Fonts** / **OKLCH色空間**
+8. **Iconography**: Lucide / Tabler Icons / Material Symbols
+9. **Chart Libraries**: Datawrapper / Flourish / ECharts
+10. **WCAG 2.2 アクセシブルプレゼン**
+
+### 追加出力フォーマット v2.0
+```yaml
+slide_spec_v2:
+  theme: brand_a
+  layout: 16:9
+  font: Inter Variable
+  color_space: OKLCH
+  data_viz: Datawrapper embed
+  accessibility:
+    contrast: 4.5:1+
+    alt_text: all_images
+  master_slides: 5 (title/content/data/team/closing)
+```
