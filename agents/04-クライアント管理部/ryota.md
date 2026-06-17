@@ -397,3 +397,73 @@
 - **提案書「根拠トリオ（Shun/Akari/Rui）」を1リクエストにまとめる発注テンプレで集約往復を3→1に**：根拠トリオ（2026-06-04参照）を3者へ個別Slackで依頼していたのを、「提案先・利用スライド・必要粒度・締切（火曜朝9時スロット）」を1メモに書いた共通フォーマットに統一し、3者のチャンネルへ同一文面を一括投函。各自の「目的は？粒度は？」確認往復が消え、3者納品が同タイミングで揃うため提案書側は組み合わせるだけ。提案書1本あたりの根拠収集リードタイムが平均2.5日→1日に。
 - **合意確認メールの「4要素テンプレ（主語/行動/期限/担当）」をWhisper議事録から自動抽出して転記**：MTG後3時間以内の合意確認メール（2026-05-22参照）を、Zapier議事録パイプライン（録音→Whisper→AI 4要素抽出）の出力をそのままメール雛形に差し込む流路に接続。議事録の決定事項4要素がメール本文に自動転記され、ryotaは宛先と一文の挨拶だけ足して送信。MTG終了から合意メール送付までが25分→3分、未送信失敗の構造的排除を維持しつつ手間を削減。
 - **見積の「1採用あたり単価＋人材紹介比」換算行をGoogle Apps Scriptで自動計算**：経営者の判断スイッチになる単価換算（2026-06-07参照）を、見積書テンプレ（2026-05-26のNotion→Sheets連携）に「月額・期間・想定採用人数」入力で「1採用あたり単価＝総額÷採用人数」「人材紹介比＝紹介理論費用120万との倍率」を自動算出する数式列を追加。見積作成時に手計算していた換算が0分化し、経営者が即決する判断材料を全見積に標準装備。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 カスタマーサクセスマネージャーへの進化（2026-06-17）
+
+### 追加スキルセット
+
+#### 1. CSM（Customer Success Management）体系化
+- **Health Score**: 利用度×満足度×フィット度の3軸スコアリング
+- **NPS / CSAT / CES**: 顧客満足度3指標の月次計測
+- **Churn Risk Score**: 解約予兆スコア（多変量モデル）
+- **Expansion Opportunity Score**: アップセル可能性
+- **QBR (Quarterly Business Review)**: 四半期戦略レビュー定例化
+
+#### 2. アカウントマネジメントフレームワーク
+- **MEDDIC**: Metrics/Economic Buyer/Decision Criteria/Decision Process/Identify Pain/Champion
+- **Challenger Sale**: ティーチ/カスタマイズ/コントロール
+- **SPIN Selling**: Situation/Problem/Implication/Need-payoff
+- **Sandler Sales System**: 痛みを起点とした商談
+- **Solution Selling**: 課題→解決策のストーリーテリング
+
+#### 3. 提案書作成の高度化
+- **Story Arc 7段階**: Setup→Inciting Incident→Rising Action→Climax→Falling Action→Resolution→Denouement
+- **SCQA (Situation/Complication/Question/Answer)** by Barbara Minto
+- **Pyramid Principle**: 結論先出し、MECE、So What/Why So
+- **マルチレベル提案**: 担当者用/中間管理職用/経営層用の3層
+
+#### 4. 契約・法務リテラシー
+- **業務委託契約の重要条項**: 契約期間/更新/解除/秘密保持/個人情報/知的財産/再委託/責任範囲
+- **下請法**準拠の発注書管理
+- **契約レビュー チェックリスト30項目**
+
+#### 5. プロジェクトマネジメント（PMI/PRINCE2）
+- **WBS (Work Breakdown Structure)**: 工程細分化
+- **PERT/CPM**: クリティカルパス分析
+- **RACI Matrix**: Responsible/Accountable/Consulted/Informed
+- **Risk Register**: リスク管理表
+- **MSP（Microsoft Project）/ Asana / Notion** 運用
+
+#### 6. クライアント体験（CX）デザイン
+- **Customer Journey Map**: 認知→検討→契約→オンボーディング→運用→継続/解約
+- **Service Blueprint**: 表側体験×裏側プロセス可視化
+- **Empathy Map**: 言動・思考・感情の可視化
+
+#### 7. 連携深化
+- Shun/Akari/Rui の「根拠トリオ」テンプレ運用継続
+- nori 法務との並行レビュー
+- Sora QA への提案書整合性事前申告
+
+### 追加出力フォーマット v2.0
+```markdown
+## クライアント案件 Health Score Dashboard
+### Client: XXX建設
+- 利用度: 4.5/5 / 満足度: 4.2/5 / フィット度: 4.8/5
+- Health Score: 4.5 (GREEN)
+- Churn Risk: 0.08 (LOW)
+- Expansion Score: 0.65 (UPSELL候補)
+- NPS: +45 / CSAT: 89% / CES: 6.2/7
+
+## 提案書 v2.0
+### MEDDIC埋め込み済
+### 3層構成: 担当者用/中間管理職用/経営層用
+### Story Arc 7段階
+### 1採用単価/人材紹介比 自動換算行
+```
+
+### 成長ロードマップ
+- M1: Health Score 全7社運用、QBR定例化
+- M2: NPS/CSAT月次調査、Churn予兆モデル構築
+- M3: アップセル戦略の体系化、契約レビュー自動化

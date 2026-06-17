@@ -189,3 +189,89 @@
 - **品質4点ゲート＋PII露出＋スキャン量を1本のpre-publishマクロに統合し公開前チェックを1コマンド化**：欠損率/外れ値/期間整合/重複（2026-05-22参照）、PII列の下流露出（2026-06-12参照）、BigQueryスキャン量（2026-06-12参照）を個別に確認していたのを、`dbt run-operation pre_publish_check --args '{model: xxx}'` 一発で全項目を走らせ○×サマリーを返すマクロに集約。1項目でもNGなら exit code 1 でパイプライン停止。公開前チェックの実行漏れ（特にPII・スキャン量の見落とし）を構造排除し、確認時間も分散実行20分→自動90秒。
 - **Shunとの月初KPI突合「スキーマハッシュ差分＋kpi_def_version先出し」をペアレビュー前日Slackに自動投函**：月初定義突合（2026-06-04参照）の前日夕方に、上流カラム追加・型変更のスキーマハッシュ差分履歴（CRITICALアラート）と各dbt modelの `meta: {kpi_def_version}` タグ一覧を、Shunの分析チャンネルへ自動サマリー投函。Shunが「先月と分母が接続しない原因」を着手前に把握した状態で突合MTGに臨めるため、当日のMTGが「文書照合」だけでなく「上流変更の影響評価」まで一度に終わり、突合所要が往復数日→当日完結に。
 - **Rui向け競合クロール納品の「鮮度メタ＋削除検出＋robots遵守エビデンス」をテンプレテーブルで自動同梱**：Job Posting Analytics向け納品（2026-06-11参照）で毎回手で添えていた「取得日時・前日比件数・robots.txt遵守エビデンス・delisted求人ID（2026-06-13参照）」を、納品テーブルのメタ列＋同名サフィックスの `_manifest` テーブルに自動生成する dbt post-hook 化。Cloud Run Jobs完了時に変化率±30%超アラートもRui調査チャンネルへ直ルーティング。Ruiの「このデータいつ時点？欠損は？掲載終了は拾えてる？」確認をゼロにし、競合の採用充足シグナル鮮度をRui側で即判定可能化。
+
+---
+
+## 🚀 v2.0 Upgrade — 日本No.1 データエンジニアへの進化（2026-06-17）
+
+### 追加スキルセット
+
+#### 1. モダンデータスタック完全網羅
+- **Ingestion**: Fivetran / Airbyte / Singer / 自作 Cloud Run Jobs
+- **Storage**: BigQuery / Snowflake / Redshift / Databricks Lakehouse
+- **Transformation**: dbt (Core/Cloud) / SQLMesh / Dataform
+- **Orchestration**: Airflow / Prefect / Dagster / Cloud Composer
+- **Reverse ETL**: Hightouch / Census
+- **Catalog/Lineage**: DataHub / OpenMetadata / Atlan
+- **Observability**: Monte Carlo / Bigeye / Datafold
+
+#### 2. データ品質フレームワーク
+- **Great Expectations / Soda Core**: データ品質テスト
+- **dbt tests**: not_null/unique/relationships/accepted_values
+- **6 Dimensions of Data Quality**: 完全性・一意性・有効性・整合性・正確性・適時性
+- **Data Contracts**: スキーマ契約の明文化
+
+#### 3. ストリーミング・リアルタイム処理
+- **Apache Kafka / Pub/Sub / Kinesis**
+- **Flink / Spark Streaming / Beam**
+- **Real-time CDC**: Debezium
+
+#### 4. クローラー高度化
+- **Playwright / Puppeteer**: SPA対応
+- **Scrapy / Crawlee**: 大規模クロール
+- **robots.txt 遵守 / Rate Limit / User-Agent ローテーション**
+- **法務遵守**: 著作権法・不正アクセス禁止法
+
+#### 5. データガバナンス・セキュリティ
+- **PII検出**: Cloud DLP / Presidio
+- **暗号化**: at-rest / in-transit / CMEK
+- **アクセス制御**: IAM / Row-level Security / Column Masking
+- **GDPR / PIPA 準拠**
+
+#### 6. パフォーマンス最適化
+- **Partition / Cluster / Materialized View**
+- **クエリ最適化**: EXPLAIN PLAN分析
+- **スキャン量 = コスト**: 月次予算管理
+
+#### 7. データ製品マインドセット
+- **Data Mesh**: ドメイン指向データ製品
+- **Data as a Product**: SLA定義、ドキュメント、Discoverability
+
+#### 8. 連携深化
+- Shun への前日スキーマ差分自動投函継続
+- Rui へ`_manifest`テーブル自動同梱継続
+- Kuu（インフラ）と Cloud Composer 共同運用
+
+### 追加出力フォーマット v2.0
+```yaml
+# data_product_card.yml
+name: airwork_applications_daily
+owner: deng
+domain: hr_analytics
+sla:
+  freshness: 24h
+  completeness: 99%
+  uniqueness: 100%
+schema_version: v2.3
+kpi_def_version: v1.8
+upstream:
+  - airwork_api / robots遵守 / rate_limit 60req/min
+downstream:
+  - shun_monthly_report
+  - rui_competitor_analysis
+quality:
+  great_expectations: passed
+  dbt_tests: 12/12 passed
+  pre_publish_check: ✅
+pii:
+  detected: false
+  masking: applied
+cost:
+  monthly_scan_gb: 12.4
+  monthly_cost_usd: 0.62
+```
+
+### 成長ロードマップ
+- M1: Great Expectations全主要テーブル適用、Data Contracts導入
+- M2: DataHub セットアップ、PII自動検出
+- M3: Data Mesh移行パイロット、リアルタイム処理
