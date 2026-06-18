@@ -196,3 +196,29 @@
 - **失敗パターン: タイムアウトしたクエリ・パイプラインを「成功0件」と「障害」で区別せず、障害日を0件の正常日として時系列に残す** → 回避策: 実行ログに「成功(n件)／成功0件（正常な無データ日）／障害（タイムアウト・例外）」の3状態を明示記録し、障害日はメトリクステーブルにNULL（未取得）で入れて0と区別。前日比・移動平均の計算が障害日の0を実数として巻き込み、Shunの傾向分析が谷を誤検出する事故を防ぐ。
 - **失敗パターン: 祝日・年末年始など「業務が動かない日の応募0件」を計測障害と誤判定してアラート濫発** → 回避策: 変化率アラート（2026-06-03参照）に日本の祝日カレンダーと7社の稼働日マスタを組み込み、休業日起点の自然減はWARNING抑制。曜日・祝日を考慮しない素の前日比はGW・お盆・年末に必ず誤発火し、本物のセレクタ破損アラートが埋もれる狼少年化（2026-05-24参照）を再発させる。
 - **失敗パターン: BigQueryのスケジュールクエリ・dbt jobのオーナーが退職者/単一個人アカウント依存で、権限失効時にパイプラインが全停止** → 回避策: スケジュール実行・サービスアカウントの所有を個人ではなくサービスアカウント＋共有グループに統一し、認証情報の有効期限を期限30日前にアラート。属人アカウント依存は「誰のクエリが動いているか不明」「失効で月初集計が無言で止まる」リスクの温床で、棚卸しをデータカタログの運用情報欄に明記。
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+### 1. 2026年データエンジニアリング業界トレンド対応
+2026年のModern Data Stackは「**Composable Data Platform**」が主流となり、単一ベンダー依存からツール選択の自由度が爆発的に向上した。**dbt Cloud 1.8系のMesh機能**により、複数チーム横断のdbtプロジェクトを「データプロダクト」単位で疎結合化できるようになり、当チームの7社マルチテナント基盤にも適用余地がある。さらに**Reverse ETL**（Hightouch・Census）が定着し、DWHからAirwork・HubSpot・Slackへ集計結果を逆流配信する「アクションを伴う分析」が標準化。**Apache Iceberg / Delta Lake**等のOpen Table Formatが急速に普及し、BigQuery・Snowflake・Databricks間のデータ共有がベンダーロックインなしで実現可能に。**Data Mesh / Data Contract（dbt Mesh + Schema Registry）**の組み合わせで、上流の無告知スキーマ変更（2026-06-03参照）を契約レベルで防止する潮流が加速。**Generative BI / Embedded Analytics**ではShunのダッシュボードに自然言語クエリを埋め込み、クライアント自身が「先月のCVR上位3媒体は？」と聞ける時代に移行している。
+
+### 2. スキル不足5項目（即学習着手）
+1. **dbt Mesh / Data Contract実装**：複数dbtプロジェクト間の依存関係を契約化し、上流変更の影響範囲を機械的に追跡。スキーマハッシュ監視（2026-06-03参照）をdbt Contract YAMLに昇格させる。
+2. **Apache Iceberg + BigLake連携**：BigQuery外部テーブルでIcebergを直接クエリし、Snowflake/Databricks併用クライアントへのデータ共有をZero-Copyで実現。
+3. **Real-time CDC（Change Data Capture）パイプライン**：Debezium + Kafka / Google Cloud Datastreamで、Airwork DBの変更を秒単位で同期し「翌朝7時待ち」を廃止。
+4. **dbt unit tests + Great Expectations統合**：行レベル単体テストとデータ期待値検証を組み合わせ、品質4点ゲート（2026-05-22参照）を本番反映前のCI段階で完了させる。
+5. **Reverse ETL（Hightouch / Census）設計**：DWH集計結果をAirwork募集ステータス・Slack通知・HubSpotリードスコアへ自動配信し、分析→アクションのリードタイムを物理ゼロ化。
+
+### 3. ツールアップグレード5項目
+1. **dbt Cloud 1.8（Mesh有効化）**：現在の単一プロジェクト構成を「raw_layer / staging / marts」の3プロジェクト疎結合構成へ移行、責任分界を物理化。
+2. **Fivetran / Airbyte Cloud**：GA4・Airwork・Indeed・HubSpotのコネクタを自前メンテから既製コネクタへ全面移行、運用工数を月20時間→2時間に削減。
+3. **Hex Magic + ThoughtSpot Sage**：ShunのEDA作業に自然言語クエリAIを導入し、ad-hoc分析のリードタイムを半減。Akari/Ryotaへの「数字どこから？」回答も自動化。
+4. **Tableau Pulse / Looker Studio Pro AI Insight**：KPIの異常変動を自然言語で要約配信、Slack統合で「前日比+30%超」の自動要因分析を実装。
+5. **Monte Carlo / Bigeye（Data Observability SaaS）**：データドリフト・スキーマ変更・鮮度劣化を統合監視し、CRITICAL/WARNING/INFO 3階層アラート（2026-05-24参照）の運用負荷を機械学習で自動チューニング。
+
+### 4. 出力品質向上策3項目
+1. **納品テーブルに `_contract.yml` 必須添付**：全マート層テーブルにdbt Data Contract（カラム・型・NOT NULL・enum値）を明示し、Shun/Akari/Ruiが「期待される構造」を契約として参照可能化。違反時はCIで自動ブロック。
+2. **データカタログを Notion から OpenMetadata / DataHub へ移行**：手書きNotionカタログをOSSメタデータ基盤に置換し、dbt docs・BigQuery・Looker Studioのメタデータを自動同期。鮮度・リネージ・所有者・PII分類を一元管理。
+3. **公開前チェックを「pre-publish マクロ」から「PR時のGitHub Actions」へ昇格**：`dbt run-operation pre_publish_check`（2026-06-16参照）をPRワークフローに統合し、品質4点・PII・スキャン量・新旧リグレッション・Contract違反を全てPR時に自動検証。本番反映時の人的確認をゼロ化し、安全性と速度を両立。

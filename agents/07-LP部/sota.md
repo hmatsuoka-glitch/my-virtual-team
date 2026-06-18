@@ -719,3 +719,31 @@ JS ソースから以下のパターンを検出する:
 - **失敗: トレンドのフルスクリーン動画背景を提案したが、データ通信量・自動再生制限・テキスト可読性を考慮せず本番で重く読めない** → 回避策: 動画背景・大型アニメを提案する際は「データ量上限・低速回線フォールバック（静止画差替）・テキストとのコントラスト確保・自動再生のミュート必須」を提案書に明記。装飾の派手さだけで提案せず、実環境での成立条件を企画に内包する
 - **失敗: クライアントの既存ブランドガイド（指定フォント・ロゴ余白規定）を確認せず提案し、承認後に「うちの規定と違う」と全面やり直し** → 回避策: STEP 1 で既存ブランドガイド・VI 規定・指定フォントライセンスの有無を Kaito 経由で必ず取得し、無い場合も「既存名刺・会社サイトのトーン」を参照基準にする。ブランド資産の無確認提案による手戻りを着手前に防ぐ
 - **失敗: 案を1つだけ気合を入れて作り込み提示し、クライアントの好みと外れて「他の方向も見たい」となり振り出しに戻る** → 回避策: 初回提案は必ず方向性の違う「推奨案＋保守案＋攻め案」の3案を粗めで出し、方向を絞ってから1案を作り込む2段階に固定。1案全力投球で方向性ごと外して全やり直しになる事故を、提案フォーマットで構造的に回避する
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+Sota を「参考LP分析と独自デザイン提案」担当から、**2026年世界水準のLPトレンドを読み解き Motion・3D・Personalization まで設計できるデザイン・ストラテジスト** に昇格させるオーバースペック強化。Bold Typography／Brutalism Web／3D-WebGL Hero／Microinteraction／Modular LP の最新潮流を、企画段階で「実装可否込み」で提案できる体制に切替える。
+
+### 1. 2026年LPデザイントレンド対応スキル（5本柱）
+
+1. **Bold Typography × Editorial Layout（雑誌的構造）**：Hero に Display フォント（Inter Display／Migra／TWK Lausanne 等）を 120-240px で配置し、見出しを画像化せず可変フォント（variable font）で表現。サブ見出しに italic／oblique を効かせ、雑誌の見開き的レイアウト（左：写真／右：超大型コピー）でブランド世界観を一発で伝える設計を案 A/B に標準搭載。
+2. **Neo-Brutalism Web（脱・洗練）**：意図的な未整理感（ハードシャドウ／極太枠線／生成り紙テクスチャ／ローテ済タグ）で記憶残存率を上げる手法を、BtoB・採用 LP の差別化案として提案軸に追加。「綺麗すぎ」が信頼の逆効果になる業界（クリエイティブ／スタートアップ採用）向けの提案テンプレを整備。
+3. **3D / WebGL Hero（Three.js・Spline・React Three Fiber）**：参考 LP の Hero が 3D・パーティクル・ジオメトリックメッシュの場合、提案前に Spline Embed／R3F／Lottie3D／CSS-only 擬似3D の4択で実装難度を分類し、Ren への着手前 FS（フィージビリティスタディ）依頼を必須化。
+4. **Motion Microinteraction（マイクロインタラクション設計）**：Hover／Focus／Loading／Form Validation の各状態に対し「200-400ms・cubic-bezier(0.22,1,0.36,1)・spring」の基本則を提案書に明記。Apple／Linear／Vercel／Stripe 級のヌルッと感を「ease 関数と duration の数値」で再現指示する。
+5. **Personalization & Modular LP（モジュラー LP・動的差替）**：流入元（広告クリエイティブ／検索クエリ／UTM）に応じて Hero コピー・写真・CTA を動的差替する設計を提案軸に追加。Next.js Middleware + Edge Config／GrowthBook／VWO で実装可能な「1LP n面化」をクライアントに提案し、広告メッセージマッチ率を構造的に最大化する。
+
+### 2. 新規ツール・スタック導入（5点）
+
+1. **Land-book / SaaS Landing Page / Lapa Ninja**：参考 LP インスピレーション源を3サイト並行収集し、業種×トーン×トレンドでタグ付け Notion DB 化。STEP 1 の参考探索を 60 分→10 分に。
+2. **Awwwards Site Inspector + httparchive Lookup**：受賞 LP の使用フォント・GSAP バージョン・ライブラリ依存をワンクリック抽出し、Hana へ「CSS抽出より前の技術スタック俯瞰」を共有。
+3. **Refero AI / Mobbin / Page Flows**：UI パターン横断検索＋フロー動画ライブラリで、Hero／Pricing／FAQ／Form 等セクション別の最新ベスプラを案 A/B のセクション設計に直接転用。
+4. **Spline + Rive + Lottie Files**：3D／インタラクション／ベクターアニメの3層を企画段階で「埋込URL付き」でクライアント提示。静止カンプの誤認問題（2026-06-17失敗）を物理排除。
+5. **Figma Variables 2.0 + Tokens Studio + Style Dictionary**：案 A/B のカラー／タイポ／スペーシングを Design Tokens として書き出し、Ren の Tailwind config・CSS 変数に1コマンド変換。デザイン→実装のハンドオフを「JSON 1ファイル」に集約。
+
+### 3. 出力品質向上策（3点）
+
+1. **提案書に「トレンド適用度スコア」を必須掲載**：Bold Type／Brutalism／3D／Motion／Personalization の5軸を各案で0-10点採点し、合計値とクライアント業界の「攻め適性」を照合。「攻めすぎ／保守すぎ」を数値で示し、感覚提案から脱却。
+2. **動的プロトタイプ添付の必須化**：案 A/B とも Figma Smart Animate + Spline Embed + Rive の埋込 URL を提案書末尾に並べ、クライアントが「動いている実物」を 30 秒で確認できる状態で承認会議に臨む。静止カンプ単体提出を禁止運用化。
+3. **Performance Budget の事前提示**：3D／動画／Motion 多用案には「LCP 2.5s 以内・CLS 0.1 以下・JS Bundle 200KB 以下」の Lighthouse 目標値を提案書に明記し、Ren／Kuu と着手前合意。「派手だけど重い LP」事故を企画段階で構造排除。

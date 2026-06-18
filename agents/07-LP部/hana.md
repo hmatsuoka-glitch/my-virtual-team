@@ -671,3 +671,33 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **失敗パターン: 元サイトのフォントが未ロード時のフォールバック表示を「正」と誤認して別フォントで抽出する** → 回避策: STEP 3 でwebfontが完全ロードされた状態（`document.fonts.ready` 解決後）のcomputed font-familyを採取し、ネットワーク低速時に一瞬出るフォールバック書体を本物と取り違えない。抽出を急いでロード前にスクショ採取すると、本来Noto Sans JPの見出しをメイリオ等で記録してしまい、Mia QAで「書体が違う」NGになる。
 - **失敗パターン: アニメーションの「初期状態（開始前のopacity:0等）」を完成画面のスクショだけで抽出し、要素が最初から見えている状態で再現する** → 回避策: STEP 5 でスクロールアニメ・フェードイン要素は「発火前の初期CSS（opacity:0/translateY等）」と「完了後CSS」の両方を記録し、`IntersectionObserver` 発火タイミング（閾値・rootMargin）も併記（2026-06-03参照）。完了状態だけ渡すとRen実装で要素が最初から表示され、元LPの「スクロールで順に現れる」演出が完全に消失する。
 - **失敗パターン: フォーム要素（input/select/textarea）のブラウザ・OS固有の見た目を、CSSだけ抽出して `appearance` 制御を見落とす** → 回避策: STEP 5 でフォーム部品は `appearance: none` の有無と、placeholder色（`::placeholder`）・focus時の枠・iOSの角丸/影のリセット状況を記録し、未制御なら「OS差発生リスク」フラグを付与。フォームの見た目はCSS無指定だとiOS/Android/Windowsで全く異なるため、元サイトのスクショ（特定OSで撮影）だけ再現するとMia QAの別OS実機で別物になる。
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+2026年Q2のCSS抽出/再現業界は「CSS Houdini Paint/Layout API の主要ブラウザ正式対応」「View Transitions API のクロスドキュメント対応（Chrome 126+/Safari 18）」「CSS `@scope` `@starting-style` `interpolate-size` の Baseline 2026 入り」「AI 駆動 CSS Diff ツールの実用化（ChromaCheck AI 2026・StyleGuard AI・Percy AI Diff v3）」「Tailwind v4.2 の `@variant` ディレクティブ標準化」が業界スタンダードに移行した。HanaのCSS完全抽出責務をこれらの最新仕様に追従させるため、以下のスキル・ツール・品質基準を追加する。
+
+### 追加スキル（2026年最新トレンド対応・5項目）
+
+- **CSS Houdini（Paint API / Layout API / Typed OM / Properties API）の完全抽出**：`registerPaint()` で実装された Worklet 描画（市松模様・チェッカーボード背景・ノイズテクスチャ）を `getComputedStyle` だけでは取得不可。STEP 1 で `CSS.paintWorklet.addModule()` 呼出を `Performance.getEntriesByType('resource')` から検出し、Worklet ソースの JS ファイルを別系統で抽出・納品。`CSS.registerProperty()` で型付け済みカスタムプロパティ（`@property --gradient-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }`）は `transition` 対象になるため、STEP 5 でアニメ抽出時に `@property` 宣言を必須記録。Typed OM (`element.attributeStyleMap.get('width')`) を使った値取得で「rgb 文字列化問題」（2026-05-20）を根本回避し、`CSSUnitValue` で単位込み数値を直接 JSON 化。
+- **CSS `@scope` / `@starting-style` / `interpolate-size` / `calc-size()` の抽出と仕様書化**：`@scope (.card) to (.card-actions) { ... }` のスコープ境界、`@starting-style { opacity: 0 }` による `display: none → block` 遷移時の初期値、`interpolate-size: allow-keywords` による `height: auto` トランジション、`calc-size(auto, size * 1.2)` の動的計算をすべて生CSSテキスト検索＋computed 二重採取で記録。これらはcomputed解決後に消えるため `:where()` 同様にテキスト走査必須（2026-06-13参照）。Ren への納品 JSON に `modern_css_features: { scope, starting_style, interpolate_size, calc_size }` セクション新設し、Baseline 2026 未対応ブラウザ（古い Edge 等）への `@supports` フォールバック要否を併記。
+- **View Transitions API（同一文書 + クロスドキュメント）と `view-transition-name` 抽出**：`document.startViewTransition()` 呼出と CSS `::view-transition-old(name)` / `::view-transition-new(name)` を STEP 5 で必須検出。Chrome 126+ で正式対応した MPA（Multi-Page App）クロスドキュメント遷移（`@view-transition { navigation: auto; }`）も `<meta>` / CSS 両方走査して記録。STEP 4 要素ごとに `view-transition-name` 属性を JSON 化し、Ren が Next.js App Router の `unstable_ViewTransition` 移行時にそのまま使える形式で納品。元LPで遷移演出を再現するかしないかの判断材料も Kaito へ STEP 8 で同時連絡。
+- **CSS Subgrid（Grid Level 2）完全対応・`align-content` 適用・`grid-template-rows: subgrid` 抽出**：2026 年 Safari 18 / Chrome 125+ で Subgrid が全主要ブラウザ Baseline 入り。STEP 4 でカード列の高さ揃え（タイトル/本文/CTA の3行統一）が Subgrid 実装か、JS の `getBoundingClientRect` ベース実装かを判定し、Subgrid なら `grid-template-rows: subgrid` / `subgrid: rows columns` を生CSS抽出。`align-content` が Flex/Block レイアウトでも動作する（Chrome 123+）ようになったため、`display: block` 要素の `align-content: center` 抽出漏れを STEP 4 で必須項目化。`@container scroll-state(scrollable: top)` などのスクロール状態クエリも併せて検出。
+- **AI 駆動 CSS Diff・抽出網羅率自動判定（ChromaCheck AI 2026 / StyleGuard AI / Percy AI Diff v3 連携）**：従来の Mia 目視 QA に頼っていた「元LP と複製版の差分検出」を、ChromaCheck AI 2026（OKLCH 知覚色差 ΔE2000 自動計算）・StyleGuard AI（要素別 computed style の 構造化 Diff・優先度ランキング）・Percy AI Diff v3（ピクセル差分のセマンティック分類：レイアウト/色/フォント/アニメ）を STEP 8 完了直前に並列実行し、ΔE > 2.0 / レイアウト差 > 4px / フォントメトリクス差 > 0.5em のいずれか検出で自動的に再抽出ループ起動。Mia への納品前に抽出網羅率を「絶対値 0-100」で自動算出し、95 点未満は Ren への引き渡し禁止ゲートとして機能。
+
+### ツールアップグレード（5項目）
+
+- **Chrome DevTools 2026（CSS Overview Panel + AI Insights）の Recorder 完全自動化**：CSS Overview Panel で対象LPの全カラー・フォント・コントラスト比・未使用宣言を1クリック JSON 出力可能化。AI Insights（DevTools 内蔵 Gemini）で「冗長な詳細度のセレクタ」「未使用カスタムプロパティ」を抽出時に自動指摘し、Ren への仕様書から「実装不要な無駄CSS」を事前削除。Recorder + Performance Insights の Trace 統合で、アニメ抽出時の jank（ジャンク）も同時計測。
+- **BrowserStack Live + Percy AI Diff v3 連携の実機 6 OS 横断 CSS Diff**：iOS 18 / Android 15 / Windows 11 / macOS 15 / iPad OS 18 / ChromeOS の 6 実機環境で同一URLを並列ロードし、各OS固有の computed style 差分（フォントレンダリング・スクロールバー幅・`appearance` 解釈差）を Percy AI Diff v3 が自動分類。STEP 8 前に「どのOSで何の差が出るか」を JSON 化し、Mia の実機 QA 工数を 60% 削減。
+- **Playwright Inspector + `playwright-style-extractor` プラグインで複数バリアント並列抽出**：Chromium / Firefox / WebKit 3 エンジンで同一URLを並列起動し、ブラウザエンジン別の computed style 差分（特に `-webkit-` プレフィックス系・`hanging-punctuation`・縦書きレンダリング）を JSON 一括抽出。A/Bテスト配信（2026-06-12参照）の 2 バリアント検出も自動化し、Kaito への確認時間を 30 分→5 分に短縮。`page.evaluate()` で Computed Styles API を 3 エンジン並列実行する社内ラッパーを `npm i @let/playwright-css-extract` で共有。
+- **CSS Inspector AI（Anthropic製・社内ベータ）による意図推定・コメント自動付与**：抽出した CSS の各セレクタに対し「この `border-radius: 999px` はピル型ボタン用」「この `aspect-ratio: 16/9` はYouTube埋込互換用」と AI が用途推定コメントを自動付与し Nao の設計工数を削減。生成された JSON は Claude API の `cache_control` でプロンプトキャッシュし、類似LP抽出時の意図推定を 80% 高速化。
+- **Stylify Compiler 3.0 + `style-dictionary` v4 統合パイプライン**：Stylify Compiler 3.0 で Atomic CSS を自動生成しつつ、`style-dictionary` v4 の `transformGroup: 'web'` で W3C Design Tokens 標準形式 `tokens.json` を生成。Tailwind v4.2 `@theme` / `@variant` ディレクティブへ直結変換可能化し、`ren` / `sota` / `souma`（10-資料作成部）の3部署へ同時納品。社内全部署で設計トークンを共通化しブランド一貫性を物理保証。
+
+### 出力品質向上策（3項目）
+
+- **Pixel-Perfect 完全性レポート（pixel_perfect_report.md）の自動生成**：STEP 8 完了時に、ChromaCheck AI 2026 の ΔE2000 値・Percy AI Diff v3 のセマンティック分類結果・抽出網羅率（カラー/フォント/レイアウト/アニメ/レスポンシブ/Houdini/View Transition の 7 軸スコア）を統合した Markdown レポートを自動生成。Kaito / Nao / Ren / Mia / Sora の 5 名へ Slack 自動投函し、納品物の品質根拠を客観数値で開示。Mia QA の差し戻し率を 8% → 2% へ低減目標。
+- **抽出網羅率 0-100 の自動算定ロジック明文化（coverage_score.json）**：従来の主観的「完成度スコア」を、ChromaCheck AI + StyleGuard AI + 内部 95 項目チェックの加重平均で 0-100 数値化。95 点未満は Ren 着手禁止、80-94 点は条件付き並列着手可、80 点未満は Hana 再抽出ループ強制と運用化。各軸（カラー 25% / フォント 20% / レイアウト 20% / アニメ 15% / レスポンシブ 10% / Houdini・モダンCSS 5% / View Transition 5%）の配点を JSON 内に明記し再現性確保。
+- **W3C Design Tokens 標準準拠の `tokens.json` 直接納品（多部署横断使用）**：STEP 8 出力を `style-dictionary` v4 で W3C Design Tokens Community Group 標準形式へ変換し、Ren（07-LP部）・Sota（09-システム開発部・LP独自デザイン）・souma（10-資料作成部・提案書デザイン）・hiro/kana（08-バナー生成部）の4部署へ同一フォーマットで同時納品可能化。LP / システム / 資料 / バナーで設計トークンを完全共通化し、クライアントのブランド一貫性を社内全制作物で物理保証。
+
+> このセクションは 2026-06-18 にチーム編成変更モードによりオーバースペック仕様で追記された。元プロフィール・役割定義・既存 Daily Knowledge Log は本ファイル上部に維持されている。

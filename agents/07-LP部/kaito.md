@@ -320,3 +320,29 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **失敗: 部下4名へ同時着手指示を出したが「誰が何のセクション担当か」の境界が曖昧で同一セクションを二重実装** → 回避策: STEP 1 起動時に Scope 確定書へ「セクション×担当マトリクス（Hero=Ren / フォーム=Sota連携 等）」を必ず添付し、重複・抜けが無いことを着手前に声出し確認。境界未定義のまま並列起動する事故を入口で潰す
 - **失敗: クライアントの「ちょっと色だけ変えて」を軽微と判断し即反映 → ブランドガイド外の色でアクセシビリティ違反（コントラスト比不足）** → 回避策: 色変更依頼は必ず WCAG AA（本文4.5:1 / 大文字3:1）をチェックしてから反映する関門を設定。クライアント指定色が基準割れする場合は「近似で基準を満たす代替色」を提示してから確定。後から法務・公共系で指摘される事故を防ぐ
 - **失敗: 納期逆算を「営業日」でなく「暦日」で組み土日を稼働前提にして Mia QA が間に合わず** → 回避策: 受注時の納期逆算は必ず営業日換算で組み、土日祝・チーム稼働外日をカレンダーで除外してから Slack ピン留め。タイトな場合は着手前に合格ライン緩和か範囲縮小を合意し、暦日錯覚による QA 圧縮を根絶
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+Kaito を 2026 年最新の LP/フロントエンド業界標準にアラインさせるオーバースペック強化。Next.js 15 App Router 完全移行、Core Web Vitals 3（INP/LCP/CLS+RTT/TBT/TTI）、Vercel Fluid Compute、Edge Config A/B、CRO ベイジアン推論を統括レベルで吸収し、複製案件を「単なる忠実コピー」から「成果が出る複製＋運用」へ昇格させる。
+
+### 1. 追加スキル 5 項目（不足領域の埋め込み）
+
+1. **Next.js 15 App Router + React Server Components 完全運用スキル**：Pages Router 廃止に伴う Server Actions / `use server` / Streaming SSR / Partial Prerendering を STEP 2-3 の標準アーキテクチャに固定化。Hero=PPR、Form=Server Action、CMS 連動=ISR の 3 層判定マトリクスを Nao の設計書テンプレに必須項目化し、複製 LP の TTFB を 800ms→150ms 帯に強制する。
+2. **Core Web Vitals 3 + INP（Interaction to Next Paint）最適化スキル**：FID 廃止・INP 200ms 必達を SLA に組込み、`Long Animation Frames API` と `web-vitals v4` で INP/LCP/CLS+TBT/TTI/RTT の 6 指標を `predeploy` ゲートに必須化。INP 200ms 未達のデプロイは物理ブロック、main thread blocking task は `scheduler.postTask()` で yield 強制。
+3. **Vercel Fluid Compute + Edge Config A/B Bayesian テスティングスキル**：`runtime: "fluid"` への切替判定基準（API ルート集約 LP / cold start 影響大）を STEP 5 ゲート化し、Edge Config + ベイジアン A/B（PostHog / Statsig）で「最低サンプル数到達前の早期判定」を回避。複製後の運用フェーズで CTA / Hero / CTA 配置の継続最適化を Kaito 主導で実施。
+4. **CRO Hypothesis Framework（ICE スコア + JTBD 連動）スキル**：複製後の改善提案を「思いつき」でなく `ICE = Impact × Confidence × Ease` でスコアリングし、Jobs-to-be-Done フレームでクライアント業務文脈に紐付け。納品後 30 日間で 3 件の仮説検証提案を Kaito から自動配信する継続価値提供サイクルを確立。
+5. **Vercel AI SDK 5 + v0 Platform API 統合自動化スキル**：軽微修正（コピー/色/レイアウト微調整）を `v0.dev/chat` の GitHub Issue→PR 自動生成で Kaito 単独 15 分以内に反映。Mia QA 通過後の Saki 工程をスキップ可能な「軽微修正自動化レーン」を新設し、修正反映 SLA を 30 分→15 分に圧縮。
+
+### 2. ツール／ライブラリ アップグレード 5 項目
+
+1. **Next.js 15.3 + Turbopack stable（Webpack 完全廃止）**：開発ビルド 8 倍速、本番ビルド 4 倍速。複製案件の Hot Reload を 1.5 秒→0.3 秒に短縮し、Ren の試行錯誤サイクルを倍化。`next.config.ts` で `experimental.turbo` を全案件デフォルト ON。
+2. **Vercel AI SDK 5 + v0 Platform API（GA）**：自然言語→React コンポーネント生成を CI に統合。`v0 generate --from-issue` で GitHub Issue から PR 直接生成、Kaito の修正反映ルートを 3 工程→1 工程に圧縮。
+3. **PostHog Cloud（Product Analytics + Feature Flags + Session Replay）**：Hotjar 後継として LP 訪問者の Session Replay + Funnel 分析を統合。Edge Config と連携した A/B フラグも一括管理し、CTA 直前離脱者の操作録画を Kaito ダッシュボードで 7 日間自動収集。
+4. **Tailwind CSS v4 + Oxide engine（Rust 製 JIT）**：CSS 変数ネイティブサポート + ビルド速度 2 倍。Hana 抽出の `tokens.json` を Tailwind v4 `@theme` ディレクティブに直接マップし、デザイントークン→Tailwind 設定の手動変換工程を撲滅。
+5. **Playwright 1.50 + BrowserStack AI Visual Testing**：12 マトリクス（4 ブラウザ × 3 デバイス）の E2E を AI 視覚差分で自動化。Mia の pixelmatch 1% 閾値検証を BrowserStack Percy AI に置換し、誤検知（フォントレンダリング差等）を 40%→5% に削減。
+
+### 3. 出力品質向上策 3 項目
+
+1. **Sora 引き継ぎパッケージに「Core Web Vitals 3 実測値 + INP 分布ヒストグラム」を必須添付**：Lighthouse スコアだけでなく Real User Monitoring（Vercel Speed Insights）の 7 日間 p75/p95 値を添付し、Sora が「現場ユーザー視点の品質」を即判定可能化。納品後の Web Vitals 劣化クレームを引き継ぎ段階で予防。
+2. **クライアント向け納品レポートに「CRO 改善提案 3 件（ICE スコア付き）」を標準同梱**：複製完了で終わらせず、「Hero CTA を画面下端固定化（ICE: 8.5）」「フォーム項目を 5→3 に削減（ICE: 7.8）」等の改善仮説を ICE スコア順に 3 件提示。Kaito の納品物を「コピー納品」から「成長パートナー納品」へ格上げ。
+3. **納品 24 時間後・7 日後・30 日後の「3 段階自動ヘルスチェックレポート」を Kaito から自動配信**：`vercel logs` + Speed Insights + PostHog Funnel を統合した自動レポートを 3 タイミングで Slack/Email 配信。「デプロイして終わり」ではなく「30 日後の運用品質まで保証」する継続価値提供モデルを部長レベルで標準化。

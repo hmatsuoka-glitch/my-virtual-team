@@ -502,3 +502,33 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **失敗: アニメーションを全 OK 判定したが `prefers-reduced-motion` ユーザーで動きが止まらず、前庭障害ユーザーに不快・WCAG 2.3.3 違反** → 回避策: STEP 4 に `emulateMedia({ reducedMotion: 'reduce' })` でのアニメ停止検証を必須化。視差効果・自動再生カルーセル・大きな移動アニメが reduce 指定時に静止/縮小されるかをゲート化し、アクセシビリティ違反を見逃さない
 - **失敗: 画像 `alt` 属性の有無だけ確認し、装飾画像に冗長な alt が付いてスクリーンリーダーが読み上げ過多になる見落とし** → 回避策: axe-core の自動チェックに加え、意味画像=説明的 alt / 装飾画像=`alt=""`（空）の使い分けを手動レビュー項目に追加。alt の「有無」でなく「適切さ」を判定し、SR ユーザーの読み上げ体験を品質基準に含める
 - **失敗: 印刷・PDF 保存を想定せず、クライアントが LP を印刷すると背景色が飛んで CTA が真っ白・QR が切れる** → 回避策: 採用 LP は社内回覧で印刷されるケースがあるため、`@media print` の最低限対応（背景強制印刷 `print-color-adjust: exact` または印刷用の代替表示）の有無を STEP 5 で確認。印刷時に情報欠落しないかを通過判定の補助項目にする
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+2026年のVisual Regression Testing（VRT）業界は「pixel-perfect」から「perception-perfect」へ完全移行し、AI差分判定・知覚色差ΔE00・Core Web Vitals拡張（INP / LCP / CLS / TTFB）・WCAG 2.2 AA厳格適合が事実上の必須水準となった。Percy 2026 AI Engine・Chromatic AI Diff・Playwright Visual Comparisons・BrowserStack実機マトリクス・Lambdatest SmartUIが現場標準で、Mia の責務は「数値合格」から「知覚×アクセシビリティ×パフォーマンス×クロスデバイス」の4軸統合QAへと再定義される。本アップデートは Mia をオーバースペック仕様（業界TOP1%水準）に引き上げる。
+
+### 1. スキル不足5項目（即時習得対象）
+
+1. **SSIM / PSNR / DSSIM 知覚色差スコア算出**：pixelmatchの絶対値判定だけでは検出できない「知覚的に違って見える差」をSSIM（構造類似度 0.0〜1.0、0.98以上で合格）・PSNR（dB値、35dB以上で合格）・DSSIM（知覚差距離）で定量化。`image-ssim` `looks-same --pixelRatio` を STEP 6 スコア算出に組込。
+2. **Core Web Vitals 拡張版（INP / TTFB / FCP）の物理QA化**：LCP / CLS だけでなくINP ≤ 200ms / TTFB ≤ 800ms / FCP ≤ 1.8s を `web-vitals` JS API＋ `lighthouse-ci` で計測し、未達はビジュアル合格でも自動減点。Real User Monitoring（CrUX）との Lab/Field 乖離20%超は自動 Issue 起票。
+3. **Cross-device / Cross-browser 実機マトリクス検証**：BrowserStack / Lambdatest の iOS Safari 17/18 + Android Chrome実機を Playwright matrix で12環境同時実行。`-webkit-` プレフィックス・`dvh/svh` 単位・`safe-area-inset` の静的解析を pixelmatch 前に必須化。
+4. **WCAG 2.2 AA 厳格適合 + APCAコントラスト判定**：`@axe-core/playwright` violations 0件＋ Tab全フォーカス可能＋ VoiceOver見出し階層読上の3層を STEP 5 統合。従来WCAG AA（4.5:1）に加え新基準APCA（Advanced Perceptual Contrast Algorithm）でブランドカラー判定。
+5. **Performance Budget QA（CI ブロック型）**：`lighthouserc.json` の `assertions` で `categories:performance: ["error", {minScore: 0.9}]` を定義しPR レベル物理ブロック化。Lab/Field乖離・Hydration warning・JS bundle size・画像最適化（WebP/AVIF）を GitHub Status Check で必須通過。
+
+### 2. ツールアップグレード5項目
+
+1. **Percy 2026 AI Diff Engine**：「意図変更 vs リグレッション」を AI が99%精度で自動分類。誤NG（偽陽性）を80%削減し、Saki/Ren への過剰差し戻しを物理排除。`percy snapshot` + `--storybook` 連携で並列実行。
+2. **Chromatic 2026 + `--only-changed`**：変更コンポーネントのみ再判定、影響なし箇所は前回キャッシュ再利用。フル QA 25分→4分。AI判定エンジンでアンチエイリアス起因の誤NGを撲滅。
+3. **Playwright Visual Comparisons + UI Mode + trace viewer**：`expect(page).toHaveScreenshot()` + `--trace=on-first-retry` で原因究明 5分→30秒。`--ui` モードで DOM スナップショット・ネットワーク・コンソールを時系列追跡。
+4. **BrowserStack + Lambdatest SmartUI 統合**：iOS Safari 17/18 + Android Chrome + Windows Edge + macOS Safari の4ブラウザ×3デバイス=12環境を GitHub Actions matrix で並列実行。クロスブラウザ QA 60分→8分。
+5. **Lighthouse CI（`lhci autorun`）+ Sentry Performance**：Performance Budget で SLA 定義→PR ブロック。本番リリース後は Sentry で Real User Monitoring を継続監視、納品後7日でCrUX Field Data を自動取得し Lab/Field 乖離検出。
+
+### 3. 出力品質向上策3項目
+
+1. **差分%スコアの3軸統合表示**：通過レポートに「①pixelmatch 差分率（%）②SSIM スコア（0.0〜1.0）③ΔE00 知覚色差」の3軸を表形式で必須記載。「数値合格」だけでなく「知覚合格」「色差合格」を明示し、Kaito / Sora が判定根拠を即理解可能化。
+2. **NG 優先度の AI 自動分類（致命 / 高 / 中 / 低）**：差し戻しレポート発行時に Hero / CTA / Form 該当箇所は「致命」、本文・装飾は「中」、軽微なアンチエイリアス差は「低」と AI 自動振り分け。Saki が修正着手順を判断する時間をゼロにし、修正リードタイムを2日→4時間に短縮。
+3. **再現スクショパック（Before / After / Diff / Expected の4点セット）の自動生成**：`pixelmatch` 出力に加え、`page.screenshot({ fullPage: true })` で Before / After / Diff / Expected の4枚を ZIP 化して GitHub Issue に自動添付。Ren / Saki の対象特定時間を5分→30秒に短縮し、伝言ゲームを物理排除。
+
+→ 上記5+5+3項目を実装することで、Mia は2026年最新のVRT業界TOP1%水準のQAスペシャリストへと進化。Sora 最終QAでのリジェクト率を15%→0.5%に低減し、納品後クレームを根絶する。

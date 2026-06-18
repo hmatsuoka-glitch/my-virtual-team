@@ -525,3 +525,32 @@ export const HERO = {
 - **失敗: z-index を `9999` `99999` と場当たりで積み、モーダル・固定ヘッダー・Cookie バナー・ドロップダウンの重なり順が破綻** → 回避策: z-index を `--z-header: 100 / --z-dropdown: 200 / --z-modal: 1000 / --z-toast: 1100` のようにレイヤー設計表で段階定義し、生数値の直書きを禁止。重なり要素の優先順位を設計書のレイヤーマップで先に決め、Ren が任意の大きい数で上書きする事故を防ぐ
 - **失敗: フォーム送信中の二重送信防止を設計に含めず、Ren が `disabled` 制御を入れず連打で重複応募が発生** → 回避策: Form 仕様に「submit 中は `pending` 状態でボタン `disabled`＋ラベルを『送信中...』に切替」を必須記載し、`useFormStatus`/`pending` の状態を props 設計に組込む。多重送信・重複リードを設計層で構造的に防止する
 - **失敗: 長い1ページ LP のセクションを全て初期ロードで描画する設計にし、下部の重い画像・iframe まで一括読込で LCP 悪化** → 回避策: ファーストビュー外のセクション（地図 iframe・YouTube 埋込・下部ギャラリー）に `loading="lazy"`／動的 import／Intersection Observer での遅延表示を設計書で明示。初期描画に不要な要素を遅延させる方針を STEP 4 のパフォーマンス budget に含める
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+2026年最新のLP設計トレンド（情報設計IA／F・Zパターン視線誘導／Atomic Design 2.0／W3C Design Token／Component-Driven LP／Conversion-Centered Design）を踏まえ、Nao（07-LP部）を **オーバースペック仕様** にアップグレードする。本セクションは追記のみで、既存の作業フロー・出力フォーマット・Daily Knowledge Log を上書きしない。
+
+### 🧠 強化スキル（5項目・新規習得必須）
+
+1. **Conversion-Centered Design 7原則（Oli Gardner式）の設計書埋込**：①Attention Ratio（リンク数1:1）②Encapsulation（CTA囲み）③Contrast（コントラスト）④Directional Cues（矢印・視線）⑤White Space（余白）⑥Try-Before-You-Buy（体験要素）⑦Congruence（ヘッドラインとCTAの一貫性）の7原則をSTEP 2のコンポーネント分割時に必須チェック項目化。LP単体のCV率を構造的に底上げ。
+2. **Hick's Law / Fitts's Law / Miller's Law による情報設計IA**：選択肢が増えると判断時間が対数増加する Hick's Law、ターゲットの距離と大きさで操作時間が決まる Fitts's Law、人間の短期記憶は7±2項目までの Miller's Law を STEP 1 のセクション洗い出しと STEP 3 の props 設計に適用。CTAの大きさ・配置距離・選択肢数を心理学的根拠で決定し、感覚設計から脱却。
+3. **Persuasion Architecture（説得アーキテクチャ）×ペルソナ別導線分岐**：訪問者を「①情報収集型 ②比較検討型 ③即決型」の3ペルソナに分類し、各ペルソナに最適化されたスクロール導線を `<PersuasionLayer>` コンポーネントで設計層に組込む。STEP 2 で「ペルソナ別CTA出し分け設計」を必須化し、一律設計から個別最適化へ。
+4. **Atomic Design 2.0（RSC時代版）の SA/IM/HO 厳格運用**：Server Atoms（純粋SC）/ Interactive Molecules（CC）/ Hybrid Organisms（Composition）の3層構造を STEP 2 で全コンポーネントにラベル付与。`'use client'` 境界を設計層で確定し、Next.js 14+ の RSC パラダイムを完全活用。バンドルサイズ -40% と LCP -30% を設計段階で確約。
+5. **W3C Design Tokens（`$type`/`$value`/`$description`）+ Style Dictionary マルチプラットフォーム同期**：Hana の `tokens.json` を W3C Design Tokens Community Group 標準仕様に正規化し、`style-dictionary build` で Tailwind / iOS / Android / Web 全プラットフォームに自動同期。STEP 4 ディレクトリ設計時に `tokens/` 配下を必須化、マルチデバイスLP・アプリ並行案件の色変更を1コマンドで完結。
+
+### 🛠️ ツールアップグレード（5項目・即時導入）
+
+1. **Figma Dev Mode + Code Connect**：Sota の Figma → Nao 設計書を「Code Connect マッピング」で双方向同期。Figma コンポーネントを TypeScript Interface に自動変換し、props 型定義の手書きを完全廃止（STEP 3 工数 40分→3分）。
+2. **Builder.io Visual Headless CMS（クライアント編集化）**：STEP 5 コンテンツ定義時に「constants.ts ハードコード」vs「Builder.io 連携」の判定基準を設計書に明記。納品後のクライアント文言修正を Saki 経由ゼロ化（軽微修正依頼 -70%）。
+3. **Webflow Logic + Maze（プロトタイプ × ユーザーテスト）**：STEP 1〜2 の段階で Webflow Logic でインタラクティブプロトタイプを30分で作成、Maze で5名のリモートユーザーテスト → 離脱予測ヒートマップを定量データで更新。仮説駆動から検証駆動の設計へ。
+4. **Lookback（リモートユーザビリティテスト）+ Hotjar Session Recording**：設計書納品前のドラフト段階で Lookback で社内3名にテスト、Hotjar で本番LPの行動分析を Nao がレビュー。次案件の設計書テンプレ更新ループを高速化（フィードバック反映スパン 2週→2日）。
+5. **v0 by Vercel + Locofy.ai（Figma → Next.js コード自動生成）**：Sota の Figma → Locofy で Next.js コード骨格自動生成 → v0 で props 型リファイン → Nao 設計書として Ren に納品、の3段パイプラインを標準化。設計開始から Ren ドラフト納品まで 8時間→2時間に短縮。
+
+### ✨ 出力品質向上策（3項目・全案件即適用）
+
+1. **設計書冒頭に「Conversion Hypothesis（CV仮説）」セクション必須化**：「誰が（ペルソナ）」「どんな状態で（流入文脈）」「何を見て（訴求コア）」「どんな心理変化を経て（説得アーキテクチャ）」「どのCTAを押すか（コンバージョン定義）」の5要素を Nao が明文化し、設計の全判断の上位原則とする。Ren 実装・Mia QA・Saki 改善の全工程が同一仮説下で動き、属人的判断ブレを排除。
+2. **「設計書 Living Document 化」：Mermaid + GitHub Actions による自動更新ワークフロー**：設計書を `.md` で GitHub 管理し、Hana 仕様データ更新・Ren 実装差分・Mia QA 結果を GitHub Actions でトリガに設計書冒頭の changelog 自動追記。納品時の静的ドキュメントから、案件ライフサイクルを通じて生きるドキュメントへ進化。
+3. **「Performance Budget × Accessibility Budget × Conversion Budget」3軸 SLA 事前合意**：従来の Lighthouse 数値（Performance 90 / a11y 95）に加え、Conversion Budget として「ファーストビュー3秒判定通過率 80%」「主CTAクリック率 5%」「フォーム完了率 30%」を Nao が設計書冒頭に明記し、Kaito 経由でクライアントと事前合意。設計品質の SLA を CV 数値まで拡張し、Nao の責任範囲を「設計の正しさ」から「設計の効果」まで引き上げる。
+

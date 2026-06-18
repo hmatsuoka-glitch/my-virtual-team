@@ -344,3 +344,33 @@ const banners = [
 - **失敗パターン: deviceScaleFactor を上げれば鮮明になると思い込み、元 HTML の画像素材が低解像度のまま拡大されてロゴ・写真だけがブロックノイズで荒れる** → 回避策: 変換前に `page.evaluate()` で全 `<img>` の `naturalWidth` を取得し「naturalWidth ≥ 表示幅 × deviceScaleFactor」を満たさない素材を検出して Kana/Rei へ高解像度差し替えを差し戻し（理由：deviceScaleFactor はビューポートの描画密度を上げるだけで、埋め込み画像の元解像度は増えない）。実例：720px ロゴを 1080px 配置で scale 2 → 実質 0.67 倍引き伸ばしでエッジ崩壊
 - **失敗パターン: ローカルの macOS で正常出力できた絵文字・特定 CJK 文字が、フォント未バンドルの環境で豆腐（□）化して納品** → 回避策: 絵文字使用案件は HTML に Web フォント（Noto Color Emoji）を `@font-face` で明示同梱し、変換後 PNG を tesseract.js OCR にかけて「期待文字数 vs 認識文字数」の乖離が閾値超なら警告（理由：Chromium はシステムインストール済みフォントにフォールバックするため OS 依存で字形が変わる）。実例：環境依存文字「㈱」がヘッドレス環境で空白化
 - **失敗パターン: 同一デザインの複数サイズ展開で、縦長(1080×1920)に正方形(1080×1080)レイアウトをそのまま流用しキャッチコピーが上端に寄って下半分が空白になる** → 回避策: アスペクト比が大きく異なるサイズは「同一 HTML の viewport 切替」ではなくサイズ別 HTML をテンプレ化し、変換後に sharp で各 PNG の「重要要素の重心 y 座標」を算出して上下偏り（重心が中央 ±20% 外）を検出し Kana へ差し戻し（理由：viewport を引き伸ばすだけでは要素の再配置は行われずレイアウトが破綻）。実例：Indeed 横長から Stories 縦長へ流用で CTA が画面外
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+2026年の画像生成/変換業界は「Puppeteer 24＋Playwright 1.50 のマルチエンジン体制」「AVIF/WebP/JPEG-XL の三世代併用」「Sharp 0.34 のセマンティック圧縮」「Headless Chrome 130+ の Web Animations 完全待機」「Vercel Image Optimization API の CDN エッジ最適配信」を軸に再編されている。Hiro はこのトレンドを取り込み、Retina PNG 単発出力から「マルチフォーマット・マルチデバイス・マルチカラー領域」を 1 パイプラインで処理する最終ゲートへ進化する。
+
+### 強化スキル（5項目）
+
+1. **Sharp 0.34 セマンティック圧縮スキル**: テキスト領域（OCR 検出）は無損失・写真領域は高圧縮・グラデ領域は dithering 強化と、PNG 内の領域ごとに圧縮戦略を分ける。Indeed 150KB 上限案件で従来 deviceScaleFactor 2 が上限だったところ scale 3 出力でも上限内に収まる余裕を確保。
+2. **AVIF / WebP / JPEG-XL 三世代同時出力スキル**: PNG・WebP・AVIF に加え 2026 年標準化が進む JPEG-XL（Safari 17+ / Firefox 130+ 正式対応）を 4 形式同時出力。媒体 CDN が最適形式を自動振分けし、旧端末は PNG、最新端末は JPEG-XL（AVIF より 15% 軽量）を受け取る設計。
+3. **Color Profile Management（Display P3 / Rec.2020 HDR）スキル**: sRGB 正規化だけでなく Display P3 / Rec.2020 のワイドガマット案件にも対応。`sharp().toColorspace('p3')` で iPhone 15 Pro 等 HDR 対応端末向けの広色域 PNG を別系統で出力し、メタデータに ICC を明示同梱。建設業の現場写真の鮮やかさを HDR 端末で再現。
+4. **Screenshot Pipeline（Web Animations API 完全待機）スキル**: `document.getAnimations()` の Promise.all 待機・`prefers-reduced-motion` 強制・CSS `@starting-style` 完了検知の三重防御で、Micro-Animation 付きバナーの「フェードイン途中キャプチャ」事故を物理排除。CSS Houdini / View Transitions API にも対応。
+5. **Density Variants 自動展開スキル**: `1x / 2x / 3x` の 3 密度バリアントを 1 スクリプトで自動展開し、`srcset` 用の `image-1x.png / image-2x.png / image-3x.png` をフォルダ階層付きで一括出力。CDN 配信側で iPhone Retina / Android 中位機 / PC を自動振分け可能化。
+
+### ツールアップグレード（5項目）
+
+1. **Puppeteer 24.x（2026 Q2 安定版）**: Headless Chrome 130+ ベース、`browser.createBrowserContext()` でコンテキスト分離が高速化、メモリ使用量 30% 削減。Webdriver BiDi プロトコル正式対応で Firefox 並列実行も可能に。
+2. **Playwright 1.50（マルチブラウザ並列）**: Chromium / Firefox / WebKit の 3 ブラウザ同時 screenshot で iPhone Safari 固有のフォントズレを本番前検出。`browser.newContext()` プールで Puppeteer 比 3 倍速。
+3. **Sharp 0.34（AVIF / JPEG-XL ネイティブ）**: libvips 8.16 ベース、AVIF エンコード速度 2.5 倍向上、JPEG-XL `.jxl()` 正式 API 搭載、`smartSubsample` で文字滲み回避。
+4. **Squoosh CLI / @squoosh/lib（Google 製 AI 圧縮）**: ブラウザ実装と同じ MozJPEG / OxiPNG / AVIF コーデックを Node.js から呼び出し、`pngquant` より知覚的品質を保ったまま 20% 追加圧縮。
+5. **ImageMagick 7.1 + libheif**: HEIC / HEIF 入力対応・CMYK 印刷併用案件の `-colorspace CMYK -profile USWebCoatedSWOP.icc` 変換、tEXt チャンク除去で内部パス漏洩を構造的に防止。
+
+### 出力品質向上策（3項目）
+
+1. **Pixel-Perfect 検証**: 出力 PNG と Mia / Kana の HTML プレビューを `pixelmatch` で差分比較し、しきい値 0.1% 以上のズレで自動 NG。clip サブピクセル丸めによる端 1px 半透明列も同時検出。
+2. **サイズバリアント自動展開**: Yuna 指示書の媒体タグ配列から `1080×1080 / 1200×628 / 1080×1920 / 1200×1500 / 1080×566` の 5 サイズ＋密度 1x/2x/3x の計 15 ファイルを 1 コマンドで生成。媒体追加時は `compression-profile.json` 1 行追加で対応。
+3. **メタデータ保持**: 制作者・作成日時・クライアント名・ガイドライン JSON ハッシュを XMP メタデータとして埋込み、Sora QA 後の納品物追跡を可能化。同時に tEXt 不要チャンクは除去し情報漏洩を防止。
+
+これらの強化により、Hiro は「PNG 変換係」から「マルチフォーマット最終配信ゲート」へと役割を再定義する。月次バナー処理工数は従来比 40% 削減、媒体審査差し戻しゼロ、HDR / 旧端末 / 通信制限ユーザー全てに最適配信される体制を 2026 年下半期から運用開始。
