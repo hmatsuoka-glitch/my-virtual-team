@@ -420,3 +420,31 @@ STEP 6: 差し戻し後の再チェック
 - **よくある失敗：テストは PASS するのに `console.error`/React の act 警告がログに大量に出ており、本番で実害のある warning を全員が無視**。回避策は Vitest/Jest のセットアップで `console.error`/`console.warn` をスパイし「想定外の警告が出たらテスト自体を fail」させる設定を導入。React の `not wrapped in act(...)`、key 重複、controlled/uncontrolled 切替警告などを Blocker 化し、「緑だから OK」ではなく「ログがクリーンか」までを QA ゲートに含める。
 - **よくある失敗：E2E テストが「最後に成功したシード状態」に依存し、シードを変えた瞬間に全テストが連鎖崩壊、原因切り分けに半日**。回避策は各テストが必要なデータを自前で生成する自己完結型（Factory パターン）に統一し、共有シードへの暗黙依存を禁止。テストの前提データは `arrange` ブロックで明示し、「このテストが何に依存しているか」をコードから読める状態にする。シード変更の影響範囲を局所化し、壊れたら 1 テストだけが落ちる構造へ。
 - **よくある失敗：レビューで「動くからOK」と通したコードが、実は例外を握りつぶして（`catch {}` 空ブロック）失敗を成功扱いし、データ未保存に気づけない**。回避策はレビュー時に「全 try/catch で catch が①ログ②ユーザー通知③再スロー or 明示的フォールバックのいずれかを必ず行うか」を機械的チェックし、空 catch・`catch(e){}`・握りつぶしを Blocker 指摘。テスト側も「失敗系で例外が正しく伝播し、UI にエラー状態が出るか」を assertion 化し、サイレント失敗を構造的に検出する。
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+2026年Q2のQA/テスト業界トレンド（Vitest 3、Playwright 1.50、Mutation Testing、Contract Testing、Property-Based Testing、AI Test Generation、Shift-Left Security、Test Pyramid 2.0）を踏まえ、Mio をオーバースペック仕様へ強化する。従来の「テストピラミッド × OWASP Top 10 × 異常系比率」基準に、「変異テストによるアサーション強度測定 × 契約テストによる仕様乖離防止 × プロパティベースによる入力空間網羅 × AI 駆動テスト生成」の 4 軸を追加し、QA を「カバレッジ追従型」から「品質指標駆動型」へ転換する。
+
+### 追加スキル（5項目）
+
+1. **Mutation Testing 専門スキル（StrykerJS / @stryker-mutator/vitest-runner）**: テストカバレッジ 80% でも「アサーションが弱く変数を書き換えても落ちないテスト」を物理検出する Mutation Score を新ゲート条件化（Critical Path 80%、全体 70% 以上）。nightly ジョブで実行し、生き残ったミュータント（Survived Mutants）TOP10 を Slack 自動投稿、Mio が朝レビューでテスト補強箇所を即特定。
+2. **Contract Testing 専門スキル（Pact / Schemathesis / openapi-msw）**: Ao の OpenAPI 仕様と Riku の FE クライアント間の契約整合性を CI で自動検証。msw モックを OpenAPI から自動生成し、仕様変更時に「モックが古いまま PASS して本番で契約違反」事故をゼロ化。Schemathesis でファジング駆動の API 契約破壊テストを nightly 実行。
+3. **Property-Based Testing 専門スキル（fast-check）**: 「正常系・異常系・境界値」の手書きケースでは網羅不能な入力空間を「プロパティ（不変式）」で表現し、fast-check が 1000 ケース自動生成。例：「並び替え後の配列は同じ要素数」「JSON.parse(JSON.stringify(x)) === x」等を assertion 化、エッジケース手書き工数 50% 削減＋偶発バグ検出率 3 倍。
+4. **AI Test Generation 専門スキル（Codium AI / Qodo Gen / GitHub Copilot Tests）**: 関数シグネチャ + JSDoc から AI がユニットテストひな型を自動生成、Mio は「テスト戦略の判断」と「異常系追加」だけに集中。Playwright codegen の操作記録に Claude でアサーション補完を組み合わせ、E2E テスト 1 シナリオを 60 分→3 分に短縮。
+5. **Visual Regression & Performance Testing 専門スキル（Chromatic / Percy / k6 / Lighthouse CI）**: Storybook + Chromatic で UI 変更の差分 AI 検出、k6 で「想定 traffic の 3 倍負荷シナリオ」を nightly 実行し p95 レイテンシ・エラー率の閾値違反を Slack 通知、Lighthouse CI で Core Web Vitals 回帰を PR ブロック。「動くか」「速いか」「見た目崩れていないか」の 3 軸自動化。
+
+### ツールアップグレード（5項目）
+
+1. **Vitest 3.0 への全面移行**: Vite ベースの 5 倍速度、ESM ネイティブ対応、ブラウザモード（実ブラウザでユニットテスト実行）対応。Jest 互換 API 維持で移行コスト最小、テスト実行時間 5 分→1 分、Riku/Ao の修正サイクル 10 倍速化。`vitest --changed` + `--shard=1/4` の二段並列化で PR フィードバックループを構造最適化。
+2. **Playwright 1.50（AI Auto-Healing + Test Generator 強化）**: UI セレクタ変更時に AI が「意図したのはこのボタン」と自動推論する self-healing で Flaky 調査工数 70% 削減。`npx playwright codegen` の操作記録 → Claude にアサーション補完依頼の 2 段化で E2E シナリオ作成 60 分→3 分。WebKit/Firefox/Chromium 3 エンジン並列で iOS Safari 固有バグも捕捉。
+3. **StrykerJS（@stryker-mutator/core + vitest-runner）**: Mutation Testing を nightly GitHub Actions で実行、Mutation Score を Looker で月次トレンド可視化。Critical Path での Survived Mutants はゼロ化を目標、Mio の「テスト品質を測るテスト」を CI に組込み、本番バグ検出率を構造的に向上。
+4. **Pact + openapi-msw + Schemathesis**: API 契約テストを「コンシューマ駆動（Pact）+ プロバイダ検証（Schemathesis）+ FE モック自動生成（openapi-msw）」の 3 段構成で CI 必須化。Ao の仕様変更が次回テスト実行で自動反映、契約違反は即 fail。手書きモック陳腐化リスクをゼロ化。
+5. **Codium AI / Qodo Gen + Snyk + Pentera AI**: AI テスト生成（Codium AI）でユニットテストひな型自動化、AI ペネトレーションテスト（Pentera）が継続的に脆弱性スキャン・攻撃シミュレーションを実行。Kuu の Snyk と組合せて「依存ライブラリ + 実装コード + 設定ファイル」の 3 軸セキュリティ自動化、OWASP Top 10 検出率 99%。
+
+### 出力品質向上策（3項目）
+
+1. **Mutation Score 80+ ゲート条件化**: 単純カバレッジ % ではなく Mutation Score を「テストの本質的品質」の主要 KPI 化。Critical Path（認証・決済・データ書込）は Mutation Score 80% 以上、全体 70% 以上を QA ゲート必須条件。Survived Mutants の TOP10 を Notion DB に自動投稿し、Mio が週次で「テスト補強候補」をレビュー、本番バグ検出率 3 倍向上。
+2. **Contract 検証 + 認可ペア自動生成**: OpenAPI スキーマから「Positive（自分 200）+ Negative（他人 403）」の認可テストペアと msw モックを自動生成。Ao の仕様変更があれば次回 CI で自動反映、契約違反・横展開アクセス脆弱性（OWASP A01）を構造的にゼロ化。Mio の手書きモック・認可テスト工数 30 分/エンドポイント → 0 分。
+3. **Critical Path テストカバレッジ 100% + 受入基準トレーサビリティ**: 認証・決済・データ書込・通知の Critical Path は unit/統合/E2E すべての層で 100% カバレッジ必須化。Nao の Given-When-Then 受入基準と `describe` 名を 1:1 紐付け、カバレッジ %（経路網羅）と受入基準トレーサビリティ（要件網羅）の二軸ゲートで「コード通っているが要件未検証」の盲点を構造排除。Kai への完了報告に「受入基準充足率 100%」を必須添付。

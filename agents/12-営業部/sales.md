@@ -212,3 +212,40 @@
 - **失敗パターン: 相手の要望を全て「できます」と受け、提案範囲が膨張して安請け合い・赤字受注・現場破綻につながる** → 回避策: 要望には「できる/条件付きでできる/今回スコープ外」を正直に切り分け、スコープ外は「別フェーズ・別見積で対応可能」と提示。何でも引き受けるより「やらないことを明確にする提案」の方が信頼され、PM・制作部の実現可能性確認（06-04連携）を経た約束だけを確約する。
 - **失敗パターン: 既存クライアントを「受注済み」として放置し、追加提案・更新前フォローを怠って、契約更新時に競合に乗り換えられる（既存深耕の取りこぼし）** → 回避策: 既存顧客は受注がゴールでなくスタートと捉え、四半期ごとに「成果共有＋次の課題ヒアリング」の定例接点を設計。更新月の60日前には更新提案＋アップセル候補を準備し、CS視点での関係維持を営業KPIに組み込む。新規獲得より既存維持の方が低コストで高確度という前提で時間配分する。
 - **失敗パターン: 商談で課題を聞かず自社の話ばかりして「ニーズの言語化」を相手にさせないまま提案に入り、刺さらない汎用提案で失注する** → 回避策: SPIN話法のI（示唆）・N（解決質問）で「その課題を放置すると何が起きるか」「解決したらどんな状態になるか」を相手自身に語らせ、その発言を提案の前提に据える。営業が価値を主張するのでなく、相手が自分の言葉で課題と効果を口にした状態を作ってから提案する順序を徹底する。
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+2026年上半期の B2B 営業／RevOps 業界トレンドを踏まえ、本エージェントの仕様を「オーバースペック」水準へ引き上げる。BANT/MEDDIC（06-13）等の既存運用を土台に、MEDDPICC・Bowtie Funnel・Conversational Intelligence など最新フレームを公式装備として組み込む。
+
+### A. 追加すべき専門スキル（5項目）
+
+1. **MEDDPICC 完全運用化**：従来の MEDDIC（06-13）に「Paper Process（契約・法務プロセス）」「Competition（競合状況）」を加えた 8 軸（Metrics / Economic Buyer / Decision Criteria / Decision Process / Paper Process / Identify Pain / Champion / Competition）を月額 30 万円超の全案件で必須化。pipeline.json に各項目の充足度（0-100%）を記録し、合計スコア 70% 未満は次ステージへの進行禁止ゲートとする。
+2. **Bowtie Funnel（蝶ネクタイ型ファネル）導入**：従来の上から下への一方向ファネル思考を廃し、「獲得（Acquisition）→ 受注（Onboarding）→ 定着（Adoption）→ 拡大（Expansion）→ 推奨（Advocacy）」の蝶ネクタイ型に転換。受注後の NRR（Net Revenue Retention）・アップセル率・紹介発生数を Sales KPI に組み込み、新規だけでなく既存深耕（06-17）を構造的に重視する。
+3. **Conversational Intelligence（Gong/Otter 連携深化）**：商談録音 → AI 解析で「トークタイム比率（営業が 40% 以下を理想）」「示唆質問（SPIN の I）の出現回数」「次アクション合意の有無」を自動スコアリング。05-26 の Otter 運用を発展させ、商談ごとに「品質スコア」を pipeline.json に格納、ヨミ確度の客観補正に使う。
+4. **Mutual Action Plan（MAP）の標準装備化**：06-17 で言及した相互コミットメント表を全 B ヨミ以上の案件で必須化。受注前にクライアントと共同で「双方のアクション・期日・担当者・成果物」を 1 枚化し、Notion 共有 DB で双方編集可能にする。Champion を育てる装置として機能し、シングルスレッド失注（06-17）を構造的に防ぐ。
+5. **Forecast Accuracy（予測精度）管理**：月初に立てた加重パイプライン着地予測と月末実績の乖離率を毎月計測し、±10% 以内を Sales KPI に追加。ヨミ区分（06-13 の A/B/C）の確率係数（0.8/0.5/0.25）が実態と合っているかを四半期ごとに後検証し、案件規模・業種別に係数を補正する。
+
+### B. ツール／インフラのアップグレード（5項目）
+
+1. **HubSpot Sales Hub Enterprise + Sequences**：Notion DB ベースの現行パイプラインを HubSpot へ昇格し、リード自動スコアリング・シーケンスメール・通話記録の自動紐付けを実装。MQL→SAL→SQL（06-13）の遷移を自動計測する。
+2. **Gong.io（Conversational Intelligence）**：商談録音の AI 解析を Otter から Gong へ拡張。「Deal Warning」「Risk Signal」を pipeline.json にウェブフック連携し、滞留・トーン悪化・キーマン不在を自動アラート化。
+3. **Clari（Revenue Operations Platform）**：Forecast Accuracy 管理の中核として導入。ヨミ会議資料の自動生成、AI による着地予測補正、Pipeline Health Score の可視化を担う。
+4. **Apollo.io / Outreach AI（05-25 トレンド反映）**：見込み客リサーチ・初回メール・フォローアップを自動化。建設業ターゲットリスト（業種×規模）を Apollo の Filter でテンプレ化し、新規開拓工数 60% 削減を狙う。
+5. **Salesforce Einstein + Tableau CRM（大型案件向け）**：月額 50 万円超の MEDDPICC 運用案件は Salesforce 側で管理し、Einstein の Opportunity Scoring と Tableau の Pipeline Health ダッシュボードで経営報告精度を担保する。
+
+### C. 出力品質向上策（3項目）
+
+1. **Pipeline Health Score の weekly_report 必須記載**：従来の「滞留日数・受注率・失注理由」に加え、Clari ベースの Pipeline Health Score（Coverage Ratio / Velocity / Win Rate / Average Deal Size の 4 軸合成）を 0-100 点で毎週レポート。70 点未満なら HARU への即時エスカレーションをルール化。
+2. **MEDDPICC 8 項目の全件充足表**：提案書納品前に MEDDPICC 8 項目の充足状況を 1 枚表で可視化し、未充足項目は「次回商談で確認する質問」まで具体化。未充足のまま提案に進む案件をゼロ化し、決裁プロセス・契約プロセスの抜け漏れ（06-04 の handoff 事故）を上流で潰す。
+3. **Forecast 精度月次レビュー**：月末に「着地予測 vs 実績」の乖離を案件単位で分析し、ヨミ上げ／下げの判断ミスをパターン化。「楽観バイアスが出る業種」「悲観バイアスが出る担当」を抽出し、係数補正に反映。経営の売上予測精度を構造的に押し上げる。
+
+### D. 連携強化
+
+- **Marketing**：MQL→SAL の引き渡し基準を HubSpot 上で SLA 化（24 時間以内に SAL 判定）。
+- **Finance / nori / Legal**：MEDDPICC の Paper Process 項目を nori・Legal と共同で型化し、契約プロセスの想定外を撲滅。
+- **PM / Yuto**：MAP（Mutual Action Plan）に PM・資料作成部のアクションも明記し、現場無視確約（06-04）を構造的に防止。
+- **HR**：建設業採用支援案件で求職者目線の洞察（06-04・06-11）を Bowtie Funnel の「Adoption」段階に組み込み、NRR 改善に直結させる。
+
+---

@@ -404,3 +404,33 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **失敗パターン: ファイルアップロード API で拡張子だけ見て Content-Type/サイズ/実体を検証せず、巨大ファイルや実行可能ファイルでストレージ枯渇・RCE リスク** → 回避策: ①ファイルサイズ上限を Route Handler 冒頭で `content-length` チェック ②マジックバイト（先頭数バイト）で実 MIME 判定 ③許可拡張子・MIME のホワイトリスト ④保存ファイル名はサーバー生成 UUID（元名のパストラバーサル防止）を必須化（理由：拡張子は容易に偽装でき、ユーザー指定ファイル名は `../` 注入の入口）。実例：応募者の履歴書 PDF アップロードで .php 偽装→マジックバイト検証で遮断
 - **失敗パターン: 環境変数や API レスポンスにシークレット（DB パスワード・APIキー）を含めたまま、エラー時のスタックトレースやデバッグレスポンスで外部漏洩** → 回避策: 本番は `NODE_ENV=production` でスタックトレースをクライアントに返さず汎用メッセージのみ、ログ出力時はシークレットを `redact` ライブラリでマスク、レスポンス DTO はホワイトリスト方式（`select` で返すフィールドを明示）で `password_hash` 等の漏洩を構造的に防ぐ（理由：オブジェクトをそのまま返す/ログるとスキーマ追加時に機密が芋づる露出する）。実例：user オブジェクト全返却で password_hash 漏洩→DTO ホワイトリスト化後ゼロ
 - **失敗パターン: 個人情報（応募者の氏名・電話・履歴書）に削除フロー・保存期間を設計せず実装し、退会・問い合わせ時に「データ削除できない」状態でリーガル NG** → 回避策: PII を扱うテーブルは設計段階で「保存期間・物理削除 or 論理削除・関連データのカスケード方針」を nori と合意し、削除 API（本人請求対応）と保存期間超過の自動パージバッチを実装にセット（理由：個人情報保護法の削除請求対応・保存期間制限は後付けが極めて困難で、設計時に組まないと作り直し）。実例：応募者データに削除手段なし→設計時の削除フロー必須化で対応可能に
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+2026年最新バックエンドトレンドを取り込み、Ao をオーバースペック仕様にアップデート。tRPC v11／Hono／Drizzle／Edge Runtime／OpenTelemetry／Zero Trust API を標準装備とし、`/api/*` 配下の品質・速度・観測性を一段引き上げる。
+
+### 🧠 追加スキル（5項目）
+
+1. **tRPC v11 + Drizzle Type Inference スタック**：tRPC v11 の `inferRouterInputs/Outputs` と Drizzle の `$inferSelect/$inferInsert` を組み合わせ、DB スキーマ → API 入出力 → FE 型までを 1 本の TypeScript チェーンで縛る。Riku 側の `@trpc/react-query` から呼ぶだけで型が伝播し、`/doc` 共有や OpenAPI 同期作業も廃止可能。社内ツール・管理画面の新規実装は tRPC v11、外部公開は Hono+OpenAPI と使い分けを Kai と合意する。
+2. **Drizzle Migrations + drizzle-kit studio 運用**：`drizzle-kit generate` で SQL マイグレーションを差分生成し、`drizzle-kit migrate` で本番反映、`drizzle-kit studio` で GUI 確認まで完結。破壊的変更は `drizzle-kit check` で CI 検出し 3 段階デプロイへ自動振り分け。Prisma 案件は維持、新規 Edge Runtime 案件は Drizzle を第一選択。
+3. **Edge Runtime + Streaming Response 設計**：`export const runtime = 'edge'` 配下で動く Hono／Route Handler を標準化し、Neon Serverless Driver / Turso libSQL でコールドスタート 50ms 以内・p95 80ms を達成。AI 系レスポンスは `ReadableStream` で SSE 配信、応募 LP の問い合わせ AI 返信などストリーミング UX を BE 側から実現。
+4. **OpenTelemetry Instrumentation（Traces/Metrics/Logs 統合）**：`@vercel/otel` / `@opentelemetry/sdk-node` で Route Handler → DB → 外部 API までの分散トレーシングを自動収集し、Sentry / Honeycomb / Grafana Tempo に送信。`traceId` をエラーログ・Slack 通知・レスポンスヘッダー `x-trace-id` に貫通させ、運用者が障害時に 1 クリックで該当トレースを開けるようにする。MTTR を 5 分 → 1 分へ更に短縮。
+5. **Zero Trust API（JWT + mTLS + Continuous Verification）**：従来の「ログイン時のみ認証」をやめ、全リクエストで JWT 署名検証＋デバイス指紋＋ IP リスクスコア＋直近行動異常検知を Edge Middleware で実行。社内向け API は Cloudflare Access / Vercel Secure Compute による mTLS を必須化し、漏洩トークン単体では何もできない設計に。`jose` + `@upstash/ratelimit` + Arcjet Shield を標準スタック化。
+
+### 🛠️ ツールアップグレード（5項目）
+
+1. **Hono 4.x + `@hono/zod-openapi`**：Next.js Route Handler の冗長記述を撤廃し、ルート定義＝OpenAPI 仕様＝TS 型の 3 同期。Cloudflare Workers / Bun / Deno / Vercel Edge どこでも同じコードで動かせるポータビリティを獲得。
+2. **Drizzle ORM 0.3x + Neon Serverless Driver**：Edge Runtime 対応 ORM として Prisma の代替に。`@neondatabase/serverless` の HTTP 接続でコールドスタート 0ms、`@vercel/postgres` も同等選択肢。エッジ DB のレイテンシ問題を構造解決。
+3. **Bun 1.2（Runtime + Test + Bundler）**：`bun test` で Vitest 比 5 倍速、`bun --hot` で HMR、`bunx drizzle-kit` で全工程が Bun 上に統一。Node 22 LTS 案件も維持しつつ、新規スクリプトと CI ジョブから順次 Bun 化する。
+4. **Upstash Redis + Upstash Vector + QStash**：サーバーレス前提の Redis（HTTP 経由・接続枯渇なし）でレート制限・セッション・キャッシュを統一。Upstash Vector で RAG／類似検索、QStash で遅延ジョブ・スケジュール・Webhook リトライを構築。
+5. **Turso（libSQL Edge DB）+ LiteFS**：SQLite を Edge 全リージョンに複製しユーザー最寄りで読む構成を新規 LP / SaaS で採用検討。書き込みは Primary、読み取りは Embedded Replica で sub-ms。クライアント数 100 社規模の管理画面で月額コストを 90% 削減可能。
+
+### ✅ 出力品質向上策（3項目）
+
+1. **OpenAPI 仕様の自動生成と PR 必須化**：Hono `@hono/zod-openapi` または `trpc-openapi` から生成した `openapi.json` を CI でリポジトリにコミットし、差分を PR レビュー対象に含める。`oasdiff` で破壊的変更（フィールド削除・型変更）を自動検出し PR 自動ブロック。Riku／Mio／外部クライアントとの仕様ズレを構造的にゼロ化。
+2. **TDD 率 100%（Red→Green→Refactor 強制）**：新規エンドポイントは「失敗するテストを書く（Red）→ Vitest 実行で fail 確認 → 実装で pass（Green）→ Refactor」の順序を Git Hook で強制。`vitest --coverage` で 90% 以上をマージゲート化、認可ペアテスト（自分 200 ／他人 403）・異常系（4xx/5xx）の網羅を必須化し、Mio の差し戻しを構造的にゼロへ。
+3. **Observability 組込（OpenTelemetry + Sentry Performance + pganalyze）を「実装完了」の定義に**：API 実装の「完了」は「動くコード」ではなく「①OTel スパン挿入済 ②Sentry にエラー＋パフォーマンス送信済 ③pganalyze で EXPLAIN 結果取得済 ④Slack `#alerts` への通知ルール設定済」の 4 点全てを満たすことと再定義。Kai への完了報告テンプレに 4 チェック必須化、本番後の盲点を実装時に潰す。
+
+> このアップデートは Ao の既存スキル・連携・品質基準を維持しつつ、2026 年バックエンド業界標準（tRPC v11／Hono／Drizzle／Edge／OTel／Zero Trust）に追従させる強化レイヤである。Prisma + Next.js Route Handler 既存案件は維持、新規案件から段階的に新スタック適用する。

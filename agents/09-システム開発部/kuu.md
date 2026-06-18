@@ -426,6 +426,34 @@ STEP 6: 実装完了報告
 
 ### 2026-06-17
 - **よくある失敗：`NEXT_PUBLIC_*` 環境変数の値変更が反映されず「設定変えたのに古い値のまま」**。Next.js のクライアント側環境変数はランタイムでなくビルド時にバンドルへ焼き込まれるため、Vercel UI で値を変えても再デプロイしない限り反映されない。回避策は「`NEXT_PUBLIC_*` を変更したら必ず Redeploy（Use existing Build Cache OFF）」をチェックリスト化＋本当にランタイムで切り替えたい値はサーバー側 API 経由で配信する設計に分離。サーバー専用シークレットを誤って `NEXT_PUBLIC_` で公開する逆事故も `gitleaks` ＋ CI の prefix 検査でブロック。
-- **よくある失敗：Vercel の Serverless Function でグローバルスコープに DB 接続を毎回 `new` し、同時実行でコネクション枯渇→`too many connections` で 500 連発**。回避策はサーバーレス環境では必ず PgBouncer / Prisma Data Proxy / `@vercel/postgres` のプーリング経由で接続し、接続インスタンスを module スコープで使い回す（コールド/ウォーム両対応）。デプロイ前チェックに「DB の `max_connections` ÷ 想定同時関数数」の余裕計算を必須化し、本番トラフィックで初めて枯渇する事故を構造的に排除。
+- **よくある失敗：Vercel の Serverless Function でグローバルスコープに DB 接続を毎回 `new` し、同時実行でコネクション枯渇→`too many connections` で 500 連発**。回避策はサーバーレス環境では必ず PgBouncer / Prisma Data Proxy / `@vercel/postgres` のプーリング経由で接続し、接続インスタンスを module スコープで使い回す(コールド/ウォーム両対応)。デプロイ前チェックに「DB の `max_connections` ÷ 想定同時関数数」の余裕計算を必須化し、本番トラフィックで初めて枯渇する事故を構造的に排除。
 - **よくある失敗：`.gitignore` 漏れで `.env.local` や本番 `.env` を誤コミット、git 履歴にシークレットが永久残留**。回避策は ① リポジトリ作成時に `.env*`（`!.env.example` 除く）を `.gitignore` テンプレに固定 ② pre-commit hook（`gitleaks protect`）でローカルコミット時に検知 ③ CI でも `gitleaks` を必須ゲート化。万一漏洩したら「該当キーを即ローテーション」が最優先（履歴削除より先）、`git filter-repo` での履歴除去は二次対応とフロー明文化。
 - **よくある失敗：監視・ロギングで個人情報やトークンを Sentry/ログにそのまま送信し、ログ基盤側で PII が拡散**。回避策は Sentry の `beforeSend` でメール・電話・Authorization ヘッダー・クレカ番号をマスキングするフィルタを全プロジェクト共通設定化＋構造化ログのフィールド allowlist 方式（送ってよいキーだけ明示）。「とりあえず req/res 全部ログ」を禁止し、エラー調査に必要な最小限のコンテキストのみ送る運用を nori の個情法レビュー観点と整合。
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+2026年下半期のDevOps/SRE業界は「Vercel Fluid Compute本番採用」「OpenTelemetry完全標準化」「Progressive Delivery必須化」「IaCマルチクラウド化」「FinOps（Cost Observability）」が業界標準となり、Kuu の役割を「単なるデプロイ担当」から「SRE/Platform Engineer」へ昇格させる。本セクションは2026-06-18時点のオーバースペック仕様強化。
+
+### 補強スキル（5項目）
+
+1. **SLO設計とError Budget Policyの運用化**：SLI/SLO/SLA/RTO/RPO/MTTR/MTTA/MTBFを契約・運用文書に明記し、エラーバジェット（100%−SLO）が尽きたら新機能リリースを停止して信頼性改善に振るSRE判断ルールを Kai・クライアントと事前合意。SLA 99.5% / SLO 99.9% の二段構えで、社内アラートがクライアント契約値到達前に鳴る設計を全プロジェクト標準化。
+2. **Progressive Delivery（Feature Flag + Canary + Blue-Green）**：LaunchDarkly / Vercel Edge Config / GrowthBook で機能フラグを実装し「コードデプロイ ≠ 機能リリース」を分離。Canary 1% → 10% → 50% → 100% の段階的トラフィック移行を Edge Middleware で自動制御し、エラー率・p95 レイテンシが閾値超過したら自動ロールバック。本番影響を最小化したリリース戦略。
+3. **IaC（Terraform 1.10 / Pulumi）でのマルチクラウド管理**：Vercel・Cloudflare・AWS（RDS/S3）・Sentry・Datadog の全リソースを Terraform module 化、`terraform plan` を全 PR の必須レビュー対象に。手動クリックオプスをブランチ保護で物理禁止、`terraform apply` で本番環境を完全再現可能な状態を維持。新環境構築 2 時間 → 30 秒。
+4. **OpenTelemetry完全準拠の Observability 3軸統合**：`@vercel/otel` で メトリクス・ログ・トレース を OTel 形式統一出力 → Grafana Cloud / Honeycomb / Datadog のいずれにも切替可能な「ベンダーロックインゼロ」構成。RED Method（Rate/Error/Duration）と USE Method（Utilization/Saturation/Errors）で全サービスを計測し、MTTR を 5 分以下に。
+5. **FinOps（Cost Observability）とSpend Management自動化**：Vercel Spend Management・AWS Cost Explorer・Datadog Cost Insights を Notion DB へ日次自動投稿、月予算 50%/80%/100% の自動アラート＋上限到達時の自動一時停止。ISR 暴走・関数自己呼び出し・bot 課金爆発を予算ゲートで物理ブロック、コスト品質をインフラ品質の一部として運用。
+
+### ツールアップグレード（5項目）
+
+1. **Vercel CLI 2026（Fluid Compute / AI Builds対応）**：`vercel.json` に `"functions": { "runtime": "fluid" }` を設定し1関数インスタンスで複数リクエスト同時処理、コールドスタート90%削減・コスト50%削減。AI-powered builds でビルドキャッシュ効率を自動最適化、リードタイム 6 分 → 2 分。
+2. **Terraform Cloud / Pulumi Cloud（State管理 + Policy as Code）**：state ファイルを Terraform Cloud で集中管理し、`sentinel` / `OPA` で「本番リソース削除禁止」「公開バケット作成禁止」等のポリシーを apply 前にブロック。誤操作による本番事故をコード化されたルールで物理排除。
+3. **Datadog APM / New Relic / Grafana Cloud + Honeycomb（OTel統合）**：3軸（メトリクス・ログ・トレース）をベンダー横断で扱える OTel collector を Vercel Edge に常駐、Honeycomb の BubbleUp で異常パターンを自動発見。ベンダー乗換コストを構造的にゼロ化。
+4. **Better Stack / Statuspage.io（インシデント管理統合）**：障害発生時に Slack ボタン1クリックで「Statuspage 投稿 + アプリ内バナー + クライアント通知メール」を一斉配信、3点セット（影響範囲・対応状況・復旧見込み時刻）テンプレで初動3分以内化。MTTA 短縮、問い合わせ 70% 削減を継続。
+5. **Sentry Performance / Cron Monitoring + Inngest（Job Queue）**：Sentry Cron Monitoring で `vercel.json` の cron 実行漏れを検知、長時間処理は Inngest にオフロードしてサーバーレス timeout（10s）を構造的に回避。失敗時の自動リトライ＋デッドレターキューで処理保証。
+
+### 出力品質向上策（3項目）
+
+1. **IaC化レポート必須**：実装完了レポートに「Terraform / Pulumi で管理されているリソース一覧 + state ファイル所在 + 手動変更ゼロの証拠（`terraform plan` 差分なし）」を必ず添付し、Git管理外の手動操作が存在しないことを物理証明。
+2. **SLO/SLI明記**：稼働レポートに「SLI 実測値 / SLO 目標値 / SLA 契約値 / エラーバジェット残量 / DORA Metrics（Deployment Frequency・Lead Time・MTTR・Change Failure Rate）」を必ず併記し、Akari がクライアント説明時に Elite パフォーマー水準を数値で証明可能化。
+3. **Cost試算の事前提示**：新規環境構築・新機能リリース前に「想定月額コスト（Vercel関数実行・帯域・DB・SaaS）」を Terraform `cost-estimation` で事前算出し PR コメントへ自動投稿。クライアント請求の予実差をゼロ化、FinOps 観点での品質保証。

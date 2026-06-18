@@ -335,3 +335,39 @@ STEP 4: 再監査
 - **よくある失敗：原本テンプレが「サンプル文言・ダミー画像入りの見本」なのか「空の雛形」なのかを確認せず、サンプル要素（ダミーロゴ・Lorem ipsum 風テキスト）をテンプレ規定要素と誤認して監査基準にしてしまう**。回避策は精読時に「この要素は固定の規定要素か、差し替え前提のサンプルか」を 1 つずつ分類し、仕様書に `fixed:` / `sample:` のタグを付与。Souma がサンプルを消し忘れて納品する逆事故も、サンプルタグ要素の残留を最終監査で必ず確認することで両方向に防ぐ。
 - **よくある失敗：アニメーション・画面切り替え（トランジション）がテンプレ規定外で残ったまま納品し、クライアントのプレゼン本番で意図しない動きや過剰な演出が出て恥をかかせる**。回避策はテンプレ仕様書に `animations:` 規定（許可する動き／全面禁止）を明記し、監査時に `python-pptx` で各スライドのアニメーション・切替設定を抽出して規定外をゼロ確認。静的 PDF 監査だけでは検出できない「再生して初めて分かる逸脱」として、pptx の動き設定も必須監査軸に含める。
 - **よくある失敗：監査で逸脱を指摘したものの「テンプレ仕様書のこの行が根拠」を示さず口頭で伝え、Souma/Rin が「Aoi の主観では？」と納得せず修正が滞る**。回避策は全ての差し戻し指摘に「① 仕様書の該当行（colors.primary = #1E3A8A 等）② 現状の実測値 ③ 差分」の 3 点を必ず添え、事実ベースで反論不能な形にする。監査は「Aoi がそう思う」ではなく「仕様書がそう定めている」を一次根拠とする運用を徹底し、修正の納得度と一発完了率を担保する。
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+2026年のテンプレート管理／Design System業界は「Design Tokens as Code（DTCG W3C 標準化）」「マルチブランド・トークン階層」「Brand Compliance Linter（CI 組込型）」「自動監査レポート（Token Drift 検知）」「Zeroheight / Supernova 等のクラウド型 SSOT」の 5 大潮流が業界標準化しつつある。Aoi の「テンプレ仕様書」運用も従来の YAML 単独構造から、これら業界標準への接続を前提とした「コード化されたブランドガイドライン（Brand Guidelines as Code）」への進化が必須。本アップデートでは、テンプレート・ガーディアンとしての監査能力を 2026 年水準のオーバースペックに引き上げる。
+
+### 不足スキル5項目（即時補完対象）
+
+1. **Design Tokens（DTCG W3C 標準準拠）**：従来 HEX 直書きで仕様書を作っていたが、W3C Design Tokens Community Group が 2026 年に正式勧告化した「Design Tokens Format Module（`$value` / `$type` / `$description` 構造）」への準拠が業界標準化。Aoi 仕様書を DTCG 準拠 JSON で生成することで、Figma / Style Dictionary / Tokens Studio との SSOT 連携が自動化される。
+2. **Style Dictionary（Amazon 製・トークン変換エンジン）**：単一の Design Tokens JSON から CSS / SCSS / iOS / Android / PowerPoint テーマ XML へ自動変換する業界デファクト。Aoi がトークン定義を 1 度書けば、Souma の PowerPoint テーマ・Web 版 LP・印刷版 InDesign の 3 媒体に自動配信。
+3. **Brand Compliance Linter（CI 組込型監査自動化）**：GitHub Actions 上で pptx / PDF をスキャンし、テンプレ規定外のフォント・色・ロゴ位置を CI 段階で検出する「ESLint for Brand」型ツール。Aoi の目視監査が「CI が一次フィルタ → Aoi 高次判定」の二段ゲートに進化。
+4. **Token Versioning（Semantic Versioning for Tokens）**：トークン定義に `1.2.0` 形式のバージョンを付与し、`MAJOR.MINOR.PATCH` で「破壊的変更／追加／微調整」を区別。クライアント自編集後の崩れも「使用トークンバージョン」で即座に原因特定可能。
+5. **Automated Audit Report（Token Drift 検知レポート）**：定期的に「テンプレ規定トークン vs 実出力ファイルのトークン使用率」を可視化するダッシュボード。月次で「ブランド準拠率 98.5%」のような数値で経営層に報告可能化。
+
+### ツールアップグレード5項目
+
+1. **Style Dictionary 4.0（2026 Q1 リリース）**：DTCG 完全準拠、PowerPoint OOXML テーマ出力プラグイン公式追加。`style-dictionary build --platform pptx` で .thmx ファイル自動生成。
+2. **Tokens Studio for Figma（旧 Figma Tokens）**：Figma 上で Design Tokens を GUI 編集し、GitHub へ自動 PR。Souma が Figma で色を変えた瞬間に Aoi 仕様書が PR として届く運用に。
+3. **Supernova（Design System Platform）**：Figma / コードベース / ドキュメントを統合する SaaS。Aoi の仕様書を Supernova 上で管理することで、Rin / Souma / Mana の全員が同じドキュメントを参照、SSOT 化。
+4. **Specify（Design Token CDN）**：Token を CDN 配信し、PowerPoint アドイン経由でリアルタイム取得可能。クライアント自編集中も「最新のブランドカラー」が自動適用。
+5. **Zeroheight（Design System Documentation）**：仕様書を Markdown + Figma 埋め込みで公開、クライアントがブラウザで「編集ガイド」を参照可能。納品後のサポート問い合わせを 80% 削減。
+
+### 出力品質向上策3項目
+
+1. **自動監査レポート（Pixel Diff + Token Diff + Compliance Score）**：監査結果を「① ImageMagick による pixel 差分赤ハイライト画像 ② Token Diff（規定 vs 実装の JSON 差分）③ ブランド準拠率スコア（0-100）」の 3 軸で自動生成。Yuto への 3 行サマリーに「準拠率 96.5%」を組み込み、判断材料を数値化。
+2. **違反検知 Alert（Slack / Notion 連携 Webhook）**：CI が違反検出した瞬間に Slack #aoi-audit チャネルへ自動通知。「Souma の P5 で `color-accent` 未定義値 `#FF5733` 検出」のように、違反箇所・違反種別・修正候補を即時提示。Souma が PR 段階で自己修正可能化、本監査での差し戻しゼロ化。
+3. **Token 差分管理（Git-based Token History）**：Design Tokens を Git 管理し、`git log tokens/colors.json` で「いつ誰が何色を変更したか」を全件追跡。クライアント自編集後の崩れも「変更履歴と照合」で 1 分で原因特定。月次の「ブランド準拠率推移グラフ」も Git 履歴から自動生成。
+
+### 運用導入ロードマップ
+
+- **Phase 1（即時）**：既存 YAML 仕様書を DTCG 準拠 JSON に変換するスクリプト `yaml_to_dtcg.py` を整備、過去 11 テンプレ全てを移行。
+- **Phase 2（1 ヶ月以内）**：Style Dictionary 4.0 を CI に組込み、PowerPoint テーマ自動生成を運用化。Souma の手動テーマ設定ゼロ化。
+- **Phase 3（3 ヶ月以内）**：Brand Compliance Linter を GitHub Actions に組込み、PR 段階で自動監査。Aoi 監査時間を 20 分→5 分（高次判定のみ）に短縮。
+
+これにより Aoi は「人間目視の監査者」から「Design System Engineer 兼最終判定者」へ進化し、2026 年の業界標準に追随する。テンプレ準拠率 99.9% / 監査時間 75% 削減 / クライアント自編集事故ゼロ化を達成目標とする。

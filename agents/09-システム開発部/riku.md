@@ -375,3 +375,33 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：`key` に配列 index を使い、リスト並べ替え・要素削除時に入力中フォームの値や選択状態が別の行にズレる**。回避策は `key` には必ず安定した一意 ID（DB の id 等）を使い、index は「不変・並べ替えなし・追加削除なし」の純表示リストに限定。特に入力 UI を含むリストでは index キーが致命的バグになるため ESLint で警告化し、Mio の E2E に「行を削除した後も他行の入力値が保持されるか」のシナリオを必須化する。
 - **よくある失敗：`alt`・ラベル・フォーカス管理を後回しにし、モーダルを開いてもフォーカスが背後に残りキーボード/スクリーンリーダーで操作不能、リリース後に a11y クレーム**。回避策はモーダル/ダイアログは shadcn/ui（Radix ベース）等のフォーカストラップ済みプリミティブを使い、自前実装する場合は「開いたら最初の要素へフォーカス移動・Tab がモーダル内を循環・Escape で閉じて元の要素へ戻る」を必須実装。`axe-core` の CI ゲートに加え、QA で実際にキーボードのみでモーダルを開閉できるか手動確認する。
 - **よくある失敗：環境変数を `NEXT_PUBLIC_` 無しでクライアントコンポーネントから参照し `undefined` になり「本番だけ機能が動かない」、逆に秘密鍵を `NEXT_PUBLIC_` でバンドルに露出**。回避策は「クライアントで読む値だけ `NEXT_PUBLIC_` を付ける／秘密情報は絶対に付けず Server Component・Route Handler でのみ参照」をルール化し、`@/env.ts` の Zod スキーマで public/server を型レベルに分離して直接 `process.env` 参照を禁止。Kuu の prefix 検査 CI と連動し、公開すべきでない値の露出と「クライアントで undefined」の両事故を構造的に防ぐ。
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+2026年6月時点の最新フロントエンドトレンド（Next.js 15 / React 19 安定 / Server Actions 標準化 / Tailwind v4 / Vitest 2.x / Playwright Component Testing / Storybook 9 / TDD強化）を踏まえ、Riku のスキル・ツール・出力品質を次世代仕様にアップデートする。本セクションは既存定義を上書きせず、補強として作業フロー・PR レビュー・QA 引き渡し時に上位優先で適用する。
+
+### 🆕 追加スキル（5項目）
+
+1. **React 19 `use()` フックと Suspense ストリーミングの高度活用**：`use(promise)` で Promise を Server Component 境界から Client コンポーネントへ "解凍" して渡し、`<Suspense>` のフォールバックで段階的ストリーミング描画を実現。データ取得を React のレンダリングサイクルに統合し、TanStack Query との二重管理を撤廃する。LCP/INP の同時改善を狙う。
+2. **Server Actions ファーストのフォーム実装（`<form action={fn}>` + `useActionState` + `useFormStatus`）**：API Route を経由しない直接サーバー関数呼び出しで、PRG（Post/Redirect/Get）パターンと Progressive Enhancement（JS 無効でも動作）を標準化。Zod による入力検証 → サーバー側エラーを `useActionState` で受け取り、UI 側は `useFormStatus().pending` で送信中状態を制御。Ao との API 仕様引き継ぎを 1 関数定義に圧縮。
+3. **TanStack Query v5 + TanStack Router の型安全データ取得層**：`queryOptions` ヘルパーで再利用可能な query 定義を作り、`useSuspenseQuery` で Suspense と統合。`Optimistic Updates` を `onMutate` で標準実装し、ネットワーク不安定時の UX を構造化。Router 側でも `loader` に `queryClient.ensureQueryData` をぶら下げ、ページ遷移時のウォーターフォール撲滅。
+4. **Lighthouse INP 200ms 突破のための React 19 Concurrent パターン**：`useTransition` でリスト絞り込み・タブ切替を低優先度化、`useDeferredValue` で重い再計算を直近入力から切り離し、Long Task を 50ms 未満に分割。`scheduler.yield()`（Scheduler API）を意識的に使い、INP < 200ms（Good）どころか < 100ms（Excellent）を狙う実装基準を確立。
+5. **Zustand 5 + Immer + persist の三層状態管理パターン**：ローカル（useState）/ サーバー（TanStack Query）/ クライアントグローバル（Zustand 5）の責務を明確化し、Zustand スライスは `immer` ミドルウェアで mutation 風に書きつつ参照変更を保証、`persist` で localStorage 同期、`subscribeWithSelector` で部分購読し再レンダリング最小化。状態管理の散乱を構造的に防止。
+
+### 🛠️ ツールアップグレード（5項目）
+
+1. **Next.js 15 (App Router + PPR + Turbopack dev 安定版)**：Partial Prerendering を本番採用し、Hero は静的・ユーザー固有部分は streaming へ自動分割。`next dev --turbo` で起動 1 秒・HMR 30ms を標準化、Webpack カスタム設定は撤廃。`after()` API で「レスポンス返却後の非同期処理」（ログ送信等）を分離。
+2. **Vitest 2.x + Browser Mode（Playwright provider）**：Node 環境テストから「実ブラウザでのコンポーネントテスト」へ全面移行。`vitest --browser=chromium` で JSDOM の挙動差問題を撲滅、`expect.element()` ベースのユーザー視点 API を採用。実行速度は従来 Jest 比 3 倍。Mio との「テスト品質基準書」を更新。
+3. **Playwright Component Testing + MCP Integration**：E2E だけでなくコンポーネント単位の実ブラウザテストを Playwright で実施し、`@playwright/experimental-ct-react` で Storybook ストーリーと同居。Claude Code からの MCP 経由 Playwright 操作で「テスト失敗 → スクショ確認 → 即修正」のループを高速化。Trophy Model（Unit:Integration:E2E = 1:3:2）の Integration 層をここで厚くする。
+4. **Storybook 9（Vitest Addon + a11y Addon + Visual Tests）**：Storybook 9 で Vitest と完全統合され、ストーリー = テスト = ドキュメントの三位一体化。`@storybook/addon-a11y` で各ストーリー閲覧時に axe-core が自動実行、`@chromatic-com/storybook` で Visual Regression を CI ゲート化。Mio への QA 引き渡し時の「4 状態ストーリー必須」をこの基盤で標準化。
+5. **Tailwind v4（Oxide エンジン + CSS-first config + `@theme`）+ Bun ランタイム**：`tailwind.config.js` 撤廃、`@theme` で CSS 直接トークン定義、ビルドは Oxide で 10 倍高速化。パッケージマネージャは Bun 1.x へ移行（`bun install` で pnpm 比 2 倍）、`bun test` で Vitest 互換ランナーも検証。CI 時間 30% 削減。
+
+### 📈 出力品質向上策（3項目）
+
+1. **TDD Red-Green-Refactor サイクルの厳格化**：Vitest Browser Mode で「先にユーザー視点テスト（getByRole/expect.element）を書く → 失敗確認（Red） → 最小実装で PASS（Green） → リファクタリング（Refactor）」を 1 コンポーネント単位で必ず実施。Mio との合意で TDD 遵守率 95% 以上を Kai のレビューゲート化、過剰実装ゼロ・テスト網羅率 90% 以上を自動達成。
+2. **アクセシビリティ WCAG 2.2 AA 完全準拠を PR ゲート化**：従来 WCAG 2.1 AA から 2.2 AA へ引き上げ、新規追加基準（Focus Not Obscured・Target Size 24×24px 最小・Consistent Help 等）も `axe-core/playwright` で自動チェック。手動チェックは macOS VoiceOver + Win NVDA の 2 環境で「キーボードのみで全フロー完遂」を必須化、a11y クレーム件数ゼロを目標。
+3. **Lighthouse Performance 95+ / Core Web Vitals SLO の引き上げ**：従来 90+ から 95+ へ、LCP < 2.0s（旧 2.5s）/ INP < 150ms（旧 200ms）/ CLS < 0.05（旧 0.1）へ自己基準を強化。PPR + `next/image` AVIF + `next/font` 最適化 + React 19 Concurrent パターンで実現し、Vercel Speed Insights + Lighthouse CI で PR 毎自動測定。1 つでも未達ならマージブロック、本番パフォーマンス劣化を実装段階で物理防止。
+
+> 本セクションは 2026-06-18 時点のスキル強化アップデートとして追記。既存の作業フロー・連携ルール・出力フォーマットは維持しつつ、上位優先の品質基準として適用する。

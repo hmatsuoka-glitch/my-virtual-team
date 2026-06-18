@@ -135,3 +135,49 @@
 - **失敗パターン: 異常系の補償イベントを「正常系の逆操作」と安易に設計し、副作用の取り消し漏れが残る** → 回避策: 補償イベントは「すでに発生した外部副作用（出荷指示・請求・在庫引当）を個別に打ち消す」観点で設計し、状態を戻すだけにしない（理由：状態だけ巻き戻しても、出荷済み・請求済みの外部作用は残り、キャンセルなのに請求書が発行されたままになる）。各遷移で発生する外部副作用を列挙し、補償時に1つずつ取り消す設計をレビュー項目化する
 - **失敗パターン: SLAタイマーを永続化せず、サーバー再起動・デプロイで予約済みタイムアウトが消える** → 回避策: タイマー起動イベントはメモリ上のスケジューラでなく永続ストア（DB・ジョブキュー）に登録し、再起動時に復元する（理由：プロセス内タイマーはデプロイのたびに消え、承認待ちタイムアウトが発火せず案件がSLA監視の外で永久滞留する最頻出事故）。再起動後にタイマー残数を突合する起動時チェックを設ける
 - **失敗パターン: 受注フォームの入力バリデーションを後工程の状態遷移側だけに置き、不正データがフローに流入する** → 回避策: 必須項目・型・コード値の検証は受注フォーム（入口）で行い、状態遷移に乗る前にブロックする（理由：入口で弾かずに遷移途中でエラー化すると、すでに発注・在庫引当まで進んだ案件をError状態から手動修復する羽目になる）。頻出の差し戻し理由は入口バリデーションに昇格させ、後工程の手戻りを未然に断つ
+
+---
+
+## 🚀 スキル強化アップデート 2026-06-18
+
+### 背景：2026年Agentic AI/Workflow業界トレンド
+
+2026年は「Agentic AI元年」と呼ばれ、受注ワークフロー設計の世界も大きく転換した。Anthropic Claude Agent SDK（旧Claude Code SDK）が業務エージェント構築の標準となり、MCP（Model Context Protocol）による外部システム連携が事実上のデファクトに。LangGraph 0.3系のステートグラフ機能は状態遷移設計と親和性が極めて高く、受注ステートマシンをそのままLangGraphノードに写像する設計手法が広がっている。CrewAI／AutoGen v0.4／Letta（旧MemGPT）の三者は「マルチエージェント・オーケストレーション」の選択肢として競合し、受注フローの分岐先ごとに専門エージェントを配置するパターンが定着。さらにCursor Agentsの自律的タスク実行、Temporal.io v1.25のDurable Execution、Inngestのイベント駆動ワークフローエンジンも、Owlの設計領域に直接影響している。Owlは「状態遷移表を設計する人」から「Agentic Workflowを統括する人」へと役割拡張すべきタイミングである。
+
+### 強化方針：3サブセクション
+
+#### ① スキル不足5項目の補強（具体）
+
+1. **MCP（Model Context Protocol）サーバー設計力**：受注ステートマシンをMCPサーバー化し、Claude AgentやCursor Agentsから状態遷移をツール呼び出しで実行可能にする設計が欠如。「state_transition」「compensate_event」「query_sla」をMCPツールとして定義する標準テンプレが必要
+2. **LangGraphステートグラフ設計力**：従来のenum＋遷移表をLangGraphのStateGraph／conditional_edgeに写像するスキル不足。Order/PurchaseOrder/Shipmentの3サブグラフをsupervisor patternで束ねる設計が今後の主流
+3. **Durable Execution（Temporal/Inngest）の設計知識**：補償イベント・SLAタイマー永続化（06-17失敗パターン）の根本解はDurable Execution。Workflow as Codeでサーバー再起動を生き延びる設計力が不足
+4. **マルチエージェント・オーケストレーション設計**：CrewAI／AutoGen v0.4でBo・Dat・KPIマネージャーをエージェント化し、Owlがsupervisorとして調停する設計パターンの未習得
+5. **Letta（MemGPT）型の長期記憶設計**：状態遷移履歴を「エージェントの長期記憶」として保持し、類似ケース検索を自動化する設計知識が不足
+
+#### ② ツールアップグレード5項目
+
+1. **Anthropic Claude Agent SDK**：受注ステートマシンを`@tool`デコレータでラップし、Claude Agentが自律的にSLA催促・補償発火を実行する基盤に採用
+2. **LangGraph 0.3+**：StateGraph／checkpointer（PostgresSaver）／HumanInTheLoopで「承認待ち中断・再開」を標準化、状態遷移をコード化
+3. **CrewAI Flows**：5大異常系パスを各CrewのFlowとして定義、補償イベントをTask単位で並列実行
+4. **AutoGen v0.4 + Temporal.io**：オーケストレーション型Saga（06-13用語再確認）をDurable Execution上で実装、サーバー再起動でもタイマー消失ゼロ
+5. **Letta（旧MemGPT）+ Inngest**：イベント駆動の永続記憶エージェントで「過去類似ケース提示」を自動化、SLA ALERTの推奨アクションリンク（05-26）を動的生成
+
+#### ③ 出力品質向上策3項目
+
+1. **output.jsonに`mcp_tools`／`langgraph_nodes`／`durable_workflows`の3セクション追加**：state_machinesだけでなくAgentic実装への直接マッピングを同梱、Boへの引き渡し物（06-11）を「実装即着手パッケージ」から「エージェント即起動パッケージ」へ昇格
+2. **設計レビューにAgent Trace（LangSmith／AgentOps）の事前シミュレーション結果を必須添付**：状態遷移の到達不能検出（06-12）に加え、エージェント実行ログのトレース分析で「分岐コスト・LLM呼び出し回数・補償発火率」を定量提示
+3. **顧客向け通知文面（06-07の表示ラベル）をLLM生成テンプレで多言語化**：状態遷移ペアに「日本語／英語／簡体字」の3言語ラベルを必須化、グローバル受注（cantera等の海外案件）に即対応
+
+### 連携強化メモ
+
+- **Bo連携**：MCPサーバー仕様＋LangGraphコードをセットで引き渡す新標準へ移行
+- **Dat連携**：実測リードタイム分布をLangSmith Datasetとして共有、SLA閾値の自動更新（06-16）をAgentOpsで監視
+- **KPIマネージャー連携**：Inngestイベント経由でk4_sla_violation_countを発火、SSOT一本化を維持
+- **sora QA連携**：Agent Traceサマリを納品物に同梱し、品質保証の根拠を可視化
+
+### 次アクション
+
+- `agents/order_workflow_designer/output.json`スキーマv2のドラフト作成
+- LangGraph PoC：Order状態遷移をStateGraphで再現、PostgresSaverで永続化
+- MCPサーバーひな型を`packages/mcp-order-workflow/`として準備
+- Bo・Datとの連携プロトコル更新ミーティングをryota経由で設定
