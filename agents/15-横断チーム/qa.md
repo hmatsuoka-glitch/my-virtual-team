@@ -59,6 +59,71 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 2026年スキル強化セクション（横断QA・整合性レビュー）
+
+### 1. 2026年に伸ばすべき3つのスキルギャップ
+1. **AI生成物の真贋検証（Authenticity Audit）スキル**
+   - 2026年の横断QAは「人間作成かAI生成か」「ハルシネーション混入」「学習データ汚染」を検出する技能が必須。ISO/IEC TR 24028:2026の3軸（Authenticity・Traceability・Explainability）に基づき、各エージェント出典のC2PA署名・モデルID・プロンプト履歴を必須メタデータとしてレビューする。
+   - 具体技法：① 数値の出典URL逆引き照合、② 引用文献の実在性検証（DOI/ISBN突合）、③ AI特有の冗長表現パターン検出（"重要なのは〜です"等の定型句頻度）、④ 統計値の年度ズレ検出。
+2. **継続的品質保証（Continuous QA / Shift-Left & Shift-Right）スキル**
+   - 完成後一括QAから、制作プロセスの各段階に組み込む「シフトレフトQA」と本番運用後も監視する「シフトライトQA」へ移行する。各エージェントの中間成果物（ドラフト・設計書・wireframe段階）でQAゲートを通すことで、最終段差し戻し率を80%削減する2026年標準フロー。
+   - 適用例：LP複製ならhana（CSS抽出）→nao（設計）→ren（実装）の各段階でmini-QA、システム開発ならnao設計レビュー→riku/ao実装中間レビュー→mioテストの3段ゲート化。
+3. **観測可能性駆動QA（Observability-Driven Quality）スキル**
+   - DORA Metrics 2026版（Delivery Lead Time / Deployment Frequency / Change Failure Rate / MTTR）に加え、Escape Rate（QA通過後の不具合発見率）・Review Cycle Time・Defect Density・Test Effectiveness の4指標を月次ダッシュボード化。QA自体の品質を定量で自己評価し、見逃しが出たチェック軸を翌月の5軸基準にフィードバック。
+
+### 2. 2026年に導入すべき2つのツールギャップ
+1. **AI支援レビューツール群（CodeRabbit / Bito AI / Codeium Review 2.0 / Greptile）**
+   - 2026年Q1で日本語対応強化。差分の自動サマリー生成・改善提案・セキュリティ脆弱性検出を半自動化し、QAは判断と説明責任に集中。文書系は Grammarly Business + DeepL Write Pro + 社内RAG（Vertex AI Search / Azure AI Search）で固有名詞・専門用語の正確性を機械検証。
+2. **テスト自動化＆ビジュアル回帰スイート（Playwright 1.50+ / Chromatic / Percy / Applitools Eyes 2026）**
+   - LP/バナー/資料の視覚成果物に対し、ピクセル差分検出・レスポンシブ崩れ検出・アクセシビリティ自動監査（axe-core 2026 / Pa11y CI）を組み込む。スキーマ検証はJSON Schema 2020-12 + Ajv 8.x + AsyncAPI 3.0 でAPI契約も同時にカバー。
+
+### 3. 統合ワークフロー（横断QA・2026年版）
+
+```
+[シフトレフトQA：中間成果物ゲート]
+  各部署エージェント中間出力
+    ↓
+  AIプリチェック（CodeRabbit/Bito + Grammarly + 社内RAG）
+    ↓ 形式・固有名詞・出典の機械検証
+  qa：5軸 + 6軸クロス + 真贋検証
+    ↓ conditional-approve or needs_work
+[最終QA]
+  全出力出揃い → Playwright/Percy で視覚回帰
+    ↓ axe-core でアクセシビリティ
+  qa：verdict / key_message / blocking_issues の3点サマリー生成
+    ↓
+  sora（COO最終QA）→ 納品
+[シフトライトQA：本番監視]
+  Escape Rate / DORA Metrics 月次計測
+    ↓ 見逃し検出 → 5軸基準アップデート → 次月へ反映
+```
+
+### 4. 評価KPI（横断QA・2026年基準）
+| 指標 | 目標値 | 計測方法 |
+|------|--------|---------|
+| Escape Rate（見逃し率） | 3%未満 | (Sora/本番で発覚した不具合数) ÷ QA通過件数 |
+| Review Cycle Time（中央値） | 15分以内 | 提出受領→verdict確定までの時間 |
+| Conditional-Approve率 | 20%未満 | 整合性保留判定/全レビュー |
+| 真贋検証カバレッジ | 100% | C2PA署名/出典URL/モデルID記載率 |
+| 5系統テストカバレッジ達成率 | 80%以上 | 正常/境界/異常/負荷/復旧の網羅率 |
+| 自動横断走査率 | 50%以上 | 機械検証で完結した軸/6軸 |
+| Defect Density | 0.5件/KLOC以下 | 機能規模あたり不具合数 |
+
+### 5. リスクと回避策
+- **過剰自動化リスク**：AI支援レビューに依存しすぎると「機械が見落とした文脈的問題」を素通しする。回避策：blocker候補は必ず人間QAの最終確認を経る二段構え、AI判定結果には常に confidence score を付与し低スコアは人間判定へ。
+- **シフトレフトによるQA疲弊リスク**：中間ゲートが増えるとQA工数が膨らみボトルネック化。回避策：中間ゲートは「mini-QA（3軸のみ）」に絞り、フル6軸クロスチェックは最終段のみ。リスクベース抽出で低リスク案件は中間ゲートを自動通過。
+- **真贋検証の偽陽性リスク**：人間が書いた精緻な文章をAI生成と誤判定し差し戻すと信頼喪失。回避策：真贋スコアが境界値（45-55%）の場合は「保留」判定とし作成者ヒアリングを優先、機械判定だけで差し戻さない。
+- **観測指標のグッドハート化リスク**：Escape Rate を下げるためにQAが過剰に conditional-approve を乱発する逆インセンティブ。回避策：conditional-approve率も同時KPI化し、両指標のバランスでQAの健全性を評価。
+
+### 6. 連携アップデート（2026年版）
+- **sora（COO最終QA）**：中間QA→最終QAの引き継ぎに「verdict / key_message / blocking_issues / 真贋検証結果 / 未検証範囲」の5点サマリーを必須化。Soraの判断時間を10秒以内に圧縮。
+- **kai（システム開発PM）**：BMADフローのSTEP 4実装中に Continuous QA をフック化、riku/ao の中間コミットでPlaywright自動テスト＋AIレビューを自動実行。mio最終QAの負荷を50%削減。
+- **kaito（LP部統括）**：hana CSS抽出→nao設計→ren実装の各段階でmini-QAゲート、mia最終ピクセルQA前に視覚回帰自動テスト（Percy/Chromatic）を組み込む。
+- **shun（データ分析部）**：KPI定義書のSSOTをqaが共同管理、Sales/Marketing/Dat/PMの数値齟齬を自動横断走査スクリプトで検出→Datへ算出根拠確認、KPIマネージャーへ定義統一を切り分け連携。
+- **nori（リーガル事前関所）**：制作前リーガルチェック結果をqaのcommon_criteriaに統合、リーガル観点での未検証範囲もreview.jsonに明示し二段関所の透明性を担保。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

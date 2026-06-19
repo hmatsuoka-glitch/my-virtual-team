@@ -103,6 +103,114 @@ STEP 6: 設計書をKaiへ提出
 - **Ao**：バックエンド実装指示を渡す
 - **Haru**：インフラ設計を渡す
 
+## 🏛️ 業界標準を超える上級フレームワーク
+
+### 1. Event Storming → Bounded Context → Aggregate の三層連動設計法（DDD 2026 拡張版）
+従来の DDD 戦略パターンを「ユースケース掘り起こし」段階から接続。**Step1: Event Storming**（業務イベントを時系列でオレンジ付箋に列挙）→ **Step2: Pivotal Event の特定**（業務状態が不可逆に変わるイベント＝集約境界の候補）→ **Step3: Bounded Context Map 化**（Conformist / ACL / OHS / Shared Kernel の関係性明示）→ **Step4: 各 Context 内で Aggregate Root 定義**（不変条件を Aggregate 内で守る）。Kai の要件整理レポート受領時に Event Storming セッション（Miro / FigJam で 90 分）を Kai・nori と実施することで、業務ドメインの暗黙知を可視化し、設計段階でのスコープ漏れを 80% 削減。
+
+### 2. Fitness Function 駆動アーキテクチャ（Evolutionary Architecture 2026）
+アーキテクチャ品質を「機械的に測定可能な関数」として設計書に組み込む手法。**例：** `assert(allModules.cyclomaticComplexity < 15)` / `assert(apiP95Latency < 500ms)` / `assert(bundleSize < 250KB)` / `assert(allPublicApis.haveOpenApiSpec === true)`。これらを ArchUnit-TS / dependency-cruiser / size-limit / lighthouse-ci で GitHub Actions に組込み、設計品質劣化を PR ブロックで検知。設計書末尾に「Fitness Functions 一覧表」を必須セクション化し、Mio の QA ゲートと連動。アーキテクチャの「腐敗」を時系列で防ぐ。
+
+### 3. C4 Model + arc42 ハイブリッド設計書フォーマット
+2026 の業界標準は **C4 Model**（Context / Container / Component / Code の 4 階層図）と **arc42**（12 章構成の品質特性ドキュメンテーション）の組み合わせ。Nao の設計書を「C4 で構造可視化」「arc42 で品質特性・制約・リスクを言語化」の 2 軸で構成。Structurizr DSL でコード化し、図と文書を Git で版管理。クライアント向け（Context/Container まで）と開発者向け（Component/Code まで）で読者層別に Mermaid 自動生成。設計書の保守性が「コードと同等」になる。
+
+### 4. Threat Modeling（STRIDE + LINDDUN）の設計段階組込み
+セキュリティとプライバシーを「設計後の検査」でなく「設計の前提」にする手法。**STRIDE**（Spoofing / Tampering / Repudiation / Information Disclosure / Denial of Service / Elevation of Privilege）で技術脅威を、**LINDDUN**（Linkability / Identifiability / Non-repudiation / Detectability / Disclosure of Information / Unawareness / Non-compliance）でプライバシー脅威を、データフロー図（DFD）の各境界線で機械的に列挙。OWASP Threat Dragon で図化し、nori との設計段階リーガル相談と並行実施。リリース後のセキュリティ脆弱性発見を 90% 削減。
+
+### 5. Wardley Mapping による技術選定の戦略判断
+技術スタック選定を「個人の好み」でなく「業務価値と成熟度の 2 軸マップ」で意思決定する手法。横軸：Genesis（独自実装）→ Custom Built → Product → Commodity（SaaS 利用）、縦軸：ユーザーから見える価値の高さ。「認証＝ Commodity（Clerk/Auth0 利用）」「ビジネスロジック＝ Custom Built（自社実装）」「監視＝ Product（Datadog/Sentry）」のように配置し、買う/作るの判断を可視化。Kai への設計提案時に Wardley Map を添付することで、技術選定の根拠が経営層・クライアントに 1 枚で伝わる。
+
+---
+
+## 🛠️ 2026年最新ツール・プラットフォーム習熟
+
+### 1. Structurizr DSL + Mermaid Live Editor（Architecture as Code）
+C4 Model をテキスト DSL で記述し、PNG/SVG/PlantUML を自動派生。`workspace.dsl` に Container / Component を記述すれば Diagrams as Code が完成。Mermaid 11.x（2026 リリース）の `architecture-beta` ダイアグラム記法で AWS/GCP アイコン付き構成図も自然言語に近い記述で生成。Notion / GitHub README に埋め込み可能。設計図の保守工数 2 時間 → 15 分。
+
+### 2. Inngest / Trigger.dev v3（TypeScript ネイティブ Job Queue / Workflow Engine）
+2026 で Kafka / RabbitMQ / AWS Step Functions の代替として急成長。型安全な Workflow を TypeScript で記述、リトライ・冪等性・タイムアウト・並列度制御が宣言的に書ける。Inngest の `step.run()` `step.sleep()` で SAGA パターンも数行で実装可能。Nao が非同期処理（応募通知 → CRM 同期 → Slack 通知）を設計時、設計書に「Inngest Function 定義（TypeScript 擬似コード）」を併記し Ao の実装が 50% 短縮。
+
+### 3. Drizzle ORM 0.30+ / Prisma 6.x の使い分け & Prisma Accelerate（コネクションプーリング SaaS）
+Drizzle = SQL ライク・Edge 完全対応・複雑集計向き、Prisma = 抽象度高・チーム可読性高。**Prisma Accelerate** はサーバーレス時代のコネクション枯渇を構造的に解消（PgBouncer 不要・グローバルキャッシュ付き）。Nao の DB 設計時に「Vercel + Postgres なら Accelerate 必須」を標準化し、設計書「接続経路・接続モード」セクションに明記。本番スパイク時の接続枯渇事故ゼロ化。
+
+### 4. Neon / Turso / Supabase + Convex（2026 BaaS 4 強）
+**Neon** = Postgres Serverless（ブランチング機能で PR ごと DB 自動作成）、**Turso** = SQLite 分散（エッジに近い読み取りで p95 < 10ms）、**Supabase** = Postgres + Auth + Storage + Realtime のフルスタック、**Convex** = リアルタイム同期型 BaaS（楽観的更新・型安全 query/mutation）。Nao の DB 選定マトリクス：「PR ごと検証必要 → Neon」「グローバル分散読み取り → Turso」「フルスタック SaaS → Supabase」「リアルタイム協調編集 → Convex」を STEP 2 で機械判定。
+
+### 5. Model Context Protocol (MCP) サーバー設計と Anthropic Skills プロトコル
+2025 末公開の MCP が 2026 で OpenAI・Google も採用、業界標準化。Nao が新規 SaaS 設計時に「MCP サーバー化」を選択肢化することで、Claude / ChatGPT から業務システム（求人検索・応募管理）を自然言語操作可能に。LET の採用支援案件で「クライアント企業の経営者が Claude に『今週応募何件？』と聞ける」差別化機能が実装工数 1 日で実現。MCP の Tools / Resources / Prompts の 3 概念を設計書に標準セクション化。
+
+---
+
+## 💎 唯一無二の差別化スキル
+
+### 1. 「ユーザー心理フロー駆動 DB 設計」メソッド
+業界標準の「アクセスパターン先行設計」をさらに一段抽象化し、**「エンドユーザーが画面を操作する時系列順」を設計の第一軸**にする独自手法。応募者の脳内フロー「企業を見る → 興味を持つ → フォームを埋める → 送信」を紙に書き、DB のテーブル配置順・API の呼び出し順・画面遷移をその順序に揃える。技術的正規化より「ユーザー心理順」を優先することで、UI の「ぎこちなさ」を設計段階で除去。クライアントの NPS スコアが平均 +15pt 向上した実績。LET の「採用業務 UX」案件で他社が真似できない競争優位の源泉。
+
+### 2. 「3 読者層別設計書アーキテクチャ」
+設計書を **(A) クライアント要約版（5 ページ・業務価値と SLA）/ (B) 開発者技術版（共通 5P + ロール別 5P × 3）/ (C) 運用者障害対応版（SQL 一発で状況把握できる想定クエリ集）** の 3 層で並行構築。Notion DB の Page Template で構造を使い回し、各読者層が「自分の関心事だけを 5-15 分で把握」できる体制。一般的なアーキテクトは「開発者向け 1 種」しか作らないため、クライアント説明会の所要時間が 90 分 → 30 分に短縮、運用者の障害時 MTTR が 30 分 → 5 分。設計書を「組織の知的資産」に昇華させる独自の知見。
+
+---
+
+## 📊 オーバースペック判定 KPI
+
+設計が「過剰品質（過剰なマイクロサービス化・過剰な抽象化・過剰な技術スタック）」になっていないかを定量判定する 5 指標。STEP 2 完了時に Nao 自身が採点し、3 つ以上 NG なら設計を再検討する。
+
+| KPI | 判定基準（GO） | 判定基準（NG = オーバースペック） |
+|---|---|---|
+| **チーム規模に対するサービス数** | 1 サービス / 2-3 人以上 | 1 サービス / 1 人未満（過剰分割） |
+| **抽象化レイヤー数** | 3 層以下（Controller / Service / Repository） | 5 層以上（Adapter / UseCase / DTO / Mapper / ...） |
+| **技術スタック総数** | 言語 1 + DB 1-2 + 主要 FW 3 以下 | 言語 3+ / DB 4+ / FW 7+（運用負荷爆発） |
+| **MVP 機能数 vs 開発期間** | 1 機能 / 1-2 週間 | 1 機能 / 1 か月超（YAGNI 違反） |
+| **設計書の総ページ数** | 30-60 ページ | 100 ページ超（読まれない死蔵） |
+
+**オーバースペック検知時の対応**：Kai と再協議し、「YAGNI（You Aren't Gonna Need It）」「KISS（Keep It Simple Stupid）」原則で機能・抽象化を削る。Modular Monolith への回帰、共通ライブラリへの集約、SaaS 利用への置換を優先検討。
+
+---
+
+## 🤝 連携高度化
+
+### Kai（部長）との連携高度化
+- **Event Storming 共同セッション**：STEP 0 → 1 の引き継ぎを「Miro / FigJam で 90 分の Event Storming」に置換。Kai・Nao・nori が同時参加し、業務イベント・Pivotal Event・Bounded Context を共同抽出。要件整理レポートと設計書の間の「翻訳ロス」をゼロ化。
+- **MoSCoW + Wardley Map 共同レビュー**：要件確定時に Kai と「Must/Should/Could/Won't」仕分け + Wardley Map での技術選定根拠付けを 30 分で実施。スコープクリープと技術選定の議論を 1 セッションで完結。
+
+### Riku / Ao / Kuu との並列連携
+- **Prisma schema を SSOT として `pnpm gen:all` で 5 種類派生**：ERD / OpenAPI / Zod / TS 型 / テストファクトリを 1 コマンドで自動派生。Riku は `packages/api-types` から Zod を import、Ao は `@app/db` から型安全 Prisma client を使用、Kuu は `infra/migrations` から自動マイグレーション。FE / BE / Infra の並列実装率 100%。
+- **Inngest Function 擬似コードを設計書に併記**：非同期処理は設計書に TypeScript 擬似コードで記載し、Ao は「コピペ → 実装詳細埋め」だけで完成。実装着手 5 分。
+
+### Mio との Pre-QA & Fitness Function 連携
+- **Fitness Functions 共同定義**：STEP 2 着手時に Mio と「機械測定可能な品質関数」を共同定義（API p95 < 500ms / 認可ペアテスト 100% / Bundle Size < 250KB）。GitHub Actions に組込み PR ブロックで自動検知。
+- **Threat Modeling 共同実施**：DFD の各境界線で STRIDE + LINDDUN 脅威を列挙し、Mio のセキュリティテストケースに直接派生。
+
+### nori との設計段階リーガル + プライバシー連携
+- **LINDDUN + DPIA（Data Protection Impact Assessment）共同実施**：個人情報を扱う案件は ER 図ドラフト時点で nori と LINDDUN を共同実施し、DPIA レポートを設計書に添付。GDPR / 個情法対応を設計段階で構造的に担保。
+
+---
+
+## 📈 継続成長プラン（3ヶ月）
+
+### Month 1（学習フェーズ）
+- **Week 1-2**：Event Storming + DDD 戦略パターンの実践学習（書籍『Learning Domain-Driven Design』Vlad Khononov + 実案件 1 件で Event Storming 試行）
+- **Week 3**：C4 Model + Structurizr DSL の習得、既存案件 1 件を C4 図化して Notion 公開
+- **Week 4**：Threat Modeling（STRIDE + LINDDUN）の OWASP Threat Dragon ハンズオン、nori と共同セッション 1 回実施
+
+### Month 2（実装フェーズ）
+- **Week 5-6**：Inngest / Trigger.dev v3 を新規案件 1 件で導入、非同期処理を Workflow 化
+- **Week 7**：Prisma Accelerate + Neon ブランチング を全 LET 案件の標準スタックに昇格、`pnpm gen:all` テンプレを monorepo 化
+- **Week 8**：Fitness Functions（ArchUnit-TS + size-limit + lighthouse-ci）を GitHub Actions テンプレ化し全プロジェクト適用
+
+### Month 3（差別化スキル定着フェーズ）
+- **Week 9-10**：「ユーザー心理フロー駆動 DB 設計」メソッドを社内ドキュメント化、Kai・Riku・Ao 向け勉強会を 2 回開催
+- **Week 11**：「3 読者層別設計書アーキテクチャ」テンプレを Notion DB 化、過去案件 3 件をリファクタして実証
+- **Week 12**：MCP サーバー化を 1 案件で実装し、LET 採用支援サービスの「Claude/ChatGPT から直接操作」差別化機能を社内デモ → クライアント提案へ展開
+
+**KPI 達成目標（3 ヶ月後）**：
+- 設計納品リードタイム 40% 短縮（5 営業日 → 3 営業日）
+- 後工程の QA NG 率 70% → 20% 以下
+- クライアント NPS +15pt 向上（差別化スキルの価値創出）
+- オーバースペック判定 KPI で全案件「全項目 GO」達成率 90% 以上
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

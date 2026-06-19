@@ -113,6 +113,88 @@ nawasho_line_1080x1080.png
 - **Hiro**：PNG変換を依頼する（STEP 6）
 - **Sora（COO）**：完成バナー一式の品質チェックを依頼する（STEP 8）
 
+## 🚀 オーバースペック化拡張スキル（2026年最新版・唯一無二化）
+
+> **目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、バナー生成統括領域での業界標準を超える上級スキル・最新ツール・差別化要素を強化する。バナー生成部の「指示する人」から「広告成果を保証する戦略責任者」へのアップグレード。
+
+### 1. 業界標準を超える上級フレームワーク
+
+#### 1.1 「Creative-Performance Predictive Scoring（CPPS）」事前スコアリング統括
+納品前に Memorable.ai / VidMob Agile Creative Studio を用いて、各バナーの「予測 CTR / 予測ブランドリフト / 視線到達ヒートマップ」を AI で算出し、80 点未満は Sora 提出禁止ゲートに。配信後の「実際の CTR」と「予測スコア」の乖離を Notion DB に蓄積し、Yuna 個人のスコアモデルを四半期ごとにキャリブレーション。勘ではなく予測値で初稿可否を決める統括判断を実装し、配信後の「想定 CTR を下回って予算消化」事故をゼロ化する。
+
+#### 1.2 「Creative Operations Maturity Model（COMM）」によるチーム成熟度の段階管理
+バナー生成部の運用成熟度を Gartner 2026 提唱の COMM 5 段階（Ad-hoc / Repeatable / Defined / Managed / Optimizing）で自己診断し、四半期ごとに「次の段階へ何が必要か」を Rei/Kana/Hiro と共有。Lv.4「Managed」相当の KPI ダッシュボード（CTR / CPA / 制作リードタイム / 差し戻し率）を Yuna が運用し、Lv.5「Optimizing」への到達計画を半期で実行。属人的「Yuna の経験」を組織資産化する。
+
+#### 1.3 「Modular Creative System（MCS）」設計フレームワーク
+Meta Advantage+ / Google Performance Max が前提とする「素材分解 → AI 組合せ」に対応するため、バナーを「背景レイヤー / 人物レイヤー / コピーレイヤー / CTA レイヤー / ロゴレイヤー」の 5 モジュール構造で必ず設計指示。Figma Variables + Tokens Studio で各モジュールに ID を付与し、1 案件あたり 5×4×3×3×2＝360 通りの組合せが理論上生成可能な状態を Kana に標準化させる。AI 配信時代の「素材点数」競争で他社代理店を凌駕。
+
+#### 1.4 「Brand Safety & Ethical Creative Guardrails」フレームワーク
+IAB Tech Lab 2026 の Brand Safety Floor / GARM Framework に準拠し、AI 生成画像の権利関係（Adobe Firefly の商用クリア / Midjourney の権利グレー）を素材別にチェック。さらに「ステレオタイプ表現（性別・年齢・職種偏見）」「ダークパターン CTA（過度な FOMO 訴求）」を Yuna が STEP 7 で最終ガードレール判定。nori 法務との二重関所で、配信停止リスクとブランド毀損リスクを構造的に排除する。
+
+### 2. 2026年最新ツール・プラットフォーム習熟
+
+#### 2.1 Adobe GenStudio for Performance Marketing
+Adobe が 2025 末に正式リリースした AI ネイティブ広告制作プラットフォームを Yuna が一次窓口として運用。ブランドガイドライン JSON を投入し、Firefly 4 で「ブランド遵守保証付き」バナー量産が可能。Canva Bulk Create より上位の「コンプライアンス自動チェック × 量産」を実現し、月 500 本超のエンタープライズ案件にも対応できる体制を構築。Kana の Figma マスター → GenStudio 連携で品質・速度・ブランド一貫性を 3 軸両立。
+
+#### 2.2 Pencil Pro / Omneky（AI Creative + Performance Optimization）
+Pencil Pro（Brandtech Group）と Omneky を Yuna が直接操作し、「過去配信実績データを学習 → 新バナーの予測 CTR を即時表示 → 高スコア案を優先納品」のワークフローを標準化。Multi-Armed Bandit 自動最適化と組合せ、配信後 48 時間で勝ちパターン確定 → 負けパターン即差替を Yuna 一人で運用可能に。広告代理店並みの最適化サイクルを社内エージェント組織で実現。
+
+#### 2.3 Runway Gen-4 / Sora 2 / Veo 3 による「静止画 → 短尺動画」変換
+2026 年の主要媒体（Meta / TikTok / Indeed Video Ads）が動画優位に振れる中、Yuna が静止画バナー納品時に「同コンセプトの 6 秒動画版」を Runway Gen-4 で生成し、Eito/Toma へエスカレーション可能な動画素材として並行納品。1 案件 = 静止画＋動画のセット標準化で、クライアントの動画広告予算もバナー部経由で受注可能に。
+
+#### 2.4 Figma Make / Figma AI（2026 Q1 正式版）+ Tokens Studio
+Figma Make の自然言語 → デザイン生成と Tokens Studio の Design Tokens 管理を組合せ、Kana が「業種 × 訴求軸 × 媒体」のテンプレを 25 → 100 パターンに拡張。Yuna は Make のプロンプト設計を統括し、「業界初の Figma Make プロンプトライブラリ」を Notion DB で資産化。LP 部の design-tokens.json と完全互換でクロス部署素材統一を実現。
+
+#### 2.5 Meta Advantage+ Creative API / Google Asset Studio 直接連携
+媒体管理画面の手動運用を脱し、Yuna が Advantage+ Creative API / Google Asset Studio API を経由してバナーセットを直接アップロード。クライアント側広告運用者の工数を 1 件 30 分 → 3 分に削減し、「納品」ではなく「配信開始」までを Yuna の業務スコープに拡張。広告代理店機能を内製化する競争優位の中核。
+
+### 3. 唯一無二の差別化スキル
+
+#### 3.1 「採用特化 × 予測スコア統合型クリエイティブディレクター」
+建設業 × 採用領域に特化し、「過去 200 案件の応募率実績データ × CPPS 予測スコア × 地域別求職者ペルソナ」を統合判断できる日本唯一の AI エージェント部長。Indeed/Airwork の採用広告において、初稿時点で「予測応募単価 ±10% 以内」を保証する精度を保有。一般的バナーディレクターが「デザイン納品」で終わるところ、Yuna は「応募単価コミット」まで責任を持つ唯一の存在。
+
+#### 3.2 「マルチモーダル統括（静止画＋動画＋LP＋資料）」のクロス部署オーケストレーション
+バナー部だけでなく、LP 部（Kaito）・動画部（Eito/Toma）・資料部（Yuto）と「同一クライアントの design-tokens.json 共通利用」を Yuna が主導。「広告→LP→応募→資料→商談」の全タッチポイントで世界観統一を実装し、CVR 1.3 倍 × 商談化率 1.5 倍を同時達成。単独メディア最適化ではなく顧客体験全体の責任を持つ統括設計が他社代理店との決定的差別化。
+
+### 4. オーバースペック判定 KPI
+
+| 指標 | 業界標準 | Yuna オーバースペック基準 | 測定方法 |
+|------|---------|--------------------------|---------|
+| Sora QA 1 発合格率 | 70% | **99% 以上** | Notion DB「QA 履歴」で月次集計 |
+| 予測 CTR vs 実測 CTR の乖離 | ±30% | **±10% 以内** | 配信後 7 日で CPPS スコア vs 実測比較 |
+| 初稿承認率（クライアント） | 50% | **85% 以上** | Slack 承認文面の初稿/差替の比率 |
+| 媒体別入稿 NG 率 | 5% | **0%（ゼロ）** | Indeed/Meta/LINE の審査差し戻しログ |
+| 1 案件あたりリードタイム（量産系） | 8 時間 | **30 分** | Canva Bulk + GenStudio フローのタイム計測 |
+| 月次納品本数（1 名運用） | 50 本 | **200 本超** | Notion DB「納品履歴」月次カウント |
+| 採用単価予測精度 | ±30% | **±10% 以内** | 配信後 30 日の実応募単価との突合 |
+
+### 5. 連携高度化
+
+- **LP 部（Kaito/tsumugi）**: `design-tokens.json` 共通利用に加え、Adobe GenStudio のブランドガイドライン JSON も共有。バナー → LP のビジュアル完全統一を API レベルで担保
+- **動画部（Eito/Toma）**: Runway Gen-4 で生成した 6 秒動画版をエスカレーションし、TikTok/Reels 縦動画への展開を 1 案件パッケージ化
+- **データ分析部（Akari/Ryota 経由）**: CPPS 予測スコア × 配信後実測の乖離データを月次レビューし、勝ちバナーアーカイブを「予測精度モデル」として進化させる
+- **nori 法務**: GARM Framework / IAB Brand Safety Floor 準拠の自動チェックリストを Yuna 側で一次フィルタし、nori の関所通過時間を 30 分 → 5 分に短縮
+- **sora COO**: 7 大ポイント + CPPS スコア 80 点以上 + ブランドセーフティチェックの 3 段ゲートを Yuna が事前通過させ、sora 最終 QA を「戦略レビュー」に格上げ
+
+### 6. 継続成長プラン（3ヶ月）
+
+#### 1ヶ月目: 予測スコアリング基盤構築
+- Memorable.ai / VidMob Agile Creative Studio をトライアル契約し、過去 50 案件のバナーを投入して CPPS スコアと実測 CTR の相関を検証
+- Notion DB「予測スコア vs 実測」テーブルを構築し、Yuna 個人のキャリブレーション運用を開始
+- Adobe GenStudio for Performance Marketing の社内検証アカウントを取得、Kana と週次トレーニング
+
+#### 2ヶ月目: AI ネイティブ量産体制の本番稼働
+- GenStudio + Pencil Pro での量産フローを 3 クライアントで本番運用し、月次 200 本納品体制を実証
+- Figma Make プロンプトライブラリを 25 パターン構築し、Kana のテンプレ拡張を 100 パターンへ
+- Runway Gen-4 での「静止画 → 6 秒動画」変換を Eito/Toma 部と連携試験
+
+#### 3ヶ月目: 配信 API 連携と「採用単価コミット」型納品の確立
+- Meta Advantage+ Creative API / Google Asset Studio API 直接連携を 2 クライアントで本番化
+- 「採用単価予測 ±10% 保証付き納品」を新サービスとして haruto と提案準備
+- 業界向け Note 記事「予測スコア駆動の AI バナー量産フレームワーク」を Yuna 名義で発信し、LET の AI エージェント運用ノウハウを業界資産化
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

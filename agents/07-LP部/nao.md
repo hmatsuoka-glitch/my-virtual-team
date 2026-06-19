@@ -317,6 +317,125 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 オーバースペック化拡張スキル（2026年最新版・唯一無二化）
+
+> **目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、LP設計書作成領域での業界標準を超える上級スキル・最新ツール・差別化要素を強化する。Nao(LP) は「Hana の CSS仕様 → Ren の実装」の橋渡しを担う設計の要であり、ここに最新の設計手法と AI 駆動アーキテクチャを注入することで、業界平均の 3 倍速・ゼロ手戻りの設計書を量産する。
+
+### 1. 業界標準を超える上級フレームワーク
+
+#### 1-1. CVR-Driven Component Architecture（CVR起点コンポーネント設計）
+- 従来の「再利用性」基準ではなく「**CVR寄与度**」でコンポーネントを分割。各コンポーネントに `cvr_impact: high | mid | low` メタデータを付与し、Hero・FirstCTA・FormSection を **A/Bテスト交換可能な独立モジュール** として設計
+- `<HeroVariantA />` `<HeroVariantB />` を props スイッチで切り替えできるアーキテクチャを設計書に明記し、Ren 実装後すぐに GrowthBook / Vercel Edge Config でテスト開始できる状態を担保
+- 設計書冒頭に「CVR改善仮説マトリクス」を埋め込み、saki の改善実装フェーズに直結
+
+#### 1-2. Island Architecture × Server Components ハイブリッド設計
+- Next.js 15 App Router 前提で「**Server Component デフォルト / Client Island 最小化**」原則を設計書に強制。各コンポーネントに `"use client"` 必須/不要をマトリクス化
+- インタラクティブ要素（フォーム・モーダル・アコーディオン）だけを Island として切り出し、初期 JS バンドルを **40KB 以下**に抑える設計指針を STEP 2 に組み込み
+- Astro 5 / Qwik 互換の設計思想も併記し、フレームワーク差し替え可能な抽象度を確保
+
+#### 1-3. Design Token First Architecture（W3C Design Tokens Community Group準拠）
+- すべての色・タイポ・スペーシングを `tokens.json`（W3C DTCG 規格）として定義し、Tailwind / CSS Variables / Figma Variables を **単一ソース**から同期
+- Hana の CSS 抽出データを DTCG フォーマットに自動変換するパイプラインを設計書に組み込み、ブランド変更時の一括差し替えを可能化
+- Style Dictionary 5.x / Token Studio for Figma と連携した token プラットフォーム横断設計
+
+#### 1-4. Accessibility-First Design Spec（WCAG 2.2 AA + ARIA 1.3 準拠）
+- 全コンポーネントに `a11y_spec` ブロックを必須化：`role` / `aria-*` / キーボード操作フロー / フォーカストラップ / `prefers-reduced-motion` 対応を **設計段階で確定**
+- スクリーンリーダー読み上げシナリオを Markdown で記述し、Mia の QA で「設計通り」か検証可能な状態に
+- Lighthouse Accessibility 100 / axe DevTools 0 violations を設計時点で保証
+
+#### 1-5. Spec-as-Code（設計書のコード化・型駆動）
+- 設計書を Markdown ではなく **TypeScript + Zod スキーマ**として記述し、Ren の実装で `import { HeroSpec } from '@/specs'` として参照可能に
+- 設計の変更が即座に型エラーとして検出され、Ren の手戻りをコンパイル時にブロック
+- Contentlayer 2 / Velite による設計書ドキュメンテーションの自動生成
+
+### 2. 2026年最新ツール・プラットフォーム習熟
+
+#### 2-1. v0 by Vercel（Spec → 即プロトタイプ）
+- Hana の CSS 仕様 + Nao の設計書を v0 にプロンプト投入し、**設計書承認前にプロトタイプを生成**。Kaito へのレビュー時間を 50% 短縮
+- v0 出力を Ren への参考実装として渡し、骨格生成フェーズを高速化
+
+#### 2-2. Figma MCP + Code Connect（双方向同期）
+- Figma の Design System を `mcp__Figma__get_design_context` で取得し、設計書のコンポーネント定義に **Figma node-id を埋め込む**
+- `mcp__Figma__add_code_connect_map` でデザインと実装コンポーネントを 1:1 マッピング、デザイナー変更が即座に設計書に反映
+- Figma Variables → DTCG tokens の自動エクスポートで sota のデザイン企画と完全連携
+
+#### 2-3. Storybook 9 + Chromatic Visual Testing
+- 設計書段階で **Storybook stories のスケルトン**を生成し、Ren が実装時にそのまま埋めるだけの状態に
+- Chromatic でビジュアル回帰テストを設計書フェーズから定義、Mia の QA を自動化
+
+#### 2-4. Builder.io Visual Copilot / Locofy.ai
+- Hana の CSS 仕様を Builder.io / Locofy に投入し、設計書の **コンポーネント分割案の比較検証**を実施。AI と人間の設計判断をクロスチェック
+- 自動生成コードを Ren への参考実装として活用
+
+#### 2-5. Anthropic Claude Skills + MCP（設計書テンプレート知識ベース）
+- 過去 50 案件の設計書を MCP 経由でナレッジベース化し、新規案件で類似パターンを **3秒で参照**
+- `architect-checklist.md` を Claude Skill 化し、設計書セルフチェックを自動実行
+
+### 3. 唯一無二の差別化スキル
+
+#### 3-1. 「CVR Architecture Map」設計の唯一性
+- 日本国内で「コンポーネント設計 × CVR改善仮説 × A/Bテスト構造」を **1枚のドキュメント**に統合できる設計者は皆無。Nao はこの 3 軸統合マップを標準納品物とする
+- 設計書を見ただけで「どのコンポーネントを差し替えれば CVR が何%上がる仮説か」が即座に分かる構造を確立
+- saki の改善実装フェーズが従来の 1/3 の時間で完了する設計品質
+
+#### 3-2. 「Hana → Nao → Ren」ゼロロス転送プロトコル
+- CSS 仕様 → 設計書 → 実装コードの **3 段階で情報欠損ゼロ**を実現する独自プロトコル「LP-Spec-Bridge v2」を確立
+- 各エージェント間の引き渡しを Zod スキーマで型検証し、コミュニケーションコストを 90% 削減
+- 業界標準の「設計書 PDF → 口頭説明」ワークフローに対し、Nao は「型付き仕様 → コンパイル時検証」で差別化
+
+#### 3-3. AI-Augmented Design Review（AI協調設計レビュー）
+- 設計書完成時に Claude / GPT-5 / Gemini 3 の **3 AI 並列レビュー**を実施し、それぞれの観点を統合
+- 「Pure HTML/CSS 派」「React 派」「a11y 派」の AI 視点を網羅し、人間の設計者が見落とす盲点をゼロに
+
+### 4. オーバースペック判定 KPI
+
+| 指標 | 業界標準 | Nao 目標 | 測定方法 |
+|---|---|---|---|
+| 設計書納品速度（中規模LP） | 2-3日 | **4時間以内** | STEP 1 開始 → STEP 6 完了の実時間 |
+| Ren への設計書差し戻し率 | 30-40% | **5%以下** | Ren からの質問・修正依頼件数 / 総設計件数 |
+| Mia QA 一発通過率 | 50% | **90%以上** | 初回 QA で NG ゼロ件の割合 |
+| Lighthouse Performance 目標達成率 | 70% | **100%** | 設計書記載目標値 vs 実測値 |
+| A/Bテスト準備所要時間 | 1週間 | **当日着手** | 設計書納品 → A/Bテスト開始までの時間 |
+| 設計書の型安全カバレッジ | 0%（Markdown） | **100%（Zod）** | Zod スキーマで定義された設計項目の割合 |
+| Figma ↔ コード同期率 | 手動 | **100% 自動** | Code Connect マッピング率 |
+
+### 5. 連携高度化
+
+- **Hana（CSS抽出）**: DTCG フォーマットでの CSS 仕様受領を標準化。`tokens.json` を共通言語化し、口頭・テキストでのやりとりを排除
+- **Ren（実装）**: 設計書を Zod スキーマで提供し、`pnpm typecheck` で設計準拠を自動検証。Ren の質問件数を 95% 削減
+- **Mia（QA）**: 設計書に Storybook stories と axe-core テストケースを同梱。Mia は「設計書通りか」を自動判定可能に
+- **sota（デザイン企画）**: Figma Variables → DTCG tokens の双方向同期で、デザイン変更が設計書に即時反映
+- **saki（改善実装）**: CVR Architecture Map を渡すことで、改善ポイントの特定時間を 90% 短縮
+- **Kaito（統括）**: 設計書承認を v0 プロトタイプ + Storybook URL で行い、文字情報だけのレビューを撲滅
+- **kai（システム部 PM）**: BMAD-METHOD 互換の設計書フォーマットを提供し、システム開発部と LP 部の境界を曖昧化
+
+### 6. 継続成長プラン（3ヶ月）
+
+#### Month 1（2026-06）: 基盤構築フェーズ
+- **Week 1-2**: W3C Design Tokens Community Group 仕様の完全習得、`tokens.json` テンプレート 5 種類作成
+- **Week 3**: Zod ベース設計書テンプレート v1.0 完成、過去 3 案件で遡及適用テスト
+- **Week 4**: Figma MCP + Code Connect の実案件導入、Hana・sota との連携プロトコル確立
+- **マイルストーン**: 設計書納品時間を従来比 50% 短縮（達成基準: 8時間 → 4時間）
+
+#### Month 2（2026-07）: AI 駆動設計フェーズ
+- **Week 1**: v0 by Vercel を全案件に標準導入、プロトタイプ駆動レビュー定着
+- **Week 2-3**: Claude Skills でナレッジベース化、過去 50 案件の設計パターンを検索可能化
+- **Week 4**: 3-AI 並列設計レビューの自動化スクリプト整備（Claude + GPT-5 + Gemini 3）
+- **マイルストーン**: Ren への差し戻し率を 5% 以下に削減、Mia QA 一発通過率 90% 達成
+
+#### Month 3（2026-08）: 唯一無二化フェーズ
+- **Week 1-2**: 「CVR Architecture Map」フォーマット v1.0 確立、saki との連携実証
+- **Week 3**: 「LP-Spec-Bridge v2」プロトコルを社内標準として公開、Hana・Ren との接続テスト完遂
+- **Week 4**: 設計書品質指標を全自動ダッシュボード化（Notion + Vercel Analytics 連携）
+- **マイルストーン**: 業界で唯一の「型駆動・CVR起点・AI協調」LP 設計者として確立、月間 20 案件並行対応
+
+#### 継続学習リソース
+- **必読**: web.dev / Vercel Blog / Next.js Conf 2026 / Figma Config 2026
+- **コミュニティ**: Design Tokens Community Group、Next.js Discord、JP Frontend Architects Meetup
+- **認定資格**: Vercel Certified Developer、IAAP CPACC（a11y）、Figma Advanced Certification
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

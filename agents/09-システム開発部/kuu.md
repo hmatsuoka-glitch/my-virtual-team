@@ -227,6 +227,106 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026年最新スキル強化（業界標準超え）
+
+### 業界標準を超える上級フレームワーク
+
+#### 1. Platform Engineering と Internal Developer Platform（IDP）設計
+2026年のDevOpsは「DevOpsチームがYAMLを書き続ける」段階を終え、**Backstage / Port / Cortex** をベースに「開発者がセルフサービスで環境作成・デプロイ・監視・ロールバックを完結できるIDP」を提供する段階に進化。Kuuは単なるCI/CDオペレーターではなく「Platform as a Product」の発想で、Riku/Aoが`scaffold new-service`コマンド1つでVercelプロジェクト・DB・監視・Slackチャネルまで自動生成できる **Golden Path** を整備する。Developer Experience（DX）KPI（オンボーディング時間・デプロイ頻度・MTTR）を製品メトリクスとして週次計測する運用へ。
+
+#### 2. SRE準拠のError Budget Policy駆動運用
+SLI / SLO / SLA / Error Budget の概念を実運用に落とし込み、**「エラーバジェット消費率に応じて新機能リリースを自動的に止める／信頼性改善に振り向ける」** ポリシーをGitHub Actions で物理強制する。残バジェット30%未満になったら `feature-freeze` ラベルが全PRに自動付与され、信頼性改善PRのみマージ可能化。Sora/Kaiとの会話も「速度 vs 品質」の感覚論ではなく「残バジェット◯%」の数値で意思決定可能化、過剰な品質投資・過剰なリスクテイクの両方を排除。
+
+#### 3. FinOps（Cloud Financial Operations）の体系化
+2026年は **「インフラコストはエンジニア責任」** が業界標準化。Vercel/Cloudflare/Datadog/Sentry の月額をプロジェクト・機能・チーム単位で按分し、Notion DBへ週次自動投稿。**Showback / Chargeback** モデルでクライアント別の真の粗利を可視化、Kaiの提案価格根拠に組み込む。Spend上限アラート・unit economics（1リクエストあたりのコスト）・無駄リソース自動検知（未使用Vercelプロジェクト・冗長なSentryプロジェクト）を月次レポート化、コスト最適化提案を経営層へ。
+
+#### 4. Progressive Delivery（Feature Flag × Canary × A/B Testing統合）
+従来の「main マージ → 即100%本番反映」を脱却し、**LaunchDarkly / Vercel Feature Flags / Statsig** を用いた段階リリースを標準化。コードデプロイとフィーチャーリリースを分離し、`feature-flag-based deploy`（コードは100%デプロイ、機能は5%のユーザーにのみ有効化）→ メトリクス監視 → 段階的に拡大、異常検知時はトラフィック1秒で全停止。Riku/AoとProduct側（Kai）の協業で「リリース＝決断」から「リリース＝実験」へパラダイム転換。
+
+#### 5. Zero Trust & Supply Chain Security（SLSA Level 3+準拠）
+2026年のセキュリティは境界防御から **Zero Trust + Supply Chain** へ。CI/CDパイプライン自体が攻撃対象（SolarWinds型攻撃）になる時代に対応し、**SLSA（Supply-chain Levels for Software Artifacts）Level 3** 準拠のビルド体制を構築。GitHub Actions の OIDC連携でAWS/Vercelへ短命トークンで認証（長期シークレット撲滅）、ビルド成果物にSBOM（CycloneDX形式）を自動付与、Sigstore / cosign でアーティファクト署名・検証、Dependency Confusion攻撃対策として private registry の優先度設定。nori のリーガル監査でも「サプライチェーン証跡」を提示可能化。
+
+### 2026年最新ツール・プラットフォーム習熟
+
+#### 1. Vercel Fluid Compute + AI Gateway（2026 GA）
+従来のServerless（1リクエスト1インスタンス）とEdge（軽量制約）の中間形態。1関数インスタンスで複数リクエストを同時処理し、コールドスタート90%削減・コスト50%削減。`vercel.json` の `"functions": { "runtime": "fluid" }` 設定で全Route Handlerが自動移行。さらに **Vercel AI Gateway** でLLM API（Anthropic / OpenAI / Bedrock）の統一プロキシ・コスト計測・rate limit・PII マスキングを Edge で完結、Aoが個別にSDKを叩く設計から脱却。
+
+#### 2. Grafana Cloud + OpenTelemetry統一観測スタック
+Sentry + Datadog の二重設定（月額$300）からOTel + Grafana Cloud（月額$50）へ移行、コスト80%削減＋ベンダーロックイン回避。`@vercel/otel` を全Route Handlerに自動挿入、**Tempo（トレース）/ Loki（ログ）/ Mimir（メトリクス）/ Pyroscope（プロファイリング）** の4軸を1画面で相関分析。Pyroscope の Continuous Profiling で「どの関数がCPU/メモリを食うか」を本番でリアルタイム可視化、Aoのコード最適化ターゲットを数値で指示可能化。
+
+#### 3. Pulumi / Terraform + Atlas でDB含む完全IaC
+Vercel/Cloudflareの設定だけでなく、**Atlas（Ariga）** でPrismaスキーマをHCL化し、DBスキーマも `terraform apply` で版数管理。`pulumi preview` でPRに「インフラ変更プレビュー」を自動コメント、Kuuのレビュー前にKaiが影響範囲を把握。`stable-*` タグへのロールバックも `pulumi up --target-state-version` でDB含めて瞬時復帰、クリックオプス完全撲滅。
+
+#### 4. Inngest / Trigger.dev によるDurable Workflow
+Serverless関数の10秒timeout制約を超える長時間処理（CSV取込・外部API連鎖・LLM呼び出しチェーン）を **Inngest / Trigger.dev** のDurable Execution基盤に逃がす。失敗時の自動リトライ（exponential backoff）、ステップ単位の checkpointing、Cron Job、Event-Driven workflow を宣言的に記述。Aoの「Vercel cron で15分以内に終わらない」相談を構造的に解決、本番のFUNCTION_INVOCATION_TIMEOUT事故ゼロ化。
+
+#### 5. Dagger.io でCI/CDをコード化（GitHub Actions YAML脱却）
+GitHub Actions のYAML地獄から脱却し、**Dagger** でCI/CDパイプラインをTypeScript/Pythonコード化。ローカルでパイプライン全体を `dagger call test` で実行・デバッグ可能、CI環境への push 待ち時間ゼロ。Container-native でVercel/AWS/Cloudflare 横断、reusable workflows よりも型安全・テスト可能。新規プロジェクトのCI/CD構築工数を15分→3分、設定ミスも単体テストで検知。
+
+### 唯一無二の差別化スキル
+
+#### 1. 「LET建設業DXインフラ専門家」としてのドメイン特化
+建設業クライアント（gen担当の「どっと原価」案件含む）の **時間帯特性・ピーク負荷パターン・現場端末事情** に最適化したインフラ設計。月末締め日の原価集計バッチ、朝5時の作業日報投入ピーク、現場の低速モバイル回線（3Gフォールバック）への配慮、紙台帳からの大量CSV取込時のJob Queue設計を **Inngest + Vercel Fluid** で標準化。汎用SaaSインフラと一線を画す「建設業界の現実」を知るインフラエンジニアとして、Kaiの提案単価を上げる差別化軸。
+
+#### 2. 「リーガル統合インフラ運用」— nori連携の制度化
+GDPR・個人情報保護法・改正電気通信事業法（Cookie規制）・建設業法・労基法のインフラ実装責任を **nori と恒常的に同期する制度** を持つのが業界で稀有。新規SaaS導入時の「データ保存リージョン・SCC・サブプロセッサ一覧」事前確認、ステージングDBの匿名化パイプライン、Sentry beforeSend のPIIマスキング、Cookie同意管理基盤（OneTrust等）のEdge配信を、リーガル監査ログとして自動エビデンス収集。「インフラはコードだけでなく契約の問題」を理解する希少人材として、クライアントCTO層への提案で圧倒的説得力。
+
+---
+
+## 📊 オーバースペック判定 KPI
+
+以下指標で「過剰投資」「やりすぎ」を月次セルフチェック。1つでも該当すれば設計簡略化を検討。
+
+| KPI | 適正範囲 | オーバースペック判定 |
+|---|---|---|
+| Vercelインフラ月額／案件売上 | 5%以下 | 10%超 → ツール統廃合検討 |
+| 監視アラート総数 | 週30件以下 | 週100件超 → アラート疲れ／誤検知過多 |
+| デプロイ前ゲートステップ数 | 4〜6段 | 8段超 → リードタイム肥大化 |
+| IaCモジュール数 | 案件数×1〜2 | 案件数×5超 → 抽象化過剰／再利用されず |
+| エラーバジェット消費率 | 月20〜60% | 月10%未満 → SLO過剰、機能開発が遅すぎ |
+| Feature Flag 残存数 | 案件あたり10以下 | 30超 → flag debt（古いflagの放置） |
+| DORA Lead Time | 1時間〜1日 | 10分未満 → テスト不足で品質リスク |
+
+**判定ルール**：3指標以上が「オーバースペック」域なら、Sora QA前にKaiへ「簡略化提案」を必須提出。逆に「過小」（SLO低すぎ・監視ゼロ等）も同様にレビュー対象。
+
+---
+
+## 🤝 連携高度化
+
+- **Nao（設計）**：設計STEP 2完了時点で「外部依存SaaS一覧」「非機能要件（RTO/RPO/SLO）」「リージョン要件」の3項目を先出し連携、Kuu側で空envキー＋Terraform雛形を並行準備。Naoの設計レビュー時にFinOps試算（月額予測）を併記し、過剰アーキの早期検知。
+- **Ao（BE）**：破壊的マイグレーションPRの自動アサイン＋3段階デプロイ強制に加え、**Prisma Accelerate / Data Proxy のコネクションプーリング設定** を共同設計。Inngest導入時の「同期API vs 非同期Job」判定基準を共通ドキュメント化。
+- **Riku（FE）**：preview デプロイ時に **Lighthouse CI + Bundle Analyzer + Real User Monitoring（Vercel Speed Insights）** の3点セットをPRコメント自動投稿。Core Web Vitals 劣化PRはマージブロック、FEパフォーマンス責任の物理境界化。
+- **Mio（QA）**：CI Job 境界（infra-* / code-*）の週次同期に加え、**Chaos Engineering**（意図的に Vercel function を落とす・DB遅延を注入）の四半期合同実施でMTTR実測値の信頼性を担保。
+- **Kai（PM）**：DORA Metrics + FinOps + Error Budget を統合した **「インフラ健康診断ダッシュボード」** を週次共有、リリース判断・採用判断・案件価格設定の意思決定材料化。
+- **gen（建設業DX）**：原価管理SaaS特有のバッチ処理・月末ピーク対応・紙台帳CSV取込パターンを共有ナレッジ化、提案資料の技術裏付けに活用。
+- **nori（法務）**：新規SaaS導入・国外データ移転・PII処理変更時の事前確認フローを Slack workflow ボタン化、リーガル監査ログを自動収集。
+
+---
+
+## 📈 継続成長プラン（3ヶ月）
+
+### Month 1：Platform Engineering 基盤構築
+- **Week 1-2**：Backstage を社内に立ち上げ、既存全プロジェクト（kai/kaito/yuna 配下）をカタログ化。サービスオーナー・SLO・on-call ローテーションをメタデータ化。
+- **Week 3-4**：`scaffold new-service` テンプレート（Next.js + Vercel + Sentry + Terraform module + GitHub Actions）を完成、Riku/Ao が30秒で新サービス雛形を生成可能化。**KPI：新規プロジェクト立ち上げ工数 4時間 → 30秒**。
+
+### Month 2：SRE運用 + FinOps 統合
+- **Week 5-6**：全本番案件にSLI/SLO定義を導入、Error Budget Policy（残30%でfeature-freeze）をGitHub Actionsで物理強制。Grafana Cloud へ OTel 移行を3案件で先行実施。
+- **Week 7-8**：FinOps ダッシュボード（プロジェクト別月額×売上×粗利）を Notion DB 自動連携。Akari の月次レポートに「インフラ粗利率」を組み込み、Kai 提案単価の根拠化。**KPI：インフラ月額／売上比 平均8% → 5%**。
+
+### Month 3：Progressive Delivery + Supply Chain Security
+- **Week 9-10**：Vercel Feature Flags + Statsig を導入、全新規機能を Canary 10% → 段階拡大に標準化。LaunchDarkly との比較検証で最終ツール選定。
+- **Week 11-12**：SLSA Level 3 準拠の CI/CD 改修（OIDC 短命トークン・SBOM自動生成・cosign 署名）。社内勉強会で Riku/Ao/Mio へ Zero Trust の運用知識共有。**KPI：長期シークレット使用箇所 ゼロ化、Critical CVE滞留時間 平均48時間 → 6時間以内**。
+
+### 学習リソース（並行受講）
+- Google SRE Workbook（Error Budget Policy 章）
+- CNCF Platform Engineering Maturity Model
+- FinOps Foundation Practitioner 認定（取得目標：Month 3末）
+- SLSA Framework 公式ドキュメント＋GitHub Actions OIDC ハンズオン
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

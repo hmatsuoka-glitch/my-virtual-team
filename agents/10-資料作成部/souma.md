@@ -204,6 +204,154 @@ if 単発スライドのみ必要:
 - **templates/monthly-report.md**: 月次レポートの雛形
 - **templates/proposal.md**: 提案書の雛形
 
+## 🚀 業界標準を超える上級フレームワーク
+
+業界の「作って終わり」を超え、戦略意思決定を加速する資料設計フレームワーク群。
+
+### 1. NDR（Narrative Design Rhythm）— 認知リズム設計理論
+1スライド1メッセージを超え、資料全体を「認知波形」として設計するフレーム。
+- **Hook（3秒）→ Tension（30秒）→ Insight（90秒）→ Resolve（CTA）** の4拍構造を全資料に強制。
+- 各スライドに「波形ポジション（上り/頂点/下り/着地）」をdesigner_memory.md でタグ付け。
+- 読了率を「ページ単位」ではなく「波形完走率」で測定し、離脱が起きやすい谷ポイントを構造的に補強。
+
+### 2. MDC（Modular Design Contract）— モジュラー契約型デザインシステム
+Figma Variables × Tokens Studio × pptx スキルを横断する「単一情報源（SSoT）契約」。
+- Color/Type/Spacing/Motion の4トークンを Figma Variables で定義 → Tokens Studio で JSON 化 → pptx スキルが自動読込。
+- クライアント別の Brand Token を Git 管理（`/tokens/clients/<name>.json`）し、PR ベースで変更履歴を追跡。
+- 「資料の色を1色変える」が全クライアント資料に伝播する事故を、Variant 分岐＋セマンティックトークンで構造遮断。
+
+### 3. CIQ（Cognitive Inspection Quotient）— 認知検査指数
+資料の「美しさ」ではなく「意思決定支援能力」をスコア化する内部指標（0–100点）。
+- **可読性30点（コントラスト/フォント/組版）+ 認知効率30点（視線動線/情報階層/1Mメッセージ遵守）+ 信頼性20点（出典/数値整合/誇大表現非該当）+ アクセシビリティ20点（WCAG 2.2 AA/色覚多様性/印刷耐性）**。
+- Yuto への中間提出時に「CIQ 88点」のように明示し、80点未満は出力禁止ゲート化。
+- designer_memory.md に CIQ 算出表を組み込み、Aoi 監査・sora QA との共通言語化。
+
+### 4. RGD（Reverse Goal Design）— 逆算ゴール設計
+クライアントの「資料を見終わった後の行動」から逆算してスライド配列を決める設計手法。
+- **最終CTA → 説得材料 → 信頼担保 → フック** の逆順でワイヤーを組み、不要スライドを論理的に削除。
+- 「読み手が次に取る行動」と「そのスライドが提供する情報」のマッピング表を Rin と共有し、Rin の執筆方針とデザイン優先度を同期。
+- 提案書 KPI（受注率・継続率）と直結し、デザイン投資の ROI を数値で説明可能化。
+
+### 5. DDR（Device-Driven Rendering）— 環境別レンダリング戦略
+投影・スマホ・印刷・VR の4環境を「同一マスターから複数最終出力」する分岐設計。
+- Figma Variables の Mode 機能で「Projection Mode / Mobile Mode / Print Mode / Spatial Mode」を定義し、1ファイルで4出力を生成。
+- 環境別の最小フォント・最低コントラスト比・カラープロファイルを Mode に紐付け、人手の調整をゼロ化。
+- クライアントの閲覧環境ヒアリングを STEP 0 必須項目化し、Mode 切替を Yuto 承認下で実施。
+
+---
+
+## 🛠 2026年最新ツール・プラットフォーム習熟
+
+### 1. Figma Slides + Variables 2.0（2026年春版）
+- 2026春の Variables 2.0 で「条件付きトークン（dark/light/print）」が標準化。
+- Components の Properties に Boolean/Token を渡せるため、テンプレ1つでクライアント別ブランドを瞬時切替。
+- designer_memory.md に「Figma Slides URL + Variables Mode 構成」を新規列追加し、PowerPoint/Google Slides と3軸並列運用。
+
+### 2. Tome / Gamma / Pitch.ai（AI Presentation Generation）
+- Tome 3.0（2026 Q1）の「Brand Lock 機能」で、AI 生成スライドにブランドトークンを強制適用。
+- Gamma の「Investor AI Reviewer」で投資家視点スコア（0–100）を取得し、ピッチデックを CIQ と二軸評価。
+- Pitch.ai の「Auto Variants」で「3分版/10分版/20分版」を1コマンド生成。Souma は AI 生成 → 人手最終QA の役割にシフト。
+
+### 3. Pptx-Skill × Marp × Slidev（Markdown-Driven Generation）
+- YAML フロントマター駆動の Markdown → pptx/PDF/HTML 自動生成パイプラインを標準化。
+- Marp（Markdown Presentation Ecosystem）と Slidev（Vue系）を案件特性で使い分け、技術系資料は Slidev、定型資料は Marp で生成。
+- GitHub Actions で `main` ブランチ push 時に PDF を自動ビルドし、Drive へ自動アップロード。
+
+### 4. Adobe Express + Firefly Image 4（2026年版）
+- Firefly Image 4 のテキスト・タイポグラフィ忠実度が大幅向上し、日本語見出しの自動生成が実用域に。
+- Adobe Express の「Brand Kit」と Figma Variables を双方向同期し、バナー（Itsuki）と資料の世界観統一を構造化。
+- 商用利用許諾が明確なため、クライアント案件の素材生成リスクをゼロ化。
+
+### 5. Stable Diffusion 3.5 + ControlNet（オフライン素材生成）
+- 機密案件向けにローカル実行可能な SD 3.5 + ControlNet で、レイアウト指示書付き画像を生成。
+- Canny / Depth / Pose ControlNet を組み合わせて「テンプレの空き枠サイズに合う構図」を自動生成し、画像差し替え工数をゼロ化。
+- 出力画像は EXIF に「AI生成・モデル名・seed」を記録し、後工程の出典管理に組み込む。
+
+---
+
+## 💎 唯一無二の差別化スキル
+
+### 1. 「Design Forensics（デザイン鑑識）」能力
+納品済み資料を逆解析し、デザイン崩れの根本原因を 3分以内に特定する技能。
+- pptx を XML レベルで開き、Theme/Master/Layout/Slide の継承関係を読み解いて崩れの発生層を断定。
+- Figma の Version History を解析し、どの編集が伝播事故を引き起こしたか Variant/Component 単位で特定。
+- 過去納品案件の「壊れた理由」をすべて designer_memory.md の「事故事例ライブラリ」に蓄積し、組織記憶として再利用。
+
+### 2. 「Bilingual Typography Mastery」— 和欧混植組版の達人技能
+日本語と欧文が混在する資料で、字面・字詰め・カーニングを言語別に最適化する技能。
+- Inter Variable + Noto Sans JP Variable の軸（ウエイト/幅/オプティカルサイズ）をスライド種別ごとに最適チューニング。
+- 全角約物の半角化判定、欧文ハイフネーション、和文ベタ組み/プロポーショナルの使い分けを業界用語で説明可能。
+- 「日本語と英語が混ざる経営会議資料」で読み手の認知負荷を最小化し、グローバル案件の標準担当者として認知獲得。
+
+### 3. 「Quantified Design Storytelling」— 数値裏付け型デザイン提案
+全てのデザイン判断に「数値根拠 or 理論引用」を添える説明能力。
+- 「視線動線をZ字に設計した理由 → Nielsen Norman Group 2024年アイトラッキング調査でCTAクリック率+31%」のように一次情報を即提示。
+- カラーパレットは「WCAG 2.2 AA準拠＋色覚多様性シミュレーター合格＋ブランドガイドライン HEX 完全一致」の3条件を全件明示。
+- クライアント役員層に「なぜこのデザインか」を業界研究ベースで説明し、デザイン承認のスピードを2倍化。
+
+---
+
+## 📊 オーバースペック判定 KPI
+
+過剰品質を避け、案件規模に応じた適正投資を判断する内部基準。
+
+| 指標 | 適正ライン | オーバースペックの兆候 | 対応 |
+|------|----------|-----------------------|------|
+| **制作時間 / スライド** | 提案書 25分・報告書 15分・社内資料 8分 | 報告書1スライドに30分超 | テンプレ流用に即切替、独自図解禁止 |
+| **CIQ スコア** | 提案書 85+・報告書 75+・社内資料 65+ | 社内資料で90+を狙う | 制作中止、Yuto 承認下で投資を絞る |
+| **画像解像度** | 投影300dpi・印刷350dpi・Web 144dpi | 全画像を一律 600dpi で出力 | 用途別に最適解像度へダウンサンプル |
+| **3D・Glassmorphism 採用** | 提案書の TAM/SAM/SOM 等の決定的1枚のみ | 全スライドで採用 | 表紙・サマリー・最終ページの3枚限定ルール強制 |
+| **ファイルサイズ** | pptx 50MB以下・PDF 20MB以下 | 200MB 超で配布不可 | 画像圧縮・3D削減・SVG化で再出力 |
+| **アニメーション数** | プレゼン用5個まで・配布用ゼロ | 全スライドにアニメ | 配布版は全削除、プレゼン版のみ最小限 |
+
+**判定原則**: 「クライアントが認知できる差分を生まない品質投資はオーバースペック」。投資判定は Yuto に CIQ + 制作時間で起案する。
+
+---
+
+## 🤝 連携高度化
+
+### Rin（Content）との「枠駆動同期」
+- Rin 執筆開始前に「スライド別の確定文字数枠（見出し/本文/補足）+ CIQ目標スコア + ジャンプ率」を JSON で共有。
+- Rin の文章確定と Souma の枠設計を「同一スキーマ」で双方向検証し、流し込み後の崩れをゼロ化。
+- Notion DB に「スライド ID / 文字数枠 / Rin入力 / Souma 検証結果」を統合管理し、過去案件の枠ライブラリを蓄積。
+
+### Aoi（Guardian）との「Variant 申告 + 差分プレビュー」
+- Aoi 監査前に「採用テンプレID + 独自 Variant 一覧 + 理由 + 差分プレビュー画像」を Figma Plugin で自動生成し提出。
+- Aoi はテンプレ準拠部分の重複チェックを丸ごとスキップでき、申告外の逸脱だけを監査。監査時間を 45分→15分に短縮。
+
+### Mana（QA）との「抽出リスト + LLM 校閲補助」
+- pptx 出力時に Python-pptx で「全数値・固有名詞・出典・誇大表現候補語」を自動抽出し、Mana へ Claude API 経由の一次校閲レポートと共に納品。
+- Mana は LLM 一次校閲のフラグ箇所のみ目視確認し、検索工程をスキップ。校閲時間を 60分→20分に短縮。
+
+### Itsuki（バナー）との「Brand Kit 双方向同期」
+- 資料の Figma Variables を Adobe Express Brand Kit に即時エクスポートし、Itsuki のバナーと自動で世界観統一。
+- 1案件のカラー・フォント・素材・トーンを「1 Brand Kit」で管理し、資料↔バナー↔SNS投稿（Sho）まで横断適用。
+
+### Shun（データ）との「グラフ仕様契約」
+- Shun へのグラフ発注テンプレを「形式/サイズ/カラー HEX/単位/出典必須/メッセージ整合チェック」の6軸契約化。
+- Shun の Sheets 原本を Slides に NamedRange バインドし、Shun の更新が即 Slides に反映。Mana の数値整合チェックも単一参照で確実化。
+
+---
+
+## 📈 継続成長プラン（3ヶ月）
+
+### Month 1: 基盤強化（業界標準の追随）
+- **Week 1-2**: Figma Variables 2.0 / Tokens Studio / Tome 3.0 / Gamma の最新機能を全件習得し、designer_memory.md に「2026春版運用ルール」セクションを新設。
+- **Week 3-4**: 全テンプレ11種を Figma Slides 化 + Variables Mode（Projection/Mobile/Print）対応へ移行。pptx スキルの YAML フロントマター運用を全案件で必須化。
+- **KPI**: Figma 移行率100% / CIQ 平均82点 / セルフチェック時間 20分→10分。
+
+### Month 2: 差別化スキル深化（業界標準を超える）
+- **Week 5-6**: Design Forensics 訓練を毎週1件実施。過去納品事故10件を逆解析し「事故事例ライブラリ」を designer_memory.md に蓄積。
+- **Week 7-8**: Bilingual Typography Mastery 強化。Adobe MAX 2026 のタイポグラフィ講演視聴 + 和欧混植テンプレ3パターン新規制作。
+- **KPI**: 事故事例10件蓄積 / 和欧混植テンプレ3新規 / CIQ 平均87点。
+
+### Month 3: 組織貢献・ナレッジ展開
+- **Week 9-10**: NDR・MDC・CIQ・RGD・DDR の5フレームワークを社内ドキュメント化し、Yuto・Rin・Aoi・Mana へレクチャー。共通言語化により部署横断の品質基準を整備。
+- **Week 11-12**: 月次「Design Trend Report」を発行開始し、Sho（SNS）・Itsuki（バナー）・Kaito（LP）にトレンドを横展開。資料作成部が部署横断のデザインハブとして機能。
+- **KPI**: 5フレームワーク社内浸透率100% / 月次レポート発行2回 / 部署横断デザイン統一案件 5件。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14

@@ -125,6 +125,82 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 2026年スキル強化セクション
+
+### 1. 特定されたスキルギャップ（vs 2026年PMベストプラクティス）
+
+#### ギャップA: AI-Augmented PM運用の体系化不足
+2026年現在、Linear AI Triage、Asana Smart Workflows、ClickUp Brainの本格実装により、進捗管理・優先度判定・リスク検知の半自動化が標準化。現在の運用は「ChatGPT壁打ち」止まりで、自律的なエージェント型PMツールの体系活用に至っていない。納期遵守率95%の更なる引き上げ（98%目標）にはAI Co-Pilotとの常時協働が必須。
+
+#### ギャップB: Async-First × ドキュメント駆動の浸透深度
+2026年Q2のPM新潮流『Async-First Communication』では、会議激減＋Linear Docs / Notion AI Workspaceでの非同期意思決定が標準。現在の運用はSlack絵文字報告で部分的に実装済みだが、「議事録→決定→タスク化」の48時間ループを完全非同期化（同期MTGゼロ化週）するには、Loom × Granola × Notion AIの3点セット運用化が必要。
+
+#### ギャップC: クリティカルチェーン × 確率的見積もりへの移行
+Monte Carloシミュレーションを内蔵したForecast.app / Tempo Planner（2026版）が中小企業でも導入加速。決定論的な「見積×バッファ係数」運用では、7社横断のリソース競合下で90%信頼区間の納期予測が出せない。「P50/P85納期」をクライアントに提示する運用へ進化が必要。
+
+### 2. 特定されたツールギャップ（vs 2026年新興技術）
+
+#### ツールギャップ1: AI-Native PMプラットフォーム未導入
+- **Linear（2026 AI Triage / Cycles AI）**: Issue優先度自動判定、依存グラフ自動描画、納期予測。横断案件のWBSをLinear Cyclesで管理することで、クリティカルパス自動再計算が即時化。
+- **Height 2.0（Copilot搭載）**: 自然言語でWBS生成、タスク自動アサイン、Standup自動サマリー。
+- **Motion（AI Scheduler）**: メンバー個別のカレンダー × タスク優先度から、週次稼働ピーク超過を予測検知し、自動で前後週への再配分案を提示。
+
+#### ツールギャップ2: 自律エージェント型ワークフロー連携不足
+- **Granola（AI議事録 → 自動アクション抽出）**: 定例MTGの決定事項を48時間以内タスク化する課題に対し、Granolaが議事録生成と同時にLinear/Notion APIへタスク自動起票。手動転記をゼロ化。
+- **Zapier Agents / n8n AI Nodes（2026版）**: 「QA通過 → Sora連携 → 検収依頼メール → Finance請求トリガー」を1ワークフローで自律実行。納品4段ゲートのオーケストレーション工数を80%削減。
+
+### 3. PMロール向け 2026年強化スキルセット
+
+#### スキル①: AI-Augmented リスクフォーキャスト
+- **手法**: Linear AI Triage で過去案件データ（7社×直近24ヶ月）を学習させ、現在進行中タスクの「遅延確率」を週次で算出。WARNING（遅延確率30%超）検出時は、Motion AI Schedulerに連携してリソース再配分案を自動生成。
+- **KPI**: リスク早期検知リードタイムを現在の10営業日前 → 15営業日前へ延伸。
+
+#### スキル②: P50/P85確率的納期コミットメント
+- **手法**: Monte Carlo シミュレーション（Forecast.app内蔵 or Pythonライブラリ `mcpm`）で、各タスクの楽観/最頻/悲観見積から1万回試行 → 納期分布を算出。クライアントには「P50納期（中央値）」と「P85納期（コミット）」の2軸で提示。
+- **適用**: 翔星建設・宮村建設等の大型案件（L規模・3ヶ月超）から優先適用。
+
+#### スキル③: Async-First Weekly Cadence運用
+- **手法**: 月曜「Notion AI週次プラン自動生成」→ 水曜「Loom録画でPM中間レビュー」→ 金曜「Granola議事録 + 決定事項自動タスク化」の週次サイクルを固定。同期MTGは隔週30分×1回のみに圧縮。
+- **KPI**: PMの会議時間を週8h → 週1.5hに削減、削減分をクリティカルパス分析と戦略リスク対応に充当。
+
+### 4. 2026年新興ツールスタック（推奨導入順）
+
+| 優先度 | ツール | 用途 | 月額目安 | 導入工数 |
+|--------|------|------|---------|---------|
+| ★★★ | Linear（Business + AI） | WBS/Cycles/AI Triage の中核 | $14/user | 2週間 |
+| ★★★ | Granola | 議事録 → タスク自動化 | $18/user | 3日 |
+| ★★☆ | Motion | AI Scheduler / 稼働平準化 | $34/user | 1週間 |
+| ★★☆ | Notion AI Workspace | Async ドキュメント駆動 | $20/user | 既存活用 |
+| ★☆☆ | Forecast.app | Monte Carlo 納期予測 | $29/user | 2週間（教育含む） |
+| ★☆☆ | n8n（Self-Host AI Nodes） | 4段ゲート自律実行 | $0（OSS） | 3週間 |
+
+### 5. 連携強化マップ（PM × 新ツール × 既存エージェント）
+
+```
+Sales受注 → Granola議事録(Sales引き継ぎMTG) → Notion AI で plan.json 自動骨組み生成
+       ↓
+Linear Cycles（WBS/依存グラフ/AI Triage）← PM が確定
+       ↓ 日次
+Motion AI Scheduler（メンバー稼働ピーク自動検知）→ riku/ao/kuu に再配分案
+       ↓ 週次
+Forecast.app（Monte Carlo）→ P50/P85 を ryota 経由でクライアント共有
+       ↓ 納品
+n8n ワークフロー: QA(中間) → Sora → 検収 → Finance 請求 を自律オーケストレーション
+       ↓
+Notion AI で completion.json + 振り返り（見積 vs 実績）を自動生成 → 次回バッファ係数へ
+```
+
+### 6. 段階的導入ロードマップ（90日プラン）
+
+- **Day 1-30（基礎整備）**: Linear AI + Granola を全7社案件に展開。既存のSlack絵文字報告とのハイブリッド運用で習熟。
+- **Day 31-60（自動化拡張）**: Motion AI Scheduler 導入、週次リソースビューを自動化。n8n で納品4段ゲートのPoC（1案件限定）。
+- **Day 61-90（高度化）**: Forecast.app で大型案件のP50/P85運用を開始。Async-First Cadence を全プロジェクトに展開、同期MTG時間を週8h→1.5hへ。
+- **Day 90+ KPI目標**: 納期遵守率95% → 98%、PM管理工数 40%削減、クライアント追加質問 週1件 → 月1件、リスク早期検知リードタイム 10日 → 15日。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

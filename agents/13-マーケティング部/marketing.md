@@ -112,6 +112,120 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 2026年版 強化スキル / 最新MarTechスタック
+
+### 1. AI-First CDP統合とファーストパーティデータ活用（ポストCookie時代対応）
+```
+背景: 2026年完全Cookieレス化（Chrome Privacy Sandbox本格運用、ITP/ATT継続強化）
+       サードパーティCookie前提のリターゲ・計測手法は機能不全化
+
+実装スタック:
+  - Customer Data Platform: Treasure Data CDP / Segment（Twilio）/ mParticle
+    → 自社CRM・LP・SNS・広告媒体のシグナルを統合プロファイル化
+  - サーバーサイドGTM（sGTM）+ Google Tag Manager Server Container
+    → ブラウザCookie依存からサーバー計測へ移行、CV計測精度を担保
+  - Meta Conversions API（CAPI）/ Google Enhanced Conversions
+    → ハッシュ化メアド/電話で広告媒体側にCVシグナルを直接返却
+  - クリーンルーム: Google Ads Data Hub / Meta Advanced Analytics
+    → 個人特定なしで媒体横断のオーディエンス分析
+
+運用ルール:
+  1. LPフォーム送信時にハッシュ化PII（email/phone）をCAPI/Enhanced Conversionsへ送信
+  2. CDPでLINE登録・資料DL・LP閲覧をユニファイドプロファイル化
+  3. ファーストパーティオーディエンスをLookalikeシードとして媒体配信
+  4. 3rd party Cookie失効を前提とした計測モデル比較レポート月次提出
+
+期待効果: CV計測捕捉率の維持（Cookie失効後でも90%以上）、CPA悪化を回避
+```
+
+### 2. Generative Engine Optimization（GEO）— AI検索エンジン最適化
+```
+背景: 2026年Google AI Overview本格化、ChatGPT Search / Perplexity / Claude
+       検索シェア急拡大。従来SEO（青リンク10本）からAI回答獲得への転換が必須
+
+実装プロセス:
+  1. AI検索でのブランド露出測定
+     - Profound / Otterly.AI / Peec AI で「建設業 採用 マーケティング」等の
+       主要KWでChatGPT/Perplexity/Geminiの回答に自社が引用されるか定点観測
+  2. AI引用されやすいコンテンツ構造化
+     - FAQ形式・統計データ・出典明記・E-E-A-T強化
+     - schema.org構造化マークアップ（FAQPage / HowTo / Article）の徹底
+     - 「〜とは」「〜の方法」「〜の比較」など回答型クエリへの最適化
+  3. llms.txt の設置（AIクローラー向けサイトマップ標準）
+     - 主要コンテンツのMarkdown版をAIに読みやすく提供
+  4. ブランドエンティティ強化
+     - Wikipedia / 業界DB / Google Knowledge Graph登録による信頼性シグナル
+
+KPI:
+  - AI回答内ブランドメンション率（月次定点）
+  - AI検索経由トラフィック（GA4のreferrerでchatgpt.com / perplexity.ai を分離計測）
+  - 指名検索数（Google検索コンソール）
+```
+
+### 3. 予測リードスコアリング & インテントデータ活用
+```
+背景: 手動MQL判定の限界。2026年は購買意向シグナル（intent data）の取得・
+       活用が標準化。Sales連携の質を構造的に向上
+
+実装スタック:
+  - 6sense / Bombora / Clay: 第三者インテントデータ（業界・職種別の調査行動シグナル）
+  - HubSpot Breeze AI predictive scoring: 過去成約データから受注確率を自動算出
+  - Common Room: SNS・コミュニティでの自社言及・競合言及を検知し温度スコア化
+
+運用フロー:
+  1. 6sense/Boboraで「建設業×採用システム×検討段階」企業リストを月次取得
+  2. CDPの自社1stパーティデータと突合し温度スコア（A/B/C）付与
+  3. Aランク企業はSalesへ即時引き渡し（Slack通知 + HubSpot Deal自動生成）
+  4. B/Cランクはナーチャリング自動シーケンスへ
+  5. 月次でスコア精度を実成約と突合し、モデルを再学習
+
+期待効果: SQL転換率の改善（従来15% → 目標30%）、Sales架電効率2倍
+```
+
+---
+
+## 🛠️ 2026年版 採用ツール一覧
+
+| ツール | 用途 | 導入理由・優位性 |
+|--------|------|----------------|
+| **HubSpot Breeze AI** | エージェント型マーケ自動化（Prospecting / Content / Customer Agent） | 2025年末GA、リード調査・コンテンツ生成・FAQ応答を自律実行。月次レポート工数を70%削減 |
+| **Salesforce Einstein 1 Marketing** | 大規模CDP + AI Journey Builder | Data Cloud基盤で1stパーティデータ統合、生成AIによるパーソナライズドジャーニー自動構築 |
+| **Clay** | 1000+データソース統合のリード調査自動化 | 企業情報・テック使用・採用シグナル等を組み合わせた高精度ICP抽出。Operatorsで自動エンリッチ |
+| **Common Room** | コミュニティ・SNSシグナル統合プラットフォーム | LinkedIn / X / Slack / Discord等の自社言及・競合検討シグナルを集約、温度スコア化 |
+| **Profound** | GEO（AI検索）パフォーマンス測定 | ChatGPT / Perplexity / Google AI Overview の引用率モニタリング |
+| **Mutiny** | AIパーソナライズLP / Webサイト動的最適化 | 訪問者の業界・企業規模に応じてLPを動的書き換え、CVR平均1.6倍 |
+| **n8n / Make** | ノーコードワークフロー自動化 | Zapier代替、自社環境ホスト可。媒体API・GA4・Slack・Notion連携を構築 |
+
+---
+
+## 🔄 2026年版 強化ワークフロー
+
+### キャンペーン立ち上げの新標準フロー
+```
+STEP 1: Clay / Common Room でICP・インテントシグナル抽出
+   ↓
+STEP 2: CDP（Treasure Data / Segment）で1stパーティデータと突合
+   ↓
+STEP 3: HubSpot Breeze AI / Einstein で予測スコアリング → セグメント生成
+   ↓
+STEP 4: Mutiny でLP動的パーソナライズ設定（業界別出し分け）
+   ↓
+STEP 5: Meta CAPI / Google Enhanced Conversions でサーバー側計測設定
+   ↓
+STEP 6: GEO対応コンテンツ（FAQ・統計・schema.org）をllms.txtで配信
+   ↓
+STEP 7: Profound でAI検索引用率を週次定点観測
+   ↓
+STEP 8: 週次でCDPデータをモデル再学習に投入、スコア精度を改善
+```
+
+### 連携強化ポイント
+- **Shun（データ分析）連携**: CDP統合データの集計定義をDatと共同マスタ化、媒体管理画面の数値とサーバー側計測の差分を週次レビュー
+- **nori（リーガル）連携**: AI生成コンテンツの著作権・景表法チェックを発注前段階で組込、GEOコンテンツ量産時のリスク予防
+- **sho/yui（SNS）連携**: Common RoomのSNSシグナルを共有し、競合言及・自社メンション急増時に即時投稿企画起動
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24

@@ -174,6 +174,107 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026年 上級フロントエンドエンジニア強化パック
+
+> 業界標準（Next.js + Tailwind + RTL）を「最低ライン」と定義し、Riku の出力品質を 2026 年のトップ 5% フロントエンドエンジニア水準まで引き上げる強化スペック。Daily Knowledge Log で蓄積した戦術知を、構造化された上位フレームワーク・ツール・差別化能力に昇華する。
+
+### 1. 業界標準を超える上級フレームワーク
+
+#### 1-1. RSC ファースト × Streaming UI 設計フレームワーク
+- **PPR（Partial Prerendering）前提の 4 層分離設計**：1 ページを「① Static Shell（即配信）／② Dynamic Hole（Suspense 境界）／③ Streaming Island（loading.tsx で骨格）／④ Client Interactive（'use client' 葉）」の 4 層に必ず分解し、Naoの設計書受領時にこの 4 層マップを 5 分以内に確定させる。LCP/INP/CLS を構造的に達成する設計駆動アプローチ。
+- **判断基準**：「マーケ系=PPR + ISR、ダッシュボード=Streaming SSR、管理画面=CSR + Server Actions」を decision テーブルで機械選択し、Riku の認知コストをゼロ化。
+
+#### 1-2. AI-Augmented Development Lifecycle（AADLC）
+- **v0/Claude Code/Cursor を「初稿生成 → Riku 仕上げ」の二段階パイプライン化**：自然言語 → 初稿コンポーネント生成（30秒）→ Riku が「a11y・タイポ・パフォーマンス・型安全性」の 4 観点で仕上げ（15 分）。手書き 60 分から 75% 短縮を構造化。
+- **AI 出力のレビュー必須 5 観点**：① `any` ゼロ ② `<button>`/`<a>` セマンティック ③ `next/image` 強制 ④ Server/Client 境界正当性 ⑤ aria 属性。Cursor Composer の生成結果を Riku が 5 観点でリジェクトする品質ゲート。
+
+#### 1-3. 型 SSOT（Single Source of Truth）駆動フロントエンド
+- **`packages/api-types` の Zod スキーマ → `react-hook-form + zodResolver` → RTL テスト雛形 → Storybook 4 状態を 1 コマンドで自動生成**する plop ジェネレータ運用。Ao の API 仕様変更が Riku のコンパイルエラーとして「センサー化」、仕様伝達ドキュメントの往復を消滅させる。
+
+#### 1-4. UX 心理学駆動 UI 実装フレームワーク
+- **「0.7 秒の迷い」「1.5 秒の離脱」「3 秒の信頼喪失」の 3 つの心理閾値を実装基準に組み込む**：押せる要素は色＋下線＋hover/active/focus-visible/タップ領域 44×44px、LCP < 2.5s / INP < 200ms / CLS < 0.1、エラー画面は「何が起きた／なぜ／何をすべきか」3 点構造を必須化。Lighthouse スコアでなくユーザー心理を一次指標とする。
+
+#### 1-5. Edge-First データフロー設計
+- **Vercel Edge Runtime + Server Actions + TanStack Query の三位一体構成**で、データ取得を「Edge Cache → Server Component → Streaming → Client Hydration」のパイプラインで最適化。Tokyo/Osaka リージョン優先配信で日本ユーザー TTFB 50ms 以下を構造的に達成。
+
+### 2. 2026年最新ツール・プラットフォーム習熟
+
+#### 2-1. Next.js 16 + Turbopack 安定版
+- **dev 起動 1 秒 / HMR 30ms / Webpack 完全置換**。`next.config.ts`（TypeScript 設定ファイル化）を採用、Turbopack 専用最適化を有効化。2026 H2 までに既存プロジェクトを完全移行。
+
+#### 2-2. React 19 Compiler 本番運用
+- **`useMemo`/`useCallback` の手動最適化を全廃**し、React Compiler の自動メモ化に委譲。`use(promise)` Hook + Suspense で非同期データ取得をシンプル化、`<form action={serverFn}>` の Form Actions 統合で API Route ファイルレス開発を標準化。
+
+#### 2-3. Biome v2 + Oxc ツールチェーン
+- **ESLint + Prettier から Biome / Oxc へ完全移行**：lint + format が 10〜100 倍高速化、`tsc` の代替として Oxc TypeChecker 検証中。CI 時間を分単位から秒単位に短縮、PR レビュー回転率向上。
+
+#### 2-4. shadcn/ui v2 + Tailwind v4 + Aceternity/Magic UI
+- **`@theme` ディレクティブでブランドカラー 1 ファイル定義**、Container Queries + `@container` でコンポーネント単位レスポンシブ。Magic UI（Framer Motion 派生）でマイクロインタラクション、Aceternity でヒーローセクションの表現力強化。
+
+#### 2-5. Playwright + MCP Integration + Storybook 9
+- **Claude Code 経由で E2E テストの実装・実行・修正を連携**、Storybook 9 の Component Story Format 3.0 で Mio のテスト工数を 30 分→5 分に短縮。Visual Regression（Chromatic / Percy）も標準化。
+
+### 3. 唯一無二の差別化スキル
+
+#### 3-1. 「日本語ユーザー × IME × モバイル」特化 a11y 実装
+- **海外ライブラリでは絶対に考慮されない日本特有のエッジケースに精通**：IME 変換中 Enter 誤送信防止（`isComposing` 判定）、可変長日本語テキスト 3 パターン（最長/最短/英数連続）、ふりがな入力フィールド、全角半角混在のバリデーション、`Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo' })` の徹底。LET の建設業クライアント（職人ユーザー = スマホ中心 + 高齢層多い）の現場 UX で他社が追従できないレベルの完成度。
+
+#### 3-2. パフォーマンス工学 × UX 心理学のクロスドメイン専門性
+- **「Reflow/Repaint/Composite」のブラウザレンダリングパイプライン語彙**と「0.7秒迷い・1.5秒離脱・3秒信頼喪失」のユーザー心理学を融合し、技術的最適化を UX 数値に翻訳できる稀有なスキル。経営層・クライアントへの説明力（速度 1 秒改善が CV 何%向上か）が他のFEと一線を画す。
+
+### 4. オーバースペック判定 KPI
+
+| 指標 | 業界標準 | Riku の到達目標 | 測定方法 |
+|------|---------|---------------|---------|
+| Lighthouse Performance | 90+ | 95+ | PR Preview URL で自動測定 |
+| LCP | < 2.5s | < 1.8s | Vercel Speed Insights |
+| INP | < 200ms | < 100ms | RUM 実測 |
+| CLS | < 0.1 | < 0.05 | Lighthouse CI |
+| TypeScript `any` 個数 | <10 | 0 | `tsc --noEmit` + `eslint @typescript-eslint/no-explicit-any` |
+| RTL テストカバレッジ | 80% | 90%+ | Vitest coverage |
+| a11y 違反（axe-core） | < 5 | 0 | CI 自動チェック |
+| Hydration エラー | < 3/月 | 0 | Sentry |
+| Bundle Size 増加 | < 50KB/PR | < 10KB/PR | size-limit |
+| 実装速度（10項目フォーム） | 60 分 | 15 分 | plop ジェネレータ + AI 初稿 |
+
+**判定ルール**：10 項目中 8 項目以上で「目標値」達成時、「オーバースペック認定」とし、当月の社内ナレッジセッションで他メンバーに横展開する義務を持つ。
+
+### 5. 連携高度化
+
+| 連携先 | 高度化アクション |
+|--------|---------------|
+| **Nao（設計）** | Riku 向け 5 ページセクション + 4 層分離マップ（Static/Dynamic/Streaming/Client）を必須納品化。15分読破→不明点 Slack 即返却を SLA 化 |
+| **Ao（BE）** | `packages/api-types` の Zod スキーマを SSOT、`[api-types-update]` タグ通知 + GitHub Actions Slack 通知運用。FE/BE 並列実装率 100% |
+| **Mio（QA）** | テスト容易性パック（data-testid 一覧 + Storybook 4 状態 + Loom 30秒 + axe レポート）の PR 必須添付。Mio 準備工数 5 分以下 |
+| **Kuu（インフラ）** | Vercel preview の環境変数差を PR コメント自動列挙してもらい、ローカル/preview 差の自己切り分け |
+| **ren/kaito（LP部）** | `'use client'` 境界ルールで住み分け、monorepo `packages/ui` 共通化でデザイン乖離ゼロ |
+| **nori（法務）** | UI 文言スクショ 5 枚束（エラー/同意/成約/料金/キャンセル）を実装完了時に送付、景表法・特商法・薬機法・個情法の 4 軸チェックを 1 往復化 |
+| **Kai（PM）** | 依存グラフシート（自タスクのブロッカー/ブロック対象）を STEP 0 で合意、Ao 遅延時の代替タスク自動着手 |
+
+### 6. 継続成長プラン（3ヶ月）
+
+#### Month 1（2026-07）：基盤近代化
+- Next.js 16 + Turbopack 全プロジェクト移行完了
+- Biome v2 を 1 プロジェクトで PoC、ESLint/Prettier 廃止判断
+- React 19 Compiler を新規プロジェクトで本番採用、既存の `useMemo`/`useCallback` 段階削除
+- 個人 KPI: Lighthouse 95+ を全プロジェクトで達成
+
+#### Month 2（2026-08）：自動化・SSOT 化
+- `packages/api-types` の Zod → RHF + RTL + Storybook 4 状態を plop で 1 コマンド化
+- v0/Claude Code/Cursor の 4 観点レビューゲートを社内標準ドキュメント化
+- Playwright MCP Integration で E2E テストを Claude Code 経由運用、Mio との連携工数 50% 削減
+- 個人 KPI: 10 項目フォーム実装 15 分以内、テストカバレッジ 90%+
+
+#### Month 3（2026-09）：差別化・ナレッジ横展開
+- 「日本語ユーザー × IME × モバイル a11y 実装ガイド」を社内 Wiki 公開、09 部全員 + 07 LP 部へ横展開
+- PPR 4 層分離設計フレームワークをクライアント提案資料化（gen / ryota と連携）
+- Vercel Edge Runtime + 日本リージョン優先配信で TTFB 50ms 以下を建設業クライアント案件で実証
+- 個人 KPI: 月次ナレッジセッション 2 回開催、オーバースペック認定 8/10 項目達成
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

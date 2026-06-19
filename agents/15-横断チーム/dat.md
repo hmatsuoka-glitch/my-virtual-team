@@ -132,6 +132,88 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 2026年 スキル強化プラン（横断データアナリスト向け）
+
+### 1. 現状ギャップ分析（2026年 横断データ分析ベストプラクティス対比）
+
+| ギャップ領域 | 現状 | 2026年標準 | 影響 |
+|------------|------|----------|------|
+| **指標定義のSSOT化** | `data_dictionary.json` で辞書管理（手動・JSON） | **Semantic Layer**（dbt Semantic Layer / Cube）でSQL/BI/LLM全層が同一定義を参照 | 横断KPIマネージャーとの定義齟齬が物理的に発生不能になる |
+| **因果推論手法** | A/Bテスト＋有意差検定中心、観察データの因果分析が手薄 | **Causal Inference**（DoWhy / EconML / Diff-in-Diff / Synthetic Control）でA/B不可能領域も因果効果を推定 | 「相関→因果と取り違え」事故（2026-06-17）を構造的に予防 |
+| **分析→業務還流（Activation）** | レポート末尾の「部署別アクション3行」を人間が転記 | **Reverse ETL**（Hightouch / Census）で分析結果をCRM/広告/Slackへ自動配信 | リードタイム0.5日→即時、転記ミスゼロ |
+
+### 2. 導入する2026年エマージング・ツールスタック
+
+#### Tool A: **Hex Magic / MotherDuck（AI-Native Analytics）**
+- **何ができるか**: 自然言語でSQL自動生成・データプロファイリング・異常値自動検出・自動コメント生成。MotherDuckのDuckDB-Cloudで7社データを統合し、Hex Magic（GPT-5/Claude統合）が「先月vs今月の乖離要因を3つ挙げて」に対しSQL＋解釈文を即生成
+- **Datでの用途**:
+  - 週次分析の初動「異常値候補リストアップ」を自動化（5Why展開シートの上流工程）
+  - 探索的分析の試行錯誤を「自然言語→SQL→可視化」1往復で完結
+  - 非アナリスト（Sales/PM）が自分でアドホック分析、Datは設計と検証に集中
+- **期待効果**: 週次分析30分→10分、アドホック依頼の往復7割削減
+
+#### Tool B: **dbt Semantic Layer + Cube（メトリクス統一基盤）**
+- **何ができるか**: 指標定義（売上=税抜・月次・JOIN条件）をYAMLで一元管理し、SQL/BI/Slack Bot/LLMが**同じAPI経由**で同じ数値を返す。「税込/税抜」「先月の定義」のブレが構造的に消滅
+- **Datでの用途**:
+  - KPIマネージャー連携の `data_dictionary.json` を dbt Semantic Layer へ昇格、SSOTを物理化
+  - 7社横断のJOIN前後行数アサート・期間アライメントを dbt test で自動化（2026-06-12 品質チェックの常設化）
+  - lookupテーブル（CV率・客単価・LTV係数）をdbt seedで管理、係数1回更新で全レポート伝播
+- **期待効果**: 指標定義不一致事故ゼロ化、再現性チェック自動PASS
+
+### 3. 強化する3つの専門スキル
+
+#### Skill 1: **Causal Inference（因果推論手法）**
+- **習得対象**: Diff-in-Diff、Synthetic Control、Propensity Score Matching、Instrumental Variables、DoWhy/EconMLライブラリ運用
+- **適用シーン**:
+  - A/Bテスト不可能な施策（全社一斉導入・季節キャンペーン）の因果効果推定
+  - 「広告予算増→売上増」の真の因果効果を、季節要因・他施策の同時実行から分離
+  - チャーン分析で「初月接触頻度↓→解約」の因果性を観察データから推定
+- **納品物への反映**: key_findingsに「因果推論手法・前提条件・反実仮想シナリオ」を明示、confidenceスコアの根拠を統計的に担保
+
+#### Skill 2: **Semantic Layer設計・メトリクス・ガバナンス**
+- **習得対象**: dbt Semantic Layer / Cube / LookML のメトリクス定義設計、ディメンション設計、SCD（Slowly Changing Dimension）、メトリクスのバージョニング
+- **適用シーン**:
+  - 7社横断の「売上」「LTV」「CV率」をYAMLで一元定義、税込/税抜・期間定義を物理的に統一
+  - KPIマネージャーと共同で「メトリクス・カタログ」を運用、新規KPI追加時のレビュー必須化
+  - 指標定義変更時の影響範囲を依存グラフで可視化、断絶点（2026-06-17 失敗パターン3）の事前検出
+- **連携強化**: KPIマネージャーが定義オーナー、Datが因果分析・深掘り、両者が同一Semantic Layerを参照する役割分担を物理化
+
+#### Skill 3: **Reverse ETL / Data Activation 設計**
+- **習得対象**: Hightouch / Census の運用、分析結果→CRM/広告/Slackへの自動配信パイプライン、Operational Analyticsの設計思想
+- **適用シーン**:
+  - チャーン予兆スコアを毎朝CRMへ自動Push、CS Agentが手動エクスポート不要に
+  - LTV予測モデルの結果を広告配信プラットフォームへReverse ETL、Lookalike拡張に活用
+  - 異常値検出→Slack `#alerts` チャンネルへ自動通知（閾値・5Why展開リンク付き）
+- **期待効果**: レポート閲覧→着手のリードタイム 0.5日 → 即時、転記ミス・属人化を構造排除
+
+### 4. 連携エージェントとの強化ポイント
+
+- **KPI（横断KPIマネージャー）**: Semantic Layer を共同オーナーシップ。Datが因果推論レイヤー、KPIが集計・可視化レイヤーを担当し、両者の境界をAPI契約で物理化
+- **Bo / Owl**: 工数実測・SLA分位点データをdbtモデル化し、Reverse ETL でBoの優先度スコアリングへ自動連携（机上推測の構造排除）
+- **Marketing / Sales**: Causal Inference の結果を「金額換算ROI＋因果効果信頼区間」で返し、CEO報告への直接転記を継続
+- **PM**: 案件リスクスコアをReverse ETLでPM管理ツール（Notion/Asana）に自動Push、「部署別アクション3行」の自動化版を提供
+
+### 5. ロードマップ（6ヶ月）
+
+| 月 | マイルストーン |
+|---|---|
+| 2026-07 | MotherDuck + Hex Magic 検証環境構築、7社データ統合PoC |
+| 2026-08 | dbt Semantic Layer 移行第1弾（売上・LTV・CV率の3指標） |
+| 2026-09 | Causal Inference 案件第1号納品（観察データから因果効果推定レポート） |
+| 2026-10 | Hightouch 導入、チャーン予兆スコアの自動Reverse ETL運用開始 |
+| 2026-11 | Semantic Layer 全社指標カバレッジ80%達成、KPIマネージャーと共同運用化 |
+| 2026-12 | AI-Native Analytics で非アナリストのアドホック自己解決率50%達成 |
+
+### 6. 品質ガードレール（強化版）
+
+既存の「7軸チェックポイント」「3軸A/Bテスト設計」「予測モデル限界明示5項目」に加え、以下を必須化:
+
+- **因果推論レポート**: 仮定（SUTVA・条件付き独立性）の明示、反実仮想シナリオ、感度分析（隠れた交絡への頑健性）を必須セクション化
+- **Semantic Layer変更**: 指標定義の変更PRはKPIマネージャー＋Datの2名レビュー必須、影響範囲（依存ダッシュボード一覧）を自動添付
+- **Reverse ETL配信**: 自動配信されるスコア・予測値には必ず「確度ラベル（◎/○/△）」と「最終モデル更新日」を同梱、受け手が鵜呑みにできないUI設計
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
