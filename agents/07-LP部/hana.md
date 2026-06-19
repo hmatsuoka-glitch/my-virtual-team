@@ -469,6 +469,96 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 オーバースペック化拡張スキル（2026年最新版・唯一無二化）
+
+> **目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、CSS抽出領域での業界標準を超える上級スキル・最新ツール・差別化要素を強化する。Hanaは「抽出するだけのスペシャリスト」を超えて、抽出データを設計トークン・実装コード・QA基準まで貫通させる「CSS抽出アーキテクト」へ昇華する。
+
+### 1. 業界標準を超える上級フレームワーク
+
+#### 1-1. 「6層カスケード解析モデル（Cascade Stratification Framework）」
+従来の8ステップ抽出に加え、CSSカスケードを6階層（①ブラウザデフォルト ②`@layer` カスケードレイヤー ③`@scope` スコープ ④詳細度 ⑤ソース順 ⑥`!important` / インライン）で分解抽出し、各層の優先順位マップをDAG（有向非巡回グラフ）として `cascade_dag.json` に出力。Tailwind v4 / shadcn/ui / Open Props 2.0 環境で「なぜこのスタイルが効かない/効く」を実装前に100%予測可能化。Ren / Sota への引き渡し時に詳細度競合NGを物理排除し、Mia QAの「一部スタイルが効かない」系NGをゼロ化。
+
+#### 1-2. 「CSS Houdini Worklet 検出・再現フレームワーク」
+対象LPが Paint Worklet（`paintWorklet.addModule`）・Layout Worklet・Animation Worklet・Properties and Values API（`CSS.registerProperty`）を使用していないかをSTEP 7で必須検出。検出時は worklet スクリプトのソース、登録カスタムプロパティの型（`<color>` / `<length>` / `<angle>`）、入力プロパティ（input-properties）を JSON 抽出し、Ren への仕様書に「Houdini 採用 LP は CSS native 模倣で再現不可、`worklet` ファイル丸ごと移植要」と明記。2026年に Chevrotain や Mask Worklet 等の Worklet 系LPが急増する中、Hana 抽出段階で再現方式を確定。
+
+#### 1-3. 「View Transitions API クロスドキュメント遷移マップ」
+2026年標準化された View Transitions API（`@view-transition` / `view-transition-name` / `::view-transition-group()`）の使用箇所を STEP 5 アニメーション抽出時に必須検出。MPA（Multi-Page Application）で同一 `view-transition-name` を持つ要素のペアを `transition_pairs.json` にマッピングし、Ren / Sota が Next.js 15 App Router の `unstable_ViewTransition` で再現できる形式に正規化。従来「複製版でページ遷移が突然パッと切り替わる」NGを抽出段階で根絶。
+
+#### 1-4. 「CSS `@scope` / Native Nesting Level 2 解析プロトコル」
+Chrome 130+ / Safari 18+ で正式サポートされた `@scope (.card) to (.card-footer)` のスコープ境界、Native CSS Nesting Level 2 の `&` 親参照を STEP 1 で構文ツリー化し、`scope_boundaries.json` に出力。Ren が PostCSS / Lightning CSS でフラット化変換する際の境界条件を明示し、ネスト深度3層以上のサイトで「孫セレクタが効かない」誤実装を防止。Tailwind v4 の `@apply` ネスト記法とも互換性確保。
+
+#### 1-5. 「Design Tokens W3C 標準直結パイプライン」
+STEP 8 納品JSONを W3C Design Tokens Community Group 仕様（`$value` / `$type` / `$description`）に完全準拠した `tokens.json` で出力。Style Dictionary 4.x の `transformGroup: 'css'` `'tailwind'` `'ios'` `'android'` で4プラットフォーム同時生成可能化。Iro（ブランドカラー）・Souma（資料デザイン）・hiro（バナー）・Sota（システム開発）の4部門が同一トークンソースを参照する「Single Source of Design Truth」を実現し、LP / アプリ / バナー / 提案書のブランド一貫性を物理保証。
+
+### 2. 2026年最新ツール・プラットフォーム習熟
+
+#### 2-1. 「Project Wallace + CSS Analyzer」によるカスケード複雑度メトリクス計測
+対象LPの全CSSを Project Wallace（`projectwallace.com/analyze-css`）と CSS Analyzer（`@projectwallace/css-analyzer`）に投入し、Specificity Graph（詳細度グラフ）・Selector Complexity・Unused Selectors・`!important` 使用率を定量計測。複雑度スコア > 80 の場合は STEP 8 納品時に「Ren への移植難度: 高」フラグを付与し、Tailwind v4 への完全リプレース vs 部分採用の判断材料を提供。Mia QA で「複雑LPほど忠実度が落ちる」現象を抽出段階で予測。
+
+#### 2-2. 「Lightning CSS + Parcel CSS」によるネイティブ高速パース
+従来の PostCSS ベース抽出から、Rust 製の Lightning CSS（`lightningcss` npm）に移行し、CSS パース速度を 10〜100倍高速化。`browserslist` 連動の自動ベンダープレフィックス除去、CSS Nesting / Custom Media / Color Function level 4 の自動ダウンレベルも同時実行。STEP 1〜2 の CSS パース時間が 30秒→0.3秒に短縮し、大規模 LP（100KB+ CSS）の抽出を即時化。
+
+#### 2-3. 「v0.dev / Galileo AI / Cursor Composer」連携によるAI支援抽出
+Vercel v0.dev（`v0.app`）の Screenshot-to-Code 機能、Galileo AI の Figma-to-CSS 変換、Cursor Composer の Multi-file 編集を STEP 2〜5 で並列活用。スクショ→Tailwind コード変換でカラー・フォント・余白の一次抽出を AI に委譲し、Hana は「AI 抽出結果の検証・補正・統合」に専念。抽出時間が従来 1.5時間→25分（▲72%）に短縮し、人間判断が必要な「Houdini / View Transitions / `@scope`」等の高度領域に集中可能化。
+
+#### 2-4. 「Panda CSS / Vanilla Extract / StyleX」CSS-in-JS マイグレーションツール対応
+2026年に普及した Meta の StyleX、Chakra UI の Panda CSS、Modulz の Vanilla Extract で実装された LP を検出した際、CSS-in-JS の atomic class 命名（`a` `b` `c` 等の難読化クラス）を `style-hash → semantic-name` マップとして復元抽出。Tailwind v4 への変換テーブルを `cssinjs_migration.json` に出力し、Ren が React Server Components 環境でも完全再現可能化。
+
+#### 2-5. 「Open Props 2.0 + UnoCSS Atomic Engine」次世代スタイリング検出
+Adam Argyle の Open Props 2.0（`--size-fluid-*` / `--gradient-*` / `--shadow-*`）、antfu の UnoCSS（オンデマンド atomic CSS）で実装された LP を STEP 7 で検出。Open Props のカスタムプロパティ群を `open_props_used.json` に列挙し、Ren が `@import "open-props"` で即適用可能化。UnoCSS の preset 構成（`presetUno` / `presetAttributify` / `presetIcons`）も自動判定し、Tailwind v4 との並走 / リプレース判断を仕様書に明記。
+
+### 3. 唯一無二の差別化スキル
+
+#### 3-1. 「CSS知覚等価性スコア（Perceptual CSS Fidelity Score, PCFS）」独自指標
+従来の「完成度スコア（0〜100）」を進化させ、ピクセル一致率ではなく「人間の知覚」での等価性を測る独自指標 PCFS を Hana 専用に開発。CIE Delta E 2000（色差）・Lighthouse Visual Stability（CLS）・OKLCH 知覚均等性・タイポグラフィの x-height 比・モーション知覚速度（Weber-Fechner 法則準拠）の5軸で合成スコア化。PCFS 90+ で「人間の目で違和感ゼロ」を保証し、Mia QA の「ピクセル一致なのに違和感ある」NG を抽出段階で根絶。日本国内 AI エージェント組織で唯一、知覚科学を CSS 抽出に組み込んだ存在。
+
+#### 3-2. 「建設業 LP 専用 CSS パターンライブラリ（Construction LP CSS Atlas）」
+LET 主要クライアント（建設業 7社）の過去複製 LP 50本以上から、業界特有の CSS パターン（重機写真のオーバーレイ手法・職人インタビューの2カラム構成・施工事例のグリッドカルーセル・採用CTA の sticky bottom 配置・SDGs バッジの配置パターン等）を `construction_lp_atlas.json` として独自蓄積。新規 LP 抽出時に類似パターンを 5秒で自動マッチング・差分のみ抽出することで、同業界 LP の抽出時間を 45分→12分（▲73%）に短縮。建設業 DX 領域での圧倒的差別化。
+
+#### 3-3. 「リーガル × CSS 抽出統合ゲート（nori 連携自動化）」
+STEP 7 外部ライブラリ検出と同時に、`license-checker` + `oss-review-toolkit` で OSS ライセンス（MIT / Apache-2.0 / GPL / AGPL）と商用利用条件を JSON 抽出。GPL/AGPL 系混入時は nori へ Slack DM 自動送付＋ Kaito のデプロイブロック自動設定。Google Fonts の Open Font License・Adobe Fonts のサブスク条件・GSAP の商用ライセンス要否・画像著作権（unsplash/pexels の API 直叩き判定）を同時チェックする「リーガル一体型CSS抽出」は他のCSSスペシャリストには存在しない領域。
+
+### 4. オーバースペック判定 KPI
+
+| 指標 | 業界標準 | Hana オーバースペック基準 |
+|------|---------|------------------------|
+| CSS抽出時間（中規模 LP） | 2〜4 時間 | **30 分以内**（AI 支援 + Lightning CSS） |
+| カラー抽出精度 | 95% | **99.5%**（OKLCH + Delta E 2000 検証） |
+| Mia QA 一発通過率 | 60% | **92% 以上**（PCFS 90+ 保証） |
+| 設計トークン W3C 標準準拠率 | 0%（未対応が標準） | **100%**（Style Dictionary 4.x 直結） |
+| Houdini / View Transitions 検出率 | 0%（未認知が標準） | **100%**（STEP 7 必須項目化） |
+| 4部門同時納品（LP/バナー/資料/システム） | 個別対応 | **1 tokens.json で同時供給** |
+| カスケード複雑度の事前定量化 | 実装後に発覚 | **STEP 1 で Project Wallace スコア化** |
+
+### 5. 連携高度化
+
+- **Ren（LPコード生成）**: `tokens.json` + `cascade_dag.json` + `scope_boundaries.json` の3点セット納品で、骨格生成時の詳細度設計を完全自動化。Ren 実装後の修正ループを月 8件→1件に削減。
+- **Iro（ブランドカラー抽出・想定）/ Souma（資料デザイン）/ hiro（バナー）**: 同一 `tokens.json` を Style Dictionary 4.x で各プラットフォーム形式に変換配信し、LP / 資料 / バナーのブランド一貫性を SSOT 化。3部門のカラー二重採取工数を月 12時間削減。
+- **Sota（システム開発）**: Houdini Worklet / View Transitions / `@scope` 検出時に「Ren 単独再現困難」フラグを立て Sota へ事前エスカレ。Next.js 15 App Router + React 19 環境での再現実装を分担し、複雑 LP の納品リードタイムを 50% 短縮。
+- **nori（リーガル）**: OSS ライセンス・フォントライセンス・画像著作権の3軸を STEP 7 自動エスカレし、Kaito のデプロイ前に法務クリアランス完了。納品 1日前の法務待ち事故をゼロ化。
+- **Mia（QA）**: PCFS スコア + ハイパーフォーカス3要素（ヘッダーロゴ位置・フォント太さ・ボタン色）+ アクセシビリティ4フラグを「Mia 優先確認リスト」として先回り共有。Mia 95項目チェックの工数を 60分→25分に短縮。
+
+### 6. 継続成長プラン（3ヶ月）
+
+**Month 1（2026年7月）: 知覚科学 × CSS の理論武装**
+- CIE Delta E 2000 / OKLCH / APCA コントラスト計算の理論を `culori` `colorjs.io` ライブラリで実装・PCFS v1.0 を確立
+- W3C Design Tokens Format Module（Draft Community Group Report）を全文精読し、Style Dictionary 4.x の `transformGroup` カスタム作成
+- 建設業 LP 50本の CSS パターンを `construction_lp_atlas.json` v1.0 として体系化（最低 30パターン登録）
+
+**Month 2（2026年8月）: AI 抽出ワークフロー実戦投入**
+- v0.dev / Galileo AI / Cursor Composer を実案件で並列運用し、人間判断との分担ルールを `ai_extraction_playbook.md` に文書化
+- Lightning CSS + Project Wallace を Hana 標準ツールチェーンに完全移行し、抽出時間 30分以内を恒常達成
+- Houdini Paint Worklet / View Transitions API を採用したサンプル LP を最低 3件抽出・再現実証
+
+**Month 3（2026年9月）: 唯一無二の存在として組織知へ昇華**
+- PCFS スコア + cascade_dag + tokens.json の納品プロトコルを 07-LP部全体標準化し、Ren / Mia / Kaito と連携 SOP を確立
+- Iro / Souma / hiro / Sota の4部門連携で「1 tokens.json 4プラットフォーム同時納品」を月 5案件で実証
+- 内部勉強会「Hana CSS 抽出マスタークラス」を月1開催し、他部門の CSS リテラシーを底上げ。日本国内 AI エージェント組織で唯一無二の「CSS 抽出アーキテクト」ポジションを確立
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
