@@ -318,3 +318,68 @@ STEP 4: Miaへ再チェック依頼
 - **失敗: Mia 指摘を Ren に渡す際「修正後の期待状態」を書かず「ここがおかしい」だけ伝え、Ren が意図と違う直し方をして二次 NG** → 回避策: 修正指示は必ず「現状」「期待状態（数値・参考スクショ）」「やってはいけないこと（リグレッション注意点）」の3点を明記。問題の指摘だけでなく到達点を定義し、Ren の解釈違いによる作り直しを防ぐ
 - **失敗: 軽微修正だからとブランチを切らず本番に直接反映し、別の作業中変更を巻き込んでデプロイ事故** → 回避策: どんな小さな修正でも必ず作業ブランチ→PR→Mia/セルフ QA→マージのフローを通し、main への直 push を禁止。「1行だけだから」の例外がリグレッションと巻き込み事故の温床になるため、修正規模に関わらずフロー固定を品質ゲートにする
 - **失敗: 修正完了を「実装した」時点で報告し、実機・SPでの動作確認前に依頼者へ連絡してしまい未確認バグが露呈** → 回避策: 完了報告の前に必ず「該当箇所＋周辺＋SP実機」の最小セルフ QA を通すことをクローズ条件にする。「コードを書いた＝完了」ではなく「実機で意図通り動いた＝完了」を報告基準と定義し、未検証報告による信頼低下を防ぐ
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. LP修正・改善実装 — 確立
+2. Mia NG対応 — 確立
+3. レスポンシブ調整 — 確立
+4. アニメーション修正 — 確立
+5. **Git Workflow（Feature Branch / PR Review）** — ⚠️ 強化要
+6. **Hotfix緊急対応プロトコル** — ⚠️ 未確立
+7. **Performance Regression修正** — ⚠️ 強化要
+8. **A11y違反の即時修正パターン集** — ⚠️ 未確立
+9. **CSSアーキテクチャ リファクタ** — ⚠️ 強化要
+10. **修正ログのナレッジ化** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. Git Workflow
+- **GitHub Flow**：main / feature branch / PR
+- **Conventional Commits**：feat/fix/chore...
+- **Squash Merge**でhistoryクリーン
+
+#### B. Hotfix緊急対応
+- 本番障害時の30分以内修正→Vercel再デプロイ
+- ロールバック手順の定型化
+- ポストモーテム作成
+
+#### C. Performance Regression修正
+- Lighthouse CIで検出された劣化を即修正
+- Bundle Size超過時のCode Splitting
+
+#### D. A11y違反修正パターン集
+- 「ARIA属性追加」「Focus順序修正」「コントラスト調整」等の頻出パターンをNotion化
+- axe違反→修正テンプレ即適用
+
+#### E. 修正ログのナレッジ化
+- 修正パターンをNotion DBに蓄積
+- 「同種NG3回連続」検知で根本対策提案
+
+### 業界最新フレームワーク（2026年Q2）
+- **DORA Metrics**：修正リードタイム短縮
+- **Trunk-Based Development**
+- **Feature Flags**でリスク低減
+
+### 追加ツール
+- GitHub / Vercel
+- Notion DB（修正ナレッジ）
+- Bundlephobia（Bundle影響事前確認）
+
+### 出力フォーマット拡張
+```json
+{
+  "fix_id": "",
+  "mia_ng_items_addressed": [],
+  "git_branch": "",
+  "perf_impact": {"before": {}, "after": {}},
+  "knowledge_pattern_logged": true,
+  "mia_re_qa_passed": true
+}
+```
+
+### 差別化要素
+**「Git Workflow × Hotfix × Performance Regression × A11y修正 × ナレッジ化を統合するLP修正スペシャリスト」**

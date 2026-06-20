@@ -671,3 +671,72 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **失敗パターン: 元サイトのフォントが未ロード時のフォールバック表示を「正」と誤認して別フォントで抽出する** → 回避策: STEP 3 でwebfontが完全ロードされた状態（`document.fonts.ready` 解決後）のcomputed font-familyを採取し、ネットワーク低速時に一瞬出るフォールバック書体を本物と取り違えない。抽出を急いでロード前にスクショ採取すると、本来Noto Sans JPの見出しをメイリオ等で記録してしまい、Mia QAで「書体が違う」NGになる。
 - **失敗パターン: アニメーションの「初期状態（開始前のopacity:0等）」を完成画面のスクショだけで抽出し、要素が最初から見えている状態で再現する** → 回避策: STEP 5 でスクロールアニメ・フェードイン要素は「発火前の初期CSS（opacity:0/translateY等）」と「完了後CSS」の両方を記録し、`IntersectionObserver` 発火タイミング（閾値・rootMargin）も併記（2026-06-03参照）。完了状態だけ渡すとRen実装で要素が最初から表示され、元LPの「スクロールで順に現れる」演出が完全に消失する。
 - **失敗パターン: フォーム要素（input/select/textarea）のブラウザ・OS固有の見た目を、CSSだけ抽出して `appearance` 制御を見落とす** → 回避策: STEP 5 でフォーム部品は `appearance: none` の有無と、placeholder色（`::placeholder`）・focus時の枠・iOSの角丸/影のリセット状況を記録し、未制御なら「OS差発生リスク」フラグを付与。フォームの見た目はCSS無指定だとiOS/Android/Windowsで全く異なるため、元サイトのスクショ（特定OSで撮影）だけ再現するとMia QAの別OS実機で別物になる。
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. CSS完全抽出 — 確立
+2. デザイントークン抽出 — 確立
+3. レスポンシブブレークポイント特定 — 確立
+4. アニメーション解析 — 確立
+5. **Container Queries活用** — ⚠️ 未確立
+6. **CSS Cascade Layers（@layer）** — ⚠️ 未確立
+7. **CSS Subgrid** — ⚠️ 未確立
+8. **CSS Houdini / Paint API** — ⚠️ 未確立
+9. **Variable Fonts抽出** — ⚠️ 強化要
+10. **CSS-in-JS / Tailwind変換マッピング** — ⚠️ 強化要
+
+### 改善余地として埋めるスキル
+
+#### A. Container Queries
+- `@container`によるコンポーネント単位レスポンシブ
+- 旧Media Queriesからの自動変換マップ
+- 2026年全ブラウザ対応完了
+
+#### B. CSS Cascade Layers
+- `@layer reset, base, components, utilities`
+- 優先順位の明示管理
+- 抽出時にレイヤー構造を保持
+
+#### C. CSS Subgrid
+- グリッドの入れ子で複雑レイアウト
+- 整列の精密制御
+
+#### D. CSS Houdini / Paint API
+- カスタムペイント・カスタムプロパティ
+- 高度装飾の再現
+
+#### E. Variable Fonts抽出
+- `font-variation-settings`の正確抽出
+- wght/wdth/slnt軸の値再現
+
+### 業界最新フレームワーク（2026年Q2）
+- **CSS Nesting**：ネイティブサポート
+- **:has()疑似クラス**：親選択
+- **View Transitions API**：ページ遷移アニメ
+- **Anchor Positioning**：絶対位置の改善
+
+### 追加ツール
+- DevTools CSS Overview
+- Wappalyzer / BuiltWith（技術スタック特定）
+- CSSStats（複雑度測定）
+
+### 出力フォーマット拡張
+```json
+{
+  "css_spec_id": "",
+  "source_url": "",
+  "design_tokens": {"colors": [], "typography": [], "spacing": []},
+  "breakpoints": [],
+  "container_queries": [],
+  "cascade_layers": [],
+  "variable_fonts": [],
+  "animations": [],
+  "completeness_score": 100
+}
+```
+
+### 差別化要素
+**「Container Queries × Cascade Layers × Subgrid × Houdini × Variable Fontsを完全抽出するCSSフォレンジクススペシャリスト」**

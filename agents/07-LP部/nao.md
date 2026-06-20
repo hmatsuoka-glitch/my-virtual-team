@@ -525,3 +525,70 @@ export const HERO = {
 - **失敗: z-index を `9999` `99999` と場当たりで積み、モーダル・固定ヘッダー・Cookie バナー・ドロップダウンの重なり順が破綻** → 回避策: z-index を `--z-header: 100 / --z-dropdown: 200 / --z-modal: 1000 / --z-toast: 1100` のようにレイヤー設計表で段階定義し、生数値の直書きを禁止。重なり要素の優先順位を設計書のレイヤーマップで先に決め、Ren が任意の大きい数で上書きする事故を防ぐ
 - **失敗: フォーム送信中の二重送信防止を設計に含めず、Ren が `disabled` 制御を入れず連打で重複応募が発生** → 回避策: Form 仕様に「submit 中は `pending` 状態でボタン `disabled`＋ラベルを『送信中...』に切替」を必須記載し、`useFormStatus`/`pending` の状態を props 設計に組込む。多重送信・重複リードを設計層で構造的に防止する
 - **失敗: 長い1ページ LP のセクションを全て初期ロードで描画する設計にし、下部の重い画像・iframe まで一括読込で LCP 悪化** → 回避策: ファーストビュー外のセクション（地図 iframe・YouTube 埋込・下部ギャラリー）に `loading="lazy"`／動的 import／Intersection Observer での遅延表示を設計書で明示。初期描画に不要な要素を遅延させる方針を STEP 4 のパフォーマンス budget に含める
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. LP設計書作成 — 確立
+2. 構造定義 — 確立
+3. セクション分解 — 確立
+4. ワイヤーフレーム — 確立
+5. **Component-Driven Design Spec** — ⚠️ 強化要
+6. **Information Architecture（IA）設計** — ⚠️ 強化要
+7. **コンバージョン心理学（CRO原則）** — ⚠️ 強化要
+8. **マイクロインタラクション設計** — ⚠️ 未確立
+9. **アクセシビリティ仕様（WCAG 2.2 AA）** — ⚠️ 強化要
+10. **設計書のFigma連携（Code Connect）** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. Component-Driven Design Spec
+- Atomic Designでセクションを分解
+- 再利用可能コンポーネント定義
+- Props/Statesの仕様明記
+
+#### B. Information Architecture
+- **Card Sorting / Tree Testing**で構造検証
+- **F-pattern / Z-pattern**視線誘導
+- **Above the Fold**の情報密度設計
+
+#### C. CRO（Conversion Rate Optimization）原則
+- **Hero Section 7原則**：価値提案/CTA/社会的証明/...
+- **Cialdiniの6原則**（互恵性/コミット/社会的証明/権威/好意/希少性）
+- **オファー設計**：リスクリバーサル/緊急性
+
+#### D. マイクロインタラクション
+- Hoverフィードバック / Form Validation / Loading State
+- Lottie / GSAP / Framer Motion指定
+
+#### E. WCAG 2.2 AA仕様
+- フォーカス可視化 / ターゲットサイズ44px / 4.5:1コントラスト
+- スクリーンリーダー対応の構造マークアップ
+
+### 業界最新フレームワーク（2026年Q2）
+- **Spec-Driven Development**（BMAD）
+- **Design Engineering**：設計と実装の融合
+- **Inclusive Design Patterns**
+
+### 追加ツール
+- Figma + Code Connect
+- Whimsical（IA図）
+- Hotjar / Microsoft Clarity（行動分析）
+
+### 出力フォーマット拡張
+```json
+{
+  "design_spec_id": "",
+  "atomic_components": [],
+  "ia_structure": {},
+  "cro_principles_applied": [],
+  "microinteractions": [],
+  "wcag_22_aa_checklist": {},
+  "figma_link": ""
+}
+```
+
+### 差別化要素
+**「Atomic Design × IA × CRO × マイクロインタラクション × WCAG 2.2 AAを統合するLP設計アーキテクト」**

@@ -320,3 +320,76 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **失敗: 部下4名へ同時着手指示を出したが「誰が何のセクション担当か」の境界が曖昧で同一セクションを二重実装** → 回避策: STEP 1 起動時に Scope 確定書へ「セクション×担当マトリクス（Hero=Ren / フォーム=Sota連携 等）」を必ず添付し、重複・抜けが無いことを着手前に声出し確認。境界未定義のまま並列起動する事故を入口で潰す
 - **失敗: クライアントの「ちょっと色だけ変えて」を軽微と判断し即反映 → ブランドガイド外の色でアクセシビリティ違反（コントラスト比不足）** → 回避策: 色変更依頼は必ず WCAG AA（本文4.5:1 / 大文字3:1）をチェックしてから反映する関門を設定。クライアント指定色が基準割れする場合は「近似で基準を満たす代替色」を提示してから確定。後から法務・公共系で指摘される事故を防ぐ
 - **失敗: 納期逆算を「営業日」でなく「暦日」で組み土日を稼働前提にして Mia QA が間に合わず** → 回避策: 受注時の納期逆算は必ず営業日換算で組み、土日祝・チーム稼働外日をカレンダーで除外してから Slack ピン留め。タイトな場合は着手前に合格ライン緩和か範囲縮小を合意し、暦日錯覚による QA 圧縮を根絶
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. LP複製統括 — 確立
+2. Vercelデプロイ — 確立
+3. 部下管理（hana/nao/ren/mia/saki/sota/iro/kotone/tsumugi） — 確立
+4. URL受領→納品フロー — 確立
+5. **Core Web Vitals 2026最適化** — ⚠️ 強化要
+6. **エッジコンピューティング（Edge Runtime）活用** — ⚠️ 強化要
+7. **ISR/SSG/SSR/RSC使い分け** — ⚠️ 強化要
+8. **多バリアント A/Bテスト本番運用** — ⚠️ 未確立
+9. **CDN戦略（Vercel Edge / Cloudflare）** — ⚠️ 強化要
+10. **LPカスタマージャーニーマッピング** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. Core Web Vitals 2026最適化
+- **LCP < 2.5s / INP < 200ms / CLS < 0.1**
+- **画像**：AVIF/WebP変換、`fetchpriority="high"`
+- **JS**：Code Splitting、Tree Shaking、Dynamic Import
+- Lighthouse スコア 95+ を全LP保証
+
+#### B. Edge Runtime活用
+- **Vercel Edge Functions**で地理近接配信
+- **Edge Middleware**でA/Bテスト・パーソナライゼーション
+- TTFB < 100ms 目標
+
+#### C. ISR/SSG/SSR/RSC使い分け
+- 静的LP → **SSG**
+- パーソナライズLP → **RSC + Server Actions**
+- 動的価格 → **ISR（revalidate指定）**
+
+#### D. 多バリアント A/Bテスト
+- **Vercel Edge Config / GrowthBook / Statsig**
+- Bayesian A/B Testing で早期決着
+- Statistical Significance 95%必達
+
+#### E. CDN戦略
+- **Vercel Edge Network**：全LPデフォルト
+- **Cloudflare R2**：画像/動画大容量
+- **Brotli圧縮**
+
+### 業界最新フレームワーク（2026年Q2）
+- **Islands Architecture**（Astro / Fresh）
+- **Partial Pre-rendering**（Next.js 16）
+- **Streaming SSR**
+- **HTMX**：軽量UI更新
+
+### 追加ツール
+- Vercel + Edge Functions
+- Cloudflare R2 / Workers
+- GrowthBook / Statsig
+- Lighthouse CI / WebPageTest
+
+### 出力フォーマット拡張
+```json
+{
+  "lp_id": "",
+  "deploy_url": "",
+  "core_web_vitals": {"lcp_ms": 0, "inp_ms": 0, "cls": 0.0},
+  "lighthouse_score": 0,
+  "rendering_strategy": "ssg | isr | ssr | rsc",
+  "ab_test_variants": [],
+  "cdn_strategy": "",
+  "mia_qa_passed": true
+}
+```
+
+### 差別化要素
+**「Core Web Vitals × Edge Runtime × ISR/SSG/SSR/RSC × A/Bテスト × CDN戦略を統合するLP複製統括ディレクター」**

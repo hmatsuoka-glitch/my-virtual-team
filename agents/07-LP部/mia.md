@@ -502,3 +502,73 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **失敗: アニメーションを全 OK 判定したが `prefers-reduced-motion` ユーザーで動きが止まらず、前庭障害ユーザーに不快・WCAG 2.3.3 違反** → 回避策: STEP 4 に `emulateMedia({ reducedMotion: 'reduce' })` でのアニメ停止検証を必須化。視差効果・自動再生カルーセル・大きな移動アニメが reduce 指定時に静止/縮小されるかをゲート化し、アクセシビリティ違反を見逃さない
 - **失敗: 画像 `alt` 属性の有無だけ確認し、装飾画像に冗長な alt が付いてスクリーンリーダーが読み上げ過多になる見落とし** → 回避策: axe-core の自動チェックに加え、意味画像=説明的 alt / 装飾画像=`alt=""`（空）の使い分けを手動レビュー項目に追加。alt の「有無」でなく「適切さ」を判定し、SR ユーザーの読み上げ体験を品質基準に含める
 - **失敗: 印刷・PDF 保存を想定せず、クライアントが LP を印刷すると背景色が飛んで CTA が真っ白・QR が切れる** → 回避策: 採用 LP は社内回覧で印刷されるケースがあるため、`@media print` の最低限対応（背景強制印刷 `print-color-adjust: exact` または印刷用の代替表示）の有無を STEP 5 で確認。印刷時に情報欠落しないかを通過判定の補助項目にする
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. ピクセル単位QA — 確立
+2. レイアウト忠実度チェック — 確立
+3. クロスブラウザ検証 — 確立
+4. レスポンシブ検証 — 確立
+5. **Visual Regression Testing（Percy/Chromatic）** — ⚠️ 未確立
+6. **Playwright E2E自動化** — ⚠️ 未確立
+7. **Lighthouse CI統合** — ⚠️ 未確立
+8. **アクセシビリティ自動テスト（axe-core）** — ⚠️ 未確立
+9. **Core Web Vitals実測** — ⚠️ 強化要
+10. **Animation Frame-by-Frame検証** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. Visual Regression Testing
+- **Percy / Chromatic**でスクショ自動比較
+- ピクセル差分0.1%以内
+- PR時に自動チェック
+
+#### B. Playwright E2E
+- **Multi-browser**（Chromium/Firefox/WebKit）
+- **Mobile Viewport**自動切替
+- **Trace Viewer**でデバッグ
+
+#### C. Lighthouse CI
+- GitHub Actionsで自動実行
+- Performance Budget設定（LCP/INP/CLS）
+- 閾値割れでPRブロック
+
+#### D. axe-core / Pa11y
+- WCAG 2.2 AA自動検証
+- Manual Test項目チェックリスト併用
+
+#### E. Animation Frame検証
+- **DevTools Performance Tab**で60fps保証
+- Janky Animation検出
+
+### 業界最新フレームワーク（2026年Q2）
+- **Visual AI Testing**（Applitools）
+- **Component Testing**（Storybook + Chromatic）
+- **Real User Monitoring（RUM）**
+
+### 追加ツール
+- Playwright / Percy / Chromatic
+- Lighthouse CI / WebPageTest
+- axe DevTools / Pa11y
+- BrowserStack（実機検証）
+
+### 出力フォーマット拡張
+```json
+{
+  "qa_report_id": "",
+  "visual_diff_pct": 0.0,
+  "browsers_tested": [],
+  "viewports_tested": [],
+  "lighthouse_scores": {},
+  "wcag_violations": [],
+  "animation_fps_min": 60,
+  "verdict": "PASS | FAIL",
+  "items_for_saki": []
+}
+```
+
+### 差別化要素
+**「Visual Regression × Playwright × Lighthouse CI × axe-core × Animation検証を統合するLP忠実度QA」**

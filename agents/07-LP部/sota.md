@@ -719,3 +719,71 @@ JS ソースから以下のパターンを検出する:
 - **失敗: トレンドのフルスクリーン動画背景を提案したが、データ通信量・自動再生制限・テキスト可読性を考慮せず本番で重く読めない** → 回避策: 動画背景・大型アニメを提案する際は「データ量上限・低速回線フォールバック（静止画差替）・テキストとのコントラスト確保・自動再生のミュート必須」を提案書に明記。装飾の派手さだけで提案せず、実環境での成立条件を企画に内包する
 - **失敗: クライアントの既存ブランドガイド（指定フォント・ロゴ余白規定）を確認せず提案し、承認後に「うちの規定と違う」と全面やり直し** → 回避策: STEP 1 で既存ブランドガイド・VI 規定・指定フォントライセンスの有無を Kaito 経由で必ず取得し、無い場合も「既存名刺・会社サイトのトーン」を参照基準にする。ブランド資産の無確認提案による手戻りを着手前に防ぐ
 - **失敗: 案を1つだけ気合を入れて作り込み提示し、クライアントの好みと外れて「他の方向も見たい」となり振り出しに戻る** → 回避策: 初回提案は必ず方向性の違う「推奨案＋保守案＋攻め案」の3案を粗めで出し、方向を絞ってから1案を作り込む2段階に固定。1案全力投球で方向性ごと外して全やり直しになる事故を、提案フォーマットで構造的に回避する
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. LP独自デザイン企画 — 確立
+2. 参考LP分析 — 確立
+3. デザインコンセプト立案 — 確立
+4. ムードボード作成 — 確立
+5. **2026年LPデザイントレンド網羅** — ⚠️ 強化要
+6. **Brand Identity → LP Design Translation** — ⚠️ 強化要
+7. **業界別ベストプラクティス** — ⚠️ 強化要
+8. **Behavioral Design原則** — ⚠️ 未確立
+9. **Design Critique Framework** — ⚠️ 未確立
+10. **Figma Prototyping Advanced** — ⚠️ 強化要
+
+### 改善余地として埋めるスキル
+
+#### A. 2026 LPデザイントレンド
+- **Glassmorphism 2.0 / Neumorphism**
+- **3D Web（Three.js / Spline）**
+- **Bold Typography**
+- **Generative Patterns**
+- **Dark Mode First**
+
+#### B. Brand Identity → LP Translation
+- ブランドガイドライン→LPデザインへの変換ルール
+- カラー/タイポ/ボイス＆トーンの一貫性
+
+#### C. 業界別ベストプラクティス
+- **建設業**：信頼感/実績数字/職人写真
+- **SaaS**：機能比較/価格透明性/トライアル
+- **EC**：商品アップ/レビュー/カート最適化
+
+#### D. Behavioral Design
+- **Fogg Behavior Model**：Motivation × Ability × Trigger
+- **Nudge Theory**：選択アーキテクチャ
+- **Loss Aversion**活用
+
+#### E. Design Critique Framework
+- **What works / What could be better / Suggestions**
+- 主観排除の構造化フィードバック
+
+### 業界最新フレームワーク（2026年Q2）
+- **Awwwards / SiteInspire**最新トレンド
+- **Land-book / Httpster**事例研究
+- **Figma Community**テンプレート活用
+
+### 追加ツール
+- Figma + Variants + Prototyping
+- Spline（3D）
+- Lottie（モーション）
+
+### 出力フォーマット拡張
+```json
+{
+  "design_concept_id": "",
+  "trends_applied": [],
+  "industry_best_practices": [],
+  "behavioral_principles": [],
+  "figma_prototype_url": "",
+  "mood_board_url": ""
+}
+```
+
+### 差別化要素
+**「2026デザイントレンド × Behavioral Design × 業界ベストプラクティス × Figma Prototypingを統合するLPデザインストラテジスト」**
