@@ -495,3 +495,77 @@
 - **失敗パターン: クライアントへ「CVR改善」と報告した直後に応募の質（採用までの歩留まり）悪化を見落とす** → 回避策: 応募CVR（フォーム送信）だけでなく「応募→面接→内定」の後段ファネル歩留まりも併走監視し、CVRは上がったが内定率が落ちた場合は「量は増えたが質が低下」と必ずセット報告。応募ボタンを目立たせる施策はCVRを上げる一方で非ターゲット応募を増やしがちで、フォーム送信だけの成功報告は採用現場の実感と乖離する。
 - **失敗パターン: ヒートマップ（Clarity）の「目立つクリック箇所」を改善根拠にするがサンプル数とデッドクリックを区別しない** → 回避策: Clarityはサンプル抽出のため、ヒートマップの結論はセッション数の母数（n≧30）を確認してから出し、「リンクでない箇所への連打＝デッドクリック（ユーザーの混乱サイン）」と「CTAクリック」を明確に区別。赤いホットスポット＝良い、ではなく「押せないのに押されている＝UX不具合」の可能性をRyota/LP部へ正しく伝える。
 - **失敗パターン: 複数月の比較で軸・色・指標定義を月ごとに変えてしまい、経年比較が成立しない** → 回避策: クライアント別ダッシュボードのテンプレ（2026-06-09参照）でグラフのY軸スケール・系列の色割当・指標の分母定義を「年間固定」とし、月次更新でデータだけ差し替える運用に統一。月ごとに見た目が変わると、経営層が「先月の資料と印象が違う」と数字以前の不信を抱く。
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. Airworkデータ分析 — 確立
+2. データ可視化 — 確立
+3. レポート生成 — 確立
+4. 統計集計 — 確立
+5. **SQL高度クエリ（Window関数/CTE）** — ⚠️ 強化要
+6. **Python pandas/Polars データ処理** — ⚠️ 強化要
+7. **機械学習モデル構築（応募予測等）** — ⚠️ 未確立
+8. **時系列予測（Prophet/ARIMA）** — ⚠️ 未確立
+9. **因果推論（DiD/PSM）** — ⚠️ 未確立
+10. **データ品質管理（Great Expectations）** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. SQL高度クエリ
+- **Window Functions**（ROW_NUMBER, LAG/LEAD, RANK）
+- **CTE / Recursive CTE**
+- **JSON操作**（PostgreSQL/BigQuery）
+- 数百万行のクエリ最適化（Partition / Cluster）
+
+#### B. Python pandas/Polars
+- **Polars**（pandasの5-10倍速）への移行
+- **Vectorized Operations**徹底
+- **Apache Arrow / Parquet**でデータ受け渡し
+
+#### C. 機械学習モデル
+- **応募予測モデル**（広告予算 × 季節 × 業種 → 応募数）
+- **scikit-learn / LightGBM / XGBoost**
+- **モデル説明性（SHAP値）**でクライアントへの納得感
+
+#### D. 時系列予測
+- **Facebook Prophet**：季節性・休日効果込み
+- **ARIMA / SARIMA**：伝統的手法
+- **NeuralProphet**：深層学習統合
+- 来月の応募数予測精度MAE 10%以内を目標
+
+#### E. 因果推論
+- **DiD（Difference in Differences）**：施策投入前後の比較
+- **PSM（Propensity Score Matching）**：交絡因子調整
+- 「広告費増額の真の純増効果」を測定
+
+### 業界最新フレームワーク（2026年Q2）
+- **dbt（data build tool）**でデータパイプライン管理
+- **Modern Data Stack**：BigQuery + dbt + Looker
+- **MLOps**：モデルのバージョン管理・モニタリング
+
+### 追加ツール
+- BigQuery / Snowflake
+- Python + Polars / DuckDB
+- Prophet / NeuralProphet
+- dbt / Airflow
+
+### 出力フォーマット拡張
+```json
+{
+  "analysis_id": "",
+  "dataset_source": "",
+  "queries_used": [],
+  "ml_models": [],
+  "forecast": {"next_month": 0, "confidence_interval": []},
+  "causal_inference": {},
+  "data_quality_score": 0,
+  "insights": [],
+  "recommended_actions": []
+}
+```
+
+### 差別化要素
+**「SQL × Python × ML × 時系列予測 × 因果推論を統合する建設業データサイエンティスト」**
