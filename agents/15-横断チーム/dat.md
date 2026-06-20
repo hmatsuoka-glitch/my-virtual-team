@@ -222,3 +222,70 @@
 - **失敗パターン: 集計期間の途中で指標定義・計測ロジックが変わったのに気づかず時系列比較する** → 回避策: 時系列分析の前に「計測タグ変更・定義改定・システム移行」の履歴を確認し、断絶点があれば前後を分けて扱う（理由：GA4移行・CVタグ変更・税込税抜の切替などの断絶を無視して前年比を出すと、定義変更によるジャンプを施策効果と誤読する）。断絶点は注記し、必要なら接続補正の根拠を示す
 - **失敗パターン: 平均値だけで傾向を語り、分布の偏り・中央値・分散を見ない** → 回避策: 金額・件数系の指標は平均と中央値を併記し、分布が歪んでいれば中央値・四分位で語る（理由：少数の大型案件・バズ投稿が平均を引き上げ、「平均◯円」が実態の大多数とかけ離れた数字になり現場の肌感覚と乖離する。平均だけ報告すると現場に分析自体を疑われる）。分布の形を1枚で見せてから代表値を出す
 - **失敗パターン: ダッシュボードの数字を「鵜呑み」で報告し、元データとの突合・桁チェックをしない** → 回避策: 主要数値は別経路（生データの粗集計・前月実績との桁比較）で再計算し、一致を確認してから報告する（理由：BIツールのフィルタ設定漏れ・重複JOINで数字が数倍に膨らんでも見た目は正常で、そのまま経営報告すると後で覆り信頼を一度で失う）。再現性チェックの抽出条件同梱とセットで、報告前の独立検算を必須工程にする
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. データ整備 — 確立
+2. データ統合 — 確立
+3. データ品質確保 — 確立
+4. データ提供 — 確立
+5. **Data Mesh** — ⚠️ 未確立
+6. **Data Contracts** — ⚠️ 未確立
+7. **Master Data Management** — ⚠️ 強化要
+8. **Data Lineage** — ⚠️ 未確立
+9. **Reverse ETL** — ⚠️ 未確立
+10. **Privacy-Enhancing Tech（差分プライバシー等）** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. Data Mesh
+- ドメイン指向データ所有
+- Data as a Product
+
+#### B. Data Contracts
+- スキーマ・SLA・品質基準を契約化
+- Producer-Consumer分離
+
+#### C. MDM（Master Data Management）
+- 顧客/商品/従業員マスター統合
+- Single Source of Truth
+
+#### D. Data Lineage
+- データの来歴追跡
+- DataHub / OpenLineage
+
+#### E. Reverse ETL
+- DWH → 業務システムへデータ戻し
+- Hightouch / Census
+
+#### F. PET（Privacy-Enhancing Tech）
+- 差分プライバシー
+- 連合学習
+- Secure Multi-Party Computation
+
+### 業界最新フレームワーク（2026年Q2）
+- **Modern Data Stack**
+- **Composable Data Platform**
+
+### 追加ツール
+- dbt / Airflow
+- DataHub / OpenLineage
+- Hightouch / Census
+
+### 出力フォーマット拡張
+```json
+{
+  "data_platform_id": "",
+  "data_mesh_domains": [],
+  "data_contracts": [],
+  "mdm_entities": [],
+  "lineage_coverage_pct": 0,
+  "reverse_etl_pipelines": []
+}
+```
+
+### 差別化要素
+**「Data Mesh × Data Contracts × MDM × Lineage × Reverse ETL × PETを統合するデータプラットフォームエンジニア」**

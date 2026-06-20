@@ -215,3 +215,71 @@
 - **失敗パターン: 同一メンバーを複数案件に並行アサインし、月平均稼働率だけ見てピーク週の過負荷を見逃す** → 回避策: 稼働は週次のリソースビューで管理し、特定週100%超の競合を検知したら案件間で前倒し・後ろ倒し調整する（理由：月平均80%でも特定週165%という偏りは月次集計では見えず、当人のバーンアウトと品質低下を招く。7社横断でメンバーを奪い合う環境では月平均は構造的に楽観に倒れる）
 - **失敗パターン: 部署間ハンドオフで「渡したつもり・受け取ってないつもり」の空白に案件が落ちる** → 回避策: WBSの担当部署が切り替わる全地点に「成果物・受領確認者・受入基準・受領期限」の4点セットを定義し、受領確認者（RACIのA）を1人に確定する（理由：横断案件の遅延はタスク内でなくタスク間の引き継ぎで起きる。Aが2部署に跨って曖昧だと誰も拾わないタスクが宙吊りになる）。受領確認をもって次工程着手とする
 - **失敗パターン: 定例MTGの決定・宿題が議事録に書かれただけでタスク化されず消滅する** → 回避策: 決定事項は48時間以内にWBSタスク化し、議事録の決定リストとWBS新規タスクを週次で突合する（理由：議事録に残っても「タスクにない」決定は誰も着手せず、後で「やると言ったはず」の認識齟齬と隠れ遅延になる）。管理基準は「言った/言わない」でなく「タスクにあるか」に一本化する
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. 横断PM — 確立
+2. プロジェクト管理 — 確立
+3. ステークホルダー調整 — 確立
+4. スケジュール管理 — 確立
+5. **PMBOK 7th Edition準拠** — ⚠️ 強化要
+6. **Agile×Waterfallハイブリッド** — ⚠️ 強化要
+7. **Critical Chain Project Management** — ⚠️ 未確立
+8. **Risk Management（モンテカルロ）** — ⚠️ 未確立
+9. **Earned Value Management** — ⚠️ 未確立
+10. **Lessons Learned自動化** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. PMBOK 7th Edition
+- Performance Domains（8分野）
+- Value Delivery System
+- Principles-Based Approach
+
+#### B. Agile×Waterfallハイブリッド
+- 計画はWaterfall、実行はAgile
+- ハイブリッドWBS
+
+#### C. CCPM（Critical Chain）
+- Goldratt理論
+- バッファマネジメント
+- リソース制約理論
+
+#### D. Risk Management
+- Monte Carlo Simulation（@RISK / Excel）
+- リスクレジスタ運用
+
+#### E. EVM（Earned Value Management）
+- CV / SV / CPI / SPI
+- 完成時総コスト予測
+
+#### F. Lessons Learned
+- プロジェクト終了時の自動振り返り
+- Knowledge DB蓄積
+
+### 業界最新フレームワーク（2026年Q2）
+- **PRINCE2 7**
+- **Disciplined Agile**
+- **The Standard for Project Management 7th**
+
+### 追加ツール
+- Linear / Asana / Notion
+- Microsoft Project / Smartsheet
+- @RISK（Monte Carlo）
+
+### 出力フォーマット拡張
+```json
+{
+  "project_id": "",
+  "performance_domains": {},
+  "evm": {"cv": 0, "sv": 0, "cpi": 0, "spi": 0},
+  "risk_register": [],
+  "lessons_learned": []
+}
+```
+
+### 差別化要素
+**「PMBOK 7 × ハイブリッド × CCPM × Risk × EVM × Lessons Learnedを統合する横断PM」**

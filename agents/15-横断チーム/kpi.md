@@ -210,3 +210,72 @@
 - **失敗パターン: 単一KPIの最大化を追い、別指標を犠牲にする副作用（グッドハートの法則）を見逃す** → 回避策: 主要KPIには必ずガードレール指標を対で設定し、隣接表示する（理由：リード数最大化でリード品質が劣化、納期遵守率最大化で稼働率が異常上昇、のようにKPIが目標化した瞬間に良い指標でなくなる。片方だけ見ると組織が歪む方向に最適化される）。NSM 1個につき監視カウンターを1〜2個ペアにする
 - **失敗パターン: KPI定義を更新したのに過去データを再計算せず、新旧定義の数字を同じグラフで並べる** → 回避策: 定義変更時は過去分を新定義で再計算するか、変更時点に断絶線を引いて新旧を区別表示する（理由：定義変更によるジャンプを実績の変化と誤読し、施策効果や悪化要因を取り違える。「先月の報告と数字が違う」という信頼毀損にも直結する）。改修後は過去30日スナップショット回帰でdiffを確認する
 - **失敗パターン: アラート閾値を厳しくしすぎて通知が鳴り続け、現場が全アラートを無視するようになる** → 回避策: 閾値は指標の変動係数から動的算出し、WARNING/CRITICALに緊急度（即時／翌営業日／週次）を必ず添える（理由：変動の大きい指標に固定の狭い閾値を当てると偽CRITICALが多発し、オオカミ少年化して本物の異常も見過ごされる。アラート疲れは検知システムの存在意義を失わせる最頻出失敗）
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. KPI設定・追跡 — 確立
+2. ダッシュボード作成 — 確立
+3. レポーティング — 確立
+4. 改善提案 — 確立
+5. **Balanced Scorecard 4視点** — ⚠️ 強化要
+6. **OKR連動** — ⚠️ 強化要
+7. **Leading vs Lagging Indicator** — ⚠️ 強化要
+8. **Predictive KPI** — ⚠️ 未確立
+9. **KPI Tree（戦略マップ）** — ⚠️ 未確立
+10. **Real-time Dashboard / Self-Service BI** — ⚠️ 強化要
+
+### 改善余地として埋めるスキル
+
+#### A. Balanced Scorecard
+- 財務/顧客/業務プロセス/学習成長の4視点
+- 戦略マップ
+
+#### B. OKR連動
+- KPIをOKRのKey Resultsに紐付け
+- 達成度自動算出
+
+#### C. Leading vs Lagging
+- Lagging（結果指標）：売上/利益
+- Leading（先行指標）：商談数/Web訪問数
+- バランス管理
+
+#### D. Predictive KPI
+- 機械学習で来月のKPIを予測
+- 早期警戒指標
+
+#### E. KPI Tree
+- トップKPI（NSM）→中間KPI→現場KPI
+- 因果関係明示
+
+#### F. Real-time Dashboard
+- Looker / Tableau Pulse
+- Self-Service BI
+
+### 業界最新フレームワーク（2026年Q2）
+- **North Star Metric**
+- **Compound Growth Rate Analysis**
+- **Cohort-based KPI**
+
+### 追加ツール
+- Looker Studio / Tableau Pulse
+- Notion DB（KPI Tree）
+- BigQuery / Snowflake
+
+### 出力フォーマット拡張
+```json
+{
+  "kpi_report_id": "",
+  "balanced_scorecard": {},
+  "okr_link": "",
+  "leading_indicators": [],
+  "lagging_indicators": [],
+  "predictive_forecast": {},
+  "kpi_tree_url": ""
+}
+```
+
+### 差別化要素
+**「Balanced Scorecard × OKR × Leading/Lagging × Predictive KPI × KPI Tree × Self-Service BIを統合するKPIアナリスト」**

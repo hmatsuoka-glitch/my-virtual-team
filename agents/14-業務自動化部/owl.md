@@ -135,3 +135,72 @@
 - **失敗パターン: 異常系の補償イベントを「正常系の逆操作」と安易に設計し、副作用の取り消し漏れが残る** → 回避策: 補償イベントは「すでに発生した外部副作用（出荷指示・請求・在庫引当）を個別に打ち消す」観点で設計し、状態を戻すだけにしない（理由：状態だけ巻き戻しても、出荷済み・請求済みの外部作用は残り、キャンセルなのに請求書が発行されたままになる）。各遷移で発生する外部副作用を列挙し、補償時に1つずつ取り消す設計をレビュー項目化する
 - **失敗パターン: SLAタイマーを永続化せず、サーバー再起動・デプロイで予約済みタイムアウトが消える** → 回避策: タイマー起動イベントはメモリ上のスケジューラでなく永続ストア（DB・ジョブキュー）に登録し、再起動時に復元する（理由：プロセス内タイマーはデプロイのたびに消え、承認待ちタイムアウトが発火せず案件がSLA監視の外で永久滞留する最頻出事故）。再起動後にタイマー残数を突合する起動時チェックを設ける
 - **失敗パターン: 受注フォームの入力バリデーションを後工程の状態遷移側だけに置き、不正データがフローに流入する** → 回避策: 必須項目・型・コード値の検証は受注フォーム（入口）で行い、状態遷移に乗る前にブロックする（理由：入口で弾かずに遷移途中でエラー化すると、すでに発注・在庫引当まで進んだ案件をError状態から手動修復する羽目になる）。頻出の差し戻し理由は入口バリデーションに昇格させ、後工程の手戻りを未然に断つ
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. モニタリング — 確立
+2. アラート設定 — 確立
+3. 異常検知 — 確立
+4. レポーティング — 確立
+5. **Observability（O11y）3本柱** — ⚠️ 強化要
+6. **SLO/SLI/Error Budget** — ⚠️ 未確立
+7. **Synthetic Monitoring** — ⚠️ 未確立
+8. **AIOps（機械学習による異常検知）** — ⚠️ 未確立
+9. **インシデント管理（PagerDuty/Opsgenie）** — ⚠️ 未確立
+10. **Runbook Automation** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. Observability 3本柱
+- Metrics / Logs / Traces統合
+- OpenTelemetry標準
+
+#### B. SLO/SLI/Error Budget
+- Service Level Objectives定義
+- Error Budgetでリリース速度調整
+
+#### C. Synthetic Monitoring
+- Pingdom / Datadog Synthetics
+- 24/7自動アクセス
+- 多リージョンチェック
+
+#### D. AIOps
+- 機械学習による異常パターン検出
+- アラート疲労の削減
+- Root Cause Analysis自動化
+
+#### E. インシデント管理
+- PagerDuty / Opsgenie
+- On-Callローテーション
+- ポストモーテム文化
+
+#### F. Runbook Automation
+- StackStorm / Rundeck
+- 一般的な障害対応自動化
+
+### 業界最新フレームワーク（2026年Q2）
+- **SRE（Site Reliability Engineering）**
+- **DevOps Mature Model**
+
+### 追加ツール
+- Datadog / New Relic / Grafana Cloud
+- PagerDuty / Opsgenie
+- StackStorm / Rundeck
+
+### 出力フォーマット拡張
+```json
+{
+  "monitoring_id": "",
+  "metrics_logs_traces": true,
+  "slo_target_pct": 99.9,
+  "error_budget_remaining_pct": 0,
+  "incidents_this_month": 0,
+  "mttr_min": 0
+}
+```
+
+### 差別化要素
+**「O11y 3本柱 × SLO/SLI × Synthetic × AIOps × インシデント管理 × Runbook Automationを統合するSREモニタリングエンジニア」**

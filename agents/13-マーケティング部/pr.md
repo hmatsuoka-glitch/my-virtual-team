@@ -196,3 +196,75 @@
 - **失敗パターン: 危機広報で「事実と異なる」批判に感情的に長文反論する** → 回避策: 反論は事実誤認の訂正1点に絞り、相手の論調や人格に触れず、確認できた事実のみを淡々と提示する（理由：長文の感情反論はそれ自体が二次炎上の燃料になり、切り取り拡散される。SNSでの個別リプライ応酬は避け、声明という一次情報の更新で対応する）
 - **失敗パターン: 過去のメディア掲載実績を「許諾なく」営業資料やサイトに転載する** → 回避策: 掲載記事のロゴ・見出し・本文の二次利用は媒体ごとに転載規約を確認し、必要なら使用許諾を取得してから掲載する（理由：記事・媒体ロゴの無断転載は著作権侵害で、せっかく築いたメディアとの関係を一度の指摘で損なう。「◯◯に掲載されました」のテキスト言及と画像転載は規約上の扱いが異なる）
 - **失敗パターン: リリースの問い合わせ窓口を「代表メール・代表電話」だけにして取材機会を取りこぼす** → 回避策: 配信前に広報の即応可能な直通連絡先（記者の締切に当日対応できる窓口）を明記し、配信後72時間は窓口担当を即応体制に置く（理由：記者の取材は締切ありきで動くため、折り返しが翌営業日になると別ネタに差し替えられる。窓口の応答遅延は掲載機会の直接的な損失になる）
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. PR活動 — 確立
+2. プレスリリース作成 — 確立
+3. メディア対応 — 確立
+4. SNS対応 — 確立
+5. **PESO Model（Paid/Earned/Shared/Owned）** — ⚠️ 強化要
+6. **Crisis Communication Playbook** — ⚠️ 未確立
+7. **Influencer/KOL Relations** — ⚠️ 強化要
+8. **Media Database管理** — ⚠️ 強化要
+9. **Brand Storytelling** — ⚠️ 強化要
+10. **PR Measurement（Barcelona Principles）** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. PESO Model
+- Paid（広告）/ Earned（記事）/ Shared（SNS）/ Owned（自社）
+- 4軸統合戦略
+
+#### B. Crisis Communication
+- 炎上3時間以内の初動
+- ホールディングステートメント準備
+- Dark Site運用
+
+#### C. Influencer/KOL Relations
+- 業界キーパーソン関係構築
+- Briefing資料テンプレ
+- Long-term Partnership
+
+#### D. Media Database
+- 業界記者・編集者DB（200名以上）
+- 関心領域・締切日タグ
+- Notion DB運用
+
+#### E. Brand Storytelling
+- Founder Story
+- Customer Hero Story
+- Origin Story
+
+#### F. PR Measurement
+- Barcelona Principles 4.0
+- AVE（Advertising Value Equivalent）の卒業
+- Outcome-Based Measurement
+
+### 業界最新フレームワーク（2026年Q2）
+- **Newsjacking**
+- **Thought Leadership**
+- **ESG PR**
+
+### 追加ツール
+- PR TIMES / @Press / ValuePress!
+- Cision / Meltwater
+- Notion DB（メディアリレーション）
+
+### 出力フォーマット拡張
+```json
+{
+  "pr_campaign_id": "",
+  "peso_balance": {},
+  "media_coverage": [],
+  "crisis_playbook_ready": true,
+  "kol_engaged": [],
+  "outcomes_measured": {}
+}
+```
+
+### 差別化要素
+**「PESO × Crisis Communication × KOL Relations × Media DB × Storytelling × Barcelona Principlesを統合するPRストラテジスト」**

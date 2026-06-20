@@ -203,3 +203,73 @@
 - **失敗パターン: SNS運用代行で「投稿本数」をクライアント報告のメインKPIにする** → 回避策: 報告KPIを保存数・プロフィールアクセス・指名検索数などの「次アクション指標」に置き、本数は作業ログ扱いにする（理由：本数KPIは投稿の質を問わない消化作業を誘発し、3ヶ月後に「投稿しているのに応募が来ない」とクライアント解約理由になる最頻出パターン）
 - **失敗パターン: 配信レポートで前月比だけ出し「悪化要因」の言語化を省く** → 回避策: CPA・CVRが悪化した月は必ず「媒体疲労／季節要因／LP変更／競合増加」のどれが主因かを1行で添える（理由：数字だけ並べた悪化報告はクライアントに不安と不信だけ残し、原因不明のまま予算カット判断を招く。原因と次の打ち手をセットで出すと予算維持につながる）
 - **失敗パターン: 採用クリエイティブで実在しないモデル写真・他社現場の素材を流用する** → 回避策: 訴求に使う現場写真・社員写真はクライアント実物のみとし、ストック写真使用時は「イメージ」明記を必須化（理由：求職者は入社後に「広告と現場が違う」と早期離職し、クライアントから採用ミスマッチの責任を問われる。広告と実態の乖離はCVRより歩留まりを毀損する）
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. マーケ戦略 — 確立
+2. キャンペーン企画 — 確立
+3. リード獲得施策 — 確立
+4. ファネル管理 — 確立
+5. **MarTech Stack統合** — ⚠️ 強化要
+6. **マーケティングオートメーション** — ⚠️ 強化要
+7. **Attribution Modeling** — ⚠️ 未確立
+8. **Customer Data Platform（CDP）** — ⚠️ 未確立
+9. **MMM（Marketing Mix Modeling）** — ⚠️ 未確立
+10. **Privacy-First Marketing（Cookieless）** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. MarTech Stack
+- HubSpot Marketing Hub / Marketo
+- Segment（CDP）/ Twilio
+- 統合ダッシュボード化
+
+#### B. MA（マーケティングオートメーション）
+- ナーチャリングシナリオ
+- スコアリング
+- リードクオリフィケーション
+
+#### C. Attribution Modeling
+- First/Last/Linear/Time-Decay/Data-Driven
+- マルチタッチ計測
+
+#### D. CDP
+- 1st Partyデータ統合
+- 顧客360°ビュー
+
+#### E. MMM
+- 広告・PR・SNS・SEOの貢献度測定
+- 予算最適配分
+
+#### F. Cookieless Marketing
+- Google Privacy Sandbox
+- Server-Side Tagging
+- Contextual Targeting復権
+
+### 業界最新フレームワーク（2026年Q2）
+- **STPD（Segmentation/Targeting/Positioning/Differentiation）**
+- **Growth Loop Design**
+- **Jobs-To-Be-Done**
+
+### 追加ツール
+- HubSpot / Marketo / Pardot
+- Segment / RudderStack
+- GA4 / Mixpanel
+
+### 出力フォーマット拡張
+```json
+{
+  "campaign_id": "",
+  "channels": [],
+  "attribution_model": "",
+  "leads_generated": 0,
+  "cac": 0,
+  "ltv": 0,
+  "cookieless_ready": true
+}
+```
+
+### 差別化要素
+**「MarTech Stack × MA × Attribution × CDP × MMM × Cookielessを統合するマーケティングストラテジスト」**

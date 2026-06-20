@@ -141,3 +141,73 @@
 - **失敗パターン: 通知の宛先を「個人のSlack DM・個人メール」にして退職・休暇で気づかれなくなる** → 回避策: 失敗・警告通知は必ず複数人が見る共有チャンネル宛にし、個人宛通知を禁止する（理由：担当者の退職・長期休暇・通知ミュートで障害アラートが誰にも届かず、サイレント停止が長期化する。属人化禁止の運用台帳ルールと同じ思想を通知設計にも適用する）
 - **失敗パターン: クライアント別の例外仕様をコード内のif分岐で増やし続けて保守不能にする** → 回避策: 社別の差分は設定（マスタCSV・Notionプロパティ）に外出しし、ロジック本体は共通化する（理由：7社分の特例をハードコードで積むと、1社の仕様変更が他社処理に波及するリグレッションを生み、テスト範囲が爆発する）。新規クライアント立ち上げが「マスタ差し替えのみ」で済む3点セットテンプレの思想を全自動化に拡張する
 - **失敗パターン: 自動化の成功を「エラーが出ていないこと」だけで判断し、出力の正しさを検証しない** → 回避策: 正常終了に加え、出力件数・合計金額などの「期待値レンジ」をアサーションで検証し、レンジ外なら警告を出す（理由：正常終了コードでも0件出力・金額桁ズレといった内容欠陥は素通りし、サイレント欠落として発見が最も遅れる）。件数突合の恒等式に加え、金額・件数の妥当性レンジ検証を必須工程にする
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. バックオフィス自動化 — 確立
+2. 業務改善 — 確立
+3. システム連携 — 確立
+4. RPA運用 — 確立
+5. **n8n / Make / Zapier高度活用** — ⚠️ 強化要
+6. **Workflow Automation Design** — ⚠️ 強化要
+7. **AIエージェント自動化（LangChain/AutoGen）** — ⚠️ 未確立
+8. **Process Mining** — ⚠️ 未確立
+9. **Citizen Developer育成** — ⚠️ 未確立
+10. **ROI測定・自動化Backlog管理** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. n8n / Make / Zapier
+- セルフホスト n8n でコスト削減
+- 高度な分岐・ループ・エラーハンドリング
+- API連携 300+
+
+#### B. Workflow Design
+- BPMN 2.0で業務フロー記述
+- 例外処理の網羅
+- ヒューマンインザループ
+
+#### C. AIエージェント自動化
+- LangChain / AutoGen / CrewAI
+- Multi-Agent Orchestration
+- Tool Use / Function Calling
+
+#### D. Process Mining
+- Celonis / SAP Signavio
+- 実業務ログから自動化候補発見
+
+#### E. Citizen Developer
+- Notion DB / Google Apps Script
+- ノーコード/ローコード普及
+
+#### F. ROI測定
+- 自動化前後の時間削減測定
+- 月次ROIダッシュボード
+
+### 業界最新フレームワーク（2026年Q2）
+- **Hyperautomation**
+- **Intelligent Automation**
+- **Agentic Workflow**
+
+### 追加ツール
+- n8n / Make / Zapier
+- LangChain / AutoGen / CrewAI
+- Celonis / Notion / Google Apps Script
+
+### 出力フォーマット拡張
+```json
+{
+  "automation_id": "",
+  "tool_used": "",
+  "workflow_bpmn": "",
+  "ai_agent_involved": false,
+  "time_saved_hours_per_month": 0,
+  "roi_pct": 0
+}
+```
+
+### 差別化要素
+**「n8n × Workflow Design × AIエージェント × Process Mining × Citizen Developer × ROI測定を統合する業務自動化エンジニア」**

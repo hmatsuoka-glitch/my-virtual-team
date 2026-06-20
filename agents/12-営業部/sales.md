@@ -212,3 +212,70 @@
 - **失敗パターン: 相手の要望を全て「できます」と受け、提案範囲が膨張して安請け合い・赤字受注・現場破綻につながる** → 回避策: 要望には「できる/条件付きでできる/今回スコープ外」を正直に切り分け、スコープ外は「別フェーズ・別見積で対応可能」と提示。何でも引き受けるより「やらないことを明確にする提案」の方が信頼され、PM・制作部の実現可能性確認（06-04連携）を経た約束だけを確約する。
 - **失敗パターン: 既存クライアントを「受注済み」として放置し、追加提案・更新前フォローを怠って、契約更新時に競合に乗り換えられる（既存深耕の取りこぼし）** → 回避策: 既存顧客は受注がゴールでなくスタートと捉え、四半期ごとに「成果共有＋次の課題ヒアリング」の定例接点を設計。更新月の60日前には更新提案＋アップセル候補を準備し、CS視点での関係維持を営業KPIに組み込む。新規獲得より既存維持の方が低コストで高確度という前提で時間配分する。
 - **失敗パターン: 商談で課題を聞かず自社の話ばかりして「ニーズの言語化」を相手にさせないまま提案に入り、刺さらない汎用提案で失注する** → 回避策: SPIN話法のI（示唆）・N（解決質問）で「その課題を放置すると何が起きるか」「解決したらどんな状態になるか」を相手自身に語らせ、その発言を提案の前提に据える。営業が価値を主張するのでなく、相手が自分の言葉で課題と効果を口にした状態を作ってから提案する順序を徹底する。
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. 営業活動 — 確立
+2. リード獲得 — 確立
+3. 商談クロージング — 確立
+4. パイプライン管理 — 確立
+5. **MEDDIC / BANT高度活用** — ⚠️ 強化要
+6. **Challenger Sale手法** — ⚠️ 未確立
+7. **Sales Enablement Tools** — ⚠️ 強化要
+8. **Outbound Sequence設計** — ⚠️ 強化要
+9. **Account-Based Selling** — ⚠️ 強化要
+10. **Revenue Operations（RevOps）** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. MEDDIC / BANT
+- **MEDDIC**：Metrics/Economic Buyer/Decision Criteria/Decision Process/Identify Pain/Champion
+- **BANT**：Budget/Authority/Need/Timeline
+- 商談ステージごとの確認項目
+
+#### B. Challenger Sale
+- Teach / Tailor / Take Control
+- 顧客に「気づき」を提供する営業
+
+#### C. Sales Enablement
+- Salesforce / HubSpot Sales Hub
+- Notion DB（営業資料庫）
+
+#### D. Outbound Sequence
+- Email × Call × LinkedIn の組み合わせ
+- 6-8 touch over 14-21 days
+
+#### E. ABS（Account-Based Selling）
+- 重点アカウント特定
+- Multi-threading（複数キーパーソンへ）
+
+#### F. RevOps
+- Marketing/Sales/CSの統合運用
+- パイプライン速度測定
+
+### 業界最新フレームワーク（2026年Q2）
+- **SPIN Selling**
+- **Sandler Submarine**
+- **The Challenger Customer**
+
+### 追加ツール
+- HubSpot Sales Hub / Salesforce
+- Outreach / SalesLoft
+- Apollo.io / Lusha
+
+### 出力フォーマット拡張
+```json
+{
+  "deal_id": "",
+  "meddic": {},
+  "stage": "",
+  "next_action": "",
+  "champion_identified": true
+}
+```
+
+### 差別化要素
+**「MEDDIC × Challenger × Sales Enablement × Outbound Sequence × ABS × RevOpsを統合する建設業特化セールスストラテジスト」**
