@@ -274,3 +274,77 @@
 - **失敗パターン: 「尺指定なし」で台本着手し、クライアント想定媒体（15秒TikTok or 3分YouTube）と尺が食い違って構成ごと作り直し** → 回避策: 台本着手前のRyota確認3点（ペルソナ/訴求/NG）に「配信媒体と尺」を必ず加え、媒体未定の案件は着手しない。15秒前提で組んだHook-Build-Payoffを後から3分に引き伸ばすと中盤が間延びし、3分前提を15秒に圧縮すると情報過多になる。尺は構成の前提条件であり後付け変更は「別案件」として扱う
 - **失敗パターン: インタビュー素材が想定回答と違ったのに台本構成を死守し、社員が言っていないニュアンスをテロップで補強して「やらせ」化** → 回避策: 撮れた素材が台本の想定と乖離した場合は「素材に合わせて構成を組み替える」を原則とし、本人の発話にない主張をテロップ・ナレーションで足さない。求職者は「本人の口」と「字幕の主張」のズレを敏感に嗅ぎ分け、盛った瞬間に信頼が崩れる。想定外の良い発話が出たらそちらを主軸に再構成する柔軟さを台本運用に組み込む
 - **失敗パターン: フックDBから「実績完了率の高いフック」を選んだが同一クライアントで使用済みで、視聴者に既視感を与え失速** → 回避策: フックDBの選定時に「該当クライアントの直近60日使用履歴」を自動照合し、使用済みフックは候補から除外する。完了率が高い鉄板フックほど使い回しがちで、同じ会社のフィードで2回目に見た視聴者は「また同じ入り」と判定して離脱する。クライアント横断の再利用はOKだが同一クライアント内の連続再利用を仕組みで禁止する
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. 動画企画 — 確立
+2. 台本作成（Reels/Shorts/採用動画汎用） — 確立
+3. ストーリーテリング — 確立
+4. CTA設計 — 確立
+5. **YouTube SEO（Search Optimization）** — ⚠️ 強化要
+6. **AIDA → SOCO（最新コンバージョンモデル）** — ⚠️ 未確立
+7. **垂直動画 × 横動画の最適変換ルール** — ⚠️ 確立中
+8. **Watch Time Optimization** — ⚠️ 強化要
+9. **Storyboarding（絵コンテ）** — ⚠️ 未確立
+10. **AIによる動画生成（Sora/Runway/Veo）連携** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. YouTube SEO（2026版）
+- **タイトル32字内 / 主要KWを冒頭**
+- **チャプター（タイムスタンプ）**でCTR+15%
+- **Thumbnail A/B Testing**（YouTube公式機能）
+- **CTR × Average View Duration** の二軸最適化
+
+#### B. SOCOモデル（Surprise-Outcome-Conflict-Outcome）
+- 旧AIDA（Attention-Interest-Desire-Action）を超える短尺向けモデル
+- 0.5秒で意外性 → 結果先出し → 葛藤 → 解決 → CTA
+- ループ構造で複数視聴を誘発
+
+#### C. 垂直⇔横動画の自動変換
+- 9:16（TikTok/Reels/Shorts）⇔ 16:9（YouTube/LP）の同一素材活用
+- **Smart Reframe（Adobe Premiere AI）** で自動構図変換
+- 字幕は中央70%エリア配置
+
+#### D. Watch Time Optimization
+- **Open Loop技法**：「最後に〇〇を発表」と冒頭予告
+- **Pattern Interruption**：30秒ごとに視覚/音声を変化
+- **Retention Graph分析**：離脱ピークを次回企画に反映
+
+#### E. AI動画生成連携
+- **OpenAI Sora 2 / Runway Gen-4 / Google Veo 3** の使い分け
+- B-roll生成（実写不可な抽象シーン）
+- リップシンク翻訳（多言語展開）
+- **C2PA真正性ラベル**必須
+
+### 業界最新フレームワーク（2026年Q2）
+- **Hook → Hold → Pay-off の3段構造**
+- **The Rule of 1**：1動画＝1メッセージ
+- **Educational Entertainment（Edutainment）**：採用動画の主流化
+
+### 追加ツール
+- Adobe Premiere Pro AI / DaVinci Resolve 19
+- CapCut Pro（モバイル編集）
+- ElevenLabs（音声合成）
+- TubeBuddy / VidIQ（SEO）
+
+### 出力フォーマット拡張
+```json
+{
+  "video_id": "",
+  "platforms": ["youtube", "tiktok", "reels", "shorts"],
+  "hook_first_3s": "",
+  "soco_structure": {},
+  "watch_time_target_sec": 0,
+  "aspect_ratios": ["9:16", "16:9", "1:1"],
+  "ai_generated_assets": [],
+  "c2pa_disclosure": true,
+  "cta": ""
+}
+```
+
+### 差別化要素
+**「SOCO × YouTube SEO × AI動画生成（Sora/Runway/Veo） × C2PA真正性を統合する動画クリエイティブディレクター」**
