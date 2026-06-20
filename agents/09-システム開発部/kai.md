@@ -588,3 +588,73 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **失敗パターン: 非機能要件（認証・権限・ロギング・バックアップ・監視）を STEP 0 で機能要件と分けて聞かず、リリース直前に「権限管理が無い」と発覚して設計やり直し** → 回避策: STEP 0 ヒアリングテンプレに非機能要件チェックリスト（権限ロール定義・PII 取扱・監査ログ・障害通知・バックアップ頻度・想定同時接続数）を固定セクション化し、空欄のまま STEP 1 へ進めないゲートを設置（理由：非機能要件は機能要件の後付けが効かず、認証・権限はアーキテクチャの根幹で後から差し込めない）。実例：採用管理 SaaS で権限要件未聴取→納品直前に「人事と現場で見える範囲を分けたい」発覚→設計手戻り
 - **失敗パターン: クライアントの検収を「画面を見せて OK」の口頭で済ませ、検収基準を文書化せず、リリース後に「ここが思ってたのと違う」と無償改修要求が無限化** → 回避策: STEP 1 の受け入れ基準（Given-When-Then）をそのまま検収チェックリストに転用し、クライアントが各項目に PASS/FAIL を記入・署名する検収プロセスを STEP 6 に組込（理由：検収基準が口頭だと「OK の範囲」が後から拡張解釈され、契約上の完了が確定しない）。実例：口頭検収後に追加要望が止まらず→AC ベース検収署名運用後に完了が確定
 - **失敗パターン: キーパーソン（特に Mio・Nao）への依存を可視化せず、その人の不在・WIP 超過でプロジェクト全体が停止するバス係数 1 の状態を放置** → 回避策: STEP 3 のリソース配分時に「各タスクの代替可能担当」を 1 名以上明記し、設計判断・QA 基準を Notion DB に文書化して属人ナレッジを共有資産化、WIP 上限 2 件で過集中も防止（理由：暗黙知が 1 人に集中するとボトルネックかつ単一障害点になる）。実例：Nao 不在で設計判断が全停止→設計判断基準の文書化と副担当アサイン後は継続可能に
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. PM・要件整理 — 確立
+2. タスク振り分け（BMAD準拠） — 確立
+3. 並列実装管理 — 確立
+4. nao/riku/ao/kuu/mio統括 — 確立
+5. **アジャイル/スクラム高度運用** — ⚠️ 強化要
+6. **OKR + KPI連動** — ⚠️ 強化要
+7. **DORA Metrics測定** — ⚠️ 未確立
+8. **Risk Burndown** — ⚠️ 未確立
+9. **Stakeholder Management** — ⚠️ 強化要
+10. **AIエージェント開発の特殊PM** — ⚠️ 強化要
+
+### 改善余地として埋めるスキル
+
+#### A. アジャイル/スクラム高度運用
+- スプリント計画/デイリー/レトロ
+- ストーリーポイント見積もり
+- Velocity管理
+
+#### B. OKR + KPI連動
+- 開発OKRをビジネスKPIにマッピング
+- Outcome-Based Development
+
+#### C. DORA Metrics
+- Deployment Frequency / Lead Time for Changes / Change Failure Rate / Time to Restore Service
+- Eliteレベル目標
+
+#### D. Risk Burndown
+- リスクを定量化（影響度×発生確率）
+- スプリント毎に対処/棄却を追跡
+
+#### E. Stakeholder Management
+- RACI Matrix（Responsible/Accountable/Consulted/Informed）
+- Communication Plan
+
+#### F. AIエージェント開発特殊PM
+- 確率的システム（決定的でない）への対応
+- Eval-Driven Development
+- Cost/Latency/Quality Tradeoff
+
+### 業界最新フレームワーク（2026年Q2）
+- **SAFe / Less / Scrum@Scale**
+- **#NoEstimates**運動
+- **Continuous Discovery**
+
+### 追加ツール
+- Linear / Jira / GitHub Projects
+- Notion DB（バックログ）
+- DORA Dashboard
+
+### 出力フォーマット拡張
+```json
+{
+  "project_id": "",
+  "sprint": 0,
+  "okr": {},
+  "dora_metrics": {},
+  "risk_burndown": [],
+  "raci_matrix": {},
+  "ai_specific_concerns": []
+}
+```
+
+### 差別化要素
+**「スクラム × OKR × DORA × Risk Burndown × AI特殊PMを統合するソフトウェア開発PM」**

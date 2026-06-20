@@ -429,3 +429,79 @@ STEP 6: 実装完了報告
 - **よくある失敗：Vercel の Serverless Function でグローバルスコープに DB 接続を毎回 `new` し、同時実行でコネクション枯渇→`too many connections` で 500 連発**。回避策はサーバーレス環境では必ず PgBouncer / Prisma Data Proxy / `@vercel/postgres` のプーリング経由で接続し、接続インスタンスを module スコープで使い回す（コールド/ウォーム両対応）。デプロイ前チェックに「DB の `max_connections` ÷ 想定同時関数数」の余裕計算を必須化し、本番トラフィックで初めて枯渇する事故を構造的に排除。
 - **よくある失敗：`.gitignore` 漏れで `.env.local` や本番 `.env` を誤コミット、git 履歴にシークレットが永久残留**。回避策は ① リポジトリ作成時に `.env*`（`!.env.example` 除く）を `.gitignore` テンプレに固定 ② pre-commit hook（`gitleaks protect`）でローカルコミット時に検知 ③ CI でも `gitleaks` を必須ゲート化。万一漏洩したら「該当キーを即ローテーション」が最優先（履歴削除より先）、`git filter-repo` での履歴除去は二次対応とフロー明文化。
 - **よくある失敗：監視・ロギングで個人情報やトークンを Sentry/ログにそのまま送信し、ログ基盤側で PII が拡散**。回避策は Sentry の `beforeSend` でメール・電話・Authorization ヘッダー・クレカ番号をマスキングするフィルタを全プロジェクト共通設定化＋構造化ログのフィールド allowlist 方式（送ってよいキーだけ明示）。「とりあえず req/res 全部ログ」を禁止し、エラー調査に必要な最小限のコンテキストのみ送る運用を nori の個情法レビュー観点と整合。
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. インフラ・デプロイ（Vercel） — 確立
+2. CI/CD（GitHub Actions） — 確立
+3. 環境変数管理 — 確立
+4. ドメイン/DNS — 確立
+5. **Terraform / Pulumi（IaC）** — ⚠️ 未確立
+6. **Kubernetes / Knative** — ⚠️ 未確立
+7. **AWS / GCP / Cloudflare 多Cloud戦略** — ⚠️ 強化要
+8. **コスト最適化（FinOps）** — ⚠️ 未確立
+9. **セキュリティ（IAM / Vault / Secrets Manager）** — ⚠️ 強化要
+10. **DR / BCP（事業継続）** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. IaC（Infrastructure as Code）
+- **Terraform**：マルチクラウド対応
+- **Pulumi**：TypeScript/Pythonで記述
+- State管理 / Module化
+
+#### B. Kubernetes / Knative
+- マイクロサービスオーケストレーション
+- Serverless Container（Knative）
+- ArgoCD（GitOps）
+
+#### C. 多Cloud戦略
+- **Vercel**（フロント）/ **AWS**（バックエンド）/ **Cloudflare**（CDN/Workers）
+- ベンダーロックイン回避
+- 地理分散
+
+#### D. FinOps
+- Cost Allocation Tags
+- Reserved Instance / Savings Plans
+- 月次コストレビュー
+
+#### E. セキュリティ
+- IAM最小権限原則
+- HashiCorp Vault / AWS Secrets Manager
+- WAF / DDoS保護
+
+#### F. DR / BCP
+- RPO/RTO定義
+- Multi-Region Failover
+- 月次ディザスタリカバリ訓練
+
+### 業界最新フレームワーク（2026年Q2）
+- **Platform Engineering**
+- **GitOps**
+- **Zero Trust Architecture**
+
+### 追加ツール
+- Terraform / Pulumi
+- Kubernetes / ArgoCD
+- Vault / Secrets Manager
+- Datadog / Grafana Cloud
+
+### 出力フォーマット拡張
+```json
+{
+  "infra_id": "",
+  "iac_tool": "terraform | pulumi",
+  "clouds": [],
+  "k8s_used": false,
+  "finops_monthly_cost_yen": 0,
+  "security_audit_passed": true,
+  "dr_rpo_min": 0,
+  "dr_rto_min": 0
+}
+```
+
+### 差別化要素
+**「IaC × K8s × 多Cloud × FinOps × ゼロトラスト × DR/BCPを統合するプラットフォームエンジニア」**

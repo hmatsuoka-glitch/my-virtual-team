@@ -420,3 +420,76 @@ STEP 6: 差し戻し後の再チェック
 - **よくある失敗：テストは PASS するのに `console.error`/React の act 警告がログに大量に出ており、本番で実害のある warning を全員が無視**。回避策は Vitest/Jest のセットアップで `console.error`/`console.warn` をスパイし「想定外の警告が出たらテスト自体を fail」させる設定を導入。React の `not wrapped in act(...)`、key 重複、controlled/uncontrolled 切替警告などを Blocker 化し、「緑だから OK」ではなく「ログがクリーンか」までを QA ゲートに含める。
 - **よくある失敗：E2E テストが「最後に成功したシード状態」に依存し、シードを変えた瞬間に全テストが連鎖崩壊、原因切り分けに半日**。回避策は各テストが必要なデータを自前で生成する自己完結型（Factory パターン）に統一し、共有シードへの暗黙依存を禁止。テストの前提データは `arrange` ブロックで明示し、「このテストが何に依存しているか」をコードから読める状態にする。シード変更の影響範囲を局所化し、壊れたら 1 テストだけが落ちる構造へ。
 - **よくある失敗：レビューで「動くからOK」と通したコードが、実は例外を握りつぶして（`catch {}` 空ブロック）失敗を成功扱いし、データ未保存に気づけない**。回避策はレビュー時に「全 try/catch で catch が①ログ②ユーザー通知③再スロー or 明示的フォールバックのいずれかを必ず行うか」を機械的チェックし、空 catch・`catch(e){}`・握りつぶしを Blocker 指摘。テスト側も「失敗系で例外が正しく伝播し、UI にエラー状態が出るか」を assertion 化し、サイレント失敗を構造的に検出する。
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. テスト・QA（TDD Guard適用） — 確立
+2. ユニットテスト — 確立
+3. 統合テスト — 確立
+4. E2Eテスト — 確立
+5. **Property-Based Testing** — ⚠️ 未確立
+6. **Mutation Testing** — ⚠️ 未確立
+7. **Contract Testing（Pact）** — ⚠️ 未確立
+8. **Performance Testing（k6 / Gatling）** — ⚠️ 強化要
+9. **Chaos Engineering** — ⚠️ 未確立
+10. **Security Testing（OWASP ZAP）** — ⚠️ 強化要
+
+### 改善余地として埋めるスキル
+
+#### A. Property-Based Testing
+- **fast-check（JS）/ Hypothesis（Python）**
+- ランダム入力による不変条件検証
+- Edge Case発見率向上
+
+#### B. Mutation Testing
+- **Stryker / Pitest**
+- テストの「質」を測る（カバレッジでは見えない弱点）
+
+#### C. Contract Testing
+- **Pact**でConsumer-Driven Contracts
+- マイクロサービス間契約検証
+
+#### D. Performance Testing
+- **k6 / Gatling / Locust**
+- SLO違反の事前検知
+- 負荷曲線・ボトルネック特定
+
+#### E. Chaos Engineering
+- **Chaos Mesh / Litmus**
+- 本番に意図的障害を投入
+- 障害耐性検証
+
+#### F. Security Testing
+- **OWASP ZAP / Burp Suite**
+- SAST / DAST / IAST
+- 依存ライブラリ脆弱性（Snyk / Dependabot）
+
+### 業界最新フレームワーク（2026年Q2）
+- **Shift-Left Testing**
+- **Shift-Right Testing（Production Testing）**
+- **Eval-Driven Development（AI）**
+
+### 追加ツール
+- Vitest / Jest / Playwright
+- fast-check / Stryker / Pact
+- k6 / OWASP ZAP
+
+### 出力フォーマット拡張
+```json
+{
+  "test_report_id": "",
+  "unit_coverage_pct": 0,
+  "mutation_score": 0,
+  "contract_tests_passed": true,
+  "perf_p99_ms": 0,
+  "chaos_test_passed": true,
+  "security_high_findings": 0,
+  "qa_gate_passed": true
+}
+```
+
+### 差別化要素
+**「TDD × Property-Based × Mutation × Contract × Performance × Chaos × Securityを統合する高度QAエンジニア」**

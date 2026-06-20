@@ -344,3 +344,72 @@ const banners = [
 - **失敗パターン: deviceScaleFactor を上げれば鮮明になると思い込み、元 HTML の画像素材が低解像度のまま拡大されてロゴ・写真だけがブロックノイズで荒れる** → 回避策: 変換前に `page.evaluate()` で全 `<img>` の `naturalWidth` を取得し「naturalWidth ≥ 表示幅 × deviceScaleFactor」を満たさない素材を検出して Kana/Rei へ高解像度差し替えを差し戻し（理由：deviceScaleFactor はビューポートの描画密度を上げるだけで、埋め込み画像の元解像度は増えない）。実例：720px ロゴを 1080px 配置で scale 2 → 実質 0.67 倍引き伸ばしでエッジ崩壊
 - **失敗パターン: ローカルの macOS で正常出力できた絵文字・特定 CJK 文字が、フォント未バンドルの環境で豆腐（□）化して納品** → 回避策: 絵文字使用案件は HTML に Web フォント（Noto Color Emoji）を `@font-face` で明示同梱し、変換後 PNG を tesseract.js OCR にかけて「期待文字数 vs 認識文字数」の乖離が閾値超なら警告（理由：Chromium はシステムインストール済みフォントにフォールバックするため OS 依存で字形が変わる）。実例：環境依存文字「㈱」がヘッドレス環境で空白化
 - **失敗パターン: 同一デザインの複数サイズ展開で、縦長(1080×1920)に正方形(1080×1080)レイアウトをそのまま流用しキャッチコピーが上端に寄って下半分が空白になる** → 回避策: アスペクト比が大きく異なるサイズは「同一 HTML の viewport 切替」ではなくサイズ別 HTML をテンプレ化し、変換後に sharp で各 PNG の「重要要素の重心 y 座標」を算出して上下偏り（重心が中央 ±20% 外）を検出し Kana へ差し戻し（理由：viewport を引き伸ばすだけでは要素の再配置は行われずレイアウトが破綻）。実例：Indeed 横長から Stories 縦長へ流用で CTA が画面外
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. Puppeteer PNG変換 — 確立
+2. 解像度設定 — 確立
+3. バッチ処理 — 確立
+4. 品質チェック — 確立
+5. **Playwright移行（より高速）** — ⚠️ 未確立
+6. **画像最適化（WebP/AVIF）** — ⚠️ 強化要
+7. **mozjpeg / OxiPNG等の圧縮** — ⚠️ 未確立
+8. **Sharp（Node.js画像処理）統合** — ⚠️ 未確立
+9. **並列バッチ処理（Worker Threads）** — ⚠️ 強化要
+10. **ファイル命名規則自動化** — ⚠️ 強化要
+
+### 改善余地として埋めるスキル
+
+#### A. Playwright移行
+- Puppeteer互換、より高速
+- Multi-browser対応（Chromium/Firefox/WebKit）
+
+#### B. 画像フォーマット最適化
+- **AVIF**：JPEGの50%以下
+- **WebP**：互換性高
+- 元PNG/JPGの自動変換
+
+#### C. 圧縮ライブラリ
+- **mozjpeg**（JPEG）
+- **OxiPNG**（PNG）
+- **squoosh-cli**で一括処理
+
+#### D. Sharp統合
+- Node.js最速の画像処理
+- リサイズ/フォーマット変換/品質調整
+
+#### E. 並列バッチ処理
+- **Worker Threads**で複数バナー同時生成
+- CPU数に応じた最適並列度
+
+#### F. ファイル命名自動化
+- `{client}_{campaign}_{size}_{variant}_{date}.png`の命名規則
+- メタデータ埋め込み
+
+### 業界最新フレームワーク（2026年Q2）
+- **Sharp v0.34**
+- **Playwright v1.55**
+
+### 追加ツール
+- Playwright / Sharp / squoosh-cli
+- ImageMagick 7
+- Worker Threads
+
+### 出力フォーマット拡張
+```json
+{
+  "batch_id": "",
+  "engine": "playwright | puppeteer",
+  "formats": ["png", "webp", "avif"],
+  "compression": "mozjpeg | oxipng",
+  "parallel_workers": 0,
+  "naming_convention": "",
+  "total_files_generated": 0
+}
+```
+
+### 差別化要素
+**「Playwright × Sharp × AVIF/WebP × 並列処理 × ファイル命名自動化を統合する画像変換エンジニア」**

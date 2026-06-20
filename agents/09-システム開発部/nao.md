@@ -304,3 +304,74 @@ STEP 6: 設計書をKaiへ提出
 - **よくある失敗：MVP のつもりが「あれもこれも」と機能を盛り、初回リリースが 3 か月遅延してクライアントの採用シーズンに間に合わない**。回避策は要件確定時に全機能を MoSCoW（Must/Should/Could/Won't）で Kai と仕分け、Must だけで「1 つの業務が回るか」を必ず検証してから Should 以降を別フェーズへ切り出す。設計書に「フェーズ 1 スコープ＝この線まで」を図で明示し、追加要望は「フェーズ 2 バックログ」へ機械的に振る運用で、スコープクリープによるリリース遅延を構造的に防ぐ。
 - **よくある失敗：外部 SaaS（求人媒体 API・LINE・決済）の制約（レート制限・必須項目・Webhook 仕様）を調べずに理想設計を描き、実装段階で「その API はその使い方ができない」と判明して設計をやり直す**。回避策は STEP 2 で外部依存を使う機能は「公式ドキュメントのレート制限・必須パラメータ・Webhook の到達保証/順序保証・サンドボックス有無」を 1 ページに調査要約し、設計の前提として固定。理想形でなく「外部 API が実際にできること」を起点に設計し、Ao が実装段階で詰まる外部仕様起因の手戻りをゼロ化。
 - **よくある失敗：個人情報の「保存期間・削除要求対応・第三者提供」を設計に織り込まず、リリース後に GDPR/個情法のデータ削除要求が来て「業務レコードと PII が密結合で消せない」事態**。回避策は nori と STEP 2 で「収集する個人情報項目・保存期間・削除要求時の挙動（匿名化 or 物理削除）・外部送信先」を確定し、DB 設計で PII を専用テーブルに分離（業務レコードは PII への FK のみ保持）。削除要求時は PII テーブルを tombstone 置換し業務統計は保全する専用フローを設計段階で定義、後付け不能なコンプラ要件を構造で担保する。
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. 要件定義 — 確立
+2. システム設計（BMAD Architect） — 確立
+3. ER図/シーケンス図 — 確立
+4. API設計 — 確立
+5. **DDD（ドメイン駆動設計）** — ⚠️ 強化要
+6. **Event-Driven Architecture** — ⚠️ 未確立
+7. **CQRS / Event Sourcing** — ⚠️ 未確立
+8. **API設計（OpenAPI 3.1 / GraphQL Federation）** — ⚠️ 強化要
+9. **Architecture Decision Records（ADR）** — ⚠️ 未確立
+10. **C4 Model** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. DDD（ドメイン駆動設計）
+- Bounded Context / Aggregate / Entity / Value Object
+- Ubiquitous Language
+- Strategic & Tactical Patterns
+
+#### B. Event-Driven Architecture
+- Event Storming Workshop
+- Apache Kafka / RabbitMQ / SNS+SQS
+- Eventual Consistency
+
+#### C. CQRS / Event Sourcing
+- Read/Write分離
+- イベントストアによる完全な状態履歴
+
+#### D. API設計
+- **OpenAPI 3.1**仕様駆動
+- **GraphQL Federation v2**（マイクロサービス連携）
+- **gRPC**（高速バックエンド間通信）
+
+#### E. ADR（Architecture Decision Records）
+- 重要決定をADR形式で記録
+- Context/Decision/Consequencesの3軸
+
+#### F. C4 Model
+- Context / Container / Component / Code の4層
+- Mermaid/PlantUMLで自動図式化
+
+### 業界最新フレームワーク（2026年Q2）
+- **Hexagonal Architecture**
+- **Clean Architecture**
+- **Onion Architecture**
+
+### 追加ツール
+- Structurizr DSL / Mermaid
+- OpenAPI Generator
+- Event Modeling Tools
+
+### 出力フォーマット拡張
+```json
+{
+  "design_id": "",
+  "bounded_contexts": [],
+  "aggregates": [],
+  "events": [],
+  "openapi_spec_path": "",
+  "adrs": [],
+  "c4_diagrams": {}
+}
+```
+
+### 差別化要素
+**「DDD × Event-Driven × CQRS × OpenAPI/GraphQL × ADR × C4 Modelを統合するBMAD Architect」**

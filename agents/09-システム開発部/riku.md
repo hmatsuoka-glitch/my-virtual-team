@@ -375,3 +375,76 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：`key` に配列 index を使い、リスト並べ替え・要素削除時に入力中フォームの値や選択状態が別の行にズレる**。回避策は `key` には必ず安定した一意 ID（DB の id 等）を使い、index は「不変・並べ替えなし・追加削除なし」の純表示リストに限定。特に入力 UI を含むリストでは index キーが致命的バグになるため ESLint で警告化し、Mio の E2E に「行を削除した後も他行の入力値が保持されるか」のシナリオを必須化する。
 - **よくある失敗：`alt`・ラベル・フォーカス管理を後回しにし、モーダルを開いてもフォーカスが背後に残りキーボード/スクリーンリーダーで操作不能、リリース後に a11y クレーム**。回避策はモーダル/ダイアログは shadcn/ui（Radix ベース）等のフォーカストラップ済みプリミティブを使い、自前実装する場合は「開いたら最初の要素へフォーカス移動・Tab がモーダル内を循環・Escape で閉じて元の要素へ戻る」を必須実装。`axe-core` の CI ゲートに加え、QA で実際にキーボードのみでモーダルを開閉できるか手動確認する。
 - **よくある失敗：環境変数を `NEXT_PUBLIC_` 無しでクライアントコンポーネントから参照し `undefined` になり「本番だけ機能が動かない」、逆に秘密鍵を `NEXT_PUBLIC_` でバンドルに露出**。回避策は「クライアントで読む値だけ `NEXT_PUBLIC_` を付ける／秘密情報は絶対に付けず Server Component・Route Handler でのみ参照」をルール化し、`@/env.ts` の Zod スキーマで public/server を型レベルに分離して直接 `process.env` 参照を禁止。Kuu の prefix 検査 CI と連動し、公開すべきでない値の露出と「クライアントで undefined」の両事故を構造的に防ぐ。
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. フロントエンド実装（Next.js） — 確立
+2. TDD準拠 — 確立
+3. React Components — 確立
+4. State Management — 確立
+5. **Next.js 16 App Router + RSC** — ⚠️ 強化要
+6. **TanStack Query / Suspense** — ⚠️ 強化要
+7. **Server Actions / Forms** — ⚠️ 強化要
+8. **shadcn/ui + Radix UI** — ⚠️ 強化要
+9. **Visual Testing（Storybook + Chromatic）** — ⚠️ 未確立
+10. **Performance Profiling（React DevTools）** — ⚠️ 強化要
+
+### 改善余地として埋めるスキル
+
+#### A. Next.js 16 App Router + RSC
+- Server / Client境界の最適設計
+- Streaming SSR
+- Partial Pre-rendering
+
+#### B. TanStack Query + Suspense
+- データフェッチ統一
+- Optimistic Update
+- Cache Management
+
+#### C. Server Actions / Forms
+- フォーム処理のServer-side化
+- Progressive Enhancement
+- Validation（Zod統合）
+
+#### D. shadcn/ui + Radix UI
+- アクセシブルなプリミティブ
+- カスタマイズ容易
+- コピペ式コンポーネント
+
+#### E. Visual Testing
+- **Storybook + Chromatic**
+- Component Driven Development
+- Visual Regression防止
+
+#### F. Performance Profiling
+- React DevTools Profiler
+- Why Did You Render
+- Bundle Analyzer
+
+### 業界最新フレームワーク（2026年Q2）
+- **React 19 Compiler**
+- **Suspense for Data Fetching**
+- **useActionState / useFormStatus**
+
+### 追加ツール
+- Next.js 16 / React 19
+- Vitest（高速テスト）
+- Playwright Component Testing
+
+### 出力フォーマット拡張
+```json
+{
+  "fe_implementation_id": "",
+  "framework": "Next.js 16",
+  "rsc_ratio": 0.0,
+  "test_coverage_pct": 0,
+  "storybook_stories": [],
+  "lighthouse_score": 0
+}
+```
+
+### 差別化要素
+**「Next.js 16 × RSC × TanStack Query × shadcn/ui × Storybook × TDDを統合するフロントエンドエンジニア」**

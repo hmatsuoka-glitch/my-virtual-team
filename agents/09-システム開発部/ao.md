@@ -404,3 +404,79 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **失敗パターン: ファイルアップロード API で拡張子だけ見て Content-Type/サイズ/実体を検証せず、巨大ファイルや実行可能ファイルでストレージ枯渇・RCE リスク** → 回避策: ①ファイルサイズ上限を Route Handler 冒頭で `content-length` チェック ②マジックバイト（先頭数バイト）で実 MIME 判定 ③許可拡張子・MIME のホワイトリスト ④保存ファイル名はサーバー生成 UUID（元名のパストラバーサル防止）を必須化（理由：拡張子は容易に偽装でき、ユーザー指定ファイル名は `../` 注入の入口）。実例：応募者の履歴書 PDF アップロードで .php 偽装→マジックバイト検証で遮断
 - **失敗パターン: 環境変数や API レスポンスにシークレット（DB パスワード・APIキー）を含めたまま、エラー時のスタックトレースやデバッグレスポンスで外部漏洩** → 回避策: 本番は `NODE_ENV=production` でスタックトレースをクライアントに返さず汎用メッセージのみ、ログ出力時はシークレットを `redact` ライブラリでマスク、レスポンス DTO はホワイトリスト方式（`select` で返すフィールドを明示）で `password_hash` 等の漏洩を構造的に防ぐ（理由：オブジェクトをそのまま返す/ログるとスキーマ追加時に機密が芋づる露出する）。実例：user オブジェクト全返却で password_hash 漏洩→DTO ホワイトリスト化後ゼロ
 - **失敗パターン: 個人情報（応募者の氏名・電話・履歴書）に削除フロー・保存期間を設計せず実装し、退会・問い合わせ時に「データ削除できない」状態でリーガル NG** → 回避策: PII を扱うテーブルは設計段階で「保存期間・物理削除 or 論理削除・関連データのカスケード方針」を nori と合意し、削除 API（本人請求対応）と保存期間超過の自動パージバッチを実装にセット（理由：個人情報保護法の削除請求対応・保存期間制限は後付けが極めて困難で、設計時に組まないと作り直し）。実例：応募者データに削除手段なし→設計時の削除フロー必須化で対応可能に
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. バックエンド実装（API/DB） — 確立
+2. TDD準拠 — 確立
+3. REST API設計 — 確立
+4. RDB設計 — 確立
+5. **Hono / Bun / Deno等の新ランタイム** — ⚠️ 未確立
+6. **PostgreSQL高度活用（JSONB/Full-Text Search）** — ⚠️ 強化要
+7. **Redis / Valkey キャッシング戦略** — ⚠️ 強化要
+8. **イベント駆動（Kafka/NATS）** — ⚠️ 未確立
+9. **gRPC / GraphQL** — ⚠️ 強化要
+10. **Observability（OpenTelemetry）** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. 新ランタイム
+- **Bun**（Node互換、3倍速）
+- **Deno 2**（標準ライブラリ充実）
+- **Hono**（Edge対応Webフレームワーク）
+
+#### B. PostgreSQL高度活用
+- **JSONB**による柔軟スキーマ
+- **Full-Text Search（pg_trgm + tsvector）**
+- **pgvector**（ベクトル検索）
+- **Row Level Security**
+
+#### C. Redis / Valkey
+- Cache-aside / Write-through / Write-behind
+- Pub/Sub
+- Streams（Kafka代替）
+
+#### D. Event-Driven
+- **Apache Kafka / NATS / RedPanda**
+- Exactly-once Semantics
+- Schema Registry
+
+#### E. gRPC / GraphQL
+- Protocol Buffersでスキーマ駆動
+- GraphQL Federation v2
+- DataLoader（N+1対策）
+
+#### F. Observability
+- **OpenTelemetry**（Traces/Metrics/Logs統合）
+- **Grafana / Datadog / Honeycomb**
+- SLI/SLO/SLA
+
+### 業界最新フレームワーク（2026年Q2）
+- **Hexagonal Architecture**
+- **Onion Architecture**
+- **12-Factor App**
+
+### 追加ツール
+- Hono / Bun / Deno 2
+- PostgreSQL 17 + pgvector
+- OpenTelemetry SDK
+- Drizzle ORM
+
+### 出力フォーマット拡張
+```json
+{
+  "be_implementation_id": "",
+  "runtime": "bun | deno | node",
+  "db": "postgres",
+  "cache": "redis | valkey",
+  "test_coverage_pct": 0,
+  "slo_targets": {},
+  "observability_setup": true
+}
+```
+
+### 差別化要素
+**「Bun/Deno × PostgreSQL高度活用 × Redis/Valkey × Event-Driven × gRPC × OpenTelemetryを統合するBEエンジニア」**
