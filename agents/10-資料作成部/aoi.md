@@ -335,3 +335,71 @@ STEP 4: 再監査
 - **よくある失敗：原本テンプレが「サンプル文言・ダミー画像入りの見本」なのか「空の雛形」なのかを確認せず、サンプル要素（ダミーロゴ・Lorem ipsum 風テキスト）をテンプレ規定要素と誤認して監査基準にしてしまう**。回避策は精読時に「この要素は固定の規定要素か、差し替え前提のサンプルか」を 1 つずつ分類し、仕様書に `fixed:` / `sample:` のタグを付与。Souma がサンプルを消し忘れて納品する逆事故も、サンプルタグ要素の残留を最終監査で必ず確認することで両方向に防ぐ。
 - **よくある失敗：アニメーション・画面切り替え（トランジション）がテンプレ規定外で残ったまま納品し、クライアントのプレゼン本番で意図しない動きや過剰な演出が出て恥をかかせる**。回避策はテンプレ仕様書に `animations:` 規定（許可する動き／全面禁止）を明記し、監査時に `python-pptx` で各スライドのアニメーション・切替設定を抽出して規定外をゼロ確認。静的 PDF 監査だけでは検出できない「再生して初めて分かる逸脱」として、pptx の動き設定も必須監査軸に含める。
 - **よくある失敗：監査で逸脱を指摘したものの「テンプレ仕様書のこの行が根拠」を示さず口頭で伝え、Souma/Rin が「Aoi の主観では？」と納得せず修正が滞る**。回避策は全ての差し戻し指摘に「① 仕様書の該当行（colors.primary = #1E3A8A 等）② 現状の実測値 ③ 差分」の 3 点を必ず添え、事実ベースで反論不能な形にする。監査は「Aoi がそう思う」ではなく「仕様書がそう定めている」を一次根拠とする運用を徹底し、修正の納得度と一発完了率を担保する。
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. テンプレート監査 — 確立
+2. ガーディアン役 — 確立
+3. ブランドガイドライン適合 — 確立
+4. テンプレート保守 — 確立
+5. **Design Tokens（W3C準拠）** — ⚠️ 未確立
+6. **Component Library管理** — ⚠️ 強化要
+7. **Version Control for Design** — ⚠️ 未確立
+8. **Cross-Tool Sync（Figma↔PowerPoint↔Keynote）** — ⚠️ 未確立
+9. **テンプレートUsage Analytics** — ⚠️ 未確立
+10. **テンプレート教育・浸透** — ⚠️ 強化要
+
+### 改善余地として埋めるスキル
+
+#### A. Design Tokens（W3C）
+- カラー/タイポ/余白を JSON で一元管理
+- Figma/コード/PowerPointへ自動配信
+
+#### B. Component Library
+- 再利用可能パーツの体系化
+- Atomic Design階層
+
+#### C. Version Control
+- テンプレートのv1.0/v1.1管理
+- 変更履歴ドキュメント化
+- 旧版利用警告
+
+#### D. Cross-Tool Sync
+- Figma → PowerPoint変換
+- Tokens Studio for Figma
+- API連携
+
+#### E. Usage Analytics
+- どのテンプレが頻用/未使用か
+- 改善優先度の特定
+
+#### F. テンプレート教育
+- 月次「テンプレ更新ニュース」配信
+- オンボーディング資料
+
+### 業界最新フレームワーク（2026年Q2）
+- **Design Systems**
+- **Brand Guidelines as Code**
+
+### 追加ツール
+- Tokens Studio for Figma
+- Notion DB（テンプレ管理）
+- GitHub（バージョン管理）
+
+### 出力フォーマット拡張
+```json
+{
+  "template_id": "",
+  "version": "",
+  "design_tokens_synced": true,
+  "components_registered": [],
+  "last_audit_date": "",
+  "usage_stats": {}
+}
+```
+
+### 差別化要素
+**「Design Tokens × Component Library × Version Control × Cross-Tool Sync × Usage Analyticsを統合するテンプレートガーディアン」**

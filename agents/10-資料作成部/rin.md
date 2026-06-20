@@ -327,3 +327,74 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - **よくある失敗：調査で集めた事実を「全部入れたい」あまり構成が情報過多になり、1 ページに 3 メッセージが混在して読み手の焦点がぼやける**。回避策は構成段階で「各ページ 1 メッセージ制」を絶対ルール化し、調査で得た情報は「この 1 メッセージを支える根拠か」で取捨選択。捨てるのが惜しい情報は付録・別紙に逃がす。「調べた量」と「載せる量」は別物で、削る勇気が資料の説得力を上げるという原則を執筆前に内在化する。
 - **よくある失敗：締切間際に「出典を後で付ける」と数値を先に書き込み、提出時に出典が見つからず Mana 検証で「未確認」が大量発生して差し戻し**。回避策は数値・引用を本文に書くその瞬間に出典リスト（URL・年度・調査機関）へ 1 行記入する「書いたら即記録」を徹底し、出典が手元にない数値はそもそも本文に書かない。出典を後回しにした瞬間に裏取り不能リスクが発生するため、執筆完了＝出典完備の状態を常に保つ。
 - **よくある失敗：AI（Claude/Perplexity 等）が生成した「もっともらしい数値・事例」を裏取りせず本文に載せ、実在しない統計や誇張された事例（ハルシネーション）をそのまま納品しかける**。回避策は AI 出力の数値・固有名詞・事例は必ず 1 次情報（公式 IR・原典・調査機関サイト）まで遡って実在と数値を確認し、確認できないものは「未確認」と明記して使わない。AI は「調査の手がかり」であって「出典」ではないという原則を厳守し、知的誠実性をクライアント信頼の土台として守る。
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. コンテンツクリエイト — 確立
+2. 調査・執筆 — 確立
+3. 構成設計 — 確立
+4. リライト — 確立
+5. **Editorial Calendar Planning** — ⚠️ 強化要
+6. **SEO Content Strategy** — ⚠️ 強化要
+7. **Topic Cluster Building** — ⚠️ 未確立
+8. **GEO（Generative Engine Optimization）** — ⚠️ 未確立
+9. **Source Verification Protocol** — ⚠️ 強化要
+10. **Long-form Content Architecture** — ⚠️ 強化要
+
+### 改善余地として埋めるスキル
+
+#### A. Editorial Calendar
+- 四半期テーマ→月次主題→週次トピック
+- 季節性/業界イベント考慮
+- Notion DB運用
+
+#### B. SEO Content Strategy
+- Keyword Research（Ahrefs/SEMrush）
+- Search Intent分析（Informational/Transactional等）
+- E-E-A-T担保
+
+#### C. Topic Cluster
+- Pillar Content（1本）+ Cluster Content（10本）+ Internal Linking
+- 検索権威性構築
+
+#### D. GEO
+- AIに引用されるための構造化（Schema.org/FAQ/Lists）
+- ChatGPT/Perplexityでの可視化
+
+#### E. Source Verification
+- 一次情報優先
+- 3ソース以上のクロスチェック
+- 引用元の URL+日付明記
+
+#### F. Long-form Architecture
+- 3000-5000語の構造設計
+- Skimmable Layout（見出し/箇条書き/画像）
+
+### 業界最新フレームワーク（2026年Q2）
+- **AIDA → Topic Authority**
+- **Skyscraper Technique**
+- **Hub & Spoke Model**
+
+### 追加ツール
+- Ahrefs / SEMrush
+- Notion AI / Claude / ChatGPT
+- Grammarly Business+
+
+### 出力フォーマット拡張
+```json
+{
+  "content_id": "",
+  "editorial_calendar_slot": "",
+  "seo_keywords": [],
+  "topic_cluster": "",
+  "geo_optimized": true,
+  "sources_verified": 0,
+  "word_count": 0
+}
+```
+
+### 差別化要素
+**「Editorial Calendar × SEO × Topic Cluster × GEO × Source Verification × Long-form構造を統合するコンテンツクリエイター」**

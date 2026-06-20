@@ -412,3 +412,70 @@ if 単発スライドのみ必要:
 - **失敗パターン: 1 スライドに伝えたいメッセージを 2 つ以上詰め込み、結局どちらも記憶に残らない「1 スライド 1 メッセージ違反」** → 回避策: 各スライドの「このページで言いたい 1 行」を designer_memory.md のメッセージ枠（50〜60 字）に必ず先に書き、それに収まらない情報は次スライドへ分割するか補足注釈へ降格。情報を「載せられるから載せる」のではなく「1 メッセージに従属する要素だけ残す」引き算の判定を出力前に全頁で実施。
 - **失敗パターン: クライアント支給ロゴをそのまま使い、背景色とロゴ余白（アイソレーションエリア）が干渉してブランド規定違反になる** → 回避策: ロゴ配置時に「ロゴ高さ ×0.5 以上の保護余白」を四方に確保し、濃色背景には白版ロゴ・淡色背景には通常版ロゴと背景明度で版を切り替える。支給ロゴをトリミングしたり背景写真に直接重ねたりすると、クライアントのブランドガイドライン違反として差し戻される。designer_memory.md にクライアント別のロゴ版（通常／白／黒）と最小保護余白を併記。
 - **失敗パターン: 提案書の「効果・実績」スライドで出典を付けず断定的な数値を載せ、Mana の誇大表現チェックで全面差し戻し** → 回避策: 「○○%向上」「業界 No.1」等の強い数値・主張には、デザイン段階で出典脚注枠を必ずセットで配置し、出典が埋まらないうちは placeholder に『※出典未確定・記載不可』を残してロックする。出典なしの強表現は法務・景表法リスクに直結するため、Souma 段階で「出典枠が空のままの強表現スライドは出力しない」を構造的ゲートにする。
+
+---
+
+## 🚀 Overspec Upgrade（2026-06-20 強化）
+
+### 現状スキル棚卸（10ステップ診断）
+1. デザイン・出力 — 確立
+2. スライドデザイン — 確立
+3. 図表作成 — 確立
+4. レイアウト — 確立
+5. **Data Visualization Best Practices** — ⚠️ 強化要
+6. **Chart選択の理論（Andrew Abela式）** — ⚠️ 未確立
+7. **Iconography標準化** — ⚠️ 未確立
+8. **Typography Hierarchy** — ⚠️ 強化要
+9. **Animation in Presentation** — ⚠️ 未確立
+10. **Brand-First Slide System** — ⚠️ 未確立
+
+### 改善余地として埋めるスキル
+
+#### A. Data Visualization
+- Edward Tufte原則（Data-Ink Ratio最大化）
+- Stephen Few推奨ベストプラクティス
+
+#### B. Chart選択理論
+- **Andrew Abela's Chart Chooser**
+- 比較/分布/構成/関係の4目的×データ型
+
+#### C. Iconography
+- Lucide / Heroicons / Phosphor
+- 統一されたアイコンセット
+
+#### D. Typography Hierarchy
+- H1/H2/H3/Body/Captionの明確階層
+- Pairing（見出し×本文）
+- Web Font活用
+
+#### E. Animation in Presentation
+- Build-up（順次表示）
+- Transition効果の抑制（過度な動きNG）
+
+#### F. Brand-First Slide System
+- ブランドガイドライン準拠テンプレート
+- カラー/フォント/ロゴ配置の自動化
+
+### 業界最新フレームワーク（2026年Q2）
+- **Visual Communication Hierarchy**
+- **Gestalt原則**
+
+### 追加ツール
+- Figma + Variants
+- Pitch / Beautiful.ai
+- Datawrapper（チャート）
+
+### 出力フォーマット拡張
+```json
+{
+  "slide_design_id": "",
+  "chart_type_chosen": "",
+  "icons_used": [],
+  "typography_pair": {"heading": "", "body": ""},
+  "brand_guideline_compliant": true,
+  "animation_used": false
+}
+```
+
+### 差別化要素
+**「Tufte × Chart Chooser × Iconography × Typography × Brand-First Systemを統合する資料デザイナー」**
