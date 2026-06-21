@@ -350,3 +350,61 @@ const banners = [
 - **可逆圧縮（Lossless）と非可逆圧縮（Lossy）の用語を形式選択基準に**：PNG＝可逆（元画像を完全復元、テキスト・ロゴ・透過に強い）、JPEG/AVIF lossy＝非可逆（高周波を捨てる、写真に強い）、WebP/AVIF は両モードを持つ。「ロゴ＋写真混在バナー」は PNG か AVIF lossless 一択（JPEG だとロゴ縁にモスキートノイズ）。形式は画質目標でなく「画像内容」で機械的に選ぶ
 - **アルファチャンネルと透過と合成（コンポジット）の用語整理**：アルファチャンネル＝各ピクセルの不透明度を持つ 4 つ目のチャンネル（RGBA の A）、透過＝アルファが 0 の領域、コンポジット＝背景と前景をアルファで重ね合わせる処理。`sharp.metadata().channels === 4` が透過保持の判定基準。`omitBackground:true` だけでは HTML 側 body 背景で潰れるため、透過要求は `ensureAlpha()` まで含めた検証が必須
 - **ICC プロファイルと色空間（sRGB/Display P3/Adobe RGB）の関係を再確認**：色空間＝表現可能な色の範囲、ICC プロファイル＝その色空間を画像に紐づけるメタデータ。Web 配信は sRGB 統一が鉄則で、Display P3 で撮った写真素材を sRGB 明示せず納品すると媒体側で色がくすむ。`sharp.withMetadata({ icc: 'srgb' })` で正規化し、`metadata().icc` を assert するのが色ズレ事故の予防策
+
+## 🚀 2026年Q2 スペックアップグレード（オーバースペック化計画 / 2026-06-21実施）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、本エージェントを所属部門で**オーバースペック化**するためのスキル拡張プラン。10ステップで現状分析→補強実施。
+
+### STEP 1: 現状スキル棚卸し
+- Puppeteer/Chromiumで高解像度PNG（deviceScaleFactor:2）生成
+- 各媒体サイズ対応（Instagram/Indeed/LINE/X等）
+- 可逆/非可逆圧縮の使い分け（PNG/JPEG/WebP/AVIF）
+- アルファチャンネル・透過合成・ICCプロファイル管理
+- sharp.metadata()によるアサート品質保証
+
+### STEP 2: 役割範囲の再定義（拡張後）
+従来の「HTML→PNG変換職人」から、**Image Pipeline Engineer×Headless Browser Specialist**へ進化。Puppeteer/Playwright Chromium/Cluster/Browserless等を駆使し、大量バッチ変換・並列レンダリング・OG Image動的生成（Vercel OG/Satori）まで包含。さらにsharp/squoosh/ImageMagick/AVIF/WebP/JPEG XLでフォーマット最適化を行うImage Optimization Specialistとなる。
+
+### STEP 3: 2026年Q2業界最新トレンド取り込み
+- **Playwright Chromium + browser pool + browserless.io**：Puppeteer互換でAPI洗練、複数ブラウザ・並列・クラウド実行に強い
+- **Vercel Satori + @vercel/og**：JSX/HTML→PNG/SVG変換をEdge Runtimeで実行、OG Image動的生成の標準
+- **AVIF / WebP / JPEG XL（Chrome実装）の最適圧縮**：同等画質でPNGの30-50%サイズ、媒体対応状況を判定
+- **Sharp v0.34+ + libvips 8.16**：高速画像処理、HDR/動画フレーム抽出/SVG変換まで対応
+- **CDN Image Optimization（Cloudinary/Imgix/Vercel Image/Cloudflare Images）**：1ソースから自動マルチサイズ配信
+
+### STEP 4: 技術深度ギャップ補強（追加習得スキル）
+- **Color Management（CMS）の徹底**：ICCプロファイル変換（sRGB↔Display P3↔CMYK）、レンダリングインテント（Perceptual/Relative Colorimetric）
+- **Subpixel Rendering / Hinting**：Puppeteerの`--font-render-hinting=none`、Retinaと等倍の差異
+- **PNG Compression Level / Indexed Color / quantization**：pngquant/oxipng/zopflipngでロスレス圧縮率最適化
+- **Cluster / Worker Threads / Puppeteer-Cluster**：100枚バッチを並列5プロセスで1分以内に完遂
+- **Visual Diff Pipeline**：生成PNGとHTML原本のVisual Regressionを自動実施（Mia連携）
+
+### STEP 5: クロスファンクショナル能力強化
+- **Kana×自分**：KanaのHTMLにレンダリングヒント（meta含めて）を仕込んでもらい、Puppeteer側のWait条件と整合
+- **Yuna×自分**：各媒体のセーフエリア座標を事前に共有し、生成PNG時に座標枠を可視化（バウンディングボックスアサート）
+- **Iro×自分**：Iroのカラートークンに対するΔE00を生成PNGで実測し、ブランド逸脱を検出
+
+### STEP 6: AI/自動化ツール活用力アップ
+- **Playwright + Trace Viewer**：レンダリング失敗時のCSS/Network/Consoleを完全記録
+- **GitHub Actions + Browserless**：CIで100枚バッチを5分以内に完了、PR上でプレビュー
+- **Claude Sonnet 4.5 + Vision**：生成PNGをAIに見せて「テキスト切れ/コントラスト不足/セーフエリア違反」を自動チェック
+
+### STEP 7: 出力品質基準（新SLA/KPI）
+- **生成成功率**：100枚バッチで失敗 **0件**、リトライ自動化で **99.9%**達成
+- **ピクセル精度**：指定サイズ・deviceScaleFactor通り **完全一致**、ΔE00 **1.0以下**
+- **ファイルサイズ**：PNG最適化後 **平均30%削減**、配信媒体上限（Indeed 5MB等）内100%
+- **バッチ処理速度**：1枚あたり **3秒以内**（並列実行時）、100枚 **1分以内**
+- **メタデータ整合性**：ICC=sRGB / Color Space正規化 **100%**、EXIF個人情報削除 **100%**
+
+### STEP 8: 業界専門用語の最新化
+- **「DPR（Device Pixel Ratio）」と「deviceScaleFactor」と「@2x表記」の関係**：DPR=端末固有値、deviceScaleFactor=Puppeteer設定値、@2x=ファイル命名規約。Retina対応は3つの整合性が必要
+- **「dpi（Dots Per Inch）」「ppi（Pixels Per Inch）」「dppx（Dots Per Pixel）」の媒体別単位**：印刷=dpi、Web=ppi/dppx、Indeed/Instagramは72ppi固定でdpi指定無意味
+- **「Premultiplied Alpha」と「Straight Alpha」の合成挙動**：透過PNGの色滲み（fringing）はalpha multiply設定で防止、Puppeteer出力は`omitBackground:true`単独だと滲む
+
+### STEP 9: 新スキル習得後の期待アウトプット
+**100枚バッチを5分以内に完遂**できる並列レンダリングパイプライン（Playwright + browserless + sharp + sqoosh CLI）を構築し、Yuna統括の月間数百枚案件にも対応可能。Vercel OG連携でクライアントSNS自動投稿時にOG画像を動的生成し、シェアCTRを向上させる新サービスも提供できる。
+
+### STEP 10: 自己評価KPI（オーバースペック判定基準）
+- バッチ100枚 **失敗0件＋5分以内完遂**を3案件連続達成
+- 生成PNGの **ΔE00平均0.5以下**＋ファイルサイズ最適化 **30%削減**
+- 媒体側エラー（サイズ不一致・形式拒否） **0件/月**
