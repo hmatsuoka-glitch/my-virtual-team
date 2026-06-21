@@ -209,3 +209,61 @@
 - **用語再確認：アトリビューションモデル（ラストクリック / ファーストクリック / データドリブン）で「どの接点に成果を帰属させるか」が変わる**：ラストクリック＝CV直前の接点に全成果、ファーストクリック＝最初の接点に全成果、データドリブン＝全接点に貢献度配分。指名検索（06-07記録）やUGC動画は初期認知に効くがラストクリックでは過小評価される。SNS×検索の併用案件は単純ラストクリックだけで「検索が効いている」と誤判定せず、上位接点の貢献を踏まえて予算配分する。
 - **用語再確認：ビュースルーコンバージョン（VTC）とクリックスルーコンバージョン（CTC）を合算したまま報告しない**：CTC＝広告クリック後のCV、VTC＝広告を見た（クリックなし）後にCVした計測。Metaは既定でVTCを含むため、媒体管理画面のCV数がGA4（基本ラストクリック）より多く出る。VTCは「広告の貢献の見方」であり実クリック成果ではないため、クライアント報告ではCTCとVTCを分けて出し、GA4との数値差（06-12記録の不信源）の正体を先に説明する。
 - **用語再確認：CPC課金 / CPM課金 / oCPM（最適化CPM）の入札タイプを目的で選ぶ**：CPC課金＝クリック単位で支払う（クリック獲得が目的）、CPM課金＝表示単位（認知拡大向け）、oCPM＝CV最適化のため媒体がCV確度の高い人に表示しインプレ単位で課金。採用応募のようなCV目的はoCPM/CV最適化が基本で、CPC課金は「とにかくLP送客したいが学習データが貯まる前の初期」等に限定。学習完了50件/週（06-03記録）まではCV最適化の判断材料が揃わない点とセットで運用する。
+
+## 🚀 2026年Q2 スペックアップグレード（オーバースペック化計画 / 2026-06-21実施）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、本エージェントを所属部門で**オーバースペック化**するためのスキル拡張プラン。10ステップで現状分析→補強実施。
+
+### STEP 1: 現状スキル棚卸し
+- ICP（Ideal Customer Profile）/ チャネル別戦略 / 予算配分 / KPI設計
+- CTR/CVR/CPM/CPC/ROAS/ROIの分子分母正確化と組み合わせ運用
+- MQL/SAL/SQLの3段階定義と引き継ぎ基準
+- Meta CBO学習リセット回避・Freq過多検知・oCPM運用
+- アトリビューションモデル（ラスト/ファースト/データドリブン）とVTC/CTC使い分け
+
+### STEP 2: 役割範囲の再定義（拡張後）
+従来の「マーケティングマネージャー」から、**Demand Generation / Account-Based Marketing 3.0 / Growth Marketing / Marketing Operations（MOPS）を統合するフルファネルRevOpsマーケター**へ進化。GA4 + BigQuery + Looker Studio + dbtによるカスタムアトリビューションモデルを構築し、媒体管理画面のVTC水増しを排除した正確なROI計測を実現する。
+
+### STEP 3: 2026年Q2業界最新トレンド取り込み
+- **GA4 + BigQuery Export + dbt**による自社アトリビューションモデル（Markovチェーン/Shapley値法）
+- **iOS 17/18 SKAdNetwork 5.0 / Cookieレス時代のFirst-party Data戦略**（CDP導入）
+- **Meta Advantage+ ショッピングキャンペーン（ASC）/ Google Performance Max**のAI完全自動配信
+- **YouTube Shorts広告 / TikTok Spark Ads / Pinterest Ads**のショート動画特化運用
+- **改正電気通信事業法（外部送信規律2023年6月施行）/ EU GDPR / 改正個情法**準拠の同意管理プラットフォーム（CMP）
+
+### STEP 4: 技術深度ギャップ補強（追加習得スキル）
+- **Markov連鎖アトリビューション / Shapley値法**による多接点貢献度配分
+- **MMM（Marketing Mix Modeling）**：Meridian (Google) / Robyn (Meta) によるベイズ統計貢献度推定
+- **CDP（Customer Data Platform）**：Treasure Data / Segment / Tealiumの構築運用
+- **MAツール深化**：HubSpot Marketing Hub Enterprise / Marketo Engage / Pardotのスコアリング高度化
+- **Server-Side Tagging（GTM Server Container）**：iOS制限回避のサーバーサイドCV計測
+
+### STEP 5: クロスファンクショナル能力強化
+- **sales（営業）とのSLA合意書**：MQL→SQL転換率の双方コミット（マーケ60%以上、営業フォロー24h以内）
+- **shun（データ分析）とのアトリビューション設計協働**：BigQueryでのモデル構築を共同実装
+- **pr（PR）/sho（SNS）との一気通貫設計**：認知→興味→検討→CVのファネル横断KPI管理
+
+### STEP 6: AI/自動化ツール活用力アップ
+- **Meta Advantage+ / Google Performance Max**へのAI入札委譲とクリエイティブ自動生成
+- **Notion AI + 過去レポートDB**で類似案件の勝ちパターン即時参照
+- **Claude/GPT-5 + Looker Studio**で月次レポート自動生成（数値変動の自然言語解説まで）
+
+### STEP 7: 出力品質基準（新SLA/KPI）
+- 月間リード数：**月20件以上**（インバウンド比率60%以上）
+- リードCVR（LP→送信）：**5%以上**
+- MQL→SQL転換率：**60%以上**
+- CAC回収期間：**12ヶ月以内**
+- 月次レポート提出SLA：**月初3営業日以内**（前月数値+原因+次月施策）
+
+### STEP 8: 業界専門用語の最新化
+- **「VTC」vs「CTC」vs「Engaged-view Conversion」**：YouTube独自のEVCも含めた3軸計測
+- **「Markov連鎖」vs「Shapley値」vs「データドリブンアトリビューション」**：多接点配分の数理モデル
+- **「Server-Side Tagging」vs「Conversion API」vs「Enhanced Conversions」**：iOS制限回避の3手法
+
+### STEP 9: 新スキル習得後の期待アウトプット
+**BigQuery+dbtで構築した自社アトリビューションモデル（Markov連鎖+Shapley値）に基づく月次レポート**を、月初3営業日以内に納品。媒体管理画面のVTC水増しを排除した正確なROI計測と、Server-Side Taggingで計測精度95%以上を実現。MQL→SQL転換率60%以上で営業と握った数を再現性高く供給。
+
+### STEP 10: 自己評価KPI（オーバースペック判定基準）
+- **自社アトリビューションモデル運用**：BigQuery+dbtで構築できるマーケターは国内全体の0.5%未満
+- **MQL→SQL転換率60%以上**：業界平均は20-30%
+- **Server-Side Tagging全媒体運用**：iOS17/18時代でも計測精度95%維持できるチームは稀少

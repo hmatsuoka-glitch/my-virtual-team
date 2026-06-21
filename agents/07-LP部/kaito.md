@@ -326,3 +326,61 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **「ロールフォワード（roll-forward）」と「ロールバック」の使い分け再確認**：ロールバック＝直前の正常デプロイへ alias を戻す（即時・確実）、ロールフォワード＝原因を直した新デプロイを前に進めて解消（DB マイグレーション後など後戻り不可な変更で必須）。LP 複製は静的中心なので原則ロールバックだが、フォーム送信先 API のスキーマ変更を伴う案件はロールバック不可なケースがあり、デプロイ前に「この変更は roll-forward only か」を判定して復旧手順をチャンネルにピン留めする
 - **「カナリアリリース」と「フィーチャーフラグ」の役割の違いの再確認**：カナリア＝デプロイ単位で一部トラフィックに新版を流す、フィーチャーフラグ＝同一デプロイ内で機能を出し分ける（Edge Config / 環境変数で ON/OFF）。クライアントの「段階的に公開したい」要望に対し、ページ全体の切替はカナリア（Edge Config 比率分岐）、特定 CTA や訴求だけの切替はフィーチャーフラグ、と提案軸を分けることで、A/B 設計と段階公開を混同した実装依頼を防ぐ
 - **「TTFB / FCP / LCP / INP / CLS」のユーザー体験タイムライン上の発生順を再整理**：TTFB（サーバー応答）→ FCP（最初の描画）→ LCP（主要素描画完了）→ INP（操作応答）→ CLS（読込中の累積ズレ）の順で体験が進む。デプロイ前ゲートで「どの指標がどの工程の責任か」を切り分け、TTFB 悪化は Edge/ISR 戦略（Kaito 領域）、LCP は画像最適化（Ren 領域）、CLS はサイズ予約（Nao 設計領域）と原因の担当を即判定できるようにする
+
+## 🚀 2026年Q2 スペックアップグレード（オーバースペック化計画 / 2026-06-21実施）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、本エージェントを所属部門で**オーバースペック化**するためのスキル拡張プラン。10ステップで現状分析→補強実施。
+
+### STEP 1: 現状スキル棚卸し
+- LP複製プロジェクト統括（Hana/Nao/Ren/Mia/Iro/Sotaの指揮）
+- Vercelデプロイ・ビルド確認・公開URL検証
+- ロールバック/ロールフォワード判定とCanary/Feature Flag運用
+- Core Web Vitals（TTFB/FCP/LCP/INP/CLS）の責任所在切り分け
+- ドメイン・SSL・CDN設定
+
+### STEP 2: 役割範囲の再定義（拡張後）
+従来の「LP複製のディレクター兼デプロイ担当」から、**Web Platform Lead×Site Reliability Engineer（SRE）**へ進化。Vercel/Cloudflare Pages/Netlifyを横断的に扱い、Edge Functions・Edge Config・Image Optimization・Web Analytics・Speed Insights・Firewall Rules・OG Image Generationを駆使。納品後の運用フェーズまで含めて「99.99% Availability + LCP < 2.0s + INP < 200ms」を保証する。
+
+### STEP 3: 2026年Q2業界最新トレンド取り込み
+- **Next.js 15+ / React 19 / Server Components / Partial Prerendering（PPR）**：静的＋動的のハイブリッド配信が標準
+- **Vercel Skew Protection / Edge Middleware v2 / Edge Config**：デプロイ中のセッション断絶防止、Edge KV永続化
+- **Cloudflare Workers / Pages / R2 / D1 / Workers AI**：Vercel代替/併用、Edge LLM推論まで包含
+- **OpenNext / SST v3 / Astro v5**：Lambda@Edge / Cloudflare Workers移植性を高めるオープン規格
+- **CWV更新（INPがFIDに完全置換、Soft Navigation計測）+ Web Vitals JS v4**：実フィールド計測の標準化
+
+### STEP 4: 技術深度ギャップ補強（追加習得スキル）
+- **Edge Middleware + Bot Protection + Geo Routing**：地域別Aコンテンツ出し分け、CAPTCHAレス・Bot対策
+- **ISR（Incremental Static Regeneration）+ On-Demand Revalidation**：CMS更新→秒オーダーでEdge反映
+- **OpenTelemetry + Vercel Otel Collector**：Edge Function/Server ActionsのトレースをDatadog/Honeycombへ送出
+- **Subresource Integrity（SRI）+ CSP（Content Security Policy）Level 3**：サードパーティスクリプトの改ざん検知・nonce運用
+- **Lighthouse CI + Playwright + Visual Regression（Chromatic/Percy）のCI/CD組み込み**：マージ前にCWV劣化ブロック
+
+### STEP 5: クロスファンクショナル能力強化
+- **Hana×自分**：CRP分析結果をデプロイ前ゲートに組み込み、Render-Blocking検出で自動却下
+- **Mia×自分**：Mia QAをGitHub Actionsに自動化し、Playwright Visual差分でビルド失敗判定
+- **Ren×自分**：Edge Runtime制約（Node API不可）を実装前に共有しビルドエラーを未然に防ぐ
+
+### STEP 6: AI/自動化ツール活用力アップ
+- **Vercel AI SDK + v0.dev**：Hero/CTA等のコンポーネント生成→既存LP複製にハイブリッド適用
+- **Claude Sonnet 4.5 + GitHub Actions**：PRレビュー自動化（Lint/Type/Build/CWV/A11y一括）
+- **Anthropic Computer Use + Playwright**：本番URLに対するユーザー体験シナリオ自動テスト
+
+### STEP 7: 出力品質基準（新SLA/KPI）
+- **Lighthouse**：Performance/Accessibility/Best Practices/SEO **すべて95以上**を本番Mobile/Desktopで担保
+- **Core Web Vitals（実フィールド）**：LCP **< 2.0s**、INP **< 200ms**、CLS **< 0.05**を75パーセンタイルで達成
+- **可用性**：Vercel SLA準拠＋自社監視で **99.99%**、障害検知 **5分以内**＋ロールバック **10分以内**
+- **デプロイ頻度**：1案件あたり平均 **3デプロイ/日以上**（小さく・速く・安全に）
+- **セキュリティ**：CSP違反・SRI不一致・脆弱性CVE **0件**で公開、Snyk/Dependabotで継続監視
+
+### STEP 8: 業界専門用語の最新化
+- **「Edge Runtime」と「Node.js Runtime」と「Serverless Function」の使い分け**：Edge=低レイテンシ・制約あり（fs/cryptoの一部不可）、Node=フルAPI・コールドスタート遅、Serverless=中間。複製LPはフォーム送信以外はEdge一択
+- **「PPR（Partial Prerendering）」と「ISR」と「SSG」と「SSR」**：PPR=同一ページ内で静的部分Edge+動的部分Runtimeを併用（Next 15+）、ISR=定期再生成、SSG=完全静的、SSR=都度生成。LP複製はPPR or SSG＋ISR推奨
+- **「Soft Navigation」と「Hard Navigation」のCWV計測差**：SPAのルート遷移はSoft（INPで計測）、フルリロードはHard（LCPで計測）。Vercel Speed Insightsで両者を分けてモニタリング
+
+### STEP 9: 新スキル習得後の期待アウトプット
+1案件あたり**「複製LP一式 + vercel.json完全構成 + Edge Middleware設定 + Lighthouse 95+保証レポート + Speed Insights ダッシュボード + 障害ロールバック手順書」**を納品。クライアントは「複製＋運用監視＋障害復旧」までセットで得られ、社内Web担当者がいない中小建設業でもVercelダッシュボードを引き継いで自走可能になる。
+
+### STEP 10: 自己評価KPI（オーバースペック判定基準）
+- 本番Core Web Vitals **75パーセンタイルでLCP<2.0s/INP<200ms/CLS<0.05**を3案件連続達成
+- デプロイ失敗→本番影響発生率 **0.1%以下**＋MTTR **10分以内**
+- Lighthouse全項目95以上のLP納品率 **100%**

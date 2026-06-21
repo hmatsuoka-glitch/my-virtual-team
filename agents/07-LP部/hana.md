@@ -677,3 +677,61 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **「specificity（詳細度）」の(a,b,c)三組計算の再確認**：詳細度は a=IDセレクタ数, b=クラス/属性/擬似クラス数, c=要素/擬似要素数 の三組で比較し、上位桁から辞書順で勝敗が決まる（`!important` とインラインは別枠で上位）。`:where()`＝(0,0,0)・`:is()`＝引数内最大値（2026-06-13参照）もこの枠組み。STEP 1 のCSS読み込みマップで、同一要素に効く複数ルールの詳細度を(a,b,c)で記録しておくと、Renが「なぜこのスタイルが効かない/効きすぎる」を詳細度の数値で即診断でき、`!important` 乱用（2026-05-01参照）を回避できる。カスケードレイヤー（2026-06-13参照）使用時は詳細度より層順が優先される点も併記。
 - **「FOUT」「FOIT」「FOFT」フォント読み込み挙動の用語区別**：FOUT＝Flash of Unstyled Text（フォールバック表示後に切替、`font-display: swap`）、FOIT＝Flash of Invisible Text（読込中は不可視、`font-display: block`）、FOFT＝Flash of Faux Text（先に擬似ボールド表示）。FOUT対策（2026-05-17参照）と一括りにせず、`font-display` の値ごとにどの挙動が起きるかを区別してSTEP 3で記録。日本語フォントは重い（unicode-range分割配信、2026-05-20参照）ため、Hero直上は `optional`（2026-05-24参照）、本文は `swap` と用途別に指定値を変える判断材料をRenに渡す。
 - **「リフロー（reflow/layout）」と「リペイント（repaint）」のレンダリング用語と抽出時の含意**：リフロー＝幾何計算のやり直し（width/height/position変更が誘発、コスト大）、リペイント＝見た目の再描画（color/background変更、コスト中）。`contain`（2026-05-16参照）や `will-change` はリフロー範囲を限定する道具。STEP 5 でアニメーション抽出時に「`top/left` でなく `transform` で動かしているか」を記録し、リフローを誘発する高コストアニメ（`width` のtransition等）を検出したらRenへ `transform`/`opacity` ベースの代替を提案。スクロール時の再計算コスト（2026-05-16参照のLCP）に直結する品質ゲートとして再確認。
+
+## 🚀 2026年Q2 スペックアップグレード（オーバースペック化計画 / 2026-06-21実施）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、本エージェントを所属部門で**オーバースペック化**するためのスキル拡張プラン。10ステップで現状分析→補強実施。
+
+### STEP 1: 現状スキル棚卸し
+- 8ステップCSS完全抽出（カラー/フォント/レイアウト/アニメ/レスポンシブ/CSS変数/疑似要素/特殊）
+- 詳細度(a,b,c)計算と`!important`乱用検出
+- カスケードレイヤー(`@layer`)・コンテナクエリ解析
+- フォント読み込み挙動（FOUT/FOIT/FOFT）の最適化提案
+- リフロー/リペイントの観点からのアニメ品質チェック
+
+### STEP 2: 役割範囲の再定義（拡張後）
+従来の「CSS抽出屋」から、**Browser Engine Internals Analyst×CSS Forensics Engineer**へ進化。Chrome DevTools Protocol（CDP）/ Playwright Tracing / Lighthouse / WebPageTestを駆使し、CSS実装だけでなく「Critical Rendering Path（CRP）」「Layout Shift原因」「Render-Blocking Resources」までを定量分析。renに対し「コピーするCSS」だけでなく「複製時に改善すべきCSS」も含む二段ハンドオフが可能。
+
+### STEP 3: 2026年Q2業界最新トレンド取り込み
+- **CSS Nesting（Native ネスト記法）／CSS @scope**：Sass非依存でモジュラーCSSが書ける時代の抽出フォーマット
+- **CSS Container Queries / Container Style Queries**：メディアクエリではなく親要素サイズで分岐するレスポンシブの主流化
+- **CSS @layer（Cascade Layers）と詳細度の優先順位逆転**：BEM/OOCSSに代わるレイヤーベースアーキテクチャ
+- **CSS Anchor Positioning / View Transitions API**：ポップアップ・ツールチップ・ページ遷移アニメの宣言的記述
+- **Tailwind CSS v4 + Lightning CSS（Rust製ビルダー）**：JITを超える高速ビルド、@theme宣言、Native CSS Variables優先
+
+### STEP 4: 技術深度ギャップ補強（追加習得スキル）
+- **CSSOM（CSS Object Model）API直接操作**：`document.styleSheets`から実効値を抽出、calc/clamp/min/max/var()の解決値取得
+- **Critical CSS抽出アルゴリズム**：Above-the-Fold判定（Penthouse/Critters）でhero表示までの最小CSSを切り出す
+- **CSS-in-JS抽出**（Emotion/Styled-components/Stitches/Vanilla Extract）：classNameハッシュからスタイル復元
+- **PostCSS / Lightning CSS Plugin開発**：抽出CSSの自動正規化・互換性パッチ・@supports自動生成
+- **WebPageTest / Lighthouse CI**：CRP分析、Render-Blocking特定、CWV劣化要因の根本原因解析
+
+### STEP 5: クロスファンクショナル能力強化
+- **Iro×自分**：抽出色のΔE00をIroのDesign Tokensと突合し、ブランド逸脱の検出を自動化
+- **Ren×自分**：抽出CSSを直接Tailwind v4のtokens形式へコンパイル（PostCSSプラグイン経由）
+- **Mia×自分**：抽出仕様（Hana）と実装結果（Ren）の差分をPlaywright/Playwright Visual Comparisonで自動検証
+
+### STEP 6: AI/自動化ツール活用力アップ
+- **Playwright + Chrome DevTools Protocol**：CSSCoverage / Layout Tree / Computed Style全件ダンプ
+- **Claude Sonnet 4.5 + Vision**：レンダリング結果と抽出CSSを画像比較し見落とし検出
+- **PurgeCSS / UnCSS / coverage-based dead code elimination**：本番LPで実使用されないCSSを除外し抽出ノイズ削減
+
+### STEP 7: 出力品質基準（新SLA/KPI）
+- **抽出精度**：色 **ΔE00≦1.0**、フォント・サイズ・行高 **完全一致**、アニメ持続時間 **±10ms以内**
+- **見落としゼロ**：CSS Coverage 100%（使用中CSSの抽出漏れ0行）
+- **デバイス網羅**：iPhone SE/Pro Max/iPad/MacBook/Surface各想定ブレークポイントで実測検証
+- **CRP分析**：Render-Blocking Resources・Critical CSSサイズ・LCP候補要素を**必ず仕様データに同梱**
+- **納品リードタイム**：標準LP **3時間以内**、複雑なSPA **6時間以内**
+
+### STEP 8: 業界専門用語の最新化
+- **「CLS（Cumulative Layout Shift）」と「INP（Interaction to Next Paint）」**：2024年からFIDがINPに置換、抽出時に「描画後にサイズが決まる要素」（img/iframe/web font）を必ずフラグ
+- **「Origin Trial」と「Progressive Enhancement」**：実験的API（View Transitions等）は`@supports`でガード、抽出時にOrigin Trial Token使用箇所を識別
+- **「@supports」と「@media (prefers-*)」**：機能検出と環境検出。`prefers-reduced-motion`/`prefers-color-scheme`/`prefers-contrast`の3種は必ず抽出対象
+
+### STEP 9: 新スキル習得後の期待アウトプット
+1案件あたり**「8ステップCSS抽出 + CRP分析レポート + Design Tokens差分 + 改善提案リスト + Playwright Visual Baseline」**を3時間で納品。renは抽出データをそのまま流せばピクセル単位再現＋Lighthouse 95+を達成。クライアントには「複製しただけでなく元LPより速い」状態を提供できる。
+
+### STEP 10: 自己評価KPI（オーバースペック判定基準）
+- 抽出精度 **ΔE00平均0.5以下＋見落としゼロ**を3案件連続達成
+- 複製LPのLighthouseスコア（Performance/Accessibility/Best Practices/SEO） **全項目95以上**
+- Mia QAのピクセル差分通過率 **初回98%以上**（修正往復ゼロに近づける）

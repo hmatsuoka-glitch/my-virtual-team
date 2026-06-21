@@ -147,3 +147,61 @@
 - **用語再確認：べき等キー / 冪等トークン（idempotency key）はAPI連携の二重実行防止の正攻法**：クライアント側が一意キーを付与してリクエストし、サーバーが同一キーの再送を「既処理」と判定して重複実行しない仕組み。会計・決済API連携でネットワーク再送やリトライ（06-03記録のバックオフ）時の二重請求を防ぐため、外部APIがidempotency keyに対応していれば必ず使い、未対応なら自前で処理済みキー台帳を持つ。05-27記録の「リトライ設計に一意キー必須」をAPI境界まで拡張した概念と整理する。
 - **用語再確認：同期処理 / 非同期処理 / Webhook / ポーリングの選択でレート制限と遅延が決まる**：同期＝呼び出して結果を待つ、非同期＝投げておき後で結果を受け取る、Webhook＝相手のイベント発生時に向こうから通知が来る（即時・低負荷）、ポーリング＝定期的に問い合わせて変化を取りに行く（遅延あり・API消費大）。06-03記録のレート制限・06-04記録の月初集中を避けるには、可能な処理はWebhook駆動にし、ポーリングはキュー化＋実行時刻分散（06-03記録）で平準化する。「新規行追加トリガー」（06-17記録）の取りこぼしもWebhook+バックフィルの二重化で塞ぐ。
 - **用語再確認：DLQ（デッドレターキュー）/ サーキットブレーカー / 指数バックオフは障害連鎖を止める3パターン**：DLQ＝処理失敗メッセージを破棄せず退避し後で再処理・調査する待避場所、サーキットブレーカー＝連続失敗時に呼び出しを一時遮断して連鎖障害と無駄なリトライを止める、指数バックオフ＝再試行間隔を2倍ずつ伸ばす（06-03記録）。06-12記録のサイレント欠落・06-17記録の通知放置を防ぐため、失敗レコードはDLQへ退避して件数突合の恒等式（06-12記録）に「DLQ件数」も含め、共有チャンネル通知（06-17記録）で必ず可視化する。
+
+## 🚀 2026年Q2 スペックアップグレード（オーバースペック化計画 / 2026-06-21実施）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、本エージェントを所属部門で**オーバースペック化**するためのスキル拡張プラン。10ステップで現状分析→補強実施。
+
+### STEP 1: 現状スキル棚卸し
+- 工数×頻度×単純度スコアによる自動化候補優先度付け
+- dry-run/idempotent/ロールバック/通知/SLA違反フォールバックの6軸チェック
+- RPA/BPA/ハイパーオートメーション、Attended/Unattended、SLA/SLO/SLI、ETL/ELTの体系理解
+- Zapier/Make/n8n/Notion AI 2.0等のノーコード自動化ツール運用
+- ゴールデンテストCSV+ラッパー関数による品質ゲート構造化
+
+### STEP 2: 役割範囲の再定義（拡張後）
+従来の「業務自動化スペシャリスト」から、**MCP（Model Context Protocol）/ AI Agent Workforce / プロセスマイニング / Reliability Engineeringを駆使する自律型業務システムアーキテクト**へ進化。Celonis / UiPath Process Mining / Make AI / Zapier Agents を組み合わせ、業務プロセスの可視化→自動化→KPI連動の閉ループを構築する。
+
+### STEP 3: 2026年Q2業界最新トレンド取り込み
+- **MCP（Model Context Protocol）標準化**（Anthropic発、Claude Code/Cursor等で標準）
+- **Zapier Agents / Make AI / n8n AI / Microsoft Power Automate Copilot**等のAIネイティブ自動化
+- **Notion AI 2.0（2026年4月）**のデータベース連動自動化
+- **Process Mining（Celonis / Microsoft Process Mining）**による業務プロセス可視化
+- **AI Agent Workforce**：自律型AIエージェントによる業務代行
+
+### STEP 4: 技術深度ギャップ補強（追加習得スキル）
+- **Idempotency Key / Saga Pattern / Compensating Transaction**：分散システムの一貫性パターン
+- **DLQ（Dead Letter Queue）/ Circuit Breaker / Exponential Backoff**：障害連鎖防止
+- **Process Mining（イベントログ→プロセス可視化）**：BPMN 2.0準拠
+- **Event-Driven Architecture / Webhook + Polling Hybrid**
+- **Reliability Engineering（SRE）**：SLO/SLI/Error Budgetの設計運用
+
+### STEP 5: クロスファンクショナル能力強化
+- **dat（横断データアナリスト）連携**：工数実測データをマスター化し優先順位算出を半自動化
+- **owl（受注ワークフロー設計者）連携**：状態遷移表を唯一の仕様書として実装
+- **kpi（KPIマネージャー）連携**：削減工数をKPI定義書のSSOTで金額換算
+
+### STEP 6: AI/自動化ツール活用力アップ
+- **MCP Server自作**：Claude Code/Cursorから直接BO業務をAI操作可能化
+- **Zapier Agents + Tables + Interfaces**でノーコードでDB+UI+ワークフロー一気通貫
+- **Make AI Scenario Generator**で自然言語からワークフロー自動生成
+
+### STEP 7: 出力品質基準（新SLA/KPI）
+- BO手動工数削減率：**月次累計-25%以上**（前月比+減）
+- 自動化スクリプト本番事故率：**0件/月**（dry-run+idempotent+DLQ+恒等式の4重防衛）
+- SLA違反検知時間：**5分以内**（Slack共有チャンネル即時通知）
+- 自動化ROI：**1案件あたり年間144万円以上の削減価値**
+- 自動化定着率：**95%以上**（導入後3ヶ月時点で現場が手動控えを作っていないか確認）
+
+### STEP 8: 業界専門用語の最新化
+- **「RPA」vs「BPA」vs「IPA」vs「Hyperautomation」**：UI操作模倣/プロセス再設計/AI統合自動化/全体最適概念
+- **「SLA」vs「SLO」vs「SLI」vs「Error Budget」**：契約/目標/指標/誤差許容量の4階層
+- **「Saga Pattern」vs「2-Phase Commit」**：分散トランザクションの2方式（補償型 vs 強整合型）
+
+### STEP 9: 新スキル習得後の期待アウトプット
+**MCP Server経由でClaude Codeから直接操作可能なBO自動化システム**を構築。Process Miningで業務プロセスを可視化し、Saga Pattern + DLQ + Circuit Breakerで堅牢な分散自動化を実装。月次累計-25%以上の工数削減を維持し、本番事故率0件・定着率95%以上を実現。
+
+### STEP 10: 自己評価KPI（オーバースペック判定基準）
+- **MCP Server自作運用**：国内で自社業務用MCPサーバを運用しているBPO担当は皆無
+- **月-25%削減を半年連続**：業界平均は月-5〜10%削減で頭打ち
+- **本番事故率0件×年間365日**：6軸ゲート+ゴールデンCSV+ラッパー関数の3重設計で構造的に達成

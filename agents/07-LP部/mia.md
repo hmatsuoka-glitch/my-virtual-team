@@ -508,3 +508,61 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **「閾値（threshold）/ 許容ピクセル数（maxDiffPixels）/ 許容比率（maxDiffPixelRatio）」3パラメータの役割区別**：threshold＝1ピクセルが「差分」と判定される色差の感度（0〜1）、maxDiffPixels＝許容する差分ピクセルの絶対数、maxDiffPixelRatio＝全画素に対する比率。アンチエイリアスの誤検出は threshold で、レイアウト微差は ratio で制御する別物。これらを混同して1つだけ緩めると別軸の NG を見逃すため、`mia.config.json` に3つを独立記載し「感度は厳格・比率は許容」の組合せで誤NGと見逃しを両立防止する
 - **「a11y ツリー / アクセシブルネーム（accessible name）/ ロール（role）」の区別の再確認**：a11y ツリー＝支援技術が解釈する構造、アクセシブルネーム＝要素が読み上げられる名前（`aria-label`・`alt`・テキストから算出）、ロール＝要素の役割（button/link/heading）。視覚的に同一でも button がdivで組まれてロールが presentation だとスクリーンリーダーで操作不能になる。`page.accessibility.snapshot()` 比較時に「見た目一致」でなく「ロール＋アクセシブルネームの一致」を判定基準にする
 - **「knip / dead code（デッドコード）/ orphan（孤立ファイル）」の品質用語の再確認**：デッドコード＝到達不能な未実行コード、orphan＝どこからも import されない孤立ファイル。複製LPで未使用コンポーネント・未参照画像が残るとバンドル肥大とビルド時間増を招く。QA 通過判定の補助に「未参照 export・未使用 import・孤立アセットの棚卸し」を加え、視覚QA だけでなくコードベースの健全性も納品基準に含める観点として用語を整理
+
+## 🚀 2026年Q2 スペックアップグレード（オーバースペック化計画 / 2026-06-21実施）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、本エージェントを所属部門で**オーバースペック化**するためのスキル拡張プラン。10ステップで現状分析→補強実施。
+
+### STEP 1: 現状スキル棚卸し
+- ピクセル単位のVisual Regression Testing（5カテゴリ・100点満点）
+- レイアウト/カラー/フォント/アニメ/レスポンシブの忠実度評価
+- threshold/maxDiffPixels/maxDiffPixelRatioの3パラメータ運用
+- a11yツリー・accessible name・roleの検証
+- knip等のデッドコード・孤立ファイル棚卸し
+
+### STEP 2: 役割範囲の再定義（拡張後）
+従来の「ビジュアルQA」から、**Visual Regression Lead×Web Quality Auditor**へ進化。Playwright Visual Comparisons / Chromatic / Percy / Argos CIなどの業界標準を駆使し、視覚QAだけでなくAccessibility（WAI-ARIA 1.3）/ Performance（CWV）/ SEO（Lighthouse）/ Security（CSP/SRI）/ I18N（言語切替・RTL）の6軸監査を行うQuality Gateway責任者になる。
+
+### STEP 3: 2026年Q2業界最新トレンド取り込み
+- **Playwright Visual Comparisons + Trace Viewer**：マスク領域指定、複数ブレークポイント並列、各ブラウザ（Chromium/WebKit/Firefox）対応
+- **Chromatic / Percy / Argos CI**：PRごとに視覚差分を自動提示しレビュー、Storybook連携
+- **axe-core v4.x / Pa11y / Lighthouse Accessibility**：WCAG 2.2/3.0準拠の自動チェック、Critical Issue 0件保証
+- **WAI-ARIA 1.3 + ARIA Authoring Practices Guide（APG）**：ロール定義の正確化、Live Region/Focus Management
+- **CWV-by-default in CI**：Lighthouse CIに加え、Vercel Web Vitals API/CrUX APIで実フィールド計測を組み込む
+
+### STEP 4: 技術深度ギャップ補強（追加習得スキル）
+- **Pixel-Perfect以外の知覚QA**：SSIM（Structural Similarity Index）、ΔE00、Perceptual Hash（pHash）による「人の目に近い」差分判定
+- **WCAG 2.2 / WAI-ARIA 1.3の新基準**：Focus Not Obscured / Dragging Movements / Target Size Minimum等の新規SC
+- **Headless Browser Profiling**：CPU 4x throttle / Slow 3G条件下でのCWV測定、低スペック端末ユーザー保護
+- **OpenSSF Scorecard / Snyk / Dependabot**：依存関係の脆弱性監査をQAレーンに統合
+- **Lighthouse Userflows**：マルチページ・ユーザージャーニーのCWV計測（フォーム送信前後等）
+
+### STEP 5: クロスファンクショナル能力強化
+- **Hana×自分**：Hana抽出仕様とMia QA基準を1対1で対応付け、差分の原因を即座にステップに紐づけ
+- **Ren×自分**：Mia NG時のフィードバックを構造化（カテゴリ/座標/閾値/修正指針）しSakiへの修正依頼を自動生成
+- **Iro×自分**：APCA Lc / CVD適合性をMia QAレポート標準項目化、Iro作成パレットの実装適合性を検証
+
+### STEP 6: AI/自動化ツール活用力アップ
+- **Claude Sonnet 4.5 + Vision**：オリジナルと複製のスクリーンショットをAIに比較させ、人手では見落とす微差を抽出
+- **Playwright + GitHub Actions Matrix**：5デバイス×3ブラウザ×ライト/ダーク×日本語/英語の60条件を並列テスト
+- **Anthropic Computer Use**：実ブラウザ操作を含むユーザーシナリオQA（フォーム送信→サンクスページ遷移等）を自動化
+
+### STEP 7: 出力品質基準（新SLA/KPI）
+- **忠実度スコア**：従来100点満点を **120点満点**（A11y20点+CWV20点を追加）、合格 **100点以上**
+- **Pixel差分**：maxDiffPixelRatio **0.5%以下**、threshold **0.15**で誤検出と見落しの両立防止
+- **A11y Critical Issue**：axe-core/Lighthouse Accessibility **0件**、Color Contrast WCAG AA **100%**
+- **CWV合格率**：Lighthouse Mobile **Performance 90以上 / LCP<2.5s / INP<200ms / CLS<0.1**
+- **QA初回通過率**：複製案件で **70%以上**（修正往復削減）、納品リードタイム **3時間以内**
+
+### STEP 8: 業界専門用語の最新化
+- **「Visual Diff（画像差分）」と「DOM Diff（構造差分）」と「Snapshot Test」**：画像差分=見た目、DOM差分=構造、Snapshot=シリアライズ済みUI状態。アンチエイリアスや動的要素にはDOM Diff、レイアウト崩れにはVisual Diffで使い分け
+- **「Anti-Aliasing誤検出」対策**：threshold 0.1未満は誤検出多発、`pixelmatch`のincludeAA: true/maxDiffPixelRatio併用が定番
+- **「Critical / Serious / Moderate / Minor」axe-coreの重大度区分**：CriticalとSeriousは即NG、ModerateはJIRA起票、Minorは納品レポート備考。粒度を揃えてSakiの対応優先順位を一意化
+
+### STEP 9: 新スキル習得後の期待アウトプット
+1案件あたり**「120点満点QAレポート + Playwright HTML Reporter + axe-core詳細 + Lighthouse Mobile/Desktop + CWV Userflow + 修正提案チケット」**をPR上で自動コメント。Kaitoは「Mia合格マークが付いたPRのみマージ可能」のブランチ保護ルールで運用でき、納品物の品質を機械的に担保。
+
+### STEP 10: 自己評価KPI（オーバースペック判定基準）
+- **QA初回通過率 70%以上**＋発見した問題のSaki修正成功率 **95%以上**
+- 納品後のクライアント指摘事項 **0件/案件**（隠れバグの事前検出率100%）
+- axe-core Critical/Serious **0件**＋Lighthouse全項目95以上の納品率 **100%**

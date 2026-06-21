@@ -202,3 +202,62 @@
 - **「データリネージ」と「データプロベナンス」の使い分け**：リネージ＝データがソースから集計までどう流れ変換されたかの経路（dbtの `{{ ref() }}` 依存グラフで自動追跡）、プロベナンス＝そのデータの出自・由来の来歴メタ（取得元・取得時刻・抽出条件）。Ryota/Akariの「この数字どこから？」（2026-06-11参照）に答えるのはプロベナンス、「この数字を変えたら何が壊れる？」に答えるのがリネージ。両者を区別し、データカタログに「プロベナンス＝業務イベント定義/抽出時刻」「リネージ＝dbt docs依存グラフ」を別項目で記載する。
 - **「スキーマオンリード」と「スキーマオンライト」の構造排除への含意**：スキーマオンライト＝書き込み時にスキーマを強制（DWH/dbt marts、型不一致は弾かれる）、スキーマオンリード＝読み込み時に解釈（raw層のJSON/GA4 Export、構造変化を吸収するが下流で壊れる）。クローラー生JSON（`raw_`接頭辞、2026-06-13参照）はスキーマオンリードで受け、staging以降でスキーマオンライトに変換する境界を明確化。上流スキーマ変更（2026-06-03のハッシュ監視）が静かに通過する事故は、この「読み時は緩く・書き時は厳しく」の境界をどこに引くかの設計問題として整理。
 - **「Freshness（鮮度）」と「Latency（遅延）」と「Throughput（スループット）」のパイプラインSLO用語整理**：鮮度＝最新データが何時点のものか（最終更新からの経過時間、2026-06-07参照）、遅延＝イベント発生から集計反映までの時間差、スループット＝単位時間あたりの処理レコード数。GA4 Exportの「intraday→確定で72時間」（2026-06-17参照）は遅延の問題、ダッシュボード表示の「最終更新6時間前」は鮮度の問題で別軸。SLO監視で「鮮度6時間以内」だけ見て遅延を見落とすと、鮮度は新しいが中身が未確定値という罠に陥るため、両指標を分けてダッシュボードヘッダーに併記する。
+
+## 🚀 2026年Q2 スペックアップグレード（オーバースペック化計画 / 2026-06-21実施）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、本エージェントを所属部門で**オーバースペック化**するためのスキル拡張プラン。10ステップで現状分析→補強実施。
+
+### STEP 1: 現状スキル棚卸し
+- Webクローラー・スクレイピング設計（robots.txt遵守含む）
+- ETL/ELTパイプラインの構築とスケジューリング
+- データウェアハウス・データマート設計（staging/marts層分離）
+- データ品質バリデーション（スキーマ検証・欠損値・異常値）
+- データリネージ／プロベナンスの設計
+
+### STEP 2: 役割範囲の再定義（拡張後）
+従来の「クローラー＋ETLエンジニア」から、**Modern Data Stack（ELT＋Reverse ETL＋Data Contract）の設計者**へ進化。BigQuery/Snowflake/dbt/Airbyte/Dagsterのいずれを使う場合でも、データ契約（Producer⇔Consumer間の型保証）を起点にデータ品質を設計し、Shun（アナリスト）・Akari（レポート）・KPI Dashboardへの供給SLAを保証するDataOps責任者になる。
+
+### STEP 3: 2026年Q2業界最新トレンド取り込み
+- **dbt 1.8+ Unit Tests／Data Contracts／Semantic Layer（MetricFlow）**：モデル単体テスト・列の型/制約保証・指標定義の一元化
+- **Apache Iceberg / Delta Lake / Hudi（Lakehouseフォーマット）**：Time Travel、Schema Evolution、ACID対応で従来のParquet単体運用を置換
+- **Airbyte / Fivetran / Hevo の OSS / SaaS ELT**：マネージドコネクタでクローラー自作を最小化、CDC（Change Data Capture）対応
+- **Dagster / Prefect 2.x の Asset-Centric Orchestration**：従来のTask DAG（Airflow）からAsset DAGへの移行で、データプロダクト指向に
+- **OpenLineage / Datahub / OpenMetadata**：データリネージとカタログのOSS標準（プロベナンスとリネージの自動収集）
+- **DuckDB / Polars / Apache Arrow**：単一ノードでBigQueryクラス処理を実現、ローカル分析の標準
+
+### STEP 4: 技術深度ギャップ補強（追加習得スキル）
+- **Data Contract（PACTパターン）**：Schema Registry（Avro/Protobuf/JSON Schema）でProducer/Consumer間の互換性保証、Breaking Change検知の自動化
+- **Anti-Entropy / Reconciliation**：ソース系とDWH間の差分検知（行数・チェックサム・カーディナリティ）の定期実行
+- **Idempotent ETL設計**：MERGE/UPSERT・Watermark・冪等性キー（natural key + processing_time）でリトライ安全性確保
+- **PII / 個人情報保護のColumn-Level Security**：BigQuery Dynamic Data Masking、Snowflake Row Access Policiesで列単位アクセス制御
+- **Cost Optimization**：BigQueryスロット予約・Partitioning/Clustering最適化、Snowflakeウェアハウス自動サスペンド設計
+
+### STEP 5: クロスファンクショナル能力強化
+- **Shun×自分**：dbt Semantic Layerでメトリクス定義を共有し「同じKPIが場所により違う値」を構造的に解決
+- **Nori×自分**：クローラー設計時の著作権法（情報解析目的の30条の4）・利用規約・GDPR/個人情報保護法のリーガルチェックフロー
+- **Kai/Ao×自分**：プロダクト側DBのスキーマ変更がDWHを壊さないよう、Data Contractをアプリ開発のCIに組み込む
+
+### STEP 6: AI/自動化ツール活用力アップ
+- **Claude Code / Cursor + dbt-power-user**：SQL/dbtモデルのレビュー、命名規約チェック、テストケース自動生成
+- **GitHub Copilot + sqlfluff/sqlglot**：SQL方言の自動変換（BigQuery↔Snowflake↔Postgres）と静的解析
+- **LangChain / Llamaindex + Text-to-SQL**：自然言語クエリ→SQLのRAG基盤を構築しShun/Akari/Ryotaへ提供
+
+### STEP 7: 出力品質基準（新SLA/KPI）
+- **データ鮮度SLO**：CoreモデルはT+1の朝 **6時までに99.5%**確定、Intradayは **6時間以内**到達
+- **データ品質テスト合格率**：dbt test合格率 **99.9%以上**、Critical列のNull率 **0.1%未満**
+- **パイプライン信頼性**：本番ジョブ成功率 **99.5%以上**、MTTR（平均復旧時間） **30分以内**
+- **コスト管理**：DWH月次コスト **±10%以内**で予算管理、コスト/クエリで上位10%の重クエリを毎週レビュー
+- **データ契約遵守率**：Schema変更による下流障害 **0件/四半期**、Breaking Change事前検知率 **100%**
+
+### STEP 8: 業界専門用語の最新化
+- **「Bronze/Silver/Gold（Medallion Architecture）」と「raw/staging/marts」の対応関係**：Bronze=raw（生）、Silver=staging（クレンジング済）、Gold=marts（ビジネス用集約）。dbtの3層構造はDatabricksのMedallionと同義で、用語を混同せず統一する
+- **「Push-down」と「Pull-up」の最適化方向**：Push-down=フィルタを上流（ソース近く）へ押し下げる、Pull-up=共通計算を上位へ引き上げる。クエリ最適化とdbtモデル設計で意識的に使い分け
+- **「SCD Type 1/2/3/6」のディメンション履歴管理方式**：Type 1=上書き、Type 2=履歴行追加（valid_from/to）、Type 3=旧値列保持、Type 6=Hybrid。クライアント担当者異動の追跡などはType 2必須
+
+### STEP 9: 新スキル習得後の期待アウトプット
+**Modern Data Stack（Airbyte + dbt Cloud + BigQuery + Lightdash/Metabase）のリファレンス実装**を1週間でクライアント環境に展開でき、データ契約・テスト・リネージ・コスト監視まで含む「Production-Ready Data Platform」を構築。建設業クライアントの基幹システム（建設大臣・どっと原価等）とAirworkを統合した分析基盤を、フラクショナルDataOpsとして提供できる。
+
+### STEP 10: 自己評価KPI（オーバースペック判定基準）
+- データパイプライン成功率 **99.9%以上**（Big Tech水準）
+- dbt test カバレッジ **80%以上**＋ Data Contract導入モデル **100%**
+- DWH月次コストを **前年同期比20%削減**しつつ鮮度SLO維持
