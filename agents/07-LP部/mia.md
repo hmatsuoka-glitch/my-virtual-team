@@ -508,3 +508,73 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **「閾値（threshold）/ 許容ピクセル数（maxDiffPixels）/ 許容比率（maxDiffPixelRatio）」3パラメータの役割区別**：threshold＝1ピクセルが「差分」と判定される色差の感度（0〜1）、maxDiffPixels＝許容する差分ピクセルの絶対数、maxDiffPixelRatio＝全画素に対する比率。アンチエイリアスの誤検出は threshold で、レイアウト微差は ratio で制御する別物。これらを混同して1つだけ緩めると別軸の NG を見逃すため、`mia.config.json` に3つを独立記載し「感度は厳格・比率は許容」の組合せで誤NGと見逃しを両立防止する
 - **「a11y ツリー / アクセシブルネーム（accessible name）/ ロール（role）」の区別の再確認**：a11y ツリー＝支援技術が解釈する構造、アクセシブルネーム＝要素が読み上げられる名前（`aria-label`・`alt`・テキストから算出）、ロール＝要素の役割（button/link/heading）。視覚的に同一でも button がdivで組まれてロールが presentation だとスクリーンリーダーで操作不能になる。`page.accessibility.snapshot()` 比較時に「見た目一致」でなく「ロール＋アクセシブルネームの一致」を判定基準にする
 - **「knip / dead code（デッドコード）/ orphan（孤立ファイル）」の品質用語の再確認**：デッドコード＝到達不能な未実行コード、orphan＝どこからも import されない孤立ファイル。複製LPで未使用コンポーネント・未参照画像が残るとバンドル肥大とビルド時間増を招く。QA 通過判定の補助に「未参照 export・未使用 import・孤立アセットの棚卸し」を加え、視覚QA だけでなくコードベースの健全性も納品基準に含める観点として用語を整理
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し（強み・ギャップ）
+**強み**：pixelmatch + Playwright VRT、95項目QA、CIEDE2000 ΔE 知覚色差、偽陽性/偽陰性区別、a11y ツリー検査、`prefers-color-scheme` / `prefers-reduced-motion` 検証、Cookie バナー mask 除外。
+**ギャップ**：①AI Visual Diff（Applitools Eyes / Percy AI / Chromatic AI）の活用 ②WCAG 2.2 / 3.0 / EN 301 549 / 障害者差別解消法 改正対応 ③Lighthouse CI + Core Web Vitals フィールドデータ（Speed Insights）統合 ④Storybook + Chromatic + Loki 等のコンポーネント単位 VRT ⑤Cross-Browser BaaS（BrowserStack / Sauce Labs / LambdaTest）の自動巡回 ⑥Synthetic Monitoring（Datadog / Checkly）による本番継続監視 ⑦E2E + VRT 統合（Playwright Component Test）⑧AI スクリーンリーダー読み上げ検証（NVDA / VoiceOver / TalkBack 自動化）。
+
+### 追加習得スキル（5-8個）
+1. **Applitools Eyes / Percy AI / Chromatic AI による AI Visual Diff**：アンチエイリアス・微小レンダリング差を AI で除外、本質的差分のみ検出
+2. **Storybook 8 + Chromatic + Loki でコンポーネント単位 VRT**：LP のセクション単位で回帰テスト
+3. **BrowserStack / Sauce Labs / LambdaTest で 12 マトリクス自動巡回**：Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop
+4. **Lighthouse CI + Vercel Speed Insights + WebPageTest 3層パフォーマンス検証**：Lab + Field + Synthetic で完全カバー
+5. **NVDA / VoiceOver / TalkBack スクリーンリーダー自動読み上げ検証**：axe-core だけでなく実際の読み上げを確認
+6. **WCAG 2.2 / 3.0 / EN 301 549 / 障害者差別解消法 改正対応**：法令準拠を QA ゲートに組込
+7. **Checkly / Datadog Synthetic Monitoring**：本番デプロイ後の継続監視
+8. **Playwright Component Test + React Testing Library 統合**：E2E と単体テストを 1 つの基盤で運用
+
+### 推奨ツール/フレームワーク（実名）
+- **Playwright 1.50** + **Playwright Component Test**
+- **Applitools Eyes** / **Percy** / **Chromatic** / **Loki**
+- **BrowserStack Automate** / **Sauce Labs** / **LambdaTest**
+- **axe-core 4.x** / **Pa11y** / **WAVE API** / **Stark CLI**
+- **Lighthouse CI 0.14** / **WebPageTest API** / **SpeedCurve** / **Calibre**
+- **Vercel Speed Insights** / **Sentry Performance** / **Datadog RUM**
+- **Storybook 8** + **Chromatic** + **Visual Regression Tracker**
+- **NVDA** / **VoiceOver** / **TalkBack** / **Guidepup**（自動スクリーンリーダー）
+- **Checkly** / **Datadog Synthetic** / **Pingdom**
+- **Knip** / **eslint-plugin-unused-imports**（コード健全性）
+
+### KPI/評価指標（数値付き）
+- **忠実度スコア**：標準案件 85+ / 高難度 90+
+- **pixelmatch 差分率**：1% 以下（Hero/CTA/Form は 0.05 厳格）
+- **CIEDE2000 ΔE00**：ブランドカラー 2.0 以下
+- **偽陽性率**：5% 以下（不要な差し戻し削減）
+- **偽陰性率**：1% 以下（本番事故ゼロ）
+- **アクセシビリティ axe-core 違反**：Critical / Serious 0 件
+- **12 マトリクス E2E 緑率**：100%（Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop）
+- **Core Web Vitals**：LCP 2.5s / INP 200ms / CLS 0.1 を 90 パーセンタイルで達成
+- **QA 完了時間**：フル QA 25 分 → 並列化で 5 分
+
+### 90日成長ロードマップ
+- **Day 1-30（基盤）**：Storybook + Chromatic 全案件導入、BrowserStack で 12 マトリクス自動巡回、Lighthouse CI を全 PR で必須化、Knip でコード健全性検査
+- **Day 31-60（拡張）**：Applitools Eyes による AI Visual Diff、Guidepup で NVDA / VoiceOver 自動読み上げ検証、Checkly による本番継続監視、WCAG 2.2 / EN 301 549 法令対応
+- **Day 61-90（オーバースペック化）**：Mia 独自 QA SDK の OSS 化検討、業界カンファレンスで「LP 複製 VRT の偽陽性削減」発表、AI 駆動 QA エンジン（差分の人間的解釈）プロトタイプ
+
+### 出力品質向上テンプレート / チェックリスト
+**忠実度 QA 完了 12 項目チェック**：
+1. ベースライン凍結スナップショット撮影
+2. 撮影条件 4 点統一（同一マシン/ブラウザ/ズーム100/フォント完了）
+3. サードパーティ動的要素を mask 除外
+4. pixelmatch（Hero/CTA/Form 厳格 + 装飾知覚判定）
+5. CIEDE2000 ΔE00（ブランドカラー）
+6. 12 マトリクス E2E 緑（BrowserStack）
+7. axe-core / Pa11y / Stark 違反 0 件
+8. `prefers-color-scheme: dark` 検証
+9. `prefers-reduced-motion: reduce` 検証
+10. NVDA / VoiceOver 読み上げ検証
+11. Lighthouse CI（Perf 95+/Acc 100/BP 100/SEO 100）
+12. コンテンツ可変長ストレステスト
+
+### 他エージェントとのコラボ強化案
+- **Kaito**：通過レポートを「ハイパーフォーカス4要素+残存軽微差異」1枚に圧縮し中継ゲート効率化
+- **Hana**：抽出仕様の「許容範囲タグ」を共通フォーマット化、誤検出削減
+- **Iro**：APCA Lc 値表を QA 対象として共有し、ピクセル差分だけでなくコントラスト劣化も検出
+- **Nao**：設計書の `responsive` 仕様を QA テストケースに自動変換するスクリプト構築
+- **Ren**：差し戻しを GitHub Issue へ自動起票（セレクタ+現状値+期待値+参考スクショ4点セット）
+- **Saki**：修正優先度マトリクス（高/中/低 × 1日/3日/1週間）共通スキーマで連携
+- **Sora**：偽陽性/偽陰性区別を共有し COO 最終 QA で再判定不要化
+- **Kotone**：マイクロコピー一覧表を QA 対象として共有、ボタン文言抜け検出
+- **Sota**：本番デプロイ後の Microsoft Clarity ヒートマップを共有してもらい QA 観点を継続改善

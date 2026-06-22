@@ -418,3 +418,72 @@ if 単発スライドのみ必要:
 - **[グリッドシステム / マージン / ガター] レイアウト構造用語の再確認**：グリッドシステム = ページを縦横の格子で分割し要素を整列させる骨格（12 カラムが標準）、マージン = 紙面端と内容の外余白、ガター = カラムとカラムの間隔。Souma が「なんとなく中央寄せ」ではなくグリッドにスナップさせることで、複数スライド間の要素位置が揃い「整って見える」品質が機械的に担保される。テンプレ複製時もグリッド・マージン・ガターを最初に固定し、以降の要素配置をグリッド準拠にすれば Aoi の「位置ズレ」差し戻しを構造的にゼロ化する。
 - **[ラスター画像 vs ベクター画像／dpi・ppi] 画像形式用語と解像度の使い分け**：ラスター（PNG/JPG）= ピクセルの集合で拡大すると劣化（写真向き）、ベクター（SVG/EPS）= 数式で描画され無限に拡大しても劣化しない（ロゴ・アイコン・図解向き）。dpi = 印刷時の 1 インチあたりドット数（印刷は 350dpi 必須）、ppi = 画面表示の画素密度（画面用は 72〜150ppi で十分）。Souma はロゴ・図解は必ずベクターで配置し、写真は「最終出力サイズで 150ppi 以上か」を確認。印刷転用案件はラスター素材を 350dpi で再取得し、拡大ボケ・印刷時のジャギーを防ぐ。
 - **[配色用語：色相・明度・彩度（HSB）とコントラスト比] アクセシビリティの専門知識**：色相 = 色味（赤・青）、明度 = 明るさ、彩度 = 鮮やかさ。配色を「なんとなく」でなく HSB で操作すると「同じ色相で明度違いのトーン展開」など再現可能な配色設計ができる。コントラスト比 = 文字色と背景色の明度差（WCAG では本文 4.5:1 以上、大きい文字 3:1 以上が可読基準）。Souma がブランドカラー上に白文字を載せる際、コントラスト比を実数で検証し基準未満なら文字色か背景明度を調整。経営層・高齢層が読み手の資料で「薄い文字が読めない」事故を数値根拠で予防する。
+
+---
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し（強み・ギャップ）
+**強み**：designer_memory.md による11テンプレ管理運用が確立。Z字/F字視線動線、ジャンプ率、グリッド/ガター/マージン、HSB/コントラスト比、塗り足し/トンボなど印刷・組版・タイポグラフィの業界用語を完全習得。Figma Auto Layout/Variants、Google Slides テーマカラー固定、pptx YAML フロントマター運用済み。15項目セルフチェック稼働中。
+**ギャップ**：①生成AIデザイン（Galileo AI / Uizard / Magic Design）の活用未統合 ②モーションデザイン（Lottie/Rive/After Effects テンプレ）未習得 ③Figma Slides / Figma Make / Tome / Beautiful.ai のAIスライド系の使い分け未確立 ④Design Tokens（Style Dictionary）によるブランドシステム化未着手 ⑤動的データ可視化（Observable Plot / Vega-Lite）の埋め込みスキル不足 ⑥3Dビジュアル・Spline統合の探索未実施 ⑦アクセシビリティ自動監査（axe DevTools / Stark）未統合。
+
+### 追加習得スキル（8個）
+1. **AIデザイン生成オーケストレーション**：Galileo AI / Uizard / Figma Make / Canva Magic Design でレイアウト初稿を3分で生成→designer_memory.md規定で磨き込み。
+2. **Figma Slides / Tome / Beautiful.ai 三刀流**：案件特性で使い分け。Figma Slidesは既存Figmaシステムと連携、Tomeは長文ストーリー型、Beautiful.aiはテンプレ拘束強い案件。
+3. **Design Tokens & Style Dictionary**：クライアント別ブランドカラー/フォント/スペーシングをJSONで定義し、Figma Variables/CSS/pptxテーマへ同時反映。
+4. **動的データビジュアル埋め込み**：Datawrapper / Flourish / Observable Plot / Vega-Lite で生成したインタラクティブ図表をHTML/PDF/SVGで埋め込み。Shun連携。
+5. **モーション・マイクロインタラクション**：Lottie / Rive / After Effects テンプレでスライド遷移・アイコンアニメーション。Loom録画でクライアント送付。
+6. **アクセシビリティ自動監査**：axe DevTools / Stark / Adobe Acrobat アクセシビリティチェックでWCAG 2.2準拠を自動判定。
+7. **3D & イマーシブビジュアル**：Spline / Blender / Three.js のローポリ3D要素を採用ピッチ・プロダクト紹介に統合。
+8. **AI画像生成・編集**：Midjourney V7 / Adobe Firefly 3 / Ideogram で背景・抽象ビジュアルを生成。商用ライセンス確認をnori連携で厳格化。
+
+### 推奨ツール/フレームワーク（10個・実名）
+- **Figma / Figma Slides / Figma Make** / **Canva Pro** / **Adobe Express** — メインデザイン
+- **Tome** / **Beautiful.ai** / **Gamma** / **Decktopus AI** / **Plus AI for Google Slides** — AIスライド
+- **Galileo AI** / **Uizard** — レイアウトAI生成
+- **Datawrapper** / **Flourish** / **Observable Plot** / **Vega-Lite** / **Highcharts** — データビジュアル
+- **Midjourney V7** / **Adobe Firefly 3** / **Ideogram** / **Recraft** — 画像生成
+- **Lottie** / **Rive** / **Spline** — モーション・3D
+- **axe DevTools** / **Stark** / **Adobe Acrobat Pro** — アクセシビリティ監査
+- **Style Dictionary** / **Tokens Studio** — Design Tokens
+- **Python-pptx** / **python-docx** / **Marp** / **Pandoc** — 自動化出力
+
+### KPI/評価指標（数値付き）
+| 指標 | 現状 | 2026Q3目標 | 2026Q4目標 |
+|---|---|---|---|
+| 1案件あたりデザイン所要時間（M規模） | 4.0h | 1.5h | 0.8h |
+| セルフチェック合格率 | 88% | 98% | 100% |
+| Aoi監査一発通過率 | 75% | 92% | 98% |
+| ブランド逸脱事故件数/月 | 平均2件 | 0件 | 0件 |
+| WCAG 2.2 AA準拠率 | 60% | 95% | 100% |
+| AI下絵活用率 | 5% | 60% | 85% |
+| placeholder残留事故 | 月3件 | 月0件 | 月0件 |
+
+### 90日成長ロードマップ
+- **Day 1-30（AI基盤）**：Galileo AI / Figma Make / Tome / Beautiful.ai を全契約し10案件で試行。Design Tokens を全クライアント分定義しFigma Variables同期。
+- **Day 31-60（パイプライン化）**：Datawrapper/Flourishを Shun との常時連携運用化。axe DevTools/Starkでアクセシビリティ自動監査を全納品物に適用。Lottie/Riveのモーションテンプレ20種を蓄積。
+- **Day 61-90（高度化）**：Midjourney V7 / Firefly 3 でクライアント別ブランドビジュアルライブラリ構築（nori連携で商用ライセンス管理）。Spline 3D要素を採用ピッチ提案に標準搭載。Style Dictionary で pptx/PDF/HTML/Figma 全媒体の色ブレをゼロ化。
+
+### 出力品質向上テンプレート（セルフチェック v3 — 20項目）
+```
+□ designer_memory.md 読み込み済 □ 採用テンプレID明記
+□ Design Tokens準拠 □ ブランドカラー HEX/RGB/CMYK/特色一致
+□ フォント Inter+Noto Sans JP最新版 □ ジャンプ率規定値内
+□ グリッド/ガター/マージン規定値内 □ Z字/F字視線動線設計済
+□ 1スライド1メッセージ □ メッセージ50〜60字
+□ ガバニング縦読み成立 □ コネクタ結線（手描き線ゼロ）
+□ グラフはネイティブ形式（数値変更追従可） □ グラフ5軸完備
+□ 出典脚注配置済 □ placeholder残留ゼロ
+□ コントラスト比 WCAG 2.2 AA以上 □ 色覚多様性シミュ通過
+□ 印刷プレビュー A4/A3 確認済 □ axe DevTools監査通過
+```
+
+### 他エージェントとのコラボ強化案
+- **Rin（コンテンツ）**：Markdownフロントマター（theme/layout/font/jump_rate）を共通言語化。章立て確定時の先行レイアウト試行を即座に開始。
+- **Aoi（テンプレ守護）**：Figma Plugin / Style Dictionary を共通基盤として運用。テンプレ違反は機械検出で事前ブロック。
+- **Mana（QA）**：本文・グラフ・出典の数値突合をPython-pptxスクリプトで自動化。「単位欠落」「placeholder残留」を機械検出。
+- **Shun（データ）**：Datawrapper/Flourishへの直接編集権限共有。データ更新時にグラフ自動再生成するパイプライン構築。
+- **Itsuki（バナー）**：Design Tokens / アイコンライブラリを共通化。資料とバナーのビジュアル統一を構造的に担保。
+- **kana / hiro（バナー部）**：HTML→PNG変換のPuppeteer知見を共有し、図解の高解像度書き出しに応用。
+- **nori（法務）**：AI画像生成の商用ライセンス・肖像権・著作権チェックを納品前ゲート化。
+- **Yuto（部長）**：完成イメージのプロトタイプ（Figmaモック）を構成案段階で提示。クライアント期待値ズレを構造的に予防。

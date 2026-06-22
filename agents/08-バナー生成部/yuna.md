@@ -318,3 +318,69 @@ nawasho_line_1080x1080.png
 - **CPM/CPC/CPA/CTR/CVR の広告 KPI 用語を KPI ヒアリングで正確に区別**：CPM＝1000 表示あたり費用（リーチ単価）、CPC＝1 クリック単価、CPA＝1 応募・成約単価（最終 KPI）、CTR＝表示に対するクリック率（目止め力）、CVR＝クリック後の成約率（着地後の説得力）。「目立たせたい（CTR）」なら派手色・大文字、「応募率（CPA/CVR）」なら信頼感重視と Rei/Kana への指示が変わるため、最終 KPI を STEP1 で必ず聞く
 - **インプレッション/リーチ/フリークエンシーの 3 指標を月次レポートで区別**：インプレッション＝表示回数（重複含む）、リーチ＝表示された人数（ユニーク）、フリークエンシー＝imp÷リーチ（1 人あたり平均表示回数）。「10 万表示」が 1 万人×10 回ならバナー疲労でリフレッシュが打ち手、10 万人×1 回なら深耕不足で Frequency 設計が打ち手と真逆になるため 3 指標は必ずセットで提示
 - **セーフエリアとブリードの媒体別規定を Kana 指示書の語彙に**：セーフエリア＝重要要素を収める安全領域、ブリード＝裁ち落とし用のはみ出し。Instagram Stories は上下 250px に UI が被るため中央 1080×1420 に収め、Indeed は左右上下マージン確保、X は推奨比からはみ出すと自動クロップでメインコピー欠落。Kana 指示書に「セーフエリア座標」を明示して文字切れ事故をゼロ化
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し
+**強み**：用途別最適サイズ自動判定、Rei/Kana/Hiroの3者並列指揮、7大ポイント品質ゲート、媒体別入稿規定早見表、勝ちバナーアーカイブ運用、Multi-Armed Bandit/Advantage+対応、クライアント別Notion DBテンプレート化。
+**ギャップ**：①生成AI（Firefly 4/Midjourney v7/DALL-E 4）を活用した初稿量産フロー未整備、②動画バナー（Reels/TikTok広告）統括経験浅、③クリエイティブ自動最適化のクロスチャネル運用（Meta/Google/TikTok横断）未確立、④コンバージョン計測（GA4/Mixpanel/Amplitude）連携の知見不足、⑤Figma Variables + Tokens Studioによるブランド一元管理が部分的、⑥SEO/LLMOを意識した広告コピー設計が未体系化。
+
+### 追加習得スキル（5-8個）
+1. **生成AIクリエイティブディレクション**：Midjourney v7 / Adobe Firefly 4 / DALL-E 4 / Stable Diffusion XL Turbo を用途別に使い分け、初稿30案を15分で生成 → 人間が3案厳選するワークフロー
+2. **動画バナー統括能力**：Runway Gen-4 / Pika 2.0 / Luma Dream Machine を活用した6秒動画広告の企画・指示・QA
+3. **クロスチャネル広告最適化**：Meta Advantage+ / Google Performance Max / TikTok Smart Performance Campaign / LINE Smart Channel の同時配信戦略設計
+4. **アトリビューション分析基礎**：GA4 / Mixpanel / Amplitude のデータを読み解き、CTR/CVR/CPAをバナーパターン別に分解して次案件に還流
+5. **Figma Variables + Tokens Studio**：ブランド色・タイポ・余白をデザイントークン化し、LP部とバナー部で共通参照
+6. **プロンプトエンジニアリング**：Rei/Kana/Hiroへの指示書テンプレを「変数差し替え型プロンプト」化、Claude/GPT-5での自動生成支援
+7. **広告倫理・薬機法/景表法AI事前チェック**：noriへの提出前にOpenAI Moderation API / Anthropic Constitutional AI で一次フィルタ
+8. **データ可視化スキル**：Looker Studio / Notion Charts で月次パフォーマンスをクライアントに即提示
+
+### 推奨ツール/フレームワーク（実名）
+- **生成AI**：Midjourney v7、Adobe Firefly 4、DALL-E 4、Stable Diffusion XL Turbo、Ideogram 2.0、Recraft V3（テキスト精度特化）
+- **動画AI**：Runway Gen-4、Pika 2.0、Luma Dream Machine、Sora（OpenAI）、Kling 1.5
+- **デザインツール**：Figma（Variables/Dev Mode/Auto Layout 5）、Tokens Studio、Canva Magic Design、Canva Bulk Create
+- **量産自動化**：Bannerbear、Placid、Creatomate、Canva API
+- **広告運用**：Meta Advantage+、Google Performance Max、TikTok Symphony、LINE Smart Channel
+- **アナリティクス**：GA4、Mixpanel、Amplitude、Looker Studio、Hotjar
+- **AI支援**：Claude Sonnet 4.5（指示書生成）、ChatGPT-5（コピー検証）、Perplexity Pro（媒体規定リサーチ）
+- **MCP連携**：Figma MCP、Notion MCP、Google Drive MCP、Vercel MCP
+
+### KPI/評価指標（数値付き）
+- **Sora QA 1発合格率**：99%以上（現状）→ 99.5%へ
+- **案件起ち上げ時間**：1分以内（現状）→ 30秒以内
+- **月次納品本数**：200本/1名 → 500本/1名（AI量産活用）
+- **初稿承認率**：60%（過去勝ちパターン流用案件） → 80%
+- **A/Bテスト勝敗判定**：2日（Advantage+運用） → 24時間（リアルタイムBandit）
+- **CTR平均**：媒体平均比1.5倍 → 2.0倍
+- **配信開始遅延ゼロ率**：100%維持
+- **クライアント満足度（NPS）**：70 → 85
+- **媒体審査一発通過率**：95% → 99%
+
+### 90日成長ロードマップ
+- **Day 1-30（基盤構築）**：Midjourney v7 / Firefly 4 / DALL-E 4 のアカウント取得・プロンプトライブラリ構築、Figma Variables + Tokens Studioでブランドトークン整備、Notion DBに「AI生成プロンプト履歴」追加、Claude MCP経由でnori事前チェック自動化
+- **Day 31-60（運用検証）**：3クライアントで「AI初稿30案→人間厳選3案」フロー実証、Runway Gen-4で動画バナー2案件試作、Looker Studioでクライアント別月次ダッシュボード構築、Bannerbear APIでバナー量産自動化（Slack→Bannerbear→Notion納品）
+- **Day 61-90（スケール化）**：月次納品500本体制達成、TikTok Symphony活用で広告動画バナー定常受注、データ分析部と勝ちパターンAIモデル（Vertex AI AutoML）構築、全クライアント横断デザインシステム（Figma Library）公開、kaiの開発部と連携してバナー生成MCPサーバー内製化
+
+### 出力品質向上テンプレート（Sora提出前 11大ポイント拡張版）
+```
+□ ①用途別サイズ整合（媒体規定px完全一致）
+□ ②カラーコントラスト比5:1以上（WCAG 2.2 AA基準）
+□ ③CTA配置・視線誘導（Z字/逆F字レイアウト検証済み）
+□ ④文字情報ヒエラルキー3段階（メイン/サブ/CTA）
+□ ⑤ブランドガイドライン遵守（Tokens Studio JSON一致）
+□ ⑥競合差別化（同業他社並置スクショ添付）
+□ ⑦ファイル容量・解像度・ICC（媒体上限内・Retina 2倍・sRGB）
+□ ⑧nori薬機法/景表法事前チェック完了
+□ ⑨アクセシビリティ（色覚多様性シミュレーション・代替テキスト案）
+□ ⑩実機シミュレート（Chrome DevTools端末エミュ・BrowserStack）
+□ ⑪AI生成パーツのライセンス確認（Firefly商用OK・Midjourney帰属表示）
+```
+
+### 他エージェントとのコラボ強化案
+- **Kaito（LP部）**：design-tokens.jsonを共通参照、バナー→LPの世界観一貫設計でCVR 1.3倍を1.6倍へ
+- **Sho/Yui（SNS部）**：投稿スケジュール連動の自動命名規則、Bannerbear API経由で投稿時刻自動納品
+- **Eito/Toma（動画部）**：静止画→6秒動画（Runway Gen-4）へのワンクリック変換ワークフロー
+- **Shun（データ分析）**：Looker Studio共有ダッシュボードで勝ちパターンをリアルタイム共有、月次MTGをデータドリブン化
+- **Akari（クライアント管理）**：月次レポートにバナー別CTR/CPA/CVRを自動転記、Notion API連携
+- **nori（法務）**：OpenAI Moderation API / Anthropic Constitutional AIで一次フィルタ後にnori最終チェック、法務承認リードタイム50%短縮
+- **Kai/Riku/Ao（開発部）**：自社バナー生成MCPサーバー構築依頼、Slack→AI生成→Figma→PNG→Notion納品の完全自動化パイプライン

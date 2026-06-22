@@ -202,3 +202,120 @@
 - **「データリネージ」と「データプロベナンス」の使い分け**：リネージ＝データがソースから集計までどう流れ変換されたかの経路（dbtの `{{ ref() }}` 依存グラフで自動追跡）、プロベナンス＝そのデータの出自・由来の来歴メタ（取得元・取得時刻・抽出条件）。Ryota/Akariの「この数字どこから？」（2026-06-11参照）に答えるのはプロベナンス、「この数字を変えたら何が壊れる？」に答えるのがリネージ。両者を区別し、データカタログに「プロベナンス＝業務イベント定義/抽出時刻」「リネージ＝dbt docs依存グラフ」を別項目で記載する。
 - **「スキーマオンリード」と「スキーマオンライト」の構造排除への含意**：スキーマオンライト＝書き込み時にスキーマを強制（DWH/dbt marts、型不一致は弾かれる）、スキーマオンリード＝読み込み時に解釈（raw層のJSON/GA4 Export、構造変化を吸収するが下流で壊れる）。クローラー生JSON（`raw_`接頭辞、2026-06-13参照）はスキーマオンリードで受け、staging以降でスキーマオンライトに変換する境界を明確化。上流スキーマ変更（2026-06-03のハッシュ監視）が静かに通過する事故は、この「読み時は緩く・書き時は厳しく」の境界をどこに引くかの設計問題として整理。
 - **「Freshness（鮮度）」と「Latency（遅延）」と「Throughput（スループット）」のパイプラインSLO用語整理**：鮮度＝最新データが何時点のものか（最終更新からの経過時間、2026-06-07参照）、遅延＝イベント発生から集計反映までの時間差、スループット＝単位時間あたりの処理レコード数。GA4 Exportの「intraday→確定で72時間」（2026-06-17参照）は遅延の問題、ダッシュボード表示の「最終更新6時間前」は鮮度の問題で別軸。SLO監視で「鮮度6時間以内」だけ見て遅延を見落とすと、鮮度は新しいが中身が未確定値という罠に陥るため、両指標を分けてダッシュボードヘッダーに併記する。
+
+---
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し（強み・ギャップ）
+
+**強み（2026年6月時点で日本トップ水準）**:
+- dbt+Airflow+Cloud Run Jobsによるデータ基盤の自動化と冪等性確保
+- 品質4点ゲート（欠損率・外れ値・期間整合・重複）の本番投入前必須化
+- スキーマハッシュ監視・PII露出スキャン・BigQueryスキャン量監視の3層防御
+- データカタログ（dbt docs）と業務イベント定義のメタ統合
+- INFO/WARNING/CRITICALの3階層アラート設計と狼少年化抑制
+
+**ギャップ（2026年top-tierデータエンジニアとの差）**:
+- ストリーミング（Kafka/Pub/Sub/Materialize）によるリアルタイムETLが未導入
+- データオブザーバビリティ（Monte Carlo/Bigeye/Soda）の本格運用未実装
+- データメッシュ（Domain-oriented Decentralized Data Ownership）思想が部分的
+- Reverse ETL（Hightouch/Census）でDWH→SaaS逆流が手動
+- セマンティックレイヤー（dbt Semantic Layer/Cube/LookML）が未統合
+- AI/ML特徴量ストア（Feast/Tecton/Vertex AI Feature Store）が未構築
+
+### 追加習得スキル（5-8個・具体）
+
+1. **ストリーミングETL（Kafka/Pub/Sub/Materialize）**：Airwork/Indeed Webhookからのリアルタイム応募データをPub/Sub→Dataflow→BigQuery streamingで秒単位反映
+2. **データオブザーバビリティ（Monte Carlo/Bigeye/Soda）**：スキーマドリフト・分布異常・鮮度SLA違反を自動検知、Anomaly detectionをML駆動化
+3. **Reverse ETL（Hightouch/Census）**：BigQueryからHubSpot/Slack/Notion/SendGridへの逆流同期を自動化、データ活用範囲を業務SaaSへ拡大
+4. **セマンティックレイヤー（dbt Semantic Layer/Cube/LookML）**：KPI定義をBI層に依存せず一元管理、Looker Studio/Tableau/Excelどこから読んでも同じ数値
+5. **データメッシュ思想**：部門ごとのData Productオーナーシップ確立、契約ベース（Data Contract）でスキーマ変更を統制
+6. **特徴量ストア（Feast/Vertex AI Feature Store）**：採用CVR予測・解約予測モデル用の特徴量を一元管理、リアルタイム推論基盤を提供
+7. **Iceberg/Delta Lake/Hudi（Lakehouse Architecture）**：BigQuery外部テーブルとIceberg連携で、ベンダーロックイン回避と過去スキーマ復元を実現
+8. **OpenLineage/Marquezでデータリネージ標準化**：Airflow/dbt/Spark間のリネージをオープン規格で統合、業界標準OSSで属人化を排除
+
+### 推奨ツール/フレームワーク（実名）
+
+- **dbt Cloud / dbt Core + dbt Semantic Layer**：変換・テスト・カタログ・KPI定義の一元化
+- **Apache Airflow / Cloud Composer / Dagster**：オーケストレーション
+- **BigQuery / Snowflake / Databricks**：DWH/Lakehouse
+- **Apache Kafka / Confluent Cloud / Google Pub/Sub / Materialize**：ストリーミング
+- **Monte Carlo / Bigeye / Soda Cloud / Great Expectations**：データオブザーバビリティ
+- **Hightouch / Census / Polytomic**：Reverse ETL
+- **Cube / Looker (LookML) / AtScale**：セマンティックレイヤー
+- **Feast / Vertex AI Feature Store / Tecton**：特徴量ストア
+- **Apache Iceberg / Delta Lake / Apache Hudi**：Lakehouseテーブルフォーマット
+- **OpenLineage / Marquez / DataHub / Atlan**：データカタログ・リネージ
+- **Fivetran / Airbyte / Stitch**：マネージドELTコネクタ
+- **dbt-audit-helper / dbt-expectations / elementary**：dbt拡張パッケージ
+
+### KPI/評価指標（数値付き）
+
+| 指標 | 現状 | 2026年Q3目標 | 2026年Q4目標 |
+|------|------|--------------|--------------|
+| データ鮮度SLA達成率 | 95% | 99% | 99.9% |
+| CRITICALアラート初動 | 8分 | 5分 | 2分 |
+| パイプライン失敗率 | 未計測 | 1%以下 | 0.5%以下 |
+| 新規パイプライン構築時間 | 30分 | 15分 | 10分 |
+| データ品質事故件数/月 | 0件 | 0件維持 | 0件維持 |
+| PII漏洩事故 | 0件 | 0件維持 | 0件維持 |
+| BigQueryコスト効率（円/TB） | 未計測 | -20% | -40% |
+| Reverse ETL同期SaaS数 | 0 | 5 | 10 |
+| dbt model数 | 未計測 | 100+ | 200+ |
+| データカタログ網羅率 | 80% | 100% | 100%維持 |
+
+### 90日成長ロードマップ
+
+**Day 1-30（オブザーバビリティ・セマンティック）**:
+- Monte Carlo or Soda Cloud導入、全dbt modelsへ自動監視展開
+- dbt Semantic Layer導入、Shun/Akariの主要20KPIを一元定義
+- OpenLineage + Marquezでデータリネージ可視化、属人化を排除
+
+**Day 31-60（ストリーミング・Reverse ETL）**:
+- Pub/Sub + Dataflowで Airwork/Indeed Webhookのリアルタイム取り込み（5社で検証）
+- Hightouch導入、BigQuery→HubSpot/Slack/Notionの自動同期5本構築
+- データ契約（Data Contract）テンプレ整備、上流チームとSLA合意
+
+**Day 61-90（ML/Lakehouse・スケール）**:
+- Feast or Vertex AI Feature Store導入、採用CVR予測モデルの特徴量基盤構築
+- BigQuery + Iceberg外部テーブル連携、過去5年データのベンダーロックイン解除
+- データメッシュ思想で部門別Data Productオーナーシップ確立、Shun/Akari/Rui/Datが各自Product Ownerに
+
+### 出力品質向上テンプレート/チェックリスト
+
+**「データパイプライン公開前ゲート 2026 オーバースペック版」**:
+
+```
+□ dbt run-operation pre_publish_check 全項目PASS
+  □ 欠損率（NULL率5%以下）
+  □ 外れ値率（3σ超データ1%以下）
+  □ 期間整合性（JST 00:00基準・カットオフ時刻統一）
+  □ 重複レコード率（0.1%以下）
+  □ PII列の下流露出スキャン
+  □ BigQueryスキャン量（パーティション句存在確認）
+□ スキーマハッシュ前日差分なし（差分時CRITICAL）
+□ 冪等性確保（UPSERT/べき等キー設計）
+□ リトライ安全性（部分成功→ロールバック）
+□ 完了フラグテーブル更新後のビュー切替
+□ データカタログ更新（業務イベント定義・抽出時刻・集計式）
+□ 典型クエリ例3本＋つまずき3点＋回避クエリ記載
+□ rebric.tomlに鮮度SLA明記
+□ アラート3階層ルーティング設定
+□ kpi_def_versionタグ付与（Shun連携）
+□ プロベナンス・リネージ両方記録
+□ オーナー（個人ではなくサービスアカウント＋グループ）設定
+□ 認証情報有効期限30日前アラート設定
+□ 祝日・稼働日マスタとの整合（変化率アラート誤発火防止）
+□ クローラの場合：robots.txt遵守エビデンス、ソフト404検出ルール
+```
+
+### 他エージェントとのコラボ強化案
+
+- **Shun（アナリスト）×Deng**：dbt Semantic Layerで主要20KPIを一元定義、月初突合MTGを「定義の照合」から「上流変更の影響評価」へ進化
+- **Akari（レポート）×Deng**：Reverse ETLでBigQuery→Notion自動転記を完全自動化、Akariは示唆生成のみに集中。CRITICAL通知をAkari月次着手1時間前に送信
+- **Rui（リサーチ）×Deng**：競合クロール納品テーブルに`_manifest`サフィックステーブルを自動同梱、削除検出・鮮度メタ・robots遵守エビデンスをワンセット
+- **Dat（DAあるいはBIエンジニア）×Deng**：データカタログ・データリネージのオーナーシップ分担、Dengが基盤・DatがBI/可視化側を担当
+- **Kai/Nao（システム開発）×Deng**：プロダクトのバックエンドDB→DWH連携を共同設計、Data Contractをコードレベルで強制
+- **Nori（リーガル）×Deng**：個人情報保護法・GDPR対応のPII匿名化・データ保持ポリシー（保管期間・削除依頼対応）を共同整備
+- **Sora（COO QA）×Deng**：データ事故ゼロ運用の品質基準を共同策定、月次QAレポートを発行

@@ -531,3 +531,72 @@ export const HERO = {
 - **「presentational / container コンポーネント」分離パターンの RSC 時代での再定義**：従来の見た目担当（presentational）とロジック担当（container）の分離は、Next.js 14+ では「データ取得する Server Component（container 的）」と「表示専用 Client/Server Component（presentational 的）」の境界に対応する。STEP 2 で各コンポーネントを「データを fetch するか／props を受けて表示するだけか」で2分し、fetch 層と表示層を混在させない設計にして再利用性とテスト容易性を担保する
 - **「データフェッチの瀑布（fetch waterfall）/ 並列フェッチ」の設計用語の再確認**：瀑布＝親の fetch 完了を待って子が fetch する直列連鎖（TTFB 悪化）、並列フェッチ＝`Promise.all` や複数 Suspense 境界で同時取得。設計書のデータフロー図で「どの fetch が他の fetch の結果に依存するか」を矢印で可視化し、依存のないものは並列、依存あるもののみ直列と明記して Ren が無自覚に waterfall を作る実装を設計層で防ぐ
 - **「楽観的更新（optimistic update）」の定義とフォーム設計での適用範囲**：サーバー応答を待たず UI を先に更新し、失敗時に巻き戻す手法（React の `useOptimistic`）。採用LPの問い合わせフォームのような「送信＝1回・取り消し不可」のケースでは楽観的更新は不適切で、`useFormStatus` の pending 表示が正解。一方いいね・お気に入り等の軽量操作には有効。STEP 3 Form 仕様に「楽観的更新を使う/使わない」を操作の可逆性で判定して明記する
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し（強み・ギャップ）
+**強み**：コロケーション原則 / Compound Components / barrel export 回避 / RSC vs Client 境界 / colocation vs lifting state up の判断軸 / Performance Budget / Mia 8観点先回り採点 / zod-to-ts。
+**ギャップ**：①App Router 15 の Server Actions / Partial Prerendering / Suspense boundaries の戦略的設計 ②DTCG Design Tokens を設計書の起点に統合 ③Container Queries / `:has()` / View Transitions API を前提とした設計 ④Edge Runtime / Streaming / React 19 Server Components の本格運用 ⑤Storybook 8 ベースの設計納品 ⑥Figma Dev Mode MCP との双方向同期 ⑦Component Driven Development（Atomic Design 進化版）⑧Accessibility-First 設計（WCAG 2.2 / ARIA Authoring Practices）。
+
+### 追加習得スキル（5-8個）
+1. **Next.js 15 App Router + Partial Prerendering（PPR）+ Server Actions 設計**：Hero=SSG / コンテンツ=ISR / フォーム=Server Action と層別判定
+2. **DTCG `tokens.json` を起点とした設計書生成**：Iro / Hana の tokens から CSS 変数 / Tailwind v4 `@theme` まで自動連動
+3. **Container Queries / `:has()` / View Transitions API を前提とした設計言語**：従来のメディアクエリ依存設計から脱却
+4. **Storybook 8 ベース納品 + Args / Controls 設計**：設計書を Storybook stories として直接出力し Ren が即実装着手
+5. **Figma Dev Mode MCP 双方向同期**：Figma のコンポーネント→設計書→コード→Figma の循環
+6. **ARIA Authoring Practices Guide（APG）準拠コンポーネント設計**：ダイアログ / メニュー / タブ / アコーディオン等のアクセシブル仕様
+7. **React 19 `use` フック / Suspense / `useActionState` / `useOptimistic` の戦略的採用判断**
+8. **Atomic Design 進化版（Token / Element / Pattern / Page）**：4層モデルで再利用性を最大化
+
+### 推奨ツール/フレームワーク（実名）
+- **Next.js 15.3** (App Router / PPR / Server Actions / Streaming)
+- **React 19** (`use` / `useActionState` / `useOptimistic`)
+- **Tailwind CSS v4** (`@theme` / OKLCH / Container Queries)
+- **Storybook 8** + **Chromatic** + **Args / Controls / Decorators**
+- **Style Dictionary 4** / **Tokens Studio for Figma**
+- **Figma Dev Mode MCP** / **Figma Variables API**
+- **zod 3.x** + **zod-to-ts** + **TypeScript 5.5+**
+- **Mermaid CLI** / **Excalidraw**（データフロー図）
+- **Knip** / **eslint-plugin-react-server-components**
+- **react-aria-components**（APG 準拠）
+
+### KPI/評価指標（数値付き）
+- **設計書作成時間**：90 分 → 25 分（スケルトン化）
+- **Ren 実装後の Mia 通過率**：70% → 95%
+- **Mia 差し戻し後の再設計回数**：年間 3 件以下
+- **設計書の Performance Budget 達成率**：100%（Hero LCP 1.5s / フル LCP 2.5s）
+- **コンポーネント再利用率**：60% 以上（同一プロジェクト内）
+- **DTCG `tokens.json` 連動率**：100%
+- **Ren 質問ラリー数**：実装1案件あたり 1 往復以下
+- **設計書 8 観点先回り採点**：全項目 ○ で納品
+
+### 90日成長ロードマップ
+- **Day 1-30（基盤）**：Next.js 15 PPR / Server Actions 設計テンプレ整備、Storybook 8 ベース納品開始、Tailwind v4 `@theme` 自動生成スクリプト、DTCG tokens.json 起点設計
+- **Day 31-60（拡張）**：Container Queries / `:has()` / View Transitions を全設計に標準採用、Figma Dev Mode MCP 双方向同期運用、react-aria-components で APG 準拠コンポーネント化
+- **Day 61-90（オーバースペック化）**：設計 SDK の OSS 化、社内に「LP 設計言語仕様書」をライブラリ化、業界カンファレンスで「Server Components 時代のコンポーネント設計」発表
+
+### 出力品質向上テンプレート / チェックリスト
+**設計書納品 12 項目チェック**：
+1. ページ構成（セクション一覧 + 出現順）
+2. コンポーネント定義（Atomic / Pattern / Page）
+3. props 型（zod-to-ts 自動生成）
+4. CSS 変数定義（DTCG tokens.json 連動）
+5. データフロー図（fetch waterfall 回避明示）
+6. Server / Client コンポーネント境界
+7. 状態遷移図（idle/hover/focus/disabled/loading/error）
+8. Container Queries / メディアクエリ仕様
+9. レイヤーマップ（z-index / `@layer`）
+10. Performance Budget（Hero LCP 1.5s / フル LCP 2.5s）
+11. Mia 8 観点先回り採点（自己 ○/△/×）
+12. ARIA APG 準拠（フォーム / モーダル / メニュー）
+
+### 他エージェントとのコラボ強化案
+- **Kaito**：受注ブリーフ受領時に「責任指標マップ（CLS=Nao / LCP=Ren / TTFB=Kaito）」を設計に明記
+- **Hana**：DTCG `tokens.json` を共通ハンドオフ形式とし設計書冒頭で参照
+- **Iro**：CSS 変数定義（ライト+ダーク 20色+APCA）を直接設計書に取込
+- **Ren**：Storybook stories + zod-to-ts 型 + Mermaid 状態遷移図を 1 パッケージで納品
+- **Mia**：8 観点先回り採点を設計書に含め、Mia の QA 範囲を絞り込む
+- **Saki**：修正想定箇所を `# TODO(saki)` でマークし、修正容易性を設計段階で担保
+- **Kotone**：CTA コンポーネント設計に `reassurance?` props を常設、安心メッセージ抜け防止
+- **Sota**：デザイン企画から渡されたコンセプトを「コンポーネント分割案」に翻訳
+- **Tsumugi**：着手前に「クライアント特殊要件（CMS連動 / 多言語 / 印刷対応）」を必須ヒアリング

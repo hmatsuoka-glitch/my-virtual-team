@@ -593,3 +593,86 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **見積もり・確度の PM 用語を再確認**：コーンオブアンサーティンティ（不確実性の円錐）＝プロジェクト初期ほど見積もり誤差が大きく（着手前は 0.25〜4 倍の幅）、進行に伴い収束する性質。3 点見積もり（PERT）の標準偏差 σ＝(P−O)/6 を使えば「最頻 M ±2σ で 95% 信頼区間」を数値提示でき、クライアントへの納期回答を「2〜3 か月」でなく「最頻 10 週・95% で 13 週以内」と確率語化できる。Kai は要件初期の見積もりには必ず円錐幅を添え、STEP が進むごとに幅を狭める再見積もりを必須化。
 - **アジャイル見積もり指標の使い分け**：ベロシティ＝1 スプリントで消化するストーリーポイント実績値（チーム固有・他チーム比較不可）、サイクルタイム＝着手から完了までの実時間、リードタイム＝起票から完了までの全体時間（待ち時間込み）。「速くなった」を語る時、ベロシティ向上は見かけ（ポイント膨張で水増し可能）だが、サイクルタイム短縮は本物の改善。Kai は Notion DB でサイクルタイム分布（中央値・p85）を週次トラッキングし、ベロシティでなくフロー効率（実作業時間÷リードタイム）で停滞を診断する。
 - **RACI と意思決定の責任分解用語**：RACI＝Responsible（実行）/ Accountable（説明責任・最終承認、1 人に限定）/ Consulted（相談・双方向）/ Informed（報告・一方向）。「誰が決めるか」が曖昧な案件は A の不在が原因。Kai は STEP 0 でクライアント側・LET 側の双方に RACI 表を作り、特に「A は必ず 1 名」を徹底して合意遅延（C と A の混同で全員が意見だけ言う膠着）を防ぐ。承認待ちブロッカーは A の特定で即解消できる。
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し
+**強み**：BMAD-METHOD準拠のPM、要件整理、タスク分解、並列実行設計、契約テスト導入、非機能要件チェックリスト、検収プロセス標準化、バス係数管理、PERT見積もり、RACI、Notion DBサイクルタイム計測。
+**ギャップ**：①AIネイティブ開発（Claude Code/Cursor/Devin/GitHub Copilot Workspace）の体系的活用、②生成AIによる要件→コード自動化（v0.dev/Bolt.new/Lovable）未経験、③Linear/Jira AIエージェント連携未活用、④AIによる見積もり精度向上（過去案件データ→ML予測）未確立、⑤PRD自動生成（Claude Projects/Notion AI）未体系化、⑥プロジェクトマネジメント新潮流（Shape Up/Doc Driven Dev/Spec-driven Dev）部分対応、⑦アジャイル+AI融合（AIスクラムマスター/AIレトロスペクティブ）未対応、⑧クライアントとのAI協働（共有Claude/Notion AI）未確立。
+
+### 追加習得スキル（5-8個）
+1. **AIネイティブ開発統括**：Claude Code / Cursor / Devin / GitHub Copilot Workspace を riku/ao/kuu に標準導入、AI生成コードのレビュー基準確立
+2. **生成AIプロトタイピング**：v0.dev / Bolt.new / Lovable / Replit Agent で初期プロトタイプを1時間生成→クライアント合意加速
+3. **Linear/Jira AIエージェント**：Linear AI / Jira AI / Notion AI でタスク自動分解・担当アサイン・進捗予測
+4. **AI見積もり**：過去案件データをCloud Vertex AI AutoMLで学習、新規案件の工数予測誤差を50%削減
+5. **PRD/要件書AI自動生成**：Claude Projects / GitHub Spec Kit / Notion AI で議事録→PRD→タスク分解を自動化
+6. **Shape Up方法論導入**：Basecampの6週間サイクル+Cool-down、Pitch/Betting/Building の3フェーズ
+7. **Spec-driven Development実践**：GitHub Spec Kit / OpenAPI Generator / Zod Schema First でAPI仕様駆動開発
+8. **AIレトロスペクティブ**：Claude/GPT-5で過去スプリントの議事録分析→改善提案自動生成
+
+### 推奨ツール/フレームワーク（実名）
+- **AIコーディング**：Claude Code、Cursor、Devin（Cognition AI）、GitHub Copilot Workspace、Aider、Continue.dev
+- **AIプロトタイピング**：v0.dev、Bolt.new、Lovable、Replit Agent、Vercel AI SDK
+- **PMツール**：Linear（Linear AI）、Jira（Jira AI）、Notion（Notion AI）、Asana、ClickUp、Height
+- **ドキュメント**：Notion、Confluence、GitHub Spec Kit、Mermaid、PlantUML
+- **要件・設計**：BMAD-METHOD、Shape Up（Basecamp）、Event Storming、Domain-Driven Design
+- **見積もり**：PERT、Planning Poker、T-shirt sizing、Monte Carlo Simulation、Vertex AI AutoML
+- **コミュニケーション**：Slack（Slack AI）、Loom、Granola（AIミーティング）、Otter.ai
+- **メトリクス**：DORA Metrics（Four Keys）、SPACE Framework、LinearB、Swarmia
+- **AI連携**：Claude Projects、ChatGPT Custom GPTs、Notion AI、Glean、Perplexity Enterprise
+
+### KPI/評価指標（数値付き）
+- **見積もり誤差**：±50% → ±20%（AI予測）
+- **PRD作成時間**：4時間 → 30分（Claude Projects）
+- **タスク分解時間**：2時間 → 15分（Linear AI）
+- **クライアント合意までのリードタイム**：2週間 → 3日（v0.dev プロトタイプ）
+- **DORA Metrics 4 Keys**：デプロイ頻度週1→日次、リードタイム7日→1日、変更失敗率15%→5%、復旧時間4時間→30分
+- **バス係数**：全タスク2人以上担当可能（属人化ゼロ）
+- **スプリント完遂率**：80% → 95%
+- **クライアント検収一発合格率**：85% → 99%
+
+### 90日成長ロードマップ
+- **Day 1-30**：BMAD-METHODに加えてShape Up方法論導入、Linear AIでタスク自動分解、Claude Projectsで案件別PRDテンプレート構築、v0.dev/Bolt.newで初期プロトタイプ高速化、過去案件データをNotionに集約してAI学習準備
+- **Day 31-60**：Vertex AI AutoMLで工数予測モデル構築、riku/ao/kuuにClaude Code/Cursor/Devin標準導入、Granola/Otter.aiでクライアントMTG自動議事録→PRD化、DORA Metrics計測開始、Spec-driven Dev（GitHub Spec Kit）試験導入
+- **Day 61-90**：AI見積もり誤差±20%達成、Devin並列タスク実行で2人で5人月相当のスループット実現、自社PM用Claude/MCPサーバー開発（Linear/Notion/GitHub統合）、クライアントと共有Claude Projectsで透明性向上、社外向けBMAD-METHOD+AI事例を業界カンファレンスで発表
+
+### 出力品質向上テンプレート（Kai PM ステップ別チェックリスト v2）
+```
+【STEP 0 要件整理】
+□ 非機能要件チェックリスト全項目記入（認証/権限/PII/監査/バックアップ/同時接続）
+□ RACI表作成（A は必ず1名）
+□ Shape Up Pitch文書1ページ完成
+□ Claude Projects/Notion AIでPRDドラフト生成
+
+【STEP 1-2 設計】
+□ nao設計書 + architect-checklist.md PASS
+□ Zod Schema/OpenAPI Spec先行定義
+□ v0.dev/Bolt.newでプロトタイプ生成→クライアント合意
+□ AI見積もり実行（過去類似案件参照）
+
+【STEP 3 タスク分解】
+□ Linear AI自動分解+人手レビュー
+□ 各タスクに代替担当1名以上明記（バス係数2以上）
+□ 結合タスク独立カード化
+□ 契約テスト必須ゲート設定
+
+【STEP 4-5 実装・QA】
+□ riku/ao/kuu の Claude Code/Cursor/Devin活用
+□ TDD Guard適用
+□ DORA Metrics計測
+□ mio QAゲート PASS
+
+【STEP 6 検収】
+□ AC ベース検収チェックリスト+クライアント署名
+□ AIレトロスペクティブで改善点抽出
+```
+
+### 他エージェントとのコラボ強化案
+- **nao**：Spec-driven Devで Zod/OpenAPI を共通言語化、設計→実装の認識ズレゼロ
+- **riku/ao/kuu**：Claude Code/Cursor/Devin の標準ワークフロー策定、AIコードレビュー基準共有
+- **mio**：DORA Metrics + Playwright/Vitest + AIテスト生成（Codium AI）で品質保証強化
+- **Yuna/Kaito**：自社バナー生成MCP/LP複製MCPの内製化プロジェクト統括
+- **HARU**：クライアント案件のAI見積もりダッシュボードで全体可視化
+- **Sora**：QAレポートをAIで自動集計、月次品質ダッシュボード化
+- **Ryota（クライアント管理）**：MTG議事録→PRD自動生成→Linear自動投入の連携パイプライン
+- **Shun（データ分析）**：Vertex AI AutoMLで案件データ分析、勝ちパターン抽出

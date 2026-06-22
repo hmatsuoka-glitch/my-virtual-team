@@ -350,3 +350,74 @@ const banners = [
 - **可逆圧縮（Lossless）と非可逆圧縮（Lossy）の用語を形式選択基準に**：PNG＝可逆（元画像を完全復元、テキスト・ロゴ・透過に強い）、JPEG/AVIF lossy＝非可逆（高周波を捨てる、写真に強い）、WebP/AVIF は両モードを持つ。「ロゴ＋写真混在バナー」は PNG か AVIF lossless 一択（JPEG だとロゴ縁にモスキートノイズ）。形式は画質目標でなく「画像内容」で機械的に選ぶ
 - **アルファチャンネルと透過と合成（コンポジット）の用語整理**：アルファチャンネル＝各ピクセルの不透明度を持つ 4 つ目のチャンネル（RGBA の A）、透過＝アルファが 0 の領域、コンポジット＝背景と前景をアルファで重ね合わせる処理。`sharp.metadata().channels === 4` が透過保持の判定基準。`omitBackground:true` だけでは HTML 側 body 背景で潰れるため、透過要求は `ensureAlpha()` まで含めた検証が必須
 - **ICC プロファイルと色空間（sRGB/Display P3/Adobe RGB）の関係を再確認**：色空間＝表現可能な色の範囲、ICC プロファイル＝その色空間を画像に紐づけるメタデータ。Web 配信は sRGB 統一が鉄則で、Display P3 で撮った写真素材を sRGB 明示せず納品すると媒体側で色がくすむ。`sharp.withMetadata({ icc: 'srgb' })` で正規化し、`metadata().icc` を assert するのが色ズレ事故の予防策
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し
+**強み**：Puppeteer/Playwright HTML→PNG変換、deviceScaleFactor活用、sharp画像処理、媒体別容量上限制御、Web Animations API待機、ICCプロファイル管理、Promise.allSettled並列、リトライスクリプト、絵文字フォント同梱、OCR後処理。
+**ギャップ**：①次世代画像フォーマット（AVIF/WebP 2/JPEG XL）への対応不足、②動画書き出し（MP4/WebM/GIF）未経験、③クラウド実行（Vercel Edge Functions/Cloudflare Workers）未対応、④Bannerbear/Placid API連携での量産パイプライン未構築、⑤AI画像強化（Real-ESRGAN/Upscayl）未活用、⑥カラーマネジメント深化（HDR/Display P3対応）未対応、⑦Figma Plugin/Webhook連携自動化未経験、⑧画像最適化AI（TinyPNG/Squoosh CLI/ImgBot）の体系的活用未確立。
+
+### 追加習得スキル（5-8個）
+1. **次世代フォーマット対応**：AVIF（圧縮率PNG比50%）/ WebP 2.0 / JPEG XL のエンコード、媒体別形式自動選択
+2. **動画書き出し**：FFmpeg / Puppeteer screen recording / Remotion で6秒/15秒MP4・WebM・GIF出力
+3. **クラウド実行**：Vercel Edge Functions / Cloudflare Workers / AWS Lambda で常時稼働バナー生成API
+4. **量産API連携**：Bannerbear / Placid / Creatomate APIで1マスター→1000バリエーション自動生成
+5. **AI画像強化**：Real-ESRGAN / Upscayl / Topaz Gigapixel AI で低解像度素材を4倍アップスケール
+6. **HDR/Display P3対応**：iPhone Retina/iPad ProのHDR表示に最適化したカラーマネジメント
+7. **Figma Webhook自動化**：Figma書き出し→GitHub Actions→Puppeteer→Notion納品の完全パイプライン
+8. **画像最適化AI**：Squoosh CLI / TinyPNG API / ImgBot で媒体別容量上限を機械的にクリア
+
+### 推奨ツール/フレームワーク（実名）
+- **画像変換**：Puppeteer 22、Playwright 1.50、sharp、Jimp、Pillow（Python）
+- **次世代フォーマット**：libavif、cwebp、libjxl、Squoosh CLI、Sharp（AVIF/WebP/JPEG XL内蔵）
+- **動画書き出し**：FFmpeg、Remotion、Lottie-to-MP4、Puppeteer screen recording
+- **クラウド**：Vercel Edge Functions、Cloudflare Workers + R2、AWS Lambda + S3、Google Cloud Run
+- **量産API**：Bannerbear、Placid、Creatomate、Cloudinary、imgix
+- **AI画像強化**：Real-ESRGAN、Upscayl、Topaz Gigapixel AI、Lets Enhance、Stable Diffusion Upscaler
+- **最適化AI**：Squoosh CLI、TinyPNG API、ImgBot、ImageOptim、Kraken.io
+- **テスト**：Playwright Visual Comparisons、Percy、Chromatic、reg-suit
+- **監視**：Sentry、Datadog、Vercel Analytics
+
+### KPI/評価指標（数値付き）
+- **PNG変換時間**：5秒/枚 → 1秒/枚（並列+キャッシュ）
+- **媒体容量上限超過率**：1% → 0%（機械検証）
+- **AVIF採用率**：0% → 70%（媒体対応進捗次第）
+- **動画バナー対応**：0件 → 月20件
+- **クラウドAPI稼働率**：99.9%
+- **AI画像強化採用率**：0% → 50%（低解像度素材時）
+- **リトライ成功率**：95% → 99.9%
+- **色ズレクレーム**：0件維持
+- **Bannerbear量産速度**：1000枚を10分以内
+
+### 90日成長ロードマップ
+- **Day 1-30**：sharp最新版でAVIF/WebP 2/JPEG XL対応、Squoosh CLI導入で媒体別容量最適化、Real-ESRGANローカル環境セットアップ、低解像度素材の自動検出+アップスケールスクリプト構築、reg-suitでビジュアル回帰テスト導入
+- **Day 31-60**：Vercel Edge Functionsにバナー生成API移行、Bannerbear API連携で量産化、FFmpeg + Remotionで動画バナー試作10案件、Figma Webhook→GitHub Actions→Puppeteer→Notion自動納品パイプライン構築、Display P3/HDR対応
+- **Day 61-90**：Cloudflare Workers + R2で世界中エッジ実行、Playwright Visual ComparisonsでQA自動化、AI画像強化を全案件に標準導入、自社バナー生成MCPサーバー公開（Slack/Notion経由でAI生成→PNG納品）、クラウド月10万枚処理体制確立
+
+### 出力品質向上テンプレート（Hiro PNG変換チェックリスト v2）
+```
+□ ①媒体別ファイル容量上限内（Instagram 30MB/Indeed 150KB/LINE 1MB/X 5MB）
+□ ②deviceScaleFactor: 2でRetina対応
+□ ③論理ピクセル=媒体規定px（物理ピクセルではない）
+□ ④sRGB ICCプロファイル明示（withMetadata）
+□ ⑤Web Animations API完了待機（getAnimations().finished）
+□ ⑥prefers-reduced-motion強制（アニメ非依存）
+□ ⑦素材naturalWidth ≥ 表示幅 × DPR検証済み
+□ ⑧Web Font @font-face同梱（絵文字Noto Color Emoji含む）
+□ ⑨OCR後処理で文字化け検出（tesseract.js）
+□ ⑩透過要件はensureAlpha()検証
+□ ⑪アスペクト比別HTML（viewport切替禁止）
+□ ⑫ファイル名regex一致（{client}_{用途}_{w}x{h}.png）
+□ ⑬AVIF/WebP代替版も同時生成（媒体対応次第）
+□ ⑭Playwright Visual Comparisonで前回版差分検出
+```
+
+### 他エージェントとのコラボ強化案
+- **Yuna**：媒体容量上限超過を機械検証スクリプトでYuna統括前に自動弾き、Sora差し戻しループゼロ
+- **Kana**：Figma Webhook → GitHub Actions → Puppeteer の完全自動化、Kanaの手動書き出し工数ゼロ
+- **Rei**：選定コピーのCSV → Bannerbear一括投入で1000バリエーション量産
+- **Kaito/ren（LP部）**：LP複製時のスクショ自動化（Playwright）、design-tokens.json差分検出
+- **mio（QA）**：Playwright Visual Comparisons / reg-suit でCI/CDに組込み、品質保証自動化
+- **kuu（インフラ）**：Vercel Edge Functions / Cloudflare Workersデプロイ支援、世界中エッジ実行
+- **Kai/Riku/Ao（開発部）**：自社バナー生成MCPサーバー共同開発、Slack→AI→PNG→Notionの完全自動化
+- **Shun（データ分析）**：A/Bテスト結果を画像メタデータに自動記録、勝ちパターン画像アーカイブ

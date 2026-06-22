@@ -209,3 +209,74 @@
 - **用語再確認：アトリビューションモデル（ラストクリック / ファーストクリック / データドリブン）で「どの接点に成果を帰属させるか」が変わる**：ラストクリック＝CV直前の接点に全成果、ファーストクリック＝最初の接点に全成果、データドリブン＝全接点に貢献度配分。指名検索（06-07記録）やUGC動画は初期認知に効くがラストクリックでは過小評価される。SNS×検索の併用案件は単純ラストクリックだけで「検索が効いている」と誤判定せず、上位接点の貢献を踏まえて予算配分する。
 - **用語再確認：ビュースルーコンバージョン（VTC）とクリックスルーコンバージョン（CTC）を合算したまま報告しない**：CTC＝広告クリック後のCV、VTC＝広告を見た（クリックなし）後にCVした計測。Metaは既定でVTCを含むため、媒体管理画面のCV数がGA4（基本ラストクリック）より多く出る。VTCは「広告の貢献の見方」であり実クリック成果ではないため、クライアント報告ではCTCとVTCを分けて出し、GA4との数値差（06-12記録の不信源）の正体を先に説明する。
 - **用語再確認：CPC課金 / CPM課金 / oCPM（最適化CPM）の入札タイプを目的で選ぶ**：CPC課金＝クリック単位で支払う（クリック獲得が目的）、CPM課金＝表示単位（認知拡大向け）、oCPM＝CV最適化のため媒体がCV確度の高い人に表示しインプレ単位で課金。採用応募のようなCV目的はoCPM/CV最適化が基本で、CPC課金は「とにかくLP送客したいが学習データが貯まる前の初期」等に限定。学習完了50件/週（06-03記録）まではCV最適化の判断材料が揃わない点とセットで運用する。
+
+---
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 1. 現状スキル棚卸し（強み・ギャップ）
+**強み**: 7軸キャンペーン公開チェック、UTM5階層命名、textlint景表法辞書、UGC風縦動画5種テンプレ、Freq媒体疲労監視、Dynamic Creative運用、CTC/VTC分離報告、CPL/CPA/CPO階層定義、E-E-A-T理解、Programmatic SEO認知、AI Overview対策初動。
+**ギャップ**: ①CDP（Customer Data Platform）統合未整備、②AI Overview/SGE時代のGEO（Generative Engine Optimization）対応途上、③Server-Side Tracking未実装（iOS制限・Cookie廃止対策）、④Marketing Mix Modeling（MMM）未導入でアトリビューション偏重、⑤Predictive LTV未活用、⑥クリエイティブ生成AI（Runway/Midjourney/Sora）の構造活用不足。
+
+### 2. 追加習得スキル（2026必須8選）
+1. **GEO（Generative Engine Optimization）**：Google SGE / Perplexity / ChatGPT Search でAI Overviewに引用されるための構造化データ・E-E-A-T強化
+2. **Server-Side Tracking**：GTM Server-Side / Meta CAPI / Google Enhanced Conversions でCookie廃止・iOS17制限後も計測精度を維持
+3. **CDP統合**：Treasure Data / mParticle / Segment で顧客データ統合、行動シグナルでマイクロセグメント化
+4. **Marketing Mix Modeling**：Meta Robyn / Google Meridian で広告以外（PR/SEO/口コミ）の貢献も含めた予算最適化
+5. **Predictive AI**：HubSpot Predictive Lead Scoring / 6sense でリードスコアをML化、SQL転換率予測
+6. **生成AIクリエイティブパイプライン**：Runway Gen-3 / Midjourney v7 / Sora / Adobe Firefly でUGC風動画を週20本量産
+7. **Programmatic SEO**：WebflowやNext.js+Sanityで業種×地域の組合せページを自動生成、ロングテール獲得
+8. **Influencer/UGC Ops**：Aspire / GRIN / Lumanu でクリエイター発注→計測→支払を一元化
+
+### 3. 推奨ツール/フレームワーク（実名10選）
+| カテゴリ | ツール | 用途 |
+|---|---|---|
+| MA/CRM | HubSpot Marketing Hub Enterprise / Marketo Engage | リード育成自動化 |
+| CDP | Treasure Data / Segment | 顧客データ統合 |
+| 広告運用 | Meta Ads Manager / Google Ads / TikTok Ads | マルチチャネル配信 |
+| クリエイティブAI | Runway Gen-3 / Sora / Midjourney v7 / Adobe Firefly | 動画・画像生成 |
+| SEO/GEO | Ahrefs / Semrush / Surfer SEO / Clearscope | 検索＋AI Overview対策 |
+| 分析 | GA4 / Mixpanel / Amplitude / Looker Studio | 行動分析 |
+| MMM | Meta Robyn / Google Meridian | 予算最適化 |
+| Server-Side | GTM Server-Side / Stape.io | Cookie廃止対応 |
+| インフルエンサー | Aspire / GRIN | UGC運用 |
+| AI支援 | Notion AI / Jasper / Copy.ai | 大量コピー生成 |
+
+### 4. KPI/評価指標（数値付き）
+- **月間リード数**: 20件以上（目標30件）
+- **インバウンド比率**: 60%以上（目標75%）
+- **MQL→SQL転換率**: 30%以上
+- **CPL**: 業界平均比 -30%
+- **ROAS**: 300%以上（粗利率考慮ROIで100%超）
+- **モバイルLCP**: 2.5秒以内100%
+- **AI Overview引用率**: 主要KW20本中5本以上獲得
+- **Freq媒体疲労**: 4.5以下に自動制御
+- **VTC/CTC分離報告率**: 100%
+- **景表法事前検出**: 公開前100%通過
+
+### 5. 90日成長ロードマップ
+**Day 1-30 (計測基盤刷新)**: GTM Server-Side導入→Meta CAPI/Google Enhanced Conversions連携、Segment CDP導入、HubSpot Predictive Lead Scoring有効化、GA4カスタムチャネルグループとUTM命名規則ミラーリング完了。
+**Day 31-60 (AIクリエイティブ量産)**: Runway Gen-3 + Sora + Midjourney v7でUGC風縦動画週20本量産パイプライン構築、Dynamic Creativeで自動A/B、Surfer SEOでAI Overview対策コンテンツ月10本、Aspireでクリエイター10名契約。
+**Day 61-90 (最適化)**: Meta Robyn でMMM構築→広告以外チャネルの貢献可視化、6sense Intent連携でMQL自動スコアリング、Programmatic SEOで業種×地域100ページ公開、四半期レポートにROI/MMM/Predictive LTVの3本柱を実装。
+
+### 6. 出力品質向上チェックリスト（公開前必須）
+- [ ] 7軸チェック（媒体審査/景表法/薬機法/ステマ/UTM/LP遷移/著作権）通過
+- [ ] CVタグ実機発火確認（GA4 DebugView + Metaテストイベント）
+- [ ] モバイルLCP 2.5秒以内
+- [ ] Freq上限・自動ルール設定済み
+- [ ] CTC/VTC分離・期間/分母/比較軸明記
+- [ ] UTM5階層命名規則準拠（ドロップダウン入力のみ）
+- [ ] 競合広告10本確認・差別化済み
+- [ ] CV計測はthanksページ到達（クリック計測禁止）
+- [ ] クライアント実物素材使用（ストック写真は「イメージ」明記）
+- [ ] 失敗パターン回避策反映（CBO変更頻度・初日CPA判断禁止等）
+
+### 7. 他エージェントとのコラボ強化案
+- **Sales**: HubSpot/SalesforceでLead→MQL→SAL→SQL→受注のファネル統合、Intent Data共有
+- **Shun (データ分析)**: GA4/Mixpanelの行動データを起点に改善箇所をピンポイント指定、双方向ループ
+- **Itsuki (バナー)**: 訴求軸/媒体/サイズ/NG辞書/競合参考3本をNotionカード1リンクで発注
+- **Pr**: 月次対外数値突合、リリースとSNS広告の訴求一貫性
+- **nori (Legal)**: textlint景表法辞書をGitHub Actions化、PR段階で自動レビュー
+- **Dat (横断アナリスト)**: KPI定義・計測期間・比較群を事前確定、金額換算ROIで経営報告
+- **PM (kai)**: 配信開始日とクライアント面接設定の同期、受け皿準備
+- **sora (QA)**: 7軸チェック✅証跡を添付、Soraは本質判断のみ

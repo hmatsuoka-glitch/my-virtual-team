@@ -677,3 +677,71 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **「specificity（詳細度）」の(a,b,c)三組計算の再確認**：詳細度は a=IDセレクタ数, b=クラス/属性/擬似クラス数, c=要素/擬似要素数 の三組で比較し、上位桁から辞書順で勝敗が決まる（`!important` とインラインは別枠で上位）。`:where()`＝(0,0,0)・`:is()`＝引数内最大値（2026-06-13参照）もこの枠組み。STEP 1 のCSS読み込みマップで、同一要素に効く複数ルールの詳細度を(a,b,c)で記録しておくと、Renが「なぜこのスタイルが効かない/効きすぎる」を詳細度の数値で即診断でき、`!important` 乱用（2026-05-01参照）を回避できる。カスケードレイヤー（2026-06-13参照）使用時は詳細度より層順が優先される点も併記。
 - **「FOUT」「FOIT」「FOFT」フォント読み込み挙動の用語区別**：FOUT＝Flash of Unstyled Text（フォールバック表示後に切替、`font-display: swap`）、FOIT＝Flash of Invisible Text（読込中は不可視、`font-display: block`）、FOFT＝Flash of Faux Text（先に擬似ボールド表示）。FOUT対策（2026-05-17参照）と一括りにせず、`font-display` の値ごとにどの挙動が起きるかを区別してSTEP 3で記録。日本語フォントは重い（unicode-range分割配信、2026-05-20参照）ため、Hero直上は `optional`（2026-05-24参照）、本文は `swap` と用途別に指定値を変える判断材料をRenに渡す。
 - **「リフロー（reflow/layout）」と「リペイント（repaint）」のレンダリング用語と抽出時の含意**：リフロー＝幾何計算のやり直し（width/height/position変更が誘発、コスト大）、リペイント＝見た目の再描画（color/background変更、コスト中）。`contain`（2026-05-16参照）や `will-change` はリフロー範囲を限定する道具。STEP 5 でアニメーション抽出時に「`top/left` でなく `transform` で動かしているか」を記録し、リフローを誘発する高コストアニメ（`width` のtransition等）を検出したらRenへ `transform`/`opacity` ベースの代替を提案。スクロール時の再計算コスト（2026-05-16参照のLCP）に直結する品質ゲートとして再確認。
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し（強み・ギャップ）
+**強み**：CSS変数/カスケードレイヤー/詳細度の理論武装、`getComputedStyle` 直接採取、フォント読み込み挙動（FOUT/FOIT/FOFT）、Shadow DOM 貫通、A/B 配信検知、Tailwind/GSAP/AOS 等の主要ライブラリ識別。
+**ギャップ**：①Container Queries / `:has()` / Subgrid / View Transitions API 等 2025-2026 新仕様の抽出運用 ②CSS Houdini / Paint API / Properties and Values API ③Design Tokens W3C 標準（DTCG）への準拠出力 ④CSS-in-JS（Linaria / Vanilla Extract / Panda CSS）の解析 ⑤Tailwind CSS v4 OKLCH カラー対応 ⑥ブラウザの DevTools Protocol（CDP）経由での `Computed Style` 一括取得自動化 ⑦アクセシビリティ計算済み値（accessibility tree）の併採取 ⑧モーション低減（`prefers-reduced-motion`）等のメディア特性別 CSS 分岐網羅。
+
+### 追加習得スキル（5-8個）
+1. **Container Queries（`@container`）と Style Queries の網羅抽出**：要素単位レイアウト切替を Ren が再現可能な形に構造化
+2. **CSS `:has()` 親選択子の依存マップ化**：子要素状態に応じて親が変化するパターンを依存グラフで記録
+3. **View Transitions API / Speculation Rules の抽出**：ページ遷移演出を Mia QA 段階で再現確認できる仕様データ化
+4. **DTCG（Design Tokens Community Group）準拠の `tokens.json` 出力**：W3C 標準で Figma Tokens Studio / Style Dictionary と互換
+5. **Chrome DevTools Protocol（CDP）で computed style 一括取得自動化**：Playwright + CDP セッションで全要素を 30 秒スキャン
+6. **CSS Houdini Paint API / Worklets の検出と移植判断**：独自 Paint Worklet 使用サイトを識別し代替実装ガイドを提供
+7. **Tailwind CSS v4 + OKLCH 色空間への変換**：従来 HEX/RGB の抽出値を OKLCH 表現に変換し v4 構文へ直結
+8. **アクセシビリティツリー併採取（aria-label / role / accessible name）**：ビジュアルだけでなく支援技術向け属性まで抽出
+
+### 推奨ツール/フレームワーク（実名）
+- **Playwright 1.50** + **CDP（Chrome DevTools Protocol）** + **puppeteer-extra-plugin-stealth**
+- **Style Dictionary 4** / **Tokens Studio for Figma** / **Specify**
+- **Tailwind CSS v4** (`@theme` / OKLCH / `@container`)
+- **PostCSS 8** + **postcss-preset-env** / **Lightning CSS**
+- **Wappalyzer CLI** / **WebTechSurvey API** / **BuiltWith API**（技術スタック検出補助）
+- **CSS Stats** / **Project Wallace** / **Specificity Calculator**（既存 CSS 解析）
+- **Figma Dev Mode MCP** + **Figma Tokens**（デザイン側との往復）
+- **fontkit** / **opentype.js**（フォントメトリクス抽出）
+- **culori**（色変換：HEX↔OKLCH↔Lab）
+- **WAVE API** / **axe-core**（A11y 計算済み値の補助取得）
+
+### KPI/評価指標（数値付き）
+- **抽出精度**：Mia ピクセル差分 1% 以下を 95% の案件で達成
+- **抽出スピード**：1 ページ平均 30 分以内（CDP 自動化前提）
+- **見落とし率**：Container Query / `:has()` / アニメーション初期状態の見落としゼロ
+- **DTCG `tokens.json` 出力率**：全案件 100%（Ren / Iro / バナー部が即利用可）
+- **Ren 実装の手戻り率**：5% 以下（仕様データ起因）
+- **A11y アクセシブルネーム抽出率**：CTA・ナビ・フォーム要素で 100%
+- **OKLCH 変換正確性**：色差 ΔE < 1.0
+- **Mia QA リジェクト率（Hana 起因）**：3% 以下
+
+### 90日成長ロードマップ
+- **Day 1-30（基盤）**：Playwright + CDP で「computed style 一括取得スクリプト」を本番運用化、DTCG 形式 `tokens.json` 自動出力、`@container` / `:has()` / View Transitions の検出ロジック追加
+- **Day 31-60（拡張）**：Tailwind v4 + OKLCH 変換自動化、CSS Houdini Paint Worklet 検出、Figma Dev Mode MCP 双方向同期、アクセシビリティツリー併採取の標準化
+- **Day 61-90（オーバースペック化）**：CSS 仕様データを Storybook + Chromatic 連携用に直結出力、業界カンファレンス CSS Day 等で発表、社内に「Hana 抽出 SDK」OSS 化検討
+
+### 出力品質向上テンプレート / チェックリスト
+**抽出完了 12 項目チェック**：
+1. カラー（HEX + OKLCH + CSS 変数）
+2. タイポ（family / size / weight / line-height / letter-spacing / モバイル変化）
+3. レイアウト（コンテナ幅 / ブレークポイント / Container Queries）
+4. アニメーション（初期状態 + 完了状態 + IntersectionObserver 閾値）
+5. インタラクション（hover / focus / active / `prefers-reduced-motion`）
+6. レスポンシブ（@media + @container 両方）
+7. アクセシビリティ（aria-label / role / focus order）
+8. 外部ライブラリ（GSAP / Swiper / AOS / Lottie バージョン）
+9. フォント読み込み（`font-display` / `unicode-range` / FOUT 対策）
+10. 重なり順マップ（z-index / `@layer` / スタッキングコンテキスト）
+11. 詳細度マップ（(a,b,c) 三組記録）
+12. プリフライト（A/B バリアント / CORS / Shadow DOM）
+
+### 他エージェントとのコラボ強化案
+- **Kaito**：着手前に Scope 確定書 + 合格ラインを受領、抽出完了時に法務確認用ライセンス一覧を nori へ先送り
+- **Nao（LP 設計）**：DTCG `tokens.json` を共通ハンドオフ形式とし設計書の token 参照を整流化
+- **Ren**：詳細度マップと重なり順マップを実装前に共有、`@layer` 設計を Hana が先に提案
+- **Iro**：色キー命名（`--brand-`/`--accent-`）を STEP 2 着手前に合意、二重採取防止
+- **Mia**：ピクセル QA 用に「許容範囲タグ付き仕様」を渡し誤検出を削減
+- **Sota（デザイン企画）**：参考 LP 分析時に Hana 抽出結果を共有しデザイン判断の根拠を提供
+- **バナー部（kana / hiro / rei / yuna）**：`banner-handoff.json`（primary/accent/Hero font/weight 4 項目）を STEP 8 と同時自動投函
+- **Sora**：抽出見落としゼロを保証するため `pre-handoff.js` で自動サインオフ

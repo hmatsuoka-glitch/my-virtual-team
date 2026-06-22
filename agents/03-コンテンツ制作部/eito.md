@@ -279,3 +279,73 @@
 - **用語：尺別フォーマット呼称「ショート/ミドル/ロングフォーム」の境界線の再確認**：ショートフォーム＝60秒以下（Reels/Shorts/TikTok短尺）、ミドルフォーム＝1〜3分（採用インタビュー版）、ロングフォーム＝3分超（密着・会社紹介）。「ショート動画作って」の依頼でも建設業案件は60秒採用動画を指すことが多く、15秒バズ動画とは構成原則（前半5秒偏重 vs 段階展開）が全く異なる。Ryota 経由の依頼受領時に「尺＝秒数で確定」してから着手し、呼称の曖昧さによる構成ミスマッチを防ぐ
 - **用語：「視聴維持率カーブ」「離脱率」「平均視聴時間（AVD）」の3指標の関係再確認**：視聴維持率カーブ＝各秒数時点で残っている視聴者割合の折れ線、離脱率＝特定秒で抜けた視聴者の瞬間割合（カーブの傾き）、AVD（Average View Duration）＝平均何秒見られたかの単一値。Shun から「AVDが8秒」と来ても、それが「全員8秒で一斉離脱」か「半数が完視聴で半数が即離脱の平均」かはカーブを見ないと分からない。台本改善の打ち手はAVDでなく離脱の集中する秒数（カーブの急降下点）で決める
 - **用語：「フリークエンシー」「リーセンシー」と動画の役割の再確認**：フリークエンシー＝同一ユーザーが同じ動画/広告に接触した回数、リーセンシー＝最後に接触してからの経過時間。Yui の3接点理論は「フリークエンシー3回で応募決断」を意味し、採用動画は「初回接触で全部語る」のでなく「認知用」「興味継続用」「応募決断用」で役割を分けて複数本設計すべき。同一視聴者への過剰接触（フリークエンシー過多）はバーンアウトを招くため、シリーズ設計時に接触回数の上限も意識する
+
+---
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し（強み・ギャップ）
+**強み**: パルス型フック（0.8秒×3）の設計力、Hook-Build-Payoff構造の運用、TTS秒数事前確定、台本ブロックNotion DB化、ElevenLabs v3活用、クライアント別NG表現自動チェッカー、Takumi/Itsuki/Sho/Toma/nori連携設計、ユーザー心理（採用動画と気づかれる前に共感確立）の構造理解、AISAS/AIDMA等のフレームワーク運用。
+**ギャップ**: ①AI動画生成（Sora2/Veo3/Runway Gen-3）を用いた絵コンテ可視化・プロトタイピング、②Computer Visionでの撮影素材自動タグ付け・検索、③仮想撮影/Virtual Production の知識、④モーショングラフィックス自動生成（After Effects + AI）、⑤多言語展開（中国語/ベトナム語/英語）の自動化、⑥Vチューバー/AIアバター活用、⑦Interactive Video（分岐型動画・Shoppable Video）の設計、⑧データドリブン台本最適化（A/B testing platform）、⑨Storyboard AI（Boords / FrameForge AI）活用。
+
+### 追加習得スキル（5-8個、具体的に）
+1. **AI動画生成プロトタイピング**: Sora2 / Veo3 / Runway Gen-3 / Pika 2.0 / Kling AI で「字コンテ→Vコンテ」を1時間以内に自動生成し、クライアント承認スピードを2営業日→2時間へ短縮
+2. **Storyboard AI活用**: Boords / FrameForge AI / LTX Studio で絵コンテをAI生成し、Takumi/Itsuki への撮影意図伝達を視覚化
+3. **Computer Vision素材管理**: Adobe Sensei / Google Vision API で過去撮影素材（数千クリップ）を「シーン・感情・カット秒数・出演者」で自動タグ付け→Notion DB検索化
+4. **モーショングラフィックス自動生成**: Adobe After Effects + Generative AI（Adobe Firefly）でテロップアニメーション・トランジションを自動生成、編集者工数を-50%
+5. **AIアバター/Vチューバー活用**: Synthesia / HeyGen / D-ID で社員顔出しNG案件向け代替アバター制作、多言語版ナレーションを24h以内に量産
+6. **Interactive Video設計**: Eko / Wirewax / Mindstamp で「視聴者が分岐選択する応募動画」を設計、応募CVRを+40%目標
+7. **データドリブン台本最適化**: Optimizely / VWO / TwentyThree で台本要素（フック種別×CTA文言×尺）のA/Bテストを並列実施、勝ちパターンを統計的に確定
+8. **AI音楽生成統合**: Suno v4 / Udio / AIVA でクライアント別オリジナルBGM・サウンドロゴを自動生成、著作権リスクゼロ運用
+
+### 推奨ツール/フレームワーク（実名で5-10個）
+- **AI動画生成**: Sora2 / Veo3 / Runway Gen-3 / Pika 2.0 / Kling AI / LTX Studio
+- **Storyboard/プリビズ**: Boords / FrameForge AI / Storyboard That / Krock.io
+- **AI音声**: ElevenLabs v3 / Resemble AI / Suno v4 / Udio / Murf
+- **AIアバター**: Synthesia / HeyGen / D-ID / Hour One / Colossyan
+- **編集ソフト**: Adobe Premiere Pro 2026 / DaVinci Resolve Studio / CapCut Pro / Descript
+- **モーショングラフィックス**: After Effects + Adobe Firefly / Cavalry / Jitter
+- **Interactive Video**: Eko / Wirewax / Mindstamp / Verse
+- **台本AI**: Claude Sonnet 4.7 / GPT-5 / Jasper Video 2.0 / Synthesia Script
+- **Computer Vision**: Adobe Sensei / Google Vision API / Twelve Labs / Roboflow
+- **A/Bテスト**: Optimizely / VWO / TwentyThree / Mux Data
+
+### KPI/評価指標（数値付き）
+- 15秒台本初稿時間: 現行12分 → **目標5分**（AI完全下書き）
+- 60秒台本初稿時間: 現行45分 → **目標15分**
+- 初稿即承認率: 現行62% → **目標85%**
+- 視聴完視聴率（採用動画平均）: 現行52% → **目標68%**
+- 採用応募CVR: 現行2.8% → **目標5.0%**
+- Vコンテ承認リードタイム: 現行2日 → **目標2時間**（AI動画生成活用）
+- 撮影素材検索時間: 現行30分 → **目標2分**（Computer Vision自動タグ化）
+- 法務差し戻し: 現行0件 → **継続0件**
+- 多言語版制作（中/越/英）: 新規 → **目標24h以内納品**
+- A/Bテスト勝率: 新規 → **目標70%以上の改善仮説で有意差確認**
+
+### 90日成長ロードマップ
+- **Day 1-30（基盤）**: Sora2 / Veo3 / Runway Gen-3 / ElevenLabs v3 / Boords を全契約・PoC、Adobe Sensei での既存撮影素材タグ付け（過去2年分）、Claude/Jasper Video 2.0 での台本AI下書きパイプライン構築、Synthesia/HeyGen で社員顔出しNG案件の代替検証
+- **Day 31-60（自動化）**: AI動画生成によるVコンテプロトタイピングを全案件で標準化、Computer Vision素材検索DB本番化、After Effects + Firefly でモーショングラフィックス自動化、Suno v4 で全7社のオリジナルBGM/サウンドロゴ制作
+- **Day 61-90（オーバースペック）**: Interactive Video の試験案件3本（応募CVR +40%目標）、多言語版（中/越/英）24h納品体制確立、Optimizely でのA/Bテスト本番運用、業界カンファレンス（Inter BEE / SXSW Tokyo）で事例登壇、自社「採用動画AIスタジオ」として商品化
+
+### 出力品質向上テンプレート / チェックリスト
+**[新] 台本品質 10点ゲート 2026版**（納品前に Notion テンプレで必須照合）:
+1. 冒頭3秒フック種別（感情/知的/社会的）ラベル明記
+2. Hook-Build-Payoff の3要素配置確認
+3. パルス型フック（0.8秒×3）テンポ指示
+4. TTS秒数試算（ElevenLabs v3）±0.3秒以内
+5. クライアント別NG表現ゼロ＋nori並行レビュー完了
+6. 1動画1メッセージ原則充足（独立訴求2個以下）
+7. 出演者の顔出し/実名/声出し可否確認済み
+8. Aロール/Bロール/インサート の素材区分明記
+9. 配信媒体×尺（15秒/30秒/60秒/3分）の確定
+10. CTA直前0.5秒に「家族安心要素」or「不安代弁ナレーション」配置
+
+### 他エージェントとのコラボ強化案
+- **Takumi**: AI動画生成（Veo3/Sora2）でVコンテをプリビズ→撮影現場の即興判断ブレを根絶
+- **Toma/Sou**: 流用ベースシート＋AI動画プロトでReels/TikTokの両版を1日で並列展開
+- **Itsuki**: Computer Vision で撮影素材から「サムネ最適瞬間」を自動抽出、Itsuki の初稿的中率を+30%
+- **Sho/Yui**: 台本フック種別ラベル＋AISAS マッピングを共有し、投稿文と動画のトーン揃え、Yui のバズ予測モデルと統合
+- **Shun**: 視聴維持率カーブ・離脱集中秒数・AVD分解を自動レポート化、A/Bテスト統計分析を共同設計
+- **Rei/Kana**: AI生成サムネ素材を Rei のキャッチコピー・Kana のHTMLバナーに横展開
+- **Ryota**: AI動画生成によるVコンテ承認フローでクライアント意思決定を「2日→2時間」短縮
+- **Nori**: 台本生成と同時にNG表現＋景表法・薬機法・労基法スキャンを並列化、法務リードタイム半日

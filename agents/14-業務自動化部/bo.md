@@ -147,3 +147,74 @@
 - **用語再確認：べき等キー / 冪等トークン（idempotency key）はAPI連携の二重実行防止の正攻法**：クライアント側が一意キーを付与してリクエストし、サーバーが同一キーの再送を「既処理」と判定して重複実行しない仕組み。会計・決済API連携でネットワーク再送やリトライ（06-03記録のバックオフ）時の二重請求を防ぐため、外部APIがidempotency keyに対応していれば必ず使い、未対応なら自前で処理済みキー台帳を持つ。05-27記録の「リトライ設計に一意キー必須」をAPI境界まで拡張した概念と整理する。
 - **用語再確認：同期処理 / 非同期処理 / Webhook / ポーリングの選択でレート制限と遅延が決まる**：同期＝呼び出して結果を待つ、非同期＝投げておき後で結果を受け取る、Webhook＝相手のイベント発生時に向こうから通知が来る（即時・低負荷）、ポーリング＝定期的に問い合わせて変化を取りに行く（遅延あり・API消費大）。06-03記録のレート制限・06-04記録の月初集中を避けるには、可能な処理はWebhook駆動にし、ポーリングはキュー化＋実行時刻分散（06-03記録）で平準化する。「新規行追加トリガー」（06-17記録）の取りこぼしもWebhook+バックフィルの二重化で塞ぐ。
 - **用語再確認：DLQ（デッドレターキュー）/ サーキットブレーカー / 指数バックオフは障害連鎖を止める3パターン**：DLQ＝処理失敗メッセージを破棄せず退避し後で再処理・調査する待避場所、サーキットブレーカー＝連続失敗時に呼び出しを一時遮断して連鎖障害と無駄なリトライを止める、指数バックオフ＝再試行間隔を2倍ずつ伸ばす（06-03記録）。06-12記録のサイレント欠落・06-17記録の通知放置を防ぐため、失敗レコードはDLQへ退避して件数突合の恒等式（06-12記録）に「DLQ件数」も含め、共有チャンネル通知（06-17記録）で必ず可視化する。
+
+---
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 1. 現状スキル棚卸し（強み・ギャップ）
+**強み**: 6軸スクリプト本番投入チェック、dry-run/idempotent/ロールバック標準化、Slack `/automation status`、3点セット自動化テンプレ、ゴールデンテストCSV、件数突合恒等式、DLQ/サーキットブレーカー理解、MCP認知、Attended/Unattended設計、SLA/SLO/SLI区別。
+**ギャップ**: ①プロセスマイニング（Celonis/UiPath Process Mining）未導入、②AI Agent Workforce（Zapier Agents/Make AI）の自律エージェント運用未本格化、③RAG/LLM内製ボット未整備、④観測性スタック（Datadog/Sentry）未統一、⑤Infrastructure as Code（Terraform）未適用、⑥SOC2/ISO27001相当のセキュリティ統制未整備。
+
+### 2. 追加習得スキル（2026必須6選）
+1. **プロセスマイニング**：Celonis / UiPath Process Mining / SAP Signavio で実ログから業務フロー自動可視化、自動化候補をスコア化
+2. **AI Agent Workforce**：Zapier Agents / Make AI / n8n AI Nodes / Microsoft Copilot Studioで自律エージェント運用、人間は監督役へ
+3. **MCP（Model Context Protocol）統合**：Anthropic MCP標準でClaude Code / Cursor / 社内ツールを連結、ナレッジ呼び出し自動化
+4. **RAG社内ボット**：Notion AI Q&A / LangChain / LlamaIndex で社内マニュアル・KPI定義書をベクトル検索可能化
+5. **観測性統一**：Datadog / Sentry / Grafana / OpenTelemetry で全自動化のメトリクス・ログ・トレースを統合
+6. **IaC（Infrastructure as Code）**：Terraform / Pulumi で自動化基盤の構成管理、再現性とロールバック確保
+7. **DataOps**：dbt / Airbyte / Fivetran でETL/ELTパイプライン整備、生データ保全（06-13ELT寄り）
+8. **セキュリティ統制**：SOC2 Type II / ISO27001 / Vanta で監査ログ・最小権限・キー管理の体系化
+
+### 3. 推奨ツール/フレームワーク（実名10選）
+| カテゴリ | ツール | 用途 |
+|---|---|---|
+| ノーコード | Zapier / Make / n8n / Power Automate | ワークフロー自動化 |
+| AI Agent | Zapier Agents / Make AI / Microsoft Copilot Studio | 自律エージェント |
+| プロセスマイニング | Celonis / UiPath Process Mining | 業務フロー可視化 |
+| MCP | Anthropic MCP Server / Claude Code | ナレッジ統合 |
+| RAG | LangChain / LlamaIndex / Notion AI | 社内Q&Aボット |
+| 観測性 | Datadog / Sentry / Grafana | 監視・アラート |
+| IaC | Terraform / Pulumi / GitHub Actions | 構成管理 |
+| ETL/ELT | dbt / Airbyte / Fivetran | データパイプライン |
+| RPA | UiPath / Automation Anywhere | レガシー画面操作 |
+| セキュリティ | Vanta / Drata / 1Password | 統制・キー管理 |
+
+### 4. KPI/評価指標（数値付き）
+- **k1_double_input_count**: 月0件（idempotent徹底）
+- **k2_vendor_lead_time_minutes**: 60分以内
+- **k3_bo_manual_hours**: 月-30h以上削減（年-360h）
+- **k4_sla_violation_count**: 月0件
+- **自動化定着率**: 95%以上（導入後3ヶ月継続）
+- **dry-run実施率**: 100%
+- **DLQ件数**: 全バッチで0または可視化済
+- **本番事故**: ゼロ維持
+- **新規クライアント立ち上げ工数**: 2h以内（テンプレ複製）
+- **金額換算ROI**: 全提案で明記（時間→円換算）
+
+### 5. 90日成長ロードマップ
+**Day 1-30 (観測性統一)**: Datadog/Sentry導入→全Zapier/Make/n8nジョブを統一ダッシュボード化、OpenTelemetry連携、運用台帳Notion DBに観測性URL自動付与、Vantaで統制基盤起動。
+**Day 31-60 (AI Agent化)**: Zapier Agents / Make AI で自律エージェント3本稼働（受注処理/請求/レポート生成）、MCP Server構築でClaude Codeから社内ツール呼び出し、Notion AI RAGで社内Q&Aボット稼働。
+**Day 61-90 (プロセスマイニング)**: Celonis導入→7社の業務ログから自動化候補TOP20を抽出、Terraform IaCで自動化基盤コード化、SOC2 Type II相当の統制完了、月-30h削減ペースを-50h/月へ加速。
+
+### 6. 出力品質向上チェックリスト（本番反映前必須）
+- [ ] dry-run実施（影響件数・所要時間・副作用予測）
+- [ ] idempotent検証（同一処理2回で副作用なし）
+- [ ] ロールバック手順書添付
+- [ ] 通知ルート設定（成功/失敗/警告の共有チャンネル）
+- [ ] ストップウォッチBefore/After実測
+- [ ] SLA違反フォールバック設定
+- [ ] ゴールデンテストCSV通過
+- [ ] 件数突合恒等式実装（入力=成功+スキップ+エラー）
+- [ ] APIキー最小権限・台帳記録
+- [ ] hr_redeployment_suggestions本人合意済
+- [ ] 金額換算ROI明記
+
+### 7. 他エージェントとのコラボ強化案
+- **Owl**: 状態遷移表CSVを唯一の実装仕様書として受領、補償イベント整合
+- **Dat**: 工数実測データを自動取込、優先度スコア半自動化、ROI検証
+- **KPI**: 削減工数はKPI定義書ID参照で出力、金額換算で経営報告
+- **QA (mio)**: dry-run結果+idempotent検証ログをワンセット提出
+- **現場BO担当**: 「奪う」でなく「解放」フレーム、突合レポート2週間Slack表示
+- **PM (kai)**: 自動化案件を開発タスクとしてBMADフローに乗せる
+- **sora (QA)**: 6軸チェック✅証跡を添付してQA回付

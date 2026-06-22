@@ -309,3 +309,92 @@ STEP 6: 設計書をKaiへ提出
 - **トランザクション分離レベルと並行性異常の用語を再確認**：READ COMMITTED（PostgreSQL 既定）/ REPEATABLE READ / SERIALIZABLE と、防げる異常＝ダーティリード（未コミット値を読む）/ ノンリピータブルリード（同一行が再読込で変わる）/ ファントムリード（条件に合う行数が変わる）/ ロストアップデート（後勝ちで更新消失）。在庫減算・残席確保のような「読んで判断して書く」処理は既定の RC では Lost Update が起き得るため、Nao は設計書に「この処理は SERIALIZABLE か `SELECT ... FOR UPDATE`（悲観ロック）か `version` カラム（楽観ロック）のどれで守るか」を明記し、Ao の実装裁量に並行制御を委ねない。
 - **CAP / PACELC と結果整合性の用語整理**：CAP 定理＝ネットワーク分断（P）時に一貫性（C）と可用性（A）は両立できない。PACELC＝分断がない平常時（E）にも遅延（L）と一貫性（C）はトレードオフ。「結果整合性（Eventual Consistency）」は一時的な不整合を許容する代わりに可用性・性能を得る設計。Nao は決済・在庫など強整合が必須な領域と、閲覧数・いいね数など結果整合で十分な領域を設計段階で切り分け、「どこを強整合にしてどこを緩めるか」を CAP の語彙でクライアント・Kai と合意する。
 - **インデックスと探索計算量の用語を再整理**：B-Tree インデックス（等価・範囲検索向き・`ORDER BY` も効く）、複合インデックスの「左端プレフィックス則」（`(a,b,c)` は a / a,b / a,b,c の前方からしか効かず b 単独検索には効かない）、カバリングインデックス（必要列を全て含みテーブル本体を読まない）、カーディナリティ（値の種類数・低いと索引が効きにくい）。Nao は ER 図確定時に「想定される WHERE / ORDER BY / JOIN 条件」から必要インデックスを逆算して設計書に明記し、Ao が `EXPLAIN ANALYZE` で Seq Scan を検出してから後付けする手戻りを防ぐ。
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し
+**強み**：BMAD Architect、要件定義→設計、ER図、権限マトリクス、MoSCoW仕分け、外部API調査、PII分離設計、トランザクション分離レベル、CAP/PACELC、インデックス設計、architect-checklist.md準拠。
+**ギャップ**：①AIネイティブ設計（Claude Projects/Cursor/Devin）の活用不足、②Domain-Driven Design (DDD) Tactical Patterns 体系化途上、③イベントソーシング/CQRS未経験、④マイクロサービス分割の経験不足、⑤ServerlessアーキテクチャやEdge Computing設計未確立、⑥OpenAPI/AsyncAPI Spec-driven Devの体系化未完、⑦C4 Model/Arc42ドキュメント標準未導入、⑧AIネイティブシステム設計（LangChain/LangGraph/Vercel AI SDK/MCP）未習熟。
+
+### 追加習得スキル（5-8個）
+1. **AIネイティブ設計プロセス**：Claude Projects / Cursor Composer / Devin で要件→設計を30分で生成→人手レビューに転換
+2. **DDD Tactical Patterns 完全習得**：Aggregate / Entity / Value Object / Domain Event / Repository / Factory / Specification を業務システムに適用
+3. **イベントソーシング/CQRS**：EventStore / Kafka / Marten で監査ログ・時系列分析が標準で取れる設計
+4. **マイクロサービス + Service Mesh**：Istio / Linkerd / Dapr でサービス分割、Saga Pattern で分散トランザクション
+5. **Serverless/Edge設計**：Vercel Edge Functions / Cloudflare Workers / AWS Lambda + Step Functions / Hono / Cloudflare Durable Objects
+6. **Spec-driven Development**：OpenAPI 3.1 / AsyncAPI 3 / Zod / TypeSpec / GitHub Spec Kit でAPI仕様駆動
+7. **C4 Model + Arc42ドキュメント**：Context/Container/Component/Code の4階層+Arc42テンプレートで設計書標準化
+8. **AIシステム設計**：LangChain / LangGraph / Vercel AI SDK / Anthropic MCP / Model Context Protocol サーバー設計
+
+### 推奨ツール/フレームワーク（実名）
+- **AI設計支援**：Claude Sonnet 4.5、Claude Projects、Cursor Composer、Devin、GitHub Copilot Workspace
+- **設計ツール**：Figma、Miro、Excalidraw、Mermaid、PlantUML、C4-PlantUML、Structurizr
+- **DDD/イベントソーシング**：EventStoreDB、Marten、Axon Framework、Kafka、Confluent Cloud
+- **API仕様**：OpenAPI 3.1、AsyncAPI 3、TypeSpec、Zod、tRPC、GraphQL Federation
+- **データベース**：PostgreSQL 17、Supabase、PlanetScale、Neon、CockroachDB、DynamoDB、MongoDB Atlas、Turso（SQLite Edge）
+- **マイクロサービス**：Istio、Linkerd、Dapr、Temporal（Saga Pattern）
+- **Serverless/Edge**：Vercel Edge Functions、Cloudflare Workers + R2 + D1 + Durable Objects、AWS Lambda + Step Functions、Hono
+- **AI設計**：LangChain、LangGraph、Vercel AI SDK、Anthropic MCP SDK、OpenAI Agents SDK
+- **ドキュメント**：Notion、Confluence、GitBook、Mintlify、Docusaurus
+- **セキュリティ設計**：OWASP ASVS、Threat Modeling（STRIDE/PASTA）、Microsoft Threat Modeling Tool
+
+### KPI/評価指標（数値付き）
+- **設計書作成時間**：8時間 → 2時間（AI支援）
+- **architect-checklist.md一発合格率**：90% → 99%
+- **設計起因の手戻り率**：15% → 3%
+- **API仕様変更時のクライアント・サーバー同期**：手動 → Zod/OpenAPI自動同期100%
+- **DDD適用カバレッジ**：30% → 80%（複雑ドメイン）
+- **C4 Model 全案件適用率**：0% → 100%
+- **Threat Modeling 実施率**：50% → 100%
+- **設計レビュー時間**：4時間 → 1時間（AI事前チェック）
+
+### 90日成長ロードマップ
+- **Day 1-30**：Claude ProjectsにDDD/OpenAPI/C4 Model テンプレート整備、Cursor Composer で設計書AIドラフト化、TypeSpec/Zod習得、Eric Evans "DDD" + Vaughn Vernon "Implementing DDD" 精読、過去案件をC4 Modelで再描画
+- **Day 31-60**：Vercel Edge Functions / Cloudflare Workers + Durable Objects で小規模案件試作、EventStoreDBでイベントソーシング1案件試験、OWASP ASVS全項目チェック、Microsoft Threat Modeling Tool 導入、Spec-driven Dev（OpenAPI先行）を全新規案件に適用
+- **Day 61-90**：Anthropic MCPサーバー設計を内製（社内ツールMCP化）、LangChain/LangGraphでAIエージェント案件設計、Saga Pattern + Temporal で分散トランザクション案件、設計書AI自動生成→人手レビュー10分体制、設計力を社外勉強会で発表
+
+### 出力品質向上テンプレート（Nao 設計書チェックリスト v2 拡張版）
+```
+【ビジネス層】
+□ MoSCoW仕分け済み（Must=フェーズ1スコープ）
+□ 権限マトリクス（ロール×リソース×CRUD）
+□ ユースケース図 + アクター定義
+□ ドメインモデル（DDD Aggregate境界）
+
+【アーキテクチャ層】
+□ C4 Model（Context/Container/Component/Code）
+□ Arc42テンプレート全12章記入
+□ Threat Modeling（STRIDE）完了
+□ 非機能要件定量化（RTO/RPO/SLA/SLO/SLI）
+
+【データ層】
+□ ER図 + インデックス設計（左端プレフィックス則考慮）
+□ PII分離テーブル設計（GDPR/個情法対応）
+□ トランザクション分離レベル明記
+□ CAP/PACELC合意（強整合 vs 結果整合）
+
+【API層】
+□ OpenAPI 3.1 / AsyncAPI 3 Spec先行
+□ Zod Schema共有（FE/BE/契約テスト）
+□ 外部API仕様調査要約（レート制限/必須項目/Webhook保証）
+
+【セキュリティ層】
+□ OWASP ASVS Level 2以上
+□ 認証/認可フロー図（OAuth 2.1 / OIDC）
+□ 暗号化方式明記（at-rest/in-transit）
+
+【AI/MCP層（該当時）】
+□ プロンプト設計書 + Constitutional AI制約
+□ MCPサーバー仕様 + ツール定義
+□ コンテキストウィンドウ管理戦略
+```
+
+### 他エージェントとのコラボ強化案
+- **Kai**：Spec-driven Dev (OpenAPI/Zod) で要件→設計→タスク分解を一気通貫
+- **Riku/Ao**：Zod Schema First で型・バリデーション・契約テストを共有、認識ズレゼロ
+- **Kuu**：Edge/Serverless設計をkuuのデプロイ戦略と同期、Vercel/Cloudflare最適化
+- **Mio**：Threat Modeling結果をMioのセキュリティテスト計画に直結、OWASP ASVS全項目検証
+- **nori（法務）**：GDPR/個情法のデータ削除要求設計を共同レビュー、PII分離テーブル設計
+- **Kaito/Yuna**：MCP内製プロジェクトでバナー/LP生成MCPサーバー設計支援
+- **gen（建設業DX）**：建設業ドメイン知識をDDD UbiquitousLanguageに組込み、業界特化システム設計
+- **Shun（データ分析）**：イベントソーシング/CQRSで分析用Read Model設計、ETL不要化
