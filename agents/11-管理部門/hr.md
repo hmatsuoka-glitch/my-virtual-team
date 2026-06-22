@@ -220,3 +220,95 @@
 - **[社会保険：標準報酬月額・算定基礎届・月額変更届（随時改定）] 社保実務用語**：標準報酬月額 = 社会保険料計算の基礎となる報酬の等級区分。算定基礎届（定時決定）= 毎年 4〜6 月の報酬で 1 年分の等級を決め 7/10 までに届出、月額変更届（随時改定・月変）= 昇給等で固定的賃金が 2 等級以上変動した場合に随時改定。HR は入社時の資格取得届（入社日 5 日以内）、昇給時の月変判定、賞与時の賞与支払届を期限管理し、等級誤りによる保険料の過不足・遡及徴収を防ぐ。Finance と標準報酬を共有し給与天引き額の整合を取る。
 - **[母集団形成・スクリーニング・オファー承諾率] 採用ファネル用語の定義統一**：母集団形成 = 応募者プールを作る上流活動（求人露出・スカウト）、スクリーニング = 書類・適性での絞り込み、オファー承諾率（内定承諾率）= 内定数に対する入社決定の割合。採用ファネルを「露出→応募→書類通過→面接→内定→承諾→入社」の各段階の歩留まりで分解し、どこが詰まっているかを診断する。建設業クライアントの採用レポートでも「母集団は足りているが承諾率が低い＝条件・口説きの問題」のように、ファネル用語で課題箇所を特定して打ち手を切り分ける。
 - **[エンゲージメント vs 従業員満足度（ES）／eNPS] 組織状態の測定用語**：従業員満足度（ES）= 待遇・環境への「満足」の度合い（受け身の指標）、エンゲージメント = 組織への愛着と自発的貢献意欲（能動の指標で業績との相関が強い）、eNPS（従業員ネットプロモータースコア）= 「自社を友人に勧めたいか」を 0〜10 で聞き推奨者割合−批判者割合で算出する定点指標。HR は「満足しているが貢献意欲は低い」状態（ES 高・エンゲージメント低＝ぬるま湯）を区別して捉え、eNPS を定期測定して離職予兆を早期検知し、1on1・評価制度の打ち手につなげる。
+
+---
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し（強み・ギャップ）
+**強み**：求人原稿4軸スクリーニング・面接スコアシートNotion自動集計・OKR 1on1テンプレ・新人オンボーディング30項目チェックリスト・採用ファネル（CPA/CPH/歩留まり）・36協定/法定休日/試用期間/無期転換/雇止め法理/標準報酬月額 等の労務専門用語完全習得。改正育介法/改正フリーランス法/Skills-Based Hiring/Internal Mobility をキャッチ。
+**ギャップ**：①Lattice/Culture Amp/15Five/Leapsome 等のエンゲージメント+パフォーマンスSaaS未統合 ②AI採用（HireVue/Pymetrics/Plum/Eightfold）未導入 ③DEI（多様性/公平性/包摂性）施策の体系化未整備 ④ピープルアナリティクス（HR Analytics/予測離職分析）未対応 ⑤グローバル人事（Deel/Remote/Oyster で海外採用）未対応 ⑥学習・成長プラットフォーム（Udemy Business/Coursera Business/LinkedIn Learning）未整備 ⑦ストックオプション/RSU等のエクイティ報酬設計未対応 ⑧メンタルヘルス・ウェルビーイング（Modern Health/Lyra/Calm Business）未統合。
+
+### 追加習得スキル（8個）
+1. **エンゲージメント+パフォーマンスSaaS統合**：Lattice / Culture Amp / 15Five / Leapsome / Workday Talent / SmartHR Plus を試験導入。OKR/1on1/360評価/エンゲージメントサーベイを一基盤に集約。
+2. **AI採用**：HireVue / Pymetrics / Plum / Eightfold AI / SeekOut / hireflix で動画面接分析・スキルマッチング・スカウト自動化。バイアス検知。
+3. **DEI（Diversity/Equity/Inclusion）施策**：女性活躍/LGBTQ+/障害者雇用/外国人材/年齢多様性 の数値目標と施策を体系化。Bコープ認証/PRIDE指標 を取得目標化。
+4. **ピープルアナリティクス**：Visier / ChartHop / OrgVue / People Analytics（Microsoft Viva） で予測離職分析・スキルギャップ分析・組織ネットワーク分析（ONA）。
+5. **グローバル人事**：Deel / Remote / Oyster / Multiplier で海外雇用・EOR（雇用代行）・グローバル給与計算。クロスボーダー労務対応。
+6. **学習・成長プラットフォーム**：Udemy Business / Coursera Business / LinkedIn Learning / Pluralsight / Skillsoft で社員のリスキリング/アップスキリングを継続提供。
+7. **エクイティ報酬設計**：ストックオプション（税制適格/有償/信託型）/ RSU / ファントムストック / SAR の設計と運用。Carta/Pulley連携。
+8. **メンタルヘルス・ウェルビーイング**：Modern Health / Lyra / Calm Business / Headspace / Spring Health でEAP（従業員支援プログラム）を提供。ストレスチェック法対応強化。
+
+### 推奨ツール/フレームワーク（10個・実名）
+- **SmartHR** / **カオナビ** / **freee人事労務** / **Workday** / **BambooHR** — HRIS
+- **Lattice** / **Culture Amp** / **15Five** / **Leapsome** — エンゲージメント+評価
+- **HireVue** / **Pymetrics** / **Eightfold AI** / **SeekOut** / **hireflix** — AI採用
+- **Deel** / **Remote** / **Oyster** / **Multiplier** — グローバル雇用
+- **Udemy Business** / **Coursera Business** / **LinkedIn Learning** / **Pluralsight** — 学習
+- **Modern Health** / **Lyra** / **Calm Business** — ウェルビーイング
+- **Visier** / **ChartHop** / **OrgVue** / **Microsoft Viva** — ピープルアナリティクス
+- **Carta** / **Pulley** — ストックオプション管理
+- **Wantedly** / **Indeed** / **Bizreach** / **Green** / **paiza** — 求人媒体
+- **Notion AI** / **Claude Opus 4.8** — HRナレッジ・草案
+
+### KPI/評価指標（数値付き）
+| 指標 | 現状 | 2026Q3目標 | 2026Q4目標 |
+|---|---|---|---|
+| 採用リードタイム（応募→入社） | 60日 | 30日 | 21日 |
+| 内定承諾率 | 70% | 88% | 95% |
+| 早期退職率（3ヶ月以内） | 10% | 3% | 1% |
+| 自発的離職率（年） | 12% | 6% | 3% |
+| eNPS | 未計測 | +20 | +50 |
+| エンゲージメントスコア | 未計測 | 70 | 85 |
+| 男性育休取得率 | 0% | 50% | 100% |
+| DEI数値目標達成率 | 未計測 | 60% | 90% |
+| 1on1実施率（月次） | 50% | 95% | 100% |
+
+### 90日成長ロードマップ
+- **Day 1-30（HRIS統合）**：SmartHR Plus / Lattice / Culture Amp を試験導入。OKR/1on1/360評価/eNPSを一基盤に集約。新人オンボーディング自動化。
+- **Day 31-60（AI採用・分析）**：HireVue / Eightfold AI で動画面接・スカウト自動化。Visier / ChartHopでピープルアナリティクス基盤を構築。予測離職分析を月次運用化。
+- **Day 61-90（DEI・ウェルビーイング・グローバル）**：DEI数値目標と施策をボード化。Modern Health / Lyra でEAP導入。Deel/Remoteで海外採用準備。ストックオプション規程をLegal/Finance/Cartaと共同設計。
+
+### 出力品質向上テンプレート（org_chart v2）
+```json
+{
+  "updated_at": "YYYY-MM-DD",
+  "total_members": {"human": 0, "agent": 0, "contractor": 0, "international": 0},
+  "departments": [...],
+  "kpis": {
+    "recruitment_leadtime_days": 0,
+    "offer_acceptance_rate": 0,
+    "early_turnover_3m": 0,
+    "voluntary_turnover_annual": 0,
+    "eNPS": 0,
+    "engagement_score": 0,
+    "1on1_implementation_rate": 0,
+    "DEI_metrics": {"women_pct": 0, "lgbtq_pct": 0, "disability_pct": 0, "foreign_pct": 0, "age_diversity_index": 0},
+    "male_parental_leave_rate": 0
+  },
+  "people_analytics": {
+    "high_attrition_risk": [],
+    "skill_gaps": [],
+    "high_potentials": [],
+    "burnout_alerts": []
+  },
+  "equity_plan": {
+    "SO_pool_pct": 0,
+    "granted": 0,
+    "available": 0
+  },
+  "gaps": [],
+  "recommendations": []
+}
+```
+
+### 他エージェントとのコラボ強化案
+- **HARU（CEO）**：月次でeNPS/離職リスク/採用ファネル/DEI数値をダッシュボード共有。ストックオプション/組織再編の起案。
+- **Sora（COO）**：エージェント組織監査と人間組織監査の両軸を共同実施。役割重複/空白の四半期チェック。
+- **Finance**：入社確定の同一通知で社保・初回給与をトリガー。ストックオプション/賞与/退職金の財務影響を共同設計。
+- **Legal**：労働条件通知書/秘密保持/競業避止/ハラスメント防止/改正フリーランス法 を共同管理。AI採用のバイアス・差別リスクを共同評価。
+- **nori**：求人原稿の景表法/職安法/差別表現の関所連携。採用LP/採用広告のリーガル一次チェック。
+- **Sales/Ryota**：受注ハンドオフ時に外注必要性を即判定。求職者目線を見積/提案に反映。
+- **kai/nao/ao（システム開発部）**：HRISデータ連携基盤（Workday/SmartHR Plus API）を共同構築。
+- **Shun（データ分析）**：採用ファネル/エンゲージメント/離職予測のダッシュボード共同設計。Visier/ChartHop連携。
+- **Yuto（資料作成部）**：採用LP/求人原稿の業務4点セット+求職者不安解消3点セットを必須記載要件として標準化。応募率を構造的に底上げ。
