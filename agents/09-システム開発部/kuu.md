@@ -434,3 +434,103 @@ STEP 6: 実装完了報告
 - **CDN/エッジのキャッシュ階層用語を再確認**：オリジン＝コンテンツの出所（Vercel Function/DB）、エッジ＝ユーザー近傍の PoP（Point of Presence）、CDN ヒット率＝エッジで返せた割合。`Cache-Control` の `public`/`private` は「共有キャッシュ（CDN）に置いてよいか」、`s-maxage` が CDN 向け・`max-age` がブラウザ向け。SWR（stale-while-revalidate）はオリジン障害時の「古いが返せる」フォールバックにもなる。Kuu は静的アセットを `immutable`、HTML/API を `s-maxage + SWR` と層別設計し、`Vary` ヘッダー（認証・言語でキャッシュ分割）の付け忘れによる「他人のレスポンスが見える」事故を監査項目化。
 - **可用性の「ナイン」とコスト感覚の用語整理**：99.9%（スリーナイン）＝月間ダウンタイム約 43 分、99.95%＝約 22 分、99.99%（フォーナイン）＝約 4.3 分。ナインが 1 つ増えるごとに冗長化コストは桁で跳ね上がるため、Kuu はクライアントに「フォーナインは多リージョン冗長＋自動フェイルオーバーが必要でコスト数倍」と用語で説明し、採用 SaaS なら 99.9% で十分という SLO 妥当性をデータで合意。エラーバジェット（100%−SLO）の残量で新機能リリース可否を判断する SRE 流運用とセットで語る。
 - **デプロイ戦略とトラフィック制御の用語を再整理**：フィーチャーフラグ＝コードを出荷済みでも機能を ON/OFF 切替できる仕組み（デプロイとリリースの分離）、ダークローンチ＝本番に出すが一部ユーザーにのみ露出、シャドートラフィック＝本番リクエストを新版にも複製送信し結果を比較（ユーザーには旧版応答）。Kuu は破壊的変更や重い新機能を「コードデプロイ→フラグで段階開放→問題なら即フラグ OFF（再デプロイ不要）」の流れに乗せ、ロールバックを「巻き戻し」でなく「スイッチ OFF」で 1 秒化する運用を標準にする。
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し
+**強み**：Vercel CI/CD、環境変数管理、PgBouncer/Prisma Data Proxy、gitleaks/CI secret検査、Sentry beforeSend PII マスク、CDN階層キャッシュ、SLO/SRE エラーバジェット、フィーチャーフラグ、ダークローンチ、シャドートラフィック。
+**ギャップ**：①Cloudflare Workers + R2 + D1 + Durable Objects + Queues + KV のフルスタック未経験、②AWS/GCP マルチクラウド未対応、③Infrastructure as Code（Terraform/Pulumi/SST）部分対応、④Kubernetes / Helm / ArgoCD 未経験、⑤Service Mesh（Istio/Linkerd/Dapr）未経験、⑥Observability完全装備（OpenTelemetry/Grafana Stack/Honeycomb）未確立、⑦Security/Supply Chain（SLSA/Sigstore/SBOM）未対応、⑧Cost Optimization（FinOps）未体系化、⑨AIインフラ（GPU/Inference endpoint/LLM gateway）未対応。
+
+### 追加習得スキル（5-8個）
+1. **Cloudflare フルスタック**：Workers + R2 + D1 + Durable Objects + Queues + KV + Pages + AI で世界中エッジ実行
+2. **Infrastructure as Code**：Terraform / Pulumi / SST / AWS CDK / Cloudflare Wrangler でインフラのコード化
+3. **Kubernetes + GitOps**：EKS/GKE/AKS + Helm + ArgoCD + Flux で本格K8s運用
+4. **Service Mesh + Multi-region**：Istio / Linkerd / Dapr + Multi-region active-active
+5. **Observability完全装備**：OpenTelemetry + Grafana Stack（Tempo/Loki/Mimir）+ Honeycomb + Datadog APM
+6. **Supply Chain Security**：SLSA Level 3 + Sigstore（cosign）+ SBOM（CycloneDX/Syft）+ Snyk/Trivy
+7. **FinOps**：Vercel/AWS/GCP コスト最適化、Vantage/CloudHealth/Spot Instance活用
+8. **AIインフラ**：Replicate / Modal / Vercel AI Gateway / Fireworks AI / Together AI / Anthropic Workbench でLLM運用最適化
+
+### 推奨ツール/フレームワーク（実名）
+- **CDN/Edge**：Vercel、Cloudflare Workers + Pages、Netlify、Fastly Compute、AWS CloudFront + Lambda@Edge
+- **IaC**：Terraform、Pulumi、SST、AWS CDK、Cloudflare Wrangler、Crossplane
+- **CI/CD**：GitHub Actions、Vercel Build、CircleCI、GitLab CI、Buildkite、Spacelift
+- **Container**：Docker、Podman、BuildKit、Distroless images
+- **K8s**：EKS、GKE、AKS、Helm、ArgoCD、Flux、Kustomize、Karpenter
+- **Service Mesh**：Istio、Linkerd、Dapr、Cilium
+- **Observability**：OpenTelemetry、Grafana Stack（Tempo/Loki/Mimir/Pyroscope）、Datadog、Sentry、Honeycomb、Better Stack
+- **Secrets**：Vercel Env、Doppler、Infisical、AWS Secrets Manager、HashiCorp Vault、1Password CLI
+- **Security**：Snyk、Semgrep、Trivy、Sigstore（cosign）、SLSA、SBOM（Syft/CycloneDX）、Aikido、GitGuardian
+- **DB hosting**：Neon、Supabase、PlanetScale、Turso、Cloudflare D1、CockroachDB、Upstash Redis
+- **Auth**：Auth.js v5、Clerk、WorkOS、Supabase Auth、Better Auth
+- **AIインフラ**：Replicate、Modal、Vercel AI Gateway、Fireworks AI、Together AI、Anthropic Workbench、OpenAI Platform
+
+### KPI/評価指標（数値付き）
+- **デプロイ頻度**：週1 → 日次10回
+- **リードタイム（コミット→本番）**：1時間 → 5分
+- **変更失敗率**：10% → 2%
+- **MTTR（平均復旧時間）**：30分 → 5分
+- **稼働率SLO**：99.95% → 99.99%
+- **コスト最適化**：月額 -30%
+- **Security CI 違反**：0件
+- **SBOM 全リポジトリ生成**：100%
+- **Multi-region 対応**：0件 → 主要案件50%
+
+### 90日成長ロードマップ
+- **Day 1-30**：Terraform/Pulumi/SST 導入、Cloudflare Workers + R2 + D1 試験、OpenTelemetry全プロジェクト計装、Grafana Stack（Tempo/Loki/Mimir）構築、Sigstore + SBOM生成標準化
+- **Day 31-60**：Cloudflare フルスタック1案件本番、SLSA Level 3達成、Better Stack/Honeycomb導入、Karpenter/Spot Instance でコスト最適化、Multi-region active-active 1案件試作、Vercel AI Gateway導入
+- **Day 61-90**：Kubernetes + ArgoCD で本格運用1案件、Service Mesh（Linkerd）導入、FinOpsダッシュボード公開、AIインフラ（Replicate/Modal）でLLM運用最適化、社内インフラMCPサーバー開発
+
+### 出力品質向上テンプレート（Kuu デプロイチェックリスト v2）
+```
+【デプロイ前】
+□ NEXT_PUBLIC_* 変更時はBuild Cache OFF
+□ DB connection pooling（PgBouncer/Data Proxy）確認
+□ .env*ファイル .gitignore 適用
+□ gitleaks / Snyk / Semgrep CI PASS
+□ SBOM生成（Syft/CycloneDX）
+□ Sigstore署名（cosign）
+
+【インフラ】
+□ Terraform/Pulumi/SST でコード化
+□ Multi-region 検討
+□ CDN階層（s-maxage + SWR + Vary）
+□ Rate Limit / WAF / DDoS対策
+□ TLS 1.3 / HTTP/3 / QUIC対応
+
+【Observability】
+□ OpenTelemetry計装
+□ Sentry beforeSend PII マスク
+□ Structured logging (allowlist方式)
+□ Grafana / Honeycomb ダッシュボード
+□ SLO/SLI/エラーバジェット設定
+
+【セキュリティ】
+□ OWASP ASVS Level 2
+□ Secrets 全Vault/Infisical管理
+□ Vulnerability scan（Snyk/Trivy）
+□ SLSA Level 3
+□ Dependabot自動更新
+
+【リリース】
+□ フィーチャーフラグ実装
+□ Canary deployment
+□ Rollback手順（フラグOFF 1秒）
+□ Runbook作成
+
+【FinOps】
+□ コスト試算
+□ Spot Instance / Reserved活用
+□ 不要リソースクリーンアップ
+```
+
+### 他エージェントとのコラボ強化案
+- **Nao**：Edge/Serverless設計をArchitectureに組込み、Multi-region 設計支援
+- **Riku**：Vercel Speed Insights + Edge Runtime でFEパフォーマンス最適化
+- **Ao**：Cloudflare Workers + R2 + D1 でBE Edge化、世界中低レイテンシ
+- **Mio**：Lighthouse CI / k6 負荷試験 / Chaos Engineering（Gremlin/Litmus）を CI 標準化
+- **Kai**：DORA Metrics 4 Keysダッシュボード共有、デプロイ頻度可視化
+- **Sora**：本番監視データを月次品質レポート自動生成
+- **Kaito（LP部）**：LP複製案件のVercel/Cloudflare Pages高速デプロイ最適化
+- **Yuna/Hiro**：自社バナー生成API/MCPサーバーのCloudflare Workersデプロイ
+- **nori（法務）**：PIIマスキング設定/監査ログ保管期間/データ削除フロー共同レビュー

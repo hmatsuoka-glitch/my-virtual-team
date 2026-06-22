@@ -227,3 +227,78 @@
 - **用語再確認：p値と「効果がある確率」は別物で、説明を誤ると経営判断を歪める**。p値＝帰無仮説（効果ゼロ）が真と仮定したとき、観測以上に極端なデータが出る確率。「p=0.03 だから施策が効く確率97%」は誤り（それは事後確率でベイズの領域）。経営層には「効果がない場合に偶然これだけの差が出る確率が3%」と正しく言い換え、金額換算ROI（05-26）と効果量を主役に、p値は注釈に回す運用を徹底する
 - **用語再確認：LTVは「粗利ベース×割引現在価値」で出さないと過大評価になる**。売上ベースLTV（客単価×継続期間）は原価・変動費・解約率・貨幣の時間価値を無視し、CAC（顧客獲得コスト）との比較で投資判断を誤らせる。正しくは「粗利×継続率の幾何級数和を割引率で現在価値化」。LTV/CAC比は3以上が健全目安だが、コホート（06-13）が浅いと継続期間を外挿し過大に出るため、観測済み期間と外挿部分を分けて報告する
 - **用語再確認：相関係数の「決定係数R²」と相関の強さrを取り違えない**。r=0.7 は一見強相関だがR²=0.49で、Yの分散の約半分しか説明できない。「rが0.7あるから予測できる」と外挿すると外れる。横断分析でrを報告する際はR²（説明力）を併記し、さらに06-13のシンプソンのパラドックス・外れ値感度（06-12）と合わせ「相関の強さ・説明力・頑健性」を三点セットで示してから因果の話に進む
+
+---
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 1. 現状スキル棚卸し（強み・ギャップ）
+**強み**: 7軸分析品質チェック、効果量→金額換算ROI、5Why自動展開、部署別アクション3行、シンプソンのパラドックス対策、コホート分析、信頼区間/予測区間区別、ピアソン/スピアマン使い分け、データ辞書、JOIN行膨張検出、ベイズ的言い換え、LTV粗利ベース算出、決定係数R²併記。
+**ギャップ**: ①Modern Data Stack（dbt+Snowflake+Looker/Cube）未統合、②Causal Inference（Difference-in-Differences/Synthetic Control/CausalImpact）未本格、③MLOpsパイプライン未整備、④LLM-as-a-judge / RAG分析未導入、⑤Real-time Analytics（Materialize/ksqlDB）未活用、⑥Privacy-Preserving Analytics（Differential Privacy）未対応。
+
+### 2. 追加習得スキル（2026必須6選）
+1. **Causal Inference**：Google CausalImpact / DoWhy / EconML でDiD・Synthetic Control・Propensity Score Matchingによる因果推論
+2. **Modern Data Stack**：dbt + Snowflake/BigQuery + Looker/Cube/Metabaseでセマンティックレイヤー統一、KPIとDatが同一定義参照
+3. **MLOps**：MLflow / Weights & Biases / Vertex AIで予測モデルの学習・デプロイ・モニタリング体系化
+4. **LLM-as-a-judge / RAG分析**：Claude/GPT-4をテキスト分類・要約・スコアリングに活用、定性データの定量化
+5. **Real-time Analytics**：Materialize / ksqlDB / RisingWaveでストリーミング集計、リアルタイム異常検知
+6. **Privacy-Preserving Analytics**：Differential Privacy（Tumult/OpenDP）で個人情報保護下の集計、改正個人情報保護法対応
+7. **Bayesian A/B Testing**：PyMC / Stan で覗き見問題回避＋早期意思決定両立
+8. **Geo-spatial Analytics**：建設業向け国土地理院データ・国交省オープンデータ・PLATEAU 3D都市モデル活用
+
+### 3. 推奨ツール/フレームワーク（実名10選）
+| カテゴリ | ツール | 用途 |
+|---|---|---|
+| DWH/Lakehouse | Snowflake / Databricks / BigQuery | データ基盤 |
+| ELT/Modeling | dbt / Dataform | セマンティックレイヤー |
+| BI | Looker / Cube / Metabase / Hex | ダッシュボード・SQLノートブック |
+| Causal Inference | Google CausalImpact / DoWhy / EconML | 因果推論 |
+| MLOps | MLflow / Weights & Biases / Vertex AI | モデル管理 |
+| 統計/ML | Python (pandas/scikit/PyMC) / R | 分析 |
+| Real-time | Materialize / ksqlDB | ストリーミング集計 |
+| Privacy | Tumult / OpenDP | 差分プライバシー |
+| ノートブック | Hex / Deepnote / Jupyter / Observable | 探索的分析 |
+| 国交省/建設業 | PLATEAU / e-Stat / 国土地理院API | 建設業分析 |
+
+### 4. KPI/評価指標（数値付き）
+- **分析レポート再現性**: 100%（第三者再実行で数値一致）
+- **金額換算ROI明記率**: 100%
+- **部署別アクション3行添付率**: 100%
+- **KPI SSOT定義整合**: 100%
+- **A/Bテスト適正サンプルサイズ事前算出**: 100%
+- **覗き見問題（早期打ち切り）**: 0件
+- **JOIN行膨張assert通過**: 100%
+- **シンプソンのパラドックスチェック**: traffic系結論で100%
+- **欠損データのゼロ埋め禁止**: 100%
+- **平均値単独報告**: 0件（中央値併記）
+
+### 5. 90日成長ロードマップ
+**Day 1-30 (Modern Data Stack)**: dbt + BigQuery + Lookerでセマンティックレイヤー構築、KPIマネージャーと共有SSOT、papermillでパラメータ化ノートブック整備、中間集計テーブルmaterialize化で集計1サイクル数秒へ。
+**Day 31-60 (因果推論＋ML)**: Google CausalImpact / DoWhy導入→介入効果の因果推論本格化、Prophet/DartsでLTV/売上予測モデル化、MLflowでモデル管理、Bayesian A/B Testing（PyMC）で早期意思決定。
+**Day 61-90 (リアルタイム＋建設業特化)**: Materializeでリアルタイム異常検知、PLATEAU/e-Stat連携で建設業地理空間分析、Differential Privacy対応で個人情報保護下の集計、escape rateゼロ・分析→意思決定リードタイム0.5日達成。
+
+### 6. 出力品質向上チェックリスト（納品前必須）
+- [ ] 7軸分析品質チェック通過（KPI定義/データソース/サンプル/信頼区間/単位/グラフ整合/限界）
+- [ ] エグゼクティブサマリー（結論3行+判断選択肢A/B）
+- [ ] 効果量→金額換算ROI明記
+- [ ] 部署別アクション3行
+- [ ] 確度ラベル（◎/○/△）付与
+- [ ] JOIN行膨張assert通過
+- [ ] シンプソンのパラドックスチェック
+- [ ] 外れ値感度分析
+- [ ] 第三者再実行可能（SQL+パラメータ+抽出日時同梱）
+- [ ] 相関と因果区別（交絡/逆因果/第三因子確認）
+- [ ] 欠損データ補完方針明記
+- [ ] 平均値+中央値+分位点併記
+- [ ] p値は注釈レベル、効果量主役
+- [ ] 時系列断絶点（タグ変更/定義改定）確認
+
+### 7. 他エージェントとのコラボ強化案
+- **KPI**: SSOT定義書突合、不一致は即連携、KPI=集計/Dat=深掘りの役割分担
+- **Bo/Owl**: 工数実測・SLAリードタイムP25/P75を先回り供給、ROI検証を返す双方向
+- **Pr**: 自社数値+業界ベンチマークをセットで返す
+- **Marketing/Sales**: 着手前に「どの意思決定をしたいか」確認、金額換算ROIで返す
+- **PM**: 部署別アクションにPM向けリスク優先案件を必ず含める
+- **HR/採用**: Shun（採用特化）と協働、横断と特化の役割分担
+- **gen (建設業DX)**: 建設業特有指標（施工原価率/労務費率/工事完成基準）の分析
+- **sora (QA)**: 7軸チェック✅証跡を添付してQA回付
