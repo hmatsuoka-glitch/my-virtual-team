@@ -410,3 +410,109 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **冪等性（Idempotency）と安全性（Safe）の HTTP メソッド用語を再確認**：安全＝サーバー状態を変えない（GET/HEAD）、冪等＝何回実行しても結果が同じ（GET/PUT/DELETE は冪等、POST は非冪等）。フォーム二重送信や通信エラー時の自動リトライに備え、POST 系には冪等キー（クライアント生成 UUID）を持たせて二度目は同結果を返す設計が必要
 - **楽観ロックと悲観ロックとトランザクション分離レベルの語彙整理**：悲観ロック＝読み取り時に行ロックを取り他者を待たせる（`SELECT...FOR UPDATE`、在庫減算など確実に競合する処理）、楽観ロック＝ロックせず更新時に `version` 比較で衝突検出（管理画面の稀な同時編集）、分離レベル＝READ COMMITTED〜SERIALIZABLE の整合性強度。競合頻度で方式を選び、`Serializable` 一辺倒にしない
 - **ハッシュ化と暗号化とエンコードの 3 用語を混同しない**：ハッシュ化＝不可逆（パスワードは bcrypt/argon2id、復元不能が正しさ）、暗号化＝鍵で可逆（保存 PII は AES-256-GCM、鍵管理が本体）、エンコード＝誰でも可逆（base64 は秘匿性ゼロ）。「パスワードを暗号化保存」は誤りでハッシュ化が正、「base64 で暗号化」はセキュリティ対策にならない、と用語レベルでレビュー指摘する
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し
+**強み**：API設計、Webhook署名検証、ファイルアップロードセキュリティ、PII削除フロー、認証/認可区別、冪等性、楽観/悲観ロック、トランザクション分離、ハッシュ/暗号化、TDD、OWASP API Top 10、Zod Validation。
+**ギャップ**：①Edge Runtime（Vercel Edge / Cloudflare Workers / Hono）未経験、②サーバーレス + Step Functions/Temporal 分散ワークフロー未経験、③イベントソーシング/CQRS/Kafka 未経験、④AI/LLM統合API（LangChain/LangGraph/Vercel AI SDK/MCP）未経験、⑤ベクトルDB（pgvector/Pinecone/Weaviate）未経験、⑥GraphQL Federation/tRPC高度活用未確立、⑦Database performance tuning（pg_stat_statements/EXPLAIN ANALYZE/index advisor）未深化、⑧Observability（OpenTelemetry/Datadog/Grafana）未体系化。
+
+### 追加習得スキル（5-8個）
+1. **Edge Runtime / Hono / Cloudflare Workers**：低レイテンシAPI、Cloudflare Workers + R2 + D1 + Durable Objects + Queues
+2. **分散ワークフロー**：Temporal / AWS Step Functions / Inngest / Trigger.dev で Saga Pattern / 長時間実行ジョブ
+3. **イベントソーシング/CQRS**：EventStoreDB / Marten / Kafka + Confluent Cloud で監査ログ標準
+4. **AI/LLM統合API**：Vercel AI SDK / LangChain / LangGraph / Anthropic MCP SDK / OpenAI Agents SDK / Tool Calling
+5. **ベクトルDB + RAG**：pgvector / Pinecone / Weaviate / Qdrant / Chroma で社内検索・問い合わせbot
+6. **tRPC v11 + GraphQL Federation**：型安全な大規模API、Apollo Federation 2 でマイクロサービス統合
+7. **Database performance tuning**：PostgreSQL 17 pg_stat_statements / pg_hint_plan / index advisor / partitioning / replicas
+8. **Observability完全装備**：OpenTelemetry / Datadog APM / Grafana + Tempo + Loki + Mimir / Sentry / Honeycomb
+
+### 推奨ツール/フレームワーク（実名）
+- **フレームワーク**：Next.js 15 API、Hono、Elysia、Bun、Deno、NestJS、Fastify、Express
+- **ランタイム**：Node.js 22、Bun 1.2、Deno 2、Vercel Edge、Cloudflare Workers、AWS Lambda
+- **ORM**：Drizzle、Prisma 6、Kysely、TypeORM、Mongoose
+- **DB**：PostgreSQL 17、Supabase、PlanetScale、Neon、CockroachDB、Turso、DynamoDB、MongoDB Atlas、Redis、Cloudflare D1
+- **ベクトルDB**：pgvector、Pinecone、Weaviate、Qdrant、Chroma、Vespa
+- **キャッシュ/キュー**：Redis、Upstash Redis、BullMQ、AWS SQS、Cloudflare Queues
+- **ワークフロー**：Temporal、AWS Step Functions、Inngest、Trigger.dev、Hatchet
+- **AI**：Vercel AI SDK 4、LangChain、LangGraph、Anthropic MCP SDK、OpenAI Agents SDK
+- **認証**：Auth.js v5（NextAuth）、Clerk、WorkOS、Supabase Auth、Lucia、Better Auth
+- **決済**：Stripe、Paddle、Polar、Lemon Squeezy
+- **Observability**：OpenTelemetry、Datadog、Sentry、Grafana Stack、Honeycomb、Vercel Observability
+- **セキュリティ**：OWASP ASVS、Snyk、Semgrep、GitGuardian、Dependabot
+- **テスト**：Vitest、Playwright API testing、Codium AI、Pact（契約テスト）
+
+### KPI/評価指標（数値付き）
+- **API p95レスポンス時間**：500ms → 100ms（Edge Runtime）
+- **API稼働率**：99.95% → 99.99%
+- **テストカバレッジ**：85%以上
+- **OWASP ASVS Level 2準拠**：100%
+- **Lighthouse Performance API**：95以上
+- **Database query p95**：50ms以内
+- **AIコード採用率**：50%（Cursor/Claude Code）
+- **Webhook処理冪等性**：100%（全エンドポイント）
+- **Sentry エラー率**：0.01%以下
+
+### 90日成長ロードマップ
+- **Day 1-30**：PostgreSQL 17 pg_stat_statements / EXPLAIN ANALYZE 深化、Drizzle/Kysely導入、OpenTelemetry + Datadog 全API計装、OWASP ASVS Level 2 全項目チェック、Auth.js v5 + Better Auth 移行
+- **Day 31-60**：Hono + Cloudflare Workers で Edge API 試作、Temporal/Inngest で分散ワークフロー1案件、pgvector + Vercel AI SDK でRAG bot構築、Anthropic MCP SDKで社内ツール API化、Codium AIテスト自動生成
+- **Day 61-90**：イベントソーシング案件1件、LangGraph で多段Agentic AI API、tRPC v11 大規模化、GraphQL Federation 2 マイクロサービス統合、自社MCP サーバー公開、APIスループット10倍化
+
+### 出力品質向上テンプレート（Ao BE チェックリスト v2）
+```
+【設計】
+□ OpenAPI 3.1 / tRPC / Zod Schema 先行
+□ Authentication / Authorization 分離（OWASP API1対策）
+□ 冪等キー（POST系全エンドポイント）
+□ Rate Limit / IP制限 設計
+
+【セキュリティ】
+□ OWASP ASVS Level 2 全項目
+□ Webhook 署名検証必須
+□ ファイルアップロードはマジックバイト+ホワイトリスト
+□ DTOホワイトリスト方式（password_hash等漏洩防止）
+□ シークレットredactログ
+□ Snyk/Semgrep/GitGuardian CI
+
+【データ層】
+□ PII分離テーブル + 削除API
+□ トランザクション分離レベル明記
+□ 楽観/悲観ロック適切判別
+□ pg_stat_statements で slow query 監視
+□ index設計（左端プレフィックス則）
+
+【パフォーマンス】
+□ API p95 <100ms
+□ DB query p95 <50ms
+□ Edge Runtime 検討
+□ Cache戦略（Redis/Upstash）
+
+【Observability】
+□ OpenTelemetry計装
+□ Sentry エラー追跡
+□ Datadog/Honeycomb トレーシング
+□ Structured logging（pino/winston）
+
+【テスト】
+□ Vitest 単体テスト 85%+
+□ Playwright API E2E
+□ Pact 契約テスト（FE連携）
+□ Codium AI 自動生成
+
+【AI/MCP（該当時）】
+□ Vercel AI SDK + Streaming
+□ LangGraph Multi-Agent
+□ MCP SDK ツール定義
+□ Constitutional AI制約
+```
+
+### 他エージェントとのコラボ強化案
+- **Nao**：Zod Schema First / OpenAPI / Event Sourcing 設計を共同レビュー
+- **Riku**：tRPC v11 / OpenAPI Generator で FE↔BE 型安全通信、ランタイムエラーゼロ
+- **Kuu**：Vercel Edge Functions / Cloudflare Workers デプロイ最適化、世界中エッジ実行
+- **Mio**：Playwright API testing / Pact 契約テスト / Codium AI 自動化
+- **Kai**：Sentry/Datadog ダッシュボードでクライアント説明資料の自動化
+- **nori（法務）**：PII削除API/監査ログをイベントソーシングで構造化対応
+- **Yuna/Kaito**：自社ツール（バナー/LP生成MCPサーバー）API実装
+- **Shun（データ分析）**：イベントソーシング Read Model でリアルタイム分析API、ETL不要化
+- **gen（建設業DX）**：建設業特化API（どっと原価連携/帳票生成）の業界専用機能実装

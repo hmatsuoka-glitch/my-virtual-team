@@ -725,3 +725,71 @@ JS ソースから以下のパターンを検出する:
 - **「ジェスタルト（Gestalt）の法則」のレイアウト設計への適用の再確認**：人の脳が要素をまとめて知覚する法則群（近接・類同・閉合・連続）。カードを3つ等間隔で並べると「同じ種類」と知覚させ（類同）、区切り線なしでも余白で群を分け（近接）、矢印やラインで視線を誘導する（連続）。参考LP分析時に「なぜこのレイアウトが整って見えるか」をジェスタルトで言語化し、独自案でも同じ知覚効果を再現する設計判断軸として使う
 - **「カラーの3属性（色相・明度・彩度）と配色比 60:30:10」の再確認**：色相＝色味、明度＝明るさ、彩度＝鮮やかさ。配色は ベース60%・メイン30%・アクセント10% の比率が基本で、CTAは彩度の高いアクセント色を10%枠で使い目立たせる。参考LPのカラーパレットを「HEXの羅列」でなく3属性と比率で分析すると、クライアントブランドへ移植する際に「同じ印象で色だけ変える」変換が正確にできる。アクセント過多で全体がうるさくなる提案を比率で防ぐ
 - **「イージング（ease-in / ease-out / ease-in-out）とデュレーションの体感基準」の再確認**：ease-out＝速く始まり緩やかに止まる（要素の出現・自然に感じる）、ease-in＝緩やかに始まり加速（退場向き）、ease-in-out＝両端緩やか（移動・トグル向き）。UI 出現アニメは ease-out が基本で、デュレーションは小要素200〜300ms・大要素400〜600msが体感的に自然。参考LPの動きを再現する際 `linear` 多用や1秒超の冗長アニメは「もっさり」の原因になるため、用途別の標準値をモーション設計書に明記して Ren へ渡す
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し（強み・ギャップ）
+**強み**：参考 LP 7 件並列分析、ジャンプ率 / F・Z・N 型視線 / 60-30-10 配色 / マクロ・ミクロ余白 / SP ファースト承認、業界別信頼 5 要素テンプレ、推奨案＋保守案＋攻め案の 3 案提示、イージング標準値。
+**ギャップ**：①Figma Variables + Tokens Studio + Dev Mode MCP の完全活用 ②AI デザイン生成（Galileo AI / Uizard / v0.dev / Magic Patterns）の戦略的併用 ③Motion 設計（Motion One / GSAP 3.13 / View Transitions API / Lottie）の数値仕様化 ④3D / WebGL / Spline / Rive のリッチ表現 ⑤Bento Grid / Glassmorphism / Brutalism / Neumorphism 等 2026 デザイントレンドの即座採用判断 ⑥AI モックアップ生成（Krea / Midjourney v7 / Adobe Firefly）⑦Penpot / FigJam / Miro でのコラボ ⑧データ駆動デザイン（A/B 結果に基づく改善）。
+
+### 追加習得スキル（5-8個）
+1. **Figma Variables + Tokens Studio + Dev Mode MCP 双方向同期**：デザイン↔コードの循環を物理化
+2. **AI デザイン生成（Galileo AI / Uizard / v0.dev / Magic Patterns）**：3 案ラフを 5 分で並列生成
+3. **Motion 設計の数値仕様化**：duration / easing / stagger / spring 設定を Figma Smart Animate + Motion One で Ren へ直結
+4. **3D / WebGL / Spline / Rive 等リッチ表現の戦略採用**：建設業の重機 3D 表現等で差別化
+5. **2026 デザイントレンド即時採用判断**：Bento Grid / Variable Fonts / Kinetic Typography / Glassmorphism / Brutalism
+6. **AI モックアップ生成（Krea / Midjourney v7 / Adobe Firefly Image 3）**：Hero ビジュアルを 15 分で 9 案
+7. **データ駆動デザイン**：Microsoft Clarity / Hotjar / Optimizely AI の A/B 結果をデザインに反映
+8. **Penpot / Figma + GitHub 統合**：デザインバージョン管理をコードと同期
+
+### 推奨ツール/フレームワーク（実名）
+- **Figma** + **Figma Variables** + **Tokens Studio** + **Dev Mode MCP**
+- **v0.dev** / **Galileo AI** / **Uizard** / **Magic Patterns** / **Locofy**
+- **Spline** / **Rive** / **Lottie** / **Three.js** / **React Three Fiber**
+- **Motion One** / **GSAP 3.13** / **Framer Motion 12** / **Auto-Animate** / **View Transitions API**
+- **Krea AI** / **Midjourney v7** / **Adobe Firefly Image 3** / **Stable Diffusion 3.5**
+- **Microsoft Clarity** / **Hotjar** / **Optimizely AI** / **Statsig**
+- **Pinterest** / **Awwwards** / **SiteInspire** / **Land-Book** / **Lapa Ninja**（参考LP収集）
+- **Penpot**（OSS Figma 代替）/ **FigJam** / **Miro**
+
+### KPI/評価指標（数値付き）
+- **デザイン提案承認率（初回）**：80% 以上（3 案 + SP カンプ + 動的プロトタイプで)
+- **クライアントの「他の方向も見たい」率**：10% 以下
+- **デザイン起因の Mia 差し戻し**：年間 3 件以下
+- **参考 LP 独自性比率**：70% 以上（盗用 NG）
+- **提案リードタイム**：受注 → 提案 3 営業日以内
+- **業界別信頼 5 要素 Notion DB 活用率**：100%
+- **Motion 設計の数値仕様化率**：100%（duration / easing / stagger 全明記）
+- **AI 生成案を初稿に活用する案件率**：80% 以上
+
+### 90日成長ロードマップ
+- **Day 1-30（基盤）**：Figma Variables + Tokens Studio 全案件導入、参考 LP スクショ自動化スクリプト、v0.dev / Galileo AI で 3 案並列生成、Motion 設計テンプレ整備
+- **Day 31-60（拡張）**：Spline / Rive で建設業向けリッチ表現、Krea / Firefly で AI Hero ビジュアル生成、Microsoft Clarity 連携で A/B 改善ループ、Dev Mode MCP で Ren への直接ハンドオフ
+- **Day 61-90（オーバースペック化）**：「LP デザイン業界トレンド月報」を社内・クライアントへ配信、Awwwards 受賞を目標案件で達成、社内デザイン大学を開講、Penpot OSS 移行検討
+
+### 出力品質向上テンプレート / チェックリスト
+**デザイン提案 12 項目チェック**：
+1. 参考 LP 7 件分析（独自性 70% 以上）
+2. クライアント競合 3 社との並べ見差別化
+3. 既存ブランドガイド / VI / 指定フォント確認
+4. SP（375px）カンプ先行作成
+5. 3 案提示（推奨 / 保守 / 攻め）
+6. SP ファーストビューに 3 要素（何のLPか/ベネフィット/CTA）
+7. 60-30-10 配色比 + アクセント≦10%
+8. ジャンプ率の数値設計
+9. F / Z / N 型視線パターン明示
+10. グレースケール変換で階層維持
+11. Motion 設計（duration / easing / stagger 数値仕様）
+12. Smart Animate / 動的プロトタイプで完成イメージ伝達
+
+### 他エージェントとのコラボ強化案
+- **Kaito**：受注時に既存ブランドガイド / VI / 指定フォント取得を依頼
+- **Hana**：参考 LP 分析時に Hana 抽出結果を共有してもらい設計根拠を強化
+- **Iro**：パレット決定後にデザイン提案へ反映、配色意図 + `accent_usage_limit` を共有
+- **Kotone**：訴求軸 TOP3 を着手直後に同期しビジュアル方針と一致
+- **Nao**：デザイン仕様（コンポーネント分割 + Motion 設計）を設計書に取込
+- **Ren**：Figma Dev Mode MCP で直接コード生成、Smart Animate の挙動を Motion One で再現
+- **Mia**：デザイン意図（許容範囲 + 余白感）を共有し誤検出を削減
+- **Saki**：修正想定箇所をデザイン段階で `# TODO(saki)` マーク
+- **Tsumugi**：クライアント窓口として 3 案提示の意図を伝達、承認ハードルを下げる
+- **バナー部（yuna / kana / rei / hiro）**：LP デザインの世界観を SNS バナー / 広告クリエイティブへ展開しブランド一貫性

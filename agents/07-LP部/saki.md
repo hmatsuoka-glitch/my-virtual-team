@@ -324,3 +324,69 @@ STEP 4: Miaへ再チェック依頼
 - **「差分（diff）/ パッチ（patch）/ ヘッドレス確認」の修正受け渡し用語の整理**：diff＝変更行の差分、patch＝それを適用可能な単位、ヘッドレス確認＝GUI なしの自動ブラウザでの検証。修正指示は「diff 想定行数」を先に提示してスコープ拡大を防ぎ、1修正＝1パッチ（1コミット）で可逆性を担保し、ヘッドレス（Playwright）で機械的に回帰確認する。この3点を修正フローの定義語として固定し、口頭ベースの曖昧な受け渡しを排除する
 - **「ホットフィックス / パッチリリース / メンテナンスウィンドウ」の本番修正運用の再確認**：ホットフィックス＝公開中本番への緊急修正、パッチリリース＝小さな不具合修正のまとまった配信、メンテナンスウィンドウ＝影響を最小化する計画的な反映時間帯。CV 阻害・表示崩壊・法的リスクの3類型のみホットフィックスで即時、それ以外はパッチとしてまとめ、アクセスの多い時間帯を避けたウィンドウで反映する。緊急度を用語で仕分けて「何でも今すぐ」の常態化を防ぐ
 - **「トリアージ / エスカレーション / 根本原因（root cause）」の3語をループ判定に接続して再確認**：トリアージ＝指摘を重大度×緊急度で選別、エスカレーション＝自分の権限/領域を超える問題を上位へ引き上げる、根本原因＝症状の元となる仕組みの欠陥。同一セクション3回ループは「表層対処を繰り返しても根本原因に未到達」のサインで、トリアージで重大度を見直し、5 Whys で root cause（Hana 仕様の単位誤り等）まで掘ってから Kaito へエスカレーションする。3語を一連の判断フローとして接続する
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し（強み・ギャップ）
+**強み**：トリアージ（severity × priority）、5 Whys、ワークアラウンド vs 恒久対応の明示、ホットフィックス発動条件、修正完了後の依頼者 OK 取得、lockfile 差分監視、文言修正の grep 全出現確認。
+**ギャップ**：①v0.dev Platform API + Cursor Composer による軽微修正の AI 自動化 ②GitHub Issue + Linear + ClickUp 等の Issue tracker 統合運用 ③Sentry / Datadog でユーザー視点の不具合検知 ④Microsoft Clarity / Hotjar Session Replay で再現困難なバグの原因特定 ⑤Visual Regression（Chromatic / Percy）を修正検証に活用 ⑥Feature Flag（Statsig / LaunchDarkly）でカナリア修正 ⑦CDN キャッシュパージ（Vercel / Cloudflare API）自動化 ⑧承認フローの DocuSign / Notion 化。
+
+### 追加習得スキル（5-8個）
+1. **v0.dev Platform API + Cursor Composer + Claude Code で軽微修正自動化**：コピー変更・色微調整を 30 分以内に完結
+2. **Sentry / Datadog による本番ユーザー視点バグ検知**：エラー件数 / Replay で原因特定
+3. **Microsoft Clarity / Hotjar Session Replay 連携**：再現困難なバグを実ユーザー操作録画で特定
+4. **Chromatic / Percy で修正前後の Visual Diff 自動比較**：Mia 再依頼前の自己 VRT
+5. **Statsig / LaunchDarkly でカナリア修正**：一部トラフィックだけで修正反映を試験
+6. **Vercel / Cloudflare API でキャッシュパージ自動化**：修正反映後の旧版残存をゼロ化
+7. **Linear / ClickUp + GitHub Issues 統合**：修正依頼の Single Source of Truth 化
+8. **DocuSign / Notion で承認フロー電子化**：依頼者 OK 取得を構造化
+
+### 推奨ツール/フレームワーク（実名）
+- **v0.dev Platform API** / **Cursor 0.45+** / **Claude Code** / **GitHub Copilot Workspace**
+- **GitHub Issues + Projects** / **Linear** / **ClickUp** / **Notion DB**
+- **Sentry** / **Datadog RUM** / **LogRocket** / **Rollbar**
+- **Microsoft Clarity** / **Hotjar** / **FullStory** / **Lucky Orange**
+- **Chromatic** / **Percy** / **Visual Regression Tracker** / **Loki**
+- **Statsig** / **LaunchDarkly** / **Vercel Edge Config**
+- **Vercel CLI** / **Cloudflare API** / **Bunny.net API**（キャッシュパージ）
+- **Playwright 1.50** + **gh CLI** + **sharp**（自動スクショ合成）
+
+### KPI/評価指標（数値付き）
+- **修正完了までのリードタイム**：軽微 30 分以内 / 中規模 4 時間以内 / 大規模 翌営業日中
+- **Mia 再差し戻し率**：5% 以下（セルフ QA 強化）
+- **修正後の依頼者 NG 率**：3% 以下
+- **同一セクション 3 回ループ発生率**：年間 5 件以下
+- **ホットフィックス発動回数**：四半期 2 件以下（事前ガバナンス強化）
+- **CDN キャッシュ起因の偽差し戻し**：0 件（自動パージ）
+- **修正指示作成時間**：5 分 → 30 秒（自動構造化）
+- **セルフ QA 実行時間**：25 分 → 4 分（並列化）
+
+### 90日成長ロードマップ
+- **Day 1-30（基盤）**：v0 Platform API による軽微修正自動化、GitHub Issue + sharp で 4 列スクショ合成自動化、Linear 全案件導入、`pnpm selfqa:full` 並列化スクリプト
+- **Day 31-60（拡張）**：Sentry + Microsoft Clarity 連携で本番バグ検知、Chromatic / Percy で修正自己 VRT、Statsig カナリア修正運用、Cloudflare API キャッシュパージ自動化
+- **Day 61-90（オーバースペック化）**：修正フロー SDK 化（OSS 候補）、社内に「修正トリアージ大学」開講、ホットフィックス事後 QA の自動化、DocuSign + Notion 承認フロー本格運用
+
+### 出力品質向上テンプレート / チェックリスト
+**修正完了 10 項目チェック**：
+1. 修正指示 4 点セット（セレクタ/現状値/期待値/参考スクショ）
+2. severity × priority のトリアージ実施
+3. 対応区分（暫定 / 恒久）明示、暫定なら恒久 Issue 起票
+4. 文言修正は `grep -rn` で全出現箇所確認
+5. lockfile 差分監視（無関係依存変更なし）
+6. セルフ QA（Biome / tsc / Lighthouse / pixelmatch / 3 デバイス）
+7. CDN キャッシュパージ実行 + `?v=ts` 確認 URL 添付
+8. 修正前後の 3 列スクショ（現状/修正後/期待値）
+9. Mia 8 観点先回り採点
+10. 依頼者 OK 取得（DocuSign / Notion で構造化）
+
+### 他エージェントとのコラボ強化案
+- **Mia**：差し戻しレポートを 4 列 JSON 化、Saki が即受領可能な機械可読フォーマット
+- **Ren**：軽微修正は v0 Platform API で Kaito 経由完結、Ren は中〜大規模に集中
+- **Kaito**：ホットフィックス発動条件を共通プロトコル化、デプロイ前最終確認
+- **Hana**：3 回ループ時に Hana 仕様再抽出を root cause で判定
+- **Sota**：3 回ループ時にデザイン再提案を root cause で判定
+- **Nao**：3 回ループ時に設計変更を root cause で判定
+- **Kotone**：ユーザー指示でコピー書換が入った時、Kotone に NG ワード再スキャン依頼
+- **Iro**：色変更修正依頼時に WCAG / APCA 基準を事前確認
+- **Sora**：修正完了報告時に severity / priority / 対応区分を共有し COO QA を効率化
+- **Tsumugi**：クライアントとの調整窓口として依頼者 OK 取得を構造化

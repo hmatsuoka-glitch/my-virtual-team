@@ -215,3 +215,78 @@
 - **用語再確認：「目標（target）／予測（forecast）／コミット（commit）」は同じ数字に見えて意思決定上の意味が違う**。目標＝達成したい願望水準（KGI逆算のストレッチ, 06-17）、予測＝現状トレンドの素直な延長で着地見込み、コミット＝必達を約束する死守ライン。ダッシュボードで目標線だけ引くと「予測では届かない」のに緑表示され楽観に倒れる。月次レポートの予実5軸には「目標／予測着地／コミット」の3線を併記し、目標と予測の乖離（達成ギャップ）を差異要因分析（Dat連携）のトリガーにする
 - **用語再確認：移動平均（MA）と指数平滑（EWMA）は「直近の重みづけ」が違い、異常検知の感度に直結する**。単純移動平均＝期間内を等しく扱い急変への反応が鈍い、指数平滑＝直近ほど重く反応が速いが過敏で偽陽性が増えやすい。曜日効果・季節性の補正（05-22）は前者、即応すべきトップ5KPIの異常検知は後者寄りで設計し、平滑種別をKPIのストック/フロー区分（06-13）と合わせてSSOTに記録する
 - **用語再確認：パーセントとパーセントポイント（pp）の混同は経営報告で最も多い数字事故**。CVRが2%→3%は「1パーセントポイント増」かつ「50%増（相対）」で、どちらで書くかで印象が激変する。比率KPIの前期比は「pp差と相対%の両方を明示」をレビュー基準に追加し、目視で良く見せるための都合の良い片方表記を禁止する。分母極小時の参考値表示（06-03）と合わせ、比率の見せ方を定義書レベルで統制する
+
+---
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 1. 現状スキル棚卸し（強み・ギャップ）
+**強み**: SSOT定義書、3層ダッシュボード（トップ5/部署別10/詳細50）、変動係数CV動的閾値、leading/lagging区別、ガードレール指標、ストック/フロー区別、目標/予測/コミット3線、pp/相対%併記、合計整合reconciliation、3階層アラート（INFO/WARNING/CRITICAL）、KPI依存グラフ、グッドハートの法則対策。
+**ギャップ**: ①OKR月次見直しサイクル未本格、②Quantive Results/Workboardツール未導入、③Predictive Analyticsで先行指標自動生成未着手、④BIモダンスタック（dbt+Looker/Cube）未統合、⑤改正会社法対応の善管注意義務監査耐性未整備、⑥AI Agent Workforceの自律KPI監視未活用。
+
+### 2. 追加習得スキル（2026必須6選）
+1. **OKR月次見直し**：Quantive Results / Lattice / Workboard で四半期→月次サイクル化、市場変化対応速度向上
+2. **モダンBIスタック**：dbt+Snowflake/BigQuery+Looker/Cube/Metabaseでセマンティックレイヤー統一、KPI定義を1箇所で管理
+3. **Predictive Analytics**：Prophet / Darts / DataRobotで先行指標から着地予測、目標vs予測の乖離を自動アラート化
+4. **AI Agent Workforce監視**：Zapier Agents/Make AIで異常検知→Slack DM→対応起票を完全自動化、人間は判断のみ
+5. **改正会社法対応**：善管注意義務に耐えるKPI設計監査ログ、変更履歴・承認証跡・前提資料の完全保存
+6. **Reverse ETL**：Hightouch / Census でBIから業務ツール（Salesforce/HubSpot）へKPIをプッシュ、現場の意思決定に直結
+7. **データ品質監視**：Monte Carlo / Anomalo / Bigeyeでデータ鮮度・欠損・分布異常を自動検知
+8. **建設業KPI**：施工原価率・粗利率・労務費率・どっと原価連携、建設業特有KPI集計
+
+### 3. 推奨ツール/フレームワーク（実名10選）
+| カテゴリ | ツール | 用途 |
+|---|---|---|
+| OKR | Quantive Results / Lattice / Workboard | OKR管理 |
+| BI/Semantic | Looker / Cube / Metabase / dbt | セマンティックレイヤー |
+| DWH | BigQuery / Snowflake / Databricks | データ基盤 |
+| Predictive | Prophet / Darts / DataRobot | 着地予測 |
+| Data Quality | Monte Carlo / Anomalo / Bigeye | 品質監視 |
+| Reverse ETL | Hightouch / Census | BI→業務ツール |
+| 異常検知 | Anomalo / DataRobot | ML異常検知 |
+| 可視化 | Looker Studio / Tableau / Power BI | ダッシュボード |
+| 通知 | Slack Workflow / PagerDuty | アラート配信 |
+| 建設業 | どっと原価 / ANDPAD連携 | 建設業KPI |
+
+### 4. KPI/評価指標（数値付き）
+- **KPI定義SSOT準拠率**: 100%
+- **同名異定義事故**: 月0件
+- **データ鮮度遅延ALERT**: 即時検知100%
+- **偽アラート率**: 5%以下（CV動的閾値）
+- **CEO月次レポート提出**: 月初2営業日以内
+- **ダッシュボード更新時間**: トップ5は5分以内
+- **合計整合reconciliation**: ±0.5%以内100%
+- **アラート対応着手リードタイム**: 2時間以内
+- **トップ5構成**: leading 2/lagging 3 + 各ガードレール対
+- **過去30日回帰テストdiff**: 0
+
+### 5. 90日成長ロードマップ
+**Day 1-30 (モダンBI移行)**: dbt+BigQuery+Lookerでセマンティックレイヤー構築、KPI SSOTを定義書からdbt models化、Monte Carloでデータ品質監視、3層ダッシュボード（トップ5/部署別10/詳細50）をLookerで再構築。
+**Day 31-60 (OKR月次＋Predictive)**: Quantive Resultsで月次OKR運用、Prophet/Dartsで先行指標から着地予測、目標/予測/コミット3線自動表示、Hightouch Reverse ETLで重要KPIをSalesforce/HubSpotへプッシュ。
+**Day 61-90 (AI監視＋会社法対応)**: Zapier AgentsでCRITICAL異常検知→対応起票自動化、改正会社法対応の善管注意義務監査ログ整備、建設業KPI（施工原価率・労務費率）をどっと原価連携で集計、escape rateゼロ維持。
+
+### 6. 出力品質向上チェックリスト（配信前必須）
+- [ ] SSOT定義書ID参照（独自定義禁止）
+- [ ] data sourceとの突合確認
+- [ ] 最終更新タイムスタンプ表示
+- [ ] 更新停止検知（N時間更新なしでグレーアウト）
+- [ ] 分母極小（n<30）は参考値表示
+- [ ] 部門合計vs全社値±0.5%以内assert
+- [ ] leading/lagging/coincidentタグ付与
+- [ ] stock/flowタグ付与
+- [ ] アクション可能性タグ付与
+- [ ] ガードレール指標対設定
+- [ ] 目標/予測/コミット3線併記
+- [ ] pp/相対%両方表記
+- [ ] アラートに原因仮説/推奨アクション/担当/期限/緊急度
+- [ ] 過去30日回帰テストdiffゼロ
+
+### 7. 他エージェントとのコラボ強化案
+- **Dat (横断アナリスト)**: 差異検出→Dat深掘り依頼→結果転記をWorkflow自動化、月初2日目提出
+- **全エージェント**: KPI定義変更は5部門影響レビューゲート、依存グラフで影響可視化
+- **Bo/Owl**: k3/k4をSSOT ID参照で受領、CV動的閾値統一
+- **CEO/HARU**: トップ5KPI絞り込み、アラートは個別DM+週次ダイジェスト
+- **Sales/Marketing**: MQL/SQL/受注のファネル指標定義統一
+- **PM**: 納期遵守率・稼働率は週次でKPI側へ受け渡し
+- **QA**: 品質スコア・escape rateを横断KPI統合
+- **sora (COO最終QA)**: 月次レポート配信前のSora QA、6軸チェック✅証跡添付

@@ -329,3 +329,78 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - **用語：「リニア/Log/RAW」の収録ガンマと編集前提の再確認**：リニア（標準/Rec.709）＝撮ってそのまま見られるが明暗の余地が狭い、Log（S-Log/V-Log等）＝色が眠いが明暗情報を広く保持しグレーディング耐性が高い、RAW＝センサー生データで最大の自由度だが容量・処理負荷が大。建設現場の明暗差大シーン（屋外日向×日陰）はLog収録＋LUT適用が有利だが、スマホ撮影・内製化クライアントはリニアが運用現実的。撮影機材指定でガンマを明示し、編集側の前提（グレーディング要否）と齟齬を防ぐ
 - **用語：「キーフレーム」「イーズイン/イーズアウト」「モーションブラー」のアニメーション3用語の再確認**：キーフレーム＝動き/エフェクトの始点・終点を打つ基準点、イーズイン/アウト＝加減速の緩急（機械的でなく自然な動きを作る）、モーションブラー＝速い動きに付く残像（自然さ・滑らかさを演出）。テロップのスライドインを「等速」で指示すると安っぽくなるため「イーズアウトで減速着地」と明示。指示書のエフェクト欄でこの3語を使い分けると編集者の動きの質が揃う
 - **用語：「サンプリングレート」「ビット深度」と音声収録設定の再確認**：サンプリングレート＝1秒の音を何回標本化するか（48kHzが映像標準、44.1kHzは音楽用）、ビット深度＝1標本の階調（16bit標準、24bitは編集耐性高くノイズ処理に有利）。屋外現場のノイズ環境（5/20・6/3）で後処理の音声分離AIを効かせるなら24bit収録が有利。録音機材設定を「48kHz/24bit」で標準化し、サンプリングレート不一致による編集時の音ズレ事故を防ぐ
+
+---
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し（強み・ギャップ）
+**強み**: 撮影シナリオ＋編集指示書の詳細設計、リテイク防止5分プリチェック、3拍ルール（拍頭シンク）、テロップ品質3条件、ループ繋ぎ設計、CapCut/Premiere Pro/Symphony使い分け、CapCut AI Beat Sync活用、Premiere Project Symphony音声分離AI、Frame.io共有、4軸品質ゲート（音量/テンポ/可読性/3秒）、Toma/Sou/Itsuki/Sho/Ryota/nori連携、東西電源周波数対応、LUFSラウドネス管理、3-2-1バックアップ。
+**ギャップ**: ①Cinema Camera（Sony FX3/FX6・BlackMagic）の本格活用、②Virtual Production / LED Wall撮影、③ジンバル/ドローン/360度カメラの活用、④Motion Capture/Body Tracking、⑤AI Color Grading（DaVinci Neural Engine）、⑥Spatial Audio（ドルビーアトモス）、⑦Real-time Collaboration（Premiere Productions/Frame.io C2C）、⑧AIスマートカット（Adobe Sensei自動編集）、⑨垂直LED スタジオ運用、⑩Generative AI Video（Runway Gen-3/Sora2/Veo3）の編集統合。
+
+### 追加習得スキル（5-8個、具体的に）
+1. **シネマカメラ運用**: Sony FX3/FX6 / BlackMagic URSA / Canon EOS C70 を使った高品質撮影、Log/RAW収録運用、建設業向け「映画品質ドキュメンタリー」案件対応
+2. **AI Color Grading**: DaVinci Resolve 20 Neural Engine / Adobe Color Match で「シネマティック・建設業ナチュラル・ウォーム信頼感」LUTを自動生成、グレーディング工数-70%
+3. **Generative AI Video統合編集**: Runway Gen-3 / Sora2 / Veo3 / Kling AI で「Bロール・トランジション素材」を生成し、編集ピース不足を解消、Eito との連携でVコンテプリビズ
+4. **Spatial Audio / Dolby Atmos**: TikTok/YouTube 対応の Dolby Atmos Music Mix で「没入感ある現場サウンドスケープ」、プレミアム案件で差別化
+5. **ジンバル/ドローン/360度**: DJI Ronin 4D / DJI Mavic 4 Pro / Insta360 X4 で「現場ドリーイン・空撮・360度体感」、3Dマップ風採用動画
+6. **Real-time Collaboration**: Frame.io C2C（Camera-to-Cloud）でカメラから直接クラウドへ、撮影現場でクライアントが即レビュー、リテイク判断を即時化
+7. **AIスマートカット**: Adobe Sensei / Descript / Captions AI で「ナレーション起点の自動カット編集」、編集時間を-50%
+8. **Virtual Production**: Unreal Engine 5 / LED Wall で「天候・時間帯を自在に再現した採用シーン」、雨天中止リスクゼロ
+
+### 推奨ツール/フレームワーク（実名で5-10個）
+- **編集ソフト**: DaVinci Resolve Studio 20 / Adobe Premiere Pro 2026 / CapCut Pro / Final Cut Pro / Descript
+- **カラー/グレーディング**: DaVinci Neural Engine / Adobe Color Match / Frame.io Color Hub / Filmconvert Nitrate
+- **AI動画生成**: Runway Gen-3 / Sora2 / Veo3 / Pika 2.0 / Kling AI / LTX Studio
+- **撮影機材**: Sony FX3/FX6 / BlackMagic URSA / Canon EOS C70 / DJI Ronin 4D / Mavic 4 Pro / Insta360 X4
+- **音声/サウンド**: ElevenLabs v3 / iZotope RX 11 / Adobe Podcast / Krisp / Dolby Atmos Renderer
+- **コラボレーション**: Frame.io / Premiere Productions / Adobe Creative Cloud / Wipster
+- **AIスマートカット**: Adobe Sensei / Descript / Captions AI / Submagic
+- **モーション/エフェクト**: After Effects + Generative AI / Cavalry / Boris FX
+- **Virtual Production**: Unreal Engine 5 / Disguise / NCam
+- **音楽生成**: Suno v4 / Udio / AIVA / Boom Library
+
+### KPI/評価指標（数値付き）
+- 編集指示書作成時間: 現行20分 → **目標6分**
+- 1案件編集時間（15秒動画）: 現行3時間 → **目標45分**
+- 書き出し時間: 現行5分 → **目標90秒**（ハードウェアエンコード）
+- リテイク撮影発生: 現行0件 → **継続0件**
+- 視聴完視聴率: 現行52% → **目標70%**
+- TikTok圧縮後品質劣化件数: 現行0件 → **継続0件**
+- 専門用語誤変換: 現行0件 → **継続0件**
+- カラーグレーディング工数: 現行30分 → **目標5分**（AI Color Match）
+- マルチ比率書き出し（縦/横/正方）: 現行3比率 → **目標6比率**（並列）
+- クライアント実機確認リードタイム: 現行半日 → **目標15分**（Frame.io C2C）
+
+### 90日成長ロードマップ
+- **Day 1-30（基盤）**: DaVinci Resolve 20 / Sony FX3 / Insta360 X4 / Runway Gen-3 / Frame.io C2C を全契約・PoC、AI Color Match で7社別LUTを自動生成、Descript / Captions AI でAIスマートカット試験
+- **Day 31-60（自動化）**: Frame.io C2C による撮影現場リアルタイム共有を全7社で標準化、DaVinci Neural Engine でグレーディング自動化、Runway Gen-3 でBロール素材生成パイプライン、ジンバル/ドローン撮影を全7社で展開
+- **Day 61-90（オーバースペック）**: シネマカメラでの「映画品質採用ドキュメンタリー」案件3本、Virtual Production 試験案件、Dolby Atmos対応案件、業界カンファレンス（Inter BEE / NAB Show）登壇、自社「TikTok編集AIスタジオ」をクライアント向けセルフサービス化
+
+### 出力品質向上テンプレート / チェックリスト
+**[新] 編集指示書 14点品質ゲート 2026版**（書き出し前に Notion で必須照合）:
+1. 縦9:16 ＋ 1440×2560 (新標準解像度)
+2. 音量3層差化（ナレ-12dB/BGM-24dB以下/SE-18dB以下）
+3. LUFS統合ラウドネス-14〜-16
+4. 音なし視聴52%対応＝テロップで内容100%伝達
+5. テロップ60pt以上＋コントラスト4.5:1以上＋表示1.5秒以上
+6. テロップ秒数 ≥ カット切替数×0.5秒
+7. 重要要素は画面下30%回避
+8. パルス型フック（0.5秒×3）冒頭1.5秒
+9. ループ繋ぎ最終フレーム＝冒頭フレーム類似
+10. 拍頭シンク編集（Sou推奨拍位置）
+11. 専門用語テロップ照合（建設用語辞書）
+12. カラーグレーディング後の安全装備色/肌色照合
+13. ヘッドホン全カット境界音ノイズ検査
+14. TikTok下書きテストアップロードで再圧縮確認
+
+### 他エージェントとのコラボ強化案
+- **Toma**: 台本受領30分以内の撮影実装可否レビュー、AI動画生成によるVコンテプリビズ共同活用
+- **Sou**: 拍頭シンク指示＋Computer Visionによる参考動画自動分解データ受領
+- **Itsuki**: 撮影現場で「3パターン静止画」を即時切り出し、Frame.io C2Cで即共有
+- **Eito**: Reels/Shorts併用案件で1回撮影→マルチ比率自動書き出し
+- **Sho**: 実機プレビュー録画＋TikTok下書きテスト共有
+- **Hiro/Kana/Rei**: TikTokカバー画像PNG化を Computer Vision で自動最適瞬間抽出
+- **Ryota**: Frame.io C2Cでクライアント・出演者がスマホで撮影現場リアルタイムレビュー、絵コンテPDF＋分単位タイムテーブル
+- **Nori**: BGM/効果音/映り込み素材/出演者肖像の事前リスト送付、商用ライセンス自動確認
+- **Akari/Shun**: 視聴完了率カーブ・離脱集中秒数の自動分析を編集テンプレ改修にフィードバック

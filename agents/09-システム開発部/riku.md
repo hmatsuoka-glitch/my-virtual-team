@@ -380,3 +380,95 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **Core Web Vitals 指標の正確な定義を再確認**：LCP（Largest Contentful Paint）＝最大要素の描画完了（読み込み体感・良好 <2.5s）、INP（Interaction to Next Paint・2024 に FID を置換）＝全インタラクションの応答性 p98（操作の重さ・良好 <200ms）、CLS（Cumulative Layout Shift）＝予期せぬレイアウトずれ累積（良好 <0.1）。FID は「最初の入力遅延だけ」だったが INP は「全操作」を見るため、重い state 更新で後半の操作がカクつくと FID 合格でも INP 不合格になる。Riku は重い更新を `startTransition`/`useDeferredValue` で非緊急化し INP を守る。
 - **レンダリング・配信用語を再整理**：TTFB（Time To First Byte）＝サーバー応答の速さ、FCP（First Contentful Paint）＝最初の描画、ストリーミング SSR＝HTML を一括でなく順次フラッシュ（`<Suspense>` 境界で骨組み先・データ後追い）、ハイドレーション＝サーバー HTML に JS のイベントを後付けする工程、PPR（Partial Prerendering）＝静的シェルを即配信し動的部分だけストリーム。Riku は「速い」を TTFB・FCP・LCP・INP のどの段階の話か切り分け、Hero は静的・ユーザー固有部分は Suspense ストリームと設計して体感速度を最適化する。
 - **画像最適化のフォーマットと属性用語を再確認**：WebP/AVIF（次世代圧縮・AVIF が最高圧縮だがデコード重め）、`srcset`/`sizes`（表示幅に応じた解像度出し分け＝レスポンシブイメージ）、`loading="lazy"`（ビューポート外を遅延読込）、`fetchpriority="high"`（LCP 画像を優先取得）、`decoding="async"`。`next/image` はこれらを自動化するが「LCP 候補に `priority` を付け lazy を外す」判断は実装者が行う。Riku はファーストビューの主役画像にだけ `priority`、それ以外は lazy と区別し、過剰 priority で逆に LCP が悪化する事故を避ける。
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し
+**強み**：Next.js App Router、React Server Components、'use client'最適化、Core Web Vitals理解、INP/LCP/CLS、shadcn/ui+Radix、a11y（axe-core）、Zod環境変数管理、ストリーミングSSR、PPR、Suspense境界、TDD準拠。
+**ギャップ**：①React 19 + Next.js 15新機能（React Compiler/Actions/use API）の体系的活用未完、②Vercel AI SDK + Streaming UIを使ったAIネイティブFE未経験、③v0.dev/Bolt.new/LovableのAI生成FE活用未確立、④Tailwind CSS v4 + CSS @layer + Container Queries未対応、⑤Web Components/Lit/Qwik など他フレームワーク未対応、⑥React Native + Expo Routerでのモバイル展開未経験、⑦Edge Runtime + Streaming Edge AI未経験、⑧View Transitions API/CSS Anchor Positioning新CSS仕様未活用。
+
+### 追加習得スキル（5-8個）
+1. **React 19 + Next.js 15完全活用**：React Compiler（自動メモ化）、Actions、useFormStatus/useOptimistic、Async Components、PPR safelist
+2. **AIネイティブFE開発**：Vercel AI SDK / Streaming UI / generateUI / RSC + AI / Tool Calling UI / Claude/GPT-5/Gemini連携
+3. **AI生成FE活用**：v0.dev / Bolt.new / Lovable / Cursor Composer / Claude Code でUIをAI生成→人手リファイン
+4. **Tailwind CSS v4 + Container Queries**：@layer / @container / @starting-style / 新CSS-firstワークフロー
+5. **React Native + Expo Router**：iOS/Androidアプリ展開、Expo SDK 52、EAS Build/Submit/Update
+6. **Edge Runtime + Streaming**：Vercel Edge Functions / Cloudflare Workers + Hono / Edge AI推論
+7. **View Transitions API + Anchor Positioning**：ネイティブアニメーション、CSS Anchor Positioningでツールチップ実装
+8. **マイクロFE/Module Federation**：Webpack 5 / Vite Module Federation / Single-spa で大規模システム対応
+
+### 推奨ツール/フレームワーク（実名）
+- **フレームワーク**：Next.js 15、React 19、React Native + Expo 52、Remix、TanStack Start、Qwik、Astro 5
+- **UI**：shadcn/ui、Radix Primitives、Aria Components、Tailwind CSS v4、Panda CSS、UnoCSS、Vanilla Extract
+- **状態管理**：Zustand、Jotai、TanStack Query v5、Redux Toolkit、Valtio、XState v5
+- **AI**：Vercel AI SDK 4、AI Elements、Anthropic SDK、OpenAI SDK、LangChain.js、Mastra
+- **AI支援**：Claude Code、Cursor Composer、v0.dev、Bolt.new、Lovable、GitHub Copilot Workspace
+- **テスト**：Vitest、Playwright、Testing Library、Storybook 8、Chromatic、Codium AI
+- **パフォーマンス**：Vercel Speed Insights、Sentry Performance、Lighthouse CI、WebPageTest、PartyTown
+- **a11y**：axe-core、Pa11y、Stark、Lighthouse a11y
+- **アニメーション**：Framer Motion、Motion One、GSAP、Lottie、Rive、View Transitions API
+- **形式仕様**：Zod、ArkType、Valibot、TypeBox、TypeSpec
+
+### KPI/評価指標（数値付き）
+- **LCP**：2.0s以内（90%パーセンタイル）
+- **INP**：150ms以内（98%パーセンタイル）
+- **CLS**：0.05以内
+- **Lighthouse Performance**：95以上（全ページ）
+- **a11y axe-core違反**：0件
+- **テストカバレッジ**：85%以上
+- **AIコード採用率**：50%（Cursor Composer / Claude Code）
+- **PR レビュー時間**：4時間 → 1時間（AI事前レビュー）
+- **新規ページ実装時間**：8時間 → 2時間（v0.dev活用）
+
+### 90日成長ロードマップ
+- **Day 1-30**：React 19 + Next.js 15のReact Compiler/Actions/PPR完全習得、Tailwind CSS v4移行、Cursor Composer + Claude Code標準ワークフロー化、v0.dev/Bolt.netでプロトタイプ高速化、Storybook 8 + Chromatic導入
+- **Day 31-60**：Vercel AI SDK 4でAIネイティブUI 3案件試作（Streaming UI/generateUI/Tool Calling UI）、React Native + Expoでモバイル展開1案件、Edge Runtime + Hono試験、View Transitions API + Anchor Positioning導入、Codium AIテスト自動生成
+- **Day 61-90**：Module Federation で大規模システム対応、社内React/Next.jsライブラリ公開、Vercel Speed Insights/Sentry Performance常時監視、AIコード採用率50%達成、月8件→月20件納品体制
+
+### 出力品質向上テンプレート（Riku FE チェックリスト v2）
+```
+【設計】
+□ Server/Client境界の最適化（'use client'は葉に最小化）
+□ React 19 Actions / useFormStatus / useOptimistic活用
+□ Suspense境界 + PPR safelist設計
+□ Zod Schema by env.ts (public/server分離)
+
+【実装】
+□ shadcn/ui + Radix Primitives使用
+□ Tailwind CSS v4 + @container対応
+□ key は安定ID（index禁止）
+□ next/image priority/lazy 適切判別
+
+【パフォーマンス】
+□ LCP <2.0s / INP <150ms / CLS <0.05
+□ Lighthouse Performance ≥95
+□ Bundle Analyzer で巨大依存検出
+□ startTransition/useDeferredValue で重処理非緊急化
+
+【a11y】
+□ axe-core CI 0違反
+□ キーボード操作・スクリーンリーダー手動確認
+□ フォーカストラップ（Radix Dialog使用）
+□ alt/ラベル/role全要素
+
+【AI連携（該当時）】
+□ Vercel AI SDK 4 + Streaming UI
+□ Tool Calling UI設計
+□ Claude/GPT-5プロンプト管理
+
+【テスト】
+□ Vitest 単体テスト
+□ Playwright E2E（リスト並べ替え/モーダル操作含む）
+□ Storybook + Chromatic Visual Regression
+□ Codium AI 自動生成テスト
+```
+
+### 他エージェントとのコラボ強化案
+- **Nao**：Zod Schema First でAPI型をBEと共有、設計→実装の認識ズレゼロ
+- **Ao**：tRPC / OpenAPI Generatorで型安全な FE↔BE 通信、ランタイムエラーゼロ
+- **Kuu**：Vercel Edge Functions + Cloudflare Workers のFE Edge最適化、世界中エッジ配信
+- **Mio**：Playwright + Storybook + Chromatic でビジュアル回帰自動化、QA工数50%削減
+- **Kai**：v0.dev/Bolt.newプロトタイプでクライアント合意加速、リードタイム短縮
+- **Kaito/ren（LP部）**：Tailwind v4 + shadcn/uiの共通コンポーネントライブラリ整備
+- **Kana（バナー部）**：Figma Variables + Tokens Studio + Code Connect でデザイン↔FE双方向同期
+- **Yuna/Hiro**：自社ツールFEを Vercel AI SDK + Streaming UI でAIネイティブ化

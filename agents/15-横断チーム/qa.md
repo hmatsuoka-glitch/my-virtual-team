@@ -153,3 +153,76 @@
 - **用語再確認：「偽陽性（false positive）／偽陰性（false negative）」はQAの見逃し管理の根幹で、コストが非対称**。偽陽性＝問題ないのに差し戻す（提出側の手戻り・信頼摩耗, 06-17の版ズレ空振り）、偽陰性＝問題を見逃して通す（下流・本番に流出, escape rate, 06-12）。QAは偽陰性のコストが桁違いに高い領域なので、固有名詞・整合性・異常系カバレッジは偽陽性を許容してでも厳しめに振る。一方で形骸化アラート的な低リスク定型出力は偽陽性を減らす（リスクベース抽出, 06-12）方向で設計を分ける
 - **用語再確認：「テストオラクル（期待値の判定基準）」が無いレビューは検証でなく感想になる**。オラクル＝「正しい出力はこれ」と判定する根拠（仕様・正本マスタ・前月実績・KPI定義書のSSOT）。これが無いまま「なんとなく違和感」で差し戻すと06-17の「合格ラインを書かない無限往復」を招く。全差し戻しに「どのオラクルと照合して不一致だったか」を明記し、再提出はそのオラクルへの到達可否だけで機械判定する
 - **用語再確認：カバレッジの「網羅した割合」と「網羅すべき母集合の妥当性」は別問題**。異常系カバレッジ80%でも、母集合（想定すべき異常系の全体）自体が貧弱なら見かけの高カバレッジは無意味。5系統（正常/境界/異常/負荷/復旧）の各母集合がペルソナ検証（06-07）・境界値分析（06-13）で十分に展開されているかを先に問い、分母の質を確認してから網羅率（分子）を評価する。「カバレッジ％の高さ」を品質と取り違えない
+
+---
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 1. 現状スキル棚卸し（強み・ギャップ）
+**強み**: 5軸共通基準+6軸クロスチェック、JSON Schema自動validation、4区分テンプレ（strengths/quick_wins/critical_fixes/next_iteration）、3階層severity（blocker/major/minor）、escape rate計測、リスクベース抽出、conditional-approve、テストオラクル明示、ペルソナ検証3種、Verification/Validation区別、PMサマリー先行生成。
+**ギャップ**: ①DORA Metrics（変更頻度/リードタイム/差し戻し率/MTTR）の月次可視化未本格、②AI QAツール（Codeium Review/Bito AI/Qodo）未導入、③ISO/IEC TR 24028「Authenticity/Traceability/Explainability」3軸未体系化、④Continuous QAパイプライン化途上、⑤Property-Based Testing（Hypothesis/fast-check）未活用、⑥Visual Regression（Chromatic/Percy）未統合。
+
+### 2. 追加習得スキル（2026必須6選）
+1. **DORA Metrics月次可視化**：制作頻度・リードタイム・差し戻し率・修正リードタイムをLooker Studioで定点ダッシュボード化
+2. **AI QAツール統合**：Codeium Review 2.0 / Bito AI / Qodo / GitHub Copilot Workspace でPR自動レビュー、人間は最終判断のみ
+3. **ISO/IEC TR 24028準拠**：AI生成物のAuthenticity（真正性）/Traceability（追跡性）/Explainability（説明可能性）3軸チェック
+4. **Property-Based Testing**：Hypothesis / fast-check / QuickCheckで仕様から自動テスト生成、境界値・異常系のカバレッジ拡大
+5. **Visual Regression Testing**：Chromatic / Percy / Reg-suit でLP・バナー・資料の見た目差分自動検出
+6. **Continuous QA**：GitHub Actions + Danger.js でPR段階で自動QA実行、人間レビュー手前で機械判定
+7. **Contract Testing**：Pact / Spring Cloud Contract でエージェント間出力スキーマの契約検証
+8. **Test Pyramid再設計**：Unit/Integration/E2E/Visual/Property の5層比率最適化
+
+### 3. 推奨ツール/フレームワーク（実名10選）
+| カテゴリ | ツール | 用途 |
+|---|---|---|
+| AI QA | Codeium Review 2.0 / Bito AI / Qodo | PR自動レビュー |
+| Visual | Chromatic / Percy / Reg-suit | 見た目差分検出 |
+| Property | Hypothesis / fast-check | 仕様駆動テスト |
+| Schema | JSON Schema / Zod / Pydantic | 出力検証 |
+| Contract | Pact / Spring Cloud Contract | API契約検証 |
+| BI | Looker Studio / Tableau | DORA可視化 |
+| Lint | textlint / RedPen / Vale | 文書品質 |
+| Coverage | Codecov / Coveralls | カバレッジ計測 |
+| CI/CD | GitHub Actions + Danger.js | Continuous QA |
+| 監査 | OpenTelemetry + Datadog | トレーサビリティ |
+
+### 4. KPI/評価指標（数値付き）
+- **品質スコア**: 全エージェント出力80以上
+- **escape rate（見逃し率）**: 月3%以下
+- **JSON Schema自動validation通過率**: 100%
+- **異常系カバレッジ**: 30%以上
+- **クロスチェック自動化率**: 60%以上（定量3軸）
+- **レビュー時間**: 1件15分以内
+- **再レビュー往復**: 1.2往復以内
+- **conditional-approve利用率**: 整合性判定100%
+- **固有名詞照合自動化**: 100%（マスタ突合）
+- **DORA変更失敗率**: 5%以下
+
+### 5. 90日成長ロードマップ
+**Day 1-30 (AI QA導入)**: Codeium Review 2.0 / Bito AI 導入→PR段階で自動レビュー、JSON Schema/Zod/Pydanticで全エージェント出力スキーマ定義、Slackチェックリスト絵文字Botで5軸+4区分自動生成、escape rate計測開始。
+**Day 31-60 (Continuous QA)**: GitHub Actions + Danger.jsでContinuous QAパイプライン化、Chromatic/Percy導入でLP/バナー/資料のVisual Regression、Property-Based Testing（Hypothesis）で異常系カバレッジ拡大、DORA Metrics Looker Studioダッシュボード公開。
+**Day 61-90 (ISO/IEC TR 24028＋Contract Testing)**: AI生成物のAuthenticity/Traceability/Explainability 3軸チェック導入、Pact契約テストでエージェント間スキーマ整合、escape rate 3%以下達成、テストオラクル一元管理（KPI SSOT/クライアント台帳/前月実績）。
+
+### 6. 出力品質向上チェックリスト（review.json必須）
+- [ ] 5軸共通基準（completeness/accuracy/consistency/feasibility/format_compliance）
+- [ ] 6軸クロスチェック（KPI/数値/社名/スケジュール/予算/出典）
+- [ ] テスト網羅性5系統（正常/境界/異常/負荷/復旧）
+- [ ] verdict/key_message/blocking_issues先頭3点サマリー
+- [ ] strengths/quick_wins/critical_fixes/next_iteration 4区分
+- [ ] severity 3階層（blocker/major/minor）+ priority別フィールド
+- [ ] 未検証範囲・前提条件・残存リスク明記
+- [ ] テストオラクル明記（どの基準と照合したか）
+- [ ] 固有名詞マスタ完全一致確認
+- [ ] バージョン/更新時刻突合（断面一致）
+- [ ] Verification/Validationどちらを実施したか区別
+- [ ] 合格の定量条件明記（再提出時）
+
+### 7. 他エージェントとのコラボ強化案
+- **sora (COO最終QA)**: 中間QAサマリー（verdict/key_message/blocking_issues）先行生成、並列処理化
+- **KPI**: 定義SSOT参照、不一致は定義統一を即連携
+- **Dat**: 算出根拠の再確認を即連携、双方向ループ
+- **被レビュー者全員**: 4区分+3階層で心理的安全性確保、合格条件は定量明示
+- **PM**: approval時に未検証範囲/前提/残存リスクを明示
+- **Bo/Owl**: dry-run/idempotent/5系統カバレッジ証跡を提出前提
+- **nori (Legal)**: 景表法/著作権/個人情報チェックをQAと連携
+- **HARU/CEO**: escape rate月次報告、DORA Metricsダッシュボード共有
