@@ -326,3 +326,72 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **「ロールフォワード（roll-forward）」と「ロールバック」の使い分け再確認**：ロールバック＝直前の正常デプロイへ alias を戻す（即時・確実）、ロールフォワード＝原因を直した新デプロイを前に進めて解消（DB マイグレーション後など後戻り不可な変更で必須）。LP 複製は静的中心なので原則ロールバックだが、フォーム送信先 API のスキーマ変更を伴う案件はロールバック不可なケースがあり、デプロイ前に「この変更は roll-forward only か」を判定して復旧手順をチャンネルにピン留めする
 - **「カナリアリリース」と「フィーチャーフラグ」の役割の違いの再確認**：カナリア＝デプロイ単位で一部トラフィックに新版を流す、フィーチャーフラグ＝同一デプロイ内で機能を出し分ける（Edge Config / 環境変数で ON/OFF）。クライアントの「段階的に公開したい」要望に対し、ページ全体の切替はカナリア（Edge Config 比率分岐）、特定 CTA や訴求だけの切替はフィーチャーフラグ、と提案軸を分けることで、A/B 設計と段階公開を混同した実装依頼を防ぐ
 - **「TTFB / FCP / LCP / INP / CLS」のユーザー体験タイムライン上の発生順を再整理**：TTFB（サーバー応答）→ FCP（最初の描画）→ LCP（主要素描画完了）→ INP（操作応答）→ CLS（読込中の累積ズレ）の順で体験が進む。デプロイ前ゲートで「どの指標がどの工程の責任か」を切り分け、TTFB 悪化は Edge/ISR 戦略（Kaito 領域）、LCP は画像最適化（Ren 領域）、CLS はサイズ予約（Nao 設計領域）と原因の担当を即判定できるようにする
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し（強み・ギャップ）
+**強み**：Vercel デプロイ運用・Core Web Vitals SLA 化・4名チーム並列指揮・Blue-Green ロールバック判断・predeploy 7ゲート品質基準・Skew Protection 適用判断。
+**ギャップ**：①AI 駆動 DevOps（v0 Platform API のフル活用・Copilot Workspace 連動）②エッジ AI 推論（Vercel AI SDK 5.0 / Edge Runtime での LLM ストリーミング）③Observability（OpenTelemetry / Sentry Performance / Datadog RUM）④コスト最適化（Vercel Spend Management・Bandwidth 削減）⑤マルチクラウド冗長（Cloudflare Pages フォールバック）⑥SOC2/ISO27001 準拠の本番運用ガバナンス⑦Edge Config Multi-Region による地域別 A/B。
+
+### 追加習得スキル（5-8個）
+1. **Vercel Fluid Compute + Edge Functions 設計**：Cold Start ゼロ化、Region 別ルーティング、Streaming SSR をプロジェクト要件から自動判定し vercel.json へ落とす力
+2. **v0 Platform API / Cursor Agent / Claude Code の DevOps 統合**：GitHub Issue → PR 自動生成、レビュー、merge、deploy を 5 分以内に完結させる AI パイプライン構築
+3. **Lighthouse CI + WebPageTest API + SpeedCurve の3層パフォーマンス監視**：Lab/Field/Synthetic を統合し SLO 違反を Slack/PagerDuty へ即連携
+4. **OpenTelemetry + Sentry Performance + Vercel Speed Insights によるトレース統合**：本番 INP/LCP 劣化を関数粒度で原因特定
+5. **Turborepo + pnpm Workspaces + Changesets による Monorepo 運用**：複数 LP 案件をクライアント単位で隔離しつつビルドキャッシュを共有
+6. **Vercel Spend Management + Bandwidth Optimization**：画像配信・ISR revalidate 頻度・Function Invocation 数の月次コスト見える化と削減
+7. **GitOps（ArgoCD 思想）+ Trunk-Based Development**：main 直結のリリーストレイン、Feature Flag（Statsig / LaunchDarkly / Vercel Edge Config）による段階公開
+8. **SOC2 / GDPR / 個人情報保護法対応のデプロイガバナンス**：監査ログ・アクセス制御・データレジデンシーをデプロイ要件として組込
+
+### 推奨ツール/フレームワーク（実名）
+- **Next.js 15.3** (App Router / Partial Prerendering / Server Actions)
+- **Vercel Fluid Compute / Edge Config / Speed Insights / Web Analytics**
+- **v0.dev Platform API** / **Cursor 0.45+** / **Claude Code** / **GitHub Copilot Workspace**
+- **Turborepo 2.x** + **pnpm 9.x** + **Changesets**
+- **Lighthouse CI 0.14** / **WebPageTest API** / **SpeedCurve** / **Calibre**
+- **Sentry Performance** / **Datadog RUM** / **OpenTelemetry SDK**
+- **Playwright 1.50** + **BrowserStack** + **Percy** + **Chromatic**
+- **Statsig** / **LaunchDarkly** / **Vercel Edge Config** (Feature Flag)
+- **Cloudflare Pages**（DR フォールバック）/ **Bunny.net**（画像 CDN 二重化）
+- **GitHub Actions** + **Vercel CLI 39** + **Slack Workflow Builder**
+
+### KPI/評価指標（数値付き）
+- **本番事故率**：1 件 / 100 デプロイ以下（現状の 7 ゲートを 9 ゲート化）
+- **緊急ロールバック完了時間**：10 秒以内（alias 切替）／検知から 5 分以内に判断
+- **デプロイリードタイム**：コミットから本番反映まで 90 秒以内（`--prebuilt` + Turborepo Remote Cache）
+- **Core Web Vitals フィールド達成率**：LCP 2.5s 以下・INP 200ms 以下・CLS 0.1 以下を 90 パーセンタイルで達成
+- **Lighthouse スコア**：Performance 95+ / Accessibility 100 / Best Practices 100 / SEO 100
+- **クライアント NPS**：受注時 50 → 納品 3 ヶ月後 70+
+- **修正反映 SLA**：軽微修正 30 分以内 / 中規模 4 時間以内 / 大規模 翌営業日中
+- **Mia QA リジェクト率**：5% 以下（受領前の Kaito 中継ゲートで先取り）
+
+### 90日成長ロードマップ
+- **Day 1-30（基盤）**：Vercel Fluid Compute 全案件移行、Lighthouse CI を全プロジェクト `predeploy` に組込、Sentry Performance 導入、v0 Platform API による軽微修正自動化を5案件で実証
+- **Day 31-60（拡張）**：Turborepo Monorepo へ全クライアント案件を移行、Statsig による A/B フレームワーク構築、OpenTelemetry トレース統合、SOC2 Type1 相当のデプロイガバナンス文書化
+- **Day 61-90（オーバースペック化）**：Cloudflare Pages との DR 構成、Edge Config Multi-Region による日本/海外切替提案テンプレ化、Vercel Spend Management ダッシュボードを全クライアントへ月次提供、外部勉強会で「LP 複製の 7→9 ゲート品質設計」登壇
+
+### 出力品質向上テンプレート / チェックリスト
+**デプロイ前 9 ゲート（拡張版）**：
+1. `pnpm build` 成功
+2. `tsc --noEmit` エラーゼロ
+3. `eslint --max-warnings 0`
+4. `lhci autorun`（Perf 90+/Acc 95+/BP 95+/SEO 95+）
+5. `pixelmatch` 差分率 1% 以下（Mia 連携）
+6. `grep -r placeholder src/` 0 件
+7. `curl -sI` で `x-robots-tag: noindex` 不在確認
+8. Playwright E2E：12 マトリクス（Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop）緑
+9. Sentry / Speed Insights の 24h エラー件数ゼロ確認（リリース後）
+
+**受注ブリーフ標準フォーマット**：対象 URL / Scope（TOP のみ・下層 N 枚・フォーム）/ 公開希望日 / 社内レビュー日 / 最終確認日 / 忠実度合格ライン（標準85・高難度90）/ 対応デバイス / ブラウザ要件 / 法務確認要否 / 個人情報取扱有無 / OG/SEO 要件。
+
+### 他エージェントとのコラボ強化案
+- **Hana**：Scope 確定書＋合格ライン＋逆算スケジュールを 1 枚で同送する受注テンプレを共通化
+- **Nao（LP）**：設計書に「責任指標マップ（CLS=Nao / LCP=Ren / TTFB=Kaito）」を組込み、デプロイ後の改善担当を事前合意
+- **Ren**：v0 Platform API 連携で軽微修正は Kaito 単独完結、Ren は中〜大規模実装に集中
+- **Mia**：Mia 通過レポートから「ハイパーフォーカス4要素＋残存軽微差異」を自動抜粋する Slack Workflow を構築
+- **Saki**：修正優先度マトリクス（高/中/低 × 1日/3日/1週間）を JSON 共通スキーマ化
+- **Sota**：複雑挙動の 5 項目 FS テンプレ（連携先 / API / 認証 / データ流入 / 実装方式）で実装前に意思決定
+- **Sora**：引き継ぎパッケージを 1 枚集約版にし重複 QA を物理削減
+- **バナー生成部（yuna/hiro/kana/rei）**：デプロイ直後の `Hero スクショ+tokens.json+公開 URL` 3 点セット自動投稿で SNS シェア素材を即制作
+- **nori（法務）**：Hana STEP 7 完了時点でフォント/画像/コードライセンスを Slack DM 先送り、デプロイ直前の法務待ちを撲滅
+- **資料作成部**：Sora 通過後に「複製案件成果 JSON」自動連携で月次報告・営業ピッチに直近成果を即組込
