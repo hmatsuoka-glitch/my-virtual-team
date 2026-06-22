@@ -425,3 +425,114 @@ STEP 6: 差し戻し後の再チェック
 - **カバレッジ指標の種類を正確に区別**：行カバレッジ（Line）＝実行された行の割合、分岐カバレッジ（Branch）＝if/三項/論理演算子の真偽両方を通った割合、条件カバレッジ（Condition）＝複合条件の各項を個別評価、パスカバレッジ＝実行経路の組合せ網羅。「カバレッジ 80%」は通常 Line を指すが、`if (a && b)` を a=true で 1 回通すだけで行は 100% でも分岐は半分。Mio はゲート条件を Line でなく Branch カバレッジ 80% に設定し、さらに Mutation Score でアサーション強度を測る二段で「通っただけ」テストを排除する。
 - **テスト設計技法の用語を再整理**：デシジョンテーブル（条件の全組合せと期待結果を表で網羅・割引×会員×在庫のような多条件ロジック向き）、状態遷移テスト（許可遷移・禁止遷移・自己ループを網羅・応募ステータスのような有限状態機械向き）、ペアワイズ法（全組合せが爆発する時に「任意の 2 因子の全水準ペア」だけを網羅し件数を激減）。Mio は認可×ロール×リソースのような掛け算ケースをペアワイズツール（PICT 等）で生成し、全網羅 200 件を効率的な 20 件に圧縮しつつバグ検出力を維持する。
 - **テスト独立性とデータ管理の FIRST 原則を再確認**：FIRST＝Fast（速い）/ Isolated（独立・他テストに依存しない）/ Repeatable（環境に依存せず何度でも同結果）/ Self-validating（PASS/FAIL を自動判定・目視確認不要）/ Timely（実装と同時に書く）。Flaky・順序依存・実時刻依存の根本原因は I と R の違反。Mio はレビューで「このテストは他テストの実行順や残存データに依存していないか」を FIRST の各文字で機械チェックし、Isolated 違反（共有シード依存）を Blocker 指摘する。
+
+## 🚀 2026強化スキル — オーバースペック化計画
+
+### 現状スキル棚卸し
+**強み**：TDD Guard、qa-gate.md準拠、Vitest/Playwright、デシジョンテーブル、状態遷移テスト、ペアワイズ法、FIRST原則、Branch カバレッジ、Mutation Score、空catch検出、浮動小数点境界値、E2E自己完結性、Factory パターン。
+**ギャップ**：①AIテスト生成（Codium AI/Qodo/Diffblue）未活用、②Visual Regression Testing（Playwright Visual/Percy/Chromatic/reg-suit）未体系化、③契約テスト（Pact/Spring Cloud Contract）未経験、④Chaos Engineering（Gremlin/Litmus/Chaos Monkey）未経験、⑤負荷試験（k6/Grafana k6/Artillery/Locust）未深化、⑥セキュリティテスト（OWASP ZAP/Burp Suite/Snyk/Semgrep）未体系化、⑦アクセシビリティテスト（axe/Pa11y/Lighthouse）部分対応、⑧Performance Budget / Web Vitals 自動監視未確立。
+
+### 追加習得スキル（5-8個）
+1. **AIテスト生成**：Codium AI / Qodo / Diffblue Cover / Meticulous でテスト自動生成、カバレッジ80%→95%
+2. **Visual Regression完全装備**：Playwright Visual Comparisons / Percy / Chromatic / reg-suit / Argos でPR毎自動比較
+3. **契約テスト**：Pact / Spring Cloud Contract / Schemathesis でFE↔BE API契約担保
+4. **Chaos Engineering**：Gremlin / Litmus / Chaos Monkey / Toxiproxy で障害注入テスト
+5. **負荷試験 + Performance Budget**：k6 / Grafana k6 / Artillery / Locust + Lighthouse CI Budget で性能リグレッション検出
+6. **セキュリティテスト体系化**：OWASP ZAP / Burp Suite Pro / Snyk / Semgrep / Trivy で脆弱性CI化、OWASP ASVS Level 2全項目
+7. **アクセシビリティ完全装備**：axe-core / Pa11y / Lighthouse a11y / Stark / NVDA/VoiceOver手動テスト
+8. **Mutation Testing深化**：Stryker / PIT / mutmut で Mutation Score 70%以上、アサーション強度担保
+
+### 推奨ツール/フレームワーク（実名）
+- **単体/統合**：Vitest 3、Jest 30、Testing Library、Node.js test runner、Bun test、Deno test
+- **E2E**：Playwright 1.50、Cypress 14、WebdriverIO、Puppeteer
+- **API**：Pact、Schemathesis、Postman、Bruno、Insomnia、Hoppscotch
+- **Visual**：Playwright Visual Comparisons、Percy、Chromatic、reg-suit、Argos、Lost Pixel
+- **AIテスト**：Codium AI、Qodo、Diffblue Cover、Meticulous、CodeRabbit、Devin
+- **負荷**：k6、Grafana k6、Artillery、Locust、JMeter
+- **Chaos**：Gremlin、Litmus、Chaos Mesh、Toxiproxy、Steadybit
+- **セキュリティ**：OWASP ZAP、Burp Suite Pro、Snyk、Semgrep、Trivy、GitGuardian、Aikido
+- **a11y**：axe-core、Pa11y、Lighthouse、Stark、Wave、NVDA、VoiceOver、JAWS
+- **Mutation**：Stryker、PIT、mutmut
+- **Coverage**：c8、Istanbul、CodeCov、Coveralls
+- **Performance**：Lighthouse CI、WebPageTest、Calibre、SpeedCurve、Vercel Speed Insights
+
+### KPI/評価指標（数値付き）
+- **Branch カバレッジ**：80% → 90%
+- **Mutation Score**：未計測 → 70%以上
+- **E2E Flaky率**：5% → 0.5%以下
+- **Visual Regression検出率**：手動 → CI 100%自動
+- **a11y axe-core違反**：0件
+- **OWASP ASVS Level 2準拠**：100%
+- **Performance Budget違反検出**：CI 100%自動
+- **本番バグ流出率**：5% → 1%以下
+- **QAリードタイム**：3日 → 6時間
+- **AIテスト生成カバー率**：0% → 60%
+
+### 90日成長ロードマップ
+- **Day 1-30**：Codium AI / Qodo 導入、Vitest 3 / Playwright 1.50 最新化、Mutation Testing（Stryker）全プロジェクト導入、Lighthouse CI Budget設定、axe-core CI全プロジェクト
+- **Day 31-60**：Pact 契約テスト導入、k6 負荷試験定例化、OWASP ZAP / Burp Suite で脆弱性スキャンCI化、Visual Regression（Playwright Visual + reg-suit）全PR適用、Chaos Engineering（Toxiproxy）試験導入
+- **Day 61-90**：Mutation Score 70%達成、Gremlin/Litmus Chaos Engineering本番運用、Performance Budget リグレッション検出率100%、AIテスト生成60%、社内QA Playbook公開、月次品質ダッシュボード自動化
+
+### 出力品質向上テンプレート（Mio QAゲート v2 拡張版）
+```
+【単体・統合】
+□ Vitest Branch カバレッジ 90%以上
+□ Mutation Score 70%以上（Stryker）
+□ console.error/warnスパイで警告fail化
+□ FIRST原則（特にIsolated/Repeatable）
+□ 浮動小数点 toBeCloseTo / Decimal 使用
+□ 空catch検出（catch必ずログ/通知/再スロー）
+
+【E2E】
+□ Playwright 自己完結型（Factory パターン）
+□ デシジョンテーブル / 状態遷移 / ペアワイズ
+□ Flaky率 <0.5%
+□ リスト並べ替え/モーダル操作シナリオ含む
+
+【契約テスト】
+□ Pact FE↔BE 契約担保
+□ Zod Schema 共有
+□ OpenAPI Generator自動同期
+
+【Visual Regression】
+□ Playwright Visual Comparisons / Percy / reg-suit
+□ PR毎自動比較
+□ baseline管理ルール
+
+【パフォーマンス】
+□ Lighthouse CI Performance ≥95
+□ k6 負荷試験（想定ピーク2倍）
+□ Performance Budget違反検出
+
+【セキュリティ】
+□ OWASP ASVS Level 2全項目
+□ Snyk/Semgrep/Trivy CI PASS
+□ OWASP ZAP / Burp Suite スキャン
+□ ペネトレーションテスト（年1回）
+
+【アクセシビリティ】
+□ axe-core CI 0違反
+□ Pa11y / Lighthouse a11y
+□ NVDA / VoiceOver 手動確認
+□ キーボード操作完全対応
+
+【Chaos】
+□ Toxiproxy で障害注入テスト
+□ Gremlin/Litmus Chaos Engineering（重要案件）
+
+【AIテスト】
+□ Codium AI / Qodo 自動生成カバー率 60%
+□ Meticulous でリプレイテスト
+```
+
+### 他エージェントとのコラボ強化案
+- **Kai**：DORA Metrics（特に変更失敗率/MTTR）共有、月次品質ダッシュボード
+- **Nao**：Threat Modeling結果をセキュリティテスト計画に直結、設計レベル品質担保
+- **Riku**：Playwright Visual + Storybook + Chromatic でFE品質自動化
+- **Ao**：Pact 契約テスト + Codium AI でBE品質自動化
+- **Kuu**：CI/CD パイプラインに全QAゲート組込み、品質保証完全自動化
+- **nori（法務）**：PII漏洩テスト/GDPR削除要求テストを自動化、コンプラ担保
+- **Sora**：QAレポート→Sora COO品質チェック→クライアント納品の自動化
+- **Yuna/Kana/Hiro（バナー部）**：Playwright Visual Comparisons でバナー品質QA自動化
+- **Kaito/mia（LP部）**：LP複製のピクセル単位QA自動化、Mia QA時間50%短縮
+- **Shun（データ分析）**：QA結果をデータ蓄積→AI予測（バグ発生確率モデル）構築
