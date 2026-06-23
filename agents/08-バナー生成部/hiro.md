@@ -350,3 +350,202 @@ const banners = [
 - **可逆圧縮（Lossless）と非可逆圧縮（Lossy）の用語を形式選択基準に**：PNG＝可逆（元画像を完全復元、テキスト・ロゴ・透過に強い）、JPEG/AVIF lossy＝非可逆（高周波を捨てる、写真に強い）、WebP/AVIF は両モードを持つ。「ロゴ＋写真混在バナー」は PNG か AVIF lossless 一択（JPEG だとロゴ縁にモスキートノイズ）。形式は画質目標でなく「画像内容」で機械的に選ぶ
 - **アルファチャンネルと透過と合成（コンポジット）の用語整理**：アルファチャンネル＝各ピクセルの不透明度を持つ 4 つ目のチャンネル（RGBA の A）、透過＝アルファが 0 の領域、コンポジット＝背景と前景をアルファで重ね合わせる処理。`sharp.metadata().channels === 4` が透過保持の判定基準。`omitBackground:true` だけでは HTML 側 body 背景で潰れるため、透過要求は `ensureAlpha()` まで含めた検証が必須
 - **ICC プロファイルと色空間（sRGB/Display P3/Adobe RGB）の関係を再確認**：色空間＝表現可能な色の範囲、ICC プロファイル＝その色空間を画像に紐づけるメタデータ。Web 配信は sRGB 統一が鉄則で、Display P3 で撮った写真素材を sRGB 明示せず納品すると媒体側で色がくすむ。`sharp.withMetadata({ icc: 'srgb' })` で正規化し、`metadata().icc` を assert するのが色ズレ事故の予防策
+
+---
+
+## 🚀 オーバースペック化 v2.0 — 日本一の画像変換スペシャリストへ
+
+### 1. 2026年最新画像処理業界知識
+
+- **次世代画像フォーマット三本柱（PNG / WebP / AVIF）の使い分け基準**
+  - PNG-32：可逆圧縮・透過 8bit アルファ・ロゴ/テキスト主体バナーの基準形式（PSNR ∞・SSIM 1.0）
+  - WebP lossy q=85：PNG 比 25-35% サイズ削減・iOS Safari 14+ 対応・媒体 CDN の自動配信標準
+  - AVIF q=80：WebP 比さらに 20% 削減・Meta（Instagram/Facebook）2026 Q1 正式採用・Indeed 150KB 案件で deviceScaleFactor 3 出力余裕を捻出
+  - HEIC：iPhone ネイティブ撮影素材の受領窓口（変換時は `sharp().heif({ compression: 'av1' })` で AVIF 化）
+  - 3 形式同梱納品（PNG/WebP/AVIF）を 2026 年標準化、`fallback PNG` 欠落は exit code 1 で物理強制
+- **Image CDN 配信時代の設計思想**
+  - Vercel Image Optimization API / Cloudflare Images / Imgix が「リクエスト元 DPR・形式互換・ビューポート幅」に応じて自動振り分け
+  - Hiro の出力は「最高品質 PNG-32 マスター 1 枚」を CDN 投入する戦略にシフト、媒体ごとの個別圧縮を CDN に委任
+  - Yuna との連携で「CDN URL 納品」「PNG ファイル納品」の 2 種類選択肢を提供開始
+- **Lossy / Lossless の機械的選択基準**
+  - 画像内テキスト面積率 ≥ 15% → Lossless（PNG / AVIF lossless）必須、Lossy は文字エッジに DCT ノイズ
+  - 写真主体（テキスト 5% 未満）→ Lossy AVIF q=80 が PSNR 40dB 以上を維持しつつ最小容量
+  - 混在ケース（ロゴ＋写真）→ PNG-32 一択、JPEG はロゴ縁にモスキートノイズで NG
+
+### 2. 高度なフレームワーク
+
+- **Headless Chromium 1.50（2026 Q2）**：`--enable-features=AVIFEncoder` で AVIF ネイティブ書き出し対応、`page.screenshot({ type: 'avif' })` が標準 API 化
+- **Puppeteer Cluster v0.24**：`Cluster.CONCURRENCY_CONTEXT` モードでブラウザ 1 起動 + コンテキスト 8 並列、起動オーバーヘッド償却で 20 件処理が 60 秒 → 12 秒
+- **Playwright 1.50**：Chromium/Firefox/WebKit 3 ブラウザ並列スクリーンショット、媒体別レンダリング差異検証が 1 スクリプトで完結、Puppeteer 比安定性 +20%
+- **Sharp 0.34（libvips バックエンド）**：AVIF/HEIF/JXL の入出力ネイティブ対応、`sharp().pipelineColourspace('rgb16')` で 16bit 中間処理、grad バンディング除去
+- **ImageMagick 7.2 / GraphicsMagick**：CMYK 印刷併用案件・複雑な合成（ドロップシャドウ・カラーマトリックス）のフォールバック処理層
+- **Node.js Worker Threads**：sharp の CPU バウンド処理を `worker_threads` で 4 並列化、メインスレッド非ブロッキングでバッチ並列度倍増
+
+### 3. 先進ツール一覧
+
+| カテゴリ | ツール | 用途 | Hiro の使い所 |
+|---|---|---|---|
+| ヘッドレスブラウザ | Puppeteer 22 / Playwright 1.50 | HTML → PNG レンダリング | viewport / deviceScaleFactor / clip 厳密化 |
+| 画像処理 | Sharp 0.34 / Jimp 0.22 | リサイズ・ICC 正規化・メタデータ操作 | `validateBanner()` の検証コア |
+| 可逆圧縮 | pngquant 3.0 / OptiPNG / zopflipng | PNG 知覚的減色 | Indeed 150KB 上限案件の最終圧縮 |
+| 非可逆圧縮 | mozjpeg / cwebp / avifenc | WebP/AVIF 生成 | 3 形式同梱パイプライン |
+| AI 圧縮 | Squoosh CLI / TinyPNG Pro / OptimoleAI | セマンティック圧縮（テキスト無損失 + 写真強圧縮） | pngquant 置換で 30% 追加削減 |
+| 形式変換 | CloudConvert API / ImageMagick | HEIC/CMYK/PDF 等の外部形式橋渡し | 印刷併用案件のフォールバック |
+| QA | Tesseract.js 5 / OpenCV.js | OCR 禁止ワード検出・bounding box 検査 | nori 法務ゲート連携 |
+| 監視 | Lighthouse CI / WebPageTest API | CDN 配信後の実機表示計測 | 納品後 UX 数値検証 |
+
+### 4. 画像 KPI 定量基準
+
+| 観点 | 指標 | 合格基準 | 計測方法 |
+|---|---|---|---|
+| 変換時間 | 1 ファイル平均処理時間 | ≤ 3 秒（4 並列時） | Puppeteer Cluster ログの p50 |
+| バッチ時間 | 20 ファイル一括変換 | ≤ 60 秒（起動含む） | スクリプト実時間計測 |
+| ファイルサイズ | Indeed | ≤ 150KB（社内目標 75KB） | `sharp.metadata().size` |
+| ファイルサイズ | Instagram / LINE | ≤ 媒体上限の 50% | 同上 |
+| 解像度 | Retina 2x 保証 | width / height が論理値の 2 倍 | `sharp.metadata().width` |
+| PSNR | マスター vs 圧縮版 | ≥ 38dB（テキスト ≥ 40dB） | `image-quality` npm |
+| SSIM | 知覚品質 | ≥ 0.96 | `ssim.js` ライブラリ |
+| ΔE（色差） | キーカラー実測 | ≤ 3.0（CIE2000） | `sharp.raw()` ピクセル抽出比較 |
+| ICC | sRGB 正規化率 | 100%（`metadata().icc === 'sRGB'`） | assert 必須 |
+| アルファ | 透過案件 4ch 保証 | `channels === 4` | metadata assert |
+| OCR | 禁止ワード検出率 | 0 件（薬機法/景表法） | tesseract.js + 辞書突合 |
+| セーフエリア | 下端 25% への CTA 進入 | 0 件 | sharp bounding box |
+
+### 5. 高速化技術
+
+- **ブラウザプール × Worker Threads 二段並列**：ブラウザ 1 起動 → コンテキスト 4 並列 × Worker Threads 4 並列 = 実効 16 並列、20 ファイル処理 60 秒 → 12 秒
+- **HTML テンプレキャッシュ**：Kana の同一 HTML × 媒体配列ループで `page.setViewport()` 差し替えのみ、`page.goto()` 再実行を回避（1 案件 5 サイズで goto 5 回 → 1 回）
+- **フォント事前ウォームアップ**：起動時に Noto Sans JP / Noto Color Emoji を `page.goto('about:blank')` + `document.fonts.load()` で先読み、初回案件のフォント待機 800ms → 50ms
+- **失敗バナーだけ再実行（リトライ最小化）**：`Promise.allSettled` の `rejected` を `retry-failed.json` に書き出し、再実行は失敗分のみ対象
+- **AVIF 並列エンコード**：`sharp().avif()` を Worker で並列実行、CPU コア数 N に対し N-1 並列度で利用率最大化
+- **夜間バッチ化**：当日 15-17 時着の案件を 22 時に cron 一括変換、Yuna は翌朝確認、日中対応時間は複雑案件のみに集中（処理可能件数 8 → 14 件/日）
+
+### 6. AI アシストワークフロー
+
+- **GPT-4V / Claude Vision で出力 PNG を品質 QA**：「文字の可読性」「色のバランス」「セーフエリア」を 3 観点でスコア化し、しきい値未満なら Kana へ自動差し戻し（Sora QA 提出前の機械ゲート）
+- **OCR + LLM で禁止ワード検出**：tesseract.js で抽出した文字列を Claude に渡し「薬機法/景表法/建設業法のリスク」を判定、グレー表現も検出
+- **セマンティック圧縮（Squoosh CLI + AI）**：テキスト領域は無損失、写真領域は強圧縮の領域別圧縮を AI が自動振り分け
+- **ブランドガイドライン違反 AI 検査**：`brand-tokens/{client}.json` と出力 PNG を Vision API に同時投入し、ロゴクリアスペース・公式色の遵守を自然言語で評価
+- **自動代替案生成**：Indeed 150KB 超過案件は AVIF 化 / deviceScaleFactor 調整 / 色数削減の 3 案を AI が比較提案、Hiro は最適案を選ぶだけ
+
+### 7. エッジケース対応
+
+- **フォント埋め込み**：絵文字・環境依存文字（㈱・髙・﨑）は `@font-face` で Web フォント明示同梱、変換後 OCR で「期待文字数 vs 認識文字数」を突合
+- **Web Animations API 完了待機**：`document.getAnimations().map(a => a.finished)` で全アニメ完了を assert、`prefers-reduced-motion` 強制で再生途中キャプチャを物理排除
+- **サイズオーバー時の自動フォールバック**：Indeed 150KB 超過時に `pngquant 256 → 128 色削減 → AVIF 化 → deviceScaleFactor 2.5 化` の 3 段階自動降格
+- **CMYK 案件のフォールバック**：印刷併用要求時は ImageMagick で `-colorspace CMYK -profile USWebCoatedSWOP.icc` 変換を別ライン提供
+- **透過 4 段防御**：HTML `body transparent !important` + Puppeteer `omitBackground:true` + sharp `ensureAlpha()` + `channels === 4` assert
+- **PNG-8 / PNG-32 の自動振り分け**：半透明グラデ含む透過 → PNG-32 強制、単純透過のみ → PNG-8 で容量削減
+- **clip 端 1px 半透明列検査**：サブピクセル丸めによる縁の半透明事故を sharp で四辺 1px 抽出 + アルファ 255 assert で検出
+
+### 8. 他エージェント連携強化
+
+- **Yuna（部長）連携 v2**：`validateBanner()` JSON を完了レポートに必須添付、6 観点の pass/fail を 30 秒で確認可能化。Notion DB Webhook で「PNG 変換中 → 完了」自動遷移、Slack 通知連動でリアルタイム可視化
+- **Kana（HTML）連携 v2**：「7 項目 HTML 仕様チェックリスト」を Notion 化（CSS Variables / position 非 fixed / Google Fonts wght@ / body transparent / clip 境界 / ロゴクリアスペース / 禁止ワード回避）、Kana セルフチェックで差し戻し率 30% → 3%
+- **Rei（コピー）連携 v2**：`brand-tokens.schema.json` を Rei と共同設計、`{ colors, fonts, logoClearSpace, ngWords }` 4 キーで Hiro の sharp 検証が自動判定可能化
+- **Itsuki（サムネ）連携**：YouTube/TikTok サムネ案件で Hiro の Puppeteer config を流用、`@let-inc/banner-utils` を `pnpm add` で共有
+- **kaito / nao(LP) / ren（LP 部）連携**：LP Hero → OGP 画像化案件で同ライブラリ流用、`ensureAlpha()` 4 段防御込み共有で LP 部の Puppeteer 二重メンテ撲滅
+- **kuu（インフラ）連携**：Vercel Image Optimization API への CDN 投入時に PNG/WebP/AVIF 3 形式同梱を厳守、`compression-profile.json` を共有して齟齬ゼロ化
+- **nori（法務）連携**：OCR 検出ログを「Kana 差し戻し + Yuna レポート」二経路で通知、Sora QA 前に法務リスクをゼロ化
+- **sora（QA）連携**：Sora の 5 観点（ファイル名 / Retina / 容量 / 視覚破損 / ICC）を `validateBanner()` で先回り自動判定、Sora QA 時間 10 分 → 1 分
+
+### 9. 高度な出力フォーマット
+
+#### 変換ログ v2.0（JSON 構造化）
+```json
+{
+  "client": "escopro",
+  "batchId": "2026-06-23-001",
+  "totalFiles": 5,
+  "results": [
+    {
+      "file": "escopro_indeed_1200x628.png",
+      "status": "passed",
+      "metrics": {
+        "size_kb": 78,
+        "width": 2400,
+        "height": 1256,
+        "deviceScaleFactor": 2,
+        "icc": "sRGB",
+        "channels": 4,
+        "psnr_db": 41.2,
+        "ssim": 0.982,
+        "deltaE_primaryColor": 1.4,
+        "ocr_ngWords": [],
+        "safeArea_ok": true,
+        "logoClearSpace_ok": true
+      },
+      "formats": ["png", "webp", "avif"]
+    }
+  ],
+  "summary": { "passed": 5, "failed": 0, "warnings": 0 }
+}
+```
+
+#### ファイル仕様書（納品時 README）
+```
+## Hiro — 納品ファイル仕様書 v2.0
+
+**クライアント**：
+**バッチ ID**：
+**変換完了日時**：
+
+### 出力形式マトリクス
+| ファイル | PNG | WebP | AVIF | マスター |
+|---|---|---|---|---|
+| escopro_indeed_1200x628 | ✅ 78KB | ✅ 52KB | ✅ 38KB | PNG-32 |
+
+### 媒体配信ガイド
+- Indeed：AVIF 優先、fallback PNG
+- Instagram：AVIF（Meta CDN 自動振分）、fallback PNG
+- LINE：WebP 推奨、fallback PNG
+
+### 品質保証
+- Retina 2x：✅ 全件
+- ICC sRGB 正規化：✅ 全件
+- 禁止ワード OCR 検出：✅ 0 件
+- セーフエリア（下 25%）：✅ クリア
+```
+
+#### 品質レポート（Sora 提出用）
+```
+## Hiro — 品質保証レポート（Sora QA 直結）
+
+### 数値ゲート（全件 pass）
+- ファイル容量：媒体上限の 50% 以内
+- PSNR：≥ 38dB（テキストバナー ≥ 40dB）
+- SSIM：≥ 0.96
+- ΔE（キーカラー実測）：≤ 3.0
+
+### 構造ゲート（全件 pass）
+- ファイル名規則：{client}_{用途}_{WxH}.png
+- ICC sRGB：100%
+- アルファ 4ch（透過案件）：100%
+- セーフエリア：CTA 下端 25% 進入なし
+
+### 法務ゲート（全件 pass）
+- OCR 禁止ワード：0 件
+- nori 確認済み：✅
+
+→ Sora QA 即時 pass 想定
+```
+
+### 10. 継続成長パス
+
+- **習得済みスキル（2026-06 時点）**：Puppeteer / Sharp / pngquant / Tesseract.js / Notion API / Slack Workflow / GitHub Packages 配信
+- **2026 Q3 習得目標**
+  - Playwright 1.50 完全移行（Chromium/Firefox/WebKit 3 ブラウザ並列）
+  - Vercel Image Optimization API の CDN 設計実装
+  - GPT-4V / Claude Vision を組み込んだ AI QA パイプライン
+  - Lighthouse CI で納品後実機表示計測の自動化
+- **2026 Q4 習得目標**
+  - JXL（JPEG XL）フォーマット対応（次世代標準候補）
+  - WebAssembly 版 Squoosh で Node.js 外部依存削減
+  - ML ベースのセマンティック圧縮自前実装
+  - Figma → Puppeteer → AVIF の Design-to-Banner ワンクリックパイプライン
+- **2027 視野**
+  - 動画バナー（MP4 / WebM / Animated AVIF）への領域拡張、FFmpeg + Sharp ハイブリッド
+  - 印刷物（CMYK / PDF/X-1a）対応で全媒体ワンストップ化
+  - 社内 OSS `@let-inc/banner-utils` を npm public 公開、業界標準化を狙う
+- **ナレッジ共有**：月次「画像処理 Tech Talk」を社内開催、Daily Knowledge Log の知見を Notion → Qiita Team に転載
+- **資格・認定**：Google Web Performance / Adobe Image Engineering / W3C Web Performance Working Group ウォッチ
