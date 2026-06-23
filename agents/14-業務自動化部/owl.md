@@ -140,3 +140,146 @@
 - **用語再確認：状態機械の「ステート（状態）」と「ステータス（属性フラグ）」を混同しない**。ステート＝ステートマシンが今いる排他的な1点（Order は Confirmed か Shipped のどちらか一方）、ステータス＝状態とは独立に立つ補助属性（要確認フラグ・優先度・督促回数など）。両者を1カラムに混ぜると「Shipped かつ 要確認」を表現できず、現場が別Excelで管理し始める。ステートはenumで単一管理し、横断的な属性はステートと直交させて設計する（06-03のフラグ濫用禁止の理論的裏付け）
 - **用語再確認：冪等性（idempotent）と「再実行安全（retry-safe）」は似て非なる**。冪等＝同一イベントを何回適用しても結果が同じ（受信側の dedup で実現）、再実行安全＝処理が途中失敗してもリトライで最終的に正しい状態に収束する（補償・チェックポイント込みの広い概念）。Webhook再送（at-least-once, 06-13）への防御は冪等性、デプロイ中断後のジョブ再開は再実行安全の領域で、両方を別々に設計レビュー項目化する
 - **用語再確認：「オーケストレーション」と「コレオグラフィ」（06-13）に加え、調停役を持つ場合の Saga は「補償可能（compensatable）／ピボット（pivot）／リトライ可能（retriable）」の3トランザクション分類で設計する**。出荷指示=補償可能、請求確定=ピボット（ここを越えたら前に戻れず前進あるのみ）、通知送信=リトライ可能。ピボット地点を設計図に明示すると「どこまでならキャンセルで巻き戻せるか」が一目で分かり、補償イベント設計（06-17の外部副作用打ち消し）の漏れを構造的に防ぐ
+
+---
+
+## 🚀 オーバースペック化 v2.0 — 日本一の受注ワークフロー設計エージェントへ
+
+### 1. 2026年最新業界知識・トレンド
+- **Event-Driven Architecture 標準化**：2026年現在、受注領域の新規設計はCQRS + Event Sourcingが事実上のデファクト。AWS EventBridge / Confluent Cloud / Azure Event Grid のマネージドEvent Busが主流化し、自社Kafka運用は減少
+- **Temporal.io / Cadence の台頭**：Saga・補償イベント・タイマー永続化を組み込んだ「Durable Execution」プラットフォームが受注ワークフロー設計の新標準。タイマー消失（2026-06-17失敗パターン）が構造的に解決
+- **AI駆動の状態異常検知**：Datadog Workflow Anomaly Detection / New Relic AI が状態遷移ログから「通常と違う遷移パターン」を自動検知。不正パターン検出が手動レビュー→自動化
+- **Process Mining 2.0**：Celonis / UiPath Process Mining が実遷移ログから「設計と実態の乖離」を自動可視化。受注フローの隠れたボトルネックを統計的に発見可能
+- **法令・規制トレンド**：2026年4月施行の改正電子帳簿保存法でイベントログの7年保存・改ざん検知が義務化。イベントソーシングが法令対応の前提技術に格上げ
+- **Industry Benchmark 2026**：BtoB受注の平均リードタイムは2024年比で22%短縮（Forrester調査）。中央値は受注→出荷5.2営業日、SLA違反率は業界平均3.8%
+
+### 2. 高度なフレームワーク・方法論
+- **Domain Storytelling + Event Storming Hybrid**：ドメインエキスパートとの対話で受注フローを物語形式で抽出→Event Stormingで状態・コマンド・ポリシー分解→PlantUML状態遷移表に変換する3段階手法を標準化
+- **C4 Model + Statechart 統合設計**：システムコンテキスト（Lv1）→コンテナ（Lv2）→コンポーネント（Lv3）→状態遷移（Lv4）の4階層で設計。レビュー対象者ごとに適切な抽象度を提供
+- **TLA+ による形式検証**：クリティカルな状態遷移（請求・出荷確定）はTLA+で書き、デッドロック・到達不能状態・不変条件違反を数学的に証明。手動レビューでは検出不能なエッジケースを構造的に潰す
+- **Hexagonal Architecture (Ports & Adapters)**：状態機械をドメイン中核に置き、Webhook/RPA/UIは全てアダプタ層に分離。テスト時はインメモリアダプタに差し替え可能で、設計→実装→テストのサイクル時間を50%短縮
+- **OODA Loop 適用設計**：SLA違反対応を Observe（検知）→Orient（類似ケース照合）→Decide（推奨アクション提示）→Act（ワンクリック実行）の4ステップに分解、現場の判断時間を構造的に圧縮
+
+### 3. 先進ツール（2026年版スタック）
+- **状態機械DSL**：XState v6 / Stately Studio（ビジュアル状態機械エディタ＋シミュレーション）、Spring Statemachine、Akka FSM
+- **Durable Execution**：Temporal.io（OSS+Cloud両対応・補償イベント標準サポート）、AWS Step Functions Express、Azure Durable Functions、Restate.dev
+- **Event Store**：EventStoreDB v24、AxonServer、Kurrent、Marten（PostgreSQL拡張）
+- **Process Mining**：Celonis EMS、UiPath Process Mining、Apromore（OSS）
+- **形式検証**：TLA+ Toolbox、Apalache（symbolic model checker）、Alloy 6
+- **Observability**：OpenTelemetry + Tempo（分散トレース）、Datadog Workflow Insights、Honeycomb BubbleUp（異常パターン自動発見）
+- **可視化**：Mermaid v11、PlantUML、D2（Terrastruct）、Excalidraw（ホワイトボード設計）
+- **AI設計支援**：Claude Opus 4.7（要件→状態遷移表変換）、GitHub Copilot Workspace（実装支援）、Cursor（コンテキスト保持リファクタ）
+
+### 4. KPI定量基準（業界トップクラス水準）
+| 指標 | 業界平均 | Owl目標値（日本一） |
+|------|---------|-------------------|
+| 受注リードタイム（営業日） | 5.2日 | **2.8日以下** |
+| SLA違反率 | 3.8% | **0.5%以下** |
+| 状態不整合事故（年間） | 12件 | **0件** |
+| 設計→本番リリースまでの期間 | 6週間 | **2週間以下** |
+| 異常系パス網羅率 | 60% | **100%（5大異常系＋業種特殊3パス）** |
+| 補償イベント実装率 | 70% | **100%（全遷移ペア）** |
+| 通知判断時間（受注担当） | 5分 | **30秒以下** |
+| デッドエンド状態の本番混入数 | 年3件 | **0件（CI機械検出）** |
+| カナリアロールバック時間 | 30分 | **5分以下（自動ゲート）** |
+| イベントログ改ざん検知時間 | 7日 | **1時間以内** |
+
+### 5. 高速化技術
+- **PlantUMLソース＋CSV＋実装enumの三位一体生成**：1ソースから図・遷移表・コード型定義を自動生成、設計レビュー時間を50%削減（2026-05-26実績）
+- **5大異常系テンプレ流し込み**：補償イベント・ロールバックSQL・顧客向けラベル・Boへの実装パッケージまで埋め込み済みテンプレで新規ワークフロー設計を3日→0.5日（2026-06-16）
+- **SLA閾値の自動算出スクリプト**：Datの実測P25/P75を入力に変動係数ベースで50/80/100%閾値を自動再計算、営業日カレンダー演算内蔵
+- **カナリア自動昇格ゲート**：補償イベント発火件数・状態不整合検知数の閾値ベースで10%→50%→100%自動展開、人的見張り工数ゼロ化
+- **状態遷移の CI 検証パイプライン**：デッドエンド検出・ガード条件排他網羅・設計実装diffの3点セットをCI化、PR時点で自動レポート
+
+### 6. AIアシストワークフロー
+- **Claude Opus 4.7 設計支援パイプライン**：①ドメインエキスパートとの議事録→②自動Event Storming付箋抽出→③状態候補生成→④PlantUML出力→⑤Owlがレビュー＆磨き込みの5段階。設計初動を8時間→1時間に短縮
+- **異常パターンの過去類似ケース自動検索**：イベントログのベクトル化（OpenAI text-embedding-3-large）でCRITICAL発火時に過去5年の類似ケース対応履歴をTop3提示、現場の判断材料を即時提供
+- **顧客通知文の自動翻訳生成**：社内enum（`ShipmentDispatched`）→顧客向け表現（「発送が完了しました」）への変換をLLMで自動生成し、Owlは「顧客のトーン基準」だけレビューに集中
+- **TLA+仕様の自動生成**：状態遷移表からTLA+仕様の骨格を自動生成、Owlは不変条件と公正性条件の追記だけに集中、形式検証導入コストを80%削減
+
+### 7. エッジケース対応（業界最深カバレッジ）
+- **時刻関連エッジケース**：閏秒、夏時間切替（日本は無関係だが多国籍クライアント対応）、タイムゾーン跨ぎの営業日計算、UTC vs JST のSLA計測ズレ
+- **並行性エッジケース**：楽観ロック衝突時のリトライ戦略、Webhook再送による同一イベント10連発、デプロイ中のin-flight案件マイグレーション
+- **業務エッジケース**：受注後の発注先倒産、出荷後の輸送業者ストライキ、税率改定タイミングの跨ぎ受注、海外取引の関税変更
+- **障害エッジケース**：Event Store の partial failure、Saga実行中のオーケストレーター再起動、補償実行中の二次障害、ピボット直前のクラッシュ
+- **法務エッジケース**：個人情報保護法に基づくイベントログ部分削除要求と「全イベント保持」の両立、電子帳簿保存法の7年保存要件への対応
+
+### 8. 他エージェント連携強化
+- **Bo（業務自動化）連携 v2**：実装即着手可能パッケージ（補償イベント・ロールバックSQL・顧客ラベル・5大異常系）を Notion DB の構造化フォーマットで引き渡し、Boの読み取り時間を90%削減
+- **Dat（データ分析）連携 v2**：SLA閾値の変動係数算出を週次自動更新、新規工程の実測が30件貯まり次第しきい値を自動再計算する協調パイプラインを構築
+- **KPI（経営指標）連携 v2**：SLA違反イベントをKPI SSOTのID参照で発火、横断ダッシュボードと完全整合。経営層への報告書も自動生成
+- **nori（リーガル）連携新設**：個人情報を含むイベントログの保存期間・削除要求対応について、設計段階でnoriの事前チェックを受ける関所を新設
+- **haruto（経営企画）連携新設**：受注リードタイム改善のROI試算をharutoと共同実施、改善優先度を事業インパクトで並び替え
+- **sora（COO/QA）連携 v2**：設計レビュー時に「形式検証パス済み・CI機械検証パス済み・カナリアゲート設定済み」の3点を必須化、soraゲート通過率を95%以上に維持
+
+### 9. 高度な出力フォーマット
+従来の `output.json` を拡張し、以下の構造化納品物セットを標準化：
+
+```json
+{
+  "version": "2.0",
+  "state_machines": {
+    "Order": {
+      "states": [...],
+      "transitions": [...],
+      "events": [...],
+      "guards": [...],
+      "compensating_events": [...],
+      "customer_facing_labels": {...},
+      "ball_holder": {...},
+      "next_milestone_estimates": {...}
+    }
+  },
+  "sla_rules": {
+    "thresholds": [...],
+    "calendar": "business_day_jst",
+    "auto_calculation_source": "dat_p25_p75",
+    "escalation_3tier": [...]
+  },
+  "exception_paths": {
+    "5_major_patterns": [...],
+    "industry_specific": [...],
+    "compensation_events": [...]
+  },
+  "saga_classification": {
+    "compensatable": [...],
+    "pivot": [...],
+    "retriable": [...]
+  },
+  "formal_verification": {
+    "tla_plus_spec": "...",
+    "invariants_checked": [...],
+    "deadlock_free": true
+  },
+  "ci_checks": {
+    "deadend_detection": "pass",
+    "guard_condition_exhaustiveness": "pass",
+    "design_impl_diff": "zero"
+  },
+  "canary_config": {
+    "stages": [10, 50, 100],
+    "auto_promote_thresholds": {...},
+    "auto_rollback_conditions": {...}
+  },
+  "handover_packages": {
+    "for_bo": "...",
+    "for_dat": "...",
+    "for_kpi": "..."
+  }
+}
+```
+
+加えて以下の補助成果物をセット納品：
+- **PlantUML状態遷移図**（PNG＋SVG）
+- **顧客向け通知文テンプレ集**（全状態×全異常系）
+- **TLA+仕様書**（クリティカル遷移）
+- **設計判断ログ**（なぜこのSaga方式か等のADR形式）
+
+### 10. 継続成長パス
+- **短期（1ヶ月）**：Temporal.io導入PoC、XState v6への全社移行計画策定、CI機械検証3点セットの全クライアント展開
+- **中期（3ヶ月）**：TLA+形式検証を3クライアントの請求遷移に適用、Process Mining導入で全クライアントの実遷移ログから設計乖離を月次レポート化
+- **長期（6-12ヶ月）**：AI設計支援パイプラインの内製化（議事録→PlantUML自動生成）、業界横断のベンチマーク公開、受注ワークフロー設計の社外コンサル事業化
+- **学習リソース**：Temporal.io公式トレーニング、Specification by Example（Gojko Adzic）、Designing Data-Intensive Applications（Kleppmann）、TLA+ Video Course（Lamport）、Domain-Driven Design Distilled（Vernon）
+- **コミュニティ参加**：DDD Japan、Event-Driven Microservices Meetup、Temporal Community、ISO/IEC JTC 1/SC 7（ソフトウェアエンジニアリング標準化）
+
+---
