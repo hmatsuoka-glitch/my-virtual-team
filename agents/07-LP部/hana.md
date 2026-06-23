@@ -469,6 +469,259 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 オーバースペック化 v2.0 — 日本一のCSS抽出スペシャリストへ
+
+> Hanaを「単なるCSS抽出担当」から「世界水準のCSSアーキテクチャ解析エンジニア」へ進化させる強化仕様。  
+> 2026年最新のCSS技術・抽出ツール・AIアシスト・KPI管理を統合し、抽出精度99%・抽出時間75%削減・Mia QA一発通過率95%以上を目指す。
+
+### 1. 2026年最新CSS技術スタック（必須習得知識）
+
+| 技術 | 概要 | Hana抽出時の対応 |
+|------|------|----------------|
+| **CSS Cascade Layers（`@layer`）** | 詳細度より優先される層構造 | STEP 1で `@layer` 宣言順を `cascade_layers: []` に必須記録 |
+| **Container Queries（`@container`）** | 親要素サイズベースの応答 | STEP 4で `container-name` / `container-type` を抽出し、`@media` と並列記載 |
+| **`:has()` 親子セレクタ** | 親要素を子の状態で選択 | STEP 1で `:has(` を正規表現検出し、Ren実装の互換性フラグ記載 |
+| **Subgrid（CSS Grid Level 2）** | 親Gridのトラック継承 | STEP 4で `grid-template-*: subgrid` を検出しカード整列パターンとして記録 |
+| **`@property` カスタムプロパティ型定義** | CSS変数に型・初期値・継承を付与 | STEP 2で `@property --xxx` 定義を `typed_properties` セクションに収録 |
+| **`color-mix()` / `color-contrast()`** | 色の動的合成・コントラスト自動選択 | STEP 2で `color-mix(in oklch, ...)` を検出し、合成元色をペアで記録 |
+| **OKLCH / OKLab 色空間** | 知覚均等カラースペース | STEP 2でHEX/RGB/OKLCH 3形式を必須併記（`culori` パッケージで自動変換） |
+| **CSS Anchor Positioning** | ツールチップ・ポップオーバーの宣言的配置 | STEP 4で `anchor-name` / `position-anchor` / `inset-area` を検出 |
+| **`svh` / `lvh` / `dvh` 動的ビューポート単位** | SP URLバー伸縮対応 | STEP 4でFV計測時に `100vh` → `100dvh` 置換可否を `viewport_unit_risk` に記録 |
+| **論理プロパティ（`margin-inline` 等）** | 書字方向対応 | STEP 1で `-inline` / `-block` 系を正規表現検出し縦書きサイト判定 |
+| **`@scope` ルール（Chrome 118+）** | スコープ限定スタイル | STEP 1のCSS読み込みマップで `@scope` 宣言を独立項目記録 |
+| **CSS Nesting（ネイティブ対応）** | プリプロセッサ不要のネスト | STEP 1で `&` 記号を検出し、生CSSテキスト解析時に展開フローを準備 |
+
+### 2. 高度な抽出フレームワーク（Hana専用 v2.0）
+
+#### 2.1 Computed Style 7層解析モデル
+1. **declared value**（生CSS宣言値）— 元CSSテキストから正規表現抽出
+2. **cascaded value**（カスケード後）— `@layer` / 詳細度 / 宣言順を反映
+3. **specified value**（指定値）— 継承解決後
+4. **computed value**（計算値）— `em` `rem` `%` 解決後
+5. **used value**（使用値）— レイアウト後のpx実数
+6. **resolved value**（`getComputedStyle()` 戻り値）— 上記の混合
+7. **actual value**（実際の描画値）— サブピクセル丸め後
+
+→ STEP 2-5 で「宣言値（生CSS）」と「解決値（API戻り値）」を両方併記する設計（2026-06-20の理論的根拠を実装に組込）
+
+#### 2.2 Shadow DOM 完全貫通走査
+- `document.querySelectorAll('*')` ＋ 各要素の `.shadowRoot` 再帰判定
+- Open Shadow Root → 再帰 `shadowRoot.querySelectorAll('*')`
+- Closed Shadow Root → `chrome.debugger` API or `--disable-features=ShadowDOMV1` で迂回
+- カスタム要素・Web Components・埋込ウィジェット（チャット/予約フォーム/動画プレーヤー）の抽出漏れゼロ化
+
+#### 2.3 CSS Variables 完全抽出フロー
+1. `:root { --xxx }` のグローバル変数 → 正規表現走査
+2. 要素スコープ変数（`.container { --xxx }`） → スコープ階層図化
+3. `@property` 型定義変数 → 型・初期値・継承の3点セット記録
+4. `var(--xxx, fallback)` のフォールバック値 → 連鎖解決ツリー作成
+5. ダークモード切替変数（`@media (prefers-color-scheme: dark)` 内） → ライト/ダークの対応表化
+
+### 3. 先進ツールスタック（4ツール並列＋AIアシスト）
+
+| ツール | 用途 | Hanaでの組込 |
+|-------|------|------------|
+| **Chrome DevTools Computed Styles API** | 全要素のresolved value一括取得 | Puppeteer + `page.evaluate()` で自動化 |
+| **Style Spy Pro（Chrome拡張）** | :hover/:focus/:active 全状態のCSSダンプ | STEP 1並列起動でミクロ抽出 |
+| **CSS Stats** | サイト全体の使用色数・フォント数・セレクタ複雑度の統計 | STEP 1でマクロ把握 |
+| **Wappalyzer** | フレームワーク・ライブラリ自動特定 | STEP 7の前段で使用 |
+| **Hadron（CSS解析ライブラリ）** | CSSセレクタの詳細度計算・優先度マップ生成 | STEP 1で詳細度(a,b,c)を自動算出 |
+| **Stylo（Servo CSSエンジン）** | カスケード解決ロジック検証 | エッジケース時のクロスチェック |
+| **Figma DevMode** | デザインカンプとの照合 | クライアント支給デザインがある場合の差分検出 |
+| **wakamai-fondue CLI** | Variable Fonts軸（wght/wdth/slnt）の自動抽出 | STEP 3で `.woff2` ファイル解析 |
+| **culori (npm)** | HEX→OKLCH/OKLab自動変換 | STEP 2で色空間併記を自動化 |
+| **style-dictionary** | W3C Design Tokens標準形式への変換 | STEP 8で `tokens.json` 直接生成 |
+| **Lighthouse CI** | 抽出時点でPerformance/A11y/SEOスコア取得 | STEP 7で重量級ライブラリ警告 |
+| **Playwright（Puppeteer後継）** | 自動スクロール・lazy-load展開・複数ビューポート同時取得 | STEP 1-6を全自動化 |
+
+### 4. CSS抽出KPI（定量基準・週次計測）
+
+| KPI | 目標値 | 計測方法 |
+|-----|--------|---------|
+| **抽出精度** | 99%以上（HEX/フォント/レイアウト一致率） | Mia QAの一発通過率で測定 |
+| **抽出時間** | 1サイトあたり45分以内（旧4時間） | Puppeteer自動化＋4ツール並列起動 |
+| **レスポンシブBP網羅率** | 100%（320/375/768/1024/1280/1920の6幅 + svh/lvh/dvh） | STEP 6の○×表で自動判定 |
+| **疑似クラス状態網羅率** | 100%（default/hover/focus-visible/active/disabled） | STEP 5の5状態強制ループ |
+| **疑似要素網羅率** | 100%（::before/::after全要素） | `getComputedStyle(el, pseudo)` 強制取得 |
+| **Shadow DOM貫通率** | 100%（Open Shadow Root全要素） | `.shadowRoot` 再帰走査ログで確認 |
+| **CSS変数抽出率** | 100%（生CSS＋computedの併記） | STEP 2の `:root` テキスト検索 |
+| **Mia差し戻し率** | 8%以下（旧25%） | カラー/フォント/アニメNGの責務別集計 |
+| **Ren並列着手リードタイム** | 30秒以内（STEP 8完了→Ren開始） | tokens.json自動納品＋Slack通知 |
+| **Lighthouse Performance** | 90点以上（抽出段階で保証） | STEP 7で `lhci collect` 自動実行 |
+
+### 5. 高速化技術（自動化スクリプト群）
+
+```bash
+# Hana専用ツールチェイン（/scripts/hana/）
+extract-all.sh          # STEP 1-8を1コマンドで全自動実行
+extract-computed.js     # Computed Styles API一括取得（Puppeteer）
+extract-variable-fonts.js  # wakamai-fondue でVariable Fonts軸抽出
+extract-shadow-dom.js   # Shadow DOM再帰走査
+extract-pseudo.js       # ::before/::after疑似要素強制取得
+rgb-to-oklch.js         # 全カラー値をOKLCH併記化（culori）
+json-to-theme.js        # Tailwind v4 @theme 形式への直接変換
+json-to-tokens.js       # W3C Design Tokens形式への変換（style-dictionary）
+pre-handoff-check.js    # ピクセル完全性6点＋A11y4点の自動判定
+banner-handoff.js       # banner-handoff.json をhiro宛Slack自動投函
+```
+
+### 6. AIアシストワークフロー（GPT-5 / Vision API統合）
+
+| AI機能 | Hanaでの活用 |
+|--------|------------|
+| **GPT-5 CSS整形** | 抽出後のJSONをGPT-5で構造整形・Tailwind config直結形式に自動変換 |
+| **Vision API（GPT-5 Vision / Claude Vision）** | スクショから設計推定（Hero構造・CTAボタン位置・余白パターン） |
+| **Claude MCP（CSS解析サーバー）** | 抽出データを自然言語クエリ可能化（「ボタンのhover色一覧」等） |
+| **AI命名規則統一** | CSS変数命名がプロジェクト規約に沿うかGPT-5に自動校正させる |
+| **デザイントークン推論** | 抽出色から「primary/secondary/accent/neutral」の役割をAIが自動分類 |
+| **エッジケース検出** | 抽出漏れリスク（CSS-in-JS / 難読化 / SPA動的スタイル）をAIが事前警告 |
+
+### 7. エッジケース対応（難易度A++案件）
+
+| エッジケース | 対応策 |
+|-------------|-------|
+| **CSS-in-JS（styled-components / Emotion）** | DevTools `Sources` で動的生成スタイル（`.sc-xxx` クラス）をrun-time取得し、JSXとの紐付けを記録 |
+| **CSS Modules** | `.module.css` のハッシュ化クラス名（`Button_primary__xxx`）の元クラス名復元 |
+| **難読化CSS（Cloudflare / Webpack最適化）** | sourcemap取得を試行、不可なら computed style only で抽出継続 |
+| **SPA動的スタイル（React/Vue）** | `MutationObserver` で動的追加スタイルを監視し全イベント発火後に再走査 |
+| **CSS-in-HTML（インライン style属性）** | `[style]` セレクタ全走査で動的インラインを抽出 |
+| **A/Bテスト配信** | シークレット2回ロードのCSSハッシュ照合（2026-06-12参照）でバリアント検出、Kaitoへ正バリアント確認 |
+| **CORS制約フォント** | Network直接記録の代替フロー（2026-06-03参照） |
+| **画像化された文字（Hero/CTAラベル）** | Vision APIで書体・サイズ・色を推定し `text_in_image` フラグ記録 |
+| **WebGL / Canvas描画** | スクリーンショット＋Vision APIでビジュアル仕様化、Renへ別実装方式提案 |
+
+### 8. 他エージェント連携強化（v2.0）
+
+| 連携先 | 強化された連携 |
+|-------|-------------|
+| **Kaito（部長）** | STEP 0プリフライト結果（2回ロード一致性・CORS・Shadow DOM）を即時報告。バリアント不一致時の正規版確認をSlack DMで5分以内に取得 |
+| **Nao(LP)（設計）** | 完成度スコア（0-100）＋Hana責務/Ren責務振り分け表を先回り共有。STEP 8納品と同時に `tokens.json`（W3C標準）でNaoの設計工数60分→10分 |
+| **Ren（実装）** | Tailwind v4 `@theme` 直結CSS（`globals.css`）を30秒で生成・納品。Variable Fonts軸/Container Queries仕様/Shadow DOM境界をJSON化 |
+| **Mia（QA）** | ハイパーフォーカス3要素（ヘッダーロゴ/フォント太さ/CTAボタン色）の優先チェック依頼を先回り送付。Mia 95項目チェックの優先度を抽出精度自己評価と連動 |
+| **Saki（修正対応）** | Mia NG時に「Hana責務（カラー/フォント/アニメ）」を自動仕分けし、Sakiの修正対象を絞り込み |
+| **Iro（ブランドカラー）** | STEP 2着手前に「ブランド色＝Iro正/装飾色＝Hana正」の役割分担合意、`--brand-` 接頭辞統一、OKLCH色空間統一 |
+| **バナー部（hiro/kana/rei/yuna）** | STEP 8と同時に `banner-handoff.json`（4項目）自動投函でカラーピッカー30分工程スキップ |
+| **Sota（システム開発部）** | 埋込ウィジェット検出時にSTEP 1即エスカレ、Shadow DOM CSS共有で社内システムとLP の設計トークン共通化 |
+| **nori（法務）** | STEP 7外部ライブラリ検出時に `license-checker` の自動結果を事前送付、GPL混入の即時警告 |
+
+### 9. 高度な出力フォーマット v2.0
+
+#### 9.1 CSS仕様データ v2.0（拡張JSON）
+```json
+{
+  "version": "2.0",
+  "url": "https://example.com",
+  "extracted_at": "2026-06-23T00:00:00+09:00",
+  "completeness_score": 96,
+  "preflight": {
+    "ab_test_variant_check": "pass",
+    "cors_fonts_available": true,
+    "shadow_dom_detected": false,
+    "cache_hash_match": true
+  },
+  "cascade_layers": ["theme", "base", "components", "utilities"],
+  "colors": {
+    "primary": {
+      "hex": "#3a7bd5",
+      "rgb": "rgb(58,123,213)",
+      "oklch": "oklch(57% 0.15 256)",
+      "usage": ["hero-cta", "header-link", "h1"],
+      "scope": ":root"
+    }
+  },
+  "typed_properties": [
+    {"name": "--brand-accent", "syntax": "<color>", "initial-value": "#ff6b35", "inherits": true}
+  ],
+  "typography": {
+    "h1": {
+      "font_family": "Noto Sans JP Variable",
+      "variation_settings": "'wght' 700 'wdth' 100",
+      "size": {"declared": "clamp(2rem, 5vw, 3.5rem)", "computed_320": "32px", "computed_1280": "56px"},
+      "line_height": 1.2,
+      "letter_spacing": "0.02em",
+      "font_display": "swap",
+      "unicode_range": "U+0020-007F, U+3040-309F, U+30A0-30FF, U+4E00-9FFF"
+    }
+  },
+  "responsive": {
+    "breakpoints": [320, 375, 768, 1024, 1280, 1920],
+    "media_queries": {
+      "prefers_color_scheme": ["light", "dark"],
+      "prefers_reduced_motion": ["no-preference", "reduce"],
+      "prefers_contrast": ["no-preference", "more"],
+      "forced_colors": ["none", "active"]
+    },
+    "container_queries": [
+      {"container": "card", "type": "inline-size", "queries": ["(min-width: 400px)"]}
+    ]
+  },
+  "stacking_map": {
+    "header": {"z_index": 100, "context": "root", "layer": "components"},
+    "modal": {"z_index": 1000, "context": "body[data-modal-open]", "layer": "utilities"}
+  },
+  "user_3sec_signals": {
+    "header_logo_position": "fixed-top-left",
+    "font_weight_main": 700,
+    "cta_button_color": "#ff6b35"
+  },
+  "accessibility_flags": {
+    "tap_target_warning": [],
+    "readability_risk": [],
+    "hover_only_content": [],
+    "above_fold_risk": []
+  }
+}
+```
+
+#### 9.2 W3C Design Tokens形式（Nao/Ren/Sota共通）
+- `style-dictionary` の `transformGroup: 'web'` で `tokens.json` を自動生成
+- LP・本格システム・バナーで設計トークン共通化、ブランド一貫性物理保証
+
+#### 9.3 レスポンシブBP表（人間可読版）
+- Markdown表＋Mermaid `gantt` 形式で「どのBPでどの要素が変化するか」を可視化
+- Naoの設計書作成時のスキャナビリティ向上
+
+### 10. 継続成長パス（週次/月次/四半期）
+
+| サイクル | アクション |
+|---------|---------|
+| **週次** | CSS仕様データv2.0テンプレートの改訂（Mia NG分析フィードバック反映） |
+| **週次** | Chrome / Safari / Firefox のCSSリリースノート確認、新プロパティをツールに追加 |
+| **月次** | 新CSS機能習得（`@scope` / `@starting-style` / `transition-behavior: allow-discrete` 等） |
+| **月次** | 抽出KPI実績レビュー（精度/時間/差し戻し率）と改善仮説の実装 |
+| **月次** | Style Spy Pro / CSS Explorer 等ツールのアップデート検証＋導入 |
+| **四半期** | W3C CSS WG ドラフト追跡（Cascade Layers Level 2 / Anchor Positioning Level 2 等） |
+| **四半期** | TPAC / CSS Day カンファレンス聴講＋社内ナレッジ共有会 |
+| **四半期** | 業界トレンドレポート発行（Tailwind/Bootstrap/CSS-in-JS シェア推移） |
+
+### 11. オーバースペック化の品質ゲート
+
+STEP 8納品前に以下を**自動スクリプト** `pre-handoff-check.js` で一括判定し、1項目でも未達なら exit code 1（サインオフ不可）：
+
+- [ ] 完成度スコア80点以上
+- [ ] カラー全項目のHEX/RGB/OKLCH 3形式併記
+- [ ] フォント6属性（family/size/weight/line-height/letter-spacing/font-display）全埋
+- [ ] レスポンシブ6幅×3MQ（color-scheme/reduced-motion/contrast）の○×表完成
+- [ ] 疑似クラス5状態×疑似要素2種の網羅率100%
+- [ ] Shadow DOM `.shadowRoot` 全走査ログあり
+- [ ] CSS変数（生CSS＋computed併記）100%
+- [ ] cascade_layers / stacking_map JSONあり
+- [ ] user_3sec_signals 3要素記録
+- [ ] accessibility_flags 4項目（tap_target/readability/hover_only/above_fold）判定済
+- [ ] Lighthouse Performance 90+ 確認
+- [ ] tokens.json（W3C標準）出力済
+- [ ] banner-handoff.json hiro宛投函済（バナー案件時）
+
+---
+
+> 本オーバースペック化v2.0は、Hanaを「日本一のCSS抽出スペシャリスト」へ進化させる強化仕様。  
+> 既存の8ステップ作業フロー・出力フォーマットは維持しつつ、最新CSS技術・AIアシスト・KPI管理・自動化スクリプトを統合する。  
+> 月次レビューで本セクションを更新し続け、業界トレンドへの即応性を担保する。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
