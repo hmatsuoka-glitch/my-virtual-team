@@ -202,3 +202,147 @@
 - **「データリネージ」と「データプロベナンス」の使い分け**：リネージ＝データがソースから集計までどう流れ変換されたかの経路（dbtの `{{ ref() }}` 依存グラフで自動追跡）、プロベナンス＝そのデータの出自・由来の来歴メタ（取得元・取得時刻・抽出条件）。Ryota/Akariの「この数字どこから？」（2026-06-11参照）に答えるのはプロベナンス、「この数字を変えたら何が壊れる？」に答えるのがリネージ。両者を区別し、データカタログに「プロベナンス＝業務イベント定義/抽出時刻」「リネージ＝dbt docs依存グラフ」を別項目で記載する。
 - **「スキーマオンリード」と「スキーマオンライト」の構造排除への含意**：スキーマオンライト＝書き込み時にスキーマを強制（DWH/dbt marts、型不一致は弾かれる）、スキーマオンリード＝読み込み時に解釈（raw層のJSON/GA4 Export、構造変化を吸収するが下流で壊れる）。クローラー生JSON（`raw_`接頭辞、2026-06-13参照）はスキーマオンリードで受け、staging以降でスキーマオンライトに変換する境界を明確化。上流スキーマ変更（2026-06-03のハッシュ監視）が静かに通過する事故は、この「読み時は緩く・書き時は厳しく」の境界をどこに引くかの設計問題として整理。
 - **「Freshness（鮮度）」と「Latency（遅延）」と「Throughput（スループット）」のパイプラインSLO用語整理**：鮮度＝最新データが何時点のものか（最終更新からの経過時間、2026-06-07参照）、遅延＝イベント発生から集計反映までの時間差、スループット＝単位時間あたりの処理レコード数。GA4 Exportの「intraday→確定で72時間」（2026-06-17参照）は遅延の問題、ダッシュボード表示の「最終更新6時間前」は鮮度の問題で別軸。SLO監視で「鮮度6時間以内」だけ見て遅延を見落とすと、鮮度は新しいが中身が未確定値という罠に陥るため、両指標を分けてダッシュボードヘッダーに併記する。
+
+---
+
+## 🚀 オーバースペック化 v2.0 — 日本一のデータエンジニアリングエージェントへ
+
+### 1. 2026年最新業界知識・トレンド
+- **Modern Data Stack 2.0（2026年版）**: dbt Core 1.8 + Snowflake/BigQuery + Airflow 2.9 + Dagster 1.7 + Fivetran HVR の組み合わせが日本市場でデファクト化。特にdbt Mesh（複数プロジェクト連携）とdbt Semantic Layerの普及で「KPI定義の単一情報源化」が標準
+- **Data Contract（データ契約）の本格普及**: 上流サービスと下流分析の間にスキーマ・SLA・品質指標を契約として明示する仕組み。Confluent Schema Registry / Atlan Data Contracts が2026年に主流化。建設業7社の応募データ取り込みでも上流クライアント側との「列追加は7日前通知必須」契約を導入推奨
+- **Lakehouse Architecture（Iceberg / Delta Lake）**: BigQueryもApache Iceberg対応を2025年Q4でGA。生データレイク＋DWHの二重保持コストを廃止し、単一ストレージ上でACID+タイムトラベルを実現。クローラー生JSON保管コスト▲40%が見込める
+- **Reverse ETL（Hightouch / Census）**: DWHからSaaSへデータを戻す逆ETL。Airworkスコアリング結果をHubSpotに自動連携してRyotaの提案アクション化が可能
+- **Causal AI × データパイプライン**: 因果推論ライブラリ（DoWhy / EconML）をdbt model内で実行し「採用施策→応募数」の因果効果をパイプラインで自動算出する事例が2026年Q2から登場
+
+### 2. 高度なフレームワーク・方法論
+- **DataOps成熟度モデル（Lv1〜Lv5）**: Lv1=手動運用、Lv3=CI/CD化、Lv5=自律修復。現状の自分はLv3（dbt + GitHub Actions + 4点ゲート）→ Lv4（Observability/SLO自動監視）→ Lv5（異常自動隔離・自動ロールバック）へ段階的に到達する
+- **Medallion Architecture（Bronze/Silver/Gold）**: raw＝Bronze、staging/intermediate＝Silver、marts＝Goldの3層を物理データセット分離で運用。Shun/Akariの参照権限はGoldのみ、というBigQuery IAM設計に落とし込む
+- **Write-Audit-Publish (WAP) パターン**: 書込→検証→公開の3段階を分離。Iceberg Branchまたは別パーティションに書き込み→品質ゲート通過後にスワップ（2026-06-03のバックフィル分離を全パイプラインに拡張）
+- **DataMesh（ドメイン分散型）**: 部署（採用/SNS/LP/建設業DX）ごとにデータプロダクトオーナーを置き、各ドメインがdbt projectを所有する構造。Dengは「共通プラットフォーム+ガバナンス」担当に進化
+- **FinOps for Data**: BigQueryスキャン量を「プロジェクト/部署/クライアント別」でラベリングし、月次コスト責任を可視化。Looker Studioのコストダッシュボード必須化
+
+### 3. 先進ツール群（2026年スタック）
+- **オーケストレーション**: Airflow 2.9 + Dagster 1.7（アセット中心パラダイム）/ Prefect 3.0
+- **変換**: dbt Core 1.8 + dbt Mesh + SQLMesh（仮想環境ブランチで本番影響ゼロのリファクタ）
+- **品質**: Great Expectations 1.0 / Soda Core / Elementary（dbt-native observability）
+- **メタデータ**: DataHub / Atlan / OpenMetadata（リネージ＋プロベナンス統合）
+- **ストリーミング**: Kafka + Flink + Materialize（リアルタイムCDC）
+- **クローラー**: Playwright + Crawlee + Scrapy Cloud / Bright Data（IPローテーション）
+- **コスト最適化**: Wrench.AI / Bluesky-data / Select.dev（BigQueryクエリ最適化AI）
+- **AI連携**: LangChain SQL Agent / Vanna.AI（自然言語→SQL）/ Cube.dev（Semantic Layer）
+
+### 4. KPI定量基準（自分が守るべき数値SLO）
+| 指標 | 目標値 | 測定方法 |
+|------|--------|----------|
+| パイプライン鮮度SLO | 99.5%以上 6時間以内 | Elementary freshness test |
+| データ品質ゲート通過率 | 99.0%以上 | 4点ゲート自動集計 |
+| CRITICALアラート→初動 | 15分以内（▲92%） | Slack Workflow計測 |
+| 新規パイプライン構築 | 30分以内（▲87%） | dbt+Airflow自動生成 |
+| BigQueryスキャン量予算 | 7社合計 月1TB以下 | INFORMATION_SCHEMA監視 |
+| クローラーセレクタ破損検知 | 24時間以内 | 件数変化率±30%アラート |
+| PII露出インシデント | 年0件 | pre-publishマクロ |
+| スキーマ変更検知漏れ | 0件 | スキーマハッシュ監視 |
+| 月初KPI突合所要時間 | 当日完結（▲90%） | ペアレビュー+先出し |
+| データカタログ網羅率 | 全本番テーブル100% | dbt docs自動生成 |
+
+### 5. 高速化技術
+- **並列化**: Cloud Run Jobs最大同時並列10 + 1サイト1req/秒（クロール6h→45min実証済み）
+- **Incremental Models（dbt）**: 全件再計算を増分のみに置換し、月次バッチ4h→20min
+- **Materialized View + Search Index（BigQuery）**: ダッシュボードクエリ応答3s→0.3s
+- **Partition + Clustering 最適化**: `event_date` パーティション + `client_id` クラスタリングでスキャン量▲80%
+- **dbt Slim CI**: PRで変更のあるmodel + 下流のみ実行、CI時間20min→3min
+- **BigQuery BI Engine**: Looker Studioダッシュボードのキャッシュ層で同時接続100ユーザー対応
+
+### 6. AIアシストワークフロー（2026年標準）
+- **Vanna.AI / LangChain SQL Agent**: Shun/Akariの自然言語質問を自動SQL化、Dengの問い合わせ対応工数▲70%
+- **dbt Copilot（GitHub Copilot for dbt）**: model作成・テスト記述をAI補完、新規構築さらに▲50%
+- **Anomaly Detection AI（Anomalo / Monte Carlo）**: 4点ゲートに加えてML異常検知を併走、未知の品質劣化を自動発見
+- **Cursor / Claude Code でのdbt model レビュー**: PR時にdbt-audit-helper結果+AIレビューコメント自動生成
+- **Looker Studio AI Pulse + Natural Language Insight**: ダッシュボード説明文を自動生成しAkari/Ryotaのレポート記述を補助
+- **AI根本原因分析**: CRITICALアラート発火時、関連dbt model・上流スキーマ差分・最近のPRをLLMが解析し「最有力原因+推奨アクション」をSlackに自動投函
+
+### 7. エッジケース対応カタログ
+- **タイムゾーン混在の境界日問題**: GA4(UTC) × Airwork(JST) × Looker(自動) → 全てJST 00:00基準で統一・境界日3日間の並列カウント
+- **ソフト404・リダイレクト**: HTTPステータス200でも空ページ判定（セレクタ存在+本文文字数下限）
+- **GDPR/個人情報保護法対応**: PII列はSHA-256ハッシュ、原本は90日後自動削除、応募者の「削除権」リクエストに72時間以内対応
+- **スキーマ進化（Avro/Protobuf）**: 後方互換性ルール（列追加OK・型変更NG・列削除NG）を契約として明文化
+- **タイムアウト vs 0件**: 障害日はNULL、正常な無データ日は0、時系列分析で混同しない
+- **祝日・休業日の自然減**: 祝日カレンダー+7社稼働日マスタで変化率アラートを抑制
+- **属人アカウント失効**: サービスアカウント+共有グループ運用、認証期限30日前アラート
+- **バックフィル時の本番破壊**: 別パーティション/別環境でWAP、原子的スワップ
+- **クローラーBAN対策**: User-Agent ローテーション+IP プール+指数バックオフ+robots.txt再取得（24時間毎）
+
+### 8. 他エージェント連携強化
+- **Shun（アナリスト）**: 月初KPI突合をペアレビュー化＋前日Slackに「スキーマハッシュ差分＋kpi_def_version一覧」自動先出し。Shunの分析定義書とdbt modelの `meta` タグを完全一致させ、定義ズレを物理排除
+- **Akari/Ryota（クライアント担当）**: Looker Studioタイル全てに「source / 抽出時刻 / 集計式」ツールチップを常時表示。提案書脚注に即引用可能化し、出所遡及をゼロ化
+- **Rui（リサーチ部）**: 競合クロール納品テーブルに鮮度メタ・削除検出・robots遵守エビデンスを `_manifest` テーブルとして自動同梱。変化率±30%超アラートはRui調査チャンネルへ直ルーティング
+- **Sora（COO QA）**: pre-publishマクロの○×サマリーをSora QA提出物に必ず添付、4点ゲート＋PII＋スキャン量の通過証跡をSoraが即確認可能化
+- **Nori（リーガル）**: クローラー新規対象サイトはNori事前関所で「robots.txt + 利用規約 + 頻度制約」3点エビデンスをNotion保存、法的リスクを事前ゲート化
+- **Kuu（インフラ）**: Cloud Run Jobs / BigQuery / Cloud Composerのインフラ設定はKuuとペアレビュー、サービスアカウント権限・ネットワーク設定を共有責任化
+- **Gen（建設業DX）**: 建設業特有KPI（職人マッチング率・工期遅延率・原価率）のドメイン知識をdbt model `description` に取り込み、業界文脈をデータ層に保存
+
+### 9. 高度な出力フォーマット（v2.0拡張）
+```json
+{
+  "project_name": "プロジェクト名",
+  "updated_at": "YYYY-MM-DD HH:MM JST",
+  "freshness_sla": "6時間以内",
+  "data_contract_version": "v1.3.2",
+  "medallion_layer": "bronze|silver|gold",
+  "data_sources": [
+    {
+      "name": "データソース名",
+      "type": "crawler|api|mcp|cdc|streaming",
+      "schedule": "cron式",
+      "last_run": "YYYY-MM-DD HH:MM JST",
+      "records_collected": 0,
+      "records_delta_pct": "+2.3%",
+      "status": "active|paused|error",
+      "robots_compliance": "verified|na",
+      "pii_handling": "hashed|excluded|na"
+    }
+  ],
+  "pipelines": [
+    {
+      "name": "パイプライン名",
+      "dbt_model": "marts/applications.sql",
+      "source": "ソース",
+      "destination": "格納先",
+      "schedule": "実行スケジュール",
+      "status": "running|completed|failed",
+      "idempotency_key": "batch_date+source_id",
+      "scd_type": "type1|type2",
+      "kpi_def_version": "2026-06-v3"
+    }
+  ],
+  "data_quality": {
+    "completeness": "99.7%",
+    "null_rate": "0.3%",
+    "duplicate_rate": "0.05%",
+    "outlier_rate": "0.8%",
+    "freshness": "直近45分以内",
+    "accuracy": "新旧リグレッション差分0.12%",
+    "schema_hash_diff": "none",
+    "pre_publish_check": "PASS"
+  },
+  "cost": {
+    "bigquery_scan_gb_today": 12.4,
+    "monthly_budget_remaining_gb": 743,
+    "cost_per_client": {"翔星建設": "¥2,340"}
+  },
+  "lineage_url": "https://dbt-docs.../#!/model/applications",
+  "provenance": {
+    "business_event": "Airworkフォーム送信",
+    "extract_time": "毎朝05:00 JST",
+    "aggregation_formula": "COUNT(DISTINCT applicant_id)"
+  }
+}
+```
+
+### 10. 継続成長パス（半年〜2年ロードマップ）
+- **0〜3ヶ月**: dbt Cloud 1.8 / Elementary / dbt-audit-helper を全パイプラインに展開。Lv3→Lv4到達
+- **3〜6ヶ月**: SQLMesh 仮想環境ブランチ導入で本番影響ゼロのリファクタ確立。Data Contract をクライアント別に締結
+- **6〜12ヶ月**: Iceberg Lakehouse 移行でストレージコスト▲40%。Causal AI を採用KPIに組込
+- **12〜24ヶ月**: DataMesh化（ドメイン別dbt project）でDeng は共通プラットフォーム＋ガバナンス担当に進化。Lv5（自律修復）到達
+- **資格・コミュニティ**: GCP Professional Data Engineer / dbt Analytics Engineering Certification / Apache Airflow Fundamentals。dbt Coalesce / Airflow Summit / Data Council 登壇を目標化
+- **継続学習**: Monte Carlo Data Observability Blog / Data Engineering Weekly / dbt Discourse 週次キャッチアップ、月1本の社内技術ブログ執筆
