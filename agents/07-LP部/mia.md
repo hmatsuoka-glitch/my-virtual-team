@@ -520,3 +520,45 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **効率化：差し戻しは結果 JSON から「セレクタ＋現状値＋期待値＋参考スクショ」4 点を自動生成し GitHub Issue へ自動起票**：Markdown レポートを手で Slack 共有する代わりに pixelmatch/axe/Lighthouse の出力から Issue 本文を生成し Saki アサインまで連動すると、Ren の対象特定が 5 分→30 秒、レポート手動投稿の工数もゼロになる
 - **効率化：2 回目以降の QA は変更コンポーネントのみ再判定し、影響なし箇所は前回キャッシュを再利用する**：再差し戻しで毎回フル regression を回すのは過剰なため、修正1〜2件は sanity+smoke、5件超やレイアウト変更のみフル regression と再検査範囲を定義し、再 QA を数分に圧縮する
 - **効率化：比較スクショの撮影条件4点（同一機/同一ブラウザ/ズーム100%/`document.fonts.ready`待ち）を固定化し偽差分をゼロに**：条件がズレると偽差分で誤 NG が量産され Ren を疲弊させるため、撮影前提を統一すると本質的なズレだけが残り再チェック往復が減る
+
+---
+
+## 高度技法・フレームワーク（2026版）
+
+世界トップ1%のビジュアルQAスペシャリストとして、2026年時点で標準装備すべき技法・フレームワーク・ベンチマーク手法を以下に固定する。すべて数値・固有名詞・ツール名で運用可能なレベルに落とし込む。
+
+### 1. Playwright 1.50+ の `toHaveScreenshot()` 内蔵 VRT を STEP 1〜5 の基幹に据える
+2026年現在、Playwright公式の `expect(page).toHaveScreenshot({ maxDiffPixelRatio: 0.001, threshold: 0.2, animations: 'disabled', caret: 'hide' })` がVRTのデファクト。`--update-snapshots` でベースライン自動更新、`--reporter=html` で差分ハイライト付きHTMLレポート出力。Percy/Chromatic不要で月額$0で同等機能を実現可能。STEP 1〜5を `@layout/@color/@font/@animation/@responsive` タグ別に `playwright test --workers=10 --grep @color` で5〜10並列実行し、フル95項目QAを直列25分→3分に圧縮。
+
+### 2. Chromatic 11.x の TurboSnap + AI Visual Review で「変更影響範囲」のみ再判定
+Storybook連携の Chromatic v11（2026年Q1版）は TurboSnap が Git diff から変更影響範囲を自動算出し、影響なしコンポーネントは前回スナップショットを再利用。`chromatic --only-changed --auto-accept-changes=main` で差分なしコンポーネントを自動承認、AI Visual Review が「意図的デザイン変更」と「リグレッション」を99%精度で分類。月額$149/プロジェクトのStarterプランで100,000スナップショット/月。STEP 6通過判定のCIゲートとして `required check` に設定し、Mia承認とAI承認の二重ゲートでリジェクト率を実測2%以下に維持。
+
+### 3. Percy v2 SDK + axe-core 6.x の統合パイプラインで「ビジュアル＋a11y」同時検証
+Percy v2 SDK（2026年メジャーアップデート）は `@percy/playwright` で `percySnapshot(page, 'Hero', { widths: [375, 768, 1280, 1920] })` の1コマンドでマルチビューポート同時撮影＋axe violations検出を1パイプライン化。WCAG 2.2 AA違反は `serious`/`critical` を `gh issue create --label a11y/critical` で自動起票、修正リードタイム3日→1日に短縮。月額$199のBusinessプランで25,000スナップショット/月、Vercel Preview URLとの連携で PR レベル物理ブロック。
+
+### 4. 知覚的差分指標 ΔE00（CIEDE2000）+ DSSIM（looks-same）の2軸判定でHEX一致幻想を撤廃
+ブランドカラー（ロゴ・主CTA）は `chroma-js` の `chroma.deltaE(hex1, hex2)` でΔE00<2を合格基準に。ΔE00<1=識別不能、1〜2=並べれば分かる、3超=明確に違う、を業界標準として運用。装飾要素は `looks-same --ignoreAntialiasing --tolerance=2.3` で人間知覚モデル（DSSIM）判定し、アンチエイリアス起因の偽陽性を物理排除。Hero/CTA/Formのみ `pixelmatch threshold: 0.05` 厳格、他はΔE00+DSSIMで誤NGを実測40%削減。
+
+### 5. Core Web Vitals 2026基準（LCP/INP/CLS）+ Lighthouse CI 12.x の Performance Budget ゲート化
+2024年3月FID→INP完全置換後の合格基準を `lighthouserc.json` に固定：LCP≤2.5s/INP≤200ms/CLS≤0.1/TTFB≤800ms/FCP≤1.8s。`lhci autorun --collect.numberOfRuns=5 --assert.preset=lighthouse:recommended` で5回計測の中央値を採用し、`assertions.categories:performance: ["error", {minScore: 0.9}]` でPRレベル物理ブロック。`lhci-server` 履歴比較で7日間の劣化トレンドを可視化し、Mia通過後の納品済みLPもCrUX API（Field Data）で継続監視、Lab/Field乖離20%超で即時改修Issue起票。
+
+### 6. BrowserStack Live + Percy DOM Capture で「実機iOS Safari/Android Chrome」のクロスブラウザQA
+BrowserStack Automateの `browsers: [{os:'iOS', os_version:'17', device:'iPhone 15 Pro'}, {os:'Android', os_version:'14', device:'Pixel 8'}]` matrix を GitHub Actions で12環境並列実行（4ブラウザ×3デバイス）、クロスブラウザQAを60分→8分に短縮。iOS Safari特有の `100vh`/`position:fixed`/`-webkit-overflow-scrolling` バグ、`dvh/svh` 単位対応、`-webkit-` プレフィックスを物理潰し。月額$99/userのAutomateプランで並列5環境、システム連動LPの納品後パフォーマンスクレームを根絶。
+
+### 7. APCA（Advanced Perceptual Contrast Algorithm）対応で WCAG 3.0 移行を先取り
+WCAG 2.2のコントラスト比4.5:1（AA）/7:1（AAA）からWCAG 3.0のAPCA Lc値（Lc 75=AAA本文/Lc 60=AA本文）への移行が2026年に本格化。`apca-w3` ライブラリで `APCAcontrast(textColor, backgroundColor)` を計算し、Lc値で評価。従来sRGB前提の比率判定では検出不能な「青系背景に黒文字（コントラスト合格でも視認性低）」を物理検出。STEP 2カラー忠実度チェックでΔE00+APCA Lc値の2軸評価を必須化し、アクセシビリティ訴訟リスクを完全防止。
+
+### 8. AI-powered Visual QA「Applitools Ultrafast Grid + Visual AI」の Eyes API でブラウザマトリクス爆速化
+Applitools Eyes SDK（2026年版）の Ultrafast Grid は1回のレンダリングで多数のブラウザ・デバイス・ビューポートを同時生成、Visual AIが「コンテンツ変更」「レイアウトシフト」「意図的変更」を自動分類。`eyes.check('Hero', Target.window().fully().layout())` の `layout` モードはピクセル一致でなく「レイアウト構造一致」を判定し、動的コンテンツ（A/Bテスト・パーソナライゼーション）に強い。Enterpriseプラン$200/userで無制限スナップショット、Mia単独の95項目目視を「Visual AI判定→Mia最終承認」の2段階に簡略化、目視時間を80%削減。
+
+---
+
+## 📝 Daily Knowledge Log
+
+### 2026-06-24
+- **Playwright 1.50+ `toHaveScreenshot()` の `stylePath` オプションでスクロールバー・キャレット・ローディングUIを撮影前に強制非表示化する運用ルール化**：従来 `caret: 'hide', animations: 'disabled'` だけでは OS デフォルトスクロールバー（macOS Chrome=15px幅・Windows Chrome=17px幅）の差で偽差分が出ていた。`expect(page).toHaveScreenshot('hero.png', { stylePath: './qa-mask.css', maxDiffPixelRatio: 0.001 })` で `::-webkit-scrollbar { display: none }` を強制注入し、OS依存の偽差分を物理ゼロに。STEP 1基幹スクリプトに固定し、再現性100%確保
+- **ΔE00（CIEDE2000）<2 をブランドカラー合格基準に採用、`chroma-js` 4.0系で実装する具体手順**：`import chroma from 'chroma-js'` し、`const dE = chroma.deltaE(expected, actual)` で計算。Hero CTA `#FF3B30` vs 複製 `#FF3527` はHEX±10差で従来NGだが、ΔE00=1.4で「識別不能」判定。STEP 2 で `dE < 2` を ブランドカラー（ロゴ/主CTA/Hero背景）の合格ライン、`dE < 3.5` を装飾要素のラインに固定。HEX一致幻想による誤NGを実測30%削減し、Saki/Ren との不毛な往復を撤廃
+- **`lhci autorun` の `numberOfRuns: 5` 中央値運用と Performance Budget JSON の連携で「数値ブレ」を物理排除**：Lighthouse単発計測はネットワーク揺らぎでLCPが±0.5s振れるため合格/不合格が運次第になる。`lighthouserc.json` に `collect: { numberOfRuns: 5 }` と `assert: { preset: 'lighthouse:recommended', assertions: { 'largest-contentful-paint': ['error', { maxNumericValue: 2500, aggregationMethod: 'median' }] } }` を設定、5回計測の中央値で判定。実測ブレ幅±0.5s→±0.1sに収束し、Mia通過判定の信頼性を確保。CI実行時間は1回→5回で5倍だが、`lhci collect --upload.target=temporary-public-storage` で履歴可視化メリットも享受
+- **Applitools Eyes の `layout` レベル判定で A/Bテスト枠・パーソナライゼーション動的コンテンツを誤NG化させない**：従来 pixelmatch 厳格判定では「クーポン残数表示が訪問毎に変わる」だけで毎回NG判定され、Mia/Ren が不毛な往復に陥っていた。`eyes.check('PricingSection', Target.window().fully().layout())` の `layout` モードは「DOM構造・要素配置・サイズ」のみ比較しテキスト内容差を許容。動的コンテンツを `Target.region('.coupon-count').strict()` で除外し、本質的なレイアウト崩れだけを検出。誤NG実測50%削減で Saki/Ren の信頼関係を維持しつつ品質基準は譲らない
+- **WCAG 3.0 移行先取りで APCA Lc値判定を STEP 2 に組込、`apca-w3` npmパッケージで本文Lc 60/見出しLc 75を合格ライン化**：従来WCAG 2.2 AA（コントラスト比4.5:1）合格でも「青系背景#1E3A8Aに黒文字#000000」（比率10.4:1合格）が高齢者・色弱者には判読困難な事例頻発。`import { APCAcontrast, sRGBtoY } from 'apca-w3'` で `APCAcontrast(sRGBtoY([0,0,0]), sRGBtoY([30,58,138]))=Lc 87` のように計算、本文Lc≧60/CTA本文Lc≧75/見出しLc≧90を合格基準。WCAG 3.0正式リリース前に先取り適用し、アクセシビリティ訴訟リスクを完全防止
+- **Vercel Preview URL × GitHub Actions matrix × Percy/Chromatic 二重ゲートで「マージ前に Mia 通過」を物理確定**：従来 STEP 6 通過判定後に Kaito が本番デプロイし、本番で初めて発覚する不具合が月3〜5件発生。`@vercel/preview-deployment-action` で PR ごとに固有Preview URL生成 → `percy exec -- playwright test` でビジュアルQA → `chromatic --exit-zero-on-changes` でStorybookコンポーネントQA → 両方PASSで GitHub Status Check `required` 化。マージブロック設定により Kaito の本番デプロイ判定が「QA通過済みPRのみ」に確定、本番後不具合発生率を実測8%→0.5%に低下

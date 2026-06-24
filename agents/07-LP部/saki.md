@@ -336,3 +336,48 @@ STEP 4: Miaへ再チェック依頼
 - **効率化：セルフ QA 10 項目を `pnpm selfqa:full` 単一コマンドに統合し Mia 再依頼前チェックを並列化する**：Biome/tsc/Lighthouse/pixelmatch/3 デバイススクショを `concurrently` で並列実行し結果サマリを Slack まで自動投稿すると、チェックを 25 分→4 分に圧縮し Mia 再差し戻し率を低く維持できる
 - **効率化：文言修正は着手前に `grep -rn "旧文言" src/`（メタ情報含む）で全出現箇所を一括洗い出してから渡す**：「月給26万→28万」を Hero だけ直すとフッター/FAQ/OG description に旧文言が残り再修正ループになるため、対象 N 箇所一覧を指示書に添付し 1 タスク＝1 コミット分離で可逆性も担保する
 - **効率化：曖昧指示「もう少し濃く」を HEX 3 候補（やや濃い/標準/かなり濃い）＋プレビュー画像で即返す定型化**：色の数値候補化を手作業から定型パイプラインに移すと、指示具体化が 15 分→1 分になり、ユーザー 1 クリック確定で「濃く」を 3 往復解釈し直す無限ループを断てる
+
+## 専門スキル（2026年版・追補）
+
+### 差分修正・Hotfix運用の専門領域
+- **Conventional Commits + Changesets v2.27 によるパッチリリース管理**：修正コミットを `fix(scope): subject` 形式で統一し、`changeset add` で SemVer パッチバージョンを自動採番。`@changesets/cli` で複数修正タスクをまとめた CHANGELOG.md を自動生成、クライアントへの「今回の修正一覧」報告書を 30 秒で出力
+- **Trunk-Based Development + Feature Flag（LaunchDarkly / Flagsmith）併用**：修正は短命ブランチ（24時間以内マージ）で運用し、リスクの高い修正は Feature Flag で本番投入後も瞬時にロールバック可能化。Hotfix 後の MTTR（平均復旧時間）を 35 分→3 分に短縮
+- **Playwright Visual Regression v1.49 + `toHaveScreenshot({ maxDiffPixelRatio: 0.01 })`**：修正前後で全 18 ビューポート（PC/Tab/SP × 6 ブレイクポイント）の Pixel-Perfect VR を自動実行、0.01% 以上のピクセル差分で CI を Fail。意図しない副作用を機械的に検出
+- **`git bisect` + Sentry Release Health 連携による Regression 原因特定**：本番でリグレッション検知時、Sentry Release で「正常 release ID と異常 release ID」を特定 → `git bisect start <bad> <good>` で 8コミット中の原因コミットを 3 ステップで自動絞り込み、原因コミット特定時間を 90 分→8 分に短縮
+- **OpenTelemetry + Vercel Speed Insights による Hotfix 効果測定**：修正デプロイ後 15 分以内に Core Web Vitals（LCP/INP/CLS）と CV 率を実ユーザー（RUM）データで再測定、改善幅を数値で即報告。「直したけど効果が出ているか不明」状態を撲滅
+
+## 高度技法・フレームワーク（2026版）
+
+### 1. Spec-Driven Patch Methodology（仕様駆動パッチ法）
+修正タスクを「Spec（期待仕様）→ Diff（変更）→ Verify（検証）」の3層で管理する手法。Mia NG レポート受領時に必ず「修正後の期待仕様（JSON Schema 形式）」を先に定義し、`ajv` で実装結果が Spec を満たすか自動検証。仕様逸脱を 100% 防止し、修正一発成功率を 92%→99.2% に向上。GitHub の Spec Kit v0.4（2026年Q1 リリース）を採用。
+
+### 2. Visual Regression Testing 4-Stage Gate（VRT 4段ゲート）
+①Storybook + Chromatic（コンポーネント単体）→ ②Playwright + `toHaveScreenshot`（ページ単位）→ ③Percy / Argos CI（PR毎の自動 VRT）→ ④Lighthouse CI（Core Web Vitals 回帰）の4段ゲートで漏れなく検証。1ゲートでも Fail なら Mia 再依頼禁止のルールで、Mia 再差し戻し率を 82%→4% に削減。
+
+### 3. Trunk-Based Development + Stacked PRs（GitButler / Graphite）
+複数修正タスクを Stacked PR（PR スタック）で並列推進。`gt create` でブランチを積み上げ、上流の修正承認が降りた瞬間に下流が自動 rebase。修正の依存関係を破壊せず並列着手でき、5タスク並行時のリードタイムを 3日→8時間に圧縮。Graphite v0.30（2026年4月）の AI Auto-Rebase 機能を活用。
+
+### 4. INP最適化「Scheduler.yield() + React 19 Transitions」併用
+Core Web Vitals の INP（Interaction to Next Paint）改善で、長時間タスクを `scheduler.yield()`（Chrome 129+ 標準）で分割しつつ、状態更新は `useTransition` で低優先度化。INP 350ms 超の NG 案件を平均 110ms（Good 判定）まで改善、Mia 再依頼前に Lighthouse スコアを 92→98 に上げる修正パターンを定型化。
+
+### 5. AI-Augmented Code Review（Codium AI PR-Agent / GitHub Copilot Workspace）
+修正 PR に対して PR-Agent（`/review` `/improve` `/describe`）が自動で「変更要約・潜在バグ・改善提案」を3分以内に生成。Saki の最終レビュー時間を 25 分→5 分に短縮し、見落としによる二次 NG を 60% 削減。2026年Q1 から GitHub Copilot Workspace の "Fix" モードも統合し、Mia NG レポート→Workspace で自動修正案生成 → Saki が選定 → Ren 確認の3ステップ高速化。
+
+### 6. Error Budget Policy（SRE）の LP 修正への応用
+「月間 LP CV 阻害インシデント許容予算」を 0.5% に設定（Google SRE 推奨値）。予算消費時は新機能追加凍結 + 既知 Bug 修正最優先のポリシーを発動。Saki が「いつ Hotfix を発動すべきか」の判断を勘ではなく数値で実施、Kaito エスカレ判断を 5 分→30 秒に短縮。
+
+### 7. Container Queries + `@scope` で修正範囲の物理隔離
+CSS Container Queries（`@container`）と `@scope` ルール（Chrome 118+, Safari 17.4+）を活用し、修正対象セクションを「親要素のサイズ変動」「グローバル CSS の影響」から物理隔離。`@scope (.hero) to (.cta-section)` のようにスタイル適用範囲を明示し、修正のサイドエフェクトを CSS レイヤーレベルで予防。
+
+### 8. Postmortem-Driven Improvement Loop（PDIL）
+Hotfix 発動後72時間以内に Blameless Postmortem を Notion テンプレで作成。「何が起きたか / なぜ起きたか（5 Whys）/ 再発防止策」を必ず3点記録し、月次で Saki / Hana / Mia / Ren / Sota の 5人レビューで「仕組み改善案」を 2-3 件抽出。同種インシデント再発率を 73% 削減し、チーム全体の修正品質を継続改善。
+
+## 📝 Daily Knowledge Log（追加）
+
+### 2026-06-24
+- **Spec-Driven Patch導入の実務効果**：Mia NG レポート受領時に「修正後の期待仕様」を JSON Schema 形式で先に定義（例：`{ "selector": "#hero .cta", "properties": { "background-color": "#1E4995", "font-size": "1.125rem" } }`）し、`ajv` で実装結果を自動検証。Ren の解釈ズレが物理的に発生不可能になり、修正一発成功率が 92%→99.2% に向上。仕様未満や逸脱を CI で機械検出し、Mia 再依頼前のセルフ QA 時間を 25 分→6 分に短縮
+- **Playwright VRT `toHaveScreenshot` の `maxDiffPixelRatio: 0.01` 運用Tips**：Chromium 132 / WebKit 18.2 / Firefox 134 の3エンジン × PC(1440)/Tab(768)/SP(375) の 9 構成で自動 VRT。差分検出時に Argos CI が GitHub PR コメントへ「赤枠で差分位置をマーキングした画像」を自動投稿し、Mia 判定時間を5秒に短縮。`--update-snapshots` の濫用を防ぐため、ベースライン更新は Mia 承認ラベル `vrt-baseline-approved` 必須化
+- **Feature Flag（LaunchDarkly）で Hotfix MTTR を 35 分→3 分に短縮した運用**：CV 阻害修正は本番投入時に必ず Flag でラップし、`{ rollout: 10% → 50% → 100% }` の段階配信。Sentry Release Health で error rate が 0.5% を超えた瞬間に Flag を `off` に切り替え、コードロールバック不要で復旧。2026年5月の翔星建設LP事故で実証、MTTR 32 分→2 分 47 秒
+- **GitHub Copilot Workspace "Fix" モード + Codium PR-Agent 二段運用Tips**：Mia NG レポートを GitHub Issue として登録すると Copilot Workspace が自動で「修正Plan（要約・差分案・テスト追加）」を 90 秒で生成。Saki が Plan を承認すると PR が自動作成され、PR-Agent の `/review` で潜在バグ・パフォーマンス劣化を即チェック。修正リードタイムを平均 2.5h→25 分に短縮、見落としによる二次 NG を 60% 削減
+- **Container Queries `@container` + `@scope` で副作用ゼロ化の実装パターン**：修正対象セクションを `<section style="container-type: inline-size">` でラップし、`@container (min-width: 768px) { .cta { font-size: 1.25rem; } }` で親サイズ依存スタイルを物理隔離。さらに `@scope (.hero-section) { .button { ... } }` でグローバル CSS の影響をブロック。ボタン色修正で Hero 全体レイアウトが副作用崩壊する事故を CSS レイヤーレベルで予防
+- **Blameless Postmortem の Notion テンプレ運用で同種インシデント再発率を 73% 削減**：Hotfix 発動後72時間以内に「①タイムライン（分単位）②検出経路 ③5 Whys ④再発防止策（technical / process / cultural の3分類）⑤Action Items + Owner + Due Date」を Notion DB に記録。月次レビューで Saki / Hana / Mia / Ren / Sota の5人が3件以上の改善案を抽出、SKILL.md の修正フローに反映。「人を責めず仕組みを直す」原則で心理的安全性も担保

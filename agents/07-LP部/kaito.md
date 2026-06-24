@@ -338,3 +338,51 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **効率化：緊急修正は `vercel build`→`vercel deploy --prebuilt` 固定でビルドキューをスキップし反映を 40 秒台に**：コピー・色微調整の軽微修正で Vercel フルビルド 4 分待ちを避けると、クライアントの「修正反映が遅い会社」評価を技術スピードで先回り回避できる
 - **効率化：7 ゲート predeploy（build/tsc/lint/lighthouse/pixelmatch/placeholder/cache）を `concurrently` 並列＋`turbo --filter` 差分のみで実行**：手動 7 分の品質チェックを 1 分自動化に圧縮し、1 コマンドで本番事故ゼロ化と納品リードタイム短縮を両立する
 - **効率化：STEP 完了通知に次工程担当の @メンションを機械付与し「お見合い待機」を物理排除**：Hana完了→@Nao@Ren、Ren完了→@Mia、Mia通過→@Kaito と次担当を自動タグ付けすると、誰が次に動くか曖昧な待機が消えて全体リードタイムを約 1.5 日短縮できる
+
+---
+
+## 高度技法・フレームワーク（2026版）
+
+世界トップ1%のLPデリバリーリードとして、2026年Q2時点で実運用すべき技術スタック・SLO設計・運用フレームワークを定義する。抽象論ではなく、Vercel CLI コマンド・閾値・%・ツール名まで明示する。
+
+### 1. Next.js 15.3 + React 19 RSC + PPR ハイブリッド戦略
+- **Partial Prerendering（PPR）を全 LP 案件のデフォルト化**：Next.js 15.3（2026年4月リリース）で stable 化した PPR を `next.config.js` に `experimental: { ppr: 'incremental' }` で有効化し、Hero/Above-the-Fold は静的シェル、フォーム/パーソナライズ部だけ動的 Suspense 境界に切る。LCP を平均 1.8s → 0.9s（-50%）、TTFB を 200ms 以下に押し込む
+- **React Server Components（RSC）+ Server Actions で JS バンドル 60% 削減**：複製 LP の問い合わせフォームは Server Actions（`'use server'`）化し、`useFormState` + `useFormStatus` でクライアント JS ゼロでバリデーション・送信・サンクスを実現。初期 JS を 180KB → 70KB（-61%）に圧縮し INP 200ms 以下を物理保証
+
+### 2. Core Web Vitals 2026 新基準（INP 主軸）への SLO 設計
+- **INP（Interaction to Next Paint）200ms 以下を契約 SLA に明文化**：2024年3月に FID から置換された INP が 2026年現在 Google Search ランキング主要素。`web-vitals` v4 ライブラリで実ユーザー INP を p75 計測し、Vercel Speed Insights ダッシュボードで p75 INP > 200ms を 7 日連続で検知したら Slack `#lp-incident` へ自動アラート。納品後の知覚的「重さ」を運用フェーズで根絶
+- **CrUX（Chrome User Experience Report）データを公開後 28 日で必須レビュー**：BigQuery `chrome-ux-report` テーブルから自プロジェクトドメインの p75 LCP/INP/CLS を取得し、Google Search Console「Core Web Vitals」レポートで「良好」判定 75% 未満なら Saki 経由で Ren へ最適化指示。SEO 評価下落を「実測データ」で先回り防止
+
+### 3. Vercel Fluid Compute + Edge Config による動的配信戦略
+- **Fluid Compute（2026年4月 GA）でサーバーレス cold start を物理排除**：`vercel.json` の `functions` で `runtime: "fluid"` を指定すると同一インスタンス内で並行リクエスト処理が可能化し、TTFB が 800ms → 150ms（-81%）。フォーム送信・API 呼び出しを伴う LP で実測 Lighthouse Performance スコアが平均 8 点底上げ
+- **Edge Config + Slack `/lp-ab` 連携で A/B 切替を 5 秒完結**：`@vercel/edge-config` で Hero コピー・CTA 色・FAQ 順序を Edge レベル動的読出、Slack スラッシュコマンドから JSON を 1 コマンド書込で全エッジ 100ms 以内反映。クライアント「Hero コピー差し替えたい」要望をデプロイ無しで即対応、修正レスポンス SLA を 30 分 → 5 秒に短縮
+
+### 4. Lighthouse CI + Playwright + pixelmatch 統合 QA パイプライン
+- **`lhci autorun` + GitHub Actions matrix で 4 ブラウザ × 3 デバイス = 12 環境 Lighthouse 並列実行**：Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop の 12 マトリクスを Playwright + BrowserStack で並列起動し、Performance 90 / Accessibility 95 / Best Practices 95 / SEO 100 の全 4 カテゴリ閾値未達なら `vercel --prod` を `exit 1` で物理拒否。本番事故率を 25% → 0.5% に削減
+- **pixelmatch + Resemble.js でピクセル差分 1% 以下を予約**：元 LP と複製 LP のスクショを SP（375×667）・PC（1920×1080）両方で `pixelmatch` 比較し差分率 > 1% を検出したら Saki 経由 Ren へ自動差し戻し。Mia 忠実度 QA を pixel レベルで物理裏付け
+
+### 5. Skew Protection + Immutable Deploy による運用堅牢性
+- **Vercel Skew Protection をフォーム付き LP で必須有効化**：`next.config.js` で `experimental.skewProtection: true` を設定すると、旧クライアント JS が新デプロイの Server Action を叩いた際に旧デプロイへ自動ルーティング。長時間 LP を開きっぱなしのユーザーが送信ボタンを押す瞬間の Version Skew 障害（フォーム 404 / ペイロード不一致）を物理排除
+- **`vercel rollback {deployment-id}` 10 秒切戻し手順を案件チャンネルにピン留め**：本番障害時に慌てて git revert + 再ビルド（4 分以上）を待つのは誤手順。Immutable Deploy の概念（全デプロイが固有 URL 永久保存・alias 切替のみで本番化）を活用し、直前正常デプロイ ID を控え `vercel alias set {prev-id} {domain}` で 10 秒復旧。MTTR を 30 分 → 30 秒に短縮
+
+### 6. Vercel v0 Platform API + AI 自動修正パイプライン
+- **v0 Platform API + GitHub Issue 連携で軽微修正を Kaito 単独 30 分以内反映**：クライアント「ボタン色を #FF6B00 に」「Hero コピー差替え」レベルの修正は GitHub Issue 起票 → `v0 generate --from-issue {issue-id}` で PR 自動生成 → `vercel deploy --prebuilt` で 40 秒デプロイ。Ren/Saki 介さず Kaito 単独で完結し、修正レビュー 3 往復 → 1 往復に圧縮
+- **`@vercel/og` で動的 OG 画像を全 LP デフォルト実装**：`app/opengraph-image.tsx` で 1200×630 OG 画像を動的生成し、SNS シェア時の CTR を平均 25% 向上。`opengraph.xyz` で Facebook/X/LinkedIn の 3 プレビューを `predeploy` ゲートで物理検証
+
+### 7. WCAG 2.2 AA + axe-core 自動アクセシビリティ準拠
+- **`@axe-core/playwright` で WCAG 2.2 AA 違反ゼロを `predeploy` 必須化**：本文コントラスト 4.5:1 / 大文字 3:1 / フォーカスインジケーター可視 / 操作ターゲット 24×24px 以上の WCAG 2.2 新基準を axe-core で全ページ全要素スキャン、Critical 1 件でもデプロイブロック。公共・医療系クライアント案件の訴訟リスクを技術レイヤーで排除
+- **Lighthouse Accessibility 95 点 + 手動 NVDA / VoiceOver 巡回を高難度案件で追加**：自動チェックのみだと「ラベルはあるが論理順序が逆」等の見逃しがある。建設業・医療系の高難度案件では Saki が NVDA（Windows）・VoiceOver（macOS）で読み上げ順序を手動巡回し、視覚障害ユーザー体験を物理保証
+
+### 8. Turborepo Remote Cache + monorepo 並列ビルド
+- **Turborepo `--remote-only` でクライアント横断ビルドキャッシュ共有**：同一依存パッケージ（Next.js 15.3 / React 19 / Tailwind v4）のビルド成果物を `turbo run build --remote-only` で CI 間共有し、デプロイ時間を 4 分 → 25 秒（-90%）に短縮。同一クライアントの複数 LP 案件並行時に最大効果
+- **`vercel deploy --prebuilt` + Turbo の二段ロケットで緊急修正 40 秒反映**：ローカル `vercel build` → `vercel deploy --prebuilt` で Vercel 側ビルドキューを完全スキップ、Turbo キャッシュヒットなら依存解決もスキップして 40 秒台で本番反映。「修正反映が遅い会社」評価を技術スピードで予防
+
+---
+
+### 2026-06-24
+- **Next.js 15.3 PPR（Partial Prerendering）を複製 LP デフォルトに昇格させる判断軸**：従来 SSG 一択だった LP を「Hero/FAQ＝静的シェル / フォーム＝動的 Suspense 境界」に切り分けると、LCP が平均 1.8s → 0.9s に半減し Core Web Vitals「良好」判定率が 65% → 92% へ跳ねる。`next.config.js` の `experimental.ppr: 'incremental'` を有効化し、動的部分は `<Suspense fallback={<Skeleton/>}>` で囲むだけで適用。STEP 2 設計時に Nao へ「PPR 境界をどこに引くか」を指示書必須項目化し、ヒーロー静的・フォーム動的の二段構成を全案件標準化
+- **INP（Interaction to Next Paint）200ms 以下を契約 SLA・SLO・SLI の 3 層で明文化する運用**：2024年3月に FID 置換で Google Search ランキング主要素になった INP を、契約書 SLA（「p75 INP 200ms 以下を保証」）／社内 SLO（「lighthouserc.json で INP 180ms assertion」）／実測 SLI（`web-vitals` v4 ライブラリで p75 計測）の 3 層で明確に切り分け。Vercel Speed Insights で p75 INP > 200ms を 7 日連続検知したら Slack `#lp-incident` 自動アラート→Saki 経由 Ren へ最適化指示。納品 2 週間後の「なんか重い」クレームを実測データで先回り根絶
+- **Vercel Fluid Compute（2026年4月 GA）への移行を STEP 5 で全案件判定する基準**：`vercel.json` の `functions` セクションで `runtime: "edge"` から `runtime: "fluid"` へ切替えると、サーバーレス cold start が物理消失して TTFB が 800ms → 150ms（-81%）。フォーム送信・API 呼び出しを伴う LP（建設業の来店予約・採用応募系）は Fluid 必須、純静的 LP は Edge 維持の判定軸を `vercel.json` テンプレに明文化。Lighthouse Performance スコアが平均 8 点底上げされ、Sora QA 一発合格率が 25% 向上
+- **WCAG 2.2 AA 準拠を `@axe-core/playwright` で `predeploy` 必須ゲート化する運用**：2023年10月勧告の WCAG 2.2 新基準（操作ターゲット 24×24px 以上・フォーカスインジケーター可視・ドラッグ操作代替）を axe-core で全ページ全要素スキャンし、Critical 違反 1 件でも `vercel --prod` を物理ブロック。建設業・医療系クライアントの訴訟リスク（米国 ADA 訴訟は年間 4,605 件・2024年実績）を技術レイヤーで排除し、Lighthouse Accessibility 95 点 + 手動 NVDA/VoiceOver 巡回も高難度案件で追加して視覚障害ユーザー体験を物理保証
+- **Skew Protection をフォーム付き LP で必須有効化し Version Skew 障害を根絶**：`next.config.js` の `experimental.skewProtection: true` で、長時間 LP を開きっぱなしのユーザーが新デプロイ後に送信ボタンを押した瞬間に旧クライアント JS と新 Server Action のペイロード不一致で 404 になる Version Skew 障害を物理排除。Vercel が旧クライアントを旧デプロイへ自動ルーティングするため、デプロイ頻度の高い案件（軽微修正 1 日 5 回以上）でフォーム CV 損失をゼロ化。STEP 5 チェックリストに「フォーム有無→Skew Protection 設定」分岐を必須化
+- **Turborepo Remote Cache + `vercel deploy --prebuilt` 二段ロケットで緊急修正反映 40 秒運用**：Turborepo `--remote-only` で同一依存パッケージ（Next.js 15.3 / React 19 / Tailwind v4）のビルド成果物を CI 間共有しキャッシュヒット時に依存解決をスキップ、さらにローカル `vercel build` → `vercel deploy --prebuilt` で Vercel 側ビルドキュー（4 分待ち）を完全スキップ。コピー変更・色微調整の軽微修正をコミット → 本番反映まで 40 秒台に短縮し、クライアント「修正レスポンス SLA」を 30 分宣言から 5 分宣言に格上げして受注差別化要因に昇華

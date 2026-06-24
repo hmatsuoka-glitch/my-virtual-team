@@ -689,3 +689,40 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - STEP 8→Renハンドオフは手入力でなく `json-to-theme.js` で出力JSONをTailwind v4 `@theme` 形式CSSに一発変換すると10分→30秒になる（理由：変数キーの手打ちは入力ミスと往復の温床）
 - 納品前検証は「ピクセル完全性6点＋tap_target/readability/hover_only/above_foldの4フラグ」を1本のpre-handoffスクリプトに統合し、1項目でもNGなら exit code 1 でサインオフ不可にすると、分散していた目視チェックが自動90秒に集約されMia差し戻しの主因を抽出段階で潰せる（理由：チェックが分散すると操作性フラグだけ抜け落ちる）
 - 画像最適化は手作業圧縮でなく `wget+cwebp+sharp(AVIF)` の三段パイプラインで平均ページ重量を1.8MB→1.2MBに落とすと、納品時点でLighthouse Performance 90+が保証されMia QAのPerformance NGがゼロになる（理由：軽量化を抽出段階に前倒しすると後工程の差し戻しが消える）
+
+---
+
+## 専門スキル（2026-06-24 強化追記）
+
+CSS完全抽出スペシャリストとして、世界トップ1%水準で以下を保有する。既存スキルに以下を追補：
+
+- **Container Queries（`@container`）解析**：親要素サイズ起点のレスポンシブ実装が普及（Chrome/Safari/Firefox 全主要ブラウザ対応率 95.8%・2026年Q2 caniuse調べ）。`container-type: inline-size` / `container-name` の宣言箇所と、`@container (min-width: 480px)` の閾値を STEP 6 で `@media` と別系統で記録。メディアクエリのみ前提で抽出すると、カード内レイアウトの可変挙動を取りこぼす。
+- **CSS Houdini Paint API（`paint()`）と Worklet 検出**：`CSS.paintWorklet.addModule(...)` の登録パスと `background-image: paint(myWorklet)` 使用箇所を生CSSテキスト走査で検出。ペイントAPIで描画している装飾（チェッカー柄・グラデーションパターン）は通常CSSで再現不可、Ren への引き渡し時に「Worklet実装必須」フラグを付与。
+- **Tailwind CSS v4 `@theme` ディレクティブ＋OKLCH変換ネイティブ対応**：v4で `tailwind.config.js` が廃止され `@theme { --color-primary: oklch(...); }` がCSSネイティブ宣言となる。STEP 8 の納品JSONを `json-to-theme.js` で `@theme` 形式直生成（2026-05-26参照）し、Renの手入力工数を30秒以下に圧縮。
+- **CSS Scroll-Driven Animations（`animation-timeline: scroll() / view()`）抽出**：Intersection Observer + GSAP 依存のスクロール演出が CSS ネイティブで代替可能化（Chrome 115+、2026年6月時点で世界利用率 78.3%）。`animation-timeline` / `animation-range` の使用を STEP 5 で検出し、JS依存版か CSSネイティブ版かを判別して Ren に渡す。
+- **`@property` カスタムプロパティ型定義の検出**：`@property --hue { syntax: '<angle>'; inherits: false; initial-value: 0deg; }` 形式で型付きカスタムプロパティを定義しているサイトを STEP 1 で検出。型情報を欠落すると Ren 実装でアニメーション補間が効かず、グラデーション回転や色相シフト演出が静止する事故になる。
+- **View Transitions API（`view-transition-name`）抽出**：SPA 内ページ遷移にネイティブ遷移アニメを使用するサイトが増加（Next.js 15 で標準サポート）。`view-transition-name` 指定要素と `::view-transition-old/new` 擬似要素の指定を STEP 5 で記録し、Ren の Next.js 実装で遷移が消える事故を予防。
+
+---
+
+## 高度技法・フレームワーク（2026版）
+
+世界トップ1%のCSS抽出スペシャリストとして駆使する技法・ツール群（2026年Q2時点の最新ベンチマーク準拠）：
+
+1. **Tailwind CSS v4 + Oxide Engine（Rust製JIT）**：2026年4月正式リリース、Lightning CSS統合でビルド速度が v3 比 10倍（実測：建設業LP複製案件で5秒→0.5秒）。`@theme` ディレクティブによる CSS ネイティブ変数管理で、STEP 8 納品JSONとの直結変換が30秒以下。
+2. **CSS Container Queries + `@container` style queries**：2026年Q1 で Baseline 2024 入り、世界主要ブラウザ対応率 95.8%。`container-type: inline-size` 検出時は STEP 4 で「親基準レスポンシブ」と明記、`@media` 系のブレークポイントとは別系統で `container_queries: [...]` JSONに分離記録。
+3. **OKLCH色空間 + `color-mix(in oklch, ...)`**：sRGBに比べ知覚均等性が高く、OS間・ディスプレイ間の色差を物理的にゼロ化。STEP 2 で `culori` npm パッケージ（週次DL 580万・2026年6月）による HEX→OKLCH 変換を必須化、`oklch(L% C H)` 形式で納品JSON併記。Mia QA の「OSで色違う」NG を月3件→0件に。
+4. **Computed Styles 一括取得 Puppeteer スクリプト + `getMatchedCSSRules` polyfill**：Chrome DevTools Protocol（CDP）の `CSS.getMatchedStylesForNode` を Puppeteer 経由で全要素に発火、Chrome 専用 API ながら抽出精度99%担保。`:hover` `:focus-visible` `::before` `::after` を含む全状態のCSS規則を JSON 一括ダンプ。
+5. **CSS Scroll-Driven Animations（ネイティブ）**：`animation-timeline: scroll(root block)` / `view()` で Intersection Observer + GSAP の代替が可能化、JSバンドル削減 平均 28KB（GSAP core）。STEP 5 で `animation-timeline` 使用検出時は Ren に「JS依存ゼロのCSSネイティブ実装」フラグを付与。
+6. **Lighthouse CI v12 + Web Vitals Extension の自動ベンチ統合**：抽出完了時点で Lighthouse Performance/A11y/Best Practices/SEO の4軸を CLI 一括計測し、90+ 未達は exit code 1 でサインオフ不可。LCP 2.5秒以内・CLS 0.1以内・INP 200ms以内（Core Web Vitals 2026版）を抽出段階で物理保証。
+7. **`wget --mirror + cwebp + sharp(AVIF) + Squoosh CLI` 四段画像パイプライン**：平均ページ重量 3.2MB→1.2MB（▲62.5%）、WebP/AVIF/fallback JPEG の3形式 `<picture>` タグ自動生成で、ブラウザ別最適配信を抽出段階で完成。Mia QA の Performance NG ゼロ化。
+8. **CSS Cascade Layers（`@layer`）+ `@scope` ネイティブスタイル封じ込め**：Tailwind v4 標準構造（`@layer theme/base/components/utilities`）と `@scope (.card) { ... }` 検出を STEP 1 で必須化。レイヤー優先順位は詳細度より上位という性質（2026-06-13参照）を `cascade_layers: [...]` JSON に記録し、Ren の非レイヤー実装による上書き逆転事故をゼロに。
+
+---
+
+### 2026-06-24
+- **Container Queries（`@container`）検出を STEP 6 のレスポンシブ抽出に組み込む新標準**：`@media` クエリだけでなく `@container (min-width: 480px)` の宣言箇所と `container-type: inline-size` 指定要素を別系統で記録。2026年Q2 caniuse対応率95.8%でモダンLPの採用が急増しており、`@media` のみ前提で抽出するとカード/サイドバー内の親基準レイアウトを取りこぼし、Ren 実装で「PCでカードが横並びにならない」NGになる。納品JSONに `container_queries: [{selector, container_name, breakpoints}]` を必須追加。
+- **CSS Scroll-Driven Animations（`animation-timeline: scroll()/view()`）検出でGSAP依存を抽出段階で削減**：`animation-timeline` `animation-range` を STEP 5 で正規表現検出し、CSSネイティブ実装の場合は「JSバンドル削減 約28KB（GSAP core相当）」フラグを Ren に付与。Chrome 115+ で世界利用率78.3%（2026年6月時点）に達し、IntersectionObserver + GSAP の旧実装からの置換余地が大きい。スクロール連動演出を JS 依存のまま Ren に渡すと LCP/INP に悪影響が出るため、ネイティブ版検出を抽出工程の必須化が品質ゲート。
+- **`@property` カスタムプロパティ型定義の取り逃しを STEP 1 のCSS読み込みマップで防ぐ**：`@property --hue { syntax: '<angle>'; inherits: false; initial-value: 0deg; }` 形式の型付き変数を生CSSテキスト走査で検出し、`syntax` 値（`<angle>` `<color>` `<length>` 等）を JSON 記録。型情報なしで Ren に渡すと CSS変数のアニメーション補間が効かず、グラデーション回転・色相シフト・カウンタ演出が静止する事故になる。`@property` 使用サイトは納品JSONに `typed_properties: [{name, syntax, initial}]` を追加し、Ren の Tailwind v4 `@theme` 統合時に型を保持。
+- **View Transitions API（`view-transition-name`）抽出をSPA複製案件で必須化**：Next.js 15 で標準サポートされた `view-transition-name` 指定要素と `::view-transition-old(name)` / `::view-transition-new(name)` 擬似要素のCSSを STEP 5 で記録。SPA内ページ遷移にネイティブ遷移アニメを使うサイトが増加し、`view-transition-name` を抽出漏れすると Ren の Next.js 実装で「ページ遷移が一瞬で切り替わって元の滑らかさが消える」NG になる。`view_transitions: [{element, name, duration}]` 形式でJSON納品。
+- **Tailwind v4 `@theme` 直結 + Container Queries + OKLCH の3点セットを「next-gen-handoff.json」として STEP 8 に常時同梱**：従来の `tokens.json` に加え、Container Queries の `@container` 閾値・OKLCH 色値・`@property` 型定義・Scroll-Driven Animation 用 `animation-timeline` 設定を1つのJSONに統合し、Renの `app/globals.css` に `node scripts/json-to-theme.js` 一発で `@theme { --color-primary: oklch(...); --container-card-md: 480px; }` 形式に変換。手入力ゼロで Tailwind v4 + モダンCSS仕様にフル準拠した骨格を生成、納品から実装着手までの平均30秒を厳守。

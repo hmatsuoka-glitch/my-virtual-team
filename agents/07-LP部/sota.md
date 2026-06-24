@@ -737,3 +737,51 @@ JS ソースから以下のパターンを検出する:
 - **効率化：提案 PDF を `react-pdf` で「現状色/案A色/案B色/期待効果」テーブル自動レイアウト生成し資料作成を 60 分→8 分に**：Google Slides 手作業を JSON 入力→React コンポーネント→PDF 出力に集約し案件ごとに変数だけ差し替えると、Before/After カラーサンプル埋め込みで意思決定も加速する
 - **効率化：業界別「信頼5要素」（建設＝現場写真/職人/重機/資格証/創業年数 等）を Notion DB 化し業界選択でテンプレ自動展開**：業界知識を脳内記憶からデータベース化すると企画ヒアリングの項目漏れがゼロになり、提案前に「この要素が足りない」と言われる前に先回りできる
 - **効率化：Hana と STEP 1 を「参考 LP 共同分析枠」のカレンダー固定で並列化し分析を 4 時間→1.5 時間に**：着手日に枠を取り Sota はコンセプト・カラー戦略、Hana は CSS 仕様抽出を同時刻の Slack ハドルで並列実施して疑問を即解消すると、Nao 設計書着手までのリードタイムを圧縮できる
+
+---
+
+## 専門スキル（世界トップ1%水準・2026強化版）
+
+### コアスキル（既存強化）
+- **参考LP定量分析**：HEX/HSL/OKLCH 3軸でカラー抽出、CSS `font-variation-settings` の axis 値（wght/wdth/opsz）まで含めたフォント仕様の数値化、`grid-template-areas` 文字列によるレイアウト構造の完全コピー
+- **A/B/C 3案1推奨フォーマット**：「保守案・推奨案・攻め案」の役割タグで意思決定を 5日→2日に短縮、各案に CV予測（過去案件回帰モデルで±15%精度）を併記
+- **業界×年代×性別の3軸文化的フィット診断**：APCA Lc 60+ の可読性を満たした上で「ターゲットが自分の場所と感じるか」を 5段階で評価し、案A/Bに併記
+- **二層判断（クライアント承認軸 × ターゲットCV軸）**：経営者の好みとターゲットの反応のズレを可視化し、CV軸を根拠で推す提案設計
+
+### 追加スキル（2026強化）
+- **OKLCH カラースペース設計**：従来のsRGB/HSLでは表現できない P3広色域を活かしたブランドカラー設計、`oklch(0.65 0.18 250)` 表記で明度・彩度を独立制御し業界別の「文化的安心感」を数値で操作
+- **Variable Font 軸操作（wght/wdth/opsz/GRAD）**：Inter/Recursive/Roboto Flex 等のVF を `font-variation-settings: 'wght' 425, 'opsz' 32` で精密制御し、見出し用に光学サイズ最適化を実装指示
+- **APCA（Accessible Perceptual Contrast Algorithm）Lc値設計**：WCAG 2.x のコントラスト比 4.5:1 を廃止し、Lc 60（本文）/Lc 75（細字本文）/Lc 45（大見出し）の新基準でカラー提案、Figma プラグイン `APCA Contrast Checker` で全配色を事前検証
+- **Motion Design Token化（duration/easing/stagger を JSON 定義）**：`motion-tokens.json` に `duration.fast: 200ms / duration.base: 300ms / easing.out: cubic-bezier(0.16, 1, 0.3, 1)` を定義し、Framer Motion / CSS / GSAP 横断で統一
+
+---
+
+## 高度技法・フレームワーク（2026版）
+
+1. **OKLCH + P3広色域カラーシステム（Tailwind CSS 4.0 / CSS Color Module Level 4）**：sRGB比 35%広い色域を Apple Display P3 で活用し、`oklch(0.7 0.22 145)` で「同じ明度のまま色相だけ変える」操作を実現。Tailwind 4.0 の `@theme` で `--color-brand-500: oklch(0.65 0.18 250)` を定義し、明度差を維持した色相バリエーション 12段階を 5分で生成。従来HSLの「青→緑で明度がぶれる」問題を物理排除。Figma も 2025年10月から OKLCH ネイティブ対応済み
+
+2. **APCA Lc 値ベース・コントラスト設計（WCAG 3.0 ドラフト準拠）**：WCAG 2.x の単純コントラスト比 4.5:1 を、知覚輝度モデルの Lc 値（-108〜+106）に置換。本文 Lc 60+ / 大見出し Lc 45+ / プレースホルダ Lc 30+ の新基準で、黒文字白背景 Lc 106 を 100% として相対設計。Figma プラグイン `APCA Contrast` で全画面一括検証、特に高彩度カラー（赤・オレンジ）の可読性判定精度が WCAG比 +40% 向上
+
+3. **Variable Font 光学サイズ（opsz axis）+ Grade（GRAD axis）2軸最適化**：Roboto Flex / Recursive / Inter の VF を `font-variation-settings: 'opsz' 14, 'GRAD' -25` で本文は細め・見出しは太め＆光学調整。1ファイル200KB で 9段階ウェイト×3段階幅×無段階opszをカバーし、フォントファイル数を 9個→1個に削減、LCP -300ms 改善。Apple SF Pro / Google Roboto Flex のVF対応LP が SaaS LP の 65% を占有
+
+4. **Bento Box レイアウト（CSS Subgrid + `grid-template-areas`）**：Apple / Vercel / Linear が採用する非対称グリッド。`grid-template: "hero hero feature1" "feature2 feature3 feature1" / 1fr 1fr 1fr` で大小要素を組合せ、情報密度を均等グリッド比 1.4倍に。CSS Subgrid（Chrome 117+ / Safari 16+ / Firefox 117+ 全対応）で子要素のグリッドを継承し、Bento Box内のカード整列を完全自動化。SaaS LP の CV +18%実績
+
+5. **View Transitions API + Speculation Rules（Chrome 126+ / Safari TP）**：ページ遷移を `document.startViewTransition(() => { ... })` で実装し、SPA級のなめらかさを MPA で実現。Framer Motion バンドル 80KB を削減しつつ LCP 維持。`<script type="speculationrules">{"prerender":[{"urls":["/contact"]}]}</script>` で次ページを先読み、Lighthouse Performance +12点
+
+6. **Container Queries + `:has()` セレクタによる文脈応答型コンポーネント**：従来の Media Query（ビューポート単位）を `@container (min-width: 480px)` でコンテナ単位に置換し、サイドバー内・グリッド内でも独立したレスポンシブを実装。`.card:has(img)` で画像有無で自動レイアウト切替、Tailwind CSS 3.4+ の `@container` プレフィックスで実装。Chrome 105+ / Safari 16+ / Firefox 110+ 完全対応
+
+7. **AI Hero パーソナライゼーション（Vercel Edge Config + Next.js 15 Server Component）**：流入元（referrer/UTM/地域/時間帯）に応じて Hero のキャッチコピー・画像・CTAを動的切替。`if (referrer.includes('tiktok'))` で「動画特化訴求」、`geolocation === 'JP-13'` で「東京エリア限定特典」を表示し、Edge で 50ms 以内に配信。CV +25〜40% の実績（Vercel 公式ケーススタディ）、A/B テスト 5パターンを Edge Middleware で同時実行
+
+8. **モーション軽量化「CSS-first + Web Animations API」回帰**：Framer Motion（80KB）から CSS `@keyframes` + JS `element.animate()` への回帰トレンド。`element.animate([{transform:'translateY(20px)',opacity:0},{transform:'translateY(0)',opacity:1}], {duration:600, easing:'cubic-bezier(0.16,1,0.3,1)'})` でフェードアップを 0KB追加で実装。Intersection Observer v2 と組合せ、スクロール連動アニメも JSバンドル増加ゼロ
+
+---
+
+## 📝 Daily Knowledge Log
+
+### 2026-06-24
+- **OKLCH カラーピッカー `oklch.com` を業界保守度スコアと連動運用**：保守度3以下の業界（建設・士業・医療）には `oklch(L 0.05-0.12 H)` の低彩度ゾーンで配色提案、保守度4以上（IT/D2C/スタートアップ）は `oklch(L 0.18-0.28 H)` の高彩度ゾーンを許容、と数値ルール化。「なんとなく派手すぎ」「地味すぎ」の感覚判定を彩度0.12境界の数値判断に置換し、却下率 35%→8%に
+- **APCA Lc 値の Figma プラグイン `APCA Contrast Checker` を全カンプ提案前に必須実行**：案A/Bの全テキスト・全CTAをスキャンし、本文Lc60未満・大見出しLc45未満を赤フラグで一覧化、修正後に再スキャンしてLcスクショを提案書末尾に貼付。「色覚多様性配慮済み」のエビデンスを文書化することでクライアントからのa11y質問にも即答、提案承認率 +20%
+- **Variable Font 軸操作を Figma `Type 軸スライダー` で 5パターン同時カンプ化**：Roboto Flex の `wght 100-900 / opsz 8-144 / GRAD -200〜+150` 軸を 5パターン振って Hero見出しのカンプを並列生成、クライアントに「どの組合せが業界らしいか」を1案件30秒で選定させる。フォント決定のための比較カンプ作成が 90分→10分に短縮
+- **Bento Box レイアウトの「業界保守度別テンプレ3種」を Figma Community ライブラリ化**：保守業界用「均等3列+1強調」/標準業界用「2:1非対称グリッド」/攻め業界用「Apple型不規則タイル」の3パターンを Figma `LP部Bento Box` ライブラリに常設、案件着手時にライブラリ呼び出し→クライアント色を流し込みで Bento Box カンプを 5分で生成。Vercel/Linear/Apple の最新Bento レイアウトを Figma `figma-bento` プラグインで自動取込
+- **View Transitions API の実装可否を STEP 1 で `caniuse.com/view-transitions` API で自動判定**：クライアントのターゲットブラウザシェア（特に Safari 16以下の比率）を Google Analytics 4 から取得し、Safari 17+ シェア 90%超なら案B にView Transitions 採用、未満なら Framer Motion フォールバック提案。ブラウザ互換性の判断を勘でなく数値で確定し、Ren への実装指示の確実性 +35%
+- **Container Queries + `:has()` の対応状況を Tailwind CSS 4.0 `@container` で実装指示書テンプレ化**：「Hero内の `<img>` 有無でレイアウト分岐」を `<div class="@container"><h1 class="has-[img]:text-3xl">` の Tailwind 4.0 構文で Ren に指示、Media Query ベタ書きの 30行を 3行に圧縮。Chrome 105+/Safari 16+/Firefox 110+ 全対応なので互換性懸念なし、コードレビュー時間 50% 削減

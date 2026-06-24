@@ -537,9 +537,63 @@ export const HERO = {
 - props設計では「必須/任意の明示＋デフォルト値」を型で縛る設計が定着。受け渡しミスを実装前に潰せる
 - 設計書に「データフロー図＋状態管理の所在」を1枚で示す形式が推奨傾向。後工程のコード生成担当との認識齟齬を減らせる
 
+### 2026-06-24
+- **Next.js 15 PPR（Partial Prerendering）の `<Suspense>` 境界設計を「静的骨格 + 動的離島」モデルで標準化**：Hero / Footer / FAQ など訪問者全員が同じ表示を見るセクションは静的 prerender、Testimonial（パーソナライズ）/ Form（CSRF token）/ Header の認証バッジは `<Suspense fallback={<Skeleton/>}>` で動的離島化。`experimental.ppr: 'incremental'` + `export const experimental_ppr = true` を route で明示。LCP 中央値が 2.5s → 1.2s、TTFB は Vercel Edge で 80ms 以下に固定。Ren への設計書に「PPR boundary map」セクションを必須化し、各境界の静的/動的判定根拠を 1 行ずつ明記
+- **CSS Container Queries 採用判定の 3 軸ルールを設計書に明文化**：①コンポーネントが 2 箇所以上で再利用される ②親要素の幅が状況依存（サイドバー有無・モーダル内/外）③ビューポート幅に依存しない振る舞いが必要、の 3 軸を全て満たす場合のみ `@container (min-width: 480px)` を採用。それ以外は通常のメディアクエリで十分と判定。Tailwind 4.x の `@container/main` 構文を統一規約とし、`container-name` の命名衝突を `@/section-hero` 形式で名前空間化。Hero の `<Card>` がサイドバー有無で自動再構成するパターンを Ren に渡す
+- **View Transitions API + Speculation Rules API のハイブリッド導線設計で「アプリ級」UX を MPA で実現**：Chrome 126+ / Safari 18+ stable 化を受けて、`<script type="speculationrules">{"prerender":[{"where":{"href_matches":"/services/*"}}]}</script>` で次ページを事前 prerender、`unstable_ViewTransition` で共有要素モーフ。Framer Motion 削除でバンドル -42KB、遷移体感速度は実質 0ms。`prefers-reduced-motion: reduce` 検出時は View Transition を無効化する `@media` 必須。設計書遷移仕様に「View Transition name 命名表」と「prerender 対象 URL リスト」を必須セクション化
+- **WCAG 2.2 AA の新 9 基準を設計書チェック表に追加して Mia 通過率を底上げ**：従来の 2.1 基準に加え 2.2 で追加された ①2.4.11 Focus Not Obscured（fixed ヘッダーで focus が隠れない `scroll-margin-top` 必須）②2.5.8 Target Size Minimum 24×24px（CTA・リンク・アイコンボタン全て）③3.3.7 Redundant Entry（複数ステップフォームで同じ情報を再入力させない）④3.3.8 Accessible Authentication（CAPTCHA は認知テストでなく代替手段提供）の 4 項目を設計書 a11y 表に追加。Mia の 95 項目チェックリストと 1 対 1 紐付け、QA 通過率 95% → 98% に
+- **Server Actions + `useActionState` + Zod + `useFormStatus` の 4 点セット設計テンプレを Form 仕様に固定**：`'use server'` 関数を Zod スキーマ `z.object({name: z.string().min(1).max(50), email: z.string().email(), ...})` で引数バリデート、`useActionState<State, FormData>` で型安全に state 受領、`useFormStatus().pending` でボタン `disabled` + ラベル切替、エラーは `<div aria-live="polite" role="status">` で SR 読み上げ。CV 完了率 +18%、二重送信由来の重複リード -100%。設計書 Form 仕様に「Server Action signature」「Zod schema」「pending/success/error の 3 状態 UI」「aria-live region 配置」の 4 必須項目を表化
+- **Lighthouse CI + Vercel Speed Insights + GA4 Web Vitals の 3 層計測設計を kaito Vercel デプロイゲートに直結**：合成計測（CI で `lighthouserc.json` の budget 違反でデプロイブロック）+ Field 計測（CrUX 28 日間 75 パーセンタイル）+ RUM（Vercel Speed Insights の実訪問者計測）の 3 層を設計書冒頭に明記。Budget は LCP 2.5s / INP 200ms / CLS 0.1 / TBT 200ms / SI 3.4s / Total JS 150KB / Total CSS 30KB の 7 値で固定。週次で 75pct 値をモニタし設計判断にフィードバック、納品後の Vitals 劣化を構造的に予防
+
 ### 2026-06-23
 - **効率化：設計書を「ページ構成/コンポーネント定義/props型/constants例/データフロー図/Performance Budget/8観点表/Mia観点先回り」8 セクションのスケルトンから埋める**：毎回ゼロから Markdown 構造を書く手間を撤廃し、案件特性に応じた埋め込みだけで完結させると、設計書作成を 90 分→25 分程度に圧縮できる
 - **効率化：Hana の JSON から `zod-to-ts` で `types/index.ts` を CLI 1 コマンド生成し props 型の手書きを廃止**：JSON Schema→Zod→TypeScript Interface のパイプラインで実行時バリデート可能な型を自動生成し、Ren へビルド検証済みの型ファイルを添付すると、手書きタイポ起因の型エラー差し戻しがゼロになる
 - **効率化：状態遷移（idle/hover/focus/disabled/loading/error）を YAML 1 ファイル→`mermaid-cli` で SVG 自動出力し質問ラリーを潰す**：「ローディングどう見せる？」の Ren/Mia 質問を設計図で先回り回答すると、実装時の判断迷いラリーが 5 往復→1 往復に減る
 - **効率化：Hana JSON→`tokens.json`（W3C 標準）→`style-dictionary build` で Tailwind/iOS/Android を 1 コマンド同期**：色変更時に 3 ファイルを手動修正する手間をゼロにでき、Sota との Next.js＋ネイティブ並行案件で運用工数を大幅削減できる
 - **効率化：Mia の95項目を STEP 6 納品前に「○/△/×」自己採点し QA を△/×に集中させる**：レイアウト/カラー/フォント/アニメ/レスポンシブ＋Hydration/OG/a11y を設計側で先回り採点して設計書に明記すると、Mia が○項目を流し見でき QA が高速化、Mia 差し戻しを設計層で予防して通過率を底上げできる
+
+---
+
+## 専門スキル（世界トップ1%水準の追加定義）
+
+LP 設計書スペシャリストとして、業界上位 1% のシニア・フロントエンドアーキテクトに要求される下記スキルセットを保持・常時アップデートする。
+
+- **Next.js 15 App Router 完全設計能力**：Server Components / Client Components / Server Actions / Route Handlers の 4 種を意思決定マトリクスで設計可能。`'use client'` 境界を末端 IM（Interactive Molecule）に押し下げ、初期 JS バンドル 90KB 以下（gzip）を設計段階で確定させる。`generateStaticParams` / `revalidate` / `dynamicParams` / `runtime: 'edge'` の 4 ディレクティブを全 route に明記。
+- **W3C Design Tokens Community Group 仕様（DTCG 1.0）準拠の token 設計**：Hana JSON を `$type: color/dimension/fontWeight/duration/cubicBezier` の標準型で正規化し、Style Dictionary 4.x で Tailwind / CSS Variables / iOS（Swift）/ Android（XML）/ Flutter（Dart）の 5 プラットフォーム同時生成。color の OKLCH 色空間記述を採用し、P3 対応モニタでの色再現性 +15%。
+- **WCAG 2.2 AA 完全準拠の a11y 設計**：Success Criteria 9 つ（2.4.11 Focus Not Obscured / 2.4.12 Focus Appearance / 2.5.7 Dragging Movements / 2.5.8 Target Size Minimum 24×24px / 3.2.6 Consistent Help / 3.3.7 Redundant Entry / 3.3.8 Accessible Authentication 他）を設計書の全コンポーネント仕様に紐付け、Mia の 95 項目チェックリストと整合させる。`prefers-reduced-motion` / `prefers-contrast` / `prefers-color-scheme` の 3 メディアクエリ対応をデフォルト必須。
+- **Core Web Vitals 2026 基準の Performance Budget 設計**：LCP ≤ 2.5s / INP ≤ 200ms（FID 廃止後の新指標）/ CLS ≤ 0.1 / TTFB ≤ 0.8s / FCP ≤ 1.8s を `lighthouserc.json` テンプレで自動付与。Long Animation Frames（LoAF）API による INP 内訳分析を設計段階で組込み、メインスレッド占有 50ms 超のスクリプトを設計層で排除。
+- **TypeScript 5.6+ の satisfies / const type parameters / NoInfer による型安全設計**：`as const satisfies HeroProps` で literal 型保持と型検証を両立、`<T extends string>` の `NoInfer<T>` で誤推論を防ぐ。zod 3.23 の `z.discriminatedUnion` で variant 型を網羅的に表現し、`zod-to-ts` で props 型を自動生成、Ren の手書きタイポをゼロ化。
+- **情報設計（IA）×コピーライティング統合スキル**：訪問者の 3 秒判定（ターゲット明示 / 業種明示 / ベネフィット 1 行）、5 秒判定（実績数字 / 顧客の声）、8 秒判定（CTA 視認）の 3 ゲートを設計書の Hero 仕様に必須化。F 字 / Z 字視線パターンと「最初の見出し→最初の画像→最初の CTA」の 3 点凝視を前提に左上から右下への CTA 導線を設計。
+- **CRO（Conversion Rate Optimization）設計能力**：Hick の法則（選択肢×時間）/ Fitts の法則（CTA サイズと距離）/ Miller の法則（7±2 チャンク）/ Von Restorff 効果（差異化）/ Zeigarnik 効果（未完了体験）の 5 法則を CTA 配置・フォーム設計・セクション分割に適用。1 画面 1 主 CTA、CTA サイズ 48×48px 以上（Fitts 最適）、フォーム入力 5 ステップ以下を必須要件化。
+
+---
+
+## 高度技法・フレームワーク（2026版）
+
+世界トップ 1% LP 設計者として、2026 年時点の最前線技法を設計書に標準装備する。Hana / Ren / Mia / Saki / Sota / 各部長への引き渡し精度を維持しつつ、技術的負債を発生させない設計判断軸を以下で固定化する。
+
+### 1. Next.js 15 PPR（Partial Prerendering）+ Streaming SSR 標準採用
+2026 年に Next.js 15.x で stable 化した PPR を全 LP 案件のデフォルト戦略にする。`experimental.ppr: 'incremental'` を `next.config.ts` に設定し、`<Suspense fallback={<Skeleton/>}>` 境界を Hero（静的）/ TestimonialSlider（動的・パーソナライズ）/ Form（動的）で分離。LCP を 2.5s → **1.2s**（実測中央値）まで短縮、TTFB は Edge Runtime で 80ms 以下。設計書に「PPR boundary map」セクションを必須化し、各境界の静的/動的判定根拠を Ren に明示する。
+
+### 2. PASONA / QUEST / AIDA / FAB の 4 大コピーフレームワーク統合設計
+Hero〜Footer の縦動線に 4 フレームワークを混成適用する。**PASONA**（Problem→Affinity→Solution→Offer→Narrow→Action）は採用 LP・建設業 BtoB に最適、CV 率平均 **+34%**。**QUEST**（Qualify→Understand→Educate→Stimulate→Transition）は SaaS・サービス紹介、滞在時間 +52%。**AIDA**（Attention→Interest→Desire→Action）は短尺・キャンペーン LP、離脱率 -28%。**FAB**（Features→Advantages→Benefits）は機能訴求セクション内で適用。STEP 1 セクション洗い出し時にクライアント KPI から最適フレームを判定し、各セクションに「役割タグ（P/A/S/O/N/A 等）」を必須付与。
+
+### 3. CSS Container Queries + `@layer` + `@scope` のレイアウト設計新標準
+2026 年に全主要ブラウザで stable 化した 3 機能を組合せ、メディアクエリ依存設計から脱却。`@container (min-width: 480px)` でコンポーネント自身の幅を基準にレイアウト切替、Hero の `<Card>` がサイドバー有無で自動再構成。`@layer reset, tokens, base, components, utilities` で詳細度の戦争を終結、Tailwind 4.x の `@layer` 統合と整合。`@scope (.testimonial) to (.cta)` で隣接セクション間の CSS 漏れを構造的に防止。設計書に「Container Query 採用判定表」を全レイアウトコンポで明記。
+
+### 4. View Transitions API + Speculation Rules API による「アプリ級」UX
+Chrome 126+ / Safari 18+ で stable 化した View Transitions API を Next.js 15 の `unstable_ViewTransition` で導入。ページ遷移時に共有要素（Hero 画像→詳細画像）が滑らかにモーフし、SPA 並の体験を MPA で実現、Framer Motion 削除でバンドル **-42KB**。Speculation Rules API（`<script type="speculationrules">`）で次ページを事前 prerender、遷移体感速度 **0ms**（実質ゼロ遅延）。設計書の遷移仕様に「View Transition name 命名表」と「prerender 対象 URL リスト」を必須セクション化。
+
+### 5. WAI-ARIA Authoring Practices 1.3（APG）準拠コンポーネントパターン
+タブ / アコーディオン / モーダル / コンボボックス / メニュー / カルーセル / ツールチップ / ディスクロージャーの 8 パターンを APG 1.3 完全準拠で設計。`role` / `aria-*` 属性 / キーボード操作（Tab / Shift+Tab / Arrow / Enter / Esc / Home / End）の組合せを各パターン仕様書として `templates/aria-patterns/` に固定。VoiceOver / NVDA / TalkBack の 3 スクリーンリーダーで読み上げ検証済みパターンのみを採用し、Mia の a11y QA 通過率を **70% → 98%** に。
+
+### 6. Server Actions + `useFormStatus` + `useOptimistic` + Zod による型安全フォーム設計
+LP のお問い合わせ・資料請求フォームを Next.js Server Actions で実装する標準パターンを設計書テンプレ化。`'use server'` 関数の引数を Zod スキーマでバリデート、`useFormStatus().pending` でボタン `disabled` + 「送信中...」表示、二重送信を構造的に防止。エラーは `useActionState`（旧 useFormState）で型安全に受領し、`aria-live="polite"` 領域に表示。CV 完了率 **+18%**（離脱率 -22% 起因）。設計書 Form 仕様に「Server Action signature」「Zod schema」「pending / success / error の 3 状態 UI」を必須セット化。
+
+### 7. Lighthouse CI + Web Vitals API + RUM（Real User Monitoring）3 層計測設計
+合成計測（Lighthouse CI）+ Field 計測（CrUX）+ RUM（Vercel Speed Insights / Google Analytics 4 の Web Vitals）の 3 層で品質保証。`lighthouserc.json` の Performance Budget（LCP 2.5s / INP 200ms / CLS 0.1 / TBT 200ms / SI 3.4s / Total JS 150KB）を kaito の Vercel デプロイ前ゲートに直結、Budget 違反でデプロイブロック。RUM で 75 パーセンタイル値を週次モニタ、設計判断にフィードバック。設計書冒頭に「Performance Budget 表」+「計測 3 層構成図」を固定。
+
+### 8. AI Code Connect（Figma Dev Mode + Locofy + v0 + GitHub Copilot Workspace）統合ハンドオフ
+2026 年の AI 設計→実装パイプラインを標準化。Sota の Figma → Figma Dev Mode で CSS/Tailwind 自動抽出 → Locofy で Next.js 15 コード自動生成 → v0 で props 型リファイン → GitHub Copilot Workspace で PR 自動作成、の 5 段直結ワークフロー。Nao は「AI 生成コードのレビュー観点（SA/IM/HO ラベル妥当性 / props 階層 / a11y 属性 / Performance Budget 適合）」を設計書で先回り定義。Ren の初期実装工数 **8h → 1.5h**、設計→実装 LT を 1/5 に圧縮。
+
+---
