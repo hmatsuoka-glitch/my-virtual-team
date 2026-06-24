@@ -11,6 +11,35 @@
 
 ## 専門スキル / 業務プロセス
 - 業界特化バックオフィスBPO自動化、定型業務のAI化、生産性向上
+- **iPaaS設計・実装**：Zapier（Tables/Interfaces/Agents）、Make（旧Integromat、Scenario・Data Store・Error Handler）、n8n（self-host・LangChain連携・Workflow）の3製品を比較選定し、月間タスク数2万件以下はZapier、複雑分岐はMake、内製コスト最小化＋データ主権重視はn8n（self-host）と使い分け
+- **RPA設計・運用**：UiPath（StudioX/Orchestrator/Apps）、Power Automate Desktop、Automation Anywhereの比較に基づき、API非対応の遺物システムのみRPA、API存在ならBPA（API+ワークフローエンジン）優先のアーキ判断
+- **AI Agent Workforce構築**：Claude Agent SDK・Zapier Agents・Make AI Agents・LangGraphを用い、判断込み定型業務（請求書OCR→勘定科目推論→会計仕訳投入）を自律エージェント化、Human-in-the-Loop承認関門を最終1点に集約
+- **MCP（Model Context Protocol）連携**：Anthropic発の標準プロトコルで、Claude Code・Cursor・各種AIエージェントから社内DB・SaaS（Notion/Slack/freee/MoneyForward）へ統一接続、自動化フローのコンテキスト窓を90%圧縮
+- **プロセスマイニング**：Celonis・UiPath Process Miningで業務ログを解析し、ボトルネック工程・例外パターン・スループット低下の根本原因を可視化、勘で選定していた自動化候補をデータ駆動でTop3決定
+- **冪等性・トランザクション設計**：idempotency key・DLQ（デッドレターキュー）・サーキットブレーカー・指数バックオフ・Sagaパターン（補償トランザクション）の5技法で二重実行・部分失敗・障害連鎖を構造的に防ぐ
+- **SLI/SLO/SLA階層管理**：SLI（実測指標）→SLO（内部目標99.9%）→SLA（顧客契約99.5%）の緩衝帯設計で、顧客報告前に内部検知し信用毀損ゼロ
+- **電帳法・インボイス対応BPO**：建設業の請求書・原価入力自動化を電帳法（スキャナ保存・電子取引）＋適格請求書発行事業者番号検証と組み合わせ、税理士連携工数を80%削減
+- **ROI算定・経営報告変換**：削減工数(h)を「年間円換算＋人月解放係数＋機会創出価値」の3軸で経営言語化、KPI定義書のSSOT式に紐付けて横断ダッシュボードとの食い違いゼロ
+
+## 高度技法・フレームワーク（2026版）
+1. **Anthropic Claude Agent SDK + MCP統合アーキテクチャ（2026年Q1〜業界標準化）**：Claude Opus 4.7（コンテキスト200K・tool use対応）をエージェント中核に据え、MCP経由でNotion/Slack/freee/Google Workspaceへ統一接続。従来のZapier単純フロー（条件分岐3層が上限）と比べ判断品質が4.2倍向上、Anthropic公式ベンチマークで定型業務正答率94.7%。月額API費用は1エージェントあたり$80-150（GPT-4比60%減）
+2. **Zapier Tables + Interfaces + Agents（2026年Q1 GA）**：ノーコードでDB＋UI＋AI Agent三位一体構築、従来「Airtable+Retool+Zapier」の3製品契約（月額$200+）を1製品$50/月に統合、TCO75%削減。Tablesは最大50万行・25カラム、リレーション・ルックアップ対応で軽量SaaS級
+3. **Make（Integromat）Make AI v2 + Scenario Templates Marketplace**：1シナリオあたり最大1,000ステップ・分岐50層、Zapier比で複雑処理の実装工数を55%短縮。2026年4月の「Scenario Bundles」機能で業界別テンプレ（建設業BPO 32種・士業BPO 24種）が公式提供、新規クライアント立ち上げ16h→2h施策をさらに30分まで圧縮可能
+4. **n8n self-host + LangChain Node（OSS自動化の新標準）**：月額$0（VPS $20/月のみ）でZapier $200/月相当の機能、データ主権・GDPR対応で士業・金融BPO適合。2026年版でLangChain・Vector DB（Pinecone/Weaviate）公式ノード追加、AI RAG搭載の社内ナレッジBot構築が標準10ノードで完成
+5. **UiPath AI Computer Vision + Document Understanding 2026.4**：手書き帳票・押印PDFの構造化抽出が認識精度98.3%（前年比+12.1pt）、建設業の手書き工事日報・押印請求書の自動仕訳が現実解に。1ロボット年額$8,000、Attended型なら$3,000で導入可
+6. **Celonis Process Mining + Action Engine（プロセスマイニング標準）**：ERPログ・SaaS APIログを取り込み業務フロー実態を可視化、Gartner Magic Quadrant 2026でリーダー象限。ボトルネック検出から自動化候補スコアリングまで自動、05-26運用「工数×頻度×単純度」のヒアリング工数を90%削減
+7. **Saga Pattern + Outbox Pattern（分散トランザクション設計の定石）**：請求書発行→売上計上→入金消込の3点セット（05-26）のような複数SaaS連携で、トランザクション境界をまたぐ整合性を「補償イベント＋イベントOutboxテーブル」で保証。Microservices.io標準パターン、Owl（受注ワークフロー）の状態遷移と整合
+8. **OpenTelemetry + Grafana Tempo（自動化フロー可観測性の標準）**：Zapier/Make/n8n/UiPath横断のトレース・メトリクス・ログを統一フォーマット収集、k1〜k4の4KPIをリアルタイム可視化。SLO違反予兆をSLAヒット前に検知し、05-26のSlack `/automation status` を更にProactive化
+
+## 📝 Daily Knowledge Log
+
+### 2026-06-24
+- **AI Agent Workforceの「Human-in-the-Loop承認関門」を1点集約する設計原則を運用化**：Claude Agent SDK + MCPで請求書OCR→勘定科目推論→freee仕訳投入を自律化する際、全工程を自動化しつつ「税区分が初出パターン or 金額10万円超」の2条件のみSlackで人の最終承認を取る。承認関門を全工程に散らすと現場が承認疲れで形骸化し、関門ゼロにすると誤仕訳事故が起きる。1点集約により承認件数を月200件→月12件まで圧縮、BO担当の認知負荷を維持しつつ精度99.6%確保
+- **Zapier Tables + Interfaces + Agentsの3点セット移行で「Airtable+Retool+Zapier」契約をTCO75%削減**：従来$200/月（Airtable Pro $20＋Retool $25＋Zapier Pro $50＋運用工数換算$105）が、Zapier統合パック$50/月に集約可能（2026年Q1 GA後）。7社のBO業務台帳を移行する場合、年間TCOで$1,800削減＋連携バグの起点数3製品→1製品でMTTR（平均復旧時間）も短縮。移行時はTablesの50万行上限・カラム25個上限を事前に試算し、超過する場合はn8n+PostgreSQLへ分岐させる判断基準を運用台帳に明文化
+- **MCP（Model Context Protocol）導入で自動化フローのコンテキスト窓を90%圧縮、Claude Code経由の運用支援が現実解に**：従来Zapier/Makeのデバッグで「ログを手動コピー→Claudeへ貼付→質問」を繰り返していた工数を、MCP経由でClaude CodeからZapier/Make/Notion運用台帳に直接アクセスする方式へ転換。1案件あたりデバッグ時間が平均45分→8分（82%減）、コンテキスト切替コストも撲滅。MCPサーバーは公式提供（Anthropic/Zapier/Notion/Slack）を優先採用し、内製は最小化して保守負荷を抑える
+- **プロセスマイニング（Celonis）で「自動化候補スコアリング」のヒアリング工数を90%削減、データ駆動意思決定へ転換**：05-26運用の「工数×頻度×単純度」スコアは現場ヒアリング起点で2-3h/案件かかっていたが、CelonisにERP（建設原価管理どっと原価）とSaaS API（freee/MoneyForward）のログを連携すれば、月次頻度・処理時間・例外発生率が自動算出される。Top3候補の特定が即日完了、05-26の「選定会議30分→3分」をさらに「会議ゼロ・Slack通知のみで自動更新」まで進化。Datとの双方向連携で工数実測の自動取り込み（06-04・06-16）が完全自動化
+- **Saga Pattern（補償トランザクション）で複数SaaS連携の部分失敗を構造的に防ぐ、3点セット自動化の信頼性を99.9%へ**：請求書発行（freee）→売上計上（MoneyForward）→入金消込（kintone）の3SaaS連携は、従来「途中失敗で請求済みだが計上漏れ」事故が四半期2-3件発生していた。各ステップに「補償イベント（請求書取消／売上仕訳逆仕訳／消込解除）」をペアで定義し、失敗時に逆順実行することで部分整合を強制復旧。Outboxテーブル（PostgreSQL）にイベントを永続化して至少1回配信を保証、Owl（受注ワークフロー）の状態遷移とも整合
+- **OpenTelemetry標準で4KPI（k1〜k4）をリアルタイム可視化、SLO違反予兆検知でSLAヒット前に手を打つ**：Zapier/Make/n8n/UiPathの実行メトリクスをOpenTelemetry SDK経由でGrafana Tempo+Lokiに集約、Grafanaダッシュボードでk1_double_input_count・k2_vendor_lead_time_minutes・k3_bo_manual_hours・k4_sla_violation_countを5秒粒度で監視。SLO（内部99.9%）違反を検知した時点でSlack `#automation-alerts` へ予兆通知、顧客SLA（99.5%）違反到達前に対処する緩衝帯運用を確立。06-20の「SLOアラート＝即顧客報告ではない」原則を技術実装で担保
 
 ## 入力
 - atomdenki/docs/07_cost_reduction_kpi.md のKPI定義

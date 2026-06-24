@@ -151,3 +151,30 @@
 - **効率化：状態遷移グラフの品質検証（デッドエンド検出・ガード排他網羅・設計実装diff／06-12）をCI化（06-16）した上に、補償イベントの「外部副作用打ち消し網羅」（06-17）も検証項目に追加し、各遷移で発生する外部作用（出荷指示・請求・在庫引当）と補償イベントの対応漏れを機械検出する**。状態だけ巻き戻して請求が残る事故（06-17）を、レビュー前のグラフ走査で潰しレビュー往復を削る。
 - **効率化：SLA閾値の変動係数ベース自動算出（06-16でDatのP25/P75入力）に、ピボット地点（請求確定等／06-20のSaga3分類）の明示も設計図生成スクリプトに組み込み、「どこまでキャンセルで巻き戻せるか」を遷移表生成と同時に自動マーキングする**。営業日カレンダー演算（06-03/06-16）内蔵と合わせ、補償設計の漏れ（06-17）を図の自動生成段階で可視化する。
 - **効率化：SLAタイマーの永続化（DB/ジョブキュー登録・再起動時復元／06-17）は、起動時の残タイマー突合（06-17）をデプロイのたびに手動確認せず、起動チェックを自動化し「発火時の前提条件再検証ガード（no-op化／06-12）」もタイマー登録テンプレにデフォルト付与する**。デプロイで予約タイムアウトが消えて案件がSLA監視外で永久滞留する最頻出事故（06-17）を、テンプレ強制で構造的に防ぐ。
+
+---
+
+## 専門スキル（2026年版・追補）
+- **プロセスマイニング起点の受注フロー最適化**：Celonis EMS / SAP Signavio / UiPath Process Mining を活用し、ERP・受注DB・メールログから event log（case_id / activity / timestamp）を抽出 → variant 分析で「本来1パスのはずが現実は47パターン」の逸脱率を可視化、上位3 variant に絞った標準化で平均リードタイム 18% 短縮を狙う
+- **自動化ROI測定の定量化（NPV / Payback Period / 自動化適合度スコア）**：Forrester TEI フレームワーク準拠で「年間削減工数 × 時給単価 − ライセンス費 − 構築費 − 運用費」を3年NPVで算出、適合度スコア（頻度・標準化度・例外率・データ構造化度の4軸×各25点）が70点以上の業務のみ自動化承認するゲートを運用
+- **Event-Driven Architecture × Outbox Pattern 統合設計**：Order/PurchaseOrder/Shipment の状態変化を Kafka / Amazon EventBridge / Google Pub/Sub に publish する際、DB トランザクションと publish の二重書き込み問題を Outbox テーブル経由で解決、at-least-once + idempotent receiver の組合せで exactly-once 相当を保証
+- **ハイパーオートメーション（Gartner定義）の階層適用**：①RPA（UiPath / Power Automate）= 画面操作の代替、②iPaaS（Workato / Zapier / Make）= SaaS間データ連携、③低コード（OutSystems / Mendix）= 業務ロジック実装、④AI Agent（Browser Use / Stagehand）= 判断を伴う作業、の4層を業務特性で使い分け、誤った層選択による失敗率 35% を構造的に削減
+- **AI駆動ブラウザ自動化（2026標準）**：Browser Use / Stagehand / Computer Use API（Anthropic）の使い分け基準を整理、従来 Playwright/Puppeteer のセレクタ依存（サイト構造変更で月平均17%のシナリオが破綻）から自然言語指示型に移行、メンテ工数 70% 削減
+
+## 高度技法・フレームワーク（2026版）
+- **DORA Metrics × Flow Metrics 統合測定**：受注フロー本番反映の品質を Lead Time for Changes（変更リードタイム）/ Deployment Frequency / MTTR / Change Failure Rate の4指標で測定し、Elite 水準（MTTR < 1h、CFR < 15%、デプロイ日次以上）を目標化。受注ドメイン側は Flow Efficiency = 正味作業時間 ÷ リードタイム を計測し、業界中央値 15% に対し 40% 超を狙う
+- **TOC（Theory of Constraints）× Little's Law による真のボトルネック特定**：WIP（仕掛在庫）= スループット × リードタイム の Little's Law を受注フローに適用、各工程の WIP と処理レートから「制約工程（CCR）」を1つに特定。CCR以外の改善は全体に効かないという TOC 原則に従い、改善投資の ROI 誤配分を防ぐ（Goldratt のフィヴェ・フォーカシング・ステップ準拠）
+- **CloudEvents 1.0 仕様準拠のイベント設計**：CNCF 標準の CloudEvents v1.0（type / source / id / specversion / data 必須属性）で全業務イベントを統一、AWS EventBridge / Azure Event Grid / Google Eventarc 間の相互運用性を確保。イベントスキーマは AsyncAPI 3.0 で記述しスキーマレジストリ（Confluent Schema Registry等）で版管理、後方互換性違反を CI で検出
+- **OpenTelemetry による分散トレース必須化**：Saga 全体（Order Confirmed → PO Issued → Shipped → Invoiced）の trace_id を OpenTelemetry で連携、Jaeger / Tempo / Datadog APM で「どの工程で何秒待ったか」を1リクエスト単位で可視化。SLA 違反の根本原因特定時間を平均 4時間 → 15分に短縮、MTTR 改善に直結
+- **Workato Recipe / n8n AI Workflow Builder の使い分け**：定型・高頻度（月100件以上）の連携は Workato Recipe で SLA 99.9% を担保、不定形・実験的フローは n8n の AI Workflow Builder（自然言語からノード自動生成、構築時間 70% 削減）でPoC、本番昇格時に Workato 化する2段運用で開発スピードと安定性を両立
+- **Camunda 8 / Temporal による Saga オーケストレーション**：補償可能 / ピボット / リトライ可能の3分類（06-20）を BPMN 2.0 で記述し Camunda 8 Zeebe に展開、または Temporal Workflow で TypeScript / Go コードベースに長時間実行ワークフローを定義。プロセス可視性と補償実行責任を中央集権化し、コレオグラフィ型の「補償漏れ」事故を構造的に予防
+
+## 📝 Daily Knowledge Log（追記）
+
+### 2026-06-24
+- **プロセスマイニングで「自分が知っている受注フロー」と現実のズレを正面突破する**：Celonis EMS に ERP の受注テーブル + Outlook メールログ + 電話履歴の event log を投入し variant 分析すると、「設計上1パス」のはずが現実は数十 variant に分岐していることが多い。改善着手の第一歩は「設計図を捨てて現実の variant 上位3つを標準化対象とする」こと。勘や経験でボトルネック工程を当てに行くより、データドリブンで variant 分布を見るほうが改善 ROI が3倍以上になる
+- **自動化ROIを「適合度スコア × NPV」の2軸で判定し、技術的にできる ≠ 自動化すべきを切り分ける**：頻度（年間実行回数）・標準化度（例外率の逆数）・データ構造化度・属人性の4軸×各25点で適合度を算出、70点未満は自動化対象外と決める。同時に Forrester TEI で3年NPVを算出し Payback < 18ヶ月を承認条件にする。「技術的に自動化できる業務」と「自動化すべき業務」は別物で、後者だけに絞ると失敗率が劇的に下がる
+- **Outbox Pattern で「DB更新したのに下流に通知されない」事故を構造的に根絶する**：Order の状態更新と Kafka publish を別トランザクションで実行すると、片方だけ成功する二重書き込み問題が必発。同一トランザクション内で Outbox テーブルに INSERT し、別プロセス（Debezium 等の CDC）が Outbox を tail して publish する設計に変えると、at-least-once 保証 + 受信側冪等性で exactly-once 相当が成立。受注確定したのに発注先に通知が飛ばない最頻出事故をゼロ化
+- **Browser Use / Stagehand への移行は「セレクタ依存スクリプトの月17%破綻率」を根拠に経営判断を取る**：Playwright/Puppeteer 時代は対象サイトの DOM 変更で月平均17%のシナリオが壊れ、メンテ工数が新規開発を上回る事態が常態化。Browser Use（自然言語でブラウザ操作）/ Stagehand（Playwright + LLM 補正）へ移行すると、サイト構造変更にも自然言語指示で対応可能でメンテ工数 70% 削減。経営層へは「破綻率17%/月 → 3%/月」の数値で稟議を通す
+- **DORA Metrics の Elite 水準（MTTR<1h・CFR<15%）を受注フロー本番反映の品質ゲートに昇格させる**：状態遷移ロジック変更を「動いたから本番」で出すのではなく、過去30日の Lead Time for Changes・Deployment Frequency・MTTR・Change Failure Rate を計測しElite水準到達まで本番反映を保留する運用に変える。06-16のカナリア自動昇格ゲートと組み合わせ、品質メトリクスを満たさない限り段階展開が進まないようにする
+- **OpenTelemetry の trace_id で Saga 全体のボトルネックを15分で特定する**：Order Confirmed → PO Issued → Shipped → Invoiced の各サービスに OpenTelemetry SDK を入れ trace_id を伝播、Jaeger で1リクエストのスパンを時系列展開すると「どの工程で何秒待ったか」が1画面で分かる。SLA違反時の根本原因特定が平均4時間→15分に短縮、Datから受領するリードタイム分布（06-11）と組み合わせると「平均は速いが p99 が遅い工程」を即特定でき、TOC の制約工程候補を絞り込める

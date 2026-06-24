@@ -219,3 +219,70 @@
 - **効率化：Dynamic Creativeでの初期当たり特定（06-16）後の勝ち素材昇格は、Shunの実数値（完視聴率・保存率／06-11）が出るまで人が見張らず、Metaの自動ルールで「CTR上位かつCPA目標内の素材を自動的に通常広告セットへ複製」する**。学習リセット回避の昇格後7日据え置き（06-03/06-16）もルール側に組み込み、A/B判定の手動監視工数を削る。
 - **効率化：UGC風縦動画の発注（06-04/06-11連携）は、訴求軸・NG表現辞書・参考競合3本・媒体別サイズ（Meta 1:1/9:16、TikTok 9:16）を1つのNotionカードテンプレに固定し、Shunの離脱秒数（開始3秒等／06-11）を改善指示欄に転記して渡す**。口頭・Slack分散指示でItsukiが媒体サイズ確認に往復する1ラリー（06-11）を、発注カード単一ソース化で消す。
 - **効率化：採用LPの配信前品質ゲート（CVタグ発火・モバイルLCP2.5秒・審査ステータス／06-12）を毎回手チェックせず、PageSpeed Insights API＋Metaテストイベント確認をチェックリスト化したSlackワークフローで「未✅項目があれば配信ボタンをブロック」する**。サンクスページURL変更時のタグ再確認フラグ自動起票（06-16）と合わせ、1週間CVゼロ誤診断の最頻出事故（06-12）を入口で潰す。
+
+## 専門スキル（2026年強化版・追記）
+
+### 5. Cookieless時代の計測基盤統合（2026強化領域）
+```
+処理:
+  1. GA4 Enhanced Measurement と Consent Mode v2 の二段構築
+     - region指定で日本/EUの同意収集を分離（GDPR/個人情報保護法対応）
+     - ad_user_data / ad_personalization / analytics_storage の4シグナル管理
+  2. Server-Side GTM（sGTM）導入による1stパーティCookie化
+     - Cloud Run でカスタムサブドメイン配信（cdn.example.jp 等）
+     - iOS Safari ITP の7日Cookie寿命制限を回避
+  3. Meta CAPI / Google Enhanced Conversions のハッシュ送信
+     - email/phone を SHA-256 ハッシュ化してサーバー送信
+     - 計測欠損を平均15〜25%回復
+  4. Customer Match / Lookalike をハッシュ送信で再構築
+出力: /agents/marketing/consent_mode_audit.json
+```
+
+### 6. MMM（Marketing Mix Modeling）/ Incrementality Testing
+```
+処理:
+  1. Meta Robyn / Google Meridian によるMMM運用（四半期に1回）
+     - 媒体別の貢献度・飽和点・キャリーオーバー効果を統計推定
+     - アトリビューション（個人ID追跡）が困難な領域を補完
+  2. Geo-Lift Test（地域分割インクリメンタリティ）の実施
+     - 対象地域 vs 対照地域で広告出稿/停止を切替、純増効果を測定
+     - 7日以上の検証期間、p<0.05 で有意判定
+  3. ブランド指名検索の差分を「真のブランドリフト指標」として採用
+出力: /agents/marketing/mmm_quarterly_report.json
+```
+
+## 高度技法・フレームワーク（2026版）
+
+### 1. Consent Mode v2 + Server-Side GTM 完全対応
+2024年3月のGoogle強制化を経て2026年現在、Consent Mode v2 未対応アカウントはCustomer Match利用停止リスク。`ad_user_data` / `ad_personalization` シグナルを明示送信し、Server-Side GTM（GCP Cloud Run、月額 約$15〜$50）でファーストパーティ計測へ完全移行する。Meta Conversions API（CAPI）と組み合わせiOS14.5+のATT離脱（業界平均25〜35%）からCV計測を回復。
+
+### 2. Meta Robyn / Google Meridian によるMMM標準実装
+2025年Google公開のオープンソースMMM「Meridian」（PyMC/TensorFlow Probability ベース）と Meta公式の「Robyn」（R言語）を併用、ベイズ推論で媒体別の `saturation` `adstock` パラメータを推定。Cookieベースのアトリビューションが死んだ2026年、TVCM・OOH含む全媒体の純増効果を統計的に分離する唯一の手段。建設業採用案件のように直接効果が遅効性のある領域で特に有効。
+
+### 3. Generative Engine Optimization（GEO）/ AI Overview最適化
+2024年5月のGoogle SGE→AI Overview本格化、2026年現在は検索結果の45〜60%がAI回答で完結。従来SEOから「LLMに引用される構造化記事」へ転換。schema.org `FAQPage` / `HowTo` マークアップ、結論ファースト構成、引用元として明示される一次データ（自社調査・統計）の埋め込みが必須。Perplexity / ChatGPT Search / Claude経由の流入を「LLM Referral」としてGA4カスタムチャネルで分離計測。
+
+### 4. CDP（Customer Data Platform）統合：Treasure Data / Segment / Karte
+2026年は「広告アカウント内のオーディエンス」から「自社CDP管理の統合プロファイル」への移行が標準。Segment（月額$120〜）またはTreasure Data CDPで Web/LP/CRM/フォームのイベントを統合、Reverse ETL（Hightouch / Census）で Meta Custom Audiences / Google Customer Match へリアルタイム同期。建設業案件では「資料DL→3日未架電→Meta類似配信」のような行動トリガー型自動配信を実装。
+
+### 5. Multi-Touch Attribution（MTA）データドリブンモデル
+GA4のデータドリブンアトリビューション（DDA）はShapley値ベースで全接点に貢献度配分。ラストクリック評価では過小評価されるYouTube / TikTok / SNS認知接点の真の貢献度を可視化。月次レポートで「ラストクリックCPA」と「DDA-CPA」を併記し、認知系媒体の予算カット判断を防止する。MTA + MMM のハイブリッド評価が2026年の業界標準（Forrester 2025 Q3レポート）。
+
+### 6. AI生成クリエイティブ × Dynamic Creative Optimization（DCO）
+Meta Advantage+ Creative / Google Asset Studio に Midjourney v7 / Adobe Firefly / Runway Gen-4 生成素材を投入し、媒体側AIに数万通りの組み合わせを自動最適化させる。建設業採用UGC風縦動画はHeyGen / Synthesia による多言語AIアバター展開で外国人技能実習生ターゲットへも横展開。生成物の景表法・著作権チェックは textlint + Hive AI Moderation API で機械化。
+
+### 7. Privacy Sandbox（Topics API / Protected Audience）の段階導入
+Chrome 3rdパーティCookie廃止は再延期されているが、2026年内の実施可能性を想定し Topics API（行動分類22カテゴリ）と Protected Audience API（旧FLEDGE、リターゲ代替）をテスト導入。Meta以外のオープンウェブDSP（Criteo / The Trade Desk）配信案件で先行検証し、Cookie廃止時の即応体制を構築。
+
+### 8. B2B/採用領域のIntent Data + ABM運用
+6sense / Bombora / Demandbase の Intent Data を活用し、自社サイト訪問前から「採用課題を検索している企業」を特定。建設業7社の Look-alike 拡張で類似企業をリスト化し、LinkedIn Sponsored Content / Facebook ABM配信で意思決定者にダイレクト到達。SDR連携で「Intent スコア80超→3営業日内架電」のSLA運用。
+
+## 📝 Daily Knowledge Log（追記）
+
+### 2026-06-24
+- **Consent Mode v2 未対応はCustomer Match停止リスク：実装監査チェックリスト化**：2024年3月のGoogle強制化を経て2026年現在、`ad_user_data` / `ad_personalization` シグナルが未送信のアカウントは Customer Match / Enhanced Conversions の段階的停止対象となる。建設業7社全アカウントで `gtag('consent', 'default', {...})` の region指定（JP/EU分離）と Tag Assistant 上での `ad_storage=granted` 確認を月次監査リストに組込。同意取得バナーは One Trust / Usercentrics の有償SaaS導入を推奨（自前実装は法改正追従コストが高い）
+- **Server-Side GTM 導入でiOS Safari ITP回避＋CV計測15〜25%回復**：GCP Cloud Run に sGTM コンテナを月額$15〜$50で構築、`cdn.{client-domain}.jp` のカスタムサブドメインからGA4/Meta CAPIへサーバーサイド送信に切替。iOS Safari ITPの7日Cookie寿命制限を回避し、リターゲ可能母数が平均1.4倍、CV計測欠損が15〜25%回復。Meta CAPI は email/phone を SHA-256 ハッシュ送信、`event_id` でブラウザ計測と重複排除（dedup_rate 90%超を品質ゲートに）
+- **Meta Robyn / Google Meridian によるMMMを四半期運用化**：2025年公開のGoogle Meridian（PyMC/TensorFlow Probability）と Meta Robyn（R言語）を併用、媒体別 saturation / adstock パラメータをベイズ推論で推定。Cookieアトリビューションが機能しない2026年、TVCM・OOH・SNS認知接点の純増効果を統計的に分離する唯一の手段。建設業採用のような遅効性領域では「指名検索リフト」をMMM出力の主要KPIに設定し、Datと共同で四半期レポート化
+- **AI Overview獲得を新KPI化：GEO（Generative Engine Optimization）施策3点セット**：Google AI Overview / Perplexity / ChatGPT Search の引用獲得を狙う場合、（1）schema.org `FAQPage` / `HowTo` マークアップ実装、（2）結論ファースト300字以内のサマリブロックを記事冒頭に配置、（3）一次データ（自社調査n数・実施期間・対象範囲明記）の埋込、の3点が必須。GA4カスタムチャネルグループで `perplexity.ai` `chat.openai.com` `claude.ai` を「LLM Referral」として分離計測し、従来オーガニック流入と区別したレポート定義に更新
+- **MTA（データドリブンアトリビューション）とラストクリックを併記する月次レポート様式に改訂**：GA4のDDA（Shapley値ベース）とラストクリックを併記し、YouTube/TikTok/SNS認知接点の貢献度差分を「認知接点の真の貢献」として可視化。クライアント報告で「ラストクリックではTikTok CPA 12,000円だが、DDAでは 7,400円相当の貢献」と提示することで、認知系媒体の予算カット判断を構造的に防止。Forrester 2025 Q3レポート「MTA+MMMハイブリッドが2026年標準」を出典として添付
+- **Privacy Sandbox（Topics API / Protected Audience）テスト導入で2027年のCookie廃止に先回り**：Chrome 3rdパーティCookie廃止は再延期中だが、Topics API（22カテゴリ行動分類）と Protected Audience API（旧FLEDGE、リターゲ代替）を Criteo / The Trade Desk 経由でテスト配信。Meta閉域経済圏に過度依存しているクライアントに対し、オープンウェブDSPでのCookieless配信能力を四半期に1回検証してレポート提出。廃止本実施時の即応体制を「テスト済み」のステータスで保持

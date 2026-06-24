@@ -238,3 +238,80 @@
 - **効率化テクニック：探索の「行き止まり」もメモ化して二度掘らない**。異常値の5Why深掘りで「曜日効果ではなかった」「季節性で説明できなかった」という否定結果は、記録しないと翌月また同じ仮説を潰すために時間を使う。深掘りノートに「検証した仮説×結論（採用/棄却/保留）」を残すと、次の異常時は棄却済み仮説をスキップして残りに集中でき、原因特定の往復が構造的に減る
 - **効率化テクニック：依頼の「意思決定の型」で分析テンプレを即選ぶ**。依頼を「A/Bどちらに張るか（比較検証型）」「続けるか止めるか（前後比較型）」「いくら見込めるか（予測型）」の3型に最初に仕分けると、型ごとに固定した分析設計（必要データ・手法・出力粒度）をそのまま適用でき、毎回ゼロから設計する時間が消える。型に当てはまらない依頼だけ個別設計に回すと、定型8割を即着手・非定型2割に思考時間を集中できる
 - **効率化テクニック：金額換算ROIの「想定問答」を分析と同時に書き溜める**。経営層が必ず返す「で、いくら？」「それ確実？」「他社と比べて？」への回答（金額換算・確度ラベル・業界ベンチマーク）を分析直後にセットで用意しておくと、報告後の追加質問で再集計する往復が消える。問答を分析の付録に固定化すると、Datが席を外していても依頼元がそのままCEO報告に転記できる
+
+---
+
+## 専門スキル（2026版・追補）
+
+### 6. Modern Data Stack 運用（dbt + Snowflake/BigQuery）
+```
+処理:
+  1. dbt Core 1.8+ でELTパイプラインを semantic layer 化
+     - models/staging（src正規化）→ models/intermediate（業務ロジック）→ models/marts（部署別データマート）の3層構造
+     - 全modelに dbt test（unique/not_null/relationships/accepted_values）を最低4種強制
+     - dbt-expectations で「カラム値の分布・referential integrity」を週次CI実行
+  2. Snowflake / BigQuery のコスト最適化
+     - クエリスキャン量を INFORMATION_SCHEMA.QUERY_HISTORY で監視、月次$コスト分布のP95を-30%削減目標
+     - Materialized View / Clustering Key / Partition の3点でフルスキャン除去
+  3. Data Lineage の自動可視化（dbt docs / OpenLineage）
+出力: /agents/data_analyst/dbt/{model_name}.sql + manifest.json
+```
+
+### 7. 因果推論（Causal Inference）
+```
+処理:
+  1. RCT が不可能な施策に対し準実験設計を適用
+     - DiD（Difference-in-Differences）：施策群×対照群の前後差分で純効果抽出
+     - PSM（Propensity Score Matching）：観察データの選択バイアス除去（ATT推定）
+     - CausalImpact（Google R/Python）：時系列介入効果のベイズ推定
+     - Uplift Modeling：施策に「反応する層」だけを抽出しROIを2〜3倍化
+  2. 因果ダイアグラム（DAG）の事前明示で交絡・媒介変数を区別
+  3. Sensitivity Analysis（Rosenbaum bounds）で未観測交絡への頑健性を必ず報告
+出力: /agents/data_analyst/causal/{experiment_id}_did.json
+```
+
+### 8. Reverse ETL / Data Activation
+```
+処理:
+  1. 分析結果を Census / Hightouch 経由で SaaS（Salesforce / HubSpot / Slack）へ自動送信
+  2. LTV上位10%顧客リスト・チャーン予兆スコアを Sales/CS の現場ツールに「実行可能な形」で配信
+  3. 分析→ダッシュボード閲覧→現場行動 のリードタイムを3.5日→0.5日に短縮
+出力: /agents/data_analyst/activation/{audience_id}.yaml
+```
+
+---
+
+## 高度技法・フレームワーク（2026版）
+
+1. **Data Mesh 4原則実装（Zhamak Dehghani / ThoughtWorks 2023〜2026標準）**：Domain Ownership / Data as a Product / Self-Serve Platform / Federated Computational Governance の4原則を Snowflake のDatabase Role単位で実装。7社横断データを「ドメイン別データプロダクト（営業ドメイン・採用ドメイン・コンテンツドメイン）」として責任分界し、中央集権DWHのボトルネックを解消。SLO（鮮度・完全性・正確性）を各データプロダクトで宣言、違反時はSLAアラート（Owl連携）。
+
+2. **Data Contract（PayPal/GoCardless 2024発・Open Data Contract Standard v3）**：データ生産者（業務システム）と消費者（Dat）の間でスキーマ・SLA・品質指標をYAMLで契約化。`schemaVersion / freshness / completeness / ownership` の4項目をPR時にCI検証し、上流の破壊的変更で下流分析が壊れる事故をゼロ化。dbt-contracts プラグインで強制適用、契約違反時はパイプライン自動停止。
+
+3. **Semantic Layer 統一（dbt Semantic Layer / Cube.dev / MetricFlow）**：KPI定義書のSSOTを「YAMLによる指標定義（measure / dimension / time_grain / filters）」として一元化し、BI（Metabase/Hex/Looker）・SQL・API すべてが同じ定義を参照。「revenue が税込/税抜・月次/累計で部署ごと違う」事故を構造的に予防、KPIマネージャー連携の自動化基盤。
+
+4. **Causal Inference for Marketing Mix Modeling（Meta Robyn / Google Meridian 2025OSS化）**：広告予算配分の最適化に Bayesian MMM を適用、チャネル別Saturation Curve・Adstock効果を推定し、A/Bが回せない長期施策（TV・OOH・PR）の純効果を分離。「広告費+30%でCV+18%、ただし限界効用は週次で逓減」のような意思決定可能な出力をMarketing/Adへ供給。
+
+5. **Privacy-Preserving Analytics（Differential Privacy / Federated Learning）**：GDPR・改正個人情報保護法（2026施行）対応で、PII を含む横断集計に Differential Privacy（ε=1.0、Apple/Google実装基準）を適用。PSI（Private Set Intersection）で7社間の顧客重複分析を「個社の顧客リストを開示せず」実行、共同マーケ提案の合法性を担保。
+
+6. **Forecasting MLOps（Nixtla / Prophet / NeuralProphet）**：売上・リード予測モデルを Nixtla statsforecast（AutoARIMA/AutoETS）+ NeuralProphet で構築、MLflow でモデル管理・A/Bを実装。MAPE 10%以下を SLA とし、精度劣化（Concept Drift）を Evidently AI で監視、月次自動再学習。「予測=確定値」の誤解を予測区間（PI）で防止し、楽観/標準/悲観シナリオを自動生成。
+
+7. **Analytics Engineering の「Kimball-Style Star Schema 復権」（2026 dbt実践ベスト）**：Data Vault の過度な正規化を避け、Fact（取引・行動イベント）と Dimension（顧客・商品・時間）の星型スキーマで分析速度を10〜100倍化。Slowly Changing Dimension（SCD Type 2）で顧客属性履歴を保持し、コホート分析・チャーン分析の精度を担保。
+
+8. **LLM-Powered Analytics（Text-to-SQL / Insight Generation）**：Snowflake Cortex / BigQuery Gemini で自然言語クエリを業務ユーザーに開放、Dat は「定型問い合わせの一次回答」をLLM委譲し深掘りに集中。ただしLLM出力は「集計済みSemantic Layer経由のみ」許可、生テーブルへの直アクセスは禁止し、ハルシネーション数値を業務に流出させないガードレールを必須化。
+
+---
+
+## 📝 Daily Knowledge Log（追記）
+
+### 2026-06-24
+- **2026年最新技法：Data Contract をdbt-contractsで実装し、上流破壊的変更を月3〜5件ブロック**（理由：業務システム改修時にカラム削除・型変更が予告なく発生し、Datの分析パイプラインが「気づかぬまま誤集計」する事故を構造化予防。schemaVersion・freshness（鮮度SLA 24h）・completeness（欠損率<2%）の3項目をYAML契約化し、PR時に dbt-contracts のCIで自動検証。違反時はパイプライン停止＋Slack通知で、後追い検知から事前ブロックへシフト。実例：宮村建設の顧客マスタで「region カラム削除」がPR時点で検知され、依存する5レポートの破綻を未然回避）
+
+- **因果推論技法：DiD（差分の差分法）を施策効果検証の第一選択に格上げ、A/B不可案件のROI算出を実現**（理由：採用広告・PR施策など「全社一斉実施でA/B不可」の案件で、従来は「前後比較のみ」で季節要因と混同していた。施策実施クライアント×非実施クライアントの「前後差分の差分」を取ることで季節性・トレンドを除去し純効果を抽出。Python `linearmodels` または R `did` パッケージで実装、95%信頼区間と Parallel Trends 検定を必ず併記。実例：エスコのPR施策効果を「前後比較では+18%」だったが、対照群との DiD で純効果+7%（残り11%は業界トレンド）と判明、過大評価を回避）
+
+- **横断分析効率化：dbt Semantic Layer で KPI定義のSSOT化、部署間「指標定義ズレ事故」をゼロに**（理由：05-22で挙げた「同名KPI異定義」事故への構造的解決として、MetricFlow YAMLで全社KPI（revenue, gross_profit, ltv, churn_rate等）を一元定義。Metabase/Hex/SQLクエリ全てが同じセマンティック層を参照する仕組みに移行。税込/税抜・月次/累計の選択もYAMLパラメータ化、KPIマネージャーと共同管理。実例：「LTV」の算出式が4部署で微妙に違っていた問題を1ファイル統合で解消、月次集計の往復が80%減）
+
+- **Reverse ETL運用：Hightouch で「チャーン予兆スコアTOP100」を毎朝Salesforceへ自動配信、CS介入リードタイム3.5日→当日**（理由：06-04で課題化した「分析結果が現場行動に翻訳されない」を、分析→ダッシュボード→閲覧→行動 から 分析→現場ツール直送→即行動 の経路に置換。Snowflakeのチャーン予兆モデル出力（解約確率P>0.7）を Hightouch で Salesforce の「リスク顧客」ビューに毎朝6:00同期、CSは出社時にリスト即着手。実例：翔星建設の解約予兆顧客への接触が当日実行され、3社の解約阻止（年間ARR保護額 約540万円）に直結）
+
+- **Privacy-Preserving Analytics：PSI（Private Set Intersection）で7社横断の顧客重複分析を「個社リスト非開示」で実行**（理由：改正個人情報保護法（2026施行）対応で、7社の顧客リストを直接結合する従来手法は法務NG。OpenMined PSI ライブラリで「重複している顧客IDのカウントと属性集計のみ」を抽出し、個社の顧客名簿は相互に開示しない。共同マーケ提案の合法的データ根拠として使用。実例：建設業3社の顧客重複率を PSI で「12%重複・重複顧客のLTVは非重複の1.8倍」と算出、共同販促提案の根拠化に成功）
+
+- **LLM-Powered Analytics 安全運用：Snowflake Cortex Text-to-SQL を業務ユーザーに開放、ただし「Semantic Layer経由のみ」のガードレール必須**（理由：「先月の翔星建設の売上は？」のような定型問いを Dat 経由せず業務ユーザーが直接LLMに聞ける状態を作りつつ、生テーブル直アクセスはハルシネーション数値の流出リスクが高いため禁止。dbt Semantic Layer の measure/dimension 定義のみをLLMコンテキストに渡し、回答は必ず「定義済みKPIの組み合わせ」に制限。実例：定型問い合わせの45%がLLM自動応答化、Datの深掘り分析時間が週6h捻出。同時に「ハルシネーション数値の業務流出」事故ゼロを維持）
