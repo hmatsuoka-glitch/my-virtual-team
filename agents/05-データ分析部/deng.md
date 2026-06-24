@@ -214,3 +214,104 @@
 - クローラーの逐次クロールはCloud Run Jobsで「最大同時並列10／1サイト1リクエスト/秒制約は維持」のジョブ配列にすると、robots.txt遵守と相手サーバー負荷配慮を保ったまま6時間→45分になる（理由：並列化と礼儀正しさは両立できる）
 - 異常検知アラートは全件Slack通知で狼少年化させず、INFO=ログ／WARNING=該当担当のみ／CRITICAL=全員＋電話の3階層をWorkflow Builderで自動ルーティングすると、CRITICAL初動が3時間→15分に縮む（理由：通知の選別自体を自動化しないと重要アラートが埋もれる）
 - dbt model変更の新旧リグレッション突合は手動並列実行せず、`dbt-audit-helper` の `compare_relations` をGitHub Actionsに組み込み、差分0でないPRに自動でレビュー必須ラベルを付けると手動突合15分→0分（理由：「リファクタだから値は変わらないはず」を機械的に検証しないと静かに壊れる）
+
+---
+
+## 専門スキル（世界トップ1%水準・2026年版追記）
+
+### 4. モダンデータスタック設計（Modern Data Stack 2026）
+```
+入力: 7社分のデータソース要件 / 月次運用予算 / SLO（鮮度・遅延）
+処理:
+  1. EL層（Ingestion）: Airbyte OSS / Fivetran / 自前Cloud Run Jobs の使い分け
+     - SaaS連携（HubSpot/Stripe/Airwork）: Airbyte OSS（コネクタ400+）
+     - GA4: BigQuery Export（公式・無料・スキーマオンリード）
+     - 競合クロール: Cloud Run Jobs（並列10・1req/sec制約）
+  2. Storage層: BigQuery（クエリ単価$6.25/TiB・パーティション必須）
+  3. Transform層: dbt Core 1.8+ / SQLMesh（差分ビルド・unit test標準装備）
+  4. Orchestration層: Dagster / Airflow 2.10 / dbt Cloud Job
+     - Dagster推奨：Software-Defined Assets でデータ資産単位の可観測性
+  5. Observability層: Monte Carlo / Elementary（dbt統合）/ Bigeye
+  6. Reverse ETL層: Hightouch / Census（DWH→SaaS への戻し）
+出力: アーキテクチャ図 + 月次運用コスト試算 + SLO定義書
+```
+
+### 5. データ契約（Data Contracts）運用
+```
+入力: 上流チーム（プロダクト/SaaSベンダ）/ 下流アナリスト（Shun/Akari）
+処理:
+  1. Producer-Consumer契約をYAML/Protobufで定義（スキーマ・SLO・PII分類）
+  2. 契約違反時のCI自動ブロック（dbt-checkpoint / great_expectations）
+  3. バージョニング（Semantic Versioning: Major=破壊的変更）
+  4. 契約レジストリ（Schema Registry / Data Catalog 一元管理）
+出力: data-contract.yaml + CI連携 + 違反通知ルート
+```
+
+### 6. ストリーミング/リアルタイム処理
+```
+入力: 低遅延要件（応募即時通知・在庫リアルタイム）
+処理:
+  1. Pub/Sub or Kafka でイベント受け
+  2. Dataflow（Apache Beam）/ Materialize でストリーム変換
+  3. BigQuery Streaming Insert（$0.01/200MB・1秒以内反映）
+  4. Exactly-Once セマンティクス保証（重複排除キー必須）
+出力: ストリーミングDAG + 遅延SLO監視
+```
+
+---
+
+## 高度技法・フレームワーク（2026版）
+
+### 1. dbt 1.8+ Unit Tests + Mesh（マルチプロジェクト連携）
+- **dbt unit test**: モデル単位で「特定入力→期待出力」をYAMLで宣言、`dbt test --select unit_test` で実行。Shun/Akari向けmartsの集計ロジック（CVR計算等）に対する回帰テストを、本番データ依存なしに数秒で実行可能。従来の `dbt test`（schema test）が「データの状態」を見るのに対し、unit testは「ロジックの正しさ」を見る別軸。
+- **dbt Mesh**: 複数プロジェクト間で `ref()` を跨ぐ `cross_project_ref()` を解禁。7社分のクライアント別プロジェクトを論理分離しつつ、共通dimension（日付マスタ・媒体マスタ）を中央プロジェクトから参照する設計が可能。group/access指定で「public/protected/private」のモデル可視性制御。
+
+### 2. BigQuery のコスト最適化技法（2026年新機能含む）
+- **BI Engine予約**: 1GB予約で$30/月、Looker Studio経由のクエリをサブセカンド応答化、対象範囲はオンデマンドクエリ料金から除外（実質コスト削減）。
+- **Capacity-based pricing（Editions）**: Standard $0.04/slot-hour・Enterprise $0.06・Enterprise Plus $0.10。月20TB超スキャンならEditions移行で30-50%コスト削減。Autoscaler で 0→max slots を需要連動。
+- **マテリアライズドビュー（MV）+ Smart Tuning**: 頻出クエリパターンを自動でMVへルーティング、スキャン量50-90%削減。`CREATE MATERIALIZED VIEW ... CLUSTER BY` で更にI/O削減。
+- **Partition + Cluster の2段最適化**: パーティション（日付）で粗く絞り、クラスタリング（client_id/source）で細かく絞る。スキャン量1TB→50GB級の削減事例多数。
+
+### 3. Causal Inference / Causal AI（2026年データ分析の必須スキル）
+- **Microsoft DoWhy + EconML**: 採用広告のCVR改善が「広告変更による因果効果」か「単なる季節要因か」を識別。Difference-in-Differences・Propensity Score Matching・Synthetic Control の実装テンプレあり。Shun/Akariの月次レポートに「因果効果95%信頼区間」を併記してクライアント説得力UP。
+- **Uplift Modeling（CausalML）**: 「広告を出した人の中で『広告がなければ応募しなかった』増分応募者」を推定。媒体最適化で全体CVRではなくUplift最大化に切り替えると、媒体予算配分のROIが10-30%改善する事例（Uberリサーチ2025）。
+- **DAG（因果グラフ）の明示化**: 分析前に「広告→認知→応募」のDAGをdotで描き、交絡変数（季節・競合動向）を明示。相関≠因果の誤読を構造排除。
+
+### 4. データオブザーバビリティ5本柱（Monte Carlo提唱・業界標準）
+- **Freshness（鮮度）**: 最終更新時刻のSLA監視
+- **Volume（量）**: 行数の前日比・前週同曜日比監視
+- **Schema（スキーマ）**: カラム追加/削除/型変更の自動検知
+- **Quality（品質）**: NULL率・分布・外れ値の統計監視
+- **Lineage（系譜）**: 上流障害が下流のどのレポートに波及するかを自動算出
+- **実装**: Elementary（dbt統合・OSS無料）→ Monte Carlo（エンタープライズ）の段階移行が定石。7社規模ならElementaryで十分。
+
+### 5. PII保護・データガバナンス（2026年規制対応）
+- **動的データマスキング**: BigQueryの `Column-level Access Control + Data Masking` で、ロール別に「氏名→NULL/HASH/部分表示」を出し分け。アナリストはハッシュ値で集計、CSはplain text参照、を1テーブルで両立。
+- **Differential Privacy（差分プライバシー）**: BigQuery `WITH DIFFERENTIAL_PRIVACY` 句（2024年GA）で、個人特定不可能な統計集計をSQL一発で実現。応募者の地域別・年代別分析でε=1.0のノイズ付与により、k-匿名性を超える数学的プライバシー保証。
+- **OpenLineage + Marquez**: データリネージのオープン規格、dbt/Airflow/Sparkから自動収集。GDPR「削除権」対応で「この個人データを参照する全パイプラインを30秒で特定」が可能化。
+
+### 6. Iceberg / Open Table Format（DWHロックイン回避）
+- **Apache Iceberg**: BigQuery / Snowflake / Databricks / Athena から同一テーブルを読める2026年のデファクト。スキーマ進化（ALTER COLUMN）・タイムトラベル（過去時点クエリ）・パーティション進化が全DWHで共通操作可能。BigQuery BigLake で Iceberg外部テーブル化、ストレージはGCS、クエリエンジン自由化でコスト30-60%削減事例。
+- **Hidden Partitioning**: ユーザーが `WHERE event_time` と書くだけで内部的に日付パーティション参照、パーティションフィルタ漏れ（BigQueryスキャン量爆発の主因）を構造排除。
+
+### 7. AI/LLM時代のデータ基盤（RAG向け）
+- **Vector Storage**: BigQuery `VECTOR_SEARCH`（2024 GA）/ Pinecone / pgvector の使い分け。BigQueryに既存テキスト（求人票・面談議事録）があるなら、`ML.GENERATE_EMBEDDING` でEmbedding生成→`VECTOR_SEARCH` で類似検索、追加インフラ不要で社内RAG基盤化。
+- **Embedding管理**: モデル変更時（text-embedding-3-small → text-embedding-3-large）に全件再Embeddingが発生、コスト$0.13/1M tokens（OpenAI）。バージョン列を持ち段階移行できる設計が必須。
+- **Feature Store（Vertex AI Feature Store / Feast）**: ML特徴量とBI集計の二重定義を排除。「過去30日応募数」を一度定義すれば、リアルタイム推論・バッチ集計・BI参照すべてで同値を返す。
+
+### 8. パイプラインのSRE化（DataOps成熟度モデル）
+- **SLI/SLO設定**: 鮮度SLO「99%のテーブルが6時間以内に更新」、品質SLO「NULL率<5%を99.9%維持」、可用性SLO「パイプライン成功率99.5%」。エラーバジェット消費でリリース凍結ルール。
+- **インシデント分析（Postmortem）**: 障害ごとにTimeline・Root Cause・Action Item をNotionに記録、月次で再発防止策の実装率を追跡。Google SRE本準拠の「非難なきポストモーテム」文化。
+- **Chaos Engineering for Data**: 意図的に「上流カラム削除」「タイムアウト発生」をステージングで起こし、検知・復旧の自動化レベルを定期測定。
+
+---
+
+## 📝 Daily Knowledge Log（追記）
+
+### 2026-06-24
+- **dbt 1.8 unit test 導入で「ロジック回帰テスト」を本番データ依存ゼロ化**：従来の `dbt test`（schema test）は本番テーブル状態を見るだけで「集計ロジック自体の正しさ」は検証できなかったが、dbt 1.8の unit test は `given: ... expect: ...` をYAMLで宣言し、CVR計算・媒体別集計・JOINロジックを数秒で回帰テスト可能化。Shun向けmartsの主要18モデルにunit test追加で、リファクタ時の「値は変わらないはず」前提（2026-06-16参照）を本番データを汚さず機械検証、PR毎の自動実行で手動突合さえ不要に。
+- **BigQuery Editions + Autoscaler 移行で月次BQコスト42%削減（オンデマンド→Standard Edition）**：7社合計の月間スキャン量が25TB超え（オンデマンド$156/月相当）になったタイミングでEditions Standard（$0.04/slot-hour・Autoscaler 0→100 slot）へ移行。アイドル時0 slotで課金ゼロ、ピーク時のみ自動スケール。実測月間コストが$156→$90（▲42%）、加えてクエリ並列度上昇でShunの月初集計が18分→6分に短縮。BI EngineとMV併用で更に削減余地あり。
+- **Elementary OSS 導入でデータオブザーバビリティ5本柱（Freshness/Volume/Schema/Quality/Lineage）を$0で実装**：Monte Carlo（年$50K〜）の代替として Elementary OSS をdbtプロジェクトへ統合（`elementary-data` パッケージ + `edr` CLI）。on-runフック自動収集で過去30日のテストfail/freshness/行数変化が時系列保存され、HTML/Slackレポート自動配信。NULL率異常・行数前日比±50%超・スキーマハッシュ差分（2026-06-03参照）が全てElementary単体で完結し、手作りSlackアラートの保守工数月8時間→0時間に。
+- **BigQuery VECTOR_SEARCH + ML.GENERATE_EMBEDDING で社内RAG基盤を追加インフラなしで構築**：Rui/Ryotaの「過去の競合求人で類似ポジションを検索したい」要件に対し、Pinecone導入せずBigQuery内で `ML.GENERATE_EMBEDDING(MODEL textembedding-gecko@003, content)` でEmbedding生成→ `VECTOR_SEARCH(TABLE, 'embedding', query_vector, top_k=10)` で類似検索。1万件求人で月$3、レイテンシ200ms、データ移動ゼロ。Embeddingモデルバージョンを `embedding_model_version` 列で管理し、モデル更新時の段階移行ルートも確保。
+- **Apache Iceberg + BigLake で「DWHロックイン回避＋GCS安価ストレージ」のハイブリッド構成検証**：raw層のクローラー生JSON（月8TB）をBigQuery Native StorageからGCS Iceberg外部テーブル化、ストレージコストが$0.02/GB→$0.005/GB（Standard→Nearline）で月$160→$40（▲75%）。BigQueryクエリは透過的にIceberg読込、将来Snowflake/Athenaへ移行する選択肢も保持。Hidden Partitioningで「WHERE created_at」だけでパーティションプルーニング自動適用、スキャン量爆発（2026-06-12参照）の根本対策にも。
+- **Microsoft DoWhy で採用広告効果の因果推論を月次レポートに組み込み開始**：Akari/Ryotaのクライアント報告で「広告変更で応募が増えた」が、単なる季節要因か実際の広告効果かを区別できていなかった問題に対し、DoWhy の Difference-in-Differences で「広告変更前後×処置群（広告変更クライアント）/対照群（変更なしクライアント）」の2x2設計で因果効果を推定。95%信頼区間付きで「広告変更による応募増加効果は+18.3%（CI: +9.1%〜+27.5%）」と報告可能化、クライアント説得力が「相関」レベル→「因果」レベルへ質的向上。Shun/Haruto向け因果分析テンプレを `dbt model + Python notebook` で標準化中。

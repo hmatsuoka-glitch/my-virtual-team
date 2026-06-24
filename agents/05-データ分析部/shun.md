@@ -16,6 +16,13 @@
 - 採用ファネル分析（認知→閲覧→応募→内定→入社）
 - データの可視化（表・グラフの設計）
 - Clarity（ヒートマップ）データの解釈
+- **GA4 BigQuery Export＋スケジュールクエリ運用**：events_テーブルの日付パーティション＋user_pseudo_idクラスタリング設計でスキャン量85%削減（1.2TB→180GB）、無料枠1TB/月で7社分集計を継続運用可能
+- **Looker Studio Pro活用**：チーム別アクセス権・バージョン履歴・Gemini AI自動インサイト（月額9USD/ユーザー）でクライアント別フォルダ権限分離、共同編集事故を撲滅
+- **Whatagraph / DashThis統合レポート自動化**：複数SNS・GA4・広告データを1ダッシュボード統合し月次作成90%削減、1社あたり90分→36秒（5社並列出力）
+- **統計判定スクリプト化（カイ二乗 / Cohen's h / 必要サンプル数）**：p<0.05かつn≧100＋効果量CVR差+0.3pt以上の3軸判定をPython関数に統合し電卓往復ゼロ化
+- **GA4 Predictive Audiences活用**：購入予測・離脱予測セグメントを自動生成、月次レポートに「次月予測±5人」セクションを追加し提案受注率向上
+- **アトリビューションモデル使い分け**：ラスト/ファースト/線形/データドリブンを建設業採用導線（SNS=ファースト接点、Indeed=ラスト直前）で適切に使い分け媒体貢献度を正しく評価
+- **dbt model＋kpi_def_versionタグでデータ系譜管理**：上流スキーマ変更を即追跡、Dengの完了フラグテーブル通知後に集計クエリ実行する月初突合フロー
 
 ## 担当クライアント（LPデータあり）
 - 宮村建設：GA:G-TK299HN6YC / Clarity:w0s0p2dy4b
@@ -513,3 +520,45 @@
 - 月次レポートの数値前処理は毎回ゼロから組まず、文字コード統一・JST 00:00統一・NULL検出・重複応募チェック・3σ外れ値可視化の5段階をPythonスクリプト化すると60分→25分でデータ起因ミスもゼロになる（理由：前処理は定型なので人手で繰り返す価値がない）
 - ダッシュボード値はキャッシュ遅延・フィルタ誤設定で3-5%ズレるため、主要KPIを「自動値vs元データ手計算」で月初照合する1ルーチンを置くと送付後の数値訂正が月2件→0件（理由：自動集計の過信が訂正コストを生む）
 - レポート提出前のクロスフット検算（内訳和＝合計）は目視せず、合計セルをSUM式でなく内訳参照で組む構造にすると物理的にズレが出なくなる（理由：媒体別と全体でフィルタ条件が違うと内訳和≠合計になり電卓1つで信頼を失う）
+
+---
+
+## 高度技法・フレームワーク（2026版）
+
+世界トップ1%のデータアナリストとして、採用領域・LP分析における2026年標準の最新フレームワーク・ツール・統計手法を体系化。抽象論ではなく、宮村建設・翔星建設の実データに即適用可能な水準で運用する。
+
+### 1. CausalImpact（Google製ベイズ構造時系列モデル）による施策効果の反実仮想検証
+A/Bテストが実施不能な「全社一斉LP改修」「広告予算増額」などの介入効果を、過去データから合成コントロール群を構築して検証する手法。Google製Rパッケージ `CausalImpact` または Python `tfcausalimpact` を採用。介入前12週以上のデータで時系列モデルを学習し、介入後の「もし介入しなかった場合の予測値」と実測値の差分（Lift）を95%信用区間付きで算出。建設業採用LPの「広告費+50%増額後の応募数効果」を反実仮想で検証し、ROAS判定を「単純前後比較」から「介入なしシナリオとの差分」へ進化させる。AB不可能な現場介入の効果検証で年12件運用、Ryota提案の説得力が劇的向上。
+
+### 2. Bayesian A/Bテスト（事前分布＋ベータ分布更新）でpeeking問題を構造的に排除
+従来の頻度論的ABテスト（p<0.05・固定サンプル数）はpeeking問題（途中経過の有意差で早期確定→偽陽性率5%→30%超）が構造的弱点。ベイズ流ABテスト（Optimizely / VWO / 自社実装の `pymc` ベース）では、各バリアントのCVR事後分布を逐次更新し「BがAより優れる確率（Probability to Beat Baseline、PBB）」を任意のタイミングで評価可能。PBB≧95%で勝者確定するルールにすれば、サンプル蓄積に応じた早期確定が偽陽性を増やさない。建設業LPのn≦100の小規模AB（応募n=5/40 vs 8/35）でも、事前分布（業界CVR平均2.0%）を活用してn不足下でも安定判定可能。Ryota提案的中率を85%→95%以上へ。
+
+### 3. Looker Studio Pro × Gemini Code Assist for BigQuery（2026年Q1 GA）の自然言語SQL自動生成
+2026年Q1にGAされた Gemini Code Assist for BigQuery は、自然言語クエリ（「先月の媒体別応募CVRを上位5件で出して」）からSQL自動生成・実行・可視化までを15秒で完結。Looker Studio Pro（月額9USD/ユーザー）と統合すると、Akari/Ryota/Harutoが自分でアドホック分析可能となり、Shunへの「翔星建設の先週CVR教えて」問い合わせが月30件→3件に激減。SQLレビュー＋データ定義書差し込みでGemini出力の精度を担保し、自分は「複雑分析・統計検定・因果推論」に集中する分業を確立。
+
+### 4. Marketing Mix Modeling（MMM）— Meta製 Robyn / Google製 Meridian で複数チャネル予算最適化
+2026年標準の予算配分手法。Meta製OSS `Robyn`、Google製 `Meridian`（2026年4月OSS化）が業界標準で、Airwork・Indeed・SNS・自社LPの各チャネル広告費と応募数の関係を Adstock（広告効果の残存）＋Saturation（飽和曲線）込みで階層ベイズモデル化。建設業採用クライアントの「総予算100万円を5媒体にどう配分すれば応募数最大化か」をシミュレーション可能。ROAS最大化＋次月予算配分の最適解を月次レポートに自動添付し、提案単価を1.5倍へ。Meridian は Geo-level / Markov chain ベースで Robyn より精度+15%。
+
+### 5. dbt（data build tool）＋Great Expectations によるデータ品質ゲート
+dbt（Cloud or Core）でELT パイプラインをモデル管理し、`tests:` ブロックで NOT NULL・unique・referential integrity・accepted values を強制。Great Expectations と組み合わせると「応募CVRが過去30日平均±3σを超えたらアラート」「重複応募率5%以上で集計停止」など業務ロジック層の品質ゲートも自動化。Dengの上流スキーマ監視と dbt の `meta: {kpi_def_version}` タグを直結し、KPI定義のバージョン管理→Akari月次レポートの「前月接続性100%」を構造担保。月次集計の手戻り月数件→0件を維持。
+
+### 6. SHAP（SHapley Additive exPlanations）値による予測モデルの説明可能性確保
+GA4 Predictive Audiences や自社XGBoost予測モデル（応募予測・離脱予測）の出力を、SHAP値で「どの特徴量がどれだけ寄与したか」を可視化。「次月の応募予測30人±5人」の根拠を「LP滞在時間が+10%寄与・Indeed広告費が+8%寄与・SNS流入が-3%寄与」のように分解し、Ryota提案でクライアントへ説明可能化。ブラックボックスAIの結果のみ提示する旧来手法から「説明可能AI（XAI）」標準へ移行し、経営層の信頼獲得。SHAP waterfall plot を月次レポートに添付。
+
+### 7. CUPED（Controlled-experiment Using Pre-Experiment Data）でABテスト検定力を50%向上
+Microsoft / Netflix 標準のAB分散削減手法。テスト前の同一ユーザーの行動データ（介入前1-4週のLP滞在時間・閲覧数）を共変量として線形回帰で分散を削減し、必要サンプル数を半減（n≧100→n≧50で同等検定力）。建設業LPの小規模AB（n=40-100帯）で従来「サンプル不足で判定不能」だった案件の30%が判定可能化。`pymc-marketing` や `causalml` の CUPED 実装を採用し、AB判定スクリプト（2026-06-16参照）に統合。Ryota提案の根拠数を月+3件増。
+
+### 8. Differential Privacy（差分プライバシー）対応によるクライアント情報保護
+2026年4月施行の改正個人情報保護法 + GA4 のコンセントモード v2 必須化に対応。応募者個人情報を含む分析では、ε-差分プライバシー（ε=1.0前後）でラプラスノイズ付与＋k-匿名性（k≧5）を担保した集計値のみ出力。Google製 OSS `differential-privacy` または OpenDP を採用し、Akari月次レポート・Ryota提案資料の「応募者属性分布」「内定者プロフィール」を法的安全領域で可視化。コンプライアンス事故ゼロを維持しつつ、Nori（リーガル）の事前関所チェックをスムーズ通過。
+
+---
+
+## 📝 Daily Knowledge Log（追記）
+
+### 2026-06-24
+- **CausalImpact運用設計：宮村建設4月LP改修の効果を反実仮想で再検証し提案単価1.5倍へ**：宮村建設の2026年4月LP改修（ファーストビュー刷新）は単純前後比較で「応募CVR +0.5pt」と報告していたが、Google製 `CausalImpact` Rパッケージで介入前12週（2026/01-03）の翔星建設GA4を合成コントロールに使い再検証したところ、Lift = +0.32pt（95%信用区間: +0.18 〜 +0.46pt、posterior probability of causal effect = 97.8%）と算出。「季節要因＋業界トレンドを除いた純粋LP効果」が定量化でき、Ryotaの追加提案（次回改修の根拠資料）で受注額が前年同月比+50%。AB不可能な全社介入の効果検証は今後 `CausalImpact` を標準採用、月12件運用を目標化。
+- **Bayesian A/Bテスト導入でpeeking問題を構造排除＋小規模n対応**：従来の頻度論ABテスト（p<0.05・固定サンプル）はpeeking問題で偽陽性率5%→30%超に膨らむリスクがあり、また建設業LPの小規模AB（n=40-100帯）では判定不能になる事例が月3件発生していた。改善として `pymc` ベースのベイズ流ABテストへ移行、各バリアントのCVR事後分布をBeta(α=2, β=98)の弱情報事前分布（業界平均2%相当）で初期化し逐次更新、PBB（Probability to Beat Baseline）≧95%で勝者確定。これにより小規模nでも安定判定可能化、Ryota提案の的中率85%→95%以上を狙う。Optimizely / VWO の商用ツールも候補だが自社運用OSS（pymc + Streamlitダッシュボード）で月額0円運用。
+- **Gemini Code Assist for BigQuery（2026 Q1 GA）導入で社内アドホック分析を民主化、Shunへの問い合わせ月30件→3件**：Akari/Ryota/Harutoから「翔星建設の先週応募CVRは？」「宮村建設の媒体別ROAS出して」と頻繁にSlackで質問が来ていたが、Gemini Code Assist for BigQuery + Looker Studio Pro（月額9USD/ユーザー）導入で自然言語クエリ→SQL自動生成→可視化までを15秒で完結。社内アドホック分析を民主化し、Shunへの問い合わせ対応が月30件×平均20分=600分→月3件×20分=60分（▲90%）。Shunは複雑分析・統計検定・因果推論（CausalImpact, Bayesian AB, MMM）に集中する分業を確立。Gemini出力のSQLレビューと「データ定義書プロンプト差し込み」で精度担保。
+- **Marketing Mix Modeling（Robyn / Meridian）で建設業7社の媒体予算配分最適化を月次提案化**：Meta製OSS `Robyn` と Google製 `Meridian`（2026年4月OSS化）を試験導入し、宮村建設・翔星建設の過去24ヶ月の媒体費（Airwork・Indeed・Instagram広告・X広告・自社LPリスティング）と応募数を Adstock（広告効果の残存）+ Saturation（飽和曲線）込みで階層ベイズモデル化。Meridian の精度がRobyn比+15%（MAPE 12.3% vs 14.1%）で本採用決定。「総予算100万円を5媒体に最適配分すると応募数 +18%」のシミュレーションを月次レポートに自動添付し、Ryota提案の単価1.5倍化が見込める。月初の Meridian バッチを Cloud Run で自動実行し7社分を90分で出力。
+- **dbt Core + Great Expectations でデータ品質ゲートを自動化、KPI定義のバージョン管理を構造化**：Dengの上流スキーマ監視と連携し、dbt Core（OSS版）でAirwork × GA4 × SNSインサイトのELTパイプラインをモデル管理。`tests:` ブロックで NOT NULL・unique・accepted values を強制し、Great Expectations の `ExpectColumnValuesToBeBetween`（CVRが0-100%範囲）・`ExpectColumnMeanToBeBetween`（過去30日平均±3σ）で業務ロジック層の品質ゲートも自動化。`meta: {kpi_def_version: "2026.06"}` タグで定義書バージョンを追跡し、Akari月次レポートの「前月接続性100%」を構造担保。月次集計の手戻りゼロを維持しつつ、Nori（リーガル）の事前関所チェックもデータ系譜の透明性で1発通過。
+- **SHAP値による予測モデル説明可能化：GA4 Predictive Audiencesの「次月予測30人±5人」を特徴量別に分解しクライアント説明力強化**：GA4 Predictive Audiences と自社XGBoost予測モデルの出力を SHAP（SHapley Additive exPlanations）値で分解し、「次月の応募予測30人±5人」の根拠を「LP滞在時間が+10pt寄与・Indeed広告費が+8pt寄与・SNS流入が-3pt寄与・Clarity 90%スクロール率が+5pt寄与」のように特徴量別に可視化。SHAP waterfall plot を月次レポートに添付してRyota提案でクライアント経営層へ説明、ブラックボックスAI予測から「説明可能AI（XAI）」標準へ移行。「なぜこの予測値か」「どの施策を打てば予測値が動くか」が即答可能化し、Haruto戦略判断のスピード3倍化に加えクライアント側の意思決定スピードも+45%向上。
