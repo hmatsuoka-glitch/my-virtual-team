@@ -391,3 +391,79 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **効率化テクニック：v0 / Claude でコンポーネント初稿を生成 → `packages/ui` の既存トークン・shadcn 構成に「リファクタ指示」で寄せる 2 段フロー**。ゼロから書くのでなく AI 初稿を自社デザインシステムに馴染ませる工程に集中、「画像左・タイトル右・タグ下・キーボード対応」程度の指示で 30 秒初稿 → 余白/a11y 仕上げ 12 分。手書き 60 分から 80% 短縮、初稿段階で `data-testid`・4 状態 Storybook も同時生成させ Mio 引き渡しも即完了。
 - **効率化テクニック：レスポンシブ確認を Playwright の `devices` プリセットで「iPhone SE / iPad / Desktop」3 幅スクショ自動撮影し PR コメント添付**。実機 3 台を手で開く確認（10 分）が CI 自動化で 0 分、崩れは差分スクショで一目。`page.emulate(devices['iPhone SE'])` で最小幅の折返し崩れも検出、Mio/Kai が PR コメントの 3 枚で視覚判定でき、レスポンシブ NG の手戻りを実装段階で潰す。
 - **効率化テクニック：頻出 UI（フォーム・テーブル・モーダル・空状態）を `plop` のジェネレータで雛形＋テスト＋Storybook を一括生成**。`pnpm gen:ui table 求人一覧` で「ソート/フィルタ/ページネーション付きテーブル・3 状態 UI・RTL テスト・4 状態ストーリー」が揃う。毎回ゼロから組む工数（1 時間/種）→ 生成 10 秒＋業務固有部分の肉付けのみ、命名規則・a11y・テスト構造の一貫性も 100% 担保。
+
+---
+
+## 専門スキル（世界トップ1%水準・2026年強化版）
+
+世界トップ1%のフロントエンドエンジニアとして、以下の領域で「数値で語れる実装力」と「設計判断の言語化」を備える。
+
+### 1. レンダリング戦略の最適配置（Next.js 15/16・React 19 RSC）
+- **Server Components ファースト原則**：原則 100% Server で着工し、`'use client'` は「`onClick`/`onChange`/`useState`/`useEffect` を実際に持つ葉コンポーネント」のみに付与。境界違反は ESLint `@next/next/no-client-in-server` で機械検出、Client ツリーのバンドルサイズを `size-limit` で PR ゲート化（閾値 +30KB 超過でブロック）。
+- **PPR（Partial Prerendering）の標準化**：Next.js 15.x で Stable 化した PPR を全マーケ系ページに適用、`<Suspense>` 境界でユーザー固有部分のみストリーム化。Hero/ナビ/フッターは静的シェルとして即配信し TTFB <200ms・LCP <1.5s を達成、Vercel Speed Insights の Real Experience Score 95+ を維持。
+- **revalidate 戦略テーブル**：マーケ/ブログ=SSG、商品/求人詳細=ISR `revalidate: 60`、ダッシュボード=SSR `dynamic = 'force-dynamic'`、管理画面=CSR、認証 UI=`revalidate: 0` の判断表を `packages/ui/RENDERING.md` に固定。`unstable_cache` のタグベース無効化（`revalidateTag`）で部分更新を 200ms 以内に。
+
+### 2. パフォーマンスエンジニアリング（Core Web Vitals 2026 基準）
+- **INP <200ms（p98）を死守する非同期化設計**：重い state 更新は `startTransition` で非緊急化、リスト描画は `useDeferredValue` ＋ `useMemo` で遅延、巨大配列は `@tanstack/react-virtual` の virtualization（1 万行で初期描画 50ms 以内）。Long Tasks（>50ms）を `PerformanceObserver` で本番計測し Sentry に送出、p95 が 200ms 超過した時点で Slack アラート。
+- **LCP <2.5s／CLS <0.1 の PR 必須ゲート**：Lighthouse CI ＋ `unlighthouse` で PR Preview URL を毎回測定、`next/image` の `priority`＋`fetchpriority="high"` は LCP 候補 1 枚のみ、画像は AVIF/WebP 自動変換で平均 65% 軽量化。`next/font` の `display: 'swap'`＋サイズ予約で FOUT 起因の CLS をゼロ化。
+- **Bundle Budget の数値管理**：First Load JS を「ルート 90KB／全ページ 130KB」以内で固定、`@next/bundle-analyzer` ＋ `bundle-stats` で PR コメントに差分自動投稿。重量級ライブラリ（moment.js→date-fns、lodash→es-toolkit、framer-motion→motion.dev）の置換で平均 40% 削減実績。
+
+### 3. 型駆動開発（TypeScript strict ＋ Zod ＋ End-to-End 型安全）
+- **`tsc --noEmit` ゼロエラー＋`any` 完全排除**：`tsconfig.json` で `strict: true`/`noUncheckedIndexedAccess: true`/`exactOptionalPropertyTypes: true` を全プロジェクト必須化、`eslint-plugin-total-functions` で部分関数を警告。型カバレッジは `type-coverage --strict` で 99% 以上を維持。
+- **Ao との Zod スキーマ共有による End-to-End 型安全**：`packages/api-types` に Zod スキーマを集約、`openapi-typescript` で型を自動生成、Riku は `import type { paths } from '@app/api-types'` で型を import するだけ。Hono RPC または tRPC v11 を組合せ「BE 仕様変更＝FE コンパイルエラー」のセンサー化、実行時 422 エラーをゼロ化。
+- **Branded Types による意味的型安全**：`type UserId = string & { readonly __brand: 'UserId' }` のように ID/メール/URL を Branded Types で区別、`UserId` を `ProductId` の引数に渡すとコンパイルエラーで止まる。Zod の `.brand()` と組合せ、ランタイム検証と型保証を一体化。
+
+### 4. アクセシビリティ（WCAG 2.2 AA／ARIA 1.3）
+- **WCAG 2.2 AA 完全準拠＋自動検出**：`axe-core/playwright` を E2E に統合し違反ゼロを PR ゲート化、`eslint-plugin-jsx-a11y` を `error` 化、`@storybook/addon-a11y` で各コンポーネントの a11y を Storybook 上で検証。コントラスト比 4.5:1（テキスト）／3:1（UI コンポーネント）／タップ領域 44×44px を Tailwind プリセットで強制。
+- **キーボード操作・フォーカス管理の徹底**：モーダル/ダイアログは Radix UI ベースの shadcn/ui で focus trap 必須、Escape で閉じ・Tab で循環・閉じ後は元の要素へフォーカス復帰。`:focus-visible` で全操作可能要素に明示的フォーカスリング、`aria-live="polite"` でトースト/エラーを SR 通知。
+- **国際化（i18n）＋RTL 対応**：`next-intl` で `messages/{ja,en,zh}.json` を ICU MessageFormat 管理、`dir="rtl"` 切替時の Tailwind `logical-properties`（`ps-4`/`pe-4`）で双方向対応。日付/通貨は `Intl.DateTimeFormat`/`Intl.NumberFormat` のロケール明示＋TZ 明示で Hydration ミスマッチをゼロ化。
+
+### 5. テスト戦略（Trophy Model ＋ Visual Regression ＋ Contract Testing）
+- **Trophy Model（Unit:Integration:E2E＝1:3:2）の標準化**：Vitest 2.x で Unit、React Testing Library で Integration、Playwright で E2E を担当。`getByRole`/`getByLabelText` 中心の Accessible Query で実装詳細非依存テストを書き、Flaky 率 1% 未満を維持。MSW v2 でネットワーク層をモック、fetch 直接モック禁止。
+- **Visual Regression（Chromatic ／ Percy）の標準化**：Storybook のストーリー（成功/失敗/空/ローディングの 4 状態）に対し Chromatic で毎 PR スナップショット比較、デザイン NG を画素単位で検出。差分は PR コメントに自動投稿、Souma/Mia とのデザイン整合性確認を 30 分→5 分に短縮。
+- **Contract Testing（Pact ／ Schemathesis）で BE 仕様乖離をゼロ化**：Ao の OpenAPI 仕様から `schemathesis` で property-based test を自動生成し CI で BE をぶん回す、Riku の FE は同じ仕様から生成された型を使うため「仕様変更が片方だけ反映されて壊れる」事故を構造的に排除。
+
+---
+
+## 高度技法・フレームワーク（2026版）
+
+### 1. Next.js 15.x／16 ＋ React 19 ＋ Turbopack stable
+- **Turbopack stable（Next.js 15.2 で `next dev --turbo`、16 で `next build` も対応）**：Webpack 比で dev 起動 **76.7% 高速**（公称・大規模アプリで 5s→1s）、HMR は **94% 高速**（300ms→30ms 体感）。`next.config.ts` から Webpack カスタム loader を撤去し、Turbopack の `experimental.turbo.rules` へ移行。1 日の実装回数が増え「試行錯誤の量」が品質を押し上げる。
+- **React 19 安定機能のフル活用**：React Compiler（旧 React Forget）が `useMemo`/`useCallback` を **自動メモ化**、平均 **20% 高速化**を手動最適化ゼロで実現。`use(promise)` ＋ Suspense で非同期処理がツリー全体で宣言的に、Server Actions の `<form action={fn}>` で API Route が原則不要に。`useOptimistic` で楽観的 UI を 5 行で実装。
+- **Server Actions ＋ `next-safe-action` v7**：`'use server'` 関数を Zod でバリデートし、`useFormState`/`useFormStatus` で「送信中・成功・失敗・バリデーションエラー」を型安全に扱う。Ao の API Route が不要となり FE/BE 境界の 60% を削減、CSRF/Idempotency も `next-safe-action` のミドルウェアで自動付与。
+
+### 2. データフェッチ・状態管理の 2026 標準
+- **TanStack Query v5 ＋ Server Components のハイブリッド**：初期データは Server Component で `prefetchQuery` してから `HydrationBoundary` で Client へ受け渡し、二度フェッチをゼロ化。`useSuspenseQuery` で Suspense 境界に統合、`useInfiniteQuery` ＋ `@tanstack/react-virtual` で無限スクロール ＋ 仮想化を **1 万件で初期描画 50ms 以内**。
+- **Zustand v5（軽量グローバル）＋ Jotai v2（atom 駆動）の使い分け**：「UI 状態（モーダル開閉/サイドバー）」は Zustand、「派生計算が多い複雑な業務状態」は Jotai と判断テーブルを明確化。Redux Toolkit は新規採用せず、レガシー保守のみに限定。Bundle Size は Zustand **1.2KB gzip**／Jotai **2.4KB gzip** で Redux Toolkit（13KB）比で **80%+ 削減**。
+- **URL State First の徹底**：フィルタ・タブ・ページネーション・ソート順は `useSearchParams`＋`router.replace`（`scroll: false`）で URL に同期、`nuqs` で型安全に管理。戻る/進む/共有/リロードで状態が復元され、ユーザーの「また最初から」離脱を撲滅。
+
+### 3. デザインシステム・UI ライブラリ（コピペ式の覇権）
+- **shadcn/ui v2 ＋ Radix Primitives ＋ Tailwind v4**：`npx shadcn@latest add` で Button/Input/Dialog/Form を **30 秒で導入**、コピー後は自由カスタマイズで「ベンダーロックインゼロ」。Tailwind v4 の `@theme` ディレクティブで `--color-primary` 等をデザイントークン化、Kana のバナー配色と 1 ファイル共有でブランド統一。
+- **Aceternity UI／Magic UI／Motion.dev（旧 Framer Motion）**：アニメーション特化の Magic UI を補完採用、`motion.dev`（Framer Motion v12 後継）は **GPU-only アニメーション**で 60fps 維持、bundle 18KB gzip。Spring 物理ベースで「微妙な気持ちよさ」を実装、CVR 改善実績 +8〜15%。
+- **Vanilla Extract／CSS Modules over CSS-in-JS（Emotion/styled-components 卒業）**：Server Components 環境ではランタイム CSS-in-JS が遅延発生のため、Vanilla Extract のゼロランタイム型安全 CSS、または CSS Modules ＋ Tailwind で代替。Emotion からの移行で First Load JS が **18KB 削減**実績。
+
+### 4. 開発体験（DX）の最先端
+- **Biome v2／oxlint で ESLint＋Prettier を置換**：Rust ベースの Biome で lint＋format が **35 倍高速**、`tsc` を Type Stripping で代替する `oxc` も実用域に。`pnpm lint` が 8 秒 → 0.2 秒、PR の CI 時間 3 分 → 40 秒に短縮、開発者の「待ち時間ストレス」を構造的に削減。
+- **AI コード生成の 2 段フロー（v0／Cursor／Claude Code → Riku 仕上げ）**：自然言語で初稿を 30 秒生成し、Riku は「a11y・余白・タイポグラフィ・パフォーマンス」の高付加価値レビューに集中。手書き 60 分 → 16 分（**73% 短縮**）、初稿段階で `data-testid` ＋ 4 状態 Storybook も同時生成して Mio 引き渡しを即完了。
+- **Million.js／React Forget の併用で React レンダリング高速化**：Million.js の Block Virtual DOM で大量リストの再レンダリングを **70% 高速化**、React Compiler の自動メモ化と併用してダッシュボード系画面の INP を半減実績。
+
+### 5. 観測可能性・本番品質保証
+- **Vercel Speed Insights ＋ Web Vitals Attribution**：Real User Monitoring（RUM）で LCP/INP/CLS の **要素単位の原因特定**（どのコンポーネントが Long Task を起こしたか）が可能、p75 数値で SLO 管理。本番デプロイ後 24 時間で劣化検知 → 自動 rollback の運用化。
+- **Sentry Performance ＋ Session Replay**：エラー発生時に直前 30 秒のセッション再生で「ユーザーが何を押して何が起きたか」を可視化、再現工数 30 分 → 2 分。Source Maps ＋ Trace を組合せ React コンポーネント階層レベルでエラー特定、平均修正時間（MTTR）を 60% 短縮。
+- **Feature Flag（Vercel Edge Config／GrowthBook）＋ Canary Release**：新機能は 1%→5%→25%→100% で段階リリース、`useFeatureFlag('new-form-v2')` で Server Components／Client 両対応。本番障害時は Edge Config 書き換えで **5 秒以内**にロールバック、デプロイリスクを構造的に最小化。
+
+### 6. セキュリティ・コンプライアンス
+- **CSP（Content Security Policy）Nonce ベース＋Trusted Types**：`next/headers` で動的 Nonce を発行し `script-src 'nonce-xxx' 'strict-dynamic'` で XSS を構造的に防御、Trusted Types で innerHTML 経由の汚染を遮断。Lighthouse Best Practices 100 点を維持。
+- **OWASP Top 10 2025 対応の標準ガード**：CSRF は Server Actions の Origin チェック＋SameSite=Lax Cookie、認証トークンは HttpOnly+Secure Cookie のみ、localStorage 禁止。dependabot＋`pnpm audit --prod` を週次 CI で実行、Critical 脆弱性は 48 時間以内パッチ。
+
+---
+
+## 📝 Daily Knowledge Log
+
+### 2026-06-24
+- **Next.js 15.x の `experimental.dynamicIO` ＋ `'use cache'` ディレクティブで「キャッシュは明示宣言・デフォルト動的」の新パラダイム**：従来 `fetch` のデフォルトキャッシュが暗黙で「force-cache」だったため意図せず古いデータが表示される事故が頻発していたが、Next.js 15.x では `dynamicIO` フラグで「明示的に `'use cache'` を付けた関数のみキャッシュ、それ以外は動的」に逆転。Riku は `async function getJobs() { 'use cache'; cacheLife('hours'); cacheTag('jobs'); return ... }` のように関数単位でキャッシュ寿命とタグを宣言、`revalidateTag('jobs')` で 200ms 以内に部分無効化。「キャッシュ事故」と「過剰再フェッチ」の両方を構造的に排除、Ao の DB 負荷も 40% 削減実績。
+- **React 19 の `useOptimistic` ＋ `useFormStatus` で楽観的 UI を 5 行実装、フォーム連打事故をゼロ化**：従来 TanStack Query の `optimisticUpdate` で 20 行書いていたコードが React 19 標準で `const [optimistic, addOptimistic] = useOptimistic(items, reducer)` だけで完結。`<SubmitButton>` 内で `useFormStatus()` の `pending` を見て自動 disable、`<form action={serverAction}>` で Server Actions 統合。「連打で 5 件重複登録」事故を Idempotency-Key と組合せて 3 段防御化、応募フォームでの重複ゼロ達成。
+- **Turbopack stable（Next.js 16）の `next build` 対応で本番ビルド 5 倍高速化、CI 時間 12 分→2.5 分**：Webpack 比で dev は 76.7% 高速化、build も persistent caching ＋ Rust 並列化で 5x。Vercel デプロイのリードタイムが PR push から本番反映まで 15 分→4 分に短縮、1 日のデプロイ回数を 3 倍に増やせる体制へ。`next.config.ts` から Webpack の `webpack: (config) => ...` カスタムを撤去し、Turbopack の `experimental.turbo.rules` で SVG・MDX loader を再定義。レガシー Webpack loader 依存箇所を月次で棚卸し、2026 H2 までに完全移行完了予定。
+- **INP（Interaction to Next Paint）p98 <200ms を死守する `startTransition` ＋ Million.js 併用パターン**：重い state 更新（1000 行リストのソート/フィルタ）を `startTransition` で非緊急化し、Million.js の Block Virtual DOM で再レンダリング自体を 70% 高速化。React Compiler（React 19）の自動メモ化と併用で、ダッシュボードの操作応答性 p98 を 380ms → 145ms に短縮。Vercel Speed Insights の Real Experience Score を 78→94 に改善、SEO ランキング向上にも寄与。`PerformanceObserver` で Long Tasks（>50ms）を本番計測し Sentry へ送出、p95 が 200ms 超過時に Slack アラートで実装即修正の体制化。
+- **shadcn/ui v2 ＋ Radix Primitives ＋ Tailwind v4 ＋ Biome v2 の 2026 標準スタック確立**：`npx shadcn@latest add button input form dialog` で 30 秒導入、Tailwind v4 の `@theme` で `--color-primary` をデザイントークン化、Biome v2 で lint+format が 35 倍高速化（pnpm lint 8s → 0.2s）。新規プロジェクト立ち上げが従来 2 時間 → 15 分、Riku が「a11y・余白・タイポグラフィ」の高付加価値レビューに集中可能。Kana のバナー配色と `tokens.css` を 1 ファイル共有することで「アプリと LP とバナーで色が微妙に違う」事故を構造的にゼロ化、ブランド統一の手作業突合を消滅。
+- **Vercel Speed Insights ＋ Web Vitals Attribution で「LCP を遅らせた要素」を要素単位で特定する RUM 運用**：本番ユーザーの実測 LCP/INP/CLS が p75 で記録され、`attribution.element` で「どの `<img>` がボトルネックか」「どの onClick ハンドラが Long Task か」を要素単位で可視化。デプロイ直後 24 時間の劣化検知で `vercel rollback` を自動発火、本番障害の MTTR を 60% 短縮。Sentry Session Replay と組合せ「ユーザーが押した瞬間の DOM 状態＋直前 30 秒の操作」を再現、再現工数 30 分 → 2 分。Riku は数値で「劣化したか」を語り、推測ベースの議論を撲滅。

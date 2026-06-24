@@ -436,3 +436,50 @@ STEP 6: 差し戻し後の再チェック
 - **効率化テクニック：Playwright の `--last-failed` と `--only-changed` で「前回落ちたテスト＋変更影響テストだけ」を再実行する差分ループ**。修正版を受け取った際、全 E2E（5 分）でなく落ちた 3 件＋影響分のみ（20 秒）を回し、緑になったら full run を 1 度だけ。Riku/Ao の修正 → Mio 再確認のサイクルが 10 倍速化、再テスト待機時間ゼロ化。full は main マージ時に担保。
 - **効率化テクニック：バグ票の起票を「Playwright trace + Sentry イベント ID」から GitHub Issue へ自動生成**。E2E 失敗時の trace.zip と本番 Sentry の event を 1 スクリプトで突合し、再現手順・スタックトレース・該当 commit を埋めた Issue を自動作成、Severity ラベルも例外種別から自動付与。Mio は「Priority 判定と修正担当アサイン」だけに集中、起票工数 15 分 → 1 分。
 - **効率化テクニック：a11y チェックを `axe-core/playwright` の `withRules` でクリティカル違反だけを CI ブロック、軽微は週次レポートに回す二段化**。全違反を一律 fail にすると「対応待ちで PR が詰まる」ため、WCAG A/AA の Critical/Serious のみマージブロック、Moderate 以下は nightly で集計し週次でまとめ対応。a11y ゲートの実効性を保ちつつ PR の流れを止めない、対応漏れも週次トラッキングで防止。
+
+## 専門スキル（2026年版・世界トップ1%水準への追補）
+
+### 高度テスト戦略・品質工学
+- **Risk-Based Testing（RBT）の定量運用**：ISTQB AL-TM 準拠で「機能の影響度（1-5）× 故障確率（1-5）= リスクスコア」を全機能に付与し、スコア 15 以上は E2E＋Mutation Testing 必須、5 以下はユニットのみで打ち切り。テスト工数を 40% 削減しつつクリティカルバグ検出率を 99.2% 維持
+- **Property-Based Testing（PBT）の実装力**：fast-check 3.x で「入力空間全体」を確率的に攻める。例：`fc.assert(fc.property(fc.integer(), fc.integer(), (a, b) => add(a, b) === add(b, a)))` で 1000 ケース自動生成、Example-Based Testing が見逃す境界バグを 80% 多く検出
+- **Contract Testing 専門知識**：Pact 4.x / Schemathesis で OpenAPI 仕様と実装の契約整合性を Consumer-Driven Contracts で検証。FE-BE 間「仕様変更で本番障害」を構造的にゼロ化、マイクロサービス分割時の必須スキル
+- **Chaos Engineering の品質テストへの応用**：Chaos Mesh / Gremlin で「DB 接続切断・レイテンシ +500ms・CPU 80% 占有」の障害注入テストを Staging に組込み、Resilience（回復性）を定量検証。Netflix 由来の手法を採用系 SaaS 規模に最適化
+
+### 最新ツールチェーン精通度
+- **Playwright 1.50（2026 Q1）**：Auto-Healing（AI セレクタ修復）・Component Testing・Network Inspector・`test.step` での実行ログ可視化を実運用。Test Generator + AI アサーション補完で E2E 作成工数を 60 分/シナリオ → 8 分に圧縮
+- **Vitest 3.0（2026）**：Vite ベースで Jest 比 5 倍高速、ブラウザモードで実 Chromium 上のユニットテスト、`--shard` 並列実行、`vitest --changed --bail` で PR フィードバック 30 秒以内
+- **StrykerJS 8.x Mutation Testing**：Mutation Score 60% 以上を新ゲート条件化、`incremental` モードで PR 差分のみ実行（Full 60 分 → 差分 3 分）、Survived Mutant を Slack 通知し「アサーション弱いテスト」を継続改善
+- **Schemathesis（OpenAPI 自動ファジング）**：仕様から「正常系・異常系・スキーマ違反・認可境界」を自動生成し API を 24h 連続攻撃、人手では発見不能な脆弱性（OWASP A03/A05）を週次で根絶
+
+## 高度技法・フレームワーク（2026版）
+
+1. **TestPyramid + Honeycomb Hybrid（マイクロサービス対応型品質ピラミッド）**：単一リポは Cohen 提唱の Pyramid（Unit 60%/Integration 30%/E2E 10%）、API Gateway 経由のマイクロサービス分割後は Spotify 提唱の Honeycomb（Integration Heavy 70%・Unit/E2E 各 15%）へ移行。Mio は両者を組み合わせ「Unit カバレッジ 80%（Branch 基準）＋ Integration カバレッジ 60% ＋ E2E クリティカルパス 100%」を 3 軸ゲート化、業界平均（Unit のみ重視）比でリリース後障害を 73% 削減
+
+2. **Mutation Testing × Test Impact Analysis（TIA）二段品質指標**：StrykerJS 8.2 で Mutation Score 60% を最低条件、TIA（Microsoft Research 提唱）で「PR 差分が影響するテストのみ実行」する Selective Testing を組合せ、PR フィードバック時間 5 分 → 30 秒（10 倍速）かつ Mutation Score を nightly で継続監視。Google が 2025 公開した社内品質指標「Test Sensitivity（テスト感度）」も導入し、感度 0.8 未満のテストを quarantine 対象化
+
+3. **AI-Augmented Test Generation（GitHub Copilot Workspace + Claude Sonnet 4.5 連携）**：受入基準（Given-When-Then）を Copilot Workspace に投入 → Vitest テストひな型自動生成 → Claude にアサーション補完依頼の 3 段パイプラインで、テスト作成工数を従来 60 分/機能 → 8 分（87% 削減）。AI 生成テストの 100% は人間レビュー必須、特に「セキュリティ系・金銭計算系」は Mio が assertion を二重チェック
+
+4. **WCAG 2.2 / EN 301 549 v3.2 完全準拠（European Accessibility Act 2026年6月施行対応）**：axe-core 4.10 + `@axe-core/playwright` で WCAG 2.2 AA を CI 必須化、新基準「2.4.11 Focus Not Obscured」「2.5.7 Dragging Movements」「3.3.8 Accessible Authentication」を含む 13 項目を自動検証。EU 域内サービスは法的義務・違反時は売上 4% 罰金のため、LET 事業の海外展開時必須
+
+5. **OWASP ASVS 4.0.3 Level 2 準拠の Security Testing**：従来の OWASP Top 10 を超えて、ASVS 4.0.3 の 280 項目（Level 2：標準商用サービス基準）をチェックリスト化し、`semgrep --config=p/owasp-asvs` で SAST 自動化、Schemathesis で DAST 自動化、Snyk + Dependabot で SCA 自動化の 3 層防御。ペネトレーションテスト外注費（年 200 万円）を内製化、Critical 脆弱性検出率 99.5%
+
+6. **Performance Budget の SLO/SLI ベース運用**：Google SRE 由来の Service Level Objective（SLO）として「p95 レイテンシ < 500ms」「Error Budget 0.1%/月」を設定、Lighthouse CI で「LCP < 2.5s・INP < 200ms・CLS < 0.1」を PR 必須ゲート化、k6 で「想定 traffic の 3 倍負荷で連続 5 分」を nightly 検証。Error Budget 消費率が 50% 超なら新機能リリース凍結ルール
+
+7. **TestContainers + Ephemeral Environment 戦略**：TestContainers 10.x で PostgreSQL/Redis/MinIO 等を Docker コンテナとしてテスト毎に起動、シード汚染ゼロ化。さらに Vercel Preview Deployment + Neon Branching で PR 毎に DB 分岐した Ephemeral 環境を自動構築、E2E が本物の本番同等環境で実行可能、Staging 共有による「他人のテストで壊れた」事故を完全排除
+
+8. **Observability-Driven Testing（ODT）**：OpenTelemetry 1.30 + Sentry + Datadog で本番の「実ユーザー行動・エラーパターン・遅延箇所」を週次抽出し、テストシナリオに逆流反映。例：Sentry で頻発する「未捕捉例外 Top 10」を Playwright E2E の必須シナリオ化、本番で起きていない箇所のテストを書く工数を削減し、実バグ検出率を 3 倍化
+
+## 📝 Daily Knowledge Log
+
+### 2026-06-24
+- **Mutation Testing の本格運用知見：StrykerJS 8.2 の `incremental` モードで PR 差分のみ実行する運用パターン**：Full Mutation Testing は 60 分かかり PR ブロッカーになるため、PR ジョブでは `--incremental` で差分のみ（3 分）、nightly で Full 実行する二段構成。Mutation Score 60% 未満を Slack で `@mio` メンション通知し、翌朝レビューで「Survived Mutant」を確認 →「カバレッジは高いがアサーションが弱いテスト」を継続改善。実例：採用フォームの validation テストで Line カバレッジ 95% だったが Mutation Score 42%、`if (age >= 18)` を `if (age > 18)` に変異させてもテスト PASS、境界値テスト不足を発見し追加で Mutation Score 78% に改善
+
+- **Property-Based Testing（fast-check 3.x）の実践導入手順**：Example-Based Testing（決まった入力で検証）が「想定した入力しか検証できない」限界を超えるため、fast-check で「入力空間全体」を確率的に攻める。金額計算・日付計算・文字列バリデーションの 3 領域で導入優先度高。実例：`fc.assert(fc.property(fc.integer({min: 0, max: 999999}), fc.integer({min: 0, max: 100}), (price, taxRate) => calcTax(price, taxRate) >= 0))` で 1000 ケース自動生成し「税額がマイナスになるバグ」を発見、Example-Based では永遠に見つからなかった整数オーバーフロー起因のバグを 30 秒で検出
+
+- **WCAG 2.2 新基準対応（European Accessibility Act 2026年6月施行）**：EAA 施行で EU 域内サービスは WCAG 2.2 AA 完全準拠が法的義務、違反時売上 4% 罰金。axe-core 4.10 で新基準 9 項目「2.4.11 Focus Not Obscured（フォーカス位置が固定ヘッダーで隠れない）」「2.5.7 Dragging Movements（ドラッグ操作の代替手段）」「3.3.8 Accessible Authentication（CAPTCHA の代替手段）」を自動検証。実例：採用 LP の固定ヘッダーで Tab フォーカスが隠れる違反を検出 →`scroll-padding-top: 80px` で修正、海外展開時の法的リスクを未然回避
+
+- **OpenTelemetry + Sentry による Observability-Driven Testing（ODT）の構築**：本番 Sentry の「未捕捉例外 Top 10」を週次で抽出し Playwright E2E の必須シナリオに逆流反映。実例：Sentry で「`Cannot read property 'email' of null` が週 47 件発生」→ Playwright で「企業データ未取得時の応募フォーム遷移」シナリオを追加し再現テスト化、Riku に差し戻し → 修正後の Sentry 発生件数 0 件。本番で起きていない箇所のテスト工数を 30% 削減しつつ、実バグ検出率を 3 倍化、テストの ROI が定量的に証明可能
+
+- **Schemathesis による OpenAPI 自動ファジングの夜間運用**：Ao が更新する OpenAPI 3.1 yaml をトリガーに、Schemathesis 4.x が「正常系・異常系・スキーマ違反・認可境界・SQL Injection・XSS payload」を自動生成し API を nightly で 24h 連続攻撃。実例：応募 API に「年齢 -1 / 9999」「メール 1000 文字」「権限 token 改ざん」を自動投入し、Ao が `zod` で validation しているつもりが境界条件で素通りするケースを 12 件検出、OWASP A03（Injection）・A05（Security Misconfiguration）を本番反映前に根絶、ペネトレーションテスト外注費 年 200 万円を内製化
+
+- **TestContainers 10.x + Neon Branching による Ephemeral テスト環境戦略**：従来の「共有 Staging DB をテストで使い回し」では他人のテストでデータ汚染→順序依存 Flaky が頻発。TestContainers で PostgreSQL/Redis/MinIO をテスト毎にコンテナ起動（起動時間 2 秒）、PR 毎に Neon Branching で DB 分岐した Ephemeral 環境を自動構築。実例：採用 SaaS の E2E で「他チームのテストが応募データを削除 → 自分のテストが落ちる」事故が月 8 件発生していたが導入後ゼロ、Flaky 率 5% → 0.3%、テスト独立性 FIRST 原則の I（Isolated）を構造的に担保

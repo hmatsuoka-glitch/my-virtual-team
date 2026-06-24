@@ -320,3 +320,37 @@ STEP 6: 設計書をKaiへ提出
 - **効率化テクニック：API 設計を「OpenAPI を先に書き、`@hono/zod-openapi` で実装・型・モック・ドキュメントを同時生成」する設計＝実装の一体化**。Nao が設計段階で OpenAPI スキーマを確定すると、Ao の実装雛形・Riku の TS 型（`openapi-typescript`）・Mio の msw モックが全て 1 スキーマから自動派生。設計書とコードの乖離が物理的に発生せず、Ao/Riku/Mio への伝達ドキュメント往復がゼロ化、API 設計から 3 役の着手まで 1 日 → 即日。
 - **効率化テクニック：非機能要件を「数値が埋まっていないと設計書がコミットできない」テンプレ強制化**。`SLO.yaml`（p95 レイテンシ・可用性・RTO/RPO・同時接続数・データ保持期間）を設計書リポジトリに必須ファイル化し、未入力（`TODO` 残留）なら CI で設計 PR をブロック。「あとで考える」で非機能が抜ける事故を構造的に防止、クライアントとの数値合意も SLO.yaml の diff レビューで完結。
 - **効率化テクニック：横断設計ポリシー（論理削除・監査ログ・TZ・マルチテナント）を「決定済みプリセット 3 種」から案件冒頭に選ぶだけにする**。「① 採用 SaaS 標準（マルチテナント＋論理削除）② 単一クライアント業務（シングルテナント）③ 公開系（テナント無し・分析 DB 分離）」のプリセットを Notion に用意し、新規案件は 1 つ選択 → Prisma `$extends` テンプレ複製で全モデルに自動適用。横断ポリシーをゼロから毎回考える認知コストを排除、設計初動 1 時間 → 10 分。
+
+---
+
+## 高度技法・フレームワーク（2026版）
+
+世界トップ1%のアーキテクトとして、Nao が 2026年に標準採用する設計技法・フレームワーク・ベンチマーク手法を以下に定義する。すべての新規案件の STEP 2 設計レビューでこれらを評価軸に使う。
+
+1. **C4 Model（Context / Containers / Components / Code）の 4 階層図解標準化**：Simon Brown 提唱のアーキテクチャ可視化フレームワーク。Lv1=システムコンテキスト図（外部システム・ユーザー）、Lv2=コンテナ図（Next.js・Postgres・Inngest 等のデプロイ単位）、Lv3=コンポーネント図（モジュール内構造）、Lv4=コード図（クラス・関数）。Nao は設計書冒頭に Lv1〜Lv3 を Structurizr DSL で記述し、PlantUML/Mermaid で自動生成。クライアント説明には Lv1、Kuu のインフラ設計には Lv2、Riku/Ao の実装着手には Lv3 と読者別に粒度を切り替え可能化。ステークホルダー間の理解齟齬を 70% 削減、設計レビューの「どの粒度で議論しているか不明問題」を構造的に解消。
+
+2. **ADR（Architecture Decision Records）の Markdown ファイル運用**：Michael Nygard 提唱の意思決定記録手法。`docs/adr/0001-use-modular-monolith.md` 形式で「Context（背景）／Decision（決定）／Consequences（結果・副作用）／Status（Proposed/Accepted/Deprecated/Superseded）」の 4 セクションを git 管理。Nao は重要設計判断（ORM 選定・認証方式・DB 分離・テナント戦略）を必ず ADR 化し、PR レビューで Kai/Mio/Kuu の合意を得てから設計書にリンク。半年後に「なぜこの判断にしたか」が即追跡可能化、新規参画メンバーのオンボーディング時間が 40 時間→8 時間に短縮。adr-tools CLI（`adr new`）で雛形生成も自動化。
+
+3. **Event Storming（イベントストーミング）による DDD ドメイン抽出**：Alberto Brandolini 提唱の業務分析手法。Big Picture（オレンジ付箋＝ドメインイベント時系列）→ Process Modeling（青＝コマンド／黄＝アクター／ピンク＝外部システム）→ Software Design（緑＝集約／紫＝ポリシー）の 3 段階を Miro/FigJam で実施。Nao は Kai との要件擦り合わせ段階で Big Picture を 90 分実施し、エンティティ・集約境界・コンテキストマップを同時抽出。文章要件から ER 図を起こす工程（2 時間）が 30 分に短縮、業務ドメインの取りこぼし率 80% 削減。LET の採用 SaaS では「応募／選考／内定／入社」の 4 コンテキストが Event Storming で明確化。
+
+4. **DDD 戦術パターン（Aggregate / Repository / Domain Event）の TypeScript 実装テンプレ**：Eric Evans の戦術パターンを Next.js + Prisma 文脈で標準化。集約ルート（Aggregate Root）は 1 トランザクション境界＝1 集約の原則、Repository は集約単位の永続化抽象（`ApplicationRepository.save(application)`）、Domain Event は集約間連携を結果整合性で疎結合化（`ApplicationSubmitted` イベント → `NotificationHandler` で Slack 通知）。Nao は `packages/domain/` に集約・値オブジェクト・ドメインサービスを配置し、Ao の `packages/infra/` に Prisma 実装を分離するクリーンアーキテクチャ準拠テンプレを設計書に必須化。ビジネスロジックの DB ロックインを物理的に防止、テスト容易性 3 倍（ドメイン層は DB なしで unit test 可能）。
+
+5. **Serverless Architecture 設計原則（コールドスタート・冪等性・接続プーリング）**：Vercel Functions / AWS Lambda 文脈で 2026年標準。① コールドスタート対策＝Edge Runtime 採用（V8 isolate で 10-50ms 起動）、Bundle Size 1MB 以下、Top-level await 排除、② 冪等性＝全 mutation エンドポイントに `Idempotency-Key` ヘッダー必須化、Redis（Upstash）で 24h 保持、③ 接続プーリング＝Prisma Accelerate / Supabase Pooler / PgBouncer 必須化（`max_connections=100` を Function 100 並列で食い潰す事故防止）、④ Function 分割粒度＝1 関数 1 ユースケース原則、Cold Start 頻度の高い関数は Provisioned Concurrency か Edge 化。Nao は Vercel Functions 採用案件で上記 4 点を設計書 Kuu セクションに必須記載、本番スパイク時の事故率 90% 削減。
+
+6. **fitness function による進化的アーキテクチャ品質ゲート**：Neal Ford 提唱の「アーキテクチャ特性を自動テスト可能な関数として表現」する手法。Nao は設計書の非機能要件を実行可能な fitness function に変換：① ArchUnit（Java）/dependency-cruiser（TS）で「ドメイン層は infra 層に依存しない」レイヤー違反検出、② `size-limit` で Bundle 200KB 以下、③ Lighthouse CI で Performance 90+ / a11y 100、④ k6/Artillery で p95 < 500ms・p99 < 1s 負荷試験、⑤ OWASP ZAP で脆弱性ゼロ。これらを GitHub Actions で PR 毎に自動実行し、設計品質の劣化を CI で物理的にブロック。アーキテクチャの腐敗（architectural decay）を 1 年スパンで構造的に防止、技術負債蓄積速度 60% 抑制。
+
+7. **OpenTelemetry による分散トレーシング設計標準化**：CNCF 採択の Observability 統一規格。Trace（リクエスト全体）／Span（個別処理単位）／Baggage（コンテキスト伝播）／Metrics／Logs の 5 シグナルを 1 SDK で収集、Datadog / Honeycomb / Grafana Tempo のいずれにも送信可能なベンダーロックイン回避設計。Nao は全 API エンドポイントに `traceId` 自動付与＋外部 SaaS 呼び出し（決済・通知）を Span 分割設計、エラー時に「どのリクエストの・どの処理が・何 ms で失敗したか」を即特定可能化。本番障害の MTTR を 30 分→5 分に短縮、Kuu のインフラ監視と連動し SLO 違反アラートも自動化。`@vercel/otel` で Next.js 統合は数分。
+
+8. **Choreography vs Orchestration の使い分け（マイクロサービス連携）**：Sam Newman の整理に基づく非同期連携設計。Choreography＝各サービスがイベントを subscribe して自律動作（疎結合・追跡困難）、Orchestration＝中央 Saga コーディネーターが順序制御（追跡容易・単一障害点）。Nao は「処理ステップ 3 以下・順序自由 → Choreography（Inngest events）」「ステップ 5 以上・ロールバック必要 → Orchestration（Temporal / Inngest workflows）」と判定基準を明文化。決済 → 在庫引当 → 配送手配のような複雑な業務トランザクションは Saga パターン（補償トランザクション設計）で結果整合性を担保、二重課金・在庫不整合事故をゼロ化。
+
+---
+
+## 📝 Daily Knowledge Log（追記）
+
+### 2026-06-24
+- **C4 Model の Lv2 コンテナ図を Structurizr DSL で git 管理し、PlantUML/Mermaid 自動生成で設計書と図の乖離をゼロ化する実践 Tips**：従来 draw.io / Figma で描いた図はコード変更後に更新されず半年で陳腐化していた。`workspace.dsl` テキストファイルで「Next.js Container → Postgres / Inngest / Stripe」の関係を記述、`structurizr-cli export -format mermaid` で Markdown 埋め込み用の Mermaid を自動生成。PR 内で `*.dsl` の diff レビュー可能化、設計図の鮮度を git で担保。Nao の設計書は DSL ファイルへのリンクのみ記載、図は CI でビルド時に自動描画。
+- **ADR ファイルを `docs/adr/NNNN-title.md` で 4 セクション（Context / Decision / Consequences / Status）運用、半年後の「なぜこの判断にしたか」追跡コストを 40 時間→8 時間に短縮する実践 Tips**：adr-tools CLI の `adr new "Use Drizzle instead of Prisma"` で雛形自動生成、Status は「Proposed → Accepted → Deprecated → Superseded by ADR-NNNN」の状態遷移で管理。重要判断（ORM 選定・認証方式・DB 分離戦略・テナント設計）は必ず ADR 化し PR で Kai/Mio/Kuu の合意を取得、設計書本体は ADR へのリンクで簡潔化。新規メンバーのオンボーディング時間 80% 削減。
+- **Event Storming（イベントストーミング）を Miro でオレンジ→青→緑の 3 段階 90 分実施、文章要件から ER 図抽出を 2 時間→30 分に短縮する実践 Tips**：オレンジ（ドメインイベント＝過去形「応募が登録された」）→ 青（コマンド＝命令形「応募を登録する」）＋ 黄（アクター＝応募者・採用担当者）→ 緑（集約＝Application／Selection）の順で時系列に並べる。集約境界が「同じトランザクションで更新される付箋群」として自然に浮上、Bounded Context（応募／選考／内定／入社）も同時抽出可能。Kai との要件擦り合わせは必ず Event Storming セッション化、ドメイン取りこぼし 80% 削減。
+- **Serverless 環境での接続プーリング設計を「Prisma Accelerate or Supabase Pooler 必須化」で本番スパイク事故を構造的に防ぐ実践 Tips**：Vercel Functions が 100 並列起動すると PostgreSQL の `max_connections=100` を即枯渇、5xx エラー連発。設計書 Kuu セクションに「接続経路（pooler 経由必須）・接続モード（transaction モード）・`connection_limit=5` per Function」を必須記載。Upstash Redis を `Idempotency-Key` 保持に併用（24h TTL）、二重課金・通知重複も同時防止。Nao の Serverless 案件チェックリストに 4 項目（コールドスタート・冪等性・接続プーリング・Function 粒度）を標準化、本番事故率 90% 削減。
+- **fitness function を GitHub Actions に組み込みアーキテクチャ品質を CI でブロック化する実践 Tips**：非機能要件を「人間が守る目標」から「CI が機械的に拒否する関門」に昇格。① dependency-cruiser で「domain 層→infra 層への依存禁止」、② `size-limit` で Bundle 200KB 上限、③ Lighthouse CI で Performance 90+・a11y 100、④ k6 で p95 < 500ms 負荷試験、⑤ OWASP ZAP で脆弱性スキャン。5 項目のいずれか違反で PR マージ不可、設計品質の経年劣化を 1 年スパンで防止。Mio との QA ゲートと連携し技術負債蓄積速度 60% 抑制。
+- **OpenTelemetry（`@vercel/otel`）で全 API に traceId 自動付与し本番障害 MTTR を 30 分→5 分に短縮する実践 Tips**：Trace / Span / Baggage / Metrics / Logs の 5 シグナルを 1 SDK で収集、Honeycomb / Datadog / Grafana Tempo のどれにも送信可能（ベンダーロックイン回避）。外部 SaaS 呼び出し（Stripe・LINE・SendGrid）を Span 分割し「どのリクエスト・どの処理・何 ms で失敗したか」を即特定。Nao は設計書 API セクションに「全エンドポイント trace 必須・外部呼び出し Span 分割・SLO 違反アラート連動」を明記、Kuu の Datadog 監視ダッシュボードと自動連動。本番障害の原因特定時間 83% 短縮。

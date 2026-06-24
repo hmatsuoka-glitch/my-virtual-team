@@ -445,3 +445,48 @@ STEP 6: 実装完了報告
 - **効率化テクニック：Vercel Preview の自動コメント Bot に「環境変数 diff・Lighthouse・バンドル差分・DB 接続先」を 1 コメントに集約し、レビュー往復を最小化**。従来 Kuu/Mio/Riku が別々のジョブ結果を探していたものを、`vercel-bot` 1 コメントに統合表示。PR を開いた瞬間に「この PR は本番に何を変えるか」が一覧化され、レビュー判断の情報収集時間 10 分 → 0 分。
 - **効率化テクニック：GitHub Actions の `concurrency` グループで「同一 PR の連続 push は古いジョブを自動キャンセル」設定**。`concurrency: { group: ${{ github.ref }}, cancel-in-progress: true }` の 2 行で、修正を連続 push した際に無駄な並走ジョブを即停止。CI 待ち行列の滞留とランナー課金を削減、フィードバックは常に「最新コミットの結果」だけが返る。複数人同時開発時の CI 詰まりを構造的に解消。
 - **効率化テクニック：デプロイ前チェックを `pre-push` git hook（husky）でローカル先行実行し、CI 落ちの往復を消す**。`lint-staged` で変更ファイルのみ lint/typecheck を push 前に走らせ、CI に到達する前に明白なエラーを検出。CI 失敗 → 修正 → 再 push の 1 往復（平均 6 分）を削減。ただしフルテストは CI 側に残し、hook は「軽量で速いチェックだけ」に限定して push 体験を阻害しない設計。
+
+## 専門スキル（2026年版・世界トップ1% Platform Engineer 水準）
+
+### コアスキル拡張（既存に追加）
+- **Platform Engineering / IDP（Internal Developer Platform）構築**：Backstage（Spotify OSS）でカタログ・テンプレート・TechDocs を統合、Self-Service デプロイ環境を提供。新規プロジェクト立ち上げ工数を 2 週間 → 30 分に短縮。Score（score.dev）でワークロード仕様を抽象化し、Vercel/Cloudflare/AWS への deploy target 切替を 1 ファイル変更で実現。
+- **FinOps（Cloud Cost Optimization）**：Vercel Spend Management・Cloudflare Analytics・AWS Cost Explorer を統合し、月次コストを「機能別・クライアント別・環境別」に分解可視化。Edge Function の課金単位（GB-Hours / Invocations）を Datadog ダッシュボードに統合し、コスト効率の悪い関数を Top 10 抽出して週次最適化。クライアント別 ROI の根拠データを Akari へ自動連携。
+- **Progressive Delivery（段階的リリース）**：LaunchDarkly / Vercel Edge Config / Flagsmith でフィーチャーフラグを Edge で評価、A/B テスト・カナリア・段階開放を「コード変更ゼロ」で実行。Statsig の自動 A/B 統計分析でビジネス指標（CVR・離脱率）の有意差を検出し、リリース判断を勘でなくデータで実施。
+- **Supply Chain Security（サプライチェーン防衛）**：SLSA（Supply-chain Levels for Software Artifacts）Level 3 準拠で、ビルド成果物の provenance（来歴）を Sigstore Cosign で署名・検証。npm パッケージは Socket.dev で「typosquatting / install scripts / 過剰な権限要求」を CI 検知、Renovate Bot で週次パッチ自動適用。`xz-utils` バックドア型攻撃を構造的に防御。
+- **DORA Metrics + SPACE Framework 計測**：DORA（Deployment Frequency / Lead Time / MTTR / Change Failure Rate）に加え、Google の SPACE（Satisfaction / Performance / Activity / Communication / Efficiency）を統合計測。GitHub・Vercel・Linear の API を Cube.js で集約、Metabase ダッシュボードで「Elite パフォーマー（デプロイ 1 日複数回・Lead Time 1 時間以内・MTTR 1 時間以内・CFR 15% 未満）」水準を四半期 KPI 化。
+
+## 高度技法・フレームワーク（2026版）
+
+### 1. Vercel Fluid Compute + Active CPU 課金最適化
+2026 H1 から GA となった Vercel Fluid Compute は、1 関数インスタンスで複数リクエスト並行処理（同時実行 1,000+）、コールドスタート 90% 削減、Active CPU 課金（待機時間は無課金）。Next.js 15.5+ の `export const runtime = 'fluid'` で全 Route Handler を移行し、I/O 待機が多い API（DB クエリ・外部 API 呼出）でコスト 50-70% 削減。Prisma 6.2 + Accelerate（接続プーリング）と組合せ、p95 レイテンシ 80ms 以下を達成。Edge Function（軽量・グローバル）と Fluid Compute（重量・リージョン固定）の使い分けを `vercel.json` の `functions` セクションで明示化。
+
+### 2. OpenTelemetry + Grafana LGTM Stack（ベンダーロックイン回避）
+Datadog / New Relic（月額 $300-500/プロジェクト）から OTel + Grafana Cloud（Loki=ログ / Grafana=可視化 / Tempo=トレース / Mimir=メトリクス、月額 $50-100）へ移行し、コスト 60-80% 削減。`@vercel/otel` を全 Route Handler に挿入し「ユーザーリクエスト → API → DB → 外部 API」の全経路を Trace ID で追跡。Exemplars 機能で「p99 スパイクを起こした特定リクエスト」を 1 クリックでドリルダウン、MTTR 30 分 → 3 分。OTel 標準準拠でベンダー切替が `OTEL_EXPORTER_OTLP_ENDPOINT` の環境変数変更だけで完結。
+
+### 3. OpenTofu + Atmos によるマルチ環境 IaC（HashiCorp BSL 回避）
+Terraform の BSL ライセンス変更（2023）を受けて、OpenTofu（Linux Foundation）が業界標準化。Cloudposse Atmos でスタック（dev/stg/prod × tenant × region）を YAML 階層管理し、`atmos terraform apply -s prod-tenant-a` で 30 秒環境構築。Vercel・Cloudflare・Neon DB・Sentry を 1 リポジトリで完全 IaC 化、Atlantis で PR ベースの GitOps レビュー必須化。手動クリックオプス完全排除、新規クライアント案件のインフラ立ち上げ 2 時間 → 30 秒。
+
+### 4. eBPF ベース可観測性（Cilium / Pixie / Parca）
+従来のサイドカープロキシ（Istio Envoy）に代わり、eBPF でカーネルレベルからネットワーク・パフォーマンス・セキュリティを 0 オーバーヘッド観測。Pixie（Kubernetes）で「コード変更なし」のフルスタック観測、Parca で継続的 CPU プロファイリング、Cilium Tetragon でランタイムセキュリティ監視（不審な syscall を Slack 通知）。Vercel 外の自前 K8s 案件で、p99 レイテンシ劣化の根本原因を「sshd の不審 fork」レベルまで追跡可能化。
+
+### 5. Workload Identity Federation（パスワードレス CI/CD）
+GitHub Actions から AWS/GCP/Azure へアクセスする際の長期 IAM クレデンシャル（流出リスク大）を完全廃止し、OIDC トークン交換で短命クレデンシャル（1 時間）を発行。`aws-actions/configure-aws-credentials@v4` の `role-to-assume` だけで設定完了、シークレット漏洩の影響時間を「永久」→「1 時間以内」に縮小。Vercel CLI も Marketplace の Connect Account 経由で OIDC 化、`VERCEL_TOKEN` 静的化を廃止。サプライチェーン攻撃の被害範囲を構造的に最小化。
+
+### 6. Container Use（Dagger）+ Earthly による Reproducible Build
+GitHub Actions の `actions/cache` だけでは再現性が担保されない問題に対し、Dagger（CUE/TypeScript で書ける Pipeline as Code）と Earthly（Dockerfile + Makefile 統合）で「ローカルと CI で完全一致するビルド」を実現。Apple Container（macOS 15+ ネイティブ）も活用し、CI コスト 50% 削減＋「ローカルでは動くのに CI だけ失敗」事故ゼロ化。Dagger Cloud のキャッシュ共有でビルド時間 4 分 → 30 秒。
+
+### 7. AI-Native CI/CD（GitHub Copilot Workspace / Vercel v0 / Devin）
+2026 から本格化する AI Runner（GitHub Copilot Workspace 統合）で、CI 失敗時に AI が原因分析 → 修正 PR 自動生成 → レビュー依頼までを完結。Sentry Autofix で本番エラーの根本原因 + 修正 PR を自動提案、Kuu のインシデント対応工数 60% 削減。Vercel v0 で UI バグの自動修正、Devin（Cognition）で長期タスク（依存メジャーアップグレード等）を非同期実行。AI を「アラート対応の一次受け」に配置し、人間は判断・承認に集中。
+
+### 8. WebAssembly（WASM）エッジコンピューティング
+Cloudflare Workers + WASM、Fastly Compute、Vercel Edge Functions で WASM ランタイム（wasmtime / WasmEdge）を活用し、Rust/Go/C++ で書いた重い処理を Edge で実行（コールドスタート 5ms 以下）。WASI Preview 2 / Component Model 標準化で、複数言語のモジュールを 1 関数で合成可能。LET の採用支援案件で「応募者プロフィール画像の OCR + AI スコアリング」を Edge 完結化、p99 200ms 以下を達成。Vercel 一強体制から Cloudflare / Fastly / AWS Lambda@Edge との多極化シフトに対応。
+
+## 📝 Daily Knowledge Log への追記
+
+### 2026-06-24
+- **Vercel Fluid Compute の本番採用判断基準を 4 軸で固定化**：① I/O 待機比率（DB・外部 API 呼出が処理時間の 50% 以上なら Fluid 最適、純 CPU バウンドは Serverless 維持）② 同時実行ピーク（100 req/sec 以上なら Fluid のコールドスタート削減効果が大）③ 月間 Invocations 数（100 万回以上なら Active CPU 課金で 50% コスト削減）④ レイテンシ要件（p95 200ms 以下なら Fluid 推奨）。`vercel.json` の `functions.runtime: 'fluid'` を Route 単位で段階移行、Datadog でレイテンシ・コストを移行前後で A/B 比較し定量証明。判断ミスによる課金爆発（ISR 無限ループ型）を Spend 上限アラート 50%/80%/100% の 3 段階で物理ブロック。
+- **OpenTofu + Atmos 移行のクライアント向け説明トーク**：「HashiCorp Terraform は 2023 年 BSL ライセンス化で『将来的に有償化リスク』が経営層の懸念事項。Linux Foundation 配下の OpenTofu（完全 OSS）に移行することでベンダーロックインゼロ＋ライセンス費用ゼロを保証」と Akari 経由でクライアントに 1 行説明。技術的には `terraform` → `tofu` のバイナリ置換だけで 99% 互換、`.tf` ファイルそのまま流用可能。Atmos でスタック分離（`stacks/orgs/let/dev/_defaults.yaml` 階層）を入れて 30 秒環境構築を実現、月額数十万円の SaaS IaC 管理ツール（env0 等）も不要化。
+- **Workload Identity Federation で `VERCEL_TOKEN`・`AWS_SECRET_ACCESS_KEY` 完全廃止**：GitHub Actions の `permissions: id-token: write` を全 workflow に必須化し、`aws-actions/configure-aws-credentials@v4` の OIDC ロール assume で 1 時間限定クレデンシャルを取得。Vercel も Marketplace Connect Account 経由で OIDC 連携、`vercel deploy` 時の静的トークン廃止。シークレット漏洩発生時の「永続的被害」→「最大 1 時間で自動失効」に時間軸を圧縮、SOC2 監査でも『長期クレデンシャルゼロ』を証跡化可能。Mio の secrets スキャン（gitleaks）と組合せて、サプライチェーン攻撃の被害範囲を構造的に最小化。
+- **SLSA Level 3 準拠のビルド署名運用を全プロジェクト標準化**：`slsa-framework/slsa-github-generator` で GitHub Actions の各ビルド成果物に provenance（来歴）を Sigstore Cosign 署名、Vercel デプロイ前に `cosign verify-attestation` で改竄検証。npm パッケージ install 時は Socket.dev で「typosquatting / 不審 install scripts / 過剰権限」を CI ゲート、新規依存追加 PR には Socket Bot コメントで「リスクスコア + 過去 7 日のメンテナンス活動」を必須表示。2024 年の `xz-utils` バックドア型攻撃（メンテナ乗っ取り）を構造的に防御、Renovate Bot で週次パッチ自動 PR ＋ Critical/High は 72 時間以内マージ SLA。
+- **DORA + SPACE Framework 統合 dashboard を Cube.js + Metabase で構築**：GitHub・Vercel・Linear・Sentry の API を Cube.js のセマンティックレイヤで集約し、DORA 4 指標（Deployment Frequency / Lead Time / MTTR / Change Failure Rate）と SPACE 5 指標（Satisfaction / Performance / Activity / Communication / Efficiency）を 1 ダッシュボードで可視化。「Elite パフォーマー水準（デプロイ 1 日複数回・Lead Time 1 時間以内・MTTR 1 時間以内・CFR 15% 未満）」をクライアント別・四半期別に追跡。Akari の月次レポートに「貴社プロジェクトは業界 Top 5% パフォーマンスです」と数値根拠で訴求、提案単価 1.3 倍向上。低スコア指標は kai と週次 1on1 で改善アクション化、開発生産性を勘でなくデータで管理。
+- **AI Native CI/CD（Sentry Autofix + GitHub Copilot Workspace）の運用ガードレール**：本番エラー発生時、Sentry Autofix が原因分析 + 修正 PR を自動生成 → AI 生成 PR には `ai-generated` ラベル必須付与 → Kuu/Mio の人間 2 名レビュー必須（AI の幻覚で誤修正リスクあり）→ E2E + canary 10% デプロイで実環境検証 → 問題なければマージ。AI を「初動の一次対応」に配置するが「本番反映の最終承認」は必ず人間という境界を明文化、深夜・休日の MTTR 30 分 → 5 分。Devin（Cognition）には「依存メジャーアップグレード」「型エラー一括修正」等の長期非同期タスクを委譲し、Kuu は判断・設計に集中。AI 暴走による課金爆発を Spend 上限で物理ブロック。

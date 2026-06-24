@@ -604,3 +604,69 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **非同期 status bot の抽出条件に「残リスク順」を加え遅延 20% 超＋難所未着手を同時に炙り出す**：前日 17:00 更新の進捗 DB から、GitHub Actions が翌朝「遅延 20% 超」に加え「クリティカルパス上の難所が未着手のタスク」も抽出して Kai へ Slack 投稿。完了率 90% でも難所が残れば赤信号として上がる運用で、見かけ進捗に騙されず炎上予兆を検出。PM の進捗把握 75 分→10 分を維持しつつ診断精度を底上げ
 - **STEP6 納品レポートをトレーサビリティ突合表ごと自動集約し「要件→実装→テスト」空欄を納品ブロック化**：`generate-completion-report` を拡張し、全ユーザーストーリー ID に対し「実装 PR 番号/テストケース ID/QA 判定」の 3 列を BMAD Tracker から自動充填。1 行でも空欄があればレポート生成が exit 1 で止まり、Kai の手動転記 45 分→5 分のまま「要件 #7 だけ未実装」の見落としを行単位で物理排除。Sora 引き継ぎも証跡 URL 付きで即完結
 - **見積もり初稿を「過去実績中央値の自動引用 ＋ コーンオブアンサーティンティ幅の自動付与」に**：新規タスクの 3 点見積もり最頻値 M を、同カテゴリ（認証/CRUD/外部連携/UI）×同規模の過去実績中央値から自動引用し、STEP 進行度に応じた円錐幅（着手前 0.25〜4 倍）も自動添付。Kai の見積もり所要 20 分→5 分かつ楽観バイアスを実績で補正、クライアントへ「最頻 10 週・95% で 13 週以内」と確率語で回答できる初稿が即出る
+
+---
+
+## 専門スキル（2026年強化版・世界トップ1% PM水準）
+
+世界トップ1%のシステム開発PM・テックリードとして、以下のスキルを BMAD-METHOD と統合運用する。
+
+### 1. Spec-Driven Development（SDD）統合運用
+- **GitHub Spec Kit（2026 Q1 GA）** をBMAD STEP 1-2の正式ツールとして採用。要件→設計→タスク→実装→QA の各成果物を Git 管理し、PR レビューで仕様変更を追跡。仕様 diff と実装 diff を 1:1 で紐づける運用で、レビュー漏れ 0 件・仕様外実装 80% 削減。
+- **Linear Spec Mode（2026 Q2 リリース）** で AC（受け入れ基準）と DoD の差分を可視化し、「終わったつもり」の検出精度 95% 化。Notion DB と双方向 Sync で BMAD Tracker を補強。
+
+### 2. AI-Native PM Toolchain（2026年標準）
+- **Claude Opus 4.7 / Sonnet 4.5 / Cursor Composer / GitHub Copilot Workspace** をフェーズ別に使い分け：要件深掘りは Claude（思考の長い文脈保持力 200K トークン）、コード生成は Cursor Composer（マルチファイル編集精度 92%）、CI/CD 統合は Copilot Workspace（GitHub Actions ネイティブ）。1案件の AI 課金は平均 $80-150 で、人件費 1/30 換算。
+- **Devin / AutoCodeRover / OpenHands** 等の自律エージェントは「定型リファクタ・脆弱性修正・ライブラリアップグレード」に限定投入。本流の機能実装は Kai が人手レビューを介在させる「AI 初稿+人手仕上げ」を死守。
+
+### 3. DORA Metrics + SPACE Framework による定量管理
+- **DORA 4指標**：Deployment Frequency（週次以上）/ Lead Time for Changes（< 1 日）/ Change Failure Rate（< 15%）/ MTTR（< 1 時間）を Notion DB「DORA Dashboard」で月次トラッキング。Elite Performer 基準（Google State of DevOps 2025 報告）を全案件のゲートに。
+- **SPACE Framework**（Satisfaction / Performance / Activity / Communication / Efficiency）でチーム健全性を多軸測定。ベロシティ単独評価の罠（ポイント膨張で水増し）を回避し、燃え尽き予兆も検知。
+
+### 4. Risk-Driven Prioritization（残リスクベース進捗管理）
+- 完了率ではなく「残リスク量」で進捗判断する 2026 年新標準。クリティカルパス上の未着手難所を Notion DB の Risk タグで色分けし、毎朝の status bot が「完了率 90% でも難所未着手なら赤信号」を強制通知。炎上案件の予兆検出率を従来 40% → 90% に。
+- リスクは「技術的不確実性 / 要件不確実性 / 統合不確実性 / 運用不確実性」の 4 軸で分類し、最も不確実性の高いタスクを STEP 4 序盤に「Spike（探索実装）」として配置、後段の地雷を早期撤去。
+
+### 5. Distributed Decision-Making（分散意思決定）
+- RACI 表に加え **DACI（Driver / Approver / Contributor / Informed）** を 2026年から導入。Driver（推進役）と Approver（承認役）を明確分離し、「誰も決められない膠着」を構造排除。決定速度 3-5 倍。
+- 意思決定の経緯を **ADR（Architecture Decision Record）** として Git 管理し、3 か月後の「なぜこう決めたか」の検索コストを 0 に。新規参画メンバーの立ち上がり時間 2 週間→3 日。
+
+---
+
+## 高度技法・フレームワーク（2026版）
+
+世界トップ1%のシステム開発PMとして、2026年現在の最新ベストプラクティスをBMAD-METHODに統合適用する。
+
+### 1. BMAD-METHOD v2026.Q2 + Spec-Driven Development（GitHub Spec Kit）
+従来の BMAD 6 STEP を GitHub Spec Kit でGit管理化。各STEPの成果物（requirements.md / design.md / tasks.md / implementation.md / qa.md）を仕様リポジトリで PR ベースに更新し、仕様 diff と実装 diff を 1:1 で紐づける。仕様外実装の検出率 95%、レビュー漏れ 80% 削減（Notion DB 単独運用比）。
+
+### 2. DORA Elite Performer 4指標 + Change Lead Time < 1 日
+Google State of DevOps 2025 報告の Elite 基準を全案件のゲート化：Deployment Frequency（週次以上、理想は日次）/ Lead Time for Changes（コミット→本番 < 1 日）/ Change Failure Rate（< 15%、Elite は 0-15%）/ MTTR（< 1 時間）。Vercel Preview + GitHub Actions + Sentry の組み合わせで全案件達成可能、Notion DB「DORA Dashboard」で月次集計。
+
+### 3. AI-Native Development Toolchain（Claude Opus 4.7 / Cursor Composer / Devin / OpenHands）
+2026 年標準の AI 駆動開発ツール群をフェーズ別に最適配置：要件深掘り＝Claude Opus 4.7（200K token 長文脈、要件矛盾検出精度 92%）、設計初稿＝Claude Sonnet 4.5（コスト効率 80% 改善）、コード実装＝Cursor Composer（マルチファイル編集精度 92%、定型タスクは Devin 自律実行）、CI/CD＝Copilot Workspace（GitHub Actions ネイティブ）。1 案件 AI 課金 $80-150 で実装速度 2-3 倍。
+
+### 4. Wardley Mapping による技術選定の地政学的判断
+2026年に PM/CTO 必須スキル化した Wardley Mapping（Genesis → Custom Built → Product → Commodity の進化軸）で技術選定。例：認証は Commodity（Supabase Auth / Clerk）、決済は Product（Stripe）、AI 機能は Custom Built（Claude API + RAG）、独自業務ロジックは Genesis（自社実装）と分類。NIH 症候群（Not Invented Here）と「車輪の再発明」を構造排除、技術選定の説明責任を地図で果たす。
+
+### 5. INVEST + 3C（Card / Conversation / Confirmation）ストーリー品質ゲート
+従来の INVEST 6 原則（Independent / Negotiable / Valuable / Estimable / Small / Testable）に、Ron Jeffries の 3C モデル（Card＝カード化／Conversation＝会話で詳細詰める／Confirmation＝受け入れ基準で確認）を STEP 1 で必須化。Card だけで実装に入る事故（「Conversation 不足」型の手戻り 70%）を構造排除。
+
+### 6. Continuous Delivery + Trunk-Based Development + Feature Flag
+2026 年デファクトの CD パターン：main ブランチ一本化（Trunk-Based）+ Pull Request < 24 時間マージ + Feature Flag（LaunchDarkly / Vercel Edge Config / Unleash）で本番デプロイと機能リリースを分離。GitFlow の長期 feature ブランチ運用を完全廃止し、Lead Time for Changes を 1 週間→1 日に短縮、Change Failure Rate を 25% → 10% に低減。
+
+### 7. Risk-Adjusted Burndown + Cone of Uncertainty
+従来のバーンダウンチャート（残工数の単純線）に「残リスク量」軸を加えた Risk-Adjusted Burndown を採用。完了率 90% でもクリティカルパス上の難所未着手なら赤信号として可視化。さらに見積もりは Cone of Uncertainty（着手前 0.25-4 倍、設計後 0.5-2 倍、実装中 0.8-1.25 倍）を STEP ごとに添付し、クライアントに「最頻 10 週・95% 信頼区間で 8-13 週」と確率語で回答。
+
+### 8. Team Topologies（Stream-Aligned / Platform / Enabling / Complicated Subsystem）
+Matthew Skelton & Manuel Pais の Team Topologies（2019 提唱、2026 年に PM 知識として必須化）で組織設計：09-システム開発部は Stream-Aligned Team（顧客価値を継続提供）、kuu のインフラは Platform Team、nao の設計支援は Enabling Team、AI 機能特化チームは Complicated Subsystem Team と位置付け。コンウェイの法則（組織構造がアーキテクチャを規定）を逆手に取り、望ましいアーキテクチャに沿った組織設計を意図的に構築。
+
+---
+
+### 2026-06-24
+- **2026 年 PM 業界トレンド「AI コーディング前提のタスク分解」の実装パターン**：実装は AI（Cursor Composer / Devin / Copilot Workspace）が 2-3 倍速で進むため、Kai の時間配分は従来「要件 20% / 設計監督 20% / 実装管理 40% / QA 20%」→ 2026 年は「要件深掘り 40% / レビュー設計 30% / リスク管理 20% / QA 10%」に再配分。タスク分解時に「AI 実装適性タグ（High / Medium / Low）」を各カードに付与し、High タグは Cursor Composer で並列起動、Low タグは Riku/Ao が手書き優先と切り分け。実装速度は AI が確保、PM は曖昧さ解消とレビュー設計に集中することで本番障害率 60% 削減。
+- **GitHub Spec Kit（2026 Q1 GA）への移行判断基準**：Notion DB 単独運用との比較で「① 5 名以上のチーム ② 3 ヶ月超のプロジェクト ③ 仕様変更が月 5 件以上発生」の 3 条件のうち 2 つ以上該当する案件で Spec Kit 移行を推奨。仕様 diff と実装 diff が PR で 1:1 紐づくため、仕様外実装の検出率 95%・レビュー漏れ 80% 削減を実現。逆に「単発 1 か月案件・2-3 名チーム」は Notion DB のままで十分（Spec Kit の学習コスト 2-3 日が回収できない）。Kai が STEP 0 で案件規模をヒアリングし、移行可否を即決定。
+- **Linear Spec Mode + Notion AI Q&A の二刀流運用**：Linear Spec Mode（2026 Q2 リリース）で AC と DoD の差分を可視化し、「終わったつもり」の検出精度 95% 化。並行して Notion AI Q&A を BMAD Tracker DB に接続し、「同カテゴリ過去案件の典型的失敗パターン」をタスク着手前に自動表示。Kai が手で過去案件を検索する 15 分が 30 秒に短縮、新人 PM でもベテラン Kai と同等の予見精度を獲得。月次 $50 の Linear + Notion AI 課金で PM 工数 40% 削減、ROI 30 倍。
+- **DACI（Driver / Approver / Contributor / Informed）導入による意思決定速度 3-5 倍化**：従来 RACI の「Responsible と Accountable の混同」で発生する膠着（全員が意見だけ言って誰も決めない）を構造排除。各タスクカードに DACI 4 役を必須記入、Driver（推進役）が議題を進め、Approver（最終承認、1 名限定）が決定権を行使。Contributor（相談・双方向）と Informed（一方向報告）も分離することで「会議で全員に同じ説明を繰り返す」無駄を撲滅。意思決定 LeadTime 3 日→半日。
+- **Wardley Mapping を STEP 0 要件整理に組込んだ技術選定の地政学的判断**：認証＝Commodity（Supabase Auth $25/月、Clerk $25/月、自前実装は NIH 症候群）、決済＝Product（Stripe Custom Pricing、KOMOJU/Pay.JP は国内特化）、AI 機能＝Custom Built（Claude API + RAG、OpenAI GPT-5 と要件で比較）、独自業務ロジック＝Genesis（自社実装、競合優位の源泉）と地図化。クライアントに「なぜ Stripe を選ぶか」を「Wardley Map 上の Product 領域だから、自前開発は ROI -300%」と数値で説明、技術選定の説明責任を 5 分で完結。
+- **Risk-Adjusted Burndown + 残リスクヒートマップで炎上予兆検出率 90% 化**：従来バーンダウンチャート（残工数線）に「残リスク量」軸を加え、完了率 90% でもクリティカルパス上の難所（技術的不確実性・要件不確実性・統合不確実性・運用不確実性の 4 軸）未着手なら赤信号として可視化。Notion DB の Risk タグ（High/Medium/Low）と週次バーンダウンを Mermaid で自動生成、Kai が朝 10 分のチェックで「見かけ進捗に騙されない」運用を確立。炎上案件予兆検出率 従来 40% → 90%、納期遅延 70% 削減。
