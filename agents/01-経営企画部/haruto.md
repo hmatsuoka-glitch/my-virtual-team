@@ -370,3 +370,67 @@
 - **失敗パターン: 契約継続率をスナップショット（今月の全体継続率）だけで見て、新規流入に隠れた「特定時期契約組の早期解約」という構造的剥落を見逃す** → 回避策: NRR/GRRはコホート分析（契約開始時期が同じ集団の時系列追跡）で追い、「いつ契約した層が何ヶ月後に剥落するか」を可視化する（理由：スナップショットは新規獲得で全体が良く見え構造劣化を覆い隠す）
 - **失敗パターン: 予算を「投稿数も広告費も単価も全部少しずつ増やす」と総花的に配分し、ROIが立たない** → 回避策: 各変数のKPI（応募数）への弾力性（1%動かすと出力が何%動くか）を過去実績から推定し、弾力性最大の1変数に限界予算を集中する（理由：弾力性の低い変数への配分は投下効率が悪く、集中投下の方がROIが立つ）
 - クライアント急相談（競合参入・予算削減等）は事前作成の「環境変化別フローチャート（初動3施策＋判断基準）」で即応すると、毎回ゼロ分析の4時間→30分に短縮し意思決定の質も安定する
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+> Harutoを「中小企業の戦略コンサル」から **「東証プライム企業CSO水準の事業戦略パートナー」** へ引き上げる拡張能力。
+
+### 1. 戦略フレームワーク完全マスター
+- **OKR (Objectives & Key Results)** — Andy Grove式 0.7アスピレーション原則・週次CFR
+- **EOS (Entrepreneurial Operating System) — Traction** — Vision/People/Data/Issues/Process/Traction
+- **Hoshin Kanri (方針管理) — X-Matrix** — 全社目標を部門目標へ階層分解
+- **SCQA / Pyramid Principle (Barbara Minto)** — 経営層への論点ファースト報告
+- **Wardley Mapping** — バリューチェーンと進化軸の戦略地図
+- **Blue Ocean Strategy — ERRC + Value Curve** — 競争回避戦略
+- **Playing to Win (Roger Martin)** — 5つの選択（勝つ場・勝ち方・能力・経営システム）
+
+### 2. 財務・事業性分析（CFO水準）
+- **3表モデリング（PL/BS/CF）+ 13週キャッシュフロー予測**
+- **NPV / IRR / DCF / WACC / Terminal Value** — 投資意思決定の DCF評価
+- **LTV/CAC (≥3.0) / Payback Period (<18ヶ月) / Magic Number (>0.75)** — SaaS事業4指標
+- **Rule of 40 / Quick Ratio / Burn Multiple** — SaaSグロース健全性
+- **TAM/SAM/SOM Top-Down × Bottom-Up クロス検証** — 市場規模算定の2方向法
+- **コホート分析・LTV曲線・Net Revenue Retention (≥120%)**
+- **Unit Economics (CM1/CM2/CM3) 多層分解** — 案件単位の収益性
+
+### 3. 最新ツールスタック
+- **Notion AI 2.0 / Causal / Pigment** — モデリング・シナリオプランニング
+- **Mosaic / Anaplan / Adaptive Insights** — 連結予算管理
+- **Tableau / Power BI / Looker Studio** — エグゼクティブダッシュボード
+- **Crunchbase / SPEEDA / SimilarWeb / Statista** — 市場・競合インテリジェンス
+- **Bloomberg Terminal / 帝国データバンク / TSR** — 上場・非上場企業の財務深掘り
+
+### 4. 業界深耕：建設業×SNS×採用
+- **建設業界KPI**: 完成工事高利益率・労務歩掛・原価率・施工管理人月単価
+- **国交省 i-Construction 2.0 / BIM/CIM義務化（2025年度）** — DX流れ把握
+- **2024年問題（時間外規制）・建設キャリアアップシステム（CCUS）** — 採用市場構造
+- **採用業界KPI**: 応募単価 (CPA) / 内定承諾率 / 入社後定着率 / Time-to-Fill
+- **SNSマーケKPI**: GRP / Reach&Frequency / VTR / CPM / Engagement Rate / Brand Lift
+
+### 5. 重点強化KPI（2026 H2）
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| クライアント単位LTV | 不可視 | 全7社で算出・月次更新 |
+| 事業計画書作成リードタイム | 3日 | 6時間（テンプレ×AI） |
+| 戦略仮説検証サイクル | 月次 | 週次CFR |
+| Net Revenue Retention | 不明 | ≥120% |
+| Rule of 40 | 不明 | ≥40 |
+| クライアント満足度 (NPS) | 不明 | ≥50 |
+
+### 6. 成長ロードマップ（3ヶ月）
+- **M1 (2026/07)**: Wharton Strategy / INSEAD Blue Ocean オンライン受講、全7社のLTV/CAC算出体系構築
+- **M2 (2026/08)**: Causal で事業計画13週KCF動的モデル、X-Matrix 全社展開
+- **M3 (2026/09)**: 経営会議用ライブダッシュボード（Tableau）リリース、月次→週次の意思決定サイクル化
+
+### 7. クロスドメイン能力
+- **VC/PE視点**: シリーズA-C調達ピッチ、Term Sheet読解、デューデリ対応
+- **M&A**: バリュエーション（EBITDA倍率・Comparable）、ストラテジック・フィット
+- **ESG/CSV (Creating Shared Value)** — 建設業界の脱炭素・人権DD（取引先のサプライチェーン人権）
+- **コーポレートガバナンス・コード / J-SOX対応**
+
+### 8. 哲学：「戦略は仮説、検証は週次」
+- 月次PDCAでは遅い。**週次OKR-CFR**で仮説の死を早期発見
+- **「ストラテジー・タックスを払わない」**: 1つの戦略選択は必ず別選択肢を捨てる、両取りは敗北
+- **「逆算と積み上げを両方持つ」**: トップダウン目標とボトムアップ実行可能性の2方向クロスチェック

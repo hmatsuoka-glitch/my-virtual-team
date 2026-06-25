@@ -695,3 +695,58 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **失敗パターン: CSS グリッド（`grid-template-columns: repeat(auto-fit, minmax())`）の自動折返し挙動を、抽出時のビューポート1幅の見た目だけ固定px列数で採取する** → 回避策: STEP 4 で `grid-template-columns` が `auto-fit`/`auto-fill`+`minmax()` の関数指定か確認し、関数の場合は「最小カラム幅・列数が変わる閾値」を記録して320/768/1280の3幅（2026-06-03参照）でカラム数の変化を実測。固定列数（`repeat(3, 1fr)`）と混同してRenに渡すと、中間幅でカード列が破綻するか想定外の改行が起きる（理由: auto-fit グリッドは内容量とビューポートで列数が動的に変わり、1幅の見た目を固定列数と誤認すると再現が中間幅で崩れる）
 - **失敗パターン: `position: sticky` の追従要素を、親の `overflow: hidden`/`height` 制約を見ずに抽出し、複製版で追従が効かない** → 回避策: STEP 4 で sticky 要素を検出したら、その全祖先要素の `overflow`（hidden/auto/scroll は sticky を無効化）と `height` 制約をツリーで記録し、stacking_map（2026-06-16参照）に sticky の効く条件をセット記載。sticky プロパティ単体をコピーしてもRen実装で親の overflow 設定が変わると追従が静かに死ぬ（理由: sticky は祖先のオーバーフロー文脈に依存し、要素単体のCSSだけ見ると「なぜ追従しない」が詳細度でなく親の制約に隠れて原因不明NGになる）
 - **失敗パターン: ホバー演出を持つ要素の `transition` を採取するが、`prefers-reduced-motion` での演出抑制指定を見落とす** → 回避策: STEP 5 で `@media (prefers-reduced-motion: reduce)` ブロックの有無を生CSSで確認し、アニメ抑制指定があれば「motion-reduce対応あり」フラグでRenへ渡す。元サイトがアクセシビリティ対応で動きを抑制している設計を見落とすと、複製版が前庭障害ユーザーに過剰な動きを強制する（理由: reduced-motion 指定は通常状態のcomputed styleには現れず、メディアクエリの生CSS走査でしか検出できないため、ユーザー視点フラグ（2026-06-07参照）の motion 版として抽出段階で拾う必要がある）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. CSS解析の世界水準技法
+- **CSS Specificity計算** — Inline(1000)/ID(100)/Class(10)/Element(1) の優先度
+- **Cascade Layer (@layer) — 2022年以降標準**
+- **Container Queries (@container)** — レスポンシブの新標準
+- **Subgrid / Grid Level 2** — モダンGridレイアウト
+- **CSS Variables (Custom Properties) / Houdini** — 動的スタイル
+- **CSS Nesting (2023年標準化)** — ネスト記法
+
+### 2. CSSアーキテクチャ・命名規則完全理解
+- **BEM / SMACSS / OOCSS / ITCSS / Atomic CSS** — 設計手法
+- **Tailwind CSS / UnoCSS / Open Props** — Utility-First
+- **CSS-in-JS (Emotion / Styled Components / vanilla-extract)**
+- **Design Tokens (W3C Design Tokens Format Module)**
+
+### 3. アニメーション・モーション解析
+- **GSAP (GreenSock) — ScrollTrigger / Timeline / SplitText**
+- **Framer Motion / React Spring / Lottie**
+- **AOS (Animate On Scroll) / WOW.js / ScrollMagic**
+- **CSS Animations / Transitions / @keyframes**
+- **View Transitions API / Web Animations API (WAAPI)**
+- **Easing Functions (cubic-bezier)** — 自然な動き設計
+
+### 4. 抽出ツールスタック
+- **DevTools / Chrome Inspector** — 基本
+- **Wappalyzer / BuiltWith / WhatRuns** — 技術スタック特定
+- **CSS Stats / CSS Specificity Graph Generator**
+- **CSS Triggers / CSS Containment Analyzer** — Performance診断
+- **WhatFont / Fonts Ninja / FontFinder** — フォント特定
+- **ColorZilla / Adobe Color Wheel** — 色抽出
+- **Project Wallace** — CSS Architecture分析
+
+### 5. レスポンシブ・モバイルファースト解析
+- **Breakpoint Detection** — モバイル(<=767)/タブレット(768-1023)/PC(1024+)
+- **viewport meta tag解析**
+- **Picture/srcset Source Set** — 画像レスポンシブ
+- **Touch Target Size (W3C 44×44px推奨)**
+- **CLS / LCP / FID** — Core Web Vitals 影響評価
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| CSS抽出精度 (Ren再現一致率) | 92% | 99.5% |
+| 抽出リードタイム | 2時間 | 30分 |
+| アニメーション再現率 | 80% | 100% |
+| Container Queries等モダン対応 | 30% | 100% |
+
+### 7. 成長ロードマップ
+- **M1**: W3C CSS Specification 完全読破 (Modules Level 3-5)
+- **M2**: 抽出パイプライン自動化 (Puppeteer + CSS Stats API)
+- **M3**: Design Token形式での出力（Style Dictionary連携）

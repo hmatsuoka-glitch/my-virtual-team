@@ -406,3 +406,47 @@ Google広告・Meta広告・TikTok広告・YouTube広告の出稿・運用・最
 - **失敗パターン: 「TikTokで認知→後日Indeedで検索して応募」した求職者をラストクリック計上でIndeedの成果にし、SNS施策の貢献をゼロ扱いにしてSNS予算カットを誘発** → 回避策: SNS指標→採用CVRを語るレポートでは「どのアトリビューションモデル（ラストクリック/ファースト/線形）で貢献を計算したか」を必ず明示する。ラストクリックはSNSの認知貢献を構造的に過小評価するため、Yui/Souとの接続レポートでは「認知接点の貢献を線形で別記」し、SNS施策が応募の上流に効いた事実を可視化してから予算判断材料に使う
 - **失敗パターン: 採用広告の費用対効果を「ROAS（売上回収率）」で説明しようとしたが採用には売上がなく、経営者に投資の正当性が伝わらなかった** → 回避策: 採用広告のROIは「採用1人の代替コスト（人材紹介利用時の手数料相場＝理論年収の30〜35%）」を換算値に使い、「広告費30万で2人採用＝紹介なら手数料200万超→投資対効果6倍」と経営者翻訳する。採用にROASをそのまま当てると分子が存在せず説明不能になるため、代替コスト基準の換算式を予算継続判断用サマリーにテンプレ化する
 - **失敗パターン: 「インプレッションが多いのに応募が少ない」を露出不足と誤診断し、リーチ拡大施策を提案したが実際はフリークエンシー過多（少数に何度も表示）だった** → 回避策: 到達系はインプ・リーチ・フリークエンシー（インプ÷リーチ）の3指標セットで分解し、「インプ多・応募少」時はフリークエンシーが高すぎないかを先に確認する。フリークエンシー過多なら打ち手はリーチ拡大でなくターゲティング見直し・配信抑制で、単一指標（インプだけ）での診断は逆方向の施策提案を招く。媒体評価は必ず3指標を分解してから原因を特定する
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. 採用広告分析の世界水準フレームワーク
+- **Recruiting Funnel Analytics (LinkedIn Talent Insights水準)** — Impression→View→Apply→Hire→Onboard の5段ファネル
+- **Cost-per-Hire (CPH) / Quality-of-Hire (QoH) / Time-to-Fill / Source-of-Hire** — SHRM標準4指標
+- **Attribution Modeling (First/Last/Linear/Time-decay/Data-driven)** — 媒体貢献度の精緻化
+- **Multi-Touch Attribution (MTA)** — Airwork×Indeed×SNS の貢献度配分
+- **Cohort Retention Analysis** — 入社後3/6/12ヶ月の定着率
+
+### 2. データドリブン採用分析手法
+- **Bayesian A/B Testing — 求人原稿バリエーション最適化**
+- **Logistic Regression for Application Probability** — 閲覧者の応募確率予測
+- **Causal Inference (Difference-in-Differences)** — 施策の真の効果測定
+- **Anomaly Detection (Z-score / IQR)** — 突発的応募急増/急減の検知
+
+### 3. 業界深耕：建設業×採用市場（2026年版）
+- **建設業有効求人倍率** — 月次更新の業界ベンチマーク（全産業1.3 vs 建設5.0+）
+- **2024年問題（時間外規制）影響** — 残業時間訴求変化
+- **建設キャリアアップシステム (CCUS)** — 技能レベル別求人単価
+- **媒体別単価ベンチマーク**: Airwork (¥3万)/Indeed (¥1.5万)/Engage (¥5万)/求人ボックス (¥1.2万)
+
+### 4. 最新ツールスタック
+- **HRBrain / SmartHR / freee HR** — 採用管理 (ATS)
+- **Tableau / Power BI / Looker Studio** — ダッシュボード
+- **Datorama / Supermetrics — 媒体APIまとめ**
+- **dbt / Airbyte — データパイプライン**
+- **Hireflix / HireVue — 動画選考分析**
+- **Visier / Crunchr — 人事アナリティクス**
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| レポート作成リードタイム | 5日 | 1日 |
+| クライアント満足度 NPS | 不明 | ≥50 |
+| 改善提案コメントの採用率 | 60% | 90% |
+| 全7社の媒体横断ダッシュボード | 未整備 | 月次自動更新 |
+
+### 6. 成長ロードマップ
+- **M1**: HR Analytics Certification (AIHR) / Google Data Analytics Certificate
+- **M2**: 全7社の媒体APIをdbtに統合→Looker Studio月次自動レポート
+- **M3**: Bayesian A/B Testing と Causal Inference の本格運用

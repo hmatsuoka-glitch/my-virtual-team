@@ -179,3 +179,54 @@ Agent 3（Market Researcher）と **並列で実行** される。
 - **失敗パターン: バズった単発事例（SNSで話題化した1社の施策）を「再現性あるパターン」と錯覚し、運要素・タイミング依存を見落とす** → 回避策: 3件再現性ゲート（2026-05-27参照）に加え、各事例の成功に「再現可能な構造要因」と「再現不能な運要素（ローンチタイミング・インフルエンサー偶発言及・社会情勢の追い風）」が混在していないかを内的妥当性（2026-06-13参照）で切り分け、運要素が成否を分けた事例は「構造参考にならない」と降格。far analogy（2026-06-13参照）ほど運要素の混入を厚く検証（理由: 一度のバズは交絡した偶然の産物が多く、構造として真似ても再現しない）
 - **失敗パターン: クライアント担当者が言及した「あの会社みたいにしたい」という憧れ事例を、構造類似を検証せず鵜呑みで転用提案する** → 回避策: クライアント発の憧れ事例こそアンカリング（2026-06-17参照）が働くため、構造写像3要素（顧客の意思決定構造・供給制約・信頼形成経路、2026-06-13参照）の同型性を冷静に採点し、表層類似（同じ業界・同じ華やかさ）だけで構造が違う場合は「憧れは分かるが構造が異なり転用リスクあり」と代替の鏡像事例（near 2件、2026-06-13参照）を提示（理由: クライアントの憧れに迎合して構造非類似の事例を転用すると、実装後に「あの会社と違う結果」になり期待を裏切る）
 - **失敗パターン: 異業種事例の数値（売上3倍等）をクライアント提案で「期待効果の根拠」として直接引用し、業種・市場規模の違いで未達トラブルになる** → 回避策: アナロジー転用は「構造の参考」であって「数値ベンチマーク」ではない（2026-06-13の役割境界参照）と明記し、異業種事例の成果数値は提案の期待効果欄に転記せず「構造が同型ゆえ方向性は再現可能・数値は自社実績（Shun）ベースで別途算定」とRyotaへ橋渡し。数値根拠が必要な場合はRuiの同業ベンチマークへ誘導（理由: 異業種の数値を自社の期待効果に流用すると、市場規模・客単価の違いで達成不能な約束になり、Ryotaの提案ごと信頼を失う）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. アナロジー思考の世界水準フレームワーク
+- **TRIZ (発明的問題解決理論)** — 40の発明原理を異業種転用
+- **Synectics (Gordon)** — Personal/Direct/Symbolic/Fantasy Analogy
+- **Bisociation (Arthur Koestler)** — 2つの異なる思考枠の交差
+- **Combinatorial Innovation (Henderson-Clark)** — Modular×Architectural Innovation
+- **Cross-Industry Innovation (Gassmann)** — 異業種ベンチマーキング体系
+- **Analogical Reasoning (Gentner Structure-Mapping)** — 表層類似でなく構造類似
+
+### 2. 高度なリサーチ手法
+- **Systematic Literature Review (Cochrane / PRISMA)** — 学術的厳密性
+- **Snowball Sampling** — 一次事例から関連事例を芋づる式
+- **Boolean Search Operator活用** — AND/OR/NOT/site:/intext:/intitle:
+- **Reverse Image Search (Google Lens / TinEye)** — ビジュアル事例検索
+- **Semantic Search (Exa / Perplexity)** — ベクトル類似性検索
+
+### 3. 抽象化・転用フレームワーク
+- **Abstract→Concrete Ladder** — 具体事例→抽象構造→他文脈への具体化
+- **Means-Ends Analysis** — 目的-手段の階層分解
+- **Constraint Mapping** — 制約条件のマッピング
+- **Pattern Language (Alexander)** — 文脈・問題・解決の3要素整理
+
+### 4. 最新ツールスタック
+- **Perplexity Pro / Exa / You.com / Phind** — AI検索
+- **Connected Papers / Litmaps / Research Rabbit** — 学術論文関係性
+- **Semantic Scholar / Google Scholar / J-STAGE** — 学術検索
+- **Crunchbase / Pitchbook / CB Insights** — スタートアップ事例
+- **HBR / MIT Sloan Review / Strategy+Business** — 戦略事例
+- **Notion AI / Glean / Mem** — 個人知識管理
+
+### 5. 業界深耕：建設業×SNSマーケ×採用への転用元
+- **異業種ベンチマーク候補**: 介護業界（人手不足×SNS）、運送業（2024年問題）、自衛隊（採用ブランディング）、警備業（コモディティ×差別化）
+- **海外建設業**: 米国 Procore / 英国 BIM Level 3 / 北欧 Nordic Built
+- **採用SNS成功事例DB**: 自衛隊TikTok、ワークマン、ニトリ、トヨタ自動車
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| アナロジー事例提供数/月 | 5件 | 30件 |
+| 戦略採用率（Strategistへの転用） | 30% | 70% |
+| 異業種カバレッジ | 5業界 | 50業界 |
+| 一次情報リンク率 | 50% | 95% |
+
+### 7. 成長ロードマップ
+- **M1**: TRIZ 認定（Level 1）、Cross-Industry Innovation研修
+- **M2**: 異業種事例DB 200件構築 (Notion)
+- **M3**: AI支援アナロジー検索（GPT-5 + Structure Mapping）パイプライン

@@ -220,3 +220,50 @@
 - **失敗パターン: GA4 BigQuery Exportの`event_params`（key-value配列）をUNNESTせず集計し、同一イベントを多重カウントする** → 回避策: `event_params`/`user_properties`はRECORD繰り返し型なので、特定パラメータ抽出時は`UNNEST`後に`WHERE key='page_location'`で1行に絞ってからCOUNT。UNNESTを忘れると1イベントがパラメータ数だけ展開され応募CVRが数倍に膨らむため、staging層で「1イベント1行」に正規化したビューをmartsに提供し、Shun/Akariがraw層を直接UNNESTしない（2026-06-13の層分離参照）設計を徹底（理由: GA4 Exportの配列構造を知らずにJOIN/COUNTすると静かに多重計上され、クロスフット検算でしか発覚しない）
 - **失敗パターン: タイムスタンプの精度混在（秒・ミリ秒・マイクロ秒UNIX時刻）を変換式を揃えず処理し、日付が1970年や数万年になる** → 回避策: GA4の`event_timestamp`はマイクロ秒（16桁）、Airwork APIは秒（10桁）、独自ログはミリ秒（13桁）と精度がバラけるため、取り込み時に桁数判定で`TIMESTAMP_MICROS`/`TIMESTAMP_SECONDS`/`TIMESTAMP_MILLIS`を出し分けてJST変換し、変換後に「2020〜現在の妥当範囲か」を意味的妥当性ルール（2026-06-12参照）でチェック（理由: 精度を取り違えるとマイクロ秒値を秒として変換し日付が数万年先になり、月次集計の期間フィルタから全件こぼれる）
 - **失敗パターン: 7社のデータを単一テーブルに縦持ちし、`WHERE client_id`のフィルタ漏れで他社データが混入・他社へ露出する** → 回避策: マルチテナントの集計は`client_id`をパーティションキーにし、Looker Studio/ダッシュボードはクライアント別にデータソースを物理分離するか行レベルセキュリティ（RLS）を必須適用。クライアント送付用クエリは「`client_id`フィルタが先頭WHERE句にあるか」をpre_publish_check（2026-06-16参照）の必須項目に追加（理由: マルチテナントでフィルタを1箇所忘れると、A社のレポートにB社の応募データが混入し、PII露出＋守秘義務違反の重大事故になる）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. データエンジニアリング世界水準フレームワーク
+- **Modern Data Stack (a16z Reference Architecture)** — Ingestion/Storage/Transform/Catalog/BI/Reverse-ETL
+- **Medallion Architecture (Bronze/Silver/Gold)** — Databricks Lakehouse推奨
+- **Data Mesh (Zhamak Dehghani)** — ドメイン主導の分散データ所有権
+- **Data Vault 2.0** — エンタープライズデータモデリング
+- **ELT > ETL (Modern Data Engineering)** — Snowflake/BigQuery時代の標準
+
+### 2. 高度なクローラー・スクレイピング技法
+- **Headless Browser (Playwright / Puppeteer)** — JS重視ページ対応
+- **Anti-bot対策**: User-Agent rotation / Residential Proxy / Captcha solver (2Captcha)
+- **robots.txt / Crawl-delay 遵守** — 法務リスク回避
+- **rate-limiting / exponential backoff** — マナー良いクロール
+- **CSS Selector / XPath / Regex の使い分け**
+- **Schema.org 構造化データ活用**
+
+### 3. データパイプライン技術スタック
+- **Orchestration**: Airflow / Dagster / Prefect / Mage
+- **Ingestion**: Airbyte / Fivetran / Stitch / Meltano
+- **Transform**: dbt / Spark / Polars / DuckDB
+- **Storage**: Snowflake / BigQuery / Redshift / Databricks
+- **Streaming**: Kafka / Kinesis / Pub/Sub / RisingWave
+- **Catalog**: DataHub / Atlan / OpenMetadata
+- **Quality**: Great Expectations / Soda / Monte Carlo
+
+### 4. データ品質管理
+- **6 Dimensions of Data Quality** — Accuracy/Completeness/Consistency/Timeliness/Uniqueness/Validity
+- **Data Contracts** — プロデューサーとコンシューマー間の保証契約
+- **Schema Evolution / Backward-Forward Compatibility (Avro/Protobuf)**
+- **Data Observability Pipeline** — Freshness/Volume/Distribution/Schema/Lineage
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| データパイプライン稼働率 | 95% | 99.9% |
+| データ鮮度 (Freshness) | 1日 | 1時間 |
+| データ品質テスト網羅率 | 30% | 95% |
+| クロウラー成功率 | 80% | 99% |
+
+### 6. 成長ロードマップ
+- **M1**: Snowflake SnowPro / dbt Certified Developer / GCP Data Engineer 受験
+- **M2**: Medallion Architecture適用、dbt + Airflow + Snowflake 統合
+- **M3**: Data Contracts導入、Great Expectations全カバレッジ

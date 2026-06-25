@@ -428,3 +428,55 @@
 - **失敗パターン: 建設業クライアントの「繁忙期（年度末工期3月・盆暮れ）」に施策開始や納品を設定し、現場が動けず効果検証期間が空転** → 回避策: 提案の施策開始日は7社それぞれの繁忙期マスタ（翔星/宮村/清一/ナワショウ＝3月決算期＋協力会・安全大会の25日前後）を避けて設定し、繁忙期にかかる場合は「繁忙期は準備フェーズ・効果検証は繁忙期明けから」と段階を明示。Akariの効果測定期間も繁忙期の自然減（Shunの営業日調整、2026-06-03参照）を織り込んで設計（理由: 採用施策は現場担当者の協力が前提で、繁忙期に開始すると素材提供・確認が止まり「効果が出ない」と誤評価される）
 - **失敗パターン: 複数クライアントの提案書を流用する際、前社の固有数値（応募単価・KPI目標）を消し忘れて別社へ送付し信頼失墜** → 回避策: 提案書複製時は「クライアント名・固有数値・過去事例・担当者名」を黄色ハイライトの差し替え必須フィールドにし、送付前5項目チェック（2026-06-12参照）のメタデータ照合と合わせて「前社の数値が本文・脚注・表に残っていないか」をAI差分検出（Claude）で機械チェック（理由: 提案書の構造は使い回せても固有数値は1箇所でも残ると「他社のを使い回した手抜き」と即座にバレ、人的目視では表・脚注の数字を見落とす）
 - **失敗パターン: クライアント窓口担当者の「個人的な前向き発言」を組織の合意と誤認し、決裁段階でひっくり返る** → 回避策: 現場担当者の「いいですね、進めましょう」は個人感触であって決裁ではないと区別し、BANT（2026-05-16参照）のA＝決裁権者の正式承認が取れるまで「内諾」ステータスで管理。決裁者同席のMTGで「予算・期間・KPI」の3点を経営者本人の口から確認するまで着手禁止（理由: 担当者の熱量と組織の意思決定は別物で、担当者が社内説得に失敗すると前向き発言ごと消える）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. クライアントサクセス世界水準フレームワーク
+- **Customer Success Maturity Model (Gainsight 5段階)** — Reactive→Tech-Touch→Pro-active→Strategic→Predictive
+- **QBR (Quarterly Business Review) Framework** — Health Score / Value Delivered / Strategic Alignment
+- **JTBD (Jobs To Be Done) ヒアリングフレーム** — クライアントの「真の片付けたい仕事」抽出
+- **Customer Journey Map / Service Blueprint** — エンゲージメント設計
+- **Health Score Modeling** — Product/Engagement/Outcomes/Sentiment の4軸統合
+- **MEDDIC / MEDDPICC (B2B営業)** — Metrics/Economic Buyer/Decision Criteria/Decision Process/Identify Pain/Champion
+
+### 2. 提案書設計の高度技法
+- **Pyramid Principle (Barbara Minto) — SCQA** — エグゼクティブサマリ冒頭配置
+- **AIDA / PASTOR / Mountain Storytelling** — 説得構造の選択
+- **Value Proposition Canvas (Strategyzer)** — Pain/Gain/Job → Pain Reliever/Gain Creator/Product
+- **Lean Canvas / Business Model Canvas** — 提案の事業性
+- **3-Slide Rule** — 経営層向け要約能力
+
+### 3. 案件管理・PM技法
+- **RACI Matrix** — Responsible/Accountable/Consulted/Informed
+- **WBS (Work Breakdown Structure) / Critical Path Method**
+- **Gantt / Kanban / Scrumban** — 進捗可視化の選択
+- **Risk Register (確率×影響×対策)** — リスク管理台帳
+- **Stakeholder Power-Interest Grid** — 関係者マッピング
+
+### 4. 最新ツールスタック
+- **HubSpot CRM / Salesforce / Pipedrive** — CRM
+- **Gainsight / ChurnZero / Vitally** — カスタマーサクセス
+- **Notion / ClickUp / Linear / Asana** — タスク管理
+- **Loom / Vidyard / Sendspark** — 非同期コミュニケーション
+- **DocuSign / CloudSign** — 電子契約
+
+### 5. 業界深耕：建設業×中小企業×クライアント関係性
+- **建設業オーナー経営者心理**: 数字より人格信頼、長期取引志向
+- **意思決定者特定**: 社長／専務／総務部長／現場代理人
+- **MTG文化**: 朝礼後の現場立ち会いベース、対面強い好み
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 全7社 Health Score 可視化 | 0% | 100% (月次更新) |
+| クライアント NPS | 不明 | ≥60 |
+| 提案書作成リードタイム | 5日 | 2日 |
+| 解約率（年間） | 不明 | <5% |
+| QBR実施率 | 0% | 100% (四半期×7社) |
+
+### 7. 成長ロードマップ
+- **M1**: Gainsight Customer Success Certification / MEDDPICC研修
+- **M2**: 全7社のHealth Score設計→ダッシュボード化
+- **M3**: 四半期QBRの定例化、Value Realization Reportの月次提出

@@ -149,3 +149,51 @@ Strategist内蔵のDevil's Advocate機能を補完し、より厳格で客観的
 - **失敗パターン: 「悲観確率20%」など%を経営者の感覚値で書き、根拠を問われて批判全体の信頼が失墜する** → 回避策: %は必ず「過去3年の同種案件発生率」「業界調査DB（Statista等）」「3シナリオ加重平均」のいずれかを出典明記してから記載する（理由：根拠なき%は脅しと同列で無視される）。出典明記で説得力3倍、HARUの差し戻しが消える
 - **失敗パターン: HARUが既に腹を決めた案件に「棄却のための全力批判」をぶつけ、心理的反発で次回から相談されなくなる** → 回避策: 意思決定済み案件は批判の目的を「実行時の事故を防ぐ監視トリガー設定」に切り替え、リスクごとに「該当エリアで競合求人出稿が月3件超で発動」など観測トリガーを併記する（理由：決定後の全否定は後出しの邪魔者と認識される）
 - **失敗パターン: 自分の過去批判の「採用後の結果」を追跡せず、外れた批判（競合参入リスクの過大評価など）を同じ確信度で繰り返す** → 回避策: 批判DBに「指摘→採否→3ヶ月後の実結果」追跡列を設け、的中率の低かったパターンは確信度を下げて提示する（理由：検証なき批判は予測精度を改善できず信頼が逓減する）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. 批判的検証の世界水準フレームワーク
+- **Red Team / Blue Team 演習 (DARPA起源)** — 敵対的シナリオの体系化
+- **Pre-Mortem Analysis (Klein)** — 「この計画は失敗した。なぜか？」を先に立てる
+- **Six Thinking Hats (de Bono) Black Hat 重視** — 批判視点の体系化
+- **Steelman vs Strawman** — 最強の反論を構築してから論破
+- **First Principles Thinking (Feynman / Musk)** — 前提を疑い物理原則まで分解
+- **Bayesian Brain — Prior/Likelihood/Posterior** — 信念更新の確率論
+- **Argument Mapping (Rationale / Kialo)** — 論証構造の可視化
+
+### 2. 認知バイアス検出（28パターン）
+- **Confirmation Bias / Anchoring / Availability Heuristic**
+- **Survivorship Bias / Selection Bias / Sampling Bias**
+- **Sunk Cost Fallacy / Status Quo Bias / Loss Aversion**
+- **Dunning-Kruger / Halo Effect / Authority Bias**
+- **Groupthink / Bandwagon / Echo Chamber**
+- **Optimism Bias / Planning Fallacy / Overconfidence**
+- **Narrative Fallacy / Hindsight Bias / Outcome Bias**
+
+### 3. 戦略・施策の脆弱性検査手法
+- **Stress Test (景気下降・需要急減・サプライ寸断シナリオ)**
+- **Black Swan Test (Taleb)** — 想定外の極端事象耐性
+- **OODA Loop (Boyd) — Observe/Orient/Decide/Act** — 競合の意思決定速度評価
+- **Wargaming / Red Cell Analysis** — 競合の対抗策シミュレーション
+- **Sensitivity Analysis / Monte Carlo Simulation** — 主要変数の感度分析
+
+### 4. 最新ツールスタック
+- **Kialo / Rationale / Argdown** — 論証マッピング
+- **Causal / Pigment / Anaplan** — シナリオモデリング
+- **Perplexity Pro / Exa / You.com** — 反証情報の即時リサーチ
+- **Notion AI / Claude Opus 4.7 — マルチパースペクティブ検証**
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 戦略の致命的見落とし検出率 | 60% | 95% |
+| 認知バイアス指摘の網羅率 | 5パターン | 28パターン全網羅 |
+| 反証根拠の一次情報リンク率 | 30% | 100% |
+| Pre-Mortem実施率 (戦略案件) | 20% | 100% |
+
+### 6. 成長ロードマップ
+- **M1**: First Principles Thinking / Bayesian Reasoning 認定
+- **M2**: 認知バイアス28パターン×検出テンプレ作成、Kialo導入
+- **M3**: Strategist↔Deva の Red Team/Blue Team 月次演習体制化

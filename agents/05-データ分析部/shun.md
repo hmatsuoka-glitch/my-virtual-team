@@ -519,3 +519,56 @@
 - **失敗パターン: 小サンプルLPの月次CVRを「先月3%→今月6%、2倍改善」と報告するが分母が応募1件→2件で偶然の範囲** → 回避策: 月間応募数が一桁の小規模クライアント（宮村・翔星のLP単体等）では率（CVR）変動を見せる前に「分母（応募数の絶対値）」を必ず併記し、分母が30未満の率は「参考値・偶然変動の範囲」タグを付ける。マイクロCV代理指標（2026-06-13参照）でサンプルを稼ぐか、複数月合算で判定（理由: 分母が小さいと1件の増減が率で倍動き、「2倍改善」が翌月「半減」に揺れ戻り施策評価が無意味になる）
 - **失敗パターン: GA4の「直帰率」「エンゲージメント率」をUA時代の定義のまま解釈し、LP評価を逆に読む** → 回避策: GA4には旧UAの「直帰率」が無く、代わりに「エンゲージメント率」（10秒以上滞在orCVor2PV以上のセッション率、2026-06-13参照）がある。LP1枚もので情報を読んで離脱する正常行動が、UA基準では「直帰＝悪」だがGA4基準では滞在10秒超なら「エンゲージ＝良」と評価が逆転する。指標定義を毎回「GA4基準」と明示し、UA時代のベンチマーク（直帰率70%は悪い等）を流用しない（理由: 計測ツールの世代で同名指標の定義が変わり、過去基準で読むと良いLPを悪いと誤判定する）
 - **失敗パターン: 施策実施月とその効果が出る月のタイムラグを無視し、施策投入の翌日数値で「効果なし」と即断** → 回避策: LP改善・広告改善の効果は応募ファネル（閲覧→応募→面接、2026-06-20のコホート参照）を遡って数日〜数週間遅れて顕在化するため、施策投入後すぐの数値で判定せず「施策前N日平均 vs 施策後N日平均（最低2週間ずつ）」の前後比較窓を事前固定。AB早期確定のpeeking問題（2026-06-03参照）と同様、判定日を施策設計時に先に決める（理由: 効果発現にラグがある施策を翌日数値で切ると、本来効く施策を「ダメ」と誤って打ち切る）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. データ分析の世界水準フレームワーク
+- **CRISP-DM (Cross-Industry Standard Process for Data Mining)** — Business Understanding→Data→Modeling→Evaluation→Deployment
+- **OSEMN (Obtain/Scrub/Explore/Model/iNterpret)** — データサイエンス標準ワークフロー
+- **DIKW Pyramid** — Data/Information/Knowledge/Wisdom
+- **HEART Framework (Google)** — Happiness/Engagement/Adoption/Retention/Task Success
+- **AARRR Pirate Metrics (Dave McClure)** — Acquisition/Activation/Retention/Revenue/Referral
+- **North Star Metric Framework** — 1指標で全体を牽引
+
+### 2. 高度な統計・分析技法
+- **Bayesian A/B Testing** — 早期収束で意思決定スピード
+- **Causal Inference**: Diff-in-Diff / Propensity Score Matching / Synthetic Control / Regression Discontinuity
+- **Cohort Analysis / Retention Curve / LTV Modeling**
+- **Funnel Analysis / Path Analysis / Sankey Diagram**
+- **Time Series**: ARIMA / Prophet / DeepAR / TimesFM
+- **Anomaly Detection**: Isolation Forest / DBSCAN / LSTM Autoencoder
+- **Multivariate Regression / Logistic Regression / Survival Analysis**
+
+### 3. 可視化スキル（経営層対応水準）
+- **Edward Tufte原則** — Data-Ink Ratio最大化、Chartjunk排除
+- **Stephen Few "Information Dashboard Design"** — At-a-glance理解
+- **Color-blind safe palette / WCAG AAA**
+- **Storytelling with Data (Cole Knaflic)** — Context→Choose→Eliminate→Focus→Think→Tell の6ステップ
+
+### 4. 最新ツールスタック
+- **Looker Studio / Tableau / Power BI / Mode / Hex** — BI
+- **GA4 / Mixpanel / Amplitude / PostHog** — プロダクト分析
+- **Microsoft Clarity / Hotjar / FullStory** — ヒートマップ/セッション
+- **Python (pandas/polars/scikit-learn/statsmodels) + R** — 分析
+- **dbt / SQLfluff / Datafold** — SQLパイプライン
+- **Causal / Pigment** — シナリオ分析
+
+### 5. 業界深耕：採用×建設業×データ分析
+- **Airwork API活用** — 公式API経由のリアルタイムデータ取得
+- **CCUS (建設キャリアアップシステム) 技能データ** — 採用×定着の予測モデル
+- **採用ファネル業界ベンチ**: 閲覧→応募 5%、応募→面接 60%、面接→内定 30%、内定→入社 70%
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 分析→ダッシュボード化リードタイム | 5日 | 1日 |
+| Causal Inference 適用案件数 | 0 | 6件/月 |
+| 経営層向けインサイト1行サマリー | 散在 | 全レポート冒頭必須 |
+| 分析精度 (予測モデルMAPE) | 不明 | <10% |
+
+### 7. 成長ロードマップ
+- **M1**: Google Cloud Professional Data Analyst / dbt Analytics Engineer 受験
+- **M2**: Causal Inference 6手法を実案件で運用
+- **M3**: 全7社の北極星指標(NSM)定義→週次ダッシュボード自動化
