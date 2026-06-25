@@ -236,3 +236,51 @@
 - **失敗パターン: 商談で自社サービスの説明に終始し、相手の課題（ペイン）を言語化させないまま提案に入り、刺さらない汎用提案で失注する** → 回避策: SPIN 話法の I（示唆）・N（解決質問）で「その課題を放置すると何が起きるか」「解決したらどんな状態になるか」を相手自身に語らせ、その発言を提案の前提に据える。ウォンツ（「TikTok をやりたい」等の手段要望）に即応せず、背後のペイン（採用できず現場が回らない等）まで掘って要約返しで確定してから手段を提案。営業が価値を主張するのでなく、相手が自分の言葉で課題と効果を口にした状態を作る順序を徹底する。
 - **失敗パターン: 提案書テンプレを業種別に複製した際、前クライアントの社名・金額・実績が残ったまま送付し、信頼毀損と機密漏えい疑念を招く** → 回避策: 送付前に PDF をテキスト抽出し「禁止語リスト（旧社名・旧金額・他社実績）対 PDF 全文」を grep 一括照合してヒット件数ゼロを送付ゲート化。目視 Ctrl+F に頼らず機械照合で 1 箇所の他社名残存も構造的に検出。提案書は「クライアントが社内で回覧する」前提で、固有名詞の取り違えが致命傷になると認識し、テンプレ複製→固有名詞置換→機械チェックを送付前の必須フローに固定する。
 - **失敗パターン: 受注したクライアントを「受注済み」として放置し、更新前フォロー・追加提案を怠って、契約更新時に競合へ乗り換えられる（既存深耕の取りこぼし）** → 回避策: 既存顧客は受注がゴールでなくスタートと捉え、四半期ごとに「成果共有＋次の課題ヒアリング」の定例接点を設計。更新月の 60 日前には更新提案＋アップセル候補を準備し、チャーン抑制と NRR 向上を営業 KPI に組み込む。新規獲得は既存維持の数倍コストがかかる前提で時間配分し、Finance（支払サイト・継続課金）と連携して継続率を構造的に底上げ。受注後の沈黙が解約の最大要因と認識する。
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. B2B営業の世界水準フレームワーク
+- **MEDDPICC** — Metrics/Economic Buyer/Decision Criteria/Decision Process/Paper Process/Identify Pain/Champion/Competition
+- **Challenger Sale (Dixon-Adamson)** — Teach/Tailor/Take Control
+- **SPIN Selling (Rackham)** — Situation/Problem/Implication/Need-payoff
+- **GAP Selling (Keenan)** — Current State vs Future State
+- **Solution Selling (Eades)** — Pain Chain
+- **Account-Based Selling (ABS) — Demand Generation** — TBM (Target Buyer Mapping)
+- **Sandler Methodology** — DISC + Pain-Funnel
+
+### 2. パイプライン管理高度技法
+- **Sales Velocity = (Opportunities × Deal Size × Win Rate) / Sales Cycle Length**
+- **Pipeline Coverage Ratio** — 目標達成のための受注見込×3-5倍
+- **Stage Conversion Rate** — 各ステージの転換率分析
+- **Deal Slippage / Stalled Deal Analysis**
+- **Win/Loss Analysis** — 受注失注パターン分析
+
+### 3. CRM・営業テクノロジー
+- **HubSpot Sales / Salesforce Sales Cloud / Pipedrive / Close**
+- **Apollo / ZoomInfo / Lusha** — リードソーシング
+- **Outreach / Salesloft / Gong** — 営業エンゲージメント
+- **LinkedIn Sales Navigator** — Social Selling
+- **Calendly / Chili Piper** — 商談予約
+- **Highspot / Seismic** — Sales Enablement
+
+### 4. 業界深耕：建設業×SMB営業
+- **建設業オーナー経営者心理**: 紹介経由・長期取引・人格信頼
+- **意思決定者**: 社長／専務／総務部長／現場代理人
+- **商談文化**: 朝礼後の現場立ち会いベース、対面好み
+- **建設業向け IT投資意思決定サイクル**: 平均6ヶ月+
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| Win Rate | 不明 | 40%+ |
+| Sales Cycle Length | 不明 | 30日 |
+| Pipeline Coverage | 不明 | 3.0× |
+| ACV (Annual Contract Value) | 不明 | 増加トレンド |
+| LTV/CAC | 不明 | ≥3.0 |
+
+### 6. 成長ロードマップ
+- **M1**: Sandler Sales Mastery / Challenger Sale Workshop
+- **M2**: HubSpot Sales Hub Pro導入、MEDDPICC全案件適用
+- **M3**: AI支援営業 (Gong + GPT-5商談分析)

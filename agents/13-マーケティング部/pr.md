@@ -219,3 +219,50 @@
 - **失敗パターン: エンバーゴ（解禁日時指定／06-13記録）を実績の浅い記者にまで広く渡してフライング報道で発表をコントロールできなくなる** → 回避策: エンバーゴは実績ある記者に限定し、メール件名・本文冒頭に「解禁：YYYY/MM/DD HH:MM」を明記したうえで渡す相手を絞る（理由：エンバーゴ破りに法的拘束力はなく信頼関係ベースの慣行のため、相手を絞らないと解禁前に1社が抜け駆けし、他媒体が一斉に没にして大型発表の山場を失う。クライアント案件の節目リリースほど配布先の選別を厳格にする）
 - **失敗パターン: 危機時に安易な「ノーコメント」（06-20記録）で押し通し隠蔽印象を与えて二次炎上（06-17記録）させる** → 回避策: 言える事実は「現時点で確認できているのは〇〇」と確認済み事実で代替し、言えない理由（調査中・関係者保護等）をセットで示す（理由：ノーコメントは肯定とも否定とも取られ、求職者・取引先には「都合の悪いことを隠している」と映る。沈黙そのものが燃料になるため、事実言及なしの一次声明テンプレ／06-11記録で「言えること」を必ず1つは出す）
 - **失敗パターン: PR効果を広告換算値（AVE／06-13記録）単独で社内報告し、ポジ/ネガ文脈や信頼性プレミアムを無視して採用への波及を語れない** → 回避策: AVE単独報告を禁止し、掲載数→リーチ→指名検索リフト→採用応募数（Datの業界平均セット／06-11記録）の波及連鎖で報告する（理由：AVEは国際標準のバルセロナ原則で効果指標として否定されており、ネガ報道もポジ報道も同額換算してしまう。採用文脈のPRは最終の応募数への接続まで示して初めてROIになり、AVEだけだと「金額は大きいのに採用に効いていない」実態を覆い隠す）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. PR / 広報の世界水準フレームワーク
+- **PESO Model** — Paid/Earned/Shared/Owned Media
+- **RACE Framework (Smart Insights)** — Reach/Act/Convert/Engage
+- **Barcelona Principles 3.0** — PR効果測定の国際標準
+- **AMEC Integrated Evaluation Framework**
+- **Cision Top 100 Media Influencers**
+
+### 2. プレスリリース・メディアリレーション
+- **PR TIMES / @Press / Value Press / News2u / 共同通信PRワイヤー**
+- **海外配信**: PR Newswire / Business Wire / GlobeNewswire
+- **メディアリスト構築 (業界別 / 媒体タイプ別)**
+- **エンバーゴ / オフレコ / 取材アレンジ**
+
+### 3. 危機広報・レピュテーション管理
+- **Crisis Communication Plan** — 24時間以内対応設計
+- **Stakeholder Mapping (Power-Interest)**
+- **Holding Statement / FAQ / Spokesperson Training**
+- **Online Reputation Management (Brandwatch / Talkwalker)**
+
+### 4. デジタルPR・SNS連携
+- **Owned Media戦略 (Newsroom)**
+- **Influencer Marketing (HypeAuditor / CreatorIQ)**
+- **Social Listening (Brandwatch / Meltwater / Sprout Social)**
+- **SEO PR (バックリンク獲得)**
+
+### 5. 業界深耕：建設業×BtoB PR
+- **建設業界メディア**: 日刊建設工業新聞 / 建設通信新聞 / 日経BP
+- **採用メディア**: HRzine / 日本の人事部 / @人事
+- **SNS活用採用PR**: 自衛隊 / トヨタ / リクルート
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| プレスリリース配信本数 | 月1本 | 月4本 |
+| メディア掲載数 | 不明 | 月10件+ |
+| Earned Media Value (EMV) | 不明 | 月100万円相当 |
+| メディアリスト | 不明 | 500社 |
+
+### 7. 成長ロードマップ
+- **M1**: PRSA Accredited in Public Relations / IPRA研修
+- **M2**: PR TIMES + Brandwatch + Cision Pro統合
+- **M3**: AI支援PR (GPT-5プレスリリース生成 + 配信最適化)

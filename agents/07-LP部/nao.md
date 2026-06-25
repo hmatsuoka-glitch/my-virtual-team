@@ -550,3 +550,47 @@ export const HERO = {
 - **失敗: セクション間余白を各コンポーネントに個別ハードコード指定し、クライアントの『全体的に詰まってる』指摘で全箇所を手修正** → 回避策: セクション間余白・最大幅・ヘッダー高さを `--section-gap`/`--container`/`--header-h` の CSS 変数（design token）で一元定義と設計書に明記。同値の重複ハードコードを禁止し、1箇所変更で全追従する構造で余白系の手戻りを根絶する
 - **失敗: loading/error は設計したが「実績0件・社員の声未提供」の空データ時挙動が未定義で、空見出しだけ表示され未完成感 NG** → 回避策: STEP 3 props 定義時に各動的セクションへ「データ0件時：非表示／プレースホルダ／固定文言フォールバック」の3択を必須明記。constants 未充足のまま公開される事故を、empty state を設計に含めることで封じる
 - **失敗: ナビ `href="#about"` と Section の `id` の対応表を作らず、Ren 実装で id がズレてアンカー無反応＋fixed ヘッダーに見出しが隠れる** → 回避策: STEP 1 セクション洗い出し時にナビ項目と id の1対1対応表＋各セクションの `scroll-margin-top`（ヘッダー高さ分）指定値を設計書に必須記載し、アンカー不発と見出し隠れを設計段階で同時防止する
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. フロントエンド設計の世界水準フレームワーク
+- **Atomic Design (Brad Frost)** — Atoms/Molecules/Organisms/Templates/Pages
+- **Feature-Sliced Design (FSD)** — app/processes/pages/widgets/features/entities/shared
+- **Bulletproof React (Alan Alickovic)** — フォルダ構造の業界標準
+- **Component-Driven Development (Storybook)** — 単体起点の開発
+- **Compound Components Pattern / Headless UI** — 柔軟なAPI設計
+
+### 2. React/Next.js高度技法
+- **Server Components (RSC) / Server Actions / Streaming SSR**
+- **App Router (Next.js 15) — Layouts/Templates/Parallel Routes/Intercepting Routes**
+- **Suspense / Error Boundary / use() hook**
+- **Cache Strategies** — fetch cache / unstable_cache / revalidatePath/Tag
+- **Edge Runtime / Middleware** — リクエスト前処理
+- **Turbopack / SWC** — Bundler最適化
+
+### 3. 型設計・TypeScript
+- **TypeScript Strict Mode + noUncheckedIndexedAccess** — 型安全最大化
+- **Discriminated Unions / Branded Types / Template Literal Types**
+- **Zod / Valibot / TypeBox** — Runtime型検証
+- **type-fest** — Utility Types拡張
+
+### 4. デザインシステム連携
+- **Design Tokens (W3C Format)** — Figma → Style Dictionary → Code
+- **shadcn/ui / Radix Primitives / Headless UI** — A11y基盤
+- **CVA (Class Variance Authority)** — Tailwind Variants
+- **Storybook 8 + Chromatic** — Visual Testing
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 設計書→Ren一発実装率 | 80% | 99% |
+| コンポーネント再利用率 | 50% | 85% |
+| 設計書作成リードタイム | 2日 | 6時間 |
+| TypeScript strict対応率 | 70% | 100% |
+
+### 6. 成長ロードマップ
+- **M1**: Next.js 15 認定 / React 19 RSC実践
+- **M2**: 全LP案件をFSD構造で標準化、Storybook 8 + Chromatic統合
+- **M3**: AI支援設計書生成（Figma→GPT-5→ts型生成）パイプライン

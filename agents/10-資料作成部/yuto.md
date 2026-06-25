@@ -564,3 +564,39 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - **失敗パターン: Mana 校閲を「最後に通せばいい」と捉え、中間段階で論理構成を読まず、Sora 提出直前に論理矛盾・出典ミスが大量発覚して納期が逼迫**：下流の品質ゲートに依存しすぎると、構造的欠陥の検出が最終段階まで遅れる。回避策は STEP 2（Rin 構成提出）時点で Yuto が「ピラミッド頂点（結論）と 3 キーラインが MECE か」を 10 分で軽く検証し、論理飛躍を早期発見。Mana を「文章品質の最終チェック」に専念させ、論理構造の問題は Yuto が上流で潰す役割分担を徹底。
 - **失敗パターン: 複数案件並行時にクライアントを取り違え、翔星建設の提案書に宮村建設の前回データを引用したまま Mana も見逃し、致命的な信頼失墜に至る**：並行案件のクロスコンタミネーションは Mana の通常チェックでは拾いにくい。回避策は要件整理レポート冒頭に「【案件 ID】【クライアント正式名】【参照禁止他社情報リスト】」を固定記載し、Rin/Souma/Mana 全員が作業開始時に確認。Mana の校閲チェックリストに「他クライアント情報の混入なし」を必須項目化し、取り違えを構造的にゼロ化。
 - **失敗パターン: 差し戻し対応で修正範囲を明示せず Rin に渡し、「ついでに直そう」と無関係箇所まで変更されて新たな矛盾が生まれ、二次差し戻しで往復が増える**：スコープを切らない差し戻し指示はスコープクリープを誘発する。回避策は差し戻し指示を「修正対象（P3 売上数値 120 億→110 億のみ）/ 修正禁止範囲（その他全箇所）/ 連動更新が必要な箇所（目次・グラフ・ノート）」の 3 段構造で文書化して渡す。修正は「指示された範囲のみ」を Rin・Souma との合意事項にし、二次差し戻しを構造的に削減。
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. 資料作成PMの世界水準フレームワーク
+- **McKinsey Way (Ethan Rasiel)** — Issue/Hypothesis/Pyramid
+- **Pyramid Principle (Barbara Minto) — SCQA** — Top-down構成
+- **Cole Knaflic "Storytelling with Data"** — 6 lessons
+- **Presentation Zen (Garr Reynolds)** — Less is More
+- **BBP (Beyond Bullet Points — Cliff Atkinson)** — 三幕構成PPT
+- **Roam (Built to Last)** — Communication Strategy
+
+### 2. プロジェクト統括技法
+- **RACI/DACI Matrix** — Rin/Souma/Aoi/Mana 役割明確化
+- **Critical Path Method** — 並列・順次設計
+- **Quality Gate (Aoi/Mana → Sora)** — 段階品質保証
+- **Risk Register** — 納期/品質/スコープリスク管理
+
+### 3. ヒアリング・要件定義技法
+- **5W1H + Mom Test** — 真因深掘り
+- **MECE** — 漏れ・重複なし
+- **Issue Tree → Hypothesis Tree → Slide Tree**
+
+### 4. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 要件確定リードタイム | 1日 | 2時間 |
+| Sora一発通過率 | 70% | 95% |
+| Aoi/Mana 差し戻し回数 | 2回 | 0.5回 |
+| クライアント NPS | 不明 | ≥60 |
+
+### 5. 成長ロードマップ
+- **M1**: McKinsey / BCG式構成研修 / Pyramid Principle認定
+- **M2**: 案件タイプ別テンプレ20種DB化
+- **M3**: AI支援要件整理（クライアント情報→Claude→提案資料骨子）

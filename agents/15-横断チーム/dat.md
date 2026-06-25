@@ -244,3 +244,42 @@
 - **失敗パターン: 少数の大型案件が混ざる7社横断データでピアソン相関だけ報告し、1社の外れ値で相関を「作る/消す」** → 回避策: 分布を必ず確認し、外れ値や非線形な逓減関係（広告費と応募数等）があればスピアマン相関も併記し乖離自体を所見にする（理由：ピアソンは線形関係前提で外れ値に極端に弱く・06-13記録、1社の大型案件で相関がでっち上げられる。さらにr=0.7でもR²=0.49で分散の半分しか説明できない・06-20記録ため、相関の強さ・説明力・頑健性を三点セットで示してから因果へ進む）
 - **失敗パターン: LTVを売上ベース（客単価×継続期間）で出してCAC比較を誤り、施策に過剰投資する** → 回避策: LTVは粗利ベース×継続率の幾何級数和を割引現在価値化（06-20記録）で算出し、観測済み期間と外挿部分を分けて報告する（理由：売上ベースLTVは原価・解約率・貨幣の時間価値を無視して過大に出る。LTV/CAC比3以上が健全目安だが、コホート・06-13記録が浅いと継続期間を外挿で水増しし、回収できない獲得コストにGOを出す。浅いコホートでの外挿は必ずlimitationsに明記する）
 - **失敗パターン: 「p=0.03 だから施策が効く確率97%」と説明し、経営判断を誤った確度で動かす** → 回避策: p値は「効果がない場合に偶然これだけの差が出る確率」と正しく言い換え、金額換算ROI（05-26記録）と効果量を主役に、p値は注釈に回す（理由：p値を事後確率（効果がある確率）と取り違えるのはベイズの領域との混同で、97%効くと誤読されると効果量0.05の施策まで全社展開され工数を浪費する。横展開判断の4ゲート・05-27記録の効果量・金額・工数基準を併用し、統計的有意≠ビジネス意義を徹底する）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. 横断データ分析の世界水準フレームワーク
+- **OSEMN (Obtain/Scrub/Explore/Model/iNterpret)**
+- **CRISP-DM**
+- **DIKW Pyramid** — Data/Information/Knowledge/Wisdom
+- **HEART Framework (Google)** — Happiness/Engagement/Adoption/Retention/Task Success
+- **AARRR Pirate Metrics**
+- **North Star Metric Framework**
+
+### 2. 高度な統計・因果推論
+- **Bayesian A/B Testing**
+- **Causal Inference (Diff-in-Diff / Propensity Score / Synthetic Control / IV / RDD)**
+- **Time Series (ARIMA / Prophet / DeepAR / TimesFM)**
+- **Survival Analysis / Hazard Models**
+- **Causal Discovery (PC algorithm / NOTEARS)**
+
+### 3. ツールスタック
+- **Python (pandas/polars/scikit-learn/statsmodels/PyMC) + R + Julia**
+- **Looker Studio / Tableau / Power BI / Hex / Mode / Streamlit**
+- **dbt + Snowflake/BigQuery — Modern Data Stack**
+- **Causal / Pigment** — シナリオ分析
+- **DataChat / Hex AI** — 自然言語データ分析
+
+### 4. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 分析→意思決定リードタイム | 5日 | 1日 |
+| 因果推論案件数 | 1/月 | 6/月 |
+| 予測精度 (MAPE) | 不明 | <10% |
+| 経営層へのインサイト1行サマリー | 散在 | 全レポート冒頭必須 |
+
+### 5. 成長ロードマップ
+- **M1**: Causal Inference for Statistics (Pearl) / Bayesian Methods完読
+- **M2**: 全部署横断データマート構築 (dbt + Snowflake)
+- **M3**: AI支援分析 (GPT-5 Code Interpreter + Hex AI)

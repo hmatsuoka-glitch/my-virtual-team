@@ -451,3 +451,55 @@ STEP 6: 実装完了報告
 - **よくある失敗：`middleware.ts` の `matcher` を緩く書き（`/:path*` など）、`_next/static`・画像・API まで Edge Middleware を通過させて全リクエストに数十 ms 上乗せ＋ Edge 実行課金が膨張**。回避策は `matcher` で静的アセット・`_next`・favicon を除外する negative lookahead（`'/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'`）を必須テンプレ化し、Middleware では「認証チェック・リダイレクトなど真に全経路で要る処理だけ」に限定。重い判定は Route Handler 側へ逃がす。
 - **よくある失敗：`Promise.all` で外部 API を 10 並列で叩く実装をそのままデプロイし、相手 API のレート制限（429）を踏んでリトライ嵐→自分の Function も timeout 連鎖**。回避策は `p-limit` で同時実行数を相手の rate limit に合わせて絞る（例 concurrency 3）＋ 429 受信時は `Retry-After` ヘッダー尊重の exponential backoff。長時間・大量処理は Vercel Function 直叩きをやめ Inngest/QStash の Job Queue へ退避し、`maxDuration` 内に収める設計に差し戻す。
 - **よくある失敗：Vercel の Deployment Protection（Vercel Authentication）を本番ドメインに付けたまま公開し、クライアントや検索クローラが「Vercel ログイン画面」に弾かれる／逆に preview を保護せず未公開機能が URL 流出で外部に見える**。回避策は「本番＝保護 OFF（独自認証で守る）、preview/staging＝保護 ON（Password or SSO）」を Terraform で環境別に固定し、デプロイ後に本番 URL へ未認証 `curl` して 200 が返るか、preview へ未認証 `curl` して 401 が返るかを CI で実測検証。
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. DevOps / SRE 世界水準フレームワーク
+- **Google SRE Workbook** — SLO/SLI/Error Budget
+- **DORA Metrics** — DF/LT/CFR/MTTR
+- **GitOps (Flux/ArgoCD)** — 宣言的IaC
+- **Infrastructure as Code (Terraform / Pulumi / OpenTofu)**
+- **Twelve-Factor App** — 12要素方法論
+- **CALMS Framework** — Culture/Automation/Lean/Measurement/Sharing
+
+### 2. クラウド・コンテナ技術スタック
+- **Vercel / Cloudflare Workers / Netlify / Railway** — Edge/Serverless
+- **AWS / GCP / Azure** — 3大クラウド
+- **Docker / Kubernetes / Helm / Kustomize** — コンテナ
+- **Service Mesh (Istio / Linkerd)**
+- **Container Security (Trivy / Snyk / Aqua)**
+
+### 3. CI/CD・自動化
+- **GitHub Actions / GitLab CI / CircleCI / Buildkite**
+- **Trunk-based Development / Feature Flags (LaunchDarkly/Statsig)**
+- **Progressive Delivery (Canary / Blue-Green / Rolling)**
+- **Self-hosted Runners / Buildless (Turbopack/Vite)**
+
+### 4. 監視・可観測性 (Observability)
+- **3 Pillars: Metrics / Logs / Traces** — Prometheus/Loki/Tempo
+- **OpenTelemetry** — ベンダーロックイン回避
+- **Datadog / Sentry / New Relic / Honeycomb / Grafana**
+- **eBPF + Pixie** — カーネルレベル監視
+- **Real User Monitoring (RUM)**
+
+### 5. セキュリティ・コンプライアンス
+- **OWASP / NIST CSF / CIS Benchmarks**
+- **DevSecOps — Snyk / Dependabot / Trivy / GitGuardian**
+- **Zero Trust + mTLS + Secrets Management (Vault/Doppler)**
+- **SBOM (Software Bill of Materials) / SLSA**
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| デプロイ頻度 | 月3 | 日次 |
+| MTTR | 2h | <15分 |
+| Change Failure Rate | 15% | <5% |
+| インフラコスト | ベース | -20% (FinOps) |
+| 稼働率 SLO | 99.5% | 99.95% |
+
+### 7. 成長ロードマップ
+- **M1**: AWS SAA Pro / Kubernetes CKA / Terraform Associate
+- **M2**: GitOps + OpenTelemetry + DORA Metrics標準化
+- **M3**: FinOps + DevSecOps全プロジェクト導入

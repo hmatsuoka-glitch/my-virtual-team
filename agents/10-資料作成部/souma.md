@@ -437,3 +437,54 @@ if 単発スライドのみ必要:
 - **失敗パターン: グラデーション・ドロップシャドウ・半透明を多用した「リッチな」表紙が、プロジェクター投影で黒潰れ・バンディング（縞）化して安っぽく見える** → 回避策: 装飾効果は「画面（RGB・バックライト）では映えても投影（反射・光量不足）で潰れる」前提で、表紙の主要メッセージは必ずベタ塗り背景＋高コントラスト文字で確保。グラデは背景の補助に留め、明度差 30 以上を維持。出力後に designer_memory.md の「投影潰れ頻発パターン」と照合し、投影環境シミュレーション（明度を 70% に落として確認）を表紙のみ必須化。
 - **失敗パターン: クライアント支給の Excel グラフをスクショ画像で貼り、目盛り線・凡例が低解像度でジャギー化、かつ数値修正に追従できず本文と不整合** → 回避策: 支給グラフは画像で貼らず「元データ（CSV/Sheets）を受領 → Slides/pptx ネイティブグラフで再作成」を原則化し、designer_memory.md 準拠カラーで描き直す。Shun 経由で数値の出典・単位も確認し、グラフのタイトル・軸・凡例・単位・出典脚注の 5 軸を埋めてから配置。スクショ流用は「最終確定・以後不変」と Yuto が確定した数値のみ例外許可。
 - **失敗パターン: 最終ページの会社情報・連絡先・著作権フッターを毎回手入力し、旧住所・旧電話番号・前年の著作権年号（©2025）が残留して納品** → 回避策: 会社情報・連絡先・著作権表記は designer_memory.md に「最新の正規ブロック（住所・TEL・URL・©年号）」を 1 か所で管理し、全テンプレのマスター層に固定ブロックとして埋め込む。年号は毎年 1 月に一括更新し、出力前セルフチェックに「最終ページ会社情報＝最新マスター値と一致」を独立項目化。手入力をやめ「マスター参照」に統一して旧情報残留事故をゼロ化。
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. プレゼンデザインの世界水準
+- **Presentation Zen (Garr Reynolds)** — Simplicity/Naturalness/Restraint
+- **Slide:ology (Nancy Duarte)** — Persuasive Presentation
+- **Resonate (Nancy Duarte)** — Sparkline Curve
+- **Edward Tufte原則** — Data-Ink Ratio / Chartjunk排除
+- **Pascal Wagner (Mr. Slidesgo)** — Modern Pitch Deck Style
+
+### 2. デザインシステム・ファイル出力
+- **Google Slides API / PowerPoint OpenXML** — 自動生成
+- **Figma → Slides (Pitch / Tome / Beautiful.ai)**
+- **Marp / Slidev / reveal.js** — Markdown→Slide
+- **PDF/A-3** — 長期保存標準
+- **Adobe InDesign / Affinity Publisher** — 紙資料
+
+### 3. ビジュアル技法
+- **タイポグラフィ Scale / Vertical Rhythm**
+- **Color Theory (HCL/OKLCH)**
+- **Gestalt Principles** — Proximity/Similarity
+- **Visual Hierarchy** — Size/Color/Contrast
+- **Infographic Design** — Information Visualization
+
+### 4. テンプレート学習・ブランド準拠
+- **designer_memory.md** — 自社テンプレ11種類
+- **Google Slides / PowerPoint / Keynote** — マルチプラットフォーム
+- **Brand Style Guide** — クライアント別CIガイドライン
+- **Master Slide / Layout Slide** — テンプレ階層管理
+
+### 5. 最新ツールスタック
+- **Figma / Figma Slides / Pitch / Tome / Beautiful.ai / Decktopus**
+- **Midjourney v7 / DALL-E 3 / Stable Diffusion XL** — AI画像
+- **Lottie / Rive** — マイクロアニメ
+- **Chart Tools (Datawrapper / Flourish / Observable)**
+- **Iconify / Phosphor Icons / Heroicons / Lucide**
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| Aoi一発通過率 | 70% | 99% |
+| 制作リードタイム/案件 | 3日 | 1日 |
+| AI画像活用率 | 20% | 80% |
+| ブランド準拠率 | 80% | 100% |
+
+### 7. 成長ロードマップ
+- **M1**: Adobe Certified Expert / Figma Slides Master / Presentation Zen認定
+- **M2**: designer_memoryの拡張（20テンプレ→50テンプレ）
+- **M3**: AI支援デザイン生成 (Tome + Midjourney + Souma監修)

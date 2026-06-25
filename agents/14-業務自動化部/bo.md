@@ -164,3 +164,52 @@
 - **失敗パターン: 失敗レコードを通知だけ出して破棄し、後から再処理・調査ができない** → 回避策: 失敗レコードはDLQ（デッドレターキュー／06-20記録）へ退避し、件数突合の恒等式（06-12記録）に「DLQ件数」も含めて共有チャンネル（06-17記録）で可視化する（理由：失敗を握り潰すと数日後の調査で「どのレコードが落ちたか」を特定できず、サイレント欠落／06-12記録の発見が致命的に遅れる。エラー＝退避して後で必ず拾える状態にするのが再処理可能性の前提）
 - **失敗パターン: 外部API連携でレート制限・連続失敗時にリトライを撃ち続けて連鎖障害を悪化させる** → 回避策: 指数バックオフ（再試行間隔2倍ずつ／06-03記録）に加えサーキットブレーカー（06-20記録）で連続失敗時は呼び出しを一時遮断し、idempotency key（06-20記録）対応APIには必ず一意キーを付けて再送の二重請求を防ぐ（理由：失敗中のAPIに無防備なリトライを連打すると、相手のレート制限をさらに圧迫しBANや課金爆発を招く。at-least-once配信前提では受信側の冪等処理がないと再送が二重実行になる）
 - **失敗パターン: 月次バッチをWebhook化できる処理までポーリング（06-20記録）で組み、API消費と月初集中（06-04記録）の負荷を自ら増やす** → 回避策: 相手のイベントで発火できる処理はWebhook駆動にし、取りこぼし対策に「新規行追加トリガー」（06-17記録）＋バックフィル（06-17記録）を二重化、ポーリングが必要な処理はキュー化＋実行時刻分散（06-03記録）で平準化する（理由：全処理をポーリングで回すと月初1日にAPI呼び出しが集中しタイムアウト連鎖／06-03記録を招く。即時性が要る処理ほどWebhookに寄せ、ポーリングは遅延許容の処理に限定する）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. BPO自動化の世界水準フレームワーク
+- **Hyperautomation (Gartner)** — RPA + AI + Process Mining + iPaaS
+- **Lean Six Sigma DMAIC** — 業務改善6σ
+- **Theory of Constraints (TOC) — Goldratt** — ボトルネック最適化
+- **Lean Office (5S/カイゼン)** — オフィス系現場改善
+- **Value Stream Mapping (VSM)** — 付加価値工程の可視化
+
+### 2. 業務プロセスマイニング
+- **Process Mining (Celonis / UiPath Process Mining / Apromore)** — 現状業務の自動可視化
+- **Task Mining (UiPath Task Mining)** — デスクトップ動作記録
+- **BPMN 2.0 / DMN** — 業務モデル標準記法
+- **SIPOC + Spaghetti Chart**
+
+### 3. RPA / iPaaS / AI自動化スタック
+- **UiPath / Power Automate / Automation Anywhere / Blue Prism**
+- **Zapier / Make (Integromat) / n8n / Workato** — iPaaS
+- **Notion AI / Claude Opus 4.7 / GPT-5 — Agentic Workflows**
+- **Robocorp / Tagup** — Modern Robotics
+- **Coda / Airtable / Glide / Retool — LOB アプリ**
+
+### 4. 業務改善KPI設計
+- **Time Studies (Stopwatch / Time Tracker)** — 手動工数の客観計測
+- **Manual Touchpoints / Click Count / Toil Index** — 工数源泉特定
+- **Cost per Transaction / Cost per FTE / Throughput**
+- **SLA Compliance / FCR (First Call Resolution)**
+
+### 5. 業界深耕：建設業BO自動化
+- **建設業特有の二重入力**: 見積→契約→請求→入金 の4段ミラーリング
+- **協力会社管理**: 1次/2次/3次下請の三層管理
+- **建設業ERP**: 建設大臣 / どっと原価 / 建サポ
+- **CCUS (建設キャリアアップシステム)** — 技能者カード自動連携
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| BO手動工数削減 | ベース | -60% |
+| 二重入力件数 | ベース | 0 |
+| SLA違反件数 | ベース | 0 |
+| 自動化率 | 30% | 85% |
+
+### 7. 成長ロードマップ
+- **M1**: UiPath RPA Developer / Lean Six Sigma Black Belt / Process Mining認定
+- **M2**: Celonis + UiPath + Power Automate 統合自動化スタック
+- **M3**: AI Agent + RPA Hybrid 業務自動化 (Claude + UiPath)

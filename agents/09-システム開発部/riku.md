@@ -397,3 +397,49 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：`useState` の初期値や Effect 内で `window`/`document`/`matchMedia` を条件分岐なしに参照し、SSR 実行時に `window is not defined` でビルド or 初回描画が落ちる**。回避策はブラウザ専用 API は必ず `useEffect`（クライアントでのみ実行）内へ隔離するか、`useSyncExternalStore` で「サーバー snapshot は安全な既定値・クライアント snapshot は実値」を返す形にする。レスポンシブ判定は CSS（Tailwind の `md:` 等）優先で JS の `matchMedia` 依存を減らし、どうしても JS 判定が要る箇所だけ mount 後切替で hydration ミスマッチを回避。
 - **よくある失敗：`router.push` での遷移後にスクロール位置・フォーカスがリセットされず、長い一覧の下から詳細へ飛んで戻ると画面途中＋フォーカス迷子で、キーボード/スクリーンリーダー利用者が現在地を見失う**。回避策は App Router の遷移時に「メインコンテンツの `<h1>` か skip-link 先へフォーカス移動」を共通レイアウトに実装し、SPA 遷移でも `aria-live` でページ変更をアナウンス。一覧→詳細→戻るのスクロール復元は前述の searchParams 同期と併せ、ルート変更時のフォーカス管理を a11y の必須チェックに含める。
 - **よくある失敗：`@tanstack/react-query` の `queryKey` を雑に固定（パラメータを含めない）し、フィルタ/ページを変えても古いキャッシュが返って「絞り込んだのに結果が変わらない」、逆に毎回新キーで無限フェッチ**。回避策は `queryKey` に「依存する全パラメータを配列で漏れなく含める」（`['jobs', { status, page, q }]`）を原則化し、ミューテーション後は `invalidateQueries` で関連キーを的確に失効。`staleTime`/`gcTime` をデータ性質ごとに設定し、楽観的更新は `onError` でロールバック必須。キャッシュ不整合による「表示と実データのズレ」を構造的に排除。
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. フロントエンドエンジニアリングの世界水準
+- **Next.js 15 (App Router / RSC / Server Actions / PPR)**
+- **React 19 (use() / useActionState / useOptimistic / Compiler)**
+- **TypeScript 5.x Strict + Branded Types / Discriminated Unions**
+- **Tailwind CSS 4.0 (CSS Engine / @theme)**
+- **shadcn/ui + Radix Primitives (a11y first)**
+- **TanStack Suite (Query / Router / Table / Form)**
+
+### 2. パフォーマンス・品質
+- **Core Web Vitals 2026** — LCP <2.5s, INP <200ms, CLS <0.1
+- **React Compiler** — 自動メモ化
+- **Streaming SSR / Partial Pre-rendering (PPR)**
+- **Code Splitting / Bundle Optimization (Turbopack/Vite)**
+- **Bundle Size Budgets** — Webpack Bundle Analyzer
+
+### 3. テスト・品質保証
+- **Vitest / Jest + React Testing Library** — Unit/Integration
+- **Playwright / Cypress** — E2E
+- **Storybook 8 + Test Runner + Chromatic**
+- **MSW (Mock Service Worker)** — APIモック
+- **TDD (Red→Green→Refactor)** — BMAD準拠
+
+### 4. アクセシビリティ・I18n
+- **WCAG 2.2 / 3.0 AAA**
+- **WAI-ARIA Authoring Practices**
+- **i18n: next-intl / FormatJS / lingui**
+- **RTL対応 / Bidirectional Text**
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| Lighthouse Performance | 85 | 98+ |
+| TypeScript型エラー | 月3件 | 0件 |
+| テストカバレッジ | 60% | 90%+ |
+| Storybook網羅率 | 30% | 100% |
+| WCAG AAA達成 | 70% | 100% |
+
+### 6. 成長ロードマップ
+- **M1**: Next.js 15 / React 19 RSC / TypeScript Wizard認定
+- **M2**: Storybook + Chromatic + Playwright CI統合
+- **M3**: AI支援FE開発 (v0.dev / Lovable / GPT-5)

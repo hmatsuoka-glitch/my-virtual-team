@@ -427,3 +427,56 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **失敗パターン: メール重複チェックを `findUnique`→なければ `create` のアプリ層 2 ステップだけで実装し、同時リクエストで両方が「存在しない」判定して重複行が生まれる** → 回避策: DB 側 `@unique` 制約を必須とし、Prisma の `P2002` エラーを捕捉してユーザー向け（「既に登録済みです」）に変換する二重化、レビューで「unique 検証に対応する DB 制約が migration に存在するか」を突合（理由：アプリ層のみのチェックは TOCTOU 競合で必ず破れる）。実例：同時 2 リクエストでメール重複→DB unique 制約＋P2002 捕捉で整合
 - **失敗パターン: DB を UTC 保存しているのに `DATE(created_at)` で日次集計し、JST 0:00〜8:59 の応募が前日に計上される 9 時間ズレで管理画面と Slack 通知の「本日の応募数」が食い違う** → 回避策: 日次集計クエリは `created_at AT TIME ZONE 'Asia/Tokyo'` で変換してから日付切り出しを必須化し、レビューで「日付 GROUP BY のクエリにタイムゾーン変換があるか」を確認項目化（理由：UTC 直接の日付切り出しは JST 早朝帯を前日に寄せる）。実例：本日の応募数が管理画面と通知で不一致→AT TIME ZONE 変換後一致
 - **失敗パターン: Stripe 等の Webhook を署名検証せず受信し、偽造 POST で「決済完了」を捏造されて未払いユーザーに権限付与** → 回避策: 全 Webhook で `stripe.webhooks.constructEvent(rawBody, sig, secret)` の署名検証を必須化し検証前に `JSON.parse` しない（raw body 保持）、`event.id` を冪等キーに重複処理を防止（理由：Webhook URL は推測可能で署名検証なしは誰でも任意イベントを送れる）。実例：サブスク Webhook を署名なしで受理→検証導入後の偽造遮断
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. バックエンドエンジニアリング世界水準
+- **Next.js 15 Route Handler / Hono / NestJS / Fastify / Express**
+- **TypeScript 5.x + Effect (Functional Effect System)**
+- **Prisma 5 / Drizzle ORM / Kysely** — 型安全クエリ
+- **PostgreSQL 16 / MySQL 8 / Supabase / Neon / PlanetScale**
+- **Redis / Valkey / Vercel KV / Upstash** — キャッシュ・セッション
+- **Vector DB (Pinecone / Weaviate / pgvector)** — RAG基盤
+
+### 2. API設計・実装の高度技法
+- **REST + OpenAPI 3.1 / GraphQL + DataLoader / tRPC / gRPC**
+- **AsyncAPI 3.0** — イベント駆動API仕様
+- **Server-Sent Events / WebSocket / Long-polling**
+- **Webhook / Outbox Pattern** — 信頼性ある通知
+- **Idempotency / Rate Limiting / Circuit Breaker**
+
+### 3. セキュリティ・認証
+- **OAuth 2.1 / OIDC / WebAuthn (Passkey) / SAML 2.0**
+- **JWT + JWE (Encrypted) / PASETO**
+- **OWASP Top 10 / API Security Top 10 / ASVS L2**
+- **SQL Injection / XSS / CSRF / SSRF対策**
+- **Argon2id / bcrypt + pepper** — パスワードハッシュ
+- **Zero Trust + mTLS**
+
+### 4. データベース・パフォーマンス
+- **Query Plan / EXPLAIN ANALYZE** — 性能チューニング
+- **インデックス設計 (B-tree / GIN / GiST / Hash)**
+- **Connection Pooling (PgBouncer / Supavisor)**
+- **N+1問題回避 / DataLoader / Batch Loading**
+
+### 5. テスト・品質
+- **Vitest / Jest + Supertest** — Unit/Integration
+- **Test Containers / Docker** — DB integration test
+- **Property-Based Testing (fast-check)** — Hypothesis
+- **Contract Testing (Pact)** — マイクロサービス間
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| API応答時間 (p95) | 500ms | <100ms |
+| エラー率 | 1% | <0.1% |
+| セキュリティ脆弱性 | 月2件 | 0件 |
+| テストカバレッジ | 60% | 95%+ |
+| API Contract整合性 | 80% | 100% |
+
+### 7. 成長ロードマップ
+- **M1**: AWS Certified Solutions Architect Pro / OWASP ASVS L2監査
+- **M2**: OpenAPI + Contract Test 全API化、Vector DB導入
+- **M3**: Zero Trust + WebAuthn全社導入

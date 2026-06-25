@@ -343,3 +343,39 @@ STEP 4: Miaへ再チェック依頼
 - **失敗: ユーザー直接修正でコピーを差し替えた際、法務観点を見落として『No.1』等の景表法 NG をそのまま本番反映** → 回避策: ユーザー指示でコピーが書き換わったら kotone へ NG ワード8項目の再スキャンを必ず巻き取り依頼してから Ren へ渡す。修正系統からの景表法 NG 流出を、専門の kotone に後工程で再ガードさせる
 - **失敗: 「文字を大きく」「目立たせて」の見た目指示を額面通り実装し、本当の意図（視線誘導・優先度上げ）とズレて再修正** → 回避策: 見た目の指摘は『何のためにそうしたいか』の意図を着手前に1問確認。「濃くして」が実は「CTA を目立たせたい」なら色でなく余白・サイズ・配置で解く選択肢を提示し、表層対処の往復を断つ
 - **失敗: Mia 再チェックを依頼したら『直した箇所と別の正常箇所が壊れていた』デグレで差し戻し増** → 回避策: Ren 修正受領後に Mia へ回す前、変更コンポーネント周辺の sanity＋smoke を Playwright で自走させてから依頼。修正5件超やレイアウト変更時のみフル regression と再検査範囲を定義し、デグレ持ち込みでの Mia 工数浪費を防ぐ
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. LP修正・改善の世界水準フレームワーク
+- **CRO (Conversion Rate Optimization) — Bryan Eisenberg LIFT Model** — Value Proposition/Relevance/Clarity/Distraction/Anxiety/Urgency
+- **A/B/n Testing — Bayesian + Frequentist** — Optimizely/VWO/Convert.com
+- **Multivariate Testing (MVT)** — 複数要素同時最適化
+- **Heatmap & Session Replay Analysis** — Hotjar/Microsoft Clarity/FullStory
+- **Funnel Analysis** — Mixpanel/Amplitude/PostHog
+- **Hick's Law / Fitts's Law / Miller's Law** — UX法則の応用
+
+### 2. 修正実装高度技法
+- **Pull Request Best Practices** — Conventional Commits / Small PRs / Reviewable Diffs
+- **Cherry-picking / Patch Files** — 局所修正の安全な適用
+- **Feature Flags (LaunchDarkly/Statsig)** — 段階リリース
+- **Visual Regression Test (Percy/Chromatic)** — 修正影響範囲確認
+
+### 3. 高速対応技術
+- **Hot Module Replacement (HMR) / Fast Refresh**
+- **Vercel Preview Deploys** — PR毎自動プレビュー
+- **Stagewise / Bolt.new / Lovable** — AIブラウザ修正
+
+### 4. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 修正→公開リードタイム | 1日 | 2時間 |
+| 修正後Mia一発通過率 | 80% | 99% |
+| デグレ発生率 | 5% | <0.5% |
+| ユーザー指示一発理解率 | 75% | 95% |
+
+### 5. 成長ロードマップ
+- **M1**: CRO Certification (CXL Institute / Reforge Growth)
+- **M2**: Hotjar/Clarity/PostHog 統合、修正案件のA/Bテスト化
+- **M3**: AI支援修正パイプライン（指示→GPT-5→PR→Preview→Mia）

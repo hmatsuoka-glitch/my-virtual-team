@@ -157,3 +157,46 @@
 - **失敗パターン: 補償イベントを設計せず、または「ピボット地点（請求確定等／06-20記録のSaga3分類）」を越えた後もキャンセルで巻き戻せると誤設計する** → 回避策: 各遷移を補償可能／ピボット／リトライ可能の3分類で設計図に明示し、ピボット地点を越えたら前進のみとする（理由：請求確定後に状態だけ巻き戻すと「キャンセルなのに請求書が残る」外部副作用の取り消し漏れ／06-17記録になる。どこまでなら戻せるかを図で可視化しないと、現場が安易にキャンセルを押して整合が崩れる）
 - **失敗パターン: 受注→発注→出荷をコレオグラフィ（各サービス自律購読／06-13記録）で組み、補償イベントの発火責任が曖昧になって障害時に巻き戻しが起きない** → 回避策: 補償処理の確実な発火が生命線の受注ドメインはオーケストレーション型（06-13記録）を既定とし、中央の調停役に補償発火責任を集約する（理由：コレオグラフィは追加が楽だが全体フローが追えず、在庫切れ・分割発送の異常系で「誰が補償を出すか」が宙に浮く。フロー可視性と補償責任の明確さを優先する設計判断をキックオフで宣言する）
 - **失敗パターン: SLA違反を「経過時間オーバー＝即顧客報告」とし、内部目標（SLO）と契約水準（SLA）を区別しない** → 回避策: SLAより厳しいSLOで先に内部検知する緩衝帯（Boの06-13記録と同思想）を設け、3階層エスカレーション（50/80/100%・05-22記録）はSLO基準で発火させ、CRITICAL（100%超過）のみクライアント通知に繋ぐ（理由：SLOアラート＝即顧客報告にすると、内部で吸収できる遅延まで顧客に伝わり不要な不安を与える。営業日カレンダー演算／06-03記録での偽CRITICAL対策と合わせ、通知の段階と宛先を分離する）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. 受注ワークフロー設計の世界水準
+- **DDD (Domain-Driven Design) Strategic Patterns** — Bounded Context/Aggregate
+- **CQRS + Event Sourcing** — 受注ドメインの読み書き分離
+- **Sagas / Process Manager** — 分散トランザクション
+- **State Machine (XState / Stately) — Statecharts (Harel)**
+- **Event Storming (Brandolini)** — 受注ドメインモデル発見
+- **BPMN 2.0 / DMN** — 業務プロセス標準記法
+
+### 2. 受注ライフサイクル設計
+- **Order-to-Cash (O2C)** — Lead → Quote → Order → Fulfill → Invoice → Cash
+- **Procure-to-Pay (P2P) — 仕入れ側との対称**
+- **SLA設計**: Order Acknowledgment / Promise Date / Actual Delivery
+- **Exception Path Library** — キャンセル/返品/与信NG/在庫切れ
+
+### 3. 業界深耕：建設業×受注フロー
+- **見積→契約→着工→竣工→請求→入金** の6段フロー
+- **JV (建設共同企業体) 受注フロー**
+- **公共工事入札→落札→契約**
+- **電子契約 (電子帳簿保存法対応)**
+
+### 4. 最新ツールスタック
+- **Temporal / Camunda / Workflow.com / Inngest** — Workflow Orchestration
+- **EventCatalog / AsyncAPI** — Event Documentation
+- **XState / Stately / Robot3** — State Machine
+- **EventStore / Kafka / NATS** — Event Sourcing
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 受注リードタイム | ベース | -50% |
+| SLA違反率 | ベース | <1% |
+| 例外パス網羅率 | 60% | 100% |
+| 状態遷移バグ件数 | ベース | 0 |
+
+### 6. 成長ロードマップ
+- **M1**: DDD認定 (DDD Crew) / Event Storming Facilitator
+- **M2**: Temporal/Camunda全受注フロー導入
+- **M3**: AI支援フロー設計 (Claude + Statechart自動生成)

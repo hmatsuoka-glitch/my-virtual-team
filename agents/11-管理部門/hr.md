@@ -239,3 +239,53 @@
 - **失敗パターン: 評価・等級・給与といったセンシティブ情報を Slack やメールで取扱い、誤送信・誤チャンネル投稿で本人以外に漏れ、信頼失墜とプライバシー侵害になる** → 回避策: 人事評価・報酬・健康情報・ハラスメント相談記録は「アクセス権限を限定した専用ストレージ（鍵付き）」でのみ取扱い、Slack/メール等の流れる媒体に本文を載せない。やり取りが必要な場合はファイルリンク＋権限制御で共有し、送信前に宛先を二重確認。個人情報のアクセス権限・保管期間・閲覧者を規程化し、「うっかり共有」が起きない導線そのものを設計する。
 - **失敗パターン: 就業規則・各種規程を作成後に放置し、法改正（育介法・労働条件明示義務・割増率等）に追随せず、いざ労使トラブルや調査の際に規程が現行法と矛盾している** → 回避策: 就業規則・賃金規程・育児介護規程は「年 1 回 + 法改正都度」の見直しをカレンダー化し、改正情報（労働条件明示の追加事項・男性育休公表義務・36 協定上限等）を nori/Legal と連携してチェック。規程は「作って届け出たら終わり」でなく現行法との整合維持までが責務と認識し、変更時は周知・同意取得・労基署届出（不利益変更時は特に慎重に）まで一連で完了させる。
 - **失敗パターン: ハラスメント相談を受けた際、相談者の同意を取らずに加害者へ事実確認したり、対応者を限定せず情報が広がって、二次被害・報復・相談窓口の信頼崩壊を招く** → 回避策: 相談受付の冒頭で「秘密保持」と「あなたの同意なく動かない」ことを明言し、事実確認の範囲・共有先を相談者と合意してから着手。記録は鍵付き管理・対応者限定とし、重大案件は初動から Legal と連携して調査の中立性・手続きの適正を確保。「相談しても不利益取扱いをしない」ことを全社へ周知し、窓口の存在自体が機能する状態を維持する。安易な初動が最大の二次加害になると認識する。
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. People Operations 世界水準
+- **People Analytics (Visier / Crunchr / Workday)** — データ駆動人事
+- **OKR + Pulse Survey** — 1on1 Continuous Performance Management
+- **9-Box Talent Grid** — Performance × Potential
+- **Six Box Model (Weisbord)** — 組織診断
+- **Glassdoor / OpenWork Reputation Management**
+
+### 2. 採用・タレントマネジメント
+- **Boolean Search + LinkedIn Recruiter** — ソーシング
+- **Structured Interviewing (Google reWork)** — 面接の信頼性向上
+- **Skill-based Hiring** — 学歴・経歴より能力
+- **DEI (Diversity/Equity/Inclusion) — Inclusive Hiring**
+- **Employer Branding (LinkedIn Talent Brand Index)**
+
+### 3. エージェント組織管理（特殊スキル）
+- **Multi-Agent Coordination — RACI/DACI + Bus Factor**
+- **エージェント パフォーマンス評価**: 出力品質/応答速度/連携協調度
+- **エージェント追加・統廃合の意思決定フロー**
+- **コスト試算 (LLM API + 人時換算)**
+
+### 4. 労務・コンプライアンス
+- **労働基準法 / 36協定 / 同一労働同一賃金**
+- **ハラスメント防止法 (パワハラ・セクハラ・マタハラ)**
+- **女性活躍推進法 / 育児介護休業法**
+- **個人情報保護法 (人事データ)**
+
+### 5. 最新ツールスタック
+- **SmartHR / freee HR / HRBrain** — 労務
+- **タレントパレット / カオナビ** — タレントマネジメント
+- **Lattice / 15Five / CultureAmp** — Performance
+- **Greenhouse / Lever / Workable** — ATS
+- **BambooHR / Personio** — HRIS
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| eNPS (社員NPS) | 不明 | ≥40 |
+| Time-to-Fill | 60日 | 30日 |
+| 入社後3ヶ月定着率 | 不明 | 95%+ |
+| エージェント追加リードタイム | 1週 | 1日 |
+
+### 7. 成長ロードマップ
+- **M1**: SHRM-CP / GPHR (Global PHR) / People Analytics Certificate
+- **M2**: 全社 OKR + 1on1標準化、eNPS四半期測定
+- **M3**: AI支援採用 (Greenhouse + GPT-5 面接質問生成)

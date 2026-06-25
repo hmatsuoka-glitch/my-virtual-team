@@ -610,3 +610,47 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **失敗パターン: 「誰が最終承認するか（Accountable）」を STEP0 で確定せず、クライアント側の関係者全員が意見だけ言う膠着でスコープも仕様も決まらず着手が止まる** → 回避策: STEP0 でクライアント側・LET 側双方の RACI 表を作り「A（最終承認）は必ず 1 名」を徹底、承認待ちブロッカーは A の特定で即解消（理由：A 不在の案件は C（相談）と A の混同で全員が当事者意識なく評論家化し意思決定が空転する）。実例：採用 SaaS で部署横断の意見対立で仕様膠着→A 指名後 2 日で確定
 - **失敗パターン: FE と BE を別々に「完了」させ結合段階で初めてインターフェース不整合（フィールド名・型・エラー形式の食い違い）が発覚して結合工数が膨張** → 回避策: STEP3 で「結合タスク」を独立カードとして計上し、FE/BE 並列の合流点に契約テスト（Zod スキーマ共有＋モックでなく実 API への疎通確認）を必須ゲート化（理由：個別タスクの DoD を満たしても「つなぐ」工程は誰の DoD にも入らず宙に浮く）。実例：応募 API と応募フォームを別々に完成→結合でレスポンス型不一致→契約テスト導入後ゼロ
 - **失敗パターン: 検収を「画面を見せて口頭 OK」で済ませ検収基準を文書化せず、リリース後に「思ってたのと違う」と無償改修要求が無限化** → 回避策: STEP1 の受け入れ基準（Given-When-Then）をそのまま検収チェックリストに転用し、クライアントが各項目に PASS/FAIL を記入・署名する検収プロセスを STEP6 に組込（理由：検収基準が口頭だと「OK の範囲」が後から拡張解釈され契約上の完了が確定しない）。実例：口頭検収後に追加要望が止まらず→AC ベース検収署名運用後に完了が確定
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. PM / Project Management の世界水準フレームワーク
+- **PMBOK 7th Edition / PRINCE2 Practitioner**
+- **Scaled Agile Framework (SAFe 6.0) / LeSS / Spotify Model**
+- **Disciplined Agile Delivery (DAD)**
+- **BMAD-METHOD (Behavior-driven Multi-Agent Development)** — 既存
+- **DDD (Domain-Driven Design) — Strategic Patterns** — Bounded Context/Ubiquitous Language
+
+### 2. アジャイル・リーン高度技法
+- **Scrum @ Scale / Nexus / Crystal**
+- **Kanban Method (David Anderson)** — WIP制限・Cumulative Flow
+- **Scrumban / DA (Disciplined Agile)**
+- **Theory of Constraints (TOC) — Goldratt** — ボトルネック最適化
+- **OKR + KPI/KGI Cascade**
+
+### 3. リスク・品質管理
+- **Risk Register + Monte Carlo Simulation** — リスク定量
+- **Failure Mode Effects Analysis (FMEA)** — 障害モード分析
+- **DoR/DoD (Definition of Ready/Done)** — 品質ゲート
+- **DORA Metrics** — DF/LT/CFR/MTTR
+
+### 4. チーム・ステークホルダー
+- **Team Topologies (Skelton/Pais)** — Stream-Aligned/Platform/Enabling/Complicated-Subsystem
+- **Conway's Law / Reverse Conway Maneuver**
+- **PowerInterest Matrix** — ステークホルダー優先度
+- **RACI/DACI Matrix**
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| Lead Time | 4週 | 1週 |
+| Deployment Frequency | 月1 | 週3+ |
+| Change Failure Rate | 25% | <5% |
+| MTTR | 24h | 1h |
+| スプリント Velocity 安定性 | ±30% | ±10% |
+
+### 6. 成長ロードマップ
+- **M1**: SAFe Program Consultant (SPC) / PMI-ACP / DDD Distilled
+- **M2**: DORA Metrics + Backstage 統合内製
+- **M3**: BMAD-METHOD + DDDのハイブリッド標準化

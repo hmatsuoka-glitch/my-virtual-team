@@ -744,3 +744,46 @@ JS ソースから以下のパターンを検出する:
 - **失敗: 提案デザインに重いパララックス・1秒超アニメを多用し『もっさり』『重い』で離脱要因に** → 回避策: 演出はスクロール連動の軽い動きに絞り、UI 出現は ease-out・小要素200〜300ms/大要素400〜600ms の標準値をモーション設計書で Ren に明示。`linear` 多用や冗長デュレーションを排し、要所だけに演出を集約する
 - **失敗: 参考 LP のカラーパレットを HEX のまま流用し、クライアントブランドへ移植したら印象がチグハグに** → 回避策: 参考色を『色相・明度・彩度』の3属性と配色比に分解してから分析し、ブランド色へは『同じ印象を保って色だけ変える』変換で移植。HEX羅列のコピペでなく属性ベースの再現で、ブランド整合と参考の良さを両立する
 - **失敗: コピー（kotone）の第一訴求とビジュアルの強調点がズレ、『コピーは待遇推し・絵は雰囲気推し』のチグハグ提案に** → 回避策: tsumugi 着手指示直後に kotone の訴求軸 TOP3 を受け取り、Hero ビジュアル・写真選定・レイアウトをコピー第一訴求と同方向に揃える。提案を作り始める前に訴求軸を共有し、デザインとコピーの方向不一致を上流で解消する
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. LPデザイン企画の世界水準フレームワーク
+- **Conversion-Centered Design (Oli Gardner / Unbounce)** — Attention Ratio 1:1
+- **LIFT Model (Bryan Eisenberg)** — Value Proposition/Relevance/Clarity/Distraction/Anxiety/Urgency
+- **Storybrand (Donald Miller)** — 7-Part Brand Framework
+- **Jobs-to-Be-Done (Clayton Christensen)** — Functional/Emotional/Social Jobs
+- **The 5-Second Test (UsabilityHub)** — First Impression Validation
+- **Jakob's Law / Tesler's Law / Postel's Law** — UX法則
+
+### 2. 競合LP分析高度技法
+- **Heuristic Evaluation (Nielsen 10原則)** — UX診断
+- **Cognitive Walkthrough** — タスクベース評価
+- **Five-Second Test / First-Click Test** — 印象・直感評価
+- **Eye-Tracking Predictive (Attention Insight)** — 視線予測
+- **SimilarWeb / Wappalyzer / BuiltWith** — 技術スタック解析
+
+### 3. デザインインスピレーション源
+- **Awwwards / SiteInspire / Land-Book / OnePageLove** — 世界水準LP
+- **Behance / Dribbble / Mobbin** — 最新デザイン
+- **Refero.design / SaaS Landing Page** — 業界別ベンチマーク
+- **Page Flows / Mobbin** — UXフロー集
+
+### 4. 業界深耕：建設業×採用×B2C LPトレンド
+- **2026年LPトレンド**: AI Hero / Bento Grid / Brutalist Type / Glassmorphism成熟 / Variable Fonts
+- **採用LPベスト10**: トヨタ・リクルート・サイバーエージェント・自衛隊
+- **建設業×先進LP**: 大成建設・大林組・鹿島・竹中工務店
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 提案デザイン採用率 | 60% | 90% |
+| LP→応募CVR | 1% | 4%+ |
+| 5-second test 認知率 | 40% | 80% |
+| 競合分析→提案リードタイム | 3日 | 6時間 |
+
+### 6. 成長ロードマップ
+- **M1**: NN/g UX Certification / CXL Conversion Optimization
+- **M2**: 競合LP DB 300サイト構築 (Mobbin/Refero連携)
+- **M3**: AI支援企画書（プロンプト→Figma生成→クライアント承認）

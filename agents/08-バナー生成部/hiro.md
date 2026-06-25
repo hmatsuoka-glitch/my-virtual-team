@@ -367,3 +367,46 @@ const banners = [
 - **失敗パターン: `pngquant` の `--quality 80-90` で稀に「lossy encoding error: image format not recognized」が出て一部サイズだけ変換漏れ、allSettled も成功扱い** → 回避策: screenshot 後に `sharp(buf).withMetadata({ icc: 'srgb' }).png()` で ICC を sRGB 正規化してから pngquant へ渡す 2 段階に固定し、pngquant の exit code を個別に検査して非 0 を rejected 扱いに昇格（理由：Chromium 出力 PNG に sRGB 以外の ICC が埋まると pngquant が形式を認識できず、エラーが warning に埋もれる）。実例：Display P3 写真素材バナーで pngquant 不能→ICC 正規化前段化で全件変換
 - **失敗パターン: `clip` 範囲を viewport より 1px 小さく指定（1080→1079px）してフォント・細線が縮小描画され Retina で「ぼやけ」知覚** → 回避策: `clip` 座標は viewport と完全一致の整数 px を assert し、deviceScaleFactor 任せにせず `width===viewport.width` を変換前チェック（理由：deviceScaleFactor:2 は内部 2 倍描画するため clip は論理 px 等値が正解で、1px でも縮めると 2px ぶん細る）。実例：1080 案件で clip 1078 指定→ぼやけ報告→等値 assert 後解消
 - **失敗パターン: `omitBackground: true` だけ指定して透過 PNG を期待したが Kana の HTML body に `background: linear-gradient` が残り背景白塗りで納品** → 回避策: 透過要求案件は `page.evaluate(() => document.body.style.background='transparent')` を保険実行＋ `sharp(buf).ensureAlpha().png()`＋`metadata().channels===4` assert の 3 段防御を必須化し、HTML 側 body 背景は Kana に transparent 固定を依頼（理由：1 段だけだと Kana の HTML 側 body 背景指定で透過が潰れる）。実例：OGP 透過要求で背景白塗り→3 段防御後事故ゼロ
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. ヘッドレスブラウザ・画像変換の世界水準
+- **Puppeteer / Playwright / Selenium** — ヘッドレス自動化3大スタック
+- **Chrome DevTools Protocol (CDP)** — 低レベル制御
+- **Headless Chrome / Edge / Firefox** — 互換性検証
+- **Browserless / ScrapingBee** — クラウドヘッドレス
+
+### 2. 画像処理・最適化高度技法
+- **Sharp / ImageMagick / Vips** — Node.js画像処理
+- **AVIF / WebP / JPEG XL** — 次世代フォーマット
+- **Squoosh / Cloudinary / imgix** — 自動最適化
+- **Retina/HiDPI対応** — deviceScaleFactor 1/2/3
+- **Color Profile (sRGB / Display P3)** — 印刷品質
+- **Lossless vs Lossy圧縮** — 用途別選択
+
+### 3. 自動化・スケーリング
+- **AWS Lambda / Cloud Run / Vercel Functions** — Serverless画像生成
+- **AWS S3 / CloudFront** — CDN配信
+- **Worker Pool / Queue (BullMQ/RabbitMQ)** — 並列処理
+- **Docker / Kubernetes** — コンテナ化
+
+### 4. テクニカル知識
+- **HTTP/2 / HTTP/3 (QUIC)** — 高速転送
+- **Brotli / Zstandard 圧縮** — テキスト圧縮
+- **Service Worker / Cache API** — オフライン対応
+- **Web Performance API (PerformanceObserver)**
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| PNG変換成功率 | 95% | 99.99% |
+| 1案件あたり変換時間 | 5分 | 30秒 |
+| 画質維持率 (SSIM) | 95% | 99% |
+| 並列処理スループット | 10/h | 100/h |
+
+### 6. 成長ロードマップ
+- **M1**: Playwright公式認定 / AWS Solutions Architect
+- **M2**: Serverless画像生成パイプライン (Lambda + S3 + CloudFront)
+- **M3**: AVIF / WebP 自動変換、SSIM自動品質モニタリング

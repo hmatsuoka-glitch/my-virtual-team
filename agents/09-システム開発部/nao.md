@@ -326,3 +326,49 @@ STEP 6: 設計書をKaiへ提出
 - **よくある失敗：列挙型（ステータス・種別）を DB の `VARCHAR` 自由文字列で設計し、Ao の実装ごとに `"応募中"` / `"applied"` / `"APPLIED"` と表記ゆれ → 集計・絞り込みが壊れ、後から値の統一に全レコード移行が必要**。回避策は列挙値を DB の `enum` 型 or マスタテーブル＋FK で固定し、TypeScript の union 型・Zod の `z.enum` と Prisma schema を SSOT で同期。設計書に「許可値の確定リスト＋表示名（i18n）と内部値の対応表」を明記し、表記ゆれを型レベルで発生不能にする。
 - **よくある失敗：「あとで分析したい」を見越さずトランザクションテーブルのみ設計し、リリース後に「日次の応募推移を出して」と言われて重い集計クエリが本番 DB を圧迫、運用しながらの分析基盤後付けが大工事**。回避策は STEP 2 で「この案件で将来見たい数字（KPI）」を Kai/クライアントに先出しヒアリングし、必要なら最初から `created_at` の索引・集計テーブル（日次バッチ）・読み取り用レプリカ分離を設計に織り込む。過剰実装は避けつつ「分析の入口（イベントログの粒度）」だけは後付け困難なので設計段階で確保する。
 - **よくある失敗：外部 Webhook（決済・媒体通知）の受信エンドポイントを「届いた前提」で設計し、署名検証・リプレイ対策・重複到達（at-least-once 配信）への冪等処理を省略 → 二重課金や不正リクエスト混入**。回避策は Webhook 受信を必ず「① 署名検証（HMAC）② `event_id` で冪等チェック（処理済みは即 200 で無視）③ 受信即 200 返却＋実処理は非同期キューへ」の 3 段で設計書に固定。外部配信は「順序保証なし・重複あり・遅延あり」が前提と明記し、Ao が「1 回だけ正しく届く」幻想で実装しない構造にする。
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. アーキテクト世界水準フレームワーク
+- **DDD (Domain-Driven Design — Eric Evans)** — Strategic/Tactical Patterns
+- **Hexagonal Architecture / Onion / Clean Architecture (Uncle Bob)**
+- **CQRS + Event Sourcing** — 読み書き分離・イベント駆動
+- **Microservices / Service Mesh / SOA** — 分散アーキ
+- **Serverless / FaaS (AWS Lambda / Cloud Run / Vercel)** — 分散モダン
+- **Twelve-Factor App** — 12要素方法論
+
+### 2. API / 設計の高度技法
+- **REST (Roy Fielding) / GraphQL / gRPC / WebSocket / Server-Sent Events**
+- **OpenAPI 3.1 / AsyncAPI** — API仕様標準
+- **JSON:API / HAL+JSON / Hypermedia** — REST進化形
+- **Cursor-based Pagination / GraphQL Connections**
+- **Idempotency Keys / Retries / Circuit Breaker**
+
+### 3. DB設計・データモデリング
+- **3NF/BCNF + Denormalization Strategy**
+- **CAP定理 / BASE / ACID** — 整合性モデル
+- **CQRS Read Model / Materialized View**
+- **Sharding / Replication / Partitioning**
+- **Data Vault 2.0** — エンタープライズモデリング
+- **Time Series DB / Vector DB / Graph DB** — 用途別選択
+
+### 4. 認証・セキュリティ設計
+- **OAuth 2.0 / OIDC / SAML / WebAuthn / Passkey**
+- **Zero Trust Architecture (NIST SP 800-207)**
+- **OWASP Top 10 / OWASP API Security Top 10**
+- **Threat Modeling (STRIDE / PASTA)**
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 設計書→実装一発成功率 | 75% | 95% |
+| 後工程の手戻り率 | 20% | <5% |
+| 設計書作成リードタイム | 1週 | 2日 |
+| アーキテクチャ判定基準明示率 | 50% | 100% |
+
+### 6. 成長ロードマップ
+- **M1**: AWS Solutions Architect Professional / Google Cloud Architect / DDD Crew認定
+- **M2**: 全プロジェクトに ADR (Architecture Decision Records) 導入
+- **M3**: AI支援設計 (Claude Opus 4.7 + DDD prompts)

@@ -442,3 +442,59 @@ STEP 6: 差し戻し後の再チェック
 - **よくある失敗：スナップショット（`toMatchSnapshot`）を盲目的に `-u` で更新し、本来検出すべき UI 崩れごとスナップショットに焼き込んで「差分ゼロ＝OK」を偽装**。回避策はスナップショット更新を含む PR では「なぜ変わったか」のコメント必須化＋巨大スナップショット（DOM 全体丸ごと）を禁止し、検証したい要素だけを `toMatchInlineSnapshot` で局所化。視覚回帰は DOM スナップショットでなく Playwright の `toHaveScreenshot`（ピクセル比較＋ `maxDiffPixels` 閾値）に寄せ、「意図しない変化」と「意図した変化」をレビューで必ず仕分ける。
 - **よくある失敗：負荷・同時実行のテストを省略し、本番で「在庫 1 件に同時応募が殺到 → 二重確定（レースコンディション）」「同一ユーザーの連打で重複レコード作成」が初めて露見**。回避策は Ao の冪等性・排他制御（DB のユニーク制約／`SELECT ... FOR UPDATE`／楽観ロックの version カラム）に対し、`Promise.all` で同一リソースへ N 並列リクエストを撃ち込み「1 件だけ成功・残りは 409/競合エラー」を assertion 化。決済・予約・応募枠など「在庫が有限な操作」は単発テストでなく並列衝突テストを Blocker 必須に。
 - **よくある失敗：「削除」「権限剥奪」など破壊系の Negative テストが手薄で、論理削除したはずのデータが API では取得でき続ける／退会ユーザーのトークンが失効しない情報漏洩**。回避策は CRUD の Delete と認可失効に対し「削除後に GET したら 404/空、一覧に出ない、関連 API でも参照不可」「ロール剥奪・退会の直後に旧トークンで叩いたら 401」をペアで検証必須化。論理削除（`deleted_at`）はクエリ側のフィルタ漏れが頻発するため、Mio は全 read 系で「削除済みが混入しないか」を横断シナリオ化して攻める。
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. QA・テスト世界水準フレームワーク
+- **ISO/IEC/IEEE 29119-1〜5** — テスト国際標準
+- **ISTQB CTAL-TA / TM / TTA** — テスト技術者認定
+- **Test Pyramid (Mike Cohn)** — Unit/Integration/E2E比率
+- **Test Trophy (Kent C. Dodds)** — Static→Unit→Integration→E2E
+- **Shift-Left + Shift-Right Testing** — 開発全工程テスト
+- **Risk-Based Testing (RBT)** — リスク優先テスト
+
+### 2. テスト技法・設計
+- **Equivalence Partitioning / Boundary Value Analysis / Decision Table**
+- **Pairwise / N-wise / Combinatorial Testing**
+- **State Transition / Path Coverage / MC/DC**
+- **Mutation Testing (Stryker/PIT)** — テストのテスト
+- **Property-Based Testing (fast-check / Hypothesis)**
+- **Contract Testing (Pact)** — マイクロサービス
+- **Chaos Engineering (Litmus/Gremlin)**
+
+### 3. テスト自動化スタック
+- **Unit/Integration**: Vitest / Jest / Mocha
+- **E2E**: Playwright / Cypress / WebdriverIO
+- **API**: Bruno / Insomnia / Postman / Supertest
+- **Performance**: k6 / Artillery / JMeter
+- **Security**: OWASP ZAP / Burp Suite / Snyk
+- **Accessibility**: axe-core / pa11y / Lighthouse a11y
+- **Visual Regression**: Percy / Chromatic / Applitools
+
+### 4. テストデータ・環境管理
+- **Test Data Management** — Synthetic Data / Anonymization
+- **Service Virtualization** — Mock-Server / WireMock
+- **Test Containers** — Docker integration testing
+- **Database Seeding / Snapshot Testing**
+
+### 5. CI/CD・品質ゲート
+- **CI Test Parallelization** — Sharding / Turbo Repo
+- **Flaky Test Detection** — Retry policies / quarantine
+- **Code Coverage** — Istanbul / Cobertura
+- **Quality Gate (SonarQube)** — 静的解析
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| テストカバレッジ | 60% | 95%+ |
+| Mutation Score | 不明 | ≥80% |
+| Flaky Test発生率 | 5% | <0.5% |
+| 本番バグ流出率 | 3件/月 | 0件 |
+| テスト実行時間 | 30分 | <5分（並列化） |
+
+### 7. 成長ロードマップ
+- **M1**: ISTQB CTAL-TA / Playwright Certificate / OWASP ASVS L2
+- **M2**: Mutation Testing + Contract Testing 全プロジェクト
+- **M3**: AI支援テスト生成 (GPT-5 / Codium / Tabnine)

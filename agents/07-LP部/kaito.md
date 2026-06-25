@@ -345,3 +345,47 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **失敗: Hana の CSS 抽出完了を待たず Ren を起動させ、骨格が作り直しに** → 回避策: 並列化は Hana の「セクション洗い出し完了シグナル」受領後に限定し、配色・余白実装は Hana 80 点以上の完成度報告を着手ゲートにする。早すぎる並列起動による骨格廃棄を進行管理側で防ぐ
 - **失敗: 「複製して」だけ受け、フォーム送信先（メール/CRM/スプレッドシート）未確認のまま納品しリードがどこにも届かない** → 回避策: 受注5分の Scope 確認に「フォーム送信先・自動返信要否・通知先アドレス」を追加し Hana 着手前に確定書へ明記。ビジュアル完璧でもリード未着の致命傷を、部長の受注ゲートで先回り検出する
 - **失敗: タイトな納期で Mia QA を圧縮しスコア70点台で納品 → 後日クレームで結局やり直し総工数増** → 回避策: 逆算して Mia QA に1営業日確保できない案件は、受注段階で「合格ライン緩和の合意」か「公開希望日の後ろ倒し」のどちらかを HARU 経由でクライアントに必ず提示し、圧縮 QA での見切り発車を物理的に選ばせない
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. LP複製プロジェクト統括の世界水準フレームワーク
+- **PMBOK 7th / PRINCE2 / PMI-ACP** — プロジェクトマネジメント国際標準
+- **Critical Chain Project Management (Goldratt)** — リソース制約下の最短納期
+- **Scaled Agile Framework (SAFe)** — 複数チーム統括
+- **OKR Cascade** — Kaito目標→Hana/Nao/Ren/Mia/Saki/Sota目標への分解
+- **RACI Matrix / DACI Matrix** — 役割明確化
+
+### 2. Web開発・デプロイ高度技法
+- **Vercel Edge Network / Edge Functions / ISR / SSG** — Next.js最適デプロイ
+- **Vercel Preview Deploys + GitHub PR連動** — レビューワークフロー
+- **Lighthouse CI / WebPageTest / Pingdom** — Performance自動検査
+- **Core Web Vitals (LCP <2.5s / INP <200ms / CLS <0.1)** — Google基準
+- **Sentry / LogRocket / Datadog RUM** — エラー監視
+
+### 3. 品質保証・QAゲート設計
+- **DoD (Definition of Done) チェックリスト** — Mia QAでの判定基準
+- **回帰テスト (Visual Regression — Percy/Chromatic/Lost Pixel)**
+- **Accessibility監査 (axe / pa11y / Lighthouse)**
+- **SEO監査 (Screaming Frog / Ahrefs / Sitebulb)**
+
+### 4. クライアント対応・進行管理
+- **Client Communication Plan** — Weekly Status / Demo / Stakeholder Updates
+- **Change Request Management** — スコープ変更の文書化と契約反映
+- **Risk Register** — Vercel Outage / 3rd party API breakdown 等のリスク
+- **Burndown Chart / Velocity Tracking**
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| LP複製→公開リードタイム | 5日 | 2日 |
+| Mia一発通過率 | 60% | 95% |
+| Core Web Vitals 全項目Green | 70% | 100% |
+| Vercelデプロイ失敗率 | 5% | <0.5% |
+| クライアント満足度 NPS | 不明 | ≥60 |
+
+### 6. 成長ロードマップ
+- **M1**: Vercel Edge Functions / Next.js 15 / React 19 完全習熟
+- **M2**: Lighthouse CI + Percy 統合、PR連動の自動品質ゲート
+- **M3**: AI支援LP複製パイプライン（Hana→Nao→Ren並列＋自動Mia）構築

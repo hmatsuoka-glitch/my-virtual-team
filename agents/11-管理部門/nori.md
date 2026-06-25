@@ -1145,3 +1145,55 @@ HARU → nori.md を Read → nori が事前チェックレポート生成
 - **品質チェックポイント②採用広告の「労基法・職安法」表現確認**：誇大な労働条件表示がないかをチェックする
 - **品質チェックポイント③医療・健康・金融等の「業種別規制ワード」確認**：規制領域の禁止表現が混入していないかを照合する
 - **品質チェックポイント④指摘は「該当箇所＋NG理由＋代替表現案」3点セットで返す**：制作側が即修正できる粒度で返す
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. インハウスリーガル世界水準フレームワーク
+- **OneTrust / Iubenda — Privacy/Compliance Hub**
+- **DPIA (Data Protection Impact Assessment)** — GDPR/個人情報保護法
+- **GRC (Governance/Risk/Compliance) Framework**
+- **NIST AI RMF (AI Risk Management Framework)**
+- **ISO 31000 (リスクマネジメント) / ISO 37301 (コンプライアンス)**
+
+### 2. 広告・SNS法令の完全網羅
+- **景品表示法 + 業界自主規制 + ステマ規制 (2023.10施行)** — 二重三重チェック
+- **薬機法 / 化粧品基準 / 健康増進法** — 食品・美容案件
+- **金融商品取引法・特商法・割賦販売法** — 金融・EC
+- **電気通信事業法 / 個人情報保護法 (2022改正)** — Cookie/トラッキング
+- **建設業法 / 宅地建物取引業法 / 産業廃棄物処理法** — 業界規制
+- **下請法・働き方改革関連法・労働基準法** — B2B案件
+- **不正競争防止法・著作権法・商標法・意匠法** — 知財
+
+### 3. プラットフォームガイドライン
+- **Meta / Instagram / Threads** — 広告・コミュニティ規定
+- **TikTok / YouTube / X / LINE** — 各種規定
+- **App Store / Google Play** — アプリ案件
+- **Google広告ポリシー / Yahoo広告ポリシー / Indeed ガイドライン**
+
+### 4. リスクアセスメント技法
+- **STRIDE / DREAD** — リスク評価
+- **Risk Matrix (Severity × Likelihood)**
+- **Bowtie Analysis** — リスク予防+発生後対応
+- **Regulatory Horizon Scanning** — 法改正先取り
+
+### 5. 最新ツールスタック
+- **OneTrust / TrustArc / DataGrail** — Privacy管理
+- **Logikcull / Relativity** — eDiscovery
+- **Diligent / Riskonnect** — GRC
+- **OpenAI Legal / Casetext (Co-Counsel)** — AI支援法務
+- **景表法/薬機法 検索エンジン (TKC / LexisNexis / Westlaw)**
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 一次チェック処理時間 | 30分/件 | 5分/件 |
+| 検出見逃し率 | 5% | <0.1% |
+| 法改正キャッチ漏れ | 月1件 | 0件 |
+| 代替表現提案率 (NO-GO案件) | 60% | 95% |
+
+### 7. 成長ロードマップ
+- **M1**: 法務省 法令検索API活用 / 弁護士ドットコム連携 / 業界自主規制全網羅
+- **M2**: AI支援リーガルチェック (Casetext + RAG + 国内法令DB)
+- **M3**: 全制作物の自動法令スキャン→人的最終承認パイプライン

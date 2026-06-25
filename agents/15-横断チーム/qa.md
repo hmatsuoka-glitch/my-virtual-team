@@ -170,3 +170,44 @@
 - **失敗パターン: 「修正済み」の再提出を前回issuesの消込だけで通し、修正コミットに紛れた無関係な差分（スコープ外変更）を見逃す**。指摘箇所のdiffだけ見て「直っている」と判定すると、ついでに変更された別ファイル・別数値がノーチェックで通過する → 回避策: 再レビューは「前回issues消込」と「差分の全行レビュー（指摘外の変更箇所も含む）」を分離し、スコープ外変更は理由が書かれていなければblockerで差し戻す（理由：retestはバグ修正の確認、スコープ外差分の検収は別作業で、混ぜると後者が素通る）。実例：KPI誤記修正の再提出に別レポートの数値書き換えが混入しapproved→全差分レビュー必須化後、便乗変更の見逃しゼロ。
 - **失敗パターン: 5軸の各項目を「pass/fail」の2値だけで記録し、合格ライン近傍（ギリギリ通過）の案件を後から追跡できない**。0/1判定だと「異常系カバレッジ31%で辛うじて通過」が「80%で余裕通過」と同列に記録され、escape rate発生時にどこが脆かったか遡れない → 回避策: 各軸を「pass/conditional/fail＋実測値（カバレッジ%・突合一致率）」で記録し、conditional通過案件は下流に「薄い軸」を申し送る（理由：2値記録は形骸化と同じく"通った理由"を残さず、見逃し分析を不能にする）。実例：escape発生案件の原因軸が特定できず再発防止が打てない→実測値併記後、escape時に脆弱軸を即特定しチェックリストへ反映可能化。
 - **失敗パターン: 承認・差し戻しの通知をSlack口頭/DMで流し、review.jsonに最終verdictが残らず「approvedの正本」が不在になる**。口頭承認はログに残らず、後で「誰がいつ何を根拠に通したか」が辿れず、納品事故時の責任範囲も曖昧になる → 回避策: verdictはreview.json（verdict/承認者/日時/照合したオラクル/未検証範囲）を唯一の正本とし、Slack通知はそのリンク共有のみ・口頭approvedは無効とする（理由：承認の正本がチャットに散ると監査不能でescape原因の特定も遅れる）。実例：DM承認で通した案件の根拠が後から辿れず原因究明が長期化→review.json正本化後、承認トレースが即座に取れ事後検証が高速化。
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. 横断QAレビュアー世界水準フレームワーク
+- **ISO/IEC 25010:2023 (SQuaRE) 8特性** — 全エージェント出力の品質特性評価
+- **ISO/IEC/IEEE 29119-1〜5** — テスト国際標準
+- **CMMI Level 5** — 組織成熟度
+- **Lean Six Sigma DMAIC**
+- **Inter-Rater Reliability (Cohen's κ / Fleiss' κ)** — 複数QA一致度
+
+### 2. スキーマ・整合性検証
+- **JSON Schema / Avro / Protobuf** — 出力スキーマ定義
+- **Data Contracts** — Producer-Consumer保証
+- **OpenAPI 3.1** — API契約検証
+- **Cross-Agent Consistency Check** — エージェント間の出力突合
+
+### 3. 高度な品質分析手法
+- **FMEA / RCA (5 Whys / Ishikawa / Pareto)**
+- **SPC (管理図 / Cp/Cpk)**
+- **Quality Function Deployment (QFD)**
+
+### 4. ツールスタック
+- **JSON Schema Validator / Ajv / Zod**
+- **DeepEval / Ragas / OpenAI Evals** — AI出力評価
+- **LangSmith / Braintrust / PromptLayer** — LLMオブザーバビリティ
+- **Allure / TestRail / Xray** — テスト管理
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 中間QA見逃し率 | 5% | <0.3% |
+| エージェント間整合性違反検出率 | 70% | 99% |
+| スキーマ準拠率 | 80% | 100% |
+| 1案件平均QA所要時間 | 30分 | 5分 |
+
+### 6. 成長ロードマップ
+- **M1**: ISO/IEC 25010 / JSTQB Advanced TM
+- **M2**: 全エージェント出力にJSON Schema強制、DeepEval統合
+- **M3**: AI Cross-Agent Consistency Check自動化

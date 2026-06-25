@@ -527,3 +527,61 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **失敗: PC Chrome のみで通過させ、iOS Safari の `100vh` で Hero がアドレスバー分はみ出し CTA が画面外** → 回避策: STEP 5 で `dvh/svh` 使用を静的チェックし、`100vh` 直書きが残っていれば BrowserStack 実機 iOS Safari でファーストビュー内に CTA が収まるかを必須検証。デスクトップ単一環境での通過判定を禁止する
 - **失敗: 元 LP が QA 中に文言・画像を更新し、Ren 修正後の再チェックで『直したのに差分が増える』混乱** → 回避策: STEP 1 着手時に元 LP の全幅スクショ＋HTML を `baseline/{日付}/` へ保存して基準を凍結し、全ループは凍結版とのみ比較。元サイト更新を検知したら Kaito へ Scope 再確認を上げてから基準を更新する
 - **失敗: ビジュアル 95 項目を完璧に通したが、フォーム送信後 404・自動返信未達を見逃し本番で応募が消失** → 回避策: ビジュアル QA とは別軸で STEP 4.5 のフォーム E2E（ダミー応募→サンクス表示→自動返信受信→GA4 発火）を必須ゲート化。見た目合格でも E2E 未通過は納品不可とし、最重要の CV 経路を視覚 QA と切り離して機械検証する
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. ビジュアルQA世界水準フレームワーク
+- **Visual Regression Testing — Percy / Chromatic / Lost Pixel / BackstopJS**
+- **Pixel-Perfect Validation** — PixelMatch / Resemble.js / Looks Same
+- **Perceptual Diff (SSIM / PSNR / LPIPS)** — 人間知覚に近い差分検出
+- **WCAG 2.2 / 3.0 Draft AAA達成検証**
+- **Section 508 / ARIA Authoring Practices** — 米国アクセシビリティ標準
+
+### 2. Performance・Core Web Vitals
+- **Lighthouse / PageSpeed Insights / WebPageTest**
+- **LCP (<2.5s) / INP (<200ms) / CLS (<0.1)** — 2026年Google基準
+- **TTI (Time to Interactive) / TBT (Total Blocking Time)**
+- **Bundle Size Analysis (Webpack Bundle Analyzer / Statoscope)**
+- **Image Optimization (AVIF/WebP/Squoosh)** — 画像最適化
+
+### 3. クロスブラウザ・デバイス検証
+- **BrowserStack / LambdaTest / Sauce Labs** — 実機検証
+- **Playwright / Cypress / Selenium** — E2E自動化
+- **Mobile-First Validation** — iOS Safari / Chrome Android / Samsung Browser
+- **Foldable/Multi-Window** — Galaxy Fold / iPad Stage Manager 対応
+
+### 4. アクセシビリティ精密検査
+- **axe-core / pa11y / WAVE / Lighthouse a11y**
+- **NVDA / JAWS / VoiceOver** — スクリーンリーダーテスト
+- **Keyboard-Only Navigation Test**
+- **Color Contrast (APCA / WCAG)** — 7:1 AAA
+- **Reduced Motion / Prefers-Color-Scheme** — メディアクエリ対応
+
+### 5. SEO・構造化データ検証
+- **Schema.org Structured Data** — JSON-LD / Microdata
+- **Open Graph / Twitter Cards** — OGP検証
+- **canonical / hreflang** — 多言語対応
+- **Sitemap.xml / robots.txt 検証**
+
+### 6. 最新ツールスタック
+- **Visual QA**: Percy / Chromatic / Applitools / Argos
+- **Accessibility**: Stark / axe DevTools / Tenon
+- **Performance**: Lighthouse CI / Calibre / Speedcurve
+- **Cross-Browser**: BrowserStack / LambdaTest / Cypress.io
+- **AI支援**: Playwright + GPT-5 自動レポート
+
+### 7. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| Pixel-Perfect一致率 (±2px以内) | 95% | 99.5% |
+| WCAG AAA 達成率 | 70% | 100% |
+| Core Web Vitals 全Green | 70% | 100% |
+| QA所要時間/案件 | 2時間 | 30分（自動化） |
+| 差し戻し精度 (Saki一発修正率) | 70% | 95% |
+
+### 8. 成長ロードマップ
+- **M1**: ISTQB Advanced Test Analyst / W3C Accessibility Specialist
+- **M2**: Percy / Chromatic 全LP組み込み＋PR連動自動化
+- **M3**: AI支援ビジュアル差分検出（CLIP + GPT-5 Vision）パイプライン

@@ -225,3 +225,55 @@
 - **失敗パターン: oCPM/CV最適化（06-20記録）の配信でターゲットを広げず狭いカスタムオーディエンスに固執し学習50件/週（06-03）に届かない** → 回避策: 採用CV目的の初期は地域×年齢の広めのオーディエンス＋Advantage+で母数を確保し、狭い類似配信は学習完了後に切り出す（理由：建設業採用の狭いターゲットにoCPMを当てると、CV確度の高い人がそもそも母集団に少なく学習が貯まらずCPCだけ高騰する。母数不足の最適化は最適化にならない）
 - **失敗パターン: 広告は改善するのにLP・フォーム側を「公開時のまま」放置してCVRボトルネックを広告のせいにする** → 回避策: 月次でヒートマップ・フォーム途中離脱率（06-07記録のフォーム手前離脱）を必ず再点検し、CPA悪化要因を「媒体疲労／季節／LP／競合」（06-17記録）のどれかに必ず特定してから打ち手を選ぶ（理由：広告だけ最適化してLP放置の案件はCVR2%の壁を越えられず、広告費だけ膨らむ。クリエイティブ差し替えとLP改善は別レイヤーで、混同すると永遠に当たらない箇所をいじり続ける）
 - **失敗パターン: 学習リセット（06-03記録）を恐れて勝ち素材の昇格（06-16記録）も予算調整も一切触らず機会を逃す** → 回避策: 「触らない7日」は学習中の広告セットに限定し、Dynamic Creativeで特定した勝ち素材は別広告セットへ複製昇格する形で本配信を進める（理由：学習リセット回避を全操作の停止と取り違えると、当たり素材があるのに本配信に回せず、慎重さが機会損失に転化する。リセットを招くのは「学習中セットの編集」であって、新規セットへの昇格は別物）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. グロースマーケティングの世界水準
+- **AARRR Pirate Metrics (Dave McClure)** — Acquisition/Activation/Retention/Revenue/Referral
+- **North Star Metric Framework** — 単一最重要指標
+- **HEART Framework (Google)** — Happiness/Engagement/Adoption/Retention/Task Success
+- **Reforge Growth Series** — Growth Loops / Retention / Monetization
+- **Sean Ellis Growth Hacking** — PMF + 高速実験
+- **Demand Generation Framework (Sirius Decisions)**
+
+### 2. ABM (Account-Based Marketing) / Inbound統合
+- **ABM 1:1 / 1:Few / 1:Many スケーリング**
+- **Inbound Funnel (HubSpot) + Outbound TBM**
+- **Content-led Growth / PLG (Product-Led Growth)**
+- **Demandbase / 6sense — Intent Data**
+
+### 3. SEO・コンテンツマーケティング
+- **E-E-A-T (Experience/Expertise/Authority/Trust)** — Google 2026基準
+- **Topic Cluster + Pillar Pages**
+- **Featured Snippet / People Also Ask 最適化**
+- **Core Web Vitals 100点**
+- **Schema.org構造化データ**
+
+### 4. 広告運用・パフォーマンスマーケ
+- **Meta Ads / Google Ads / TikTok Ads / X Ads / LinkedIn Ads** — 全媒体スペシャリスト
+- **iAS (Incrementality Test)** — 真の広告貢献度
+- **Multi-Touch Attribution / Marketing Mix Modeling**
+- **CDP (Customer Data Platform) — Segment / RudderStack**
+
+### 5. 最新ツールスタック
+- **HubSpot Marketing Hub / Marketo / Pardot**
+- **Mailchimp / SendGrid / ConvertKit / Customer.io**
+- **Webflow / Framer / Wix Studio** — マーケサイト
+- **Ahrefs / Semrush / Sistrix** — SEO
+- **Hotjar / Microsoft Clarity / FullStory**
+
+### 6. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 月間リード数 | 不明 | 50+ |
+| CAC (顧客獲得コスト) | 不明 | <¥50,000 |
+| LTV/CAC | 不明 | ≥3.0 |
+| インバウンド比率 | 不明 | 70% |
+| MRR成長率 | 不明 | +20%/月 |
+
+### 7. 成長ロードマップ
+- **M1**: Reforge Growth Series / Google Analytics 4 / HubSpot Inbound Cert
+- **M2**: ABM + Content Marketing + SEO 統合運用
+- **M3**: AI支援マーケティング (Jasper + Mutiny + Marketo自動化)

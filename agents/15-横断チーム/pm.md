@@ -237,3 +237,46 @@
 - **失敗パターン: マイルストーン「達成」を報告するが、ゲート（受入基準・QA通過／06-20記録）未通過のまま後工程が着手して手戻りする** → 回避策: WBS上でマイルストーン・デリバラブル・ゲート（06-20記録）を区別し、ゲート未通過のマイルストーンは緑表示しない（理由：工数ゼロの時点目印であるマイルストーンを「達成」と報告しても、ゲート＝次工程への関所をハンドオフ4点セット・06-12記録で通っていなければ後工程は本来着手できない。緑表示で着手させると受入基準を満たさない成果物が下流に流れる）
 - **失敗パターン: 単一点見積でWBSを組み、学生症候群（06-03記録）とバッファ食い潰しを招く** → 回避策: 不確実なタスクは三点見積（PERT・06-20記録、期待値=(楽観+4×最可能+悲観)/6）で分散を出し、プロジェクトバッファを末尾集約（CCPM・06-13記録）で統計的に積む（理由：単一点見積はタスク毎バッファの分散・06-03記録か無バッファかの二択になり、悲観寄りに振れる種別（クライアント確認待ち等）の不確実性を吸収できない。三点見積の分散を次回係数・06-12記録へ反映すると、同じ遅延を再生産しない）
 - **失敗パターン: スコープを固定する案件かを握らないまま、クライアント追加要望を「善意の対応」か「契約変更」か現場判断でブレさせる** → 回避策: キックオフでQCDの鉄の三角形（06-20記録）のどの辺を固定したか（建設受託＝スコープ固定で時間/コスト調整、SNS運用＝時間/コスト固定でスコープ調整）を明示し、変更管理の起点をこの固定辺で決める（理由：どの辺を握るか不明だと、スコープクリープ・06-17記録を都度受け入れるか変更管理に乗せるかが案件・担当ごとにブレ、隠れ残業と赤字案件化を招く。固定辺を宣言して初めて「これは契約変更」と現場が線を引ける）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. 横断PMの世界水準フレームワーク
+- **PMBOK 7th / PRINCE2 Practitioner / PMI-ACP**
+- **SAFe 6.0 / LeSS / Nexus / Spotify Model** — スケールアジャイル
+- **Disciplined Agile Delivery (DAD)**
+- **Theory of Constraints (TOC)** — ボトルネック特定
+- **OKR Cascade + Hoshin Kanri (X-Matrix)**
+- **Critical Chain PM (CCPM)** — Goldratt
+
+### 2. リスク・品質マネジメント
+- **Monte Carlo Simulation** — スケジュールリスク定量
+- **Earned Value Management (EVM) — PV/EV/AC + CPI/SPI**
+- **Risk Register + Risk Burndown**
+- **Failure Mode Effects Analysis (FMEA)**
+
+### 3. チーム・ステークホルダー
+- **Team Topologies (Skelton/Pais)**
+- **Conway's Law / Inverse Conway Maneuver**
+- **Stakeholder Power-Interest Grid**
+- **RACI / DACI Matrix**
+
+### 4. ツールスタック
+- **Linear / Jira / ClickUp / Asana / Monday.com / Notion**
+- **Lucidchart / Miro / FigJam — 戦略マッピング**
+- **Plaky / TeamGantt** — ガントチャート
+- **Geekbot / Range — 非同期スタンドアップ**
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| 納期遵守率 | 不明 | 98%+ |
+| 稼働率 (Utilization) | 不明 | 80% |
+| Velocity安定性 | ±30% | ±10% |
+| Cycle Time | 不明 | -30% |
+
+### 6. 成長ロードマップ
+- **M1**: PMI-PMP + PMI-ACP + SAFe SPC
+- **M2**: EVM + Monte Carlo 全プロジェクト適用
+- **M3**: AI支援PM (GPT-5 + Linear AI 自動進捗/リスク予測)

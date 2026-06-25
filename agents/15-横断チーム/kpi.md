@@ -232,3 +232,47 @@
 - **失敗パターン: ストック指標（契約数・パイプライン総額の残高）を期間合計や日次平均して無意味な数字を出す** → 回避策: 各KPIのSSOT定義に「stock/flow」タグ（06-13記録）を付与し、集計関数（時点スナップショット vs 期間SUM）の取り違えを定義書レベルでブロックする（理由：ストックを合計すると同じ契約を日数分重複カウントし、フローをスナップショットで取ると増減が消える。新規KPI登録フォームの必須項目バリデーション・06-23記録にstock/flow区分を組み込み、登録の瞬間に集計ロジックが正しく決まる形にする）
 - **失敗パターン: North Star指標やトップKPI単体の最大化を追い、グッドハートの法則（06-17記録）で副作用を見逃す** → 回避策: NSM 1個につきガードレール指標（カウンターメトリクス・06-13記録）を1〜2個ペアで定義し、ダッシュボード上で隣接表示する（理由：リード数最大化でリード品質劣化、納期遵守率最大化で稼働率異常上昇のように、KPIが目標化した瞬間に良い指標でなくなる。ガードレールを隣に置かないと組織が歪む方向に最適化され、伸びているのに不健全という状態を検知できない）
 - **失敗パターン: 比率KPIの前期比を「CVR2%→3%」のように相対%（50%増）かパーセントポイント（1pp増）か明示せず、都合の良い片方表記で経営報告を歪める** → 回避策: 比率KPIの前期比は「pp差と相対%の両方を明示」（06-20記録）をレビュー基準にし、分母極小時は参考値表示（06-03記録）と合わせて見せ方を定義書レベルで統制する（理由：パーセントとパーセントポイントの混同は経営報告で最も多い数字事故で、同じ変化を「50%改善」とも「わずか1pp」とも書けてしまう。目視で良く見せる片方表記を許すと、施策効果の過大・過小評価が定着する）
+
+---
+
+## 🚀 Advanced Capabilities — オーバースペック化 v2026.06
+
+### 1. KPIダッシュボードの世界水準
+- **Balanced Scorecard (Kaplan/Norton)** — Financial/Customer/Process/Learning
+- **North Star Metric + Tier 1/2/3 KPIs**
+- **OKR + KPI Cascade**
+- **DORA Metrics (DevOps)**: DF/LT/CFR/MTTR
+- **HEART (Google) / AARRR**
+- **Net Revenue Retention / Rule of 40 (SaaS)**
+
+### 2. 異常検知・先行指標
+- **Statistical Process Control (SPC) — Control Charts (Xbar-R / EWMA / CUSUM)**
+- **Anomaly Detection (Isolation Forest / Prophet / LSTM Autoencoder)**
+- **Leading vs Lagging Indicators** — 先行指標設計
+- **Predictive Analytics** — 1週間先のKPI予測
+
+### 3. ダッシュボードツール
+- **Tableau / Power BI / Looker Studio / Hex / Mode / Streamlit / Grafana**
+- **dbt + Snowflake/BigQuery — データパイプライン**
+- **Cube.dev / Steep** — Headless BI
+- **Lightdash / Evidence** — Open-source BI
+- **Metabase** — SQL不要BI
+
+### 4. アラート・通知システム
+- **PagerDuty / Opsgenie** — オンコール
+- **Slack / Teams / LINE Notify** — Push通知
+- **Email Digest** — 週次サマリー
+- **Anomaly Threshold (Bayesian)** — 静的閾値からの脱却
+
+### 5. 重点強化KPI
+| 指標 | 現状 | H2目標 |
+|---|---|---|
+| ダッシュボード更新頻度 | 日次 | リアルタイム |
+| 異常検知精度 (Recall) | 70% | 95% |
+| 偽陽性率 (False Alarm) | 30% | <5% |
+| CEO向けサマリー鮮度 | 翌日 | リアルタイム |
+
+### 6. 成長ロードマップ
+- **M1**: Tableau Desktop Certified / Power BI Data Analyst
+- **M2**: Modern Data Stack (dbt + Snowflake + Lightdash) 全KPI統合
+- **M3**: AI支援KPIダッシュボード (Hex AI + 自然言語QA)
