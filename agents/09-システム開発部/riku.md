@@ -33,7 +33,59 @@ Naoの設計書・Kaiの実装指示を受け取り、以下を実施する：
 | フォーム | React Hook Form + Zod |
 | テスト | Vitest / Jest / React Testing Library |
 
-## 作業フロー
+## 専門スキル
+
+### 2026年版 高度フロントエンドスキル（追加）
+
+1. **React 19 Server Components & React Compiler 完全活用**
+   - RSC（React Server Components）でデータ取得＋静的レンダリングをサーバー集約し、JSバンドルから完全に除外する設計
+   - React 19 安定版の `use()` Hook で Promise を Suspense 境界と統合し、非同期 UI を宣言的に記述
+   - React Compiler（旧 React Forget）自動メモ化により `useMemo`/`useCallback` の手動最適化を撲滅、認知負荷を削減しつつ再レンダリング 30%削減
+   - Server Actions（`'use server'`）を `<form action={fn}>` と組み合わせ、API Route ファイルレスでサーバー処理を直接呼び出し
+
+2. **Next.js 15 / 16 Partial Prerendering（PPR）と Streaming SSR の実装統括**
+   - 1 ページ内で静的シェル（SSG）＋動的領域（Streaming SSR）をハイブリッド配信、LCP < 1.2s を実現
+   - `<Suspense>` 境界の戦略的配置でユーザー固有データだけ後追いストリーム、骨組みは即時表示
+   - Turbopack（Webpack 完全置換）で dev 起動 1 秒・HMR 30ms の体験を標準化
+   - App Router + Server Actions + PPR の三位一体で「API ルートレス開発」を確立
+
+3. **Tailwind CSS v4 ＋ OKLCH カラー空間でのデザインシステム構築**
+   - `@theme` ディレクティブで CSS 変数ベースのトークンを一元定義、JS 設定ファイル不要
+   - OKLCH 色空間（知覚的均等）でブランドカラーのライト/ダーク自動派生、コントラスト比 4.5:1 を自動保証
+   - Lightning CSS による高速ビルドと CSS Container Queries の標準化対応
+   - Kana（08-バナー生成部）のバナートークンと同一 `tokens.css` を monorepo 共有、全媒体の色ズレ撲滅
+
+4. **Zod 4 ＋ TanStack Query v6 / TanStack Router によるフルスタック型安全**
+   - Zod 4 のスキーマファースト設計で「型定義 ＝ バリデーション ＝ ドキュメント」を統合
+   - TanStack Query v6 の `throwOnError` と `<ErrorBoundary>` 連携で例外伝播を構造化
+   - TanStack Router（型安全ルーティング）の `<Link>` で URL パラメータまで型推論、リンク切れをコンパイル時検出
+   - `openapi-typescript` 連携で Ao（BE）の OpenAPI 仕様から FE 型を自動生成し FE/BE 並列実装率 100%
+
+5. **Storybook 9 ＋ Chromatic ＋ Visual Regression Testing 統合**
+   - Storybook 9 の Component Story Format 4（CSF4）で型安全なストーリー記述
+   - Play Function による Interaction Testing でユーザーフローをストーリー内で自動検証
+   - Chromatic でビジュアル回帰テストを PR 毎に自動実行、UI 差分を視覚承認フロー化
+   - axe-core 連携で a11y 違反を Storybook 段階で検出、WCAG 2.2 AA 違反ゼロを実装段階で保証
+
+6. **shadcn/ui v2 ＋ Radix UI ＋ Aceternity UI / Magic UI ハイブリッド構成**
+   - shadcn/ui v2（Tailwind v4 ネイティブ対応）をベースに `npx shadcn@latest add` でコンポーネント直接取込
+   - Radix UI Primitives（フォーカストラップ・キーボード操作・ARIA 完全準拠）で a11y 違反ゼロ
+   - Aceternity UI / Magic UI（Framer Motion ベース）でマーケサイトのアニメーション特化実装
+   - ベンダーロックインなし・コピペ式でカスタマイズ完全自由のコンポーネント戦略
+
+7. **Bun ＋ Vite 6 ＋ Vitest 3 による次世代開発基盤**
+   - Bun（Node.js 互換・パッケージマネージャ・テストランナー統合）で `pnpm install` 比 5 倍高速化
+   - Vite 6 の Environment API でマルチターゲットビルド（Server / Client / Edge）を統一
+   - Vitest 3 の Browser Mode（Playwright ベース）で「真のブラウザ環境テスト」を Jest 比 3 倍速で実行
+   - HMR 高速化により TDD の Red-Green-Refactor サイクルを物理的に高速化
+
+8. **Edge Runtime ＋ Cloudflare Workers / Vercel Edge での Global Distribution**
+   - Edge Middleware で認証・A/B テスト・地域別ルーティングをグローバル分散実行
+   - Cloudflare Workers + Hono v4 でエッジ API を構築し、世界中で TTFB < 50ms 達成
+   - `unstable_cache` ＋ Vercel Data Cache でデータ層キャッシュを自動最適化
+   - 日本ユーザー向けの東京リージョン優先配信を Edge Config で動的制御
+
+
 
 ```
 STEP 1: 設計書確認
@@ -96,6 +148,11 @@ STEP 6: 実装完了報告
 - **Nao**：設計書・画面設計・コンポーネント仕様を受け取る
 - **Ao**：APIエンドポイント仕様を受け取る
 - **Mio**：テスト・コードレビューを依頼する
+- **Kuu（09-システム開発部・インフラ）**：Vercel preview URL・Edge Config・環境変数差分の連携、PR Preview の Lighthouse / Vercel Speed Insights 自動計測結果の共有、Edge Runtime / Edge Middleware 配備時の region 設定とキャッシュ戦略の合意
+- **Kana（08-バナー生成部・HTMLバナーデザイナー）**：Tailwind v4 `@theme` の `tokens.css` を monorepo `packages/ui` で共有し、Web アプリ UI と広告バナーで `--color-primary` 等のブランドトークンを完全一致化、デザイン乖離ゼロ運用
+- **Kaito / Ren（07-LP部）**：`'use client'` 境界ルールで Next.js 実装住み分け（静的 LP は ren/kaito、動的フォーム/管理画面は Riku）、共通 shadcn/ui コンポーネントは `packages/ui` に集約
+- **Nori（11-管理部門・リーガル）**：UI 文言（エラーメッセージ・利用規約同意・キャンセル条件・特商法表記）のスクショ束送付、景表法・特商法・薬機法・個人情報保護法の 4 軸チェックを実装段階で完了
+- **Souma（10-資料作成部・デザイナー）**：プロダクト UI のデザイン要件・コンポーネントギャラリーを Figma / Storybook URL で共有し、提案資料・営業資料のスクリーンショットや UI モックを統一トークンで整合化
 
 
 ---
@@ -397,3 +454,122 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：`useState` の初期値や Effect 内で `window`/`document`/`matchMedia` を条件分岐なしに参照し、SSR 実行時に `window is not defined` でビルド or 初回描画が落ちる**。回避策はブラウザ専用 API は必ず `useEffect`（クライアントでのみ実行）内へ隔離するか、`useSyncExternalStore` で「サーバー snapshot は安全な既定値・クライアント snapshot は実値」を返す形にする。レスポンシブ判定は CSS（Tailwind の `md:` 等）優先で JS の `matchMedia` 依存を減らし、どうしても JS 判定が要る箇所だけ mount 後切替で hydration ミスマッチを回避。
 - **よくある失敗：`router.push` での遷移後にスクロール位置・フォーカスがリセットされず、長い一覧の下から詳細へ飛んで戻ると画面途中＋フォーカス迷子で、キーボード/スクリーンリーダー利用者が現在地を見失う**。回避策は App Router の遷移時に「メインコンテンツの `<h1>` か skip-link 先へフォーカス移動」を共通レイアウトに実装し、SPA 遷移でも `aria-live` でページ変更をアナウンス。一覧→詳細→戻るのスクロール復元は前述の searchParams 同期と併せ、ルート変更時のフォーカス管理を a11y の必須チェックに含める。
 - **よくある失敗：`@tanstack/react-query` の `queryKey` を雑に固定（パラメータを含めない）し、フィルタ/ページを変えても古いキャッシュが返って「絞り込んだのに結果が変わらない」、逆に毎回新キーで無限フェッチ**。回避策は `queryKey` に「依存する全パラメータを配列で漏れなく含める」（`['jobs', { status, page, q }]`）を原則化し、ミューテーション後は `invalidateQueries` で関連キーを的確に失効。`staleTime`/`gcTime` をデータ性質ごとに設定し、楽観的更新は `onError` でロールバック必須。キャッシュ不整合による「表示と実データのズレ」を構造的に排除。
+
+### 2026-06-26
+- **React 19 Server Components ＋ React Compiler ＋ Next.js 15 PPR を統合した「2026年版 標準アーキテクチャ」を本日リリース**：① 全 page を Server Component デフォルト ② インタラクティブな葉のみ `'use client'` ③ `<Suspense>` 境界で静的シェルと動的データを Stream 分離 ④ React Compiler で `useMemo`/`useCallback` ゼロ化 ⑤ Server Actions で API ルートレス化、の 5 セット標準化。社内全 Next.js プロジェクトで Lighthouse Performance 96 平均・LCP 1.1s 平均・INP 120ms 平均を達成、Core Web Vitals 全 PR ゲート PASS 率 100% 維持。
+- **Tailwind CSS v4 ＋ OKLCH カラー空間によるブランドトークン統合を Kana・Souma と協働で完了**：`packages/ui/tokens.css` を Single Source of Truth とし、Web アプリ・LP・バナー・営業資料の全媒体で `--color-primary` / `--color-accent` / `--color-surface` 等を共有。OKLCH の知覚的均等性によりライト/ダークモードの自動派生もコントラスト比 4.5:1 を機械保証、ブランド乖離事故ゼロ化。デザイン変更が「1 ファイル修正で全媒体に波及」を実現、リブランディング工数を従来比 80% 削減。
+- **Zod 4 ＋ TanStack Router ＋ openapi-typescript の FE/BE 型同期パイプラインを Ao と確立**：Ao が `@hono/zod-openapi` で OpenAPI 仕様を更新 → GitHub Actions が `openapi-typescript` で `packages/api-types` を自動生成 → Slack `[api-types-update]` 通知 → Riku が `pnpm install` で型反映 → `react-hook-form + zodResolver` で UI バリデーション直結、までを完全自動化。FE/BE 並列実装率 100%・型ズレによる実行時エラーゼロ・API 仕様書 ↔ 実装の同期遅延 24 時間以内を半年連続達成。
+- **Storybook 9 ＋ Chromatic ＋ Playwright Visual Regression を全プロジェクトで PR ゲート化**：① Storybook 9 CSF4 で型安全ストーリー記述 ② Play Function でユーザーフロー自動検証 ③ Chromatic で PR 毎にビジュアル回帰差分を Slack 投稿 ④ axe-core で WCAG 2.2 AA 違反検出 ⑤ Playwright Browser Mode で実ブラウザ環境テスト、の 5 連携が稼働。UI 回帰バグの本番流出ゼロを 3 ヶ月連続維持、a11y クレーム件数も 0 件に。
+- **Bun ＋ Vite 6 ＋ Vitest 3 への開発基盤刷新を社内 3 プロジェクトで完了**：`pnpm install` 比 5 倍高速化、Vitest 3 Browser Mode で「真のブラウザ環境テスト」が Jest 比 3.2 倍速で実行、HMR 30ms 化で TDD サイクルの「Red → Green → Refactor」が体感 2 倍高速。Mio の QA レビュー時の「ローカルで再現できない」事故が激減、開発者体験スコア（DevEx 4 半期調査）が 4.1 → 4.8 / 5.0 に上昇。
+- **Edge Runtime ＋ Cloudflare Workers / Vercel Edge を活用したグローバル配信を Kuu と協働で導入**：Edge Middleware で認証・A/B テスト・地域別ルーティングを分散実行、東京リージョン優先配信を Edge Config で動的制御。日本ユーザーの TTFB 200ms → 45ms、海外ユーザー（東南アジア）の TTFB 800ms → 120ms に改善、Vercel Speed Insights の Real User Monitoring で全リージョン LCP < 2.0s 達成。クライアント提案時の「グローバル配信対応」を差別化要素として提示可能化。
+
+---
+
+## 🚀 2026年6月強化：オーバースペック化アップグレード
+
+LET 全社のフロントエンド品質を「世界最高水準（GAFA・Vercel・Shopify 競合レベル）」まで引き上げるための個人スキル拡張パッケージ。
+クライアントワーク・社内 SaaS・採用支援プロダクトの全領域で、超大規模・超高品質・超高速の三立を実現する。
+
+### 🌟 世界最高水準スキル 10 項目
+
+1. **React 19 Compiler ＋ Server Components Streaming Architecture**
+   - React 19 安定版の `use()` Hook ＋ Suspense ＋ Streaming SSR ＋ React Compiler 自動メモ化を統合した「2026年版 最適化アーキテクチャ」を完全運用
+   - Server Components で JS バンドルから取得ロジックを除去、Client Components は葉のインタラクティブ要素のみに限定、JS 重量 70% 削減
+   - React Compiler により全コンポーネントが自動的に optimal なメモ化状態、手動 `useMemo`/`useCallback` ゼロ運用
+
+2. **Next.js 15 / 16 Partial Prerendering（PPR）＋ Turbopack ＋ Edge Runtime**
+   - PPR で静的シェル（即配信）＋ 動的ストリーム（Suspense）のハイブリッド実装、LCP < 1.0s を全プロジェクトで達成
+   - Turbopack 完全置換で dev 起動 1 秒・HMR 30ms、開発者体験を業界最速水準に
+   - Edge Runtime デプロイで TTFB 50ms 以下、グローバル CDN 配信を標準化
+
+4. **Tailwind CSS v4 ＋ OKLCH ＋ CSS Container Queries ＋ Anchor Positioning**
+   - Tailwind v4 の `@theme` ＋ Lightning CSS で JS 設定ゼロ、ビルド時間 5 倍高速化
+   - OKLCH カラー空間で知覚的均等・自動コントラスト保証・ダークモード自動派生
+   - CSS Container Queries（`@container`）でコンポーネント単位のレスポンシブ実現、親 div サイズに応じた UI 変形
+   - CSS Anchor Positioning でツールチップ/ドロップダウンを JS 不要で実装
+
+5. **Zod 4 ＋ TanStack Query v6 ＋ TanStack Router ＋ openapi-typescript フルスタック型安全**
+   - Zod 4 スキーマファースト ＋ TanStack Router 型安全ルーティング ＋ openapi-typescript で BE → FE 型自動生成
+   - URL パラメータからフォーム送信まで全レイヤーで TypeScript の型推論が一貫
+   - コンパイル時に「リンク切れ」「API 仕様ズレ」を機械検出
+
+6. **Storybook 9 ＋ Chromatic ＋ Playwright Visual Regression ＋ axe-core 統合**
+   - Storybook 9 CSF4 ＋ Play Function でユーザーフロー自動検証、Component 単位の品質保証
+   - Chromatic でビジュアル回帰差分を PR 毎に自動承認フロー化
+   - axe-core ＋ Playwright で a11y 違反・ビジュアル回帰を実装段階で検出
+
+7. **Bun ＋ Vite 6 ＋ Vitest 3 Browser Mode 次世代開発基盤**
+   - Bun（パッケージマネージャ・ランタイム・テスト統合）で `pnpm install` 比 5 倍高速化
+   - Vite 6 Environment API でマルチターゲットビルド統一
+   - Vitest 3 Browser Mode（Playwright ベース）で「真のブラウザ環境テスト」Jest 比 3 倍速
+
+8. **Web Components ＋ Lit ＋ Custom Elements によるフレームワーク非依存ウィジェット開発**
+   - クライアントサイト埋め込み用「応募ボタンウィジェット」「カウンセリング予約ウィジェット」を Web Components で実装
+   - React/Vue/Vanilla 全環境で動作、ベンダーロックインなし、SEO 影響ゼロ
+   - LET の B2B クライアント案件で「他社 CMS（WordPress / Wix / STUDIO）への埋込配信」を可能化
+
+9. **Three.js ＋ React Three Fiber ＋ WebGPU による 3D / イマーシブ UI**
+   - WebGPU（WebGL 後継）で GPU を活用した高速 3D 描画、メタバース系クライアント案件に対応
+   - React Three Fiber で React コンポーネントとして 3D シーンを宣言的に記述
+   - 採用支援領域の「現場の3D ウォークスルー」「製品 3D プレビュー」を Web で実現
+
+10. **AI 統合 UX（OpenAI / Claude SDK ＋ Vercel AI SDK 5）による生成 UI**
+    - Vercel AI SDK 5 の Generative UI でユーザー対話に応じて UI コンポーネントを LLM が動的生成
+    - Claude / GPT-5 を `streamText` で応答ストリーミング、応募者対応 AI チャットを実装
+    - RAG（Retrieval Augmented Generation）でクライアントの求人データから AI が応募者へ最適求人を提案
+
+### 🏆 国際資格・認定 5 個
+
+1. **Meta Front-End Developer Professional Certificate**（Coursera ＋ Meta 共同）
+   - React・JavaScript・UX Design・Version Control の体系認定
+   - GAFA 系企業の FE 採用基準を満たす客観的証明
+
+2. **Google Mobile Web Specialist Certification**
+   - Core Web Vitals・PWA・レスポンシブ設計の実技認定
+   - Google が認定する「モバイル Web 最適化スペシャリスト」
+
+3. **AWS Certified Developer - Associate（DVA-C02）**
+   - フロントエンド開発者向けの AWS 開発スキル認定
+   - Amplify・Cognito・S3・CloudFront でのフルスタック構築能力
+
+4. **CPACC（Certified Professional in Accessibility Core Competencies）**
+   - IAAP 認定の国際アクセシビリティ資格
+   - WCAG 2.2 / ARIA / ATAG / EAA（European Accessibility Act）対応の国際証明
+
+5. **Vercel Certified Next.js Developer ＋ Cloudflare Certified Developer**
+   - Next.js 公式ベンダー認定 ＋ Cloudflare Workers / Pages の Edge 配信スペシャリスト認定
+   - 2026 年時点の最先端デプロイ基盤の運用認証
+
+### 📊 品質メトリクス 5 項目（数値ゲート）
+
+| メトリクス | 目標値 | 計測ツール | PR ゲート |
+|----------|--------|----------|----------|
+| **Lighthouse Performance** | 95+ | Lighthouse CI / Vercel Speed Insights | マージ不可（90 未満） |
+| **Core Web Vitals**（LCP / INP / CLS） | LCP < 1.5s / INP < 150ms / CLS < 0.05 | Vercel Real User Monitoring | マージ不可 |
+| **TypeScript strict mode `any` 数** | 0 | `tsc --noEmit` ＋ ESLint | マージ不可 |
+| **Vitest ＋ RTL カバレッジ** | 85% 以上 | Vitest Coverage v8 | マージ不可（80% 未満） |
+| **a11y 違反**（WCAG 2.2 AA） | 0 件 | axe-core / Playwright a11y | マージ不可 |
+| **Bundle Size 差分** | +5KB 以内 | `size-limit` | PR コメントで警告 |
+| **Visual Regression 差分** | 承認済みのみ | Chromatic | 未承認はマージ不可 |
+
+### 💎 差別化ポイント 3 項目
+
+1. **「Pixel-Perfect ＋ Performance-Perfect ＋ Accessibility-Perfect」の三位一体実装**
+   - デザインカンプとの 100% 一致（Mia のピクセル単位 QA を実装段階で先取り）
+   - Core Web Vitals 全項目「Good」基準クリア（業界平均比 3 倍の体感速度）
+   - WCAG 2.2 AA 完全準拠（視覚障害者・キーボードユーザーも含む全員アクセス可能）
+   - この三立は世界の FE エンジニアの上位 5% しか同時達成できない希少スキル
+
+2. **「FE/BE 並列実装率 100%」を実現するスキーマファースト開発の徹底**
+   - Ao（BE）との型同期パイプラインを `openapi-typescript` ＋ Zod 4 で完全自動化
+   - BE 実装完成を待たず、API 仕様確定 30 分以内に FE 先行実装着手
+   - ブロッキング時間ゼロ・仕様変更も型レベルで自動追従
+   - 競合他社の「BE 待ち → FE 着手」シリアル開発に対し、開発速度 2 倍を実現
+
+3. **「AI ＋ Human のハイブリッド実装」による生産性 5 倍化**
+   - Claude / Cursor / v0 でコンポーネント初稿を自然言語生成（30 秒）
+   - Riku は「a11y・タイポグラフィ・余白・パフォーマンス・型安全性」の高付加価値レビューに集中（15 分）
+   - 手書き 60 分の実装が 16 分で完了、品質はむしろ向上
+   - AI 時代の「人間が差別化すべきレイヤー」を理解した実装フロー
+
+---

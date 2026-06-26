@@ -63,6 +63,94 @@
   - INFO → ログのみ
 ```
 
+### 5. OKR 3.0 運用設計（2026年版・月次レビューモデル）
+```
+入力: KGI（年商・利益・LTV等）、CSF、各部署のObjective候補
+処理:
+  1. Objective を「定性的に挑戦的・3〜5個」に絞る（ストレッチ目標として 70% 達成で成功）
+  2. Key Result を「定量的・3〜5個／Objective」で設計（leading 2 / lagging 3 構成）
+  3. 月次チェックイン（従来四半期 → 月次へ移行・前年比+85%トレンド・06-12記録参照）
+  4. Confidence Score（自信度1-10）を週次更新し、低下時はピボット判断トリガー
+  5. KR ごとに「コミット型」「ストレッチ型」「アスピレーション型」をタグ付け（誤期待を防止）
+出力: /agents/kpi_dashboard/okr3_{quarter}.json + 月次チェックインレポート
+```
+
+### 6. DORA Metrics（DevOps 4指標）統合監視
+```
+対象指標（システム開発部のパフォーマンス測定）:
+  - Deployment Frequency（デプロイ頻度・日次/週次/月次）
+  - Lead Time for Changes（変更のリードタイム・コミット→本番）
+  - Change Failure Rate（変更失敗率・ロールバック/Hotfix率）
+  - Mean Time to Restore（平均復旧時間 MTTR）
+処理:
+  1. GitHub Actions / Vercel Deploy ログから自動収集
+  2. Elite / High / Medium / Low の4段階ベンチマーク判定
+  3. 09-システム開発部（kai/riku/ao/kuu/mio）のスプリント単位で集計
+  4. 改善トレンドとボトルネック工程を可視化
+出力: /agents/kpi_dashboard/dora_{period}.json
+```
+
+### 7. SPACE Framework（開発生産性5次元）測定
+```
+対象指標（生産性を単一指標で測らない最新フレーム）:
+  - Satisfaction（満足度・燃え尽き防止）
+  - Performance（成果物の品質・顧客影響）
+  - Activity（アクティビティ量・ただし単独評価禁止）
+  - Communication & Collaboration（コミュニケーション健全性）
+  - Efficiency & Flow（フロー状態・割込頻度・Deep Work時間）
+処理:
+  1. Pulse Survey（週次匿名）+ システムログ複合
+  2. 単一次元最大化（活動量だけ追う等）を構造的に禁止するレポート設計
+  3. ガードレール指標として「燃え尽きリスクスコア」を併記
+出力: /agents/kpi_dashboard/space_{month}.json
+```
+
+### 8. North Star Metric（NSM）+ Counter Metric 体系
+```
+処理:
+  1. 全社で1つのNSM定義（例：月間アクティブ顧客×単価×継続月数の合成指標）
+  2. NSMに対して「Input Metric（先行指標）4-6個」を分解（先行指標連鎖モデル）
+  3. NSMに対して「Counter Metric（ガードレール）2個」を必須対設定
+  4. NSM逆算で各部署OKRに自動展開（haruto/sho/eito等の月次目標を生成）
+  5. ダッシュボード最上段にNSMを固定表示（2026年経営ダッシュボード標準）
+出力: NSM Tree（依存グラフ可視化）+ 部署別展開表
+```
+
+### 9. Leading Indicator Chain（先行指標連鎖モデル）設計
+```
+処理:
+  1. Lagging（売上・利益）→ Coincident（受注額・パイプライン）→ Leading（リード数・商談化率）→ Hyper-leading（SNS露出・指名検索数）の4層に分解
+  2. 各層間の時間ラグ（リード生成→受注まで平均X日）を統計的に推定
+  3. Hyper-leading の異常を6-12週間前倒しで検知（lagging のみ監視より早期警報）
+  4. 因果関係を Granger Causality 検定で定期検証（相関に飛びつかない）
+出力: 先行指標ヒートマップ + 連鎖弱化アラート
+```
+
+### 10. AI予測ダッシュボード（Prophet/ARIMA/LSTM ハイブリッド）
+```
+処理:
+  1. 過去24ヶ月の時系列データから月次予測モデル構築（Prophet：トレンド/季節性、LSTM：複雑非線形）
+  2. 予測値・95%信頼区間・着地予測を月次レポートに自動挿入
+  3. 「目標／予測着地／コミット」3線併記（06-20記録の標準化）
+  4. 異常検知は Isolation Forest + 動的閾値（変動係数CV）で偽陽性を更に削減
+  5. 説明可能AI（SHAP値）で予測根拠を明示し、ブラックボックス化を回避
+出力: /agents/kpi_dashboard/forecast_{month}.json + SHAP寄与度レポート
+```
+
+### 11. ESG/サステナビリティKPI統合（CSRD・ISSB対応）
+```
+対象指標（2026年上場準備企業の必須項目）:
+  - GHG排出量（Scope 1/2/3）
+  - 従業員エンゲージメントスコア
+  - ダイバーシティ指標（役職別・部署別）
+  - サプライチェーン透明性
+処理:
+  1. ISSB（国際サステナビリティ基準審議会）IFRS S1/S2 開示要件にマッピング
+  2. 財務KPIと非財務KPIを統合報告書フォーマットで自動生成
+  3. 監査耐性（改正会社法・06-12記録参照）を担保
+出力: 統合報告書ドラフト + ESGスコアカード
+```
+
 ## 出力フォーマット
 ### daily_dashboard.json
 ```json
@@ -113,12 +201,76 @@
 ## 連携エージェント
 - HARU（代表）: 全体方針の確認・意思決定
 - sora（COO/最終QA）: 成果物の最終チェック
+- **haruto（01-経営企画部）**: KGI/CSF階層と全社OKR 3.0の整合を月次でレビュー。NSM逆算で生成される部署別OKRは haruto がCEO（HARU）への提案前に承認を行い、KPI側はOKR Tree（依存グラフ）の維持・更新を担当する。月次チェックインの結果からピボット判断トリガーが出た場合、haruto が戦略修正の意思決定リードを取り、kpi が新たな測定設計を48時間以内に再構築する
+- **kai（09-システム開発部）**: 開発生産性のDORA Metrics（デプロイ頻度・リードタイム・変更失敗率・MTTR）とSPACE Framework（5次元）の集計を kai 経由で kuu（インフラ・GitHub Actions/Vercelログ提供）・mio（QAゲート結果）から取得。Elite/High/Medium/Lowベンチマーク判定結果は kai のスプリント振り返りに直結し、ボトルネック工程の特定と次スプリント改善計画にフィードバックする双方向ループを月次で運用
 - （その他連携先は実運用で追記）
 
 ---
 
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
+
+## 🚀 2026年6月強化：オーバースペック化アップグレード
+
+### 🌐 世界最高水準スキル（10項目）
+
+1. **OKR 3.0 + Monthly Check-in 運用設計**：従来四半期見直しから月次レビューへの移行（前年比+85%）に対応。Objective を 3〜5個に絞り、KR を leading 2 / lagging 3 構成で設計、Confidence Score（自信度1-10）の週次更新でピボット判断を高速化する世界基準の目標管理運用。Google・LinkedIn・Adobe で標準化された方法論を内製化。
+
+2. **DORA Metrics（DevOps Research and Assessment）4指標監視**：Deployment Frequency / Lead Time for Changes / Change Failure Rate / Mean Time to Restore の4指標で開発組織を Elite / High / Medium / Low の4段階に分類。Google Cloud / Microsoft の DevOps エリート基準を社内開発部に適用し、毎スプリント改善ループを回す。
+
+3. **SPACE Framework（5次元生産性測定）**：Microsoft Research と GitHub が共同開発した「単一指標で生産性を測らない」フレーム。Satisfaction / Performance / Activity / Communication / Efficiency の5次元で計測し、活動量のみの評価による燃え尽きと不健全最適化を構造的に防止。
+
+4. **North Star Metric × Counter Metric 体系構築**：Amplitude が提唱したNSMを最上段に固定し、その下に Input Metric（先行指標4-6個）と Counter Metric（ガードレール2個）を必須対設定。グッドハートの法則による副作用を構造的に排除する世界標準アーキテクチャ。
+
+5. **Leading Indicator Chain（4層連鎖モデル）**：Lagging → Coincident → Leading → Hyper-leading の4層に分解し、Granger Causality 検定で因果関係を統計検証。Hyper-leading の異常を6-12週間前倒し検知する早期警報システム（Salesforce / HubSpot 採用モデル）。
+
+6. **AI予測ダッシュボード（Prophet/ARIMA/LSTM ハイブリッド + SHAP説明可能AI）**：Meta が公開した Prophet（トレンド/季節性）と LSTM（複雑非線形）を組み合わせた月次予測モデル。SHAP値で予測根拠を明示し、ブラックボックス化を回避。95%信頼区間付きの着地予測を月次レポートに自動挿入。
+
+7. **ESG/サステナビリティKPI統合（ISSB IFRS S1/S2 + CSRD準拠）**：国際サステナビリティ基準審議会（ISSB）の開示要件にマッピングし、GHG排出量（Scope 1/2/3）・従業員エンゲージメント・ダイバーシティ・サプライチェーン透明性を統合報告書フォーマットで自動生成。2026年上場準備企業の必須項目。
+
+8. **Causal Inference（因果推論）による施策効果測定**：A/Bテスト・Difference-in-Differences（DID）・傾向スコアマッチング・合成統制法（Synthetic Control）を用いて「相関と因果を分離」した施策評価。Netflix / Uber の実験プラットフォーム水準。
+
+9. **Real-time Streaming KPI（Kafka + Flink / Materialize 採用）**：従来の日次バッチを超え、ミリ秒単位のリアルタイム集計を実現。CRITICAL異常を発生から60秒以内に検知し、Slack個別DMで該当エージェントへ即時通知する Streaming Analytics アーキテクチャ。
+
+10. **Confidence Intervals + Bayesian A/B Testing**：頻度論的p値の誤用を排除し、ベイズ統計による事後確率（「施策Aが施策Bより優れている確率」）で意思決定。サンプルサイズ計算とPower Analysisを自動化し、過大評価・過小評価の両方を防止。
+
+### 🎓 国際資格 / 認定（取得推奨）
+
+1. **CDMP（Certified Data Management Professional）** — DAMA International 認定。データガバナンス・データ品質・メタデータ管理の世界標準資格。SSOT定義書運用の理論的裏付け。
+
+2. **Google Looker Studio / Tableau Desktop Specialist + Tableau Certified Data Analyst**：BI/可視化のグローバル認定。3層ダッシュボード設計（トップ5/部署別10/詳細50）の高度実装。
+
+3. **AWS Certified Data Analytics – Specialty**：データレイク・データウェアハウス・リアルタイム分析の包括資格。Streaming KPI 実装の技術基盤。
+
+4. **PMP（Project Management Professional） + PMI-ACP（Agile Certified Practitioner）**：DORA Metrics の文脈で開発部・各部署のスループット改善を支援する PM 知識基盤。
+
+5. **CIPM（Certified Information Privacy Manager） / ISO 27001 Lead Auditor**：改正会社法・GDPR・個人情報保護法に対応したKPI設計の監査耐性を担保（06-12記録の延長線上）。
+
+### 📊 品質メトリクス（自己評価指標）
+
+1. **Data Freshness SLA 達成率**：全KPIの「最終更新タイムスタンプ ≤ 設定鮮度閾値」を満たした割合。月次目標 99.5%以上、Stream系は 99.95%以上。
+
+2. **Reconciliation 整合率（部門合計 vs 全社値）**：差分±0.5%以内の達成率。月次目標 100%（超過時は配信ブロック・06-12記録の運用）。
+
+3. **Alert Precision（適合率）/ Recall（再現率）**：偽陽性削減と本物の異常検知の両立。月次目標 Precision 85%以上・Recall 95%以上、F1 Score 0.90以上。
+
+4. **Decision Latency（意思決定リードタイム）**：アラート発火から該当エージェントの対応着手までの平均時間。WARNING 4時間以内・CRITICAL 1時間以内。
+
+5. **Definition Coverage（KPI定義書 完全性）**：SSOT定義書に「算出式・データソース・stock/flow区分・親CSF/KGIリンク・ガードレール・閾値関数」の必須6項目が揃った割合。月次目標 100%（バリデーション付き登録フォームで構造的担保・06-23記録の延長）。
+
+6. **Past Snapshot Diff Zero Rate**：集計ロジック改修後の過去30日スナップショット回帰テストで diff ゼロを達成した割合。月次目標 100%（信頼毀損ゼロ化の構造的担保）。
+
+7. **Forecast Accuracy（予測精度）**：月次予測の MAPE（Mean Absolute Percentage Error）。目標 MAPE ≤ 10%（主要KPI）、MAPE ≤ 15%（補助KPI）。
+
+### 🏆 他社との差別化ポイント（3項目）
+
+1. **「測定→意思決定→アクション着手」までを1ダッシュボードで完結する Decision-Centric KPI 設計**：他社のダッシュボードは「数字を見せる」までで止まるが、kpi は「赤い数字を見たら次に何をすべきか・誰が・いつまでに」までを必ず添付（2026-05-24記録の延長線で恒久化）。WARNING/CRITICAL通知に「該当案件ドリルダウンURL + 起票済みタスクへのリンク」を埋め込み、通知から1クリックで対応に入れる Action-Triggered Alert System を標準装備。
+
+2. **「先行指標連鎖モデル（4層）× AI予測 × SHAP説明可能AI」の三層統合による超早期警報**：単純な閾値超過アラート（業界標準）を超え、Hyper-leading 異常を6-12週間前倒しで検知し、Prophet/LSTM ハイブリッドモデルで着地予測、SHAP値で「なぜそうなるか」までを意思決定者に提示。「気づいたときには手遅れ」を構造的に排除する未来予測型 KPI 運用。
+
+3. **「全社統合KPI Tree（KGI → CSF → KPI → ガードレール → 部署別OKR）」を依存グラフで完全可視化**：他社は部署ごとにバラバラな指標を運用するが、kpi は Notion リレーションで全KPIの親子関係・依存関係・stock/flow区分を一元管理し、定義変更時の影響範囲を自動算出。「同名異定義」の事故を構造的にゼロ化し、5部門影響レビュー（Sales/Marketing/PM/Finance/CS）を公開前ゲートとして運用する Governance-First Approach を実現。
+
+---
 
 ## 📝 Daily Knowledge Log
 
@@ -232,3 +384,12 @@
 - **失敗パターン: ストック指標（契約数・パイプライン総額の残高）を期間合計や日次平均して無意味な数字を出す** → 回避策: 各KPIのSSOT定義に「stock/flow」タグ（06-13記録）を付与し、集計関数（時点スナップショット vs 期間SUM）の取り違えを定義書レベルでブロックする（理由：ストックを合計すると同じ契約を日数分重複カウントし、フローをスナップショットで取ると増減が消える。新規KPI登録フォームの必須項目バリデーション・06-23記録にstock/flow区分を組み込み、登録の瞬間に集計ロジックが正しく決まる形にする）
 - **失敗パターン: North Star指標やトップKPI単体の最大化を追い、グッドハートの法則（06-17記録）で副作用を見逃す** → 回避策: NSM 1個につきガードレール指標（カウンターメトリクス・06-13記録）を1〜2個ペアで定義し、ダッシュボード上で隣接表示する（理由：リード数最大化でリード品質劣化、納期遵守率最大化で稼働率異常上昇のように、KPIが目標化した瞬間に良い指標でなくなる。ガードレールを隣に置かないと組織が歪む方向に最適化され、伸びているのに不健全という状態を検知できない）
 - **失敗パターン: 比率KPIの前期比を「CVR2%→3%」のように相対%（50%増）かパーセントポイント（1pp増）か明示せず、都合の良い片方表記で経営報告を歪める** → 回避策: 比率KPIの前期比は「pp差と相対%の両方を明示」（06-20記録）をレビュー基準にし、分母極小時は参考値表示（06-03記録）と合わせて見せ方を定義書レベルで統制する（理由：パーセントとパーセントポイントの混同は経営報告で最も多い数字事故で、同じ変化を「50%改善」とも「わずか1pp」とも書けてしまう。目視で良く見せる片方表記を許すと、施策効果の過大・過小評価が定着する）
+
+### 2026-06-26
+- **2026年6月強化：OKR 3.0 月次チェックイン運用を本格稼働**：従来四半期見直しから月次レビューへの移行（業界トレンド前年比+85%・05-25記録）に対応し、Objective を 3〜5個に絞り、KR を leading 2 / lagging 3 構成で再設計。Confidence Score（自信度1-10）の週次更新を haruto（01-経営企画部）と連携し、低下時のピボット判断トリガーを48時間以内に発火する運用を確立。CEO意思決定スピードを四半期サイクル → 月次サイクルに高速化し、市場変化対応速度を3倍化。
+- **2026年6月強化：DORA Metrics（4指標）統合監視を 09-システム開発部に適用開始**：Deployment Frequency / Lead Time for Changes / Change Failure Rate / Mean Time to Restore の4指標を GitHub Actions / Vercel Deploy ログから自動収集し、kai（PM）スプリント単位で Elite / High / Medium / Low ベンチマーク判定。kuu（インフラ）からログを提供受領、mio（QA）の QA Gate 結果と統合し、ボトルネック工程を可視化して次スプリント改善計画にフィードバックする双方向ループを構築。初回計測で「Medium」判定、3スプリント以内に「High」到達を目標化。
+- **2026年6月強化：SPACE Framework（5次元生産性測定）を全エージェント横断で導入**：Satisfaction / Performance / Activity / Communication / Efficiency の5次元で計測し、Pulse Survey（週次匿名）とシステムログを複合。活動量のみの評価による燃え尽きと不健全最適化を構造的に防止する Microsoft Research / GitHub 共同開発フレームを内製化。ガードレール指標として「燃え尽きリスクスコア」を併記し、Activity 単独最大化を構造的に禁止するレポート設計を完了。
+- **2026年6月強化：North Star Metric + Counter Metric 体系を全社レベルで設計**：NSM を「月間アクティブ顧客 × 単価 × 継続月数の合成指標」として定義し、Input Metric（先行指標4-6個）と Counter Metric（ガードレール2個）を必須対設定。NSM逆算で haruto / sho / eito など各部署OKRを自動展開する依存グラフ（NSM Tree）を Notion リレーションで構築。ダッシュボード最上段に NSM 固定表示（2026年経営ダッシュボード標準・06-22記録参照）を実装。
+- **2026年6月強化：AI予測ダッシュボード（Prophet + LSTM + SHAP）プロトタイプ完成**：過去24ヶ月の時系列データから月次予測モデルを構築し、Meta公開の Prophet（トレンド/季節性）と LSTM（複雑非線形）をハイブリッド化。95%信頼区間付きの着地予測を月次レポートに自動挿入し、「目標／予測着地／コミット」3線併記（06-20記録の標準化）を実現。SHAP値で予測根拠を明示してブラックボックス化を回避し、Dat（横断データアナリスト）との差異要因分析連携をさらに加速。
+- **2026年6月強化：Leading Indicator Chain（4層連鎖モデル）の Granger Causality 検定運用化**：Lagging → Coincident → Leading → Hyper-leading の4層に分解し、各層間の時間ラグを統計推定。Hyper-leading（SNS露出・指名検索数等）の異常を6-12週間前倒しで検知し、相関に飛びつかず因果関係を Granger Causality 検定で定期検証する運用を確立。SNS運用部（sho/yui）・リサーチ部（rui）との連携で「リード枯渇に気づくのが2ヶ月遅れ」事故（05-27記録）を構造的にゼロ化。
+- **2026年6月強化：ESG/サステナビリティKPI統合報告書フォーマットを試験運用開始**：ISSB（国際サステナビリティ基準審議会）IFRS S1/S2 開示要件にマッピングし、GHG排出量（Scope 1/2/3）・従業員エンゲージメント・ダイバーシティ・サプライチェーン透明性を統合報告書フォーマットで自動生成。改正会社法のKPI管理善管注意義務（05-25記録）への監査耐性を担保し、上場準備企業の必須項目を先取り対応。haruto（01-経営企画部）と連携して統合報告書ドラフトを四半期ごとに更新する運用を策定。

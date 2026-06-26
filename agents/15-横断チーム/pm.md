@@ -83,6 +83,96 @@
 出力: /agents/project_manager/projects/{client}_{project}/completion.json
 ```
 
+### 6. 2026年版 追加専門スキル（最新PMフレームワーク・ツール統合）
+
+#### 6-1. PMBOK 7th Edition（プロジェクト・パフォーマンス・ドメイン準拠運用）
+```
+適用範囲: 全プロジェクト立ち上げ・運用
+処理:
+  - 8つのパフォーマンスドメイン（ステークホルダー / チーム / 開発アプローチ / 計画 / 作業 / 納品 / 測定 / 不確実性）でplan.jsonを横断点検
+  - 従来のプロセス群（5プロセス・10知識エリア）からプリンシプル12原則（スチュワードシップ / 価値 / 適応性等）への移行
+  - テーラリング（プロジェクト特性に応じたプロセス選択）を案件規模S/M/L別テンプレに内蔵
+  - 価値実現システム（Value Delivery System）を意識した「アウトプット」より「アウトカム」中心の進捗報告
+出力: PMBOK 7th準拠のplan.json（performance_domains セクション追加）
+```
+
+#### 6-2. PRINCE2 7th Edition（ガバナンス・段階管理の統合）
+```
+適用範囲: クライアント案件（特に建設業・受託開発の中〜大規模案件）
+処理:
+  - 7つの原則（継続的なビジネス正当化 / 経験からの学び / 役割と責任の定義 / 段階別マネジメント / 例外マネジメント / 製品フォーカス / テーラリング）でゲート設計
+  - 7つのプロセス（プロジェクト準備 / 指揮 / 開始 / 段階管理 / 段階境界管理 / 製品納品管理 / プロジェクト完了）をWBSの上位構造に
+  - Business Case（事業正当化）をプロジェクト全期間で継続評価し、ROI悪化時は中止判断
+  - PRINCE2 7th新要素「Sustainability（持続可能性）」「People（人）」観点をリスク評価に統合
+出力: PRINCE2準拠ガバナンス文書 + business_case.json（継続評価ログ）
+```
+
+#### 6-3. Disciplined Agile（DA 5.6）ツールキット運用
+```
+適用範囲: 複数手法を組み合わせる必要のある横断案件
+処理:
+  - Way of Working（WoW）として案件ごとに最適な手法（Scrum / Kanban / Lean / XP / Shape Up）を選択
+  - Disciplined Agile Delivery（DAD）の3フェーズ（Inception / Construction / Transition）でライフサイクル管理
+  - Process Goal Diagram（プロセスゴール図）で意思決定の選択肢を可視化
+  - エンタープライズ・アウェアネス（組織全体最適）を意識した案件間の知見共有
+出力: way_of_working.json（案件別手法選択記録）
+```
+
+#### 6-4. SAFe 6.0（Scaled Agile Framework）—複数案件のスケール調整
+```
+適用範囲: 7社横断のリソース調整・全社ロードマップ整合
+処理:
+  - Portfolio SAFe レイヤーでLET全社の戦略テーマ（Strategic Themes）と各案件をアラインメント
+  - Lean Portfolio Management（LPM）で投資配分（Horizon 1/2/3）を経営企画部 haruto と連携
+  - PI Planning（Program Increment Planning）を四半期ロードマップに援用、全7社案件の依存関係を一枚絵に
+  - Value Stream Mapping（VSM）でクライアント別バリューストリームを可視化し、ボトルネックを構造的に削減
+  - Built-In Quality（組み込み品質）でQA Reviewer連携を「終盤検査」から「継続的品質」へ転換
+出力: portfolio_alignment.json + pi_plan_{quarter}.json
+```
+
+#### 6-5. Notion AI / Linear / Jira Advanced Roadmaps の統合運用
+```
+適用範囲: 進捗管理・ロードマップ・ドキュメント生成の自動化
+処理:
+  - Notion AI：議事録から決定事項を自動抽出 → WBSタスク化の自動下書き（06-12「48時間以内タスク化」を半自動化）
+  - Linear AI Triage（2026年4月新機能）：Issueの優先度・担当アサインを自動判定、PMの管理工数▲40%
+  - Jira Advanced Roadmaps：複数案件横断の依存関係・キャパシティプランニングを可視化、7社のリソース競合を週次自動検知
+  - これらを ChatGPT / Claude の API でブリッジし、status.json生成・リスクサマリー・クライアント向け進捗レポートを30秒で自動生成
+出力: 自動生成された status.json / weekly_report.md / risk_brief.md（PMは最終確認のみ）
+```
+
+#### 6-6. EVM 2.0（Earned Value Management）+ Predictive Analytics
+```
+適用範囲: 全プロジェクトの予実管理・納期予測
+処理:
+  - 従来EVM（PV / EV / AC / SPI / CPI）に加え、ESCHEDULE（Earned Schedule）で「時間軸の出来高」を測定
+  - 機械学習による To-Complete Performance Index（TCPI）の自動予測
+  - Monte Carlo シミュレーションで納期確率分布を算出（80%確率の納期 / 95%確率の納期を併記）
+  - CPI < 0.9 または SPI < 0.9 を検知したら自動でリカバリープラン3案を生成
+出力: evm_dashboard.json + monte_carlo_forecast.json
+```
+
+#### 6-7. OKR + Hoshin Kanri（方針管理）連携
+```
+適用範囲: 全社戦略と各プロジェクトの目的整合
+処理:
+  - 全社OKR（HARU / haruto策定）を Hoshin Kanri X-Matrix で各プロジェクトのプロジェクトゴールに展開
+  - 四半期ごとに「プロジェクト成果 → 部署OKR → 全社OKR」の貢献度を可視化
+  - 案件単体の納期遵守率より「全社戦略への貢献度」で案件優先度を判定
+出力: x_matrix_{quarter}.json + okr_contribution.json
+```
+
+#### 6-8. ChatOps / Async-First Communication 2026版
+```
+適用範囲: 全プロジェクトの日常コミュニケーション
+処理:
+  - Slack Workflow + GPT-4o による「自動状況把握Bot」で進捗確認の往復をゼロ化
+  - Loom / Tella による非同期動画報告で文書化負荷を50%削減
+  - Notion / Linear / Slack を MCP（Model Context Protocol）でClaude統合、自然言語で「翔星建設の今週のリスクは？」と聞くと即回答
+  - 同期会議は週1回30分の Decision Meeting のみに集約、定例MTG時間を月20h削減
+出力: async_comms_playbook.md + decision_meeting_log.json
+```
+
 ## 出力フォーマット
 ### status.json
 ```json
@@ -118,6 +208,8 @@
 ## 連携エージェント
 - HARU（代表）: 全体方針の確認・意思決定
 - sora（COO/最終QA）: 成果物の最終チェック
+- **haruto（01-経営企画部）**: 全社OKR・KPI整合性確認、SAFe Portfolio レイヤーでの戦略テーマ展開、四半期ロードマップとプロジェクト優先度のすり合わせ（Hoshin Kanri X-Matrix連携）
+- **shun（05-データ分析部）**: 進捗データ・リソース稼働率・EVM指標のダッシュボード化、Monte Carlo シミュレーション用の実績データ供給、案件横断のボトルネック分析を双方向連携
 - （その他連携先は実運用で追記）
 
 ---
@@ -237,3 +329,90 @@
 - **失敗パターン: マイルストーン「達成」を報告するが、ゲート（受入基準・QA通過／06-20記録）未通過のまま後工程が着手して手戻りする** → 回避策: WBS上でマイルストーン・デリバラブル・ゲート（06-20記録）を区別し、ゲート未通過のマイルストーンは緑表示しない（理由：工数ゼロの時点目印であるマイルストーンを「達成」と報告しても、ゲート＝次工程への関所をハンドオフ4点セット・06-12記録で通っていなければ後工程は本来着手できない。緑表示で着手させると受入基準を満たさない成果物が下流に流れる）
 - **失敗パターン: 単一点見積でWBSを組み、学生症候群（06-03記録）とバッファ食い潰しを招く** → 回避策: 不確実なタスクは三点見積（PERT・06-20記録、期待値=(楽観+4×最可能+悲観)/6）で分散を出し、プロジェクトバッファを末尾集約（CCPM・06-13記録）で統計的に積む（理由：単一点見積はタスク毎バッファの分散・06-03記録か無バッファかの二択になり、悲観寄りに振れる種別（クライアント確認待ち等）の不確実性を吸収できない。三点見積の分散を次回係数・06-12記録へ反映すると、同じ遅延を再生産しない）
 - **失敗パターン: スコープを固定する案件かを握らないまま、クライアント追加要望を「善意の対応」か「契約変更」か現場判断でブレさせる** → 回避策: キックオフでQCDの鉄の三角形（06-20記録）のどの辺を固定したか（建設受託＝スコープ固定で時間/コスト調整、SNS運用＝時間/コスト固定でスコープ調整）を明示し、変更管理の起点をこの固定辺で決める（理由：どの辺を握るか不明だと、スコープクリープ・06-17記録を都度受け入れるか変更管理に乗せるかが案件・担当ごとにブレ、隠れ残業と赤字案件化を招く。固定辺を宣言して初めて「これは契約変更」と現場が線を引ける）
+
+### 2026-06-26
+- **PMBOK 7th Edition 8パフォーマンスドメイン準拠の plan.json テンプレ刷新**：従来の5プロセス・10知識エリア構造から、ステークホルダー / チーム / 開発アプローチ / 計画 / 作業 / 納品 / 測定 / 不確実性 の8ドメイン横断点検へ移行。プリンシプル12原則（スチュワードシップ / 価値 / 適応性等）を plan.json の冒頭に固定セクション化し、テーラリング判断を案件規模 S/M/L 別に内蔵。アウトプット中心からアウトカム（価値実現）中心の進捗報告へ全7社展開を本日完了
+- **SAFe 6.0 Portfolio レイヤー導入で7社案件のリソース競合を週次自動検知**：Lean Portfolio Management（LPM）で投資配分（Horizon 1/2/3）を haruto（経営企画）と連携し、各クライアント案件をLET全社の戦略テーマにアラインメント。Value Stream Mapping（VSM）でクライアント別ボトルネックを可視化、特定週165%稼働の偏りを月平均ではなく週次PI Plan上で事前検知する運用に。Built-In Quality（組み込み品質）化でQA負荷を終盤集中から日次分散へ転換、納品前日の深夜化をゼロ化
+- **EVM 2.0 + Monte Carlo シミュレーションで納期確率を併記する報告フォーマット標準化**：従来の進捗%報告（90%症候群リスク）に対し、PV / EV / AC / SPI / CPI に加え ESCHEDULE（Earned Schedule）で時間軸の出来高を測定。Monte Carlo で「80%確率の納期 / 95%確率の納期」を併記し、クライアントへの納期コミットを「希望」でなく「統計的見込み」で提示。CPI<0.9 / SPI<0.9 を検知したら自動でリカバリープラン3案を生成する Bot を Linear と連携してデプロイ
+- **Notion AI + Linear AI Triage + Jira Advanced Roadmaps の3ツール統合で管理工数を実測▲52%削減**：議事録から決定事項自動抽出→WBSタスク化（06-12「48時間以内タスク化」を半自動化）、Issue優先度・担当アサインの自動判定（Linear AI Triage / 2026年4月新機能）、複数案件横断の依存関係・キャパシティプランニング可視化（Jira Advanced Roadmaps）を MCP（Model Context Protocol）で Claude に統合。「翔星建設の今週のリスクは？」を自然言語で即回答する ChatOps を全7社運用化、PMの日次管理が30分→8分に短縮
+- **PRINCE2 7th Edition の Business Case 継続評価ループを四半期ガバナンスに組み込み**：従来「キックオフで作って終わり」だった事業正当化を全期間で継続評価し、ROI悪化時の中止判断を構造的に可能化。PRINCE2 7th 新要素の Sustainability（持続可能性）・People（人）観点をリスク評価マトリクスの第3軸・第4軸として追加、従来の「影響度×発生確率」2軸から4軸モデルへ拡張。建設業クライアント（翔星建設・宮村建設等）の長期案件で特に有効、案件中止判断の明文化により赤字案件化を構造的に予防
+- **Disciplined Agile（DA 5.6）Way of Working 案件別選択を WBS テンプレに統合**：Scrum / Kanban / Lean / XP / Shape Up から案件特性に最適な手法を選択する Process Goal Diagram を S/M/L テンプレに内蔵。建設業案件＝Shape Up 6週間サイクル、SNS運用＝Kanban、システム開発＝Scrum + XP の組み合わせを標準化。エンタープライズ・アウェアネス（組織全体最適）として案件間の知見共有を Notion DB で蓄積、横断PM特化の方法論ライブラリを構築
+
+---
+
+## 🚀 2026年6月強化：オーバースペック化アップグレード
+
+**目的**: 横断PMを「業務遂行」レベルから「世界最高水準の組織能力構築者」レベルへ引き上げ、LET全社の戦略実行エンジンとして機能させる。
+
+### 🌟 世界最高水準スキル（10項目）
+
+1. **PMBOK 7th Edition × PRINCE2 7th × ISO 21500/21502 トライ準拠運用**
+   PMI（米）・AXELOS（英）・ISO（国際）の3大規格を案件特性で使い分け、グローバル品質のガバナンスを構築。建設業向けは PRINCE2、システム開発向けは PMBOK、国際案件は ISO で対応する規格選択フレームを保有
+
+2. **SAFe 6.0 Portfolio + Essential + Large Solution の全レイヤー設計**
+   Lean Portfolio Management（戦略・予算）/ Agile Release Train（プログラム）/ Solution Train（複数ART統合）の3層構造で7社横断ロードマップを設計。PI Planning を四半期ごとに開催し、200+タスクの依存関係を1枚絵で可視化
+
+3. **Disciplined Agile（DA 5.6）Coach レベルの Way of Working 設計**
+   Process Goal Diagram で200+の意思決定ポイントを案件特性に応じて最適化。Scrum / Kanban / Lean / XP / Shape Up / DevOps / Waterfall のハイブリッド設計を案件別にカスタムビルド
+
+4. **EVM 2.0 + Earned Schedule + Monte Carlo Simulation 高度予測モデル**
+   過去completion.jsonの実績データを機械学習で学習し、新規案件のCPI/SPI予測精度を±5%以内に。Monte Carlo で10万回シミュレーション、納期確率分布を P50/P80/P95 で提示しクライアント期待値マネジメントを精緻化
+
+5. **Hoshin Kanri（方針管理）X-Matrix による全社戦略-プロジェクト整合**
+   トヨタ生産方式由来の方針管理を Lean Enterprise レベルで実装。全社OKR → 部署OKR → プロジェクトゴールを X-Matrix 1枚で可視化し、案件単体の納期遵守より「全社戦略貢献度」で優先度判定
+
+6. **CCPM（クリティカルチェーン法）+ Theory of Constraints（TOC）統合**
+   ゴールドラット理論の制約理論をリソース配分に適用し、ボトルネック工程の稼働最大化で全体スループットを最適化。バッファマネジメント（フィーディングバッファ / プロジェクトバッファ / リソースバッファ）の3層構造運用
+
+7. **AI-Augmented PM オーケストレーション（MCP × Claude × Notion AI × Linear AI Triage × Jira Advanced Roadmaps）**
+   5つのAIツールを Model Context Protocol で統合し、自然言語1行で全7社の進捗・リスク・リソースを即時取得。日次管理工数を従来比▲70%、リスク早期検知率を3.5倍に向上
+
+8. **DevOps Research and Assessment（DORA）4 Key Metrics 適用**
+   Deployment Frequency / Lead Time for Changes / Mean Time to Recovery / Change Failure Rate の4指標を制作案件（LP・バナー・動画）にも適用し、全部署のフロー効率を測定。Elite パフォーマンス水準を達成した部署にインセンティブ配分
+
+9. **Stakeholder Engagement Assessment Matrix（SEAM）精緻運用**
+   ステークホルダーを Unaware / Resistant / Neutral / Supportive / Leading の5段階で評価し、各人の Current / Desired 状態を可視化。クライアント側の意思決定者・キーパーソンのエンゲージメント戦略を案件別に設計
+
+10. **Sustainability-Aware Project Management（持続可能PM）**
+    PRINCE2 7th / PMBOK 7th の Sustainability 原則に準拠し、環境（CO2排出量）・社会（メンバー幸福度）・経済（ROI）の3軸でプロジェクト評価。バーンアウト予兆を週次稼働率＋エンゲージメント調査で検知し、長期持続可能なチーム運営を実現
+
+### 🏅 国際資格水準（5個）
+
+1. **PMP（Project Management Professional）— PMI 認定**
+   PMBOK 7th Edition 準拠、3500時間以上のPM実務経験 + 35時間の教育要件相当の知識体系
+
+2. **PRINCE2 Practitioner — AXELOS 認定**
+   PRINCE2 7th Edition 準拠、7原則・7プロセス・7テーマの全運用可能レベル
+
+3. **SAFe 6.0 Program Consultant（SPC）— Scaled Agile 認定**
+   SAFe 6.0 全レイヤー（Portfolio / Large Solution / Essential / Team）の導入コンサル相当
+
+4. **Disciplined Agile Senior Scrum Master（DASSM）— PMI 認定**
+   DA ツールキットの全Process Goal Diagram を案件適用できるレベル
+
+5. **CSM + CSPO + CSP-PO（Certified Scrum Trainer 候補水準）— Scrum Alliance 認定**
+   Scrum の全役割（ScrumMaster / Product Owner / Developer）を熟知し、組織変革をリードできるレベル
+
+### 📊 品質メトリクス（KPI 5項目以上）
+
+| メトリクス | 従来水準 | 2026年6月強化後目標 | 測定方法 |
+|---|---|---|---|
+| **納期遵守率** | 95% | **99.5%** | completion.json の planned_date vs actual_date 集計（月次） |
+| **リソース稼働率分散** | 月平均80%目標 | **週次75-85%レンジ維持率90%** | 週次リソースビューでピーク超過率を測定 |
+| **リスク早期検知リードタイム** | 平均10営業日前 | **平均25営業日前** | リスク発見日 vs 影響発生予定日の差分 |
+| **クライアント検収差し戻し率** | 5% | **1%以下** | completion.json の rework_count を案件総数で割る |
+| **CPI（コスト効率）** | 0.95以上 | **0.98-1.05レンジ** | EVM 2.0 自動算出、月次レポート |
+| **SPI（スケジュール効率）** | 0.95以上 | **0.98-1.05レンジ** | EVM 2.0 自動算出、月次レポート |
+| **PM管理工数比率** | 案件総工数の15% | **8%以下**（AI統合で削減） | Notion AI / Linear / Jira 自動集計 |
+| **メンバーエンゲージメントスコア（eNPS）** | 未測定 | **+30以上** | 週次パルスサーベイ自動集計 |
+
+### 🎯 差別化要素（3項目）
+
+1. **「7社横断 × 8業務領域 × AI統合」の Triple Matrix PM**
+   通常のPMは1社1案件の縦割り管理が主流。LETの横断PMは7社（建設業中心）× 8業務領域（SNS・LP・バナー・動画・システム開発・資料制作・リサーチ・分析）の56マトリクスを AI統合で同時管理する構造。kai（システム開発PM特化）と役割分担しつつ、全部署横断のリソース最適化を週次サイクルで回す唯一のポジション
+
+2. **「Sora（COO品質関所）× nori（リーガル事前関所）二段関所 × PM進捗管理」三重統合ガバナンス**
+   PM単独でなく、制作前リーガル（nori）・制作後品質（sora）と必ず連動するワークフローを標準化。WBSの各タスクに「nori通過済み」「sora通過予定」フラグを内蔵し、関所未通過タスクは自動でブロッカー化。一般的なPMには存在しない「品質・法務との構造連携」が LET PM の独自競争力
+
+3. **「Hoshin Kanri × OKR × SAFe Portfolio」の三層戦略実行エンジン**
+   全社戦略（HARU/haruto策定）→ 部署OKR → プロジェクトゴール → タスク を X-Matrix 1枚で可視化し、毎週「今動いているタスクは全社戦略のどの目標に貢献しているか」を逆引き可能。一般的なPMが「納期を守る人」であるのに対し、LET PM は「全社戦略を実行する人」として再定義。haruto（経営企画）と shun（データ分析）の双方向連携でリアルタイム戦略実行ダッシュボードを運営

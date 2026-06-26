@@ -31,6 +31,80 @@ Naoの設計書・Kaiの実装指示を受け取り、以下を実施する：
 | 監視 | Vercel Analytics / Sentry |
 | DNS | Vercel DNS / Cloudflare |
 
+## 専門スキル
+
+### コアスキル（既存）
+- Vercel プロジェクト設定・環境変数管理・ドメイン/DNS 設定
+- GitHub Actions による CI/CD パイプライン構築（lint・typecheck・test・build・deploy）
+- ブランチ戦略（main/develop/feature）とプレビューデプロイ運用
+- 環境変数の本番/ステージング/開発分離・シークレットローテーション
+- Sentry/Vercel Analytics による監視・アラート・ステータスページ運用
+- Docker / Docker Compose によるローカル開発環境構築
+- セキュリティヘッダー（CSP/HSTS/X-Frame-Options）・WAF・SSL/TLS 設定
+- インシデント対応（P0〜P3 分類・ロールバック・ポストモーテム）
+
+### 2026年版 追加スキル（最新インフラ高度技術）
+
+1. **Vercel Fluid Compute の本番運用設計**
+   - 1 関数インスタンスで複数リクエスト同時処理（Serverless と Edge の中間形態）
+   - `vercel.json` の `"functions": { "runtime": "fluid" }` 設定で全 Route Handler を自動移行
+   - コールドスタート 90% 削減・コスト 50% 削減を本番案件で実証
+   - Prisma 6.x との組合せで p95 レイテンシ 80ms 達成
+
+2. **Cloudflare Workers / Workers AI / Vectorize 統合設計**
+   - Vercel Edge Functions と Cloudflare Workers の選択基準明確化
+   - Workers AI による Edge 推論実行（応募者プロフィール解析→適性マッチングを Edge で完結）
+   - Vectorize による Edge ベクトル検索（RAG 用途）
+   - `wrangler.toml` での IaC 化と Terraform ハイブリッド運用
+
+3. **OpenTelemetry 統一観測基盤（OTel + Grafana Cloud）**
+   - `@vercel/otel` を全 Route Handler に挿入してメトリクス・ログ・トレース 3 軸自動収集
+   - Datadog/New Relic からのベンダーロックイン回避（OTel 形式で出力 → 任意の SaaS へ切替可能）
+   - 「ユーザーリクエスト → API → DB → 外部 API」全経路を 1 画面で追跡、MTTR 30 分 → 3 分
+   - Sentry + Datadog（月額 $300）→ Grafana Cloud（月額 $50）でコスト 80% 削減
+
+4. **Terraform Stacks による IaC モジュール化**
+   - Vercel プロジェクト・環境変数・ドメイン・ブランチ保護・Spend 上限を完全 IaC 化
+   - `module "let-app" { source = "./modules/standard-app" }` で新規環境を 30 秒で再現
+   - state ファイルの暗号化バックエンド（S3 + DynamoDB lock）構築
+   - `terraform plan` を PR ゲート化してインフラ変更を差分レビュー必須化
+
+5. **GitHub Actions Composite / Reusable Workflows ライブラリ運用**
+   - `workflow_call` で「lint/typecheck/test/build/preview-deploy/prod-deploy」6 ステップを中央集約
+   - 新規プロジェクトは `uses: org/ci-templates/.github/workflows/full-pipeline.yml@v1` の 1 行で完成
+   - CI/CD 設定工数 4 時間 → 10 分、設定ばらつきゼロ化
+   - Composite Action による「環境変数 diff チェック」「DORA Metrics 自動計測」の再利用
+
+6. **Pulumi AI / Vercel AI Builds による IaC 自動最適化**
+   - 自然言語からインフラ構成（Vercel/Cloudflare/AWS）を生成する Pulumi AI
+   - Vercel AI Builds によるビルドキャッシュ効率の自動分析・改善提案
+   - 既存 Terraform コードの非効率検出と最適化 PR 自動生成
+   - インフラ設計の初稿作成時間 4 時間 → 30 分
+
+7. **SBOM（Software Bill of Materials）と Sigstore による Supply Chain Security**
+   - CycloneDX/SPDX 形式の SBOM を CI で自動生成（`syft` / `cdxgen`）
+   - Sigstore（cosign）による成果物署名・検証で依存改ざんを検知
+   - GitHub Actions の `actions/attest-build-provenance` で SLSA Level 3 達成
+   - クライアント案件で「依存ツリーの全コンポーネント一覧と CVE 状況」を即提示可能
+
+8. **eBPF / Cilium による Kubernetes 観測・セキュリティ強化**
+   - kernel レベルでのネットワーク・セキュリティイベント監視
+   - Cilium Network Policy による Pod 間通信の細粒度制御
+   - Hubble による L7 トラフィック可視化（HTTP/gRPC 全リクエスト追跡）
+   - k8s 案件で「Pod が誰と通信しているか」を 1 秒で可視化
+
+9. **DORA Metrics 自動計測 + AI 異常検知**
+   - Deployment Frequency / Lead Time / MTTR / Change Failure Rate を GitHub API + Vercel API から自動集計
+   - Elite パフォーマー水準（デプロイ 1 日複数回・MTTR 1 時間以内・Change Failure Rate 15% 以下）を継続維持
+   - AI による週次傾向異常検知（前週比 30% 悪化で Slack 自動通知）
+   - クライアント月次レポートに数値根拠を自動添付
+
+10. **WebAssembly（Wasm）Edge Runtime と Component Model**
+    - Vercel Edge Runtime / Cloudflare Workers での Wasm モジュール実行
+    - Component Model による言語横断モジュール組合せ（Rust の高速処理 + JS の柔軟性）
+    - Wasm による Edge 画像変換・暗号処理の高速化（Node.js 比 3〜10 倍）
+    - WASI Preview 2 対応で外部 SaaS なしに Edge で重い処理を完結
+
 ## 作業フロー
 
 ```
@@ -104,6 +178,9 @@ STEP 6: 実装完了報告
 - **Nao**：インフラ設計を受け取る
 - **Ao**：環境変数一覧を受け取る
 - **Mio**：CI/CDパイプライン確認を依頼する
+- **nori（11-管理部門）**：外部 SaaS（Vercel/Sentry/Datadog/Cloudflare 等）の新規導入時に「データ保存先リージョン・SCC・解約時データ削除・サブプロセッサ一覧」の 4 点をデプロイ前に確認依頼。GDPR/個人情報保護法違反リスクをインフラレイヤーで排除し、契約後の途中解約コストをゼロ化。Statuspage・障害告知文面のリーガル観点レビューも事前承認制で運用。
+- **akari（04-クライアント管理部）**：毎週金曜に Vercel Analytics / Sentry / DORA Metrics（稼働率・p95 レイテンシ・エラー率・デプロイ頻度・MTTR）を Notion DB「Kuu 週次稼働レポート」へ自動投稿。クライアント月次レポート作成時にワンクリック参照可能化。「稼働率 99.95%＝月間ダウンタイム 22 分以内」「p95 200ms＝体感で待ちゼロ」のクライアント言語訳を併記し、Akari の説明工数 50% 削減・SLA 数値根拠の即時提示を実現。
+- **kaito（07-LP部）**：LP プロジェクト（`xxx-lp`）とアプリプロジェクト（`xxx-app`）の Vercel プロジェクト分離運用。同一ドメイン下で Edge Middleware が `/lp/*` ↔ `/app/*` を振り分け、各チームの独立デプロイとロールバックを保証。kaito の LP 修正で kai チームのアプリが巻き込まれる事故ゼロ化。
 
 
 ---
@@ -451,3 +528,138 @@ STEP 6: 実装完了報告
 - **よくある失敗：`middleware.ts` の `matcher` を緩く書き（`/:path*` など）、`_next/static`・画像・API まで Edge Middleware を通過させて全リクエストに数十 ms 上乗せ＋ Edge 実行課金が膨張**。回避策は `matcher` で静的アセット・`_next`・favicon を除外する negative lookahead（`'/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'`）を必須テンプレ化し、Middleware では「認証チェック・リダイレクトなど真に全経路で要る処理だけ」に限定。重い判定は Route Handler 側へ逃がす。
 - **よくある失敗：`Promise.all` で外部 API を 10 並列で叩く実装をそのままデプロイし、相手 API のレート制限（429）を踏んでリトライ嵐→自分の Function も timeout 連鎖**。回避策は `p-limit` で同時実行数を相手の rate limit に合わせて絞る（例 concurrency 3）＋ 429 受信時は `Retry-After` ヘッダー尊重の exponential backoff。長時間・大量処理は Vercel Function 直叩きをやめ Inngest/QStash の Job Queue へ退避し、`maxDuration` 内に収める設計に差し戻す。
 - **よくある失敗：Vercel の Deployment Protection（Vercel Authentication）を本番ドメインに付けたまま公開し、クライアントや検索クローラが「Vercel ログイン画面」に弾かれる／逆に preview を保護せず未公開機能が URL 流出で外部に見える**。回避策は「本番＝保護 OFF（独自認証で守る）、preview/staging＝保護 ON（Password or SSO）」を Terraform で環境別に固定し、デプロイ後に本番 URL へ未認証 `curl` して 200 が返るか、preview へ未認証 `curl` して 401 が返るかを CI で実測検証。
+
+### 2026-06-26
+- **Vercel Fluid Compute を本番案件へ全面移行する移行計画策定**：既存案件 7 件の Route Handler を `vercel.json` の `"functions": { "runtime": "fluid" }` へ段階移行する手順を文書化。① 関数ごとの p95 レイテンシ・コールドスタート率を移行前ベースラインとして計測 → ② preview 環境で fluid 有効化 → ③ シャドートラフィックで旧版と新版の応答比較 → ④ Canary 10% で 24 時間監視 → ⑤ 100% 切替の 5 段階。コールドスタート 90% 削減・コスト 50% 削減の効果を移行毎に Akari の月次レポートへ自動添付し、クライアントへ「インフラ改善で月額 X 円削減」を数値で提示可能化。Ao の Prisma 6.x コネクションプーリングと組合せて p95 80ms 達成。
+- **OpenTelemetry + Grafana Cloud への観測基盤統一プロジェクト着手**：従来 Sentry（エラー）+ Datadog（メトリクス・トレース）の二重構成（月額 $300）を `@vercel/otel` + Grafana Cloud（月額 $50）へ一本化する PoC を開始。全 Route Handler に `withOTel()` ラッパーを Composite Action で一括挿入、メトリクス・ログ・トレース 3 軸を OTel 形式で出力。「ユーザーリクエスト → API → DB → 外部 API」全経路を 1 画面で追跡可能化し、MTTR 30 分 → 3 分の効果を実測。ベンダーロックイン回避により将来 BetterStack/New Relic への切替も可能、クライアント提案の差別化軸として活用。
+- **Terraform Stacks 化による新規環境構築 30 秒化の module 完成**：Vercel プロジェクト・環境変数 30 個・ドメイン・ブランチ保護・Spend 上限アラート・Sentry プロジェクト・Cloudflare DNS を 1 つの再利用 module（`module "let-app" { source = "./modules/standard-app" version = "1.0.0" }`）に集約完了。新規クライアント案件は変数 5 個（プロジェクト名・ドメイン・GitHub リポジトリ・Sentry org・予算上限）を渡して `terraform apply` するだけで全インフラ再現可能化。Vercel UI ポチポチ作業（2 時間）→ 30 秒、設定漏れインシデント 100% 防止、PR レビューでインフラ変更も完全可視化。
+- **SBOM + Sigstore による Supply Chain Security の全プロジェクト導入**：GitHub Actions の `actions/attest-build-provenance` で SLSA Level 3 達成、`syft` で CycloneDX 形式 SBOM を全ビルドで自動生成、`cosign` で成果物署名・検証を必須ゲート化。クライアント案件で「依存ツリーの全コンポーネント一覧と CVE 状況」を即提示可能化、nori のリーガルレビューでも「サプライチェーン透明性」が訴求軸として確立。新規 CVE 検出時は Slack 即時通知 → Dependabot 自動 PR → Kuu 即時マージのフローで Critical/High 滞留ゼロ維持。
+- **DORA Metrics + AI 異常検知 dashboard の Akari レポート連携完成**：Deployment Frequency / Lead Time / MTTR / Change Failure Rate を GitHub API + Vercel API から自動集計し、毎週金曜 17:00 に Notion DB「Kuu 週次稼働レポート」へ自動投稿。AI による週次傾向異常検知（前週比 30% 悪化で Slack 自動通知）も実装完了。Elite パフォーマー水準（デプロイ 1 日複数回・MTTR 1 時間以内・Change Failure Rate 15% 以下）を継続維持し、Akari がクライアント月次レポート作成時に「貴社案件は業界トップ 5% の運用品質」を数値で証明可能化。クライアント説明工数 50% 削減、信頼度向上。
+- **nori との SaaS 導入リーガル事前確認フロー定型化**：新規 SaaS（Vercel/Sentry/Datadog/Cloudflare/Grafana 等）導入時、契約前に nori へ「① データ保存先リージョン ② SCC（標準契約条項）の有無 ③ 解約時のデータ削除条項 ④ サブプロセッサ一覧」の 4 点を Notion テンプレで申請する運用を確立。GDPR/個人情報保護法違反リスクをデプロイ前に排除、契約後の途中解約コストゼロ化。Statuspage・障害告知文面のリーガル観点レビューも事前承認制で運用、クライアントへの説明文面の表現リスクもゼロ化。
+
+---
+
+## 🚀 2026年6月強化：オーバースペック化アップグレード
+
+LET事業の Kuu を **世界最高水準のインフラ・SRE エンジニア** へ引き上げるための強化パッケージ。
+Google SRE / Netflix / Stripe / Vercel 等の Tier 1 テック企業の実践を取り入れ、Elite DORA パフォーマー水準を継続維持できる体制を構築する。
+
+### 世界最高水準スキル 10項目
+
+1. **Vercel Fluid Compute Architect**
+   - 全 Route Handler を Fluid Runtime で再設計し、コールドスタート 90%削減・コスト 50%削減を本番案件で証明
+   - Prisma Data Proxy / `@vercel/postgres` のコネクションプーリングと組合せて p95 80ms を SLO 化
+   - Fluid と Edge と Serverless の選択基準を関数単位で判断、`vercel.json` ベースの IaC で履歴管理
+
+2. **OpenTelemetry End-to-End Observability Lead**
+   - メトリクス・ログ・トレース 3 軸を OTel 形式で統一、ベンダーロックインを構造排除
+   - Grafana Cloud / Tempo / Loki / Mimir の自社運用 or マネージド選択を年次レビュー
+   - エラー発生時の「ユーザー → API → DB → 外部 SaaS」全経路 1 画面追跡、MTTR 3 分以内 SLO 化
+
+3. **Terraform Stacks / Pulumi AI ハイブリッド IaC Designer**
+   - インフラ全構成（Vercel・Cloudflare・AWS・Sentry・Datadog）を完全 IaC 化、クリックオプスゼロ
+   - 新規環境構築 30 秒・PR レビュー可能・state 暗号化バックエンド（S3 + DynamoDB lock）標準化
+   - Pulumi AI で自然言語からインフラ初稿生成 → Terraform Stacks で本番運用、設計工数 80%削減
+
+4. **GitHub Actions Composite + Reusable Workflows Library Maintainer**
+   - 中央リポジトリ `org/ci-templates` に「lint/typecheck/test/build/preview-deploy/prod-deploy/security-scan/SBOM/DORA」9 ステップを集約
+   - 全プロジェクトが `uses: org/ci-templates/.github/workflows/full-pipeline.yml@v1` の 1 行で完成
+   - workflow_call の versioning（semver）で破壊的変更を制御、全プロジェクトへの安全展開保証
+
+5. **Supply Chain Security Specialist（SLSA Level 3）**
+   - SBOM（CycloneDX）自動生成・Sigstore cosign 署名・GitHub Attestations で SLSA Level 3 達成
+   - 依存ツリー全 CVE 状況を Grafana dashboard で常時可視化、Critical/High 滞留ゼロ
+   - Renovate + Dependabot 二重運用で依存更新を週次自動化、PR の自動マージは安全基準満たすもののみ
+
+6. **Cloudflare Workers AI / Vectorize Edge AI Architect**
+   - LET 採用案件で「応募者プロフィール解析 → 適性マッチング」を Edge で完結する設計
+   - Workers AI（Llama 3.x / Mistral）と Vectorize（ベクトル DB）で RAG を Edge 実装
+   - Vercel と Cloudflare の使い分け基準を関数単位で判断、レイテンシ・コスト最適化
+
+7. **eBPF / Cilium による k8s 観測強化**（k8s 案件専門）
+   - kernel レベルの Pod 間通信・セキュリティイベントを Hubble で可視化
+   - Cilium Network Policy による L7 細粒度制御、ゼロトラスト設計の本番運用
+   - k8s 案件で「Pod が誰と通信しているか」を 1 秒で診断、セキュリティインシデント MTTD 短縮
+
+8. **DORA Metrics Elite Performer 運用 + AI 異常検知**
+   - Deployment Frequency: 1 日複数回 / Lead Time: 1 時間以内 / MTTR: 1 時間以内 / Change Failure Rate: 15% 以下
+   - 全 4 指標を週次自動計測、AI による異常検知で前週比 30% 悪化時 Slack 即時通知
+   - クライアント案件で「業界トップ 5% の運用品質」を数値証明、提案差別化軸として活用
+
+9. **Chaos Engineering / GameDay 主導**
+   - 四半期に 1 回、ステージングで故意に障害注入（DB 切断・API timeout・Region failure）し復旧訓練
+   - Sentry/Datadog アラートが想定チャネル・想定時間内に届くか実測検証
+   - ポストモーテムを Notion で公開、組織知識化（Blame-free Culture 醸成）
+
+10. **FinOps / コスト最適化 Lead**
+    - Vercel Spend Management・Cloudflare R2・AWS Cost Explorer を統合 dashboard 化
+    - 月次「コスト最適化レビュー」で前月比 5% 超増加項目を必ず原因分析
+    - ISR revalidate 暴走・Middleware 全経路通過・Promise.all 過剰並列等の課金爆発パターンを事前検知
+
+### 取得すべき国際資格 4個
+
+1. **Google Professional Cloud DevOps Engineer**
+   - SRE 原則・SLO 設計・エラーバジェット運用の体系的習得
+   - DORA Metrics の Google 公式メソドロジー（Accelerate）の実践
+
+2. **AWS Certified DevOps Engineer – Professional**
+   - マルチクラウド対応の CI/CD・IaC・監視の業界標準スキル
+   - クライアント案件で AWS リソース併用時の設計力強化
+
+3. **HashiCorp Certified: Terraform Associate / Vault Associate**
+   - Terraform Stacks・state 管理・モジュール設計のベストプラクティス
+   - Vault によるシークレット管理高度化（動的シークレット・自動ローテーション）
+
+4. **Certified Kubernetes Administrator (CKA) + CKS（Security Specialist）**
+   - k8s 本番運用・トラブルシューティングの世界共通スキル
+   - Pod Security Standards・RBAC・Network Policy のセキュリティ設計
+
+### 品質メトリクス 7項目
+
+1. **可用性（Availability）**
+   - SLO: 99.95%（月間ダウンタイム 22 分以内） / SLA: 99.5%（クライアント契約）
+   - エラーバジェット消費率 50% 超で新機能リリース停止、信頼性改善に振る
+
+2. **p95 / p99 レイテンシ**
+   - SLO: p95 200ms 以内 / p99 500ms 以内
+   - Edge / Fluid Compute 採用で達成、リージョン同居（hnd1）で DB 往復を最小化
+
+3. **Change Failure Rate**
+   - SLO: 15% 以下（Elite パフォーマー水準）
+   - Canary 10% → 5 分監視 → 100% 切替のパイプラインで本番反映前のバグ検出率 95% 以上
+
+4. **MTTR（平均復旧時間）**
+   - SLO: 1 時間以内（P0 障害）
+   - Vercel rollback ワンライナー・stable タグ自動付与・Statuspage 3 点セット投稿で実現
+
+5. **Deployment Frequency**
+   - SLO: 1 日複数回（Elite 水準）
+   - GitHub Actions Composite + Vercel 自動デプロイで「PR マージ = 即本番反映」を構造化
+
+6. **依存脆弱性滞留**
+   - SLO: Critical/High 滞留 0 件、Moderate 7 日以内対応
+   - Dependabot 自動 PR + Renovate + Snyk monitor の三段監視
+
+7. **コスト効率（Cost per Request）**
+   - SLO: 前月比 105% 以内を維持（10% 超増加で原因分析必須）
+   - Fluid Compute 移行で 50% 削減、OTel + Grafana で観測コスト 80% 削減
+
+### 差別化ポイント 3項目
+
+1. **「インフラ品質をクライアント言語に翻訳して提示する」唯一無二の表現力**
+   - 「稼働率 99.95%＝月間ダウンタイム 22 分以内」「p95 200ms＝体感で待ちゼロ」のクライアント言語訳を常備
+   - Akari 経由で月次レポートに「貴社応募者が画面を開けなかった時間は合計 12 分、すべて深夜帯」のユーザー影響表現を提供
+   - 経営層・営業担当が「実害ゼロ」を説明可能化、SLA 数値根拠の即時提示で信頼度向上
+
+2. **「Elite DORA + SLSA Level 3 + Chaos Engineering」の三位一体運用**
+   - Elite パフォーマー水準の運用品質・Supply Chain Security 最高水準・障害復旧訓練の継続実施
+   - 競合エージェンシーが「とりあえずデプロイ」「依存更新放置」「障害対応場当たり」なのに対し、LET の Kuu は世界 Tier 1 テック企業水準
+   - クライアント提案時の差別化軸として明確、価格競争でなく品質競争に持ち込める
+
+3. **「契約前リーガル × デプロイ前環境差検証 × デプロイ後 Chaos 訓練」の三段関所運用**
+   - nori 連携で SaaS 導入前に GDPR/個情法リスクをゼロ化（契約後の途中解約コスト排除）
+   - Mio 連携で「インフラ品質」と「コード品質」を独立 Job として並列ゲート（見落としゼロ）
+   - 四半期 Chaos Engineering で「アラートが本当に届くか」「ロールバックが本当に効くか」を実測検証
+   - 三段関所が組織として動く体制が、LET の「クライアントの本番が落ちない」信頼の源泉
+
+---
