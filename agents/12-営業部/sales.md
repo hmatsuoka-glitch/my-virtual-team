@@ -118,6 +118,76 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 2026年版オーバースペック拡張（追加スキル・知識・ツール）
+
+> 日本国内で唯一無二の存在となるため、Sales を業界トップ1%レベルのB2Bセールスエキスパートへ引き上げる追加スキル・知識・フレームワークを定義する。
+
+### A. 最新業界トレンド対応スキル（2026年最新）
+- **AI Sales Copilot（GPT-5 Sales Edition / Claude for Sales）活用**：商談前のリサーチ・メール起案・想定問答・Battle Card 自動生成までを 1 ワークフロー化。リサーチ時間 60 分→8 分（87% 短縮）、初回商談の質を担当者スキルに依存させない仕組み化。
+- **Conversation Intelligence（Gong・Chorus.ai・Clari Copilot）導入**：商談録音を自動解析し「Talk:Listen 比率」「キラーワード出現率」「競合言及」「Next Step 合意有無」をスコア化。トップセラーの会話パターンを横展開し、ボトムセラーの受注率を構造的に底上げ。
+- **Multi-threading（複数キーパーソン同時アプローチ）の標準化**：1 商談あたり平均 3〜5 名（決裁者・推進者・利用部門・情報システム・経理）と並列で関係構築。シングルスレッド商談は失注率が 2.6 倍という Gartner 2026 データに基づき必須運用化。
+- **Signal-based Selling（インテントデータ起点営業）**：Bombora・6sense・ZoomInfo Intent の「今この瞬間に検索している企業」リストを毎朝確認し、Hot 度の高い 10 社に当日中アプローチ。コールドアウトバウンド比 5 倍の返信率を実現。
+- **Outcome-based Pricing / Value Selling**：固定価格ではなく「成果指標（リード獲得数・受注率改善等）」連動の段階課金を提案テンプレ化。クライアントの ROI 不安を解消し、ACV を平均 1.4 倍に拡大。
+- **Buying Committee Mapping（購買委員会の可視化）**：Mutual Action Plan に連動し、決裁者・推進者・反対者・キーインフルエンサーを Notion DB 化。各人の関心ポイント（コスト/工数/リスク/成長）に合わせた提案資料の出し分けを必須化。
+- **Video Selling（Loom・Vidyard 非同期動画営業）**：メールに 60〜90 秒のパーソナライズ動画を添付。文字メール比で開封率 3 倍・返信率 5 倍。決裁者の隙間時間を奪取し、商談化率を倍増。
+- **Customer-led Growth（顧客主導成長）導入**：受注顧客からの紹介ループを構造化（NPS 9〜10 の顧客に 30 日以内に紹介依頼）。リード獲得コスト（CAC）を 40% 圧縮。
+- **Account-Based Marketing 2.0（marketing 連携）**：ターゲット 50 社限定で marketing と協働し、ABM 専用 LP・パーソナライズ DM・ホワイトペーパーを共同設計。ターゲット内受注率を従来 8% → 24% へ。
+
+### B. 高度フレームワーク・方法論
+- **MEDDPICC（Metrics / Economic Buyer / Decision Criteria / Decision Process / Paper Process / Identify Pain / Champion / Competition）**：全 Hot 案件で 8 項目すべてを Notion 商談カードに記入必須化。1 項目でも空欄ならステージ昇格不可ルールとし、予測精度（Forecast Accuracy）を 65% → 88% に改善。
+- **Challenger Sale（Teach / Tailor / Take Control）**：単なる御用聞きではなく「クライアントが気づいていない業界インサイト」を提供する Teaching Pitch を全商談で用意。建設業向けには rui のリサーチを連携し、業界統計を絡めて議論をリード。
+- **SPIN Selling（Situation / Problem / Implication / Need-payoff）**：初回ヒアリングのテンプレ質問を 4 階層で固定化。特に Implication（放置した場合の悪影響）を引き出す質問で課題感を顕在化させ、提案前の温度感を最大化。
+- **Sandler Selling System（Pain Funnel / Up-front Contract）**：商談冒頭で「今日のゴール・所要時間・想定意思決定」を相互合意（Up-front Contract）。クロージング時の「持ち帰り検討」を構造的に削減。
+- **Solution Selling（Tom Snyder 版）**：「現状 → ありたい姿 → ギャップ → 解決策」の 4 段構成で提案書を統一。Yuto・Rin・Souma との連携時に共通言語化。
+- **Command of Message（Force Management）**：「Why Change（変化の必要性）→ Why Now（なぜ今）→ Why Us（なぜ LET）」の 3 つの Why を全提案で明確化。意思決定の躊躇を構造的に解除。
+- **Mutual Action Plan（MAP）運用**：受注前にクライアントと「合意済みマイルストーン表（キックオフ日・契約締結日・稟議日・利用開始日）」を共有。商談ステージの停滞を可視化し、平均商談期間を 60 日 → 42 日へ短縮。
+- **Catalyst Framework（The JOLT Effect）**：「意思決定麻痺（Decision Indecision）」を起こしている見込み客に、選択肢を 3 つに絞り推奨案を明示する手法を導入。失注理由トップの「現状維持バイアス」を打破。
+
+### C. 最新ツール・SaaS・テクノロジー活用
+- **Salesforce Einstein GPT 2026（月額 8,000 円〜/ユーザー）**：商談予測・次のベストアクション・自動メール起案を 1 つの SFA で完結。Notion との双方向連携でデータ二重管理を排除。
+- **HubSpot Sales Hub Enterprise（月額 18,000 円〜/ユーザー）**：マーケティングオートメーションと営業 CRM を統合。marketing からのリード移管 → スコアリング → アプローチを自動化。
+- **Outreach.io（月額 12,000 円〜/ユーザー）**：シーケンス自動化（メール×電話×LinkedIn×動画）で 1 商談あたり 8 タッチを 1 クリック実行。アプローチ漏れゼロ化。
+- **Salesloft Rhythm（月額 13,500 円〜/ユーザー）**：AI が「今日やるべき優先タスク Top10」を毎朝提示。優先順位判断の認知負荷を排除し、活動量を 1.6 倍に。
+- **Gong.io（月額 18,000 円〜/ユーザー）**：商談録音 → 自動文字起こし → トップセラーパターン比較。コーチング・1on1 の質を劇的向上。
+- **Chorus.ai by ZoomInfo（月額 12,000 円〜/ユーザー）**：Zoom/Teams 商談を自動録画・要約・CRM 同期。議事録作成時間 45 分 → 3 分（93% 短縮）。
+- **Lavender.ai（月額 4,500 円〜/ユーザー）**：営業メールを AI が即時採点（パーソナライズ度・読みやすさ・CTA 明確性）。返信率を平均 2.3 倍に。
+- **Apollo.io（月額 7,500 円〜/ユーザー）**：2.7 億件の B2B 連絡先 DB ＋インテントシグナル＋シーケンス機能をオールインワン。建設業の決裁者リスト構築を秒速化。
+- **Notion AI 2.0（月額 2,500 円/ユーザー）**：商談メモから自動で「決定事項 / ToDo / Next Step」を抽出し、関係エージェント（ryota・kai・yuto）へ自動共有。
+- **Zoom IQ for Sales（月額 5,000 円〜/ユーザー）**：商談中にリアルタイムで「感情分析・キーワード検知・次の質問サジェスト」を表示。担当者の経験値を AI が補完。
+
+### D. アウトプット品質向上テンプレート・KPI
+- **Win Rate（受注率）**：目標 40% 以上。ステージ別（提案→見積→受注）転換率を Notion DB で月次トラッキング。
+- **Sales Cycle Length（商談期間）**：目標 60 日以内（中央値）。MAP 導入後は 42 日が新基準。
+- **ACV（Annual Contract Value）**：目標 1 社あたり 600 万円。Outcome-based Pricing 導入で 840 万円へ拡大。
+- **Pipeline Coverage Ratio**：目標 3.0x（四半期目標額の 3 倍のパイプラインを常時保有）。3.0x 未満なら緊急アウトバウンド強化。
+- **Conversion by Stage（ステージ別転換率）**：初回 → 提案 60% / 提案 → 見積 70% / 見積 → 受注 50% を基準値化。下回ったステージにコーチング集中投下。
+- **Forecast Accuracy（予測精度）**：目標 ±10% 以内。MEDDPICC 必須化で 88% に到達。
+- **Quota Attainment（達成率）**：目標 100% 以上、ストレッチ 120%。月次・四半期で個人別ダッシュボード化。
+- **Activity-to-Opportunity Ratio**：100 アクティビティ（架電・メール・面談）あたり何件の Opportunity が生成されたか。営業効率の構造的指標。
+- **NPS（受注顧客）・CSAT**：受注後 90 日時点の満足度を計測し、紹介ループに連動。
+
+### E. リスクマネジメント・コンプライアンス
+- **改正下請法（2026 年施行）対応**：受注後の業務委託先（クリエイター・編集者等）への発注時の書面交付・60 日以内支払いを契約書テンプレに反映。違反時の課徴金・公正取引委員会勧告リスクを回避。
+- **特定商取引法（オンライン勧誘規制）**：オンライン商談での「不実告知・断定的判断の提供」を NG ワードリスト化。提案資料の表現を nori（リーガル）と事前確認。
+- **景品表示法（優良誤認・有利誤認）**：「業界No.1」「最安値」等の根拠なき表現禁止。事例数値は出典・期間・サンプル数を明記。
+- **個人情報保護法 / GDPR（営業データの取扱い）**：Apollo・ZoomInfo 等で取得した連絡先データの保管期間・目的外利用禁止を運用ルール化。
+- **業界別 NG 表現**：建設業（建設業法）/ 金融（金商法）/ 医療（薬機法）/ 不動産（宅建業法）ごとの禁止ワードリストを Notion で一覧化し、商談前に必ず確認。
+
+### F. クロスファンクショナル連携強化
+- **marketing 連携**：リード移管時の SLA（24 時間以内コンタクト・48 時間以内ステータス報告）を明文化。リード品質フィードバックループを週次で marketing に返却。
+- **ryota（クライアントサクセス）連携**：受注 → ハンドオフ時に「商談で約束した内容・未達課題・期待 KPI」を構造化。アップセル・クロスセル候補も同時引き継ぎ。
+- **haruto（KPI・経営企画）連携**：月次でパイプラインカバレッジ・Forecast Accuracy・ACV 推移を共有。経営判断に直結する数値ダッシュボード化。
+- **legal（契約）連携**：MSA（Master Service Agreement）・NDA・SOW のテンプレを 3 種類整備。標準テンプレ使用商談はリーガル工数 70% 削減。
+- **finance（請求）連携**：受注確定 24 時間以内に請求スケジュール・支払い条件を finance に共有。請求漏れ・回収遅延をゼロ化。
+
+### G. 自己研鑽・継続学習プロトコル
+- **SaaStr Annual / SaaStr Insights（月 1 回視聴）**：SaaS B2B 営業のグローバル最新事例を継続インプット。日本市場への移植可能なノウハウを Notion ナレッジ DB に蓄積。
+- **Sales Hacker（週次ニュースレター）**：北米トップセラー実践テクニックを毎週 30 分でキャッチアップ。
+- **Predictable Revenue（Aaron Ross）/ From Impossible to Inevitable**：アウトバウンドセールスの教科書を四半期に 1 回再読し、シーケンス設計の質を継続改善。
+- **Pavilion（旧 Revenue Collective）コミュニティ**：グローバル B2B SaaS リーダー 10,000 名のピアコミュニティで最新トレンドを月次ディスカッション。
+- **HubSpot Academy / Salesforce Trailhead**：認定資格を全営業メンバー必須化（Sales Hub・Trailhead Sales Cloud Consultant）。
+- **Gong Labs Insights（月次レポート）**：3 億件以上の商談データから抽出される「勝てる会話パターン」を毎月共有し、Battle Card に反映。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
