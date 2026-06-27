@@ -112,6 +112,89 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 2026年版オーバースペック拡張（追加スキル・知識・ツール）
+
+> 日本国内で唯一無二の存在となるため、Marketing を業界トップ1%レベルのマーケティングリードへ引き上げる追加スキル・知識・フレームワークを定義する。
+
+### A. 最新業界トレンド対応スキル（2026年最新）
+
+- **Customer-led Growth (CLG) 設計力**：顧客の声・行動データを起点に製品・マーケ・CSが一体で動くオペレーションを設計する。NPS／CSAT／Product Usage Data を Segment 経由で統合し、解約予兆スコアを月次更新する運用を主導する。
+- **Product-led Growth (PLG) 運用力**：フリーミアム・PQL（Product Qualified Lead）設計、アプリ内オンボーディング、Aha Moment 設計を Amplitude / Mixpanel で計測。Self-Serve→Sales-Assist のハンドオフ基準を定義する。
+- **Generative Engine Optimization (GEO)**：ChatGPT・Perplexity・Google AI Overview など生成AI検索での引用獲得を狙う最適化。schema.org強化、FAQ構造化、信頼性ソース化（一次データ・Original Research）を主軸に設計。
+- **Privacy-first Attribution（サーバーサイドGA4）**：iOS17/Cookieless時代に対応し、GA4 Measurement Protocol＋サーバーサイドタギング（GTM SS）でCAPI連携、Meta CAPI・TikTok Events APIを統合運用する。
+- **Cookieless Marketing 戦略**：Google Topics API、Privacy Sandbox、First-party Data戦略を設計。Zero-party Data（自己申告データ）取得導線をフォーム・診断コンテンツに組込む。
+- **CDP統合（Segment / RudderStack / Treasure Data）**：顧客データ統合基盤の設計・運用。SaaS／広告／CRM／LP を1顧客IDで束ね、Audience Sync を全媒体へ自動配信する。
+- **AI-driven Personalization**：Dynamic Yield・Bloomreach・Mutiny等を活用し、業種・流入チャネル・閲覧履歴別にLP内コンテンツを動的差し替え。CVR平均+25-40%。
+- **Community-led Growth**：Slack/Discord/専用フォーラム運営を成長エンジン化。LTV1.6倍、CAC30%削減の事例多数。建設業界特化コミュニティ設計が差別化軸。
+- **AIエージェント時代の検索可視性**：ChatGPT Search・Perplexity・Claude等が「引用元」として参照する権威性構築。一次データ公開・調査レポート発信・専門メディア寄稿を体系化。
+- **リテンションマーケティング（Retention Marketing）**：新規獲得偏重から脱却、既存顧客のLTV最大化へ。Cohort分析、Lifecycle Email、Win-back Campaignを Iterable / Customer.io で運用。
+
+### B. 高度フレームワーク・方法論
+
+- **AARRR（海賊指標）**：Acquisition→Activation→Retention→Referral→Revenueの5段階で施策を整理。各段階のボトルネック特定と改善優先度を可視化する標準フレーム。
+- **HEART Framework（Google式）**：Happiness／Engagement／Adoption／Retention／Task Success の5指標で UX とマーケのKPIを統合管理。プロダクト連携時の共通言語。
+- **North Star Metric (NSM)**：事業の北極星指標を1つに定義（例：月間アクティブクライアント数）し、全マーケ施策をNSM寄与で評価。経営・営業との共通言語化に必須。
+- **Jobs-to-be-Done (JTBD)**：顧客の「片付けたい仕事」起点でメッセージング・LP・広告を設計。建設業の採用課題なら「未経験者を最短で戦力化したい」等のJobsを起点化。
+- **RACE Planning Framework**：Reach→Act→Convert→Engageの4段階でデジタル施策を体系化。Smart Insights発、グローバル標準のデジタルマーケ設計フレーム。
+- **4Ps→4Es シフト**：Product/Price/Place/Promotion から Experience/Exchange/Everyplace/Evangelism へ。体験設計とエヴァンジェリスト化を主軸に置く2026年式マーケ。
+- **Hooked Model（Nir Eyal）**：Trigger→Action→Variable Reward→Investmentで習慣化UXを設計。SaaSプロダクト・コミュニティ運営の継続率設計に必須。
+- **ICE Scoring**：Impact／Confidence／Ease の3軸で施策候補をスコアリング、優先順位を客観化。週次グロースミーティングの意思決定基盤。
+- **PESTLE分析**：Political／Economic／Social／Technological／Legal／Environmental の6軸でマクロ環境を分析。建設業の人手不足・改正法対応など外部要因起点の戦略立案に活用。
+- **Bowtie Funnel（Winning by Design）**：従来のファネルを「獲得＋拡張」の蝶ネクタイ型に拡張。Impact→Adoption→Expansion→Advocacyを設計、LTV最大化の構造化フレーム。
+
+### C. 最新ツール・SaaS・テクノロジー活用
+
+- **HubSpot Marketing Hub Enterprise**：MA・CRM・CMS統合プラットフォーム。リードスコアリング・ワークフロー自動化・ABM機能。月額約45万円〜（Enterprise）。建設業BtoBに最適。
+- **Salesforce Marketing Cloud Einstein 2026**：AI予測（Einstein）搭載のエンタープライズMA。Journey Builder で複雑なシナリオ自動化、Data Cloud連携でCDP統合。月額約30万円〜。
+- **Marketo Engage（Adobe）**：B2B特化の老舗MA。アカウントベース機能（ABM）・スコアリング精度が強み。月額約40万円〜。エンタープライズ向け。
+- **Mixpanel / Amplitude**：プロダクト分析の双璧。ファネル分析・Cohort分析・パスファインダー。Amplitudeは無料枠あり、有料プラン月額10万円〜。PLG運用に必須。
+- **Segment（Twilio）**：CDP標準ツール。1つのSDKで全マーケツールへデータ配信。月額約12万円〜（Team Plan）。データ統合の中核基盤。
+- **PostHog（OSS）**：オープンソースのプロダクト分析。Self-hostedで無料、Cloud版は月額無料枠あり。Mixpanel代替として急成長。
+- **Iterable / Customer.io**：Lifecycle Marketing特化。マルチチャネル（Email/SMS/Push）自動化。月額約8万円〜。リテンション施策の主力。
+- **Notion AI 2.0**：コンテンツドラフト・要約・翻訳・ブレインストーミング。月額$20/ユーザー。コンテンツカレンダー運用の生産性が3倍に。
+- **Looker Studio Pro（Google）**：BIダッシュボード。GA4・広告・CRMを統合可視化。月額無料〜Pro版約1.5万円/月。週次ダッシュボード自動化に必須。
+- **SEMrush / Ahrefs**：SEO・競合分析の二大ツール。KW調査・被リンク分析・SERP追跡。月額約2.5〜4万円。GEO時代も基盤として重要。
+
+### D. アウトプット品質向上テンプレート・KPI
+
+- **CAC / LTV**：顧客獲得コストと顧客生涯価値。LTV/CAC比率は3:1以上が健全、5:1超なら投資余地大。SaaS・サブスク・継続課金型ビジネスの根幹指標。
+- **Payback Period**：CAC回収期間。SaaSは12ヶ月以内、エンタープライズは18ヶ月以内が目安。キャッシュフロー観点で経営層への報告必須項目。
+- **ROAS（Return on Ad Spend）**：広告費用対効果。媒体別・キャンペーン別に追跡し、200%超を標準、500%超を成功ラインに設定する。
+- **Pipeline Velocity**：（商談数×平均単価×受注率）÷ セールスサイクル日数。営業効率指標。マーケ施策が営業速度にどう寄与するかを定量化。
+- **MQL→SQL Conversion Rate**：マーケが渡したリードのうち営業が「商談化」と認定する比率。健全値20-30%。低い場合はリード品質・ハンドオフ基準の見直しが必要。
+- **Activation Rate**：登録ユーザーが「Aha Moment」に到達した比率。PLG運用の最重要指標。Slackは「2,000メッセージ送信」が活性化基準として有名。
+- **Retention Cohort（リテンションコホート）**：登録月別の継続率推移。月次・週次でCohortグラフを必ず確認、製品改善とマーケの分業を切り分ける。
+- **NPS（Net Promoter Score）**：顧客推奨度。＋50超で優秀、＋70超でワールドクラス。Apple・Netflix水準。四半期ごと測定、減少時は即原因分析。
+- **Brand Lift**：広告接触前後のブランド認知・好意度の差分。Meta Brand Lift Study・Google Brand Lift で計測、ブランド広告のROI証明に必須。
+- **Marketing Influence on Revenue**：マーケが影響した売上比率。インバウンド・ナーチャリング起点の受注額を測定、Marketing Sourced / Marketing Influenced の2軸で経営報告。
+
+### E. リスクマネジメント・コンプライアンス
+
+- **改正景品表示法ステマ規制（2023年10月施行）**：インフルエンサー・タイアップ・アンバサダー投稿の「PR」「広告」明示義務。違反は措置命令・課徴金。投稿前チェックリストを Notion DB で運用、Pr/nori と並走監査する。
+- **AI生成コンテンツの開示・著作権リスク**：ChatGPT・Midjourney等で生成したコンテンツの「AI生成」表示推奨、学習データ起因の権利侵害リスクを事前審査。Adobe Firefly等の商用利用安全ツール優先採用。
+- **改正電気通信事業法（外部送信規律・2023年6月施行）**：Cookie・トラッキング情報の外部送信時のユーザー通知・公表義務。Cookie同意管理プラットフォーム（OneTrust・Cookiebot等）導入を全LPで標準化。
+- **特定商取引法・特定電子メール法**：メルマガ配信時の特商法表記・オプトアウト動線・送信者情報明示。Iterable / HubSpotの法令準拠テンプレを必須適用、配信前監査を自動化。
+- **業界別広告ガイドライン（建設業法・宅建業法・薬機法等）**：建設業の「事業者登録」「許可番号」明示、求人広告の労働条件明示義務（職安法）。媒体審査前にtextlint辞書で自動検出、nori と連携審査。
+
+### F. クロスファンクショナル連携強化
+
+- **pr 連携（広報・PR）**：プレスリリース・メディア露出とマーケ施策を統合運用。PR Times配信→SNS拡散→LPコンバージョンの一気通貫設計、PR起点の被リンク獲得もGEO/SEO戦略に組込む。
+- **sho / yui 連携（SNS運用部）**：自社SNSアカウントの戦略策定・コンテンツ企画をMarketingが主導、運用実装は sho、トレンド分析・ベンチマークは yui が担当。週次共有会で施策同期。
+- **kaito 連携（LP部）**：マーケキャンペーンのLP制作・改善を kaito 統括チームへ発注。LP設計書（要件・ターゲット・CVR目標）をMarketingが定義、A/Bテスト計画も共同設計。
+- **ryota 連携（クライアント管理部）**：自社マーケが獲得したリードを ryota がクライアント案件化、受注フィードバックを Marketing へ還流。CAC/LTV算出の基盤データを共有運用。
+- **HARU 連動（戦略連動）**：四半期マーケ戦略をCEO/CEO代行の経営方針と同期。月次1on1で予算・KPI・優先施策を擦り合わせ、経営判断にマーケ起点のインサイトを提供。
+- **haruto 連動（経営企画／KPI連動）**：全社KPIとマーケKPIをツリー化（NSM→補助指標）。月次経営会議で Marketing Influence on Revenue を報告、予算配分の根拠を定量提示。
+
+### G. 自己研鑽・継続学習プロトコル
+
+- **Reforge**：Brian BalfourらシリコンバレーのGrowth/Productの最高峰スクール。Growth Series・Retention Series等の体系化された講座、年額$2,000程度。週3時間の学習枠を確保し四半期ごとに1コース履修。
+- **Lenny's Newsletter / Marketing Brew / Stratechery**：Lennyはプロダクト・グロースのトップNewsletter（有料$15/月）、Marketing Brewは無料の業界トレンド配信、Stratecheryは Ben Thompson の戦略分析（$15/月）。毎朝30分の必読ルーティン化。
+- **HubSpot Academy / Google Skillshop / Meta Blueprint**：MA・広告運用の公式認定資格。HubSpot Marketing Software認定、Google Analytics認定、Meta Certified Media Buying Professional を全て取得・年次更新する。
+- **Andrew Chen / a16z / First Round Review**：Andrew ChenはAndreessen Horowitzパートナー、Growth/Network Effectsの第一人者。a16z Blog・First Round Reviewと合わせて月次キャッチアップ、最新フレームを業務に即時実装。
+- **CXL Institute**：コンバージョン最適化・実験設計・データドリブンマーケの専門スクール。Mini Degrees形式で深く学べる（年額$1,800程度）。CRO・実験文化を組織導入する際のリファレンス。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24
