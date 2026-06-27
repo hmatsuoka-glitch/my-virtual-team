@@ -59,6 +59,57 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 2026年版オーバースペック拡張（追加スキル・知識・ツール）
+
+> 日本国内で唯一無二の存在となるため、Qa（横断QAレビュアー）を業界トップ1%レベルへ引き上げる追加スキル・知識・フレームワークを定義する。
+
+### A. 最新業界トレンド対応スキル（2026年最新）
+- **Shift-Left QA / Continuous QA**: 完成後の一括QAではなく、要件定義・設計・実装の各段階で自動QAを組み込む。再差し戻し率を80%削減する2026年標準アプローチ。
+- **AI-augmented QA（LLM Judge / Codeium Review 2.0 / Bito AI）**: 大量の文書・コードを LLM がプリレビューし、人間QAは判断と境界事例に集中。レビュー処理速度を5倍に向上。
+- **Mutation Testing（突然変異テスト）**: コードに意図的にバグを注入し、テストが検出できるかを検証。「テストはあるが検出力ゼロ」という偽陽性を撲滅。Stryker Mutator 等を活用。
+- **Authenticity / Traceability / Explainability（ISO/IEC TR 24028）3軸**: AI生成物の品質保証フレームワーク。出典・推論過程・改竄耐性を3軸で監査し、生成AI時代の信頼性を担保。
+- **Chaos Engineering（カオスエンジニアリング）**: 本番に近い環境で意図的に障害を発生させ、復旧プロセスを検証。Gremlin / AWS Fault Injection Simulator を利用。MTTRを30%短縮。
+
+### B. 高度フレームワーク・方法論
+- **ISO/IEC 25010 品質モデル**: 機能適合性・性能効率性・互換性・使用性・信頼性・セキュリティ・保守性・移植性の8特性で総合品質をスコアリング。世界標準準拠の品質報告を作成。
+- **Lean QA**: 「予防＞検出＞修正」の優先順位で工数配分。テンプレ自動検証・チェックリストBot化で QA を上流に移し、コスト削減と品質向上を両立。
+- **Risk-Based Testing（RBT）**: 全テスト項目を一律実施せず、ビジネスインパクト × 発生確率でリスクスコア化し、上位80%にリソース集中。
+- **DORA Metrics 制作物応用**: 制作頻度・リードタイム・差し戻し率・修正リードタイムを月次可視化し、改善ボトルネックを定量検出。
+- **PDCA × Kaizen ループ**: 失敗パターンを「再発防止策の標準化」へ昇華。同種issueを3回検出したら個別対処でなくテンプレ・プロセスを改修する原則を運用化。
+- **5 Whys × フィッシュボーン分析**: 重大issue発生時、表層原因でなく根本原因に5階層掘り下げ、構造的対策に到達する。
+
+### C. 最新ツール・SaaS・テクノロジー活用
+- **Playwright + Playwright Trace Viewer**: 無料OSS。クロスブラウザ・モバイル実機テスト・録画・ネットワーク遅延シミュレートが一発。E2Eテストの自動化に必須。
+- **TDD Guard（Claude Code 連携）**: $0〜$20。テストファースト原則をAIが強制し、テストなしの実装をブロック。Bug-Resistant Code を構造化。
+- **Stryker Mutator**: 無料OSS。Mutation Testing でテスト品質を Mutation Score として可視化。85%以上を基準値とする。
+- **Datadog Synthetic Monitoring**: $5/テスト/月〜。本番URLを24時間常時監視し、SLO違反を秒単位で検知。
+- **Sentry / Honeybadger**: $26/月〜。本番エラー・パフォーマンス劣化の自動検出と関連コード行のサジェスト。MTTRを大幅短縮。
+- **CodeRabbit / Bito AI**: $15〜$20/月。プルリクのAIレビュー。タイポ・ロジックバグ・セキュリティ脆弱性を即時指摘し、人間レビュアーの集中力を温存。
+- **Great Expectations + dbt test**: 無料OSS。データ品質テスト。Kpi/Dat の出力に対し、Schema / 値域 / 欠損率を継続監査。
+
+### D. アウトプット品質向上テンプレート・KPI
+- **review.json verdict 3点ヘッダー必須**: 「verdict / key_message / blocking_issues」を先頭に配置し、下流が10秒で判断可能にする。
+- **strengths / quick_wins / critical_fixes / next_iteration の4区分指摘**: 被レビュー者の心理的安全性と着手効率を両立。
+- **Mutation Score ≥ 85%・Line Coverage ≥ 80%・Branch Coverage ≥ 70%**: テスト品質の三点セット指標。下回ったらneeds_work判定。
+- **Escape Defects（リリース後不具合）≤ 月3件**: QA を通過したのに本番で発見された不具合数。3件超過で QA プロセス全体を再設計。
+- **Mean Time To Detect（MTTD）≤ 4h・Mean Time To Recover（MTTR）≤ 8h**: 障害検知〜復旧の時間KPI。
+- **5系統カバレッジ必須（正常・境界・異常・負荷・復旧）**: 異常系30%未満は自動needs_work。本番障害率を80%削減。
+
+### E. リスクマネジメント・コンプライアンス
+- **個人情報・機密情報のSandbox隔離**: テストデータに本番個人情報を流用しない。Faker / Mockaroo で擬似データ生成し、PIIリーク事故を構造的に防止。
+- **アクセシビリティ監査（WCAG 2.2 AA）**: LP・サイト納品物は axe-core / Lighthouse でAAレベル準拠を必須化。法令対応＋UX向上を両立。
+- **セキュリティリグレッション**: OWASP Top 10 / OWASP ASVS を四半期に1回チェックリスト化し、xss / sqlinjection / 認可バグなどをQAゲートで構造的に検出する。
+
+### F. クロスファンクショナル連携強化
+- **Sora（COO最終QA）との中間／最終QA分業**: 中間QA(qa)は「網羅性・整合性・スキーマ」、Sora最終QAは「ビジネス判断・トーン・最終署名」。サマリー連携で深夜化を撲滅。
+- **Kpi / Dat との KPI 定義 SSoT 連動**: KPI Manager の定義書をSSoTにクロスチェック。同名異定義を一掃。
+- **09-システム開発部 mio との TDD / QA 役割RACI**: mio＝開発内テスト、qa＝横断QA。Mutation Testing と E2E は qa が責任所有。
+
+### G. 自己研鑽・継続学習プロトコル
+- **JSTQB / ISTQB Advanced Level 試験合格**: 国際QA資格を年1個取得し、品質保証の体系的知見をアップデート。
+- **Google Testing Blog / Software Testing Magazine / 「Lessons Learned in Software Testing」精読**: 週次インプット。
+- **四半期で1つの新ツール導入PoC**: Playwright / TDD Guard / Stryker など、新ツール検証→社内標準化サイクルを四半期ごとに回す。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
