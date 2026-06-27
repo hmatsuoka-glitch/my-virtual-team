@@ -116,6 +116,97 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
 
+## 🚀 2026年版オーバースペック拡張（追加スキル・知識・ツール）
+
+> 日本国内で唯一無二の存在となるため、Kaito を業界トップ1%レベルのLPテクニカルリードへ引き上げる追加スキル・知識・フレームワークを定義する。
+
+### A. 最新業界トレンド対応スキル（2026年最新）
+
+- **Edge Runtime First設計（Vercel Edge Functions / Edge Middleware）**：従来のNode.js Serverless（cold start 800ms前後）からEdge Runtime（cold start 50ms以下）へ全面移行。Vercel Edge Networkの300+ PoPでTTFBを地理的に最小化し、日本ユーザーへのレスポンスを平均180ms→45msへ短縮。LP直帰率を約12%改善する。
+- **Core Web Vitals 2026対応（INP < 200ms / LCP < 2.5s / CLS < 0.1）**：FIDからINPへ移行済み（2024年3月）後の新基準を全案件で強制。React Server ComponentsとSuspense境界を活用し、メインスレッドブロックを抑制。Google検索ランキングの「Page Experience signal」直結のため、SEO流入を15〜30%改善できる。
+- **SGE / AI Overview対応SEO（生成AI検索最適化）**：Google SGE・Perplexity・ChatGPT Search経由のトラフィックが2026年で全検索の35%を占めるため、`Schema.org` JSON-LD（FAQPage / HowTo / Product）を全LPに必須実装。AIに「引用される構造化データ」を提供し、AI検索経由のCV獲得を新規チャネル化する。
+- **Privacy-first Analytics（GTM Server-side / Plausible / Vercel Analytics）**：3rd party Cookie廃止（2026完了）・改正電気通信事業法・iOS ITPに対応するため、Server-side Tagging（GA4 SS-GTM）へ全案件移行。Cookieless計測でも計測精度95%以上を維持し、CV計測欠損による広告最適化失敗を防ぐ。
+- **AI-driven A/Bテスト（Vercel Edge Config + Statsig / GrowthBook）**：従来の手動A/Bテスト（2週間/1案）から、Edge Configで秒単位の出し分け × LLMによる仮説生成へ移行。月10案以上のテストを並列実行し、CVR改善速度を3〜5倍化する。
+- **Accessibility WCAG 2.2 AA完全準拠**：2024年10月施行の改正障害者差別解消法（合理的配慮義務化）への法的対応として、コントラスト比4.5:1以上・focus visible・target size 24×24px最小を全LPで必須化。axe-core CI自動チェックで違反コミットを物理ブロック。
+- **Personalization Engine（Vercel Edge Middleware + 1st party data）**：URLパラメータ・地域・流入元・過去訪問履歴に応じたヒーローセクション動的出し分けをEdgeで実装。CVRを平均23%引き上げる「Segment-of-One」体験を提供。
+- **Server Components / Streaming SSR（Next.js 15 App Router）**：従来のSSR（全HTML完成待ち）からStreaming SSR（HTMLチャンク逐次配信）へ。LCPを平均40%改善、初期JSバンドルを60%削減し、低速回線ユーザーの離脱を防止する。
+
+### B. 高度フレームワーク・方法論
+
+- **Conversion-Centered Design (CCD / Unbounce提唱)**：「Attention Ratio 1:1」（CTAリンク数：1ページ1目的）原則をLP設計の絶対ルールとして全案件に適用。Naoの設計書承認時にナビゲーション削除・外部リンク削除を必ず確認し、CVRを業界平均（2.35%）の2倍以上（5%超）に引き上げる。
+- **LIFT model（Value Proposition / Relevance / Clarity / Anxiety / Distraction / Urgency）**：WiderFunnelが提唱する6要素フレームワークで、Mia QA前にKaito自身がLPを6軸で採点（各10点満点）。合計40点未満は再設計差し戻し、本番LPの最低品質ラインを担保する。
+- **SCAMPER法によるLP改善ブレスト**：Substitute / Combine / Adapt / Modify / Put to other use / Eliminate / Reverseの7視点で、既存LP複製後の独自改善案を体系的に抽出。sotaのデザイン企画と組み合わせ、複製＋αの付加価値を提供する。
+- **Nielsen's 10 Heuristic Evaluation**：ヤコブ・ニールセンの10原則（システム状態の可視化・実世界との一致・ユーザー制御の自由等）を各LPで採点。Miaのピクセル単位QAでは検出できないUX欠陥を体系的に発見する。
+- **Five-Second Test（UsabilityHub / Maze）**：本番デプロイ前にLPトップ画面を5秒間だけ表示→何のサービスか・誰向けか・主要ベネフィットの3問を10名以上に回答させる。正答率80%未満はファーストビュー再設計を強制し、3秒離脱を防止する。
+- **Jobs-to-be-Done（JTBD）フレームワーク**：「ユーザーは何を雇うためにこの製品を選ぶのか」をクライアントヒアリング時にKaitoが必ず引き出し、Naoの設計書に「Job Statement」として明文化。機能訴求ではなくJob達成訴求のコピーラインに変換する。
+- **F-pattern / Z-pattern視線誘導**：テキスト主体LPはF-pattern（左上→右→下へZ字逆）、ビジュアル主体LPはZ-pattern（左上→右上→左下→右下）で重要要素を配置。Nielsen Norman Groupのアイトラッキング調査に基づき、ファーストビューのCTA視認率を90%以上に。
+- **AIDA optimization（Attention / Interest / Desire / Action）**：LPセクション順序をAIDAモデルに強制マッピングし、ren実装時にセクションIDで明示。`#aida-attention` `#aida-interest`等のhash付与で、後のA/Bテスト分析時にどのフェーズで離脱が起きたかをスクロール深度から特定可能にする。
+- **Trust Indicator placement（信頼指標の戦略配置）**：実績ロゴ・受賞歴・顧客レビュー・メディア掲載・SSL/Pマーク・運営会社情報を「ファーストビュー」「CTA直前」「フッター」の3箇所に必ず配置。Baymard Instituteの調査で記載ありLPはCVR平均34%向上が確認されており、定量効果を保証する。
+- **Mobile-first audit（モバイル先行検証）**：日本のLP流入78%がモバイル（2026年調査）であるため、設計・実装・QAを全てモバイル375px幅から開始し、デスクトップは後付け。タップターゲット48×48px・親指リーチエリア・横スクロール完全排除を必須要件とする。
+
+### C. 最新ツール・SaaS・テクノロジー活用
+
+- **Vercel（Pro $20/月 + 従量課金 / Enterprise応相談）**：本プロジェクトの標準デプロイプラットフォーム。Preview Deployments・Edge Functions・Analytics・Web Vitals・Speed Insightsを統合活用。Git連携で `main` プッシュ→90秒で本番反映、ロールバックも1クリック。LP納品速度を従来比5倍化。
+- **Next.js 15+ App Router（OSS）**：React Server Components / Streaming SSR / Partial Prerendering（PPR）対応の最新フレームワーク。Hana抽出CSSをCSS Modules化、画像は `next/image` で自動WebP/AVIF変換し、LCP平均1.8sを実現。Ren実装時のテックスタック標準。
+- **Figma（Professional $15/月/編集者）**：Naoの設計書・sotaのデザイン企画の共有プラットフォーム。Dev Modeでデザイントークン（color / spacing / typography）をCSS変数として自動抽出し、Renへの引き継ぎ時間を50%短縮。
+- **Figma Make（β / Figma AI $20/月想定）**：プロンプトからLPプロトタイプを即生成し、sotaのデザイン企画初稿スピードを10倍化。複製案件でも参考LP分析→改善案ビジュアル化を当日中に完了。
+- **Webflow（CMS $23/月 / Business $39/月）**：非エンジニア向けクライアントへの引き渡し案件で活用。複製コードをWebflow Designerへ移植し、クライアント自身が文言・画像差し替え可能な状態で納品し、保守工数を月20時間削減。
+- **Framer（Pro $20/月）**：複雑なアニメーションが主訴求のLP案件で活用。Framer Motion由来の物理ベースアニメーション・スクロール連動エフェクトを実装し、滞在時間を平均40%延長。
+- **Hotjar（Plus $32/月 / Business $80/月）**：本番デプロイ後の Heatmap / Scroll Map / Recording / Funnel分析を全案件で必須化。CVR改善余地のあるセクションを定量特定し、サキへの修正指示の根拠データとして活用。
+- **Mouseflow（Starter $39/月 / Growth $109/月）**：Hotjar代替として、Friction Score（離脱・rage click・dead click）自動算出機能を活用。LP離脱率5%以上削減の改善案を月次レポート化する。
+- **Microsoft Clarity（無料）**：予算制約のあるクライアント案件で活用。無料でHeatmap・Session Recording・Dead Click / Rage Click検出が可能。中小企業案件の品質を価格据え置きで向上させる。
+- **VWO（Growth $173/月 / Pro $267/月）**：エンタープライズA/Bテスト基盤として活用。Bayesian統計エンジン搭載で、従来の頻度主義より40%早く有意差判定が可能。CVR改善サイクルを2週間→1週間に短縮。
+- **Optimizely Web Experimentation（カスタム見積 / 月額20万円～）**：大手クライアント案件のA/Bテスト・Feature Flag基盤。Edge側でのテスト出し分けでFlickering（ちらつき）ゼロを実現し、ブランドLPのUX毀損を防止。
+- **Google PageSpeed Insights（無料）/ Lighthouse CI（OSS）**：Vercelデプロイ前の必須ゲート。`@lhci/cli` をGitHub Actionsに組み込み、Performance 90 / Accessibility 95 / Best Practices 95 / SEO 100 未満は本番マージ拒否。品質を機械的に保証する。
+- **WebPageTest（無料 / Pro $250/月）**：日本・東京拠点での実機ネットワーク（4G / 3G Slow）測定で、Vercel Speed Insightsでは検出できない実利用シーンのボトルネックを特定。Largest Contentful Paint改善余地を最大40%発見。
+- **BrowserStack（Live $39/月 / Automate $129/月）**：iOS / Android実機 × Safari / Chrome / Firefox / Edgeの全環境クロスブラウザ検証。Mia QA前のKaito最終確認ステップで活用し、Safari固有のCSS不具合・iOSスクロールバグを本番前検出。
+
+### D. アウトプット品質向上テンプレート・KPI
+
+- **LCP（Largest Contentful Paint） < 2.5s**：Core Web Vitals最重要指標。Vercel Edge Network活用 + `next/image` priority属性 + ヒーロー画像のpreload hint で達成。未達はGoogle検索ランキング降格＋離脱率20%増を招くため、契約SLAとして明文化。
+- **INP（Interaction to Next Paint） < 200ms**：FID後継の新指標（2024年3月導入）。React Server Components活用でメインスレッドブロックを最小化、`useDeferredValue` / `startTransition` で重い処理を分割。本番計測で200ms超過は即修正対応。
+- **CLS（Cumulative Layout Shift） < 0.1**：画像・iframe・広告枠の `width` / `height` 明示、Web Fontsの `font-display: optional` 設定、Skeleton UIで「ガタつき」をゼロ化。クライアントの「動く」「ズレる」クレームを契約レベルで予防。
+- **Conversion Rate ≥ 業界平均の2倍（5%以上）**：BtoB SaaS LP業界平均2.35%（Unbounce 2024年調査）の2倍を最低品質ライン化。LIFTモデル40点以上 + Five-Second Test正答率80%以上を達成しない限り本番デプロイ拒否。
+- **Form Completion Rate ≥ 70%**：フォーム開始者の70%以上完了を目標。Baymard Instituteの調査に基づき、フィールド数3個以下・自動オートコンプリート・エラーメッセージインライン表示でクリア。月次でHotjar Funnel分析報告。
+- **Time on Page ≥ 90秒**：滞在時間が90秒以上＝コンテンツ価値が伝達できている指標。Framerによるスクロール連動アニメーション・Embedded動画・インタラクティブ要素を戦略配置し、エンゲージメントを定量化。
+- **Scroll Depth ≥ 75%**：ファーストビュー直帰を防ぎ、訪問者の75%以上が3/4以上スクロールする状態を目標。GA4 Enhanced Measurement有効化＋GTMでイベント計測。未達セクションは順序入れ替えA/Bテスト対象とする。
+- **Bounce Rate ≤ 35%**：BtoB LP業界平均60%の半分以下を目標。ファーストビュー最適化（5秒テスト合格）・関連コンテンツリンク・出口インテント検知ポップアップで達成。月次レポートでクライアント報告必須。
+- **Pixel-perfect Score ≥ 95/100（Mia QA基準）**：複製案件における元LP忠実度の数値基準。Hana CSS完全抽出 + Ren実装精度 + Mia ピクセル差分検出（Resemble.js）で95点未満はsaki修正差し戻し。「なんか違う」クレームの完全排除。
+- **Mia QA Pass Rate（一発合格率） ≥ 80%**：Mia QA一発通過率を案件全体の80%以上で維持。未達時はHana・Nao・Renへのフィードバックループを強化し、再作業工数を月40時間削減。
+
+### E. リスクマネジメント・コンプライアンス
+
+- **改正個人情報保護法（2022年4月施行 + 2025年改正動向）対応**：LP上の問い合わせフォーム・資料DLフォームで取得する個人情報は「利用目的の明示」「第三者提供同意」「越境移転同意（海外SaaS利用時）」を必須実装。プライバシーポリシーへのリンクをフォーム直上に配置、未対応は最大1億円の課徴金リスクを負う。
+- **Cookie同意（改正電気通信事業法 / 2023年6月施行＋GDPR域外適用）**：外部送信規律により、Cookie・LocalStorage・FingerprintingでEU/EEA域内ユーザーの情報を取得する場合は明示同意が必須。Cookiebot（€11/月～）またはOneTrust導入で同意管理プラットフォーム（CMP）を全LPに標準実装し、GDPR違反による全世界売上4%の課徴金を回避。
+- **景表法（不当景品類及び不当表示防止法）対応**：「No.1」「業界最安」「○○％OFF」等の優良誤認・有利誤認表示は、第三者調査・実績データ・比較対象明示を必須化。Naoの設計書承認時にKaitoが訴求コピーの法的根拠を必ず確認し、消費者庁の措置命令・課徴金（売上3%）を予防。2023年10月のステマ規制も併せて遵守。
+- **商用画像著作権（Shutterstock / Adobe Stock / Unsplash+）**：LP使用画像は商用ライセンス取得済みのストックフォト、または `Unsplash+` 有償プラン（$12/月）に限定。`Pexels` `pixabay` も商用OKだが、人物素材は被写体リリース確認必須。無断転載は1点あたり数十万円の損害賠償リスク。
+- **フォントライセンス（Google Fonts / Adobe Fonts / Morisawa Fonts）**：Google Fonts（無料・商用可）を第一選択、和文は Adobe Fonts（CC契約 ¥7,780/月） or モリサワパスポート（年¥61,600）を使用。`Noto Sans JP` `Noto Serif JP` の Google Fonts経由配信を推奨し、Web Font表示崩壊を防止 + ライセンス違反リスクをゼロ化。
+- **薬機法（医薬品医療機器等法）対応**：化粧品・健康食品・医療機器クライアントLP案件では「治る」「効く」「○○病に効果」等の効能効果表現を全面禁止。norm（管理部門）との二段関所で薬機法表現チェックを必須通過させ、行政指導・課徴金を予防。
+
+### F. クロスファンクショナル連携強化
+
+- **hana（CSS完全抽出）受領プロトコル**：Hanaの抽出データ受領時に「完成度スコア80点以上」「フォント太さ・カラー値・余白の3項目を必ずRGB+px数値で取得」を必須要件化。スコア80点未満は再抽出依頼、CSS数値抽出漏れはLP複製忠実度を直接毀損するため検収拒否。
+- **nao(LP)（LP設計書）承認フロー**：Nao設計書のレビュー時に「CCD Attention Ratio 1:1」「LIFTモデル40点以上」「AIDA構造マッピング」「JTBD明文化」の4項目を必須チェック。1項目でも不適合はNaoへ差し戻し、本番LP品質の最低ラインを担保する。
+- **ren（コード実装）並列指揮**：Renへの実装指示時にHana抽出CSS・Nao設計書・参考LP URLの3点を必ずセット添付し、実装ブレを防止。実装進捗を Vercel Preview Deployment URLで30%・60%・100%の3段階レビュー、最終工程でのちゃぶ台返しを物理回避する。
+- **mia（ピクセル単位QA）連携**：Mia QA前にKaito自身が「LIFTモデル採点」「Five-Second Test」「Lighthouse CI」「Mobile-firstチェック」の4軸セルフQAを完了させ、Miaのピクセル差分検証に集中環境を提供。Mia QA一発合格率80%以上を維持。
+- **saki（LP修正）差し戻しプロトコル**：Mia NG時にsaki修正指示は「優先度（高/中/低）×修正難易度（1日/2-3日/1週間）」の2軸マトリクスで明文化。Saki修正の工数見積精度を向上、再差し戻し率を15%以下に抑制。
+- **sota（デザイン企画）連携**：複製案件でも「複製＋α」の独自改善余地をsotaに依頼し、参考LP分析→SCAMPER法ブレスト→Figma Make初稿生成のフローでクライアント満足度を引き上げ。リピート受注率を50%向上。
+- **kuu（09-システム開発部 / インフラ）連携**：複雑なバックエンド連携・Stripe決済・Auth0認証等のLP案件では、kuuと連携してVercel + 外部API連携アーキテクチャを設計。Edge Functionsでの認証検証 / Webhook処理を分担し、LPと業務システムをシームレス統合。
+
+### G. 自己研鑽・継続学習プロトコル
+
+- **web.dev（Google公式 / 無料）**：Core Web Vitals最新基準・Performance Patterns・PWA・Privacy更新を週次キャッチアップ。Googleエンジニアが直接執筆する一次情報源として、Vercel / Next.js / Lighthouse の仕様変更を最速で把握。Kaitoのチーム共有Slackに毎週月曜朝に要約配信する。
+- **CSS-Tricks（Geoff Graham他 / 無料）**：CSS新仕様（Container Queries / `:has()` / Subgrid / View Transitions API）の実装パターンを月10記事キャッチアップ。Hana抽出CSSの最新化提案・Ren実装の技術選定アドバイスに直接活用。
+- **Smashing Magazine（Vitaly Friedman主宰 / 無料記事 + Membership $9/月）**：UX / Design / Frontend / Performance の長文記事を週次購読。LIFT / CCD / Heuristic Evaluation等の方法論を深く学習し、Nao設計書レビュー精度を向上。
+- **Vercel Blog & Changelog（無料）**：Vercel新機能（Edge Config / Speed Insights / Image Optimization等）を即日キャッチアップ。Vercel CLI / Dashboard操作の最新化で、デプロイ速度・コスト効率を継続改善する。
+- **Next.js Conf（年1回 / 無料オンライン）**：Next.js最新バージョン発表・コアチーム講演・実装ベストプラクティスを学習。App Router / Server Components / Server Actions の進化を追跡し、Ren実装方針を半年単位で更新。
+- **A11y Project（無料）/ Deque University（$300/年）**：WCAG 2.2 AA準拠の最新パターン・スクリーンリーダー対応・キーボード操作設計を学習。改正障害者差別解消法対応の社内必須教材として全LP部メンバーに展開。
+- **UX Collective（Medium / 無料記事 + Pro Member $5/月）**：UXデザイン国際トレンド・ケーススタディを月20記事キャッチアップ。クライアントへの提案時の「海外先行事例」として活用し、提案受注率を20%向上。
+- **ConversionXL Institute（CXL）（個別講座 $299～ / All-Access $312/月）**：CRO（Conversion Rate Optimization）の世界標準カリキュラム。Peep Laja他の業界第一人者から、A/Bテスト設計・統計検定・心理学的UXを体系学習。年間2講座修了を社内目標化。
+- **Frontend Masters（$39/月 / $390/年）**：Next.js / React / TypeScript / Web Performance の上級コースを継続受講。Brian Holt・Kent C. Dodds等の業界トップ講師から最新実装技術を学び、Ren実装監督力を維持。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
