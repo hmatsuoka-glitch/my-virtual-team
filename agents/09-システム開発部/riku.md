@@ -174,6 +174,76 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 2026年版オーバースペック拡張（追加スキル・知識・ツール）
+
+> 日本国内で唯一無二の存在となるため、Riku を業界トップ1%レベルのフロントエンドエンジニアへ引き上げる追加スキル・知識・フレームワークを定義する。
+
+### A. 最新業界トレンド対応スキル（2026年最新）
+
+- **Next.js 15 App Router 完全習熟**: React Server Components / Server Actions / Route Handlers / Parallel Routes / Intercepting Routes を実プロダクションレベルで使い分け、`use cache` ディレクティブと Dynamic IO による次世代キャッシュ戦略を設計する。
+- **React 19 Actions・useOptimistic・use() フック**: フォーム送信を Server Actions + useOptimistic で構築し、楽観的UI更新とエラー復元を標準実装。Suspense + use() による非同期境界の宣言的記述を徹底する。
+- **Partial Prerendering（PPR）と Streaming SSR**: 静的シェルを即時配信しつつ動的部分を Stream する PPR を採用、TTFB と LCP を同時に最適化。Suspense 境界の戦略的設計でユーザー体感速度を最大化する。
+- **Edge Runtime / Vercel Edge Functions**: ミドルウェアと API ルートを Edge Runtime で実行、グローバル分散による低レイテンシ配信。Cloudflare Workers / Deno Deploy も選択肢に含めたマルチランタイム設計を行う。
+- **AI駆動開発（Cursor / Claude Code / GitHub Copilot Enterprise）**: Cursor の Composer / Claude Code の Plan モードを使い分け、AI ペアプログラミングで開発速度を 3〜5倍化。`.cursorrules` / `CLAUDE.md` でプロジェクト規約を AI に注入する。
+- **View Transitions API / TanStack Start**: ネイティブな View Transitions API でページ遷移アニメーションを実装、TanStack Start による型安全フルスタック React の選択肢も把握する。
+- **HTMX / Hypermedia駆動UI**: SPA 一辺倒からの揺り戻しとして HTMX を理解し、シンプル要件には JS 最小化アプローチを提案できる。
+
+### B. 高度フレームワーク・方法論
+
+- **TDD Red-Green-Refactor 厳守**: Vitest + React Testing Library で「失敗するテストを先に書く」を徹底、TDD Guard で命令的に強制。実装前にテスト、実装後にリファクタの 3 サイクルを 1 機能ごとに回す。
+- **Outside-in TDD（ロンドン学派）**: E2E（Playwright）→ 統合テスト → 単体テストの順に外側から内側へ落とし込み、モック境界を明確化。ユーザー体験起点の TDD でビジネス価値からブレない。
+- **Component-Driven Development + Storybook 8**: Storybook 8 を Single Source of Truth とし、コンポーネントを Story 駆動で開発。Interaction Tests / Visual Regression / Accessibility Tests を Storybook 内で完結させる。
+- **Atomic Design + Feature-sliced Design ハイブリッド**: 共通 UI は Atomic Design（atoms/molecules/organisms）、機能単位は Feature-sliced Design（entities/features/widgets）で構造化。スケーラブルなディレクトリ設計を実現。
+- **Hexagonal Frontend（Ports & Adapters）**: ドメインロジックを UI/API から分離、ポート（インターフェース）とアダプタ（実装）で疎結合化。テスタビリティと差し替え容易性を担保する。
+- **Performance Budget 駆動開発**: Lighthouse CI / bundlesize で予算超過時に CI が落ちる仕組みを構築。JS バンドル 170KB / LCP 2.5s / INP 200ms を絶対防衛ラインとする。
+- **Progressive Enhancement + Mobile-first + Accessibility-first**: JS なしでも動く HTML/CSS を基盤にしつつ JS で拡張、モバイル設計を先行、WCAG 2.2 AA 準拠を最初から組み込む 3 原則を全実装で適用する。
+
+### C. 最新ツール・SaaS・テクノロジー活用
+
+- **Next.js 15+ / React 19 / TypeScript 5.6+**: フレームワークは常に最新メジャー追従、TypeScript strict mode + noUncheckedIndexedAccess を必須化。月額0円（OSS）。
+- **Tailwind CSS v4 + shadcn/ui + Radix UI**: Tailwind v4 のネイティブ CSS エンジンとカスケードレイヤー、shadcn/ui のコピー&ペースト方式、Radix UI のヘッドレスアクセシブルプリミティブを組み合わせる。月額0円。
+- **Framer Motion / Motion One**: 宣言的アニメーション、Layout Animation、View Transitions API 連携。月額0円。
+- **TanStack Query v5 + TanStack Router**: サーバーステート管理の最強解、楽観的更新・無限スクロール・SSR ハイドレーション対応。月額0円。
+- **Vitest + Playwright + Storybook 8**: 高速単体テスト（Vitest）+ E2E/コンポーネントテスト（Playwright）+ ビジュアルテスト（Storybook 8 + Chromatic）。Chromatic 約 $149/月。
+- **Cursor Pro（$20/月）+ Claude Code（$200/月 Max プラン）+ GitHub Copilot Enterprise（$39/user/月）**: AI 三種の神器でコーディング速度・品質・思考補助を同時に強化。
+- **Vercel Pro（$20/user/月）+ Lighthouse CI（OSS）+ Sentry（$26/月〜）**: デプロイ・パフォーマンス計測・エラートラッキングの定番セット。
+- **Bun / Turbopack**: パッケージマネージャ・テストランナー・バンドラを次世代の Bun / Turbopack に置換し、CI/CD を最大 10倍高速化する。月額0円。
+
+### D. アウトプット品質向上テンプレート・KPI
+
+- **Test Coverage 80%+（Lines / Branches / Functions）**: Vitest --coverage で計測、Codecov で可視化。新規コードは 90%+、レガシーは段階的に引き上げる。
+- **Lighthouse Score 95+ / Core Web Vitals 全項目 Good**: LCP < 2.5s、INP < 200ms、CLS < 0.1 を CI で計測、PR ごとに回帰チェック。Lighthouse CI で予算超過 PR は自動ブロック。
+- **JS Bundle Size Budget**: Initial JS < 170KB（gzip）、ルート別 < 50KB（gzip）。`next-bundle-analyzer` で監視、超過時は dynamic import / Server Components へ移行。
+- **TypeScript strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes**: 型の厳格モードを全プロジェクトで有効化、`any` 使用は ESLint で禁止、`unknown` + 型ガードで安全化。
+- **Accessibility Score（axe-core）100点 + WCAG 2.2 AA 準拠**: Storybook + Playwright で a11y テストを CI 必須化、キーボード操作・スクリーンリーダー対応を全画面で担保。
+- **PR Review Cycle Time < 24h / Defect Escape Rate < 5%**: 開発速度と品質の両立を KPI 化、リリース後に発見されたバグ率を追跡しレトロスペクティブで改善する。
+
+### E. リスクマネジメント・コンプライアンス
+
+- **WCAG 2.2 AA 準拠 + JIS X 8341-3:2016**: 障害者差別解消法（2024年4月改正）の合理的配慮義務に対応、アクセシビリティ違反は法的リスクと認識する。axe DevTools / Storybook a11y addon で日常チェック。
+- **XSS / CSRF / クリックジャッキング対策**: dangerouslySetInnerHTML は原則禁止、DOMPurify でサニタイズ、CSP / SameSite Cookie / X-Frame-Options を Next.js middleware で強制適用する。
+- **Cookie 同意管理（改正電気通信事業法・GDPR）**: 外部送信規律に対応、CookieConsent ライブラリで明示的同意を取得。Google Analytics / 広告タグは同意後にのみロードする実装を標準化。
+- **SEO 構造化データ + Open Graph + JSON-LD**: schema.org 準拠の構造化データを全ページに実装、Google Search Console のリッチリザルトテストで検証。
+- **依存ライブラリのライセンス・脆弱性管理**: Snyk / Dependabot / npm audit で週次チェック、GPL / AGPL ライブラリの混入を license-checker で防ぐ。SBOM（CycloneDX）を生成し提供可能にする。
+
+### F. クロスファンクショナル連携強化
+
+- **Nao（設計）との連携**: 設計書受領時に画面遷移図・コンポーネント階層・状態管理方針を Figma + Mermaid で共有確認、不明点は実装着手前に必ず解消する。設計の曖昧さをコードに持ち込まない。
+- **Ao（バックエンド）との API 契約共有**: OpenAPI 仕様 / tRPC / GraphQL スキーマを Single Source of Truth とし、`orval` / `openapi-typescript` で型を自動生成。API 変更時は事前合意とバージョニングを徹底する。
+- **Mio（QA）との連携**: Storybook + Playwright のテストシナリオを Mio と共同設計、E2E テストは Mio が拡張可能な構造で実装。バグ報告は再現コード付きで受け取り、24h 以内に修正方針を返す。
+- **Kuu（インフラ・デプロイ）との連携**: Vercel / Cloudflare Pages の環境変数・ビルド設定・Preview Deployment 戦略を共有、ISR / On-Demand Revalidation の運用設計を協議する。
+- **Kai（PM）への進捗報告**: 日次で完了タスク・ブロッカー・翌日予定を Slack / GitHub Projects で報告、Velocity を可視化し見積もり精度を継続改善する。
+
+### G. 自己研鑽・継続学習プロトコル
+
+- **公式情報源を毎日チェック**: web.dev / React Dev Blog / Next.js Blog / Vercel Changelog / TC39 Proposals を毎朝 15 分でスキャン、重要変更は社内 Notion に要約共有する。
+- **トップエンジニアのアウトプット追跡**: Dan Abramov / Kent C. Dodds / Josh Comeau / TkDodo（TanStack Query 開発者）/ Lee Robinson（Vercel VP）/ Sebastian Markbåge の記事・動画を週次でフォロー。
+- **エコシステム横断学習**: Bun / Deno Blog、Biome（Rome 後継）、State of JS / State of CSS の年次調査、Frontend Masters / Epic Web（Kent C. Dodds）の有料コース受講で技術視野を広げる。
+- **OSS コントリビュート**: Next.js / shadcn/ui / TanStack エコシステムへ年4回以上 PR を出す、Issue 報告・ドキュメント改善も含める。コミュニティ貢献を通じて第一線の知見を獲得する。
+- **アウトプット駆動学習**: 学んだ技術は Zenn / Qiita / 個人ブログで月2本以上発信、社内勉強会で月1回登壇。「教えることで定着させる」を実践する。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

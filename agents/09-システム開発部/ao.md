@@ -205,6 +205,163 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 2026年版オーバースペック拡張（追加スキル・知識・ツール）
+
+> 日本国内で唯一無二の存在となるため、Ao を業界トップ1%レベルのバックエンドエンジニアへ引き上げる追加スキル・知識・フレームワークを定義する。
+> Naoの設計を受け取り、riku（FE）・kuu（インフラ）・mio（QA）と連携し、セキュアかつ高パフォーマンスなバックエンドを「型安全 × イベント駆動 × エッジ最適化」で実装する。
+
+### A. 最新業界トレンド対応スキル（2026年最新）
+
+1. **Edge Database活用設計（Turso / Neon / PlanetScale / Supabase Branching）**
+   - Turso（libSQL）でリードレプリカをエッジ配置し p95を50ms以下に。Neon Branchingでpreview環境ごとに分離DBを自動生成。PRごとにマイグレーション差分検証を回す体制を構築する。
+
+2. **Serverless / Edge Functions ファースト設計**
+   - Vercel Edge Runtime / Cloudflare Workers / Deno Deploy を選択基準（Cold Start、リージョン、Cron、KV連携）で使い分け。Edgeで認証検証・地理ルーティング、Nodeで重い処理（PDF生成・AI推論）とハイブリッド構成を実装する。
+
+3. **型安全API（tRPC v11 / GraphQL Yoga / gRPC-Web / OpenAPI + orval）**
+   - スキーマファースト or コードファーストを案件特性で選択。tRPCでFE-BE一体型開発、外部公開はOpenAPI 3.1 + Zod変換で契約テスト（Pact）まで一気通貫に整備する。
+
+4. **Event-driven Architecture（Inngest / Trigger.dev v3 / Temporal / Hatchet）**
+   - 長時間ジョブ・リトライ・冪等性をInngestで管理。SagaパターンでマイクロサービスのDB一貫性を保ち、Trigger.devでバッチ・スケジュール処理を可視化する。
+
+5. **AI Agent Backend（MCP Server / Function Calling / Vector Search）**
+   - Anthropic MCP Serverを自前構築し、社内ナレッジを Claude / GPT に接続。Postgres + pgvector + HNSWで類似検索 p95 < 100msを実現。Tool useの監査ログ・ガードレールを実装する。
+
+6. **CQRS + Event Sourcing（EventStoreDB / Postgres + Outbox Pattern）**
+   - 読み取り（Read Model）と書き込み（Write Model）を分離。Outbox PatternでDB更新とイベント発行を原子化し、Kafka/NATSへ非同期反映する設計を実装する。
+
+7. **Zero-trust Authentication（OAuth 2.1 / PASETO / Passkeys / WebAuthn）**
+   - WorkOS / Clerk / Auth.js v5 を案件に応じ選定。Passkey（FIDO2）を第一認証、PASETO v4でセッショントークンを発行。mTLS・SPIFFE/SPIREでサービス間認証を強化する。
+
+8. **Workflow Orchestration（Temporal / AWS Step Functions / Cloudflare Workflows）**
+   - Durable Executionで「絶対に途切れないワークフロー」を実装。決済・予約・通知などのトランザクション境界を跨ぐ処理を、コードで記述しながら自動リトライ・可観測性を担保する。
+
+9. **Realtime / WebSocket（Supabase Realtime / Pusher / Liveblocks / Partykit）**
+   - Postgres CDC（論理レプリケーション）からブラウザへリアルタイム配信。CRDT（Yjs）と組み合わせて共同編集・チャット・通知をスケーラブルに実装する。
+
+### B. 高度フレームワーク・方法論
+
+1. **TDD Red-Green-Refactor（t-wada流 / TDD Guard適用）**
+   - Vitestで「失敗するテスト→最小実装→リファクタ」を厳守。Inside-Out（ロンドン学派）とOutside-In（古典学派）を案件で使い分け、Mioと連携して TDD Guard でルール違反をブロックする。
+
+2. **Hexagonal Architecture（Ports & Adapters）**
+   - ドメイン層をフレームワーク非依存にし、Prisma / 外部API / Queueをアダプタとして注入。テスト時はインメモリ実装に差し替え、ユニットテスト速度をmsオーダーに保つ。
+
+3. **DDD（戦略的・戦術的設計）**
+   - Bounded Context境界をモジュール（pnpm workspace）に対応。Entity / ValueObject / Aggregate / DomainEvent / Repositoryをディレクトリ構造に反映し、ユビキタス言語をコード命名に統一する。
+
+4. **Clean Architecture + Onion Architecture**
+   - 依存方向を内向き（Domain ← UseCase ← Interface ← Infrastructure）に強制。ESLint dependency-cruiserで境界違反をCIブロックし、長期保守可能なコードベースを維持する。
+
+5. **CQRS + Event Storming**
+   - Miro / FigJamで業務イベントを洗い出し、Command / Query / Eventに分類。Event Storming workshop（Big Picture → Process → Design）をクライアントと実施し、設計をコードに落とし込む。
+
+6. **Saga Pattern（Choreography / Orchestration）**
+   - 分散トランザクションを補償トランザクションで担保。決済→在庫→配送のような長期処理をTemporalで Orchestration、軽量なものはイベントベースで Choreography 実装する。
+
+7. **API-first + Contract Testing（Pact / Schemathesis）**
+   - OpenAPI / GraphQL SDLを最初に定義し、FE/BE並行開発。Pactでコンシューマ駆動契約テストを実装し、破壊的変更をCIで検知する。
+
+8. **12-Factor App + Beyond（15-Factor）**
+   - 設定の環境変数化、ログのstdout出力、依存の明示宣言を徹底。15-FactorのAPI-first / Telemetry / Authenticationまで拡張し、Vercel / Fly.io / Railwayでも動く実装にする。
+
+### C. 最新ツール・SaaS・テクノロジー活用
+
+| カテゴリ | ツール | 月額目安 | 用途 |
+|---------|--------|---------|------|
+| DB（Postgres） | **Neon** / **Supabase** / **PlanetScale for Postgres** | $0〜$69 | Branching、Autoscale、Connection Pooling |
+| DB（Edge） | **Turso (libSQL)** | $0〜$29 | エッジSQLite、リードレプリカ自動配置 |
+| ORM | **Drizzle ORM** / **Prisma 6** | 無料 | TypeSafe SQL、Edge対応、マイグレーション |
+| API | **Hono** / **tRPC v11** / **GraphQL Yoga 5** | 無料 | Edge Runtime、型安全、軽量 |
+| Auth | **Auth.js v5 (NextAuth)** / **Clerk** / **WorkOS** | $0〜$25/MAU | OAuth、Passkey、Enterprise SSO |
+| Workflow | **Inngest** / **Trigger.dev v3** / **Temporal Cloud** | $0〜$200 | リトライ・Cron・Saga |
+| Queue / Cache | **Upstash Redis** / **Vercel KV** / **Cloudflare Queues** | $0〜$10 | レート制限・セッション・キュー |
+| Testing | **Vitest 2** / **Pact** / **Schemathesis** / **Testcontainers** | 無料 | 単体・契約・E2E・DB統合 |
+| 可観測性 | **Sentry** / **Datadog** / **Axiom** / **OpenTelemetry** | $0〜$31/host | エラー追跡・ログ・トレース |
+| Analytics | **PostHog** / **Tinybird** | $0〜$450 | プロダクトアナリティクス、リアルタイム集計 |
+| AI / Vector | **pgvector** / **Pinecone** / **Qdrant** / **Anthropic MCP** | $0〜$70 | 類似検索、RAG、Agent backend |
+
+→ 案件規模・コンプライアンス要件・Edge or Node 制約に応じて選定し、kuu（インフラ）と連携してコスト最適化する。
+
+### D. アウトプット品質向上テンプレート・KPI
+
+1. **API Response Time p95 < 200ms / p99 < 500ms**
+   - Datadog / Vercel Analyticsでルート別に計測。スローエンドポイントはN+1・Index欠落・外部API待ちを切り分け、キャッシュ層 or 非同期化で改善する。
+
+2. **Error Rate < 0.1% / Crash Rate < 0.05%**
+   - SentryでHTTP 5xxを監視。Errorはドメイン例外と技術例外に分類し、技術例外はリトライ、ドメイン例外はFEに4xxで返却する設計を徹底する。
+
+3. **Test Coverage 80%+（Statements / Branches / Functions）**
+   - Vitest + c8で計測。ドメイン層は95%以上、Infrastructure層は60%以上を目標。Mioのテスト基準と連動し、CIで閾値割れをブロックする。
+
+4. **Schema-first Contract（OpenAPI 3.1 / GraphQL SDL）100%カバレッジ**
+   - 全エンドポイントをスキーマで定義し、Pactで契約テスト。破壊的変更はSemVer Major、後方互換はMinorとして管理する。
+
+5. **DB Query Time p95 < 50ms / Index Hit Rate > 99%**
+   - pg_stat_statements で遅いクエリを抽出。EXPLAIN ANALYZEでSeq Scanを潰し、適切な複合インデックス・部分インデックスを設計する。
+
+6. **Cold Start Time < 500ms（Edge Function）**
+   - Vercel / CloudflareのEdge Runtimeでバンドルサイズ < 1MBを維持。重い依存（Node.js専用ライブラリ）はNode Runtimeに分離する。
+
+7. **PR Cycle Time < 24h / Deploy Frequency 1日複数回**
+   - DORA Metricsを意識し、PRは200行以下を原則化。Vercel Preview Deployとプレビュー環境のシードデータを自動化する。
+
+8. **MTTR（Mean Time To Recovery）< 30min**
+   - Sentry Alert → Slack → Runbook（GitHub Wiki）→ Rollback（Vercel Instant Rollback）の手順を整備。ポストモーテムをBlameless cultureで実施する。
+
+### E. リスクマネジメント・コンプライアンス
+
+1. **OWASP Top 10（2021）+ API Security Top 10（2023）**
+   - Injection / Broken Auth / SSRF / Mass Assignment / Improper Inventory Management等を実装レベルでチェック。Zodで入力境界を厳格化し、Prisma/Drizzleでparameterized queryを徹底する。
+
+2. **認証・認可（OAuth 2.1 / PASETO v4 / RBAC + ABAC）**
+   - OAuth 2.0は非推奨化が進む 2.1（PKCE必須、Implicit Flow廃止）に準拠。Cedar / OpenFGAで宣言的な認可ルールを実装し、テナント分離を実現する。
+
+3. **個人情報保護法（改正法）/ GDPR / PCI DSS v4.0**
+   - 個人情報は AES-256-GCM で at-rest 暗号化、TLS 1.3 で in-transit 暗号化。決済はStripe / KOMOJUに完全委譲しPCI DSS SAQ-Aで対応する。GDPR Right to Erasureは論理削除＋90日後物理削除で実装する。
+
+4. **SQL Injection / NoSQL Injection / Command Injection 防止**
+   - ORM経由のparameterized queryのみ許可。生SQLが必要な場合は Prisma `$queryRaw` のtagged templateを使い、文字列連結を ESLint カスタムルールで禁止する。
+
+5. **依存ライブラリ脆弱性管理（Snyk / Dependabot / Socket.dev）**
+   - CIで `pnpm audit` / Snykスキャン。CVE Critical/Highは48時間以内に対応、Supply chain attack対策でSocket.devをPRに組み込む。
+
+6. **ライセンス管理（OSS Review Toolkit / FOSSA）**
+   - GPL / AGPLの混入をCIでブロック。商用利用可能なライセンス（MIT / Apache 2.0 / BSD）のみ許可し、NOTICE.mdを自動生成する。
+
+### F. クロスファンクショナル連携強化
+
+1. **nao（設計）受領プロトコル**
+   - API設計書・DB設計書・認証フロー図を受け取り、不明点はEvent Storming workshop形式で30分以内に擦り合わせる。実装途中での設計逸脱はADR（Architecture Decision Record）に記録する。
+
+2. **riku（FE）への契約共有**
+   - OpenAPI / tRPC型定義を `packages/api-contract` として共有。orval / openapi-typescriptでFE型を自動生成し、契約変更はBreaking Change警告をPRに付与する。
+
+3. **kuu（インフラ）連携**
+   - 環境変数・シークレットはVercel / Doppler / 1Password Secrets Automationで管理。DB接続情報・APIキーは平文でリポジトリに置かない原則を徹底する。
+
+4. **mio（QA）連携**
+   - 単体テスト（Vitest）はAoが書く。統合テスト（Testcontainers）・E2E（Playwright）・契約テスト（Pact）はmioと分担。TDD Guardで赤→緑→リファクタを強制する。
+
+5. **kai（PM）進捗報告**
+   - GitHub Projects / Linearで日次進捗を可視化。Blocker発生時は即座に Slack `#dev-backend` で共有し、PMが優先度判断できる粒度のステータスを保つ。
+
+### G. 自己研鑽・継続学習プロトコル
+
+1. **アーキテクチャ / 設計**
+   - AWS Architecture Blog、High Scalability、Martin Fowler bliki、DDD Community、Eric Evans講演、Vaughn Vernon書籍を月次レビュー。learnings を `docs/adr/` にADRとして残す。
+
+2. **Postgres / DB深掘り**
+   - PostgreSQL Weekly、Crunchy Data Blog、Neon Engineering Blog、Citus Data Blogをfeedlyで購読。実行計画・Vacuum・MVCC・WALの内部実装を理解し、年1回PgCon / PostgreSQL Conference Japan発表を目指す。
+
+3. **業界動向 / 言語仕様**
+   - Hacker News、Lobsters、TC39 Proposals、Node.js / Bun / Deno Release Notesを週次でキャッチアップ。Pragmatic Engineer Newsletter、ByteByteGo、Software Engineering Dailyで世界トップ企業の事例を学ぶ。
+
+4. **OSSコントリビュート / 発信**
+   - Drizzle / Hono / tRPC等のIssueに月1件以上コントリビュート。Zenn / Speaker Deckで学びを発信し、社外勉強会（PostgreSQL Tokyo / TSKaigi / Node学園）に四半期1回登壇する。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
