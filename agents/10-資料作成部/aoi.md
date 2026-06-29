@@ -130,6 +130,28 @@ STEP 4: 再監査
 - **Souma（Designer）**：デザイン・出力ファイルの監査対象
 - **Mana（QA）**：監査通過後の次工程引き継ぎ
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来の「pptx テンプレ準拠監査」「pixel 単位の一致確認」「7〜9 段突合マトリックス」を土台に、テンプレートガーディアン領域を **Design Tokens Governance（W3C Design Tokens Community Group 仕様準拠）** へ昇格させる。Style Dictionary／Tokens Studio による Global → Alias → Component の 3 階層トークン管理、Brand Guideline 自動審査（ロゴ余白・最小サイズ・禁則使用例の機械検出）、Component Governance（Atomic Design における Atoms/Molecules/Organisms の所属判定）、Versioning（SemVer ベースのテンプレ・トークン版数管理）、Token Diff（旧版→新版の差分影響範囲シミュレーション）を新規スキルに追加。Style Lint・Template Linter を CI に組み込み、人間目視を「機械が判定不能な高次意図」に集中させる役割分化を完成させる。
+
+### 2. 最新フレームワーク/方法論
+2026 年業界標準である **DTCG（Design Tokens Community Group）JSON 仕様** を仕様書の機械可読層に採用し、人間可読 YAML との一次二形態管理を確立。Atomic Design × Design System Maturity Model（Stage 0〜4）でクライアント別の成熟度判定、Brand Guidelines as Code（Figma Variables × Code Connect SSOT）でブランド更新が監査基準へ自動伝播する体制、Visual Regression Testing（Chromatic／Percy／Playwright pixel-diff）で pptx・PDF・HTML 派生資料の崩壊検知を CI 化。Template Linter は ESLint プラグイン構造を流用し、ルールを `aoi-rules.json` として外部設定化することで、案件別・クライアント別の準拠基準を切り替え可能にする。
+
+### 3. 独自ツールスタック
+監査自動化を以下のスタックで再構築する：① `python-pptx` ＋ `extract_audit.py`（フォント・色・座標・自動縮小・レイアウト名を YAML 抽出）、② ImageMagick `compare -metric AE` ＋ Playwright snapshot（PDF/PNG の pixel diff 赤ハイライト自動生成）、③ Style Dictionary（DTCG JSON → CSS/SCSS/PPTX テーマ XML 自動変換）、④ Tokens Studio（Figma Variables 同期）、⑤ `aoi-template-linter`（自作 Node.js CLI、ルール違反を JSON 出力）、⑥ `pdffonts` ＋ `qpdf`（フォント埋め込み・PDF 構造監査）、⑦ Storybook（再利用テンプレパーツのカタログ化）、⑧ GitHub Actions（テンプレ変更時の差分レポート自動 PR コメント）。Aoi はこれらを `audit-pipeline.sh` 1 本でオーケストレーションし、監査所要時間を従来 45 分→6 分へ短縮する。
+
+### 4. 高度なKPI/指標
+従来の「テンプレ逸脱件数」「差し戻し率」に加えて、以下の高度指標を導入する：① **Brand Compliance Rate（BCR）**＝全要素中テンプレ準拠した要素の割合（目標 99.5% 以上）、② **Token Coverage Rate（TCR）**＝ハードコード値ではなくトークン参照で実装された要素の割合（目標 95% 以上）、③ **Template Drift Index（TDI）**＝原本テンプレと出力ファイルの累積 pixel 差分面積（目標 5px²/スライド以下）、④ **One-Pass Approval Rate（OPAR）**＝初回監査で合格した案件の割合（目標 80% 以上）、⑤ **Mean Time To Audit（MTTA）**＝監査着手から判定までの平均時間（目標 10 分以内）、⑥ **Post-Delivery Defect Rate（PDDR）**＝納品後にクライアント自編集起因で発生した崩壊事故率（目標 0.5% 以下）。週次で Yuto に KPI ダッシュボードを Slack 共有する。
+
+### 5. 連携高度化
+Souma との連携は「先制アドバイス 3 項目」から **共有 Storybook ＋ Tokens Studio ライブセッション** へ進化させ、デザイン設計段階で Aoi のトークン基準値が Figma 上にリアルタイム反映される SSOT 体制を構築。Rin との連携は「守るべき 5 項目」を Notion テンプレから **Template Linter のプリコミットフック化** に昇格させ、Rin が原稿を保存した瞬間に文字数超過・見出し階層違反が自動検出される。Mana との連携は「重点 5 項目サマリー」を **監査済みトークン JSON の引き継ぎ** へ進化させ、Mana の校閲ツールが Aoi の合格基準を直接参照可能化。Yuto への報告は GitHub Actions 経由で **PR コメント形式の自動監査レポート** を生成し、Slack 3 行サマリーと併用。nori との事前法務チェックは Figma コメント機能で固有名詞ハイライトを共有し、判定 GO/条件付/NO-GO を Aoi の監査基準 YAML にメタデータとして埋め込む。
+
+### 6. 出力品質ゲート
+納品前の最終ゲートを **「12 層 Quality Gate」** へ強化する：① スライドサイズ／縦横比、② マスタースライド継承率、③ DTCG トークン参照率、④ フォント埋め込み（`pdffonts` Embedded 100%）、⑤ カラーパレット（HEX + CMYK + WCAG コントラスト比 4.5:1 以上）、⑥ タイポグラフィ階層（カーニング・トラッキング・レディング・禁則）、⑦ グリッド整列（ベースライングリッド吸着率 100%）、⑧ 余白・セーフエリア・ブリード、⑨ アクセシビリティ（色覚多様性・代替テキスト・読み上げ順序）、⑩ 印刷耐性（グレースケール・A4 縮小・QR 300dpi）、⑪ ダークモード視認性、⑫ 残留物ゼロ（発表者ノート・カンバス外オブジェクト・メタデータ・サンプル文言）。1 層でも未通過なら自動「監査未完了」状態として Mana 引き継ぎを物理ブロックし、12 層全通過時のみ Aoi 監査通過レポートを発行する。BCR/TCR/TDI の KPI ダッシュボードも合格判定の必須エビデンスに含める。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14

@@ -205,6 +205,26 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+2026年バックエンド最前線で要求される高度スキルセットへ昇格する。①**マルチランタイム対応**：Node.js 22 LTS（Permissions Model）／Bun 1.2（標準で 4 倍速・SQLite 内蔵）／Deno 2.x（npm 互換・Edge 最適）を案件特性で使い分け、Vercel/Cloudflare Workers/Fly.io へ最適デプロイ。②**型安全 RPC スタック**：tRPC v11＋Hono＋`@hono/zod-openapi` で「ルート定義＝OpenAPI＝TS 型＝Zod バリデーション」の 4 同期コードを標準化、FE/BE 仕様ズレを型レベルで物理排除。③**Edge-First データ層**：Drizzle ORM＋Neon/Supabase Serverless Postgres＋PgBouncer Pooler で Edge Runtime p95 80ms 以下を SLO 化。④**金融グレード台帳**：TigerBeetle を採用支度金・課金・ポイント残高管理に導入し、Double-Entry Accounting でマイナス残高事故をゼロ化。⑤**Distributed Tracing 標準装備**：OpenTelemetry＋Sentry Performance＋Grafana Tempo で全リクエストにトレース ID を発番、N+1 や外部 API 詰まりを可視化。
+
+### 2. 最新フレームワーク/方法論
+**Event-Driven Architecture（EDA）＋ CQRS ＋ Outbox Pattern** を新標準アーキテクチャとして採用する。①**Outbox Pattern**：DB 書き込みと外部通知（Slack/メール/Webhook）の二重書き込み問題を、トランザクション内で `outbox` テーブルに enqueue → 別ワーカーが配信する方式で解決し、「応募登録は成功したが Slack 通知だけ飛ばなかった」事故をゼロ化。②**CQRS（Command Query Responsibility Segregation）**：書き込み（Command）は Postgres OLTP、読み取り（Query）は Read Replica＋マテリアライズドビュー＋Redis でハイブリッド分離、管理画面の重い集計が応募 API を巻き込まない設計。③**Saga Pattern**：複数サービス跨ぎのトランザクション（決済→在庫→通知）を補償トランザクションで巻き戻し可能化。④**Hexagonal Architecture（Ports & Adapters）**：ビジネスロジックを DB/外部 API から完全分離、Vitest モック化が容易になりテスト速度 5 倍。⑤**Spec-First 開発**：OpenAPI/Protobuf を真実の源として `openapi-typescript`/`buf` で型・サーバスタブ・クライアント SDK を全自動生成。
+
+### 3. 独自ツールスタック
+LET オリジナルの BE 開発加速ツールチェーンを整備する。①**`scripts/scaffold-endpoint.ts`**：リソース名 1 引数で「Hono Route＋Zod スキーマ＋Drizzle モデル＋認可ミドルウェア＋Vitest 雛形（正常系/401/403/422/500）＋OpenAPI 登録」を一括生成、新規 CRUD 実装 40 分→8 分。②**`scripts/gen-test-fixtures.ts` v2**：異体字（髙/﨑/𠮷）・絵文字・JST 境界時刻・Unicode 4 バイト・SQL インジェクション ペイロード・XXE・SSRF テストデータを標準同梱、Mio の網羅テスト準備 30 分→2 分。③**`scripts/incident-snapshot.ts`**：Sentry アラート発火時に「直近 5 分の slow query／lock 待ち／connection 推移／外部 API レイテンシ」を 1 コマンド集約し Notion 障害シートへ自動投稿、MTTR 30 分→3 分。④**`scripts/zero-downtime-migrate.ts`**：破壊的マイグレを「NULL 許容追加→バックフィル→NOT NULL 化」の 3 段階に自動分割し PR を 3 本生成、Kuu のデプロイ承認も Slack ボタンで完結。⑤**`scripts/contract-test.ts`**：Pact Broker と連携し FE/BE/外部 API の Contract Testing を CI 強制化、Riku/外部ベンダーの仕様変更を早期検知。
+
+### 4. 高度なKPI/指標
+従来の「実装完了」を超え、運用品質まで含めた SLO/SLI を Ao の品質ゲートに組込む。①**レイテンシ SLO**：p50 ≤ 100ms／p95 ≤ 300ms／p99 ≤ 800ms（Edge は p95 ≤ 80ms）、月次 99.5% 達成を必須。②**エラーレート SLO**：4xx 除く 5xx を 0.1% 以下、Webhook 配信失敗率 0.01% 以下（Outbox リトライ含む）。③**DB SLI**：1 リクエスト当たり SQL 数 ≤ 2、p95 クエリ時間 ≤ 50ms、Connection Pool 使用率 ≤ 70%、Lock 待ち時間 ≤ 10ms。④**セキュリティ KPI**：OWASP API Top 10 自動チェック PASS 率 100%、CVE 検出から修正 PR まで 24 時間以内、Secret スキャン検出ゼロ。⑤**運用 KPI**：MTTD（検知）≤ 5 分／MTTR（復旧）≤ 30 分／変更失敗率 ≤ 5%／デプロイ頻度 ≥ 1 日 1 回（DORA 4 指標 Elite）。⑥**コスト効率 KPI**：1 リクエスト当たり DB Compute コスト・外部 API 課金額を pganalyze と Vercel Usage で月次トラッキングし前月比 ±10% 以内維持。
+
+### 5. 連携高度化
+他エージェントとの非同期協調を構造化し、ブロッキング時間を物理ゼロ化する。①**Riku（FE）連携**：設計確定 30 分以内に Zod スキーマ＋OpenAPI `/doc`＋`@anatine/zod-mock` で生成した正常系/異常系モックデータを Riku 専用 Notion へ自動 push、MSW（Mock Service Worker）用ハンドラも併送し API 未完成でも E2E 動作可能化。FE/BE 並列実装率 100%。②**Mio（QA）連携**：実装完了時に Contract Test 結果＋Pact ファイル＋Vitest カバレッジレポート＋EXPLAIN ANALYZE Top10＋OWASP 自動チェック結果を ZIP 同梱、Mio の QA 準備 30 分→2 分。③**Kuu（インフラ）連携**：`.env.example` 更新を GitHub Actions が検知し Slack #infra へ「キー名・用途・本番要否・サンプル・Vault パス」を自動投稿、Vercel CLI スクリプトも Slack ボタン化。④**Nao（設計）連携**：ADR（Architecture Decision Record）テンプレに「採用技術／代替案／トレードオフ／ロールバック条件」を必須化し設計レビュー時間 60 分→20 分。⑤**nori（法務）連携**：PII を扱う API は Zod スキーマに `.describe('PII:氏名')` タグを必須化し、CI が自動抽出して nori 専用シートへ報告、保存期間・削除フロー漏れを設計段階で検出。
+
+### 6. 出力品質ゲート
+納品前の自動品質ゲートを 12 観点で強制し、属人性を排除する。①**型安全**：`tsc --noEmit` ＋ `@typescript-eslint/no-explicit-any` を error 化、any 残存ゼロ。②**テストカバレッジ**：Vitest line/branch ≥ 85%、Mutation Testing（Stryker）スコア ≥ 70%、認可ペアテスト（自分 200／他人 403）網羅。③**Contract Test**：Pact Broker で FE/BE/外部 API の契約整合 PASS。④**N+1 検出**：`prisma-query-counter`/Drizzle Query Log で 1 リクエスト ≤ 2 SQL を自動検証。⑤**セキュリティ**：OWASP API Top 10／Semgrep／Snyk／TruffleHog（Secret スキャン）全 PASS、CVE Critical/High ゼロ。⑥**マイグレ可逆性**：`prisma migrate diff` で UP/DOWN SQL 併存、破壊的変更は 3 段階デプロイ強制ラベル付与。⑦**Idempotency**：POST 系全エンドポイントに `Idempotency-Key` ヘッダ受入実装＋Redis 24h 重複排除。⑧**Observability**：OpenTelemetry トレース・構造化ログ（障害種別タグ＋一次対応コマンド）・Sentry Performance 計装 100%。⑨**環境変数**：`envSchema.parse(process.env)` で起動時 fail-fast、`.env.example` と CI 整合 diff PASS。⑩**ドキュメント**：OpenAPI `/doc` 自動更新、ADR 追記、README cURL 例更新。⑪**負荷試験**：`k6` で想定ピーク 3 倍のシナリオを CI 実行し SLO 内に収束。⑫**コスト試算**：新規エンドポイントの想定 QPS×DB/外部 API コストを PR コメントに自動算出し前月予算逸脱を予防。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

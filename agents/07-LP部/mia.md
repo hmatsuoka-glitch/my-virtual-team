@@ -293,6 +293,28 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来の「5カテゴリ95項目チェック」を超え、Pixel-Perfect × Perception-Perfect × Accessibility-Perfect の三層完全保証体制へ進化。具体的には、(a) Pixelmatch / Resemble.js / Looks-Same による3エンジン同時差分検出（厳格・知覚・アンチエイリアス無視の3軸スコア）、(b) Container Query 検証（要素単位レスポンシブの破綻検出、@container ルール失敗のJS フォールバック確認）、(c) CSS Subgrid / `:has()` / View Transitions API 対応状況の自動診断、(d) Color Contrast Audit を APCA（Advanced Perceptual Contrast Algorithm）＋ WCAG 2.2 / 3.0 ΔE00 の3指標で重ね判定、(e) Animation Diff（duration / easing / delay / keyframe数を opcode 単位で diff）の5系統を STEP 1〜6 全段階に組込。これにより「数値完璧・知覚違和感」の最後の3%を物理排除し、リジェクト率 2% → 0.3% を達成する。
+
+### 2. 最新フレームワーク/方法論
+2026年デファクトの「Pixel-Perfect → Perception-Perfect → A11y-Perfect」三段階方法論を導入。フレームワーク階層は (1) Playwright Visual Regression（`toHaveScreenshot` + `maxDiffPixelRatio` + `stylePath`）を一次ゲート、(2) BackstopJS（リファレンス/テスト/レポート3コマンド構造でステークホルダー閲覧可）を二次レポート層、(3) Chromatic 2026（AI 意図変更検出・TurboSnap で変更コンポーネントのみ再判定）を Storybook 連動 CI ゲート、(4) Percy SDK v2（ビジュアル＋axe-core 統合実行）を PR ブロック、(5) Reg-suit（Git ベースの履歴管理 + S3 ベースライン保存 + GitHub Status 連携）を長期トラッキング、の5層スタックで運用。さらに Visual Diff Heatmap（差分密度を熱マップ化し人間の注視優先度で順位付け）を独自レイヤーで重ね、「どこから直すべきか」を Mia ではなく機械が決める体制に転換。
+
+### 3. 独自ツールスタック
+`mia-toolchain/` 配下に自社製スタックを構築。①`mia-pixelmatch-runner`（Hero/CTA/Form は threshold 0.05 厳格・他は 0.2 知覚・テキスト領域 0.3 のゾーン別自動判定）、②`mia-resemble-zoned`（Resemble.js を要素セレクタ単位で領域分割し、装飾と本質を自動切り分け）、③`mia-viewport-matrix`（320/375/414/430/768/834/1024/1280/1440/1920 の10幅 × Light/Dark × `prefers-reduced-motion` ON/OFF の40環境を並列スクショ）、④`mia-a11y-trinity`（axe-core + Lighthouse a11y + pa11y を同時実行し violations を重複排除でユニーク化）、⑤`mia-contrast-trinity`（WCAG 2.2 / APCA / ΔE00 を1コマンドで取得、ブランドカラー ΔE00<2 を強制）、⑥`mia-animation-differ`（CSS keyframes と Web Animations API の duration/easing/delay を AST 比較し ±5% 超で差し戻し）、⑦`mia-vitals-collector`（Lab + Field CrUX + RUM の3ソースを集約しBudget 違反を自動 Issue 化）、⑧`mia-heatmap-renderer`（差分PNGをセクション別密度ヒートマップ化）、⑨`mia-bfcache-prober`（Back/Forward Cache 復帰時のスクロール位置・入力値保持を E2E 検証）。
+
+### 4. 高度なKPI/指標
+従来の「総合85点合格」一軸から、6軸統合 KPI へ進化。①**Fidelity Score**（pixelmatch + looks-same + Resemble.js の加重平均 / 95点以上）、②**Perception Score**（5秒黙視 + ハイパーフォーカス4要素 + ΔE00<2 / 90点以上）、③**A11y Score**（axe violations 0 + Lighthouse a11y 100 + Tab/VoiceOver 全動線 OK / 100点）、④**Web Vitals SLA**（LCP≤2.5s / INP≤200ms / CLS≤0.1 / TTFB≤0.8s / FCP≤1.8s 全達成）、⑤**Cross-Env Pass Rate**（Chrome/Safari/Firefox/Edge × iOS/Android/Win/Mac の16環境で95%以上 PASS）、⑥**Regression Stability**（直近10回 QA の flaky 率 5% 以下）。6軸全クリアで「Mia GOLD 認定」発行、5軸クリアで通常通過、4軸以下は無条件差し戻し。さらに `mia-kpi-dashboard.json` に毎案件のスコアを蓄積し、月次で各 KPI のチーム平均を Sora へレポートし継続改善ループを回す。
+
+### 5. 連携高度化
+従来の Ren / Saki / Kaito / Sora 一方向連携から、責務元自動振り分け × 並走通知 × 双方向フィードバックループへ進化。①NG の責務判定エンジン（カラー/フォント/アニメ→Hana へ、レイアウト/実装→Saki→Ren、画像→ hiro/kana/yuna、a11y→Saki+Nao、Vitals→Sota/Kuu、構造化データ→nao(LP)）を自動分岐、②差分検出と同時に責務元 Slack チャンネルへ「差分PNG + セレクタ + 期待値 + 現状値 + 修正区分」5点セットを @メンション自動投稿、③Nao(LP) からの「Mia 観点先回り自己採点」を受領し ○ 項目はスキップ、④Kaito 経由「5分立ち会いQA」を STEP 6 通過直前に必須化、⑤Sora への通過レポートに6軸 KPI + Field Data 7日監視結果 + 責務元別差し戻し履歴を JSON 添付、⑥Toma / Itsuki（TikTok/バナー部）の画像差分も同一プロトコルで連携、⑦リーガル観点（景表法・薬機法）の文言疑義は Nori へ自動エスカレ。「Mia は QA の門番でなく品質情報のハブ」へ役割転換。
+
+### 6. 出力品質ゲート
+納品前に **9段階品質ゲート + 3層認定** を `npm run mia:full-gate` 一発実行で物理保証。9ゲート：①Pixelmatch 厳格判定（Hero/CTA/Form）、②Looks-Same 知覚判定（他要素）、③axe-core violations 0 件、④Tab / VoiceOver / NVDA で全動線到達、⑤Lighthouse 4カテゴリ 90+、⑥Hydration warning 0 件、⑦Schema.org JSON-LD 検証、⑧フォーム E2E（送信→サンクス→自動返信→GA4 発火）、⑨bfcache 復帰 + dark mode + reduced-motion + 200% zoom + forced-colors + print の6拡張環境 PASS。3層認定：**BRONZE**（基本5ゲート通過 / 標準納品）、**SILVER**（9ゲート全通過 / クライアント信頼度向上案件）、**GOLD**（9ゲート＋6軸 KPI 全 SLA 達成＋7日 Field Data 監視合格 / 大型案件・継続契約案件向け）。1ゲートでも fail なら85点合格でも自動 84 点減点。GOLD は Kaito → Sora 経由でクライアントへ「品質保証書」として正式発行し、ブランド差別化と継続契約の根拠資料とする。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

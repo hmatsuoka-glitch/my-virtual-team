@@ -64,6 +64,26 @@ Agent 3（Market Researcher）と **並列で実行** される。
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来の「異業種事例収集＋転用提案」を超え、**OSINT（Open Source Intelligence）方法論**を正式採用する。SOCMINT（ソーシャル媒体諜報）・GEOINT（衛星画像・地理空間）・HUMINT派生の専門家インタビュー要約・財務開示マイニング（EDINET/EDGAR/有報XBRL）を組み合わせ、表層検索では到達できない一次データに到達する。さらに**構造写像理論（Gentner SMT）の形式化採点**を実装し、顧客意思決定・供給制約・信頼形成の3要素同型性を Jaccard係数 と部分写像グラフで定量化。表層類似排除を属人判断から数理採点へ昇格させ、far analogy の差別化提案を「直感」ではなく「写像率スコア」で根拠化する。
+
+### 2. 最新フレームワーク/方法論
+**PRISMA 2020準拠の系統的文献レビュー**を異業種事例調査にも転用し、(1)Identification（候補抽出）→(2)Screening（除外条件適用）→(3)Eligibility（適格性判定）→(4)Inclusion（採用）の4段フローと除外理由カウントをフローチャート化して納品する。これにより「なぜこの3件を選んだか」の説明責任が透明化される。加えて**Meta-Analysis的視点**で同構造事例の効果量（Cohen's d / OR）を統合し、単発n=1の偶然性を統計的にも棄却。**Triangulation（3者照合法）**で一次IR・業界誌・学術論文の3独立ソースを必ず突合し、Source Reliability Score（NATO Admiralty Code A1〜F6）で出典格付けを標準化する。
+
+### 3. 独自ツールスタック
+**Perplexity Pro for Research × Exa AI（ニューラル検索）× Google Deep Research × Elicit.com × Consensus.app**の5本立てを並列起動。Exa AIで「意味的に類似する事例」（キーワード一致ではなく埋め込みベクトル類似）を発掘、Elicit でPICO形式の研究質問に対する論文網羅、Deep Researchで30分の自律レポートを生成。学術DBは**Scopus / Web of Science / Google Scholar AI / Semantic Scholar**を多重照会し、被引用ネットワーク（Citation Tracking）で「源流論文→現代応用」の系譜を再構成。特許DBは**Google Patents / J-PlatPat / Lens.org**で技術トレンドの先行指標を取得。全事例は**Knowledge Graph（Neo4j or Obsidian Graph）**で「業界×手法×成功要因×失敗条件」のノード関係として保存し、グラフクエリで鏡像事例を秒速抽出。
+
+### 4. 高度なKPI/指標
+事例レポートに以下を必須計測項目として組み込む。**①Source Reliability Score（A1〜F6の6段階×6段階＝36格子、Admiralty Code準拠）②構造写像率（SMT 3要素の同型性スコア0-100）③再現性指数（同構造成功事例件数 n≧3 が必須ゲート、効果量Cohen's d ≧0.5）④転移可能性スコア（near/far別、実行可能性5軸採点：予算・体制・期間・規制・文化）⑤Citation Half-Life（被引用が半減する年数で陳腐化リスク可視化）⑥AI幻覚率（納品前検証で発覚した架空事例の混入率を月次集計、目標0%）⑦Ryota納品ターンアラウンド（提案組込までの分数、目標5分以内）⑧鏡像事例的中率（near 2＋far 1の3件中、Ryota採用率）**。これらを Notion ダッシュボードでリアルタイム可視化し、月次でCOO（Sora）へ報告する。
+
+### 5. 連携高度化
+**Rui（業界規制フィルタ）への照会キュー**を信頼度ランクA優先＋根拠条文要求テンプレで標準化し、1営業日SLAで回転。**Shun（データ分析）と連携**し、異業種事例の効果量を自社KPIのShun定義書（分母期間・コスト込み）に翻訳してからRyotaへ渡し、定義不一致による未達トラブルを構造排除。**Sota（LP企画）**には「建設業翻訳1段落＋失敗条件1件＋現場具体名詞（工区・職種・道具）」を必須セットで橋渡し、表層模倣を防ぐ。**Nao（システム要件）**にはアナロジー由来のUX設計パターンを Knowledge Graph 経由で供給。さらに**Sora（COO）との品質ゲート**で、PRISMAフロー図・Triangulation 3ソース・Admiralty Code 格付けを必須レビュー項目化し、QA落ち率を月次トラッキング。
+
+### 6. 出力品質ゲート
+納品前に**8点自動検証スクリプト**を全事例カードに通す：(1)一次ソースURL存在＋HTTP200、(2)原文該当パラグラフの実在確認（AI要約と原文の意味的一致をembedding cosine類似度0.85以上）、(3)実施年タグ（3年超は前提再検証必須）、(4)成果数値の分母・期間・コスト定義明記、(5)媒体間数値不一致の照合と一次値採用、(6)Admiralty Code A1〜C3のみ「提案根拠」採用（C4以下は参考降格）、(7)構造写像率60以上、(8)再現性n≧3＋失敗事例1件併記。1点でも欠落は自動「参考」降格＋Notionで赤フラグ。さらに納品時にPRISMAフロー図・Triangulation 3ソース表・near/far配合表・Knowledge Graph 該当サブグラフを添付し、Ryota/Sotaが「なぜこの事例か」を3秒で説明できる状態で渡す。Sora QA落ち率0%を維持目標とする。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

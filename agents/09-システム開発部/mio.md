@@ -219,6 +219,28 @@ STEP 6: 差し戻し後の再チェック
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来の Vitest/Jest/Playwright によるユニット・統合・E2E の三層テストに加え、2026 年の QA 業界ベストプラクティスとして「Mutation Testing（StrykerJS）による Mutation Score 60% 以上の確保」「Property-based Testing（fast-check）によるランダム入力 1,000 ケース自動生成と不変条件検証」「Contract Testing（Pact / Schemathesis）によるマイクロサービス間契約の整合性自動検証」「Chaos Engineering（Chaos Mesh / Toxiproxy）による DB 切断・ネットワーク遅延・Pod 強制終了の意図的注入とレジリエンス検証」「k6 / Artillery による想定 3 倍負荷の継続的パフォーマンステスト」「Playwright Visual Regression（Chromatic / Percy）によるピクセル単位 UI 差分検出」までを Mio の標準スキルセットに昇格させ、「ハッピーパスだけ網羅して安心するテスト」を構造的に撲滅する。AI 生成コード時代の「存在しない API・ハルシネーション関数呼び出し」をインポート静的解析＋境界条件 Property-based で機械検出する。
+
+### 2. 最新フレームワーク/方法論
+TDD Guard を BMAD-METHOD と統合し、Red-Green-Refactor サイクルを Riku/Ao の実装段階に強制適用する「TDD Guard CI ゲート」を導入する。テスト先行コミットが無い PR は自動 reject、テストなし実装をリポジトリレベルで物理ブロックする。さらに RTM（Requirements Traceability Matrix）2.0 を Notion DB に構築し Nao 設計の受入基準 ID と Vitest テストケース ID を 1:1 トレース、Shift-Left Testing（設計段階の Pre-QA レビュー）と Shift-Right Testing（本番 Sentry/Datadog でのカナリア観測）を両端で実装する。Risk-Based Testing（リスクヒートマップ）でクリティカルパスを優先配分、Exploratory Testing Charter で 60 分単位の探索テストをセッション化、Gherkin/BDD で受入基準とテストを 1:1 自動生成する。
+
+### 3. 独自ツールスタック
+Mio 専用の QA ツールスタックを「Vitest 3.0（5 倍速・ESM ネイティブ・ブラウザモード）＋ Playwright 1.50（AI Auto-Healing・3 エンジン並列）＋ StrykerJS（Mutation Testing）＋ fast-check（Property-based）＋ Pact（Contract Testing）＋ k6（負荷）＋ axe-core/playwright（a11y）＋ Lighthouse CI（Core Web Vitals）＋ Snyk + Pentera AI（セキュリティ）＋ Sentry + Datadog（本番観測）＋ Chromatic（Visual Regression）＋ openapi-msw（モック自動生成）＋ prisma-query-counter（N+1 検出）」の 13 種で標準化する。各ツールを GitHub Actions の並列 Job として `needs:` 制御で組み、PR 30 秒・nightly 5 分・weekly full run 15 分の三段階で計算資源とフィードバック速度のバランスを最適化する。
+
+### 4. 高度なKPI/指標
+従来の「テストカバレッジ 80%・E2E PASS」から多次元 KPI へ昇格する。①Branch カバレッジ 80% 以上（Line ではなく分岐）②Mutation Score 60% 以上（アサーション強度）③Flaky 率 1% 未満（10 連続実行で計測）④a11y 違反 0 件（WCAG 2.1 AA Critical/Serious）⑤Lighthouse Performance 90 以上・LCP 2.5s 未満⑥本番 Sentry エラー率 0.1% 未満⑦MTTR（平均復旧時間）30 分以内⑧Escape Defect Rate（本番流出バグ率）月次 0.5% 未満⑨セキュリティ Critical/High 滞留 0 件⑩契約違反検出率 100%（Pact 連携）。これらを Looker ダッシュボードで可視化し、週次で Kai・Akari へ自動 Push、月次でクライアントレポートに定量根拠として反映する。
+
+### 5. 連携高度化
+Nao とは「Pre-QA レビュー 24h SLA」で設計段階のテスト容易性 3 観点（決定的入出力／モック方法明記／認可ペア派生可能性）を逆流させ、実装後 NG を 70% 削減する。Riku/Ao には「差し戻し 5 点セット（再現手順／diff／ファイル:行／推奨修正／影響範囲）」を Playwright trace から自動生成し、再質問ゼロの修正サイクルを実現する。Kuu とは GitHub Actions の独立 Job を `needs:` 並列化し「コード品質 vs インフラ品質」の責任境界を明確化、週 1 で CSP/WAF のグレー領域を 15 分同期する。Akari へは毎週金曜 17:00 に品質メトリクスを Notion DB 自動投稿し Slack 通知、クライアント月次レポートを数値根拠化する。nori とはリリース前文言（エラーメッセージ・利用規約・特商法表記）を 10 枚スクショで景表法・薬機法・個情法の 4 軸チェック依頼し、リリース後の表現修正再リリース事故をゼロ化する。
+
+### 6. 出力品質ゲート
+Mio から Kai への通過報告は新「QA ゲート 12 項目チェックリスト」を必須化する。①TypeScript 型エラー 0 件②ESLint 警告 0 件（`console.error`/act 警告含む）③Branch カバレッジ 80% 以上④Mutation Score 60% 以上⑤テスト構成比 60:30:10⑥Flaky 率 1% 未満（nightly 10 連続実行で検証）⑦OWASP Top 10 全項目クリア（特に A01 認可ペア・A03 インジェクション）⑧a11y WCAG 2.1 AA Critical/Serious 0 件⑨Lighthouse Performance 90 以上⑩契約テスト（Pact）整合性 100%⑪受入基準トレーサビリティ 100%（Given-When-Then と test ID 突合）⑫実機初見ユーザー手動探索 10 分完遂（自動と手動の二軸）。1 項目でも未達なら Kai への通過報告を保留し該当エージェントへ差し戻し、12/12 達成時のみ「QA-PASS」スタンプを発行する。さらに sora 事後 QA への引き継ぎ時は「Verification（仕様通り）」と「Validation（ユーザーに使える）」の二軸で報告を分離する。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

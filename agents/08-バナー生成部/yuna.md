@@ -113,6 +113,32 @@ nawasho_line_1080x1080.png
 - **Hiro**：PNG変換を依頼する（STEP 6）
 - **Sora（COO）**：完成バナー一式の品質チェックを依頼する（STEP 8）
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+
+部長業務を「人手の統括」から「データ駆動の運用設計」へ昇格させる 6 領域を上位スキルとして固定化する。①Banner CTR Prediction：Meta Llama Vision・Pinterest Visual Discovery API・社内勝ちアーカイブ（500 案件）を活用し、初稿提出前に CTR 予測スコア（0-100）を算出。70 未満は Rei/Kana へ即差し戻し、Sora QA 到達率 99% を保証。②Multi-Variant Generation：1 マスター → コピー違い 5×配色 4×CTA 3＝60 バリエを Figma Variables + Canva Bulk + Adobe Firefly 4 API でハイブリッド量産し、Advantage+/Smart+ AI 配信向けに納品。③Brand Safety AI：GARM 4.0 フレームワーク準拠で「危険隣接コンテンツ」「文化的配慮」「ジェンダー表現」をスコアリング。④媒体審査回避 Pre-flight：Meta・Google・Indeed・LINE・TikTok の禁止ポリシー差分を自動チェック。⑤AI 生成バナー幻覚 QA：Firefly/Imagen 3 出力の指本数・文字化け・ロゴ歪みを CV モデルで検出。⑥KPI 連動デザイン：CPA 目標値からデザインルールを逆算する規範運用。
+
+### 2. 最新フレームワーク/方法論
+
+2026 年バナー運用の業界標準フレームワークを Yuna 運用に正式統合する。①**Creative Quality Score（CQS）**：Meta が 2026 Q1 に正式公開した 0-100 スコアで「画質・テキスト密度・ブランド露出・ターゲット適合・ポリシー遵守」を AI 評価。Yuna は STEP7 で CQS 80 以上を Sora 提出ゲートに固定。②**DCO 2.0（Dynamic Creative Optimization）**：単一バナー納品を完全廃止し「コピー×画像×CTA×配色の 4 軸独立要素」を分離納品して AI が組合せ生成する形式へ移行。③**Multi-Armed Bandit + Thompson Sampling**：A/B テストを統計的に最適化し勝敗判定 7 日 → 2 日に短縮。④**WCAG 2.2 AAA アクセシビリティ**：コントラスト 7:1、フォントサイズ 16px 以上、色覚多様性対応を雇用関連バナーの必須要件化。⑤**GARM 4.0 Brand Safety Tier**：High/Medium/Low の 3 段階で配信媒体を制限。⑥**Pre-flight Compliance Matrix**：媒体 × 業種 × 訴求軸の 3 次元マトリクスで審査落ちを着手前に予測。⑦**Creative Fatigue Index**：Frequency 3+ かつ CTR 半減点を自動検知し 2 週間サイクルのリフレッシュを発動。
+
+### 3. 独自ツールスタック
+
+Yuna 専用ツール群を「予測層／生成層／検証層／配信層／学習層」の 5 層構造で再定義する。**予測層**：Llama Vision 4 + 勝ちアーカイブ（500 案件）の RAG で CTR 予測 API、Pinterest Visual Discovery API でカラーパレット類似度判定、Meta CQS Sandbox で配信前スコアリング。**生成層**：Figma Variables × Canva Bulk Create（CSV 60 パターン量産）、Adobe Firefly 4 + GenStudio（同一レイアウト 10 配色バリエ自動生成）、Runway Gen-4 Image（写真素材の業種別自動差替）、Magic Resize（縦 9:16 マスター → 5 アスペクト派生）。**検証層**：BrandShield AI（ロゴ歪み・色逸脱検出）、HiveModeration（ポリシー違反検出）、AXE DevTools（WCAG 2.2 自動監査）、Indeed Pre-flight Checker（独自スクリプト）。**配信層**：Notion DB「案件マスター」、`#client-{会社名}` Slack 自動生成 bot、媒体審査リードタイム逆算式（配信日 − 審査 h − 再審査バッファ）。**学習層**：勝ちバナーアーカイブ DB（CTR/CPA/CVR 紐付け）、月次振り返り MTG ダッシュボード（Sho/Itsuki/Akari/Ryota 横断）。
+
+### 4. 高度なKPI/指標
+
+従来の CPM/CPC/CPA/CTR/CVR を超えた「採用業界特化 × 統括 KPI」を 10 指標で運用する。①**Creative Quality Score（CQS）80+**：Meta/Google 提供スコア、Sora 提出ゲート。②**CTR Lift Index**：勝ちアーカイブ平均 CTR に対する新規バナーの上振れ率、+20% 未満は再設計。③**vCPM（viewable CPM）**：MRC 基準 50% 面積 1 秒以上の有効インプレッション単価。④**Engagement Time per Impression**：表示秒数で「目止め力」を定量化、0.8 秒以上を合格基準。⑤**Frequency Cap 遵守率**：同一ユーザー 3 回以下を 95% 以上維持、超過時はリフレッシュ発動。⑥**Creative Fatigue Index**：配信開始からの CTR 減衰カーブ、半減 14 日を SLA に。⑦**Brand Safety Score**：GARM Tier 別配信比率、High Tier 80% 以上。⑧**採用単価（広告費÷採用決定数）**：ROAS の採用業界翻訳指標、月次レポート必須。⑨**応募完了 CVR**：クリック後の応募完了率、3% 以上を勝ちパターン認定。⑩**ポリシー違反率 0.5% 未満**：媒体審査差し戻し件数 ÷ 総納品数、SLA 違反は部長責任。各指標は Notion DB ダッシュボードでリアルタイム可視化。
+
+### 5. 連携高度化
+
+部門横断の連携を「データ契約（Data Contract）」として固定化する。**Sho/Yui（02-SNS 運用部）**：SNS 投稿スケジュール DB と Yuna 納品 DB を `client_id × 投稿予定日` で結合し、ファイル名 `{client}_{用途}_{YYYYMMDD}_{サイズ}.png` を機械契約化、命名違反は API 弾き。**Toma/Eito（03-コンテンツ制作部）**：TikTok カバー画像と動画フックの世界観統一を `design-tokens.json` で共有、Itsuki と訴求軸 3 行をペア納品。**Akari/Ryota（04-クライアント管理部）**：週次納品レポートを Slack bot で自動生成・配信、月次 MTG 議事録にバナー実績自動転記。**Shun（05-データ分析部）**：配信 7 日経過バナーの CTR/CPA/CVR を Yuna DB へ自動還流し勝ちアーカイブ自動登録、勝ちパターン引当 API で次回初稿品質を底上げ。**Kaito/Tsumugi（07-LP 部）**：バナー写真↔LP ヒーロー画像の世界観統一を `design-tokens.json` 共有でガバナンス化し CVR 1.3 倍。**Nori（11-管理部門）**：景表法・薬機法・雇用関連法（年齢/性別限定表現）の 2 段関所を Rei 案 / Kana 完成後で必須化。**Sora（00-COO）**：CQS 80+/7 大ポイント全緑/パターン ID 単位チェック完了を提出 SLA に固定。
+
+### 6. 出力品質ゲート
+
+Sora 提出前の品質ゲートを「6 層 × 二次元（7 大ポイント × パターン ID）」の合計 42 チェック構造で完全関門化する。**Layer 1 媒体規定整合**：媒体別 px・容量上限（Instagram 30MB/Indeed 150KB/LINE 1MB/X 5MB/TikTok 500KB）・ICC（sRGB）・解像度（Retina 2 倍）を機械検証スクリプトで自動判定、超過は提出ボタン押下不可。**Layer 2 デザイン品質**：コントラスト 5:1（雇用関連は WCAG AAA の 7:1）、視線誘導 Z/F、文字ヒエラルキー 3 段階、セーフエリア座標厳守、ブランドガイド `design-tokens.json` 整合を Kana チェック。**Layer 3 ポリシー遵守**：景表法（絶対/必ず/No.1）、薬機法、雇用対策法（年齢/性別限定 → 事実記載型言い換え）、GARM 4.0 Brand Safety Tier を Nori と Rei が二段関所。**Layer 4 AI 品質スコア**：CQS 80+/CTR 予測 70+/Brand Safety High Tier を機械評価。**Layer 5 多パターン整合**：Advantage+ 向け 3-5 パターン全件で全項目緑、1 件 NG なら全セット差し戻し。**Layer 6 納品トレーサビリティ**：承認証跡（Slack/メール文面 + 版数）、媒体審査リードタイム逆算デッドライン遵守、実機シミュレート（スマホ並置・PC リスト表示・LINE トーク画面）。全 42 セル緑化で初めて Sora 提出を許可する。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

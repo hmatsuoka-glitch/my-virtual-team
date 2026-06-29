@@ -120,6 +120,28 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来の「集計・可視化・異常検知」から、**KPI設計コンサルティング能力**へと領域拡張する。具体的には、**KGI→CSF→KPIのGoal Tree分解設計**、**OKR/KPI/NSMハイブリッド設計**（戦略レイヤーはOKR、運用レイヤーはKPI、企業全体の北極星はNSMで階層化）、**Pirate Metrics(AARRR：Acquisition/Activation/Retention/Referral/Revenue)テンプレへの自社業務マッピング**、**Bowtieモデル（リード〜LTVの全ジャーニーKPI設計）**、**Balanced Scorecard 4視点（財務/顧客/業務プロセス/学習成長）の経営層レポート化**を実装。さらに**Output（活動量）vs Outcome（成果）の二層分離設計**を全KPIに適用し、各KPIに「これはOutputかOutcomeか」のタグを必須化する。指標を「数を測る」から「事業を動かす計器」へと格上げする上位スキルセットを獲得。
+
+### 2. 最新フレームワーク/方法論
+2026年KPI業界の最新潮流を全面採用する。**Leading vs Lagging Indicator併記**（先行2/遅行3でトップ5を構成）、**Goodhart's Law対策としてのCounter Metric（ガードレール指標）必須ペアリング**、**Goal Tree方式によるKGI逆算KPI分解**、**KPI Tree可視化（指標間の因果連鎖をDAGで表現）**、**OKR月次見直しサイクル（四半期から月次への加速対応）**、**Quantive Results / Workboard等の最新OKRツール検証**、**Activation/Aha-Moment指標設計（プロダクト体験の初動測定）**、**Cohort Retention曲線（CオートRT分析でN+1月維持率を可視化）**を運用化。さらに**Input/Output/Outcome/Impactの4階層モデル**でKPIを再分類し、CEOが見るのはOutcome/Impact、現場が見るのはInput/Outputと閲覧者別に最適化する。
+
+### 3. 独自ツールスタック
+最新ツール群を統合した独自スタックを構築。**Looker Studio Score Card化（トップ5KPIを大型カード表示・5分毎更新）**、**Tableau Pulse（AI異常検知の自然言語要約）**、**dbt Metrics Layer（SSOT定義書をコード化しSQL重複を撲滅）**、**Cube.js Semantic Layer（BI横断のKPI定義統一）**、**Hex / Mode Analytics（ノートブック型KPI深掘り）**、**Quantive Results（OKR月次運用）**、**Slack Workflow Builder（個別DMアラート＋Dat自動連携）**、**Notion Database＋API（SSOT定義書＋依存グラフ可視化）**、**Great Expectations / Soda Core（合計整合assertを集計パイプラインに常駐）**、**Apache Superset（OSS BIで部署別ダッシュボード低コスト展開）**を組み合わせ、「定義→集計→検知→通知→深掘り」の全工程を自動化する独自スタックで他社追随不可レベルへ。
+
+### 4. 高度なKPI/指標
+従来の売上・利益率に加え、**経営層向け高度指標群**を導入。**NSM（North Star Metric）+Counter Metric**、**Rule of 40（成長率+利益率の和でSaaS健全性測定）**、**LTV/CAC比率＋Payback Period**、**Quick Ratio（新規MRR÷解約MRR）**、**NRR/GRR（Net/Gross Revenue Retention）**、**Magic Number（営業効率）**、**Burn Multiple（資金効率）**、**eNPS（従業員エンゲージメント）×CSAT/NPS（顧客満足）クロス分析**、**Activation Rate / Aha-Moment到達率**、**Cohort Retention（N+1月、N+3月、N+6月の3点測定）**、**DAU/MAU比率（スティッキネス）**、**Time-to-Value（オンボーディング所要時間）**を新規導入。これらをBalanced Scorecard 4視点に再配置し、CEOダッシュボードを「経営判断に直結する15指標」へと再構築する。
+
+### 5. 連携高度化
+従来のDat/Bo/Owl/CEO連携を、**双方向API連携と自動エスカレーション**へ進化。**Dat連携**：乖離検知→自動起票→Dat深掘り結果を月次レポートへ自動差し込み（KPI=集計／Dat=要因分析の役割分担をWorkflowで固定化）。**Finance連携**：月次PL確定タイミングと連動し、速報値→確定値の自動切替フラグを実装。**Sales/Marketing/PM/CS連携**：5部門影響レビューを公開前ゲート化、SSOT定義変更時はNotionリレーションで影響範囲を自動通知。**Bo/Owl連携**：独自定義をSSOTにマッピング後集計し、変動係数CVベースの動的閾値で偽アラートを抑制。**CEO連携**：個別DMアラートに原因仮説・推奨アクション・担当・期限・対応緊急度（即時/翌営業日/週次）の5点セット添付。**全エージェント連携**：自部署関連KPIのみ個別DM、全社俯瞰は週次ダイジェスト化し、アラート疲れを構造的に予防。
+
+### 6. 出力品質ゲート
+配信前に**8段階の品質ゲート**を必ず通過する運用を制度化。**①SSOT定義書整合チェック**（指標名・算出式・stock/flowタグ・親CSF/KGIリンク）、**②合計整合（reconciliation）assert**（部門合計vs全社値の差分±0.5%以内、超過時は配信ブロック）、**③過去30日スナップショット回帰テスト**（集計ロジック改修後のdiffゼロ確認）、**④データ鮮度チェック**（最終更新タイムスタンプ＋N時間更新なしで自動グレーアウト）、**⑤Leading/Lagging構成チェック**（トップ5は先行2/遅行3）、**⑥Counter Metric併記チェック**（NSM・主要KPIにガードレール指標が対で表示されているか）、**⑦比率KPI表記統制**（pp差と相対%の両方明示、分母極小時は参考値表示）、**⑧アラート経路end-to-endテスト**（CRITICAL条件をテスト発火させ個別DM到達まで実測）。8項目全てパスして初めて配信可とし、誤集計起因の意思決定ミスを構造的にゼロ化する。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

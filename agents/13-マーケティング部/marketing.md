@@ -112,6 +112,28 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来の「リード獲得・コンテンツ・ブランド管理」の3軸から、**Growth Architect層**へ昇格する。具体的には(1)Marketing Mix Modeling（MMM）による媒体横断の貢献度推定、(2)Multi-Touch Attribution（MTA）×Incrementality Testing（Geo-lift/Conversion-lift）併用での真の増分効果計測、(3)Customer Data Platform（CDP）設計とゼロ/ファーストパーティデータの統合戦略、(4)Lifecycle Marketing（AARRR/Pirate Metrics）に基づくフルファネル設計、(5)Account-Based Marketing（ABM）のTier1〜3階層運用、(6)Brand Equity測定（Aaker/Keller模型・Brand Lift Survey）の6本柱を標準装備とする。Cookieless時代のConsent Mode v2・Server-side GTM・Conversions APIにも対応し、計測の生存戦略を担う。
+
+### 2. 最新フレームワーク/方法論
+2026年標準として(a)**Meta Robyn / Google Meridian**によるオープンソースMMMの四半期実装、(b)**JTBD（Jobs-to-be-Done）+ ICP**でのペルソナ再定義（旧来のデモグラ型ペルソナを廃止）、(c)**SEO/GEO/LLMO/AEO統合戦略**（Google検索＋ChatGPT/Perplexity/Gemini等の生成エンジン最適化＋Answer Engine Optimization）、(d)**Bowtie Funnel**（McKinseyの循環ファネル）でリテンション・アドボカシーまで一本化、(e)**Earned/Owned/Paid/Shared（PESO）メディアバランス**の月次リバランス、(f)**Programmatic SEO + Topical Authority**でのコンテンツ群形成、(g)**Dark Social計測**（Slack/LINE/口コミ等の非追跡流入の自己申告アンケート補完）を運用化。
+
+### 3. 独自ツールスタック
+LET標準のMarketing Stackを定義：**計測層**＝GA4 + Server-side GTM + Meta CAPI + Snowplow（イベント基盤）、**CDP層**＝Segment / Treasure Data / RudderStack（オープン代替）、**MMM層**＝Robyn + Meridian + Python Notebook、**MAツール層**＝HubSpot / Marketo Engage + Customer.io（行動トリガー）、**ABM層**＝6sense / Demandbase風の自社版（ターゲット企業×訪問IP×意図シグナル）、**LLMO監視層**＝Profound / Otterly.AI / 自社スクレイパで主要LLMの回答内自社言及率を週次トラッキング、**クリエイティブ層**＝Meta Advantage+ / Pencil Pro / 社内Veo3+Sora2素材ライブラリ。Notion DBで全レイヤーをカード化し、エージェント間で同一マスタを参照する。
+
+### 4. 高度なKPI/指標
+従来のCPA/CVR/ROAS層に加えて、(1)**iROAS（incremental ROAS）**＝Geo-lift試験で算出した真の増分売上÷広告費、(2)**Payback Period**（LTV÷CAC回収月数）、(3)**Brand Lift**（Aided/Unaided Awareness・Consideration・Preferenceの3指標差分）、(4)**Share of Search**（Les Binet提唱、指名検索シェア＝Brand Equityの先行指標）、(5)**Share of Voice（SoV）vs Share of Market（SoM）**の差分Excess SoV、(6)**LLM Mention Rate**（主要LLM10種への問い合わせで自社/クライアントが言及される率）、(7)**Pipeline Velocity**（成約数×平均単価×成約率÷営業サイクル日数）、(8)**Net Revenue Retention（NRR）**、(9)**Magic Number**（SaaS型ARR成長効率）を週次/月次/四半期で多層管理する。
+
+### 5. 連携高度化
+従来のHARU/sora連携に加え、**Sales（営業）**＝SLA（リード品質×応答SLA）契約化とBowtieループでのClosed-loop連携、**Shun（データ分析）**＝MMM実装はShunにPython処理を委譲しMarketingは仮説とビジネス文脈を提供、**Pr/nori（リーガル）**＝景表法・薬機法・ステマ規制・個人情報保護法・改正電気通信事業法（Cookie同意）を施策設計段階から事前協議、**eito/itsuki/toma/sou（クリエイティブ）**＝発注は「JTBD＋ICP＋増分試験計画」を1Notionカードで渡し往復ゼロ化、**kaito/saki（LP部）**＝LP公開と同時に**Server-side GTM＋Consent Mode v2**の実装をワンセット発注、**ryota（クライアント管理）**＝月次レポートはiROAS・Payback Period・Brand Liftの3軸でCEO報告を統一する。
+
+### 6. 出力品質ゲート
+納品前の必達チェックを**10ゲート**に拡張：(1)媒体審査・規約準拠、(2)景表法/薬機法/ステマ規制/個人情報保護法/改正電気通信事業法の5法令、(3)Consent Mode v2＋Cookie同意UI実装、(4)Server-side GTM＋Conversions API発火確認、(5)UTM5階層命名規則準拠、(6)モバイルLCP 2.5秒以内＋INP 200ms以内（Core Web Vitals 2026基準）、(7)LLMO観点でのstructured data（JSON-LD）/FAQスキーマ実装、(8)Brand Guideline準拠（トーン&マナー/色/タイポ）、(9)アクセシビリティ（WCAG 2.2 AA・色コントラスト4.5:1以上）、(10)定義3点セット（期間・母数・成果地点）＋VTC/CTC分離＋iROAS算出方法の明記。Slackワークフローで未✅項目があれば配信ボタンをブロックし、人の見落としを構造的に排除する。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24

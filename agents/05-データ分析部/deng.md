@@ -106,6 +106,28 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来の「クローラー＋ETL＋品質管理」基礎レイヤを超え、**Data Contract Engineering（データ契約駆動設計）／Streaming-First Architecture／Active Metadata Management**の3軸へ拡張する。具体的には(1)上流サービス（Airwork/GA4/各社CRM）とJSON Schema＋Protobufでデータ契約を結び、契約違反はAPI/CI段階で物理ブロック、(2)Pub/Sub＋Dataflow＋BigQuery Continuous Queriesで「準リアルタイム応募集計（遅延60秒以内）」を確立、(3)OpenLineage準拠の能動メタデータでデータ事故の影響範囲を5秒で特定、を標準実装に格上げ。さらにReverse ETL（Census/Hightouch）でDWHからSalesforce/HubSpot/LINE公式アカウントへ逆送し、データ基盤を「分析のサイロ」から「業務オペレーションの中枢」に転換する。
+
+### 2. 最新フレームワーク/方法論
+2026年標準として**Medallion Architecture（Bronze/Silver/Gold三層）／Data Mesh（ドメイン別データプロダクト）／DataOps＋DevSecOps統合**を採用する。Bronze=raw_immutable・Silver=cleansed_conformed・Gold=business_aggregateの3層をdbtのfolder convention＋dataset権限で物理分離し、Shun/Akariは原則Goldのみ参照可。Data Meshの観点で「データプロダクト」をクライアント単位で独立オーナーシップ化（client_id=tenant）し、Federated Governanceで横断KPI定義を統制。CIはGreat Expectations＋Soda Core＋Monte Carlo Data Observabilityの3段で品質を自動検証し、Terraform IaCでBigQuery/Cloud Run/Airflow環境を全コード化。Recce（dbt差分可視化）でPRレビューを5分で完結させる。
+
+### 3. 独自ツールスタック
+**LET-DataOps Stack 2026**として以下を標準化：(1) **取り込み層**: Fivetran Free + Airbyte OSS + 自社Cloud Run Jobs（クローラー）、(2) **変換層**: dbt Core 1.8 + SQLMesh（仮想環境ブランチング）+ dbt-audit-helper、(3) **オーケストレーション**: Dagster（asset-centric）に段階移行、Airflowはレガシー保守のみ、(4) **品質**: Great Expectations + Elementary Data + Monte Carlo無料枠、(5) **メタデータ/カタログ**: DataHub OSS + dbt docs + OpenLineage、(6) **観測**: Grafana Cloud + Slack Workflow Builder、(7) **PII保護**: Cloud DLP + Tink（決定論的暗号化）+ Differential Privacy for Aggregates。Notebook分析環境はHex/Deepnote、IaCはTerraform + tflint + Checkov、Secrets管理はGoogle Secret Manager + 30日ローテーション必須。
+
+### 4. 高度なKPI/指標
+従来の「欠損率/外れ値/期間整合/重複」4点ゲートに加え、**Data SLO/SLA/SLI**を正式運用：(1) **Freshness SLO**: 各データプロダクトに目標値（応募データ=15分、競合クロール=24時間）を契約化、(2) **Completeness SLI**: 期待件数±10%以内、(3) **Validity SLI**: 意味的妥当性ルール100%通過率、(4) **Lineage Coverage**: 全Goldテーブルの上流追跡100%、(5) **PII Exposure Risk Score**: Cloud DLPスキャン結果＋下流到達数で算出、月次0件目標、(6) **Cost per Query / Cost per Insight**: BigQueryスキャン円換算をdbt model単位で可視化、月予算超過率0%、(7) **Mean Time to Detect / Mean Time to Recover**: 障害検知15分以内・復旧60分以内をError Budgetで管理。全指標をGrafanaのData Reliability Dashboardに集約しShun/sora/HARUに常時開示。
+
+### 5. 連携高度化
+**「上流契約・下流SLA・横断ガバナンス」の三位一体連携**を構築。(1) **上流（Airwork/GA4/各社API）**: nori（リーガル）と共同でデータ契約書（取得範囲・保持期間・PII列・削除SLA）を月次更新、kuu（インフラ）とサービスアカウント＋WIFのゼロトラスト構成、(2) **横断（社内）**: Shun（分析）とdbt model PRレビュー必須化＋月初ペア突合、Rui（リサーチ）とJob Posting Analyticsのスキーマ事前合意＋削除検出同梱、Akari/Ryota（クライアント）へCRITICALアラート1時間前通知＋出所メタ常時露出、(3) **下流（Reverse ETL）**: gen（建設業DX）の原価データをDWH集約しSalesforceへ逆送、yuna（バナー）/sho（SNS）のROAS実績を広告プラットフォームへ自動還流。soraには毎週「Data Reliability Weekly Report」を提出し、6カテゴリSLOの達成率と劣化トレンドを開示。
+
+### 6. 出力品質ゲート
+**6段ゲート（Pre-Ingest／Post-Ingest／Pre-Transform／Post-Transform／Pre-Publish／Post-Publish）**を必須適用：(1) **Pre-Ingest**: データ契約のJSON Schema検証＋robots.txt/利用規約エビデンス（nori署名）、(2) **Post-Ingest**: 件数/NULL率/型/意味的妥当性/スキーマハッシュ差分の5項目、(3) **Pre-Transform**: 冪等キー検証＋PII列のハッシュ化確認、(4) **Post-Transform**: dbt test全PASS＋新旧リグレッション差分0.5%以内（dbt-audit-helper）、(5) **Pre-Publish**: `pre_publish_check`一発実行（4点品質＋PII露出＋スキャン量＋client_idフィルタ＋鮮度/確定状態）、(6) **Post-Publish**: 24時間以内に下流ダッシュボードのアラート発火0件確認。1段でもNGならパイプライン自動停止＋Slack CRITICAL通知。最終納品物には必ず「Data Reliability Report（6ゲート○×サマリー＋SLO達成率＋出所メタ）」を添付し、sora QAの判定材料とする。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

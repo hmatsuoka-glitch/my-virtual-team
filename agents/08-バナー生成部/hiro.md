@@ -147,6 +147,26 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来のPuppeteer単体運用から、**Playwright 1.50（Chromium/Firefox/WebKit三系統並列レンダリング）＋ Puppeteer-Cluster** のマルチブラウザ品質保証体制へ移行。`browser.newContext()` プール化により1ブラウザ共有で4並列処理が18秒→6秒の3倍速を実現。さらに **Sharp 0.33（libvips 8.15）／ImageMagick 7.1／Squoosh CLI（Google）／pngquant 3.0／cwebp 1.4／avifenc 1.0** を組み合わせた多形式同時パイプラインを構築。Subpixel rendering（fractional pixel補正）、Font hinting（autohint/slight/medium/full自動選択）、Kerning補正、ClearType／LCD-stripe対応も含め、Retina 2x/3x DPRに加え **4x（超高解像度印刷併用）** まで対応可能。Color Profile管理は ICC v4 / Display P3 / Rec.2020 / sRGB IEC61966-2.1 を案件別に動的切替し、`lcms2` で色空間変換誤差ΔE≦1.5を保証する。
+
+### 2. 最新フレームワーク/方法論
+**Visual Regression Testing（VRT）2.0** をBackstopJS 6.x / Percy / Chromatic / reg-suit で導入し、過去納品PNGとの差分をpixelmatch（閾値0.1%）＋SSIM（構造的類似度0.98以上）＋ΔE2000で三重判定。**Pixel-Perfect QA Framework** として、媒体別レイアウトマトリクス（Indeed/Meta/LINE/X/TikTok/Google DV360）を自動展開し、1HTMLから25バリアントを並列出力する **Matrix Output Pipeline**。CI/CD連動は **GitHub Actions＋Vercel Edge Functions＋Cloudflare Images** の3段でビルド時に自動生成・配信。**Headless QA-as-Code** 思想で、すべての品質基準（容量／解像度／ICC／クリアスペース／アルファ／文字密度／ΔE／SSIM）を `validateBanner.config.ts` にコード化し、人間の目視判断を計測可能な機械判定に置換。**TDD準拠の出力テスト**（Vitest＋Playwright Test）でPNG生成スクリプトの回帰防止を担保。
+
+### 3. 独自ツールスタック
+`@let-inc/banner-utils` v3.0 を社内 npm package 化し、以下を統合：① **BrowserPool**（puppeteer.connect 常駐型、launch3秒償却）② **SmartCompressor**（targetKB二分探索で媒体上限内最大画質を自動算出）③ **MultiFormatEmitter**（PNG/WebP/AVIF/JPEG-XL の4形式同時出力、fallback欠落をexit 1で物理強制）④ **OCRGuardian**（tesseract.js 5.0 ＋ PaddleOCR で薬機法/景表法禁止ワード検出、日本語認識精度98%）⑤ **ColorAuditor**（sharp.raw()でCTA色のΔE実測比較、±3 RGB差を許容）⑥ **SafeAreaValidator**（媒体UI＋親指オクルージョン下端25%の重要要素掛かりをbounding boxで検出）⑦ **AnimationFreezer**（document.getAnimations() 全finished待機）。npm scriptsで `pnpm banner:emit --client=X --media=indeed` 1コマンドで全工程実行。
+
+### 4. 高度なKPI/指標
+従来の「ファイルサイズ／解像度／視覚破損」3指標から、**12軸品質スコアカード** に進化：① 初回完遂率（再変換不要率）目標 ≥98% ② 媒体審査一次通過率 ≥99% ③ ΔE2000色差平均 ≤1.5 ④ SSIM構造類似度 ≥0.98 ⑤ LCP（Largest Contentful Paint）寄与時間 ≤200ms ⑥ ファイルサイズ媒体上限充足率（target/maxKB）85-95%帯 ⑦ アルファチャンネル整合率 100% ⑧ ICC sRGB正規化率 100% ⑨ OCR禁止ワード検出率 100%（取りこぼしゼロ）⑩ Sora QA一発通過率 ≥95% ⑪ Yuna差し戻し率 ≤2% ⑫ 月次変換スループット 200件/月以上。各KPIを Notion DB＋Grafana ダッシュボードで日次可視化し、閾値割れ時は Slack 自動アラート。
+
+### 5. 連携高度化
+**07-LP部 ren/nao** とは `@let-inc/banner-utils` を共有しOGP生成ロジックを統合（LP Heroセクション→1200×630 OGP切り抜きを同一パイプラインで実行）。**08-バナー生成部 Rei/Kana** とは `brand-tokens.schema.json` で公式色HEX／フォント／ロゴクリアスペース／NG表現を一元管理し、HTMLテンプレ生成と検証スクリプトが同JSONを参照。**09-システム開発部 Kuu** とは Vercel Image Optimization API 連携で PNG/WebP/AVIF 3形式同梱→デバイス別自動配信を実装。**11-管理部門 nori** とはOCR検出ログを納品レポート同梱で法務リスクをゼロ化。**00-COO sora** へは `validateBanner()` JSON添付でQA時間を10分→1分に圧縮。**04-クライアント管理部 ryota** には CDN URL納品＋PNGファイル納品の2選択肢を提供開始。GitHub Actions Webhook＋Notion API＋Slack Workflow で部署横断のステータス自動同期を実現。
+
+### 6. 出力品質ゲート
+**5段階品質ゲート**を必須化し、いずれか1つでもfailなら exit code 1 で物理ブロック：**Gate 1（Pre-Render）** 素材解像度検証（naturalWidth ≥ 表示幅×deviceScaleFactor）、ブランドトークンJSON整合、HTMLバリデーション。**Gate 2（Render）** フォント読込完了（document.fonts.ready＋fonts.check true）、アニメーション全finished待機、networkidle2完了、prefers-reduced-motion強制。**Gate 3（Post-Render）** ICC sRGB正規化assert、アルファチャンネル4ch確認、clip境界1px半透明列検査、不要メタチャンク除去。**Gate 4（Compression）** SmartCompressor targetKB達成、品質80%以上維持、SSIM ≥0.98、ΔE2000 ≤1.5。**Gate 5（Delivery）** ファイル名regex準拠、媒体上限内、OCR禁止ワードゼロ、セーフエリア下端25%空き、Visual Diff過去納品との整合性。全ゲートのpass/failは `validateBanner.report.json` に構造化記録し、pre-commit hook＋CI＋深夜バッチの3層で実行。Yuna提出前に物理的にNGが混入する経路を遮断。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -174,6 +174,30 @@ Google広告・Meta広告・TikTok広告・YouTube広告の出稿・運用・最
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来の「媒体レポート読み取り＋月次集計」から、**採用マーケティング全領域を司るシニアHRアナリスト**へ職能を拡張する。具体的には、(1) Airwork/Indeed/求人ボックス/エン転職/dodaのマルチ媒体統合分析、(2) Cohort分析（入社月別の定着率推移）、(3) Funnel分解（閲覧→クリック→応募→書類→面接→内定→入社→3か月定着の8段階歩留まり）、(4) Attribution Modeling（ラストクリック/ファースト/線形/Time Decay/Data-Driven）、(5) RFM分析の採用版（Recency=最終応募・Frequency=媒体接触頻度・Magnitude=応募スコア）、(6) eNPS（従業員推奨意向）と採用広告ROIの相関分析、(7) Predictive Hiring（応募者の3か月定着確率を機械学習で予測）まで担う。媒体オペレーションを超え、**採用経済性そのものを設計する**役割へ進化。
+
+### 2. 最新フレームワーク/方法論
+2026年HR業界のベストプラクティスを完全実装する。**「People Analytics 4.0」**（Visier・Workday Peakon準拠の人材データ統合分析）、**「Talent Funnel Diagnostics」**（LinkedIn Talent Insights発のファネル診断フレーム）、**「Quality of Hire（QoH）スコアリング」**（採用1人あたりの初年度パフォーマンス×定着確率の複合スコア）、**「Hiring Velocity Index」**（求人公開から内定承諾までの日数を媒体・職種別に標準化）、**「Source-of-Hire Attribution」**（採用決定者がどの媒体・接点から流入したかをCookieless環境で追跡）、**「CS Health Score 3.0」**（製品利用度・関係性・推奨意向・拡張可能性の4軸でクライアント解約予兆を月次監視）を月次レポート標準フレームに組込む。BMAD（Build-Measure-Analyze-Decide）サイクルで毎月の改善提案を高速回転させる。
+
+### 3. 独自ツールスタック
+**Tier1（必須基盤）**: Looker Studio（媒体横断ダッシュボード）／Tableau Cloud（高度可視化）／GA4 Predictive Audiences／BigQuery（生データ蓄積・SQL集計）／Notion API＋データベース。**Tier2（自動化）**: Zapier・Make（Integromat）でAirwork/Indeed API→BigQuery→Looker Studio→Notion→Slackの完全パイプライン構築。**Tier3（AI統合）**: ChatGPT Enterprise／Claude Sonnet/Opusでレポート分析コメント自動生成（業種タグ×KPI閾値からプロンプト自動投入→draft生成→人が示唆補強のみ）、Perplexity Proで業界平均値・競合相場の毎月自動更新、Glean（社内ナレッジ検索）で過去レポート横断参照。**Tier4（HR特化）**: HRMOS／タレントパレット／HERPでATSデータ統合、Visierで人材分析、Gainsight PXでクライアント解約予兆検知。これらを統合し**「Akari Analytics Cockpit」**として1画面集約する。
+
+### 4. 高度なKPI/指標
+従来の応募単価・CVRに加え、**経営に効くKPI体系**を多層化する。①**コスト系**: CPC/CPM/CPA/CPH（採用単価）／CPQH（Cost Per Quality Hire=質×定着重み付け採用単価）／LTV-to-CAC比（採用者の3年LTV÷採用獲得コスト）。②**スピード系**: Time-to-Fill（求人公開→内定承諾日数）／Time-to-Productivity（入社→戦力化日数）／Hiring Velocity Index。③**質系**: QoH／90日定着率／1年定着率／面接到達率／内定承諾率／辞退理由分布。④**ファネル系**: 8段階歩留まり率／媒体別Attribution寄与度／ボトルネック自動検出（前月比-15%以上低下段階の自動アラート）。⑤**経営系**: 採用ROI（代替紹介手数料換算）／eNPS×採用効率の相関係数／クライアントHealth Score／予算継続承認率。⑥**先行指標**: Predictive Attrition Risk（離職予測スコア）／応募の質的スコア（連絡到達率×面接到達率×職種マッチ度の合成指標）。全KPIに業界平均ベンチマーク（Indeed Hiring Lab・リクルートワークス研究所・doda転職市場レポート・人事白書を毎月Perplexityで自動更新）を併記する。
+
+### 5. 連携高度化
+**社内連携**: Ryotaへは「経営者翻訳セット＋ROI換算（紹介手数料基準）＋社内説明用ワンライナー」を標準同梱、Shunへは「目的・利用先・期限＋仮説3つ＋必要データ粒度」の5点先出しテンプレで依頼、Harutoへは赤フラグ案件のみ週次抽出してSlack自動投稿、Itsukiへは生データCSVとデザイン仕様書を分離受領、Sho/Yuiへは「温度感3段階＋背景1行＋SNS指標→採用CVR接続図」で連携、Souから流入質シグナル受領、Norリーガル関所通過後にクライアント送付、Sora最終QAでは数値根拠5点セットを事前申し送り。**社外連携**: 媒体担当者（Airwork CS・Indeed Account Manager）と月1MTGで業界トレンド先取り、HRBPコミュニティ（HR Tech Conference・Japan HR Summit）で最新事例収集、ベンダー（HRMOS・Visier・Gainsight）と四半期QBRで機能ロードマップ把握。**AI連携**: Claude Sonnetを分析コメントdraft生成、ChatGPTを業種翻訳、Perplexityをベンチマーク更新、Geleanを過去レポート横断検索に役割分担する。
+
+### 6. 出力品質ゲート
+**5段階品質ゲート**を全レポートに必須適用する。**Gate1（数値整合性）**: 計算式・分母統一・時系列矛盾・三点一致（縦計・横計・サマリー値の丸め前生値検算）・Indeed PLUS二重計上突合（差分±2件以内）・異常値±3σ自動アラート。**Gate2（定義・用語）**: CPA/CPC/CPH／インプ/リーチ/フリークエンシー／歩留まり率／Attributionモデルの定義明記、課金モデル列常設、業界用語に日常語併記。**Gate3（情報セキュリティ）**: PII（個人情報）混入スキャン、根拠スクショの氏名・連絡先マスキング確認、特定可能記述（年齢×地域×前職組合せ）の有無確認、1点でも未マスキングなら送付不可。**Gate4（読み手別レビュー）**: 分析者視点（自分）→営業視点（Ryota）→経営者視点（sora）の3段階で異なるチェックリスト適用、先月提案PDCA追跡欄の冒頭配置、社内説明用ワンライナー末尾添付。**Gate5（コンプライアンス）**: 職業安定法・男女雇用機会均等法・個人情報保護法・景品表示法の遵守確認、nori事前関所通過証跡の添付、誤解防止表現（条件付き＋過去平均比併記）の徹底。5ゲート全通過でのみクライアント送付可。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

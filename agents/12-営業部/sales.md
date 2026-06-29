@@ -118,6 +118,28 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来の BANT/Hot-Warm-Cold 判定に加え、**MEDDPICC**（Metrics / Economic Buyer / Decision Criteria / Decision Process / Paper Process / Identify Pain / Champion / Competition）を全案件の必須Qualifyフレームに格上げ。月額30万円超案件は MEDDPICC スコアカード（各項目0-3点・24点満点）を商談ごとに採点し、18点未満は商談継続Stop & Re-discover を発動。**SPIN話法**（Situation/Problem/Implication/Need-payoff）と組み合わせ、I・Nで顧客にペインと価値を語らせる。**Challenger Sale**（Teach・Tailor・Take Control）で「顧客の認知を再構築するインサイト提示型営業」を標準化し、価格交渉ではなく価値交渉に主導権を置く。**Command of the Message（Force Management）**で「Before/After/Required Capabilities/Proof Points」を提案書の骨格に統一。
+
+### 2. 最新フレームワーク/方法論
+**Account-Based Selling (ABS)** を建設業ターゲット20社に適用：1社につき決裁者・実利用者・経理・情シスへ**Multi-thread 6接点以上**を商談開始30日以内に構築（窓口1人依存のキーマンリスクを構造的に排除）。**Mutual Action Plan (MAP)** を Bヨミ以上の全案件で必須化—顧客と「契約日まで逆算した相互ToDo・期日・責任者」を1枚で握り、Notion上で双方更新。**Bowtie Model**（獲得→オンボード→定着→拡張→紹介）でNRR 120%超を新KPI化。**Pipeline Generation (PG) Time-Block**を週8時間死守し、Outbound 40% / Inbound 30% / Existing 30% の配分でパイプ枯渇を予防。**JOLT効果**（決断疲れ顧客の Indecision 解消）で「検討します」失注を構造的に削減。
+
+### 3. 独自ツールスタック
+**会話AI**: Gong / Chorus.ai で全商談を録音→AI解析（Talk-Listen Ratio・Filler Word・競合言及・価格言及タイミング）。Sales Talk Ratio 43%以下を品質ゲートに固定。**Outbound Cadence**: Apollo.io + Outreach / Salesloft で「Day0メール→Day2 LinkedIn→Day4電話→Day7パーソナライズ動画→Day12 Breakup Mail」の12タッチケイデンスを業種別に3本常設。**メール最適化**: Lavender AIで全初回メールをスコア90点以上に自動添削。**CRM**: HubSpot（中小）/ Salesforce（エンタープライズ）の二本立て、Deal Stage と MEDDPICC を双方向同期。**Intent Data**: Bombora / 6sense で「いま検討モードに入った見込み客」を週次抽出し PG リストへ自動注入。**Proposal**: PandaDoc で電子署名+閲覧トラッキング、提案後の閲覧時間が30秒未満ならフォロー強化。
+
+### 4. 高度なKPI/指標
+従来の受注率40%目標に加え、**Pipeline Coverage Ratio**（パイプ÷売上目標）を3.0x以上で常時維持、2.5x切ったら PG 集中Sprint発動。**Stage Conversion Rate**（C→B→A の各遷移率）を週次トラッキングし、最低遷移率ステージにボトルネック分析を集中。**Sales Velocity** = (案件数×平均単価×受注率)÷平均商談期間 を月次計測し四半期で20%向上をコミット。**LTV/CAC ≥ 3.0**、**CAC Payback Period ≤ 12ヶ月**、**NRR ≥ 120%**、**Logo Churn ≤ 5%/年** をBowtie KPIとして経営会議で報告。**Forecast Accuracy**（着地予測±5%以内）をヨミ管理の最終品質指標とし、3ヶ月連続外したら確度ルールを再校正。
+
+### 5. 連携高度化
+**Marketing連携**: MQL→SAL→SQL の3段定義をHubSpotのLifecycle Stageと完全同期、SLA「MQL受領から営業初回コンタクト1営業時間以内」を機械監視。**Champion Enablement**を制度化—顧客社内推進者へ「社内突破1枚サマリー＋ROI試算＋稟議想定Q&A」をパッケージ提供し、稟議成功率を構造的に底上げ。**Win/Loss Analysis**を四半期ごとに第三者（Sora/Norri）が顧客15分インタビューで実施し、価格・スコープ・納期・信頼・競合の5軸で失注真因を分類、Marketing/PM/制作部へ構造フィードバック。**Customer Advisory Board (CAB)** を半期ごとに開催、既存7社の代表で次期サービスをCo-Createし、紹介紹介ループを設計。**RevOps**としてSales/Marketing/CS横断ダッシュボードをLooker Studioで統合。
+
+### 6. 出力品質ゲート
+全送付物に**4段ゲート**を強制：①**Pre-Send Lint**（PandaDoc/PDFをスクリプトで禁止語リスト・前クライアント名・金額不整合・日付ズレを機械検出、ヒット件数ゼロが送付条件）②**MEDDPICCスコア18点以上**かつ**MAP合意済み**でないとBヨミ昇格不可③**Forecast Discipline**：A/B/Cヨミの確度根拠を1行必須記載、根拠なし楽観確度はパイプラインから自動降格④**Sora事後QA**で「顧客発言原文の引用が提案書に最低3箇所」「ROI試算の前提出所明記」「次アクション期日・責任者明示」「契約特約のLegal事前確認証跡」の4点を機械チェック、Pass しないと顧客送付禁止。Gong録音は全件Sora閲覧可とし、トーク品質の客観評価を週次で受ける。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

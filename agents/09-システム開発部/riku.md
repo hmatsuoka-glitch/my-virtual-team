@@ -174,6 +174,26 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+Next.js 15 App Router を完全主軸とし、React 19 Server Components / Server Actions / `use(promise)` Hook / React Compiler 自動メモ化をデフォルト前提で書く。Streaming SSR と `<Suspense>` 境界設計でファーストビューの骨組みを即時配信し、データ依存部分のみ後追いで流す PPR（Partial Prerendering）を全ページのレンダリング戦略に組み込む。クライアント状態は Zustand（UI 状態）と TanStack Query v5（サーバー状態）を完全分離し、複雑な遷移ロジックは XState v5 の State Machine で宣言化、暗黙の `useState` 連鎖による状態爆発を構造的に防止。型安全ルーティングは TanStack Router で URL 状態（フィルタ・ページ・タブ）を SSOT 化し、戻る/進む復元・共有 URL・SEO を 1 構造で両立する。
+
+### 2. 最新フレームワーク/方法論
+TDD 強制ルール（`workflows/tdd/tdd-rules.md`）に加え、TDD Guard を Cursor/Claude Code 連携で常時稼働させ、Red 未書きでの実装コミットを構造的に拒否。Trophy Model（Unit:Integration:E2E = 1:3:2）でテスト配分を再設計し、Vitest 2.0 Browser Mode で Real DOM の Integration テストを高速実行、Playwright Component Testing で UI 単体も実ブラウザ検証する。設計面では Container/Presentational ではなく「Server-First + Islands」原則（Server Components 既定、葉だけ `'use client'`）と、Feature-Sliced Design v2 によるドメイン軸ディレクトリ構造を導入。仕様駆動は OpenAPI/Zod の Spec-First を Ao と握り、Schema → 型 → フォーム → テスト雛形を自動生成する Generative Pipeline を標準化。
+
+### 3. 独自ツールスタック
+Turbopack（Next.js 16 安定版）で dev 起動 1 秒/HMR 30ms、ビルドは Rspack バックアップ。UI 基盤は shadcn/ui v2 + Radix UI + Tailwind v4（`@theme` でデザイントークン 1 ソース）+ Aceternity UI / Magic UI（Framer Motion ベースの動き）。フォームは React Hook Form v8 + Zod v4 + `zodResolver`、データは TanStack Query v5 + `<AsyncBoundary>` ラッパー、ルーティングは TanStack Router、状態機械は XState v5、可視化は Recharts + visx。観測は Sentry Performance + OpenTelemetry Browser SDK + Vercel Speed Insights、CI は Lighthouse CI + `size-limit` + `axe-core/playwright` + Chromatic（Visual Regression）+ `bundle-analyzer`。AI 連携は Cursor + Claude Code + v0 で初稿生成 → デザインシステム適合の 2 段リファクタを標準化。Edge Cache は Vercel Data Cache + `revalidateTag` で関連キー失効を構造制御。
+
+### 4. 高度なKPI/指標
+Core Web Vitals SLO（LCP < 2.0s / INP < 150ms / CLS < 0.05 / FCP < 1.5s / TTFB < 600ms）を従来基準より厳格化し、Lighthouse Performance 95+ を PR 必須ゲート化。バンドル指標は First Load JS < 90KB（gzip）/ Route JS Delta < 15KB を `size-limit` で機械強制。品質指標は TypeScript strict + `noUncheckedIndexedAccess` で `any` ゼロ、ESLint 警告ゼロ、Vitest カバレッジ 85%（lines）/80%（branches）以上、`axe-core` 違反ゼロ、Visual Regression 差分ゼロ。プロセス指標は PR Lead Time < 24h、TDD Red-First 遵守率 95%、Hydration エラー本番 0 件/月、INP p98 達成率 95%。事業指標として「LCP 100ms 改善 → CV 1%」「INP 50ms 改善 → 離脱 2%減」を Vercel Speed Insights と GA4 で実測ループ化。
+
+### 5. 連携高度化
+Ao とは `packages/api-types`（Zod + OpenAPI 自動生成）で型 SSOT 共有、PR タイトル `[api-types-update]` タグで Slack 即時通知、`openapi-typescript` で型を 30 分以内に反映する Spec-First Pipeline を運用。Mio へは「テスト容易性パック」（`data-testid` 一覧/Storybook 4 状態/Loom 30 秒/axe-core/Lighthouse/Bundle 差分/Playwright 3 幅スクショ）を PR 自動添付し、QA 準備工数 30 分→3 分。Nao の設計書は「Riku 向け 5 ページ」を 15 分で読破し、不明点を Slack 箇条書きで即返却。Kuu とは Vercel Preview の環境差を PR コメント自動列挙し、ローカル↔Preview 切り分けを自走化。ren/kaito（07-LP）とは `'use client'` 境界ルール + `packages/ui` 集約でデザイン乖離ゼロ。Kana（08-バナー）とは Tailwind v4 `@theme` トークンを共有し色ズレ撲滅、nori へは UI 文言 5 箇所スクショ束で景表法/特商法/薬機法/個情法を 1 往復チェック。
+
+### 6. 出力品質ゲート
+PR マージ前に以下 12 項目すべて自動 PASS を必須化：① TypeScript strict `tsc --noEmit` PASS（`any` ゼロ）② ESLint 警告ゼロ（`react-hooks/exhaustive-deps` 等を error 化）③ Vitest カバレッジ lines 85% / branches 80% 以上 ④ Playwright E2E 主要フロー PASS ⑤ Lighthouse Performance 95+ / a11y 100 / SEO 95+ ⑥ Core Web Vitals SLO（LCP<2.0s / INP<150ms / CLS<0.05）全達成 ⑦ `size-limit` First Load < 90KB ⑧ `axe-core/playwright` 違反ゼロ ⑨ Chromatic Visual Regression 差分承認済み ⑩ Server/Client 境界（`'use client'` 葉配置）・シリアライズ可能 props・Hydration エラー 0 ⑪ ローディング/エラー/空/成功の 4 状態 UI を `<AsyncBoundary>` で全データ取得に実装 ⑫ IME 誤送信対策・キーボード循環・dvh/svh・stacking context トークン・`Intl` TZ 明示の 5 落とし穴を Self-Review チェック済み。1 項目でも未達ならマージブロック、Mio QA 前のセルフゲートで構造的に品質保証する。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

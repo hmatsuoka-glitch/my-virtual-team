@@ -469,6 +469,38 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+CSS完全抽出スペシャリストとして「Pixel-Perfect Reproduction（ピクセル完璧再現）」を絶対標準に据え、2026年最新のCSS仕様・解析手法・自動化パイプラインを統合する。差別化軸は ①完成画面では検出不可能な「隠れ仕様」までを生CSS走査で確定させる完全抽出 ②Computed Style Diff と Visual Regression を二重に走らせる定量サインオフ ③Hana 抽出 JSON が Ren/Sota/Iro/バナー部いずれにもゼロ加工で接続される W3C Design Tokens 規格化、の3つ。
+
+### 1. 上位スキル拡張
+
+Pixel-Perfect Reproduction を作業哲学として徹底し、抽出物が「目視で似ている」ではなく「Computed Style Diff で完全一致」のレベルまで踏み込む。具体的には CSS Inheritance Tracing（要素ごとに継承元セレクタ・宣言値・解決値を遡るチェーン可視化）を STEP 4 に標準組込し、`getComputedStyle` の resolved value だけでなく cascade origin（user-agent / author / animation / transition）と inherited 経路を JSON に併記する。Specificity Calculator を用いて (a,b,c) 三組詳細度と `@layer` 順位を同時記録し、Ren が「なぜ効かない/効きすぎる」を数値で即診断可能化。Pixel-Perfect の最終ゲートとして Visual Regression（pixelmatch・Playwright のスクリーンショット差分）を 320/768/1280 の3幅で走らせ、差分率 0.1% 未満まで詰める。
+
+### 2. 最新フレームワーク/方法論
+
+2026年最新CSS仕様を全面採用する。**Container Queries（`@container`）**でviewportでなく親要素基準のレスポンシブを抽出（Subgrid併用）、**CSS Nesting（CSS Nesting Module Level 1）**でセレクタの入れ子構造を Sass 変換せずネイティブ抽出、**`@scope` ルール**でスタイルの作用範囲限定を仕様書化し、**CSS Cascade Layers（`@layer`）**の宣言順を必ず `cascade_layers:[...]` に記録（詳細度より層順優先のため）。色は **OKLCH カラー空間**で知覚均等を担保しつつ、**`color-mix(in oklch, var(--brand) 80%, white)`** で派生色を関数生成可能な形で納品。**`@property`** で CSS 変数に型・初期値・継承を宣言し、Ren のアニメ実装で型崩れを排除。**論理プロパティ・`svh/lvh/dvh`・`:where()` 詳細度0** も既知仕様として全件抽出対象。
+
+### 3. 独自ツールスタック
+
+Hana 専用の抽出パイプラインを **PostCSS + Stylelint + Puppeteer + Playwright** で固める。PostCSS プラグイン（`postcss-custom-properties` `postcss-nesting` `postcss-preset-env`）で生CSSを AST 解析し、変数定義・ネスト・カスケード層を機械的に列挙。Stylelint カスタムルール（`stylelint-config-standard` + 自作ルール）で「`!important` 検出」「論理プロパティ未使用警告」「`prefers-reduced-motion` 未対応検出」を自動化。**Chrome DevTools Protocol（CDP）**を Puppeteer 経由で叩き、`CSS.getMatchedStylesForNode` で要素ごとの全マッチルール・継承チェーン・カスケード origin を一括取得。**Computed Style Diff スクリプト**（独自）で元サイトと複製版の resolved value を property 単位で差分検出し JSON 出力。Playwright で **Visual Regression**（pixelmatch しきい値0.1%）を CI 化。
+
+### 4. 高度なKPI/指標
+
+抽出精度を定量化する KPI セットを導入する。**①Computed Style Diff Score**（元 vs 複製の resolved value 一致率、目標 99.5% 以上）、**②Visual Regression Pixel Diff Rate**（pixelmatch の差分ピクセル率、目標 0.1% 未満）、**③CSS Variable Coverage**（生CSSの `--*` 定義のうち納品 JSON に記録された割合、目標 100%）、**④Pseudo-element / Pseudo-class State Coverage**（`::before`/`::after`/`:hover`/`:focus-visible`/`:active`/`:disabled` の状態網羅率、目標 100%）、**⑤Media Query Completeness**（`@media`/`@container`/`prefers-*`/`forced-colors` の検出網羅率、目標 100%）、**⑥Specificity Calculator Score**（詳細度 0/低/中/高の分布、`!important` 件数）、**⑦Lighthouse Performance / Accessibility 抽出時スコア**（Performance 90+ / A11y 95+ を抽出段階で保証）。これら7指標を STEP 8 サインオフレポートに必須記載。
+
+### 5. 連携高度化
+
+W3C Design Tokens Community Group 標準（`tokens.json`）を共通フォーマットとして全連携先と接続する。**Iro**（ブランドカラー）とは OKLCH 値・`color-mix()` 派生・`--brand-` 接頭辞を着手前5分会で完全合意し、ブランド色は Iro 設計版を正・レイアウト/装飾色は Hana 抽出版を正と役割分担。**Ren** へは `style-dictionary` で Tailwind v4 `@theme` ディレクティブ形式CSS（`oklch()` 直貼り）に自動変換した状態で納品し、変数キー命名衝突をゼロ化。**バナー部（hiro/kana/rei/yuna）** へは STEP 8 同時に banner-handoff.json（`--color-primary`/`--color-accent`/Hero `font-family`/`font-weight` 4項目）を自動投函。**Sota**（システム開発部）には Shadow DOM 再帰走査結果と `stacking_map` を共有し、社内システムと LP のトークン共通化。**Mia** へは「Hana責務 vs Ren責務」振り分け表＋Visual Regression 差分レポートを先回り共有。**nori** には STEP 7 外部ライブラリ検出時に `license-checker` 結果（OSS ライセンス / 商用利用可否）を自動エスカレ。
+
+### 6. 出力品質ゲート
+
+STEP 8 納品前に **`pre-handoff.js` 統合ゲートスクリプト**で1本化された自動サインオフを実行し、1項目でもNGなら exit code 1 でハンドオフ不可とする。ゲート内訳は **①ピクセル完全性6点**（HEX三重検証 / フォント6属性 / `@media` 6幅×3MQ / `prefers-*`系 / `::before`+`::after` 強制取得 / Shadow DOM 再帰走査）、**②ユーザー操作性4フラグ**（tap_target 44px / readability_risk 14px下限 / hover_only_content / above_fold_risk `svh`基準）、**③KPI 7指標**（Computed Style Diff 99.5% / Visual Regression 0.1%未満 / CSS Variable Coverage 100% / 擬似要素・擬似クラス網羅 100% / Media Query 網羅 100% / Specificity 分布 / Lighthouse 90+）、**④W3C Design Tokens スキーマ検証**（`tokens.json` の AJV バリデーション）、**⑤Stylelint 0 error**（`!important` 件数閾値・論理プロパティ・`prefers-reduced-motion` 必須ルール）、**⑥cascade_layers / stacking_map / states 記録の必須項目欠落チェック**。全ゲート PASS 後のみ `signed_off_by: hana` フラグを JSON に付与し、Ren/Sota/Mia への並列ハンドオフを発火。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
