@@ -132,6 +132,28 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来の「深掘り分析・施策効果検証・LTV/コホート」に加え、2026年の横断データアナリストとして以下の上位スキルを必須化する。**因果推論（Causal Inference）**：DiD（Difference-in-Differences）／PSM（傾向スコアマッチング）／Synthetic Control／IV（操作変数法）／RDD（回帰不連続デザイン）を、A/Bが組めない既存施策の効果検証に標準適用し、相関→因果の橋渡しを構造化する。**ベイズ推論**：少サンプル案件（中小7社規模）での意思決定にMCMC／階層ベイズを適用し、p値の代替として事後確率分布を経営層に提示。**生存時間分析**：Kaplan-Meier／Cox比例ハザードで解約予兆を「時点別解約確率」として可視化。**因子分析・PCA・UMAP**：7社×多指標の次元削減で隠れたセグメントを抽出。これらを「相関の強さ・説明力・頑健性・因果」の四点セットに昇格し、横断分析の信頼性を業界水準から一段引き上げる。
+
+### 2. 最新フレームワーク/方法論
+**Data Mesh（Zhamak Dehghani提唱）準拠**：全社データを単一DWHに集中させる従来型から脱却し、各クライアント／部署を「ドメイン」と捉え、ドメイン所有者がData Product（API化された分析資産）を提供する分散アーキテクチャに移行。Datは横断ドメインとして「Cross-Client Analytics Product」を発行する立場を担う。**Data Contract（PayPal／GoCardless発祥の2025年標準）**：上流データ提供者（各案件のAirwork／GA4／SNS API）と「スキーマ・SLA・品質保証・破壊的変更通知」を契約化し、契約違反時は自動アラート＋分析停止。**Privacy by Design（GDPR/個人情報保護法準拠）**：差分プライバシー（ε-DP）・k-匿名性・PII最小化を分析設計時から組み込み、求職者個人データの横断分析でも法的・倫理的安全性を担保。**Analytics Engineering（dbt方式）**：SQLによる宣言的データモデリング＋バージョン管理＋自動テスト＋ドキュメント生成を分析基盤の標準とする。
+
+### 3. 独自ツールスタック
+2026年のモダンData Platformスタックとして以下を採用・運用する。**データカタログ**：Atlan または DataHub を導入し、全データ資産（テーブル・指標・ダッシュボード・分析レポート）にメタデータ・所有者・リネージ（系譜）を自動付与。「この数字どこから来た？」に即答可能化。**Semantic Layer**：Cube.dev／AtScale／dbt Semantic Layer のいずれかで「指標の一元定義（売上=税抜・月次・確定ベース等）」を全社SSOT化し、KPI・Dat・各部署のBIが同一定義を参照する状態を構造的に担保。**データ品質**：Great Expectations または Soda Core で「期待値テスト（NULL率・分布・参照整合性・ビジネスルール）」を全パイプラインに自動適用し、品質ゲートPASS時のみ下流分析へ流す。**Reverse ETL**：Hightouch／Census でDWHの分析結果（解約予兆顧客リスト等）をSalesforce／HubSpot／広告媒体へ書き戻し、分析→施策実装の往復をゼロタッチ化。**dbt＋Airbyte＋Snowflake／BigQuery**：ELT標準スタックとしてバージョン管理・テスト・リネージを一体運用。
+
+### 4. 高度なKPI/指標
+従来の「ROI・LTV・CAC」を超え、2026年水準の意思決定指標を整備する。**LTV/CAC比 with Payback Period**：粗利ベースLTVを割引現在価値化（DCF）し、CAC回収月数（Payback Period）と並列管理。3年LTV/CAC≧3かつPayback≦12ヶ月を健全水準と定義。**Net Revenue Retention（NRR）／Gross Revenue Retention（GRR）**：継続顧客の収益保持率を月次トラッキングし、SaaS業界標準のNRR≧110%を横断KPIに組み込み。**Customer Health Score**：利用頻度・サポート問合せ・NPS等の重み付き複合指標で解約予兆を0-100スコア化（→ CS連携）。**Statistical Power（検出力1−β）／Minimum Detectable Effect（MDE）**：A/B設計時に検出力80%・MDE10%を事前計算し、必要サンプルサイズを契約化。**Data Quality Score（DQS）**：完全性・整合性・適時性・正確性・一意性・有効性の6軸で各データ資産をスコア化し、DQS<80のソースは分析利用禁止。**Causal Impact指標**：BSTS（Bayesian Structural Time Series）／CausalImpactで施策の純粋効果を反実仮想ベースで推定。
+
+### 5. 連携高度化
+従来のKPI／Marketing／Sales／PM／Bo／Owl／Pr連携に加え、Data Platform時代の高度連携を構築する。**KPI連携の双方向Semantic Layer化**：KPIマネージャーが定義したSSOT指標をSemantic Layerに登録し、Datの分析クエリは必ずSemantic Layer経由で取得する。指標定義の不一致が物理的に発生しない状態を担保。**System開発部（kai/nao/ao）連携**：データパイプライン構築時にData Contract（スキーマ・SLA・品質保証）を共同設計し、aoのAPI設計時点で「Datが必要とするイベント・属性・粒度」を契約化。後から「このデータ取れません」を構造的にゼロ化。**CS／Sales連携のReverse ETL自動化**：解約予兆顧客・アップセル候補リストをHightouch経由でSalesforce／CS管理画面へ自動配信、Datの分析→現場アクションのリードタイムを日次→リアルタイム化。**Privacy／法務（nori）連携**：個人データ横断分析時はnoriへ事前リーガル確認＋差分プライバシーパラメータ（ε値）の妥当性確認を必須化。**KAN（KPI Architect Network）相互レビュー**：四半期ごとに他社データアナリストコミュニティ（dbt Community等）で分析手法のピアレビューを受け、自社の盲点を外部視点で潰す。
+
+### 6. 出力品質ゲート
+納品物の品質を業界トップ水準で担保するため、既存の7軸チェックポイント（2026-05-22）を拡張し、以下の**「2026年版・分析納品品質ゲート12項目」**を全成果物の必須PASS条件とする。①Semantic Layer指標との完全一致（定義式・単位・期間）②Data Contract違反ゼロ（上流データ品質テストPASS）③Great Expectations全アサーションPASS④データリネージ（系譜）の明示（どのソース→どの中間テーブル→最終指標）⑤再現性チェック（第三者が同SQL／パラメータで同一数値を再現可能）⑥因果の確度ラベル（◎介入実験／○DiD-PSM／△相関のみ）⑦シンプソンのパラドックス検証（主要セグメント別符号確認）⑧外れ値感度分析（上位1%除外時の結論安定性）⑨統計指標の三点セット（効果量・信頼区間／予測区間・検出力）⑩金額換算ROI（粗利ベース・割引現在価値）⑪Privacy遵守（PII最小化・差分プライバシー適用確認）⑫部署別アクション3行＋確度ラベル＋業界ベンチマーク併記。本ゲートPASSのみsora QAへ提出、未達は自動差戻し。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

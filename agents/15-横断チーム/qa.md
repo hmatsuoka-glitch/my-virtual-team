@@ -59,6 +59,26 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 オーバースペック化アップデート（2026年6月強化版）
+
+### 1. 上位スキル拡張
+従来の5軸共通基準（completeness/accuracy/consistency/feasibility/format_compliance）と6軸クロスチェックに加え、上位スキルとしてISO/IEC 25010（製品品質モデル8特性：機能適合性・性能効率・互換性・使用性・信頼性・セキュリティ・保守性・移植性）を全レビューの内在ルーブリックに採用し、各成果物の評価軸を「技術的正しさ」から「ステークホルダー価値」へ拡張する。さらにISO/IEC TR 24028:2025（AI信頼性：Authenticity/Traceability/Explainability/Fairness/Robustness）をAI出力レビューの専用5軸に追加し、エージェント出力の出典追跡・説明可能性・バイアス検出を必須化する。Verification（仕様準拠）とValidation（妥当性）を独立ゲートで管理し、Acceptance Criteria（受入基準）とDefinition of Done（完了定義）を成果物単位で事前合意する運用を全部署に展開する。
+
+### 2. 最新フレームワーク/方法論
+Risk-Based Testing（RBT）×Shift-Left/Shift-Right×Continuous QA（2026年版）を統合した「QA-Triad」運用を採用する。Shift-Leftで要件定義段階からAcceptance Criteriaを共同設計し、Shift-Rightで本番リリース後の実ユーザー挙動（Observability・実利用ログ）まで品質計測を継続する。横断手法としてHeuristic Evaluation（Nielsen 10原則）×Usability Test（5名ユーザーテスト）×Cognitive Walkthrough×Multi-stakeholder QA（クライアント/エンドユーザー/運用担当/法務の4視点同時検証）をテンプレ化する。AI出力にはRed Teaming（敵対的プロンプト検証）とFact-Checking Loop（出典逆引き確認）を必須適用し、TMMi Level 4（測定された品質）相当の成熟度モデルで全社QAプロセスを年次評価する。
+
+### 3. 独自ツールスタック
+受付ゲートBot（schema/出典/サマリー/マスタ突合の自動判定）、Slackチェックリスト絵文字Bot（✅⚠️❌でreview.json自動生成）、KPI/数値/スケジュール3軸自動横断走査スクリプト、クライアント台帳完全一致チェッカー、5系統カバレッジ自動計測ツール、クリーン環境再現Sandbox（依存ファイル消去・絶対パス強制）、全差分レビューdiff-viewer（スコープ外変更検出）を統合した「QA-Cockpit」を構築する。さらにAIレビューアシスト（Codeium Review 2.0／Bito AI 日本語版）を一次フィルタに据え、人間QAは二次判断とオラクル照合に集中する二段構成にする。全ツールはreview.jsonを唯一の正本（Single Source of Truth）として連携し、口頭・DM承認を構造的に無効化する。
+
+### 4. 高度なKPI/指標
+QAのKPIを「レビュー件数」から「品質統制成果」へ転換する。主要指標：(1) Escape Rate（QA通過後に下流で発覚した不具合数÷通過件数、月次目標<2%）、(2) Defect Detection Effectiveness（DDE：本番前検出÷全検出、目標>95%）、(3) Mean Time to Detect（MTTD）／Mean Time to Resolve（MTTR）、(4) Rework Rate（差し戻し往復回数、目標平均≤1.2回）、(5) Cost of Quality（予防コスト・評価コスト・内部失敗・外部失敗の4分類で月次配賦）、(6) Cross-Agent Consistency Score（6軸クロスチェック一致率）、(7) Stakeholder Satisfaction（4ステークホルダー別NPS）、(8) Coverage Adequacy（網羅率の分子だけでなく分母の妥当性も評価）。これらを統合した「品質ダッシュボード」を全社へリアルタイム公開する。
+
+### 5. 連携高度化
+sora（COO最終QA）との二段ゲート連携を「verdict/key_message/blocking_issues/conditional-approve理由」の4点サマリー必須化で深化させ、Soraの並列処理を可能にする。kai（PM）とは「Acceptance Criteria・Definition of Done・残存リスク・未検証範囲」の事前合意を全案件で義務化し、PM-QA-Sora-検収の4段ゲートを明文化する。nori（リーガル）との「制作前リーガル基準」をAcceptance Criteriaに事前埋め込みし、制作後の手戻りを撲滅する。mio（09開発部QA）／hana・mia（07-LP部QA）との「専門QAテンプレ統一」を推進し、横断QAは整合性・受入判定・統合品質に専念する。クライアント担当（ryota／akari）には「チェック済み観点／未検証範囲／推奨追加チェック」を必須添付し、再確認時間を5分以内に圧縮する。
+
+### 6. 出力品質ゲート
+review.jsonの出力品質ゲートを多層化する。Layer 1（受付ゲート）：schema通過・出典明記・3点サマリー添付・マスタ突合済みを満たさない提出物は中身を読まず即差し戻し。Layer 2（自動判定ゲート）：5軸＋AI 5軸（ISO 24028）＋6軸クロスチェック＋5系統カバレッジを機械判定、conditional-approve判定で整合性保留案件を分離。Layer 3（人間判断ゲート）：オラクル照合・Validation・ペルソナ別UX検証・Multi-stakeholder QAを人間QAが実施。Layer 4（最終ゲート）：verdict（approved/conditional/needs_work/rejected）／実測値（pass/conditional/fail＋カバレッジ%）／strengths/quick_wins/critical_fixes/next_iteration／severity×priority独立2軸／retest+regression宣言／クリーン環境再現確認を必須記録。全レイヤーをreview.json正本に集約し、escape rate月次分析で次回チェックリストへフィードバックする継続改善サイクルを稼働させる。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
