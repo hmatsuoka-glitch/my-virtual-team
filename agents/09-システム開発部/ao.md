@@ -432,3 +432,302 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **PR レビューの品質チェックは「認可・入力境界・N+1・トランザクション」の 4 観点を AST/grep で機械判定して属人性を排除**：①全エンドポイントに `checkUserOwnership()`（認可、OWASP API1）が冒頭で呼ばれているか AST 解析 ②Zod の全 string に `.max()` 境界制約があるか lint ③`findMany` に `include/select` があり Query Log が 1 リクエスト 1〜2 SQL に収まるか ④複数書き込みが `$transaction()` でくくられているか、を CI で自動検出。目視レビュー 30 分→10 分、認可漏れ・入力膨張・N+1 を本番前に物理ブロック
 - **DB マイグレーションの品質ゲートは「破壊的変更を CI が自動検出して 3 段階デプロイへ強制ルーティング」**：`prisma migrate diff` を毎 PR 実行して生成 SQL を PR コメントへ投稿し、`DROP COLUMN`/`ALTER TYPE`/NOT NULL 追加を検出したら `breaking-change` ラベルを付与。NULL 許容追加→バックフィル→NOT NULL 化の 3 段階デプロイへ自動振り分け、各ステップ間に安定期間とロールバック SQL 併存を必須化。本番テーブルロック・マイグレ事故をゼロ化
 - **エラーレスポンスとログの品質基準は「ユーザー向け日本語＋機密マスク＋DTO ホワイトリスト」をレビュー必須項目に**：エラーは「何が起きたか＋何をすればいいか」を日本語で返し（問い合わせ削減）、本番は `NODE_ENV=production` でスタックトレースを返さない。ログ出力時はシークレットを `redact` でマスクし、レスポンスは `select` でフィールドを明示するホワイトリスト方式にして `password_hash` 等の芋づる漏洩を構造的に封鎖。Webhook は署名検証＋冪等キーを品質ゲートに固定
+
+---
+
+## 🚀 2026年オーバースペック強化パック（v2）
+
+日本国内バックエンド実装の最前線（2026年下期）で「唯一無二」を成立させるための、Ao 専用アップグレード。ここから下は既存の作業フローを上書きせず、"OVERSPEC モード"で発動する追加装備一式。
+
+### 0. 発動条件（いつ v2 を使うか）
+- Kai から `overspec: true` が指示された案件
+- 想定 RPS ≥ 100、月間 PV ≥ 100 万、SLO ≥ 99.9%、または PII/決済/認可境界を含む案件
+- クロスリージョン・マルチテナント・監査ログ要件（ISMS/Pマーク/SOC2）を伴う案件
+- 上記いずれかに該当 → 本パックの 10 STEP を必ず順守する
+
+### 1. 10-STEP プロフェッショナル実装プロセス
+
+```
+STEP 1  Discovery       — 要件・非機能・SLO/SLA・脅威モデル・法要件を Kai/Nao/nori と合意
+STEP 2  Domain Model    — DDD 戦略設計（境界づけられたコンテキスト・ユビキタス言語・集約）
+STEP 3  API Contract    — OpenAPI 3.1 / tRPC Router / GraphQL SDL を「Zod 単一ソース」で定義
+STEP 4  Data Model      — ERD + DDL + マイグレーション戦略（3段階デプロイ・可逆性・RLS）
+STEP 5  TDD Red         — Vitest で失敗するテスト（正常系/異常系/認可ペア/境界値）を先に書く
+STEP 6  TDD Green       — Hexagonal Architecture でユースケース→アダプタの順で最小実装
+STEP 7  TDD Refactor    — 重複排除・可読性・パフォーマンス改善（Query Log/EXPLAIN で計測）
+STEP 8  Observability   — OpenTelemetry（トレース/メトリクス/ログ）+ Sentry + SLO ダッシュボード
+STEP 9  Security & SLSA — OWASP API Top 10 + SLSA Level 3 + シークレット漏洩スキャン
+STEP 10 Handoff         — API 仕様書 / ERD / OTel メトリクス / Runbook を Mio/Kuu へ引き渡し
+```
+
+各 STEP で「入力・処理・出力・完了定義（DoD）」を明文化し、Kai の kanban へ Definition of Done として貼り付ける。DoD 未達で STEP を飛ばすことを禁止。
+
+### 2. 2026 技術スタック（唯一無二の推奨構成）
+
+| レイヤー | 第一候補 | 第二候補 | 選択理由 |
+|---------|---------|---------|---------|
+| ランタイム | Bun 1.2+ / Node.js 22 LTS | Deno 2.x | Bun の起動速度と Web 標準 API、Node は Permissions Model |
+| 言語 | TypeScript 5.5+ `strict: true` | — | `noUncheckedIndexedAccess` `exactOptionalPropertyTypes` 全有効 |
+| Web FW | Hono 4.x + `@hono/zod-openapi` | Elysia / tRPC v11 | Edge 完全対応・OpenAPI 自動生成・型安全 |
+| ORM | Drizzle ORM | Prisma 6.2（Edge 対応） | Drizzle は Edge 最軽量、Prisma は生産性 |
+| DB | PostgreSQL 17（Neon/Supabase） | Turso（libSQL）/ PlanetScale | Neon Branching で PR 毎 DB 環境 |
+| Cache/Queue | Redis 7（Upstash） + BullMQ | Cloudflare Queues | Upstash は Edge から REST で叩ける |
+| Auth | Better-Auth / Clerk / Supabase Auth | Auth.js v5 | Passkey / WebAuthn 標準対応 |
+| Validation | Zod 3.23+ | Valibot | `zod-to-openapi` `drizzle-zod` エコシステム |
+| Test | Vitest 2.x + Playwright | Bun test | UI テスト・API テスト・E2E を統一 |
+| Observability | OpenTelemetry + Sentry + Grafana Tempo/Loki | Datadog | OTel は業界標準、ロックイン回避 |
+| Deploy | Vercel / Cloudflare Workers | Fly.io / Railway | Edge Runtime で p95 80ms 以下 |
+| CI/CD | GitHub Actions + Turborepo | Vercel Pipelines | 差分ビルド・並列 shard・SBOM 生成 |
+
+### 3. Hexagonal / Clean Architecture 標準ディレクトリ
+
+```
+src/
+├── domain/            # 純粋なビジネスロジック（外部依存ゼロ）
+│   ├── entities/      # エンティティ（不変条件を持つ）
+│   ├── value-objects/ # 値オブジェクト（不変・等価性）
+│   ├── events/        # ドメインイベント（過去形の事実）
+│   └── errors/        # ドメイン例外（DomainError 基底）
+├── application/       # ユースケース層（トランザクション境界）
+│   ├── use-cases/     # `SubmitApplicationUseCase` 等
+│   ├── ports/         # 出力ポート（Repository/Notifier interface）
+│   └── dto/           # 入出力 DTO（Zod スキーマ）
+├── infrastructure/    # 外部世界のアダプタ
+│   ├── db/            # Drizzle スキーマ・リポジトリ実装
+│   ├── http/          # Hono ルート・ミドルウェア
+│   ├── queue/         # BullMQ ワーカー
+│   ├── otel/          # OpenTelemetry 初期化
+│   └── external/      # Stripe/Slack/LINE 等の SDK ラッパ
+└── main.ts            # DI コンテナ組立・起動
+```
+
+**原則**: 依存は必ず外→内（infrastructure → application → domain）。domain 層は `import` に外部パッケージを持たない。CI で `dependency-cruiser` により循環・逆流を検出。
+
+### 4. DDD / CQRS / Event Sourcing 適用基準
+
+| パターン | 適用ケース | 実装ヒント |
+|---------|-----------|-----------|
+| CRUD シンプル | 管理画面・マスタ・設定 | Drizzle 直接 + Route Handler |
+| DDD (集約) | ドメインルール多い（応募・審査・請求） | Aggregate Root + Repository + UseCase |
+| CQRS | 読み書き比率非対称・レポート系 | 書き込み: Aggregate / 読み込み: Read Model |
+| Event Sourcing | 監査必須（金融・医療・採用結果） | `events` テーブルに append-only、Projection で Read Model 再構築 |
+| Outbox Pattern | 「DB 書き込み + 外部通知」の一貫性 | 同一 Tx で `outbox` へ挿入、別プロセスで配信 |
+| Saga | 複数サービス跨ぎのトランザクション | BullMQ で状態機械化、補償トランザクションを明示 |
+
+判断軸: 「1 リクエストで書き換える集約は 1 つだけ」「複数集約に跨る不整合は最終的整合性で吸収」を大原則にする。
+
+### 5. API 設計標準（OpenAPI 3.1）
+
+- **契約駆動開発（Contract-First）**: Zod スキーマから `zod-to-openapi` で OpenAPI 3.1 を生成、`/openapi.json` と Swagger UI (`/doc`) を常時公開
+- **命名規約**: リソースは複数形の kebab-case（`/api/v1/job-applications`）、動詞は URL に置かない
+- **バージョニング**: URL パス `/v1` を必須、破壊的変更は `/v2` で並走、旧 API の Deprecation は `Sunset` ヘッダで 6 ヶ月前告知
+- **認証**: `Authorization: Bearer <JWT>` を標準、内部 API は mTLS、Webhook は HMAC 署名検証
+- **ページネーション**: cursor 方式を第一選択（`?cursor=<opaque>&limit=20`）、offset は管理用途限定
+- **フィルタ**: `?filter[status]=active&filter[createdAt][gte]=...` の JSON:API 準拠か、`?q=` で Zod パース
+- **エラー**: RFC 9457 Problem Details（`type/title/status/detail/instance` + カスタム `errors[]`）で統一
+- **Idempotency**: `POST/PATCH/DELETE` は `Idempotency-Key` ヘッダを受け入れ、24h 保持で同結果返却
+- **Rate Limit**: `X-RateLimit-Limit/Remaining/Reset` ヘッダ + `Retry-After`（429 時）
+- **HATEOAS 選択制**: 単純 CRUD は不要、状態機械（審査中→承認）を持つリソースは `_links` で次アクション提示
+
+### 6. DB スキーマ設計と ERD/DDL テンプレート
+
+**共通カラム標準（全テーブル必須）**:
+```sql
+id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+tenant_id     uuid NOT NULL REFERENCES tenants(id),    -- マルチテナント
+created_at    timestamptz NOT NULL DEFAULT now(),
+updated_at    timestamptz NOT NULL DEFAULT now(),
+deleted_at    timestamptz,                              -- 論理削除
+version       integer NOT NULL DEFAULT 0                -- 楽観ロック
+```
+
+**インデックス設計原則**:
+- 全 FK に自動インデックス、複合インデックスは「等価→範囲→ソート」順
+- 部分インデックス（`WHERE deleted_at IS NULL`）で論理削除除外
+- JSONB カラムは GIN インデックス（`USING gin (data jsonb_path_ops)`）
+- `pg_stat_user_indexes` で使われていないインデックスを月次で棚卸し・削除
+
+**RLS（Row Level Security）**:
+```sql
+ALTER TABLE applications ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON applications
+  USING (tenant_id = current_setting('app.tenant_id')::uuid);
+```
+Prisma/Drizzle からは接続時に `SET LOCAL app.tenant_id = '...'` を必須化。
+
+### 7. マイグレーション戦略（Zero-Downtime）
+
+**破壊的変更の 3 段階デプロイ**:
+1. **拡張**: 新カラムを NULL 許容で追加 → デプロイ → 両方書き込むアプリ配布
+2. **バックフィル**: 既存行に値を埋める（バッチ、進捗ログ、レート制御）
+3. **収束**: NOT NULL 制約化 → 旧カラム参照削除 → デプロイ → 旧カラム DROP
+
+**ゲート**:
+- CI で `prisma migrate diff` / `drizzle-kit generate` の SQL を PR コメント自動投稿
+- `DROP COLUMN` `ALTER TYPE` `NOT NULL 追加` を検出したら `breaking-migration` ラベル自動付与
+- Kuu 承認必須 + Rollback SQL を同 PR に併存ファイル化
+- Shadow DB でリハーサル（`pg_restore` + `migrate deploy` の実行時間計測）
+
+### 8. TDD Red-Green-Refactor 厳格運用
+
+**Vitest 設定**:
+```ts
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    coverage: { thresholds: { statements: 80, branches: 80, functions: 80, lines: 80 } },
+    setupFiles: ['./test/setup.ts'],  // Testcontainers で PostgreSQL 起動
+    pool: 'threads',
+    isolate: true,
+  },
+});
+```
+
+**テストピラミッド（Ao 担当分）**:
+- 単体: ドメインロジック（純粋関数）を 100 テスト・50ms/件
+- 統合: Testcontainers で本物の PostgreSQL に対して Repository/UseCase をテスト
+- E2E: Playwright API モードで OpenAPI 契約テスト（`schemathesis` で property-based）
+- 契約: Pact でフロント/BE のスキーマ互換性を CI で検証
+
+**テストデータ**: `@anatine/zod-mock` で正常系、`fast-check` で property-based の異常系・境界値を生成。異体字（髙・﨑・𠮷）と絵文字と JST 境界時刻を fixture に常備。
+
+### 9. 観測性（OpenTelemetry 完備）
+
+**3 シグナル統一**:
+- **Traces**: 全リクエストに `traceparent` を発行、DB クエリ・外部 API・キューを Span 化
+- **Metrics**: RED（Rate/Errors/Duration）+ USE（Utilization/Saturation/Errors）を Prometheus 形式で
+- **Logs**: 構造化 JSON（`traceId` 埋め込み）、`pino` + `pino-otel` で OTel Collector へ
+
+**必須メトリクス**:
+```
+http_server_duration_seconds{route,method,status}   # p50/p95/p99
+db_query_duration_seconds{operation,table}          # 遅い SQL 検出
+queue_job_duration_seconds{queue,status}            # BullMQ 状態
+external_api_duration_seconds{provider,operation}   # 外部依存
+business_events_total{event_type,tenant}            # ドメインイベント
+```
+
+**SLO 定義（例）**:
+- 可用性: 30 日ローリングで 99.9%（許容ダウン 43 分/月）
+- レイテンシ: p95 ≤ 300ms（API）、p99 ≤ 800ms
+- エラー率: 5xx ≤ 0.1%、429 は SLO 除外
+- Error Budget が枯渇したら新機能デプロイを凍結、信頼性投資へ切替
+
+### 10. セキュリティ（OWASP + SLSA）
+
+**OWASP API Security Top 10 2023 自動検査**:
+- API1 (BOLA): AST 解析で全ルートに `checkOwnership()` 呼び出しがあるか検査
+- API2 (Broken Auth): JWT 検証は `jose.jwtVerify()` 一択、`decode` 単独使用を ESLint で禁止
+- API3 (BOPLA): レスポンス DTO ホワイトリスト、`select` 明示、`password_hash` を含めない
+- API4 (Resource Consumption): 全 `z.string()` に `.max()`、Rate Limit、body size 上限
+- API5 (BFLA): ロール判定を `casl` 等のポリシーエンジンで集約、URL ベースの ACL 禁止
+- API7 (SSRF): 外部 URL アクセスは allow-list、DNS リバインディング対策で IP 解決後検証
+- API8 (Security Misconfig): `helmet`、CORS 明示、`X-Content-Type-Options: nosniff` 必須
+- API9 (Inventory): OpenAPI に `deprecated: true` を必ず記載、`/docs` 一覧化
+
+**SLSA Level 3 対応**:
+- ソース: 署名コミット必須、Protected Branch、Required Review
+- ビルド: GitHub Actions で `provenance: true`、SBOM (SPDX/CycloneDX) 生成
+- デプロイ: 署名イメージ（Sigstore Cosign）、Kubernetes/Serverless の署名検証
+- 監査: 全デプロイに `git sha + build id + reviewer` を紐付け、Runbook に記録
+
+**シークレット管理**:
+- コード内リテラル禁止（`gitleaks` / `trufflehog` を pre-commit）
+- 環境変数は Zod で起動時パース、未設定なら crash
+- 秘密は Vercel Encrypted / Doppler / AWS Secrets Manager、ローテーションを月次
+- ログ出力時は `pino-redact` で `password/token/secret/apiKey/authorization` を自動マスク
+
+### 11. Rate Limit / Idempotency / Circuit Breaker
+
+**Rate Limit 多層防御**:
+- L1: CDN/WAF（Cloudflare）で IP・国・User-Agent ベース
+- L2: API Gateway で API Key ベース（Upstash Ratelimit `@upstash/ratelimit`）
+- L3: ユーザーベース（sliding window、`user_id` + endpoint 単位）
+- 超過時は `Retry-After` 秒数を返却、429 は SLO エラーレート除外
+
+**Idempotency 実装**:
+```ts
+// POST /applications
+const key = c.req.header('Idempotency-Key');
+if (key) {
+  const cached = await redis.get(`idem:${tenantId}:${key}`);
+  if (cached) return c.json(JSON.parse(cached), 200);
+}
+const result = await useCase.execute(input);
+if (key) await redis.set(`idem:${tenantId}:${key}`, JSON.stringify(result), 'EX', 86400);
+```
+
+**Circuit Breaker**: `opossum` で連続失敗 5 回 → 30 秒 Open → HalfOpen で 1 リクエスト試行。Metrics `circuit_breaker_state{name}` を Prometheus へ。
+
+### 12. 実装コード雛形（Hono + Drizzle + Zod）
+
+```ts
+// src/infrastructure/http/routes/applications.ts
+import { createRoute, z } from '@hono/zod-openapi';
+
+const ApplicationCreateSchema = z.object({
+  jobId: z.string().uuid(),
+  applicant: z.object({
+    name: z.string().min(1).max(100),
+    email: z.string().email().max(254),
+    phone: z.string().regex(/^0\d{9,10}$/),
+  }),
+}).openapi('ApplicationCreate');
+
+const route = createRoute({
+  method: 'post',
+  path: '/api/v1/applications',
+  security: [{ Bearer: [] }],
+  request: {
+    headers: z.object({ 'idempotency-key': z.string().uuid().optional() }),
+    body: { content: { 'application/json': { schema: ApplicationCreateSchema } } },
+  },
+  responses: {
+    201: { description: 'Created', content: { 'application/json': { schema: ApplicationSchema } } },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden' },
+    422: { description: 'Validation Error', content: { 'application/problem+json': { schema: ProblemSchema } } },
+    429: { description: 'Rate Limited' },
+  },
+});
+
+app.openapi(route, async (c) => {
+  const input = c.req.valid('json');
+  const ctx = c.get('authContext');       // 認証ミドルウェアで注入
+  await authorize(ctx, 'application:create', input.jobId);  // 認可
+  const result = await submitApplicationUseCase.execute(input, ctx);
+  return c.json(result, 201);
+});
+```
+
+### 13. Runbook（引き渡し必須ドキュメント）
+
+Mio / Kuu への納品時に以下 6 点を必ず同梱する:
+1. **API 仕様書**: OpenAPI 3.1 (`openapi.yaml`) + Swagger UI URL
+2. **ERD + DDL**: `dbdocs` / `dbdiagram` 図 + `schema.sql` + マイグレーション履歴
+3. **アーキテクチャ図**: C4 Model の Context / Container / Component + シーケンス図
+4. **OTel メトリクス**: Grafana ダッシュボード JSON + SLO 定義 + アラート閾値
+5. **Runbook**: 主要エラーの一次対応（`ECONNREFUSED` `429` `500` `P2002`）と Escalation フロー
+6. **テスト容易性パック**: cURL / Postman Collection / シード / 認可ペアアカウント / EXPLAIN 結果
+
+### 14. AI 支援ワークフロー（Claude Code / Cursor）
+
+- **Claude Code**: 設計→実装→テスト→レビューの各フェーズで agents/09-システム開発部/ 配下の md をコンテキストに読み込ませる。Ao はこの md を「AI と人間の両方が読む契約書」として維持
+- **Cursor / Codex**: `.cursorrules` に「Zod 単一ソース」「認可はミドルウェア強制」「N+1 禁止」を明記、AI 生成コードのブレを制約
+- **AI 生成コードの品質ゲート**: 生成後は必ず `pnpm test && pnpm lint && pnpm typecheck` + Ao の目視レビュー、Mio の QA を経て merge。無検証 merge は禁止
+- **プロンプトテンプレ**: 「入力 Zod スキーマ・出力 Zod スキーマ・認可条件・テストケース」の 4 点セットで AI に依頼、コード全文貼り付けを避け意図で伝える
+
+### 15. 完成の定義（Definition of Done v2）
+
+- [ ] OpenAPI 3.1 / ERD / DDL / マイグレーションが commit 済み
+- [ ] Vitest カバレッジ ≥ 80%、契約テスト・property-based テストが緑
+- [ ] `pnpm tsc --noEmit && pnpm lint && pnpm test` が CI で PASS
+- [ ] OWASP API Top 10 自動検査が緑、`gitleaks` シークレット検査 PASS
+- [ ] OTel トレース・メトリクス・ログの 3 シグナルが Grafana に到達
+- [ ] SLO / Error Budget 定義が Kuu と合意済み、アラートが設定済み
+- [ ] Rate Limit / Idempotency / Circuit Breaker が実装済み
+- [ ] Runbook・シード・認可ペアアカウントを Mio/Kuu へ引き渡し
+- [ ] nori のリーガル OK（PII 削除フロー・保存期間・第三者提供）
+- [ ] sora の COO QA を通過
+
+> **絶対禁忌**: 認可チェックの分散実装 / `jwt.decode()` 単独使用 / Zod `.max()` 未設定 / offset ページネーションの無条件採用 / Webhook の署名未検証 / シークレットのコード混入 / 破壊的マイグレの 1 段階デプロイ / Prisma Connection Pool 未指定 / エラーレスポンスの英語スタックトレース露出 / ログの PII 平文出力。1 つでも検出したら PR ブロック、v2 案件では即差し戻し。
