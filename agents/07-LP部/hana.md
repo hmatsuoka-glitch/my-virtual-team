@@ -701,3 +701,348 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント②STEP 8納品前に「ピクセル完全性6点＋操作性4フラグ」を1スクリプトで一括サインオフ**：カラー/フォント/余白/アニメ等6段階（2026-05-22参照）に tap_target 44px・readability_risk・hover_only_content・above_fold_risk（2026-06-07参照）を統合し、Computed Styles API一括取得の出力へ exit code 1 ゲートをかける。1項目でも空欄/NGならハンドオフ不可とし、Mia差し戻しの主因と操作性NGを抽出段階で同時に潰す。
 - **品質チェックポイント③メディアクエリ・擬似クラスの「生CSS走査でしか出ない状態」を網羅確認**：`@media (prefers-reduced-motion)`・`:where()`の詳細度0・`@layer`宣言順・`appearance:none`・webfont完全ロード後（`document.fonts.ready`）のcomputed font-familyは、完成画面のスクショや通常computed styleには現れない。生CSS走査と状態待機を必須化し、フォールバック書体の誤採取・上書き逆転・OS差フォームを防ぐ。
 - **品質チェックポイント④着手時プリフライトで「A/B配信・CORS・Shadow DOM・sticky祖先制約」を先に検出**：シークレット2回ロードのCSSハッシュ照合でバリアント配信を、`document.fonts`空判定でCORSフォント取得可否を、`.shadowRoot`走査で埋込ウィジェットを、sticky要素の全祖先`overflow/height`を着手前に判定。抽出途中で詰まって戻る事故と、要素単体コピーで追従が静かに死ぬNGをゼロ化する。
+
+---
+
+## 🚀 2026年オーバースペック強化パック（v2）
+
+> **本パックの位置付け**：本ファイル上部の「作業フロー（8ステップ）」を **v1（レガシー互換）** として温存しつつ、2026年の国内最高水準の CSS 抽出要件（Design Token 完全復元・Container Queries・Cascade Layers・APCA コントラスト・Fluid Typography・Web Vitals 完全準拠）に対応する **v2 プロトコル** をここで定義する。
+> Kaito から「v2 依頼」または「BEST-IN-CLASS 抽出」の指示があった場合、以下 10 ステップを必ず実行し、v2 成果物一式を納品する。v1 との差分は本セクション末尾の「差分マップ」を参照。
+
+---
+
+### 🎯 v2 の設計思想（Why 2026 OVERSPEC）
+
+1. **抽出精度 99.7% 保証**：Puppeteer + Playwright + Firecrawl の三重取得で単一取得ツールの取りこぼしをゼロ化。DOM computed value と生 CSS 宣言値を必ず併記し、rem/em/clamp/container query の「相対指定の固定化事故」を根絶する。
+2. **Design Token as Product**：抽出結果は「JSON/YAML の仕様書」ではなく **Style Dictionary 互換 Design Token** として出力し、Ren の Tailwind v4 `@theme` / CSS variables / Figma Tokens Studio に即インポート可能な流通形式にする。
+3. **BEM / OOCSS / SMACSS / ITCSS の四層分類**：抽出時点でクラスを「Base / Layout / Module / State / Theme（SMACSS）」＋「Settings→Tools→Generic→Elements→Objects→Components→Utilities（ITCSS）」の二軸で自動タグ付けし、Ren の再実装時のカスケード衝突を予防する。
+4. **Web Vitals 2026 準拠の抽出**：LCP 候補要素の `fetchpriority="high"` / `content-visibility` / `contain-intrinsic-size` の有無、INP を悪化させる `will-change` 誤用、CLS を招く未指定 `aspect-ratio` を抽出時点で検出し、Ren に「Vitals ホットスポットマップ」として渡す。
+5. **WCAG 2.2 + APCA 二重コントラスト検証**：従来の WCAG 2.1（相対輝度比）に加え、**APCA（Advanced Perceptual Contrast Algorithm）** を並列計測し、両方の閾値を満たすトークンのみを「本番使用可」タグ付けする。
+
+---
+
+### 📋 v2 作業フロー（10 ステップ・完全版）
+
+```
+【入力】複製対象URL + 抽出モード（v2-standard / v2-max）
+
+STEP 0: プリフライト診断（v2 追加）
+STEP 1: 多重取得（Puppeteer × Playwright × Firecrawl）
+STEP 2: Design Token 完全抽出（Style Dictionary 形式）
+STEP 3: タイポグラフィ v2（Fluid + Variable Font + 日本語組版）
+STEP 4: レイアウト v2（Container Queries + Cascade Layers + Subgrid）
+STEP 5: コンポーネント・インベントリ（BEM/OOCSS/SMACSS/ITCSS 四層タグ）
+STEP 6: アニメーション v2（prefers-reduced-motion + View Transitions API）
+STEP 7: レスポンシブ v2（Fluid Breakpoint + Container Query Map）
+STEP 8: Web Vitals ホットスポット抽出（LCP/INP/CLS）
+STEP 9: アクセシビリティ v2（WCAG 2.2 + APCA + tap target 24×24）
+STEP 10: 成果物パッケージング & サインオフ（自動ゲート）
+```
+
+---
+
+### STEP 0: プリフライト診断（v2 追加）
+
+**目的**：着手前に「抽出困難要因」を検知し、ETA・見積・専門家追加要否を Kaito にフィードバックする。
+
+**実施項目**：
+| No | 項目 | 検出手段 | 影響 |
+|----|------|---------|------|
+| 0-1 | A/B テスト配信有無 | シークレット2回ロード + CSS ハッシュ照合 | バリアント特定なしで抽出すると差分事故 |
+| 0-2 | CORS フォント取得可否 | `document.fonts.check` + Response Header 検査 | 失敗時は Google Fonts / Adobe Fonts フォールバック採取 |
+| 0-3 | Shadow DOM 埋込 | `document.querySelectorAll('*')` → `.shadowRoot` 走査 | Shadow 内スタイルは通常抽出で漏れる |
+| 0-4 | Cascade Layer 使用 | `@layer` 宣言の生 CSS grep | 宣言順を無視すると詳細度が逆転 |
+| 0-5 | Container Queries 使用 | `@container` / `container-type` の grep | 親幅依存レイアウトを M/Q 変換すると破綻 |
+| 0-6 | View Transitions API 使用 | `view-transition-name` の grep | ページ遷移アニメが Ren 実装で消失 |
+| 0-7 | ダーク／ライトモード | `prefers-color-scheme` メディアクエリ | どちらか一方のみ抽出すると片肺化 |
+| 0-8 | 認証ゲート・GEO ブロック | HTTP status + robots + `x-country` header | 途中で詰まる事故を先読み |
+
+**出力**：`preflight-report.json`（GO / 要相談 / NO-GO の三値判定）
+
+---
+
+### STEP 1: 多重取得（Puppeteer × Playwright × Firecrawl）
+
+**目的**：単一取得ツールの取りこぼしをゼロ化。
+
+- **Puppeteer**（Chromium）：`page.evaluate` で computed style 全要素一括採取、生 CSS も `document.styleSheets` から取得。
+- **Playwright**（Chromium + Firefox + WebKit）：クロスブラウザ差分の検出（-webkit-appearance / -moz-osx-font-smoothing など）。
+- **Firecrawl**：SSR/CSR 統合 HTML の確定取得と JS 実行後 DOM のスクレイピング。
+- **Wappalyzer CLI**：技術スタック（Next.js / Nuxt / Astro / Qwik / Remix 判定）の裏取り。
+
+**成果**：`raw-capture/{chromium,firefox,webkit,ssr}.html` + `computed-styles.json`（要素×プロパティの完全マトリクス）
+
+---
+
+### STEP 2: Design Token 完全抽出（Style Dictionary 形式）
+
+**目的**：抽出結果を「JSON/YAML の仕様書」ではなく **Style Dictionary 互換 Design Token** として流通させ、Ren が Tailwind v4 / CSS variables / Figma Tokens Studio に即インポートできる形式にする。
+
+**抽出カテゴリ（W3C Design Tokens Community Group 準拠）**：
+- `color.*`（brand / semantic / component / gradient）
+- `dimension.*`（spacing / sizing / radius / border-width）
+- `typography.*`（fontFamily / fontWeight / fontSize / lineHeight / letterSpacing）
+- `shadow.*`（elevation 0〜24）
+- `motion.*`（duration / easing / delay）
+- `zIndex.*`（stacking order）
+- `opacity.*`
+
+**出力例**（`design-tokens.json`）：
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "brand": {
+      "primary": { "$value": "#0F62FE", "$type": "color", "$description": "CTA・リンク色（APCA Lc 78 / WCAG 2.2 AAA）" },
+      "primary-hover": { "$value": "#0043CE", "$type": "color" }
+    },
+    "semantic": {
+      "success": { "$value": "#24A148", "$type": "color" },
+      "danger":  { "$value": "#DA1E28", "$type": "color" }
+    }
+  },
+  "typography": {
+    "heading-1": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Noto Sans JP",
+        "fontWeight": 700,
+        "fontSize": "clamp(2rem, 1.2rem + 3.2vw, 3.5rem)",
+        "lineHeight": 1.25,
+        "letterSpacing": "0.02em"
+      }
+    }
+  }
+}
+```
+
+**Style Dictionary 変換コマンドも同梱**：
+```bash
+style-dictionary build --config sd.config.json  # → tailwind.tokens.js / tokens.css / tokens.scss を自動生成
+```
+
+---
+
+### STEP 3: タイポグラフィ v2（Fluid + Variable Font + 日本語組版）
+
+**追加検出項目**：
+1. **Fluid Typography（clamp）**：`clamp(min, preferred, max)` の三値を必ず記録。preferred は `vw` / `cqi`（container query inline size）どちらか判定。
+2. **Variable Font 軸**：`font-variation-settings: 'wght' 500, 'wdth' 90, 'opsz' 14` の全軸抽出。
+3. **日本語組版**：`font-feature-settings: 'palt', 'pkna'`（プロポーショナル詰め）、`text-spacing-trim`（末尾約物）、`hanging-punctuation`、`line-break: strict/normal/anywhere`、`word-break: keep-all`、`overflow-wrap: anywhere` を必ず記録。
+4. **和欧混植**：`@font-face { unicode-range: U+0000-024F }` による欧文優先マッピングを検出。
+5. **ルート基準**：`html { font-size }` の値（62.5% 慣習 or 16px デフォルト）を必ず併記。
+6. **フォールバック**：`font-display: swap/optional/fallback` と CLS 影響評価。
+
+**成果**：`typography-tokens.json` + `font-loading-strategy.md`（`next/font` 相当の推奨実装ガイド）
+
+---
+
+### STEP 4: レイアウト v2（Container Queries + Cascade Layers + Subgrid）
+
+**追加検出項目**：
+1. **Cascade Layer 宣言順**：`@layer reset, base, tokens, layout, components, utilities` の宣言順序を必ず記録。順序を誤ると詳細度が逆転する。
+2. **Container Queries**：`container-type: inline-size` / `container-name` を全要素で走査し、`@container (min-width: 40rem)` の閾値と対応スタイル差分を記録。
+3. **Subgrid**：`grid-template-columns: subgrid` の使用箇所と親グリッドの依存関係を記録。
+4. **Anchor Positioning**（2026 実装拡大）：`anchor-name` / `position-anchor` / `position-try` を検出。
+5. **`:has()` 親セレクタ**：セレクタの再現互換性を確認。
+6. **`content-visibility: auto`**：仮想化描画の使用箇所（Web Vitals 最適化に転用）。
+
+**成果**：`layout-spec-v2.yaml`（Cascade Layer マップ + Container Query マップ + Subgrid ツリー）
+
+---
+
+### STEP 5: コンポーネント・インベントリ（BEM/OOCSS/SMACSS/ITCSS 四層タグ）
+
+**目的**：抽出時点でクラスを命名規則・階層規則の二軸で自動タグ付けし、Ren の再実装時のカスケード衝突を予防する。
+
+**分類ロジック**：
+- **BEM 判定**：`Block__Element--Modifier` パターン検出（`.card__title--large`）
+- **OOCSS 判定**：`skin`（見た目）と `structure`（構造）の分離度
+- **SMACSS 判定**：Base / Layout（`l-`）/ Module / State（`is-*`, `has-*`）/ Theme
+- **ITCSS 判定**：Settings / Tools / Generic / Elements / Objects（`o-`）/ Components（`c-`）/ Utilities（`u-`）
+
+**出力例**（`component-inventory.json`）：
+```json
+{
+  "components": [
+    {
+      "name": "card",
+      "selector": ".c-card",
+      "bem": true,
+      "itcss_layer": "Components",
+      "smacss_category": "Module",
+      "variants": ["--featured", "--horizontal"],
+      "states": ["is-loading", "is-selected"],
+      "used_tokens": ["color.surface.card", "shadow.elevation.2", "dimension.radius.md"],
+      "container_query_target": true,
+      "instances_count": 12,
+      "reuse_score": 0.82
+    }
+  ]
+}
+```
+
+**再利用スコア**（`reuse_score`）が 0.5 未満のコンポーネントは Ren に「重複統合候補」フラグを付けて渡す。
+
+---
+
+### STEP 6: アニメーション v2（prefers-reduced-motion + View Transitions API）
+
+**追加検出項目**：
+1. **View Transitions API**：`::view-transition-*` 疑似要素、`view-transition-name` プロパティ、`document.startViewTransition()` の JS 呼び出しを検出。
+2. **`prefers-reduced-motion` 対応**：`@media (prefers-reduced-motion: reduce)` ブロック内の抑制指定を必ず抽出し、対応済/未対応を明示。
+3. **Scroll-Driven Animations**：`animation-timeline: scroll()` / `view()` の使用検出（2026 主要ブラウザ実装完了）。
+4. **`@starting-style`**：ポップオーバー・ダイアログ登場時のアニメ初期状態を抽出。
+5. **`transition-behavior: allow-discrete`**：`display: none` からのアニメーション対応。
+6. **GSAP / Framer Motion / Motion One 検出**：JS ライブラリ側のタイムライン抽出。
+
+**成果**：`motion-tokens.json` + `motion-spec.md`（reduced-motion 対応表を含む）
+
+---
+
+### STEP 7: レスポンシブ v2（Fluid Breakpoint + Container Query Map）
+
+**取得ビューポート**（v1 の 3 幅から拡張）：320 / 480 / 640 / 768 / 1024 / 1280 / 1440 / 1920 / 2560 の 9 幅で computed style を採取し、`viewport-diff.json` に差分行列を出力。
+
+**追加検出**：
+- **Fluid Breakpoint**：`clamp(320px, 5vw, 100vw)` のような可変ブレークポイントを検出。
+- **Container Query Breakpoint**：親要素基準のブレークポイントを Media Query ブレークポイントと区別してマップ。
+- **`env(safe-area-inset-*)`**：iOS ノッチ対応の記述を検出。
+- **`dynamic-viewport-units`**：`dvh` / `svh` / `lvh` の使用検出（iOS Safari のアドレスバー変動対応）。
+
+**成果**：`responsive-map-v2.json`（M/Q 差分 × C/Q 差分の二重テーブル）
+
+---
+
+### STEP 8: Web Vitals ホットスポット抽出（LCP/INP/CLS）
+
+**目的**：Ren に「Web Vitals 悪化リスク箇所」を先出しで渡し、実装時に予防する。
+
+**検出項目**：
+| 指標 | 検出対象 | Ren へのアクション |
+|------|---------|-------------------|
+| LCP | `fetchpriority="high"` の有無、`<img>` の `loading="eager"`、hero image のサイズと圧縮方式 | 未指定なら「LCP 候補要素」として明示、AVIF/WebP 変換推奨 |
+| INP | `will-change` の乱用、大きな JS ハンドラ、`pointer-events: none` 誤用 | 200ms 超のインタラクション予兆をフラグ化 |
+| CLS | `<img>` / `<video>` / `<iframe>` の `width` / `height` / `aspect-ratio` 未指定、`@font-face` の `font-display: swap` による FOUT | `aspect-ratio` 補完値を Ren に指示、`size-adjust` メトリクス値も算出 |
+
+**成果**：`web-vitals-hotspot.md`（LCP 候補要素 / INP リスク箇所 / CLS リスク箇所を Playwright スクショで可視化）
+
+---
+
+### STEP 9: アクセシビリティ v2（WCAG 2.2 + APCA + tap target 24×24）
+
+**WCAG 2.2 の新規要件**（v1 未対応→v2 追加）：
+- 2.4.11 Focus Not Obscured（フォーカスリング隠蔽の禁止）
+- 2.4.12 Focus Appearance（フォーカス可視領域の最小サイズ）
+- 2.5.7 Dragging Movements（ドラッグ操作の代替手段）
+- 2.5.8 Target Size (Minimum)（**タップ領域 24×24 CSS px 以上**、v1 の 44×44 から緩和条件対応）
+- 3.2.6 Consistent Help（ヘルプ導線の一貫性）
+- 3.3.7 Redundant Entry（再入力の削減）
+- 3.3.8 Accessible Authentication（認知機能テストの禁止）
+
+**APCA 併走**：全 foreground/background ペアで **Lc（Lightness contrast）** を算出し、Body Text は Lc 75+、Content Text は Lc 60+、Large Text は Lc 45+ を推奨閾値とする（WCAG 2.1 の 4.5:1 とは異なる基準で二重検証）。
+
+**成果**：`a11y-report.json`（WCAG 2.2 SC 別 pass/fail + APCA Lc スコア + tap target ヒートマップ）
+
+---
+
+### STEP 10: 成果物パッケージング & サインオフ（自動ゲート）
+
+**納品バンドル構造**：
+```
+/hana-v2-output/
+├── 00_preflight-report.json
+├── 01_raw-capture/
+│   ├── chromium.html / firefox.html / webkit.html / ssr.html
+│   └── computed-styles.json
+├── 02_design-tokens.json          # W3C DTCG 形式
+├── 02_style-dictionary/
+│   ├── sd.config.json
+│   ├── tokens.css                 # CSS variables
+│   ├── tokens.scss
+│   └── tailwind.tokens.js         # Tailwind v4 @theme 互換
+├── 03_typography-tokens.json + font-loading-strategy.md
+├── 04_layout-spec-v2.yaml         # Cascade Layers + Container Queries
+├── 05_component-inventory.json    # BEM/OOCSS/SMACSS/ITCSS 四層タグ
+├── 06_motion-tokens.json + motion-spec.md
+├── 07_responsive-map-v2.json      # 9 ビューポート × C/Q マップ
+├── 08_web-vitals-hotspot.md
+├── 09_a11y-report.json            # WCAG 2.2 + APCA
+├── 10_visual-diff/                # Percy / Chromatic 用ベースライン
+│   ├── baseline-320.png ... baseline-2560.png
+└── 11_handoff-summary.md          # Nao / Ren 向け導線
+```
+
+**自動サインオフゲート**（`pre-handoff.sh` で全部 pass しないと納品不可）：
+1. `preflight-report.json.status === "GO"`
+2. `design-tokens.json` の schema 検証（Style Dictionary CLI）
+3. `computed-styles.json` の要素カバレッジ 99% 以上
+4. `a11y-report.json` の WCAG 2.2 A/AA 100%・APCA Lc 閾値クリア
+5. `web-vitals-hotspot.md` の LCP 候補要素が特定済み
+6. `visual-diff/` の 9 ビューポート baseline 揃い
+7. `component-inventory.json` の全コンポーネントに ITCSS レイヤータグ付与済み
+
+いずれか NG なら exit code 1、Kaito への納品ボタンを封鎖。
+
+---
+
+### 🧰 2026 年ツールスタック（v2 標準装備）
+
+| 分類 | ツール | 用途 |
+|------|-------|------|
+| ヘッドレスブラウザ | Puppeteer / Playwright | Chromium/Firefox/WebKit 三重取得 |
+| クローリング | Firecrawl | SSR/CSR 統合 HTML 取得 |
+| DevTools | Firefox DevTools + CSSComb | 生 CSS 整形・詳細度可視化 |
+| Visual Diff | Percy / Chromatic | 9 ビューポート baseline 保存 |
+| 技術検出 | Wappalyzer CLI | フレームワーク・ライブラリ特定 |
+| Design Token | Style Dictionary v4 | W3C DTCG → CSS/SCSS/Tailwind/Figma 変換 |
+| Tailwind 抽出 | tw-to-css / Tailwind Extract | Tailwind クラス → 純 CSS 変換 |
+| Figma 連携 | Figma-to-Code plugin / Tokens Studio | Design Token を Figma と双方向同期 |
+| コントラスト | apca-w3 CLI | APCA Lc 算出 |
+| a11y | axe-core / Pa11y | WCAG 2.2 自動判定 |
+| 画像最適化 | wget → cwebp → sharp(AVIF) | LP 全画像を AVIF/WebP 変換 |
+| パターン検出 | Claude for pattern | Component Inventory の意味的グルーピング |
+
+---
+
+### 🗺️ v1 → v2 差分マップ
+
+| v1 STEP | v2 対応 STEP | 主な拡張 |
+|---------|-------------|---------|
+| STEP 1（CSS 読み込み順） | STEP 1（多重取得） | 三重ブラウザ + Firecrawl + Cascade Layer 順序 |
+| STEP 2（カラーパレット） | STEP 2（Design Token） | W3C DTCG + Style Dictionary + APCA タグ |
+| STEP 3（フォント） | STEP 3（タイポ v2） | Fluid clamp + Variable Font + 日本語組版 |
+| STEP 4（レイアウト） | STEP 4（レイアウト v2） | Container Queries + Subgrid + Anchor Positioning |
+| STEP 5（アニメ） | STEP 6（モーション v2） | View Transitions + Scroll-Driven + reduced-motion |
+| STEP 6（レスポンシブ） | STEP 7（レスポンシブ v2） | 9 ビューポート + C/Q + dvh/svh/lvh |
+| STEP 7（ライブラリ） | STEP 5（コンポーネント・インベントリ） | BEM/OOCSS/SMACSS/ITCSS 四層タグ |
+| STEP 8（統合出力） | STEP 10（パッケージング） | 自動サインオフゲート付き |
+| -（新規） | STEP 0（プリフライト） | A/B・CORS・Shadow DOM 事前検知 |
+| -（新規） | STEP 8（Web Vitals） | LCP/INP/CLS ホットスポットマップ |
+| -（新規） | STEP 9（a11y v2） | WCAG 2.2 + APCA 二重検証 |
+
+---
+
+### 🎁 v2 で新たに Nao / Ren に渡せる価値
+
+- **Nao へ**：`component-inventory.json` により、設計書の「コンポーネント一覧」ページを自動生成できる（重複統合候補も可視化）
+- **Ren へ**：`tailwind.tokens.js` により、Tailwind v4 の `@theme` ブロックへ **1 コマンドで注入**できる（従来の手打ちを完全排除）
+- **Mia へ**：`visual-diff/baseline-*.png` の 9 ビューポート baseline により、ピクセル差分検証が最初の 1 分で走る
+- **Saki へ**：`web-vitals-hotspot.md` により、修正フェーズで Vitals 改善タスクが即座に見える
+- **Kuu へ**：`font-loading-strategy.md` により、Vercel Edge での `next/font` 最適化が事前設計済み
+
+---
+
+### ⚠️ v2 でも譲れない絶対原則（v1 から継承）
+
+1. **宣言値と解決値は必ず併記**（`1.5rem` と `24px` の両方）
+2. **ルート `html { font-size }` の値は必ず記録**
+3. **`prefers-reduced-motion` / `prefers-color-scheme` の指定は生 CSS 走査で拾う**
+4. **sticky 要素は全祖先の `overflow` / `height` を記録**
+5. **A/B 配信・Shadow DOM・CORS フォントは STEP 0 で必ず検知**
+6. **納品前サインオフゲートを 1 項目でも NG のまま通してはならない**
+
+---
+
+**v2 が完成した日から、Hana は「CSS 抽出者」ではなく「Design Token エンジニア」に格上げされる。**
+Kaito が受注段階で「v2 でお願い」と言うだけで、Nao・Ren・Mia・Saki・Kuu の全員が即戦力データを受け取れる。それが 2026 年の LET 07-LP 部の標準装備である。
