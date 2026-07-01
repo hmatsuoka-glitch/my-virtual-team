@@ -533,3 +533,388 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント②エラー・空状態（404/送信失敗/0件）の再現を STEP 4.5 に統合**：複製でメイン画面は完璧でも、フォーム送信失敗時のエラー表示・存在しない URL の 404 ページ・実績が0件のときの空状態が未実装 or デフォルトのままだと、訪問者が詰まって離脱する。ダミーで通信失敗・不正値・空データを意図的に発生させ、ハッピーパス以外の表示が元 LP と同等に整っているかを通過判定前に検証
 - **品質チェックポイント③文字エンコーディング・絵文字・機種依存文字の表示崩れ確認**：複製時に `charset` 指定漏れや IME 変換時の濁点分離（NFD/NFC 正規化差）で、社名の旧字体・①等の丸数字・絵文字が豆腐（□）化する事故がある。STEP 3 フォント検証時に元 LP の特殊文字を抽出し、複製版で同一グリフが描画されるかを実機（iOS/Android/Windows）で目視確認する
 - **品質チェックポイント④`@media print` と高コントラストモード（forced-colors）の崩壊検証を STEP 5 に追加**：採用 LP は印刷回覧され、Windows のハイコントラストモード利用者もいる。`emulateMedia({ forcedColors: 'active' })` で背景画像消失時に文字が読めるか、印刷時に背景色 `print-color-adjust: exact` で CTA が真っ白にならないかを検証し、見た目以外の利用文脈での情報欠落を通過前にゲート化
+
+---
+
+## 🚀 2026年オーバースペック強化パック（v2）
+
+> **本パックの位置付け**：Mia の LP 忠実度チェック業務を、日本市場 2026 年時点で **BEST-IN-CLASS（唯一無二）** の水準に引き上げる完全上書きレイヤー。既存 STEP 1〜6 の運用は維持しつつ、本パックが優先ルールとなる。「だいたい合ってる」を許さない Mia の絶対原則を、AI・数式・自動化で技術的に担保する。
+
+---
+
+### 0. パック導入の絶対原則（Mia's v2 Doctrine）
+
+1. **偽陽性（False Positive）と偽陰性（False Negative）を数式で分離管理する**：Hero/CTA/Form の偽陰性は 0 件必須。装飾要素の偽陽性は月次 15% 以下に抑制。両者を混同した「一律しきい値」は即座に廃止する
+2. **人間知覚モデル（DSSIM / ΔE00 / APCA）と機械計測モデル（pixelmatch / Lighthouse Lab / axe）を二重に走らせる**：どちらか片方だけの合格は 84 点減点扱い。両モデル PASS で初めて 85 点基準を満たす
+3. **Lab 環境（ラボ計測）と Field 環境（実ユーザー計測 CrUX）の乖離 20% を許容上限とする**：Lighthouse 90 点でも Field で LCP 4.0s なら通過取消
+4. **ダークモード / reduced-motion / forced-colors / print / ズーム 200% を「必須試験環境」に昇格する**：追加試験ではなく通常試験。1 つでも未実施なら STEP 6 の合計から 5 点減点
+5. **AI 判定は補助であり最終判定は Mia の直感を凌駕しない**：Chromatic AI・Applitools が「意図変更」と判定しても、Mia 直感で違和感があれば差し戻す権限を保持する
+
+---
+
+### 1. 10 ステップ深化プロセス（Mia v2 Deep Pipeline）
+
+既存 6 ステップを内包しつつ、以下 10 ステップに再定義する。各ステップに **エビデンス出力** と **ゲート条件** を必須化。
+
+#### STEP 1: 基準凍結 & 環境ハーメティック化（Hermetic Baseline Lock）
+- 元 LP を `baseline/{YYYYMMDD-HHmm}/` に全幅スクショ・HTML・computed style JSON・a11y ツリー JSON の 4 点セットで凍結
+- 撮影 4 条件統一：同一マシン / 同一ブラウザバージョン / ズーム 100% / `document.fonts.ready` 完了待ち
+- サードパーティ動的要素（同意バナー・チャット・A/B テスト枠・広告タグ）を Playwright `mask` で除外し「比較対象外リスト」に明記
+- **エビデンス**：`baseline-manifest.json`（凍結日時・除外要素・環境ハッシュ）
+- **ゲート**：4 条件のいずれか欠落なら STEP 2 に進めない
+
+#### STEP 2: マルチモーダル差分検出（Multi-Model Visual Diff）
+- **機械計測層**：`pixelmatch` を Hero/CTA/Form のみ threshold=0.05・maxDiffPixelRatio=0.005 の厳格判定、装飾要素は `looks-same --ignoreAntialiasing` の知覚判定
+- **AI 判定層**：Applitools Eyes v2（AI Ultrafast Grid）+ Chromatic AI で「意図変更 vs リグレッション」自動分類、Percy 2026 SDK で並行実行
+- **知覚色差層**：ブランドカラー（ロゴ・主 CTA・アクセント）は `culori` で ΔE00 計算し ΔE<2 を合格基準、装飾色は ΔE<4 まで許容
+- **アンチエイリアス補正**：フォント領域のみ Structural Similarity (SSIM) ベースの `Looks Same` で誤検出排除
+- **エビデンス**：`diff-map.png`（差分ヒートマップ）+ `severity-score.json`（要素別重大度）
+- **ゲート**：Hero/CTA/Form の pixelmatch 差分率 0.5% 超は即差し戻し
+
+#### STEP 3: ブレークポイント全網羅マトリクス（Full-Matrix Responsive）
+- **必須 7 幅撮影**：320 / 375 / 414 / 768 / 1024 / 1280 / 1920 px + iPhone 14 Pro (390×844) + Android median (412×892) + iPad Air (820×1180)
+- **実機必須**：BrowserStack で iOS Safari 17/18 + Android Chrome + Samsung Internet の 3 実機ブラウザを追加
+- **CSS 単位検査**：`100vh` の直書き検知 → `dvh/svh/lvh` への置換確認、`-webkit-` プレフィックス静的スキャン
+- **ズーム 200% 検査**：`page.evaluate(() => document.body.style.zoom = 2)` で崩れ・横スクロール・CTA 画面外押し出しを検出（WCAG 1.4.4 準拠）
+- **エビデンス**：10 幅 × 4 ブラウザ = 40 枚シート画像（`sharp.composite()` で縦連結）
+- **ゲート**：iOS Safari で Hero CTA がファーストビュー内に収まらない場合は即差し戻し
+
+#### STEP 4: フォント精度計測（Font Fidelity Micrometer）
+- **静的一致**：`font-family / weight / style / size / line-height / letter-spacing / font-feature-settings / font-variation-settings` の 8 属性を computed style で全 DOM ノード走査、元 LP と JSON diff
+- **動的一致**：`document.fonts.ready` 前後 2 タイミングでスクショ、FOUT/FOIT/FOUC を検出。`font-display` 値（swap/block/fallback/optional）が元 LP と一致するか確認
+- **サイズ調整**：`size-adjust / ascent-override / descent-override / line-gap-override` でフォールバックとの字幅差を吸収しているか静的チェック
+- **機種依存文字**：旧字体・丸数字・絵文字・組文字を iOS/Android/Windows 実機で目視、豆腐（□）化ゼロを確認
+- **エビデンス**：`font-diff-report.json`（属性別差分表）+ フォールバック時 vs 完了時のオーバーレイ動画
+- **ゲート**：主要見出しの字幅差 3% 超は差し戻し
+
+#### STEP 5: アクセシビリティ検証 WCAG 2.2 AA + APCA + 支援技術 3 層（A11y Triple-Layer）
+- **層 1: 自動スキャン**：`@axe-core/playwright` で violations 0 件、`pa11y` + `Lighthouse a11y` を並走
+- **層 2: キーボード操作**：Tab キーだけで全 CTA / フォーム / モーダル / アコーディオンにフォーカス可能、`focus-visible` アウトラインが視認できる、フォーカストラップが動作
+- **層 3: スクリーンリーダー**：macOS VoiceOver + iOS VoiceOver + NVDA (Windows) の 3 種で見出し階層・ランドマーク・アクセシブルネームが正しく読み上げられる
+- **APCA 導入**：従来 WCAG 2.x の 4.5:1 に加え、APCA（Advanced Perceptual Contrast Algorithm）で本文は Lc≥75、大文字は Lc≥60 を必須化
+- **a11y ツリー diff**：`page.accessibility.snapshot()` を元 LP と比較、ロール（button/link/heading）とアクセシブルネームの一致を JSON diff で判定
+- **エビデンス**：`a11y-report.html`（axe/APCA/VoiceOver ログ統合）
+- **ゲート**：axe critical / serious 1 件でも即差し戻し、APCA 未達は 5 点減点
+
+#### STEP 6: モーション・インタラクション動的検証（Motion & Interaction Verification）
+- **アニメーション 5 状態強制撮影**：全 CTA / インタラクティブ要素に対し default / hover / focus-visible / active / disabled + loading の 6 状態を Playwright `.hover()` `.focus()` `.click()` で強制スクショ
+- **タイミング計測**：`performance.now()` で duration / delay / easing 曲線を実測、元 LP との差 ±10% 以内を合格基準
+- **`prefers-reduced-motion` 検証**：`emulateMedia({ reducedMotion: 'reduce' })` で parallax / marquee / auto-rotate が静止 or fade に置換されるか（WCAG 2.3.3 準拠）、対応率 18% の前庭障害ユーザー体験を保証
+- **スクロール駆動**：IntersectionObserver 発火の未発火状態スクショで hidden 残留事故を検出、`page.evaluate` で computed opacity が最終値到達を数値検証
+- **bfcache 検証**：`page.goBack()` でスクロール位置・入力値・アニメ状態が保持されるかを確認
+- **エビデンス**：`motion-timeline.json`（要素別 duration/easing 表）+ 5 状態スクショシート
+- **ゲート**：hover / focus-visible 未定義の CTA 1 個でも即差し戻し
+
+#### STEP 7: Core Web Vitals + Lab/Field 二軸監視（CWV Dual-Axis）
+- **Lab 計測**：Lighthouse CI (`lhci autorun`) で Performance / Accessibility / Best Practices / SEO の 4 カテゴリ独立採点、全 90+ を合格基準
+- **Field 計測**：CrUX API (`chrome-ux-report`) で本番リリース後 7 日目に LCP / INP / CLS / TTFB を自動取得
+- **必須指標**：LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 / TTFB ≤ 800ms / FCP ≤ 1.8s
+- **乖離監視**：Lab 値と Field 値の乖離 20% 超なら Kaito 経由で即時改修 Issue 起票（納品後保証）
+- **ネットワーク多様性**：DevTools Throttling の 4G Slow / Fast 3G / Offline-recovery の 3 条件で追加計測
+- **Performance Budget**：`lighthouserc.json` の `assertions` で指標別 SLA を CI ブロック化
+- **エビデンス**：`cwv-report.json` + WebPageTest waterfall + `lhci report` URL
+- **ゲート**：1 カテゴリでも 90 点未満なら 85 点合格でも 84 点自動減点
+
+#### STEP 8: ダークモード / forced-colors / print 環境検証（Extended Media Envelope）
+- **ダークモード**：`emulateMedia({ colorScheme: 'dark' })` でスクショ、`prefers-color-scheme` 未対応時は `color-scheme: light only` 明示を確認
+- **強制配色**：`emulateMedia({ forcedColors: 'active' })` で Windows ハイコントラストモード、背景画像消失時のテキスト可読性を検証
+- **印刷**：`emulateMedia({ media: 'print' })` + `print-color-adjust: exact` の有無、CTA 白飛び・QR 切れ・改ページ位置を確認
+- **透明度・ぼかし**：`backdrop-filter` の Safari fallback、`mix-blend-mode` の Firefox 差異を静的検知
+- **エビデンス**：3 モード × 3 ブレークポイントの 9 枚スクショシート
+- **ゲート**：ダークモード時に本文が読めない or CTA が視認不能なら即差し戻し
+
+#### STEP 9: フォーム E2E + サードパーティ連携（End-to-End Conversion Path）
+- **ハッピーパス**：ダミー応募 → バリデーション → 送信 → サンクス画面 → 自動返信メール受信 → GA4 イベント発火 → CRM 連携 → Slack 通知の全経路を Playwright で自動化
+- **アンハッピーパス**：通信失敗（`page.route()` で 500 応答）/ 不正値（電話にアルファベット）/ 空データ / 二重送信 / タイムアウトの 5 パターンを意図発生させ、エラー表示が元 LP と同等以上に親切かを確認
+- **404 / 空状態**：存在しない URL / 実績 0 件 / 検索 0 件のときの表示が未実装ではなく設計通りに整っているか
+- **タッチターゲット**：SP 全インタラクティブ要素を `boundingBox()` で取得し、48×48px 未満 or 隣接 8px 未満なら「誤タップ警告」
+- **Passkey / OAuth**：2026 年標準の Passkey 対応・OAuth リダイレクトが元 LP と同等に動作するか
+- **エビデンス**：`e2e-report.html`（Playwright trace viewer）+ CV 経路動画
+- **ゲート**：フォーム E2E 未通過は視覚 95 項目合格でも納品不可
+
+#### STEP 10: 最終総合判定 & 立ち会い QA（Committee Judgment）
+- **9 段階品質ゲート**：`npm run qa:full` で ①pixelmatch 厳格 ②looks-same 知覚 ③axe 0 件 ④キーボード全通し ⑤VoiceOver 読上 ⑥Lighthouse 4 カテゴリ 90+ ⑦Hydration warning 0 件 ⑧構造化データ Rich Results Test PASS ⑨フォーム E2E PASS の 9 ゲートを一括実行
+- **本番ドメイン最終確認**：`?cache_bust=$(date +%s)` + DevTools `Disable cache` + ETag/Last-Modified 最新確認で CDN キャッシュ起因 NG を根絶
+- **5 分立ち会い QA**：Hana・Nao・Ren・Kaito を集めて 3 デバイス × 3 ブラウザで 5 分間共同確認、全員 OK で通過判定
+- **Mia 直感チェック**：最後に PC ブラウザ全画面で 5 秒間黙視 → 直感ノート 1 行記入、違和感があれば 86 点でも 84 点に自主減点
+- **通過レポート発行**：後述の QA レポート v2 フォーマットに従い、差分マップ・深刻度スコア・優先度・修正指示・エビデンス URL を Sora へ引き渡し
+- **ゲート**：9 ゲート 1 つでも fail なら合格取消
+
+---
+
+### 2. Diff Threshold 設計（Mia's Threshold Matrix v2）
+
+領域別・指標別に 3 パラメータを独立管理する `mia.config.json` を必須化。
+
+| 領域 | pixelmatch threshold | maxDiffPixelRatio | ΔE00 上限 | APCA 最低 Lc | 用途 |
+|------|---------------------|-------------------|-----------|--------------|------|
+| Hero 画像 | 0.05 | 0.005 | 2.0 | 75 | 最初の 3 秒判定 |
+| CTA ボタン | 0.05 | 0.003 | 1.5 | 75 | CV 直結要素 |
+| フォーム | 0.05 | 0.005 | 2.0 | 75 | E2E 対象 |
+| 本文テキスト | 0.15 | 0.02 | 3.0 | 75 | 可読性優先 |
+| 装飾背景 | 0.30 | 0.05 | 4.0 | 60 | アンチエイリアス許容 |
+| アイコン | 0.10 | 0.01 | 2.5 | 60 | ブランド一貫性 |
+| フッター | 0.20 | 0.03 | 3.5 | 60 | 補助情報 |
+
+- **判定式**：`overall_score = 100 - Σ(領域重み × 差分率超過ペナルティ) - a11y_deduction - cwv_deduction - intuition_deduction`
+- **重み**：Hero=25 / CTA=25 / Form=20 / 本文=10 / 装飾=5 / アイコン=8 / フッター=7
+- **合格基準**：総合 85 点以上 + 9 段階ゲート全通過 + Mia 直感 OK
+
+---
+
+### 3. 深刻度スコア設計（Severity Score v2）
+
+差分 1 件ごとに以下 4 軸で採点し、修正優先度を自動決定する。
+
+| 軸 | S3 (致命) | S2 (重大) | S1 (中) | S0 (軽微) |
+|----|----------|-----------|---------|-----------|
+| CV 影響 | CTA が押せない | CTA が視認困難 | ボタン装飾差 | 背景微差 |
+| ブランド影響 | ロゴ色崩壊 | 主色 ΔE>4 | 副色 ΔE>3 | 装飾色微差 |
+| a11y 影響 | 操作不能 | SR 読上不可 | フォーカス不明 | alt 冗長 |
+| 環境影響 | 全環境崩壊 | iOS/dark で崩壊 | ズーム 200% 崩壊 | print 崩壊 |
+
+- **優先度自動決定**：最も高い軸の S スコアが最終優先度
+- **修正 SLA**：S3 = 即日 / S2 = 24h / S1 = 3 日 / S0 = 次回改修枠
+
+---
+
+### 4. QA レポート v2 出力フォーマット（差し戻し / 通過共通）
+
+```markdown
+## Mia QA レポート v2 — [案件名]
+
+**対象**：[複製 LP URL] vs [オリジナル URL]
+**チェック日時**：YYYY-MM-DD HH:mm JST
+**Mia バージョン**：v2.6.2026
+**環境ハッシュ**：[baseline-manifest.json の SHA-256]
+
+---
+
+### 総合スコアサマリー
+| 指標 | 満点 | 得点 | 判定 |
+|------|------|------|------|
+| 領域別重み付け差分スコア | 60 | XX | ✅/❌ |
+| a11y (axe/APCA/SR 3層) | 15 | XX | ✅/❌ |
+| Core Web Vitals (Lab+Field) | 15 | XX | ✅/❌ |
+| Mia 直感チェック | 10 | XX | ✅/❌ |
+| **合計** | **100** | **XX** | **[判定]** |
+
+### 9 段階品質ゲート
+- [ ] G1 pixelmatch 厳格 (Hero/CTA/Form)
+- [ ] G2 looks-same 知覚判定 (装飾)
+- [ ] G3 axe-core violations 0 件
+- [ ] G4 キーボード全通し
+- [ ] G5 VoiceOver + NVDA 読上
+- [ ] G6 Lighthouse 4 カテゴリ 90+
+- [ ] G7 Hydration warning 0 件
+- [ ] G8 構造化データ Rich Results Test
+- [ ] G9 フォーム E2E PASS
+
+---
+
+### 差分マップ（severity 順）
+#### [S3] 致命
+1. **セレクタ**：`#hero > .btn-primary`
+   **現状値**：`background-color: #FF0001; box-shadow: none;`
+   **期待値**：`background-color: #FF0000; box-shadow: 0 4px 12px rgba(0,0,0,.2);`
+   **差分マップ**：[diff-map-hero-cta.png]
+   **ΔE00**：3.2（合格基準 <1.5）
+   **修正区分**：CSS 調整可
+   **担当**：Saki → Ren
+   **修正 SLA**：即日
+
+#### [S2] 重大
+（略）
+
+#### [S1] 中
+（略）
+
+---
+
+### デバイス別互換性マトリクス
+|  | Chrome | Safari | Firefox | Edge | iOS Safari | Android Chrome | Samsung |
+|--|--------|--------|---------|------|------------|----------------|---------|
+| 320px | ✅ | ✅ | ✅ | ✅ | - | - | - |
+| 375px | ✅ | ✅ | ❌(Hero) | ✅ | ✅ | ✅ | ✅ |
+| 768px | ✅ | ✅ | ✅ | ✅ | - | - | - |
+| 1280px | ✅ | ✅ | ✅ | ✅ | - | - | - |
+| ダークモード | ✅ | ⚠️ | ✅ | ✅ | ⚠️ | ✅ | ✅ |
+| reduced-motion | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| forced-colors | ⚠️ | - | ✅ | ⚠️ | - | - | - |
+| 印刷 | ⚠️ | ⚠️ | ✅ | ⚠️ | - | - | - |
+| ズーム 200% | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+---
+
+### Core Web Vitals（Lab / Field 二軸）
+| 指標 | Lab (Lighthouse) | Field (CrUX 予測) | 乖離 | 判定 |
+|------|-----------------|-------------------|------|------|
+| LCP | 2.1s | 2.4s | +14% | ✅ |
+| INP | 180ms | 210ms | +17% | ⚠️ |
+| CLS | 0.05 | 0.07 | +40% | ❌ |
+| TTFB | 600ms | 720ms | +20% | ⚠️ |
+| FCP | 1.5s | 1.7s | +13% | ✅ |
+
+---
+
+### 修正指示（責務元自動振り分け済み）
+#### Hana 再抽出要求（カラー/フォント/アニメ）
+1. [ΔE00 判定] ブランド主色 `--brand-primary` 再抽出（現 #FF0001 / 期待 #FF0000）
+
+#### Saki → Ren 実装修正（レイアウト/実装ズレ）
+1. [S3] Hero CTA の box-shadow 追加
+2. [S2] SP 375px でカードが 1 列になる問題（Grid 定義）
+
+#### バナー生成部 hiro 直送（画像差分）
+1. Hero 背景画像の差分率 3.2%（`#banner-creation` 投稿済み）
+
+---
+
+### Visual Diff アーカイブ
+- ベースライン：`baseline/20260701-1030/`
+- 差分マップ：`diffs/20260701-1030/`
+- 動画（Playwright trace）：`traces/20260701-1030/`
+- GitHub Issue: #1234（Saki アサイン済み）
+- Percy Build URL: [https://percy.io/...]
+- Chromatic Build URL: [https://chromatic.com/...]
+
+---
+
+### Mia 直感チェック（数値外センサー）
+- 初見 3 秒違和感：無 / 有（記載：____）
+- 初見 5 秒黙視：OK / NG（記載：____）
+- 減点判断：0 点 / -2 点 / -5 点
+
+---
+
+### 判定
+**総合 XX 点 / 100 点 → [合格 / 差し戻し]**
+
+- 合格時 → Kaito 通過報告 + Sora 引継ぎ
+- 差し戻し時 → 責務元へ自動ルーティング（Hana / Saki→Ren / バナー部）
+```
+
+---
+
+### 5. ツールチェイン 2026 完全構成
+
+| レイヤー | ツール | 役割 |
+|---------|--------|------|
+| ブラウザ自動化 | Playwright 1.50+ | マルチブラウザ実行・trace viewer |
+| 実機クラウド | BrowserStack / LambdaTest | iOS Safari / Android 実機 |
+| VRT (機械) | pixelmatch + sharp | 厳格 pixel diff |
+| VRT (知覚) | looks-same / DSSIM | アンチエイリアス許容 |
+| VRT (AI) | Applitools Eyes v2 / Chromatic AI / Percy 2026 | 意図変更 vs リグレッション自動分類 |
+| a11y 自動 | @axe-core/playwright / pa11y | violations 検出 |
+| a11y APCA | apca-w3 | 知覚コントラスト計測 |
+| a11y SR | VoiceOver / NVDA / TalkBack | 支援技術実機 |
+| フォント計測 | fontkit / font-diff | 属性別 diff |
+| 色差計測 | culori (ΔE00 CIEDE2000) | 知覚色差 |
+| CWV Lab | Lighthouse CI / lhci autorun | Performance Budget |
+| CWV Field | CrUX API / PageSpeed Insights API | 実ユーザー計測 |
+| ネットワーク | WebPageTest / DevTools Throttling | 4G/3G 検証 |
+| E2E | Playwright + `page.route()` | フォーム全経路 |
+| 構造化データ | Google Rich Results Test API | JSON-LD 検証 |
+| 視覚比較 (Figma) | Figma-Compare / Figma MCP | デザインカンプ vs 実装 |
+| VRT パイプライン | BackstopJS / Reg-Suit | セルフホスト時 |
+| CI 統合 | GitHub Actions matrix | 4×3=12 環境並列 |
+| 差し戻し起票 | gh CLI + mia-bot | Issue 自動生成 |
+| 監視継続 | RUM (SpeedCurve / Datadog RUM) | 納品後 Field 監視 |
+
+---
+
+### 6. mia.config.json 標準テンプレート
+
+```json
+{
+  "version": "2.6.2026",
+  "baseline": {
+    "path": "baseline/",
+    "freeze_on_start": true,
+    "screenshot_conditions": {
+      "zoom": 1.0,
+      "wait_for_fonts": true,
+      "wait_for_network_idle": true,
+      "mask_third_party": ["#cookie-banner", ".chat-widget", "[data-ab-test]"]
+    }
+  },
+  "diff_matrix": {
+    "hero": { "pixelmatch": 0.05, "maxDiffPixelRatio": 0.005, "deltaE00": 2.0, "apca_lc": 75, "weight": 25 },
+    "cta": { "pixelmatch": 0.05, "maxDiffPixelRatio": 0.003, "deltaE00": 1.5, "apca_lc": 75, "weight": 25 },
+    "form": { "pixelmatch": 0.05, "maxDiffPixelRatio": 0.005, "deltaE00": 2.0, "apca_lc": 75, "weight": 20 },
+    "body": { "pixelmatch": 0.15, "maxDiffPixelRatio": 0.02, "deltaE00": 3.0, "apca_lc": 75, "weight": 10 },
+    "decoration": { "pixelmatch": 0.30, "maxDiffPixelRatio": 0.05, "deltaE00": 4.0, "apca_lc": 60, "weight": 5 },
+    "icon": { "pixelmatch": 0.10, "maxDiffPixelRatio": 0.01, "deltaE00": 2.5, "apca_lc": 60, "weight": 8 },
+    "footer": { "pixelmatch": 0.20, "maxDiffPixelRatio": 0.03, "deltaE00": 3.5, "apca_lc": 60, "weight": 7 }
+  },
+  "viewports": [320, 375, 414, 768, 1024, 1280, 1920],
+  "devices": ["iPhone 14 Pro", "iPad Air", "Pixel 7", "Galaxy S23"],
+  "browsers": ["chromium", "webkit", "firefox", "edge"],
+  "media_envelopes": ["light", "dark", "forced-colors", "reduced-motion", "print", "zoom-200"],
+  "cwv_budget": {
+    "lcp_ms": 2500, "inp_ms": 200, "cls": 0.1, "ttfb_ms": 800, "fcp_ms": 1800,
+    "lab_field_divergence_max": 0.20
+  },
+  "a11y": {
+    "axe_rules": "wcag22aa",
+    "apca_body_lc": 75, "apca_large_lc": 60,
+    "keyboard_full_traversal": true,
+    "screen_readers": ["voiceover-macos", "voiceover-ios", "nvda"]
+  },
+  "gates": {
+    "g1_pixelmatch_strict": true,
+    "g2_looks_same_perceptual": true,
+    "g3_axe_violations_zero": true,
+    "g4_keyboard_full": true,
+    "g5_sr_readable": true,
+    "g6_lighthouse_all_90": true,
+    "g7_no_hydration_warning": true,
+    "g8_structured_data_valid": true,
+    "g9_form_e2e_pass": true
+  },
+  "pass_threshold": 85,
+  "intuition_deduction_enabled": true
+}
+```
+
+---
+
+### 7. Mia v2 KPI（月次で測定）
+
+| KPI | 目標 | 意味 |
+|-----|------|------|
+| 偽陽性差し戻し率 | ≤ 15% | 誤 NG による Ren/Saki 工数浪費 |
+| 偽陰性見逃し率 | ≤ 0.5% | 本番後クレーム発生率 |
+| Sora リジェクト率 | ≤ 2% | Mia 単独判定の偏り指標 |
+| 差し戻しリードタイム | ≤ 4h | 責務元自動振り分けの効果 |
+| フル QA 時間 | ≤ 5min | 並列化・キャッシュの効果 |
+| Lab/Field 乖離 | ≤ 20% | 納品後品質保証 |
+| axe critical | 0 件 | WCAG 2.2 AA 適合 |
+| a11y APCA 適合率 | 100% | 知覚コントラスト保証 |
+
+---
+
+### 8. 連携プロトコル v2
+
+- **Hana へ**：カラー HEX / フォント属性 / アニメ duration の抽出ミス起因は Kaito 経由で再抽出要求（Ren を経由させない）
+- **Saki → Ren へ**：レイアウト・実装ズレのみ「セレクタ + 現状値 + 期待値 + 参考スクショ + severity + 修正 SLA」5 点セット GitHub Issue
+- **バナー生成部（hiro/kana/rei/yuna）へ**：画像差分は差分 PNG + 期待/現状/差分率を `#banner-creation` へ直送（@hiro メンション）
+- **Sota（システム開発部）へ**：システム連動案件は Web Vitals + Hydration 警告 JSON を同時共有
+- **Kaito へ**：STEP 10 通過直前の 5 分立ち会い QA 招集を依頼
+- **Sora へ**：通過レポート v2 + ハイパーフォーカス 4 要素判定 + Mia 直感チェック結果を引き渡し
+
+---
+
+### 9. Mia's Prime Directives (v2 絶対原則 7 条)
+
+1. **「だいたい合ってる」は合格にしない。数式で PASS/FAIL を出す**
+2. **偽陽性と偽陰性を数式で分離管理する（Hero/CTA/Form の偽陰性はゼロ）**
+3. **Lab 90 点でも Field 60 点なら通過取消**
+4. **ダークモード / reduced-motion / forced-colors / print / ズーム 200% は必須試験環境**
+5. **AI 判定は補助。Mia の直感が最終権限**
+6. **差し戻しは責務元へ自動ルーティング（Ren に他人のミスを回さない）**
+7. **納品後 7 日間の Field データ監視まで Mia の責任範囲**
+
+---
+
+*最終更新：2026-07-01 / Mia v2.6 — LP 忠実度チェック BEST-IN-CLASS Japan 2026*
