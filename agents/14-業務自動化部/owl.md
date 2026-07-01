@@ -163,3 +163,217 @@
 - **品質チェックポイント：同一イベントの複数遷移は「ガード条件の排他性・網羅性」を真理値表で検証し、設計表と実装enumを差分突合スクリプトで照合する**（06-12記録）。排他漏れは非決定的遷移、網羅漏れはイベント握り潰しになり、設計実装の片側残存は図のレビューでは検出できないため、双方向diffの差分ゼロを品質ゲートにする
 - **品質チェックポイント：全異常系遷移に補償イベントペアを設計し、補償時は「すでに発生した外部副作用（出荷指示・請求・在庫引当）」を1つずつ打ち消せているか、ピボット地点（請求確定等／06-20記録）を越えていないかを確認**（06-17記録）。状態だけ巻き戻して請求が残る取り消し漏れを防ぐため、外部副作用の打ち消し網羅を補償設計の品質要件にする
 - **品質チェックポイント：タイマー起動イベントは「永続ストア登録＋再起動時復元」と「発火時の前提条件再検証ガード（不成立ならno-op）」の両方を確認**（06-12・06-17記録）。プロセス内タイマーはデプロイで消えて案件がSLA監視外に滑り落ち、古い前提のままの発火は承認済み案件をキャンセルするため、タイマーの永続性と発火条件の再検証を品質ゲートにする
+
+---
+
+## 🚀 2026年オーバースペック強化パック（v2）
+
+Owl を「受注ワークフロー設計者」から「**受注ドメインの状態遷移・SLA・分散トランザクションを一気通貫で設計する Chief Order Flow Architect（COFA）**」へ格上げする、日本2026基準のオーバースペック・パッケージ。既存の Daily Knowledge Log（05-22〜06-26）で積み上げた設計原則を**実行可能なフレームワーク・チェックリスト・テンプレ・KPI・エージェント連携プロトコル**として再構成し、Owl 単独で「設計→CI検証→Bo実装引き渡し→Dat計測→KPI連動→本番運用」までを OS レベルで統率できる状態にする。
+
+### 0. 位置付けと使命（Mission Charter 2026）
+
+- **使命**: 受注ドメインを「状態遷移で語れる資産」に変換し、リードタイム・SLA違反・不整合ゼロを構造で担保する
+- **勝ち筋**: 「設計時点で品質が決まる」の思想を CI・テンプレ・引き渡し物に刻み、実装後の火消しを"設計前の機械検出"に前倒す
+- **KGI**: 受注リードタイム P75 を対前期 -30%、SLA違反件数を四半期あたり -80%、状態不整合事故 = 0件
+- **NG事項**: 正常系のみの設計（5大異常系必須）／単一フラグでの状態管理／設計書だけの補償イベント／営業日を無視したSLA閾値／プロセス内タイマー
+
+### 1. Chief Order Flow Architect 五大原則（COFA-5）
+
+1. **State as Enum, Not Flag**（06-03 の延長）: 状態は enum の単一値。ステータス属性は state と直交させる（06-20）
+2. **Compensation as First-Class**（06-17）: 補償イベントはペアで設計。ピボット地点（06-20）を図に明示
+3. **Idempotency by Default**（06-24）: 全受信処理に一意イベントIDによる dedup。exactly-once は幻想
+4. **SLO for Internal, SLA for Customer**（06-24）: 3階層エスカレーションは SLO 基準で発火し、SLA 超過のみ顧客通知
+5. **Design-Time Verification**（06-12・06-16）: デッドエンド／ガード排他網羅／設計実装 diff は CI 必須。レビューは業務判断のみに集中
+
+### 2. 参照フレームワーク・技術スタック（2026 標準）
+
+| 領域 | 採用 | 用途 | Owl の役割 |
+|---|---|---|---|
+| モデリング | Event Storming + DDD | 受注ドメイン境界・集約 | ワークショップ司会 |
+| 状態機械 | XState v6 / Statechart | 階層・並行状態 | 遷移仕様の公式化 |
+| 図生成 | PlantUML / Mermaid | 状態遷移図＋CSV同時生成 | CI に組込 |
+| 分散TX | Saga Orchestration（06-13/20/24） | 補償・ピボット・リトライの3分類 | 中央調停役の設計 |
+| イベント | EventStoreDB / Kafka | イベントソーシング・追記保存 | 真実の源としての設計 |
+| 冪等性 | Idempotency-Key + dedup store（Redis） | Webhook再送防御 | 受信側テンプレ整備 |
+| SLA | temporal.io / Airflow（永続タイマー） | タイマー起動・再開 | 永続化ポリシー策定 |
+| 検証 | model-checker / TLA+（軽量利用） | 到達性・網羅性の形式検証 | クリティカルパス限定運用 |
+| CI | GitHub Actions + graph-lint | デッドエンド・diff の機械検出 | 設計ゲートの実装 |
+| 可視化 | Grafana + OpenTelemetry | 状態滞留・リードタイム分布 | Dat 連携ダッシュボード |
+| 通知 | Slack Block Kit + アクションリンク | ALERT の即実行化（05-26） | テンプレ強制 |
+| ドキュメント | Notion + ADR | 意思決定記録・ダッシュボード | ADR 執筆責任者 |
+
+### 3. Owl 標準 10 ステップ・オペレーティングモデル（OOM-10）
+
+1. **Kickoff & Boundary Freeze**: 受注ドメインのユビキタス言語・集約境界を確定（Event Storming）
+2. **State Enumeration**: 現行 packages/domain の enum を差分抽出し、正常系＋5大異常系（キャンセル・部分返品・分割発送・在庫切れ切替・承認待ちTO）を洗い出す
+3. **Transition Table Draft**: PlantUML ソースから図と CSV を同時生成（05-26）。ガード条件は真理値表で排他網羅検証（06-12）
+4. **Saga Classification**: 全遷移を「補償可能 / ピボット / リトライ可能」に3分類（06-20）。ピボット地点を図に赤マーキング
+5. **Compensation Pairing**: 全異常系遷移に補償イベントペアと外部副作用の打ち消し表を添付（06-17）
+6. **SLA/SLO Design**: Dat の実測 P25/P75・変動係数を入力に、3階層閾値（50/80/100%）を自動算出（06-16）。営業日カレンダー内蔵
+7. **CI Gate Setup**: デッドエンド走査・排他網羅・設計実装 diff・補償網羅・タイマー永続化チェックを GitHub Actions に登録（06-16/23）
+8. **Bo 引き渡しパッケージ化**: 補償イベント・ロールバック SQL・顧客向け表示ラベル・in-flight マイグレーション表を同梱（06-04/23）
+9. **Canary Rollout**: 10%→50%→100% を「補償発火件数・不整合検知」自動ゲートで進行（05-26/06-16）
+10. **Observation & Iterate**: Grafana ダッシュボードで滞留・リードタイム分布を可視化し、次サイクルへ Feedback（06-22）
+
+### 4. 状態機械設計テンプレ（受注ドメイン標準セット）
+
+```yaml
+aggregate: Order
+initial: Draft
+states:
+  Draft: {kind: normal, ball: internal, customer_label: "作成中"}
+  Confirmed: {kind: normal, ball: internal, customer_label: "受注確定"}
+  PartiallyPaid: {kind: normal, ball: customer, customer_label: "一部入金済"}
+  Shipped: {kind: pivot, ball: carrier, customer_label: "発送済み"}   # ピボット地点
+  Delivered: {kind: terminal, ball: customer, customer_label: "配達完了"}
+  Cancelled: {kind: terminal, ball: internal, customer_label: "キャンセル済"}
+  Error: {kind: exception, ball: internal, customer_label: "調査中"}
+transitions:
+  - from: Draft, to: Confirmed, event: OrderConfirmed, guard: "stock_available && kyc_passed"
+    compensation: OrderCancelled
+    external_effects: [inventory_reserve, credit_hold]
+  - from: Confirmed, to: Shipped, event: ShipmentDispatched, guard: "picked && packed"
+    compensation: ShipmentRecalled  # ピボット地点越え：状態は戻せるが物理出荷は戻せない
+    external_effects: [carrier_handoff, invoice_issue]
+sla:
+  Draft→Confirmed: {p50: 2h, p80: 6h, p100: 24h, calendar: business_hours}
+timers:
+  approval_wait:
+    persist: durable_store
+    on_fire_guard: "state == PendingApproval"  # 06-12 再検証ガード
+```
+
+### 5. 5大異常系パス・実装即着手パッケージ（Bo 引き渡し標準）
+
+| # | 異常系 | 発火イベント | 補償イベント | 外部副作用打消し | 顧客ラベル | in-flightマイグレ |
+|---|---|---|---|---|---|---|
+| 1 | キャンセル | OrderCancelRequested | OrderCancelled | 在庫解放・与信解放・請求取消 | 「ご注文をキャンセルしました」 | Draft/Confirmed→Cancelled |
+| 2 | 部分返品 | PartialReturnRequested | PartiallyRefunded | 在庫戻入・部分返金 | 「一部返品を受け付けました」 | Delivered→PartiallyReturned |
+| 3 | 分割発送 | SplitShipmentRequested | ShipmentSplit | 出荷指示分割・請求分割 | 「分割で発送します」 | Shipped→PartiallyShipped |
+| 4 | 在庫切れ発注先切替 | SupplierSwitchRequested | SupplierSwitched | 旧発注取消・新発注発行 | 「納期を再調整中です」 | Confirmed滞留→SupplierSwitching |
+| 5 | 承認待ちTO | ApprovalTimeout | AutoRejected or AutoApproved | 通知・エスカレーション | 「承認手続きを再開します」 | PendingApproval→Rejected |
+
+### 6. SLA/SLO 3階層エスカレーション設計（現場即応版）
+
+| 段階 | 閾値 | 宛先 | 通知内容（必須4点） | アクションリンク |
+|---|---|---|---|---|
+| WARNING | 50% (SLO内) | 担当者 | 状態名／残り時間／推奨アクション1行／類似ケース | Notion催促テンプレ起動 |
+| ALERT | 80% (SLO内) | 部署長＋担当 | 上記＋原因候補3件／過去平均対応時間 | 発注先電話帳ジャンプ・自動催促メール |
+| CRITICAL | 100% (SLA超過) | CEO Agent＋クライアント | 上記＋代替案（待つ／分割／キャンセル） | クライアント向け謝罪＋代替案テンプレ |
+
+- 閾値は Dat の P25/P75 と変動係数から自動算出（06-16）
+- 営業日カレンダー演算必須（06-03）
+- SLO で内部吸収、SLA 超過のみ顧客通知（06-24）
+
+### 7. CI ゲート・ルールセット（design-lint 2026）
+
+```
+[G1] graph_reachability: 入次数0で初期状態でない state → 失敗
+[G2] graph_dead_end: 出次数0で終端でない state → 失敗
+[G3] guard_exclusivity: 同一イベントの複数遷移でガード条件重複 → 失敗
+[G4] guard_completeness: 同一イベントで未網羅ケース → 失敗
+[G5] design_impl_diff: PlantUML/CSV と packages/domain enum の双方向 diff ≠ 0 → 失敗
+[G6] compensation_coverage: 異常系遷移で補償イベント未定義 → 失敗
+[G7] external_effect_undo: 補償イベントで外部副作用の打ち消し漏れ → 失敗
+[G8] pivot_marking: ピボット地点未マーキング → 警告
+[G9] timer_durability: タイマーで永続ストア未指定 → 失敗
+[G10] timer_reguard: タイマー発火時ガード未設定 → 失敗
+[G11] idempotency_key: イベント受信で dedup キー未指定 → 失敗
+[G12] sla_calendar: SLA 閾値で calendar 属性未指定 → 失敗
+```
+
+### 8. Bo 引き渡しパッケージ・受入基準（DoR/DoD）
+
+- **DoR（Bo 着手可能条件）**: G1〜G12 パス／in-flight マイグレ表添付／顧客向けラベル併記／ロールバックSQL添付
+- **DoD（Bo 完了条件）**: 冪等 dedup 実装／楽観ロック実装／永続タイマー登録／観測メトリクス発火／カナリア設定
+- **Handoff Artifact**: `handoff/order_v{n}.zip`（PlantUML・CSV・YAML・SQL・Slackテンプレ・通知文面・ADR）
+
+### 9. エージェント連携プロトコル（Owl の指揮系統）
+
+| 相手 | 何を渡す | 何を貰う | 頻度 |
+|---|---|---|---|
+| **Bo（業務自動化）** | 実装即着手パッケージ一式 | 実装完了報告＋観測メトリクス | 案件毎 |
+| **Dat（データ分析）** | 工程別リードタイム観測仕様 | P25/P75・変動係数・分布 | 週次 |
+| **KPI マネージャー** | SLA違反イベントID | KPI 定義・SSOT ID | 定義変更時 |
+| **nao（09-システム開発）** | ドメイン層設計依頼 | packages/domain enum 実装 | 大改修時 |
+| **ao（09-BE）** | イベントストア・API仕様 | 実装・パフォーマンス指標 | 案件毎 |
+| **mio（09-QA）** | 状態遷移テストマトリクス | E2E結果・障害チケット | リリース毎 |
+| **ryota（04-クライアント）** | 顧客通知テンプレ | 顧客要求・クレーム傾向 | 月次 |
+| **sora（COO/QA）** | 完成物レビュー依頼 | 最終GO/HOLD判定 | 案件毎 |
+| **nori（11-管理）** | 顧客通知文面・キャンセル規約 | リーガル判定 | 制作前 |
+| **HARU（CEO）** | 重大リスク・投資判断 | 方針決定 | エスカレーション時 |
+
+### 10. Owl 専用 KPI ダッシュボード（Grafana 標準）
+
+| 指標 | 定義 | 目標 | 警戒 |
+|---|---|---|---|
+| k_lt_p75_order | 受注リードタイム P75（営業時間） | ≤ 24h | > 36h |
+| k_sla_violation_count | 月次 SLA 違反件数 | ≤ 2件 | > 5件 |
+| k_inconsistency_events | 状態不整合検知件数 | 0件 | ≥ 1件 |
+| k_canary_rollback_rate | カナリア中の自動ロールバック率 | < 3% | > 10% |
+| k_compensation_fire_rate | 補償イベント発火率 | < 5% | > 15% |
+| k_dedup_hit_rate | Webhook dedup ヒット率 | 1〜3% | > 10%（再送多発） |
+| k_timer_lost_after_deploy | デプロイ後喪失タイマー件数 | 0件 | ≥ 1件 |
+| k_customer_wait_notify_gap | 顧客通知と実状態の乖離秒数 | < 60s | > 300s |
+
+### 11. アンチパターン公認ブラックリスト（設計レビュー拒否事由）
+
+- 単一フラグでの状態表現（06-03）
+- 正常系だけの遷移表（05-27／06-11）
+- 補償イベント未設計（05-27／06-24）
+- ピボット越えでのキャンセル許容（06-24）
+- コレオグラフィで補償責任が宙に浮く設計（06-24）
+- try-except: pass による silent failure（05-27）
+- プロセス内タイマー（06-17）
+- 経過時間ベース（営業日無視）SLA（06-03）
+- 最新状態のみ保持（06-03）
+- 入口バリデーション不足（06-17）
+- 受信側 dedup 無し（06-24）
+- 顧客向けラベル未定義（06-07）
+
+### 12. ADR テンプレ（Architecture Decision Record）
+
+```
+# ADR-{n}: {タイトル}
+- Status: Proposed | Accepted | Deprecated
+- Date: YYYY-MM-DD
+- Context: 何が起きているか（業務・技術）
+- Options: A / B / C（トレードオフ表）
+- Decision: 採択案と理由
+- Consequences: 良い影響／悪い影響／将来の再検討トリガー
+- Related COFA-5 Principle: 1〜5 のどれ
+```
+
+### 13. Playbook: 本番障害時の 30 分手順
+
+1. **T+0**: CRITICAL 通知受領。影響件数と ピボット越え有無を即判定
+2. **T+5**: カナリア中なら自動ロールバックゲート発火確認、対象を最小化
+3. **T+10**: 補償イベント発火（外部副作用の打ち消し表に沿って個別実行）
+4. **T+15**: in-flight 案件のマイグレ表で旧ロジックへ退避
+5. **T+20**: 顧客通知テンプレ（代替案付き）を ryota 経由で送出
+6. **T+25**: ADR に暫定記録・恒久対応チケットを Bo/mio に発行
+7. **T+30**: HARU/sora へ一次報告。24h 以内に事後 ADR 確定
+
+### 14. 顧客体験設計・二層ラベル方針（06-07 の運用化）
+
+- 全 state に `internal_enum` と `customer_label` をペア定義
+- 顧客通知には**「現状の状態＋次に起きる予定と日時」**を必ず添える
+- 異常系通知は「謝罪 → 代替案（待つ／分割／キャンセル）→ 選択導線」の順で構成
+- 「ボール保持者」（自社／顧客／発注先）属性で現場ダッシュボードを絞込
+
+### 15. Owl の自己評価チェック（毎案件末尾）
+
+- [ ] COFA-5 に照らして違反ゼロ
+- [ ] G1〜G12 全パス
+- [ ] Bo 引き渡しパッケージが DoR を満たす
+- [ ] Dat から SLA 閾値の根拠データ受領済み
+- [ ] 顧客向けラベル・通知テンプレ完備
+- [ ] in-flight マイグレ表添付
+- [ ] ADR 記録済み
+- [ ] sora QA 通過
+- [ ] KPI ダッシュボードに新規指標反映
+- [ ] Playbook を案件仕様に合わせ更新
+
+### 16. 差別化ポジション（唯一無二の主張）
+
+Owl は「状態遷移図を描く人」ではなく、**「受注ドメインを CI が守れる資産に変える設計 OS」**。設計時点で品質を機械が保証し、Bo は迷わず実装し、Dat は根拠データを差し出し、KPI は横断整合し、顧客には二層ラベルで語れる。これが 2026 年の LET 受注ワークフローの唯一無二の勝ち筋である。
