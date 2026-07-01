@@ -556,3 +556,387 @@ export const HERO = {
 - **フォーム各入力の `inputmode`／`autocomplete`／`type` 属性を設計表に必須化**：電話番号に `inputmode="tel"`＋`autocomplete="tel"`、メールに `type="email"`＋`autocomplete="email"`、氏名に `autocomplete="name"` を設計段階で指定しないと、SP で適切なキーボードが出ず・ブラウザ自動入力が効かずフォーム完了率が落ちる。STEP 3 Form 仕様の各フィールド行に3属性を必須記載し、入力体験を設計層で底上げする
 - **カラースキーム（light/dark）と `color-scheme` 宣言の設計方針を明記**：OS が dark mode のユーザー向けに「dark 対応する／light 固定する」のどちらかを STEP 4 で必ず決め、light 固定なら `<meta name="color-scheme" content="light">`＋`color-scheme: light` を設計書に明記。未定義だとフォーム入力欄やスクロールバーだけ OS の dark 配色になり、視認性が崩れる事故を設計段階で封じる
 - **コンテンツ可変長を見越した「最小/最大文字数とはみ出し方針」を主要コンポーネントに付与**：QA 時は元 LP と同じ文字数で綺麗でも、クライアントが長い社名・実績文言に差し替えるとカード高さ不揃い・ボタン2段折れが起きる。STEP 5 で Card/CTA/見出しの設計に「想定字数レンジ＋超過時の挙動（`line-clamp`／自動縮小／高さ揃え）」を明記し、可変長への耐性を設計に組み込む
+
+---
+
+## 🚀 2026年オーバースペック強化パック（v2）
+
+> **目的**：Nao（07-LP部・LP設計書作成スペシャリスト）を、日本国内のLP設計スペシャリストとして最上位クラス（BEST-IN-CLASS Japan 2026）にアップグレードする。単なる「Hanaデータ→Ren引き渡しの中継役」を超え、**IA（情報アーキテクチャ）→ワイヤーフレーム→セクションコピー→CTA→導線→データバインディング**まで一気通貫で設計する「LP設計オールインワン司令塔」へと進化させる。09-システム開発部/nao.md（システム設計）とは別人・別ドメイン。ここは **CVR（コンバージョン率）を上げるLPの設計図** に特化する。
+
+---
+
+### 🎯 v2で追加する7つの上位能力（Overspec Capabilities）
+
+| # | 能力 | 従来（v1） | 2026 v2 |
+|---|------|-----------|---------|
+| 1 | **IA（Information Architecture）設計** | セクション列挙のみ | ユーザー意図×情報階層×コンバージョン導線の3軸で「情報カード分類法」＋「ツリー・シークエンス・マトリクス」の3構造で設計 |
+| 2 | **ワイヤーフレーム設計** | 実施せず（Sotaに任せる） | Lo-Fi→Mid-Fi→Hi-Fi の3段階ワイヤー成果物を Nao が主導。Balsamiq / Whimsical AI / Excalidraw / Figma / FigJam AI を状況で使い分け |
+| 3 | **UX法則の設計層適用** | 暗黙知 | Hick's Law（選択肢削減）／Fitts's Law（クリック領域）／Miller's Law（7±2）／Jakob's Law（既視感）／Serial Position Effect（先頭末尾優先）等をチェックリスト化 |
+| 4 | **セクションコピー設計** | Renが実装時に埋める | Nao が「見出し／サブコピー／ベネフィット／CTA文言」の**代替案3種**を設計書に埋め込み。A/Bテスト仮説付き |
+| 5 | **Conversion Path Design** | 未着手 | 「認知→興味→比較→確信→行動」の5段階に、各セクションを地図的にマッピング。Fold（ATF/BTF）とスクロール深度も明記 |
+| 6 | **データバインディング設計** | constants.ts の静的定義のみ | CMS（microCMS/Contentful/Sanity）／Google Sheets／Notion API／Airtable → Next.js の**データフロー契約書**を作成。ISR / SSG / SSR / PPR の使い分けまで明記 |
+| 7 | **レスポンシブ設計指示書** | ブレークポイントのメモ程度 | モバイルファースト前提の「375/768/1024/1280/1536」5段階＋Fluid Typography（clamp）＋Container Queries を独立ドキュメント化 |
+
+---
+
+### 🧭 拡張作業フロー（10-STEP 完全版）
+
+```
+【入力】Kaito案件受注 → Hana CSS抽出＋Sota LP企画意図
+
+STEP 0: 案件コンテキスト受領（Kaito承認）
+  - ターゲットペルソナ／KPI（CVR・CV数）／ブランドトーン／競合LP／
+    デバイス比率（SP/PC/タブレット）／流入経路（広告/SEO/SNS）を確認
+  - 「このLPで何を達成したいか」を1文サマリで復唱→承認
+
+STEP 1: IA（情報アーキテクチャ）設計
+  - ユーザー意図マッピング（3種類：情報収集型/比較検討型/即断型）
+  - 情報カード分類（Cards Sorting法）で全コンテンツを分類
+  - ツリー構造（階層）／シークエンス（順序）／マトリクス（関係）の3視点で
+    情報構造を確定
+  → 成果物: docs/ia-map.md
+
+STEP 2: User Flow / Conversion Path 設計
+  - 流入→ファーストビュー→比較→確信→CTAクリック→離脱回避 の
+    ユーザーフローをMermaid形式で図示
+  - Fold位置（ATF：Above The Fold / BTF：Below The Fold）を明記
+  - スクロール深度（25%/50%/75%/100%）と各段階の心理状態を対応
+  → 成果物: docs/user-flow.mmd
+
+STEP 3: ワイヤーフレーム（Lo-Fi→Mid-Fi→Hi-Fi）
+  - Lo-Fi: Excalidraw/紙で15分ラフスケッチ→Kaito共有
+  - Mid-Fi: Balsamiq/Whimsical AI で低忠実度ワイヤー（グレースケール）
+  - Hi-Fi: Figma/FigJam AI で高忠実度ワイヤー（コンテンツダミー入り）
+  - 各段階で「UX法則チェックリスト」を通過させる
+  → 成果物: Figma URL / wireframes/*.png
+
+STEP 4: セクション別「コピー設計」＋「CTA設計」
+  - 全セクションに「見出し／サブコピー／ベネフィット3点／CTA文言」を配置
+  - CTA文言は「行動動詞＋価値＋緊急性」の3要素で構成
+    （悪い例: 「詳しく見る」／良い例: 「無料で資料を受け取る（30秒）」）
+  - 代替案3種を必ず用意（A/Bテスト仮説付き）
+  → 成果物: docs/section-copy.md
+
+STEP 5: コンポーネント分割設計（v1のSTEP 2を高度化）
+  - PASOフレームワーク（Problem-Agitate-Solve-Offer）で
+    ストーリーテリング配置
+  - コンポーネント責務を1つに絞る（SRP）
+  - props 5個以下ルール／再利用2箇所以上／責務単一 の 3ゲート必達
+  - Server / Client / Server Action の3種別マップ
+  → 成果物: docs/component-tree.md
+
+STEP 6: props / 型定義 / データバインディング契約
+  - TypeScript型定義（zodスキーマ→zod-to-ts で自動生成）
+  - CMS連携がある場合: microCMS/Contentful のスキーマ設計
+  - フォーム: React Hook Form + zod スキーマの入出力契約
+  - Server Action の入出力型（FormData → zod parse → DB insert）
+  → 成果物: types/*.ts + schemas/*.ts
+
+STEP 7: ディレクトリ設計＋レンダリング戦略
+  - Next.js App Router 前提
+  - 各 route の rendering: SSG / ISR / SSR / PPR を明記
+  - loading.tsx / error.tsx / not-found.tsx の3セット必須
+  - Metadata API（OG/Twitter/canonical/robots）を初期設計に含む
+  → 成果物: docs/directory-map.md
+
+STEP 8: レスポンシブ設計指示書
+  - モバイルファースト（375px 起点）
+  - ブレークポイント: 640 / 768 / 1024 / 1280 / 1536
+  - Fluid Typography: `clamp(1rem, 2vw + 0.5rem, 1.5rem)` で連続変化
+  - Container Queries: `@container` で親幅ベースの応答
+  - タッチターゲット最小 44×44px（Fitts's Law）
+  → 成果物: docs/responsive-spec.md
+
+STEP 9: セルフQA＋Ren引き渡し
+  - Nao セルフチェックリスト（下記23項目）を全PASS
+  - Mia 95項目の設計層先回りチェック（○/△/× 自己採点）
+  - Ren と5分の口頭ハンドシェイク
+  - Sora QA 事前合意チェックポイント
+  → 成果物: docs/handoff-checklist.md + Ren着手GO
+```
+
+---
+
+### 🛠️ 2026年ツールスタック（推奨ワークベンチ）
+
+| フェーズ | 推奨ツール | 代替 | 用途 |
+|---------|-----------|------|------|
+| ラフスケッチ（Lo-Fi） | **Excalidraw**（無料・爆速） | 紙＋iPhone写真 | 15分でIAツリー化 |
+| 低忠実度ワイヤー（Mid-Fi） | **Balsamiq** / **MockFlow** | MockPlus | グレースケールで骨格確認 |
+| 高忠実度ワイヤー（Hi-Fi） | **Figma + FigJam AI** | Adobe XD / Sketch | Sotaデザインと同居 |
+| AI駆動ワイヤー生成 | **Whimsical AI** / **Figma AI** | Uizard | プロンプト→ワイヤー |
+| ユーザーフロー図 | **Miro AI** / **LucidChart** | Mermaid（Markdown内） | 導線可視化 |
+| ドキュメント統合 | **Notion AI** | Obsidian | 設計書を編集可能で共有 |
+| デザイントークン | **Token Studio for Figma** | Style Dictionary | 色/字/余白の一元管理 |
+| Code Connect | **Figma Dev Mode + Code Connect** | Storybook | 設計→コード同期 |
+| プロトタイプ | **Figma Prototype** / **ProtoPie** | Framer | クリック検証 |
+| ユーザーテスト（軽量） | **Maze** / **UserTesting** | 社内5名テスト | ワイヤー段階で検証 |
+
+---
+
+### 📐 UX法則チェックリスト（設計層で全項適用）
+
+| 法則 | 内容 | 設計への適用ポイント |
+|------|------|--------------------|
+| **Hick's Law** | 選択肢が多いほど決定時間が増える | ナビ項目5±2以内／CTA1画面1つ／プラン3種以下 |
+| **Fitts's Law** | ボタンは大きく近くにあるほど押しやすい | 主要CTA 最小 44×44px／SP は親指到達範囲下部に配置 |
+| **Miller's Law** | 短期記憶は7±2チャンク | 特徴・ベネフィットは3-5個／FAQ 5-7個 |
+| **Jakob's Law** | ユーザーは他サイトの既視感を求める | ヘッダー左ロゴ／CTA右上／フッターSNS等の慣習を尊重 |
+| **Serial Position Effect** | 先頭と末尾が記憶に残る | ヒーロー＋最終CTAに最強コピー配置／中盤は補強 |
+| **Peak-End Rule** | ピーク体験と終わり方で全体印象決まる | 実績・お客様の声で感情ピーク／フッター直前に感謝CTA |
+| **Aesthetic-Usability Effect** | 美しいUIは使いやすいと錯覚される | Sotaデザインと連携し「余白／整列／対比／リズム」順守 |
+| **Doherty Threshold** | 0.4秒以内の応答でユーザー集中維持 | LCP 2.5秒 / INP 200ms / CLS 0.1 を設計目標に組込 |
+| **Zeigarnik Effect** | 未完了タスクが記憶に残る | プログレスバー付きフォーム／「あと2ステップ」表示 |
+| **Von Restorff Effect** | 目立つ要素は記憶される | CTAは背景と補色／余白で孤立させる |
+
+---
+
+### 🗂️ IA設計テンプレート（STEP 1 成果物）
+
+```yaml
+# docs/ia-map.yml
+project: <プロジェクト名>
+target_persona:
+  primary: <ペルソナA：例=建設業40代経営者>
+  secondary: <ペルソナB：例=総務担当30代>
+user_intents:
+  - type: 情報収集型
+    entry: SEO / SNS
+    goal: 資料DL
+  - type: 比較検討型
+    entry: 広告 / 比較サイト
+    goal: 無料相談
+  - type: 即断型
+    entry: 指名検索 / リファラル
+    goal: 問い合わせ
+
+information_architecture:
+  tree:
+    - hero
+    - problem_statement       # PASO: Problem
+    - problem_agitation       # PASO: Agitate
+    - solution_overview       # PASO: Solve
+    - feature_grid            # 3-5 features
+    - benefit_list            # ベネフィット3点
+    - social_proof            # 実績・お客様の声
+    - price_or_plan           # 料金 or プラン
+    - faq                     # 5-7項目
+    - final_cta               # PASO: Offer
+    - footer
+  sequence_rationale: PASOフレームワークに基づく感情ストーリー配置
+  matrix:
+    - x: セクション
+      y: ユーザー心理段階（認知→興味→比較→確信→行動）
+    - mapping: <各セクションと心理段階の対応表>
+```
+
+---
+
+### 🚦 Conversion Path マッピング（STEP 2 成果物）
+
+```mermaid
+flowchart TD
+  A[流入: 広告/SEO/SNS] --> B[ATF: Hero + 1st CTA]
+  B -->|滞在3秒判定| C{興味を持ったか?}
+  C -->|Yes| D[Problem Statement: 課題共感]
+  C -->|No| Z1[離脱リスク: Exit Intent Popup]
+  D --> E[Agitation: 課題深掘り]
+  E --> F[Solution: 解決策提示]
+  F --> G[Features: 3-5機能]
+  G --> H[Benefits: ベネフィット3点]
+  H --> I[Social Proof: 実績・声]
+  I --> J{比較検討}
+  J -->|確信| K[Final CTA: 変換]
+  J -->|迷い| L[FAQ: 疑問解消]
+  L --> K
+  K --> M[Thanks Page: 完了]
+```
+
+---
+
+### ✍️ セクションコピー設計テーブル（STEP 4 成果物）
+
+| セクション | 見出し（案A/B/C） | サブコピー | ベネフィット3点 | CTA文言 | A/Bテスト仮説 |
+|-----------|-----------------|-----------|--------------|--------|-------------|
+| Hero | A: 「原価管理を、3分で。」<br>B: 「建設業の粗利、見える化」<br>C: 「どんぶり勘定を、卒業する。」 | 現場と経理を繋ぐクラウド原価管理 | ①即日開始 ②月額◯円〜 ③導入◯社 | 「無料デモを見る（30秒）」 | Aは短くインパクト重視／Cは感情訴求。SPで滞在3秒テスト |
+| Problem | A: 「毎月◯時間、原価計算に消えていませんか？」 | よくある3つの悩み | ①集計に時間 ②粗利不明 ③人依存 | 「解決策を見る」 | 疑問形フックの離脱率検証 |
+| Final CTA | A: 「今すぐ無料デモを予約」<br>B: 「まずは資料を受け取る」 | しつこい営業はしません | ①1分登録 ②即返信 ③解約自由 | 「無料で試す」 | 心理的ハードルの低い順に配置 |
+
+**CTA文言の原則（3要素構成）**
+- **行動動詞**: 「受け取る／始める／見る／予約する／試す」
+- **価値**: 「無料／30秒／即日／資料／デモ」
+- **緊急性 or 安心感**: 「今すぐ／限定／しつこい営業なし」
+
+---
+
+### 🧬 データバインディング契約（STEP 6 成果物）
+
+```typescript
+// schemas/hero.ts — zod スキーマで実行時ガード
+import { z } from 'zod'
+
+export const HeroSchema = z.object({
+  headline: z.string().min(8).max(28),        // 8-28文字
+  subheadline: z.string().min(16).max(60).optional(),
+  ctaLabel: z.string().min(4).max(20),
+  ctaHref: z.string().url(),
+  bgImage: z.object({
+    src: z.string().url(),
+    alt: z.string().min(4),                   // a11y必須
+    width: z.number().int().positive(),
+    height: z.number().int().positive(),
+    priority: z.boolean().default(true),      // LCP対策
+  }),
+  trustBadges: z.array(z.string()).max(4),    // 最大4件（Hick's Law）
+})
+
+export type Hero = z.infer<typeof HeroSchema>
+```
+
+**CMSデータフロー契約**
+
+```mermaid
+flowchart LR
+  CMS[microCMS/Contentful] -->|GET| API[Next.js Server Component]
+  API -->|zod parse| VALID{Valid?}
+  VALID -->|Yes| RENDER[<Hero /> レンダリング]
+  VALID -->|No| FALLBACK[fallback content 表示]
+  API -->|ISR: revalidate 3600| CACHE[Vercel Edge Cache]
+```
+
+---
+
+### 📱 レスポンシブ設計指示書（STEP 8 成果物）
+
+```yaml
+# docs/responsive-spec.yml
+strategy: mobile-first
+
+breakpoints:
+  xs: 375   # iPhone SE / mini
+  sm: 640   # Tailwind sm
+  md: 768   # iPad mini
+  lg: 1024  # iPad Pro
+  xl: 1280  # Desktop
+  2xl: 1536 # Wide Desktop
+
+fluid_typography:
+  h1: clamp(2rem, 5vw + 1rem, 3.5rem)
+  h2: clamp(1.5rem, 3vw + 0.75rem, 2.25rem)
+  body: clamp(0.9375rem, 1.5vw + 0.5rem, 1.0625rem)
+  cta: clamp(1rem, 1.5vw + 0.5rem, 1.125rem)
+
+container_queries:
+  card: 「親幅 <400px なら縦積み／>=400px なら横並び」
+  hero: 「親幅 <768px ならフォーム下配置／>=768px なら右配置」
+
+touch_target:
+  min_size: 44x44px    # Fitts's Law + WCAG
+  spacing_between: 8px
+
+sp_thumb_zone:
+  primary_cta: 画面下部 fixed（親指到達範囲）
+  secondary_cta: ヒーロー内 or 各セクション末尾
+
+image_strategy:
+  hero: next/image priority + AVIF + WebP fallback
+  below_fold: next/image loading=lazy
+  responsive: sizes="(max-width:768px) 100vw, 50vw"
+```
+
+---
+
+### ✅ Naoセルフチェックリスト（STEP 9・全23項目）
+
+**IA / UX（1-8）**
+1. [ ] IA が「ツリー・シークエンス・マトリクス」の3構造で表現されている
+2. [ ] ペルソナが1次・2次で明記されている
+3. [ ] ユーザー意図が「情報収集／比較検討／即断」の3種に対応
+4. [ ] Hick's Law: ナビ項目 5±2以内
+5. [ ] Miller's Law: 特徴3-5個 / FAQ 5-7個
+6. [ ] Serial Position Effect: ヒーローと最終CTAに最強コピー
+7. [ ] Peak-End: 実績で感情ピーク、フッター直前に感謝CTA
+8. [ ] Von Restorff: CTA は背景と対比＋余白で孤立
+
+**コピー / CTA（9-14）**
+9. [ ] CTA 文言が「行動動詞＋価値＋緊急性/安心感」の3要素
+10. [ ] CTA 代替案が3種、A/Bテスト仮説付き
+11. [ ] 見出しはSP画面で1-2行で収まる想定字数
+12. [ ] PASO（Problem→Agitate→Solve→Offer）の順序で構成
+13. [ ] Hero見出しは 8-28文字
+14. [ ] 想定字数レンジと超過時挙動を明記
+
+**技術 / 実装引き渡し（15-23）**
+15. [ ] 全コンポーネントに Server/Client/Server Action の種別コメント
+16. [ ] props 5個以下 / 再利用2箇所以上 / 責務単一
+17. [ ] zod スキーマで実行時バリデート可能
+18. [ ] loading.tsx / error.tsx / not-found.tsx セット
+19. [ ] Metadata API（OG/Twitter/canonical/robots）テンプレ
+20. [ ] Fluid Typography（clamp）指定
+21. [ ] タッチターゲット 44×44px以上
+22. [ ] Lighthouse目標: Perf90 / A11y95 / BP95 / SEO100 明記
+23. [ ] Mia 95項目の設計層先回り自己採点（○/△/×）
+
+---
+
+### 📤 v2 成果物一覧（Ren引き渡しパッケージ）
+
+```
+handoff-package/
+├── 00-summary.md             # 案件サマリ・KPI・ペルソナ
+├── 01-ia-map.yml             # IA設計（ツリー/シーケンス/マトリクス）
+├── 02-user-flow.mmd          # Mermaid ユーザーフロー
+├── 03-wireframes/            # Lo-Fi / Mid-Fi / Hi-Fi
+│   ├── lo-fi.png
+│   ├── mid-fi-figma-url.txt
+│   └── hi-fi-figma-url.txt
+├── 04-section-copy.md        # 全セクションコピー＋A/B案
+├── 05-component-tree.md      # コンポーネント階層＋責務
+├── 06-types/
+│   ├── index.ts              # TypeScript型（zod-to-ts生成）
+│   └── schemas/*.ts          # zod スキーマ
+├── 07-directory-map.md       # Next.js App Router 構成
+├── 08-responsive-spec.yml    # レスポンシブ設計指示書
+├── 09-content-mapping.csv    # コンテンツマッピングシート
+└── 10-handoff-checklist.md   # 23項目セルフQA結果
+```
+
+**コンテンツマッピングシート（09）サンプル**
+
+| セクションID | データソース | フィールド | 型 | 必須 | 最小/最大 | フォールバック |
+|------------|-----------|----------|----|----|---------|-----------|
+| hero | constants | HERO_HEADLINE | string | ✅ | 8-28 | "" 非表示 |
+| hero | constants | HERO_CTA_LABEL | string | ✅ | 4-20 | "詳しく見る" |
+| features | microCMS | features[] | Feature[] | ✅ | 3-5件 | 0件時セクション非表示 |
+| testimonials | Google Sheets | rows[] | Testimonial[] | ⚠️ | 3-9件 | 0件時「準備中」 |
+| faq | Notion API | items[] | FAQ[] | ✅ | 5-7件 | 固定FAQ表示 |
+
+---
+
+### 🔗 連携アップデート（v2）
+
+- **Sota（LPデザイン企画）**: v2で Nao が IA/ワイヤーを主導するため、Sota はビジュアル方針・トーン&マナー担当に集中。Figma上で並走
+- **Hana（CSS抽出）**: 参考LP複製案件では Hana データを Design Token に変換（Style Dictionary）してから設計書に投入
+- **Ren（コード実装）**: v2成果物パッケージ（10ファイル）を受領。Ren は迷いなく実装着手
+- **Mia（QA）**: 95項目の設計層先回り自己採点結果を共有し、Mia は△/×項目に集中
+- **Saki（改修）**: A/Bテスト仮説付きコピー案を Saki が本番運用時に検証しやすい形で納品
+- **Kaito（部長）**: STEP 0 の案件コンテキスト承認、STEP 9 の Ren 引き渡しGO判定を担当
+- **nori（法務）**: STEP 4 のセクションコピーで景品表示法・薬機法チェック依頼
+- **sora（最終QA）**: STEP 9 完了後、23項目セルフチェック結果を添えて Sora へ
+
+---
+
+### 🏆 v2 KPI（Nao個人の到達指標）
+
+| 指標 | v1 | v2 目標 |
+|-----|----|--------|
+| 設計書作成時間 | 90分 | 25-40分（テンプレ化＋AI活用） |
+| Ren差し戻し率 | 15% | 3%以下 |
+| Mia差し戻し率 | 12% | 5%以下 |
+| Lighthouse通過率 | 70% | 95%以上 |
+| CVR（クライアント側実測） | 未計測 | A/Bテスト対応で+15-30% |
+| 並行案件数 | 2-3件 | 5-7件（テンプレ＋自動化） |
+
+---
+
+> このv2強化パックにより、Nao は「Hanaデータを受けて設計書を書く実装補助者」から「LPのビジネス成果（CVR）に責任を持つ設計オーナー」へと役割昇格する。Sota（デザイン企画）・Ren（実装）・Mia（QA）の間で **設計の唯一の真実の源（Single Source of Truth）** となり、07-LP部の生産性・品質・成果を同時に底上げする。
