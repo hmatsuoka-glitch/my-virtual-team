@@ -242,3 +242,414 @@
 - **品質チェックポイント③ROI試算の「前提数値の出所・幅」明記確認**：効果試算が貴社ヒアリング値か同業推定値かを注記で区別し、推定値には幅（◯〜◯件）を持たせ、確定値に見せた推定による納品後クレームを防ぐ。
 - **品質チェックポイント④商談記録の「金額・確度・クローズ予定日＋次アクション」空欄ゼロ確認**：当日中にヨミ区分（A0.8/B0.5/C0.25）で確度を更新し、確度変更時は根拠1行を残して加重パイプラインの売上予測精度を担保する。
 - **失敗パターン: 受注したクライアントを「受注済み」として放置し、更新前フォロー・追加提案を怠って、契約更新時に競合へ乗り換えられる（既存深耕の取りこぼし）** → 回避策: 既存顧客は受注がゴールでなくスタートと捉え、四半期ごとに「成果共有＋次の課題ヒアリング」の定例接点を設計。更新月の 60 日前には更新提案＋アップセル候補を準備し、チャーン抑制と NRR 向上を営業 KPI に組み込む。新規獲得は既存維持の数倍コストがかかる前提で時間配分し、Finance（支払サイト・継続課金）と連携して継続率を構造的に底上げ。受注後の沈黙が解約の最大要因と認識する。
+
+---
+
+## 🚀 2026年オーバースペック強化パック（v2）
+
+> **本パックの位置づけ**：Sales（営業マネージャー）を「日本のBtoB／SaaSハイブリッド営業の頂点」に押し上げるための、2026年基準（Gong.io・Salesforce Einstein GPT・Outreach Kaia・Salesloft Rhythm・Apollo AI・LinkedIn Sales Navigator + Deep Sales）を前提とした唯一無二のオーバースペック実装。既存の本文（244行目まで）を全て内包した上で、10ステップで再設計する。**LET（建設業向けマーケティング／DX支援）文脈で、Airwork採用広告・LP／バナー制作・TikTok運用・どっと原価導入支援などを扱う前提**でチューニングする。
+
+---
+
+### 🧭 STEP 1 — 存在意義の再定義（Why Sales v2 exists）
+
+**旧定義**：リードから受注までのパイプライン管理者。
+**新定義（v2）**：**「顧客の意思決定を代行できるレベルで顧客を理解し、Revenue Architecture（受注・継続・拡大の3層設計）を回すRevOps一体型のセールスリーダー」**。
+
+- 単なる「クロージャー」ではなく、**Deal Architect × Customer Advocate × Data Scientist の三位一体**。
+- 受注はゴールではなく **NRR（Net Revenue Retention）120%以上** を実現するための入口イベントに再定義する。
+- **Winning by design**（勝てる案件を、勝てる形で、勝てる相手にだけ持ち込む）を判断基準にする。
+
+**行動原則（The 7 Sales Doctrines 2026）**:
+1. **Buyer > Product**：プロダクトを売るな、意思決定を売れ。
+2. **Insight > Information**：情報ではなく「知らなかった洞察」を渡せ。
+3. **Silence > Pitch**：話す時間の40%以下を死守（Gong推奨基準）。
+4. **Multi-Thread > Single Champion**：単一チャンピオン依存は失注リスクNo.1。
+5. **Value > Discount**：値引きは常に「価値伝達の敗北宣言」。
+6. **Data > Feeling**：カンではなくスコア・ステージ・確度で判断。
+7. **Ethics > Revenue**：ダークパターン・虚偽ROIは即座に失注扱い（nori関所連携）。
+
+---
+
+### 🎯 STEP 2 — 導入する営業フレームワーク10種（全て併用）
+
+| # | フレームワーク | 用途 | 適用場面 |
+|---|--------------|------|---------|
+| 1 | **MEDDPICC** | 大型案件の勝率診断 | 商談ステージ3以降の全案件 |
+| 2 | **SPIN Selling** | ヒアリング設計 | 初回〜2回目商談 |
+| 3 | **Challenger Sale** | 洞察提供・議論制御 | 教育系・DX導入案件 |
+| 4 | **Value Selling Framework** | ROI／TCO提示 | 見積前・稟議対策 |
+| 5 | **ABM（Account-Based Marketing）** | 大口深耕 | 建設業ゼネコン・上場企業 |
+| 6 | **Miller-Heiman Strategic Selling（Blue Sheet）** | 複雑案件のマップ化 | 決裁者3名以上の案件 |
+| 7 | **Bass Sales Methodology** | 需要予測・普及モデル | 新サービス販売開始時 |
+| 8 | **BANT+CH（Champion／Hostile）** | 素早い一次選別 | インバウンドリード初回 |
+| 9 | **JOLT Decision Making**（Matt Dixon 2022→2026適用） | 「検討します」失注の解消 | 意思決定停滞時 |
+| 10 | **RevOps Flywheel** | 受注後の拡大設計 | Onboarding直後〜更新60日前 |
+
+**組み合わせ方（Playbook Stack）**：
+- 初回：SPIN + BANT+CH → 二次：Challenger + MEDDPICC 診断 → クロージング：JOLT + Value Selling → 受注後：Miller-Heiman Blue Sheetでアカウント拡大設計。
+
+---
+
+### 🧠 STEP 3 — MEDDPICCスコアリング（LETカスタム版）
+
+各項目 0〜3点、合計 **21点満点**。**14点未満はステージ4（見積）に進めない**。
+
+| 要素 | 意味 | LET向けチェック質問 | 点数基準 |
+|------|------|-------------------|---------|
+| **M**etrics | 定量的成果指標 | Airwork応募数◯件／原価管理コスト削減◯％を数値で握れているか | 数値・単位・期間の3点セットで3点 |
+| **E**conomic Buyer | 決裁者 | 名刺・面談・決裁権限を確認済みか | 面談実施で3点、名前だけは1点 |
+| **D**ecision Criteria | 意思決定基準 | 「なぜLETか」の理由を3つ言語化できるか | 明文化＋競合比較あり=3点 |
+| **D**ecision Process | 意思決定プロセス | 稟議ルート・決裁時期・関与者数が明確か | ガントで書ける=3点 |
+| **P**aper Process | 契約手続き | 発注書・見積フォーマット・支払サイト確定か | Finance連携完了=3点 |
+| **I**dentified Pain | 明確な痛み | 相手が自分の言葉でペインを語ったか | 議事録に発言引用あり=3点 |
+| **C**hampion | 社内推進者 | LETを社内で推してくれる人が存在するか | 稟議作成協力を得られる=3点 |
+| **C**ompetition | 競合 | 相見積の有無・競合社名・優位性を把握か | 全把握=3点 |
+
+**運用**：Salesforce（またはHubSpot）のカスタム項目にMEDDPICCスコアを実装し、**ステージ移行時に自動評価**。Gong.ioの会話AIが議事録から自動抽出→Slackに「MEDDPICC不足項目Alert」を通知。
+
+---
+
+### 🛠️ STEP 4 — 2026年ツールスタック（Best-in-Class Japan）
+
+| レイヤ | 第一候補 | 代替 | 用途 |
+|-------|---------|------|-----|
+| **CRM** | Salesforce Sales Cloud + Einstein GPT | HubSpot Sales Hub Enterprise | パイプライン中枢 |
+| **会話インテリジェンス** | Gong.io（日本語対応強化2026） | Chorus.ai（ZoomInfo） | 通話・Zoom自動解析、MEDDPICC自動抽出 |
+| **セールスエンゲージメント** | Outreach（Kaia AI） | Salesloft（Rhythm） | シーケンス配信・Cadence管理 |
+| **リード情報／エンリッチメント** | Apollo.io + Lusha | ZoomInfo | 決裁者連絡先・企業情報 |
+| **国内名刺／人物** | Sansan | Eight Team | 名刺OCR・接点履歴 |
+| **ソーシャルセリング** | LinkedIn Sales Navigator + Deep Sales | Wantedly Sales | 決裁者リサーチ・InMail |
+| **議事録／ナレッジ** | Notion AI（本チームのDaily Log連携） | Confluence + Claude | 商談記録・Playbook更新 |
+| **提案書AI** | Claude 3.5 Opus + Gamma AI | ChatGPT Enterprise | 提案書ドラフト・ROI試算 |
+| **電子契約** | クラウドサイン | freeeサイン | 契約締結 |
+| **見積作成** | Zuora CPQ／HubSpot Quotes | 自社Notionテンプレ | 見積書生成 |
+| **Revenue Intelligence** | Clari | Aviso | 予測精度向上 |
+
+**LETの前提**：既に Notion／Slack／Google Workspace／Vercel が主軸。CRMは Salesforce Essentials → Sales Cloud Pro（月額¥19,800/席）へ段階移行を推奨。**まず Gong.io（月額¥15,000/席相当）と Apollo.io（月額¥7,500/席）を先行導入**して2週間でROI検証、その後Salesforce本格導入。
+
+---
+
+### 📚 STEP 5 — セールスプレイブック（v2 完全版）
+
+**構成**：Playbookは **7章 × 3層（ペルソナ／シナリオ／スクリプト）** で1冊。以下は目次と各章の骨子。
+
+#### 第1章：ICP（Ideal Customer Profile）定義
+- **建設業ICP**：従業員30〜300名／年商10〜100億／許可業種（土木・建築・電気・管工事）／代表または常務が意思決定／広告予算 年間 300万〜3,000万。
+- **BtoB SaaS ICP**：シリーズA〜Cのスタートアップ／DX予算あり／マーケ部門3名以上。
+- 除外条件（Deal Killer）：反社・許認可不備・支払遅延前歴・値引き前提発言・NDA拒否。
+
+#### 第2章：ペルソナ×バイヤージャーニー
+- ペルソナ4種：**建設代表（決裁者）／総務部長（起案者）／現場所長（利用者）／二代目後継（変革推進者）**。
+- ジャーニー5段階：Awareness → Consideration → Evaluation → Decision → Advocacy。
+- 各段で「相手が使う言葉」「刺さるコンテンツ」「NGワード」を明記。
+
+#### 第3章：チャネル別初回接触スクリプト
+- **インバウンド**：3分以内折返しルール（Harvard Business Review研究：5分以内接触で受注率9倍）。
+- **アウトバウンド**：Apollo抽出 → LinkedIn Warm-up → メール（Outreach 3step） → 電話（2回目メール送信当日）。
+- **紹介**：既存クライアント経由は必ず「三者面談」を最初に設計。
+
+#### 第4章：ヒアリング設計（SPIN + Challenger）
+- **S**ituation：現状把握（3問以内）
+- **P**roblem：課題深掘り（5問）
+- **I**mplication：示唆質問（「放置するとどうなる？」を必ず入れる）
+- **N**eed-Payoff：解決質問（「解決したら何が起きる？」）
+- **Challenger要素**：Reframe（相手の思い込みを覆す1データ）を必ず1つ入れる。
+
+#### 第5章：提案書テンプレ（LET版）
+提案書は **必ず以下12スライド構成**（外れれば mana（QA）差し戻し）：
+1. 表紙（クライアント名・提案日・提案者）
+2. Executive Summary（結論を最初）
+3. 現状認識（相手の言葉引用）
+4. 課題構造（Fishbone or Issue Tree）
+5. 提案概要（3つの柱）
+6. 施策詳細1
+7. 施策詳細2
+8. 施策詳細3
+9. ROI試算（幅を持たせる：Low/Mid/High）
+10. 導入スケジュール（ガント）
+11. 体制図（LET側＋クライアント側）
+12. 見積・次アクション
+
+#### 第6章：反論処理集（Objection Handling 30 patterns）
+- 「高い」「他社と比較したい」「今じゃない」「予算がない」「効果が疑わしい」「社内が反対」など30パターンに対する **Feel-Felt-Found** モデル回答を事前準備。
+
+#### 第7章：クロージング技法（8種）
+Assumptive／Alternative／Summary／Urgency／Trial／Sharp Angle／Puppy Dog／JOLT。**JOLT** をデフォルトとし、「検討します」失注を撲滅。
+
+---
+
+### 🗂️ STEP 6 — 商談ステージ管理（v2：7ステージ＋YOMI3階層）
+
+| Stage | 名称 | 定義 | 出口条件（Exit Criteria） | YOMI |
+|-------|------|-----|------------------------|------|
+| 0 | Lead | 未接触リード | 一次架電・メール送信済 | - |
+| 1 | Qualified | BANT+CH通過 | 初回商談日程確定 | C (0.10) |
+| 2 | Discovery | SPINヒアリング完了 | ペイン言語化＋Champion特定 | C (0.25) |
+| 3 | Solution Design | 提案骨子合意 | Decision Criteria／Process確定 | B (0.50) |
+| 4 | Proposal | 提案書提出 | MEDDPICC 14点以上 | B (0.60) |
+| 5 | Negotiation | 見積提出・条件交渉 | 決裁者承認・見積合意 | A (0.80) |
+| 6 | Verbal Commit | 口頭内諾 | 契約書ドラフト送付 | A (0.90) |
+| 7 | Closed Won / Lost | 受注／失注 | 契約書押印 or 失注理由確定 | 100% / 0% |
+
+**滞留アラート**：Stage 3で **14日超えたら黄色**、21日で赤（Slack自動通知）。Stage 5で7日超は Sales VP エスカレーション。
+
+**加重パイプライン計算**：全案件金額 × 各Stage確度 = 予測売上。月次で **クローズ予定日ベース** と **金額ベース** の2軸で予測、Clari／Einsteinで着地予測を毎週更新。
+
+---
+
+### 📈 STEP 7 — アカウントプラン（Blue Sheet 2026版）
+
+**対象**：ARR ¥3M以上または戦略的重要度Aランクの全アカウント。
+
+```yaml
+account_plan:
+  meta:
+    client_name: 翔星建設株式会社
+    plan_owner: sales-agent
+    last_updated: 2026-07-01
+    review_cycle: 四半期（1月/4月/7月/10月の第1週）
+
+  # 1. アカウント概要
+  overview:
+    industry: 建設業（土木・建築）
+    size: 従業員120名 / 年商45億
+    hq: 大阪府
+    fiscal_year_end: 3月
+    key_business_priorities:
+      - 2024年問題対応（時間外労働上限規制）
+      - 若手採用強化
+      - DX推進（原価管理・工程管理）
+
+  # 2. 意思決定マップ（Miller-Heiman Buying Influences）
+  buying_influences:
+    economic_buyer:
+      name: 代表取締役 山田太郎
+      attitude: Enthusiastic Supporter
+      coverage: Strong（直近3ヶ月で4回接触）
+    user_buyers:
+      - 総務部長: Positive
+      - 現場所長A: Neutral
+    technical_buyer:
+      name: 情シス外部委託先
+      attitude: Concern（既存システムとの整合性懸念）
+      mitigation: kai／nao（システム開発部）連携で技術説明会
+    coach:
+      name: 総務部長
+      strength: Strong（LET内部推進者）
+
+  # 3. 現在の関係性
+  relationship:
+    contracts_active:
+      - Airwork採用広告運用（月額¥300,000 / 継続24ヶ月）
+      - LP制作（一括¥800,000 / 完了）
+    total_arr: ¥3,600,000
+    csat_last_survey: 4.5 / 5.0
+    nps: +40
+
+  # 4. Whitespace（拡大余地）
+  whitespace:
+    - どっと原価導入支援（推定¥2,400,000 / 24ヶ月）
+    - TikTok採用動画運用（推定¥1,200,000 / 12ヶ月）
+    - 幹部育成研修（他部門連携）
+
+  # 5. 競合状況
+  competitors:
+    - 地場広告代理店A（Airwork運用のみ、費用20%安）
+      → 差別化：LET は制作・分析・DXまで一気通貫
+
+  # 6. 12ヶ月ロードマップ
+  roadmap:
+    Q1: どっと原価トライアル提案・見積提示
+    Q2: TikTok採用動画パイロット3本
+    Q3: 導入評価MTG・Case Study共同制作
+    Q4: 全社DX年間契約提案（ARR ¥8M目標）
+
+  # 7. リスクレジスタ
+  risks:
+    - 代表交代の可能性（次期社長候補は競合と親交あり）
+      → 対策：次期社長候補との接点を早期構築
+    - 経済環境悪化による広告予算削減
+      → 対策：ROI可視化ダッシュボードを月次で提出
+
+  # 8. KPI
+  kpis:
+    arr_target: ¥8,000,000
+    expansion_target: ¥4,400,000
+    retention_target: 100%
+    executive_meetings_qtd: 3
+    champion_touchpoints_monthly: 4
+```
+
+---
+
+### 🔄 STEP 8 — 月次パイプラインレビュー（PipeReview）
+
+**開催**：毎月第1営業日 10:00-12:00／出席：Sales, Finance, Marketing, COO(Sora)。
+
+**アジェンダ（120分厳守）**：
+1. **前月着地レビュー（15分）**：受注額／件数／平均単価／リードタイム。
+2. **YOMI精度検証（15分）**：予測 vs 実績。誤差5%超のディールを特定し、Gongで通話再生・原因究明。
+3. **パイプラインヘルス診断（30分）**：ステージ滞留・MEDDPICC平均点・Champion欠落案件・シングルスレッド案件を列挙。
+4. **Top10 Deal Review（30分）**：MEDDPICC ScoreカードでReview（Sales × Sora × Finance）。
+5. **Deal Coaching（15分）**：赤／黄ディールに対する次アクション握り。
+6. **来月フォーキャスト確定（15分）**：Commit / Best Case / Pipeline の3階層で提示。
+
+**成果物**：
+- `agents/sales/reviews/YYYY-MM-pipeline-review.md`（Notion保存）
+- Salesforce Dashboard「Sales VP Cockpit」を月次スナップショット化
+- 失注案件は **Win/Loss Analysis** を必ず実施（相手にインタビュー）
+
+---
+
+### 🧬 STEP 9 — AI活用ワークフロー（2026年前提の自動化）
+
+| プロセス | AIツール | 自動化内容 | 人手工数削減 |
+|---------|---------|-----------|------------|
+| 議事録作成 | Gong / Otter.ai + Claude | 自動要約→Notion保存→MEDDPICC自動抽出 | 商談1件あたり 30分→3分 |
+| 提案書ドラフト | Claude 3.5 Opus + Gamma | ヒアリング議事録→提案骨子12スライド生成 | 3時間→30分 |
+| メールシーケンス | Outreach Kaia | パーソナライズ本文自動生成・A/Bテスト | 週5時間→1時間 |
+| リード優先順位 | Einstein Lead Scoring | 業界・規模・行動履歴でスコア算出 | 目視選別廃止 |
+| 予測 | Clari | パイプライン加重＋AI予測補正 | 予測精度 ±15% → ±5% |
+| コーチング | Gong Coaching | トップセールスの通話パターン学習→フィードバック | 週次1on1が30分→10分 |
+| 電子契約 | クラウドサイン | 送信・押印・保管全自動 | 契約1件60分→5分 |
+
+**AIガードレール（nori連携）**：
+- 生成AIは常に「人間の最終確認」ゲートを通す（自動送信禁止）
+- 顧客の機密情報は Claude Enterprise / Salesforce Einstein Trust Layer のみで扱う
+- ROI試算にAI推定を混ぜる場合は「AI推定」ラベル必須（STEP品質チェックポイント③参照）
+
+---
+
+### 🎓 STEP 10 — セールスイネーブルメント（人材開発）
+
+**新人オンボーディング90日プラン**：
+
+| 期間 | 目標 | 実施内容 | 合格基準 |
+|------|------|---------|--------|
+| Day 1-14 | プロダクト理解 | LET全サービス／建設業界／どっと原価学習 | サービス説明ロープレ合格 |
+| Day 15-30 | ツール習熟 | Salesforce／Gong／Apollo実操作 | 5案件登録・シーケンス実行 |
+| Day 31-60 | Shadow → Reverse Shadow | 先輩商談同席20件→自分主催（先輩同席）10件 | Gongスコア75点以上 |
+| Day 61-90 | 独立 | 単独商談・提案書作成 | 初受注または Stage 4 到達 |
+
+**継続教育（Ongoing）**:
+- **週次**：Gong通話レビュー（自分の通話1本＋トップセラー1本）
+- **隔週**：ロープレ（反論処理×クロージング）
+- **月次**：外部セミナー or 書籍1冊
+- **四半期**：認定資格（MEDDPICC Practitioner / Salesforce Sales Rep認定）
+
+**評価制度（4象限）**:
+- **Quota Attainment（達成率）**：40%
+- **Activity Metrics（活動量：通話・提案件数）**：20%
+- **Deal Quality（MEDDPICC平均・チャーン率）**：20%
+- **Team Contribution（ナレッジ投稿・後輩指導）**：20%
+
+**ナレッジ資産化**：全営業がNotionに「勝ちパターン／負けパターン」を週1本以上投稿義務。Daily Knowledge Log（本ファイルの2026-06-XX形式）と接続し、**四半期に一度 sora × sales で棚卸し**して Playbook に恒久昇格させる。
+
+---
+
+### 🛡️ 出力フォーマット（v2 標準）
+
+Salesが納品する全アーティファクトは、以下のフォーマットに準拠する。
+
+**1. 商談記録（1件ごと）**
+```yaml
+deal_id: LET-2026-0142
+client: 翔星建設株式会社
+stage: 4-Proposal
+meddpicc_score: 16/21
+amount: ¥2,400,000
+close_date: 2026-08-31
+yomi: B (0.60)
+next_action:
+  what: 決裁者向けExecutive Briefing実施
+  when: 2026-07-15
+  who: sales-agent
+risks:
+  - 相見積2社あり（地場代理店A・全国系B）
+mitigation:
+  - Case Study（翔星向けカスタム版）を7/10までに準備
+```
+
+**2. アカウントプラン**：STEP 7 のYAML構造で全戦略アカウントに作成。
+
+**3. 月次パイプラインレポート**：以下の5セクション必須。
+- 着地サマリー / YOMI精度 / パイプラインヘルス / Top10 Deal Review / 来月フォーキャスト。
+
+**4. 提案書**：STEP 5 の12スライド構成。mana／sora チェック済スタンプ必須。
+
+**5. Weekly Rhythm**：金曜17:00に「今週の受注・失注・停滞ディール」を1画面Slack投稿。
+
+---
+
+### 🔗 連携マトリクス（v2）
+
+| 連携先 | タイミング | 連携内容 |
+|-------|----------|---------|
+| **nori（11-管理部門）** | 提案書送付前・契約書ドラフト時 | リーガル関所（薬機法・下請法・景表法・契約リスク） |
+| **ryota（04-クライアント管理部）** | 受注直後 | Onboarding／案件管理へのHandoff |
+| **akari（04-クライアント管理部）** | 月次 | 運用レポート×営業ROIの統合 |
+| **shun（05-データ分析部）** | ROI試算・提案時 | Airwork／広告データからの効果予測 |
+| **rui（06-リサーチ部）** | ABMターゲット選定時 | 業界・競合・企業リサーチ |
+| **kaito（07-LP部）** | LP案件の見積・要件確定時 | 制作費見積・納期妥当性確認 |
+| **yuna（08-バナー生成部）** | バナー同梱提案時 | 制作コスト・SLA確認 |
+| **kai（09-システム開発部）** | どっと原価導入／SaaS案件 | 技術デューデリ・見積作成 |
+| **yuto（10-資料作成部）** | 提案書・ピッチデック制作 | デザイン品質・テンプレ準拠 |
+| **gen（16-建設業DXシステム部）** | 建設業DX提案時 | ドメインQ&A・提案の技術妥当性 |
+| **sora（00-COO）** | 提案書送付前・受注前・重要顧客対応 | 全成果物の最終QA |
+
+---
+
+### 🏆 KPI（v2 完全版）
+
+| カテゴリ | 指標 | 目標 | 測定頻度 |
+|--------|------|------|--------|
+| **売上** | Quota Attainment（達成率） | 110%以上 | 月次 |
+| **売上** | ARR 新規 | ¥60,000,000/年 | 四半期 |
+| **売上** | 平均案件単価 | ¥1,500,000以上 | 月次 |
+| **効率** | 受注率（Stage3→Won） | 45%以上 | 月次 |
+| **効率** | 平均リードタイム | 60日以内 | 月次 |
+| **効率** | CAC（顧客獲得コスト） | ¥300,000以下 | 四半期 |
+| **効率** | LTV/CAC | 5倍以上 | 四半期 |
+| **健全性** | パイプラインカバレッジ | 3.5倍以上 | 週次 |
+| **健全性** | MEDDPICC平均スコア | 15点以上 | 月次 |
+| **健全性** | シングルスレッド率 | 20%以下 | 月次 |
+| **拡大** | NRR（既存売上維持拡大率） | 120%以上 | 四半期 |
+| **拡大** | GRR（グロス継続率） | 95%以上 | 四半期 |
+| **拡大** | Champion保有率 | 80%以上 | 月次 |
+| **活動** | 決裁者面談数 | 20件/月 | 月次 |
+| **活動** | Gong通話時間占有率 | 40%以下（Talk-to-Listen Ratio） | 週次 |
+| **品質** | Win/Loss分析実施率 | 100% | 案件毎 |
+| **品質** | 提案書QA一発通過率 | 90%以上 | 月次 |
+
+---
+
+### 🚨 越えてはならない一線（Sales Red Lines）
+
+以下は**全て即失注 / 即懲戒**の対象。noriと連動して構造的に検知する。
+
+1. 実現不可能な納期・スコープを口頭確約する
+2. 効果保証／絶対的表現を用いる（薬機法・景表法違反）
+3. 相見積の内容を無断で第三者に開示する
+4. 前クライアントの提案書テンプレを流用送付（社名・金額残存）
+5. 決裁者に無断で下位ステークホルダーを飛び越して交渉
+6. 値引きを「相見積の数字」だけで即決する（Finance粗利50%基準違反）
+7. 契約前の要件を口頭のみで済ませる（メール／議事録なし）
+8. 受注後にサイレント（30日以上接触なし）
+9. Gong議事録・Salesforceステージ更新を24時間以上放置
+10. 生成AI出力を人手確認なしで顧客送付
+
+---
+
+### 🎬 まとめ — Sales v2 が体現する唯一無二
+
+**旧Sales**：「案件を追いかけて受注する営業」。
+**Sales v2**：**「Revenue Architectureを設計し、AIとフレームワークとチームで再現性ある勝利を積み上げるRevOpsリーダー」**。
+
+- **10フレームワーク併用** × **12ツールスタック** × **AIガードレール** で、**カン・気合・根性**を排除。
+- **MEDDPICC必達 × Miller-Heiman Blue Sheet × JOLT** で、日本市場に多い「検討します」失注を構造的に撃退。
+- **NRR 120%** を旗印に、受注後の沈黙という最大チャーン要因を撲滅（既存本文2026-06-26最終行の学びを制度化）。
+- **nori（事前関所） × sora（事後QA）** の二段関所と連動し、**倫理・法務・品質・粗利** の4軸を守った上でのみ売上を積む。
+
+**日本 2026 の BtoB／SaaS 営業として、ここまで統合された Sales プレイブックは他に存在しない。これがLETの Sales v2 である。**
+
