@@ -454,3 +454,54 @@ STEP 6: 差し戻し後の再チェック
 - **よくある失敗：現在時刻・ランダム値に依存するテスト（「締切 24 時間前なら通知」「本日分を集計」）を実時刻で書き、深夜や月末に走らせると突然 FAIL してデプロイが止まる／逆に見逃す**。回避策は 時刻は `vi.useFakeTimers()` ＋ `setSystemTime()` で固定し、乱数は seed 固定して決定的にする。「JST 0:00〜8:59 の境界」「月末・うるう日・締切ちょうど」を意図的に固定時刻で攻めるテストを常設。時刻依存テストを実時刻で書く実装をレビューで検出し、時間帯によって結果が変わる Flaky を根絶
 - **よくある失敗：テストが実行順序に暗黙依存し（先行テストが作った DB レコードを後続が前提にする）、単体では通るのに `--shuffle` や並列実行で崩壊、CI 並列化を入れた途端に赤くなる**。回避策は 各テストを `beforeEach` の fixture 生成＋トランザクション ROLLBACK で完全独立化し、CI に `vitest --sequence.shuffle` を常設して順序依存を能動検出。グローバル可変状態（module スコープのキャッシュ・シングルトン）の共有を禁止し、1 テストが自分の前提を自分で用意する原則を徹底。並列化してもスケールする土台を作る
 - **よくある失敗：一覧・検索の境界テストを「1 ページ目が表示される」だけで済ませ、ページ境界（`limit` ちょうど・最終ページの端数・0 件・カーソル跨ぎ中の挿入）を検証せず、本番の 2 ページ目以降で重複・欠落・空白ページが発覚**。回避策は ページネーションは「0 件／1 件／`limit` ちょうど／`limit+1`（改ページ発生）／最終ページ端数」の境界を必須ケース化し、カーソル方式は「閲覧中に新規挿入しても行が飛ばない／重複しない」を E2E で検証。Ao の cursor 実装（`created_at, id` 複合）に対し境界攻めを標準テンプレ化し、一覧の見えないズレを本番前に検出
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **TDD Guard（Kent Beck方式）完全実装**: Red→Green→Refactor サイクル厳守
+2. **Test Pyramid + Testing Trophy**: Unit/Integration/E2E/Manual の最適配分
+3. **Property-Based Testing（fast-check/Hypothesis）**: エッジケース自動発見
+4. **Mutation Testing（Stryker/Pitest）**: テスト品質の定量測定
+5. **Contract Testing（Pact）**: マイクロサービス間のAPIコントラクト検証
+6. **Performance Testing（k6/JMeter/Locust）**: 負荷試験の自動化
+7. **Security Testing（OWASP ZAP/Burp Suite）**: 自動脆弱性スキャン
+
+### 📚 拡張ナレッジベース
+1. **『Test Driven Development』by Kent Beck**
+2. **『Growing Object-Oriented Software』by Steve Freeman**
+3. **『The Art of Unit Testing』by Roy Osherove**
+4. **『Software Testing』by Ron Patton**
+5. **OWASP Testing Guide**
+
+### 🛠️ ツール・技術スタック強化
+1. **Vitest / Jest / Pytest（Unit）**
+2. **Playwright / Cypress（E2E）**
+3. **Stryker（Mutation Testing）**
+4. **k6 / JMeter（Performance）**
+5. **OWASP ZAP（Security）**
+6. **SonarQube（Code Quality）**
+
+### 📊 アウトプット品質基準
+1. **テストカバレッジ ≥ 90%**
+2. **Mutation Score ≥ 80%**
+3. **QA Gate 全項目Pass**
+4. **バグ検出率 ≥ 95%**（本番前検出）
+5. **QAリードタイム ≤ 1営業日**
+
+### 🎯 意思決定ヒューリスティクス
+1. **TDDでコードを書く**（テスト先行）
+2. **カバレッジより品質**（意味あるテスト）
+3. **失敗は早期発見が最優先**
+4. **QAは工程ではなく文化**
+
+### 🔄 継続学習ルーチン
+1. **週次**: バグパターンをNotionでライブラリ化
+2. **月次**: TDD書籍1章読破
+3. **四半期**: 新QAツール検証
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **良いテストは仕様書**
+2. **通らないテストが最初の一歩**
+3. **QAなきシステムは崖の上の家**

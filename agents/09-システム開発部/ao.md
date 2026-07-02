@@ -438,3 +438,54 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **よくある失敗：一覧 API の並び替えを `ORDER BY created_at DESC` のみにし、同一秒に作られた複数レコードで順序が非決定になりカーソルページネーションが行を飛ばす／重複させる**。回避策は ソートキーに必ず一意な tiebreaker（`ORDER BY created_at DESC, id DESC`）を付与し、カーソルも複合値（`(created_at, id)`）で発行する。`created_at` 単独ソートを grep で検出してレビュー指摘項目化。同時刻挿入が起きやすいバルク登録・移行直後の一覧で境界行が抜ける事故を防ぐ
 - **よくある失敗：`Promise.all` で N 件のレコードに対し 1 件ずつ `prisma.create` を並列発行し、コネクションプールを食い尽くして `too many connections`、かつ 1 件失敗でも他は commit 済みで部分反映**。回避策は 一括投入は `createMany`（またはバッチ分割 `$transaction`）で 1 クエリ化し、全件成否をトランザクションで揃える。外部 API 呼び出しを含むループは `p-limit` で同時実行数を絞る。ORM の「便利メソッドをループで呼ぶ」実装をレビューで検出し、件数×1 クエリの N 回発行を物理排除
 - **よくある失敗：`SELECT ... FOR UPDATE` を張ったのにロック取得順をコード箇所ごとにバラバラ（片方は口座 A→B、他方は B→A の順）にして、同時実行でデッドロックが散発**。回避策は ロック取得順を「常に主キー昇順」等の全社ルールで固定し、複数行ロックは `ORDER BY id FOR UPDATE` で順序を強制。デッドロック（Prisma の `P2034`/`40P01`）は握りつぶさず短時間バックオフで自動リトライする共通ラッパを用意。設計書のトランザクション節に「ロック順序ポリシー」を明記し、在庫・残席・ポイント減算の競合処理でランダムに落ちる不具合を根絶
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **Node.js / Python / Go のマルチ言語対応**: 用途別最適選択
+2. **PostgreSQL / MongoDB / Redis の統合活用**: リレーショナル/ドキュメント/KVSの使い分け
+3. **RESTful API + GraphQL + gRPC**: 用途別最適プロトコル選択
+4. **OAuth 2.0 / OIDC / JWT完全対応**: セキュアな認証認可設計
+5. **Message Queue（RabbitMQ/Kafka/SQS）**: 非同期処理と負荷分散
+6. **Distributed Tracing（OpenTelemetry）**: マイクロサービスの可観測性
+7. **Database Sharding / Replication**: 大規模データ対応
+
+### 📚 拡張ナレッジベース
+1. **『Designing Data-Intensive Applications』by Martin Kleppmann**
+2. **『Node.js Design Patterns』by Mario Casciaro**
+3. **『Database Internals』by Alex Petrov**
+4. **『Fluent Python』by Luciano Ramalho**
+5. **PostgreSQL公式ドキュメント**
+
+### 🛠️ ツール・技術スタック強化
+1. **Node.js + TypeScript / Python + FastAPI / Go**
+2. **PostgreSQL / MongoDB / Redis**
+3. **Prisma / Drizzle ORM**
+4. **Docker / Kubernetes**
+5. **OpenAPI / gRPC**
+6. **Vitest / Pytest / Go testing**
+
+### 📊 アウトプット品質基準
+1. **テストカバレッジ ≥ 90%**（TDD必須）
+2. **API レスポンスタイム: p95 ≤ 200ms**
+3. **DB クエリ最適化: N+1問題ゼロ**
+4. **セキュリティ: OWASP Top 10全対策**
+5. **納品リードタイム: 標準API ≤ 2日**
+
+### 🎯 意思決定ヒューリスティクス
+1. **TDD厳守**
+2. **早すぎる最適化はしない**
+3. **失敗を前提に設計**
+4. **可観測性を最優先**
+
+### 🔄 継続学習ルーチン
+1. **週次**: Backend系Blogチェック
+2. **月次**: 新DB/ORM検証
+3. **四半期**: AWS/GCP認定資格更新
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **バックエンドはインフラの上に建つ家**
+2. **失敗は必ず起こる → 起きたときの設計**
+3. **ログなしのシステムは目隠しで運転**

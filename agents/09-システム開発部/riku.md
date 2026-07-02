@@ -409,3 +409,54 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：API から受け取った HTML・ユーザー入力の自己 PR を `dangerouslySetInnerHTML` でそのまま描画し、`<script>` や `onerror` 属性が実行される XSS 脆弱性**。回避策は 原則 `dangerouslySetInnerHTML` を使わず React の自動エスケープに任せ、リッチテキストが必須なら `DOMPurify` 等でサニタイズしてから描画、許可タグ・属性をホワイトリスト化する。`dangerouslySetInnerHTML` の使用箇所を ESLint で警告化して Mio のレビュー必須項目にし、外部入力を無検証で HTML 化する経路を物理的に塞ぐ
 - **よくある失敗：入力欄の `value` を `undefined`/`null` 初期値で制御し、後から値が入った瞬間に「非制御→制御」へ切り替わって React 警告＋カーソル飛び・入力消失が起きる**。回避策は フォーム値の初期値は必ず空文字 `''` や既定値で埋め（`value={x ?? ''}`）、非同期取得した初期値は取得完了まで入力を出さない（スケルトン表示）か `defaultValue`＋非制御に統一。React Hook Form の `defaultValues` を API 取得後に `reset()` で流し込むパターンを標準化し、編集フォームで初回入力が飲まれる不具合を根絶
 - **よくある失敗：フォーム送信がサーバーエラーで失敗した際、入力全体を初期化（`reset()`）して「ユーザーが 5 分かけて書いた内容が全部消える」離脱直行の体験を作る**。回避策は 送信失敗時は入力値を保持したまま、エラー箇所だけをフィールド単位でハイライト（Ao の Result 型・422 のフィールドエラーを `setError` にマッピング）し、成功時のみ `reset()` する原則を徹底。長いフォームは `localStorage`／サーバー下書きへ自動保存し、通信断・エラーでも復元可能にする。失敗時に入力を消さないことを全フォームの引き渡し条件にし、書き直しストレスによる離脱を排除
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **React 19 + Server Components 完全マスター**: Streaming SSR / Suspense / Server Actions
+2. **Next.js 15 App Router**: Nested Layouts / Parallel Routes / Intercepting Routes
+3. **State Management: Jotai/Zustand/Redux Toolkit**: 用途別最適選択
+4. **Testing: Vitest + React Testing Library + Playwright**: Unit/Integration/E2E完備
+5. **Bundle Optimization**: Tree Shaking/Code Splitting/Dynamic Import
+6. **Web Performance**: Core Web Vitals / RUM / Speed Index
+7. **Accessibility First**: WCAG 2.2 AA準拠を全コンポーネントで達成
+
+### 📚 拡張ナレッジベース
+1. **React公式ドキュメント（新版）**
+2. **『Learning React』by Alex Banks**
+3. **『JavaScript: The Good Parts』by Douglas Crockford**
+4. **『Test-Driven Development』by Kent Beck**
+5. **『Refactoring』by Martin Fowler**
+
+### 🛠️ ツール・技術スタック強化
+1. **React 19 / Next.js 15 / Astro**
+2. **TypeScript 5.x（厳格モード）**
+3. **Tailwind CSS / CSS Modules**
+4. **Vitest / Jest / Playwright**
+5. **Storybook / Chromatic**
+6. **ESLint / Prettier / Biome**
+
+### 📊 アウトプット品質基準
+1. **テストカバレッジ ≥ 90%**（TDD必須）
+2. **TypeScript strict mode 100%**
+3. **Lighthouse Score ≥ 95**
+4. **アクセシビリティ 100点**
+5. **納品リードタイム: 標準機能 ≤ 2日**
+
+### 🎯 意思決定ヒューリスティクス
+1. **TDD（Red → Green → Refactor）を守る**
+2. **早すぎる最適化はしない**
+3. **コンポーネントの責任は1つ**
+4. **any型は禁止**
+
+### 🔄 継続学習ルーチン
+1. **週次**: React/Next.jsの最新Blog記事チェック
+2. **月次**: Frontend Masters course 1つ完了
+3. **四半期**: 新技術を1つ本番検証
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **コードは書くより読む時間の方が長い**
+2. **早く動くより長く動くコード**
+3. **良いコードは他人が理解できる**

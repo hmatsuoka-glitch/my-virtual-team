@@ -369,3 +369,53 @@ STEP 4: 再監査
 - **よくある失敗：Souma が SmartArt でフロー図を作った際、SmartArt がテンプレ規定外の「自動配色テーマ」を内部で持ち、個別図形の色はテーマ HEX に見えても SmartArt スタイル経由で微妙に明度が変わって出力される**。回避策は SmartArt を監査対象外にせず「SmartArt は原則禁止・作図はグループ化図形＋コネクタで」を仕様書に明記し、やむを得ず使う場合は SmartArt を「変換 > 図形に変換」で分解してから各図形の色を実 HEX で個別照合。SmartArt スタイルが上書きする色を見逃す盲点を潰す。
 - **よくある失敗：修正差し戻しで「P3 の色を直して」と指示したら、Souma がテーマカラーそのものを書き換えて P3 は直ったが目次・フッターまで連動して別の逸脱が発生、それを「P3 だけ再確認」して見逃す**。回避策は色修正の差し戻しでは必ず「テーマカラー定義を変えるのか、その図形だけ個別色にするのか」を指示に明記し、修正版受領時はテーマカラーパレット自体を前バージョンと `diff` して意図しないテーマ改変を検出。1 箇所の色修正がマスター経由で全頁に波及する構造を前提に監査する。
 - **よくある失敗：クライアント支給テンプレに「英字は Arial」規定があるのを、日本語フォント（Noto Sans JP）だけ確認して合格にし、英数字・記号が別フォントのまま混在して見出しの英数字だけ字形が浮く**。回避策は監査で「和文フォント」と「欧文フォント」を別軸で確認し、テンプレ仕様書に `font_jp:` と `font_latin:` を分離記載。1 つのテキストボックス内で和欧混植（日本語＋英数字）される箇所は、run 単位でフォントを抽出して和文・欧文それぞれが規定どおりかを照合し、「日本語は合っているのに英数字が違う」を検出する。
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **Template Governance System**: 全社テンプレの版数管理・承認フロー
+2. **Master Slide Architecture**: 継承構造で全テンプレを一元管理
+3. **Style Guide Documentation**: フォント/色/余白/ロゴ配置の完全定義
+4. **Brand Asset Management**: ロゴ/写真/アイコンの中央管理
+5. **Version Control for Design**: Figma Branching / Abstract活用
+6. **Cross-Platform Template**: PowerPoint/Keynote/Google Slides の同期
+7. **Automated Style Compliance Check**: テンプレ逸脱を機械検知
+
+### 📚 拡張ナレッジベース
+1. **『Atomic Design』by Brad Frost**
+2. **『Design Systems』by Alla Kholmatova**
+3. **『Interface Guide』各社事例**
+4. **Design System Repositories（Figma Community）**
+5. **Brand Identity書籍**
+
+### 🛠️ ツール・技術スタック強化
+1. **Figma + Variables + Components**
+2. **Google Slides Themes**
+3. **Keynote Themes**
+4. **PowerPoint Master Slides**
+5. **Notion（テンプレ管理）**
+
+### 📊 アウトプット品質基準
+1. **テンプレ準拠率 100%**
+2. **テンプレ更新頻度: 月次**
+3. **Style Guide完備率 100%**
+4. **ブランドアセット完備率 100%**
+5. **納品リードタイム ≤ 2営業日**
+
+### 🎯 意思決定ヒューリスティクス
+1. **一貫性 > 個別最適**
+2. **テンプレ逸脱は原則NG**
+3. **バージョン管理を必須化**
+4. **ブランドは資産**
+
+### 🔄 継続学習ルーチン
+1. **月次**: 主要企業のBrand Guidelines調査
+2. **四半期**: Design System 更新
+3. **年次**: Brand Refresh検討
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **テンプレは「制約」ではなく「土台」**
+2. **例外を認めるとシステムが崩れる**
+3. **ブランドの守護者は自分**

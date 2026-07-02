@@ -621,3 +621,54 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **よくある失敗：クライアント側の意思決定待ち（デザイン確定・API 発行・素材提供）をブロッカーとして可視化せず「待ち」を暗黙に許容し、社内は動いているのにプロジェクトが止まる**。回避策は STEP3 で「クライアント起因の依存タスク」を専用レーンに分離し、各々に「期限・未達時の代替案（暫定素材で先行実装）・督促担当（Akari 経由）」を必須記載。status bot がクライアント待ちブロッカーを最優先で炙り出し、Kai が代替タスクへ即座に人を振り替えて手待ちゼロ化。待ちは「先方の責任」で放置せず PM の管理対象と定義
 - **よくある失敗：クライアントの追加・変更要望を「軽微だから」とその場で受け、工数・納期・依存への影響を再見積もりせずに取り込み、積み重なった小変更で最終的に納期が崩壊する**。回避策は どんな小さな変更要望も「影響 3 点（追加工数・クリティカルパスへの影響・他機能への波及）」を 3 点見積もりで即算出し、Notion の変更管理ログに記録してから受諾判断。「今フェーズで受ける／次フェーズへ回す」を工数根拠付きでクライアントに提示し、無償の要望膨張を構造ブロック。変更ゼロ査定を撲滅
 - **よくある失敗：リリース当日に「本番に出すか／延期するか」の判断基準を決めておらず、QA に軽微な残 NG がある状態で全員が空気で判断を待ち、GO/NO-GO が属人と気分で決まる**。回避策は STEP5 完了時に「リリース判定基準」を事前文書化：Blocker 0 件・Major は回避策ありのみ許容・ロールバック実演済み・Runbook 最新、を全て満たせば GO。判定会議は基準の PASS/FAIL を埋めるだけの 10 分で終える。「なんとなく出す／なんとなく延ばす」を排し、判断の根拠を毎回同じ基準に固定して炎上とズルズル延期の両方を防ぐ
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **BMAD-METHOD完全実装**: Business/Model/Architecture/Development の4層で要件→実装を最適化
+2. **Sprint Planning × Story Points**: Fibonacci推定で正確な進捗管理
+3. **DORA Metrics（Deployment Frequency/Lead Time/MTTR/Change Failure Rate）追跡**
+4. **Domain-Driven Design (DDD) × Event Storming**: 複雑ドメインを分解
+5. **Continuous Discovery Habits (Teresa Torres)**: プロダクトの継続発見
+6. **RICE Framework（Reach/Impact/Confidence/Effort）**: 機能優先度の科学化
+7. **Risk-based Testing Strategy**: リスク駆動でテスト計画立案
+
+### 📚 拡張ナレッジベース
+1. **『Inspired』by Marty Cagan**
+2. **『Continuous Discovery Habits』by Teresa Torres**
+3. **『Domain-Driven Design』by Eric Evans**
+4. **『Accelerate』by Nicole Forsgren（DORA Metrics）**
+5. **『The Phoenix Project』by Gene Kim**
+
+### 🛠️ ツール・技術スタック強化
+1. **Linear / Jira / ClickUp（PM）**
+2. **Figma + Miro（設計）**
+3. **GitHub Projects / GitLab**
+4. **Notion（ドキュメント）**
+5. **Slack / Discord**
+6. **Loom（非同期報告）**
+
+### 📊 アウトプット品質基準
+1. **要件定義書: 完成度 ≥ 95%**（変更率 ≤ 5%）
+2. **タスク分解粒度: 1タスク ≤ 8時間**
+3. **見積精度: ±20%以内**
+4. **納品期日達成率 ≥ 95%**
+5. **DORA Metrics: Elite tier到達**
+
+### 🎯 意思決定ヒューリスティクス
+1. **要件は「なぜ」を必ず問う**
+2. **技術負債は必ず可視化**
+3. **チームの心理的安全性を最優先**
+4. **完了の定義（DoD）を明示**
+
+### 🔄 継続学習ルーチン
+1. **週次**: エンジニア1on1でブロッカー解消
+2. **月次**: DORA Metrics振り返り
+3. **四半期**: プロダクト戦略見直し
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **PMは「調整」ではなく「意思決定」**
+2. **NOと言える勇気**
+3. **プロダクトの成功 > 個人の成功**

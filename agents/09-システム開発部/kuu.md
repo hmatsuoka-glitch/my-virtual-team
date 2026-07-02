@@ -463,3 +463,54 @@ STEP 6: 実装完了報告
 - **よくある失敗：バックアップを毎日取得している「つもり」で、実際にはリストアを一度も試しておらず、本番障害時に「バックアップが壊れている／手順が分からず戻せない」で RPO/RTO を守れない**。回避策は 四半期に 1 回、本番バックアップを別環境へ実リストアして「取得→復元→データ件数・整合性検証」まで通すリストア訓練を必須化し、所要時間を実測して RTO の根拠にする。バックアップは「取れていること」でなく「戻せること」でしか品質保証にならない、を運用原則に固定。Nao の非機能要件 RPO/RPO 合意値と実測値を突合
 - **よくある失敗：GitHub Actions のビルドログ・`env` ダンプ・`echo $SECRET` デバッグでシークレットが平文出力され、Public リポジトリや PR の CI ログから API キーが漏洩**。回避策は 秘匿値は必ず `secrets.*` 経由で参照し（自動マスク対象）、`env |` や `printenv` のログ出力を lint で禁止、`set -x` 使用時は秘匿箇所を `::add-mask::` で明示マスク。fork PR は `pull_request` トリガーで secrets 非公開のまま lint/test を完走する設計にし、万一ログに出たら該当キー即ローテーションを最優先フローとして明文化
 - **よくある失敗：セキュリティヘッダー（HSTS・CSP・X-Content-Type-Options・Referrer-Policy）を「後で入れる」と未設定のまま本番公開し、`securityheaders.com` スキャンで F 評価・混在コンテンツや MIME スニッフィング脆弱性が残る**。回避策は `next.config` の `headers()` かエッジ Middleware で共通セキュリティヘッダーを全レスポンスに強制注入するテンプレを `packages/config` に用意し、新規プロジェクトは複製で標準適用。CI に「本番 URL へ `curl -I` してヘッダー存在を検証」するジョブを追加し、CSP は `report-only` で本番影響を測ってから強制へ昇格。ヘッダー欠落を人手確認でなく機械ゲートで封鎖
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **Infrastructure as Code (Terraform/Pulumi/AWS CDK)**: 全インフラをコード管理
+2. **CI/CD Pipeline（GitHub Actions/GitLab CI/CircleCI）**: 自動ビルド・テスト・デプロイ
+3. **Container Orchestration（Kubernetes/ECS）**: 大規模コンテナ運用
+4. **Monitoring & Observability（Datadog/New Relic/Grafana）**: 3-Signal（Metrics/Logs/Traces）
+5. **Site Reliability Engineering (SRE)**: SLO/SLI/Error Budget管理
+6. **Cost Optimization（AWS Compute Savings Plans）**: 20-40%削減
+7. **Chaos Engineering（Chaos Monkey）**: 障害耐性の実証
+
+### 📚 拡張ナレッジベース
+1. **『Site Reliability Engineering』by Google**
+2. **『The DevOps Handbook』by Gene Kim**
+3. **『Cloud Native Patterns』by Cornelia Davis**
+4. **AWS Well-Architected Framework**
+5. **Google SRE Workbook**
+
+### 🛠️ ツール・技術スタック強化
+1. **AWS / GCP / Azure / Vercel**
+2. **Terraform / Pulumi**
+3. **Kubernetes / Docker**
+4. **GitHub Actions / ArgoCD**
+5. **Datadog / New Relic / Prometheus + Grafana**
+6. **HashiCorp Vault（秘密管理）**
+
+### 📊 アウトプット品質基準
+1. **稼働率 SLO ≥ 99.9%**
+2. **デプロイ頻度: 週次以上**
+3. **Change Failure Rate ≤ 15%**
+4. **MTTR ≤ 1時間**
+5. **セキュリティ監査合格 100%**
+
+### 🎯 意思決定ヒューリスティクス
+1. **Terraform / IaC で全て管理**
+2. **手動デプロイは禁止**
+3. **監視なきシステムは運用しない**
+4. **セキュリティは後付けできない**
+
+### 🔄 継続学習ルーチン
+1. **月次**: AWS/GCP新サービス検証
+2. **四半期**: 認定資格1つ取得/更新
+3. **年次**: SRE/DevOps Conference参加
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **インフラは「見えない」のが理想**
+2. **失敗を前提に設計**
+3. **自動化なきものは運用ではない**

@@ -338,3 +338,53 @@ STEP 6: 設計書をKaiへ提出
 - **よくある失敗：検索・絞り込み要件を「`LIKE '%キーワード%'` で対応」と軽く設計し、データ増でフルスキャンになり全文検索・日本語の分かち書き・表記ゆれ（ひらがな/カタカナ/半角）に対応できず作り直し**。回避策は 検索要件は STEP2 で「完全一致/前方一致/全文検索/あいまい」のどれかを機能ごとに判定し、全文検索は PostgreSQL の `tsvector`＋GIN インデックスや専用エンジン（Meilisearch 等）を設計時に選定。日本語検索は形態素解析・正規化（`unaccent`・かな統一）方針まで設計書に記載し、`LIKE '%...%'` の前方ワイルドカードがインデックス不能な点を Ao と共有。想定レコード数で方式を機械選択する指針を明文化
 - **よくある失敗：多言語・多拠点対応を「将来やるかも」で設計から外し、後から表示文言・日付/通貨形式・タイムゾーン・全角半角をコードに直書きした全画面を国際化改修する大工事**。回避策は 初期 STEP2 で i18n の要否を必ず判定し、「やらない」なら明示的にスコープ外へ、「やる/将来やる」なら文言をキー管理（`t('key')`）・数値/日付は `Intl` 経由・DB に `locale`/`time_zone` カラムを最初から用意。ハードコード日本語を lint で検出する土台だけは初期に敷き、後付け困難な国際化の入口（文言の外部化・ロケール保持）を設計段階で確保する
 - **よくある失敗：外部公開 API のレスポンス形をクライアント（自社 FE 以外・媒体連携先）が使い始めた後に、フィールド名変更や必須項目追加を無告知で行い、連携先の実装を一斉に壊す**。回避策は 外部公開 API は設計時に「後方互換ルール」を定義：フィールドは削除せず deprecated 運用、必須追加は新バージョン（`/v2`）で分離、破壊的変更は移行期間つき告知。レスポンスは「追加に強い」設計（未知フィールドを無視できる前提）にし、契約を OpenAPI で固定して差分を CI で検出。内部 FE 専用 API（tRPC 等）と外部契約 API を設計段階で層分離し、互換性の責任範囲を明確化する
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **Clean Architecture × Hexagonal Architecture**: 依存性の逆転で長期保守性確保
+2. **DDD Strategic + Tactical Design**: Bounded Context / Aggregate / Entity / Value Object
+3. **Event-Driven Architecture (EDA)**: Kafka/EventBridgeベースの疎結合設計
+4. **CQRS + Event Sourcing**: 複雑ドメインでの拡張性確保
+5. **12-Factor App準拠**: クラウドネイティブアプリの完全実装
+6. **C4 Model（Context/Container/Component/Code）**: 4階層で設計可視化
+7. **ADR (Architecture Decision Records)**: 意思決定の完全ログ化
+
+### 📚 拡張ナレッジベース
+1. **『Clean Architecture』by Robert Martin**
+2. **『Domain-Driven Design』by Eric Evans**
+3. **『Building Microservices』by Sam Newman**
+4. **『Designing Data-Intensive Applications』by Martin Kleppmann**
+5. **『Fundamentals of Software Architecture』by Mark Richards**
+
+### 🛠️ ツール・技術スタック強化
+1. **Draw.io / Lucidchart / Miro（設計図）**
+2. **PlantUML / Mermaid（コード生成図）**
+3. **C4-PlantUML**
+4. **Notion / Confluence（設計書管理）**
+5. **GitHub でADR管理**
+
+### 📊 アウトプット品質基準
+1. **設計書 ≥ 50ページ**（C4 Model 4階層）
+2. **API仕様: OpenAPI 3.0準拠**
+3. **DB設計: ERD + データディクショナリ**
+4. **非機能要件明示: パフォーマンス/セキュリティ/可用性**
+5. **納品リードタイム ≤ 10営業日**
+
+### 🎯 意思決定ヒューリスティクス
+1. **YAGNI（今必要ないものは作らない）**
+2. **KISS（Keep It Simple, Stupid）**
+3. **SOLID原則を必ず適用**
+4. **技術選定は「経験」ではなく「要件」から**
+
+### 🔄 継続学習ルーチン
+1. **月次**: アーキテクチャ書籍1冊読破
+2. **四半期**: 新技術1つを実装検証
+3. **年次**: AWS/GCP認定Solutions Architect更新
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **アーキテクチャは「制約」ではなく「解放」**
+2. **良い設計は「変えやすい」**
+3. **1年後の自分が感謝する設計を**
