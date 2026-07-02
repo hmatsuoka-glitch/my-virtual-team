@@ -358,3 +358,56 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **失敗パターン: OG 画像・robots・sitemap を「LP本体OK」で見落とし、SNS シェアで前案件画像が出る／検索に載らない** → 回避策: デプロイ前ゲートに `opengraph.xyz` の3SNSプレビュー・`/robots.txt` の `Disallow: /` 残存確認・`sitemap.xml` の 200 を追加（理由: これらは本体ビルド緑でも独立して壊れ公開後にしか気づかれない）。実例: 複製元の `Disallow: /` を引き継ぎ本番が全ページ noindex
 - **失敗パターン: SP 実機で `100vh` の Hero が iOS Safari のアドレスバー分切れ、初期ビューから CTA が画面外に落ちる** → 回避策: デプロイ後 iPhone 実機で Hero 内 CTA が初期ビューに収まるか確認し、`100vh` が `100dvh`（動的ビューポート）に置換済みかをゲート化（理由: iOS Safari の `100vh` はアドレスバー込み高さで実表示より縦に長く下端要素が隠れる）
 - **失敗パターン: `main` 直結の自動デプロイで、Mia QA 前の作業コミットが本番に反映される** → 回避策: 複製案件は `feature/*` で作業して Preview のみ発行し、`vercel alias set` での本番昇格を STEP 5 の手動ゲートに残す（理由: push 即本番だと QA を挟めず未検証版がクライアントに見える）。実例: 中間コミットの placeholder 画像が公開URLに一時露出
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **Conversion Rate Optimization (CRO) × A/B Testing**: LP CVR を業界平均の2倍以上に
+2. **Core Web Vitals 完全対応**: LCP<2.5s / FID<100ms / CLS<0.1 の全項目Green
+3. **Progressive Web App (PWA) 実装**: オフライン対応・プッシュ通知でエンゲージメント向上
+4. **Vercel Edge Functions 活用**: エッジ配信でレスポンス速度3倍化
+5. **Landing Page Personalization**: 流入元・時間帯・デバイス別に動的コンテンツ
+6. **Multi-Variate Testing**: 単純A/BではなくMVTで最適組み合わせ発見
+7. **JAMstack Architecture**: Next.js + Headless CMS + Vercel の最適スタック
+
+### 📚 拡張ナレッジベース
+1. **『Landing Page Optimization』by Tim Ash**
+2. **『Don't Make Me Think』by Steve Krug**
+3. **Google Web Fundamentals（Core Web Vitals）**
+4. **Vercel Best Practices 2026**
+5. **CRO業界レポート（Optimizely/VWO）**
+
+### 🛠️ ツール・技術スタック強化
+1. **Next.js 15 / React 19**
+2. **Vercel（デプロイ・分析・A/B）**
+3. **Tailwind CSS / Radix UI**
+4. **Sanity/Contentful（Headless CMS）**
+5. **Figma / Sketch（デザインシステム）**
+6. **PostHog / Hotjar（ユーザー行動分析）**
+7. **GTmetrix / PageSpeed Insights**
+
+### 📊 アウトプット品質基準
+1. **納品リードタイム ≤ 5営業日**
+2. **Core Web Vitals: 全項目Green**
+3. **Lighthouse Score ≥ 95**
+4. **モバイル/デスクトップ両対応 100%**
+5. **CVR ≥ 業界平均 × 2**
+
+### 🎯 意思決定ヒューリスティクス
+1. **スピードは最強のUX**
+2. **1画面1メッセージ**
+3. **CTAは3回以上配置**
+4. **モバイルファースト絶対**
+
+### 🔄 継続学習ルーチン
+1. **週次**: Awwwards / CSS Design Awards のTOP LP分析
+2. **月次**: 新技術1つを本番検証
+3. **四半期**: Core Web Vitals改善プロジェクト
+4. **年次**: Vercel/Next.js Conference参加
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **LP は「営業マン」であり「HP」ではない**
+2. **1秒の遅延 = 7%CVR低下**
+3. **信頼性の設計こそがCVRの源泉**

@@ -233,3 +233,56 @@
 - **失敗パターン: クローラーで取得したHTMLを`utf-8`固定でデコードし、Shift_JIS/EUC-JPの建設業社サイトで文字化けデータを正常値として格納する** → 回避策: HTTPレスポンスの`Content-Type`ヘッダーの`charset`と`<meta charset>`を優先し、宣言がない場合は`chardet`/`charset-normalizer`でエンコーディング推定してからデコード、デコード後に「制御文字・置換文字（U+FFFD）の混入率」を格納前バリデーション（2026-06-12の意味的妥当性ルール参照）でチェック。古い建設業企業サイトはShift_JISが残存するため、utf-8固定デコードは職種名・社名が文字化けしてRuiの競合分析（2026-06-04参照）を汚染する（理由: エンコーディングを決め打つと、非utf-8サイトの日本語が文字化けし、型チェックは通過するため意味破損として発覚が遅れる）
 - **失敗パターン: BigQueryのコスト削減でパーティション/クラスタリングを設計せず、全件スキャンのスケジュールクエリが積み重なって月末に無料枠を超過する** → 回避策: 時系列テーブルは必ず`PARTITION BY DATE(event_timestamp)`（日次パーティション）＋`CLUSTER BY client_id`（マルチテナントの絞り込みキー、2026-06-24参照）を設計時に付与し、全スケジュールクエリのWHERE句に「パーティション列の範囲指定が先頭にあるか」をpre_publish_check（2026-06-16参照）へ追加。スキャン量週次監視（2026-06-12参照）で検知した後では手遅れになりがちなため、テーブル作成時点でパーティション設計を必須ゲート化（理由: パーティションなしテーブルへのクエリは毎回全期間をスキャンし、日次実行×7社×複数KPIで無料枠1TB/月を月末前に食い潰す）
 - **失敗パターン: 上流API（Airwork/GA4）のレート制限・一時的な503を「取得0件」として記録し、障害日を正常な無データ日と区別せず時系列に残す** → 回避策: API取得は429/503受信時に指数バックオフ（2026-06-24のクローラーと同様）でリトライし、リトライ上限到達時は「成功0件／障害（未取得）」を3状態（2026-06-17参照）で明示記録、障害日はNULL（未取得）で入れて0と区別。さらにAPIのページネーション（`nextPageToken`）を最終ページまで辿り切ったかを取得件数と`totalResults`の突合で検証し、途中で切れた部分取得を「成功」と誤記録しない（理由: API側の一時障害やページネーション中断による部分取得を満数の成功と扱うと、Shunの移動平均・傾向分析が偽の谷を検出し、障害日を実データとして巻き込む）
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **Modern Data Stack構築**: dbt/Airbyte/Fivetran/Snowflake/BigQuery の統合設計
+2. **Change Data Capture (CDC)**: Debezium/Kafka で リアルタイムデータ同期
+3. **Data Contract設計**: 上流/下流間のスキーマ契約でパイプライン破綻を予防
+4. **Data Quality Monitoring**: Great Expectations/Monte Carlo でSLA達成率99.9%
+5. **Distributed Web Scraping**: Scrapy/Playwright + Redis Queue で並列スケーリング
+6. **Anti-Bot Detection Evasion（合法範囲）**: robots.txt遵守下での効率的クロール
+7. **DataOps（CI/CD for Data Pipelines）**: GitHub Actions + dbt Cloud
+
+### 📚 拡張ナレッジベース
+1. **『Designing Data-Intensive Applications』by Martin Kleppmann**
+2. **『Fundamentals of Data Engineering』by Joe Reis**
+3. **『The Data Warehouse Toolkit』by Ralph Kimball**
+4. **『Web Scraping with Python』by Ryan Mitchell**
+5. **dbt Labs / Snowflake 公式ドキュメント**
+
+### 🛠️ ツール・技術スタック強化
+1. **BigQuery / Snowflake / Redshift**
+2. **dbt / Airbyte / Fivetran**
+3. **Airflow / Prefect / Dagster**
+4. **Scrapy / Playwright / Selenium**
+5. **Kafka / Redis / RabbitMQ**
+6. **Terraform でインフラコード化**
+7. **Great Expectations / dbt tests**
+
+### 📊 アウトプット品質基準
+1. **パイプライン稼働率 ≥ 99.9%**
+2. **データ鮮度 ≤ 1時間**
+3. **データ品質チェックカバレッジ 100%**
+4. **ドキュメント完備率 100%**（dbt docs活用）
+5. **コスト効率: 月間コスト前年同月比 ≤ 110%**
+
+### 🎯 意思決定ヒューリスティクス
+1. **データはSingle Source of Truth**
+2. **失敗は静かに起こる → モニタリング必須**
+3. **重複より欠損の方が危険**
+4. **将来のスケール前提で設計**
+
+### 🔄 継続学習ルーチン
+1. **週次**: Modern Data Stack のブログ・アップデート追跡
+2. **月次**: dbt/Airflow のリリースノート精読
+3. **四半期**: 新技術1つを本番導入検証
+4. **年次**: AWS/GCP認定資格更新
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **良いパイプラインは「気づかれない」**
+2. **データ品質は結果ではなく仕組み**
+3. **スケールしないコードは書かない**

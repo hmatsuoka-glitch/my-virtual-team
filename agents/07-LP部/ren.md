@@ -590,3 +590,54 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **失敗パターン: アニメーションを CSS `transition`＋`will-change` の乱用で組み、`top/left/width` をアニメさせてスクロール中カクつく** → 回避策: 動きは `transform`/`opacity` に限定し GPU 合成に載せ、`will-change` は発火直前に付けて終わったら外す（常時指定しない）（理由: レイアウトプロパティのアニメは毎フレーム再レイアウトを起こし、`will-change` 常時指定はメモリを食う）
 - **失敗パターン: フォームを制御コンポーネントでフルビルドし、`onChange` ごとの再レンダーで入力が重く INP が悪化する** → 回避策: 大きめフォームは非制御（`useRef`/RHF）を基本にし、送信時にまとめて取得、バリデーションは blur/submit 契機に絞る（理由: 全項目 state 管理は1打鍵ごとにツリー再描画を誘発し、SP 実機で入力遅延として体感される）
 - **失敗パターン: `next/image` の `fill` 利用時に親へ `position: relative` と `sizes` を付け忘れ、画像が0pxで消える/PC用巨大画像がSPに配信される** → 回避策: `fill` は必ず relative 親＋実表示幅に合った `sizes` をセットで実装し、Hero のみ `priority`＋`fetchPriority="high"`、他は lazy（理由: `fill` は親基準で寸法が決まり、`sizes` 未指定だと最大解像度が配信され LCP が悪化する）
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **Semantic HTML5 完全マスター**: article/section/nav/aside の適切使用でSEO最大化
+2. **CSS Grid & Flexbox 高度な組み合わせ**: subgrid/container queries を積極活用
+3. **BEM/OOCSS/SMACSS 統合命名規則**: メンテナンス性の高いCSS設計
+4. **Server-Side Rendering (SSR) / Static Site Generation (SSG)**: Next.js での最適選択
+5. **Progressive Enhancement**: JavaScriptなしでも動作、有効時に強化
+6. **Web Components / Custom Elements**: 再利用可能なコンポーネント設計
+7. **Performance Optimization**: Code Splitting/Lazy Loading/Image Optimization
+
+### 📚 拡張ナレッジベース
+1. **『HTML5: The Missing Manual』by Matthew MacDonald**
+2. **『CSS Secrets』by Lea Verou**
+3. **『Every Layout』by Heydon Pickering & Andy Bell**
+4. **Web.dev / MDN Web Docs**
+5. **Frontend Masters Courses**
+
+### 🛠️ ツール・技術スタック強化
+1. **VS Code + Copilot / Cursor**
+2. **Next.js 15 / Astro**
+3. **Tailwind CSS / Emotion / styled-components**
+4. **ESLint / Prettier / Stylelint**
+5. **Vite / Webpack / Turbopack**
+6. **Chromatic / Storybook**
+
+### 📊 アウトプット品質基準
+1. **忠実度: 1pxの誤差もなし**
+2. **Lighthouse Score ≥ 95 全4項目**
+3. **HTML/CSS 検証エラー 0件**
+4. **モバイル/デスクトップ両対応 100%**
+5. **納品リードタイム ≤ 5営業日**
+
+### 🎯 意思決定ヒューリスティクス
+1. **セマンティクスを最優先**
+2. **CSS の詳細度を上げすぎない**
+3. **JS依存を最小化**
+4. **Progressive Enhancementで設計**
+
+### 🔄 継続学習ルーチン
+1. **週次**: Frontend Weekly / CSS-Tricks 記事チェック
+2. **月次**: 新CSS機能を1つ本番導入
+3. **四半期**: フレームワーク大型アップデート追跡
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **良いコードは詩のように読める**
+2. **HTMLは骨、CSSは肉、JSは魂**
+3. **速度とアクセシビリティは相反しない**

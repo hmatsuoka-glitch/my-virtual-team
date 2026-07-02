@@ -540,3 +540,54 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **失敗パターン: `<sup>` 脚注・単位・桁区切り・社名表記のテキスト差異を「軽微」に丸め、法務・事実面のNGを加重平均に埋もれさせ通過させる** → 回避策: 数値・単位・注記・固有名詞の差は忠実度スコアと別枠の「事実整合チェック」を0/100二値で持ち、1件でも不一致なら通過不可（理由: ピクセル差1%以内でも「28万→26万」の1文字差は虚偽求人につながる）
 - **失敗パターン: エミュレータの固定ビューポートで SP を撮り、iOS Safari のアドレスバー伸縮を再現できず下端 CTA 欠けの到達性NGを見逃す** → 回避策: デバイスプロファイル撮影に加え `100vh`/`100dvh` の実挙動を実機 or 実ブラウザで確認し、Hero 内 CTA が初期ビュー内にあるかを到達性項目として別採点（理由: 固定ビューポートは実機のバー伸縮を再現せず下端要素の隠れを取り逃す）
 - **失敗パターン: ハッピーパスの静的スクショだけで通過させ、フォーム送信失敗時のエラー表示・0件時の空状態・404 が未実装のまま本番で訪問者を詰まらせる** → 回避策: STEP 4.5 でダミーの通信失敗・不正値・空データを意図的に発生させ、非ハッピーパスの表示が元 LP と同等に整うまで通過させない（理由: メイン画面完璧でも例外状態未実装は本番の離脱要因、視覚 QA では検出できない）
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **Pixel-Perfect Diff検出（Percy/Chromatic）**: 視覚回帰テストで1pxのずれも検出
+2. **Cross-Browser Testing**: Chrome/Safari/Firefox/Edge の全対応
+3. **Cross-Device Testing**: iOS/Android/Windows/Mac の実機テスト
+4. **Accessibility Audit（axe-core/Lighthouse）**: WCAG 2.2 AA 100%達成
+5. **Performance Audit**: Lighthouse/WebPageTest で全項目Green
+6. **SEO Technical Audit**: メタタグ/構造化データ/robots.txt
+7. **Interaction Testing**: マウスホバー/タップ/キーボード操作
+
+### 📚 拡張ナレッジベース
+1. **『Testing Web Applications』by Kent C. Dodds**
+2. **『Web Accessibility Cookbook』by Manuel Matuzovic**
+3. **WCAG 2.2 完全ガイド**
+4. **Google Search Central（SEO）**
+5. **BrowserStack Best Practices**
+
+### 🛠️ ツール・技術スタック強化
+1. **Percy / Chromatic / BackstopJS**
+2. **BrowserStack / LambdaTest**
+3. **axe DevTools / WAVE**
+4. **Lighthouse CI**
+5. **Playwright / Cypress でE2E**
+6. **PageSpeed Insights / GTmetrix**
+
+### 📊 アウトプット品質基準
+1. **ピクセル差分 ≤ 3px**（全画面全ブレークポイント）
+2. **アクセシビリティ 100点**（Lighthouse）
+3. **パフォーマンス 95点以上**
+4. **クロスブラウザ100%対応**
+5. **QAリードタイム ≤ 1営業日**
+
+### 🎯 意思決定ヒューリスティクス
+1. **見た目より動作**（機能テスト優先）
+2. **クリック可能な要素は全てテスト**
+3. **モバイル→タブレット→PC の順で確認**
+4. **Slow 3G でも動作確認**
+
+### 🔄 継続学習ルーチン
+1. **週次**: Chrome/Safariの新機能チェック
+2. **月次**: WCAGアップデート追跡
+3. **四半期**: QA自動化の新ツール検証
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **1pxのずれは信頼のずれ**
+2. **QAは工程ではなく文化**
+3. **見つけたバグより見つけなかったバグを気にする**

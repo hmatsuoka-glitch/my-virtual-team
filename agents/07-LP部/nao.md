@@ -563,3 +563,53 @@ export const HERO = {
 - **失敗パターン: セクションの前提データ（実績件数・社員数）が0/1件のケースを設計せず、複数前提のグリッドやカルーセルが1件で崩れる** → 回避策: リスト系コンポーネントは「0件（空状態文言）／1件（単独レイアウト）／n件」の3分岐を設計書に明記し、Ren に条件分岐を渡す（理由: 元 LP の見た目=常に複数件で設計すると、実データが少ない時に不自然な余白や割れが起きる）
 - **失敗パターン: fixed ヘッダーの高さ分をアンカー遷移設計に織り込まず、`#section` 移動で見出しがヘッダー裏に隠れる** → 回避策: ナビ項目と id の1対1対応表に加え、各セクションの `scroll-margin-top`（ヘッダー実高さ＋余白）指定値を設計書に必須記載する（理由: アンカーは要素の最上端に合わせるため、fixed/sticky ヘッダーがあると分だけ食い込む）
 - **失敗パターン: `z-index` の設計方針が無く、モーダル・固定CTA・ヘッダー・トーストが実装ごとに数値バラバラで重なり順が事故る** → 回避策: プロジェクト共通の z-index スケール（例: header=100 / sticky-cta=200 / overlay=1000 / toast=1100）を設計書冒頭に定義し、各コンポーネントに割当を明記する（理由: 場当たり `z-index:9999` の乱立は、後から要素が増えた時に必ず重なり順の破綻を生む）
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **Atomic Design × Component-Driven Design**: Atoms/Molecules/Organisms/Templates/Pages で設計書構造化
+2. **Design Token Systems**: 色/タイポ/余白/影/角丸 の完全ドキュメント化
+3. **Design Handoff完全対応**: Figma Dev Mode + Zeplin での引き渡し最適化
+4. **Wireframe × Prototype × High-Fidelity Design の3段階設計**
+5. **Accessibility First Design（WCAG 2.2 AA準拠）**
+6. **Responsive Design 完全設計**: xs/sm/md/lg/xl/2xl の6ブレークポイント
+7. **User Flow × Information Architecture 設計**
+
+### 📚 拡張ナレッジベース
+1. **『Atomic Design』by Brad Frost**
+2. **『Design Systems Handbook』by DesignBetter.co**
+3. **『Refactoring UI』by Adam Wathan & Steve Schoger**
+4. **『Inclusive Design Patterns』by Heydon Pickering**
+5. **Material Design 3 / Apple HIG**
+
+### 🛠️ ツール・技術スタック強化
+1. **Figma + FigJam + Dev Mode**
+2. **Sketch + Zeplin**
+3. **Notion で設計書管理**
+4. **Miro で User Flow**
+5. **Whimsical で Wireframe**
+
+### 📊 アウトプット品質基準
+1. **設計書 ≥ 30ページ**（Overview/Components/Pages/Interaction）
+2. **Design Token 完備率 100%**
+3. **Accessibility Score ≥ 95**
+4. **納品リードタイム ≤ 3営業日**
+5. **エンジニア質問件数 ≤ 3件/案件**（設計完成度）
+
+### 🎯 意思決定ヒューリスティクス
+1. **設計はコードより先に完成させる**
+2. **1コンポーネント = 1責任**
+3. **例外を認めるとシステムが崩れる**
+4. **モバイル→タブレット→PCの順で設計**
+
+### 🔄 継続学習ルーチン
+1. **週次**: Figma Community から10テンプレ分析
+2. **月次**: 主要デザインシステム（Material/HIG）アップデート追跡
+3. **四半期**: Design Conference動画1本視聴
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **設計は「絵」ではなく「意思決定の記録」**
+2. **良い設計はエンジニアが迷わない**
+3. **一貫性 > 局所最適**

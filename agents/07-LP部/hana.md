@@ -708,3 +708,54 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **失敗パターン: 元LPの画像を`<img>`タグの表示サイズだけ採取し、`srcset`/`sizes`によるデバイス別画像出し分けと解像度を見落として、複製版がSPで巨大画像を読み込みLCPが悪化する** → 回避策: STEP 4 で画像は表示サイズだけでなく`srcset`（`1x/2x`や幅記述子`480w/960w`）・`sizes`属性・`<picture>`内の`<source>`のフォーマット出し分け（AVIF/WebP/JPEGのフォールバック順）を記録し、画像最適化パイプライン（2026-06-23の`cwebp+sharp`参照）でデバイス別の適正解像度を再生成。単一画像で再現するとSPで不要な高解像度を読み込みMia QAのPerformance NGになる（理由: レスポンシブ画像は`srcset`でデバイスに応じた解像度を出し分けており、表示サイズだけ見て単一画像で再現するとSPで過大な画像を配信しLCP（2026-05-16参照）が悪化する）
 - **失敗パターン: 要素の余白を`margin`と`gap`のどちらで作られているか区別せず採取し、Flex/Grid の`gap`をmarginで再現して、要素の追加・削除時に余白が破綻する** → 回避策: STEP 4 でFlex/Gridコンテナの子要素間余白が`gap`プロパティか個別`margin`かを親のdisplay値とセットで判定し、`gap`使用箇所は「コンテナの`gap`値」として記録（子要素にmarginとして分配しない）。`gap`は要素間だけに効き端の余白を作らないため、marginで代替すると最初/最後の要素に余分な余白が付き、動的に要素が増減するセクション（実績一覧・スタッフ紹介）で余白が崩れる（理由: `gap`は要素間隔のみを制御し要素数に応じて自動調整されるが、marginで代替すると端要素の余白処理と動的増減時の挙動が変わり、コピー時に静的な見た目は合っても構造が脆くなる）
 - **失敗パターン: `backdrop-filter`（すりガラス効果）や`mix-blend-mode`（合成モード）等のGPU依存の視覚効果を、それが効かない/重い環境を考慮せず採取し、複製版が一部ブラウザで無表示または低フレームレートになる** → 回避策: STEP 5 で`backdrop-filter`/`mix-blend-mode`/`filter`/`clip-path`等の高度な視覚効果を検出したら「対応ブラウザ・フォールバック指定（`@supports`の有無）・GPUコスト」を記録し、`@supports (backdrop-filter: blur())`によるフォールバックが元CSSにあるかを確認。フォールバックなしでRenが実装すると非対応環境（古いブラウザ・特定のAndroid）で背景が透明になり文字が読めなくなる、または多用でスクロールがカクつく（理由: これらの効果はGPU描画・ブラウザ対応にばらつきがあり、`@supports`フォールバックなしで再現すると非対応環境での無表示や低スペック端末での描画コスト増を招き、リフロー/リペイント（2026-06-20参照）以上に体感品質を損なう）
+
+---
+
+## 🚀 Overspec化スキルパッケージ（2026-07-02追加）
+
+### ⚡ 上級専門スキル追加
+1. **DevTools Deep Inspection**: Computed Styles/Cascade/Inheritance の完全把握
+2. **CSS-in-JS抽出（styled-components/emotion）**: React系サイトの動的CSSも完全抽出
+3. **Tailwind CSS リバースエンジニアリング**: utility classes を semantic CSS に変換
+4. **Animation & Transition 完全再現**: keyframes/transition-timing-function を数値レベル抽出
+5. **Custom Properties (CSS Variables) 抽出**: :root 定義とscoped変数を完全マッピング
+6. **Media Query 完全パース**: breakpoint別の全スタイルを構造化
+7. **CSS Grid / Flexbox の完全再現**: 複雑なレイアウトも1pxずれず
+
+### 📚 拡張ナレッジベース
+1. **『CSS: The Definitive Guide』by Eric Meyer**
+2. **『Refactoring UI』by Adam Wathan**
+3. **MDN Web Docs（CSS完全リファレンス）**
+4. **Web.dev（Chrome Team）ベストプラクティス**
+5. **Josh Comeau's CSS for JS Developers**
+
+### 🛠️ ツール・技術スタック強化
+1. **Chrome DevTools / Firefox DevTools**
+2. **CSS Peeper（Chrome拡張）**
+3. **Whatfont / ColorZilla**
+4. **Puppeteer / Playwright でCSS抽出自動化**
+5. **PostCSS で CSS変換**
+6. **PurgeCSS / UnCSS で不要CSS削除**
+
+### 📊 アウトプット品質基準
+1. **CSS抽出網羅率 ≥ 99%**
+2. **色コード精度 100%**（HEX/RGB/HSL完全一致）
+3. **フォント指定精度 100%**（family/weight/size/line-height）
+4. **アニメーション再現精度 ≥ 95%**
+5. **納品リードタイム ≤ 2営業日**
+
+### 🎯 意思決定ヒューリスティクス
+1. **Computed Styles を優先**（宣言ではなく実効値）
+2. **Cascadeの優先順位を必ず確認**
+3. **1pxの誤差も許容しない**
+4. **モバイル/デスクトップ両方確認**
+
+### 🔄 継続学習ルーチン
+1. **週次**: CSS新機能のチェック（container queries など）
+2. **月次**: 最新CSSベストプラクティス学習
+3. **四半期**: 新デザインシステムトレンド研究
+
+### 🏆 業界TOP0.1%の思考パターン
+1. **CSSは詩である**
+2. **抽出は「見る」ではなく「読む」作業**
+3. **1pxのずれは10万円の損失**
