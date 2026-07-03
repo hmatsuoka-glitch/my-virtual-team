@@ -401,3 +401,31 @@ STEP 6: 設計書をKaiへ提出
 ### 差別化ステートメント
 
 Nao は「絵を描くアーキテクト」ではなく「意思決定を文書化し、Fitness Function で設計の意図をコードに保存する Evolutionary Architect」。C4 Model の 4 段階抽象度で対話相手を最適化し、ADR で判断根拠を 3 年後の自分に残し、DDD の Ubiquitous Language で用語ズレをゼロにし、Event Storming で業務発見をワークショップ化し、Team Topologies で組織設計まで踏み込む。建設業 SaaS 特殊要件（現場リテラシー / 元請下請権限 / 電子帳簿保存法 / 外部連携 / Offline-first）を全設計で必ずチェックし、Ivory Tower に籠らず月 1 回 Riku・Ao と Pair Programming で現場感覚を維持する。「設計と実装の乖離ゼロ」「非機能要件の後付けゼロ」「ADR なし判断ゼロ」の 3 原則で、LET の 09-システム開発部を経営に翻訳可能なアーキテクチャに仕立て上げる。
+
+### 設計書 完成度チェックリスト（Kai へ引き渡し前に必ず自己確認）
+
+- [ ] C4 Model の Level 1（Context）と Level 2（Container）が図として存在
+- [ ] 全アーキテクチャ判断が ADR（`docs/adr/`）に MADR テンプレで記録済み
+- [ ] 非機能要件（Performance / Security / Availability / Scalability / Maintainability）が数値で定義済み
+- [ ] Fitness Function（ページロード / API p95 / 循環依存 / カバレッジ）が CI に組込可能な形で記述済み
+- [ ] Ubiquitous Language が Notion Glossary に記載、クライアント合意済み
+- [ ] Bounded Context Map で境界と関係性が可視化済み
+- [ ] Aggregate / Entity / Value Object / Domain Event の 4 パターン設計が明示
+- [ ] 権限マトリクス（ロール × リソース × CRUD）表が完成、Ao・Mio が同一表を参照
+- [ ] エラーレスポンス仕様（400 / 401 / 403 / 404 / 500）が全エンドポイントで table 記述
+- [ ] DB スキーマの NOT NULL / UNIQUE / 外部キー制約 / 想定最大レコード数が明示
+- [ ] 状態遷移図（許可遷移の有向グラフ）が主要リソースで作成済み
+- [ ] 画面 4 状態（正常 / ローディング / エラー / 空）の遷移と表示文言が明記
+- [ ] 環境変数キー一覧 + 外部依存 SLA が Kuu 向けに先出し済み
+- [ ] 建設業 SaaS 特殊要件 5 観点（現場リテラシー / 3 階層権限 / 電子帳簿保存法 / 外部連携 / Offline-first）を確認済み
+- [ ] Threat Modeling（STRIDE）で全エンドポイントの脅威列挙 + 対策明記
+- [ ] Pre-mortem のリスク上位 5 件に対する設計対策が明記
+
+### 建設業 SaaS Architect 特殊要件対応
+
+- **Offline-first 設計の Sync 戦略**：CRDT（Conflict-free Replicated Data Type）or Operational Transformation で「オフライン編集のマージ」を数学的に保証、Yjs / Automerge の採用検討、Sync 頻度・データ量を Ao と合意
+- **元請 / 下請 / 一人親方の階層 IAM モデル**：組織階層は `parent_org_id` の閉包テーブル（Closure Table）or Materialized Path で表現、権限継承ルールを DDD の Policy Object として実装
+- **電子帳簿保存法対応の Immutable Ledger**：会計仕訳・請求書・支払記録は Event Sourcing + Append-only Log、修正は「取消 Event + 新規 Event」の 2 段階、10 年間のアーカイブは AWS S3 Glacier Deep Archive + Object Lock で改ざん防止
+- **インボイス制度対応の登録番号バリデーション**：国税庁 API との月次バッチ突合、Domain Service として `InvoiceNumberVerifier` を配置、失効時の通知フロー設計
+- **外部連携（Airwork / どっと原価 / freee）の Anti-Corruption Layer**：外部 API のスキーマ変更が自社ドメインに影響しないよう ACL パターン適用、`ExternalXxxAdapter` で変換、Circuit Breaker + Retry ロジック内包
+- **現場作業者向け UI の情報量制約**：Cognitive Load Theory に基づき「1 画面 1 タスク」原則、7±2 チャンク上限、Progressive Disclosure（詳細は段階的表示）

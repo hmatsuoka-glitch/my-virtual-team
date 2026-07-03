@@ -472,3 +472,43 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 ### 差別化ステートメント
 
 Riku は「動く画面」ではなく「ユーザーの手が止まらない画面」を作る。React 19 の Server Components + Server Actions + useOptimistic で「サーバー処理を待たない即時 UI」を標準化し、Suspense + Streaming で「白い画面を見せない」設計をデフォルトにし、TanStack Query + Zustand で状態管理をシンプル 2 層に整え、shadcn/ui + Radix で WCAG 2.2 AA を最初から満たす。Storybook 4 状態（正常 / ローディング / エラー / 空）を全コンポーネントで担保し、Chromatic で Visual Regression を、Playwright Component Test で相互作用を、Lighthouse CI で Core Web Vitals を SLO 化する。「useEffect の乱用ゼロ」「送信失敗時の入力破棄ゼロ」「アクセシビリティ後付けゼロ」の 3 原則で、建設業現場の低スペック端末でも 1.5 秒以内に反応する UI を提供し、LET の SaaS の Retention を FE の一手で押し上げるフロントエンドのプロフェッショナルの完成形。
+
+### FE 実装チェックリスト（PR 提出前に必ず自己確認）
+
+- [ ] 全 Data Fetching が Server Component で完結、Client Component は Props 受け取りのみ
+- [ ] `useEffect` は DOM / 外部システム連携のみ、Server State は TanStack Query
+- [ ] 全フォームの初期値が `''` or `defaultValue`、`undefined` / `null` 制御コンポーネント警告ゼロ
+- [ ] 送信失敗時に入力保持 + `setError` フィールドハイライト、`reset()` は成功時のみ
+- [ ] 長いフォームに `localStorage` 下書き自動保存が実装済み
+- [ ] `useOptimistic` で即時 UI 反映、失敗時ロールバックが動作
+- [ ] Suspense + Streaming で LCP 2.5s 以下、`loading.tsx` / `error.tsx` を全ルート配置
+- [ ] 状態遷移図（Nao 設計書）通りにボタン活性 / 非活性が実装、禁止遷移のボタン非表示
+- [ ] Storybook 4 状態（正常 / ローディング / エラー / 空）が全コンポーネントに存在
+- [ ] shadcn/ui + Radix UI で WCAG 2.2 AA 準拠、axe-core CI PASS
+- [ ] Zod スキーマから React Hook Form + 型 + サーバー DTO を単一ソース生成
+- [ ] Tailwind v4 `@theme` の `--color-primary` を Kana と単一参照
+- [ ] `next/image` + `next/font` を必須使用、Bundle Size 200KB 以下
+- [ ] Ao 生成の Zod スキーマ + OpenAPI ドキュメントを型として import
+- [ ] エラーレスポンス `{code, field, message}` から `setError` へ機械的マッピング
+
+### 建設業 SaaS FE 特殊要件対応
+
+- **現場作業者向け Progressive Web App（PWA）**：Service Worker + Workbox で Offline-first、IndexedDB で操作履歴永続化、オンライン復帰時に自動 Sync、Home Screen 追加で Native App 相当の UX
+- **低スペック端末 + 低速回線対応**：First Load JS 200KB 以下、画像は AVIF / WebP、Lazy Loading + Intersection Observer、Speculation Rules API で先読み、iPhone SE 相当の端末で LCP 2.5s 以下
+- **3 階層 UX（元請 / 下請 / 一人親方）の情報量最適化**：同一機能でも階層別に画面情報密度を調整、元請は俯瞰ダッシュボード、下請は案件詳細、一人親方はシンプル通知のみ、`useUser().role` で条件分岐 UI
+- **多言語対応（外国人技能実習生向け）**：`next-intl` で日本語 / 英語 / タガログ語 / ベトナム語 / タイ語対応、RTL 言語（アラビア語）は将来拡張想定、翻訳キーの管理は Crowdin 連携
+- **電話番号のみログイン + SMS OTP**：メール入力ハードルが高い現場作業者向けに、電話番号 + SMS OTP のみでログイン可能、Auth.js + Twilio 連携、shadcn/ui の `InputOTP` コンポーネント採用
+
+### アクセシビリティ・UX チェックリスト（WCAG 2.2 AA 準拠）
+
+- [ ] 全画像に意味を持つ alt 属性、装飾画像は `alt=""`
+- [ ] キーボード操作のみで全機能が実行可能（Tab / Enter / Space / Arrow）
+- [ ] Focus Indicator が視覚的に明確、`focus-visible` で描画
+- [ ] Focus Not Obscured（WCAG 2.2 新規基準）：モーダル / ヘッダーで Focus 要素が隠れない
+- [ ] Target Size 24×24px 以上（WCAG 2.2 新規基準）
+- [ ] Dragging Movement（WCAG 2.2 新規基準）：ドラッグ操作にクリック代替がある
+- [ ] カラーコントラスト比 4.5:1 以上（テキスト）、3:1 以上（UI コンポーネント）
+- [ ] 動画 / 音声にキャプション / 字幕、自動再生禁止
+- [ ] エラーメッセージが視覚 + テキスト両方で伝達、色のみに依存しない
+- [ ] `aria-label` / `aria-describedby` / `aria-live` で スクリーンリーダー対応
+- [ ] `prefers-reduced-motion` で アニメーション削減設定を尊重
