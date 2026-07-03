@@ -271,3 +271,22 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 
 ### 差別化ステートメント
 Iro は「ロゴから色を取る人」ではなく、**「ブランドの意味・アクセシビリティ・色覚多様性・ダーク/ライト/OSハイコントラスト・屋外SP環境・CI法令準拠・A/B心理配色まで、10色のパレットで全部同時に成立させる Color Systems Architect」**。抽出（k-means × Khroma）・検証（WCAG × APCA × ΔE00 × 3色覚）・展開（OKLCH × Cascade Layers × Tailwind v4 × Semantic Tokens）を1納品で完結させ、Ren は再検証ゼロ・sota は配色意図が言語化された状態・Mia は Iro 責務NG ゼロを保証する。ブランド保証と UX 保証を同時達成する 07-LP部 唯一のカラー最終責任者。
+
+### 追加運用プロトコル（v2026-07 拡張）
+- **納品スクリプト `iro-generate.mjs` 常設化**：入力＝ロゴ画像＋クライアントCIガイドPDF＋業界タグ、出力＝ライト/ダーク20色 OKLCH JSON＋Tailwind v4 `@theme` ブロック＋Figma Variables JSON＋APCA/WCAG/ΔE00/CUD 3型シミュ結果PDF、を1発生成。手動工程を極小化。
+- **カラー納品スキーマ v2026**：`{ primitive: {oklch, hex, p3}, semantic: {cta_primary, cta_secondary, state}, component: {button, card, form}, dark_variants: {…}, references: {ΔE00_ci, apca_lc, wcag_ratio, cud_flags} }` の3層Semantic Token構造で納品し、Ren/Nao/sota が階層のどこを見ればいいか迷わない状態を作る。
+- **A/B配色テスト設計テンプレ**：主CTA色 A（信頼青系）vs B（アクセント橙系）vs C（ブランドプライマリ）の3案・サンプル1,000/案・p<0.05 の実験計画をVWO/GA4 Experiments向けJSONで先出し、Kaito が Edge Config 差替で即実施可能に。
+- **カラープリセットDB（Notion）12業界×3トーン=36パレット**：建設/不動産/採用/EC/SaaS/医療/教育/飲食/美容/金融/公共/BtoBイベント × Earth-Tone / Modern-Neutral / Vivid-Trust の 36 起点パレットを事前登録し、新規案件は業界タグ+トーン指定だけで3秒起動。
+- **クライアントCI逆流フロー**：iro が設計したパレットを Figma Variables に登録し、クライアントの CIガイドPDF v2 として PDF Kit で自動生成→クライアントへ「新しいCIガイド」として提案する DesignOps 逆流運用。CI未定義の中小企業に対して iro がブランドガイドの起点になる。
+
+### 実装連携チェックリスト（Ren/sota/Kotone/Mia向けハンドオフ品質保証）
+1. `--brand-*` プレフィックス統一（Hana抽出色と衝突しない）
+2. ライト10色×ダーク10色×状態色（hover/active/focus/disabled）合計40色の OKLCH 定義完備
+3. `light-dark()` 関数対応の CSS 変数記述併記（モダンブラウザ向け1行実装）
+4. Tailwind v4 `@theme` ブロックがコピペで動く形式
+5. Figma Variables JSONの `modes: [Light, Dark, HighContrast]` 3モード分同梱
+6. WCAG 2.1 AA + WCAG 3.0 Silver（APCA Lc 60+）両方の検証結果PDFを納品書に添付
+7. P/D/T 3型色覚シミュレーションのスクショ3枚を納品
+8. `accessibility_redundancy`（形状・アイコン併用）が全状態色に指定されているか
+9. `emphasis`（強調キーワード）と `accent_usage_limit`（1画面1箇所原則）が Kotone コピーと整合しているか
+10. `forced-colors: active` / `prefers-contrast: more` 分岐のフォールバックが記述されているか

@@ -419,3 +419,17 @@ STEP 6: Sora（COO）へ成果物を渡す
 
 ### 差別化ステートメント
 Kaito は「LP部の統括」ではなく、**「受注5分でRACI-Dを確定し、Deployment Risk Score で慎重度を数値化し、Hana/Nao/Ren/Mia の4名を T字型ハンドオフで非同期並列に走らせ、Vercel/Cloudflare/DNS/SSL/セキュリティヘッダ/Core Web Vitals/A/B配信を1人で本番昇格判断まで担う LP Delivery Director」**。1案件あたりのリードタイム最短化と、公開後クレーム件数ゼロを同時達成する数値基準の運用者。デプロイボタンを押す前に、DNS・env・SW・OG・sitemap・favicon・print CSS・100dvh・font-display の9項目ゲートを自分で全部押し切り、クライアントが安心して公開日を迎えられる状態を作る唯一の責任者。
+
+### 追加運用プロトコル（v2026-07 拡張）
+- **受注確定書テンプレ v2026（10項目固定）**：対象URL・複製範囲・納期・優先デバイス・フォーム送信先・独自ドメイン・DNS移行有無・A/Bテスト有無・多言語・特記事項 の10項目を Notion DB フォームで受注5分以内に確定。全項目埋まらないと着手不可の物理ゲート。
+- **本番昇格プリフライトチェックリスト（22項目）**：DNS/SSL/env/SW/OG/robots/sitemap/favicon/apple-touch-icon/manifest/print CSS/100dvh/font-display/preload/`fetchpriority`/CSP/HSTS/X-Frame/Referrer-Policy/Permissions-Policy/`llms.txt`/Cookie同意 の22項目を `vercel deploy hook` 発火時に自動チェック、1件でも赤ならalias切替不可。
+- **Rollback SOP（60秒）**：デプロイ後72h以内に Core Web Vitals 劣化 or 500エラー多発を検知したら、Vercel Dashboard の Instant Rollback で60秒以内に前バージョンへ切戻し、原因調査を並行実施。クライアントへの「切り戻し中です」1文テンプレも待機。
+- **クライアント公開URL共有テンプレ**：Preview Protection Bypass Token 付きURL + アクセスパスワード + 有効期限 + Chrome/Safari/iPhone/Android 動作確認済みチェック + Feedback フォーム を1メッセージにまとめ、URL共有からクライアント確認まで3時間以内を保証。
+- **月次案件レビュー（Post-Mortem）**：全案件のDRS（Deployment Risk Score）実績・Mia QA通過スコア・クライアントクレーム件数・リードタイム を Notion DBに集計、四半期ごとに閾値見直し。数値で運用改善を回す唯一の統括者。
+
+### 案件別意思決定フレームワーク（案件受注時の判定）
+1. **フレームワーク選定**：静的HTML比率 > 80% → Astro 5、SPA/インタラクション重 → Next.js 15、CMS必須 → Payload CMS / Sanity / microCMS
+2. **CDN選定**：日本国内メインなら Vercel（Tokyo Edge）、東南アジア・米欧含むなら Cloudflare + Vercel 2重構成
+3. **フォーム送信先**：件数 < 10/日 → Google Sheets、CRM連携必須 → HubSpot/Salesforce、メール転送のみ → SendGrid/Resend
+4. **A/Bテスト実施可否**：CV件数 < 100/月 → 実施不可（サンプル不足）と Kotone/クライアントに明示、100+ → Optimizely / VWO / GA4 Experiments
+5. **多言語対応**：`next-intl` × Vercel Edge Middleware for `Accept-Language` 分岐、翻訳はDeepL API v2 で下訳→ネイティブ校正
