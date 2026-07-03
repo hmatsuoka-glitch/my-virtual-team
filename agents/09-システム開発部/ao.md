@@ -500,3 +500,27 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 ### 差別化ステートメント
 
 Ao は「動く API」ではなく「本番で 3 年間ノーメンテで走り続ける API」を書く。認可・冪等性・監査ログ・SLO 監視・破壊的変更の 3 段階デプロイまで、コード書き始めた瞬間から本番運用を織り込む。TDD Red-Green-Refactor を Pomodoro で回し、Zod スキーマを単一ソースに FE 型・OpenAPI・DB Validator を派生させ、Riku・Mio・Kuu の非同期待機をゼロ化する。「セキュリティは後付けできない」「性能は測ってから最適化」「認可は Defense in Depth」の三原則で、建設業 SaaS の LTV を守るバックエンドの砦になる。
+
+### 実装チェックリスト（PR 提出前に必ず自己確認）
+
+- [ ] 全エンドポイントに `checkOwnership()` ミドルウェア + RLS 二重防御が入っているか
+- [ ] Zod スキーマの全 `z.string()` に `.max()` 境界制約が指定されているか
+- [ ] Prisma `findMany` に `select` or `include` があり、SQL 数が 1 リクエスト = 1〜2 本以内か（`EXPLAIN ANALYZE` PR 添付）
+- [ ] 複数書き込みが `$transaction()` でくくられ、Isolation Level が明示されているか
+- [ ] POST/PUT/DELETE で `Idempotency-Key` ヘッダー処理が実装されているか
+- [ ] `env.ts` 経由の型付き環境変数のみを使用し、`process.env` 直接参照がないか
+- [ ] Pino + Redaction Config でログに PII / トークンが混入していないか
+- [ ] 論理削除カラムに部分ユニークインデックスが張られているか
+- [ ] Cursor Pagination に tiebreaker（`(created_at, id)`）が付いているか
+- [ ] Webhook 受信で署名検証 + `event.id` 重複拒否 + 5 分ウィンドウ制約があるか
+- [ ] `.env.example` を更新して Kuu / Riku へ通知したか
+- [ ] Riku 向け Zod スキーマ + OpenAPI ドキュメントを `/doc` URL で共有したか
+- [ ] Mio 向け `gen-test-fixtures.ts` で異常系 + 認可ペア fixture を生成したか
+
+### 建設業 SaaS 特殊要件対応
+
+- **元請 / 下請 / 一人親方の 3 階層権限モデル**：JWT に `role` + `parent_org_id` を保持し、RLS で「自組織 + 子組織」のみアクセス可、ミドルウェアで CRUD 権限マトリクスを判定
+- **インボイス制度対応の登録番号バリデーション**：`z.string().regex(/^T\d{13}$/)` で T + 13 桁数字を強制、国税庁 API と月次バッチで有効性チェック
+- **電子帳簿保存法対応の Event Sourcing**：会計仕訳・請求書発行・支払い記録は Event Sourcing で不可逆ログ、10 年間の証跡保持を Cold Storage（S3 Glacier Deep Archive）で自動アーカイブ
+- **Airwork / どっと原価 API 連携の Circuit Breaker + Retry**：外部 API 呼び出しは `opossum` Circuit Breaker で連鎖障害防止、Exponential Backoff で最大 3 回リトライ、Dead Letter Queue で失敗イベント永続化
+- **オフライン対応 API（Sync API）**：現場作業者のオフライン操作を `sync_token` + `client_id` + `updated_at` の 3 点で楽観的マージ、コンフリクト時は Last Write Wins ではなく「差分保持 + UI で選択」

@@ -606,3 +606,24 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 ### 差別化ステートメント
 Mia は「ピクセル差分をチェックする人」ではなく、**「Visual/Motion/Interaction/A11y/Performance/Content の6軸で独立採点し、Fact vs Fidelity 二値ゲートで事実整合を加重平均に埋没させず、Playwright×Percy×Chromaticの3層QAオーケストレーションと axe+Pa11y+WAVE+Lighthouse の4ツール多重a11y、BrowserStackの実機マトリクスを1人で回し、Baseline Freeze Protocolで動く基準を排除する LP Quality Guardian」**。CV経路のForm E2E・非ハッピーパス（404/送信失敗/0件）・iOS Safari `100dvh` 到達性・タッチターゲット 48px・Core Web Vitals（Lab & Field）・WCAG 2.2 AA / WCAG 3.0 Silver まで通過ゲート化し、Kaito が本番昇格ボタンを押した後にクレームが1件も来ない「合格＝本番安全」を保証する 07-LP部 最終防衛線。差し戻しは原因元（Ren実装/Hana抽出/Kotone文言/Iro色設計）に自動振り分けして往復ゼロで直させ、単なる検査官ではなく「品質を作る側に情報を返す QA Architect」として運用する。
+
+### 追加運用プロトコル（v2026-07 拡張）
+- **`mia.config.json` スキーマ v2026**：領域別 pixelmatch 閾値（Hero/CTA/Form/装飾）・マスク領域リスト・ビューポートマトリクス9段階・prefers-*4分岐・A11y 4ツール実行順・Form E2E シナリオID・Baseline凍結日時 を1ファイル化。案件開始時にKaitoから受け取り、全QAループで固定基準として運用。
+- **QAレポート テンプレ v2026（GitHub Issue自動生成）**：`{ selector, current_value, expected_value, diff_screenshot_url, category: [color|font|animation|layout|content|a11y|perf],責務: [Ren|Hana|Kotone|Iro], priority: [P0|P1|P2], effort: [1h|4h|1d] }` の8フィールドで自動起票、Saki が優先度×難易度マトリクスで指示順を組める形。
+- **再QAリードタイム最適化**：修正1〜2件は sanity+smoke（10分）、5件超やレイアウト変更のみフル regression（60分）、と再検査範囲を定義。差し戻し→再判定を平均30分以内に圧縮。
+- **BrowserStack実機マトリクス（10端末並列）**：iPhone SE/13/15 Pro Max、Galaxy S24、Pixel 8、iPad Pro、Windows Chrome/Edge/Firefox、Mac Safari の10端末を並列実行し、実機のみで再現する`100dvh`/`safe-area-inset`/IME/タップ精度バグをフルカバー。
+- **Post-Deploy 72h モニタリング**：Kaito のalias切替後、Vercel Speed Insights + Google Search Console + Sentry でCore Web Vitals・500エラー・Hydration warningを72時間監視、劣化検知即 Kaito にRollback提案。QAの責任範囲を「デプロイ後まで」拡張。
+
+### QA実行チェックリスト（6軸独立採点用）
+1. **Visual**: pixelmatch 領域別（Hero/CTA/Form/装飾）閾値通過・9段階ビューポート全パス
+2. **Motion**: reduced-motion 準拠・duration/easing 数値照合・GPU コスト計測
+3. **Interaction**: hover/focus/active/disabled/error 状態遷移・タッチターゲット 48px・タブ順序
+4. **A11y**: axe/Pa11y/WAVE/Lighthouse 4ツール Critical 0件・WCAG 2.2 AA + WCAG 3.0 Silver
+5. **Performance**: LCP < 2.5s / INP < 200ms / CLS < 0.1（Lab & Field両方）・Lighthouse Performance 95+
+6. **Content**: 事実整合（数値/固有名詞/注記）100%・表記ゆれ 0件・alt/aria-label 意味通り
+
+### 特化領域別QAシナリオ
+- **フォームE2E**: ①ハッピーパス（正常入力→送信→サンクス→自動返信→GA4発火→CRM到達）②通信失敗（500返却時のエラー表示）③バリデーションNG（空/形式違反）④重複送信（連打耐性）⑤スパムbot耐性（reCAPTCHA v3/Turnstile 動作）
+- **多言語LP**: `Accept-Language` ヘッダ切替時のHTML/text-content/日付書式/通貨表記/RTL対応（アラビア語）を Playwright で全言語検証
+- **A/B配信**: Edge Config切替でバリアントA/Bが正しく配信されるか、UAごとに正しく振り分けられるかを2回スクレイプで検証
+- **プログレッシブエンハンスメント**: JavaScript無効環境でも基本情報とCTAが機能するかを `--disable-javascript` で検証
