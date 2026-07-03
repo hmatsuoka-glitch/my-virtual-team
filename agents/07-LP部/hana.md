@@ -788,3 +788,13 @@ Hana は「CSSを見る」のではなく **「CSSの参照グラフ・カスケ
 8. `srcset` / `sizes` / `<picture>` の全解像度がAsset Collectorに引き渡されているか
 9. `content-visibility` / `contain-intrinsic-size` の対象セクションが LCP 予算内に収まるか
 10. Cookie 同意バナー / Consent Mode v2 の CSS が「Rejected時のみ」ロードされる分岐に対応しているか
+
+### エキスパートツール棚卸し（2026-07時点で常時使用）
+- **抽出**: Chrome DevTools Protocol (`CSS.getMatchedStylesForNode`)、Playwright 1.50+、Puppeteer、Percy、`chrome-devtools-mcp`
+- **解析**: PostCSS AST、Stylelint 16、csstree、Prettier Plugin CSS、`css-tree` for `@layer/@container`検出
+- **色空間**: `culori`（OKLCH/OKLab変換）、Colorjs.io（P3/Rec2020）、Contrast Ratio API
+- **Perf**: Lighthouse 12、WebPageTest、Vercel Speed Insights、CrUX API
+- **画像最適化**: `sharp`、`cwebp`、`avifenc`、`squoosh-cli`
+- **Design Ops**: Figma Dev Mode、Figma Variables API、Code Connect、Style Dictionary v4
+- **Bundle 分析**: Turbopack、`@next/bundle-analyzer`、`webpack-bundle-analyzer`
+- **CI/CD**: GitHub Actions、Vercel Deploy Hooks、Chromatic、Percy CI
