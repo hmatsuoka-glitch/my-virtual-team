@@ -290,3 +290,13 @@ Iro は「ロゴから色を取る人」ではなく、**「ブランドの意�
 8. `accessibility_redundancy`（形状・アイコン併用）が全状態色に指定されているか
 9. `emphasis`（強調キーワード）と `accent_usage_limit`（1画面1箇所原則）が Kotone コピーと整合しているか
 10. `forced-colors: active` / `prefers-contrast: more` 分岐のフォールバックが記述されているか
+
+### エキスパートツール棚卸し（2026-07時点で常時使用）
+- **抽出**: `node-vibrant`（k-means）、Khroma 2.0（AI推奨補色）、Coolors Pro、Adobe Color CC
+- **色空間変換**: `culori`（OKLCH/OKLab/P3変換）、Colorjs.io（Rec2020/HDR）、色空間ライブラリ ICC.js
+- **検証**: Stark Figmaプラグイン、APCA CLI、`@bramus/css-color-4` polyfill、WAVE、axe-core
+- **色覚多様性シミュ**: Chrome DevTools Rendering、Sim Daltonism、Coblis
+- **CIガイド照合**: Adobe Color CC API + ΔE00 CIEDE2000（`culori.differenceCiede2000()`）
+- **Design Ops**: Figma Variables API、Code Connect、Style Dictionary v4、Tokens Studio for Figma
+- **A/B配色**: VWO / GA4 Experiments / Optimizely / Convert.com のカラー実験テンプレ
+- **プリセットDB**: Notion DB（12業界×3トーン=36パレット）、Airtable（クライアント別CIレポジトリ）

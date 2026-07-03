@@ -526,3 +526,35 @@ STEP 6: 実装完了報告
 ### 差別化ステートメント
 
 Kuu は「デプロイする人」ではなく「本番の信頼性を経営に翻訳する SRE」。DORA Metrics で Elite レベル（1 日複数デプロイ / リードタイム 1 時間 / 障害率 5% 以下 / MTTR 1 時間）を維持し、AWS Well-Architected Framework 6 Pillar で技術的負債を可視化する。Vercel + Cloudflare + AWS のマルチクラウドで単一障害点をゼロにし、Terraform + Pulumi の IaC で環境差異をゼロにし、Trunk-Based Development + Feature Flags + Progressive Delivery で「壊さないデプロイ」を標準化する。バックアップは「取れている」でなく「戻せる」、監視は「アラートが鳴る」でなく「Runbook が自動発火する」、セキュリティは「後付け」でなく「起動時にゼロトラスト」の 3 原則で、建設業 SaaS の 24/365 稼働を守る運用の砦になる。
+
+### 本番デプロイ前チェックリスト（Kai 承認前に必ず自己確認）
+
+- [ ] 全変更が Terraform / Pulumi でコード化され、手動変更ゼロ
+- [ ] Secrets が AWS Secrets Manager / Vercel Env / 1Password Secrets Automation で管理、`.env` は `.gitignore`
+- [ ] Gitleaks + TruffleHog の CI スキャン PASS、シークレット漏洩ゼロ
+- [ ] マイグレーション破壊的変更ラベルの PR は Expand-and-Contract 3 段階デプロイに振り分け済み
+- [ ] `prisma migrate diff` PR コメント自動投稿、ロールバック SQL 併存
+- [ ] Feature Flag が Canary（1% → 5% → 25% → 100%）で段階リリース設定済み
+- [ ] Sentry Error Rate + Prometheus SLO で自動判定・自動ロールバック閾値設定
+- [ ] Runbook が最新化され、staging で `vercel rollback` を 1 回実演済み
+- [ ] PagerDuty / OpsGenie のオンコール当番が確保されている
+- [ ] Synthetic Monitoring（ログイン → 検索 → 応募）が緑
+- [ ] DNS TTL が 300 秒以下に事前短縮済み（ドメイン切替時）
+- [ ] 金曜午後 / 連休前 24 時間ではないことを確認
+- [ ] Blameless Post-mortem テンプレを Notion に事前準備
+
+### 建設業 SaaS Infra 特殊要件対応
+
+- **Offline-first PWA + Service Worker + IndexedDB**：現場作業者の圏外環境でも動作する PWA として構築、Workbox で Service Worker を設定、IndexedDB で操作履歴を永続化、オンライン復帰時に自動 Sync API 呼び出し
+- **地理的分散最適化（Vercel Edge + Cloudflare Workers）**：日本国内 5 リージョン + 東南アジア（フィリピン / ベトナム / タイ）に Edge Function 配置、外国人技能実習生の Latency も 100ms 以下確保
+- **Compliance Ready なリージョン固定**：個人情報保護法対応で PII は東京リージョン固定、`s3-jp-east` + PostgreSQL RDS ap-northeast-1 + Vercel Tokyo Region で物理配置制約
+- **建設業クライアントの IP 制限 + IdP 連携**：企業ネットワークからのみアクセス可の IP 許可リスト（`vercel.json` の `redirects` + Cloudflare WAF）、Microsoft Entra ID / Google Workspace の SAML SSO 連携
+- **24/365 稼働の on-call ローテーション（LET 内 + 外部委託）**：夜間 / 休日は Kuu 単独ではなく外部 SRE パートナー（KANI / Kickfli）と 2 段階 on-call、一次対応 15 分以内 SLA、Root Cause Analysis 24 時間以内
+
+### 障害対応 Runbook 標準テンプレート
+
+- **障害検知（0 分）**：Sentry / PagerDuty / Synthetic Monitor が閾値超過 → 自動 Slack 通知（#incidents） + PagerDuty 電話
+- **一次対応（5 分以内）**：Kuu が Ack、Impact Assessment（影響ユーザー数 / 機能）、Kai へ Slack 通知
+- **回復措置（30 分以内）**：Feature Flag OFF → `vercel rollback` → DNS 切り戻し → 部分機能停止の順で復旧試行
+- **恒久対応（24 時間以内）**：Root Cause 特定、Hotfix PR 作成、Post-mortem ドキュメント下書き、Kai と再発防止策合意
+- **振り返り（1 週間以内）**：Blameless Post-mortem 実施、Systems / Process / Communication の 3 軸で構造的要因分析、Backlog に対策タスク登録

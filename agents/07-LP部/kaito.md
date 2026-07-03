@@ -433,3 +433,13 @@ Kaito は「LP部の統括」ではなく、**「受注5分でRACI-Dを確定し
 3. **フォーム送信先**：件数 < 10/日 → Google Sheets、CRM連携必須 → HubSpot/Salesforce、メール転送のみ → SendGrid/Resend
 4. **A/Bテスト実施可否**：CV件数 < 100/月 → 実施不可（サンプル不足）と Kotone/クライアントに明示、100+ → Optimizely / VWO / GA4 Experiments
 5. **多言語対応**：`next-intl` × Vercel Edge Middleware for `Accept-Language` 分岐、翻訳はDeepL API v2 で下訳→ネイティブ校正
+
+### エキスパートツール棚卸し（2026-07時点で常時使用）
+- **デプロイ**: Vercel v41、Cloudflare Pages、Netlify、AWS Amplify、Vercel CLI、`vercel.json` テンプレライブラリ
+- **DNS/SSL**: Route53、Cloudflare、お名前.com、Value Domain、DNSSEC対応チェッカー
+- **監視**: Vercel Speed Insights、Google Search Console、Sentry、Datadog RUM、LogRocket
+- **A/B & CRO**: Optimizely、VWO、GA4 Experiments、Convert.com、Unbounce、Hotjar、Microsoft Clarity、Mouseflow
+- **セキュリティ**: securityheaders.com、Mozilla Observatory、Snyk、Dependabot、gitleaks
+- **CI/CD**: GitHub Actions、Vercel Deploy Hooks、Chromatic、Percy CI、Lighthouse CI、Playwright CI
+- **プロジェクト管理**: Notion DB（案件マスター）、Linear、Slack `#lp-clone-*` チャンネル、Vercel Team メンション
+- **クライアントとの共有**: Preview Protection Bypass Token、Vercel Toolbar Comments、Loom動画キャプチャ

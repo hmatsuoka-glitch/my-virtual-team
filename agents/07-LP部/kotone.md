@@ -293,3 +293,13 @@ Kotone は「LPのコピーを書く人」ではなく、**「求職者の3つ�
 8. フォーム内マイクロコピー（ラベル/placeholder/エラー文/送信中/サンクス）が独立表で納品されているか
 9. スクロール深度別 CTA 3点配置（FV/実績後/最終）が Nao 設計書にマップされているか
 10. AI Overview / SGE 露出用のFAQセクション（`FAQPage` schema.org想定）が含まれているか
+
+### エキスパートツール棚卸し（2026-07時点で常時使用）
+- **コピー生成**: Claude API（Opus 4.7/Sonnet 4.5）、GPT-5、プロンプトDB（Notion）
+- **NGワード検知**: VSCode Highlight Matching Tag（regex）、`node scripts/copy-check.js`、textlint + `preset-jtf-style`
+- **字数チェック**: Figma Text Counter プラグイン、VSCode `wordcount-japanese`、リアルタイムステータスバー
+- **A/B・CRO**: Optimizely、VWO、GA4 Experiments、Convert.com、Vercel Edge Config、Hotjar、Microsoft Clarity
+- **原本突合**: OCR（Google Cloud Vision）、`node scripts/fact-diff.js`、PDF-parse、diff-match-patch
+- **SEO/E-E-A-T**: Google Search Console API、Ahrefs API、schema.org 構造化データバリデータ
+- **法務チェック連携**: nori エージェント（景表法/均等法/薬機法）、消費者庁景表法データベース
+- **i18n**: DeepL API v2、`next-intl`、`next-i18next`、Poedit、Crowdin
