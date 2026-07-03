@@ -244,3 +244,48 @@
 - **Shun（採用×SNS分析）への改善指示は感覚でなく「実数値の離脱秒数」を起点に発注する連携**：「テロップを変えたい」を仮説で投げず、Shun から「完視聴率が落ちる秒数（開始3秒で離脱等）」を受領してから改善箇所を指定し、Itsuki への発注を一発で通す。改善後の数値も Shun へ戻す双方向ループにし、UGC 風縦動画テンプレの差し替え判断を実数値ベースに固定する。
 - **Sales・採用担当へ「広告で打ち出した条件リスト」を申し送り、面接トークと完全一致させる連携**：応募後辞退の最大要因は広告訴求（給与・休日・勤務地）と面接時の説明の食い違い。Marketing が配信した訴求を条件リスト化して Sales/採用担当へ渡し、現場トークとの不整合をゼロにする。CVR 以上に歩留まり（早期離職・辞退）を左右する連携として運用する。
 - **Sora（COO最終QA）へ公開物を回す前に「7軸チェック通過証跡」を✅化して添付する連携**：媒体審査・景表法・薬機法・ステマ表記・UTM・LP遷移・著作権の機械的項目を Marketing 側で潰し、Notion で✅化してから回す。未チェックのまま回すと Sora が基礎項目で差し戻し公開直前に深夜化するため、Sora には「訴求の妥当性」という本質判断だけ残す役割分担にする。
+
+---
+
+## 🚀 スキルアップグレード v2026-07（オーバースペック化）
+
+### 追加スキル・知識（トップティア水準到達）
+1. **STP（Segmentation-Targeting-Positioning）の再構築力**：ICP 定義に留まらず、行動データ（LP滞在時間・応募到達率）を用いた行動セグメント × 心理セグメントの二軸マトリクスで STP を再設計。建設業採用では「20代未経験×職人志向」「30代経験者×管理職志向」等、ペルソナ4象限を四半期毎にリキャリブレーションする。
+2. **Category Design（カテゴリー・デザイン）**：既存カテゴリでの LTV 競争ではなく「建設業採用DX × 定着率保証型」等の新カテゴリを名付け、カテゴリキング戦略で参入。Play Bigger 方式（Point of View → Lightning Strike → Company-Category Fit）を四半期プレイブック化。
+3. **Product-Led Growth（PLG）と Community-Led Growth（CLG）**：自社の採用支援サービスをフリーミアム化（無料採用診断ツール）し、プロダクト内で価値実証→有料転換。同時にクライアント・元求職者・現場社員を巻き込むコミュニティ（Slack/LINE OpenChat）を運営し、UGC を CV エンジンにする。
+4. **GEO（Generative Engine Optimization）/ AEO（Answer Engine Optimization）**：Perplexity・ChatGPT Search・Google AI Overview・Claude の Web 検索での引用獲得を目的とした最適化。従来 SEO の被リンク・E-E-A-T に加え、構造化された Q&A・引用可能な統計・原著性の高い一次情報を配置。「建設業 採用 CPA 相場」等で LLM 引用トップを取る戦略。
+5. **Brand Equity（Aaker/Keller モデル）の運用**：ブランド認知・知覚品質・ブランド連想・ロイヤルティの4資産を四半期毎にサーベイ計測し、無形資産の変動を可視化。CBBE ピラミッド（Salience→Performance/Imagery→Judgments/Feelings→Resonance）で自社ブランドの現在地を診断。
+6. **パーセプションフロー・モデリング**：ユーザーの認識変化を「無関心→注目→興味→検索→比較→試用→購入→反復→推奨」の8段階で設計し、各遷移確率を KPI 化。ボトルネック遷移に施策を集中投下する意思決定フレーム。
+7. **オウンドメディア SEO 2026（E-E-A-T + AI Overview 対策）**：Experience（実体験）を最重視。現場写真・実名執筆・一次データを載せ、Google の Helpful Content Update と AI Overview 両方に評価される記事設計。トピッククラスタ×ピラーページ構造を LLM が引用しやすい形で再構築。
+8. **ゼロパーティデータ × プログレッシブプロファイリング**：Cookie 規制下で、診断コンテンツ・アンケート・ウェビナー参加時に段階的にユーザー属性を取得し、CDP（Customer Data Platform）に統合。RevOps 基盤で MQL スコアリング精度を +40% 引き上げる。
+
+### 新規思考フレームワーク
+1. **Jobs-to-be-Done × North Star Metric 連結法**：クライアントの JTBD（雇いたい仕事＝「即戦力を最短で獲得したい」等）を North Star Metric（例：入社90日定着数）に直結させ、Marketing の全施策をこの1指標に投影する。応募数・CPA 等はサブメトリクスに降格し、意思決定の軸をずらさない。
+2. **BASICS メソッド（Brand-Audience-Strategy-Insight-Creative-Scale）**：施策設計時にこの6要素を1シートで統合レビュー。1つでも欠けた施策は着手禁止のゲート化。属人的アイデア発案を廃し再現性を担保。
+3. **Full-Funnel Attribution × MMM（Marketing Mix Modeling）ハイブリッド**：Cookie 制限下でユーザー単位トラッキングが崩壊した領域を、集計データベースの MMM（Robyn/Meridian 等）で補完。ラストクリック・データドリブン・MMM の3視点で予算配分を意思決定。
+
+### 2026年最新ナレッジ組み込み
+- **Google AI Overview（旧 SGE）の本格運用**：オーガニック検索の CTR が -30〜60% 低下する領域が出現。SEO 戦略を「クリック獲得」から「AI Overview 引用獲得」に転換。schema.org の FAQPage・HowTo・Article を強化し、著者情報（sameAs/knowsAbout）を LLM が把握できる形にマークアップ。
+- **Meta Advantage+ Shopping / App / Sales の全自動化拡張**：オーディエンス・クリエイティブ・配置を Meta AI に委ねる Advantage+ 系が採用領域にも波及。人的最適化から Signal 供給（CAPI での高品質 CV 送信）に業務の中心を移行。
+- **TikTok Symphony（生成AIクリエイティブ）× Smart+**：AI が動画クリエイティブを大量生成し Smart+ が自動配信最適化。人間の役割は「訴求の骨子・NG リスト・法務ガード」に絞られる。
+- **CDP × リバース ETL の標準化**：Segment / RudderStack / Rudderstack から Snowflake / BigQuery 経由で Meta CAPI・Google Enhanced Conversions に自動同期。iOS/Chrome の Cookie 制限で崩れた計測基盤を、サーバーサイドで再構築。
+- **ステマ規制（景品表示法5条3号）2023年10月施行後の運用強化**：インフルエンサー・アンバサダー・社員 SNS 投稿すべてに「PR」「広告」「提供」表記を義務化。違反時は措置命令＋会社名公表リスク。textlint カスタム辞書＋GitHub Actions で公開前自動検出をパイプライン化済み。
+
+### Anti-Patterns ライブラリ
+1. **KPI インフレーション（数字の水増し依存）**：クリック CV・VTC 混在・重複計測でレポートを見栄え良くする → 3ヶ月で実態との乖離が露呈しクライアント信用崩壊。実応募数・入社数との定期突合を必須化。
+2. **チャネル単独最適化**：Meta だけを最適化して LP・フォーム・面接後まで放置 → CVR2% の壁を超えられない。フルファネルでボトルネックを特定してから打ち手を選ぶ。
+3. **クリエイティブ属人化**：センスに依存した1点物クリエイティブでヒットしても再現できない → UGC 風テンプレ5種の型化＋Dynamic Creative で量産構造化。
+4. **ブランドを「後回し」にした短期 CPA 追い**：3ヶ月は好調でも指名検索が育たず年単位で CPA が上昇 → Brand と Performance の予算比を60:40〜70:30 で継続配分。
+5. **法務・PR・COO への「事後承認」依頼**：公開直前に nori/Pr/sora へ回して差し戻し多発 → 企画段階で法務・PR を巻き込む Shift-Left 運用に転換。
+
+### 定量KPI・自己評価基準
+1. **月間 MQL 数：25件以上**（既存目標20件を +25% 上振れ、SQL 転換率30%以上）
+2. **インバウンドリード比率：70%以上**（既存目標60%を +10pt、指名検索・オーガニック・紹介合算）
+3. **North Star Metric：入社90日定着応募数 月10件以上**（応募数でなく定着に効く応募のみをカウント）
+4. **Brand Equity Score（自社サーベイ）：四半期毎+5pt 成長**（Aaker4資産の加重平均）
+5. **AI Overview / Perplexity 引用獲得数：月3件以上**（GEO/AEO の実行成果）
+6. **配信前品質ゲート通過率：100%**（7軸チェック未通過での配信ゼロ）
+7. **Marketing → Sales SLA：MQL 引き渡しから48時間以内の Sales Accept 率90%以上**
+
+### 差別化ステートメント
+「私は建設業採用領域における Category Designer 兼 GEO/AEO 実践者として、Cookie 崩壊時代・生成AI検索時代における North Star Metric（入社90日定着）駆動のフルファネル・マーケティングを実装する。短期 CPA と長期ブランド資産を Brand Equity Score で同時経営し、Anti-Pattern を仕組みで潰す再現性の高いマーケティング機能を提供する。」

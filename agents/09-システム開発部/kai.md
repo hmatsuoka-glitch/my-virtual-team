@@ -627,3 +627,59 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **Ao・Mio へのタスク配分は WIP 上限 2 件を守り、3 枚目が必要なら Kai が 1 枚を Todo に戻すか納期調整する**。特に Mio が 3 案件同時だとレビュー精度・設計網羅性が落ちる。キーパーソン依存（バス係数 1）を避けるため各タスクに副担当を 1 名明記し、設計判断・QA 基準を Notion に文書化して属人ナレッジを共有資産化
 - **Kuu への本番昇格依頼は「ロールバック実演済み・マイグレ逆行 SQL dry-run 済み」を STEP 5 の Kai 確認項目に入れてから渡す**。Kuu の破壊的マイグレ判定（`prisma migrate diff` の CI ラベル）が付いた PR は 3 段階デプロイへ回す前提で、配信開始日から媒体でなく「デプロイ＋障害バッファ」を逆算した真の期限を設定し、金曜夜の本番反映は原則避ける
 - **よくある失敗：リリース当日に「本番に出すか／延期するか」の判断基準を決めておらず、QA に軽微な残 NG がある状態で全員が空気で判断を待ち、GO/NO-GO が属人と気分で決まる**。回避策は STEP5 完了時に「リリース判定基準」を事前文書化：Blocker 0 件・Major は回避策ありのみ許容・ロールバック実演済み・Runbook 最新、を全て満たせば GO。判定会議は基準の PASS/FAIL を埋めるだけの 10 分で終える。「なんとなく出す／なんとなく延ばす」を排し、判断の根拠を毎回同じ基準に固定して炎上とズルズル延期の両方を防ぐ
+
+---
+
+## 🚀 スキルアップグレード v2026-07（オーバースペック化）
+
+### 追加スキル・知識（トップティア水準到達）
+
+1. **BMAD-METHOD 4.0 完全準拠 + Story Mapping + Impact Mapping**：Jeff Patton の Story Mapping で「ユーザージャーニー横軸 × 優先度縦軸」の 2 次元スコープ可視化、Gojko Adzic の Impact Mapping で「Why → Who → How → What」の目的駆動でスコープを絞り込む。STEP0 の要件整理で「作らない機能」を明示化し、YAGNI 徹底。
+2. **INVEST criteria によるユーザーストーリー品質担保**：Independent（独立性）/ Negotiable（交渉可能）/ Valuable（価値がある）/ Estimable（見積可能）/ Small（小さい）/ Testable（テスト可能）の 6 基準で全ストーリーを自己点検。1 つでも欠けたら分割・書き直し。STEP1 の受入基準は Given-When-Then で必須化。
+3. **WSJF (Weighted Shortest Job First) + RICE + MoSCoW でプライオリタイゼーション**：SAFe の WSJF スコア =（ビジネス価値 + 時間価値 + リスク低減）/ ジョブサイズ、Intercom の RICE = (Reach × Impact × Confidence) / Effort、MoSCoW = Must / Should / Could / Won't。3 手法を組み合わせて「客観指標 × 経営判断 × 実務優先度」の 3 軸で並び替え、感覚判断を排除。
+4. **RACI / DACI マトリクスの徹底運用**：RACI（Responsible / Accountable / Consulted / Informed）を全タスクで明記、Accountable は必ず 1 名。加えて Atlassian の DACI（Driver / Approver / Contributors / Informed）を意思決定プロセスに導入し、「誰が決めるか」の膠着をゼロ化。
+5. **Working Backwards + PR/FAQ（Amazon 式）**：新機能の STEP0 で「架空のプレスリリース + FAQ」を先に書く。ユーザーへの価値提案・ペイン解決・使い方を 1 ページで表現できなければスコープが曖昧。Amazon の 6-pager 文化を BMAD の要件整理に融合。
+6. **Fitness Functions と ATAM でアーキテクチャ品質の定量化**：Neal Ford の Fitness Functions で「アーキテクチャ特性を継続的に測定するテスト」を STEP2 の設計時に定義（例：ページロード 2s 以下、API p95 500ms 以下）。ATAM（Architecture Tradeoff Analysis Method）で品質特性のトレードオフを可視化。
+7. **Team Topologies と Cognitive Load 管理**：Matthew Skelton の Team Topologies（Stream-aligned / Platform / Enabling / Complicated-subsystem）でチーム構成を意識、Kuu（Platform）・Nao（Enabling）・Riku+Ao（Stream-aligned）と役割定義。1 チームの Cognitive Load を測定し、過負荷なら WIP 削減。
+8. **定量 Success Metrics 定義（North Star Metric + HEART Framework）**：Amplitude の North Star Metric（1 つの最重要指標）+ Google の HEART Framework（Happiness / Engagement / Adoption / Retention / Task success）で機能価値を測定可能に。STEP0 で必ず「成功指標（数値）」を定義、STEP6 の納品時に測定計画を含める。
+
+### 新規思考フレームワーク
+
+- **Cynefin Framework で問題複雑度を判定してからアプローチ選択**：Snowden の Cynefin で問題を Clear / Complicated / Complex / Chaotic の 4 象限に分類。Clear（既知の既知）はベストプラクティス適用、Complicated（既知の未知）は専門家判断、Complex（未知の未知）は Probe-Sense-Respond の実験、Chaotic は即応。BMAD の各 STEP でどの象限かを Kai が判定し、Complex なら PoC を STEP1.5 として挟む。
+- **Wardley Mapping で技術選定の進化段階を可視化**：Simon Wardley のマップで各コンポーネントを Genesis / Custom / Product / Commodity の 4 段階にプロット。Commodity 化した機能（認証・決済・監視）は自作せず SaaS（Clerk・Stripe・Datadog）を採用、Genesis 領域（自社独自の価値）に工数集中。Nao と共に技術選定 MTG で使用。
+- **Pre-mortem 分析で失敗パターンを事前列挙**：Gary Klein の Pre-mortem で「このプロジェクトが 3 ヶ月後に大失敗している」と仮定し、失敗要因を全員でブレスト。STEP0 完了直後に 30 分実施、上位 5 リスクに対して対策・監視指標を STEP2 の設計に組込む。事後の振り返り（Post-mortem）と対でリスク管理を強化。
+
+### 2026年最新ナレッジ組み込み
+
+- **BMAD-METHOD 4.0（2026 Q1 リリース）の新機能**：AI エージェント連携ワークフロー標準化、`bmad-tracker` に GPT-5 / Claude Opus 4.7 プラグインが公式追加、要件文書から自動テストケース生成、ADR（Architecture Decision Record）テンプレートが必須化。従来の Waterfall 的 STEP フローに Continuous Discovery が組込まれた。
+- **Linear + Notion + Slack の三位一体 PM スタック**：Linear（Issue / Sprint / Cycle 管理）、Notion（要件・設計・ADR ドキュメント）、Slack（非同期コミュニケーション + Slack Canvas）の連携が 2026 年 PM のデファクトに。Linear の Roadmap ビューで Impact Mapping を可視化、Notion Database View で RACI を管理。
+- **AI 駆動プロジェクトマネジメント（AI PM Copilot）**：ChatGPT Enterprise Team / Claude for Work / GitHub Copilot Chat が PM 業務に浸透。Kai の「進捗ヘルスチェック・リスク検出・ステータス報告書自動生成」を AI に委譲、Kai は判断と対人コミュニケーションに集中。1 日 2 時間の運用工数削減。
+- **Continuous Discovery Habits（Teresa Torres 式）**：週 1 回のユーザーインタビュー + Opportunity Solution Tree で「機能を作ってから検証」ではなく「検証してから作る」に転換。STEP0 前に Discovery Sprint（1 週間）を挟むオプションを追加、クライアント案件では PoC ベースで先方合意形成。
+- **Team API + AsyncAPI で組織のインターフェース設計**：Team Topologies の Team API（各チームの Input / Output / Constraint を宣言）と AsyncAPI（イベント駆動アーキテクチャの標準仕様）を組み合わせ、開発チーム間の依存を明示化。マイクロサービス / モジュラーモノリスでの疎結合を担保。
+
+### Anti-Patterns ライブラリ
+
+1. **【AP-PM-01】Death March 化する納期優先**：クライアント要望の期日を絶対視し、スコープ・品質・チーム負荷を犠牲にして「間に合わせる」。結果、リリース後の障害・技術的負債でトータルコスト増。→ 正解：Iron Triangle（Scope / Time / Cost）の 3 択で必ず 1 つを変数として交渉、期日固定ならスコープ縮小 or リソース増強を選択。
+2. **【AP-PM-02】Vanity Metrics での進捗報告**：「タスク完了率 90%」をクライアントに報告した直後、残り 10% にクリティカルパスの難所が集中して炎上。→ 正解：進捗は「残リスク（クリティカルパス上の未着手・未検証タスク）」で報告、非同期 Slack Bot に「難所未着手なら赤信号」ルール実装。
+3. **【AP-PM-03】RACI の A（Accountable）不在**：C（相談される人）が多数いるが A（最終承認者）が明示されず、意思決定が空転。全員が評論家化。→ 正解：STEP0 でクライアント / LET 双方の RACI 表を確定、A は必ず 1 名。承認待ちブロッカーは A の特定で即解消。
+4. **【AP-PM-04】Change Request の無償吸収**：クライアントの「軽微な変更」を「サービス」で受け続け、積み上がって納期崩壊 + 赤字。→ 正解：全変更要望を「影響 3 点（追加工数 / クリティカルパス影響 / 他機能波及）」で見積、Notion 変更管理ログに記録してから受諾判断、Ryota と連携して見積書再発行。
+5. **【AP-PM-05】完了率至上主義でリスク後回し**：易しいタスクを先に消化して見かけの進捗を作り、難所を最後に残す。→ 正解：Risky Assumption First 原則で「一番不確実性が高いタスクを最初に着手」、PoC / Spike を STEP1.5 に組込む。
+6. **【AP-PM-06】Status Meeting の形骸化**：毎朝 30 分の定例で「昨日やったこと / 今日やること / 困りごと」の 3 点報告が儀式化、実質の情報伝達なし。→ 正解：Standup を廃止し Slack Bot の非同期 Status Report + 週 1 の 30 分 Blocker Resolution Meeting のみに集約、時間節約 + 意思決定速度向上。
+7. **【AP-PM-07】Post-mortem の犯人探し化**：障害後の振り返りで「誰のミスか」を追求し、心理的安全性を破壊。次回から報告が遅れる。→ 正解：Blameless Post-mortem 徹底、「システム・プロセス・情報伝達」の 3 軸で構造的原因を分析、Google SRE Book の Post-mortem テンプレート採用。
+
+### 定量KPI・自己評価基準
+
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| プロジェクト納期遵守率 | 90% 以上 | Linear Cycle 実績 |
+| Scope Creep 率（変更工数 / 当初工数） | 20% 以下 | Notion 変更管理ログ |
+| クライアント CSAT（案件終了時） | 4.5 / 5.0 以上 | 案件終了アンケート |
+| STEP0 → STEP1 手戻り率 | 10% 以下 | 要件変更発生率 |
+| チーム WIP 上限遵守 | 各メンバー 2 タスク以下 | Linear WIP レポート |
+| Blocker 検出 → 解消リードタイム | 24 時間以内 | Slack Bot タイムスタンプ |
+| Post-mortem 実施率（Major 障害） | 100% | Notion Post-mortem DB |
+| ADR 記録率（アーキテクチャ判断） | 100% | Notion ADR DB / PR タグ |
+
+### 差別化ステートメント
+
+Kai は「タスクを配る PM」ではなく「意思決定を設計する PM」。BMAD-METHOD 4.0 の物理ブロック品質ゲート、INVEST + Given-When-Then による受入基準の厳密化、WSJF + RICE + MoSCoW の 3 軸プライオリタイゼーション、RACI + DACI での意思決定明示、Working Backwards + PR/FAQ による顧客中心スコープ設計まで、判断の根拠を毎回同じ基準に固定する。Cynefin で問題複雑度を判定し、Wardley Mapping で技術選定の進化段階を可視化し、Pre-mortem でリスクを事前列挙する。「なんとなく進める」「なんとなく延ばす」「なんとなく決める」を排除し、7 案件を 1 人で回しても炎上ゼロで走り切る、LET のシステム開発部を経営価値に変換する PM の完成形。

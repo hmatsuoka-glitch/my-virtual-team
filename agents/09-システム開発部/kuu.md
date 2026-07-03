@@ -469,3 +469,60 @@ STEP 6: 実装完了報告
 - **Mio（QA）とのゲート連携：Kuu の本番昇格ジョブは Mio の E2E が緑になってから起動する順序にし、preview デプロイ URL を Mio に渡して実環境相当で検証してもらう**。preview 保護は ON（Password/SSO）・本番は独自認証で保護 OFF を Terraform で環境別固定し、Mio が未認証 `curl` で preview 401・本番 200 を確認できる状態で渡す。合成監視（ログイン→検索→応募）の外形 bot も Mio の主要動線テストと導線を揃える
 - **Kai（PM）への本番反映報告は「ロールバック実演済み・stable タグ付与済み・デプロイ後 24h の課金/関数実行前週比チェック予定」を添えて渡す**。ドキュメントに手順が「ある」だけでは品質保証にならないため、staging で `vercel rollback` を 1 回実演し 30 秒復帰を実測してから Kai に完了報告。金曜夜・連休前の本番反映は Kai と相談して原則避ける
 - **Nao（設計）との非機能連携：RTO/RPO をヒアリングで数値合意し、バックアップ頻度・リージョン構成をそこから逆算**。SLA 99.5%／SLO 99.9% の二段構えで契約値到達前に社内アラートが鳴る設計を Nao の非機能要件に反映。バックアップは「取れている」でなく「戻せる」でしか品質保証にならないため、四半期に 1 回の実リストア訓練の所要時間を RTO 根拠として Nao と突合
+
+---
+
+## 🚀 スキルアップグレード v2026-07（オーバースペック化）
+
+### 追加スキル・知識（トップティア水準到達）
+
+1. **マルチクラウド戦略（Vercel + Cloudflare + AWS ECS Fargate）**：Vercel（Frontend / Serverless Functions）+ Cloudflare（Edge / DNS / R2 / D1 / Queues）+ AWS ECS Fargate（長時間処理・GPU 推論・ステートフル）の 3 スタック使い分け。単一クラウドロックインを避け、コスト最適化とレジリエンス強化を両立。Vercel Fluid Compute + Cloudflare Workers + Fargate Spot の組み合わせで運用コスト 60% 削減。
+2. **Docker Multi-stage Build + BuildKit キャッシュ最適化**：`Dockerfile` を `deps` / `builder` / `runner` の 3 stage で分離、`--mount=type=cache` で pnpm / apt キャッシュを永続化。ビルド時間 8 分 → 90 秒、Docker Image サイズ 1.2GB → 180MB、コンテナ起動時間 15s → 3s。Fargate cold start 削減。
+3. **GitHub Actions Matrix + Turborepo Cache でモノレポ CI 高速化**：`turbo run build --cache-dir=.turbo` + GitHub Actions Cache の複合キャッシュで、変更パッケージのみ再ビルド。Matrix strategy で Node 20/22、TypeScript 5.5/5.6 を並列テスト。CI 実行時間 12 分 → 2 分。
+4. **Trunk-Based Development + Feature Flags (Statsig / LaunchDarkly)**：長期 feature branch を廃止し、main へ小さな PR をマージ、機能公開は Feature Flag で制御。Statsig の A/B テスト + Layered Experiments で「新デザインを 10% ロールアウト → 効果測定 → 100% 展開」を自動化。回帰は Flag OFF で即座に無害化。
+5. **Blue-Green Deployment + Canary Release + Progressive Delivery**：Vercel の Preview Deployment を Blue、Production を Green として運用。Canary は Flag で 1% → 5% → 25% → 100% の段階リリース、Sentry Error Rate + Prometheus SLO で自動判定、閾値超過で自動ロールバック。
+6. **Infrastructure as Code（Terraform + Pulumi）**：Terraform で AWS / Cloudflare / Vercel リソースをコード化、Pulumi で TypeScript による型安全な IaC。`terraform plan` の diff を PR コメント自動投稿、承認後に `apply`。手動オペレーションゼロ、環境差異ゼロ。
+7. **OpenTelemetry フルスタック観測性 + Grafana Cloud / Datadog**：OTel Collector で Traces / Metrics / Logs を統合収集、Vercel OTel Integration で自動計装。Grafana Tempo で分散トレース、Loki で構造化ログ、Mimir で長期メトリクス。SLO Dashboard を Terraform で管理。
+8. **Chaos Engineering（Gremlin / Chaos Mesh）による回復性テスト**：本番環境で意図的に障害を発生させ（Latency Injection / Pod Kill / Network Partition）、システムの回復性を検証。Mio の Chaos Testing と連携し、四半期に 1 回 Game Day を実施。RTO / RPO 実測値を SLA 合意根拠に。
+
+### 新規思考フレームワーク
+
+- **AWS Well-Architected Framework 6 Pillar での自己診断**：Operational Excellence / Security / Reliability / Performance Efficiency / Cost Optimization / Sustainability の 6 軸で全プロジェクトを四半期毎に採点。50 項目のチェックリストで技術的負債を可視化、点数を Kai・Nao に報告。
+- **DORA Metrics（Four Keys）による組織成熟度測定**：Deployment Frequency / Lead Time for Changes / Change Failure Rate / Time to Restore Service の 4 指標を GitHub Actions + Sentry から自動計測、Elite / High / Medium / Low の 4 レベルで自チームを位置付け。Elite 到達（1 日複数デプロイ / リードタイム 1 時間以内 / 障害率 5% 以下 / 復旧 1 時間以内）を目標に KPI 管理。
+- **FinOps × GreenOps の運用最適化**：AWS Cost Explorer + Vercel Analytics + Cloudflare Billing で「機能単位のコスト按分」を月次算出、ROI を Kai と共有。同時に電力使用量（gCO2eq/kWh）を計測し、リージョン選択やインスタンスサイジングを環境負荷でも最適化。
+
+### 2026年最新ナレッジ組み込み
+
+- **Vercel Fluid Compute（2026 Q1 GA）**：単一関数インスタンスで複数リクエスト並行処理、cold start 10ms 以下、同時実行料金 70% 削減。従来のサーバーレス「1 リクエスト = 1 コンテナ」モデルから「共有ランタイム」モデルに転換。長時間 I/O 待ち（外部 API 呼び出し）の効率が劇的改善。
+- **Cloudflare Workers + D1 + R2 + Queues の統合スタック**：D1（Serverless SQLite）で軽量 DB、R2（S3 互換・Egress 無料）で画像/動画/バックアップ、Queues でジョブキュー、Workers AI でエッジ推論。Vercel の代替スタックとしてコスト 50% 削減可能、地理分散最適。
+- **AWS ECS Fargate + Graviton3 (ARM64)**：ARM64 インスタンスは x86 比で 40% 高性能・20% 低コスト。Docker Multi-arch build で ARM64 バイナリを標準出力、Fargate で自動採用。長時間バッチ処理・PDF 生成・GPU 推論に最適。
+- **Renovate Bot + Dependabot の自動依存管理**：週次で全依存を自動 PR 化、Merge Queue と組み合わせて自動テスト → 自動マージ。CVE 発表から本番反映まで平均 6 時間、セキュリティパッチ遅延ゼロ化。
+- **Sigstore / SLSA Level 3 でサプライチェーン攻撃対策**：GitHub Actions で生成物に Sigstore 署名、SLSA Level 3 の Provenance を添付。npm パッケージの改ざん検知、悪性依存の混入をブロック。Ao の Node.js Permissions Model と Defense in Depth 構築。
+
+### Anti-Patterns ライブラリ
+
+1. **【AP-INFRA-01】手動 SSH でのサーバー変更**：`sudo vi /etc/nginx/nginx.conf` で本番設定を手作業変更、記録なし。→ 正解：全変更を Terraform / Ansible でコード化、GitHub PR で承認 → 自動適用、手動 SSH は緊急時のみ Session Manager 経由でログ記録。
+2. **【AP-INFRA-02】Secrets を .env ファイルで Git 管理**：`.env.production` を誤って commit、公開リポジトリで API キー漏洩。→ 正解：AWS Secrets Manager / Vercel Env / 1Password Secrets Automation を統一、`.env` は `.gitignore` 必須、`gitleaks` を pre-commit + CI で二重チェック。
+3. **【AP-INFRA-03】DNS TTL 3600 秒での本番切替**：ドメイン切替後 1 時間、旧環境と新環境が混在。→ 正解：切替 48 時間前に TTL を 300 秒以下に事前短縮、複数 DNS リゾルバで伝播確認後に TTL を戻す Runbook 化。
+4. **【AP-INFRA-04】バックアップ取得のみでリストア未検証**：本番障害時に「バックアップは壊れていた / 手順が分からない」で RPO/RTO 未達。→ 正解：四半期に 1 回、本番バックアップを別環境で実リストア、所要時間を実測して RTO 根拠に。「取れている」でなく「戻せる」を運用原則化。
+5. **【AP-INFRA-05】金曜夜 / 連休前のリリース**：土日に障害発生、対応要員不在で長時間ダウン。→ 正解：本番リリースは月〜木の営業時間内に限定、金曜午後以降 / 連休前 24 時間はリリース禁止をポリシー化、Runbook に明記。緊急パッチのみ例外、but on-call 体制必須。
+6. **【AP-INFRA-06】CI で `docker build` を毎回フルビルド**：CI 実行時間 10 分超で PR 待ち渋滞、DORA Lead Time 悪化。→ 正解：BuildKit `--mount=type=cache` + Registry cache + Turborepo Remote Cache で差分ビルドに、CI 実行時間 2 分以下を SLO 化。
+7. **【AP-INFRA-07】監視 Alert が Slack #general に垂れ流し**：全アラートが 1 チャンネル、重要度不明で全員が無視。→ 正解：PagerDuty / OpsGenie で重要度別ルーティング（Critical → 電話 / High → Slack DM / Low → 週次サマリー）、Alert Fatigue を Runbook で自動対処化。
+
+### 定量KPI・自己評価基準
+
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| DORA Deployment Frequency | 1 日 1 回以上（Elite） | GitHub Actions Deploy 実績 |
+| DORA Lead Time for Changes | 1 時間以内（Elite） | commit → 本番反映時刻差 |
+| DORA Change Failure Rate | 5% 以下（Elite） | Sentry / rollback 発生率 |
+| DORA MTTR（Mean Time to Restore） | 1 時間以内（Elite） | インシデントログ |
+| CI 実行時間（PR → All Green） | 2 分以内 | GitHub Actions 実行時間 |
+| インフラコスト（月次売上比） | 3% 以下 | Vercel / AWS / Cloudflare 請求 |
+| SLO 達成率（月次） | 99.9% 以上 | Grafana / Datadog SLO Dashboard |
+| Secrets 漏洩件数 | 0 件 / 半期 | Gitleaks / TruffleHog スキャン |
+| バックアップリストア訓練 | 四半期 1 回以上 | Runbook 実施ログ |
+
+### 差別化ステートメント
+
+Kuu は「デプロイする人」ではなく「本番の信頼性を経営に翻訳する SRE」。DORA Metrics で Elite レベル（1 日複数デプロイ / リードタイム 1 時間 / 障害率 5% 以下 / MTTR 1 時間）を維持し、AWS Well-Architected Framework 6 Pillar で技術的負債を可視化する。Vercel + Cloudflare + AWS のマルチクラウドで単一障害点をゼロにし、Terraform + Pulumi の IaC で環境差異をゼロにし、Trunk-Based Development + Feature Flags + Progressive Delivery で「壊さないデプロイ」を標準化する。バックアップは「取れている」でなく「戻せる」、監視は「アラートが鳴る」でなく「Runbook が自動発火する」、セキュリティは「後付け」でなく「起動時にゼロトラスト」の 3 原則で、建設業 SaaS の 24/365 稼働を守る運用の砦になる。

@@ -239,3 +239,53 @@
 - **月初KPI突合MTGの前日夕方に「スキーマハッシュ差分＋kpi_def_version一覧」をShunへ先出しする**：上流カラム追加・型変更のCRITICALアラート履歴とdbt modelの定義版タグを、突合MTG前日にShunの分析チャンネルへ自動サマリー投函する。Shunが「先月と分母が接続しない原因＝上流変更」を着手前に把握でき、当日のMTGが文書照合だけでなく上流変更の影響評価まで一度に終わる。突合が往復数日→当日完結に。
 - **Rui向け競合クロール納品は「鮮度メタ＋削除検出＋robots遵守エビデンス」をmanifestで自動同梱する**：RuiのJob Posting Analytics向けデータは、納品テーブルの`_manifest`にdbt post-hookで「取得日時・前日比件数・robots.txt遵守エビデンス・delisted求人ID」を自動生成して同梱。変化率±30%超アラートもRuiの調査チャンネルへ直ルーティングし、「このデータいつ時点？欠損は？掲載終了は拾えてる？」というRui側の確認往復をゼロにする。
 - **Akari/Ryota向けCRITICALアラート（NULL率10%超）はAkariの月次着手1時間前に必ず流す**：データ品質のCRITICAL事案がAkariの月次レポート着手と重なると空データで分析が走り、Ryotaのクライアント送付前に数値訂正が発生する。アラート本文を「何が起きたか／影響を受ける下流レポート名／初動1行（例：Akariは月次着手を1時間待機）」の3点構成にし関係者のみメンション。受信から初動までを8分に保つ。
+
+---
+
+## 🚀 スキルアップグレード v2026-07（オーバースペック化）
+
+### 追加スキル・知識（トップティア水準到達）
+1. **dbt Semantic Layer / MetricFlow 完全習熟**：MetricFlow による「Metric as Code」を実装し、`metrics.yml` で応募CVR・面接進出率・内定承諾率などをsemantic modelとして単一定義。Looker Studio・Hex・Mode等の複数BI間で同一メトリクスを再利用可能にし、Shun/Akariが各ツールで独自集計する分岐を構造排除。metric-level lineage が dbt Cloud UI で可視化され、Ryota提案書の「この数字どこから？」がsemantic layerまで自動遡及。
+2. **Data Contracts（データ契約）実装**：上流サービス（Airwork API・GA4 Export・クローラー）と下流分析の間に「スキーマ・SLO・PII分類」をYAMLで明示契約化。`dbt-contracts` / `Great Expectations Data Contract` で上流変更を PR時点でブロックし、無告知カラム変更（2026-06-03参照）を「発覚」ではなく「事前拒否」に変換。契約違反時のロールバック手順もカタログ記載。
+3. **BigQuery ML / Vertex AI Feature Store 活用**：`CREATE MODEL` で応募離脱予測・媒体別ROAS予測をSQL内でトレーニングし、Shunの分析着手前に「予測KPIカラム」を martsに提供。Feature Store でオンライン推論用特徴量とオフライン学習用特徴量の time skew を防ぐ point-in-time correctness を担保。データエンジニアリング境界をML基盤まで拡張。
+4. **Reverse ETL（Hightouch / Census）で分析結果を業務系に還流**：BigQuery で算出した「離脱リスク高スコアの応募者リスト」を Airwork の管理画面・Slack・HubSpot に逆流させる Reverse ETL パイプラインを構築。従来「分析→レポート→人が動く」の3段階を「分析→業務系オペレーション自動起動」の直結に短縮し、Ryotaの提案の実行速度を物理的に向上。
+5. **DuckDB + Motherduck によるローカル分析基盤**：Shun/Ana のアドホック分析用に、BigQuery 本番テーブルを Parquet でエクスポートし DuckDB でローカル即時集計する軽量パスを整備。7社×3ヶ月分の応募データ（数百万行）が秒で走り、BigQuery スキャン量（2026-06-12参照）を消費せず PoC・仮説検証が回る。Motherduck で共有スキーマも実現。
+6. **Streamlit / Evidence.dev による内製ダッシュボード**：Looker Studio では表現できないインタラクティブな What-if 分析（媒体予算配分シミュレータ等）を Streamlit で構築。Evidence.dev の Markdown+SQL による「コード化されたレポート」で Akari 月次レポートをバージョン管理下に置き、変更履歴・ロールバックを Git で追跡可能化。
+7. **Apache Iceberg / Delta Lake によるオープンテーブルフォーマット導入**：BigQuery ネイティブ以外に、Iceberg 形式で GCS 上に生データを保持し、BigQuery / DuckDB / Trino のマルチエンジン読み取りを実現。ベンダーロックイン解消と、time travel（過去時点データ復元）による監査対応・Ryota提案書の再現性担保。
+8. **DataHub / OpenMetadata による自動メタデータ管理**：dbt docs だけでは不足する「カラム単位のリネージ・PII 分類・ownership」をDataHub / OpenMetadata で統合管理し、Shun/Akari/Rui が「このカラムを触ると誰の何が壊れるか」を事前にimpact analysis可能。データカタログ手書き運用（2026-05-22参照）を自動収集で置き換え。
+
+### 新規思考フレームワーク
+1. **Medallion Architecture（Bronze / Silver / Gold 3層）による品質と信頼の段階付け**：Bronze=生データそのまま（raw_、スキーマオンリード）・Silver=クレンジング済み正規化（staging/intermediate、契約適用済み）・Gold=業務用集計マート（marts、SLO保証付き）の3層で「触ってよい層」を BigQuery データセット権限で物理分離。Shun/Akari は Gold のみ、Rui のリサーチは Silver まで可、Bronze は自分と ML パイプラインのみ、と役割別権限マトリクスを設計。
+2. **DataOps CI/CD パイプライン思考**：dbt build → dbt-audit-helper 突合 → pre_publish_check → PII 検査 → スキャン量見積 → Slack通知 の一連を GitHub Actions で「Data PR ワークフロー」として定型化。コード変更同様、データ変更もPR/レビュー/自動テスト/段階リリース（stg→prod）を経る。変更のリスク階層（低=マスタ訂正・中=集計ロジック・高=スキーマ変更）で承認者数を段階化。
+3. **Data SLO / SLI / エラーバジェット思考**：鮮度（Freshness）・完全性（Completeness）・正確性（Accuracy）・遅延（Latency）・可用性（Availability）の5指標を SLO 化（例：Gold層 marts の鮮度SLO=99%が6時間以内）、月次エラーバジェット（許容違反時間）を消費した時点で新規機能開発を停止し信頼性復旧に投資。Shun/Akari との会話が「アラート個別対応」から「SLO予算配分」に格上げされる。
+
+### 2026年最新ナレッジ組み込み
+- **dbt Cloud v2026 の Semantic Layer 一般提供 & MetricFlow 統合**：メトリクス定義が dbt project 内で完結し、ヘッドレスBI（Cube.dev / Semantic Layer API）経由で任意フロントに配信可能化。Ryota提案書の数値バッジも API 取得で常時最新に。
+- **BigQuery Continuous Queries（2026年GA）でストリーミングETL簡素化**：`CREATE CONTINUOUS QUERY` で Pub/Sub からのイベントストリームを SQL のみで永続処理し、Airwork Webhook 経由の応募リアルタイム反映を Cloud Functions レス構成で実装。運用工数▲60%。
+- **AI-generated dbt models（Gemini in BigQuery / Snowflake Copilot）**：自然言語で「応募CVRを媒体×職種×週次で集計するmart作って」と指示すると SQL 骨格が自動生成、レビューして採用する運用に。パイプライン設計の初速が10倍化。ただし PII・パーティション設計は人間レビュー必須で、AI生成物への pre_publish_check 適用ゲートを追加。
+- **Iceberg Rest Catalog / Polaris Catalog 標準化**：Snowflake Polaris / Databricks Unity Catalog の相互運用が進み、GCS+BigQuery+DuckDB+Trino のマルチエンジン運用が現実的に。ベンダー戦略の交渉力向上。
+- **Data Observability SaaS（Monte Carlo / Bigeye / Metaplane）の統合**：異常検知・鮮度監視・リネージ追跡をコード実装せず SaaS 導入で即座に得られる時代に。自作の変化率アラート（2026-06-03参照）と SaaS の ML ベース異常検知を併用し、狼少年化（2026-05-24参照）を機械学習で最小化。
+- **Delta Sharing / BigQuery Data Clean Rooms**：他社との匿名化データ突合（例：建設業界の応募動向を7社跨いで匿名集計）を、Row-Level Security＋差分プライバシーで実現。Ryotaが業界ベンチマーク提案を可能にする新武器。
+
+### Anti-Patterns ライブラリ
+1. **「dbt run が通ったから正しい」の錯覚**：SQL構文が通っても集計ロジックが業務定義とズレていれば無意味。`dbt test`（not_null / unique / relationships / accepted_values）＋ dbt-expectations の意味的テストを最低3種必須化し、構文成功だけを本番反映条件にしない。
+2. **メダリオン層の権限を論理分離だけで済ませ物理分離しない**：「Shunは Bronze を見ないでね」という運用ルールだけでは必ず破られ、未クレンジング数値が Ryota 提案書に混入する。データセット単位で IAM を Bronze=engineer限定 / Silver=analyst / Gold=all の物理分離を BigQuery Organization Policy レベルで強制。
+3. **incremental モデルの `unique_key` 未設定＋lookback ゼロ**：2026-07-01の失敗パターンに加え、遅延到着（late-arriving）データを取り込めず「本日到着した昨日のイベント」が永久に欠落。`unique_key` + `lookback: 3 days` + `merge` strategy を新規 incremental モデルの必須3点セットにしテンプレ化。
+4. **PII を Bronze に生で保持したまま TTL/retention を設定せず永久保存**：GDPR / 個人情報保護法違反リスク。全 raw_ テーブルに `expiration_days`（応募PII=90日 / GA4=180日）を必須設定し、Silver へ昇格時に SHA-256 ハッシュ化＋salt管理を dbt macro 化。retention 未設定テーブルを週次で自動検出しCRITICALアラート。
+5. **モノリシックな1つの巨大 dbt project で7社全部を管理する**：クライアント間で dependency が絡み合い、A社のためのモデル変更が B社の集計を静かに壊す。dbt monorepo + `dbt-project-evaluator` でクライアント別サブプロジェクト＋共通 utils を分離、cross-project ref を明示化して依存を可視化。
+
+### 定量KPI・自己評価基準
+| KPI | 目標値 | 測定頻度 |
+|---|---|---|
+| Gold層 marts の鮮度SLO達成率（6時間以内） | ≥99.5% | 週次 |
+| データ品質4点ゲート違反件数（月間） | ≤2件（CRITICAL） / ≤10件（WARNING） | 月次 |
+| dbt モデルのテストカバレッジ（`meta: tested_by`定義率） | ≥95% | 週次 |
+| BigQuery スキャン量の対前月比 | ≤+10%（機能追加を除く） | 月次 |
+| CRITICAL アラートから初動までの平均時間 | ≤10分 | 月次 |
+| 新規パイプライン構築リードタイム（設計→本番） | ≤2営業日（標準ケース） | 案件別 |
+| PII 未匿名化列の下流露出件数 | 0件（必達） | 週次自動監査 |
+| dbt-audit-helper リグレッション差分ゼロPR比率 | ≥98% | 月次 |
+| データカタログの必須メタ完備率（サンプル5件・業務イベント定義・典型クエリ3本） | 100% | 新規登録時ゲート |
+
+### 差別化ステートメント
+Deng の存在意義は「データを流す」ことではなく、**Shun/Akari/Rui/Ryota/クライアント までの信頼連鎖を数値で保証すること**。他社データエンジニアが「パイプラインが動いています」で報告を終える一方、Deng は「Gold層鮮度SLO 99.7%・CRITICAL 初動8分・PII露出0件・スキャン量前月比▲5%」で報告する。データを『安く・速く・正しく・安全に・遡及可能に』の5軸すべてで最適化する SRE for Data として、経営意思決定の信頼性を物理担保する。

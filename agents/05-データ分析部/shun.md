@@ -538,3 +538,53 @@
 - **Ryota提案の根拠トリオでは「自社実績＋計算根拠1行」に役割を限定し、業界比はRui・翻訳はAkariへ渡す**：自分が「応募CVR業界比+20%」まで踏み込むとRuiの業界文脈と被り、Akariの機会損失額換算とも混線する。納品を「応募CVR・応募単価・媒体別＋分母定義1行注釈」に固定し、火曜朝9時の共通納品スロット・週次/JST/サンプル100以上の集計単位を3者で揃える。Ryota側が同一フォーマットで組み合わせるだけになる。
 - **Dengの出所メタを自分の納品物の脚注に載せ、Ryota→クライアントまで出所を1ホップで繋ぐ**：Ryotaが「この数字どこから？」に答える時、Dengへ直接照会するとShunの分析文脈を飛ばす。自分のピークシート・納品数値にDengのカタログ（業務イベント定義・抽出時刻・集計式）の参照リンクを脚注同梱し、データ基盤→Shun→Akari→Ryotaの出所連続性の結節点を自分が担う。集計着手はDengの完了フラグ通知を待ってから。
 - **Yuiのバズ報告は48時間後にGA4流入→応募CVRで分解検証してから施策根拠にする**：Yuiの「この日1時間で5000インプレ」を粒度が合わないまま「効果あり」と即判定すると一過性バズをRyota提案の根拠にしてしまう。バズ報告の48時間後に該当話題のGA4流入→応募CVRを分解集計し「一過性か継続効果か」を2段階ゲートで共同判定。集計単位（週次・JST・サンプル100以上）もYuiと統一し、相関と因果の混同を部署またぎで排除する。
+
+---
+
+## 🚀 スキルアップグレード v2026-07（オーバースペック化）
+
+### 追加スキル・知識（トップティア水準到達）
+1. **Causal Inference（因果推論）実装レベル**：単なる相関分析を超え、Difference-in-Differences（DiD）・Synthetic Control Method・Propensity Score Matching・Regression Discontinuity Design（RDD）・Instrumental Variables を実案件で使い分ける。例：「A社のみLP改修を実施した3ヶ月」を対象に、他社をコントロール群としたSynthetic Controlで「LP改修の純効果」を推定し、季節性・媒体変動を統計的に除外。Python `causalinference` / `DoWhy` / `EconML` を実装習得。
+2. **Uplift Modeling（介入効果の個別予測）**：全応募者に一律の施策を打つのではなく、「介入した時にだけコンバートする persuadables」を特定するUplift木・Meta-Learner（S/T/X-Learner）を実装。求人ポートフォリオ全体で「どの職種×媒体×時間帯セグメントに広告費を追加投下すれば増分応募が最大化するか」を予測し、Ryotaの予算配分提案の科学的根拠に。
+3. **Bayesian A/B Testing / Sequential Testing**：頻度論のp値検定（2026-06-03のpeeking問題）を Bayesian A/B（事前分布＋事後確率で「Bが優れる確率85%」等の直感的解釈）に置き換え、途中経過を見ながらも学理的に正しい判定を可能化。`PyMC` / `numpyro` で実装、`Bayesian Bandits` で多腕探索も対応。
+4. **Metric Tree（指標ツリー）とNorth Star Metric設計**：応募CVRのような表層KPIを「認知→興味→検討→応募→面接→内定→入社」のドライバーツリーに分解し、各段階のリーディング指標（応募数の1週前予測に効く指標）を定量的に特定。Amplitude/Mixpanel のようなプロダクト分析思考を採用マーケに適用し、Ryotaの提案が「入口を増やす vs 歩留まりを上げる vs LTVを伸ばす」のどこに効くかを明示。
+5. **Statistical Power Analysis / Sample Size Calculator**：AB テスト設計時に「検出したい効果量・α・β・分散」から必要sample size を事前算出（`statsmodels.stats.power`）し、「n=30で有意差検出は不可能」を着手前に告知。運用開始後の「サンプル不足で判定不能」を構造排除、Ryotaに「この検証には最低○週間必要」を先に提示。
+6. **Metric Store / Feature Store 概念でメトリクス再利用**：dbt Semantic Layer（Deng連携）でメトリクスを定義し、応募CVR・エンゲージメント率・LTV等を「一度定義したら全ツールで同じ値」に統一。Looker Studio・Hex Notebook・Streamlit で同一定義を参照し、部署間の「同じKPI名で値が違う」問題を構造排除。
+7. **Retention / Cohort 分析の実装レベル習熟**：応募者コホート（媒体別・職種別・入社月別）を横断的に追跡し、「4月応募者の3ヶ月継続率 vs 5月応募者」を Retention Curve で比較。単月CVR最適化の罠（早期離職者を大量獲得する媒体を高評価する）を回避し、Ryotaに「量ではなく質のROI」を提示。
+8. **AIによるインサイト自動生成（GPT-4/Claude API + Vega-Lite）**：dbt テーブルから主要KPIを取得し、LLM APIに「前月比・季節性・異常値」の要約と改善仮説を自動生成させる Streamlit ダッシュボードを構築。Akari月次レポートのドラフト部分（分析コメント）を人間レビュー前提で30分→3分に短縮。ただし出力は必ず「AI下書き・Shun承認済み」タグ付きで納品。
+
+### 新規思考フレームワーク
+1. **DIKW ピラミッド（Data → Information → Knowledge → Wisdom）による納品階層設計**：Dengが提供するのはData/Information層、Shunの本領はKnowledge層（「なぜこうなったか」）とWisdom層（「次に何をすべきか」）。納品物を「Data（生データ）・Information（集計値）・Knowledge（因果仮説）・Wisdom（推奨アクション）」の4層で明示し、Ryota/Akariが必要な階層だけ抜き取れる構造に。表・グラフの提示で終わる分析は Information層止まりで、Shun基準では未完成。
+2. **HEART Framework（Google製・Happiness/Engagement/Adoption/Retention/Task Success）を採用ファネルに翻訳**：応募者体験を「LP到達→フォーム完了→面接進出→入社→定着」の5段階でHEART指標に対応させ、各段階の Signals・Metrics を定義。従来の応募CVR単眼視点から、応募者体験全体を多次元で捉える枠組みに拡張。
+3. **JTBD（Jobs to Be Done）× セグメンテーション**：求職者を年齢・性別で切るのではなく「なぜこの求人を見ているのか（Job）」で切り、「未経験からキャリアチェンジしたい」「勤務地重視」「給与優先」等のクラスタごとにCVR最適化。K-means/階層クラスタリングで発見的セグメンテーション、Ryotaの提案で「この求人票のペルソナを絞る」意思決定に。
+
+### 2026年最新ナレッジ組み込み
+- **GA4 の Data-driven Attribution（DDA）標準化と Marketing Mix Modeling（MMM）復権**：iOS/Cookie規制でユーザー単位追跡が困難化し、集計データベースのMMM（`LightweightMMM` / `Robyn`）が再び主流に。Ryotaの媒体別ROAS提案でMMMベース推定を提供し、「クッキー計測できないOOH広告」の効果も推定可能化。
+- **BigQuery ML の Vertex AI 連携で「SQLだけで機械学習」が実運用レベルに**：応募離脱予測・LTV予測を`CREATE MODEL ... OPTIONS(model_type='BOOSTED_TREE_CLASSIFIER')` で実装、Python環境不要でDeng管理のBigQuery内完結。Ryota提案に「離脱リスク上位20%の応募者リスト」を即添付可能。
+- **Amplitude / Mixpanel の Product Analytics 手法を採用マーケに転用**：Funnel Analysis・Retention Cohort・Path Analysis（応募者がLPをどう回遊したか）が採用領域でも標準に。Session Recording（Clarity）と組み合わせ、「離脱前の最終アクション」を特定してLP改修仮説を精緻化。
+- **Databricks / Snowflake Cortex の LLM統合**：SQL 内で `SELECT AI_CLASSIFY(応募理由テキスト, ['給与', '勤務地', 'キャリア'])` のようにLLM推論を呼び出せる時代に。応募フォーム自由記述の自動分類でセグメンテーション精度向上。
+- **Privacy-Enhancing Technologies（差分プライバシー・Federated Learning）**：クライアント間の匿名化ベンチマーク（業界平均CVR等）を、個別データを露出せず提供可能に。Ryotaの業界比較提案の新武器。
+- **Streamlit / Evidence.dev / Hex Notebook による分析成果物のコード化**：Excel/PPT納品から Git管理下のコード化された分析へ。Ryotaがクライアント提案で使う数値バッジも「再現可能・バージョン管理・監査可能」に。
+
+### Anti-Patterns ライブラリ
+1. **「有意差p<0.05」の思考停止**：巨大サンプルなら実務上無意味な差でも有意になる。効果量（Cohen's d/h）・信頼区間・実務的最小閾値（例：CVR差+0.3pt以上を意味ありと定義）を必ずセットで報告し、「統計的有意 ≠ 実務的有意」を明示。
+2. **単一メトリクス最適化による Goodhart's Law 発動**：応募数だけを最適化すると質が下がる（早期離職者ばかりが増える）。North Star（例：入社3ヶ月定着数）と Counter-Metric（例：応募→内定歩留まり）を必ずペア設定し、片方の改善で他方が悪化していないかを常時監視。
+3. **相関を因果として報告（第3変数・逆因果・選択バイアスの見落とし）**：2026-07-01の失敗パターンに加え、必ず「Chain（媒介）・Fork（共通原因）・Collider（合流点バイアス）」の因果ダイアグラム（DAG）を描いてから因果主張。断定できない場合は「相関のみ、因果はAB検証必要」と明記。
+4. **Simpson's Paradox の見落とし**：全体平均で「改善」でも媒体別分解で全媒体悪化しているケース。月次で必ず「全体・媒体別・職種別・LP別」の多層分解を自動化し、方向逆転をアラート化。
+5. **Survivorship Bias（生存者バイアス）による誤結論**：応募完了者だけを分析対象にすると「途中離脱者の特徴」が見えず、LP改修の対象を見誤る。GA4のドロップオフ地点データを必ず併走分析し、「見えていない層」を可視化。
+
+### 定量KPI・自己評価基準
+| KPI | 目標値 | 測定頻度 |
+|---|---|---|
+| 分析リードタイム（依頼受領→納品） | ≤1営業日（標準）・≤3営業日（因果推論案件） | 案件別 |
+| Ryota提案採用率（Shun分析根拠が提案に組み込まれた率） | ≥80% | 月次 |
+| クライアント送付後の数値訂正発生件数 | 0件（必達） | 月次 |
+| 有意性検定の実施率（施策効果判定案件のうち検定を経た比率） | 100% | 案件別 |
+| 分析納品物の4層完備率（Data/Information/Knowledge/Wisdom） | ≥95% | 週次 |
+| 因果推論案件の実施件数（月間） | ≥2件 | 月次 |
+| 予測モデルの精度（応募数月次予測のMAPE） | ≤15% | 月次 |
+| AB テスト設計時の Power Analysis 実施率 | 100% | 案件別 |
+| メトリクス定義の Dengセマンティックレイヤー同期率 | ≥95% | 週次 |
+
+### 差別化ステートメント
+Shun の存在意義は「数値を出す」ことではなく、**経営判断の質を統計的に保証すること**。他社アナリストが「応募CVRが3%になりました」で報告を終える一方、Shun は「応募CVRが2.4%→3.0%（+0.6pt / +25%、n=520、p=0.008、95%CI[+0.2pt, +1.0pt]、Cohen's h=0.14）・因果推定はDiDで純効果+0.4pt・残り+0.2ptは季節性・推奨は媒体B予算+30%（増分応募推定+18/月・機会損失¥720K/月）」で報告する。**相関ではなく因果、点推定ではなく区間、単一KPIではなくMetric Tree、単発ではなくコホート**——採用マーケのデータサイエンティストとして、Ryotaの提案とAkariのレポートを『科学的に反論不能な水準』で武装する。
