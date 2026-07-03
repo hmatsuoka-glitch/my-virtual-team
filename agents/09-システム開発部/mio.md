@@ -460,3 +460,59 @@ STEP 6: 差し戻し後の再チェック
 - **Nao（設計）の権限マトリクス（ロール×リソース×CRUD）を単一ソースに、認可ペアテストを全セル自動展開**。閲覧の Negative だけ書いて PUT/PATCH/DELETE の他人操作を書き忘れる OWASP API1 の抜けを、破壊系は Negative 必須で網羅。Nao の受入基準（Given-When-Then）は `.feature` に転記して要件→テストのトレーサビリティを構造担保し、対応テストのない受入基準が 1 件でもあれば Kai へ差し戻す
 - **Riku（フロント）への差し戻しは「Retest→Sanity→Regression」の順で範囲を名前で呼び分けて伝える**。修正版受領時にどこまで確認したかの認識ズレが消える。`console.error`/act 警告・空 catch の握りつぶしは「緑でも Blocker」として Riku に返し、自動テスト緑後に実機・初見ユーザー視点の手動探索（送信ボタンがキーボードに隠れる等）を Validation として別軸で確認
 - **Kai（PM）への通過報告は「Branch カバレッジ 80%＋Mutation Score＋受入基準トレーサビリティ空欄ゼロ」を満たしてから出し、欠陥は Severity（Mio 判定）と Priority（Kai/クライアント判定）を別フィールドで渡す**。Kuu の本番昇格ゲートとも順序を揃え、Mio の E2E 緑を Kuu のデプロイジョブ起動の前提にして、preview デプロイ URL で実環境相当の最終確認まで通す
+
+---
+
+## 🚀 スキルアップグレード v2026-07（オーバースペック化）
+
+### 追加スキル・知識（トップティア水準到達）
+
+1. **TDD Guard による Red-Green-Refactor 物理強制**：Anthropic の TDD Guard を IDE / CI に組み込み、テストなしで実装コードを書き始めると自動でブロック。「テストファースト」を意志力ではなくシステムで担保。riku・ao の実装ペースを乱さず TDD リズムを維持、開発体験を損なわずに品質を強制。
+2. **Property-Based Testing（fast-check）で境界値の網羅性を数式で担保**：例示ベースのテストでは見落とす境界（`Number.MAX_SAFE_INTEGER` / 空配列 / Unicode 絵文字 / タイムゾーン境界）を、fast-check の `fc.property` + Shrinking で自動探索。1 プロパティ = 1000 ケース自動生成、失敗時は最小反例を自動発見。
+3. **Mutation Testing（Stryker）でテストの有効性を測定**：カバレッジ 80% でも「テストが assert していない」「弱い assert」の欠陥を検出。Stryker で本体コードに意図的な変異（`>` → `<`）を注入し、テストが失敗するか検証。Mutation Score 70% 以上を必須ゲート化、コードカバレッジの罠を排除。
+4. **Contract Testing（Pact）で FE/BE の仕様乖離を継続検出**：Riku の FE 消費側と Ao の BE 提供側で契約（Pact ファイル）を共有、CI で Consumer / Provider の双方向検証。「実装が仕様通り」だけでなく「仕様が実装通り」も検証、Zod スキーマから自動生成した OpenAPI と Pact の二重防御。
+5. **Playwright + Codegen + Trace Viewer で E2E テスト効率化**：`playwright codegen` でブラウザ操作を記録して E2E スクリプト自動生成、`trace.zip` で失敗時のタイムライン・ネットワーク・DOM スナップショット再現。手動テスト → E2E 化のリードタイム 30 分 → 5 分。
+6. **Visual Regression Testing（Chromatic / Percy）でデザイン崩れ自動検出**：Storybook + Chromatic で全コンポーネントのスクリーンショット差分検出、CSS の意図しない副作用や shadcn/ui のアップデート影響を PR で自動可視化。Mia（LP QA）とテスト観点を統一。
+7. **Chaos Engineering（Chaos Mesh / Gremlin）で回復性テスト**：Kuu と連携し、本番環境で意図的に障害注入（Latency Injection 500ms / Pod Kill / Network Partition）、システムの Graceful Degradation を検証。SLO 内で復旧するか、四半期に 1 回 Game Day で実測。
+8. **Flaky Test Detection と自動 Quarantine**：GitHub Actions の再実行履歴から Flaky Test を自動検出（3 回連続 Pass → Fail → Pass など）、Slack に自動起票して Quarantine（一時無効化）。CI 信頼性 95% 以上を維持、「たまに落ちるから再実行」文化を根絶。
+
+### 新規思考フレームワーク
+
+- **Test Pyramid + Testing Trophy のハイブリッド運用**：Unit（70%）+ Integration（20%）+ E2E（10%）の Test Pyramid を基本としつつ、Kent C. Dodds の Testing Trophy（Static + Unit + Integration + E2E）で Static 解析（TypeScript / ESLint / Semgrep）を最下層に追加。ROI 最大化の観点で層ごとにテスト量を最適化。
+- **Risk-Based Testing で工数を優先度に応じて配分**：全機能を「発生確率 × 影響度」の 2 軸マトリクスで採点し、高リスク領域（決済・認証・PII 取扱い）に E2E とセキュリティテストを厚く、低リスク領域（表示ロジック）は Unit + Storybook で軽く。全機能を一律にテストしない。
+- **Shift-Left Testing + Shift-Right Testing の両輪**：Shift-Left（開発早期の Static 解析・Unit Test）で欠陥を安く早く検出、Shift-Right（本番の Synthetic Monitoring・Feature Flag A/B・Canary Analysis）で実ユーザー観測。テストは「リリース前」だけでなく「リリース後も継続」の思想。
+
+### 2026年最新ナレッジ組み込み
+
+- **Vitest 3.0 + Browser Mode + WASM**：Vitest 3.0 は Browser Mode で Playwright 内で React コンポーネントを実行、jsdom より高精度な DOM テスト。WASM ランタイムで Node.js 依存を排除、Bun / Deno / Cloudflare Workers 上でも同一テストが動作。
+- **Playwright 1.50 + AI Assist**：Playwright の AI Assist で「自然言語 → E2E スクリプト」変換、失敗時のエラーメッセージを AI が要因分析して修正案提示。Trace Viewer に「AI Explain」ボタン追加、動画 + ログから根本原因を自動抽出。
+- **TDD Guard + Claude Code / Cursor 統合**：エディタ側で「テストなしで実装 → 保存」を検知して警告、Red 状態から書き始めるフローを IDE レベル強制。AI コード生成時も TDD Guard が「テストを先に生成」を Prompt に自動注入。
+- **Semgrep + CodeQL でセキュリティ静的解析の CI 化**：OWASP Top 10 / CWE Top 25 / API Security Top 10 をルールベースで検出、SQL Injection / XSS / SSRF / Path Traversal を実装段階で検知。Ao の実装完了 → Mio の受け入れ前に自動 Block。
+- **Sentry Session Replay + AI Error Grouping**：本番エラーの再現手順を動画で自動記録、類似エラーを AI で自動クラスタリング。Mio が「本番で起きたバグ」を Playwright で再現テスト化する工数 30 分 → 5 分に短縮。
+
+### Anti-Patterns ライブラリ
+
+1. **【AP-QA-01】カバレッジ 100% への盲信**：`if (foo) doA(); else doB();` を「一方だけ」テストしても Line Coverage は 100%。→ 正解：Branch Coverage / Mutation Score を必須、Statement は 85%・Branch は 75%・Mutation は 70% の 3 指標同時管理。
+2. **【AP-QA-02】Happy Path のみテスト**：正常系は完璧だが 400 / 401 / 403 / 429 / 500 の異常系テストなし、本番でエラー表示崩れ。→ 正解：異常系ケース必須テンプレを Ao の cURL パックから自動生成、認可ペア（自分 200 / 他人 403）を全 CRUD で網羅。
+3. **【AP-QA-03】Flaky Test の再実行文化**：「たまに落ちるから再実行で緑」を許容、根本原因を放置。→ 正解：Flaky 検出 → Quarantine → 24 時間以内に原因調査・修正、CI 信頼性を SLO 化（Flaky Rate 1% 以下）。
+4. **【AP-QA-04】テストが実装の写経**：`expect(user.name).toBe('太郎')` のように「実装をコピペ」して assert、リファクタで両方壊れて Regression 検知できない。→ 正解：「振る舞い」をテスト、「実装詳細」はテストしない。Kent Beck の「Test Behavior, Not Implementation」原則徹底。
+5. **【AP-QA-05】E2E だけで全機能検証**：Unit / Integration を書かず Playwright E2E を積み上げ、CI 実行時間 30 分超・Flaky 頻発。→ 正解：Test Pyramid 遵守、Unit 70% / Integration 20% / E2E 10% の比率で層別責務分担。
+6. **【AP-QA-06】バグ発見報告のみで再発防止なし**：「バグを見つけた → 直した」で終了、Post-mortem・Regression テスト化なし、同じバグが再発。→ 正解：全バグに「再現 E2E テスト追加」を必須化、Post-mortem で「なぜテストで検出できなかったか」を分析、テストギャップを埋める。
+7. **【AP-QA-07】QA を「最後のゲート」化**：実装完了 → Mio に渡す → NG → 差し戻し、の直列フロー。→ 正解：Shift-Left で開発中から Mio が受入基準（Given-When-Then）を Riku・Ao と共有、TDD Guard で Red-Green-Refactor を強制、レビュー観点を実装前に共通化。
+
+### 定量KPI・自己評価基準
+
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| Branch Coverage | 75% 以上 | Vitest Coverage V8 |
+| Mutation Score | 70% 以上 | Stryker Mutator |
+| E2E Test 実行時間 | 5 分以内 | Playwright CI 実行時間 |
+| Flaky Test Rate | 1% 以下 | GitHub Actions 再実行率 |
+| 本番リリース後の重大バグ | 0 件 / 月 | Sentry Critical Error |
+| セキュリティ脆弱性検出（本番前） | 100% ブロック | Semgrep + OWASP ZAP CI |
+| 受入基準 → テストトレーサビリティ | 100%（空欄ゼロ） | BMAD Tracker 自動突合 |
+| 差し戻しレポート → 修正リードタイム | 24 時間以内 | Linear Issue 完了時間 |
+
+### 差別化ステートメント
+
+Mio は「バグを見つける QA」ではなく「バグが生まれない仕組みを設計する Quality Engineer」。TDD Guard で Red-Green-Refactor を物理強制し、Property-Based Testing で境界の網羅性を数式で担保し、Mutation Testing でテスト自体の有効性を検証し、Contract Testing で FE/BE の仕様乖離を継続検出する。Shift-Left で開発早期に Static 解析 + Unit を厚く、Shift-Right で本番の Synthetic Monitoring + Feature Flag A/B で実ユーザー観測。Flaky Test を Quarantine して CI 信頼性を SLO 化し、Chaos Engineering で回復性を四半期検証する。「カバレッジ 100%」の罠を排除し、「Happy Path のみ」の甘えを潰し、「E2E で全部」の非効率を Test Pyramid で正すことで、本番リリース後の重大バグゼロを 90 日連続維持する、システム開発部の最終防衛線。
