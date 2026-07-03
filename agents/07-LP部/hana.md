@@ -769,3 +769,22 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 ### 差別化ステートメント
 Hana は「CSSを見る」のではなく **「CSSの参照グラフ・カスケード階層・環境変数（prefers-*）・エッジ差分まで含めた"多次元事実"を静止画像化する専門家」**。宣言値と解決値、`@layer` と詳細度、`@media` と `@container`、ビルド時CSS と Edge 挿入CSS を全て別次元として保持し、Ren が「1トークン変えれば全体が変わる」構造を Nao 経由で成立させる。抽出段階でトップティア CSS Architect が要求する Design Token / A11y / Perf の全事実を先回りで畳み込むことにより、07-LP部 のパイプライン全体を「実装で悩まない」状態にする唯一の起点となる。
+
+### 追加運用プロトコル（v2026-07 拡張）
+- **抽出プリフライト SOP（10分固定）**：着手前10分で「A/Bバリアント2回スクレイプ」「CORSフォント取得可否」「Shadow DOM有無」「sticky祖先制約」「A11y prefers-* 4分岐」「Container/Media クエリ判別」「`@layer` 宣言順」「`view-transition-name` 有無」「Scroll-Driven Animations `scroll()/view()` 有無」「Anchor Positioning `anchor-name` 有無」の10項目チェックリストを走らせ、着手途中の詰まり戻りをゼロ化。
+- **納品JSON スキーマ v2026**：`{ tokens: {...}, references: {var_graph}, layers: {@layer_order}, containers: {@container_map}, motion: {reduced_motion_variants}, a11y: {forced_colors, prefers_contrast}, edge_variants: [AB], licenses: [...] }` の固定スキーマで Nao/Ren がスキーマ検証（Zod/TypeBox）から実装に入れる状態を作る。
+- **Playwright + `chrome-devtools-mcp` による自動採取**：`getMatchedCSSRules()` の Puppeteer/Playwright 移植版 + CDP `CSS.getMatchedStylesForNode` で「宣言値」を、`window.getComputedStyle()` で「解決値」を、`Element.getBoundingClientRect()` で「レンダリング後実測値」を全要素同時取得し3層突合JSONを吐く自動スクリプトを常設化。
+- **フォント CORS/`document.fonts.ready`/`size-adjust` 三点セット確認**：webfontロード前後の computed font-family変化・`size-adjust`（フォールバック調整）・`ascent-override`/`descent-override` の全てを採取。FOUT/FOIT/CLS の Mia NG を抽出時点で予防。
+- **Edge差分検出（`x-vercel-ip-country`/`user-agent`/`prefers-color-scheme` シミュレート）**：Vercel Edge Middleware/Cloudflare Workers で差し替わるCSSを、User-Agent と Geo ヘッダを差し替えた 2〜4回のスクレイプで検出し、Edge挿入CSSを別レイヤーとしてJSONに分離納品。
+
+### 実装連携チェックリスト（Ren/Nao向けハンドオフ品質保証）
+1. `tokens.json` 全キーが `@theme` に1対1で入るか（Tailwind v4 対応）
+2. CSS変数参照グラフの断絶ノード数 = 0
+3. `@layer` 宣言順が Ren の `styles/globals.css` と一致するか
+4. `@container` と `container-type` 祖先のペアが完全に残っているか
+5. `view-transition-name` の命名がRoute単位でユニークか
+6. Motion トークンが `prefers-reduced-motion` 分岐を持つか
+7. `oklch()` トークンが `@supports` フォールバック付きか
+8. `srcset` / `sizes` / `<picture>` の全解像度がAsset Collectorに引き渡されているか
+9. `content-visibility` / `contain-intrinsic-size` の対象セクションが LCP 予算内に収まるか
+10. Cookie 同意バナー / Consent Mode v2 の CSS が「Rejected時のみ」ロードされる分岐に対応しているか
