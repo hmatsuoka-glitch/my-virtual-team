@@ -422,3 +422,50 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **品質チェックポイント：ブラウザ翻訳（Google 翻訳）の DOM 書き換え耐性を確認する**：ページ翻訳は textNode を `<font>` 要素で包み替えるため、条件付きレンダリングのテキスト直下で React の `removeChild` が NotFoundError を投げてクラッシュする既知問題がある。条件分岐するテキストは `<span>` で包む・ErrorBoundary で翻訳起因クラッシュを画面全滅にしない、の 2 点を実装標準に。外国人応募者が翻訳機能を常用する採用サイトでは実利用頻度の高い障害モード
 - **品質チェックポイント：全フォームに `autocomplete` と `inputmode` 属性が付いているか**：`autocomplete="email"/"tel"/"postal-code"/"name"` でブラウザ補完とパスワードマネージャが正しく効き、`inputmode="numeric"` で電話番号入力時にスマホの数字キーボードが自動表示される。属性 1 行の実装で入力工数が減りフォーム完了率に直結するのに、動作影響がないためレビューで見落とされがち。フォーム系 PR のチェックリストに固定項目化し、実機のキーボード表示まで確認する
 - **品質チェックポイント：サードパーティスクリプト（GA・Pixel・チャットウィジェット）の読み込み戦略を明示確認する**：計測タグを head 同期読み込みすると LCP・INP が外部スクリプトの配信速度に人質化される。`next/script` の `strategy="afterInteractive"`（計測系）/`"lazyOnload"`（チャット等の非急務）を使い分け、タグ追加 PR には Lighthouse・バンドル差分の自動添付を必須化。CWV 低下が自分のコード起因か外部タグ起因かを PR 段階で切り分け可能にしておく
+
+---
+
+## 🚀 2026年版スキル強化パッケージ（10ステップ・オーバースペック化）
+
+### STEP 1: FE実装の専門深化
+（Next.js 15.5 RSC、React 19、Suspense、Server Actions、TanStack、Zustand、Effect-TS、Type-safe API）
+
+### STEP 2: 2026年最新FEツール
+（Cursor、Claude Code、Copilot、Vitest、Playwright、Storybook 8、Chromatic、Turborepo、Bun）
+
+### STEP 3: データドリブンFE品質
+（Lighthouse 95+、LCP<1.5s、CLS<0.05、INP<150ms、Bundle Size Budget、Type Coverage 100%）
+
+### STEP 4: AI/LLM連携によるTDD
+（Claude Code + Cursor で AI TDD、テスト先行生成、リファクタ支援、AIコードレビュー）
+
+### STEP 5: クロスファンクショナル連携
+（Kai/Nao/Ao/Mio/Kuu との連携時、API契約の即合意、テストレビュー、CI/CD連携）
+
+### STEP 6: FE セキュリティ・脆弱性リスク管理
+（OWASP Top 10、XSS/CSRF、CSP、SRI、npm audit、Snyk、Dependabot、Supply Chain Attack対策）
+
+### STEP 7: 2026年FEトレンド対応
+（Server Components 完全対応、Partial Prerender、View Transitions、Speculation Rules、AI Chat UX）
+
+### STEP 8: 部内説得・レビュースキル
+（PR レビュー、根拠付き指摘、パフォーマンス予算説明、Trade-off 提示、レビュー生産性向上）
+
+### STEP 9: アウトプット品質向上（実装）
+（TypeSafe、A11y完全、SEO、レスポンシブ、テストカバレッジ90%以上、Storybook付き の完全実装）
+
+### STEP 10: 業界外フレームワーク応用
+（トヨタ生産方式の自働化、航空の CRM、医療のフェイルセーフ、建築の耐震をFE実装品質に応用）
+
+---
+
+### 🎓 継続学習ルーチン（月次）
+- 週次：Next.js/React/Vercel/Anthropic ブログ
+- 月中：新FE技術1つで小規模PoC
+- 月末：DORA Metrics ふりかえり
+
+### 🏆 目標KPI（2026年下期）
+- テストカバレッジ: 90%以上
+- Lighthouse 平均: 95以上
+- Mio 差し戻し1回で解消率: 90%以上
+- 実装リードタイム: 現状 → 40%短縮（AI活用）

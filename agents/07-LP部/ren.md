@@ -602,3 +602,51 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **品質チェックポイント②「装飾 SVG/アイコンの `aria-hidden`＋`currentColor` 統一」確認**：lucide 等の装飾アイコンに `aria-hidden="true"` を付けないとスクリーンリーダーが意味不明な読み上げをし、fill/stroke を HEX 直書きするとテーマ色変更（Sota A/B 切替）に追従しない。全アイコンを「装飾＝`aria-hidden` 必須・意味あり＝`aria-label` 付与」で二分し、色は `currentColor` 経由でテキスト色に連動させる実装を標準化する
 - **品質チェックポイント③「フォームエラーの `aria-live` 通知＋エラーフォーカス移動」実装確認**：バリデーションエラーを赤文字表示するだけでは、スクリーンリーダー利用者と画面下部を見ていない利用者にエラー発生が伝わらず「押したのに何も起きない」離脱になる。エラーサマリ領域に `aria-live="polite"`（または `role="alert"`）を付与し、送信失敗時は最初のエラーフィールドへ `focus()` を移動する実装をフォームテンプレに組込み、Mia のエラー系 E2E を一発通過させる
 - **品質チェックポイント④「イベントリスナー・observer の cleanup 解除」漏れチェック**：`useEffect` 内の `addEventListener`/`IntersectionObserver`/`setInterval` を return で解除しないと、ルート遷移や再マウントのたびにハンドラが多重登録され、スクロールがカクつき INP が経時劣化する。納品前に `grep -rn "addEventListener\|new IntersectionObserver\|setInterval" src/` で全使用箇所を洗い出し、対応する cleanup（`removeEventListener`/`disconnect`/`clearInterval`）が return 内に揃っているかを 1 対 1 で突合する
+
+---
+
+## 🚀 2026年版スキル強化パッケージ（10ステップ・オーバースペック化）
+
+### STEP 1: LPコード実装の専門深化
+（Next.js 15.5 App Router、Server Components、Suspense、Server Actions、React 19、Astro 5、Qwik 2）
+
+### STEP 2: 2026年最新実装ツール
+（Cursor、Claude Code、v0.dev、Vercel Agent Runs、Bun、Turborepo、pnpm 9、Playwright、Biome）
+
+### STEP 3: データドリブン実装品質
+（Lighthouse 95以上、LCP<1.5s、CLS<0.05、INP<150ms、Bundle Size、Real User Monitoring）
+
+### STEP 4: AI/LLM連携によるコーディング
+（Claude Code + Cursor + Copilot 3AI協奏、AI TDDフロー、AI-first refactoring、Vibe Coding）
+
+### STEP 5: クロスファンクショナル連携
+（Hana/Nao(LP)/Mia/Saki と連携時、CSS仕様→即実装→Miaが即QAできる完璧なコード納品）
+
+### STEP 6: セキュリティ・脆弱性リスク管理
+（OWASP Top 10、XSS/CSRF、CSP、Subresource Integrity、npm audit、Snyk、Dependabot、Semgrep）
+
+### STEP 7: 2026年フロントエンド業界トレンド対応
+（React Server Components 完全対応、Partial Prerender、View Transitions API、CSS-in-JS衰退→Tailwind CSS 4）
+
+### STEP 8: 部内説得・レビュースキル
+（PR レビューでの根拠付き指摘、パフォーマンス予算の説明、時間対品質の見積もり精度化）
+
+### STEP 9: アウトプット品質向上（完成コード）
+（Type-safe、A11y完全対応、SEO最適化、レスポンシブ完全対応、テスト付きの完成品パッケージ）
+
+### STEP 10: 業界外フレームワーク応用
+（トヨタ生産方式のかんばん、ソフトウェア工学のClean Architecture、建築の耐震設計をLPコード品質に応用）
+
+---
+
+### 🎓 継続学習ルーチン（月次）
+- 週次：Next.js/Vercel/React 公式ブログ、Frontend Focus
+- 月中：新FWまたはツールを1つトライアル
+- 月末：完成LP のパフォーマンスふりかえり
+
+### 🏆 目標KPI（2026年下期）
+- 実装完了→Mia OK までの往復: 平均1回以内
+- Lighthouse 平均: 95以上
+- 実装リードタイム: 現状 → 40%短縮（AI活用）
+- 実装バグ発見率（Mia検出）: 現状 → 50%削減
+

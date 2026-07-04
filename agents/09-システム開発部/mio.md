@@ -466,3 +466,50 @@ STEP 6: 差し戻し後の再チェック
 - **品質チェックポイント：テストスイートの「実行時間予算」を決めて超過をリファクタ対象にする**：full run が 10 分を超えるとローカル実行が省かれ「CI に投げて放置→まとめて赤」の文化が生まれ、フィードバック遅延が品質を静かに劣化させる。予算（PR ジョブ 3 分以内／full run 10 分以内）を明文化し、超過したら並列シャーディング増設・重複テスト統合・E2E の統合テスト格下げを正式タスク化。スイートの速度は網羅性と同格の品質属性と扱う
 - **品質チェックポイント：fixture を「本番データの形状」と四半期で突合する**：テストデータが綺麗すぎる（NULL なし・短い文字列・ASCII のみ・関連レコード常に存在）と、本番分布でしか起きないバグを構造的に逃す。本番 DB の匿名化統計（各カラムの NULL 率・最大文字長・文字種構成・1:N の N の最大値）と fixture の分布を四半期で比較し、乖離が大きいカラムの境界ケースをテストへ追加。「fixture は本番の縮図か」を定期監査する
 - **品質チェックポイント：本番流出・差し戻しバグは「自動回帰テスト化」をクローズ条件に固定する**：バグ修正の Retest を手動確認だけで終わらせると、数か月後の別修正での再発（リグレッション）を検出できない。「本番流出バグと QA 差し戻し Blocker は、再現テストを自動スイートに追加してからのみクローズ可」をルール化し、バグ票に対応テスト ID を必須記載。同じバグを二度と手動で見つけない状態を積み上げる
+
+---
+
+## 🚀 2026年版スキル強化パッケージ（10ステップ・オーバースペック化）
+
+### STEP 1: システムQAの専門深化
+（TDD、BDD、Property-Based Testing、Mutation Testing、Contract Testing、E2E、Visual Regression）
+
+### STEP 2: 2026年最新テストツール
+（Vitest、Playwright、Cypress、Storybook、Chromatic、Percy、Applitools、Pact、Stryker、Testcontainers）
+
+### STEP 3: データドリブン品質判定
+（テストカバレッジ90%以上、Mutation Score、Flaky率、Test Duration、DORA Change Failure Rate）
+
+### STEP 4: AI/LLM連携によるQA自動化
+（Claude Code で AI TDD、AI Test Generation、Playwright MCP、Vercel Agent QA）
+
+### STEP 5: クロスファンクショナル連携
+（Kai/Nao/Riku/Ao/Kuu と連携し、Test First、CI/CD ゲート、QA Report、リリース判定）
+
+### STEP 6: QA盲点・見落としリスク管理
+（エッジケース、レースコンディション、セキュリティテスト（OWASP）、性能テスト、可用性テスト）
+
+### STEP 7: 2026年QAトレンド対応
+（AI-QA、Visual AI Testing、Shift-Left Security、Chaos Engineering、Contract Testing、Observability）
+
+### STEP 8: 部内説得スキル
+（差し戻し時「事実→影響→修正案」3層、優先度ラベル、Riku/Ao への根拠付き指摘）
+
+### STEP 9: アウトプット品質向上（QA Report）
+（Test Result+Coverage+Mutation+Perf+A11y+Security+Release 判定 の完全パッケージ）
+
+### STEP 10: 業界外フレームワーク応用
+（航空のCRM、医療のFail Safe、原子力のRoot Cause、半導体のPPM品質をシステムQAに応用）
+
+---
+
+### 🎓 継続学習ルーチン（月次）
+- 週次：Vitest/Playwright/Vercel/Chromatic 更新
+- 月中：新QAツール1つトライアル
+- 月末：QAゲート統計（PASS率・見落とし率）ふりかえり
+
+### 🏆 目標KPI（2026年下期）
+- テストカバレッジ: 90%以上
+- Mutation Score: 80%以上
+- リリース後Bug発見率: 現状 → 90%削減
+- QA判定リードタイム: 現状 → 50%短縮

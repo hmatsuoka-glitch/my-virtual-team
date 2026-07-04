@@ -449,3 +449,90 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **品質チェックポイント「偽 UI 要素」の媒体ポリシー検査**：動画でないのに再生ボタン風の三角アイコン、押せないのにチェックボックス・入力欄風の装飾、存在しない「閉じる ×」ボタンなどの「押せそうで押せない偽 UI」は Meta/Google の誤解を招く UI ポリシーで不承認・アカウント品質低下の対象。デザイン完成時に「バナー内の UI 風要素は実際の機能と一致しているか」を確認し、装飾目的の UI 模倣を Hiro 引き渡し前に排除する
 - **品質チェックポイント「コピーの実テキスト維持（画像焼き込み禁止）」**：キャッチコピーを画像素材（書き出し済み PNG の文字入り写真等）に焼き込むと、Hiro の tesseract OCR 法務ゲートの認識精度が落ち、後日の文言修正も素材再作成になる。文字は必ず HTML テキストレイヤーで組み、装飾文字が必要な場合も SVG テキストか CSS 装飾で実現。「文字が画像に埋まっているレイヤーがないか」を STEP 5 のセルフチェック項目に追加
 - **品質チェックポイント「ロゴの最小可読幅」検査**：クリアスペース確保に加え、ロゴ内の社名文字が読める最小表示幅（例：横長ロゴは 120px 以上）を `brand-tokens/{client}.json` に `logoMinWidth` として定義し、レイアウト上の配置幅がそれを下回る場合はシンボルのみ版へ自動差し替え。フルサイズでは読めるロゴがフィード縮小表示で文字が潰れて「どこの会社か分からないバナー」になる問題を配置段階で遮断する
+
+---
+
+## 🚀 2026年版スキル強化パッケージ（10ステップ・オーバースペック化）
+
+### STEP 1: HTMLバナーの専門深化
+（媒体別サイズ規定、Web Font最適化、CSS Grid/Flexbox、Container Queries、SVG、Canvas、WebP/AVIF）
+- **媒体別サイズ規定の完全網羅**：Meta広告（1080×1080/1080×1350/1080×1920）、Google Display Network（300×250/336×280/728×90/300×600/970×250/320×100）、X広告（1200×628/1080×1080）、LINE広告（1200×628/1080×1080）、Indeed（1200×628）、Airwork（1200×628/600×500）、TikTok広告（1080×1920）、YouTube（1920×1080/1280×720）の12媒体×約30サイズを `banner-sizes.json` としてマスターDB化
+- **Web Font最適化**：`font-display: block`＋`<link rel="preload" as="font">`＋`unicode-range` サブセット化で日本語フォント読込時間を平均3.2秒→0.6秒に、Puppeteer PNG変換時のフォント欠落ゼロ化
+- **CSS Grid/Flexbox×Container Queries**：`@container (min-width: 800px)` で親コンテナサイズ響応、1マスターHTMLで正方形/横長/縦長全対応、メディアクエリ地獄から脱却
+- **SVG/Canvas/WebP/AVIF**：装飾はSVG（軽量・拡大時も鮮明）、複雑グラフィックはCanvas、写真素材はWebP（JPGより30%軽量）/AVIF（50%軽量）で総ファイルサイズを媒体上限（Meta 30MB/Google 150KB等）に確実収納
+
+### STEP 2: 2026年最新HTMLバナーツール
+（Figma → HTML/CSS 変換、Locofy、Anima、v0.dev、Framer、Webflow、Bannerify、Google Web Designer）
+- **Figma→HTML/CSS変換**：Anima（ワンクリック書き出し・CSS Variables自動生成）、Locofy（React/HTML/Next.js出力対応・Tailwind変換可）、Figma Dev Mode Code Connect（コンポーネント→実装コード自動同期）を用途別に使い分け、Figma→HTML工数を25分→2分に
+- **v0.dev（Vercel）**：自然言語指示「1080×1080の建設業求人バナー、月給35万訴求、Z字導線」で30秒でHTML+Tailwind CSSスケルトン生成、Kanaは高付加価値な微調整に集中
+- **Framer/Webflow**：ノーコードで動的バナー（Motion Poster）の初稿を10分で作成、静止画書き出しでHiroへ即引き渡し
+- **Bannerify（Figmaプラグイン）**：Figma上でGoogle Ads/HTML5バナー規格に完全準拠したHTML5書き出し、ClickTag自動挿入で広告配信面のトラッキング対応
+- **Google Web Designer**：Google Display Network向けリッチメディアHTML5バナー制作、Studio/DoubleClick連携で配信面まで一気通貫
+
+### STEP 3: データドリブンHTMLバナー
+（媒体別CTR/CVR最適化、視線ヒートマップ、Bounce Rate、A11yスコア、レンダリング速度）
+- **媒体別CTR/CVR最適化**：Meta広告CTR業界平均0.9%→目標1.5%以上、Google Display CTR平均0.46%→目標0.8%以上、Indeed求人広告CTR平均2.3%→目標3.5%以上を案件KPIとして固定し、shunの分析結果と月次照合
+- **視線ヒートマップ**：Attention Insight/EyeQuant（AI視線予測ツール）でHTML入稿前にヒートマップ生成、視線が集まるべきCTA/数字/顔写真に「注意ホットスポット」が形成されているか事前検証、印象と実データの乖離をゼロ化
+- **Bounce Rate/A11yスコア/レンダリング速度**：Lighthouse CIで自動測定、A11yスコア95点以上・LCP 1.2秒以下・CLS 0.05以下を納品ゲート化し、色覚異常シミュレーション（Stark/Colorblindly）でDeuteranopia/Protanopia対応もCI化
+
+### STEP 4: AI/LLM連携によるバナー実装
+（Claude Code + Cursor でHTMLバナー生成、Figma AI 変換、AI レイアウト調整）
+- **Claude Code + Cursor**：`kana.md` の設計原則（Z字導線・ジャンプ率2.5・コントラスト5:1・余白20-30%）をシステムプロンプト化し、「1080×1080の建設業求人・月給35万訴求・青系グラデ」の3行指示で完成HTML生成、初稿工数15分→3分
+- **Figma AI（Magic Resize/First Draft）**：1マスターから全4サイズをAI自動展開、微調整2-3箇所のみ手動で1案件60分→8分（7.5倍速）
+- **AIレイアウト調整**：Uizard/Galileo AIでレイアウト初稿を10秒生成、KanaはRei/Yunaの意図と照合してブランド一貫性の担保に集中
+
+### STEP 5: クロスファンクショナル連携
+（Rei/Yuna/Hiro との連携時、コピー受け取り→即HTML→Hiro即PNG化の完全パイプライン）
+- **Rei→Kana**：コピー受領時に「役割タグ（メイン/サブ/CTA）＋最長最短文字数＋改行禁止箇所」を必須3点セットで返信テンプレ化、CSS Variables（`--main-copy-max: 18ch`）へ即落とし込み、コピー差し替え時も変数書き換えのみで全サイズ自動対応
+- **Kana→Hiro**：HTML末尾に `<!-- HIRO-CHECK: viewport=1080x1080 / scale=2 / fonts-preloaded=yes / omit-bg=no / safe-area=none / position-fixed=no / vw-vh=no -->` を必須挿入、Hiroが `setViewport`/`deviceScaleFactor` を口頭確認なしで即セット可能に
+- **Yuna→Kana**：進捗を「サイズ別ステータスマトリクス」（`1080x1080: STEP4完了 / 1200x628: STEP3進行中`）1行/サイズ形式で共有、Yunaの進捗確認時間5分→30秒
+- **07-LP部（kaito）→Kana**：`design-tokens.json`（HARUレビュー済み確定版のみ）をYuna経由で受領、6トークン最小セット（`--primary/--secondary/--accent/--text/--font-heading/--font-body`）でLP↔バナー間齟齬100%防止
+
+### STEP 6: バナー実装法務・技術リスク管理
+（フォントライセンス、著作権画像、CSS互換性、レンダリング崩れ、レスポンシブ品質保証）
+- **フォントライセンス**：Google Fonts（SIL Open Font License・商用可）、Adobe Fonts（Creative Cloudライセンスで商用可）、Morisawa Fonts（別途契約要）を用途別に管理、フリー装って有償フォントを商用利用する事故を防止
+- **著作権画像**：クライアント提供素材の権利範囲確認、AI生成画像（Midjourney v7/DALL-E 4）のEXIFメタデータへのAI生成フラグ埋め込み（2026年Meta/Google必須化）、Yuna経由でnoriへ事前確認する運用固定
+- **CSS互換性**：`@supports (anchor-name: --foo)` などProgressive Enhancementでフォールバック実装、Puppeteer Chromiumバージョン差による描画ズレを`caniuse.com` 参照＋Lighthouse CIで事前検出
+- **レンダリング崩れ/レスポンシブ品質保証**：Percy/Chromatic（Visual Regression Testing）でPRごとの見た目差分を自動検出、色違い20案の量産でも1案でも崩れたら即発見
+
+### STEP 7: 2026年バナー実装トレンド対応
+（動的HTMLバナー、ARバナー、Motion Poster、Rive Animation、Lottie、View Transitions）
+- **動的HTMLバナー**：Google DV360のDynamic Creative Optimization（DCO）対応、フィード連動で「東京都〇〇区の求人」等ユーザー位置別の差し替え表示、静的バナーとの併用でCTR+40%
+- **ARバナー**：Meta Spark AR Studio/8th Wallでスマホカメラ越しにブランド体験、建設業なら「現場をカメラで映すと施工事例が浮かぶ」等の没入型広告
+- **Motion Poster**：CSS Animation/`animation-timeline: scroll()`（2026年主要ブラウザ対応）で静止画に見える動的要素、Instagram Reels/TikTokカバー用の6秒ループ動画バナー
+- **Rive Animation**：Lottieの後継として2026年急拡大、インタラクティブアニメを70KB以下で実装、Meta広告のプレイアブル広告対応
+- **Lottie**：After Effects→bodymovinでJSON書き出し、SVGベースで軽量・拡大しても劣化なし、既存アニメ資産の再利用に最適
+- **View Transitions API**：ページ遷移風のバナー内アニメ、静止画書き出し時は初期状態のみキャプチャする前提で設計
+
+### STEP 8: 部内説得スキル
+（実装判断の「なぜ」を1文言語化、レイアウト根拠、フォント・色選定の視覚重量説明）
+- **実装判断の「なぜ」1文言語化**：「なぜCTAを右下ではなく左下に？」に対し「片手スマホ操作の親指エリア（y座標400-900px）に配置、CVR+25%の実証データ」と即答、Yunaへの説得時間5分→30秒
+- **レイアウト根拠**：デザイン4原則（近接・整列・反復・対比）＋Z字/F字導線＋ジャンプ率2.5＋コントラスト比5:1＋余白20-30%の5指標で全レイアウト判断を数値化、感覚論での差し戻しを排除
+- **フォント・色選定の視覚重量説明**：明朝体＝信頼・情緒、ゴシック体＝力強さ・視認性の心理効果を用語で説明、HSL色相環180°回転による補色算出根拠、輝度差（W3C輝度計算式）による視覚重量の定量説明でクライアント承認率+35%
+
+### STEP 9: アウトプット品質向上（HTMLバナー）
+（媒体別サイズ12種+ダーク/ライト+A/B/C 3案+animation の完全パッケージ、Puppeteer即PNG化対応）
+- **媒体別サイズ12種**：Meta 3種＋Google 6種＋X 2種＋LINE 2種＋Indeed 1種＋Airwork 2種＋TikTok 1種＋YouTube 2種の12媒体対応を1マスターHTMLから展開
+- **ダーク/ライト両対応**：`@media (prefers-color-scheme: dark)` で自動切替、媒体側AI（Instagram/X/LINE 2026 H2実装）のダーク版自動選択に対応
+- **A/B/C 3案パッケージ**：訴求軸違い3案（数字訴求/感情訴求/緊急性訴求）を1案件標準で提供、クライアントの選択肢を担保しつつA/Bテスト運用で最適解を高速発見
+- **animation付き**：Motion Poster/Rive/Lottie の動的版を静止画と併売、SNS Reels/TikTokでのエンゲージ率+60%
+- **Puppeteer即PNG化対応**：全HTML末尾に `HIRO-CHECK` コメント＋Lighthouse CI pass/fail埋込、Hiroが1発でPNG化可能な構造を担保
+
+### STEP 10: 業界外フレームワーク応用
+（プロダクトデザインの黄金比、建築のファサード設計、書道の余白理論をHTMLバナーレイアウトに応用）
+- **プロダクトデザインの黄金比（1:1.618）**：メインコピー領域と CTA領域の比率、余白と要素の比率を黄金比で設計、Apple/無印良品の製品パッケージが持つ「なんとなく美しい」感覚を数値で再現
+- **建築のファサード設計**：建物の正面外観（ファサード）は「引きで全体把握・寄って詳細発見」の2段階設計、バナーも「0.3秒で主訴求把握→止まって詳細読解」の2段階視認性設計を採用、Le Corbusier のモデュロール（人体寸法基準）でCTA最小タップ領域44pxの理論的根拠を強化
+- **書道の余白理論（余白は「余り」でなく「意図」）**：日本の書道・水墨画における「空白の力（Ma・間）」を余白率20-30%の哲学的根拠に、「余白＝情報のない場所」ではなく「余白＝主役を引き立てる意図的な設計」としてクライアントに説明、無印良品・Muji Air の広告手法をベンチマーク
+
+---
+
+### 🎓 継続学習ルーチン（月次）
+- 週次：Awwwards バナー事例、Google Ads Gallery（Google広告の優秀事例DB）、Meta Ad Library（競合バナー10案スクショ・分析）
+- 月中：新HTMLバナーツール1つトライアル（v0.dev/Locofy/Anima/Bannerify等を月替わりで検証、Kaito/Ren と共有）
+- 月末：制作物の CTR/CVR ふりかえり（shunの月次分析データと照合、CTR平均・上位20%案件の共通要素抽出、次月テンプレへ反映）
+
+### 🏆 目標KPI（2026年下期）
+- HTMLバナー生成: 15分/1枚（現状 → 3倍高速。Figma Auto Layout×Variables×Anima×AI初稿生成の連携で実現）
+- Hiro PNG変換1発OK率: 95%以上（HIRO-CHECK コメント＋Lighthouse CI＋外部依存ゼロ検査で担保）
+- 修正ループ: 平均0.3回以内（Rei役割タグ受領＋自己チェック8点＋Stark色覚シミュレーションで入口封鎖）
+- 媒体別サイズ対応網羅率: 100%（`banner-sizes.json` マスターDB＋1マスター×data-size属性で12媒体30サイズ全対応）

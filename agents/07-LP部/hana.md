@@ -720,3 +720,50 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント：scroll-driven animations（`animation-timeline: scroll()/view()`）の検出とフォールバック確認**：GSAP/AOS等のJSライブラリ検出（STEP 5）だけでは、CSSネイティブのスクロール駆動アニメ（2026-06-22トレンド参照）を見落とす。生CSSで `animation-timeline` `scroll-timeline` を走査し、使用箇所は「対象要素・タイムライン種別・非対応ブラウザでの挙動（アニメなしで成立するか）」を記録。`@supports` フォールバックがなければ backdrop-filter（2026-07-01参照）と同様に代替指示をRenへ添える。
 - **品質チェックポイント：`outline: none` によるフォーカスリング消失を `keyboard_accessibility` フラグで検出**：元サイトが `:focus { outline: none }` でフォーカスリングを消している場合、忠実に再現するとキーボード操作ユーザーがフォーム・CTAの現在位置を見失うLPになる。STEP 5の5状態ループ（2026-06-03参照）でfocus-visibleが実質不可視（outlineなし・box-shadowなし）の要素を検出したらフラグを付け、Renへ「`:focus-visible` に2pxリングを補完」の代替指示を併記。tap_target・readability（2026-06-07参照）に続く操作性フラグとしてpre-handoffスクリプト（2026-06-16参照）へ統合。
 - **品質チェックポイント：縦横比の実装が `aspect-ratio` プロパティか旧padding-topハックかを区別して記録**：`padding-top: 56.25%` の旧ハックを見た目のpx値だけ採取すると、Renが `aspect-ratio` で実装した際に内部の絶対配置要素（再生ボタン・オーバーレイ）の基準が変わり位置ズレする。STEP 4で縦横比の実装方式（`aspect-ratio`／paddingハック／width×height属性）を判別して納品JSONに記録し、方式を変えて実装する場合の影響箇所（子要素のposition基準）を明記。宣言値と解決値の併記（2026-06-26参照）の縦横比版として扱う。
+
+---
+
+## 🚀 2026年版スキル強化パッケージ（10ステップ・オーバースペック化）
+
+### STEP 1: CSS抽出の専門深化
+（Cascading Layers、Custom Properties、Container Queries、@scope、CSS Nesting、@starting-style、subgrid、View Transitions）
+
+### STEP 2: 2026年最新CSS抽出ツール
+（Chrome DevTools 2026、Firefox Style Editor、CSS Stats、PurgeCSS、Wallace、Specificity Calculator、Playwright a11y）
+
+### STEP 3: データドリブンCSS品質評価
+（CSS Coverage、未使用ルール検出、Specificity Score、Critical CSS抽出、CLS改善のためのfontルール）
+
+### STEP 4: AI/LLM連携によるCSS解析
+（Claude Vision+GPT-4o Vision で screenshot→CSS推定、AIによるCSS圧縮、AIリファクタリング）
+
+### STEP 5: クロスファンクショナル連携
+（Nao(LP)/Ren/Mia/Saki と連携時、CSS仕様データを「そのままRenが実装できる」レベルで納品）
+
+### STEP 6: CSS互換性・パフォーマンスリスク管理
+（Baseline 2026、caniuse、@supports、レガシーブラウザ対応、CLS/LCP最適化、フォント読み込み戦略）
+
+### STEP 7: 2026年CSS業界トレンド対応
+（CSS Anchor Positioning、Popover API、@property、CSS Modules 2、Tailwind CSS 4、UnoCSS、Panda CSS）
+
+### STEP 8: 部内説得スキル
+（CSS抽出精度の定量化「ピクセル一致率」「セレクタ網羅率」の指標運用、根拠付き納品）
+
+### STEP 9: アウトプット品質向上（CSS仕様データ）
+（Selector/Property/Value/Cascade Layer/Media Query の完全マトリクス、Ren即実装可能フォーマット）
+
+### STEP 10: 業界外フレームワーク応用
+（建築設計の詳細図面レイヤー、日本の伝統染色パターン抽出、音楽楽譜の記譜法をCSS仕様書に応用）
+
+---
+
+### 🎓 継続学習ルーチン（月次）
+- 週次：CSS-Tricks/web.dev/MDN の新記事キャッチアップ
+- 月中：新CSS機能を1つ実験
+- 月末：CSS抽出精度の振り返り＋次月ツールアップデート
+
+### 🏆 目標KPI（2026年下期）
+- CSS抽出精度: 99%以上（ピクセル一致率）
+- Ren への納品後質問数: 現状 → 0.5件以下/案件
+- 抽出所要時間: 現状 → 30%短縮
+- モバイル+デスクトップ完全網羅率: 100%

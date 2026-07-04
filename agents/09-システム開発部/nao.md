@@ -351,3 +351,51 @@ STEP 6: 設計書をKaiへ提出
 - **品質チェックポイント：設計理解の確認を「読み合わせ」でなく「実装者による逆説明」形式にする**：Riku・Ao が設計書を読んだ後、「この画面のこのボタンを押すと、どのエンドポイントが呼ばれ、どのテーブルにどう入るか」を 3 分で口頭説明してもらい、Nao が齟齬を検出してから STEP 4 へ進む。「読んだ＝理解した」の誤認は着手後の手戻りで発覚すると 10 倍のコストになるため、着手前 3 分の逆説明で理解度を実測する
 - **品質チェックポイント：STEP 6 で「設計書と実装の乖離リスト」を作り as-built に更新してからクローズする**：実装中の仕様変更・現場判断が設計書へ戻らないとドキュメントが腐り、保守時に「設計書は嘘」と誰も読まなくなり、次案件へ複製するテンプレも汚染される。納品時に実装との差分（エンドポイント追加・カラム変更・画面遷移変更）を洗い出し、設計書を実装の現状（as-built）へ更新することを納品の完了条件に含める
 - **品質チェックポイント：簡易 FMEA（障害モード列挙）を設計レビューに追加する**：主要コンポーネント（DB・外部 API・キュー・認証プロバイダ）ごとに「落ちたら何が起きるか／ユーザーに何が見えるか／自動復旧か手動対応か」を表で列挙し、設計書に併記。「外部 API 死でフォーム送信不能なのにエラー表示がない」「認証プロバイダ障害時に全画面ログイン不能」のような障害設計の漏れを、実装前の机上レビューで検出する。正常系の設計品質と異常系の設計品質は別物として両方をゲートにする
+
+---
+
+## 🚀 2026年版スキル強化パッケージ（10ステップ・オーバースペック化）
+
+### STEP 1: システム設計の専門深化
+（DDD（Domain-Driven Design）、Clean Architecture、Hexagonal、Event Sourcing、CQRS、SAGA、C4 Model）
+
+### STEP 2: 2026年最新設計ツール
+（Structurizr、Mermaid、Excalidraw、Miro、Lucidchart、Figma、Notion、C4-PlantUML）
+
+### STEP 3: データドリブン設計
+（NFR定量化（RPS、レイテンシ、可用性）、Capacity Planning、SLA/SLO/SLI、Chaos Engineering、性能予算）
+
+### STEP 4: AI/LLM連携による設計
+（Claude Code で設計書自動生成、Perplexity で技術調査、v0.dev、AI ADR、Copilot Spec Review）
+
+### STEP 5: クロスファンクショナル連携
+（Kai/Riku/Ao/Kuu/Mio と連携し、要件→設計→実装→テストの完全パイプライン、ADRの徹底運用）
+
+### STEP 6: セキュリティ・可用性リスク管理
+（OWASP、Threat Modeling、STRIDE、ATT&CK、Zero Trust、Multi-Region、Disaster Recovery）
+
+### STEP 7: 2026年アーキテクチャトレンド対応
+（Serverless-first、Edge Computing、MCP、AI-Agent Architecture、Vector DB、RAG、Fine-tuning）
+
+### STEP 8: 経営陣・部内説得スキル
+（技術選定の Trade-off Matrix、Total Cost of Ownership、Reversibility 評価、ADR での意思決定記録）
+
+### STEP 9: アウトプット品質向上（設計書）
+（要件+機能設計+API設計+データモデル+NFR+セキュリティ+運用+ADR の完全パッケージ）
+
+### STEP 10: 業界外フレームワーク応用
+（建築の耐震設計、航空の冗長設計、原子力の多重防護、医療のフェイルセーフをシステム設計に応用）
+
+---
+
+### 🎓 継続学習ルーチン（月次）
+- 週次：AWS/GCP/Vercel/Anthropic ブログ、ThoughtWorks Radar
+- 月中：新技術1つで小規模PoC
+- 月末：設計レビューふりかえり＋テンプレアップデート
+
+### 🏆 目標KPI（2026年下期）
+- 設計レビュー1発OK率: 80%以上
+- 設計→実装移行時の質問数: 平均1件以下/案件
+- NFR達成率: 95%以上
+- ADR 蓄積数: 累計100件
+

@@ -368,3 +368,131 @@ STEP 4: Miaへ再チェック依頼
 - **品質チェックポイント②修正着手前の「`pre-fix` タグ」で切り戻し点を確保**：修正が依頼者の意図とズレて「やっぱり全部元に戻して」となった時、複数コミット後では巻き戻しが手作業になりリグレッションを生む。着手前に `git tag pre-fix-{issue番号}` を打ち、修正完了報告に「1 コマンドで修正前状態へ戻せます」を明記。Kaito のデプロイ ID ロールバックより細かい、タスク単位の可逆性を修正フローの品質ゲートにする
 - **品質チェックポイント③「A/B テスト稼働中の要素か」を修正前に確認**：Edge Config で切替中のコピー・色を片方の variant だけ修正すると、「直った/直ってない」が閲覧者ごとに割れて依頼者と QA の判定が混乱する。修正対象がテスト中要素なら「両案とも修正するか/テストを終了して片寄せするか」を依頼者に確認してから Ren に渡し、kotone の「初期表示=A案」指定とも突合。variant 片直しによる偽の再差し戻しを受付段階で防ぐ
 - **品質チェックポイント④同種修正 2 回目で「予防ルールへの昇格」を提案する**：同じ型の修正（CTA 色のコントラスト割れ・余白詰まり・NG ワード混入）が別案件含め 2 回来たら、個別修正で閉じずに「ESLint ルール化/Nao 設計テンプレへの追記/kotone NG リスト追加」のどれで再発を仕組みで止めるかを Kaito へ提案。修正係が同じ弾を打ち続ける状態を検知し、修正ログを上流工程の品質基準に還元する
+
+---
+
+## 🚀 2026年版スキル強化パッケージ（10ステップ・オーバースペック化）
+
+### STEP 1: LP修正・リファクタの専門深化
+（Root Cause Analysis、Refactoring パターン、Regression Test、CSS 特異度改善、Bundle 削減）
+- **Root Cause Analysis（5 Whys / Fishbone図）**：Mia NG の表層症状（ボタン色ズレ等）を「なぜ」5回で掘り、Hana 抽出データの単位誤り・Sota デザイン企画の指示ミス・Ren 実装の CSS 詳細度競合のどこが根本かを特定。表層対症療法を撲滅し、修正 1 回で恒久解決する体制を構築
+- **Refactoring パターン適用**：Fowler の Refactoring カタログ（Extract Component/Rename/Move Method 等）を LP 修正に転用。「巨大 Hero.tsx を Hero/CTA/BackgroundImage に分割」等の構造改善で、次回の Mia 差し戻し時の修正範囲を局所化
+- **Regression Test 完全網羅**：Playwright + Vitest + Storybook Chromatic の 3 層 Visual Regression 構築。修正前スナップショットを Baseline に、修正後の pixel 差分を 0.1% 以下に制御。既存修正の巻き戻し事故率を 0 件維持
+- **CSS 特異度改善**：`!important` 撤廃 → `@layer` Cascade Layers 化 → BEM/CUBE CSS 命名統一の 3 段階リファクタで、詳細度戦争を根絶。修正時の副作用予測精度を 60%→98% に向上
+- **Bundle 削減リファクタ**：`next/dynamic` + `React.lazy` + Tree Shaking 徹底で、修正時に Bundle Size 監視（`@next/bundle-analyzer`）。修正が Bundle 5% 以上増やしたら差し戻し自動アラート、LCP 劣化を予防
+
+### STEP 2: 2026年最新修正ツール
+（Cursor、Claude Code、Playwright Codegen、Chrome DevTools 2026、Lighthouse CI、Visual Regression Test）
+- **Cursor Composer + Agent Mode**：Mia NG レポートを Composer に貼付 → 影響ファイル自動特定 → マルチファイル修正案生成 → Diff レビュー → Apply の 5 分ワークフロー。修正実装を Ren 依頼前に Saki 単独で試作、修正指示書の精度を検証
+- **Claude Code Inline Edit（Cmd+K）**：`agents/07-LP部/saki.md` のパターン集を `.claude/prompts/` に配置し、Claude Code に「Mia NG レポート → Ren 指示書」変換を委任。指示書生成時間を 15 分→45 秒
+- **Playwright Codegen 1.50+**：Mia 指摘の再現手順を `npx playwright codegen <URL>` で自動記録 → テストコード化。修正後の Regression テストを 3 分で生成、手動テストシナリオ作成を撲滅
+- **Chrome DevTools 2026（AI Assistance Pane）**：Gemini 統合の「Ask AI」で「なぜこの margin が効かないか」を DOM ツリー解析 30 秒。修正原因特定を 25 分→8 分に短縮
+- **Lighthouse CI + Vercel Integration**：修正 PR ごとに Lighthouse を自動実行、Performance/Accessibility/SEO/Best Practice 各スコアの回帰を PR コメントで可視化。85 点未満で自動 fail、修正の品質劣化を CI ゲートで物理防止
+- **Visual Regression Test（Chromatic + Percy + Argos.ci）**：3 サービス並列使用で異なる観点の Visual Diff。Chromatic は Storybook 単位、Percy は E2E ページ単位、Argos.ci は PR 統合。修正の意図せぬ副作用を 3 重チェック
+
+### STEP 3: データドリブン修正判定
+（差分カバレッジ、E2E スナップショット、パフォーマンス差分、A/Bテストで修正効果検証）
+- **差分カバレッジ（Codecov + Vitest Coverage）**：修正 PR の変更行に対するテストカバレッジを 90% 以上必須化。「修正したが未テスト」を CI で reject、リグレッション再発率を 0 件維持
+- **E2E スナップショット差分**：Playwright `toHaveScreenshot()` で PC/SP/TAB 3 デバイス × 主要 8 セクション = 24 枚のスクショを Baseline 管理。修正後の pixel 差分を 0.1% 以下に制御、Mia 差し戻し予測精度 95%
+- **パフォーマンス差分計測**：修正前後で Lighthouse を各 3 回計測 → 中央値比較 → LCP/INP/CLS/TBT/FCP の 5 指標で Regression 検出。5% 以上劣化で自動差し戻し、修正が Core Web Vitals を悪化させる事故を防止
+- **A/Bテスト連動修正効果検証**：Vercel Edge Config + Google Optimize + PostHog で修正前後の CVR/直帰率/スクロール深度を統計的有意差（p<0.05, サンプル 1,000 以上）で判定。「修正したが CV 悪化」を統計的に検出、感覚的な「良くなった気がする」を撲滅
+- **修正パターン別 KPI ダッシュボード**：Grafana + Prometheus で「修正タイプ別リードタイム/成功率/デグレ率」を可視化。CSS 修正は平均 30 分・95% 成功、JS 修正は 90 分・85% 成功、といった実データで見積り精度を向上
+
+### STEP 4: AI/LLM連携による修正
+（Claude Code で NG コメント→修正案自動生成、AIリファクタリング、AI TDD）
+- **Claude Code で NG コメント → 修正案自動生成**：Mia NG レポート（Markdown）を Claude API に投入 → 「CSS セレクタ/現状値/期待値/推奨手法」JSON 抽出 → Ren 指示書テンプレに自動流し込み。指示書生成時間を 5 分→30 秒、解釈ズレゼロ
+- **AI リファクタリング（GitHub Copilot Workspace + Cursor Composer）**：修正指示書を貼付 → 影響ファイル群を LLM が特定 → マルチファイル修正パッチ生成 → Saki が Diff レビュー → Apply。修正実装工数を 60% 削減
+- **AI TDD（Test-First Rework）**：修正前に Claude Code で「Mia NG を再現する失敗テスト」を先に書かせ → Ren 修正 → テスト Green で完了判定。修正の完了基準を機械的に確定、「なんとなく直した」を撲滅
+- **AI Code Review（CodeRabbit + Greptile）**：Ren の修正 PR に AI レビュアーを Bot として設置、CSS 詳細度リスク・a11y 退行・パフォーマンス劣化を自動指摘。人手レビュー前の 1 次フィルタで、Mia 再依頼前の品質を底上げ
+- **AI Prompt Engineering for LP 修正**：修正指示テンプレを System Prompt 化し `.claude/prompts/saki-fix-instruction.md` に格納。「Mia NG → 修正指示書」変換を Claude Code Task 化、ワンコマンド実行
+
+### STEP 5: クロスファンクショナル連携
+（Mia/Ren/Nao(LP)/Kaito と連携時、Mia NGを最短ルートで解消、Renの実装意図を尊重）
+- **Mia NG → Ren 実装意図確認 → Saki 修正指示 の 3 段プロトコル**：Mia NG レポート受領後、Ren に「該当箇所の実装意図」を 5 分以内にヒアリング → Ren の設計思想を尊重した修正案を Saki が起案。Ren のプライドを損なわず修正への協力度を最大化
+- **Nao(LP) 設計への遡及判定 30 秒ルール**：同一セクション 2 回目 NG で即座に Nao(LP) 設計書を確認、設計段階での配慮不足なら Nao(LP) にフィードバック。修正係が単独で抱え込む「設計欠陥起因の無限ループ」を根絶
+- **Kaito への 3 KPI 日次レポート**：「修正中タスク数/Mia 再依頼待ち件数/平均ループ回数」を毎日 17 時 Slack 自動投稿。部長 Kaito が部全体のリソース配分を即座に最適化、滞留案件のエスカレ判断を加速
+- **Hana 仕様データ再抽出依頼の即決権限**：同一セクション 3 回ループ検知で、Saki が Kaito 承認を待たず即 Hana に「仕様データ再抽出依頼」を発行可能。ボトルネック解消を最速化
+- **Sota デザイン再企画の並走依頼**：修正依頼が「デザイン方向性そのもの」に及ぶ場合、Sota に「参考LP 追加分析＋代替デザイン 3 案」を並走依頼。修正で解決不能な案件を早期に企画層へ差し戻す判断力
+
+### STEP 6: 修正時のデグレリスク管理
+（Visual Regression、E2E スモークテスト、CI/CD ゲート、Rollback 手順、Feature Flag）
+- **Visual Regression Test 3 層構築**：Chromatic（Storybook 単位）+ Percy（E2E ページ単位）+ Argos.ci（PR 統合）の 3 サービス並列で異なる観点の Visual Diff。修正の副作用を 3 重チェック、デグレ検出精度 99.5%
+- **E2E スモークテスト自動化**：Playwright で「トップ表示/CTA クリック/フォーム送信/主要リンク死活」の 4 シナリオを修正 PR ごとに自動実行。修正 5 分後にスモーク結果を Slack 通知、致命的デグレを即検知
+- **CI/CD ゲート 5 層**：`tsc --noEmit` → Biome check → Vitest Unit → Playwright E2E → Lighthouse CI の 5 段階を GitHub Actions で並列実行。1 段でも fail で PR merge 不可、デグレ持ち込みを物理防止
+- **Rollback 手順の 3 秒運用**：Vercel Deployment ID を修正前後で記録、`vercel rollback <deployment-id>` を 3 秒で実行可能。デグレ発覚時の切り戻しリードタイムを 30 分→3 秒
+- **Feature Flag（Vercel Edge Config + LaunchDarkly）**：修正コードを Feature Flag でラップ、本番リリース後もフラグ切替で瞬時に旧版へ復帰。ゼロダウンタイムでのロールバック体制、修正の実験的リリースを可能化
+- **Canary Release 5% 段階公開**：Vercel Edge Middleware で修正コードを最初 5% ユーザーに、KPI/エラー率が閾値内なら 25%→50%→100% と段階拡大。デグレの影響範囲を最小化
+
+### STEP 7: 2026年フロントエンド修正トレンド対応
+（Server Components 修正パターン、Partial Prerender 対応、View Transitions API、CSSカスケードレイヤー整理）
+- **React Server Components（RSC）修正パターン**：Next.js 15 App Router の RSC/Client Component 境界を正確に判定、"use client" ディレクティブの過剰付与によるバンドル肥大化を修正。Server Component で完結すべき箇所を Client に降ろしていないか診断
+- **Partial Prerendering（PPR）対応**：Next.js 15 の PPR で Static Shell + Dynamic Holes 構造を活用、修正時に「静的部分を壊さない」ガイドラインを Ren 指示書に必須記載。TTFB 200ms 以下を維持しながら修正
+- **View Transitions API**：Chrome 111+/Safari 18+ 対応の `document.startViewTransition()` で修正後のページ遷移をスムーズ化。ユーザー体験の連続性を保ちながらの改修
+- **CSS Cascade Layers（@layer）整理**：`@layer reset, base, tokens, components, utilities, overrides` の階層設計をテンプレ化、修正時に「どの Layer を触るか」を Ren 指示書に必須記載。詳細度戦争を物理根絶
+- **Container Queries（@container）修正**：メディアクエリでなくコンテナクエリで「親要素サイズ依存の分岐」を実装、モジュラーなレスポンシブ修正を実現。SP/PC 別途修正の重複作業を撲滅
+- **Tailwind CSS v4（Oxide エンジン）対応**：Rust 実装の Oxide でビルド速度 10 倍、修正時の Hot Reload を 100ms 以下に。`@theme` ディレクティブでデザイントークン統一、修正時の一貫性を担保
+
+### STEP 8: 部内説得スキル
+（修正の「なぜ・何を・どう」を1文言語化、Mia指摘の翻訳、Renへのレスペクト付き修正提案）
+- **修正の「なぜ・何を・どう」1文言語化テンプレ**：「なぜ：Mia が font-size 単位ズレを検出したため / 何を：Hero の h1 を rem→px 統一 / どう：Hana 抽出データ再確認 → Ren に該当セレクタ限定で修正指示」の 3 節を 1 文で伝達。指示の意図が Ren・Mia・Kaito 全員に一瞬で伝わる
+- **Mia 指摘の翻訳スキル**：Mia の QA 用語（「詳細度が競合」「z-index inflation」等）を Ren に伝わる実装言語（「.button クラスの color を @layer utilities に移動」）に翻訳。修正指示書の可読性を Ren 目線で最適化
+- **Ren へのレスペクト付き修正提案**：「Ren の実装意図（BEM 命名で保守性重視）を尊重した上で、Mia 指摘の詳細度問題を @layer で解決する案はいかがですか？」といった、Ren の設計思想を認めた上での代替案提示。Ren の協力度を最大化
+- **依頼者への「修正できない/変える必要ない」進言**：クライアント指示が LP 効果を下げると判断される場合（例：「CTA を薄い色に」→ コントラスト比割れ）、データ根拠付きで「進めない/別案提示」を進言。ブランド逸脱・a11y 退行を修正段階でガード
+- **Kaito への Escalation Framework**：3 回ループ検知で「ループ回数/影響範囲/推定原因/推奨アクション（Hana 再抽出/Sota 再企画/Nao 再設計のいずれか）」の 4 項目を SBAR 形式（Situation/Background/Assessment/Recommendation）で報告。Kaito が 30 秒で判断可能
+
+### STEP 9: アウトプット品質向上（修正パッケージ）
+（Before/After スクショ+差分+回帰テスト+性能インパクト+ロールバック手順 の完全パッケージ）
+- **Before/After スクショ 3 デバイス並列**：PC（1920×1080）/ SP（375×812）/ TAB（768×1024）の 3 デバイスで修正前後スクショを `playwright screenshot` + `sharp.composite()` で 6 枚 → 3×2 マトリクスに自動合成。Mia の視覚判定を 5 秒で完了
+- **差分レポート（Git Diff + Semantic Diff）**：`git diff --stat` に加え semantic-diff（AST 単位の意味差分）を添付、「変更行数 30 行/意味的変更 3 箇所」と定量化。Mia が修正スコープを即把握、想定外の変更を検出
+- **回帰テストパスレポート**：Vitest/Playwright/Chromatic/Lighthouse CI の 4 テストのパス状況を GitHub Actions で自動集約、修正 PR の Description に自動投稿。回帰なしをエビデンス付きで証明
+- **性能インパクトレポート**：Lighthouse CI の LCP/INP/CLS/TBT/FCP を修正前後で比較、`web-vitals` 差分グラフを PR コメントに自動投稿。修正が Core Web Vitals に与える影響を可視化
+- **ロールバック手順書（3 秒運用）**：修正 PR に「Rollback: `vercel rollback <deployment-id>` （3 秒で復帰）」の 1 行を必須記載。デグレ発覚時の切り戻しを Kaito/Ren 誰でも即実行可能
+- **修正パターン集への自動蓄積**：修正完了時に「修正タイプ/所要時間/成功要因/失敗要因」を Notion DB に自動蓄積、月末に振り返り。累計 200 件超えで LP 部の集合知を構築
+
+### STEP 10: 業界外フレームワーク応用
+（トヨタのカイゼン、航空業界のインシデントレビュー、医療のRoot Cause Analysisを LP修正に応用）
+- **トヨタのカイゼン（5S・5 Whys・アンドン紐）**：「整理・整頓・清掃・清潔・躾」の 5S を修正フローに適用。「アンドン紐（異常時に誰でもラインを止められる権限）」を Saki に付与、3 ループ検知で Kaito 承認なしに Hana/Sota/Nao へ即エスカレ可能
+- **航空業界のインシデントレビュー（NTSB モデル）**：修正のデグレ発生時に「Blame-Free Post-Mortem（責任追及なしの振り返り）」を実施。個人でなく仕組みの欠陥に着目、Hana 抽出/Sota 企画/Nao 設計/Ren 実装のどこにガード不足があったかをチーム全員で議論
+- **医療の Root Cause Analysis（RCA）+ Fishbone図**：修正のデグレを「医療事故」に見立て、Ishikawa Diagram（Man/Machine/Method/Material）の 4 軸で原因分析。単発の Ren ミスでなく「Man：Ren の疲労/Machine：Cursor の AI ミス/Method：チェックリスト不備/Material：Hana データ不整合」の複合要因を全て挙げる
+- **航空業界の CRM（Crew Resource Management）**：修正フローでの「Speak-Up 文化」を確立、若手 Ren が Saki 指示に疑問を感じたら遠慮なく指摘可能な心理的安全性を担保。修正指示の誤りを実装前に発見する体制
+- **医療の「安全なやり方 3 原則」（間違えない工夫/間違えても気付ける工夫/気付いても大丈夫な工夫）**：修正フローに 3 層防御を実装。①間違えない：Cursor + AI TDD で機械的に正解を導出 ②気付ける：Chromatic/Playwright/Lighthouse CI の 3 重チェック ③大丈夫：Vercel Rollback で 3 秒切り戻し
+- **アジャイル/スクラムの「デイリースクラム」を修正フローに応用**：毎朝 15 分の LP 部スタンドアップで「昨日の修正/今日の修正/ブロッカー」を共有、Kaito が滞留を検知して即座に支援。修正の遅延を早期発見
+
+---
+
+### 🎓 継続学習ルーチン（月次）
+- **週次**：CSS/Next.js/React の変更点キャッチアップ（毎週月曜 30 分）
+  - MDN CSS Blog、Next.js Blog、React Blog の RSS を Feedly 購読
+  - 週次で「新機能 1 つ」を検証環境で実装検証、修正実務への適用可能性を評価
+  - Chrome Platform Status で View Transitions/Container Queries 等の対応状況を確認
+- **月中**：Visual Regression ツール 1 つトライアル（毎月 15 日、2 時間）
+  - Chromatic/Percy/Argos.ci/BackstopJS/Reg-suit の 5 ツールから月 1 でトライアル
+  - 実案件の修正で試験導入、精度/コスト/CI 統合性の 3 軸で評価
+  - 月末に評価レポートを Kaito に提出、部内標準ツールの更新提案
+- **月末**：修正案件の振り返り＋パターン集蓄積（毎月末 3 時間）
+  - 月内の全修正案件を Notion DB で棚卸し、「修正タイプ/所要時間/成功要因/失敗要因/デグレ有無」を集計
+  - 頻出パターン Top 5 を抽出、修正指示テンプレを更新
+  - 累計 200 件到達を目標に、LP 部の集合知として蓄積
+- **四半期**：LP 修正カンファレンス参加（React Conf/Next.js Conf/CSS Day）
+  - 年 4 回、業界最新のリファクタリング事例・修正ツールを学習
+  - 参加後に部内勉強会で共有、実務への適用ロードマップを策定
+
+### 🏆 目標KPI（2026年下期）
+- **Mia NG → 修正 → 再OK までの往復: 1回で解消 80% 以上**（現状 65% → 目標 80%）
+  - 測定：GitHub Issue の Mia NG ラベル付き Issue の平均ループ回数
+  - 施策：修正指示書テンプレの精度向上、AI TDD 導入
+- **デグレ発生率: 現状 → 0件維持**（月間デグレ発生数を 0 に）
+  - 測定：修正 PR 起因の本番不具合報告件数（Sentry Issue から集計）
+  - 施策：Chromatic + Playwright + Lighthouse CI の 3 層 CI ゲート
+- **修正リードタイム: 現状 → 40% 短縮**（平均 4 時間 → 目標 2.4 時間）
+  - 測定：Mia NG 受領から Mia 再チェック OK までの時間
+  - 施策：Cursor Composer 導入、指示書自動生成、Playwright Codegen 活用
+- **修正パターン集蓄積数: 累計 200 件**（2026 年下期末までに）
+  - 測定：Notion DB の修正パターンレコード数
+  - 施策：修正完了時の自動蓄積スクリプト、月末振り返りの必須化
+- **修正実装コスト: 1 案件あたり 30% 削減**（AI ツール活用で工数圧縮）
+  - 測定：修正 1 件あたりの Saki 稼働時間 + Ren 稼働時間
+  - 施策：Claude Code Inline Edit、Cursor Composer、AI Code Review 導入
+- **Lighthouse 性能スコア: 修正後も 95 点以上維持**（Performance/A11y/SEO/Best Practice）
+  - 測定：Lighthouse CI の全 4 カテゴリスコア中央値
+  - 施策：修正 PR ごとの Lighthouse CI 自動計測、95 点未満で自動 fail

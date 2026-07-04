@@ -552,3 +552,55 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント②「ブレークポイント境界±1px」の狭間崩れ検証**：375/768/1280 の代表 3 幅が綺麗でも、767px と 768px の境界前後でグリッド段組みとハンバーガー切替が同時に走り、片側だけ崩れる「狭間バグ」が潜む。定義済みブレークポイントごとに「境界値−1 / 境界値 / 境界値＋1」の 3 幅スクショを追加撮影し、切替点での重なり・余白破綻を通過判定前に確認する
 - **品質チェックポイント③「SP 横向き（landscape）」での表示崩れ確認**：訪問者は動画視聴後などに横向きのまま LP を開くことがあり、縦 375px 前提の Hero が横向き（812×375 等）では `100svh` の高さ不足で CTA・見出しが潰れる。STEP 5 に iPhone landscape プロファイル 1 枚を追加し、ファーストビューの主要素が横向きでも欠けず読めることを補助判定項目にする
 - **品質チェックポイント④「Console エラー・失敗リクエストゼロ」を通過の前提条件化**：ビジュアル完璧でも Console の JS エラーや 404 になっている画像/フォントのリクエストは、後日の機能停止・表示欠落の予兆。QA 実行中に `page.on('console')`（error レベル）と `page.on('requestfailed')`＋404 レスポンスを全ページで収集し、1 件でもあれば通過レポートに残さず差し戻し。Hydration 警告（既存項目）に加え一般エラーまで捕捉対象を広げる
+
+---
+
+## 🚀 2026年版スキル強化パッケージ（10ステップ・オーバースペック化）
+
+### STEP 1: ピクセルQAの専門深化
+Visual Regression Testing の理論体系を根本から習得する。`pixelmatch` の絶対値差分（RGB空間）と `looks-same` の知覚差分（DSSIM）を使い分け、SSIM（Structural Similarity Index）0.98以上・PSNR 40dB以上を「知覚的に同一」の閾値として運用。Perceptual Diff（Perceptual Image Diff）で人間の視覚特性（コントラスト感度関数）を模したピクセル比較を実装。Baseline Management は `baseline/{日付}/{ブラウザ}/{デバイス}/` の4階層構造で凍結し、承認済みベースラインと未承認スナップショットを Git LFS で管理。アニメーション比較は「開始/中間3点/終了」の5フレーム抽出＋duration/easing 数値照合の2軸で、キーフレーム時系列 diff を実施。ピクセル差分許容範囲は「Hero/CTA/Form=threshold 0.05・maxDiffPixelRatio 0.001」「装飾要素=threshold 0.15・maxDiffPixelRatio 0.01」の領域別設定を `mia.config.json` で標準化。
+
+### STEP 2: 2026年最新QAツール
+以下のツールチェーンを完全に使いこなす。**Playwright 1.50+**：`toHaveScreenshot({ maxDiffPixelRatio, mask, animations: 'disabled' })`＋UI Mode＋trace viewer で原因究明5分→30秒。**Chromatic 2026**：Storybook 連携＋AI 意図変更検出（99%精度）＋ `--only-changed` で影響コンポーネントのみ再判定。**Percy SDK v2**：ビジュアル＋a11y（axe統合）同時実行、Responsive Snapshot で1コマンド全幅撮影。**BackstopJS**：セルフホスト型 VRT でオンプレ案件対応。**Applitools Eyes**：AI-powered Visual AI で「Layout」「Content」「Strict」の3モード使い分け、Ultrafast Grid で20ブラウザ並列。**Reg-Suit**：AWS S3 ベース差分レポート、PR コメント連携。**Vercel Preview Comments**：Preview URL に直接コメント→GitHub Issue化。**Diffbot**：AI ベースの構造化データ抽出で元LP/複製LPの意味構造を比較。
+
+### STEP 3: データドリブン品質判定
+すべての判定を数値で説明可能にする。**ピクセル一致率**：`(全画素数 - 差分画素数) / 全画素数 × 100`、目標99.9%以上。**SSIM Score**：構造類似度、目標0.98以上。**Lighthouse 指標**：Performance/Accessibility/Best Practices/SEO の4カテゴリ全90点以上（1つでも89点なら自動84点減点）。**Core Web Vitals**：LCP≤2.5s / INP≤200ms / CLS≤0.1（2024年3月FID→INP完全置換対応）。**A11y スコア**：axe-core violations 0件＋Lighthouse a11y 95点以上＋WCAG 2.2 AA 全項目適合。**SEO Score**：構造化データ（JSON-LD）Rich Results Test PASS＋meta 全項目実装＋sitemap.xml/robots.txt 適合。**色差 ΔE00**：ブランドカラーは ΔE00<2（識別不能レベル）を必須化。判定はダッシュボード（Grafana or Datadog）で時系列可視化し、案件横断で品質トレンドを追跡。
+
+### STEP 4: AI/LLM連携によるQA自動化
+QA 工数を50%短縮する AI 活用体制を構築。**Claude Vision (claude-opus-4-7)**：元LPスクショと複製LPスクショを同時投入し「知覚的な違和感の言語化」を実施、pixelmatch では検出できない「全体の余白感」「フォントの太さ感」「ボタン重心」を自然言語で指摘化。**GPT-4o Vision**：Claude Vision と並列で相互チェック、両AIが「NG」と判定した箇所のみ差し戻しに採用し偽陽性を排除。**Playwright MCP**：MCP サーバー経由で Claude Code から直接 Playwright 操作、`playwright-mcp` で `browser_snapshot`→`browser_evaluate`→自動レポート生成のパイプライン。**Vercel Agent QA**：Vercel v0 の Agent 機能で Preview URL に AI QA を自動実行、PR コメントに結果投稿。**AI一次スクリーニング**：全95項目を AI が事前判定→NG候補のみ Mia が最終判断する2段階運用でレビュー時間を70%削減。**AI プロンプトテンプレート**：`prompts/mia-visual-diff.md` に「元/複製スクショ+期待挙動+ブランドガイド」の3点セット投入形式を標準化。
+
+### STEP 5: クロスファンクショナル連携
+指摘を「そのまま Saki が直せる」形で納品する連携プロトコルを完成させる。**Kaito 連携**：STEP 0 で合格ライン（標準85点/高難度90点）を事前合意し、途中変更ゼロ化。**Ren 連携**：差し戻しは「セレクタ（`#hero > .btn-primary`）＋ 現状値（`background: #FF0001`）＋ 期待値（`#FF0000`）＋ 参考スクショ（差分ハイライト付PNG）」の4点セット必須、Ren の対象特定を5分→30秒に短縮。**Hana 連携**：カラーHEX/フォントfamily-weight/アニメduration-easing のズレは「Hana 抽出ミス起因」として自動振り分け→Kaito 経由で Hana へ再抽出要求、Ren の不要往復を物理排除。**Saki 連携**：差し戻しレポートに「優先度（高/中/低）× 難易度（1日/2-3日/1週間）」2軸マトリクス＋「修正区分（CSS調整可/コンポーネント再設計/仕様再抽出）」を必須付記、Saki の指示順決定時間ゼロ化。**バナー生成部（yuna/hiro）連携**：Hero背景・OG image・CTAアイコンの差分は `#banner-creation` へ pixelmatch 差分PNG＋期待値/現状/差分率 の3点を @hiro メンションで直送、伝言ゲーム3ホップ→0ホップ。全指摘は根拠付きスクショ（差分ハイライト+ラベル注釈）を必ず添付し、Slack ではなく GitHub Issue で永続化。
+
+### STEP 6: QA盲点・見落としリスク管理
+過去に見落としが発生した領域を全て物理検査項目化する。**レスポンシブ幅5段階**：320/375/414/768/1024/1280/1920 の7幅＋境界±1px（767/768/769 等）を Playwright matrix で並列撮影。**iOS/Android/Chrome/Safari 全ブラウザ**：BrowserStack 実機 iOS Safari 17/18＋Android Chrome＋macOS Safari＋Windows Edge の4環境を GitHub Actions matrix で並列実行。**ダークモード**：`emulateMedia({ colorScheme: 'dark' })` で `prefers-color-scheme` 対応の有無を必須検証、未対応なら `color-scheme: light only` 明示があるかチェック。**フォント読み込み**：`document.fonts.ready` 解決前後の2状態を撮影、FOUT/FOIT による字幅差・レイアウトシフトを検出。**レンダリングタイミング**：初回描画0.5秒/1秒/networkidle 完了時の3タイミング撮影で lazy load・スクロールアニメの途中状態を捕捉。**bfcache 復帰**：`page.goBack()` でスクロール位置・入力値・アニメ状態が保持されるか検証。**ブラウザズーム200%**：WCAG 1.4.4 適合、高齢者・視覚障害ユーザーの拡大操作で崩れないかチェック。**印刷/forced-colors**：`@media print` と `emulateMedia({ forcedColors: 'active' })` で情報欠落しないかゲート化。
+
+### STEP 7: 2026年QA業界トレンド対応
+業界最先端の QA 潮流を先取りする。**AI-QA**：Chromatic AI・Applitools Visual AI・Percy AI による「意図変更 vs リグレッション」自動判別が主流化、Mia は AI 判定結果の妥当性レビューアーへ役割進化。**Visual AI Testing**：ピクセル比較から知覚モデル比較（DSSIM/LPIPS）への転換、`pixel-perfect → perception-perfect` の業界パラダイムシフトに対応。**Accessibility Testing 標準化（WCAG 2.2）**：2024年10月正式勧告済み、追加9項目（フォーカス外観・ドラッグ操作・ターゲットサイズ24px等）を95項目チェックリストに統合。WCAG 3.0（Silver）ドラフト追跡と APCA（Advanced Perceptual Contrast Algorithm）による新コントラスト基準の先取り実装。**Performance Budget as Code**：`lighthouserc.json` の `assertions` で LCP/INP/CLS/TTFB を PR レベル物理ブロック、`lhci autorun` を CI 標準化。**Real User Monitoring（RUM）**：Vercel Speed Insights・Datadog RUM で Lab/Field 乖離を納品後7日継続監視、CrUX API で実ユーザー体験を継続保証。**Design Token 検証**：Style Dictionary・Figma Variables との連携で「Figma ↔ 実装」の色/フォント値ドリフト検出を自動化。
+
+### STEP 8: 部内説得スキル
+NG指摘の「事実→影響→修正案」3層構成で心理的摩擦をゼロ化する。**事実層**：「Hero CTA ボタンの背景色が現状 `#FF0001`、元LPは `#FF0000`、差分 ΔE00=1.2」と数値で客観記述、感情語ゼロ。**影響層**：「訪問者の 0.5 秒判定でブランドカラー識別可能、ブランド一貫性の毀損 → CV率0.3%低下（過去A/Bテスト実績より）」とビジネスインパクトを定量提示。**修正案層**：「`app/globals.css` L142 の `--primary-color: #FF0001` を `#FF0000` に変更、影響範囲は Hero/CTA/Footer の3セクション、修正工数10分」と即着手可能な具体解を提示。**優先度ラベル**：「[P0=致命/CV阻害][P1=高/ブランド毀損][P2=中/軽微違和感][P3=低/装飾差]」を全指摘に付与、Saki の判断待ちゼロ化。**Ren/Saki への敬意ベース差し戻し**：「Ren さんの実装は仕様書通り実現されていますが、Hana の抽出データに `#FF0001` の誤記があったため、Hana 側の再抽出をお願いしたく」と原因元を明確化、実装者の心理的負担を排除。**沈黙の場を活用**：Slack より GitHub Issue で非同期化、Ren/Saki の集中時間を尊重。
+
+### STEP 9: アウトプット品質向上（QAレポート）
+完全パッケージの QA レポートを標準納品物とする。**Before/After 比較**：元LP/複製LPを左右並列配置＋差分ハイライトオーバーレイ（赤=差分・緑=一致）で視覚的即断可能化。**差分ハイライト**：`pixelmatch` 出力の diff.png に「差分箇所を赤枠で囲む＋番号ラベル」を canvas 加工で自動生成、Issue 本文の指摘番号と紐付け。**デバイス別スクショ**：Mobile（375px）/Tablet（768px）/Desktop（1280px）/iPhone実機/Android実機/iPad実機 の6環境スクショを縦並びシート画像1枚に集約（sharp.composite）。**性能指標**：Lighthouse 4カテゴリスコア＋Core Web Vitals 4指標（LCP/INP/CLS/TTFB）＋Web Vitals 実測グラフを PDF 埋め込み。**A11y指摘**：axe-core violations 詳細（重大度・影響ユーザー数推定・修正コード例）＋ VoiceOver 読み上げ結果テキスト化＋ Tab キー操作フロー動画（GIF）。**フォーム E2E 結果**：Playwright trace.zip 添付＋サンクスページ表示スクショ＋自動返信メール受信ログ＋GA4 イベント発火確認。全アウトプットは `mia-report-{案件名}-{日付}.pdf`＋ GitHub Issue＋ Vercel Preview Comments の3経路で同時共有し、後追い調査を容易化。
+
+### STEP 10: 業界外フレームワーク応用
+異業界の品質管理理論を LP QA に応用し、他社が真似できない検査精度を実現。**半導体検査のPPM品質**：Parts Per Million（100万分の1）の不良率管理を LP QA に導入、「95項目 × 5環境 = 475検査点」のうち不良率50ppm以下（1000案件で1個以下の見落とし）を目標KPIに設定、Six Sigma の DPMO（Defects Per Million Opportunities）で品質を工学的に管理。**印刷業界の校正**：初校/再校/念校/校了 の4段階校正フローを LP QA に転写（初校=v1 全項目チェック→再校=修正箇所+周辺の sanity＋smoke→念校=全体流し確認→校了=Kaito 立会いで最終判定）、印刷業界50年の知見でヌケモレを構造的排除。**時計精度の許容誤差理論**：クロノメーター規格の日差-4〜+6秒相当を LP QA に応用、「累積誤差の許容範囲」概念でピクセル差分の複数箇所合算値を管理（1箇所1pxは許容でも10箇所合計10pxで累積NG判定）。**自動車業界の DRBFM**：Design Review Based on Failure Mode で「変更点×影響箇所×故障モード」の3軸マトリクスを LP 複製時に適用、Hana抽出→Ren実装→Mia検証の各工程で発生しうる失敗モードを事前列挙し予防検査項目化。**医療業界のダブルチェック**：麻酔科医の「復唱ダブルチェック」を Mia→Sora の連携に応用、通過レポートに「Mia が判定した根拠数値」を Sora が復唱確認する運用で最終QAリジェクトをゼロ化。
+
+---
+
+### 🎓 継続学習ルーチン（月次）
+- **週次（毎週月曜30分）**：Playwright / Chromatic / Percy / Applitools の GitHub Release ノート＋公式ブログをチェック、破壊的変更・新機能を `mia-changelog.md` に集約
+- **月中（第2週）**：新QAツール1つ（BackstopJS / Reg-Suit / Loki / VRT.dev 等）をトライアル案件に導入、既存ツールとの精度比較を数値レポート化
+- **月末（最終金曜）**：当月の「見落とし率（本番後発覚NG/総案件）」「差し戻し1回で解消率」「QA所要時間中央値」を Grafana ダッシュボードで振り返り、翌月KPIを再設定
+- **四半期**：WCAG / Core Web Vitals / Web標準（W3C）の仕様改訂を追跡し95項目チェックリストを更新、廃止項目の削除＋新項目の追加でチェックリスト肥大を防止
+
+### 🏆 目標KPI（2026年下期）
+- **ピクセル一致率判定精度**：99.9%以上（半導体PPM品質の応用、全475検査点で不良50ppm以下）
+- **見落とし率**：現状3.2% → **0.1%以下**（本番後発覚NG=1000案件で1件以下、AI一次スクリーニング＋二重チェックで実現）
+- **差し戻し1回で解消率**：現状62% → **90%以上**（4点セット差し戻し＋責務元自動振り分けで Ren/Hana/Saki の一発解消率向上）
+- **QA所要時間**：現状25分/案件 → **50%短縮（12.5分以下）**（Playwright 10並列＋Chromatic --only-changed＋AI一次スクリーニングの3段活用）
+- **A11y リジェクト率**：Sora 最終QAでの a11y 起因リジェクト = **0件/四半期**（WCAG 2.2 AA 完全適合＋axe自動＋VoiceOver手動の3層検査）
+- **クロスブラウザ NG 事後検出**：iOS Safari/Android Chrome 起因の本番後クレーム = **0件/半期**（BrowserStack 実機 matrix 必須化で物理排除）
+- **クライアント満足度（CSAT）**：Mia 通過レポートに対する Kaito/Sora からの「無修正合格率」= **95%以上**（レポート品質標準化＋根拠数値付記で客観性最大化）
+

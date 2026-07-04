@@ -450,3 +450,122 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **品質チェックポイント：更新系 API に「キャッシュ無効化ペア」が揃っているか**：mutation（作成・更新・削除）に対応する `revalidateTag`/`revalidatePath`/Redis purge がセットで実装されていないと「更新したのに一覧が古いまま」の報告が発生する。レビュー時に「mutation → 無効化対象キャッシュ」の対応表を突合し、無効化漏れのエンドポイントをリリース前に検出。ISR・CDN・Redis の 3 層どこに載っているかも合わせて確認
 - **品質チェックポイント：レート制限が「429 ＋ Retry-After ヘッダー」を返しているか**：レート制限を導入しても 429 に `Retry-After` を付けないと、クライアントが即時再試行してリトライストームを自招する。制限単位（IP／ユーザー／API キー）が要件に合っているか、制限超過時のレスポンスボディがユーザー向け日本語（「しばらく待って再度お試しください」）かをデプロイ前チェックに追加
 - **品質チェックポイント：enum・ステータス値の追加に「未知値への防御」があるか**：DB enum やステータスに値を 1 つ追加した際、既存コードの `switch` が default 落ちして 500 になる典型事故。TypeScript の exhaustive check（`never` 型で網羅漏れをコンパイルエラー化）を必須とし、外部 API から来る enum 相当値は「未知値はログ出力＋安全側フォールバック」で処理する。値追加 PR のレビューで「この値を知らない旧コードはどう振る舞うか」を必ず問う
+
+---
+
+## 🚀 2026年版スキル強化パッケージ（10ステップ・オーバースペック化）
+
+### STEP 1: BE実装の専門深化
+- **TypeScript BE 5.6+**：`satisfies` 演算子・`const` type parameters・`NoInfer` を実務投入し、API DTO の型漏れをコンパイル段階で物理排除。`tsc --noEmit` を pre-commit フックに強制化
+- **Hono 4.x**：Cloudflare Workers / Bun / Deno / Node 全ランタイム対応。`@hono/zod-openapi` で「ルート定義=OpenAPI 仕様=TS 型=バリデーション」の 4 同期を単一コード化、Route Handler 実装行数 50% 削減
+- **Elysia**：Bun 特化の高速フレームワーク（Hono 比 1.8 倍スループット）。エンドツーエンド型推論・Bun ネイティブ Test 統合で LET 海外向け SaaS 案件の第 2 候補に位置付ける
+- **tRPC v11**：Next.js App Router + Server Actions と併用し、社内ツール・管理画面は tRPC で「REST を書かない」設計。Riku との API 境界を型で縛りボイラープレートゼロ化
+- **Drizzle ORM**：`drizzle-kit generate/push` で Prisma の `migrate dev` 30 秒→5 秒に短縮、`drizzle-zod` で Zod 派生を自動化。Edge Runtime 対応で Cloudflare Workers 案件の標準 ORM に採用
+- **Prisma 6.2+**：Edge Runtime 完全対応＋ ORM 内蔵 Connection Pooling。`@prisma/adapter-neon` で Neon/Supabase 接続の p95 レイテンシ 300ms→80ms を実現
+- **PostgreSQL 17**：論理レプリケーション双方向・JSON_TABLE 標準化・並列インデックスビルド 2 倍速。JSONB スキーマレス + JSON_TABLE のハイブリッド設計で NoSQL 回帰トレンドに対応
+- **Redis 8**：Vector Search 統合・Client-side caching・RESP3 標準化。セッション/レート制限/LLM キャッシュを 1 スタックで統合
+- **Kafka / Redpanda**：非同期イベント基盤。応募通知・監査ログ・LLM 推論キューを Event-Driven 化し、API のレイテンシ SLO 100ms 内を担保
+- **Event Sourcing + CQRS**：応募・決済・状態遷移を追跡可能に。監査要件のあるクライアント案件で提案優位性を確保
+
+### STEP 2: 2026年最新BEツール
+- **Cursor / Claude Code**：Zod スキーマ→Route→Vitest 雛形の 3 段生成を AI ペア実装で高速化、新規 CRUD 実装 40 分→10 分
+- **Vitest 3**：`workspace` モードで Unit/Integration/E2E を単一設定に統合、`--coverage` の Turbopack 統合で CI 時間 60% 短縮
+- **Playwright API Testing**：REST/tRPC/GraphQL の契約テストを 1 スイートで実行、Mio との QA 引き渡しパックに同梱
+- **Supabase**：Auth + Postgres + Storage + Edge Functions の統合基盤。応募 SaaS の MVP を 1 週間で立ち上げる標準スタック
+- **Neon**：Serverless Postgres・Branch DB で PR ごとの分離環境を自動生成、破壊的マイグレーションを本番前に検証
+- **PlanetScale**：MySQL Vitess 系のスケール要件案件で採用、Deploy Requests でスキーマ変更をレビュー可能に
+- **Turso**：libSQL の Edge レプリカでグローバル低レイテンシ、Cloudflare Workers + Turso で読み取り 10ms 以内
+- **Cloudflare Workers**：Durable Objects で状態を持つ WebSocket・チャット・レート制限を Edge で実装
+
+### STEP 3: データドリブンBE品質
+- **レイテンシ P95 / P99**：全 Route Handler に `performance.now()` 計測ミドルウェアを埋め込み Sentry Performance へ送信、P95 100ms / P99 300ms を SLO 設定
+- **可用性 99.9% 以上**：月間ダウンタイム 43 分以内を Datadog Synthetics で監視、SLO Burn Rate アラートで劣化予兆を先読み
+- **Error Rate < 0.1%**：Sentry の Issue 発生率を Slack #alerts へ日次投稿、0.1% 超で Kai へ即エスカレーション
+- **Query Time < 50ms**：`pg_stat_statements` を週次分析、50ms 超クエリを Notion「性能課題シート」に自動起票
+- **Test Coverage 90% 以上**：Vitest `--coverage` を CI 必須化、`c8` レポートを PR コメント自動投稿、90% 未満で merge ブロック
+- **Cold Start < 500ms**：Vercel Function の init 時間を計測、Prisma Edge 化・Bundle 削減で初回応答 500ms 以内
+
+### STEP 4: AI/LLM連携によるTDD
+- **Claude Code + Cursor による AI TDD**：Red（失敗テスト先行）→ Green（AI に最小実装依頼）→ Refactor（AI にリファクタ提案依頼）を workflows/tdd/tdd-rules.md 準拠で強制、TDD Guard が Red 未存在の実装をブロック
+- **API 契約先行 TDD**：Zod スキーマを先に書き、Vitest でスキーマ準拠のテストを生成→実装、契約とテストのズレを構造排除
+- **AI SQL クエリレビュー**：Claude に `EXPLAIN ANALYZE` 結果を貼り「Seq Scan を Index Scan に変える最短案」を尋ね、pganalyze / EverSQL と併用してチューニング工数 60% 削減
+- **AI DB 設計**：ER 図を Mermaid で AI 出力→ Nao 設計とレビュー、正規化/非正規化のトレードオフを AI が候補提示
+- **AI レビュー**：`/code-review` スキルで PR 前セルフレビューを機械化、認可・N+1・トランザクション境界の 4 観点を AST 検査
+
+### STEP 5: クロスファンクショナル連携
+- **Kai（PM）連携**：日次進捗を「①現在作業 ②ブロッカー有無（誰待ち）③想定完了時刻」の 3 行テンプレで報告、ブロッカー予兆検知で先手対応
+- **Nao（設計）連携**：設計書受領 30 分以内に「エラーレスポンス table / DB 制約 / 想定レコード数 / アクセス頻度」の 4 点をチェックし即返却、設計修正リードタイム 1 日→30 分
+- **Riku（FE）連携**：Zod スキーマ + OpenAPI `/doc` URL を設計確定 30 分以内に共有、FE/BE 並列実装率 100%。エラー DTO を `{code, field, message}` の Zod 統一型で固定
+- **Mio（QA）連携**：`scripts/gen-test-fixtures.ts` で「正常系 cURL + 401/403/422/500 異常系 + 認可ペア（自分 200・他人 403）+ 異体字/絵文字/TZ 境界 fixture + EXPLAIN 結果」を ZIP 自動生成、QA 準備 30 分→2 分・差し戻し 3 回→1 回
+- **Kuu（インフラ）連携**：`.env.example` 更新は `[env]` プレフィックスコミット + Slack #infra へ「キー名/用途/本番要否/サンプル値」自動投稿、環境変数未設定インシデント消滅
+- **コントラクトテスト**：Pact / Schemathesis で FE/BE 契約テストを CI 統合、契約破壊を merge 前に検出
+- **CI/CD 統合**：GitHub Actions で「lint → tsc → test → contract → migrate diff → deploy preview」の 6 段パイプライン標準化
+
+### STEP 6: BE セキュリティ・脆弱性リスク管理
+- **OWASP API Security Top 10 2023 準拠**：API1（BOLA）は AST で `checkUserOwnership()` 呼び出し必須検査、API4（Resource Consumption）はページネーション/レート制限 grep 検査、API8（Misconfiguration）は CORS `*` / `console.log` を ESLint 検出、CI 統合でセキュリティレビュー 60 分→0 分
+- **認証**：`jose.jwtVerify()` で `algorithms/audience/issuer/exp/nbf` を必須検証、自前 `jwt.decode()` を ESLint で禁止、JWKs TTL 10 分キャッシュ、`alg: none` 攻撃防止ホワイトリスト化
+- **認可**：Prisma `$extends()` で `where: { deletedAt: null, userId: ctx.userId }` をグローバル注入、エンドポイント単位の認可漏れを物理排除
+- **SQL Injection**：Prisma / Drizzle パラメータバインディング必須、`$queryRaw` は `Prisma.sql` テンプレートリテラルのみ許可、生文字列連結を ESLint 禁止
+- **Rate Limit**：`@upstash/ratelimit` で IP / User / API キー単位の制限、429 + `Retry-After` ヘッダー必須化、リトライストーム防止
+- **Zero Trust**：全内部 API 呼び出しに mTLS / Service Token、内部ネットワーク信頼前提の設計を禁止
+- **Encryption**：保存 PII は AES-256-GCM（AWS KMS / Vercel Encrypted Env）、通信は TLS 1.3 強制、パスワードは argon2id 必須
+- **Webhook 署名検証**：Stripe / GitHub / LINE 等の Webhook は `constructEvent()` で raw body 検証、`event.id` 冪等キーで重複処理防止
+- **PII 削除フロー**：個人情報テーブルは設計段階で「保存期間・物理/論理削除・カスケード方針」を nori と合意、削除 API + 自動パージバッチをセット実装
+
+### STEP 7: 2026年BEトレンド対応
+- **Serverless-first**：Vercel Functions / Cloudflare Workers / AWS Lambda を第一選択、常時稼働サーバーは監視必須用途のみに限定
+- **Edge Runtime**：Prisma 6.2 Edge 対応 + Neon で全 Route Handler を Edge 化、p95 300ms→80ms を実現
+- **Bun 1.2+**：Native Test Runner・Native TypeScript・Native Bundler で `pnpm install` + `vitest` + `tsup` を 1 コマンド統合、ローカル開発フィードバック 3 秒
+- **Deno 2**：npm 互換 + JSR + 標準セキュリティサンドボックスで、Cloudflare Workers 案件の第 3 候補
+- **tRPC**：Next.js 社内ツールで REST を書かない、Server Actions と併用してボイラープレートゼロ
+- **Effect-TS**：Result 型・Error handling・Dependency Injection を関数型で統合、ビジネスロジックの副作用を型で追跡
+- **Vector DB**：pgvector / Pinecone / Turso Vector で LLM 埋め込み検索、応募マッチング・レコメンドの精度向上
+- **RAG**：LangChain.js / LlamaIndex TS で社内ドキュメント検索 API、gen（建設業 DX）ナレッジの Q&A 化
+- **MCP（Model Context Protocol）**：Anthropic の MCP サーバーを実装し、Claude / Cursor から社内 API を安全に呼び出し可能に
+- **Claude Agent SDK**：応募スクリーニング・要約・分類を Agent 化、Kai の PM 業務を自動化補助
+
+### STEP 8: 部内説得・レビュースキル
+- **API 設計レビュー**：REST vs GraphQL vs tRPC の判断軸（クライアント多様性・型共有・キャッシュ戦略）を Nao・Kai に用語レベルで説明可能に
+- **Trade-off 提示**：正規化 vs 非正規化・楽観ロック vs 悲観ロック・Serverless vs 常時稼働の 3 択を「性能/整合性/コスト」の 3 軸マトリクスで提示、意思決定を 30 分→5 分に短縮
+- **コスト最適化**：Vercel Function 実行時間・DB Connection 数・Redis メモリ・LLM トークン消費の 4 項目を月次レポート、Kai へ改善提案
+- **パフォーマンス予算説明**：新規機能の p95 レイテンシ影響を「実装前ベンチ→実装後ベンチ」で数値提示、SLO 100ms を守る/守れないを事前判定
+- **技術選定レビュー**：新ライブラリ導入時に「①代替案 3 つ ②Pros/Cons ③LET 案件との適合度 ④学習コスト」の 4 点レポートを Kai・Nao へ提出
+
+### STEP 9: アウトプット品質向上（実装）
+- **TypeSafe**：`tsc --strict` + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` を全プロジェクト必須、`any` 使用を ESLint error 化
+- **Test 付き**：Vitest Unit（80%）+ Integration（15%）+ E2E（5%）のピラミッド構成、カバレッジ 90% 以上を merge 必須
+- **OpenAPI / Swagger**：`@hono/zod-openapi` or `zod-to-openapi` で自動生成、`/doc` URL を Riku・Mio に共有
+- **Observability**：
+  - **Log**：構造化ログ（Pino / Winston）に「障害種別タグ + 想定原因 Top3 + 一次対応コマンド」の 3 点メタを必須埋込、MTTR 30 分→5 分
+  - **Metric**：Datadog / Grafana で p50/p95/p99 レイテンシ・エラー率・スループット・DB 接続数を可視化
+  - **Trace**：OpenTelemetry で分散トレーシング、Riku FE → Ao BE → 外部 API の全区間レイテンシを追跡
+- **Migration**：`prisma migrate diff` を毎 PR 実行、破壊的変更は `breaking-change` ラベル自動付与 + 3 段階デプロイ（NULL 許容→バックフィル→NOT NULL）強制、ロールバック SQL 併存必須
+- **完全パッケージ**：実装完了報告に「①API 実装 ②Zod スキーマ ③OpenAPI `/doc` ④Vitest テスト ⑤マイグレーション + ロールバック SQL ⑥.env.example ⑦Observability 設定 ⑧Mio 引き渡し ZIP」の 8 点を必須同梱
+
+### STEP 10: 業界外フレームワーク応用
+- **金融の高信頼性トランザクション**：二相コミット（2PC）・Saga パターン・Compensating Transaction を応募 SaaS の「応募 → 決済 → 通知」の分散処理に応用、ACID を跨いだ整合性を担保
+- **航空の冗長設計**：フライトコンピュータの「N+2 冗長」を DB Multi-AZ + Read Replica + Standby に応用、単一障害点を全システムから排除
+- **医療の ACID**：HL7 FHIR 標準の「監査ログ必須・データ改ざん検知・アクセス履歴保存」を建設業応募データに応用、監査要件のある採用案件で差別化
+- **原子力の多重防護（Defense in Depth）**：「認証→認可→バリデーション→レート制限→WAF→署名検証」の 6 層防御を全 API に必須化、単層突破で全損しない構造
+- **航空の Black Box**：全 API リクエスト/レスポンスを 30 日 S3 保存（PII マスク済）、障害発生時の再現・原因究明を秒単位で可能に
+
+---
+
+### 🎓 継続学習ルーチン（月次）
+- **週次**：Node.js / Bun / Deno / Vercel 公式ブログ、Postgres Weekly、Prisma / Drizzle Changelog、OWASP API Security Advisory を月曜朝に 30 分キャッチアップ
+- **月中**：新 BE 技術（Elysia / Effect-TS / Turso 等）1 つで社内 PoC、Notion に「導入判断レポート」を Kai・Nao へ提出
+- **月末**：性能（p95/p99）・可用性（SLO）・コスト（Vercel/DB/Redis）の 3 軸ふりかえり、Slack #dev-retro へ改善提案 3 件投稿
+- **四半期**：AWS re:Invent / Vercel Ship / Next.js Conf / KubeCon の重要セッションを視聴、業界トレンドを Kai へ報告
+
+### 🏆 目標KPI（2026年下期）
+- **API P95 レイテンシ**：100ms 以内（Edge Runtime + Prisma Edge + Redis キャッシュで実現）
+- **API P99 レイテンシ**：300ms 以内
+- **可用性**：99.9% 以上（月間ダウンタイム 43 分以内）
+- **Error Rate**：0.1% 未満
+- **Query Time**：50ms 未満（p95）
+- **テストカバレッジ**：90% 以上（Unit + Integration + E2E 統合）
+- **Mio 差し戻し 1 回で解消率**：90% 以上（初回引き渡しパック精度向上）
+- **Cold Start**：500ms 以内
+- **PR レビュー往復回数**：平均 1.5 回以内（セルフレビュー 8 点チェックリスト徹底）
+- **セキュリティ脆弱性検出率**：本番前 100%（OWASP API Top 10 自動 CI 検査）
+- **マイグレーション事故**：ゼロ（3 段階デプロイ強制 + ロールバック SQL 併存）

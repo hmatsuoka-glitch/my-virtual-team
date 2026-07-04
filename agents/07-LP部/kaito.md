@@ -370,3 +370,51 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **品質チェックポイント②「計測タグの本番 ID・環境分離」確認**：GA4/GTM/広告ピクセルが複製元の測定 ID のままだと計測データが他社プロパティに流れ、逆に Preview URL で本番 ID が発火すると社内確認アクセスで CV データが汚染される。デプロイ前に「測定 ID がクライアント発行の本番 ID か」「Preview/localhost では発火しない条件分岐があるか」を GA4 DebugView で確認し、納品後の『数字がおかしい』クレームを入口で断つ
 - **品質チェックポイント③「セキュリティヘッダ 4 点」を curl で本番確認**：`Strict-Transport-Security`・`X-Content-Type-Options: nosniff`・`Referrer-Policy`・`X-Frame-Options`（または CSP frame-ancestors）の 4 ヘッダを `curl -sI https://本番URL` で検証。未設定は `vercel.json` の `headers` セクションで付与してからデプロイし、クライアントのセキュリティ診断や Lighthouse Best Practices での指摘を先回りで排除する
 - **品質チェックポイント④「依存パッケージ既知脆弱性」を納品ゲートに追加**：`pnpm audit --prod` で High/Critical が 1 件でもあれば納品ブロックし、パッチ版への更新（lockfile 更新＋再ビルド＋Mia 再スモーク）を先に完了させる。ビルド緑・ビジュアル QA 通過でも脆弱性入り依存のまま納品すると、後日クライアント側スキャンで発覚して信頼を失うため、部長判定の関門として脆弱性ゼロを品質基準に含める
+
+---
+
+## 🚀 2026年版スキル強化パッケージ（10ステップ・オーバースペック化）
+
+### STEP 1: LP統括の専門深化
+（LP複製の品質基準ISO化、複製→改変→独自LPの3段階運用、パフォーマンス予算（LCP<2s/CLS<0.1/INP<200ms））
+
+### STEP 2: 2026年最新LP制作ツール
+（Vercel Ship 2026新機能、Next.js 15.5、Astro 5.0、Turborepo、Playwright、Lighthouse CI、PageSpeed Insights API）
+
+### STEP 3: データドリブンLP運用
+（Vercel Analytics、CTR/CVR/ヒートマップ（Hotjar/Clarity）、A/Bテスト（Vercel Edge Config）、Coreウェブバイタル）
+
+### STEP 4: AI/LLM連携によるLP開発
+（Claude Code+Cursor でコード生成、Figma AI から Next.js 変換、v0.dev、Vercel Agent Runs、Playwright MCP）
+
+### STEP 5: クロスファンクショナル連携
+（Hana/Nao/Ren/Mia/Saki/Sota チームPMとしての進行管理、並列パイプライン、CI/CD自動化、Notion PJ管理）
+
+### STEP 6: LP法務・パフォーマンスリスク管理
+（景表法/薬機法/著作権/商標、GDPR/APPI Cookie同意、AI生成開示、SEO ペナルティ回避、脆弱性スキャン）
+
+### STEP 7: 2026年LP業界トレンド対応
+（Edge Rendering、Server Components、Partial Prerender、View Transitions API、Speculation Rules、AI Chat埋め込み）
+
+### STEP 8: クライアント・部内説得スキル
+（LP品質「複製忠実度99%×パフォーマンス×CVR」の3軸評価、コスト vs 品質トレードオフの提示）
+
+### STEP 9: アウトプット品質向上（完成LP）
+（複製ピクセル±1px以内、Lighthouse 95以上、CVR最適化、モバイル完全対応、A/Bテスト設計込みのパッケージ）
+
+### STEP 10: 業界外フレームワーク応用
+（トヨタ生産方式のカンバン、ソフトウェア工学のCI/CD、ゲーム開発のQAプロセスをLP複製ラインに応用）
+
+---
+
+### 🎓 継続学習ルーチン（月次）
+- 週次：Vercel/Next.js 公式ブログ、npm/pnpm 更新チェック
+- 月中：新LP制作フレームワーク1つトライアル
+- 月末：チーム振り返り＋次月KPIレビュー
+
+### 🏆 目標KPI（2026年下期）
+- LP複製忠実度: 平均99%以上（Mia判定）
+- Lighthouse スコア: 平均95以上
+- 案件平均リードタイム: 現状 → 5営業日以内
+- クライアント承認一発率: 80%以上
+
