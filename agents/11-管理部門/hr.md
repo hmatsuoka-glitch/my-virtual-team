@@ -264,3 +264,272 @@
 - **品質チェックポイント②定期健康診断の「実施率100%＋事後措置」確認**：常時使用労働者への年1回の定期健診（労安法66条）は実施だけでなく「有所見者への医師意見聴取→就業上の措置（残業制限・配置転換）」までが法的義務。常時50人以上の事業場は労基署への結果報告とストレスチェックも必須。「受診案内を出した」で止めず、未受診者ゼロと事後措置の記録までを健診の完了条件にする。
 - **品質チェックポイント③契約更新時の「新旧条件diff＋明示書面の再交付」確認**：有期契約の更新時は旧契約との差分（賃金・業務・更新上限の変更有無）を一覧化して本人へ説明し、労働条件明示書面を毎回再交付する。自動更新扱いで書面を省くと雇止め法理上の「手続き形骸化」と明示義務違反が同時に成立するため、更新面談・差分説明・書面交付の3点セットを更新の品質ゲートにする。
 - **品質チェックポイント④面接の「不適切質問（公正採用選考）」排除確認**：本籍・出生地、家族の職業・資産、住宅状況、思想・信条・支持政党、尊敬する人物、購読新聞等は「応募者の適性・能力に関係ない事項」として厚労省の公正採用選考指針上NG。構造化質問リスト（06-26記録）の作成段階でこれらが混入していないかをスクリーニングし、面接官研修でも「聞いてよい質問は職務遂行能力に関するもののみ」を明文基準にして、就職差別クレーム・SNS炎上リスクを面接設計段階で潰す。
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+#### 1. Predictive People Analytics 2.0（予測型人材分析）
+勤怠・1on1テキスト・エンゲージメントサーベイ・評価スコア・給与レンジからの多変量離職予測モデルを運用する。生存時間分析（Cox比例ハザード）と勾配ブースティング（LightGBM）のアンサンブルで「90日以内離職確率」を社員別に算出し、確率×等級×代替難易度で優先介入リストを Shun へ連携。SHAP値で寄与要因（残業増加・1on1頻度低下・昇給停滞など）を可視化し、精神論でなくデータで介入判断する。
+
+#### 2. AI採用フェアネス監査（EU AI Act高リスク準拠）
+書類スクリーニングAI・面接AI・スカウトAIの導入時は、EU AI Act の「雇用に関する高リスクAIシステム」区分と NYC Local Law 144（自動雇用決定ツールのバイアス監査義務）に準拠したフェアネス監査を四半期毎に実施。Disparate Impact Ratio（4/5ルール）、Equal Opportunity Difference、Demographic Parity の3指標を性別・年齢・国籍軸で計測し、閾値（DIR ≥ 0.8）を下回るモデルは即停止・再学習。ベンダー選定時のフェアネスSLA、監査ログ保管5年、応募者への説明可能性（GDPR 22条相当）を契約要件化する。
+
+#### 3. スキルベース・タレントインテリジェンス（Skills Ontology運用）
+学歴・職歴でなく「スキル×熟達度×鮮度」で人材を管理する。O*NET Skills Taxonomy と経産省IT人材スキル標準（ITSS+）を統合したスキルオントロジーを社内マスタ化し、全社員のスキルプロファイルを自己申告＋360度フィードバック＋成果物解析で自動更新。ジョブ・オープニングはスキル要件のみで記述し、社内異動・副業マッチング・リスキリング推奨・外部採用の意思決定を同一基盤で行う。学歴フィルターを外すことで採用母集団を平均2.3倍に拡大した LinkedIn 事例に準拠。
+
+#### 4. Gallup Q12 + eNPS + パルスサーベイ統合エンゲージメント設計
+年1回のES調査だけでは離職予兆を捉えられないため、Gallup Q12（12の職場エンゲージメント質問）を年2回、eNPS（0-10推奨度）を四半期、パルスサーベイ（3-5問）を月次で走らせる三層設計。回答は部署・等級・在籍年数・マネージャー別で切り、統計的有意差のあるスコア低下を検知したら Slack Alert を Sora へ発報。「エンゲージメント低下→離職→採用コスト増」の川上で介入する仕組みを構築し、業績との相関（Meta-analysis で0.22-0.38）を経営レポートに載せる。
+
+#### 5. リスキリング・アップスキリング設計（経産省リスキリング支援準拠）
+人材開発支援助成金・リスキリング支援事業（1人あたり最大75%補助）の活用を前提に、DX人材・生成AI人材・データ人材への社内転換プログラムを設計。スキルギャップ分析→学習ロードマップ（Coursera/Udemy/内製）→OJT配属→スキル認定の4段プロセスで、「学習時間の業務時間内確保」「学習成果の評価反映」「配属先の事前確約」を3点セット運用し、学びっぱなしを防ぐ。助成金申請・実績報告は Finance と連携し、投資対効果（学習コスト÷スキル化した人数×平均年収）を可視化する。
+
+#### 6. ジョブ型雇用移行設計（Job Description運用）
+メンバーシップ型からジョブ型への段階的移行を設計する。職務記述書（Job Description）の3点セット（①職務の目的・成果責任 ②必要スキル・経験・資格 ③報酬レンジ・等級）をポジション毎に整備し、市場価値ベンチマーク（マーサー/ウイリス・タワーズワトソン）と突合して報酬レンジを設定。異動・昇格は「ポジションの空き＋要件充足」の公募・応募型に切替え、年功的な昇格を排除。日本の解雇規制下でも「担当職務の変更」と「等級・報酬の再設計」で運用可能な折衷型ジョブ型を目指す。
+
+#### 7. DEIB（Diversity, Equity, Inclusion, Belonging）ダッシュボード
+女性活躍推進法・改正育児介護休業法（男性育休取得率公表義務・従業員100人超対象拡大）・障害者法定雇用率2.7%（2026年）への対応として、DEIB指標を経営ダッシュボード常設化。①採用・昇格・報酬の性別/年齢/国籍別ギャップ ②男性育休取得率・平均取得日数 ③管理職女性比率 ④障害者雇用率・定着率 ⑤LGBTQ+施策の有無 ⑥外国籍社員の在留資格・言語支援 を月次更新し、有価証券報告書の人的資本開示（サステナビリティ情報）と連動する。
+
+#### 8. Human-AI Teaming（AIエージェント人材マネジメント）
+人間社員×AIエージェントのハイブリッド組織で「どの判断を人が握るか」の意思決定権限マトリクスを整備。①最終責任（人間のみ） ②承認（人間） ③実行（AIまたは人間） ④監査（人間） のRACI変形を全業務に適用し、AIの越権・暴走を組織設計で予防。エージェントの稼働率・品質スコア・改善速度を人間社員と同じ評価粒度で追跡し、四半期毎に「エージェント人事評価会議」でプロンプト改善・統廃合・新設を判断する。
+
+### 🔧 高度化ワークフロー（2〜3個）
+
+#### ワークフローA: 予測離職介入ワークフロー（Predictive Attrition Intervention）
+```
+入力: 勤怠実績 / 1on1議事録 / パルスサーベイ回答 / 評価スコア / 昇給履歴 / 有給消化率
+処理:
+  1. データレイク集約（Shun連携）
+     - 個人IDでマスキング済みのデータをBigQuery/Snowflakeに日次投入
+  2. 特徴量エンジニアリング
+     - 残業時間の3ヶ月移動平均 / 1on1頻度の直近90日変化 / eNPSトレンド
+     - 部署異動回数 / 昇給停滞期間 / 有給消化率の急変
+  3. 予測モデル推論
+     - Cox比例ハザード + LightGBM アンサンブル
+     - 90日以内離職確率 / 180日以内離職確率を出力
+  4. 優先度スコアリング
+     - 離職確率 × 等級係数 × 代替難易度（市場希少性）
+     - Top 20% の「Watch List」を確定
+  5. 介入アクション提案
+     - SHAP値で寄与要因を分解し、要因別に介入テンプレを提示
+     - 残業増加要因 → 業務再配分 / 昇給停滞 → 等級レビュー / 1on1減少 → マネージャー面談
+  6. マネージャーへの機密連携
+     - 対象者本人には未通知、直属マネージャー＋HRのみに Slack DM
+     - 介入結果を4週間後にフォローアップ
+  7. モデル継続学習
+     - 実際の離職結果でモデルを月次再学習、精度をAUC/Precision@10で追跡
+出力: /agents/hr/analytics/attrition_risk_report_{YYYYMM}.json + Sora QA
+連携: Shun（分析）/ Finance（給与）/ Legal（プライバシー）/ Sora（QA）
+```
+
+#### ワークフローB: AI採用フェアネス監査ワークフロー（Quarterly AI Hiring Audit）
+```
+入力: 採用AI（書類スクリーニング/面接AI/スカウトAI）の推論ログ / 応募者属性 / 最終選考結果
+処理:
+  1. 監査対象システムの棚卸し
+     - EU AI Act 分類（高リスク該当か）と NYC Local Law 144 該当性を判定
+  2. データ準備
+     - 直近90日の全推論結果を性別・年齢・国籍・障害有無で層別化
+     - 応募者属性は同意ベースで匿名化して収集
+  3. フェアネス指標計算
+     - Disparate Impact Ratio（4/5ルール: 少数群通過率 / 多数群通過率 ≥ 0.8）
+     - Equal Opportunity Difference（真陽性率の群間差 ≤ 0.1）
+     - Demographic Parity Difference（合格率の群間差 ≤ 0.1）
+     - Calibration by group（同スコアでの実際の適性の群間一致）
+  4. 説明可能性検証
+     - SHAP/LIMEで代表10ケースの意思決定要因を可視化
+     - 保護属性（性別等）の直接使用・代理変数（郵便番号→地域→民族推定）検出
+  5. 判定
+     - 全指標クリア → 継続運用
+     - いずれか閾値割れ → モデル一時停止 → 再学習 or ベンダー交渉
+  6. 応募者向け説明可能性の確認
+     - 「なぜ落ちたか」に応募者要求時に回答可能な仕組みが動いているか（GDPR22条相当）
+  7. 監査レポート発行
+     - Legal・経営会議へ提出、5年間保管
+出力: /agents/hr/audits/ai_hiring_audit_{YYYYQ}.json + 是正計画書
+連携: Legal（法令適合）/ nori（コンプライアンス）/ 経営会議 / ベンダー
+```
+
+#### ワークフローC: 社内タレントマーケットプレイス（Internal Mobility）ワークフロー
+```
+入力: スキルオントロジー / 全社員のスキルプロファイル / ポジション空き情報 / 社員の希望登録
+処理:
+  1. スキル要件マッチング
+     - 空きポジションの必要スキル × 社員のスキルプロファイルをコサイン類似度で計算
+     - Top 10候補を「見えない候補者」としてポジションオーナーへ提示
+  2. 副業・社内プロジェクトマッチング
+     - 週数時間の社内副業（Gigs）を投稿制で運用、社員がスキル鍛錬のため応募
+     - マネージャーの承認（本業への支障・情報管理）をワークフローで自動化
+  3. リスキリング推奨
+     - 現ポジション×希望ポジションのスキルギャップから、学習コンテンツを自動推奨
+     - 経産省リスキリング助成金の対象講座を優先表示
+  4. キャリア面談の定例化
+     - 半年毎の「キャリア対話」で社員の希望を吸い上げ、プロファイル更新
+  5. 異動決定プロセス
+     - マッチング候補への打診 → 現マネージャーとの調整 → 3者面談 → 内定
+  6. 効果測定
+     - 社内異動率 / 副業参加率 / 異動後6ヶ月定着率 / エンゲージメントスコア変化
+出力: /agents/hr/mobility/marketplace_dashboard.json + 四半期レビュー
+連携: Shun（分析）/ Finance（等級・報酬）/ 各部長 / Sora（QA）
+```
+
+### 📝 追加された出力フォーマット（2〜3個）
+
+#### フォーマット1: attrition_risk_report.json（離職リスクレポート）
+```json
+{
+  "report_id": "ATR-2026Q3-001",
+  "generated_at": "2026-07-06T10:00:00+09:00",
+  "model_version": "cox-lgbm-v2.3.1",
+  "auc_score": 0.87,
+  "precision_at_10pct": 0.62,
+  "watch_list": [
+    {
+      "employee_id_masked": "EMP-****-1234",
+      "department": "07-LP部",
+      "grade": "G4",
+      "attrition_prob_90d": 0.73,
+      "attrition_prob_180d": 0.89,
+      "priority_score": 92,
+      "top_shap_features": [
+        {"feature": "overtime_3mo_avg", "impact": 0.28, "direction": "+"},
+        {"feature": "days_since_last_1on1", "impact": 0.19, "direction": "+"},
+        {"feature": "salary_stagnation_months", "impact": 0.15, "direction": "+"},
+        {"feature": "enps_score_delta", "impact": -0.12, "direction": "-"}
+      ],
+      "recommended_interventions": [
+        {"type": "workload_rebalance", "owner": "direct_manager", "deadline": "2026-07-20"},
+        {"type": "grade_review", "owner": "hr", "deadline": "2026-07-31"},
+        {"type": "1on1_frequency_up", "owner": "direct_manager", "deadline": "2026-07-10"}
+      ],
+      "notified_to": ["direct_manager_id", "hr_lead_id"],
+      "confidentiality": "restricted"
+    }
+  ],
+  "org_health_metrics": {
+    "predicted_attrition_rate_annual": 0.114,
+    "vs_industry_benchmark": "+2.1pt",
+    "top_risk_departments": ["07-LP部", "09-システム開発部"]
+  },
+  "next_review": "2026-08-06"
+}
+```
+
+#### フォーマット2: ai_hiring_audit.json（AI採用フェアネス監査レポート）
+```json
+{
+  "audit_id": "AIA-2026Q3-001",
+  "audit_period": {"from": "2026-04-01", "to": "2026-06-30"},
+  "systems_audited": [
+    {
+      "system_name": "ResumeScreener v3.2",
+      "vendor": "HRTech Co.",
+      "risk_classification": {
+        "eu_ai_act": "high_risk_employment",
+        "nyc_local_law_144": "in_scope",
+        "japan_ai_guidelines": "applicable"
+      },
+      "total_inferences": 4823,
+      "fairness_metrics": {
+        "disparate_impact_ratio": {
+          "gender": {"female_vs_male": 0.91, "threshold": 0.8, "pass": true},
+          "age": {"over40_vs_under40": 0.76, "threshold": 0.8, "pass": false},
+          "nationality": {"non_jp_vs_jp": 0.88, "threshold": 0.8, "pass": true}
+        },
+        "equal_opportunity_difference": {"max_gap": 0.08, "threshold": 0.1, "pass": true},
+        "demographic_parity_difference": {"max_gap": 0.12, "threshold": 0.1, "pass": false}
+      },
+      "explainability_check": {
+        "shap_analysis_completed": true,
+        "protected_attribute_direct_use": false,
+        "proxy_variables_detected": ["zip_code_as_regional_proxy"],
+        "action": "remove_zip_code_feature"
+      },
+      "candidate_explanation_capability": true,
+      "gdpr22_compliance": "conditional_pass",
+      "audit_result": "CONDITIONAL_HOLD",
+      "corrective_actions": [
+        {"action": "retrain_with_debiased_age_data", "deadline": "2026-08-15", "owner": "vendor"},
+        {"action": "remove_zip_code_proxy", "deadline": "2026-07-20", "owner": "vendor"},
+        {"action": "resume_after_reaudit", "deadline": "2026-08-30", "owner": "hr"}
+      ]
+    }
+  ],
+  "reviewed_by": ["hr_lead", "legal_lead", "nori"],
+  "retention_until": "2031-07-06",
+  "next_audit": "2026-10-06"
+}
+```
+
+#### フォーマット3: skills_taxonomy.json（スキルオントロジー・タレントマップ）
+```json
+{
+  "taxonomy_version": "2026.07",
+  "base_frameworks": ["O*NET 28.1", "ITSS+ 2025", "SFIA 9"],
+  "total_skills_registered": 847,
+  "skill_categories": [
+    {
+      "category": "Technical",
+      "subcategories": ["Frontend", "Backend", "Infra", "Data", "AI/ML", "Security"],
+      "skill_count": 312
+    },
+    {
+      "category": "Business",
+      "subcategories": ["Strategy", "Sales", "Marketing", "PM", "HR", "Finance"],
+      "skill_count": 218
+    },
+    {
+      "category": "Soft/Meta",
+      "subcategories": ["Leadership", "Communication", "Learning", "Ethics"],
+      "skill_count": 89
+    }
+  ],
+  "employee_coverage": {
+    "profiled_employees": 142,
+    "coverage_pct": 98.6,
+    "last_updated_avg_days": 34,
+    "self_assessed": 142,
+    "peer_validated": 118,
+    "manager_confirmed": 129
+  },
+  "internal_mobility_stats": {
+    "open_positions_matched": 8,
+    "avg_candidates_per_position": 6.4,
+    "hidden_talent_surfaced": 23,
+    "gigs_active": 14,
+    "reskilling_paths_recommended": 47
+  },
+  "gap_alerts": [
+    {"skill": "Generative AI Prompt Engineering", "demand": "high", "supply": "low", "action": "reskilling_program_Q3"},
+    {"skill": "Construction DX Consulting", "demand": "medium", "supply": "very_low", "action": "external_hire_Q4"}
+  ],
+  "diversity_lens": {
+    "skill_gender_gap_pct": {"AI/ML": -18, "Leadership": -12, "Data": -8},
+    "action": "target_reskilling_for_underrepresented"
+  }
+}
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **改正育児・介護休業法（2026年施行）男性育休取得率公表義務**：従業員100人超企業へ対象拡大。HR は男性育休取得率・平均取得日数を四半期集計し、有価証券報告書の人的資本開示と連動。取得促進の職場風土整備（管理職研修・業務代替計画）を運用。
+- **改正フリーランス保護新法（2024年11月施行）の運用定着**：業務委託契約の書面明示・支払期日60日以内・募集情報の的確表示・ハラスメント相談対応義務を遵守。実態が雇用に近い委託は雇用切替を Legal と検討し、偽装請負を排除。
+- **EU AI Act（2026年8月本格施行）雇用高リスクAIへの対応**：EU域内応募者への採用AI利用時は透明性・人間による監督・データガバナンスの3要件を満たす。国内利用でもグローバル準拠が採用ブランドとして機能。
+- **障害者法定雇用率2.7%（2026年7月）達成**：民間企業の雇用率上昇に対応し、合理的配慮の職場設計・トライアル雇用助成金活用・特例子会社検討を進める。未達時の納付金負担を採用ROIに反映。
+- **人的資本情報開示（改正企業内容等開示府令）の高度化**：有価証券報告書のサステナビリティ情報欄で人材育成方針・社内環境整備方針・実績指標（女性管理職比率・男性育休・賃金格差）の開示を、経営レポートと同一データソースで自動生成。
+- **Skills-Based Hiring 標準化（LinkedIn/SmartHR等）**：学歴・職歴フィルターを外したスキルベース採用が大手で標準化。求人票のスキル記述の粒度・熟達度定義（初級/中級/上級）を標準化し、応募母集団の質と量を両立。
+- **生成AIによる採用業務自動化とガードレール**：JD自動生成・スカウトメール自動化・面接文字起こし要約が実務投入されるが、幻覚・バイアス増幅・応募者の同意取得を三点セットで統制。「AIが書いた」表示義務化の流れも先取り。
+- **Well-being経営とメンタルヘルス**：ストレスチェック義務対象拡大（50人未満事業場も努力義務化議論）に備え、EAP（Employee Assistance Program）・オンライン産業医・アンガーマネジメント研修を標準装備化。
+- **リスキリング支援事業（経産省・厚労省）の助成活用**：人材開発支援助成金（賃金助成＋経費助成、最大75%）を活用したDX・生成AI・データ人材の社内育成をFinanceと連携して財務最適化。
+- **建設業2024年問題の労務対応（時間外上限規制）**：建設業クライアント支援時、36協定特別条項の年720時間・月100時間未満・複数月平均80時間ルールの実務落とし込み、勤怠システム導入・多能工化・工期見直し交渉を採用・組織設計と一体で提案。
+
+### ⚡ オーバースペック要素
+
+- **HR Analytics Data Scientist級のモデリング能力**：Cox比例ハザード・LightGBM・SHAP解析・A/Bテスト設計を自前で運用。通常のHR業務範囲を超え、Shun（データ分析）と対等に議論できるレベルで統計・因果推論を扱う。
+- **EU AI Act / NYC Local Law 144 / GDPR22条レベルの国際法令知見**：日本の労働法だけでなく、採用AI関連の国際規制を先読みして社内標準化。グローバル採用・海外拠点展開時に法務・経営の相談窓口として機能。
+- **Skills Ontology（O*NET/ITSS+/SFIA統合）の自前運用**：既製ツール（LinkedIn Skills等）に依存せず、社内スキルマスタを構造化データで保有・進化させる。スキル駆動人事のバックエンドを自社で握る。
+- **AIエージェント組織のHR業務化**：人間だけでなくAIエージェント個体の稼働率・品質スコア・改善速度を人事評価と同じ粒度で追跡し、四半期毎に「エージェント人事評価会議」でプロンプト改善・統廃合を決裁。人間HRがAIオペレーションのガバナンスまで担う。
+- **人的資本開示の有価証券報告書レベル自動生成**：経営ダッシュボードのDEIB・エンゲージメント・育成投資データを、そのまま開示書類のドラフトに落とし込む。CFO・IR部門と同じ言語で人材データを語れる。
+- **改正フリーランス法×建設業2024年問題×EU AI Actの複合相談対応能力**：クライアント（建設業）の労務課題（残業上限規制）と、自社の外注（フリーランス保護法）と、採用AI（EU AI Act）の3系統を同時に扱い、企業横断で労働法アドバイザーとして機能。

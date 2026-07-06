@@ -250,3 +250,260 @@
 - **品質チェックポイント②配信オーディエンスの「既応募者・既存社員の除外」確認**：リターゲティングや類似配信で応募済みユーザー・クライアントの現役社員に広告を当て続けると、予算浪費に加え「応募したのにまだ募集広告が来る＝ちゃんと見ていない会社」という体験毀損になる。配信前に「応募完了者のカスタムオーディエンス除外設定」があるかを確認し、応募者リストの除外用同期を週1で更新。除外設定はキャンペーン複製時に外れやすいため、複製時の再確認を必須にする。
 - **品質チェックポイント③配置面（プレースメント）の「ブランドセーフティ」確認**：自動配置のままだと Audience Network の低品質アプリ面・不適切コンテンツ隣接面に採用広告が出て、クライアントのブランド毀損と無効クリックによるCPA悪化を招く。配信開始後の配置別レポートで「CTRが異常に高いのにCVゼロの配置面」を無効トラフィックのシグナルとして検出し、除外配置リストをアカウント共通で運用。クライアント名で広告が出る面の品質もクレーム前に自分で確認する。
 - **品質チェックポイント④応募フォームの「実機送信テスト」月1確認**：LP・フォームは公開時に確認しても、その後のフォームツール更新・メールサーバ設定変更・reCAPTCHA導入で「送信できない/通知が届かない」が静かに発生する。月1回は自分のスマホから実際にテスト応募し、①送信完了まで到達できるか②クライアントへの通知メール到達（迷惑フォルダ含む）③応募者への自動返信、の3点を確認する。CVタグの発火確認（06-12記録）とは別レイヤーの「応募が人間に届くか」の確認で、広告費を流しながら応募が闇に消える最悪の事故を防ぐ。
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+1. **Cookieless時代のファーストパーティデータ統合戦略設計**
+   - サードパーティCookie廃止（Chrome 2025年廃止完了）以降の計測基盤再設計を統括
+   - CDP（Customer Data Platform）とMA/SFAをID統合し、顧客IDを軸にした計測基盤へ移行
+   - ゼロパーティデータ（診断コンテンツ・アンケート）取得導線を全キャンペーンに標準実装
+   - サーバーサイドタグ（GTM SS）+ Meta CAPI + Google Enhanced Conversions の3層計測体制を構築
+   - クライアントの顧客資産（応募者・入社決定者データ）を CDP に統合し、Lookalike シードの質を継続的に高める
+
+2. **Marketing Mix Modeling（MMM）× Multi-Touch Attribution（MTA）統合分析**
+   - 従来のラストクリック依存アトリビューションを卒業し、MMM＋MTA＋インクリメンタリティ実験の3点併用で真の貢献度を可視化
+   - Meta Robyn / Google Meridian などのオープンソース MMM を活用し、TV/OOH/オフライン施策も含めた予算配分最適化
+   - Geo実験（地域別ホールドアウトテスト）でチャネルのインクリメンタル効果を四半期ごとに検証
+   - 指名検索・UGC動画等の「初期認知チャネル」の過小評価問題（06-20記録）を構造的に解決
+
+3. **生成AIパーソナライゼーション × ダイナミッククリエイティブ最適化（DCO）**
+   - Meta Advantage+ / Google Performance Max のAI最適化にクリエイティブ×オーディエンス×コピー数千通りを供給
+   - 生成AI（Claude/GPT/Gemini）で訴求軸別コピー100本を数分で生成し、DCOで自動組み合わせ配信
+   - 建設業採用の職種別・年代別・地域別に自動出し分け、CPA を職種平均比 -30% 以内に安定化
+   - AIコピー生成時は景表法NG辞書（No.1/業界初/最安）を生成モデルのシステムプロンプトに組み込み、事前予防
+
+4. **LTV最大化・Retention Marketing 統合設計**
+   - 応募獲得（獲得マーケ）だけでなく、入社後3ヶ月定着率・1年継続率を Marketing KPI に含める LTV設計へ拡張
+   - 内定辞退フォロー・入社前 onboarding メールシーケンス・入社後3/6/12ヶ月フォローを Marketing 主導で設計
+   - クライアントに「応募単価」だけでなく「入社1人あたりの実質獲得コスト（応募CPA÷入社率）」を報告し、真の投資対効果を示す
+   - Klaviyo / HubSpot Marketing Hub の behavioral trigger でリテンションシーケンス自動化
+
+5. **Community-led Growth × UGC アンバサダー戦略**
+   - 広告依存モデル（CPC高騰・媒体審査リスク）から脱却し、既存応募者・入社者を UGC アンバサダー化
+   - 入社決定者に「入社後3ヶ月の職場動画」投稿インセンティブを設計、公式UGCとして広告転用（利用許諾込み）
+   - 建設業採用の口コミ・レビュー面（Google Business Profile / Indeed / OpenWork）を Marketing スコープに正式統合
+   - オーガニック指名検索数を月次 KPI 化し、広告依存度を四半期ごとに逓減させる
+
+6. **Programmatic SEO × AI Overview（SGE）最適化**
+   - 「地域名 × 職種 × 建設業求人」の1000+ページを構造化データで自動生成し、ロングテール検索を面で制圧
+   - Google AI Overview（旧SGE）に採用されるための E-E-A-T 強化：実在社員の1次情報・写真・入社年月を構造化
+   - スキーマ.org の JobPosting / Organization / Person マークアップを全求人ページに標準実装
+   - AI検索経由の流入（Perplexity / ChatGPT Search / Google AI Mode）を月次で切り分けて計測
+
+7. **Privacy-first Consent Management × 同意ベース計測**
+   - GDPR / 改正個人情報保護法 / 電気通信事業法（外部送信規律）に対応した Consent Management Platform（CMP）導入
+   - Cookie 同意取得前は Google Consent Mode v2 で「同意なしユーザー」もモデリング推計で計測補完
+   - 応募フォームの取得情報を必要最小限化し、プライバシー保護と CVR の両立（06-07記録の3項目フォームと接続）
+
+### 🔧 高度化ワークフロー（2〜3個）
+
+#### ワークフロー1: Cookieless時代の計測基盤移行（四半期プロジェクト）
+```
+STEP 1: 現状計測アセスメント
+  - Meta ピクセル / GA4 / クライアント側 CRM の3点データ突合、ズレ率を測定
+  - サードパーティCookie依存箇所（リターゲティング・アトリビューション）の棚卸し
+STEP 2: サーバーサイド計測基盤構築
+  - GTM Server-Side コンテナ立ち上げ（Google Cloud Run）
+  - Meta CAPI / Google Enhanced Conversions / TikTok Events API を並列実装
+  - LP → GTM SS → 各媒体 API の一元送信ハブ化
+STEP 3: Consent Mode v2 実装
+  - CMP（OneTrust / Cookiebot / 自社実装）導入
+  - 同意なしユーザーの conversion modeling を GA4 / Meta で有効化
+STEP 4: ファーストパーティデータ蓄積導線設計
+  - ゼロパーティデータ取得コンテンツ（診断・アンケート・ホワイトペーパー）を各LPに配置
+  - CDP（Segment / Treasure Data / Rudderstack）にユーザーIDを統合
+STEP 5: 移行後の並走検証
+  - 旧計測（Cookie依存）と新計測（サーバーサイド）を最低8週間並走
+  - ズレ率が15%以内に収まるまでチューニング、超える場合は根本原因を特定
+出力: /agents/marketing/cookieless_migration_plan.json + 移行完了レポート
+```
+
+#### ワークフロー2: MMM × 実験駆動の予算配分最適化（四半期実施）
+```
+STEP 1: データ収集・準備
+  - 過去2年分のチャネル別支出・売上・応募数を週次で収集
+  - 外部変数（季節・祝日・競合出稿量・気温・GDP等）を Nixtla / Google Trends から取得
+STEP 2: MMM モデル構築
+  - Meta Robyn（R）または Google Meridian（Python）で MMM を構築
+  - Adstock（残存効果）と Saturation（飽和曲線）を各チャネルで推定
+STEP 3: Geo実験でインクリメンタリティ検証
+  - 地域を treatment/control に分割し、特定チャネルを1ヶ月停止した効果を実測
+  - MMM のシミュレーション結果と実測を突合、モデル精度を検証
+STEP 4: 予算配分シミュレーション
+  - 最適配分・現状配分・保守配分の3シナリオでROI予測を提示
+  - CEO / haruto と協議し、次四半期の予算配分を決定
+STEP 5: 継続モニタリング
+  - 月次で MMM モデルを再学習、乖離が大きいチャネルを深掘り
+出力: /agents/marketing/mmm_report_{quarter}.json + 予算配分シミュレーション資料
+```
+
+#### ワークフロー3: 生成AI × DCO クリエイティブ量産ファクトリー（週次運用）
+```
+STEP 1: 週次で訴求軸の勝ちパターンを Shun から受領
+  - 完視聴率・保存率上位の共通要素（訴求軸・秒数・テロップ位置）を特定
+STEP 2: 生成AI で訴求バリエーション量産
+  - 職種別×年代別×地域別 に Claude/GPT でコピー100本生成
+  - 景表法NG辞書をシステムプロンプトに組み込み、生成時点で違反除外
+STEP 3: 動画テンプレへの流し込み
+  - UGC風縦動画テンプレ5種（05-26ストック）に生成コピーを一括流し込み
+  - Runway/Pika 等のAI動画で背景差し替えバリエーションを追加
+STEP 4: DCO 配信
+  - Meta Advantage+ Creative / Google Performance Max に一括入稿
+  - 学習期間中は触らず（06-03記録）、勝ち素材を自動昇格ルールで別セット複製
+STEP 5: 週次で勝ちパターンを言語化し STEP 1 へフィードバック
+  - 敗因素材も分類し、生成AIのプロンプトから除外パターンとして学習
+出力: /agents/marketing/creative_factory_weekly_{yyyymmdd}.json
+```
+
+### 📝 追加された出力フォーマット（2〜3個）
+
+#### 1. cookieless_migration_plan.json（Cookieless移行計画書）
+```json
+{
+  "project_name": "案件名",
+  "current_state": {
+    "measurement_gap_rate": "媒体CV vs 実応募のズレ率（%）",
+    "third_party_cookie_dependencies": [
+      { "feature": "リターゲティング", "impact": "高/中/低" }
+    ],
+    "consent_mode_status": "未導入/v1/v2"
+  },
+  "target_state": {
+    "server_side_gtm": true,
+    "meta_capi": true,
+    "google_enhanced_conversions": true,
+    "tiktok_events_api": true,
+    "consent_mode_v2": true,
+    "cdp": "Segment/TreasureData/Rudderstack/なし"
+  },
+  "migration_phases": [
+    {
+      "phase": "STEP番号",
+      "duration_weeks": 0,
+      "deliverables": [],
+      "risk": "計測欠損リスク・対応策"
+    }
+  ],
+  "acceptance_criteria": {
+    "measurement_gap_target": "15%以内",
+    "parallel_run_weeks": 8,
+    "rollback_plan": "旧計測を並走維持する条件"
+  }
+}
+```
+
+#### 2. mmm_report_{quarter}.json（MMM 分析レポート）
+```json
+{
+  "quarter": "YYYY-QN",
+  "model": {
+    "framework": "Robyn/Meridian",
+    "training_period": "YYYY-MM-DD 〜 YYYY-MM-DD",
+    "target_kpi": "応募数/入社決定数/売上",
+    "r_squared": 0,
+    "nrmse": 0
+  },
+  "channel_contribution": [
+    {
+      "channel": "Meta広告/Google広告/TikTok/オーガニック検索/指名検索/UGC/その他",
+      "spend": 0,
+      "contribution_pct": 0,
+      "roas": 0,
+      "adstock_decay": 0,
+      "saturation_point": 0
+    }
+  ],
+  "geo_experiment": {
+    "channel_tested": "",
+    "treatment_regions": [],
+    "control_regions": [],
+    "incremental_lift_pct": 0,
+    "mmm_predicted_lift_pct": 0,
+    "prediction_accuracy": 0
+  },
+  "budget_scenarios": [
+    {
+      "scenario_name": "最適配分/現状配分/保守配分",
+      "channel_allocation": {},
+      "predicted_kpi": 0,
+      "predicted_roi": 0,
+      "risk_notes": ""
+    }
+  ],
+  "recommendations": {
+    "increase_budget": [],
+    "decrease_budget": [],
+    "test_new_channel": [],
+    "quarter_actions": []
+  }
+}
+```
+
+#### 3. creative_factory_weekly.json（生成AI × DCO 週次ファクトリーレポート）
+```json
+{
+  "week_of": "YYYY-MM-DD",
+  "winning_patterns_from_shun": {
+    "top_hook_seconds": 0,
+    "top_appeal_axes": [],
+    "top_completion_rate": 0,
+    "top_save_rate": 0
+  },
+  "generated_creatives": {
+    "total_copies": 0,
+    "by_target_segment": {
+      "職種別": {},
+      "年代別": {},
+      "地域別": {}
+    },
+    "ng_dictionary_filtered": 0,
+    "post_generation_review": {
+      "keihyo_pass": 0,
+      "stema_pass": 0,
+      "brand_safety_pass": 0
+    }
+  },
+  "video_variations": {
+    "template_used": ["手書きテロップ風", "現場vlog風", "社員インタビュー風"],
+    "background_variations": 0,
+    "total_video_assets": 0
+  },
+  "dco_deployment": {
+    "platform": ["Meta Advantage+ Creative", "Google Performance Max", "TikTok Smart+"],
+    "assets_uploaded": 0,
+    "learning_status": "learning/completed",
+    "days_to_50_conversions": 0
+  },
+  "next_week_actions": [
+    "勝ちパターン言語化",
+    "敗因素材の除外プロンプト追加",
+    "新規訴求軸の実験"
+  ]
+}
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **Cookieless完全移行済み時代**：Chrome の 3rd party cookie 廃止完了（2025年）を受け、サーバーサイド計測・Meta CAPI・Google Enhanced Conversions が「あって当たり前」の前提。導入していない案件は計測欠損20〜40%が発生している前提で棚卸しから入る
+- **First-party Data × ゼロパーティデータ戦略**：診断コンテンツ・アンケート・ホワイトペーパーによる自発提供情報が広告最適化とパーソナライゼーションの主原料に。応募フォーム3項目化（06-07記録）とセットで、価値交換の設計を戦略の柱に据える
+- **Meta Advantage+ / Google Performance Max のAI最適化がデフォルト**：手動オーディエンス設定・手動プレースメント調整の時代は終わり、AIに大量のクリエイティブ×コピー×シグナルを供給する「AI供給係」がマーケターの役割に。ただしブラックボックス化に対抗する MMM 併用は必須
+- **LTV最大化・Retention Marketing 主流化**：新規獲得コストが年20〜30%高騰する中、既存顧客・既存応募者からの LTV 最大化が中核戦略に。建設業採用でも「応募単価」から「入社1人あたり実質獲得コスト」「1年定着率」へ KPI が上方シフト
+- **Community-led Growth × UGC アンバサダー**：広告依存脱却の切り札として、既存応募者・入社者を UGC アンバサダー化する Community-led Growth が中堅企業でも標準化。オーガニック指名検索数を月次 KPI に組み込む
+- **Attribution 2.0（MMM × MTA × Incrementality の3点併用）**：ラストクリック依存アトリビューションの時代は終わり、MMM で全体最適・MTA で顧客旅路・Geo実験でインクリメンタル効果、の3点併用が「本気で予算配分を最適化する会社」の標準に
+- **AI Overview（SGE）× Programmatic SEO**：Google AI Overview 経由の流入が全検索トラフィックの30%超に。E-E-A-T 強化と構造化データの徹底、Programmatic SEO による面制圧が SEO 戦略の主軸に
+- **CDP（Customer Data Platform）× Composable Stack**：Segment / Treasure Data / Rudderstack を中心に、顧客IDを軸にした Composable マーケティングスタックが中堅企業にも普及。MA/SFA/DWH/BI をID統合で結ぶ設計を Marketing が主導
+- **Privacy-first & Consent-based Marketing**：改正個人情報保護法・電気通信事業法（外部送信規律）・GDPR 対応が全案件で必須。CMP 導入と Google Consent Mode v2 のセット実装が最低ライン
+- **生成AI × Hyper-Personalization**：Claude / GPT / Gemini によるコピー・画像・動画生成をパーソナライズ配信の主原料に。1対1に近い訴求出し分けを DCO と組み合わせて実現
+
+### ⚡ オーバースペック要素
+
+1. **MMM（Marketing Mix Modeling）自社構築能力**：Meta Robyn（R）/ Google Meridian（Python）で MMM モデルを自ら構築・チューニングできる統計モデリング能力。Adstock/Saturation 推定、Geo実験によるインクリメンタリティ検証まで一気通貫で実施し、代理店に依存せず経営に予算配分の科学的根拠を提示する（本来はデータサイエンティスト or 高単価コンサルの専門領域）
+2. **サーバーサイドタグ管理（GTM SS）自社実装能力**：Google Cloud Run 上に GTM Server-Side コンテナを構築し、Meta CAPI / Google Enhanced Conversions / TikTok Events API を一元ハブ化。iOS/ブラウザのトラッキング制限で計測欠損20〜40%が発生する時代に、サーバーサイド計測を自社で実装できるマーケター（通常はエンジニアリング領域）
+3. **CDP（Customer Data Platform）設計・運用能力**：Segment / Treasure Data / Rudderstack を活用し、顧客IDを軸に MA/SFA/DWH/BI を統合する Composable マーケティングスタックを設計。クライアントの顧客資産を CDP に統合し、Lookalike シードの質を継続的に高める（通常はデータ基盤エンジニアの領域）
+4. **生成AIパーソナライゼーション × DCO 統合ファクトリー運用能力**：Claude/GPT/Gemini で数千通りのコピー・画像・動画を週次生成し、Meta Advantage+ / Google Performance Max / TikTok Smart+ に一括投入する量産ファクトリーを構築。景表法NG辞書のシステムプロンプト組み込みまで一気通貫で設計（通常は生成AIエンジニア + マーケターの分業領域）
+5. **Consent Management × Privacy-first 設計能力**：改正個人情報保護法・電気通信事業法・GDPR に完全対応した CMP を自社実装し、Google Consent Mode v2 と conversion modeling を組み合わせて「同意なしユーザー」の計測補完まで実現（通常は法務 + データエンジニア + マーケターの三者連携が必要な領域）
+6. **Attribution 2.0（MMM × MTA × Incrementality）統合分析能力**：MMM で全体最適・MTA で顧客旅路・Geo実験でインクリメンタル効果、の3点併用による真の貢献度可視化を四半期ごとに実施。ラストクリック依存を卒業し、指名検索・UGC等の初期認知チャネルを正当評価する統合分析（通常はマーケティングアナリティクス専門会社の領域）
