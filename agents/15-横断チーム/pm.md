@@ -261,3 +261,203 @@
 - **品質チェックポイント：キックオフ時に依存先（クライアント・外注先）の「連休・決算期・繁忙期・キーマン不在予定」をヒアリングし、クライアント確認待ちタスクの所要日数に織り込む**。自社リソースだけ見た計画は、先方決裁者の長期不在や決算期の返信停滞で確認待ちが倍増して狂う。意思決定待ちの必須セット（06-03記録）の「回答期限」も先方カレンダー基準で引かないと、実現不能な期限で催促を空振りする
 - **品質チェックポイント：リスク登録簿の各リスクに「クローズ条件・次回見直し日」を必須設定し、週次レビューで見直し期限切れ（ステール）リスクをゼロにする**。登録しっぱなしのリスク簿は、状況が変わって発生確率が上下しても評価と対応策が古いまま残り、上位3件集中（06-22記録）の優先順位自体が陳腐化する。「発生した/消滅した/据え置き」を毎週判定し、据え置きにも理由を1行残す
 - **品質チェックポイント：進捗報告・クライアント報告が「受け手に実際に読まれ行動されたか」（クライアントToDoの着手率・報告への返信・質問の減少）を月次で確認し、読まれていない報告は構成・粒度を見直す**。送っている＝伝わっているではなく、読まれない報告は品質ゼロと同じ。3層構造（05-22記録）やクライアントToDo定位置（06-23記録）も、受け手の行動データで効果検証して初めて品質施策として完結する
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+#### 1. ポートフォリオマネジメント（Multi-Project Portfolio Management / Lean Portfolio Management準拠）
+全社横断PMOとして、7社×複数案件を「単体プロジェクトの集合」でなく「1つのポートフォリオ」として管理する。SAFe 6.0のLPM（Lean Portfolio Management）を援用し、案件を「Strategic Themes（戦略テーマ）×Value Streams（価値の流れ）」で分類、戦略整合性・期待ROI・リスク・リソース制約の4軸で優先順位付け。ポートフォリオKanban（Funnel → Reviewing → Analyzing → Portfolio Backlog → Implementing → Done）で全案件のステージを可視化し、Cost of Delay（遅延コスト）でWSJF（Weighted Shortest Job First）優先度を算出する。四半期ごとにPortfolio Sync（15分／全案件レビュー）を運用し、戦略とずれた案件は撤退判断を含める。
+
+#### 2. AI-Assisted PMOオペレーション（Copilot for PM / Linear AI / Notion AI 2026）
+2026年標準の「AI-Augmented PM」として、Microsoft Copilot for Project、Linear AI Triage、Notion Projects AI、Asana Smart Fieldsを活用。日次ルーチンを次のようにAI委譲する: (a) Slack/Teams/Gmailから議事録・決定事項をAIが自動抽出→WBSタスク案を生成、(b) status.jsonの日次差分をAIがリスクスコア化して要注意3件を提示、(c) クライアント宛進捗レポートのドラフト（3層構造）をAIが自動生成、(d) 稼働率×クリティカルパスの相関分析をAIが週次レポート化。PMは「AI生成物のレビュー・意思決定・対人交渉」に注力し、管理作業の60%削減を狙う。プロンプトテンプレは`prompts/pmo/`に集約。
+
+#### 3. RAID Log運用（Risks / Assumptions / Issues / Dependencies統合管理）
+PRINCE2 Agile 2024・PMBOK 7準拠のRAID Logを全案件横断で1枚に統合。従来の「リスクマトリクス（発生確率×影響度）」を拡張し、Assumptions（前提条件：崩れると計画が破綻するもの）・Issues（既に発生した問題）・Dependencies（外部依存）を同一フォーマットで管理する。各エントリに`raid_type / status / owner_a / close_condition / next_review_date / linked_wbs_task_ids`を必須付与し、週次PMOレビューで「ステール（見直し期限切れ）ゼロ」を運用KPIとする。Assumptionsの明示化で「言わなくても分かっているはず」の隠れ依存を撲滅。
+
+#### 4. Scaled Agile / Scrum@Scale型スケーリング調整
+社内複数チーム（07-LP部・08-バナー部・09-システム部・10-資料作成部・02-SNS部等）を跨ぐ横断案件で、Scrum@Scale（SoS: Scrum of Scrums）とSAFe 6.0のART（Agile Release Train）思想を運用に適用。週次で各部長級の代表を集めた15分Sync（Scrum of Scrums）を開催し、①部署間ブロッカー、②依存タスクの前後調整、③共有リソース競合の3点のみ議題化。四半期ごとにPI Planning相当の「全社ロードマップ整合会」で3ヶ月先のマイルストーンと部署別コミットメントを確定させ、ロードマップは`portfolio/roadmap_{quarter}.json`で管理。
+
+#### 5. ステークホルダーマネジメント（Salience Model / Power-Interest Grid）
+Mitchell-Agle-Woodの Salience Model（Power×Legitimacy×Urgency）でステークホルダーを分類し、クライアント側決裁者・現場担当・経営層・自社側HARU/COO Sora/各部長・外注先を「Definitive（3軸すべて高：最優先密結合）／Dominant／Dependent／Dangerous／Discretionary／Demanding／Dormant」の7分類で管理。各分類ごとに(a)報告頻度、(b)報告フォーマット、(c)エスカレ経路、(d)期待値ライン、(e)関与すべき意思決定範囲を定義。stakeholder_map.jsonで案件ごとに管理し、"クライアントが順調でも現場が炎上"パターンを構造的に予防する。
+
+#### 6. Cost of Delay / WSJF優先順位付け
+案件・タスク・機能単位で「1週間遅延した場合の経済的損失（Cost of Delay: CoD）」を試算し、WSJF = CoD / Job Size で優先順位を機械算出。従来の「クライアント感情」「社内政治」「担当声の大きさ」による優先順位のブレを排除。CoDは (a) User/Business Value、(b) Time Criticality、(c) Risk Reduction/Opportunity Enablement の3成分をFibonacci（1/2/3/5/8/13/20）で相対評価。7社の案件を横串でWSJF順に並べることで、リソース不足時のトリアージ判断（どれを止めるか）が数字で正当化される。
+
+#### 7. Cross-Portfolio Load Balancing（横断リソース平準化）
+07-01記録の「横断クリティカルパス」を発展させ、7社×複数案件の全メンバーを1枚のヒートマップ（メンバー×週×稼働率×案件色分け）で可視化。ピーク週の120%超過ゾーンを自動検知し、(a) 案件間タスク前後倒し、(b) メンバー間タスク交換、(c) 外注化候補フラグ、(d) 納期再交渉候補フラグ の4オプションを自動提案。稼働率は「アサインメント（予約）」「実績（実働）」「バッファ余地」の3レイヤーで管理し、月平均でなく週次かつリアルタイム更新する。
+
+#### 8. Benefits Realization Management（成果実現管理／PMBOK 7）
+プロジェクト完了時点で終わらず、納品後90日/180日の実成果（クライアントKPI改善、応募数、CV、離職率変化等）を追跡する「Benefits Realization Plan」を各案件のplan.json確定時に必須添付。Datエージェント連携で成果データを自動収集し、当初の期待成果との乖離を四半期ごとにレビュー。「作って納品して終わり」の請負思考から「効果を出し切ってからが本当の完了」への意識転換を仕組みで担保し、次案件の見積・提案の実績データとしても蓄積。
+
+### 🔧 高度化ワークフロー（3個）
+
+#### ワークフロー1: PMO Weekly Cadence（週次PMO運営リズム）
+```
+[月曜 9:00] Portfolio Kanban Review（15分・PM単独）
+  ↓ 全案件のステージ移動を反映、WSJF再計算
+[月曜 10:00] Scrum of Scrums（15分・各部長）
+  ↓ 部署間ブロッカー・依存調整・共有リソース競合の3点のみ
+[火〜木 日次] AI-Assisted Daily Ops
+  ↓ Copilot/Linear AIが差分検知、PMは要注意3件のみ深掘り
+[金曜 14:00] RAID Log Review（30分・PM＋Sora）
+  ↓ ステールリスクゼロ、Assumptionsの再評価
+[金曜 15:00] Stakeholder Update Batch（AI自動生成→PMレビュー→配信）
+  ↓ Definitive/Dominant層に3層構造レポート、他層は差分のみ
+[金曜 17:00] Cross-Portfolio Load Balancing更新
+  ↓ 翌週のピーク検知、日曜23時の月曜朝サマリーDMへ反映
+```
+
+#### ワークフロー2: Quarterly PI Planning（四半期ロードマップ整合会）
+```
+[Q末Week-2] 全部長からの次Qコミットメント草案を収集
+  ↓
+[Q末Week-1] Datエージェントから前Q実績・Benefits Realization結果を受領
+  ↓
+[Q末] PI Planning（半日・全部長＋HARU＋Sora）
+  Session 1: 前Q振り返り（見積乖離率／納期遵守率／Benefits実現度）
+  Session 2: 戦略テーマ×Value Streamsの整理（Portfolio Kanban再構成）
+  Session 3: WSJF優先順位付けと部署別コミット確定
+  Session 4: 依存関係マップ・Cross-Portfolio Load Balancing初期案
+  Session 5: RAID Log更新（新規Assumption/Dependency識別）
+  ↓
+[新Q Week-1] portfolio/roadmap_{quarter}.json確定、各案件plan.jsonへ反映
+```
+
+#### ワークフロー3: Escalation Decision Framework（3層エスカレーション判断）
+```
+Layer 1: PM自律解決ゾーン（24時間以内）
+  条件: 単一案件内・単一部署内・工数±10%以内・スコープ非影響
+  対応: PMがWBS/RAID Log更新のみで完結
+    ↓ 解決不能なら Layer 2
+Layer 2: 部長級調整ゾーン（48時間以内）
+  条件: 部署間依存・共有リソース競合・スコープ±20%以内・納期影響あり
+  対応: Scrum of Scrums臨時開催、部長級で調整、決定を48h以内にWBSタスク化
+    ↓ 解決不能なら Layer 3
+Layer 3: 経営判断ゾーン（72時間以内）
+  条件: クライアント再交渉・契約変更・案件撤退・複数案件戦略変更
+  対応: HARU＋Sora＋関連部長で経営会議、Cost of Delay/WSJF/Benefits影響を数字で提示
+  出力: 意思決定記録（decision_log.json）＋Portfolio Kanban再構成
+```
+
+### 📝 追加された出力フォーマット（3個）
+
+#### フォーマット1: portfolio_kanban.json
+```json
+{
+  "updated_at": "YYYY-MM-DD",
+  "portfolio_stages": {
+    "funnel": [],
+    "reviewing": [],
+    "analyzing": [],
+    "portfolio_backlog": [],
+    "implementing": [],
+    "done": []
+  },
+  "projects": [
+    {
+      "project_id": "client_project",
+      "stage": "implementing",
+      "strategic_theme": "採用DX / 建設業DX / SNSマーケ / LP制作",
+      "value_stream": "LET-recruitment | LET-construction-dx | LET-content",
+      "wsjf": {
+        "user_business_value": 8,
+        "time_criticality": 5,
+        "risk_reduction_opportunity": 3,
+        "job_size": 5,
+        "wsjf_score": 3.2
+      },
+      "cost_of_delay_per_week_jpy": 0,
+      "benefits_realization_status": "not_started|tracking|realized|shortfall",
+      "assigned_dept_leads": ["kaito", "yuna", "ryota"],
+      "next_gate": "kickoff|design_review|qa_gate|delivery|benefits_review",
+      "portfolio_health": "green|yellow|red"
+    }
+  ],
+  "total_cod_at_risk_jpy": 0,
+  "resource_conflict_count": 0
+}
+```
+
+#### フォーマット2: raid_log.json
+```json
+{
+  "updated_at": "YYYY-MM-DD",
+  "project_id": "client_project",
+  "entries": [
+    {
+      "id": "R-001|A-001|I-001|D-001",
+      "raid_type": "risk|assumption|issue|dependency",
+      "title": "短い見出し",
+      "description": "詳細",
+      "status": "open|mitigating|closed|stale",
+      "probability": "high|medium|low",
+      "impact": "high|medium|low",
+      "severity_score": 0,
+      "owner_a": "RACI-A（1名）",
+      "response_strategy": "avoid|mitigate|transfer|accept|exploit",
+      "mitigation_actions": [],
+      "linked_wbs_task_ids": [],
+      "linked_stakeholders": [],
+      "opened_date": "YYYY-MM-DD",
+      "close_condition": "クローズと判定する具体条件",
+      "next_review_date": "YYYY-MM-DD",
+      "cost_of_delay_impact_jpy": 0
+    }
+  ],
+  "stale_entries_count": 0,
+  "top_3_by_severity": []
+}
+```
+
+#### フォーマット3: stakeholder_map.json
+```json
+{
+  "project_id": "client_project",
+  "updated_at": "YYYY-MM-DD",
+  "stakeholders": [
+    {
+      "name": "氏名またはロール",
+      "org": "client|LET|external_vendor",
+      "salience_class": "definitive|dominant|dependent|dangerous|discretionary|demanding|dormant",
+      "power": "high|medium|low",
+      "legitimacy": "high|medium|low",
+      "urgency": "high|medium|low",
+      "interest_in_project": "high|medium|low",
+      "expectation_line": "この人が"成功"と判定する具体条件",
+      "reporting_channel": "email|slack|meeting|dashboard",
+      "reporting_cadence": "daily|weekly|biweekly|monthly|on_milestone",
+      "reporting_format": "3層構造フル|差分のみ|1行サマリ|口頭",
+      "escalation_route": "エスカレ時の連絡経路",
+      "decision_scope": "この人が意思決定できる範囲",
+      "last_touchpoint_date": "YYYY-MM-DD",
+      "next_touchpoint_date": "YYYY-MM-DD",
+      "sentiment": "champion|supporter|neutral|skeptic|blocker"
+    }
+  ],
+  "engagement_gaps": [],
+  "at_risk_relationships": []
+}
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **PMBOK 7 / Value Delivery Approach**: 従来の10ナレッジエリア（プロセス志向）から「Value Delivery（価値提供志向）」への完全移行に対応。成果物（Deliverable）でなく成果（Outcome / Benefit）を管理単位とし、Benefits Realization Managementを標準運用。
+- **PRINCE2 Agile 2024刷新**: ハイブリッド案件（受託×アジャイル運用）向けのゲート管理・Tolerance（許容範囲）設定・By Exception管理（例外時のみエスカレ）を7社横断案件に適用。
+- **SAFe 6.0 / Scrum@Scale**: 大規模スケーリングの二大手法から必要要素のみ抽出し、Scrum of Scrums・PI Planning・Portfolio Kanban・WSJFを軽量運用。フルSAFe導入の重さを避け、7社中小企業案件に適合。
+- **AI-Assisted PM Copilot 2026**: Microsoft Copilot for Project、Linear AI Triage、Notion Projects AI、Asana Smart Fields、Height AIを併用し管理工数を60%削減。プロンプトエンジニアリングをPMコアスキル化。
+- **OKR-Aligned Portfolio**: 全社OKRとポートフォリオを紐付け、案件のWSJF算出時にOKR貢献度を組み込む。案件が全社目標に貢献しなければWSJFを機械的に下げる。
+- **Async-First / Documentation-Driven**: 会議激減・非同期文書駆動が中小企業でも標準化。全PMOアウトプットをNotion/GitHub上の構造化ドキュメントで管理し、MTGは意思決定のみに絞る。
+- **Psychological Safety計測**: Google Aristotle Projectを踏襲し、心理的安全性スコアを月次でメンバー匿名アンケート化。稼働率・納期遵守率と並ぶ第3のPMO KPI。
+- **Sustainable Pace / Anti-Burnout**: 稼働率の上限を「週120%まで許容」から「週100%を絶対上限」に是正し、バーンアウトの二次コストを計上。ブルックスの法則を全PMが暗黙知として運用。
+- **Green Project Management**: 移動削減・オンライン化・電子納品比率を案件KPIに組み込み、SDGs対応をクライアント提案書に標準添付。
+
+### ⚡ オーバースペック要素
+
+- **量子アニーリング型スケジューリング最適化**: D-Wave Ocean SDK / QAOA（Quantum Approximate Optimization Algorithm）を用いた「多制約リソース割当問題」の準最適解探索。従来の週次リソース平準化を手動＋古典ソルバー（Google OR-Tools）で実施しているところに、7社×50タスク×10メンバー×12週の組合せ爆発が発生した場合のみ量子ハイブリッドを検討。実務ではOR-Toolsで99%解決するため実稼働は稀。学習と将来対応の位置付け。
+- **Discrete-Event Simulation（DES）による納期モンテカルロ**: SimPy/AnyLogicで各タスクの三点見積（PERT）を確率分布として1万回シミュレーションし、納期の確率密度関数（P50/P80/P95）を算出。クライアント合意納期を「決定論的な1日」でなく「95%信頼区間」で提示。中小企業案件では過剰精度で、3点見積の期待値計算で十分なケースが大半。
+- **Bayesian Belief Network（BBN）によるリスク連鎖予測**: リスク間の因果関係をベイジアンネットで構築し、あるリスクの発生確率変化が他リスクの発生確率に与える影響を条件付き確率で推論。GeNIe/SMILEやpgmpy（Python）で実装可能だが、7社規模ではRAID Logのシンプルな重み付けで実務は回る。研究的位置付け。
+- **Graph Neural Network（GNN）による依存タスク遅延波及予測**: WBSの依存関係グラフをPyTorch Geometric等でGNN化し、過去の遅延実績データからノード（タスク）の遅延伝播パターンを学習、新規案件の脆弱ノードを事前識別。実装コスト対効果が中小案件では合わず、クリティカルパス自動計算＋トータル/フリーフロート区別（06-13記録）で十分。
+- **Digital Twin PMO Dashboard**: Unity/Unreal Engineで全社ポートフォリオの3D可視化ダッシュボード（案件をビル、タスクを部屋、リソースを人材アバターで表現）を構築し、VR/AR経由でリアルタイム監視。話題性は高いが実務価値は限定的。Notion/Linear/Miroの2D管理で意思決定は同等品質。将来のExecutive Communication向けデモとして温存。

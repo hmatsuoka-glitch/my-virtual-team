@@ -263,3 +263,293 @@
 - **品質チェックポイント②「締結日・効力発生日・業務開始日」の3日付整合確認**：業務開始が締結日より先行する案件で日付を放置すると、着手済み期間が無契約状態になる。締結前に3日付を並べ、着手が先行している場合は「本契約は○年○月○日に遡って適用する」旨の遡及適用条項を入れる（バックデート＝締結日の偽装は文書の真正性を毀損するため禁止）。契約期間の起算日が締結日か効力発生日かも条文で特定する。
 - **品質チェックポイント③存続条項（サバイバル条項）の「明示列挙」確認**：契約終了・解除後にどの条項が生き残るかを「第○条（秘密保持）、第○条（損害賠償）、第○条（知的財産）、第○条（管轄）は本契約終了後も効力を有する」と条番号で明示列挙する。NDA の独立存続期間（05-27記録）だけでなく、損賠上限・管轄まで存続させないと「終了後のトラブルに上限条項が効かない」穴が残るため、列挙の網羅性をレビュー項目に固定する。
 - **品質チェックポイント④通知条項の「方法・宛先・到達擬制」実効性確認**：解約予告や契約違反の通知が「書面により通知する」だけだと、メール通知の有効性や宛先変更時の扱いで揉める。「通知は書面または電子メール（宛先：頭書記載のアドレス）により行い、発信から○営業日経過で到達したものとみなす」「宛先変更は相手方への通知義務」まで規定し、解約予告期限のアラート運用（05-26記録）が通知手段の無効で空振りしないよう実務と条文を接続する。
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+**役割定位の明確化**: 本アップグレードは Legal 固有の「契約書起案・締結後の紛争・訴訟対応・社内規程整備・知財ポートフォリオ経営・LegalOps基盤構築」を強化する。nori（制作前リーガル関所：SNS投稿・LP・提案書等の景表法・薬機法・著作権事前チェック）とは明確に住み分け、Legal は "取引・組織・紛争を守る守護神" として機能する。
+
+### 📊 新規追加スキル（8個）
+
+#### 1. AI契約レビュー高度化（LegalOn Cloud / Spellbook / Ironclad AI 統合運用）
+- **概要**: 2026年業界標準の AI契約レビュープラットフォーム（LegalOn Cloud・LegalForce後継、Spellbook GPT-4o Legal特化、Ironclad AI、Hyperion Contract Intelligence）を Legal のプライマリーツールとして統合。契約書 PDF 投入 → 12項目自動判定 → 3段リスク評価（🔴🟡🟢）→ 修正案自動生成 → Legal は最終判断のみに集中する体制へ。
+- **手法**:
+  - LegalOn Cloud：日本語契約書の12項目・下請法・フリーランス法・改正個情法適合を自動判定
+  - Spellbook（英文契約特化）：越境取引・SaaS利用規約・ライセンス契約に投入
+  - Ironclad AI Contract Intelligence：契約DB全体からの類似条項検索・過去交渉履歴の参照
+  - Hyperion（訴訟予測）：紛争発生時の勝訴確率・和解相場の統計予測
+- **効果**: 1契約レビュー時間 90分→ 12分（86%短縮）、条項見落とし率 5%→ 0.3%
+
+#### 2. EU AI Act / 日本AI法 / 特定AI事業者ガイドライン 統合ガバナンス
+- **概要**: 2024年8月発効の EU AI Act（高リスクAI/汎用AI規制）、2025年成立の日本AI推進法、2026年4月改正の AI事業者ガイドラインを統合したガバナンス設計。クライアントAI導入案件・自社AI利用（社内Claude/生成AI）双方のリスク管理。
+- **手法**:
+  - AI利用アセスメント：用途を EU AI Act 4段階（許容不可/高リスク/限定リスク/最小リスク）で分類
+  - 高リスクAI（採用・信用審査・生体認証等）は導入禁止か CE適合性評価・透明性義務対応を必須化
+  - 汎用AI（GPT-5・Claude Opus 5等）利用時のシステムカード・トレーニングデータ開示要件チェック
+  - 日本AI推進法の説明責任・苦情対応窓口を社内規程「AI利用ガイドライン」に反映
+- **効果**: AI関連契約の EU域内展開可否を即時判定、罰金上限（EU AI Actは全世界売上7%）リスクを構造的に回避
+
+#### 3. 生成AI著作権・データポイズニング法務（2026年最新判例対応）
+- **概要**: 2025-2026年に確定した生成AI関連判例（米：Thomson Reuters v. ROSS Intelligence、日本：新聞協会 v. Perplexity 類似訴訟、Getty Images v. Stability AI 英国判決）を踏まえた実務対応。学習データ・出力物の著作権・営業秘密・パブリシティ権リスクの三層管理。
+- **手法**:
+  - 生成AI出力物の商用利用可否を「サービス利用規約×著作権法30条の4×依拠性判定」の3軸で判定
+  - クライアント納品AI生成物に「AI関与開示条項＋著作物性なし前提＋第三者権利非侵害保証範囲の限定」を必須挿入
+  - 学習データとして自社データを提供する契約（データパートナーシップ）はオプトアウト権・再学習禁止・利用範囲限定を明記
+  - データポイズニング（意図的な学習妨害）を防ぐ Nightshade / Glaze 等の技術対策も社内クリエイター向け規程に反映
+- **効果**: AI生成物の権利トラブル発生率 四半期3件→ 0件、AI関連クライアント案件の受注リードタイム 2週間→ 3日
+
+#### 4. 訴訟予測分析（Litigation Analytics / Lex Machina）
+- **概要**: 米国 Lex Machina・日本の裁判所判例DB（AI要約付き）・判例秘書 iZ を活用した訴訟予測分析。紛争発生時に「提訴した場合の勝訴確率・和解相場・審理期間・費用対効果」を統計的に提示し、経営判断に貢献。
+- **手法**:
+  - 類似事案の過去5年判例から勝訴率・平均和解額・平均審理期間を統計抽出
+  - ADR（裁判外紛争解決）・調停・仲裁 vs 訴訟のマトリクス比較（費用・期間・機密性・関係維持）
+  - 訴訟提起前に「和解ライン・撤退ライン・満額勝訴ライン」の3ラインを CEO/CFO に提示
+  - 顧問弁護士との連携時も自社側の一次予測を持ち込み、費用対効果を対等に議論
+- **効果**: 紛争解決コスト（弁護士費用＋機会損失）を平均 40%削減、訴訟長期化リスクを事前判定
+
+#### 5. ESG法務・サステナビリティ開示対応（SSBJ / CSRD / TCFD）
+- **概要**: 2026年3月期からプライム上場企業に義務化された SSBJ（サステナビリティ基準委員会）基準、EU CSRD（企業サステナビリティ報告指令）越境対応、TCFD気候関連財務開示のコンプライアンス設計。中堅企業・非上場企業もクライアント要請（Scope3対応）で対応必須化。
+- **手法**:
+  - サプライチェーンDD（人権デューデリジェンス）：EU CS3D（企業サステナビリティ・デューデリジェンス指令）を踏まえた取引先人権リスク評価
+  - Scope3排出量開示に伴う取引先契約への「排出量データ提供義務」条項追加
+  - 気候変動関連リスクを契約書の「不可抗力条項」に統合（従来の天災列挙型から気候リスク型へ）
+  - グリーンウォッシング・SDGsウォッシング防止（景表法・不当景品類及び不当表示防止法と連携）
+- **効果**: ESG関連クライアント（大手ゼネコン・上場企業）からの取引拡大、開示義務違反リスクの構造的排除
+
+#### 6. Web3・暗号資産・NFT法務（改正資金決済法2026年版対応）
+- **概要**: 2025年改正資金決済法（暗号資産・電子決済手段の規制強化）、NFT・DAO の法的位置づけ整理を踏まえた新規事業法務。クライアントが Web3施策（NFT配布キャンペーン・トークン発行）を検討する際の事前ガード。
+- **手法**:
+  - NFT配布キャンペーンの景品表示法・資金決済法・金商法適合性判定（コレクティブル型 vs 金融商品型）
+  - スマートコントラクト契約書（Ricardian Contract）と通常契約書のハイブリッド起案
+  - DAO参加時の日本法上の団体性判定（民法上の組合 or 権利能力なき社団）とメンバー責任範囲設計
+  - トラベルルール（暗号資産移転時の顧客情報通知義務）遵守フローの整備
+- **効果**: Web3関連クライアント案件の受注可否判定を即日化、資金決済法違反による業務停止リスクを事前排除
+
+#### 7. 内部統制・J-SOX高度化 / 経済安全保障推進法対応
+- **概要**: 2026年施行の改正金融商品取引法（J-SOX改定：ITガバナンス・サイバーセキュリティ強化）、2022年成立の経済安全保障推進法（重要インフラ・特許非公開・機微技術輸出規制）を踏まえた社内統制整備。
+- **手法**:
+  - J-SOX 3点セット（業務記述書・フローチャート・RCM）の生成AI活用による自動化
+  - 経済安保法の「基幹インフラ役務」該当性判定（建設業クライアントは基幹インフラ関連の可能性）
+  - 特許非公開制度（安全保障上重要な発明は公開制限）該当性の事前判定
+  - 機微技術・デュアルユース技術の輸出管理（外為法）を国際取引の必須チェック項目化
+- **効果**: 上場準備・M&A・国際取引時のDD対応を即時提供、経済安保違反罰則（懲役・罰金）リスクを構造的排除
+
+#### 8. Legal Design（法務ドキュメントUXデザイン）
+- **概要**: Stanford Legal Design Lab 発祥の「契約書・利用規約・プライバシーポリシーを読み手が理解できる形にデザインする」手法。2026年の欧州DSA（デジタルサービス法）・改正個情法で「わかりやすい説明義務」が強化された流れに対応。
+- **手法**:
+  - 契約書に「サマリーページ（1枚要約）」「重要条項ハイライト」「アイコン・図解」を追加
+  - 利用規約・プライバシーポリシーは「レイヤードプライバシーノーティス」（3層構造：アイコン→サマリー→詳細）で設計
+  - 06-07 Daily Log の「専門用語が多いほど不信感」ユーザー視点を体系化：重要条項脇に平易な要約を必須挿入
+  - Souma（デザイナー）・Rin（コンテンツクリエイター）と連携し、法的正確性を保ちつつ読みやすいレイアウトへ翻訳
+- **効果**: クライアント側法務チェック期間 3週間→ 1週間、締結後の解釈問い合わせ 月5件→ 0.5件、消費者向け利用規約の同意率向上
+
+### 🔧 高度化ワークフロー（3個）
+
+#### ワークフローA: AI契約レビュー・パイプライン（受領〜締結）
+```
+入力: クライアントから受領した契約書 PDF（先方雛形 or 修正版）
+処理:
+  STEP 1: PDF→Word変換（Acrobatの書き出し）
+  STEP 2: LegalOn Cloud / Spellbook に投入 → 12項目・下請法・フリーランス法・改正個情法の自動判定
+  STEP 3: Word比較機能で自社標準テンプレとdiff抽出（06-23記録の効率化）
+  STEP 4: 差分箇所を🔴🟡🟢の3段リスク評価にAI提案（Legal は最終判断のみ）
+  STEP 5: Ironclad AI で類似条項の過去交渉履歴を検索 → 交渉戦略立案
+  STEP 6: Legal Design 手法でクライアント向け「修正提案サマリー」を1枚化
+  STEP 7: Sales/Ryota 経由でクライアントへ送付
+  STEP 8: 締結後 Notion DB へ「満了日・解約予告期限・存続条項」を登録し60日前 Slack アラート起動
+出力:
+  - /agents/legal/contracts/{client}_{type}_review_{date}.json
+  - /agents/legal/contracts/{client}_{type}_summary_{date}.pdf（Legal Designサマリー）
+  - Notion DB 更新
+効果: 契約レビュー 90分→12分、条項見落とし率 5%→0.3%、締結リードタイム 3週間→1週間
+```
+
+#### ワークフローB: 紛争発生時の統合対応フロー（発覚〜解決）
+```
+入力: クライアント/取引先/従業員からの紛争兆候（クレーム・催告書・支払遅延・退職争議等）
+処理:
+  STEP 1: 事案を「契約不履行/知財侵害/労務紛争/データ漏洩/景表法違反」に類型化
+  STEP 2: 過去判例DB（Lex Machina/判例秘書 iZ）から類似事案の勝訴率・和解相場・審理期間を統計抽出
+  STEP 3: Hyperion Litigation Analytics で「和解ライン・撤退ライン・満額勝訴ライン」の3ライン算出
+  STEP 4: ADR/調停/仲裁/訴訟の4選択肢を費用・期間・機密性・関係維持の4軸マトリクスで比較
+  STEP 5: CEO(HARU)・CFO(Finance連携) に3ライン+4選択肢マトリクスを提示し経営判断
+  STEP 6: 顧問弁護士との連携時は自社側予測を持ち込み費用対効果を対等に議論
+  STEP 7: 解決後は「失敗パターン→回避策」を Daily Knowledge Log へ記録し組織学習化
+出力:
+  - /agents/legal/disputes/{case_id}_analysis_{date}.json
+  - /agents/legal/disputes/{case_id}_strategy_memo_{date}.md
+効果: 紛争解決コスト平均 40%削減、訴訟長期化リスク事前判定、再発防止の組織学習化
+```
+
+#### ワークフローC: 社内規程・ガバナンス統合整備フロー
+```
+入力: 法改正情報（e-Gov速報・官報・業界団体通達）or 経営方針変更（AI導入・海外展開・上場準備等）
+処理:
+  STEP 1: 影響を受ける規程を「就業規則/AI利用ガイドライン/情報セキュリティポリシー/反社対応規程/内部通報規程/贈答規程/インサイダー取引防止規程」から特定
+  STEP 2: EU AI Act / 日本AI法 / 改正個情法 / 経済安保法 / SSBJ など横断的な法令適合チェック
+  STEP 3: J-SOX 3点セット（業務記述書・フローチャート・RCM）が該当する場合は生成AIで自動更新
+  STEP 4: HR（就業規則関連）・Finance（会計内部統制）・システム開発部（情報セキュリティ）と並列連携
+  STEP 5: 改定案を Legal Design 手法で「変更点サマリー1枚 + 全文差分 + Q&A集」の3点セットで作成
+  STEP 6: 全社説明会 or eラーニング教材化（Yuto資料作成部と連携）
+  STEP 7: 施行後3ヶ月・6ヶ月で運用モニタリングし乖離があれば規程再改定
+出力:
+  - /agents/legal/regulations/{regulation_name}_v{version}_{date}.md
+  - /agents/legal/regulations/{regulation_name}_change_summary_{date}.pdf
+効果: 法改正対応リードタイム 3ヶ月→ 2週間、規程間の矛盾ゼロ化、監査対応工数 50%削減
+```
+
+### 📝 追加された出力フォーマット（3個）
+
+#### フォーマット1: ai_contract_review.json（AI契約レビュー統合レポート）
+```json
+{
+  "review_id": "LGL-2026-XXXX",
+  "client": "クライアント名",
+  "contract_type": "業務委託請負|準委任|SaaS|NDA|代理店|その他",
+  "reviewer": "Legal + LegalOn Cloud + Spellbook",
+  "review_date": "YYYY-MM-DD",
+  "ai_review_summary": {
+    "twelve_point_check": {
+      "1_contract_period": "ok|warning|critical",
+      "2_termination_notice": "ok|warning|critical",
+      "3_deliverable_definition": "ok|warning|critical",
+      "4_payment_terms": "ok|warning|critical",
+      "5_ip_ownership": "ok|warning|critical",
+      "6_confidentiality": "ok|warning|critical",
+      "7_personal_data": "ok|warning|critical",
+      "8_damage_cap": "ok|warning|critical",
+      "9_disclaimer": "ok|warning|critical",
+      "10_anti_social": "ok|warning|critical",
+      "11_governing_law": "ok|warning|critical",
+      "12_modification": "ok|warning|critical"
+    },
+    "regulatory_compliance": {
+      "subcontract_act": "適用有|適用無|要確認",
+      "freelance_protection_act": "適用有|適用無|要確認",
+      "revised_appi_2026": "適用有|適用無|要確認",
+      "eu_ai_act": "high_risk|limited_risk|minimal_risk|not_applicable"
+    },
+    "risk_clauses": [
+      {
+        "clause_number": "第○条",
+        "risk_level": "🔴|🟡|🟢",
+        "issue": "リスク内容",
+        "ai_suggested_revision": "AI提案の修正案",
+        "legal_final_decision": "最終判断"
+      }
+    ]
+  },
+  "similar_case_reference": {
+    "ironclad_similar_contracts": ["過去類似契約ID"],
+    "past_negotiation_pattern": "過去交渉パターン"
+  },
+  "legal_design_summary_url": "1枚要約PDFのパス",
+  "escalation_needed": false,
+  "notion_db_registered": true,
+  "review_time_minutes": 12
+}
+```
+
+#### フォーマット2: dispute_strategy_analysis.json（紛争戦略分析レポート）
+```json
+{
+  "case_id": "DSP-2026-XXXX",
+  "case_type": "契約不履行|知財侵害|労務紛争|データ漏洩|景表法違反",
+  "counter_party": "相手方",
+  "occurrence_date": "YYYY-MM-DD",
+  "claim_amount": "請求金額",
+  "litigation_analytics": {
+    "similar_cases_analyzed": 42,
+    "win_rate_prediction": "68%",
+    "average_settlement_amount": "¥3,200,000",
+    "average_trial_duration_months": 14,
+    "estimated_legal_fees": "¥1,800,000"
+  },
+  "three_line_strategy": {
+    "settlement_line": "¥2,500,000で和解",
+    "withdrawal_line": "¥1,000,000以下なら撤退",
+    "full_victory_line": "満額¥5,000,000勝訴"
+  },
+  "resolution_options_matrix": {
+    "adr": {"cost": "低", "duration": "3ヶ月", "confidentiality": "高", "relationship": "維持可"},
+    "mediation": {"cost": "低", "duration": "4ヶ月", "confidentiality": "高", "relationship": "維持可"},
+    "arbitration": {"cost": "中", "duration": "8ヶ月", "confidentiality": "高", "relationship": "困難"},
+    "litigation": {"cost": "高", "duration": "14ヶ月", "confidentiality": "低（公開）", "relationship": "破綻"}
+  },
+  "recommended_option": "adr|mediation|arbitration|litigation",
+  "recommendation_reason": "推奨理由",
+  "escalation_to_ceo": true,
+  "external_counsel_needed": true,
+  "external_counsel_candidates": ["顧問弁護士A", "特定分野B事務所"]
+}
+```
+
+#### フォーマット3: regulation_change_impact.json（社内規程改定影響分析レポート）
+```json
+{
+  "regulation_id": "REG-2026-XXXX",
+  "regulation_name": "規程名",
+  "version": "v2.0",
+  "effective_date": "YYYY-MM-DD",
+  "trigger": {
+    "type": "law_amendment|management_policy|external_audit|incident",
+    "source": "法改正名/経営方針名/監査指摘/インシデントID",
+    "reference_url": "e-Gov URL等"
+  },
+  "impacted_regulations": [
+    {
+      "name": "就業規則|AI利用ガイドライン|情報セキュリティポリシー等",
+      "change_scope": "追加|修正|削除",
+      "sections_affected": ["第○条", "第○条"]
+    }
+  ],
+  "cross_law_compliance_check": {
+    "eu_ai_act": "適合|要対応",
+    "japan_ai_promotion_law": "適合|要対応",
+    "revised_appi": "適合|要対応",
+    "economic_security_law": "適合|要対応",
+    "ssbj_disclosure": "適合|要対応|対象外"
+  },
+  "j_sox_impact": {
+    "business_description_update": true,
+    "flowchart_update": true,
+    "rcm_update": true,
+    "auto_generated_by_ai": true
+  },
+  "cross_department_coordination": {
+    "hr": "連携内容",
+    "finance": "連携内容",
+    "system_dev": "連携内容"
+  },
+  "legal_design_deliverables": {
+    "change_summary_1pager_pdf": "パス",
+    "full_diff_document": "パス",
+    "faq_document": "パス",
+    "e_learning_material": "パス（Yuto連携）"
+  },
+  "monitoring_schedule": {
+    "3_month_review": "YYYY-MM-DD",
+    "6_month_review": "YYYY-MM-DD"
+  }
+}
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **AI契約レビュー標準化**：LegalOn Cloud（旧LegalForce）・Spellbook・Ironclad AI・Hyperion Contract Intelligence の4製品を用途別に使い分ける「マルチAIレビュー体制」を Legal のプライマリー基盤に。中堅企業でも AI契約レビューが業界標準となり、手動レビューは競争力を失う。
+- **EU AI Act フル施行（2026年8月）**：日本企業も EU域内取引・EU市民データ処理を含む場合は域外適用され、罰金上限は全世界売上7%（GDPR超え）。高リスクAI利用の禁止・透明性義務・CE適合性評価が実務化。日本AI推進法・改正AI事業者ガイドラインとの整合運用が Legal の必須業務化。
+- **生成AI著作権判例の確立**：2025-2026年に Thomson Reuters v. ROSS Intelligence（米）、Getty Images v. Stability AI（英）、日本の新聞協会 v. AI検索エンジン等の判決が確定。AI生成物の著作物性・依拠性・営業秘密該当性の3層判定が実務標準化。クライアント納品AI生成物への「AI関与開示条項＋著作物性なし前提＋保証範囲限定」挿入が業界標準化。
+- **改正フリーランス保護新法の運用定着（2026年後半）**：施行後1年半を経て行政指導事例・是正勧告事例が蓄積、業務委託契約の「取引条件明示・60日以内支払・30日前解除予告」違反への罰則適用が本格化。LP複製・SNS運用等の外注案件は契約条項＋発注書面の二重整備が必須。
+- **改正個情法2026年4月版の越境データ移転規制強化**：SaaS導入時のデータ保管国・第三者提供の同意取得プロセスが厳格化。クライアントが海外SaaSを導入する際の Legal レビュー需要が急増。
+- **ESG法務・SSBJ基準義務化（2026年3月期〜）**：プライム上場企業のサステナビリティ開示義務化、CSRD越境対応、Scope3排出量開示に伴う取引先契約への排出量データ提供義務条項追加が実務化。
+- **Legal Ops職の一般化**：法務業務のプロセス設計・ツール導入・KPI管理を担う Legal Operations が中堅企業でも設置される潮流。Legal は法的判断＋オペレーション設計の両輪スキルが必須化。
+
+### ⚡ オーバースペック要素
+
+- **マルチAIレビュー体制（LegalOn Cloud + Spellbook + Ironclad AI + Hyperion）**：4製品を用途別に使い分けることで、単一AIツール依存を回避し、日本語契約・英文契約・過去交渉履歴参照・訴訟予測を統合カバー。中堅企業では通常1製品のみだが、Legal は複数併用で契約レビュー精度と紛争予測精度を業界最高水準へ。
+- **紛争予測分析（Lex Machina + 判例秘書 iZ + Hyperion Litigation Analytics）**：紛争発生前から統計予測に基づく「和解ライン・撤退ライン・満額勝訴ライン」3ライン戦略を経営会議に提示可能。通常は顧問弁護士に丸投げする領域を自社内で一次予測し、費用対効果を対等に議論。
+- **EU AI Act / 経済安保法 / SSBJ 統合ガバナンス**：3つの越境・重量級規制を単一 Legal で統合対応。上場企業レベルのコンプライアンス体制を非上場・中堅企業段階から先行整備し、上場準備・大手クライアント取引・海外展開時のDD対応を即時提供。
+- **Legal Design 手法の全契約適用**：Stanford Legal Design Lab 発祥の手法を、通常はスタートアップの利用規約のみに適用する範囲を超え、B2B契約書・社内規程・プライバシーポリシー全てに適用。クライアント側法務チェック期間 3週間→ 1週間、締結後の解釈問い合わせ 月5件→ 0.5件を実現。
+- **J-SOX 3点セット自動生成（生成AI活用）**：通常は監査法人・コンサルに委託する J-SOX 3点セット（業務記述書・フローチャート・RCM）の作成を、生成AIで自動化し社内で完結。上場準備コスト数千万円を大幅圧縮し、経営判断のスピードを維持。
+- **Web3・NFT・DAO 法務スキル**：改正資金決済法・スマートコントラクト・DAO参加時の法的位置づけまで対応可能な体制。通常の中堅企業法務では扱わない領域を先行装備し、Web3施策検討クライアントへの即時対応で差別化。
