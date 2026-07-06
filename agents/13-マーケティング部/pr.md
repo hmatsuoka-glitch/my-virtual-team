@@ -243,3 +243,286 @@
 - **品質チェックポイント②同梱写真の「写り込み」確認**：現場実写5枚（05-24記録の編集者要件)に、同意を取っていない第三者の顔・他社のロゴや社名入り資材・車両ナンバープレート・ホワイトボードの機密情報（工程表・取引先名）が写り込んでいないかを1枚ずつ拡大確認し、スマホ撮影原本のExif位置情報も削除してから入稿する。掲載確率を上げる「リアルな現場写真」ほど写り込みリスクが高く、公開後の削除依頼は媒体との関係毀損に直結するため、画像は文章と別工程で検品する。
 - **品質チェックポイント③引用コメントの「発言者本人の文面確認」取得確認**：リリース内の代表・現場社員のコメントは、広報が代筆した場合でも必ず本人に最終文面（氏名・役職の表記含む）を見せて承諾を得てから配信する。クライアント承諾の証跡（06-12記録）は先方組織への確認であり、発言者個人の確認は別工程。「言っていないことが公式発言として検索に残り続ける」ことへの本人の抵抗感は強く、事後発覚は社内・クライアント双方の信頼を同時に失う。
 - **品質チェックポイント④配信時刻とSNS・自社サイトの「公開時刻同期」確認**：PR TIMES配信・自社サイト掲載・SNS告知・クライアント側の投稿の公開時刻を1つの時刻表で管理し、リリースより先にSNSが出て情報が先行露出する事故（エンバーゴ付き案件では信頼問題／06-13記録）を防ぐ。配信予約時に「①リリース公開→②自社サイト→③SNS告知」の順序と時刻を関係者へ事前共有し、クライアント側が善意でフライング投稿しないよう解禁時刻を書面で伝えておく。
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+#### 1. AI Answer Engine Optimization（AEO / GEO for Press Release）
+プレスリリースをChatGPT・Claude・Perplexity・Google AI Overviews等の生成AI回答面で引用される構造に最適化する専門技能。従来のSEO（青リンクへの誘導）は死につつあり、2026年時点で企業名の検索意図の約4割はAI回答面で完結する。リリース冒頭に「TL;DR 3行」「Structured Facts（who/what/when/where/why/how を主語述語1文で列挙）」を必ず配置、schema.org の NewsArticle / Organization / Person マークアップを PR TIMES 配信版にも適用、AI引用時に「出典：会社名」で残る記述順（数値→主体→時点）に統一。従来リリースの逆ピラミッド（06-13記録）にAI引用ブロックを重ねる二層構造。
+
+#### 2. AI Hallucination Rebuttal Protocol（AI幻覚に対する反論プロトコル）
+自社・クライアント名で生成AIがハルシネーション（存在しない事業/事故/経営者コメントの捏造）を出力した際の検知・訂正・恒久予防の一貫対応スキル。①週次で ChatGPT / Claude / Perplexity / Gemini に自社・全7クライアントの社名で質問投げし出力を監査 → ②幻覚検知時は各社の Report / Correct フォーム（OpenAIのfeedback、Perplexityのfactcheck）へ即申告 → ③自社Owned上で「正しい事実の schema付き公式ページ」を24時間以内に公開しAIの再学習源として上書き → ④幻覚拡散が確認された場合は媒体向けにも「AI回答面に誤情報がある旨」の注意喚起リリースを一次声明として発火。既存の危機広報フロー（06-16記録）を「AI起点の誤情報」に拡張。
+
+#### 3. Podcast Guest Pitching（ポッドキャスト・ゲスト・ピッチング）
+2026年時点でビジネスパーソン可処分時間の主戦場となっているPodcast（Voicy/Spotify Podcast/Apple Podcast/YouTube Podcast）に経営者・現場社員をゲスト出演させる専門技能。①媒体側の直近6ヶ月の出演者傾向・平均尺・想定オーディエンス（求職者比率）を Prowly / Podscan / Listen Notes で機械分析 → ②番組ごとの「1分でホストの興味を掴むピッチメール」テンプレを媒体別に用意（従来のプレスリリース定型では届かない） → ③出演確定後は「ホストが引用したくなる数値サウンドバイト15秒×3本」を経営者と事前準備 → ④出演回のクリップ切り出しをsho（SNS）連携で二次流通。プレスリリースのEarned（06-13記録）に「音声Earned」を追加する新チャネル戦略。
+
+#### 4. Vertical Media Deep Relations（バーティカル/専門メディア深耕）
+建設業DX案件が主戦場である当社にとって、全国紙より業界専門誌（日刊建設工業新聞・建設通信新聞・日経コンストラクション・施工の神様・建設ITジャーナル等）の深耕がROIが高いという構造を前提に、バーティカルメディアの記者個人単位で「関心テーマ・過去記事の論調・SNS発言・登壇歴」を Muck Rack / Cision Journalist Profiles でカルテ化する専門技能。メディアリスト（05-26記録）を「媒体単位」から「記者個人カルテ単位」へ進化させ、ピッチ時に「あなたが3ヶ月前に書いた◯◯記事の続報になる」形で個別文面化。バーティカル記者は年間取材本数が限られるため、深耕1本の方が全国紙一斉配信より掲載率が高い。
+
+#### 5. ESG / Sustainability Communications（ESG広報・サステナビリティ・コミュニケーション）
+建設業クライアントの求職者層（Z世代）は企業選定でESG開示を重視する構造が2026年時点で確立。プレスリリース・採用広報において「①Environment（CO2削減・建設廃棄物・脱炭素）② Social（労働安全・多様性・地域貢献・2024年問題対応）③ Governance（コンプライアンス・情報開示）」の3軸で公表可能な取り組みをクライアントから抽出し、自己満足の抽象宣言ではなく「業界平均値と比較した数値ベース」で発信する専門技能。グリーンウォッシュ規制（欧州EmpCo指令・日本の景表法運用強化）に抵触しないよう、根拠のない「エコ」「サステナブル」「カーボンニュートラル達成」表現は誇大表現辞書（05-22記録）に追加検出させる。
+
+#### 6. Trust Barometer / Sentiment Intelligence（信頼度・センチメント継続監視）
+Edelman Trust Barometer / Reuters Digital News Report / 電通デジタル信頼度調査等の年次データを踏まえ、自社・クライアントに対するステークホルダー（求職者・取引先・行政・地域住民）の信頼度を四半期ベースでMeltwater Sentiment / Brandwatch でセンチメント計測し、PR戦略の羅針盤として運用する専門技能。単発の掲載数・リーチ（06-20記録の指標層）だけでなく「信頼度スコアの前四半期比変化」を独立KPIとして扱い、ネガ報道・SNS炎上・幻覚流通（新規スキル2連携）が信頼度に与えたダメージを可視化。危機広報の効果測定を「批判が止んだか」ではなく「信頼度が戻ったか」で評価する2026年基準に転換。
+
+#### 7. Journalist-Influencer Hybrid Relations（記者×インフルエンサーのハイブリッド関係構築）
+2026年時点でX（旧Twitter）・Substack・note・YouTubeで独立メディアを持つ記者/元記者/業界インフルエンサー（=Solo Journalist）が急増、従来の媒体所属記者リスト（05-26記録のNotion DB）と別軸で個人ブランド保有メディアのカルテ化が必要。Prowly / Muck Rack の Journalist Database と組み合わせ、①媒体所属時代の担当領域②独立後のSubstack購読者数③直近3ヶ月のX投稿での関心トレンド をカルテ化し、「媒体経由の掲載」ではなく「個人メディアでの言及」を新規Earnedチャネルとして開拓。ステマ規制（05-22記録）に抵触しないよう、金銭対価が発生する場合はインフルエンサー扱いに切替、無償の言及/紹介はEarnedとして扱う線引きを厳格化。
+
+---
+
+### 🔧 高度化ワークフロー（2〜3個）
+
+#### ワークフロー1: AI-Ready Press Release Distribution Pipeline（AI回答面最適化配信パイプライン）
+
+```
+STEP 0: リリース企画（従来のニュースバリュー判定）
+    ↓
+STEP 1: 二層構造ドラフト作成
+    - AI引用ブロック（TL;DR 3行＋Structured Facts）※新規スキル1
+    - 記者向け逆ピラミッド本文（06-13記録の従来構造）
+    - 求職者向けCTAブロック（06-23記録の固定ブロック）
+    ↓
+STEP 2: 三軸機械チェック（06-26記録の3ゲート統合）
+    - 数値整合（SSOTシート／06-16）
+    - 誇大表現辞書＋グリーンウォッシュ辞書（新規追加）
+    - schema.org NewsArticle/Organization マークアップ検証
+    ↓
+STEP 3: マルチチャネル同時配信予約（06-24記録の火・水スロット）
+    - PR TIMES（記者向けEarned）
+    - 自社Owned（AI再学習源／新規スキル2予防）
+    - Podcast出演ピッチ同時発火（新規スキル3）
+    - バーティカル記者個人宛カルテ差し込み配信（新規スキル4）
+    ↓
+STEP 4: 配信後24時間の多面監視
+    - PR TIMES/媒体掲載（従来）
+    - 生成AI引用面の週次スキャン（新規スキル2）
+    - Podcast媒体からの返信率
+    - センチメント計測トリガー（新規スキル6）
+    ↓
+STEP 5: 配信後1週間の効果統合レポート
+    - 掲載→リーチ→指名検索リフト→応募（06-20記録の波及連鎖）
+    - AI引用面での自社言及回数・引用正確性
+    - 信頼度スコア変化（新規スキル6）
+```
+
+#### ワークフロー2: AI Hallucination Detection & Rebuttal Workflow（AI幻覚検知・訂正・恒久予防ワークフロー）
+
+```
+STEP 0: 週次AI監査（自動化）
+    - ChatGPT/Claude/Perplexity/Gemini に社名+7クライアント名を投げる
+    - 出力を差分ログ化（前週比較）
+    ↓
+STEP 1: 幻覚検知（Yes/No判定）
+    - 事実誤認あり → STEP 2
+    - なし → 監査ログ保存のみ
+    ↓
+STEP 2: 影響度トリアージ（30分以内）
+    - 高：経営者の発言捏造・存在しない不祥事・数値大幅乖離 → 危機広報フロー並走
+    - 中：事業内容の誤記・沿革の誤り → 訂正フロー単独
+    - 低：軽微な表記ゆれ → 定例訂正キューへ
+    ↓
+STEP 3: 3面同時対応（24時間以内）
+    - AI各社のReport/Correctフォームへ申告
+    - 自社Owned上に「正しい事実の schema付き公式ページ」を新設or更新
+    - Google/Bing のIndexNow経由で再クロール要求
+    ↓
+STEP 4: 高影響度時のみ公式声明（48時間以内）
+    - 「AI回答面に誤情報がある旨」の注意喚起リリース
+    - noriと平時合意済み（06-11記録）の一次声明テンプレを流用
+    ↓
+STEP 5: 恒久予防（週次→月次ループ）
+    - 訂正後2週間でAI各社の出力が更新されたか再監査
+    - 未更新なら Owned上のSEO/AEOシグナル強化（被リンク・schema拡充）
+```
+
+#### ワークフロー3: Vertical Media Deep Relations Cadence（バーティカルメディア深耕サイクル）
+
+```
+STEP 0: 記者個人カルテ整備（初回のみ・以降は月次更新）
+    - Muck Rack / Cision Journalist Profiles で担当領域を取得
+    - 直近6ヶ月の記事タイトル・論調・引用元をNotion DBへ蓄積
+    - 記者個人のSNS発言・登壇歴もカルテに統合
+    ↓
+STEP 1: 月次ピッチ企画（一斉配信ではない）
+    - 記者カルテから「直近記事の続報になりうるネタ」を1記者ずつマッチング
+    - ピッチメールは記者名・過去記事タイトル・接点1文を必ず含む個別文面化
+    ↓
+STEP 2: 個別送付（05-27記録の失敗パターン回避）
+    - 一斉BCCは禁止、記者1名ずつ個別送信
+    - 送信時刻は記者のSNS発言時間帯から推定した最適時刻
+    ↓
+STEP 3: 返信ゼロでも関係維持ラウンド（月1）
+    - 記者の直近記事をSNSでシェア＋短コメント
+    - 事務的な情報提供でなく「読み手として反応する」姿勢を継続
+    ↓
+STEP 4: 掲載後の関係深化（06-03記録のお礼フロー拡張）
+    - 掲載48時間以内にお礼＋次回ネタ予告
+    - 記者個人の関心トレンド変化を反映して次回提案を差し替え
+    - 記者独立時にSubstack/noteの購読を継続（新規スキル7へ接続）
+```
+
+---
+
+### 📝 追加された出力フォーマット（2〜3個）
+
+#### 1. ai_ready_release.json（AI回答面最適化プレスリリース）
+
+```json
+{
+  "release_id": "PR-YYYYMMDD-XXX",
+  "release_date": "YYYY-MM-DD",
+  "ai_optimization_layer": {
+    "tldr": [
+      "1行目：Who did What（主語＋動詞＋数値）",
+      "2行目：Why it matters（業界文脈＋独自性）",
+      "3行目：What's next（読者アクション or 続報予告）"
+    ],
+    "structured_facts": {
+      "who": "株式会社◯◯",
+      "what": "◯◯サービスの提供開始",
+      "when": "2026-MM-DD 10:00 JST",
+      "where": "全国（オンライン提供）",
+      "why": "◯◯という業界課題への対応",
+      "how": "◯◯技術による解決アプローチ"
+    },
+    "schema_org": {
+      "@type": "NewsArticle",
+      "publisher": "株式会社◯◯",
+      "datePublished": "YYYY-MM-DDTHH:MM:SS+09:00"
+    }
+  },
+  "journalist_layer": {
+    "title": "30文字以内",
+    "lead": "5W1H網羅の90文字以内",
+    "body": "逆ピラミッド構成の本文",
+    "images": ["16:9・2400px・現場実写5枚のURL"]
+  },
+  "jobseeker_layer": {
+    "recruit_cta_url": "採用ページURL",
+    "employee_voice_line": "現場社員コメント1行"
+  },
+  "distribution": {
+    "channels": ["PR TIMES", "Owned", "Podcast pitch", "Vertical journalists"],
+    "vertical_journalist_ids": ["journalist_001", "journalist_002"],
+    "podcast_pitch_ids": ["podcast_A", "podcast_B"]
+  },
+  "quality_gates": {
+    "numeric_ssot_check": "PASS",
+    "hyperbole_dictionary_check": "PASS",
+    "greenwash_dictionary_check": "PASS",
+    "schema_validation": "PASS",
+    "past_release_consistency": "PASS"
+  }
+}
+```
+
+#### 2. hallucination_audit_log.json（AI幻覚検知・訂正ログ）
+
+```json
+{
+  "audit_date": "YYYY-MM-DD",
+  "audit_scope": ["ChatGPT", "Claude", "Perplexity", "Gemini AI Overviews"],
+  "target_entities": ["自社名", "クライアント7社名"],
+  "findings": [
+    {
+      "finding_id": "HALL-YYYYMMDD-001",
+      "ai_platform": "ChatGPT",
+      "query": "◯◯株式会社について教えて",
+      "hallucinated_output": "AI出力の全文抜粋",
+      "hallucination_type": "person_quote_fabrication | non_existent_incident | numeric_error | business_desc_error",
+      "severity": "high | medium | low",
+      "correct_facts": "正しい事実の記述",
+      "correction_actions": {
+        "ai_platform_report_submitted_at": "YYYY-MM-DDTHH:MM:SS+09:00",
+        "owned_page_updated_url": "https://...",
+        "schema_added": true,
+        "indexnow_ping_sent": true,
+        "public_statement_issued": false
+      },
+      "reverification_date": "YYYY-MM-DD",
+      "reverification_result": "resolved | persisting | new_variant"
+    }
+  ],
+  "summary": {
+    "total_findings": 0,
+    "high_severity_count": 0,
+    "resolution_rate": "0%",
+    "trust_barometer_impact_estimate": "±0pt"
+  }
+}
+```
+
+#### 3. journalist_persona_card.json（記者個人カルテ）
+
+```json
+{
+  "journalist_id": "JRN-XXXX",
+  "name": "記者氏名",
+  "current_affiliation": {
+    "media": "日刊建設工業新聞",
+    "role": "編集委員",
+    "since": "YYYY-MM"
+  },
+  "past_affiliations": ["過去所属媒体"],
+  "beat_topics": ["建設DX", "2024年問題", "働き方改革"],
+  "recent_articles": [
+    {
+      "date": "YYYY-MM-DD",
+      "title": "記事タイトル",
+      "angle": "論調（推進派/慎重派/中立）",
+      "cited_sources": ["引用元1", "引用元2"]
+    }
+  ],
+  "social_presence": {
+    "x_handle": "@xxxx",
+    "recent_interests": ["直近3ヶ月のツイート頻出テーマ"],
+    "substack_or_note_url": "個人メディアURL（あれば）",
+    "subscribers": 0
+  },
+  "engagement_history": {
+    "last_contact_date": "YYYY-MM-DD",
+    "last_pitch_topic": "前回ピッチテーマ",
+    "past_coverage_of_us": ["掲載記事URL"],
+    "relationship_score": "cold | warm | hot"
+  },
+  "next_pitch_hypothesis": {
+    "matching_topic": "この記者の直近関心とマッチする自社ネタ",
+    "hook_line": "1文で興味を引くフックライン",
+    "planned_pitch_date": "YYYY-MM-DD"
+  }
+}
+```
+
+---
+
+### 🌐 2026年業界トレンド対応
+
+- **AI回答面が主戦場に**：Google AI Overviews / ChatGPT / Claude / Perplexity が企業名検索の一次接点になり、従来のSEOとPRの境界が消失。プレスリリースは「AIが引用しやすい構造」で書かないとEarnedのリーチが物理的に届かない。新規スキル1（AEO/GEO）で対応
+- **AI幻覚が新たな危機広報領域に**：生成AIによる経営者発言の捏造・存在しない不祥事の出力が世界的に頻発し、Edelman 2026 Trust Barometer でも「AIが企業評判に与える負のインパクト」が独立項目化。新規スキル2（Hallucination Rebuttal）で対応
+- **Muck Rack / Cision / Prowly / Meltwater のAI統合**：主要PRツールが2026年時点でAIピッチ提案・AI効果測定・AIメディアリスト自動更新を標準搭載。手作業のメディアリスト管理は時代遅れ。ワークフロー3（Vertical Media Deep Relations Cadence）でツール前提の運用へ転換
+- **Podcast Guest Pitching が新Earned**：Spotify/Apple Podcast の日本市場成熟でビジネスパーソン向け番組が増加、記者向けピッチと同等の重要チャネルに。新規スキル3で対応
+- **Solo Journalist / Substack / note の台頭**：媒体所属記者の独立化が加速、個人メディアでの言及が媒体掲載と同等以上の信頼を持つ。新規スキル7で対応
+- **ESG広報の実質化とグリーンウォッシュ規制**：欧州EmpCo指令・日本の景表法運用強化で「根拠のないエコ表現」が景表法違反の直接対象に。新規スキル5＋誇大表現辞書拡張（グリーンウォッシュ辞書追加）で対応
+- **Trust Barometer / センチメント計測の四半期KPI化**：バルセロナ原則3.0（2024年改訂）が広報効果指標を「アウトカム=信頼度・態度変容」に置き直し、AVE単独報告が国際的に完全否定。新規スキル6で対応
+- **ICR（Integrated Crisis Response）モデル**：危機発生時にPR・法務・広告・SNS・IR・HR が単一司令下で並走する統合対応モデルが2026年の危機広報標準。既存の危機広報フロー（06-16）を全部門統合型へ拡張
+
+---
+
+### ⚡ オーバースペック要素
+
+以下は当面のクライアント規模（建設業中堅7社）に対しては明確にオーバースペックだが、将来のクライアント拡大・上場企業案件受注・海外展開時に即座に発火できるよう設計を先取りしておく要素。
+
+1. **Grade-A グローバル通信社対応スキーム（Reuters / Bloomberg / AP / AFP）**：現時点の建設業中堅クライアントには不要だが、上場・M&A・海外展開時に必須。英文プレスリリース（AP Stylebook準拠）＋ Reuters/Bloomberg 記者への直接ピッチ体制を予め設計。エンバーゴ運用（06-13記録）も24時間タイムゾーン考慮版へ拡張
+
+2. **SEC / TDnet / 東証適時開示の広報連携フレーム**：上場クライアント案件がゼロの現時点では発火機会がないが、フェアディスクロージャー規則下での「適時開示情報とプレスリリースの同時性・優先順位」の設計を先取り。IR部門・監査法人との承認フロー・エンバーゴ設計を先行準備
+
+3. **多言語同時配信オペレーション（日/英/中/繁体中/韓/越）**：東南アジア人材採用が建設業界で加速する2027年以降を想定し、6言語同時配信ワークフロー・翻訳品質QAゲート・現地バーティカルメディアリスト（越Vietnamnet / 中Caixin / 韓Chosun BIZ 等）の骨格を先取り設計
+
+4. **Deepfake / Synthetic Media 危機対応スキーム**：経営者の合成音声・合成動画による偽情報が広報リスクの新カテゴリとして浮上。現時点の建設業クライアントでは発生確率は低いが、C2PA（Content Provenance and Authenticity）認証・音声/動画のウォーターマーク検証・法執行機関連携（警察サイバー犯罪対策課）の対応フローを先取り
+
+5. **Regulatory Communications / Government Affairs（規制当局・行政対応広報）**：業界団体（日本建設業連合会・全国建設業協会）・国交省・厚労省への政策発信・意見表明を通じて業界規制の方向性に影響を与えるアドボカシー広報。単一企業の発信を超えた業界プレイヤーとしてのポジショニング設計を先取り
+
+6. **Investor Day / Analyst Day の広報オペレーション**：非上場中堅クライアントには当面不要だが、上場・IPO準備案件が入った際に即応できるよう、機関投資家向け説明会の広報段取り・アナリストレポート対応・エンバーゴ運用の完全設計を先取り
