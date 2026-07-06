@@ -256,3 +256,212 @@
 - **品質チェックポイント：アラートの回復判定には発火閾値と別の「回復閾値（ヒステリシス）」を設定し、閾値境界での発火⇔解消の反復（フラッピング）を防ぐ**。発火±30%・回復も±30%だと境界上の指標が毎時「CRITICAL発生→解消」を繰り返し、通知が洪水化してアラート疲れ（06-17記録）の隠れた発生源になる。発火±30%なら回復は±25%を切ってからのように非対称に設定し、解消通知も発火と同経路で届ける
 - **品質チェックポイント：四半期ごとにダッシュボードの閲覧ログを集計し、閲覧ゼロ・対応アクションゼロの指標を廃止候補として5部門影響レビュー（05-27記録）にかける**。誰も見ない指標の集計・合計整合・閾値メンテのコストは品質でなく負債で、詳細50層の肥大はドリルダウンの探索性も落とす。「追加は既存の降格とセット」（06-17記録）の運用を、閲覧実績に基づく定期棚卸しで機械的に回す
 - **品質チェックポイント：期中に目標値を改定した場合は「旧目標・新目標・改定日・改定理由」をSSOT定義書に履歴として残し、達成率グラフに改定線を引いて新旧の達成率を接続表示しない**。無履歴の目標差し替えは「先月まで未達だったのに今月から達成」という達成率の断絶を生み、定義変更の断絶線（06-17記録）と同様に実績の変化と誤読される。目標/予測/コミット3線（06-20記録）の目標線にも改定履歴を持たせる
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（8個）
+
+#### 1. North Star Framework 2.0 運用（NSM + Input Metrics カスケード設計）
+- **NSM 1指標に対し「Input Metrics 3〜5個」＋「Guardrail 2個」の逆算ツリー**をSSOT定義書に必須構築
+- Amplitude公式のNorth Star Framework（Sean Ellis / John Cutler準拠）に沿い、NSM=価値創出の先行指標、Input=NSMを動かす日次操作可能変数として分離
+- NSM単体最大化のグッドハート回避（06-24記録の副作用検知）を、Input Metricsのカバレッジ＋Guardrailで構造化
+- 出力：`nsm_tree.json`（NSM→CSF→Input→操作単位までの4層ツリー）
+
+#### 2. AI-driven KPI Anomaly Detection（機械学習ベース異常検知）
+- Prophet / ARIMA / Isolation Forest / LSTM Autoencoderの4アルゴリズムを指標特性別に自動選択
+- ストック指標（06-13記録）はLSTM Autoencoder、フロー指標かつ季節性ありはProphet、低頻度・高分散はIsolation Forestで振り分け
+- 変動係数CV固定閾値（06-16記録）を「動的信頼区間（95%CI）＋変化点検知（CUSUM）」で置換
+- False Positive率10%以下、Recall 90%以上を月次で測定し、モデル再学習を自動化
+- 出力：`anomaly_ml_report.json`（アルゴリズム別性能指標＋アラート根拠のSHAP値）
+
+#### 3. Predictive KPI（着地予測 + シナリオシミュレーション）
+- Monte Carloシミュレーション（10,000回試行）で「期末着地の確率分布（P10/P50/P90）」を日次算出
+- 06-20記録の「目標／予測／コミット」3線に「予測確信度バンド」を追加、CEOに「目標達成確率X%」で提示
+- What-if分析：「新規リード+20%なら期末売上どう動く？」を1クリックで再計算するインタラクティブレイヤー
+- 出力：`predictive_forecast.json`（シナリオ別着地確率＋感度分析）
+
+#### 4. Real-time Streaming Dashboard（秒単位のイベント駆動可視化）
+- Kafka / Kinesis / Snowpipe Streaming経由でイベントを秒単位取り込み、トップ5KPIをリアルタイム更新
+- 06-16記録の増分更新（incremental）を「マイクロバッチ（5秒粒度）→ 準リアルタイム（1分）→ 日次確定」の3層鮮度に拡張
+- 障害時のフェイルオーバー：ストリーム停止でも直近確定値＋「STALE」バッジで運用継続、06-03記録の停止検知を秒単位化
+- 出力：`realtime_dashboard_config.yaml`（トピック定義＋SLA＋フェイルオーバールール）
+
+#### 5. Modern BI Tool マルチスタック活用（Superset / Metabase / Looker / Mixpanel / Amplitude）
+- 用途別に最適ツールを使い分ける「BI Portfolio戦略」：経営ダッシュボード=Looker、プロダクト分析=Amplitude、アドホック=Metabase、大規模データ探索=Superset、リアルタイム=Mixpanel
+- 各ツールのSemantic Layer（LookML / dbt Metrics Layer / Cube.js）にSSOT定義を1度書けば全ツールに配信する「Headless BI」構成
+- ライセンスコストとリテラシー要件を天秤にかけ、部門別に閲覧ツールを最適化（CEO=Looker、現場=Metabase）
+- 出力：`bi_stack_map.md`（ツール別役割定義＋データフロー図）
+
+#### 6. dbt Metrics Layer + Semantic Model（メトリクス統制の技術基盤）
+- SSOT定義書（Notion）を「dbt Semantic Layer」にコード化し、SQLの重複を排除
+- 全社KPIの算出式をdbt YAMLで一元定義、全BIツールがこの1箇所を参照する構造にする
+- 06-12記録の「合計整合（reconciliation）」をdbt testsで自動化、差分±0.5%超のCIブロックを実装
+- Metricflow / Cube.jsとの互換で、将来のツール切替時にKPI定義の書き直しゼロを実現
+- 出力：`metrics.yml`（dbt Semantic Model定義）
+
+#### 7. BSC 5.0（バランス・スコアカード ESG拡張版）
+- 従来4視点（財務・顧客・業務プロセス・学習成長）に「ESG / サステナビリティ視点」を追加した5視点構成
+- 各視点にNorth Star + Input Metrics + Guardrail（新規追加スキル1と統合）
+- ISSB / SSBJ開示基準（2026年義務化）への対応で、CO2排出量・従業員エンゲージメント・DEIメトリクスをKPIツリーに組み込む
+- 出力：`bsc_5view.json`（5視点別NSMツリー＋ESG開示マッピング）
+
+#### 8. Metric Store 全社統制（Metric Governance Framework）
+- 全KPIに「Owner / Steward / Consumer」の3ロールを付与し、変更承認フローをGitHub PR型で運用
+- 06-17記録の「新規追加は既存の降格・廃止とセット」を、Metric Storeの承認ワークフローで機械的に強制
+- 廃止候補（閲覧ゼロ90日 = 07-03記録）を月次で自動抽出、Steward通知＋90日の廃止予告期間を運用化
+- 出力：`metric_governance_log.json`（承認履歴＋利用実績＋廃止ロードマップ）
+
+### 🔧 高度化ワークフロー（3個）
+
+#### WF-1: 「Real-time OKR Cascade × Monthly Review」統合フロー
+```
+STEP 1: 期初 - CEOのKGI（KPI-6のBSC 5視点）をNSM 5個（新規1）に分解
+STEP 2: NSMごとにInput Metrics 3〜5個を全社→部門→個人にカスケード
+STEP 3: dbt Semantic Layer（新規6）にコード化しMetric Store（新規8）に登録
+STEP 4: Real-time Streaming（新規4）で日次モニタリング、AI Anomaly（新規2）で異常検知
+STEP 5: 月次OKRレビュー（06-24記録 + Predictive KPI 新規3で着地予測）
+STEP 6: NSM未達確率50%超なら中間介入、Guardrail違反はNSM鈍化に優先して対処
+STEP 7: 四半期でOKR Retrospective + Metric棚卸し（07-03記録の廃止候補処理）
+```
+
+#### WF-2: 「BI Portfolio × Headless Semantic Layer」配信フロー
+```
+STEP 1: SSOT定義書（Notion）でKPIメタデータ管理（Owner/Steward/Consumer）
+STEP 2: dbt Semantic Layer（新規6）にYAMLコード化しGit管理
+STEP 3: dbt tests で reconciliation ±0.5%（06-12記録）＋ 過去30日回帰（06-12記録）を自動化
+STEP 4: 承認PR経由でSemantic Layer本番反映、CI/CDでBIツール全体へ配信
+STEP 5: 用途別配信（CEO→Looker / 現場→Metabase / プロダクト→Amplitude / リアルタイム→Mixpanel）
+STEP 6: 閲覧ログを月次集計、廃止候補を自動抽出（新規8）
+STEP 7: 定義変更時は5部門影響レビュー（05-27記録）＋PR差分レビュー
+```
+
+#### WF-3: 「AI Anomaly + Predictive Alert + Actionable Notification」統合アラートフロー
+```
+STEP 1: Streaming（新規4）で秒単位取込 → Real-time集計層で1分粒度可視化
+STEP 2: AI Anomaly（新規2）で動的信頼区間 + 変化点検知（CUSUM）を実施
+STEP 3: 異常検知時、Predictive KPI（新規3）で「このまま推移した場合の期末着地」を再計算
+STEP 4: 着地予測が目標未達確率50%超なら Predictive Alert として発火（早期警戒）
+STEP 5: アラートに「原因仮説（SHAP値ベース）＋推奨アクション＋担当エージェント＋対応期限＋ドリルダウンURL＋起票済みタスクリンク」を自動同梱（06-23記録）
+STEP 6: ヒステリシス（07-03記録）で回復閾値を非対称設定、フラッピング防止
+STEP 7: 個別DM配信（05-24記録）＋週次ダイジェスト（05-24記録）＋月次モデル再学習
+```
+
+### 📝 追加された出力フォーマット（3個）
+
+#### Format-1: `nsm_cascade_dashboard.json`（North Star カスケード可視化）
+```json
+{
+  "period": "2026-Q3",
+  "nsm": {
+    "name": "月次アクティブ有料クライアント数",
+    "current": 0,
+    "target_p50": 0,
+    "target_p90": 0,
+    "achievement_probability": 0.0,
+    "guardrails": [
+      {"name": "解約率", "threshold": 0.03, "current": 0.0, "status": "green"}
+    ]
+  },
+  "input_metrics": [
+    {
+      "name": "新規商談化率",
+      "owner": "sho",
+      "current": 0, "target": 0,
+      "leading_lag_days": 30,
+      "child_of": "NSM",
+      "actionable_tag": "internal_controllable"
+    }
+  ],
+  "cascade_tree": {
+    "全社": {"部門A": {"個人1": {}}}
+  },
+  "ml_anomaly": {
+    "algorithm": "Prophet",
+    "confidence_interval_95": [0, 0],
+    "shap_top3_factors": []
+  }
+}
+```
+
+#### Format-2: `predictive_forecast_report.json`（Monte Carlo着地予測レポート）
+```json
+{
+  "kpi": "月次売上",
+  "as_of": "YYYY-MM-DD",
+  "monte_carlo": {
+    "iterations": 10000,
+    "p10": 0, "p50": 0, "p90": 0,
+    "target": 0,
+    "achievement_probability": 0.0
+  },
+  "sensitivity": [
+    {"driver": "新規リード数", "elasticity": 0.35, "if_+20pct": 0}
+  ],
+  "scenarios": {
+    "base": 0, "optimistic": 0, "pessimistic": 0
+  },
+  "predictive_alerts": [
+    {
+      "level": "warning",
+      "trigger": "achievement_probability < 0.5",
+      "recommended_action": "リード獲得チャネル追加検討",
+      "owner": "sho",
+      "deadline": "YYYY-MM-DD"
+    }
+  ]
+}
+```
+
+#### Format-3: `metric_governance_log.yaml`（メトリクス統制台帳）
+```yaml
+metric_id: MTR-2026-0042
+name: 月次売上
+owner: kpi
+steward: haruto
+consumers: [CEO, Sales, Finance]
+definition_ssot_url: notion://...
+dbt_semantic_layer: metrics.yml#L120
+stock_or_flow: flow
+csf_link: CSF-003
+kgi_link: KGI-001
+guardrails: [MTR-2026-0089]
+anomaly_algorithm: Prophet
+threshold_type: dynamic_ci_95
+target:
+  stretch: 0
+  commit: 0
+  history: [{revised_at: YYYY-MM-DD, from: 0, to: 0, reason: ""}]
+change_log:
+  - date: YYYY-MM-DD
+    change: "算出式変更"
+    pr_url: github.com/...
+    5dept_review: passed
+usage_last_90days:
+  views: 0
+  unique_viewers: 0
+  drill_downs: 0
+  status: active | deprecation_candidate | deprecated
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **Amplitude North Star Framework（2026年最新版）**：NSM + Input Metrics 3-5 + Guardrails 2の逆算ツリーが業界標準化。全社→部門→個人までカスケードするOKR運用と統合された「Product-Led Growth KPI」がSaaS/建設DX双方に適用可能に
+- **Headless BI / Metric Store の主流化**：dbt Semantic Layer / Cube.js / Metricflow により「1度書けばBI全ツールに配信」がベストプラクティス。Superset / Metabase / Looker / Mixpanel / Amplitudeを用途別に使い分けるBI Portfolio戦略が定着
+- **AI-driven KPI Anomaly の実運用普及**：静的閾値からProphet / LSTM Autoencoder / Isolation Forestベースの動的検知に移行。SHAP値による根拠提示で「なぜアラートが出たか」を非エンジニアにも説明可能
+- **Predictive KPI + What-if Simulation**：Monte Carlo着地予測とシナリオ分析が経営ダッシュボードの標準機能に。目標達成確率を日次でCEOに提示する運用が上場企業で急拡大
+- **ISSB / SSBJ 開示義務化（2026年4月〜プライム市場）**：BSC 5視点にESG視点を組み込んだKPIツリーが必須。CO2排出量・従業員エンゲージメント・DEIメトリクスの内部KPI化と外部開示の整合が新論点
+- **Real-time Streaming Dashboard**：Kafka / Kinesis / Snowpipe Streamingで秒単位のKPI可視化がプロダクト・広告運用領域で標準化。「日次締め」文化からの脱却が進む
+- **Metric Governance**：全KPIにOwner/Steward/Consumerの3ロール、GitHub PR型の変更承認、閲覧ゼロ90日の自動廃止候補抽出が「Metric Storeガバナンス」として体系化
+
+### ⚡ オーバースペック要素
+
+（LET事業の現状規模を超える機能。将来の急拡大・M&A・上場準備時に発動可能な予備能力として保持）
+
+1. **Real-time Streaming Dashboard（Kafka + Flink）**：秒単位可視化は現状の7社規模では日次で十分。将来100社規模 or リアルタイム広告運用に発展した時の予備。Snowpipe Streamingを想定した設計だけ保持
+2. **AI Anomaly Detection の 4アルゴリズム自動選択 + SHAP根拠提示**：現状のCV基準動的閾値で十分機能しており、機械学習モデル運用（再学習・特徴量管理・モデル監視）は現時点で工数過剰。将来のプロダクト（SaaS展開）で数百KPIになった時に発動
+3. **Monte Carlo 10,000試行のPredictive KPI**：現状の予実分析5軸で十分で、確率分布での着地予測はCEO 1名の意思決定には過剰。上場準備でIR用の業績予想根拠が必要になった時に有効化
+4. **Headless BI マルチスタック（Looker + Amplitude + Mixpanel + Superset + Metabase 併用）**：現状はMetabase 1本 + Notion併用で十分。将来の部門肥大時（各部長が独自ダッシュボード要求）に段階拡張。ライセンス費用も現時点では過剰
+5. **BSC 5.0 + ISSB / SSBJ完全開示対応**：現状は非上場でESG開示義務なし。将来のプライム市場上場 or 大手企業M&Aターゲット化した時にフル発動、内部KPIと外部開示を統合
+6. **dbt Semantic Layer完全移行**：現状のNotion SSOT + SQL手管理でも運用可能。KPI数が50を超え、複数BIツール併用が始まった段階で移行、それまではオーバーヘッド優位

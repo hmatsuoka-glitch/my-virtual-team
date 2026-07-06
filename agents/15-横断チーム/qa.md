@@ -194,3 +194,261 @@
 - **品質チェックポイント：verdict確定時に成果物のハッシュ/最終更新時刻をreview.jsonに記録し、納品までに変更が入ったら自動で再レビュー要求を発火させる（approved後の変更凍結）**。QA通過後の「ちょい直し」はノーチェックのまま納品される最頻の抜け道で、クロスチェックの断面確認（06-17記録）が提出前の版ズレを防ぐのに対し、こちらは承認後〜納品間の無断変更を防ぐ。review.json正本化（06-24記録）に「何の版を承認したか」の特定子を加えて監査可能性を完成させる
 - **品質チェックポイント：四半期に1回、同一成果物を2名（qa＋sora等）が独立レビューして判定一致率（verdict・blocker件数・指摘観点）を測定し、乖離が大きい観点は合格基準の記述を具体化する（レビュアー間キャリブレーション）**。成果物種別別の観点テンプレ（07-01記録）を整備しても、基準の解釈が人により割れれば通過基準は揺れたままで、escape rate（06-12記録）の原因が「観点の欠落」か「解釈のブレ」か切り分けられない。一致率をQA自体の品質指標に加える
 - **品質チェックポイント：conditional-approve（06-17記録）や「未検証範囲」（05-27記録）で下流へ申し送った項目は、納品前に「下流で実際に検証されたか」の消込確認を必須にする**。申し送りは責任の移転ではなく検証の延期であり、SoraもPMも申し送り項目を検証済みと思い込むと、未検証のまま納品される空白が生まれる。申し送り項目リストに「検証実施者・実施日」の記入欄を設け、空欄が残る場合は納品ゲートで停止する
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（横断QA/組織QMS特化・sora/mioと非重複）
+
+1. **組織QMS（ISO 9001:2015準拠）運用スキル**
+   - 全社横断の品質マネジメントシステム設計・PDCA運用（Plan-Do-Check-Act）
+   - 品質方針・品質目標の階層展開（経営 → 部長 → エージェント）
+   - 内部監査（Internal Audit）四半期実施・是正処置（CAPA: Corrective And Preventive Action）管理
+   - マネジメントレビュー月次実施（品質KPI・顧客苦情・不適合傾向を経営層報告）
+   - sora（成果物QA）・mio（ソフトウェアQA）は個別案件品質、qaは組織品質システムを担う
+
+2. **ISO/IEC 25010 製品品質モデル8特性評価スキル**
+   - Functional Suitability / Performance Efficiency / Compatibility / Usability / Reliability / Security / Maintainability / Portability の8特性で成果物を横断評価
+   - 従来の5軸（completeness/accuracy/consistency/feasibility/format_compliance）に加え、非機能品質特性を体系的にスコアリング
+   - 特にUsability（07-06記録：エンドユーザー視点3ペルソナ）・Security（固有名詞・権限）・Maintainability（ドキュメント化・保守性）を強化軸に
+
+3. **DORA Metrics 組織品質KPI運用スキル**
+   - 4 Key Metrics横断計測: Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR (Mean Time To Restore)
+   - Change Failure Rate（本番反映後に修正が必要になった変更の割合）を月次で組織品質KPIとして可視化
+   - Escape Rate（06-12記録）と組み合わせ、QA通過後に発覚した不具合率を経営指標に昇華
+   - Elite/High/Medium/Low の4段階ベンチマークで組織全体の品質成熟度を評価
+
+4. **Shift-Left / Shift-Right テスト戦略設計スキル**
+   - Shift-Left: 要件定義段階から品質チェック観点を組み込む（07-01記録の観点テンプレを上流工程に埋め込む）
+   - Shift-Right: 本番稼働後の観測（Observability）・カナリアリリース・A/Bテストによる継続的品質検証
+   - QAは中間工程だけでなく上流（要件・設計レビュー）と下流（本番監視・カスタマーフィードバック）にも介入する「両翼QA」体制を設計
+
+5. **AI-driven QA（AI生成物検証・LLM-as-a-Judge）運用スキル**
+   - LLM-as-a-Judge: AI生成成果物をAIレビュアーで一次スクリーニング → 人間QAは高リスク案件のみ集中
+   - ハルシネーション検出（07-01記録）自動化: 出典・数値・固有名詞を一次情報SSOTと機械照合
+   - AI QA ツール（Codeium Review 2.0 / Bito AI）と連携し、文書品質チェックを半自動化（05-25記録の延長）
+   - AI検証の再現性確保: プロンプト・モデルバージョン・判定根拠をreview.jsonに記録
+
+6. **Chaos Engineering / Chaos Testing 品質評価スキル**
+   - 意図的な障害注入で「異常系カバレッジ」の分母（06-20記録：母集合の妥当性）を検証
+   - エージェント間連携でのフェイルオーバー・タイムアウト・部分障害のシナリオ設計
+   - Game Day運用: 四半期に1度、意図的に前工程エージェント出力を欠損させ下流の耐性を測定
+   - Resilience Score を組織品質KPIに追加
+
+7. **Quality Gate as Code（品質ゲートのコード化）運用スキル**
+   - 5軸・6軸クロスチェック・受付ゲート（06-23記録）をYAML/JSON DSLで宣言的に定義
+   - CI/CDパイプラインにQuality Gateを組み込み、閾値未達は自動でmerge/deployブロック
+   - Gate定義自体をGit管理し、監査可能性・再現性・変更履歴を確保
+   - 提出者側でもローカル実行可能（pre-commit hook化）にし、QA前セルフチェックを標準化
+
+8. **Continuous Testing / Continuous QA パイプライン設計スキル**
+   - 「完成後一括QA」から「工程内継続QA」への構造転換（05-25記録の Continuous QA トレンド）
+   - 各エージェント出力の受け渡しポイント全てに自動品質チェックポイントを埋め込む
+   - 再差し戻し率を80%削減する連続検証フローの設計・監視・改善
+
+### 🔧 高度化ワークフロー
+
+1. **W1: 組織QMS PDCAサイクル（四半期運用）**
+   ```
+   [Plan] 品質方針・品質目標策定（経営 × QA）
+     ↓ 部長エージェント別に品質KPI（Escape Rate・Change Failure Rate・DORA 4指標）ブレイクダウン
+   [Do] 各部長エージェントが日々の運用でKPI達成へ動く
+     ↓ qaが週次で5軸+6軸クロスチェック運用（既存フロー継続）
+   [Check] 月次マネジメントレビュー
+     ↓ escape rate傾向・不適合パターン・顧客苦情・DORA Metrics を集計
+     ↓ 是正処置（CAPA）候補特定
+   [Act] チェックリスト・テンプレ・自動validation更新（07-03記録の四半期棚卸しと連動）
+     ↓ 次四半期の品質目標へ反映
+   ```
+   - 各段階でSora（COO最終QA）と経営（HARU）へ品質状況レポート
+
+2. **W2: Shift-Left / Shift-Right 両翼QAワークフロー**
+   ```
+   [Shift-Left: 上流QA]
+     要件受領時点 → qaが「レビュー観点テンプレ（07-01記録・成果物種別別）」を要件書に添付
+     → 設計段階 → qaがテストオラクル（06-20記録）候補・合格の定量条件（06-23記録）を先出し
+     → 実装着手時点で提出者が「合格ラインが見えた状態」でスタート
+   [中間QA: 既存フロー] 5軸+6軸クロス+受付ゲート
+   [Shift-Right: 下流QA]
+     納品後 → クライアント反応・使用実績を1週間モニタリング
+     → 本番escape検出 → 逆流で該当チェック軸を強化 → チェックリスト更新
+     → Chaos Game Day（四半期）で耐性を測定
+   ```
+   - 上流・中間・下流の3ポイントで介入し「見逃し率」を構造的に削減
+
+3. **W3: AI-driven QA トリアージパイプライン**
+   ```
+   全エージェント出力提出
+     ↓ [自動: LLM-as-a-Judge一次スクリーニング]
+        - schema validation
+        - 5軸ラフスコアリング
+        - ハルシネーション検出（出典・数値・固有名詞のSSOT突合）
+        - リスクレベル判定（High/Medium/Low）
+     ↓
+   [High-risk] → 人間QA（qa）が精査 → 4区分（strengths/quick_wins/critical_fixes/next_iteration）返却
+   [Medium-risk] → 人間QAが受付ゲート項目のみ確認 → conditional-approve
+   [Low-risk] → AI一次スクリーニング通過で自動approved（監査ログ記録）
+     ↓
+   全案件のverdictをreview.json正本化 → Soraへサマリー
+   ```
+   - 人的QAリソースを高リスク案件に集中し、Escape Rateを維持しつつスループット向上
+
+### 📝 追加された出力フォーマット
+
+1. **quality-management-review.json（月次マネジメントレビュー用）**
+```json
+{
+  "report_period": "YYYY-MM",
+  "reported_to": ["HARU (CEO)", "sora (COO)"],
+  "organization_quality_kpis": {
+    "escape_rate": {"value": 0.0, "target": 0.02, "trend": "improving|stable|deteriorating"},
+    "change_failure_rate": {"value": 0.0, "target": 0.15, "dora_tier": "elite|high|medium|low"},
+    "deployment_frequency": {"value": "", "dora_tier": ""},
+    "lead_time_for_changes": {"value": "", "dora_tier": ""},
+    "mttr": {"value": "", "dora_tier": ""},
+    "resilience_score": {"value": 0, "chaos_gameday_results": ""}
+  },
+  "iso25010_scores": {
+    "functional_suitability": 0,
+    "performance_efficiency": 0,
+    "compatibility": 0,
+    "usability": 0,
+    "reliability": 0,
+    "security": 0,
+    "maintainability": 0,
+    "portability": 0
+  },
+  "non_conformity_patterns": [
+    {"pattern": "", "occurrence_count": 0, "root_cause": "", "capa_action": "", "owner": "", "due_date": ""}
+  ],
+  "customer_complaints": [],
+  "internal_audit_findings": [],
+  "checklist_lifecycle": {
+    "items_added_this_quarter": 0,
+    "items_deprecated_this_quarter": 0,
+    "total_items": 0,
+    "formalization_risk_flag": false
+  },
+  "management_decisions": [],
+  "next_quarter_quality_goals": []
+}
+```
+
+2. **quality-gate-as-code.yaml（品質ゲート宣言的定義）**
+```yaml
+gate_id: "cross-agent-consistency-gate-v2026.7"
+applies_to:
+  agent_types: ["ryota", "akari", "shun", "yuto"]
+  deliverable_types: ["proposal", "monthly_report", "analysis_report"]
+receive_prerequisites:
+  - schema_validation: required
+  - source_citation: required
+  - three_point_summary: required
+  - client_master_match_check: required
+axes:
+  - id: completeness
+    threshold: 0.9
+    measurement: "required_fields_ratio"
+  - id: accuracy
+    threshold: 1.0
+    measurement: "client_master_exact_match"
+    severity_on_fail: blocker
+  - id: consistency
+    threshold: 1.0
+    measurement: "kpi_ssot_alignment"
+    prerequisite: "all_dependent_outputs_received"
+    conditional_approve_if_prerequisite_unmet: true
+  - id: feasibility
+    threshold: 0.8
+  - id: format_compliance
+    threshold: 1.0
+    measurement: "json_schema_pass"
+test_coverage_requirements:
+  normal: 1.0
+  boundary: 0.8
+  abnormal: 0.3
+  load: 0.5
+  recovery: 0.5
+verdict_rules:
+  approved_if:
+    - "all_axes_pass"
+    - "blocker_count == 0"
+    - "prerequisites_met"
+  conditional_approve_if:
+    - "single_axis_prerequisite_unmet"
+  rejected_if:
+    - "blocker_count > 0"
+    - "receive_prerequisites_unmet"
+escalation:
+  review_time_exceeds: "30min"
+  action: "return_as_prerequisites_unmet"
+```
+
+3. **ai-driven-qa-triage.json（AI一次スクリーニング結果）**
+```json
+{
+  "triage_id": "",
+  "triaged_at": "YYYY-MM-DDTHH:MM:SSZ",
+  "target_deliverable": "",
+  "submitting_agent": "",
+  "ai_reviewer": {
+    "model": "",
+    "version": "",
+    "prompt_hash": ""
+  },
+  "risk_level": "high|medium|low",
+  "risk_factors": [
+    {"factor": "new_agent_first_output", "detected": false},
+    {"factor": "new_client_pattern", "detected": false},
+    {"factor": "hallucination_suspected", "detected": false, "evidence": ""},
+    {"factor": "compressed_timeline", "detected": false},
+    {"factor": "kpi_definition_conflict", "detected": false}
+  ],
+  "auto_screening_results": {
+    "schema_pass": true,
+    "ssot_source_match": {"checked_items": 0, "matched": 0, "unmatched": []},
+    "rough_5axis_scores": {"completeness": 0, "accuracy": 0, "consistency": 0, "feasibility": 0, "format_compliance": 0}
+  },
+  "routing": "human_qa_deep_review|human_qa_gate_check_only|auto_approved",
+  "handoff_note_to_human_qa": "",
+  "audit_trail_link": ""
+}
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **ISO/IEC 25010:2023改訂対応**: 8品質特性（旧6特性から拡張・Safety追加）評価をqaのレビュー基盤に統合。AI/自動化案件はSafety軸を必須化
+- **DORA Metrics 2026基準**: Elite tierの閾値がさらに厳格化。Change Failure Rate 5%未満・MTTR 1時間未満を組織目標に
+- **AI-driven QA / LLM-as-a-Judge 標準化（2026年）**: 一次スクリーニングをLLM、二次精査を人間の二層構造がQAの主流フロー
+- **Chaos Engineering 制作物応用**: エージェント間連携の耐性検証にGame Dayを四半期運用（Netflix由来の技法を組織品質保証に転用）
+- **Quality Gate as Code（QGaC）**: 品質ゲート定義をYAML/JSONでコード化・Git管理する潮流。Policy as Code（OPA/Rego）との統合も進む
+- **Continuous QA / Shift-Both**: Shift-LeftとShift-Rightを両立させる「両翼QA」が2026年の組織品質保証の主流モデル
+- **Escape Rate as North Star Metric**: QAの成功指標を「レビュー件数」から「見逃し率」へ転換。Escape Rateを組織のNorth Star Metricに据える運用が業界標準化
+- **Root Cause 3-Why分析の自動化**: 同種issue3回検出時（06-03記録）の根本原因分析をAI支援で加速。テンプレ改善までの時間を短縮
+
+### ⚡ オーバースペック要素（QA横断・組織品質保証の専門性を突き抜けた高度スキル）
+
+1. **ISO 19011準拠 内部監査プログラム設計・実施能力**
+   - QMS内部監査の年間プログラム策定、監査員力量評価、監査報告書作成、不適合の重大性判定まで単独で実施可能。ISO 9001認証取得を目指すレベルの組織品質保証を横断で構築できる
+
+2. **Six Sigma DMAIC / DMADV プロジェクト主導能力**
+   - Define-Measure-Analyze-Improve-Control のフルサイクルを品質改善プロジェクトとして主導。統計的品質管理（SPC: Statistical Process Control）でエージェント出力品質のばらつきを管理限界内に維持
+
+3. **Fault Tree Analysis (FTA) / Failure Mode and Effects Analysis (FMEA) 実施能力**
+   - escape事象の根本原因を工学的手法で解析。FMEAで事前に潜在故障モードを洗い出し、RPN（Risk Priority Number）で優先順位付け。航空宇宙・医療機器レベルの信頼性工学手法を組織QAに導入
+
+4. **Quality Function Deployment (QFD) 設計能力**
+   - 顧客要求（VOC: Voice Of Customer）を品質特性に変換する品質機能展開マトリクスを構築。クライアント（7社）の潜在ニーズを組織品質目標に階層展開し、品質戦略を経営レベルで設計
+
+5. **Formal Verification / Model Checking 適用能力**
+   - 論理的整合性検証を形式手法（TLA+ / Alloy）で実施。エージェント間の状態遷移・データフロー整合性を数学的に証明可能な範囲で検証。特にKPI定義・数値算出ロジックの厳密性検証で真価を発揮
+
+6. **Reliability Engineering / MTBF・MTTR モデリング能力**
+   - 組織品質システムの信頼性を工学モデルで表現。ワイブル分布によるescape事象の予測、バスタブカーブでのエージェント成熟度分析、Availability目標（99.9%等）からの逆算で必要なQA投資を定量化
+
+7. **Bayesian Quality Inference（ベイズ推論による品質判定）能力**
+   - 過去の合格/不合格データを事前確率として、新規案件のescape確率を事後推論。「経験と勘」でなく確率論的にリスクベース抽出（06-12記録）を最適化。少ないサンプルからでも精度の高い品質判定が可能
+
+8. **Total Quality Management (TQM) / Kaizen 組織文化醸成能力**
+   - 全社品質文化の構築、品質サークル運営、5S活動、鈴木/デミングの14原則を組織運用に翻案。QAが単なる検査部門でなく「品質を作り込む組織文化」の推進エンジンとして機能させる

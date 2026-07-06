@@ -181,3 +181,224 @@
 - **品質チェックポイント：リリース後は各stateの「滞留件数・滞留時間分布」のベースラインを取り、定常分布からの乖離（特定stateへの案件溜まり）を設計不備の先行シグナルとして監視する**。デッドエンド検出（06-12記録）は静的検証で、本番では「構造上は抜けられるのに実運用で抜けない状態」（承認者の恒常的ボトルネック等）が残る。静的なグラフ走査と動的な滞留監視を品質検証の両輪にする
 - **品質チェックポイント：イベントペイロードの項目追加・型変更時は、過去イベントのリプレイ（イベント畳み込みでの状態再構築）が壊れないかをバージョン付きスキーマで確認する**。イベントソーシング（06-13記録）は履歴が読めなくなった時点で監査可能性と過去時点復元が失われるため、スキーマ変更には「旧バージョンイベントの読み込みテスト」を必須ゲートにする。dedup・順序ガード（07-01記録）と並ぶ受信側の第3の防御
 - **品質チェックポイント：顧客向け通知（表示ラベル／06-07記録・SLA ALERT4セット／05-24記録）は、実データ差し込み後のレンダリング結果でレビューする**。テンプレ単体で確認するとプレースホルダ未置換（{customer_name}のまま送信）・null値の生表示・分割発送時の件数ゼロ表記などの実データ起因の破綻を見落とす。通知テンプレの品質は「差し込み後の最終文面」で判定し、代表ケース＋異常系（null・複数件）のレンダリングを設計レビューに含める
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+1. **Temporal / Cadence ワークフローエンジン設計スキル（2026年受注オーケストレーション標準）**
+   - Temporal Workflow / Activity 分離設計、Signal / Query / Update ハンドラの正しい使い分け、Continue-As-New パターンによる履歴肥大回避
+   - Non-deterministic error 回避のワークフローコード規約（時刻取得・乱数・外部呼び出しは全て Activity 経由）を Owl 設計テンプレに組み込み、Sagaオーケストレーション（06-13記録）の実装基盤として指定する
+   - 補償イベント（05-22記録）を Temporal の Compensating Activity にマップし、ロールバックSQLをActivity内に閉じ込める設計パターン
+
+2. **LangGraph 状態機械 × 受注ワークフロー統合スキル（AI Agent 介入型受注フロー設計）**
+   - AI 判断ノード（顧客与信自動判定・分割発送最適配分・異常検知）を状態遷移グラフに組み込む設計、LangGraph の StateGraph でOwlの状態機械を宣言的に定義
+   - AI ノードは Human-in-the-Loop チェックポイント必須（ピボット地点／06-20記録の前）、AI が確信度低いケースは自動で承認待ちステートへ落とす設計基準
+   - LangGraph の Checkpointer を Owl のイベントソーシング（06-13記録）と統合、AI 判断も含めた完全リプレイ可能設計
+
+3. **OpenTelemetry 分散トレーシング × 受注フロー可観測性スキル（2026年observability標準）**
+   - 各状態遷移に trace_id / span_id を紐付け、Datadog APM / Grafana Tempo で受注1件のend-to-endフローを可視化
+   - リードタイム分解（06-13記録のリードタイム/サイクルタイム/待ち時間区別）をトレース属性として自動計測、Dat連携（07-02記録）のP25/P75分析をトレースデータ直結で自動化
+   - 状態遷移失敗・補償イベント発火はSpan Eventとして記録、Sentry連携でエラー詳細と状態文脈を同時参照可能化
+
+4. **CloudEvents 準拠イベントスキーマ設計スキル（2026年イベント駆動標準）**
+   - 全ドメインイベント（OrderConfirmed / ShipmentDispatched 等）を CloudEvents 1.0 spec で標準化、type / source / subject / dataschema の必須属性を設計テンプレに強制
+   - JSON Schema / Avro / Protobuf でのペイロード契約管理、07-03記録の「バージョン付きスキーマ・旧バージョンリプレイテスト」をCloudEvents版としてSchema Registry（Confluent / AWS Glue Schema Registry）で運用
+   - 順序ガード（07-01記録）のシーケンス番号を CloudEvents extension（`sequence` / `sequencetype`）として標準化、ベンダーロックイン回避
+
+5. **RPA / Browser Use 統合ワークフロー設計スキル（人手作業のシステム状態機械化）**
+   - Browser Use / Stagehand（2026-05-25記録）でAirwork等外部SaaSへの人手投入操作を Activity 化、Owl の状態遷移に統合し「人が代行する外部システム連携」を排除
+   - RPA 実行状態（Robotic Process Executing）を受注ステートマシンの正式stateとして扱い、失敗時の補償イベント設計・スクリーンショット証跡保存を標準化
+   - 対象サイト構造変更検知（05-27記録）をスキーマ検証Activityとして分離、変更検知即Slack通知＋人手フォールバック遷移
+
+6. **CQRS + Read Model プロジェクション設計スキル（受注ダッシュボード高速化）**
+   - Command 側（状態遷移＝イベント追記）と Query 側（受注担当ダッシュボード）を分離、Read Model に「ボール保持者（06-07記録）×滞留時間×SLA残時間」の集約ビューを事前計算
+   - 受注担当が「私の手番の案件」を秒でフィルタできる Notion / Metabase 連携用マテリアライズドビュー設計、07-03記録の滞留分布ベースラインもRead Modelとして常時可視化
+   - イベント畳み込み（06-13記録のイベントソーシング）と Projection Rebuild を Owl 設計テンプレに含め、Read Model の再構築手順を仕様化
+
+7. **Event Storming ファシリテーションスキル（受注ドメインの共有認識形成）**
+   - 受注担当・発注担当・出荷担当を集めた Big Picture Event Storming → Process Level → Design Level の三段階ワークショップ設計、Miro / FigJam テンプレ整備
+   - ドメインイベント抽出 → コマンド → アクター → ポリシー → 読み取りモデル → 集約 の順で貼っていく Alberto Brandolini 手法を Owl の入力（現状フロー分析）フェーズに前置
+   - Event Storming の Hotspot（未解決の疑問・矛盾）を Nori（11-管理部門）の事前関所チェック項目とペア化、業務ロジックと法務論点を同時洗い出し
+
+### 🔧 高度化ワークフロー（2〜3個）
+
+#### ワークフロー1: 「Event Storming → Temporal Workflow → LangGraph AI ノード」統合設計フロー
+```
+STEP 1: Event Storming ワークショップ（現場3職種＋Owl）
+  ├─ Miro / FigJam に Domain Events を橙色付箋で貼る
+  ├─ Commands（青）・Policies（紫）・Read Models（緑）を追加
+  └─ Hotspot（赤）を抽出 → Nori へリーガル観点で先送り
+
+STEP 2: Owl が状態遷移表 + 補償イベントペア + ピボット地点 を確定
+  ├─ 06-17記録の外部副作用打ち消し網羅チェック
+  ├─ 06-20記録の Saga 3分類（補償可能/ピボット/リトライ可能）を図に明示
+  └─ 07-03記録のロール×遷移権限マトリクスを付与
+
+STEP 3: Temporal Workflow / Activity にマッピング
+  ├─ 各遷移 = Workflow Signal Handler
+  ├─ 外部副作用 = Activity（冪等キー付与・07-02記録のdedup指定）
+  ├─ 補償 = Compensating Activity
+  └─ SLAタイマー = Workflow Timer（06-17記録の永続化条件クリア）
+
+STEP 4: AI 判断ノードを LangGraph で宣言的に定義（該当ドメインのみ）
+  ├─ 与信判定・分割発送最適化・異常検知
+  ├─ 確信度<閾値 → Human-in-the-Loop チェックポイントへ
+  └─ Checkpointer をイベントソーシングと統合
+
+STEP 5: Bo へ「実装即着手可能パッケージ」として引き渡し
+  └─ 06-23記録のパッケージ形式 + Temporal / LangGraph サンプルコード同梱
+
+STEP 6: Mio（QA）が Temporal Time-Skipping Test でSLAタイマー動作を検証
+```
+
+#### ワークフロー2: 「CloudEvents スキーマ管理 → Schema Registry → CI ゲート」の型安全リリースフロー
+```
+STEP 1: Owl が新イベント / 属性変更を CloudEvents JSON Schema で定義
+STEP 2: Schema Registry（Confluent / AWS Glue）へ Compatibility Mode = BACKWARD で登録
+  ├─ 07-03記録の「旧バージョンリプレイテスト」を Schema Registry の Compatibility Check として自動実行
+  └─ 破壊的変更検出 → PR ブロック
+STEP 3: Producer / Consumer 双方のコード生成（quicktype / kotlinx-serialization 等）
+STEP 4: CI で「本番イベントログのサンプル100件 × 新スキーマ」でのデシリアライズテスト
+STEP 5: カナリアリリース（05-26記録の10%→50%→100%）と連動し
+  └─ 補償イベント発火件数超過 → 自動ロールバック（Schema Registry も前バージョンへ）
+STEP 6: 段階昇格ゲートを OpenTelemetry トレースメトリクスで判定
+```
+
+#### ワークフロー3: 「OpenTelemetry トレース → Dat 分位点自動再計算 → SLA閾値自動更新」の自律チューニングフロー
+```
+STEP 1: 全状態遷移に OTel Span を発行（trace_id / 状態 / 遷移理由・05-24記録）
+STEP 2: Datadog / Grafana Tempo に7日間ローリングで蓄積
+STEP 3: Dat の分析ジョブが工程別リードタイム分布 P25/P75/P95 を自動算出
+  └─ 待ち時間 / サイクルタイム分解（07-01記録）も同時出力
+STEP 4: 変動係数ベース閾値算出スクリプト（06-16記録）が SLA 3階層閾値を再計算
+STEP 5: 差分>10% → Owl へ承認待ち通知（自動反映せず人間判断ゲート）
+STEP 6: 承認後 Schema Registry の SLA 設定を差し替え、営業日カレンダーも同期
+STEP 7: 偽 CRITICAL 発火率 / 検知漏れ率を EWMA で監視、閾値精度自体を継続改善
+```
+
+### 📝 追加された出力フォーマット（2〜3個）
+
+#### 出力フォーマット1: Temporal Workflow 実装仕様パッケージ（`agents/order_workflow_designer/temporal_spec.json`）
+```json
+{
+  "workflow_name": "OrderFulfillmentWorkflow",
+  "version": "v3.2.0",
+  "state_machine_ref": "state_machines.Order",
+  "signals": [
+    {
+      "name": "ConfirmOrder",
+      "guard_conditions": ["stock_reserved == true", "credit_approved == true"],
+      "handler_activities": ["ReserveInventoryActivity", "IssuePurchaseOrderActivity"],
+      "compensating_activities": ["ReleaseInventoryActivity", "CancelPurchaseOrderActivity"],
+      "idempotency_key": "order_id + event_sequence",
+      "pivot_point": false
+    }
+  ],
+  "queries": [{"name": "GetCurrentState", "return_type": "OrderState"}],
+  "updates": [{"name": "RequestCancellation", "validator": "..."}],
+  "timers": [
+    {
+      "name": "ApprovalTimeout",
+      "duration_business_days": 3,
+      "on_fire_action": "EscalateToManagerSignal",
+      "prerequisite_recheck": "state == AwaitingApproval"
+    }
+  ],
+  "continue_as_new_policy": {"history_length_threshold": 10000},
+  "observability": {
+    "otel_span_attrs": ["order_id", "customer_id", "state_from", "state_to", "transition_reason"],
+    "datadog_service": "owl-order-workflow"
+  },
+  "handoff_to_bo": {
+    "impl_package_ref": "packages/domain/order/workflow",
+    "test_scenarios_ref": "tests/order_workflow_time_skipping.spec.ts"
+  }
+}
+```
+
+#### 出力フォーマット2: CloudEvents ドメインイベントカタログ（`agents/order_workflow_designer/cloudevents_catalog.yaml`）
+```yaml
+events:
+  - type: com.let.order.confirmed.v2
+    source: /services/order-workflow
+    subject_pattern: /orders/{order_id}
+    dataschema: https://schemas.let.internal/order-confirmed-v2.json
+    extensions:
+      sequence: monotonic_int64
+      sequencetype: integer
+      traceparent: w3c
+    compatibility: BACKWARD
+    consumers:
+      - shipment-service
+      - billing-service
+      - customer-notification-service
+    saga_classification: pivot_gate  # 補償可能 / ピボット / リトライ可能
+    display_labels:
+      internal: OrderConfirmed
+      customer_ja: ご注文確定
+      customer_en: Order Confirmed
+    next_milestone_template: "次のマイルストーン：{ship_scheduled_date} 出荷予定"
+    replay_test_fixtures:
+      - v1_sample.json
+      - v2_sample.json
+```
+
+#### 出力フォーマット3: OpenTelemetry × リードタイム分解ダッシュボード仕様（`agents/order_workflow_designer/otel_leadtime_spec.json`）
+```json
+{
+  "dashboard_name": "Order Lead Time Decomposition",
+  "trace_span_hierarchy": {
+    "root_span": "order.lifecycle",
+    "child_spans": [
+      {"name": "state.OrderReceived → OrderConfirmed", "attrs": ["ball_holder", "waiting_reason"]},
+      {"name": "state.OrderConfirmed → PurchaseOrderIssued", "attrs": ["supplier_id"]},
+      {"name": "state.PurchaseOrderIssued → ShipmentDispatched", "attrs": ["carrier"]}
+    ]
+  },
+  "leadtime_decomposition": {
+    "total_leadtime": "root_span.duration",
+    "cycle_time": "sum(spans where kind='action')",
+    "wait_time": "sum(spans where kind='waiting')",
+    "human_wait_time": "sum(spans where waiting_reason startsWith 'human')"
+  },
+  "sla_gauges": [
+    {"level": "WARN_50pct", "color": "yellow"},
+    {"level": "ALERT_80pct", "color": "orange"},
+    {"level": "CRITICAL_100pct", "color": "red"}
+  ],
+  "dat_export": {
+    "target": "dat_leadtime_distribution",
+    "rolling_window_days": 7,
+    "percentiles": ["p25", "p50", "p75", "p95"],
+    "auto_threshold_recalc": true
+  },
+  "kpi_link": {
+    "kpi_ssot_id": "k4_sla_violation_count",
+    "emit_on": "CRITICAL_100pct"
+  }
+}
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **Temporal / Cadence 標準化**: 2026年時点で受注オーケストレーションのデファクトが Temporal に集約。手組みの状態機械実装は非決定エラー・タイマー永続化（06-17記録）で事故を積むため、Owl は Temporal 前提設計に完全移行
+- **LangGraph によるAgentic Workflow統合**: LangChain / LangGraph が 2026年で状態機械型 AI Agent 記述の標準。受注ドメインへの AI 判断埋め込みは LangGraph の StateGraph で宣言、CheckpointerはOwlのイベントソーシングと統合し完全リプレイ可能設計
+- **CloudEvents 1.0 spec採用拡大**: AWS EventBridge / Google Eventarc / Kafka / NATS が CloudEvents 準拠を強化、Schema Registry での BACKWARD Compatibility 強制で 07-03記録の旧バージョンリプレイテストが業界標準化
+- **OpenTelemetry 完全普及**: Datadog / Grafana / New Relic / Honeycomb がOTel Native化。トレース属性でリードタイム分解が即座に可能となり、Dat連携（07-02記録）の分位点算出がリアルタイム化
+- **Browser Use / Stagehand の Activity 化**: 2026-05-25記録の AI駆動ブラウザ操作をワークフローの正式 Activity として組み込み、外部SaaS投入作業も状態機械の一部として補償可能化
+- **Notion API 2026 リビジョン**: Database View API 拡充で「ボール保持者×滞留」ダッシュボード（06-07記録）を Read Model プロジェクションとして直結
+- **Slack Block Kit + Workflow Builder v2連携**: 05-24記録のALERT4セットを Slack の Interactive Modal で1クリック対応可能化、判断時間30秒→10秒
+- **Datadog Watchdog / Sentry Performance**: 状態遷移の異常自動検知、07-03記録の滞留分布ベースライン乖離を機械学習で自動アラート化
+
+### ⚡ オーバースペック要素
+
+1. **Temporal Time-Skipping Test 環境**: 通常の受注案件で3営業日承認待ちを実時間で待つ代わりに、Temporal のテスト環境で「仮想時間を進めて即時タイマー発火」を検証。数ヶ月かかる SLA 検証を秒単位で実行、業界通常の「本番リリース後に事故で気づく」水準を完全に超越
+2. **形式検証（TLA+ / Alloy）による状態機械の数学的正しさ証明**: 到達不能状態・デッドロック・並行遷移競合を TLA+ でモデル検査、06-12記録のグラフ走査では検出できない「並行実行での不変条件破れ」まで数学的に証明。受注ドメインでここまでやるのは日本国内でも数社レベル
+3. **Chaos Engineering × 受注ワークフロー**: Gremlin / Chaos Mesh で本番類似環境の Temporal Worker をランダム停止・ネットワーク分断・時計スキュー注入し、補償イベント発火・タイマー復元（06-17記録）が全パターンで正しく動作するか検証。Netflix レベルの信頼性設計
+4. **CRDT による分散協調更新**: 複数受注担当が同時編集する場合、楽観ロック（06-03記録）で片方リトライさせるのでなく Yjs / Automerge の CRDT でマージ可能な項目（メモ・タグ・優先度）は自動統合。SaaS プロダクトでも稀にしか実装されない高度技法
+5. **Property-Based Testing で状態遷移不変条件を無数の生成入力で検証**: Hypothesis / fast-check で「任意のイベント列を投入しても『請求済みかつキャンセル済み』にならない」等の不変条件を1000ケース以上自動生成テスト。例示テストでは絶対に見つからない境界事象を発見
+6. **eBPF ベースのワークフロー実行トレーシング**: OpenTelemetry より低レベルの eBPF で Temporal Worker のシステムコール・DB クエリまで追跡、ミリ秒単位のボトルネックを検出。パフォーマンス最適化の理論限界に到達
+7. **Domain-Specific Language（DSL）による状態遷移表の宣言的記述**: Kotlin / TypeScript の Type-Level DSL で「コンパイル時に不正な遷移をエラー化」する型システム設計。実行時検証を待たずIDE上で赤線検出、業界の常識を超えた開発体験

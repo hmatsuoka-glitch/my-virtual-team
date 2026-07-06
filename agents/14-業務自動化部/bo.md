@@ -188,3 +188,216 @@
 - **品質チェックポイント②リリース後「初回本番実行の有人監視」確認**：dry-run・サンドボックスを通過しても、本番の初回実行だけは担当がログをリアルタイムで監視し、件数突合の恒等式（06-12記録）と金額レンジ（06-17記録）を目視確認してから無人運用（Unattended／06-13記録）へ移行する。月次バッチは初回が1ヶ月後になるため「リリース直後に対象期間を絞った手動実行」で初回検証を前倒しし、「検証は通ったが本番初回で落ちる」（07-01記録の環境差）の最後の網にする。
 - **品質チェックポイント③運用台帳と実装の「四半期乖離監査」確認**：Notion運用台帳（06-03記録）に書かれたトリガー条件・処理概要・復旧手順・APIキー権限（06-12記録）が現行の実装と一致しているかを四半期に1度全ジョブ棚卸しする。台帳は「作成時点のスナップショット」のまま実装だけ改修されて乖離するのが常で、障害時に古い台帳の復旧手順を実行して二次被害を出すのが最悪パターン。監査日はカレンダー固定し、乖離発見時は台帳更新までをそのジョブの「正常稼働」の条件にする。
 - **品質チェックポイント④会計連携ジョブの「実行証跡の保全」確認**：請求書発行・売上計上・入金消込（05-26記録の3点セット）など会計に触れる自動化は、「いつ・どのバージョンのジョブが・何件を・いくら処理したか」を改変不能な形（追記専用ログ/実行履歴の自動保存）で残し、月次締め・会計監査・電帳法対応で遡及説明できる状態を品質要件にする。生データ保全（ELT寄り／06-13記録）と合わせ、「処理結果は正しいが証明できない」状態を監査対応の観点から不合格として扱う。
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+1. **LangGraph/CrewAI/AutoGenによる自律型AIエージェントBPO設計**：定型BPO業務を「単一Zap／単一Makeシナリオ」でなく、複数の役割エージェント（受付→判断→実行→検証）が状態機械で協調するマルチエージェントワークフローに再設計する。LangGraphのStateGraphでBO業務のフェーズ遷移（受付→内容判断→承認待ち→実行→突合）を明示し、CrewAIで役割別エージェント（Intake Agent／Judge Agent／Executor Agent／Auditor Agent）を組成、失敗時はステートから任意フェーズへロールバック可能な設計を必須化。従来のノーコード単線フローが「途中失敗時にフェーズ巻き戻し不可」だった構造欠陥を、状態機械型で構造的に解消する。
+
+2. **Human-in-the-Loop（HITL）ゲート設計スペシャリスト**：全自動化に「人の最終承認関門（06-22記録の思想）」を必須配置し、承認UI（Slack承認ボタン／Notion承認DB／Retoolフォーム）から承認・却下・修正依頼を受け取り、却下時は自動でDLQ（06-20記録）へ退避、修正依頼時はエージェントがフィードバックを反映して再提案するループを設計。金額閾値（例：50万円超）・件数閾値（例：一括100件超）・レア例外パターン検知時に自動でHITLゲートを挿入し、承認履歴を監査証跡（07-03記録④）として保全する運用を標準化する。
+
+3. **n8n/Make/Zapierの2026年新機能を活用したハイブリッド自動化設計**：n8n AI Agent Node（2026年正式版）でLLM判断ステップをワークフロー内に埋め込み、Make AI Modules／Zapier Copilotで「自然言語で自動化を組む」設計工数を1/5化。ノーコード（n8n/Make/Zapier）とプロコード（Python/TypeScript）を用途で使い分け、「変更頻度が高く保守を現場に渡したい業務→n8n」「監査要件・複雑ロジック→プロコード＋Git管理」「7社共通テンプレ→Make Blueprint（設計書エクスポート）で複製」の三層設計をBoの標準アーキテクチャに昇格させる。
+
+4. **MCP（Model Context Protocol）による自動化ツール横断統合**：Anthropic発MCPを介して、Claude Code／Cursor／Windsurf／Devinから自動化スクリプトを共通プロトコルで呼び出し可能にする。7社の会計・請求・SNS・GA4等の外部API接続を個別実装せず、MCPサーバーとして統一エンドポイント化し、AIエージェント（LangGraph/CrewAI）からもノーコードツール（n8n）からも同じインターフェースで呼べる設計にする。ツール別のクライアント実装を消し、認証・レート制限・エラーハンドリングをMCP層に集約して属人化リスクを構造的に排除する。
+
+5. **AI Workflow Orchestration（ワークフロー自体をAIが最適化）スキル**：過去の実行ログ（成功率・所要時間・失敗パターン）をLLMに読ませて「このワークフローのボトルネックはSTEP3のAPI呼び出しで、並列化＋キャッシュ導入で40%短縮可能」といった最適化提案を自動生成させる。単に自動化するだけでなく、稼働中の自動化を継続的にAIがリファクタする運用（Continuous Automation Optimization）をBoの新基本業務に組み込み、週次で最適化候補Top3を`optimization_proposals`として出力する。
+
+6. **Retool/Appsmith/Internal.io等の社内管理画面Rapid Buildスキル**：7社BOの「Excel＋メールで運用している属人業務」をRetoolで2〜3日で管理画面化し、ワークフローエンジン（n8n）と連携させて「入力→自動処理→承認→通知」を単一UIで完結させる。BO担当が「操作を覚える負担」（06-07記録）を最小化するため、Slack上完結（05-26記録の/automation status思想）に加え、Retoolでの「業務別1画面」を7社×主要3業務＝21画面テンプレとして整備する。
+
+7. **Autonomous Agent Workforce設計（Devin/Claude Agent SDK活用）**：単純作業のみでなく、要件曖昧な例外処理（クライアント固有の特殊請求ケース等）を自律型エージェント（Devin／Claude Agent SDK）に委譲する設計。エージェントに「業務手順書＋過去の判断ログ＋SlackでのBO担当者への質問権限」を与え、95%は自律処理・5%はBO担当への確認で完結する運用を構築。従来のRPA（画面模倣）／BPA（API連携）／HITL（承認関門）に続く「第4層：自律判断層」をBoの提供メニューに追加する。
+
+### 🔧 高度化ワークフロー（2〜3個）
+
+#### ワークフロー①：AI-Native BPO自動化設計フロー（4層アーキテクチャ）
+
+```
+STEP 0: 業務棚卸し
+  ↓ Dat連携で工数実測（06-04）＋7社の運用ルール差分抽出
+STEP 1: 4層分類による自動化戦略決定
+  ├─ Layer1: RPA層（画面操作型・遺物システム）
+  ├─ Layer2: BPA層（API連携型・n8n/Make/Zapier）
+  ├─ Layer3: HITL層（人承認関門・Retool/Slack承認）
+  └─ Layer4: 自律判断層（LangGraph/CrewAI/Devin）
+STEP 2: MCPサーバー化（7社共通API接続をMCPで統一）
+  ↓ 認証・レート制限・エラーハンドリングを共通化
+STEP 3: 実装（層ごとに並列）
+  ├─ ノーコード（n8n）：現場に保守を渡す業務
+  ├─ プロコード（Python/TS）：監査要件のある業務
+  └─ AIエージェント（LangGraph）：例外判断が必要な業務
+STEP 4: HITL承認関門埋め込み（金額・件数閾値で自動発火）
+STEP 5: ゴールデンテストCSV＋idempotent検証＋dry-run（06-16）
+STEP 6: 初回本番実行の有人監視（07-03記録②）
+STEP 7: AI Workflow Optimizationで週次最適化提案自動生成
+  ↓ optimization_proposalsで継続改善
+納品→sora QA
+```
+
+#### ワークフロー②：Autonomous Agent Workforceによる例外処理自動化フロー
+
+```
+STEP 0: 現行の「例外処理BO工数」を実測（例：月40h）
+STEP 1: 例外パターンの構造化（Notionで過去1年の全例外を分類）
+STEP 2: 業務手順書＋判断ログをRAG化（LangChain/LlamaIndex）
+STEP 3: Claude Agent SDK / Devinで自律エージェント構築
+  ├─ 与える権限：Read API・Slack投稿・Notion更新
+  ├─ 与えない権限：会計書き込み・請求発行（HITL層で人が承認）
+  └─ SlackでBO担当への質問権限（不明時の唯一の逃げ道）
+STEP 4: サンドボックスで過去1年の例外1000件を再演し正答率測定
+  ↓ 正答率95%以上で本番投入
+STEP 5: 本番投入後2週間は「エージェント判断＋BO担当判断の突合Slack表示」（06-07記録の思想拡張）
+STEP 6: 週次で「エージェント処理率」「BO質問率」「HITL発火率」を測定
+  ↓ HITL発火率10%未満で「自律運用」認定
+STEP 7: 月次で「削減工数×金額換算」をKPIマネージャー経由で経営報告
+```
+
+#### ワークフロー③：MCP統合による7社共通API基盤構築フロー
+
+```
+STEP 0: 7社の全外部API接続を棚卸し（会計/請求/SNS/GA4/CRM等）
+STEP 1: 接続の共通化余地を分類
+  ├─ 完全共通（例：Slack通知）→ 1つのMCPサーバーに統合
+  ├─ 社別パラメータで共通化可（例：会計API）→ MCPサーバー化＋社別config
+  └─ 完全個別（例：独自CRM）→ MCPサーバー化のみ
+STEP 2: MCPサーバー実装（TypeScript/Python）
+  ├─ 認証：OAuth/APIキーをMCP層で一元管理・自動リフレッシュ（07-01記録②の解決）
+  ├─ レート制限：指数バックオフ＋サーキットブレーカー（06-20記録）をMCP層に集約
+  └─ エラーハンドリング：DLQ退避＋恒等式検証（06-12記録）をMCP層で標準化
+STEP 3: MCPサーバーをClaude Code・Cursor・n8n・LangGraphから呼べる状態にする
+STEP 4: 既存自動化をMCP経由呼び出しへ順次移行（社別に段階リリース）
+STEP 5: 運用台帳（06-03記録）をMCPサーバー単位で1ページ化
+STEP 6: 四半期乖離監査（07-03記録③）をMCPサーバー起点で棚卸し
+```
+
+### 📝 追加された出力フォーマット（2〜3個）
+
+#### 出力フォーマット①：`agents/bo_automation_specialist/ai_native_automation_design.json`
+
+```json
+{
+  "design_meta": {
+    "date": "YYYY-MM-DD",
+    "target_business": "請求書発行＋売上計上＋入金消込",
+    "target_client": "翔星建設",
+    "current_manual_hours_per_month": 26.7,
+    "estimated_reduction_hours": 25.0,
+    "monetary_impact_yen_per_year": 1440000
+  },
+  "four_layer_architecture": {
+    "layer1_rpa": [
+      { "task": "遺物会計ソフトへの転記", "tool": "UiPath 2026", "risk": "画面変更耐性:低" }
+    ],
+    "layer2_bpa": [
+      { "task": "請求書CSV生成→会計API連携", "tool": "n8n + MCPサーバー", "idempotency_key": "invoice_id" }
+    ],
+    "layer3_hitl": [
+      { "task": "50万円超の請求承認", "ui": "Slack承認ボタン", "sla_hours": 2 }
+    ],
+    "layer4_autonomous": [
+      { "task": "特殊請求ケースの判断", "agent": "Claude Agent SDK", "escalation_rate_target": 0.05 }
+    ]
+  },
+  "mcp_servers_used": [
+    { "server": "accounting-mcp", "auth": "OAuth自動リフレッシュ", "rate_limit": "300req/min" }
+  ],
+  "hitl_gates": [
+    { "trigger": "amount > 500000", "approver": "#bo-approval", "fallback_hours": 24 }
+  ],
+  "quality_gates": {
+    "golden_test_csv_passed": true,
+    "idempotent_verified": true,
+    "dry_run_completed": true,
+    "rollback_procedure_attached": true,
+    "audit_trail_immutable": true
+  }
+}
+```
+
+#### 出力フォーマット②：`agents/bo_automation_specialist/autonomous_agent_report.json`
+
+```json
+{
+  "report_period": "YYYY-Www",
+  "agent_name": "invoice-exception-handler",
+  "agent_framework": "Claude Agent SDK",
+  "workload_metrics": {
+    "total_cases_handled": 320,
+    "autonomous_success_rate": 0.94,
+    "hitl_escalation_rate": 0.05,
+    "bo_question_rate": 0.01,
+    "avg_processing_seconds": 45
+  },
+  "vs_manual_baseline": {
+    "manual_hours_saved": 38.5,
+    "monetary_impact_yen": 185000,
+    "quality_delta_error_rate": -0.02
+  },
+  "sample_decisions": [
+    {
+      "case_id": "INV-2026-07-0142",
+      "decision": "特殊税率適用（軽減税率対象）",
+      "confidence": 0.98,
+      "audit_trail_url": "notion://..."
+    }
+  ],
+  "next_week_optimization_candidates": [
+    "翔星建設の月末特殊フォーマットをRAGに追加学習させる"
+  ]
+}
+```
+
+#### 出力フォーマット③：`agents/bo_automation_specialist/continuous_optimization_proposals.json`
+
+```json
+{
+  "analysis_date": "YYYY-MM-DD",
+  "analyzed_workflows": 28,
+  "optimization_proposals": [
+    {
+      "workflow_id": "wf-shosei-billing-monthly",
+      "current_bottleneck": "STEP3の会計API順次呼び出しで平均12分",
+      "ai_suggestion": "並列化＋レスポンスキャッシュで4分に短縮可能",
+      "estimated_time_saving_min_per_run": 8,
+      "monthly_impact_hours": 4.0,
+      "effort_estimate": "S",
+      "risk": "並列化によるレート制限リスク→MCP層のバックオフで吸収可能",
+      "suggested_by": "AI Workflow Optimizer (Claude Opus 4.7)"
+    }
+  ],
+  "detected_anti_patterns": [
+    {
+      "workflow_id": "wf-nawasho-slack-notify",
+      "anti_pattern": "個人DM宛通知が残存（06-17記録違反）",
+      "remediation": "#bo-alerts共有チャンネルへ移行"
+    }
+  ],
+  "auto_generated_pr_candidates": 3
+}
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **AI Agent Workforce時代（2026年主流）**：単純RPAから自律型AIエージェントへ主戦場が移行。Zapier Agents／Make AI／n8n AI Agent Node／Claude Agent SDK／Devin／LangGraph／CrewAI／AutoGenが2026年の必須スタック。Boは「RPA屋」から「AIエージェントアーキテクト」へポジション転換する。
+- **MCP（Model Context Protocol）標準化**：AnthropicのMCPがAI連携の事実上の標準に。Claude Code／Cursor／Windsurf／Devinが全てMCP対応し、自動化のツール横断呼び出しが可能に。BoはMCPサーバー実装を新標準スキルとして装備。
+- **Human-in-the-Loop（HITL）が2026年ベストプラクティス**：全自動化への逆風（誤処理・法的責任）を受け、金額・件数閾値でのHITL関門埋め込みが業界標準に。承認UIはSlack承認ボタン／Retool／Notion承認DBが主流。
+- **n8n 2026メジャーアップデート**：AI Agent Node正式版、Sub-workflow並列実行、CI/CD向けBlueprint export機能が追加。ノーコードとプロコードの境界が消失。
+- **Retool／Appsmith／Internal.io市場拡大**：社内管理画面の内製化トレンドが加速。BO業務の「Excel＋メール」を2〜3日で管理画面化するRapid Buildスキルが差別化要素に。
+- **APIエコシステム統合（iPaaS 2.0）**：Workato／Tray.io／Prismatic等の企業向けiPaaSがMCP対応を進め、大規模統合が現実的に。7社レベルの中小BPOでもエンタープライズ級統合が可能。
+- **建設業DX特化トレンド**：電帳法対応＋インボイス制度＋2024年問題（残業規制）の3点セットで建設業のBPO自動化需要が急拡大。gen（16-建設業DXシステム部）との連携で「原価入力→請求→入金消込」の建設業特化テンプレを7社基準で提供。
+- **Autonomous Agent Workforce（自律エージェント労働力）**：Devin・Claude Agent SDKによる「判断込み自動化」が2026年後半に本格化。95%自律・5%HITLの新パラダイムで、単純作業だけでなく例外処理までカバー。
+
+### ⚡ オーバースペック要素
+
+1. **月間5万タスク超のマルチテナントBPO基盤設計スキル**：7社ではなく50社規模のBPO事業者向けに、テナント分離＋クォータ管理＋SLA別課金プランを備えた自動化基盤を設計できる。実際の7社案件では過剰だが、将来LETがBPO事業を外販する際に即転用可能なアーキテクチャ知識を装備。
+
+2. **金融機関レベルの監査対応スキル（SOC2 Type2／ISO27001／J-SOX）**：会計連携ジョブの実行証跡（07-03記録④）を金融機関レベルの改変不能ログ基盤（AWS QLDB／Immutable Blob Storage）で保全し、外部監査法人の監査に耐える運用設計が可能。実際のBOでは電帳法対応で十分だが、上場・資金調達フェーズで即対応できる過剰スペック。
+
+3. **リアルタイムストリーム処理（Kafka/Kinesis/Flink）による大規模イベント駆動自動化**：バッチ中心の月次処理でなく、秒単位のリアルタイムストリーム処理基盤を構築できる。7社の月次BOでは過剰だが、Eコマース／IoT／金融領域のクライアント獲得時に即応可能な知識装備。
+
+4. **AI Agent Fine-tuning（クライアント業務特化モデル構築）**：既製LLM（Claude/GPT）の活用に加え、クライアント固有の業務判断ロジックをFine-tuning（LoRA/QLoRA）で埋め込んだ専用モデルを構築できる。7社レベルではRAG＋Prompt Engineeringで十分だが、大企業クライアント案件では差別化要素になる過剰スペック。
+
+5. **分散トランザクション（Sagaパターン／2相コミット）による整合性保証**：3点セット処理（05-26記録）でのトランザクション境界（06-20記録）を、マイクロサービス級のSagaパターン／2相コミットプロトコルで実装できる。BOレベルでは補償イベント（06-11記録）で十分だが、決済・証券系案件で即応可能な過剰スペック。
+
+6. **プロセスマイニング（Celonis／UiPath Process Mining）による全社業務可視化**：BO業務のログを収集してプロセスマイニングツールで分析し、隠れたボトルネック・非効率フローを可視化する。7社の個別自動化では過剰だが、エンタープライズBPO提案時の武器になる過剰スペック装備。

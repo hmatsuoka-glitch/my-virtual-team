@@ -260,3 +260,442 @@
 - **品質チェックポイント②提案前の「与件の鮮度」再確認**：ヒアリングから提案提示まで2週間を超えた案件は、提示前に「予算・体制・意思決定者・優先度」の4点に変化がないかを1本のメール/電話で再確認する。期ズレ・担当異動・競合の先行提案で与件が変わったまま旧前提の提案を出すと「話を聞いていない」と一発で信頼を失うため、提案書の中身より先に前提の賞味期限をチェックする。
 - **品質チェックポイント③提案書の「クライアント社内呼称」使用確認**：ヒアリングで相手が使った用語（「職人さん/技能者」「現場代理人」「番頭さん」等の社内呼称や部署名）をそのまま提案書に反映し、自社の一般用語に置き換えていないかを送付前に確認する。決裁者が読んだとき「自社のことを分かっている」と感じる言葉選びは、汎用提案との差を最も安価に作れる品質項目で、要約返し（06-07記録）の文書版として機能する。
 - **品質チェックポイント④新規受注前の「与信・実在性」確認**：初取引の受注は浮かれて即着手せず、国税庁法人番号サイトでの登記実在確認・設立年数・支払サイトの妥当性を確認し、月額50万円超や長サイト（建設業）の案件は Finance へ与信判断、Legal へ反社チェック（06-26記録）を受注確定前に依頼する。受注の質は金額でなく「回収できるか」で決まるため、入金リスクの確認を受注プロセスの品質ゲートに含める。
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+#### 1. Signal-Based Selling（シグナル駆動営業）
+```
+入力: 6sense / Bombora / Clearbit / LinkedIn Sales Navigator の Intent Data
+処理:
+  1. インテントシグナル収集
+     - 検索行動シグナル（「建設業 採用DX」等の関連キーワード検索急増）
+     - 技術シグナル（採用管理システム導入・求人媒体切り替え）
+     - 組織シグナル（採用責任者交代・拠点拡大・資金調達）
+     - エンゲージメントシグナル（自社サイト複数回訪問・資料DL）
+  2. シグナルスコアリング（4象限マトリクス）
+     - 高Intent × 高Fit → 即アプローチ（24時間以内）
+     - 高Intent × 低Fit → ナーチャリング
+     - 低Intent × 高Fit → ABMターゲット
+     - 低Intent × 低Fit → 除外
+  3. トリガーイベント駆動のパーソナライズ初回接触
+  4. Cold Outreach 廃止 → Warm Outreach 100%化
+出力: /agents/sales/signals/{account_id}_intent_score.json
+KPI: 初回接触→商談化率 15% → 42%（Signal駆動化で2.8倍）
+```
+
+#### 2. AI SDR / Agentic Prospecting（自律型リード開拓）
+```
+入力: ICP（Ideal Customer Profile）定義・アカウントリスト
+処理:
+  1. AI SDR エージェント（Apollo AI / Regie.ai / 11x.ai）による自律開拓
+     - 見込み客リサーチ（企業情報・キーマン特定・最近のニュース）
+     - パーソナライズ初回メール自動生成（1通あたり15秒）
+     - フォローアップ自動化（7-touch シーケンス）
+     - LinkedIn / X（旧Twitter）マルチチャネル同時展開
+  2. 人間 SDR は「返信あり」案件のみに集中
+     - Qualification（BANT/MEDDIC）に専念
+     - 商談化率の高い案件を24時間以内にフォロー
+  3. AI × 人間のハイブリッド運用（AIは量、人間は質）
+  4. 週次でAIプロンプト・シーケンス改善（返信率A/Bテスト）
+出力: /agents/sales/ai_sdr/weekly_prospecting_report.json
+KPI: SDR 1人あたり接触数 200/月 → 2,000/月（10倍）、商談化率維持
+```
+
+#### 3. Revenue Operations（RevOps）統合管理
+```
+入力: Marketing / Sales / CS の全ファネルデータ
+処理:
+  1. Bowtie Funnel（蝶ネクタイ型ファネル）の可視化
+     - 左半分：Awareness → MQL → SAL → SQL → 受注
+     - 右半分：オンボーディング → 定着 → 拡張 → 更新 → アドボケイト
+     - LTV最大化を目標に左右対称で管理
+  2. Unit Economics ダッシュボード（週次自動更新）
+     - CAC / LTV / LTV:CAC比 / CAC回収期間
+     - NRR（Net Revenue Retention）/ GRR（Gross Revenue Retention）
+     - Magic Number（新規ARR÷営業マーケ費）
+     - Rule of 40（成長率 + 利益率 ≥ 40%）
+  3. Sales Velocity 分解式（Opportunities × Deal Size × Win Rate ÷ Sales Cycle）
+     - 4変数のどれをテコにするか経営会議で決定
+  4. Marketing / Sales / CS の SLA明文化（リード引き渡し24時間、CS引き継ぎ7日等）
+出力: /agents/sales/revops_dashboard.json（週次）
+```
+
+#### 4. Deal Desk / Deal Review（案件レビュー品質担保）
+```
+入力: 一定金額（月額50万超）・戦略案件・非標準スコープ案件
+処理:
+  1. 案件エスカレーション基準の明文化
+     - 月額50万円超 → Deal Desk 必須
+     - 値引き15%超 → 承認フロー起動
+     - 非標準契約条項 → Legal 事前レビュー
+     - 新業種 → 経営レビュー
+  2. Deal Review ミーティング（週次）
+     - MEDDPICC スコア（Metrics/Economic Buyer/Decision Criteria/
+       Decision Process/Paper Process/Identify Pain/Champion/Competition）
+     - 全項目 3点以上（5点満点）でないとステージ進行禁止
+  3. Loss Review（失注案件の構造分析）
+     - 失注理由の5大要因＋MEDDPICC の欠落項目特定
+     - 次案件の予防策を Playbook に反映
+出力: /agents/sales/deal_desk/{deal_id}_review.json
+```
+
+#### 5. Predictive Forecasting（AI売上予測）
+```
+入力: 過去24ヶ月の商談履歴 + 現在パイプライン
+処理:
+  1. AI予測モデル（Gong Forecast / Clari / InsightSquared）
+     - ヨミ（A/B/C）＋ AIの受注確率予測を突合
+     - 担当者の主観バイアス（楽観/悲観）を自動補正
+     - 週次で「経営予測 vs AI予測 vs 担当者予測」の3線比較
+  2. Commit / Best Case / Worst Case の3段構え
+     - Commit（絶対に達成）：確度80%以上のヨミAのみ
+     - Best Case（背伸び目標）：ヨミA+B（0.5加重）
+     - Worst Case（下振れ想定）：ヨミAのみ×0.9
+  3. 月中週次で「着地予測 vs 目標」の差分を可視化
+     - 差分が15%超で自動アラート → 追加アクション起動
+  4. Sandbagging（意図的な低確度申告）検出
+     - 担当者ごとの予測精度スコアリング
+出力: /agents/sales/forecast/{month}_prediction.json
+```
+
+#### 6. Account-Based Everything（ABE / ABX）
+```
+入力: 戦略アカウントリスト（Tier1: 20社 / Tier2: 100社 / Tier3: 500社）
+処理:
+  1. アカウント単位の統合戦略
+     - Marketing（広告）+ Sales（直接接触）+ CS（既存拡張）を同期
+     - 1アカウントに複数チャネル同時アプローチ（Sales Navigator/広告/DM/イベント）
+  2. Tier別リソース配分
+     - Tier1: 1:1 パーソナライズ（月10時間/社）
+     - Tier2: 1:Few セグメントABM（業種別クラスタリング）
+     - Tier3: 1:Many プログラマティックABM（広告×AI SDR）
+  3. Multi-threading（マルチスレッド化）目標
+     - Tier1: 5接点以上（決裁者・利用部門・IT・購買・法務）
+     - Tier2: 3接点以上
+     - Champion Enablement（社内推進者を複数育成）
+  4. Account Plan（3ヶ月ローリング）
+     - 各アカウントの決裁マップ・接触履歴・次アクション
+出力: /agents/sales/abe/{account_id}_plan.md
+```
+
+### 🔧 高度化ワークフロー（3個）
+
+#### ワークフロー1: Revenue Intelligence 週次サイクル
+```
+月曜 09:00: Pipeline Review（AI予測ダッシュボード確認）
+  ├─ Commit / Best Case / Worst Case の3段確認
+  ├─ Sandbagging アラート案件のヨミ根拠再確認
+  └─ 15%差分アラート → 追加アクションプラン策定
+月曜 10:00: Deal Review（月額50万超・戦略案件）
+  ├─ MEDDPICC スコアリング（8項目）
+  ├─ 3点未満項目の対策アクション決定
+  └─ Next Best Action（AIレコメンド）確認
+火曜〜金曜: Signal-Based Outreach 実行
+  ├─ 6sense / Bombora Intent Data 確認（毎朝）
+  ├─ 高Intent × 高Fit アカウントへ24時間以内接触
+  └─ Gong / Chorus で商談録画レビュー（週3件）
+金曜 16:00: Loss Review + Playbook 更新
+  ├─ 失注案件のMEDDPICC欠落項目分析
+  └─ 予防策を Sales Playbook に反映
+```
+
+#### ワークフロー2: AI SDR × 人間 SDR ハイブリッド開拓
+```
+Step1: ICP / Buyer Persona 定義（月次更新）
+  ├─ 業種 × 規模 × 決裁プロセス × 導入時期
+  └─ Fit スコアリング（5点満点、4点以上のみターゲット化）
+Step2: AI SDR による自律プロスペクティング（Apollo AI / 11x）
+  ├─ アカウントリサーチ自動化（企業/キーマン/最近動向）
+  ├─ パーソナライズ初回メール生成
+  └─ 7-touch シーケンス自動配信
+Step3: 返信・エンゲージメント検知
+  ├─ ポジティブ返信 → 人間SDRへエスカレーション（1時間以内）
+  ├─ ニュートラル返信 → AIが追加質問で温度感確認
+  └─ ネガティブ返信 → 3ヶ月ナーチャリング枠へ移行
+Step4: 人間SDRによるBANT/MEDDIC Qualification（24時間以内）
+  ├─ 初回商談（30分）
+  └─ AE（アカウントエグゼクティブ）へ引き渡し
+Step5: 週次ABテスト（メール件名・本文・タイミング）
+  └─ 返信率・商談化率をダッシュボードで可視化
+```
+
+#### ワークフロー3: Bowtie Funnel（受注後拡張含む）統合管理
+```
+左半分（新規獲得）:
+  MQL → SAL → SQL → 商談 → 受注
+  ├─ 各段階のSLA明文化（Marketing→Sales引き渡し24H等）
+  ├─ 転換率×平均リードタイム×平均単価の週次モニタリング
+  └─ ボトルネック段階の週次改善アクション
+受注ゲート: Deal Desk レビュー（月額50万超）
+  ├─ MEDDPICC 全項目3点以上
+  ├─ Finance 与信判定
+  └─ Legal 契約条項事前レビュー
+Handoff: Sales → CS 引き継ぎ7日以内
+  ├─ Handoff シート（決裁者・支払サイト・特記事項）
+  └─ Kickoff MTG（クライアント + Sales + CS + PM）
+右半分（既存拡張）:
+  オンボーディング → 定着 → 拡張 → 更新 → アドボケイト
+  ├─ 90日オンボーディングスコア（KPI達成状況）
+  ├─ QBR（Quarterly Business Review）四半期定例
+  ├─ 更新60日前アップセル準備 → NRR 120%目標
+  └─ アドボケイト化 → リファラル / 事例化
+KPI連動: LTV最大化 = 新規獲得 × 継続 × 拡張
+```
+
+### 📝 追加された出力フォーマット（3個）
+
+#### フォーマット1: signal_intent_score.json（Signal-Based Selling）
+```json
+{
+  "account_id": "ACC-2026-0001",
+  "company_name": "◯◯建設株式会社",
+  "captured_at": "2026-07-06T09:00:00+09:00",
+  "fit_score": 4.5,
+  "intent_score": 8.2,
+  "quadrant": "high_intent_high_fit",
+  "signals": [
+    {
+      "type": "search_intent",
+      "keyword": "建設業 採用DX ツール",
+      "surge_ratio": 3.4,
+      "source": "6sense",
+      "detected_at": "2026-07-05"
+    },
+    {
+      "type": "technographic",
+      "event": "採用管理システム切り替え検討",
+      "source": "Bombora",
+      "confidence": 0.87
+    },
+    {
+      "type": "organizational",
+      "event": "採用責任者新規着任",
+      "person": "田中◯◯（人事部長）",
+      "source": "LinkedIn Sales Navigator"
+    },
+    {
+      "type": "engagement",
+      "event": "自社サイト訪問3回/週",
+      "pages": ["/service/建設業採用", "/case/宮村建設"],
+      "source": "Clearbit Reveal"
+    }
+  ],
+  "recommended_action": {
+    "priority": "P0",
+    "action": "田中人事部長宛にパーソナライズDM+資料送付",
+    "deadline_hours": 24,
+    "assigned_to": "sales-manager",
+    "playbook": "high_intent_construction_hr_v3"
+  },
+  "champion_candidate": "田中◯◯",
+  "estimated_deal_size": 620000,
+  "estimated_close_month": "2026-09"
+}
+```
+
+#### フォーマット2: meddpicc_scorecard.json（Deal Desk案件レビュー）
+```json
+{
+  "deal_id": "DEAL-2026-0087",
+  "client": "◯◯建設株式会社",
+  "amount_monthly": 620000,
+  "stage": "提案・見積提出",
+  "review_date": "2026-07-06",
+  "reviewer": "sales-manager + haru",
+  "meddpicc": {
+    "M_metrics": {
+      "score": 4,
+      "note": "採用単価30%削減・応募数2.5倍を数値合意",
+      "evidence": "第2回商談議事録参照"
+    },
+    "E_economic_buyer": {
+      "score": 3,
+      "note": "社長が最終決裁者と確認、次回同席予定",
+      "risk": "同席未確定"
+    },
+    "D_decision_criteria": {
+      "score": 4,
+      "note": "実績×スピード×伴走の3軸で判断と明言"
+    },
+    "D_decision_process": {
+      "score": 3,
+      "note": "社長→役員会→承認の2段階、次回役員会7/20"
+    },
+    "P_paper_process": {
+      "score": 2,
+      "note": "契約書ドラフト未提示",
+      "action": "Legal へ7/10までにドラフト依頼"
+    },
+    "I_identify_pain": {
+      "score": 5,
+      "note": "職人採用が3年間ゼロ、現場稼働率85%まで低下"
+    },
+    "C_champion": {
+      "score": 4,
+      "note": "田中人事部長が社内推進、資料の社内展開実施"
+    },
+    "C_competition": {
+      "score": 3,
+      "note": "A社・B社と相見積、LET差別化比較表提示済み"
+    }
+  },
+  "total_score": 28,
+  "max_score": 40,
+  "score_percentage": 70,
+  "stage_progression_approved": true,
+  "next_actions": [
+    "7/10: Legal 契約書ドラフト提出",
+    "7/15: 社長同席の最終提案MTG",
+    "7/20: 役員会後の合否連絡受領"
+  ],
+  "risks": ["Paper Process スコア低（2点）"],
+  "commit_forecast": "B_yomi",
+  "close_confidence": 0.55
+}
+```
+
+#### フォーマット3: revops_dashboard.json（Revenue Operations統合週次）
+```json
+{
+  "week_ending": "2026-07-06",
+  "unit_economics": {
+    "cac_jpy": 180000,
+    "ltv_jpy": 1860000,
+    "ltv_cac_ratio": 10.3,
+    "cac_payback_months": 6.2,
+    "nrr_percent": 118,
+    "grr_percent": 92,
+    "magic_number": 1.4,
+    "rule_of_40": 47
+  },
+  "bowtie_funnel": {
+    "left_side_new_acquisition": {
+      "mql_count": 120,
+      "sal_count": 85,
+      "sql_count": 48,
+      "opportunities": 22,
+      "closed_won": 6,
+      "mql_to_sql_rate": 0.4,
+      "sql_to_win_rate": 0.125
+    },
+    "right_side_expansion": {
+      "onboarding_health_score_avg": 82,
+      "qbr_completed_this_week": 5,
+      "renewal_at_risk_count": 2,
+      "upsell_pipeline_jpy": 4200000,
+      "advocate_count": 3
+    }
+  },
+  "sales_velocity": {
+    "opportunities_count": 22,
+    "avg_deal_size_jpy": 580000,
+    "win_rate": 0.42,
+    "sales_cycle_days": 58,
+    "velocity_jpy_per_day": 92620,
+    "trend_vs_last_week": "+8%"
+  },
+  "forecast": {
+    "commit_jpy": 3200000,
+    "best_case_jpy": 5800000,
+    "worst_case_jpy": 2880000,
+    "ai_predicted_jpy": 4100000,
+    "quota_jpy": 4500000,
+    "gap_to_quota_percent": -9,
+    "alert_level": "yellow"
+  },
+  "signal_intelligence": {
+    "high_intent_accounts_this_week": 14,
+    "signal_to_opportunity_rate": 0.36,
+    "ai_sdr_touches": 1820,
+    "ai_sdr_reply_rate": 0.12,
+    "human_qualification_rate": 0.28
+  },
+  "action_items": [
+    "SQL→受注率が0.125で先週比-3pt、Deal Review強化",
+    "GRR 92%で目標95%未達、CSと更新60日前フォロー再設計",
+    "AI SDR返信率12%はA/Bテスト後10%上振れ、勝ちパターン横展開"
+  ]
+}
+```
+
+### 🌐 2026年業界トレンド対応
+
+#### 1. Signal-Based Selling が Cold Outreach を完全代替
+- 2026年時点で、B2B購買行動の70%は営業接触前に完了（Gartner）
+- 「テレアポ×スクリプト」の時代は終焉、6sense/Bombora/Clearbit のインテントデータ駆動が標準
+- LET建設業クライアント案件でも「採用管理システム切替検討」等の技術シグナルを起点にした提案が受注率2.8倍
+
+#### 2. AI SDR エージェント（Agentic Prospecting）の実用フェーズ
+- Apollo AI / Regie.ai / 11x.ai / Artisan AI が2026年に日本市場本格参入
+- 1人のSDRが月2,000社に自律プロスペクティング可能（従来200社の10倍）
+- 人間SDRは「AIが返信を引き出した高確度案件のみ」に集中する分業モデルへ
+
+#### 3. Revenue Operations（RevOps）の経営レベル定着
+- Marketing / Sales / CS を Revenue チームとして統合、CRO（Chief Revenue Officer）配下に集約
+- Bowtie Funnel（受注後拡張含む蝶ネクタイ型）が Linear Funnel に代替
+- NRR（Net Revenue Retention）120%以上が SaaS 成長企業の標準KPI
+
+#### 4. MEDDPICC / Command of the Message の高度化
+- MEDDIC → MEDDPICC（Paper Process + Competition追加）が2026年の複雑商談標準
+- Force Management社の「Command of the Message」メソッドが日本市場でも普及
+- Deal Desk による案件品質ゲート化で失注率30%削減
+
+#### 5. Gong / Chorus による Conversation Intelligence
+- 全商談録画をAI解析、「勝ちパターン言語化」を組織資産化
+- 「Talk-Listen Ratio」「Question Rate」「Filler Words」等の会話メトリクスで営業スキル可視化
+- トップセールスの話法を新人が即マネる Coaching AI が標準装備
+
+#### 6. Predictive Forecasting による経営予測精度革命
+- Clari / Gong Forecast / InsightSquared の AI 予測が担当者主観バイアスを補正
+- Commit / Best Case / Worst Case の3段構えが投資家報告の標準
+- Sandbagging（意図的低申告）検出で予測精度±5%以内を実現
+
+#### 7. Account-Based Everything（ABX）でMarketing/Sales完全同期
+- 従来ABM（Account-Based Marketing）→ ABX（Everything: Marketing+Sales+CS）へ拡張
+- 1アカウント×複数チャネル×複数決裁者への同時アプローチが標準
+- Tier別リソース配分（1:1 / 1:Few / 1:Many）で戦略アカウントに集中投資
+
+#### 8. Ecosystem-Led Growth（ELG）/ Partner-Led Sales
+- 自社直販の限界、パートナー経由の紹介・共同提案が新規獲得の40%を占める
+- Crossbeam / Reveal によるパートナーCRMマッチングで共通顧客特定
+- LET建設業ネットワーク（既存7社）を起点にしたエコシステム型開拓へ
+
+### ⚡ オーバースペック要素
+
+（LET現状規模（クライアント7社）から見て、意図的に高度・大企業向け機能を将来投資として組み込み）
+
+#### 1. Enterprise-Grade Deal Desk with Multi-Level Approval
+- 実際には LET 現状で年間受注20-30件、Deal Desk は必要最小限で十分
+- しかし将来のシリーズA調達・上場準備時に「Deal Desk / MEDDPICC 標準運用」が必須になるため先取り整備
+- 監査対応・SOX法対応まで見据えた案件承認ワークフロー
+
+#### 2. Enterprise Revenue Data Warehouse（RDW）構築
+- Snowflake / BigQuery ベースの Revenue Data Warehouse に Salesforce / HubSpot / Gong / Marketing Automation を統合
+- dbt によるデータモデリング、Looker / Tableau で可視化
+- LET現状は Notion + スプレッドシートで十分だが、Series A規模での SSOT（Single Source of Truth）を先取り
+
+#### 3. Sales Enablement Platform（Highspot / Seismic）
+- 提案書テンプレ・営業トーク・Playbook を一元管理する Sales Enablement Platform 導入
+- 商談ステージ×業種×ペルソナで最適コンテンツを AI レコメンド
+- LET現状は Notion で代替可能だが、営業組織10人超規模での必需品として仕様定義
+
+#### 4. AI-Powered Deal Coaching（People.ai / Aviso）
+- Gong Assist / People.ai Coach AI が個別営業パーソンの弱点分析→改善プラン提示
+- 「Discovery質問数」「Champion特定率」「Next Step握り率」等をAIコーチが個別指導
+- LET現状は営業マネージャー1名で全案件見れるが、営業組織拡大時のスケール手段として準備
+
+#### 5. Predictive Churn AI / Health Score 自動化
+- Gainsight / ChurnZero レベルの Customer Health Score 自動計算
+- プロダクト利用データ×NPS×サポート問い合わせ×MTG頻度の統合予測モデル
+- LET現状は目視管理で十分だが、既存顧客50社超えた時点で不可欠な機能
+
+#### 6. Global Sales Operations（多通貨・多言語・多法域対応）
+- 通貨換算（JPY / USD / EUR）、多言語提案書、GDPR / CCPA 対応契約テンプレ
+- LET は国内建設業特化で現時点不要だが、将来のグローバル展開時にゼロから作らないための下地
+- Salesforce Multi-Currency / Deal Hub Global 相当の運用設計
+
+**運用方針**: 上記オーバースペック機能は、現時点では「概念理解と運用イメージ確立」に留め、実装は事業成長フェーズ（Series A後 / クライアント30社超）に順次起動。ただし、思想としては最初から取り込むことで、Sales組織の設計負債を予防する。
