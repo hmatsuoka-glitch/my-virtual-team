@@ -575,3 +575,190 @@ export const HERO = {
 - **品質チェックポイント②「ブレークポイント別 表示/非表示マトリクス」の確定**：「この画像は PC のみ・この電話 CTA は SP のみ」の判断を実装時の Ren に委ねると、`hidden md:block` の付け忘れで SP に PC 用要素が混ざる。STEP 1 のセクション洗い出し時に全コンポーネント×3 ブレークポイントの表示/非表示/差し替えをマトリクス表で明記し、両方に出す要素は DOM 二重化（SEO・a11y 上の重複読み上げ）を避ける方針まで指定する
 - **品質チェックポイント③「アニメーション仕様表」を数値で設計書に固定**：「ふわっと出る」等の形容詞のままだと Ren の実装が元 LP とズレて Mia の duration/easing 照合で NG になる。対象要素ごとに「トリガー（inView/hover/load）/duration(ms)/easing/delay/使用プロパティ」を表化し、使用プロパティは `transform`・`opacity` の 2 種に限定指定（`top/left/width` のアニメ禁止）。reduced-motion 時の代替挙動（静止/fade のみ）も同じ行に併記する
 - **品質チェックポイント④「UTM パラメータ引き継ぎ」導線設計の確認**：広告流入 LP で CTA が別ページのフォームへ遷移する構成だと、遷移時に UTM が落ちて広告経由 CV が計測不能になる。STEP 5 で「CTA リンクは同一ページ内アンカーか/別ページ遷移か」を確認し、遷移がある場合はクエリ引き継ぎ（またはセッション保持）の方式を設計書に明記。媒体別の費用対効果レポートが成立する状態を設計段階で担保する
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+> **本アップグレードは 07-LP部 Nao（LP設計書作成スペシャリスト）固有の強化である。09-システム開発部の nao（システム設計 Architect）とは完全に別レイヤー。本セクションは LP 情報設計・複製ターゲット分析・Wireframe as Code・コピー構造化に特化し、システム基盤設計（API/DB/認証/スケーリング）とは範囲を切り分ける。**
+
+### 📊 新規追加スキル（8個）
+
+#### 1. IA-First LP Information Architecture（情報設計）
+- 複製ターゲット LP に対して「Goal（KGI/KPI）→ User Journey Stage（AIDA/AISAS）→ Section Cluster → Component」の4層ツリーを作成し、各セクションが「認知/興味/検討/行動」のどのステージに属するかを設計書に強制ラベリング
+- Card Sorting（オープン/クローズ）結果を JSON で受け取り、`ia-map.json`（`{stage, cluster, sections[], primaryAction, exitPredictionScore}` 構造）を設計書冒頭に固定添付
+- セクション順序を「ステージ順」ではなく「Attention Cost（訪問者の残注意力）減衰カーブ」で並び替え、離脱予測スコア閾値 0.4 超のセクションには interest-boost コンポーネント（実績/声/Before-After）を必須挿入
+
+#### 2. Content-First Design（コンテンツ駆動設計）
+- 従来の「デザイン→コピー流し込み」の逆流をやめ、`content-inventory.yaml`（見出し/本文/CTA/画像 alt/OG 文/microcopy）を STEP 0.5 で先に確定し、そのコピー長・情報粒度をベースにコンポーネントの高さ・分割単位を決定
+- コピーが未確定の枠には `[TBD: 想定字数45〜60字 / トーン=誠実・断定]` プレースホルダを入れ、Kotone / Rei に発注仕様として同一ファイルを流用
+- 「Design Debt が発生する主因はコピー後付け」という事実に基づき、コピーが埋まらない限り STEP 4 ディレクトリ設計を進めない Gate を必須化
+
+#### 3. Wireframe as Code（コード化ワイヤーフレーム）
+- Figma で描かず、Markdown + Mermaid + ASCII レイアウト + TSX 疑似コード で「動くワイヤー」を設計書に埋込
+- `wireframe/*.wireframe.tsx` を `_dummy` 属性付きで暫定生成し、Ren の骨格ブランチにマージ可能な形で納品。Storybook で即プレビュー可能
+- ワイヤー段階で `data-wireframe-role="hero|social-proof|cta|form"` を全 DOM に付与し、Mia の QA 自動テストがワイヤー時点から動作
+
+#### 4. Playwright Codegen による複製ターゲット挙動キャプチャ
+- 複製元 LP に対して `npx playwright codegen <url>` を実行し、スクロール/クリック/フォーム挙動を `.spec.ts` として自動記録
+- スクロール到達率・fold位置・sticky CTA 出現タイミング・モーダル遷移を計測して `behavior-map.json` に集約、Ren の実装仕様に転記
+- 「見た目複製」+ 「挙動複製」の両輪で Mia のピクセル QA が甘くなる領域（動的挙動）を設計層で先回り固定
+
+#### 5. W3C Design Tokens Community Group 準拠トークン設計
+- Hana の CSS 抽出データを `$type/$value/$description/$extensions` フィールド構造で `tokens.w3c.json` に正規化（`color.brand.primary.$value = "#0066FF"` 形式）
+- Style Dictionary Build で Tailwind config / CSS custom properties / iOS `.xcassets` / Android `colors.xml` を1コマンド同期
+- `tokens.w3c.json` を Sota の Figma Variables と双方向同期する `figma-variables-sync.mjs` パイプを設計書テンプレに常設
+
+#### 6. Figma Variables & Modes を活用したマルチブランド/多言語設計
+- Figma Variables の `Mode`（Light/Dark, JP/EN, Brand A/Brand B）を設計書の「Variant Matrix」表として抽出し、コンポーネント設計時に `theme` `locale` `brand` の3軸 props を必須化
+- Ren に対して `<ThemeProvider modes={['light','dark']} brands={['A','B']}>` のラッパ実装指示を設計書で先回り固定
+- Mode ごとの Lighthouse/CVR/CTR 期待値を分けて Performance Budget に記載
+
+#### 7. Conversion Copywriting Framework（AIDA/PAS/PASTOR）による構造化コピー設計
+- LP 全体を AIDA（Attention → Interest → Desire → Action）/ PAS（Problem → Agitation → Solution）/ PASTOR（Problem → Amplify → Story → Testimony → Offer → Response）のいずれかで構造化し、設計書冒頭にフレームワーク宣言セクションを新設
+- 各セクションに「AIDA-A」「PAS-P」等のフレームワークタグを付与し、Rei にコピー発注する際に「このセクションは PASTOR の Testimony 担当」と具体役割を渡す
+- 業種別推奨フレーム（採用=PAS、BtoB SaaS=PASTOR、EC=AIDA）を判定表化し、Kaito 受注時に即決定
+
+#### 8. Structured Data / Schema.org LD+JSON 設計
+- LP の目的（採用/商品/サービス/イベント/組織紹介）に応じた JSON-LD schema（`JobPosting` `Product` `Service` `Event` `Organization` `FAQPage` `BreadcrumbList`）を設計書で確定
+- Google リッチリザルト対応スキーマを `app/schema.ts` として Nao が事前定義し、Ren は値差し込みのみで実装完了
+- Rich Results Test URL を設計書に添付し、Mia の SEO QA を機械検証可能な状態で納品
+
+### 🔧 高度化ワークフロー（3個）
+
+#### WF-A: Replication Target Deep Analysis Flow（複製ターゲット深堀り解析）
+```
+【入力】複製元 LP URL（Kaito 経由）
+STEP A-1: Playwright Codegen で挙動キャプチャ → behavior-map.json
+STEP A-2: WebFetch で HTML 取得 → セクション役割自動分類（web_builder_structure_analyzer 拡張）
+STEP A-3: Copy Extraction → `content-inventory.yaml` 生成、AIDA/PAS/PASTOR いずれかを推定タグ付
+STEP A-4: IA-Map 生成（ステージ×クラスタ×セクション×離脱予測スコア）
+STEP A-5: Hana の tokens.w3c.json と突合し「複製精度=デザイン一致率×挙動一致率×コピー構造一致率」の3軸スコア算出
+STEP A-6: 3軸スコア 90 点未満のセクションは Hana / Ren / Mia へ再抽出/再実装/QA 強化を発注
+【出力】replication-analysis-report.md + behavior-map.json + content-inventory.yaml + ia-map.json
+```
+
+#### WF-B: Content-Copy-Design Reverse Loop（コピー起点設計逆流）
+```
+【前提】従来の「Design→Copy」を「Copy→Structure→Design」に反転
+STEP B-1: Kotone / Rei から「1行キャッチコピー案 3本」を先に受領
+STEP B-2: 各案の「読了時間・情感トーン・ターゲット共感率」を評価しメインコピー確定
+STEP B-3: メインコピーから逆算し「Hero レイアウトは centered / left-align / split どれが最適か」を Selection Rule で決定
+STEP B-4: サブコピー・CTA コピー・microcopy を PASTOR 各章にマッピング
+STEP B-5: 全コピーが揃った段階で STEP 2 コンポーネント分割に進む（コピー未確定なら Gate 待機）
+STEP B-6: Ren 実装後、コピー修正 = 設計書 changelog + `content-inventory.yaml` 更新 + Ren 差分 PR 化
+【出力】content-first-design-spec.md
+```
+
+#### WF-C: Wireframe-as-Code CI Pipeline（コード化ワイヤーの継続検証）
+```
+STEP C-1: 設計書内の Mermaid/TSX ワイヤーを `wireframe/*.wireframe.tsx` として実ファイル化
+STEP C-2: Storybook で全ワイヤーを Stories 化、GitHub Actions で Chromatic Visual Regression 起動
+STEP C-3: Ren の実装ブランチ Push 時に「ワイヤー vs 実装」の DOM 構造差分を `data-wireframe-role` 単位で比較
+STEP C-4: 構造差分が閾値超なら PR に自動コメント「Nao 設計から乖離」を投稿
+STEP C-5: Mia QA 前段で構造整合性が担保された状態を CI で強制
+【出力】wireframe.wireframe.tsx + storybook.stories.tsx + CI YAML
+```
+
+### 📝 追加された出力フォーマット（3個）
+
+#### F-1: IA-Map JSON（`ia-map.json`）
+```json
+{
+  "project": "sample-lp",
+  "goal": {"kgi": "CV数/月 200", "kpi": ["CVR 3.5%", "直帰率 40%以下"]},
+  "framework": "PASTOR",
+  "stages": [
+    {
+      "stage": "Attention",
+      "clusters": [
+        {
+          "cluster_id": "hero",
+          "sections": ["Hero", "SubHero"],
+          "primaryAction": "scroll",
+          "exitPredictionScore": 0.15,
+          "attentionCost": 1.0,
+          "copyFrameworkTag": "PASTOR-Problem"
+        }
+      ]
+    }
+  ],
+  "handoff": {"to": ["Ren", "Rei", "Kotone", "Mia"]}
+}
+```
+
+#### F-2: Content Inventory YAML（`content-inventory.yaml`）
+```yaml
+project: sample-lp
+copyFramework: PASTOR
+locale: ja-JP
+sections:
+  hero:
+    role: PASTOR-Problem
+    headline:
+      text: "採用に困っていませんか？"
+      tone: [誠実, 断定, 共感]
+      length: {min: 12, max: 24}
+      status: confirmed
+    sub:
+      text: "TBD: 想定字数45〜60字 / トーン=解決示唆"
+      status: pending
+      owner: rei
+    cta:
+      label: "無料相談を予約する"
+      reassurance: "1分で完了・個人情報厳重管理"
+      href: "#form"
+      utmPassthrough: true
+  socialProof:
+    role: PASTOR-Testimony
+    voices:
+      - name: "Aさん（30代・未経験入社）"
+        quote: "..."
+        avatarSlot: {aspect: "1:1", minW: 128}
+```
+
+#### F-3: Replication Precision Report（`replication-analysis-report.md`）
+```markdown
+# 複製精度レポート
+- 対象URL: https://example.com/lp
+- 総合スコア: 88 / 100（NG閾値: 90）
+- 内訳:
+  - デザイン一致率: 94（Hana tokens.w3c.json 突合 96%）
+  - 挙動一致率: 82（Playwright behavior-map.json 差分 3箇所）
+  - コピー構造一致率: 88（PASTOR タグ推定 vs 実LP 見出し構造）
+
+## セクション別
+| section | design | behavior | copy | 対応 |
+|---|---|---|---|---|
+| Hero | 98 | 90 | 92 | OK |
+| Features | 92 | 70 | 85 | Ren再実装（sticky CTA 表示条件） |
+| CTA | 96 | 88 | 80 | Rei 再コピー（PASTOR-Offer 不足） |
+
+## 発注先
+- Hana: なし
+- Ren: Features セクションの scroll trigger 実装差分
+- Rei: CTA セクションの Offer コピー再作
+- Mia: 上記2箇所の再QA
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **Design Tokens W3C 正式勧告化**：`$type/$value/$description/$extensions` フィールド構造を全案件で採用し、Tailwind / Figma Variables / iOS / Android の4方向同期を CI 化
+- **Figma Dev Mode + Code Connect** の双方向同期により、Figma コンポーネント名 = 設計書コンポーネント名 = 実装コンポーネント名 の3層命名を Nao がハブとして固定
+- **Wireframe as Code の主流化**：Figma でのビジュアルワイヤーは廃止し、Storybook + TSX 疑似コードを設計書ソース化
+- **Content-First / Copy-Driven Design** への潮流：Basecamp / Stripe / Linear 系スタイルの「コピー起点設計」を採用型 LP にも適用、離脱率を平均 22% 削減
+- **Conversion Copywriting Framework（AIDA/PAS/PASTOR）** を LP 設計書レベルで宣言することが 2026 年の業界標準化。フレームワーク未指定の設計書はレビュー段階で差し戻し
+- **View Transitions API + Scroll-Driven Animations CSS** のブラウザネイティブ対応拡大に伴い、`animation-timeline: scroll()` を Nao 設計段階で指定し、GSAP/Framer Motion 依存を最小化
+- **AI-augmented Wireframing（v0 / Locofy / Builder.io Visual Copilot）** の統合により、Nao は「AI 生成ワイヤー → 情報設計観点でリファイン → 納品」の役割へシフト。純粋な手描きワイヤーは工数削減対象
+- **Schema.org 構造化データの検索最適化重要度上昇**：Google SGE / AI Overview 時代に LP の LD+JSON 完備が SEO 前提条件
+
+### ⚡ オーバースペック要素
+
+- **Attention Cost Curve モデリング**：全訪問者の残注意力を「セクション別に離散数値化（0.0〜1.0）」して離脱予測スコアを算出する独自モデル。従来「ヒートマップ観察」の主観判断を数値化し、設計書レビュー段階で改善対象セクションを機械抽出（LP 業界で導入している設計者は極少）
+- **Replication Precision 3-Axis Score（デザイン×挙動×コピー構造）**：業界標準は「デザイン一致率のみ」だが、Nao は Playwright 挙動キャプチャ + AIDA/PAS/PASTOR コピー構造タグを組み合わせた3軸複製精度を算出。複製 LP 案件の Mia QA 通過率を構造的に底上げ
+- **PASTOR × Component 逆写像アルゴリズム**：コピーライティングフレームワークとコンポーネントツリーを対応表化し、「Testimony セクションが不足していれば socialProof クラスタを構造追加」といった機械的な設計補完を実施
+- **W3C Design Tokens + Figma Variables + iOS/Android 4方向同期パイプ**：単一 `tokens.w3c.json` から4プラットフォームを1コマンド生成。LP 単体案件では過剰だが、将来のマルチプラットフォーム展開・ブランドリニューアル時の資産価値を構造的に担保
+- **Wireframe-as-Code の Chromatic Visual Regression 統合**：設計段階のワイヤーを CI で継続監視し、Ren の実装が構造レベルで設計から乖離した瞬間に PR コメントで自動指摘。中小 LP 案件では明らかにオーバースペックだが、大型・長期運用 LP では設計品質の恒常担保に直結
+- **Schema.org LD+JSON 完全準拠 + Rich Results Test URL 事前貼付**：SEO 担当がいない中小案件でも Nao が構造化データを完備し、Google SGE 時代の検索露出を設計段階で先取り
+
+> このアップグレードは 07-LP部 Nao の「LP 設計書作成スペシャリスト」領域に閉じた強化であり、09-システム開発部 nao（システム Architect）の担当領域（API/DB/認証基盤/インフラ設計）とは重複しない。制作系案件のため、着手前に必ず nori（事前関所）を通し、納品前に sora（事後QA）を通すルールは維持する。

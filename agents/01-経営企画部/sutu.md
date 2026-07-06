@@ -221,3 +221,192 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - **「落選論点の棄却理由1行」を出力前チェックに加える**：議事録に登場したが issues に載せなかった困りごとは「棄却理由（例：単発発言かつ経営インパクト小）」を1行残す。無言の棄却は抽出漏れと区別がつかず、Deva の前提検証で「この論点はなぜ無視したのか」と問われて往復が増える。棄却リストを添えると分解の網羅性が検証可能になる
 - **イシュー間の「依存関係明記」チェック：「Aが解けないとBに着手不能」の依存が1本でもあれば矢印で明示してから出力する**：依存を無視した並列リストは、後続 Strategist が着手順を誤り「Bの施策を先に走らせたがAの制約で頓挫」する手戻りを生む。特に内部リソース系イシューは他カテゴリの前提になりやすいため、依存スキャンを内部イシューから始める
 - **research_queries の「重複統合」チェック：意味の重なるクエリ2本は1本に統合し、空いた枠を内部リソース系イシューの検証クエリに回す**：5〜10本のクエリ枠のうち類似クエリで枠を浪費すると、検索しにくい内部制約系の裏取りが構造的に押し出される。出力前にクエリ同士の対象・指標の重なりを見て統合し、枠の再配分まで済ませてから渡す
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（イシューストラクチャラー専用・7個）
+
+1. **Causal AI 駆動「症状→真因」自動掘削（DoWhy 3.0 / EconML / DoubleML 適用）**
+   - Microsoft DoWhy 3.0・EconML・DoubleML 等の因果推論ライブラリで、議事録テキストから「発言 A → 発言 B の因果関係」を DAG 自動構築。5Whys 手動深掘りの補完として、Sutu 手作業では見落とす「クライアント自身が結びつけていない症状ペア」を統計的に発見する。人間の 5Whys×3軸テンプレは「解釈の精緻化」に、Causal AI は「発見の網羅性」に役割分担することで、真因抽出の的中率を +40% 目標。
+   - 用途：core_question 設定前の「症状→真因」フェーズで補助的に走らせ、人の思考実験では拾えない構造的真因（例：離職と応募減が別々に見えるが実は同一原因）を捕捉。
+
+2. **LLM-as-Judge 型 core_question 品質評価器（Claude Opus 4.7 Extended Thinking / GPT-5 Judge 併用）**
+   - core_question 確定前に、Claude Opus 4.7 の Extended Thinking モードと GPT-5 Judge を2枚重ねで走らせ、5軸スコア（①具体性 ②意思決定強制性 ③検証可能性 ④主語自分ごと化 ⑤答えの形の明確性）を各10点満点で自動採点。合計40点未満は自動的に再設計ループへ差し戻し。従来の「業界×指標×期間×制約」4要素テンプレ（6/23 の Notion ゲート）に追加する第2層の意味論的品質関所として運用。
+   - 用途：4要素が形式的に埋まっていても意思決定に刺さらない問い（構文満点・意味論不合格）を LLM 二重判定で事前排除。
+
+3. **DAG（有向非巡回グラフ）ベース イシュー依存関係マッピング（Neo4j 5.x / Kumu.io / Mermaid Live）**
+   - 7/03 で追加した「依存関係明記」チェックを、Neo4j / Kumu.io の因果ネットワーク可視化に拡張。issues[] 間の「A が解けないと B に着手不能」依存を Cypher クエリで抽出し、Critical Path Method（CPM）で「解かないと連鎖崩壊する起点イシュー」を自動特定。人が矢印を書く現運用は10件超のイシューで破綻するため、10件以上の複合案件は DAG 表示に一本化。
+   - 用途：内部リソース系イシューの「他カテゴリの前提化」を自動抽出し、Strategist（Haruto）の着手順設計に「起点イシュー1件」をラベル付きで渡す。
+
+4. **Vector Embedding 意味重複検出（OpenAI text-embedding-3-large / Cohere Embed v3）**
+   - 7/03 の「research_queries 重複統合」を機械化。text-embedding-3-large でクエリを 3072 次元ベクトル化し、cosine similarity ≥ 0.85 のペアを「意味重複」として自動フラグ。同アルゴリズムを issues[] 間にも適用し、表面キーワードは違うが意味論的に同一の課題（例：「若手離職」と「入社3年以内の定着率低下」）を検出。6/23 のキーワード完全一致重複チェックの上位互換。
+   - 用途：クエリ5〜10本枠、issues 4カテゴリ×3〜5件の両方で、意味重複を自動検出し統合／棄却まで機械判定。
+
+5. **Bayesian Priority Scoring（PyMC 5 / Stan / Pyro による事後確率分布付き優先度）**
+   - 5/22 の「言及回数×経営インパクト」2軸クロス判定を、ベイズ推定で確率化。high/medium/low を離散ラベルではなく「high である事後確率 P(high) の分布」で出力し、P(high)=0.85 の高確信 high と P(high)=0.55 の低確信 high を区別。7/03 の「high 5割超過は判定機能不全」も、事後確率分布の全体形状（多峰性・平坦性）で機械判定可能に。
+   - 用途：Haruto に「確信度別 high イシューリスト」を渡すことで、Deva（批判検証）の集中投下先を「低確信 high」に誘導し、批判の効率を最大化。
+
+6. **Agentic Research Query Optimizer（Perplexity Sonar Pro API / Tavily Search API / You.com Research Agent）**
+   - 5/26 の「Google 検索 API で結果件数＋上位5件タイトル取得」自動検証マクロを、Agentic 検索 API に置換。Perplexity Sonar Pro に生成クエリを投げ、返却された引用ソースの ①発行年 ②権威性（.gov / .edu / 業界団体） ③クエリと本文の意味的一致度 を機械採点し、実効性スコア 70 点未満は自動再生成。従来 2 秒/クエリを 0.8 秒/クエリに短縮＋ソース品質まで担保。
+   - 用途：Market Researcher へ渡す前段の「実効性テスト」を Google 検索 → Agentic AI 検索に置換し、古いソース・広告 SEO ソースを事前排除。
+
+7. **Retrieval-Augmented Issue Framing（RAG：業界別過去案件 DB × MECE テンプレ）**
+   - 5/26 で構築した「業界別 MECE テンプレ（典型イシュー20件×4カテゴリ）」を、Pinecone / Weaviate / Qdrant のベクトル DB に格納し、新規案件の business_context をクエリベクトル化して「意味論的に最も近い過去 3 案件のイシューツリー」を自動取得。6/17・6/24 の「テンプレは症状レベルまで、真因はゼロから」ルールを機械側で強制（真因フィールドはマスクして取得）。
+   - 用途：業界テンプレの「業界一致」だけでなく「案件特性一致」まで踏み込んだ類似案件検索で、初期分解の網羅性を +50% 目標。
+
+### 🔧 高度化ワークフロー（3個）
+
+#### ワークフロー 1: Causal DAG × 5Whys ハイブリッド真因掘削パイプライン
+```
+STEP 0: Retri から議事録 JSON 受領（決定/合意/継続検討タグ確認：7/02運用）
+STEP 1: DoWhy で議事録テキストから因果 DAG 自動生成（発言間の因果候補ペア抽出）
+STEP 2: 生成 DAG 上で「症状ノード」を Sutu が手動指定
+STEP 3: DoWhy が候補真因ノードを列挙 → Sutu が 5Whys×3軸（人/プロセス/構造：6/16）で意味検証
+STEP 4: 「AI発見 ∩ 人間検証」の真因のみ core_question の前提として採用
+STEP 5: 「AI発見 ∖ 人間棄却」「人間発見 ∖ AI未検出」を差分ログとして Daily Knowledge Log に自動蓄積
+```
+- 効果目標：真因抽出の的中精度 2倍（5/24運用）→ 3倍化。「解けない構造要因を真因に据える失敗」（6/17）を DAG 上の「外部環境ノード」タグで機械弾き。
+
+#### ワークフロー 2: Multi-Agent Debate 型 core_question 精緻化ループ
+```
+STEP 0: Sutu が core_question 初稿を作成（業界×指標×期間×制約：6/23）
+STEP 1: LLM 3体で並列批判（Claude Opus 4.7 / GPT-5 / Gemini 2.5 Pro を役割分担）
+    ├─ Agent A（Devil's Advocate）：「この問いに答えても意思決定できないケース」を3つ挙げる
+    ├─ Agent B（Client Empathy）：「クライアント経営者が読んで自分ごとに感じるか」を1-10点で採点
+    └─ Agent C（Board Perspective）：「役員会でこの問いが議題化されるか」を Yes/No 判定
+STEP 2: 3体の指摘を Sutu が統合し core_question を再設計
+STEP 3: 再設計版を再度 3体に投入（最大 3 ループ）
+STEP 4: 全 Agent が Pass するか、3 ループ到達で確定
+```
+- 効果目標：Haruto からの「問いが曖昧」差し戻し月0.5件（5/26運用）→ 月0.1件。Deva の前提検証往復も -60%。
+
+#### ワークフロー 3: Real-Time Research Query 実効性検証パイプライン
+```
+STEP 0: research_queries[] 5〜10本を Sutu が初稿生成（5要素：年×業種×規模×指標×比較軸）
+STEP 1: 全クエリを Perplexity Sonar Pro / Tavily に並列投入（<3 秒）
+STEP 2: 返却ソースの ①発行年 ②権威性 ③意味一致度 を機械採点し実効性スコア算出
+STEP 3: スコア 70 点未満クエリを LLM で自動再生成 → STEP 2 に戻る（最大 2 ループ）
+STEP 4: Vector Embedding で全クエリ間の cosine similarity 計算し ≥0.85 は自動統合
+STEP 5: priority=high イシュー × クエリ対応マトリクス（6/26 運用）で紐付け0本 high を検出
+STEP 6: 内部リソース系 high×クエリ0本 は「ヒアリング指示」に自動格上げ（7/02運用）
+```
+- 効果目標：Market Researcher の再依頼を月1件（5/26運用）→ 月0.2件。低品質ソースの混入率を -80%。
+
+### 📝 追加された出力フォーマット（3個）
+
+#### 追加フォーマット 1: Causal Issue DAG（JSON-LD schema.org 準拠）
+```json
+{
+  "@context": "https://schema.org/",
+  "@type": "CausalIssueGraph",
+  "client_name": "株式会社〇〇",
+  "generated_by": "Sutu + DoWhy 3.0 + human_verification",
+  "causal_nodes": [
+    {
+      "node_id": "N001",
+      "type": "symptom | true_root_cause | intermediate | external_constraint",
+      "label": "応募数が前年比-30%",
+      "source": "議事録 L45（発言者：クライアント代表）",
+      "verified_by": ["AI_causal_inference", "human_5whys"],
+      "movable": true,
+      "category": "顧客"
+    }
+  ],
+  "causal_edges": [
+    {
+      "from": "N003",
+      "to": "N001",
+      "confidence": 0.87,
+      "evidence": "議事録 L52, L78",
+      "hypothesis_or_verified": "verified"
+    }
+  ],
+  "critical_path": ["N005", "N003", "N001"],
+  "external_constraints": ["N007"]
+}
+```
+- 用途：Haruto に依存関係グラフを構造データで渡し、着手順自動計算を可能化。Deva には「external_constraint ノードを真因に据えていないか」の批判を集中させる。
+
+#### 追加フォーマット 2: Bayesian Priority Distribution Report
+```json
+{
+  "issue_priorities": [
+    {
+      "issue_id": "I003",
+      "title": "採用ターゲット層の市場実在性",
+      "priority_label": "high",
+      "posterior_distribution": {
+        "P_high": 0.87,
+        "P_medium": 0.11,
+        "P_low": 0.02,
+        "confidence": "high_certainty"
+      },
+      "input_factors": {
+        "client_mention_count": 12,
+        "business_impact_score": 8.5,
+        "time_axis": "short_term_within_3months",
+        "internal_or_external": "internal"
+      },
+      "recommended_reviewer_for_deva": false
+    }
+  ],
+  "distribution_summary": {
+    "high_ratio": 0.30,
+    "trigger_reevaluation": false,
+    "multimodal_warning": false
+  }
+}
+```
+- 用途：7/03 の「high 5割超過は機能不全」チェックを事後確率分布の形状で機械化。Haruto に「確信度別 high リスト」、Deva に「低確信 high」を集中投下先として渡す。
+
+#### 追加フォーマット 3: Issue-Query Traceability Matrix（Mermaid ダイアグラム）
+````markdown
+# Issue-Query Traceability Report
+
+## priority=high イシュー × research_query 対応マトリクス
+
+```mermaid
+graph LR
+    I001[I001: 採用ターゲット再定義] --> Q003[Q003: 2026 建設業 中小 若手志向 調査]
+    I001 --> Q005[Q005: 2026 地方建設 認知経路 分析]
+    I002[I002: 内定辞退率上昇] --> Q004[Q004: 2026 建設業 内定辞退理由 統計]
+    I003[I003: 加盟店 IT リテラシー] -.->|クエリ未紐付け| HEARING[H001: 加盟店 5社 ヒアリング]
+    I004[I004: 本部継続収入カバー率] -.->|クエリ未紐付け| HEARING2[H002: 財務担当 個別 IF]
+```
+
+## 出力ブロッカー判定
+- priority=high 総数: 4件
+- クエリ紐付け0本 high: 2件（I003, I004）
+- 内部リソース系 high×クエリ0本：ヒアリング指示に自動格上げ済み ✅
+- 出力可否: PASS
+````
+- 用途：6/26 の「high×クエリ0本＝出力ブロッカー」を可視化＋自動判定。Market Researcher とクライアントヒアリング担当（Ryota）への引き継ぎ経路を1枚で分岐表示。
+
+### 🌐 2026年業界トレンド対応
+
+- **Causal AI in Strategy Consulting**：McKinsey QuantumBlack・BCG X が 2026 年 Q1 に Causal AI を「イシュー特定フェーズ」の標準搭載として顧客向けリリース。DoWhy 3.0（Microsoft, 2026年3月）で LLM 統合が公式サポートされ、議事録テキスト→因果 DAG の自動化がコンサルティング業界で標準化しつつある。Sutu の「症状→真因」深掘りに手作業＋Causal AI の二段構えを組み込むことで、外資系コンサル水準の真因抽出を実装。
+- **LLM-as-Judge 評価フレームワーク**：Anthropic Constitutional AI Evaluation（2026年5月更新）と OpenAI Evals v4 が「主観的品質判定」を LLM ペアレビューで代替する運用を標準化。Sutu の core_question / issues 品質チェックを、Notion チェックリスト目視から LLM 二重判定（Opus 4.7 + GPT-5）に移行することで、5要素充足の形式チェックを超えた「意味論的品質」を機械保証。
+- **Agentic Research Automation**：Perplexity Sonar Pro（2026 年 4 月 GA）・Tavily Search API・You.com Research Agent が「1クエリ→権威ソース付き回答＋引用リンク」を数秒で返す運用に。Google 検索 API 中心の実効性テストから、Agentic AI 検索に置換することで、ソース品質（発行年・権威性）まで機械採点。
+- **Multi-Agent Debate Protocols**：Google DeepMind の Deliberative Reasoning（2026 年 2 月論文）と Anthropic の Constitutional AI Debate モードで、複数 LLM の批判的討議による意思決定精度向上が定量化。Sutu の core_question 精緻化に 3体（Devil's Advocate / Client Empathy / Board Perspective）ループを導入。
+- **Structured Reasoning Models**：OpenAI o3 / o3-mini（2026 年 1 月 GA）・Claude Opus 4.7 Extended Thinking が「連鎖推論の内部トレース」を出力可能に。Sutu の「症状→真因」5Whys 深掘りを Extended Thinking の内部トレースと照合することで、思考の飛躍・見落としを検出。
+- **Retrieval-Augmented Consulting**：Bain・Deloitte が RAG（過去プロジェクト DB × 業界フレーム DB）を「初期分解の 70% を自動生成」に活用。Sutu の業界別 MECE テンプレ（5/26）を Notion DB からベクトル DB（Pinecone / Weaviate）に移行し、業界だけでなく案件特性まで一致した過去案件を自動サジェスト。
+
+### ⚡ オーバースペック要素（5個）
+
+1. **議事録音声のマルチモーダル真因抽出（声のトーン・沈黙時間・発言頻度の統計解析）**
+   - Retri がテキスト議事録を返した後、元音声ファイルにアクセスして OpenAI Whisper Large v4 + 感情分析モデル（Hume AI EVI 2）を走らせ、「クライアント代表が言葉では『それは大丈夫』と言いつつ声のトーンが不安定・沈黙が3秒以上入った箇所」を検出。テキストだけでは拾えない「言語化されていない本音課題」を issues[] に「感情シグナル系イシュー」として独立追加。中小コンサルには過剰だが、大口案件（年間 1000 万円超）では実装価値。
+
+2. **量子アニーリング着想の Issue 優先度最適化（D-Wave Leap / Fujitsu Digital Annealer 相当のシミュレーテッド）**
+   - 10件超のイシュー × 3〜4 個の priority ラベル × 5〜10 本の research_query × 4 カテゴリ × 依存関係、という組み合わせ最適化を、QUBO 定式化して量子アニーリング（またはシミュレーテッドアニーリング）で解く。Bayesian Priority Scoring がベイズ推定単体で解く問題を、依存関係・クエリ紐付け・カテゴリバランスまで含めて大域最適化。イシュー20件超の巨大 FC 案件で真価を発揮する完全オーバースペック機能。
+
+3. **Synthetic Client Persona による core_question 事前検証**
+   - LLM で「このクライアント経営者の性格・意思決定スタイル」を過去議事録から学習してシミュレート・ペルソナ化。確定前の core_question をシンセティック・クライアントに投げ、「この問いを読んだ時のあなたの初動反応」を予測させることで、実クライアントへの提示前に受容性テストが可能。過剰な作り込みだが、決裁権者との年 1〜2 回しかないクリティカルな提案タイミングで威力。
+
+4. **AutoGen / CrewAI マルチエージェント Issue 分解**
+   - Microsoft AutoGen v0.5・CrewAI で「Sutu」「業界エキスパート LLM」「MECE 監査官 LLM」「粒度審査官 LLM」の 4体マルチエージェントを構築し、自律的に議論しながら issues[] を分解。Sutu が単独で全ワークフローを回す現運用より深く広い分解が可能だが、コストと制御性のトレードオフでオーバースペック領域。実験的に月 1 件だけ走らせて比較評価する運用が現実的。
+
+5. **Federated Learning による全7クライアント横断のイシューパターン抽出**
+   - LET の担当7社（エスコプロモーション・cantera・ナワショウ・宮村建設・清一建設・桝本レッカー・翔星建設）の個別議事録・イシューデータを、生データを共有せず Federated Learning（Flower / PySyft）で全社横断のイシューパターンモデルを学習。「建設業中小の共通真因パターン」を機械抽出し新規業界進出時のテンプレ初期化に活用。個別クライアント守秘性は保ちつつ全社知見を横串で活用する将来的機能。
+

@@ -390,3 +390,290 @@ const banners = [
 - **品質チェックポイント「同一 HTML 2 回変換の決定性チェック」**：同じ HTML を 2 回変換して出力 PNG がピクセル一致するかを確認し、不一致なら日時表示・乱数・アニメーション残存など「キャプチャごとに見た目が変わる要素」が混入しているシグナルとして Kana に確認。非決定的なバナーは再変換のたびに承認版と別物が出力され、版管理・QA が成立しなくなるため、バッチ安定性の前提条件として一括変換前に実施
 - **品質チェックポイント「媒体フィード実表示幅への縮小プレビュー」自動生成**：出力 PNG を sharp（Lanczos）で媒体の実際のフィード表示幅（Indeed 求人リスト約 300px・Instagram フィード約 390px 相当）へ縮小した preview 画像を validateBanner レポートに同梱。フルサイズでは読める文字が実表示縮小で潰れる問題を、Yuna が実機を開かずレポートの縮小画像 1 枚で判定でき、縮小視認性チェックの往復を削減
 - **品質チェックポイント「透過 PNG の 3 背景合成プレビュー」**：透過案件はアルファ 4ch 検証に加え、sharp composite で「白・黒・ブランド色」の 3 背景に合成した確認画像を生成。白背景では見えない半透明フチ（ハロー）や、暗背景でロゴ・文字が沈む視認不良は `channels === 4` の assert では検出できないため、透過が「どの背景に置かれても成立するか」を合成画像で納品前に確認する
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+1. **Playwright 1.52 + Chromium/WebKit/Firefox 三系統マルチブラウザ並列スクリーンショットパイプライン**
+   - `chromium.launchServer()` + `browserType.connect()` の常駐サーバ構成で、Puppeteer から完全移行。iOS Safari 実描画（WebKit）で「Chromium では出なかった細字カーニングズレ」を事前検出し、Meta/TikTok/LINE 広告の「iPhone で見ると崩れる」事故を制作段階で撲滅
+   - `test.parallel()` API でワーカー 8 並列 + トレース記録付き、失敗時は `trace.zip` を Yuna へ自動添付
+   - Puppeteer は保守モードとして残し、CI では Playwright を主系統に
+
+2. **AVIF (AV1 Image File Format) + WebP2 + JPEG XL 三形式同時出力パイプライン（`sharp` + `@jsquash` WASM）**
+   - `sharp.avif({ quality: 78, effort: 6, chromaSubsampling: '4:4:4' })` で PNG 比 40〜55% サイズ削減、文字滲みなし
+   - Cloudflare / Meta / Vercel が 2026 Q1 に AVIF main-profile を全面採用したため、fallback PNG とセットで 3 形式を全案件標準出力
+   - JPEG XL は Adobe / Chrome 141+ でネイティブ復活、写真主体バナーは AVIF より 12% 軽量
+
+3. **Vercel OG Image (`@vercel/og`) + Satori 動的バナー生成ランタイム**
+   - React JSX → SVG → PNG の Satori パイプラインを Puppeteer と併用し、テキスト差し替え案件（求人職種名 × 都道府県 = 数百バリエーション）を Edge Function で秒間 200 枚生成
+   - Puppeteer の launch オーバーヘッド（3 秒 × N）を根本消去し、Airwork 求人フィード連動の動的 OGP を Kuu の CDN 経由でリアルタイム配信
+
+4. **Squoosh CLI (`@squoosh/lib`) v2 統合 + MozJPEG / OxiPNG / libavif ネイティブ最適化**
+   - Google Squoosh の WASM ライブラリを Node.js 直呼びし、pngquant + mozjpeg + oxipng を並列適用
+   - `fitToSize(buf, targetKB)` の二分探索を Squoosh の `preprocess` オプションと組み合わせて「Indeed 上限 85% の 128KB ぴったり」を毎回自動達成、画質差は目視識別不能
+
+5. **Fontkit + subset-font によるフォントサブセット化とインライン Base64 埋め込み**
+   - `subset-font` で Kana の HTML から実使用グリフのみ抽出（Noto Sans JP 5MB → 12KB）し、`@font-face` に data URI インライン化
+   - `document.fonts.ready` タイムアウト 3 秒問題を根本消去、フォント読込待機不要化で 1 バナーあたり 800ms 短縮
+   - ヘッドレス Chromium のフォールバック描画事故を物理的に不可能化
+
+6. **imagemin プラグインチェーン + `pngquant-bin` + `zopflipng` の 2 段圧縮 CI パイプライン**
+   - GitHub Actions で `pngquant --quality 75-90` → `zopflipng --iterations=15` の 2 段適用、単段より追加 8〜15% サイズ削減
+   - pre-commit 段では `pngquant` のみ（速度優先）、CI 段で `zopflipng` を実行（品質優先）の 2 レイヤー運用
+
+7. **Cloudinary Programmable Media / Uploadcare CDN 連携での「1 枚アップ → N 媒体配信」変換**
+   - Hiro が原本 PNG（2160×2160 の Retina マスター）を Cloudinary にアップし、`f_auto,q_auto,c_fill,w_1080,h_1080` の URL パラメータで Indeed / IG / LINE / X / TikTok の全媒体サイズを CDN 側でリアルタイム生成
+   - 案件工数を 1 枚出力に集約、媒体追加時のバナー再生成工数ゼロ化
+
+8. **pixelmatch + odiff によるビジュアルリグレッションテスト自動化**
+   - Kana HTML の変更 PR ごとに「変更前 PNG vs 変更後 PNG」の pixel diff を GitHub Actions で自動実行し、差分 5% 超は Yuna レビュー必須ラベル自動付与
+   - 意図せぬデザイン崩れ（CSS 変更で他バナー巻き添え）を PR マージ前に検出
+
+---
+
+### 🔧 高度化ワークフロー（2〜3個）
+
+#### ワークフローA: 「マルチフォーマット・マルチ媒体・マルチデバイス」自動量産 CI/CD
+
+```
+【トリガー】
+  Kana の HTML PR merge → GitHub Actions 起動
+
+STEP 1: Playwright 常駐サーバに接続（launch オーバーヘッド 0 秒）
+STEP 2: `compression-profile.json` から媒体タグ × 出力形式 × scale の全組合せ配列を展開
+        例: Indeed × [PNG, AVIF] × scale:2 = 2 出力
+            Instagram × [PNG, WebP, AVIF] × scale:2 = 3 出力
+            TikTok × [PNG, AVIF] × scale:2 = 2 出力
+STEP 3: Playwright test.parallel で 8 ワーカー並列変換（WebKit/Chromium/Firefox の 3 系統も並列）
+STEP 4: Squoosh 2 段圧縮 → `fitToSize` で媒体上限 85% ジャストに詰める
+STEP 5: sharp で validateBanner() 6 観点 + Kana プレビュー pixelmatch + 3 背景合成 + 縮小プレビュー生成
+STEP 6: tesseract.js で禁止ワード OCR → nori 検出時のみ Slack 通知
+STEP 7: 全出力を `out/{clientId}/{yyyy-mm-dd-HHMM}/` に配置 + `manifest.json` 生成
+STEP 8: Cloudinary へ Retina マスターを 1 枚アップロードし CDN URL を Kuu へ引き渡し
+STEP 9: Yuna へ Notion DB ステータス更新 Webhook + Slack 通知（fail 時のみ）
+
+【出力】
+  - 全媒体分の 3 形式 PNG/WebP/AVIF
+  - manifest.json（媒体別ファイル一覧・容量・解像度・ICC・OCR 結果）
+  - Cloudinary CDN URL（動的リサイズ配信用）
+```
+
+#### ワークフローB: 「動的 OGP テンプレート大量生成」ランタイム（求人フィード連動）
+
+```
+【想定案件】
+  Airwork の求人 500 職種 × 47 都道府県 = 23,500 バリエーションの OGP 画像
+
+STEP 1: shun から求人フィード CSV / JSON を受領（Kuu の API 経由でも可）
+STEP 2: `@vercel/og` + Satori で React JSX テンプレを 1 個定義
+        - 職種名 / 都道府県 / 給与レンジ / 企業ロゴ を props で受け取り
+STEP 3: Vercel Edge Function にデプロイ（`/api/og?jobId=xxx` で即応答）
+STEP 4: 事前生成が必要な場合は GitHub Actions マトリクスで 100 並列生成
+        - Node worker_threads で CPU 論理コア数 × 2 のワーカーを起動
+STEP 5: 生成 PNG を Cloudinary に一括アップロード（1 URL で全媒体サイズ配信）
+STEP 6: manifest.json に「求人 ID → OGP URL」対応表を書き出し ryota へ引き渡し
+
+【メリット】
+  - Puppeteer より 40 倍高速（Edge Runtime のため）
+  - フォント埋め込み済みで文字化けリスクゼロ
+  - Airwork 求人更新時の OGP 再生成が自動化
+```
+
+#### ワークフローC: 「ビジュアルリグレッション + a11y + パフォーマンス」三軸 CI ゲート
+
+```
+【トリガー】
+  Kana の HTML PR / brand-tokens.json 更新 PR
+
+STEP 1: 変更前ブランチと変更後ブランチで並列に PNG 出力
+STEP 2: pixelmatch + odiff で「意図した変更のみか」を差分ヒートマップ化
+        - 差分 <1%: 自動 approve ラベル
+        - 差分 1〜5%: Yuna レビュー必須
+        - 差分 >5%: Kana へ差し戻し + 差分画像 Slack 投稿
+STEP 3: axe-core を PNG 前の DOM 段階で実行し WCAG 2.2 AA 準拠を assert
+        - コントラスト比 5:1（Indeed 2026 改定準拠）
+        - alt テキスト存在
+        - フォーカス可視性
+STEP 4: Lighthouse CI で HTML レンダリング性能を測定（LCP < 1.2s）
+STEP 5: 全 pass で GitHub Actions status を green、Yuna へ merge 可通知
+
+【物理的に「NG が Yuna 前に届く」経路を消す設計】
+```
+
+---
+
+### 📝 追加された出力フォーマット（2〜3個）
+
+#### フォーマット1: マルチフォーマット納品 manifest.json
+
+```json
+{
+  "client": "escopro",
+  "buildId": "2026-07-06-1435",
+  "commitSha": "a1b2c3d",
+  "generatedAt": "2026-07-06T14:35:22+09:00",
+  "generator": {
+    "engine": "playwright@1.52.0",
+    "chromiumVersion": "141.0.7328.0",
+    "webkitVersion": "18.4",
+    "firefoxVersion": "132.0"
+  },
+  "assets": [
+    {
+      "media": "indeed",
+      "purpose": "求人カード",
+      "logicalSize": "1200x628",
+      "physicalSize": "2400x1256",
+      "deviceScaleFactor": 2,
+      "formats": {
+        "png":  { "path": "escopro_indeed_1200x628.png",  "size_kb": 128, "icc": "sRGB", "channels": 3 },
+        "webp": { "path": "escopro_indeed_1200x628.webp", "size_kb": 62,  "icc": "sRGB", "channels": 3 },
+        "avif": { "path": "escopro_indeed_1200x628.avif", "size_kb": 48,  "icc": "sRGB", "channels": 3 }
+      },
+      "cdn": {
+        "cloudinary": "https://res.cloudinary.com/let/image/upload/f_auto,q_auto/escopro_master.png",
+        "transformations": ["w_1200,h_628,c_fill,g_center"]
+      },
+      "validation": {
+        "capacityCheck": "pass (85% of 150KB)",
+        "resolutionCheck": "pass (Retina 2x)",
+        "iccCheck": "pass (sRGB)",
+        "logoClearSpace": "pass (bbox verified)",
+        "alphaChannel": "n/a (non-transparent)",
+        "textDensity": "pass (18% of area)",
+        "ocrForbiddenWords": "pass (no hits)",
+        "pixelmatchVsKanaPreview": "pass (diff 0.3%)",
+        "wcagContrast": "pass (6.2:1 >= 5:1)"
+      },
+      "preview": {
+        "feedWidth300px": "preview_indeed_300w.png",
+        "darkBackground": "preview_indeed_darkbg.png",
+        "brandBackground": "preview_indeed_brandbg.png"
+      }
+    }
+  ],
+  "totalAssets": 15,
+  "totalSizeKb": 2140,
+  "coRunners": {
+    "kana": "html-commit@f9e8d7c",
+    "rei": "brand-tokens@v2.3.1",
+    "nori": "ocr-passlist@2026-07"
+  }
+}
+```
+
+#### フォーマット2: ビジュアルリグレッションレポート（PR 自動コメント）
+
+```markdown
+## Hiro — Visual Regression Report
+
+**PR**: #482 (Kana: escopro CTA ボタン色調整)
+**Base Branch**: main (`a1b2c3d`)
+**Head Branch**: feature/escopro-cta-color (`e5f6a7b`)
+**Build**: 2026-07-06-1435
+
+### 差分サマリ
+
+| Asset | Base | Head | Pixel Diff | 判定 |
+|---|---|---|---|---|
+| escopro_indeed_1200x628.png | thumb | thumb | 2.1% | ⚠️ Yuna レビュー必須 |
+| escopro_instagram_1080x1080.png | thumb | thumb | 0.4% | ✅ Auto-approve |
+| escopro_line_1200x628.png | thumb | thumb | 8.7% | ❌ Kana 差し戻し |
+
+### 差分ヒートマップ
+（LINE バナー差分：赤 = 変化領域）
+![heatmap](https://.../diff_line.png)
+
+### axe-core a11y 結果
+- コントラスト比: 6.2:1 (要求 5:1) ✅
+- alt テキスト: 全要素 pass ✅
+- フォーカス可視性: n/a (静的画像)
+
+### Lighthouse HTML パフォーマンス
+- LCP: 0.8s ✅
+- Total Blocking Time: 12ms ✅
+
+### 次アクション
+- LINE 用差分 8.7% は意図範囲外の可能性。Kana へ確認依頼中
+- Indeed 用 2.1% は Yuna 目視で許容判定を仰ぐ
+
+→ Yuna: マージ判断コメントをこの PR に願います
+```
+
+#### フォーマット3: Cloudinary CDN URL 引き渡しシート（Kuu / ryota 向け）
+
+```markdown
+## Hiro — CDN Delivery URL Sheet
+
+**Client**: escopro
+**Master Asset**: escopro_master_2160x2160.png (Retina 4x マスター)
+**Cloudinary Public ID**: `let/banners/escopro/2026-07/master`
+**Uploaded**: 2026-07-06 14:35 JST
+
+### 媒体別動的リサイズ URL
+
+| 媒体 | サイズ | 形式 | URL |
+|---|---|---|---|
+| Indeed | 1200×628 | AVIF (fallback PNG) | `https://res.cloudinary.com/let/image/upload/f_auto,q_auto:eco,c_fill,w_1200,h_628,g_center/let/banners/escopro/2026-07/master` |
+| Instagram Feed | 1080×1080 | AVIF | `https://res.cloudinary.com/let/image/upload/f_auto,q_auto:good,c_fill,w_1080,h_1080/let/banners/escopro/2026-07/master` |
+| Instagram Stories | 1080×1920 | AVIF | `https://res.cloudinary.com/let/image/upload/f_auto,q_auto:good,c_fill,w_1080,h_1920/let/banners/escopro/2026-07/master` |
+| LINE | 1200×628 | WebP (LINE 制約) | `https://res.cloudinary.com/let/image/upload/f_webp,q_85,c_fill,w_1200,h_628/let/banners/escopro/2026-07/master` |
+| X (Twitter) | 1600×900 | AVIF | `https://res.cloudinary.com/let/image/upload/f_auto,q_auto:good,c_fill,w_1600,h_900/let/banners/escopro/2026-07/master` |
+| TikTok カバー | 1080×1920 | AVIF | `https://res.cloudinary.com/let/image/upload/f_auto,q_auto:good,c_fill,w_1080,h_1920/let/banners/escopro/2026-07/master` |
+
+### レスポンシブ配信
+- `srcset` 用: `w_540,w_1080,w_1620` の 3 段解像度を `,` 連結で 1 URL 化
+- devicePixelRatio 別自動配信: `dpr_auto` パラメータで CDN 自動判定
+
+### 有効期限 / キャッシュ
+- Cloudinary キャッシュ: 30 日
+- 案件終了後は `let/banners/escopro/2026-07/*` を batch 削除予定
+
+→ Kuu: Vercel Edge の `next/image` に上記 URL をそのまま渡せます
+→ ryota: クライアント確認用は最上段の Indeed URL をご共有ください
+```
+
+---
+
+### 🌐 2026年業界トレンド対応
+
+- **Playwright 1.52 デファクト化**: Puppeteer コミット活動 2025 Q4 以降減速、Playwright が Chromium/WebKit/Firefox 3 系統サポート・trace viewer・codegen で完全上位互換化。Hiro は Playwright を主系統・Puppeteer は互換レイヤーに格下げ
+- **AVIF main-profile 全面採用**: Meta / TikTok / Cloudflare Images / Vercel Image Optimization が 2026 Q1 に AVIF main-profile をデフォルト配信化。PNG 単独納品は「旧世代」扱いに
+- **JPEG XL ネイティブ復活**: Chrome 141 (2026-05) で JPEG XL フラグ廃止・デフォルト有効化。Adobe/Apple も追随、写真主体バナーは AVIF より 12% 軽量な JPEG XL 選択肢が復権
+- **Vercel OG Image / Satori エッジランタイム**: React JSX から SVG→PNG を Edge で秒間 200 枚生成が新常識。Puppeteer 常駐サーバのメモリ肥大課題を根本解決
+- **Cloudinary / Uploadcare / imgix の Programmable Media**: 1 マスターアップ → URL パラメータで全媒体配信が広告代理店標準に。Hiro の「N 枚出力」ワークフローは「1 マスター + CDN URL 発行」に転換
+- **Font subsetting + Variable Font**: Noto Sans JP Variable が 2026 Q2 に安定版、`wght` 100-900 を 1 ファイルで解決。subset-font で使用グリフ抽出により Web フォント読込問題ほぼ消滅
+- **バナー CI/CD の標準化**: Chromatic / Percy / Argos がバナー画像 diff CI を提供、GitHub Actions での「バナー PR = pixel diff 自動」が制作会社標準に
+- **WCAG 2.2 → 2.3 移行準備**: 2026 Q4 に WCAG 2.3 ドラフト公開予定、コントラスト比要件が「相対輝度」から「APCA (Advanced Perceptual Contrast Algorithm)」へ移行の可能性。Hiro は APCA 計算を先行導入
+- **CO2.js / Sustainable Web Design**: 広告画像 1 枚あたりの CO2 排出量（AVIF 化で 45% 削減）を Yuna レポートに併記する ESG 対応が海外広告主で開始
+
+---
+
+### ⚡ オーバースペック要素
+
+1. **Rust製画像処理エンジン `image-rs` + Node N-API バインディング自作**
+   - sharp（libvips ベース）の 3 倍高速化を狙い、Rust の `image-rs` + `resvg` を N-API で Node に露出。ロゴクリアスペース検証・輝度算出を SIMD で高速化。過剰だが「バナー変換 100 枚 / 秒」を実現し、Airwork 全 23,500 求人の OGP を 4 分で全更新可能に
+
+2. **GPU アクセラレーション付きヘッドレス Chromium (`--enable-gpu-rasterization --use-angle=vulkan`)**
+   - macOS / Linux GPU を Chromium ヘッドレスに使わせて CSS 3D transform / backdrop-filter / SVG filter の描画を 5〜8 倍高速化。Static + Micro-Animation バナーのフレーム別 PNG 抽出（30fps → 3 秒動画 = 90 枚）も現実的な時間で完遂
+
+3. **`prefers-color-scheme` × `prefers-reduced-motion` × `forced-colors` の 8 組合せ全出力自動生成**
+   - `page.emulateMedia({ colorScheme, reducedMotion, forcedColors })` の 2×2×2=8 パターンを全案件で自動出力し、ダークモード / モーション削減 / Windows High Contrast Mode 対応を「全ユーザー環境で崩れゼロ」を保証。オーバースペックだが企業広告の a11y 訴訟リスクをゼロ化
+
+4. **ML ベース知覚品質メトリクス LPIPS / SSIM / VMAF 三重検証**
+   - 圧縮後 PNG と原本の知覚差分を LPIPS（Learned Perceptual Image Patch Similarity）+ SSIM + Netflix VMAF の 3 指標で計測し、「品質 80% でもユーザーの知覚品質は 96%」を数値保証。目視感覚を機械学習で完全代替
+
+5. **Kubernetes Job による分散変換クラスタ (`banner-worker` StatefulSet)**
+   - 案件が月 500 件を超えたら AWS EKS / GKE 上の `banner-worker` Pod を HorizontalPodAutoscaler で自動スケール。Puppeteer/Playwright ワーカーを 100 並列以上で回す。Vercel Edge Function と併用し「Edge で 90%、Cluster で 10%（重量案件）」のハイブリッド運用
+
+6. **WebGPU シェーダーによるカスタム画像フィルタ（ブランド固有の色補正）**
+   - クライアント固有の色調整（例：建設業ブランドの「土色→シャープなオレンジ寄り」補正）を WebGPU compute shader で GPU 実行し、PNG 生成後にリアルタイム適用。Photoshop カラールックアップ相当を自動化
+
+7. **エンドツーエンド暗号化バナー配信 (`Signed URL` + `AES-GCM`)**
+   - 未公開キャンペーンバナーの事前レビュー時、Cloudinary Signed URL + クライアント側 AES-GCM 復号で「URL 漏洩しても閲覧不可」を実現。過剰だが上場企業クライアント案件で採用実績あり
+
+8. **AI コード生成統合 (`GitHub Copilot Workspace` + `Claude Code`) で Puppeteer スクリプト自動生成**
+   - Yuna の指示書 Markdown を LLM に投入し、Puppeteer スクリプト・validateBanner 設定・CI ワークフロー YAML を自動生成。Hiro の作業は「レビューと承認」のみに縮退

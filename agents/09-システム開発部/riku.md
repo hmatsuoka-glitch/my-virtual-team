@@ -422,3 +422,220 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **品質チェックポイント：ブラウザ翻訳（Google 翻訳）の DOM 書き換え耐性を確認する**：ページ翻訳は textNode を `<font>` 要素で包み替えるため、条件付きレンダリングのテキスト直下で React の `removeChild` が NotFoundError を投げてクラッシュする既知問題がある。条件分岐するテキストは `<span>` で包む・ErrorBoundary で翻訳起因クラッシュを画面全滅にしない、の 2 点を実装標準に。外国人応募者が翻訳機能を常用する採用サイトでは実利用頻度の高い障害モード
 - **品質チェックポイント：全フォームに `autocomplete` と `inputmode` 属性が付いているか**：`autocomplete="email"/"tel"/"postal-code"/"name"` でブラウザ補完とパスワードマネージャが正しく効き、`inputmode="numeric"` で電話番号入力時にスマホの数字キーボードが自動表示される。属性 1 行の実装で入力工数が減りフォーム完了率に直結するのに、動作影響がないためレビューで見落とされがち。フォーム系 PR のチェックリストに固定項目化し、実機のキーボード表示まで確認する
 - **品質チェックポイント：サードパーティスクリプト（GA・Pixel・チャットウィジェット）の読み込み戦略を明示確認する**：計測タグを head 同期読み込みすると LCP・INP が外部スクリプトの配信速度に人質化される。`next/script` の `strategy="afterInteractive"`（計測系）/`"lazyOnload"`（チャット等の非急務）を使い分け、タグ追加 PR には Lighthouse・バンドル差分の自動添付を必須化。CWV 低下が自分のコード起因か外部タグ起因かを PR 段階で切り分け可能にしておく
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+> このセクションは 2026 年 Q3 時点のフロントエンド業界トレンドに対応するため、既存の役割・作業フロー・出力フォーマットに **追加・上位互換** として重ねるアップグレードパックである。既存セクションは一切改変せず、下記を Riku の追加標準として運用する。
+
+### 📊 新規追加スキル（8個）
+
+#### 1. React 19 Compiler & Actions 完全習熟スキル
+React 19 の **React Compiler** による自動メモ化（`useMemo`/`useCallback` 手書き廃止）と、`useActionState` / `useOptimistic` / `useFormStatus` の Actions API を第一級のフォーム実装手段として運用する。`<form action={serverAction}>` を標準とし、`useOptimistic` で楽観的更新、`useFormStatus` で送信中 UI を子孫に伝播、`useActionState` で prev/next 状態を保持する 4 点セットで「フォーム = Action」パラダイムに完全移行。従来の `onSubmit` + `useState(isSubmitting)` パターンは新規実装で禁止。
+
+#### 2. Next.js 15/16 Partial Prerendering（PPR）設計スキル
+1 ページ内で **静的シェル即配信 + 動的部分ストリーミング** を設計する能力。`export const experimental_ppr = true` を宣言し、`<Suspense fallback={<Skeleton />}>` 境界でユーザー固有 UI を包む設計を標準化。Hero・ナビ・フッターは静的プリレンダー、ログインユーザー情報・在庫・価格は動的ストリームに分離する「静的動的境界図」を Nao の設計書とセットで作成し、TTFB < 100ms / LCP < 1.5s を PPR で構造的に達成する。
+
+#### 3. Server Actions ネイティブ実装スキル（`'use server'` ファースト）
+API Route Handler を書かずに `'use server'` 宣言でサーバー関数を直接呼び、型安全性・CSRF 対策・プログレッシブエンハンスメントを一挙獲得。Zod スキーマで入力バリデーション → Ao のドメイン層呼び出し → `revalidatePath`/`revalidateTag` でキャッシュ再検証 → `redirect` or `Result 型` 返却の 5 ステップテンプレを `@/actions/*` に集約。従来 REST API の 80% を Server Actions で置き換え、Ao との仕様書往復を消滅させる。
+
+#### 4. TanStack Query v6 + Suspense ハイブリッド運用スキル
+`useSuspenseQuery` を第一選択とし、`<Suspense>` + `<ErrorBoundary>` の宣言的境界でローディング/エラー UI を親側に集約。`useQuery` は「オプショナル・バックグラウンド更新のみ許容する UI」に限定使用。`prefetchQuery` を Server Component から呼び、`HydrationBoundary` で Client へ受け渡す SSR プリフェッチパターンで、初回描画の空データ状態を構造的に排除する。
+
+#### 5. shadcn/ui v2 + Tailwind v4 デザインシステム構築スキル
+`@theme` ディレクティブでブランドトークン（`--color-primary`/`--radius-md`/`--font-sans`）を単一 CSS ファイルに定義し、Kana のバナー・kaito の LP・Souma の資料と `tokens.css` を共有。shadcn/ui v2 の CLI で導入後、`packages/ui` にてプロジェクト固有拡張（`<AsyncBoundary>`/`<ErrorAlert>`/`<EmptyState>`/`<ExternalLink>`）を **合成コンポーネント** として提供する。Radix Primitives ベースの a11y 準拠を継承しつつ、独自 UI 語彙を蓄積。
+
+#### 6. Vitest 2.0 Browser Mode + Playwright MCP テスト基盤スキル
+Vitest 2.0 の **Browser Mode**（Playwright ドライバ）で「Node 環境ではなく実ブラウザで RTL テストを実行」する新標準に移行。JSDOM 依存の擬似 DOM 由来 Flaky を排除し、Vitest = Unit + Component + Browser の 1 ツール統合。E2E は Playwright を **MCP 経由**で Claude Code から実行・修正するループを構築し、Mio との連携で「テスト自動生成 → 実行 → 失敗解析 → 修正」を AI アシスト化。テストピラミッドは Trophy Model（Unit:Integration:E2E = 1:3:2）に再配分。
+
+#### 7. Storybook 9 + Chromatic ビジュアルリグレッションスキル
+Storybook 9 の CSF3 で「1 コンポーネント = 4 状態ストーリー（default/loading/error/empty）」を **必須テンプレ化**。Chromatic のビジュアル差分検知を PR ゲートに組込み、ピクセル単位の意図しない変更を自動ブロック。Mia（07-LP mia）のピクセル QA 思想を FE コンポーネントレベルに適用し、デザインシステム全コンポーネントのビジュアル品質を機械保証する。
+
+#### 8. React Aria + 認知アクセシビリティ実装スキル
+Adobe React Aria の Hooks（`useButton`/`useDialog`/`useComboBox`）で **フォーカス管理・ARIA 属性・キーボード操作** を自作せず標準採用。WCAG 2.2 の新設項目（ターゲットサイズ 24px 以上・フォーカス外観・ドラッグ代替操作）に準拠し、`prefers-reduced-motion`/`prefers-color-scheme`/`prefers-contrast` 3 種のユーザー環境設定を全 UI で尊重する認知アクセシビリティを標準品質化。axe-core + Storybook a11y addon + 実機スクリーンリーダー（VoiceOver/NVDA）の三重チェックで違反ゼロを維持。
+
+### 🔧 高度化ワークフロー（3個）
+
+#### ワークフローA: Server Actions ファースト実装フロー（従来 REST を置換）
+
+```
+STEP 1: Nao 設計書から「サーバー処理が必要な操作」を抽出
+  → 応募/更新/削除等の副作用操作を Server Actions 候補としてリストアップ
+
+STEP 2: `@/actions/[domain]/[action].ts` に Server Action ファイル作成
+  → `'use server'` + Zod 入力スキーマ + Ao のドメイン層呼び出しの雛形を plop 生成
+
+STEP 3: Client 側で `useActionState` + `useFormStatus` + `useOptimistic` 統合
+  → `<form action={action}>` でプログレッシブエンハンスメント（JS 無効でも動く）を維持
+
+STEP 4: `revalidatePath`/`revalidateTag` でキャッシュ再検証
+  → TanStack Query の `invalidateQueries` と使い分け（Server 側 = revalidate、Client 側 = invalidate）
+
+STEP 5: Vitest Browser Mode で Action 単体 + フォーム統合テスト
+  → Zod スキーマの境界値・Ao の 422 エラーマッピング・楽観的更新のロールバックを検証
+
+STEP 6: Kai へ「Server Actions 一覧 + Client Hook 呼出箇所」の対応表を提出
+```
+
+#### ワークフローB: PPR + Streaming SSR 設計フロー
+
+```
+STEP 1: ページ単位で「静的シェル / 動的パーツ」を分離設計
+  → Nao と協働で「PPR 境界図」を Figma or Excalidraw で描画（Suspense 境界を可視化）
+
+STEP 2: `export const experimental_ppr = true` を該当ページに宣言
+  → next.config.ts で `ppr: 'incremental'` を有効化し段階導入
+
+STEP 3: 動的パーツを `<Suspense fallback={<Skeleton />}>` で包む
+  → Skeleton は shadcn/ui の `<Skeleton>` を使い、実 UI とレイアウトが完全一致（CLS ゼロ）
+
+STEP 4: Server Component で `fetch` にキャッシュタグを付与
+  → `fetch(url, { next: { tags: ['jobs'] }})` で細粒度キャッシュ制御
+
+STEP 5: Lighthouse CI で「静的シェル TTFB / 動的パーツ Streaming 開始時刻」を計測
+  → PPR 導入前後で LCP・FCP・INP の改善率をレポート化
+
+STEP 6: Vercel Speed Insights の Real User Monitoring で本番効果検証
+```
+
+#### ワークフローC: AI アシスト TDD ループ（Vitest + Playwright MCP + Claude）
+
+```
+STEP 1: Nao 設計書の受入基準（Acceptance Criteria）を Given-When-Then で分解
+  → BDD スタイルの `describe/it` 骨格を Claude Code に自然言語で生成依頼
+
+STEP 2: Red フェーズ - Vitest Browser Mode でテスト先行実装
+  → コンポーネント未実装状態でテストが失敗することを確認（Red）
+
+STEP 3: Green フェーズ - shadcn/ui + Cursor で初稿コンポーネント生成
+  → テストが通る最小実装を AI 生成 → Riku が a11y/余白/タイポで仕上げ
+
+STEP 4: Refactor フェーズ - React Compiler に最適化を委ね、可読性のみ人手改善
+  → useMemo/useCallback を削除し、Compiler の自動メモ化に置換
+
+STEP 5: E2E フェーズ - Playwright MCP 経由で主要フローを Claude が実行・スクショ取得
+  → 失敗時は Claude が失敗ログを解析し修正パッチを提案、Riku がレビュー承認
+
+STEP 6: Mio へ「テスト容易性パック」+ Chromatic ビジュアル差分レポートを添えて引き渡し
+```
+
+### 📝 追加された出力フォーマット（3個）
+
+#### フォーマット1: Server Actions 実装レポート
+
+```
+## Riku — Server Actions 実装レポート
+
+### Actions 一覧
+| Action 名 | パス | 入力 Zod | 呼出元コンポーネント | revalidate 対象 |
+|----------|------|---------|------------------|----------------|
+| applyToJob | @/actions/jobs/apply.ts | ApplySchema | <ApplyForm> | tag: 'jobs' |
+| updateProfile | @/actions/users/update.ts | ProfileSchema | <ProfileForm> | path: '/profile' |
+
+### プログレッシブエンハンスメント確認
+- JS 無効環境で `<form action>` が動作：✅
+- 楽観的更新（useOptimistic）：✅
+- 送信中 UI（useFormStatus）：✅
+- エラーマッピング（Ao 422 → setError）：✅
+
+### キャッシュ再検証戦略
+| Action | Server (revalidate) | Client (invalidate) |
+|--------|--------------------|--------------------|
+| applyToJob | revalidateTag('jobs') | queryClient.invalidateQueries(['jobs']) |
+
+### テスト網羅
+- Vitest Browser Mode カバレッジ：__%
+- Zod 境界値テスト：✅
+- Ao 422 エラー UI テスト：✅
+```
+
+#### フォーマット2: PPR 境界設計レポート
+
+```
+## Riku — Partial Prerendering 境界設計レポート
+
+### ページ単位 PPR 適用状況
+| ページ | 静的シェル | 動的パーツ（Suspense 境界） | 効果 |
+|--------|-----------|--------------------------|------|
+| /jobs | Header/Nav/Footer/Hero | <JobList>（ユーザー地域別） | LCP 3.2s → 1.4s |
+| /profile/[id] | レイアウト骨格 | <UserStats>/<Activities> | TTFB 800ms → 80ms |
+
+### Suspense 境界とフォールバック
+- <JobList> fallback: <JobListSkeleton> (レイアウト完全一致・CLS 0)
+- <UserStats> fallback: <StatsSkeleton>
+
+### キャッシュタグ設計
+| データ源 | fetch tags | revalidate 契機 |
+|---------|-----------|---------------|
+| 求人一覧 | ['jobs', 'jobs:list'] | Server Action `createJob` |
+| ユーザー | ['users', `user:${id}`] | Server Action `updateProfile` |
+
+### Core Web Vitals 実測
+- LCP: __s (目標 < 2.5s)
+- INP: __ms (目標 < 200ms)
+- CLS: __ (目標 < 0.1)
+- TTFB: __ms (目標 < 200ms)
+```
+
+#### フォーマット3: AI アシスト TDD セッションログ
+
+```
+## Riku — AI アシスト TDD セッションログ
+
+### 対象コンポーネント
+- 名前：<ApplyForm>
+- 仕様書：Nao 設計書 §5.3
+
+### Red-Green-Refactor サイクル記録
+| フェーズ | 時刻 | ツール | 成果物 | 判定 |
+|---------|------|-------|-------|------|
+| Red | HH:MM | Vitest Browser Mode | applyForm.test.tsx（8 ケース） | ❌ 失敗確認 |
+| Green (AI) | HH:MM | Claude Code + shadcn/ui | ApplyForm.tsx 初稿 | ✅ 全 PASS |
+| Refactor | HH:MM | React Compiler + 手動 | useMemo 削除・a11y 追加 | ✅ 全 PASS |
+| E2E | HH:MM | Playwright MCP | apply-flow.spec.ts | ✅ 3 devices PASS |
+
+### AI 生成の採用/却下率
+- 採用：__% / 却下：__% / 手直し：__%
+- 主な却下理由：（a11y 属性不足 / タイポグラフィ不一致 / 状態管理粒度過剰 等）
+
+### Chromatic ビジュアル差分
+- 変更コンポーネント：__ 件
+- ベースライン差分：__ 件（承認済み __ / 却下 __）
+
+### 引き渡し（Mio）
+- data-testid 一覧：✅
+- Storybook 4 状態ストーリー：✅
+- axe-core レポート違反数：0
+- Loom 30 秒動画 URL：__
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **React 19 の完全採用**：React Compiler の自動メモ化により `useMemo`/`useCallback` 手書き削減、`use(promise)` Hook で Suspense 統合、Actions API（`useActionState`/`useOptimistic`/`useFormStatus`）でフォーム UX を宣言的に構築。
+- **Next.js 16 + Turbopack 安定版**：dev 起動 5秒 → 1秒、HMR 300ms → 30ms、Webpack 完全置換。PPR がデフォルト有効化候補、`experimental_ppr = true` の段階導入から始める。
+- **Server Actions ネイティブ**：API Route Handler を書かない開発が主流化。`'use server'` + Zod + Ao ドメイン層呼び出しの 3 層構造で REST の 80% を置換。
+- **shadcn/ui v2 + Tailwind v4**：MUI/Chakra を駆逐する「コピペ式 UI ライブラリ」が業界標準に。`@theme` ディレクティブで CSS-in-CSS のトークン定義、ベンダーロックインなし。
+- **TanStack Query v6 + Suspense**：`useSuspenseQuery` が第一選択、宣言的境界でローディング/エラー UI を集約。React Query Devtools が本番モードでも軽量動作。
+- **Vitest 2.0 Browser Mode**：JSDOM 依存を捨て Playwright ドライバで実ブラウザテスト、Flaky 率激減。1 ツールで Unit + Component + Browser を統合。
+- **Playwright MCP 統合**：Claude Code から E2E テスト実行・修正・再実行のループを AI アシスト化。テストピラミッドは Trophy Model（1:3:2）へ再配分。
+- **Storybook 9 + Chromatic**：CSF3 + ビジュアルリグレッション + a11y addon の三点セット。1 コンポーネント 4 状態ストーリーが業界標準。
+- **React Aria + WCAG 2.2**：Adobe React Aria の Hooks で a11y を標準化、WCAG 2.2 新項目（ターゲットサイズ 24px・ドラッグ代替操作）を実装時から満たす。
+- **Zustand v5 + Jotai v3 の使い分け明確化**：グローバルセッション状態は Zustand、原子的な派生状態は Jotai、サーバー状態は TanStack Query、URL 状態は searchParams の 4 層分離が定着。
+- **AI コード生成の日常化**：v0 / Claude / Cursor での初稿生成 → 人手仕上げが標準ワークフロー。Riku の付加価値は「a11y・タイポ・余白・パフォーマンス」の判断業務にシフト。
+- **Core Web Vitals SLO ゲート化**：LCP < 2.5s / INP < 200ms / CLS < 0.1 を PR マージ必須条件化。Lighthouse CI + Vercel Speed Insights RUM で開発と本番の両面測定。
+
+### ⚡ オーバースペック要素
+
+以下は現時点の LET 案件では過剰装備だが、将来の大型案件・SaaS 立ち上げ時に即戦力として保持する高度スキル。
+
+- **React Server Components の細粒度キャッシュ制御**：`unstable_cache` + `cacheTag` + `cacheLife` を組合せた **多層キャッシュヒエラルキー設計**（memory → data cache → full-route cache → CDN edge）で、リクエスト毎の再計算を秒単位からミリ秒単位に短縮する高度チューニング。中規模案件では過剰。
+- **Web Components / HTML Web Components のフレームワーク非依存埋め込みウィジェット**：GitHub/Adobe/Microsoft 採用の Shadow DOM ベース独立コンポーネントで、クライアントサイトに埋込む「応募ボタンウィジェット」を Next.js 依存なしで配布可能。案件が単一 Next.js アプリの間はオーバースペック。
+- **エッジコンピューティング最適化（Vercel Edge Runtime / Cloudflare Workers）**：地理分散した Edge Function で SSR を実行し、TTFB を 50ms 以下に抑える設計。国内単一リージョン案件では過剰、グローバル SaaS 展開時に発動。
+- **View Transitions API + Framer Motion の宣言的画面遷移**：ブラウザネイティブの `document.startViewTransition` と Framer Motion の layout animations を組合せた、SPA でもネイティブアプリ級の遷移演出。採用サイトでは装飾過多。
+- **WebGPU / WebGL による 3D UI・データビジュアライゼーション**：Three.js / React Three Fiber で 3D ダッシュボード・製品プレビューを実装するスキル。建設業採用支援では出番なし、プロダクト系案件で発動。
+- **PWA + Service Worker のオフラインファースト設計**：`next-pwa` + Workbox で完全オフライン動作可能な UI を構築、バックグラウンド同期・プッシュ通知まで実装。現状の Web 応募案件では過剰。
+- **マイクロフロントエンド（Module Federation）**：複数チームが独立デプロイする大規模組織向けのアーキテクチャ。LET 単一チーム体制では不要、クライアント企業の巨大サイト構築時のみ発動。
+- **React Native / Expo によるモバイルアプリ横展開**：Next.js のコンポーネント資産を React Native + Expo に移植し、iOS/Android アプリを同時開発。現状の Web 中心案件では過剰。
+- **AI ネイティブ UI（LLM ストリーミング・生成 UI）**：Vercel AI SDK v4 の `useChat` + `streamUI` で LLM 応答をリアルタイム UI に反映、ツール呼出結果を JSX で動的レンダリング。AI 統合プロダクトでのみ発動。
+- **Rust WASM による重処理オフロード**：画像処理・暗号化・大規模データ変換を Rust で書き WASM としてブラウザ実行、JS の 10 倍以上の速度で処理。通常業務 UI ではオーバースペック。

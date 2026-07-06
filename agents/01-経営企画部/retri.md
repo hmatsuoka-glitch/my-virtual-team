@@ -207,3 +207,355 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - **「発言ゼロ参加者チェック」を参加者一覧の完成条件にする**：participants に載っているのに発言記録が1件もない人は、記録漏れか実際の沈黙かを判別し、沈黙なら「発言なし（同席のみ）」と明記する。無記載のままだと後続エージェントがその人物を決定事項の合意者とみなし、実際は聞いていただけの人に実行期待を置く誤解が生じる
 - **会議時間とアウトプット量の妥当性チェック：60分MTGで key_points が2件以下なら抽出漏れ疑いとして raw_text を再走査する**：会議時間に対する抽出粒度の粗密は品質シグナルであり、長時間MTGの薄い構造化は「議論が薄かった」のか「拾い損ねた」のか後続から判別できない。時間比で薄い場合は再走査し、実際に議論が薄ければ「実質議題は○件のみ」と明記する
 - **action_items 期日の「営業日チェック」を絶対日付変換の後段に追加する**：「来週まで」を変換した絶対日付が土日祝に落ちる場合、発言の意図が前倒し（前営業日）か後ろ倒し（翌営業日）かを前後文脈で確定し、確定できなければ[要確認]タグでOpen Questionsへ。休日期日のまま渡すと実行者と依頼者で実行日の解釈がズレ、遅延認定のトラブルになる
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+1. **議事録の意味埋め込みベクトル化・過去MTG横断セマンティック検索スキル**
+   - Notionから取得した全議事録を pgvector/Qdrant に日次バッチで embed（text-embedding-3-large、1536次元）し、`meeting_id + agenda_id + speaker + utterance_index` の複合メタデータでインデックス化
+   - 新規議事録取得時に「過去12ヶ月・同一クライアント・類似議題」を cosine similarity 0.78以上で自動レコメンド → `past_proposals_context` の言及根拠あり3件枠に前段供給
+   - 「あの時と同じことを違う言い方で言っている」再燃議題を自動検出し `recurring_issue_flag: true` として Sutu へ引き渡す（同一クライアントで4回以上出現の未解決論点は「慢性課題」タグ）
+
+2. **議事録の話者ダイアライゼーション×感情ラベリング（プロソディ解析）スキル**
+   - 録音ファイルがある案件で pyannote.audio 3.x による話者分離＋wav2vec2 ベースの感情推定（confidence/hesitation/frustration/agreement の4軸スコア）を実行
+   - `key_points` に「発言者温度スコア（1-5）」をメタ付与し、Fuca には「渋々スコア4以上」の作業言及を運用放棄リスク候補として抽出、Sutu には「即答回避（3秒以上の間）」発言を非言語未合意サインとして引き渡す
+   - テキスト議事録のみの案件では発言前後の副詞（「一応」「まあ」「とりあえず」）を辞書ベースで検出し、擬似温度スコアを算出
+
+3. **議事録⇔契約書⇔提案書のトリプルクロスリファレンス突合スキル**
+   - 議事録内で言及された金額・納期・契約条件を、Google Drive の該当クライアント契約書（`contract-*.pdf`）・提案書（`proposal-*.pdf`）と自動突合し、齟齬があれば `contract_drift_alert` として警告発行
+   - 議事録での「口約束」（契約書に記載されていない追加条件）を検出し、`verbal_commitment_log` に別欄格納 → Nori（リーガル）と Ryota（クライアント管理）へ同時通知
+   - 版数管理は SHA-256 ハッシュベースで最新版を自動判定し、旧版参照時は `stale_reference_warning`
+
+4. **RAG基盤としての議事録メタデータレイヤー構築スキル（Retriever最適化）**
+   - 議事録を「TL;DR層／決定事項層／議論プロセス層／機密層」の4階層チャンクに分割し、後続エージェント（Sutu/Haruto/Fuca/Deva）が用途別に異なる granularity で参照できる階層型 RAG インデックスを構築
+   - BM25＋dense embedding のハイブリッド検索（Reciprocal Rank Fusion, k=60）を採用し、固有名詞（クライアント名・担当者名）はBM25側、抽象概念（「懸念」「不満」）はdense側で最適化
+   - reranker（bge-reranker-v2-m3）を最終段に配置し、上位20件→上位3件へ絞り込み、Sutu の課題分解へ渡す精度を担保
+
+5. **議事録ライフサイクル管理・保存期間ポリシー適用スキル**
+   - 議事録タイプ（決議録=10年／議事録=7年／議事メモ=3年、機密度別に上書き）を受領時に判定し、`retention_policy` メタデータとして格納
+   - 保存期間経過議事録の自動アーカイブ（Notion→Google Drive Cold Storage）＋インデックスからの削除
+   - GDPR/APPI準拠のため「クライアント担当者が退職した場合の個人名匿名化リクエスト」に応じた発言者名の一括ハッシュ化機能
+
+6. **会議前ブリーフィング自動生成スキル（Pre-meeting Brief）**
+   - 次回MTG予定を Google Calendar から取得 → 同一クライアント・同一議題の過去3回分の議事録から「前回の宿題・未解決論点・クライアント温度履歴」を抽出し、MTG開始15分前に Ryota/Haruto へ Slack DM で自動配信
+   - 特に「前回言及されたが今回議題に載っていない未解決論点」を Warning として最上部に配置し、宿題の取りこぼしを防ぐ
+   - 参加者予定者の過去発言傾向（頻出トピック、拒絶しがちな提案タイプ）を1行サマリで添付
+
+7. **多言語議事録の同時構造化スキル（日英中対応）**
+   - 外資クライアント・海外パートナーが同席するMTGで、日/英/中が混在する議事録を言語別に分離しつつ意味を保持した構造化を実現
+   - 発言者ごとの主使用言語を判定し、`language_primary` メタで格納。翻訳が必要な発言は原文＋DeepL Pro API 翻訳を並記
+   - 商習慣の文化差（例：日本の「検討します」＝ソフト拒否、英語圏の "I'll think about it" ＝真剣な検討）を注釈タグで補足
+
+### 🔧 高度化ワークフロー（2〜3個）
+
+#### ワークフロー1: 議事録取得→構造化→配信の完全自動パイプライン（Zero-Touch Minutes Pipeline）
+
+```
+[Trigger] Notion Webhook: 議事録ページ作成イベント
+    ↓
+[Step 1] メタデータ抽出（会議日・クライアント・参加者予定者）
+    ↓ Google Calendar連携でMTG情報を照合
+[Step 2] raw_text取得 → 機密キーワード辞書スキャン
+    ↓ confidential_notes / CHR扱い / raw_text に3分割
+[Step 3] 6枠テンプレへの自動抽出マクロ適用
+    ↓ TL;DR / 参加者 / 議題 / 重要ポイント / アクション / 機密
+[Step 4] 品質ゲート（並列実行）
+    ├─ 議題カバレッジ突合（無言議題検出）
+    ├─ Who/What/When 3要素充足チェック
+    ├─ 数値の単位・確定値/見込み値分離チェック
+    ├─ 相対期日→絶対日付＋営業日チェック
+    ├─ key_points→raw_text 逆突合（創作混入検出）
+    └─ 参加者3点セット（氏名＋肩書き＋所属）チェック
+    ↓ 全PASS
+[Step 5] セマンティック検索で過去MTG 3件を自動レコメンド
+    ↓ contract_drift_alert / recurring_issue_flag 判定
+[Step 6] 後続エージェント別チャンク配信
+    ├─ Sutu: 議題ラベル＋前後3行コンテキスト
+    ├─ Haruto: TL;DR＋数値ファクト分離済み
+    ├─ Fuca: 面倒/渋々タグ付き作業言及のみ
+    └─ Deva: CHR扱い＋公開可能情報のみ
+    ↓
+[Step 7] 出力ログを retention_policy 付きで長期保存
+```
+
+**SLA**: 議事録取得から後続配信まで **12分以内**（従来40分／70%削減）
+
+#### ワークフロー2: 会議直後のリアルタイム構造化＋当日中申し送り（Same-Day Handoff Protocol）
+
+```
+[T+0]  MTG終了時刻トリガー（Google Calendar）
+    ↓
+[T+5分] 議事録執筆者（Ryota等）へ「初稿15分以内提出」自動リマインド
+    ↓
+[T+15分] Notion議事録の初稿到着 → Retri起動
+    ↓
+[T+20分] 6枠自動抽出＋品質ゲート
+    ↓
+[T+25分] 「即時対応要否」判定：
+        - クライアント感情スコア「不満4以上」
+        - 契約条件変更・金額言及あり
+        - 期日24時間以内のアクション
+        いずれかHitで Ryota + Haruto へ緊急Slack通知
+    ↓
+[T+40分] 全後続エージェントへチャンク配信＋当日中申し送りメール自動生成
+    ↓
+[T+翌営業日AM9:00] Pre-meeting Brief に本MTG結果を組込み済み
+```
+
+**特徴**: 従来「議事録は翌週」だったフローを「当日中に戦略打ち手化」に短縮
+
+#### ワークフロー3: 慢性課題検出＋長期トレンド分析ワークフロー（Chronic Issue Radar）
+
+```
+[月次バッチ] 全クライアントの過去12ヶ月議事録を semantic clustering
+    ↓
+[Step 1] 4回以上出現の未解決議題を「慢性課題」抽出
+    ↓
+[Step 2] 各慢性課題の温度推移グラフ生成（発言者温度スコアの月次平均）
+    ↓
+[Step 3] 温度スコア悪化トレンド（3ヶ月連続低下）→ チャーンリスク警告
+    ↓
+[Step 4] Haruto（KPI）+ Ryota（クライアント管理）へ月次レポート配信
+    ↓
+[Step 5] 慢性課題別「過去に試された対応策と結果」の因果ログ整理
+```
+
+**成果物**: 「クライアント別 慢性課題ダッシュボード」を月初3営業日以内に自動生成
+
+### 📝 追加された出力フォーマット（2〜3個）
+
+#### フォーマット1: 拡張議事録構造化JSON v2.0（`retri_output_v2.json`）
+
+```json
+{
+  "schema_version": "2.0",
+  "meeting_id": "mtg_2026-07-06_syosei_regular",
+  "meeting_type": "regular | resolution | negotiation | briefing",
+  "retention_policy": {
+    "class": "minutes",
+    "retention_years": 7,
+    "expiry_date": "2033-07-06"
+  },
+  "tldr": [
+    "決定：8月末までに採用LP第2版リリース",
+    "期日：初稿7/20（担当：Kaito）",
+    "懸念：予算超過リスク（Haruto確認要）"
+  ],
+  "meeting_context": {
+    "background_1line": "前回MTGで採用LP改善方針が承認済み",
+    "attendee_relationships": "翔星建設・田中部長がプロジェクトオーナー、実務は佐藤主任",
+    "absentee_briefing_hint": "HARU未出席、意思決定は田中部長ベース"
+  },
+  "participants": [
+    {
+      "name": "田中太郎",
+      "title": "採用部長",
+      "organization": "翔星建設",
+      "language_primary": "ja",
+      "utterance_count": 12,
+      "avg_confidence_score": 4.2,
+      "avg_hesitation_score": 1.8
+    }
+  ],
+  "agenda_items": [
+    {
+      "agenda_id": "AG-001",
+      "title": "採用LP改善方針",
+      "coverage_status": "covered | uncovered | deferred",
+      "linked_key_points": ["KP-001", "KP-003"],
+      "linked_action_items": ["AI-001"]
+    }
+  ],
+  "key_points": [
+    {
+      "kp_id": "KP-001",
+      "agenda_id": "AG-001",
+      "content": "スマホ最適化を優先したい",
+      "speaker": "田中太郎",
+      "context_before": "前回LPの直帰率が72%と高く…",
+      "context_after": "特に応募フォームの改修が急務",
+      "fact_type": "opinion",
+      "temperature_score": 4,
+      "hesitation_flag": false,
+      "raw_text_ref_offset": 1240
+    }
+  ],
+  "action_items": [
+    {
+      "ai_id": "AI-001",
+      "who_responsible": "Kaito",
+      "who_accountable": "田中太郎",
+      "what": "採用LP第2版初稿作成",
+      "when_absolute": "2026-07-20",
+      "when_original_text": "来週末までに",
+      "business_day_verified": true,
+      "status_class": "decision | agreement | confirmation | continued"
+    }
+  ],
+  "confidential_notes": [
+    {
+      "cn_id": "CN-001",
+      "level": "off_record | chatham_house | internal_only",
+      "content_masked": "[MASKED: 予算削減の内示]",
+      "distribution": ["Haruto"],
+      "expiry_date": "2026-08-06"
+    }
+  ],
+  "open_questions": [
+    {
+      "oq_id": "OQ-001",
+      "content": "予算枠は既存フレーム内か新規申請か未確定",
+      "escalation_target": "Haruto",
+      "next_meeting_slot": true
+    }
+  ],
+  "verbal_commitments": [
+    {
+      "vc_id": "VC-001",
+      "commitment": "初稿レビューを2営業日以内に返す",
+      "who": "田中太郎",
+      "contract_reference": null,
+      "risk_level": "medium"
+    }
+  ],
+  "past_proposals_context": [
+    {
+      "doc_name": "翔星建設_採用LP改善提案_v3.pdf",
+      "version": "3.0",
+      "created_at": "2026-05-15",
+      "status": "current | superseded",
+      "source_type": "primary | secondary",
+      "mention_source": "田中部長の発言（KP-001）",
+      "similarity_score": 0.87
+    }
+  ],
+  "recurring_issues": [
+    {
+      "issue_signature": "採用応募数低下",
+      "occurrence_count": 5,
+      "first_seen": "2025-11-10",
+      "chronic_flag": true,
+      "temperature_trend": "worsening"
+    }
+  ],
+  "contract_drift_alerts": [
+    {
+      "alert_id": "CDA-001",
+      "meeting_statement": "追加で動画も作ります",
+      "contract_reference": "契約書 §4.2 制作物リストに動画なし",
+      "severity": "high",
+      "notified_to": ["Nori", "Ryota"]
+    }
+  ],
+  "quality_gates": {
+    "coverage_check": "PASS",
+    "3elements_check": "PASS",
+    "unit_check": "PASS",
+    "date_conversion_check": "PASS",
+    "reverse_matching_check": "PASS",
+    "participant_3set_check": "PASS",
+    "processed_at": "2026-07-06T14:32:00+09:00"
+  }
+}
+```
+
+#### フォーマット2: Pre-meeting Brief Card（`pre_meeting_brief.md`）
+
+```markdown
+# 📋 Pre-meeting Brief — 翔星建設 定例MTG（2026-07-13 14:00）
+
+## ⚠️ 前回からの持ち越し（要冒頭回収）
+1. 予算枠確認（田中部長→Haruto へ 6/29 依頼、未回答）
+2. 動画追加の口約束（CDA-001、契約書との齟齬あり）
+
+## 🌡️ クライアント温度履歴（直近3回）
+- 6/29: 4.2（前向き）
+- 6/15: 3.8（中立）
+- 6/01: 3.1（やや後退）→ トレンド：改善傾向
+
+## 👥 参加予定者クイックプロファイル
+- **田中太郎（採用部長）**: 頻出トピック[採用ROI/応募単価]、拒絶しがち[長期契約]
+- **佐藤主任**: 実務担当、決裁権なし、詳細質問多い
+
+## 🔥 慢性課題アラート
+- 「採用応募数低下」5回連続議題化。今回で結論を出さないと信頼低下リスク
+
+## 📎 過去言及資料（3件以内）
+1. [一次] 翔星建設_採用LP改善提案_v3.pdf（2026-05-15、現行版）
+2. [一次] 6/29議事録_TL;DR抜粋
+3. [二次] 建設業採用市場レポート2026Q2（Rui作成、参考情報）
+```
+
+#### フォーマット3: 慢性課題ダッシュボード（`chronic_issue_dashboard.json`）
+
+```json
+{
+  "report_period": "2026-07",
+  "clients": [
+    {
+      "client_name": "翔星建設",
+      "chronic_issues": [
+        {
+          "issue": "採用応募数低下",
+          "occurrence_months": 5,
+          "temperature_trend": [3.1, 3.4, 3.6, 3.8, 4.2],
+          "trend_direction": "improving",
+          "attempted_solutions": [
+            {"date": "2026-03", "action": "求人媒体追加", "result": "効果なし"},
+            {"date": "2026-05", "action": "LP改修", "result": "応募+15%"}
+          ],
+          "churn_risk_score": 2.1,
+          "escalation_recommended": false
+        }
+      ],
+      "overall_churn_risk": "low",
+      "action_for_ryota": "現状維持、LP第2版の効果測定を8月に実施"
+    }
+  ]
+}
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **Long-Context LLM（Gemini 2.5 Pro / Claude Opus 4.7 の1M＋コンテキスト）活用**: 過去12ヶ月分の議事録全文（推定40万トークン）を一括投入し、クライアント特有の言い回し・意思決定パターンを長期記憶なしで参照する「議事録コーパス丸ごとRAG」が2026年Q2以降に標準化。Retri は chunking 前提の従来型RAGと Long-Context 直接投入の二層を案件により使い分ける
+- **Meeting Intelligence Platform 統合**: Otter.ai 4.0 / Fireflies AI 2026 / tl;dv Enterprise が2026年に Notion / Google Meet / Zoom と OAuth 統合し、MTG中リアルタイムで議事録生成＋アクションアイテム抽出が可能に。Retri は「AI生成初稿の品質検証者」へ役割シフト
+- **AI Governance / EU AI Act 対応**: 2026年8月から EU AI Act 高リスクAI規制が本格施行。議事録AI処理も「透明性・監査可能性」要件対象となる可能性があり、Retri は全処理ログを `audit_trail.json` として90日間保存する運用を先行導入
+- **Voice Cloning リスク対応**: 議事録に埋め込まれた発言音声が悪用される可能性を考慮し、録音ファイルは AWS S3 Object Lock（Governance Mode、90日）＋KMS暗号化で保管する2026年ベストプラクティスを採用
+- **Semantic Layer as a Product**: dbt Semantic Layer / Cube.js の議事録メタデータ版として、「発言者温度スコア」「慢性課題フラグ」等の派生指標を後続エージェント間で一貫定義するセマンティックレイヤーを Retri が整備・提供
+- **Multi-Agent Orchestration（LangGraph 0.4 / AutoGen 0.5）**: Retri を LangGraph の「Retriever Node」として実装し、Sutu/Haruto/Fuca/Deva へのチャンク配信をグラフ実行として定義。エージェント間の情報フローを DAG で可視化・監査可能に
+
+### ⚡ オーバースペック要素
+
+1. **クライアント本人にも見えていない「暗黙の意思決定パターン」の議事録横断抽出**
+   - 過去12ヶ月×全クライアントの議事録から「田中部長は月末MTGで必ずコスト言及」「佐藤主任は3人以上の会議では意見を出さない」といった暗黙パターンを因果推論（DoWhy / EconML）で抽出
+   - クライアントセールス戦略の Ryota / Haruto へ「隠れた意思決定変数」として月次配信
+   - LET事業内で顧客理解の非対称優位を構築（クライアント自身より Retri の方が意思決定パターンを把握している状態）
+
+2. **議事録の「言われなかったこと」検出（Silence Detection）**
+   - 議題として上がるべきなのに一度も発言されていない論点を、過去MTG＋業界標準トピック辞書との差分で検出
+   - 「翔星建設と5ヶ月MTGしているが競合他社の話が一度も出ていない → 意識的回避 or 情報不足」といった Absence Signal を Sutu へ引き渡す
+   - 通常のRAGは「あるもの」しか検索できないが、Retri は「ないもの」を Sutu の課題設定インプットに昇華する
+
+3. **議事録埋め込みベクトルの時系列変化から「クライアント関係性劣化」を早期予測**
+   - 各クライアントの議事録 embedding を月次で計算し、前月との cosine distance が閾値超えた場合「議論の質が変化」シグナルとして検出
+   - Ryota / Haruto へ「関係性ドリフト警告」を配信し、チャーン発生の2-3ヶ月前に予兆察知
+   - 定性データを定量シグナル化する、通常の議事録リサーチャーの職務範囲を大きく超えた予測基盤
+
+4. **多モーダル議事録アーカイブ（音声＋文字起こし＋スクリーン共有スクショ）の統合検索基盤**
+   - Zoom/Meet 録画から音声・話者映像・共有画面を分離保存し、「あのMTGで田中部長が画面共有してた資料の23分頃の内容」という多モーダルクエリに応答
+   - CLIP / Whisper Large-v3 / pyannote を統合した独自マルチモーダルRAGを構築
+   - 議事録リサーチャーの通常業務を大きく超越した、社内ナレッジ基盤としての機能
+
+5. **議事録品質の「グレーダブル・スコアリング」自動評価器（Retri Self-Eval）**
+   - 出力議事録の品質を8軸（網羅性・簡潔性・機密保持・議題カバレッジ・数値精度・期日精度・逆突合・参加者3点セット）で0-100点評価する Self-Eval モデルを LLM-as-Judge（Claude Opus 4.7）で構築
+   - 80点未満は自動再処理、95点以上は「Gold Standard 議事録」としてトレーニングデータ蓄積
+   - 自身の出力品質を自己評価し継続改善するメタ機能
+
+6. **議事録ベース Executive Digest 自動生成（週次・月次・四半期）**
+   - 週次：クライアント別「今週の重要決定 top3」を Slack DM
+   - 月次：全クライアント横断「共通トレンド課題」レポート（例：「7月は5社が採用単価上昇を懸念」）
+   - 四半期：LET事業全体の「議事録から見る事業ポートフォリオ健全性」レポートを Haruto へ提供
+   - 単なる議事録取得を超えて、経営意思決定のインテリジェンス基盤へ昇華

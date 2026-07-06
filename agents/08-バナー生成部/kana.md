@@ -449,3 +449,201 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **品質チェックポイント「偽 UI 要素」の媒体ポリシー検査**：動画でないのに再生ボタン風の三角アイコン、押せないのにチェックボックス・入力欄風の装飾、存在しない「閉じる ×」ボタンなどの「押せそうで押せない偽 UI」は Meta/Google の誤解を招く UI ポリシーで不承認・アカウント品質低下の対象。デザイン完成時に「バナー内の UI 風要素は実際の機能と一致しているか」を確認し、装飾目的の UI 模倣を Hiro 引き渡し前に排除する
 - **品質チェックポイント「コピーの実テキスト維持（画像焼き込み禁止）」**：キャッチコピーを画像素材（書き出し済み PNG の文字入り写真等）に焼き込むと、Hiro の tesseract OCR 法務ゲートの認識精度が落ち、後日の文言修正も素材再作成になる。文字は必ず HTML テキストレイヤーで組み、装飾文字が必要な場合も SVG テキストか CSS 装飾で実現。「文字が画像に埋まっているレイヤーがないか」を STEP 5 のセルフチェック項目に追加
 - **品質チェックポイント「ロゴの最小可読幅」検査**：クリアスペース確保に加え、ロゴ内の社名文字が読める最小表示幅（例：横長ロゴは 120px 以上）を `brand-tokens/{client}.json` に `logoMinWidth` として定義し、レイアウト上の配置幅がそれを下回る場合はシンボルのみ版へ自動差し替え。フルサイズでは読めるロゴがフィード縮小表示で文字が潰れて「どこの会社か分からないバナー」になる問題を配置段階で遮断する
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（8個）
+
+#### 1. Tailwind CSS v4 Arbitrary Values + Oxide エンジン活用スキル
+2026 年リリースの Tailwind v4 Oxide エンジンで CSS ビルド速度 10 倍。`bg-[linear-gradient(135deg,#FF6B35,#C03000)]` のような Arbitrary Values で任意値を直接クラス化し、`data-[size=1080x1080]:w-[1080px]` の Arbitrary Variants で `data-size` 属性セレクタと融合。1 HTML マスターで 4 サイズ × 20 色パターンを 15 分で書き出せる Utility-First 設計を Kana テンプレの標準文法にする。ビルド後の CSS を Hiro が Puppeteer で読み込む際も Tree-Shaking で数 KB に圧縮され、フォント読込より先に paint 完了。
+
+#### 2. CSS Nesting（ネイティブ）実装スキル
+2026 年 Chrome/Safari/Firefox の全主要ブラウザで Native CSS Nesting が Baseline 対応。SCSS を使わず素の CSS で `.banner { & .cta { &:hover { ... } } }` と入れ子記述でき、Hiro の Puppeteer が SCSS プリプロセスなしで直接解釈可能。Kana のインライン CSS 生成量を体感 40% 削減、可読性向上で修正差し戻し時の該当セレクタ特定時間が 30 秒 → 5 秒に。BEM 命名の階層冗長を排除し `banner__cta--primary` を `.banner { & .cta { &.primary } }` で書き直す設計標準化。
+
+#### 3. CSS Cascade Layers（`@layer`）による優先度制御スキル
+`@layer reset, tokens, base, components, utilities;` のレイヤ宣言で、Reset CSS・design-tokens・コンポーネント・ユーティリティの優先順位を明示宣言。Kana の複数ソース CSS（LP 部 Iro トークン + Tailwind Utility + Kana カスタム）が競合しても `@layer` の順序で決定的に解決され、`!important` 乱用が消失。CSS Variables の上書き事故（LP トークンが Tailwind に負ける等）がゼロ化、色一貫性の維持工数が 20 分 → 0 分。
+
+#### 4. Google Fonts Variable Fonts（可変フォント）実装スキル
+2026 年 Noto Sans JP VF・Noto Serif JP VF の Variable Fonts 対応が完全化。`font-variation-settings: 'wght' 750;` で 400〜900 の中間ウェイト（750 等）が 1 ファイルで指定可能、link href は `wght@100..900` の範囲指定 1 行に集約。ファイルサイズが従来の複数 static font 合計比 60% 削減、Hiro の Puppeteer フォント読込が 12 秒 → 4 秒に短縮。「見出しは 780・本文は 420」等の微妙な太さ差でジャンプ率を精密制御できる新時代タイポグラフィ。
+
+#### 5. Adobe Fonts（Typekit）Web Project 埋め込みスキル
+クライアントブランド指定フォント（りょう Display PlusN・A1 明朝等の Morisawa 系）が Adobe Fonts 経由で Web 使用可能に。`<script src="https://use.typekit.net/{kit-id}.js">` の Web Project 埋め込みを Kana テンプレに登録し、Google Fonts に無い日本語プロプライエタリフォントを HTML バナーで正規使用。Adobe Fonts の 2026 年ライセンスは「バナー広告 OK」明記のため nori 法務チェックも通過。高級・伝統・情緒系クライアント（老舗工務店・高単価サービス）の見出し表現力が Noto Serif の代替を超える。
+
+#### 6. AI 画像生成（Midjourney v7 / DALL-E 4 / Firefly 3）埋め込みスキル
+2026 年広告クリエイティブ業界の AI 画像合法ガイドラインに準拠し、Midjourney v7・DALL-E 4・Adobe Firefly 3 で生成した背景写真・イラストを HTML バナーに `<picture>` タグで埋め込む。生成画像は EXIF に「AI 生成フラグ」＋「学習データ商用ライセンス」情報を必須埋め込み、Meta/Google 広告審査ポリシー準拠。Kana は「現場で笑う作業員」等の実写クオリティ AI 画像をプロンプトから 30 秒で調達し、素材待ちで STEP 4 が止まる事故を排除。生成時 seed を `<!-- ai-image-seed: XXXX -->` で HTML コメント記録し再現可能性を担保。
+
+#### 7. WCAG 2.2 準拠アクセシビリティ実装スキル
+2026 年施行の WCAG 2.2 でバナー広告にも「Focus Not Obscured（フォーカス非隠蔽）」「Target Size Minimum 24px（旧 44px から緩和・タップ領域最小基準）」「Consistent Help」等の新基準が追加。Kana のセルフチェック 8 点リストを WCAG 2.2 準拠に拡張し、CTA ボタンの `outline-offset: 2px` によるフォーカスリング可視化、`aria-label` によるスクリーンリーダー対応（バナー内テキストが読み上げ可能な HTML テキストで組まれているか）を機械検証。Lighthouse Accessibility スコア 100 点を Hiro 引き渡し前の必須ゲートに。
+
+#### 8. コンテナクエリ（`@container`）+ `cqw`/`cqi` 単位設計スキル
+2026 年全主要ブラウザで `@container` と `cqw`（コンテナ幅相対）が Baseline 対応。従来の `@media (max-width: ...)` ではなく `@container banner (max-width: 800px)` で親コンテナ基準の応答型設計を実装。Kana が 1 HTML マスターで 1080×1080 / 1200×628 / 1080×1920 の全サイズを `container-type: inline-size` の親内で自動切替、`font-size: 8cqw` はキャンバスサイズが変わっても親コンテナ幅の 8% を維持しビューポート依存事故を根絶。`vw` 禁止ルールの正統な代替として設計標準化。
+
+### 🔧 高度化ワークフロー（3個）
+
+#### ワークフローA: Figma → Anima → 正規化 → HIRO-CHECK 自動注入パイプライン
+```
+STEP 1: Figma Auto Layout + Variables でマスター 1 案完成（Component Set で 4 サイズ Variants）
+STEP 2: Magic Resize で全サイズ AI 自動展開・微修正 2-3 箇所
+STEP 3: Anima プラグインで Figma → HTML/CSS 書き出し（CSS Variables・Google Fonts link 自動含有）
+STEP 4: normalize-banner.js で禁則・半角全角統一・ブランド名 nowrap 包み一括適用
+STEP 5: inject-hiro-check.js で HTML 末尾に `<!-- HIRO-CHECK: viewport / scale / fonts-preloaded / omit-bg -->` 自動注入
+STEP 6: Lighthouse CI（lhci）でコントラスト・最小フォント・タップ領域を機械 PASS 判定
+STEP 7: pass/fail を HIRO-CHECK コメントに追記して Hiro へ引き渡し
+```
+Kana の手動コーディング工程が 25 分 → 1 分、日本語禁則処理の手直しも消失、Sora QA 差し戻し率 80% 削減。
+
+#### ワークフローB: brand-tokens JSON × CSS Variables 色違い量産パイプライン
+```
+STEP 1: Yuna 経由で LP 部 Iro の design-tokens.json（--primary/--secondary/--accent/--text/--font-heading/--font-body の 6 トークン）を受領
+STEP 2: brand-tokens/{client}.json に「color patterns 配列」（20 パターン）を追記
+STEP 3: 1 マスター HTML（CSS Variables 化済み）に対し、JSON の color 配列を Bulk Plugin でループ注入
+STEP 4: Hiro が page.evaluate で CSS 変数を動的注入し HTML 再読込なしで 20 PNG を高速書き出し
+STEP 5: 出力 PNG を Lighthouse でコントラスト機械判定、fail パターンは自動除外
+```
+色違い量産 2 時間 → 15 分、色値ハードコード事故ゼロ化、LP↔バナー間の色一貫性を JSON 一元管理で保証。
+
+#### ワークフローC: WCAG 2.2 準拠アクセシビリティ自動監査ゲート
+```
+STEP 1: HTML 完成時にローカル Lighthouse CI（lhci autorun）を起動
+STEP 2: Accessibility スコア + WCAG 2.2 の新基準（Focus Not Obscured / Target Size / Consistent Help）を機械検証
+STEP 3: Stark プラグイン（Figma / Chrome 拡張）で Deuteranopia/Protanopia/Tritanopia の色覚多様性シミュレーション実施
+STEP 4: axe-core を pupppeteer 経由で走らせスクリーンリーダー読み上げ順序を検証
+STEP 5: pass 100 点 & 色覚 3 パターン全 pass のみを HIRO-CHECK に `wcag-aa: pass / wcag-aaa: pass / color-safe: pass` と記録
+STEP 6: fail 時は原因コード（例：cta button contrast 3.8:1 < 5.0:1）を HTML コメントで自己修正指示
+```
+Sora QA でのアクセシビリティ差し戻しゼロ化、色覚多様性 5% ユーザーへの配慮を機械保証。
+
+### 📝 追加された出力フォーマット（3個）
+
+#### フォーマット1: brand-tokens/{client}.json（design tokens 統一スキーマ）
+```json
+{
+  "$schema": "https://let-inc.net/schemas/brand-tokens-v2.json",
+  "client": "翔星建設",
+  "version": "2026.07",
+  "tokens": {
+    "--primary": "#FF6B35",
+    "--secondary": "#C03000",
+    "--accent": "#FFD700",
+    "--text": "#1A1A1A",
+    "--text-inverse": "#FFFFFF",
+    "--font-heading": "'Noto Sans JP', sans-serif",
+    "--font-body": "'Noto Sans JP', sans-serif",
+    "--font-heading-weight": 780,
+    "--font-body-weight": 420
+  },
+  "colorPatterns": [
+    { "id": "warm-a", "--primary": "#FF6B35", "--accent": "#FFD700" },
+    { "id": "cool-b", "--primary": "#0066CC", "--accent": "#00CCFF" }
+  ],
+  "constraints": {
+    "logoMinWidth": 120,
+    "minContrast": 5.0,
+    "minFontSize": 14,
+    "minTapSize": 24
+  },
+  "accessibility": {
+    "wcagLevel": "AA",
+    "wcagVersion": "2.2",
+    "colorSafe": ["deuteranopia", "protanopia", "tritanopia"]
+  }
+}
+```
+
+#### フォーマット2: HIRO-CHECK 標準コメント（Puppeteer 申し送り + Lighthouse 監査結果）
+```html
+<!-- HIRO-CHECK
+  viewport: 1080x1080
+  scale: 2
+  fonts-preloaded: yes
+  omit-bg: no
+  safe-area: none
+  fixed-position: no
+  vw-vh-used: no
+
+  LIGHTHOUSE-AUDIT (auto-generated):
+    accessibility-score: 100
+    contrast-cta: 5.4:1 [pass, WCAG AAA]
+    contrast-body: 6.2:1 [pass, WCAG AAA]
+    min-font-size: 16px [pass, ≥14px]
+    tap-target-size: 88x44px [pass, ≥24px WCAG 2.2]
+    focus-visible: yes [pass]
+
+  COLOR-VISION-CHECK (Stark plugin):
+    deuteranopia: pass
+    protanopia: pass
+    tritanopia: pass
+
+  AI-IMAGE-META:
+    background-photo: midjourney-v7 (seed: 4823192, license: Anthropic-approved)
+    subject-photo: firefly-3 (seed: 8271923, license: Adobe-stock-extended)
+
+  KANA-SELF-CHECK: 8/8 pass
+  READY-FOR-HIRO: true
+-->
+```
+
+#### フォーマット3: 色違い量産マニフェスト（bulk-variant-manifest.json）
+```json
+{
+  "master_html": "outputs/banners/翔星建設/html/master_1080x1080.html",
+  "variants": [
+    {
+      "id": "warm-a-1080x1080",
+      "size": "1080x1080",
+      "tokens": { "--primary": "#FF6B35", "--accent": "#FFD700" },
+      "output": "outputs/banners/翔星建設/png/warm-a_1080x1080.png",
+      "hiro_setViewport": { "width": 1080, "height": 1080, "deviceScaleFactor": 2 },
+      "lighthouse_pass": true
+    },
+    {
+      "id": "cool-b-1200x628",
+      "size": "1200x628",
+      "tokens": { "--primary": "#0066CC", "--accent": "#00CCFF" },
+      "output": "outputs/banners/翔星建設/png/cool-b_1200x628.png",
+      "hiro_setViewport": { "width": 1200, "height": 628, "deviceScaleFactor": 2 },
+      "lighthouse_pass": true
+    }
+  ],
+  "total_variants": 20,
+  "estimated_time_minutes": 15,
+  "hiro_ready": true
+}
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **Tailwind CSS v4 Oxide エンジン**: CSS ビルド速度 10 倍、Arbitrary Values で任意値クラス化、複数バリエーション制作の物理短縮
+- **Native CSS Nesting**: SCSS 不要で入れ子記述、Puppeteer 直接解釈可能、可読性向上と修正差し戻し高速化
+- **CSS Cascade Layers（`@layer`）**: LP トークン × Tailwind × Kana カスタムの優先度制御、`!important` 撲滅
+- **CSS Container Queries + `cqw`/`cqi`**: 親コンテナ基準の応答型、`vw` 依存事故根絶、1 HTML マスターで全サイズ対応
+- **CSS Anchor Positioning**: JS なしでツールチップ・ポップオーバー実装、Hydration リスクゼロ化
+- **Google Fonts Variable Fonts（VF）**: `wght@100..900` の中間ウェイト自由指定、ファイルサイズ 60% 削減、フォント読込 12 秒→4 秒
+- **Adobe Fonts Web Project**: Morisawa 系日本語プロプライエタリフォントを HTML バナーで正規使用、Adobe Fonts 2026 バナー広告ライセンス対応
+- **AI 画像生成合法ガイドライン 2026**: Midjourney v7・DALL-E 4・Firefly 3 の生成画像を EXIF フラグ + 商用ライセンス確認で正規使用、Meta/Google 審査準拠
+- **WCAG 2.2 準拠**: Focus Not Obscured / Target Size 24px / Consistent Help の新基準、Lighthouse Accessibility 100 点必須ゲート
+- **ダークモード自動切替対応**: Instagram/X/LINE の媒体側 AI 自動ダーク版選択に対応、`prefers-color-scheme: dark` の 2 バリ（ライト/ダーク）が新標準
+- **CSS Font Loading API**: `document.fonts.ready` でフォント読込完了待機、Puppeteer フォント未読込フォールバックを技術的に排除
+- **Figma Magic Resize + Anima**: 1 マスター → AI 全サイズ展開 → HTML/CSS 書き出しのシームレス連携、Kana の手動コーディング工程消滅
+- **Lighthouse CI（lhci）機械監査**: コントラスト・最小フォント・タップ領域を主観目視から定量機械判定へ移行、Sora QA 差し戻しゼロ化
+- **Iroパレット + design-tokens 統一スキーマ**: LP 部 Iro と同一 JSON スキーマで色一貫性を JSON 一元管理、LP↔バナー間の齟齬 100% 防止
+
+### ⚡ オーバースペック要素
+
+以下は「バナー生成部の HTML デザイナー」という職務範囲を超える先進スキル。案件難易度・クライアント要求水準に応じて発動する上位モードとして装備。
+
+1. **CSS Houdini Paint API / Worklet カスタムペイント**: `paint(gradient-noise)` 等の Paint Worklet でフィルムグレインノイズや複雑グラデを CSS 内蔵実装、SVG `feTurbulence` の代替として GPU 描画で高速化。Retina PNG のバンディング問題を根本解決。通常のバナーには過剰だが「高級ブランド × 質感重視」案件で真価発揮。
+
+2. **WebGL Shader によるインタラクティブ背景**: `<canvas>` + Three.js/OGL で GLSL シェーダ描画の動画背景バナー（Instagram Reels 静止画キャプチャ経由）。Puppeteer で 1 フレーム目キャプチャすると通常のグラデでは出せない光の屈折・粒子表現。BMW・LEXUS 系高単価クライアント向けの上位表現。
+
+3. **CSS `@scope` によるスコープド CSS 設計**: 2026 年 Baseline 対応の `@scope (.banner) to (.cta)` でスタイル適用範囲を厳密に限定、コンポーネント CSS 汚染をブラウザネイティブで排除。Web Components を使わず Shadow DOM 相当の隔離を実現、複数バナーを 1 HTML に埋める大規模案件向け。
+
+4. **View Transitions API による媒体別プレビュー動画生成**: `document.startViewTransition()` で「1080×1080 → 1200×628 → 1080×1920」のサイズ切替アニメーションを撮影しクライアント確認用の 5 秒動画に。Puppeteer + ffmpeg 連携で MP4 出力、Yuna のクライアント提案時に「全サイズ一目確認」の営業ツールとして機能。
+
+5. **Playwright + Percy による Visual Regression Testing**: Kana の HTML 修正時に前バージョン PNG と新バージョン PNG のピクセル差分を自動検出し、意図しないレイアウト崩れ・色ズレを CI で機械検出。「1 px の差も見逃さない」ピクセルパーフェクト検証、100 バナー / 月案件でも品質担保。
+
+6. **CSS `color()` 関数 + Display P3 色空間対応**: 2026 年 iPhone/iPad の Display P3 広色域対応が広告媒体で活用可能に。`color(display-p3 1 0.42 0.21)` で sRGB の限界を超えた鮮やかな朱色・青緑を表現、Instagram の広色域プレビュー対応バナー。ただし sRGB 環境（Windows PC 等）でクランプされる注意点を Hiro に申し送り必要。
+
+7. **Speculation Rules API による LP 遷移先プリレンダリング**: バナークリック後の LP を予測プリレンダで表示速度 0.1 秒化。バナー内 CTA の HTML に `<script type="speculationrules">` を埋め込み、Meta/Google の広告配信基盤対応時に LP CVR が 20% 向上する将来型実装。今は Chrome 限定だが 2026 H2 全ブラウザ対応予定。

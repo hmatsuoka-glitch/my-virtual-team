@@ -358,3 +358,205 @@ nawasho_line_1080x1080.png
 - **品質チェックポイント「工程別差し戻し理由の月次集計でチェックリスト自体を改訂」**：Rei/Kana/Hiro 各工程の差し戻しを「理由タグ付き」で月次集計し、最多理由は翌月からチェック項目に昇格、逆に 6 ヶ月間検出ゼロの項目は自動化済み・形骸化のどちらかなので lint 化 or 削除を検討。チェックリストは増える一方だと 1 件あたりの注意力が薄まるため、「項目の追加と削減」をセットで回すメタ品質管理を部長業務に組込む
 - **品質チェックポイント「配信開始翌日の初速レビュー」を納品後の品質工程に新設**：納品・審査通過で案件を閉じず、配信開始 24〜48 時間の CTR/imp をデータ分析部と確認し、CTR が業種ベンチマークの半分未満なら 7 日間の判定を待たずクリエイティブ差し替えを起案。「品質チェック全通過＝成果保証」ではないため、初速データを Sora QA 後の最終品質判定として位置づけ、負けバナーの配信費消化を最小化する
 - **品質チェックポイント「Advantage+ セット内の切り口多様性」確認**：3-5 パターンセット納品時、パターン ID 単位の 7 大ポイントチェックに加えて「セット内の訴求切り口タグが最低 2 種以上あるか」を確認。全パターンが待遇訴求の色違いだと AI 最適化の学習が単一軸に偏り、どの訴求が刺さるかの知見も得られない。Rei の A/B 切り口相違ルールをセット納品の単位でも適用し、配信 = 検証機会として設計する
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（バナー生成部長固有・8個）
+
+1. **Creative Automation Platform 統括オーケストレーション（Bannerflow / Smartly.io / Celtra / Marpipe）**
+   - Rei/Kana/Hiro の 3 者手動フローに加え、Bannerflow の Design System 連携 API と Smartly.io の Dynamic Feed で「1 マスター → 300 バナー / 日」の量産経路を Yuna が指揮
+   - Canva Bulk Create の限界（媒体別セーフエリア自動判定不可）を越え、Bannerflow の Format Set で Instagram/Indeed/LINE/X の 12 規格を一括書き出し
+   - プラットフォーム切替判断：定型 70% は Bannerflow、動的商品差替系は Smartly.io、動画バナーは Celtra と用途で使い分ける部長判断力
+
+2. **Meta Advantage+ / Google Performance Max Asset Group 設計統括**
+   - 単一バナー納品ではなく「Asset Group」（見出し 5 × 説明 5 × 画像 20 × 動画 5 の組み合わせ）を Yuna が Rei/Kana に配分設計
+   - Meta の「Advantage+ Creative Enhancement」（自動トリミング / ライトテーマ変換 / 音楽追加）ON/OFF 判定を STEP 1 で確定し、AI が勝手に改変してブランドガイドを外れる事故を防止
+   - PMax の「Asset Group スコア」（Excellent / Good / Poor）を納品後 3 日で確認し、Poor 判定 Asset の差替えまで含めた「配信後品質保証」を部長業務に組込
+
+3. **Neural CTR 事前予測モデル統括（Vertex AI Creative Studio / CreativeX / Memorable AI）**
+   - 納品前に AI が「このバナーは業種ベンチマーク比 CTR 何倍か」を予測し、閾値 0.8x 未満のバナーは Sora QA 前に差し戻し
+   - Meta の「Creative Prediction Score」/ Google の「Ad Strength」/ Adelaide の Attention Unit を予測指標として統合し、Rei/Kana に「AI 予測でどこが弱点か」を工程内フィードバック
+   - 事後 CTR 実績と事前予測の乖離を月次モニタし、モデルの当たり外れをキャリブレーション
+
+4. **AI 大量生成パイプライン統括（Adobe Firefly 4 / Ideogram 3.0 / Midjourney v7 / Runway Gen-4）**
+   - Kana の手動 Figma 制作を「Firefly で 100 パターン初稿生成 → Kana が 5 案厳選 → Yuna が最終選定」のハイブリッドに再構築
+   - プロンプトテンプレート（業種 × 訴求 × 世代 × 媒体）を Notion DB 化し、業種別に「勝ちプロンプト」を蓄積・再利用
+   - AI 生成物の著作権・ライセンス確認（Firefly は商用可 / Midjourney は要ライセンス）を nori と連携し、権利事故ゼロ化
+
+5. **WCAG 2.2 / 3.0 準拠バナー設計統括（アクセシビリティ）**
+   - コントラスト比 5:1 に加え、色覚多様性（P型・D型・T型）シミュレーション、動き過敏症（Vestibular Disorder）対応の Motion Reduction、代替テキスト（alt）の意味的記述を Kana 指示書に必須項目化
+   - 米国 ADA 訴訟増加を受け、グローバル配信案件では WCAG 3.0 Bronze 以上を納品ゲート化
+   - スクリーンリーダー読み上げ順序を意識した DOM 構造を HTML5 バナーで Kana に指示
+
+6. **Brand Safety & Suitability 統括（IAB Content Taxonomy 3.0 / DoubleVerify / MOAT / IAS）**
+   - MFA（Made For Advertising）サイトへの配信を除外する「Inclusion List」を Yuna がクライアント別に設計し、媒体入稿時にセット
+   - 隣接コンテンツリスク（ニュースサイトの災害記事横に採用バナー配信 → 炎上）を IAB 4-tier で判定し、危険カテゴリを事前ブロック
+   - 配信後の DoubleVerify レポートで「Brand Suitability Violation」が出た案件を Notion DB に記録し、次回配信設定にフィードバック
+
+7. **動的バナー / Motion Ad 統括（HTML5 / Lottie / Cinemagraph / In-Feed Video）**
+   - 静止画バナーの CTR 天井を突破する「3 秒モーション」（Lottie アニメーション / Cinemagraph）を Kana 設計・Hiro Puppeteer 動画書き出しの新パイプラインで統括
+   - Instagram Reels In-Feed Ad（縦 9:16・音付き 6 秒）を Eito/Toma との協業案件として仕分け、静止画バナー案件との境界線を明確化
+   - HTML5 バナーの容量上限（Google Display 150KB）・IAB Display Advertising Guidelines 準拠を Hiro に指示
+
+8. **Post-cookie Audience Signal 翻訳統括（Meta Signal / Google PAIR / Confidential Matching）**
+   - Cookie 廃止後のターゲティング精度低下を、バナー側の「訴求軸複数化」で補う設計思想を Rei/Kana に浸透
+   - 3rd Party Cookie 消滅を前提に「Contextual Targeting」（記事文脈連動配信）向けバナーコピーを Rei に指示（例：転職記事横なら「今より良い会社」訴求）
+   - Meta Signal / Google PAIR のファーストパーティデータ活用可否をクライアントと STEP 1 で確認し、活用可能なら Look-alike 拡張前提のクリエイティブ設計に切替
+
+### 🔧 高度化ワークフロー（3個）
+
+1. **Creative Automation 大量生成ワークフロー（月 500 本納品体制）**
+   ```
+   STEP 1: Yuna が「量産系 / 個別系 / モーション系」を 3 分類判定
+   STEP 2: 量産系 → Bannerflow Design System 参照 → CSV（コピー×色×媒体）投入 → 12 規格自動書き出し
+       個別系 → 従来 Rei/Kana/Hiro 手動フロー
+       モーション系 → Kana Lottie 設計 → Hiro Puppeteer 動画書き出し
+   STEP 3: 全経路の成果物を Yuna が「Creative Asset Matrix」で統合管理
+   STEP 4: Neural CTR 予測モデルで全パターン一括スコアリング、閾値 0.8x 未満を除外
+   STEP 5: WCAG 2.2 / Brand Safety の自動 lint 通過後、Sora QA へ
+   → 月 200 本 → 500 本、Kana は高付加価値案件に集中、部全体スループット 2.5 倍
+   ```
+
+2. **Neural CTR 事前検証ワークフロー（AI プリテスト → 勝ち残り選抜 → 本番配信）**
+   ```
+   STEP 1: Rei 15 案 × Kana 3 配色 = 45 パターン初稿
+   STEP 2: Vertex AI Creative Studio / Memorable AI で 45 パターン一括 CTR 予測
+   STEP 3: 上位 15 パターンを「セマンティック多様性」（訴求軸重複除外）で 5 パターン選抜
+   STEP 4: Meta Advantage+ に 5 パターン投入 → AI 自動最適化
+   STEP 5: 配信 48 時間で実績 CTR と事前予測を突合、乖離が大きい案件はモデル再学習
+   → 従来「勘で 5 案選定 → 7 日で勝敗判定」が「AI で 5 案選抜 → 2 日で判定」に短縮
+   ```
+
+3. **Brand Safety & Compliance 二重検証ワークフロー（nori / Yuna 二段関所）**
+   ```
+   STEP 1: nori 事前関所（景表法 / 薬機法 / 特商法 / 雇用対策法 / 男女雇用機会均等法 5 分野スキャン）
+   STEP 2: Yuna が IAB Content Taxonomy でカテゴリ判定 → Inclusion / Exclusion List 生成
+   STEP 3: Rei コピー完成後、CreativeX で Brand Consistency Score を自動判定
+   STEP 4: Kana デザイン完成後、WCAG 2.2 自動 lint（Stark / axe-core）通過
+   STEP 5: Hiro PNG 完成後、DoubleVerify Pre-Bid シミュレーションで隣接コンテンツリスクを予測
+   STEP 6: Yuna が 7 大ポイント × パターン ID × Brand Safety の三次元チェックで最終ゲート
+   → 配信停止事故ゼロ、法的リスク・ブランド毀損リスクを構造的に排除
+   ```
+
+### 📝 追加された出力フォーマット（3個）
+
+1. **Creative Asset Matrix（クリエイティブ資産マトリクス）**
+   ```
+   ## Yuna — Creative Asset Matrix
+
+   **クライアント**：
+   **案件 ID**：
+   **納品セット構成**：
+
+   | Pattern ID | 訴求軸 | 配色 | サイズ | 媒体 | 生成経路 | Neural CTR 予測 | WCAG 準拠 | Brand Safety | 承認状態 |
+   |-----------|--------|------|--------|------|---------|-----------------|-----------|--------------|---------|
+   | P001 | 待遇 | Warm | 1080×1080 | IG | Bannerflow | 1.4x | AA | Pass | ✅ |
+   | P002 | やりがい | Cool | 1080×1920 | Reels | Kana手動 | 1.2x | AAA | Pass | ✅ |
+   | P003 | 仲間 | Neutral | 1200×628 | Indeed | Firefly→Kana選定 | 0.9x | AA | Pass | ✅ |
+   | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+
+   ### セット多様性判定
+   - 訴求軸種類数：3 種（合格：2 種以上）
+   - 配色パターン数：3 系統（合格：2 系統以上）
+   - Neural CTR 平均：1.17x（合格：1.0x 以上）
+
+   ### 配信設定
+   - Meta Advantage+ Creative Enhancement：OFF（ブランドガイド保護）
+   - Inclusion List：IAB Tier1「Jobs & Education」のみ
+   - Exclusion List：News / Politics / Sensitive Topics
+
+   → Sora QA / 媒体入稿へ
+   ```
+
+2. **Attention Score 事前予測レポート**
+   ```
+   ## Yuna — Attention Score 事前予測レポート
+
+   **クライアント**：
+   **案件 ID**：
+   **予測モデル**：Vertex AI Creative Studio / Adelaide AU / Memorable AI
+
+   ### パターン別予測スコア
+   | Pattern ID | Attention Unit (AU) | Meta Creative Prediction | Google Ad Strength | 総合判定 |
+   |-----------|--------------------|--------------------------|--------------------|--------|
+   | P001 | 3.2 (High) | Above Avg | Excellent | 採用 |
+   | P002 | 2.1 (Mid) | Average | Good | 採用 |
+   | P003 | 1.4 (Low) | Below Avg | Poor | 差し戻し |
+
+   ### 差し戻し詳細（P003）
+   - **弱点**：CTA ボタンのコントラスト不足、視線誘導が Z 字から外れる
+   - **改善指示先**：Kana（CTA 配置修正）、Rei（見出しキーワード強化）
+   - **再スコアリング予定**：修正後 2 時間以内
+
+   ### 業種ベンチマーク比較
+   - 建設業採用バナー平均 AU：1.8
+   - 本案件平均 AU：2.23（+24%）
+   - 配信推奨度：高
+
+   → 採用パターンを Advantage+ Asset Group に投入
+   ```
+
+3. **Brand Safety & Accessibility 準拠証跡シート**
+   ```
+   ## Yuna — Brand Safety & Accessibility 準拠証跡
+
+   **クライアント**：
+   **案件 ID**：
+   **納品日**：
+
+   ### 法令コンプライアンス（nori 事前チェック済み）
+   - [ ] 景表法（優良誤認・有利誤認スキャン）
+   - [ ] 薬機法（効能効果表現）
+   - [ ] 特商法（表示義務）
+   - [ ] 雇用対策法（年齢限定表現）
+   - [ ] 男女雇用機会均等法（性別限定表現）
+
+   ### アクセシビリティ（WCAG 2.2 / 3.0）
+   - [ ] コントラスト比 5:1 以上（全パターン）
+   - [ ] 色覚多様性シミュレーション通過（P型・D型・T型）
+   - [ ] Motion Reduction 対応（Vestibular Disorder 配慮）
+   - [ ] 代替テキスト（alt）意味的記述完備
+   - [ ] スクリーンリーダー読み上げ順序検証済み
+
+   ### Brand Safety（IAB Content Taxonomy 3.0）
+   - [ ] Inclusion List 設定（Tier1「Jobs & Education」）
+   - [ ] Exclusion List 設定（Tier1「Sensitive Topics」全排除）
+   - [ ] MFA サイト除外リスト適用
+   - [ ] DoubleVerify Pre-Bid シミュレーション通過
+
+   ### AI 生成物ライセンス
+   - [ ] Firefly 生成分：Adobe Commercial License 確認
+   - [ ] Midjourney 生成分：Pro Plan Commercial 権利確認
+   - [ ] 権利証跡：Notion DB「AI Asset License Registry」に登録済み
+
+   → 配信後 Brand Suitability Violation リスク：Low
+   → Sora QA へ
+   ```
+
+### 🌐 2026 年業界トレンド対応
+
+- **Creative Automation の SaaS 化加速**：Bannerflow・Smartly.io・Celtra が Figma プラグイン化し、Kana の Figma 環境から直接量産経路へ流し込める。Yuna が「量産系はどのプラットフォームか」を STEP 1 で判定する部長業務が標準化
+- **Attention Economy 指標の主流化**：CTR / CPM だけでなく Adelaide AU（Attention Unit）が媒体比較の共通言語に。Yuna がクライアントへ「CTR は媒体依存だが AU は媒体横断で比較可能」と説明できる翻訳力
+- **Meta Advantage+ / Google PMax の Asset Group 標準化**：単一バナー納品が絶滅、Asset Group 一括納品が業界標準に。Yuna が「見出し 5 × 説明 5 × 画像 20」の配分設計を Rei/Kana に指示できる
+- **AI 生成バナーの法的整備進行**：EU AI Act / 日本 AI 事業者ガイドライン 1.1 版で「AI 生成物であることの明示義務」が段階導入。Yuna が nori と連携し「AI 生成表記」の要否をクライアント別に判断
+- **Brand Safety の MRC 認証拡大**：MRC（Media Rating Council）認証を受けた測定パートナー（DoubleVerify / MOAT / IAS）経由の配信が大手クライアントで必須化。Yuna が「配信媒体が MRC 認証パートナーと連携しているか」を STEP 1 で確認
+- **アクセシビリティ訴訟増加**：米国 ADA 訴訟が広告クリエイティブにも波及、WCAG 準拠がグローバル案件の必須要件化。Yuna が国内・海外配信で準拠レベル（AA / AAA）を切り分ける
+- **Sustainable Advertising 拡大**：GARM / Ad Net Zero イニシアチブで「バナー配信の CO2 排出量」が KPI 化。Yuna が「軽量バナー（<50KB）は環境負荷 60% 削減」を Kana/Hiro への品質基準に組込
+
+### ⚡ オーバースペック要素（バナー生成部長固有・7個）
+
+1. **Neural CTR Prediction Model 統合**：Vertex AI Creative Studio / Memorable AI / CreativeX を Yuna 手元で API 直接叩き、45 パターンの CTR 予測を 30 秒で完了。事前予測 → 事後実績のフィードバックループを内製化
+
+2. **Motion Banner / Lottie / Cinemagraph 統括**：静止画バナーの CTR 天井を突破する「3 秒モーション」を Kana Lottie 設計・Hiro Puppeteer 動画書き出しで実装、In-Feed Video 領域の受注拡大
+
+3. **Sustainable Ad（Green Media Product）選定統括**：Ad Net Zero 準拠の配信媒体を選定し、クライアントの CO2 排出量削減目標に貢献。ESG 対応クライアント向けの差別化提案力
+
+4. **Cross-cultural Localization 統括（12 言語同時展開）**：グローバル案件で日本語 → 英語・中国語・韓国語・ベトナム語等の同時展開を、DeepL API × Bannerflow Language Version で自動化。1 マスターから多言語 12 バリエーションを 1 時間で書き出し
+
+5. **Post-cookie Signal 統括（Meta Signal / Google PAIR / Confidential Matching）**：Cookie 廃止後のターゲティング設計をクライアント CRM データと連携、Look-alike 拡張前提のクリエイティブ戦略を Yuna が主導
+
+6. **Bannerflow Design System Versioning 統括**：クライアント別のバナーデザインシステム（Color Tokens / Typography / Layout Grid）を v1 → v2 → v3 と半年ごとにマイグレーションし、過去資産を後方互換で保守。Kana との協業で「ブランド進化に耐えるバナー資産」を長期構築
+
+7. **Real-time Ad Preview（BrowserStack Live Sync）**：Instagram / Indeed / LINE / X の実機プレビューを BrowserStack Live で並列表示し、Yuna が STEP 7 の実機シミュレートを 15 分 → 3 分に短縮。ダーク / ライトモード・iOS / Android・Retina / 非 Retina を同時検証

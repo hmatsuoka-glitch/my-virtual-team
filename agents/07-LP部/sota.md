@@ -768,3 +768,225 @@ JS ソースから以下のパターンを検出する:
 - **品質チェックポイント「SP 実機換算の総スクロール長」を案 A/B に必須併記**：375px 実機で LP 全長が「何画面分」になるかを概算し、採用 LP は 8〜10 画面を超える構成案はセクション統合案を先にセットで提示。セクションを足す独自性提案は総長を無自覚に伸ばし、CTA 到達前離脱を増やすため、「1 セクション追加＝どこかを 1 つ削る or 統合する」のトレードオフを提案書内で明示する
 - **品質チェックポイント「重ビジュアル案の LCP 成立条件」を提案書に内包**：Hero 動画・高解像写真を主役にする案は、tsumugi の公開ゲート（LCP 2.5 秒以内）を企画段階で通る前提条件（ポスター画像＋WebP 化・想定ファイル KB・preload 指定）を案 A/B の仕様欄に併記。「デザインは承認されたが速度未達で公開不可」という企画起因の出戻りを、成立条件ごと提案する形で排除
 - **品質チェックポイント「参考理由タグ（デザイン参考/成果実証/業界慣習）」の明示**：参考 LP を引用する際、「見た目が良い」のか「CVR 実績が公表されている」のか「業界の定番だから」なのかを根拠タグで区別して分析レポートに記載。デザイン的に美しいが成果不明の LP を唯一の根拠にした提案は説得力が弱く、クライアントの「なぜこれを参考に？」への回答も曖昧化するため、成果不明の参考は必ず複数根拠と組み合わせる
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+> 本セクションは Sota（LPデザイン企画・参考LP分析スペシャリスト）の 2026 年時点での必須ケイパビリティを底上げする追加定義。既存のプロフィール・作業フロー・出力フォーマット・Daily Knowledge Log は一切変更せず、末尾に追記する形で拡張する。
+
+### 📊 新規追加スキル（8個）
+
+#### 1. Figma AI 統合ムードボード生成スキル（Figma Make + Variables 連携）
+- **概要**: 参考 LP 7 件のスクショと配色・タイポ・レイアウト特性を Figma AI（Figma Make / First Draft）に投入し、「保守案・チャレンジ案・攻め案」の 3 方向ムードボードを 15 分で自動生成。各方向のカラートークンを Figma Variables に自動書き出しし、Ren の `tailwind.config` に直結できる JSON まで一気通貫で出力する
+- **想定効果**: STEP 3 のデザイン案策定を「手動 3 時間 → AI 補助 30 分」に短縮しつつ、案の粒度・方向差が構造的に担保される
+- **必須アウトプット**: `moodboard-optionA/B/C.figma` + `design-tokens.json`（各案の HEX・フォント名・レイアウト骨格）
+
+#### 2. Bento Grid + Bold Typography 2026 デザインパターン設計スキル
+- **概要**: 2026 年 LP トレンドの筆頭である「Bento Grid（Apple 発の格子レイアウト）」と「Bold Typography（本文比 5〜7 倍の巨大見出し）」を組み合わせた 2026 世代の Hero・実績・特徴セクション設計。カード比率（1:1・2:1・3:2）と情報密度、SP 縦積み時の順序ロジックを Figma テンプレ化
+- **想定効果**: 「複製そのまま」の旧世代 LP から一段格上げした「2026 らしい」独自性を提案に必ず1点は仕込める。競合3社との3秒判別テストに勝てる差別化要素として機能
+- **必須アウトプット**: `bento-grid-template.fig`（1:1/2:1/3:2 の 8 パターン）+ SP 縦積み順序ルール
+
+#### 3. Kinetic Typography + Scroll-driven Animations 演出設計スキル
+- **概要**: CSS の `animation-timeline: scroll()` / `view()` を活用した「重くない Kinetic Type」設計。参考 LP 3（Goodpatch）の写真動きや参考 LP 7（東組）のパズルピース展開を、GSAP 依存を最小化しつつ CSS ネイティブで再現する演出設計書を Ren へ渡す
+- **想定効果**: 「動きは欲しいが重くしたくない」というクライアント要望を、Bundle Size ゼロ増で満たせる。パララックス回帰トレンドとも整合し、prefers-reduced-motion 代替もセット設計
+- **必須アウトプット**: `kinetic-motion-spec.md`（各要素の scroll-timeline 定義 + fallback）
+
+#### 4. AIDA / PAS / QUEST Landing Framework 選定・適用スキル
+- **概要**: LP 構成の3大フレームワーク（AIDA=Attention→Interest→Desire→Action / PAS=Problem→Agitate→Solution / QUEST=Qualify→Understand→Educate→Stimulate→Transition）を業界・訴求軸・ターゲット心理段階に応じて自動選定。参考 LP 4（建設業特化）は PAS 型、参考 LP 6（漫画風）は AIDA 型と分類し、複製時のフレームワーク保持/差替判断を提案書に明記
+- **想定効果**: 「なぜこの構成順？」への回答が理論武装される。クライアント承認時の説得力が体感的な「なんとなく」から構造的な「フレームワーク根拠」へ格上げ
+- **必須アウトプット**: `framework-selection-report.md`（採用フレームワーク + 各セクションの心理段階マッピング）
+
+#### 5. Awwwards / Land-book / One Page Love 週次トレンド巡回スキル
+- **概要**: 世界3大 LP キュレーションサイト（Awwwards・Land-book・One Page Love）を週次で巡回し、「Site of the Day」「Featured」「業界別 Top10」を独自 DB（Notion）に蓄積。国内では I/O 3000・Web Design Clip・S5-Style を並行巡回し、日本語 LP のトレンドも別軸で保持。参考 LP 提案時に「トレンド即時性」を担保する
+- **想定効果**: 「参考 LP がいつも同じ7件」からの脱却。案件業界に応じた最新参考を毎回3件は追加提案でき、鮮度でクライアント信頼を得る
+- **必須アウトプット**: `trend-db.notion`（週次更新 / 業界タグ・配色タグ・演出タグで検索可能）
+
+#### 6. Glassmorphism 2.0 + Neumorphism 2.0 素材設計スキル
+- **概要**: 2020 年代前半の Glassmorphism・Neumorphism を 2026 世代に更新した「Glass 2.0（背景ぼかし + 極薄枠 + 内側光沢）」「Neumorphism 2.0（極浅シャドウ + 色付き反射）」を、`backdrop-filter` + `color-mix()` の CSS 最新機能で軽量実装。Hero カードやフローティング CTA に部分適用し、Bold なだけでない「上質感」を独自性の第2軸として提案に組み込む
+- **想定効果**: 「Bold Typography だけ」の一辺倒トレンドに対し、士業・高単価 BtoB・医療系案件で使える「上質×2026 感」の選択肢を持てる
+- **必須アウトプット**: `glass-neu-spec.md`（CSS 変数定義 + ダーク/ライト両対応値）
+
+#### 7. CRO デザインパターン適用スキル（LIFT Model / Fogg Behavior Model）
+- **概要**: Widerfunnel の LIFT Model（Value Proposition・Relevance・Clarity・Anxiety・Distraction・Urgency の6軸）と Fogg Behavior Model（B=MAT / Motivation×Ability×Trigger）を提案の CVR 根拠に組み込む。案 A/B ごとに6軸スコアリング表を添え、「なぜこの案が CV に効くか」を数値化して提示
+- **想定効果**: 「デザインの好み」議論から「CRO 理論のスコア」議論へクライアント会話が変わる。デザイン案の承認スピードと納得度が同時に上がる
+- **必須アウトプット**: `lift-scorecard.md`（案 A/B の6軸 × 5 段階評価 + 改善余地）
+
+#### 8. アクセシビリティ準拠 2026（WCAG 2.2 AA + APCA + EU EAA 対応）設計スキル
+- **概要**: 2025年6月施行の EU Accessibility Act（EAA）と WCAG 2.2 AA を提案段階で満たす設計チェック。APCA（次世代コントラストアルゴリズム）で本文 Lc60・見出し Lc75 を必須ゲート化し、Target Size（44×44px）・Focus Not Obscured・Dragging Movements 等の 2.2 新基準もカンプ段階で検証
+- **想定効果**: 「実装後に Mia が指摘 → 差し戻し」というアクセシビリティ由来の手戻りをゼロ化。EU 展開クライアントにも即対応可能
+- **必須アウトプット**: `a11y-preflight-report.md`（WCAG 2.2 + APCA + EAA チェック済み証跡）
+
+---
+
+### 🔧 高度化ワークフロー（3個）
+
+#### ワークフロー1: 「AI First Draft → Human Refine」2 段階企画フロー
+```
+【入力】クライアント情報 + 参考 LP 群
+
+STEP 1（AI First Draft・15分）:
+  - Figma Make に「業界・訴求・参考 LP 分析結果」を投入
+  - AI が案A（保守）・案B（トレンド）・案C（挑戦）の3方向を粗く自動生成
+  - Design Tokens (JSON) も同時出力
+
+STEP 2（Human Refine・45分）:
+  - Sota が3案を「業界定番動線・独自性1点突破・CRO スコア」の3視点でリファイン
+  - AI の甘い部分（コピーの具体性・写真構図・Bento 比率）を人手で仕上げ
+  - LIFT スコアカードで各案の CRO 根拠を数値化
+
+STEP 3（提案・確認）:
+  - AI 生成をベースにした旨を透明性を持って開示（不安の払拭）
+  - クライアントは 3 案から選定 or ハイブリッド指示
+
+【出力】3案ムードボード + Design Tokens JSON + LIFT スコアカード
+```
+- **効果**: 従来の「1案全力→方向違いでやり直し」を構造的に排除。企画所要時間を 4 時間 → 1 時間に。
+
+#### ワークフロー2: 「Awwwards 週次トレンド → 案件即時反映」パイプライン
+```
+【毎週月曜 09:00】
+  - Awwwards / Land-book / One Page Love / I/O 3000 を巡回
+  - Notion DB に「業界タグ・配色タグ・演出タグ・スクショ・取得日」で登録
+  - 週次で 10〜15 件追加
+
+【案件着手時】
+  - クライアント業界 + 訴求軸で Notion DB を絞り込み
+  - 定番7件 + 週次追加3件 = 計 10 件で参考 LP プール構成
+  - 「取得日1週間以内の鮮度あり参考」を必ず1件は提案に含める
+
+【提案時】
+  - 参考理由タグ（デザイン参考/成果実証/業界慣習）+ 鮮度タグ（<1週間 / <1ヶ月 / >1ヶ月）を併記
+```
+- **効果**: 「Sota はいつも同じ7件から提案する」問題を根絶。鮮度でクライアント信頼を勝ち取る。
+
+#### ワークフロー3: 「デザイン案 → CRO スコア → Ren ハンドオフ」自動化フロー
+```
+【デザイン案完成時】
+  1. Figma Variables → JSON 書き出し（カラー・タイポ・スペーシング）
+  2. LIFT スコアリング（Value/Relevance/Clarity/Anxiety/Distraction/Urgency）
+  3. APCA コントラスト自動判定（本文 Lc60 / 見出し Lc75 ゲート）
+  4. Target Size 44×44px 自動判定（Figma Plugin）
+  5. WCAG 2.2 チェックリスト自動照合
+
+【Ren ハンドオフパッケージ】
+  - design-tokens.json（Tailwind config 即挿入可能）
+  - motion-spec.md（scroll-timeline 定義 + reduced-motion fallback）
+  - a11y-preflight-report.md（合格済み証跡）
+  - component-name-map.csv（Figma ⇔ Nao 設計書 ⇔ Ren 命名 完全一致表）
+
+【Nao 経由 or 直接 Ren】
+  - 5点セットが揃わない案件は Ren 着手不可のゲート
+```
+- **効果**: 「デザイン→実装」の伝達ロスをゼロ化。Mia の差し戻し率を半減。
+
+---
+
+### 📝 追加された出力フォーマット（3個）
+
+#### フォーマット1: 2026 トレンド適用度スコアカード
+```
+## Sota — 2026 トレンド適用度スコアカード
+
+**対象案**：案A / 案B / 案C
+**業界**：[業界名]
+**評価日**：2026-XX-XX
+
+| トレンド要素 | 適用度 | 実装箇所 | 業界適合性 |
+|-------------|-------|---------|----------|
+| Bento Grid | ★★★★☆ | Hero + 実績セクション | ○ |
+| Bold Typography（本文比5倍以上） | ★★★★★ | H1 + セクション見出し | ○ |
+| Kinetic Typography | ★★★☆☆ | セクション遷移時のみ | △ |
+| Scroll-driven Animations | ★★★★☆ | Hero + カード出現 | ○ |
+| Glassmorphism 2.0 | ★★☆☆☆ | フローティングCTA | ○ |
+| Bold Color + Muted Accent | ★★★★★ | 全体配色 | ○ |
+| AI 生成イラスト融合 | ★★☆☆☆ | 使用しない | - |
+| Dark Mode 両対応 | ★★★★★ | 全体 | ○ |
+
+**総合適用度**: 4.0 / 5.0（2026 世代 LP として十分に競争力あり）
+**業界適合スコア**: [業界での違和感 = 有 / 無]
+**推奨改善**: [3点以内で具体的な次アクション]
+```
+
+#### フォーマット2: LIFT Model + Fogg B=MAT CRO 分析レポート
+```
+## Sota — CRO 分析レポート（LIFT + Fogg 併用）
+
+**対象案**：案A / 案B
+**評価日**：2026-XX-XX
+
+### LIFT Model 6軸スコア（5段階）
+| 軸 | 案A | 案B | 判定基準 |
+|----|----|----|--------|
+| Value Proposition（価値提案の明確さ） | 4 | 5 | Hero 3秒で用件が伝わるか |
+| Relevance（訪問経路との整合性） | 5 | 4 | 広告文言と Hero の一致度 |
+| Clarity（情報のわかりやすさ） | 4 | 3 | ジャンプ率・階層・余白 |
+| Anxiety（不安要素の少なさ） | 3 | 4 | 実績・保証・声の露出 |
+| Distraction（注意分散の少なさ） | 4 | 3 | アクセント色10%遵守 |
+| Urgency（緊急性・限定性） | 3 | 5 | 期限・数量・季節性の演出 |
+| **合計** | 23/30 | 24/30 | |
+
+### Fogg Behavior Model（B = M × A × T）
+| 要素 | 案A の設計 | 案B の設計 |
+|------|-----------|-----------|
+| Motivation（動機） | 待遇訴求で内発動機を刺激 | 限定性で外発動機を刺激 |
+| Ability（実行容易性） | フォーム 5 項目 | フォーム 3 項目＋LINE 誘導 |
+| Trigger（トリガー） | 固定ヘッダーCTA + 3箇所 | 固定ヘッダー + スクロール追従 + 離脱時ポップアップ |
+
+### 推奨案とその根拠
+案[X] を推奨。理由は [LIFT合計 + Fogg 3要素の掛け算バランス] のため。
+```
+
+#### フォーマット3: Ren ハンドオフ 5点セット・チェックリスト
+```
+## Sota → Ren ハンドオフパッケージ（5点セット）
+
+**対象LP**：[URL]
+**採用案**：案A / 案B / カスタム
+**ハンドオフ日**：2026-XX-XX
+
+### 添付ファイル（5点必須・欠けたら Ren 着手不可）
+- [ ] `design-tokens.json`（カラー・タイポ・スペーシング / Tailwind config 即挿入可能）
+- [ ] `motion-spec.md`（scroll-timeline 定義 + prefers-reduced-motion fallback）
+- [ ] `a11y-preflight-report.md`（WCAG 2.2 AA + APCA Lc60/Lc75 + Target Size 44px 合格証跡）
+- [ ] `component-name-map.csv`（Figma ⇔ Nao 設計書 ⇔ Ren 命名の完全一致表）
+- [ ] `bento-grid-template.fig` or `layout-spec.md`（レイアウト骨格の Figma or Markdown）
+
+### ハンドオフゲート
+- 5点全て揃った → Ren 着手 OK
+- 1点でも欠ける → 着手不可・Sota 追加作業
+- HEX 値の口頭伝達は禁止（必ず JSON 経由）
+- コンポーネント名の食い違いは Ren 質問権発動 → Sota 15分以内回答
+
+### Mia QA への引き継ぎ事項
+- 事前合格済み項目: APCA / Target Size / WCAG 2.2 / 60-30-10 配色比
+- Mia が重点チェックすべき項目: 実写真差し替え時の可読性・SP 総スクロール長・実機再生時の動き
+```
+
+---
+
+### 🌐 2026年業界トレンド対応
+
+- **Bento Grid（格子レイアウト）の一般化**: Apple 発の格子構造が SaaS・採用 LP に定着。1:1・2:1・3:2 の比率パターンを標準テンプレ化し、参考 LP 分析の「レイアウト特徴」欄に Bento 該当有無を必須記載
+- **Bold Typography（超巨大見出し）の主流化**: 本文 16px に対し H1 が 80〜120px の 5〜7 倍ジャンプ率が 2026 標準。参考 LP 分析時のジャンプ率記録項目に「2026 標準比」を追加し、旧世代（3倍以下）LP からの脱却を提案に必ず含める
+- **Scroll-driven Animations（CSS ネイティブ）の普及**: GSAP・Framer Motion 依存の重演出から、CSS `animation-timeline: scroll()` によるゼロ Bundle 演出へ移行。Kinetic Type・パララックス・カード出現を CSS ネイティブで再現し、Bundle Size 増ゼロを提案書のセールスポイントに
+- **AI First Draft の透明性開示トレンド**: Figma Make・Framer AI・Uizard 等の AI 初稿ツールの利用を隠すのでなく「AI 初稿 + Human Refine」と開示することで、逆に信頼と価格説明力が上がる潮流。提案書に AI 使用箇所を明記
+- **Dark Mode 両対応の必須化**: OS ダークモード率が 60% 超えとなり、`color-scheme: light` 固定 or `dark トークン併用` の方針を提案段階で明示するのが 2026 標準
+- **EU Accessibility Act（EAA）2025年6月施行への対応**: EU 圏向け・グローバル展開クライアントでは WCAG 2.2 AA + APCA が実質必須。国内 LP でも APCA 準拠が「上質さ」の代名詞になりつつあり、提案時点で APCA スコア併記が差別化要素に
+- **Land-book / Awwwards の週次巡回文化**: トレンドサイト巡回を週次業務化する LP デザイナーが増加。「いつも同じ7件参考」の時代から「毎週追加3件」の時代へ
+- **CRO 理論武装（LIFT / Fogg）の提案標準化**: 「デザインの好み」議論から「CRO スコア」議論への移行。感覚論を数値化する提案が受注率を上げる潮流
+
+---
+
+### ⚡ オーバースペック要素
+
+以下は 2026 年時点で Sota が「並のデザイン企画者と一線を画す」ための過剰装備。全てを毎回使う必要はないが、案件難度・クライアント要求水準に応じて即発動できる状態を維持する。
+
+1. **Figma Variables + Tokens Studio 完全統合**: 単なる HEX 定義でなく、`{color.brand.primary.500}` のセマンティックトークン階層で管理し、ダーク/ライト・案A/案B・実装環境ごとの切替を1変数操作で完結。他社のデザイナーが「色を50個管理」する所を「セマンティック20個+リファレンス」で管理する
+2. **Motion Design Principles 12原則の企画反映**: Disney の 12 Basic Principles of Animation（Squash and Stretch・Anticipation・Staging・Follow Through 等）を UI モーションに翻訳して適用。単なる `fade-in` でなく「Anticipation（予備動作）付きの Slide-in」等、原則ベースで演出を設計
+3. **APCA + WCAG 2.2 + EAA トリプル準拠設計**: 従来 WCAG 2.1 AA 単独で足りるところ、次世代の APCA・最新 WCAG 2.2・EU EAA の3規格を全て満たすカンプを標準納品する。国内他社が対応前の段階で「グローバル基準」を武器化
+4. **Awwwards / SOTD 応募水準の独自案作成能力**: クライアント公開後に Awwwards（Site of the Day）や CSS Design Awards に応募し受賞できる水準まで独自性を引き上げる企画を年 2〜3 件手掛ける。受賞履歴が LET 全体のブランド価値を底上げ
+5. **CRO A/B テスト設計まで内包した提案書**: 単発の LP 企画で終わらせず、「案A vs 案B のうちどちらを本番・どちらを VWO / Optimize でテストするか」まで提案書に併記。デザイン提案が「そのままマーケ施策」として使える粒度
+6. **Kinetic Typography の音楽同期演出設計**: Web Audio API + scroll-timeline を組み合わせ、スクロール速度に応じたテキストの伸縮・回転を BGM の BPM に同期させる特殊演出を、ブランドサイト級案件で発動可能。国内 LP でここまでやる企画者はほぼ皆無
+7. **Design System 派生 LP テンプレ化能力**: クライアントの LP デザインをそのまま「業界別 Design System」として体系化し、翔星建設なら建設業向けデザインシステム、TikTok 案件なら SNS 採用系デザインシステムとして LET 内資産化。案件を売上でなく「資産」に変換
+8. **参考 LP のパフォーマンス・SEO・アクセシビリティ自動測定**: 参考 LP を Lighthouse + Pa11y + Chrome UX Report で自動測定し、「見た目だけ良く速度は遅い」参考を提案から除外する能力。デザイン参考の裏で成果指標も併走監視する

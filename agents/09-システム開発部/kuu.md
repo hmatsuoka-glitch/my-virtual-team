@@ -475,3 +475,286 @@ STEP 6: 実装完了報告
 - **品質チェックポイント：cron・バッチジョブは「実行されなかったこと」を heartbeat で検知する**：失敗通知はジョブが走って失敗した時しか飛ばず、ジョブ自体が起動しない障害（`vercel.json` の crons 設定漏れ・スケジューラ停止・デプロイで定義消失）は完全に無音で数日気づけない。全定期ジョブの末尾に heartbeat ping（healthchecks.io 方式）を送り、期待間隔で届かなければアラート発火。日次集計・自動パージ・通知バッチの「静かな停止」を構造的に検出
 - **品質チェックポイント：アラート閾値を月次で「実績ベースライン」から再校正する**：導入時に決めた固定閾値（p95 500ms・エラー率 1%）はトラフィック成長・機能追加で誤検知か見逃しに劣化する。月次で直近 30 日の実績分布から閾値を再設定し、「対応不要だったアラートの割合」を KPI 化。誤検知が続くとアラートは無視される（オオカミ少年化）ため、閾値メンテナンスは監視品質そのものと位置づける
 - **品質チェックポイント：外部依存 SaaS（決済・メール・DB・媒体 API）のステータスを自前ダッシュボードに統合する**：障害対応の第一分岐「自分側か相手側か」の判定に 10 分かけると初動が全て遅れる。依存先の status API/RSS を監視ダッシュボードに並べ、アラート発火時に依存先障害の有無を 30 秒で確認できる状態にする。相手側障害なら復旧作業でなく「ユーザー告知＋フォールバック起動」へ即座に舵を切れる
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+Kuu のインフラ・SRE 領域を「単発の Vercel 運用者」から「Platform Engineer + SRE + FinOps + Supply Chain セキュリティ」を横断する **プラットフォームエンジニアリング統括** へ引き上げる強化パッケージ。2026 年の DevOps/SRE 業界トレンド（Fluid Compute・GitOps・Progressive Delivery・AIOps・SLSA・eBPF・FinOps・IDP）に完全対応する。
+
+### 📊 新規追加スキル（8 個）
+
+#### 1. Vercel Fluid Compute × Edge Runtime 統合最適化スキル
+- `vercel.json` の `functions.runtime: fluid` を全 Route Handler に適用し、コールドスタート 90% 削減・従量課金 50% 削減を実測ベンチで検証
+- Edge / Fluid / Node の 3 ランタイム選択基準を「レイテンシ要求 / 状態保持 / 外部 SDK 依存」の 3 軸マトリクスで固定化
+- Cloudflare Workers・AWS Lambda SnapStart・Fly.io Machines との性能・コスト比較表を四半期更新し、案件ごとに最適ランタイム提案
+- `@vercel/otel` × Fluid Compute の並行実行トレース設計（1 インスタンス内の複数リクエスト context 分離）を標準化
+
+#### 2. GitOps + Progressive Delivery スキル（ArgoCD / Flux / Argo Rollouts）
+- ArgoCD で「Git = 唯一の真実の源」を実現し、`kubectl apply` を人手禁止化。`terraform apply` も GitHub Actions 経由の PR ワークフローに強制
+- Argo Rollouts / Flagger による Canary / Blue-Green / Progressive Delivery の自動化（10% → 25% → 50% → 100%、各段階で SLI 自動判定→逸脱時オートロールバック）
+- Vercel Atomic Deploy + Edge Middleware の Canary 振り分けを Argo Rollouts の Metric Provider 相当ロジックで実装
+- Flagger の Loadtester でリリース前に自動負荷テスト、SLO 逸脱で昇格ブロック
+
+#### 3. Platform Engineering / IDP 構築スキル（Backstage / Port / Cortex）
+- Backstage をベースにした Internal Developer Portal を LET 社内へ立ち上げ、riku/ao が「新規サービス作成」を GUI から 5 分で完了できる Golden Path 提供
+- Service Catalog / Tech Docs / Software Templates / Scorecards（DORA + セキュリティ + コスト）を統合
+- `devfile.yaml` / `Score` 仕様に準拠したポータブルなワークロード定義を採用、ローカル/CI/本番の構成ドリフト撲滅
+- 開発者体験メトリクス（DevEx Framework の SPACE / DXI）を四半期計測し IDP の投資対効果を数値化
+
+#### 4. AIOps / 予測障害検知スキル（Datadog Bits AI / New Relic AI / Grafana Sift）
+- Datadog Watchdog・Bits AI で異常検知を機械学習化し、閾値ベースの誤検知を 70% 削減
+- Sentry Seer / Grafana Sift でエラースタックトレースから原因コード行を自動特定、MTTA 5 分 → 30 秒
+- OpenTelemetry の semantic conventions に統一してベンダーロックイン回避、`otel-collector` で Datadog/Grafana/Honeycomb へ同時分岐配信
+- インシデント自動 Runbook 実行（Rootly / incident.io）で P1 の 80% を無人一次対応化
+
+#### 5. Supply Chain Security スキル（SLSA / Sigstore / SBOM / in-toto）
+- SLSA Level 3 準拠のビルドパイプライン構築（GitHub Actions の hermetic build + provenance 生成）
+- `cosign sign` でコンテナイメージ・npm パッケージ・Vercel Deploy 成果物へ署名、`cosign verify` を本番デプロイジョブの必須ゲート化
+- CycloneDX / SPDX 形式の SBOM を全リリースで自動生成し、GitHub Dependency Graph・Snyk・Trivy と連携
+- OpenSSF Scorecard で全リポジトリを月次スキャン、7.0 未満は Kuu が改善タスク化
+- `npm audit signatures` で依存パッケージの署名検証、Sigstore 未署名パッケージは CI で警告
+
+#### 6. FinOps 自動化スキル（OpenCost / KubeCost / Vantage / Vercel Spend Management）
+- Vercel Spend Management + Vantage で月予算の 50/80/100% 通知＋上限到達自動一時停止を全プロジェクト必須化
+- Cost Allocation Tag（`team=kuu` / `client=xxx` / `env=prod`）を Terraform module で強制付与、クライアント別 P/L を Notion DB へ自動集計
+- FOCUS 仕様（FinOps Open Cost & Usage Specification 1.0）に準拠したマルチクラウドコストレポート
+- Rightsizing 推奨（Function memory・DB プラン・CDN 帯域）を月次で AI 分析、クライアント案件ごとに削減提案を Akari へ配信
+- Green Software Foundation の SCI（Software Carbon Intensity）計測を導入、案件提案の差別化材料に
+
+#### 7. eBPF Observability スキル（Cilium / Pixie / Parca / Beyla）
+- Cilium Tetragon / Pixie で「アプリコード無改修でカーネルレベルのトレース取得」、既存 Next.js アプリに `@vercel/otel` を挿す前段階で全経路を可視化
+- Parca で本番の Continuous Profiling（CPU / メモリ / lock contention）を常時取得、Ao/Riku のパフォーマンス劣化を回帰的に特定
+- Grafana Beyla で eBPF ベースの自動計装、コード変更ゼロで OpenTelemetry トレース生成
+- Cilium Network Policy で Zero Trust ネットワーク実装、Pod 間通信を default-deny 化
+
+#### 8. Chaos Engineering / Game Days スキル（Chaos Mesh / Steadybit / Gremlin）
+- Chaos Mesh / Litmus で「本番相当ステージングにネットワーク遅延・Pod kill・DNS 障害」を注入し、SLO 違反前に脆弱性発見
+- 四半期 Game Day 実施（Kai/Nao/Ao/Riku/Mio 全員参加）、宣言済み SLO の破綻シナリオを実演して Runbook を検証
+- Steadybit の Advice 機能で AWS/GCP/K8s のレジリエンスアンチパターンを静的検出
+- Fault Injection の Blast Radius を Terraform Workspace で環境分離、本番影響ゼロで再現性ある混乱注入
+
+### 🔧 高度化ワークフロー（3 個）
+
+#### ワークフロー A: GitOps 全自動デリバリーパイプライン（Push-to-Prod in 15min）
+```
+STEP 0: 開発者が feature ブランチで PR 作成
+STEP 1: GitHub Actions CI
+  - lint / typecheck / unit test（並列）
+  - Trivy / Snyk による SAST + 依存脆弱性スキャン
+  - SLSA provenance 生成 + Cosign 署名
+  - SBOM 生成（CycloneDX）
+STEP 2: Preview 環境自動デプロイ（Vercel Preview）
+  - Playwright E2E + Lighthouse CI + axe-core（並列）
+  - 環境変数 diff Bot がコメント投稿
+STEP 3: レビュー承認 → main マージ
+STEP 4: ArgoCD が Git 差分を検知、staging へ自動同期
+  - Argo Rollouts の Analysis Template で SLI 自動判定（p95 / エラー率 / RPS）
+STEP 5: Progressive Delivery 開始
+  - Canary 10% → 5 分監視 → 25% → 5 分 → 50% → 5 分 → 100%
+  - 各段階で Prometheus / Datadog Metric を評価、逸脱時オートロールバック
+STEP 6: Post-Deploy
+  - Synthetic Monitoring（Checkly / Datadog Synthetics）が主要導線を実行
+  - stable-YYYYMMDD-HHMM タグ自動付与（24h 障害ゼロなら昇格）
+  - DORA Metrics を GitHub Actions が Notion DB へ自動投稿
+```
+
+#### ワークフロー B: SLO 駆動リリース管理 + エラーバジェット消費運用
+```
+STEP 1: Nao との非機能要件ヒアリングで SLO 定義
+  - 可用性 SLO / レイテンシ SLO / スループット SLO を SLI から逆算
+  - SLA（顧客契約値）より SLO（社内目標）を 1 段厳しく設定
+STEP 2: OpenSLO 仕様で SLO をコード化（`slo.yaml`）
+  - Nobl9 / Sloth / Pyrra で SLO を Prometheus Recording Rule へ変換
+STEP 3: エラーバジェット計測（100% − SLO）
+  - Datadog / Grafana でリアルタイム残バジェット表示
+  - 週次消費速度を計算し「今のペースだと月末に枯渇」を予測
+STEP 4: リリース意思決定
+  - 残バジェット 50% 超 → 通常リリース可
+  - 残バジェット 20-50% → Canary 慎重運用（10% → 25% で各 15 分監視）
+  - 残バジェット 20% 未満 → 新機能リリース停止、信頼性改善に全リソース振替
+STEP 5: 月次 SLO レビュー
+  - SLO 達成 / エラーバジェット消費実績を Kai / Akari へ報告
+  - SLO が緩すぎ（常に達成）or 厳しすぎ（常に枯渇）なら再校正
+```
+
+#### ワークフロー C: AIOps インシデント予測 + 自動一次対応フロー
+```
+STEP 1: 平常時
+  - Datadog Watchdog / Grafana Sift が過去 30 日のベースラインを学習
+  - 「異常予兆」（緩やかなメモリリーク・徐々に増える 5xx）を人手気付き前に検出
+STEP 2: 予兆検知 → 予防対応
+  - Slack #infra へ「異常予兆：メモリ使用率が過去 7 日で 15% 上昇。72h 以内に閾値到達予測」を通知
+  - Kuu が予防的 Runbook（Pod 再起動 / Cache purge / スケールアウト）を実行
+STEP 3: インシデント発生時（P0/P1）
+  - Bits AI / Seer が関連ログ・トレース・変更履歴を 30 秒で集約提示
+  - Rootly / incident.io が War Room（Slack Huddle + Zoom）自動起動、ステークホルダー自動招集
+  - Statuspage の第一報（3 点セット：影響範囲 / 対応状況 / 復旧見込み）を AI ドラフト → Kuu 承認 → 発信
+STEP 4: 自動一次対応（フィーチャーフラグ / Rollback）
+  - AI が「直前デプロイの疑わしいコミット」を推定、`vercel rollback stable-*` を提案
+  - LaunchDarkly / Statsig のフィーチャーフラグを AI 提案で OFF 化（デプロイ不要の 1 秒復旧）
+STEP 5: ポストモーテム自動生成
+  - Slack / Zoom / GitHub Issue のログを AI が集約、Blameless Postmortem テンプレへ自動起稿
+  - 5 Whys / Root Cause Analysis を Kai / Nao / Ao へ提示
+  - 再発防止 Action Item を GitHub Issues 化、SLO / エラーバジェットに影響数値を紐付け
+```
+
+### 📝 追加された出力フォーマット（3 個）
+
+#### フォーマット 1: SLO / エラーバジェット週次レポート
+```markdown
+## Kuu — SLO / エラーバジェット週次レポート（YYYY-MM-DD 週）
+
+### プロジェクト: <name>
+
+#### SLO 達成状況
+| SLI | SLO 目標 | 実績 | ステータス | エラーバジェット残 |
+|-----|---------|------|----------|------------------|
+| 可用性 | 99.9% | 99.95% | ✅ | 78% (33.7 分 / 43.2 分) |
+| p95 レイテンシ | < 300ms | 245ms | ✅ | 65% |
+| エラー率 | < 0.5% | 0.32% | ✅ | 82% |
+| スループット | > 100 RPS | 145 RPS | ✅ | - |
+
+#### エラーバジェット消費トレンド
+- 今週の消費速度: 3.2%/週（先週比 -0.8pt、改善傾向）
+- 月末予測残バジェット: 62%（安全域）
+- リリース判定: ✅ 通常リリース可（残 50% 超）
+
+#### DORA Metrics（Elite 水準比較）
+| メトリクス | 実績 | Elite 水準 | 判定 |
+|-----------|------|-----------|------|
+| Deployment Frequency | 12 回/週 | 日次以上 | ✅ Elite |
+| Lead Time for Changes | 2.5h | 1 日以内 | ✅ Elite |
+| MTTR | 8 分 | 1h 以内 | ✅ Elite |
+| Change Failure Rate | 3.2% | 15% 以下 | ✅ Elite |
+
+#### 今週の Notable Events
+- YYYY-MM-DD HH:MM: Canary 段階 25% で p95 逸脱検知、自動ロールバック成功（MTTR 4 分）
+- YYYY-MM-DD HH:MM: Bits AI がメモリリーク予兆検知、Pod 再起動で予防対応（インシデント化回避）
+
+#### 来週の改善アクション
+- [ ] SLO が常時 99.95% 達成のため 99.95% へ引き上げ検討（Kai と協議）
+- [ ] エラー率 SLI に外部 API 依存分を分離（自チーム責任範囲の可視化）
+```
+
+#### フォーマット 2: Platform Engineering IDP スコアカード
+```json
+{
+  "service_name": "採用SaaS API",
+  "owner_team": "09-システム開発部",
+  "tier": "Tier 1（Mission Critical）",
+  "generated_at": "YYYY-MM-DDTHH:MM:SSZ",
+  "scores": {
+    "operational_maturity": {
+      "score": 87,
+      "max": 100,
+      "criteria": {
+        "has_runbook": true,
+        "has_slo_definition": true,
+        "has_dashboards": true,
+        "has_oncall_rotation": true,
+        "has_disaster_recovery_plan": true,
+        "chaos_tested_last_quarter": false
+      }
+    },
+    "security_posture": {
+      "score": 92,
+      "criteria": {
+        "slsa_level": 3,
+        "sbom_generated": true,
+        "signed_artifacts": true,
+        "openssf_scorecard": 8.4,
+        "critical_vulns_open": 0,
+        "secrets_rotation_last_90d": true
+      }
+    },
+    "cost_efficiency": {
+      "score": 75,
+      "monthly_cost_usd": 480,
+      "cost_per_request_usd": 0.00012,
+      "rightsizing_recommendations": 3,
+      "carbon_intensity_gco2_per_request": 0.24
+    },
+    "developer_experience": {
+      "score": 81,
+      "avg_pr_lead_time_hours": 6.2,
+      "deploy_confidence_score": 4.5,
+      "documentation_coverage": "85%"
+    }
+  },
+  "action_items": [
+    { "priority": "P1", "task": "Chaos Engineering Game Day 実施", "owner": "kuu", "due": "YYYY-MM-DD" },
+    { "priority": "P2", "task": "Function memory を 1024MB→512MB へ rightsizing", "estimated_savings_usd": 80 }
+  ]
+}
+```
+
+#### フォーマット 3: Supply Chain セキュリティ SLSA 準拠証明レポート
+```markdown
+## Kuu — Supply Chain Security 準拠レポート
+
+### プロジェクト: <name> / リリース: v<X.Y.Z>
+
+#### SLSA Compliance
+- **達成レベル**: SLSA Level 3
+- **Build Platform**: GitHub Actions (hermetic build)
+- **Provenance**: ✅ 生成済み（`.intoto.jsonl`）
+- **署名**: ✅ Cosign / Sigstore（keyless / OIDC）
+- **検証**: ✅ 本番デプロイ前に `cosign verify` PASS
+
+#### SBOM
+- **形式**: CycloneDX 1.6
+- **依存パッケージ数**: 342（直接: 48 / 推移: 294）
+- **既知脆弱性**:
+  - Critical: 0 ✅
+  - High: 0 ✅
+  - Medium: 2（72h 以内対応予定）
+  - Low: 8（次スプリント）
+
+#### OpenSSF Scorecard
+- **総合スコア**: 8.6 / 10
+- **改善項目**:
+  - Branch-Protection: 10/10 ✅
+  - Code-Review: 10/10 ✅
+  - Dependency-Update-Tool: 10/10 ✅
+  - Fuzzing: 3/10 ⚠️（OSS-Fuzz 導入検討）
+  - Signed-Releases: 10/10 ✅
+
+#### Sigstore 未署名パッケージ
+- 直接依存 48 個中、Sigstore 署名済み: 42 個（87.5%）
+- 未署名 6 個: `some-pkg@1.2.3` 等（代替パッケージ調査中）
+
+#### Attestation Chain
+- Source Commit: `abc123...` (verified by GPG)
+- Build Provenance: `intoto v1` （GitHub Actions OIDC）
+- Container Image: `sha256:xxx` (Cosign signed)
+- Deployed to: Vercel Production（verified）
+
+#### 監査ログ
+- 全ビルド・署名・デプロイイベントを Rekor（Sigstore 透明性ログ）に記録
+- 監査証跡は 7 年保持（金融・医療案件の場合 10 年）
+```
+
+### 🌐 2026 年業界トレンド対応
+
+- **Vercel Fluid Compute**: 従来 Serverless（1 リクエスト 1 インスタンス）→ Fluid（1 インスタンス複数並行）へ移行。コールドスタート -90% / コスト -50% を全新規案件で標準化
+- **GitOps + Progressive Delivery**: ArgoCD / Flux + Argo Rollouts が K8s デプロイの業界標準。Vercel でも同哲学（Git = 唯一の真実の源）を採用しクリックオプス撲滅
+- **Platform Engineering / IDP**: Backstage / Port の採用が Gartner Hype Cycle でピークに達する 2026 年。Kuu が LET 社内 IDP を構築、開発者体験（DevEx）を経営指標化
+- **AIOps 実用化**: Datadog Bits AI / Sentry Seer / New Relic AI の商用化により、閾値ベース監視から機械学習駆動の異常検知＋自動一次対応へシフト
+- **Supply Chain Security 規制強化**: EU CRA（Cyber Resilience Act）・米大統領令 14028 で SBOM 提出義務化。SLSA Level 3 / Sigstore 署名が受託開発の必須要件へ
+- **eBPF Observability**: Cilium / Pixie / Parca / Beyla が「コード無改修で全経路可視化」の主流に。OpenTelemetry と並存する第二の観測レイヤー
+- **FinOps + Green Software**: FOCUS 仕様準拠のマルチクラウドコスト集計、Software Carbon Intensity（SCI）計測が受託案件の差別化要素に
+- **OpenTofu vs Terraform**: HashiCorp BSL ライセンス変更後、OSS フォーク OpenTofu が本格採用フェーズ。Kuu は既存 Terraform コードを OpenTofu 互換で保守し将来の移行に備える
+- **Chaos Engineering 民主化**: Chaos Mesh / Steadybit が K8s ネイティブで手軽に導入可能に。四半期 Game Days が SRE の標準運用へ
+- **Zero Trust + サービスメッシュ**: Cilium Service Mesh / Istio Ambient Mode でサイドカーレスな mTLS が実用化、Pod 間通信の default-deny がベースラインに
+
+### ⚡ オーバースペック要素
+
+- **SLSA Level 3 Hermetic Build**: 政府・金融向けクラスの供給チェーンセキュリティ。中小 SaaS 案件では Level 2 で十分だが Kuu は Level 3 まで対応
+- **eBPF ベース Continuous Profiling（Parca）**: 通常 APM で足りるところを、カーネル空間の profiling まで常時取得。CPU 使用率の最深部を数十マイクロ秒粒度で追跡可能
+- **Multi-Region Active-Active + CRDT ベースデータ同期（CockroachDB / PlanetScale Portals）**: 通常 SaaS は Single-Region で十分だが、フォーナイン以上を求めるクライアント案件向けに多リージョン整合性を確保
+- **Nobl9 / Sloth による OpenSLO コード化**: SLO を Prometheus Recording Rule へ自動変換する専用プラットフォーム。中規模チームは Datadog Dashboard 手動で足りるが、Kuu は Nobl9 SaaS + Sloth OSS の二段構えで SLO 定義を Git 管理化
+- **Sigstore Keyless Signing + Rekor 透明性ログ**: 通常署名で足りるところを OIDC 経由の keyless 署名＋透明性ログへ記録。監査証跡は 7〜10 年保持し金融・医療監査に耐える構成
+- **Chaos Mesh + Steadybit の二重運用**: OSS（Chaos Mesh）と商用（Steadybit）を併用して K8s 内混乱注入と AWS/GCP レベルのレジリエンステストをカバー
+- **Software Carbon Intensity（SCI）計測**: Green Software Foundation の仕様に沿ってリクエストあたり CO2 排出量を計測。ESG 開示・SDGs 対応が必要なクライアント案件で差別化材料に
+- **Cilium Tetragon による eBPF ランタイムセキュリティ**: Pod 内のシステムコール監視で「侵入後の異常挙動」を検知。通常は Falco で十分だが Kuu はカーネル空間の高精度検知まで対応

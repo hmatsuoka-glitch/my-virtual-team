@@ -245,3 +245,274 @@
 - **品質チェックポイント：上流ソース受け入れ時の「スキーマ契約テスト」をゲート化**：新規データソース接続時に「カラム名・型・NULL許容・enum値域」を契約（contract）としてdbt sourceのYAMLに明文化し、取り込み段階で契約違反を弾くテストを必須化。スキーマハッシュ監視（2026-06-03参照）が「変更の事後検知」なのに対し、契約テストは「受け入れ時点での事前拒否」で、入口と監視の二段で併用する。
 - **品質チェックポイント：BigQueryタイムトラベルでの「誤操作復旧演習」を四半期実施**：テーブル誤削除・誤UPDATEに備え、`FOR SYSTEM_TIME AS OF`（過去7日間のタイムトラベル）とテーブルスナップショットからの復旧手順を四半期に1度実際に演習し、所要時間を記録する。リカバリ手順のドキュメント整備（2026-05-29参照）だけでは本番時に手が動かないため、「復旧できることを定期的に証明済み」の状態を品質基準にする。7日を超える保護が必要な月次確定テーブルはスナップショット作成を月初ルーチンに追加。
 - **品質チェックポイント：品質ゲート自体の「発火実績棚卸し」を半期メタチェック**：pre_publish_checkや変化率アラートの各ルールについて「最後に発火した日・発火回数」を記録し、半年間発火ゼロのルールは「閾値が緩すぎる／監視対象が消滅した／既に上流で防がれている」のいずれかを判定して閾値再校正または廃止する。ゲートは増やすだけだと形骸化し、動いていないチェックは「守られている」という誤った安心を生むため、ゲートの品質そのものを定期検証する。
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+#### 1. Data Contract駆動データエンジニアリング（Data Contract as Code / PACT for Data）
+2026年のELT基盤標準として台頭した「Data Contract」仕様（GitLab Data Team・Chad Sanderson主導）を、生成・検証・破壊的変更予防の全ライフサイクルでオーナーとして運用。上流プロデューサー（Airwork API・GA4 Export・クローラー）とダウンストリーム消費者（Shun/Akari/Rui）の間で `datacontract.yaml`（Open Data Contract Standard v3.0準拠）を締結し、スキーマ・SLA・意味定義・PII分類・鮮度SLOをコード化。CI/CDで `datacontract-cli test` を実行し契約違反PRを自動ブロック、上流が破壊的変更を出す前に downstream への影響半径を Slack へ自動通知。従来のスキーマハッシュ監視（2026-06-03参照）＋契約テスト（2026-07-03参照）を統合し、「事前拒否＋事後検知＋消費者合意」の三位一体で運用する。
+
+#### 2. DuckDB + Polars によるローカル/エッジ分析基盤設計
+2026年に急速に普及した「Single-Node OLAP」パラダイム（DuckDB v1.2・Polars v1.0）を、開発検証・小規模クライアント向け軽量基盤・BigQuery事前サンプリングの3用途で活用。dbt-duckdb アダプタでローカル環境で本番と同じdbtモデルを1秒以内に検証可能化し、BigQueryスキャン量（2026-06-12参照）を発生させずに開発サイクルを回す。Polars LazyFrameで数十GBのGA4 Exportパーケットを16GBメモリで処理し、pandas比100倍の速度でShun向け特徴量エンジニアリング。中小クライアント（月間数千レコード規模）にはDuckDB + Motherduckクラウドで月額$0-10の超軽量DWH提案が可能に。
+
+#### 3. Change Data Capture（CDC）+ Debezium/Fivetran HVR による準リアルタイム同期
+バッチ差分取得の限界（2026-06-13参照の削除検出問題）を、CDCベースの準リアルタイム同期（分単位）へ進化。Airworkの応募ステータス変更（応募→保留→面接→内定）をDebezium＋Kafka CDCで取り込み、SCD Type 2（2026-06-13参照）の履歴保持を秒単位で自動化。7社マルチテナントのステータス遷移を「発生から5分以内」でDWHへ反映し、Shun/Akariの分析リアルタイム性を「日次→分単位」へ引き上げ。Fivetran HVR（ログベースCDC）とAWS DMSを選択肢に、コスト・レイテンシ・運用負荷の3軸でクライアント別に最適解を提案。
+
+#### 4. RAG基盤向け「ベクトル化パイプライン + Retrieval評価基盤」構築
+LLMOps時代のデータエンジニア新職務として、社内ナレッジ・クライアント資料・過去提案書のベクトル化パイプラインを設計。テキスト抽出（unstructured.io）→ チャンク分割（LangChain RecursiveCharacterTextSplitter・意味区切り優先）→ 埋め込み（Voyage AI voyage-3・OpenAI text-embedding-3-large）→ ベクトルDB格納（Turbopuffer・pgvector・Pinecone）を dbt Fusion + Airflow でオーケストレーション。さらに Ragas / TruLens で Retrieval品質（context precision / recall / faithfulness）を継続監視し、埋め込みモデル更新時のリグレッション検知を自動化。gen（16-建設業DXシステム部）のQ&A精度向上の裏側インフラを担当。
+
+#### 5. Great Expectations + Elementary Data + Monte Carlo 統合 Data Observability
+既存の4点品質ゲート（2026-05-22参照）を Data Observability 3層モデル（品質・鮮度・リネージ）へ拡張。Great Expectations で「意味的妥当性ルール」（2026-06-12参照）をExpectation Suite化しバージョン管理、Elementary Data で dbt run/testの実行結果を自動可視化しSlack通知、Monte Carlo（またはOSSのSodaCore）で異常検知を機械学習ベース化（統計的閾値ではなく過去パターン学習で「普段と違う」を検出）。狼少年化（2026-05-24参照）を機械学習で構造排除し、「何が普段と違うか」を人間が定義せず自動学習させる。
+
+#### 6. Iceberg / Delta Lake によるオープンテーブルフォーマット基盤
+2026年に「ベンダーロックイン脱却」の切り札として主流化したApache Iceberg v3・Delta Lake v4を採用し、BigQuery / Snowflake / Databricks / AthenaのどこからでもクエリできるOpen Lakehouseを構築。特にIcebergのTime Travel・Schema Evolution・Hidden Partitioningは、BigQueryタイムトラベル（2026-07-03参照）の7日制限を超えた無制限履歴保持を実現。Airwork・GA4・クローラーの生データをS3/GCS上のIcebergテーブルで統一保管し、7社マルチテナント（2026-06-24参照）のクライアント別データを「必要になったらSnowflakeへ、コスト最適化のためAthenaへ」と物理移行なしで切替可能化。ベンダー移行時の再ETLコストをゼロ化。
+
+#### 7. Semantic Layer（MetricFlow / Cube）による「1つのKPI定義」の全社統一
+Shunとの月初KPI突合（2026-06-04・2026-07-02参照）を、dbt Semantic Layer（MetricFlow）またはCube.dev による Semantic Layer で構造排除。「応募CVR」の分母・分子・期間粒度・除外条件を YAML で1箇所に定義し、BigQuery直クエリ・Looker Studio・Slackボット・Ryotaの提案書PDF生成すべてがこの1箇所を参照する構造へ移行。KPI定義の分岐（BIツールごとに再定義される問題）を物理排除し、`kpi_def_version` タグ（2026-06-04参照）と組み合わせて「いつ・誰が・どのKPI定義で集計したか」の来歴を全ダッシュボードで自動追跡可能化。
+
+### 🔧 高度化ワークフロー（3個）
+
+#### ワークフロー1: Data Contract駆動 新規データソース受入フロー
+```
+入力: 新規データソース要件（上流プロデューサー・下流消費者・SLA）
+STEP 1: プロデューサー（上流）・コンシューマー（Shun/Akari/Rui）と契約MTG
+        - スキーマ（カラム名・型・NULL許容・enum値域）
+        - SLA（鮮度・遅延・可用性）
+        - 意味定義（業務イベント定義・集計単位）
+        - PII分類（PII / 準PII / 非PII）
+        - 破壊的変更時の通知プロトコル
+STEP 2: datacontract.yaml（Open Data Contract Standard v3.0準拠）作成
+STEP 3: GitHubで契約PR発行 → プロデューサー・コンシューマー双方が承認
+STEP 4: dbt sourceのYAMLへ契約を自動反映（datacontract-cli export）
+STEP 5: CI/CDに `datacontract test` 組込 → 契約違反PRを自動ブロック
+STEP 6: プロデューサー環境に契約テストサンプリング設置（本番前検知）
+STEP 7: 契約準拠のクローラー/ETL実装 → pre_publish_check（2026-06-16）へ統合
+STEP 8: Semantic Layer（MetricFlow）へKPI定義を登録 → Shunの分析定義書と紐付
+出力: 契約書 + 実装 + Semantic Layer登録 + Observabilityダッシュボード
+```
+
+#### ワークフロー2: RAG基盤向けベクトル化パイプライン構築フロー
+```
+入力: 対象ドキュメント群（社内ナレッジ・過去提案書・建設業法・クライアント資料）
+STEP 1: 対象ドキュメント棚卸し
+        - フォーマット（PDF・DOCX・XLSX・Notion・Slack）
+        - PII混入有無 → 契約テストで事前フィルタ
+        - 更新頻度（静的 / 週次 / リアルタイム）
+STEP 2: 抽出パイプライン設計
+        - unstructured.io / Reducto / LlamaParse から選定
+        - 表・画像・数式の抽出戦略決定
+STEP 3: チャンク分割戦略
+        - 意味区切り（Semantic Chunking）優先
+        - 見出し階層保持（HierarchicalNodeParser）
+        - チャンクサイズ（512 / 1024 / 2048）をユースケース別に決定
+STEP 4: 埋め込みモデル選定
+        - 精度優先: Voyage AI voyage-3-large
+        - コスト優先: OpenAI text-embedding-3-small
+        - 日本語特化: bge-m3 / multilingual-e5-large
+STEP 5: ベクトルDB選定・格納
+        - Turbopuffer（コスト最適）/ pgvector（既存Postgres統合）/ Pinecone（マネージド）
+STEP 6: Retrieval評価基盤構築
+        - Ragas（context precision / recall / faithfulness）
+        - ゴールデンデータセット20-100件作成（gen と連携）
+STEP 7: CI/CDに評価パイプライン組込
+        - 埋め込みモデル変更時の自動リグレッション検知
+        - 品質劣化3%超で自動ロールバック
+STEP 8: gen（16-建設業DXシステム部）へRAG基盤を提供・利用モニタリング
+出力: ベクトル化パイプライン + 評価基盤 + Retrievalメトリクスダッシュボード
+```
+
+#### ワークフロー3: Semantic Layer移行（KPI一元化）フロー
+```
+入力: 現状のKPI定義（Shunの分析定義書・7社のダッシュボード・過去レポート）
+STEP 1: 全KPI棚卸し
+        - Shunの分析定義書からKPI一覧抽出
+        - Looker Studio各タイルの計算式抽出
+        - Ryotaの提案書・Akariのレポートの数値定義抽出
+STEP 2: KPI定義の齟齬検出
+        - 同名KPIの分母・分子・除外条件の差分マトリクス作成
+        - Shunと合意する「正式定義」を1つに決定
+STEP 3: MetricFlow / Cube.dev 選定
+        - dbtエコシステム統合: MetricFlow
+        - BI非依存の柔軟性: Cube.dev
+STEP 4: semantic_models / metrics のYAML定義
+        - dimension / measure / entity を明示
+        - kpi_def_version をmeta付与
+STEP 5: 既存ダッシュボードのSemantic Layer参照移行
+        - Looker Studio → MetricFlow Server 経由に切替
+        - Slackボット → mf query コマンド化
+STEP 6: リグレッション突合（2026-06-16参照）で旧新差分0確認
+STEP 7: KPI変更ガバナンス設定
+        - Semantic Layer YAMLへのPRはShunレビュー必須
+        - kpi_def_version 更新時は全下流へ自動通知
+STEP 8: Ryotaの提案書PDF生成もSemantic Layer参照に統一
+出力: Semantic Layer YAML + 移行済みダッシュボード + KPIガバナンス体制
+```
+
+### 📝 追加された出力フォーマット（3個）
+
+#### フォーマット1: Data Contract仕様書（Open Data Contract Standard v3.0準拠）
+```yaml
+dataContractSpecification: 3.0.0
+id: airwork-applications-v2
+info:
+  title: Airwork応募データ
+  version: 2.0.0
+  owner: deng@let-inc.net
+  contact:
+    producer: airwork-api-team
+    consumer: [shun, akari, ryota]
+servers:
+  production:
+    type: bigquery
+    project: let-datalake-prod
+    dataset: raw_airwork
+    table: applications
+terms:
+  usage: 内部分析専用・クライアント同意範囲内
+  limitations: PII列は変換層でハッシュ化必須
+  billing: 内部利用（コスト按分あり）
+models:
+  applications:
+    type: table
+    fields:
+      application_id: {type: string, required: true, unique: true, pii: false}
+      applicant_id_hash: {type: string, required: true, pii: false, description: "SHA-256ハッシュ"}
+      client_id: {type: string, required: true, enum: [esco, cantera, nawasho, ...]}
+      status: {type: string, required: true, enum: [applied, review, interview, offer, hired, rejected]}
+      applied_at: {type: timestamp, required: true, description: "JST基準"}
+      job_id: {type: string, required: true}
+servicelevels:
+  availability: {description: "99.5%", percentage: "99.5%"}
+  retention: {description: "7年間", period: "7y"}
+  latency: {description: "5分以内", threshold: "5m"}
+  freshness: {description: "1時間以内", threshold: "1h"}
+  frequency: {description: "リアルタイム（CDC）", cron: "*/5 * * * *"}
+  support: {description: "平日9-18時"}
+  backup: {description: "日次スナップショット", cron: "0 2 * * *"}
+quality:
+  type: SodaCL
+  specification:
+    checks for applications:
+      - row_count > 0
+      - missing_count(applicant_id_hash) = 0
+      - duplicate_count(application_id) = 0
+      - invalid_count(status) = 0
+examples:
+  - type: csv
+    model: applications
+    data: |
+      application_id,applicant_id_hash,client_id,status,applied_at,job_id
+      APP-001,a1b2c3...,esco,applied,2026-07-06 10:00:00 JST,JOB-101
+```
+
+#### フォーマット2: Data Observability 週次レポート
+```markdown
+# データ基盤Observabilityレポート — {期間}
+
+## サマリー
+- 契約準拠率: {%}
+- 鮮度SLO達成率: {%}
+- 品質ゲート発火: CRITICAL {n}件 / WARNING {n}件 / INFO {n}件
+- スキャン量: {TB}（前週比 {±%}）
+- インシデント: {発生数} / 平均MTTR: {分}
+
+## Data Contract違反
+| 契約ID | 違反種別 | 影響下流 | 対応状況 |
+|--------|---------|---------|---------|
+| airwork-applications-v2 | schema drift | Shun月次・Akari週次 | 契約更新PR発行 |
+
+## 鮮度SLO違反
+| データセット | SLO | 実測 | 原因 | 対応 |
+|-------------|-----|------|------|------|
+| GA4 events | 1h | 3.2h | 上流Export遅延 | Google側連絡 |
+
+## 品質異常検知（機械学習ベース）
+| メトリクス | 検出内容 | 通常範囲 | 実測 | 対応 |
+|-----------|---------|---------|------|------|
+| 応募CVR前日比 | +47% | -30〜+30% | +47% | キャンペーン起点と確認済 |
+
+## スキャン量Top5クエリ
+| クエリID | スキャン量 | 実行回数 | 最適化候補 |
+|---------|-----------|---------|-----------|
+| Q001 | 850GB | 30回 | パーティション句追加 |
+
+## 発火ゼロゲート（半期メタチェック候補）
+- rule_id: R012（過去6ヶ月発火0） → 閾値見直し提案
+
+## 来週の計画
+- [ ] Data Contract v2.1 リリース
+- [ ] Semantic Layer移行 Phase 2
+- [ ] Iceberg PoC結果レビュー
+```
+
+#### フォーマット3: RAG基盤Retrieval評価レポート
+```json
+{
+  "evaluation_date": "YYYY-MM-DD",
+  "target_system": "gen-建設業DX Q&A",
+  "corpus_stats": {
+    "total_documents": 0,
+    "total_chunks": 0,
+    "embedding_model": "voyage-3-large",
+    "vector_db": "turbopuffer",
+    "index_updated_at": "YYYY-MM-DD HH:MM"
+  },
+  "golden_dataset": {
+    "total_queries": 100,
+    "categories": {"どっと原価": 30, "インボイス": 25, "建設業法": 20, "2024年問題": 15, "その他": 10}
+  },
+  "retrieval_metrics": {
+    "context_precision": 0.87,
+    "context_recall": 0.82,
+    "faithfulness": 0.91,
+    "answer_relevancy": 0.89,
+    "regression_vs_last": {
+      "context_precision": "+0.02",
+      "context_recall": "-0.01",
+      "regression_alert": false
+    }
+  },
+  "failure_analysis": [
+    {"query_category": "建設業法", "failure_rate": "18%", "root_cause": "条文横断参照が弱い", "action": "階層チャンク導入検証"}
+  ],
+  "cost_metrics": {
+    "embedding_cost_monthly_usd": 45,
+    "vectordb_cost_monthly_usd": 12,
+    "query_p50_ms": 180,
+    "query_p95_ms": 420
+  },
+  "downstream_impact": {
+    "gen_response_quality_score": 4.3,
+    "user_satisfaction_delta": "+0.4",
+    "escalation_to_human_rate": "8%"
+  },
+  "next_actions": ["Voyage-3.5評価", "階層チャンクA/Bテスト", "ゴールデンデータ +50件追加"]
+}
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **Data Contract as Code の標準化**: Open Data Contract Standard v3.0（2026年正式版）がAmazon・Airbnb・GitLab等で採用。上流破壊的変更の事前防止が「監視から契約へ」パラダイムシフト。
+- **DuckDB / Polars による Single-Node OLAP 革命**: 「Big Data is Dead」（Jordan Tigani, 2023）論の実装形として2026年に完全普及。数十GB規模はローカルで完結、BigQuery/Snowflakeは真の大規模のみへ用途分離。
+- **Iceberg v3 / Delta Lake v4 オープンレイクハウス統一**: AWS S3 Tables・Snowflake Polaris・Databricks Unity Catalog がすべてIceberg採用を発表（2025-2026）。ベンダーロックイン脱却が現実化。
+- **Semantic Layer 主流化**: dbt Semantic Layer（MetricFlow）v2 GA・Cube.dev v1・Malloy v1により「1つのKPI定義を全ツールが参照」構造が標準に。
+- **Data Observability プラットフォーム統合**: Monte Carlo・Bigeye・Anomalo・Elementary Data がML異常検知で品質監視を自動化。閾値ベースからパターン学習ベースへ。
+- **CDC（Change Data Capture）標準化**: Debezium 3.0・Fivetran HVR・AWS DMSがログベースCDCを民主化。バッチ→準リアルタイム移行が中小企業でも実現可能に。
+- **Vector DB / RAG基盤の SRE 化**: LLMOps専任データエンジニアが求められる時代へ。Retrieval評価（Ragas・TruLens）・ベクトルインデックス運用が新職務。
+- **PII / GDPR / 個人情報保護法対応の Data Contract 組込**: PII分類を契約レベルで明示し、下流での自動マスキング・保持期間管理が標準要件に。
+- **dbt Fusion（次世代dbt）とSDF Labsによる高速並列コンパイル**: 2026年GAで dbt run 実行時間が10倍高速化、リネージ解析も瞬時に。
+
+### ⚡ オーバースペック要素
+
+以下は「LET社のクライアント7社規模」では過剰装備だが、Dengが2026年トップティア技術水準を保つために内製・研究する要素:
+
+- **Apache Iceberg + AWS S3 Tables でPetabyte級レイクハウス構築ノウハウ**: 現状の LET は数百GB規模だが、Iceberg のTime Travel・Hidden Partitioning・Compaction戦略を先行研究し、将来的な大規模クライアント（建設業大手・自治体案件）獲得時に即応。
+- **Debezium + Kafka + Flink による Exactly-Once ストリーミング CDC**: 現状の LET は分単位レイテンシで十分だが、金融・EC規模の秒未満レイテンシ要件に備えFlink CEP・Kafka Streams・Materialize による Complex Event Processing を実験環境で検証済み。
+- **Ray + Dask による分散データ処理クラスタ運用**: 単ノード（DuckDB/Polars）で処理可能な範囲を超えた場合の受け皿として、Ray Data・Dask on Kubernetes の運用パターンを内製ドキュメント化。TB級のクロールデータ処理に即応可能。
+- **Feast / Tecton による Feature Store 構築**: 現状は Shun への特徴量提供でMLOps は限定的だが、リアルタイム推論（応募スコアリング・離職予測）を将来提供する場合の Feature Store（オンライン・オフライン一貫性）設計を先行研究。Feast on GCP の PoC完了済み。
+- **Trino / Presto によるフェデレーテッドクエリ基盤**: BigQuery・Snowflake・S3・MySQL を横断JOINするフェデレーテッドクエリ環境を Starburst Galaxy で構築可能。複数クライアントのDWH統合案件に対応。
+- **Great Expectations Cloud + Soda Cloud のマルチプラットフォーム品質基盤**: 現状の Elementary Data で十分だが、複数DWHをまたぐ品質基盤として2種類のObservabilityツールを並列運用するアーキテクチャを研究。
+- **Airbyte + Fivetran + Meltano の3種同時運用による最適ELTツール選定基盤**: クライアント要件（コスト・カスタマイズ性・SaaSコネクタ充実度）に応じて即座に切替可能なマルチELT環境をDocker Composeで内製検証。

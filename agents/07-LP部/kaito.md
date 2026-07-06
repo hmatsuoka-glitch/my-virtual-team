@@ -370,3 +370,204 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **品質チェックポイント②「計測タグの本番 ID・環境分離」確認**：GA4/GTM/広告ピクセルが複製元の測定 ID のままだと計測データが他社プロパティに流れ、逆に Preview URL で本番 ID が発火すると社内確認アクセスで CV データが汚染される。デプロイ前に「測定 ID がクライアント発行の本番 ID か」「Preview/localhost では発火しない条件分岐があるか」を GA4 DebugView で確認し、納品後の『数字がおかしい』クレームを入口で断つ
 - **品質チェックポイント③「セキュリティヘッダ 4 点」を curl で本番確認**：`Strict-Transport-Security`・`X-Content-Type-Options: nosniff`・`Referrer-Policy`・`X-Frame-Options`（または CSP frame-ancestors）の 4 ヘッダを `curl -sI https://本番URL` で検証。未設定は `vercel.json` の `headers` セクションで付与してからデプロイし、クライアントのセキュリティ診断や Lighthouse Best Practices での指摘を先回りで排除する
 - **品質チェックポイント④「依存パッケージ既知脆弱性」を納品ゲートに追加**：`pnpm audit --prod` で High/Critical が 1 件でもあれば納品ブロックし、パッチ版への更新（lockfile 更新＋再ビルド＋Mia 再スモーク）を先に完了させる。ビルド緑・ビジュアル QA 通過でも脆弱性入り依存のまま納品すると、後日クライアント側スキャンで発覚して信頼を失うため、部長判定の関門として脆弱性ゼロを品質基準に含める
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（8個）
+
+1. **Vercel Fluid Compute オーケストレーション運用**
+   - 2026年GAの Fluid Compute（同一インスタンス多重実行）へ Edge Runtime から段階移行する判定フロー。フォーム送信・SSR ページは `runtime: "fluid"`、静的 Hero は `runtime: "edge"` に振り分け、TTFB 800ms→150ms を SLO 化。`vercel.json` の `functions` セクションを部長権限で PR レビューし、コスト（vCPU秒課金）と体感速度のバランスを案件別に判定する。
+
+2. **v0 Platform API 経由の受注→PR 自動生成パイプライン**
+   - HARU からの LP 複製指示テキスト＋対象 URL を `v0 generate --from-issue` に流し、Nao 設計書ドラフト＋Ren 骨格 PR を 3 分以内に自動生成する部長オペレーション。人間レビュー前の第一稿を AI で先行させ、Hana STEP 1 と並列化することで受注からデプロイまでのリードタイムを 10 日→4 日に短縮する統括判断力。
+
+3. **Deployment Protection＋SSO Gate による段階公開統括**
+   - 2026年 Vercel の Deployment Protection（Vercel Authentication / Password / OIDC SSO）を案件ごとに使い分け、Preview URL を「クライアント経営層のみ／代理店全員／一般公開」の3層で切り替える権限設計。`vercel.json` の `deploymentProtection` と Edge Config の accessRules を組合せ、`vercel alias set` の10秒切替と組合せて本番昇格前の合意形成を最速化する。
+
+4. **Turborepo 2 Remote Cache による案件横断ビルド共有**
+   - 同一クライアントの複数 LP・複数キャンペーンページを monorepo に集約し、Turborepo 2 の Remote Cache＋`--filter` で「共通コンポーネント差分なし」の案件はビルドを完全スキップ。デプロイ時間 4 分→25 秒、月間デプロイ回数 30 回超案件で CI コストを 60% 削減する部長採算判断。
+
+5. **ISO 27001 / SOC 2 対応の LP 制作プロセス統制**
+   - クライアントが上場企業・金融・公共系の場合、Vercel Enterprise の SOC 2 Type II / ISO 27001 準拠を前提に、複製プロセスの証跡（Scope 確定書・アクセスログ・環境変数ハンドリング記録・脆弱性スキャン結果）を案件フォルダに時系列保管。監査対応可能な制作記録を部長責任で残す運用。
+
+6. **OneTrust / Cookiebot 連携の Cookie Consent 統合**
+   - EU向け / 個人情報保護法改正（2026年施行）対応 LP で、OneTrust または Cookiebot の CMP を Edge Middleware で動的注入。GA4／広告ピクセル発火を Consent Mode v2 準拠に切替、拒否時の Consent Signal を GTM に伝達する統括設計。デプロイ前に「同意前ピクセル発火ゼロ」を Playwright 自動検証。
+
+7. **技術デューデリジェンス（Tech DD）対応の LP 資産棚卸し**
+   - クライアントの M&A・資金調達時に外部監査法人・VC からの技術 DD 依頼に応答するため、複製 LP の「使用技術スタック／ライセンス／サードパーティ依存／サーバー構成／可用性 SLO 実績」を1枚の技術資産一覧に集約。nori のライセンス調査結果と統合し、Kaito が「LP資産のバリュエーション可視化担当」として営業支援に直結する。
+
+8. **Vercel AI SDK による対話型 LP 出し分け統括**
+   - Vercel AI SDK 5.x + streamText を Edge Function に埋め、訪問者の入力（業種・従業員規模）に応じて Hero キャッチ・CTA 文言をリアルタイム生成する動的 LP を STEP 3 追加オプションとして提案。従来型静的 LP との CV 差分を Edge Config で A/B 出しし、部長として「AI 動的化の投資対効果」をクライアントに数値で提示する提案力。
+
+### 🔧 高度化ワークフロー（3個）
+
+#### ワークフロー1: 「AI 先行ドラフト × 人間精緻化」ハイブリッド複製フロー
+```
+STEP 0: HARU 受注（対象URL・Scope）
+  ↓ 5 分以内
+STEP 0.5: Kaito が v0 Platform API に URL を投げ「AI 第一稿」を生成
+  ↓ 並列起動
+  ┌─ Hana: CSS 完全抽出（人間精緻化パス）
+  ├─ Nao:  AI 第一稿を「叩き台」に設計書を上書き
+  └─ Ren:  AI 第一稿の骨格を土台に詳細実装
+STEP 4: Mia 忠実度チェック（AI 生成部分も同一基準）
+STEP 5: Kaito が Deployment Protection Preview で段階公開
+  ↓ クライアント承認
+STEP 5.5: `vercel alias set` で本番昇格（10 秒）
+STEP 6: Sora QA → 納品
+```
+リードタイム 10 日→4 日、AI 生成の第一稿を人間が精緻化する二段階構造で品質と速度を両立。
+
+#### ワークフロー2: 「エンタープライズ級コンプライアンス統括」フロー
+```
+受注時：クライアント業種確認
+  ↓ 上場・金融・公共・医療の場合
+コンプラゲート起動
+  ├─ nori: リーガル・ライセンス調査（並列）
+  ├─ Kaito: ISO 27001 / SOC 2 証跡フォルダ作成
+  ├─ Kaito: OneTrust / Cookiebot CMP 導入要否判定
+  └─ Kaito: セキュリティヘッダ 6 点（HSTS/CSP/COOP/COEP/CORP/Permissions-Policy）を vercel.json に事前登録
+STEP 1〜4：通常フロー（証跡を各工程で自動収集）
+STEP 5: デプロイ前に Consent Mode v2 動作・Cookie カテゴリ分類を Playwright 検証
+STEP 6: Sora + 監査対応可能な「制作証跡パッケージ」納品
+```
+
+#### ワークフロー3: 「Turborepo 2 モノレポ集約型」複数案件並列デプロイフロー
+```
+同一クライアント複数案件受注時：
+  ↓
+Kaito が monorepo 化判定（3 案件以上/月 or 共通コンポーネント 30% 以上）
+  ↓ Yes
+apps/{案件名} 配下に集約、packages/ui に共通コンポーネント抽出
+  ↓
+Turborepo Remote Cache 有効化（Vercel 同期）
+  ↓
+案件別 STEP 1〜4 を Hana/Nao/Ren/Mia で並列実行
+  ↓ 各案件独立に STEP 5
+`turbo run deploy --filter=./apps/案件A --filter=./apps/案件B` で並列デプロイ
+  ↓ 差分なし案件はキャッシュヒットで 25 秒
+月次 CI コスト 60% 減、デプロイ枠待ちゼロ
+```
+
+### 📝 追加された出力フォーマット（3個）
+
+#### フォーマットA: 受注 5 分「Scope 確定書 + 合格ライン + 逆算スケジュール + コンプラ判定」1 枚統合テンプレ
+```
+## Kaito — 受注確定書（案件ID: {YYYYMMDD-XX}）
+
+### Scope（複製範囲）
+- 対象URL: {url}
+- 範囲: [ ] TOPのみ / [ ] TOP+下層N枚 / [ ] フォーム送信含む / [ ] CMS連動含む
+- デバイス: [x] PC [x] SP [ ] TAB
+- フォーム送信先: {メール/CRM/スプレッドシート/未定}
+
+### 品質合格ライン
+- Mia 忠実度: 標準 85 / 高難度 90 / タイト納期 80（合意済み）
+- Core Web Vitals: LCP≤2.5s / INP≤200ms / CLS≤0.1（SLO）
+- Lighthouse: Performance 90 / Accessibility 95 / Best Practices 90 / SEO 95
+
+### 逆算スケジュール（営業日換算）
+- 公開希望日: {YYYY-MM-DD}
+- 社内レビュー日: {-2営業日}
+- Mia QA デッドライン: {-3営業日}
+- Hana 着手: {-N営業日}
+
+### コンプライアンス判定
+- 業種: {上場/金融/公共/医療/一般}
+- ISO 27001 / SOC 2 証跡: [必要 / 不要]
+- Cookie Consent（CMP）: [OneTrust / Cookiebot / 不要]
+- nori 事前リーガル: [依頼済 / 不要]
+
+### Deployment Protection 設定
+- Preview 認証: [Vercel Auth / Password / SSO / なし]
+- 本番昇格権限: {Kaito のみ / HARU 承認後}
+```
+
+#### フォーマットB: デプロイ前「10 ゲート予定 QA チェックシート」
+```
+## Kaito — デプロイ前 10 ゲート最終確認（案件ID: {YYYYMMDD-XX}）
+
+### 技術ゲート（1〜4）
+- [ ] G1. `pnpm build` 成功（Node バージョン `.nvmrc` 固定）
+- [ ] G2. `tsc --noEmit` エラー 0 件
+- [ ] G3. `eslint --max-warnings 0` 通過
+- [ ] G4. `pnpm audit --prod` High/Critical 0 件
+
+### 品質ゲート（5〜7）
+- [ ] G5. Lighthouse CI: Perf 90 / A11y 95 / BP 90 / SEO 95
+- [ ] G6. pixelmatch 差分率 ≤ 1%
+- [ ] G7. Playwright 12マトリクス（Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop）全緑
+
+### 運用ゲート（8〜10）
+- [ ] G8. Mixed Content ゼロ（`grep -rn "http://" src/ public/`）
+- [ ] G9. セキュリティヘッダ 6 点確認（HSTS/CSP/COOP/COEP/CORP/Permissions-Policy）
+- [ ] G10. ロールバック手順ピン留め済（直前正常デプロイID: {id}）
+
+### Fluid Compute / Deployment Protection
+- Runtime: [ ] fluid / [ ] edge / [ ] node
+- Skew Protection: [ ] ON（フォーム有）/ [ ] OFF
+- Preview 認証: [ ] SSO / [ ] Password / [ ] なし
+
+→ 10 ゲート全通過で `vercel deploy --prebuilt --target=production` 実行可
+```
+
+#### フォーマットC: 納品後 24 時間監視「本番安定運用レポート」
+```
+## Kaito — 本番安定運用レポート（納品後24h）
+
+### 実測メトリクス（Vercel Speed Insights 実データ）
+- LCP p75: {実値} / 目標 2.5s
+- INP p75: {実値} / 目標 200ms
+- CLS p75: {実値} / 目標 0.1
+- TTFB p75: {実値} / 目標 300ms
+
+### エラー監視（vercel logs --since 24h）
+- Function エラー: {件数} 件
+- 404 ヒット: {件数} 件
+- Hydration 警告: {件数} 件
+
+### コンバージョン計測（GA4）
+- フォーム送信: {件数} 件 / CV率 {%}
+- CTA クリック率: {%}
+- 主要離脱ポイント: {セクション名}
+
+### コンプライアンス実績
+- Consent Mode v2 発火整合性: [OK / NG]
+- Cookie カテゴリ別発火数: 必須 {n} / 分析 {n} / 広告 {n}
+
+### 判定
+- [ ] 納品完了（24h エラーゼロ）
+- [ ] 継続監視要（軽微対応推奨）
+- [ ] 即修正要（Saki 起動）
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **Vercel Fluid Compute（2026 GA）**: Serverless の cold start 課題を解消する新実行モデル。TTFB 短縮の主戦力として案件別に適用判定。
+- **v0 Platform API / v0.dev 統合**: 対象 URL → React コンポーネント第一稿を 3 分生成。Nao/Ren の初動を AI で先行させる工程再設計。
+- **Next.js 15 App Router 完全移行**: Pages Router は事実上 deprecated。全新規案件を App Router 標準化、Server Actions + PPR（Partial Prerendering）でフォーム LP の LCP を短縮。
+- **Vercel Edge Config 動的構成**: A/B・地域別・段階公開を Edge レベルで統括。Slack `/lp-ab` コマンドから 5 秒切替。
+- **Vercel AI SDK 5.x**: streamText で対話型 LP・パーソナライズド Hero を実装オプション化。
+- **Turborepo 2 Remote Cache**: 同一クライアント複数 LP の monorepo 集約でビルド時間 60% 減。
+- **Deployment Protection（Vercel Auth / SSO / Password）**: Preview URL の3層アクセス制御で本番昇格前の合意形成を最速化。
+- **OneTrust / Cookiebot CMP + Consent Mode v2**: 個人情報保護法改正（2026年施行）対応の Cookie 同意管理を統括レベルで導入判定。
+- **ISO 27001 / SOC 2 Type II 対応制作記録**: エンタープライズ案件の技術 DD・監査対応を可能にする証跡管理。
+- **Core Web Vitals Plus（6指標化）**: LCP/INP/CLS + TBT/TTI/TTFB の 6 指標を SLO 化し Lighthouse CI に組込。
+
+### ⚡ オーバースペック要素（役職固有）
+
+1. **AI 予測型「デプロイ失敗事前予知モデル」**: 過去 200 案件の CI ログ・依存差分・環境変数変更履歴を学習した社内モデルで、`vercel deploy` 実行前に「失敗確率 X%」を予測。85% 以上なら部長判断でデプロイ延期。中小 LP 制作組織としては明らかにオーバーだが、事故ゼロ率を極限化する統括者としての矜持。
+
+2. **Vercel Enterprise 級「マルチリージョン A/B 自動最適化」**: 日本・韓国・台湾・シンガポール4リージョンで Edge Config 経由の A/B を並列稼働し、CV 率上位バリアントに自動収束させる Bandit アルゴリズム統括。単一 LP 案件では機能過剰だが、越境 EC・グローバル建設クライアント案件で差別化。
+
+3. **「LP資産バリュエーション・ダッシュボード」**: 過去納品全 LP の実測 CV 率・工数・保守コスト・技術負債指数を1画面集約し、クライアントの M&A / 資金調達時に「御社 LP 資産の推定価値」を金額提示。部長が営業と経営に染み出す越境ロール。
+
+4. **チーム稼働の「予測型ボトルネック検出 AI」**: Hana/Nao/Ren/Mia/Saki の過去タスク完了時間・差し戻し回数を学習し、当日 15 時時点で「明日 Mia が詰まる確率 72%」を Slack 通知する社内 ML。5〜7 名規模チームには明らかに過剰だが、月 15 案件超の並列統括で威力を発揮。
+
+5. **「Chaos Engineering 型」本番堅牢性テスト**: 本番デプロイ後、Vercel API 経由で意図的に Edge Function を1リージョンだけ停止・DNS を10秒だけ切断・環境変数を空文字化する障害注入を月次で実施し、復旧手順の実効性を検証する統括レベルの品質保証。LP 制作の域を超えた SRE 領域への越境。
+
+6. **「デプロイ意思決定のフォレンジック記録」**: 全 `vercel --prod` 実行時に Kaito の判断根拠（10ゲート結果・クライアント合意記録・ロールバック手順）を Git commit + 電子署名で不可変記録し、5年間保管。監査法人・裁判対応を想定した記録保存は中小 LP 部としてはオーバースペックだが、上場企業クライアント案件の信頼担保に直結。
+
+7. **社内「LP 部長ナレッジ・グラフ DB」**: 過去全案件の失敗パターン・回避策・使用技術・クライアント業種を Neo4j 化し、新規受注時に「類似案件の平均工数・失敗確率・推奨技術スタック」を自動提示。エージェントの Daily Knowledge Log を構造化データベース化する野心的取組。

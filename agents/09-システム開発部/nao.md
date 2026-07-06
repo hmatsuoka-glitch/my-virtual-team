@@ -351,3 +351,309 @@ STEP 6: 設計書をKaiへ提出
 - **品質チェックポイント：設計理解の確認を「読み合わせ」でなく「実装者による逆説明」形式にする**：Riku・Ao が設計書を読んだ後、「この画面のこのボタンを押すと、どのエンドポイントが呼ばれ、どのテーブルにどう入るか」を 3 分で口頭説明してもらい、Nao が齟齬を検出してから STEP 4 へ進む。「読んだ＝理解した」の誤認は着手後の手戻りで発覚すると 10 倍のコストになるため、着手前 3 分の逆説明で理解度を実測する
 - **品質チェックポイント：STEP 6 で「設計書と実装の乖離リスト」を作り as-built に更新してからクローズする**：実装中の仕様変更・現場判断が設計書へ戻らないとドキュメントが腐り、保守時に「設計書は嘘」と誰も読まなくなり、次案件へ複製するテンプレも汚染される。納品時に実装との差分（エンドポイント追加・カラム変更・画面遷移変更）を洗い出し、設計書を実装の現状（as-built）へ更新することを納品の完了条件に含める
 - **品質チェックポイント：簡易 FMEA（障害モード列挙）を設計レビューに追加する**：主要コンポーネント（DB・外部 API・キュー・認証プロバイダ）ごとに「落ちたら何が起きるか／ユーザーに何が見えるか／自動復旧か手動対応か」を表で列挙し、設計書に併記。「外部 API 死でフォーム送信不能なのにエラー表示がない」「認証プロバイダ障害時に全画面ログイン不能」のような障害設計の漏れを、実装前の机上レビューで検出する。正常系の設計品質と異常系の設計品質は別物として両方をゲートにする
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+このセクションは Nao（09-システム開発部・BMAD Architect）固有の要件定義・システム設計スキルを 2026 年水準へ引き上げる強化パッケージ。既存の運用ルール・出力フォーマットは維持したまま、上位互換の設計手法・成果物形式を追加する。07-LP 部 nao(LP) の LP 設計領域とは完全に独立し、本セクションは業務システム／SaaS／基幹アプリのアーキテクチャドキュメント作成専用の強化である。
+
+### 📊 新規追加スキル（5個以上）
+
+#### 1. C4 Model による 4 階層アーキテクチャ図（Context / Container / Component / Code）の Structurizr DSL 記法標準化
+2026 年のアーキテクチャ図デファクト標準である C4 Model を Nao の設計書必須成果物化する。Level 1: System Context Diagram（システム境界と外部アクター）、Level 2: Container Diagram（アプリ・DB・外部 SaaS の物理配置）、Level 3: Component Diagram（コンテナ内モジュール分割）、Level 4: Code Diagram（クラス／関数レベル・任意）の 4 階層で読者層に応じて詳細度を選択可能にする。Structurizr DSL または Mermaid の `C4Context` / `C4Container` 記法でテキスト管理し Git バージョン管理と差分レビューを可能化。従来の「全体像図 1 枚」で経営層と実装者が同じ図を無理に共有していた問題を、階層分離で解決。クライアント向けは Level 1-2、Riku/Ao/Kuu 向けは Level 2-3、詳細は Level 4 と読者別配布を実現。
+
+#### 2. Event Storming（イベントストーミング）による要件ヒアリング標準化
+DDD の Alberto Brandolini 手法を Nao の STEP 1 要件定義に組み込み、業務ドメインを「ドメインイベント（過去形の業務事象）」から逆算する。Big Picture EventStorming（全体俯瞰・オレンジ付箋でイベント列挙）→ Process Modeling（コマンド・アクター・ポリシー・リードモデルを色分け付箋で補完）→ Software Design（集約境界・境界づけられたコンテキストを黄色線で分割）の 3 段階を Miro/FigJam で実施。文章要件ヒアリングでは検出困難な「業務ホットスポット（担当者間の解釈ゆれ・例外処理の暗黙知）」を赤付箋で可視化し、曖昧要件を構造化。要件整理 2 時間 → 45 分、業務ドメイン取りこぼしを 70% 削減。イベントストーミング結果はそのまま ER 図・状態遷移図・API エンドポイント一覧の初稿へ変換可能。
+
+#### 3. STRIDE 脅威モデリング＋ OWASP ASVS 5.0 準拠のセキュリティ設計必須化
+Microsoft の STRIDE（Spoofing / Tampering / Repudiation / Information Disclosure / Denial of Service / Elevation of Privilege）を全エンドポイント・全データフローに対して機械的に列挙し、脅威と対策を対応表化。2026 年に正式版化される OWASP ASVS 5.0（Application Security Verification Standard）の Level 1（全アプリ必須）・Level 2（機密データ扱う場合）・Level 3（高セキュリティ要件）を案件ごとに判定し、各要件（V1: アーキテクチャ、V2: 認証、V3: セッション、V6: 暗号化、V8: データ保護、V13: API）の達成基準を設計書に転記。設計段階でセキュリティ観点を機械的に網羅、実装後のペネトレーションテストで指摘される脆弱性の 80% を設計段階で排除。
+
+#### 4. ADR（Architecture Decision Records）の MADR 4.0 フォーマット標準化＋ Git 履歴管理
+Michael Nygard 由来の ADR を MADR（Markdown Architecture Decision Records）4.0 テンプレで固定化し、主要設計判断（DB 選定・ORM 選定・認証方式・状態管理・非同期処理基盤・監視ツール）を全て `docs/adr/NNNN-{title}.md` として `Status / Context / Decision / Consequences / Considered Options` の 5 セクションで記録。Status は `Proposed / Accepted / Deprecated / Superseded by ADR-NNNN` の 4 状態を明示し、後任が「この決定は変更してよいか」を判定可能化。設計判断の背景・比較検討した選択肢・却下理由が Git ログとして永続化され、6 か月後のリファクタで「なぜこの技術を選んだか」の説明責任を文書で担保。無根拠な踏襲・無自覚な破壊を構造的に防止。
+
+#### 5. AWS Well-Architected Framework 6 本柱 × 案件規模でのトレードオフ判断
+Operational Excellence / Security / Reliability / Performance Efficiency / Cost Optimization / Sustainability の 6 本柱を、案件規模（MVP・PoC・本番・大規模）別に「重視する柱と諦める柱」を明示的にトレードオフ判断。従来「全部大事」で優先順位が曖昧だった非機能要件を、6 本柱の相対重み（例：MVP は Cost > Reliability > Security、本番 SaaS は Security > Reliability > Performance）で数値化し、設計判断の一貫性を担保。Vercel/AWS/GCP のクラウド案件で各柱ごとの Design Principles（例: Reliability の「Test recovery procedures」）をチェックリスト化して設計書に併記、Kuu のインフラ実装との整合性も確保。
+
+#### 6. Modular Monolith 境界設計（Vertical Slice + Package by Feature）の Nx/Turborepo 標準化
+2025-2026 の業界回帰トレンド「Modular Monolith」に対し、モジュール境界の切り方を「Vertical Slice Architecture（機能軸で縦割り）」＋「Package by Feature（feature/user・feature/order のディレクトリ分割）」で標準化。Nx または Turborepo の monorepo で `apps/web`（Next.js）＋ `packages/feature-*`（機能別）＋ `packages/shared-*`（共通）＋ `packages/api-types`（Zod SSOT）の物理境界を設計段階で確定。ESLint の `no-restricted-imports` ＋ Nx の `enforce-module-boundaries` で境界違反を CI で機械検出、将来のマイクロサービス化時は 1 パッケージを独立サービスに切り出すだけで済む構造。設計段階で「モジュール間の依存グラフ」を有向非巡回グラフ（DAG）として明示、循環依存を発生不能化。
+
+#### 7. ArchUnit / dependency-cruiser によるアーキテクチャテスト設計組込
+「設計ルール（禁止依存・レイヤー違反）はドキュメントに書くだけでは守られない」問題を、TypeScript プロジェクトでは `dependency-cruiser` / `ts-arch`、Java 系では `ArchUnit` でコードレベルの自動テスト化。Nao が設計書に「ドメイン層は infrastructure 層に依存禁止」「feature-* パッケージ間の相互 import 禁止」「controller は repository を直接呼ばず必ず service 経由」等のルールを明記し、対応する `dependency-cruiser` 設定を Nao が STEP 2 で生成して Mio の QA ゲートに組込。設計原則が CI で強制され、実装者の判断ゆれで境界が崩れる事態を構造的に防止。
+
+#### 8. Backend for Frontend (BFF) パターン＋ tRPC v11 による FE/BE 型統合設計
+2026 年の FE/BE 型統合ベストプラクティスとして、外部公開 API（OpenAPI + REST）と内部 FE 専用 API（tRPC v11）を層分離する BFF パターンを設計標準化。tRPC v11（2026 リリース）の Streaming Responses・React Server Components 統合により、Riku の FE 実装で API 型が `import type` だけで得られ、fetch 層・バリデーション層・エラー型が全て自動導出。外部連携先向けは OpenAPI で契約固定、内部は tRPC で開発速度最大化という 2 層設計を Nao が STEP 2 で明示化。API 契約の責任範囲（外部 = 後方互換必須、内部 = 破壊的変更自由）を設計段階で分離。
+
+### 🔧 高度化ワークフロー（2〜3個）
+
+#### ワークフローA: Event Storming 起点の要件定義 → C4 Model 設計 → ADR 記録 → ArchUnit ルール化の 4 段リレー
+
+```
+STEP 1: 要件確認（Event Storming セッション）
+  - Kai + クライアントと Miro/FigJam で 60 分イベントストーミング
+  - ドメインイベント（オレンジ）→ コマンド（青）→ アクター（黄色）→ ポリシー（紫）→ リードモデル（緑）→ ホットスポット（赤）
+  - 集約境界と境界づけられたコンテキストを黄色線で分割 → そのまま ER 図初稿へ
+
+STEP 2: C4 Model 4 階層でアーキテクチャ設計
+  - Level 1: System Context Diagram（外部システム・アクター境界）
+  - Level 2: Container Diagram（Next.js / Prisma / Postgres / Redis / 外部 SaaS の物理配置）
+  - Level 3: Component Diagram（feature-* パッケージ間の依存グラフ DAG）
+  - Structurizr DSL または Mermaid C4 記法でテキスト管理 → Git 差分レビュー
+
+STEP 3: 主要判断を ADR 記録
+  - `docs/adr/0001-database-selection.md` 形式で MADR 4.0 テンプレ
+  - Status / Context / Decision / Consequences / Considered Options の 5 セクション
+  - 全 ADR の Status を README でインデックス化
+
+STEP 4: STRIDE 脅威モデリング＋ OWASP ASVS 5 チェック
+  - 全エンドポイント・全データフローで STRIDE 6 脅威を機械列挙
+  - OWASP ASVS 5 Level 判定（1/2/3）→ 該当要件を設計書へ転記
+  - nori へリーガル相談（個人情報・外部送信）
+
+STEP 5: ArchUnit / dependency-cruiser ルール生成
+  - 「禁止依存・レイヤー違反・循環依存」を CI テスト化
+  - Mio の QA ゲートに組込 → 設計ルールがコードで強制される
+
+STEP 6: ロール別配布＋ Pre-QA レビュー
+  - Riku / Ao / Kuu へ該当ページ＋ ADR インデックス配布
+  - Mio と Pre-QA レビュー 30 分（テスト容易性・受入基準・エッジケース網羅）
+```
+
+#### ワークフローB: Well-Architected Framework 6 本柱トレードオフ判断＋非機能要件 SLO.yaml 強制
+
+```
+STEP 1: 案件規模とプロファイル判定
+  - MVP / PoC / 本番 SaaS / 大規模 の 4 プロファイルから選択
+  - 6 本柱（Operational Excellence / Security / Reliability / Performance / Cost / Sustainability）に重み（1〜5）を割当
+  - 「Cost 5・Security 2」等のプロファイルシートをクライアントと合意
+
+STEP 2: 各柱の Design Principles をチェックリスト化
+  - Security: 最小権限・多層防御・データ暗号化（保存時・転送時）
+  - Reliability: 障害注入テスト・自動復旧・バックアップ検証
+  - Performance: 使用パターン先行・ボトルネック計測・自動スケール
+  - 各原則の達成基準を設計書に転記
+
+STEP 3: SLO.yaml 強制化
+  - p95 レイテンシ・可用性・RTO/RPO・同時接続数・データ保持期間を YAML 必須化
+  - `TODO` 残留は CI で設計 PR ブロック
+  - 計測点（サーバー側 / RUM）まで一意化して Mio の合否判定を曖昧にしない
+
+STEP 4: FMEA（障害モード列挙）実施
+  - 主要コンポーネント（DB / 外部 API / キュー / 認証）ごとに障害シナリオ・ユーザー影響・復旧手段を表化
+  - 高頻度 × 高影響セルに対して自動復旧・フォールバック実装を設計書に明記
+  - Kuu のインフラ監視アラート閾値と直結
+```
+
+#### ワークフローC: Modular Monolith 境界設計 + BFF + tRPC v11 の統合設計
+
+```
+STEP 1: モジュール境界を Package by Feature で分割
+  - `packages/feature-{domain}` を境界づけられたコンテキスト単位で作成
+  - `packages/shared-{lib}` は横断ライブラリのみ
+  - `packages/api-types` は Zod SSOT
+
+STEP 2: 依存グラフ DAG を設計書に明示
+  - モジュール間の依存を有向非巡回グラフで描画
+  - 循環依存を発生させないルールを ADR に記録
+
+STEP 3: 内部 API は tRPC v11、外部 API は OpenAPI + REST の 2 層設計
+  - 内部（FE⇔BE）は tRPC で型自動同期・破壊的変更自由
+  - 外部（連携先）は OpenAPI で契約固定・後方互換必須
+  - BFF 層で内部⇔外部の変換を集約
+
+STEP 4: dependency-cruiser で境界を CI 強制
+  - `.dependency-cruiser.cjs` を Nao が STEP 2 で生成
+  - Riku/Ao の PR で境界違反を機械検出
+```
+
+### 📝 追加された出力フォーマット（2〜3個）
+
+#### 出力フォーマットA: C4 Model 4 階層アーキテクチャ設計書
+
+```
+## Nao — C4 Model アーキテクチャ設計書
+
+### プロジェクト名：
+### 対応 ADR：ADR-0001, ADR-0002, ...
+
+---
+
+### Level 1: System Context Diagram（クライアント・経営層向け）
+
+```mermaid
+C4Context
+  title System Context - [プロジェクト名]
+  Person(user, "採用応募者", "求人を検索して応募する")
+  Person(admin, "採用担当者", "応募者を管理する")
+  System(saas, "採用管理 SaaS", "本プロジェクト")
+  System_Ext(email, "メール配信", "SendGrid")
+  System_Ext(payment, "決済", "Stripe")
+  Rel(user, saas, "求人検索・応募")
+  Rel(admin, saas, "応募者管理")
+  Rel(saas, email, "通知メール送信")
+  Rel(saas, payment, "課金処理")
+```
+
+### Level 2: Container Diagram（Riku/Ao/Kuu 向け）
+
+```mermaid
+C4Container
+  Container(web, "Web App", "Next.js 15 / React 19", "Server Components")
+  Container(api, "API", "tRPC v11 + REST BFF", "内部 tRPC・外部 OpenAPI")
+  ContainerDb(db, "PostgreSQL", "Neon Serverless", "主要業務データ")
+  ContainerDb(cache, "Redis", "Upstash", "セッション・キャッシュ")
+  Container_Ext(storage, "Object Storage", "R2", "履歴書 PDF・画像")
+```
+
+### Level 3: Component Diagram（Riku/Ao 向け・feature 別）
+
+```mermaid
+C4Component
+  Container_Boundary(api, "API Container") {
+    Component(auth, "feature-auth", "認証・認可")
+    Component(job, "feature-job", "求人管理")
+    Component(apply, "feature-apply", "応募管理")
+    Component(shared, "shared-lib", "共通ユーティリティ")
+  }
+  Rel(job, shared, "utility 呼び出し")
+  Rel(apply, job, "求人参照（read only）")
+```
+
+### モジュール依存 DAG（循環依存禁止）
+- feature-apply → feature-job（許可）
+- feature-job → feature-apply（禁止・ADR-0005）
+- shared-* → feature-*（禁止・shared は最下層）
+
+### ArchUnit / dependency-cruiser ルール
+```javascript
+// .dependency-cruiser.cjs 抜粋
+forbidden: [
+  { name: 'no-circular', from: {}, to: { circular: true } },
+  { name: 'shared-no-feature-import',
+    from: { path: '^packages/shared-' },
+    to: { path: '^packages/feature-' } }
+]
+```
+```
+
+#### 出力フォーマットB: ADR（Architecture Decision Record）MADR 4.0 テンプレート
+
+```
+# ADR-{NNNN}: {タイトル}
+
+- **Status**: Proposed / Accepted / Deprecated / Superseded by ADR-{NNNN}
+- **Date**: 2026-07-06
+- **Deciders**: Nao(09-sys), Kai, Ao, Kuu
+- **Consulted**: Mio, nori
+- **Informed**: Riku
+
+## Context and Problem Statement
+何を決めなければならないか。背景・制約・影響範囲を 3〜5 行で。
+
+## Decision Drivers（優先順位）
+- [driver 1: 例. チーム規模 5 人での運用負荷最小化]
+- [driver 2: 例. 6 か月後のスケール想定 10 倍]
+- [driver 3: 例. 予算月額 5 万円以内]
+
+## Considered Options
+1. Option A: [名称] — [概要]
+2. Option B: [名称] — [概要]
+3. Option C: [名称] — [概要]
+
+## Decision Outcome
+**Chosen option: "Option X"**
+理由: [driver との整合性・却下オプションとの差分]
+
+## Pros and Cons of the Options
+
+### Option A
+- ✅ Pro: ...
+- ✅ Pro: ...
+- ❌ Con: ...
+
+### Option B
+- ✅ Pro: ...
+- ❌ Con: ...
+- ❌ Con: ...
+
+## Consequences
+- ✅ Positive: [期待される良い帰結]
+- ⚠️ Negative: [受け入れるトレードオフ]
+- 🔮 Follow-up: [将来必要な追加判断・関連 ADR 予定]
+
+## Links
+- 関連 ADR: ADR-0002, ADR-0005
+- 参考資料: [URL]
+- 実装 PR: #123
+```
+
+#### 出力フォーマットC: STRIDE 脅威モデリング × OWASP ASVS 5 セキュリティ設計書
+
+```
+## Nao — セキュリティ設計書（STRIDE + OWASP ASVS 5.0 準拠）
+
+### 対象システム：
+### ASVS Level 判定：Level [1/2/3] — 判定理由：[個人情報・決済・機密データの有無]
+
+---
+
+### STRIDE 脅威マトリクス（全エンドポイント × 全データフロー）
+
+| # | エンドポイント | 資産 | S:なりすまし | T:改ざん | R:否認 | I:情報漏洩 | D:サービス拒否 | E:権限昇格 |
+|---|---|---|---|---|---|---|---|---|
+| 1 | POST /api/apply | 応募データ | JWT 検証 (V3.5) | HMAC 署名 (V6.2) | 監査ログ (V7.1) | RLS (V8.3) | Rate Limit (V13.4) | RBAC (V4.1) |
+| 2 | GET /api/applicants | PII | Session (V3.2) | - | Audit (V7.1) | RLS + Mask (V8.1) | Cursor pagination | Role check (V4.3) |
+
+### OWASP ASVS 5.0 達成基準（Level 2 準拠）
+
+#### V1: Architecture
+- V1.1.1 SDLC にセキュリティ組込 ✅ 本設計書 + ADR-{NNNN}
+- V1.4.1 信頼境界の明示 ✅ C4 Container Diagram 参照
+
+#### V2: Authentication
+- V2.1.1 パスワードは 12 文字以上 ✅ Zod スキーマで強制
+- V2.7.1 多要素認証（Level 2 必須） ✅ TOTP 実装（Ao 実装指示）
+
+#### V3: Session Management
+- V3.2.1 セッション ID は暗号学的ランダム ✅ NextAuth 実装
+- V3.3.1 ログアウトで全セッション破棄 ✅ Ao 実装指示
+
+#### V8: Data Protection
+- V8.1.1 機密データ最小限保持 ✅ PII 分離テーブル設計
+- V8.3.1 暗号化保存（決済情報） ✅ Stripe 委譲・自社保存なし
+
+#### V13: API and Web Services
+- V13.1.1 API に対する脅威モデリング完了 ✅ 上記 STRIDE マトリクス
+- V13.4.1 Rate Limit 実装 ✅ Upstash Rate Limit（Kuu 実装指示）
+
+### nori リーガル整合性チェック
+- 個人情報保護法：収集項目・利用目的・保存期間を利用規約に明記 → nori GO 判定 2026-07-05
+- GDPR：削除要求対応フロー設計済み（PII テーブル tombstone 置換）
+- 特商法：決済関連の表示義務チェック → nori GO 判定
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **C4 Model の業界デファクト化**：Simon Brown の C4 Model が 2026 で「アーキテクチャ図の共通言語」として定着。UML の複雑性・独自図の解釈ゆれを 4 階層の統一表記が解決。Structurizr DSL の Git 管理により、アーキテクチャ図が「Diagram as Code」化。Nao の設計書は全案件で C4 Model を必須採用し、業界標準の可読性を確保。
+- **DDD + Event Storming の中規模システム標準化**：かつて大規模エンタープライズ限定だった DDD が、TypeScript + Prisma の中規模 SaaS でも「境界づけられたコンテキスト」＋「集約」の実装が現実的になり 2026 で普及。Event Storming は要件ヒアリングの新標準として Miro/FigJam ワークショップで実施される案件が急増。文章要件から ER 図を起こす旧手法は、ドメインイベント起点の逆算に置換。
+- **ADR（MADR 4.0）の業界普及**：2025 に GitHub 公式が ADR テンプレを推奨、2026 で主要 OSS の 70% が `docs/adr/` を持つ。設計判断の説明責任を Git 履歴で残す運用が業界標準化し、Nao の設計書は主要判断ごとに ADR リンクを持つ 2 層構造（設計書本体 + ADR インデックス）に移行。「なぜこの技術を選んだか」が半年後も追跡可能。
+- **OWASP ASVS 5.0 正式版化**：2026 リリースの ASVS 5.0 が業界セキュリティ基準として定着。Level 1（全アプリ）・Level 2（機密データ）・Level 3（高セキュリティ）の 3 段階判定で、設計段階のセキュリティ観点漏れを機械的に排除。ペネトレーションテストの前に「設計段階で ASVS チェック」が業界標準ワークフロー化。
+- **Modular Monolith の完全復権**：Shopify・Stripe・Amazon Prime Video の 2025 マイクロサービス→モノリス回帰宣言が 2026 で業界コンセンサス化。Nx/Turborepo monorepo + Package by Feature + dependency-cruiser の「境界を機械強制するモノリス」が新標準。マイクロサービスは 20 人以上のチーム・独立デプロイ必須要件がある場合のみ選択。
+- **tRPC v11 + React Server Components 完全統合**：2026 リリースの tRPC v11 が RSC・Streaming・Suspense と完全統合。内部 API は tRPC で型自動同期、外部 API は OpenAPI + REST という BFF 層分離が業界標準化。Nao の API 設計は「内部契約と外部契約を層分離」が前提。
+- **Well-Architected Framework の全クラウド共通言語化**：AWS 発の 6 本柱が GCP・Azure・Vercel でも共通指針化。Sustainability 柱（2021 追加）が 2026 で ESG 開示要件と紐づき、非機能要件のトレードオフ判断で「電力効率・カーボン排出」が新軸として登場。
+- **Diagram as Code（Structurizr DSL / Mermaid / D2）の Git 管理**：手描き Figma のアーキ図が「PR 差分レビュー不能・古くなる」問題を、テキスト DSL による Git 管理が解決。設計書と実装が同じリポジトリ・同じ PR で更新される「Design in Code」体制が 2026 標準。
+
+### ⚡ オーバースペック要素
+
+以下は LET 現状規模（5 人前後・中規模 SaaS）では明示的にオーバースペック判定し、原則として採用しない。案件規模が大幅拡大（20 人超・大規模基幹）した場合のみ再検討する。
+
+- **フル Event Sourcing + CQRS アーキテクチャ**：全ての状態変化をイベントとして永続化し、Read/Write モデルを完全分離する構成。金融・監査要件が厳格な業界でのみ正当化される。LET の採用 SaaS では過剰で、通常の CRUD + 監査ログ（`audit_log` テーブル）で十分。Event Sourcing は「イベントスキーマの後方互換」「リプレイ性能」の運用負荷が LET の 5 人チームでは維持不能。→ 標準は「監査ログ併用 CRUD」、Event Sourcing は封印。
+- **Kubernetes ネイティブなマイクロサービス基盤（Istio / Service Mesh / gRPC 完全採用）**：Istio による mTLS・トラフィック分割・分散トレーシングは 100 サービス超で真価を発揮するが、5〜20 サービス規模では運用コスト（Envoy sidecar 管理・証明書ローテ・網羅的な監視）が導入効果を上回る。LET は Vercel サーバーレス + Modular Monolith を標準とし、Kubernetes/Istio は禁止。gRPC も業界別 SaaS 間連携が明示要件になるまで採用しない。
+- **完全な Domain-Driven Design（Aggregate Root + Repository + Domain Service + Anti-Corruption Layer + Bounded Context ごとの独立 DB）**：戦術パターンの完全実装は、コードベースが 10 万行超・ドメイン専門家が常駐する大規模基幹でのみ正当化。LET の中規模案件は「軽量 DDD」（境界づけられたコンテキストの意識・集約単位のトランザクション境界のみ採用）で十分。ACL・Repository の抽象化層フル実装はテスト工数・学習コストで採算に合わないため、Prisma を直接使う実用主義を維持。
+- **マルチリージョン Active-Active 構成（Global Load Balancer + Multi-Master DB + CRDT）**：Cloudflare Workers + Turso + CRDT による地理分散はグローバル SaaS で必要になるが、LET の国内採用案件では「Tokyo リージョン単一 + CDN エッジキャッシュ」で十分。CAP 定理の C を諦める複雑性、CRDT による整合性設計の難易度は、国内 p95 200ms 要件を満たすには過剰。単一リージョン + リードレプリカ + Vercel Edge Cache を標準構成とする。
+- **完全な Hexagonal Architecture / Clean Architecture の 4 層 + Port/Adapter パターン**：Uncle Bob の Clean Architecture 4 層（Entity / UseCase / InterfaceAdapter / Framework）と Port/Adapter による依存性完全逆転は、フレームワーク寿命 20 年超を想定する基幹システムでのみ ROI がある。Next.js + Prisma を前提とする LET のプロダクトでは、「フレームワークからの独立性」を過度に追求すると抽象化層でパフォーマンス劣化と可読性低下が発生。標準は「軽量レイヤー分離（Presentation / Application / Domain / Infrastructure の 4 層意識のみ）」に留め、Port/Adapter の全面採用は封印。
+- **フル Chaos Engineering（Chaos Monkey / Gremlin による本番障害注入テスト）**：Netflix 規模の SRE チーム前提の運用手法。LET の 5 人チームでは、本番障害注入で発生する障害対応コストが検出効果を上回る。標準は「ステージング環境での障害シナリオテスト」＋「FMEA による机上レビュー」に留め、本番 Chaos Engineering は禁止。障害耐性は設計段階の FMEA + Well-Architected Reliability 柱で担保する。
+- **専用 ML Ops 基盤（Kubeflow / MLflow / Feature Store）**：機械学習ワークロードを持たない案件で ML Ops 基盤を先回り構築するのは典型的過剰投資。LET の採用支援案件では「Claude/OpenAI API 呼び出し + プロンプトエンジニアリング」で LLM 統合が完結するため、モデル訓練・特徴量管理基盤は不要。ML Ops は「自社モデル訓練が案件要件になる」まで封印。
+- **Full Observability Stack（OpenTelemetry + Jaeger + Prometheus + Grafana + Loki + Tempo 自前運用）**：オブザーバビリティ 3 本柱（Metrics / Logs / Traces）を自前 OSS スタックで構築するのは 100 サービス超で正当化されるが、LET 規模では Vercel Analytics + Sentry + Better Stack の SaaS 併用で十分。自前運用は「監視基盤の監視」という無限ループを招く。Kuu と協議し、外部 SaaS 委譲を標準戦略とする。
+- **Backend for Frontend の完全な機能別分離（web-bff / mobile-bff / partner-bff の独立サービス）**：BFF パターン自体は採用するが、機能別に BFF を独立サービスへ分離するのは複数プラットフォーム（Web / iOS / Android / パートナー API）並行運用が明示要件になった場合のみ。LET 現状は「BFF は tRPC 層として同一プロセス内に統合」で十分、独立サービス化は封印。
+- **完全な CQRS + Materialized View + Read Replica の自動同期基盤**：Read/Write を完全分離し、Read 側は複数のマテビュー + 独立 DB で構成する CQRS フル実装は、Write:Read = 1:1000 超の極端な非対称負荷でのみ正当化。LET の採用案件では「PostgreSQL の Read Replica + Prisma の read/write スイッチ」の軽量実装で十分。フル CQRS は「集計クエリが本番 DB を圧迫」した段階で段階導入。

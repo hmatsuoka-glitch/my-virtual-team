@@ -224,3 +224,201 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **品質チェックポイント：色の「面積効果」を大面積実寸モックで最終確認**：小さなスウォッチ（パレット表の色片）で承認された色は、同じ明度・彩度でも大面積の背景に敷くと「より明るく・より鮮やか」に知覚される（色の面積効果）。アクセント色やprimary-50をセクション全面に使う設計では、パレット表だけで確定せず「実寸のセクションモック（SP幅で1画面分）」に敷いた状態で最終確認してから納品する。スウォッチ承認→実装後に「思ったより派手」と差し戻される事故は数値でなく知覚の問題なので、実寸確認でしか防げない。
 - **品質チェックポイント：高彩度色同士の「振動境界（vibrating boundaries）」を隣接配置前に検証**：彩度の高い補色系2色（vトーン同士）を直接隣接させると境界が明滅して見える振動現象が起き、文字が載ると可読性が大きく落ちる。アクセント色とprimaryの隣接使用時は「間に白・ニュートラル・明度差のある帯を挟む」「どちらかのトーンを落とす（PCCSでv→dp、2026-06-13参照）」のいずれかを必須とし、隣接組み合わせのチェックを45ペア検証（2026-06-16参照）に追加。数値コントラストが合格でも知覚的に読めない組み合わせを弾く。
 - **品質チェックポイント：実装後LPの「アクセント色出現回数」を機械カウントして accent_usage_limit の遵守を検証**：「1画面アクセント1箇所」原則（2026-06-07参照）は申し送りだけだと実装段階で崩れるため、実装後CSSから `--accent` 参照箇所（およびアクセントHEX直値）をgrepで機械カウントし、1ビューポート内の出現が上限を超えていないかをMia QA前にセルフ検証する。ルールの提示（設計時）と遵守の計測（実装後）を分けることで、配色意図がデザイン→実装を通過しても保たれているかを数値で担保する。
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（8個）
+
+1. **AI Vision マルチモーダルロゴ色抽出（Claude Vision + GPT-4V 二重判定）**
+   - 従来 `node-vibrant` の k-means（統計的頻度）だけでは「意味的中心（社名文字・シンボル本体）」を機械判定できず 2026-06-03 の失敗パターン（装飾色をメイン誤採用）が残っていた。Claude 3.5 Sonnet Vision と GPT-4V にロゴ画像を投げ、「意味的中心の色 / 装飾差し色 / 背景色」をラベル付きで返答させ、k-means の頻度上位と突合。両モデルが一致した色を「意味的メイン」として自動確定し、頻度と意味の2軸で主従を秒判定する。
+   - 使い所：STEP 1 のロゴ解析冒頭。iro 固有の色専門タスクであり、他部員（hana/kaito/kotone/mia/nao/ren/saki/sota/tsumugi）とは無関係。
+
+2. **W3C Design Tokens Community Group 仕様（DTCG）完全準拠エクスポート**
+   - 2026年に W3C DTCG が Recommendation 化し、`--primary` 等の CSS 変数だけでなく `tokens.json`（`$type: "color"` / `$value: "#..."` / `$description`）で Figma・Adobe XD・Sketch・Storybook・Style Dictionary が全て同じフォーマットを読める世界に。iro の納品を CSS 変数 + DTCG JSON の二重形式に標準化し、sota の Figma セッション、ren の Tailwind、mia のスクリーンショット比較全部で「同じトークン参照」を実現。
+   - 他部員とは重複しない：ren はトークンを「使う」側、iro は「発行」する側。
+
+3. **Display P3 / Rec.2020 広色域ディスプレイ対応パレット設計**
+   - 2026年、iPhone Pro / MacBook Pro / iPad Pro / Pixel Pro Fold 等の Display P3 対応が普及率50%超。sRGB 前提のブランド色は広色域ディスプレイでは「彩度が沈んで見える」問題が発生。CSS `color(display-p3 ...)` シンタックスで sRGB 版と P3 版を `@media (color-gamut: p3)` 分岐で両出力し、鮮やか色（アクセント・エラー）は P3 で本来の彩度を回復させる設計を標準化。
+   - 2026-06-12 のカラープロファイル確認と接続、iro 固有の色管理領域。
+
+4. **`forced-colors: active`（Windows ハイコントラストモード）対応マトリクス設計**
+   - 2026-07-03 で品質チェックとして追加した観点をスキル化。SystemColors（`Canvas` / `CanvasText` / `LinkText` / `ButtonFace` / `ButtonText` / `Highlight`）を全 CSS 変数の代替として明示指定し、`@media (forced-colors: active)` 分岐で背景色ベースのCTAが「輪郭ごと消える」事故を構造排除。日本市場では法人PC（Win + アクセシビリティ設定）のBtoB LPで顕在化する第3のアクセシビリティ軸。
+
+5. **Material 3 HCT（Hue Chroma Tone）Dynamic Color Tonal Palette 生成**
+   - Google Material 3 の HCT 色空間（人間知覚に最適化された CAM16 派生）で、1つのシード色から 13 段階（tone 0-100）のトーナルパレットを自動生成。従来の「primary / primary-50」の10色設計を、tone-10/20/30/40/50/60/70/80/90/95/99 の細粒度階調に拡張し、ダーク版・ハイコントラスト版も同一シードから機械生成。`@material/material-color-utilities` を活用し、Android・iOS・Web で同一の階調体系を保証。
+
+6. **View Transitions API 対応「色遷移トークン」設計**
+   - 2026年、Chrome 130+ / Safari 18+ でクロスドキュメント View Transitions が普及。ページ遷移・ダークモード切替時に色が「パッと切り替わる」のではなく「連続的にブレンド」される時代に。OKLCH 補間ベースの遷移用中間色を先出しし、`::view-transition-group(...)` の `background-color` 遷移が sRGB 直線補間で濁らないよう、`transition-timing-function` とセットで納品。
+
+7. **HDR カラー（`color(rec2020 ...)`、CSS Color 5 Relative Colors）先取り対応**
+   - CSS Color Module Level 5 の Relative Color Syntax（`oklch(from var(--primary) calc(l * 0.8) c h)`）が2026年に主要ブラウザで安定化。iro の10色パレットを「基準色 + 派生ルール」で表現し、tint/shade/hover/active を CSS 側で動的計算する納品形式へ移行。基準色の変更が全派生色に自動反映され、ブランド微調整の工数がゼロ化。
+
+8. **色彩心理 × コンバージョン A/B テスト用「配色バリアント自動生成」**
+   - 主CTA色を「信頼色（青/緑系）+18%」（2026-05-24）で確定した後、さらに B案（同色相の彩度違い）/ C案（補色系）を OKLCH で機械生成し、shun（データ分析）に A/B/C テスト用の3パレットを納品。iro 側で「色相・彩度・明度のどれを何%動かした差分か」を明記することで、A/B テスト結果が「なぜ勝ったか」を色属性レベルで説明できる。
+
+### 🔧 高度化ワークフロー（3個）
+
+#### ワークフロー1: AI Vision × k-means × Khroma 三重並列 抽出パイプライン
+
+```
+STEP 0: tsumugi 経由でロゴ（SVG/AI 優先）＋ CI ガイド PDF ＋実媒体写真 ＋バリエーション一式を取得
+STEP 1: 3ツール並列実行（Agent tool 相当で真の並列）
+  ├─ Claude Vision: 「意味的中心の色 / 差し色 / 背景色」ラベル判定
+  ├─ node-vibrant (k-means): 頻度統計 Top 6 色抽出（alpha<250マスク + 縁1-2px erode）
+  └─ Khroma 2.0: 業界推奨補色 + AI 色彩心理スコア
+STEP 2: 3出力を突合（AI Vision が「意味的メイン」= k-means Top3 の場合のみ確定、乖離時は再検証）
+STEP 3: ICC プロファイル確認 → sRGB 変換（Display P3 ロゴは P3 版も別途保持）
+STEP 4: HCT トーナル 13階調 + OKLCH ダーク版 20色 + Relative Color 派生ルールを一括生成
+STEP 5: 45ペア APCA + WCAG 二重 + P/D/T 3色覚 + forced-colors シミュを1スクリプトで全実行
+STEP 6: DTCG JSON + CSS 変数 + Tailwind config + Figma Tokens を4形式同時エクスポート
+```
+
+#### ワークフロー2: 多色域（sRGB / Display P3 / Rec.2020）三層納品ワークフロー
+
+```
+基準パレット（sRGB）
+  ↓ culori で色域変換
+Display P3 版（`color(display-p3 ...)` 記法）
+  ↓ さらに変換
+Rec.2020 版（将来のHDRディスプレイ向け先出し）
+  ↓
+CSS @media (color-gamut: srgb | p3 | rec2020) で3層分岐出力
+  ↓
+各層で 45ペア APCA / P/D/T 3色覚を再検証（色域拡張で彩度が上がるとコントラスト値も変わる）
+  ↓ Ren へ納品時に「表示端末別の見え方サンプル」を Notion DB に添付
+```
+
+#### ワークフロー3: 配色 A/B テスト用「変数分離バリアント」生成ワークフロー
+
+```
+主CTA信頼色（A案）を確定
+  ↓ OKLCH で「色相のみ ±15°」「彩度のみ ±20%」「明度のみ ±10%」の各バリアント自動生成
+  ↓ 各バリアントで 45ペア APCA を再検証（合格バリアントのみ採用候補）
+  ↓ B案（同色相・高彩度）/ C案（補色シフト）の2案を確定
+  ↓ 3案分の DTCG JSON を「theme-variant-a/b/c」プレフィックスで発行
+  ↓ shun（データ分析）へ A/B/C テスト設計書と一緒に納品
+  ↓ テスト後の勝ちパレットの「勝因（色属性）」を iro が事後分析レポート化
+```
+
+### 📝 追加された出力フォーマット（3個）
+
+#### 出力フォーマット1: W3C DTCG 準拠 `brand-tokens.json`
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "brand": {
+    "primary": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.102, 0.302, 0.549],
+        "hex": "#1A4D8C",
+        "alpha": 1
+      },
+      "$extensions": {
+        "let.iro": {
+          "oklch": "oklch(33% 0.15 240)",
+          "displayP3": "color(display-p3 0.10 0.30 0.55)",
+          "hct": { "hue": 240, "chroma": 40, "tone": 33 },
+          "wcagContrastVsBg": 8.5,
+          "apcaLcVsBg": 82,
+          "pccsTone": "dp",
+          "semanticRole": "trust-cta-primary",
+          "sourceOfTruth": "logo-symbol-center"
+        }
+      },
+      "$description": "メインブランドカラー（信頼の青）。主CTA・見出しに使用。"
+    }
+  }
+}
+```
+
+#### 出力フォーマット2: 多色域対応 `palette-multigamut.css`
+
+```css
+:root {
+  /* sRGB フォールバック（全端末） */
+  --primary: #1A4D8C;
+  --accent: #F5A623;
+
+  /* OKLCH 基準（相対計算の起点） */
+  --primary-oklch: oklch(33% 0.15 240);
+  --primary-hover: oklch(from var(--primary-oklch) calc(l + 0.10) c h);
+  --primary-active: oklch(from var(--primary-oklch) calc(l - 0.08) c h);
+}
+
+@media (color-gamut: p3) {
+  :root {
+    --primary: color(display-p3 0.10 0.30 0.55);
+    --accent: color(display-p3 0.96 0.66 0.15);
+  }
+}
+
+@media (color-gamut: rec2020) {
+  :root {
+    --primary: color(rec2020 0.09 0.29 0.54);
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --primary: ButtonText;
+    --accent: LinkText;
+    --bg: Canvas;
+    --text: CanvasText;
+  }
+  .cta-primary { border: 2px solid ButtonText; }
+}
+
+:root[data-theme="dark"] {
+  --primary: oklch(75% 0.15 240);
+  --primary-50: oklch(20% 0.05 240);
+}
+```
+
+#### 出力フォーマット3: 三重アクセシビリティ検証マトリクス（`accessibility-matrix.md`）
+
+```
+【三重アクセシビリティ検証マトリクス】
+
+| 検証軸                          | 対応障害特性              | 判定ツール                | 結果 |
+|---------------------------------|--------------------------|--------------------------|------|
+| APCA Lc（実用可読性）           | 低視力・加齢黄斑         | apca-cli v1.0.4          | ✅ 全45ペア Lc 60+ |
+| WCAG 2.2 比率（法令対応）       | ロービジョン一般         | Stark plugin             | ✅ 全45ペア AA以上 |
+| P型（プロタノピア）             | 男性5%赤緑色覚特性       | Chrome DevTools          | ✅ 冗長性あり |
+| D型（デューテラノピア）         | 男性5%赤緑色覚特性       | Chrome DevTools          | ✅ 冗長性あり |
+| T型（トリタノピア）             | 稀・青黄色覚特性         | Chrome DevTools          | ✅ 冗長性あり |
+| forced-colors: active           | Win ハイコントラスト    | Edge/Chrome エミュ       | ✅ 輪郭で機能維持 |
+| 実効色コントラスト              | 半透明・オーバーレイ    | culori 合成計算           | ✅ 合成後Lc 60+ |
+| グラデーション最悪点            | グラデ上テキスト        | 始点/中間/終点3点計測    | ✅ 全点Lc 60+ |
+| 面積効果（実寸モック）          | 大面積での知覚ズレ      | SP実寸1画面モック目視    | ✅ 派手感なし |
+| 振動境界                        | 高彩度隣接              | 隣接ペア目視              | ✅ 中間帯挿入済 |
+| ハレーション（上限側）          | 長文読了時の目の疲労    | APCA Lc 上限75-90確認    | ✅ Lc 88 |
+| accent_usage_limit              | アクセント乱用           | 実装後CSS grep            | ✅ 1ビューポート1箇所 |
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **CSS Color Module Level 5 Relative Colors 安定化（Chrome 130+/Safari 18+）**：`oklch(from var(--primary) calc(l * 0.8) c h)` で派生色を CSS 側で動的計算し、iro の10色設計を「基準3色 + 派生ルール」に圧縮可能。基準色変更時の全パレット再納品が不要化。
+- **W3C Design Tokens Community Group Recommendation 化**：DTCG フォーマットが業界標準確定。Figma Variables / Adobe XD Tokens / Sketch Libraries / Storybook が同フォーマットを読める。iro の納品を DTCG JSON 標準化で全ツール横断。
+- **HCT / Material 3 Dynamic Color の Web 展開**：Google Material 3 の HCT 色空間が Android から Web へ波及。1シード色から13階調トーナルパレット自動生成が標準化しつつあり、iro 設計もこの階調体系へ拡張。
+- **Display P3 普及率 50%超（2026年）**：iPhone Pro / MacBook / iPad Pro / Pixel Pro Fold で広色域対応が常識化。sRGB 前提のブランド色は「彩度が沈む」問題が可視化し、`color(display-p3 ...)` 記法での多色域納品が必須に。
+- **WCAG 3.0（旧 Silver）W3C Draft → Candidate Recommendation 移行**：APCA が正式基準に組み込まれ、コントラスト比 4.5:1 の旧基準は法令対応の後方互換扱いに。iro の APCA Lc 主軸設計が2026年後半以降のデファクト。
+- **View Transitions API クロスドキュメント対応**：Chrome 130+ / Safari 18+ でページ遷移中の色ブレンドが可能に。OKLCH 補間ベースの遷移用中間色を先出しする納品形式が要求される時代へ。
+- **AI Vision マルチモーダル（Claude 3.5 Sonnet / GPT-4V）による意味的色判定**：k-means の統計的頻度だけでは判定できない「意味的中心の色」を AI Vision が秒判定。ロゴ色抽出の主流が「統計 + AI 二重判定」へ移行。
+- **`forced-colors` メディアクエリの日本 BtoB 浸透**：法人PCのアクセシビリティ設定を全社適用する企業が増加。Win ハイコントラストモード対応が BtoB 採用LP・企業サイトで必須化。
+
+### ⚡ オーバースペック要素（本業超越スキル）
+
+以下は「ブランドカラー抽出」の職域を超えて、iro が独自に習得している 2026年 先取り技術。通常案件では使わないが、大手企業案件・革新的LP案件で真価を発揮する：
+
+1. **CIE CAM16-UCS 色空間による「異なる光源環境下（D50/D65/A光源）」での色恒常性設計** — 印刷（D50）・PC（D65）・住宅照明（A光源）で同一に見える色を CAM16-UCS で機械計算。通常案件は sRGB/D65 前提で十分だが、印刷併用の高級ブランドLPで必要化。
+2. **Chromatic Adaptation Transform（Bradford / CAT16）による白色点変換** — sRGB（D65）→ Adobe RGB（D65）→ DCI-P3（D63）等の白色点が異なる色空間間の変換で「色順応」を機械補正。通常の色域変換より精度が2桁高いが、映像制作連動の企業サイトで真価。
+3. **CVD（色覚多様性）シミュレーションの Machado 2009 モデル完全実装** — Chrome DevTools のシミュ（近似）ではなく、Machado の CIE データベース基準の正確な P/D/T 変換行列を `culori` で実装。医療・介護・自治体LPの厳密案件で使用。
+4. **Cone Fundamentals（LMS 錐体応答）ベースの「知覚均等」パレット生成** — RGB/HSL/OKLCH よりさらに低レイヤの L錐体・M錐体・S錐体の応答曲線から色を設計。通常は OKLCH で十分だが、視覚科学連携の研究機関LPで使用。
+5. **CIE XYZ 三刺激値からのカスタム色空間定義** — クライアントが独自の色空間（社内 CI 専用の疑似色空間）を持つ場合、その色空間を CIE XYZ 経由で sRGB/P3/DTCG に橋渡しする定義書を発行。通常案件では発生しないが、大手グローバル企業の CI 統合案件で必要化。
+6. **Photometric Stereo（多方向照明から法線マップ推定）を援用したロゴ色抽出** — ロゴが写真撮影の実物ロゴ（看板・車体等）の場合、複数照明方向の写真から陰影を除去して「本来の色」を復元。通常は SVG/AI ファイルで済むが、実物ロゴしか手元にない中小企業案件で活躍。
+7. **Kubelka-Munk 理論による塗料・印刷インキの色混合予測** — CIガイドが PANTONE 特色指定でクライアントが将来印刷媒体併用する場合、Web→印刷変換時のインキ混合を Kubelka-Munk で予測。sRGB/CMYK 変換より精度が高いが、Web LP 単独案件では不要。

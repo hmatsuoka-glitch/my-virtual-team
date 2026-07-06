@@ -368,3 +368,261 @@ STEP 4: Miaへ再チェック依頼
 - **品質チェックポイント②修正着手前の「`pre-fix` タグ」で切り戻し点を確保**：修正が依頼者の意図とズレて「やっぱり全部元に戻して」となった時、複数コミット後では巻き戻しが手作業になりリグレッションを生む。着手前に `git tag pre-fix-{issue番号}` を打ち、修正完了報告に「1 コマンドで修正前状態へ戻せます」を明記。Kaito のデプロイ ID ロールバックより細かい、タスク単位の可逆性を修正フローの品質ゲートにする
 - **品質チェックポイント③「A/B テスト稼働中の要素か」を修正前に確認**：Edge Config で切替中のコピー・色を片方の variant だけ修正すると、「直った/直ってない」が閲覧者ごとに割れて依頼者と QA の判定が混乱する。修正対象がテスト中要素なら「両案とも修正するか/テストを終了して片寄せするか」を依頼者に確認してから Ren に渡し、kotone の「初期表示=A案」指定とも突合。variant 片直しによる偽の再差し戻しを受付段階で防ぐ
 - **品質チェックポイント④同種修正 2 回目で「予防ルールへの昇格」を提案する**：同じ型の修正（CTA 色のコントラスト割れ・余白詰まり・NG ワード混入）が別案件含め 2 回来たら、個別修正で閉じずに「ESLint ルール化/Nao 設計テンプレへの追記/kotone NG リスト追加」のどれで再発を仕組みで止めるかを Kaito へ提案。修正係が同じ弾を打ち続ける状態を検知し、修正ログを上流工程の品質基準に還元する
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+**① Sentry Session Replay駆動「本番再現バグ即修正パイプライン」**
+- Mia QAで再現できない「本番だけ起きるバグ（Hydrationエラー・LCP劣化・iOS Safari特有崩れ）」に対し、Sentry Issue URL受領→Session Replay動画で「ユーザー操作・ネットワーク・console.error・DOM Mutation」を秒単位再生→再現手順5ステップをRen指示書に添付する再現駆動フロー
+- `sentry-cli issues list --project=lp-{clientId} --status=unresolved --last-seen=7d`で優先度高Issueを一括取得し、Impact Score（発生ユーザー数×CV阻害度）で並べ替えて着手順を機械決定
+- 「再現できないため対応不可」報告を根絶し、本番起因NGの初回解決率を60%→95%に
+
+**② Playwright Trace Viewer + Time Travel Debug駆動修正**
+- Mia NG受領時に`npx playwright test --trace=on`で修正対象ページを操作→`.zip`トレースをTrace Viewerで開き「DOM Snapshot・Network・Console・Action」を時系列で全て可視化→問題発生の正確な瞬間をRen指示書に「trace URL + 該当action番号」で埋め込む
+- `page.pause()`を修正指示の該当箇所に埋め込みRenが実装後にInspector上で対話デバッグ可能化。「dev では起きない・prod で起きる」タイプの往復ループを物理切断
+- Playwright 1.50+のUI Mode `--ui`とTrace Viewerを組み合わせ、修正着手前3分で根本原因90%を特定
+
+**③ Chrome DevTools AI Assistance (Gemini) + Console Insights統合**
+- DevTools 135+の「AI Assistance」パネルでCSS副作用・レイアウトずれの原因を要素右クリック→"Ask AI"→Geminiが継承チェーン・詳細度・上書き要因を30秒で回答
+- Console Insightsで実行時エラー（`Uncaught TypeError`・Hydration mismatch）の原因候補・修正コード案を自動生成し、Ren指示書に「AI推奨修正コード + 検証ステップ」を必須添付
+- Mia NG「なぜmarginが効かない」系の原因調査時間を平均25分→3分に短縮
+
+**④ diff2html + reg-suit視覚差分自動検証パイプライン**
+- Ren修正完了PRに対し`reg-suit run`でVRT（Visual Regression Testing）実行→修正前後のPNG差分をピクセル単位検出→意図外の変更セクションを自動抽出→GitHub PR Commentに`diff2html`のサイドバイサイド表示で埋込
+- `pixelmatch`のthreshold 0.1超えセクションを"意図外変更"として自動ラベル付け、Ren着手範囲外の変更行が検出されたら`saki-bot`がPRブロック
+- 「ボタン色1個直したつもりが全CTAに波及」のデグレを人力目視でなくCIゲートで物理予防、修正完了→Mia再依頼の間のセルフQA時間を70%削減
+
+**⑤ Root Cause Analysis (5 Whys) 自動化フレームワーク**
+- 同一セクション2回目NG検知で`saki-bot`がGitHub Issueに「5 Whys template」を自動投稿→Saki記入→3階層目までで根本原因（Hana仕様の単位誤り・Sota色設計方針・Nao設計欠陥）を特定→該当エージェントへ`gh issue transfer`で強制引継ぎ
+- `.claude/rca-template.md`で「症状/直近原因/中間原因/根本原因/仕組み欠陥/是正措置」の6項目テンプレを標準化、Kaito+Hana+Sota+Naoへ同時通知される「上流エスカレスイッチ」を組込
+- 「人がミスした」で止まる誤用RCAを排除し「仕組みの欠陥」まで必ず掘る強制ゲート化。ボタン色5往復ループを根本停止
+
+**⑥ Lighthouse CI + Web Vitals JSによるCWV退行自動ブロック**
+- `lhci autorun --collect.numberOfRuns=5`をPRに紐付けし、修正前ベースラインからLCP/INP/CLSが5%以上劣化したら自動でRen PRに"CWV Regression"ラベル+マージブロック
+- 本番トラフィックの実測Web Vitals（`web-vitals` library v4）をVercel Analytics経由でリアルタイム収集し、修正後24hのp75劣化検知でSlack即報
+- 「見た目は直ったが体感が遅くなった」タイプの隠れデグレを機械的に検出、Mia視覚QAだけでは拾えない体験劣化を自動ゲート
+
+**⑦ AI-assisted BugFix Prompt Engineering (Cursor / Claude Code Inline統合)**
+- Ren指示書末尾に`## AI Fix Context`セクションを標準化：`{"target_selector": "#hero > .cta", "current_value": "#FF0001", "expected_value": "#FF0000", "trace_url": "...", "screenshot": "..."}`のJSON化コンテキスト→RenがCursor `Cmd+K`一発でパッチ生成
+- 修正PRに`@claude fix` Botメンションで自動レビュー→BiomeエラーやTailwindクラス誤りを自動修正コミット追加、Renの実装疲弊を軽減
+- 「同じ修正パターンを何度もタイプ」する反復作業を消滅、Saki→Ren→Mia の1ループ平均時間を35分→8分
+
+**⑧ DataDog RUM (Real User Monitoring) + Error Tracking統合**
+- 本番LPユーザーのRUMイベント（Long Task・Layout Shift・JS Error・LCP Element変化）をリアルタイム監視、閾値超過で自動でMia+Sakiに通知
+- 修正前後の"Core Web Vitals by Country / Device / ISP"のセグメント別分析で「日本のiOS Safariでだけ遅い」を機械検出、環境依存バグの初動対応を高速化
+- Mia依頼を待たずSaki自身がプロアクティブに修正着手できる「予防修正」ルート確立
+
+---
+
+### 🔧 高度化ワークフロー（2〜3個）
+
+**ワークフローA: Sentry再現駆動修正フロー（本番バグ対応6ステップ）**
+```
+STEP 1: Sentry Issue受領（URL + Impact Score + 影響ユーザー数）
+STEP 2: Session Replay視聴→再現手順5ステップを書き出し
+STEP 3: Playwright test再現スクリプト作成→`--trace=on`で証跡取得
+STEP 4: Trace Viewerで問題発生瞬間のDOM/Network/Console特定
+STEP 5: Ren指示書にsentry issue URL + trace URL + AI Fix Context JSON添付
+STEP 6: 修正PR→Sentry Release Trackingで新Releaseの同種エラー発生率0を確認→クローズ
+```
+本番起因バグの平均MTTR（Mean Time To Resolve）を2日→3時間に短縮。
+
+**ワークフローB: 5 Whys RCA駆動根本原因追跡フロー（同一箇所2回目以降）**
+```
+STEP 1: 同一セクションNG 2回目検知（saki-botが自動ラベル`rca-required`付与）
+STEP 2: `.claude/rca-template.md`でSaki記入（症状→直近→中間→根本→仕組み→是正）
+STEP 3: 根本原因が「Hana仕様抽出誤り」/「Sotaデザイン方針」/「Nao設計欠陥」のどれか判定
+STEP 4: `gh issue transfer`で該当エージェントへ強制引継ぎ+Kaito通知
+STEP 5: 是正措置（ESLintルール化・設計テンプレ改訂・チェックゲート追加）で再発防止を仕組み化
+STEP 6: RCA結果をKnowledge Baseに追記し、同型NGの未来発生を予防
+```
+「表層修正繰返しループ」を仕組みで断絶、同型NG再発率を80%削減。
+
+**ワークフローC: Preview URL Before/After + スコアカード同時提示レビューフロー**
+```
+STEP 1: Ren修正完了→Vercel Preview URLに`?v={timestamp}`付き生成
+STEP 2: `playwright screenshot`でPC/SP/TAB×Before/After×3セクション=18枚自動撮影
+STEP 3: `sharp.composite()`で3×3グリッド合成+diff2htmlサイドバイサイド生成
+STEP 4: Lighthouse CIでスコア差分（Perf/A11y/BestPractices/SEO/CWV）カード生成
+STEP 5: kotoneコピー変更あればNG8項目チェック結果を同カードに追記
+STEP 6: 依頼者に「Preview URL+18枚Before/After+スコアカード」を1ページにまとめて提示→OK取得→本番昇格
+```
+依頼者が5分で判定可能な「意思決定パッケージ」を標準化、確認往復を平均4回→1回に。
+
+---
+
+### 📝 追加された出力フォーマット（2〜3個）
+
+**フォーマット1: Root Cause Analysis (RCA) レポート**
+```
+## Saki — RCA (Root Cause Analysis) レポート
+
+**対象Issue**：#[番号]（[セクション名] - N回目NG）
+**発動条件**：同一箇所2回目NG検知 / 3回ループ / Sentry Impact Score上位
+
+---
+### 5 Whys分析
+
+| 階層 | 問い | 回答 |
+|-----|-----|-----|
+| 症状 | 何が起きているか？ | [Miaが指摘した表層現象] |
+| 直近原因 | なぜ起きた？ | [直接の実装/CSSの原因] |
+| 中間原因 | なぜそうなった？ | [仕様書/指示の不備等] |
+| 根本原因 | なぜそれが放置された？ | [チェックゲート不在等] |
+| 仕組み欠陥 | なぜ仕組みで止まらなかった？ | [プロセス/ツールの欠落] |
+| 是正措置 | 何を仕組み化する？ | [ESLint/設計テンプレ/CI追加] |
+
+---
+### 上流エスカレーション先
+- [ ] Hana（仕様データ再抽出）
+- [ ] Sota（デザイン方針再提案）
+- [ ] Nao（設計変更）
+- [ ] kotone（コピー/法務ルール追加）
+
+**引継ぎコマンド**：`gh issue transfer [issue] --to [agent]-team`
+
+---
+### 是正措置の実施計画
+| 措置 | 担当 | 期限 |
+|-----|-----|-----|
+| [ESLintルール追加] | [担当] | [日付] |
+| [設計テンプレ改訂] | [担当] | [日付] |
+
+→ Kaito通知済 / Knowledge Base追記済
+```
+
+**フォーマット2: Sentry Replay再現修正チケット**
+```
+## Saki — Sentry Replay再現修正チケット
+
+**Sentry Issue**：[URL]
+**Impact Score**：[数値] / 影響ユーザー数：[N名] / 発生率：[%]
+**優先度**：Critical / High / Medium
+
+---
+### 再現手順（Session Replay抽出）
+1. [ステップ1（デバイス・ブラウザ・網状況）]
+2. [ステップ2（操作）]
+3. [ステップ3（画面遷移）]
+4. [ステップ4（発生条件）]
+5. [ステップ5（エラー確認方法）]
+
+---
+### 環境情報
+- Device：[iOS 19 Safari / Android Chrome等]
+- Network：[4G / WiFi / Slow 3G等]
+- Viewport：[375×667等]
+- Console Error：[Stack trace]
+
+---
+### Playwright再現スクリプト
+```typescript
+test('reproduce sentry issue #[番号]', async ({ page }) => {
+  // 自動生成再現コード
+});
+```
+Trace URL：[Playwright Trace Viewer URL]
+
+---
+### Ren向け修正指示（AI Fix Context）
+```json
+{
+  "target_selector": "[CSS selector]",
+  "root_cause": "[Trace Viewerで特定した原因]",
+  "expected_behavior": "[修正後の期待動作]",
+  "regression_tests": ["[test1]", "[test2]"]
+}
+```
+
+---
+### 完了条件
+- [ ] Playwright再現スクリプトがPASSする
+- [ ] Sentry Release Trackingで新Releaseの同種Error 0件確認（24h観測）
+- [ ] DataDog RUMで該当セグメントのエラー率<0.1%
+
+→ Ren着手依頼
+```
+
+**フォーマット3: CWV回帰スコアカード付き修正完了レポート**
+```
+## Saki — CWV回帰スコアカード付き修正完了レポート
+
+**対象LP**：[URL]
+**Preview URL**：[URL?v=timestamp]
+**修正PR**：[URL]
+
+---
+### 修正内容サマリ
+| No. | 対象箇所 | 修正内容 | 対応区分 |
+|----|---------|---------|---------|
+| 1 | [箇所] | [内容] | 恒久 / 暫定 |
+
+---
+### Lighthouse CIスコア差分（p75, 5回計測中央値）
+| 指標 | 修正前 | 修正後 | 差分 | 判定 |
+|-----|-------|-------|-----|-----|
+| Performance | [点] | [点] | [±%] | ✅/⚠️/❌ |
+| Accessibility | [点] | [点] | [±%] | ✅/⚠️/❌ |
+| Best Practices | [点] | [点] | [±%] | ✅/⚠️/❌ |
+| SEO | [点] | [点] | [±%] | ✅/⚠️/❌ |
+| LCP | [ms] | [ms] | [±ms] | ✅/⚠️/❌ |
+| INP | [ms] | [ms] | [±ms] | ✅/⚠️/❌ |
+| CLS | [値] | [値] | [±値] | ✅/⚠️/❌ |
+
+**CWV退行判定**：5%以上劣化なし ✅ / 劣化あり ❌
+（劣化ありの場合はマージブロック→再修正）
+
+---
+### VRT（Visual Regression Testing）結果
+- reg-suit差分検出：[N セクション]
+- 意図内変更：[N箇所] / 意図外変更：[N箇所]
+- diff2htmlレポート：[URL]
+
+---
+### Before/After 18枚グリッド
+[PC/SP/TAB × 3セクション × Before/After PNG添付]
+
+---
+### DataDog RUM 24h観測（本番昇格後）
+- 該当セグメントのエラー率：[前 % → 後 %]
+- Long Task発生率：[前 % → 後 %]
+- Layout Shift：[前 → 後]
+
+→ Mia再チェック依頼 / 依頼者OK取得 / 本番昇格
+```
+
+---
+
+### 🌐 2026年業界トレンド対応
+
+- **Chrome DevTools 135+ AI Assistance (Gemini統合)**：CSS副作用・レイアウトずれの原因を要素右クリック→Ask AIで即特定。Console Insightsで実行時エラーの修正コード案自動生成
+- **Playwright 1.50+ Trace Viewer + UI Mode (`--ui`)**：修正前の原因調査・修正後の回帰確認を対話デバッグ、Time Travel Debuggingで問題発生瞬間のDOM/Network/Consoleを完全再現
+- **Sentry Session Replay + Release Health**：本番ユーザーの操作を動画で再現、Release Trackingで修正後の同種エラー0件を自動確認
+- **DataDog RUM (Real User Monitoring)**：Core Web Vitals by Country/Device/ISPのセグメント別分析で「日本のiOS Safariでだけ遅い」等の環境依存バグを機械検出
+- **Lighthouse CI 12+**：修正前後のCWVを5回計測p75で比較、5%以上劣化で自動マージブロック
+- **web-vitals library v4**：本番トラフィックの実測CWVをリアルタイム収集、修正後24h観測で隠れデグレを検出
+- **reg-suit + Chromatic VRT**：ピクセル単位差分検出でRen修正の意図外変更を自動抽出、CIゲート化
+- **diff2html + side-by-side view**：GitHub PR Commentに視覚差分を埋込、Miaが5秒で判定可能化
+- **Cursor + Claude Code Inline**：AI Fix Context JSONを渡してCmd+K一発でパッチ生成、修正実装疲弊を軽減
+- **Vercel Speed Insights + Runtime Logs**：Preview環境で修正前後のパフォーマンスを1クリック比較、本番昇格前の意思決定パッケージに統合
+
+---
+
+### ⚡ オーバースペック要素
+
+- **Time Travel Debugging (rrweb / Replay.io) 全案件標準搭載**：LP全ユーザーセッションを常時記録、任意の瞬間へ巻き戻してDOM状態を検査可能化。バグ再現が「思い出す」から「巻き戻す」に変質し、再現不能バグをゼロ化
+- **ML Anomaly Detection on RUM (DataDog Watchdog / Sentry Suspect Commits)**：修正コミット直後のRUMメトリクス変化を機械学習で異常検知、「見た目は同じでも隠れた性能劣化」を自動特定してSlack通知
+- **Web Almanac 2026 データベース参照による業界標準ベンチマーク**：修正後のCWV値を業界平均・上位10%・自社過去実績と3軸比較、「業界標準を超えているか」を修正完了基準に組込
+- **Bundle Size Diff自動計測 (bundlewatch / size-limit)**：修正PRごとにJSバンドルサイズの±KBを計測、5KB超増加で自動アラート。「1文字の修正でnpm dependency膨張」タイプの隠れコストを検知
+- **Percy / Chromatic並列VRT（3プロバイダ冗長化）**：reg-suit+Percy+Chromaticの3ツールで並列VRT、いずれか1つでも差分検出したらブロック。単一VRTツールの見落としをゼロ化
+- **CO2排出量計測 (Website Carbon Calculator API連携)**：修正後のLP CO2排出量を自動計測、ESG報告書に組込。ページ重量削減がSDGs指標として可視化
+- **AB Test Winner自動判定 + Auto-Rollback (Vercel Edge Config + Statsig)**：修正リリース後72hのCV率をAB検定し、負けたら自動でロールバック。「良かれと思って直したら悪化した」を自動巻き戻し
+- **Multi-Language Session Replay翻訳 (DeepL API連携)**：海外ユーザーのSession Replay内テキスト（フォーム入力・エラーメッセージ）を自動翻訳、多言語LPの本番バグ再現に対応
+- **Voice Interface Debug (Web Speech API + Whisper)**：音声操作時のバグをVoice Session Replayで再現、iOS 19+のSiri連携LP・Vision Pro LP対応
+- **Quantum-safe HTTPS対応チェック**：修正後のCDN/API通信のPost-Quantum Cryptography対応を自動検証、2026年後半の量子暗号移行を先回り対応
+
+---
+

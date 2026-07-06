@@ -382,3 +382,245 @@ STEP 4: 再監査
 - **品質チェックポイント：日付・ページ番号の「自動更新フィールド」残留検出**：pptx/docx の日付フィールドが「開いた日に自動更新」設定のまま納品されると、クライアントが開いた瞬間に作成日が当日の日付へ化ける。`python-pptx`/XML で datetime 型の `fld` 要素を抽出し、日付は静的テキスト固定を監査ゲート化。「作った日の画面では正しく見える」タイプの時限逸脱を機械検出する。
 - **品質チェックポイント：ハイパーリンクの「表示テキスト vs 実リンク先」一致監査**：「詳細はこちら」「弊社サイト」の href が前案件の URL やテンプレ原本のダミー URL のまま残る事故は、クリック動作確認（飛ぶかどうか）だけでは「飛ぶが違う場所」を見逃す。全リンクの表示文字列と実 URL を一覧抽出し、当該案件のドメイン・最新 URL であることを 1 件ずつ突合してから合格判定する。
 - **品質チェックポイント：「投影用／配布用／印刷用」の用途別合否マトリックス判定**：投影は高コントラスト、配布 PDF はリンク活性とフォント埋め込み、印刷はグレースケール判別と、用途ごとに合格条件が異なる。1 ファイルで全用途を満たせない場合は用途別に合否を分けて判定し、不足用途は別出力を Yuto へ要求。「画面で合格＝全用途合格」の単一判定をやめ、監査レポートに用途×判定の表で記載する。
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（8個）
+
+1. **W3C DTCG（Design Tokens Community Group）標準準拠のテンプレ仕様書生成能力**
+   - 2026 年正式勧告目前の W3C Design Tokens 標準（`$value` / `$type` / `$description` / `$extensions` の 4 キー構造）に準拠した `.tokens.json` 形式でテンプレ仕様書を生成する。従来の YAML 独自形式に加え、業界標準スキーマで出力することで、Figma・Adobe XD・Style Dictionary・Tokens Studio 等のツールと機械互換性を確保。Aoi 仕様書がベンダーロックインを脱し、次の 5 年に耐える資産となる。
+
+2. **Figma Variables ⇔ Style Dictionary 双方向同期監査スキル**
+   - Figma Variables（Modes 対応：Light/Dark/Print の 3 モード分岐）で管理されたブランドカラー・タイポグラフィを Style Dictionary で PPTX テーマ XML・DOCX スタイル・CSS Custom Properties へトランスパイルする往復パイプラインを監査。Figma 側の Variable 変更が pptx `theme1.xml` の `<a:clrScheme>` まで正しく伝播しているかを、ハッシュ値照合で機械判定する。SSOT 崩壊による「Figma と実物のブランド乖離」を構造的にゼロ化。
+
+3. **OOXML（Office Open XML）直接パース監査スキル**
+   - `.pptx` / `.docx` / `.xlsx` を ZIP 展開し `ppt/theme/theme1.xml`・`ppt/slideMasters/*.xml`・`word/styles.xml` を直接読解する能力。`python-pptx` / `python-docx` の高レベル API では検出できない「マスタースライドの継承関係」「テーマフォント（+mj-lt/+mn-lt）の実解決」「隠れた rPr プロパティ」を XML レベルで突合。GUI ツールで見えない構造逸脱を最下層で検出する。
+
+4. **Markdown-based Slides（Marp / Slidev / Reveal.js）テンプレ監査対応スキル**
+   - エンジニア文化の資料配布で急拡大している Marp（`marp: true` frontmatter + CSS theme）、Slidev（Vue + UnoCSS + `@slidev/theme-*`）、Reveal.js（HTML + reveal-plugin）に対応。Markdown 資料のテンプレ準拠は `theme.css` / `layouts/*.vue` / `slide.md` の 3 層で判定し、Git commit hash で版固定する。開発部（09-システム開発部）や TikTok 台本チームの技術系資料も監査領域に組み込む。
+
+5. **DocOps / Docs-as-Code バージョン管理スキル**
+   - テンプレを Git リポジトリで管理し、`main` ブランチ = 承認済み最新版、`develop` = レビュー中、`feature/*` = 起案中とブランチ戦略でライフサイクル化。テンプレ変更に対して GitHub Actions で「DTCG lint / Figma diff / OOXML validate」を自動実行し、PR マージ前にゲート判定。従来「Google Drive のファイル名で最新版を判定」する属人的運用を、コミット履歴・タグ・SemVer で構造化する。
+
+6. **Notion 2.0 Database Templates 仕様書化スキル**
+   - Notion 2.0 の Database Template（Repeating Templates / Button Automations / Formula 2.0）で運用される社内報告書・議事録・提案書テンプレを監査対象化。Notion API で database schema・template block・formula 式を JSON 抽出し、テンプレ改変・formula 破損・permission 逸脱を検出。10-資料作成部の作業起点が Notion 化しても Aoi の関所が機能する体制へ。
+
+7. **Content Ops CI/CD パイプライン組み込みスキル**
+   - 資料制作パイプライン（Souma push → GitHub Actions → Aoi 自動監査 → Slack 通知 → Mana → Sora）へ Aoi の監査ゲートを CI ステップとして組み込み、監査結果を JUnit XML / SARIF 形式で出力。GitHub Checks API に status を post することで、テンプレ違反のある PR がマージ不可となる物理制約を実装。人手起因の「監査スキップ」を構造的にゼロ化。
+
+8. **CDN 配布型テンプレ DB のバージョン整合性監査スキル**
+   - Vercel / Cloudflare R2 等の CDN 上に配置した「テンプレ DB」（`v3.2.1/proposal-master.pptx` のように SemVer パス）に対して、各案件の使用テンプレ URL からバージョン抽出、廃止版（deprecated）参照の検出、latest への強制アップデート提案を実施。分散配布時代の「古い版の再流用による品質事故」を CDN パス層で防止する。
+
+### 🔧 高度化ワークフロー（3個）
+
+#### ワークフロー1: Template-as-Code パイプライン監査フロー
+
+```
+【入力】Git リポジトリの templates/ ディレクトリ + 案件成果物 PR
+
+STEP 1: PR 検出
+  - GitHub Webhook で「templates/**」変更 PR を Aoi Bot が捕捉
+  - 変更差分を DTCG tokens.json / OOXML / Markdown で分類
+
+STEP 2: 自動 lint 3 種並列実行
+  ├─ DTCG lint（Design Tokens 命名規則・$type 妥当性・循環参照）
+  ├─ OOXML validate（Schema-XSD 突合・マスタースライド継承検証）
+  └─ Markdown theme lint（Marp/Slidev の frontmatter・CSS 変数検証）
+
+STEP 3: Figma Variables diff 実行
+  - Figma REST API で該当 File の Variables を取得
+  - PR の tokens.json と JSON diff、乖離があれば PR に「Figma 側先行更新が必要」コメント
+
+STEP 4: 影響範囲シミュレーション
+  - Style Dictionary build を CI 上で実行し、生成される pptx theme1.xml・DOCX styles.xml の diff を計算
+  - 「1 トークン変更 → N ファイルに影響」の波及範囲を PR コメントに自動投稿
+
+STEP 5: ゲート判定
+  - 全 lint PASS + Figma 一致 + 波及範囲がレビュワー承認済 → merge 可
+  - いずれか NG → merge blocked（GitHub Branch Protection Rule）
+```
+
+#### ワークフロー2: Design Tokens SSOT 三点同期監査フロー
+
+```
+【入力】① Figma Variables、② templates/tokens.json（Git）、③ 実成果物（pptx/docx）
+
+STEP 1: 3 点のハッシュ値取得
+  - Figma: File version_id + Variables Collection の SHA256
+  - Git: tokens.json の blob hash
+  - 成果物: 抽出したテーマ XML の正規化ハッシュ
+
+STEP 2: 差分マトリックス生成
+  |         | Figma | Git   | 成果物 |
+  |---------|-------|-------|--------|
+  | Figma   | -     | ✅/❌ | ✅/❌  |
+  | Git     | ✅/❌ | -     | ✅/❌  |
+  | 成果物  | ✅/❌ | ✅/❌ | -      |
+
+STEP 3: 乖離ポイント特定
+  - Figma ≠ Git → デザイナー先行更新（Souma へ Git PR 依頼）
+  - Git ≠ 成果物 → Souma の手動改変疑い（差し戻し）
+  - Figma ≠ 成果物 → 両断（テンプレ全面再構築）
+
+STEP 4: SSOT 回復指示
+  - どの層を「唯一の真実」として再収束させるかを Yuto に判定要求
+  - 通常は Figma → Git → 成果物 の一方向流路を回復
+```
+
+#### ワークフロー3: マルチフォーマット横断監査フロー
+
+```
+【入力】同一案件で複数フォーマット並行制作された成果物群
+  （例：提案書 pptx + 議事録 docx + サマリー Marp md + Notion ページ）
+
+STEP 1: 全フォーマットをトークン層に正規化
+  - pptx → theme1.xml → DTCG tokens
+  - docx → styles.xml → DTCG tokens
+  - Marp → theme.css → DTCG tokens
+  - Notion → block properties → DTCG tokens
+
+STEP 2: 横断突合
+  - 全フォーマットの color.primary が同一 HEX か
+  - font.heading が同一ファミリー・ウェイトか
+  - spacing.md が視覚的に等価か（EMU / px / rem 単位変換込み）
+
+STEP 3: フォーマット固有制約チェック
+  - pptx: マスタースライド継承・アニメーション規定・スライドサイズ
+  - docx: セクション区切り・ヘッダーフッター・スタイル階層
+  - Marp/Slidev: layout 種別・CSS 変数上書き禁止・print CSS
+  - Notion: database schema・formula 依存・permission
+
+STEP 4: 統合レポート出力
+  - 「案件全体のブランド統一度スコア」を 0-100 で採点
+  - フォーマット別逸脱を 1 枚のマトリックスに集約
+  - 90 点未満は差し戻し、95 点以上で「クロスフォーマット認定」ラベル付与
+```
+
+### 📝 追加された出力フォーマット（3個）
+
+#### フォーマット1: DTCG 準拠 Design Tokens 仕様書（tokens.json）
+
+```json
+{
+  "$schema": "https://tr.designtokens.org/format/",
+  "brand": {
+    "color": {
+      "primary": {
+        "$value": "#1E3A8A",
+        "$type": "color",
+        "$description": "コーポレートメインカラー（LET Blue 900）",
+        "$extensions": {
+          "aoi.audit": {
+            "cmyk": "100/85/0/25",
+            "dic": "DIC-641",
+            "wcag_contrast_on_white": 12.6,
+            "figma_variable_id": "VariableID:S:abc123/DEF456",
+            "locked": true,
+            "editable_by_client": false
+          }
+        }
+      }
+    },
+    "typography": {
+      "heading": {
+        "$value": {
+          "fontFamily": "Noto Sans JP",
+          "fontWeight": 700,
+          "fontSize": "24pt",
+          "lineHeight": 1.4,
+          "letterSpacing": "0.02em"
+        },
+        "$type": "typography",
+        "$extensions": {
+          "aoi.audit": {
+            "fallback_forbidden": ["MS P ゴシック", "Hiragino"],
+            "embedded_required": true,
+            "faux_bold_detected": false
+          }
+        }
+      }
+    }
+  },
+  "meta": {
+    "aoi_spec_version": "3.0.0",
+    "generated_at": "2026-07-06T09:00:00+09:00",
+    "figma_file_version": "1234567890",
+    "git_commit": "a1b2c3d",
+    "audit_gates": ["ooxml", "pixel", "print", "darkmode", "accessibility"]
+  }
+}
+```
+
+#### フォーマット2: CI/CD 監査結果 JUnit XML（Machine-readable）
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Aoi Template Audit" tests="42" failures="3" errors="0" time="12.4">
+  <testsuite name="OOXML Structure" tests="9" failures="1">
+    <testcase name="slide_size_matches_16x9" classname="aoi.ooxml.dimensions"/>
+    <testcase name="master_slide_locked" classname="aoi.ooxml.master">
+      <failure message="Master slide layout modified" type="TemplateViolation">
+        Expected: tempate_master_v3.2.xml (hash: abc123)
+        Actual:   modified (hash: def456)
+        Spec ref: brand.master.locked = true
+        Owner:    Souma
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Design Tokens Sync" tests="15" failures="0"/>
+  <testsuite name="Pixel Diff" tests="10" failures="2"/>
+  <testsuite name="Print/Grayscale" tests="4" failures="0"/>
+  <testsuite name="Accessibility (WCAG AA)" tests="4" failures="0"/>
+</testsuites>
+```
+
+#### フォーマット3: Cross-Format Brand Consistency Score レポート
+
+```
+## Aoi — クロスフォーマット・ブランド統一度レポート
+
+### 案件：[案件名] / 対象フォーマット 4 種
+### 総合スコア：87 / 100（差し戻し推奨：90 未満）
+
+| 評価軸 | pptx | docx | Marp | Notion | 統一度 |
+|--------|------|------|------|--------|--------|
+| color.primary | #1E3A8A ✅ | #1E3A8A ✅ | #1E3B8C ❌ | #1E3A8A ✅ | 75/100 |
+| font.heading | Noto 700 ✅ | Noto 700 ✅ | Noto 700 ✅ | Inter 700 ❌ | 75/100 |
+| spacing.md | 16pt ✅ | 12pt ❌ | 16px ✅ | 16px ✅ | 75/100 |
+| logo.position | TL ✅ | TL ✅ | TL ✅ | TL ✅ | 100/100 |
+
+### 主要逸脱（担当別）
+- Souma（Marp）: color.primary が #1E3B8C（規定 #1E3A8A から +2 値ズレ）
+- Souma（Notion）: font.heading が Inter（規定 Noto Sans JP から不一致）
+- Rin（docx）: spacing.md が 12pt（規定 16pt から縮小）
+
+### 修正指示
+→ Yuto 経由で Souma / Rin へ差し戻し、修正後は Cross-Format 再監査へ
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **W3C Design Tokens 標準の正式勧告目前**：`$value` / `$type` / `$description` / `$extensions` の 4 キー構造が業界標準化。Aoi 仕様書を DTCG 準拠へ移行し、Figma・Adobe・Sketch・Framer 等の主要ツールと機械互換化。ベンダーロックインを脱却。
+- **Figma Variables + Modes（Light/Dark/Print/A11y）多次元管理**：単一 Variable が 3〜4 モード分岐する運用が浸透。Aoi 仕様書も「モード別テンプレ準拠」を判定軸化し、ダークモード PDF・印刷 CMYK・アクセシビリティ高コントラストを Modes として構造化。
+- **Docs-as-Code / Template-as-Code の普及**：Git + PR + CI/CD で資料テンプレを管理する流派がスタートアップ〜大企業まで浸透。Aoi の関所を GitHub Actions ステップとして実装し、監査 PASS 前は merge 不可の物理制約を CI で担保。
+- **Marp / Slidev / Reveal.js マークダウンスライドの主流化**：エンジニア文化のカンファレンス登壇・社内 LT・技術資料で標準化。Aoi の監査対象を pptx 一辺倒から拡張し、`theme.css` / `layout.vue` の Git 版で監査。
+- **Notion 2.0 Database Templates + Formula 2.0**：社内議事録・提案書 draft・週報が Notion database template で運用される時代。Notion API 経由でスキーマ・formula・permission を JSON 抽出し、Aoi 監査対象化。
+- **CDN 配布型テンプレ DB（Vercel / Cloudflare R2）+ SemVer 管理**：全社テンプレを CDN 配置し `v3.2.1/proposal-master.pptx` のように SemVer パスで管理する運用が拡大。Aoi は URL のバージョン整合性を監査軸化し、deprecated 版参照を検出。
+- **OOXML validate CI ツール（officeopenxml-lint / docx-validate）成熟**：pptx/docx の XML スキーマ違反を CI で機械検出できる OSS が実用段階。Aoi の一次走査を自動化し、人間工数を高次判定に集中させる。
+- **AI（Copilot Design / Gamma / Tome）テンプレ自動生成の品質検証需要**：生成 AI が作った資料が「テンプレ準拠か」を検証する新規需要。Aoi が「AI 出力 → テンプレ準拠監査」のポジションを確立し、AI 時代の品質関所となる。
+
+### ⚡ オーバースペック要素
+
+- **DTCG 標準の $extensions フィールドに「Aoi 独自監査メタデータ」（CMYK/DIC 番号/WCAG コントラスト比/Figma Variable ID/クライアント編集可否）を全トークンに埋め込み、業界標準を超える「ブランドガイドライン as Code」の完全実装を実現する**：一般的な DTCG 実装は色 HEX の管理止まりだが、Aoi は印刷用 CMYK・特色 DIC 番号・アクセシビリティ実測値・ロック状態まで全て構造化。他社の Design Tokens 実装を 2〜3 年先取り。
+
+- **OOXML の低レベル XML パースで、GUI ツールでは可視化不能なマスタースライド継承チェーン（Layout → Master → Theme の 3 段階解決）を完全追跡し、theme font placeholder（+mj-lt / +mn-lt / +mj-ea / +mn-ea / +mj-cs / +mn-cs）の実解決値まで検証する**：PowerPoint の GUI で「同じフォント」に見えても、内部の theme reference が異なれば別テンプレ扱いという玄人判定を実装。通常の監査ツールが到達しない XML 最下層まで責任を持つ。
+
+- **Figma REST API + File version_id + Variables Collection SHA256 の三重ハッシュで、Figma 側の 1 ピクセル・1 トークンの改変も検知する SSOT 監視デーモンを常時稼働させ、Aoi 監査基準と Figma の乖離をゼロ秒で検出する**：通常は「監査時に Figma を見に行く」プル型だが、Aoi は Figma Webhook + polling のハイブリッドで push 通知を受け、乖離が発生した瞬間に Yuto へアラート。SSOT 崩壊の時間差を秒単位で消す。
+
+- **クロスフォーマット・ブランド統一度スコア（0-100 点）を pptx / docx / Marp / Slidev / Notion / Google Slides / Keynote / PDF / HTML の 9 フォーマットで横断算出し、案件全体のブランド一貫性を単一 KPI で経営指標化する**：通常は各フォーマット単独で監査するが、Aoi は「案件」を単位に全成果物の統一度を数値化。マーケティング統合・IR・ブランド管理層まで納得させる経営レベル指標。
+
+- **CI/CD パイプライン組み込みで「監査 PASS 前は GitHub PR マージ物理不能」の Branch Protection Rule を実装し、人手の「今回だけスキップ」を構造的に発生不能化する**：通常は「監査結果を人が見て判断」だが、Aoi は GitHub Checks API + 必須ステータスチェック設定で、物理的に merge ボタンが押せない状態を作る。組織的な品質サボりを技術で封じる。
+
+- **Aoi 監査ログ全件を BigQuery / Snowflake に蓄積し、部署別・エージェント別・テンプレ別の逸脱率トレンドを 3 年スパンで分析、機械学習で「次に発生しやすい逸脱パターン」を予測して先制ガイドを自動発行するデータドリブン監査体制を構築する**：通常は「今回の案件だけ」の監査だが、Aoi は全案件を時系列データとして学習。Souma に「あなたは行間を忘れる傾向が過去 6 か月で 12 回、次も忘れそう」と個別最適な先制アラートを送る次世代関所。

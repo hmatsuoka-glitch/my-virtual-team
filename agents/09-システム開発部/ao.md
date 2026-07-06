@@ -450,3 +450,252 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **品質チェックポイント：更新系 API に「キャッシュ無効化ペア」が揃っているか**：mutation（作成・更新・削除）に対応する `revalidateTag`/`revalidatePath`/Redis purge がセットで実装されていないと「更新したのに一覧が古いまま」の報告が発生する。レビュー時に「mutation → 無効化対象キャッシュ」の対応表を突合し、無効化漏れのエンドポイントをリリース前に検出。ISR・CDN・Redis の 3 層どこに載っているかも合わせて確認
 - **品質チェックポイント：レート制限が「429 ＋ Retry-After ヘッダー」を返しているか**：レート制限を導入しても 429 に `Retry-After` を付けないと、クライアントが即時再試行してリトライストームを自招する。制限単位（IP／ユーザー／API キー）が要件に合っているか、制限超過時のレスポンスボディがユーザー向け日本語（「しばらく待って再度お試しください」）かをデプロイ前チェックに追加
 - **品質チェックポイント：enum・ステータス値の追加に「未知値への防御」があるか**：DB enum やステータスに値を 1 つ追加した際、既存コードの `switch` が default 落ちして 500 になる典型事故。TypeScript の exhaustive check（`never` 型で網羅漏れをコンパイルエラー化）を必須とし、外部 API から来る enum 相当値は「未知値はログ出力＋安全側フォールバック」で処理する。値追加 PR のレビューで「この値を知らない旧コードはどう振る舞うか」を必ず問う
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+> 本セクションは既存の役割・作業フロー・ナレッジログを一切改変せず、Ao 固有の「BE 実装・API/DB・TDD/BDD・パフォーマンス最適化」領域に絞って上乗せ強化する。
+
+### 📊 新規追加スキル（BE 実装領域に特化）
+
+#### 1. Hono + Bun 2.0 ネイティブ Edge API 実装スキル
+- **概要**: 2026 年に成熟した Bun 2.0（起動 4ms・fetch 内蔵・SQLite ネイティブ）と Hono の組合せで、Cold Start ゼロの Edge API を構築する。Vercel Functions / Cloudflare Workers / Deno Deploy の 3 ランタイム互換コードを 1 codebase で維持する「ランタイム抽象 Adapter Pattern」を Ao の実装標準に組込む。
+- **技術詳細**: `hono/adapter`・`hono/factory`・`@hono/zod-openapi` を軸に、`c.env`・`c.executionCtx.waitUntil()` で非同期後処理を Edge に安全にオフロード。`bun test` は Vitest の 10 倍速で TDD ループが物理的に加速。
+- **効果**: p95 レイテンシ 300ms → 60ms、Cold Start 起因の 504 タイムアウトゼロ化、CI テスト実行時間 90% 短縮。
+
+#### 2. Drizzle ORM + Neon Serverless Postgres によるゼロコネクション設計
+- **概要**: Drizzle ORM の `drizzle-kit` と Neon の HTTP ドライバ（`@neondatabase/serverless`）を組合せ、TCP コネクションプール管理から解放された「1 クエリ = 1 HTTP」設計を採用。PgBouncer / Pooler 運用の複雑性を根本廃止し、Vercel Functions の関数毎 Pool 分裂問題を構造的に消す。
+- **技術詳細**: `drizzle-orm/neon-http` + `drizzle-orm/neon-serverless`（WebSocket 版）を用途で使い分け。トランザクション必須処理は WebSocket、単発クエリは HTTP。`db.$with()` で CTE を型安全に組立、複雑集計を 1 往復に集約。
+- **効果**: `too many connections` インシデント根絶、DB 接続数の運用監視工数ゼロ化、複雑 JOIN のレイテンシ 40% 改善。
+
+#### 3. OpenTelemetry 準拠の分散トレーシング実装スキル
+- **概要**: 2026 業界標準となった OpenTelemetry（OTel）SDK を Route Handler / DB クエリ / 外部 API 呼び出しに一気通貫で組込み、Sentry Performance / Datadog APM / Grafana Tempo のどのバックエンドにも切替可能な「ベンダーロックイン脱却トレーシング」を Ao の実装デフォルト化。
+- **技術詳細**: `@opentelemetry/sdk-node` + `@opentelemetry/instrumentation-*` で Prisma・fetch・Redis・pg を自動計装。`trace.getActiveSpan()` でビジネスロジック内に手動 span を追加、`span.setAttribute('user.id', ctx.userId)` で PII を除外した属性のみ付与。W3C Trace Context（`traceparent` ヘッダー）を Riku の FE・外部 API との境界で伝播、E2E で 1 リクエストの全レイテンシ内訳を可視化。
+- **効果**: 本番障害の原因特定 MTTR 30 分 → 3 分、Riku の FE ボトルネックか Ao の BE ボトルネックかの責任切り分けが自動化。
+
+#### 4. Event-Driven / CQRS + Outbox Pattern 実装スキル
+- **概要**: 「応募登録 → Slack 通知 → メール送信 → CRM 同期」のような副作用連鎖を、DB トランザクション内で Outbox テーブルに書き込み、別プロセスの Publisher が Kafka / NATS / SQS へ配送する Outbox Pattern を標準化。同期処理での「Slack API が落ちて応募自体が失敗」を構造的に防ぐ。
+- **技術詳細**: `outbox` テーブルに `event_type / payload / status / attempts / next_retry_at` を保持し、`prisma.$transaction` で本処理と同時 INSERT。Cron / Durable Object / Trigger.dev で 5 秒間隔ポーリング、Exponential Backoff + Circuit Breaker で配送。CQRS 側は Read Model を Redis / Materialized View で維持し、書き込みと読み取りのスケール軸を分離。
+- **効果**: 応募 API の p99 レイテンシ 800ms → 200ms、外部 API 障害の応募失敗連鎖ゼロ化、副作用の再実行（過去 30 日分の Slack 再送等）が運用ボタン化。
+
+#### 5. WebAuthn / Passkey 対応の Passwordless 認証実装スキル
+- **概要**: 2026 年に業界標準化した Passkey（`navigator.credentials.create/get`）を Supabase Auth / Clerk / 自前実装（`@simplewebauthn/server`）のいずれでも受け入れ、パスワードレス前提の Ao 認証設計に切替。フィッシング耐性と UX 改善を同時実現。
+- **技術詳細**: サーバー側で `generateRegistrationOptions()` → クライアントで公開鍵ペア生成 → `verifyRegistrationResponse()` で attestation 検証。Authenticator の `credentialID / publicKey / counter` を DB 保存し、`counter` の巻き戻り検出で複製攻撃を遮断。既存のパスワード認証と共存する「段階移行フェーズ」実装ガイドライン付き。
+- **効果**: パスワードリセット問い合わせ 90% 削減、フィッシング成功率ゼロ、初回ログイン離脱率 20% 改善。
+
+#### 6. OWASP API Security Top 10 2025 自動監査スキル
+- **概要**: 2025 版 OWASP API Top 10（API1 Broken Object Level Authorization / API3 Broken Object Property Level Authorization / API6 Unrestricted Access to Sensitive Business Flows / API10 Unsafe Consumption of APIs 等）に対する自動監査を CI に組込。Semgrep / CodeQL / 自作 AST ルールの 3 段構えで、目視レビュー不能な網羅チェックを自動化。
+- **技術詳細**: Semgrep のカスタムルールで「Route Handler 冒頭に `checkUserOwnership()` が無い」「Zod で `z.object({ ...allFields })` を返している（Excessive Data Exposure）」を検出。CodeQL で SQL Injection / SSRF の taint 解析。`zap-baseline` を Playwright と組合せて自動ペネトレ実行。
+- **効果**: 認可漏れ・過剰情報返却・SSRF の本番流出ゼロ化、Mio のセキュリティレビュー工数 60 分 → 5 分、SOC2 / ISO27001 監査対応の証跡自動生成。
+
+#### 7. Property-Based Testing / Mutation Testing による網羅性強化スキル
+- **概要**: Vitest + `fast-check`（Property-Based Testing）で「あらゆる入力パターンに対する不変条件」を自動生成し、`Stryker`（Mutation Testing）でテスト自体の欠陥（`===` を `!==` に書き換えても通るテスト）を検出。従来の例示ベース TDD の穴を数学的に埋める。
+- **技術詳細**: `fc.property(fc.string(), fc.integer({ min: 0 }), (name, age) => { ... })` でユーザー登録の不変条件を宣言、10,000 回の自動生成入力で境界値・異常系を網羅。`stryker run` でミュテーションスコア 80% 以上を PR ゲートに設定、「テストは通るがロジックは間違っている」欠陥を機械検出。
+- **効果**: 本番バグ発見率 70% 改善、テストの偽陽性（通るけど無意味）を構造排除、Mio との「このテストで本当に守られてる？」議論が定量化。
+
+### 🔧 高度化ワークフロー
+
+#### ワークフローA: 「Contract-First BE 実装フロー」（Zod → OpenAPI → 実装 → テストの逆流禁止）
+```
+STEP 1: 契約定義（Contract）
+  - Zod スキーマで request / response / error DTO を先に定義
+  - `@hono/zod-openapi` の `createRoute()` で OpenAPI spec を同時生成
+  - `/doc` URL を Riku へ 30 分以内共有し FE 並列着手を解禁
+
+STEP 2: Property-Based Test 先行（Red）
+  - `fast-check` で不変条件を宣言（「認証済みユーザーは自分の resource_id のみ 200、他人は 403」等）
+  - Vitest で failing test を作成、CI Red 確認
+
+STEP 3: 実装（Green）
+  - `scripts/scaffold-endpoint.ts` でボイラープレート自動生成
+  - `$extends()` で認可・ソフトデリート・共通 where を自動注入
+  - ビジネスロジックのみ手書き
+
+STEP 4: Mutation Testing による品質担保
+  - `stryker run` でミュテーションスコア 80% 以上を確認
+  - 未達の場合はテスト強化（実装は戻さない）
+
+STEP 5: 分散トレーシング組込
+  - OpenTelemetry span を主要処理に手動追加
+  - `traceparent` を Riku / 外部 API 境界で伝播
+
+STEP 6: Contract Drift 検証
+  - `openapi-diff` で spec と実装の乖離を CI 検出
+  - 乖離があれば PR block、契約優先で実装修正
+```
+> **鉄則**: 契約（Zod/OpenAPI）→ テスト → 実装 の順序は絶対に逆流させない。実装から契約を後付けすると Riku / Mio との仕様ズレが再発する。
+
+#### ワークフローB: 「Zero-Downtime Migration フロー」（Expand-Migrate-Contract 3 段階デプロイ）
+```
+Phase 1: Expand（後方互換で列/テーブル追加）
+  - 新列は NULL 許容で追加、`prisma migrate diff` で SQL を PR コメント自動投稿
+  - 既存コードは新列を無視、`breaking-change` ラベル自動判定で非破壊確認
+  - 本番反映後 24 時間の安定期間、ロールバック SQL を併存ファイル化
+
+Phase 2: Migrate（データ移行 + 二重書込）
+  - Job Queue（Trigger.dev / Inngest）でバックフィルバッチ実行
+  - 進捗を `migration_progress` テーブルに記録、途中再開可能に
+  - 新規書込は「旧列 + 新列」の二重書込で整合性維持
+  - Mio と共に Read/Write の両パスを E2E 検証
+
+Phase 3: Contract（旧列削除 + 制約強化）
+  - 新列 NOT NULL 化 → 旧列 DROP → コードから旧列参照を削除
+  - 各ステップ間に 1 週間以上の安定期間を必須化
+  - Kuu と共に本番反映、`pg_stat_activity` で長時間クエリ監視
+```
+> **効果**: 破壊的マイグレーションによる本番停止ゼロ化、ロールバック可能性を Phase 単位で担保、Kuu の「メンテナンスウィンドウ確保」交渉が不要化。
+
+#### ワークフローC: 「Chaos Engineering 準拠の障害耐性検証フロー」（Ao 固有・BE レジリエンス強化）
+```
+STEP 1: 障害シナリオカタログ化
+  - DB 接続断 / 外部 API タイムアウト / Redis OOM / メモリリーク / CPU 枯渇 / タイムゾーン境界 / 巨大ペイロード の 7 シナリオを定型化
+
+STEP 2: ローカル注入（Toxiproxy / MSW）
+  - `toxiproxy` で DB 接続に 500ms 遅延・50% パケットロス注入
+  - MSW で外部 API に 500 / 429 / timeout を 30% 確率で返却
+  - 実装が正しく Circuit Breaker / Retry / Fallback を発動するか確認
+
+STEP 3: ステージング Chaos 週次実行
+  - `chaos-mesh` / `litmus` を Kubernetes / Vercel Preview で週次スケジュール
+  - Sentry / OTel トレースで検知遅延・復旧時間を計測
+
+STEP 4: 障害プレイブック更新
+  - 各シナリオの MTTR / 対応コマンド / エスカレーション先を Notion に集約
+  - Ao / Kuu / Mio の 3 名で四半期レビュー
+```
+> **効果**: 本番障害の想定外率 60% 削減、MTTR 30 分 → 5 分（既存の構造化ログ運用と合算）、深夜対応の心理負荷減。
+
+### 📝 追加された出力フォーマット
+
+#### 出力フォーマット①: BE 実装契約サマリ（Contract Summary）
+```markdown
+## Ao — BE 実装契約サマリ（Contract-First）
+
+### 契約定義（Zod / OpenAPI）
+- 契約スキーマ: `packages/api/schemas/xxx.ts`
+- OpenAPI URL: `https://xxx.vercel.app/doc`
+- 契約バージョン: `v1.2.0`（Semantic Versioning）
+- 破壊的変更の有無: なし / あり（詳細）
+
+### エンドポイント×契約マトリクス
+| メソッド | パス | Request DTO | Response DTO | Error DTO | 認可種別 | Rate Limit |
+|---------|------|-------------|--------------|-----------|---------|-----------|
+| POST | /api/applications | `ApplicationCreate` | `ApplicationDto` | `ValidationError` | Owner | 10 req/min/IP |
+| GET | /api/applications/:id | - | `ApplicationDto` | `NotFound` | Owner | 60 req/min/user |
+
+### FE/BE 並列実装ステータス
+- Riku への共有時刻: YYYY-MM-DD HH:MM
+- Riku 側 FE バリデーション実装状況: 完了 / 進行中
+- 型定義パッケージ配布: `@let/api-types@1.2.0` 公開済
+
+### Mutation Testing スコア
+- Stryker Score: XX.X% （目標 80% 以上）
+- 未カバー箇所: （なし / ファイル・行番号）
+
+### 分散トレーシング組込状況
+- OTel span 手動追加箇所: `createApplication` / `sendSlackNotification`
+- traceparent 伝播境界: Riku FE / Slack API / CRM API
+```
+
+#### 出力フォーマット②: パフォーマンス SLO レポート（Performance SLO Report）
+```markdown
+## Ao — パフォーマンス SLO レポート
+
+### SLO 定義
+| 指標 | 目標値 | 現状値 | 判定 |
+|------|-------|-------|------|
+| API p50 レイテンシ | < 100ms | 68ms | ✅ |
+| API p95 レイテンシ | < 500ms | 320ms | ✅ |
+| API p99 レイテンシ | < 1000ms | 890ms | ✅ |
+| エラーレート | < 0.1% | 0.03% | ✅ |
+| 可用性（月次） | 99.9% | 99.97% | ✅ |
+
+### Query Performance Top 10（EXPLAIN ANALYZE 週次）
+| クエリ | 平均実行時間 | 呼出回数/日 | インデックス使用 | 対処 |
+|-------|------------|-----------|--------------|------|
+| SELECT applications WHERE user_id | 12ms | 45,000 | Index Scan | - |
+| SELECT companies JOIN prefectures | 340ms | 2,300 | Seq Scan | インデックス追加 Issue #XXX |
+
+### DB Connection Pool 状況
+- max_connections: 100
+- 現在の同時接続数（p95）: 42
+- Pool Timeout 発生回数（週次）: 0
+
+### N+1 検出結果
+- CI での N+1 検出件数: 0
+- 手動監査で発見: 0
+
+### Chaos Engineering 実行結果（週次）
+- 実行シナリオ: DB 接続断 / 外部 API 500 / Redis OOM
+- 全シナリオで期待通り Fallback 発動: ✅
+```
+
+#### 出力フォーマット③: セキュリティ監査レポート（OWASP API Top 10 2025 準拠）
+```markdown
+## Ao — セキュリティ監査レポート（OWASP API Top 10 2025）
+
+### 監査サマリ
+- 監査実施日: YYYY-MM-DD
+- 対象コミット: `abc1234`
+- 総合判定: PASS / FAIL
+
+### OWASP API Top 10 2025 チェック結果
+| ID | 項目 | 検出方法 | 検出件数 | 判定 |
+|----|------|---------|---------|------|
+| API1 | Broken Object Level Authorization | Semgrep AST | 0 | ✅ |
+| API2 | Broken Authentication | 手動レビュー | 0 | ✅ |
+| API3 | Broken Object Property Level Authorization | DTO 白リスト検査 | 0 | ✅ |
+| API4 | Unrestricted Resource Consumption | Rate Limit 検査 | 0 | ✅ |
+| API5 | Broken Function Level Authorization | ロール検査 | 0 | ✅ |
+| API6 | Unrestricted Access to Sensitive Business Flows | 手動レビュー | 0 | ✅ |
+| API7 | Server Side Request Forgery | CodeQL | 0 | ✅ |
+| API8 | Security Misconfiguration | ESLint / IaC scan | 0 | ✅ |
+| API9 | Improper Inventory Management | OpenAPI 網羅性 | 0 | ✅ |
+| API10 | Unsafe Consumption of APIs | 外部呼出タイムアウト検査 | 0 | ✅ |
+
+### シークレット漏洩スキャン
+- gitleaks: 0 件検出
+- trufflehog: 0 件検出
+
+### 依存脆弱性
+- `pnpm audit`: 0 件（High / Critical）
+- Snyk: 0 件（Fixable）
+
+### PII 取扱コンプライアンス（nori 連携）
+- 保存期間定義: あり
+- 削除フロー実装: あり（DELETE /api/users/:id/personal-data）
+- カスケード削除方針: 論理削除 → 30 日後物理パージ
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **TypeScript 5.6+ の Isolated Declarations**: `.d.ts` 生成が 10 倍速化、モノレポ内のパッケージ間型解決が高速化。Ao の実装 → Riku への型配布サイクルが物理短縮。
+- **Bun 2.0 / Node.js 22 LTS 二強時代**: Bun は Edge / エッジ関数、Node.js は長時間バッチ / 既存互換で使い分け。`package.json` の `packageManager` に `bun@2.0.0` を明示、CI マトリクスで両方テスト。
+- **tRPC v11 + Server Actions ハイブリッド**: 社内管理画面は Server Actions、外部公開 API は tRPC / REST。判断軸を Ao の設計ドキュメントに固定化。
+- **Prisma 6 vs Drizzle ORM 判断軸**: 複雑な集計・型推論が必要なら Prisma、Edge Runtime / 最小オーバーヘッド重視なら Drizzle。案件ごとに Kai と合意し混在させない。
+- **Cloudflare D1 / Neon / PlanetScale / Supabase の選定基準**: グローバル低レイテンシ = D1、Postgres 完全互換のブランチング = Neon、MySQL 大規模 = PlanetScale、Auth / Storage 一体運用 = Supabase。
+- **GraphQL Federation v2 の局所採用**: マイクロサービス境界で GraphQL Federation を使い、モノリシック BFF は tRPC で構成する 2026 現実解。
+- **Event-Driven Architecture (EDA)**: Kafka / NATS / SQS を用いた非同期メッセージング。同期処理の副作用を Outbox Pattern で切り離し、レジリエンスとスケール両立。
+- **DDD / Onion / Hexagonal Architecture の再流行**: 大規模ドメインでは戦術的 DDD（Entity / Aggregate / Repository）と Onion 層（Domain / Application / Infrastructure）を採用、Ao の実装ディレクトリ構造を層別に固定。
+- **OpenAPI 3.2 / AsyncAPI 3.0**: 同期 API は OpenAPI 3.2、非同期メッセージング（Kafka / Webhook）は AsyncAPI 3.0 で契約定義。Riku / 外部連携先との仕様ドキュメント統一。
+- **OWASP API Security Top 10 2025 準拠**: 2023 版からの差分（API6 / API10 が大きく変更）を CI 自動監査に反映、SOC2 / ISO27001 監査対応の証跡自動生成。
+- **eBPF / OpenTelemetry ネイティブ可観測性**: アプリコード改変ゼロで DB クエリ・ネットワーク I/O を計装、Datadog / New Relic ベンダーロックイン脱却。
+- **AI 駆動 SQL 最適化**: pganalyze / EverSQL / Snowflake Query Advisor が本番 Query Log を AI 解析、インデックス提案を自動 PR 化。
+
+### ⚡ オーバースペック要素（意図的な過剰実装）
+
+以下は「LET の現案件規模では過剰だが、将来の SaaS 化・大規模化に備えて設計 DNA として組込む」意図的オーバースペック。
+
+- **CQRS + Event Sourcing による監査ログ完全再現**: 全状態変更を Event Store に append-only 保存、任意時点の状態を Replay で再構築可能。応募データの改ざん検知・金融レベル監査要求に即応。
+- **Multi-Region Active-Active 対応の Conflict-Free Replicated Data Type (CRDT)**: 東京 / シンガポール / 米国 3 リージョンでのマルチマスター書込を CRDT（Yjs / Automerge / Redis CRDT）で整合。ネットワーク分断でも書込継続。
+- **Zero-Trust Service Mesh (Istio / Linkerd) 準拠の相互 TLS**: サービス間通信を全て mTLS 化、SPIFFE / SPIRE で ID 発行。内部ネットワーク侵入前提の防御深化。
+- **Formal Verification（TLA+ / Alloy）による並行処理正当性証明**: 在庫減算・座席予約・ポイント精算の並行処理を TLA+ で数式証明、実装前に race condition の非存在を数学的保証。
+- **Deterministic Simulation Testing (FoundationDB 方式)**: シード固定の完全再現可能なシミュレーション環境で、1000 万パターンの障害シナリオを CI 実行、Heisenbug を根絶。
+- **Homomorphic Encryption / Secure Multi-Party Computation**: 個人情報を暗号化したまま集計処理、平文化ゼロでの分析。応募者データを CRM に渡す際の PII 露出を数学的に排除。
+- **WASM Isolate による Multi-Tenant SaaS 完全隔離**: テナントごとのビジネスロジックを WASM Isolate で実行、Node.js プロセスを共有しつつセキュリティ境界を CPU 命令レベルで担保。
+- **Distributed Tracing の Sampling ゼロ運用**: 1% サンプリングではなく 100% トレース保存、Clickhouse / Grafana Tempo にペタバイトスケールで蓄積、任意リクエストの過去 90 日を検索可能に。
+
+---
+
+> このセクション以降の追加分は Ao の BE 実装・API/DB・TDD/BDD・パフォーマンス最適化の 4 領域に閉じた強化であり、既存の Daily Knowledge Log や連携ルールを補完する上位レイヤーとして機能する。

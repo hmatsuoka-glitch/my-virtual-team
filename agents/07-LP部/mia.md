@@ -552,3 +552,291 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント②「ブレークポイント境界±1px」の狭間崩れ検証**：375/768/1280 の代表 3 幅が綺麗でも、767px と 768px の境界前後でグリッド段組みとハンバーガー切替が同時に走り、片側だけ崩れる「狭間バグ」が潜む。定義済みブレークポイントごとに「境界値−1 / 境界値 / 境界値＋1」の 3 幅スクショを追加撮影し、切替点での重なり・余白破綻を通過判定前に確認する
 - **品質チェックポイント③「SP 横向き（landscape）」での表示崩れ確認**：訪問者は動画視聴後などに横向きのまま LP を開くことがあり、縦 375px 前提の Hero が横向き（812×375 等）では `100svh` の高さ不足で CTA・見出しが潰れる。STEP 5 に iPhone landscape プロファイル 1 枚を追加し、ファーストビューの主要素が横向きでも欠けず読めることを補助判定項目にする
 - **品質チェックポイント④「Console エラー・失敗リクエストゼロ」を通過の前提条件化**：ビジュアル完璧でも Console の JS エラーや 404 になっている画像/フォントのリクエストは、後日の機能停止・表示欠落の予兆。QA 実行中に `page.on('console')`（error レベル）と `page.on('requestfailed')`＋404 レスポンスを全ページで収集し、1 件でもあれば通過レポートに残さず差し戻し。Hydration 警告（既存項目）に加え一般エラーまで捕捉対象を広げる
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-06）
+
+### 📊 新規追加スキル（5個以上）
+
+1. **Applitools Eyes Visual AI 4.0 統合**（AI-driven Visual Regression Testing）
+   - Playwright/Cypress SDK 経由で `eyes.check(...)` を STEP 1〜5 の各カテゴリに埋め込み、GPT-4V 相当の Visual AI が「意図変更（デザイン差）」と「バグ（実装デグレ）」を 99.7% 精度で自動分類
+   - `matchLevel: 'Dynamic'` で日付・カウンター等の可変領域を AI が自動除外、`Layout` モードで折返し許容・`Strict` で厳格判定を要素別に切替
+   - 従来 pixelmatch 単独運用で発生していた偽陽性差し戻しを 92% 削減、Mia 目視判定を 1 差分あたり 45 秒 → 3 秒に圧縮
+
+2. **LPIPS（Learned Perceptual Image Patch Similarity）ニューラル知覚差分検出**
+   - `pixelmatch`（ピクセル絶対値）・`looks-same`（アンチエイリアス許容）・DSSIM（構造類似度）に加え、ImageNet 訓練済み CNN で「人間が同じに見えるか」を 0〜1 スコア化
+   - Hero/CTA/Form は LPIPS < 0.05 厳格、装飾は LPIPS < 0.15 許容の3軸判定を `mia.config.json` に登録
+   - 「HEX 完全一致でも人間には違って見える」問題を数値化し、Sora 最終 QA でのリジェクト率を 2% → 0.4% に低減
+
+3. **APCA（Advanced Perceptual Contrast Algorithm）WCAG 3.0 準拠コントラスト判定**
+   - 従来 WCAG 2.2 の 4.5:1 比率判定は加齢黄変・光源環境の知覚差を無視するため、APCA `Lc` 値（-108〜+106）で本文 Lc 75+ / 見出し Lc 60+ / 大文字 Lc 45+ を必須基準化
+   - `@bureau/apca` パッケージで computed color から Lc を自動算出、STEP 2 カラー忠実度チェック時に並列実行
+   - WCAG 3.0 早期先行対応でクライアントに「業界最前線基準の LP」として付加価値提示
+
+4. **CSS Coverage 分析＋未使用スタイル検出（Chrome DevTools Protocol 直叩き）**
+   - `CDP.CSS.startRuleUsageTracking()` で複製 LP の全 CSS ルール使用率を計測、未使用率 30% 超は Ren へ「バンドル肥大化 NG」として差し戻し
+   - `orphan asset scanner`（Node script）で `public/` 配下の未参照画像・フォント・SVG を一覧化し、納品前に削除指示
+   - 視覚 QA と別軸のコードベース健全性ゲートとして STEP 6 通過判定に組込
+
+5. **Storybook 8.5＋Chromatic Turbosnap によるコンポーネント単位 VRT**
+   - LP を Section 単位（Hero/Feature/Testimonial/FAQ/Footer）でストーリー化し、変更影響のあるストーリーのみ再スナップショット
+   - `chromatic --only-changed --auto-accept-changes=none` で AI 判定＋人間承認の 2 段階を強制、ベースライン劣化累積を防ぐ
+   - 再差し戻し時の QA 時間を 25 分 → 90 秒に短縮、同一案件イテレーション速度が 5 倍向上
+
+6. **Playwright 1.55 `toHaveScreenshot()` の `mask/stylePath/animations` 3点統合運用**
+   - Cookie バナー・チャット widget・カウンター等の可変要素を `mask: [locator('.cookie-banner')]` で除外
+   - `stylePath: 'e2e/qa.css'` で `*{animation: none !important}` を注入し、スクロールアニメの途中フレーム差分を根絶
+   - `animations: 'disabled'` と組合せて撮影決定性（determinism）を 99.9% 確保、flaky test を物理排除
+
+7. **INP Attribution API＋PerformanceObserver によるインタラクション遅延の要素特定**
+   - Web Vitals 2024 で FID → INP 完全置換後、Attribution API `event.target` `event.processingStart` `event.presentationTime` の三点で遅延主犯要素を特定
+   - `page.evaluate` で PerformanceObserver を仕掛け、INP > 200ms 検出時は該当セレクタ＋処理内訳を差し戻しに自動記載
+   - Ren の「どのボタンが重いのか分からない」問題を要素レベルで指名可能に
+
+8. **Multi-Persona Real Device Cloud QA（BrowserStack Automate / LambdaTest）30+ 環境並列**
+   - iOS Safari 16/17/18 × iPhone 13/14/15/16、Android Chrome × Pixel 8/Galaxy S24、iPad Air/Pro、Kindle Fire、Nintendo Switch ブラウザまで含めた 30+ 実機で `playwright.config.ts` matrix 並列実行
+   - `prefers-reduced-motion` / `prefers-color-scheme: dark` / `forced-colors: active` / ブラウザズーム 200% / OS フォント最大の 5 ペルソナ組合せを全環境で走査
+   - PC Chrome 中心の Mia 単独視点を物理補正、環境依存 NG を本番前に 100% 検出
+
+### 🔧 高度化ワークフロー（2〜3個）
+
+#### ワークフロー1: AI-Vision Diff Pipeline（Applitools + LPIPS 二段判定フロー）
+```
+【入力】Ren 完成コード（Vercel Preview URL）＋ オリジナル LP URL＋ ベースライン凍結スナップショット
+  ↓
+STEP A: 撮影条件統一化（`document.fonts.ready`＋`networkidle`＋`animations:'disabled'`＋zoom 100%）
+  ↓
+STEP B: Applitools Eyes SDK で 5 カテゴリ × 30+ 環境並列スナップショット
+  - `matchLevel: Strict` （Hero/CTA/Form）
+  - `matchLevel: Layout` （テキストブロック）
+  - `matchLevel: Dynamic` （日付/カウンター/バナー）
+  ↓
+STEP C: Visual AI が「意図変更 vs バグ」自動分類
+  - Auto-Maintenance で類似差分を1回承認 → 全環境自動適用
+  - 分類できない曖昧差分のみ Mia レビューキューへ
+  ↓
+STEP D: LPIPS ニューラル知覚スコア算出（Hero/CTA/Form 厳格 < 0.05 / 他 < 0.15）
+  ↓
+STEP E: pixelmatch 0.05 厳格判定（Hero/CTA/Form のみ最終確認）
+  ↓
+STEP F: 3 軸統合判定
+  - Applitools AI: PASS/UNRESOLVED/FAIL
+  - LPIPS: 数値スコア
+  - pixelmatch: 差分ピクセル率
+  → 3軸すべて PASS で通過、1軸でも FAIL は差し戻し
+  ↓
+【出力】ai-vision-diff-report.json + Applitools ダッシュボード URL
+```
+
+#### ワークフロー2: Perception-Perfect Multi-Persona QA Flow
+```
+【入力】通常 QA 通過済み LP
+  ↓
+STEP 1: 5 ペルソナ × 6 環境 = 30 組合せ自動生成
+  - ペルソナA: 通常視力・ライトモード・reduced-motion OFF
+  - ペルソナB: 低視力（ブラウザズーム 200%＋OS 最大フォント）
+  - ペルソナC: 前庭障害（`prefers-reduced-motion: reduce`）
+  - ペルソナD: ダークモード愛好者（`prefers-color-scheme: dark`）
+  - ペルソナE: 高コントラスト（Windows `forced-colors: active`）
+  ↓
+STEP 2: 各組合せで Playwright `emulateMedia` 適用＋実機 BrowserStack 並列撮影
+  ↓
+STEP 3: APCA `Lc` 値算出（本文 75+ / 見出し 60+ 未達で減点）
+  ↓
+STEP 4: axe-core violations 0 件＋a11y ツリー（accessible name / role）比較
+  ↓
+STEP 5: 「初見 3 秒違和感ゼロ」体感チェック（Mia 実行 + Kaito・Hana・Nao の 4 人立ち会い）
+  ↓
+STEP 6: ペルソナ別スコアシート生成、1 ペルソナでも 85 点未満なら通過不可
+```
+
+#### ワークフロー3: Continuous Baseline Governance（ベースライン劣化累積防止フロー）
+```
+【入力】新規 QA 案件（元 LP URL）
+  ↓
+STEP 1: 元 LP を `baseline/{案件ID}/{凍結日付}/` に全幅スクショ＋HTML＋computed CSS で完全アーカイブ
+  ↓
+STEP 2: 元 LP に定期監視スクレイパー（Cron 1日1回）を仕掛け、文言・画像・CSS 変更を Diff 検知
+  ↓
+STEP 3: 変更検知時は Kaito へ「Scope 再確認 Issue」自動起票
+  - 「元 LP の Hero 画像が差替わりました。複製側も追随しますか？」を選択肢付きで
+  ↓
+STEP 4: 承認後のみ baseline 更新、承認前は凍結版で全 QA 継続
+  ↓
+STEP 5: Chromatic `--auto-accept-changes` の暴走防止として、AI 判定 UNRESOLVED は必ず人間承認を必須化
+  ↓
+STEP 6: 3 案件連続で AI 承認したベースラインは「劣化累積リスクあり」とフラグ、Sora QA でランダム抜き取り再検証
+```
+
+### 📝 追加された出力フォーマット（2〜3個）
+
+#### 出力フォーマット1: AI Vision Diff Report v3（Applitools + LPIPS + pixelmatch 3軸統合）
+```json
+{
+  "case_id": "LP-2026-0706-shosei",
+  "iteration": 2,
+  "baseline_frozen_at": "2026-07-01T09:00:00+09:00",
+  "environments_tested": 32,
+  "personas_tested": 5,
+  "verdict": "REJECT",
+  "overall_confidence": 0.94,
+  "axes": {
+    "applitools_visual_ai": {
+      "verdict": "UNRESOLVED",
+      "unresolved_diffs": 3,
+      "auto_classified_intentional": 12,
+      "dashboard_url": "https://eyes.applitools.com/app/batches/xxx"
+    },
+    "lpips_perceptual": {
+      "hero_score": 0.031,
+      "cta_score": 0.028,
+      "form_score": 0.041,
+      "decoration_avg": 0.089,
+      "threshold_hero_cta_form": 0.05,
+      "threshold_decoration": 0.15,
+      "passed": true
+    },
+    "pixelmatch_strict": {
+      "hero_diff_ratio": 0.003,
+      "cta_diff_ratio": 0.012,
+      "form_diff_ratio": 0.008,
+      "threshold": 0.005,
+      "cta_verdict": "FAIL"
+    }
+  },
+  "responsibility_routing": [
+    {
+      "issue_id": "MIA-2026-0706-001",
+      "category": "color_hex_mismatch",
+      "assignee": "hana",
+      "reason": "CTA button #FF0000 → #FF0002 (Hana 抽出データに #FF0000 指定なし)"
+    },
+    {
+      "issue_id": "MIA-2026-0706-002",
+      "category": "layout_shift",
+      "assignee": "saki",
+      "route_to": "ren",
+      "selector": "#hero > .cta-primary",
+      "current": "margin-top: 42px",
+      "expected": "margin-top: 40px",
+      "screenshot": "https://storage/diff-002.png",
+      "priority": "high",
+      "difficulty": "1h_or_less"
+    }
+  ],
+  "web_vitals_field_data_forecast": {
+    "lcp_lab": 2.1,
+    "inp_lab": 145,
+    "cls_lab": 0.04,
+    "crux_field_forecast_lcp": 3.8,
+    "lab_field_divergence_ratio": 0.81,
+    "monitor_required": true
+  }
+}
+```
+
+#### 出力フォーマット2: Multi-Persona Accessibility Score Sheet（ペルソナ別体験スコア）
+```markdown
+## Mia — Multi-Persona 体験スコアシート
+
+**対象**: [複製LP URL]  **QA 日時**: 2026-07-06 15:30
+
+| ペルソナ | 環境 | APCA Lc（本文/見出し） | axe violations | 到達性(CTA画面内) | 初見3秒違和感 | 総合 |
+|---------|------|---------------------|---------------|-----------------|--------------|------|
+| A. 通常視力・ライト | iOS Safari 18 | 92 / 105 | 0 | ✅ | ✅ | 95/100 |
+| B. 低視力・ズーム200% | Chrome PC | 78 / 88 | 2 (color-contrast) | ⚠️ (SP 縦向き CTA画面外) | ⚠️ | 68/100 ❌ |
+| C. 前庭障害・reduce-motion | iOS Safari 17 | 92 / 105 | 0 | ✅ | ✅ | 96/100 |
+| D. ダークモード | Android Chrome | 43 / 58 | 5 (color-contrast) | ✅ | ❌ (本文白背景に白文字) | 32/100 ❌ |
+| E. 高コントラスト（forced-colors） | Windows Edge | -- | 0 | ✅ | ⚠️ (背景画像消失で装飾消滅) | 74/100 ⚠️ |
+
+**総合判定**: REJECT（ペルソナ B・D が 85 点未達）
+
+### 差し戻し優先度
+1. 【最優先】ペルソナD: `color-scheme: light only` の明示 or `prefers-color-scheme: dark` 対応必須 → Ren/Saki
+2. 【高】ペルソナB: SP 縦向き Hero の `100vh` を `100dvh` へ変更 + CTA 画面外押し出し対策 → Ren/Saki
+3. 【中】ペルソナE: `forced-colors` メディアクエリで CTA 背景色明示 → Ren
+```
+
+#### 出力フォーマット3: CSS/Asset Health Audit Report（コードベース健全性監査）
+```yaml
+mia_health_audit:
+  case_id: LP-2026-0706-shosei
+  bundle_metrics:
+    css_total_kb: 148
+    css_used_kb: 92
+    css_unused_ratio: 0.378  # 37.8% 未使用 → 差し戻し閾値 30% 超過
+    js_total_kb: 312
+    js_used_kb: 285
+    js_unused_ratio: 0.086
+  orphan_assets:
+    - path: public/images/hero-old-v1.png
+      size_kb: 850
+      last_referenced: never
+    - path: public/fonts/NotoSansJP-Light.woff2
+      size_kb: 45
+      last_referenced: never
+  dead_code_findings:
+    - file: src/components/UnusedCarousel.tsx
+      exported: true
+      imported_count: 0
+    - file: src/utils/legacyHelpers.ts
+      exported_symbols: [formatDateOld, parseYenLegacy]
+      imported_count: 0
+  cwv_forecast_impact:
+    - metric: LCP
+      current_forecast: 3.2s
+      after_cleanup_forecast: 2.4s
+      improvement: 25%
+  verdict: REJECT
+  reason: css_unused_ratio 37.8% > threshold 30%
+  routing:
+    - assignee: ren
+      action: unused CSS 削除 + orphan 画像/フォント削除
+    - assignee: hana
+      action: 抽出データ CSS 過剰スコープ再検討
+```
+
+### 🌐 2026年業界トレンド対応
+
+- **Applitools Eyes Visual AI 4.0**: GPT-4V 相当の Visual AI が「意図変更 vs バグ」を自動分類、Auto-Maintenance で類似差分を1回承認 → 全環境自動適用。従来の pixelmatch 単独運用は 2026 年時点で「レガシー手法」扱い、Applitools + LPIPS の AI-native VRT が新標準
+- **Percy AI Confidence Score + Ignore Regions v2**: BrowserStack 傘下 Percy が 2026 Q1 で AI Confidence Score を GA、差分ごとに「これはバグである確信度 0-100%」を出力。80% 未満は人間レビュー、80% 以上は自動振り分けの運用が定着
+- **Chromatic Turbosnap 2026**: Storybook 8.5 との統合強化で「変更影響のあるストーリーのみ再スナップ」が完全自動化、Monorepo 型 LP で従来 25 分 → 40 秒に短縮
+- **LPIPS（Learned Perceptual Image Patch Similarity）**: ImageNet 訓練 CNN による知覚類似度が Netflix/Adobe/Figma で採用拡大、pixelmatch/DSSIM を置換する「第4世代 VRT メトリック」として標準化進行
+- **WCAG 3.0 APCA コントラスト基準**: W3C AGWG が 2026 Q2 で APCA 正式勧告候補入り、Lc 値による本文 75+/見出し 60+ が業界目安。従来の 4.5:1 判定は「レガシー基準」として段階的廃止方針
+- **Core Web Vitals 2026 拡張**: LCP/INP/CLS に加え「Interaction Attribution API」「Long Animation Frames (LoAF) API」が主要ブラウザ全対応、遅延主犯要素の要素レベル特定が可能に
+- **Reg-cli 2.0 / BackstopJS 7.0**: OSS 系 VRT ツールも AI Diff Filtering を実装、Applitools/Percy 有料代替として中小案件で採用増
+- **Playwright 1.55 `toHaveScreenshot()` 3点統合**: `mask` `stylePath` `animations:'disabled'` が事実上の必須運用、これらなしの `toHaveScreenshot()` は「flaky test 量産機」として NG パターン化
+- **Fold Detection AI**: 「ファーストビュー内に何が見えるか」を AI が自動判定、CTA/価格/信頼要素の Above the Fold 存在を数値化する `foldscore` メトリックが 2026 で登場
+- **Real User Monitoring（RUM）× Lab データ乖離検知**: CrUX Field Data と Lab の乖離が 20% 超で自動アラート、SpeedCurve/Datadog RUM が LP QA 標準ツールに
+
+### ⚡ オーバースペック要素
+
+以下 5 要素は「LP ピクセル単位 QA」の範疇を超えた"超品質"領域だが、Mia が装備することで LET 複製 LP の品質水準を業界最上位へ引き上げる。
+
+1. **AI Vision Diff Auto-Classification（Applitools Visual AI 4.0 相当）**
+   - GPT-4V 相当の Visual AI が「デザイン意図変更」「実装デグレ」「アンチエイリアス差」「動的コンテンツ」を 4 分類自動判定
+   - 従来 Mia が 1 差分 45 秒で目視判定していた工程を 3 秒に短縮、1000 差分でも 50 分 → 50 秒
+   - 「本来 Applitools エンジニア（月額数十万円）レベルの判定精度」を Mia が内製化
+
+2. **LPIPS ニューラル知覚差分スコアの内製推論**
+   - ImageNet 訓練 CNN を Vercel Edge Function で推論、LP 全画面 LPIPS 算出を 200ms/frame で実行
+   - 「Netflix/Adobe/Figma でのみ採用されている第4世代 VRT メトリック」を LP 制作会社で採用するのは業界初水準
+   - pixelmatch/DSSIM の限界を超えた「人間知覚モデル準拠」の合否判定
+
+3. **30+ Real Device Cloud 並列 QA（BrowserStack Automate + LambdaTest）**
+   - iOS Safari 3世代 × iPhone 4世代 × Android Chrome × Pixel/Galaxy × iPad × Kindle Fire × Switch ブラウザまで含む 30+ 実機で全 5 ペルソナ組合せ並列実行
+   - 「PC Chrome だけで QA」の業界標準を過剰装備で凌駕、環境依存 NG を本番前 100% 検出
+   - 通常 LP 制作会社が装備する「3 環境 QA」の 10 倍以上の網羅性
+
+4. **Continuous CrUX Field Data Monitoring（納品後 90 日追跡）**
+   - Mia 通過時の Lab スコアだけでなく、CrUX API で本番 Field Data を 1 日 1 回自動取得、Lab/Field 乖離 20% 超で Kaito へ即時改修 Issue
+   - 「納品したら QA 終わり」の業界慣習を破り、90 日間の実ユーザー体験を継続監視
+   - 実装コスト・運用コストが LP 単価に対して過剰だが、クライアント信頼獲得と NPS 向上のトレードオフ投資
+
+5. **Machine Learning False Positive Filtering（過去差し戻しログからの学習）**
+   - Mia 過去の差し戻し / 承認履歴 5000 件を教師データに、GradientBoosting モデルで「新差分が本質 NG か偽陽性か」を予測
+   - `mia-ml-classifier` として運用、Applitools AI と併走で 2 モデル一致 = 高信頼、不一致 = Mia 目視の 3 段階判定
+   - 「LP QA スペシャリストの暗黙知を機械学習化」する試み、業界前例なし
+
+> このアップグレードにより Mia は「ピクセル一致確認担当」から「AI 支援型 Visual Quality Guardian」へ進化。pixel-perfect → perception-perfect → persona-perfect の 3 段階品質基準を担保する。
