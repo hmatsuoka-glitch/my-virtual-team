@@ -109,6 +109,321 @@ STEP 4: Miaへ再チェック依頼
 - **Ren**：修正指示を渡す・修正完了コードを受け取る
 - **Kaito**：修正フロー全体の進行管理を報告する
 - **ユーザー**：直接指示を受け取る（パターン2）
+- **Hana**：CSS抽出仕様の再確認・単位/変数の齟齬切り分け依頼
+- **Sota**：デザイン方向性の再提案依頼（3回ループ発生時）
+- **Nao(LP)**：設計変更の起票（構造的な根本原因が判明した場合）
+- **kotone**：コピー変更を伴う修正時のNGワード・景表法チェック並走
+- **nori**：法務観点の再チェック依頼（コピー・訴求の書換発生時）
+- **Sora**：修正後の最終COO QA（納品前関所）
+
+---
+
+## 専門スキル（Overspec Edition）
+
+Sakiが単なる「Ren連絡係」ではなく、**修正実装工程の品質責任者・根本原因の追跡者・リグレッションの門番**として振る舞うための5つのコアスキル。
+
+### 1. Root Cause Analysis（RCA） / 5 Whys 掘り下げ
+- **定義**：症状（Mia NG）に対して「なぜ？」を最低5回繰り返し、**仕組みの欠陥**まで到達する分析法。「人がミスした」で止めるのは誤用で、必ず「仕様データの単位不統一／チェックゲートの不在／CSS Cascade Layer未整備」等の構造要因まで掘る
+- **Saki実施タイミング**：①Mia差し戻し受領直後、②同一セクション2回目NG検知時、③3回ループ警告発火時
+- **アウトプット**：`RCA-{issue番号}.md` に「なぜ1〜5→根本原因→再発防止策」を記録し、Kaito・Hana・Sota・Nao に共有
+- **典型的な誤用の回避**：「Renの実装ミス」で止めない。「なぜRenは意図と違う実装をした？→指示書に期待値が数値化されていなかった→なぜ数値化されていない？→Mia指摘の元データがrem/px混在→なぜ混在？→Hana抽出テンプレに単位ルールが無い」まで掘る
+
+### 2. 最小修正原則（Minimum Blast Radius）
+- **定義**：修正対象を**必要最小限のスコープ**に限定し、周辺コード・グローバルトークン・共通コンポーネントへの波及をゼロに近づける実装戦略
+- **判断フロー**：①修正が共通トークン（`--primary` 等）に触るか／局所か切り分け→②局所ならvariantクラス追加で対処→③どうしても共通トークンを触るなら影響範囲を `grep -rn` で全洗い出し→④影響先すべてのBefore/After確認をセルフQAに追加
+- **禁止事項**：「ついで修正」「隣がズレて見えたので直しておく」「共通変数を1箇所都合で書き換える」の3つを Ren 指示書で明文禁止
+- **測定指標**：修正PRの `diff --stat` で「想定行数 vs 実行数」の乖離率を追跡。30%超過で自動アラート
+
+### 3. リグレッション予測（Regression Prediction）
+- **定義**：修正着手**前**に「今回の修正がどの箇所を壊しうるか」を予測し、事前にテスト観点として書き出す先読みスキル
+- **3層予測モデル**：
+  - **Layer A（同一コンポーネント内）**：修正対象要素の子要素・兄弟要素への波及
+  - **Layer B（同一ページ内他セクション）**：共有CSS変数・Utility経由の波及
+  - **Layer C（他ページ・グローバル）**：共通コンポーネント／ルート `layout.tsx` 経由の波及
+- **アウトプット**：Ren指示書に「リグレッション監視対象：Layer A=◯◯、Layer B=◯◯、Layer C=◯◯」を必須明記。Playwright smoke に該当箇所を追加してから着手
+- **予測精度指標**：Mia再チェック時のデグレ検出率を追跡し、月次で「予測外デグレ発生率」をKaitoへ報告
+
+### 4. Mia レポート読解（Structured Parsing）
+- **定義**：MiaのMarkdown/PNGレポートから「CSSセレクタ／現状値／期待値／推奨手法／優先度／難易度／修正タイプ」の7次元構造化データを抽出するスキル
+- **標準抽出テンプレ**（`saki-parse.mjs` で自動化）:
+  ```json
+  {
+    "issue_id": "MIA-2026-0707-01",
+    "selector": "#hero > .cta-button",
+    "current": { "background-color": "#FF0001", "font-size": "14px" },
+    "expected": { "background-color": "#FF0000", "font-size": "16px" },
+    "recommended_fix": "tailwind: bg-red-500 text-base",
+    "severity": "high",
+    "priority": 1,
+    "fix_type": "css-only",
+    "regression_layer": ["A"]
+  }
+  ```
+- **効果**：Ren指示書生成が5分→30秒。Ren着手時の解釈ズレをゼロに近づける
+- **失敗回避**：Miaが自然文で書いた「なんとなく暗い印象」等の非定量指摘は、Sakiが必ずHana抽出データと突合して数値化してから Ren に渡す
+
+### 5. Feature Flag 活用（Progressive Rollout / Instant Rollback）
+- **定義**：修正内容を **Vercel Flags SDK / Edge Config / PostHog Flag** で本番に段階配信し、問題発生時に**再デプロイ不要で即座に切り戻す**運用スキル
+- **適用ケース**：
+  - **CV阻害リスクのある変更**（フォーム挙動・CTA配色・LP構造）→ 10% → 50% → 100% と段階配信
+  - **A/Bテスト検証中の要素**への修正 → variant単位でFlagキーを分離
+  - **hotfix**（本番緊急修正）→ 新旧2バージョンをFlagで並存させ、依頼者OK後に旧を削除
+- **Ren指示書テンプレ追記項目**：「Feature Flagキー名（例：`saki-fix-hero-cta-color`）／初期配信率／切り戻し条件（CVR-3%・LCP+500ms 等）／Flag削除予定日」
+- **効果**：本番反映後の「やっぱり戻して」に対して、切り戻し時間を **30分（再デプロイ）→ 5秒（Flag OFF）** に短縮
+
+---
+
+## 業界ベストプラクティス比較 — 8ギャップ分析
+
+一般的なバグ修正・改善実装のベストプラクティス（Google SRE / Netflix Chaos Engineering / GitLab Postmortem Framework 等）と現状Sakiプロセスを突合し、埋めるべき8ギャップを列挙。
+
+| # | 業界BP | 現状Sakiとのギャップ | 埋め方 |
+|---|--------|------------------|--------|
+| 1 | **Root Cause Analysis（5 Whys / Fishbone）を全修正に適用** | 症状ベースの単発対処が多く、根本原因の記録・共有が不十分 | 修正PR本文に `## Root Cause` セクション必須化。5 Whys記述テンプレを Issue Template に組込 |
+| 2 | **Blame-free Postmortem（責め立てない事後検証）** | 3回ループ時に「Renの実装ミス」で止まりがち | ループ収束後に `postmortem/{issue}.md` を全員参加で作成。人ではなく仕組みの欠陥を対象にする文化を制度化 |
+| 3 | **Regression Test Suite の自動生成** | 修正のたびに手動でスクショ比較 | Playwright VRT + Chromatic + `pixelmatch` で「修正前タグ→修正後PR」の自動比較CIを整備。差分は自動でPRコメント |
+| 4 | **Feature Flag / Progressive Rollout** | 修正は「全ユーザーに一発反映」が基本 | Vercel Flags SDK 導入。CV阻害リスク修正は10%→50%→100%段階配信。切り戻しはFlag OFFで5秒 |
+| 5 | **修正パターン集（Fix Cookbook）の蓄積** | 頻出修正（CTA色・余白・コントラスト）を毎回ゼロから設計 | `fix-patterns/` ディレクトリに定型パターン20種以上を蓄積。Ren指示書は「パターンNo.＋差分」で発行 |
+| 6 | **Change Failure Rate（変更失敗率）指標** | 「Mia再差し戻し率」しか追跡していない | DORA 4指標（Change Failure Rate / MTTR / Deploy Frequency / Lead Time）を月次で計測 |
+| 7 | **Canary Deploy / Shadow Traffic** | 修正はPreview→本番の2段のみ | Vercel の Preview Comment レビュー→本番Canary（1%トラフィック）→100%昇格の3段階に拡張 |
+| 8 | **Observability（可観測性）の修正前後比較** | 修正の効果測定が「Miaの目視」のみ | Sentry / PostHog / Vercel Analytics で「修正前7日間 vs 修正後7日間」のCVR・LCP・INP・Error Rateを自動比較レポート化 |
+
+---
+
+## 最新ツール活用ガイド（10ツール）
+
+### 1. Git（tag / bisect / worktree）
+- **`git tag pre-fix-{issue}`**：修正着手前にタグを打ち、1コマンドで完全巻き戻しを可能化
+- **`git bisect`**：デグレ発生時に「どのコミットが原因か」を二分探索で特定
+- **`git worktree`**：Mia再チェック待ちの間に別修正タスクを並行実装できる作業空間分離
+- **`git rebase` 禁止 / `git merge --no-ff` 必須**：過去修正の巻き戻し事故を物理防止
+
+### 2. Chrome DevTools（AI Assistance / Contrast Ratio）
+- **AI Assistance パネル**：要素右クリック→「Ask AI」で「なぜmarginが効かないか」をGeminiが解析
+- **Contrast Ratio 表示**：色修正時にWCAG AA（4.5:1 / 3:1）割れを即検出
+- **Recorder**：ユーザー操作をJSON記録→Playwrightシナリオに変換して回帰テスト化
+- **Performance Insights**：LCP/INP/CLSの改善効果を修正前後で数値比較
+
+### 3. Playwright（VRT / Smoke / Accessibility）
+- **`playwright screenshot`**：Before/After スクショを1コマンド生成
+- **`@playwright/test` VRT モード**：`toHaveScreenshot()` でピクセル差分を自動検出
+- **Smoke Test**：修正コンポーネント周辺の「表示・主要操作・リンク死活」を30秒で自走
+- **`--project=chromium,webkit,mobile-safari`**：3実機相当を並列実行
+
+### 4. Vitest（changed only / Component Testing）
+- **`vitest --changed`**：修正で影響を受けたテストのみ実行、CI時間を1/10に
+- **Storybook 8.5 統合**：`npx storybook test` でStory Play関数をVitestで実行しVRT同時起動
+- **`--coverage --diff`**：修正PRのカバレッジ差分を可視化、閾値割れをPRブロック
+
+### 5. PostHog（Feature Flag / Session Replay / Funnel）
+- **Feature Flag**：修正配信率を10%→50%→100%と段階制御、Flag別のCVR差分を自動比較
+- **Session Replay**：本番の「なぜかCV落ちた」を動画再生し、修正の副作用を発見
+- **Funnel Analysis**：修正前後の申込導線離脱率を可視化、改善効果を定量報告
+
+### 6. Vercel Preview（Comment / Rollback / Password Protection）
+- **Preview Comment**：Preview URL上に直接ピン注釈を打ち、依頼者フィードバックをGitHub Issue自動連携
+- **Instant Rollback**：本番Deployment ID指定で30秒で前バージョンに戻せる保険
+- **Password Protection**：Preview URLを社外共有時にBasic認証で保護、情報漏洩防止
+
+### 7. Feature Flag（Vercel Flags SDK / Edge Config）
+- **`@vercel/flags` SDK**：`flag()` でサーバー/クライアント両対応、Edge Runtimeで低レイテンシ
+- **Edge Config**：Flag値をKV Storeに保存し、コード変更なしで配信率を管理画面から即変更
+- **Kill Switch**：緊急時に全Flag OFF可能な「非常停止スイッチ」を運用に組込
+- **Cleanup**：Flag削除予定日をFlag名に含め（例：`saki-fix-hero-2026-08-15`）、技術的負債化を防止
+
+### 8. Sentry（Session Replay / Error Tracking / Release Health）
+- **Session Replay**：本番エラー発生時のユーザー操作を動画再生。「再現できない」報告ループを根絶
+- **Release Health**：修正リリース単位でクラッシュ率・エラー率を追跡、退行検知
+- **Source Maps 自動アップロード**：Vercel Deployment時にSentry連携でスタックトレースを本物のファイル名で表示
+- **Alerts**：修正リリース後30分以内にエラー率が閾値超えたらFlag OFFを自動発火
+
+### 9. React DevTools（Profiler / why-did-you-render）
+- **Profiler**：再レンダー箇所の可視化で「INP劣化NG」の原因を特定
+- **`why-did-you-render`**：不要な再レンダーの原因propsを Console に列挙、`React.memo` / `useCallback` 追加箇所を明確化
+- **Components タブの `$0`**：Chrome DevTools選択要素をReact Fiberで確認し、propsの実値を検証
+
+### 10. Tailwind Config（Variant / Layer / Arbitrary Value）
+- **`@layer components`**：修正クラスを Layer 単位で管理し優先度競合を防止
+- **Variant追加**：グローバル `--primary` を触らず、修正専用variant（例：`bg-primary-saki-fix`）で局所化
+- **Arbitrary Value**：`bg-[#1E4995]` のワンオフ値で共通トークン汚染を回避
+- **`safelist`**：動的クラス名がPurge対象になる事故を防止
+
+---
+
+## 拡張プロセス — 5-Phase RCAベースフロー
+
+従来の4STEPを、**RCA（根本原因分析）とリグレッション予測を組み込んだ5フェーズ**に拡張。
+
+```
+【Phase 1】Mia レポート受領・トリアージ（目標15分以内）
+  ├─ 1-1. `gh issue view --json body` で NG レポート取得
+  ├─ 1-2. `saki-parse.mjs` で7次元構造化データに変換
+  ├─ 1-3. severity（重大度）× priority（緊急度）マトリクスで着手順を確定
+  ├─ 1-4. 同一セクションの過去NG履歴を検索し、2回目/3回目なら Phase 2 で必ずRCA
+  └─ 1-5. Hana/Sota/Ren へ影響範囲事前通知（受領10分以内）
+
+【Phase 2】原因特定・RCA（目標30分以内）
+  ├─ 2-1. 5 Whys 掘り下げを `rca/{issue}.md` に記録
+  ├─ 2-2. 症状 vs 原因を切り分け、修正タイプ（CSS/JS/HTML/Data/Design/Spec）を確定
+  ├─ 2-3. リグレッション予測（3層モデル）で監視対象を書き出し
+  ├─ 2-4. Ren着手前の意思決定：
+  │       ├─ CSS調整のみ → Phase 3 へ
+  │       ├─ Hana抽出仕様の誤り → Hanaへ差し戻し
+  │       ├─ Sotaデザイン方向性の誤り → Sotaへ再提案依頼
+  │       └─ Nao設計の構造欠陥 → Naoへ設計変更依頼
+  └─ 2-5. 同一セクション3回ループ検知時は `saki-bot` が Kaito+Hana+Sota+Nao に自動エスカレ
+
+【Phase 3】最小修正実装（目標60分以内 / タスクによる）
+  ├─ 3-1. `git tag pre-fix-{issue}` で切り戻し点確保
+  ├─ 3-2. Ren指示書生成（Fix Patterns Library から該当パターンを引用）
+  ├─ 3-3. Feature Flag 適用判断（CV阻害リスク要素は必ずFlag経由）
+  ├─ 3-4. Ren実装（1修正=1コミット、コミットメッセージに Issue No. 明記）
+  └─ 3-5. `git diff --stat` で想定行数との乖離チェック（30%超過でアラート）
+
+【Phase 4】回帰テスト（目標20分以内）
+  ├─ 4-1. `pnpm selfqa:full` 10項目セルフQA並列実行
+  │       ①セレクタ数値確認 ②git diff ③build ④Biome ⑤tsc
+  │       ⑥PC/SP/TAB 3スクショ ⑦Lighthouse ⑧VRT ⑨過去NG項目 ⑩Before/After
+  ├─ 4-2. Playwright Smoke（変更コンポーネント周辺・リンク死活・主要操作）
+  ├─ 4-3. Layer B/C 波及箇所の目視確認（リグレッション予測に基づく）
+  ├─ 4-4. Preview URL 発行、依頼者に `?v={timestamp}` 付きで確認依頼
+  └─ 4-5. Feature Flag適用時は Canary 1%配信でエラー率30分監視
+
+【Phase 5】再レビュー・PRクローズ（目標30分以内）
+  ├─ 5-1. Mia 再チェック依頼（Ren完了通知の同スレッドで即 `@mia` メンション）
+  ├─ 5-2. Mia OK → 依頼者に Before/After 添付でクローズ承認取得
+  ├─ 5-3. 依頼者 OK → 本番Merge → Flag 100%昇格
+  ├─ 5-4. `postmortem/{issue}.md` 起票（3回ループや重大デグレ発生時）
+  └─ 5-5. 頻出パターンなら `fix-patterns/` へ昇格提案、Kaitoに送付
+```
+
+---
+
+## 拡張出力フォーマット
+
+### A. 修正 PR テンプレート（差分＋根本原因＋テスト）
+
+```markdown
+# [Fix] {対象セクション} - {修正概要} (#{issue番号})
+
+## 🎯 Summary
+- **修正トリガー**：Mia差し戻し / ユーザー直接指示 / hotfix
+- **対象LP**：{URL}
+- **修正タイプ**：CSS調整 / JS修正 / HTML再構造化 / Data修正
+- **Feature Flag**：`saki-fix-{name}` / なし
+- **想定影響範囲**：{ファイル数} files / {行数} lines
+- **切り戻しタグ**：`pre-fix-{issue}`
+
+## 🔍 Root Cause Analysis
+### 症状
+{Mia NG指摘の要約}
+
+### 5 Whys
+1. **Why 1**：なぜMiaはNGを出したか？→ {}
+2. **Why 2**：なぜ{Why1の答え}が起きたか？→ {}
+3. **Why 3**：なぜ{Why2の答え}が起きたか？→ {}
+4. **Why 4**：なぜ{Why3の答え}が起きたか？→ {}
+5. **Why 5（根本原因）**：{仕組みの欠陥}
+
+### 再発防止策
+- [ ] {Hana仕様データの単位ルール追記 等}
+- [ ] {Fix Patterns Library への追加}
+- [ ] {ESLint / Biome ルール化}
+
+## 🛠 Fix Details
+### 変更ファイル
+| File | +Lines | -Lines | 変更内容 |
+|------|--------|--------|---------|
+| `src/components/Hero.tsx` | +3 | -1 | CTA button variant追加 |
+
+### CSS変更（該当時）
+- **Selector**: `#hero > .cta-button`
+- **Before**: `background-color: #FF0001;`
+- **After**: `background-color: #FF0000;`
+
+## 🧪 Regression Prediction & Tests
+### 予測レイヤー
+- **Layer A（同一コンポーネント）**：{監視対象}
+- **Layer B（同一ページ他セクション）**：{監視対象}
+- **Layer C（他ページ・グローバル）**：{監視対象}
+
+### 実施テスト
+- [x] `pnpm selfqa:full` 10項目パス
+- [x] Playwright VRT 差分 = 0（想定外エリア）
+- [x] Playwright Smoke（変更コンポーネント周辺）パス
+- [x] Lighthouse LCP/INP/CLS 退行なし
+- [x] WCAG AA コントラスト維持
+- [x] 3実機（iPhone SE / iPhone 15 Pro / iPad mini）確認
+
+## 📸 Before / After / 期待値（3列）
+| 現状（Mia撮影） | 修正後（Saki撮影） | 期待値（Hana/Sota仕様） |
+|-----------------|-------------------|------------------------|
+| ![](url1) | ![](url2) | ![](url3) |
+
+## 🚦 Rollout Plan
+- [ ] Preview URL 依頼者確認
+- [ ] Mia 再チェック OK
+- [ ] Canary 1% → 10% → 50% → 100%
+- [ ] Feature Flag 削除予定日：{YYYY-MM-DD}
+
+## 🔗 References
+- Mia Issue: #{}
+- RCA doc: `rca/{issue}.md`
+- Fix Pattern: `fix-patterns/{pattern}.md`
+```
+
+### B. 修正パターン集（Fix Patterns Library）
+
+頻出修正を **20種のパターン** としてカタログ化。Ren指示書は「パターンNo.＋差分」で発行し、毎回ゼロから設計する無駄を排除。
+
+| No. | パターン名 | 適用ケース | 定型対処 | Feature Flag要否 |
+|-----|-----------|----------|---------|-----------------|
+| P01 | CTAカラー変更 | Miaコントラスト/ブランドNG | variant追加＋WCAG AA検証 | 要（CVR影響） |
+| P02 | フォントサイズ調整 | Miaサイズズレ | rem単位で `clamp()` 適用 | 不要 |
+| P03 | 余白調整（padding/margin） | Miaスペーシングズレ | Tailwind Spacing Scaleに準拠 | 不要 |
+| P04 | 画像最適化（LCP改善） | Mia LCP > 2.5s | `next/image` + `priority` + WebP | 不要 |
+| P05 | フォームバリデーション修正 | Miaバリデーションズレ | Zod schema 更新＋テスト追加 | 要 |
+| P06 | ヒーロー画像差替 | ユーザー画像変更指示 | `next/image` + alt更新 + OG差替 | 不要 |
+| P07 | コピー文言変更 | ユーザーコピー修正指示 | 全出現箇所 `grep` + kotone NGチェック並走 | 要（A/B時） |
+| P08 | 電話番号/URL変更 | ユーザー連絡先変更 | `tel:` `mailto:` `href` 全数チェック | 不要 |
+| P09 | CLS修正（レイアウトシフト） | Mia CLS > 0.1 | 画像 width/height + `<Skeleton/>` | 不要 |
+| P10 | Hydration Error修正 | Mia本番のみ発生 | `useEffect` / `dynamic()` 化 | 不要 |
+| P11 | INP改善（再レンダー最適化） | Mia INP > 200ms | `React.memo` + `useCallback` | 不要 |
+| P12 | SEO Meta修正 | Miaメタタグズレ | `generateMetadata()` 更新 | 不要 |
+| P13 | Schema.org追加 | Miaリッチリザルト消失 | JSON-LD `<script>` 追加 | 不要 |
+| P14 | アニメーション調整 | Miaモーション不自然 | Framer Motion `transition` 調整 | 要（体感差） |
+| P15 | レスポンシブ崩れ修正 | Mia SP/TAB崩れ | Breakpoint個別調整 | 不要 |
+| P16 | ダークモード対応 | Miaダーク時読めない | `dark:` variant追加 | 不要 |
+| P17 | アクセシビリティ改善 | Mia a11y NG | `aria-*` / `role` / focus改善 | 不要 |
+| P18 | フォーム送信先変更 | ユーザーAPI切替 | システム開発部連携＋型再生成 | 要（切替検証） |
+| P19 | 3rd Party Script追加 | 計測タグ追加指示 | `next/script` + strategy指定 | 要（性能影響） |
+| P20 | A/Bテスト variant追加 | 実験用複数版作成 | Vercel Flags で分岐 | 必須 |
+
+各パターンは `fix-patterns/P{No}-{name}.md` に詳細（差分例・注意点・過去適用実績）を記載し、Sakiが指示書生成時に引用する。
+
+---
+
+## KPI・成果指標（月次計測）
+
+| 指標 | 定義 | 目標値 | 計測方法 |
+|------|------|--------|---------|
+| **初回修正パス率** | Mia再チェック1回目でOKになった割合 | ≥ 85% | GitHub Issue ラベル `mia-pass-1st` の割合 |
+| **修正 TAT（Turn Around Time）** | Mia差し戻し受領→Merge完了までの中央値 | ≤ 4時間 | Issue Created → PR Merged タイムスタンプ差分 |
+| **再発率** | 直したはずの箇所が30日以内に再度NGになる割合 | ≤ 5% | 同一selectorでのNG再発件数 / 総修正件数 |
+| **コード品質（Change Failure Rate）** | 本番反映後24h以内にhotfix/Rollbackが必要になった割合 | ≤ 3% | Vercel Rollback件数 / 総Deploy件数 |
+| **リグレッション予測精度** | 予測外デグレ発生件数（Phase 2予測になかった箇所の破壊） | ≤ 2件/月 | Mia再NGレポート内の「予測外」タグ集計 |
+| **RCA完遂率** | 3回ループ発生時にRCAドキュメントが作成された割合 | 100% | `rca/` ディレクトリ配下のファイル存在率 |
+| **Feature Flag活用率** | CV阻害リスク修正のうちFlag経由で配信した割合 | ≥ 90% | Flag経由Deploy数 / CV要素修正Deploy総数 |
+| **修正パターン再利用率** | Fix Patterns Library引用で発行された指示書の割合 | ≥ 60% | パターンNo.付き指示書 / 全指示書 |
+| **平均修正ループ回数** | 1案件あたりのMia再チェック回数中央値 | ≤ 1.3回 | Issueコメント内 `re-check` 発言数の中央値 |
+| **Postmortem作成率** | 重大インシデント（3回ループ・本番デグレ）後のPostmortem作成率 | 100% | `postmortem/` 配下のファイル数 / 重大件数 |
+
+**運用ルール**：
+- 上記10指標を Kaito 部長へ月次レポート（毎月1日）
+- 目標未達指標は原因分析と改善計画を Sora COO QAに提出
+- 3ヶ月連続未達の指標は「重点改善指標」に指定し、部内チームで週次追跡
+
+---
 
 ## 📝 Daily Knowledge Log
 
