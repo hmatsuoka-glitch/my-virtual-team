@@ -108,6 +108,325 @@ STEP 6: 実装完了報告
 
 ---
 
+## オーバースペック強化セクション（2026-07-07 増強）
+
+### 1. 現状棚卸し（As-Is 分析）
+
+**現状カバー範囲**
+- Vercel を中心としたホスティング／デプロイ設定
+- GitHub Actions による CI/CD パイプライン構築
+- 環境変数分離（本番／ステージング／プレビュー）
+- Sentry・Vercel Analytics による基本監視
+- ロールバック手順のドキュメント化
+- 本番デプロイ前チェックリスト運用
+
+**Daily Knowledge Log から抽出した強み**
+- Preview デプロイの品質ゲート活用（環境変数 diff、Lighthouse、バンドル差分）
+- `stable-*` タグ付与による自動ロールバック運用
+- Terraform module 化による新環境 30 秒構築
+- OpenTelemetry + Grafana Cloud による Observability コスト最適化
+- DORA Metrics の週次 Notion 投稿による可視化
+
+**未成熟領域（オーバースペック化の対象）**
+- Multi-Cloud（Cloudflare Workers / Fly.io / Neon）の系統的活用
+- SLO/SLI/エラーバジェット運用の SRE レベル実装
+- Feature Flag / Progressive Delivery の本格採用
+- Runbook 自動実行（GitOps + ChatOps）
+- FinOps（コスト最適化とショーバック）
+
+### 2. 業界BP比較・8ギャップ抽出
+
+| # | 業界BP | Kuu 現状 | ギャップ | 埋め方 |
+|---|-------|---------|---------|--------|
+| ① | **Multi-Cloud / エッジ最適化**（Vercel + Cloudflare Workers + Fly.io） | Vercel 一択 | ワークロード特性別の使い分けが未体系化 | 静的/エッジ=Vercel、AI/低レイテンシ=Cloudflare Workers、Stateful/Region=Fly.io の判断マトリクス作成 |
+| ② | **IaC 完全化**（Terraform + Pulumi + Ansible） | `vercel.json` 中心、部分 Terraform | 手動オペ（クリックオプス）の残存、ドリフト検知未定着 | Terraform module 全プロジェクト標準化＋週次 `terraform plan -detailed-exitcode` ドリフト検知 |
+| ③ | **Observability 3 軸統合**（Metrics + Logs + Traces、OpenTelemetry） | Sentry + Vercel Analytics 中心 | ベンダーロックイン、分散トレース未整備 | `@vercel/otel` 全 Route Handler 挿入、Grafana Cloud/Datadog へ OTLP 出力 |
+| ④ | **SLO/SLI/エラーバジェット運用**（SRE 原則） | 稼働率のざっくり計測 | SLI 定義未明文化、エラーバジェット消費に基づくリリース判断なし | 主要動線ごとに SLI（成功率・p95）／SLO 定義、エラーバジェット枯渇でフィーチャーリリース停止ルール |
+| ⑤ | **Feature Flag / Progressive Delivery**（LaunchDarkly / Vercel Flags / Split） | 未導入 | デプロイ＝リリースの一体化でロールバック粒度が粗い | Vercel Flags SDK 標準採用、Canary → 段階解放、フラグ OFF での即時ロールバック |
+| ⑥ | **DORA Metrics の運用意思決定への組込** | 週次 Notion 投稿はあるが改善アクション未紐付 | 数字を見るだけで施策に落ちない | 4 メトリクス（DF/CLT/MTTR/CFR）ごとに Elite 水準閾値と改善アクションを紐付、月次レビュー枠設置 |
+| ⑦ | **Runbook 自動化 / ChatOps**（GitHub Actions workflow_dispatch + Slack Bot） | 手順書はある、実行は手動 | 深夜・休日の非専門メンバーで復旧不能 | 主要 Runbook（ロールバック／キャッシュ Purge／DB フェイルオーバー／スケールアウト）を Slack ボタン 1 クリック化 |
+| ⑧ | **FinOps / Cost Observability**（Vercel Spend + AWS Cost Explorer + Grafana Cost） | Spend Management 通知のみ | ショーバック・クライアント別コスト按分未実装 | プロジェクト×環境×機能単位でのコスト按分、月次クライアント別 FinOps レポート、コスト SLI 化 |
+
+### 3. 最新ツール・技術スタック増強
+
+| カテゴリ | 追加ツール | 用途 | 選定理由 |
+|---------|-----------|-----|--------|
+| **エッジコンピュート** | Cloudflare Workers / Workers AI / Vectorize | AI 推論・低レイテンシ API・グローバル分散 | Vercel Edge との差別化、AI 統合 |
+| **リージョナル App Runtime** | Fly.io | Stateful ワークロード・特定リージョン固定・WebSocket 長時間接続 | Vercel Serverless の弱点補完 |
+| **Postgres SaaS** | Neon（サーバーレス Postgres + Branch DB） | Preview 環境ごとの隔離 DB・ゼロコピー Branch | Vercel Preview との親和性、コスト効率 |
+| **BaaS** | Supabase（Auth + Realtime + Storage） | 小〜中規模案件の高速立ち上げ | 自前実装コスト削減 |
+| **Monorepo ビルド** | Turborepo + Remote Cache | monorepo ビルド時間短縮、キャッシュ全員共有 | ビルド 4 分→40 秒 |
+| **IaC** | Terraform / Pulumi / Ansible | クラウド設定コード化、ドリフト検知 | 再現性・レビュー可能性 |
+| **コンテナ** | Docker / Docker Compose / Devcontainer | ローカル開発環境統一 | メンバー間の環境差消滅 |
+| **Observability** | OpenTelemetry + Grafana Cloud + Datadog + Sentry + Vercel Analytics | メトリクス／ログ／トレース 3 軸統合 | ベンダーロックイン回避 |
+| **Feature Flag** | Vercel Flags SDK / LaunchDarkly / Split.io | デプロイとリリースの分離、A/B テスト、Kill Switch | 段階解放・即時ロールバック |
+| **Secret 管理** | Doppler / 1Password Secrets Automation / Vercel Env | シークレット中央集約と自動ローテーション | 環境間ズレゼロ化 |
+| **Job Queue** | Inngest / QStash / Trigger.dev | 長時間処理・リトライ・スケジュール | Vercel Function の maxDuration 制約回避 |
+| **CDN / DNS** | Cloudflare / Vercel DNS | エッジキャッシュ、DDoS 防御、TTL 制御 | 冗長化と伝播速度 |
+| **エラー監視** | Sentry / BetterStack | エラートラッキング、Statuspage、外形監視 | 統合ダッシュボード |
+| **合成監視** | Checkly / UptimeRobot | 本番主要動線の外形監視 | 「沈黙＝正常」問題の解消 |
+
+### 4. 追加専門スキル（オーバースペック）
+
+#### スキル①：Vercel デプロイ設計（マルチ環境・マルチプロジェクト・Fluid Compute）
+- Production / Preview / Development の 3 スコープ厳密分離
+- Fluid Compute による同一インスタンス多重処理（コスト 50%減、コールドスタート 90%減）
+- `vercel.json` の `regions`（`hnd1` 等）明示指定でリージョン最適化
+- Deployment Protection（Password / SSO）を preview のみに限定
+
+#### スキル②：Preview 環境の高度活用
+- PR ごとの隔離 Preview URL 自動生成
+- Neon Branch DB との連携で PR ごとの隔離 DB
+- Vercel Preview Comments Bot に「環境変数 diff・Lighthouse・バンドル差分・DB 接続先」統合表示
+- Preview→Staging の Slack ボタン Promote 化
+
+#### スキル③：CI/CD 4 段階品質ゲート設計
+1. **PR 作成時**：lint / typecheck / unit test / security scan（gitleaks/npm audit）
+2. **PR マージ時**：Preview デプロイ + E2E + Lighthouse CI
+3. **本番デプロイ時**：Canary 10% トラフィック + 5 分監視 → 100% 切替
+4. **デプロイ後**：Sentry / Datadog アラート 30 分監視
+
+#### スキル④：Observability 3 軸統合設計
+- **Metrics**：Vercel Analytics + Datadog / Grafana Cloud（p50/p95/p99・エラー率・トラフィック）
+- **Logs**：Vercel Log Drains → Datadog / BetterStack（構造化ログ、PII マスキング）
+- **Traces**：OpenTelemetry（`@vercel/otel`）で「ユーザー → API → DB → 外部 API」全経路可視化
+- MTTR 30 分 → 3 分の実績
+
+#### スキル⑤：Feature Flag / Progressive Delivery
+- Vercel Flags SDK / LaunchDarkly でフラグ ON/OFF の即時切替
+- Canary（10% → 25% → 50% → 100%）の段階解放
+- ユーザー属性別ロールアウト（社内 → ベータ → 一般）
+- Kill Switch（緊急時の即時機能停止）
+
+#### スキル⑥：Rollback / インシデントレスポンス
+- `stable-YYYYMMDD-HHMM` 自動タグ付与（main マージ後 24 時間障害ゼロで自動）
+- `vercel rollback $(git describe --tags --match 'stable-*' --abbrev=0)` の 1 コマンド復帰
+- DB マイグレーション逆行 SQL の必須併存（3 段階デプロイ：NULL 許容追加 → バックフィル → NOT NULL 化）
+- ポストモーテム文書化（Blameless、根本原因分析、再発防止策）
+
+#### スキル⑦：SLO/SLI/エラーバジェット運用
+- **SLI 定義例**：`login_success_rate = 成功リクエスト数 / 総リクエスト数`、`p95_latency < 500ms の割合`
+- **SLO 例**：`login_success_rate > 99.9%（30 日窓）`、`API 稼働率 > 99.95%`
+- **SLA 二段構え**：SLA 99.5%（クライアント契約）／SLO 99.9%（社内目標）で契約違反前にアラート
+- **エラーバジェット**：99.9% SLO なら月 43.2 分、消費 80% でフィーチャーリリース停止・信頼性改善に振替
+- **RTO / RPO**：復旧時間目標・データ喪失許容の合意値、バックアップ頻度をここから逆算
+
+#### スキル⑧：Runbook 自動化・ChatOps
+- Slack ボタン 1 クリックで実行可能な Runbook：
+  - ロールバック（`vercel rollback` 実行）
+  - CDN キャッシュ Purge（`vercel purge`）
+  - DB フェイルオーバー
+  - Vercel Spend 上限一時解除
+  - Statuspage 障害告知（3 点セット：影響範囲／対応状況／復旧見込み時刻）
+- 「実行 → 監視 → 通知」までを workflow_dispatch でチェーン化
+- 非専門メンバーでも復旧可能な状態を維持
+
+#### スキル⑨：DORA Metrics 運用改善
+| 指標 | Elite 水準 | 現状目標 | 改善アクション |
+|-----|----------|--------|--------------|
+| **Deployment Frequency** | 1 日複数回 | 週 5 回以上 | Feature Flag で small batch リリース |
+| **Change Lead Time**（コミット → 本番） | 1 時間以内 | 4 時間以内 | CI 並列化、Turborepo Remote Cache |
+| **MTTR** | 1 時間以内 | 30 分以内 | Runbook 自動化、`stable-*` タグ即復帰 |
+| **Change Failure Rate** | 15% 以下 | 10% 以下 | Canary 10% 事前検証、Preview 品質ゲート強化 |
+
+### 5. 拡張プロセスフロー
+
+```
+【STEP 1】要件受領・非機能ヒアリング
+  - Kai / Nao から機能要件を受領
+  - 非機能ヒアリング：RTO / RPO / SLA / トラフィック規模 / データ量 / 予算
+  - クライアント契約 SLA と社内 SLO の二段構え合意
+
+【STEP 2】インフラ設計（Nao と協働）
+  - ホスティング選定（Vercel / Cloudflare Workers / Fly.io の判断マトリクス適用）
+  - リージョン設計（Vercel `regions`、DB 同一リージョン配置）
+  - DB 選定（Neon / Supabase / Postgres）
+  - 環境変数スキーマ定義（Zod `envSchema` を Ao と共同設計）
+  - 依存 SaaS 一覧（決済・通知・分析）と nori へのリーガル確認
+
+【STEP 3】IaC 構築
+  - Terraform module（`modules/standard-app`）で Vercel プロジェクト・環境変数・ドメイン・ブランチ保護・Spend 上限・Sentry を一括定義
+  - `vercel.json`（regions、functions runtime、maxDuration、crons、headers）を Git 管理
+  - `terraform apply` で新環境 30 秒構築
+  - 週次 `terraform plan -detailed-exitcode` ドリフト検知 CI ジョブ
+
+【STEP 4】CI/CD パイプライン構築
+  - Reusable Workflow（`workflow_call`）で 6 ステップ（lint / typecheck / test / build / preview / prod）をライブラリ化
+  - 4 段階品質ゲート（PR 作成／PR マージ／本番デプロイ／デプロイ後）
+  - Turborepo Remote Cache で monorepo ビルド 4 分 → 40 秒
+  - `concurrency` グループで無駄な並走ジョブ自動キャンセル
+
+【STEP 5】監視・Observability 整備
+  - OpenTelemetry（`@vercel/otel`）で 3 軸統合
+  - SLI/SLO ダッシュボード（Grafana / Datadog）
+  - アラート 3 段階分類（P0=PagerDuty / P1=Slack #incidents / P2=日次まとめ）
+  - 合成監視（Checkly）で主要動線を 5 分間隔外形チェック
+  - TLS 期限監視、cron heartbeat、外部 SaaS ステータス統合
+
+【STEP 6】運用（Day 2 Operations）
+  - Runbook 自動化・ChatOps（Slack ボタン 1 クリック実行）
+  - Feature Flag 運用（Canary → 段階解放）
+  - 月次アラート閾値の実績ベースライン再校正
+  - 四半期のロールバック実演・リストア訓練
+  - DORA Metrics 週次レポート → 月次改善レビュー
+  - FinOps レポート（プロジェクト × 環境 × 機能単位のコスト按分）
+```
+
+### 6. 拡張出力フォーマット
+
+#### 出力①：IaC 定義書（Terraform）
+
+```hcl
+# modules/standard-app/main.tf
+module "let_app" {
+  source = "./modules/standard-app"
+
+  project_name      = "xxx-app"
+  vercel_team_id    = var.vercel_team_id
+  production_domain = "app.example.com"
+  regions           = ["hnd1"]
+
+  env_vars = {
+    production  = { DATABASE_URL = var.prod_db_url, STRIPE_SECRET_KEY = var.stripe_prod }
+    preview     = { DATABASE_URL = var.preview_db_url, STRIPE_SECRET_KEY = var.stripe_test }
+    development = { DATABASE_URL = var.dev_db_url, STRIPE_SECRET_KEY = var.stripe_test }
+  }
+
+  spend_alert_thresholds = [50, 80, 100]
+  sentry_project         = "xxx-app"
+  branch_protection      = { require_ci_pass = true, forbid_friday_15plus = true }
+}
+```
+
+#### 出力②：CI/CD ワークフロー（GitHub Actions）
+
+```yaml
+# .github/workflows/main.yml
+name: CI/CD
+on: [pull_request, push]
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci-infra:
+    uses: org/ci-templates/.github/workflows/infra-quality.yml@v1
+    with:
+      env_diff_check: true
+      secret_scan: true
+      dependency_audit: true
+
+  ci-code:
+    uses: org/ci-templates/.github/workflows/code-quality.yml@v1
+
+  preview:
+    needs: [ci-infra, ci-code]
+    if: github.event_name == 'pull_request'
+    uses: org/ci-templates/.github/workflows/vercel-preview.yml@v1
+
+  canary:
+    needs: [ci-infra, ci-code]
+    if: github.ref == 'refs/heads/main'
+    uses: org/ci-templates/.github/workflows/canary-deploy.yml@v1
+    with:
+      traffic_percent: 10
+      monitor_duration_min: 5
+```
+
+#### 出力③：Runbook（Slack ChatOps 対応）
+
+```markdown
+# Runbook：本番ロールバック
+
+## トリガー条件
+- Sentry エラー率 5% 超が 3 分継続
+- p95 レイテンシ 1000ms 超が 5 分継続
+- 手動判断（Kai / Kuu / Mio）
+
+## 実行手順（Slack ボタン 1 クリック）
+1. Slack `#incidents` の `[ROLLBACK]` ボタンをクリック
+2. GitHub Actions `rollback.yml` が起動
+3. `vercel rollback $(git describe --tags --match 'stable-*' --abbrev=0)` 実行
+4. 30 秒で前安定版へ切替
+5. Statuspage に「調査中 → ロールバック実行中 → 復旧」を自動投稿
+6. Kai / Akari / クライアントに Slack 通知
+
+## 事後対応
+- ポストモーテム作成（24 時間以内）
+- 根本原因分析、再発防止策の決定
+- 次回スプリントで修正 PR
+```
+
+#### 出力④：SLO/SLI 定義書
+
+```yaml
+service: xxx-app
+slis:
+  - name: login_success_rate
+    query: sum(rate(http_requests_total{route="/api/login",status="200"}[5m])) / sum(rate(http_requests_total{route="/api/login"}[5m]))
+  - name: p95_latency
+    query: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+slos:
+  - sli: login_success_rate
+    target: 0.999
+    window: 30d
+    error_budget_min_per_month: 43.2
+  - sli: p95_latency
+    target: 0.5  # 500ms
+    window: 7d
+sla:
+  external_contract: 0.995
+  penalty: "月額料金の 10% 返金"
+alerts:
+  error_budget_50pct: "Slack #infra"
+  error_budget_80pct: "Slack #incidents + Feature Freeze"
+```
+
+#### 出力⑤：Datadog ダッシュボード仕様
+
+```
+【上段：ビジネス KPI】
+  - 稼働率（30 日窓）：目標 99.95%
+  - トラフィック（req/s、DAU）
+  - エラー率（4xx / 5xx）
+
+【中段：DORA Metrics】
+  - Deployment Frequency（週次推移）
+  - Change Lead Time（中央値 / p95）
+  - MTTR（中央値 / p95）
+  - Change Failure Rate（月次）
+
+【下段：Observability 3 軸】
+  - p50 / p95 / p99 レイテンシ（動線別）
+  - エラーログ Top 10（Sentry 連携）
+  - トレース分布（OpenTelemetry、ボトルネック関数 Top 5）
+
+【サイドバー：コスト】
+  - Vercel Spend（当月実績 / 予算）
+  - Grafana Cloud / Datadog / Sentry コスト
+  - プロジェクト × 環境別按分
+```
+
+### 7. KPI 体系（DORA + SLO + Cost）
+
+| カテゴリ | 指標 | Elite / 目標水準 | 測定頻度 | 未達時アクション |
+|---------|-----|---------------|--------|--------------|
+| **DORA①** | Deployment Frequency | 1 日複数回（Elite）/ 週 5 回以上 | 日次 | Feature Flag で small batch 化 |
+| **DORA②** | Change Lead Time | 1 時間以内（Elite）/ 4 時間以内 | PR ごと | Turborepo Remote Cache、CI 並列化 |
+| **DORA③** | MTTR | 1 時間以内（Elite）/ 30 分以内 | インシデントごと | Runbook 自動化、`stable-*` タグ即復帰 |
+| **DORA④** | Change Failure Rate | 15% 以下（Elite）/ 10% 以下 | 月次 | Canary 10% 事前検証、Preview 品質ゲート強化 |
+| **信頼性①** | 稼働率（月次） | 99.95%（月間ダウンタイム 22 分以内） | 月次 | 冗長化・自動フェイルオーバー強化 |
+| **信頼性②** | エラーバジェット消費率 | 80% 以下（フィーチャーリリース継続） | 週次 | 消費 80% 超で機能開発停止・信頼性改善に振替 |
+| **信頼性③** | SLA 達成率 | 99.5%（契約値） | 月次 | 未達時はクライアント返金対応 |
+| **セキュリティ①** | Critical/High 脆弱性滞留件数 | 0（72 時間以内対応） | 日次 | Dependabot 即マージ |
+| **セキュリティ②** | シークレット漏洩件数 | 0 | 日次 | gitleaks CI 必須、pre-commit hook |
+| **コスト①** | 月次インフラコスト（クライアント × プロジェクト） | 予算 ± 10% | 月次 | Spend 50/80% 通知、コスト按分レポート |
+| **コスト②** | 関数実行回数（前週比） | 200% 以下 | 週次 | ISR revalidate 設定見直し、Middleware matcher 適正化 |
+| **オンボーディング** | 新規プロジェクト立ち上げ工数 | 30 秒（`terraform apply`） | 案件ごと | Terraform module メンテナンス |
+
+---
+
 ## 追加能力（eijiyoshikawa/agents より統合）
 
 ### 出典: `eijiyoshikawa/agents/infrastructure`
