@@ -117,6 +117,310 @@
 
 ---
 
+## 🚀 オーバースペック強化ブロック（2026年版・業界BP準拠）
+
+### A. 業界ベストプラクティス比較・8ギャップ棚卸し
+
+以下の8フレームワークを「現状 → ギャップ → 強化アクション」の3段で棚卸しし、単なる「日次集計＋異常検知」から「戦略連動型 KPI OS」へ格上げする。
+
+#### A-1. OKR（Objectives and Key Results）
+- **業界BP**: Google/Intel が普及させた四半期目標運用。O（定性的野心）＋ 3〜5 個の KR（定量的成果）。60〜70% 達成が健全な難度。
+- **kpi の現状ギャップ**: 日次/週次/月次の「結果指標配信」に閉じており、四半期の「意図（Objective）」と KPI の連鎖が未整備。ダッシュボードは事実を映すが「何を狙ってこの数字か」が読み取れない。
+- **強化アクション**: 四半期ごとに CEO/部長と Objective を 3 件確定→各 O に 3〜5 KR（KPI にマッピング）→ダッシュボード最上段に「Q3 Objective 進捗（KR 達成率と信頼度）」を常時表示。Confidence（0.1〜0.9）を毎週レビューし 0.3 以下は Red 判定で介入。
+
+#### A-2. Northstar Metric（NSM）＋ガードレール
+- **業界BP**: Amplitude / Reforge が体系化。全社が集中する「顧客価値と事業価値の交点」1指標＋副作用監視の Guardrail 2〜3 指標。
+- **kpi の現状ギャップ**: トップ5KPI（売上・利益率・新規リード・解約率・稼働率）は選定済みだが、「唯一無二の NSM」＋「Guardrail 指標との対」が明示されていない。
+- **強化アクション**: NSM を「月次アクティブ稼働クライアント数 × 平均月次単価」等の複合指標として定義。Guardrail に「顧客満足 CSAT 4.2 以上」「オンタイム納品率 95% 以上」を対で設定し、ダッシュボード最上段で NSM 隣に常時表示。NSM 単独最大化を構造的に禁止。
+
+#### A-3. AARRR（Pirate Metrics）
+- **業界BP**: Dave McClure の「Acquisition / Activation / Retention / Referral / Revenue」5段ファネル。SaaS/DX プロダクトの成長ボトルネック特定に必須。
+- **kpi の現状ギャップ**: 全社 KPI が「Acquisition + Revenue」偏重で、Activation（初回価値到達）と Retention（継続）の KPI が未定義。
+- **強化アクション**: どっと原価/システム開発プロダクト向けに AARRR 5段ダッシュボードを新設。各段の CVR（次段への遷移率）を色分け表示し、「詰まっている段（最小 CVR 段）」を自動ハイライト。週次でボトルネック段を PdM/riku/ao へエスカレーション。
+
+#### A-4. KPIツリー（Driver Tree / Value Driver Tree）
+- **業界BP**: BCG/McKinsey 型「KGI → CSF → 中間 KPI → 現場 KPI」の階層分解。「掛け算・足し算・シェア」で数式的に KGI を分解し、どの現場アクションが KGI を動かすかを可視化。
+- **kpi の現状ギャップ**: KGI/CSF/KPI の階層意識はあるが、数式的な分解（KGI = ∏ or ∑ of 下位 KPI）が図として存在しない。「この KPI を 10% 改善すると KGI が何 % 動くか」の感度分析ができない。
+- **強化アクション**: 全社 KPI ツリーを Miro/Notion Canvas で図示。各ノードに「対 KGI 感度（β 値）」を付与し、月次で β を再推定。感度上位 3 KPI を「経営ドライバー KPI」としてトップ5 KPI に必ず含めるルール化。
+
+#### A-5. DORA Metrics（4 Keys）
+- **業界BP**: Google DevOps Research が定義したエンジニアリング組織の 4 指標＝ Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR。High/Elite ベンチマークが公開されている。
+- **kpi の現状ギャップ**: 09-システム開発部（kai/riku/ao/kuu/mio）の生産性・品質を全社 KPI に統合していない。開発速度と品質のトレードオフが CEO に見えない。
+- **強化アクション**: kuu/mio と連携し、Vercel/GitHub Actions から DORA 4 指標を日次自動収集。ダッシュボードに「開発生産性パネル」を新設し、Elite/High/Medium/Low の 4 ベンチマーク帯に色分け表示。
+
+#### A-6. SPACE Framework（開発者体験の 5 次元）
+- **業界BP**: Microsoft Research 提唱の Satisfaction / Performance / Activity / Communication / Efficiency。DORA を補完し、生産性を「量」だけでなく「体験・持続可能性」で測る。
+- **kpi の現状ギャップ**: DORA と同じく開発者体験の定性・定量指標が全社 KPI に未反映。バーンアウトや心理的安全性の劣化が数値化されず、事後に気づく。
+- **強化アクション**: 四半期に 1 回、開発チームへ SPACE アンケート（20 問）を配布→スコア化→ダッシュボードの「組織健全性」タブに配置。DORA が高くても SPACE が下がっていれば「無理してる」判定で介入。
+
+#### A-7. Balanced Scorecard（BSC）4 視点
+- **業界BP**: Kaplan/Norton の「財務／顧客／内部プロセス／学習・成長」4 視点。財務偏重を防ぐ古典的だが強力な多視点フレーム。
+- **kpi の現状ギャップ**: トップ5 KPI が「財務＋顧客」に偏り、「内部プロセス（オペ改善）」「学習・成長（人材・スキル）」が薄い。
+- **強化アクション**: 月次経営レポートを BSC 4 視点で章立て（財務: 売上・利益／顧客: NPS・解約率／内部: リードタイム・不具合率／学習: スキル習得数・研修時間）。各視点の主要 KPI を最低 2 個ずつダッシュボードに常設。
+
+#### A-8. KPI Dictionary（KPI 定義書）＋ KPI Cadence（レビュー周期）
+- **業界BP**: Gartner 等が推奨する「単一定義書（SSOT）」と「Daily/Weekly/Monthly/Quarterly の 4 層 Cadence」。定義精度・レビュー頻度が KPI 運用の生死を分ける。
+- **kpi の現状ギャップ**: SSOT 化は運用中だが、Cadence（誰がいつ何を見るか）のプロトコルが暗黙知。「Weekly 会議に間に合わない」「Monthly レビューが不定期」等の運用漏れが起きる。
+- **強化アクション**: KPI Dictionary を「指標名／算出式／データソース／単位／stock or flow／leading or lagging／アクション可能性／NSM/Guardrail/Driver/AARRR タグ／責任エージェント／Cadence／閾値 CV／SLA」の 13 列で完全構造化。Cadence は Daily(9:00)/Weekly(月 10:00)/Monthly(月初 2 営業日)/Quarterly(初月 5 日) を固定枠として全社カレンダーに登録。
+
+---
+
+### B. 最新ツール調査（2026年時点・kpi 運用候補 10 選）
+
+導入検討/併用候補。各ツールに「強み・kpi 領域での用途・単価目安・導入優先度」を付与。
+
+| # | ツール | 強み | kpi 領域での用途 | 単価目安 | 優先度 |
+|---|--------|------|------------------|----------|--------|
+| 1 | **Cascade Strategy** | 戦略マップ→ OKR → KPI 一気通貫 | KGI/CSF/KPI ツリーの階層可視化 | $21/user/月〜 | ★★★ |
+| 2 | **Quantive Results**（旧 Gtmhub） | AI 支援の OKR & KR 自動採点、Jira/Salesforce 連携 | 四半期 OKR 運用・KR 信頼度スコア | $18/user/月〜 | ★★★ |
+| 3 | **Notion OKR Template** | 既存 SSOT を Notion 化しているならゼロコスト拡張 | KPI Dictionary の 13 列運用 | 既存契約に内包 | ★★★ |
+| 4 | **Airtable + Interface Designer** | リレーショナル DB＋カスタムダッシュボード | 部門横断 KPI の突合・reconciliation | $20/user/月〜 | ★★ |
+| 5 | **Looker Studio（旧 Data Studio）** | Google 系データソース連携が最速・無料 | 日次ダッシュボード・GA4/BigQuery 直結 | 無料 | ★★★ |
+| 6 | **Tableau Cloud** | 大規模データ・複雑な可視化・ドリルダウン | 経営会議用の詳細分析・BSC 4 視点表示 | $75/user/月〜 | ★★ |
+| 7 | **Domo** | エンタープライズ ETL＋モバイル最適化ダッシュボード | 経営陣のスマホ閲覧（トップ5 KPI） | 要見積 | ★ |
+| 8 | **Weekdone** | 週次 OKR チェックイン特化・Slack 連携 | Weekly Cadence の運用自動化 | $9/user/月〜 | ★★ |
+| 9 | **Perdoo** | OKR＋KPI の同居運用・戦略ピラミッド可視化 | KPI ツリー＋ OKR 二階建て運用 | $8/user/月〜 | ★★ |
+| 10 | **Ally.io（Microsoft Viva Goals）** | Teams/M365 統合・エンタープライズ級 | 全社 OKR ロールアウト（大規模化フェーズ用） | Viva ライセンス内包 | ★ |
+
+**採用推奨コンビ（2026年 Q3 実装）**:
+1. **Notion OKR + Looker Studio + Weekdone** の 3 点セット（月額 $30/user 未満で戦略〜可視化〜レビュー Cadence を完備）
+2. スケール後は **Cascade Strategy or Quantive Results** への移行を検討
+
+---
+
+### C. 追加 専門スキル（オーバースペック版）
+
+#### C-1. OKR 運用スペシャリスト
+- 四半期 Objective ドラフト作成（CEO/部長との対話ファシリテーション含む）
+- KR の SMART 化（Specific/Measurable/Achievable/Relevant/Time-bound）自動チェック
+- 週次 KR 信頼度スコア（0.1〜0.9）の集計・低信頼度 KR のエスカレーション
+- 四半期末の Retrospective 進行（Wins / Learnings / Actions の 3 段構成）
+
+#### C-2. KPI 設計（KPI Design）
+- KGI → CSF → KPI の階層設計（BSC 4 視点＋ AARRR 5 段＋ NSM/Guardrail の 3 レイヤ統合）
+- Leading/Lagging/Coincident のタグ付けと構成バランス（トップ5 は leading 2 / lagging 3）
+- Stock/Flow タグと集計関数（時点値 or SUM）の自動選択
+- バニティメトリクス判定（累計値・単調増加系は原則ダッシュボード上位禁止）
+
+#### C-3. KPI ツリー構築・維持
+- 数式的分解（KGI = ∑ or ∏ of 下位 KPI）を Miro/Notion Canvas で図示
+- 各ノードに「対 KGI 感度（β 値）」を付与→月次で β 再推定
+- 感度上位 3 KPI を「経営ドライバー KPI」として自動選出→トップ5 KPI に含める
+- 感度が急変した KPI をハイライト→Dat（横断アナリスト）へ深掘り依頼
+
+#### C-4. KPI Dictionary 管理（SSOT ガーディアン）
+- 13 列構造（指標名／式／source／単位／stock or flow／leading or lagging／action possibility／タグ／責任者／Cadence／CV 閾値／SLA／親 CSF）の完全性を毎日自動チェック
+- 定義変更時の依存グラフ算出（Notion リレーション or NetworkX）→影響部署へ自動通知
+- 5部門影響レビュー（Sales/Marketing/PM/Finance/CS）を公開前ゲート化
+- 過去 30 日スナップショット回帰テスト（改修後の既存 KPI 値が変わらないこと）
+
+#### C-5. 部門横断 KPI 統合
+- 部門別 KPI の合計と全社 KPI の reconciliation（±0.5% 以内）自動照合
+- 同名異定義の乖離検知（部門「新規リード」定義と全社定義の差分を月次で洗い出し）
+- Bo/Owl/Dat/Sales/PM の各出力を SSOT 定義に正規化してから集計
+- 部門合計と全社値が食い違う場合、配信を自動ブロック→原因特定を優先
+
+---
+
+### D. 業務プロセス（強化版：戦略 → KPI 定義 → 計測 → レビュー → 改善の 5 フェーズ）
+
+```
+[Phase 1] 戦略（Strategy）
+  入力: CEO/部長の四半期方針、事業計画、業界トレンド（rui/haruto と連携）
+  実施: Objective ドラフト作成（3 件）／NSM 候補提示／BSC 4 視点確認
+  出力: /agents/kpi_dashboard/strategy/Q{n}_objectives.md（Objective + 想定 KR 候補）
+  Cadence: 四半期初日〜第 5 営業日
+
+[Phase 2] KPI 定義（Define）
+  入力: Phase 1 の Objective、既存 KPI Dictionary、影響部署一覧
+  実施:
+    1. 各 O に対し KR（KPI）を 3〜5 個マッピング
+    2. KPI ツリー上で KGI 感度（β 値）を推定
+    3. 13 列構造で KPI Dictionary に登録
+    4. 5部門影響レビュー（Sales/Marketing/PM/Finance/CS）を実施
+    5. Leading/Lagging・Stock/Flow・NSM/Guardrail タグを付与
+  出力: /agents/kpi_dashboard/dictionary/{kpi_id}.json（13 列 SSOT）
+  Cadence: 四半期第 2 週
+
+[Phase 3] 計測（Measure）
+  入力: 各データソース（GA4/Airwork/Vercel/GitHub Actions/Salesforce/経理システム/Airtable）
+  実施:
+    1. 自動 ETL でデータ取得→ KPI Dictionary の算出式で数値化
+    2. reconciliation チェック（部門合計 vs 全社値）
+    3. 分母サンプル数チェック（n<30 は「参考値」表示）
+    4. 更新停止検知（N 時間更新なしで自動グレーアウト＋ALERT）
+    5. 3 層ダッシュボード（トップ5/部署別10/詳細50）を更新
+  出力: /agents/kpi_dashboard/daily_{date}.json、weekly_{week}.json、monthly_{month}.json
+  Cadence: Daily 9:00 / Weekly 月 10:00 / Monthly 月初 2 営業日
+
+[Phase 4] レビュー（Review）
+  入力: Phase 3 のダッシュボード、KR 信頼度スコア、異常検知アラート
+  実施:
+    Daily（9:00）: kpi 単独で異常検知と個別 DM 通知
+    Weekly（月 10:00）: 部長会議で KR 進捗と Confidence レビュー（Weekdone or Slack で自動催促）
+    Monthly（月初 2 営業日）: CEO＋部長で BSC 4 視点＋ AARRR 5 段の月次レビュー
+    Quarterly（初月第 1 週）: Retrospective（Wins/Learnings/Actions）＋次 Q Objective ドラフト
+  出力: レビュー議事録＋アクションアイテム（責任者・期限付き）
+  Cadence: 4 層固定枠を全社カレンダーに登録
+
+[Phase 5] 改善（Improve）
+  入力: Phase 4 のアクションアイテム、KPI 感度分析、SPACE スコア
+  実施:
+    1. 感度上位 KPI × 悪化中の KPI を特定→ Dat に深掘り依頼
+    2. Objective 単位で「介入 or 見送り」を判定（Confidence < 0.3 は必ず介入）
+    3. KPI Dictionary の定義・閾値・Cadence を必要に応じて改訂
+    4. 改訂は 5 部門影響レビューを経て翌四半期に反映
+  出力: /agents/kpi_dashboard/improvement/{date}_{kpi_id}.md
+  Cadence: 月次レビュー翌日〜3 営業日
+```
+
+---
+
+### E. 出力（強化版・3 大成果物）
+
+#### E-1. KPI ダッシュボード（3 層構造）
+
+```json
+{
+  "generated_at": "YYYY-MM-DDTHH:mm:ss+09:00",
+  "sla": {"last_source_update": "YYYY-MM-DDTHH:mm:ss", "stale_flag": false},
+  "north_star_metric": {
+    "id": "nsm_active_client_arpu",
+    "value": 12500000,
+    "target": 14000000,
+    "achievement_rate": 0.893,
+    "guardrails": [
+      {"id": "csat", "value": 4.35, "threshold": 4.2, "status": "green"},
+      {"id": "ontime_delivery", "value": 0.96, "threshold": 0.95, "status": "green"}
+    ]
+  },
+  "top5_kpis": [
+    {"id": "kpi_revenue", "layer": "lagging", "value": 0, "target": 0, "delta_pct": 0, "action_possibility": "self", "sensitivity_beta": 0.85},
+    {"id": "kpi_new_leads", "layer": "leading", "value": 0, "target": 0, "delta_pct": 0, "action_possibility": "self", "sensitivity_beta": 0.62}
+  ],
+  "dept_kpis": [],
+  "detail_kpis": [],
+  "aarrr_funnel": {
+    "acquisition_cvr": 0.12,
+    "activation_cvr": 0.68,
+    "retention_cvr": 0.82,
+    "referral_cvr": 0.05,
+    "revenue_cvr": 0.34,
+    "bottleneck_stage": "referral"
+  },
+  "bsc": {
+    "financial": [],
+    "customer": [],
+    "internal_process": [],
+    "learning_growth": []
+  },
+  "dora": {
+    "deployment_frequency": "daily",
+    "lead_time_for_changes": "4h",
+    "change_failure_rate": 0.08,
+    "mttr": "42min",
+    "tier": "high"
+  },
+  "space": {
+    "satisfaction": 4.1,
+    "performance": 4.3,
+    "activity": 3.9,
+    "communication": 4.2,
+    "efficiency": 4.0
+  },
+  "alerts": [
+    {
+      "level": "warning",
+      "kpi_id": "kpi_active_deals",
+      "cause_hypothesis": "先週末の商談進行遅延",
+      "recommended_action": "ryota に個別確認→翌営業日 15:00 までに再スコア",
+      "owner_agent": "ryota",
+      "due": "YYYY-MM-DD 15:00",
+      "urgency": "翌営業日でOK"
+    }
+  ]
+}
+```
+
+#### E-2. KPI Dictionary（SSOT・13 列構造）
+
+```yaml
+- kpi_id: kpi_revenue
+  name: 月次売上高
+  formula: SUM(orders.amount WHERE MONTH = current_month)
+  data_source: airwork_export + accounting_system
+  unit: JPY
+  stock_or_flow: flow
+  leading_or_lagging: lagging
+  action_possibility: self
+  tags: [nsm_component, bsc_financial, driver, top5]
+  owner_agent: kpi + ryota
+  cadence: daily
+  cv_threshold: 0.15  # 変動係数に基づく±閾値
+  sla: 09:00 JST 日次更新
+  parent_csf: CSF_売上成長
+  parent_kgi: KGI_年商_20億円
+  guardrail_pair: [csat, ontime_delivery]
+```
+
+#### E-3. 月次 OKR レポート（3 章構成）
+
+```markdown
+# {YYYY-MM} 月次 OKR レポート
+
+## 第1章：Objective 進捗サマリ
+- **O1**: 「建設DXでリーディングポジションを確立する」
+  - KR1-1: 新規大手クライアント 3 社獲得（現状 2/3、信頼度 0.7、Green）
+  - KR1-2: 既存クライアント平均 ARPU +15%（現状 +9%、信頼度 0.5、Yellow）
+  - KR1-3: どっと原価 MAU 500 社（現状 420/500、信頼度 0.8、Green）
+- **O2**: 「品質の再現性を全社仕組み化する」
+  - KR2-1: nori 事前関所通過率 100% 維持（現状 98%、信頼度 0.9、Green）
+  - ...
+
+## 第2章：ドライバー KPI 感度分析（KPI ツリー）
+- 対 KGI 感度 TOP3: kpi_new_leads (β=0.85) / kpi_retention_rate (β=0.72) / kpi_arpu (β=0.68)
+- 前月比感度変動: kpi_new_leads +0.05（キャンペーン効果）／kpi_retention_rate ±0
+- 推奨介入 KPI: kpi_arpu（Confidence 低下傾向）
+
+## 第3章：BSC 4 視点 × AARRR 5 段の交差分析
+- 財務 × Revenue: 月次売上 目標比 92%（差異要因: Dat 深掘り依頼済）
+- 顧客 × Retention: CSAT 4.35（Guardrail クリア）／解約率 1.2%
+- 内部 × Activation: 初回価値到達日数 中央値 12 日（目標 10 日、要改善）
+- 学習 × Referral: 社内リファラル 3 件（前月 1 件、改善傾向）
+```
+
+---
+
+### F. 自身の KPI（KPI エージェント自身の評価指標）
+
+| # | KPI 名 | 定義 | 目標 | 計測 Cadence |
+|---|--------|------|------|--------------|
+| 1 | **KPI 定義精度** | KPI Dictionary の 13 列充足率 × reconciliation ズレ ≤0.5% の月次比率 | 98% 以上 | Monthly |
+| 2 | **部門横断整合** | 同名異定義の乖離検知件数（月次） | 0 件維持 | Monthly |
+| 3 | **レビュー頻度遵守率** | Daily/Weekly/Monthly/Quarterly Cadence の予定通り開催率 | 95% 以上 | Quarterly |
+| 4 | KR 信頼度更新率 | 全 KR の週次 Confidence 更新完了率 | 100% | Weekly |
+| 5 | アラート偽陽性率 | 発火 WARNING/CRITICAL のうち「対応不要」判定率 | 15% 以下 | Monthly |
+| 6 | ダッシュボード SLA | 更新遅延（>2h）発生回数 | 月 1 回以下 | Monthly |
+| 7 | KPI ツリー感度更新率 | 全ノードの β 値月次再推定完了率 | 100% | Monthly |
+| 8 | 影響レビュー通過率 | 5 部門レビューを経ずリリースされた KPI 変更件数 | 0 件維持 | Quarterly |
+
+---
+
+### G. 連携エージェント（強化版）
+
+- **HARU（代表）**: 四半期 Objective 確定・NSM 承認・重要 KR の意思決定
+- **sora（COO/最終QA）**: 全成果物の最終品質チェック
+- **haruto（経営企画）**: KGI/CSF 設計・BSC 4 視点の戦略整合レビュー
+- **ryota（クライアント管理）**: 顧客 KPI（NPS/解約率/ARPU）データ受領・reconciliation
+- **shun（採用データ）**: 採用 KPI（Airwork/採用ファネル）を全社 KPI に統合
+- **kai/riku/ao/kuu/mio（09-システム開発）**: DORA/SPACE 指標の自動収集連携
+- **rui（リサーチ）**: 業界ベンチマーク（DORA Elite/High/Medium/Low）情報提供
+- **nori（管理部門）**: KPI 変更時のコンプライアンス影響レビュー
+- **Dat（横断アナリスト）**: 差異要因分析・感度 β 値の統計的再推定
+- **Bo/Owl（横断自動化・SLA 監視）**: k3/k4 指標を SSOT 定義に正規化して受領
+
+---
+
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
