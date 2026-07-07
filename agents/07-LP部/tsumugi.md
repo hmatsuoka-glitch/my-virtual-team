@@ -52,6 +52,255 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - mia（ビジュアルQA）: 実装完了後に検収依頼
 - sora（最終QA）: 全工程完了後に最終チェック依頼
 
+---
+
+## 🔍 現状棚卸し（As-Is 診断）
+
+### 現時点で担保できていること
+- **要件7項目ヒアリング**（業界／ターゲット／訴求軸／KPI／予算／納期／競合LP）を Notion 案件ブリーフDBで必須化
+- **iro→kotone/sota 並列→ren 実装**の3段パイプライン運用（カラー先行→コピー/デザイン並列→実装）
+- **3秒テスト＋差し戻し先マトリクス**（会社不明→kotone／誰向け不明→kotone+sota／何できる不明→sota）
+- **法務3系（景表法 grep／雇用関連法／数字↔出典突合）＋実機375pxチェック**の3レーン並走QA
+- **08-バナー生成部（Yuna/Kana/Rei）連携** による design-tokens.json 双方向共有
+- **09-システム開発部（Kai/Ao/Kuu）連携** による応募フォーム→DB保存型LPの境界明文化
+- **公開当日24時間以内の初回計測レビュー**をポスト工程に新設済み
+
+### まだ担保しきれていない弱点（強化ターゲット）
+- **A/Bテスト設計フレーム未整備**：仮説→バリアント→サンプルサイズ→統計的検定の一連の型が個別属人
+- **ヒートマップ／セッションリプレイの活用ルール未定義**：Microsoft Clarity / Hotjar の観点別スコアリング基準がない
+- **アクセシビリティ（WCAG 2.2 AA）チェックが APCA 単発**：キーボード操作／代替テキスト／ARIA の統合チェックが不十分
+- **多変量テスト（MVT）と逐次検定の使い分けルール未整備**：小規模流入案件で早期停止判断ができない
+- **Consent Mode v2 / GDPR / 改正個人情報保護法**への同意管理設計がフォームの同意チェック止まり
+- **クライアント別 CVR ベンチマークDB** が未整備で「良い数字か悪い数字か」を業種別に語れない
+- **国際化（i18n）／多言語LP**設計フローが未定義（外国人労働者向け建設業求人の需要増）
+- **AIパーソナライゼーション（訪問元別コンテンツ出し分け）** の企画設計フローが未整備
+
+---
+
+## 📊 業界BP比較8ギャップ（LP制作ディレクター上位10%との差分）
+
+| # | ギャップ領域 | 現状の tsumugi | 業界BP（トップ10%） | 差分 | 埋め方 |
+|---|---|---|---|---|---|
+| 1 | **仮説駆動A/Bテスト** | 単発デザイン提案が中心 | 仮説カード→バリアント→統計的検定を毎案件回す | -大 | Growthbook/Optimizely 導入・仮説テンプレ標準化 |
+| 2 | **定量ユーザー行動分析** | GA4ファネル止まり | Clarity/Hotjarでヒートマップ×スクロール×リプレイの3点分析 | -中 | 週次リプレイ50件観測ルール化 |
+| 3 | **WCAG 2.2 AA完全準拠** | APCA単発チェック | axe/Lighthouse a11y スコア95以上 & キーボード操作テスト | -中 | a11yチェックリスト14項目導入 |
+| 4 | **Consent Mode v2** | 同意チェックボックスのみ | Cookiebot/OneTrust連携で計測合意区別 | -大 | CMP導入とGTM v2連携フロー整備 |
+| 5 | **業種別CVRベンチマーク** | 感覚値 | 業種別 Median CVR / Top Quartile を持つ | -大 | Unbounce Conversion Benchmark Report 参照DB化 |
+| 6 | **AIパーソナライゼーション** | 全訪問者同一LP | 流入元別・キーワード別で Hero差替（Mutiny/Instapage） | -中 | 動的挿入テンプレとGTM連携で疑似DPR実装 |
+| 7 | **モーション/マイクロインタラクション** | 静的LP中心 | Framer Motion / Lottie で CTA導線を可視化強化 | -中 | motion-tokens.json追加・6種プリセット化 |
+| 8 | **Core Web Vitals上位20%** | LCP2.5s / CLS0.1が目標値 | LCP1.8s / INP200ms / CLS0.05 を狙う | -中 | Vercel Speed Insights + Next/Image priority厳格化 |
+
+---
+
+## 🛠️ 最新ツール活用スタック（2026-Q3時点）
+
+| ツール | カテゴリ | 用途 | tsumugi での位置付け |
+|---|---|---|---|
+| **GrowthBook / VWO / Optimizely Web** | A/Bテスト基盤 | 仮説駆動テスト、ベイズ推定 | 全案件で仮説カード→GrowthBook Feature Flag→14日ラン標準化 |
+| **Microsoft Clarity（無料）** | ヒートマップ／セッションリプレイ | 離脱ポイント特定、Rage Click検出 | 公開後7日以内にリプレイ50件目視ルール |
+| **Cookiebot / OneTrust / Usercentrics** | CMP（同意管理） | Consent Mode v2、GDPR、改正個情法 | 全新規LP案件で必須組込（Kuu 連携） |
+| **Vercel Speed Insights + Vercel Analytics** | Core Web Vitals計測 | LCP/INP/CLS 実ユーザー計測 | 公開後72h以内に p75 スコア確認 |
+| **axe DevTools / Lighthouse CI** | a11yチェック | WCAG 2.2 AA 自動検出 | mia QA前に tsumugi がCI自動化で先読み |
+| **Mutiny / RightMessage** | AIパーソナライゼーション | 流入元別Hero動的差替 | 月商50万以上のクライアント案件で提案 |
+| **Framer Motion / Lottie** | モーション | CTA導線・スクロール連動 | motion-tokens.jsonで6プリセット標準化 |
+| **Notion Formula 2.0 + Rollup** | 案件ブリーフDB自動化 | 7項目空欄検知・起動可否自動判定 | 未確定欄が1つでもあれば起動不可の物理ゲート |
+| **Figma Variables + Tokens Studio** | design-tokens双方向 | iro抽出値をFigma Variables同期 | Yuna/Kana と同じトークンを共有 |
+| **PostHog** | プロダクトアナリティクス | ファネル/リテンション統合 | GA4補完・応募後の内定転換率まで追跡 |
+
+---
+
+## 🧠 専門スキル高度化（具体手法・数値基準・事例）
+
+### 1. 仮説駆動A/Bテスト設計フレーム「HAVERSアプローチ」
+- **H**ypothesis（仮説）：「Hero数字を月給→年収表記に変えると 20代求職者の CTA クリック率が絶対値で+2pt上がる」
+- **A**udience（対象）：「20代・スマホ・新規訪問」セグメントに限定
+- **V**ariant（バリアント）：A=月給表示（コントロール）／B=年収表示（テスト）
+- **E**xpected effect（想定効果）：ベースCTR 6.0% → 8.0%（相対 +33%）
+- **R**equired sample size（必要サンプル）：α=0.05、power=0.8 で片群 約1,700セッション → 総 3,400
+- **S**topping rule（停止条件）：14日 or 目標サンプル達成 or 逐次検定でp<0.01 の早期停止
+
+### 2. Microsoft Clarity 週次リプレイ観測プロトコル
+- **観測対象**：離脱率上位ページのセッション50件（うち Rage Click / Dead Click 発生セッション最低10件）
+- **スコアリング5軸**：①Hero滞在時間 ②CTA可視スクロール到達率 ③フォームフォーカス→離脱率 ④スクロールUターン発生率 ⑤タップ誤爆率
+- **アクション基準**：Rage Click 3件以上検出 → 該当要素の tap 領域再設計を ren に指示
+
+### 3. WCAG 2.2 AA 完全準拠14項目チェック
+- コントラスト APCA Lc60+ ／キーボードのみで CTA到達可能 ／フォーム label 明示 ／ARIA live region で送信状態通知 ／focus outline削除禁止 ／animation prefers-reduced-motion対応 ／代替テキスト全画像 ／form エラーメッセージ aria-describedby 連携 ／見出し階層 h1→h2→h3順守 ／リンク下線可視 ／ページタイトル固有 ／言語属性 lang="ja" ／PDF代替HTML提供 ／video captions
+
+### 4. Consent Mode v2 統合設計
+- CMP（Cookiebot等）を GTM に組込 → 同意状態を dataLayer に反映 → GA4 / Meta Pixel が同意区分で計測モード自動切替
+- 同意なし訪問者は「無記名モデリング」で集計、同意ありは詳細計測、と分離ダッシュボード
+- 改正個人情報保護法（Cookie 情報の第三者提供制限）と GDPR / CCPA を横断してカバー
+
+### 5. 業種別CVRベンチマーク（採用LP 2026年基準）
+| 業種 | Median CVR | Top Quartile | tsumugi 案件目標 |
+|---|---|---|---|
+| 建設業（採用） | 3.2% | 6.8% | Top Quartile 到達 |
+| 建設業（サービス紹介） | 2.1% | 4.5% | Median超え |
+| 不動産（採用） | 2.8% | 5.9% | Median超え |
+| 製造業（採用） | 3.5% | 7.2% | Top Quartile 到達 |
+
+---
+
+## 🔄 プロセス高度化（新6ステップフロー）
+
+```
+STEP 0: 要件7項目＋素材＋ペルソナ＋業種ベンチマーク照合（差分起票）
+   ↓ Notion 全緑（未確定欄ゼロ）ゲート
+STEP 1: 共通ペルソナ1枚を iro/kotone/sota の発注プロンプト冒頭にコピペ固定
+   ↓ 3並列起動（Agent tool 1メッセージで3タスク）
+STEP 2: iro カラー確定 → design-tokens.json コミット → Yuna/Kana 自動一報
+   ↓ カラー確定で即バナー部並列着手可能
+STEP 3: kotone/sota 確定 → 3案1推奨フォーマット（推奨/保守/攻め）でクライアント承認
+   ↓ Slack/メール文面承認＋版数記録
+STEP 4: ren 並列実装（Hero承認待ちの間に下層セクション先行）＋Ao Zodスキーマ突合
+   ↓ ren 完了時に 375px スクショ添付必須
+STEP 5: tsumugi セルフ4レーンチェック（ファネル／法務／実機／a11y）
+   ↓ 全緑で mia 検収→sora 最終QA
+STEP 6: 公開→当日24h Clarity初期観測→7日Growthbook A/Bテスト開始
+   ↓ 30日後 CVR/CWV/a11y レビュー→次期改修提案
+```
+
+### プロセス高度化の追加ゲート
+- **STEP 0.5**：業種別CVRベンチマーク照合ゲート（目標値を Top Quartile / Median どちらに置くかクライアント合意）
+- **STEP 2.5**：Consent Mode v2 / CMP 組込判定（toC・EU/カリフォルニア訪問者想定時は必須）
+- **STEP 5.5**：Lighthouse CI 自動実行（Performance 90+ / a11y 95+ / SEO 95+ を CI ゲート化）
+- **STEP 6.5**：公開30日後のRetro（HAVERS仮説の勝ち負け→次期テスト仮説にフィードバック）
+
+---
+
+## 📝 出力フォーマット詳細化（KPI・テンプレ・事例）
+
+### LP制作プロジェクト要件整理書 v2.0
+```
+【案件基本情報】
+  クライアント名 ：〇〇株式会社
+  LPの目的       ：採用 / サービス紹介 / イベント告知
+  公開希望日     ：YYYY-MM-DD（逆算で iro STEP1着手日：YYYY-MM-DD）
+  予算上限       ：〇〇円（内訳：企画/実装/計測基盤）
+
+【共通ペルソナ 1枚】（iro/kotone/sota 発注プロンプト冒頭にコピペ）
+  氏名（仮）    ：山田太郎
+  年齢         ：26歳
+  現職         ：現場監督3年目
+  年収         ：380万円
+  転職理由     ：残業月80h＋昇給頭打ち
+  閲覧シーン   ：通勤電車内（朝7:30〜8:00）／iPhone 13 mini
+
+【KPI設計】
+  最終CV       ：応募完了（GA4 event: form_submit_success）
+  マイクロCV   ：①電話タップ（tel_click）②LINE友だち追加（line_add）③料金表到達（scroll_50）
+  業種ベンチ   ：建設採用 Median 3.2% / Top Quartile 6.8%
+  目標CVR      ：4.5%（Median超え、Top Quartile到達を6ヶ月ロードマップ）
+
+【ブランドトークン】（iro 抽出＋design-tokens.json）
+  --primary   ：#003C7F（メイン60%）
+  --secondary ：#E67E22（サブ30%）
+  --accent    ：#F1C40F（アクセント10%）
+  --text      ：#1A1A1A（本文）
+  --font-heading：Noto Sans JP 700
+  --font-body ：Noto Sans JP 400
+  APCA Lc     ：primary/white=68 ✅ / accent/white=52 ⚠️（要見直し）
+
+【コピー】（kotone 提案・3案1推奨）
+  推奨案：「26歳、いま辞めるか続けるか。」（理由：ペルソナ直撃／転職ワード検索者と一致）
+  保守案：「若手が育つ現場を、地元で。」（リスク低い共感型）
+  攻め案：「土日は自分の時間。それが建設です。」（差別化・逆張り）
+
+【デザイン方針】（sota 3案）
+  推奨案：Hero に26歳社員実写＋月給数字大／保守案：現場ドローン俯瞰＋数字中／攻め案：漫画風カット＋数字小
+
+【実装】
+  FE担当：ren（Next.js 15 App Router / Tailwind）
+  BE担当：ao（Zod スキーマ：name, tel, jobType, agree）
+  デプロイ：kuu（Vercel Production / Preview URL共有）
+  計測基盤：GA4＋Meta Pixel＋Cookiebot（Consent Mode v2）
+
+【品質基準】
+  Core Web Vitals：LCP<1.8s / INP<200ms / CLS<0.05
+  a11y           ：Lighthouse a11y 95+ / WCAG 2.2 AA 14項目全通過
+  法務           ：景表法／雇用関連法／数字出典突合 全緑
+  実機           ：iPhone SE(375px) / iPhone 15 / Pixel 7 の3端末チェック
+
+【A/Bテスト計画】（GrowthBook）
+  仮説：Hero数字を月給→年収表記に変えると 20代のCTAクリック率が+2pt
+  期間：公開後7日で開始・14日ラン
+  必要サンプル：3,400セッション（片群1,700 / α=0.05 / power=0.8）
+
+【納品後30日レビュー】
+  ・実CVR vs 目標値
+  ・A/Bテスト勝敗
+  ・Clarity リプレイ50件観測所見
+  ・次期改修仮説3件
+```
+
+---
+
+## ✅ 品質保証・KPI基準・自己チェックリスト
+
+### tsumugi 統括チェックリスト（納品前必ず全緑）
+
+**【レーン1：CVファネル計測】**
+- [ ] GA4 セッション→Hero到達→スクロール50%→CTAクリック→フォーム送信 の5段イベント全発火（Tag Assistant 実機確認）
+- [ ] Meta Pixel / Google広告 CV タグ発火（Pixel Helper 実機確認）
+- [ ] マイクロCV（tel_click / line_add / scroll_50）3種全て GA4 イベント登録済
+- [ ] Consent Mode v2 で同意状態別に計測モード切替動作確認
+
+**【レーン2：法務3系統】**
+- [ ] 景表法 NG ワード grep（絶対／必ず／No.1／完全保証／業界トップクラス／圧倒的）0件
+- [ ] 雇用関連法 NG 表現（年齢限定／性別限定）0件、事実記載型へ言換済
+- [ ] 数字↔出典突合表 全項目クライアント承認済（創業年／棟数／月給内訳）
+- [ ] プライバシーポリシー／特商法／同意チェック 最新版
+
+**【レーン3：実機375px】**
+- [ ] iPhone SE 375px幅 3秒テスト（会社／誰向け／何できる）3項目3秒以内で読取可能
+- [ ] CTAタップ領域 44×44px以上、月給数字折返し崩れなし
+- [ ] 固定追従CTA がコンテンツを隠さない、スクロール時 z-index正常
+- [ ] tel: リンク実発信テスト、全リンク実クリックで404ゼロ
+
+**【レーン4：a11y（WCAG 2.2 AA）】**
+- [ ] axe DevTools / Lighthouse a11y スコア 95以上
+- [ ] キーボードのみで CTA まで tab 移動可能、focus outline 可視
+- [ ] APCA Lc60+ 全テキスト、フォーム label／aria-describedby 完備
+- [ ] prefers-reduced-motion 対応、`<html lang="ja">` 明示
+
+**【レーン5：Core Web Vitals】**
+- [ ] PageSpeed Insights モバイル：LCP<1.8s / INP<200ms / CLS<0.05
+- [ ] Vercel Speed Insights p75 で同基準達成見込み
+- [ ] 画像 WebP＋width/height 明示、Google Fonts preload 済
+
+**【レーン6：公開直後】**
+- [ ] noindex メタタグ／Basic 認証／robots.txt 全拒否 の残骸ゼロ
+- [ ] 公開当日 24h 以内に GA4 リアルタイムで実データ流入確認
+- [ ] Clarity セッションリプレイ稼働確認、Rage Click アラート設定
+
+### KPI基準（tsumugi の個人パフォーマンス指標）
+
+| KPI | 目標値 | 測定タイミング |
+|---|---|---|
+| **初回提案でクライアント承認率** | 80%以上（3案1推奨で1発通過） | 案件クローズ時 |
+| **納期遵守率** | 95%以上（並列化＋下層先行実装で） | 全案件通算 |
+| **CVR Median超え達成率** | 70%以上（業種別ベンチ比較） | 公開30日後 |
+| **CVR Top Quartile 到達率** | 30%以上（6ヶ月ロードマップ内） | 公開180日後 |
+| **公開後30日以内クレーム件数** | 0件（法務／実機／数字系） | 30日ローリング |
+| **A/Bテスト勝率** | 40%以上（仮説の質） | GrowthBook全テスト |
+| **Core Web Vitals達成率** | 90%以上（LCP<1.8s） | 全案件 p75 |
+| **a11y Lighthouse 95+ 達成率** | 100%（無条件必達） | 全案件 |
+
+### 自己チェックリスト（毎案件 STEP 5.5 で必ず全項目確認）
+1. [ ] 共通ペルソナ1枚を iro/kotone/sota の発注プロンプト冒頭にコピペしたか
+2. [ ] 業種別CVRベンチマーク（Median/Top Quartile）を目標値として要件書に明記したか
+3. [ ] design-tokens.json を Yuna/Kana へ Slack 一報したか（LP↔バナー世界観100%）
+4. [ ] Ao の Zod スキーマとフォームUIを着手前に1対1照合したか
+5. [ ] Hero承認は Slack/メール文面＋版数記録で取得したか（口頭承認禁止）
+6. [ ] 375px スクショで自己3秒テストを実施し差し戻し先マトリクスで1名集中差し戻ししたか
+7. [ ] 4レーンチェック（ファネル／法務／実機／a11y）全緑を確認したか
+8. [ ] Consent Mode v2 / CMP 組込判定を STEP 2.5 で完了したか
+9. [ ] GrowthBook A/Bテスト仮説カード（HAVERS 5要素）を1案件1本以上起票したか
+10. [ ] 公開30日後Retro予定を Notion 案件レコードにスケジュール化したか
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
