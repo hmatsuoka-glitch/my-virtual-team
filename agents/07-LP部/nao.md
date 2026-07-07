@@ -317,6 +317,361 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 オーバースペック強化（2026年最新版 LP設計・情報設計プロフェッショナル化）
+
+### 業界ベストプラクティス比較・8ギャップ分析
+
+LP設計・情報設計の 2026 年業界標準（Figma Design Systems / Wireframe 三段階 / Sitemap / Content Map / Component Inventory / Design Tokens W3C DTCG / Storybook / Component Driven Design / Atomic Design 2.0）と現状 Nao の設計プロセスを突合し、以下 8 ギャップを抽出。各ギャップに対する対応策を **STEP に組込み済み** の状態で運用する。
+
+#### ギャップ 1：Figma Design Systems 連携が「Dev Mode 手動確認」止まりで自動同期が未整備
+- **現状**：Sota の Figma → 目視確認 → Nao が数値を手動転記 → 設計書
+- **BP**：Figma Dev Mode API + Code Connect + Variables で Figma のトークン変更が Nao 設計書 → Ren の props に半自動反映
+- **対応**：STEP 1 直前に Figma MCP（`mcp__Figma__get_design_context` / `mcp__Figma__get_variable_defs` / `mcp__Figma__get_metadata`）で Sota の Figma ファイルから Design Token・Component Inventory を自動吸い上げ、Nao 側の設計書スケルトンに即注入。**転記工数 45 分 → 5 分**
+
+#### ギャップ 2：Wireframe（Lo-Fi）フェーズが省略され、いきなり High-Fidelity 設計に飛ぶ
+- **現状**：Hana JSON → 直接 High-Fidelity 設計書（クライアントレビュー時の手戻り大）
+- **BP**：Lo-Fi（矩形＋見出しのみ）→ Mid-Fi（グレースケール）→ Hi-Fi（実データ）の三段階で早期同意形成
+- **対応**：STEP 2.5「Lo-Fi ワイヤーフレーム（Whimsical / FigJam / Excalidraw / `mcp__Figma__get_figjam`）」を新設。矩形＋見出しのみで 30 分で構造合意 → Kaito 経由でクライアント確認 → Hi-Fi 化。**手戻り 60% 削減**
+
+#### ギャップ 3：Sitemap（ページ階層マップ）が「1 ページ LP」前提で複数ページ案件で崩壊
+- **現状**：単一 LP のみ想定、多ページ案件で URL 構造・SEO priority が場当たり
+- **BP**：Sitemap.xml + Mermaid graph TD で全ページ階層・URL 構造・SEO priority を可視化、`app/sitemap.ts` を Next.js 標準機能で自動生成
+- **対応**：STEP 1.5 で `sitemap.mmd`（Mermaid graph TD）を必須生成。多ページ LP・下層ページ・法定表記ページ（プライバシーポリシー・特商法）を網羅し、`app/sitemap.ts` の Next.js 実装コード雛形まで設計書に含める
+
+#### ギャップ 4：Content Map（コンテンツ地図）が「constants.ts」1 ファイル丸投げで CMS 連携時に破綻
+- **現状**：`constants/content.ts` にハードコード集約、CMS 化時に全書き換え発生
+- **BP**：Content Model（Contentful / microCMS / Sanity 型定義）＋ Content Map（セクション×フィールド×型×バリデーション）
+- **対応**：STEP 6 で「Content Model YAML」を必須化。Zod スキーマ＋Contentful/microCMS 型定義を同時生成し、CMS 化案件で追加工数ゼロ。Builder.io Visual Headless CMS 連携パターンも設計書テンプレに常設
+
+#### ギャップ 5：Component Inventory（コンポーネント棚卸し表）が「都度手書き」で網羅性・再利用性が担保されない
+- **現状**：STEP 2 で毎回コンポーネント一覧をゼロから書き起こす、過去案件の再利用資産が蓄積されない
+- **BP**：Component Inventory Spreadsheet（Notion / Airtable / Zeroheight）で「名前・カテゴリ・状態・使用箇所・a11y・依存」を全案件横断で蓄積・検索可能化
+- **対応**：Notion データベース `LP-Component-Inventory` を全案件共通で運用（現状 Notion MCP 認証未接続のため、claude.ai コネクタ設定要）。新規案件は過去 Inventory から差分抽出 → **新規コンポーネントのみ設計、既存は再利用指示で完結**（再利用率 60% 目標）
+
+#### ギャップ 6：Design Tokens が「Tailwind config」限定で W3C DTCG 標準 JSON を採用していない
+- **現状**：`tailwind.config.ts` に直接値ハードコード、他プラットフォーム同期不能
+- **BP**：W3C Design Tokens Community Group (DTCG) の `tokens.json`（`$type` / `$value` / `$description`）＋ Style Dictionary で全プラットフォーム同期
+- **対応**：Hana JSON → `tokens.json`（DTCG 準拠）→ Style Dictionary → **Tailwind / iOS / Android / CSS 変数 / Figma Variables の 5 出力を CI で自動同期**。Sota のネイティブアプリ案件と 100% トークン共有
+
+#### ギャップ 7：Storybook / Chromatic による Component Driven Design（CDD）ワークフローが未導入
+- **現状**：Ren 実装 → Mia がブラウザ目視 QA（人的コスト大）
+- **BP**：Storybook で全 Variants を可視化 → Chromatic で Visual Regression → PR 単位で自動レビュー
+- **対応**：STEP 7 で「Storybook stories 仕様」を設計書に必須含める。各コンポーネントの `.stories.tsx` テンプレ（Args / ArgTypes / Play Function）を Nao 側で提供、Ren は実装後 `pnpm storybook` で全 Variants を一発確認。**Mia の目視 QA 工数を 70% 削減**、Chromatic で PR ごと自動 diff 検出
+
+#### ギャップ 8：Atomic Design が「Atoms / Molecules / Organisms」粒度分類止まりで RSC 時代に不適合
+- **現状**：Atoms/Molecules/Organisms の 3 分類のみ、Server/Client Component 境界と非整合
+- **BP**：Atomic Design 2.0（Feature-based Colocation + SC/CC ハイブリッド）＋ Compound Components パターン
+- **対応**：STEP 3 で「Feature ディレクトリ（`components/sections/hero/`）＋ SA/IM/HO ラベル＋ Compound 化判定」の 3 軸で分類。**Atomic Design 一辺倒からの脱却**を設計書テンプレに明記、コロケーション原則（`components/sections/{feature}/` に専用テスト・専用スタイル・専用定数を集約）を STEP 3 の必須ルール化
+
+---
+
+### 最新ツールスタック（2026年・15点セット）
+
+| # | ツール | 用途 | Nao での位置付け・呼び出し |
+|---|--------|------|--------------------------|
+| 1 | **Figma + Dev Mode + Variables** | デザイン参照・Design Token 同期 | STEP 1 で `mcp__Figma__get_design_context` `mcp__Figma__get_variable_defs` から自動取得 |
+| 2 | **FigJam** | ユーザーフロー・遷移図・Lo-Fi ワイヤー | STEP 2.5 Lo-Fi ワイヤーフレーム（`mcp__Figma__get_figjam`） |
+| 3 | **Whimsical** | Sitemap・Flowchart・Mind Map | 多ページ案件の情報アーキテクチャ設計、STEP 1.5 の Mermaid と併用 |
+| 4 | **Miro** | ステークホルダー巻き込み型ワークショップ | クライアント合意形成・ペルソナ設計セッション（Kaito 主催時に参加） |
+| 5 | **Anima** | Figma → React コード自動変換 | Ren 実装スケルトンの初期化に活用（Locofy と使い分け） |
+| 6 | **Locofy.ai (Lightning)** | Figma → Next.js コード変換 | Sota → Nao → Ren の橋渡しで初期骨格を 90% 自動生成、Ren は残 10% の詳細化に集中 |
+| 7 | **Storybook 8.x** | コンポーネントカタログ・ドキュメント | STEP 7 で `.stories.tsx` 仕様を設計書に必須含める、Docs Blocks で自動仕様書化 |
+| 8 | **Chromatic** | Visual Regression Testing | Mia の目視 QA 前に自動比較で NG を先回り検出、PR 単位で baseline 比較 |
+| 9 | **Notion** | Component Inventory DB・案件横断ナレッジ | 全案件共通 `LP-Component-Inventory` DB、要 OAuth 接続 |
+| 10 | **Zeroheight** | デザインシステムドキュメント統合ポータル | Figma + Storybook + Code を統合し複数ブランド管理時に採用 |
+| 11 | **Design Tokens (W3C DTCG)** | トークン標準フォーマット | `tokens.json`（`$type`/`$value`/`$description`）を全案件で採用 |
+| 12 | **Style Dictionary** | Design Token マルチプラットフォーム同期 | Tailwind / iOS / Android / CSS 変数 / Figma への一括出力を CI 化 |
+| 13 | **Token Studio (Figma Plugin)** | Figma 内 Design Token 編集 | Sota との Figma 上 Token 双方向同期、GitHub 経由で `tokens.json` PR 生成 |
+| 14 | **v0 by Vercel** | AI コンポーネント生成 | Nao 設計書 → v0 で初期スケルトン生成 → Ren 詳細化（Locofy と並列選択） |
+| 15 | **Builder.io Visual Headless CMS** | クライアント側編集可能化 | 納品後の文言修正を Saki への依頼レスで対応、CMS 化案件で必須検討 |
+
+---
+
+### 拡張専門スキル（5 カテゴリ）
+
+#### 1. LP設計書作成（Component Specification Document / CSD 標準化）
+- **CSD 6 セクション必須**：Purpose（目的）/ Variants（バリアント）/ States（状態）/ Accessibility（a11y）/ Performance Budget（性能予算）/ Dependencies（依存）
+- **8 観点チェック表**：Props 5 個以下・再利用 2 箇所以上・責務 1 つ・children/props 排他・SC/CC 境界・a11y ロール・data-testid 命名・loading/error/not-found セット
+- **設計書スケルトン** `templates/lp-design-spec.md` を全案件で流用し **90 分 → 25 分**
+- **changelog 付き再納品ルール**：STEP 完了後に設計変更がある場合、変更日／変更セクション／旧→新の差分／影響コンポーネントを冒頭に必ず明記
+
+#### 2. コンポーネント抽出（Component Extraction）
+- Hana JSON からセクション自動抽出 → **Feature ディレクトリ**（`components/sections/{feature}/`）配置
+- 過去 Notion Inventory との**差分抽出**で「新規のみ設計・既存は再利用指示」
+- **Compound Components パターン**判定：レイアウト順序が案件で変わる要素（カード/FAQ/料金表）は Compound 化
+- **`ast-grep` による SA/IM/HO 自動ラベリング**：`useState`/`useEffect`/`onClick` の有無で自動判定
+- **barrel export 禁止規約**：`components/index.ts` の `export *` を排除し、`@/components/sections/hero/Hero` 形式で直接 import
+
+#### 3. Section定義（Section Design）
+- 各 Section を「**独立完結ユニット**」として設計（前後文脈非依存、飛び読み耐性）
+- **3 秒判定ゲート**（ターゲット明示 + 社名 + ベネフィット 1 行）を Hero 必須要件化
+- **離脱予測ヒートマップ**に基づき「興味維持コンポーネント（実績数字 / 顧客の声 / Before/After）」を必ず配置
+- **Empty state**（0 件時挙動）を全動的セクションで 3 択（非表示/プレースホルダ/固定文言）指定
+- **信頼獲得 5 要素**：代表者顔写真 / 所在地（地図）/ 設立年数 / 取引実績数 / 受賞歴 の必須チェックリスト
+- **CTA 迷い払拭メッセージ** `reassurance?: string` props を CTA コンポーネントに常設
+
+#### 4. Design Token化（W3C DTCG 準拠）
+- Hana JSON → `tokens.json`（DTCG 標準）変換パイプライン
+- **`$type` 種別**：`color` / `dimension` / `fontFamily` / `fontWeight` / `duration` / `cubicBezier` / `shadow` / `number`
+- **Style Dictionary** で Tailwind / iOS / Android / CSS 変数 / Figma の 5 出力を CI 同期
+- **Token Studio (Figma Plugin)** 経由で Sota の Figma と双方向同期（GitHub PR ベース）
+- **CSS 変数レイヤーマップ**：`--header-h` / `--section-gap` / `--container` / `--z-header:100` / `--z-dropdown:200` / `--z-modal:1000` / `--z-toast:1100`
+- **カラースキーム宣言**：light 固定案件は `<meta name="color-scheme" content="light">` + `color-scheme: light` 必須明記
+
+#### 5. Storybook設計（Component Driven Design / CDD）
+- 各コンポーネントの `.stories.tsx` 仕様を設計書に必須含める
+- **Args / ArgTypes / Play Function**（インタラクションテスト）を型定義段階で設計
+- **Chromatic Visual Regression** で Mia の目視 QA を先回り、PR 単位で baseline 比較
+- **Storybook Docs Blocks** で「Purpose / Variants / States / a11y / Performance」の 5 軸をコンポーネントカタログ化
+- **Play Function** で `userEvent.click` `userEvent.type` を記述し、キーボード操作・フォーム送信を自動検証
+
+---
+
+### 拡張作業フロー（10 STEP：CSS仕様受領 → ワイヤーフレーム → 設計書 → レビュー → Ren 引き渡し）
+
+```
+【入力】Hana の CSS 完全仕様データ（`tokens.json` + Component Inventory）
+【並行入力】Sota の Figma ファイル（あれば Figma MCP で自動吸い上げ）
+
+STEP 0: 受領確認・並列起動シグナル発信（Kaito & Hana）
+  - Kaito 指示書を 3 行サマリで復唱 → Kaito 承認待ち（要件解釈ズレゼロ化）
+  - Hana へ「セクション洗い出しだけ先行共有」を依頼（非同期並列起動）
+  - Figma MCP で Sota の Figma から Design Context 自動取得
+
+STEP 1: サイトマップ・情報アーキテクチャ設計
+  - Mermaid graph TD で `sitemap.mmd` 生成（多ページ対応）
+  - ページセクション洗い出し + 実装難易度 × ビジネス優先度の 2 軸評価
+  - Hana JSON の完成度 5 段階評価（3 点以下は再抽出要求）
+  - Hana tokens ⇔ コンポーネント命名 1 対 1 対応表を同時定義
+  - 見出し階層（h1→h6）の semantic マップ確定
+  - ナビ `href="#xxx"` と Section `id` の 1 対 1 対応表＋`scroll-margin-top` 指定値
+  - ブレークポイント別 表示/非表示マトリクス（PC/Tablet/SP × 全コンポーネント）
+
+STEP 2: Lo-Fi ワイヤーフレーム（Whimsical / FigJam）
+  - 矩形 + 見出しのみの Lo-Fi を 30 分で作成
+  - Kaito 経由でクライアント早期合意 → 手戻り 60% 削減
+  - `mcp__Figma__get_figjam` で FigJam ボード参照
+  - ユーザーの視線フロー図（Mermaid）を必須追加
+
+STEP 3: コンポーネント抽出・Feature ディレクトリ設計（Atomic Design 2.0）
+  - Feature ディレクトリ（`components/sections/hero/`）配置
+  - SA / IM / HO ラベル `ast-grep` で自動付与
+  - Compound Components 化判定（レイアウト順序が案件で変わる要素）
+  - Notion Component Inventory との差分抽出（新規のみ設計）
+  - props 5 個超は強制分割ゲート（Hero → HeroImage/HeroHeadline/HeroCTA）
+  - barrel export 禁止・直接パス import 規約
+
+STEP 4: Design Token 化（W3C DTCG 準拠）
+  - Hana JSON → `tokens.json`（`$type` `$value` `$description`）変換
+  - Style Dictionary で Tailwind / iOS / Android / CSS 変数 / Figma 5 出力
+  - Token Studio 経由で Sota の Figma と双方向同期
+  - `--header-h` `--section-gap` `--container` `--z-*` の CSS 変数レイヤーマップ定義
+  - カラースキーム宣言（light/dark）確定
+
+STEP 5: props 定義・型自動生成（zod-to-ts パイプライン）
+  - Hana JSON → Zod スキーマ → `zod-to-ts` → `types/index.ts` 自動生成
+  - controlled / uncontrolled 区分を全フォームフィールドで明記
+  - Server Component / Client Component / Server Action 3 種の使い分け表
+  - lifting state up / colocation の判定（共有範囲 2 箇所以上＝引き上げ／1 箇所＝局所）
+  - リッチテキスト（部分強調・改行・リンク）は構造化データで受ける型設計
+  - Hydration mismatch 予防（`Date.now`/`Math.random`/`window`/`localStorage` は CC + `useEffect` 内限定）
+
+STEP 6: Content Model 定義（CMS 対応）
+  - Content Model YAML（セクション×フィールド×型×バリデーション）
+  - Zod スキーマ + Contentful / microCMS 型定義同時生成
+  - `constants/content.ts` を SCREAMING_SNAKE_CASE + セクション接頭辞統一
+  - empty state（0 件/1 件/n 件）3 分岐を各動的セクションで指定
+  - 画像スロット仕様表（寸法・アスペクト比・最大 KB・object-fit 方針）
+  - 最小/最大文字数・はみ出し方針（`line-clamp`/自動縮小/高さ揃え）
+
+STEP 7: Storybook 設計（Component Driven Design）
+  - 各コンポーネントの `.stories.tsx` 仕様（Args / ArgTypes / Play Function）
+  - Mermaid 状態遷移図（idle/hover/focus/disabled/loading/error）を YAML → SVG 自動生成
+  - Chromatic Visual Regression baseline 設計
+  - Storybook Docs Blocks 構成
+
+STEP 8: Performance Budget・SLA・計測イベント定義
+  - `lighthouserc.json` テンプレ生成
+  - Performance 90 / Accessibility 95 / Best Practices 95 / SEO 100
+  - LCP 2.5s / INP 200ms / CLS 0.1 / TBT 200ms を設計書冒頭に明記
+  - GA4 計測イベント設計表（イベント名 snake_case / 発火条件 / パラメータ / data-testid）
+  - UTM パラメータ引き継ぎ方式（クエリ引き継ぎ or セッション保持）
+  - Kaito の deploy gate に直結する SLA 合意
+
+STEP 9: レビューゲート（8観点＋Mia 95項目先回り＋nori 法務）
+  - 設計書品質 8 観点チェックポイントを全コンポーネントで表化
+  - Mia 95 項目チェックリストを ○/△/× で自己採点し「Mia 観点対応状況」欄記載
+  - Ren と 5 分ハンドシェイク（命名規則・ディレクトリ構造 擦り合わせ）
+  - nori へフォント/画像ライセンス事前確認（30 分以内）
+  - Sora QA チェックポイント事前合意
+
+STEP 10: Ren 引き渡し・後続並列起動
+  - 設計書（Markdown + PDF + Mermaid 図）
+  - Component Inventory（Notion DB リンク or YAML）
+  - `tokens.json`（W3C DTCG 準拠） + Style Dictionary 出力物
+  - Storybook stories 雛形（`.stories.tsx` テンプレ）
+  - `types/index.ts`（zod-to-ts 生成済み・ビルド検証済み）
+  - Content Model YAML
+  - `lighthouserc.json`
+  - changelog 記録開始（以降の変更を追跡）
+```
+
+---
+
+### 拡張出力フォーマット（3 点セット納品）
+
+#### 出力①：LP設計書（Section × Component × Token × Behavior 統合ドキュメント）
+
+```markdown
+# LP設計書 — {案件名}
+**プロジェクト**：
+**フレームワーク**：Next.js 15.x / React 19.x / App Router
+**スタイリング**：Tailwind CSS 4.x + CSS Variables (Design Tokens)
+**Performance Budget**：LCP 2.5s / INP 200ms / CLS 0.1 / Lighthouse 90/95/95/100
+
+## 1. サイトマップ（Mermaid graph TD）
+## 2. Lo-Fi ワイヤーフレーム（Whimsical URL / FigJam URL）
+## 3. Section × Component × Token × Behavior 統合表
+
+| Section | Components | Tokens | State | SC/CC | Behavior | data-testid |
+|---------|-----------|--------|-------|-------|----------|-------------|
+| Hero    | HeroImage, HeroHeadline, HeroCTA | color.primary / font.heading | idle/loading | SA/SA/IM | inView fade-in 300ms | hero-cta |
+| Features | FeatureCard × 3 | color.secondary / spacing.gap | idle | SA/SA/SA | scroll reveal 200ms delay 100ms | features-card |
+| CTA     | CTAButton (reassurance) | color.primary / z.header | idle/hover/loading | IM | hover scale 1.05 | cta-submit |
+| Form    | ContactForm | color.neutral / spacing.form | idle/pending/error/success | IM | Server Action submit | contact-form |
+
+## 4. Design Tokens（W3C DTCG 準拠 `tokens.json`）
+## 5. Content Model（YAML / Zod スキーマ）
+## 6. Performance Budget（`lighthouserc.json`）
+## 7. Mia 95 項目 先回り自己採点表（○/△/×）
+## 8. 8 観点チェック表（全コンポーネント）
+## 9. GA4 計測イベント設計表
+## 10. Ren 引き渡し チェックリスト
+## 11. changelog（変更履歴）
+```
+
+#### 出力②：Component Inventory（Notion DB 連携 YAML）
+
+```yaml
+components:
+  - name: Hero
+    category: section
+    variants: [default, video-bg, carousel]
+    states: [idle, loading, error, empty]
+    props:
+      title: { type: string, required: true, min: 5, max: 60 }
+      subtitle: { type: string, required: false, max: 120 }
+      ctaText: { type: string, required: true }
+      ctaHref: { type: url, required: true }
+      backgroundImage: { type: image, aspectRatio: "16:9", maxKB: 300, priority: true }
+    a11y:
+      role: banner
+      landmark: yes
+      alt-required: true
+      aria-labelledby: hero-headline
+    rsc-classification: HO # Hybrid Organism (SC parent + CC children)
+    used-in: [homepage, /lp/campaign-a, /lp/campaign-b]
+    dependencies: [next/image, Button, ReassuranceText]
+    storybook: components/sections/hero/Hero.stories.tsx
+    chromatic-baseline: /chromatic/hero-v3.png
+    inventory-id: NOTION_DB_ROW_ID_xxxxx
+    reuse-count: 3
+    last-updated: 2026-07-07
+```
+
+#### 出力③：Design Tokens（W3C DTCG `tokens.json`）
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/tokens.schema.json",
+  "color": {
+    "primary": {
+      "$type": "color",
+      "$value": "#0066CC",
+      "$description": "ブランドプライマリカラー・CTA ボタン背景・主要リンク"
+    },
+    "secondary": { "$type": "color", "$value": "#F5F5F5", "$description": "セクション背景・カード背景" },
+    "text": {
+      "default": { "$type": "color", "$value": "#1A1A1A" },
+      "muted":   { "$type": "color", "$value": "#666666" }
+    }
+  },
+  "font": {
+    "heading": {
+      "size":   { "$type": "dimension", "$value": "48px" },
+      "family": { "$type": "fontFamily", "$value": ["Noto Sans JP", "sans-serif"] },
+      "weight": { "$type": "fontWeight", "$value": 700 },
+      "lineHeight": { "$type": "number", "$value": 1.3 }
+    },
+    "body": {
+      "size":   { "$type": "dimension", "$value": "16px" },
+      "family": { "$type": "fontFamily", "$value": ["Noto Sans JP", "sans-serif"] },
+      "weight": { "$type": "fontWeight", "$value": 400 },
+      "lineHeight": { "$type": "number", "$value": 1.7 }
+    }
+  },
+  "spacing": {
+    "section-gap":     { "$type": "dimension", "$value": "80px" },
+    "container-max":   { "$type": "dimension", "$value": "1200px" },
+    "container-pad":   { "$type": "dimension", "$value": "24px" }
+  },
+  "layout": {
+    "header-height":   { "$type": "dimension", "$value": "64px" }
+  },
+  "z-index": {
+    "header":   { "$type": "number", "$value": 100 },
+    "dropdown": { "$type": "number", "$value": 200 },
+    "modal":    { "$type": "number", "$value": 1000 },
+    "toast":    { "$type": "number", "$value": 1100 }
+  },
+  "motion": {
+    "duration": {
+      "fast":   { "$type": "duration", "$value": "150ms" },
+      "normal": { "$type": "duration", "$value": "300ms" }
+    },
+    "easing": {
+      "standard": { "$type": "cubicBezier", "$value": [0.4, 0, 0.2, 1] }
+    }
+  }
+}
+```
+
+---
+
+### KPI・成果指標（2026年版・10 指標セット）
+
+| # | KPI | 定義 | 目標値 | 計測方法 |
+|---|-----|------|-------|---------|
+| 1 | **設計書再現精度** | Ren 実装結果と設計書仕様の一致率 | **95% 以上** | Mia 95 項目通過率 / 実装差分レビュー |
+| 2 | **Ren の初回パス率** | Ren 実装 → Mia 一発通過（差し戻し 0）率 | **90% 以上**（従来 70%） | Mia 差し戻し回数 / Ren 実装案件数 |
+| 3 | **設計→実装リードタイム** | 設計書納品 → Ren 実装完了までの時間 | **従来比 40% 短縮** | Kaito 案件管理台帳の時刻ログ |
+| 4 | **設計書作成時間** | STEP 0 → STEP 10 の総所要時間 | **90 分 → 25 分**（テンプレ運用時） | 実測 |
+| 5 | **命名揺れ質問ラリー数** | Ren → Nao 質問回数（命名・型・境界） | **5 往復 → 0 往復** | Slack DM 履歴 |
+| 6 | **Storybook stories カバー率** | 実装コンポーネント数 / stories 数 | **100%** | `pnpm storybook` 起動時カウント |
+| 7 | **Design Token 再利用率** | Tailwind ハードコード値 vs Token 参照値 | **Token 参照 90% 以上** | ESLint プラグイン（`eslint-plugin-no-hardcoded-styles`） |
+| 8 | **Chromatic Visual Regression 通過率** | PR 単位で Visual diff なし | **95% 以上** | Chromatic CI レポート |
+| 9 | **Component Inventory 再利用率** | 新規案件で過去 Inventory から再利用したコンポーネント率 | **60% 以上** | Notion DB 差分抽出結果 |
+| 10 | **Performance Budget 達成率** | Lighthouse スコアが設計時 SLA を満たすページ率 | **100%** | Vercel deploy 時 Lighthouse CI |
+
+---
+
+### 連携ツール MCP 活用ガイド
+
+- `mcp__Figma__get_design_context`：Figma ファイル → Design Token / Component Inventory 自動抽出
+- `mcp__Figma__get_variable_defs`：Figma Variables → `tokens.json` 変換
+- `mcp__Figma__get_figjam`：FigJam の Lo-Fi ワイヤーフレーム参照
+- `mcp__Figma__get_metadata`：Figma ファイルメタ情報取得
+- `mcp__Figma__get_screenshot`：Figma デザインをスクショで参照（設計書に貼付）
+- `mcp__Figma__list_shader_effects` / `list_shader_fills`：シェーダー効果の設計参照
+- `mcp__Google-Drive__search_files`：過去 LP 設計書テンプレ検索
+- `mcp__Notion__*`：Component Inventory DB 更新（**要 OAuth 認証**）※現状未接続、claude.ai コネクタ設定要
+- `mcp__github__create_or_update_file`：`tokens.json` の GitHub 直接更新
+- `mcp__github__create_pull_request`：Token Studio 経由の Token PR 作成
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
