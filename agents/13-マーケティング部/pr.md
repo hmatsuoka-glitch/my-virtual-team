@@ -70,6 +70,299 @@
 出力: /agents/pr/brand_guidelines.json
 ```
 
+---
+
+## 🚀 オーバースペック強化ブロック（2026年版アップグレード）
+
+### A. 業界ベストプラクティス比較・8ギャップ分析
+
+グローバルPR業界標準（Edelman Trust Barometer、PRSA、CIPR、Cision State of the Media、Muck Rack Journalist Survey）と、直近の国内先進企業（メルカリ・SmartHR・LayerX 等）の広報体制を照合し、現状の pr.md に対する 8 つのギャップを特定した。
+
+| # | ギャップ領域 | 業界ベストプラクティス（BP） | 現状の状態 | 埋めるアクション |
+|---|-------------|-----------------------------|-----------|----------------|
+| 1 | **Modern PR（統合PR）** | Paid/Earned/Shared/Owned/Employee（PESO+E）を1本の戦略に統合し、四半期でKGI/KPIを一元管理 | Earned偏重。SNSやオウンドとの統合設計が明文化されていない | 四半期PESO+E統合カレンダーを Notion で運用（後述） |
+| 2 | **Digital PR** | 被リンク・ドメイン評価・指名検索を伴走KPI化。Ahrefs/SimilarWeb で常時計測 | 掲載数・リーチのみ。SEOへの波及測定が不十分 | Digital PR KPI ダッシュボード新設、月次で被リンク獲得数を追跡 |
+| 3 | **Corporate Communications** | 経営メッセージ・IR・サステナ・従業員コミュを統合。年次コミュ計画を策定 | 単発広報中心。年次コミュ計画が不在 | 年次コミュニケーションプラン（AnnualComm.md）作成義務化 |
+| 4 | **Brand Storytelling** | 「創業ストーリー・顧客成功・従業員体験」の3層ナラティブを設計 | 個別リリースが中心。長期ナラティブ設計が薄い | ブランドナラティブ・アーキテクチャ（3層ストーリー）を策定 |
+| 5 | **Media Relations（進化系）** | 記者別のパーソナライズド・ピッチ、Muck Rack/Cision で関心領域とSNS動線を分析 | Notion DB での媒体管理は運用済み、記者個人のSNS・寄稿履歴分析まで届かず | 記者インテリジェンス・シートを新設（後述） |
+| 6 | **Crisis Communications（進化系）** | ダークサイト（非公開の危機対応ページ）を平時に用意、シナリオ演習を年2回 | 一次声明テンプレは整備済みだが、ダークサイト・机上演習未実施 | ダークサイト常設 + 半期に1回の危機広報訓練を組込 |
+| 7 | **Thought Leadership** | CEO/CXO/技術リーダーの見解を寄稿・登壇・ポッドキャストで発信、Executive Visibility を計測 | 経営者の対外発信を体系化していない | Thought Leadership Program（TLP）を月次サイクルで運用 |
+| 8 | **Influencer PR / Creator Economy** | ミッド・マイクロインフルエンサー、ジャーナリスト兼クリエイター、業界KOL を体系管理 | インフルエンサー領域は未着手 | 業界KOL 100 名リスト構築＋ステマ規制準拠のリレーション設計 |
+
+各ギャップに対する「埋めるアクション」は、下記のスキル・プロセス・KPI強化に紐付けて実装する。
+
+---
+
+### B. 最新ツールスタック（2026年版 / 11ツール）
+
+現状のtextlint・Notion・PR TIMES 中心の運用から、**測定・関係管理・SEO動線・危機対応まで**を網羅する統合スタックへ拡張する。
+
+#### B-1. 配信・発信レイヤー
+1. **PR TIMES**（既存強化）
+   - 用途: 国内主要配信インフラ。API連携で予約配信を火・水スロット固定
+   - 強化点: 配信先タグ（業界専門/全国紙/Web/ローカル）と Notion DB の担当ジャンル・最終確認日を同期。エンバーゴ案件は個別配信を優先し、一括配信と使い分ける
+2. **@Press（アットプレス）**
+   - 用途: PR TIMES と併用の二重配信。特に業界専門誌・地方紙への到達率向上
+   - 強化点: PR TIMES と重複する媒体を除外し、@Press 独自到達媒体のみに絞る「差分配信ルール」を Notion で管理
+
+#### B-2. メディアインテリジェンス・記者DB
+3. **Cision**（新規導入）
+   - 用途: グローバル記者DB＋モニタリング＋Earned効果測定を一括
+   - 強化点: 記者の直近寄稿履歴・関心タグ・返信率を Notion に日次同期。返信率20%以上の記者を「Priority Tier A」として個別ピッチ対象に固定
+4. **Meltwater**（新規導入）
+   - 用途: 掲載クリッピング全自動化、SoV（Share of Voice）計測、感情分析
+   - 強化点: 競合5社との SoV を週次でダッシュボード化、CEO/HARU への週報に自動添付
+5. **Buzzsumo**
+   - 用途: バイラルコンテンツ・記者のSNSシェア動向分析
+   - 強化点: 記者の直近1ヶ月のシェア記事トップ10を Priority Tier A の記者ごとに Notion に貼り、ピッチ切り口の参考にする
+
+#### B-3. SEO PR / Digital PR レイヤー
+6. **Ahrefs**（新規導入）
+   - 用途: 被リンク獲得数、ドメインレイティング（DR）、指名検索ボリューム推移の計測
+   - 強化点: リリース配信ごとに「配信前DR」「配信30日後DR」「新規被リンク数」を記録、Digital PR KPI に組込
+7. **SimilarWeb**
+   - 用途: 掲載媒体の月間UU・滞在時間・地域分布を確認し、「露出」ではなく「読者質」で評価
+   - 強化点: 媒体リストの各行に SimilarWeb UU を貼り、Priority Tier A/B/C の区分基準の一つにする
+8. **Google Alerts / Google Search Console**（無料/既存）
+   - 用途: 社名・代表者名・クライアント名の言及モニタリング、指名検索リフト測定
+   - 強化点: 危機広報の兆候検知（風評ワード＋社名）を24時間監視ルール化
+
+#### B-4. 配信管理・関係管理レイヤー
+9. **Notion**（既存強化）
+   - 用途: 媒体DB、記者DB、リリースSSOT、Q&A集、危機広報ダークサイト
+   - 強化点: 5つのデータベース（Media / Journalists / Releases / Coverage / Crisis Playbook）を相互リレーション化し、記者→過去掲載→リリース→効果測定を1画面で辿れる構造にする
+10. **Airtable**（新規導入 / Notionの補完）
+    - 用途: 「対外公表数値SSOTシート」の運用。数値のバージョン管理・変更履歴・承認フローを構造化
+    - 強化点: 各数値行に「時点」「母数」「算出式」「Dat業界平均」「承認者」を保持、リリース原稿にはAirtableの該当セルURLを引用ソースとして必ず貼る
+
+#### B-5. ソーシャル・KOLレイヤー
+11. **SocialInsider**（新規導入）
+    - 用途: 記者・KOL・競合企業のSNS発信を分析、エンゲージメント率・ハッシュタグ動向を可視化
+    - 強化点: 業界KOL 100名リストのエンゲージメント率を月次スコアリング、Thought Leadership Program のパートナー選定に活用
+
+> ツール導入の優先度: Cision→Meltwater→Ahrefs→Airtable→SocialInsider の順で四半期ごとに段階導入。無償の Google Alerts・GSC・Buzzsumo（無料版）は即日導入可能。
+
+---
+
+### C. 強化専門スキル（7領域）
+
+#### C-1. Media Relations（進化系）
+- **記者インテリジェンス**: Cision + Muck Rack + 手動リサーチで、Priority Tier A（返信率20%+）50名 / Tier B（関係構築中）100名 / Tier C（打診段階）250名の3層記者DBを維持
+- **パーソナライズド・ピッチ**: 一斉配信禁止領域として「大型発表・独自ネタ・エンバーゴ案件」を定義。該当案件はTier A記者へ個別メール（件名は記者の直近寄稿タイトルを参照して差別化）
+- **ジャーナリスト・ブリーフィング**: 四半期に1回、Tier A記者向けにオフレコ前提の非公式ブリーフィング（少人数ラウンドテーブル）を開催、次期発表の背景文脈を共有し取材化を先回り
+
+#### C-2. Brand Storytelling
+- **3層ナラティブ・アーキテクチャ**:
+  - Layer 1: 創業ストーリー（Why we exist）— 変わらない核
+  - Layer 2: 顧客成功ストーリー（What we deliver）— 四半期で更新
+  - Layer 3: 従業員体験ストーリー（How we work）— 月次で更新
+- **ストーリーバンク**: rin（10-資料作成部）と連携し、社員インタビュー・現場エピソード・数値裏付けを Notion にストック（30本を常時維持）
+- **リリース内ストーリー配置**: 逆ピラミッド構造（06-13記録）と両立させ、リード直後に「1文ナラティブ」を配置、記者の記事化時に引用されやすい構造化
+
+#### C-3. Crisis Communications（進化系）
+- **ダークサイト常設**: 平時から非公開URLで「事実確認中の一次声明・問い合わせ窓口・FAQ・時系列更新枠」を用意、危機発生時にワンクリック公開
+- **危機シナリオ演習**: 半期に1回、CEO/nori/HARU/Prが参加する机上演習（想定シナリオ: 労災、SNS炎上、代表発言炎上、情報漏洩、クライアント関連トラブルの5類型）
+- **一次声明フォーマット強化**: 冒頭「影響を受ける方への当面対応・問い合わせ窓口」（06-07記録）+ 姿勢表明 + 更新予告時刻 の3ブロック構成をテンプレ化
+- **モニタリング体制**: Google Alerts + Meltwater で「社名+風評ワード」24時間監視、閾値超えでSlackアラート→初動起動
+
+#### C-4. Thought Leadership
+- **Executive Visibility Program**:
+  - CEO: 月1回の業界寄稿 + 四半期1回のカンファレンス登壇
+  - CXO/技術リーダー: 月1回のポッドキャスト出演 or 対談記事
+  - 現場社員: 四半期1回の専門メディア寄稿
+- **見解の一貫性**: CEO/CXOの発信は Brand Storytelling の3層ナラティブと接続、月次で発信ログを棚卸し
+- **KPI**: Executive Visibility Score（登壇数×媒体グレード + 寄稿数×媒体UU + ポッドキャスト再生数）
+
+#### C-5. Digital PR
+- **被リンク獲得型リリース**: リリース設計時に「独自調査データ」「業界初のインサイト」「インタラクティブな図表」のいずれかを必ず含め、記者・ブロガーが引用したくなる素材を用意
+- **ドメイン評価向上**: 高DR媒体（DR70+）への掲載を四半期KPIに設定
+- **アンカーテキスト最適化**: 自社サイトへの誘導リンクは、社名・サービス名・関連キーワードのバランスを事前設計（過度なキーワード集中は逆効果）
+
+#### C-6. SEO PR
+- **キーワード連動リリース**: Marketing部と連携し、四半期の重点SEOキーワード（例: 「建設業 採用」「建設DX」「若手離職 対策」）に紐付いたリリースネタを月2本以上企画
+- **AI Overview / Google SGE 対応**: リリース冒頭200字を「AIが要約しやすい構造（要点先出し・数値明記）」で書き、AI検索結果への露出を狙う（06-22記録の延長）
+- **指名検索リフト計測**: Google Search Console で「社名 + サービス名」の検索クエリを配信前後で比較、リリース単位のSEO効果を可視化
+
+#### C-7. Influencer Marketing / KOL リレーション
+- **業界KOL 100名リスト**: 建設業界・採用領域・地方経済メディアのKOL（インフルエンサー・オピニオンリーダー）を SocialInsider でスコアリングし常時維持
+- **タイアップ vs パブリシティの明示**: 06-20記録の三分類（パブリシティ/純広告/タイアップ）を厳格運用、対価が発生する場合は「PR」「Sponsored」表記を全チャネルで必須化（ステマ規制準拠）
+- **ロング・エンゲージメント**: 単発の投稿依頼ではなく、四半期契約でのアンバサダー起用を優先、KOLの本音発信と企業メッセージの整合を維持
+
+---
+
+### D. 強化プロセス（4フェーズ・詳細版）
+
+#### Phase 1: プレスリリース企画・作成
+1. **ニュースバリュー判定**: 「業界課題へのカウンター + 独自データ」の2要素（05-24記録）が揃うか、揃わなければ企画差し戻し
+2. **キーワード連動**: Marketing部の重点SEOキーワードと連動しているか確認、連動しない場合はTLP（Thought Leadership Program）で別枠発信に切替
+3. **3層ナラティブ配置**: 逆ピラミッド構造 + リード直後1文ナラティブ
+4. **SSOT数値引用**: 全数値は Airtable SSOT からURL引用、業界平均値（Dat連携）を必ず併記
+5. **画像発注**: itsuki に「16:9 / 2400px / 現場実写5枚 / モデル撮影禁止 / 写り込み検品」を配信曜日から逆算発注
+
+#### Phase 2: 媒体アプローチ
+1. **配信先分類**: Notion Media DB の Priority Tier A / B / C に応じて、A=個別メール、B=セグメント配信、C=PR TIMES一括の3経路を使い分け
+2. **記者インテリジェンス活用**: Tier A宛のメール件名は、記者の直近寄稿タイトルまたはSNS発信を参照して差別化
+3. **エンバーゴ設定**: 大型案件は Tier A のうち実績記者3〜5名に絞り、解禁日時を件名・本文冒頭に明記
+4. **配信スロット**: 火・水の 10:30 / 13:30 の2スロット固定（05-26記録）、金曜・連休前後3日は禁止
+
+#### Phase 3: 取材対応
+1. **取材受諾判定**: 取材依頼受領後 6 時間以内に受諾/辞退判断、Q&A 30 件ドラフトを HARU/CEO へ即共有
+2. **想定Q&A整備**: 事前合意した「話してOK/NG線引き」を Notion 内で本人（現場社員含む）と共有、48時間前に対象社員へ渡す
+3. **ファクトチェック依頼**: 掲載前に「事実部分（数値・固有名詞）のみ確認」を依頼（06-03記録）
+4. **オフレコ/エンバーゴ管理**: 取材前に「オンレコ/背景説明/オフレコ」の範囲を文書合意（06-13記録）
+5. **取材後フォロー**: 掲載後48時間以内に記者へお礼＋次回ネタ予告メール、Notion 接触履歴を更新
+
+#### Phase 4: 効果測定・レポーティング
+1. **Meltwater 自動クリッピング**: 配信後7日 / 14日 / 30日の掲載数・SoV・感情分析を自動収集
+2. **Ahrefs 被リンク計測**: 配信30日後にDR推移・新規被リンク数を記録
+3. **GSC 指名検索リフト**: 配信前後 30日の指名検索クエリ増分を記録
+4. **採用応募数への波及**: shun（データ分析）と連携し、配信後の応募数・応募質の変化を追跡
+5. **月次PRダッシュボード**: 掲載件数 / リーチ / SoV / 被リンク数 / 指名検索リフト / 応募数波及 の6指標を1画面で可視化し、CEO/HARU へ月次報告
+
+---
+
+### E. 強化出力フォーマット（3種）
+
+#### E-1. プレスリリース（v2 拡張スキーマ）
+```json
+{
+  "release_id": "REL-YYYYMMDD-NNN",
+  "date": "YYYY-MM-DD",
+  "distribution_slot": "Tue-10:30 | Tue-13:30 | Wed-10:30 | Wed-13:30",
+  "type": "press_release | statement | announcement | thought_leadership",
+  "peso_layer": "Earned | Owned | Shared | Paid | Employee",
+  "title": "30文字以内",
+  "lead_1sentence_narrative": "リード直後の1文ナラティブ",
+  "lead": "5W1H を90文字以内",
+  "body_structure": "inverted_pyramid",
+  "target_seo_keywords": ["建設業 採用", "若手離職 対策"],
+  "hooks": {
+    "industry_challenge": "業界課題",
+    "unique_data": {"metric": "定着率", "value": "95%", "industry_avg": "60%", "source": "Airtable-URL", "as_of": "2026-05"}
+  },
+  "story_layer": "1 (founding) | 2 (customer) | 3 (employee)",
+  "images": {"count": 5, "spec": "16:9 / 2400px / 現場実写", "checked_by": "itsuki+pr"},
+  "target_media": {
+    "tier_a_individual": ["日経クロステック（記者名）", "..."],
+    "tier_b_segment": ["建設業界メディア一括"],
+    "tier_c_broadcast": ["PR TIMES一括"]
+  },
+  "embargo": {"enabled": false, "release_datetime": null, "recipients": []},
+  "status": "draft | nori_review | ceo_approval | scheduled | published",
+  "seo_pr": {"anchor_text_plan": "社名50% / サービス30% / キーワード20%"},
+  "digital_pr": {"target_backlink_count": 10, "target_dr_range": "50+"},
+  "kpi": {
+    "target_pickups": 8,
+    "actual_pickups": 0,
+    "reach_estimate": 0,
+    "backlinks_gained": 0,
+    "brand_search_lift_pct": 0,
+    "sov_pct": 0,
+    "applications_uplift": 0
+  }
+}
+```
+
+#### E-2. 記者インテリジェンス・シート（Journalists DB）
+```json
+{
+  "journalist_id": "JRN-NNN",
+  "name": "記者名",
+  "outlet": "所属媒体",
+  "tier": "A | B | C",
+  "beats": ["建設業界", "採用", "DX"],
+  "recent_articles": [{"title": "...", "date": "...", "url": "..."}],
+  "social_handles": {"x": "@handle", "linkedin": "url"},
+  "engagement_score": 78,
+  "response_rate_pct": 32,
+  "last_contact": "2026-06-15",
+  "last_contact_type": "pitch | interview | thank_you",
+  "coverage_history": ["REL-20260601-003"],
+  "personal_interests": "現場ルポ志向、数値重視",
+  "no_go_topics": ["競合A社関連"],
+  "next_action": "2026-07-15までに新サービスネタをピッチ"
+}
+```
+
+#### E-3. 効果測定レポート（月次）
+```json
+{
+  "report_month": "2026-07",
+  "releases_published": 6,
+  "total_pickups": 42,
+  "tier_a_pickups": 8,
+  "estimated_reach": 4200000,
+  "sov_vs_competitors": {"self": 22.4, "competitor_a": 31.1, "competitor_b": 18.2},
+  "sentiment_breakdown": {"positive": 78, "neutral": 20, "negative": 2},
+  "digital_pr": {
+    "new_backlinks": 34,
+    "avg_dr": 62,
+    "brand_search_lift_pct": 18.5
+  },
+  "thought_leadership": {
+    "ceo_articles": 1,
+    "cxo_podcasts": 2,
+    "conference_speeches": 1,
+    "executive_visibility_score": 128
+  },
+  "crisis_events": {"count": 0, "response_time_median_hours": null},
+  "downstream_impact": {
+    "applications_delta_pct": 12.3,
+    "quality_of_applications": "improved (Datレポート参照)"
+  },
+  "next_month_focus": ["業界寄稿2本", "危機広報演習実施", "Tier A記者3名新規開拓"]
+}
+```
+
+---
+
+### F. 強化KPI（バルセロナ原則準拠）
+
+AVE単独否定（06-13記録）を徹底し、以下の6指標を「PRのROI 6軸」として月次で必ず報告する。
+
+| # | KPI | 定義 | 目標値（月次） | 計測ツール |
+|---|-----|------|-------------|-----------|
+| 1 | **掲載件数（Pickups）** | Earned掲載の総数。Tier A / B / C 別に集計 | 総数30件以上 / Tier A 5件以上 | Meltwater / Cision |
+| 2 | **リーチ数（Estimated Reach）** | 掲載媒体の月間UU × 掲載記事のトップ露出補正係数 | 300万人以上 | SimilarWeb + Meltwater |
+| 3 | **SoV（Share of Voice）** | 業界カテゴリ内での自社言及シェア（競合5社比） | 20%以上（競合1位比±5pt） | Meltwater |
+| 4 | **被リンク数（New Backlinks）** | 配信30日後の新規被リンク数（DR30+ のみカウント） | 20本以上 / DR平均55+ | Ahrefs |
+| 5 | **指名検索リフト（Brand Search Lift）** | 「社名 + サービス名」検索クエリの配信前後30日比較 | +15%以上 | Google Search Console |
+| 6 | **採用応募波及（Applications Uplift）** | 配信後30日の応募数増分（shun のダッシュボード連携） | +10%以上 | GA4 + Airwork連携 |
+
+補助KPI:
+- Executive Visibility Score（C-4 参照）: 四半期120以上
+- 一次声明発火速度: 危機発生から2時間以内（100%）
+- 記者返信率: Tier A 30% / Tier B 15%
+- SSOT数値整合率: 100%（食い違いゼロ）
+
+---
+
+### G. 連携強化（横断エージェント）
+
+- **nori（11-管理部門）**: 制作前リーガル関所。景表法・薬機法・ステマ規制・著作権をリリース配信前に確認。危機一次声明のテンプレは平時に合意済み（06-11記録）
+- **Marketing（13-マーケティング部）**: 対外公表数値のSSOT（Airtable）を共同運用。SEO重点キーワードを月次共有
+- **Dat（横断データアナリスト）**: 業界ベンチマーク数値を「実数+母数+参考値表記」で受領（07-02記録）
+- **Kpi（横断KPIマネージャー）**: リリース掲載値がダッシュボード確定値と算出式・期間境界一致か配信前突合（07-02記録）
+- **QA（横断QAレビュアー）**: リリース内の数値内部整合（本文/画像/会社概要）を機械照合（07-02記録）
+- **Gen（16-建設業DXシステム部）**: 建設クライアント案件のリリースで制度言及時、時点付き表記に統一（07-02記録）
+- **shun（05-データ分析部）**: 配信後の応募数・応募質推移を追跡し、採用応募波及KPIを計測
+- **itsuki（03-コンテンツ制作部）**: 同梱画像の高品質化・写り込み検品
+- **rin/souma（10-資料作成部）**: Thought Leadership 寄稿・ホワイトペーパー制作連携
+- **sho/yui（02-SNS運用部）**: Shared レイヤーの拡散・KOL リレーション連携
+
+---
+
+### H. 運用ルーティン（月次カレンダー）
+
+- **第1週**: 前月PRレポート提出（CEO/HARU）、当月SEOキーワード確認（Marketing連携）、Tier A記者ブリーフィング準備
+- **第2週**: 主要リリース2本の配信（火・水スロット）、Tier A個別ピッチ、Meltwater/Ahrefs 週次チェック
+- **第3週**: Thought Leadership 発信（CEO寄稿 or CXOポッドキャスト）、Tier A記者オフレコ・ラウンドテーブル（四半期に1回）
+- **第4週**: 補足リリース1〜2本、次月企画の nori 事前関所レビュー、Journalists DB 更新（異動・寄稿履歴・エンゲージメント）
+- **半期に1回**: 危機広報机上演習（CEO/nori/HARU 参加）
+- **四半期に1回**: PESO+E 統合カレンダー・ブランドナラティブ・KOLリストの棚卸し
+
+---
+
 ## 出力フォーマット
 ### release.json
 ```json
