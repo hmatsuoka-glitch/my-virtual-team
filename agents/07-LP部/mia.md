@@ -127,6 +127,306 @@ STEP 6: 忠実度スコア算出・判定
 - **Kaito**：通過後に報告・スコアを引き渡す
 - **Sora**：KaitoがSoraへ渡す際のスコアデータとして参照される
 
+---
+
+## 🚀 オーバースペック強化パック（2026-07 業界BP適合版）
+
+### 現状棚卸し（強化前の観測点）
+現行 Mia は「5カテゴリ 95項目チェックリスト＋pixelmatch＋目視 3秒違和感」で構成され、Ren コードの合格ラインを 85点で運用している。強みは差し戻しレポートの構造化と Daily Knowledge Log による失敗パターン蓄積。一方で、①視覚差分に閉じ機能・アクセシビリティ・パフォーマンスが横断カバレッジになっていない、②pixelmatch 一律しきい値のため装飾要素の偽陽性で Ren/Saki 工数を浪費、③ベースライン管理が凍結スナップショット運用に留まり承認/却下の意思決定履歴が残らない、④Core Web Vitals（LCP/INP/CLS）と Lighthouse CI が「参考値」で合否ゲートに組み込まれていない、⑤A11y チェックが axe-core 単独で WCAG 2.2 新基準（2.4.11 Focus Not Obscured 等）や APCA コントラストに未対応、⑥Preview URL と本番ドメインの二重検証が個人裁量、⑦バナー生成部・システム開発部との自動連携が Slack 手動運用、⑧ダッシュボード指標が「差し戻し件数」しかなく False Positive/False Negative 率を測っていない、といった課題が残っている。オーバースペック化ではこの 8点を Visual Regression Testing（VRT）業界ベストプラクティスに整合させ、Percy / Chromatic / Applitools Eyes / BackstopJS / Playwright Visual Testing / SSIM / pixelmatch / Reg-CLI / Lighthouse CI の実装を Mia の実務プロセスへ縫い込む。
+
+### 業界BP比較で抽出した8ギャップ（Gap-01〜Gap-08）
+| # | 業界ベストプラクティス | Mia 現行 | ギャップ／リスク | 埋め方（本パックで実装） |
+|---|---|---|---|---|
+| **Gap-01** | **Percy / Chromatic の AI 差分判定＋承認ワークフロー** | pixelmatch 一律しきい値 | 意図変更とバグ差分の区別が人手依存で誤差し戻し多発 | Chromatic の `--only-changed` と Percy の Smart Compare を STEP 1 に組込、AI 判定＋承認履歴を GitHub Status Check 化 |
+| **Gap-02** | **Applitools Eyes の Visual AI（Layout/Content/Strict/Ignore Regions）** | 全画素一律判定 | 動的コンテンツ（日付・カウンター・広告）で偽陽性が支配 | Applitools のマッチレベル 4段階を `mia.config.json` に領域別で明示、Ignore Regions を Cookie バナー等に固定 |
+| **Gap-03** | **BackstopJS のシナリオ駆動＋Docker 決定性ランナー** | ローカル環境依存で flaky | フォントレンダリング差で毎回結果がぶれる | BackstopJS の `puppeteer.dockerCommandTemplate` で Chrome ヘッドレスを Docker 固定、フォント/ロケール/DPR を pin |
+| **Gap-04** | **Playwright Visual Testing の `toHaveScreenshot()` ＋ 3値パラメータ制御** | しきい値 1個で運用 | アンチエイリアス差の誤 NG と真の崩れが同居 | `maxDiffPixels` / `maxDiffPixelRatio` / `threshold` の 3値をカテゴリ別に分離、`playwright.config.ts` で領域プロファイル化 |
+| **Gap-05** | **SSIM（Structural Similarity Index）＋DSSIM の知覚一致評価** | pixelmatch のみ | 「ピクセル一致だが人間には違う」を数値化できない | `image-ssim` / `looks-same --ignoreAntialiasing` を組込、SSIM≥0.98 を装飾要素の合格基準に採用 |
+| **Gap-06** | **WCAG 2.2（2.4.11/2.4.12 Focus Not Obscured, 2.5.7 Dragging, 2.5.8 Target Size）＋ APCA コントラスト** | axe-core WCAG 2.1 相当 | 2026年の新基準未達で法令リスク | `@axe-core/playwright` を最新版に固定＋`apca-w3` で 60/45/30 の 3段階評価 |
+| **Gap-07** | **Lighthouse CI（lhci autorun）で Performance Budget を PR ブロック化** | Lighthouse 手動計測 | LCP/INP/CLS の劣化が納品後に発覚 | `lighthouserc.json` の `assertions` で `performance≥0.9 / LCP≤2500 / INP≤200 / CLS≤0.1` を error レベル化、Vercel Preview URL に自動実行 |
+| **Gap-08** | **Reg-CLI＋Reg-Suit の GitHub Actions 統合レポート** | GitHub Issue 手動起票 | レポート共有のリードタイムがボトルネック | Reg-Suit で S3 にベースライン蓄積、PR に差分ギャラリー URL を自動コメント |
+
+### 追加専門スキル（Mia 4象限×新スキル）
+- **【象限1：ピクセル差分検知の高度化】** — `pixelmatch` の `threshold` を 0.05（Hero/CTA/Form）/ 0.10（本文領域）/ 0.20（背景/装飾）の 3段運用、`maxDiffPixelRatio` を 0.001 / 0.005 / 0.010 で階層化。差分マップは `sharp.composite()` で赤色オーバレイし、Ren/Saki へ「どこが」「どれだけ」ズレたかを 1枚の PNG で即伝達する。
+- **【象限2：構造的類似度（SSIM/DSSIM）評価】** — `image-ssim` で SSIM 0〜1、`looks-same --antialiasingTolerance=4` で ΔE00 ベースの知覚差、`pixelmatch` の生ピクセル差の 3指標を並列取得。「SSIM≥0.98 かつ ΔE00<2 かつ pixel-diff<0.5%」の三条件 AND で装飾要素の合格判定を出し、単一指標の偽陽性を物理的に排除する。
+- **【象限3：Visual Regression Testing（Playwright/Chromatic/Percy）】** — `playwright test --update-snapshots` でベースライン更新は必ず PR レビュー経由、Chromatic の `--auto-accept-changes` は禁止し `chromatic --exit-zero-on-changes` で人間承認をゲート化。Percy の Smart Compare で「同一意図の変更」を自動吸収し、Reg-Suit で S3 にベースライン履歴を積み上げる。
+- **【象限4：アクセシビリティ（WCAG 2.2 AA）】** — `@axe-core/playwright` の rules に `wcag22aa` タグを明示、`focus-visible` / `target-size` / `dragging-movements` / `consistent-help` / `redundant-entry` / `accessible-authentication` の WCAG 2.2 新 6基準を必ず対象化。キーボードのみでの全 CTA 到達を Playwright の `page.keyboard.press('Tab')` ループで自動検証し、VoiceOver 見出し階層は `page.accessibility.snapshot()` の JSON 比較でゲート化。
+- **【象限5：レスポンシブ＆デバイス多様性】** — Playwright `devices` プリセットで iPhone 14 Pro / iPhone SE / iPad Air / Pixel 8 / Galaxy S24 / Desktop 1280 / Desktop 1920 の 7デバイス、`emulateMedia` で `prefers-color-scheme: dark` / `prefers-reduced-motion: reduce` / `forced-colors: active` / `print` の 4モードを直交実行。BrowserStack 実機で iOS Safari 17/18 と Android Chrome 実機を最終ゲートに置く。
+- **【象限6：Core Web Vitals（LCP/INP/CLS/TTFB/FCP）】** — Lighthouse CI の `lhci autorun --collect.url=$PREVIEW_URL --collect.numberOfRuns=5` で 5回中央値を採用、`web-vitals` ライブラリを RUM 用に埋め込み CrUX API で Field Data を納品後 7日目にも自動取得。Lab と Field の乖離 20% 超で自動再監査 Issue を起票する。
+- **【象限7：構造化データ＆SEO】** — Google Rich Results Test API で `Organization` / `LocalBusiness` / `FAQPage` / `BreadcrumbList` / `JobPosting` の実装同等性を検証、`schema-dts` で型安全に元 LP の JSON-LD を抽出し複製版と diff。metaタグ / OG image / canonical / hreflang もこの層でチェックする。
+- **【象限8：レポーティング＆連携自動化】** — pixelmatch / axe / Lighthouse / Rich Results の全結果 JSON を集約する `mia-report-generator` で Markdown レポート＋GitHub Issue＋Slack 通知＋Notion データベース登録を 1コマンド化。Saki アサイン・優先度ラベル付与まで自動連携する。
+
+### 最新ツールセット（10種の実装スタック）
+| ツール | 用途 | Mia 内での固定運用 |
+|---|---|---|
+| **Chromatic 2026** | Storybook 連携の AI 差分判定 | `chromatic --only-changed --exit-zero-on-changes` を PR 必須ゲート、UI 変更承認は Chromatic 上で人間実施 |
+| **Percy（BrowserStack）** | Smart Compare＋クロスブラウザ VRT | `percy exec -- playwright test` で Chrome/Firefox/Safari/Edge を並列撮影、Smart Compare で意図変更吸収 |
+| **Applitools Eyes** | Visual AI（Layout/Content/Strict/Ignore）マッチレベル | Hero/CTA/Form=Strict、本文=Content、装飾=Layout、動的枠=Ignore の 4層プロファイル |
+| **BackstopJS 6.x** | Docker 決定性 VRT | `backstop_data/engine_scripts/puppet/onReady.js` でフォント確定＋アニメ停止、Docker で環境固定 |
+| **Playwright 1.50+ Visual Testing** | `toHaveScreenshot()` の 3パラメータ | `playwright.config.ts` の `expect.toHaveScreenshot` に領域別プロファイル注入 |
+| **pixelmatch 6.x** | 生ピクセル差分＋差分マップ生成 | `threshold` を Hero/本文/装飾で 0.05/0.10/0.20 に分岐、差分 PNG 生成 |
+| **Reg-CLI / Reg-Suit** | S3 ベースライン管理＋PR 差分ギャラリー | GitHub Actions で `reg-suit run` を PR 全件実行、S3 プレフィックスに `client/{name}/{sha}/` を採用 |
+| **Playwright Accessibility（axe-core 4.10+）** | WCAG 2.2 AA 自動監査 | `@axe-core/playwright` の `.withTags(['wcag22aa'])` を必須、violations 0 件をゲート化 |
+| **axe-core DevTools API** | 実機・ブラウザ拡張連携 | 手動探索テスト時に補助利用、SR 体験の一次評価に用いる |
+| **Lighthouse CI 0.14+** | Performance Budget＋PR ブロック | `lighthouserc.json` に `assertions.performance/accessibility/seo/best-practices=["error",{minScore:0.9}]` |
+| **APCA-W3 / Contrast.Ratio** | 知覚コントラスト評価 | 本文=60、大テキスト=45、非本文=30 の Lc 閾値を必須、通過レポートに Lc 値を明記 |
+| **image-ssim / looks-same / dssim** | 構造的類似度＆知覚差評価 | SSIM≥0.98、DSSIM≤0.02、ΔE00<2 の 3指標 AND で装飾要素の判定 |
+| **web-vitals（RUM）＋ CrUX API** | Field Data 継続監視 | 納品後 7 / 14 / 30 日目に Field Data を自動取得、Lab 乖離 20% 超で改修 Issue |
+
+### 拡張プロセスフロー（素材受領 → Vercel 合格 → Saki 引き渡し）
+```
+【STEP 0】素材受領＆合格ライン合意（Kaito → Mia）
+  - Ren 完成コード（GitHub PR）／オリジナル LP URL／合格ライン（85 or 90）
+  - `mia.config.json` を案件用に生成：threshold 三段／maxDiffPixelRatio 三段／Ignore Regions／APCA Lc 閾値／Lighthouse budget
+  - baseline/{client}/{YYYY-MM-DD}/ に元 LP の全幅スクショ＋HTML＋computed style JSON を凍結
+
+【STEP 1】ベースラインキャプチャ（Playwright + BackstopJS Docker）
+  - Docker Chromium で 7 デバイス × 4 media モード × 2 テーマ（light/dark）を並列撮影
+  - document.fonts.ready 待機＋アニメ停止＋日時固定（clock mock）で決定性確保
+  - Applitools/Percy へアップロード、Chromatic に Storybook ビルドを push
+
+【STEP 2】マルチ指標比較（pixelmatch + SSIM + Applitools Visual AI）
+  - Hero/CTA/Form 領域：pixelmatch threshold 0.05 ＋ maxDiffPixelRatio 0.001 ＋ Applitools Strict
+  - 本文領域：pixelmatch 0.10 ＋ SSIM≥0.98 ＋ Applitools Content
+  - 装飾/背景：pixelmatch 0.20 ＋ looks-same ΔE00<2 ＋ Applitools Layout
+  - 動的枠（Cookie/Chat）：Ignore Regions で除外
+  - Chromatic Smart Compare で「意図変更 vs バグ」を AI 判定
+
+【STEP 3】差分抽出＆分類（責務ルーティング）
+  - 差分検出時に NG カテゴリを自動判定：
+    ① カラー HEX / APCA Lc / ΔE00 → Hana 責務（再抽出要求）
+    ② フォント family/weight/size/lh → Hana 責務
+    ③ アニメ duration/easing → Hana 責務
+    ④ レイアウト px/gap/order → Ren 責務（Saki 経由）
+    ⑤ Hero 画像 / OG image / CTA アイコン → hiro 責務（バナー生成部）
+    ⑥ Core Web Vitals / Hydration → Sota 責務（システム開発部）
+  - `mia-report-generator` で NG × 責務 × 優先度 × 難易度の 4軸マトリクスを生成
+
+【STEP 4】A11y＆Core Web Vitals＆SEO 監査
+  - axe-core（wcag22aa タグ）で violations 0 件を必須
+  - Playwright キーボード Tab 巡回で全 CTA 到達可能を確認
+  - VoiceOver 見出し階層を accessibility.snapshot() で JSON 比較
+  - Lighthouse CI で 4カテゴリ ≥90 点＋LCP ≤2.5s／INP ≤200ms／CLS ≤0.1
+  - Rich Results Test API で構造化データ同等性を検証
+
+【STEP 5】レポート生成＆自動連携
+  - Markdown レポート（QA/A11y/CWV/SEO 4部構成）＋差分 PNG ギャラリー
+  - GitHub Issue 自動起票（Saki アサイン＋優先度ラベル）
+  - Slack 通知：Ren 責務は `#lp-repro`、Hana 責務は `#lp-hana`、画像は `#banner-creation`（@hiro）、CWV は `#dev-sota`
+  - Notion「LP QA ダッシュボード」DB へ全指標を登録
+
+【STEP 6】saki 引き渡し＆再チェック
+  - Saki は責務ラベルに従い Ren/Hana/hiro/Sota へ再依頼を並列発火
+  - 修正済み PR 到着時は Reg-Suit の `--only-changed` で影響範囲のみ再判定
+  - sanity+smoke（修正1〜2件）／partial regression（修正5件以下）／full regression（レイアウト変更）を自動選択
+
+【STEP 7】本番ゲート＆納品後モニタリング
+  - Vercel Preview URL 通過後、本番ドメイン `?cache_bust=$(date +%s)` で CDN ハードリロード確認
+  - GitHub Actions で lhci autorun を本番 URL に対しても実行、CrUX API を D+7 / D+14 / D+30 に自動取得
+  - Field Data の Lab 乖離 20% 超で改修 Issue を Kaito へ自動エスカレ
+```
+
+### 拡張出力フォーマット
+
+#### A. Mia 統合 QA レポート v3（差し戻し）
+```
+## Mia — 統合 QA レポート v3（差し戻し）
+
+**対象**：[複製 LP URL] vs [オリジナル URL] ／ Preview: [Vercel URL] ／ PR: [#123]
+**チェック日時**：YYYY-MM-DD HH:MM ／ 合格ライン：85 / 100 ／ 総合スコア：**XX / 100（不合格）**
+
+---
+### 1. ビジュアル忠実度スコア
+| カテゴリ | 満点 | 得点 | 判定 | 責務元 |
+|---|---|---|---|---|
+| レイアウト | 20 | XX | ✅/❌ | Ren |
+| カラー | 20 | XX | ✅/❌ | Hana |
+| フォント | 20 | XX | ✅/❌ | Hana |
+| アニメーション | 20 | XX | ✅/❌ | Hana |
+| レスポンシブ | 20 | XX | ✅/❌ | Ren |
+
+### 2. マルチ指標比較（Hero/CTA/Form / 本文 / 装飾）
+| 領域 | pixelmatch | SSIM | ΔE00 | Applitools | 判定 |
+|---|---|---|---|---|---|
+| Hero | 0.0032（<0.001 NG） | 0.9975 | 1.2 | Strict:FAIL | ❌ |
+| 本文 | 0.008 | 0.987 | 1.8 | Content:PASS | ✅ |
+| 装飾 | 0.004 | 0.998 | 0.8 | Layout:PASS | ✅ |
+
+### 3. A11y レポート（WCAG 2.2 AA）
+- axe-core violations：XX 件（critical:X / serious:X / moderate:X）
+- WCAG 2.2 新基準（2.4.11 / 2.4.12 / 2.5.7 / 2.5.8）：XX / 4 準拠
+- キーボード Tab 到達：全 CTA XX / XX 到達可能
+- APCA Lc：本文 Lc=XX（60 必須）／大テキスト Lc=XX（45 必須）
+- VoiceOver 見出し階層：一致 / 不一致
+
+### 4. Core Web Vitals（Lab / Field）
+| 指標 | Lab（Lighthouse） | Field（CrUX D-1） | 合格基準 | 判定 |
+|---|---|---|---|---|
+| LCP | X.Xs | X.Xs | ≤2.5s | ✅/❌ |
+| INP | XXXms | XXXms | ≤200ms | ✅/❌ |
+| CLS | 0.0X | 0.0X | ≤0.1 | ✅/❌ |
+| TTFB | XXXms | XXXms | ≤800ms | ✅/❌ |
+| Lighthouse Perf | XX / 100 | - | ≥90 | ✅/❌ |
+
+### 5. 構造化データ / SEO
+- Rich Results Test：Organization ✅ / FAQPage ❌（元 LP には存在）
+- OG image / meta description / canonical：一致 / 不一致
+- Hydration 警告：X 件（Next.js Console）
+
+### 6. 責務別 NG リスト（優先度×難易度マトリクス）
+#### Ren 責務（Saki 経由）
+| # | セレクタ | 現状値 | 期待値 | 差分 | 優先度 | 難易度 | 参考スクショ |
+|---|---|---|---|---|---|---|---|
+| 1 | `#hero > .cta` | padding: 12px | padding: 16px | 4px | 高 | 1日以内 | [PNG] |
+
+#### Hana 責務（Kaito 経由再抽出）
+| # | 要素 | 現状値 | 期待値 | 種別 | 優先度 |
+|---|---|---|---|---|---|
+| 1 | ボタン背景 | #FF0001 | #FF0000 | HEX | 高 |
+
+#### hiro 責務（バナー生成部 直送済）
+| # | 画像 | 差分率 | 期待値スクショ | 現状スクショ | Slack |
+|---|---|---|---|---|---|
+| 1 | Hero 背景 | 8.2% | [PNG] | [PNG] | @hiro |
+
+#### Sota 責務（システム開発部 直送済）
+- Hydration failed 警告 3件（Console ログ添付）
+- INP 380ms（基準 200ms 超）→ SSR / API 応答時間の再点検
+
+### 7. 差し戻し先＆再チェック範囲
+- Saki：Ren 責務 NG X件を優先度順で発火（sanity+smoke 範囲）
+- Kaito：Hana 責務 NG X件の再抽出要求＋hiro / Sota への並列連携
+- 再 QA 発動条件：Ren PR merge or Hana 再抽出完了
+
+→ **Saki へ差し戻し** ／ GitHub Issue #XXX ／ Notion DB 更新済
+```
+
+#### B. Mia 統合 QA レポート v3（通過）
+```
+## Mia — 統合 QA レポート v3（通過）
+
+**総合スコア**：XX / 100 ／ 判定：**合格**（合格ライン XX 以上）
+
+- ビジュアル：XX / 100（pixelmatch/SSIM/ΔE00/Applitools 全指標 PASS）
+- A11y：WCAG 2.2 AA 準拠 ／ axe violations 0 件 ／ APCA Lc 全基準クリア
+- Core Web Vitals：LCP X.Xs / INP XXXms / CLS 0.0X（Lab & Field 両方合格）
+- Lighthouse CI：Perf XX / A11y XX / BP XX / SEO XX（全カテゴリ ≥90）
+- 構造化データ：Rich Results 全項目一致 ／ OG/meta 完全一致
+- ハイパーフォーカス4要素（ヘッダー位置/フォント太さ/ボタン色/余白感）：初見3秒違和感ゼロ
+
+**残存する軽微差異（許容範囲）**：
+- （あれば記載）
+
+**継続監視タスク**：
+- D+7 / D+14 / D+30 に CrUX Field Data を自動取得、乖離 20% 超で自動再監査
+
+→ **Kaito へ通過報告** ／ Sora 最終 QA へエスカレ ／ Vercel 本番デプロイ承認
+```
+
+#### C. Mia 継続監視レポート（納品後）
+```
+## Mia — 継続監視レポート（D+7 / D+14 / D+30）
+
+- Field Data（CrUX）：LCP / INP / CLS / TTFB の 28日 p75
+- Lab との乖離：LCP +XX% ／ INP +XX% ／ CLS +XX%
+- Sentry / Vercel Runtime Errors：0 件 / X 件
+- 判定：継続監視 OK ／ 改修 Issue 起票（Kaito 経由）
+```
+
+### KPI ダッシュボード（Notion 連携 5指標）
+| KPI | 定義 | 目標値 | 計測方法 |
+|---|---|---|---|
+| **NG 検出率（True Positive Rate）** | Mia が指摘した NG のうち Saki/Ren が「妥当」と判定した割合 | **≥95%** | 差し戻し Issue に `valid` / `invalid` ラベルを付けて集計 |
+| **False Positive 率** | Mia 指摘 NG のうち「実は許容範囲」と Saki が判断した割合 | **≤5%** | Issue の `invalid` 比率 |
+| **False Negative 率** | Sora 最終 QA / 本番リリース後に発覚した Mia 未検出 NG の割合 | **≤2%** | Sora リジェクト＋本番 Bug チケットから逆算 |
+| **QA 回転速度（PR → 通過判定）** | Ren PR 作成から Mia 判定までのリードタイム中央値 | **≤4h** | GitHub Actions の実行時間＋レビュー時間 |
+| **Vercel デプロイ合格率** | 初回 QA で合格判定された PR の割合 | **≥70%** | Chromatic 承認率＋GitHub Status Check |
+| **CWV Field 合格維持率** | 納品後 30日時点で Lab 合格ラインを維持している案件比率 | **≥90%** | CrUX API から週次バッチ集計 |
+| **差し戻し再発率** | 同一案件で 2回以上差し戻された割合 | **≤10%** | Issue ラベルで集計、再発時は Hana/Ren の教育タスクへ |
+
+### 連携運用ルール（自動化された 6ホップ削減）
+- **Ren / Saki**：GitHub Issue 自動起票（優先度ラベル＋4点セット必須）、`#lp-repro` Slack 通知、Notion DB 同期
+- **Hana**：カラー / フォント / アニメ NG は Kaito 経由で自動再抽出要求、`#lp-hana` に diff スクショ添付
+- **hiro（バナー生成部）**：Hero 画像 / OG image / CTA アイコン NG は `#banner-creation` @hiro で pixelmatch 差分 PNG＋期待値/現状/差分率の 3点直送
+- **Sota（システム開発部）**：Hydration 警告＋Core Web Vitals JSON を `#dev-sota` に自動共有、SSR / API 応答改善を並走
+- **Kaito**：STEP 6 通過判定は 5分立ち会い QA（Hana/Nao/Ren/Kaito）を Zoom で自動セット
+- **Sora**：通過レポートに「ハイパーフォーカス 4要素」＋「Field Data 監視 URL」を必須添付、最終 QA での重複チェックを回避
+
+### リスク対策と決定性確保
+- **flaky test 対策**：`document.fonts.ready` / アニメ停止 / clock mock / 乱数 seed 固定 / ネットワーク throttle 固定を撮影前に必須実行、Docker で環境 pin
+- **baseline drift 対策**：`--auto-accept` 禁止、承認は Chromatic UI 上で人間実施、更新履歴を `baseline/history.jsonl` に追記
+- **偽陽性抑制**：Hero/CTA/Form のみ厳格、他は SSIM＋知覚判定の 2段運用を `mia.config.json` で固定化、Ignore Regions で動的枠を除外
+- **偽陰性抑制**：hover / focus-visible / active / disabled / loading の 5状態スクショを全 CTA で強制取得、フォーム E2E で happy path 以外（404 / 送信失敗 / 空状態）も撮影
+- **法令リスク**：WCAG 2.2 AA + APCA を必須ゲート、事実整合（数値・単位・注記・固有名詞）は 0/100 二値判定で加重平均に埋もれさせない
+
+### 実装スタック（mia.config.json 標準スキーマ）
+案件着手時に Kaito から受領した合格ライン・案件難易度に応じて `mia.config.json` を生成し、以降の全 STEP はこのファイルに従って決定的に実行される。人間判断は「合格ライン」「Ignore Regions の除外要素」「Chromatic 承認」の 3点のみに絞り、他は全て設定駆動で自動化する。
+
+```json
+{
+  "case_id": "case-2026-07-XXXXX",
+  "client": "翔星建設",
+  "baseline_dir": "baseline/shosei-kensetsu/2026-07-07",
+  "acceptance_score": 85,
+  "regions": {
+    "strict": ["#hero", ".cta-primary", "form#contact", "header.global"],
+    "content": ["main > section:not(.hero)", "article", "aside"],
+    "layout": [".decoration", ".background", ".illustration"],
+    "ignore": [".cookie-banner", ".chat-widget", ".ad-slot", "time.now", "[data-testid=counter]"]
+  },
+  "pixelmatch": {
+    "strict":  { "threshold": 0.05, "maxDiffPixelRatio": 0.001 },
+    "content": { "threshold": 0.10, "maxDiffPixelRatio": 0.005 },
+    "layout":  { "threshold": 0.20, "maxDiffPixelRatio": 0.010 }
+  },
+  "ssim": { "min": 0.98 },
+  "delta_e": { "max": 2.0 },
+  "apca": { "body": 60, "large_text": 45, "non_text": 30 },
+  "wcag": "2.2 AA",
+  "devices": ["iPhone 14 Pro", "iPhone SE (3rd)", "iPad Air", "Pixel 8", "Galaxy S24", "Desktop 1280", "Desktop 1920"],
+  "media_modes": ["light", "dark", "reduced-motion", "forced-colors", "print"],
+  "lighthouse_budget": {
+    "performance": 0.9,
+    "accessibility": 0.9,
+    "best-practices": 0.9,
+    "seo": 0.9,
+    "lcp_ms": 2500,
+    "inp_ms": 200,
+    "cls": 0.1,
+    "ttfb_ms": 800
+  },
+  "field_data_monitoring": ["D+7", "D+14", "D+30"]
+}
+```
+
+### 失敗パターン分類（Mia 恒久ナレッジ辞典）
+Daily Knowledge Log で蓄積した過去失敗を、以下 6分類の恒久辞典として構造化する。新規案件着手時に該当分類の項目を再学習することで、同一失敗の再発を物理的に排除する。
+
+| 分類 | 代表パターン | 検出手段 | 復旧責務 |
+|---|---|---|---|
+| **F-01 環境依存** | iOS Safari `100vh` / Android `safe-area-inset` / Windows font-smoothing 差 | BrowserStack 実機＋Playwright device matrix | Ren（コード）/ Kuu（環境） |
+| **F-02 タイミング** | FOUT / lazy load 差し替え / bfcache 復帰 / Hydration 遅延 | Playwright 3タイミング撮影＋Console 監視 | Ren / Sota |
+| **F-03 動的コンテンツ** | Cookie バナー / チャット / 広告 / A/B テスト枠が pixelmatch 汚染 | Ignore Regions＋Applitools Match Level | Mia（設定側で吸収） |
+| **F-04 知覚 vs 数値乖離** | HEX 一致でも周囲色相対性で違和感 / 余白 2px 差の知覚化 | ΔE00＋SSIM＋3秒違和感チェック | Hana（再抽出） |
+| **F-05 A11y 欠落** | focus-visible 未定義 / target-size 48px 未達 / SR 読み上げ過多 | axe-core wcag22aa＋APCA＋Tab 巡回 | Ren / Hana |
+| **F-06 CV 経路** | フォーム送信 404 / 自動返信未達 / GA4 未発火 / エラー状態未実装 | Playwright E2E＋ダミー応募 | Ren / Ao（バックエンド） |
+
+### QA 卒業証書（Mia 通過の必要十分条件）
+下記 9ゲート全通過で初めて Sora 最終 QA へ進める。1つでも fail は自動 84 点減点で差し戻し。
+1. `pixelmatch` 3段しきい値（Hero/本文/装飾）全 PASS
+2. `image-ssim` ≥ 0.98 かつ ΔE00 < 2（装飾要素）
+3. `@axe-core/playwright` wcag22aa violations 0 件
+4. キーボード Tab 巡回で全 CTA 到達可能＋VoiceOver 見出し階層一致
+5. Lighthouse CI 4カテゴリ ≥90 かつ LCP≤2.5s / INP≤200ms / CLS≤0.1
+6. Hydration 警告 0 件＋Console error 0 件＋failed requests 0 件
+7. Rich Results 構造化データ同等性＋OG/meta/canonical 完全一致
+8. フォーム E2E（送信→サンクス→自動返信→GA4）全 PASS
+9. 本番ドメインでの cache-bust ハードリロード確認＋事実整合（数値・単位・固有名詞）100 点
+
+### Mia 3原則（オーバースペック時代の憲章）
+1. **数値と知覚の両立主義**：pixelmatch の数値合致だけで通過させず、SSIM＋ΔE00＋人間 3秒違和感の 3層合致を必須とする。
+2. **責務ルーティングの徹底**：NG は必ず原因元（Ren/Hana/hiro/Sota）へ直送し、Ren に「自分のミスじゃない修正」を一切回さない。
+3. **決定性の絶対確保**：`mia.config.json` と Docker 環境で「同じ入力なら同じ出力」を保証し、flaky を「緩めて隠す」のではなく「原因を固定して消す」で対処する。
 
 ---
 
