@@ -98,6 +98,410 @@
 }
 ```
 
+---
+
+## 🚀 オーバースペック強化ブロック（2026年 業界BP・8ギャップ対応）
+
+> **強化の意図**: 従来の「四半期戦略 → コンテンツ → リード → ブランド」の4プロセスは、月間リード20件レベルの運用には十分だが、**LTV/CAC・アトリビューション・CDP・PLG・JTBD** といった業界BP（Best Practice）視点が薄い。ここでは Growth Marketing 現代標準（HubSpot/Marketo/Amplitude/Segment 基準）に到達させる強化スキル・プロセス・KPI・ツールを追記する。
+
+### 📊 業界BP比較・8ギャップ棚卸し
+
+| # | 業界BP項目 | 従来marketingの状態 | ギャップ | 埋める強化アクション |
+|---|-----------|---------------------|---------|---------------------|
+| G1 | **Growth Marketing / AARRR** | Acquisition中心、Retention/Referralが未定義 | Activation・Retention施策が皆無、LTV最大化ロジックなし | 後述「専門スキル1・AARRRファネル」で5層設計 |
+| G2 | **Product-led Growth (PLG)** | 未考慮（従来はSales-led前提） | 自社SaaS/資料DL→トライアル→有償化のセルフサーブ導線なし | 「専門スキル2・PLGファネル設計」で無料診断→有料の階段設計 |
+| G3 | **Content Marketing戦略化** | ブログ・SNS発信の"本数"重視 | 検索意図マップ・Topic Cluster設計・Content Refresh周期が未定義 | 「専門スキル3・Content Ops」でクラスタ×リフレッシュ運用 |
+| G4 | **SEO（技術+E-E-A-T+SGE）** | 記事投下のみ、CoreWebVitals/内部リンク設計/AI Overview対策なし | Programmatic SEO・構造化データ・E-E-A-T証跡が未整備 | 「専門スキル4・SEO三層」で技術/構造/権威の3層強化 |
+| G5 | **SEM（検索広告の高度化）** | Google広告のマッチタイプ最適化・SKAG/STAG判断・入札戦略の使い分けが浅い | Broad+スマート入札×除外KWの現代型運用が未定義 | 「専門スキル5・SEM Modern Ops」で Broad+ Smart Bidding 運用化 |
+| G6 | **DMP / CDP・ゼロパーティデータ** | Cookie前提のリターゲティング中心 | ファーストパーティID統合基盤なし、Cookie規制後の耐障害性なし | 「専門スキル6・CDP統合層」でSegment/RudderStackベース設計 |
+| G7 | **MarTech Stack設計** | HubSpot単発・Meta単発の点在運用 | 集客→分析→BI→広告最適化のスタック統合図なし | 「MarTech Stack構成図」節で標準スタックを定義 |
+| G8 | **Attribution / LTV/CAC / ICP / JTBD / Positioning** | Last-clickのCPAのみ、LTVもJTBDも定義されていない | 経営指標との接続（Payback・MRR成長）が広告運用と切れている | 「専門スキル7-10」で5指標＋2概念を体系導入 |
+
+### 🛠️ 最新MarTech ツール標準スタック（採用/BtoB両対応・2026年基準）
+
+| 層 | ツール | 用途 | 選定理由 / 使いどころ |
+|---|-------|------|---------------------|
+| **CRM / MA** | **HubSpot Marketing Hub** | リード管理・MA・スコアリング・メールシーケンス | 中堅までのMAは標準。フリー枠でも Contacts/Deals/Workflows が動く |
+| **エンタープライズMA** | **Adobe Marketo Engage** | 大規模リードナーチャリング・ABM | 5,000+ contacts、複雑分岐フローが必要になった時の移行先 |
+| **BtoB営業連携MA** | **Salesforce Pardot (Marketing Cloud Account Engagement)** | Salesforce連携が前提の企業向けMA | 既にSFDC導入企業のBtoB案件はPardotが最短 |
+| **CDP** | **Segment (Twilio)** | ファーストパーティデータ統合・イベント配信基盤 | 全ツールへのイベント一元配信、CDP標準デファクト |
+| **プロダクト分析** | **Amplitude / Mixpanel** | ファネル分析・Retention Cohort・Feature Adoption | AARRR/PLGでActivation/Retentionを見るならGA4より粒度が上 |
+| **顧客エンゲージメント** | **Braze** | クロスチャネル（メール/Push/In-App）オーケストレーション | ライフサイクル毎の自動配信・ジャーニー最適化 |
+| **BI / レポート** | **GA4 + Looker Studio + BigQuery** | 集計・ダッシュボード自動化 | GA4 → BQ Export → Looker Studio が2026年の標準無料スタック |
+| **SEO調査** | **Ahrefs / Semrush** | KW調査・被リンク分析・競合SEO・SERP監視 | Ahrefsは被リンク精度、SemrushはSEM統合。役割で使い分け |
+| **プロジェクト / ドキュメント** | **Notion / Airtable** | コンテンツカレンダー・キャンペーン管理・ナレッジDB | NotionでSSOT、Airtableで構造化データ運用（同期関係） |
+| **タグ管理 / 計測** | **Google Tag Manager + Meta CAPI + GA4 Measurement Protocol** | サーバーサイド計測・Cookie規制対応 | iOS/ITPで欠損が拡大する2026年はサーバーサイド計測が事実上必須 |
+
+### 🎯 専門スキル（強化版 10領域）
+
+#### 専門スキル1: Growth Marketing / AARRR ファネル設計
+```
+処理:
+  1. Acquisition（獲得）: SEO・SEM・SNS・Referralの流入源別CPA目標を設定
+  2. Activation（体験）: 初回訪問→"Aha! Moment"（診断完了・資料DL）までの到達率を60%以上
+  3. Retention（継続）: メール開封・再訪問・ウェビナー参加のCohort別Retention Curveを月次計測
+  4. Referral（紹介）: NPS計測・紹介インセンティブ設計・K-Factor（1顧客が生む新規顧客数）を追跡
+  5. Revenue（収益）: MRR/ARR・LTV・Payback Period・Net Revenue Retention（NRR）を追跡
+判定基準:
+  - Activation率 60%以上
+  - 90日Retention 40%以上
+  - K-Factor > 0.3
+  - Payback Period < 12ヶ月
+出力: /agents/marketing/aarrr_dashboard_{quarter}.json
+```
+
+#### 専門スキル2: Product-led Growth (PLG) ファネル設計
+```
+処理:
+  1. Top of Funnel: 無料ツール・無料診断・テンプレDLでリード獲得（Freemium入口）
+  2. Product Activation: 初回体験でValue Momentに到達させる（診断結果表示・体験MTG予約）
+  3. Habit Formation: 週次/月次で戻ってくる仕組み（メールドリップ・新機能通知）
+  4. Monetization: 有償プラン提示（Paywall・使用量ベース・Sales-assist）
+  5. Expansion: アップセル・クロスセル（追加席・追加機能）
+判定基準:
+  - Free→Paid Conversion Rate > 3%（BtoB SaaS標準）
+  - Time to Value < 5分（初回訪問から価値体感まで）
+  - Product Qualified Lead (PQL) → 有償化率 > 15%
+出力: /agents/marketing/plg_funnel_{quarter}.json
+```
+
+#### 専門スキル3: Content Marketing / Content Ops
+```
+処理:
+  1. Topic Cluster設計: Pillar Page（大テーマ）×Cluster Content（小テーマ10-20本）の内部リンク構造
+  2. 検索意図マップ: KWをInformational/Navigational/Commercial/Transactionalに分類、各意図別のフォーマット選択
+  3. Content Calendar: Notion DBで四半期分のテーマを先埋め、週次更新
+  4. Content Refresh: 公開後180日で順位・トラフィック確認、下降記事は加筆・統合・削除の3択判定
+  5. Repurpose: 1ブログ記事 → SNS投稿5本＋メルマガ1本＋動画1本のマルチフォーマット展開
+判定基準:
+  - Pillar Page 4本/四半期
+  - Cluster Content 40本/四半期
+  - Refresh対応 全記事の30%/四半期
+  - 1コンテンツあたり最低3チャネル展開
+出力: /agents/marketing/content_ops_{quarter}.json
+```
+
+#### 専門スキル4: SEO（技術×構造×権威 三層戦略）
+```
+処理（技術層）:
+  1. Core Web Vitals（LCP<2.5s/INP<200ms/CLS<0.1）を全ページで維持
+  2. モバイルファースト・構造化データ（Article/FAQ/HowTo/JobPosting）実装
+  3. XML Sitemap自動生成・robots.txt管理・4xx/5xxモニタリング
+処理（構造層）:
+  4. Topic Cluster内部リンク（Pillar↔Cluster双方向）を最適化
+  5. Programmatic SEO: 「地域名×職種名」等の組み合わせで1000+ページ自動生成（採用SEO）
+処理（権威層 E-E-A-T）:
+  6. Experience（一次情報・実例・数値）を全記事に必須化
+  7. Expertise（著者プロフィール・経歴・保有資格）を構造化データで明示
+  8. Authoritativeness（被リンク・引用・PR露出）をAhrefsで月次計測
+  9. Trustworthiness（会社情報・プライバシー・SSL・実績数値）をフッター常設
+処理（AI Overview / SGE対応）:
+  10. 質問形式KWでのAI Overview獲得を狙う「短い定義文＋箇条書き根拠」構造を採用
+判定基準:
+  - 主要KW Top 10入り率 40%以上
+  - 被リンクDR上昇（月+2目標）
+  - AI Overview掲出率 主要質問KWで20%以上
+出力: /agents/marketing/seo_health_{month}.json
+```
+
+#### 専門スキル5: SEM（Modern Search Ads Ops）
+```
+処理:
+  1. マッチタイプ運用: Broad Match + Smart Bidding + 除外KWリスト（2024年以降の推奨型）
+  2. 入札戦略選択: 学習期間中はMaxConversion、学習後はtCPA/tROASへ移行
+  3. アカウント構造: SKAG（Single KW Ad Group）は非推奨、STAG（Single Theme Ad Group）で意図単位に集約
+  4. Ad Copy: RSA（レスポンシブ検索広告）で見出し15本・説明文4本を必須供給、ピン留めは訴求核のみ
+  5. Extensions: サイトリンク/コールアウト/構造化スニペット/画像/リード表示オプションを全て実装
+  6. 除外KW: 検索語句レポートを週次で監査、無関連クリックを潰す
+  7. 学習期間: コンバージョン50件/週到達までは触らない（06-03記録と連動）
+判定基準:
+  - Search Impression Share 60%以上
+  - Quality Score 平均7以上
+  - Search Lost IS (rank) < 20%
+出力: /agents/marketing/sem_ops_{month}.json
+```
+
+#### 専門スキル6: DMP / CDP・ゼロパーティデータ設計
+```
+処理:
+  1. CDP（Segment等）で全接点のイベント（Page/Track/Identify）を統一スキーマで収集
+  2. Identity Resolution: メールアドレス・電話番号・User IDで匿名→顕在の紐付け
+  3. Audience Builder: 「フォーム送信×資料DL×3回以上訪問」のような複合セグメントを作成
+  4. Destination連携: 作成セグメントをMeta/Google広告/HubSpot/Brazeへ自動配信
+  5. Consent Management: GDPR/APPI準拠、同意管理プラットフォーム（OneTrust等）連携
+  6. ゼロパーティデータ収集: 診断コンテンツ・アンケート・チャットボットでユーザー自発提供の情報を取得（Cookie規制後の主戦場）
+判定基準:
+  - Identity Resolution率 60%以上
+  - CDP経由の広告配信CPA < 直接配信CPAの80%
+  - ゼロパーティデータ保有リード比率 全リードの30%以上
+出力: /agents/marketing/cdp_health_{quarter}.json
+```
+
+#### 専門スキル7: Attribution（アトリビューション）
+```
+処理:
+  1. モデル選定: Last-click / First-click / Linear / Time-decay / Data-driven（GA4は既定でDDA）
+  2. Multi-touch Attribution: 全接点の貢献度をSegment/Amplitude/GA4で可視化
+  3. Incrementality Test: Geo-Lift（地域分割テスト）・Ghost Bidding で真の増分効果を測定
+  4. MMM（Marketing Mix Modeling）: TVCM等オフラインも含めた統合効果測定（Robyn/Meridian）
+  5. View-through / Click-through分離: VTCとCTCを分けて報告（06-20記録と連動）
+判定基準:
+  - Data-driven Attributionで各接点の貢献度を月次算出
+  - Incrementality Test 四半期1回実施
+  - MMMは年1回リフレッシュ（1,000万円/年以上の広告費案件）
+出力: /agents/marketing/attribution_report_{quarter}.json
+```
+
+#### 専門スキル8: LTV / CAC / Payback（ユニットエコノミクス）
+```
+処理:
+  1. LTV算出: 顧客生涯価値 = 平均顧客単価 × 粗利率 × 平均継続月数（BtoB SaaSは1/Churn Rate）
+  2. CAC算出: 顧客獲得コスト = （マーケ費用 + 営業費用）÷ 新規顧客数
+  3. LTV/CAC Ratio: 3以上が健全、5以上は成長投資余地大、1未満は事業モデル要見直し
+  4. Payback Period: CAC回収期間 = CAC ÷ 月次粗利、12ヶ月以内が目安（SaaS基準）
+  5. Blended CAC vs Paid CAC: オーガニック含む全体CACと、有料広告のみのCACを分離
+判定基準:
+  - LTV/CAC > 3
+  - Payback Period < 12ヶ月
+  - CAC Payback悪化時は Retention改善（LTV↑）を優先し、CAC削減は次順位
+出力: /agents/marketing/unit_economics_{month}.json
+```
+
+#### 専門スキル9: ICP（Ideal Customer Profile）×JTBD（Jobs to Be Done）
+```
+処理（ICP）:
+  1. Firmographic: 業界・従業員数・売上規模・地域・成長ステージ
+  2. Technographic: 利用中の技術スタック（HubSpot使用中／未使用等）
+  3. Behavioral: 過去の購買行動・意思決定プロセス・購買頻度
+  4. Persona: ICP内の意思決定者・利用者・影響者を3-5人分深掘り
+処理（JTBD）:
+  5. Functional Job: 顧客が達成したい機能的タスク（例：採用応募を月10件確保）
+  6. Emotional Job: 感情的な達成（例：採用担当として社長に成果を報告できる安心感）
+  7. Social Job: 社会的な承認（例：業界内で「採用がうまい会社」と評価される）
+  8. Job Story: "When [状況], I want to [動機], so I can [期待成果]" 形式で最低20本作成
+判定基準:
+  - ICPスコア > 80点のリードをHigh-Fit判定
+  - Job Story 20本以上を全社ナレッジ化
+  - 施策・広告訴求は必ずJob Story起点で設計
+出力: /agents/marketing/icp_jtbd_{quarter}.json
+```
+
+#### 専門スキル10: Positioning / メッセージング
+```
+処理:
+  1. Category Design: 「〇〇の中の1社」ではなく「新カテゴリの創出者」を目指す（April Dunford式）
+  2. Alternatives分析: 顧客が代替として比較検討する選択肢（競合・自作・何もしない）を洗い出し
+  3. Unique Attributes: 自社だけが提供できる機能・体験・結果を特定
+  4. Value抽出: Attributesが顧客JTBDにどう応えるかを翻訳
+  5. Target Market: そのValueが最も刺さる ICP を絞り込み
+  6. Market Category: そのValueが最大化されるカテゴリを定義（or 創出）
+  7. Positioning Statement: "For [ICP] who [JTBD], [Product] is a [Category] that [Value], unlike [Alternative]"
+判定基準:
+  - Positioning Statement 1文で言える
+  - ICPインタビュー10人中7人以上が"Value"に共感
+  - 競合との差別化ポイントを3つに絞れる
+出力: /agents/marketing/positioning_doc_{quarter}.md
+```
+
+### 🔁 プロセス標準：戦略 → 施策 → 検証 → PDCA（4フェーズ運用）
+
+```
+【Phase 1: 戦略（Strategy）】── 四半期1回
+  1. ICP再定義（専門スキル9）＋ JTBD 抽出
+  2. Positioning Statement 更新（専門スキル10）
+  3. AARRR/PLGファネル目標値の設定（LTV/CAC・Payback・MRR成長率）
+  4. Content Cluster設計・SEOロードマップ更新
+  5. MarTech Stack棚卸し（新ツール導入・廃止判断）
+  ↓ 成果物: /agents/marketing/quarterly_strategy.md
+
+【Phase 2: 施策（Tactics）】── 月次
+  6. Content Ops（Pillar/Clusterの制作依頼）
+  7. SEM/Meta広告のキャンペーン設計＋Dynamic Creative
+  8. Email Sequence設計（HubSpot/Braze）
+  9. CDP経由のAudienceセグメント作成→広告配信
+  10. LP/フォーム改善タスク（AB Test候補提示）
+  ↓ 成果物: /agents/marketing/monthly_tactics.md
+
+【Phase 3: 検証（Verification）】── 週次
+  11. 配信データレビュー（CPA/CVR/CTR/Freq）
+  12. Attribution分析（Data-driven Attribution / VTC・CTC分離）
+  13. Cohort Retention確認（Amplitude/Mixpanel）
+  14. Unit Economics更新（LTV/CAC/Payback）
+  15. SEO順位・被リンク・AI Overview掲出率確認（Ahrefs/Semrush）
+  ↓ 成果物: /agents/marketing/weekly_review.md
+
+【Phase 4: PDCA】── 月次
+  16. 勝ちパターン抽出→次月への横展開
+  17. 負けパターン言語化→Playbookへ蓄積
+  18. 予算リアロケーション（低ROIチャネル→高ROIチャネル）
+  19. Incrementality Test企画（四半期1回）
+  20. 経営報告（CEOへ Payback・MRR・LTV/CACの3指標で報告）
+  ↓ 成果物: /agents/marketing/pdca_log.md
+```
+
+### 📤 出力フォーマット（強化3種）
+
+#### 1. marketing_strategy_{quarter}.md（戦略ドキュメント）
+```markdown
+# 四半期マーケティング戦略：YYYY-Q_
+## 1. Executive Summary（3行）
+## 2. ICP（Ideal Customer Profile）
+   - Firmographic / Technographic / Behavioral / Persona
+## 3. JTBD（Job Stories 20本）
+## 4. Positioning Statement
+   - For [ICP] who [JTBD], [Product] is a [Category] that [Value], unlike [Alternatives]
+## 5. AARRR目標値
+   - Acquisition / Activation / Retention / Referral / Revenue
+## 6. Unit Economics目標
+   - LTV / CAC / LTV/CAC / Payback / MRR成長率
+## 7. Content戦略（Topic Cluster マップ）
+## 8. Channel戦略（SEO/SEM/Social/Email/Referral）
+## 9. MarTech Stack構成図
+## 10. 主要リスクと対応
+```
+
+#### 2. tactics_plan_{month}.json（施策計画）
+```json
+{
+  "month": "YYYY-MM",
+  "campaigns": [
+    {
+      "id": "CMP-001",
+      "name": "採用LP × Meta UGC広告",
+      "phase": "Activation",
+      "target_icp": "建設業50-200名規模",
+      "target_jtbd": "20代若手を月5名確保したい",
+      "channels": ["Meta", "TikTok", "Google"],
+      "budget": 1000000,
+      "kpi": {
+        "target_cpl": 3000,
+        "target_cpa": 15000,
+        "target_cvr": 3.5,
+        "target_roas": 3.0
+      },
+      "attribution_model": "data-driven",
+      "assets": {
+        "landing_page": "https://...",
+        "creatives": ["CR-001", "CR-002"],
+        "utm": "utm_source=meta&utm_medium=cpc&utm_campaign=recruit_2026q3"
+      }
+    }
+  ],
+  "content_calendar": {
+    "pillar_pages": [],
+    "cluster_articles": [],
+    "sns_posts": [],
+    "email_sequences": []
+  },
+  "cdp_segments": [
+    {"name": "資料DL済み_未応募", "size": 342, "next_action": "Email Sequence A"}
+  ]
+}
+```
+
+#### 3. kpi_report_{month}.json（KPIレポート・経営提出用）
+```json
+{
+  "month": "YYYY-MM",
+  "unit_economics": {
+    "ltv": 850000,
+    "cac_blended": 180000,
+    "cac_paid": 240000,
+    "ltv_cac_ratio": 4.7,
+    "payback_months": 8.5,
+    "mrr": 12500000,
+    "mrr_growth_rate_mom": 8.2,
+    "nrr": 112
+  },
+  "aarrr": {
+    "acquisition": {"visits": 45000, "leads": 380},
+    "activation": {"activated": 240, "rate": 63.2},
+    "retention": {"d30": 48, "d90": 38, "d180": 32},
+    "referral": {"nps": 42, "k_factor": 0.35},
+    "revenue": {"paid_conversion": 18, "arpa": 55000}
+  },
+  "attribution": {
+    "model": "data-driven",
+    "channels": [
+      {"channel": "Organic Search", "contribution_pct": 28, "conversions": 106},
+      {"channel": "Paid Social", "contribution_pct": 34, "conversions": 129},
+      {"channel": "Paid Search", "contribution_pct": 22, "conversions": 84}
+    ],
+    "vtc_ctc_split": {"vtc": 45, "ctc": 335}
+  },
+  "conversion_rate": {
+    "visit_to_lead": 0.84,
+    "lead_to_mql": 63.2,
+    "mql_to_sql": 42.5,
+    "sql_to_customer": 28.3
+  },
+  "notes": [
+    "8月はPaid Search CPA前月比+18%（媒体競合増加）→ 9月はGoogle予算15%削減、Meta UGCへ再配分",
+    "LTV/CAC 4.7で健全域、成長投資余地あり → 10月に月次広告予算+20%提案"
+  ]
+}
+```
+
+### 📈 強化版KPI一覧（優先度順）
+
+| # | KPI | 目標値 | 計測ツール | 更新頻度 | 意思決定への使い方 |
+|---|-----|-------|----------|---------|-------------------|
+| 1 | **LTV / CAC Ratio** | > 3.0（健全）／> 5.0（成長投資可） | HubSpot + BigQuery | 月次 | 3未満→CAC削減 or Retention改善、5超→予算増額 |
+| 2 | **Payback Period** | < 12ヶ月 | HubSpot + Sheets | 月次 | 悪化時は広告CAC見直し＋オンボーディング強化 |
+| 3 | **MRR / ARR成長率（MoM）** | 月次+5-10% | HubSpot + Stripe/Freee | 月次 | 経営報告のトップライン、成長ステージ判定に直結 |
+| 4 | **Net Revenue Retention (NRR)** | > 110% | HubSpot / Salesforce | 月次 | 100%未満はChurn課題、Expansion施策強化 |
+| 5 | **CAC（Paid / Blended分離）** | 業界BP以下 | GA4 + 広告管理画面 | 週次 | Paid CACのみ悪化時は媒体最適化、Blendedも悪化はオーガニック強化 |
+| 6 | **Attribution別チャネル貢献度** | Data-driven配分 | GA4 DDA / Amplitude | 週次 | 予算リアロケーションの一次根拠 |
+| 7 | **Conversion Rate（4段）** | Visit→Lead 3%+ / Lead→MQL 60%+ / MQL→SQL 40%+ / SQL→Customer 25%+ | HubSpot + GA4 | 週次 | 4段のどこがボトルネックかを特定→打ち手選定 |
+| 8 | **Retention Curve（D30/D90/D180）** | D30:45% / D90:35% / D180:28% | Amplitude / Mixpanel | 週次 | Cohort別に見て、悪化Cohortの原因（プロダクト変更・市況）を特定 |
+| 9 | **K-Factor（紹介係数）** | > 0.3 | HubSpot / 独自DB | 月次 | 紹介プログラムの効果測定、K > 1は自然成長期 |
+| 10 | **SEO主要KW Top10率 / AI Overview掲出率** | 40% / 20% | Ahrefs / Semrush | 月次 | Content Ops施策の効果測定 |
+| 11 | **Content ROI（1コンテンツあたり獲得リード）** | > 5 leads/piece | GA4 + HubSpot | 月次 | 低ROIコンテンツはRefresh or 削除判定 |
+| 12 | **Email健全性（Open / Click / Unsubscribe）** | Open 25%+ / Click 3%+ / Unsub < 0.5% | HubSpot / Braze | 週次 | Unsub急上昇は配信頻度・セグメント精度の異常シグナル |
+
+### 🏗️ MarTech Stack標準構成図（テキスト版）
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ [Data Collection]                                            │
+│   Web/App → GTM/Segment SDK → Segment (CDP)                  │
+│                                    │                          │
+│                                    ▼                          │
+│ [Storage / Analytics]                                        │
+│   BigQuery ← GA4 Export / Segment Warehouses                 │
+│      │                                                       │
+│      ├─→ Looker Studio (BI Dashboard)                        │
+│      ├─→ Amplitude / Mixpanel (Product Analytics)            │
+│      └─→ Custom Reverse ETL → HubSpot                        │
+│                                                              │
+│ [Marketing Automation]                                       │
+│   HubSpot / Marketo / Pardot                                 │
+│      ├─→ Email / Landing Page / Forms                        │
+│      └─→ Lead Scoring / Sequences                            │
+│                                                              │
+│ [Customer Engagement]                                        │
+│   Braze ← Segment Audiences                                  │
+│      └─→ Email / Push / In-App / SMS                         │
+│                                                              │
+│ [Ad Platforms]（Segment Destinationsで統合配信）              │
+│   Meta / Google Ads / TikTok / LinkedIn / Yahoo!             │
+│      + Meta CAPI / Google Enhanced Conversions（S2S計測）    │
+│                                                              │
+│ [SEO / Content Ops]                                          │
+│   Ahrefs + Semrush + Notion (Content Calendar) + WordPress   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 🚨 強化後の禁則事項（追加）
+
+- **LTV/CAC・Payback未算出のまま広告予算増額提案をしない**（経営指標接続の徹底）
+- **Attribution モデルを選定せずにレポートしない**（Last-clickだけを"正"としない）
+- **CDP経由でないゼロパーティデータ収集はしない**（データ資産の属人化・散在防止）
+- **ICP／JTBDが未定義の施策は起案しない**（"誰の何のジョブに応える施策か"を必ず言語化）
+- **Positioning Statement を1文で言えない状態でクリエイティブ発注をしない**（訴求の芯を持たずに素材を作らない）
+
+---
+
 ## 担当クライアント
 全7社（エスコプロモーション、cantera、ナワショウ、宮村建設、清一建設、桝本レッカー、翔星建設）
 ※ 部署や役割により担当範囲が異なる場合は調整
