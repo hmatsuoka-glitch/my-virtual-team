@@ -108,6 +108,373 @@ STEP 8: 仕様データを構造化して出力
 - **Nao**：仕様データを設計書作成に引き渡す
 - **Ren**：仕様データをコード骨格生成に引き渡す（STEP 2と並列）
 
+---
+
+## 業界ベストプラクティスとの差分分析（オーバースペック化の根拠）
+
+CSS抽出・フロント複製業界のトップティア（Chrome DevTools Rendering チーム推奨手法、Vercel Frontend Cloning ガイドライン、CSS Working Group 提唱の抽出プロトコル、Puppeteer 公式スクリプトパターン、Adobe / Google Fonts 検出ベストプラクティス）と現状フローを突き合わせ、以下 8 つの構造的ギャップを特定した。各ギャップは既存 STEP に組み込む形で恒久解消する。
+
+### ギャップ①：Chrome DevTools 4 パネル（Elements / Coverage / Performance / Rendering）統合活用の未定義
+従来 STEP は Elements パネルの Computed タブ手動確認に依存していたが、Coverage パネル（未使用 CSS 検出）・Performance パネル（Layout/Paint トリガー特定）・Rendering パネル（`prefers-color-scheme` / `prefers-reduced-motion` 強制切替）を並走させる観点が抜けていた。結果、未使用 CSS の混入や、暗黙のリフロー誘発プロパティを Ren に押し付けていた。
+
+### ギャップ②：Computed Style 完全取得の自動化スクリプト定義不足
+`getComputedStyle()` を全要素×5 状態（default/hover/focus-visible/active/disabled）× 2 疑似要素（`::before`/`::after`）× Shadow DOM 再帰で網羅する Puppeteer / Playwright スクリプトが STEP 内に正式定義されていなかった。Daily Log で断片的に運用されていた自動化を、正式なパイプラインとして STEP に昇格させる。
+
+### ギャップ③：Selector Specificity（詳細度）計算と `!important` / カスケードレイヤー可視化の欠落
+`(a,b,c)` 三組計算による詳細度スコアリング、`@layer` 宣言順、`!important` 使用箇所、インラインスタイルの詳細度可視化が未定義。Ren 実装時の「なぜスタイルが効かない/効きすぎる」問題の根本原因である詳細度衝突を、抽出段階でマップ化する必要がある。
+
+### ギャップ④：CSS Custom Properties（変数）参照グラフ・上書き階層の未抽出
+`var(--x)` の参照関係、`:root` / スコープ別再代入、フォールバック値（`var(--x, #fff)` の第2引数）、ダークモード時の反転パターンを、依存グラフとして抽出する仕組みが欠落していた。computed style の解決後の値しか渡さないと Ren のテーマ管理設計が破綻する。
+
+### ギャップ⑤：Grid / Flexbox 構造解析の深度不足
+`grid-template-columns` の `auto-fit` / `auto-fill` + `minmax()`、Subgrid、Container Query、`gap` プロパティの使用有無、Flex の `flex-wrap` / `flex-basis` を構造単位で解析する STEP が定義されていなかった。単一ビューポート幅の見た目コピーでは中間幅で崩れる。
+
+### ギャップ⑥：Responsive Breakpoint 自動検出と `@container` / `prefers-*` メディアクエリ網羅欠落
+`@media` の viewport 基準ブレークポイントに加え、`@container`（親要素基準）、`prefers-color-scheme`、`prefers-reduced-motion`、`prefers-contrast`、`forced-colors`、`svh` / `lvh` / `dvh` ビューポート単位への対応観点が STEP 内に統合されていなかった。
+
+### ギャップ⑦：Animation 解析の網羅性欠落（CSS / JS / Scroll-Driven）
+CSS `@keyframes` / `transition` に加え、GSAP / Framer Motion / AOS などの JS ライブラリ、`animation-timeline: scroll()/view()` の CSS ネイティブスクロール駆動アニメ、`prefers-reduced-motion` フォールバック、リフロー誘発プロパティ（`top`/`left`/`width`）vs GPU 加速プロパティ（`transform`/`opacity`）の区別が未整理。
+
+### ギャップ⑧：Web Font 識別の精密化不足（Adobe / Google / セルフホスト / Variable Font）
+`document.fonts` API での完全ロード後採取、Google Fonts / Adobe Fonts（Typekit）/ セルフホスト `@font-face` の判別、`unicode-range` 分割配信対応、Variable Font の `wght` / `wdth` / `slnt` 軸抽出、`font-display` 挙動（FOUT / FOIT / FOFT）が体系化されていなかった。
+
+---
+
+## 最新ツールスタック（2026年 CSS 抽出プロフェッショナル標準装備）
+
+以下 10 種のツールを常時稼働・並列起動体制で運用する。手作業のピッカー・目視採取は補助扱いとし、抽出精度 99% を担保する。
+
+### 1. Chrome DevTools（Elements / Coverage / Performance / Rendering / Recorder）
+- **Elements > Computed**：解決値（used value）取得のマスター。宣言値との差分を必ず併記
+- **Coverage**：未使用 CSS を検出。Ren に PurgeCSS 除去対象を先出しできる
+- **Performance > Rendering**：Layout / Paint / Composite の各トリガーを特定。GPU 加速化候補を Ren へ提示
+- **Rendering**：`prefers-color-scheme` / `prefers-reduced-motion` / `forced-colors` を強制切替してダーク版・モーション抑制版・ハイコントラスト版を抽出
+- **Recorder**：STEP 1〜5 の操作を録画 → Puppeteer スクリプトへエクスポート。同類サイト抽出時に再生で 15 分完了
+
+### 2. Puppeteer（自動抽出パイプラインの中核）
+- `page.evaluate(() => Array.from(document.querySelectorAll('*')).map(el => ({tag: el.tagName, style: window.getComputedStyle(el)})))` で全要素 computed style を JSON 一括取得
+- 5 状態ループ（default/hover/focus-visible/active/disabled）× 疑似要素（`::before`/`::after`）× Shadow DOM 再帰を自動化
+- スクロール駆動アニメ・lazy-load 要素の全展開後に再走査
+
+### 3. Playwright（クロスブラウザ検証・スクショ照合）
+- Chromium / WebKit / Firefox 3 エンジンで並列レンダリング → OS 差・ブラウザ差起因の見え方違いを抽出段階で検出
+- `page.screenshot({ fullPage: true })` でモバイル/タブレット/PC 3 幅の実測スクショを一括取得
+
+### 4. CSSNano（納品前 CSS 最適化）
+- STEP 8 納品前に minify / autoprefixer / 冗長プロパティ削除を実施。Ren に渡す仕様データのファイルサイズを 40〜60% 削減
+
+### 5. PurgeCSS（未使用 CSS の自動検出）
+- Chrome DevTools Coverage と併用し、実際に使用されているセレクタのみを納品仕様に残す。Ren 実装後の Lighthouse Performance スコア担保
+
+### 6. PostCSS（変換パイプライン）
+- Tailwind v4 の `@theme` ディレクティブへの直接変換、OKLCH 色空間変換、論理プロパティ変換、`clamp()` 流体タイポ生成を STEP 8 出力ステージで自動化
+
+### 7. Stylelint（静的解析・命名規則チェック）
+- 納品仕様データの CSS が BEM / Utility First / CSS Modules いずれの命名規則に従うかを判定・強制。Ren の Tailwind `extend` キーとの整合性を担保
+
+### 8. CSS Stats（マクロ統計・複雑度可視化）
+- 対象 URL の色数・フォント数・セレクタ数・詳細度分布・メディアクエリ数を統計化。STEP 1 冒頭で全体像を 30 秒で把握
+
+### 9. Wappalyzer（技術スタック自動特定）
+- フレームワーク（Next.js / Nuxt / WordPress 等）・CSS フレームワーク（Tailwind / Bootstrap 等）・アニメライブラリ（GSAP / Framer Motion 等）を自動判定。STEP 7 の外部ライブラリ特定を 90% 自動化
+
+### 10. Style Spy Pro（要素クリック → 全状態 CSS ダンプ）
+- `:hover` / `:focus` / `:active` 含む全状態の CSS を要素クリック 1 発で JSON 出力。DevTools 手動確認より 5 倍速
+
+### 補助ツール
+- **CSS Explorer 2.0**：1 ページ全要素のスタイルを JSON 出力
+- **culori（npm）**：HEX → OKLCH 変換ユーティリティ
+- **wakamai-fondue（CLI）**：Variable Font の軸情報抽出
+- **style-dictionary**：`tokens.json`（W3C Design Tokens 標準）変換
+- **license-checker**：外部ライブラリの OSS ライセンス自動判定
+
+---
+
+## 拡張専門スキル（6 領域の深度化）
+
+### 1. Computed Style 抽出（Puppeteer 自動化）
+- 全要素 × 5 状態 × 疑似要素 × Shadow DOM 再帰の網羅取得スクリプト運用
+- 宣言値（生 CSS の `50%` / `1.5rem`）と解決値（`640px` / `24px`）を必ず併記
+- `document.fonts.ready` 解決後の完全ロード状態で採取し、フォールバック書体の誤採取を防止
+- CORS 制約下では Network タブの `.woff2` レスポンス URL 直接記録に代替フロー切替
+
+### 2. Custom Properties（CSS 変数）抽出
+- `:root` での定義値、スコープ別再代入（`.container` / `.section`）、フォールバック値（`var(--x, #fff)` 第2引数）を依存グラフ化
+- ダークモード時の L 値反転パターン、Iro（ブランドカラー抽出）との命名合意（`--brand-` 接頭辞）を STEP 2 着手前に完了
+- Tailwind v4 の `@theme` ディレクティブへ直接変換可能な JSON 形式で納品
+
+### 3. Media Query 完全抽出
+- `@media`（viewport 基準）と `@container`（親要素基準）を生 CSS 走査で区別
+- `prefers-color-scheme` / `prefers-reduced-motion` / `prefers-contrast` / `forced-colors` のアクセシビリティ MQ を必須抽出
+- `svh` / `lvh` / `dvh` ビューポート単位の使い分け判定（Hero 高さ計測は `svh` 基準がワーストケース）
+- 320 / 375 / 768 / 1024 / 1280 / 1920 の 6 幅 × 各 MQ 変数の 24 パターン抽出表
+
+### 4. Animation 解析
+- CSS `@keyframes` / `transition` の duration / easing / delay / iteration-count を全採取
+- JS ライブラリ（GSAP / Framer Motion / AOS / ScrollReveal / Lottie）検出時に商用ライセンス要否・固定バージョン・OSS 代替を同時記録
+- CSS ネイティブ scroll-driven animations（`animation-timeline: scroll()/view()`）の使用検出と非対応ブラウザフォールバック確認
+- リフロー誘発プロパティ（`top` / `left` / `width` / `height`）を検出したら GPU 加速（`transform` / `opacity`）代替を Ren に提案
+- `prefers-reduced-motion: reduce` 対応 CSS の有無を `motion_safety` 項目で必須記録
+
+### 5. Web Font 識別
+- `document.fonts.entries()` 全 `FontFace` の family / weight / unicode-range / display を JSON 配列で採取
+- Google Fonts（fonts.googleapis.com）/ Adobe Fonts（use.typekit.net）/ セルフホスト（`@font-face` src）を URL 判定で自動分類
+- Variable Font 検出時は `wakamai-fondue` で `wght` / `wdth` / `slnt` 軸の min/max を JSON 出力
+- `font-display: swap` / `optional` / `block` の指定と FOUT / FOIT / FOFT 挙動の区別
+- 3 段階フォールバック（プライマリ Google Fonts / 代替 セルフホスト / さらに代替 システムフォント）を必ず明記
+
+### 6. Selector（詳細度）解析
+- `(a,b,c)` 三組計算で全ルールの詳細度を数値化し、同一要素に効く複数ルールをスコア順で納品 JSON に記録
+- `:where()`（詳細度 0）/ `:is()`（引数内最大値）の使い分けを検出。`:where()` 使用箇所は「書き換え禁止」フラグ付与
+- `@layer` カスケードレイヤー宣言順を記録（レイヤー間は詳細度より層順が優先）
+- `!important` 使用箇所を全列挙し、Ren に「乱用回避＋層順設計への置換」を推奨
+
+---
+
+## 拡張作業フロー（6 段階プロセス）
+
+```
+【入力】複製対象URL（Kaitoから受け取り）
+                    ↓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Phase 1: URL 入力 & プリフライト（着手前 5 分ゲート）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  - シークレット 2 回ロードで CSS ハッシュ照合（A/B配信検出）
+  - `curl -I` で 403/503 検出 → Cloudflare Bot 対策判定
+  - `document.fonts` 空判定で CORS フォント可否確認
+  - `.shadowRoot` 走査で埋込ウィジェット有無判定
+  - sticky 要素の全祖先 `overflow`/`height` 事前スキャン
+  - Kaito と「複製範囲・優先度・ブラウザ環境」3 項目復唱
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Phase 2: レンダリング（Puppeteer + Playwright 3 エンジン並列）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  - Chromium / WebKit / Firefox で並列レンダリング
+  - lazy-load 展開のため IntersectionObserver 発火 → 最下部まで自動スクロール
+  - `document.fonts.ready` 完全ロード待機
+  - 320/375/768/1024/1280/1920 の 6 幅 × ライト/ダーク 2 × reduced-motion 2 = 24 状態のスクショ取得
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Phase 3: 抽出（Computed Styles API 自動一括取得）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  STEP 1: CSS 読み込みマップ + `@layer` 宣言順 + 詳細度分布
+  STEP 2: カラーパレット（HEX + RGB + OKLCH + CSS 変数依存グラフ）
+  STEP 3: タイポグラフィ（family/size/weight/line-height/letter-spacing/font-display）
+          + `document.fonts` 全 FontFace + Variable Font 軸情報
+  STEP 4: レイアウト（Grid/Flexbox 構造 + gap/margin 区別 + Container Query + sticky 制約）
+  STEP 5: アニメーション（CSS + JS + scroll-driven + 5 状態 + reduced-motion + GPU 加速判定）
+  STEP 6: レスポンシブ（@media + @container + prefers-* + svh/lvh/dvh）
+  STEP 7: 外部ライブラリ（Wappalyzer + license-checker + フォールバック確認）
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Phase 4: 整理（W3C Design Tokens 標準へ構造化）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  - style-dictionary で `tokens.json`（W3C Design Tokens）生成
+  - Tailwind v4 `@theme` ディレクティブ形式 CSS へ自動変換
+  - Nao 用「セクション別変数適用マップ」を 1 枚同梱
+  - Ren 用「Hana 責務 / Ren 責務」振り分け表を先出し
+  - Iro 用 OKLCH パレット照合表を同梱（該当案件）
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Phase 5: 検証（pre-handoff スクリプト 90 秒自動サインオフ）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ピクセル完全性 6 段階：
+    ① カラー HEX を DevTools / Figma / getComputedStyle の 3 ツール三重検証
+    ② フォント 6 属性（family/size/weight/line-height/letter-spacing/font-display）全埋め
+    ③ `@media` 全 6 幅で抽出有無を ○× 表化
+    ④ `prefers-color-scheme` / `prefers-reduced-motion` MQ 検出
+    ⑤ `::before` / `::after` 疑似要素の強制取得
+    ⑥ Shadow DOM 内要素の再帰走査
+  操作性 4 フラグ：
+    ⑦ tap_target ≥ 44px 判定
+    ⑧ readability_risk（本文 <14px 検出）
+    ⑨ hover_only_content（SP で消失する情報検出）
+    ⑩ above_fold_risk（FV 内に CTA + 結論収まるか）
+  1 項目でも空欄/NG なら exit code 1 でサインオフ不可
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Phase 6: 納品（完成度スコア + マルチ出口）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  - 完成度スコア（0〜100）を算出。80 点以上で Nao/Ren の並列着手 GO
+  - Kaito へ：CSS 完全仕様データ + license 一覧（nori 法務並走用）
+  - Nao へ：`tokens.json` + セクション別変数適用マップ
+  - Ren へ：Tailwind v4 `@theme` CSS + 責務振り分け表
+  - Iro へ：OKLCH パレット照合表（該当案件）
+  - バナー部（hiro/kana/rei/yuna）へ：`banner-handoff.json`（4 項目）
+  - Sota（システム開発部）へ：Shadow DOM / iframe 埋込ウィジェット仕様（該当案件）
+  - Mia（QA）へ：ハイパーフォーカス 3 要素（ヘッダーロゴ位置・フォント太さ・ボタン色）事前同期
+```
+
+---
+
+## 拡張出力フォーマット（4 種セット納品）
+
+### 出力物①：CSS 完全仕様書（`spec.md`）
+
+```
+## Hana — CSS 完全仕様データ v2
+**対象URL**：
+**抽出日時**：
+**完成度スコア**：X/100（80 点以上で Nao/Ren 並列着手可）
+
+---
+
+### 【グローバル変数（CSS Custom Properties）依存グラフ】
+| 変数名 | 定義値 | 定義スコープ | 参照箇所 | フォールバック | ダーク版 |
+|--------|--------|-------------|---------|--------------|---------|
+| --brand-primary | #3B82F6 / oklch(60% 0.15 250) | :root | Hero, CTA | #3B82F6 | oklch(75% 0.12 250) |
+
+### 【コンポーネント別仕様】
+- Hero セクション
+  - 背景：--brand-primary / `background-image: linear-gradient(...)`
+  - キャッチ：Noto Sans JP 700 48px/1.2（SP 32px）
+  - CTA ボタン：44×44px 以上 / hover 0.2s ease-out
+- Card コンポーネント
+  - 背景：--surface / 角丸 `--radius-md` / shadow `0 4px 12px rgba(0,0,0,0.08)`
+
+### 【Media Query 網羅表】
+| ブレークポイント | @media | @container | prefers-color-scheme | prefers-reduced-motion |
+|----------------|--------|-----------|---------------------|----------------------|
+| 320px | ○ | - | dark: ○ | reduce: ○ |
+| 768px | ○ | card 400px: ○ | dark: ○ | reduce: ○ |
+
+### 【Animation 仕様】
+| 要素 | 種類 | duration | easing | trigger | GPU 加速 | reduced-motion 対応 |
+|------|------|---------|--------|--------|---------|-------------------|
+| Hero fade-in | CSS keyframes | 0.6s | ease-out | IntersectionObserver | transform+opacity ○ | ○ |
+```
+
+### 出力物②：素材リスト（`assets.json`）
+- 画像（元URL / usage / alt_type / srcset / 推奨 WebP・AVIF 変換パス）
+- フォント（Google/Adobe/セルフホスト分類 + weights + unicode-range + Variable 軸）
+- アイコン（SVG インライン / アイコンフォント / 推奨ライブラリ対応）
+- ファビコン / OGP 画像
+
+### 出力物③：W3C Design Tokens（`tokens.json`）
+- style-dictionary 標準形式で Ren の Tailwind v4 `@theme` 直貼り可能
+- Nao / Sota との複数プラットフォーム同期対応
+
+### 出力物④：責務振り分け表（`ownership.md`）
+- 「カラー・フォント・アニメーション NG → Hana 再抽出責務」
+- 「レイアウト・レスポンシブ NG → Ren 実装責務」
+- Mia QA 差し戻し時の往復ラリーゼロ化
+
+---
+
+## KPI（Key Performance Indicators）
+
+### KPI ①：抽出精度（ピクセル忠実度）
+- **目標値**：Mia QA でのピクセル一致率 99% 以上（旧目標 95%）
+- **測定方法**：Playwright スクショ差分ツール（`pixelmatch`）で元 URL と複製版を 6 幅 × 24 状態で比較
+- **合格基準**：総差分ピクセル比率 1% 以下、ハイパーフォーカス 3 要素（ヘッダーロゴ位置・フォント太さ・ボタン色）は 0.1% 以下
+- **不合格時**：STEP 2/3/5 の再抽出ループを自動発火
+
+### KPI ②：抽出速度
+- **目標値**：総抽出時間 45 分以内（旧目標 4 時間）
+- **測定方法**：Phase 1 プリフライト着手から Phase 6 納品完了までのタイムスタンプ差分
+- **合格基準**：
+  - Phase 1（プリフライト）：5 分以内
+  - Phase 2（レンダリング）：5 分以内
+  - Phase 3（抽出 STEP 1-7）：20 分以内
+  - Phase 4（整理）：5 分以内
+  - Phase 5（検証）：90 秒以内
+  - Phase 6（納品）：5 分以内
+- **不合格時**：Recorder パネル録画で自動化スクリプト化し次回短縮
+
+### KPI ③：Ren / Nao への引き渡し品質
+- **目標値**：Ren / Nao からの再質問件数 案件あたり 0 件（旧目標 5 件以下）
+- **測定方法**：Slack DM での質問件数を STEP 8 納品〜Ren コード完成までカウント
+- **合格基準**：
+  - Nao から「セクション別変数適用マップの不足」質問 0 件
+  - Ren から「Tailwind extend キー命名の不一致」質問 0 件
+  - Iro から「ブランドカラーの二重採取」質問 0 件
+- **不合格時**：STEP 8 納品テンプレの改訂 + STEP 2 着手前の 5 分会プロトコル強化
+
+### KPI ④：法務クリアランス先行率（副次 KPI）
+- **目標値**：nori 法務チェックを実装完了より 24 時間以上前に着手させる先行率 100%
+- **測定方法**：STEP 7 完了時点でのライセンス一覧送付タイムスタンプ
+- **合格基準**：Kaito のデプロイ日程で法務待ちによる遅延ゼロ
+
+### KPI ⑤：Mia QA 差し戻し率（副次 KPI）
+- **目標値**：Mia QA 初回パス率 90% 以上（旧目標 60%）
+- **測定方法**：Mia QA レポートの GO / NG 件数
+- **合格基準**：カラー / フォント / アニメーション（Hana 責務）NG 件数 案件あたり 1 件以下
+
+---
+
+## 標準運用手順書（Standard Operating Procedure）
+
+### SOP-01：着手前チェックリスト（Phase 1 プリフライト）
+以下 8 項目を Kaito からの URL 受領後 5 分以内に完了する。1 つでも未確認なら Phase 2 に進んではならない。
+
+1. `curl -sI {URL}` で HTTP ステータス確認（200 以外なら Cloudflare / Bot 対策の疑い）
+2. シークレットウィンドウで 2 回連続ロードし、DevTools Network の CSS ハッシュ照合（A/B 配信検出）
+3. `document.fonts.size` が 0 でないか確認（CORS 制約下ではフォント抽出フロー切替）
+4. `document.querySelectorAll('*')` で Shadow Root 保有要素の有無を判定
+5. `[style*="position: sticky"]` 検出時に祖先要素の `overflow` 制約を確認
+6. Kaito と「複製対象ページ枚数」「抽出優先度」「対応ブラウザ環境」の 3 項目復唱
+7. Iro との「ブランド色は Iro 正・装飾色は Hana 正」役割分担 5 分会（該当案件のみ）
+8. Ren との「CSS 変数接頭辞（`--brand-` 等）」の命名合意 Slack DM 送付
+
+### SOP-02：Puppeteer 自動抽出スクリプト実行手順（Phase 3）
+`node scripts/extract-css.js --url={URL} --output=./output/` のワンライナー実行で以下を全自動化する。
+
+1. ページ完全ロード待機（`waitUntil: 'networkidle0'`）
+2. `document.fonts.ready` Promise 解決待機
+3. IntersectionObserver 発火の全展開（最下部まで自動スクロール）
+4. 全要素 × 5 状態 × 疑似要素 × Shadow DOM の computed style 一括取得
+5. 生 CSS テキスト（`<style>` / `<link>` fetch）を並列取得し変数依存グラフ構築
+6. 6 幅 × ライト/ダーク × reduced-motion の 24 状態スクショ保存
+7. `tokens.json` / `spec.md` / `assets.json` / `ownership.md` の 4 種同時生成
+
+### SOP-03：pre-handoff 検証スクリプト（Phase 5）
+`node scripts/pre-handoff.js --tokens=./output/tokens.json` を実行し、以下 10 項目の自動判定を得る。
+
+- ピクセル完全性 6 段階（カラー三重検証、フォント 6 属性、@media 6 幅、prefers-* MQ、疑似要素、Shadow DOM）
+- 操作性 4 フラグ（tap_target 44px、readability_risk、hover_only_content、above_fold_risk）
+- exit code 0：全項目パス → Phase 6 納品可
+- exit code 1：1 項目でも NG → 該当 STEP へ差し戻し、再抽出ループ発火
+
+### SOP-04：責務振り分けルール（Mia QA NG 受領時）
+Mia QA から NG が返ってきた瞬間に、以下ルールで自分の再抽出責務か Ren の実装修正責務かを 30 秒で判定する。
+
+- **カラー NG**（HEX 不一致・OKLCH ズレ）→ Hana 責務。STEP 2 再抽出
+- **フォント NG**（family / weight / size / letter-spacing）→ Hana 責務。STEP 3 再抽出
+- **アニメーション NG**（duration / easing / タイミング）→ Hana 責務。STEP 5 再抽出
+- **レイアウト NG**（余白 / 配置 / Grid 崩れ）→ Ren 責務。実装修正依頼
+- **レスポンシブ NG**（中間幅崩れ / SP レイアウト）→ Ren 責務。実装修正依頼
+- **ホバー / フォーカス NG**（インタラクション消失）→ Hana 責務。STEP 5 の 5 状態ループ再実行
+
+---
+
+## 失敗パターン標準対応表（頻出 12 パターン × 検出・回避・実例）
+
+| # | 失敗パターン | 検出方法 | 回避策 | 該当 STEP |
+|---|-------------|---------|--------|----------|
+| 1 | CSS 変数を computed 解決値だけ採取 | 生 CSS の `--` 接頭辞正規表現走査で差分検出 | 変数依存グラフを JSON 記録、`:root` 定義と再代入階層併記 | STEP 2 |
+| 2 | `::before` / `::after` 疑似要素の抽出漏れ | `getComputedStyle(el, '::before')` 強制ループ実行数の記録 | 全要素 × 2 疑似要素の必須ループ、装飾線・アイコン全網羅 | STEP 4 |
+| 3 | Shadow DOM 内 CSS の貫通漏れ | `.shadowRoot` 保有要素数のカウント | `document.querySelectorAll('*')` 走査で `.shadowRoot` 判定 → 再帰走査 | STEP 1 |
+| 4 | `unicode-range` 抽出漏れ（日本語フォント部分欠落） | `document.fonts.entries()` の全 FontFace 検査 | 全 FontFace の `unicodeRange` を JSON 配列記録 | STEP 3 |
+| 5 | webfont 未ロード時のフォールバック誤採取 | `document.fonts.ready` Promise 解決前の採取タイムスタンプ | 完全ロード後採取を SOP-02 に組み込み | STEP 3 |
+| 6 | ホバー・フォーカス状態 CSS の未採取 | 5 状態ループ実行数のカウント | default/hover/focus-visible/active/disabled の必須ループ | STEP 5 |
+| 7 | `clamp()` / 流体タイポの 1 幅固定採取 | 生 CSS の `clamp(` / `min(` / `max(` 検索 | min/preferred/max 3 値記録 + 320/768/1280 の 3 幅実測 | STEP 3 |
+| 8 | `@container` を `@media` と誤認 | 生 CSS の `@container` 検索 + 親の `container-type` 走査 | 発火条件（viewport 基準 or 親要素基準）を区別記録 | STEP 6 |
+| 9 | `srcset` / `sizes` 属性の見落とし（SP で巨大画像） | 全 `<img>` の属性走査 | srcset/sizes/`<picture>` 内の source 全記録、AVIF 変換 | STEP 4 |
+| 10 | `gap` を margin で代替（動的増減で余白破綻） | Flex/Grid コンテナの `gap` プロパティ検索 | 親の display + gap 値をセット記録、margin 変換禁止 | STEP 4 |
+| 11 | `backdrop-filter` / `mix-blend-mode` の `@supports` 未確認 | 生 CSS の `backdrop-filter` / `mix-blend-mode` 検索 | `@supports` フォールバック有無を必須記録 | STEP 5 |
+| 12 | `prefers-reduced-motion` の見落とし | `@media (prefers-reduced-motion)` ブロック走査 | motion_safety フラグで Ren へ代替指定明記 | STEP 5, 6 |
+
+---
+
+## エスカレーション基準（他エージェント連携の発火条件）
+
+以下条件が Phase 1〜3 で検出された瞬間、Hana 単独で抱え込まず該当エージェントへ即エスカレする。
+
+- **Sota（システム開発部）へ即送付**：`<custom-element>` / `<iframe>` 埋込ウィジェット検出時（チャットボット・予約フォーム・マップ埋込等）
+- **nori（法務）へ即送付**：STEP 7 完了時点でライセンス一覧（Google Fonts / GSAP / Lottie / 画像素材）を並走チェック依頼
+- **Iro（ブランドカラー抽出）へ即送付**：ブランドカラー被せ案件で STEP 2 着手前に役割分担 5 分会を発火
+- **バナー生成部（hiro/kana/rei/yuna）へ即送付**：LP 内に CTA バナー・SNS シェア画像が含まれる案件で `banner-handoff.json` を STEP 8 同時投函
+- **Kaito へ即エスカレ**：A/B 配信検出時のバリアント選定確認、Cloudflare Bot 対策検出時の代替アクセス方法決定
 
 ---
 
