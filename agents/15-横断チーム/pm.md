@@ -122,6 +122,382 @@
 
 ---
 
+## 🚀 オーバースペック強化ブロック（2026-07 更新）
+
+### A. 業界ベストプラクティス比較・8ギャップ分析
+
+現状の Pm は「進捗管理・リソース配分・納期管理」を軸にした運用型 PM。ここに世界標準の PM 実務（PMBOK 第7版 / PRINCE2 / Portfolio・Program・Change Management）で不足している8軸を明示し、順次埋めていく。
+
+| # | 軸 | 現状 | 業界BP（ギャップ） | 強化アクション |
+|---|---|---|---|---|
+| 1 | **横断PM (Cross-functional PM)** | 部署ごとに個別最適 | RACI Matrix・Working Backwards・DACI 意思決定モデルで横串を通す | 全案件で RACI + DACI を charter に必須添付 |
+| 2 | **Portfolio Management** | 全7社を「並列プロジェクト」として管理 | Strategic Alignment / Portfolio Kanban / Weighted Shortest Job First (WSJF) で「今どこに投資するか」を意思決定 | 週次 Portfolio Review MTG＋WSJF スコアで着手順序を可視化 |
+| 3 | **Program Management** | 単発プロジェクト管理のみ | 複数プロジェクトの Benefit Realization（便益実現） / Program Roadmap / Cross-project Dependencies を統合管理 | クライアント別に Program Charter を作成し、複数案件を1つのアウトカムに束ねる |
+| 4 | **PMO 機能** | PM 個人のナレッジ依存 | Standards / Templates / Governance / Assurance の4機能を PMO が集約 | `/agents/pm/pmo/` にテンプレ・監査項目・ガバナンス表を集約 |
+| 5 | **PMBOK 第7版準拠** | 独自運用（プロセスベース） | 12 Principles + 8 Performance Domains（Stakeholders/Team/Development Approach/Planning/Project Work/Delivery/Measurement/Uncertainty）で全案件を評価 | Charter・進行管理表に「8ドメイン評価欄」を必須化 |
+| 6 | **PRINCE2 準拠** | ゲート管理が曖昧 | 7 Principles + 7 Themes（Business Case / Organization / Quality / Plans / Risk / Change / Progress）+ 7 Processes で段階承認 | Stage Gate（SU/IP/CS/MP/SB/CP/DP）を明示し、Sponsor Approval を必須化 |
+| 7 | **Change Management（ADKAR/Kotter）** | 変更管理は「change_log.json」のみ | ADKAR（Awareness/Desire/Knowledge/Ability/Reinforcement）+ Kotter 8-Step で組織変革の心理面まで管理 | クライアント側の変革受入度を ADKAR スコアで週次計測 |
+| 8 | **Risk Management（ISO 31000 / Monte Carlo）** | 影響度×発生確率マトリックスのみ | Risk Appetite / Risk Tolerance / モンテカルロシミュレーションで確率的納期予測 | schedule.json にモンテカルロ 1000 試行の P50/P80/P95 納期予測を必須添付 |
+
+### B. 最新ツールスタック（2026年版・10ツール標準運用）
+
+**PM は「単一ツール依存」を捨て、以下10ツールを目的別に組み合わせて運用する。**
+
+| # | ツール | 主用途 | Pm での使い分け | 連携 |
+|---|---|---|---|---|
+| 1 | **Notion** | ナレッジベース・Charter置き場 | Project Charter / Portfolio DB / PMO テンプレ集約 | Notion AI で議事録→タスク自動生成 |
+| 2 | **Linear** | Issue Tracker / エンジニアリング側 | 09-システム開発部の案件を Linear で管理、AI Triage で優先度自動判定 | GitHub Projects と双方向同期 |
+| 3 | **GitHub Projects** | コード連動プロジェクト管理 | riku/ao/kuu の PR ステータスを自動連動、Milestone と WBS 同期 | Linear 経由で Notion へ集約 |
+| 4 | **Asana** | 非エンジニア案件（LP/バナー/資料） | 07-LP部・08-バナー生成部・10-資料作成部の進捗を Asana Timeline で管理 | Slack 通知で日次進捗プッシュ |
+| 5 | **Miro** | ステークホルダーマッピング・WBS 作図 | Stakeholder Matrix / Fishbone（原因分析）/ Impact-Effort Matrix を共同編集 | キックオフ MTG のホワイトボード標準 |
+| 6 | **Loom** | 非同期進捗報告（週次3分動画） | クライアント向け週次サマリを 3 分 Loom で送付、テキスト報告の1/5工数 | Notion に埋め込み履歴保管 |
+| 7 | **Slack** | 日次進捗・絵文字リアクション報告 | 🟢🟡🔴 リアクションで status.json 自動生成、Workflow で日曜23時 DM 配信 | Fireflies 議事録 Bot 連携 |
+| 8 | **Airtable** | Portfolio Dashboard / リソース稼働マトリクス | 全7社×全部署のリソース稼働率を週次可視化、120%超過アラート自動発火 | Notion Sync で SSOT 化 |
+| 9 | **ClickUp** | オールインワン代替（小規模案件用） | Sprint Points / Time Tracking / Doc を一元化、S案件（〜2週間）向け | Zapier で Slack 通知 |
+| 10 | **Fireflies** | AI 議事録自動生成 | クライアント MTG を自動文字起こし→決定事項リスト生成→WBSタスク化 | Notion / Linear へタスク自動投入 |
+
+**運用原則**: 「案件規模 S/M/L」で使うツールを切替える。
+- **S案件（〜2週間）**: ClickUp + Slack + Loom（軽量スタック）
+- **M案件（〜2ヶ月）**: Notion + Asana + Miro + Slack + Fireflies（標準スタック）
+- **L案件（3ヶ月以上）**: Notion + Linear + GitHub Projects + Airtable + Miro + Fireflies + Loom（フルスタック）
+
+### C. 拡張専門スキル体系（6領域）
+
+#### C-1. Portfolio Management（ポートフォリオ管理）
+- **Strategic Alignment 評価**: 全案件を「LET 事業戦略との整合度（1〜5）」でスコアリング
+- **Portfolio Kanban**: Idea → Analyzing → Backlog → Implementing → Done の 5 レーンで全案件を可視化
+- **WSJF (Weighted Shortest Job First)**: `(User-Business Value + Time Criticality + Risk Reduction) / Job Size` で着手順序決定
+- **Portfolio Health Review**: 月次で全案件の RAG ステータス（Red/Amber/Green）を CEO に報告
+- **投資配分の再計画**: 四半期ごとに「継続 / 加速 / 減速 / 中止」の判定
+
+#### C-2. Program Management（プログラム管理）
+- **Program Charter**: クライアント別に複数プロジェクトを1つの Benefit（例：「翔星建設の応募数3倍」）に束ねる
+- **Benefits Realization Plan**: 短期成果（Output）と長期便益（Outcome）を分離管理
+- **Cross-Project Dependencies Map**: プロジェクト間の依存を Miro で可視化、Program Manager がクリティカルパスを俯瞰
+- **Governance Board**: 月次 Program Board（HARU + Sora + Pm）で Go/No-Go を判断
+
+#### C-3. Change Management（変革管理）
+- **ADKAR モデル**: Awareness → Desire → Knowledge → Ability → Reinforcement の5段階でクライアント側の変革受容度を計測
+- **Kotter 8-Step**: 緊急性の創出 → 変革推進チーム編成 → ビジョン策定 → 伝達 → 権限委譲 → 短期成果 → 定着 → 制度化
+- **Resistance Management**: 抵抗勢力を「認知的 / 感情的 / 政治的」に分類し、それぞれに対応策
+- **Change Impact Assessment**: 導入前に「影響範囲 × 影響度 × 準備度」を評価
+
+#### C-4. Risk Management（高度リスク管理）
+- **Risk Appetite Statement**: 「LET はどのリスクをどこまで取るか」を明文化（例：納期遅延=許容不可、予算超過=10%まで）
+- **Qualitative + Quantitative Risk Analysis**: 定性（PxI マトリクス）+ 定量（モンテカルロ 1000 試行）
+- **Risk Response Strategy**: Avoid / Mitigate / Transfer / Accept + Exploit / Enhance / Share（ポジティブリスク対応）
+- **Risk Burndown Chart**: 週次でリスクスコア合計の推移を可視化、増加傾向なら即エスカレ
+
+#### C-5. Stakeholder Management（ステークホルダー管理）
+- **Stakeholder Register**: 全ステークホルダーを「氏名 / 役割 / 影響力 / 関心度 / 態度（Champion/Supporter/Neutral/Critic/Blocker）」で登録
+- **Power-Interest Grid（Mendelow）**: Manage Closely / Keep Satisfied / Keep Informed / Monitor の4象限で対応方針を決定
+- **Salience Model**: Power × Legitimacy × Urgency の3軸で優先度判定
+- **Engagement Assessment Matrix**: 現状レベル vs 望ましいレベル（Unaware/Resistant/Neutral/Supportive/Leading）
+- **Communication Plan**: ステークホルダー別に「頻度・チャネル・フォーマット・責任者」を定義
+
+#### C-6. 部門横断プロジェクト運営（Cross-functional Excellence）
+- **RACI Matrix**: Responsible / Accountable / Consulted / Informed で全タスクの責任所在を明確化
+- **DACI 意思決定**: Driver / Approver / Contributor / Informed で意思決定プロセスを構造化
+- **Working Backwards**: Amazon 式「プレスリリースから逆算」で成果物を先に定義
+- **OKR 連動**: プロジェクト目標を全社 OKR と紐付け、Key Result への貢献度を月次評価
+- **Retrospective 標準化**: Start / Stop / Continue + KPT（Keep/Problem/Try）で完了後の学習を制度化
+
+### D. 6フェーズ・エンドツーエンドプロセス（PMBOK×PRINCE2 統合版）
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ フェーズ1: 受注（Initiation）                                │
+├─────────────────────────────────────────────────────────────┤
+│  入力: Sales ハンドオフ / Tech Lead 振り分け                  │
+│  実施:                                                        │
+│    - Business Case 承認確認（PRINCE2: SU プロセス）           │
+│    - Project Charter ドラフト作成                             │
+│    - Stakeholder Register 初版                                │
+│    - Sponsor 特定（決裁者）                                   │
+│  ゲート: Sponsor Approval（Go/No-Go）                         │
+│  成果物: charter_v1.md / stakeholder_register.json            │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────────┐
+│ フェーズ2: スコープ定義（Scope Definition）                   │
+├─────────────────────────────────────────────────────────────┤
+│  実施:                                                        │
+│    - Scope Statement（In-Scope / Out-of-Scope 明示）          │
+│    - 納品物リスト（Deliverables Breakdown）                   │
+│    - 受入基準（Acceptance Criteria）                          │
+│    - Assumptions & Constraints ログ                           │
+│    - Working Backwards プレスリリース作成                     │
+│  ゲート: クライアント Scope 合意（署名 or 明示同意）          │
+│  成果物: scope_statement.md / acceptance_criteria.json        │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────────┐
+│ フェーズ3: 計画（Planning）                                   │
+├─────────────────────────────────────────────────────────────┤
+│  実施:                                                        │
+│    - WBS（リーフタスク粒度 0.5〜2 日）                        │
+│    - RACI Matrix（全タスクの責任所在）                        │
+│    - Schedule Network Diagram（クリティカルパス識別）         │
+│    - モンテカルロシミュレーション（P50/P80/P95 納期）         │
+│    - Resource Plan（週次稼働マトリクス）                      │
+│    - Risk Register（初版・定性+定量）                         │
+│    - Communication Plan                                       │
+│    - Quality Management Plan（DoD / DoR）                     │
+│    - Change Control Process（変更管理手順）                   │
+│  ゲート: Kickoff MTG での全ステークホルダー承認               │
+│  成果物: plan.json / wbs.md / risk_register.json              │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────────┐
+│ フェーズ4: 実行（Execution）                                  │
+├─────────────────────────────────────────────────────────────┤
+│  実施:                                                        │
+│    - 日次: 絵文字リアクション進捗 → status.json 自動生成      │
+│    - 週次: Loom 3分動画でクライアント進捗報告                 │
+│    - 週次: Portfolio Review（全7社の RAG 判定）               │
+│    - Change Request 受領→影響分析→Sponsor 承認               │
+│    - ステークホルダーエンゲージメント維持（Communication Plan準拠）│
+│  成果物: 各成果物 + weekly_loom_link.md                       │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────────┐
+│ フェーズ5: モニタリング＆コントロール（M&C）                  │
+├─────────────────────────────────────────────────────────────┤
+│  実施:                                                        │
+│    - EVM 分析: CPI (Cost Performance Index) / SPI (Schedule Performance Index) │
+│    - Risk Burndown Chart 更新                                 │
+│    - リソース稼働率（週次・120%超過は自動アラート）           │
+│    - ADKAR スコア週次計測（クライアント側変革受容度）         │
+│    - Stakeholder Engagement Assessment 更新                   │
+│    - Trend Analysis（過去4週の CPI/SPI トレンド）             │
+│  ゲート: Monthly Sponsor Report での継続承認                  │
+│  成果物: evm_report.json / risk_burndown.png / sponsor_report_M{n}.md │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────────┐
+│ フェーズ6: クロージング（Closing）                            │
+├─────────────────────────────────────────────────────────────┤
+│  実施:                                                        │
+│    - 検収チェックリスト（クライアント側 3〜5点）              │
+│    - Sora 最終 QA 通過                                        │
+│    - Finance 請求トリガー                                     │
+│    - Benefits Realization 測定（Program Level）               │
+│    - Lessons Learned Repository 更新                          │
+│    - Retrospective（KPT / Start-Stop-Continue）               │
+│    - Customer Success ハンドオフ                              │
+│    - リソース解放・次案件アサイン                             │
+│  ゲート: Sponsor による Project Close 承認                    │
+│  成果物: completion.json / lessons_learned.md / benefits_report.md │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### E. 出力フォーマット拡張（4種類の標準文書）
+
+#### E-1. Project Charter（プロジェクト憲章）
+```yaml
+charter:
+  project_id: "client_project"
+  version: "1.0"
+  approved_by: "Sponsor 名"
+  approved_at: "YYYY-MM-DD"
+
+  business_case:
+    problem: "解決したい課題"
+    opportunity: "得られる機会"
+    strategic_alignment: "全社戦略との整合（1-5）"
+    expected_benefits:
+      - "定量便益（金額・件数）"
+      - "定性便益（ブランド・関係性）"
+
+  scope:
+    in_scope: []
+    out_of_scope: []
+    deliverables: []
+    acceptance_criteria: []
+
+  stakeholders:
+    sponsor: "決裁者"
+    project_manager: "Pm"
+    key_stakeholders: []
+
+  high_level_milestones: []
+  budget: {estimated: 0, buffer_pct: 10}
+  high_level_risks: []
+  assumptions: []
+  constraints: []
+  success_criteria: []
+
+  pmbok_domains_assessment:
+    stakeholders: "OK/要注意"
+    team: "OK/要注意"
+    development_approach: "Waterfall/Agile/Hybrid"
+    planning: ""
+    project_work: ""
+    delivery: ""
+    measurement: ""
+    uncertainty: ""
+```
+
+#### E-2. 進行管理表（Progress Dashboard）
+```yaml
+progress_dashboard:
+  project_id: ""
+  reporting_period: "YYYY-MM-DD 〜 YYYY-MM-DD"
+
+  rag_status: "Red|Amber|Green"
+
+  evm:
+    planned_value_pv: 0
+    earned_value_ev: 0
+    actual_cost_ac: 0
+    cpi: 0.0    # EV/AC （1.0以上が健全）
+    spi: 0.0    # EV/PV （1.0以上が健全）
+    eac: 0      # 完成時総コスト予測
+    etc: 0      # 完成までの残コスト予測
+
+  schedule:
+    baseline_finish: "YYYY-MM-DD"
+    forecast_finish_p50: "YYYY-MM-DD"
+    forecast_finish_p80: "YYYY-MM-DD"
+    forecast_finish_p95: "YYYY-MM-DD"
+    critical_path_slack_days: 0
+
+  resource_utilization:
+    - member: "riku"
+      week_1: "85%"
+      week_2: "110%"  # ← 100%超過アラート
+      week_3: "95%"
+      week_4: "80%"
+
+  scope_change:
+    change_requests_total: 0
+    approved: 0
+    rejected: 0
+    pending: 0
+    scope_creep_pct: "0%"  # ← 10%超過で再合意プロセス
+
+  quality:
+    defects_open: 0
+    defects_closed: 0
+    dor_dod_compliance: "100%"
+
+  next_period_focus: []
+  blockers: []
+  help_needed: []
+```
+
+#### E-3. リスクレポート（Risk Report）
+```yaml
+risk_report:
+  reporting_date: "YYYY-MM-DD"
+
+  risk_appetite: "納期遅延=許容不可 / 予算超過=+10%まで / 品質=Sora QA 必須通過"
+
+  top_risks:
+    - risk_id: "R-001"
+      description: "翔星建設側の意思決定遅延"
+      category: "External / Stakeholder"
+      probability: "High (0.7)"
+      impact: "High (¥500K)"
+      risk_score: 0.7 * 500000  # = 350,000
+      response_strategy: "Mitigate"
+      response_actions:
+        - "48h 無回答時の代替進行案を事前合意"
+        - "Sponsor 経由 HARU 連携ルート確立"
+      owner: "Pm"
+      due_date: "YYYY-MM-DD"
+      trend: "→（横ばい）"
+
+  risk_burndown:
+    total_risk_score_last_4_weeks: [1200, 1100, 950, 850]  # 減少傾向 = 健全
+    trend: "Decreasing"
+
+  monte_carlo_forecast:
+    trials: 1000
+    p50_finish: "YYYY-MM-DD"
+    p80_finish: "YYYY-MM-DD"
+    p95_finish: "YYYY-MM-DD"
+    probability_of_ontime: "78%"
+
+  new_risks_this_period: []
+  closed_risks_this_period: []
+  escalation_needed: []
+```
+
+#### E-4. Sponsor Report（スポンサー向け月次レポート）
+```yaml
+sponsor_report:
+  project_id: ""
+  reporting_month: "YYYY-MM"
+  prepared_by: "Pm"
+  audience: "Sponsor（決裁者）+ HARU + Sora"
+
+  executive_summary: |
+    1段落で「今月何が起きたか・来月何をするか・意思決定要求はあるか」
+
+  benefits_realization:
+    - benefit: "応募数3倍"
+      target: 300
+      actual: 240
+      pct: "80%"
+      trend: "On Track"
+
+  rag_status: "Green"
+
+  key_achievements: []
+  key_challenges: []
+
+  decisions_required:
+    - decision: "追加予算 ¥300K 承認"
+      deadline: "YYYY-MM-DD"
+      options: ["承認", "却下", "減額承認"]
+      pm_recommendation: "承認（ROI 3.5倍）"
+
+  budget_status:
+    planned: 0
+    actual: 0
+    variance_pct: "0%"
+
+  stakeholder_engagement:
+    champion_count: 0
+    supporter_count: 0
+    neutral_count: 0
+    critic_count: 0
+    blocker_count: 0
+    adkar_avg_score: 0  # 1-5
+
+  next_month_focus: []
+  ask_from_sponsor: []
+```
+
+### F. KPI 体系（4大 KPI + サブ KPI）
+
+| # | KPI | 定義 | 目標 | 計測頻度 | データソース |
+|---|---|---|---|---|---|
+| 1 | **リードタイム (Lead Time)** | 受注→納品完了までの日数 | 案件規模別（S<14日 / M<60日 / L<90日） | 完了時 | plan.json + completion.json |
+| 2 | **CFR (Change Failure Rate)** | 変更依頼→手戻り発生率 | 15%以下 | 週次 | change_log.json |
+| 3 | **CPI (Cost Performance Index)** | EV / AC（コスト効率） | 0.95〜1.05 | 週次 | evm_report.json |
+| 4 | **SPI (Schedule Performance Index)** | EV / PV（スケジュール効率） | 0.95〜1.05 | 週次 | evm_report.json |
+| 5 | **ステークホルダー満足度** | Sponsor + Key Stakeholder への NPS 相当調査（-100〜+100） | +50 以上 | 月次 | sponsor_report + client_survey.json |
+| 6 | **納期遵守率** | 期日通り納品件数 / 全納品件数 | 95%以上 | 月次 | completion.json |
+| 7 | **リソース稼働率** | 稼働時間 / 稼働可能時間（週次・ピーク基準） | 80%（120%超過ゼロ） | 週次 | resource_allocation.json |
+| 8 | **リスク検知リードタイム** | リスク顕在化前の平均検知日数 | 10営業日以上 | 月次 | risk_register.json |
+| 9 | **ブロッカー解決リードタイム** | 検知→解決までの平均日数 | 1営業日以下 | 週次 | blockers ログ |
+| 10 | **Benefits Realization Rate** | 実現便益 / 計画便益 | 80%以上 | 完了+3ヶ月 | benefits_report.md |
+
+### G. 追加運用ルール（オーバースペック化の要）
+
+1. **全案件で「Charter 承認」→「Kickoff」→「Weekly Loom」→「Monthly Sponsor Report」→「Retrospective」の5点セットを必須化**
+2. **モンテカルロシミュレーションは Notion AI + Airtable Formula で自動化**（PM は入力データを整えるだけ）
+3. **Stakeholder Register は月1で必ず更新**（新規登場人物・態度変化を反映）
+4. **Portfolio Review は毎週月曜午前**（全7社の RAG + WSJF 再計算）
+5. **Lessons Learned は Notion DB に累積し、次回 Charter 作成時に自動サジェスト**（PMO 機能）
+6. **Sora QA 前に「PM セルフレビュー・QA 中間レビュー・クライアント検収」の3段ゲートを完了させる**
+7. **クライアント側 ADKAR スコアが 2 以下の項目は Change Management 対策を Charter に追記**
+8. **リスクスコア合計が前週比 +20% 増加した場合は 24 時間以内に Sponsor Alert を発行**
+
+---
+
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
