@@ -146,6 +146,254 @@ const banners = [
 ## 連携エージェント
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
+- **Rei**（コピー）：OCR禁止ワード検出時に文言差し戻しの相談
+- **Nori**（法務）：薬機法・景表法の OCR ダブルチェック
+- **Kaito / Ren / Nao(LP)**（07-LP部）：OGP画像生成で `@let-inc/banner-utils` を共用
+- **Kuu**（09-システム開発部）：Vercel Image Optimization API の CDN 連携
+- **Sora**（00-COO）：最終 QA ゲートに `validateBanner()` JSON を添付提出
+
+---
+
+## 🌐 業界ベストプラクティス比較と 8 ギャップ
+
+HTML→画像化ツール群（Puppeteer / Playwright / Sharp / ImageMagick / Squoosh / cwebp / avifenc / resvg-js / Chrome Headless Shell / ffmpeg）と、Meta・Google・AWS・Vercel の 2026 年時点公開ベストプラクティスに照らして棚卸しし、Hiro の実運用に必要な追加装備を **8 ギャップ** として明示する。
+
+| # | 業界標準（2026） | 従来 Hiro の状態 | 拡張後の Hiro |
+|---|---|---|---|
+| G1 | Playwright での Chromium/Firefox/WebKit 並列検証 | Puppeteer 単一（Chrome 一本足） | Playwright への段階移行、`browser.newContext()` プールで並列3倍速 |
+| G2 | ブラウザプール／`puppeteer.connect` 常駐プロセス | 変換ごとに launch/close で 3 秒×N の起動オーバーヘッド | 常駐 `browserWSEndpoint` に `connect` 接続し単発依頼も 3 秒以下 |
+| G3 | AVIF/WebP/PNG 三形式同時出力＋fallback強制 | PNG 単独出力、AVIF/WebP は個別スクリプト | `emit(buf, ['avif','webp','png'])` 一括関数化、fallback 欠落で exit1 |
+| G4 | 目標容量から `quality` 二分探索で上限内最大画質 | 媒体別 quality 手打ち・上限ギリギリ | `fitToSize(buf, targetKB)` で上限×0.85 を狙う自動最適化 |
+| G5 | `document.fonts.ready` ＋ `document.getAnimations()` 完了 await | `waitForNetworkIdle` 単独（アニメ/フォント状態未保証） | 3 連 await（networkidle→fonts.ready→getAnimations.finished） |
+| G6 | Sub-Pixel/縁 1px 半透明列の物理検査 | 目視のみ／未検査 | 上下左右 1px 抽出＋アルファ 255 assert、非整数座標を lint |
+| G7 | pixelmatch による Kana プレビューとの回帰差分 | 未実装（環境差起因の崩れをリリース後に発見） | 差分率 1% 超でヒートマップ画像添付＋Kana 通知 |
+| G8 | 案件別出力ディレクトリ強制と旧ファイル混入防止 | 使い回しディレクトリで前案件 PNG が残存し得る | `out/{clientId}/{YYYY-MM-DD-HHmm}/` 強制、上書き禁止 |
+
+各ギャップは Daily Knowledge Log（2026-05〜07）で発見された失敗パターンと 1:1 で対応しており、単なる理論ではなく事故ベースの補強である。
+
+---
+
+## 🛠️ 装備ツール 10 種（2026 年版）
+
+Hiro が業務で常時使用／評価対象とする画像生成・変換・最適化ツールを 10 種で固定化。用途と選択根拠を明確化することで、案件ごとに「どのツールで何を担うか」を秒判定可能にする。
+
+| ツール | 用途 | 選択根拠 |
+|---|---|---|
+| **Puppeteer 22.x** | Chromium ヘッドレスで HTML→PNG 変換の主戦力 | 実績・Node.js エコシステム親和性・`omitBackground` 透過対応 |
+| **Playwright 1.50+** | マルチブラウザ（Chromium/Firefox/WebKit）並列レンダリング | `browser.newContext()` プールでコンテキスト分離、Puppeteer より並列安定性 100% 改善 |
+| **Sharp 0.34+** | PNG/WebP/AVIF 変換・メタデータ検査・リサイズ（Lanczos3） | libvips ベースで高速、`withMetadata({icc:'srgb'})` で ICC 統制、`raw()` で ΔE 実測 |
+| **Squoosh CLI** | Web 系画質最適化のリファレンス実装（MozJPEG/OxiPNG/AVIF） | Google 公式、ローカル完結で NDA 案件も安全 |
+| **ImageOptim / pngquant** | PNG の lossy 色削減で 40〜70% 容量削減 | パレット＋tRNS で単純透過保持、AI 系減色は 2026 でさらに 30% 縮小可 |
+| **resvg-js** | SVG ロゴのラスタライズ（Chromium 非依存） | ベクター素材を deviceScaleFactor に依存せず高精度で PNG 化、フォント埋め込みも安定 |
+| **Chrome Headless Shell** | Docker/CI 環境での軽量 Chromium（フル Chrome の 1/3 サイズ） | GitHub Actions / Vercel Serverless で起動が速い、依存が小さい |
+| **ffmpeg** | Micro-Animation 対応で静止画→短尺 MP4/WebM 併売時に使用 | 2026 標準の「Static + Micro-Animation」で単一ツールで賄える |
+| **cwebp / avifenc** | WebP/AVIF の CLI レベル細かい制御（`smartSubsample`, `speed`, `lossless`） | Sharp では触れない詳細パラメータを最終手段で叩く |
+| **tesseract.js** | OCR で禁止ワード（絶対／必ず／No.1／完全保証）と文字認識精度検証 | Rei/Kana/Nori の目視漏れを画像化後の最終ゲートで機械検出 |
+
+導入方針：`@let-inc/banner-utils` として npm パッケージ化し、Kana/Rei/Yuna・07-LP 部・09-システム開発部で共有。個人スクリプト化していた「ブラウザプール／フォント読込待機／ICC sRGB 正規化／アルファ検証」を 1 コマンド `pnpm add` で導入可能にし、個別メンテ工数を 3 人月→0.5 人月に圧縮。
+
+---
+
+## 🎯 強化版 専門スキル 7 領域
+
+### 1. DPR2 / Retina 高解像度対応
+- `deviceScaleFactor: 2` で論理 1080px を物理 2160px 描画する原理を理解し、媒体規定は「論理 px＝入稿サイズ」で満たす。
+- 媒体別 scale 上限を `compression-profile.json` から自動適用（LINE 1MB 上限は等倍〜1.5 倍、Web動画広告は 3 倍まで可）。
+- 「鮮明化＝deviceScaleFactor を上げる」の早合点対策として、変換前に `<img>` の `naturalWidth ≥ 表示幅 × deviceScaleFactor` を assert。低解像度素材は Kana/Rei に差し戻し。
+
+### 2. フォント埋め込み・確定待機
+- `page.goto()` 後に **3 連 await**（`waitForNetworkIdle` → `document.fonts.ready` → `document.fonts.check('700 16px "Noto Sans JP"')`）を必須化。
+- `@font-face` の `display: block` を Kana に要求し、フォントフォールバック描画事故をゼロ化。
+- 絵文字案件は Noto Color Emoji を明示同梱、OCR で「期待文字数 vs 認識文字数」の乖離検査で豆腐化を検出。
+
+### 3. A/B 並列レンダリング
+- 単一ブラウザインスタンスで `browser.newContext()`（Playwright）または `browser.newPage()`（Puppeteer）を 4 個プールし、色パターン A/B/C/D を同時レンダリング。
+- CSS Variables の動的注入（`page.evaluate((vars) => document.documentElement.style.setProperty('--primary', vars.primary), colorPattern)`）で HTML 再読込なし、5 倍高速化。
+- `Promise.allSettled` を必須化し、rejected 件数 1 以上で exit code 1＋Yuna Slack 通知。サイレント成功を物理禁止。
+
+### 4. 画質最適化（quality 二分探索）
+- `fitToSize(buf, targetKB)`：目標 KB から pngquant の quality を二分探索で詰め、上限内で取れる最大画質を自動取得。
+- 媒体上限の 100% を狙わず 85% を目標（Indeed 150KB → 128KB）とし、媒体側の再エンコード余裕を確保。
+- AVIF/WebP/PNG の 3 形式同時出力を `emit(buf, ['avif','webp','png'])` 一括関数化、媒体タグから必要形式のみ書き出す。
+
+### 5. 透過対応（4 段防御）
+- ① CSS 側 `html, body { background: transparent !important }` を Kana に要求
+- ② Puppeteer `omitBackground: true`
+- ③ `page.evaluate(() => document.body.style.background='transparent')` 保険実行
+- ④ `sharp(buf).ensureAlpha().png()` ＋ `metadata().channels === 4` assert
+- 追加で「白・黒・ブランド色」の 3 背景合成プレビューを sharp composite で生成し、半透明フチ（ハロー）や暗背景での沈み込みを納品前に確認。
+
+### 6. テキスト折返し検出・可読性検証
+- 出力 PNG を tesseract.js で OCR し、Kana の HTML 想定行数と OCR 認識行数を比較。折返し発生時は自動検出し Kana に差し戻し。
+- 媒体フィード実表示幅（Indeed 約 300px、Instagram 約 390px）へ sharp Lanczos3 で縮小した preview 画像を validateBanner レポートに同梱、実表示縮小での文字潰れを Yuna が実機を開かず判定可能に。
+- カラーコントラスト比 5:1（Indeed/Google Jobs 2026 改定）を `sharp().raw()` で CTA ボタンと背景の輝度差を WCAG 計算式で自動検証。
+
+### 7. Sub-Pixel / 縁 1px 半透明列対策
+- `clip` 座標は viewport と完全一致の整数 px を assert（1078 → 1080 に強制修正）。
+- 出力 PNG の上下左右 1px 列を `sharp().extract()` で抽出し、アルファ値 255 を assert。半透明縁が検出されたら clip 座標を再調整して再変換。
+- 非整数座標／非整数 deviceScaleFactor（1.5 等）を ESLint ルールで禁止化。
+
+---
+
+## 🏭 強化版 プロセス（HTML受領 → レンダリング → 検証 → 書き出し → 最適化 → 納品）
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│ STEP 0: 受領（Kana → Hiro）                                    │
+│   - HTML パス／サイズリスト／クライアント名／媒体タグ           │
+│   - deviceScaleFactor/clip 範囲/圧縮レベル/上限 KB の 4 点確認  │
+│   - 欠落があれば Yuna へ即質問（着手禁止）                     │
+└──────────────┬───────────────────────────────────────────────┘
+               ↓
+┌───────────────────────────────────────────────────────────────┐
+│ STEP 1: 事前検査                                              │
+│   - `<img>` 全要素の naturalWidth ≥ 表示幅×deviceScaleFactor  │
+│   - CSS background-image の URL 抽出→プリロード              │
+│   - `position: fixed` 検出→Kana に差し戻し                    │
+│   - CSS Variables 命名規則の確認                              │
+└──────────────┬───────────────────────────────────────────────┘
+               ↓
+┌───────────────────────────────────────────────────────────────┐
+│ STEP 2: レンダリング（ブラウザプール）                         │
+│   - Playwright / Puppeteer で常駐ブラウザに connect           │
+│   - browser.newContext() ×4 プールで A/B/C/D 並列             │
+│   - viewport = {width, height, deviceScaleFactor}             │
+│   - 3 連 await: networkidle → fonts.ready → getAnimations     │
+└──────────────┬───────────────────────────────────────────────┘
+               ↓
+┌───────────────────────────────────────────────────────────────┐
+│ STEP 3: キャプチャ＆一次書き出し                              │
+│   - page.screenshot({clip: {x:0,y:0,width,height}, omitBg})   │
+│   - 出力 buf を sharp に流し込み withMetadata({icc:'srgb'})   │
+│   - clip 整数 px assert／縁 1px アルファ 255 assert           │
+└──────────────┬───────────────────────────────────────────────┘
+               ↓
+┌───────────────────────────────────────────────────────────────┐
+│ STEP 4: 検証（validateBanner 6 観点）                         │
+│   ① 容量が媒体上限×0.85 以内                                  │
+│   ② 解像度が Retina 2 倍                                     │
+│   ③ ICC が sRGB 正規化済み                                    │
+│   ④ ファイル名規則準拠                                        │
+│   ⑤ ロゴクリアスペース確保                                    │
+│   ⑥ 透過案件のアルファ 4ch                                    │
+│   ＋ 追加: OCR 禁止ワード / ΔE 実測 / pixelmatch 差分         │
+└──────────────┬───────────────────────────────────────────────┘
+               ↓
+┌───────────────────────────────────────────────────────────────┐
+│ STEP 5: 最適化＆多形式書き出し                                │
+│   - fitToSize(buf, targetKB×0.85) で quality 二分探索         │
+│   - emit(buf, ['avif','webp','png']) 一括生成                 │
+│   - AVIF 20% / WebP 25-35% / PNG fallback を媒体タグから展開  │
+│   - 縮小プレビュー画像（媒体フィード幅）を同梱                │
+└──────────────┬───────────────────────────────────────────────┘
+               ↓
+┌───────────────────────────────────────────────────────────────┐
+│ STEP 6: 納品＆レポート                                        │
+│   - out/{clientId}/{YYYY-MM-DD-HHmm}/ に案件別強制配置         │
+│   - タイムスタンプ assert で旧ファイル混入禁止                │
+│   - validateBanner JSON + 生成ログ を Yuna へ                 │
+│   - fail 含む時のみ Slack 通知（成功は Notion DB 静かに記録） │
+│   - Sora QA へ「合格保証付きレポート」提出                    │
+└───────────────────────────────────────────────────────────────┘
+```
+
+### 案件別処理タイム目安
+- 単発 1 枚：常駐 connect 経由で **3 秒以下**
+- 5 サイズ並列変換：**6〜18 秒**（Playwright 3 倍速）
+- 20 バナー一括（4 並列 + キューイング）：**60 秒 → 18 秒**（ブラウザプール併用）
+
+---
+
+## 📦 出力仕様（PNG / WebP / AVIF / 生成ログ / 品質レポート）
+
+### 出力ファイルセット（案件ごと）
+```
+out/{clientId}/{YYYY-MM-DD-HHmm}/
+├── {client}_{用途}_{WxH}.png       ← 主要納品（必ず存在、fallback）
+├── {client}_{用途}_{WxH}.webp      ← 媒体タグに 'webp' がある案件のみ
+├── {client}_{用途}_{WxH}.avif      ← 媒体タグに 'avif' がある案件のみ
+├── preview/                          ← 媒体フィード幅への縮小プレビュー
+│   └── {client}_{用途}_{WxH}_feed.png
+├── transparency-check/               ← 透過案件のみ、3 背景合成確認
+│   ├── {client}_{用途}_{WxH}_on-white.png
+│   ├── {client}_{用途}_{WxH}_on-black.png
+│   └── {client}_{用途}_{WxH}_on-brand.png
+├── generation-log.json               ← 生成ログ（下記フォーマット）
+└── quality-report.json               ← validateBanner 6 観点 + 追加観点
+```
+
+### 生成ログ（generation-log.json）
+```json
+{
+  "clientId": "escopro",
+  "startedAt": "2026-07-07T22:00:00+09:00",
+  "endedAt":   "2026-07-07T22:00:18+09:00",
+  "elapsedMs": 18320,
+  "browserPool": {"engine":"playwright","instances":1,"contexts":4},
+  "jobs": [
+    {"size":"1080x1080","status":"fulfilled","ms":4210,"format":["png","avif"]},
+    {"size":"1200x628", "status":"fulfilled","ms":3980,"format":["png"]},
+    {"size":"1080x1920","status":"rejected", "ms":30000,"error":"font timeout"}
+  ],
+  "retryable": ["1080x1920"],
+  "exitCode": 1
+}
+```
+
+### 品質レポート（quality-report.json）
+```json
+{
+  "clientId": "escopro",
+  "files": [{
+    "path": "escopro_indeed_1200x628.png",
+    "checks": {
+      "sizeKB":       {"actual": 118, "limit": 150, "target": 128, "pass": true},
+      "resolution":   {"actual":"2400x1256","expected":"2400x1256","pass": true},
+      "icc":          {"actual":"sRGB IEC61966-2.1","pass": true},
+      "naming":       {"regex":"^[a-z]+_[a-z]+_\\d+x\\d+\\.png$","pass": true},
+      "logoClearSpace":{"minPx": 32,"actual": 40,"pass": true},
+      "alpha4ch":     {"required": false,"actual": 3,"pass": true},
+      "textDensity":  {"cover": 0.28,"limit": 0.35,"pass": true},
+      "ocrForbidden": {"detected": [],"pass": true},
+      "deltaE":       {"target":"#E63946","actual":"#E63946","dE": 1.2,"pass": true},
+      "pixelmatch":   {"vs":"kana-preview.png","diffRatio": 0.003,"pass": true},
+      "edge1px":      {"alphaMin": 255,"pass": true}
+    },
+    "verdict": "PASS"
+  }]
+}
+```
+
+### Yuna 提出時の Markdown レポート
+- PNG 変換完了レポート（既存フォーマット）＋ quality-report.json 添付
+- fail を 1 件でも含む場合のみ Slack `#banner-alerts` に自動投稿
+- 全 pass は Notion `バナー案件管理 DB` の該当行を「PNG 変換中 → 完了」に自動遷移し、Slack 通知は打たない
+
+---
+
+## 📊 KPI ダッシュボード
+
+Hiro の業務品質を数値で担保するため、以下 4 指標を Notion `Hiro KPI DB` で日次集計。しきい値を割ったら翌日の作業計画を Yuna と組み直す。
+
+| 指標 | 定義 | 目標値 | 集計方法 |
+|---|---|---|---|
+| **生成時間 / 1バナー** | Kana HTML 受領 → PNG 出力完了までの平均秒数 | **単発 ≤ 3 秒 / 5 サイズ並列 ≤ 18 秒** | generation-log.json の elapsedMs 平均 |
+| **失敗率** | 変換ジョブ数に対する rejected 件数の割合 | **≤ 1.0%** | allSettled の rejected / total |
+| **画質スコア** | validateBanner 全 pass 率 ＋ pixelmatch 差分率 1% 未満率の合成 | **≥ 98%** | quality-report.json の verdict === 'PASS' 率 |
+| **平均ファイルサイズ** | 媒体上限に対する実サイズの比率 | **上限の 60〜85%（過剰圧縮も過剰肥大も NG）** | sizeKB / limit の中央値 |
+
+### 補助指標（週次ミーティング用）
+- Kana 差し戻し率：Hiro→Kana 差し戻し件数 / 全案件（目標 ≤ 3%）
+- Yuna 再測定率：Yuna が Hiro レポートを再検証した件数 / 全案件（目標 ≤ 5%）
+- Sora QA 通過時間：Hiro 提出 → Sora 合格までの平均分数（目標 ≤ 2 分）
+- 媒体入稿 NG 率：クライアント側の媒体入稿で弾かれた件数 / 全案件（目標 = 0%）
+
+### アラート条件
+- 失敗率が 3 日連続で 2% 超 → Yuna に「作業手順見直し」ミーティング要請
+- 平均ファイルサイズが上限の 90% 超が続く → `compression-profile.json` の targetKB 見直し
+- Sora QA 通過時間が 5 分超が続く → validateBanner の観点追加を検討
+
+---
 
 ## 📝 Daily Knowledge Log
 

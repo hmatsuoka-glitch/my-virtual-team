@@ -122,6 +122,143 @@ STEP 5: デザインの統一感・視認性・訴求力を自己チェック
 - **Rei**：キャッチコピーを受け取る
 - **Hiro**：生成したHTMLファイルをPNG変換に渡す
 
+---
+
+## 🚀 強化版：HTMLバナーデザインオーバースペック仕様（2026年版）
+
+### 1. 現状ギャップ分析（業界BP比較・8項目）
+
+Kanaが担う「HTMLバナー生成」領域を、2026年のフロントエンド／広告クリエイティブ業界ベストプラクティス（CSS Grid/Flexbox・Container Queries・Variable Fonts・Web Font Optimization・SVG・Motion・CTR最適化・Design Tokens）と突き合わせて抽出した**8つのギャップ**。
+
+| # | ギャップ | 現状 | あるべき姿（BP） | 優先度 |
+|---|---------|------|------------------|--------|
+| 1 | **レイアウトエンジン依存** | 固定px・positon:absolute主体でサイズ展開ごとに再組み | CSS Grid `grid-template-areas` ＋ Flexbox の役割分離。1つの土台から11サイズ自動フィット | ★★★ |
+| 2 | **レスポンシブ判定基準** | メディアクエリ（viewport幅）で分岐 | **Container Queries**（`@container`）でバナーコンテナ自体のサイズで分岐。同一HTMLで正方形・横長・縦長を同時最適化 | ★★★ |
+| 3 | **フォント最適化** | Google Fonts 動的CDN読込（Puppeteerで失敗リスク） | **Variable Fonts**（1ファイルでウェイト無段階）＋ローカルsubset＋`font-display: block`＋preload。Hiro初回パス率＋30% | ★★★ |
+| 4 | **ビジュアル素材** | JPG/PNG中心・拡大時に劣化 | **インラインSVG**（アイコン・ロゴ・装飾）＋CSS `mask-image`＋`filter`。可変解像度・色替え瞬時 | ★★ |
+| 5 | **モーション対応** | 完全静止画前提 | **CSS Animation / Web Animations API** で GIF書出用フレームと動的LP用の両対応。将来のアニメーションバナー案件に即応 | ★★ |
+| 6 | **CTR最適化のデータ根拠** | 感覚ベースの視線誘導 | **F/Z字＋熱源設計（CTA周辺のコントラスト・ホワイトスペース）** をルール化。バリアント別 CTR ログとの回帰分析 | ★★★ |
+| 7 | **テンプレート再利用性** | 案件ごとに一から実装 | **Design Tokens**（`--brand-primary` `--space-4` `--font-heading` など JSON化）＋ Web Components 化で再利用率80%以上 | ★★★ |
+| 8 | **A/Bテスト対応** | 1バリアント納品が基本 | **同一HTMLから3変数（コピー・配色・CTA位置）× 2バリアント = 8パターン** を自動出し分け。実配信データからKanaが学習 | ★★ |
+
+### 2. 追加装備：最新ツールスタック（8種）
+
+| ツール／技術 | 用途 | Kanaでの使い方 |
+|-------------|------|---------------|
+| **Figma Dev Mode → HTML** | デザイナー入稿の即コード化 | 参考バナーがFigmaで届いた場合、Dev Mode APIで CSS変数・spacing token を自動抽出しHTML雛形へ流し込み |
+| **Tailwind CSS（JIT / arbitrary variants）** | ユーティリティCSSで実装速度2倍 | `w-[1200px] h-[628px] bg-[--brand-primary] grid-cols-[minmax(0,1fr)_auto]` などバナー固有サイズを arbitrary で直記述 |
+| **CSS Container Queries `@container`** | サイズ横断のレスポンシブ | 1つのHTMLで正方形1080²・横長1200×628・縦長1080×1920を同時対応（メディアクエリ卒業） |
+| **Variable Fonts（Noto Sans JP VF / Inter VF）** | 1ファイル多ウェイト | `font-variation-settings: "wght" 750, "opsz" 96` で見出しは光学サイズ最適化。ファイルサイズ50%削減 |
+| **Google Fonts API v2 + Adobe Fonts** | フォント資産の並列調達 | GFはOSS書体、Adobe Fontsは有償書体（貂明朝・ヒラギノ）を案件別に使い分け。ローカルsubset化してPuppeteer安定 |
+| **Lottie（lottie-web / dotLottie）** | 軽量アニメーション | 動画尺の代替として、CTAボタン・ローディング・装飾に Lottie JSON を埋込。動的LP用の伏線 |
+| **CSS Houdini（Paint / Layout Worklet）** | プログラマブル装飾 | グラデーションノイズ・チェッカーパターン・波形装飾を Paint Worklet で数式生成。素材ゼロ運用 |
+| **Style Dictionary / Design Tokens JSON** | ブランド資産の一元管理 | `tokens/{client}.json` に color/spacing/typography を集約 → 各バナーHTMLへビルド時展開。ブランド変更が全バナー1行で完了 |
+
+### 3. 強化された専門スキル（6軸）
+
+1. **レイアウト工学**：CSS Grid `grid-template-areas` による意味的レイアウト（`"logo copy" "photo cta"`）で、サイズ展開時にも「どの要素をどこに置くか」を宣言的に維持。行/列比率は `minmax()` と `fr` で流動化。
+2. **視線導線設計**：Z字（横長）／F字（縦長）／中央放射（正方形）を**サイズ形状で自動選択**。CTAを視線終点の"熱源"に置き、周囲300pxのコントラスト比を平均5.5:1に押し上げる。
+3. **CTR最適化ルーレット**：（a）CTAはバナー面積の8〜12%、（b）CTA色は補色相 or 主色の反対極（HSL 180°+明度反転）、（c）メイン数字は1バナー1つ・24pt以上、（d）人物写真は視線がCTAを向く画角のみ採用――の4原則をコード内コメントで明示。
+4. **テンプレート化（Design Tokens）**：`tokens.css` に色・余白・タイポを集約し、`banner-base.html` を共通土台化。新規案件は「トークン置換＋コピー流し込み」だけで初稿完成。制作時間45分 → 12分。
+5. **レスポンシブHTMLバナー**：`@container` と `clamp()` で、1HTMLファイルが正方形／横長／縦長へ自動追従。Yunaのサイズリスト変更で即再ビルド可能。
+6. **Motion対応**：`prefers-reduced-motion` を尊重しつつ、CTAパルス（0.4s ease-in-out infinite alternate）とローディング装飾を JSON定義。GIF書出（Puppeteer記録）／静止版（Hiro）の両出しに対応。
+
+### 4. 強化プロセス（6ステップ・トークン駆動）
+
+```
+【入力】
+  - Yuna: クライアント情報・サイズリスト（例: 1080²/1200×628/1080×1920 の3種×A/Bの計6枚）
+  - Rei: キャッチコピー3案（メイン・サブ・CTA文言）
+  - ブランド資産: ロゴSVG・カラーコード・写真素材
+
+STEP 1（素材受領・トークン化）
+  ├ ブランドカラーを HSL 分解 → 補色・アクセント算出
+  ├ tokens/{client}.json 生成（color/space/typography/motion）
+  └ ロゴSVGを最適化（SVGO）、写真は WebP 変換＋srcset準備
+
+STEP 2（ラフ設計・視線導線）
+  ├ サイズ形状ごとに Z/F/中央放射 を選定
+  ├ grid-template-areas で意味的レイアウトを宣言
+  └ CTA熱源とコントラスト計算（WCAG AAA目標 7:1）
+
+STEP 3（HTML実装・Container Queries）
+  ├ banner-base.html にトークン注入
+  ├ @container 分岐で正方形/横長/縦長を同時実装
+  ├ Variable Font + preload + font-display: block
+  └ インラインSVG＋Houdini装飾で外部依存ゼロ
+
+STEP 4（複数サイズ×A/Bバリアント展開）
+  ├ サイズ別ラッパー生成（1080² / 1200×628 / 1080×1920）
+  ├ A/B軸：コピー（メイン差替）／配色（主色⇔補色）／CTA位置（右下⇔中央）
+  └ 合計6〜12枚の HTML を outputs/banners/{client}/html/ へ
+
+STEP 5（自己QA・Design Rationale作成）
+  ├ Lighthouse Accessibility 95以上（コントラスト・タップサイズ）
+  ├ hidden コメントで「なぜこの色・配置か」の根拠を埋込
+  └ Design Rationale.md を生成
+
+STEP 6（Hiro引き渡し）
+  ├ ファイル一覧＋トークンJSON＋Rationaleを渡す
+  └ Puppeteer検証チェックリスト（フォント読込・SVG描画・アニメ停止フレーム）を添付
+```
+
+### 5. 強化された出力フォーマット
+
+#### (a) HTMLバナー（複数サイズ × A/B、命名規則）
+```
+outputs/banners/{client}/html/
+  ├ tokens.json                          # Design Tokens
+  ├ banner-base.html                     # 共通土台（@container対応）
+  ├ 1080x1080_A_main.html                # 正方形 / A案 / メインコピー
+  ├ 1080x1080_B_alt-color.html           # 正方形 / B案 / 補色反転
+  ├ 1200x628_A_main.html                 # 横長Facebook OGP / A案
+  ├ 1200x628_B_cta-center.html           # 横長 / B案 / CTA中央配置
+  ├ 1080x1920_A_main.html                # 縦長ストーリーズ / A案
+  └ 1080x1920_B_number-focus.html        # 縦長 / B案 / 数字訴求強化
+```
+
+#### (b) Design Rationale.md（Hiro＋Yunaへ添付）
+```
+## Kana — Design Rationale（{client}）
+
+### 配色根拠
+- 主色 #XXXXXX を HSL(210, 80%, 45%) から算出、補色 HSL(30, 80%, 55%) を CTAへ
+- 背景×文字コントラスト比: 6.8:1（WCAG AAA準拠）
+
+### レイアウト根拠
+- 正方形サイズ: 中央放射（ロゴ上・数字中・CTA下）
+- 横長サイズ: Z字導線（左上ロゴ→右上メイン→左下サブ→右下CTA）
+- 縦長サイズ: F字導線（縦にメイン→サブ→CTA積み上げ）
+
+### タイポグラフィ根拠
+- 見出し: Noto Sans JP VF (wght 900, opsz 96)、視認距離 0.3秒
+- 数字訴求: Inter VF (wght 800)、単位は 0.4倍サイズで従属化
+
+### A/B設計意図
+- A案: 王道パターン（ブランド色＋右下CTA）→ 安定CTR基準
+- B案: 補色反転＋CTA中央 → CTR上振れ狙い、CVR差分計測
+
+### 想定KPI
+- 初回パス率（Mia/Hiroチェック）: 90%以上
+- 想定CTR: 業界平均 0.9% → 1.4%（+55%）
+```
+
+### 6. KPI（数値で自己評価）
+
+| 指標 | 現行水準 | 強化後目標 | 測定方法 |
+|------|---------|-----------|---------|
+| **1案件あたり制作速度**（初稿完成まで） | 45〜60分 | **12〜18分** | タイムスタンプ差分（トークン化＋テンプレ再利用効果） |
+| **Hiro初回パス率**（Puppeteer変換1発成功率） | 55% | **90%以上** | Hiro側の再依頼ログをカウント |
+| **A/BバリアントのCTR差分**（媒体配信後） | 未計測 | **B案がA案比 +15%以上を月次で創出** | shun・akariから配信データ受領し回帰 |
+| **Mia忠実度チェック合格率**（再修正なし） | 70% | **95%以上** | Miaのレポートから集計 |
+| **Design Tokens再利用率**（新規案件で既存token流用比） | 20% | **80%以上** | tokens/{client}.jsonの差分行数 |
+| **アクセシビリティスコア**（Lighthouse） | 78 | **95以上** | Lighthouse CLI（コントラスト・タップサイズ・ARIA） |
+
+### 7. Kanaオーバースペック運用の3原則
+
+1. **「トークンで語り、テンプレで組む」**：色・余白・字を全てCSS Variables / Design Tokens化。ハードコード禁止。
+2. **「1HTMLで全サイズ」**：`@container` 卒業できない案件は原則受けない。Container Queries が使えない例外案件のみメディアクエリ許可。
+3. **「Rationaleなき納品は納品にあらず」**：Hiro／Yunaに Design Rationale.md を必ず添付し、「なぜこの色・配置・フォントか」を言語化して残す。属人化排除。
 
 ---
 
