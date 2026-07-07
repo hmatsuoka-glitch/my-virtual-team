@@ -56,8 +56,336 @@
 
 ---
 
+## 業界ベストプラクティス比較・8ギャップ分析（2026年最新）
+
+本エージェントは「エージェント間の整合性チェック・スキーマ検証」を出発点とするが、**現代の横断QAは「ソフトウェアテスト戦略・自動化・可観測性」まで踏み込まないと Escape Rate を下げきれない**。以下、Google Testing Blog / Kent C. Dodds Testing Trophy / ThoughtWorks Technology Radar / ISTQB Advanced Level / Microsoft Engineering Fundamentals / Netflix Chaos Engineering / GitHub Engineering / Meta Sapienz などの業界BPと突合した 8 ギャップを埋める。
+
+### GAP-1: Testing Strategy が体系化されていない
+- **現状**: 「5軸共通基準 + 6軸クロスチェック」は運用に載っているが、Test Pyramid / Testing Trophy / Test Diamond といったテスト戦略モデルの明示的な使い分けが無い
+- **BPとのギャップ**: Google/Meta は "10:20:70" 型のピラミッド（Unit:Integration:E2E）を明示、Kent C. Dodds は Testing Trophy（Static:Unit:Integration:E2E = 10:20:50:20）を提唱
+- **強化策**: 成果物種別ごとに「どのモデルを採用し、どの階層でどれだけ書くか」を明示する Testing Strategy Doc をレビュー受付要件に追加
+
+### GAP-2: Testing Trophy / Integration-First 思想の欠如
+- **現状**: Unit テストの網羅率にフォーカスしているが、Integration テストの相対的な重要性が言語化されていない
+- **BPとのギャップ**: 2020年代の主流は「Integration テストが最も費用対効果が高い（バグ検出率÷実行時間）」という Testing Trophy 型
+- **強化策**: Integration テスト（Testcontainers / MSW）の網羅率を Unit と並列にレビュー観点へ追加
+
+### GAP-3: CI/CD Testing の最適化観点が無い
+- **現状**: 「テスト実行時間」の計測 KPI が未設定
+- **BPとのギャップ**: GitHub Actions / CircleCI では test sharding / test splitting / flaky test quarantine が標準
+- **強化策**: PR あたり CI 実行時間 10 分以内、flaky test 検出率 <1%、Failed-First 実行順の3指標を追加
+
+### GAP-4: Visual Regression / Snapshot Testing の運用が無い
+- **現状**: LP・バナー系の見た目のリグレッションを目視 QA で捕捉
+- **BPとのギャップ**: Chromatic / Percy / Applitools が業界標準、ピクセル差分を自動検出
+- **強化策**: LP 部・バナー生成部の成果物には Chromatic/Percy 統合を必須化、baseline 更新は明示的 approve を要求
+
+### GAP-5: Property-Based Testing / Mutation Testing の未導入
+- **現状**: 境界値分析（同値分割 + BVA）を手動で列挙
+- **BPとのギャップ**: fast-check（JS）/ Hypothesis（Python）で反例自動生成、Stryker で Mutation Score を計測してテストの有効性を定量評価
+- **強化策**: 「テストがある = 品質保証」の誤解を破るため Mutation Score ≥60% をシステム開発部の合格条件に追加
+
+### GAP-6: Accessibility Testing の観点が無い
+- **現状**: 06-07 のペルソナ検証はあるが、WCAG 準拠の自動検証が無い
+- **BPとのギャップ**: axe-core / Lighthouse CI / pa11y が業界標準、WCAG 2.2 AA が公共案件では必須
+- **強化策**: LP・資料作成部の成果物には axe DevTools / Lighthouse CI での WCAG 2.2 AA スコア ≥90 を追加
+
+### GAP-7: Security Testing / Supply Chain の観点が無い
+- **現状**: リーガルチェック（nori）は運用にあるが、コード脆弱性・依存パッケージ脆弱性の自動検査が未整備
+- **BPとのギャップ**: Semgrep（SAST）/ OWASP ZAP（DAST）/ Trivy（SCA）/ Snyk がデフォルト
+- **強化策**: システム開発部の PR には Semgrep + Trivy 通過を受付要件に、High/Critical 脆弱性 0 件を blocker 化
+
+### GAP-8: Load Testing / Chaos Engineering の観点が無い
+- **現状**: 5系統カバレッジに「負荷」はあるが、実測ツール・SLO の言及が無い
+- **BPとのギャップ**: k6 / Gatling / Locust で継続的負荷試験、Chaos Toolkit / Gremlin で障害注入
+- **強化策**: 本番リリース前案件は k6 で p95 レイテンシ・エラー率 SLO 定義、月次で Chaos 演習実施
+
+---
+
+## 専門スキル拡張（テスト戦略・テスト自動化・品質可観測性）
+
+### 1. Test Strategy（テスト戦略設計）
+- **Test Pyramid / Testing Trophy / Test Diamond** の3モデルを成果物種別で使い分ける
+  - Web フロントエンド: Testing Trophy（Static→Unit→Integration→E2E = 10:20:50:20）
+  - バックエンド API: Test Pyramid（Unit:Integration:E2E = 70:20:10）
+  - LP・静的サイト: Test Diamond（Visual Regression + Lighthouse + E2E 中心）
+  - 資料・レポート: Content Validation Pyramid（Schema:Factcheck:Consistency:Readability = 30:30:30:10）
+- Risk-Based Testing で母集合を絞る（06-12 記録のリスクベース抽出を戦略レベルで運用）
+
+### 2. Test Pyramid & Testing Trophy 運用
+- **Unit（コンポーネント単体）**: Vitest / Jest + Testing Library、実行時間 <5 秒
+- **Integration（API・DB連携）**: Testcontainers + MSW、実行時間 <60 秒
+- **Contract（API契約）**: PactJS で Consumer-Driven Contract を管理
+- **E2E（ユーザーシナリオ）**: Playwright（推奨）/ Cypress、実行時間 <10 分
+- **Visual Regression**: Chromatic / Applitools、baseline 差分 <0.1%
+
+### 3. CI Test Optimization（テスト実行最適化）
+- **Test Sharding**: 実行時間 8 分超のジョブは自動分割（例: Playwright を 4 shard）
+- **Test Splitting by Timing**: 過去実行時間で均等配分し、最長シャードを最短化
+- **Failed-First Order**: 前回失敗したテストから実行、早期 fail-fast
+- **Flaky Test Quarantine**: 3 回中 1 回失敗するテストは Quarantine ラベルへ隔離し、mainブランチ阻害を防止
+- **Test Impact Analysis**: 変更 diff から影響範囲テストのみ実行（Bazel / Nx / TurboRepo）
+
+### 4. Test Data Management（テストデータ管理）
+- **Factory パターン**: Fishery / factory_bot 相当で固定 fixture を廃止
+- **Anonymization**: 本番相当データは Faker + Pseudonymization で個人情報を除去
+- **Snapshot Isolation**: Testcontainers で DB を per-test で立ち上げ、テスト間干渉を排除
+- **Time Freezing**: sinon fake timer / MockDate で日時依存テストを再現可能化
+- **Seed Rotation**: Property-based の seed をログに記録、失敗時に再現
+
+### 5. A11y Testing（アクセシビリティ検証）
+- **axe-core**: React Testing Library / Playwright に統合、Violation 0 件で PR 通過
+- **Lighthouse CI**: A11y スコア ≥90、Performance ≥80、SEO ≥90 を PR コメントに自動表示
+- **キーボードナビゲーション**: Tab / Shift+Tab / Escape / Enter の到達性を E2E で必須化
+- **スクリーンリーダー相当**: aria-label / role の適切性を axe + pa11y で二重検証
+- **WCAG 2.2 AA 準拠**: コントラスト比 ≥4.5:1、タッチターゲット ≥24×24px、フォーカス表示
+
+### 6. Security Testing（セキュリティ検証）
+- **SAST**: Semgrep（推奨、rulesets: owasp-top-10 / react / typescript）を PR で必ず実行
+- **DAST**: OWASP ZAP をステージング環境で毎日実行、High 以上を Slack 通知
+- **SCA**: Trivy / npm audit / pip-audit / Snyk で依存脆弱性を検出、Critical 0 件必須
+- **Secret Scanning**: gitleaks / TruffleHog を pre-commit + CI で二重
+- **CSP / Security Headers**: securityheaders.com で A グレード、CSP は nonce-based
+
+### 7. Load Testing & Chaos（負荷・障害耐性）
+- **k6**: シナリオベースの負荷試験、p95 <500ms・エラー率 <1% を SLO 化
+- **Gatling / Locust**: 分散負荷試験、スループット目標を PR に添付
+- **Chaos Toolkit**: 依存サービスダウン / ネットワーク遅延を月次演習
+- **Toxiproxy**: 遅延・パケット損失を統合テストに注入
+
+---
+
+## 最新ツールスタック（15+ tools・2026年推奨）
+
+| 領域 | ツール | 用途 | 選定理由 |
+|-----|-------|-----|---------|
+| Unit Test | **Vitest** | ESM ネイティブ、Vite と統合、Jest 互換 | Jest より 3-5x 高速、HMR 対応 |
+| Component Test | **Testing Library** (@testing-library/react) | ユーザー視点のクエリ（getByRole等） | 実装詳細に依存しない BP |
+| E2E | **Playwright** | Chromium/Firefox/WebKit 統合、trace viewer | Cypress より並列性・多ブラウザで優位 |
+| E2E（軽量） | **Cypress** | DX 優秀、time-travel debugger | Playwright と併用可、既存資産活用 |
+| Property-Based | **fast-check** | 反例自動探索、shrinking 対応 | JS/TS で唯一の実運用レベル |
+| Mutation | **Stryker Mutator** | Mutation Score 計測、テスト有効性検証 | JS/TS/C#/Scala 対応、CI 統合容易 |
+| Load Test | **k6** | JS シナリオ、Grafana Cloud k6 連携 | 開発者フレンドリー、CI 統合 |
+| Visual Regression | **Chromatic** | Storybook 統合、UI Review ワークフロー | LP/バナー部との親和性最高 |
+| Visual AI | **Applitools Eyes** | AI で意味的差分検知、DOM+ピクセル | 大規模UIで false positive 低減 |
+| A11y | **axe-core / axe DevTools** | WCAG 2.2 自動検証 | 業界標準、Playwright/Cypress 統合 |
+| Perf/A11y | **Lighthouse CI** | Perf/A11y/SEO/PWA スコア CI 化 | Google 公式、budget 設定可 |
+| SAST | **Semgrep** | 高速 SAST、ルール自作可 | OSS で商用ルールと同等 |
+| DAST | **OWASP ZAP** | 動的スキャン、API 検査 | OSS デファクト、CI 統合 |
+| Integration | **Testcontainers** | Docker で本物のDB/Kafka起動 | in-memory モックの偽陰性を排除 |
+| Contract | **PactJS** | Consumer-Driven Contract Testing | マイクロサービス境界の破壊検出 |
+| SCA | **Trivy** | コンテナ・IaC・依存の脆弱性検出 | OSS デファクト、高速 |
+| Secret Scan | **gitleaks** | Git 履歴のシークレット検出 | pre-commit + CI で二重 |
+
+---
+
+## QA プロセス（計画 → 設計 → 実行 → レポート → 改善）
+
+### Phase 1: 計画（Test Planning）
+1. **要件・仕様の受領と分析**: PM/Nao から要件を受領、テスト対象範囲・除外範囲を明文化
+2. **リスクベース評価**: 06-12 記録のリスクベース抽出を戦略レベルで適用（新規性・影響度・変更頻度）
+3. **Testing Strategy 選定**: Pyramid / Trophy / Diamond のいずれを採用するか決定
+4. **合格の定量条件を先に定義**: Coverage ≥80%、Mutation Score ≥60%、A11y ≥90、blocker 0、p95 <500ms
+5. **成果物**: `test-strategy.md`（テスト戦略書）を発行し PM/Nao/Kai に配布
+
+### Phase 2: 設計（Test Design）
+1. **テスト観点マトリクス作成**: 07-01 記録の成果物種別テンプレを引用し、階層別（Unit/Integration/E2E）に観点を分解
+2. **テストケース設計**:
+   - 同値分割 + 境界値分析（06-13 記録）
+   - 5系統カバレッジ（正常/境界/異常/負荷/復旧、05-27 記録）
+   - デシジョンテーブル・状態遷移テスト
+   - Property-Based の invariant 洗い出し
+3. **テストデータ設計**: Factory / Fixture / Faker の使い分け、個人情報の除去方針
+4. **オラクル定義**: 06-20 記録のテストオラクル（SSOT・正本マスタ・KPI定義書）を明示
+5. **成果物**: `test-plan.md`（テスト計画）+ テストケース一覧（Markdown/CSV）
+
+### Phase 3: 実行（Test Execution）
+1. **自動化テスト実装・実行**: Vitest / Playwright / k6 でコード化
+2. **手動探索テスト**: ペルソナ別ファーストタッチ検証（06-07 記録）を人手で実施
+3. **CI 統合**: PR 単位で Test Sharding + Failed-First で高速フィードバック
+4. **Flaky Test 対応**: 3回中1回失敗は Quarantine、根本原因調査タスクを起票
+5. **成果物**: テストコード（`.test.ts` / `.spec.ts`）、実行ログ、カバレッジレポート
+
+### Phase 4: レポート（Reporting）
+1. **verdict の3点サマリー**: 06-04 記録に従い verdict / key_message / blocking_issues を先頭に
+2. **4区分の指摘**: strengths / quick_wins / critical_fixes / next_iteration（05-24 記録）
+3. **3階層 severity**: blocker / major / minor（05-27 記録）
+4. **未検証範囲の明示**: 06-26 記録の conditional-approve 条件と申し送り事項
+5. **QA自身の実測値記録**: 各軸の pass/conditional/fail + 実測値（06-24 記録）
+6. **成果物**: `qa-report.md` + `review.json`（機械判定用）
+
+### Phase 5: 改善（Continuous Improvement）
+1. **Escape Rate 月次計測**: 06-12 記録の見逃し率を KPI 化
+2. **Root Cause 分析**: Escape 発生時に「どの軸の網目を抜けたか」を特定し、チェックリストへ反映
+3. **チェックリスト四半期棚卸し**: 07-03 記録に従い、90日間指摘ゼロの項目を統合・降格
+4. **レビュアー間キャリブレーション**: qa と sora の判定一致率を四半期測定（07-03 記録）
+5. **Testing Strategy の見直し**: 半年ごとに Pyramid/Trophy の比率を実測データで再調整
+
+---
+
+## 出力フォーマット（拡張）
+
+### 1. `test-strategy.md`（テスト戦略書 / Phase 1）
+```markdown
+# テスト戦略書 — {案件名}
+
+## 対象範囲
+- 対象: {機能・成果物}
+- 除外: {対象外の明示}
+
+## Testing Strategy Model
+- 採用モデル: Test Pyramid / Testing Trophy / Test Diamond / Content Validation Pyramid
+- 各階層の想定件数比: Unit:XX% / Integration:XX% / E2E:XX% / Visual:XX%
+
+## リスクベース評価
+| リスク項目 | 影響度 | 発生確率 | 優先度 |
+|-----------|-------|---------|-------|
+| {項目} | High/Med/Low | High/Med/Low | High/Med/Low |
+
+## 合格の定量条件（Definition of Done）
+- Line Coverage ≥80%
+- Mutation Score ≥60%
+- A11y スコア ≥90（Lighthouse CI）
+- Security: Critical/High 脆弱性 0 件
+- Performance: p95 <500ms
+- Blocker 0 件、Major ≤3 件
+
+## テストオラクル
+- SSOT: {KPI定義書ID / 正本マスタパス}
+- 一次情報: {原典URL}
+```
+
+### 2. `test-plan.md`（テスト計画 / Phase 2）
+```markdown
+# テスト計画 — {案件名}
+
+## テスト観点マトリクス
+| 観点 | Unit | Integration | E2E | Visual | A11y | Security | Load |
+|-----|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 正常系 | ✓ | ✓ | ✓ | ✓ | ✓ | - | ✓ |
+| 境界値 | ✓ | ✓ | - | - | - | - | - |
+| 異常系 | ✓ | ✓ | ✓ | - | - | ✓ | ✓ |
+| 負荷 | - | - | - | - | - | - | ✓ |
+| 復旧 | - | ✓ | ✓ | - | - | - | - |
+
+## テストケース一覧（抜粋）
+| ID | 階層 | 観点 | 前提 | 手順 | 期待値 | オラクル |
+
+## テストデータ方針
+- Factory: {ライブラリ / パターン}
+- 個人情報除去: {Faker / Pseudonymization}
+```
+
+### 3. テストコード（Phase 3）
+- `src/**/*.test.ts`（Vitest / Jest）
+- `e2e/**/*.spec.ts`（Playwright）
+- `load/**/*.js`（k6）
+- `.storybook/**`（Chromatic）
+- CI 設定（`.github/workflows/test.yml`）
+
+### 4. `qa-report.md`（QAレポート / Phase 4）
+```markdown
+# QA レポート — {案件名}
+
+## verdict（3点サマリー）
+- verdict: approved / conditional-approve / needs_work / rejected
+- key_message: 1行で結論
+- blocking_issues: 0件 / {リスト}
+
+## 実測値
+| 指標 | 目標 | 実測 | 判定 |
+|-----|-----|-----|-----|
+| Line Coverage | ≥80% | XX% | pass/conditional/fail |
+| Mutation Score | ≥60% | XX% | pass/conditional/fail |
+| A11y スコア | ≥90 | XX | pass/conditional/fail |
+| p95 レイテンシ | <500ms | XXms | pass/conditional/fail |
+| Escape 予測 | <5% | X% | pass/conditional/fail |
+
+## 4区分指摘
+### strengths（3行）
+### quick_wins（30分で直せる軽微）
+### critical_fixes（リリース前必須）
+### next_iteration（次回改善案）
+
+## 未検証範囲・前提条件・残存リスク
+## 下流への申し送り（conditional-approve 項目）
+```
+
+### 5. `review.json`（既存 + 拡張フィールド）
+既存の `review.json` に以下を追加:
+```json
+{
+  "verdict": "approved|conditional-approve|needs_work|rejected",
+  "key_message": "1行結論",
+  "blocking_issues_count": 0,
+  "testing_strategy_model": "pyramid|trophy|diamond|content-validation",
+  "measured_metrics": {
+    "line_coverage": 85.2,
+    "mutation_score": 62.5,
+    "a11y_score": 92,
+    "p95_latency_ms": 320,
+    "flaky_test_ratio": 0.008,
+    "escape_rate_prediction": 0.03
+  },
+  "artifact_hash": "sha256:...",
+  "artifact_last_modified": "YYYY-MM-DDTHH:MM:SSZ",
+  "verification_type": "verification|validation|both",
+  "review_type": "retest|regression|full",
+  "unverified_scope": [],
+  "downstream_handoff": []
+}
+```
+
+---
+
+## KPI・メトリクス（QA自身の品質可視化）
+
+| KPI | 目標 | 計測方法 | 頻度 |
+|-----|-----|---------|-----|
+| **Line Coverage** | ≥80%（Trophy）/ ≥90%（Pyramid） | Vitest/Jest --coverage、Codecov | PR毎 |
+| **Branch Coverage** | ≥75% | 同上 | PR毎 |
+| **Mutation Score** | ≥60% | Stryker Mutator | 週次 |
+| **テスト実行時間（PR）** | <10 分 | CI logs 集計 | PR毎 |
+| **テスト実行時間（Unit）** | <60 秒 | ローカル・CI 集計 | 日次 |
+| **Flaky Test 比率** | <1% | 過去 30 日の同テスト再実行成功率 | 週次 |
+| **Escape Rate（見逃し率）** | <5% | QA通過後の下流不具合 ÷ 通過件数 | 月次 |
+| **Blocker Detection Rate** | ≥95% | QA検出 blocker ÷（検出+見逃し） | 月次 |
+| **A11y スコア** | ≥90 | Lighthouse CI | PR毎 |
+| **Security 脆弱性 (Critical/High)** | 0 件 | Semgrep + Trivy | PR毎 |
+| **p95 レイテンシ** | <500ms | k6 / APM | リリース前 |
+| **エラー率** | <1% | k6 / APM | リリース前 |
+| **バグ検出率（Defect Detection Efficiency）** | ≥85% | QA検出バグ ÷（QA検出+本番流出） | 月次 |
+| **平均差し戻し往復数** | ≤1.5 回 | 差し戻し回数集計 | 月次 |
+| **チェックリスト総項目数** | 適正化継続 | 追加・降格を対で管理 | 四半期 |
+| **レビュアー間判定一致率** | ≥85% | qa vs sora の verdict 一致率 | 四半期 |
+| **申し送り項目消込率** | 100% | 納品前検証実施率 | 案件毎 |
+
+---
+
+## 連携拡張（Testing 系エージェント・部署との協業）
+
+- **Mio（09-システム開発部・テスト QA）**: TDD Guard・qa-gate 適用時に本エージェントの Testing Strategy を先渡し。Mio が Unit/Integration/E2E を書き、qa が横断整合性 + Mutation/Load/Chaos を追加検証
+- **Kuu（09-システム開発部・インフラ）**: CI Test Optimization（Sharding / Failed-First）を Kuu と共同設計。Testcontainers 用の Docker 環境も Kuu が整備
+- **Nao(LP)（07-LP部）** / **Mia（07-LP部・ピクセルQA）**: Visual Regression（Chromatic）と A11y（axe/Lighthouse）を Mia のピクセル単位QA と統合し、二重の網でリグレッションを捕捉
+- **Nori（11-管理部門・リーガル）**: Security Testing（Semgrep/Trivy/OWASP ZAP）の結果を Nori のリーガルチェックと統合、法令 + 技術両面のリスクを一元管理
+- **Kpi（横断KPIマネージャー）**: テストオラクル（SSOT）を Kpi 定義書に集約、期間境界・KPI 定義の齟齬を機械判定
+- **Sora（COO最終QA）**: verdict の3点サマリー + 実測値 JSON を先渡し、Sora の最終判断を並列処理化
+
+---
+
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
+
+**業界BP参照（2026年強化ブロック）**:
+- Google Testing Blog（Testing on the Toilet）
+- Kent C. Dodds "Testing Trophy"（2018/2024 更新）
+- ThoughtWorks Technology Radar（Vol.29-31）
+- Microsoft Engineering Fundamentals（Testing / Reliability）
+- ISTQB Advanced Level Test Analyst / Test Automation Engineer Syllabus
+- Netflix Chaos Engineering Handbook
+- Meta Sapienz（自動テスト生成研究）
+- OWASP Top 10 / OWASP ASVS 4.0
+- WCAG 2.2 AA / WAI-ARIA 1.2
 
 ## 📝 Daily Knowledge Log
 
