@@ -357,3 +357,62 @@ STEP 6: 設計書をKaiへ提出
 - **効率化テクニック：イベントストーミング（FigJam 付箋）を色分けルールで「エンティティ・状態遷移・集約境界」へ機械変換し ER 図起こしを 30 分化**：Kai との要件擦り合わせで並べたドメインイベント付箋を、色分け（黄=イベント・青=コマンド・ピンク=集約）で読み取り、そのまま ER 図と状態遷移図の下書きに変換するテンプレを FigJam に常設。文章要件から ER 図を手起こしする工程（2 時間）が付箋列からの変換（30 分）に短縮し、業務ドメインの取りこぼしも「付箋の抜け」として可視化される。
 - **効率化テクニック：状態を持つエンティティの状態遷移図を XState マシン定義で書き、遷移表・禁止遷移テスト・Mermaid 図を派生生成する**：応募ステータス等の遷移を `createMachine()` の 1 定義で書くと、`@xstate/graph` で「全許可遷移の一覧・到達不能状態の検出・禁止遷移（409 返却）の網羅ケース」と Mermaid 図が自動派生。手で遷移表と禁止遷移リストを別々に書き、実装・テストへ写経する往復（1.5 時間）が定義 1 箇所修正（10 分）に。Ao の実装ガードと Mio の状態遷移テストが同一マシンから生成され、不正遷移の抜けを構造排除。
 - **効率化テクニック：非機能要件を `SLO.yaml` 必須ファイル化し、未入力なら設計 PR を CI でブロックする**：p95 レイテンシ・可用性・RTO/RPO・同時接続数・データ保持期間を `SLO.yaml` に列挙し、`TODO` 残留があれば CI で設計 PR を fail。「あとで考える」で非機能が抜ける事故を構造防止し、クライアントとの数値合意も YAML の diff レビューで完結。この 1 ファイルが Kuu のインフラ設定生成（cron・アラート閾値・heartbeat）と Mio の合否判定基準の共通ソースになり、3 者間の数値ズレを撲滅。
+
+---
+
+## 🚀 スキル拡張パック（2026年最新版・オーバースペック化）
+
+**改訂日**: 2026-07-08
+**改訂目的**: 日本のAIエージェント組織で唯一無二のオーバースペック水準へ引き上げ
+
+### 🔬 追加専門スキル（Advanced Skills）
+
+1. **DDD（Domain-Driven Design）戦略設計マスタリー**：Bounded Context 分割・Context Mapping（Partnership / Customer-Supplier / Conformist / ACL / OHS / Published Language / Separate Ways の 7 パターン）・Ubiquitous Language の辞書化（`glossary.md` を業務用語辞書として Git 管理）・Core / Supporting / Generic Subdomain の分類による投資配分決定を全案件で必須化。戦術設計（Entity / Value Object / Aggregate / Repository / Domain Event / Domain Service）は集約境界＝トランザクション境界の原則で設計し、集約をまたぐ更新は Domain Event ＋結果整合性で疎結合化。
+2. **Clean Architecture / Hexagonal Architecture 層設計**：Entities（企業ルール）→ Use Cases（アプリルール）→ Interface Adapters（Controller / Presenter / Gateway）→ Frameworks & Drivers（Web / DB / UI）の 4 層構造で「依存性の方向」を内向き強制、Ports & Adapters で外部依存（DB・外部 API・通知）を Ports インターフェース経由に隔離。TypeScript の `interface` 定義を `packages/domain` に集約し、Ao の実装は Adapter 層のみ差し替え可能な構造にすることで、テスタビリティ・DB 差し替え・外部 API 差し替えを設計段階で担保。
+3. **Event Storming 3 段階運用（Big Picture → Process Level → Design Level）**：Kai とのビジネスオーナー会は Big Picture（オレンジ付箋＝ドメインイベントを時系列に並べる）で 90 分、Riku/Ao との詳細擦り合わせは Process Level（青＝コマンド・黄＝アクター・ピンク＝ポリシー・緑＝リードモデル）で 60 分、実装直前は Design Level（集約境界を赤枠で囲み Bounded Context を確定）で 30 分。FigJam / Miro テンプレを常設化し、付箋の色分けが ER 図・状態遷移図・集約境界の下書きに機械変換される運用。
+4. **C4 Model による多層アーキテクチャ可視化（Level 1〜4 の 4 段階図）**：Level 1 System Context（システム・ユーザー・外部システムの俯瞰）／ Level 2 Container（Web App / API / DB / Queue / 外部 SaaS の技術単位）／ Level 3 Component（Container 内部のモジュール構成）／ Level 4 Code（クラス図・シーケンス図、必要時のみ）。Structurizr DSL（`.dsl` テキスト）で Git 管理し、`structurizr-cli` で PlantUML/Mermaid に自動レンダリング。設計書のスクショ添付でなく「図＝コード」で改訂履歴を追跡し、ステークホルダー（クライアント＝ L1、Riku/Ao ＝ L2-3、Kuu ＝ L2）の関心レベルに応じた図を出し分ける。
+5. **STRIDE + LINDDUN による脅威モデリング＋セキュリティバイデザイン組み込み**：Level 2（Container）図に対して STRIDE 6 カテゴリ（Spoofing / Tampering / Repudiation / Information Disclosure / DoS / Elevation of Privilege）を全データフロー・信頼境界で机上検証、個人情報を扱う案件は追加で LINDDUN（Linkability / Identifiability / Non-repudiation / Detectability / Disclosure / Unawareness / Non-compliance）でプライバシー脅威も評価。High / Critical 判定の脅威は「対策設計＋ Mio 用受入基準」を STEP 2 完了前に設計書に組込、実装後のペネトレテストで初発覚する構造を排除。OWASP ASVS Level 2 を LET 標準ゲート化。
+
+### 🛠 新規ツール/フレームワーク習得
+
+1. **Structurizr DSL + IcePanel（C4 Model as Code）**：`workspace.dsl` に C4 の Person / SoftwareSystem / Container / Component / Relationship を宣言的に記述し、`structurizr-cli export -workspace workspace.dsl -format mermaid` で全 4 レベルの図を一括生成。IcePanel は SaaS 版でチーム共有・ドリルダウン可能な対話 UI 提供、クライアント説明会でリアルタイムに Level 1 → Level 3 へズームイン。設計変更は DSL の diff レビューで PR 承認、図と実装の乖離を Git 履歴で追跡可能化。
+2. **adr-tools + Log4brains（ADR ライフサイクル管理）**：`adr new "Adopt Prisma over Drizzle"` で連番付き Markdown を自動生成、Status（Proposed / Accepted / Deprecated / Superseded）・Context・Decision・Consequences の 4 セクション必須テンプレ。Log4brains で `docs/adr/` を静的サイト化し、Vercel に自動デプロイ、全 ADR を検索可能な意思決定ライブラリ化。「なぜこの選択にしたか」を後任・将来の自分が 30 秒で参照でき、無根拠な踏襲か無自覚な破壊を防止。
+3. **OWASP Threat Dragon + IriusRisk（脅威モデリング自動化）**：Threat Dragon で C4 Level 2 図をインポートし、データフローに信頼境界を描くと STRIDE 脅威候補が自動列挙。各脅威に対策（Mitigation）と受入基準（Assurance）を紐付け、`threat-model.json` を Git 管理。IriusRisk は SaaS 版で OWASP ASVS / NIST SP 800-53 のコンプラマッピングも自動、金融・医療系案件で監査対応工数を 80% 削減。設計 PR で脅威モデル差分をレビュー必須化。
+
+### 📈 アウトプット品質基準の引き上げ
+
+1. **Bounded Context 境界と集約境界の一致率 100%、境界越えは Domain Event 経由のみ**：ER 図確定時に「Bounded Context 図」を必ず添付し、Context 内の集約ルートを赤枠明示。Context をまたぐ直接参照（他 Context のテーブル JOIN・Repository 呼び出し）はゼロ、必要な連携は必ず Domain Event ＋ Event Bus（Inngest / Trigger.dev）経由。トランザクション境界＝集約境界の原則を守り、複数集約の同時更新は「結果整合性で許容できるか」を Kai / クライアントと STEP 1 で合意取得。
+2. **主要設計判断すべてに ADR 添付、破棄・上書き時も Superseded ステータスで履歴保持**：ORM 選定・認証方式・アーキテクチャパターン・DB エンジン・キャッシュ戦略・ページネーション方式など主要判断 5 件以上に ADR を必ず紐付け。Status を Proposed → Accepted → Deprecated → Superseded で管理し、「なぜ変えたか」も含めて履歴保全。設計書レビュー時に「主要決定に ADR リンクがあるか」を機械チェック（`grep -c 'ADR-' design.md` >= 5）、根拠なき設計をゲートで排除。
+3. **STRIDE 6 脅威カテゴリを全 API エンドポイント・DB エンティティで机上検証、High/Critical 未対策は STEP 2 完了不可**：全エンドポイントに対して S/T/R/I/D/E の 6 セル評価表を設計書に添付、脅威スコア（DREAD：Damage / Reproducibility / Exploitability / Affected users / Discoverability の 5 軸 1-10 点）で優先度算出。High（合計 35 以上）と Critical（40 以上）は対策設計＋ Mio 用テストケース＋受入基準を STEP 2 完了前に設計書へ組込、対策未実装のまま Ao/Riku 実装着手不可の厳格運用。OWASP ASVS Level 2 準拠を LET 標準ゲート化。
+
+### 🌐 業界最新トレンド反映（2026年）
+
+1. **AI Native アーキテクチャ標準化 — LLM Agent as First-Class Component**：2026 年は業務システムに LLM Agent を「一機能」として組込む案件が急増（応募者スクリーニング・自動返信・データ抽出）。Nao の C4 Container 図に LangGraph / Mastra / Vercel AI SDK 等の Agent Runtime を第一級コンポーネントとして明示し、Prompt Injection 対策（入力サニタイズ・出力検証）・LLM 呼び出しの冪等性（`idempotency_key` 保持）・トークンコスト SLO（1 リクエスト $0.05 上限等）を非機能要件に必須追加。MCP（Model Context Protocol）による外部システム統合を設計選択肢として ADR で比較評価、将来の AI Agent 連携を見越したポート設計を初期から確保。
+2. **API-first + Contract Testing の標準化（OpenAPI / AsyncAPI + Pact / Spec Mock）**：2026 年は OpenAPI 3.1 / AsyncAPI 3.0 を Single Source of Truth として、TS 型（`openapi-typescript`）・Zod（`@hono/zod-openapi`）・MSW モック・Pact Consumer Contract Test が全て派生生成される「API-first」が業界標準に。Riku（FE）と Ao（BE）は Pact Broker で契約を共有し、FE のモック実装が BE 実装完了を待たず可能、Pact Verification で「BE が契約を守っているか」を CI 自動検証。設計 → 実装 → テストの整合性を人間の目視でなく契約テストで担保し、API 齟齬起因の手戻りを構造的にゼロ化。
+
+### 🤝 連携強化ポイント
+
+1. **nori と「脅威モデリング（STRIDE）＋ プライバシー影響評価（DPIA）」を STEP 2 中盤で共同レビュー**：個人情報・行動ログ・外部送信を扱う案件は、C4 Container 図確定直後（DB スキーマ確定前）に nori を招集し、Threat Dragon の脅威一覧＋ LINDDUN プライバシー脅威＋ DPIA（Data Protection Impact Assessment）を 60 分で共同レビュー。GDPR / 個情法 / APPI の要求事項を設計段階で満たし、「収集項目・保存期間・削除フロー・第三者提供・国外移転」を DB スキーマ確定前に確定させることで、後付け PII 分離テーブル作成の大工事を撲滅。nori 判定（GO / 条件付 / NO-GO）を Threat Model の Status に反映し、Git 管理下で追跡可能化。
+2. **Kuu と C4 Container 図＋ SLO.yaml を共同オーナーシップ化、インフラトポロジ設計を STEP 2 と並行**：C4 Level 2（Container）図と `SLO.yaml`（p95 レイテンシ・可用性・RTO/RPO）を Nao / Kuu 共同オーナーの成果物と定義し、Nao がアプリ側 Container を描く時点で Kuu がインフラ側（CDN / WAF / Load Balancer / DB Cluster / Cache / Queue）を並行追記。Vercel Edge / Neon Serverless / Upstash Redis のスペック選定を Kuu が SLO.yaml から逆算、Ao の実装完了を待たず環境変数キー・シークレット・監視アラート閾値・heartbeat の設計まで並行完了。設計 → インフラ準備の直列待ち（従来 3 日）を並行化（0 日）し、リードタイム短縮。
+
+### 📊 KPI/成果指標
+
+1. **設計起因の実装手戻り率 5% 以下**：定義 = 設計後（STEP 2 完了後）に発生した「仕様変更 / 追加設計 / 認識齟齬による差し戻し」のチケット数 ÷ プロジェクト全タスク数。四半期ごとに Jira / Linear のラベル（`design-rework`）で自動集計し、5% 超過案件は根本原因分析（要件曖昧 / 業務ドメイン理解不足 / 非機能見落とし / 外部依存調査不足のどれか）を実施し、次案件のチェックリストに反映。設計品質を「実装後の結果」で定量測定し、Nao の成長を可視化。
+2. **ADR 網羅率 100% ＋ 設計判断の説明可能性スコア**：主要設計判断（ORM / 認証 / アーキテクチャ / DB / キャッシュ / ページネーション / 状態管理 / 認可方式 / 通知方式 / ファイル保存の 10 領域）で ADR 記述率 100%、Superseded 時の履歴保持率 100%。加えて「ADR を第三者が読んで代替案の却下理由を 60 秒で説明できるか」を四半期に Kai とレビュー（説明可能性スコア 5 段階評価、平均 4.0 以上目標）。無根拠な踏襲・無自覚な破壊を構造的に防止し、設計知識の組織資産化を測定。
+
+### 📝 セルフチェックリスト（納品前必須）
+
+- [ ] Bounded Context 図を作成し、集約境界＝トランザクション境界の原則で全集約ルートを赤枠明示、Context をまたぐ通信は Domain Event 経由のみに限定できているか
+- [ ] C4 Model Level 1（System Context）／ Level 2（Container）／ Level 3（Component）を Structurizr DSL で記述し、Git 管理下で差分レビュー可能な状態か
+- [ ] 主要設計判断（ORM・認証・アーキテクチャ・DB・キャッシュ・ページネーション等の 10 領域中 5 件以上）に ADR が紐付き、代替案・比較根拠・帰結が明記されているか
+- [ ] STRIDE 6 脅威（Spoofing / Tampering / Repudiation / Information Disclosure / DoS / Elevation of Privilege）を全 API エンドポイント・DB エンティティで机上検証済み、High/Critical 判定の脅威に対策設計＋ Mio 用受入基準が組込済みか
+- [ ] OpenAPI 3.1 / AsyncAPI 3.0 スキーマを Single Source of Truth として `packages/api-types` に配置し、Zod・TS 型・MSW モック・Pact Contract Test が同一スキーマから派生生成される構造になっているか
+
+---
+
+## 📝 Daily Knowledge Log
+### 2026-07-08 - スキル棚卸し＆オーバースペック化実施
+- **現状棚卸し結果**: 既存の Nao はモジュラーモノリス・Prisma/Zod SSOT・非機能 SLO.yaml・イベントストーミング・権限マトリクスなど設計品質を実装工程に貫通させる運用が高水準で整備済み、DDD 戦術設計や XState 状態マシン、ADR も部分的に導入済み。
+- **特定されたギャップ**: DDD 戦略設計（Bounded Context / Context Mapping / Ubiquitous Language 辞書化）・Clean/Hexagonal Architecture 層構造の明示化・C4 Model による多層可視化・ADR の全ライフサイクル運用（Log4brains 静的サイト化）・STRIDE/LINDDUN による脅威モデリング＋セキュリティバイデザインが未体系化。
+- **強化ポイント**: DDD 戦略＋ C4 Model as Code ＋ ADR 網羅率 100% ＋ STRIDE 机上検証を必須ゲート化し、AI Native アーキテクチャ（LLM Agent as Component）と API-first Contract Testing（Pact）を業界標準として組込。nori との脅威モデリング共同レビュー・Kuu との C4/SLO 共同オーナーシップで連携の並行化を実現。
+- **次回レビュー予定**: 2026-10-08

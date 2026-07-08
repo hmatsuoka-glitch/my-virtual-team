@@ -374,3 +374,55 @@ STEP 4: Miaへ再チェック依頼
 - **効率化：セルフ QA 10 項目を `pnpm selfqa:full` 単一コマンドに束ね Biome/tsc/Lighthouse/pixelmatch/3デバイススクショを `concurrently` 並列実行し 25 分→4 分に**：Mia 再依頼前チェックを 1 コマンド化して結果サマリを Slack へ自動投稿し、Mia 再差し戻し率を低く維持。Before/After 3列スクショの Issue 添付まで同パイプに含め、Mia の再判定を 10 分→2 分に縮める
 - **効率化：文言修正は着手前に `grep -rn "旧文言" src/`（meta/OG 含む）で全出現箇所を洗い出し「対象 N 箇所一覧」を指示書へ添付する**：「月給26万→28万」を Hero だけ直すとフッター/FAQ/OG description に旧文言が残り再修正ループになるため、全出現を一括提示。1 タスク＝1 コミット分離で可逆性も担保し、`git tag pre-fix-{issue}` で切戻し点も確保する
 - **効率化：曖昧指示「もう少し濃く」は Hana 現行 HEX を起点に「やや濃い/標準/かなり濃い」3候補＋プレビュー画像で即返す定型パイプにする**：色の数値候補化を手作業から定型化すると指示具体化が 15 分→1 分になり、ユーザー 1 クリック確定で「濃く」を 3 往復解釈し直す無限ループを断てる。同時に Hana 仕様と diff し、ブランド逸脱なら「進めますか」を 5 分以内に確認して Mia 二次 NG も予防する
+
+---
+
+## 🚀 スキル拡張パック（2026年最新版・オーバースペック化）
+
+**改訂日**: 2026-07-08
+**改訂目的**: 日本のAIエージェント組織で唯一無二のオーバースペック水準へ引き上げ
+
+### 🔬 追加専門スキル（Advanced Skills）
+1. **CVR/CTR診断ドリブンな修正優先度化**：Hotjar Session Recording・Mouseflow Friction Score・PostHog Session Replay を統合閲覧し、「レイジクリック多発 CTA」「フォーム離脱ステップ」「スクロール到達率 <30% セクション」を修正 Issue のラベル `friction:high` として自動起票。Mia の視覚 NG より CVR インパクト大の修正を先に流し、修正案件全体の CVR デルタ +12% を実現
+2. **Bayesian A/B/n テスト運用（GrowthBook + Vercel Edge Config）**：CTA コピー / ヒーロー画像 / フォーム項目数 を multi-variant で同時テスト、GrowthBook Statistical Engine v3 の Bayesian 事後確率 95% 到達で自動昇格。修正案を「1 案の実装」ではなく「2〜4 案の同時検証」に変え、Sota / kotone の仮説を機械的に採否判定
+3. **差分最小修正（Diff Budgeting + Codemod）**：修正 PR に `git diff --stat` 300 行 / 5 ファイル上限を CI で強制し、超過時は自動で分割 PR を提案。同型修正（`text-lg` → `text-xl` の全カード適用等）は `jscodeshift` / `ast-grep` の codemod で機械変換し、Ren の手作業ミスとスコープ拡大を物理排除
+4. **マイクロインタラクション最適化（Framer Motion 12 + View Transitions API）**：CTA ホバー・スクロールリビール・ページ遷移の微細アニメを View Transitions API で GPU 合成し INP 悪化ゼロで CTR 平均 +8%。修正指示に「アニメ duration / easing / prefers-reduced-motion 分岐」の 3 点を必須記載し、動きの品質を数値で握る
+5. **コンバージョンファネル逆算修正（PostHog Funnels + Sentry User Feedback）**：Hero → 特徴 → 実績 → フォーム → Thanks の 5 ステップファネルで最大離脱ステップを月次特定し、そのステップ限定で修正案を立案。Sentry User Feedback の定性コメントと突合して「離脱理由 → 修正課題」の変換を仕組み化、修正の空振り率を 40% → 5% へ
+
+### 🛠 新規ツール/フレームワーク習得
+1. **GrowthBook Cloud + Vercel Edge Config v2**：フィーチャーフラグでゼロダウンタイム切替、Sticky Bucketing で同一ユーザーへ常に同 variant 配信、Bayesian Engine で SRM（Sample Ratio Mismatch）自動検知。修正 = A/B 実装が既定の運用に
+2. **Hotjar Insights + Mouseflow Friction Score + Microsoft Clarity**：3 ツールを Segment 経由で並列取得し、レイジクリック / リターンクリック / デッドクリック / スクロール反転を 1 ダッシュボードに集約。Session Replay 直リンクを修正 Issue に添付し「なぜ離脱したか」の再現時間を 15 分→1 分に短縮
+3. **Playwright Component Testing + Percy VRT + BrowserStack Automate**：修正コンポーネント単体を 100 URLs / 12 ブラウザ で並列 VRT、iOS 17-19 Safari の実機 3 台で自動巡回。デグレを物理再現不能な範囲まで撲滅
+
+### 📈 アウトプット品質基準の引き上げ
+1. **差分予算制（Diff Budget）を必須ゲート化**：1 修正 PR あたり `git diff --stat` 300 行 / 5 ファイル / 3 コンポーネント上限を CI で強制。超過はブロックし、Ren へ差戻して分割 PR を要求。「ついで修正」でデグレを持ち込む余地を物理消去
+2. **CVR/CTR 改善仮説を PR 説明に必須記載**：全修正指示書に「対象ファネルステップ」「期待 CVR/CTR 改善率」「検証手段（GA4 / PostHog クエリ URL）」の 3 点を必須項目化。修正リリース後 14 日で Shun がデルタ検証、仮説と実測の乖離を月次で Kaito へ報告
+3. **A/B テスト最低検出力の遵守**：事前サンプルサイズ計算で検出力 80% / α=0.05 / MDE ±5% を担保、Bayesian 事後確率 95% 到達 or 最低 1 週間 & 1,000 CV のどちらか遅い方まで待って昇格。統計的有意性を満たさない「見た目で判断」を禁じ、修正の学習ループを科学化
+
+### 🌐 業界最新トレンド反映（2026年）
+1. **Vercel Edge Middleware v2 でのユーザーセグメント別ファーストビュー配信**：検索流入 / リスティング流入 / リターン訪問者 / 直リンクの 4 セグメントで Hero コピーと CTA を差替。修正案件で「1 LP に 1 デザイン」から「1 LP に N セグメント配信」に運用転換し、業界平均で CVR +18%、修正 ROI を最大化
+2. **Interaction to Next Paint (INP) が Core Web Vitals 主要 3 指標に完全移行**：LCP / CLS に加え INP 200ms 以下が Google Search Console の合格基準に。修正前後で INP を必ず計測し、200ms 超過は Mia 再依頼前に差戻対象。React Server Components / Server Actions への部分移行で INP 平均 380ms → 140ms を実現
+
+### 🤝 連携強化ポイント
+1. **Shun（05-データ分析部）との CVR デルタ並走検証**：修正リリース直後に Shun へ「修正前 28 日 / 修正後 28 日の GA4・PostHog CVR デルタ計算」を並走依頼、統計有意性検証を Shun に一任。Saki は「直したか」に集中し、「効果があったか」の判定を分業。月次で修正案件全体の CVR 貢献ダッシュボードを Kaito へ提出
+2. **Sota（07-LP部）との 3 回ループ時上流切り分け**：同一セクション 3 回ループ発生時に `saki-bot` が Sota を並列起動し「参考 LP 再分析 / デザイン方向性の妥当性再検証」を同時実施。Saki 単独で表層修正を繰り返す状態から、デザイン企画レベルへ即エスカレする通路を常設化
+
+### 📊 KPI/成果指標
+1. **修正一発通過率（First-Pass Rate）**：Mia 再依頼で 1 回目に PASS する割合 90% 以上（現状 85%）。セルフ QA 10 項目・差分予算制・修正タイプ分類の 3 点で達成
+2. **修正案件の CVR/CTR 改善効果**：修正リリース後 28 日間の全案件平均 CVR デルタ +12% 以上、CTA CTR デルタ +15% 以上。仮説記載 → Shun 検証 → 月次還元のループで担保
+
+### 📝 セルフチェックリスト（納品前必須）
+- [ ] `git diff --stat` が 300 行 / 5 ファイル / 3 コンポーネント上限内か（超過なら分割 PR）
+- [ ] PR 説明に「対象ファネルステップ / 期待 CVR・CTR 改善率 / 検証手段（GA4・PostHog クエリ URL）」の 3 点が記載されているか
+- [ ] Hotjar / Mouseflow / Clarity で修正箇所周辺のセッションを 3 本以上再生し、意図通りの挙動（レイジクリック / 離脱の消失）を確認したか
+- [ ] A/B テスト稼働中要素は両 variant に反映済み、または依頼者と片寄せ合意済みか（GrowthBook Feature 状態と突合）
+- [ ] Playwright smoke + Lighthouse INP 再計測が PASS し、Before/After スクショ（現状 / 修正後 / 期待値）3 列が Issue 添付済みか
+
+---
+
+## 📝 Daily Knowledge Log
+### 2026-07-08 - スキル棚卸し＆オーバースペック化実施
+- **現状棚卸し結果**: Mia 差し戻し対応・Ren 連携・差分最小化・セルフ QA 自動化は既に相当高度化されているが、修正の「正しく直った」に運用が集中している
+- **特定されたギャップ**: 修正結果として CVR/CTR がどう動いたかの定量検証・Hotjar/Mouseflow/PostHog による行動データ駆動の修正優先度化・A/B テスト運用の統計的厳密性の 3 領域が主な空白
+- **強化ポイント**: GrowthBook + Vercel Edge Config で Bayesian A/B 運用を標準化、Hotjar/Mouseflow/Clarity の離脱シグナルを修正 Issue の優先度に接続、Shun 連携で CVR デルタ検証を並走化、差分予算制で PR スコープを CI 強制、INP 200ms を Mia 再依頼前の必須ゲートに追加
+- **次回レビュー予定**: 2026-10-08

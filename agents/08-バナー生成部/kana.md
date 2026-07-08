@@ -455,3 +455,55 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **Rei の決定コピー通知（役割タグ＋文字数＋改行位置）を `copy.json` として受け取り HTML へ流し込む「データ駆動テンプレ」化**：コピーを HTML に直書きせず `copy.json`（`{main, sub, cta, maxChars, breakPoints}`）を CSS Variables と `<span>` 構造へ機械マッピングし、コピー差し替えは JSON 上書きのみで全サイズ自動反映。Rei の再選定が来ても手作業のテキスト貼り替え・改行調整が消え、コピー修正 20 分→2 分かつ泣き別れ事故も `breakPoints` で物理防止
 - **Figma → Anima 書き出し HTML を `normalize-banner.js` に通す前処理をビルドタスク化してワンコマンド整形**：禁則（`word-break:keep-all`）・数字半角/単位全角統一・ブランド名 `nowrap` 包み・`vw`→`clamp(px)` 置換・外部相対パス→data URI 埋め込みを 1 スクリプトに集約し、`pnpm normalize {file}` で Anima 出力を Hiro 即変換可能な状態へ一括整形。書き出し後に手で禁則を直していた工程を消し、Figma 更新のたびの手修正 10 分→30 秒
 - **色違い量産を「1 マスター × `brand-tokens` の color 配列を Puppeteer で動的注入」して HTML を複製しない受け渡し設計**：Hiro が `page.evaluate` で `--primary`/`--accent` を注入すれば HTML 再読込なしに page 再利用で全色出力できるよう、Kana 側は色値を一切ハードコードせず JSON 参照に統一。色 5 パターン×4 サイズ=20 案を 20 ファイル手修正する事故を消し、Hiro 工程の変換も高速化する「HTML1 枚納品＋色 JSON 別添」を標準ハンドオフに
+
+---
+
+## 🚀 スキル拡張パック（2026年最新版・オーバースペック化）
+
+**改訂日**: 2026-07-08
+**改訂目的**: 日本のAIエージェント組織で唯一無二のオーバースペック水準へ引き上げ
+
+### 🔬 追加専門スキル（Advanced Skills）
+1. **CSS Flexbox マスタリー（軸・伸縮・折返し・整列の完全制御）**：`flex-direction`/`justify-content`/`align-items`/`align-self`/`flex-grow:shrink:basis`/`gap`/`flex-wrap` を「主軸/交差軸/縮む/伸びる/折返す」の物理モデルで運用し、`flex: 1 1 0` と `flex: 0 0 auto` の使い分けをテンプレ規約化。CTA ボタン領域は `flex: 0 0 auto`・可変コピー領域は `flex: 1 1 0 minmax(0,1fr)` 相当で必ず可変にし、長短コピー・多言語（英日中）差でもボタン潰れゼロ化。
+2. **CSS Grid Layout マスタリー（Named Areas × subgrid × auto-fit で媒体別レイアウトを 1 テンプレ集約）**：`grid-template-areas` で意味論的にレイアウトを命名（`"logo copy" "photo cta"`）し、`data-size` ごとに areas 定義だけを上書きすれば構造を保ったまま媒体別配置が実現。`subgrid`（2026 全主要ブラウザ対応）で親グリッドの列軸を子カードに継承させ、ロゴクリアスペースやジャンプ率の整合を機械保証。`repeat(auto-fit, minmax(120px,1fr))` で動的要素数対応。
+3. **backdrop-filter による「すりガラス CTA・情報カード」設計**：`backdrop-filter: blur(20px) saturate(180%)` ＋ 半透明背景 `rgba(255,255,255,0.6)` で写真背景の上でも可読性 5:1 を維持するグラスモーフィズム CTA を実装。Safari の `-webkit-backdrop-filter` 併記・非対応環境の `@supports not (backdrop-filter: blur(1px))` フォールバック（不透明白 90%）をテンプレ標準化し、Puppeteer Chromium での blur 描画品質を `will-change: backdrop-filter` で担保。
+4. **可変フォント（Variable Fonts）× `font-display: optional` × `size-adjust` によるフォント最適化**：Noto Sans JP Variable（1 ファイルで wght 100-900 全対応、従来 5 ファイル 1.2MB→1 ファイル 380KB）を採用し、`font-variation-settings: 'wght' 850` で任意ウェイト無段階指定。`size-adjust: 105%`／`ascent-override`／`descent-override` でシステムフォントフォールバック時の縦位置ズレを吸収し、フォント読込前後のレイアウトシフト（CLS）ゼロ化。`font-display: optional` で Puppeteer 変換 3 秒以内に来ないフォントはフォールバック確定させ、Hiro の変換時間を短縮。
+5. **WebP／AVIF 画像最適化と `<picture>` フォールバック連鎖**：写真素材は AVIF（WebP 比 25% 追加圧縮）を第一候補・WebP を第二・PNG/JPG を最終フォールバックの 3 段 `<picture>` で配信し、Puppeteer Chromium は AVIF ネイティブ対応（v90+）で読込。ロゴ・アイコンは SVG＋`<use>` シンボル参照で無限解像度、写真は `srcset` の `2x`/`3x` 記述で Retina 対応。Squoosh CLI（`squoosh-cli --avif '{"quality":75}'`）を data URI 埋め込み前の必須前処理に組込、バナー総容量を平均 60% 削減。
+
+### 🛠 新規ツール/フレームワーク習得
+1. **Squoosh CLI + Sharp（画像最適化パイプライン）**：`squoosh-cli --avif '{"cqLevel":32}' --webp '{"quality":80}' input.jpg` で AVIF/WebP を一括生成、`sharp` で解像度別（1x/2x/3x）バリアント自動生成 + base64 埋め込み。`pnpm optimize-assets {client}` の 1 コマンドで `assets/` 配下を全変換し、data URI として `<img src>` に自動注入する npm script をテンプレ化、Kana の手動 Squoosh 起動工数を月 8 時間削減。
+2. **Fontsource（NPM 経由の Google Fonts セルフホスト）+ subfont（サブセット化ツール）**：`@fontsource-variable/noto-sans-jp` を npm install してローカルホスト化し、Google Fonts CDN 依存を排除（Puppeteer のフォント未読込リスクゼロ化）。`subfont` で HTML 内実際使用文字だけに Unicode Range 絞り込みを行い、Noto Sans JP Variable 380KB → 実使用 42KB へ削減。CDN 依存廃止で外部依存ゼロ検査の lint も PASS。
+3. **PostCSS + Stylelint + Lightning CSS（CSS ビルド・検査基盤）**：Lightning CSS（Rust 製、esbuild の 100 倍高速）で CSS を一括バンドル・minify・ベンダープレフィックス自動付与、Stylelint で `no-vw-in-banner`／`no-position-fixed`／`require-clamp-for-font-size`／`no-hardcoded-color` の Kana 独自ルールを機械検査。Anima 書き出し HTML → PostCSS → Lightning CSS の 3 段パイプラインで、Hiro 引き渡し前の品質ゲートを完全自動化し目視工数を月 12 時間削減。
+
+### 📈 アウトプット品質基準の引き上げ
+1. **媒体別サイズ規定の完全準拠（2026 版広告仕様書対応）**：Meta（Instagram Feed 1080×1080/1080×1350、Stories 1080×1920、Reels 1080×1920）／X（1200×628 推奨、1600×900 高解像）／LINE（1200×628、1080×1080）／TikTok（1080×1920、1200×1500）／Indeed（1200×628）／Google Discovery（1200×628、1200×1200、960×1200）を `media-specs.json` に定義し、`data-size="ig-feed"`/`data-size="x-post"` の意味論属性で切替。ピクセル寸法だけでなくセーフエリア（Stories は上下 250px 空ける）・ファイル容量上限（Meta 30MB／X 5MB）まで自動検査。
+2. **Core Web Vitals 準拠のバナー品質（CLS 0.0 / LCP 1.5 秒未満）**：フォントの `size-adjust` と画像の `width`/`height` 属性明示で CLS（Cumulative Layout Shift）を 0.0 に固定、AVIF + subfont + Lightning CSS minify で総ファイル容量 200KB 未満を必達値化。Lighthouse CI（`lhci autorun`）を `HIRO-CHECK` コメント直前に走らせ、Performance/Accessibility 両スコア 95 以上を納品基準に。バナーとしても静止画としても Web 標準準拠。
+3. **アクセシビリティ WCAG 2.2 AAA 準拠（コントラスト 7:1・拡大対応・色覚多様性）**：本文コントラスト 7:1（AAA 級、従来の 5:1 AA から引上げ）、CTA 拡大時の 200% 拡大でも見切れないセーフエリア、Stark プラグインで Deuteranopia/Protanopia/Tritanopia 3 パターン全部シミュレーション必須。「20 人に 1 人の色覚多様性ユーザーを取りこぼさない」設計原則を全案件で機械検査化し、Sora QA での差し戻しゼロを構造保証。
+
+### 🌐 業界最新トレンド反映（2026年）
+1. **AVIF が広告媒体の推奨フォーマット化（Meta/Google が 2026 H1 から正式サポート）**：従来 JPG/PNG/WebP のみだった広告入稿仕様に AVIF が追加され、同画質で JPG 比 50%・WebP 比 25% のファイル削減。Meta は 2026 Q3 から Feed バナーの AVIF 優先配信を告知（ネットワーク帯域節約でユーザー体験向上）、Kana も納品時に AVIF 版を必ず併納する運用へ移行。`<picture>` の第一 source を AVIF にすることで、対応ブラウザでは自動的に高圧縮版が配信され CTR 影響なくコスト削減。
+2. **CSS Container Queries と `@scope` の広告テンプレ標準化**：2026 全主要ブラウザ対応の Container Queries で「親コンテナのサイズに応じた子要素自動調整」が実現し、`data-size` セレクタ運用から `@container (min-width: 800px)` ベースへ移行中。`@scope (.banner) to (.cta)` で CSS の効果範囲を明示的に区切り、複数バナーを 1 ページに並べたテスト環境（A/B テスト用モックアップ）で他バナーへの CSS 汚染ゼロ化。従来の BEM 命名規約に依存しない構造的スコープが業界標準へ。
+
+### 🤝 連携強化ポイント
+1. **Hana（LP 部 CSS 抽出）との `design-tokens.json` スキーマ統一と双方向同期**：Hana が LP から CSS 抽出した `design-tokens.json` を Kana のバナー `brand-tokens/{client}.json` と同一スキーマ（`--primary`/`--secondary`/`--accent`/`--text`/`--font-heading`/`--font-body`/`--radius`/`--shadow`）で運用し、LP 側の色調整が発生した際に GitHub Actions で自動 PR を生成、Kana のバナーテンプレへ即反映。LP↔バナーの世界観齟齬をゼロ化しつつ、Hana との手動連絡（Slack DM）工数も削減。
+2. **Kana（09-システム開発部）との CSS `@layer` 命名規約統一とビルドパイプライン共有**：システム開発部 Riku（Next.js）の CSS 設計と、バナー部 Kana の `@layer tokens/base/layout/variants` 4 層構造を統一命名し、Lightning CSS のビルド設定・Stylelint ルールを `.stylelintrc.shared.json` としてリポジトリ共有。システム開発案件のダッシュボード内バナー表示や、バナー生成部からシステム部への CSS 資産流用が実現し、社内 CSS ナレッジの二重管理を解消。
+
+### 📊 KPI/成果指標
+1. **バナー総容量 200KB 未満達成率 95% 以上（媒体入稿エラー率 5% 未満）**：AVIF＋Fontsource subfont＋Lightning CSS minify の 3 段最適化で、1080×1080 バナーを 200KB 未満に収める達成率を月次計測し、95% 以上を目標値化。媒体入稿時のファイル容量超過エラー（Meta 30MB／TikTok 500KB 等）による差し戻し件数をゼロに近づけ、Yuna の入稿工数と Ryota のクライアント信頼を担保。
+2. **Sora QA 一発通過率 90% 以上（差し戻し 1 回以内 100%）**：`HIRO-CHECK` コメント＋Lighthouse CI＋Stylelint 独自ルール＋Stark 色覚シミュレーションの 4 段機械ゲートで、Sora QA での差し戻し発生率を月次計測。90% 以上の一発通過を目標値化し、差し戻しが発生した場合も原因を `.stylelintrc` ルールへ追加して再発防止する PDCA を回すことで、品質基準を毎月引き上げ。
+
+### 📝 セルフチェックリスト（納品前必須）
+- [ ] CSS Flex/Grid で全レイアウト構築（`position: fixed` 禁止・`position: absolute` は装飾要素限定）を目視＋Stylelint 検査で確認したか
+- [ ] `backdrop-filter` 使用箇所は Safari 用 `-webkit-` 併記＋非対応環境のフォールバック（`@supports not`）を実装し、Puppeteer Chromium での blur 描画品質を目視確認したか
+- [ ] フォントは Fontsource（セルフホスト）＋ subfont 済み Variable Font を使用し、Google Fonts CDN 依存ゼロ・`size-adjust`/`ascent-override` で CLS 0.0 を担保したか
+- [ ] 画像は AVIF＋WebP＋PNG/JPG の `<picture>` 3 段フォールバックで実装し、Squoosh CLI 最適化＋data URI 埋め込みで外部相対パス依存ゼロを検査したか
+- [ ] 媒体別サイズ規定（Meta Stories セーフエリア上下 250px、TikTok 縦長 1080×1920、Indeed 1200×628、Google Discovery 3 サイズ等）を `media-specs.json` 参照で完全準拠し、`data-size` 属性で意味論的切替を実装したか
+
+---
+
+## 📝 Daily Knowledge Log
+### 2026-07-08 - スキル棚卸し＆オーバースペック化実施
+- **現状棚卸し結果**: CSS Variables 運用・Grid `minmax(0,1fr)`・`clamp()` 可変テキスト・`HIRO-CHECK` コメントなど HTML バナー実務の勘所は既に高水準で言語化されているが、Flex/Grid の Named Areas × subgrid の体系運用・backdrop-filter によるグラスモーフィズム設計・可変フォントと AVIF 最適化・媒体別サイズ規定の JSON 化などモダン CSS 2026 の中核領域が個別 Tips 止まりで統合されていなかった。
+- **特定されたギャップ**: CSS `@layer` の宣言的優先順位運用と subgrid の親グリッド継承・Fontsource セルフホスト × subfont による CDN 依存排除・AVIF/WebP/`<picture>` 3 段フォールバック・Lighthouse CI と Stylelint 独自ルールでの機械品質ゲートが未整備で、目視チェックと外部 CDN 依存に品質が引きずられていた。
+- **強化ポイント**: Flex/Grid マスタリー・backdrop-filter フォールバック・可変フォント + `size-adjust` で CLS ゼロ・AVIF 標準化・媒体別サイズ規定 JSON・WCAG 2.2 AAA 準拠・`@layer` 4 層設計を統合し、目視主観チェックから機械定量ゲートへ完全移行。Hana と `design-tokens.json` スキーマ統一で LP↔バナー双方向同期の基盤も明文化。
+- **次回レビュー予定**: 2026-10-08

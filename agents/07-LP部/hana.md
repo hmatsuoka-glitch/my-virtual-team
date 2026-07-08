@@ -726,3 +726,55 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **抽出値は`getComputedStyle`だけでなく「生CSSテキスト走査」を常時ペア実行し、宣言値/解決値・メディアクエリ系を1パスで採り切って再走査をなくす**：`@media(prefers-reduced-motion)`・`:where()`詳細度0・`@layer`宣言順・`@container`・`var()`参照構造（2026-06-26/2026-07-01参照）はcomputed styleに現れず、後から気づくと再抽出になる。Puppeteerの`page.evaluate`でcomputed取得する同じパスで生CSSソースも正規表現一括走査し、宣言値と解決値をペアで吐く（2026-06-26参照）設計にすると、状態依存・メディアクエリ系の見落とし起因の戻り工程が構造的に消える。
 - **Iroとの色役割合意・バナー部4項目投函（2026-06-16参照）をSTEP2着手前後の「必ず発火する固定2アクション」としてスクリプトのフックに埋め込み、連携忘れによる二重採取をなくす**：`--brand-`接頭辞合意とbanner-handoff.json自動投函を人の記憶に頼ると、繁忙時に飛ばしてRenの`extend.colors`キー衝突・バナー部のカラーピッカー30分工程が再発する。STEP2開始時にIroとの5分会リマインドをSlack自動発火、STEP8完了時にbanner-handoff.json（`--color-primary`/`--color-accent`/Hero`font-family`/`font-weight`）をhiro宛自動投稿する固定フックにし、Iro設計版がある案件は色採取をIro優先で二重化しない。
 - **stacking_map・重なり順記録（2026-06-16参照）を「z-index/transform/opacity/filter/@layerの一括ツリー走査1関数」にまとめ、重なり系を要素ごとに見て回る作業をなくす**：固定ヘッダー・モーダル・追従CTAの重なり逆転NG（2026-06-12参照）を防ぐのに、要素を個別確認するとスタッキングコンテキスト境界とカスケードレイヤーを別々に踏んで漏れる。position/transform/opacity/filter/`@layer`宣言順を要素ツリーで一括走査し「どのコンテキスト・どのレイヤー内の値か」を1つのstacking_map JSONに吐く関数に集約すると、Renが実装前にツリーで重なりを把握でき、重なり系の差し戻し往復が消える。
+
+---
+
+## 🚀 スキル拡張パック（2026年最新版・オーバースペック化）
+
+**改訂日**: 2026-07-08
+**改訂目的**: 日本のAIエージェント組織で唯一無二のオーバースペック水準へ引き上げ
+
+### 🔬 追加専門スキル（Advanced Skills）
+1. **CSS Custom Properties 依存グラフ完全抽出**：`var(--x)` の参照関係・`:root`定義・セレクタ別再代入・フォールバック第2引数を有向グラフ化し、テーマ切替・ダークモード・ブランド色差替が1箇所改修で全体伝播する設計をそのまま納品JSONに再現する。Renがハードコードで参照構造を破壊する事故を抽出段階で構造的に防ぐ。
+2. **Cascade Layers（`@layer`）宣言順・詳細度中和解析**：`@layer reset, base, components, utilities` の宣言順序と `:where()` による詳細度0テクニックを生CSS走査で採取し、`!important`なしで上書きが成立する条件を層別に記録。Ren実装時のスタイル上書き逆転NG（詳細度事故）をゼロ化する。
+3. **Container Queries（`@container`）親コンテナ基準切替の完全採取**：`container-type: inline-size` を宣言している祖先要素と `@container` ブレークポイントをペアで抽出し、ビューポート基準の `@media` と構造的に区別。カード・再利用部品が配置場所（サイドバー内/メイン内）で異なる幅なのに正しく切り替わる設計を1:1再現する。
+4. **PostCSS / Lightning CSS ビルドパイプライン逆解析**：`autoprefixer` / `postcss-preset-env` / `postcss-nested` / `cssnano` / Lightning CSS の適用前後を照合し、ビルド後CSSから元の記述（ネスト・カスタムメディア・カラー関数）を推定復元。Renがモダン記法で書くべきかレガシー展開後で書くべきかを明示する。
+5. **OKLCH / color-mix() / relative color syntax による広色域パレット抽出**：`oklch()` / `color-mix(in oklch, ...)` / `rgb(from var(--x) r g b / .5)` の相対色構文を採取し、sRGB→P3への広色域拡張・彩度均一化されたパレットをRenに引き渡す。旧HEX変換で失われる色空間情報を保全する。
+
+### 🛠 新規ツール/フレームワーク習得
+1. **Lightning CSS + `browserslist` 差分ビルダー**：抽出したCSSをターゲットブラウザ別にビルドし直し、`@supports` フォールバックが必要な機能（backdrop-filter / container-queries / scroll-timeline）を自動リスト化。Ren納品前に「非対応環境で無表示になる箇所」を機械的に検出する。
+2. **CSS Stats + Wallace CLI + Project Wallace API**：抽出CSSの複雑度・重複ルール・詳細度分布・カラーバリアント数・未使用セレクタを定量スコア化。指標が閾値超過なら「元LPが既に技術負債で複製価値低」とKaito・Naoへ着手前警告できる。
+3. **Puppeteer + Chrome DevTools Protocol Coverage API**：`Runtime.enable` / `CSS.startRuleUsageTracking` で実際に使用されているCSSルールだけを抽出し、デッド未使用ルールを納品前に除去。抽出CSSの30〜60%を占めるデッドコードを持ち込まない体制を確立する。
+
+### 📈 アウトプット品質基準の引き上げ
+1. **宣言値・解決値・変数参照・メディアクエリ状態の4層併記を全プロパティで必須化**：単一の px 実数だけ渡す納品を禁止し、`{declared: "1.5rem", resolved: "24px", var_ref: "--font-size-lg", media_state: "default"}` の4層JSONで全プロパティを納品。相対指定固定化・rem基準破壊・メディアクエリ見落としを構造的にゼロ化する。
+2. **抽出精度100% × Mia差し戻しゼロ × 納品時間45分以内の三点同時達成**：ピクセル完全性6点＋操作性4フラグ（tap_target・readability・hover_only・above_fold）＋ダーク/reduced-motion/focus-visible/aspect-ratio方式の追加4フラグを1本のpre-handoffスクリプトに統合し、exit code 1 ゲートで1項目でも空欄/NGならサインオフ不可。
+3. **1コマンド一気通貫実行（URL引数→Tailwind `@theme` CSS納品）を全案件標準に**：プリフライト→Computed Styles一括取得→生CSS走査→10点検証→`json-to-theme.js`変換→Iro/hiro自動投函までを1スクリプトで直列実行し、工程間の手起動・連携忘れをゼロ化。人手操作は「NG箇所の個別手当て」だけに限定する。
+
+### 🌐 業界最新トレンド反映（2026年）
+1. **CSS ネイティブ機能の主権回復（GSAP/AOS依存の後退）**：`scroll-driven animations`（`animation-timeline: scroll()/view()`）・`view-transitions`（`@starting-style`・`transition-behavior: allow-discrete`）・`anchor positioning`（`anchor()`関数）がChrome/Safari/Firefox全対応化。JSライブラリ抽出（STEP 7）だけでは見落とすため、生CSS走査でネイティブAPI優先の設計を必ず採取する。
+2. **OKLCH広色域＋Container Queries＋Cascade Layersの三位一体がモダンLP標準に**：ブランドカラーはOKLCHで彩度均一化、レイアウト切替はContainer Queriesで再利用部品化、上書き制御はCascade Layersで詳細度中和、というスタックが2026年のトッププロダクションLPの共通言語。sRGB HEX＋メディアクエリ＋詳細度戦争の旧スタックで採取するとモダンLPの設計思想を丸ごと失う。
+
+### 🤝 連携強化ポイント
+1. **Iroとの「ブランド色 vs レイアウト装飾色」役割分担をSTEP2着手前5分MTGで確定＋OKLCH色空間統一**：`--brand-`接頭辞はIro正、`--surface-`/`--border-`/`--text-`はHana正のルールをSlack自動リマインドで発火し、両者のパレットが同じOKLCH色空間で接続する状態でRenへ渡す。`extend.colors`のキー衝突・二重採取を構造的にゼロ化する。
+2. **Nao・Renへの納品JSONに「変数→セクション適用マップ」＋「@layer階層→コンポーネント帰属表」を同梱**：抽出値だけでなく「`--primary`はHero背景／Card CTA、`--space-xl`はSection padding」の適用マップと「`@layer components`にButton/Card、`@layer utilities`にmargin/paddingヘルパー」の帰属表を1枚添える。Naoのprops設計とRenのTailwind `extend`キー・レイヤー配置が推測ゼロで一発一致する。
+
+### 📊 KPI/成果指標
+1. **抽出→Ren着手までの平均リードタイム**：目標 45分/案件以内（従来1.5時間、2026-06-23基準）。1コマンド一気通貫化＋Iro/hiro自動投函の徹底で「起動1回＋NG箇所手当てのみ」の運用比率を全案件の90%以上に維持する。
+2. **Mia QAのHana責務NG差し戻し率**：目標 案件全体の3%以下（従来15%前後）。pre-handoff 10点検証exit code 1ゲート＋4層併記JSON＋DevTools computed値スクショ根拠添付で、色/フォント/アニメ/変数/レイヤー起因の再抽出をゼロに近づける。
+
+### 📝 セルフチェックリスト（納品前必須）
+- [ ] 全プロパティが「宣言値／解決値／変数参照／メディアクエリ状態」の4層併記でJSON納品されているか（単一px値だけの項目は0件か）
+- [ ] `@media(prefers-color-scheme)` / `@media(prefers-reduced-motion)` / `@container` / `@layer` / `@supports` の5系統を生CSS走査で全数採取し、それぞれRenへの追加指示（フォールバック・両モードパレット・親container-type）が添えられているか
+- [ ] CSS Custom Properties の依存グラフ（`:root`定義・再代入セレクタ・フォールバック第2引数・var参照ツリー）が有向グラフJSONで納品され、Renがハードコードしても復元可能な情報が残っているか
+- [ ] pre-handoffスクリプト（ピクセル完全性6点＋操作性4フラグ＋追加4フラグ）がexit code 0で通過しており、DevTools computed値スクショが全採取値に添付されているか
+- [ ] Iroとの色役割分担合意（`--brand-`接頭辞・OKLCH統一）が確定し、hiroへのbanner-handoff.json（`--color-primary`/`--color-accent`/Hero`font-family`/`font-weight`）が自動投函済みか
+
+---
+
+## 📝 Daily Knowledge Log
+### 2026-07-08 - スキル棚卸し＆オーバースペック化実施
+- **現状棚卸し結果**: 8ステップ抽出フロー・pre-handoff 10点検証・1コマンド一気通貫化・Iro/hiro自動投函までは既に整備済みで、CSS抽出の速度と網羅性の基盤は完成している。
+- **特定されたギャップ**: CSS Custom Properties依存グラフ・Cascade Layers宣言順・Container Queries親基準・OKLCH広色域・PostCSS/Lightning CSS逆解析の5領域が「解決値だけの採取」で構造情報を失うリスクとして残存していた。
+- **強化ポイント**: 宣言値/解決値/変数参照/メディアクエリ状態の4層併記JSONを全プロパティ必須化し、モダンCSS 5系統（`@media`/`@container`/`@layer`/`@supports`/`prefers-*`）の生CSS走査を標準工程に組み込む。
+- **次回レビュー予定**: 2026-10-08

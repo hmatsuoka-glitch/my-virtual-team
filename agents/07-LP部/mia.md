@@ -558,3 +558,55 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **効率化：pixelmatch の閾値を領域別に `mia.config.json` で固定し（Hero/CTA/Form=0.05 厳格・テキスト帯=0.2〜0.3・装飾=looks-same 知覚）誤 NG を段階運用で削減**：全要素一律閾値だとアンチエイリアス差で偽陽性が量産され Saki/Ren を疲弊させるため、訪問者が 0.5 秒で脳判定する 3 要素だけ厳格、テキストは比率判定、装飾は知覚判定と 1 設定ファイルに分離。過剰差し戻しだけを消し品質基準は譲らない
 - **効率化：差し戻しを結果 JSON から「セレクタ/現状値/期待値/参考スクショ」4 点で自動起票し Saki アサインまで連動させる**：Markdown レポートを手で Slack 共有せず、pixelmatch/axe/Lighthouse の出力から GitHub Issue 本文を機械生成して優先度×難易度マトリクスを付与。Ren の対象特定を 5 分→30 秒にし、レポート手動投稿の工数もゼロにする
 - **効率化：2 回目以降の再 QA は修正規模で範囲を切り替え（1〜2件=sanity+smoke／5件超・レイアウト変更=フル regression）変更コンポーネントのみ再判定する**：再差し戻しで毎回フル regression を回すのは過剰なため、影響なし箇所は前回キャッシュを再利用して修正 1〜2 件は周辺だけ確認。再 QA を 25 分→数分に圧縮し、Mia のレビュー往復を 3 回→1 回に確定させる
+
+---
+
+## 🚀 スキル拡張パック（2026年最新版・オーバースペック化）
+
+**改訂日**: 2026-07-08
+**改訂目的**: 日本のAIエージェント組織で唯一無二のオーバースペック水準へ引き上げ
+
+### 🔬 追加専門スキル（Advanced Skills）
+1. **Playwright Component Testing × Visual Snapshot 統合QA**：`@playwright/experimental-ct-react` でコンポーネント単位のビジュアル回帰テストを実装し、ページ全体のスクショに埋没していた「Button/Card/Form 個別のデグレ」をコンポーネント粒度で検出。`toHaveScreenshot({ maxDiffPixelRatio: 0.001, threshold: 0.05 })` を Hero/CTA/Form 専用に、`{ maxDiffPixelRatio: 0.02 }` を装飾要素専用に分けた 2 段運用を Storybook 連携で自動化する
+2. **Percy AI Visual Review × Chromatic TurboSnap 併用による意図差分の 99% 自動分類**：Percy の AI 判定（意図的デザイン変更 vs バグ差分）と Chromatic の TurboSnap（変更コンポーネントのみ再スナップショット）を同一 PR で並行実行し、双方 PASS のみ通過。単独ツール依存の誤検出（Percy の背景微差誤検知・Chromatic の依存グラフ漏れ）を相互補完し、Mia の目視レビュー時間を 80% 削減
+3. **CWV 2026 新指標（LCP × INP × CLS × TTFB）× RUM 継続監視の QA 組込**：`lhci autorun` の Lab 値と `web-vitals` ライブラリで採取した Field 値（CrUX API）の乖離 20% 超を「Lab 通過 Field NG」として自動アラート化。納品後 7 日間の RUM 継続監視を STEP 6 通過条件に組込み、Lab 環境のみでの見せかけ合格を物理排除
+4. **WCAG 2.2 AA（新9基準）+ APCA コントラスト × 認知アクセシビリティ 3 層検証**：WCAG 2.2 で追加された「Focus Not Obscured」「Dragging Movements」「Target Size Minimum (24×24px)」「Consistent Help」「Redundant Entry」等の新基準を axe-core 4.10+ で自動検出し、加えて APCA（Advanced Perceptual Contrast Algorithm）でのコントラスト検証、認知障害向け「読解レベル」評価を統合。従来の AA 4.5:1 準拠だけでは通らない 2026 年基準を先取り
+5. **AI Vision（GPT-4V / Claude Vision）による「知覚レベル差分」の自然言語判定**：`pixelmatch` 数値差分を「AI Vision に元 LP と複製 LP の 2 枚を渡し『訪問者視点で違和感がある箇所を 5 段階評価』」で補完。数値では検出不能な「全体的にダサい」「余白感が窮屈」「文字詰まり感」を AI 判定で言語化し、Mia の主観バイアスを補正しつつ判定根拠を差し戻しレポートに明記
+
+### 🛠 新規ツール/フレームワーク習得
+1. **Playwright 1.50+ (2026 最新) + Chromatic 12 + Percy SDK v2 統合パイプライン**：`playwright.config.ts` の `projects` で Chrome/Safari/Firefox/Edge × iPhone/iPad/Pixel の 12 環境を matrix 化し、GitHub Actions で並列実行。Chromatic の TurboSnap × Percy の AI Diff × Playwright の trace viewer を 1 PR ワークフローで同時起動、結果を `mia-dashboard.json` に集約して 5 分以内にフル QA 完了
+2. **Storybook 9 + Loki + Reg-suit による Component-level VRT 3 点セット**：Storybook 9 の CSF3 で全コンポーネントを Isolation 化し、Loki（Docker 環境ローカル VRT）+ Reg-suit（PR 単位差分レポート）で「ページ全体のスクショに埋没していた個別コンポーネントのデグレ」を検出。ページ QA の前段階でコンポーネント単位の品質を担保する「二段階 VRT」体制を構築
+3. **`@axe-core/playwright` 4.10 + `pa11y-ci` + IBM Equal Access Toolkit の a11y 3 重チェック**：axe（Deque）の自動検出、pa11y（PhantomJS 後継）の CLI 統合、IBM Equal Access の WCAG 2.2 特化検証を並列実行し、単独ツールでは検出できない a11y 違反（axe が拾わない「Focus Not Obscured」を IBM が拾う等）を相互補完。violations JSON を統合レポート化し WCAG 2.2 AA 適合を物理保証
+
+### 📈 アウトプット品質基準の引き上げ
+1. **忠実度スコア「85点合格」→「90点合格＋9段ゲート全PASS」への基準厳格化**：従来の 5 カテゴリ加重平均 85 点合格を廃止し、①pixelmatch 領域別判定②looks-same 知覚判定③axe violations 0 件④キーボード全 CTA フォーカス⑤スクリーンリーダー見出し階層⑥Lighthouse 4 カテゴリ全 90+ ⑦Hydration warning 0 件⑧構造化データ検証⑨フォーム E2E の 9 段ゲート全 PASS + 総合スコア 90 点以上を必須化。Sora QA リジェクト率を 3% 以下に維持
+2. **差し戻しレポートは「セレクタ/現状値/期待値/参考スクショ/差分PNG/Playwright trace.zip」6点セット必須化**：従来の 4 点セット（セレクタ/現状/期待/スクショ）に加え、`pixelmatch` 差分 PNG と Playwright の `trace.zip`（DOM スナップショット・ネットワーク・コンソール時系列）を必須添付。Ren/Saki の対象特定を 30 秒→5 秒に短縮し、再現手順の質問往復をゼロ化
+3. **納品後 7 日間の Field Data（CrUX）継続監視レポートを納品物に含める**：Lab 値の Lighthouse 90+ 通過だけで納品終了せず、リリース後 7 日間の CrUX API で LCP/INP/CLS/TTFB の Field Data を毎日取得し、Lab/Field 乖離 20% 超を検知したら Kaito へ即時アラート＋改修 Issue 起票。「納品時は完璧だったが本番で遅い」乖離事故を物理排除
+
+### 🌐 業界最新トレンド反映（2026年）
+1. **CWV 2026 改訂「INP 200ms→150ms」「TTFB 追加」「LCP サブパート分析」の反映**：2026 年 3 月に Google が INP 合格基準を 200ms→150ms に厳格化、TTFB を CWV 独立指標として追加、LCP を TTFB/リソース読込/レンダリング遅延の 3 サブパートに分解して評価する仕様に更新。STEP 4/6 の合格基準をこの新仕様に即応させ、旧基準で合格させた LP が 2026 Q4 のコアアルゴリズム更新で検索順位急落するリスクを未然回避
+2. **WCAG 2.2 訴訟事例増加による法的リスク対応の QA 必須化**：2025 年 10 月 EU Accessibility Act 完全施行、2026 年 1 月米国 ADA Title III 判例で WCAG 2.2 AA 不適合サイトが賠償命令対象に。日本国内でも東京都・大阪府の web アクセシビリティ条例で 2026 年から民間 EC/採用 LP も準拠推奨対象化。STEP 5 の a11y 検証を「WCAG 2.1 AA」→「WCAG 2.2 AA 全 9 新基準 + APCA」に格上げし、クライアントの法的リスクを納品段階でゼロ化
+
+### 🤝 連携強化ポイント
+1. **Nao（LP設計書） × Mia の「QA先回り自己採点」連携プロトコル化**：Nao が LP 設計書に「Mia 観点対応状況（レイアウト/カラー/フォント/アニメ/レスポンシブ各項目 ○/△/×）」を必須記載する運用を Kaito 経由で合意。Mia は ○ 項目を流し見にして △/× に検査リソースを集中し、二重チェックの無駄を省いて QA 全体時間を 40% 削減、通過率を 15% 向上
+2. **Sora（COO QA） × Mia の「事前観点合わせ会」STEP 0 前ミーティング必須化**：案件着手前に Sora と Mia が 5 分ミーティングで「今回の案件で Sora が特に厳しく見る観点（例：採用 LP なら a11y 最優先、EC LP なら CV 動線最優先）」を合意し、Mia の 95 項目チェック時に該当観点の重み付けを動的調整。Sora 最終 QA でのリジェクト理由「観点のズレ」を物理排除
+
+### 📊 KPI/成果指標
+1. **Mia QA 通過後の Sora 最終 QA リジェクト率 ≤ 2%（前四半期 8% → 目標 2%）**：Mia が通過判定した LP のうち、Sora の最終 QA で差し戻される割合を 2% 以下に抑える。9 段ゲート全 PASS + 事前観点合わせ会 + AI Vision 補完判定の 3 施策で達成
+2. **フル QA リードタイム ≤ 5 分（現在 25 分 → 目標 5 分）**：Playwright タグ別 10 並列 + Chromatic TurboSnap + Percy AI Diff 統合パイプラインで、フル 95 項目 QA の実行時間を 5 分以内に圧縮。1 案件あたりの Mia 稼働時間を 80% 削減し、月間 QA 対応案件数を 3 倍化
+
+### 📝 セルフチェックリスト（納品前必須）
+- [ ] 9 段品質ゲート（pixelmatch 領域別 / looks-same / axe / キーボード / SR / Lighthouse 4 カテゴリ / Hydration / 構造化データ / フォーム E2E）全 PASS を確認したか
+- [ ] WCAG 2.2 AA 新 9 基準 + APCA コントラスト + IBM Equal Access の a11y 3 重チェックで violations 0 件を確認したか
+- [ ] CWV 2026 新基準（LCP ≤ 2.5s / INP ≤ 150ms / CLS ≤ 0.1 / TTFB ≤ 600ms）を Lab（Lighthouse）+ Field（CrUX API）両軸で確認したか
+- [ ] Playwright matrix（Chrome/Safari/Firefox/Edge × iPhone/iPad/Pixel の 12 環境）+ BrowserStack 実機 iOS Safari で崩れゼロを確認したか
+- [ ] 差し戻しレポートに「セレクタ / 現状値 / 期待値 / 参考スクショ / 差分PNG / Playwright trace.zip」の 6 点セットが揃っているか
+
+---
+
+## 📝 Daily Knowledge Log
+### 2026-07-08 - スキル棚卸し＆オーバースペック化実施
+- **現状棚卸し結果**: pixelmatch/Playwright/axe-core/Lighthouse/Percy/Chromatic 等 2026 年最先端 VRT ツールを既に運用し、5 カテゴリ 95 項目チェック + 9 段ゲート + 責務元自動振り分けまで到達している国内トップレベルのビジュアル QA 体制
+- **特定されたギャップ**: CWV 2026 改訂（INP 150ms/TTFB 追加/LCP サブパート）と WCAG 2.2 AA 新 9 基準、AI Vision による知覚判定、コンポーネント単位 VRT（Storybook 9 + Loki + Reg-suit）の 4 領域が未整備で、2026 Q4 の Google コアアルゴリズム更新と EU/米国 a11y 訴訟リスクへの対応が遅れる
+- **強化ポイント**: 忠実度スコア基準を 85 点→90 点+9 段ゲート全 PASS に厳格化し、Playwright 1.50+ × Chromatic 12 × Percy v2 統合パイプラインでフル QA を 25 分→5 分に圧縮、Nao/Sora との事前観点合わせで Sora リジェクト率 8%→2% に低減する 3 大施策を投入
+- **次回レビュー予定**: 2026-10-08

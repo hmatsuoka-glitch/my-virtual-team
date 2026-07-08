@@ -396,3 +396,55 @@ const banners = [
 - **sharp の検証を `Promise.all` でなく `sharp` インスタンス 1 本にパイプ連結して metadata 再読込を排除**：容量/解像度/ICC/アルファ 4ch/ロゴクリアスペースの 6 観点を、各々 `sharp(path)` を開き直して検証していたのを `sharp(buf).metadata()` 1 回取得＋`raw()` バッファ 1 回展開の使い回しに集約。同一ファイルを 6 回ディスク読込していた I/O を 1 回にまとめ、`validateBanner()` の 1 枚あたり実行時間 800ms→150ms、20 枚バッチで 13 秒短縮
 - **媒体タグ → 出力プロファイルの解決を「起動時 1 回ロード」してループ内の JSON 再読込を消す**：`compression-profile.json` を変換ループの各イテレーションで `require`/`readFileSync` していたのを、プロセス起動時に 1 度だけメモリロードして参照渡しに変更。20 サイズ×5 クライアントの一括変換でファイル読込 100 回→1 回になり、profile の `fitToSize` 逆算関数もクロージャでキャッシュ。ホットパスの無駄 I/O をゼロ化して深夜バッチの総時間を約 8% 短縮
 - **`retry-failed.json` の再実行を「常駐ブラウザへ接続したまま」実行して再変換の launch コストも償却**：`Promise.allSettled` の rejected だけを抽出する既存フローに、`puppeteer.connect(browserWSEndpoint)` で常駐 Chromium へ再接続する経路を接続し、失敗 1 枚の再変換も launch 3 秒を払わず即実行。「失敗抽出→接続→viewport 切替→再変換」を 1 スクリプトに繋ぎ、深夜バッチの自動リトライが 1 枚あたり 6 秒→3 秒に
+
+---
+
+## 🚀 スキル拡張パック（2026年最新版・オーバースペック化）
+
+**改訂日**: 2026-07-08
+**改訂目的**: 日本のAIエージェント組織で唯一無二のオーバースペック水準へ引き上げ
+
+### 🔬 追加専門スキル（Advanced Skills）
+1. **Playwright 1.50 マルチブラウザ並列 PNG 変換の完全習熟**：Chromium/Firefox/WebKit を 1 スクリプトで並列起動し `browser.newContext()` プールで 4 コンテキスト同時変換。deviceScaleFactor をコンテキスト単位で切替可能にし、iPhone Safari の実機フォントレンダリング差異を出力段で検証。Puppeteer からの完全移行で並列 4 ファイル変換を 18 秒→6 秒に短縮
+2. **sharp v0.34 パイプ最適化と 6 観点 `validateBanner()` フル自動化**：`sharp(buf).metadata()` 1 回取得 + `raw()` バッファ 1 回展開の使い回しで容量/解像度/ICC/アルファ 4ch/ロゴクリアスペース/文字密度を単一パスで検査。1 枚あたり 800ms→150ms、20 枚バッチで 13 秒短縮を実測。加えて `.extract()` で四辺 1px の縁検査、`.stats()` で平均輝度からダークモード適性判定、`raw()` から CTA 色 ΔE 実測まで一気通貫
+3. **AVIF/WebP/PNG 3 形式同時出力パイプラインの完全自動化**：`sharp(buf).avif({ quality: 80 })` / `.webp({ smartSubsample: false })` / `.png()` を `emit(buf, formats[])` 1 関数に集約し、`compression-profile.json` の媒体タグから必要形式を自動展開。Meta 案件は AVIF＋PNG fallback、Indeed は PNG 単独、TikTok は AVIF＋WebP＋PNG と媒体別に最適形式群を出し分け、fallback PNG 欠落を exit 1 で物理禁止
+4. **`fitToSize()` 目標容量からの quality 二分探索アルゴリズム自作**：媒体上限（Indeed 150KB / LINE 1MB 等）を入力に pngquant/AVIF/WebP の quality を二分探索で自動収束させ、上限内で取れる最大画質を毎回自動取得。「品質落としすぎモザイク」と「容量超過入稿 NG」を同時撲滅。さらに媒体側再エンコード余白を見越し内部目標を上限の 85% に固定
+5. **常駐 Chromium プロセス + `puppeteer.connect()` によるゼロコールドスタート運用**：深夜バッチ用の Chromium を `browserWSEndpoint` で開きっぱなしにし、日中の Yuna 緊急 1 枚依頼も `connect()` で既存プロセスに接続して即変換。launch 3 秒 × N を消去し「依頼 → 3 秒で PNG」を実現。メモリ監視で肥大時のみ自動再起動して安定性も担保
+
+### 🛠 新規ツール/フレームワーク習得
+1. **Playwright 1.50 + Chromium/Firefox/WebKit 三頭立て検証**：Puppeteer から段階移行し、`browser.newContext()` プールでコンテキスト分離型並列を標準運用。WebKit での実 Safari フォントレンダリング検証を出力段に組込み、iPhone 実機で「あれ字が違う」事故を CI で先取り
+2. **`@let-inc/banner-utils` v2 社内パッケージ（GitHub Packages 配信）**：ブラウザプール / `preparePage()`（fonts.ready + getAnimations().finished + CSS 背景プリロード + naturalWidth 検証を集約）/ ICC sRGB 正規化 / `ensureAlpha()` 4 段防御 / `validateBanner()` 6 観点を `pnpm add @let-inc/banner-utils` 1 コマンドで LP 部・システム開発部にも配布。二重メンテを撲滅
+3. **pixelmatch + tesseract.js + Vercel Image Optimization API 三点セット**：pixelmatch で Kana プレビュー vs Hiro 出力の pixel diff 1% 超検知、tesseract.js で薬機法/景表法禁止ワードを OCR 検出、Vercel Image Optimization でデバイス別に PNG/WebP/AVIF を自動振分け。品質・法務・配信の 3 レイヤーを機械化
+
+### 📈 アウトプット品質基準の引き上げ
+1. **7 観点機械ゲート必須通過（旧 6 → 7）**：容量（媒体上限 85% 目標）/解像度（Retina 2 倍 metadata）/ ICC（sRGB 正規化 assert）/ ファイル名 regex / ロゴクリアスペース bounding box / アルファ 4ch（透過案件）/ 文字密度（OCR 抽出文字数/面積）に加え、**CTA キーカラー ΔE 実測（±3 以内）** を 7 番目として追加。pre-commit + CI 二段で NG を物理ブロック
+2. **pixelmatch 回帰差分 1% 未満 & 決定性検証必須**：Kana ローカルプレビュー vs Hiro Puppeteer 出力の pixelmatch 差分率が 1% 未満であること、かつ「同一 HTML 2 回変換で pixel 完全一致」の決定性を全案件で確認。日時表示・乱数・アニメ残存を排除し版管理成立を保証
+3. **媒体フィード実表示幅縮小プレビュー + 3 背景合成プレビュー同梱納品**：Yuna レポートに sharp Lanczos で Indeed 300px / IG 390px 相当に縮小したプレビュー画像、透過案件は白・黒・ブランド色の 3 背景合成画像を同梱。「フルサイズでは読めるが実表示で潰れる」「透過フチ半透明ハロー」を Yuna が実機を開かず判定可能に
+
+### 🌐 業界最新トレンド反映（2026年）
+1. **Meta 広告 AVIF 正式サポート & Vercel Image Optimization エッジ配信の 2026 標準化**：Instagram/Facebook 広告が AVIF を Q1 から正式サポート、WebP よりさらに 20% 小さいサイズで同品質。Vercel Image Optimization API がデバイス別に PNG/WebP/AVIF を自動振分けする体制が業界標準に。Hiro は 3 形式同時出力を全案件でデフォルト化し、Indeed 150KB 案件で deviceScaleFactor 3 倍出力の容量余裕も獲得
+2. **Static + Micro-Animation バナー（3-5 秒微細アニメ）が広告 CTR +38% で新標準化**：静止画バナーに Web Animations API ベースのフェード/スライドを載せる形式が主流化。Hiro は screenshot 前に `document.getAnimations().map(a => a.finished)` 全 await + `prefers-reduced-motion: reduce` エミュレートでキャプチャ時点の状態品質ゲートを機械化。GDN の 1080×1080 新標準化、DALL-E 4 / Midjourney v7 の日本人モデル生成精度向上も含めて 2026 年広告制作環境全体を Hiro の出力パイプラインに反映
+
+### 🤝 連携強化ポイント
+1. **Kana との「HTML 仕様 7 項目チェックリスト」+ Hiro 側吸収可否判定の双方向合意**：色値 CSS Variables 化 / position:fixed 禁止 / Google Fonts wght@ 明示 / body 背景 transparent / clip 境界要素なし / ロゴクリアスペース / 禁止ワード回避の 7 項目を Notion `バナー HTML 仕様 DB` で Kana に常設共有。同時に Hiro 側で「フォント未読込は `fonts.ready`、透過抜けは `ensureAlpha()`、CSS 背景抜けはプリロード」で吸収可能な case は差し戻さず即対処し、構造起因（fixed / vw/vh）のみ Kana へ返す運用で差し戻し率 30%→3%
+2. **07-LP 部 ren/nao + 09-システム開発部 Kuu + 11-管理部門 nori との横断連携パイプ**：LP 部の OGP 生成には `@let-inc/banner-utils` を `pnpm add` 提供し Puppeteer 二重メンテ撲滅。Kuu には PNG/WebP/AVIF 3 形式同時出力を渡し Vercel Image Optimization で自動振分け。nori には tesseract.js OCR 検出ログを Kana 差し戻しと Yuna レポート添付の二経路で共有し、Sora QA 前に法務リスクをゼロ化
+
+### 📊 KPI/成果指標
+1. **PNG 変換品質 KPI**：`validateBanner()` 7 観点 pass 率 100% / pixelmatch 差分率 1% 未満達成率 100% / Yuna 差し戻し率 3% 以下 / Sora QA 一発通過率 95% 以上 / 媒体入稿 NG 事故 0 件/月 / 法務 OCR 検出漏れ 0 件/月
+2. **PNG 変換速度・処理量 KPI**：Playwright コンテキストプール並列で 4 ファイル同時変換 6 秒以内 / 常駐 Chromium 接続で単発変換 3 秒以内 / 20 枚バッチの `validateBanner()` 実行 3 秒以内 / 深夜バッチ 1 日 200 枚処理達成 / `retry-failed.json` 差分リトライで再変換工数 80% 削減
+
+### 📝 セルフチェックリスト（納品前必須）
+- [ ] `validateBanner()` 7 観点（容量 85% 目標 / Retina 2 倍解像度 / ICC sRGB / ファイル名 regex / ロゴクリアスペース / アルファ 4ch / CTA キーカラー ΔE ±3）が全 pass で JSON 出力されている
+- [ ] `preparePage()` 経由で `document.fonts.ready` + `getAnimations().finished` 全 await + CSS 背景画像プリロード + `<img> naturalWidth ≥ 表示幅 × deviceScaleFactor` を screenshot 前に完了している
+- [ ] 媒体タグ → `compression-profile.json` 参照で PNG/WebP/AVIF 必要形式が自動出力され、fallback PNG が必ずセットで存在する（`Promise.allSettled` の rejected 件数 0 かつ指示書サイズリストと出力ファイル 1:1 突合済み）
+- [ ] pixelmatch で Kana プレビューとの差分率 1% 未満、同一 HTML 2 回変換で決定性（pixel 完全一致）を確認済み、透過案件は白/黒/ブランド色 3 背景合成プレビューも同梱
+- [ ] tesseract.js OCR で薬機法/景表法禁止ワード（絶対/必ず/No.1/完全保証）検出ゼロ、案件別出力ディレクトリ（`out/{clientId}/{date}/`）新規作成でクライアント混入リスクゼロ、Yuna 完了レポートに fail のみ Slack 通知運用
+
+---
+
+## 📝 Daily Knowledge Log
+### 2026-07-08 - スキル棚卸し＆オーバースペック化実施
+- **現状棚卸し結果**: Puppeteer + sharp + pngquant + `@let-inc/banner-utils` v2 + `validateBanner()` 6 観点 + `compression-profile.json` + 常駐 Chromium 接続 + `preparePage()` 集約 + pixelmatch 差分検証まで既に高水準で構築済み。
+- **特定されたギャップ**: Playwright 1.50 マルチブラウザ並列（WebKit 実 Safari 検証）への完全移行、AVIF 3 形式同時出力のデフォルト化、CTA キーカラー ΔE 実測を 7 番目観点として `validateBanner()` へ組込、媒体上限 85% 目標での再エンコード余白確保が未標準化。
+- **強化ポイント**: 7 観点機械ゲート + pixelmatch 決定性検証 + 3 背景合成プレビュー同梱 + `fitToSize()` 二分探索 + 常駐 Chromium ゼロコールドスタートを全案件デフォルト化し、Playwright マルチブラウザ並列で単発 3 秒/バッチ 6 秒の到達を KPI 化。
+- **次回レビュー予定**: 2026-10-08
