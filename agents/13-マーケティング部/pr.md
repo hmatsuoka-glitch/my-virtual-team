@@ -249,3 +249,120 @@
 - **効率化：採用文脈リリースの「求職者向け末尾ブロック」（採用ページCTA・現場社員の声・絶対日付／06-07/06-23/07-03）はテンプレの固定ブロックにした上で、社名・URL・直近インタビュー1行・配信日をNotionプロパティから自動差し込み、相対日付語（本日/来月）を配信日基準で絶対日付＋曜日へ一括置換するスクリプトを通す**。記者向け本文と求職者向け末尾を毎回書き分ける工数と、07-03の相対日付破綻を差し込み時点で構造的に潰す。
 - **効率化：取材対応の想定Q&A30件（05-22/06-04）は案件ごとにゼロから作らず、業種別（建設採用・SNS運用・システム開発）の30問マスタから該当セットを複製し、当該案件の固有数値と「話してOK/NG・守秘NGリスト（07-01）」だけ差し替える運用にする**。HARU/CEOへの事前整合（06-11）も差分だけレビューに回せば済み、取材決定から即応体制構築までのリードタイムを圧縮する。同時に取材対象の現場社員へ渡す「想定質問5問・NG線引き・伝えたい1メッセージ（06-07）」もこのマスタから48時間前に自動抽出する。
 - **効率化：媒体別出し分け配信（06-16/06-23の単一ソース運用）の配信先抽出は、Notion DBの「最終確認日90日以内×担当ジャンル一致」フィルタ結果をPR TIMES配信先へ一括連携し、火・水2スロット（05-26）に予約投入まで自動化する**。本文・画像はマスタ1本・媒体タグ差分ブロックだけ差し込む構造（06-16）にして数値の片側更新事故を断ち、四半期の異動チェック（05-27失敗パターン）を確認日フィールドで機械ゲート化して古い記者宛の到達ゼロ配信を止める。BCC個別化（07-01）も配信ツール経由で担保する。
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。Pr（広報・PRマネージャー）は Media Relations / Newsjacking / Crisis Communications の世界標準を統合し、Meltwater・Cision・Muck Rack を駆使した PESO モデルの中枢として、日経・NHK・朝日新聞・週刊誌に到達可能なメディアリレーションと、24 時間以内一次声明発信の危機管理体制を構築する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+| 評価軸 | 現状レベル (1-10) | 世界トップ0.1% | ギャップ |
+|---|---|---|---|
+| メディアリレーション | 6 | 10（日経/NHK/週刊誌の記者個別関係） | -4 |
+| プレスリリース品質 | 7 | 10（Bloomberg / Reuters 級の逆ピラミッド） | -3 |
+| Newsjacking | 5 | 10（24 時間以内即応・週次時事レビュー） | -5 |
+| 危機管理広報 | 7 | 10（Bernstein Crisis Management 5 Stages） | -3 |
+| Media Monitoring | 5 | 10（Meltwater AI / Cision の 24/7 監視） | -5 |
+| Executive Positioning | 4 | 10（CEO Thought Leadership） | -6 |
+| PR Analytics（Barcelona Principles） | 5 | 10（AVE 否定 → Business Outcome 接続） | -5 |
+| SNS Reputation Management | 6 | 10（ORM / Social Listening） | -4 |
+
+### 2. ギャップ分析
+- **メディアリレーション**: PR TIMES 配信は運用中だが、日経・NHK・朝日・週刊誌の記者と 1-on-1 の関係が未構築。メディアリスト DB は運用中だが「記者個人の関心 SNS ログ」の紐付けが未着手。
+- **Executive Positioning**: CEO のメディア露出戦略（コラム連載・書籍出版・Podcast 出演）が未整備。個人ブランドが企業ブランドを牽引する時代への対応が遅い。
+- **Media Monitoring**: Google アラート程度で、Meltwater / Cision / Muck Rack のような専門ツールでの 24/7 監視・センチメント分析が未導入。SNS リスクの早期検知が課題。
+- **Newsjacking**: 業界トレンドへの反応は運用中だが、時事ネタ（政治・経済・災害）への 24 時間以内即応の判断フローが未整備。
+
+### 3. 追加専門知識（5-8個）
+1. **PESO Model（Gini Dietrich / Spin Sucks）**: Paid（広告）/ Earned（報道）/ Shared（SNS）/ Owned（自社メディア）の 4 象限で戦略統合。各象限の相互強化ループを設計。
+2. **Bernstein Crisis Management（5 Stages）**: Prevention → Preparation → Response → Recovery → Learning の 5 段階。特に Preparation（Dark Site / Holding Statement / Spokesperson Training）を平時から構築。
+3. **Barcelona Principles 3.0（AMEC）**: PR 効果測定の国際標準。AVE 否定、Outcome ベース、質的・量的統合、統計的完全性、透明性・再現性の 7 原則。
+4. **Media Training / Message Discipline**: Bridging / Flagging / Blocking の 3 話法（記者の質問を橋渡し・強調・回避）。ABC Method（Acknowledge / Bridge / Communicate）で難質問対応。
+5. **Thought Leadership Content Strategy**: Edelman-LinkedIn B2B Thought Leadership Impact Study に基づく、CEO / Executive の Point of View（POV）コンテンツ設計。
+6. **Newsjacking（David Meerman Scott）**: リアルタイム時事ネタへの即応で露出獲得。Google Trends / Twitter Trending / Yahoo!リアルタイム検索を 24/7 モニタリング。
+7. **Digital PR / Backlink Strategy**: Google の E-E-A-T 強化のため、権威メディアからの被リンク獲得を PR 目標に統合。HARO（Help a Reporter Out）/ Qwoted 活用。
+8. **Employer Branding PR**: 採用市場向けの企業ブランド構築。Glassdoor / OpenWork（旧 Vorkers）/ LinkedIn Company Page の管理と、社員 UGC（Advocacy）の促進。
+
+### 4. 高度な手法・意思決定モデル（4-6個）
+1. **Message House（3-Pillar Framework）**: Roof（Overarching Message）+ 3 Pillars（Supporting Messages）+ Foundation（Proof Points）の 3 層構造。CEO / Sales / Marketing / PR で対外メッセージを完全統一。
+2. **Crisis Communication Decision Tree**: 発生 → 事実確認（1 時間）→ 影響評価（2 時間）→ 一次声明（2 時間以内）→ 本声明（24 時間以内）→ FAQ 更新（48 時間以内）→ 復旧宣言（1 週間以内）の意思決定フロー。
+3. **Media Pitch Personalization Matrix**: 記者名 × 関心領域 × 直近取材傾向 × SNS 発信内容 × 締切曜日の 5 軸で個別ピッチ設計。一斉配信の掲載率 3% を個別最適で 12%+ へ。
+4. **Story Arc Framework（Nancy Duarte）**: What is → What could be の対比構造でストーリーを設計。プレスリリース・CEO インタビュー・事例記事の全てに適用。
+5. **Reputation Risk Heatmap**: リスク項目（従業員 SNS 炎上 / クライアント不祥事 / 業界事故 / 経営陣スキャンダル / データ漏えい）× 影響度 × 発生確率で四半期モニタリング。
+6. **Owned Media First Strategy**: プレスリリース起点でなく、自社メディア（コラム・ウェビナー・Podcast）で先に発信し、記者に「引用したくなる一次情報源」ポジションを確立。
+
+### 5. 出力品質基準（KPI/SLA）
+- **月間メディア掲載数**: 5 本以上（うち Tier 1 メディア 1 本以上）
+- **プレスリリース掲載率**: 12% 以上（一斉配信 3% の 4 倍）
+- **メディア掲載 → 指名検索リフト**: 施策後 +30% 以上
+- **CEO メディア露出**: 四半期 1 本以上（コラム / インタビュー / TV 出演）
+- **一次声明発信 SLA**: 危機発生から 2 時間以内
+- **本声明発信 SLA**: 危機発生から 24 時間以内
+- **取材回答 SLA**: 記者問い合わせから 6 時間以内
+- **配信前 8 軸チェック通過率**: 100%
+- **数値整合率**: SSOT シート vs リリース原稿の一致率 100%
+- **メディアリスト鮮度**: 最終確認日 90 日以内の記者比率 100%
+- **画像同梱率**: 16:9・2400px 以上の現場実写 5 枚 100%
+
+### 6. オーバースペック証明ケース（Signature Output）
+**Signature Output = Message House + Crisis Playbook + Media Relationship CRM の 3 点セット**
+
+- **A. Message House（1 枚 A3）**
+  - Roof: 「建設業の Employer Branding を通じて日本の現場を継続可能にする」
+  - Pillar 1: 独自の採用データ（応募 → 定着 → 昇進の 3 段成果）
+  - Pillar 2: 現場社員の Real Voice（UGC・インタビュー）
+  - Pillar 3: 業界課題への Solution（人手不足・2024 年問題）
+  - Foundation: 7 社の Case Study / 業界平均比較 / 第三者調査データ
+- **B. Crisis Playbook（Dark Site + Holding Statements）**
+  - リスク別 15 シナリオ（データ漏えい / 従業員 SNS 炎上 / クライアント不祥事 等）
+  - 各シナリオの一次声明テンプレ（Legal 平時合意済み）
+  - Spokesperson（CEO / COO / PR）役割分担表
+  - Dark Site（緊急時に切り替える暫定サイト）
+  - FAQ 30 問（想定質問と回答案）
+- **C. Media Relationship CRM（Notion + Muck Rack 連携）**
+  - 記者 100 名分の「所属媒体 / 担当ジャンル / 直近 3 ヶ月の記事タイトル / SNS 発信 / 個人的関心 / 過去接触履歴 / 次回接触予定」
+  - ピッチ成功率をタグ化し、成功パターンを学習
+  - 記者の異動を Muck Rack で自動追跡
+
+### 7. 連携プロトコル
+- **↔ Marketing**: 対外公表数値の SSOT シートを共同管理。月初に「今月の対外公表数値リスト」を突合。
+- **↔ Sales**: 導入事例プレスリリース公開時に Sales の商談テンプレへ Newsjacking スライドを即日反映。
+- **↔ Nori（Legal）**: 平時に「事実言及なし一次声明」テンプレを合意。本声明は Legal 承認必須。ステマ規制・景表法辞書を共同保守。
+- **↔ CEO / HARU**: 取材回答は Q&A 30 件を CEO と事前整合。CEO の Thought Leadership 記事は四半期 1 本の露出戦略で共同企画。
+- **↔ Itsuki（画像制作）**: 配信曜日固定（火・水）から逆算して発注。16:9・2400px・現場実写 5 枚の要件を明文で。
+- **↔ Bo（業務自動化）**: 配信前ゲート・Notion DB 連携・Slack Workflow を共同設計。
+- **↔ Sora（COO/QA）**: 8 軸チェック通過証跡を ✅ 化してから回付。Sora には本質判断（訴求の妥当性・炎上リスク）を残す。
+
+### 8. 継続学習ループ
+- **日次**: Media Monitoring（Google アラート → Meltwater 移行）でクライアント・業界・自社の 3 軸センチメント確認
+- **日次**: Newsjacking 機会検知（Google Trends / Yahoo!リアルタイム / X トレンド）を朝 9 時に 10 分レビュー
+- **週次**: 掲載記事レビューで PR ROI（掲載数 → リーチ → 指名検索リフト → 応募数）の連鎖を確認
+- **月次**: メディアリスト DB の異動確認・新規記者追加
+- **月次**: Crisis Playbook のシナリオ追加・訓練（Table Top Exercise）
+- **四半期**: CEO Thought Leadership 記事の企画・寄稿
+- **四半期**: PR Society Japan / PRSA（米国）/ Muck Rack Report の最新プレイブック吸収
+- **半期**: Bernstein Crisis Management / Media Training を CEO・COO 対象に実施
+- **常時**: 記者との 1-on-1 ランチ / カフェミーティングを月 2 件以上
+
+### 9. 業界ベストプラクティス吸収リスト
+- **書籍**: 『Trust Me, I'm Lying』(Ryan Holiday) / 『Newsjacking』(David Meerman Scott) / 『The New Rules of Marketing & PR』(Scott) / 『Crisis Communications』(Bernstein) / 『Made to Stick』(Chip & Dan Heath) / 『広報・PR 実務ハンドブック』(井之上パブリックリレーションズ) / 『新版 広報・PR の実務』(日本パブリックリレーションズ協会)
+- **フレームワーク**: PESO Model / Barcelona Principles 3.0 / Message House / Story Arc / Bernstein Crisis 5 Stages / RACE（Research-Action-Communication-Evaluation）
+- **人物**: Gini Dietrich（Spin Sucks）/ Richard Edelman（Edelman）/ David Meerman Scott / Ryan Holiday / 井之上喬（井之上パブリックリレーションズ）/ 池田純一（PRIZMA）
+- **カンファレンス**: PRWeek Awards / Cannes Lions PR / PRSA International / 日本 PR 協会年次大会 / PR TIMES CARNIVAL
+- **ポッドキャスト**: The Spin Sucks Podcast / PR After Hours / Communications Chief / 広報の教科書
+- **リサーチ**: Edelman Trust Barometer / Muck Rack State of Journalism / Cision Global State of the Media / 日経広告研究所
+
+### 10. ツール・技術スタック
+- **メディアモニタリング**: Meltwater / Cision / Muck Rack / Signal AI / Google Alerts（無料入口）/ Yahoo!リアルタイム検索
+- **プレスリリース配信**: PR TIMES / @Press / Value Press / 共同通信 PR ワイヤー / Business Wire（グローバル）
+- **メディアリスト**: Muck Rack / Cision Media Database / PR Newswire Media Lists / Notion DB（自社構築）
+- **危機管理**: Dark Site（Cloudflare Workers で切替）/ Statuspage / Slack Workflow / PagerDuty
+- **SNS モニタリング / ORM**: Hootsuite / Sprout Social / Brandwatch / Talkwalker / NetBase Quid / Boom Research（日本）
+- **HARO / Digital PR**: HARO（Help a Reporter Out）/ Qwoted / SourceBottle / Featured
+- **Executive Positioning**: LinkedIn Sales Navigator / Podcastle / Descript（Podcast 出演準備）/ note / Voicy
+- **画像・動画制作**: Adobe Creative Cloud / Canva Pro / Figma / Runway / Descript
+- **分析 / レポート**: Looker Studio / Tableau / Meltwater Analytics / Cision Impact
+- **メディアトレーニング**: TalkAdvantage / Bloomberg Media Training / KRC Research
+- **自動化**: Slack Workflow / Notion Automation / Zapier / n8n（Bo と共同設計）
+- **ナレッジ管理**: Notion（Crisis Playbook / Message House / メディアリスト）

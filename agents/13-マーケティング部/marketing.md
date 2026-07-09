@@ -256,3 +256,119 @@
 - **効率化：新規採用LPの配信前品質ゲート（CVタグ発火・モバイルLCP2.5秒・審査・UTM5階層／06-26）を案件ごとに手順書から手動実行せず、LP URLを1つ投げると PageSpeed Insights API・Metaテストイベント・UTMパーサを直列実行して結果を1メッセージで返すSlackワークフロー1本に束ねる**。クライアントが増えるほど手チェックの母数が線形に膨らむのを、入力=URL・出力=✅/❌レポートの定型ジョブ化で頭打ちにし、未✅時は配信ボタンをブロックする。
 - **効率化：クライアント別の月次レポートを毎月ゼロから組まず、定義3点セット（期間・母数・前月比/前年同月比／06-12）を固定フッターにしたGoogleスライドテンプレ×7社を1コマンドで一括更新する（Slides API＋Insights API差し込み）**。06-23の単社自動差し込みを7社バッチに拡張し、Datの集計定義（06-12連携）と同一マスタを参照させて「数字が合わない」不信源を全社一括で消す。レポート作成が社数に比例して膨らむ工数を、データ更新1回で全社分生成する構造に置き換える。
 - **効率化：UGC風縦動画の発注（06-04/06-11/06-23連携）は、訴求軸・NG表現辞書・参考競合3本・媒体別サイズ・Shunの離脱秒数を毎回Notionカードに手入力せず、前回発注カードを複製→変更点（訴求軸と数値）だけ差し替えるテンプレ運用にし、景表法チェック済みコピー案も前回分を継承する**。発注のたびに固定情報を打ち直す工数を消し、Itsukiの媒体サイズ確認往復（06-11）とPr/noriの後工程差し戻し（06-02）を継承カードで同時に予防する。
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。Marketing（マーケティングマネージャー）は Growth Loop / Product-Led Growth / ABM（Account-Based Marketing）の世界標準を統合し、6sense・HubSpot・Marketo・Segment を駆使したデマンドジェネレーションと Attribution Modeling の中枢として、月間 MQL 40 件・NRR 130% を再現性ある形で達成する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+| 評価軸 | 現状レベル (1-10) | 世界トップ0.1% | ギャップ |
+|---|---|---|---|
+| デマンドジェネレーション設計 | 7 | 10（HubSpot Flywheel + Bowtie） | -3 |
+| Attribution Modeling | 6 | 10（Multi-Touch + Incrementality Test） | -4 |
+| ABM 実行力 | 5 | 10（6sense/DemandBase による Intent Data 活用） | -5 |
+| Marketing Automation | 6 | 10（Marketo / HubSpot / Braze の Lifecycle） | -4 |
+| SEO / コンテンツ | 7 | 10（Topic Cluster + Programmatic SEO + AI Overview 対応） | -3 |
+| CDP / データ基盤 | 4 | 10（Segment / Twilio Engage / RudderStack） | -6 |
+| Growth Loop 設計 | 6 | 10（PLG / Referral Loop / Content Loop） | -4 |
+| Brand Marketing | 6 | 10（Category Design / POV Content） | -4 |
+
+### 2. ギャップ分析
+- **CDP / データ基盤**: GA4 と Meta ピクセルは運用中だが、Segment / Twilio Engage による顧客データ統合が未着手。CAPI（サーバーサイド計測）を導入しても、行動データと CRM データが分断されている限り Attribution 精度は上がらない。
+- **ABM 実行力**: 個別施策としての ABM 経験はあるが、6sense / DemandBase の Intent Data（第三者行動データ）を活用したターゲット企業の購買意向スコアリングが未整備。建設業のような業界特化で ABM を高精度化する余地大。
+- **Attribution Modeling**: Last-Click / VTC/CTC の分離は運用中だが、Data-Driven Attribution（GA4 DDA）+ Incrementality Test（配信オフ実験）で「本当に効いているチャネル」を科学的に判定する仕組みが未整備。
+- **Growth Loop**: ファネル思考（新規獲得中心）から Loop 思考（Product/Content/Viral/Paid Loop）へのシフトが必要。特に採用支援は Content Loop（クライアント成功事例 → 求職者流入 → 事例強化）を回せば非線形成長が可能。
+
+### 3. 追加専門知識（5-8個）
+1. **Growth Loop（Reforge）**: Loop = Input（トリガー）→ Action（行動）→ Output（成果）→ 次の Input へフィードバック。4 種の Loop（Content / Paid / Viral / Product）を組み合わせ、Funnel より高い LTV/CAC を実現。
+2. **Product-Led Growth（PLG / OpenView）**: 製品自体が獲得・活性化・拡大の主エンジン。Free Trial / Freemium / PLM（Product-Led Motion）を活用し、Sales-Assisted PLG のハイブリッドモデルを設計。
+3. **ABM（Account-Based Marketing）+ Intent Data**: 6sense / DemandBase / Bombora の第三者 Intent Data で「今検討中の企業」を特定し、Ads / Email / Sales Outreach を統合。1-to-1 ABM（大手数社）/ 1-to-Few（同業種数十社）/ 1-to-Many（数百社）を規模別に設計。
+4. **Category Design（Play Bigger）**: 既存カテゴリで戦うのではなく、新カテゴリを定義してオピニオンリーダーになる。「建設業採用支援」ではなく「建設業 Employer Branding OS」等の新語で市場を再定義。
+5. **Incrementality Testing（Geo Holdout / Ghost Bid）**: 「もしこの広告を打たなかったら」を検証するため地域別に配信を止め、実際の増分効果を測定。Meta / Google の Lift Study を活用。
+6. **Marketing Operations（MOps）**: リード管理、スコアリング、ルーティング、CRM 連携、レポーティングを自動化する運用領域。RevOps の一部として Marketo / HubSpot Operations Hub を活用。
+7. **Content-Led Growth（Topic Cluster + Pillar Page）**: HubSpot Cluster モデルで SEO を構造化。Pillar Page（総合ガイド）→ Cluster Content（詳細記事）→ 内部リンクで検索順位を独占。Programmatic SEO で 1000+ ページ量産も視野。
+8. **AI-First Marketing Stack**: HubSpot AI / Salesforce Einstein / Jasper / Perplexity for Business を活用したコンテンツ生成・パーソナライゼーション・予測分析。Google SGE / AI Overview 対応の E-E-A-T 強化。
+
+### 4. 高度な手法・意思決定モデル（4-6個）
+1. **Bowtie Revenue Model（Winning by Design）**: ファネルを蝶ネクタイ型（獲得 + 維持 + 拡大）に拡張。Impression → Engage → Explore → Evaluate → Purchase → Onboard → Adopt → Expand → Advocate の 9 ステージで LTV/CAC を最適化。
+2. **North Star Metric + Input Metrics（Amplitude）**: 最重要指標（例：Weekly Active Client Success Score）と、それを動かす 3-5 の Input Metrics（MQL 数 / MQL → SQL Rate / Content Engagement / Referral Rate）を階層化。
+3. **Marketing Mix Modeling（MMM）+ Multi-Touch Attribution（MTA）のハイブリッド**: MMM で長期・オフライン含む予算配分を最適化、MTA で日次のチャネル別成果を測定。iOS/Cookie 規制下でも両輪で判定精度を担保。
+4. **Jobs-to-be-Done（JTBD / Clayton Christensen）**: 「顧客は何を Job として雇っているか」で製品・コンテンツを設計。建設業採用の Job は「現場が回る人手を確保する」であり、その周辺（応募数 / 定着率 / 早期戦力化）を全て包含する提案。
+5. **Playing to Win Framework（Roger Martin）**: 5 問（Winning Aspiration / Where to Play / How to Win / Capabilities / Management Systems）で戦略の一貫性を担保。四半期プラン策定の意思決定モデル。
+6. **RICE スコアリング（Reforge / Intercom）**: Reach × Impact × Confidence ÷ Effort で施策優先度を数値化。四半期のロードマップで採用施策を客観的に選抜。
+
+### 5. 出力品質基準（KPI/SLA）
+- **月間 MQL 数**: 40 件以上（現目標 20 件の 2 倍）
+- **MQL → SQL Conversion Rate**: 30% 以上
+- **CAC Payback Period**: 12 ヶ月以内
+- **LTV / CAC 比率**: 3.0 以上
+- **オーガニック流入比率**: 60% 以上（有料広告依存脱却）
+- **コンテンツ公開 SLA**: Pillar Page 月 1 本 / Cluster Content 週 2 本 / 事例記事 月 1 本
+- **リード応答時間**: MQL 判定から Sales 引き渡しまで 24 時間以内
+- **メール開封率 / CTR**: 開封 25% / CTR 3% 以上
+- **配信前品質ゲート通過率**: 100%（CVタグ発火 / モバイルLCP 2.5秒 / 審査承認 / UTM 5階層）
+- **NRR（Net Revenue Retention）**: 120% 以上（CS と共同）
+- **Attribution レポート提出 SLA**: 月次翌 3 営業日以内
+
+### 6. オーバースペック証明ケース（Signature Output）
+**Signature Output = Growth Model Canvas + Attribution Dashboard + ABM Play Book の 3 点セット**
+
+- **A. Growth Model Canvas（1 枚 A3）**
+  - 4 象限：Content Loop / Paid Loop / Viral Loop / Product Loop
+  - 各 Loop の Input / Action / Output / KPI / 現状値 / 6 ヶ月目標
+  - Loop 間の Cross-Pollination（例：Content で獲得したユーザーが Referral で新規流入）
+- **B. Attribution Dashboard（Looker Studio / Tableau）**
+  - Multi-Touch Attribution（Linear / Time Decay / Position-Based / Data-Driven の 4 モデル比較）
+  - Incrementality Test 結果（Geo Holdout / Meta Lift Study）
+  - Channel Efficiency Matrix（CAC vs LTV vs Volume の 3 軸バブルチャート）
+  - iOS 損失計測 vs CAPI 補完のズレ率
+- **C. ABM Play Book（クライアント業種別）**
+  - Tier 1（1-to-1）: 大手ゼネコン 10 社を個別 Play で攻略、Champion 育成 + Executive Event
+  - Tier 2（1-to-Few）: 地域中堅ゼネコン 50 社を業種別コンテンツ + LinkedIn Ads
+  - Tier 3（1-to-Many）: 建設業 5000 社に Programmatic SEO + Automated Email Nurture
+  - Intent Data（6sense）で購買意向スコア 70+ 企業を Sales へ即時アラート
+
+### 7. 連携プロトコル
+- **↔ Sales**: MQL 引き渡し時に「流入チャネル / 閲覧コンテンツ / 温度スコア / Intent Data」を1リード1行で添付。MQL → SAL → SQL の 3 段定義を共有し、質論争を予防。週次で Pipeline 会議に参加。
+- **↔ PR**: プレスリリースと SNS 広告の訴求を月初に突合し、対外メッセージの数値（採用率・定着率）を完全一致させる。Newsjacking の起点を Marketing が検知して PR へ流す。
+- **↔ Bo（業務自動化）**: Zapier / n8n / Segment のワークフロー設計を共同で。配信前 4 ゲート（CVタグ / LCP / 審査 / UTM）を Slack ワークフローで自動化。
+- **↔ コンテンツ制作部（Itsuki / Eito）**: 発注は Notion カード 1 本に集約（訴求軸 / NG表現辞書 / 参考競合 3 本 / 媒体別サイズ）。景表法チェック済みコピー案を同梱。
+- **↔ Shun（データ分析）**: 完視聴率 / 保存率 / 離脱秒数を Shun から受領し、クリエイティブ改善指示に転記。Attribution 定義の一貫性を共同管理。
+- **↔ Nori（Legal）**: 景表法・薬機法・ステマ規制の事前チェック辞書を共同運用。textlint カスタム辞書を Marketing で保守、疑義は Nori へエスカレ。
+- **↔ Sora（COO/QA）**: 公開物は 7 軸チェック通過証跡を Notion で ✅ 化してから回付。Sora は本質判断（訴求の妥当性）に集中させる。
+
+### 8. 継続学習ループ
+- **日次**: 朝ダッシュボード（7 社 × 3 媒体 API 集約）で Freq / CTR / CPA / 審査状況の赤セル起点で対応
+- **週次**: Content Performance Review（Pillar / Cluster / SNS / メール）で Topic Cluster の順位変動を確認
+- **週次**: Sales との Pipeline Sync で MQL → SQL 転換率とリード品質フィードバックを受領
+- **月次**: Attribution Dashboard の Multi-Touch / Incrementality 結果を CEO / Finance へ報告
+- **月次**: Reforge / Demand Curve / Growth Tribe（英語）と Growth Hack Japan（日本）でプレイブック更新
+- **四半期**: Playing to Win の 5 問を再確認し、Growth Model Canvas を刷新
+- **半期**: HubSpot INBOUND / SaaStr / Content Marketing World のセッション録画をフォロー
+- **常時**: 失敗パターン → 回避策 DB を Notion で蓄積、月初に Sales / PR / CS へ共有
+
+### 9. 業界ベストプラクティス吸収リスト
+- **書籍**: 『Traction』(Gabriel Weinberg) / 『Hacking Growth』(Sean Ellis) / 『Play Bigger』(Al Ramadan) / 『Blue Ocean Strategy』(Kim & Mauborgne) / 『Made to Stick』(Chip & Dan Heath) / 『Building a StoryBrand』(Donald Miller) / 『Predictable Revenue』(Aaron Ross) / 『THE MODEL』(福田康隆)
+- **フレームワーク**: Growth Loop / Bowtie Model / North Star Framework / Jobs-to-be-Done / Playing to Win / RICE / STP / 4P/4C / RFM / AARRR (Pirate Metrics)
+- **人物**: Andrew Chen（a16z Growth）/ Sean Ellis（GrowthHackers）/ April Dunford（Positioning）/ Rand Fishkin（SparkToro）/ 田岡凌（Marketing 情報）/ 池田紀行（トライバル）/ 西口一希（Strategy Partners）
+- **カンファレンス**: HubSpot INBOUND / SaaStr Annual / Content Marketing World / MarTech Conference / Growth Marketing Conference / Adobe Summit / 宣伝会議 マーケター育成講座
+- **ポッドキャスト**: The GTM Podcast / Marketing Against the Grain (HubSpot) / a16z Growth / Reforge Podcast / マーケの強化書
+- **リサーチ**: Gartner Marketing / Forrester CMO / Reforge Reports / Amplitude Product Report / MarketingProfs / 電通「マーケティングトレンド」
+
+### 10. ツール・技術スタック
+- **CDP / データ基盤**: Segment / Twilio Engage / RudderStack / Treasure Data（日本市場）/ mParticle
+- **マーケティングオートメーション**: HubSpot Marketing Hub（Enterprise）/ Marketo Engage / Braze / Iterable / Klaviyo（EC 向け）
+- **CRM 連携**: HubSpot / Salesforce Marketing Cloud / Pardot（→ Marketing Cloud Account Engagement）
+- **ABM プラットフォーム**: 6sense / DemandBase / Terminus / Bombora（Intent Data）
+- **SEO / コンテンツ**: Ahrefs / SEMrush / Surfer SEO / Clearscope / MarketMuse / Frase / Google Search Console / GA4 / Search Analytics for Sheets
+- **広告運用**: Meta Ads Manager / Google Ads / TikTok Ads Manager / LINE Ads Platform / Yahoo!広告 / Indeed / X Ads / LinkedIn Ads
+- **アトリビューション**: Google Analytics 4（Data-Driven Attribution）/ Adjust / AppsFlyer / Northbeam / Rockerbox
+- **A/B テスト**: Optimizely / VWO / Google Optimize（→ GA4 統合）/ Kaizen Platform
+- **メール配信**: SendGrid / Mailchimp / Customer.io / Sendinblue / Brevo
+- **ウェビナー**: Zoom Webinar / Livestorm / Demio / ON24
+- **分析 / BI**: Looker Studio / Tableau / Amplitude / Mixpanel / Heap / Hotjar / Microsoft Clarity
+- **AI / 生成**: Jasper / Copy.ai / Perplexity for Business / ChatGPT Enterprise / Claude for Work / Midjourney / Runway / Descript
+- **自動化**: Zapier / n8n / Make / Workato / Segment Functions / Google Apps Script（Bo と共同設計）
+- **プロジェクト管理**: Notion / Asana / Airtable / Monday / ClickUp

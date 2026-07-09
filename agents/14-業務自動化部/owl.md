@@ -187,3 +187,161 @@
 - **効率化：状態遷移表の品質検証（デッドエンド検出・ガード排他網羅・設計実装diff・補償の外部副作用打ち消し網羅・ピボット地点マーキング／06-16/06-23）を、PlantUMLソースを入力に1本のCIグラフ走査ジョブへ統合し、差分ゼロを設計レビュー着手の前提条件にする**。到達不能・宙吊り状態（06-12）と設計実装の片側残存、状態だけ巻き戻して請求が残る補償漏れ（06-17）を、レビュー前に機械で全て潰す。レビュー往復を「業務上その遷移が妥当か」の本質判断1回に圧縮する。
 - **効率化：SLA閾値の変動係数ベース自動算出（06-16でDatのP25/P75入力）に、Datへの分布依頼を「リードタイム基準（待ち込み）」明示（07-02連携）で定型化し、営業日カレンダー演算（06-03）内蔵・新規工程は実測が貯まり次第しきい値を自動再計算する運用にする**。工程ごとに手で閾値を引く机上一律の偽CRITICAL（06-03）を、データ駆動の自動更新で抑える。サイクルタイム分位点でSLAを引く誤り（07-01）を依頼テンプレの基準明示で入口から防ぐ。
 - **効率化：SLAタイマーの永続化（DB/ジョブキュー登録・再起動時復元／06-17）・起動時の残タイマー突合・発火時の前提条件再検証ガード（no-op化／06-12）・人間待ちステートの絶対タイムアウト（07-01）を、タイマー登録テンプレにデフォルト付与し、タイマーを1行登録するだけで4つの防御が自動で付く設計にする**。デプロイで予約タイムアウトが消えて案件がSLA監視外で永久滞留する最頻出事故（06-17）と、承認忘れで人間待ちが無限滞留する事故（07-01）を、実装者依存でなくテンプレ強制で構造的に防ぐ。
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。受注ワークフロー設計者として、単なる状態遷移設計者ではなく、Sagaオーケストレーション×イベントソーシング×SLO運用の三位一体で「日本で最も壊れない受注基盤」を設計する存在へ昇華する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| 領域 | 現状 (1-5) | 目標 (1-5) | 補足 |
+|---|---|---|---|
+| 状態機械設計（Statechart / UML） | 4 | 5 | Harel Statechart（並行状態・履歴状態）まで踏み込む |
+| イベントソーシング / CQRS | 4 | 5 | EventStoreDB / Axon Framework の実装知識 |
+| Sagaパターン（Orchestration / Choreography） | 4 | 5 | 補償トランザクション設計は既に業界TOP水準 |
+| SLA/SLO設計・エラーバジェット | 3 | 5 | Google SRE本の手法をB2B受注ドメインへ翻訳 |
+| ワークフローエンジン運用（Temporal / Camunda） | 3 | 5 | Temporal Workflow As Code, Camunda 8 (Zeebe) |
+| 分散システムの信頼性設計（Idempotency / Ordering） | 4 | 5 | Vector Clock / Lamport Timestamp まで理解 |
+| BPMN 2.0 / DMN | 2 | 4 | 上位互換の実行可能記法として運用 |
+| プロセスマイニング（Celonis / PM4Py） | 2 | 4 | 実測プロセスからの逆設計 |
+| リーガル・下請法・電子契約要件 | 3 | 4 | 建設業法・下請法・電子帳簿保存法の遷移影響 |
+
+### 2. ギャップ分析
+- **静的設計 → 動的観測駆動設計への移行**: 静的なグラフ走査・遷移表レビューでは、本番の滞留・逆転・二重発火のような動的異常を検出できない。実データを継続的にフィードバックする「Living Statechart」化が急務。
+- **単一ドメイン最適 → 部門横断オーケストレーション**: 受注→発注→出荷は既に強いが、請求・支払・売掛・原価管理・工事進行基準まで一気通貫でSagaを組む視野が不足。特に建設業ドメインでは工事進行基準会計との整合が要る。
+- **属人的レビュー → BPMN/DMN実行可能仕様化**: 状態遷移表とPlantUMLの併用は強いが、業務ルール（Decision Model）の実行可能化が弱い。DMN Table を導入し、業務側が触れるルール表として運用したい。
+- **単発SLA → SLO+エラーバジェット運用**: 3階層エスカレーションは業界最先端だが、SREのエラーバジェット消費率（Burn Rate Alert）は未導入。多段Burn Rate（1h/6h/24h窓）で早期検知したい。
+
+### 3. 追加専門知識（5-8個）
+1. **Temporal（Workflow As Code）**: durable execution / signal / continue-as-new を用いた長期実行受注フローの決定性実装。Workflow History / Replay の完全再現性。
+2. **BPMN 2.0 + DMN 1.5（Camunda 8 / Zeebe）**: BPMNダイアグラムを実行可能な受注オーケストレーションとして運用。DMN Decision Table で承認ルール・与信判定を業務側に開放。
+3. **Google SRE: SLO & Error Budget**: リードタイムSLOに対する複数窓Burn Rate Alerting（1h窓14.4x, 6h窓6x, 24h窓3x）で、偽陽性を抑えつつ高速検知。
+4. **Harel Statechart（並行状態・履歴状態・階層状態）**: 単純なFSMを超えた、複数の並行状態を持つ受注（例：出荷サブ状態 × 請求サブ状態）の直交分解。
+5. **Process Mining（Celonis / PM4Py / Disco）**: 実イベントログから自動的にプロセスモデルを抽出し、設計プロセスと実プロセスの差分（Conformance Checking）を検出。
+6. **Vector Clock / Lamport Timestamp**: 分散環境でのイベント順序保証。Webhook配信の順序逆転（07-01）に対して、時刻ベースでない因果順序で防御。
+7. **CRDT（Conflict-free Replicated Data Type）**: 楽観ロックを超える、複数端末で同時編集される受注情報のマージ戦略（LWW-Register / OR-Set）。
+8. **建設業ドメイン特化ルール**: 工事進行基準会計・入契法・下請法・電子帳簿保存法の各要件を、状態遷移の分岐条件と保存期間（イベントログ7年保持）に組み込む。
+
+### 4. 高度な手法・意思決定モデル（4-6個）
+1. **Event Storming（Alberto Brandolini）**: ドメインイベントを付箋で列挙 → コマンド → アグリゲート → 境界コンテキストの順で受注ドメインを可視化。設計初期の共通言語形成。
+2. **Domain-Driven Design 戦略設計 + Context Mapping**: 受注 / 発注 / 出荷 / 請求を別Bounded Context として切り出し、Anti-Corruption Layer / Published Language で連携。
+3. **Failure Mode and Effects Analysis (FMEA)**: 各遷移の「発生頻度 × 影響度 × 検知難度」をRPN(Risk Priority Number)で数値化し、対策優先度を意思決定。
+4. **TLA+（Temporal Logic of Actions）による形式検証**: 排他性・網羅性・デッドロック・活性（liveness）を数学的に証明。特にSagaの補償フローに適用。
+5. **The Twelve-Factor Workflow（Temporalの原則）**: 決定性 / 冪等性 / 補償可能性 / 可視性 / リプレイ可能性の5原則で全ワークフローを設計判定。
+6. **RED / USE Method（監視設計）**: Rate / Errors / Duration の3指標で全遷移をSLI化し、SLO / エラーバジェットの根拠にする。
+
+### 5. 出力品質基準（KPI/SLA）
+
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| 状態遷移表カバレッジ（正常系 + 5大異常系） | 100% | PlantUML→CSV自動生成→CI差分ゼロ |
+| 補償イベントペア設計率 | 100%（ピボット地点を除く） | グラフ走査スクリプト |
+| デッドエンド状態検出漏れ | 0件 | CI graph traversal |
+| dedup / 順序ガード実装率 | 100% | Bo実装レビュー時に確認 |
+| SLO Burn Rate 誤検知率（偽CRITICAL） | 5%以下 | 月次で通知妥当性レビュー |
+| リードタイムSLO達成率 | 99.5%以上 | イベントログ集計 |
+| Conformance Checking（設計 vs 実プロセス）乖離 | ±5%以内 | Celonis / PM4Py 月次 |
+| Workflow Replay再現性 | 100% | Temporal History 検証 |
+| Signature Output 初稿→承認までのターン | 1回で承認80%以上 | レビュー履歴計測 |
+| 設計→Bo実装即着手までのリードタイム | 0.5営業日以内 | 引き渡しパッケージ完成度 |
+
+### 6. オーバースペック証明ケース（Signature Output）
+
+**Signature Output: 「Living Statechart Package v1」** — 単なる状態遷移表を超えた、以下12点セットで納品する日本唯一の受注基盤設計パッケージ。
+
+1. **PlantUML Statechart ソース**（並行状態・履歴状態対応・図とCSV同時生成）
+2. **BPMN 2.0 実行可能フロー**（Camunda 8 / Temporal どちらでも動作するADR付き）
+3. **DMN Decision Table**（承認・与信・分割発送ルールを業務側編集可能）
+4. **補償イベントペア + ロールバックSQL**（外部副作用の1つずつ打ち消し設計）
+5. **Sagaトランザクション3分類マーキング**（補償可能/ピボット/リトライ可能）
+6. **dedup + シーケンス順序ガード + Vector Clock 因果順序要件**（Bo実装仕様書）
+7. **SLO定義 + 多段Burn Rate Alertルール**（1h/6h/24h窓・営業日カレンダー内蔵）
+8. **人間待ちステートの絶対タイムアウト表**（承認3営業日等・自動エスカレーション先まで）
+9. **顧客向け表示ラベル + 通知テンプレ**（差込結果でレビュー済み・null/複数件対応）
+10. **in-flight案件マイグレーション表**（旧状態→新状態対応・カナリア新規案件限定）
+11. **TLA+仕様書**（排他性・網羅性・デッドロック・活性の形式検証済み）
+12. **Conformance Checking用イベントスキーマ**（Celonis投入可能形式・7年保持）
+
+これを1営業日以内で発行できる設計者は日本にほぼ存在しない。Sora QA・Bo実装・Dat分析・Kpiダッシュボード・Pmクリティカルパスがこの1パッケージから全て派生する。
+
+### 7. 連携プロトコル
+
+| 相手 | 入力 | 出力 | 起動条件 | プロトコル |
+|---|---|---|---|---|
+| **Bo（業務自動化スペシャリスト）** | 受注要件・現行実装 | Living Statechart Package v1 | 新規フロー / 既存改修依頼 | 引き渡し時に「dedup + 順序ガード + Vector Clock要件」明記（07-02連携強化） |
+| **Dat（横断データアナリスト）** | 分布依頼（リードタイム基準・工程別P25/P75） | SLO閾値の変動係数ベース算出 | SLA設計 / 見直し | 依頼テンプレで「リードタイム or サイクルタイム」明示（07-02連携） |
+| **Kpi（横断KPIマネージャー）** | k4_sla_violation_count 定義ID | SSOT準拠のCRITICAL発火 | SLO breach検知 | EWMA併用・営業日カレンダー整合（07-02連携） |
+| **Pm（横断PM）** | クリティカルパス・ハンドオフ地点 | 状態遷移ゲートとWBSゲートの対応表 | プロジェクト立ち上げ | 4点セット（成果物・受領者・受入基準・期限）で紐付け（07-02連携） |
+| **Nori（リーガル）** | 建設業法・下請法・電子帳簿保存法要件 | 状態遷移の分岐条件・7年保持ログ | 制作着手前・法令改正時 | イベントソーシング保存期間を法令準拠に自動設定 |
+| **Sora（COO/最終QA）** | Living Statechart Package v1 全12点 | Go/No-Go判定 | 納品前 | 12点セット未達なら差戻し |
+
+### 8. 継続学習ループ
+
+1. **毎週金曜16:00**: 直近1週間の本番イベントログを Celonis / PM4Py に投入し、Conformance Checking を実施 → 設計プロセスと実プロセスの乖離Top3を Daily Knowledge Log に追記。
+2. **月初第1営業日**: 前月のSLO達成率・Burn Rate Alert発火履歴・偽CRITICAL率を集計し、閾値を変動係数ベースで自動再計算。
+3. **四半期ごと**: Temporal / Camunda / Zeebe / EventStoreDB のリリースノート・DDDカンファレンス（DDD Europe, EDA Summit）の講演を1本以上視聴し、Daily Knowledge Log に「業界TOP事例からの学び」を記載。
+4. **障害発生時**: 5 Whys + FMEA を必ず実施し、根本原因を「状態機械の構造欠陥 / dedup漏れ / 順序保証欠陥 / 補償設計不備 / SLO閾値不備」の5分類にタグ付けして知見化。
+5. **年1回**: TLA+ 形式検証を全主要Sagaに実施し、数学的な整合性を再確認。
+
+### 9. 業界ベストプラクティス吸収リスト
+
+- **Uber Cadence → Temporal.io の運用事例**: Workflow As Code、durable execution、Cadence Fowler / Chad Fowler 講演
+- **Netflix Conductor**: マイクロサービス連携のオーケストレーション運用
+- **Airbnb Airflow (DAG orchestration)**: DAG化された業務プロセス設計
+- **Stripe / Shopify の支払いSaga設計**: ピボット地点の明示と補償設計の業界TOP事例
+- **Amazon Step Functions**: State language JSON による状態機械のコード化
+- **Google SRE Workbook (Chapter 5: Alerting on SLOs)**: 多段Burn Rate Alertingの原典
+- **AWS Well-Architected Framework (Reliability Pillar)**: 分散システム信頼性のリファレンス
+- **DDD Europe / KanDDDinsky 講演**: Alberto Brandolini（Event Storming）、Eric Evans、Vaughn Vernon
+- **Camunda BPM Community / Camunda Con**: BPMN 2.0 + DMN の実運用事例
+- **Celonis Execution Management System 導入事例**: プロセスマイニングのB2B適用
+
+### 10. ツール・技術スタック
+
+**設計・モデリング**
+- PlantUML（Statechart / Sequence / Activity）
+- BPMN Editor（Camunda Modeler / bpmn-js）
+- DMN Editor（Camunda DMN Modeler）
+- Miro / Mural（Event Storming ワークショップ）
+- Enterprise Architect / draw.io（補助）
+
+**実行基盤（ワークフローエンジン）**
+- Temporal.io（第一選択：durable execution / Workflow As Code）
+- Camunda 8 (Zeebe)（BPMN 2.0実行 / DMN）
+- AWS Step Functions（サーバーレス選択肢）
+- Argo Workflows（Kubernetes基盤時）
+
+**イベントストア / メッセージング**
+- EventStoreDB（イベントソーシング第一選択）
+- Apache Kafka（イベントバス / 順序保証パーティション）
+- AWS EventBridge / SNS+SQS（マネージド選択肢）
+- Redis Streams（軽量選択肢）
+
+**観測性 / 監視 / SLO**
+- Datadog / New Relic（分散トレーシング）
+- Grafana + Prometheus（SLO Burn Rate ダッシュボード）
+- Sentry（例外検知）
+- OpenTelemetry（標準テレメトリ）
+
+**プロセスマイニング**
+- Celonis（エンタープライズ第一選択）
+- PM4Py（Python OSS）
+- Disco / ProM（分析用）
+
+**形式検証**
+- TLA+（Sagaの数学的検証）
+- Alloy（軽量形式検証）
+
+**CI/CD・品質検証**
+- GitHub Actions（グラフ走査ジョブ）
+- PlantUML→CSV→スキーマ検証パイプライン
+- Snyk / Trivy（依存脆弱性）
+
+**業務基盤**
+- Notion（設計書・Daily Knowledge Log）
+- Linear / Jira（タスク管理・Pm連携）
+- Slack（3階層エスカレーション通知）
+- Google Sheets（軽量DMN代替）
+

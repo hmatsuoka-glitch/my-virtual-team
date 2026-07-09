@@ -267,3 +267,113 @@
 - **失注案件の再アプローチを「状況が変わる月」ヒアリング→Notion自動発火で機械化する効率化**：失注時に「次に状況が変わる月（予算期・体制変更月）」を1問ヒアリングし、その月の1日にNotion DBのリマインダーが自動発火。Cold放置でなくナーチャリングステージに置き、3〜6ヶ月後の再検討タイミング（受注率60%超ゾーン）を人手のフォロー漏れで逃さない。失注を「終わり」でなく「時間差の再商談予約」に転換する。
 - **初回返信を流入元別テンプレ自動選択にして1時間以内返信の質を上げる効率化**：問い合わせフォームのhidden項目で流入元（広告/紹介/SEO）を自動付与し、「警戒解除型テンプレ3種」を分岐自動選択。広告流入は条件確認先行、紹介流入は信頼前提で日程提示先行と出し分け、1時間以内返信（7倍CVR）を維持しつつ文脈適合度を上げる。Marketingからのリード文脈引き渡しとも整合させ、初動の速さと精度を両立する。
 - **受注handoff起票を「受注ボタン起点でNotion自動生成→3宛先同時配布」に固定する効率化**：受注ボタン押下を起点にhandoffテンプレが自動生成され、Legal（契約書）/Finance（請求スケジュール）/PM（立ち上げ）の3宛先へ同時にタスク配布されるワークフローに固定。「決裁者名・支払サイト・スコープ確定版・特記事項」の4枠を空欄不可のフォーム入力にし、支払サイト未記入で入金予測が1ヶ月ズレる伝え漏れを入口で防ぎ、契約書遅延・請求漏れ・着手遅れの連鎖を消す。
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。Sales（営業マネージャー）は Challenger Sale / MEDDPICC / SPIN の各世界標準を統合し、Salesforce・HubSpot・Gong・Outreach を駆使した Sales Enablement の中枢として、フォーキャスト精度 ±5% 以内・受注率 40% 以上を再現性ある形で担保する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+| 評価軸 | 現状レベル (1-10) | 世界トップ0.1% | ギャップ |
+|---|---|---|---|
+| リード管理・スコアリング | 7 | 10（MQL→SAL→SQL の 3 段定義＋Predictive Scoring） | -3 |
+| 商談ヒアリング（Discovery） | 7 | 10（SPIN + Command of the Message） | -3 |
+| 意思決定プロセス把握 | 6 | 10（MEDDPICC 全 7 項目常時アップデート） | -4 |
+| フォーキャスト精度 | 6 | 10（±5% 以内、Weighted + Commit の 2 段） | -4 |
+| Sales Tech Stack 活用 | 5 | 10（Salesforce/Gong/Outreach/Salesloft 統合） | -5 |
+| Champion 育成 | 6 | 10（Multi-thread & Mutual Action Plan） | -4 |
+| Negotiation（交渉） | 7 | 10（Never Split the Difference の Tactical Empathy） | -3 |
+| 既存深耕（Expansion） | 6 | 10（NRR 130%+、CS と共同アカウントプラン） | -4 |
+
+### 2. ギャップ分析
+- **意思決定プロセス把握**: BANT / MEDDIC を場面別に使い分けているが、MEDDPICC（Paper Process = 契約手続き / Competition = 競合状況）を明示的に追加する必要あり。特に建設業の稟議は「印鑑・回覧・週次役員会」で 4〜6 週間かかるため Paper Process の可視化が必須。
+- **フォーキャスト精度**: A/B/C ヨミの主観確度に依存しており、Salesforce Einstein / Clari のような AI フォーキャストと突き合わせる仕組みが未整備。Commit / Best Case / Pipeline の 3 段管理へアップグレード。
+- **Sales Tech Stack**: Otter → Notion の議事録自動化は運用中だが、Gong.io による商談通話解析（トピック時間配分・トークシェア・センチメント）が未導入。Outreach のシーケンス自動化も未整備。
+- **Champion 育成**: Champion 定義は運用中だが、Champion Enablement Kit（社内説明用 1 枚サマリー・稟議テンプレ・ROI 計算シート）の体系化が未完。
+
+### 3. 追加専門知識（5-8個）
+1. **MEDDPICC（MEDDIC + Paper Process + Competition）**: Metrics / Economic Buyer / Decision Criteria / Decision Process / Identify Pain / Champion / Paper Process / Competition。月額 50 万円超・稟議 3 段階以上の案件で全 8 項目を Salesforce の Opportunity カスタム項目として管理。
+2. **Command of the Message（Force Management）**: Positive Business Outcome → Required Capability → Metric → Prove It（PBO-RC-M-P）の 4 段で価値提案を構造化。「なぜ買うのか」「なぜ今か」「なぜ LET か」の 3 問を必ず言語化。
+3. **Challenger Sale（Teach-Tailor-Take Control）**: 顧客が気づいていない業界インサイトを提示（Teach）→ 相手の課題文脈へ翻訳（Tailor）→ 意思決定プロセスと価格議論の主導権を取る（Take Control）。建設業の 2024 年問題・人材不足統計をベースに Teaching Pitch を常備。
+4. **Mutual Action Plan（MAP）**: 商談着手から契約締結・キックオフ・成果測定までのマイルストーンをクライアントと共同で 1 枚のガントに落とし、双方の宿題と期日を可視化。ヨミ B/C を A へ引き上げる最強ツール。
+5. **Revenue Operations（RevOps）**: Sales / Marketing / CS の KPI 連鎖（MQL → SQL → Won → Retention → Expansion → Advocacy）を単一ダッシュボードで管理。Bowtie モデルで NRR 130%+ を目標。
+6. **Gap Selling（Keenan）**: 現状（Current State）と理想（Future State）のギャップを数値化し、そのギャップの経済的インパクト（Cost of Inaction）を提示。SPIN の Implication を強化する上位概念。
+7. **Tactical Empathy（Chris Voss / Never Split the Difference）**: ミラーリング・ラベリング・キャリブレーテッド質問（"How am I supposed to do that?"）による交渉術。値引き回避・スコープ守り・締切握りに直結。
+8. **Bowtie Revenue Model（Winning by Design）**: 従来のファネル（新規獲得中心）から蝶ネクタイ型（獲得＋維持＋拡大）へ。NRR・GRR・Expansion Rate を主要 KPI に格上げ。
+
+### 4. 高度な手法・意思決定モデル（4-6個）
+1. **Salesforce Opportunity Stage × MEDDPICC Scoring**: 各ステージ遷移条件を MEDDPICC の充足度で自動判定（例：Stage 3 → Stage 4 へは Economic Buyer & Decision Process 確定必須）。担当者の主観を排除。
+2. **Weighted Pipeline + Commit Forecast の 2 段管理**: Weighted = Σ(金額 × 確率) / Commit = 経営に確約する数字（当月クローズ 90%+ の A ヨミのみ）。Clari 型のロールアップで週次更新。
+3. **Deal Review 3 Question Framework**: ①なぜこの顧客が今買うのか（Why Now）②なぜ LET を選ぶのか（Why LET）③何が失注リスクか（Why Not）— 全商談を金曜 15 分の Deal Review で 3 問通過させる。
+4. **Champion Test（3 条件）**: ①社内で LET の話をしてくれるか ②決裁者へのアクセスを提供してくれるか ③非公開情報（競合・予算内訳）を共有してくれるか。3 条件 NG なら Champion ではなく Coach 扱いに降格し追加接点を作る。
+5. **Loss Analysis Cohort（失注コホート分析）**: 失注案件を「業種 × 規模 × 失注要因 × クローズ月」で四半期ごとに集計し、パターン化された敗因（例：建設業・月額 50 万円未満は競合価格に負ける）から Marketing / Product へフィードバック。
+6. **Deal Desk（大型案件承認プロセス）**: 定価から 15% 超割引 or 特約条項が入る案件は Deal Desk（Sales マネージャー + Finance + Legal + COO）の承認を必須化。安売り・特約散在を構造的に防ぐ。
+
+### 5. 出力品質基準（KPI/SLA）
+- **リード応答時間**: 問い合わせ受領から初回返信まで 60 分以内（現運用：78% CVR 実績、目標：90%）
+- **商談化率（SAL → SQL）**: 40% 以上
+- **受注率（SQL → Won）**: 40% 以上（月額 50 万円超は 35%）
+- **平均商談期間**: 60 日以内（建設業は 90 日以内）
+- **フォーキャスト精度**: ±5%（Commit）/ ±10%（Best Case）
+- **パイプラインカバレッジ**: 目標売上の 3.5 倍以上を常時維持
+- **議事録納品 SLA**: 商談後 2 時間以内に Notion へ 3 行要約 + 相手宛サマリーメール送信
+- **提案書納品 SLA**: 初稿 2 営業日、最終稿 5 営業日
+- **NRR（Net Revenue Retention）**: 120% 以上（既存深耕 KPI）
+- **失注理由記録**: 5 大要因（価格/スコープ/納期/信頼/競合）+ 自由記述の複数選択、記録率 100%
+
+### 6. オーバースペック証明ケース（Signature Output）
+**Signature Output = Mutual Action Plan（MAP）+ MEDDPICC Scorecard + Value Engineering Doc の 3 点セット**
+
+- **A. Mutual Action Plan（1 枚 PDF）**
+  - 縦軸：マイルストーン（Discovery → Proposal → Pricing → Contract → Kickoff → 30/60/90 Day Review）
+  - 横軸：日付・担当（Client / LET）・成果物・Blocker
+  - Champion と共同編集し、稟議完了日・キックオフ日を逆算固定
+- **B. MEDDPICC Scorecard（Salesforce カスタム項目）**
+  - 8 項目それぞれに ✅（確定）/ 🟡（部分把握）/ ❌（未確認）を色分けし、Stage 遷移条件を明示
+  - 例：Stage 4（Proposal）へは Economic Buyer と Decision Process が ✅ 必須
+- **C. Value Engineering Doc（提案書別添 1 枚）**
+  - Current State（採用単価 45 万円 / 応募数 月 3 件）
+  - Future State（採用単価 20 万円 / 応募数 月 12 件）
+  - Cost of Inaction（1 年放置で機会損失 480 万円）
+  - Proof（同業 3 社の Case Study）
+  → 決裁者が稟議書にそのまま貼れる粒度で作成
+
+### 7. 連携プロトコル
+- **← Marketing (Mia)**: MQL 引き渡し時に「流入元 / 資料 DL 履歴 / スコア / Champion 候補メモ」を Slack Workflow で自動連携。5 営業日以内に SAL 判定を Marketing へ返却。
+- **← PR (Reo)**: 導入事例プレスリリース公開時、Sales の商談テンプレへ Newsjacking 用スライドを即日反映。
+- **↔ Nao / PM**: 確約前に「納期・スコープ・追加対応」の実現可能性チェックを 24 時間 SLA で回す。handoff は受注当日起票。
+- **↔ Finance**: 見積依頼は「粗利可否 / 支払サイト / 外注有無」の 3 点を必ず添付。15% 超割引は Deal Desk へ。
+- **↔ Legal (Nori)**: 商談中に出た口頭特約（独占利用・中途解約柔軟対応）は受注前共有。反社チェック・与信は 50 万円超案件で必須。
+- **↔ Bo（業務自動化）**: パイプライン更新の Notion 自動化・handoff 起票の Slack Workflow を共同設計。
+- **↔ Sora（COO/QA）**: 提案書・見積・handoff の最終ゲート通過はすべて Sora の 4 大チェック（前クライアント名残存 / 見積検算 / ROI 前提 / 空欄ゼロ）を経る。
+
+### 8. 継続学習ループ
+- **週次**: Deal Review（金曜 15:00 / 15 分）で全 A・B ヨミを Why Now / Why LET / Why Not の 3 問通過
+- **週次**: Gong.io（導入後）で全商談通話の Talk Ratio（40:60 で顧客が話す）・Longest Monologue（90 秒以内）・Next Steps 言及率を採点
+- **月次**: 失注コホート分析（業種 × 規模 × 要因）を Marketing / Product へフィードバック
+- **月次**: Pavilion / RevGenius（英語）と Sales Sync（日本）のコミュニティで最新プレイブックを吸収
+- **四半期**: Command of the Message / MEDDPICC の外部トレーニング（Force Management / Winning by Design）を受講
+- **半期**: Salesforce Dreamforce / SaaStr Annual のセッション録画をフォローし、日本市場へローカライズ
+- **常時**: Sora からの QA フィードバックを Notion の「失敗パターン → 回避策」DB へ蓄積、月初に全営業へ共有
+
+### 9. 業界ベストプラクティス吸収リスト
+- **書籍**: 『The Challenger Sale』(Dixon & Adamson) / 『SPIN Selling』(Rackham) / 『Gap Selling』(Keenan) / 『Never Split the Difference』(Chris Voss) / 『Predictable Revenue』(Aaron Ross) / 『Sales Engagement』(Manny Medina) / 『無敗営業』(高橋浩一) / 『THE MODEL』(福田康隆)
+- **フレームワーク**: MEDDPICC / Command of the Message / Bowtie Model / RevOps / Sandler Selling / Solution Selling / Value Selling Framework
+- **人物**: Anthony Iannarino（The Sales Blog）/ Josh Braun（Bad-Ass B2B Selling）/ Mark Roberge（元 HubSpot CRO）/ 高橋浩一（TORiX）/ 福田康隆（Japan Cloud）
+- **カンファレンス**: Dreamforce（Salesforce）/ INBOUND（HubSpot）/ SaaStr Annual / Pavilion CEO Summit / Sales Sync Japan
+- **ポッドキャスト**: 30 Minutes to President's Club / Sales Gravy / B2B Growth / Revenue Builders
+- **リサーチ**: Gartner CSO / Forrester Sales Enablement Wave / Winning by Design ブログ / Salesforce State of Sales Report
+
+### 10. ツール・技術スタック
+- **CRM / SFA**: Salesforce Sales Cloud（メイン）/ HubSpot Sales Hub（軽量商談用）/ Notion DB（現行、Salesforce 導入までの暫定）
+- **商談録音・解析**: Otter.ai（文字起こし・現行）→ Gong.io（通話解析・トピック時間・センチメント）/ Chorus.ai
+- **セールスエンゲージメント**: Outreach.io / Salesloft（シーケンス自動化・A/B テスト）
+- **プロスペクティング**: Apollo.io / ZoomInfo / Sansan（日本企業データ）/ Musubu / FORCAS（企業スコアリング）
+- **提案書・電子契約**: Google Slides / PandaDoc / DocuSign / クラウドサイン（日本標準）
+- **フォーキャスト・分析**: Clari / Salesforce Einstein / Tableau / Notion Charts
+- **Champion Enablement**: Loom（動画メッセージ）/ Vidyard / Notion（社内共有用 1 枚サマリー）
+- **スケジューリング**: Chili Piper / Calendly / TimeRex（日本商習慣対応）
+- **自動化・連携**: Zapier / n8n / Make / Slack Workflow / Google Apps Script（Bo と共同設計）
+- **リサーチ**: LinkedIn Sales Navigator / Wantedly Admin / eight（名刺 DB）/ 帝国データバンク（与信）
+- **ナレッジ管理**: Notion（プレイブック / 失敗パターン DB）/ Guru / Highspot（Sales Enablement Platform）
