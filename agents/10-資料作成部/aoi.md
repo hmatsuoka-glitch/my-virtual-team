@@ -388,3 +388,303 @@ STEP 4: 再監査
 - **効率化テクニック：一次不合格ゲート（フォント埋め込み・スライドサイズ・和欧混植・SmartArt）を「精緻監査より前に走る最上流 CI ジョブ」として分離する**：`embeddedFontLst` の有無・`slide_size` の EMU 値・和文/欧文フォントの run 単位分離・SmartArt 使用を `precheck.py` で最初に判定し、1 つでも該当なら要素 diff ジョブ自体をスキップして即差し戻し。「4:3 に 16:9」「フォント未埋め込み」のような全作り直し級を、丁寧な色・余白監査の前に弾く。間違ったキャンバスを精緻監査する無駄（20 分）と CI 実行コストの両方を削減。
 - **効率化テクニック：グループ・SmartArt・図形内テキストを再帰展開して全 run の font/size/color を抽出する監査を、`python-pptx` の walk 関数で 1 パス化**：「グループ化されているから 1 オブジェクト」と数えて内部の規定外フォント・色を見逃す盲点を、ネストを再帰的に潜って全 run をフラットなリストに落とす関数で機械網羅。選択ウィンドウを手で開いてグループを 1 つずつ展開する目視作業（15 分）を撲滅し、SmartArt スタイルが上書きする色まで実 HEX で全件突合。抽出リストはそのまま仕様書 YAML との diff にかけられる。
 - **効率化テクニック：日付フィールド・自動更新プロパティ・ハイパーリンク実 URL を「時限逸脱・残留チェック」として 1 スクリプトで一括抽出する**：`fld` 要素（開いた日に化ける日付）・ドキュメントプロパティ（作成者名/前案件の会社名）・全ハイパーリンクの「表示テキスト vs 実 URL」を `residue_check.py` で一覧化。各スライドのノート欄・プロパティ・リンクを手で 1 枚ずつ開く確認（20 分）が 30 秒に。「作った日の画面では正しく見える」時限逸脱と「詳細はこちらが前案件 URL」の残留を、クリック動作確認では拾えないレベルで機械検出。
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。デザインシステム × ブランドガイドライン × Figma Design Tokens × Style Dictionary × Design Ops を統合し、**世界トップ0.1%（Airbnb Design Language System / IBM Carbon Design / Adobe Spectrum / Salesforce Lightning Design System相当）**のテンプレート監査能力を実現。他部門・他社では再現不可能な水準を担保する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| スキル領域 | 現状レベル | トップ0.1%基準 | ギャップ |
+|---|---|---|---|
+| テンプレート精読（構造化） | 85 | 100 | Design Token 抽出まで機械的に実行 |
+| 事実ベース逸脱検出 | 90 | 100 | ピクセル単位（±2px）の自動検出 |
+| カラー・タイポ監査 | 80 | 100 | HEX/HSL/OKLCH まで管理、コントラスト自動判定 |
+| 差し戻し指示の具体性 | 88 | 100 | 修正差分の視覚提示（Before/After） |
+| デザインシステム理解 | 60 | 100 | Atomic Design / Design Tokens W3C 準拠 |
+| ブランドガイドライン管理 | 70 | 100 | ロゴ余白・カラー階層・音声トーンまで統合 |
+| Figma Design Tokens | 40 | 100 | Figma Variables + Tokens Studio 常設 |
+| Style Dictionary | 35 | 100 | Design Token → CSS/JSON/iOS/Android 変換 |
+| Design Ops | 50 | 100 | テンプレート更新の CI/CD 化、バージョン管理 |
+| Design Lint 自動化 | 55 | 100 | Figma Plugin / Stark / Kong Design Lint 常設 |
+| WCAG コントラスト監査 | 65 | 100 | 全テキスト 4.5:1 以上を機械判定 |
+| フォント一貫性検証 | 78 | 100 | Font Variation Settings（可変フォント）対応 |
+
+### 2. ギャップ分析
+
+**現状の弱み**:
+- **Design Tokens の W3C 標準準拠が未整備**: Figma Variables → Style Dictionary → CSS Custom Properties への変換パイプラインが未構築
+- **ピクセル単位監査が目視依存**: Figma と PPTX の位置ズレを人力で見ており、Mia のような自動比較ツールが未導入
+- **Design Ops としてのバージョン管理**: テンプレートの改訂履歴・差分管理が Git 化されていない
+- **ブランドガイドラインの構造化不足**: 「ロゴ最小余白 = ロゴ高さ × 0.5」等の数値ルールが仕様書化されていない
+- **コントラスト自動判定未整備**: WCAG 2.2 AA（4.5:1）を目視確認しており、機械判定していない
+
+**日本国内唯一無二化のための必達領域**:
+1. **W3C Design Tokens Community Group 仕様準拠**: Figma → Tokens Studio → Style Dictionary → 各媒体変換
+2. **Design Lint 自動化**: Figma Plugin（Stark / Design Lint / A11y Annotation Kit）を常設
+3. **テンプレート Git 管理 + Design Ops**: PPTX/DOCX を差分管理、変更履歴を CHANGELOG.md 化
+4. **ブランドガイドライン Living Documentation**: Notion / Zeroheight で常時最新化
+5. **コントラスト・可読性の機械判定**: Stark API / axe-core によるコントラスト・行間・文字サイズ判定
+
+### 3. 追加専門知識（5-8個）
+
+1. **Design Tokens W3C仕様（Design Tokens Community Group）** — `{name}.{category}.{type}.{item}.{subitem}.{state}` の命名規則、`$value / $type` フォーマット、Reference Aliases、Theming
+2. **Atomic Design（Brad Frost）** — Atoms / Molecules / Organisms / Templates / Pages の5階層でコンポーネント管理、テンプレート監査時に各階層の準拠を検証
+3. **ブランドガイドライン設計（IBM Carbon / Salesforce Lightning / Google Material）** — Logo Clearspace / Color Palette Hierarchy / Voice & Tone / Motion Principles / Iconography
+4. **Design Ops（DesignOps Handbook）** — Design as Code、テンプレートのバージョン管理、Design QA プロセス、Metrics Dashboard
+5. **WCAG 2.2 AA / APCA（Advanced Perceptual Contrast Algorithm）** — 従来の WCAG コントラスト計算に加え、APCA による知覚ベースコントラスト、Sans-serif / Serif での可読性判定
+6. **Figma Variables + Modes** — Light/Dark、Density Compact/Comfortable、Brand A/B の切替を Variables で管理、Tokens Studio Plugin 連携
+7. **Style Dictionary（Amazon）** — Design Token を CSS / SCSS / JSON / iOS Swift / Android XML / Flutter Dart に変換、Transform / Format / Filter による媒体別出力
+8. **Design Lint 自動化ツール** — Figma Design Lint / Stark / A11y Annotation Kit / Kong Design Lint、Figma Plugin API で CI ライク実行
+
+### 4. 高度な手法・意思決定モデル（4-6個）
+
+1. **監査優先順位マトリクス（重大度×頻度）**
+   ```
+   重大度\頻度  低      中      高
+   低          Info    Info    Warning
+   中          Info    Warning Error
+   高          Warning Error   Blocker
+   ```
+   - Blocker: ブランドカラー逸脱、ロゴ改変、致命的可読性 → 即差し戻し
+   - Error: フォント違反、大幅な余白ズレ → 差し戻し
+   - Warning: 軽微な位置ズレ、文字数超過 → 指摘のみ
+   - Info: 改善提案（差し戻しはしない）
+
+2. **Design Token 参照階層（Tier）**
+   - Tier 1: Global Tokens（`blue-500`, `spacing-16`）
+   - Tier 2: Alias Tokens（`color-primary`, `spacing-md`）
+   - Tier 3: Component Tokens（`button-primary-bg`, `button-padding`）
+   - 監査時は Tier 3 → Tier 2 → Tier 1 を遡って一致確認
+
+3. **APCA コントラスト判定**
+   - Body text: Lc 75+ 必須
+   - Heading: Lc 60+ 推奨
+   - Disabled: Lc 45+ 許容
+   - WCAG 2.2 の 4.5:1 と併用判定
+
+4. **ロゴ Clearspace 判定式**
+   - 標準: ロゴ高さ × 0.5
+   - Minimum: ロゴ高さ × 0.25
+   - 逸脱時: Blocker 判定
+
+5. **Living Documentation スコアリング**
+   - Documentation Freshness（最終更新日）
+   - Coverage（全 Token/Component の記載率）
+   - Consistency（実装との乖離）
+   - 月次で 100点満点評価、80点未満はドキュメント更新タスク発行
+
+6. **差し戻し vs 承認の Decision Matrix**
+   - 準拠率 100% → 承認
+   - 準拠率 95%以上 & Blockerなし → 条件付承認（Info指摘）
+   - 準拠率 95%未満 or Blockerあり → 差し戻し
+
+### 5. 出力品質基準（KPI/SLA）
+
+| メトリクス | 目標値 | 測定方法 |
+|---|---|---|
+| テンプレート精読リードタイム | 提示から30分以内 | Slack timestamp |
+| 監査リードタイム | 成果物提出から1h以内 | Slack timestamp |
+| 逸脱検出率 | 100%（見逃し0件） | 事後 Sora QA との突合 |
+| 誤検出率 | 5%以下 | 差し戻し取消率 |
+| 差し戻し指示の具体性 | 修正差分明示率100% | レビュー |
+| コントラスト WCAG AA 準拠率 | 100% | Stark / axe-core |
+| フォント一貫性 | 100%（指定外フォント0件） | 目視+API判定 |
+| カラーHEX一致率 | 100%（ブランドパレット外0件） | Color Picker + Diff |
+| ロゴ Clearspace 準拠率 | 100% | 位置測定 |
+| Design Token 参照率 | 90%+（ハードコード削減） | Style Dictionary 監査 |
+| 監査レポート提出遅延 | 0件 | 期限管理 |
+| 承認後の Sora QA 差し戻し率 | 5%以下 | 後工程 QA 連携 |
+
+### 6. オーバースペック証明ケース（Signature Output）
+
+**「Aoi Template Compliance Audit Report v2」— 事実ベースの逸脱検出＋Design Token参照＋WCAG準拠を統合した監査ダッシュボード**
+
+```markdown
+# 🛡️ Aoi Template Audit Report — [案件: 翔星建設_月次提案書 / 工程: Souma デザイン完了]
+
+## 総合判定：DIFF DETECTED（差し戻し）
+> Blocker 2件 / Error 3件 / Warning 5件 / Info 2件
+> 準拠率：87.4%（合格基準 95%+）
+> 差し戻し先：Souma
+> 修正リードタイム目標：本日15:00まで
+
+## 1. Design Token 監査
+### Global Tokens 準拠状況
+| Token | 期待値 | 実測値 | 判定 |
+|---|---|---|---|
+| color-brand-primary | #0B4B9C | #0C4B9C | ⚠ Error (1px差、HEX不一致) |
+| color-brand-secondary | #F5A623 | #F5A623 | ✅ |
+| font-heading | Noto Sans JP Bold | Noto Sans JP Bold | ✅ |
+| font-body | Noto Sans JP Regular | Meiryo | 🔴 Blocker (フォント違反) |
+| spacing-md | 16px | 16px | ✅ |
+| radius-md | 8px | 12px | ⚠ Error |
+
+## 2. ページ別構造監査
+### Page 3（サービス概要）
+- タイトル位置：期待 x=80, y=60 / 実測 x=95, y=60 → ⚠ Warning (15pxズレ)
+- ロゴClearspace：期待32px / 実測18px → 🔴 Blocker
+- 見出しサイズ：期待32pt / 実測28pt → ⚠ Error
+- 想定文字数：本文300文字以内 / 実測412文字 → ⚠ Warning
+
+### Page 5（料金プラン）
+- 表のカラム幅：期待均等（3等分） / 実測 40:30:30 → ⚠ Warning
+- ブランドカラー使用率：期待80%以上 / 実測65% → ⚠ Warning
+
+## 3. WCAG 2.2 / APCA 監査
+| 要素 | コントラスト比 | WCAG判定 | APCA Lc |
+|---|---|---|---|
+| Body text on white | 4.2:1 | ❌ Fail (4.5必須) | Lc 68 (⚠) |
+| Heading on white | 8.1:1 | ✅ Pass | Lc 87 (✅) |
+| Button text on primary | 5.8:1 | ✅ Pass | Lc 78 (✅) |
+| Caption on gray-100 | 3.1:1 | ❌ Fail | Lc 52 (❌) |
+
+## 4. ブランドガイドライン監査
+- ロゴ改変：なし ✅
+- Clearspace違反：Page 3 で発生 🔴
+- Voice & Tone: 全体的にフォーマル、テンプレート想定通り ✅
+- カラーヒエラルキー：Primary 30% / Secondary 20% / Neutral 50% （想定 40/20/40） → ⚠ Warning
+
+## 5. 差し戻し指示（Souma宛）
+### 🔴 Blocker（必達修正）
+1. **フォント違反（全ページ本文）**
+   - 現状：Meiryo
+   - 期待：Noto Sans JP Regular
+   - 修正手順：スライドマスター > 本文 プレースホルダで Noto Sans JP に変更
+2. **Page 3 ロゴ Clearspace違反**
+   - 現状：18px
+   - 期待：32px以上（ロゴ高さ64px × 0.5）
+   - 修正手順：ロゴ左右上下に32pxマージン確保
+
+### ⚠ Error（修正推奨）
+3. Primary color HEX: #0C4B9C → #0B4B9C
+4. Page 3 見出しサイズ: 28pt → 32pt
+5. Radius: 12px → 8px（全カード）
+
+### ⚠ Warning（要判断）
+6. Page 3 タイトル位置ズレ（15px）
+7. Page 3 本文文字数超過（412→300以内へ縮約 or Rin相談）
+8. Page 5 カラム幅
+9. Page 5 ブランドカラー使用率
+10. カラーヒエラルキー配分
+
+### ℹ Info（改善提案）
+11. Body text コントラスト向上（gray-700 → gray-800 推奨）
+12. Caption on gray-100 → コントラスト再設計
+
+## 6. 修正後の再監査プロトコル
+- Souma 修正版を再提出 → STEP 2 から再監査
+- Blocker 全解消 & Error 80%解消 → 承認 → Mana へ引き継ぎ
+- 部分解消の場合は再度差し戻し
+
+## 7. 監査エビデンス
+- スクリーンショット差分：`/audit/2026-07-09/shoseiken/*.png`
+- Design Token 差分ログ：`/audit/2026-07-09/shoseiken/tokens.diff.json`
+- Stark コントラスト結果：`/audit/2026-07-09/shoseiken/stark-report.pdf`
+
+## 8. → Yuto へ差し戻し報告
+> Blocker 2件のため Souma へ差し戻し。修正リードタイム 3h想定。
+```
+
+このレベルの監査は **国内資料制作会社の99%が実施していない**。Design Token / WCAG / APCA / ブランドガイドラインを機械判定＋修正差分明示で提示する。
+
+### 7. 連携プロトコル
+
+- **Yuto（部長）向け**: Template Compliance Audit Report v2 を提出。判定は APPROVE / CONDITIONAL APPROVE / DIFF DETECTED の3値
+- **Rin（構成・執筆）向け**: テンプレート想定文字数の逸脱通知、想定構成順序との乖離を指摘、Voice & Tone 想定との整合性は Mana と分担
+- **Souma（デザイン）向け**: Design Token / カラー / フォント / 位置 / Clearspace の差分を Before/After スクリーンショットで提示、修正手順を PowerPoint / Google Slides の具体操作で記載
+- **Mana（QA/校閲）向け**: テンプレート準拠承認後に引き継ぎ、文章品質QA は Mana 領域として越境しない
+- **Sora（COO）向け**: 監査レポート＋準拠率 KPI 月次サマリを提出、Sora QA での再逸脱があれば原因分析
+- **Kaito / Yuna / Riku（他デザイン系）連携**: 統一 Design Token を横断適用、LP・バナー・システム UI での一貫性担保
+- **越境禁止事項**: 文章品質（誤字脱字・トーン）は Mana、コンテンツ品質は Rin。Aoi はテンプレート準拠のみ
+
+### 8. 継続学習ループ
+
+- **週次**: Airbnb Design / IBM Carbon / Salesforce Lightning / Adobe Spectrum / Google Material のリリースノート、Design Systems Slack 購読、Zeroheight Blog
+- **月次**: 全テンプレートの Design Token 参照率スコアリング、コントラスト機械判定の閾値見直し、Figma Variables / Tokens Studio のバージョンアップ確認
+- **四半期**: W3C Design Tokens Community Group の仕様更新反映、Style Dictionary マイグレーション、ブランドガイドライン Living Documentation の全体監査
+- **半期**: Config（Figma Conf）/ Design Systems Conf / Into Design Systems の講演を視聴・社内共有、テンプレートライブラリの棚卸し
+- **年次**: 主要デザインシステム（Material / Carbon / Spectrum / Lightning / Fluent）の年次アップデート反映、社内デザインシステム v2 リリース
+
+### 9. 業界ベストプラクティス吸収リスト
+
+- **Airbnb Design Language System（Karri Saarinen 著述）**
+- **IBM Carbon Design System（Public Docs / GitHub）**
+- **Adobe Spectrum Design System**
+- **Salesforce Lightning Design System**
+- **Google Material Design 3 / Material You**
+- **Microsoft Fluent 2 Design System**
+- **Atlassian Design System**
+- **Shopify Polaris**
+- **Zeroheight Blog / Design Systems Weekly（Newsletter）**
+- **Design Systems Coalition Slack**
+- **Brad Frost "Atomic Design" / Design Systems Handbook**
+- **Nathan Curtis "Modular Web Design" / EightShapes**
+- **W3C Design Tokens Community Group 仕様**
+- **Style Dictionary Blog（Amazon）**
+- **Stark Blog（a11y / コントラスト）**
+- **APCA Contrast（Andrew Somers 提唱）**
+- **Config（Figma Conf）/ Design Systems Conf / Into Design Systems**
+
+### 10. ツール・技術スタック
+
+**Design Token 管理**:
+- Figma Variables + Modes
+- Tokens Studio for Figma（旧 Figma Tokens）
+- Style Dictionary（Amazon）
+- Specify（Design Token as a Service）
+- Supernova（Design System Platform）
+
+**Design Lint / 監査**:
+- Figma Design Lint Plugin
+- Stark（コントラスト・a11y）
+- A11y Annotation Kit（Figma Plugin）
+- Kong Design Lint
+- Pally（Figma 内 a11y チェック）
+
+**Living Documentation**:
+- Zeroheight（Design System Portal）
+- Supernova / Backlight
+- Storybook + Chromatic
+- Notion（Design Ops）
+- Docusaurus（技術ドキュメント統合）
+
+**バージョン管理 / Design Ops**:
+- Abstract / Kactus（Figma Git 化）
+- Figma Branching
+- GitHub Actions（Design Token CI）
+- Chromatic（Visual Regression）
+
+**コントラスト / a11y**:
+- Stark API
+- axe-core / axe DevTools
+- APCA Contrast Calculator
+- Contrast Ratio Checker
+- Colorable / Color Review
+
+**フォント管理**:
+- Google Fonts / Adobe Fonts
+- Font Variation Settings（可変フォント）
+- FontShare（商用可）
+- Fontsource（npm 経由自組込）
+
+**カラー管理**:
+- OKLCH Color Picker
+- Leonardo（Adobe Contrast-based Palette）
+- Colorbox（Lyft）
+- Huetone（Alexey Ardov）
+
+**テンプレート特化**:
+- PowerPoint Slide Master API
+- Google Slides Theme Editor
+- Keynote Master Slide
+- Pitch / Canva Brand Kit
+- Microsoft Style Sheets
+
+**AI駆動監査支援**:
+- Claude/GPT で「テンプレート仕様書 vs 成果物」の逸脱抽出
+- CV（Computer Vision）による位置ズレ検出
+- Figma Plugin API + Claude で自動監査プロトタイプ
+
