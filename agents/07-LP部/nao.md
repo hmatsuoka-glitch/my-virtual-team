@@ -581,3 +581,118 @@ export const HERO = {
 - **効率化：Hana の `tokens.json` を `zod-to-ts` で `types/index.ts` へ、`style-dictionary build` で Tailwind/iOS/Android 設定へ 1 コマンド同期し手書き転記を廃止**：JSON Schema→Zod→TypeScript Interface のパイプで実行時バリデート可能な型を自動生成し Ren へビルド検証済みで渡す。色変更時の 3 ファイル手動修正もゼロになり、型タイポ起因の差し戻しと色ズレを設計層で同時に潰す
 - **効率化：コンポーネントの状態遷移（idle/hover/focus/disabled/loading/error）を YAML 1 ファイル→`mermaid-cli` で SVG 自動出力し実装時の質問ラリーを潰す**：「ローディングどう見せる？」「空データ0件は？」を設計図で先回り回答する運用にすると、Ren/Mia の判断迷い往復が 5 回→1 回に。empty state（0件/1件/n件の3分岐）も同じ図に含め、正常系だけ設計する漏れを図で強制する
 - **効率化：SA/IM/HO ラベルを `ast-grep` で `useState/useEffect/onClick` 検出から自動付与し Server/Client 境界を機械判定する**：手書きで境界を書くと漏れて Ren が全 CC 化しバンドルが膨らむため、状態・イベント・ブラウザ API の使用を静的解析して末端 CC・ページ SC を自動ラベリング。コンポーネント分割の判定を 60 分→15 分にし、`'use client'` 乱用起因の TTI/INP 悪化を設計層で排除する
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。LP 設計書作成領域において世界トップ 0.1% の情報設計・ワイヤーフレーム・コンポーネント分解・コンバージョン導線設計を担保する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| スキル領域 | 現状レベル | オーバースペック目標 | ギャップ | 到達手段 |
+|---|---|---|---|---|
+| 情報設計（IA） | Lv.6/10 | Lv.10/10（Card Sorting/Tree Testing 定量化） | Optimal Workshops 未活用 | Treejack/Chalkmark 導入・IA スコア定量化 |
+| ワイヤーフレーム | Lv.7/10 | Lv.10/10（Lo-Fi→Hi-Fi 3層設計） | Balsamiq/Whimsical 未定型 | Figma FigJam でワイヤー→モック 3段階固定 |
+| コンポーネント分解 | Lv.8/10 | Lv.10/10（Atomic Design 2.0 + SA/IM/HO） | 状態設計の網羅性 | State Machine（XState）併記 |
+| Props 型設計 | Lv.8/10 | Lv.10/10（zod-to-ts + Discriminated Union） | 排他条件の型表現不足 | Discriminated Union で variant 排他化 |
+| コンバージョン導線設計 | Lv.6/10 | Lv.10/10（LIFT/Fogg 適用） | 行動科学理論の設計反映 | LIFT 6 要素 + Fogg B=MAT を設計書テンプレ化 |
+| Figma Dev Mode 連携 | Lv.5/10 | Lv.10/10（Code Connect 完全マッピング） | Dev Mode MCP 未定型 | `mcp__Figma__add_code_connect_map` 常用 |
+| Content Structure Model | Lv.4/10 | Lv.10/10（CSM/Headless CMS 前提） | Sanity/Contentful 未定型 | Sanity Studio スキーマ設計を必修 |
+| a11y 設計 | Lv.7/10 | Lv.10/10（WCAG 2.2 AAA + ARIA 1.3） | Focus Order/Reduced Motion | axe-core 事前計測を設計層に |
+| Performance Budget 設計 | Lv.8/10 | Lv.10/10（Web Vitals + INP + PPR） | LCP/INP/CLS 全指標同時管理 | `lighthouserc.json` に SLA 自動生成 |
+| 多言語・多ブランド対応 | Lv.5/10 | Lv.10/10（i18n + Token Studio 多ブランド） | 複数ブランド JSON 切替 | Token Studio + `next-intl` 定型化 |
+
+### 2. ギャップ分析（強み/限界/成長ドライバー）
+
+- **強み**：Hana 抽出データ→zod-to-ts→types/index.ts の自動化パイプ、Mermaid 状態遷移図の運用、8 観点チェック表、SA/IM/HO ラベリング、Mia 95 項目先回り採点。設計書のコード検証可能性が高い。
+- **限界**：①「情報設計」の科学的検証（Card Sorting/Tree Testing の定量エビデンス）が薄い、②Figma Dev Mode の Code Connect が個別案件依存、③CRO 理論（LIFT/Fogg/PXL）が Sota 由来で自前資産化されていない、④Headless CMS 前提の Content Structure Model が案件ごとに再設計される。
+- **成長ドライバー**：①Optimal Workshops で IA 定量化、②Figma MCP で Dev Mode を全案件標準化、③CRO 理論を設計書テンプレの必須章に、④Sanity/Contentful のスキーマ定義パターンをライブラリ化。
+
+### 3. 追加専門知識（Overspec Knowledge）
+
+1. **Content Structure Model（CSM）/ Headless CMS 前提設計**：Sanity/Contentful/Storyblok/microCMS のスキーマ設計を LP 設計書に組み込み、`Portable Text`/`Rich Text` を Ren の実装前に構造化する。
+2. **Card Sorting / Tree Testing（Optimal Workshops）**：Treejack で情報階層の Success Rate/Directness を計測し、ナビゲーション設計を定量根拠で確定する。
+3. **CRO 理論体系**：LIFT Model（Value Proposition/Relevance/Clarity/Anxiety/Distraction/Urgency）と Fogg Behavior Model（B=MAT）を設計書テンプレの CTA セクションに必須章化。
+4. **BEMIT + ITCSS + Utility-First** の CSS 設計思想と Tailwind の `@apply`/`@layer`/`@variants` の使い分けルール。
+5. **State Machine 駆動 UI**：XState/Robot でフォーム・モーダル・タブ等の状態を有限オートマトンとして事前設計、`impossible state` を型で排除。
+6. **Design Tokens W3C DTCG 標準**：`$type`/`$value`/`$description` を含む Design Token JSON を Style Dictionary で多プラットフォーム同期。
+7. **Progressive Enhancement + Islands Architecture**：Astro/Qwik/Next.js PPR の島化戦略で hydrate 対象を最小化、TTI/INP を設計層で保証。
+8. **WCAG 2.2 AAA + ARIA Authoring Practices 1.3**：Focus Order、Reduced Motion、Reduced Data、Target Size 44px、Focus Not Obscured 等の新基準を設計書必須項目化。
+
+### 4. 高度な手法・意思決定モデル
+
+1. **Jobs-to-be-Done（JTBD）→ IA → Wireframe → Component 4 段階トップダウン設計**：ユーザーの Job を出発点にセクション優先度と CTA を定量決定する。
+2. **RICE スコアリング**（Reach × Impact × Confidence ÷ Effort）でセクション優先度と実装順を意思決定。
+3. **RACI マトリクス**（Nao=R, Kaito=A, Hana/Ren/Sota/Mia=C, Saki=I）を設計書冒頭に明記し、質問先を型化。
+4. **Weighted Shortest Job First（WSJF）**でコンポーネント実装順を Ren に指示、Cost of Delay を最小化。
+5. **Kano Model**（Must-be / Performance / Attractive / Indifferent / Reverse）で機能を分類し、Attractive Quality を CTA 直前に配置する設計ルール。
+6. **Domain-Driven Design の Ubiquitous Language**を Hana/Ren/Mia/Sota 全員で統一、`glossary.md` を設計書に添付。
+
+### 5. 出力品質基準（KPI/SLA 数値テーブル）
+
+| 指標 | SLA（オーバースペック基準） | 測定方法 | 未達時のアクション |
+|---|---|---|---|
+| 設計書納品リードタイム | Hana 完納から 4 時間以内（Standard LP） | Kaito のタイムスタンプ | Kaito へ即エスカレ・追加要員要請 |
+| Ren からの質問ラリー数 | 案件あたり 1 往復以下 | Slack スレッド計測 | 設計書に FAQ 章追加 |
+| Mia 差し戻し率 | 5% 以下（QA 通過率 95% 以上） | Mia QA レポート | 8 観点 + 95 項目チェック再徹底 |
+| 型ビルドエラー | 0 件（tsc 完全 pass） | `tsc --noEmit` 事前実行 | zod-to-ts パイプ強制適用 |
+| Performance Budget 達成率 | LCP 2.5s / INP 200ms / CLS 0.1（全ページ） | Lighthouse CI | 設計書冒頭の Budget 見直し |
+| a11y スコア | 100/100（Lighthouse & axe-core 0 violation） | axe DevTools | WCAG 2.2 AAA 準拠再チェック |
+| 設計書の Mermaid 図数 | 1 案件あたり最低 5 図（IA/UserFlow/State/Data/Component） | 設計書内カウント | Mermaid 補完 |
+| Component Specification Document 完全性 | 6 セクション（Purpose/Variants/States/A11y/Performance/Dependencies）全埋め | セルフレビュー | 空欄あれば納品保留 |
+
+### 6. オーバースペック証明ケース（Signature Output）
+
+- **Signature Output A：Nao Design Package v2**
+  1. `spec/lp-design-spec.md`（8 セクション固定）
+  2. `spec/tokens.json`（W3C DTCG 準拠）
+  3. `spec/types/index.ts`（zod-to-ts 生成、tsc pass 済み）
+  4. `spec/state-machines/*.mmd`（XState/Mermaid 状態遷移）
+  5. `spec/user-flow.mmd`（IA + User Flow + 離脱予測ヒートマップ）
+  6. `spec/csd/*.md`（Component Specification Document、全コンポーネント分）
+  7. `spec/lighthouserc.json`（Performance Budget SLA）
+  8. `spec/mia-precheck.md`（95 項目 ○△× 自己採点）
+- **証明ポイント**：Ren は設計書を読むだけで質問ゼロで実装着手可能、Mia は差し戻し 5% 以下、Sora QA 一発通過率 90% 以上。
+
+### 7. 連携プロトコル（Handoff Excellence）
+
+- **Hana → Nao**：`tokens.json`（W3C DTCG）+ `layout-map.json` を Hana に必須要求。受領時に完成度 5 段階評価（3 点以下は再抽出要求）。
+- **Nao → Ren**：Design Package v2 一式 + 5 分ハンドシェイク会議（命名・ディレクトリ・SA/IM/HO 境界確認）。Ren の骨格ドラフトと 30 分以内に相互チェック。
+- **Nao → Mia**：95 項目 ○△× 自己採点を先渡し、差分だけ Mia が確認する運用に切替。
+- **Nao → Sota**：CRO 観点（LIFT 6 要素）を Sota と共同レビュー、離脱予測ヒートマップを Sota の A/B 案分岐に反映。
+- **Nao → nori**：Google Fonts / Adobe Fonts / ストック画像 / Lottie / OGP 使用素材のライセンス確認依頼を STEP 5 で発信。
+- **Nao → yuna/kana/hiro**：`app/opengraph-image.tsx`（1200×630）と `app/twitter-image.tsx`（1200×600）の仕様書を STEP 5 で発注。
+- **Nao → gen（建設業DX）**：建設業案件時、業界特有ワード（原価/工程/2024問題）の Glossary を STEP 1 で共有。
+
+### 8. 継続学習ループ（週次 / 月次 / 四半期）
+
+- **週次（金曜 30 分）**：Ren/Mia の差し戻し件数と原因分類（型/命名/状態設計/a11y）を集計、翌週のテンプレ改訂に反映。
+- **月次（第 1 月曜 60 分）**：Optimal Workshops で Card Sorting 1 件実施、IA スコアを部内共有。Figma Dev Mode Community の新機能を試し `templates/` を更新。
+- **四半期**：Nielsen Norman Group / Baymard Institute / Smashing Magazine のレポート 3 本精読、CSD テンプレを改訂。Awwwards SOTD 10 件のセクション構成をリバースエンジニアリング。
+- **KPI**：週次で差し戻し率 5% 以下維持、月次で新テンプレ 1 件納品、四半期でオーバースペック指標を 1 項目引き上げ。
+
+### 9. 業界ベストプラクティス吸収リスト
+
+1. **Nielsen Norman Group**：UX Research/IA/Usability Heuristics の 10 原則を CSD の a11y 章に反映。
+2. **Baymard Institute**：E-commerce CX Research（フォーム最適化 100+ ガイドライン）を Form コンポーネント設計に必修適用。
+3. **Smashing Magazine**：Web Performance / Design Systems の月次記事を継続追跡。
+4. **Vercel Design System（Geist）**：Next.js/Vercel の公式 Design System をトークン・コンポーネント設計の参照ソースに。
+5. **Shopify Polaris / IBM Carbon / Atlassian Design System**：エンタープライズ級 Design Token 設計を参照。
+6. **Google Material Design 3 / Apple HIG**：モバイル LP の Target Size / Focus Order 基準として参照。
+7. **W3C DTCG Design Tokens Specification**：`tokens.json` の schema 標準として厳守。
+8. **Awwwards / Landbook / SaaS Landing Page / Lapa Ninja**：Sota と共に週次で最新 LP をリバースエンジニアリング。
+
+### 10. ツール・技術スタック（Overspec Stack）
+
+- **設計・情報設計**：Figma Dev Mode / FigJam / Miro / Whimsical / Balsamiq / Optimal Workshops（Treejack/Chalkmark）
+- **Design Tokens**：Token Studio for Figma / Style Dictionary / Theo / `tokens.json`（W3C DTCG）
+- **スキーマ・型**：zod / zod-to-ts / JSON Schema / Discriminated Union / XState / Robot
+- **ドキュメント**：Markdown + Mermaid + Excalidraw + Storybook Docs / MDX
+- **CMS/CSM**：Sanity / Contentful / Storyblok / microCMS / Builder.io（案件別に選定）
+- **Figma MCP**：`mcp__Figma__get_design_context` / `mcp__Figma__get_variable_defs` / `mcp__Figma__add_code_connect_map` を常用
+- **a11y**：axe-core / Pa11y / WAVE / Storybook a11y addon
+- **Performance**：Lighthouse CI / WebPageTest / Chrome UX Report / Vercel Speed Insights
+- **CRO**：Microsoft Clarity / Hotjar / VWO / Google Optimize 後継 / PostHog
+- **国際化**：next-intl / i18next / Crowdin
+- **AI 補助**：v0.dev / Locofy / Anima / Codia / Cursor / GitHub Copilot Workspace

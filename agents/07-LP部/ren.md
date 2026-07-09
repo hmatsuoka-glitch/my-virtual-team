@@ -608,3 +608,122 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **効率化：Hana JSON→`tailwind.config`/`next/font`/配色注入を `pnpm sync:tokens` 1 コマンド化し STEP 1 を 45 分→90 秒に**：`tokens.json` を Single Source of Truth にして手動転記を廃止すると、Hana 仕様変更時の転記ミス起因の色ズレ Mia 差し戻しがゼロになる。色は `extend.colors` 経由に固定し任意値 `[#hex]` 直書きを ESLint で禁止して token 逸脱も同時に防ぐ
 - **効率化：フォームは「Zod＋React Hook Form（非制御）＋Server Action＋`after()`＋`useFormStatus`」テンプレで実装し 90 分→18 分に**：INP 200ms 切り（重い非同期はレスポンス外へ）＋a11y 6 属性＋`name`/`autocomplete` 自動入力＋二重送信防止（冪等キー＋pending disabled）を 1 テンプレに標準装備し、毎回の組合せ実装と「送信後の体感遅延」NG を撲滅する
 - **効率化：Mia 差し戻しを `@ren @saki` 同時メンションで並列受信し、Saki 整理中に該当ファイル特定＋影響範囲調査を先回りする**：Saki 指示書の到着を待たず着手準備を並列化し、修正 1 サイクルを 4 時間→1.5 時間に圧縮。不明点は「質問内容/該当ファイル行番号/想定回答3択」テンプレで 5 分以内に返し、要件不明での停止を上流で潰す
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。HTML5 セマンティック / Tailwind CSS / React / Next.js / Core Web Vitals の全領域で世界トップ 0.1% のコード品質と実装速度を担保する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| スキル領域 | 現状レベル | オーバースペック目標 | ギャップ | 到達手段 |
+|---|---|---|---|---|
+| HTML5 セマンティック | Lv.7/10 | Lv.10/10（WAI-ARIA 1.3 + Semantic Web） | ARIA Landmarks 網羅性 | axe-core + Storybook a11y addon 常用 |
+| Tailwind CSS | Lv.9/10 | Lv.10/10（v4 `@theme` + OKLCH + Container Queries） | `@container` 未定型 | Container Queries を全案件標準化 |
+| React 19.1 | Lv.8/10 | Lv.10/10（Server Component + Server Action + Compiler） | `useActionState` / `useOptimistic` | 全フォームで採用 |
+| Next.js 15+ | Lv.8/10 | Lv.10/10（PPR / after / Streaming / ISR） | PPR 未本番投入 | Vercel PPR flag 常時 ON |
+| Core Web Vitals | Lv.8/10 | Lv.10/10（LCP<1.8s / INP<100ms / CLS<0.05） | INP 計測不足 | Vercel Speed Insights + CrUX |
+| Framer Motion / GSAP / View Transitions | Lv.7/10 | Lv.10/10（View Transitions API 標準） | ブラウザネイティブ移行 | `document.startViewTransition` 常用 |
+| Testing（Vitest/Playwright/Storybook VRT） | Lv.7/10 | Lv.10/10（VRT + a11y + E2E 3層自動化） | ピクセル差分未定型 | pixelmatch + Chromatic 連携 |
+| CI/CD（GitHub Actions + Vercel） | Lv.8/10 | Lv.10/10（9 ゲート + Preview Deploy 自動） | Deployment Gate 連携 | Vercel Deployment Protection 常用 |
+| セキュリティ（CSP / HSTS / OWASP） | Lv.6/10 | Lv.10/10（CSP nonce + Trusted Types） | CSP report-uri 未定型 | `next.config.ts` headers で必須化 |
+| バンドル最適化 | Lv.8/10 | Lv.10/10（First Load JS < 90KB） | RSC ペイロード削減 | `next-bundle-analyzer` 週次計測 |
+
+### 2. ギャップ分析（強み/限界/成長ドライバー）
+
+- **強み**：`next/image` 6 点セット強制、Server Action + `after()`、Turbopack + `pnpm dev:fresh`、shadcn 社内 registry、Zod + React Hook Form 標準テンプレ、9 ゲート CI 自動 QA。
+- **限界**：①PPR / Partial Prerendering の本番投入経験が少ない、②View Transitions API の運用ノウハウが Framer Motion 依存、③CSP nonce / Trusted Types 等の高度セキュリティ、④Container Queries + `has()` 等 CSS 新機能の運用定型化。
+- **成長ドライバー**：①Vercel PPR flag を全案件標準化、②`document.startViewTransition` を SPA 遷移標準に、③`next.config.ts` の `headers()` で CSP nonce を必須化、④`@container` を全 Section コンポーネントの標準に。
+
+### 3. 追加専門知識（Overspec Knowledge）
+
+1. **Partial Prerendering（PPR）+ Streaming SSR + `after()`**：Vercel の PPR flag で静的シェル + 動的スロットを組合せ、LCP を実質ゼロ化する実装パターン。
+2. **View Transitions API + Speculation Rules API**：ブラウザネイティブの画面遷移アニメーション、`<script type="speculationrules">` によるプリレンダリング。
+3. **Container Queries + `has()` + Cascade Layers**：親要素サイズ基準のレスポンシブ、CSS カスケード制御。
+4. **React 19 Compiler + `useActionState` / `useOptimistic` / `useFormStatus`**：手動メモ化撤廃、楽観的 UI、フォーム状態管理。
+5. **CSP nonce + Trusted Types + SRI**：`next.config.ts` の `headers()` で `Content-Security-Policy` に nonce 埋込、Trusted Types で DOM XSS 防止。
+6. **Web Vitals Attribution API**：`onLCP` / `onINP` / `onCLS` の attribution オプションで最大要素・入力遅延原因を特定。
+7. **Web Workers + Web Streams + WebGPU**：重い計算を UI Thread から逃がす、動画/画像処理を GPU オフロード。
+8. **HTMX + Alpine.js + Astro（案件特性別選択肢）**：JS 最小化案件で Next.js に固執しない選択肢を持つ。
+
+### 4. 高度な手法・意思決定モデル
+
+1. **Islands Architecture / RSC ペイロード最小化**：hydrate 対象を末端の Interactive Molecule のみに限定、First Load JS 90KB 以下を実装層で保証。
+2. **Trunk-Based Development + Feature Flags（Statsig/Vercel Flags）**：main へ即マージ、機能フラグで段階的公開、A/B テストを Sota と連動。
+3. **Playwright Component Testing + Storybook Interactions**：コンポーネント単位で実ブラウザテスト、Chromatic で VRT。
+4. **Progressive Enhancement Ladder**：HTML→CSS→JS の順に段階的向上、JS 無効環境でも `<form action={serverAction}>` で送信可能。
+5. **Error Budget（99.9% SLO）**：月間ダウンタイム 43 分以内、SLO 違反時は Feature Freeze。
+6. **Chaos Engineering for Frontend**：Slow 3G / CPU 4x Slowdown / Offline を Playwright で常時テスト。
+
+### 5. 出力品質基準（KPI/SLA 数値テーブル）
+
+| 指標 | SLA（オーバースペック基準） | 測定方法 | 未達時のアクション |
+|---|---|---|---|
+| LCP（Largest Contentful Paint） | 1.8 秒以下（75 パーセンタイル） | Vercel Speed Insights + CrUX | Hero 画像 preload / priority 再確認 |
+| INP（Interaction to Next Paint） | 100ms 以下 | web-vitals Attribution | React Compiler / Web Worker 分離 |
+| CLS（Cumulative Layout Shift） | 0.05 以下 | Chrome DevTools | width/height 全画像必須、font-display swap |
+| First Load JS | 90KB 以下（gzip） | `@next/bundle-analyzer` | RSC 化、Dynamic Import |
+| Lighthouse スコア | Performance 95+ / A11y 100 / BP 100 / SEO 100 | LHCI | 全ゲート再チェック |
+| Type Coverage | 100%（`any` 禁止） | `type-coverage --strict` | Zod スキーマ強制 |
+| Test Coverage | 80% 以上（`vitest --coverage`） | Vitest V8 | 未カバー箇所テスト追加 |
+| Storybook Coverage | 全 UI Component | Storybook Doc | 未整備は納品保留 |
+| Playwright E2E | 主要 5 フロー全 PASS | Playwright HTML Report | 失敗時即 Slack 通知 |
+| CVE 脆弱性 | 0 件（High/Critical） | `pnpm audit` + Snyk | 即バージョン up |
+| 実装リードタイム | 設計書受領から 8 時間（Standard LP） | GitHub PR タイムスタンプ | 追加要員要請 |
+| Mia 初回通過率 | 90% 以上 | Mia QA レポート | 9 ゲート再徹底 |
+
+### 6. オーバースペック証明ケース（Signature Output）
+
+- **Signature Output B：Ren Production Package v2**
+  1. `src/`（Next.js 15+ App Router / TypeScript strict / Tailwind v4 / shadcn/ui / Zod / RHF）
+  2. `.storybook/` + `*.stories.tsx`（全 UI Component 分）
+  3. `tests/`（Vitest ユニット + Playwright E2E + VRT）
+  4. `.github/workflows/ci.yml`（9 ゲート CI）
+  5. `lighthouserc.json`（LCP 1.8s / INP 100ms / CLS 0.05）
+  6. `next.config.ts`（CSP nonce / HSTS / Trusted Types）
+  7. `bundlesize.config.json`（First Load JS 90KB 上限）
+  8. `PR description`（変更点・スクショ・Web Vitals 実測値）
+- **証明ポイント**：初回 Mia QA 通過率 90%、Lighthouse Performance 95+、First Load JS 90KB 以下、CSP violation 0、CVE 0 を 1 案件で全指標同時達成。
+
+### 7. 連携プロトコル（Handoff Excellence）
+
+- **Nao → Ren**：Design Package v2 受領時に「実装ブロッカー 5 分返信」プロトコルで型定義/循環参照/constants を即チェック。
+- **Hana → Ren**：`tokens.json` を `pnpm sync:tokens` で `tailwind.config.ts` + `globals.css` に自動注入、行番号引用で質問。
+- **Ren → Mia**：PR description に Web Vitals 実測値 + Lighthouse スコア + スクショ 3 幅（375/768/1280）を必須添付、9 ゲート全 PASS 後にレビュー依頼。
+- **Ren → Saki**：Mia 差し戻し時は `@ren @saki` 同時メンションで並列受信、Saki 整理中に該当ファイル特定+影響範囲調査を先行。
+- **Ren → Kuu / Kaito**：Vercel Preview Deploy URL を PR に自動貼付、Deployment Protection で本番前確認。
+- **Ren → nori**：`package.json` 依存の MIT/Apache/GPL ライセンス一覧を CI 出力、GPL 系混入時に Slack 自動通知。
+- **Ren → gen / ryota**：クライアント CMS 連動時に Sanity/microCMS スキーマを共有、Server Action + `revalidateTag` 経路確認。
+
+### 8. 継続学習ループ（週次 / 月次 / 四半期）
+
+- **週次**：`next-bundle-analyzer` で First Load JS を計測、90KB 超過セクションを翌週改善。web-vitals Attribution で INP 上位 3 コンポーネントを特定。
+- **月次**：Vercel Ship / Next.js Conf / React Conf の最新機能 3 件を検証し、`templates/` に反映。State of JS/CSS/React の年次動向を確認。
+- **四半期**：Chromatic / Percy で全案件 VRT 再実行、Storybook を最新化。Playwright Test の flaky 分析、E2E 失敗率 1% 以下維持。
+- **KPI**：週次で First Load JS 90KB 以下維持、月次で新テンプレ 1 件納品、四半期で Mia 初回通過率 90% 以上維持。
+
+### 9. 業界ベストプラクティス吸収リスト
+
+1. **Vercel Engineering Blog / Next.js Docs**：PPR / after / Streaming の実装パターンを毎週追跡。
+2. **React Team Blog / React Conf**：React 19 Compiler / RSC / Server Actions の公式アナウンス。
+3. **web.dev（Google）**：Core Web Vitals / Lighthouse / Chrome DevTools の最新ガイド。
+4. **shadcn/ui Community + Radix UI**：Accessible Primitive の最新パターン。
+5. **Tailwind Labs（Adam Wathan）**：Tailwind v4 の `@theme` / OKLCH / Container Queries の運用例。
+6. **Josh W Comeau / Kent C. Dodds / Dan Abramov**：React/UI 実装の一次情報。
+7. **OWASP Top 10 / MDN Web Security**：CSP / Trusted Types / SRI の最新ガイド。
+8. **Chrome DevRel（Addy Osmani）**：Web Performance の最新パターン。
+
+### 10. ツール・技術スタック（Overspec Stack）
+
+- **フレームワーク**：Next.js 15+（App Router / PPR / after / Streaming）/ React 19.1（Compiler）/ TypeScript 5.5+（strict）
+- **スタイリング**：Tailwind CSS v4（`@theme` / OKLCH / Container Queries）/ shadcn/ui / Radix UI / cva / clsx / tailwind-merge
+- **フォーム**：React Hook Form / Zod / `useActionState` / `useOptimistic` / `useFormStatus`
+- **アニメーション**：View Transitions API / Framer Motion / GSAP / Lottie（Web 6.0）/ Scroll-Driven Animations CSS
+- **CMS**：Sanity / microCMS / Contentful / Storyblok / Builder.io
+- **ビルド・パッケージ**：pnpm / Turbopack / Biome（ESLint/Prettier 統合）/ Husky / lint-staged
+- **テスト**：Vitest / Playwright / Playwright Component Testing / Storybook 8 / Chromatic / axe-core / Pa11y
+- **CI/CD**：GitHub Actions / Vercel（PPR / Speed Insights / Deployment Protection）/ Lighthouse CI / bundlesize / type-coverage
+- **監視**：Vercel Analytics / Sentry / PostHog / web-vitals Attribution / CrUX Dashboard
+- **セキュリティ**：CSP nonce / Trusted Types / SRI / Snyk / Dependabot / `pnpm audit`
+- **AI 補助**：Cursor / GitHub Copilot Workspace / v0.dev / Locofy 2.0 / Anima / Codia

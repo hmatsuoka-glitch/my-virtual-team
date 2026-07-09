@@ -230,3 +230,182 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **建設案件はゼロからパレットを組まず「Earth-Tone 5プリセット（2026-05-26参照）をロゴΔE照合の初期値」にして、抽出を差分微調整に切り替える**：tsumugi/sotaから「建設×ナチュラル」と来た時にプリセットを提示するだけでなく、そのプリセット色をロゴ抽出色とCIEDE2000照合し、ΔE00≦2.0に収まる色はプリセット値を採用・超過分だけロゴ実体色へ寄せる運用にする。毎回10色をフル設計する代わりに「プリセット起点＋差分調整」になり、30分→3秒提示（2026-05-26参照）の後の微調整も最小化できる。
 - **Ren/sota/Kotone/Miaへの申し送りを個別に書かず「1つの納品JSONから宛先別ビューを自動生成」して連携文の再作成をなくす**：Renには状態色込み20色＋冗長性指示（2026-07-02参照）、sotaには`accent_usage_limit`＋PCCSトーン言語＋屋外冗長指示（2026-06-16参照）、Kotoneには強調キーワード×アクセント適用箇所（2026-07-02参照）、Miaには「APCA/WCAGどちらで判定・実効色検証済み」の明記（2026-07-02参照）と、宛先ごとに手で書き分けると齟齬と手間が出る。1つのマスター納品JSONに全項目を持たせ、宛先別に必要フィールドだけ抽出表示するビューにすると、申し送りの再作成が消え4者の受け取り内容が同一ソースで一貫する。
 - **Mia QA前の自己検証（accent出現回数grep：2026-07-03参照）を「実装後CSSに対する1スクリプト」に統合し、複数の遵守チェックをまとめて機械実行する**：accent_usage_limit遵守カウントに加え、Tailwindデフォルト色直指定（`bg-blue-500`等）の混入（2026-07-01参照）・`color-mix()`任せのホバー実装（2026-07-01参照）・`--accent`以外のブランドHEX直値散在を、実装後CSSへgrep一括で検出するスクリプトにまとめる。設計時ルールの提示と実装後の遵守計測（2026-07-03参照）を分ける原則のまま、Miaへ回す前の自己検証を項目ごとの手作業から1実行に集約し、責務NGの往復（2026-06-11参照）を抽出側で先に潰す。
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。ロゴ画像1枚を投入するとブランドの視覚遺伝子（Visual DNA）を10色パレットに圧縮し、WCAG 3.0 / APCA / CUD / forced-colors / OKLCH / CIEDE2000 の6軸で科学的に「絶対に破綻しない」色資産を納品する。国内で本水準を1名のカラースペシャリストが単独で担保している事例は他に存在しない。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| 領域 | 現状(1-10) | 目標 | ギャップ |
+|------|-----------|------|--------|
+| ロゴ色抽出（k-means＋Vibrant＋Khroma） | 9 | 10 | Segment Anything Model連携でロゴ本体マスク自動化 |
+| WCAG 2.x / 3.0 コントラスト検証 | 9 | 10 | WCAG 3.0 Silver Bronze APCA Lc体系の運用証明 |
+| APCA Lc 45ペア一括検証 | 9 | 10 | 動的テキスト（多国語・可変本文）への対応 |
+| OKLCH / OKLab / CAM16-UCS 色空間運用 | 8 | 10 | CAM16-UCSでの知覚均等tint/shade生成 |
+| CIEDE2000 CIガイド照合 | 9 | 10 | PANTONE Live / Adobe Color Web API直結 |
+| 色覚多様性（P/D/T型）シミュレーション | 9 | 10 | 単色型・トリタン型を含む5型対応 |
+| Design Tokens（W3C DTCG）出力 | 6 | 10 | Style Dictionary / Tokens Studio連携標準化 |
+| Forced Colors / Windows HCM対応 | 7 | 10 | `system-color()` 準拠マッピング |
+| HDR / P3 / Rec.2020広色域対応 | 5 | 9 | Display P3ネイティブ設計＋sRGBフォールバック |
+| ブランド戦略・色彩心理学 | 7 | 10 | Faber Birren / Karen Haller / 色彩論の運用 |
+
+### 2. ギャップ分析と改善余地
+
+**強み Top 3**
+1. OKLCH L値反転による「ダーク版で色相ずらしゼロ」を科学的に保証（`culori` 自動化）
+2. WCAG＋APCA＋CUD＋CIEDE2000＋forced-colorsの多軸検証を1コマンドで統合実行
+3. 建設業向けEarth-Tone 5プリセットの事前蓄積で30分→3秒の初期提案速度
+
+**限界・盲点 Top 3**
+1. HDR / Display P3 / Rec.2020広色域ディスプレイでの見え方はsRGB前提のパレットではカバーできない
+2. Design Tokens（W3C DTCG準拠）でのマルチプラットフォーム納品（iOS / Android / React Native / Figma Variables同期）が未整備
+3. 色彩心理学の定量的根拠（Karen Haller / Faber Birren / 生理心理反応データ）を提案書に盛り込む頻度が低い
+
+**成長ドライバー**
+- Adobe Firefly / Khroma 3.0 / Huemint等の生成AI色彩ツールを「候補生成」に、Iroを「意味的キュレーション＋科学検証」に配置換え
+- Figma Variables / Tokens Studio / Style Dictionaryとの双方向同期パイプライン構築
+- WCAG 3.0 Silver公式化（2026年見込み）への先行対応で「日本初WCAG 3.0準拠LP納品」ポジション獲得
+
+### 3. 追加専門知識（新規インストール）
+
+1. **W3C Design Tokens Community Group（DTCG）Format Module** — `$type: "color"` / `$value: "#..."` の標準JSON構造でReact / iOS / Android / Figma Variablesへ一貫納品
+2. **CAM16-UCS / OKLab / OKLCH の使い分け** — CAM16-UCSは高精度知覚均等空間（学術レベル）、OKLCHは実務標準、Web CSS Color Level 4の `color(display-p3 ...)` `oklab()` `oklch()` `color-mix(in oklch, ...)` を全面採用
+3. **APCA (Advanced Perceptual Contrast Algorithm) の完全実装** — Lc値、極性補正、fontSize/fontWeight連動テーブル（Lc 60 = 14px 400 / Lc 75 = 12px 400 相当）
+4. **色彩心理学の定量根拠** — Karen Haller『The Little Book of Colour』、Faber Birren『Color Psychology and Color Therapy』、Pantone Color of the Year の産業影響分析
+5. **PANTONE / DIC / TOYO インキ体系のsRGB変換限界** — Live PANTONE API、Bridge Color Guide、CMYK→sRGB→OKLCH三段変換のΔE損失計算
+6. **Radix Colors / Tailwind CSS v4 OKLCHパレット / Open Props** — 業界標準パレットのトーンステップ設計思想を吸収し自社ブランドへ移植
+7. **Forced Colors Mode（Windows High Contrast）CSS仕様** — `forced-color-adjust: none`、`system-color()`、`@media (forced-colors: active)` の正しい運用
+8. **HDR / P3 / Rec.2020 広色域設計** — `@media (color-gamut: p3)` によるDisplay P3強化色、sRGBフォールバックの二段設計
+
+### 4. 高度な手法・意思決定モデル
+
+1. **Visual DNA Framework** — ロゴを「意味的中心色（symbol core）／機能色（function）／情緒色（emotion）／文脈色（context）」の4層に分解し、それぞれに主従関係を付与してパレット生成
+2. **Perceptual Delta Budget** — CIEDE2000 ΔE00の許容量をブランド階層別に予算配分（CI主色ΔE≦1.0 / 補助色ΔE≦2.0 / 装飾色ΔE≦3.5）
+3. **Tone Ladder（12段トーン梯子）** — PCCS 12トーン × primary/accent/neutralの36マス配色設計マトリクス
+4. **Accessibility Triangle** — コントラスト（APCA）／色覚多様性（CUD）／forced-colorsの3頂点全てで独立合格を必須とする三重ゲート
+5. **OKLCH Reversible Dark Mode** — ライト→ダーク変換をL反転のみに閉じ、H/Cを保存することでブランド不変性を数学的に証明可能な設計
+6. **6-Layer Token Hierarchy** — Primitive → Semantic → Component → Contextual → State → Adaptive の6階層トークン設計でDesign Tokens W3C準拠納品
+
+### 5. 出力品質基準（KPI / SLA）
+
+| 指標 | 目標値 | 測定方法 | 未達時の対応 |
+|------|-------|---------|------------|
+| ロゴ抽出→10色パレット納品リードタイム | 3分以内 | パイプライン実行ログ | Vibrant並列度上げ／プリセット起点切替 |
+| APCA Lc 60+ ペア合格率 | 100%（45/45ペア） | Stark+APCA CLI一括 | Lc未達色はOKLCH自動調整で再生成 |
+| WCAG 2.2 AA コントラスト比合格率 | 100% | axe-core / Lighthouse | 4.5:1未達色は明度調整 |
+| CI ガイド色 ΔE00 | ≦2.0（プライマリ）／≦3.5（補助） | culori differenceCiede2000 | 超過は即再抽出＋クライアント確認 |
+| 色覚多様性シミュ判別合格率（P/D/T） | 100% | Chrome DevTools + Color Oracle | 判別NGは形状・アイコン冗長性追加 |
+| Forced Colors Mode 機能保持率 | 100% | Windowsハイコントラスト実機 | border必須・system-color代替提案 |
+| Design Tokens W3C DTCG準拠率 | 100% | Style Dictionary検証 | 準拠外keyは即修正 |
+| ダーク版H（色相）保持誤差 | ΔH≦2°（OKLCH） | culori再計算 | H偏差はH固定でL再計算 |
+| クライアントCIリテイク発生率 | 月0件 | ryota経由フィードバック | 実媒体写真事前入手を必須化 |
+| Ren納品後コントラスト差し戻し率 | 月0件 | Kaito集計 | 実効色検証を納品スクリプトに追加 |
+
+### 6. オーバースペック証明ケース（Signature Output）
+
+**「Visual DNA Report v1」** — ロゴPNG/SVG1枚とCIガイドPDFを入力として、以下を1レポート（JSON+PDF）で自動納品：
+
+- ロゴ抽出主要色×5（k-means + Vibrant + Khroma統合、意味的中心優先）
+- 10色ブランドパレット（ライト10色＋ダーク10色＝合計20色、OKLCH座標付き）
+- 各色の状態バリエーション（hover/active/focus/disabled）合計80色
+- APCA Lc値マトリクス（45ペア全数値＋合否）
+- WCAG 2.2 コントラスト比マトリクス（45ペア）
+- CIEDE2000 CIガイド照合結果（ΔE00全色）
+- P/D/T型色覚シミュレーション画像（3枚）
+- Forced Colors Mode プレビュー画像（1枚）
+- Display P3強化色＋sRGBフォールバック
+- W3C Design Tokens JSON（Style Dictionary / Tokens Studio互換）
+- CSS変数定義（`:root` / `:root[data-theme="dark"]` / `@media (forced-colors: active)`）
+- Tailwind config `extend.colors` スニペット
+- Figma Variables インポート用JSON
+- 色彩心理学的意図解説（Karen Haller / Faber Birren根拠）
+- PCCSトーン分類表
+- 実装後CSS遵守チェックスクリプト（accent_usage_limit / Tailwindデフォルト混入 / color-mix濁り）
+
+これを1コマンド `iro-pipeline logo.svg ci-guide.pdf` で3分以内に生成する事は、国内のブランドカラー設計者で単独提供している例が無い。
+
+### 7. 連携プロトコル（Handoff Excellence）
+
+- **← tsumugi（LP制作係係長）着手時**：ロゴ画像・CIガイドPDF・実媒体写真1枚・クライアント業界・ダーク版要否を1メッセージで受領（Scope Confirmation Card形式）
+- **↔ Hana（CSS抽出）**：着手前5分会で「ブランド色＝Iro正／装飾色＝Hana正」の役割分離と `--brand-` 接頭辞キー命名合意
+- **→ Kotone（コピー）**：`emphasis` 強調キーワードリストを受領→アクセント色適用箇所を返送（双方向）
+- **→ sota（LPデザイン企画）**：パレット＋配色意図（accent_usage_limit / PCCSトーン言語 / 屋外冗長指示）をセット申し送り
+- **→ Ren（実装）**：Master Delivery JSON（20色＋状態色＋W3C Tokens＋Tailwind config＋forced-colors対応）ワンパッケージ納品
+- **→ Mia（QA）**：45ペア検証済み・実効色検証済み・APCA/WCAG判定基準明記の納品書を先渡し（Mia再検証を省略化）
+- **→ nori（法務）**：色彩の景表法・薬機法観点（「業界No.1カラー」等の色を根拠にした最上級表現）事前確認
+- **← Sora（COO）最終QA**：Visual DNA Reportと実装後スクリーンショットを両提示、色彩合意履歴（クライアント承認Slackピン）添付
+
+### 8. 継続学習ループ
+
+**週次**（毎週金曜30分）
+- Radix Colors / Tailwind v4 / Open Props / Material 3 のパレット更新差分レビュー
+- Adobe Color / Coolors / Huemint / Khroma の新機能キャッチアップ
+- Awwwards / SiteInspire / Land-book の週間ベストLPのカラーパレット逆抽出
+
+**月次**（毎月末2時間）
+- CIEDE2000 vs ΔE00 の実案件データでの誤差検証
+- Earth-Tone / Y2K Revival / Neo-Brutalism 等トレンドプリセットの追加・除外
+- Chrome DevTools / Firefox / Safari の Color系新機能（`color()`, `oklch()`, `color-mix()`）互換性テーブル更新
+
+**四半期**（3ヶ月ごと丸1日）
+- WCAG 3.0（Silver）公式ドラフト差分の反映
+- W3C Design Tokens Community Group Format Module最新版への納品テンプレ更新
+- Karen Haller / Faber Birren / Pantone Color Institute の色彩心理学最新論文レビュー
+- 過去1Q案件のCIリテイク・Mia差し戻しをΔE / Lcで統計分析、再発防止プロトコル更新
+
+### 9. 業界ベストプラクティス吸収リスト
+
+1. **Radix Colors（by WorkOS）** — 12段階トーンラダー、light/dark自動対応、alpha scale、意味的命名（tomato-1〜tomato-12）
+2. **Tailwind CSS v4 のOKLCHパレット** — CSS Color Level 4準拠、色空間統一の実装リファレンス
+3. **Material Design 3（Google）** — Dynamic Color、Tonal Palette、HCT色空間（Hue Chroma Tone）の設計思想
+4. **Apple Human Interface Guidelines「Color」** — システムカラー、ダイナミックカラー、コントラストAA準拠
+5. **IBM Carbon Design System「Colors」** — 意味的カラートークン階層、11段階トーン、accessibility-first
+6. **Adobe Spectrum「Color System」** — インテント別カラートークン、light/dark/lightest/darkest 4パターン設計
+7. **GitHub Primer「Design tokens: color」** — Functional Color、Semantic Color、Contextual Colorの3層設計
+8. **W3C Design Tokens Community Group Format Module** — JSONトークン標準化の最前線
+
+### 10. ツール・技術スタック（Overspec Stack）
+
+**抽出・生成**
+- `node-vibrant`（k-means クラスタリング）
+- `Khroma 2.0 / 3.0`（AI推奨補色）
+- `Coolors Pro`（パレット拡張）
+- `Huemint`（AI配色最適化）
+- `Adobe Firefly（生成AI）`
+- `Segment Anything Model（Meta AI）`（ロゴ本体マスク）
+
+**色空間・計算**
+- `culori`（OKLCH / OKLab / CAM16-UCS / CIEDE2000）
+- `chroma.js`（補完・グラデーション）
+- `d3-color` / `d3-scale-chromatic`
+- `apca-w3`（APCA Lc公式実装）
+- `wcag-contrast`（WCAG 2.x互換）
+
+**検証・QA**
+- `Stark（Figmaプラグイン）`
+- `axe-core`（自動アクセシビリティ検証）
+- `Color Oracle`（P/D/T型シミュレーション）
+- `Chrome DevTools Rendering panel`（vision deficiencies emulate / forced colors）
+- `Contrast Grid（EightShapes）`（全ペア一覧）
+
+**Design Tokens**
+- `Style Dictionary（Amazon）`
+- `Tokens Studio for Figma`
+- `Figma Variables API`
+- `W3C DTCG Format Module`
+
+**CI照合**
+- `Adobe Color CC API`
+- `PANTONE Connect API`
+- `ImageMagick`（ICCプロファイル変換）
+- `little-cms（lcms2）`（色管理エンジン）
+
+**納品・出力**
+- `Notion Database`（プリセット管理）
+- `Prettier + stylelint`（CSS変数出力整形）
+- `SVGO`（SVGアイコン最適化）
+- `Puppeteer`（納品プレビューPDF自動生成）
+

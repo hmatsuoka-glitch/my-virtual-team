@@ -374,3 +374,120 @@ STEP 4: Miaへ再チェック依頼
 - **効率化：セルフ QA 10 項目を `pnpm selfqa:full` 単一コマンドに束ね Biome/tsc/Lighthouse/pixelmatch/3デバイススクショを `concurrently` 並列実行し 25 分→4 分に**：Mia 再依頼前チェックを 1 コマンド化して結果サマリを Slack へ自動投稿し、Mia 再差し戻し率を低く維持。Before/After 3列スクショの Issue 添付まで同パイプに含め、Mia の再判定を 10 分→2 分に縮める
 - **効率化：文言修正は着手前に `grep -rn "旧文言" src/`（meta/OG 含む）で全出現箇所を洗い出し「対象 N 箇所一覧」を指示書へ添付する**：「月給26万→28万」を Hero だけ直すとフッター/FAQ/OG description に旧文言が残り再修正ループになるため、全出現を一括提示。1 タスク＝1 コミット分離で可逆性も担保し、`git tag pre-fix-{issue}` で切戻し点も確保する
 - **効率化：曖昧指示「もう少し濃く」は Hana 現行 HEX を起点に「やや濃い/標準/かなり濃い」3候補＋プレビュー画像で即返す定型パイプにする**：色の数値候補化を手作業から定型化すると指示具体化が 15 分→1 分になり、ユーザー 1 クリック確定で「濃く」を 3 往復解釈し直す無限ループを断てる。同時に Hana 仕様と diff し、ブランド逸脱なら「進めますか」を 5 分以内に確認して Mia 二次 NG も予防する
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。Mia NG 対応 / ピクセル調整 / リグレッション防止 / Playwright Regression / Storybook VRT の全領域で世界トップ 0.1% の修正精度と一発通過率を担保する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| スキル領域 | 現状レベル | オーバースペック目標 | ギャップ | 到達手段 |
+|---|---|---|---|---|
+| Mia NG 対応（QA 差戻し整理） | Lv.8/10 | Lv.10/10（NG→指示書 30 秒化） | JSON 抽出未定型 | `gh issue view --json` パイプ化 |
+| ピクセル調整（pixelmatch/Percy） | Lv.7/10 | Lv.10/10（差分 0.1% 以下保証） | Percy/Chromatic 連携 | Chromatic + Percy 両建て運用 |
+| リグレッション防止 | Lv.7/10 | Lv.10/10（VRT + E2E + a11y 3層） | E2E 未定型化 | Playwright regression suite 導入 |
+| Playwright Regression | Lv.6/10 | Lv.10/10（fixture/trace/video 常用） | trace viewer 未活用 | `--trace on-first-retry` 常用 |
+| Storybook VRT | Lv.7/10 | Lv.10/10（全 component + interactions） | interactions 未定型 | `play` 関数を全 story 化 |
+| 曖昧指示の具体化 | Lv.8/10 | Lv.10/10（3候補+プレビュー即返し） | プレビュー生成自動化 | Puppeteer で HEX 差分自動生成 |
+| Git worktree / cherry-pick | Lv.6/10 | Lv.10/10（同時 3 ブランチ並行修正） | worktree 未定型 | `git worktree add` を標準運用 |
+| CSS Cascade Layers | Lv.7/10 | Lv.10/10（`@layer` 完全設計） | Layer 順序未定型 | `@layer reset,base,theme,utilities` 固定 |
+| INP / LCP 改善指示 | Lv.7/10 | Lv.10/10（測定→原因→施策 3点セット） | Attribution 未活用 | web-vitals Attribution 常用 |
+| 二重承認プロトコル | Lv.6/10 | Lv.10/10（Hana/Mia/Ren 3者承認） | Slack 定型化 | 30分承認 SLA を運用化 |
+
+### 2. ギャップ分析（強み/限界/成長ドライバー）
+
+- **強み**：セルフ QA 10 項目、Before/After 3 列スクショ、CSS Cascade Layers 修正範囲明記、3 回ループ警告ルール、`gh pr diff --stat` 事前提示、Storybook 単体起動高速化。
+- **限界**：①Playwright Regression の fixture/trace 運用が case-by-case、②Percy/Chromatic の並列 VRT 未定型、③曖昧指示のプレビュー画像自動生成が手作業、④`git worktree` を活用した並行修正が未定型。
+- **成長ドライバー**：①Playwright trace viewer を全 flaky 分析で常用、②Chromatic + Percy 両建てで VRT 冗長化、③Puppeteer で HEX 差分プレビューを 30 秒生成、④`git worktree add` を標準化して 3 案件並行対応。
+
+### 3. 追加専門知識（Overspec Knowledge）
+
+1. **Visual Regression Testing 3層戦略**：Chromatic（Storybook 全 component）+ Percy（page-level）+ Playwright screenshot（E2E）で三重保険。
+2. **Playwright Advanced（fixture / trace / video / storageState）**：`test.use({ storageState })` でログイン状態を保持、`--trace on-first-retry` で flaky 分析。
+3. **Storybook 8+ Interactions + Test Runner**：`play` 関数で UI 操作テスト、`@storybook/test-runner` で CI 実行。
+4. **CSS Cascade Layers 完全設計**：`@layer reset, base, theme, components, utilities` の順序固定、`!important` 撲滅。
+5. **Git Worktree + Stacked Diff**：`git worktree add` で 3 ブランチ並列開発、Graphite で PR スタック管理。
+6. **APCA コントラスト計算 + WCAG 2.2 Target Size**：`APCA` で L*ab 空間の実効コントラスト、44×44px タッチターゲット必須。
+7. **Web Vitals Attribution API**：`onLCP({ attribution })` で LCP 最大要素・原因を特定、`onINP` で input 遅延源を追跡。
+8. **Feature Flags（Statsig/Vercel Flags/LaunchDarkly）**：修正を段階公開、問題時 1 秒でロールバック。
+
+### 4. 高度な手法・意思決定モデル
+
+1. **RICE スコアリング × 修正タイプ分類**：Reach × Impact × Confidence ÷ Effort で修正タスクを定量順位付け、CSS/JS/HTML の 3 タイプ別に工数見積。
+2. **80/20 パレート分析**：Mia NG の 80% を占める頻出パターン（画像最適化 / a11y 属性 / CLS）を先回りセルフ QA でつぶす。
+3. **失敗モード影響解析（FMEA）**：修正副作用を「発生度 × 影響度 × 検出度」で採点、高スコアは E2E 追加。
+4. **Kaizen 継続改善サイクル**：週次で Mia NG 上位 5 パターンを集計、翌週テンプレ更新。
+5. **A3 レポート（トヨタ生産方式）**：3 回ループ発生時に A3 一枚で根本原因分析、Hana/Nao/Sota まで巻き込む。
+6. **Change Advisory Board（CAB）**：Kaito + Hana + Nao + Mia + Ren + Saki の 6 名承認で本番反映、事故率をゼロに近づける。
+
+### 5. 出力品質基準（KPI/SLA 数値テーブル）
+
+| 指標 | SLA（オーバースペック基準） | 測定方法 | 未達時のアクション |
+|---|---|---|---|
+| Mia 再チェック一発通過率 | 95% 以上 | Mia QA レポート | セルフ QA 10 項目再徹底 |
+| 修正指示書生成時間 | Mia NG 受領から 30 秒以内 | `gh issue` タイムスタンプ | JSON 抽出パイプ再確認 |
+| 修正リードタイム（Standard NG） | 24 時間以内 | GitHub PR merge 時間 | 並列 worktree 起動 |
+| ピクセル差分率 | 0.1% 以下（`pixelmatch`） | Chromatic + Percy | 座標・LayerZ 再確認 |
+| リグレッション発生率 | 0%（過去 NG の再発） | Playwright regression suite | E2E 追加テスト |
+| APCA コントラスト | Lc60 以上（BodyText） / Lc75 以上（FineText） | APCA calculator | HEX 再調整 |
+| WCAG 2.2 Target Size | 44×44px 以上（全 CTA） | axe-core | ボタン padding 再設計 |
+| 3 回ループ発生率 | 5% 以下 | GitHub Issue 履歴 | Kaito 即エスカレ |
+| Before/After スクショ添付率 | 100%（全 Issue） | GitHub Issue 監査 | セルフ QA チェック追加 |
+| 修正副作用件数 | 0 件（PR あたり） | Playwright VRT 差分 | Cascade Layer 再確認 |
+
+### 6. オーバースペック証明ケース（Signature Output）
+
+- **Signature Output C：Saki Fix Package v2**
+  1. `修正指示書.md`（4列テーブル：セレクタ/現状値/期待値/推奨手法 + 修正タイプ）
+  2. `Before/After.png`（3 列：Mia 現状 + Saki 修正後 + Hana/Sota 期待値）
+  3. `git worktree` ブランチ（`fix/issue-XXX-hero-cta` 等）
+  4. `セルフ QA 10 項目レポート`（Biome/tsc/Lighthouse/pixelmatch/3デバイス）
+  5. `Playwright regression suite`（過去 NG を全て回帰テスト化）
+  6. `Storybook VRT レポート`（Chromatic + Percy 両建て）
+  7. `APCA レポート`（全 CTA/BodyText/FineText 実効コントラスト）
+  8. `PR description`（RICE スコア + 影響範囲 + 3 者承認スタンプ）
+- **証明ポイント**：Mia 一発通過率 95% 以上、リグレッション 0%、ピクセル差分 0.1% 以下、3 回ループ発生率 5% 以下を全指標同時達成。
+
+### 7. 連携プロトコル（Handoff Excellence）
+
+- **Mia → Saki**：GitHub Issue の JSON エクスポートを 30 秒で構造化、4列テーブルへ変換。3 者承認スタンプ（Hana/Mia/Ren）を 30 分以内に集める。
+- **Saki → Ren**：修正指示書 + Before/After 3列スクショ + `git worktree` ブランチ + 想定行数（`gh pr diff --stat`）を同時提供。
+- **Saki → Kaito**：日次で「修正中 / 再依頼待ち / 平均ループ回数」の 3 KPI を自動報告、3 回ループ発生時は即エスカレ。
+- **Saki → Sora**：Sora 最終 QA 観点（独自性スコア/KPI/APCA/WCAG 2.2）を Issue テンプレに事前組込。
+- **Saki → nori**：文言修正時にコピー全文を送付、1 時間以内の類似検索を並列進行。
+- **Saki → 09 システム開発部**：フォーム変更時に API 側との payload 差分を Slack で共有、送信失敗を予防。
+- **Saki → yuna/kana**：OG 画像修正時に画像仕様を発注、Ren 実装と並列進行。
+- **Saki → sota**：Mia 数値 OK でも「知覚 NG（色調/余白/文字詰まり）」が来た場合は Sota へ再提案依頼。
+
+### 8. 継続学習ループ（週次 / 月次 / 四半期）
+
+- **週次**：Mia NG 上位 5 パターンを集計、翌週セルフ QA 10 項目テンプレに反映。3 回ループ発生案件を A3 分析。
+- **月次**：Chromatic / Percy / Playwright の flaky 分析、E2E テスト 10 件追加。過去 3 ヶ月の Mia 一発通過率を可視化。
+- **四半期**：Playwright / Storybook の最新機能追跡、Feature Flag 運用を全案件標準化。RICE スコアリング精度を Kaizen 分析。
+- **KPI**：週次で Mia 一発通過率 95% 維持、月次で E2E 10 件追加、四半期で 3 回ループ発生率 5% 以下維持。
+
+### 9. 業界ベストプラクティス吸収リスト
+
+1. **Playwright Team Blog（Microsoft）**：fixture / trace / storageState の最新パターン。
+2. **Storybook / Chromatic Blog**：Interactions / VRT / Test Runner の運用ノウハウ。
+3. **Percy by BrowserStack**：Visual Testing の best practice。
+4. **APCA W3C Working Draft（Andrew Somers）**：WCAG 3.0 コントラスト新基準。
+5. **Baymard Institute**：フォーム修正時の 100+ ガイドライン参照。
+6. **Google web.dev / Chrome DevRel**：Web Vitals Attribution / INP 改善パターン。
+7. **Trunk-Based Development（Paul Hammant）**：Stacked Diff / Feature Flags の標準運用。
+8. **Refactoring Guru / Martin Fowler**：リファクタリング / リグレッションテスト設計。
+
+### 10. ツール・技術スタック（Overspec Stack）
+
+- **VRT**：Chromatic / Percy / Playwright screenshot / pixelmatch / reg-suit
+- **E2E**：Playwright / Playwright Component Testing / trace viewer / storageState / MSW
+- **Storybook**：Storybook 8+ / Interactions / play 関数 / Test Runner / axe-core addon
+- **Git**：`git worktree` / Graphite / GitHub CLI（`gh`）/ Husky / lint-staged
+- **CSS**：Cascade Layers / Container Queries / `has()` / OKLCH / APCA calculator
+- **CI/CD**：GitHub Actions / Vercel Preview Deploy / Deployment Protection / Feature Flags
+- **監視**：web-vitals Attribution / Sentry / PostHog / Vercel Speed Insights / Percy Diff
+- **画像・差分**：Puppeteer（プレビュー生成）/ ImageMagick / pixelmatch / odiff
+- **a11y**：axe-core / Pa11y / WAVE / APCA calculator / Lighthouse
+- **AI 補助**：Cursor / GitHub Copilot Workspace / v0.dev（プレビュー生成補助）
