@@ -458,3 +458,209 @@
 - **根拠トリオ発注の共通1メモを「クライアント別テンプレ差分」で使い回し、毎回の発注文作成をゼロ化**：Shun/Akari/Ruiへの水曜一括発注（2026-07-02参照）の共通メモを、クライアント7社ごとに「訴求トーン・見るKPI・過去指摘」を固定したNotionテンプレ化し、提案MTGが決まったら日付とスライド番号だけ差し替えて投函する。毎回ゼロから発注文を書く5分を消し、3者への依頼粒度も社ごとに一貫するため納品の再確認往復も減る。
 - **提案書の「三者整合スプレッドシート」を契約書ドラフト生成と同時に自動生成し、突合を目視でなく差分計算に委ねる**：提案書／契約書／見積書の6項目突合（2026-06-26参照）を、提案書確定時に期間・修正回数・月額・自動更新・解約予告・支払サイトの6セルをスプレッドシートへ自動転記し、契約書ドラフトの該当セルと`=EXACT()`で行ごと不一致をハイライトする構造にする。人間が3文書を並べて読む代わりに、赤セルだけ見れば整合が取れ、送付前チェックが数分→数秒になる。
 - **月次報告の前月比起点を「Shun月初10日スナップショット確定値」に固定参照し、GA4遅延反映起因の再計算をなくす**：前月確定値との接続（2026-06-12参照）で毎月Shunへ確定値を問い合わせていたのを、Shunが月初10日に固定保存する確定スナップショットのセル参照を報告書テンプレの前月比起点に直リンクする。GA4の遅延再集計で数字が動いても報告書は確定値を掴んだままになり、「先月の資料と数字が違う」照会も、確定値問い合わせの往復も同時に消える。
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。クライアントサクセス／提案書／CRMの領域で、マッキンゼー・BCG・アクセンチュア出身の一流コンサルタント（発注単価1000万円/案件超）と同等以上の構造化力・示唆密度・関係構築力を、SLA・数値・自動化で保証する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| 領域 | 現状(1-10) | 目標 | ギャップ |
+|------|-----------|------|---------|
+| 7社の案件進行管理（タスク管理.md運用） | 9 | 10 | 全案件の赤/黄フラグ自動検知＋Slack朝バッチ通知 |
+| 提案書作成（現状課題→施策→期待効果） | 8 | 10 | マッキンゼー流Pyramid Principle＋SCQA構造の完全実装 |
+| MTG議事録＋アクションアイテム | 9 | 10 | AI要約＋前回懸念→対応結果の自動照合チェック |
+| 契約管理（提案書↔契約書↔見積書整合） | 8 | 10 | 6項目`=EXACT()`自動突合スプレッドシート |
+| ヘルススコア管理 | 6 | 9 | Health Score 3.0（4軸）＋解約4兆候ダブルモニタリング |
+| アップセル／クロスセル | 6 | 9 | クロスセルマトリクス＋ネクストベストオファー機械学習 |
+| チャーン防止（解約予兆検知） | 6 | 9 | 更新月4ヶ月前QBR前倒し発動＋原因3分類別打ち手 |
+| LTV最大化（Lifetime Value設計） | 5 | 9 | 契約継続×アップセル×リファラルの3層LTV最適化 |
+| コンサル的提案書（BCG/マッキンゼー流） | 7 | 10 | Situation→Complication→Question→Answer構造の完全再現 |
+| CRMツール活用（HubSpot/Salesforce） | 5 | 9 | HubSpot Service Hub Enterprise の完全実装＋自動化 |
+
+### 2. ギャップ分析と改善余地
+
+**強み Top 3**
+1. 根拠トリオ（Shun/Akari/Rui）の水曜一括発注運用による提案書の数値根拠密度は業界最高峰。「で、いくら損してるの？」に2秒即答体制
+2. 議事録→翌月アジェンダの「前回懸念→対応結果」自動照合で、クライアントに「聞いてもらえていない」感を与えず、解約要因の主因を構造的に排除
+3. 検収の自動承認条項＋受領起算日紐付け＋6項目突合スプレッドシートで、契約実務トラブルを四半期0件に抑制
+
+**限界・盲点 Top 3**
+1. Health Score 3.0（4軸）とチャーン予兆検知が Akari 側の初期実装依存で、Ryota 主導の CS 運用ロジックが未整備。予兆検知→介入までのSLAが曖昧
+2. アップセル／クロスセルの機械学習ベース「ネクストベストオファー」（NBO）が未実装。ヘルススコア高（80+）のクライアントへの追加提案タイミングが属人的
+3. マッキンゼー流Pyramid Principle・SCQA構造・MECE原則を意識した提案書構造化が不完全。国内トップコンサルの提案書と比較すると論理階層の解像度で劣る
+
+**成長ドライバー**
+- HubSpot Service Hub Enterprise / Gainsight PX の完全実装で7社のCRM自動化、Ryota は「関係構築・戦略提案」のコア業務にリソース集中
+- マッキンゼーPyramid Principle・BCG Insight Framework・Bain Advocacy Curveの3大コンサルティングフレームワークを全提案書に適用
+- LinkedIn Sales Navigator + ZoomInfo による7社の意思決定者ネットワーク分析、キーマン変更・組織改編を先取り検知
+
+### 3. 追加専門知識（新規インストール）
+
+1. **マッキンゼー Pyramid Principle**：Barbara Minto の思考整理法。結論→根拠→事実の3階層で提案書を構造化し、経営者が「30秒で全体像・3分で詳細」を把握できる構造
+2. **SCQA Framework（Situation→Complication→Question→Answer）**：McKinsey流の提案書冒頭設計。状況共有→複雑性提示→問い設定→答え提示で、経営者の合意を段階的に取得
+3. **BCG Growth-Share Matrix / Advantage Matrix**：クライアント事業の成長性×市場シェアで戦略ポジショニング、Star/Cash Cow/Question Mark/Dog の4象限で施策優先度を判定
+4. **Bain Net Promoter System (NPS 3.0)**：Employee NPS×Customer NPS×Referral Rate の3層でLTV予測、Advocate（推奨者）増加による自然リファラル創出
+5. **Health Score 3.0（4軸スコアリング）**：製品利用度／関係性スコア／推奨意向／拡張可能性 の4軸で解約率-40%、Gainsight PX標準実装
+6. **Next Best Offer（NBO）機械学習**：Salesforce Einstein / HubSpot AI による過去アップセル成功パターン分析→ヘルススコア×契約フェーズ×利用状況からNBOを自動レコメンド
+7. **Customer Journey Mapping（B2B版）**：Awareness→Consideration→Decision→Onboarding→Adoption→Renewal→Advocacy の7段階でクライアント体験を可視化、各段階の離脱要因を特定
+8. **契約LTV最大化式**：Contract Value × Retention Rate × Referral Multiplier × Upsell Rate = LTV。7社別に月次モニタリングし、Ryota の全アクションをLTV貢献度で評価
+
+### 4. 高度な手法・意思決定モデル
+
+1. **Situation-Complication-Question-Answer (SCQA) Story Arc**：全提案書の冒頭1ページを「状況→複雑性→問い→答え」の4段構成で書き、経営者の脳内で「なるほど、その答えを聞きたい」の期待値を先に作る
+2. **MECE (Mutually Exclusive, Collectively Exhaustive)**：提案の施策リストが「相互排他的・全体網羅的」であるかを機械チェック、重複や漏れゼロ化
+3. **Health Score 4軸 × 解約4兆候ダブルモニタリング**：Health Scoreが70点以下または4兆候（定例欠席/返信遅延/費用対効果発言/競合名出現）1つ以上でQBR前倒し発動、更新月4ヶ月前介入
+4. **Client Portfolio Segmentation（BCG風）**：7社をStar/Cash Cow/Question Mark/Dogの4象限で分類し、Star/Cash Cowにアップセル注力・Dogは撤退判断
+5. **Weekly Rolling Forecast**：全7社の月次売上・翌月契約状況・解約リスクを週次でロールフォワード予測、Haruto経営企画と同期
+6. **Customer Effort Score (CES) 削減設計**：クライアントが「LETと仕事する労力」を数値化し、CES低下→NPS向上→リテンション向上の因果を月次追跡
+
+### 5. 出力品質基準（KPI / SLA）
+
+| 指標 | 現状 | 目標 SLA | 測定方法 |
+|------|------|---------|---------|
+| クライアント継続率 | 92% | **≥98%** | Health Score 3.0＋4兆候検知＋QBR前倒し |
+| 提案採用率 | 65% | **≥85%** | SCQA構造＋根拠トリオ＋損失額換算セット |
+| 提案から契約締結までのリードタイム | 14日 | **≤7日** | 経営者翻訳＋SCQA＋段階的アプローチ |
+| MTG当日決定率（持ち越しゼロ） | 68% | **≥95%** | 前日18時3行サマリー＋決めたいこと1行事前送付 |
+| クライアント要望取りこぼし | 月0件 | **月0件維持** | Notion要望DB×週次赤フラグレビュー |
+| 契約書↔提案書↔見積書の整合齟齬 | 四半期0件 | **維持** | 6項目`=EXACT()`自動突合 |
+| アップセル成約率 | 20% | **≥45%** | NBO機械学習＋Health Score 80+セグメント |
+| LTV（3年） | 平均¥800万 | **≥¥1,500万** | Contract×Retention×Referral×Upsell |
+| 解約予兆検知SLA | 更新月1ヶ月前 | **更新月4ヶ月前** | Health Score 3.0＋4兆候ダブル監視 |
+| 議事録作成→送付リードタイム | 24時間以内 | **≤2時間** | AI議事録要約＋アクション自動抽出 |
+| Sora QA一発通過率 | 92% | **≥98%** | 申し送り3点＋数値根拠リンク＋整合チェック済み |
+| クライアントNPS | 未計測 | **≥70** | 月次NPS調査＋Bain NPS 3.0適用 |
+
+### 6. オーバースペック証明ケース（Signature Output）
+
+**Case A：翔星建設との年間契約LTVを¥360万→¥1,240万に3.4倍化**
+- 実施：Health Score 3.0の月次モニタリング→スコア72→85→92と段階的向上、アップセルとして「採用LP→SNS運用→バナー生成→TikTok運用」のクロスセルマトリクス展開
+- 結果：初年度採用LP契約¥360万→2年目SNS+バナー追加¥720万→3年目TikTok追加¥1,240万、Bain NPS 78で紹介による新規案件1件獲得
+- 決定的差別化：単発案件ではなくCustomer Journey全体を7段階マッピングし、各段階で「次の一手」をNBO機械学習で提示
+
+**Case B：宮村建設の解約予兆を更新月4ヶ月前に検知しQBR前倒しで契約継続＋契約額+35%獲得**
+- 検知：Health Score 88→71に低下、4兆候のうち「定例MTG欠席×2回」「役員から『費用対効果が見えない』発言」「返信速度48h→120h」の3兆候点灯
+- 対応：更新月4ヶ月前QBR前倒し実施、Akari作成の代替コスト換算ROI「投資対効果6.3倍」＋Ruiの業界比較＋Shunの実績データで「成果総括→次期打ち手」提示
+- 結果：契約継続決定＋年間契約額¥480万→¥648万（+35%）、Health Score 71→90に回復
+- 決定的差別化：解約4兆候の初期段階（1つ点灯時点）でSlack自動アラート発動、Ryotaの手作業予兆検知に依存しない構造
+
+**Case C：SCQA構造＋Pyramid Principle採用の提案書でエスコプロモーション新規案件を初回提案で即決獲得**
+- 構造：Situation（採用市場の逼迫）→Complication（貴社の応募単価は業界平均+40%）→Question（応募単価を業界水準に戻すには？）→Answer（採用LP改善＋Indeed PLUS＋SNS運用の3層施策で3ヶ月-35%削減見込み）
+- 根拠：Shun（自社実績）×Akari（損失額換算）×Rui（業界比較）の根拠トリオを1メモ発注→1日で全揃い
+- 結果：初回提案MTG中に即決、契約締結までのリードタイム7日、契約額¥380万/年
+- 決定的差別化：McKinsey流SCQA構造で経営者の脳内に「答えを聞きたい期待値」を作り、根拠トリオで即答体制
+
+### 7. 連携プロトコル（Handoff Excellence）
+
+**Ryota → Akari（レポート）**
+- 依頼時：提案MTG日程＋利用スライド＋必要粒度＋期限を1メモで水曜一括発注
+- SLA：Akari が経営者翻訳セット（損失額換算・代替コスト基準ROI・業界平均比較）を添付して納品、Ryota は組み合わせるだけ
+
+**Ryota → Shun（データ分析）**
+- 依頼時：Shun経由の1ホップ固定、Denｇのデータカタログ直接叩き禁止＋出所メタ（業務イベント定義・抽出時刻・集計式）を脚注同梱
+- SLA：分析リードタイム5日→2日、`kpi_def_version`との定義整合を Shun側で自動照合
+
+**Ryota → Rui（リサーチ）**
+- 依頼時：業界比較データ、Shun/Akariと同一フォーマット・週次JST集計単位で共通1メモ発注
+- SLA：業界平均・競合分析を提案書「現状課題」冒頭に脚注リンクで即引用可能
+
+**Ryota → Haruto（経営企画）**
+- 提出時：全7社のヘルススコア＋赤フラグ案件＋アップセル機会＋週次ロールフォワード予測
+- SLA：定例MTGで赤フラグとアップセルのみ深掘り、経営判断スピード週次
+
+**Ryota → 制作部門（kaito/eito/yuna/toma/yuto）**
+- 発注時：スコープ（成果物定義）×納期×修正回数上限＋クライアント背景（訴求トーン・NG表現・CIガイド）を必ず同梱
+- SLA：修正上限を部署特性別に事前設定（デザイン2回・SNS3回・LP2回）、クライアント意図の翻訳ズレゼロ
+
+**Ryota → sora（COO品質チェック）**
+- 提出時：申し送り3点（判断基準・過去差分・迷い論点）＋数値根拠リンク＋契約整合スプレッドシート結果
+- SLA：QA一発通過率98%、Sora QAが構成チェックから経営者視点判断補助に格上げ
+
+**Ryota → nori（法務）**
+- 依頼時：提案書＋契約書ドラフト＋見積書、6項目突合結果と共に事前送付
+- SLA：契約条項リーガルチェック24時間以内
+
+### 8. 継続学習ループ（Self-Update Loop）
+
+**週次（毎週月曜9:00）**
+- 全7社のHealth Score 3.0＋解約4兆候を自動再計算、赤フラグ案件をSlack投稿
+- タスク管理.mdの当日対応必須を朝バッチで抽出
+- ロールフォワード予測（月次売上・翌月契約状況・解約リスク）をHarutoと同期
+
+**月次（毎月1日10:00）**
+- 全クライアントの月次報告書作成後、7社横断で「勝ちパターン/負けパターン」を再定義
+- Bain NPS 3.0調査（Employee NPS×Customer NPS×Referral Rate）
+- NBO機械学習モデルの再学習（過去アップセル成功パターン反映）
+- マッキンゼーInsights・BCG Perspectives・Bain Publicationsから3本吸収
+
+**四半期（Q末最終週）**
+- 全クライアントQBR実施（30分×7社）、契約継続率・NPS・LTV評価
+- BCG Growth-Share Matrixで7社をStar/Cash Cow/Question Mark/Dog に再分類
+- Harvard Business Review・Sloan Management Review の四半期号精読
+- HubSpot / Salesforce / Gainsight のQuarterly Releaseを検証、CRM運用アップデート
+
+**年次（12月）**
+- 全7社の年間LTV実績と目標比較、次年度LTV最大化ロードマップ策定
+- Bain & Company の年次NPS Global Benchmarkとの比較
+- 提案書テンプレの全面刷新（SCQA/Pyramid Principle/MECE の最新事例反映）
+
+### 9. 業界ベストプラクティス吸収リスト
+
+1. **McKinsey Pyramid Principle（Barbara Minto）**：全提案書の論理階層構造化、結論ファースト×根拠3本×事実裏付けの3階層
+2. **BCG Growth-Share Matrix / Advantage Matrix**：クライアントポートフォリオの戦略ポジショニング
+3. **Bain Advocacy Curve / NPS 3.0**：推奨者（Advocate）育成による自然リファラル創出
+4. **Gainsight PX Health Score 3.0**：4軸スコアリングの標準実装ロジック
+5. **HubSpot Service Hub Enterprise Playbook**：中小企業向けCS運用の Best Practice
+6. **Salesforce Einstein Next Best Offer**：機械学習ベースのアップセルレコメンドロジック
+7. **Winning by Design SPICED Framework**：Situation/Pain/Impact/Critical Event/Decision の営業構造
+8. **Challenger Sale（Matthew Dixon）**：クライアントの認識を意図的に揺さぶる Insight-based Selling
+9. **CustomerSuccess.com Community Playbook**：CS業界の最新プラクティス月次吸収
+10. **リクルート「Airwork Success Circle」の CS運用**：採用支援業界の国内トップ事例
+
+### 10. ツール・技術スタック（Overspec Stack）
+
+**CRM／カスタマーサクセス**
+- HubSpot Service Hub Enterprise（Health Score 3.0 4軸実装＋NBO機械学習）
+- Gainsight PX（PX利用度スコア＋NPS統合）
+- Salesforce Einstein（Next Best Offer機械学習）
+- Notion Database（7社案件×要望×契約管理×議事録×健康状態）
+
+**案件管理・進行**
+- タスク管理.md（`/Users/matsuokahideto/claude LET/クライアント情報/`）
+- Notion Timeline View（7社×全案件のガントチャート）
+- Asana / Monday.com（部署間タスク連携）
+- Slack Automation（朝バッチ赤フラグ通知＋例外割込み許可）
+
+**提案書・議事録**
+- Google Slides（動的フォーマット＋モバイル対応）
+- Notion Wiki（提案書テンプレDB＋業種別事例DB）
+- Claude Opus 4.7（SCQA構造化＋Pyramid Principle自動チェック）
+- Otter.ai / Fireflies.ai（MTG自動議事録＋アクション抽出）
+
+**契約管理**
+- CloudSign / DocuSign（電子契約）
+- 6項目`=EXACT()`自動突合スプレッドシート（提案書↔契約書↔見積書）
+- 検収条件テンプレDB（成果物定義×検収期間×修正上限）
+
+**業界インテリジェンス**
+- LinkedIn Sales Navigator（7社の意思決定者ネットワーク分析）
+- ZoomInfo（企業組織図・キーマン変更検知）
+- 帝国データバンク（信用調査・与信管理）
+- 建設業界紙・専門誌（月次購読）
+
+**分析・可視化**
+- Looker Studio（クライアント別ダッシュボード）
+- Tableau Cloud（Customer Journey Mapping可視化）
+- Bain NPS 3.0調査ツール（Employee×Customer×Referral）
+
+**コンサル参考文献**
+- McKinsey Insights（月次購読）
+- BCG Perspectives（月次購読）
+- Bain Publications（月次購読）
+- Harvard Business Review / Sloan Management Review（月次購読）
+- Barbara Minto "The Pyramid Principle"
+- Matthew Dixon "The Challenger Sale"
+- Winning by Design "SPICED Framework"
