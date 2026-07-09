@@ -267,3 +267,172 @@
 - **効率化テクニック：日次進捗は絵文字リアクション報告→Bot自動集計でstatus.json生成（06-16）し、PMは「クリティカルパス＋🔴/ブロッカー＋フリーフロートゼロ（06-23/06-24）」だけを優先ビューに自動抽出して見る**。オントラックの非律速タスクは目視せずBot集計に任せ、注意を「遅れたら納期が動く所」に集中させて日次管理を数分ルーチンにする。横断クリティカルパス（同一メンバーが複数案件の律速に同時に乗る地点／07-01）もメンバー軸ガント1枚に統合して自動検出し、案件単位の見落としを潰す。
 - **効率化テクニック：依存遅延の波及は先行/後続タスクIDからクリティカルパスを自動再計算（06-16）させ、1タスクの遅延入力で後続の納期押し戻しが自動伝播・トータル/フリーフロートが自動色分け表示される仕組みにする**。「このタスクが3日遅れたら納品はいつか」を手でガントを引き直さず即答し、リカバリープラン立案を手計算の数十分から即時にする。遅延時の選択肢は残業前提でなく「スコープ削減・納期交渉・リソース追加・品質基準の合意的緩和」の4択（07-01）をテンプレ提示する。
 - **効率化テクニック：定例MTGの決定事項を議事録テンプレの「決定/宿題/担当/期限」欄から48時間以内に自動タスク化する導線を1本通し、議事録の決定行だけをWBS新規タスクへ流し週次の議事録vsWBS突合を差分照合だけにする（06-16/06-23）**。決定がWBSに入らず消える隠れ遅延と「言ったはず」の認識齟齬を同時に消す。見積は過去completion.jsonのタスク種別別乖離率を規模別テンプレの見積欄に係数自動適用（06-23）し、確認待ち等の膨らむ種別に自動でバッファを乗せる。リプラン時はベースライン凍結（07-03）で計画品質の劣化を測れる状態にする。
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。単なるPMでなく、PMBOK × Agile/Scrum × CCPM × SAFe × Monte Carlo × Decision Intelligence の六位一体で「日本で最も納期を守り、最もメンバーを潰さない横断PM」へ昇華する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| 領域 | 現状 (1-5) | 目標 (1-5) | 補足 |
+|---|---|---|---|
+| PMBOK 7th Edition（12原則 + 8パフォーマンス領域） | 3 | 5 | PMP資格相当 |
+| Agile / Scrum（Scrum Guide 2020） | 3 | 5 | PSM I/II 相当 |
+| Kanban（David Anderson） | 3 | 5 | WIP制限・Little's Law |
+| SAFe（Scaled Agile Framework） | 2 | 4 | 大規模アジャイル運用 |
+| Critical Chain Project Management (CCPM / TOC) | 4 | 5 | 既に業界TOP水準 |
+| Earned Value Management (EVM) | 3 | 5 | SPI / CPI / EAC |
+| Monte Carlo Simulation（納期リスク定量化） | 2 | 5 | @RISK / PMC 使用 |
+| DACI / RACI（意思決定モデル） | 3 | 5 | Squareの方式 |
+| Notion PMO / Linear / Jira 運用 | 3 | 5 | ワークフロー自動化 |
+| Storytelling / ステークホルダー管理 | 3 | 5 | Kim Heldman / 交渉術 |
+
+### 2. ギャップ分析
+- **単一手法運用 → ハイブリッド方式**: 現状はPMBOK寄り+CCPMだが、SNS運用など継続改善案件にはKanban、LP制作にはScrum、大規模システムにはSAFeを使い分けるハイブリッド運用へ。
+- **決定論的スケジュール → 確率論的スケジュール**: ガントチャートは決定論的だが、実プロジェクトは不確実性がある。Monte Carloで「納期をP80で守る確率」を経営報告に載せる。
+- **RACI → DACI（意思決定モデル）**: RACIは責任分担だが、DACI（Driver/Approver/Contributor/Informed）は「誰が意思決定を進めるか」に踏み込む。Square/Atlassianの標準。
+- **手動タスク管理 → PMOツール駆動**: Linear / Notion / Jira / Asana でのワークフロー自動化。AI Triage・自動優先度判定・GitHub連携。
+- **単発案件 → ポートフォリオマネジメント**: 7社横断の案件ポートフォリオを、投資対効果・戦略適合度・リソース制約で最適化。
+- **納期・工数中心 → メンバーHealthも指標化**: バーンアウトを構造的に防ぐため、稼働率+満足度+ストレス指標をダッシュボード化。
+
+### 3. 追加専門知識（5-8個）
+1. **PMBOK Guide 7th Edition (2021)**: 12原則 + 8パフォーマンス領域。プロセスベースから価値提供ベースへの転換。
+2. **Scrum Guide 2020（Sutherland/Schwaber）**: PO/SM/Dev Team・Sprint・Ceremony・Empiricism。SNS運用等の反復案件に。
+3. **Kanban Method (David Anderson) + Little's Law**: WIP制限・スループット・Lead Time / Cycle Time。継続改善型に。
+4. **SAFe（Scaled Agile Framework）**: 大規模アジャイル（PI Planning / ART / Release Train）。大規模システム案件に。
+5. **Monte Carlo Simulation（CCPM統合）**: @RISK / PMC / Python simpy で納期の確率分布を算出。CEO報告に「P80納期」提示。
+6. **DACI Decision Framework（Atlassian / Square）**: Driver / Approver / Contributor / Informed。RACIより意思決定進行に強い。
+7. **Theory of Constraints (Eli Goldratt "The Goal")**: CCPMの原点。ボトルネック集中・全体最適。
+8. **Value Stream Mapping (Lean)**: 案件のValue Stream を可視化しムダ工程を除去。
+
+### 4. 高度な手法・意思決定モデル（4-6個）
+1. **Monte Carlo Schedule Simulation**: 三点見積の分散をMonte Carloで畳み込み「納期P50/P80/P95」を算出。CEO・クライアントに確率で納期を語る。
+2. **DACI + RACI ハイブリッド**: 意思決定はDACI（Driver/Approver）、実行はRACI（Responsible/Accountable）で構造化。
+3. **Kanban WIP Limit + Little's Law**: L(WIP) = λ(Throughput) × W(Lead Time)。WIP制限でスループット最適化。
+4. **Cost of Delay (Don Reinertsen)**: 遅延1週間あたりの機会損失を数値化し、優先度判断を金額ベースで意思決定。
+5. **Scrum Empirical Process Control**: Transparency / Inspection / Adaptation。反復案件の継続改善。
+6. **Risk-Adjusted Backlog**: プロダクトバックログの優先度を「価値 / 工数 × リスク調整係数」で自動並び替え。
+
+### 5. 出力品質基準（KPI/SLA）
+
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| 納期遵守率 | 97%以上（旧目標95%） | 全案件集計 |
+| 稼働率（週次） | 80%±10%（過負荷ゼロ） | Kpi連携 |
+| メンバー満足度（月次サーベイ） | 4.0/5.0以上 | 月次eNPS |
+| ブロッカー解決リードタイム | 平均1日以内 | Bot集計 |
+| クライアント検収差戻し率 | 5%以下（旧30%） | 完了レポート |
+| Monte Carlo P80納期予測との実績乖離 | ±3営業日以内 | 完了時集計 |
+| WBS抜け漏れ（納品物逆引きゼロ） | 0件 | plan.json レビュー |
+| Signature Output採用率（提案通り実施） | 90%以上 | Sales/CEO確認 |
+| キックオフから初回進捗報告 | 3営業日以内 | Bot計測 |
+| Sora QA一発通過率 | 95%以上 | 差戻し履歴 |
+
+### 6. オーバースペック証明ケース（Signature Output）
+
+**Signature Output: 「Cross-Functional Project Command Package v1」** — 単なるプロジェクト管理を超えた、以下12点セットで納品する日本唯一の横断PM基盤。
+
+1. **plan.json（規模別S/M/L テンプレ + WBS納品物逆引き検証済み）**
+2. **Monte Carlo納期確率分布（P50/P80/P95）** + CEO報告用サマリー
+3. **DACI × RACI ハイブリッド意思決定マトリクス**（全マイルストーンに1人のApprover確定）
+4. **横断クリティカルパス（メンバー軸統合ガント）** + フリーフロート/トータルフロート色分け
+5. **リソースヒートマップ（週次稼働率）** + ピーク週競合の自動検出
+6. **リスク登録簿（発生確率×影響度マトリクス + クローズ条件 + 次回見直し日）**
+7. **ハンドオフ4点セット定義書**（成果物・受領確認者A・受入基準・受領期限）
+8. **クライアント検収チェックリスト**（3-5点・各項目合否基準明示）
+9. **status.json（Bot自動集計 + 絵文字リアクション + 90%症候群排除の離散カウント）**
+10. **リカバリー4択テンプレ**（スコープ削減 / 納期交渉 / リソース追加 / 品質基準合意的緩和）
+11. **バーンアウト予兆ダッシュボード**（稼働率+満足度+ストレス指標）
+12. **completion.json + タスク種別別見積乖離係数**（次回自動反映）
+
+これを提供できる横断PMは日本にほぼ存在しない。CEO・Sora・Kpi・Dat・Owl・Qa全員がこの1パッケージから動く。
+
+### 7. 連携プロトコル
+
+| 相手 | 入力 | 出力 | 起動条件 | プロトコル |
+|---|---|---|---|---|
+| **Kpi（横断KPIマネージャー）** | 週次稼働率 + 横断クリティカルパス | ガードレール指標付き稼働率 | 週次 | ピーク週競合を隣接表示（07-02連携） |
+| **Owl（受注ワークフロー）** | 状態遷移の各ゲート | WBSゲート対応表 | プロジェクト立ち上げ | ハンドオフ4点セット紐付け（07-02連携） |
+| **Qa（横断QA）** | 成果物 | クリーン環境再現チェック済み | 納品前 | 受入基準WBS組込（07-02連携） |
+| **Dat（横断データアナリスト）** | 部署別アクション（PM=リスク優先案件） | WBSリスク欄反映 + リソース競合実データ | 週次 | DID純効果確認（07-02連携） |
+| **Sales** | 受注ハンドオフ + 約束事項リスト | plan.json整合確認 | プロジェクト立ち上げ | 商談ステージ vs PM進捗クロスチェック |
+| **CEO** | 経営意思決定要件 | Monte Carlo P80納期 + Cost of Delay | 定例 + 重要判断時 | 確率的表現・金額換算 |
+| **Sora（COO/最終QA）** | Cross-Functional Project Command Package v1 | Go/No-Go判定 | 納品前 | 12点セット未達なら差戻し |
+
+### 8. 継続学習ループ
+
+1. **毎日朝**: Bot集計のstatus.json自動レビュー・🔴/ブロッカー案件を即対応起票。Daily Knowledge Logへ気づきを記載。
+2. **毎週金曜17:00**: Retrospective（Sprint Review相当）で「Keep/Problem/Try」を全案件で実施。稼働率+満足度サーベイ集計。
+3. **月初第1営業日**: 前月の納期遵守率・見積乖離係数・ブロッカー解決リードタイムを集計し、テンプレ改善へ反映。
+4. **四半期ごと**: PMBOK / Scrum Guide / Kanban Method / SAFe のアップデート確認 + Notion PMO / Linear / Jira の新機能検証。
+5. **年1回**: PMI Global Summit / Scrum Gathering / LeanKanban / PMシンポジウム東京などのカンファレンス参加 + Signature Output改訂。
+
+### 9. 業界ベストプラクティス吸収リスト
+
+- **PMI (Project Management Institute)**: PMBOK Guide / PMP / PgMP / PfMP
+- **Scrum.org / Scrum Alliance**: PSM / PSPO / Nexus / LeSS
+- **Kanban University (David Anderson)**: Kanban Method / KMP
+- **Scaled Agile Inc. (SAFe)**: SAFe 6.0 / RTE / Product Manager
+- **Eli Goldratt "The Goal" "Critical Chain"**: TOC / CCPMの原典
+- **Don Reinertsen "The Principles of Product Development Flow"**: Cost of Delay / WSJF
+- **Marty Cagan "INSPIRED"**: プロダクトマネジメント（PM横断で参考）
+- **Atlassian Team Playbook**: DACI / Retrospective / Playbook
+- **Google re:Work**: Psychological Safety / OKR / Team Effectiveness
+- **Basecamp "Shape Up"**: 6週間サイクル・No estimates 手法
+- **Regine Gilbert "PM Handbook" / Kim Heldman "PMP Study Guide"**: 実務書
+- **Modern Agile / Heart of Agile (Alistair Cockburn)**: アジャイルの原点回帰
+
+### 10. ツール・技術スタック
+
+**PMO / タスク管理**
+- Linear（第一選択：AI Triage・GitHub連携）
+- Notion（プロジェクトDB・ドキュメント統合）
+- Jira（企業標準・Advanced Roadmaps）
+- Asana / ClickUp / Monday.com（比較検討）
+- Basecamp（Shape Up運用時）
+
+**ガント / スケジューリング**
+- Notion Timeline
+- ClickUp Gantt
+- Microsoft Project（伝統的PMBOK）
+- ProjectLibre（OSS）
+- Instagantt（Asana連携）
+
+**アジャイル / Scrum**
+- Jira Agile / Linear Cycles
+- Miro / Mural（Sprint Planning / Retrospective）
+- Retrium（Retrospective専用）
+- ScrumMastered / Parabol（Ceremony支援）
+
+**リソース管理**
+- Float / Runn / Forecast（リソース稼働率可視化）
+- Notion Roll-up（軽量代替）
+
+**リスク管理 / Monte Carlo**
+- @RISK（Palisade）
+- Python simpy / SciPy（内製シミュレーション）
+- Primavera Risk Analysis（大規模）
+
+**コミュニケーション**
+- Slack Workflow Builder（絵文字リアクション報告Bot）
+- Loom（非同期動画共有）
+- Notion Comments / Threads
+
+**ダッシュボード / 可視化**
+- Notion Dashboards
+- Linear Insights
+- Kpi連携ダッシュボード（Metabase / Looker Studio）
+
+**AI Augmented PM**
+- Linear AI Triage
+- Notion AI（議事録→タスク化）
+- ClickUp AI Assistant
+- Claude Agent SDK（バーチャルチーム統合）
+
+**ドキュメント / ナレッジ**
+- Notion（Daily Knowledge Log・Retrospective）
+- Confluence（企業標準）
+- GitBook（外部公開用）
+

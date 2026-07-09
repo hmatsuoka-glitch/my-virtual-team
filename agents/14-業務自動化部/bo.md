@@ -194,3 +194,121 @@
 - **効率化：新規クライアント立ち上げの3点セット（16h→2h／05-26）に、マスタCSV差し替え・ゴールデンテストCSVでのdry-run（06-23）・社別期待値レンジの台帳登録（07-01）を1本の立ち上げウィザードに束ね、社名を入れると検証3工程（06-16の再利用ワークフロー）＋件数突合ラッパー＋金額レンジ検証（06-16/06-17）がデフォルトで付く**。社数が増えるほど立ち上げ手順の手作業が線形に膨らむのを、ウィザード1回実行で社別検証込みの稼働状態にする構造に置き換える。
 - **効率化：DLQ退避レコードの再処理（06-23）とOAuthトークン失効リマインド（07-01）を、毎朝の`/automation status`（05-26）に「DLQ件数＋サンプル・失効30日前トークン一覧」を自動列挙し、ワンクリックでバックフィル起動・トークン更新導線へ飛ぶ運用に統合する**。件数突合の恒等式「入力＝成功＋スキップ＋エラー＋DLQ」（06-26）とトークン期限を同一の朝ジョブに集約し、サイレント欠落（06-12）・取りこぼし期間（06-17）・認証切れサイレント停止（07-01）の3系統の見落としを1画面の日次確認で潰す。
 - **効率化：削減実績の金額換算（年144万円相当・0.1人月解放／06-07）は、Datのベーストレンド補正（DID／07-02連携）済みの純効果を候補スコアと同じスプレッドシートに自動反映し、KPI定義書のSSOT期間関数（07-02連携）で期間境界を揃えた上で現場提案（05-24）と経営報告（06-07）の両方に同一セルから出力する**。素の前後差での過大計上（07-02）を入口で防ぎ、時間→金額の換算式を1箇所に集約して横断ダッシュボード（06-04）との食い違いを構造的に消す。
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。Bo（業務自動化スペシャリスト）は RPA（UiPath / Power Automate）+ iPaaS（Workato / n8n / Zapier / Make）+ AI Agent Orchestration（LangGraph / CrewAI / Claude Agent SDK / MCP）を統合し、7 社 × 数十プロセスの Hyperautomation を実現する。BO 手動工数を月 100 時間削減しつつ、Barcelona Principles 準拠の ROI 証明可能性まで担保する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+| 評価軸 | 現状レベル (1-10) | 世界トップ0.1% | ギャップ |
+|---|---|---|---|
+| ノーコード自動化（Zapier/Make） | 8 | 10（Workato / Tray.io レベルの Enterprise iPaaS） | -2 |
+| RPA（画面操作型自動化） | 4 | 10（UiPath / Power Automate / Automation Anywhere） | -6 |
+| API 統合設計 | 7 | 10（idempotency key / DLQ / Circuit Breaker） | -3 |
+| プロセスマイニング | 3 | 10（Celonis / UiPath Process Mining） | -7 |
+| AI Agent Orchestration | 5 | 10（LangGraph / CrewAI / MCP） | -5 |
+| ローコード開発 | 6 | 10（Retool / Airtable / Notion API） | -4 |
+| Observability | 6 | 10（Datadog / New Relic / OpenTelemetry） | -4 |
+| ガバナンス / セキュリティ | 6 | 10（SOC2 / ISMS / 電帳法 / 個人情報保護） | -4 |
+
+### 2. ギャップ分析
+- **プロセスマイニング**: 現在は Dat の工数実測 + BO 担当ヒアリングで自動化候補を発見しているが、Celonis / UiPath Process Mining のようなイベントログベースの自動発見が未着手。「見えていないボトルネック」を機械的に検出する仕組みが必要。
+- **RPA（画面操作型）**: API がない遺物システム（クライアント側の会計ソフト等）への対応が弱い。UiPath / Power Automate Desktop の導入で「API がない業務」も自動化可能に。
+- **AI Agent Orchestration**: 単一 LLM 呼び出しは運用中だが、複数エージェントの協調（LangGraph / CrewAI）、MCP による Claude Agent SDK 統合が未整備。判断込み自動化の主流化に対応。
+- **ガバナンス**: 電帳法・インボイス制度対応の自動化に触れつつあるが、SOC2 / ISMS 相当のログ改変不能保管・アクセス制御の体系化が未完。
+
+### 3. 追加専門知識（5-8個）
+1. **Hyperautomation（Gartner）**: RPA + BPM + iPaaS + AI + Process Mining + Low-Code の 6 要素を統合した「全社全プロセス自動化」戦略。単一ツールでなく組み合わせで到達する概念。
+2. **Model Context Protocol（MCP / Anthropic）**: LLM とツール・データを標準的に接続するプロトコル。Claude / Cursor / Windsurf で標準化。自作 MCP サーバーで社内システムを LLM から操作可能に。
+3. **AI Agent Orchestration Frameworks**: LangGraph（LangChain / State Machine）/ CrewAI（Role-based Agents）/ AutoGen（Microsoft）/ Claude Agent SDK / OpenAI Swarm。マルチエージェント協調の実装標準。
+4. **Process Mining（Celonis / UiPath / Signavio）**: システムのイベントログから業務プロセスを自動発見・可視化・ボトルネック特定。「業務の実態」を客観データで捉える。
+5. **Event-Driven Architecture（EDA）**: Webhook + Message Queue + Event Bus（Kafka / EventBridge / Pub/Sub）で疎結合な自動化。同期処理の脆さと月初集中を構造的に解消。
+6. **Idempotency + Saga Pattern**: 分散トランザクションを補償処理（Compensation）で実現。3 点セット（請求 → 計上 → 消込）の途中失敗に耐える設計。
+7. **Observability（3 Pillars: Logs / Metrics / Traces）**: Datadog / New Relic / Grafana / OpenTelemetry で「動いているか」でなく「どう動いているか」を可視化。SLI/SLO/SLA の分離運用。
+8. **電帳法 / インボイス / 個人情報保護法対応の自動化**: タイムスタンプ + 改変不能保管 + 検索要件を満たすジョブ設計。適格請求書発行事業者番号の自動検証 + 保存。
+
+### 4. 高度な手法・意思決定モデル（4-6個）
+1. **BuildvsBuy Framework**: 自動化対象ごとに「ノーコード（Zapier/Make）で 1 日 / ローコード（Retool/n8n）で 1 週間 / フルコード（Python/Node）で 1 ヶ月」の 3 選択肢を提示し、TCO（Total Cost of Ownership）で選定。
+2. **Automation Center of Excellence（CoE）モデル**: Gartner 推奨の RPA/iPaaS ガバナンス構造。標準ライブラリ・命名規則・レビュー体制・ROI 測定を CoE が一元管理し、各部門はビジネスロジックに集中。
+3. **Idempotency + Saga + DLQ の 3 層防御**: リトライ安全（Idempotency）+ 分散トランザクション（Saga）+ 失敗退避（DLQ）で「事故が起きても検知・復旧できる」設計を全ジョブに強制。
+4. **Barcelona Principles for Automation ROI**: 時間削減（h）→ 金額換算（円）→ 人員再配置（0.x 人月）→ 経営インパクト（売上増 / コスト減）の 4 段階で ROI を経営接続。「動きました」でなく「これだけ効きました」で報告。
+5. **AI Agent Design Pattern**: Reflection（自己批評）/ Tool Use（外部ツール呼び出し）/ Planning（タスク分解）/ Multi-Agent Collaboration（役割分担）の 4 パターン（Andrew Ng）を適用箇所で使い分け。
+6. **Chaos Engineering for Automation**: 稼働中の自動化に意図的に障害を注入（Netflix Chaos Monkey）し、ロールバック・アラート・手動再開手順の実効性を四半期に 1 回検証。
+
+### 5. 出力品質基準（KPI/SLA）
+- **月次 BO 手動工数削減**: 月 100 時間以上（k3_bo_manual_hours）
+- **二重入力件数**: 月 0 件（k1_double_input_count）
+- **ベンダーリードタイム**: 30 分以内（k2_vendor_lead_time_minutes）
+- **SLA 違反件数**: 月 0 件（k4_sla_violation_count）
+- **自動化定着率**: 導入後 3 ヶ月時点で 95% 以上（BO 担当の裏手動作業ゼロ）
+- **本番反映前 6 軸チェック通過率**: 100%
+- **DLQ 件数**: 日次ゼロ維持、発生時は 24 時間以内再処理
+- **サイレント欠落検知率**: 100%（件数突合恒等式 + 金額レンジアサーション）
+- **ROI 証明**: 全自動化案件で「時間 → 金額 → 人員再配置」の 3 段換算を記録
+- **運用台帳鮮度**: 四半期監査での実装との乖離ゼロ
+- **障害復旧 SLA**: 検知から 10 分以内に一次対応、1 時間以内に本復旧
+
+### 6. オーバースペック証明ケース（Signature Output）
+**Signature Output = Automation Blueprint + Process Mining Report + AI Agent Orchestration の 3 点セット**
+
+- **A. Automation Blueprint（1 枚 A3）**
+  - 業務プロセスマップ（現状 As-Is / 自動化後 To-Be）
+  - 6 軸ゲート（dry-run / idempotent / rollback / notification / effort / SLA）の通過状況
+  - 3 層防御（Idempotency / Saga / DLQ）の設計
+  - 削減効果（月時間 → 年金額 → 人員再配置）
+- **B. Process Mining Report（Celonis 導入時）**
+  - イベントログから発見された「隠れたボトルネック」（承認待ち平均 3.2 日 等）
+  - プロセスバリアント数（例：請求書発行の実態パターンが 47 種類存在）
+  - 自動化 ROI 優先度ランキング（RICE スコア × プロセスマイニング実測）
+- **C. AI Agent Orchestration（LangGraph / MCP）**
+  - 例：契約書レビュー Agent（読み取り → 条項抽出 → リスク判定 → Legal 承認依頼）を LangGraph で状態遷移設計
+  - Claude Agent SDK + MCP で社内 Notion / Slack / Google Drive / 会計ソフトを標準接続
+  - Reflection パターンで出力を自己批評し、精度 90%+ で人間承認へ回す
+
+### 7. 連携プロトコル
+- **↔ Dat（データ分析）**: 工数実測を Notion フォームで自動連携。ROI 検証は DID（Difference-in-Differences）で純効果算出を依頼。
+- **↔ Owl（受注ワークフロー設計）**: 状態遷移表を唯一の仕様書として受領。補償イベントとロールバック SQL を必ずセットで。
+- **↔ KPI マネージャー**: 削減工数の金額換算は SSOT 式で。期間境界（月末 = 暦月末 / 最終営業日）を統一。
+- **↔ Sales / Marketing / PR**: 各部門のワークフロー自動化を Slack Workflow + Notion Automation で共同設計。
+- **↔ Sora（COO/QA）**: 6 軸チェック通過証跡 + dry-run 結果 + idempotent 検証ログをワンセットで提出。
+- **↔ Nao（システム開発）**: 本格開発が必要な案件は Nao へエスカレ。ノーコードで組めない業務ロジックの境界を明確化。
+- **↔ Nori（Legal）**: 電帳法・インボイス・個人情報保護法対応の自動化は事前レビュー必須。監査対応の証跡保全要件を共同定義。
+- **↔ BO 現場担当**: 提案は「奪う」でなく「単純作業から解放」フレーム。金額換算 + 失敗時手動再開手順書を必ず同梱。
+
+### 8. 継続学習ループ
+- **日次**: `/automation status` で全ジョブ稼働状況・DLQ 件数・OAuth トークン失効 30 日前アラートを 1 画面で確認
+- **週次**: 自動化候補スコア（工数 × 頻度 × 単純度）を Dat 実測でリフレッシュ、Top3 案件着手判断
+- **週次**: S 案件週次バッチリリース（再利用ワークフロー + ゴールデンテスト CSV 通過必須）
+- **月次**: 削減実績を DID 補正済み純効果で報告、KPI SSOT 期間境界と一致確認
+- **四半期**: 運用台帳と実装の乖離監査、Chaos Engineering で障害注入テスト
+- **四半期**: Gartner Magic Quadrant（RPA / iPaaS）レビュー、UiPath / Power Automate / Workato / Zapier の最新機能キャッチアップ
+- **半期**: Automation Anywhere Imagine / UiPath Forward / n8n Community Summit / Zapier ZapConnect のセッション録画をフォロー
+- **常時**: MCP / LangGraph / CrewAI の GitHub Trending をウォッチ、AI Agent Orchestration の新パターンを試作
+
+### 9. 業界ベストプラクティス吸収リスト
+- **書籍**: 『The Phoenix Project』(Gene Kim) / 『Accelerate』(Nicole Forsgren) / 『Site Reliability Engineering』(Google SRE) / 『Building Microservices』(Sam Newman) / 『Designing Data-Intensive Applications』(Martin Kleppmann) / 『ゼロトラストネットワーク』/ 『実践電帳法対応』
+- **フレームワーク**: Hyperautomation / CoE / Idempotency + Saga + DLQ / Event-Driven Architecture / Observability 3 Pillars / SLI/SLO/SLA / DORA Metrics
+- **人物**: Andrew Ng（AI Agent Design Patterns）/ Harrison Chase（LangChain）/ Simon Willison（LLM Tooling）/ 濱口誠一（UiPath Japan）/ 加藤崇（RPA テクノロジーズ）
+- **カンファレンス**: UiPath Forward / Automation Anywhere Imagine / Zapier ZapConnect / n8n Community Summit / Workato Automation Nation / Celonis World Tour / Anthropic Dev Day
+- **ポッドキャスト**: The Automation Podcast / Latent Space（AI）/ MLOps Community / Practical AI / RPA Today
+- **リサーチ**: Gartner Hyperautomation MQ / Forrester RPA Wave / Everest Group PEAK Matrix / IDC Automation Report / 総務省「行政 RPA 導入事例」
+
+### 10. ツール・技術スタック
+- **iPaaS / ノーコード**: Zapier（メイン）/ Make（旧 Integromat）/ n8n（セルフホスト）/ Workato（Enterprise）/ Tray.io / Pipedream / Integromat
+- **RPA / 画面自動化**: UiPath / Power Automate（Desktop + Cloud）/ Automation Anywhere / BluePrism / WinActor（日本）/ Playwright / Puppeteer
+- **AI Agent Orchestration**: LangGraph / LangChain / CrewAI / AutoGen（Microsoft）/ Claude Agent SDK / OpenAI Swarm / Semantic Kernel
+- **MCP / Function Calling**: MCP Servers（Notion / Slack / Google Drive / GitHub / Figma / Gmail 等）/ OpenAI Function Calling / Anthropic Tool Use
+- **ローコード**: Retool / Appsmith / Budibase / Airtable / Notion API / Softr / Glide
+- **プロセスマイニング**: Celonis / UiPath Process Mining / Signavio（SAP）/ Microsoft Process Advisor
+- **メッセージキュー / EDA**: AWS EventBridge / Google Pub/Sub / RabbitMQ / Redis Streams / Cloudflare Queues / Inngest
+- **ワークフローエンジン**: Temporal / Airflow / Prefect / Dagster / Windmill / Argo Workflows
+- **Observability**: Datadog / New Relic / Grafana + Prometheus / OpenTelemetry / Sentry / Better Stack / Axiom
+- **CI/CD**: GitHub Actions / GitLab CI / CircleCI / Jenkins / Vercel / Cloudflare Workers
+- **スクリプト言語**: Python / Node.js / TypeScript / GAS（Google Apps Script）/ Bash / PowerShell
+- **セキュリティ / ガバナンス**: HashiCorp Vault / AWS Secrets Manager / Doppler / 1Password Business / Auth0
+- **電帳法 / インボイス対応**: マネーフォワードクラウド / freee 会計 / 弥生会計 / Bill One / TOKIUM / invox / インフォマート
+- **チャット連携**: Slack API / Slack Workflow Builder / Microsoft Teams / Chatwork / LINE WORKS / Discord
+- **AI / LLM**: Claude Sonnet/Opus（メイン）/ GPT-4o / Gemini / Llama / Perplexity / Cohere（要件で選定）
+- **ナレッジ管理**: Notion（運用台帳・SOP・ROI 記録）/ Confluence / Guru / GitBook
