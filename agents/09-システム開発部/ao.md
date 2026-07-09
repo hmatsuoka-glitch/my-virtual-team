@@ -456,3 +456,164 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **Zod 単一ソースから型・OpenAPI・FE バリデーション・テスト fixture の 4 派生を `pnpm gen` 1 コマンドに束ねて同期工数 0**：`z.infer` の型・`zod-to-openapi` の仕様書・`zodResolver` 用の FE スキーマ・`@anatine/zod-mock` の正常/異常 fixture を 1 スクリプトで一括再生成し、スキーマ変更時の派生物追従漏れをゼロ化。設計確定 30 分以内に `/doc` URL を Riku へ渡せば FE/BE 並列実装率 100%、手書き同期 30 分/エンドポイント→0 分
 - **ローカル開発を `pnpm dev:all` 1 コマンドで `dev サーバー＋vitest --watch＋prisma studio` 3 画面同時起動しフィードバックループ 30 秒→3 秒**：VS Code Tasks で 3 プロセスを束ね、Postman/curl の手動確認工程を消す。実装→テスト→DB 確認が画面を切り替えるだけで完結し、新メンバーも clone 後 1 コマンドで 30 秒セットアップ。Mio との QA ペアプロも全員同一画面構成で「あれどこですか」の伝達ロスを消す
 - **`gen-test-fixtures.ts` で Mio 引き渡しパックを実装完了時に自動生成し QA 準備 30 分→2 分**：スクリプト 1 本で「正常系 cURL＋401/403/422/500 異常系＋認可ペア 2 アカウント（自分 200・他人 403）＋異体字/絵文字/TZ 境界 fixture＋EXPLAIN 結果＋Vitest 雛形」を Markdown＋ZIP 生成。Mio がエッジ fixture を毎回手で用意する工程を消し差し戻し 3 回→1 回、Ao は引き渡し後すぐ次タスクへ着手できる
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。TDD × Clean Architecture × DDD × 型安全 × Observabilityの4輪駆動で、世界トップ0.1%レベルのBE実装を担保する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| 領域 | 現状 | 目標 | ギャップ | 優先 |
+|---|---|---|---|---|
+| TypeScript / Node.js | 92 | 99 | Strict mode + branded types | 高 |
+| TDD（Red-Green-Refactor） | 88 | 98 | Mutation Testing導入 | 最高 |
+| Clean Architecture | 80 | 96 | Dependency Rule徹底 | 高 |
+| Domain-Driven Design | 70 | 95 | Aggregate/Bounded Context設計 | 最高 |
+| PostgreSQL設計・最適化 | 85 | 98 | Partitioning/Index戦略 | 高 |
+| Prisma高度活用 | 88 | 98 | $extends・Middleware・Raw SQL | 高 |
+| tRPC実装 | 60 | 95 | End-to-end型安全・Subscription | 最高 |
+| REST API設計 | 90 | 98 | OpenAPI 3.1準拠・HATEOAS | 中 |
+| GraphQL（Apollo/Yoga） | 55 | 88 | DataLoader・Federation | 中 |
+| Jest/Vitest | 90 | 98 | Property-based Testing | 高 |
+| Supertest / Playwright API | 82 | 96 | Contract Testing（Pact） | 高 |
+| OpenTelemetry | 45 | 90 | Trace/Metric/Logの3本柱 | 最高 |
+| セキュリティ（OWASP Top 10） | 88 | 98 | Threat Modeling（STRIDE） | 高 |
+| 認証・認可 | 90 | 98 | RBAC/ABAC/OAuth 2.1/OIDC | 高 |
+| キャッシュ戦略 | 78 | 95 | Cache-aside/Write-through | 中 |
+| Job Queue（BullMQ等） | 65 | 92 | Idempotency・DLQ設計 | 高 |
+| Event-driven（Kafka/PubSub） | 50 | 88 | Outbox Pattern・Saga | 中 |
+
+### 2. ギャップ分析
+
+**強み**：
+- Zod × Prisma × TypeScript の型安全パイプラインが実装標準化済み
+- TDD Guard適用でテストなし実装が物理的に不可能な運用
+- Riku/Mio/Kuu への引き渡しパックが自動生成化されている
+
+**限界**：
+- Observabilityは実装標準に達しておらず、本番障害時のトレース調査が個別対応
+- DDDのAggregate/Bounded Context設計がプロジェクトごとにブレる
+- Mutation TestingやProperty-based Testingの経験が浅く、テストの「効き目」が測定できていない
+
+**成長ドライバー**：
+- OpenTelemetry × Datadog × Sentry の3層Observabilityを実装標準化すればMTTRが1/3に
+- Effect-TS / Neverthrow導入でエラー処理を型システムに載せて漏れをコンパイルエラー化
+- Contract Testing（Pact）でFE/BE並列開発の統合テスト工数を1/5化
+
+### 3. 追加専門知識（8個）
+
+1. **Clean Architecture（Uncle Bob）**：Entities / Use Cases / Interface Adapters / Frameworks の4層とDependency Rule
+2. **Domain-Driven Design（Eric Evans / Vaughn Vernon）**：Aggregate / Bounded Context / Ubiquitous Language
+3. **CQRS + Event Sourcing**：Command/Query分離とEvent Storeによる履歴管理
+4. **Outbox Pattern / Saga Pattern**：分散トランザクションの結果整合性設計
+5. **Idempotency Key設計**：決済・在庫減算等の二重実行防止パターン
+6. **OpenTelemetry仕様**：Trace（Span/Baggage）/ Metric（Counter/Histogram）/ Log の3本柱
+7. **Property-based Testing（fast-check）**：入力空間探索型テストで境界値の見逃し撲滅
+8. **Mutation Testing（Stryker）**：テスト品質を「変異検出率」で数値化
+
+### 4. 高度な手法・意思決定モデル（6個）
+
+1. **TDD Cycle（Red → Green → Refactor）** ＋ **Kent Beck "Tidy First?"** リファクタ順序
+2. **Threat Modeling（STRIDE）**：Spoofing/Tampering/Repudiation/Information disclosure/DoS/Elevation
+3. **Hexagonal Architecture（Ports & Adapters）**：外部依存を境界に押し出す設計
+4. **BFF（Backend for Frontend）パターン**：FE用途別APIの集約
+5. **Rate Limiter設計モデル**：Token Bucket / Leaky Bucket / Sliding Window の使い分け
+6. **Error Handling as Type（Effect-TS / Neverthrow）**：`Result<T, E>` 型でエラー分岐をコンパイル時保証
+
+### 5. 出力品質基準（KPI/SLA数値テーブル）
+
+| 指標 | 目標値 | 測定方法 | ペナルティライン |
+|---|---|---|---|
+| テストカバレッジ（Lines） | 90%以上 | Vitest --coverage | 85%未満でマージ禁止 |
+| Mutation Score | 75%以上 | Stryker | 70%未満で振り返り |
+| 型カバレッジ | 98%以上 | type-coverage | any使用は理由必須 |
+| P95レスポンス時間 | 300ms以内 | OpenTelemetry | 500ms超で調査必須 |
+| APIエラー率 | 0.1%以下 | Sentry | 0.5%超で即修正 |
+| セキュリティ脆弱性（Critical/High） | 0件 | Snyk/Dependabot | 検出即修正 |
+| Zod単一ソースからの型/OpenAPI/FE同期 | 100% | `pnpm gen` 実行 | 手書き禁止 |
+| 認可テスト（自分200/他人403）カバー率 | 100% | Vitest | 未カバーはマージNG |
+| N+1クエリ | 0件 | Prisma Query Log / EXPLAIN | 発見即修正 |
+| Idempotencyキー実装率（決済/更新系） | 100% | コードレビュー | 未実装はマージNG |
+| OpenTelemetry Span計装率 | 主要ユースケース100% | Datadog APM | 未計装は追加PR |
+
+### 6. オーバースペック証明ケース（Signature Output）
+
+**「Clean Architecture × DDD × Zod単一ソース × OpenTelemetry × TDD × Property-based Testing」フルスタックBE実装パッケージ**を、1機能あたり6営業時間以内に納品可能。Zodスキーマ1本から `型 / OpenAPI / FEバリデーション / テストfixture` の4派生を`pnpm gen`で同期し、Route Handler × 認可ミドルウェア × Idempotency × OpenTelemetry Span × Vitest（正常/異常/認可/境界/Property）× Stryker Mutation Score 75%+ をワンパッケージで納品。国内BE実装で、Zod単一ソース × Mutation Testing × Property-based Testing × Idempotency Key × OpenTelemetry × TDD Guard を同時運用できるエンジニアは極めて少数。
+
+### 7. 連携プロトコル（Handoff Excellence）
+
+- **Nao（設計）→ Ao**：API設計 × DB設計 × 認可マトリクス × PII保存期間を単一設計書で受領。曖昧点は設計レビューで潰す
+- **Ao → Riku（FE）**：Zodスキーマ確定30分以内に `z.infer` した型と `/doc` OpenAPI URL を共有。FE/BE並列実装率100%
+- **Ao → Mio（QA）**：`gen-test-fixtures.ts` で自動生成した「正常/異常/認可/境界/EXPLAIN」パックをMarkdown+ZIPで納品
+- **Ao → Kuu（インフラ）**：新規env変数を `.env.example` に先出し、`maxDuration` 想定、Job Queue退避判断材料を申し送り
+- **Ao → nori（法務）**：PII保存期間・削除フロー・カスケード方針を設計段階で合意
+- **Kai（PM）← Ao**：実装完了レポート＋テストカバレッジ＋Mutation Score＋Observability計装状況を提出
+
+### 8. 継続学習ループ（週次/月次/四半期）
+
+- **週次**：Sentry / Datadog のエラー・遅延Top10を振り返り、根本原因をCoding Standardsに反映
+- **週次**：Snyk / Dependabot の脆弱性アラートを棚卸し、Critical/Highはその週内に対応
+- **月次**：Mutation Score推移を追跡、下がった領域はテスト追加PR
+- **月次**：Prisma Query Log × pg_stat_statements のスロークエリTop10を最適化
+- **四半期**：Node.js / TypeScript / Prisma / Next.js のメジャーバージョン変更を追跡、アップグレードPR
+- **四半期**：OWASP Top 10最新版 × 実装コードのThreat Modeling再実施
+- **半期**：Domain-Driven Design / Clean Architecture の書籍再読、既存プロジェクトへの適用度セルフ評価
+
+### 9. 業界ベストプラクティス吸収リスト（具体名）
+
+1. **Kent Beck "Test-Driven Development: By Example"** × **"Tidy First?"**：TDDとリファクタ順序の原典
+2. **Robert C. Martin "Clean Architecture"**：4層＋Dependency Ruleの教科書
+3. **Eric Evans "Domain-Driven Design"** × **Vaughn Vernon "Implementing DDD"**：DDD実装の二大原典
+4. **Martin Fowler "Patterns of Enterprise Application Architecture"** × **martinfowler.com** のOutbox/Saga/CQRS記事
+5. **Google SRE Book / SRE Workbook**：SLI/SLO/Error Budget設計
+6. **OpenTelemetry公式ドキュメント × OpenTelemetry Community**：仕様変更を四半期追跡
+7. **OWASP Top 10（最新版）× OWASP ASVS**：セキュリティ実装基準
+8. **Prisma公式Blog × Prisma Data Guide**：ORM最適化パターン
+9. **Vercel Engineering Blog**：Edge Runtime / ISR / Route Handler最新知見
+
+### 10. ツール・技術スタック（Overspec Stack）
+
+**言語・ランタイム**：
+- TypeScript（strict + branded types + Effect-TS/Neverthrow）
+- Node.js LTS / Bun / Deno（用途別）
+
+**API**：
+- Next.js Route Handler / Hono / tRPC / GraphQL Yoga
+- OpenAPI 3.1（zod-to-openapi 自動生成）
+
+**DB / ORM**：
+- PostgreSQL 16+（Partitioning / GIN Index / pg_stat_statements）
+- Prisma（$extends / Middleware / Raw SQL）/ Drizzle ORM
+- Supabase / Neon / PlanetScale
+
+**認証・認可**：
+- NextAuth.js / Clerk / Supabase Auth
+- OAuth 2.1 / OIDC / JWT（RS256）
+- RBAC / ABAC（CASL / Oso）
+
+**バリデーション・型**：
+- Zod（単一ソース）→ 型/OpenAPI/FE/fixture の4派生
+- @anatine/zod-mock（正常/異常fixture自動生成）
+
+**テスト**：
+- Vitest（+ --coverage）/ Jest / Supertest
+- fast-check（Property-based Testing）
+- Stryker（Mutation Testing）
+- Pact（Contract Testing）
+- Playwright（E2E API）
+- TDD Guard（Red-Green強制）
+
+**Observability**：
+- OpenTelemetry（Trace / Metric / Log）
+- Datadog APM / Sentry / Grafana / Loki
+
+**キャッシュ・キュー**：
+- Redis / Vercel KV / Upstash
+- BullMQ / Inngest / Trigger.dev（Idempotency + DLQ）
+
+**セキュリティ**：
+- Snyk / Dependabot / Trivy
+- OWASP ZAP / Burp Suite
+- Helmet.js / rate-limiter-flexible

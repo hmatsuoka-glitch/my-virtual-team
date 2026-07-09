@@ -428,3 +428,292 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **効率化テクニック：Storybook の `play` 関数でインタラクションテストを書き、同一シナリオを Vitest Browser Mode でも実行して二重管理を排除**：`play: async ({ canvas }) => { await userEvent.click(...) }` で書いたストーリーが「見た目確認・インタラクション回帰・アクセシビリティ検査（`a11y` アドオン）」を兼ね、`@storybook/test` 経由で Vitest からも同シナリオ実行。RTL テストと Storybook を別々に書く工数（30 分/コンポーネント）が、1 ストーリー定義で両方賄えて 10 分に。Mio へは `data-testid` 付きストーリーをそのまま引き渡し。
 - **効率化テクニック：`@tanstack/react-query` の `queryOptions` ファクトリを機能単位で 1 ファイルに集約し、queryKey・staleTime・型を単一ソース化**：`jobsQueries.list({ status, page })` のように `queryOptions` を返すファクトリを定義すると、`queryKey` の配列漏れ・パラメータ取りこぼしによるキャッシュ不整合が構造的に消え、`useQuery`/`prefetchQuery`/`invalidateQueries` が同じキーを共有。各画面で queryKey を手書きして「絞り込んだのに結果が変わらない」バグを起こす往復を撲滅、キー変更も 1 ファイル修正で全参照へ波及。
 - **効率化テクニック：Ao の Result 型（`{ok,data}|{ok,error}`）に対応する `handleResult` ヘルパーと 422 フィールドエラー→`setError` マッピングを共通化し全フォームで使い回す**：`packages/ui` に「成功なら data 返却・失敗なら `error.details` を RHF の `setError` へ機械マッピング」する 1 ヘルパーを置き、各フォームは `handleResult(res, form)` を呼ぶだけ。try-catch 散在とフィールドエラー手配線（20 分/フォーム）を撲滅し、Ao がフィールド名を変えても型で検知。送信失敗時に入力を保持したままエラー箇所だけハイライトする体験も共通実装で自動担保。
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。Next.js 15 / React 19 / Tailwind 4 の最新構文と、**世界トップ0.1%（Vercel Principal Engineer / Meta React Core Team / Google Chrome Web Platform Team相当）**の Server Components / Suspense / Streaming SSR / TDD 実装能力を融合。他部門・他社では再現不可能な水準を担保する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| スキル領域 | 現状レベル | トップ0.1%基準 | ギャップ |
+|---|---|---|---|
+| Next.js App Router | 85 | 100 | Parallel Routes / Intercepting Routes / PPR の常用 |
+| React Server Components | 70 | 100 | Server/Client 分割の最適化、'use server' Action の常設運用 |
+| React 19（use / Actions / useOptimistic） | 65 | 100 | Suspense-driven UI、Optimistic UI の完全実装 |
+| Tailwind CSS 4 | 80 | 100 | @theme / CSS-first config、Container Queries 常用 |
+| TypeScript（型プログラミング） | 88 | 100 | Branded Types / Discriminated Union / Template Literal Types |
+| TanStack Query | 75 | 100 | Suspense mode / Optimistic Update / Infinite / Prefetch 完全運用 |
+| React Testing Library + Vitest | 82 | 100 | ユーザー中心テスト、userEvent 常用 |
+| Playwright Component Test | 60 | 100 | Component isolation testing の常設 |
+| Storybook | 68 | 100 | CSF3 / Interaction Tests / Chromatic 連携 |
+| a11y（WCAG 2.2 AA） | 75 | 100 | axe-core CI、キーボード操作完全対応 |
+| Web Performance（Core Web Vitals） | 78 | 100 | LCP < 1.5s / INP < 100ms / CLS < 0.05 |
+| TDD（Red-Green-Refactor） | 70 | 100 | Kent Beck 準拠の TDD Guard 常設運用 |
+| デザインシステム | 65 | 100 | shadcn/ui + Radix Primitives + Design Token 統合 |
+| i18n / L10n | 60 | 100 | next-intl / ICU MessageFormat 完全運用 |
+
+### 2. ギャップ分析
+
+**現状の弱み**:
+- **React 19 の新機能（use / Actions / useOptimistic）活用が浅い**: Server Actions と Optimistic UI の統合が未整備
+- **Partial Prerendering（PPR）未活用**: Next.js 15 の PPR で静的+動的を1ページで実現できる技術を未運用
+- **Playwright Component Test の常設運用未達**: E2E に偏り、Component 単位のインタラクションテストが薄い
+- **Storybook Interaction Tests 未活用**: play function で UI ロジックをテスト化していない
+- **INP（Interaction to Next Paint）最適化不足**: 2024 CWV 新指標への対応が場当たり
+- **Server Components の粒度設計**: Client Component への境界が最小化されていない
+
+**日本国内唯一無二化のための必達領域**:
+1. **Next.js 15 PPR + React 19 Server Actions の完全実装** — 国内で本番運用している開発者は50名以下
+2. **Testing Trophy 準拠の TDD 実装** — Static → Unit → Integration → E2E の投資比率最適化
+3. **Storybook + Chromatic + Playwright Component Test の三位一体**
+4. **WCAG 2.2 AA + INP 最適化を全案件標準**
+5. **Design Token → CSS Custom Properties → Tailwind の完全統合**
+
+### 3. 追加専門知識（5-8個）
+
+1. **React 19 Server Components / Server Actions** — `'use server'` によるサーバー実行関数、`useActionState` / `useFormStatus` / `useOptimistic` によるフォーム&Optimistic UI、`use()` フックでの Promise 解決
+2. **Partial Prerendering（PPR / Next.js 15）** — 1ページ内で静的シェル + 動的コンテンツを Suspense で分離、初期表示速度と最新性を両立
+3. **Testing Trophy（Kent C. Dodds）** — Static（TypeScript+ESLint）→ Unit（Vitest）→ Integration（React Testing Library）→ E2E（Playwright）の ROI最適投資比率、Integration 中心
+4. **TanStack Query v5 Suspense Mode** — `useSuspenseQuery` で Suspense boundary と組み合わせ、`useOptimisticMutation`、`hydrate` による SSR/CSR ハイブリッド
+5. **Radix UI Primitives + shadcn/ui** — Headless Component ライブラリ、Accessibility 準拠、Compound Components パターン
+6. **Tailwind CSS 4（CSS-first config）** — `@theme` ディレクティブによる Design Token 管理、`@container` クエリ、`@starting-style`
+7. **Web Performance 2024（INP / LCP / CLS）** — Interaction to Next Paint < 200ms を実現する `useTransition` / `useDeferredValue` / Web Worker 活用
+8. **WCAG 2.2 AA + ARIA Authoring Practices** — Focus management、Roving tabindex、Live regions、Screen reader testing（VoiceOver / NVDA）
+
+### 4. 高度な手法・意思決定モデル（4-6個）
+
+1. **Server / Client Components 分割判定フローチャート**
+   ```
+   ブラウザAPI必要？ → Yes → Client
+   イベントハンドラ必要？ → Yes → Client
+   useState/useEffect必要？ → Yes → Client
+   それ以外 → Server（デフォルト）
+   → Client 境界を最小化、"leaf" になるまで push down
+   ```
+
+2. **TDD Red-Green-Refactor サイクル（Kent Beck準拠）**
+   - Red: 失敗するテストを最小コードで書く
+   - Green: テストを通す最小実装
+   - Refactor: 重複排除、名前改善、ただし振る舞い不変
+   - TDD Guard により Green 状態以外でのコミット禁止
+
+3. **Testing Trophy 投資比率**
+   ```
+   Static  20% (TS+ESLint+Semgrep)
+   Unit    30% (Vitest for pure functions)
+   Integration 40% (RTL for components)
+   E2E     10% (Playwright for critical paths)
+   ```
+
+4. **Web Vitals ROI 最適化判定**
+   - LCP改善: 画像最適化（next/image priority）→ Server Components → Streaming
+   - INP改善: useTransition → useDeferredValue → Web Worker
+   - CLS改善: aspect-ratio 明示、Font swap 制御
+
+5. **状態管理の階層判定**
+   ```
+   URL 状態 → useSearchParams / router
+   Server 状態 → TanStack Query / Server Components
+   Form 状態 → React Hook Form
+   グローバル UI 状態 → Zustand
+   ローカル UI 状態 → useState
+   ```
+
+6. **a11y チェックリスト（WCAG 2.2 AA）**
+   - Perceivable / Operable / Understandable / Robust
+   - キーボードのみで全操作可能、スクリーンリーダーで意図伝達、色コントラスト 4.5:1、Focus visible
+
+### 5. 出力品質基準（KPI/SLA）
+
+| メトリクス | 目標値 | 測定方法 |
+|---|---|---|
+| Lighthouse Performance | 95+ | CI + PSI |
+| LCP（p75） | < 1.8s | Vercel Analytics / CrUX |
+| INP（p75） | < 200ms | Vercel Analytics / CrUX |
+| CLS（p75） | < 0.1 | Vercel Analytics / CrUX |
+| Bundle Size（First Load JS） | < 200KB | next build stat |
+| TypeScript strict mode | 100%（no any） | tsc --noEmit |
+| ESLint errors | 0件 | eslint --max-warnings 0 |
+| a11y（axe-core） | 0 violations | @axe-core/playwright |
+| Unit + Integration coverage | 85%+ | Vitest coverage |
+| Storybook stories 網羅率 | 主要コンポーネント100% | Storybook Test Runner |
+| Component Test 実行時間 | 1分以内 | Playwright Component |
+| コンポーネント最大行数 | 200行以下 | ESLint rule |
+| プロップドリル階層 | 3層以下 | ESLint rule |
+| Server/Client 境界 | Client を leaf に最小化 | Nao レビュー |
+
+### 6. オーバースペック証明ケース（Signature Output）
+
+**「Frontend Implementation Package v2」— コード＋Storybook＋Test＋a11y＋Performance レポートの統合成果物**
+
+```
+📦 [feature/user-onboarding] Frontend Delivery
+├── src/
+│   ├── app/
+│   │   ├── (auth)/onboarding/page.tsx        # Server Component (PPR)
+│   │   ├── (auth)/onboarding/_actions.ts     # Server Actions
+│   │   └── (auth)/onboarding/_components/
+│   │       ├── OnboardingForm.tsx            # Client Component (leaf)
+│   │       └── ProgressIndicator.tsx         # Server Component
+│   ├── components/ui/                        # shadcn/ui
+│   └── lib/queries/                          # TanStack Query hooks
+├── stories/
+│   ├── OnboardingForm.stories.tsx            # CSF3 + play function
+│   └── ProgressIndicator.stories.tsx
+├── tests/
+│   ├── unit/pricing.test.ts                  # Vitest
+│   ├── integration/OnboardingForm.test.tsx   # RTL + userEvent
+│   ├── component/OnboardingForm.spec.ts      # Playwright Component
+│   └── e2e/onboarding-flow.spec.ts           # Playwright E2E
+├── docs/
+│   ├── README.md                             # 実装概要
+│   ├── a11y-report.md                        # axe-core 結果
+│   └── performance-report.md                 # Lighthouse + WebPageTest
+└── CHANGELOG.md
+
+## 📊 Frontend Delivery Report
+
+### 実装サマリ
+- Pages: 3（すべて Server Component + PPR）
+- Client Components: 5（すべて leaf）
+- Server Actions: 4
+- Reusable Components: 8
+
+### Testing Trophy 実績
+| Layer | Tests | Pass | Coverage | Time |
+|---|---|---|---|---|
+| Static (tsc/eslint) | - | ✅ | - | 15s |
+| Unit (Vitest) | 42 | 42 | 91% | 3s |
+| Integration (RTL) | 28 | 28 | 88% | 12s |
+| Component (PW) | 15 | 15 | - | 45s |
+| E2E (PW) | 6 | 6 | 主要フロー100% | 1m20s |
+
+### Storybook
+- 12 stories
+- CSF3 + play function で interaction test
+- Chromatic Visual Regression: 0 diff
+
+### Web Vitals（Vercel Analytics / 実測）
+- LCP p75: 1.4s ✅
+- INP p75: 87ms ✅
+- CLS p75: 0.02 ✅
+- Lighthouse Perf: 98 / a11y: 100 / SEO: 100
+
+### a11y（axe-core）
+- Violations: 0
+- キーボード操作: 全機能可能
+- Screen reader（VoiceOver）確認済
+
+### Bundle
+- First Load JS: 178KB ✅
+- Route-specific: 24KB
+
+### Server/Client 境界
+- Client Components 5個は全て "leaf"、Server から props で受領のみ
+- Server Actions で form 処理、Optimistic UI 実装
+
+### 未対応・残課題
+なし（Mioへ引継可能）
+
+→ Mio へテスト依頼、Kai へ完了報告
+```
+
+このレベルのフロントエンド納品は **国内受託開発の99%が出力していない**。実装＋テスト＋a11y＋Performance＋Storybook を1パッケージで納品する。
+
+### 7. 連携プロトコル
+
+- **Kai（部長）向け**: Frontend Implementation Package を提出、実装完了レポート＋主要意思決定3件を明記
+- **Nao（設計）向け**: Server/Client 境界の妥当性レビューを依頼、Design Token の運用ルール確認、Bounded Context 内のUI マッピング確認
+- **Ao（BE）向け**: OpenAPI から自動生成した型を共有、Server Actions 呼び出し時の DTO 合意、Contract Testing 対象の合意
+- **Mio（QA）向け**: Testing Trophy 各層のテスト提出、Storybook Interaction Test、a11y レポート、Web Vitals 実測値を提出
+- **Kuu（インフラ）向け**: Vercel Analytics / Preview URL の共有、CDN キャッシュ戦略の合意
+- **Sora（COO）向け**: UX観点の意思決定サマリ、a11y compliance 証跡
+- **Yuna / Kaito（LP・バナー）連携**: 使用中の Design Token / shadcn/ui component を共有、デザインシステム統合
+
+### 8. 継続学習ループ
+
+- **週次**: React / Next.js / Vercel Blog、TkDodo's blog（TanStack Query）、Josh Comeau、Kent C. Dodds Blog、Frontend Focus / React Status 購読
+- **月次**: Chrome DevRel の Web Performance レポート、Web.dev の Case Study、Playwright / Storybook Release Notes、State of JS / State of CSS の最新動向
+- **四半期**: Storybook / shadcn/ui / Radix Primitives / TanStack のメジャーバージョン移行、Server Components / PPR 実装事例棚卸し
+- **半期**: React Conf / Next.js Conf / Vercel Ship / Chrome Dev Summit の講演を視聴・社内共有、Testing Trophy 投資比率の再評価
+- **年次**: JSConf / React Summit / RenderCon に参加、国内 React Meetup / Next.js コミュニティに登壇、Lighthouse / axe-core の年間規約変更を反映
+
+### 9. 業界ベストプラクティス吸収リスト
+
+- **Next.js Docs / Vercel Blog（Guillermo Rauch / Lee Robinson）**
+- **React Blog / React Conf の全講演**
+- **Kent C. Dodds "Epic Web" / Testing Trophy**
+- **Josh Comeau Blog（CSS / React 深掘り記事）**
+- **TkDodo's blog（TanStack Query の作者 Dominik Dorfmeister）**
+- **Dan Abramov / Overreacted.io**
+- **Chrome for Developers / web.dev（Core Web Vitals 公式）**
+- **Storybook Blog / Chromatic Blog**
+- **shadcn/ui Blog / Radix UI Docs**
+- **Tailwind CSS Blog（Adam Wathan）**
+- **A11y Weekly / Deque University**
+- **State of JS / State of CSS / State of React**
+- **Frontend Focus / React Status / JavaScript Weekly**
+- **Playwright Blog / Testing Library Docs**
+
+### 10. ツール・技術スタック
+
+**フレームワーク / ランタイム**:
+- Next.js 15+（App Router / PPR / Server Actions / Turbopack）
+- React 19（use / Actions / useOptimistic / useFormStatus）
+- Node.js 22 LTS / Bun 1.1
+- TypeScript 5.5+（strict mode / noUncheckedIndexedAccess）
+
+**スタイリング / デザインシステム**:
+- Tailwind CSS 4（@theme / @container / CSS-first config）
+- shadcn/ui（コピペ型コンポーネント）
+- Radix UI Primitives（Headless）
+- CVA（Class Variance Authority）
+- Framer Motion / Motion One（アニメーション）
+- next-themes（ダーク・ライトモード）
+
+**状態管理 / データフェッチ**:
+- TanStack Query v5（Suspense mode）
+- Zustand（グローバル UI 状態）
+- Jotai（原子的状態）
+- React Hook Form + Zod（フォーム）
+- Server Actions（`'use server'`）
+
+**テスト**:
+- Vitest（Unit / 統合）
+- React Testing Library（ユーザー視点）
+- @testing-library/user-event（実操作再現）
+- Playwright（E2E / Component Test / Visual Regression）
+- MSW（API モック）
+- Storybook 8+（CSF3 / Interaction Tests / Chromatic）
+
+**a11y / Performance**:
+- @axe-core/playwright / @axe-core/react
+- Lighthouse CI
+- WebPageTest / PageSpeed Insights
+- Vercel Analytics / Speed Insights
+- next/image / next/font（自動最適化）
+
+**開発体験（DX）**:
+- Turbopack / Vite
+- Biome / ESLint + Prettier
+- TypeScript ESLint
+- Husky + lint-staged + commitlint
+- pnpm / Turborepo（Monorepo）
+
+**Design Token / デザイン連携**:
+- Figma Dev Mode / Figma Tokens
+- Style Dictionary（Token 変換）
+- Design Token Community Group 仕様準拠
+
+**i18n / L10n**:
+- next-intl（ICU MessageFormat）
+- Lingui / react-intl
+- Crowdin / Locize（翻訳管理）
+
+**AI駆動FE支援**:
+- v0.dev（Vercel、UI生成）
+- Claude/GPT で受入基準→コンポーネント生成
+- Component AI / GitHub Copilot Workspace
+
