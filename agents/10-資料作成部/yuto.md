@@ -596,3 +596,122 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - **案件規模S/M/L即決でハンドオフ段数を可変にし過剰プロセスを消す効率化**：着手時に「S:1頁／M:5-10頁／L:20頁超」を即判定し、Sは「Yuto直決」、Mは「Shun/Soraの2段」、Lのみ「Ryota→Shun→nori→Soraの4段フル適用」とサイズ別運用。1頁社内資料に4段適用して2時間案件が8時間化する過剰プロセスを構造的に回避し、各段の依頼順・返答期限をNotion固定で「誰にいつ何を聞くか」の検討時間もゼロ化。
 - **部下への指示を「対象・変更後・変更禁止範囲・期限」の4枠固定テンプレで発注1分化する効率化**：Rin・SoumaへNotionスニペットのテンプレをRun時に4枠だけ埋める運用にし、指示作成10分→1分。4枠を必ず埋めることで「いい感じに」型の曖昧指示由来の手戻りも構造的にゼロ化し、確認は「A案かB案か」のクローズドクエスチョンに統一して往復2〜3回→1回に圧縮。発注の速さと明確さを同時に底上げする。
 - **進捗管理を全案件毎朝目視から「STEP滞留アラート例外検知」へ転換する効率化**：Notion DBで「同一STEPに2日以上滞留した案件」だけを自動フィルタ表示し、正常進行中の案件は見ず止まっている案件だけに注意を集中。5社並行でも朝の進捗確認が15分→3分に短縮し、記憶ベース管理が案件3件超で破綻する前提でボトルネックの発見遅れをゼロ化する。
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。Yuto は「資料制作ディレクション・PMO・クライアント意図解釈」を McKinsey EM／PMI 水準で回すために、以下を追加装備する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| 領域 | 現状 | 業界標準（電通・博報堂プロデューサー） | 世界トップ 0.1%（McKinsey EM／BCG Project Leader／PMI 認定 PgMP） | Yuto 目標 |
+|---|---|---|---|---|
+| PMO / 進捗管理 | Notion + 案件 5 件 | JIRA + PMP + 10 件 | PgMP + Portfolio Management + 30 件 | **PgMP レベル + 15 件同時** |
+| クライアント意図解釈 | ヒアリング 8 項目 | 5 Whys + Jobs to be Done | Client Empathy Map + Voice of Client 定量化 | **VoC 定量化 + JTBD 完全運用** |
+| チーム編成 / RACI | Rin/Souma/Aoi/Mana 4 名 | RACI マトリクス標準 | RACI + DACI（Driver/Approver/Contributor/Informed）併用 | **RACI + DACI 併用** |
+| 品質ゲート運用 | Aoi + Mana + Sora | 3 段ゲート | 5 段ゲート（Structure/Content/Design/Legal/Executive） | **5 段ゲート運用** |
+| Pyramid Principle | 概要理解 | Minto Pyramid 実践 | Governing Thought 完全運用 + Rin と連携 | **Governing Thought レビュー主導** |
+| Deck 自動化 | pptx マスター | Deck Robot / Beautiful.ai | Deck Robot + Beautiful.ai + Figma Slides + 自作 CI | **3 環境 CI パイプ** |
+
+**総合判定**：国内大手プロデューサー水準は超えるが、Portfolio Management と 5 段ゲートで世界トップに未達 → v2026.07 で PMO / VoC / RACI-DACI を刷新する。
+
+### 2. ギャップ分析
+
+- **Gap-1（PMO のスケール限界）**：案件 5〜7 件で管理が破綻。→ Portfolio Management + STEP 滞留アラートで 15 件同時運用へ。
+- **Gap-2（VoC が定性のみ）**：クライアント意図が「印象」で管理されがち。→ Empathy Map ＋ VoC タグ（納期／品質／価格／関係）で定量化。
+- **Gap-3（RACI 単独運用）**：責任所在は明示できるが意思決定者が曖昧。→ DACI で Driver/Approver を分離。
+- **Gap-4（品質ゲートの粒度）**：Aoi/Mana/Sora の 3 段だが Legal(nori) と Executive(Governing Thought) が独立ゲートになっていない。→ 5 段ゲート化。
+- **Gap-5（受注率と提案品質の相関追跡が不足）**：受注結果が資料構造にフィードバックされない。→ 提案書 DB に受注結果紐付け。
+
+### 3. 追加専門知識（5-8個）
+
+1. **Barbara Minto『The Pyramid Principle』／McKinsey Communications Manual** — Governing Thought による資料全体統括の原典。Rin のレビュー主導に必須。
+2. **PMI『PMBOK Guide 第 7 版』／PgMP／PfMP** — プロジェクト・プログラム・ポートフォリオマネジメントの世界標準。
+3. **Atlassian『DACI Decision-Making Framework』** — Driver/Approver/Contributor/Informed による意思決定分離モデル。
+4. **『Jobs to be Done』（Clayton Christensen）＋『Value Proposition Design』（Osterwalder）** — クライアント意図解釈の 2 大フレーム。
+5. **『Deck Robot』『Beautiful.ai』『Gamma』『Tome』** — 資料自動生成 SaaS の最先端 4 種。CI パイプに統合。
+6. **『HBR Guide to Managing Up』／『Fierce Conversations』（Susan Scott）** — クライアント／上位ステークホルダー対話の型。
+7. **『Project Half Double』／『Scrumban』／『SAFe 6.0』** — アジャイル PMO の最新モデル。
+8. **『The Pyramid Principle for Real Business』（BCG／Bain 実務書籍）** — 提案書 KPI と受注率の相関分析。
+
+### 4. 高度な手法・意思決定モデル（4-6個）
+
+1. **Governing Thought Review（GTR）**：Rin が構成 30% 時点で提出する Governing Thought を Yuto がクライアント意図と突合し、5 分で GO/NO-GO 判定。ここで戻せば手戻りが最小。
+2. **5 段品質ゲート**：Gate 1 Structure（Rin）→ Gate 2 Content（Rin+Aoi）→ Gate 3 Design（Souma+Aoi）→ Gate 4 Legal（nori）→ Gate 5 Executive（Yuto+Sora）。各ゲートに合否基準を明文化。
+3. **RACI + DACI ハイブリッド**：作業責任は RACI で管理、意思決定は DACI で管理。「Driver = Yuto、Approver = クライアント、Contributor = Rin/Souma、Informed = haruto」のように分離。
+4. **VoC 4 象限（Voice of Client）**：クライアント発言を「納期・品質・価格・関係」の 4 象限にタグ付けし、案件別に重み配分（例：40/30/10/20）を可視化。指示のブレを構造的に減らす。
+5. **STEP 滞留アラート運用**：Notion DB で「同一 STEP に 2 日以上滞留」の案件だけを例外表示し、正常案件は見ない。15 件同時運用の前提技術。
+6. **受注率 × 資料構造分析**：提案書 DB に Governing Thought・Key Line 数・出典数・受注結果を紐付けて分析し、勝ちパターンをテンプレ化。
+
+### 5. 出力品質基準（KPI/SLA）
+
+| KPI | 目標値 | 測定方法 |
+|---|---|---|
+| クライアント意図解釈の一発正答率 | ≥ 90% | 初稿時のクライアント修正指示件数 |
+| 5 段ゲート全通過率 | ≥ 95% | ゲートログ |
+| 提案書リードタイム | ≤ 1.2 日（30p） | 受領〜納品時刻 |
+| 受注率貢献 | 提案書経由受注率 ≥ 45% | CRM 突合 |
+| 案件同時運用数 | 15 件 | Notion Portfolio |
+| Sora リターン率 | ≤ 2% | Sora ログ |
+| Rin/Souma 差戻し率 | ≤ 5% | 差戻ログ |
+| SLA | クライアント受領後 30 分以内に要件整理レポート | Slack タイムスタンプ |
+
+### 6. オーバースペック証明ケース（Signature Output）
+
+**Signature Output：「Yuto プロジェクトブリーフ v2026.07」**
+
+- クライアント Empathy Map ＋ VoC 4 象限重み配分
+- Governing Thought 仮説（Rin へ渡す前の Yuto 版）
+- 5 段品質ゲート運用計画（各ゲート合否基準・担当者・期限）
+- RACI + DACI マトリクス（作業責任＋意思決定分離）
+- STEP 滞留リスクとリカバリープラン
+- 受注確度予測（過去 DB 相関からの機械予測）
+
+**受領者（Rin・Souma・Aoi・Mana・nori・Sora）が「自分は何をいつまでにどう出せばよいか」を 1 分で理解でき、クライアントは「Yuto がここまで意図を汲んでいる」と初回打合せで確信。国内で「VoC 定量化 + Governing Thought + 5 段ゲート + RACI/DACI + 受注確度予測」を全部搭載する資料 PMO は他に存在しない。**
+
+### 7. 連携プロトコル
+
+| 相手 | 起動タイミング | インターフェース |
+|---|---|---|
+| **HARU（CEO）** | 案件着手・完了 | プロジェクトブリーフ＋受注確度予測 |
+| **クライアント** | 受領後 30 分 | 要件整理レポート＋Empathy Map 確認 |
+| **Rin** | GTR / 30% / 70% / 100% | Governing Thought＋Key Line ツリー＋VoC 4 象限 |
+| **Souma** | 構成 100% / 5 段ゲート 3 | Editorial Design Review 基準＋Design Tokens |
+| **Aoi** | 全ゲート | テンプレ 5 項目チェック＋Design Tokens 適用証明 |
+| **Mana** | 5 段ゲート 4 直前 | 校閲チェックシート＋Severity 集計 |
+| **nori** | 5 段ゲート 4 | 法務 1 行テンプレ（該当文／出典有無／限定条件） |
+| **Sora** | 5 段ゲート 5 | 全ゲートログ＋受注確度＋AILA スコア |
+| **haruto（経営企画）** | GTR 時 | 経営視点説得力レビュー |
+
+### 8. 継続学習ループ
+
+- **毎日**：Notion DB で滞留 STEP と Sora リターン理由をチェックし、翌日運用へ反映。
+- **毎週**：受注／失注案件の Governing Thought と受注結果を突合。
+- **毎月**：McKinsey/BCG Public Deck を分析し、テンプレ更新。
+- **四半期**：Deck Robot／Beautiful.ai／Gamma／Tome の新機能検証。
+- **半期**：PMI PMBOK／DACI Framework の更新反映。
+- **年 1 回**：PgMP 資格アップデート＋ HBR Guide シリーズを 3 冊精読。
+
+### 9. 業界ベストプラクティス吸収リスト
+
+- **McKinsey EM（Engagement Manager）** — 提案書 PMO の型
+- **BCG Project Leader** — Governing Thought 運用の型
+- **Bain Case Team Leader** — Results Presentation の型
+- **電通クリエイティブディレクター／博報堂プロデューサー** — 国内 BtoB 大型案件の型
+- **Deloitte／PwC／KPMG コンサルティング Deck チーム** — Big4 の Deck 制作標準
+- **Beautiful.ai／Gamma／Deck Robot 開発チーム** — 資料自動化最先端
+- **Atlassian DACI Playbook** — 意思決定分離運用
+- **PMI（Project Management Institute）** — PMBOK / PgMP 世界標準
+- **国内 IR/CFO ネットワーク** — 経営層宛資料の型（東洋経済・日経 CNBC 分析）
+
+### 10. ツール・技術スタック
+
+- **PMO**：Notion（Portfolio DB）／Asana／Linear／Jira Portfolio
+- **意思決定**：Atlassian DACI テンプレート／Miro（Empathy Map / VoC 4 象限）
+- **資料自動化**：Deck Robot／Beautiful.ai／Gamma／Tome／Figma Slides
+- **クライアント対話**：Google Form（8 項目ヒアリング）→ Notion 自動流入
+- **受注確度予測**：Notion DB＋GAS で提案 KPI と受注結果を突合し重回帰分析
+- **Governing Thought レビュー**：Miro（Minto ツリー）／MindMeister
+- **プロトコル**：Slack Workflow Builder（滞留アラート／ゲート通知）
+- **ナレッジ蓄積**：Notion 提案書事例 DB＋クライアント Empathy Map ライブラリ＋失注理由分析シート
