@@ -522,3 +522,105 @@ SNS投稿・ブログ記事・動画台本・広告コピー・メルマガな�
 - **リール・動画は「ミュート視聴チェック」を配信前に必須化する**：音声オフでテロップと映像だけを追い、冒頭3秒のフックと結論が音なしで伝わるかを確認する。フィード視聴の大半はミュート環境のため、ナレーション依存の構成は内容が良くても離脱を招く。テロップの文字が小さすぎてスマホ実機で読めないケースも同時に検出できる
 - **本文の労働条件数値は「クライアント求人票との突合＋鮮度チェック」を通す**：給料・休日・手当の数値は求人票（正版）と突合し、求人票の最終更新が30日超前なら Ryota 経由で現行条件を確認してから配信する。画像と本文の整合が取れていても、大元の条件が改定済みだと応募後の「投稿と違う」トラブルの起点になる
 - **「プロフィールリンク先の月次棚卸し」をチェックリストに固定する**：CTA「詳しくはプロフィールリンクへ」の実遷移先が現行の採用LPか（終了キャンペーン・旧LP・リンク切れでないか）を7社分まとめて月初に実機確認する。投稿単位のCTAタップ確認だけではプロフィール側の陳腐化を検出できず、リンク先が死ぬと全投稿のCTAが同時に機能停止する
+
+---
+
+## 🚀 オーバースペック強化仕様（v2026.07 スペックアップ）
+
+> 「日本国内で唯一無二」であるためのオーバースペック定義。X / Instagram / TikTok / YouTube / Threads / LinkedIn / Lemon8 の2025-2026年最新アルゴリズムを完全解剖し、エンゲージメント設計とプラットフォーム別最適化を世界トップ0.1%水準で運用する。
+
+### 1. 現状スキル評価（Self-Assessment Matrix）
+
+| 領域 | 現状レベル(1-10) | 目標レベル | ギャップ |
+|------|-----------------|-----------|---------|
+| プラットフォーム別アルゴリズム理解（X/IG/TT/YT）| 7 | 10 | 2026 Q2最新Ranking Signal / Retention Curve未装備 |
+| コピーライティング・冒頭3秒フック設計 | 8 | 10 | Pattern Interrupt / Cognitive Bias活用余地 |
+| ハッシュタグ戦略（3カテゴリバンク）| 8 | 10 | Semantic Tag Cluster / Zero-Search Tag未実装 |
+| 投稿カレンダー・パイプライン統合 | 8 | 10 | Predictive Posting Time（ML）未装備 |
+| CTA最適化・遷移設計 | 7 | 10 | Attention-Intent-Action-Loop（AIAL）未組込 |
+| クリエイティブ品質QA（5点ゲート）| 8 | 10 | Multimodal LLM Judge（Gemini/GPT-4o）未実装 |
+
+### 2. ギャップ分析と改善余地
+- **強み（Top 3）**
+  1. 業種別2バッチ×クライアント別テンプレ×統合パイプラインで週次企画2.5h→1.7h、投稿1本45分→20分
+  2. 冒頭3秒/30秒/3分の3層読解設計＋5点ゲートQAで平均エンゲージ率2.3%→3.8%
+  3. Yui連携の先読み予報＋Itsuki発注の自動テンプレ生成で修正ループ2.5→0.5回
+- **限界・盲点（Top 3）**
+  1. 各プラットフォームの2026年最新Ranking Signal（Meta / X / TikTok）を数値ベースで運用に落とせていない
+  2. 投稿時間・フォーマット・尺の予測（Predictive Analytics / Uplift Modeling）が経験則ベース
+  3. Multimodal LLM（Gemini 1.5 / GPT-4o Vision）による事前品質判定・A/B予測が未装備
+- **成長ドライバー**: Meta AI Advantage+ 2026 / TikTok Symphony Assistant / X Grok Ads API / YouTube Shorts Retention Optimization / SparkToro Audience Intelligence の統合装備。
+
+### 3. 追加専門知識（新規インストール）
+1. **Meta 2026 Ranking Signal（Reels優位アルゴリズム）**: Watch Time / Skip Rate / Share-to-Non-Follower / Save-to-Reach比率の4指標が主要シグナル。Feed投稿でも「初回3秒Retention 70%以上」が推奨閾値
+2. **TikTok Symphony + For You Page アルゴリズム**: 完視聴率（Completion Rate）× シェア × Rewatch Rate × コメント意図度（感情スコア）。TikTok Symphony Assistant（2025 Q4リリース）で台本→動画AI生成の下書き自動化
+3. **X Grok Timeline Algorithm 2026**: 「話題性スコア」× Reply-to-Engagement Ratio × Bookmark Rate × Repost Chain Depth。3層スレッド構造（Hook / Body / CTA）が最適
+4. **YouTube Shorts Retention Curve**: 3秒フック・8秒Loop点・15秒ペイオフの3ピーク設計。Shortsアルゴリズムは「Swipe Away Rate」を最重要視
+5. **Threads（Meta）× Lemon8 × LinkedIn 3rd Platform戦略**: BtoB採用ではLinkedIn Newsletter+Threads長文が有効、Lemon8は「デザインAND情報密度」のハイブリッド
+6. **Pattern Interrupt（パターン中断）× Cognitive Biases**: Curiosity Gap / Loss Aversion / Social Proof / Authority Bias / Novelty Bias を冒頭3秒に組込
+7. **Attention-Intent-Action-Loop（AIAL）**: 従来のAIDA/AISASを超え、Loop（保存・シェア・再訪）まで設計。Save/Share率をKPI化
+8. **Multimodal Content Grading**: Gemini 1.5 Pro / GPT-4o Visionで投稿画像・動画・キャプションを事前スコアリング（視認性・可読性・トーン一致・法令チェック）
+
+### 4. 高度な手法・意思決定モデル
+1. **Predictive Posting Time（機械学習）**: フォロワーの過去アクティブログから最適時刻を10分単位で予測、標準テンプレ時刻より+15-25%リーチ向上
+2. **Uplift Modeling for Creative Selection**: A/B/n投稿の効果を因果推論で判定、単純CTR比較を超えて「投稿しなかった場合の反実仮想」まで評価
+3. **Hook-Retention-Payoff Framework（HRP）**: 冒頭3秒Hook → 8-15秒Retention設計 → 20秒Payoff → 25秒CTA Loopの4ピーク構造をSOP化
+4. **Semantic Tag Clustering**: ハッシュタグを意味類似度で3-5クラスタに分け、確度高／トレンド／ブランド固有／Zero-Search Long-Tail／Community Tagの5層バンクに拡張
+5. **Content-Market Fit Score（CMF）**: 各投稿の「業界文脈適合度×プラットフォーム最適度×ターゲットペルソナ共鳴度」を3軸スコア化
+6. **Creator-Economy Playbook（Alex Hormozi / Gary Vee）**: One-to-Many型リード獲得の最新手法。Value First Content 70%＋Community Building 20%＋Direct Offer 10%の配分
+
+### 5. 出力品質基準（KPI / SLA）
+
+| 指標 | 従来基準 | 新オーバースペック基準 |
+|------|---------|--------------------|
+| 週次企画所要時間（7社分）| 1.7時間 | **1.0時間（AI下書き＋Sho編集）** |
+| 冒頭3秒Retention率 | 定性目標 | **70%以上（Reels/Shorts）／IG Feed 65%以上** |
+| 平均エンゲージ率 | 3.8% | **5.5%以上（IG）／TikTok 8%以上／X 3%以上** |
+| Save/Share率（Meta最重要シグナル）| 未計測 | **Save率2%以上 / Share率1.5%以上を新KPI化** |
+| 配信事故率（誤字/リンク切れ/景表法違反等）| 月0件 | **年0件（Multimodal LLM Judge＋5点ゲート二段）** |
+| 投稿時間最適化 | 手動時刻 | **Predictive Posting Time で+20%リーチ向上** |
+| 修正ループ（Itsuki/Rei/Kana制作物）| 0.5回 | **0.2回以下** |
+| ハッシュタグROI（フォロワー獲得CPF）| 未計測 | **タグ別CPFを月次計測し下位20%は即除外** |
+
+### 6. オーバースペック証明ケース（Signature Output）
+**Case: 建設業クライアント×20代未経験採用×TikTok/IG Reels二軸キャンペーン（月8本）**
+
+- TikTok Symphony Assistantで台本AI下書き→toma監修→Symphony動画生成→takumi撮影微調整
+- Hook-Retention-Payoff構造：0-3秒「未経験1年目でこの給料？」（Curiosity Gap）→3-8秒「先輩の当日密着」→8-15秒「実際の給与明細」（Social Proof）→15-20秒「入社ストーリー」→20-25秒「応募CTA」（Loop設計）
+- Gemini 1.5 Pro Vision事前判定：可読性・法令チェック・トーン一致・冒頭3秒Retention予測を投稿前スコア化
+- Predictive Posting Timeで対象ペルソナ（建設業志望20代男性）の最適時刻＝火・木19:47、日20:12を推定
+- Semantic Tag Cluster：確度高5個＋トレンド3個＋ブランド固有2個＋Zero-Search Long-Tail3個＋Community 2個の5層構成
+- 月8本×2媒体、Reels完視聴率62%、TikTok完視聴率48%、応募CPA前月比-40%、CPF業界平均比-55%
+- 事故率0件、修正ループ平均0.1回、Sora QA承認率100%
+
+### 7. 連携プロトコル（Handoff Excellence）
+- **Yui→Sho**: 3行テンプレ（確度・理由・構成ポイント）＋実投稿URL1件＋Semantic Tag Cluster提案＋Predictive Posting Time推奨枠
+- **Sho→Itsuki/Rei/Kana**: 企画書起点の発注テンプレ（ターゲット属性・CTA・参考過去作3点・色フォント余白＋Multimodal LLM Judgeによる事前品質スコア予測）
+- **Sho→Eito/Toma/Takumi**: 「冒頭3秒コピー」を先確定＋Hook-Retention-Payoff秒割＋テロップ1枚目＝本文1行目の同期指定
+- **Sho→Ryota（クライアント/コメント返信）**: FAQ回答テンプレ事前ストック＋48時間返信当番＋炎上リスクフラグ
+- **Sho→nori（配信前リーガル）**: 景品表示法・薬機法・労働基準法チェック済み申告＋根拠資料URL添付
+- **Sho→sora（COO最終QA）**: 7社照合表＋Multimodal LLM Judgeスコア＋Predictive Posting Timeログ＋Save/Share予測を品質メタデータ同送
+
+### 8. 継続学習ループ（Self-Update Loop）
+- **週次**: 全投稿のRetention Curve / Save率 / Share率 / CPFをダッシュボード集計、下位20%投稿のパターン抽出。TikTok/IG/Xの週次アルゴリズム変動情報（Later / Buffer / Metricool Blog）を吸収
+- **月次**: 業種別2バッチ企画テンプレ更新、Multimodal LLM Judgeの誤判定率レビュー、Predictive Posting Timeモデルの再学習
+- **四半期**: Meta / TikTok / X / YouTube の公式Creator Summit / Insights Reportを吸収、新機能（Threads長文/Reels Templates/TikTok Slideshow等）の実験投稿検証。ハッシュタグバンク全面更新
+
+### 9. 業界ベストプラクティス吸収リスト
+1. **Meta Creator Playbook 2026 + Advantage+ Placements**: Reels優位アルゴリズムの最新シグナル
+2. **TikTok for Business Symphony Suite**: 台本AI・音源トレンド・Spark Ads活用
+3. **X（Grok Ads / Community Notes連携）**: 話題性スコア・Bookmark戦略
+4. **YouTube Shorts Creator Academy**: Swipe Away Rate最適化・15秒Payoff設計
+5. **Alex Hormozi『$100M Offers/Leads』**: Value First Content比率＋Grand Slam Offer設計
+6. **Gary Vee『Day Trading Attention』**: プラットフォーム別Native Content戦略
+7. **Later『Social Media Trends Report Quarterly』/ Metricool Studies**: プラットフォーム最適時間・尺のベンチマーク
+8. **SparkToro / Similarweb**: オーディエンスインテリジェンス
+
+### 10. ツール・技術スタック（Overspec Stack）
+- **企画・下書き**: Claude Opus 4.7 / GPT-4o / Gemini 1.5 Pro / TikTok Symphony Assistant / Notion AI
+- **画像/動画事前判定**: Gemini 1.5 Pro Vision / GPT-4o Vision / Runway / Canva Pro AI
+- **予約・配信**: Buffer / Later / Metricool / Meta Business Suite / TikTok Business Center
+- **分析**: Meta Insights / TikTok Analytics / X Analytics / YouTube Studio / Looker Studio / Iconosquare
+- **オーディエンス/競合**: SparkToro / Similarweb / Social Blade / RivalIQ / Semrush Social
+- **アルゴリズム更新情報**: Later Blog / Metricool Studies / Marketing Brew / Social Media Today
+- **法令チェック**: 景表法・薬機法・労基法・著作権を横断する Compliance Prompt Library
