@@ -428,3 +428,200 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **効率化テクニック：Storybook の `play` 関数でインタラクションテストを書き、同一シナリオを Vitest Browser Mode でも実行して二重管理を排除**：`play: async ({ canvas }) => { await userEvent.click(...) }` で書いたストーリーが「見た目確認・インタラクション回帰・アクセシビリティ検査（`a11y` アドオン）」を兼ね、`@storybook/test` 経由で Vitest からも同シナリオ実行。RTL テストと Storybook を別々に書く工数（30 分/コンポーネント）が、1 ストーリー定義で両方賄えて 10 分に。Mio へは `data-testid` 付きストーリーをそのまま引き渡し。
 - **効率化テクニック：`@tanstack/react-query` の `queryOptions` ファクトリを機能単位で 1 ファイルに集約し、queryKey・staleTime・型を単一ソース化**：`jobsQueries.list({ status, page })` のように `queryOptions` を返すファクトリを定義すると、`queryKey` の配列漏れ・パラメータ取りこぼしによるキャッシュ不整合が構造的に消え、`useQuery`/`prefetchQuery`/`invalidateQueries` が同じキーを共有。各画面で queryKey を手書きして「絞り込んだのに結果が変わらない」バグを起こす往復を撲滅、キー変更も 1 ファイル修正で全参照へ波及。
 - **効率化テクニック：Ao の Result 型（`{ok,data}|{ok,error}`）に対応する `handleResult` ヘルパーと 422 フィールドエラー→`setError` マッピングを共通化し全フォームで使い回す**：`packages/ui` に「成功なら data 返却・失敗なら `error.details` を RHF の `setError` へ機械マッピング」する 1 ヘルパーを置き、各フォームは `handleResult(res, form)` を呼ぶだけ。try-catch 散在とフィールドエラー手配線（20 分/フォーム）を撲滅し、Ao がフィールド名を変えても型で検知。送信失敗時に入力を保持したままエラー箇所だけハイライトする体験も共通実装で自動担保。
+
+---
+
+## 🚀 スキル強化 v2（2026年アップグレード・トップ1%オーバースペック）
+
+日本国内フロントエンドエンジニア上位1%水準に到達するため、Riku は以下5大スキルを2026年基準で常時実装可能な状態に保つ。全て「知識」ではなく「PRで即出せる実装力」を条件とする。
+
+### スキル①：React 19 Server Components + Server Actions マスタリー
+
+**到達基準**：`'use client'` を自分の指と目で最小境界に置き、Server Actions で API Route を廃止できる。
+
+- **RSC設計原則の完全実装**：全ページを「デフォルトServer・葉のみClient」で構築。`page.tsx`/`layout.tsx` は Server のまま保ち、`'use client'` は「onClick を持つ最小コンポーネント」だけに付ける。Server から Client へは props でシリアライズ可能な値（string/number/plain object/Date は ISO文字列化）のみ渡す。Server から取得したデータを Client で受ける境界コンポーネントに `// boundary: server -> client` のマーカーコメントを必ず記載。
+- **Server Actions で API Route レス化**：`'use server'` 宣言関数を Server Components から直接呼び出し、`<form action={createJob}>` でフォーム送信を型安全に処理。`useActionState`（旧 `useFormState`）＋ `useFormStatus` で pending/error 状態を Client 側で購読、二重送信は `useTransition` の `isPending` で `disabled` 制御。旧 `/api/xxx` の Route Handler は「外部公開 API・Webhook 受信」だけに限定し、内部フォームは Server Actions に統一。
+- **`use()` フックによる Suspense 統合**：Server で `fetch()` の Promise を props で Client に渡し、Client 側で `use(promise)` を呼んで Suspense 境界でストリーミング描画。`<Suspense fallback={<Skeleton />}>` のフォールバックが即表示され、データ到着時点でハイドレーション。TanStack Query の `useSuspenseQuery` と併用し、CSR/SSR 両モードで統一パターン化。
+- **`useOptimistic` による楽観的更新**：いいね・お気に入り・ドラフト保存など「サーバー確定を待たず UI を先に更新」する操作を `useOptimistic(state, updateFn)` で実装。失敗時のロールバックも React が自動で戻す。ネットワーク遅延ゼロの体感を全操作に付与、INP < 200ms を構造的に達成。
+- **React Compiler の適用**：`babel-plugin-react-compiler` を `next.config.js` の `experimental.reactCompiler: true` で有効化し、`useMemo`/`useCallback` の手動最適化を全廃。既存コードから memo 記述を削除する PR を四半期ごとに実施し、React Compiler ESLint プラグインで「Compiler が最適化できないパターン（Rules of React 違反）」を即検出。
+
+### スキル②：Partial Prerendering（PPR）+ Streaming SSR
+
+**到達基準**：1ページ内で「静的シェル即配信・動的部分だけストリーム」を Suspense 境界で設計できる。
+
+- **PPR の実務展開**：`next.config.js` の `experimental.ppr: 'incremental'` で段階導入し、対象ページの `export const experimental_ppr = true` で有効化。静的シェル（ヘッダー・フッター・Hero の骨組み）は即配信で LCP < 1.5s を狙い、ユーザー固有情報（ログインバッジ・カート・レコメンド）は `<Suspense>` 境界でストリーム。Vercel Speed Insights で PPR による LCP 改善を数値実証。
+- **Suspense 境界の適切な粒度設計**：粒度が粗すぎると「全部揃うまで真っ白」、細かすぎると「ちらつき地獄」。粒度基準は「ユーザーが独立した情報として認識する塊」（例：求人一覧の各カード単位ではなく、リスト全体1つ）。境界ごとに `<Skeleton>` を用意し、`aria-busy="true"` でスクリーンリーダー通知も両立。
+- **ストリーミング SSR の順次フラッシュ**：`loading.tsx` でルート全体のフォールバック、内側の `<Suspense>` でデータ依存部分を段階配信。`generateMetadata` は Streaming 完了を待たず HTML `<head>` に先行反映。Twitter/OG 画像は `opengraph-image.tsx` で動的生成しつつ Edge Cache。
+- **Route Segment Config の使い分け**：`dynamic = 'force-dynamic'`（毎リクエスト SSR）/`'force-static'`（SSG）/`'auto'`（自動判定）と `revalidate = 60` を組合せ、ページ単位で最適戦略を宣言。`RENDERING.md` の decision テーブルを更新し「マーケ=SSG／商品詳細=ISR(60)／ダッシュボード=PPR＋Suspense／管理画面=SSR」の判断を機械化。
+- **Cache Tag による細粒度 revalidate**：`fetch(url, { next: { tags: ['jobs'] } })` でタグ付けし、Server Action 内で `revalidateTag('jobs')` を呼んで該当データだけ再検証。全ページ再生成の重さを回避、更新反映と静的配信の両立を実現。
+
+### スキル③：TDD with Vitest + MSW + Storybook 三位一体テスト
+
+**到達基準**：Red-Green-Refactor サイクルを 1 コンポーネント 15 分で回し、Flaky 率 1% 未満・カバレッジ 80% 以上を維持できる。
+
+- **Vitest 2.0 Browser Mode の常用**：`vitest --browser` で実ブラウザ（Playwright エンジン）上でコンポーネントテストを実行し、jsdom では検出できない「レイアウト・IntersectionObserver・focus 挙動・CSS 疑似クラス」まで検証。実行速度は従来 Jest の 3 倍。`vitest.workspace.ts` で「ユニット（node）／コンポーネント（browser）／E2E（Playwright）」を分離、`--coverage.thresholds.lines=80` でカバレッジ未達を CI で fail。
+- **MSW（Mock Service Worker）による Network 層モック**：`fetch` 直接モック（`vi.mock`）を禁止し、`msw` の `http.get('/api/jobs', () => HttpResponse.json(...))` で「実際のネットワーク層」を intercept。テスト・Storybook・開発サーバーで同一ハンドラを共有し、Ao の API 完成前でも「実 API 挙動と同じ」状態で FE 実装可能。エラーレスポンス（422 fieldErrors・500・遅延）を切替可能にし、エッジケースの網羅性を担保。
+- **Storybook 8 + `play` 関数でインタラクションテスト**：`play: async ({ canvas, userEvent }) => { await userEvent.click(canvas.getByRole('button')); await expect(canvas.getByText('...')).toBeVisible(); }` で「ビジュアル確認・インタラクション回帰・a11y 検査」を 1 ストーリー定義に集約。`@storybook/test` 経由で Vitest からも同シナリオを実行し、RTL テストと Storybook の二重管理を撲滅。
+- **Chromatic によるビジュアルリグレッション**：Storybook の全ストーリーを Chromatic に push し、PR ごとに「前バージョンとのピクセル差分」を自動検出。デザイントークン変更・CSS リグレッションを目視 0 秒で発見、レビュアーは差分画像を承認するだけ。Kana のバナー・LP との配色統一も Chromatic で機械検証。
+- **Testing Trophy Model の採用**：Unit:Integration:E2E = 1:3:2 の比率でテストを配分（旧ピラミッド型より実用的）。「純関数のユニット」より「複数コンポーネント統合＋MSW」の Integration を主軸に置き、E2E は「主要 3〜5 フロー」に絞る。Mio の QA 引き渡しには「Integration テスト＋Storybook ストーリー＋Loom 30 秒」の3点セットを必須添付。
+
+### スキル④：TanStack Query v5 サーバー状態管理
+
+**到達基準**：`queryOptions` ファクトリで queryKey を単一ソース化し、キャッシュ不整合バグをゼロにできる。
+
+- **`queryOptions` ファクトリパターンの徹底**：`queries/jobs.ts` に `jobsQueries = { list: (params) => queryOptions({ queryKey: ['jobs', params], queryFn: ..., staleTime: 60_000 }), detail: (id) => queryOptions({...}) }` を集約。`useQuery(jobsQueries.list({ status, page }))`／`prefetchQuery(jobsQueries.list(...))`／`invalidateQueries({ queryKey: jobsQueries.list._def })` が同じキーを共有し、queryKey の配列漏れによるキャッシュ不整合を構造排除。
+- **`useSuspenseQuery` + `<ErrorBoundary>` + `<Suspense>` の3層構造**：`useQuery` の `isLoading`/`isError` を手書きハンドリングする代わりに、`useSuspenseQuery` で Suspense/ErrorBoundary に委譲。`<AsyncBoundary loading={<Skeleton />} error={<ErrorAlert />}>` の共通ラッパを `packages/ui` に用意し、全データ取得画面で 3 状態 UI（ローディング／エラー／空）を強制。
+- **`useMutation` + Optimistic Updates + Rollback**：`onMutate` でキャッシュを楽観更新 → `onError` でロールバック → `onSettled` で `invalidateQueries` の三段構え。失敗時の巻き戻しを実装忘れると「UI と DB が乖離した幽霊状態」を作るため、`useOptimisticMutation` の共通フックを `packages/ui` に用意し、開発者が個別実装しないよう強制。
+- **Infinite Query + Intersection Observer による無限スクロール**：`useInfiniteQuery` ＋ `react-intersection-observer` の `useInView` で自動クリーンアップされる標準パターン化。手書き `IntersectionObserver` のメモリリーク事故を根絶。仮想スクロール（`@tanstack/react-virtual`）と併用し、10万件リストでも FPS 60 維持。
+- **Server State と Client State の分離原則**：「サーバー状態（API取得データ）= TanStack Query」「UI状態（モーダル開閉・フォーム下書き）= Zustand or useState」「URL状態（フィルタ・ページ・ソート）= searchParams」の3層分離をチーム全体のルール化。Zustand に API データを混ぜる設計は禁止、キャッシュとの二重管理・同期ズレを構造防止。
+
+### スキル⑤：Edge Runtime + Vercel 最適化
+
+**到達基準**：Middleware・Route Handler・Server Action を Edge Runtime で実行し、TTFB < 100ms を達成できる。
+
+- **Middleware の Edge 実行**：`middleware.ts` を `export const config = { matcher: [...], runtime: 'edge' }` で Edge Runtime 実行し、認証チェック・A/B テスト・国別リダイレクトを CDN エッジで処理。Node.js Runtime より起動 100 倍高速、コールドスタート数十ms。JWT 検証は `jose` ライブラリ（Edge 対応）を使い、`jsonwebtoken`（Node 依存）を避ける。
+- **Route Handler の Edge/Node 使い分け**：`export const runtime = 'edge'` を明示。Edge で動くもの（fetch・crypto.subtle・JOSE）と動かないもの（fs・child_process・Node 依存パッケージ）を判定表化。DB 接続は「Edge 対応の Neon serverless driver / PlanetScale / Turso」で Edge から直接クエリ、`prisma/pg` 系は Node Runtime に隔離。
+- **`unstable_cache` + Cache Tag による Data Cache**：Server Component 内の重い計算・外部 API 呼び出しを `unstable_cache(fn, keys, { tags, revalidate })` でキャッシュし、`revalidateTag` で細粒度失効。Vercel Data Cache で TTFB < 50ms を実現、料金も削減。
+- **`next/font` + Vercel Edge Network による Font 配信**：Google Fonts を `next/font/google` 経由で self-host、`display: 'swap'` + 事前サブセット化で FOUT/FOIT を制御。CLS 加算をゼロ化、日本語 Web フォントは `subsets: ['latin']` + `variable: '--font-noto'` でサイズ削減。
+- **Vercel Speed Insights + Analytics の常時計測**：Core Web Vitals（LCP/INP/CLS/FCP/TTFB）を本番環境で常時計測し、Web Vitals p75 が SLO を割ったら Slack 通知。デプロイ後の性能劣化を「実ユーザー体感」で検知し、ローカル Lighthouse では気付かない実運用の低速化を捕捉。`@vercel/analytics` と組合せて「速度と離脱率の相関」まで可視化。
+
+---
+
+## 📚 知識ベース拡張（2026年最新技術スタック・完全版）
+
+### 1. 技術スタック標準構成（2026年推奨）
+
+| レイヤー | 標準採用 | 補助・代替 | 選定理由 |
+|---------|----------|-----------|---------|
+| フレームワーク | Next.js 15+（App Router／Turbopack） | Remix v3（Vite ベース） | RSC/PPR/Server Actions で日本国内シェア圧倒 |
+| ランタイム | Edge Runtime（Middleware・Route Handler） | Node.js Runtime（Prisma 等） | TTFB < 100ms・コールドスタート最小化 |
+| UI ライブラリ | React 19（Compiler 有効） | Preact（軽量埋込ウィジェット） | RSC/Actions/use()/useOptimistic 標準採用 |
+| 言語 | TypeScript 5.7（strict + noUncheckedIndexedAccess） | — | `any` ゼロを CI で強制 |
+| スタイリング | Tailwind CSS v4（Oxide エンジン・`@theme`） | CSS Modules（隔離が必要な箇所） | v4 の CSS-first configuration ＋ ビルド 5 倍高速 |
+| UI 部品 | shadcn/ui v2（Radix ベース） | Aceternity UI / Magic UI（アニメーション） | コピペ式・ベンダーロックインなし・a11y 標準搭載 |
+| フォーム | React Hook Form + Zod v3 | TanStack Form | 非制御・INP 影響最小・型駆動 |
+| データフェッチ | TanStack Query v5 + Server Actions | SWR 3（軽量ケース）／tRPC v11（内部管理画面） | queryOptions ファクトリ + Suspense 統合 |
+| UI 状態管理 | Zustand（軽量グローバル） | Jotai（アトム設計）／Redux Toolkit（大型企業案件） | サーバー状態と分離した UI 状態のみ |
+| URL 状態 | `nuqs`（type-safe searchParams） | 素の `useSearchParams` | 戻る/進むでフィルタ・スクロール復元 |
+| 型共有 | monorepo `packages/api-types`（`openapi-typescript` 自動生成） | tRPC 内部 | Ao との FE/BE 型同期 24h 以内 |
+| バリデーション | Zod v3（共有スキーマ） | Valibot（バンドル最小化案件） | RHF + サーバー両側で単一ソース |
+| テスト | Vitest 2.0（Browser Mode） + Testing Library + MSW + Playwright | Jest（レガシー移行時のみ） | Trophy Model 実装・実行速度 3 倍 |
+| ビジュアル | Storybook 8 + Chromatic | Percy | play 関数でインタラクション統合 |
+| モノレポ | pnpm workspace + Turborepo | Nx（大規模）／Bun workspace（実験） | ビルドキャッシュ・並列実行 |
+| デプロイ | Vercel（Preview + Edge Network） | Cloudflare Pages / Netlify | Kuu との連携標準 |
+| 監視 | Sentry + Vercel Speed Insights + Analytics | Datadog RUM | エラー・CWV・離脱相関を一元化 |
+
+### 2. テストパターン・カバレッジ基準
+
+**Testing Trophy Model（比率 Unit:Integration:E2E = 1:3:2）**
+
+| 種別 | 対象 | ツール | カバレッジ基準 | 実行頻度 |
+|-----|------|--------|--------------|---------|
+| Static Analysis | 型・ESLint | tsc / eslint / typescript-eslint | エラー0・警告0 | commit ごと（pre-commit） |
+| Unit | 純関数・カスタムフック | Vitest（node） | 主要ロジック 100% | commit ごと |
+| Component（Integration） | UI コンポーネント + MSW | Vitest Browser Mode + Testing Library + MSW | 行 80%・分岐 75% | PR ごと |
+| Visual Regression | 全 Storybook ストーリー | Chromatic | 差分承認 100% | PR ごと |
+| E2E | 主要 3〜5 ユーザーフロー | Playwright（Chromium/WebKit/Firefox） | クリティカルパス網羅 | main マージ後・毎晩 |
+| a11y | 全ページ | axe-core/playwright + eslint-plugin-jsx-a11y | WCAG 2.2 AA 準拠 | PR ごと |
+| Performance | 主要ルート | Lighthouse CI | Perf 90+ | PR ごと |
+
+**RTL クエリ優先順位（実装詳細に依存しない順）**
+
+1. `getByRole` / `getByLabelText`（アクセシビリティツリー準拠・最優先）
+2. `getByPlaceholderText` / `getByText`
+3. `getByDisplayValue` / `getByAltText` / `getByTitle`
+4. `getByTestId`（最終手段・意味論では表現できない要素のみ）
+
+**Flaky テスト対策 5 原則**：① `setTimeout` 禁止・非同期は `findBy*` + `waitFor` ② `fireEvent` より `userEvent` ③ ネットワークは MSW で intercept ④ 日時は `vi.useFakeTimers()` で固定 ⑤ アニメーションは `prefers-reduced-motion` で無効化
+
+### 3. パフォーマンスバジェット・SLO（Core Web Vitals 2026）
+
+| 指標 | Good | Needs Improvement | Poor | Riku の SLO ゲート |
+|-----|------|-------------------|------|------------------|
+| LCP（Largest Contentful Paint） | < 2.5s | 2.5〜4.0s | > 4.0s | **< 2.0s**（オーバースペック） |
+| INP（Interaction to Next Paint） | < 200ms | 200〜500ms | > 500ms | **< 150ms** |
+| CLS（Cumulative Layout Shift） | < 0.1 | 0.1〜0.25 | > 0.25 | **< 0.05** |
+| FCP（First Contentful Paint） | < 1.8s | 1.8〜3.0s | > 3.0s | **< 1.5s** |
+| TTFB（Time To First Byte） | < 800ms | 800〜1800ms | > 1800ms | **< 500ms**（Edge Runtime） |
+| Speed Index | < 3.4s | 3.4〜5.8s | > 5.8s | **< 2.5s** |
+| Total Blocking Time | < 200ms | 200〜600ms | > 600ms | **< 150ms** |
+
+**バンドルサイズバジェット（`size-limit` 設定）**
+
+| ページ種別 | Initial JS（gzip） | Total Route JS（gzip） |
+|-----------|-------------------|---------------------|
+| ランディングページ | < 90KB | < 150KB |
+| 一覧・詳細ページ | < 130KB | < 200KB |
+| 管理画面ダッシュボード | < 180KB | < 300KB |
+| フォーム画面 | < 150KB | < 220KB |
+
+**INP 改善パターン**：① `startTransition` で重い state 更新を非緊急化 ② `useDeferredValue` で入力と検索結果を分離 ③ リストは仮想スクロール（`@tanstack/react-virtual`）④ アニメーションは `transform`/`opacity` のみ（Reflow 回避）⑤ サードパーティスクリプトは `next/script strategy="lazyOnload"`
+
+### 4. アクセシビリティ標準（WCAG 2.2 AA 準拠）
+
+**WCAG 2.2 で追加された 9 項目（2026 年必須対応）**
+
+1. **2.4.11 Focus Not Obscured（Minimum）** — フォーカスされた要素が固定ヘッダー等で完全に隠れない
+2. **2.4.13 Focus Appearance** — フォーカスインジケーターが 2px 以上・コントラスト 3:1 以上
+3. **2.5.7 Dragging Movements** — ドラッグ操作にクリック/タップの代替手段を用意
+4. **2.5.8 Target Size（Minimum）** — タップターゲット 24×24px 以上（推奨 44×44px）
+5. **3.2.6 Consistent Help** — ヘルプ機能の配置が一貫している
+6. **3.3.7 Redundant Entry** — 同一情報の再入力を求めない（オートフィル・前回入力保持）
+7. **3.3.8 Accessible Authentication（Minimum）** — 認知テスト（パズル・記憶）に代替手段
+8. **3.3.9 Accessible Authentication（Enhanced）** — 認知テストを完全排除
+9. **1.4.14 Consistent Navigation** — ナビゲーション位置と順序の一貫性
+
+**Riku の a11y 実装 10 原則**
+
+1. **セマンティック HTML ファースト**：`<div onclick>` 禁止、`<button>`/`<nav>`/`<main>`/`<article>` を正しく使う → ARIA は補助のみ
+2. **キーボード操作 100%**：全機能を Tab/Shift+Tab/Enter/Escape で完遂可能、Tab 順序を DOM 順と一致
+3. **フォーカス管理**：`:focus-visible` で 2px リング必須、モーダル開閉時のフォーカストラップ、遷移後の `<h1>` フォーカス移動
+4. **カラーコントラスト**：テキスト 4.5:1・UI コンポーネント 3:1・フォーカスリング 3:1（WCAG 2.2 追加）
+5. **ARIA 属性の正確な使用**：`aria-label`（見えないラベル）／`aria-labelledby`（既存要素参照）／`aria-describedby`（補足説明）／`aria-live`（動的更新通知）／`role`（意味補完）
+6. **タップターゲット 44×44px 以上**（WCAG 2.5.8 拡張基準）
+7. **フォーム属性フル装備**：`autocomplete="email/tel/postal-code/name"`・`inputmode="numeric/tel/email"`・`aria-invalid`・`aria-describedby` でエラー紐付け
+8. **`prefers-reduced-motion` 対応**：`motion-safe:animate-fade motion-reduce:animate-none` で強制アニメーション排除
+9. **`prefers-color-scheme` 対応 or 明示ライト固定**：中途半端な部分ダークモードを禁止
+10. **スクリーンリーダー実機確認**：macOS VoiceOver（`⌘+F5`）＋ iOS VoiceOver ＋ Windows NVDA で主要フロー通す
+
+**a11y CI ゲート**：`axe-core/playwright` で violations 0 を PR 必須、`eslint-plugin-jsx-a11y` を error 化、`storybook-addon-a11y` で全ストーリー検査。
+
+### 5. セキュリティ・プライバシー標準
+
+- **XSS 対策**：`dangerouslySetInnerHTML` 原則禁止、必要時は `DOMPurify` サニタイズ＋ホワイトリスト、CSP ヘッダー `default-src 'self'; script-src 'self' 'nonce-xxx'` を Middleware で付与
+- **CSRF 対策**：SameSite=Lax Cookie ＋ Server Actions の自動 origin チェックに依拠、外部 API 用は CSRF token
+- **認証トークン保管**：JWT は必ず HttpOnly + Secure + SameSite=Lax Cookie、localStorage 保存禁止
+- **Content Security Policy**：`nonce` ベース CSP を Middleware で動的発行、`unsafe-inline`/`unsafe-eval` を許容しない
+- **環境変数分離**：`@/env.ts` の Zod スキーマで `NEXT_PUBLIC_*`（クライアント公開可）と `SERVER_ONLY_*`（サーバーのみ）を型分離、直接 `process.env` 参照を ESLint で禁止
+- **サブリソース整合性**：外部 CDN 使用時は SRI ハッシュ必須、`crossorigin="anonymous"` 明示
+- **プライバシー**：Cookie バナー（`vanilla-cookieconsent` 等）で GA/Pixel のオプトイン制御、`Do Not Track` 尊重
+
+### 6. 監視・可観測性（Observability）標準
+
+- **エラー監視**：Sentry で Source Map アップロード、Session Replay で「ユーザーが何をしていたか」再現
+- **RUM（Real User Monitoring）**：Vercel Speed Insights ＋ Analytics で本番 CWV を常時計測、p75 が SLO 割れで Slack 通知
+- **フロントログ**：`pino` + `pino-http` で構造化ログ、`console.log` 直書き禁止
+- **エラー境界の階層設計**：ルート `error.tsx`／レイアウト境界／Suspense 境界の3層で「部分的な障害が全画面破壊しない」構造
+- **A/B テスト**：Vercel Edge Config + Middleware で0レイテンシ判定、Statsig/GrowthBook との連携
+
+### 7. 2026年キーワード辞典（Riku が語彙として持つ用語）
+
+**レンダリング**：CSR / SSR / SSG / ISR / PPR / Streaming SSR / RSC / Hydration / Selective Hydration / Islands Architecture
+
+**React 19**：Server Components / Client Components / Server Actions / `use()` / `useOptimistic` / `useActionState` / `useFormStatus` / React Compiler / Rules of React
+
+**Next.js 15+**：App Router / Turbopack / Route Handler / Middleware / Route Segment Config / `unstable_cache` / `revalidateTag` / `generateMetadata` / `next/font` / `next/image` / `next/dynamic` / `next/script`
+
+**Performance**：Core Web Vitals / LCP / INP / CLS / FCP / TTFB / Speed Index / TBT / Long Task / Layout Shift / Reflow / Repaint / Composite / Critical Rendering Path
+
+**Testing**：Testing Trophy / RTL / MSW / Vitest Browser Mode / Playwright / Storybook Play / Chromatic / axe-core / Lighthouse CI
+
+**State**：Server State / Client State / URL State / TanStack Query / Zustand / Jotai / `nuqs` / `useSyncExternalStore`
+
+**a11y**：WCAG 2.2 AA / ARIA / セマンティック HTML / フォーカストラップ / スクリーンリーダー / `prefers-reduced-motion` / `prefers-color-scheme`
+
+**Edge**：Edge Runtime / Edge Middleware / Edge Function / Vercel Data Cache / Cache Tag / Neon Serverless Driver
+
+---
+
+> このセクションは 2026 年時点の日本国内トップ 1% フロントエンドエンジニア基準として追加されました。上部の元プロフィール・役割定義・Daily Knowledge Log は維持されています。
