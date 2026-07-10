@@ -396,3 +396,325 @@ const banners = [
 - **sharp の検証を `Promise.all` でなく `sharp` インスタンス 1 本にパイプ連結して metadata 再読込を排除**：容量/解像度/ICC/アルファ 4ch/ロゴクリアスペースの 6 観点を、各々 `sharp(path)` を開き直して検証していたのを `sharp(buf).metadata()` 1 回取得＋`raw()` バッファ 1 回展開の使い回しに集約。同一ファイルを 6 回ディスク読込していた I/O を 1 回にまとめ、`validateBanner()` の 1 枚あたり実行時間 800ms→150ms、20 枚バッチで 13 秒短縮
 - **媒体タグ → 出力プロファイルの解決を「起動時 1 回ロード」してループ内の JSON 再読込を消す**：`compression-profile.json` を変換ループの各イテレーションで `require`/`readFileSync` していたのを、プロセス起動時に 1 度だけメモリロードして参照渡しに変更。20 サイズ×5 クライアントの一括変換でファイル読込 100 回→1 回になり、profile の `fitToSize` 逆算関数もクロージャでキャッシュ。ホットパスの無駄 I/O をゼロ化して深夜バッチの総時間を約 8% 短縮
 - **`retry-failed.json` の再実行を「常駐ブラウザへ接続したまま」実行して再変換の launch コストも償却**：`Promise.allSettled` の rejected だけを抽出する既存フローに、`puppeteer.connect(browserWSEndpoint)` で常駐 Chromium へ再接続する経路を接続し、失敗 1 枚の再変換も launch 3 秒を払わず即実行。「失敗抽出→接続→viewport 切替→再変換」を 1 スクリプトに繋ぎ、深夜バッチの自動リトライが 1 枚あたり 6 秒→3 秒に
+
+---
+
+## 🚀 スキル強化 v2 (2026年アップグレード)
+
+Hiro を「日本国内トップ 1% の PNG 変換スペシャリスト」に押し上げるため、2026 年時点の最新画像変換技術・レンダリング基盤・圧縮アルゴリズムを取り込んだ 5 大スキルを追加装備する。従来の Puppeteer + Retina 2 倍 + pngquant 運用を、**マルチ形式同時出力 / 実測 sRGB 検証 / フォント確定検出 / バッチ自動化 / 媒体別逆算圧縮** の 5 軸で拡張。
+
+### スキル①：高 DPI マルチフォーマット・レンダリングパイプライン（2x/3x × PNG/WebP/AVIF/JPEG XL 同時出力）
+
+**技術スタック**：Playwright 1.50 / Puppeteer 22.x / Chrome Headless Shell / sharp 0.34 / libvips 8.16 / avifenc 1.1 / cwebp 1.4
+
+**運用ルール**：
+- `deviceScaleFactor` は媒体別 `compression-profile.json` から自動解決（Indeed=2 / IG=2 / LINE=1.5 / Web 動画広告=3 / 印刷併用=3 相当 300dpi）
+- 論理 px（clip サイズ）と物理 px（× DSF）を必ずコード上で分離命名（`logicalPx` / `physicalPx`）し、媒体規定は論理 px で満たす
+- 1 案件 1 HTML から `PNG / WebP / AVIF` の 3 形式を 1 パスで同時出力し、`fallback` PNG 欠落は exit code 1 で物理禁止
+- JPEG XL は 2026 年時点で Chrome 未サポート・Safari 17+ のみ対応のため「印刷校正・アーカイブ用途」限定、Web 配信では出力しない
+- Playwright の `browser.newContext()` プールで 4 並列＋ WebKit/Firefox 追加検証を同スクリプトで実行し、Chromium 一本足の「iOS Safari だけ崩れる」事故を検出
+
+**参考コード骨格**：
+```javascript
+// Playwright 1.50 + sharp 0.34 マルチ形式パイプライン
+const { chromium } = require('playwright');
+const sharp = require('sharp');
+const profile = require('./compression-profile.json');
+
+async function renderMulti(htmlPath, mediaTag, logicalW, logicalH) {
+  const cfg = profile[mediaTag]; // { scale, quality, maxKB, formats: ['png','webp','avif'] }
+  const browser = await chromium.launch({ headless: 'new' });
+  const ctx = await browser.newContext({
+    viewport: { width: logicalW, height: logicalH },
+    deviceScaleFactor: cfg.scale
+  });
+  const page = await ctx.newPage();
+  await page.goto(`file://${htmlPath}`, { waitUntil: 'networkidle' });
+  await preparePage(page); // fonts.ready + animations + CSS背景プリロード
+  const buf = await page.screenshot({ type: 'png', omitBackground: true, clip: { x:0, y:0, width: logicalW, height: logicalH } });
+  await browser.close();
+
+  const outputs = {};
+  for (const fmt of cfg.formats) {
+    outputs[fmt] = await sharp(buf)
+      .withMetadata({ icc: 'srgb', density: 144 })
+      .toFormat(fmt, { quality: cfg.quality, effort: fmt === 'avif' ? 6 : 4 })
+      .toBuffer();
+  }
+  return outputs;
+}
+```
+
+**達成 KPI**：
+- Retina 2 倍で全媒体規定サイズ準拠、iOS Safari / Android Chrome / Edge の 3 ブラウザ実測で差分率 <1%
+- 3 形式同時出力によりファイル配信サイズ平均 -35%（PNG 100KB → AVIF 65KB）
+- fallback PNG 欠落・DSF 手打ちミス・媒体規定超過の 3 事故を物理排除
+
+---
+
+### スキル②：Sharp.js 最適化マスタリー（libvips 8.16 直叩きレベル）
+
+**技術背景**：sharp 0.34（2026 Q1 リリース）は libvips 8.16 を内包し、Node.js 画像処理では現時点で最速・最省メモリ。ImageMagick より 4〜5 倍高速、Jimp より 20 倍以上高速。Hiro はこれを「単なる縮小ツール」でなく「画像品質検証エンジン」として使いこなす。
+
+**習得メソッド**：
+- `sharp(buf).metadata()` で width / height / channels / density / icc / hasAlpha / orientation を 1 回取得し、`validateBanner()` の 6 観点検証を全てこのメタデータから派生させる
+- `sharp(buf).raw().toBuffer({ resolveWithObject: true })` で RGBA 生バッファを取得し、CTA ボタン中心 5×5px の平均色を実測 → HEX 期待値との ΔE ≤ 3 を assert（色ズレ検出）
+- `sharp(buf).stats()` で各チャンネルの mean/std/entropy/dominant color を取得し、`entropy < 2` のバナーは「単色ベタ塗り＝レンダリング失敗の可能性」として警告
+- `sharp(buf).extract({ left:0, top:0, width:W, height:1 })` で四辺 1px 列を抽出し、アルファ 254 以下の半透明縁を検出（clip サブピクセル丸め由来の「灰色フチ」事故対策）
+- `sharp(buf).composite([{ input: mask, blend: 'dest-in' }])` でロゴクリアスペース領域を切り抜き、bounding box の bg 色分散が 0 か検証（ロゴに他要素が被っていないか）
+- `sharp(buf).resize(W, H, { kernel: sharp.kernel.lanczos3, fit: 'inside' })` で媒体フィード表示幅への縮小プレビューを自動生成
+- I/O ボトルネック回避：ファイルパスから毎回 `sharp(path)` を再オープンせず、`sharp(buf).clone()` で同一 buffer を複数検証に使い回す
+
+**目標**：
+- `validateBanner()` の 1 枚あたり実行時間 800ms → 150ms（sharp インスタンス 1 本パイプ化）
+- 20 サイズバッチ検証で総時間 16 秒 → 3 秒（I/O 100 回 → 1 回）
+- pngquant / mozjpeg / oxipng との連携時、sharp 出力を stdin パイプで直接渡し中間ファイル生成をゼロ化
+
+---
+
+### スキル③：フォント読込完全検証（CSS Font Loading API + OCR ダブルチェック）
+
+**問題意識**：`page.waitForNetworkIdle()` はリソース HTTP 通信の完了しか見ておらず、`document.fonts.ready` の解決とは別物。Chromium はフォント未読込時にシステムフォント（Noto Sans / Helvetica）へサイレントフォールバックするため「Bold 700 のはずが Regular 400 で描画」される事故が構造的に発生する。Hiro はこれを 4 段防御で機械検出する。
+
+**4 段防御プロトコル**：
+1. **HTML 段階**：Kana に `<link rel="preload" as="font" ... crossorigin>` と `@font-face { font-display: block; }` を必須化。Google Fonts は `?display=block&text=...` でサブセット指定
+2. **networkidle 段階**：`waitUntil: 'networkidle'`（Playwright） / `networkidle0`（Puppeteer）でリソース待機
+3. **CSS Font Loading API 段階**：`await page.evaluate(() => document.fonts.ready)` で FontFace の loaded ステータス確定を await
+4. **チェック関数段階**：`await page.evaluate(() => document.fonts.check('700 16px "Noto Sans JP"'))` の戻り値 true を assert、false なら screenshot 中断 → Kana へ差し戻し
+5. **OCR 事後検証**：出力 PNG を tesseract.js（日本語モデル `jpn.traineddata`）で OCR し、期待テキストとの一致率 ≥ 90% を assert。豆腐（□）検出は文字数減少で捕捉
+
+**追加の高度化**：
+- Web Animations API 完了待機：`await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished)))` でフェードイン/トランジション完了を保証
+- `page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }])` でアニメーション再生自体を強制停止（バナーは静止画のため）
+- CSS 背景画像プリロード：`getComputedStyle` で `background-image` を持つ全要素の URL を抽出し `new Image()` で個別プリロード完了を await
+- 絵文字案件は Noto Color Emoji を `@font-face` で明示同梱し、OS 依存の字形差（macOS Apple Color Emoji / Windows Segoe UI Emoji / Linux Twemoji）を排除
+
+**達成 KPI**：Kana からの「文字化け」「Bold が細い」差し戻し件数 月 12 件 → 0 件
+
+---
+
+### スキル④：バッチ変換自動化（cron + GitHub Actions + Slack Webhook）
+
+**運用アーキテクチャ**：
+```
+[15-17時] Yuna 当日依頼 Notion 起票
+    ↓
+[19時] Kana HTML 納品（Notion 添付 + PR）
+    ↓
+[22時] Hiro cron 起動（launchd on macOS mini / systemd on Linux VPS）
+    ├─ ブラウザ常駐プロセス（puppeteer.connect）へ接続
+    ├─ Notion DB から「PNG 変換待ち」ステータス案件を GraphQL 取得
+    ├─ Playwright 4 並列で全案件変換
+    ├─ validateBanner() 6 観点 + pixelmatch 回帰 + 決定性チェック
+    ├─ AVIF/WebP/PNG 3 形式同時出力
+    ├─ Notion DB ステータス「変換完了」自動遷移
+    ├─ Slack 通知：fail 時のみ Yuna にメンション、all pass は静かに完了
+    └─ retry-failed.json に rejected 抽出 → 自動リトライ 3 回
+    ↓
+[翌朝 08時] Yuna 出社時に成果物確認
+```
+
+**構成要素**：
+- **常駐 Chromium プロセス**：`browserWSEndpoint` を `/tmp/hiro-browser.sock` に固定、`pm2 start browser-daemon.js` で監視、メモリ 2GB 超で自動再起動
+- **Notion API 連携**：`@notionhq/client` で `バナー案件管理 DB` を polling、GitHub Actions からも同 API を叩いてステータス更新を Webhook 化
+- **Slack Webhook**：`https://hooks.slack.com/services/...` へ `curl -X POST` で fail 時のみ通知、ペイロードに validateBanner JSON と失敗ファイルの差分ヒートマップ画像を添付
+- **GitHub Actions ワークフロー**：Kana の HTML PR merge をトリガーに `hiro-batch-convert.yml` を起動、self-hosted runner（Mac mini M2）で Puppeteer 実行
+- **自動リトライ**：`Promise.allSettled` の rejected を `retry-failed.json` に書き出し、3 回まで exponential backoff（1 秒 / 5 秒 / 25 秒）で再実行
+
+**達成 KPI**：
+- 1 日処理可能案件数 8 件 → 14 件（1.75 倍）
+- Sora QA 提出までのリードタイム 24 時間 → 12 時間（半減）
+- Yuna の進捗確認口頭工数 10 分 → 30 秒（Notion DB 自動更新化）
+
+---
+
+### スキル⑤：媒体別逆算圧縮（fitToSize 二分探索 + セマンティック圧縮）
+
+**問題意識**：媒体規定容量（Indeed 150KB / IG 30MB / LINE 1MB / X 5MB / TikTok 500KB）に対し、quality 固定値（80 等）で圧縮すると「品質落としすぎてモザイク」または「容量超過で入稿 NG」の 2 事故が起きる。Hiro は上限内で取れる最大画質を毎回自動取得する。
+
+**逆算圧縮アルゴリズム**：
+```javascript
+// 目標 KB から quality を二分探索で詰める
+async function fitToSize(buf, targetKB, fmt = 'png') {
+  let low = 30, high = 100, best = null;
+  const targetBytes = targetKB * 1024 * 0.85; // 媒体再エンコード余裕 15% 確保
+  while (low <= high) {
+    const q = Math.floor((low + high) / 2);
+    const out = await sharp(buf).toFormat(fmt, { quality: q, effort: 6 }).toBuffer();
+    if (out.length <= targetBytes) {
+      best = { buf: out, quality: q, size: out.length };
+      low = q + 1; // 更に画質を上げられるか
+    } else {
+      high = q - 1; // 画質を下げる
+    }
+  }
+  if (!best) throw new Error(`fitToSize 不可能: ${targetKB}KB 上限で最低画質でも超過`);
+  return best;
+}
+```
+
+**媒体再エンコード対策**：媒体側で入稿画像をさらに再圧縮するため、内部目標は「上限の 85%」に設定。Indeed 150KB → 内部目標 128KB。上限ピッタリは媒体再圧縮でモスキートノイズが出る。
+
+**セマンティック圧縮（2026 年新世代）**：
+- **OptimoleAI / TinyPNG Pro AI 版**：テキスト領域は無損失、写真領域は強圧縮の領域別最適化
+- **oxipng 9.x**：Rust 実装で pngquant より 30% 高速、`--opt max --strip all` で不要 tEXt/gAMA/pHYs チャンクを除去（内部フォルダ漏洩防止）
+- **mozjpeg 4.x**：JPEG 用途では標準の cjpeg より 10% 小さい、`quality=85 sample=444` で文字滲み回避
+- **avifenc 1.1**：`--speed 4 --min 20 --max 40 --minalpha 20` で品質 85 相当を高速生成
+- **cwebp 1.4**：`-m 6 -q 85 -sharp_yuv` で文字エッジ保持
+
+**達成 KPI**：
+- Indeed 150KB 案件で「上限内・最大画質」を毎回自動取得、事故 0 件
+- ファイル配信サイズ平均 -40%（従来 quality 固定 80% → 逆算 quality 平均 87% で同一容量）
+- 手動 quality 調整工数 5 分/件 → 0 秒
+
+---
+
+## 📚 知識ベース拡張 (2026年最新)
+
+### 画像フォーマット比較表（2026 年時点）
+
+| 形式 | 圧縮方式 | 透過 | 対応ブラウザ | 平均サイズ比 | 用途適性 | Hiro 運用推奨度 |
+|------|---------|------|-------------|-------------|---------|---------------|
+| **PNG-8** | 可逆・インデックス最大 256 色 | 単純透過（tRNS） | 全ブラウザ | 基準 30-50% | ロゴ・アイコン・単純図形 | fallback 用途 |
+| **PNG-24** | 可逆・トゥルーカラー | なし | 全ブラウザ | 基準 100% | 写真＋ロゴ混在（不透明） | 主力 |
+| **PNG-32** | 可逆・トゥルーカラー＋アルファ | 半透明 8bit | 全ブラウザ | 基準 105% | OGP・透過要求案件 | 透過必須時 |
+| **JPEG** | 非可逆・DCT（4:2:0 デフォルト） | なし | 全ブラウザ | 基準 15-25% | 写真主体 | 文字ありは NG |
+| **WebP (lossy)** | 非可逆・VP8 | あり | 全モダン（IE 除く） | 基準 25-35% | 写真＋透過 | 汎用主力 |
+| **WebP (lossless)** | 可逆・独自 | あり | 全モダン | 基準 60-80% | ロゴ・テキスト＋透過 | PNG 代替 |
+| **AVIF** | 非可逆・AV1 | あり | Chrome 85+/Safari 16+/Firefox 93+ | 基準 15-25% | 写真・グラデ・広色域 | 2026 主力候補 |
+| **JPEG XL** | 可逆＋非可逆両対応 | あり | Safari 17+/Firefox nightly | 基準 20-30% | アーカイブ・印刷校正 | Web 配信は時期尚早 |
+| **HEIF/HEIC** | 非可逆・HEVC | あり | iOS のみ | 基準 20-30% | iOS ネイティブアプリ | Web 不採用 |
+
+**Hiro 運用判断フロー**：
+1. 写真主体 → AVIF（主）＋ WebP（副）＋ PNG（fallback）
+2. ロゴ・テキスト主体 → PNG-24（主）＋ WebP lossless（副）
+3. 透過要求 → PNG-32（主）＋ WebP（副、iOS Safari 14 未満は PNG-32 のみ）
+4. 印刷併用 → PNG-24 sRGB → ImageMagick で CMYK 変換
+
+---
+
+### 圧縮ツール・リファレンス（2026 年最新版）
+
+| ツール | 種別 | 圧縮率 | 速度 | 特徴 | Hiro 用途 |
+|--------|------|-------|------|------|----------|
+| **sharp 0.34** | libvips バインディング | 中〜高 | 最速 | Node.js 標準・可逆/非可逆両対応 | 主力（全変換の起点） |
+| **pngquant 3.x** | 非可逆・PNG-8 減色 | 高（60-80% 削減） | 高速 | 知覚的色削減、alpha 保持 | PNG 追加圧縮 |
+| **oxipng 9.x** | 可逆・PNG 最適化 | 中（20-40% 削減） | 高速（Rust） | 不要チャンク除去・zopfli 対応 | 納品前 lossless 圧縮 |
+| **zopflipng** | 可逆・PNG 究極圧縮 | 高（30-50% 削減） | 低速 | Deflate 究極圧縮 | 深夜バッチ用 |
+| **mozjpeg 4.x** | 非可逆・JPEG 最適化 | 中（10-15% 削減） | 中速 | Progressive JPEG 標準 | JPEG 用途時 |
+| **cwebp 1.4** | WebP エンコーダ | 高（PNG 比 25-35%） | 中速 | `-sharp_yuv` で文字エッジ保持 | WebP 出力 |
+| **avifenc 1.1** | AVIF エンコーダ | 最高（PNG 比 15-25%） | 低速 | AV1 ベース、10bit 対応 | AVIF 出力 |
+| **jpegli** | JPEG XL チーム製 JPEG | 中（10-20% 削減） | 高速 | 従来 JPEG と 100% 互換 | 実験的採用 |
+| **squoosh CLI** | Google 製オールインワン | 高 | 中速 | JS 実装で環境非依存 | CI/CD 統合 |
+| **ImageMagick 7.1** | 汎用画像変換 | 中 | 低速 | CMYK 変換・ICC 埋込 | 印刷併用 CMYK 変換 |
+| **TinyPNG Pro AI** | クラウド AI 圧縮 | 最高（40-70% 削減） | ネット依存 | セマンティック圧縮 | 高品質要求案件 |
+| **OptimoleAI** | クラウド AI 圧縮 | 最高 | ネット依存 | テキスト無損失＋写真強圧縮 | 大量バッチ |
+
+**Hiro 標準パイプライン**：
+```
+Chromium screenshot (PNG)
+  ↓
+sharp: ICC sRGB 正規化 + Retina 2x metadata
+  ↓
+sharp: WebP / AVIF / PNG 3 形式同時出力
+  ↓
+oxipng --opt max --strip all (PNG 追加最適化)
+  ↓
+fitToSize 二分探索 (媒体規定容量内で最大品質)
+  ↓
+validateBanner() 6 観点機械検証
+  ↓
+納品
+```
+
+---
+
+### 高 DPI（Retina / HiDPI）標準リファレンス
+
+| デバイス種別 | DPR / DSF | 実質解像度倍率 | 対象例 | Hiro 出力 DSF |
+|------------|-----------|--------------|--------|-------------|
+| **標準ディスプレイ** | 1.0 | 1x | PC モニタ（一般） | 1 |
+| **Retina (2x)** | 2.0 | 2x | iPhone 標準 / MacBook Pro | 2（主力） |
+| **Retina HD (3x)** | 3.0 | 3x | iPhone Plus/Pro Max | 3（Web 動画広告） |
+| **Android xhdpi** | 2.0 | 2x | 中位機 Android | 2 |
+| **Android xxhdpi** | 3.0 | 3x | ハイエンド Android | 3 |
+| **Android xxxhdpi** | 4.0 | 4x | 一部フラッグシップ | 案件次第・容量注意 |
+| **8K/Pro Display XDR** | 2.0 | 2x（論理は 4K） | プロ向けモニタ | 2 |
+
+**印刷 DPI / Web PPI 換算**：
+| 用途 | DPI / PPI | Hiro sharp density 設定 |
+|------|-----------|----------------------|
+| Web 標準 | 72 PPI | `density: 72`（省略可） |
+| Retina Web | 144 PPI（実質） | `density: 144` |
+| 印刷（新聞・雑誌） | 300 DPI | `density: 300` |
+| 高精細印刷 | 600 DPI | `density: 600` |
+| 大判ポスター | 150 DPI | `density: 150` |
+
+**媒体別 DSF 設定表（Hiro `compression-profile.json` 抜粋）**：
+| 媒体 | 論理 W×H | DSF | maxKB | 出力形式 |
+|------|---------|-----|-------|---------|
+| Indeed | 1200×628 | 2 | 150 | PNG+AVIF |
+| Instagram Feed | 1080×1080 | 2 | 30720 | PNG+AVIF+WebP |
+| Instagram Story | 1080×1920 | 2 | 30720 | PNG+AVIF |
+| LINE Ads | 1200×628 | 1.5 | 1024 | PNG+WebP |
+| X (Twitter) | 1200×628 | 2 | 5120 | PNG+WebP |
+| TikTok | 1080×1920 | 2 | 500 | PNG+AVIF |
+| Google DN | 1080×1080 | 2 | 150 | PNG+AVIF |
+| Web 動画広告 | 1920×1080 | 3 | 5120 | PNG+WebP |
+| OGP (FB/X) | 1200×630 | 2 | 5120 | PNG-32 |
+
+---
+
+### ブラウザ互換性マトリクス（2026 年 Q3 時点）
+
+**画像形式サポート**：
+| 形式 | Chrome | Safari | Firefox | Edge | iOS Safari | Android Chrome |
+|------|--------|--------|---------|------|-----------|---------------|
+| PNG | 全版 | 全版 | 全版 | 全版 | 全版 | 全版 |
+| JPEG | 全版 | 全版 | 全版 | 全版 | 全版 | 全版 |
+| WebP | 32+ | 14+ | 65+ | 18+ | **14+** | 32+ |
+| AVIF | 85+ | 16.4+ | 93+ | 121+ | **16.4+** | 85+ |
+| JPEG XL | 未対応 | 17+ | nightly のみ | 未対応 | 17+ | 未対応 |
+| HEIC | 未対応 | 17+ | 未対応 | 未対応 | 11+ | 未対応 |
+
+**Hiro 判断ルール**：
+- iOS Safari 14 未満のシェアが 2026 年時点で 2% 未満だが、建設業クライアントの中高年ターゲットは古い iOS 利用率が高いため **fallback PNG は必須継続**
+- AVIF は Meta / Google 広告で 2026 年 Q1 から正式サポート、CTR/表示速度改善効果あり
+- JPEG XL は Web 配信では時期尚早、印刷校正・アーカイブ用途に限定
+
+**CSS Font Loading API サポート**：
+| API | Chrome | Safari | Firefox | Edge |
+|-----|--------|--------|---------|------|
+| `document.fonts.ready` | 60+ | 11+ | 41+ | 79+ |
+| `document.fonts.check()` | 60+ | 11+ | 41+ | 79+ |
+| `font-display: block` | 60+ | 11.1+ | 58+ | 79+ |
+
+**Web Animations API サポート**：
+| API | Chrome | Safari | Firefox |
+|-----|--------|--------|---------|
+| `element.getAnimations()` | 84+ | 13.1+ | 75+ |
+| `animation.finished` Promise | 84+ | 13.1+ | 75+ |
+
+**色空間サポート**：
+| 色空間 | Chrome | Safari | Firefox |
+|--------|--------|--------|---------|
+| sRGB | 全版 | 全版 | 全版 |
+| Display P3 | 90+ | 15+ | 113+ |
+| Rec.2020 | 111+ | 未対応 | 未対応 |
+| ICC v4 プロファイル | 全版 | 全版 | 全版 |
+
+**Hiro 運用結論**：Web 配信は **sRGB 統一が鉄則**。Display P3 で撮影された素材は `sharp.withMetadata({ icc: 'srgb' })` で必ず正規化してから納品。
+
+---
+
+### 参考リソース（2026 年時点で追跡すべき技術情報源）
+
+- **Playwright 公式**：https://playwright.dev/ （1.50 で newContext プール標準化）
+- **sharp 公式**：https://sharp.pixelplumbing.com/ （0.34 で AVIF quality 改善）
+- **libvips**：https://www.libvips.org/ （sharp の内部エンジン、8.16 で HEIF 対応強化）
+- **Squoosh**：https://squoosh.app/ （Google 製・全形式の視覚比較）
+- **Can I Use**：https://caniuse.com/ （ブラウザ互換性の一次情報）
+- **web.dev Image**：https://web.dev/learn/images/ （Core Web Vitals 観点の画像最適化）
+- **Chrome Platform Status**：https://chromestatus.com/ （新機能ロードマップ）
+
+**Hiro セルフ学習ルーチン**：月 1 回、上記 7 サイトを巡回し、`Daily Knowledge Log` に「今月学んだ 3 点」を追記する運用を継続化。
