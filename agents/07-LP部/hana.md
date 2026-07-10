@@ -726,3 +726,421 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **抽出値は`getComputedStyle`だけでなく「生CSSテキスト走査」を常時ペア実行し、宣言値/解決値・メディアクエリ系を1パスで採り切って再走査をなくす**：`@media(prefers-reduced-motion)`・`:where()`詳細度0・`@layer`宣言順・`@container`・`var()`参照構造（2026-06-26/2026-07-01参照）はcomputed styleに現れず、後から気づくと再抽出になる。Puppeteerの`page.evaluate`でcomputed取得する同じパスで生CSSソースも正規表現一括走査し、宣言値と解決値をペアで吐く（2026-06-26参照）設計にすると、状態依存・メディアクエリ系の見落とし起因の戻り工程が構造的に消える。
 - **Iroとの色役割合意・バナー部4項目投函（2026-06-16参照）をSTEP2着手前後の「必ず発火する固定2アクション」としてスクリプトのフックに埋め込み、連携忘れによる二重採取をなくす**：`--brand-`接頭辞合意とbanner-handoff.json自動投函を人の記憶に頼ると、繁忙時に飛ばしてRenの`extend.colors`キー衝突・バナー部のカラーピッカー30分工程が再発する。STEP2開始時にIroとの5分会リマインドをSlack自動発火、STEP8完了時にbanner-handoff.json（`--color-primary`/`--color-accent`/Hero`font-family`/`font-weight`）をhiro宛自動投稿する固定フックにし、Iro設計版がある案件は色採取をIro優先で二重化しない。
 - **stacking_map・重なり順記録（2026-06-16参照）を「z-index/transform/opacity/filter/@layerの一括ツリー走査1関数」にまとめ、重なり系を要素ごとに見て回る作業をなくす**：固定ヘッダー・モーダル・追従CTAの重なり逆転NG（2026-06-12参照）を防ぐのに、要素を個別確認するとスタッキングコンテキスト境界とカスケードレイヤーを別々に踏んで漏れる。position/transform/opacity/filter/`@layer`宣言順を要素ツリーで一括走査し「どのコンテキスト・どのレイヤー内の値か」を1つのstacking_map JSONに吐く関数に集約すると、Renが実装前にツリーで重なりを把握でき、重なり系の差し戻し往復が消える。
+
+---
+
+## 🚀 スキル強化 v2（2026年アップグレード）
+
+以下は日本トップ1%の CSS 抽出スペシャリストとして「Overspec」水準に到達するための強化スキル群。各スキルは「なぜ必要か」「実装方法」「納品成果物」「失敗防止フック」の4点で構造化する。
+
+### V2-Skill 1: Puppeteer/Playwright ベース CSS ハーベスター（Computed × 生CSS 二重採取エンジン）
+
+**なぜ必要か**
+`getComputedStyle` は `resolved value`（`50%`→`640px` / `1rem`→`16px`）を返すため、宣言値（`clamp()` / `var()` / `%` / `auto-fit minmax()`）が消える。逆に生 CSS テキストだけを見ると、`:hover` / `:focus-visible` / `@media` / `@container` / webfont ロード後の最終計算結果が取れない。両方を1パスで採取する二重採取エンジンを常時運用する。
+
+**実装方法**
+```javascript
+// puppeteer-css-harvester.js（案件URLを引数に受ける想定）
+import puppeteer from 'puppeteer';
+
+const harvest = async (url) => {
+  const browser = await puppeteer.launch({ headless: 'new' });
+  const page = await browser.newPage();
+
+  // CSSカバレッジ計測を有効化（未使用CSS検出用）
+  await page.coverage.startCSSCoverage();
+
+  // 1. 生CSSソース：<link>/<style>/@importをネットワーク層で収集
+  const rawSources = [];
+  page.on('response', async (res) => {
+    if (res.request().resourceType() === 'stylesheet') {
+      rawSources.push({ url: res.url(), css: await res.text() });
+    }
+  });
+
+  await page.goto(url, { waitUntil: 'networkidle0' });
+
+  // 2. webfont完全ロード待ち（フォールバック書体誤採取防止）
+  await page.evaluate(() => document.fonts.ready);
+
+  // 3. Computed Styles を DOM 全要素で一括取得
+  const computed = await page.evaluate(() => {
+    const props = [
+      'color','background-color','font-family','font-size','font-weight',
+      'line-height','letter-spacing','margin','padding','gap',
+      'display','grid-template-columns','flex-direction',
+      'aspect-ratio','container-type','z-index',
+      'animation-timeline','backdrop-filter','mix-blend-mode',
+    ];
+    return [...document.querySelectorAll('*')].map((el) => {
+      const cs = getComputedStyle(el);
+      const rec = { selector: el.tagName.toLowerCase(), id: el.id, cls: el.className };
+      props.forEach((p) => (rec[p] = cs.getPropertyValue(p)));
+      return rec;
+    });
+  });
+
+  const coverage = await page.coverage.stopCSSCoverage();
+  await browser.close();
+  return { rawSources, computed, coverage };
+};
+```
+
+**納品成果物**
+- `raw_sources.json`（外部/内部/インライン CSS 生テキスト）
+- `computed_snapshot.json`（DOM要素×プロパティのマトリクス）
+- `coverage_report.json`（未使用 CSS 検出：LCP改善提案の裏付け）
+
+**失敗防止フック**
+- `document.fonts.ready` を必ず await（webfont 誤採取回避）
+- 各主要ビューポート（375 / 768 / 1024 / 1440 / 1920）で `setViewport` → 都度スナップショット
+- `prefers-color-scheme: dark` `prefers-reduced-motion: reduce` を `emulateMediaFeatures` で切り替え、両モード採取
+
+---
+
+### V2-Skill 2: CSS Cascade Layers（`@layer`）完全再現スキル
+
+**なぜ必要か**
+2026 年時点で、モダン LP は `@layer reset, base, tokens, components, utilities` のように**カスケードレイヤーで詳細度戦争を解決**している。抽出時にレイヤー宣言順を無視すると、`:where()`（詳細度0）や上書き順が逆転し「Ren が実装した瞬間にボタンの色が消える」等の再現バグが必発。
+
+**実装方法**
+1. 生 CSS テキストを PostCSS でパースし、`@layer` at-rule の**宣言順序**（最初に現れた順が優先度低）を配列化
+2. `@layer components { .btn { ... } }` の入れ子構造を AST でツリー化
+3. 各セレクタが「どのレイヤー内で最終決定されたか」を DevTools プロトコル（`CSS.getMatchedStylesForNode`）で追跡
+4. Ren 向けに `layers_order.json` として納品
+
+```json
+{
+  "layers_order": ["reset", "tokens", "base", "components", "utilities"],
+  "unlayered_rules_count": 12,
+  "layer_map": {
+    ".btn-primary": {
+      "final_layer": "components",
+      "overridden_by": ["utilities:.bg-red-500"],
+      "specificity_conflict": false
+    }
+  }
+}
+```
+
+**納品成果物**
+- `layers_order.json`（レイヤー宣言順・入れ子ツリー・最終決定レイヤー）
+- Ren の Tailwind v4 `@layer` セットアップと 1:1 マッピングできる注記
+
+**失敗防止フック**
+- レイヤー外ルール（`unlayered`）は**常に最優先**なので、混在時は必ず警告フラグを立てる
+- `!important` は `@layer` を貫通するため、宣言箇所を全リスト化
+
+---
+
+### V2-Skill 3: デザイントークン リバースエンジニアリング（Style Dictionary / W3C DTCG 準拠）
+
+**なぜ必要か**
+2026 年の業界標準は **W3C Design Tokens Community Group（DTCG）フォーマット**。CSS カスタムプロパティ（`--primary` 等）を単純に列挙するだけでなく、**セマンティック層 / プリミティブ層 / コンポーネント層の3階層**に自動分類し、Style Dictionary で Tailwind / CSS Variables / iOS / Android に多重出力できる状態で納品する。
+
+**実装方法**
+1. `:root` に定義された CSS 変数を全列挙 → OKLCH 色空間に変換（`culori` ライブラリ利用）
+2. 値の重複・類似度（ΔE < 2）を検出し**プリミティブトークン**に集約（`color-blue-500` 等）
+3. `var(--primary, var(--blue-500))` の**参照グラフ**を辿り、セマンティック層（`color-brand-primary → color-blue-500`）を復元
+4. DTCG JSON 形式で出力
+
+```json
+{
+  "$schema": "https://tr.designtokens.org/format/",
+  "color": {
+    "blue": {
+      "500": { "$value": "#3B82F6", "$type": "color", "$description": "Primitive" }
+    },
+    "brand": {
+      "primary": { "$value": "{color.blue.500}", "$type": "color", "$description": "Semantic" }
+    }
+  },
+  "typography": {
+    "heading-lg": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.4xl}",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": "{font.line-height.tight}"
+      },
+      "$type": "typography"
+    }
+  }
+}
+```
+
+**納品成果物**
+- `tokens.dtcg.json`（W3C 標準準拠・Style Dictionary で全プラットフォーム出力可能）
+- `token_reference_graph.md`（参照関係の可視化：セマンティック→プリミティブの依存図）
+
+**失敗防止フック**
+- **オーファントークン**（誰も参照していない `--x`）を検出し警告
+- **循環参照**（`--a → --b → --a`）を DFS で検出
+- 色は必ず OKLCH で保持（`prefers-color-scheme: dark` 対応時に L 値反転で自動ダーク生成可能）
+
+---
+
+### V2-Skill 4: Container Queries（`@container`）マッピングスキル
+
+**なぜ必要か**
+2026 年、Baseline 2023 で全モダンブラウザ対応した `@container` は、モダン LP のカード・サイドバー内部品で**ビューポートではなく親要素幅**で切り替わる。メディアクエリと誤認して抽出すると「同じカードなのに配置場所で違う幅なのに一律閾値で切り替わる」再現不能バグが必発（2026-07-01 参照）。
+
+**実装方法**
+1. 生 CSS で `@container` at-rule を全列挙
+2. コンテナ名（`@container sidebar (min-width: 400px)` の `sidebar`）と、`container-type: inline-size` を宣言している祖先 DOM 要素を紐付け
+3. Container Query 単位（`cqw` / `cqi` / `cqh`）の使用箇所も採取
+4. `container_map.json` として納品
+
+```json
+{
+  "containers": [
+    {
+      "container_name": "card",
+      "declared_on": ".product-card",
+      "container_type": "inline-size",
+      "queries": [
+        { "condition": "(min-width: 400px)", "affects": [".product-card__title { font-size: 1.5rem }"] },
+        { "condition": "(min-width: 600px)", "affects": [".product-card__grid { grid-template-columns: 1fr 1fr }"] }
+      ]
+    }
+  ],
+  "cq_units_usage": [
+    { "selector": ".hero-title", "property": "font-size", "value": "clamp(2rem, 8cqi, 4rem)" }
+  ]
+}
+```
+
+**納品成果物**
+- `container_map.json`（コンテナ・クエリ・CQ 単位の3点セット）
+- Ren 向け Tailwind v4 `@container` プラグイン設定案
+
+**失敗防止フック**
+- コンテナクエリを持つ要素は「**同じ部品を別の配置に置いた時**」のスクショを Mia 向けに残す
+- `@scope`（Baseline 2024）との併用時はスコープ境界も同時記録
+
+---
+
+### V2-Skill 5: アニメーション完全抽出（Keyframes / Timeline / Motion Path）
+
+**なぜ必要か**
+アニメーションは「CSS `@keyframes` / GSAP timeline / Web Animations API / `animation-timeline: scroll()/view()`（Scroll-Driven Animations, Baseline 2024）」の**4系統**が混在する。1系統しか見ないと、スクロール連動アニメ・IntersectionObserver 連動フェードイン等の複雑な動きが再現できない（2026-07-03 参照）。
+
+**実装方法**
+1. **CSS `@keyframes`**：生 CSS 走査で `@keyframes name { ... }` を全抽出、対応する `animation-name` 参照と紐付け
+2. **`animation-timeline`**：`scroll()` / `view()` の宣言箇所と、`view-timeline-name` 定義要素を対応付け
+3. **GSAP / Motion One**：`window.gsap` `window.motion` の存在確認、`gsap.getById()` で登録済みアニメーションを列挙
+4. **Web Animations API**：`document.getAnimations()` で実行中の全アニメーションを取得、`effect.getKeyframes()` で内部キーフレームを抽出
+5. `motion_spec.json` として納品
+
+```json
+{
+  "css_keyframes": [
+    { "name": "fade-in", "keyframes": { "0%": { "opacity": 0 }, "100%": { "opacity": 1 } } }
+  ],
+  "scroll_driven": [
+    { "selector": ".hero-parallax", "timeline": "view()", "range": "entry 0% cover 50%", "animation-name": "hero-parallax-slide" }
+  ],
+  "js_animations": [
+    { "library": "GSAP", "id": "hero-intro", "targets": [".hero h1"], "duration": 1.2, "ease": "power3.out", "stagger": 0.1 }
+  ],
+  "fallback_check": {
+    "prefers-reduced-motion": "supported (scroll-driven disabled)",
+    "no-js-fallback": "hero content is visible without JS"
+  }
+}
+```
+
+**納品成果物**
+- `motion_spec.json`（4系統統合のアニメ仕様）
+- タイミングチャート（Mermaid gantt 形式で時系列可視化）
+
+**失敗防止フック**
+- `prefers-reduced-motion: reduce` 時のフォールバック挙動を必ず併記
+- スクロール連動は `view-timeline-inset` `view-timeline-axis` まで採取（省略すると発火位置が数百px ずれる）
+
+---
+
+## 📚 知識ベース拡張（2026年最新）
+
+### KB-1: CSS 機能サポート表（Baseline 2026 基準）
+
+| 機能 | Baseline 状態 | Chrome | Safari | Firefox | Edge | フォールバック必要性 | Hana 抽出時の注意 |
+|------|-------------|--------|--------|---------|------|------------------|-----------------|
+| `@container` (Size) | Baseline 2023 (Widely) | 105+ | 16.0+ | 110+ | 105+ | 不要 | コンテナ名・type 必須 |
+| `@container` (Style) | Baseline 2024 (Newly) | 111+ | 18.0+ | 128+ | 111+ | 要 `@supports` | 実験的、警告フラグ |
+| `@layer` | Baseline 2022 (Widely) | 99+ | 15.4+ | 97+ | 99+ | 不要 | 宣言順が最重要 |
+| `@scope` | Baseline 2024 (Newly) | 118+ | 17.4+ | 128+ | 118+ | 要 | Firefox 対応済み |
+| `:has()` | Baseline 2023 (Widely) | 105+ | 15.4+ | 121+ | 105+ | 不要 | 親セレクタ革命 |
+| `:where()` | Baseline 2022 (Widely) | 88+ | 14.0+ | 78+ | 88+ | 不要 | 詳細度0に注意 |
+| Cascade Layers | Baseline 2022 (Widely) | 99+ | 15.4+ | 97+ | 99+ | 不要 | `@layer` 参照 |
+| `animation-timeline` | Baseline 未達 | 115+ | 26+ (予定) | 未対応 | 115+ | 必須 | Safari 未対応 |
+| `view-timeline` | Baseline 未達 | 115+ | 26+ (予定) | 未対応 | 115+ | 必須 | scroll() と併記 |
+| `aspect-ratio` | Baseline 2021 (Widely) | 88+ | 15.0+ | 89+ | 88+ | 不要 | paddingハックと区別 |
+| `backdrop-filter` | Baseline 2024 (Widely) | 76+ | 18.0+ | 103+ | 79+ | 要 `@supports` | GPU コスト警告 |
+| `color-mix()` | Baseline 2024 (Widely) | 111+ | 16.2+ | 113+ | 111+ | 不要 | OKLCH 併用推奨 |
+| `oklch()` / `oklab()` | Baseline 2023 (Widely) | 111+ | 15.4+ | 113+ | 111+ | 不要 | 色空間の第一選択 |
+| `text-wrap: balance` | Baseline 2024 (Newly) | 114+ | 17.5+ | 121+ | 114+ | 要フォールバック | 見出し用 |
+| `text-wrap: pretty` | Baseline 未達 | 117+ | 未対応 | 未対応 | 117+ | 必須 | 本文用 |
+| `field-sizing` | Baseline 未達 | 123+ | 未対応 | 未対応 | 123+ | 必須 | フォーム用 |
+| `anchor-positioning` | Baseline 未達 | 125+ | 未対応 | 未対応 | 125+ | 必須 | ツールチップ用 |
+| CSS Nesting (native) | Baseline 2023 (Widely) | 120+ | 16.5+ | 117+ | 120+ | 不要 | PostCSS不要 |
+| Container Query Units | Baseline 2023 (Widely) | 105+ | 16.0+ | 110+ | 105+ | 不要 | `cqi/cqw/cqh` |
+
+**運用ルール**：Baseline 2024 以降または未達の機能を検出したら、Ren への納品 JSON に `browser_support_warning` フラグを立てる。
+
+---
+
+### KB-2: CSS 抽出ツール比較表
+
+| ツール | 得意領域 | Hana での用途 | 推奨度 | 備考 |
+|-------|---------|-------------|-------|------|
+| Puppeteer (Chrome) | Computed Style 一括取得・カバレッジ計測 | 主力エンジン | ★★★★★ | headless: 'new' 必須 |
+| Playwright | クロスブラウザ検証・emulateMediaFeatures | Safari/Firefox 差分検証 | ★★★★★ | Puppeteer と併用 |
+| Chrome DevTools MCP | 対話的な CSS 検証・Coverage・Recorder | 手動検証・スクショ根拠残し | ★★★★★ | MCP 経由で自動化 |
+| PostCSS + postcss-safe-parser | 生 CSS AST 解析 | `@layer` / `@container` パース | ★★★★★ | パーサーは safe-parser 推奨 |
+| CSSTree | CSS AST 高速解析 | 大規模 CSS の走査 | ★★★★☆ | PostCSS より軽量 |
+| Wappalyzer / Sherlock | 技術スタック検出 | フレームワーク判定（STEP 7） | ★★★★☆ | サポート補助 |
+| Wallace | CSS 統計（詳細度分布・複雑度） | 抽出 CSS の健全性評価 | ★★★☆☆ | 品質メトリクス |
+| Style Dictionary | トークン多重出力 | DTCG JSON → Tailwind/iOS/Android | ★★★★★ | Amazon 製、業界標準 |
+| Culori | 色空間変換（OKLCH↔HEX↔sRGB） | 色トークン正規化 | ★★★★★ | ΔE 計算も可 |
+| Iro (プロジェクト内エージェント) | ブランドカラー設計 | 色役割合意（STEP 2 前） | ★★★★★ | 二重採取回避 |
+| Autoprefixer | ベンダープレフィックス補完 | Ren 実装前の互換性補完 | ★★★★☆ | postcss-preset-env と併用 |
+| Volar / VSCode LSP | Vue/TSX 内 CSS 検証 | 開発時補助 | ★★★☆☆ | 抽出用途は限定的 |
+| Figma Dev Mode + Tokens Studio | Figma → DTCG | 別軸（デザイン→コード） | ★★★★☆ | 元 Figma がある場合のみ |
+
+---
+
+### KB-3: ブラウザ DevTools リファレンス（CSS 検証時）
+
+| DevTools 機能 | Chrome | Safari | Firefox | Hana での用途 |
+|-------------|--------|--------|---------|-------------|
+| Computed Styles Panel | ✅ | ✅ | ✅ | 解決値の目視確認 |
+| Styles Panel (Cascade view) | ✅ | ✅ | ✅ | 上書き逆転の追跡 |
+| CSS Overview | ✅ | ❌ | ❌ | 色/フォント/フォント数の統計 |
+| Coverage Tab | ✅ | ❌ | ❌ | 未使用 CSS 検出 |
+| Layers Panel（`@layer`） | ✅ 122+ | ⚠️ | ✅ | レイヤー宣言順の可視化 |
+| Container Queries Overlay | ✅ | ✅ | ✅ | コンテナ境界の可視化 |
+| Grid Overlay | ✅ | ✅ | ✅ | Grid セル境界表示 |
+| Flexbox Overlay | ✅ | ✅ | ✅ | Flex 軸表示 |
+| Rendering Panel > Emulate CSS media | ✅ | ⚠️ | ✅ | `prefers-*` 切替 |
+| Performance Panel > Layout Shift | ✅ | ✅ | ✅ | CLS 原因追跡 |
+| Animations Panel | ✅ | ✅ | ✅ | タイムライン確認 |
+| CSS Nesting DevTools 表示 | ✅ 120+ | ✅ 16.5+ | ✅ 117+ | 入れ子構造確認 |
+
+**Chrome DevTools MCP 経由の自動化コマンド例**：
+```
+mcp: chrome_devtools.emulate_media(features=[{name:'prefers-color-scheme',value:'dark'}])
+mcp: chrome_devtools.get_matched_styles(nodeId=X)
+mcp: chrome_devtools.get_coverage()
+```
+
+---
+
+### KB-4: カラートークン標準（2026年）
+
+**色空間の推奨順位（Hana 内部標準）**
+1. **OKLCH**（第一選択）：知覚均等、ダークモード自動生成に最適
+2. **OKLab**：グラデーション補間に使用
+3. **HEX / RGB**：レガシー互換・Slack 貼付用
+4. **HSL**：非推奨（青緑域で知覚不均等）
+
+**セマンティック命名規則（DTCG 準拠）**
+```
+color.{semantic}.{state}.{variant}
+例:
+  color.brand.primary.default   → #3B82F6
+  color.brand.primary.hover     → oklch(from {default} calc(l - 0.05) c h)
+  color.surface.raised.default  → #FFFFFF
+  color.text.body.default       → #1E293B
+  color.text.body.disabled      → color-mix(in oklch, {default}, transparent 60%)
+```
+
+**カラーコントラスト基準（WCAG 2.2 + APCA）**
+- 本文：WCAG AA 4.5:1 以上 / APCA Lc 60 以上
+- 大文字（18pt+）：WCAG AA 3:1 以上 / APCA Lc 45 以上
+- UI コンポーネント境界：WCAG AA 3:1 以上
+- **抽出時にコントラスト不足を検出したら `readability_risk` フラグ**（2026-06-07 参照）
+
+---
+
+### KB-5: タイポグラフィトークン標準（2026年）
+
+**フォントスケール（Modular Scale 1.250 = Major Third 推奨）**
+| キー | サイズ (rem) | サイズ (px) | 用途 |
+|------|-----------|----------|------|
+| xs | 0.75 | 12 | caption |
+| sm | 0.875 | 14 | small |
+| base | 1.0 | 16 | body |
+| lg | 1.125 | 18 | lead |
+| xl | 1.25 | 20 | h4 |
+| 2xl | 1.5 | 24 | h3 |
+| 3xl | 1.875 | 30 | h2 sp |
+| 4xl | 2.25 | 36 | h2 |
+| 5xl | 3.0 | 48 | h1 sp |
+| 6xl | 3.75 | 60 | h1 |
+| 7xl | 4.5 | 72 | display |
+
+**流体タイポグラフィ（Fluid Typography）**
+```css
+/* clamp(min, preferred, max) パターン */
+font-size: clamp(1rem, 0.5rem + 2vw, 2rem);
+/* コンテナクエリ単位版 */
+font-size: clamp(1rem, 0.5rem + 2cqi, 2rem);
+```
+**抽出時**：`clamp()` の3引数（min / preferred / max）を必ず宣言値のまま保持。computed 値だけだとビューポート幅依存の値になり再現不能。
+
+**日本語 line-height 標準**
+- 本文：1.7〜1.9（横書き）/ 1.5〜1.7（縦書き）
+- 見出し：1.2〜1.4
+- 密度重視 UI：1.4〜1.5
+
+**フォントファミリーの多層フォールバック**
+```css
+font-family:
+  "Inter",                           /* 欧文プライマリ */
+  "Noto Sans JP",                    /* 和文プライマリ */
+  system-ui,                         /* OS 標準（macOS: SF Pro, Win: Segoe UI）*/
+  -apple-system, BlinkMacSystemFont, /* 明示 */
+  "Yu Gothic", "Hiragino Sans",      /* 和文フォールバック */
+  sans-serif;                        /* 最終フォールバック */
+```
+**抽出時**：`document.fonts.ready` 後の実際に採用された書体を必ず記録（フォールバック採用時に警告フラグ）。
+
+---
+
+### KB-6: 参考 URL・情報源（Hana 内部リンク集）
+
+| 分類 | 情報源 | 用途 |
+|------|-------|------|
+| CSS 仕様 | https://www.w3.org/TR/css/ | 最新仕様参照 |
+| Baseline 状況 | https://webstatus.dev/ | ブラウザサポート確認 |
+| MDN Web Docs | https://developer.mozilla.org/ | プロパティ詳細 |
+| CanIUse | https://caniuse.com/ | 詳細サポート表 |
+| DTCG | https://tr.designtokens.org/ | デザイントークン標準 |
+| Style Dictionary | https://styledictionary.com/ | トークン変換ツール |
+| CSS Almanac (CSS-Tricks) | https://css-tricks.com/almanac/ | 実践パターン集 |
+| smashing magazine | https://www.smashingmagazine.com/category/css | 2026 年最新実装事例 |
+| web.dev CSS | https://web.dev/learn/css/ | Google 公式学習 |
+| OKLCH Picker | https://oklch.com/ | OKLCH 色検討 |
+| APCA Contrast | https://apcacontrast.com/ | 次世代コントラスト計算 |
+
+---
+
+## 🏆 Overspec 品質基準（Hana v2 サインオフ条件）
+
+以下 12 項目**全て**をクリアしなければ Kaito への納品不可。1項目でも欠落したら `hana:blocked` として差し戻す。
+
+1. ✅ Computed × 生 CSS 二重採取（V2-Skill 1）完了
+2. ✅ `@layer` 宣言順マップ（V2-Skill 2）納品
+3. ✅ DTCG 準拠トークン JSON（V2-Skill 3）納品
+4. ✅ Container Queries マップ（V2-Skill 4）納品
+5. ✅ アニメ4系統統合仕様（V2-Skill 5）納品
+6. ✅ ライト/ダーク両モードのトークン採取（`prefers-color-scheme` 検出時）
+7. ✅ `prefers-reduced-motion` フォールバック確認
+8. ✅ 5ビューポート（375/768/1024/1440/1920）スナップショット
+9. ✅ webfont ロード完了後（`document.fonts.ready`）採取
+10. ✅ Baseline 未達機能への `browser_support_warning` 付与
+11. ✅ WCAG 2.2 AA / APCA Lc 60 コントラスト検証
+12. ✅ Iro との色役割合意ログ（STEP 2 前）＋ Kaito 経由 nori 法務先出し（STEP 7 完了時）
+
+> **Overspec の哲学**：「Mia が差し戻せない品質」「Ren が迷わない情報密度」「Nao が設計に集中できる構造化」の3点で常時 100% を目指す。日本トップ 1% の CSS 抽出は**採取精度ではなく再現保証**で決まる。
