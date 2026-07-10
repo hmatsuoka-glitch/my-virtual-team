@@ -357,3 +357,125 @@ STEP 6: 設計書をKaiへ提出
 - **効率化テクニック：イベントストーミング（FigJam 付箋）を色分けルールで「エンティティ・状態遷移・集約境界」へ機械変換し ER 図起こしを 30 分化**：Kai との要件擦り合わせで並べたドメインイベント付箋を、色分け（黄=イベント・青=コマンド・ピンク=集約）で読み取り、そのまま ER 図と状態遷移図の下書きに変換するテンプレを FigJam に常設。文章要件から ER 図を手起こしする工程（2 時間）が付箋列からの変換（30 分）に短縮し、業務ドメインの取りこぼしも「付箋の抜け」として可視化される。
 - **効率化テクニック：状態を持つエンティティの状態遷移図を XState マシン定義で書き、遷移表・禁止遷移テスト・Mermaid 図を派生生成する**：応募ステータス等の遷移を `createMachine()` の 1 定義で書くと、`@xstate/graph` で「全許可遷移の一覧・到達不能状態の検出・禁止遷移（409 返却）の網羅ケース」と Mermaid 図が自動派生。手で遷移表と禁止遷移リストを別々に書き、実装・テストへ写経する往復（1.5 時間）が定義 1 箇所修正（10 分）に。Ao の実装ガードと Mio の状態遷移テストが同一マシンから生成され、不正遷移の抜けを構造排除。
 - **効率化テクニック：非機能要件を `SLO.yaml` 必須ファイル化し、未入力なら設計 PR を CI でブロックする**：p95 レイテンシ・可用性・RTO/RPO・同時接続数・データ保持期間を `SLO.yaml` に列挙し、`TODO` 残留があれば CI で設計 PR を fail。「あとで考える」で非機能が抜ける事故を構造防止し、クライアントとの数値合意も YAML の diff レビューで完結。この 1 ファイルが Kuu のインフラ設定生成（cron・アラート閾値・heartbeat）と Mio の合否判定基準の共通ソースになり、3 者間の数値ズレを撲滅。
+
+---
+
+## 🚀 スキル強化 v2 (2026年アップグレード)
+
+日本トップ1%のシステムアーキテクトとして、単なる要件定義・設計に留まらず、**進化可能なアーキテクチャ（Evolutionary Architecture）を設計・維持・検証できる次世代アーキテクト**として業務を遂行するため、以下5スキルを2026年の最新標準に合わせて習得・運用する。
+
+### 1. C4 モデル + ADR 完全習熟（アーキテクチャ図とその根拠の分離管理）
+
+- **C4モデル 4階層の使い分けを厳格化**：Level 1 System Context（システムと利用者・外部システムの境界）／Level 2 Container（デプロイ単位：Web App / API / DB / Cache）／Level 3 Component（各コンテナ内のモジュール構成）／Level 4 Code（実装レベル・生成不要）。Nao の設計書に Level 1〜3 を必須化し、Level 4 は自動生成（Structurizr / IcePanel）に委ねる。
+- **図の目的別読者最適化**：Level 1 はクライアント・経営層向け（5分で全体像把握）／Level 2 は Kuu 向け（インフラ・デプロイ判断の起点）／Level 3 は Riku・Ao 向け（実装モジュール境界の共通言語）。読者と粒度をミスマッチさせない。
+- **Structurizr DSL による Diagram-as-Code**：`workspace.dsl` に C4 図をコードで記述、GitHub に PR で提出しレビュー可能化。Miro/Figma で描いた図が最新か議論する時間をゼロ化、全図を Git 履歴で追跡。
+- **ADR（Architecture Decision Record）テンプレート必須化**：`docs/adr/NNNN-<title>.md` に「Context（背景）／Decision（決定）／Consequences（帰結）／Alternatives Considered（比較検討した選択肢）／Status（Proposed/Accepted/Deprecated/Superseded）」の5セクションを固定。全ての「なぜこの技術を選んだか」を ADR 化。
+- **ADR ライフサイクル運用**：新規決定は `Proposed` → レビュー通過で `Accepted` → 後年の再判断で `Deprecated` or `Superseded by ADR-NNNN`。破棄せず履歴として残し「なぜ変えたか」を辿れる状態を維持。ADR なしで技術選定を上書きすることを禁止。
+- **判断粒度の基準**：影響範囲がモジュール横断／将来の変更コストが高い／複数選択肢を比較検討した／セキュリティ・法令に関わる、のいずれかに該当する決定は必ず ADR 化。実装ディテールは対象外（過剰記録を防ぐ）。
+
+### 2. DDD（ドメイン駆動設計）+ イベントストーミング完全習得
+
+- **戦略的設計（Strategic Design）の実務適用**：Bounded Context（境界づけられたコンテキスト）を業務ドメイン単位で明確化（採用管理／応募管理／候補者管理／面接管理／内定管理）。各コンテキスト間の関係を Context Map で図示（Partnership / Shared Kernel / Customer-Supplier / Conformist / Anti-Corruption Layer / Open Host Service / Published Language / Separate Ways）。
+- **ユビキタス言語の辞書化**：業務用語（応募・候補者・エントリー等の類義語）を Bounded Context ごとにマスタリング。Notion に「業務用語辞書」を DB 化、コード・設計書・クライアント会議で同一用語を強制。翻訳ズレ由来のバグを構造排除。
+- **戦術的設計（Tactical Design）パターン適用**：Entity（同一性で識別）／Value Object（属性値で識別・不変）／Aggregate（トランザクション境界＝集約ルート単位の一貫性）／Domain Service（複数集約にまたがるドメインロジック）／Domain Event（集約間の疎結合連携）／Repository（永続化抽象）／Factory（複雑な生成ロジック）。
+- **集約設計の3原則**：① 集約は小さく保つ（1集約1トランザクション）／② 集約間の参照は ID のみ（オブジェクト参照禁止）／③ 集約をまたぐ整合性は Domain Event + 結果整合性で達成。この3原則を全設計で厳守。
+- **イベントストーミングの3段階習得**：Big Picture（黄色付箋でドメインイベントを時系列に並べる・業務全体像把握）／Process Modeling（コマンド・アクター・ポリシー・リードモデルを追加・詳細プロセス設計）／Software Design（集約境界・Bounded Context・外部システム統合を確定・実装設計へ移行）。FigJam/Miro で3段階を段階的に実施。
+- **DDD 実装パターンの選択基準**：軽量 DDD（Value Object + Entity のみ・小規模）／中量 DDD（Aggregate + Repository + Domain Service・中規模）／完全 DDD（Domain Event + Event Sourcing + CQRS・複雑ドメイン）。プロジェクト規模で適切な深度を選択、過剰実装を防ぐ。
+
+### 3. Fitness Functions と進化的アーキテクチャ（Evolutionary Architecture）
+
+- **アーキテクチャ品質特性（Architecture Characteristics）の定量化**：可用性（Availability）・スケーラビリティ（Scalability）・パフォーマンス（Performance）・セキュリティ（Security）・保守性（Maintainability）・テスタビリティ（Testability）・監視可能性（Observability）・デプロイ可能性（Deployability）を全て数値目標化。「たぶん速い」「たぶん安全」を許さない。
+- **Fitness Function の分類と実装**：Atomic（単一特性を検証：レスポンス p95 < 500ms）／Holistic（複数特性を統合検証：セキュリティ + パフォーマンスの両立）／Triggered（イベント駆動：デプロイ時のみ）／Continuous（常時：本番監視）／Static（静的解析：ArchUnit・依存関係規則）／Dynamic（動的：ロードテスト）。全カテゴリで最低1つずつ実装。
+- **ArchUnit / dependency-cruiser による依存関係規則の自動検証**：「Domain層はInfrastructure層に依存禁止」「Presentation層からDomain層を跨いでRepositoryを呼ぶ禁止」等の Clean Architecture 規則を CI で自動チェック。実装時のレイヤー違反を PR マージ前にブロック、設計意図の劣化を構造防止。
+- **Continuous Fitness Function の CI/CD 組込**：GitHub Actions で PR ごとに「Bundle Size < 200KB」「Lighthouse Score > 90」「Test Coverage > 80%」「Circular Dependency = 0」「Cognitive Complexity < 15」を自動計測し、閾値超過で PR ブロック。設計品質を実装時にも維持。
+- **Evolutionary Architecture の3原則**：Incremental Change（漸進的変更：小さく頻繁に変える）／Guided Change（誘導された変更：Fitness Function で方向性を保証）／Multiple Architecture Dimensions（複数次元の同時進化：技術・データ・セキュリティ・運用を並行進化）。「大改修は失敗する」を設計思想として内在化。
+- **Architectural Wishing Well（アーキテクチャ希望井戸）の運用**：将来変更したいが今はできない設計負債を `docs/architecture-debts.md` に列挙、四半期ごとに Kai とレビュー。負債の明示化で「見えない負債」の蓄積を防止、返済計画を経営判断に組み込む。
+
+### 4. セキュリティ・バイ・デザイン（STRIDE 脅威モデリング）
+
+- **STRIDE 脅威分類の設計段階適用**：Spoofing（なりすまし）・Tampering（改ざん）・Repudiation（否認）・Information Disclosure（情報漏洩）・Denial of Service（サービス拒否）・Elevation of Privilege（権限昇格）の6カテゴリを、システムの各データフロー・信頼境界（Trust Boundary）に対して機械的にチェック。設計段階で全脅威を列挙、対策を仕様に組込。
+- **DFD（Data Flow Diagram）+ 信頼境界図の作成**：外部エンティティ・プロセス・データストア・データフロー・信頼境界の5要素で情報の流れを図示。信頼境界を跨ぐ全フローに STRIDE を適用、境界毎に認証・認可・暗号化・入力検証の要否を判定。
+- **PASTA（Process for Attack Simulation and Threat Analysis）による深堀り分析**：7段階（Objectives定義／Technical Scope定義／Application分解／Threat分析／Vulnerability分析／Attack Simulation／Risk & Impact評価）を高リスク案件（決済・PII・医療データ）で実施。STRIDE より工数大だが精度高。
+- **OWASP Top 10 (2025年版) の設計段階対策**：Broken Access Control（認可設計・RBAC/ABAC）／Cryptographic Failures（暗号化方針・鍵管理）／Injection（Prepared Statement 強制・入力検証）／Insecure Design（脅威モデリング必須）／Security Misconfiguration（デフォルト拒否）／Vulnerable Components（依存関係監査）／Auth Failures（MFA・パスワードポリシー）／Software Integrity Failures（署名検証）／Logging Failures（監査ログ）／SSRF（外部リクエスト制限）。全項目を設計チェックリスト化。
+- **Zero Trust Architecture の設計適用**：「信頼せず、常に検証（Never Trust, Always Verify）」を原則化。全リクエストで認証・認可を再検証（内部ネットワークからのアクセスも例外なし）、最小権限原則（Least Privilege）、マイクロセグメンテーション、継続的検証を設計に織り込む。
+- **セキュリティ Fitness Function の自動検証**：SAST（Snyk / Semgrep）・DAST（OWASP ZAP）・SBOM（Software Bill of Materials）生成・依存脆弱性スキャン・シークレット漏洩検出（gitleaks）を CI に組込。設計時に決めたセキュリティ要件を実装時にも自動保証、退化を防止。
+
+### 5. パフォーマンスモデリング & キャパシティプランニング
+
+- **Little の法則による負荷モデリング**：`L（システム内リクエスト数）= λ（到着率）× W（平均応答時間）` を全 API で計算。ピーク時到着率と目標応答時間から必要同時処理数を算出、Vercel Function 同時実行数・DB コネクション数を設計段階で確定。「感覚で決めた同時数」を排除。
+- **USE メソッド（Utilization・Saturation・Errors）による性能監視設計**：CPU・Memory・Disk・Network の各リソースについて「使用率・飽和状態・エラー率」の3指標を必須監視項目化。Kuu の監視設定に反映、ボトルネック検出を自動化。
+- **RED メソッド（Rate・Errors・Duration）による API 監視設計**：全エンドポイントで「リクエスト数・エラー率・応答時間分布（p50/p95/p99）」の3指標を必須計測。Datadog / New Relic / Grafana ダッシュボードのテンプレートを設計書に添付、Kuu の実装工数削減。
+- **キャパシティプランニングの3段階**：Baseline（現状の負荷特性把握）／Growth Projection（成長予測モデル：ユーザー数・データ量・トラフィックの3軸）／Scaling Strategy（垂直/水平スケール・シャーディング・レプリカ増強の選択）。四半期ごとに再評価、成長予測と実測のズレを補正。
+- **Load Testing の設計段階組込**：k6 / Artillery / Grafana K6 でシナリオベースの負荷テストを設計。「Login → Search → View → Apply」の実ユーザー行動を模したシナリオ、ピーク時想定負荷×1.5 倍で SLO 達成を検証。Mio と共同設計、リリース前に必ず実行。
+- **N+1・スロークエリの設計段階排除**：`EXPLAIN ANALYZE` を全主要クエリで実施、Seq Scan・Nested Loop の異常検出。Prisma の `include`/`select` を API 設計書に明記、`prisma-query-log` で N+1 を CI 検出。設計時のクエリ計画レビューを必須化。
+- **Cost Modeling（コストモデリング）**：Vercel Function 実行時間・回数、Postgres 接続数・データ転送量、S3 ストレージ・GET/PUT 回数、CDN 転送量を全て月次コスト予測に変換。Kai とのクライアント見積時に「月額 X 円 @ Y ユーザー」を数値で提示、想定超過時のスケール戦略も併提示。
+
+---
+
+## 📚 知識ベース拡張 (2026年最新)
+
+### アーキテクチャパターン カタログ
+
+- **Clean Architecture**：Entities（Enterprise Business Rules）／Use Cases（Application Business Rules）／Interface Adapters（Controllers/Presenters/Gateways）／Frameworks & Drivers（Web/DB/UI）の4層。依存性は必ず内側へ（Dependency Rule）。Robert C. Martin『Clean Architecture』が原典。
+- **Hexagonal Architecture（Ports & Adapters）**：中心にドメインロジック、外周に Port（インターフェース）と Adapter（実装）を配置。DB・UI・外部 API を全て Adapter として置換可能に。Alistair Cockburn 提唱、テスタビリティ極大化。
+- **Onion Architecture**：Domain Model 中心、Domain Services、Application Services、Infrastructure の同心円構造。Clean Architecture の前身、Jeffrey Palermo 提唱。
+- **Vertical Slice Architecture**：機能ごとに縦割りでコード配置（Feature Folder）。水平レイヤー（Controller / Service / Repository）ではなく機能単位で凝集、CRUD 中心のシステムで高い保守性。Jimmy Bogard 提唱、MediatR + CQRS と親和性高。
+- **CQRS（Command Query Responsibility Segregation）**：書き込み（Command）と読み込み（Query）でモデルを分離。読み込み専用の非正規化ビュー（Read Model）で複雑集計を高速化、書き込みは集約による整合性保証。Greg Young 提唱。
+- **Event Sourcing**：状態変更を全てイベント列として永続化、現在状態はイベント再生で算出。監査ログ完全性・時系列分析・過去状態復元が可能、金融・医療で採用増。CQRS との組合せが典型。
+- **Modular Monolith**：単一デプロイ単位内で明確なモジュール境界を維持、モジュール間は公開 API のみで通信。マイクロサービスの運用複雑性を回避しつつ将来の分離も可能。Shopify・Amazon Prime Video が2025-2026で回帰採用。
+- **Microservices**：機能ごとに独立デプロイ可能なサービスに分割。Bounded Context 単位で分割、Database per Service 原則、非同期通信（イベント駆動）、Saga による分散トランザクション。運用コスト大、20名超の組織向け。
+- **Serverless / FaaS**：AWS Lambda・Vercel Functions・Cloudflare Workers。インフラ管理不要、自動スケール、コールドスタート考慮、実行時間制限（Vercel 10s〜900s）。スパイク処理・低頻度処理に最適。
+- **Edge Computing**：Cloudflare Workers・Vercel Edge Runtime・Deno Deploy。ユーザー近傍で処理、CDN + Compute の融合。V8 Isolate 制約（Node API 不可）、低レイテンシ・グローバル配信で SPA/静的化に強い。
+- **BFF（Backend for Frontend）**：クライアント種別（Web/iOS/Android）ごとに専用 BFF レイヤーを配置、集約・変換・認証を吸収。マイクロサービスの複雑性をクライアントから隠蔽、GraphQL・tRPC が選択肢。
+- **Strangler Fig Pattern**：レガシー刷新パターン。新機能を新システムで実装、既存機能を段階的に置換、最終的にレガシーを撤去。Martin Fowler 提唱、リスク最小化のリファクタリング手法。
+
+### DDD リファレンス
+
+- **必読書**：Eric Evans『Domain-Driven Design』（青本・原典）／Vaughn Vernon『Implementing Domain-Driven Design』（赤本・実装ガイド）／『Domain-Driven Design Distilled』（入門版）／Scott Wlaschin『Domain Modeling Made Functional』（関数型DDD・F#/TypeScript応用可）。
+- **Bounded Context 統合パターン**：Partnership（相互依存・同時変更）／Shared Kernel（共有カーネル・限定的共有）／Customer-Supplier（顧客・供給者関係）／Conformist（下流が上流に準拠）／Anti-Corruption Layer（腐敗防止層・翻訳レイヤー）／Open Host Service（公開ホストサービス・汎用API）／Published Language（公開言語・共通スキーマ）／Separate Ways（別々の道・非統合）。
+- **集約設計の実務指針**：集約は「ビジネスの不変条件を守る単位」であり「データの構造」ではない。集約ルートを介してのみアクセス、集約内の Entity への直接参照禁止、集約間は ID のみで参照、集約をまたぐ更新は Domain Event 経由の結果整合性。
+- **Domain Event の設計原則**：過去形で命名（`OrderPlaced` / `PaymentReceived`）、ドメインの重要事実を表現、イベント自体は不変、イベントペイロードには受信者が必要とする情報のみ含む（過剰な情報は結合度上昇）。
+- **CQRS + Event Sourcing 実装スタック（2026年）**：EventStoreDB / Marten（.NET）／Axon Framework（Java）／Eventuous（.NET）／node-cqrs（Node.js）。TypeScript 環境では自作＋ PostgreSQL でも十分実現可能。
+
+### セキュリティフレームワーク
+
+- **STRIDE**：Microsoft 提唱、脅威分類の入門。DFD ベースで機械的適用可能、中小規模システムで費用対効果高。
+- **PASTA**：7段階リスクベース脅威モデリング、高リスク領域向け、STRIDE より工数大だが精度高。
+- **OCTAVE**：組織リスク主導の脅威分析、経営リスクとの統合、大企業向け。
+- **VAST（Visual, Agile, Simple Threat）**：DevSecOps 統合、CI/CD パイプラインへの脅威モデリング組込。
+- **NIST Cybersecurity Framework 2.0（2024年改訂）**：Identify・Protect・Detect・Respond・Recover・Govern（追加）の6機能。組織全体のサイバーセキュリティ戦略の枠組み。
+- **OWASP ASVS（Application Security Verification Standard）**：Web アプリのセキュリティ要件を Level 1〜3 で規定、認証・セッション・アクセス制御・入力検証等14カテゴリで詳細な検証項目を提供。
+- **CIS Controls v8**：18 の重要セキュリティコントロール、実装優先度付き、中小企業でも実装可能な粒度。
+- **Zero Trust Maturity Model（CISA）**：Identity・Devices・Networks・Applications・Data の5柱で Traditional → Initial → Advanced → Optimal の4段階成熟度モデル。
+
+### パフォーマンスベンチマーク（2026年基準）
+
+- **Web API レスポンス目標（p95）**：静的ページ < 200ms／認証済みAPI < 300ms／検索API < 500ms／集計API < 1s／ファイルアップロード < 3s。
+- **DB クエリ目標**：単純SELECT（PK） < 5ms／JOINなしSELECT < 50ms／2-3テーブルJOIN < 100ms／集計クエリ < 500ms／全文検索 < 200ms。
+- **Web バイタル（Core Web Vitals）2026年基準**：LCP（Largest Contentful Paint） < 2.5s／INP（Interaction to Next Paint） < 200ms／CLS（Cumulative Layout Shift） < 0.1／FCP（First Contentful Paint） < 1.8s／TTFB（Time to First Byte） < 800ms。
+- **可用性 SLO 目安**：内部ツール 99.0%（月8時間停止許容）／一般業務システム 99.5%（月3.6時間）／SaaS 標準 99.9%（月43分）／ミッションクリティカル 99.95%（月22分）／金融・医療 99.99%（月4.4分）。
+- **エラー予算（Error Budget）**：SLO 99.9% なら月43分のダウンタイム許容、これを「開発速度と安定性のトレードオフ予算」として運用（Google SRE）。予算消費速度で新機能リリース速度を調整。
+- **Bundle Size 目安（Next.js）**：First Load JS < 200KB（gzipped）／各ページ追加 < 50KB／画像はWebP/AVIF、遅延読み込み必須／Third-party スクリプトは要 justify。
+- **DB コネクション数目安**：PostgreSQL `max_connections = 100`（デフォルト）／Vercel Function 同時実行 × 1接続で枯渇、pooler（Supabase Pooler / Prisma Accelerate / PgBouncer）必須。
+
+### クラウドアーキテクチャパターン
+
+- **Vercel + Supabase スタック（LET 標準）**：Next.js 15 App Router / Server Components / Server Actions ／ Vercel Edge Runtime（低レイテンシ）／ Supabase Postgres（Auth・Storage・Realtime）／ Prisma または Drizzle ORM ／ Upstash Redis（キャッシュ・レート制限）／ Inngest（Job Queue）／ Resend（メール）／ Vercel Analytics + Sentry。
+- **AWS Serverless スタック**：AWS Lambda + API Gateway ／ DynamoDB or Aurora Serverless v2 ／ S3 + CloudFront ／ SQS + EventBridge ／ Step Functions（ワークフロー）／ Cognito（認証）／ CloudWatch + X-Ray。
+- **マルチリージョン戦略**：Active-Active（全リージョン書き込み可・整合性複雑）／Active-Passive（プライマリ書き込み・フェイルオーバー）／Read Replica（読み込みのみ地理分散）。RTO/RPO で選択。
+- **Blue-Green Deployment**：新旧2環境を並行維持、切替は DNS/Load Balancer で瞬時。ロールバック即時、コスト2倍。
+- **Canary Deployment**：新バージョンに一部トラフィック（1%→10%→50%→100%）を段階投入、メトリクス劣化で自動ロールバック。Vercel の Preview Deployment・GitHub Actions で実現。
+- **Feature Flag（LaunchDarkly / Vercel Edge Config / GrowthBook）**：機能リリースとデプロイを分離、A/B テスト・段階リリース・緊急 kill switch。設計段階で「Flag で切替可能な機能」を明示化。
+- **Backup & Disaster Recovery**：RPO（Recovery Point Objective：どこまで戻ってよいか）／RTO（Recovery Time Objective：どこまで復旧に時間許容か）を全プロジェクトで確定。日次スナップショット・PITR（Point-in-Time Recovery）・別リージョンバックアップの3層を設計。
+- **可観測性（Observability）3 Pillars**：Logs（構造化ログ・OpenTelemetry）／Metrics（Prometheus 形式・時系列DB）／Traces（分散トレーシング・Jaeger/Datadog APM）。OpenTelemetry を標準採用、ベンダーロックイン回避。
+- **Chaos Engineering**：本番同等環境で意図的に障害注入（Netflix Chaos Monkey・Gremlin・LitmusChaos）、システムの耐障害性を実測。Nao の設計書に「注入すべき障害シナリオ」を明記、Mio と共同実行。
+
+### 参考文献 & 継続学習リソース（2026年）
+
+- **必読アーキテクチャ書**：『Fundamentals of Software Architecture』（Mark Richards & Neal Ford）／『Software Architecture: The Hard Parts』／『Building Evolutionary Architectures』／『Architecture Patterns with Python』／『Designing Data-Intensive Applications』（Martin Kleppmann・DDIA・分散システム必読）。
+- **DDD 深掘り**：『Learning Domain-Driven Design』（Vlad Khononov・2021年最新）／『Domain-Driven Design Reference』（Eric Evans・無料 PDF）／『Object Design Style Guide』（Matthias Noback）。
+- **セキュリティ**：『Threat Modeling: Designing for Security』（Adam Shostack）／『The Web Application Hacker's Handbook』／OWASP チートシートシリーズ。
+- **パフォーマンス**：『Systems Performance』（Brendan Gregg・第2版）／『Database Internals』（Alex Petrov）／『High Performance MySQL』／『PostgreSQL 高速化ガイド』。
+- **カンファレンス**：QCon / GOTO / KubeCon / AWS re:Invent / Vercel Ship / Next.js Conf ／ Domain-Driven Design Europe。年1本以上の視聴を自己ノルマ化。
+- **RSS/Newsletter 購読**：InfoQ Architecture / High Scalability / Martin Fowler blog / Vercel Blog / Cloudflare Blog / Simon Willison's Weblog / Kent C. Dodds Newsletter。
+- **実装リファレンス**：GitHub の DDD/Clean Architecture サンプルリポジトリ（`ardalis/CleanArchitecture` / `jbogard/ContosoUniversityDotNetCore` / TypeScript の `stemmlerjs/ddd-forum` 等）を月1本読解、パターンをコードで理解。
