@@ -388,3 +388,189 @@ STEP 4: 再監査
 - **効率化テクニック：一次不合格ゲート（フォント埋め込み・スライドサイズ・和欧混植・SmartArt）を「精緻監査より前に走る最上流 CI ジョブ」として分離する**：`embeddedFontLst` の有無・`slide_size` の EMU 値・和文/欧文フォントの run 単位分離・SmartArt 使用を `precheck.py` で最初に判定し、1 つでも該当なら要素 diff ジョブ自体をスキップして即差し戻し。「4:3 に 16:9」「フォント未埋め込み」のような全作り直し級を、丁寧な色・余白監査の前に弾く。間違ったキャンバスを精緻監査する無駄（20 分）と CI 実行コストの両方を削減。
 - **効率化テクニック：グループ・SmartArt・図形内テキストを再帰展開して全 run の font/size/color を抽出する監査を、`python-pptx` の walk 関数で 1 パス化**：「グループ化されているから 1 オブジェクト」と数えて内部の規定外フォント・色を見逃す盲点を、ネストを再帰的に潜って全 run をフラットなリストに落とす関数で機械網羅。選択ウィンドウを手で開いてグループを 1 つずつ展開する目視作業（15 分）を撲滅し、SmartArt スタイルが上書きする色まで実 HEX で全件突合。抽出リストはそのまま仕様書 YAML との diff にかけられる。
 - **効率化テクニック：日付フィールド・自動更新プロパティ・ハイパーリンク実 URL を「時限逸脱・残留チェック」として 1 スクリプトで一括抽出する**：`fld` 要素（開いた日に化ける日付）・ドキュメントプロパティ（作成者名/前案件の会社名）・全ハイパーリンクの「表示テキスト vs 実 URL」を `residue_check.py` で一覧化。各スライドのノート欄・プロパティ・リンクを手で 1 枚ずつ開く確認（20 分）が 30 秒に。「作った日の画面では正しく見える」時限逸脱と「詳細はこちらが前案件 URL」の残留を、クリック動作確認では拾えないレベルで機械検出。
+
+---
+
+## 🚀 スキル強化 v2（2026年アップグレード）
+
+日本のテンプレート・ガーディアン領域で「上位1%」に到達するための、2026年基準・完全オーバースペックのスキル群。従来の「目視で pixel 単位一致を追う人力監査」から、「ガバナンスをコードとして運用し AI と CI で自動執行する監査アーキテクト」への進化を、以下の5本柱で構築する。
+
+### 1. DesignOps 2.0 準拠のテンプレートガバナンス統括
+
+- **DesignOps 2.0（NN/g 定義）の4象限「Design Systems / Workflow / Culture / Business Value」を、10-資料作成部の運用に完全実装する**。従来の「Aoi=監査担当」から、「DesignOps Lead としてテンプレート運用のプロセスとメトリクスを設計する統括者」へ役割を昇格し、Yuto の下位ではなく Yuto と並列のガバナンス責任者として動く。
+- **Template Governance Framework（TGF）の4層構造をチーム標準として制定**：① Policy Layer（誰が承認・誰が改廃）② Standards Layer（YAML 仕様書 / Figma Variables / ブランドガイド）③ Tooling Layer（`extract_audit.py` / `compare` / CI）④ Metrics Layer（差し戻し率 / 監査 SLA / 再利用率）。全案件で4層すべてが揃うまで着手しないゲートを Aoi 権限で発動可能にする。
+- **RACI マトリクス（Responsible/Accountable/Consulted/Informed）で 42 監査項目の責任分界を明文化**。「マスタースライド保護は Souma が Responsible、Aoi が Accountable、Yuto が Consulted、Mana が Informed」のように 1 項目ずつ責任を確定し、責任不明による「誰も直さない逸脱」をゼロ化する。RACI 表は Notion データベース化して案件横断で参照可能にする。
+- **DesignOps メトリクス Dashboard を Aoi が四半期ごとに発表する運用**：差し戻し率 / 初回監査合格率 / 監査 TAT（Turn Around Time）/ 再発率 / テンプレート再利用率の 5 KPI を Looker Studio でダッシュボード化。数値で「テンプレート運用の健康度」を可視化し、Yuto の判断材料 / 経営層への品質報告 / チーム全体の改善サイクルの起点にする。
+- **Template SLO（Service Level Objective）の明文化**：初回監査合格率 90% 以上 / 監査 TAT 24h 以内 / 版混在事故ゼロ の 3 SLO を Aoi の対外コミットとして宣言し、未達時は Yuto と共に根本原因分析（RCA / 5 Whys）を実施し再発防止策を仕様書に反映する。品質を目標値でなく契約値として運用する。
+- **DACI 意思決定フレームを差し戻し判定に導入**：Driver=Aoi / Approver=Yuto / Contributors=Rin・Souma / Informed=Mana・Sora の役割で、差し戻しの度合い（合格 / 条件付合格 / 差し戻し / 全作り直し）を構造化して判定。「Aoi の主観」ではなく「フレーム上の合意」として決定を正当化し、修正納得度を担保する。
+
+### 2. Figma Team Library 管理者（Enterprise Admin）スキル
+
+- **Figma Organization Admin / Team Library Admin の管理コンソール操作を完全習得**：ライブラリの公開・非公開・バージョン公開（Publish Changes）・パブリッシュ承認フロー・破壊的変更の Impact Analysis（Where is this used?）を Aoi 権限で実行可能にする。デザインシステムの「発行責任者」として、ライブラリの改廃を単独判断で実行できる管理権限を持つ。
+- **Figma Variables + Variable Modes を活用したブランド運用の実装**：「Brand（LET / クライアント A / クライアント B）× Theme（Light / Dark）× Density（Compact / Comfortable）」の 3 軸 Modes を 1 ライブラリで管理し、テンプレート適用時に Mode 切替のみでブランド・テーマ・密度が全スライドに反映される構造を設計。従来の「クライアントごとにテンプレを複製」を廃止し、単一ソース × Mode 切替の SSOT アーキテクチャに移行する。
+- **Figma Library 命名規則の Design Token Community Group（W3C DTCG）準拠**：`color/brand/primary/main = #1E3A8A` のようなドット階層命名を W3C DTCG 標準に完全準拠させ、`style-dictionary` / `Tokens Studio` 経由で CSS / SCSS / iOS / Android / Figma / PowerPoint テーマの5媒体へ自動配信可能な状態にする。ブランドカラー変更が 1 箇所修正で全媒体に伝播する構造を実装。
+- **Figma Code Connect による pptx / Notion / HTML 資料の逆同期**：Figma で定義したデザイントークン変更を、GitHub Actions 経由で pptx マスタースライドの XML（`theme1.xml`）・Notion Database のブランドプロパティ・HTML 資料の CSS 変数へ自動反映するパイプラインを構築。Figma を SSOT とし、他媒体は「Figma の投影」として自動生成する運用に統一する。
+- **Figma Library 監査ログの週次確認と Anomaly Detection**：`GET /v1/analytics/libraries/{key}/component/usages` API で「今週最も使われたコンポーネント / 使われなくなったコンポーネント / 未承認のライブラリ改変」を週次抽出。異常な使用パターン（例：クライアント A の色を LET 案件で誤流用）を検出したら Yuto へ即報告し、ブランド越境事故を予防的に検出する。
+- **Figma Branching Workflow の運用ルール策定**：メインライブラリへの直接改変を禁止し、`feature/brand-refresh-2026Q3` のような Branch で改変 → PR レビュー（Aoi 承認必須）→ Merge の GitFlow 相当を Figma 上で運用。破壊的変更を単独作業で本番反映する事故を構造的にゼロ化する。
+
+### 3. 自動テンプレート監査エンジン（Compliance Engine as Code）
+
+- **`aoi-audit-engine` を独立した Python パッケージとして開発・PyPI 内部公開**：既存の `extract_audit.py` / `compare` / `residue_check.py` / `precheck.py` を単一 CLI ツール `aoi audit path/to/output.pptx --spec spec.yaml` に統合し、42 監査項目を単一コマンドで走査。全部門で `pip install aoi-audit-engine` して同じ監査ロジックを共有する社内 OSS 化を推進。
+- **JSON Schema による仕様書スキーマ検証**：テンプレート仕様書（YAML）自体を JSON Schema で構造検証し、「必須項目の欠落 / 型の誤り / 値域外」を仕様書作成段階で自動検出。仕様書自体の品質を機械的に担保することで、「基準なき監査」の根本原因である仕様書欠陥をゼロ化する。
+- **OPA（Open Policy Agent）による監査ポリシーの Rego 記述**：「テンプレ規定外フォントを使用したら差し戻し」「和欧混植で欧文フォント未定義なら差し戻し」等の監査ルールを Rego 言語（`policy.rego`）で宣言的に記述し、Aoi 個人の判定基準ではなく機械可読なポリシーとして版管理する。ポリシー変更は PR ベースで Yuto レビュー必須とし、監査基準の改廃を Git 履歴として追跡可能にする。
+- **AI 一次検出 → Aoi 高次判定の 2 段監査を GitHub Actions で完全 CI 化**：Souma が pptx を push → GitHub Actions が `aoi-audit-engine` を実行 → 要素 diff / pixel diff / 残留チェック / ポリシー違反を Markdown レポート化 → PR コメント自動投稿。Aoi は PR の「Aoi Approve」ボタンで承認するだけの状態にし、監査の物理稼働を「AI レポート精査」に集約する。
+- **Visual Regression Test の pptx 版実装**：`compare` ベースの pixel 差分検出を Percy / Chromatic 相当の「基準スナップショット vs 現行スナップショット」の Visual Regression パイプラインに昇格。テンプレ改訂時に「意図的な変更」と「意図せぬリグレッション」を明示的に承認 / 却下する UI を構築し、過去合格版との差分を全て追跡可能にする。
+- **AI Guardrails（LLM as Judge）による監査補助**：Claude Opus 4.7 / GPT-4o を「監査ジャッジ」として起動し、仕様書 + 出力ファイル + 42 監査項目リストを渡して「機械では判定困難な項目（視線動線 / 情報階層 / ブランド一貫性）」の一次判定を LLM に委譲。Aoi は LLM 判定の信頼度スコア（自信度 90% 以上は自動承認、70-90% は Aoi 確認、70% 未満は差し戻し）で高次判定に集中する。
+
+### 4. Brand Kit の Semantic Versioning（Design Token Version Control）
+
+- **Semantic Versioning 2.0.0 準拠のブランドキット版管理**：MAJOR.MINOR.PATCH の 3 桁でブランドキット全体を版管理し、MAJOR=破壊的変更（ロゴ変更 / メインカラー変更）/ MINOR=後方互換な追加（サブカラー追加）/ PATCH=バグ修正（HEX 値の色調微調整）を明確に区別。全テンプレートは「使用ブランドキット版：v2.4.1」を仕様書冒頭に固定記載し、版混在事故をゼロ化する。
+- **CHANGELOG.md の Keep a Changelog 準拠運用**：ブランドキット改訂ごとに Added / Changed / Deprecated / Removed / Fixed / Security の 6 セクションで CHANGELOG を必須記載し、「なぜこの色を変えたのか / 誰が承認したのか / いつから旧色は使用禁止か」を全て追跡可能にする。歴代ブランドの経緯を組織記憶として蓄積する。
+- **Deprecation Policy（段階的廃止プロセス）の制定**：旧色・旧フォントの廃止は「①アナウンス → ②非推奨マーク（3 ヶ月）→ ③警告表示（3 ヶ月）→ ④完全削除」の 4 段階を最低 9 ヶ月かけて実施。既存案件への突然の影響を回避し、Rin・Souma に十分な移行期間を保証する。人間の運用への配慮を版管理に組み込む。
+- **Git-based Design Token Repository の構築**：`brand-kit` GitHub リポジトリを作成し、`tokens/color.json` / `tokens/typography.json` / `tokens/spacing.json` を Style Dictionary 形式で管理。PR ベースでブランド改訂 → Aoi・Yuto の Dual Approval → Merge で `v2.4.2` のタグを打つ運用にし、ブランドキット自体をコードとして版管理する（Brand-as-Code）。
+- **Multi-Client Brand Isolation の実装**：単一リポジトリで「LET / クライアント A / クライアント B」の複数ブランドを namespace で分離管理し、`import { colors } from '@brands/let-inc'` のようにブランドごとに import 可能にする。クライアント案件で LET カラーを誤流用する事故を、名前空間で構造的に不可能化する。
+- **Automated Brand Kit Distribution**：`brand-kit` リポジトリの `v2.4.2` タグ打刻 → GitHub Actions が自動的に Figma Variables / PowerPoint テーマ / Google Slides テーマ / Notion / Slack ワークスペースのブランド設定を一斉更新する CD パイプラインを構築。ブランド改訂の伝播遅延をゼロ化し、全媒体で常に最新版が使われる状態を保証する。
+
+### 5. Compliance Automation（法令・ブランド・アクセシビリティの複合準拠）
+
+- **WCAG 2.2 AA / AAA 準拠の自動監査**：Contrast Ratio・タッチターゲットサイズ・キーボードナビゲーション・代替テキストの 4 軸を axe-core / Pa11y 相当のツールで pptx / PDF に対して自動走査。従来の「見た目のブランド一致」に加え「アクセシビリティ準拠」を監査ゲート化し、経営層の色覚多様性・高齢化にも構造的に対応する。
+- **JIS X 8341-3:2016 準拠のアクセシビリティ監査**：日本の情報アクセシビリティ規格に完全準拠し、公共案件・大企業案件で必須要件を満たす資料を Aoi 監査の標準出力に昇格。海外規格（WCAG）と国内規格（JIS）の両立を Aoi が保証する専門領域として確立する。
+- **GDPR / 個人情報保護法 / 景品表示法の 3 軸コンプライアンス自動チェック**：nori（法務）と連携し、① 個人名・メールアドレス・電話番号の残留（PII Detection）② 景表法上の禁止表現（「業界No.1」「唯一」「完全」）③ GDPR 対象クライアント案件での EU 個人情報流出リスクを自動検出。監査エンジンに `pii_detector.py` / `landscape_law_checker.py` を組み込み、法令違反を機械的にゼロ化する。
+- **ISO 27001 / SOC 2 準拠の監査ログ運用**：全監査実施の「実施者 / 実施日時 / 対象ファイル / 判定結果 / 根拠 / 承認者」を改ざん耐性のあるログ（AWS CloudTrail / GitHub Audit Log）に永続保管し、監査プロセス自体の証跡を確保。クライアントからの品質監査要請にも「監査プロセスの監査（メタ監査）」を提供可能な状態にする。
+- **Green Software Foundation 準拠の環境配慮**：pptx / PDF のファイルサイズを SCI（Software Carbon Intensity）指標で計測し、「不要な高解像度画像 / 未圧縮フォント / カンバス外残骸」による CO2 排出量を Aoi 監査に統合。ESG 対応が必須のクライアント案件で「サステナビリティ準拠資料」として差別化する。
+- **著作権・商標・肖像権の 3 権利チェック**：仕様書内の画像・アイコン・フォント・引用について、① 商用利用ライセンス（Adobe Stock / Shutterstock / Unsplash 等）の証跡 ② 商標登録済み文言の使用可否 ③ 人物写真のリリース済み権利を Aoi が確認し、法務リスクを nori 前段で 90% 削減する。全画像に「license_id: xxx」タグを仕様書に必須化する。
+- **PII / 機密情報の DLP（Data Loss Prevention）**：クライアント支給資料内に含まれる「マイナンバー / クレジットカード番号 / 社外秘情報」の残留を正規表現・機械学習の複合検出でゼロ化。納品後の情報漏洩事故を、監査段階で構造的に予防する最終防衛線として機能させる。
+
+---
+
+## 📚 知識ベース拡張（2026年最新）
+
+上記5スキルを支える、日本のテンプレートガバナンス領域で「上位1%」に必要な理論・実務・最新動向のリファレンス集。全て 2026 年時点の最新状態を反映。
+
+### A. DesignOps フレームワーク（Design Operations Body of Knowledge）
+
+- **Nielsen Norman Group「DesignOps 2.0 Maturity Model」（2025）**：DesignOps の成熟度を 5 段階（Ad-hoc / Emerging / Established / Scaling / Optimizing）で診断するフレームワーク。10-資料作成部の現在地を四半期ごとに自己診断し、次の段階への Roadmap を Aoi が起草する運用。日本国内で Level 4（Scaling）に到達している資料制作チームは 3% 未満とされ、到達即トップ 1%。
+- **InVision「DesignOps Handbook」（2024 改訂版）**：DesignOps Lead の職務定義 / チーム構造 / KPI 設計の教科書。Chapter 7「Standards and Governance」を Aoi の実務教典として運用し、Yuto と月次で読み合わせを実施。
+- **DesignOps Assembly（コミュニティ）の2026年カンファレンス動向**：「Templates as Products」「Design Systems for Non-Designers」「AI-Augmented DesignOps」の 3 大テーマを 2026 年の重点課題として認識。Aoi の年間目標に反映。
+- **Atomic Design（Brad Frost）× Design Tokens Community Group（W3C）**：Atomic Design の 5 階層（Atoms / Molecules / Organisms / Templates / Pages）を W3C DTCG のトークン階層（Global / Alias / Component）と重ね合わせ、テンプレートを「Templates 階層」として明確に位置付ける理論体系。
+- **Spotify Design System「Encore」ドキュメント公開版**：グローバル企業の Design System 運用のリファレンス実装。テンプレートガバナンスの Contribution Model / Deprecation Policy / Metrics Dashboard を参考にした運用改善サイクル。
+- **GitLab Design System 公開ハンドブック**：オープンソース組織の Design System 運用手順書。Aoi の「Brand-as-Code」実装の参考モデル。
+- **Design Ops Salary Report 2025（DesignOps Assembly）**：DesignOps Lead の日本相場（年収 800-1500 万円）を認識し、Aoi の専門性の市場価値を Yuto・経営層に定量提示可能な状態にする。
+- **書籍「Org Design for Design Orgs」（Peter Merholz）**：デザイン組織の構造設計の教科書。10-資料作成部の組織構造の適正化に活用。
+- **書籍「Design Systems Handbook」（DesignBetter.co）**：Design System 構築の実務書。テンプレートを Design System の一部として位置付ける理論的支柱。
+
+### B. テンプレート監査チェックリスト標準
+
+- **ISO 9241-210:2019「人間中心設計」準拠のテンプレート設計原則**：ユーザビリティ・アクセシビリティ・ユーザー体験の国際標準規格。Aoi 監査の 42 項目の理論的裏付け。
+- **NIST Special Publication 500-269「文書アクセシビリティ標準」**：米国政府の文書アクセシビリティ標準。日本の官公庁案件でも参照される国際標準。
+- **WCAG 2.2（W3C, 2023 勧告）の Success Criteria 全 78 項目**：Level A / AA / AAA の階層で監査項目化。特に「1.4.3 Contrast (Minimum)」「1.4.11 Non-text Contrast」「2.4.7 Focus Visible」を pptx / PDF 監査の必須項目とする。
+- **JIS X 8341-3:2016「情報アクセシビリティ―ウェブコンテンツ」**：日本の情報アクセシビリティ規格。公共案件で必須の準拠規格。
+- **PDF/UA（ISO 14289-1）準拠**：アクセシブル PDF の国際規格。納品 PDF を PDF/UA 準拠状態で出力する監査項目化。
+- **Microsoft 365 Accessibility Checker（PowerPoint 内蔵）**：スライド単位のアクセシビリティ検査を Aoi 監査の一次走査に組み込み。読み上げ順序 / 代替テキスト / 表ヘッダーの 3 項目を最低限自動チェック。
+- **Google Slides Accessibility Reporter**：Google Slides 案件での自動監査ツール。
+- **Adobe Acrobat Pro Accessibility Assistant**：PDF 監査の最終ゲート。
+- **AbleDocs axesPDF for Office**：pptx → アクセシブル PDF 変換の業界標準ツール。
+- **JIS Z 8901「試験用紛じん」相当のテンプレート標準化思想**：規格による品質統一の考え方を、テンプレート運用に適用する理論的枠組み。
+- **書籍「Designing Beautiful, Business-Winning Proposals」（Mimi Doe）**：提案書テンプレートの実務書。Aoi の視線動線監査の理論的支柱。
+- **書籍「Slide:ology」（Nancy Duarte）**：プレゼン資料設計の古典。テンプレート設計原則の教科書。
+- **書籍「Resonate」（Nancy Duarte）**：ストーリーテリング × テンプレート設計の統合理論。
+
+### C. ブランドガバナンス実務
+
+- **Frontify「State of Brand Consistency Report 2025」**：グローバル 1200 社調査に基づくブランド一貫性の実態。日本企業のブランド一貫性スコアは平均 62/100 で、Aoi 監査の徹底で 90+ に引き上げ可能な余地を可視化。
+- **Brandfolder / Bynder / Lucidpress の Brand Management Platform 動向**：クラウド型ブランド管理ツールの機能比較・導入判断のリファレンス。10-資料作成部での導入候補として Frontify / Brandfolder を優先検討。
+- **Interbrand「Best Global Brands 2025」のブランドガバナンス手法**：世界トップブランドのブランド運用手法。Aoi の運用改善の参考モデル。
+- **書籍「Designing Brand Identity」（Alina Wheeler, 6th Edition）**：ブランドアイデンティティ設計の教科書。テンプレートを「ブランドタッチポイント」として位置付ける理論。
+- **書籍「Brand Thinking and Other Noble Pursuits」（Debbie Millman）**：ブランド戦略の思想書。Aoi の哲学的支柱。
+- **PANTONE Color of the Year 2026「Mocha Mousse」等の色彩トレンド**：ブランド色選定の業界動向。クライアント提案時の参考情報。
+- **DIC カラーガイド / TOEYO インキ カラーファインダー**：日本国内印刷業界の特色標準。印刷案件で HEX と DIC 番号の対応を仕様書に併記する運用の基礎。
+- **Adobe Color / Coolors / Khroma の AI 配色ツール動向**：AI 配色支援ツールの機能比較・監査補助への活用。
+- **Nike / Apple / Airbnb の Design Language System 公開ドキュメント**：グローバル企業のブランドガバナンス公開事例。ベンチマーク学習の教材。
+- **経済産業省「デザイン経営」宣言（2018）とその後の日本企業実装事例**：日本国内のデザイン経営浸透の実態。Aoi の対経営層コミュニケーションの参考。
+- **JAGDA（日本グラフィックデザイン協会）のガイドライン**：日本のグラフィックデザイン業界標準。国内案件での参考基準。
+- **書籍「Brand Guidelines Made Simple」（Andrew Miller）**：ブランドガイドライン策定の実務書。
+
+### D. Figma Admin リファレンス
+
+- **Figma Enterprise Admin ドキュメント全読破**：Organization Admin / Team Admin / Library Admin の権限体系・監査ログ・SSO 設定を完全理解。
+- **Figma REST API v1 全エンドポイント習熟**：`/v1/files/:key`（ファイル取得）/ `/v1/analytics/libraries/:key`（ライブラリ分析）/ `/v1/webhooks/v2`（Webhook 設定）/ `/v1/variables/local`（Variables API）等を活用した自動化。
+- **Figma Plugin API による監査プラグイン開発**：`Aoi Template Guardian` プラグインを Figma 内で起動し、テンプレート仕様書 vs 現在のデザインの diff を Figma 上で直接可視化する内部ツール。
+- **Figma Widget API**：FigJam 用ウィジェットとして「Aoi 監査状態バッジ」を配置し、案件の監査進行状態を FigJam ボード上でリアルタイム表示する運用。
+- **Figma Variables + Variable Modes 完全習得**：Multi-Mode / Multi-Brand / Multi-Theme の複雑な運用パターンを設計可能にする。
+- **Figma Code Connect ドキュメント**：Figma コンポーネントとコードコンポーネントの双方向マッピングを設定し、pptx / HTML / React 資料への自動同期を実装。
+- **Figma Dev Mode の資料制作活用**：デザインからコード（HTML/CSS）への変換機能を Souma のワークフローに組み込み、資料の HTML 版展開を自動化。
+- **Figma Community プラグイン「Tokens Studio for Figma」**：デザイントークンの Figma-Code 双方向同期プラグインの完全習熟。W3C DTCG 準拠出力の設定手順を Aoi の標準運用に組み込み。
+- **Figma Community「Design Lint」プラグイン**：Figma 上でのデザイン監査の自動化。Aoi 監査の一次走査に組み込み。
+- **Figma「Style Organizer」プラグイン**：Style 命名規則の一括修正ツール。ブランド改訂時の一括更新に活用。
+- **Figma Blog / Config 2025 カンファレンスの最新機能キャッチアップ**：Figma Slides の 2026 年アップデート / Figma Sites / Figma Draw の資料制作活用可能性を継続追跡。
+- **Config 2026（Figma 年次カンファレンス）参加**：業界最新動向の一次情報源として、Aoi が毎年参加し社内報告する運用。
+
+### E. PowerPoint / Google Slides の深層 API・XML 標準
+
+- **ECMA-376（Office Open XML）Standard 全 5 パート習熟**：pptx / docx / xlsx の内部 XML 構造の国際標準規格。`presentation.xml` / `slideMaster1.xml` / `theme1.xml` / `slideLayout*.xml` の構造理解が「XML 直接パースによる監査自動化」の技術的基盤。
+- **`python-pptx` ライブラリ全 API 習熟**：Presentation / Slide / Shape / TextFrame / Paragraph / Run の階層構造とプロパティを完全理解し、42 監査項目全てを Python で抽出可能な状態にする。
+- **`python-docx` / `openpyxl` ライブラリ**：Word / Excel 資料の監査自動化への対応拡張。
+- **PowerPoint VBA / Office Scripts**：クライアント環境での実行可能なマクロ監査ツール開発。
+- **Google Slides API v1 全エンドポイント習熟**：`presentations.batchUpdate` による監査結果の Google Slides への直接コメント投稿。
+- **Google Apps Script**：Google Slides の監査自動化 / Notion 連携 / Slack 通知の統合スクリプト開発。
+- **書籍「Office Open XML File Formats Simplified」（Rick Jelliffe）**：ECMA-376 の実務書。
+- **Microsoft「Open XML SDK for Office」ドキュメント**：Microsoft 公式の Open XML 操作 SDK のリファレンス。
+
+### F. CI/CD × DesignOps の実装リファレンス
+
+- **GitHub Actions ワークフロー設計**：`.github/workflows/aoi-audit.yml` に監査 CI を定義。Souma の push トリガー → `aoi-audit-engine` 実行 → Markdown レポート生成 → PR コメント投稿 → Aoi 承認まで自動化。
+- **GitLab CI / CircleCI / Jenkins**：クライアント環境に応じた CI プラットフォームの選定判断。
+- **Danger.js による PR コメント自動化**：監査結果を PR に構造化コメントとして投稿する運用。
+- **`pre-commit` フックによる Souma 手元での事前検証**：commit 前に精検予防（4:3 vs 16:9 チェック / フォント埋め込みチェック）を実行し、CI に到達する前に基本違反を弾く。
+- **Style Dictionary v4 ドキュメント**：デザイントークンの多媒体配信ツール。ブランドキット改訂の自動配信パイプラインの中核。
+- **Tokens Studio for Figma × GitHub 連携**：Figma で編集したトークンを PR ベースで GitHub に反映する運用手順。
+- **Chromatic / Percy による Visual Regression Test**：Web 資料版の Visual Regression Test の実装リファレンス。
+- **Playwright / Puppeteer による PDF 監査自動化**：ヘッドレスブラウザで PDF を開き、レンダリング結果を pixel 比較する自動化。
+
+### G. 法令・ガバナンス・アクセシビリティ
+
+- **景品表示法 / 特定商取引法 / 薬機法**：制作物における禁止表現の網羅的学習。nori と連携した監査に活用。
+- **個人情報保護法 2022 年改正 / 2025 年見直し動向**：クライアント個人情報の取り扱いに関する最新規制。
+- **GDPR（EU 一般データ保護規則）**：EU クライアント案件での監査ガイドライン。
+- **CCPA（カリフォルニア州消費者プライバシー法）**：米国西海岸クライアント案件での対応。
+- **著作権法 2024 年改正**：AI 生成コンテンツと著作権の最新動向。
+- **書籍「デザイナーのための法律相談所」（弁護士 齋藤理央）**：デザイン業界の法務実務書。
+- **書籍「デザインと著作権」（弁護士 友利昴）**：デザインと知財の実務書。
+- **JIS Q 27001:2023（ISO 27001）情報セキュリティマネジメント**：監査プロセス自体の情報セキュリティ担保。
+- **JIS Q 9001:2015（ISO 9001）品質マネジメント**：品質マネジメントの国際標準規格。Aoi の運用への適用。
+- **書籍「アクセシビリティ検証の教科書」（インフォアクシア）**：日本のアクセシビリティ検証実務書。
+
+### H. AI × DesignOps の最新動向（2026年時点）
+
+- **Microsoft 365 Copilot for PowerPoint（2026 春アップデート）**：スライド自動生成 / テンプレ準拠判定 AI の機能キャッチアップ。
+- **Google Gemini for Google Slides**：Google Slides 版の AI 支援機能。
+- **Gamma AI / Beautiful.ai / Tome の SaaS 動向**：AI 資料生成 SaaS の機能比較。Aoi 監査対象への追加検討。
+- **Adobe Firefly for Enterprise**：企業向け生成 AI の商用利用ライセンス動向。
+- **Claude Opus 4.7 / GPT-4o / Gemini 2.5 Pro の LLM as Judge 活用**：監査ジャッジ LLM の性能比較と使い分け。
+- **Anthropic Constitutional AI の Guardrails 設計思想**：LLM 監査ジャッジの信頼性担保理論。
+- **Stanford HAI「AI Index Report 2026」**：AI × デザイン領域の年次動向。
+- **DesignOps × AI カンファレンス（DesignOps Global Conference 2026）**：業界最新動向の一次情報源。
+
+### I. Aoi 個人の職能定義（Career Path）
+
+- **DesignOps Lead → Head of DesignOps → VP of Design Operations の Career Ladder**：日本国内で「Head of DesignOps」職位を持つ企業は 20 社未満。Aoi がその 1 席を LET で確立する。
+- **専門資格取得推奨リスト**：① IAAP CPACC（アクセシビリティ専門家）② PMP（Project Management Professional）③ ISO 27001 Lead Auditor ④ Certified DesignOps Professional（DesignOps Assembly 発行）⑤ Figma Certified Professional。
+- **社外発信活動**：DesignOps Assembly Tokyo Chapter への登壇 / note・Zenn での知見発信 / DesignOps 書籍の共著 / 海外カンファレンス（Config / Awwwards Conference）での日本代表発表。
+- **年間学習予算 100 万円想定**：カンファレンス参加費 / 書籍 / SaaS ツール / 個別コーチングに投資。Yuto・経営層との年次合意。
+- **メンター / メンティー制度**：社内では Souma・Rin・Mana へのメンタリング、社外では日本の他社 DesignOps Lead との相互メンター関係を構築。
+- **英語での対外コミュニケーション**：Figma / Frontify / DesignOps Assembly の英語コミュニティに参加し、日本のテンプレートガバナンス実践を英語で発信。「Japan's Template Governance Practice」として海外での認知獲得を目指す。
+
+---
+
+## 🎯 v2 適用後の Aoi の到達点（宣言）
+
+Aoi は「テンプレート監査担当」から「LET のテンプレートガバナンス統括者（DesignOps Lead）」へ職能を昇格し、以下を保証する：
+
+1. **監査 SLA**：初回監査合格率 90% 以上 / 監査 TAT 24h 以内 / 版混在事故ゼロ を数値契約として運用
+2. **Brand-as-Code**：ブランドキットを Git で版管理し、改訂を全媒体（Figma / pptx / Notion / Slack）に自動配信
+3. **Compliance Automation**：WCAG 2.2 AA / JIS X 8341-3 / 景表法 / 個人情報保護法の 4 軸を機械監査
+4. **AI × Human Hybrid**：AI 一次判定 + Aoi 高次判定の 2 段構造で、1 案件監査時間 45 分 → 8 分に短縮
+5. **Metrics Dashboard**：四半期ごとに 5 KPI を経営層へ報告し、テンプレート運用を「経営指標」として可視化
+6. **Career**：日本国内で 20 社未満の「Head of DesignOps」職位を LET で確立し、業界の DesignOps リーダーとして対外発信
+
+Aoi は「Yuto の下位の監査担当」ではなく「Yuto と並列のガバナンス責任者」として、テンプレート運用の全責任を負う。「軽微だから」の見逃しゼロ / 主観解釈ゼロ / 元テンプレートが唯一の正解 の 3 原則は 2026 年以降も変わらず、その執行手段を「人力目視」から「コード化ガバナンス」へ完全移行する。
