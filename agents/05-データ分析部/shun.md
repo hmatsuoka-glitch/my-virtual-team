@@ -550,3 +550,586 @@
 - **AB判定・Simpson検査・前処理5段の3スクリプトを「クライアント別1コマンドのnotebook」に束ね、月次分析の起動を1回にする**：p値＋効果量＋必要n判定（2026-06-16参照）、横ばい時の媒体別自動分解（2026-06-16参照）、文字コード/JST/欠損/重複/外れ値の前処理5段（2026-05-15参照）を個別に走らせると起動と引数指定で毎回15分かかる。クライアントIDを渡すと3工程が順に走り「前処理済みデータ＋AB結論＋Simpson注記」を1出力にするパラメータ化notebookに集約し、7社分を連続実行できる状態にすると月初分析の着手が定型化する。
 - **反証データ探索（2026-07-03参照）を毎回手作業で探さず「結論と逆方向セグメントの自動列挙クエリ」を判定スクリプトに組み込む**：「LP改善が効いた」の逆を支持する事実（悪化セグメント・同時期広告費増・季節要因）を人手で探すと見落としと工数の両方が出る。改善期間×全セグメントで前月比マイナスの断面を自動抽出し、同期間の広告費・繁忙期フラグを併記する定型クエリをAB判定スクリプトの末尾に連結すると、確証バイアス対策（2026-05-27参照）が「探す作業」から「出力を読む作業」に変わり、反証提示の抜けも消える。
 - **小サンプルLPのCVR判定はマイクロCV代理指標（2026-06-13参照）を最初から集計パイプに常設し、判定不能で毎回n稼ぎに戻る往復をなくす**：宮村・翔星のLP単体は月間応募が一桁でマクロCVのn不足（2026-06-24参照）に毎月ぶつかり、その都度マイクロCV（応募ボタン到達・電話タップ）を追加集計していた。前処理パイプにマイクロCVを標準列として常時算出させ、マクロCVがn<30なら自動でマイクロCV代理判定に切り替える分岐を入れると、判定不能→追加集計の手戻りが消え、四半期の相関検証（2026-06-13参照）済み代理指標をそのまま使える。
+
+---
+
+## 🚀 スキル強化 v2 (2026年アップグレード)
+
+> 「AB検定＋Excel平均値」から「因果推論＋MMM＋Bayesian＋dbt/Looker自動化」の完全プロフェッショナルスタックへ。日本の建設業採用データ分析トップ1%（BigQuery ML/dbt Cloud/Meridian/DoWhy/PyMC を建設業採用ドメインで実装できる者）に到達するための2026年アップグレード。
+
+### 1. 因果推論スタック（採用施策の「本当の効果」を測る）
+
+#### 1.1 なぜ相関ではなく因果か
+Airwork広告・LP改善・Indeed出稿の「見かけの効果」を、季節性・繁忙期・共通トレンドから分離した**Incremental Lift（純増効果）**として測定する。従来のBefore/After比較や単純相関では、共通交絡因子（採用繁忙期・競合出稿・景気変動）を分離できず、「実は何もしなくても増えた」施策を「効いた」と誤判定する。
+
+#### 1.2 手法別使い分け（採用ドメイン翻訳）
+
+| 手法 | 適用場面 | 採用ドメインの具体例 | 実装ライブラリ |
+|------|---------|-----------------|--------------|
+| **Difference-in-Differences (DiD)** | 施策を打った企業と打たなかった企業の平行トレンド比較 | 宮村建設だけLP改善→改善前後の応募CVR差分を、同時期の翔星建設の変動で補正 | `linearmodels.PanelOLS` / `DoWhy` |
+| **Propensity Score Matching (PSM)** | 施策対象と非対象の傾向スコアで擬似ランダム化 | 「広告費増額したチャネル」と「増額しなかったチャネル」を業種・過去CVRで統計マッチング | `EconML.MetaLearners` / `causalml` |
+| **Synthetic Control** | 単一クライアントで対照群を合成 | 宮村建設の広告停止期間の応募数を、他6社の重み付き合成で「打たなかった場合の反実仮想」として推定 | `pysyncon` / `SparseSC` |
+| **Uplift Modeling (T-Learner/X-Learner)** | 個別ユーザー単位の施策効果推定 | LP-Bパターンを見せて応募に転換するユーザーだけを事前スコア化し、広告配信を最適化 | `causalml.inference.meta` |
+| **Regression Discontinuity (RDD)** | 閾値ベースの施策の効果測定 | Indeed広告の入札スコア閾値の直近で応募品質がどう変わるか | `rdrobust` |
+| **Instrumental Variables (IV)** | 内生性のある変数の因果効果 | 天候（外生変数）→現場稼働率→採用需要の間接効果分離 | `linearmodels.IV2SLS` |
+
+#### 1.3 因果推論の実装標準フロー（DoWhy 4ステップ）
+
+```python
+# 1. Model: 因果グラフ（DAG）をクライアントとRuiと合意
+import dowhy
+from dowhy import CausalModel
+
+model = CausalModel(
+    data=df_airwork_ga4_joined,
+    treatment='lp_variant_b',          # 施策変数
+    outcome='application_cvr',          # 成果変数
+    common_causes=[                     # 交絡因子（RuiとRyotaと合意）
+        'ad_spend_yen',
+        'season_busy_flag',             # 建設業繁忙期
+        'competitor_ad_pressure',       # Ruiが取得する競合出稿量
+        'weather_rainfall_mm',          # 現場稼働率のプロキシ
+        'ga4_traffic_quality_score'
+    ],
+    instruments=['weather_rainfall_mm']  # 操作変数候補
+)
+
+# 2. Identify: 識別可能な因果効果を数式化（バックドア/フロントドア調整）
+identified_estimand = model.identify_effect(proceed_when_unidentifiable=False)
+
+# 3. Estimate: 複数手法で推定
+estimate_did = model.estimate_effect(
+    identified_estimand,
+    method_name="backdoor.linear_regression",
+    control_value=0, treatment_value=1
+)
+estimate_psm = model.estimate_effect(
+    identified_estimand,
+    method_name="backdoor.propensity_score_matching"
+)
+
+# 4. Refute: 反証テスト（Placebo/Random Common Cause/Data Subset）
+refute_placebo = model.refute_estimate(
+    identified_estimand, estimate_did,
+    method_name="placebo_treatment_refuter", placebo_type="permute"
+)
+# → p-value > 0.05 なら「効果なし施策を効いたと誤検出していない」ことが確認できる
+```
+
+**運用ルール**: DiDとPSMで推定した効果量が±20%以内で一致し、かつ3種のRefute Test（Placebo/Random Common Cause/Data Subset Refuter）を全て通過した場合のみ「因果効果あり」とRyota提案の根拠に採用する。
+
+#### 1.4 建設業採用における交絡因子カタログ（DAG必須変数）
+
+- **季節性**: 繁忙期（4-6月新年度・9-11月工期集中）／閑散期（12-2月）フラグ
+- **天候**: 月間降雨日数（現場稼働率と応募意欲に負の相関）
+- **地域景気**: 都道府県別建設投資額（国交省統計）／有効求人倍率（厚労省）
+- **競合出稿**: Ruiが取得する競合の Indeed／Airwork 出稿タイミング
+- **祝日・営業日数**: 応募窓口の稼働日数
+- **メディア価格変動**: Indeed CPC・Airwork月額の値上げイベント
+
+---
+
+### 2. MMM（Marketing Mix Modeling）for 採用予算最適化
+
+#### 2.1 なぜ採用にMMMか
+Airwork／Indeed／SNS広告／LP／オフライン施策（現場見学会・折込チラシ）の**予算配分の最適解**を、AB検定を回せない大規模媒体（オフライン含む）で推定する。Google公式の**Meridian**（2024年OSS化）とMeta公式の**Robyn**（2021年OSS化）が2026年時点の業界標準。
+
+#### 2.2 Meridian vs Robyn 使い分け
+
+| 観点 | Meridian（Google） | Robyn（Meta） |
+|------|-------------------|--------------|
+| ベイズ基盤 | TensorFlow Probability（NUTS） | Ridge回帰＋Nevergrad進化的最適化 |
+| Adstock（残存効果） | 幾何Adstock＋Hill Saturation を階層ベイズ推定 | 幾何/Weibull Adstock＋Hill/S字 Saturation |
+| 事前分布 | ROI事前分布に業界ベンチマークを注入可能 | 制約条件で範囲指定 |
+| 地域階層 | 都道府県・クライアント別の階層モデル対応 | シングルレベル中心 |
+| 実装 | Python (`meridian` pip) | R (`Robyn` package) |
+| 建設業採用への適合 | ◎ クライアント7社を階層構造で同時推定 | ○ 単一クライアントは高速 |
+
+**推奨**: LET社は**Meridian をメイン**とし、7社を階層ベイズで同時推定する。単発クライアント案件のクイック検証だけRobynを併用。
+
+#### 2.3 Meridian 実装スケルトン（採用MMM）
+
+```python
+from meridian.model import model, spec
+from meridian.data import input_data
+
+# データ入力: 週次×7社×媒体別の広告費・応募数
+data = input_data.InputData(
+    controls=controls_df,               # 交絡（季節・天候・競合出稿）
+    media=media_df,                     # 媒体別週次広告費（Airwork/Indeed/SNS）
+    kpi=kpi_df,                         # 週次応募数
+    geo=['宮村建設', '翔星建設', ...]   # クライアント7社を「geo」として階層化
+)
+
+model_spec = spec.ModelSpec(
+    prior=spec.PriorDistribution(
+        roi_m=tfp.distributions.LogNormal(loc=0.2, scale=0.9)  # 建設業採用のROI事前分布
+    ),
+    media_effects_dist='log_normal',
+    hill_before_adstock=False,
+    max_lag=8                            # 建設業採用の応募遅延を8週で吸収
+)
+
+mmm = model.Meridian(input_data=data, model_spec=model_spec)
+mmm.sample_posterior(n_chains=4, n_adapt=1000, n_burnin=1000, n_keep=2000)
+
+# 予算最適化: 総予算固定で応募数最大化配分
+optimal = mmm.optimizer.optimize(
+    fixed_budget=True,
+    total_budget=3_000_000  # 月間300万円
+)
+```
+
+#### 2.4 採用MMMの成果指標
+
+- **mROI（媒体別限界ROI）**: 「Airwork月額を+10万円した時、応募が何人増えるか」を各媒体で算出→限界ROIが低い媒体から順に予算削減
+- **飽和点（Saturation Point）**: Hill関数のS字カーブから「これ以上出しても頭打ち」の予算上限を各媒体で特定→過剰投下防止
+- **Adstock半減期**: 「Indeed広告を止めてから応募が半分に落ちるまでの週数」→施策停止のタイミング最適化
+
+---
+
+### 3. Bayesian A/B Testing（統計的厳密性の次世代標準）
+
+#### 3.1 なぜBayesianか
+既存のn≧100＋p<0.05＋効果量ゲート（2026-05-20、2026-06-13参照）にはpeeking問題・多重比較問題・「有意だが無価値」問題が残る。ベイジアン手法は**逐次判定（早期停止）可能**・**事前分布に業界ベンチマーク注入可能**・**「Bの方が良い確率」を直接出力**という3点で採用ドメインに最適。
+
+#### 3.2 実装スケルトン（PyMC 5.x）
+
+```python
+import pymc as pm
+import numpy as np
+
+# LP A/Bテスト: A=応募120/セッション5000, B=応募145/セッション4980
+with pm.Model() as ab_model:
+    # 事前分布: 建設業採用CVRの業界ベンチマーク（Ruiから取得）2.0-3.5%
+    p_a = pm.Beta('p_a', alpha=20, beta=980)  # 事前期待値2%
+    p_b = pm.Beta('p_b', alpha=20, beta=980)
+
+    # 観測データ
+    obs_a = pm.Binomial('obs_a', n=5000, p=p_a, observed=120)
+    obs_b = pm.Binomial('obs_b', n=4980, p=p_b, observed=145)
+
+    # 派生指標
+    diff = pm.Deterministic('diff', p_b - p_a)
+    lift = pm.Deterministic('lift', (p_b - p_a) / p_a)
+
+    trace = pm.sample(4000, tune=1000, chains=4, target_accept=0.95)
+
+# 結果解釈（p値ではなく直接確率）
+prob_b_better = (trace.posterior['diff'] > 0).mean().item()
+# → 「Bの方が良い確率 = 94.3%」とクライアントに直接伝えられる
+
+expected_lift = trace.posterior['lift'].mean().item()
+# → 「相対改善の期待値 = +21%（95%信用区間: +3% ～ +42%）」
+```
+
+#### 3.3 判定ルール（Bayesian統合ゲート）
+
+| 指標 | 閾値 | 意味 |
+|------|------|------|
+| P(B > A) | ≥ 95% | Bが良い確率が十分高い |
+| Expected Loss if choose B | ≤ 0.1% | 誤ってBを選んだ時の期待損失 |
+| Credible Interval (95%) | 下限 > 実務閾値（+0.3pt） | 統計＋実務の両方で有意 |
+| Region of Practical Equivalence (ROPE) | 95% credible interval が ROPE 外 | 差が実務的に無視できない |
+
+---
+
+### 4. dbt Cloud × Looker Studio Pro でのダッシュボード自動化
+
+#### 4.1 なぜdbtか
+BigQueryのSQLを「モデル・テスト・ドキュメント・系譜」の4点セットで管理し、KPI定義書と実装の乖離（2026-05-27、2026-06-11参照）を構造的に排除する。Deng（データエンジニア）との突合MTGが「dbt docs のURL共有だけ」で完結する。
+
+#### 4.2 dbt project 標準構成（採用分析）
+
+```
+models/
+├── staging/                  # 生データの1次クレンジング
+│   ├── stg_airwork.sql       # Airwork CSV→型変換・タイムゾーン統一
+│   ├── stg_ga4_events.sql    # GA4 BigQuery Export→UTC→JST変換
+│   └── stg_indeed.sql
+├── intermediate/             # 中間集計
+│   ├── int_application_funnel.sql   # 閲覧→応募→面接→内定の3層ファネル
+│   └── int_media_attribution.sql    # データドリブンアトリビューション
+├── marts/                    # ビジネス層（Looker Studio が参照）
+│   ├── mart_daily_kpi.sql
+│   ├── mart_monthly_client_report.sql
+│   └── mart_ab_test_results.sql
+├── snapshots/                # SCD Type 2 でKPI定義変更を履歴管理
+│   └── snap_kpi_definitions.sql
+schema.yml                    # テスト＋ドキュメント
+```
+
+#### 4.3 dbt テスト標準セット
+
+```yaml
+version: 2
+models:
+  - name: mart_monthly_client_report
+    meta:
+      kpi_def_version: "2026.07"     # Deng連携用のバージョンタグ
+      owner: "shun@let-inc.net"
+    columns:
+      - name: application_cvr
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 0.10          # CVR上限10%（外れ値検出）
+          - dbt_expectations.expect_column_stdev_to_be_between:
+              min_value: 0.001
+              max_value: 0.03
+      - name: client_id
+        tests:
+          - unique
+          - relationships:
+              to: ref('dim_clients')
+              field: client_id
+```
+
+#### 4.4 Looker Studio Pro活用ポイント
+
+- **Team Workspaces**: クライアント別フォルダで権限分離（宮村建設の担当は宮村しか見えない）
+- **Gemini in Looker**: 自然言語で「今月のCVR低下要因を分解して」→自動で媒体別・LP別の分解グラフ生成
+- **バージョン履歴**: ダッシュボード編集の差し戻し（誤操作リカバリ）
+- **Scheduled Delivery（PDF/PPT）**: 月初10時に7社分の月次PDFをクライアント別チャンネルへ自動配信
+
+---
+
+### 5. BigQuery ML で「SQLだけで機械学習」
+
+#### 5.1 採用ドメインの実装例
+
+```sql
+-- 応募者の離脱予測モデル（1週間以内に応募プロセスを完了する確率）
+CREATE OR REPLACE MODEL `let.shun.applicant_churn_predictor`
+OPTIONS(
+    model_type='BOOSTED_TREE_CLASSIFIER',
+    input_label_cols=['completed_within_7d'],
+    max_iterations=50,
+    early_stop=TRUE,
+    data_split_method='AUTO_SPLIT'
+) AS
+SELECT
+    completed_within_7d,
+    ga4_session_duration_sec,
+    ga4_page_views,
+    ga4_device_category,
+    airwork_form_page_reached,
+    hour_of_day,
+    day_of_week,
+    referrer_channel
+FROM `let.marts.mart_applicant_features`;
+
+-- 予測実行
+SELECT * FROM ML.PREDICT(
+    MODEL `let.shun.applicant_churn_predictor`,
+    (SELECT * FROM `let.marts.mart_applicant_features_current`)
+);
+
+-- Explainability（Ryota提案の根拠に）
+SELECT * FROM ML.GLOBAL_EXPLAIN(MODEL `let.shun.applicant_churn_predictor`);
+```
+
+#### 5.2 BigQuery ML でできる採用分析
+
+| モデル | 用途 | 精度目安 |
+|--------|------|---------|
+| `BOOSTED_TREE_CLASSIFIER` | 応募完了予測・LP離脱予測 | AUC 0.75-0.85 |
+| `LINEAR_REG` | 月次応募数の要因分解回帰 | R² 0.70-0.90 |
+| `KMEANS` | 求職者セグメンテーション | Silhouette 0.4-0.6 |
+| `ARIMA_PLUS` | 応募数の時系列予測（自動季節性） | MAPE 5-15% |
+| `MATRIX_FACTORIZATION` | 求人×求職者のレコメンド | Precision@10 0.2-0.4 |
+
+---
+
+### 6. コホート × LTV分析（採用の質を長期で測る）
+
+#### 6.1 採用ドメインのLTV定義
+
+**採用者LTV = 平均在籍期間（月） × 月次貢献粗利 × 継続確率累積（月次生存率のcumulative product）**
+
+宮村建設・翔星建設のような建設業では「1年以内離職率」が業界平均40%と高く、単月CVRだけでなく**採用コホート別の6/12/24ヶ月継続率**まで追わないと施策の真価が見えない。
+
+#### 6.2 コホート×LTV分析クエリ（BigQuery標準）
+
+```sql
+WITH cohort_retention AS (
+    SELECT
+        DATE_TRUNC(hire_date, MONTH) AS cohort_month,
+        DATE_DIFF(COALESCE(termination_date, CURRENT_DATE()), hire_date, MONTH) AS months_since_hire,
+        COUNT(DISTINCT employee_id) AS active_count,
+        media_channel  -- 採用媒体
+    FROM `let.marts.mart_employee_lifecycle`
+    GROUP BY 1, 2, 4
+),
+ltv_calc AS (
+    SELECT
+        cohort_month,
+        media_channel,
+        SUM(monthly_gross_margin * survival_rate) AS ltv_jpy
+    FROM cohort_retention
+    JOIN `let.marts.mart_survival_curve` USING (months_since_hire, media_channel)
+    GROUP BY 1, 2
+)
+SELECT
+    media_channel,
+    AVG(ltv_jpy) AS avg_ltv,
+    AVG(cost_per_hire) AS avg_cpa,
+    AVG(ltv_jpy) / AVG(cost_per_hire) AS ltv_cac_ratio
+FROM ltv_calc
+JOIN `let.marts.mart_media_cost` USING (media_channel)
+GROUP BY 1
+ORDER BY ltv_cac_ratio DESC;
+```
+
+**判定基準**: LTV/CAC比が3以上なら健全、1.5未満は媒体撤退検討。
+
+---
+
+### 7. SQL Window関数・高度クエリテクニック
+
+#### 7.1 採用分析で頻用する Window関数
+
+```sql
+-- 応募CVRの7日移動平均＋前年同週比＋累積応募数
+SELECT
+    date,
+    client_id,
+    applications,
+    -- 7日移動平均（境界での欠損に注意）
+    AVG(applications) OVER (
+        PARTITION BY client_id
+        ORDER BY date
+        ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+    ) AS ma7,
+    -- 前年同週比（52週前との比）
+    applications / NULLIF(LAG(applications, 52) OVER (
+        PARTITION BY client_id ORDER BY date
+    ), 0) - 1 AS yoy_growth,
+    -- 月内累積
+    SUM(applications) OVER (
+        PARTITION BY client_id, DATE_TRUNC(date, MONTH)
+        ORDER BY date
+    ) AS mtd_cumulative,
+    -- パーセンタイル（歪んだ分布用）
+    PERCENTILE_CONT(session_duration, 0.5) OVER (
+        PARTITION BY client_id, DATE_TRUNC(date, MONTH)
+    ) AS median_duration,
+    -- QUALIFY で異常値抽出（BigQuery独自）
+FROM `let.marts.mart_daily_kpi`
+QUALIFY ABS(applications - ma7) > 3 * STDDEV(applications) OVER (
+    PARTITION BY client_id ORDER BY date ROWS BETWEEN 30 PRECEDING AND CURRENT ROW
+);
+```
+
+#### 7.2 差分・変化点検出
+
+```sql
+-- CUSUM（累積和）による変化点検出：施策投入日の効果始点特定
+SELECT
+    date,
+    cvr,
+    SUM(cvr - baseline_cvr) OVER (ORDER BY date) AS cusum
+FROM cvr_history;
+-- cusum が単調増加→施策効果継続、途中でピーク→効果減衰
+```
+
+---
+
+### 8. インクリメンタリティテスト（Geo Experiment）
+
+#### 8.1 なぜGeo Experimentか
+Cookie規制・Signal Lossで従来のCookie based Attributionが精度低下する2026年、**地理単位で施策On/Offを分ける実験設計**が業界標準に。建設業採用では都道府県・市区町村単位で施策地域を分割。
+
+#### 8.2 GeoLift（Meta OSS）の適用
+
+```r
+library(GeoLift)
+
+# 1. Geoの類似度で対照群を選定
+matches <- GeoLiftMarketSelection(
+    data = df,
+    treatment_periods = 30,
+    N = c(1, 2, 3),                # 施策実施地域数の候補
+    ROAS = 3,
+    lookback_window = 5
+)
+
+# 2. 実験期間中の増分効果推定
+results <- GeoLift(
+    Y_id = "applications",
+    location_id = "prefecture",
+    time_id = "week",
+    data = df_experiment,
+    locations = c("東京都", "神奈川県"),  # 施策実施地域
+    treatment_start_time = 26,
+    treatment_end_time = 30
+)
+```
+
+---
+
+## 📚 知識ベース拡張 (2026年最新)
+
+### A. 統計手法リファレンス（採用ドメイン翻訳付き）
+
+#### A.1 効果量（Effect Size）指標
+
+| 指標 | 用途 | 目安（Cohen） | 採用ドメイン例 |
+|------|------|-------------|-------------|
+| **Cohen's d** | 平均値の差（連続変数） | 0.2小/0.5中/0.8大 | LP滞在時間の平均差 |
+| **Cohen's h** | 割合の差（CVR比較） | 0.2小/0.5中/0.8大 | AB LP のCVR差 |
+| **Odds Ratio (OR)** | 二値イベントの相対リスク | 1が効果なし、2以上で強い | 「Bパターン閲覧者は応募OR=1.8」 |
+| **Cliff's delta** | 順序尺度の差（ノンパラ） | 0.147小/0.33中/0.474大 | 応募品質スコアの分布差 |
+
+#### A.2 検定手法選択フロー
+
+```
+連続変数の平均比較？
+├── Yes → 正規性検定（Shapiro-Wilk）
+│         ├── 正規 → 等分散検定（Levene）
+│         │         ├── 等分散 → Student's t-test
+│         │         └── 不等分散 → Welch's t-test
+│         └── 非正規 → Mann-Whitney U test
+└── No → 割合比較？
+         ├── Yes → n≥5? → カイ二乗検定 / Fisher's exact test
+         └── 相関？ → 正規なら Pearson / 非正規なら Spearman
+```
+
+#### A.3 多重比較補正
+
+| 手法 | 保守性 | 用途 |
+|------|-------|------|
+| **Bonferroni** | 最強 | 少数の重要比較（3-5個） |
+| **Holm-Bonferroni** | 強 | Bonferroniより検出力↑ |
+| **Benjamini-Hochberg (FDR)** | 中 | 多数比較（10個以上、探索的） |
+
+**採用適用**: 7クライアント×5媒体=35比較を同時にABテストする場合、FDR補正（q<0.05）を必須化。
+
+---
+
+### B. Airwork / Indeed / GA4 指標定義集
+
+#### B.1 Airwork指標（2026年最新）
+
+| 指標名 | 定義 | 注意点 |
+|--------|------|--------|
+| 求人閲覧数 | 求人詳細ページの表示回数 | 同一人物の複数閲覧を含む |
+| ユニーク閲覧者数 | 求人詳細を見たユニークユーザー数 | Cookie依存で25-30%は識別漏れ |
+| 応募完了数 | 応募フォーム送信完了数 | Indeed Plus経由は重複計上あり |
+| 保留中応募数 | 2026年5月追加ステータス | 応募と別集計にするか合算するか要合意 |
+| 応募CVR | 応募完了÷ユニーク閲覧者 | 分母定義がクライアント毎に異なる |
+| 応募単価（CPA） | Airwork月額÷月間応募数 | 建設業平均 8,000-15,000円 |
+| 面接進出率 | 面接進出÷応募完了 | 企業ごとの「面接」定義で数値変動 |
+| 内定率 | 内定÷応募完了 | 建設業平均 3-8% |
+
+#### B.2 Indeed指標
+
+| 指標名 | 定義 | 建設業ベンチマーク |
+|--------|------|-----------------|
+| CPC（クリック単価） | 広告費÷クリック数 | 80-250円 |
+| Apply Start Rate | 応募開始÷クリック | 15-25% |
+| Apply Completion Rate | 応募完了÷応募開始 | 40-60% |
+| Sponsored Job CPA | スポンサー求人の応募単価 | 3,000-8,000円 |
+| Indeed Plus流入割合 | Indeed経由Airwork応募÷全応募 | 30-45% |
+
+#### B.3 GA4指標（2026年アップデート反映）
+
+| 指標名 | 定義 | UAとの違い |
+|--------|------|-----------|
+| セッション | 30分の非活動または午前0時で区切る訪問単位 | UAより短い |
+| エンゲージセッション | 10秒以上滞在 OR CV発生 OR 2PV以上 | UAには存在しない |
+| エンゲージメント率 | エンゲージセッション÷全セッション | UAの「1-直帰率」相当だが定義違う |
+| スクロール深度 | 2026年Q2から25/50/75/90%の4段階 | UAは90%固定だった |
+| Predictive Audiences | 購入予測・離脱予測の機械学習セグメント | 2026年Q2日本対応 |
+
+---
+
+### C. 因果推論フレームワーク一覧
+
+#### C.1 主要ライブラリ
+
+| ライブラリ | 提供元 | 得意領域 | 学習コスト |
+|-----------|-------|---------|----------|
+| **DoWhy** | Microsoft | DAG設計＋4ステップ標準フロー | 中 |
+| **EconML** | Microsoft | Heterogeneous Treatment Effect | 高 |
+| **CausalML** | Uber | Uplift Modeling | 中 |
+| **CausalImpact** | Google | Bayesian Structural Time Series | 低 |
+| **pysyncon** | 学術 | Synthetic Control | 中 |
+| **GeoLift** | Meta | Geo Experiment | 中 |
+| **Meridian** | Google | MMM | 高 |
+| **Robyn** | Meta | MMM（R） | 中 |
+| **PyMC 5.x** | OSS | Bayesian一般 | 高 |
+| **Stan / CmdStanPy** | OSS | Bayesian（研究水準） | 極高 |
+
+#### C.2 Judea Pearl の因果階層（The Ladder of Causation）
+
+1. **観察（Association）**: P(Y|X) 「応募が多い時、広告費も多い」
+2. **介入（Intervention）**: P(Y|do(X)) 「広告費を強制的に増やしたら応募はどうなる」
+3. **反実仮想（Counterfactual）**: P(Y_x|X', Y') 「もしあの時広告を止めていたら応募はどうだったか」
+
+**採用施策評価は最低でも階層2（介入）を目標とし、階層1（相関）で止まる報告は「関連あり・因果は別途検証必要」と明記する。**
+
+---
+
+### D. 採用MMMベンチマーク（建設業）
+
+#### D.1 媒体別 mROI 参考値（2026年）
+
+| 媒体 | mROI（応募人/万円） | 飽和点（月額） | Adstock半減期 |
+|------|-------------------|-------------|--------------|
+| Airwork 月額プラン | 0.8-1.2人 | 15万円 | 1週 |
+| Indeed Sponsored | 1.5-2.5人 | 30万円 | 2週 |
+| Indeed Plus | 1.0-1.8人 | 20万円 | 1週 |
+| Instagram広告 | 0.3-0.6人 | 10万円 | 3週 |
+| TikTok広告 | 0.4-0.8人 | 8万円 | 2週 |
+| Google検索広告 | 1.2-2.0人 | 12万円 | 1週 |
+| YouTube広告 | 0.2-0.4人 | 15万円 | 4週 |
+| 折込チラシ（地域） | 0.1-0.3人 | 5万円 | 2週 |
+| 現場見学会 | 0.5-1.5人 | 3万円 | 8週 |
+
+#### D.2 予算配分最適化の典型パターン
+
+**総予算300万円/月の宮村建設のMeridian最適化例**（Meridianサンプル出力ベース）:
+- Airwork: 15万円（現状20万→▲5万）
+- Indeed Sponsored: 90万円（現状60万→+30万）
+- Indeed Plus: 45万円（現状50万→▲5万）
+- Instagram: 8万円（現状20万→▲12万）
+- Google検索: 42万円（現状30万→+12万）
+- 現場見学会: 30万円（現状20万→+10万）
+- 予備: 70万円
+- **期待応募増**: 現状65人→予測82人（+26%、95%信用区間: +12% ～ +41%）
+
+---
+
+### E. 2026年最新ツールスタック要約
+
+| レイヤ | ツール | LET採用の位置づけ |
+|-------|-------|-----------------|
+| データ取得 | Airwork API / GA4 BigQuery Export / Indeed API | Deng管理 |
+| データ基盤 | BigQuery（パーティション+クラスタリング） | Deng管理 |
+| データ変換 | **dbt Cloud** | Shun主担当 |
+| BI/ダッシュボード | **Looker Studio Pro**（Team Workspaces + Gemini） | Shun主担当 |
+| 探索的分析 | Mode Analytics / Hex / Jupyter | Shun主担当 |
+| ML/因果推論 | BigQuery ML / DoWhy / EconML / PyMC | Shun主担当 |
+| MMM | **Meridian**（メイン）/ Robyn（サブ） | Shun主担当 |
+| Geo Experiment | GeoLift | Shun主担当 |
+| ワークフロー | Cloud Composer (Airflow) / dbt Cloud Jobs | Deng管理・Shun連携 |
+| 通知 | Slack Webhook + Bot（`/shun-query`） | Shun運用 |
+
+---
+
+### F. Shun v2 スキル成熟度マップ（自己評価用）
+
+| スキル領域 | Lv1 初級 | Lv3 中級 | Lv5 上級（本エージェント到達目標） |
+|----------|---------|---------|--------------------------------|
+| SQL | SELECT/JOIN/GROUP BY | Window関数・CTE | Recursive CTE・QUALIFY・パーティション最適化 |
+| 統計 | 平均・標準偏差 | t検定・カイ二乗 | Bayesian・多重比較補正・効果量 |
+| 因果推論 | 相関=因果ではないと知る | DiD・PSM実装 | DoWhy 4ステップ＋Refute Test・Synthetic Control |
+| MMM | 概念理解 | Robyn実装 | Meridian階層ベイズ＋予算最適化提案 |
+| BigQuery ML | 概念理解 | LINEAR_REG実装 | BOOSTED_TREE＋Explainability＋ARIMA_PLUS |
+| dbt | staging作成 | tests＋docs | Snapshot＋Exposures＋Semantic Layer |
+| 可視化 | Looker基本操作 | Pro活用・Gemini連携 | 色覚対応＋Narrative-First＋Predictive Audience統合 |
+| ドメイン知識 | Airwork/GA4指標 | 建設業採用ファネル | 業界MMMベンチマーク＋交絡因子カタログ運用 |
+
+**運用ルール**: 四半期に1度、上記マップで自己評価し、Lv4以下の領域をHarutoに申告して学習時間を確保する。全領域Lv5到達で「日本のデータ分析トップ1%（建設業採用ドメイン）」として社外発信可能なレベル。
