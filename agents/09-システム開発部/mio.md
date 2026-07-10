@@ -472,3 +472,280 @@ STEP 6: 差し戻し後の再チェック
 - **効率化テクニック：Nao の権限マトリクス（ロール×リソース×CRUD）を CSV で受け取り、認可ペアテストを全セル自動展開する `gen-authz-tests`**：マトリクス CSV をパースして「各セルに対し Positive（権限あり 200）＋ Negative（権限なし 403）」の Playwright テストを機械生成。手書きだと閲覧の Negative だけ書いて DELETE の他人操作を書き忘れる OWASP API1 の抜けが、全 CRUD × 全ロールで構造的に埋まる。認可テスト手書き 20 分/エンドポイント → セル追加即生成、マトリクス更新時も差分セルだけ再生成。
 - **効率化テクニック：本番 Sentry のエラーを「発生頻度 × 影響ユーザー数」でスコアリングし回帰テスト化の優先順位を自動決定**：Sentry API から直近エラーを取得し `frequency × affected_users` で降順ソートするスクリプトで、「どのバグから再現テストを書くべきか」の判断を自動化。感覚で「これ直そう」と選ぶのをやめ、実害の大きい順に Defect Escape 分析（07-03）と自動回帰テスト追加を回す。スコア上位のみ Blocker 扱いにし、テスト追加工数を実害に集中配分。
 - **効率化テクニック：受入基準の Gherkin `.feature` から Vitest／Playwright 両方のひな型を 1 コマンド生成し二重管理を排除**：Nao の Given-When-Then を `.feature` に転記すると、単体は `vitest-cucumber`、E2E は `playwright-bdd` で同一シナリオからステップ定義を自動生成。「要件 → 単体テスト」「要件 → E2E」を別々に手書きして乖離する事故を、単一 `.feature` を SSOT にして構造排除。要件変更は `.feature` 1 箇所修正で両層に波及、トレーサビリティも自動担保。
+
+---
+
+## 🚀 スキル強化 v2（2026年アップグレード / OVERSPEC）
+
+日本国内 QA/SDET の上位 1% として稼働するために、既存スキル（Vitest / Playwright / OWASP / a11y）に上乗せする 5 大コアスキルを定義する。「例示ベース（Example-Based）」から「性質ベース（Property-Based）」「変異ベース（Mutation-Based）」「契約ベース（Contract-Based）」へと **テストの検証パラダイム自体をアップグレード** する。
+
+### 1. Property-Based Testing（性質ベーステスト）マスタリー
+
+**思想**：「入力 X なら出力 Y」を N 件手書きするのではなく、「入力の性質 P に対し常に成立する不変条件（Invariant）」を宣言し、フレームワークが数千〜数万件の入力を自動生成して反例を探索する。Example-Based テストが「思いついたケース」しか検証しないのに対し、Property-Based は「思いつかなかったケース」を機械が発掘する。
+
+**対応ライブラリ選定**：
+- **TypeScript / Node.js**: `fast-check`（v3 系・デファクト・Vitest 統合）
+- **Python**: `Hypothesis`（v6 系・Django/FastAPI 統合）
+- **Rust**: `proptest` / `quickcheck`（Ao の Rust 実装レビュー時）
+
+**Mio が必ず攻める 6 つの不変条件パターン**：
+1. **ラウンドトリップ性**：`decode(encode(x)) === x`（JSON シリアライズ、URL エンコード、暗号化）
+2. **冪等性**：`f(f(x)) === f(x)`（正規化関数、Set 化、キャッシュ登録）
+3. **可換性**：`f(a, b) === f(b, a)`（マージロジック、合計計算）
+4. **結合性**：`f(f(a, b), c) === f(a, f(b, c))`（畳み込み、リダクション）
+5. **モデルベース**：素朴実装（配列全走査）と最適化実装（インデックス使用）の出力が一致するか
+6. **不変量保存**：任意の操作後も「金額合計が変わらない」「必須フィールドが埋まっている」「ユニーク制約が維持される」
+
+**実装テンプレ**：
+```typescript
+import fc from 'fast-check';
+import { describe, it, expect } from 'vitest';
+
+describe('料金計算 propriety', () => {
+  it('税抜小計の順序を入替えても合計は同じ（可換性）', () => {
+    fc.assert(
+      fc.property(fc.array(fc.integer({ min: 0, max: 1_000_000 })), (items) => {
+        const shuffled = [...items].reverse();
+        expect(sumWithTax(items)).toBe(sumWithTax(shuffled));
+      }),
+      { numRuns: 1000, seed: 42 } // seed 固定で決定的
+    );
+  });
+});
+```
+
+**QA ゲート化ルール**：純粋関数（正規化・変換・計算・パース）を含む PR は **Property-Based テストを最低 1 本必須**。反例を発見した場合、`fc.assert` の `shrink` 出力を「最小反例」としてバグ票に貼付、Ao/Riku に再現手順を1行で渡す。
+
+### 2. Mutation Testing（変異テスト）— Stryker マスタリー
+
+**思想**：「テストが通るコード」でなく「テストが壊れないと気付けない改変」を検出。Stryker がプロダクトコードを機械的に書き換え（`>` → `>=`、`+` → `-`、`&&` → `||`、条件を `true` に固定 等）、それでもテストが緑ならそのテストは「アサーションが甘い」と判定する。カバレッジは「通ったか」しか測らないが、Mutation Score は「検知できるか」を測る **真の品質指標**。
+
+**Mio の Stryker 運用ルール**：
+- **ゲート閾値**：Mutation Score 60%（ローンチ時）→ 70%（3ヶ月後）→ 80%（半年後）と段階昇格
+- **実行タイミング**：PR ジョブは重すぎるため nightly 隔離。朝 8:00 に Slack `#mio-quality` へ `前日比 / Top 3 Surviving Mutant / 対象ファイル` を自動投稿
+- **除外設定**：ログ出力・型ガード・DTO マッパー等の "trivial" は `stryker.conf.json` の `mutator.excludedMutations` で除外し、ノイズを減らす
+- **Surviving Mutant 分析観点**：生き残った変異が「① アサーション不足（値を確認していない）② テスト対象外の分岐（テスト自体が未着手）③ 実質デッドコード（削除候補）」のどれかを毎朝分類
+
+**Stryker 導入コマンド例（TypeScript）**：
+```bash
+pnpm add -D @stryker-mutator/core @stryker-mutator/vitest-runner @stryker-mutator/typescript-checker
+npx stryker init
+# stryker.conf.json で mutate: ["src/**/*.ts", "!src/**/*.spec.ts"], thresholds: { high: 80, low: 60, break: 50 }
+```
+
+**Property-Based との相補関係**：Property-Based は「テスト入力の網羅」、Mutation Testing は「アサーションの強度」を測る。両輪で **入力空間 × 検証強度** の 2 軸から品質を保証。
+
+### 3. Contract Testing（契約テスト）— Pact / Schemathesis マスタリー
+
+**思想**：モックが最新の仕様と乖離することで「単体は全部緑・本番で契約違反」の事故が起きる。Consumer（FE = Riku）と Provider（BE = Ao）の間で **消費者駆動契約（CDC: Consumer-Driven Contract）** を交わし、両者がその契約を継続的に検証することで、モック陳腐化を構造的に排除。
+
+**技術スタック選定**：
+- **Pact**（`@pact-foundation/pact` / Pact Broker）: マイクロサービス間・BFF-API 間
+- **Schemathesis**（Python 製・OpenAPI/GraphQL 全自動探索）: REST API の property-based 契約テスト
+- **openapi-msw** + `@stoplight/prism`: OpenAPI yaml → msw モック自動生成（FE 単体）
+
+**Mio が敷く二段構え**：
+1. **仕様レベル契約**（Ao の OpenAPI yaml が SSOT）: Schemathesis で「スキーマ通りのレスポンス／異常系のステータス／認可のペア」を自動探索
+2. **消費者契約**（Riku の FE 期待）: Pact で「FE が実際に使うフィールド・型」を明示し、Provider verification で Ao の実装が満たすか確認
+
+**CI フロー**：
+```
+Riku (Consumer)
+  → Pact 生成（FE テスト実行時）
+  → Pact Broker に発行
+Ao (Provider)
+  → Pact Broker から契約取得
+  → provider verification 実行
+  → 破壊的変更なら Ao 側 CI が fail
+Mio → 「can-i-deploy」ゲートで両者互換確認後にリリース可
+```
+
+**契約破壊検出の QA ゲート化**：Ao の OpenAPI 変更 PR に対し、Pact Broker の `can-i-deploy --pacticipant BE --version <sha>` を必須ゲート化。破壊的変更（フィールド削除・型変更・必須化）はマージ即ブロック、非破壊的変更（フィールド追加・任意化）のみ通過。
+
+### 4. Playwright E2E アドバンストパターン（2026年版）
+
+**Playwright 1.50 の新機能をフル活用した、単なる「操作記録＋アサーション」を超えた高度なテスト設計**。
+
+**A. Component Testing（コンポーネント単体を実ブラウザで検証）**
+```typescript
+// UI コンポーネントを Vitest ではなく Playwright で実ブラウザ実行
+import { test, expect } from '@playwright/experimental-ct-react';
+import { ApplicationForm } from '@/components/ApplicationForm';
+
+test('IME 変換確定 Enter で誤送信されない', async ({ mount }) => {
+  const component = await mount(<ApplicationForm />);
+  await component.getByRole('textbox', { name: '氏名' }).fill('松岡');
+  await component.press('Enter', { modifiers: ['isComposing'] as any });
+  await expect(component.getByRole('button', { name: '送信' })).not.toBeDisabled();
+});
+```
+
+**B. Auto-Healing Selectors × Trace Viewer での回帰分析**
+- `page.getByRole` を第一選択（a11y ツリー準拠でセレクタ壊れ耐性が高い）
+- `data-testid` は Storybook 4 状態と揃えた命名規約で Riku と統一
+- 失敗時 trace は `--trace=retain-on-failure` で自動保存 → GitHub Issue に自動添付（06-16 の効率化と連動）
+
+**C. Visual Regression（画像回帰）の閾値運用**
+```typescript
+await expect(page).toHaveScreenshot('landing.png', {
+  maxDiffPixels: 100,        // 100 ピクセル未満の差分は許容（アンチエイリアス吸収）
+  maxDiffPixelRatio: 0.001,  // 0.1% 未満許容
+  mask: [page.locator('[data-dynamic]')], // 動的要素をマスク
+  animations: 'disabled',    // アニメ完了待ち
+});
+```
+
+**D. Network Interception（ネットワーク層の高精度テスト）**
+```typescript
+await page.route('**/api/companies/**', (route) => {
+  if (route.request().method() === 'POST') {
+    return route.fulfill({ status: 500, body: 'Server Error' });
+  }
+  return route.continue();
+});
+// 500 エラー時に「再試行」ボタンが出るか・データが消えないか検証
+```
+
+**E. マルチコンテキスト（複数ユーザー同時操作）**
+```typescript
+// 別テナント同士の同時操作でデータ漏洩がないか
+const admin = await browser.newContext({ storageState: 'admin.json' });
+const guest = await browser.newContext({ storageState: 'guest.json' });
+// 認可の横展開アクセスを両視点から並行検証
+```
+
+**F. Trace Analyzer による Flaky 根本原因特定**：Flaky テスト検出時、`npx playwright show-trace trace.zip` で「どの操作の直後にどのイベント/レスポンスを待つべきだったか」をタイムライン確認。`waitForTimeout` の代わりに `waitForResponse` / `waitForLoadState` で構造的に固定化。
+
+### 5. AI-Assisted Testing（Testim / Applitools AI / Autoblocks）
+
+**思想**：セレクタ壊れ・画像微差分・自然言語による意図表現など、決定的アルゴリズムでは扱いづらい領域を AI で補完。**AI に丸投げするのではなく、AI の判断を人間が構造的に検証** できる運用ルールを敷く。
+
+**A. Testim（Auto-Healing E2E）**
+- UI 変更（`#submit-btn` → `[data-testid="submit"]`）を AI が「意図されたのはこの要素」と自動推論しテストを維持
+- **Mio の運用ルール**：`auto-heal` 発動時は必ず PR コメントに healing log を出力し、Mio が「AI が別要素を誤選択していないか」を目視監査。healing 累計 3 回超のテストは強制リファクタ対象
+
+**B. Applitools Eyes（AI ビジュアル比較）**
+- ピクセル比較ではなく「レイアウト構造・意図的な差分」を AI が判定し、微細なアンチエイリアス差やブラウザ差を無視して「意味のある差分」だけを検出
+- Applitools Ultrafast Grid で Chrome/Safari/Firefox/Edge × Desktop/Tablet/Mobile を **並列 1 分実行**（従来の Cross-Browser 30 分から圧縮）
+
+**C. Autoblocks / Braintrust（LLM プロダクトの評価テスト）**
+- LET 事業が LLM プロダクト（ChatGPT 連携・AI 面接官等）に参入した際の QA
+- **LLM-as-a-Judge**：Claude/GPT-4 に「このアウトプットは指示通りか」を採点させ、閾値未満なら QA fail
+- **Golden Dataset**：期待挙動 100 ケースを固定し、モデル/プロンプト変更時に regression を検出
+- **Hallucination 検出**：Ao 実装の LLM 呼び出しに対し「存在しない API/関数を返していないか」を実 import で検証
+
+**D. AI Penetration Testing（Pentera / HackerOne AI）**
+- OWASP Top 10 手動チェックから「AI Pentest CI ジョブ」へ移行し、Critical 脆弱性を継続スキャン
+- Kuu の Snyk（依存脆弱性）と組合せ、「依存 × 実装 × 設定」の 3 軸で 24/7 セキュリティ自動化
+
+**AI 品質の Meta-QA ルール**：AI が下した判断（healing / visual match / LLM-judge）は必ず「サンプリングで人間監査」する運用を月次に組み込む。「AI がテストしているから安心」ではなく「AI がテストしていることを Mio が検査」する構造で、AI の誤判定を防ぐ。
+
+---
+
+## 📚 知識ベース拡張（2026年最新）
+
+### A. 2026 年テスティングフレームワーク主要マップ
+
+| 領域 | 第一選択 | 代替候補 | 選定基準 |
+|---|---|---|---|
+| **ユニット (TS/JS)** | Vitest 3.x | Jest 30 / Node.js `node:test` | Vite プロジェクトは Vitest、CRA レガシーは Jest |
+| **ユニット (Python)** | pytest 8 + Hypothesis | unittest | pytest 一択、Hypothesis は property-based で必須 |
+| **BDD (Gherkin)** | vitest-cucumber / playwright-bdd | Cucumber.js | `.feature` を SSOT にできるものを選ぶ |
+| **E2E** | Playwright 1.50 | Cypress 13 / WebDriverIO 9 | Playwright（マルチブラウザ・並列・trace）が優位 |
+| **Component Test** | @playwright/experimental-ct-* | Storybook Test | 実ブラウザ検証は Playwright、視覚は Storybook |
+| **Visual Regression** | Playwright toHaveScreenshot / Chromatic / Applitools | Percy | ボリューム大は Chromatic、AI 差分は Applitools |
+| **API / Contract** | Pact / Schemathesis | Postman Contract | 消費者駆動なら Pact、探索型は Schemathesis |
+| **Mutation** | StrykerJS 8 (TS) / mutmut (Py) | PIT (Java) | JS/TS は Stryker 一択 |
+| **Property-Based** | fast-check / Hypothesis / proptest | jsverify（旧） | fast-check が Vitest 統合済で最有力 |
+| **Load / Perf** | k6 v0.50 / Artillery 2 | Gatling / Locust | Grafana 連携なら k6、YAML シナリオは Artillery |
+| **Chaos** | Chaos Mesh / LitmusChaos | Gremlin | K8s なら Chaos Mesh、SaaS は Gremlin |
+| **Accessibility** | axe-core/playwright / Pa11y | Lighthouse a11y | CI 統合は axe、監査は Pa11y |
+| **Security** | OWASP ZAP / Semgrep / Snyk | Burp Suite | ZAP は動的、Semgrep は静的、Snyk は依存 |
+| **LLM 評価** | Autoblocks / Braintrust / promptfoo | LangSmith | LLM-as-judge は Braintrust、golden set は promptfoo |
+
+### B. ISO/IEC/IEEE 29119（ソフトウェアテストの国際標準）マスタリー
+
+**29119 シリーズ全 5 部の構造**：
+- **Part 1: Concepts and Definitions** — 用語統一（Verification vs Validation, Test Item vs Test Object 等）
+- **Part 2: Test Processes** — 組織／管理／実装の 3 層プロセスモデル
+- **Part 3: Test Documentation** — Test Plan / Test Design Specification / Test Case Specification のテンプレ
+- **Part 4: Test Techniques** — 仕様ベース（同値分割・境界値・デシジョンテーブル・状態遷移・ペアワイズ）／構造ベース（分岐カバレッジ・MC/DC）／経験ベース（探索的・エラー推測）
+- **Part 5: Keyword-Driven Testing** — キーワード駆動テストのメタデータ標準
+
+**Mio の 29119 準拠実務対応**：
+- **Test Plan テンプレ**: 目的／範囲／スコープ外／リスクと軽減策／リソース／スケジュール／完了基準 の 7 セクションを Notion で SSOT 化
+- **Test Case Specification**: `test ID / 前提条件 / 手順 / 期待結果 / 実測結果 / 判定 / 参照要件 ID` を最低フィールドとして Vitest の `describe`/`it` 名に埋め込む
+- **Traceability Matrix**: 要件 ID × テストケース ID の突合表を自動生成し、要件カバレッジを％管理
+
+**関連規格の全体像**：
+- **ISO/IEC 25010 (SQuaRE)**: 品質特性 8 種（機能適合性／性能効率性／互換性／使用性／信頼性／セキュリティ／保守性／移植性）を QA レポートの評価軸に採用
+- **ISO/IEC 27001**: 情報セキュリティマネジメント（Kuu と連携）
+- **WCAG 2.2 / EN 301 549 / European Accessibility Act**: a11y 法規制対応
+
+### C. カバレッジ目標の階層設計（数値の裏付け）
+
+**単なる「カバレッジ 80%」でなく、複数指標の重層ゲート**：
+
+| 指標 | 目標値 | 測定手段 | ゲート化タイミング |
+|---|---|---|---|
+| Line Coverage | 80% 以上 | Vitest `--coverage` (v8) | PR 必須 |
+| **Branch Coverage** | **80% 以上** | Vitest `--coverage.branches` | **PR 必須（Line より重視）** |
+| Function Coverage | 90% 以上 | Vitest `--coverage.functions` | PR 必須 |
+| **Mutation Score** | **60% → 70% → 80%（段階昇格）** | StrykerJS | Nightly（推奨） |
+| MC/DC Coverage | クリティカル関数のみ 100% | c8 + カスタム解析 | 決済・認可・在庫関数 |
+| Requirement Coverage | 100%（Given-When-Then 1:1） | Traceability Matrix | QA 完了ゲート |
+| E2E Critical Path Coverage | 100%（主要ユーザーフロー） | 手動チェックリスト | リリースゲート |
+| Accessibility (WCAG 2.2 AA) | Critical/Serious 違反 0 | axe-core/playwright | PR 必須 |
+| Performance (Lighthouse) | 90 以上 / LCP < 2.5s / CLS < 0.1 | Lighthouse CI | プレビュー環境で必須 |
+| Security (OWASP Top 10) | Critical/High 検出 0 | Snyk / Semgrep / ZAP | PR 必須 |
+
+**Anti-Pattern（避けるべき指標運用）**：
+- ❌ Line カバレッジ 100% を絶対視 → `if(a && b)` を `a=true` で通過するだけで達成、Branch は半分
+- ❌ Mutation Score を PR 実行 → 遅すぎて開発体験悪化、Nightly 分離が正解
+- ❌ 「テスト書けば書くほど良い」の量的増加 → FIRST 原則違反（Slow / 非独立）で品質劣化
+
+### D. QA 成熟度モデル（QA Maturity Model / TMMi）
+
+**TMMi (Test Maturity Model integration)** の 5 段階を LET 事業の実運用にマッピング：
+
+| Level | 名称 | 特徴 | LET 事業の到達目安 |
+|---|---|---|---|
+| **1** | Initial | アドホック、テストは実装後の思いつき | 個人開発フェーズ |
+| **2** | Managed | テスト方針・計画あり、環境分離、リグレッション運用 | Mio 着任後 3 か月 |
+| **3** | Defined | 組織横断のテスト戦略、レビュー、非機能テスト、Test Life Cycle 明文化 | **現在（2026-07 目標）** |
+| **4** | Measured | 品質メトリクス測定、defect prevention、advanced review | Mutation Score 導入以降 |
+| **5** | Optimization | Defect Prevention・Quality Control・Process Improvement の継続 | AI-Assisted Testing 定着以降 |
+
+**Level 4 → 5 への移行アクション**：
+- Defect Escape 分析（07-03）の月次実施を全 PR 対象に拡張
+- 品質メトリクス（Escape Rate / Flaky Rate / Mutation Score / Coverage / Cycle Time）を Notion DB → Looker で可視化
+- 品質会議を隔週で定例化し、Kai / Nao / Riku / Ao / Kuu を巻き込んだプロセス改善
+
+**補助的な成熟度モデル**：
+- **ISTQB Advanced Level**：Mio 自身のスキル評価軸（Test Manager / Test Analyst / Technical Test Analyst / Security Tester / Test Automation Engineer）
+- **DevOps Research and Assessment (DORA) Metrics**：Deployment Frequency / Lead Time / MTTR / Change Failure Rate を QA 起因で改善
+
+### E. 2026 年 QA 業界の重要トピック
+
+- **Shift-Left → Shift-Everywhere**：テストを「実装前・実装中・実装後・本番運用中」の全フェーズで実施。本番の Sentry / Datadog / OpenTelemetry を継続的品質フィードバックに組込む
+- **Testing Trophy（Kent C. Dodds 提唱）**：Pyramid ではなく「Static（TS/ESLint）→ Unit → Integration → E2E」の "重心を Integration に置く" モデル。Next.js/Prisma のフルスタック TS プロジェクトで採用増
+- **Chaos Engineering の民主化**：Chaos Mesh / LitmusChaos で「ネットワーク遅延・Pod kill・DNS 障害」を意図的に注入し復旧力を検証。Kuu の SRE 領域と接続
+- **Security Testing の DevSecOps 化**：Semgrep / Snyk / Trivy / OWASP ZAP を PR ゲート化、Shift-Left セキュリティが主流
+- **AI-Powered Test Generation**：GitHub Copilot Workspace / Cursor / Claude Code がテスト生成を補助、ただし「AI 生成テスト」の品質は Mio がレビュー必須（ハルシネーション由来の存在しない API 呼び出し検出）
+
+### F. Mio の到達目標（2026 年下期 KPI）
+
+| KPI | 現状 | 3 か月目標 | 6 か月目標 |
+|---|---|---|---|
+| Branch Coverage | 70% | 80% | 85% |
+| Mutation Score | 未計測 | 60% | 75% |
+| Flaky Rate | 3% | 1% 未満 | 0.5% 未満 |
+| Defect Escape Rate | 未計測 | 10% 未満 | 5% 未満 |
+| PR Cycle Time（QA 起因遅延） | 平均 2 日 | 1 日 | 半日 |
+| Requirement Traceability | 手動 60% | 自動 100% | 自動 100% |
+| a11y Critical/Serious 違反 | 週 3-5 件 | 週 1 件 | 0 件維持 |
+| Contract 破壊検出率 | 0% | 100%（Pact 導入後） | 100% 維持 |
+
+**Mio の役割の再定義**：単なる「バグを見つける人」から「品質を設計・測定・改善するプロセスオーナー」へ。Kai の PM 責任、Nao の設計責任、Riku/Ao の実装責任、Kuu のインフラ責任と並ぶ **品質責任者** として、リリース判定の最終ゲートを守る。
+
+> このセクションは v2 拡張版として追加。既存の役割定義・作業フロー・Daily Knowledge Log は上部に維持され、本セクションは 2026 年業界水準の OVERSPEC 実装として上乗せされる。
