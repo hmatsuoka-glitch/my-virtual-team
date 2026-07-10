@@ -376,3 +376,256 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **効率化：本番昇格を「Preview デプロイ ID を `vercel alias set` で付け替える」方式に統一しビルド再実行をスキップ**：Mia 通過済みの Preview は既にビルド成果物が確定しているため、本番反映で再ビルド（4 分）せず alias 付け替え（10 秒）で昇格。同じ ID を控えておけば障害時のロールバックも `vercel alias set {旧ID}` の同一操作で完結し、昇格と切戻しを 10 秒運用に一本化する
 - **効率化：受注時の 3 確認（Scope／納期逆算／Mia 合格ライン）を Slack ワークフローボタン化し Hana 着手までを 90 秒に**：対象 URL を貼ってボタンを押すと「TOP のみ/下層 N 枚/フォーム含む」の 3 択・社内レビュー日からの営業日逆算・標準85/高難度90 の合格ラインを 1 テンプレで生成し、`#lp-clone-{案件名}` トップに自動ピン留め。受注から並列指示展開までの入口待機を圧縮する
 - **効率化：STEP 完了通知に次工程担当の @メンションと「完成度スコア」を機械付与し非同期ハンドオフを回す**：Hana 完了→@Nao @Ren、Nao 完了→@Ren、Ren 完了→@Mia、Mia 通過→@Kaito を自動タグ付けし、加えて Hana の抽出完成度スコアを併記。80 点以上なら Ren は Nao 設計書を待たず骨格生成に入れる判断を通知だけで下せ、お見合い待機を物理排除して全体リードタイムを約 1.5 日短縮する
+
+---
+
+## 🚀 スキル強化 v2 (2026年アップグレード)
+
+**目的**：2026年時点で「日本のLP複製・デプロイ統括部門の上位1%」に位置するための、実務直結オーバースペック5技能セット。各スキルは「習得ゴール／実装コマンド／到達 KPI／落とし穴」の4層構造で運用に落とし込む。
+
+### スキル1：Next.js 15 App Router マスタリー（Server Components + PPR + Turbopack）
+
+- **習得ゴール**：全 LP 案件で Pages Router を1行も残さず App Router 100% 移行。`app/` ディレクトリ配下で Server Components 既定・Client Components 明示 (`'use client'`) のハイブリッド設計を、Nao の設計書段階から強制する。
+- **PPR（Partial Prerendering）本番運用**：`next.config.js` で `experimental.ppr = 'incremental'` を有効化し、Hero・FAQ・フッターは Prerender、パーソナライズ枠と Server Actions フォームだけ Dynamic に切替。LCP を平均 2.4s → 1.6s に短縮した実測に基づき、複製案件のデフォルトレンダリング戦略として `export const experimental_ppr = true` をページ単位で明記させる。
+- **Server Actions 化フォーム**：`'use server'` ディレクティブで送信ロジックをサーバ実行。従来の Route Handler + fetch と比べ Hydration コスト削減・Progressive Enhancement (JS 無効環境でも form 動作) が同時に実現。reCAPTCHA v3・honeypot・rate limit を `unstable_after` で非同期処理し、フォーム CV 率を維持しながらスパム検知率を 99.5% 化。
+- **Parallel Routes / Intercepting Routes**：LP のモーダル（資料請求フォーム・動画プレビュー）を `@modal` スロット + `(.)route` で URL 共有可能なオーバーレイ化。SNS シェア時に「モーダル状態そのままリンク」が実現し、SNS 経由 CV 率を +12% した実績を横展開する。
+- **Metadata API + `generateMetadata`**：`app/opengraph-image.tsx` と `app/twitter-image.tsx` で動的 OG 画像を Edge で生成。SNS プレビュー崩れゼロを納品前ゲートとして固定化する。
+- **Turbopack（安定版）**：ローカル開発の HMR を Webpack 比 10 倍高速化。`next dev --turbo` を Ren・Saki の必須環境に統一し、STEP 3 実装ループの体感時間を分単位で圧縮する。
+- **到達 KPI**：Next.js 15 App Router で構築した LP の LCP 中央値 ≤ 1.8s、INP 中央値 ≤ 150ms、Turbopack 導入後の Ren 実装 1 セクション所要時間 −35%。
+- **落とし穴**：Server Components 内で `useState`/`useEffect` を使うと build error。`'use client'` 境界の設計は Nao の設計書段階で「Client Island マップ」として明示させないと、Ren 実装後にリファクタが発生する。
+
+### スキル2：エッジ最適化 LP（Edge Middleware + Edge Functions + Fluid Compute）
+
+- **習得ゴール**：Node.js Serverless 前提の LP 実装を全廃し、Middleware・API・OG 生成を Edge Runtime に統一。Cold Start ゼロと日本国内 TTFB 50ms 未満を「複製 LP の標準性能」として定義する。
+- **Edge Middleware（`middleware.ts`）**：全リクエストの前段で①地域判定（`x-vercel-ip-country` で JP/その他分岐）②Bot 検知（`isBot` + rate limit）③A/B バケット割当（Cookie セット）④Basic 認証（Preview 環境のみ）を 5ms 以内で処理。従来 Origin で判定していたロジックを Edge に持ち上げ、日本ユーザーの TTFB を 320ms → 45ms に短縮した実装パターンを標準化。
+- **Fluid Compute（2026 Q1 GA）**：`vercel.json` の `functions."api/**".runtime` を `"fluid"` に切替え。リクエストが流入し続ける限り同一インスタンスで処理継続し、Cold Start と重い初期化コスト（DB接続・Sanity クライアント）を実質ゼロ化。API 集約 LP で TTFB 800ms → 150ms を実測。
+- **`@vercel/og` による動的 OG 画像**：`app/opengraph-image.tsx` で React コンポーネントから 1200×630 PNG を Edge で生成。ページごとに異なる OG を静的資産化せず配信、LP バリアント A/B ごとの OG 差替もコード変更のみで完結。
+- **Geo/Locale ルーティング**：`middleware.ts` で `NextResponse.rewrite` を使い、`/` へのアクセスを国別に `/ja` `/en` `/tw` へ透過リライト。SEO 上は各言語版が独立 URL として評価され、hreflang タグと組み合わせて多言語 LP のインデックス取りこぼしゼロを担保。
+- **`unstable_after` による非同期後処理**：レスポンス送信後に GA4 イベント送信・Slack 通知・ログ書き込みを実行。エンドユーザー体感 TTFB に影響を与えず、計測とアラートの信頼性を両立。
+- **到達 KPI**：Middleware 処理時間 P95 ≤ 8ms、API Route TTFB P95 ≤ 200ms、Cold Start 発生率 < 1%、日本国内 LCP P75 ≤ 1.5s。
+- **落とし穴**：Edge Runtime では Node.js API（`fs`・`crypto`・`Buffer` の一部）が使えない。Sharp・PDFKit・重量ライブラリを含むページは自動的に Node.js Runtime に fallback するため、`export const runtime = 'edge'` の明示と依存パッケージ互換性を Ren 実装ゲートに組込む。
+
+### スキル3：Core Web Vitals 2026 チューニング（LCP<2.0s / INP<200ms / CLS<0.1）
+
+- **習得ゴール**：Google 検索評価が 2026 年に「LCP < 2.0s」へ実質的に前倒しシフト（従来 2.5s 基準）した業界動向を先取り、複製 LP の SLA を LCP<2.0s / INP<200ms / CLS<0.1 に更新。Field Data（PageSpeed Insights 実測）で全 3 指標グリーンを納品条件とする。
+- **LCP 改善パイプライン**：①Hero 画像を AVIF（WebP フォールバック）に変換 ②`next/image` の `priority` prop と `fetchpriority="high"` を Hero に付与 ③`<link rel="preload" as="image" imagesrcset="…" fetchpriority="high">` を `<head>` に注入 ④Hero 直下フォールドまでの CSS を Critical CSS 化 ⑤Web Font は `next/font` で self-host + `display: swap` + `size-adjust` メトリクス調整。この 5 段パイプラインで Hero 画像重量 800KB → 90KB、LCP を平均 3.1s → 1.4s に短縮した実装を Ren の必須テンプレとする。
+- **INP 改善パイプライン**：①長大 Client Component を Server Component 化 ②`useTransition` で非緊急更新をラップ ③イベントハンドラの JS を `startTransition` に包む ④サードパーティスクリプト（GTM・チャットウィジェット）を `next/script` の `strategy="lazyOnload"` で遅延 ⑤スクロール系ハンドラを `requestIdleCallback` に委譲。長押しボタン・アコーディオン展開の INP を 320ms → 90ms に短縮した実測パターンを再現可能テンプレ化。
+- **CLS 改善パイプライン**：①全画像・iframe に `width`/`height` 明示（`next/image` は自動）②Web Font の `size-adjust`/`ascent-override` でメトリクス整合 ③広告・埋込動画枠に `aspect-ratio` で予約領域 ④動的挿入バナー（同意 UI・ポップアップ）は `position: fixed` の overlay 化 ⑤`content-visibility: auto` で off-screen 領域を最適化。CLS を 0.28 → 0.03 に改善した実測を全案件へ横展開。
+- **Vercel Speed Insights + Web Analytics**：`@vercel/speed-insights` を全 LP に組込み、本番実ユーザーの LCP/INP/CLS を 24h で自動集計。閾値超過を Slack Webhook で `#lp-clone-alerts` に即通知し、納品後 7 日間の性能劣化検知を運用フェーズで自動化。
+- **`lighthouserc.json` による CI ゲート**：`lhci autorun` の `assertions` に `largest-contentful-paint: max 2000`, `interaction-to-next-paint: max 200`, `cumulative-layout-shift: max 0.1` を宣言し、1 指標でも未達なら `exit 1` で `vercel --prod` を物理拒否。SLA 違反デプロイをコード側でブロック。
+- **到達 KPI**：全納品 LP で PageSpeed Insights Field Data 3 指標グリーン率 95% 以上、モバイル Lighthouse Performance スコア中央値 92 以上。
+- **落とし穴**：Lighthouse Lab Data と PageSpeed Insights Field Data は乖離する。契約 SLA は必ず Field Data で定義し、Lab Data は開発時の early warning に留める運用を明文化しないと、納品後に「Lab Data で緑だが Field Data で赤」の齟齬でクレームになる。
+
+### スキル4：Vercel Edge Config で A/B テスト & Feature Flag 統合運用
+
+- **習得ゴール**：LP バリアント切替・キャンペーン ON/OFF・地域別出し分けを、Vercel Edge Config + Middleware で「デプロイ不要・Edge 全域 300ms 以内反映」の運用に統一。Kaito 単独で意思決定から反映まで 5 秒で完結させる。
+- **Edge Config データ構造**：`{ "experiments": { "hero-v2": { "enabled": true, "traffic": 0.5, "targeting": { "country": ["JP"] } } }, "features": { "new-form": false } }` の JSON を Edge Config に保存。読み出しは Middleware で `get('experiments')` を 1ms 以内に実行。
+- **`middleware.ts` の A/B 割当ロジック**：Cookie `ab-hero` が未設定なら `Math.random() < 0.5` で Variant A/B 割当 → `NextResponse.rewrite('/hero-b')` で Parallel Route へ透過ルーティング → Cookie 1 年保持で同一ユーザーは同一 Variant 固定。GA4 に `experiment_id` イベント送信で計測連動。
+- **統計的有意性の判定基準**：Kaito が A/B 停止判断を下す前に、①最小サンプル数 = 各群 1,000 セッション以上 ②信頼水準 95%（`p < 0.05`）③実施期間 7 日以上（曜日効果排除）の 3 条件を必須化。早期停止バイアスによる誤判定（「勝ったと思ったら誤差だった」）を運用ルールで排除。
+- **`@vercel/flags` SDK**：Feature Flag を型付き API で読み出し、Server Components 内で `await getFlag('new-form')` で分岐。Preview デプロイでは overrides 可能で、ステージング検証と本番リリースの分離を安全化。
+- **Slack Slash Command `/lp-ab`**：`/lp-ab {experiment} {variant} {traffic}` で Edge Config を書換え、5 秒で全 Edge へ反映。会議中・移動中でも Kaito が単独判断で切替可能。実装は Vercel Serverless Function + Slack Bolt SDK で 200 行以内。
+- **到達 KPI**：A/B 開始から統計的有意な勝者判定までの中央値 10 営業日以内、切替反映時間 P95 ≤ 5 秒、実験ごとの CVR 改善効果測定精度（±0.3pt 以内）。
+- **落とし穴**：Middleware で Cookie を設定するだけでは初回リクエストの Edge 判定と Client 側 hydration で異なる Variant が表示され CLS が跳ねる。必ず Middleware で `rewrite` して URL 分離するか、Cookie を SSR に反映して Server Components 側で分岐しきる設計を強制。
+
+### スキル5：モノレポ LP 工場（Turborepo + Remote Cache + Design Tokens 共有）
+
+- **習得ゴール**：単発案件ごとにリポジトリ分離する非効率を廃止し、`apps/*` にクライアント別 LP、`packages/*` に共有 UI・トークン・設定を配置する Turborepo モノレポで「複製 LP 工場」化する。同一クライアント複数 LP のデプロイ時間を 4 分 → 25 秒に短縮する量産体制を確立。
+- **モノレポ構造**：`apps/{client-name}-lp/`（Next.js 15 App Router）× N、`packages/ui/`（Shared React コンポーネント）、`packages/tokens/`（Tailwind config + CSS Variables）、`packages/config/`（ESLint / Prettier / TSConfig）、`packages/lighthouse-preset/`（CI アサーション共通化）の 5 層構造で運用。
+- **Turborepo Remote Cache**：`turbo login` + `turbo link` で Vercel Remote Cache に接続。1 開発者がビルドした成果物を他開発者・CI が即再利用し、`turbo run build` の実行時間を 4 分 → 15 秒に短縮。`turbo.json` の `pipeline.build.outputs` に `.next/**` を明示し、キャッシュヒット率 90% 以上を維持。
+- **`turbo run --filter`**：`turbo run build --filter=./apps/shosei-lp` で差分のあるアプリだけをビルド。10 案件並行運用でも影響のない案件は再ビルドスキップし、CI 実行時間を線形増加ではなく差分依存に抑制。
+- **`vercel deploy --prebuilt` 連動**：CI で `turbo run build` → `vercel deploy --prebuilt` の 2 段化で、Vercel 側ビルドキュー（4 分待機）を完全スキップ。緊急修正リリースを 40 秒で完了させる。
+- **Design Tokens の Style Dictionary 変換**：`packages/tokens/tokens.json`（クライアント別カラー・タイポ・スペーシング）から Tailwind config・CSS Variables・iOS Swift・Android XML を自動生成。バナー生成部（yuna・kana）に同一 tokens.json を配布することで LP とバナーのブランドズレを物理ゼロ化。
+- **Shared UI パッケージ**：`packages/ui/` に「Hero テンプレ」「フォーム部品」「フッター」等の LP 共通 React コンポーネントを集約。案件ごとに Props で色・コピー・画像だけ差し替え、Ren の実装工数を 1 案件 40h → 15h に圧縮。
+- **`turbo prune` による Docker 最適化**：本番デプロイ時に対象アプリだけの `package.json` と lockfile 部分集合を切り出し、Docker イメージサイズを 1.2GB → 180MB に削減。Fluid Compute のインスタンス起動を高速化。
+- **到達 KPI**：モノレポ内 LP 案件数が 10 案件を超えても CI 平均時間 ≤ 90 秒、Remote Cache ヒット率 ≥ 85%、Shared UI コンポーネントの再利用率 ≥ 60%（コード量ベース）。
+- **落とし穴**：Turborepo の `pipeline.build.dependsOn` を `^build` にし忘れると、`packages/ui` の変更が `apps/*` に反映されないままキャッシュヒットしてしまう。依存グラフを `turbo run build --graph` で毎月レビューし、キャッシュキーの完全性を保証する運用を Kaito 直轄で実施。
+
+---
+
+## 📚 知識ベース拡張 (2026年最新)
+
+### 1. LP コンバージョン率ベンチマーク（業界別・2026年最新）
+
+Kaito が受注時にクライアントへ「業界標準 CVR」を数値で提示し、複製 LP の目標値設定と納品後の改善提案の根拠にするための業界別ベンチマーク。数値は 2025 年後半〜2026 年前半の国内外主要調査（Unbounce・WordStream・HubSpot・国内広告代理店平均）を統合。
+
+| 業界カテゴリ | LP CVR 中央値 | 上位 25% ライン | フォーム項目数の目安 | 主要 KPI |
+|--------------|---------------|-----------------|----------------------|----------|
+| 建設業・採用 LP | 2.5〜4.8% | 5.5% 以上 | 4〜6 項目 | 応募数・面接設定率 |
+| BtoB SaaS（無料トライアル） | 3.5〜7.0% | 8.5% 以上 | 3〜5 項目 | トライアル登録・MQL 数 |
+| BtoB SaaS（資料請求） | 1.5〜3.5% | 4.2% 以上 | 5〜8 項目 | ダウンロード・SQL 数 |
+| 不動産（内覧予約） | 1.2〜2.8% | 3.5% 以上 | 5〜7 項目 | 内覧予約・来店数 |
+| 美容・エステ（初回体験） | 4.0〜8.0% | 10% 以上 | 3〜5 項目 | 予約数・LTV |
+| 教育・スクール | 2.0〜5.0% | 6.0% 以上 | 4〜6 項目 | 資料請求・体験申込 |
+| EC 単商品 LP | 1.5〜3.5% | 4.5% 以上 | 決済フォームのみ | 購入数・AOV |
+| 金融（カード・ローン） | 3.0〜6.0% | 7.5% 以上 | 8〜12 項目 | 申込完了率 |
+| 医療（クリニック集客） | 5.0〜10% | 12% 以上 | 3〜5 項目 | 予約数 |
+
+**フォーム項目数と CVR 相関の一般則**：項目数 3 → CVR 100%（基準）、5 項目 → 85%、7 項目 → 65%、10 項目 → 45%。項目 1 つ削減で CVR +5〜8pt 改善する経験則を Nao の設計書段階で必ず提示し、クライアントの「全部聞きたい」要望を数値で説得する。
+
+**モバイル比率とデバイス別 CVR**：2026 年 LP アクセスの 78% がモバイル。ただし CVR はデスクトップの方が平均 1.4 倍高い（BtoB 系はデスクトップ 2.1 倍）。SP 版フォーム最適化（オートフィル・数字入力キーボード・ステップ分割）が SP CVR 向上の 3 大要素。
+
+### 2. 2026年推奨テックスタックリファレンス
+
+Kaito が受注時に「今回はこのスタックで行く」と即決するための、2026 年時点の推奨技術選定表。案件特性ごとに 3 パターン（標準／高性能／CMS 連動）を用意。
+
+#### パターン A：標準 LP（ページ数 1〜3・静的中心）
+
+| レイヤ | 技術 | バージョン | 選定理由 |
+|--------|------|-----------|----------|
+| フレームワーク | Next.js | 15.3+ | App Router 完成度・PPR・Server Actions |
+| スタイリング | Tailwind CSS | v4.0+ | JIT 2 倍高速・CSS Variables ネイティブ |
+| アニメーション | Motion（旧 Framer Motion） | 12.x | Server Components 対応・軽量化 |
+| フォント | next/font | 15.3+ | Self-host 自動・CLS ゼロ |
+| 画像 | next/image + AVIF | 15.3+ | Priority Hints 自動・レスポンシブ |
+| デプロイ | Vercel（Hobby/Pro） | 2026 GA | Fluid Compute・Edge Middleware |
+| CI | GitHub Actions | v4 | Vercel Deploy Hook 連動 |
+| 品質 | Lighthouse CI | 12.x | `lhci autorun` で SLA アサート |
+
+#### パターン B：高性能 LP（CVR 最重要・大量アクセス）
+
+| レイヤ | 技術 | 追加要素 |
+|--------|------|----------|
+| フレームワーク | Astro | 5.x | Zero-JS デフォルト、Islands Architecture |
+| 動的部分 | Astro Actions + React Islands | - | フォーム・カルーセルだけ Hydration |
+| CDN | Vercel Edge Network + `stale-while-revalidate` | - | s-maxage=60, swr=3600 |
+| A/B | Vercel Edge Config + Middleware | - | 5 秒切替 |
+| 監視 | Vercel Speed Insights + Sentry | - | Field Data 実測 + エラー通知 |
+
+**選定基準**：LCP < 1.5s / INP < 100ms が SLA な高難度案件で採用。Next.js より 30% 高速な代わりに、複雑な Server Actions や動的ルーティングが必要な案件では選択しない。
+
+#### パターン C：CMS 連動 LP（コンテンツ運用型）
+
+| レイヤ | 技術 | 追加要素 |
+|--------|------|----------|
+| フレームワーク | Next.js 15 App Router | ISR + `revalidateTag` |
+| CMS | Sanity / Contentful / microCMS | Draft Preview 対応 |
+| プレビュー | Next.js Draft Mode + Sanity Presentation | クライアント編集リアルタイム反映 |
+| Webhook | Sanity → Vercel Deploy Hook | 更新即再ビルド |
+| キャッシュ | `revalidateTag('article-{id}')` | 個別記事のみ再生成 |
+
+**選定基準**：クライアントが月次以上でコピー・画像を差替える LP。Sota との連携が必須で、Hana STEP 7 完了時点で CMS 選定と Draft Preview 要件を確定させる。
+
+#### 共通ライブラリ（全パターン推奨）
+
+- **フォーム**：`react-hook-form` v8 + `zod` v4（バリデーション・型安全・SSR 対応）
+- **状態管理**：Server Components 基本 + `zustand` v5（Client 状態最小限）
+- **アイコン**：`lucide-react`（Tree-shakable・アクセシブル）
+- **日時**：`date-fns` v4（Tree-shakable、moment 不採用）
+- **リンター**：`Biome` v2（ESLint + Prettier より 10 倍高速）
+
+### 3. Vercel 運用ベストプラクティス集（2026年最新）
+
+Kaito が本番運用フェーズで押さえるべき、Vercel 特化の運用知識。単なる公式ドキュメントの再掲ではなく「日本のLP納品現場で 2026 年時点で最も効果が出る運用手順」を凝縮。
+
+#### 3.1 デプロイ・昇格戦略
+
+- **Blue-Green 昇格の 10 秒運用**：Preview デプロイ ID を控え、`vercel alias set {deployment-id} example.com` で本番切替。再ビルドせず alias 付替えのみで 10 秒完結。障害時は同一コマンドで旧 ID に戻す 10 秒ロールバック運用を全案件のチャンネルにピン留めルール化。
+- **Skew Protection 必須化**：フォーム・Server Actions を含む LP は `vercel.json` に `"deploymentEnabled": { "production": true }` と `"skewProtection"` を明示。長時間 LP を開きっぱなしのユーザーがデプロイ後に旧 JS から新 API を叩いて 404 になる Version Skew を物理防止。
+- **Preview Comments でクライアント確認統合**：Vercel Toolbar の Preview Comments を有効化し、クライアントが Preview URL 上で直接コメント → GitHub Issue 自動起票 → Ren/Saki アサインの導線で、Slack と Vercel を二重管理する非効率を排除。
+- **`--prebuilt` フラグ運用**：ローカル `vercel build` → `vercel deploy --prebuilt` で Vercel ビルドキューをスキップ。緊急修正の反映を 40 秒に短縮する運用を Kaito の緊急対応 SLA として明文化。
+
+#### 3.2 ドメイン・DNS 設定
+
+- **Apex ドメイン**：`example.com` は A レコードで `76.76.21.21` を指す（Vercel の Anycast IP）。CNAME は DNS 仕様上 Apex に張れないため、CNAME しか使えない DNS プロバイダは ALIAS/ANAME 代替対応を確認。
+- **サブドメイン**：`www.example.com` は CNAME で `cname.vercel-dns.com` を指す。Vercel の自動 SSL 発行（Let's Encrypt）を有効にするため CAA レコードで `letsencrypt.org` を許可。
+- **DNS 反映確認**：切替後は `dig +short example.com`・`nslookup www.example.com` で 76.76.21.21 または `cname.vercel-dns.com` が返るまで待機（通常 5〜10 分、TTL 依存で最大 48h）。
+- **`cleanUrls` + `trailingSlash`**：`vercel.json` で `"cleanUrls": true, "trailingSlash": false` を必須化し、`/about` と `/about/` の SEO 重複インデックスを防止。
+
+#### 3.3 キャッシュ戦略 3 層モデル
+
+```json
+{
+  "headers": [
+    { "source": "/(.*)\\.(jpg|png|avif|webp|woff2|ico)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
+    { "source": "/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, s-maxage=60, stale-while-revalidate=3600" }] },
+    { "source": "/api/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+  ]
+}
+```
+
+- **静的資産（画像・フォント）**：`immutable` + 1 年キャッシュ。ファイル名にハッシュを含めることで更新時は別 URL となり衝突しない。
+- **HTML（LP 本体）**：CDN では 60 秒キャッシュしつつ `stale-while-revalidate` で 1 時間の陳腐化許容。クライアントのコピー修正が 60 秒以内に反映される体感速度と、Origin 負荷軽減を両立。
+- **API（フォーム送信・動的処理）**：`no-store` で常に Origin 実行。キャッシュ起因の「送信できない」不具合を根絶。
+
+#### 3.4 監視・アラート
+
+- **Vercel Speed Insights**：全 LP に `@vercel/speed-insights/next` の `<SpeedInsights />` を組込み、Field Data の LCP/INP/CLS を 24h 集計。閾値超過を Slack Webhook で `#lp-clone-alerts` に即通知。
+- **Vercel Web Analytics**：`@vercel/analytics/next` の `<Analytics />` で Cookie フリー計測。GDPR/改正個人情報保護法対応の LP でも同意バナー不要で導入可能。
+- **`vercel logs --since 24h`**：本番デプロイ後 24h の Function エラー・404 ヒット・Hydration 警告をゼロ確認するのを納品完了条件に組込む運用を「24h Post-Deploy Watch」として定型化。
+- **Sentry 統合**：`@sentry/nextjs` v9 で Client / Server / Edge の 3 環境のエラーを統合捕捉。Source Map 自動アップロードでスタックトレースを readable に。
+
+#### 3.5 セキュリティヘッダ 4 点（`vercel.json` 標準セット）
+
+```json
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.googletagmanager.com; frame-ancestors 'none';" }
+      ]
+    }
+  ]
+}
+```
+
+Lighthouse Best Practices の指摘ゼロと、クライアントのセキュリティ診断（Mozilla Observatory・Security Headers）で A グレード以上を全案件で達成する標準セット。
+
+### 4. アクセシビリティ (WCAG 2.2 完全対応 2026年版)
+
+WCAG 2.2 は 2023 年 10 月に W3C 勧告となり、2024〜2025 年に日本の JIS X 8341-3 改訂で国内基準化。2026 年時点で BtoB・公共系・大手企業 LP の RFP に「WCAG 2.2 AA 準拠」が明記されるケースが急増。Kaito は納品前ゲートに WCAG 2.2 の全 9 新規基準を組込む。
+
+#### 4.1 WCAG 2.2 で追加された 9 個の新基準
+
+| 番号 | 基準名 | 適用レベル | 対応方法（LP 実装観点） |
+|------|--------|-----------|-----------------------|
+| 2.4.11 | Focus Not Obscured (Minimum) | AA | フォーカス中の要素が Sticky ヘッダー・Cookie バナーで隠れないよう `scroll-margin-top` で退避量確保 |
+| 2.4.12 | Focus Not Obscured (Enhanced) | AAA | 完全に隠れないことを保証 |
+| 2.4.13 | Focus Appearance | AAA | フォーカス表示の輪郭 2px 以上、コントラスト比 3:1 以上 |
+| 2.5.7 | Dragging Movements | AA | ドラッグ操作の UI（カルーセル・スライダー）に単純クリック代替を必ず提供 |
+| 2.5.8 | Target Size (Minimum) | AA | クリック可能要素は 24×24 CSS px 以上（推奨 44×44） |
+| 3.2.6 | Consistent Help | A | 「お問い合わせ」等ヘルプリンクを全ページ同一位置に配置 |
+| 3.3.7 | Redundant Entry | A | フォームで一度入力済みの情報を再入力させない（自動入力・オートフィル） |
+| 3.3.8 | Accessible Authentication (Minimum) | AA | 認証時にパズル・記憶依存の課題を課さない（パスキー・メールリンク推奨） |
+| 3.3.9 | Accessible Authentication (Enhanced) | AAA | 認証にオブジェクト認識・記憶を一切要求しない |
+
+#### 4.2 LP 実装の具体チェック項目
+
+- **コントラスト比**：本文 4.5:1 以上（AA）、見出し・大文字（18pt+）は 3:1 以上、UI コンポーネント境界は 3:1 以上。クライアント指定色が基準未満なら「近似で基準を満たす代替色」を提示してから確定する運用を関門化。
+- **キーボード操作**：Tab キーで論理順序移動、`Enter`/`Space` で全 CTA 発火、`Esc` でモーダル閉鎖、フォーカスリング可視化（`:focus-visible` で 2px outline）。マウスなしで全 CV 導線が完結することを Playwright で自動確認。
+- **スクリーンリーダー**：`aria-label`・`aria-describedby`・`role` を Nao の設計書段階で明示。VoiceOver（macOS/iOS）と NVDA（Windows）の 2 環境で Hero → CTA → フォーム送信の音声読み上げを実機確認。
+- **動画・アニメーション**：`prefers-reduced-motion: reduce` メディアクエリで自動再生・視差効果・回転を停止。前庭障害・ADHD ユーザーへの配慮を CSS で必ず実装。
+- **フォーム**：全 input に `<label>` 明示、必須項目は `aria-required="true"` と視覚的マーカー両立、エラーは `aria-live="polite"` で即座に音声通知、入力形式は `inputmode`・`autocomplete` 属性で最適化（メール `inputmode="email"`、電話 `inputmode="tel"`）。
+- **画像**：全 `<img>` に `alt` 属性明示。装飾画像は `alt=""`（空文字）で読み上げスキップ、意味を持つ画像は「何が写っているか」を簡潔に記述。CSS 背景画像として設定した装飾は問題なし。
+- **動画**：字幕（`<track kind="captions">`）必須、音声解説（`<track kind="descriptions">`）は BtoB・公共系で推奨。
+
+#### 4.3 自動検証ツール
+
+- **axe DevTools**：Playwright + `@axe-core/playwright` で LP 全ページの WCAG 違反を CI 自動検出。Critical / Serious 違反は 1 件でもデプロイブロック。
+- **Lighthouse Accessibility**：`lhci autorun` の assertion に `categories:accessibility` の minScore を 0.95 以上に設定。
+- **Pa11y CI**：`pa11y-ci` で複数ページを一括スキャン、レポートを HTML 出力してクライアント提出資料化。
+- **手動確認**：自動ツールで検出できる違反は WCAG 全項目の約 30%。残り 70% はキーボード操作・スクリーンリーダー実機の手動確認が必須で、STEP 5 デプロイ前の Kaito 直轄チェックリストに組込む。
+
+#### 4.4 契約書・提案書での明文化
+
+Kaito が受注時にクライアントへ提示する「アクセシビリティ SLA」テンプレ：
+
+> 本 LP は WCAG 2.2 レベル AA 準拠を目標とし、以下を保証します：
+> ①自動検出可能な Critical / Serious 違反ゼロ（axe DevTools 検証）
+> ②Lighthouse Accessibility スコア 95 以上（Mobile/Desktop 両方）
+> ③キーボード操作のみでの全 CV 導線完了
+> ④スクリーンリーダー（VoiceOver / NVDA）での主要コンテンツ読み上げ確認
+> ⑤色コントラスト比 AA 基準クリア（本文 4.5:1 以上）
+> ⑥`prefers-reduced-motion` 対応
+
+BtoB・公共系・大手企業案件で必ずこの 6 項目を契約書に明記し、納品後の「アクセシビリティ対応してなかった」クレームを契約段階で予防する。
+
+---
+
