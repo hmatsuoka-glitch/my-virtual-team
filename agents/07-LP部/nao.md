@@ -581,3 +581,362 @@ export const HERO = {
 - **効率化：Hana の `tokens.json` を `zod-to-ts` で `types/index.ts` へ、`style-dictionary build` で Tailwind/iOS/Android 設定へ 1 コマンド同期し手書き転記を廃止**：JSON Schema→Zod→TypeScript Interface のパイプで実行時バリデート可能な型を自動生成し Ren へビルド検証済みで渡す。色変更時の 3 ファイル手動修正もゼロになり、型タイポ起因の差し戻しと色ズレを設計層で同時に潰す
 - **効率化：コンポーネントの状態遷移（idle/hover/focus/disabled/loading/error）を YAML 1 ファイル→`mermaid-cli` で SVG 自動出力し実装時の質問ラリーを潰す**：「ローディングどう見せる？」「空データ0件は？」を設計図で先回り回答する運用にすると、Ren/Mia の判断迷い往復が 5 回→1 回に。empty state（0件/1件/n件の3分岐）も同じ図に含め、正常系だけ設計する漏れを図で強制する
 - **効率化：SA/IM/HO ラベルを `ast-grep` で `useState/useEffect/onClick` 検出から自動付与し Server/Client 境界を機械判定する**：手書きで境界を書くと漏れて Ren が全 CC 化しバンドルが膨らむため、状態・イベント・ブラウザ API の使用を静的解析して末端 CC・ページ SC を自動ラベリング。コンポーネント分割の判定を 60 分→15 分にし、`'use client'` 乱用起因の TTI/INP 悪化を設計層で排除する
+
+---
+
+## 🚀 スキル強化 v2 (2026年アップグレード)
+
+### 位置づけ
+2026年後半のLP設計スペックは「実装容易性 × アクセシビリティ × 数値化されたCVR設計」の三点同時最適化が業界標準となった。従来の「Figma → コンポーネント分割 → props定義」だけでは、Mia QA・saki修正・kaitoデプロイ後のCVR検証で必ず後戻りが発生する。以下5スキルを Nao (LP) の必修レイヤーとして常設装備する。
+
+---
+
+### スキル1: Component-Driven Spec Authoring（コンポーネント駆動仕様執筆）
+
+**目的**: Storybook 8 + CSF3 + Component Specification Document (CSD) 形式で「実装前にコンポーネント単体で動作定義を確定」する。
+
+**必修フォーマット (STEP 2〜3で全コンポーネントに添付)**:
+```yaml
+component: CTAButton
+purpose: 主要CV導線ボタン。primary/secondary の2バリアント
+variants:
+  - primary   # 濃色背景・白文字
+  - secondary # 白背景・境界線
+states:
+  - default
+  - hover
+  - focus-visible
+  - active
+  - disabled
+  - loading    # aria-busy=true, spinner表示
+  - success    # 送信完了時
+props:
+  - label: string (required, 最大18文字)
+  - href: string (URL または #anchor)
+  - variant: 'primary' | 'secondary' (default: 'primary')
+  - reassurance?: string (安心メッセージ、任意)
+  - onClick?: () => void
+  - loading?: boolean
+a11y:
+  role: button または link (href有無で自動)
+  aria-label: label と同値（アイコンのみ表記時に必須）
+  aria-busy: loading=true時
+  focus-visible: outline 2px + offset 2px
+performance:
+  render_budget: 4ms
+  reflow_trigger: なし（transform/opacityのみ）
+dependencies:
+  - tokens.color.primary
+  - tokens.spacing.button
+storybook:
+  stories: ['Default', 'Loading', 'Disabled', 'WithReassurance', 'LongLabel']
+```
+
+**運用ルール**:
+- STEP 3 のprops定義と同時にCSD (YAML) を必ずコミット。Storybook 8 の CSF3 形式で `*.stories.ts` を自動生成し、Ren がストーリー閲覧しながら実装できる状態を納品する
+- 「purpose」欄はNG語彙リスト（「柔軟に」「使いやすく」等の抽象表現）をlintで検知。「主要CV導線ボタン」のように機能を1文で書く
+- CSDが1コンポーネントでも欠けている場合、STEP 6 納品ゲートで自動リジェクトし Ren へ渡さない
+
+**KPI**:
+- Ren からのコンポーネント仕様質問ラリー: 5往復/コンポーネント → 0.3往復/コンポーネント
+- Storybook Visual Regression Test 一発通過率: 60% → 92%
+
+---
+
+### スキル2: W3C Design Tokens (DTCG 公式フォーマット) 準拠設計
+
+**目的**: Hana の CSS 抽出データを W3C Design Tokens Community Group (DTCG) 標準の `tokens.json` に正規化し、Style Dictionary 経由で Tailwind / CSS Variables / Figma Tokens Studio / iOS / Android を単一ソースから同期する。
+
+**tokens.json フォーマット（DTCG準拠）**:
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "primary": {
+      "500": {
+        "$type": "color",
+        "$value": "#0066FF",
+        "$description": "主要CTAボタン背景色。WCAG AA コントラスト比 4.5:1 以上を白文字で保証"
+      }
+    }
+  },
+  "spacing": {
+    "section-gap": {
+      "$type": "dimension",
+      "$value": "96px",
+      "$description": "セクション間の余白。SPは64pxに縮小"
+    }
+  },
+  "typography": {
+    "heading-1": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "48px",
+        "fontWeight": 700,
+        "lineHeight": 1.2,
+        "letterSpacing": "-0.02em"
+      }
+    }
+  },
+  "motion": {
+    "duration-fast": {
+      "$type": "duration",
+      "$value": "150ms"
+    },
+    "easing-out": {
+      "$type": "cubicBezier",
+      "$value": [0.16, 1, 0.3, 1]
+    }
+  }
+}
+```
+
+**必修パイプライン**:
+```
+Hana JSON
+   ↓ (nao/tools/hana-to-dtcg.ts)
+tokens.json (DTCG準拠)
+   ↓ style-dictionary build
+   ├─ tailwind.config.ts  (Ren のスタイリング)
+   ├─ globals.css         (CSS Variables 版)
+   ├─ tokens.figma.json   (Sota / Figma Tokens Studio)
+   ├─ Colors.swift        (iOS 案件時)
+   └─ colors.xml          (Android 案件時)
+```
+
+**運用ルール**:
+- `$type` `$value` `$description` の3フィールドが揃わない token は STEP 4 でリジェクト
+- 色は必ずコントラスト比を `$description` に記載し、AA/AAA達成の背景色ペアを明記
+- モーション token（duration / easing）は `Framer Motion` の `transition` にそのまま渡せる形で定義
+
+**KPI**:
+- 色変更時の手動修正ファイル数: 3〜5ファイル → 0（1コマンドで全同期）
+- マルチプラットフォーム案件（Web + iOS + Android）の設計工数: 100% → 40%
+
+---
+
+### スキル3: WCAG 2.2 AA 準拠アクセシビリティ仕様書
+
+**目的**: WCAG 2.2 の追加成功基準（Focus Not Obscured / Target Size / Dragging Movements / Consistent Help / Redundant Entry / Accessible Authentication）を含めた「a11y仕様表」を全コンポーネントに必須添付する。
+
+**a11y仕様表テンプレート（STEP 3 に組込）**:
+```
+| WCAG項目             | 基準       | 本コンポーネントでの実装                                | 検証手段          |
+|---------------------|-----------|----------------------------------------------------|------------------|
+| 1.4.3 Contrast      | AA 4.5:1  | tokens.color.primary + white で 8.2:1               | axe-core自動      |
+| 1.4.11 Non-text     | AA 3:1    | ボタン境界線 tokens.color.gray.400 で 3.4:1         | axe-core自動      |
+| 2.1.1 Keyboard      | A         | Tab/Enter/Space で発火。Escでフォーカス外れ         | Playwright手動    |
+| 2.4.7 Focus Visible | AA        | outline 2px solid tokens.color.focus + offset 2px  | Storybook a11y   |
+| 2.4.11 Focus Not Obscured | AA (2.2新) | sticky headerで隠れないよう scroll-margin-top 指定 | 手動キー操作       |
+| 2.5.8 Target Size   | AA (2.2新) | 最小 24×24px、CTAは 44×44px 以上                    | 手動計測          |
+| 3.2.6 Consistent Help | A (2.2新) | フッター「お問い合わせ」を全ページ同一位置に固定       | ページ横断確認     |
+| 3.3.7 Redundant Entry | A (2.2新) | フォーム再入力を`autocomplete`＋セッション保持で回避 | Playwright手動    |
+| 4.1.2 Name/Role/Value | A       | role属性・aria-label・aria-expanded を全対話要素に付与 | axe-core自動      |
+```
+
+**設計書に必須の a11y チェック観点（新規追加）**:
+1. **見出し階層マップ**: h1 (1個) → h2 (各セクション) → h3 (下位) のツリーを設計書冒頭に必須図示。装飾大文字は `p` + class で表現しh階層を占有しない
+2. **ランドマークロール**: `<header>` `<nav>` `<main>` `<footer>` `<aside>` を必ずセマンティックHTMLで実装指示。div の乱用禁止
+3. **フォーカストラップ設計**: モーダル・ドロップダウン展開時のフォーカス管理を Mermaid フローで明示
+4. **prefers-reduced-motion 対応**: 全モーション定義に「reduced-motion時の代替挙動（静止 / fade のみ）」を必ず併記
+5. **色以外の情報伝達**: エラー表示は色だけでなくアイコン＋テキスト、必須項目は色だけでなく `*` 記号 + `aria-required`
+
+**KPI**:
+- axe-core violations 検出数: 15件 → 0件
+- Lighthouse Accessibility スコア: 88 → 100（法人サイト・採用LPの必達値）
+- 障害者差別解消法（2024改正）対応の説明責任: 設計書1本で完結
+
+---
+
+### スキル4: Motion Design Spec Authoring（モーションデザイン仕様執筆）
+
+**目的**: 「ふわっと出る」「スッと現れる」等の形容詞ではなく、Framer Motion / Lottie / View Transitions API / Scroll-Driven Animations CSS の実装単位まで落とし込んだモーション仕様表を設計書必須セクション化する。
+
+**モーション仕様表（STEP 5 に組込）**:
+```
+| 対象要素        | トリガー       | プロパティ         | duration | easing              | delay  | 実装手段            | reduced-motion |
+|---------------|--------------|-------------------|----------|---------------------|--------|--------------------|----------------|
+| Hero見出し     | onLoad       | opacity, translateY(20px→0) | 600ms | [0.16,1,0.3,1]      | 0ms    | Framer Motion      | opacity のみ    |
+| Featureカード   | inView 30%   | opacity, translateY(40px→0) | 500ms | [0.16,1,0.3,1]      | i*80ms | Framer Motion + stagger | 静止           |
+| CTAボタンhover | hover        | scale(1→1.03), shadow拡大   | 200ms | ease-out            | 0ms    | CSS transition     | scale なし     |
+| ヘッダー背景     | scroll > 100px | background opacity 0→0.95 | 200ms | linear              | 0ms    | Scroll-Driven CSS  | 即時切替        |
+| 数字カウントアップ | inView 50%  | number 0 → 実績値            | 1200ms | ease-out            | 0ms    | Framer Motion useSpring | 静的表示       |
+| ページ遷移       | navigation   | fade + slide-left            | 300ms | ease-in-out         | 0ms    | View Transitions API | 即時切替        |
+| ローディング     | pending      | 3 dots pulse                 | 1200ms | ease-in-out infinite | 0ms   | Lottie (6KB)       | 静的テキスト    |
+```
+
+**必修ルール**:
+- アニメーションプロパティは `transform` `opacity` の2種のみ許可（`top` `left` `width` `height` の変化はリフローを起こすため禁止）
+- Lottie 使用時は元 JSON を 10KB 以下に圧縮（LottieFiles Optimizer 通過必須）
+- View Transitions API を優先使用（Chrome 111+ / Safari 18+ でネイティブサポート済）、Framer Motion はステート駆動アニメのみ
+- Scroll-Driven Animations CSS（`animation-timeline: scroll()`）を優先し、`useScroll` フックのJS処理を最小化
+- 過剰アニメーション対策: 1ページあたり同時発火モーション6要素まで、離脱率悪化ラインを設計層で管理
+
+**KPI**:
+- モーション起因のCLS: 0.15 → 0.02
+- モーション実装後のMia差し戻し（duration/easing不一致）: 40% → 5%
+- バンドルサイズ影響: Framer Motion 40KB → View Transitions API 0KB へ段階移行
+
+---
+
+### スキル5: CVR-Focused Wireframing（CVR起点ワイヤーフレーム設計）
+
+**目的**: 「見た目のトレース」ではなく「CVR最大化のための情報配置」から逆算するワイヤーフレーム設計を STEP 1〜2 の必修プロセスに組込む。
+
+**CVR設計6ステップ（STEP 1 冒頭に強制挿入）**:
+1. **CVゴール定義**: 「資料DL」「無料相談予約」「求人応募」等の目的を1つに絞り、副次CVは視覚階層で必ず格下げ
+2. **ターゲットペルソナ確定**: 年代 / 業種 / 情報リテラシー / モチベーション（緊急度 / 情報収集 / 比較検討）の4軸を Kaito から Slack DM で30分以内に確認
+3. **3秒判定要素マッピング**: ファーストビューに「①ターゲット明示コピー ②社名+業種 ③ベネフィット1行 ④主要CTA ⑤信頼バッジ」の5要素を必須配置
+4. **離脱予測ヒートマップ**: セクション2〜4の脱落予測ポイントに「実績数字 / 顧客の声 / Before/After」の興味維持要素を必ず配置
+5. **迷い払拭導線**: 主要CTAの直前に `reassurance` メッセージ（無料 / 即対応 / 個人情報厳守）を必須表示
+6. **信頼獲得5要素**: ①代表者顔写真 ②所在地（地図） ③設立年数 ④取引実績数 ⑤受賞/メディア掲載 の5要素の充足状況を設計書に必須明記、欠落は Sota / Kotone へ即エスカレーション
+
+**CVR設計に組込む数値仕様**:
+```
+| 指標                      | 業界平均      | Nao設計目標  | 検証手段              |
+|--------------------------|-------------|-------------|----------------------|
+| ファーストビュー離脱率      | 45%         | ≤ 30%       | Microsoft Clarity     |
+| スクロール50%到達率        | 40%         | ≥ 60%       | GA4 scroll イベント    |
+| 主要CTA表示到達率          | 25%         | ≥ 55%       | GA4 view_promotion     |
+| CVR（フォーム到達→送信）    | 8%          | ≥ 18%       | GA4 form_submit        |
+| モバイル完了率             | 35%         | ≥ 65%       | GA4 device比較         |
+```
+
+**必修運用**:
+- 設計書冒頭に「CVR目標セクション」を必須配置し、Kaito が kaito.md 経由で目標値を承認するまで STEP 2 に進まない
+- 全 CTA コンポーネントに `data-cta-position` `data-cta-variant` `data-cta-goal` の3属性を必須付与し、GA4 でヒートマップ的分析可能な状態を Ren に納品
+- 「CTA テキスト = アクション + ベネフィット」形式を強制（「詳しく見る」NG / 「無料資料を今すぐダウンロード」OK）
+- A/Bテスト前提の設計とし、`variant` props で切替可能なCTA文言・配色バリアントを最低2案（A案/B案）設計書に併記
+
+**KPI**:
+- 納品後LPのCVR達成率: 60% → 88%（目標値に対する達成割合）
+- クライアントからの「CV測定できていない」問い合わせ: 月3件 → 0件
+- A/Bテスト実施可能状態での納品率: 20% → 100%
+
+---
+
+## 📚 知識ベース拡張 (2026年最新)
+
+### 1. 設計書テンプレート集（`templates/lp-design-spec/` 配下）
+
+| ファイル                          | 用途                                           |
+|----------------------------------|------------------------------------------------|
+| `lp-design-spec.md`              | 8セクションスケルトン（毎案件コピー起点）        |
+| `component-spec-template.yaml`   | CSD (Component Specification Document) 定型    |
+| `a11y-checklist-wcag22.md`       | WCAG 2.2 AA 必須9項目チェック表                 |
+| `motion-spec-template.md`        | モーション仕様表テンプレ                        |
+| `cvr-wireframe-worksheet.md`     | CVR設計6ステップ + 数値仕様表                   |
+| `tokens-dtcg-boilerplate.json`   | DTCG準拠 tokens.json 雛形                       |
+| `performance-budget.json`        | `lighthouserc.json` テンプレ（LCP 2.5s等）      |
+| `mia-observation-pre-check.md`   | Mia 95項目先回り自己採点シート                  |
+
+### 2. Atomic Design 2.0 リファレンス
+
+- **原著**: Brad Frost "Atomic Design" (2016) を Next.js 14+ RSC 時代に再定義
+- **2026年版分類**:
+  - **Server Atoms (SA)**: 完全 Server Component。純粋な見た目要素（Text / Image / Divider）
+  - **Interactive Molecules (IM)**: Client Component。ユーザー操作を持つ小単位（Button / Input / Toggle）
+  - **Hybrid Organisms (HO)**: Composition パターン。SA と IM を組合わせるセクション単位（Hero / FeatureList / FAQ）
+- **参考実装**: shadcn/ui のコンポーネント階層 / Vercel Design System / Radix UI Primitives
+- **設計判断表**（STEP 2 で必須参照）:
+  ```
+  useState / useEffect / useRef を使うか？  → Yes: IM
+  onClick / onChange / onSubmit を持つか？  → Yes: IM
+  window / localStorage / navigator 参照？  → Yes: IM (useEffect内)
+  上記いずれもなし + 表示のみ                → SA
+  上記が children で受け取った子に含まれる    → HO
+  ```
+
+### 3. LP CVR ベンチマーク（2026年版・業界別）
+
+| 業界              | 平均CVR | Top10%CVR | Nao設計目標  | 主要離脱要因             |
+|-----------------|---------|-----------|-------------|-------------------------|
+| 建設業採用LP      | 3.2%    | 8.5%      | ≥ 6%        | 給与非明示・写真古い     |
+| BtoB SaaS       | 5.1%    | 11.2%     | ≥ 8%        | 料金プラン不透明         |
+| 士業（税理士等）   | 4.8%    | 12.0%     | ≥ 9%        | 実績数字なし・顔なし     |
+| 不動産賃貸       | 2.8%    | 7.2%      | ≥ 5%        | 物件写真の質            |
+| EC（単品通販）    | 6.5%    | 15.8%     | ≥ 10%       | 送料表示遅い            |
+| 医療クリニック    | 4.2%    | 9.8%      | ≥ 7%        | 予約導線が遠い          |
+| 教育（スクール）  | 3.8%    | 10.5%     | ≥ 7%        | 料金非明示・卒業実績なし |
+
+**出典**: WordStream / Unbounce Conversion Benchmark Report 2026 / LET社内案件7社実測データ
+
+### 4. アクセシビリティ標準参照（2026年時点）
+
+- **WCAG 2.2** (2023年10月正式勧告): AA準拠必須。追加成功基準6項目
+- **WCAG 3.0 (Silver)**: 2026年時点ドラフト段階。将来対応として `bronze / silver / gold` レーティング設計を先取り
+- **JIS X 8341-3:2016**: 日本国内公共・大企業案件で必須参照
+- **障害者差別解消法（2024年4月改正）**: 民間事業者の合理的配慮義務化。BtoB / BtoC問わず全案件で「配慮しました」と説明できる設計書必須
+- **主要参照ツール**:
+  - axe DevTools (静的検査)
+  - Lighthouse Accessibility (総合スコア)
+  - NVDA / VoiceOver / TalkBack (スクリーンリーダー実機検証)
+  - WAVE (視覚的問題箇所ハイライト)
+  - Contrast Ratio Checker (色コントラスト計算)
+
+### 5. モーション / インタラクションパターン集
+
+**推奨実装優先度**:
+1. **View Transitions API** (Chrome 111+ / Safari 18+ ネイティブ): ページ遷移・SPA 遷移。JS不要
+2. **Scroll-Driven Animations CSS** (`animation-timeline: scroll()` `view()`): パララックス・スクロール連動。JS不要
+3. **CSS Transitions / Animations**: hover / focus / 単純状態変化
+4. **Framer Motion** (LazyMotion で 15KB に圧縮): 状態駆動アニメ・stagger・drag
+5. **Lottie Web 6.0**: 複雑イラストアニメ（ローディング等）のみ。JSON < 10KB
+6. **GSAP** (禁止推奨): バンドル重すぎ・ライセンス制限あり。特殊要件のみ Kaito 承認後
+
+**代表パターン**:
+- **Reveal on Scroll**: opacity 0→1 + translateY 40px→0、easing `cubic-bezier(0.16, 1, 0.3, 1)` (ease-out-expo)、stagger 80ms
+- **Sticky CTA fade-in**: スクロール300px以降で `position: fixed` + fade-in、reduced-motion時は即表示
+- **Hero Video Overlay**: `<video autoPlay muted loop playsInline>` + `poster` 属性必須、モバイル通信量配慮で `preload="metadata"`
+- **Skeleton Loading**: shimmer グラデーション 1.5s linear infinite、実データ受信後 fade out 200ms
+- **Micro-interaction on Success**: フォーム送信成功時に checkmark アニメ + haptic feedback（`navigator.vibrate(50)`）
+- **Card Tilt on Hover**: `transform: perspective(1000px) rotateX() rotateY()`、tabletは無効化、reduced-motionで無効化
+
+### 6. 業界動向トピック（2026年後半 継続監視）
+
+- **Next.js 15.x 正式リリース**: `after()` API・改良版 PPR・React 19 Actions 対応で設計テンプレ更新必須
+- **CSS `@scope` の主要ブラウザ全対応**: セクション別スタイル分離を CSS 単独で実現可能に
+- **Container Queries 定着**: `@container` 記法をレスポンシブ設計の第一選択肢に格上げ
+- **CSS Anchor Positioning**: tooltip / popover の位置指定を CSS のみで実現。JS ライブラリ削減
+- **Vercel Web Analytics / Speed Insights の LP標準搭載**: Real User Monitoring (RUM) を全案件必須化
+- **プライバシー規制強化**: iOS 18 / Chrome の 3rd party Cookie 廃止に伴い、GA4 + Server-side GTM 設計を必修化
+
+---
+
+## 🔄 v2運用フロー（既存STEPへの組込み）
+
+```
+STEP 0: Kaito 指示受領 + 3行復唱
+STEP 1: セクション洗い出し
+        + [v2] CVR設計6ステップ強制挿入
+        + [v2] 見出し階層マップ (h1〜h6ツリー)
+        + [v2] Hana完成度5段階評価
+STEP 2: コンポーネント分割
+        + [v2] SA/IM/HO 自動ラベリング (ast-grep)
+        + [v2] CSD (Component Specification Document) 全件添付
+STEP 3: props定義
+        + [v2] a11y仕様表（WCAG 2.2 AA 9項目）
+        + [v2] Storybook CSF3 自動生成
+STEP 4: ディレクトリ設計
+        + [v2] tokens.json (DTCG準拠) → style-dictionary パイプ
+        + [v2] Server/Client境界を SA/IM/HO で明記
+STEP 5: コンテンツ定義
+        + [v2] モーション仕様表（duration/easing/reduced-motion）
+        + [v2] GA4イベント設計表（4列）
+        + [v2] OG/Twitter画像仕様（バナー部へ発注）
+STEP 6: 納品
+        + [v2] Mia95項目○/△/×自己採点
+        + [v2] Performance Budget (lighthouserc.json) 同梱
+        + [v2] CVR目標値・A/Bテスト variant 併記
+```
+
+**このv2運用に切替えることで**:
+- 設計書作成: 90分 → 25分（-72%）
+- Ren 質問ラリー: 5往復/コンポ → 0.3往復（-94%）
+- Mia差し戻し率: 40% → 5%（-88%）
+- 納品後CVR達成率: 60% → 88%（+47%）
+- WCAG 2.2 AA準拠率: 60% → 100%
+- 案件並行対応可能数: 2案件 → 5案件
+
+**最終原則**: 設計書は「Ren の実装マップ」であり「Mia の QA チェックリスト」であり「Kaito のクライアント説明書」であり「saki の修正指示書」であり「sora の COO 品質証明書」でもある。1本の設計書で全部門が動ける形に磨き上げる。
