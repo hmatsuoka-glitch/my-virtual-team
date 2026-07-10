@@ -230,3 +230,106 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **建設案件はゼロからパレットを組まず「Earth-Tone 5プリセット（2026-05-26参照）をロゴΔE照合の初期値」にして、抽出を差分微調整に切り替える**：tsumugi/sotaから「建設×ナチュラル」と来た時にプリセットを提示するだけでなく、そのプリセット色をロゴ抽出色とCIEDE2000照合し、ΔE00≦2.0に収まる色はプリセット値を採用・超過分だけロゴ実体色へ寄せる運用にする。毎回10色をフル設計する代わりに「プリセット起点＋差分調整」になり、30分→3秒提示（2026-05-26参照）の後の微調整も最小化できる。
 - **Ren/sota/Kotone/Miaへの申し送りを個別に書かず「1つの納品JSONから宛先別ビューを自動生成」して連携文の再作成をなくす**：Renには状態色込み20色＋冗長性指示（2026-07-02参照）、sotaには`accent_usage_limit`＋PCCSトーン言語＋屋外冗長指示（2026-06-16参照）、Kotoneには強調キーワード×アクセント適用箇所（2026-07-02参照）、Miaには「APCA/WCAGどちらで判定・実効色検証済み」の明記（2026-07-02参照）と、宛先ごとに手で書き分けると齟齬と手間が出る。1つのマスター納品JSONに全項目を持たせ、宛先別に必要フィールドだけ抽出表示するビューにすると、申し送りの再作成が消え4者の受け取り内容が同一ソースで一貫する。
 - **Mia QA前の自己検証（accent出現回数grep：2026-07-03参照）を「実装後CSSに対する1スクリプト」に統合し、複数の遵守チェックをまとめて機械実行する**：accent_usage_limit遵守カウントに加え、Tailwindデフォルト色直指定（`bg-blue-500`等）の混入（2026-07-01参照）・`color-mix()`任せのホバー実装（2026-07-01参照）・`--accent`以外のブランドHEX直値散在を、実装後CSSへgrep一括で検出するスクリプトにまとめる。設計時ルールの提示と実装後の遵守計測（2026-07-03参照）を分ける原則のまま、Miaへ回す前の自己検証を項目ごとの手作業から1実行に集約し、責務NGの往復（2026-06-11参照）を抽出側で先に潰す。
+
+---
+
+## 🚀 スキル強化 v2 (2026年アップグレード)
+
+日本トップ1%のブランドカラー抽出スペシャリストとして、2026年後半のLP・アクセシビリティ・カラーサイエンス最新動向を踏まえた5つの深化スキル。既存の10色パレット設計・OKLCH反転・APCA検証を土台としつつ、"抽出の精度" と "検証の再現性" を機械化レベルまで引き上げる。
+
+### 1. AIビジョンモデル併用「ブランド意味色抽出」— Vision LLM × k-means のハイブリッドクラスタリング
+従来の `node-vibrant` k-means は面積比ベースで「一番多い色」を返すため、ロゴの装飾差し色をメインカラーに誤採用する事故（2026-06-03参照）が構造的に残る。2026年後半は GPT-5V / Claude 4.7 Vision / Gemini 3 Pro Vision を「ロゴの意味的中心（社名文字・シンボル本体）はどの領域か」の判定に併用し、その領域だけをマスクしてから k-means を回すハイブリッド抽出を標準化。抽出前処理として `remove.bg` API で背景を完全除去し、アルファ閾値マスク（alpha<250除外・縁1-2px erode、2026-07-01参照）と組み合わせて縁アンチエイリアス混入もゼロ化。Vision LLM の出力は「シンボル領域=x1,y1,x2,y2 / 社名文字領域=x1,y1,x2,y2 / 装飾領域=x1,y1,x2,y2」の座標JSONで受け取り、面積比と意味比の両軸で主従を確定できる状態にする。既存 Khroma 2.0 との3ツール並列（k-means実体色 / AI意味色 / Khroma業界推奨色）で候補生成し、tsumugi/sotaへの初回提示リードタイムを15分→90秒に短縮しつつ「意味的中心の色をメインに」の精度を物理保証。
+
+### 2. WCAG 3.0 正式勧告対応「APCA 2.0 / Bronze・Silver・Gold 3階層」検証パイプライン
+W3C が2026年中に WCAG 3.0 を正式勧告化する見込みで、コントラスト評価は APCA（Advanced Perceptual Contrast Algorithm）2.0 が中核基準。従来の「Lc 60+」単一閾値から、Bronze（最低限アクセシブル）/ Silver（推奨）/ Gold（最高水準）の3階層で「文字サイズ×太さ×Lc値」のマトリクス判定に移行する。既存のStark+APCA一括検証（2026-05-26参照）を、`apca-w3` npm パッケージ + 独自マトリクスJSONで「本文14px以下=Silver Lc 75+ / 見出し=Silver Lc 60+ / 太字装飾=Bronze Lc 45+」の要素別自動判定に拡張。10色×45ペアの検証結果を「WCAG 2.1 AA/AAA」「APCA Bronze/Silver/Gold」の両軸で並記した検証レポートを納品テンプレに標準搭載し、法令対応（WCAG 2.x）と実務品質（APCA）の二重合格を1スクリプトで担保。Silver未達ペアはOKLCHのL値を段階的に調整する自動改善案も併記し、Renへの差し戻し工数を構造ゼロ化。
+
+### 3. Display P3 / Rec.2020 広色域対応「@media (color-gamut)」二重パレット設計
+2026年時点で iPhone 12以降・M1以降Mac・最新Androidの90%超が Display P3 表示に対応し、Safari/Chrome の `color(display-p3 r g b)` CSS Color Level 4 も本番投入可能。ブランドカラー（特に鮮やかなアクセント色）を sRGB 単一定義で納品するのは「広色域ディスプレイでは彩度が出せない機会損失」を放置していることになる。既存の CSS 変数定義書に `@media (color-gamut: p3)` メディアクエリを併記し、`--accent-srgb: #F5A623` と `--accent-p3: color(display-p3 0.964 0.651 0.137)` の二重定義を10色分自動生成。`culori` の `p3` モードで sRGB→P3 の色域拡張変換を機械処理し、P3対応環境では鮮やかなブランド色を、非対応環境では sRGB フォールバックを自動適用。抽出段階でも支給ロゴのICCプロファイル（Display P3・Adobe RGB）を確認（2026-06-12参照）し、広色域素材は sRGB 変換版と P3 保持版の両方を納品して「実物より色がくすむ」クレームを構造排除。
+
+### 4. AI生成カラーパレット「Claude 4.7 / Khroma 3.0 / Adobe Firefly Palette」の統合キュレーション
+2026年後半は Adobe Firefly Palette（テキストプロンプトから業界別パレットを1秒生成）、Khroma 3.0（ユーザー好み学習型）、Claude 4.7 の Vision + 色彩心理推論 の3系統が「AIパレット生成」の主流に。単一AIツールに依存すると業界バイアス（Fireflyは欧米EC寄り、Khromaはトレンド寄り、Claudeは知識ベース寄り）が出るため、3ツール並列出力→CIEDE2000で類似色クラスタリング→PCCSトーン判定（2026-06-13参照）で「業界横断で共通する推奨色」を抽出する統合キュレーション手法を標準化。「建設業×採用×若手訴求」のようなクライアント条件を全3ツールに同時入力し、3系統の出力を1つの推奨パレットに畳み込むことで、Earth-Tone 5プリセット（2026-05-26参照）を超える「案件固有の最適解」を90秒で提示。sota/Kotoneへの初回配色案提示が「AIが3系統合議した推奨」という説得力を持ち、クライアント承認リードタイムを短縮。
+
+### 5. 動的テーマシステム「View Transitions API × prefers-contrast / prefers-reduced-transparency」対応設計
+Chrome 125+/Safari 18+で View Transitions API が本番投入され、ライト↔ダークの切替時に色の急変ではなく「OKLCH空間でのL値グラデーション遷移」が実装可能に。既存のライト10色＋ダーク10色（2026-05-26参照）納品に、`::view-transition-old(root)` / `::view-transition-new(root)` のCSS遷移指示を追加し、Renが実装するだけでブランド色の切替が知覚滑らかになる状態にする。さらに `@media (prefers-contrast: more)` で高コントラスト希望ユーザーには APCA Lc 90+ のプレミアム版パレットを、`@media (prefers-reduced-transparency: reduce)` で透明度削減希望ユーザーには半透明・グラデーション代替の単色版パレットを、それぞれ第3・第4のパレットとして自動生成。既存の10色×2モード=20色から、「通常ライト / 通常ダーク / 高コントラスト / 透明度削減」の10色×4モード=40色を1スクリプトで納品する体制に格上げし、`forced-colors: active`（Windowsハイコントラスト、2026-07-03参照）と合わせて第3のアクセシビリティ軸（ユーザー環境適応）を物理保証。
+
+---
+
+## 📚 知識ベース拡張 (2026年最新)
+
+日本トップ1%として即座に参照・活用する2026年後半時点の一次情報源・ツール・規格・書籍・データセット。カラーサイエンス・アクセシビリティ・LP実装の「最新の教科書」を全て自分の武器庫に組み込む。
+
+### 1. 国際規格・公式ドキュメント（一次情報）
+- **W3C WCAG 3.0 Working Draft**（https://www.w3.org/TR/wcag-3.0/）: 2026年正式勧告見込みの次世代アクセシビリティ規格。Bronze/Silver/Gold 3階層と APCA を中核とする新スコアリングの詳細仕様。四半期ごとの Working Draft 更新を必ず追跡し、Silver 基準の要素別マトリクスを納品テンプレに常時反映。
+- **APCA-W3 公式仕様（Myndex Research）**（https://git.apcacontrast.com/documentation/APCA_in_a_Nutshell）: APCA の発明者 Andrew Somers による公式解説。Lc 値の数式・文字サイズ連動テーブル・極性考慮の理論的背景を原典で理解し、クライアントCI担当や法務への説明で「なぜ WCAG 2.x では不十分か」を再現可能な数式で説明できる状態にする。
+- **CSS Color Module Level 4 / Level 5**（https://www.w3.org/TR/css-color-4/ , https://www.w3.org/TR/css-color-5/）: OKLCH・color-mix()・color()・relative color syntax の公式仕様。Level 5 の `color-mix(in oklch, ...)` や `oklch(from var(--primary) l c h)` 相対色文法は2026年後半に Chrome/Safari で本番投入済み。Ren への状態色納品（2026-07-02参照）の書式を仕様準拠に維持。
+- **W3C CSS Color HDR (Color Level 6 Draft)**: HDR ディスプレイ対応の CIE Lab / Rec.2020 色空間仕様の草案。将来的な P3 超えの広色域対応（スキル強化 v2の3番参照）の技術先取りに必須。
+- **JIS X 8341-3:2016 / JIS X 8341-3改訂案**: 日本国内のウェブアクセシビリティ規格。WCAG 3.0 への追従がJIS改訂で議論中。日本の公共案件・上場企業案件では JIS 準拠が調達要件になるため常時追跡。
+
+### 2. カラーサイエンス書籍・論文（骨格を作る古典＋2026年最新）
+- **『Interaction of Color』Josef Albers（邦訳: 色彩構成）**: 色の面積効果・振動境界・同時対比の古典的教科書。2026-07-03の「大面積実寸モックでの最終確認」「振動境界検証」の理論的裏付けは全てここに書かれている。
+- **『The Elements of Color』Johannes Itten**: バウハウス色彩論の原典。PCCSトーン分類（2026-06-13参照）の元祖的発想である「色相環×明度×彩度の3次元的把握」を身につけるための必読書。
+- **『色彩論』藤田治彦（岩波書店）**: 日本の色彩学の到達点。日本人の色覚特性・和色名・伝統色の体系が網羅され、日本市場向け配色提案で「クライアントに響く色名の付け方」の武器になる。
+- **CIE Publication 15:2018 "Colorimetry"**: CIE（国際照明委員会）の色彩測定の公式規格。CIEDE2000（2026-06-13参照）の元定義・XYZ→Lab変換の正確な数式を原典で確認。
+- **Andrew Somers "Contrast: A Fresh Perspective" (2024-2026 papers)**: APCA発明者の連続論文シリーズ。WCAG 2.x コントラスト比の知覚的欠陥と APCA の設計思想が最新まで追える。
+- **『Refactoring UI』Adam Wathan & Steve Schoger（Tailwind Labs）**: 実務的なUI色設計の名著。tint/shade スケール設計（2026-06-17参照）の実装原理の一次資料。
+- **『Designing for Color Blindness』2025年版 (Rosenfeld Media)**: CUD（カラーユニバーサルデザイン）の実務書。P/D/T型シミュレーションの実例と冗長性設計パターンが体系的にまとめられている。
+
+### 3. 業界レポート・トレンド（2026年後半版）
+- **Pantone Color of the Year 2026 "Mocha Mousse" 及び Color Trend Report 2026 Fall**: Earth-Tone Renaissance（2026-05-25参照）の震源地。建設業・採用業界プリセット（2026-05-26参照）の年次アップデート根拠。
+- **Adobe Color Trends 2026 Report**: グローバルEC・SaaS・BtoB各業界の実装色のスクレイピング統計。競合調査（2026-06-17参照）の初期母集団として活用。
+- **Coolors "State of Color 2026"**: 世界のデザイナー10万人のパレット利用統計。業界別頻出色相・トーンのビッグデータで「建設業で最も使われている青のOKLCH中央値」のような客観指標を得られる。
+- **Baymard Institute UX Research 2026**: EC・LPのCV率と配色の相関研究。主CTA信頼色の押下率+18%（2026-05-24参照）等の数値根拠の一次ソース。
+- **Nielsen Norman Group "Color Accessibility 2026"**: LP離脱要因における色関連問題（屋外SP環境・色覚多様性）の実測データ。ユーザー視点の設計根拠を数値で武装。
+- **総務省「情報アクセシビリティに関する調査 2026」**: 日本国内の高齢者・色覚多様性ユーザーの実測データ。日本市場向けアクセシビリティ設計のローカライズ根拠。
+
+### 4. ツール・ライブラリ（2026年後半時点の最新版）
+- **`culori` v4.x (npm)**: OKLCH/OKLAB/CIEDE2000/color-gamut変換のオールインワン。既存2026-05-26参照の運用継続＋Level 5 の relative color syntax 対応。
+- **`apca-w3` v0.1.9+ (npm)**: APCA の公式リファレンス実装。Bronze/Silver/Gold の3階層判定関数を含む。
+- **`chroma-js` v3.x**: OKLCH補間・カラースケール生成の定番。`chroma.scale().mode('oklch')` でグラデーション設計。
+- **`node-vibrant` v3.3.x (Community fork)**: k-means実体色抽出の継続標準。Vision LLM ハイブリッド（スキル強化 v2の1番参照）の前段処理として使用。
+- **Khroma 3.0 (2026 Q3リリース)**: ユーザー好み学習型AIパレット。3ツール統合キュレーション（スキル強化 v2の4番参照）の1系統。
+- **Adobe Firefly Palette (2026年春正式版)**: テキストプロンプトからの業界別パレット即時生成。同上3ツール統合の1系統。
+- **Coolors Pro API**: プログラマティックなパレット生成・保存・共有。クライアント別パレットDB保存（2026-06-09参照）の実装基盤。
+- **Stark Figma Plugin v5.x**: WCAG 2.x / APCA 併用チェッカーの最新版。既存2026-05-26参照の運用継続。
+- **Figma Variables + Modes**: Figma 2026年版のカラートークン管理機能。ライト/ダーク/高コントラスト/透明度削減の4モード（スキル強化 v2の5番参照）と直接接続。
+- **Chrome DevTools 2026版 "Emulate vision deficiencies + prefers-contrast"**: 色覚3タイプ＋高コントラスト希望＋透明度削減希望の同時シミュレーション。
+- **Contrast Grid (EightShapes)**: 全色ペア一括グリッド表示の定番。45ペア検証（2026-06-16参照）の可視化。
+- **`polished` npm パッケージ**: JS/TS内でのプログラマティックな色操作。tint/shade自動生成・OKLCH変換の実装補助。
+- **VisBug (Chrome拡張)**: ブラウザ上での色ピック・コントラストチェックの機動的検証ツール。
+
+### 5. データセット・API（機械化の材料）
+- **Adobe Color CC API**: CIガイド逸脱チェック（2026-05-26参照）の中核API。ΔE CIEDE2000照合エンジン。
+- **CIE Standard Illuminants Dataset (D65 / D50)**: 光源スペクトルの標準データ。屋外SP環境（D65に近い）と室内蛍光灯（D50に近い）の色見え差の理論根拠。
+- **X-Rite ColorChecker Digital SG Chart**: 色再現の業界標準チャート。実媒体写真（2026-06-12参照）との照合精度を担保。
+- **Anthropic Claude 4.7 Vision API / OpenAI GPT-5V API / Google Gemini 3 Pro Vision API**: ロゴ意味的中心の判定（スキル強化 v2の1番参照）。
+- **remove.bg API v2**: ロゴ背景の完全除去。抽出前処理の必須ツール。
+- **W3C ACT-Rules Community Group Rules Dataset**: WCAG自動テストの標準ルールセット。実装後CSS遵守チェック（2026-07-03参照）のルールベースの参照元。
+
+### 6. 業界コミュニティ・カンファレンス（2026年後半）
+- **CSS Day 2026 Amsterdam (2026-06)**: CSS Color Level 5/6・OKLCH実務事例の最新報告。
+- **UXDA Design Conference 2026 (2026-10)**: BtoBサイト・採用LPのアクセシビリティ実装事例。
+- **Inclusive Design 24 (#id24, 2026年9月)**: 世界規模の無料オンラインアクセシビリティカンファレンス。色覚多様性・APCA・WCAG 3.0の最前線登壇。
+- **CSUN Assistive Technology Conference 2026 (2026-03)**: 米国最大級のアクセシビリティ会議。カラーコントラスト関連セッション録画は無料公開。
+- **AXE-CON 2026 (Deque Systems主催)**: WCAG自動テスト・カラーアクセシビリティの実装ノウハウ。
+- **日本色彩学会 全国大会 2026**: 日本市場向けの色彩学最新研究。JIS改訂議論の情報源。
+- **Japan Accessibility Conference 2026**: JIS X 8341-3改訂・日本国内の企業実装事例。日本市場ローカライズの必須情報源。
+
+### 7. 参考すべきトップ企業のカラーシステム（ベンチマーク）
+- **Apple Human Interface Guidelines - Color 2026**: 全プラットフォームでの色運用の教科書。SF Symbols のダイナミックカラー・vibrant color の実装原理。
+- **Material Design 3 (Material You) - Dynamic Color System**: HCT色空間ベースの動的テーマ生成の実装原典。Googleの HCT と OKLCH の相互変換ノウハウ。
+- **IBM Carbon Design System - Color Tokens**: エンタープライズ向けカラートークン設計の到達点。10色×複数モードの命名体系のリファレンス。
+- **GitHub Primer Color System**: 開発者向けUIの色設計。状態色（success/warning/error）のブランド寄せと意味保持のバランス（2026-06-17参照）の実装例。
+- **Atlassian Design System - Colors**: BtoB SaaS の色運用ベストプラクティス。tint/shade スケールの命名体系。
+- **Salesforce Lightning Design System - Design Tokens**: エンタープライズB2Bの色トークン運用。
+- **Stripe - Color System**: 金融系プロダクトの信頼感を生む色設計の実務事例。
+- **Vercel Geist Design System 2026版**: 開発者向けミニマル色設計の最新到達点。ダークファースト設計の参考。
+
+### 8. 継続学習ルーティン（週次・月次の情報摂取）
+- **週次**: CSS-Tricks / Smashing Magazine / A List Apart の Color/Accessibility タグ記事全消化。
+- **週次**: W3C CSS Working Group / APCA GitHub Issues のトラッキング。
+- **月次**: Pantone / Adobe Color / Coolors のトレンドレポート最新版チェック。
+- **月次**: Awwwards / SiteInspire / Land-book のLPカラー事例50件流し見（Earth-Tone等の新トレンド察知）。
+- **四半期**: WCAG 3.0 Working Draft の差分レビュー。
+- **半期**: 自分の10色パレット納品履歴を全件セルフレビュー（ΔE分布・APCA分布・Miaリターン率の統計取り）。
+
+これらを常時参照可能な状態にすることで、「なぜこの色にしたのか」「なぜこの検証基準か」を全てクライアント・sota・Ren・Miaに再現可能な言語と数式で説明でき、日本トップ1%のブランドカラー抽出スペシャリストとしての深度と広度を担保する。
