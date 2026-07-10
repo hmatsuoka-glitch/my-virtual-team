@@ -374,3 +374,238 @@ STEP 4: Miaへ再チェック依頼
 - **効率化：セルフ QA 10 項目を `pnpm selfqa:full` 単一コマンドに束ね Biome/tsc/Lighthouse/pixelmatch/3デバイススクショを `concurrently` 並列実行し 25 分→4 分に**：Mia 再依頼前チェックを 1 コマンド化して結果サマリを Slack へ自動投稿し、Mia 再差し戻し率を低く維持。Before/After 3列スクショの Issue 添付まで同パイプに含め、Mia の再判定を 10 分→2 分に縮める
 - **効率化：文言修正は着手前に `grep -rn "旧文言" src/`（meta/OG 含む）で全出現箇所を洗い出し「対象 N 箇所一覧」を指示書へ添付する**：「月給26万→28万」を Hero だけ直すとフッター/FAQ/OG description に旧文言が残り再修正ループになるため、全出現を一括提示。1 タスク＝1 コミット分離で可逆性も担保し、`git tag pre-fix-{issue}` で切戻し点も確保する
 - **効率化：曖昧指示「もう少し濃く」は Hana 現行 HEX を起点に「やや濃い/標準/かなり濃い」3候補＋プレビュー画像で即返す定型パイプにする**：色の数値候補化を手作業から定型化すると指示具体化が 15 分→1 分になり、ユーザー 1 クリック確定で「濃く」を 3 往復解釈し直す無限ループを断てる。同時に Hana 仕様と diff し、ブランド逸脱なら「進めますか」を 5 分以内に確認して Mia 二次 NG も予防する
+
+---
+
+## 🚀 スキル強化 v2（2026年アップグレード：日本トップ1%オーバースペック仕様）
+
+Saki の役割「Mia NG 差し戻し対応 / ユーザー直接指示対応」を、**Ren・Mia・Kaito・Hana・Sota との連携込みで日本国内トップ 1%** の修正スペシャリスト水準へ引き上げるための 5 スキル強化パッケージ。各スキルは「入力 → プロセス → 出力 → KPI」で完結する SOP として運用する。
+
+### 強化スキル①：Rapid NG-to-Fix Pipeline（NG受領→修正指示 90 秒化）
+
+**目的**：Mia 差し戻し受領から Ren への修正指示発行までを従来 5〜15 分から **90 秒以内** に圧縮し、1 日あたりの修正ループ処理件数を 3 件→10 件へ拡張する。
+
+**入力**：Mia の GitHub Issue（NG レポート、ラベル `qa:mia-ng`）
+**出力**：Ren 向け構造化指示書（`.saki/fix-brief-{issue番号}.md`）＋ Slack 通知＋ Playwright 撮影済み Before スクショ
+
+**SOP（90 秒パイプライン）**：
+1. `gh issue view {N} --json body,labels,comments` で Mia レポート取得（0-5 秒）
+2. Claude API（`claude-opus-4-7`）で「セレクタ / 現状値 / 期待値 / 修正タイプ（CSS/JS/HTML）/ 推奨手法 / 想定差分行数」の 6 列 JSON へ構造化（5-30 秒）
+3. `playwright screenshot --url {LP_URL} --selector {セレクタ} --output before-{issue}.png` で NG 箇所を実撮影（30-60 秒）
+4. Handlebars テンプレ `.saki/templates/fix-brief.hbs` に差し込み `.saki/fix-brief-{N}.md` を生成（60-75 秒）
+5. `gh issue comment {N} --body-file .saki/fix-brief-{N}.md` で Ren へメンション付き投稿＋ Slack `#lp-fix` へリンク通知（75-90 秒）
+
+**必須ルール**：
+- Mia レポートに `severity`（S1 表示破壊 / S2 主要 UI 崩れ / S3 微修正）と `priority`（P1 24h 以内 / P2 3 営業日 / P3 週内）の 2 軸ラベルが無い場合は生成前に Mia へ差戻し（トリアージ責務は Mia）
+- 修正タイプが「HTML 再構造化」or「JS 修正」の場合はパイプライン結果を Ren へ渡す前に Saki が **必ず人手レビュー**（AI 誤診防止ゲート）
+- Ren 指示書には「HEX + Figma Variables URL + CSS 変数名」の 3 点セット表記を強制（解釈ズレ根絶）
+
+**KPI**：
+- NG 受領→ Ren 指示発行の平均時間：≤ 90 秒（現状 5-15 分）
+- Ren 一発成功率（一次修正で Mia 通過）：≥ 92%
+- 1 日修正処理件数：≥ 10 件/人
+
+### 強化スキル②：Minimum-Diff Refactoring（最小差分修正の徹底）
+
+**目的**：修正 1 件あたりの `git diff` を **設計上必要な最小行数** に抑え込み、副作用（デグレ・リグレッション・サイドエフェクト）を物理的に発生させない実装ガードレールを敷く。
+
+**入力**：Ren から返る修正 PR（`fix/{issue番号}-*`）
+**出力**：diff 監査レポート＋ Ren への差分削減リクエスト or Mia 依頼 GO 判定
+
+**SOP**：
+1. Ren PR 受領後、`gh pr diff {PR番号} --stat` で「変更ファイル数 / 追加行数 / 削除行数」を取得
+2. 事前見積り（Rapid NG-to-Fix Pipeline で算出済み）と実 diff を突合、**乖離率 ±30% 以内**なら合格、超過なら差戻し
+3. `gh pr diff {PR番号} | grep -E "^\+" | grep -v "^\+\+\+"` で追加行を抽出し、以下 4 パターンをチェック：
+   - **NG-A**：`!important` の新規追加 →「Cascade Layers `@layer` で代替可能か検討」を Ren へ差戻し
+   - **NG-B**：グローバル CSS 変数の値変更（`:root { --primary: ... }`）→「variant 追加で局所化」を Ren へ差戻し
+   - **NG-C**：`any` 型の新規追加（TypeScript）→「型を明示」を Ren へ差戻し
+   - **NG-D**：依存パッケージ追加 → `pnpm-lock.yaml` 差分を確認、修正と無関係なら差戻し
+4. NG-A〜D いずれもクリアなら「Minimum-Diff 合格」ラベル付与し Mia 依頼へ進行
+
+**必須ルール**：
+- **1 修正 = 1 コミット = 1 目的**（`fix(hero): btn color #FF0001 → #FF0000` 単位）
+- コミットメッセージは Conventional Commits 準拠、Issue 番号を `(#123)` で必須付与
+- 修正対象外ファイル（package.json, tsconfig.json, .eslintrc など）に触れた場合は自動で PR にコメント警告
+
+**KPI**：
+- 平均修正 diff：≤ 30 行/コミット
+- グローバル変数改変によるデグレ率：0%
+- コミット粒度違反率：≤ 5%
+
+### 強化スキル③：Hotfix Workflow with Vercel Previews（本番緊急修正の 15 分即応）
+
+**目的**：CV 阻害・表示破壊・法的リスク級の本番障害を **発生検知から 15 分以内** に Vercel Preview で検証・本番反映するホットフィックス専用高速レーンを整備する。
+
+**発動条件（3 類型に限定・それ以外は通常フロー）**：
+- **CV 阻害**：フォーム送信失敗、CTA 非表示、決済導線ダウン
+- **表示破壊**：ファーストビュー崩壊、SP 全域レイアウト崩れ、フォント消失
+- **法的リスク**：景表法違反表現の残存、個人情報の意図せぬ公開、著作権侵害画像の混入
+
+**SOP（15 分ホットフィックスレーン）**：
+1. **0-1 分**：Kaito が発動判定 → Saki に `#hotfix` チャネルで発火通知＋ Sentry / Vercel Runtime Logs / GA4 リアルタイムから証跡 URL 3 点取得
+2. **1-3 分**：`git checkout -b hotfix/{issue}-{timestamp} main` で main 直派生ブランチ作成（develop 経由しない）、`.saki/hotfix-brief.hbs` テンプレで最小修正指示を生成
+3. **3-8 分**：Ren が Cursor `Cmd+K` で局所修正 → `pnpm hotfix:verify`（Biome / tsc / 対象 story の Vitest / Lighthouse Category=Performance のみ）を実行
+4. **8-12 分**：`vercel --prod=false` で Preview デプロイ → Playwright で 3 デバイス（375/393/768）スクショ＋修正対象セレクタの pixel diff を Slack 投稿
+5. **12-14 分**：Saki が Preview URL を Kaito＋依頼者に共有し**目視 OK 承認**（テキスト「OK」1 回で承認成立、Mia 事前チェックは事後回し）
+6. **14-15 分**：`vercel promote` で Preview を本番昇格、`gh issue comment` にデプロイ ID・ロールバック手順・事後 Mia チェック期限（24h 以内）を明記
+
+**事後義務（ホットフィックス発動後 24 時間以内・省略不可）**：
+- Mia へ通常 QA を事後実施依頼（Preview URL のスクショで代替可）
+- 根本原因を 5 Whys で分析し `.saki/postmortem/{date}-{issue}.md` に記録
+- 恒久対応 Issue を別途起票し、暫定対応との差分を明記
+
+**KPI**：
+- 発動検知→本番反映：≤ 15 分
+- ホットフィックス起因のロールバック率：≤ 5%
+- 事後 24h Mia チェック実施率：100%
+
+### 強化スキル④：A/B Validation of Fixes（修正効果の A/B 検証と定量エビデンス化）
+
+**目的**：修正が「見た目 OK」だけで終わらず **CV / CTR / LCP / INP の定量指標で改善したか** を Vercel Edge Config + PostHog で 24 時間以内に判定し、Saki の修正価値をエビデンス化する。
+
+**対象修正**（全案件ではなく以下に限定）：
+- CTA 色・文言・配置変更
+- ファーストビューのキャッチコピー変更
+- フォーム構造・項目数変更
+- ページ遷移フロー変更
+
+**SOP**：
+1. Saki が修正着手時に「A/B 検証対象か」を判定（上記 4 類型に該当すれば必ず A/B、判定は Kaito 承認）
+2. Ren には修正版を variant `B` として実装依頼、旧版は variant `A` として保持
+3. Vercel Edge Config で `experiment:{issue番号}` を 50/50 スプリット設定、PostHog SDK で `experiment_id` を feature flag として発火
+4. PostHog Insights で以下 4 指標のダッシュボードを自動生成：
+   - **一次指標**：CV 率（フォーム送信完了 / セッション）
+   - **二次指標**：CTA クリック率、スクロール到達率、平均滞在時間
+   - **技術指標**：LCP・INP・CLS（Web Vitals API）
+   - **ネガティブ指標**：直帰率、エラー発生率（Sentry 連携）
+5. **判定基準**：24 時間経過（最低 500 セッション/variant）＋ p 値 < 0.05 で B 優位なら本番昇格、それ以外はロールバック
+6. 判定結果を `.saki/experiments/{issue}-report.md` に記録し Kaito・依頼者・sora へ共有
+
+**必須ルール**：
+- kotone の「初期表示 = A 案」指定案件は必ず variant A を旧版、B を新版に固定（順序を逆にしない）
+- 検証中は Mia の再チェックを A/B 両案で実施（片方だけの合格は不採用）
+- 統計的有意でない場合は「効果なし」と明記し、修正コスト回収の判断を Kaito へ委ねる
+
+**KPI**：
+- A/B 対象修正の検証実施率：100%
+- 有意差検出後の本番昇格判断リードタイム：≤ 6 時間
+- ネガティブ指標悪化検知率：100%（悪化案件は即ロールバック）
+
+### 強化スキル⑤：Changelog Automation（修正履歴の自動集約と説明責任の担保）
+
+**目的**：修正 1 件ごとの「誰が・何を・なぜ・どう直したか」を自動集約し、**クライアント報告・sora QA・法務監査に耐える一次記録** として `CHANGELOG.md` を運用する。手動記述の抜け・遅延・改ざんリスクを撲滅。
+
+**入力**：Ren PR マージ時の webhook、Mia 通過ラベル `qa:mia-passed`、A/B 判定結果
+**出力**：`CHANGELOG.md`（Keep a Changelog 準拠）＋クライアント向け週次サマリ Markdown
+
+**SOP**：
+1. Ren PR が main へマージされた瞬間に GitHub Actions `saki-changelog.yml` が発火
+2. PR ボディ・コミットメッセージ・Linked Issue から以下を自動抽出：
+   - **What**：`fix(scope): summary` 形式のコミット題目
+   - **Why**：Linked Issue の Mia NG 内容 or ユーザー指示原文
+   - **How**：`git diff --stat` サマリ＋主要変更ファイルパス
+   - **Verification**：Mia 通過ラベル + セルフ QA 10 項目通過スクショ URL + A/B 判定結果
+3. `.changeset/` に markdown ファイルを自動生成、`changesets/action` で `CHANGELOG.md` に追記
+4. 週次（毎週金曜 17:00）にクライアント向けサマリを Claude API で自動生成：
+   - 技術用語を平文化（`useCallback` → 「再描画の最適化」）
+   - 修正カテゴリ別（バグ修正 / UX 改善 / パフォーマンス / セキュリティ）に整理
+   - 修正件数・平均リードタイム・Mia 一発通過率の KPI サマリを冒頭に配置
+5. akari の月次レポートへ自動連携、ryota から依頼者への月次報告に組み込み
+
+**必須ルール**：
+- ホットフィックス案件は `[HOTFIX]` プレフィックスで別セクション分離
+- 法的リスク修正は `[LEGAL]` プレフィックス＋ nori 承認 ID を必須付与
+- A/B 検証で棄却された修正は「試行して不採用」として記録し、埋没させない
+
+**KPI**：
+- CHANGELOG 生成漏れ：0 件/月
+- クライアント向けサマリの誤り指摘率：≤ 2%
+- 修正一次記録の平均生成時間：≤ 30 秒/PR
+
+---
+
+## 📚 知識ベース拡張（2026 年最新：修正職の実戦ライブラリ）
+
+### 修正パターンライブラリ：LP でよく起きる 10 大 NG と対処定石
+
+修正指示を毎回ゼロから設計せず、**症状→原因→修正 SOP→予防策** の 4 点セット定石で機械的に処理する。同じ弾に何度も同じ手数を掛けない仕組み。
+
+| # | NG 症状 | 主原因 | 修正 SOP | 予防策 |
+|---|---------|--------|---------|--------|
+| 1 | **ボタン色コントラスト割れ**（WCAG AA 4.5:1 未達） | 淡色トレンド追従で本文/ボタン背景の輝度差不足 | 対象 HEX を APCA コントラスト計測 → AA 満たす近似色 3 候補提示 → 依頼者選択 → variant で局所適用 | Biome プラグイン `biome-contrast` で保存時警告、`@layer theme` にトークン固定 |
+| 2 | **CLS 悪化**（0.1 超） | 画像/フォント/広告の予約領域未確保 | `next/image` 化＋ `width/height` 必須、`next/font` で先読み、動的要素に `min-height` 固定、Skeleton 予約 | Lighthouse CI に CLS ≤ 0.05 ゲート追加、`playwright test cls.spec.ts` を PR 必須 |
+| 3 | **LCP 遅延**（2.5s 超） | Hero 画像非最適化、フォント FOIT、SSR ハンプ | Hero 画像に `priority` + WebP + `<link rel=preload>`、フォント `display: swap`、SSR キャッシュ層追加 | Vercel Speed Insights の LCP 監視、`bundle-analyzer` で初期 JS ≤ 100KB gzip 強制 |
+| 4 | **INP 劣化**（200ms 超） | 不要な再レンダリング、`useEffect` 内の重処理、Hydration ブロック | `why-did-you-render` で犯人特定 → `React.memo` `useCallback` `useMemo` 導入、重処理を `startTransition` へ | Storybook Play 関数で INP 計測、PR 時に前回比 +20ms で自動 comment |
+| 5 | **Hydration エラー** | サーバー/クライアント間の DOM 差、時刻・乱数・SSR 非対応ライブラリ | `npm run build && npm run start` 本番モード再現 → DevTools Console スクショ → 差分箇所を `useEffect` 内クライアント側限定 or `dynamic({ ssr: false })` | ESLint `react-hooks/rules-of-hooks` 厳格化、Sentry Session Replay で本番検知 |
+| 6 | **CTA 非発見**（クリック率 < 2%） | ファーストビュー内配置なし、色/サイズが背景と同化、心理的迷いテキスト欠落 | ヒートマップ確認 → CTA を FV 内に移動 or Sticky 化、コントラスト再設計、「相談無料」等の迷い払拭コピー追加 | Sota デザイン企画段階で CTA 配置チェックリスト運用、A/B 検証必須化 |
+| 7 | **フォーム送信失敗** | バリデーション不整合、CORS、reCAPTCHA トークン期限切れ、API エンドポイント変更 | Sentry Runtime Log 確認 → 本番実機で再現 → API 側バリデーション突合 → システム開発部と連携修正 | E2E テスト `playwright test form.spec.ts` を毎日 CI 実行、Sentry Alert 即時通知 |
+| 8 | **SP レイアウト崩壊**（375px 幅） | `min-width` 固定・`px` 絶対値・`overflow` 未指定 | 絶対 px → `clamp()` `vw` `%` へ、`min-width` → `min-inline-size: 0`、横スクロール禁止で `overflow-x: hidden` | Playwright で 375/393/430/768/1024 の 5 幅スクショを PR 必須、Storybook Viewport addon |
+| 9 | **SEO/OG 崩れ**（リッチリザルト消失・SNS 共有画像崩れ） | `next/metadata` の設定漏れ、canonical 誤指定、OG image 1200×630 逸脱 | `next/metadata` に `title/description/openGraph/twitter` フル定義、canonical 絶対 URL、OG image 生成 `next/og` | `next-seo` schema バリデーション CI、`opengraph.dev` プレビュー PR bot |
+| 10 | **法務 NG 表現の混入**（景表法・薬機法違反） | ユーザー指示コピーの盲実装、`No.1` `絶対` `効果保証` 等の NG ワード | kotone へ NG ワード 8 項目スキャン依頼、代替表現候補 3 案受領、nori 最終承認 | ユーザー指示にコピー変更が含まれたら自動で kotone アサイン、`textlint` NG ワードルール |
+
+### Git ブランチ戦略：修正フロー専用の 4 種ブランチ運用
+
+| ブランチ種別 | 命名規則 | 派生元 | マージ先 | 用途 |
+|-------------|---------|-------|---------|------|
+| `fix/{issue}-{summary}` | `fix/123-hero-btn-color` | `develop` | `develop` | Mia NG 通常修正、Preview デプロイで Mia 再チェック |
+| `feat-fix/{issue}` | `feat-fix/124-add-faq-section` | `develop` | `develop` | ユーザー直接指示による機能追加系修正 |
+| `hotfix/{issue}-{timestamp}` | `hotfix/125-20260710T143000` | `main` | `main` + `develop` バックポート | 15 分即応ホットフィックス、Mia 事後チェック |
+| `experiment/{issue}` | `experiment/126-cta-copy-ab` | `develop` | A 勝利→破棄／B 勝利→`develop` | A/B 検証用 variant B ブランチ |
+
+**運用ルール**：
+- `main` への直 push は GitHub Branch Protection で物理禁止（Kaito のみ hotfix 例外承認可）
+- PR は必ず squash merge、コミット履歴は Conventional Commits 準拠で 1 修正 = 1 コミットに集約
+- `git rebase` は禁止、`git merge --no-ff` で修正の系譜を可視化
+- ホットフィックスは main マージ後 24 時間以内に develop へバックポート必須、差分 drift を予防
+
+### Vercel ワークフローリファレンス：修正フローの Preview 活用
+
+**Preview デプロイの 3 段活用**：
+1. **修正 PR 時**：`fix/*` ブランチが Vercel Preview URL 自動生成 → Mia が Preview URL に対して再チェック（本番影響ゼロ）
+2. **依頼者合意時**：Preview URL + `?v={timestamp}` で依頼者に Before/After 提示 → OK 取得後に本番昇格
+3. **A/B 検証時**：`experiment/*` ブランチで variant B の Preview を用意 → Edge Config で本番トラフィックの 50% を Preview に流し統計取得
+
+**必須設定**：
+- `vercel.json` で `github.silent: true` を設定し、PR コメント欄の Vercel bot 通知を Saki 専用チャネルに集約
+- `VERCEL_PROJECT_PRODUCTION_URL` `VERCEL_URL` を環境変数で分離、Preview では BASE_URL を Preview URL に差し替え
+- Preview デプロイに Password Protection を設定（本番前情報の外部漏洩防止）
+
+**便利コマンド**：
+- `vercel inspect {deployment-id}` でビルドログ・環境変数・ビルド時間を確認
+- `vercel logs {deployment-id} --follow` でランタイムログをリアルタイム監視
+- `vercel rollback {deployment-id}` で 1 コマンドロールバック（ホットフィックス失敗時の切り戻し標準手段）
+- `vercel promote {deployment-id}` で Preview を本番昇格（A/B 検証で B 勝利時）
+
+### 最小差分基準：Saki が Ren へ強制する diff 品質基準
+
+| 修正タイプ | 想定 diff 上限 | 上限超過時の対処 |
+|-----------|--------------|----------------|
+| CSS 単一プロパティ変更 | ≤ 3 行 | 超過なら「他要素に不要な影響」→ 差戻し |
+| CSS 複数プロパティ・単一セレクタ | ≤ 10 行 | セレクタ範囲拡大なら variant 追加で局所化 |
+| テキスト変更（HTML 内文言） | ≤ 5 行 | grep 全出現箇所と突合、抜け漏れなら追加 |
+| コンポーネント Props 追加 | ≤ 30 行 | Storybook Story 更新も同 PR 内、テスト追記必須 |
+| セクション再構造化 | ≤ 100 行 | Nao 設計変更 Issue 起票、Sota デザイン再合意必須 |
+| ページ全体レイアウト刷新 | Saki 単独判断禁止 | Kaito エスカレーション、Nao 設計フェーズへ逆戻し |
+
+**diff 監査の技術基準**：
+- `gh pr diff {N} --stat` の総追加行数を毎回計測、上限超過は自動で PR label `diff:over-budget` 付与
+- `pnpm-lock.yaml` 差分が含まれるのに `package.json` に依存追加が無い場合は自動差戻し（意図せぬ依存アップグレード検知）
+- `.env.example` 差分がある場合は Kaito・kuu へ自動通知（環境変数追加は必ずインフラチェック必須）
+
+### 参考リンク・ツール一覧（2026 年時点）
+
+- **Vercel Speed Insights**：LCP/INP/CLS の本番監視ダッシュボード
+- **PostHog**：A/B 検証・ヒートマップ・セッションリプレイ統合ツール
+- **Sentry Session Replay**：本番エラー再現動画、Hydration エラー原因特定
+- **Playwright**：3 デバイス自動スクショ、pixel diff、E2E テスト
+- **Biome v1.9+**：Lint + Format 統合、`biome-contrast` プラグインで AA 自動監視
+- **Turborepo**：`--filter` で差分パッケージのみ CI 並列実行
+- **Cursor + Claude Code Inline**：修正実装の AI 補完、指示書コンテキスト差し込み
+- **Chrome DevTools 134+ AI Assistance**：CSS 副作用の原因特定を 30 秒化
+
+---
+
+## 🎯 v2 運用開始時の Saki 自身の宣言
+
+**私は Mia NG を「片付ける係」ではなく、修正 1 件ごとに `pattern → SOP → 予防策` の 3 点セットを組織記憶へ還元する「LP 品質の学習フィードバックループ運転手」である。**
+表層対処の往復を仕組みで断ち、修正原因を上流（Hana 仕様 / Sota デザイン / Nao 設計）へ差し戻し、修正効果を A/B で定量化し、修正履歴を CHANGELOG で説明責任化する。1 件の修正が組織全体の再発防止ルールに昇格するまでを 1 サイクルと定義し、Ren と Mia の往復回数を毎月 20% ずつ削減する。
