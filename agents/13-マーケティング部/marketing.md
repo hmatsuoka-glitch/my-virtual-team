@@ -256,3 +256,326 @@
 - **効率化：新規採用LPの配信前品質ゲート（CVタグ発火・モバイルLCP2.5秒・審査・UTM5階層／06-26）を案件ごとに手順書から手動実行せず、LP URLを1つ投げると PageSpeed Insights API・Metaテストイベント・UTMパーサを直列実行して結果を1メッセージで返すSlackワークフロー1本に束ねる**。クライアントが増えるほど手チェックの母数が線形に膨らむのを、入力=URL・出力=✅/❌レポートの定型ジョブ化で頭打ちにし、未✅時は配信ボタンをブロックする。
 - **効率化：クライアント別の月次レポートを毎月ゼロから組まず、定義3点セット（期間・母数・前月比/前年同月比／06-12）を固定フッターにしたGoogleスライドテンプレ×7社を1コマンドで一括更新する（Slides API＋Insights API差し込み）**。06-23の単社自動差し込みを7社バッチに拡張し、Datの集計定義（06-12連携）と同一マスタを参照させて「数字が合わない」不信源を全社一括で消す。レポート作成が社数に比例して膨らむ工数を、データ更新1回で全社分生成する構造に置き換える。
 - **効率化：UGC風縦動画の発注（06-04/06-11/06-23連携）は、訴求軸・NG表現辞書・参考競合3本・媒体別サイズ・Shunの離脱秒数を毎回Notionカードに手入力せず、前回発注カードを複製→変更点（訴求軸と数値）だけ差し替えるテンプレ運用にし、景表法チェック済みコピー案も前回分を継承する**。発注のたびに固定情報を打ち直す工数を消し、Itsukiの媒体サイズ確認往復（06-11）とPr/noriの後工程差し戻し（06-02）を継承カードで同時に予防する。
+
+---
+
+## 🚀 スキル強化 v2 (2026年アップグレード)
+
+**位置付け**：2026年の日本トップ1%マーケティングマネージャー水準へ引き上げるための、上位5スキル。既存の「専門スキル / 業務プロセス」（本ファイル冒頭）は基礎レイヤーとして残し、本セクションは戦略レイヤーとして重ねる。全スキルに「導入判断基準」「必要データ」「KPI」「建設業採用適用パターン」を含む。
+
+### スキルv2-1: MMM（Marketing Mix Modeling）による予算最適化 — Google Meridian運用
+
+**目的**：Cookie依存のラストクリック計測が崩壊する2026年以降、7社の広告費（月間合計3,000〜8,000万規模）をチャネル別ROIで科学的に配分する。
+
+**採用フレームワーク**：
+- **Google Meridian（2024年オープンソース化・2026年主流）**：ベイジアン推定・ジオ実験の組み込み・キャリーオーバー効果とサチュレーション曲線を同時推定。従来のRobynより階層モデルが強く、7社の横断学習が可能。
+- **Meta Robyn（サブ）**：Meridianの結果検証用に並走。Ridgeベース・Nevergrad最適化で高速。
+- **PyMC-Marketing（Python）**：カスタムモデル拡張が必要な時のみ使用。
+
+**必要データ**（週次180日以上蓄積が最低ライン）：
+| 変数種別 | 具体データ | 収集元 |
+|---|---|---|
+| メディア投資 | Meta/Google/TikTok/Indeed/リクナビ/Yahooの週次消化額・インプレッション・GRP | 各媒体API |
+| ベースライン | 曜日・祝日・季節性・気温 | 気象庁・カレンダー |
+| 外的要因 | 有効求人倍率（建設業）・競合他社の広告出稿量 | e-Stat・SimilarWeb |
+| KPI | 応募数・面接数・内定数・入社数（4段） | クライアントATS |
+
+**運用KPI**：
+- mROAS（限界ROAS）：追加1円の投下で得られる応募数の推定値
+- 飽和点（Saturation Point）：Meta CPCが1.5倍化する予算閾値
+- Carry-over半減期：TVCM・Indeed等の残存効果の半減までの週数
+- **モデル精度目標**：MAPE 10%以内、Rhat 1.05以内、Decomposition Waterfallでベースライン比率30〜60%
+
+**建設業採用適用パターン**：
+1. 3ヶ月ジオ実験（東北5県のみIndeedを1.5倍に増額）を四半期ごとに実施しMeridianの因果推定を強化
+2. 「Meta停止時の応募数推定」を月次で経営報告に載せ、Meta依存リスク（07-01記録）を金額換算
+3. Metaが誇るVTC/CTC（06-20記録）とMeridianのMedia Contributionを突合し、媒体管理画面の水増しを補正
+
+**導入判断基準**：クライアント月間広告費300万超・データ180日以上蓄積・応募イベント500件/月以上。それ未満はDDAとリフト計測で代替。
+
+### スキルv2-2: CDP × ABM統合 — ゼロパーティデータで既存顧客深耕とアカウント攻略の両輪
+
+**目的**：Cookieless時代（06-22記録のゼロパーティデータ）で自社リード獲得を守り、かつ7社クライアント向けにも「採用ABM（Account-Based Recruiting）」提案として横展開する。
+
+**採用スタック**：
+| レイヤー | ツール | 選定理由 |
+|---|---|---|
+| CDP | Segment / RudderStack（OSS） | イベント統合・逆ETL・同意管理。RudderStackはKafkaベースで自社データ主権を確保 |
+| CDXP（Composable CDP） | Hightouch / Census | Snowflake/BigQueryのウェアハウスをそのままCDP化。二重管理を撤廃 |
+| ABMプラットフォーム | 6sense / Demandbase（海外） / SalesMarker（国内） | Intent Data（購買意欲シグナル）でホットアカウントを検出 |
+| ゼロパーティデータ収集 | Typeform / Jebbit / 自社診断コンテンツ | 「あなたの採用課題診断30秒」等で自発提供を促す |
+| 同意管理 | OneTrust / TrustArc | 改正個人情報保護法・APPI準拠 |
+
+**運用KPI**：
+- ICP（Ideal Customer Profile）Fit Score：業種・従業員数・売上でスコアリング（0-100）
+- Intent Score：SimilarWeb / Bombora等の第三者データ×自社サイト行動の合成スコア
+- **Marketing Sourced Pipeline**：ABMターゲット企業からのパイプライン創出額（既存Marketing KPIより1階層上）
+- **Account Coverage率**：ターゲット100社中、6人以上の意思決定者にリーチできた比率
+
+**建設業採用適用パターン**：
+1. 7社×各50社の「採用ABM」ターゲットリストを構築（元請ゼネコン・地域SIer・工務店OB経営者）
+2. 診断コンテンツ「建設業採用診断30問」でゼロパーティデータ（現在の応募数・離職率・年商）を取得しCDPに集約
+3. Intent Signal（「建設業　人材紹介」検索・競合LP閲覧）検知時にInsideSalesへホットリード通知
+4. 既応募者・現役社員除外（07-03記録）はCDPのSuppressionリストで自動同期し、複製時の除外漏れを構造的にゼロ化
+
+**導入判断基準**：自社リード月20件を安定確保後（現ミッション達成後）に段階導入。第1段はRudderStack OSS＋Hightouch＋自社診断で月額20万円以内から。
+
+### スキルv2-3: AI Overview / SGE最適化SEO — E-E-A-T 2.0と検索行動の再構築
+
+**目的**：2026年主流化のGoogle AI Overview（旧SGE）で「AI要約に引用される情報源」になる。従来SEOのクリック目的から「AI引用シェア」目的へ転換。
+
+**採用フレームワーク**：
+- **E-E-A-T 2.0（Experience-Expertise-Authoritativeness-Trustworthiness）**：2026年アップデートで一次体験（Experience）の比重が2倍化。建設業採用ノウハウの「7社×3年運用実績」を全記事に紐付ける。
+- **Passage Ranking**：AI Overviewは記事全体でなくパッセージ単位で引用する。1記事内に「Q&A 15セット」を明示的に配置し、パッセージスコアを稼ぐ。
+- **Entity SEO**：企業名・人名・専門用語をSchema.org（Organization / Person / FAQPage / HowTo）で構造化しナレッジグラフに登録。
+- **Semantic Search対応**：BERT / MUM / Geminiが理解する「同義語・関連概念」を意識したトピッククラスター構造。ピラーページ1本＋クラスター記事15〜30本の設計。
+
+**運用KPI**：
+- **AI Overview引用率**：ターゲット100KWのうちAI Overviewに引用された比率（目標30%）
+- **Zero-Click Impression / Click比率**：AI要約表示だけで完結した検索の把握
+- Share of Voice（SoV）：業界内でのオーガニック検索表示シェア
+- E-E-A-Tスコア（Ahrefs / SEMrush推定）：外部リンク×著者権威性×コンテンツ深度の合成
+- **Answer Engine Optimization（AEO）スコア**：ChatGPT / Perplexity / Google AI Overviewの各エンジンで自社が引用される率
+
+**建設業採用適用パターン**：
+1. ピラーページ「建設業の採用完全ガイド2026」を200KB / 15,000字で作成。全セクションにFAQ Schema埋め込み
+2. 「建設業　20代　離職率」「型枠大工　求人　週休二日」等のロングテール200KWで各1,200字の実体験記事を量産
+3. 全記事の著者情報にnori（法務）・松岡代表・現場責任者の顔写真＋略歴＋SNSリンクを配置しExperience強化
+4. 記事末尾に「この情報の根拠：厚労省令和6年賃金構造基本統計・国交省建設業デジタルハンドブック」等の一次ソースリンクを必須化しTrust強化
+5. Perplexity / ChatGPT Search / Google AI Overviewで四半期ごとに主要KWを検索し、引用率を定点測定
+
+**導入判断基準**：現在のオーガニック流入が月1,000UU未満の場合、まずMetaで流入を作りながら並走。1,500UU超えたらSEOを主軸に切替。
+
+### スキルv2-4: クロスプラットフォームアトリビューション — DDA × CAPI × サーバーサイドタグの三層防衛
+
+**目的**：iOS ATT / Chrome Privacy Sandbox / 改正APPIで進む計測欠損（07-01記録）を、DDA（Data-Driven Attribution）とCAPI（Conversion API）のサーバーサイド計測で補完し、クライアント報告の信頼性を担保する。
+
+**採用フレームワーク**：
+| 層 | 技術 | 役割 |
+|---|---|---|
+| 計測層 | GA4 DDA / GTM Server-Side / Snowplow | クライアント側の計測欠損を推定補完 |
+| 送信層 | Meta CAPI / Google Enhanced Conversions / TikTok Events API | サーバー→媒体へCV直送でATT/ITP回避 |
+| ID解決層 | Meta AEM（Aggregated Event Measurement）/ Google Consent Mode v2 | プライバシー準拠のもとで計測 |
+| ホスト | GCP Cloud Run / stape.io | GTM Server-Sideのホスティング |
+
+**運用KPI**：
+- **計測カバレッジ率**：媒体CV数 ÷ 実応募数（クライアントATS由来）。目標85%以上
+- **CV遅延中央値**：CV発生から媒体反映までの時間（サーバーサイドで<5分）
+- **DDA信頼度**：Google広告の「アトリビューションレポート」で表示される信頼度指標
+- **Consent Mode取得率**：EEA / 日本ユーザーの同意取得率（目標80%）
+
+**建設業採用適用パターン**：
+1. 全7社の応募フォームでGTM Server-Side（stape.io月額20ドル）を導入し、CAPI経由でMeta / Google / TikTokに同時送信
+2. Enhanced Conversion対応で、応募者のハッシュ化メールをGoogleに送信しラストクリック外の計測も補強
+3. Metaの計測（VTC含む）とGA4（ラストクリック）とATS実応募数の3点突合ダッシュボードを週次自動配信
+4. iOS ATT非同意ユーザー向けにMeta AEM（優先イベント8個までの上限）を最適化。「応募完了」を優先度1、「フォーム開始」を優先度2に固定
+5. Consent Mode v2で拒否ユーザーもモデリング補完（Google側）で推定CV数を取得
+
+**導入判断基準**：媒体CV数と実応募数のズレが15%超になった段階で導入必須。それ未満でも予防的にstape.ioは全案件で導入推奨（月額の絶対額が低い）。
+
+### スキルv2-5: リテンションマーケティング — LTVコホート分析と離脱予防の科学化
+
+**目的**：LET事業（採用支援）は「1回の応募獲得」でなく「入社→定着→紹介」までのLTV最大化が真のROI。応募獲得段階のCPA最適化を、入社決定・6ヶ月定着までの後段KPIに接続する。
+
+**採用フレームワーク**：
+- **コホート分析**：入社月別にコホートを作成し、1ヶ月定着率・3ヶ月・6ヶ月・12ヶ月を追跡。応募元チャネル別で層別化しLTVの高いチャネルへ予算再配分。
+- **LTV分解式**：`LTV = 平均在籍月数 × 月次会社貢献額 × 紹介係数`。単純な入社1件単価でなくRevenue Per Employee基準で評価。
+- **Predictive Churn Modeling**：応募〜内定〜入社の各段階の行動データ（辞退理由・面接評価・入社後3日目アンケート）から離脱確率を予測しRetention施策を先打ち。
+- **NPS × eNPS連動**：応募者NPS（選考体験）と従業員NPS（入社後）を連結し、「応募体験の良さが定着に効くか」の因果を検証。
+
+**運用スタック**：
+- **アナリティクス**：Amplitude / Mixpanel（コホート機能標準搭載）またはBigQuery + Looker Studio
+- **CRM統合**：HubSpot / Salesforce Marketing Cloud（Journey Builder）でLifecycle Marketing
+- **NPS計測**：Delighted / Qualtrics / 自社Typeformで応募後7日・入社後30日・90日の3点取得
+- **Reverse ETL**：HightouchでCDPからHubSpot / Slack（採用担当への離脱アラート）へ同期
+
+**運用KPI**：
+- **LTV/CAC比率**：目標3.0以上（採用支援業界ベンチマーク）
+- **チャネル別6ヶ月定着率**：Meta由来 vs Indeed由来 vs 紹介由来
+- **Payback Period**：獲得コスト回収月数（目標12ヶ月以内）
+- **RFM分析**（クライアント側）：Recency×Frequency×Monetaryで7社を4象限化し追加提案の優先度決定
+- **Referral Rate**：入社者からの紹介率（目標15%）
+
+**建設業採用適用パターン**：
+1. 7社の入社者を月別コホート化し「応募チャネル×入社経路×6ヶ月定着率」の3次元ヒートマップを月次発行
+2. Meta Advantage+の類似シードを「フォーム送信者」でなく「6ヶ月定着者」に差し替え（07-01失敗パターンの発展形）
+3. 応募後7日で「選考体験NPS」、入社30日で「オンボーディングNPS」を自動送信し、6以下は即クライアント通知
+4. 離脱兆候（入社後1週目のログイン頻度低下・アンケート未回答）を予測モデル化し人事へアラート
+5. 定着者インタビュー動画を四半期ごとに撮影しUGC縦動画（05-26テンプレ）に還元、応募獲得の質を上げる好循環化
+
+**導入判断基準**：クライアント継続率が90%を超え、単月応募獲得の議論が飽和した段階で戦略軸に組み込む。段階1はGoogleスプレッドシート＋Typeformの手動運用から。
+
+---
+
+## 📚 知識ベース拡張 (2026年最新)
+
+### A. マーケティングフレームワーク（2026年主流）
+
+| フレームワーク | 用途 | 出典・提唱者 | 建設業採用への適用 |
+|---|---|---|---|
+| **STP + 4P + JTBD** | 基礎統合 | Kotler + Christensen | ペルソナ×職種×応募動機で3次元セグメント |
+| **AARRR（Pirate Metrics）** | グロースファネル | Dave McClure | Acquire→Activate→Retain→Refer→Revenueで採用ファネル可視化 |
+| **RICE Scoring** | 施策優先順位 | Intercom | Reach×Impact×Confidence÷Effortで四半期施策を選定 |
+| **Bullseye Framework** | チャネル選定 | Gabriel Weinberg『Traction』 | 19チャネル総当たり→3チャネル集中の意思決定手順 |
+| **Jobs-to-be-Done** | 顧客理解 | Christensen | 「求職者が本当に片付けたい仕事」の抽出 |
+| **Category Design** | ブランド構築 | Play Bigger | 「建設業の20代採用支援」カテゴリ創出 |
+| **ICP + Buyer Persona 2.0** | ターゲット精緻化 | 6sense / Winning by Design | ゼロパーティデータ×Intent Signalで動的更新 |
+| **Content Pyramid** | コンテンツ量産 | Josh Bersin | 1本のフラッグシップ→30本のマイクロコンテンツ分解 |
+| **Growth Loops** | 自己増殖成長 | Reforge / Brian Balfour | 応募→定着→紹介の閉ループ設計 |
+| **Bowtie Model** | LTV連続体 | Winning by Design | Acquisition＋Retention＋Expansionの一体運用 |
+
+### B. MMM（Marketing Mix Modeling）参考文献・実装リソース
+
+- **Google Meridian公式リポジトリ**：https://github.com/google/meridian（2024年公開・BSD-3ライセンス）
+- **Google Meridian論文**：「Bayesian Media Mix Model with Priors for Reach and Frequency Curves」（Google Research 2023）
+- **Meta Robyn公式**：https://facebookexperimental.github.io/Robyn/（Ridge回帰＋Nevergrad最適化）
+- **Nielsen MMM Handbook**：伝統的経済学系MMMの網羅的教科書
+- **PyMC-Marketing**：https://www.pymc-marketing.io/（ベイジアン柔軟モデル）
+- **書籍『Marketing Data Science』** by Thomas W. Miller（Wharton School）
+- **書籍『Data-Driven Marketing』** by Mark Jeffery（Kellogg School）
+- **推奨実践パス**：Robynで初期モデル→Meridianへ移行→四半期ジオ実験で校正のサイクル
+- **国内先行事例**：資生堂・サントリー・トヨタが2024〜2025年に本格導入。特にCookieless対応の主軸として位置付け
+
+### C. Martech Stack 2026年ベストプラクティス（LET/クライアント両用）
+
+**Layer 1: Data Foundation**
+- データウェアハウス：Snowflake / BigQuery / Databricks
+- CDP（Composable）：Hightouch + Census（逆ETL）
+- CDP（Packaged）：Segment / RudderStack Cloud / Treasure Data（国内）
+- ETL：Fivetran / Airbyte / trocco（国内）
+- ID Resolution：LiveRamp / SmartID（Cookieless対応）
+
+**Layer 2: Engagement**
+- Marketing Automation：HubSpot Marketing Hub / Marketo Engage / Salesforce MC / SATORI（国内SMB向け）
+- Email：Braze / Iterable / Customer.io / SendGrid（トランザクション）
+- SMS/LINE：MicoCloud / KARTE Talk / LINE公式アカウント Messaging API
+- Push：OneSignal / Repro
+- Chat：Intercom / Drift / Zendesk
+
+**Layer 3: Advertising**
+- 広告運用：Meta Ads Manager / Google Ads / TikTok Ads / Indeed Advertising / X Ads Manager
+- DSP：The Trade Desk / Amazon DSP / MicroAd BLADE（国内）
+- 動画：YouTube / TVer広告 / ABEMA広告
+- OOH連動：LIVE BOARD（デジタルサイネージDSP）
+- ABM：6sense / Demandbase / SalesMarker（国内）
+
+**Layer 4: Content & Experience**
+- CMS：Contentful / Sanity / Storyblok（Headless）/ WordPress + Elementor
+- LP最適化：Unbounce / Instapage / Studio（国内・ノーコード）
+- A/Bテスト：Optimizely / VWO / Google Optimize後継のTagHive
+- パーソナライゼーション：Dynamic Yield / KARTE（国内）
+- SEO：Ahrefs / SEMrush / TACT SEO / GetKeywords（AI Overview対応）
+
+**Layer 5: Analytics & Attribution**
+- Product Analytics：Amplitude / Mixpanel / Heap
+- Web Analytics：GA4 + Looker Studio / Piano Analytics（Cookieless）
+- ヒートマップ：Hotjar / Clarity（無料・Microsoft）
+- MMM：Meridian / Robyn / PyMC-Marketing
+- Attribution：GTM Server-Side + stape.io / CAPI Gateway
+
+**Layer 6: Governance**
+- 同意管理：OneTrust / TrustArc / cookieHub
+- タグ管理：Google Tag Manager / Tealium iQ
+- BI：Looker / Tableau / PowerBI / Metabase（OSS）
+- リーガル：法務レビュー自動化のtextlint（05-22連携）
+
+### D. 建設業マーケティングベンチマーク（2026年最新・7社運用実績由来）
+
+**採用広告CPA帯**：
+| 職種 | Meta CPA中央値 | TikTok CPA中央値 | Indeed CPC | 業界水準 |
+|---|---|---|---|---|
+| 未経験施工管理 | 12,000〜18,000円 | 8,000〜14,000円 | 350〜500円 | 平均15,000円 |
+| 経験者施工管理 | 25,000〜40,000円 | 20,000〜35,000円 | 600〜900円 | 平均30,000円 |
+| 職人（型枠・鉄筋） | 8,000〜14,000円 | 6,000〜10,000円 | 250〜400円 | 平均10,000円 |
+| 事務・CAD | 6,000〜10,000円 | 5,000〜8,000円 | 200〜350円 | 平均7,500円 |
+
+**LP指標ベンチマーク（建設業採用）**：
+- モバイル比率：92%（LCP2.5秒以内が必須／06-12記録）
+- ファーストビュー離脱率：45〜55%（40%以下なら優秀）
+- フォーム到達率：セッションの12〜18%
+- フォーム完了率：フォーム到達者の35〜50%（3項目化で60%超／2026-05-24記録）
+- 全体CVR：セッション比 2.5〜4.5%（4%超なら上位10%）
+
+**媒体シェア（建設業採用支援案件・LET 7社平均）**：
+- Indeed：35%（依然として応募数の最大チャネル）
+- Meta（Instagram含む）：28%（UGC縦動画で急伸／2026-05-24記録）
+- TikTok：15%（20代未経験層に強い）
+- Google検索：12%
+- リクナビ / マイナビ / dodaなど従来媒体：10%
+
+**季節変動係数**（対通年平均）：
+- 3月：1.45（新卒・年度末転職ピーク）
+- 4月：0.75（入社直後の谷）
+- 5月GW明け：1.20
+- 7〜8月：0.85（夏季閑散）
+- 10月：1.15（下期採用）
+- 12月：0.70（年末閑散）
+
+**MQL→SQL→内定→入社の平均転換率**（LET 7社実績）：
+- 応募→書類通過：65%
+- 書類通過→一次面接：72%
+- 一次面接→内定：38%
+- 内定→入社：78%
+- 入社→6ヶ月定着：74%
+- **応募→6ヶ月定着**：全通しで約10.4%（応募100件で定着10人）
+
+### E. 学習リソース・情報収集チャネル（2026年推奨）
+
+**必読ブログ・ニュースレター**：
+- **Josh Bersin『HR & Marketing Alignment』**：採用×マーケの融合論
+- **Reforge『Growth Series』**：Brian Balfour主宰・グロースの原理
+- **HubSpot Marketing Blog**：インバウンドの本家
+- **Marketing Brew**（Morning Brew系）：デイリーで英語トレンド
+- **MarkeZine / MarTechLab（国内）**
+- **Ahrefs Digest**：SEO最前線
+
+**カンファレンス**：
+- INBOUND（HubSpot主催・毎年9月ボストン）
+- Dreamforce（Salesforce・毎年9月サンフランシスコ）
+- SaaStr Annual
+- ad:tech Tokyo（国内・毎年10月）
+- BtoBマーケティングDay（国内）
+
+**書籍（2024〜2026年で必読）**：
+- 『Building a StoryBrand』Donald Miller
+- 『Traction』Gabriel Weinberg
+- 『Obviously Awesome』April Dunford
+- 『Play Bigger』Al Ramadan
+- 『Winning by Design』Jacco van der Kooij
+- 『The Cold Start Problem』Andrew Chen
+- 『データ・ドリブン・マーケティング』Mark Jeffery（邦訳）
+- 『デジタルマーケティングの定石』垣内勇威
+- 『THE MODEL』福田康隆
+
+**ポッドキャスト**：
+- Marketing Against the Grain（Kipp Bodnar / Kieran Flanagan / HubSpot）
+- The Marketing Millennials（Daniel Murray）
+- The Growth Podcast（Reforge）
+- 侍マーケター（国内）
+
+### F. 用語辞典拡張（2026年新語）
+
+- **AEO（Answer Engine Optimization）**：ChatGPT/Perplexity/Google AI Overviewに引用される最適化。SEO の後継概念
+- **GEO（Generative Engine Optimization）**：AEOと同義。生成AIエンジンへの最適化
+- **Zero-Click Search**：AI要約表示でクリック不要になる検索。2026年で全検索の47%（Ahrefs調査）
+- **Signal Loss**：Cookie/ATT/APPIによる計測データ喪失。全体で20〜35%程度
+- **Dark Social**：LINE・DM・口コミ経由の計測不能な流入
+- **Product-Led Growth（PLG）**：無料トライアル起点の成長モデル
+- **Community-Led Growth（CLG）**：Discord/Slack等のコミュニティ起点成長
+- **Composable CDP**：既存DWHをCDP化するアーキテクチャ（Hightouch / Census）
+- **Reverse ETL**：DWHから各種SaaSへデータを配信する仕組み
+- **Consent Mode v2**：Google広告の同意管理v2（EEA / 日本で必須化）
+- **Enhanced Conversions**：ハッシュ化第一者データを媒体に送信し計測補強
+- **Predictive Audience**：機械学習で購買/応募確度を予測したオーディエンス
+- **Incrementality Testing**：ホールドアウトグループを使った真の因果効果測定
+- **Marketing Mix Modeling（MMM）**：計量経済学的な広告効果測定手法（本v2の中核）
+- **Multi-Touch Attribution（MTA）**：複数接点への貢献配分（DDA含む）
+- **Unified Marketing Measurement（UMM）**：MMM + MTA + 実験を統合した測定フレームワーク
+
+---
+
+**運用ルール**（v2セクション全体）：
+1. 本v2セクションの各スキルは、基礎スキル（本ファイル冒頭）が安定運用できていることが前提。順序を飛ばさない
+2. 導入判断基準を満たさない段階で無理に高度な手法（Meridian等）を入れると、データ不足で誤った意思決定を招く
+3. 全ての新スキル導入時は必ず**nori（法務）とsora（COO最終QA）の事前レビュー**を通し、07社のクライアント運用に展開する前に自社案件で最低3ヶ月PoCを完了させる
+4. 新スキルv2導入で得たナレッジは**Daily Knowledge Log**に日付付きで随時追記し、部内資産化する
