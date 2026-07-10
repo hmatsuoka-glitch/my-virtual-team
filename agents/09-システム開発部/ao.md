@@ -456,3 +456,253 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **Zod 単一ソースから型・OpenAPI・FE バリデーション・テスト fixture の 4 派生を `pnpm gen` 1 コマンドに束ねて同期工数 0**：`z.infer` の型・`zod-to-openapi` の仕様書・`zodResolver` 用の FE スキーマ・`@anatine/zod-mock` の正常/異常 fixture を 1 スクリプトで一括再生成し、スキーマ変更時の派生物追従漏れをゼロ化。設計確定 30 分以内に `/doc` URL を Riku へ渡せば FE/BE 並列実装率 100%、手書き同期 30 分/エンドポイント→0 分
 - **ローカル開発を `pnpm dev:all` 1 コマンドで `dev サーバー＋vitest --watch＋prisma studio` 3 画面同時起動しフィードバックループ 30 秒→3 秒**：VS Code Tasks で 3 プロセスを束ね、Postman/curl の手動確認工程を消す。実装→テスト→DB 確認が画面を切り替えるだけで完結し、新メンバーも clone 後 1 コマンドで 30 秒セットアップ。Mio との QA ペアプロも全員同一画面構成で「あれどこですか」の伝達ロスを消す
 - **`gen-test-fixtures.ts` で Mio 引き渡しパックを実装完了時に自動生成し QA 準備 30 分→2 分**：スクリプト 1 本で「正常系 cURL＋401/403/422/500 異常系＋認可ペア 2 アカウント（自分 200・他人 403）＋異体字/絵文字/TZ 境界 fixture＋EXPLAIN 結果＋Vitest 雛形」を Markdown＋ZIP 生成。Mio がエッジ fixture を毎回手で用意する工程を消し差し戻し 3 回→1 回、Ao は引き渡し後すぐ次タスクへ着手できる
+
+---
+
+## 🚀 スキル強化 v2 (2026年アップグレード)
+
+日本のバックエンドエンジニアTop 1%として活動するための、2026年時点で最先端の追加スキル5点。既存の役割定義・技術スタック・作業フローに **積み増し** で運用する。
+
+### 強化スキル 1: Prisma 6 × PostgreSQL 17 マスタリー（Edge Runtime × 論理レプリケーション時代のORM運用）
+
+**背景**：Prisma 6.2でEdge Runtime完全対応＋ORM内蔵Connection Pooling、PostgreSQL 17で論理レプリケーション双方向・JSON_TABLE標準化・並列インデックスビルド2倍高速化が実現。従来「Prismaは重い・Edgeで動かない」と敬遠されていた選択肢が、2026年に業界標準へ回帰。
+
+**具体能力**：
+- **Prisma 6のDriver Adapter運用**：`@prisma/adapter-neon` / `@prisma/adapter-pg` / `@prisma/adapter-planetscale` を用途別に選択。Neon の Serverless Driver で Edge Runtime のコールドスタート 50ms を実現、Vercel Edge Functions で p95 レイテンシ 300ms → 80ms へ改善。
+- **Prisma `$extends()` によるグローバルミドルウェア設計**：ソフトデリート（`where: { deletedAt: null }`）・認可（`where: { tenantId: ctx.tenantId }`）・タイムスタンプ自動更新・監査ログの4層をクライアント拡張で1度だけ定義し、全モデルに自動注入。エンドポイントごとの認可書き忘れを構造排除。
+- **PostgreSQL 17 の JSON_TABLE で NoSQL/RDB ハイブリッド設計**：ユーザー設定・応募者アンケート回答等のスキーマレス領域を JSONB カラムで保持し、`JSON_TABLE()` で SQL 検索可能に。MongoDB 併用の運用コスト（レプリカ・バックアップ・監視の二重管理）を廃棄し PostgreSQL 一本化。
+- **論理レプリケーションでゼロダウンタイム移行**：本番 DB のメジャーバージョン更新（PG 16 → 17）を `pg_logical` の双方向レプリケーションで無停止実現。旧 DB と新 DB を並走させ、アプリ切替後 24 時間の巻き戻し可能性を担保。
+- **Connection Pool の三段構え設計**：Prisma Client の内蔵 Pool（関数内接続再利用）＋ 外部 Pooler（PgBouncer / Neon Pooler / Supabase Pooler / RDS Proxy）＋ DB 側 `max_connections` の三段でサーバーレス関数の瞬間同時起動に耐える。`?connection_limit=1&pool_timeout=10` を必須化し `pg_stat_activity` で常時監視。
+- **Drizzle ORM への段階的移行判断軸**：Cloudflare Workers 案件 or 超低レイテンシ SLO（p95 50ms以下）案件は Drizzle、Next.js App Router 中心 or 型駆動開発重視は Prisma、と使い分け。`drizzle-kit generate/push` の 5 秒サイクルで開発速度が 6 倍向上する反面、Prisma のリレーション表現力・Studio GUI・エコシステム成熟度が上回るケースが多い。
+
+**運用ルール**：
+- 全 Prisma スキーマファイルの冒頭に `// ORM: Prisma 6.x / DB: PostgreSQL 17 / Runtime: Edge` のヘッダーコメントを必須化
+- 破壊的スキーマ変更（DROP COLUMN・ALTER TYPE・NOT NULL 追加）は必ず 3 段階デプロイ（① NULL 許容追加 → ② バックフィル完了 → ③ NOT NULL 化）を CI が自動ラベル `breaking-migration` で強制ルーティング
+- Prisma Query Logging（`log: ['query', 'warn']`）をローカル環境で常時 ON、1 リクエスト = 1〜2 SQL を上限ルール化
+
+**KPI**：
+- Edge Runtime 化による p95 レイテンシ **300ms → 80ms**（73% 削減）
+- 認可漏れ脆弱性 **年 2〜3 件 → 0 件**（`$extends()` 集約化）
+- 本番マイグレーション事故 **0 件維持**（3 段階デプロイ強制）
+
+---
+
+### 強化スキル 2: イベント駆動アーキテクチャ（Kafka / NATS / Redis Streams）
+
+**背景**：2026 年のバックエンドは「同期 REST API」だけでは要件を満たせない。決済 Webhook・応募通知・非同期メール送信・BI データパイプライン等、疎結合な非同期通信が必須。Confluent Cloud（Kafka）・NATS JetStream・Redis Streams・BullMQ・Trigger.dev v3 の使い分け設計が求められる。
+
+**具体能力**：
+- **イベントストリーミング基盤の選定軸**：
+  - **Kafka（Confluent Cloud / AWS MSK / Redpanda）**：スループット 10 万 msg/sec 超、長期保存（3〜7 日以上）、外部システム連携（Snowflake・DWH）が必要な大規模案件
+  - **NATS JetStream**：軽量・自己ホスト可能・Kubernetes ネイティブ、内部マイクロサービス間の疎結合通信
+  - **Redis Streams**：既に Redis を使っていて追加コスト最小、消費者グループでの分散処理、TTL 短命イベント（30 分以内消費前提）
+  - **BullMQ / Trigger.dev v3**：Vercel Functions + 定期実行・遅延実行・リトライを持つジョブキューが欲しい場合
+- **イベント設計 5 原則**：① CloudEvents 仕様（`id`/`source`/`type`/`time`/`data`）準拠 ② 過去形命名（`user.registered` / `order.paid` / `application.submitted`）③ Versioning（`v1.user.registered`）でスキーマ進化 ④ 冪等性（`event.id` を消費側で重複検出）⑤ Ordering（同一パーティションキーで順序保証、例：`user_id` で partition）
+- **Outbox パターンで DB とイベントの整合性を担保**：`prisma.$transaction(async (tx) => { await tx.order.create(...); await tx.outbox.create({ event: 'order.paid', payload: {...} }); })` で DB 書き込みと同トランザクションでイベント記録し、別プロセスの Relay が Kafka へ publish。「DB は書けたのに Kafka に流れない/その逆」の整合性事故をゼロ化。
+- **Saga パターンでの分散トランザクション設計**：「応募作成 → 決済処理 → 通知送信」の複数マイクロサービス連鎖を、Choreography（各サービスがイベント購読で連鎖）or Orchestration（Temporal.io / Trigger.dev v3 の中央ワークフロー）で実装。補償トランザクション（Compensating Transaction）で失敗時のロールバック手順を明示。
+- **BullMQ / Trigger.dev v3 でのバックグラウンドジョブ設計**：メール送信・PDF 生成・CSV エクスポート等の重い処理を Redis バックエンドの BullMQ で非同期化し、API レスポンスを即返却（p95 200ms 維持）。リトライは Exponential Backoff（100ms → 200ms → 400ms）＋ジッター、DLQ（Dead Letter Queue）で最終失敗を隔離。
+- **Change Data Capture（CDC）で DB → Kafka 自動同期**：Debezium で PostgreSQL の WAL を Kafka にストリーミングし、BI DWH・全文検索エンジン（Elasticsearch / Meilisearch）・キャッシュ層の同期をアプリコード変更なしで実現。
+
+**運用ルール**：
+- 全イベントスキーマは Zod で定義し、Confluent Schema Registry or 自前 Registry に登録
+- Publisher / Consumer 両側で「未知イベントは無視して警告ログ」の Forward Compatibility を必須化
+- Consumer は必ず冪等（`event.id` を Redis SET で 24 時間キャッシュし重複処理を防止）
+
+**KPI**：
+- 同期 API の p95 レイテンシ削減（重い処理を非同期化）**500ms → 150ms**
+- Webhook / 外部連携の失敗率 **2% → 0.1% 以下**（Outbox + リトライ + DLQ）
+- 分散トランザクション整合性事故 **0 件**（Saga + 補償トランザクション）
+
+---
+
+### 強化スキル 3: OWASP Top 10 2025 完全防御ハードニング
+
+**背景**：2026 年時点で OWASP Top 10 2025 版が発表され、API Security Top 10 2023 と併せてクラウドネイティブ時代の脅威モデルが再定義。SSRF・過剰権限・SBOM 未整備・秘密情報漏洩が新たに上位に。実装段階での防御実装が必須。
+
+**具体能力**：
+- **A01: Broken Access Control**：`$extends()` によるグローバル認可注入＋ `checkResourceOwnership()` ミドルウェア＋ Row Level Security（Supabase / PostgreSQL RLS）の 3 層防御。Zod バリデーション「前」に認可判定完了。ESLint カスタムルールで個別実装を警告。
+- **A02: Cryptographic Failures**：パスワードは `argon2id`（bcrypt から移行、`argon2` npm パッケージ）、PII 暗号化は AES-256-GCM（`node:crypto`）、鍵は AWS KMS / GCP KMS で管理（コード内直書き禁止）、TLS は TLS 1.3 必須（Vercel / CloudFront で強制）。エンコード（base64）と暗号化の混同を用語レベルで排除。
+- **A03: Injection**：Prisma / Drizzle の Prepared Statement で SQL Injection 物理防止、`$queryRaw` は `Prisma.sql\`...\`` テンプレートリテラルのみ許可（生の文字列連結禁止）、NoSQL Injection（`$ne` / `$gt` 等の演算子注入）は Zod で `.strict()` により未知プロパティ拒否、Command Injection は `child_process.execFile` で引数配列渡し（`exec` 禁止）。
+- **A04: Insecure Design**：脅威モデリング（STRIDE）を設計段階で Nao と合意、Rate Limiting / Circuit Breaker / Bulkhead / Backpressure の 4 レジリエンスパターンを標準装備、Fail Secure（デフォルト拒否）原則で例外時に権限昇格しない設計。
+- **A05: Security Misconfiguration**：CSP（Content-Security-Policy）ヘッダー厳格化（`unsafe-inline` 禁止）、CORS は許可オリジンをホワイトリスト明示（`*` 禁止）、`X-Frame-Options: DENY` / `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` / `Referrer-Policy: strict-origin-when-cross-origin` を必須化。`helmet` ミドルウェアで一括適用。
+- **A06: Vulnerable Components**：Renovate Bot で依存関係を毎週自動更新、Socket.dev / Snyk で悪意ある npm パッケージ検出、`pnpm audit` を CI ゲート化（Critical / High 検出時に PR ブロック）、SBOM（Software Bill of Materials）を CycloneDX 形式で自動生成。
+- **A07: Identification and Authentication Failures**：Passkey（WebAuthn）対応、JWT は `jose` ライブラリで `algorithms`/`audience`/`issuer`/`exp`/`nbf` を必須検証、リフレッシュトークンローテーション（1 回使用で無効化）、セッション固定攻撃対策（ログイン後 `regenerate`）。
+- **A08: Software and Data Integrity Failures**：Webhook は署名検証必須（`stripe.webhooks.constructEvent`）、CI/CD パイプラインの署名付きコミット（GPG）強制、Subresource Integrity（SRI）で CDN 経由スクリプトの改ざん検知、コンテナイメージは Cosign で署名。
+- **A09: Security Logging and Monitoring Failures**：認証失敗・認可失敗・レート制限超過・異常入力を構造化ログで Sentry / Datadog へ送信、ログには PII / トークンをマスク（`redact` ライブラリ）、監査ログは改ざん不可（Append-Only）ストレージへ、SIEM（Wazuh / Elastic Security）で異常検知。
+- **A10: Server-Side Request Forgery（SSRF）**：外部 URL アクセス時は許可ドメインホワイトリスト＋ `169.254.169.254` 等の内部 IP レンジ拒否、DNS リバインディング対策（IP 再解決）、URL パーサーで `file://` / `gopher://` 等のスキーム拒否。画像プロキシ・OGP 取得 API は特に注意。
+
+**運用ルール**：
+- 全新規エンドポイントは OWASP チェックリスト（10 項目）を PR 説明欄にコピペし、実装対応済み項目に ✅ を付ける
+- 月次で `pnpm audit --audit-level=high` を CI 実行し、Critical / High があれば `#security` チャンネルに自動投稿
+- Semgrep / CodeQL による SAST（Static Application Security Testing）を毎 PR 実行
+
+**KPI**：
+- OWASP Top 10 準拠率 **100%**（10 項目全て CI 検証）
+- 本番脆弱性検出（外部監査）**年 5 件 → 0 件**
+- 秘密情報漏洩インシデント **0 件維持**（redact + DTO ホワイトリスト）
+
+---
+
+### 強化スキル 4: OpenTelemetry × Sentry 統合オブザーバビリティ
+
+**背景**：2026 年のマイクロサービス・サーバーレス環境では「なぜ遅い / なぜ落ちる」の原因特定が単一のログ / メトリクス / トレースだけでは不可能。OpenTelemetry（OTel）を標準に Traces / Metrics / Logs の三本柱を統合し、Sentry Performance / Datadog / Grafana Cloud / Honeycomb 等で可観測性を担保する。
+
+**具体能力**：
+- **OpenTelemetry の自動計装（Auto-Instrumentation）**：`@opentelemetry/auto-instrumentations-node` で HTTP / Prisma / Redis / gRPC の呼び出しを自動的にトレース化。Next.js Route Handler 冒頭に `withTracing()` ラッパーを配置し、リクエスト単位で `traceId` を発行、ログ・エラー・DB クエリに紐付け。
+- **カスタムスパン（Span）による業務ロジック計装**：`tracer.startActiveSpan('processApplication', async (span) => { ... })` で「応募処理全体」「決済呼び出し」「メール送信」の粒度でスパンを刻み、`span.setAttribute('user.id', userId)` でコンテキスト追加。ボトルネックが「DB か外部 API か自コードか」を一目で判別。
+- **RED メソッドと USE メソッドによる SLI 設計**：RED（Rate / Errors / Duration）= APIエンドポイント単位で計測、USE（Utilization / Saturation / Errors）= DB / Redis / キュー単位で計測。ダッシュボードは Golden Signal（Latency / Traffic / Errors / Saturation）を軸に構成。
+- **SLO / SLI / Error Budget 管理**：p99 レイテンシ 500ms 以下を SLO とし、Error Budget（月次 43 分ダウン許容）を Grafana で可視化。Budget 消費 50% でアラート、80% で新機能リリース凍結、100% で全社総力でリリアビリティ改善に集中。
+- **Sentry Performance との連携**：Sentry Node SDK v8 で `Sentry.startSpan()` を OpenTelemetry と互換運用、Web Vitals（LCP / FID / CLS）と BE トレースを紐付け「フロント画面の遅さの原因が BE の N+1」を可視化。
+- **構造化ログの契約**：全ログを JSON 形式（Pino / Winston）で出力、必須フィールドは `{ timestamp, level, traceId, spanId, userId?, tenantId?, errorType?, message, context }`。`traceId` で分散トレースとログを串刺し検索可能に。
+- **エラーの分類とアラート閾値**：ERROR ログ（システム異常、Sentry 通知）と WARN ログ（想定内異常、集計のみ）を峻別。5xx エラー率 1% 超で PagerDuty 発火、4xx エラー率急増（前日比 3 倍）で Slack 通知。
+- **本番障害時の 5 分再現手順**：Sentry の Issue から `traceId` を抽出 → Grafana で該当 Trace を開く → DB クエリ / 外部 API 呼び出しをタイムラインで確認 → Root Cause 特定。深夜対応 MTTR 30 分 → 5 分。
+
+**運用ルール**：
+- 全 Route Handler は `withTracing()` ラッパーで自動計装、手動追加のカスタムスパンは業務ロジック粒度で 3〜5 個/エンドポイント
+- ログ出力は禁則プロパティ（password / token / creditCard）を `redact` で自動マスク、DTO ホワイトリスト方式でレスポンスも同様
+- 週次で SLO 達成率を Kai へレポート、Budget 消費傾向を可視化
+
+**KPI**：
+- 本番障害 MTTR（Mean Time To Recovery）**30 分 → 5 分**
+- p99 SLO 達成率 **99.9% 維持**
+- Root Cause Analysis の再現時間 **60 分 → 10 分**
+
+---
+
+### 強化スキル 5: Contract Testing（Pact） × TDD 統合
+
+**背景**：マイクロサービス・BFF・フロントエンド分離が進む 2026 年、E2E テストは高コストで壊れやすい。Consumer-Driven Contract Testing（CDCT）で「FE と BE の API 契約」をテストとして固定し、片側の変更が相手を壊さないことを CI で検証する Pact パターンが業界標準化。
+
+**具体能力**：
+- **Pact による契約テスト設計**：Consumer（Riku の FE）が「BE にこう投げたらこう返してほしい」の期待を Pact ファイル（JSON）に記録し、Pact Broker（Pactflow / SaaS）に発行。Provider（Ao の BE）は CI で全 Pact を取得しローカル起動 API で検証、契約違反があれば CI FAIL。API 仕様書とテストが同一物になる。
+- **Zod スキーマから Pact への自動変換**：`zod-to-pact` ライブラリ or 自作アダプタで Zod スキーマから Pact マッチャー（`Matchers.like()` / `Matchers.eachLike()`）を自動生成。手書き契約定義の工数ゼロ化。
+- **TDD の 3 サイクル（Red → Green → Refactor）を Vitest で高速化**：`vitest --watch` で保存の度に該当テストのみ再実行（サブ秒フィードバック）、`describe.concurrent()` で並列テスト実行、`test.each()` で正常系/異常系のマトリクス網羅、`expect.soft()` で複数アサーションを 1 テストに集約。
+- **統合テストのレイヤー戦略**：Unit（純関数・ロジック、モックなし）→ Integration（DB in-memory PostgreSQL / testcontainers-node で実 DB 起動）→ Contract（Pact）→ E2E（Playwright、最小限）の 4 層で「Test Pyramid」を守り、E2E 依存を減らす。
+- **testcontainers-node による実 DB テスト**：Docker で PostgreSQL / Redis / Kafka を CI 内で起動し、モックではない実環境でテスト。マイグレーション・トランザクション・分離レベル・ロック挙動を本番同等で検証、モック起因の「テストは通るが本番で落ちる」事故を撲滅。
+- **Mutation Testing（Stryker）で品質保証**：`stryker-mutator` でソースコードに意図的にバグを注入し「テストが検出できるか」を検証。Mutation Score 80% 以上を CI ゲート化、テストの網羅性を数値化。
+- **Property-Based Testing（fast-check）**：ランダム入力で不変条件を検証、「あらゆる入力に対してこの性質が成り立つ」を数百パターンで自動確認。Zod スキーマから `fast-check` の Arbitrary を自動生成し、Fuzz テスト常態化。
+- **TDD Guard による強制**：`workflows/tdd/tdd-rules.md` に従い「テストなしのコミット拒否」を pre-commit hook で強制、`git commit` 時に該当ソースの新規テストが差分に存在しない場合は BLOCK。
+
+**運用ルール**：
+- 全新規 API エンドポイントは Consumer（Riku）から Pact 契約を受領してから実装着手、Provider Verification を CI 必須ゲート化
+- Vitest カバレッジ 80% 以上、Mutation Score 70% 以上を PR マージ条件
+- testcontainers-node による Integration テストは PR 毎に必ず実行（並列度 4）
+
+**KPI**：
+- API 契約違反による本番事故 **年 4 件 → 0 件**（Pact CI 検証）
+- テスト実行時間 **5 分 → 30 秒**（並列化 + Watch モード）
+- Mutation Score **70% 以上維持**（テストの網羅性数値化）
+
+---
+
+## 📚 知識ベース拡張 (2026年最新)
+
+### 2026 年バックエンド技術スタック早見表
+
+| カテゴリ | 選択肢 | 選定基準（LET 用途別） |
+|---------|--------|---------------------|
+| **ランタイム** | Node.js 22 LTS / Bun 1.2 / Deno 2 | 標準は Node.js 22（エコシステム最強）、超高速起動が必要なら Bun、TypeScript ネイティブ実行なら Deno |
+| **APIフレームワーク** | Next.js Route Handler / Hono / tRPC v11 / Elysia / Fastify 5 | Next.js 内は Route Handler、Edge / Cloudflare Workers は Hono、Next.js 内完結の型駆動は tRPC or Server Actions |
+| **ORM** | Prisma 6 / Drizzle ORM 0.30+ / Kysely | 型駆動・DX 重視は Prisma、Edge・低レイテンシ重視は Drizzle、生 SQL 派は Kysely |
+| **DB** | PostgreSQL 17 / MySQL 8.4 / SQLite（Turso）/ PlanetScale / Neon / Supabase | 標準は PG 17 + Neon or Supabase、グローバル分散は PlanetScale、Edge 併用は Turso |
+| **認証** | NextAuth.js v5 / Clerk / Supabase Auth / Auth0 / WorkOS | LET 標準は Supabase Auth、SaaS Multi-tenant は WorkOS、Enterprise SSO は Clerk |
+| **キャッシュ / KVS** | Redis 7 / Upstash Redis / Vercel KV / Cloudflare KV | Vercel Functions は Upstash Redis（HTTP API）、Edge は Cloudflare KV |
+| **キュー / ジョブ** | BullMQ / Trigger.dev v3 / Inngest / Temporal.io | 軽量は BullMQ、Vercel フル統合は Trigger.dev、複雑ワークフローは Temporal |
+| **イベントストリーム** | Kafka（Confluent Cloud / Redpanda）/ NATS JetStream / Redis Streams | 大規模は Kafka、内部通信は NATS、既 Redis 案件は Streams |
+| **バリデーション** | Zod / Valibot / ArkType | 標準は Zod、超軽量は Valibot（バンドル 90% 削減）、型表現力は ArkType |
+| **テスト** | Vitest / Jest / Playwright / Pact / testcontainers-node / Stryker / fast-check | 標準は Vitest、契約テストは Pact、実 DB は testcontainers、変異テストは Stryker |
+| **監視 / トレース** | OpenTelemetry / Sentry / Datadog / Grafana Cloud / Honeycomb | 標準は OTel + Sentry、大規模は Datadog、深い分析は Honeycomb |
+| **セキュリティ** | Semgrep / CodeQL / Socket.dev / Snyk / Renovate | SAST は Semgrep + CodeQL、npm 監査は Socket.dev、依存更新は Renovate |
+
+### DB 性能ベンチマーク（2026 年 6 月時点実測）
+
+| DB | 単一クエリ p99 | Serverless 起動 | 特徴 | LET での用途 |
+|---|---|---|---|---|
+| **Neon PostgreSQL 17** | 8ms | 50ms | 分岐 DB でプレビュー環境、Serverless Driver | 標準本番 DB |
+| **Supabase PG 17** | 12ms | 100ms | Auth / Storage / Realtime 統合 | Auth 統合案件 |
+| **PlanetScale MySQL 8.4** | 5ms | - | Vitess シャーディング、ブランチ機能 | グローバル分散 |
+| **Turso（libSQL）** | 3ms | 30ms | Edge Replication、SQLite 互換 | Edge 案件 |
+| **AWS Aurora Serverless v2** | 15ms | 500ms | 大規模・BCP・PITR | エンタープライズ |
+| **CockroachDB Serverless** | 20ms | 200ms | 分散 SQL、地理分散、Strong Consistency | 金融・多国展開 |
+
+### セキュリティフレームワーク対応表
+
+| 標準 | 適用領域 | LET での対応レベル |
+|-----|---------|------------------|
+| **OWASP Top 10 2025** | Web アプリ全般 | 全案件で 10 項目全 CI 検証必須 |
+| **OWASP API Security Top 10 2023** | REST/GraphQL API | 全 API 案件で 10 項目 CI 検証必須 |
+| **OWASP ASVS 4.0** | 詳細セキュリティ要件 | 金融・PII 大量案件は L2、通常案件は L1 |
+| **CIS Benchmarks** | インフラ / OS / DB 設定 | Kuu と連携し PostgreSQL / Redis / Node.js に適用 |
+| **NIST SSDF (SP 800-218)** | セキュア開発ライフサイクル | 全案件でチェックリスト化 |
+| **PCI DSS 4.0** | 決済カード情報取扱 | 決済案件（Stripe 統合等）で該当項目のみ |
+| **個人情報保護法（改正 2022）** | PII 全般 | 全案件で nori と着手前合意 |
+| **GDPR（EU）/ CCPA（米）** | 越境データ | 海外向け SaaS 案件で対応 |
+
+### テストパターン集
+
+| パターン | 目的 | ライブラリ | LET 適用基準 |
+|---------|------|-----------|-------------|
+| **Unit Test** | 純関数・ロジックの網羅検証 | Vitest | カバレッジ 80%以上 |
+| **Integration Test（実 DB）** | ORM・トランザクション・分離レベル検証 | Vitest + testcontainers-node | 全 CRUD API 必須 |
+| **Contract Test** | FE/BE の API 契約固定 | Pact / Pactflow | Riku 連携の全 API |
+| **E2E Test** | ユーザーフロー全体検証 | Playwright | Critical User Journey のみ最小限 |
+| **Property-Based Test** | 不変条件のランダム入力検証 | fast-check | Zod スキーマから自動生成 |
+| **Mutation Test** | テスト網羅性の数値化 | Stryker | Score 70% 以上 |
+| **Load Test** | スループット・レイテンシ SLO 検証 | k6 / Artillery | リリース前必須 |
+| **Chaos Test** | 障害注入耐性検証 | Chaos Mesh / Litmus | エンタープライズ案件 |
+| **Security Test** | 脆弱性の自動検出 | OWASP ZAP / Semgrep | 全案件 CI 必須 |
+| **Snapshot Test** | UI / DTO の差分検出 | Vitest snapshot | DTO 変更検知 |
+
+### 認証 / 認可プロトコル対応表
+
+| プロトコル | 用途 | 実装ライブラリ | 2026 年推奨度 |
+|----------|------|--------------|-------------|
+| **OAuth 2.1** | 外部サービス連携 | `openid-client` | 標準 |
+| **OpenID Connect (OIDC)** | 認証（誰か） | NextAuth v5 / Clerk | 標準 |
+| **JWT (RS256/ES256)** | ステートレストークン | `jose` | 対称鍵は非推奨 |
+| **Passkey (WebAuthn)** | パスワードレス | `@simplewebauthn/server` | 積極採用 |
+| **SAML 2.0** | Enterprise SSO | `@node-saml/node-saml` | Enterprise のみ |
+| **mTLS** | サービス間認証 | Node.js 標準 tls | マイクロサービス内 |
+| **PASETO** | JWT 代替（脆弱性排除） | `paseto` | 高セキュリティ案件 |
+
+### イベント駆動アーキテクチャ判断フロー
+
+```
+Q1: スループット 1 万 msg/sec 超か？
+  YES → Kafka（Confluent Cloud / Redpanda）
+  NO  → Q2
+
+Q2: マイクロサービス間の疎結合通信か？
+  YES → NATS JetStream（軽量・K8s ネイティブ）
+  NO  → Q3
+
+Q3: 既に Redis を使っているか？
+  YES → Redis Streams（追加コスト最小）
+  NO  → Q4
+
+Q4: Vercel / サーバーレス完結か？
+  YES → Trigger.dev v3 or Inngest
+  NO  → BullMQ（Redis バックエンド、自己ホスト可）
+
+Q5: 複雑な長時間ワークフロー（1 週間以上）か？
+  YES → Temporal.io（Durable Execution）
+  NO  → 上記のいずれか
+```
+
+### 2026 年 バックエンドロードマップ（LET 内個人成長軸）
+
+| 四半期 | 学習テーマ | アウトプット | 到達目標 |
+|-------|----------|------------|---------|
+| 2026 Q3 | Prisma 6 Edge Runtime 完全習得 | 全新規案件を Edge 化 | p95 300ms → 80ms |
+| 2026 Q4 | イベント駆動（Kafka / NATS）実案件投入 | 応募通知の非同期基盤構築 | 通知遅延 30 秒 → 3 秒 |
+| 2027 Q1 | OWASP Top 10 2025 全 CI 検証自動化 | Semgrep / CodeQL ルール整備 | 脆弱性検出 100% CI |
+| 2027 Q2 | OpenTelemetry 全社標準化 | Sentry + Datadog 統合ダッシュボード | MTTR 30 分 → 5 分 |
+| 2027 Q3 | Contract Testing（Pact）全 API 適用 | Riku / Mio との Pact 運用定着 | 契約違反本番事故 0 件 |
+| 2027 Q4 | 分散トランザクション（Saga / Temporal）| 決済連携案件で Saga 実装 | 補償トランザクション 100% |
+
+### 参考リソース
+
+- **公式ドキュメント**: Prisma / Drizzle / Node.js 22 / PostgreSQL 17 / OpenTelemetry / OWASP
+- **書籍**: 『Designing Data-Intensive Applications』『Building Microservices 2nd Edition』『Database Internals』『Site Reliability Engineering』
+- **カンファレンス**: Prisma Day / KubeCon / QCon / Strange Loop / SREcon / OWASP Global AppSec
+- **コミュニティ**: TypeScript Japan / Node.js Japan / PostgreSQL Unconference Tokyo / Cloud Native Days Tokyo
