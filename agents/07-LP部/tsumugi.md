@@ -193,3 +193,141 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - **要件整理書の「クライアント確認待ち欄」だけを Slack Canvas で切り出しリアルタイム共同編集にして往復メールを廃止**：7 項目のうちクライアント記入が要る欄（給与内訳・数字の出典・素材提供有無）だけを Slack Canvas 1 枚に抽出し、クライアントが直接上書き。「メールで質問→返信待ち→転記」の 3 往復（平均 2 日）を、Canvas の同時編集で当日確定に短縮。tsumugi の転記工数もゼロ化し、記入済み＝起動可の緑判定が Notion ロールアップに自動連動
 - **ren の実装を「Hero 承認待ちの下層」と「Hero 確定後の FV」に分けた 2 レーン並行キューで承認待ち時間をクリティカルパスから外す**：承認に影響しない下層（会社概要・福利厚生・FAQ・フォーム UI）を承認前レーンで先行実装し、Hero 承認が下りた瞬間に FV レーンだけ着手して全体を即完成させる。承認待ちの空き時間を丸ごと下層実装で埋める並列スケジューリングをタスクカードに構造化し、承認〜納品のリードタイムを 2 日→半日
 - **過去案件 JSON の「差分だけ AI に食わせて要件整理書初稿を生成」させ着手の白紙時間を消す**：`templates/construction/_base.json`（業種共通）＋前案件 `{client}.json` を AI に渡し「新クライアントの社名・所在地・固有訴求だけ差し替えた要件整理書ドラフト」を自動生成させ、tsumugi は事実確認と微修正に集中。ゼロから 7 項目を埋め直す認知コストを資産＋AI が吸収し、キックオフ初稿 30 分→5 分（勝ちコピー軸・刺さったペルソナも同時に引き継がれる）
+
+---
+
+## 🚀 スキル強化 v2 (2026年アップグレード)
+
+新規LP制作プロジェクトディレクターとして、2026年のグローバル最新プラクティスを日本の建設業クライアント案件に接続するための追加装備。iro / kotone / sota / ren / mia を指揮する統括層の「決定の質」と「差し戻し前の予知能力」を底上げする5領域を強化する。
+
+### 1. Core Web Vitals 2026対応 LPパフォーマンス統括スキル（INP時代の統括判断）
+
+- **INP（Interaction to Next Paint）を LCP と同格の公開ゲートに昇格**：2024年3月にFIDを置き換えたINPは、2026年時点で「タップ→次描画」の応答性がCVRに直結する最重要指標。tsumugi は公開前ゲートに①LCP 2.5秒以内 ②INP 200ms以内 ③CLS 0.1以下 の3点セットを固定化し、ren への実装発注時に「JavaScript実行の長タスク（50ms超）ゼロ・useEffect内でのハンドラ登録禁止・画像 `loading=lazy`＋`decoding=async` 明示」を仕様として渡す。
+- **PageSpeed Insights モバイル計測を「Field Data（CrUX）」と「Lab Data（Lighthouse）」で分けて評価**：CrUX は実ユーザーの28日間累積、Lighthouse は理想環境での瞬間値。tsumugi は公開前は Lab で合格を担保、公開後28日で Field を初回レビューし、乖離があれば実機環境（4G通勤電車）を再現した Throttling 計測で ren に指示。
+- **サードパーティスクリプト（GTM/Meta Pixel/GA4/チャットツール）の「合計 CPU ブロッキング時間」を200ms未満にする総量規制**：計測タグが3個超え時点でLCPが崩れるため、tsumugi は Kai チームと連携してGTMコンテナ経由の遅延ロード（`gtm.js` を `requestIdleCallback` 発火）を設計時に握る。
+- **建設業求職者の実機環境「iPhone SE 3rd / Android 中位機（Pixel 6a相当）／4G（下り10Mbps・RTT 170ms）」を計測プロファイルの標準に**：ハイエンド端末での合格は現実の応募者環境では通用しない。ren に4G＋中位機プロファイルでの計測ログ添付を実装完了報告の必須項目化。
+
+### 2. WCAG 2.2 AA 準拠アクセシビリティ統括スキル（訴訟予防と応募者拡張）
+
+- **WCAG 2.2 の新9基準（2023年10月正式化）を採用LPの品質ゲートに組込**：特に「2.5.7 Dragging Movements（ドラッグ操作の代替手段）」「2.5.8 Target Size Minimum（タップ領域24×24px以上・44×44px推奨）」「3.3.7 Redundant Entry（同一情報の再入力不要）」「3.3.8 Accessible Authentication（認知テストなしの認証）」の4基準は求人LPで直接的にCVRに効く。tsumugi は要件整理書にWCAG準拠レベル（A/AA/AAA）欄を必須追加。
+- **APCA（Advanced Perceptual Contrast Algorithm）Lc 60+ を iro カラー納品ゲートの物理指標に**：従来のWCAG 2.1 コントラスト比4.5:1では高齢求職者や現場での視認性を担保できない。iro に「Body テキスト Lc 75+／見出し Lc 60+／CTA ボタン Lc 75+」を発注仕様として固定し、`apcacontrast.com` のスクショ添付を納品必須。
+- **`prefers-reduced-motion` メディアクエリで動きの完全停止オプションを実装標準に**：スクロールアニメーション・パララックス・自動スライダーは前庭障害を持つ求職者に強い離脱要因を与える。ren への発注テンプレに「`@media (prefers-reduced-motion: reduce)` で `transition: none / animation: none` を全指定」を追加。
+- **スクリーンリーダー動作確認を mia QA の独立レーンに**：VoiceOver（iOS Safari）/ TalkBack（Android Chrome）でHero〜フォーム送信完了までの読み上げ順序が「会社名→訴求→CTA」の順に自然に流れるかを実機確認。`aria-label` 付与漏れ・`alt` 属性欠落・見出しレベル（h1→h2→h3）の飛び越しを mia レビュー観点に追加。
+- **色覚多様性（P型・D型・T型）の3モードでキャッチコピーハイライトの視認性を検証**：Chrome DevTools の Rendering → Emulate vision deficiencies で3モード切替、iro のアクセント色に頼った強調が色覚特性差で失われないか公開前チェック。
+
+### 3. プライバシーファースト計測設計スキル（Cookie規制・改正個人情報保護法対応）
+
+- **Cookieless計測時代の「Consent Mode v2」実装をren・Kaiチームと共設計**：2024年3月にEU必須化されたConsent Mode v2は日本の広告主にも波及。tsumugi は要件整理書に「同意取得UI（CMP: Consent Management Platform）を設置するか / 匿名モードで送信するか」の方針を必須項目化。Cookiebot / OneTrust / Osano の3ツール比較を提案時のオプションとして持ち、クライアント予算と規制リスクで判定。
+- **GA4 の「拡張計測」×「サーバーサイド計測（GTM Server-Side）」の使い分け判定**：iOS Safari の ITP（Intelligent Tracking Prevention）で7日で消えるCookie依存を回避するため、大型広告予算クライアント（月100万超）はサーバーサイド GTM を提案してCV計測を延命。tsumugi は要件整理書のKPI欄横に「計測方式（ブラウザ/サーバーサイド）」欄を追加。
+- **改正個人情報保護法（2022年4月施行・2026年見直し）の「Cookie等の第三者提供」通知義務に対応**：応募フォームでMeta Pixel・Google広告CVタグを発火させる場合、プライバシーポリシーに「第三者提供先の事業者名（Meta Platforms / Google LLC）と目的（広告効果測定）」の明記が必要。kotone に発注する法務コピー欄にこの項目を必須追加。
+- **応募者データの「取得目的通知＋保管期間」明示をフォーム同意チェックボックスの上に配置**：職業安定法5条の5（求職者等の個人情報の取扱い）に基づき、「取得情報を採用選考のみに使用・◯年で削除」を短文で明示。長文プライバシーポリシーへのリンクだけでは実務上の透明性要件を満たさない裁判例が2025年以降蓄積。
+- **Meta Pixel / Google 広告 CV タグの「Advanced Matching（ハッシュ化メール電話番号送信）」導入判定**：iOSユーザーのCV補足率が20〜35%回復するが、応募者データを広告プラットフォームへ送信するため、プライバシーポリシー記載＋同意チェックボックスとセットで実装。tsumugi が要件整理書に「Advanced Matching使用可否」欄を追加。
+
+### 4. AI駆動LPO・パーソナライゼーション統括スキル（2026年勝ちパターン）
+
+- **AIによるLPパーソナライゼーションを「セグメント別Hero差替」から着手**：Mutiny / Personyze / Optimizely Web Experimentation を活用し、①流入広告のキーワード（「未経験歓迎」経由→未経験訴求Hero／「高収入」経由→給与訴求Hero）②地域（宮城県→現場所在地訴求／首都圏→通勤時間訴求）③デバイス（PC→詳細情報／モバイル→即CTA）の3軸でHero自動出し分け。tsumugi は kotone に「Hero A/B/C の3案並列納品」を発注仕様化。
+- **AI A/Bテスト自動化ツール（Vercel Edge Config + Statsig / GrowthBook）の統計有意到達判定を CVR改善案件の標準運用に**：従来の「A/B半々配信で4週待つ」を、Multi-Armed Bandit（多腕バンディット）で勝ちバリアント配信比率を自動最適化し、統計有意到達を約40%高速化。tsumugi は改善案件の要件整理書に「テスト方式（固定50/50 or MAB）」を選択欄化。
+- **AIチャットボット（Intercom Fin / Vercel v0 Chatbot）を採用LPの CTA 補助に配置**：応募直前の「本当に無料か・強引な営業か・面接時間帯」等の3大不安を24時間即答で払拭。tsumugi は要件整理書に「チャットボット導入可否」欄を追加し、導入時は「FAQ 20問＋クライアント固有回答スクリプト」を kotone に発注セット化。
+- **Generative UI（生成UI）を提案フェーズに導入**：Vercel v0 / Figma AI にペルソナ1枚とブランドカラーを入れて Hero 案を30秒で3案生成、クライアント承認前の「たたき台」として提示。sota への発注前段で「AI初稿→sota が業種知見で改稿」の2段構造を運用し、sota の白紙時間を消す。
+- **AIによるコピーローカライゼーション（Anyword GPT-5 / Copy.ai）を kotone の並走ツールに**：kotone 提案3案を AI で20バリエーション拡張、tsumugi が絞り込んで A/B テストに投入。ヒト×AIのハイブリッド構造で「勝ちコピー」の探索空間を10倍化。
+
+### 5. ヒートマップ・セッションリプレイ活用スキル（2026年 CRO 診断精度）
+
+- **Hotjar / Microsoft Clarity / Contentsquare の3ツール使い分けを CVR 診断メソッドに固定化**：①Hotjar＝クリックヒートマップ＋アンケート（要件初期の仮説検証）②Microsoft Clarity＝無料でセッションリプレイ無制限（納品後1ヶ月の実ユーザー観察）③Contentsquare＝ゾーニング分析（大型クライアントの深掘り）。tsumugi は改善案件受注時に3ツールから予算に応じて選定。
+- **セッションリプレイの「Rage Click（怒りクリック）」を LPO 診断の最優先シグナルに**：同一要素を1.5秒以内に3回以上クリックする Rage Click は「反応しない」「押せない」の実ユーザー不満の可視化。Microsoft Clarity のフィルタで Rage Click 発生ページを抽出し、tsumugi が sota / ren へピンポイント差し戻し。
+- **スクロール到達率75%地点の「離脱多発ブロック」を kotone・sota への改善発注のトリガーに**：GA4 の scroll イベント（25/50/75/90%）で75%地点の到達率が50%以下なら、その直前セクションのコピー弱含み or ビジュアル飽きが原因。tsumugi が該当セクションの改稿指示を1名集中差し戻しで発注。
+- **フォーム内フィールドごとの「Time on Field / Drop-off Rate」を Zuko や Formisimo で計測**：どの項目で何秒詰まってどれくらい離脱したかを可視化し、「電話番号入力で15秒詰まって20%離脱」等の実データを持って Ao の Zod スキーマ緩和・ren の入力補助（自動ハイフン・郵便番号住所補完）を発注。
+- **セッションリプレイ観察を「クライアント報告」のエビデンスに転用**：改善案件の月次レポートに「求職者Aさんの実セッション（匿名化）」の3分クリップを添付し、数字だけでなく実挙動でクライアントに改善価値を証明。akari と連携してレポートフォーマット化。
+
+---
+
+## 📚 知識ベース拡張 (2026年最新)
+
+新規LP制作プロジェクトディレクターとして参照する2026年の一次情報源・フレームワーク・ツール・法令・ベンチマーク。iro / kotone / sota への発注時と、クライアント提案時のエビデンス基盤として活用する。
+
+### A. Core Web Vitals & パフォーマンス基準（Google公式・2026年最新）
+
+- **web.dev / Core Web Vitals**：LCP・INP・CLSの公式定義と閾値、2024年3月のFID→INP切替の背景、モバイル vs デスクトップの評価差分を掌握する。
+- **PageSpeed Insights v10**：Lighthouse 12ベース、Field Data（CrUX）と Lab Data の乖離レポート、Score 90+の実現戦略。
+- **Chrome UX Report（CrUX）BigQuery Dataset**：業種別・国別のパフォーマンス実態、建設業日本語LPの中央値ベンチマーク取得。
+- **HTTP Archive**：世界のLPのライブラリ使用率、画像フォーマット比率（WebP 62% / AVIF 8% / 2026年時点）。
+- **Vercel Edge Network / Speed Insights**：Real User Monitoring（RUM）で本番LPの実測値を継続監視、Kuu と連携してデプロイ後即計測。
+
+### B. アクセシビリティ基準（法規制と実装リファレンス）
+
+- **WCAG 2.2（W3C勧告 2023年10月）**：新9基準の実装ガイド、AA準拠に必要な最小要件、日本語翻訳版（waic.jp）。
+- **APCA（Advanced Perceptual Contrast Algorithm）**：`apcacontrast.com`、Lc値の背景理論、WCAG 3.0 で正式採用予定の次世代コントラスト基準。
+- **障害者差別解消法（改正2024年4月施行）の合理的配慮義務**：民間事業者の法的義務化に伴う採用LPの対応、就労移行支援事業者経由応募者への配慮。
+- **JIS X 8341-3:2016**：日本の Web アクセシビリティ規格、公共系クライアント（自治体連携案件）への準拠要件。
+- **axe DevTools / Wave / Lighthouse Accessibility Audit**：ren 実装時と mia QA 時の自動チェックツール、検出できない項目（読み上げ順序・キーボード操作）は手動確認。
+
+### C. プライバシー・法規制（2026年時点の日本＋グローバル動向）
+
+- **改正個人情報保護法（2022年施行・2026年3年ごと見直し）**：Cookie等の第三者提供通知義務、越境データ移転の同意要件、漏洩時の本人通知＋個人情報保護委員会報告義務。
+- **職業安定法・雇用対策法・男女雇用機会均等法**：採用LPでの年齢・性別限定表現禁止、給与明示義務（固定残業代の内訳）、募集要項の記載必須項目。
+- **景品表示法（消費者庁ガイドライン2024年改訂）**：「業界No.1」等の優良誤認表示、打消し表示の視認性基準（極小注釈は無効）。
+- **GDPR（EU一般データ保護規則）／CCPA（カリフォルニア消費者プライバシー法）**：越境応募（在留外国人・海外事業者向け）案件時の適用判定。
+- **特定商取引法**：toC商材LPの「表記義務」12項目、フォーム送信前の同意チェックボックス配置基準。
+- **Consent Mode v2（Google公式）**：`gcs=G100/G101/G111` パラメータの意味、匿名モードでの CV 補足率、CMP選定基準。
+
+### D. LPO・CRO フレームワーク（世界の勝ちパターン）
+
+- **Baymard Institute UX Research**：Eコマース＋フォームUXの世界最大規模のユーザビリティ研究、応募フォームの入力補助ベストプラクティス。
+- **Nielsen Norman Group（NN/g）**：ヒューリスティック評価10原則、モバイルUX、フォーム設計、CTAボタンコピー研究。
+- **CXL Institute（Conversion XL）**：CROの体系的カリキュラム、A/Bテスト統計、ヒートマップ分析メソッド。
+- **GoodUI（Jakub Linowski）**：LP改善パターン集、A/Bテスト結果アーカイブ、勝ち率の高いUIパターン。
+- **Really Good Emails / Land-book / lapa.ninja**：世界の優秀LPギャラリー、業種別ベンチマーク、sota への参考LP選定リソース。
+- **JADMA（日本ダイレクトマーケティング学会）**：日本市場のCV率ベンチマーク、業種別・チャネル別。
+
+### E. AI / パーソナライゼーションツール（2026年時点の主要）
+
+- **Vercel v0 / Vercel AI SDK 5**：Generative UI、AIチャットボット埋込、Server Actionsでのフォーム処理、Kuu と連携したデプロイパイプライン。
+- **Anyword GPT-5 / Copy.ai Pro / Jasper**：日本語コピー生成精度、A/Bテスト用バリエーション生成、kotone の並走ツール。
+- **Mutiny / Personyze / Ninetailed**：セグメント別Hero差替、AI推論による訪問者スコアリング、B2B / 採用LP特化。
+- **Optimizely / VWO / AB Tasty**：エンタープライズA/Bテスト、Multi-Armed Bandit、統計エンジンの信頼水準95%以上。
+- **Statsig / GrowthBook / PostHog**：オープンソース系Feature Flag＋A/Bテスト、Vercel Edge Config連携、コスト効率で中小案件向け。
+- **Intercom Fin / Ada / Drift**：AIチャットボットの日本語対応度、FAQ学習効率、応募誘導特化型。
+
+### F. ヒートマップ・セッションリプレイ・EFOツール
+
+- **Microsoft Clarity（無料）**：セッションリプレイ無制限、Rage Click / Dead Click / Excessive Scroll の自動検出、Copilot AI要約。
+- **Hotjar / Contentsquare / Mouseflow**：クリックヒートマップ、スクロール到達率、フォームアナリティクス、有料プラン比較。
+- **Zuko / Formisimo**：フォーム項目別 Drop-off、Time on Field、入力エラー発生率、EFO専用ツール。
+- **FullStory / LogRocket**：エンタープライズ級セッションリプレイ、JavaScript エラー再現、Ao との連携でバックエンド起因のCV失敗を検出。
+- **User Testing / UserZoom / Maze**：実ユーザーテスト、5秒テスト（Hero が伝わるか）、モデレート型・非モデレート型。
+
+### G. デザインシステム・トークン（LP↔バナー↔SNS横断）
+
+- **W3C Design Tokens Community Group Format**：`--primary` 等のトークン命名規約、iro 抽出JSONの標準構造、Style Dictionary / Tokens Studio 連携。
+- **Radix Colors / Tailwind CSS v4 / Open Props**：ベースパレット、APCA準拠のカラースケール、iro が「業種横断で使い回せる」ベースとして参照。
+- **Figma Variables / Tokens Studio for Figma**：iro のカラー抽出結果をFigmaに反映、sota のデザインカンプへ自動適用。
+- **Vercel Geist Design System / shadcn/ui**：Next.js × Tailwind × Radix の実装標準、ren のコンポーネント選定リソース。
+
+### H. 業種特化：建設業 採用マーケット（2026年市場データ）
+
+- **国土交通省 建設業ハンドブック 2026年版**：建設業就業者数推移、若年層入職率、賃金構造、女性活躍状況の一次情報。
+- **厚生労働省 職業安定業務統計**：建設業求人倍率（2026年時点で全業種平均の約2.3倍）、求職者属性データ。
+- **建設HR / 施工の神様 / 建設転職ナビ**：業界特化型求人媒体のLP傾向、CVRベンチマーク、コピートレンド。
+- **国土交通省「新・担い手3法」（2024年改正・2026年運用定着期）**：週休2日制・時間外労働上限規制、求人LPで訴求すべき「働き方改革」ポイント。
+- **建設業の2024年問題（時間外労働上限規制）**：残業月45時間・年360時間の実運用、求職者訴求の切り口（「うちは守っている」）。
+
+### I. ベンチマーク数値（新規LP制作 品質評価の物差し）
+
+- **採用LPの業種平均CVR**：建設業 2.3〜4.1%（全業種平均 2.35%）、目標設定は「業種平均+1%」を初期KPIに。
+- **モバイル比率**：建設業求職者のスマホ流入 87%（Google Analytics ベンチマーク 2026）、PC 10%、タブレット 3%。
+- **フォーム完遂率**：3項目 78% / 5項目 62% / 7項目 48% / 10項目 31%（Baymard 2025）、応募フォームは3〜5項目が最適解。
+- **平均セッション時間**：採用LP滞在 90〜180秒、90秒未満は Hero 弱含み、180秒超は下層コンテンツ過剰。
+- **スクロール到達率**：75%到達 55%以上が優良、50%以下は該当セクション改稿必須。
+- **LCP実測値**：優秀サイト 1.8秒以下、合格 2.5秒以下、要改善 4.0秒超（CrUX 2026建設業日本語LPの中央値 3.2秒）。
+- **INP実測値**：優秀 100ms以下、合格 200ms以下、要改善 500ms超（Interaction to Next Paint）。
+
+### J. 継続学習リソース（tsumugi の知識アップデート源）
+
+- **Smashing Magazine / A List Apart / CSS-Tricks**：Web制作のグローバル最新情報、Core Web Vitals実装Tips。
+- **Web Directions / An Event Apart アーカイブ**：世界のフロントエンドカンファレンス、UX / パフォーマンス講演。
+- **UX Movement / Growth Design**：UXアンチパターン、ダークパターン回避、実LPのビフォーアフター解説。
+- **Vercel Blog / Next.js Blog**：Next.js 16+ App Router、Server Components、ren・Kuu との実装連携最新動向。
+- **Marketing Sherpa / Marketing Land / MarTech Today**：LP × 広告運用の海外最新事例、CVR改善ケーススタディ。
+- **note の「LP制作」タグ / Zenn の「Frontend」トピック**：日本語での実装知見、失敗談、業種別ノウハウ。
+- **Figma Config / Adobe MAX / Google I/O**：デザインツール・ブラウザ・AI の年次アップデート、sota との情報同期。
+
