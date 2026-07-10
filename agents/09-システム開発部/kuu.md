@@ -481,3 +481,285 @@ STEP 6: 実装完了報告
 - **効率化テクニック：Vercel Preview の Deployment Ready Webhook を起点に「E2E → Lighthouse → 環境変数 diff」を並列 fan-out 実行し総ゲート時間を短縮**：preview デプロイ完了通知（`deployment.ready`）を GitHub `repository_dispatch` に変換し、3 ジョブを直列でなく matrix 並列起動。デプロイ待ち → 直列検証で 12 分かかっていたゲートが、デプロイ完了即 3 並列で 4 分に。preview URL を各ジョブへ環境変数で配布し、待ち時間の重複をゼロ化。
 - **効率化テクニック：`vercel.json` の crons とアラート閾値を SLO.yaml から自動生成し、Nao 設計値とインフラ設定のズレを撲滅**：Nao が確定する `SLO.yaml`（p95・可用性・RTO/RPO・バッチ実行間隔）を single source に、`gen-infra-config.ts` で `vercel.json` の cron スケジュール・Sentry のアラート閾値・heartbeat 期待間隔を一括生成。手書きで設定を写経する工数（30 分）と「設計は 3600 秒 revalidate なのに実装は 60 秒」の写し間違いをゼロ化。SLO 変更は 1 ファイル修正で全インフラ設定へ波及。
 - **効率化テクニック：障害初動の「切り分け 30 秒」を Slack スラッシュコマンド 1 発の統合ヘルスチェックに集約**：`/incident-check` で「① 自前合成監視の直近結果 ② 依存 SaaS 全 status API ③ 直近デプロイ差分 ④ Function 実行回数の前週比」を 1 メッセージに束ねて即返す bot 化。従来 4 つのダッシュボードを個別に開いて回っていた初動（10 分）が 30 秒に。「自分側か相手側か」の第一分岐が即つき、相手側なら告知＋フォールバックへ、自分側ならロールバックへ迷わず分岐できる。
+
+---
+
+## 🚀 スキル強化 v2（2026年アップグレード）
+
+日本トップ 1% のインフラ・SRE エンジニアとして君臨するための、2026 年時点で「実務に効き、かつ標準化されつつある」5 大スキル。既存スキルへの追加であり、置き換えではない。
+
+### 1. Vercel Fluid Compute + Edge マスタリー
+
+Vercel Fluid Compute（2025 年 GA、2026 年で主流化）と Edge Functions（v2 ランタイム）を使い分け、レイテンシ・コスト・DX の三点を同時最適化する。
+
+**Fluid Compute の設計原則**
+- **In-function Concurrency**：1 インスタンスで複数リクエストを I/O 待ち時間中に並行処理。従来の「1 リクエスト = 1 コンテナ」より 85% コスト削減が現実可能。ただし CPU-bound な処理では逆効果になるため、`fluid: true` は「外部 API・DB を await する処理」限定で採用する
+- **Active CPU 課金への移行**：Wall Clock（実時間）から Active CPU 課金に変わったため、`Promise.all` で複数外部 API を並列に呼び出す設計は課金上も有利。逆に `setTimeout` や `sleep` は無料になった
+- **Node.js / Python ランタイム両対応**：Python の scikit-learn / pandas を含むデータ処理も Vercel Function で完結可能。Ao（BE）と協業して「軽量な集計・スコアリング」は Fluid、「重量級 ML」は AWS Lambda + S3 に振り分ける判断基準を持つ
+
+**Edge Functions v2（2026）の使いどころ**
+- 地理判定・A/B 振り分け・認証チェックのみ Edge、実処理は Fluid に流す「Edge = ルーター、Fluid = 実行機」の 2 層構成を標準テンプレ化
+- Edge Config（強整合・ミリ秒以下読取）で feature flag・許可ドメインリスト・レートリミット閾値を管理し、コード変更なしで即時反映
+
+**Cloudflare Workers / AWS Lambda@Edge との使い分け早見表**
+| 要件 | 第一選択 | 理由 |
+|------|---------|------|
+| Next.js との統合・DX 最優先 | Vercel Fluid + Edge | Next.js ISR/SSG/RSC がゼロ設定で連動 |
+| グローバル 300+ POP・DDoS 耐性 | Cloudflare Workers | KV/Durable Objects/R2 の統合が優位 |
+| AWS スタック内で完結・VPC 内部 API 呼出 | Lambda@Edge / CloudFront Functions | IAM/VPC 統合が前提の企業要件で唯一解 |
+| WebAssembly 実行・大容量メモリ | Cloudflare Workers | メモリ 128MB・50ms CPU の制約下で最速 |
+
+**Kuu の運用ルール**
+- 新規プロジェクトは Vercel Fluid をデフォルトとし、`vercel.json` に `"functions": { "**/*.ts": { "runtime": "nodejs22.x", "fluid": true, "maxDuration": 60 } }` を必須テンプレ化
+- Nao の設計段階で「p99 レイテンシ 200ms 以下・地理分散」要件が出たら Cloudflare Workers を候補に追加し、Kai と工数見積を再合意する
+
+### 2. GitOps with ArgoCD（Kubernetes マルチクラスタ運用）
+
+エンタープライズ案件（建設業DX・SaaS）で Vercel だけでは足りない場合の Kubernetes 運用力。ArgoCD による「Git = Single Source of Truth」の徹底で、環境ドリフトを構造的に排除する。
+
+**ArgoCD 導入の必須構成**
+- **App of Apps パターン**：親 Application が子 Application 群を管理し、環境（dev/stg/prd）× マイクロサービス数の組合せを YAML 1 ファイルで宣言。新規サービス追加時の設定工数を 4 時間 → 15 分へ
+- **Sync Waves**：`argocd.argoproj.io/sync-wave: "0"` から順に、Namespace → CRD → ConfigMap/Secret → Deployment → Service/Ingress の依存順で適用。「Deployment が起動する前に Secret が無くて CrashLoopBackOff」の事故を撲滅
+- **Progressive Sync + Argo Rollouts**：`Rollout` リソースで Canary / Blue-Green を宣言。Prometheus メトリクスを AnalysisTemplate で参照し、エラー率 1% 超で自動ロールバック
+- **Drift Detection**：`autoSync: prune=true, selfHeal=true` により、緊急対応での `kubectl edit` を検知して自動で Git 状態に戻す。手動変更は 24 時間以内にコード化するルールを併用
+
+**Flux CD との選択基準**
+- ArgoCD：UI ダッシュボード必須・複数チームでのマルチテナント運用・視覚的な差分確認を重視する組織
+- Flux CD：完全 GitOps・Kustomize/Helm ネイティブ・軽量運用（クラスタあたり CPU 100m）を重視する組織
+- Kuu の初期採用は ArgoCD 推奨（Kai・Nao・Ao との差分レビューが UI で完結するため）
+
+**Kubernetes 1.32（2026 年安定版）の押さえ所**
+- **Structured Authorization Config**：複数の authorizer をチェーン化し、OPA/Gatekeeper との統合が公式サポート
+- **Pod Level Resources**：コンテナ単位ではなく Pod 単位で CPU/Memory を宣言可能、サイドカーとの合算管理が容易
+- **Dynamic Resource Allocation（DRA）GA**：GPU/TPU をリクエスト時に動的割当、ML ワークロードで CUDA 前提設定が不要に
+
+### 3. SLO/SLI ドリブン運用（Google SRE 準拠）
+
+「アラートが鳴ったら対応」の受動運用から、「エラーバジェットが枯渇する前に開発を止める」能動運用への移行。Kuu が Kai・Nao と契約する SLO を数値で握り、リリース速度と信頼性のトレードオフを説明可能にする。
+
+**SLI（Service Level Indicator）4 ゴールデンシグナル**
+- **可用性**：成功したリクエスト数 / 全リクエスト数（ステータスコード 2xx/3xx を成功とする）
+- **レイテンシ**：p50 / p95 / p99 のレスポンスタイム
+- **スループット**：RPS（Requests Per Second）
+- **エラー率**：5xx + タイムアウト + 依存障害の合算
+
+**SLO テンプレ（クライアント案件標準値）**
+| サービス種別 | 可用性 SLO | p95 レイテンシ | エラー率 | エラーバジェット/月 |
+|-------------|-----------|---------------|---------|-------------------|
+| LP・コーポレートサイト | 99.9% | 800ms | 0.1% | 43.2 分 |
+| SaaS 本番（BtoB） | 99.95% | 500ms | 0.05% | 21.6 分 |
+| SaaS 本番（BtoC マス） | 99.9% | 300ms | 0.1% | 43.2 分 |
+| 決済・認証クリティカル | 99.99% | 200ms | 0.01% | 4.32 分 |
+| 内部管理画面 | 99.5% | 1500ms | 0.5% | 3.6 時間 |
+
+**エラーバジェットポリシー**
+- バジェット残 > 50%：新機能開発 OK・積極リリース OK
+- バジェット残 20〜50%：新機能 OK だがカナリアリリース必須・ロールバック演習の頻度倍増
+- バジェット残 < 20%：新機能凍結・信頼性改善タスクのみ・Kai とリリース停止を合意
+- バジェット枯渇：本番デプロイ全停止・全社ポストモーテム開催・再発防止策の実装完了までフリーズ
+
+**運用ツール**
+- **Sloth / OpenSLO**：SLO を YAML で宣言 → Prometheus Recording/Alerting Rules を自動生成
+- **Nobl9**：マルチデータソース（Datadog + Prometheus + New Relic）を横断した SLO 統合ダッシュボード
+- **Grafana SLO Plugin**：エラーバジェット消費速度（Burn Rate）を「1h / 6h / 24h / 30d の 4 段階」で監視、高速消費（1h で月次予算の 2% 消費）は即通知
+
+### 4. Progressive Delivery（LaunchDarkly + Split.io）
+
+「デプロイ = リリース」を分離し、Feature Flag によるトラフィック制御でリスクを段階的に開放する。Riku・Ao の実装コードを本番へ全開放する前に、1% → 10% → 50% → 100% と段階的にロールアウトする運用を Kuu が構築する。
+
+**LaunchDarkly の 4 大機能を使い分け**
+- **Kill Switch**：本番不具合時に該当機能を即無効化（デプロイ・ロールバック不要、数秒で全ユーザーへ反映）
+- **Percentage Rollout**：トラフィックの X% だけに新機能を露出、監視指標を見ながら段階的に拡大
+- **Targeting Rules**：特定ユーザー属性（社内ドメイン・βテスター・地域・プラン）に限定して先行公開
+- **Experiments**：A/B テストを LaunchDarkly 内で完結、コンバージョン差の統計的有意性まで自動判定
+
+**Feature Flag 運用の 3 原則**
+- **Flag の寿命を明示**：作成時に `expires_at` メタデータを必須化、90 日超過した Flag は自動的に technical debt チケット化。Flag 削除を怠ると「if 文の地層」がコードを侵食する
+- **Flag は環境変数ではない**：長期の設定値（DB URL・API キー）は env、動的に切替たい機能ロジックは Flag。Riku・Ao と混同しないよう設計段階で明文化
+- **Server-Side 評価を優先**：Client-Side 評価は Flag 全一覧が JS バンドルに含まれ機密漏洩リスク。認証済みユーザー向けは必ず Server-Side（Edge Function or API Route）で評価
+
+**Split.io / GrowthBook との使い分け**
+- **LaunchDarkly**：エンタープライズ標準・SDK 品質・SOC2/ISO27001 が必須の案件
+- **Split.io**：Feature Flag + Experimentation が主目的・データエンジニアとの統合を重視
+- **GrowthBook**：OSS 自ホスティング可・コスト最優先・スタートアップ案件
+
+**Vercel Edge Config との併用パターン**
+- ミリ秒以下の Flag 評価が必要な高トラフィック LP は Edge Config、複雑なターゲティングルールは LaunchDarkly、というハイブリッド構成。LaunchDarkly の Flag 状態を Webhook で Edge Config に同期し、Edge 側は Read-Only キャッシュとして利用
+
+### 5. インシデントレスポンス（PagerDuty + Postmortem 文化）
+
+MTTR（平均復旧時間）を「発見 5 分・対応判断 5 分・復旧 20 分・合計 30 分」で標準化する運用。属人化ゼロ・ドキュメント化 100% で、Kuu がいなくても復旧できる体制を構築する。
+
+**PagerDuty の運用設計**
+- **Escalation Policy**：Primary（Kuu）5 分無応答 → Secondary（Kai）5 分無応答 → COO（Sora）へエスカレーション。休暇・深夜対応の穴を構造的に埋める
+- **Service Dependency**：Vercel（親）→ Next.js アプリ（子）→ DB（孫）の依存関係を PagerDuty 上でグラフ化。DB 障害時に「アプリ側のアラートは無視して DB に集中」が自動判定される
+- **Runbook Automation**：Rundeck / PagerDuty Automation Actions で「ロールバック・Cache Flush・Read Replica 昇格」を 1-click 化。深夜対応時の手打ちミスをゼロ化
+- **Change Correlation**：直近 30 分のデプロイ・環境変数変更・LaunchDarkly Flag 切替を自動抽出し、インシデントに紐付け表示。「原因は 15 分前の Flag ON」の即断が可能
+
+**Opsgenie との選択基準**
+- PagerDuty：SaaS リーダー・エコシステム最大・SOC2 Type II・エンタープライズ標準
+- Opsgenie（Atlassian）：Jira・Confluence・Statuspage との統合を重視する組織
+
+**Postmortem（振り返り）テンプレ（Blameless 原則）**
+```markdown
+## インシデント概要
+- 発生日時 / 検知日時 / 復旧日時 / 総影響時間
+- ユーザー影響（何人・何機能・売上影響額）
+- 重大度（P0/P1/P2/P3）
+
+## タイムライン（分単位）
+- 14:32 デプロイ実施
+- 14:35 Sentry でエラー率急上昇（0.1% → 8%）
+- 14:37 PagerDuty アラート発火
+- 14:39 Kuu 応答・Slack #incident 開設
+- 14:42 直近デプロイのロールバック判断
+- 14:47 復旧確認
+
+## 根本原因（Root Cause）
+Why を 5 回繰り返し、人ではなく仕組みの欠陥を特定
+
+## 何がうまくいったか
+- 監視が 3 分で検知（合成監視 + Sentry）
+- ロールバック手順の Runbook が整備済み
+
+## 何がうまくいかなかったか
+- カナリア段階を飛ばして 100% デプロイした
+- DB マイグレーションの逆行 SQL が用意されていなかった
+
+## アクションアイテム（Owner + 期日 + 完了条件）
+- [ ] Kuu：全デプロイのカナリア段階必須化（12/15 まで）
+- [ ] Ao：全マイグレーションに逆行 SQL 必須化（12/20 まで）
+- [ ] Nao：非機能要件に「ロールバック 5 分以内」を追記（12/22 まで）
+```
+
+**Blameless の徹底**：人の名前でなく「仕組みの欠陥」を主語にする。「Kuu が確認漏れした」→「デプロイ前の確認が人手依存だった」に言い換える文化を Kai・Sora と合意し、非難ゼロで学習が最大化される場を守る。
+
+---
+
+## 📚 知識ベース拡張（2026 年最新）
+
+### 主要ツール比較表（2026 年時点の現場感覚）
+
+**IaC（Infrastructure as Code）**
+| ツール | 得意領域 | 苦手領域 | Kuu の採用基準 |
+|-------|---------|---------|--------------|
+| Terraform（HCL） | マルチクラウド標準・エコシステム最大 | 状態管理の複雑さ・DSL 学習コスト | AWS/GCP/Vercel/Cloudflare 混在案件の第一選択 |
+| Pulumi（TS/Python/Go） | 既存プログラミング言語で書ける・型安全 | エコシステムが Terraform より小さい | チームが TS 熟練・複雑なロジック必要時 |
+| AWS CDK | AWS 内で完結・L3 コンストラクトが強力 | AWS ロックイン | AWS スタック純度 100% 案件のみ |
+| Terraform CDK | HCL 回避しつつ Terraform Provider 資産活用 | 二重変換のデバッグが困難 | 過渡期の選択、新規は Pulumi 直接推奨 |
+
+**観測性（Observability）3 大プラットフォーム**
+| ツール | 強み | 弱み | 適用ケース |
+|-------|-----|-----|----------|
+| Datadog | オールインワン（Log/APM/Metrics/RUM/Synth）・UI 完成度 | 高コスト（月 $15/host〜） | エンタープライズ・多数マイクロサービス |
+| New Relic | APM 精度・Distributed Tracing の詳細度・課金モデル明快 | UI モダン化の途上 | Java/.NET レガシー含む複合環境 |
+| Grafana Cloud + Loki + Tempo + Mimir | OSS ベース・低コスト・柔軟なダッシュボード | 統合の手間・運用ノウハウ必要 | スタートアップ・技術力あるチーム |
+
+**エラー監視 + セッションリプレイ**
+- **Sentry**：エラー監視のデファクト、Session Replay・Performance Monitoring・Cron Monitoring も統合。Vercel Integration で 5 分導入
+- **Datadog RUM**：Datadog 統合済み案件はこちら、Frustration Signals（Rage Click 等）検知が優秀
+- **Highlight.io / PostHog**：OSS 自ホスト可・プライバシー厳守案件
+
+**コンテナセキュリティスキャナー**
+| ツール | 検出領域 | CI 統合 | ライセンス |
+|-------|---------|--------|----------|
+| Trivy（Aqua） | OS/言語依存/IaC/シークレット/K8s | GitHub Actions ネイティブ | Apache 2.0 |
+| Snyk | 依存 CVE / IaC / Code / Container | GitHub Actions | 有料（無料枠あり） |
+| Grype（Anchore） | OS/言語依存 | GitHub Actions | Apache 2.0 |
+| Docker Scout | Docker Hub 統合・SBOM | Docker 純正 | Docker サブスク |
+
+Kuu の標準：`trivy fs .`（依存 CVE）+ `trivy config .`（IaC 誤設定）+ `gitleaks`（シークレット漏洩）を CI に強制。Critical/High は 72 時間以内対応の SLA を Kai と契約する。
+
+### SRE フレームワーク要点
+
+**Google SRE の 5 原則**
+1. **信頼性は最重要機能**：機能追加より信頼性が優先されるフェーズがある
+2. **100% は間違った目標**：99.999% を追求するとイノベーション速度がゼロになる
+3. **エラーバジェットで開発速度を制御**：バジェット残量が開発の GO/NO-GO を決める
+4. **トイル（Toil）を 50% 未満に抑える**：手作業繰り返しは自動化投資へ回す
+5. **モニタリング 4 ゴールデンシグナル**：Latency / Traffic / Errors / Saturation
+
+**SRE 導入ロードマップ（Kuu が半年で構築するステップ）**
+- 月 1：SLI 定義（既存の Vercel Analytics / Sentry から抽出）
+- 月 2：SLO 数値化（Nao・Kai と合意、契約書に明記）
+- 月 3：エラーバジェットポリシー策定
+- 月 4：SLO ダッシュボード構築（Grafana SLO Plugin）
+- 月 5：Runbook 整備（トップ 10 障害の対応手順を Notion に）
+- 月 6：カオスエンジニアリング演習（月次で本番 Read Replica を意図的に落とす）
+
+### カオスエンジニアリング（Chaos Mesh / Litmus）
+
+**原則**：「本番で何が壊れるか」を待つのではなく、「本番で何が壊れても大丈夫か」を能動的に検証する。
+
+**演習テンプレ（四半期実施）**
+- **Network Chaos**：AWS RDS へのレイテンシを 500ms 注入、アプリのタイムアウト設定・リトライ動作を検証
+- **Pod Chaos**：ランダムに Pod を Kill、Kubernetes の自己修復とサービス継続性を確認
+- **Stress Chaos**：CPU/Memory 使用率を 90% に張り付かせ、HPA（Horizontal Pod Autoscaler）の発火閾値を検証
+- **DNS Chaos**：外部 API の名前解決を意図的に失敗させ、フォールバック動作を確認
+
+**演習後の必須アクション**
+- 検出できなかったアラートを追加
+- 対応に 10 分以上かかった箇所を Runbook 化
+- Nao の非機能要件（RTO/RPO）と実測値を突合、乖離があれば設計へ差し戻し
+
+### IaC 設計パターン（Terraform 実践）
+
+**ディレクトリ構造の標準**
+```
+infra/
+├── modules/           # 再利用モジュール
+│   ├── vercel-project/
+│   ├── cloudflare-dns/
+│   └── github-repo/
+├── environments/      # 環境別設定
+│   ├── production/
+│   ├── staging/
+│   └── development/
+└── shared/            # 全環境共通
+    ├── iam/
+    └── monitoring/
+```
+
+**リモート State 管理**
+- **S3 + DynamoDB Lock**：AWS スタック案件、State ファイルの暗号化（KMS）・バージョニング必須
+- **Terraform Cloud**：State 管理 + CI 統合 + ポリシー（Sentinel）を一体運用、チーム 5 名以上で費用対効果が出る
+- **HCP Terraform 無料枠**：500 リソースまで無料、スタートアップの初期選択
+
+**モジュール設計の 4 原則**
+- **Input は最小限**：モジュール利用側の負担を減らす（sensible defaults を持つ）
+- **Output は明示的**：モジュール間の依存を Output 経由に統一
+- **Version 固定**：`source = "git::...ref=v1.2.3"` でセマンティックバージョニング
+- **README 必須**：`terraform-docs` で `variables.tf` / `outputs.tf` から自動生成
+
+**ドリフト検知の週次 CI 化**
+```yaml
+# .github/workflows/drift-detection.yml
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # 毎週月曜 9:00
+jobs:
+  drift:
+    steps:
+      - run: terraform plan -detailed-exitcode
+      - if: failure()
+        run: gh issue create --title "IaC Drift Detected" --body "$(terraform show -no-color plan.out)"
+```
+
+### プログレッシブ・デプロイ戦略の意思決定マトリクス
+
+| 戦略 | ダウンタイム | ロールバック速度 | インフラコスト | 適用場面 |
+|------|------------|----------------|--------------|--------|
+| Recreate | あり（分単位） | 遅い（再デプロイ） | 低 | 開発環境・非クリティカル |
+| Rolling Update | ほぼゼロ | 中（順次戻し） | 中 | Kubernetes 標準・BtoB SaaS |
+| Blue-Green | ゼロ | 速い（切替のみ） | 高（2 倍） | 決済・認証・ミッションクリティカル |
+| Canary（段階的） | ゼロ | 速い（%戻し） | 中 | BtoC マス・大規模トラフィック |
+| Feature Flag | ゼロ | 即時（数秒） | 低 | 機能単位の段階公開・A/B テスト |
+| Shadow Deploy | ゼロ | N/A（本番非影響） | 高 | 新アーキ検証・パフォーマンス実測 |
+
+Kuu の標準：LP は Canary、SaaS 本番は Blue-Green、機能単位の露出制御は Feature Flag。Nao・Kai と初期設計で合意する。
+
+### 2026 年の観測性トレンド：OpenTelemetry 完全統合
+
+- **OTel Collector を全プロジェクトに標準配置**：Vercel Log Drains → OTel Collector → Datadog/New Relic/Sentry へ fan-out。ベンダーロックインを最小化しつつ、複数バックエンドで冗長化
+- **eBPF ベースの自動計装（Odigos / Pixie）**：コード変更ゼロでカーネル層からトレース収集、レガシーアプリの計装工数を撲滅
+- **Continuous Profiling（Pyroscope / Grafana Phlare）**：本番 CPU / Memory のフレームグラフを常時収集、パフォーマンス劣化の原因特定が数時間 → 数分
