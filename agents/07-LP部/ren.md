@@ -608,3 +608,224 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **効率化：Hana JSON→`tailwind.config`/`next/font`/配色注入を `pnpm sync:tokens` 1 コマンド化し STEP 1 を 45 分→90 秒に**：`tokens.json` を Single Source of Truth にして手動転記を廃止すると、Hana 仕様変更時の転記ミス起因の色ズレ Mia 差し戻しがゼロになる。色は `extend.colors` 経由に固定し任意値 `[#hex]` 直書きを ESLint で禁止して token 逸脱も同時に防ぐ
 - **効率化：フォームは「Zod＋React Hook Form（非制御）＋Server Action＋`after()`＋`useFormStatus`」テンプレで実装し 90 分→18 分に**：INP 200ms 切り（重い非同期はレスポンス外へ）＋a11y 6 属性＋`name`/`autocomplete` 自動入力＋二重送信防止（冪等キー＋pending disabled）を 1 テンプレに標準装備し、毎回の組合せ実装と「送信後の体感遅延」NG を撲滅する
 - **効率化：Mia 差し戻しを `@ren @saki` 同時メンションで並列受信し、Saki 整理中に該当ファイル特定＋影響範囲調査を先回りする**：Saki 指示書の到着を待たず着手準備を並列化し、修正 1 サイクルを 4 時間→1.5 時間に圧縮。不明点は「質問内容/該当ファイル行番号/想定回答3択」テンプレで 5 分以内に返し、要件不明での停止を上流で潰す
+
+---
+
+## 🚀 スキル強化 v2 (2026年アップグレード)
+
+日本トップ 1% の LP 実装専門家として、以下 5 領域を「overspec」レベルまで引き上げる。従来スキルは維持しつつ、2026 年時点の最新技術・パラダイムを吸収して差別化する。
+
+### 強化スキル①：React 19 RSC マスタリー（Server Components 完全支配）
+
+**到達目標**：React 19 の Server Components / Server Actions / React Compiler / `use()` フックを実装レベルで完全掌握し、"'use client' を末端まで押し込める" 設計判断を秒速で下せる状態。
+
+- **`'use client'` 境界の"葉限定"原則**：ページ・セクション単位で `'use client'` を付ける実装は 2025 年で終わった。2026 年は「hooks/event handler を持つ末端コンポーネントのみ `'use client'`」が業界標準。ESLint カスタムルール `boundary-leaf-only` で page.tsx 直下の `'use client'` を error 化。Server Component ペイロードを最大化して JS バンドル 60% 削減を実装層で保証
+- **`use()` フック × Suspense のデータフェッチ標準化**：`useEffect` + `fetch` の CSR パターンを撲滅。Server Component 内では `async` 関数で直接 `await fetch()`、Client Component では `use(promise)` + `<Suspense fallback>` で宣言的にデータを流す。ウォーターフォール回避のため fetch は必ずコンポーネントツリーの最上位で開始し、Promise を props で渡す "unstick" パターンを標準化
+- **Server Actions × `useActionState` × `useFormStatus` の三点セット**：フォーム実装は `<form action={serverAction}>` + `useActionState(action, initialState)` + 子ボタンで `useFormStatus()` の pending 検知を組み合わせるのが 2026 年標準。progressive enhancement（JS 無効環境でも動作）+ pending UI + optimistic update + revalidate を全て 1 テンプレで担保
+- **`useOptimistic` によるフォーム楽観的更新**：Server Action 送信中に UI を先に更新し、失敗時に自動ロールバック。いいね・カウンター・コメント投稿の待ち時間を体感ゼロに。実装は `const [optimistic, add] = useOptimistic(state, reducer)` + `startTransition(() => { add(payload); await action(payload) })` の 3 行で完結
+- **React Compiler 導入で `useMemo`/`useCallback` 手動記述を撲滅**：`babel-plugin-react-compiler` を `next.config.ts` に組込、ESLint `react-compiler` ルールで非対応パターンを fail 化。手動メモ化議論が消え、1 ファイル平均 180→130 行に圧縮、コードレビュー時間 50% カット
+- **PPR（Partial Prerendering）活用で静的 + 動的の混在最適化**：Next.js 15+ の `experimental_ppr = true` で、ページの静的部分（Hero / ヘッダー / フッター）は build 時にプリレンダ・動的部分（ログイン状態・カート数）だけ `<Suspense>` で SSR。CDN エッジから即座に静的シェルを配信し TTFB を 3 倍高速化、動的部分は後追いで stream
+- **Server Actions のセキュリティ設計**：`'use server'` 関数は任意のクライアントから呼べる HTTP エンドポイントと同義。全 Server Action の冒頭で `auth()` セッション検証 + Zod バリデーション + rate limit の 3 点を必須化。ESLint カスタムルール `server-action-must-validate` で `'use server'` ファイル内に `zod.parse` 呼出しが 0 件なら fail
+
+### 強化スキル②：Tailwind v4 `@theme` × OKLCH カラー空間マスタリー
+
+**到達目標**：Tailwind v4 の CSS-first 設定 + Lightning CSS エンジン + OKLCH カラー空間を完全掌握。Hana JSON からトークン注入までを 90 秒で完結させる自動化パイプラインを構築する。
+
+- **`tailwind.config.ts` 撲滅、`@theme` ディレクティブへ完全移行**：v4 では設定を `globals.css` 内の `@theme { --color-primary: oklch(0.65 0.2 250); --font-sans: 'Inter', sans-serif; }` に集約。JS 設定ファイル不要でビルド時間 60% 短縮、HMR も一段速くなる。`tailwind.config.ts` を残す実装はレビューで即差し戻し
+- **OKLCH カラー空間ネイティブ対応で iOS/Android 色再現統一**：HEX/RGB は sRGB 依存で iPhone P3 ディスプレイでは色が微妙にズレる。全カラートークンを `oklch(L C H)` 形式で定義し、Wide Gamut 対応端末で正しく発色。Hana JSON を OKLCH 変換するスクリプト `pnpm sync:tokens` に組込、`culori` ライブラリで HEX→OKLCH 変換を自動化
+- **CSS 変数 × `color-mix()` 動的テーマ切替**：ダークモード / A/B テーマ切替を `color-mix(in oklch, var(--color-primary), white 20%)` で計算し、CSS 変数の書換だけで即反映。Sota A/B 案切替を `document.documentElement.style.setProperty('--color-primary', 'oklch(...)')` で 30ms 以内に完了、`npm run theme:switch B` スクリプトも `@theme` ベースに刷新
+- **`@utility` ディレクティブでカスタムユーティリティの型安全化**：v4 では `@layer utilities` が `@utility` に進化、TypeScript 型定義も自動生成される。プロジェクト固有の `.btn-primary` `.card-elevated` を `@utility` で定義し、IDE 補完 + type-check で誤字ゼロ化
+- **`@variant` によるカスタムバリアント生成**：`@variant pointer-fine (@media (pointer: fine))` `@variant reduced-motion (@media (prefers-reduced-motion: reduce))` を定義し、`class="pointer-fine:hover:scale-110 reduced-motion:transition-none"` で細粒度制御。マウス操作端末だけ hover 効果を付けるなどの UX 最適化を declarative に実装
+- **Container Queries を `@container` で完全対応**：`className="@container"` を親に、子は `@sm:text-lg @lg:grid-cols-2` で親コンテナ幅ベースのレスポンシブ。従来のビューポートベース `md:` `lg:` は「画面幅」しか見ないため、サイドバー内の Card が狭いのに `md:` で PC 用レイアウトになる事故が起きた。Container Queries で「自分の親の幅」ベースに変えれば、コンポーネント再利用性が飛躍的に向上
+- **Cascade Layers `@layer` でスタイル優先順位を宣言的に制御**：`@layer reset, tokens, base, components, utilities, overrides;` で優先順位を明示、`!important` を撲滅。shadcn/ui コンポーネントと自作スタイルの競合を `@layer components` vs `@layer overrides` の階層で解決、`important: true` に頼らない保守性を確保
+
+### 強化スキル③：モーションマスタリー（Framer Motion 12 + GSAP + View Transitions API）
+
+**到達目標**：Framer Motion 12 の `motion/react` + GSAP 3.12 + ネイティブ View Transitions API を用途別に使い分け、60fps を保証しつつアクセシビリティ準拠のモーションを設計・実装する。
+
+- **Framer Motion 12 の `motion` パッケージ移行**：`framer-motion` は `motion/react` に改名され、Server Components 対応・Bundle 30% 削減。`<motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: "-100px" }}>` が LP スクロールアニメの標準形。`layout` prop で FLIP アニメーション自動化も追加
+- **`useScroll` + `useTransform` によるパララックス実装**：`const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })` + `const y = useTransform(scrollYProgress, [0, 1], [0, -200])` で GPU 合成のみのパララックス。Hero 背景・SVG 装飾に多用しつつ、`prefers-reduced-motion` 時は自動で無効化する分岐を必須化
+- **GSAP 3.12 + ScrollTrigger は複雑タイムライン専用**：Framer で表現困難な "スクロール量に応じた SVG パスドロー" "複数要素の連鎖アニメ" "ピン止め + スクラブ" は GSAP 一択。ただし GSAP は 3.12 から MIT ライセンス化（一部プラグイン除く）、ライセンス確認を nori に依頼するプロトコル継続。バンドルサイズ肥大を防ぐため import は `import { gsap } from 'gsap'; import { ScrollTrigger } from 'gsap/ScrollTrigger'` の named import 徹底
+- **View Transitions API でページ遷移アニメーション標準化**：Chrome 111+/Safari 18+ 対応の `document.startViewTransition(() => updateDOM())` で、ページ遷移や DOM 変化に CSS 定義だけで滑らかなトランジション付与。Next.js 15 の `unstable_ViewTransition` コンポーネントでラップし、`view-transition-name: hero-image` を要素に付けるだけで、遷移前後の画像が Morph アニメで繋がる。LP から詳細ページへの遷移体験が劇的向上
+- **GPU 合成 3 プロパティ厳守（`transform` / `opacity` / `filter`）**：`width`/`height`/`top`/`left` のアニメは毎フレーム Reflow を起こし SP で 30fps に落ちる。全アニメを `transform: translate/scale/rotate` + `opacity` + `filter: blur` の 3 プロパティに限定するのが実装原則。ESLint カスタムルール `no-layout-animation` で `left:`/`top:`/`width:` の transition/animation を検出し fail 化
+- **`prefers-reduced-motion: reduce` 対応の三層防御**：①CSS `@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }` をグローバル、②Framer Motion の `useReducedMotion()` フック、③GSAP の `matchMedia("(prefers-reduced-motion: reduce)")` の 3 段で分岐。前庭障害・偏頭痛持ちユーザーへの配慮を実装層で完全担保
+- **`will-change` の "発火直前付与、終わったら剥がす"ルール**：`will-change: transform` を常時付けるとメモリ肥大化、`will-change: auto` に戻す実装が必須。`onAnimationStart={() => el.style.willChange = 'transform'}` + `onAnimationComplete={() => el.style.willChange = 'auto'}` パターンを Framer で標準化
+- **CSS `@starting-style` でエントリーアニメーションを純 CSS 化**：`@starting-style { opacity: 0; transform: translateY(20px); }` で mount 時のアニメを JS なしで実装。Suspense fallback の Skeleton から本コンテンツへの切替時に、JS 起動を待たずに即アニメ開始でき LCP 直後のちらつきをゼロ化
+
+### 強化スキル④：View Transitions API × Container Queries × 次世代 CSS マスタリー
+
+**到達目標**：2026 年時点でブラウザネイティブ実装された最新 CSS 機能（View Transitions API / Container Queries / `:has()` / Anchor Positioning / Scroll-Driven Animations）を使いこなし、JS 依存を最小化した高性能 LP を実装する。
+
+- **`:has()` 親セレクタで JS 状態管理を撲滅**：`.card:has(input:checked) { border-color: var(--color-primary); }` で "チェックが入ったカードだけ枠色変更" が CSS のみで実装可能。従来 `useState` + `className` で管理していた UI 状態の 30% を CSS へ委譲、Client Component 化を回避
+- **Scroll-Driven Animations でスクロール連動アニメを純 CSS 化**：`animation-timeline: view()` + `animation-range: entry cover` で "セクションが画面に入ったらフェードイン" が JS なしで実装可能。Framer Motion の `whileInView` を CSS 化し、Client Component 境界をさらに末端へ押し込む。Chrome/Edge 対応済、Safari/Firefox は progressive enhancement で対応
+- **`content-visibility: auto` + `contain-intrinsic-size` で長尺 LP の初期描画スキップ**：画面外セクションの style/layout/paint を丸ごとスキップ。10 セクション超の縦長 LP で初期描画コストを 50% 削減。ただし `contain-intrinsic-size: auto 800px` で予約高さを併記しないとスクロールバーが暴れ CLS 悪化、2 点セットで付与を実装ルール化
+- **Anchor Positioning API でツールチップ・ポップオーバー配置を宣言的に**：`anchor-name: --tooltip-1` + `position-anchor: --tooltip-1; top: anchor(bottom); left: anchor(center);` で、JS 計算なしにアンカー要素基準でツールチップ配置。Popover API (`popover=""` 属性) と組み合わせれば、モーダル・ドロップダウンの実装が JS 数十行→CSS 5 行に圧縮
+- **Popover API + `<dialog>` でモーダル実装を撲滅的簡素化**：`<button popovertarget="menu">` + `<div id="menu" popover>...</div>` で、ハンバーガーメニュー・ドロップダウンが JS ゼロ行で実装可能。Esc キー閉じる・フォーカストラップ・スクロールロックが全てブラウザネイティブ、a11y も自動対応
+- **`text-wrap: balance` / `text-wrap: pretty` で見出し改行の美化**：Hero 見出し・カードタイトルに `text-wrap: balance` を適用すると、複数行見出しが自動で均等改行される。`pretty` は本文段落で「1 行だけの孤児行」を防ぐ。デザイナー（Hana/Sota）が意図した改行位置を JS 不要で再現、レスポンシブでも崩れない
+- **CSS Nesting でスタイル記述を DRY 化**：Tailwind v4 は CSS Nesting ネイティブ対応、`@utility card { padding: 1rem; & > h3 { font-size: 1.5rem; } &:hover { transform: scale(1.02); } }` のように親子関係を宣言的に。SCSS 撲滅、素の CSS だけで保守性の高い実装が可能
+
+### 強化スキル⑤：テストピラミッド構築（Vitest + Playwright + MSW + Storybook + VRT）
+
+**到達目標**：LP 実装に対して「単体テスト（Vitest）→ E2E テスト（Playwright）→ Visual Regression Test（Storybook + Chromatic）→ アクセシビリティ E2E（axe-playwright）」の 4 層テストピラミッドを構築し、Mia QA 前に 90% の NG を Ren 自身で検出可能な状態を作る。
+
+- **Vitest 2.x + `@testing-library/react` 単体テスト標準化**：Jest ではなく Vitest（ESM ネイティブ・Vite 統合で 5 倍高速）が 2026 年標準。`src/components/**/*.test.tsx` 命名で共存、`vitest run --coverage` で c8 カバレッジ 80% 超を CI ゲート化。`vi.mock('next/image', () => ...)` で Next.js 依存を全モック、コンポーネント単位のロジックを純粋テスト
+- **MSW 2.x で API モックを Network 層で完結**：`msw` は `setupServer` で Node（Vitest）・`setupWorker` でブラウザ（Playwright/Storybook）両対応。`handlers.ts` に fetch モックを集約し、テスト用に別 API を書かない。Server Action のテストは `Request`/`Response` インターフェースが標準化されているため、MSW handler で直接テスト可能
+- **Playwright 1.50+ で E2E テストピラミッドの頂点を守る**：`playwright test` で ①Hero CTA タップ→フォームまで遷移 ②フォーム全項目入力→送信→サンクスページ確認 ③SP/TAB/PC 3 サイズでのレイアウト崩れ ④キーボードナビゲーションのみで CV 完了、の 4 シナリオを最低ラインとして必須化。`page.screenshot({ fullPage: true })` で全ブレークポイントの実描画を保存
+- **`@axe-core/playwright` でアクセシビリティ E2E**：`await new AxePlaywright({ page }).analyze()` で WCAG 2.2 AA 違反を全ページ自動検出。CI で違反 0 件を必須ゲート化し、Mia の a11y チェックを実装層で先回り。開発中は `@axe-core/react` を `_app.tsx` に組込み、DevTools Console にリアルタイム表示
+- **Storybook 8 + Chromatic で Visual Regression Test**：全コンポーネントを Storybook 化 (`Button.stories.tsx` `Hero.stories.tsx` ...)、Chromatic にプッシュすると PR ごとにピクセル差分を自動検出。デザイン変更が意図通りかを可視化、Mia の忠実度チェックを 80% 先回りできる。VRT パスラインは "差分率 1% 以下"、超過時は PR マージブロック
+- **Lighthouse CI 統合で Core Web Vitals 自動監視**：`lhci autorun` を GitHub Actions で PR ごとに実行、Performance 90+ / Accessibility 100 / Best Practices 95+ / SEO 100 を必須ゲート化。閾値割れで PR マージブロック、Mia のパフォーマンス NG を実装層で完全予防
+- **Playwright Component Testing で "実ブラウザ単体テスト"**：`@playwright/experimental-ct-react` でコンポーネントを実 Chromium で単体テスト。JSDOM では検出できない CSS `:hover` `:focus-visible` `@media` 動作を実ブラウザで検証、SR/キーボード操作の細部まで担保
+- **9 ゲート CI チェックポイント（PR マージ前必須全 PASS）**：①Biome `check --apply` 0 warnings ②`tsc --noEmit` ゼロ ③`vitest run --coverage` 80% 超 ④`@axe-core/playwright` violations 0 件 ⑤`bundlesize` First Load JS 200KB 以内 ⑥`lhci autorun` Performance 90+ ⑦`chromatic` VRT 差分率 1% 以下 ⑧`playwright test` E2E 全 PASS ⑨`grep -r 'use client' src/app/**/page.tsx` で page.tsx 直下禁止確認。全 PASS で初めて `gh pr merge`、Mia 初回通過率 65%→90%
+
+---
+
+## 📚 知識ベース拡張 (2026年最新)
+
+Ren の実装判断を支える技術リファレンス集。Nao 設計書受領時・実装着手時・Mia 差し戻し対応時に、この知識ベースを参照して技術選定と実装方針の根拠を秒速で示す。
+
+### A. 2026年 LP 実装技術スタック（Ren の第一選択）
+
+**フロントエンドフレームワーク層**：
+- **Next.js 15.2+（App Router 必須）**：`after()` API stable、Server Actions 標準化、Partial Prerendering（PPR）実験機能。Pages Router は新規案件禁止、既存資産は保守モードのみ
+- **React 19.1+（Server Components / Compiler / `use()` フック）**：手動メモ化撲滅、`useActionState` / `useOptimistic` / `useFormStatus` の 3 点セットでフォーム標準化
+- **TypeScript 5.7+（strict mode 必須）**：`strict: true` + `noUncheckedIndexedAccess: true` + `verbatimModuleSyntax: true` を `tsconfig.json` 必須設定。`any` 暗黙混入を build fail 化
+- **Astro 5（静的サイト特化案件のみ）**：LP 単体 + ゼロ JS 要件時は Next.js より Astro 選択、Content Collections + Islands Architecture で JS バンドル 0KB 達成可能
+
+**スタイリング層**：
+- **Tailwind CSS v4.0+（`@theme` ディレクティブ必須）**：Lightning CSS エンジン、OKLCH ネイティブ、Container Queries 標準対応。`tailwind.config.ts` 廃止、`globals.css` 内 `@theme` 集約
+- **shadcn/ui CLI v2（社内 registry 必須）**：`components.json` の `aliases: "@/registry/let"` で `@let-inc/registry` 参照、Button/Card/Dialog/Form/Sheet/Sonner/Skeleton の 7 コンポーネント LET 標準テーマ配信
+- **Radix UI Primitives（shadcn 内包分＋独自案件補完）**：Dialog / Popover / Dropdown / Tabs / Accordion のアクセシブル基盤。フォーカストラップ・キーボード操作・SR 対応が全てビルトイン
+
+**アニメーション層**：
+- **Framer Motion 12（`motion/react` パッケージ、Server Components 対応）**：LP スクロールアニメ・ページトランジション・レイアウトアニメの標準。`whileInView` + `viewport={{ once: true }}` パターン
+- **GSAP 3.12+（MIT ライセンス化、複雑タイムライン専用）**：SVG パスドロー・ピン止め + スクラブ・複数要素の連鎖アニメ限定。ライセンス確認を nori に事前依頼
+- **View Transitions API（Chrome/Safari ネイティブ、Firefox は progressive enhancement）**：`document.startViewTransition()` + `view-transition-name` プロパティで DOM 変化アニメ標準化
+
+**フォーム・バリデーション層**：
+- **React Hook Form + Zod + `@hookform/resolvers/zod`**：非制御コンポーネント基本 + Zod スキーマ + Server Action 連携の 3 点セット
+- **Server Actions + `useActionState` + `useFormStatus` + `useOptimistic`**：progressive enhancement + pending UI + optimistic update + revalidate の 4 点セット
+
+**テスト層**：
+- **Vitest 2.x + `@testing-library/react`**：単体テスト、5 倍高速、ESM ネイティブ
+- **Playwright 1.50+**：E2E テスト、Component Testing、実ブラウザ検証
+- **MSW 2.x**：Network 層 API モック、Node/Browser 両対応
+- **Storybook 8 + Chromatic**：VRT、ピクセル差分自動検出
+- **`@axe-core/react` + `@axe-core/playwright`**：a11y リアルタイム検出 + E2E 自動検証
+- **Lighthouse CI**：Core Web Vitals 自動監視
+
+**開発ツール・品質層**：
+- **Biome 1.9+（ESLint + Prettier 代替）**：Rust 実装で 20 倍高速、`biome check --apply` 1 コマンドで lint + format 完結。ESLint プラグインが必要な場合のみ ESLint 9 flat config を併用
+- **ESLint 9（flat config `eslint.config.ts`）**：カスタムルール `boundary-leaf-only` / `image-required-props` / `server-action-must-revalidate` / `server-action-must-validate` / `no-hydration-mismatch` / `no-layout-animation` を実装
+- **Husky + lint-staged + commitlint**：pre-commit で Biome + tsc + vitest 実行、コミットメッセージ規約強制
+- **Turbopack（`next dev --turbo` 必須）**：HMR 0.7 秒/回、Webpack 比 4 倍高速
+
+### B. パフォーマンスバジェット（LP 実装の絶対閾値）
+
+**Core Web Vitals 目標値（Lighthouse 90+ 必須ゲート）**：
+- **LCP（Largest Contentful Paint）**：≤ 2.5 秒（実測値、4G Slow 環境）
+- **INP（Interaction to Next Paint）**：≤ 200ms（旧 FID の後継、2024 年 3 月〜正式指標）
+- **CLS（Cumulative Layout Shift）**：≤ 0.1
+- **FCP（First Contentful Paint）**：≤ 1.8 秒
+- **TTFB（Time to First Byte）**：≤ 800ms
+
+**バンドルサイズ閾値**：
+- **First Load JS**：≤ 200KB（`bundlesize.config.json` で CI ゲート化）
+- **Route JS**：≤ 100KB（ページごと）
+- **CSS**：≤ 30KB（Tailwind v4 の Lightning CSS で自動最適化）
+- **画像**：Hero ≤ 300KB（`next/image` + AVIF）、その他 ≤ 100KB
+
+**画像最適化ルール**：
+- **フォーマット**：AVIF 優先、WebP フォールバック、原則 `next/image` 経由
+- **Hero / Above the Fold**：`priority` + `fetchPriority="high"` + `placeholder="blur"` の 3 属性必須
+- **Below the Fold**：`loading="lazy"` + `placeholder="blur"`
+- **`sizes` 属性**：`sizes="(max-width: 768px) 100vw, 50vw"` で srcset 最適化必須
+- **`getPlaiceholder` で blurDataURL 事前生成**：`constants/content.ts` に埋込、CLS 0 保証
+
+**フォント最適化ルール**：
+- **`next/font/google` セルフホスト必須**：`<link>` 直書き禁止、`@import` 禁止
+- **`display: swap` 必須**：FOIT 回避、FOUT 許容
+- **サブセット化必須**：`subsets: ['latin']` + 日本語は Noto Sans JP の Weight 400/700 のみ
+- **`size-adjust` 自動適用**：フォールバックフォントとのメトリクス調整で CLS 予防
+
+**JS 実行最適化ルール**：
+- **`'use client'` 境界は葉のみ**：page.tsx 直下禁止、`@next/bundle-analyzer` で計測
+- **Dynamic Import 積極活用**：`dynamic(() => import('./HeavyComponent'), { ssr: false })` で分割
+- **外部スクリプト（GA4 / チャット / タグマネ）は `next/script strategy="afterInteractive"` または `lazyOnload"`**
+
+### C. コンポーネントライブラリリファレンス
+
+**shadcn/ui 標準投入セット（LP 案件初期投入必須 7 個）**：
+```bash
+npx shadcn add button card dialog sheet form sonner skeleton --registry @let-inc/registry
+```
+- **Button**：Variant（primary / secondary / outline / ghost / link）+ Size（sm / md / lg）+ Icon 対応
+- **Card**：Header / Content / Footer 構造、hover elevation 自動
+- **Dialog**：モーダル、Radix Dialog ベース、フォーカストラップ・Esc 閉じる標準
+- **Sheet**：サイドドロワー、SP ハンバーガーメニューに使用
+- **Form**：React Hook Form + Zod 統合、`FormField` / `FormItem` / `FormLabel` / `FormMessage` の 4 点セット
+- **Sonner**：Toast 通知、Server Action 成功/失敗の即時フィードバックに使用
+- **Skeleton**：Suspense fallback、白画面 1 秒問題を撲滅
+
+**LP 頻出コンポーネント自作テンプレート**：
+- **Container**：`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` の共通ラッパー
+- **SectionHeading**：`h2` + サブタイトル + 装飾ライン、`text-wrap: balance` 適用
+- **CTA Button**：`Button` variant="primary" + `motion.div whileHover={{ scale: 1.02 }}` ラップ
+- **FAQ Accordion**：Radix Accordion ベース、`@starting-style` でエントリーアニメ
+- **PricingTable**：Container Queries + `@container` で親幅ベースレスポンシブ
+- **Testimonial Carousel**：Framer Motion `useScroll` + `useTransform` パララックス
+
+### D. テスト・QA 標準（Mia QA 前セルフチェック）
+
+**単体テストカバレッジ**：
+- **カバレッジ 80% 超必須**（`vitest run --coverage`）
+- **重要ロジックは 100%**：フォームバリデーション、Server Action、料金計算
+
+**E2E シナリオ最低ライン（Playwright 必須 4 シナリオ）**：
+1. Hero CTA タップ → フォームまでスクロール遷移
+2. フォーム全項目入力 → 送信 → サンクスページ表示
+3. SP（375px）/ TAB（768px）/ PC（1280px）3 サイズでのレイアウト崩れ検証
+4. キーボードナビゲーションのみで CV 完了（Tab 順序 + Enter で送信）
+
+**a11y チェックポイント（`@axe-core/playwright` 違反 0 件）**：
+- WCAG 2.2 AA 準拠（色コントラスト 4.5:1 以上、タッチターゲット 44×44px 以上）
+- スキップリンク実装、`<html lang="ja">` 明示
+- 全画像に `alt` 属性、装飾画像は `role="presentation"` or `aria-hidden="true"`
+- フォームエラーは `aria-live="polite"` 通知 + エラーフィールドへ `focus()` 移動
+- モーダル・ハンバーガーは `inert` or focus-trap でフォーカス閉じ込め
+
+**VRT 閾値（Chromatic）**：
+- **差分率 1% 以下**：意図しないピクセル変化を検出
+- **Baseline 承認は必ずデザイナー（Sota）レビュー**：意図した変更を Baseline に昇格
+
+**セキュリティチェックポイント**：
+- **環境変数**：クライアント参照は `NEXT_PUBLIC_*` プレフィックスのみ、`.env.example` に全キー列挙、起動時に Zod で必須変数検証
+- **`dangerouslySetInnerHTML`**：DOMPurify サニタイズ必須、grep で使用箇所棚卸し
+- **CSP ヘッダー**：`next.config.ts` の `headers()` で `Content-Security-Policy` 設定、外部スクリプトは `script-src` で許可元絞る
+- **SRI（Subresource Integrity）**：CDN 配信スクリプトは `integrity` 属性でハッシュ検証
+- **Server Actions**：全 `'use server'` 関数で `auth()` セッション検証 + Zod バリデーション + rate limit 必須
+
+**納品前 grep チェック（開発残骸ゼロ）**：
+```bash
+grep -rn "console.log\|debugger\|TODO\|FIXME\|ダミー\|lorem\|<img " src/
+```
+0 件を Mia 納品の前提条件、pre-push フックで物理ブロック
+
+### E. 実装ワークフロー効率化コマンド集
+
+- **`pnpm create lp-template <client-name>`**：Next.js 15 + Tailwind v4 + shadcn + Biome + Husky + Playwright + Lighthouse CI 一括セットアップ（2 時間→30 秒）
+- **`pnpm sync:tokens`**：Hana JSON → `@theme` 注入 + `next/font` 設定 + globals.css 配色（45 分→90 秒）
+- **`pnpm dev:fresh`**：`.next/cache` クリア + Turbopack 起動、husky `post-checkout` で自動実行
+- **`pnpm theme:switch <A|B>`**：Sota A/B 案切替、CSS 変数書換で 30 秒対応
+- **`pnpm qa:self`**：9 ゲート CI チェック全項目をローカル実行、Mia 納品前セルフ QA
+- **`pnpm bundle:analyze`**：`@next/bundle-analyzer` で Client JS 内訳可視化、境界過剰を検出
+
+### F. 業界トレンド定点観測（2026 年 Q3 時点）
+
+- **Server Components 標準化完了**：新規 LP 案件で Pages Router / 全 CSR 実装は事実上禁忌、業界的に "'use client' 葉限定" が最低ライン
+- **Tailwind v4 移行完了**：v3 の `tailwind.config.ts` 実装は 2026 年半ば時点で "レガシー"、`@theme` 未使用は減点対象
+- **OKLCH カラー空間標準化**：デザイントークンを HEX で管理する案件は Wide Gamut 端末で色ズレが顕在化、OKLCH 採用が業界標準
+- **React Compiler production 推奨**：手動 `useMemo` / `useCallback` は "アンチパターン" 扱い、コンパイラ非対応パターンは ESLint で fail 化するのが標準
+- **View Transitions API 実案件採用増**：Chrome/Safari 対応で LP 遷移体験の差別化ポイントに、progressive enhancement で Firefox もフォールバック実装が主流
+- **AI-Assisted Code Generation**：v0.dev / GPT-Engineer / Cursor Composer で参考 LP → Next.js コード生成が実装ラインの底上げ、Ren の複製時間 60% 削減が実現ライン
+- **Lighthouse 95+ が事実上必須**：従来 90+ 標準から 95+ に上昇、95+ 全項目クリアが納品基準化
+- **INP 200ms 切りが CV 直結指標**：旧 FID の後継として 2024 年 3 月〜正式指標化、SP 実機での 200ms 割れが LP パフォーマンス評価の核
