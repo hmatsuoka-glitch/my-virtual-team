@@ -274,3 +274,133 @@
 - **効率化テクニック：品質検証（fan-out assert・シンプソン符号逆転・指標定義/期間の統一辞書突合・独立検算・toyデータ期待値一致／06-26/07-03）を納品前の1本の検証パイプラインに常駐させ、JOIN前後行数・セグメント別符号・data_dictionary突合・別経路桁比較・既知10行の完全一致を全てパスしないと納品ブロックする**。手動で各チェックを回すと1つ抜けて誤値が流出するため、行数正常のまま誤るロジックバグ（07-03のWHERE取り違え・GROUP BY粒度ミス）まで既知答えとの照合で機械捕捉し、検算工数を検証ジョブ1回に集約する。
 - **効率化テクニック：金額換算ROIの係数（CV率・客単価・LTV係数／06-16のlookup集約）と「想定問答（で、いくら？／確実？／他社比？＝金額換算・確度ラベル・業界ベンチマーク／06-23）」を分析成果物のテンプレ末尾に自動生成で付け、係数1箇所の更新が全レポートの金額・p値注釈・問答に一括伝播する**。経営層の追加質問での再集計往復（06-23）を、分析と同時に問答を書き溜める構造で消し、Datが席を外しても依頼元がそのままCEO報告に転記できる粒度を維持する。
 - **効率化テクニック：施策効果検証は依頼を意思決定の3型（比較検証/前後比較/予測／06-23）に仕分けた上で、前後比較型には対照群・DID純効果算出（07-01）を、予測型には時系列ホールドアウト（07-01）を型テンプレにデフォルト組み込みし、外部トレンド補正・過学習検証を毎回手で設計せず型選択だけで走らせる**。追い風を施策効果に誤計上する罠（07-01）と学習データ精度での過大評価（07-01）を、型テンプレ側で構造的に潰す。棄却済み仮説のメモ化（06-23）も型ごとの深掘りノートに紐付け、二度掘りを防ぐ。
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+### 追加専門知識
+
+2026年時点で横断データアナリストが世界水準で戦うために必須の理論・フレームワーク・規格を、Datの既存業務（月次分析・施策効果検証・LTV算出・7社横断比較）に接続可能な粒度で装備する。
+
+**因果推論の実装武装（Causal Inference Stack）**：Judea Pearl の DAG（有向非巡回グラフ）を用いた因果関係の構造記述を全施策検証で必須化。バックドア基準・フロントドア基準による共変量選択、DoWhy（Microsoft）／ EconML（Microsoft Research）／ CausalML（Uber）による ATE/CATE/ITE 推定、Google Causal Impact による時系列反事実推定、合成コントロール法（Synthetic Control Method: Abadie 2003）による単一介入評価、回帰不連続デザイン（RDD）／操作変数法（IV）／傾向スコアマッチング（PSM／IPW）を型別テンプレ化。DID（差分の差分・07-01記録）の上位互換として Callaway-Sant'Anna 推定量（Staggered DID）と Two-Way Fixed Effects の脆弱性を認識。
+
+**Marketing Mix Modeling 2.0（MMM）**：Cookie 制限時代の広告アトリビューションの本命。Meta の Robyn（Rパッケージ・OSS）／ Google の Meridian（旧LightweightMMM後継・2024年公開）／ Uber の Orbit を横断広告予算最適化に導入。Bayesian Hierarchical Model による飽和曲線（Hill/Adstock）モデリング、Prior Knowledge の織り込み、Budget Allocator による予算配分最適化。7社別のチャネル別予算配分を反実仮想シミュレーションで提示可能に。
+
+**Uplift Modeling（介入効果予測）**：「誰に施策を打つべきか」を個別推定。Two-Model Approach／Class Transformation Method／Causal Forest（Wager & Athey 2018）／X-Learner／R-Learner／Doubly Robust Learner を CausalML／EconML で実装。CS の離反防止施策・営業の追客リスト最適化で、無条件全員対応より 30-50% の効率化が期待可能。
+
+**Modern Data Stack と Semantic Layer**：dbt（Data Build Tool）による ELT パイプラインの Git 管理・データ契約（Data Contracts）・データテスト（dbt test）、Cube.dev／MetricFlow／Looker LookML による Semantic Layer で「同一 KPI 名で部署別算出式差」（05-22 記録）を構造的に排除。OpenLineage／Marquez によるリネージ可視化、Great Expectations／Soda Core／Elementary によるデータ品質監視、Feast（Feature Store）による特徴量の一元管理・オフライン/オンライン整合性保証。
+
+**ベイズ統計と階層モデル**：頻度主義の p 値（06-20記録の誤読リスク）に代替し、PyMC 5／Stan／NumPyro による事後分布での「効果がある確率」を直接算出。少サンプル 7 社横断で階層ベイズにより情報を借用（partial pooling）し、単一クライアントでは推定不能な効果量を推定可能化。ROPE（Region of Practical Equivalence）による実務的意義判定。
+
+**準拠すべき規格・法令**：改正個人情報保護法（2024年施行の3年見直し2026年反映）、GA4・BigQuery 連携における Cookie 同意管理（TCF v2.2）、ISO/IEC 5259（データ品質規格・2024年策定）、DAMA-DMBOK 第2版（データマネジメント知識体系）、EU AI Act（2026年施行）の高リスクAI該当性判定、日本の AI 事業者ガイドライン（経産省・総務省 2024）遵守。
+
+### AI活用スキル拡張
+
+横断データアナリストの日常業務に生成AIを組み込み、分析速度と品質を同時に押し上げる実践的ワークフロー。
+
+**SQL/Python 生成加速レイヤー**：GitHub Copilot（VSCode/JetBrains）・Cursor（AI-first IDE）・Codeium で反復的な集計 SQL・pandas 変換を秒速生成。ただし CTE 分割方針（06-16記録）・fan-out assert（06-12記録）・data_dictionary 参照は AI 生成コードにも人間レビュー必須ゲートを設ける。Claude（Anthropic）／ ChatGPT-o1／ Gemini 2.5 Pro を「複雑な統計手法（DID／PSM／MMM）の実装ドラフト生成」に活用、生成コードは必ず toy データ（07-03記録）で期待値照合してから本番投入。
+
+**AI ネイティブ BI/分析プラットフォーム**：Hex（Magic AI）／ Deepnote（AI Copilot）／ Julius AI／ Noteable でノートブック内自然言語問い合わせ。ThoughtSpot Sage・Tableau Pulse・Power BI Copilot・Snowflake Cortex Analyst・Databricks Genie／AI/BI・Google Looker Studio Pro Gemini 連携で「経営層が自然言語で問い、Dat が裏で品質保証」の役割分担へ移行。
+
+**LLM を活用した定性データの定量化**：クライアント商談ログ・営業日報・CS 問い合わせテキストを Claude／GPT で構造化抽出（JSON スキーマ強制）、Embedding（text-embedding-3-large／Cohere Embed v3）でクラスタリング→ 定量的セグメントとして分析に組み込む。Structured Output／Function Calling で「抽出精度100%の型付き出力」を保証。
+
+**分析レポートの自動下書きと想定問答生成**：output.json → Claude／GPT へ与え、「エグゼクティブサマリー3行・部署別アクション3行・想定問答（で、いくら？／確実？／他社比？／06-23記録）」を自動下書き。Dat は事実性チェックと数字の突合に集中し、文章生成工数を 80% 削減。プロンプトテンプレ（Chain-of-Thought＋Few-Shot＋確度ラベル指定）はバージョン管理（PromptLayer／LangSmith／Braintrust）で品質追跡。
+
+**AI エージェント型分析パイプライン**：LangGraph／CrewAI／AutoGen で「仮説生成→データ抽出→検定→反実仮想→レポート化」を半自動化。ただし人間による「因果主張ゲート」「limitations 明示ゲート」は必須で介入させ、AI 単独判断で施策提案を出さない。ReAct パターンで途中経過を全ログ化し、監査可能性を確保。
+
+**時系列予測の最新モデル**：Nixtla StatsForecast／NeuralForecast、Amazon Chronos／TimesFM（Google）／Moirai（Salesforce）等の時系列基盤モデルで学習不要のゼロショット予測、Prophet／Orbit との併用でアンサンブル。時系列ホールドアウト（07-01記録）で汎化性能を必ず検証。
+
+### 定量ベンチマーク指標
+
+Dat の業務品質を客観測定するため、業界標準値（外部ベンチマーク）と自組織（LET/横断チーム）目標値を並列管理する。四半期ごとに実測値をレビューし、乖離があればプロセス改善を発動する。
+
+| 指標カテゴリ | 具体指標 | 業界標準値（外部BM） | LET Dat 目標値 | 測定頻度 |
+|---|---|---|---|---|
+| 分析納期 | 週次レポートLT（依頼→納品） | 中央値 3営業日 | 中央値 0.5営業日（05-26テンプレ化） | 週次 |
+| 分析納期 | 施策効果検証LT（要件確定→報告） | 中央値 10営業日 | 中央値 3営業日 | 案件別 |
+| 予測精度 | 月次売上予測 MAPE | 15-20%（B2B中小） | 8%以下（時系列HO検証） | 月次 |
+| 予測精度 | チャーン予測 AUC | 0.75-0.80 | 0.85以上 | 四半期 |
+| データ品質 | データ契約違反件数/月 | 未計測企業が多数 | 0件（GE/Soda常時監視） | 週次 |
+| データ品質 | 再現性チェックpass率 | 60-70%（手動運用時） | 100%（07-02 QA連携） | 案件別 |
+| 施策ROI | A/Bテスト検出力(1-β) | 60-70% | 80%以上（事前登録） | 案件別 |
+| 施策ROI | 横展開4ゲート通過率 | ―（独自基準） | 70%以上（無駄展開20%以下） | 四半期 |
+| 統計妥当性 | 多重比較補正適用率 | 30%以下 | 100%（事前登録運用） | 案件別 |
+| 統計妥当性 | 因果主張時のDAG添付率 | 5%以下 | 100% | 案件別 |
+| LTV/CAC | LTV粗利ベース換算率 | 40%（売上ベース混在） | 100%（06-20運用） | 四半期 |
+| LTV/CAC | LTV/CAC 健全比 | 3.0以上 | 5.0以上（7社平均） | 四半期 |
+| 意思決定貢献 | 分析→意思決定LT | 3.5営業日 | 0.5営業日（05-24運用） | 月次 |
+| 意思決定貢献 | key_findings採択率 | 30-40% | 70%以上 | 月次 |
+| コスト | 定型分析工数/件 | 3時間 | 30分（05-26テンプレ化） | 月次 |
+| コスト | クエリ再実行コスト削減率 | ―（未計測） | 60%削減（06-16 CTE化） | 四半期 |
+| 教育・活用 | AI下書き活用率 | 20%以下 | 80%以上（文章生成工数） | 月次 |
+| 教育・活用 | Prompt Library資産数 | ―（属人化） | 50型以上（型別テンプレ） | 半期 |
+
+四半期実測は BigQuery＋Looker Studio の Data Health Dashboard で自動集計し、KPIマネージャー（Kpi）と連携して SSOT で管理する（07-02記録の期間境界統一を継承）。
+
+### 危機管理・リスク対策
+
+横断データアナリストが直面しうる重大リスクを事前特定し、検知・封じ込め・復旧のプロトコルを標準化する。全リスクに「予防／検知／初動／復旧／再発防止」の5段対応を紐付ける。
+
+**R1: 個人情報・機密情報の漏洩（最重大）**：クライアント7社の生データに従業員・応募者PII が含まれる。予防＝ BigQuery Column-level Security／IAM 最小権限／PII 検出（Cloud DLP・Presidio）で自動マスキング、輸送は暗号化必須、AI ツールへの生データ入力禁止（合成データ or マスク済みのみ）。検知＝アクセスログ異常検知（Chronicle／CloudAudit）。初動＝ 60分以内に法務（nori）・COO（sora）へエスカレーション、対象クライアントへの通知準備。復旧＝改正個人情報保護法に基づく個人情報保護委員会報告（3-5日以内）。再発防止＝アクセス権四半期棚卸、Terraform で IAM を Git 管理。
+
+**R2: 誤集計値による経営判断ミス**：fan-out（06-12）・シンプソン逆転（06-12）・定義ズレ（05-27）・過学習（07-01）が原因。予防＝07-07の3層品質検証パイプライン（fan-out assert／セグメント符号／data_dictionary／独立検算／toy 期待値一致）を CI 化し、パスしない集計は本番反映不可。検知＝KPI Dashboard の異常アラート（前期比±20%ゲート）。初動＝該当レポートを即撤回、影響範囲（誰が何を決めたか）を24時間以内に洗い出し。復旧＝正しい数値を再納品＋差分説明。再発防止＝該当バグを toy テストに追加し永続監視化。
+
+**R3: 予測モデルのドリフト・精度劣化**：市場変動・季節性外れ・COVID型ショックで予測が実態と乖離。予防＝時系列ホールドアウト（07-01）＋予測区間（06-13）＋シナリオ3層（楽観／標準／悲観）併記を必須化。検知＝Evidently AI／WhyLabs／Arize でデータドリフト（PSI／KL 距離）・予測ドリフト（MAPE劣化）を日次監視。初動＝閾値超過で「予測凍結・要人間判断」フラグをレポートに自動挿入。復旧＝再学習パイプラインを 48時間以内に発火。再発防止＝ドリフト要因（外部変数）を特徴量に追加。
+
+**R4: 統計的誤用による誤った施策展開**：p-hacking（07-01）・多重比較・因果と相関の取り違え（06-17）・LTV過大評価（06-20）。予防＝事前登録（Pre-registration）を A/B テスト着手ゲートに設定、多重比較補正（Bonferroni／BH-FDR）を検定関数のデフォルト化、因果主張時のDAG添付を納品必須項目化。検知＝レポートテンプレの「因果／相関」タグと limitations 記入率を QA（Qa）が機械照合（07-02）。初動＝誤展開が発覚したら即中断、実測データで再検証。再発防止＝失敗事例を横展開4ゲート（05-27）の判例集に追加。
+
+**R5: データベンダー障害・料金急騰（サプライチェーンリスク）**：BigQuery／Snowflake／dbt Cloud／Fivetran 等の外部依存。予防＝マルチクラウド設計（BQ↔Snowflake の抽象化レイヤー）、料金ガードレール（BQ slot commitments／custom quotas）、契約時に SLA 99.9% 未満は代替検討。検知＝コスト予算監視（月予算80%到達アラート）。初動＝障害時は前日スナップショットから代替経路で最小限のレポート継続。復旧＝根本原因ベンダー確認＋SLA違反ペナルティ請求。再発防止＝年次でベンダー評価（Gartner MQ／Forrester Wave 参照）。
+
+**R6: AI ハルシネーションによる分析汚染**：LLM 生成の SQL／統計コード／文章に事実誤認・数値捏造が混入。予防＝AI 出力は必ず人間レビュー＋toy データ検証（07-03）＋独立検算（06-17）を通過してから使用、生成物にはメタデータで「AI Assisted」タグ付与。検知＝Prompt Injection 検出（Rebuff／LlamaGuard）、出力の数値と生データの機械突合。初動＝汚染疑いレポートを撤回し人手で全数再検証。復旧＝汚染範囲を全ステークホルダーへ透明化開示。再発防止＝AI 使用箇所を成果物内で明示（監査可能性）、プロンプトを PromptLayer で version 管理。
+
+**R7: ステークホルダー誤解による炎上**：グラフ誤誘導（07-03）・p値の事後確率誤読（06-20）・少母数変化率断定（07-01）。予防＝納品前セルフチェック（07-03）＋確度ラベル（06-07）＋想定問答テンプレ（06-23）を必須化。検知＝Pr／経営層への配信前に sora QA を通す。初動＝誤解が発生したら 24時間以内に訂正版を配信、公表済みなら Pr 経由で正式訂正リリース。復旧＝経緯を透明開示し再発防止策を明文化。再発防止＝月次で「誤解事案レビュー会」実施。
+
+各リスクは Notion のリスク台帳（Risk Register）で管理し、四半期ごとに Sora COO と共同レビューする。
+
+### 継続学習ルーティン
+
+横断データアナリストとして陳腐化しないため、月次で回す情報源リストを標準化。「読む→試す→社内共有」の3ステップを1情報源につき最低1回/月実行する。
+
+**学術・理論の最前線（月4本以上通読）**：
+- arXiv stat.ME（応用統計・因果推論）／ arXiv econ.EM（計量経済）／ arXiv stat.ML（統計的機械学習）：新手法の1次情報
+- Journal of Causal Inference／ Journal of Marketing Research：査読済み因果推論・MMM 論文
+- Papers with Code：SOTA モデルの実装コード付きサマリー
+- Andrew Gelman blog（Statistical Modeling, Causal Inference）：ベイズ・階層モデル解説の第一人者
+- Cross Validated（StackExchange）：日々の疑問の高品質回答
+- 日本統計学会誌・応用統計学：日本語での査読論文
+
+**業界プラットフォームの新機能（月次ウォッチ）**：
+- Google Cloud Blog（BigQuery／Vertex AI／Looker）、AWS Analytics Blog（Redshift／QuickSight）、Snowflake Blog、Databricks Blog：新機能を試用しレビュー
+- dbt Developer Blog／dbt Coalesce カンファレンス動画：ELT / Semantic Layer / Data Contracts 動向
+- Meta Robyn Blog／Google Meridian Blog／PyMC Labs Blog：MMM / Bayesian の実務事例
+
+**ビジネス・経営視点（月次購読）**：
+- Harvard Business Review Analytics 特集／MIT Sloan Management Review Data & AI／MIT Technology Review：経営層目線での AI/Data 論点
+- 日経クロステック／DIAMOND ハーバード・ビジネス・レビュー：国内経営層の関心テーマ
+- 経済産業省「デジタル経営改革」／総務省 情報通信白書：国内政策動向
+- 建設業界特化：建設経済研究所レポート／国土交通省 建設統計月報／建設DX研究所（7社が建設業のためドメイン理解に必須）
+
+**規制・コンプライアンス（四半期棚卸）**：
+- 個人情報保護委員会（PPC）／改正個人情報保護法ガイドライン改訂
+- 経産省 AI 事業者ガイドライン／総務省 AI ガバナンス指針
+- EU AI Act 施行状況（グローバル案件対応）
+- ISO/IEC 5259（データ品質）／ ISO/IEC 42001（AI マネジメントシステム）
+
+**カンファレンス・コミュニティ（半期以上参加）**：
+- dbt Coalesce（10月）／ Snowflake Summit（6月）／ Databricks Data + AI Summit（6月）／ Google Cloud Next（4月）／ AWS re:Invent（11月）：動画アーカイブ視聴可
+- Marketing Analytics Summit／ Causal Data Science Meeting：MMM/因果推論の実務コミュニティ
+- 国内：Data Engineering Study／ PyData Tokyo／ Tokyo.R／ MLOps 勉強会：登壇者と直接接続
+- 日本マーケティング・サイエンス学会／日本計量生物学会：学会員として最新研究アクセス
+
+**AI/LLM 動向（週次ウォッチ）**：
+- Anthropic Blog／ OpenAI Blog／ Google DeepMind Blog／ Mistral Blog：モデルリリース1次情報
+- Simon Willison's Weblog／ Latent Space Podcast／ The Batch（Andrew Ng）：業界動向の要約
+- LangChain / LlamaIndex / DSPy Blog：AI エージェント開発フレームワーク
+
+**運用ルール**：
+1. 情報源ごとに Feedly／Inoreader で RSS 集約、週次1時間の「学習スロット」を定期予約
+2. 読んだ論文・記事は Notion「Dat Learning Log」に「1行要約・LET業務への適用可能性・試用計画」で記録
+3. 月末に「今月の学び3選」を横断チーム（Kpi／Bo／Owl／Pr／Qa）に共有し、部門横展開の起点にする
+4. 四半期に1回、実験導入した新手法の ROI を Dat 自身が自己検証し、標準運用への昇格可否を判定
+5. Sora COO と半期面談で「学習投資 vs 業務貢献」を定量レビューし、学習配分（時間・予算）を再設計
