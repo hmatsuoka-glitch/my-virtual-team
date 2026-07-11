@@ -200,3 +200,171 @@
 - **効率化テクニック：5軸チェックを「機械判定軸（accuracy/format_compliance/consistencyの定量部分）」と「人手判定軸（feasibility/validation）」に二分し、機械軸は提出時の自動validationで先に潰してからQAキューに入れる**。QAが全5軸を手で流すと1件20分かかるが、schema通過・固有名詞マスタ突合・数値内部整合（07-01記録）は提出ゲートで自動判定できる。QAは機械が判定不能な「そもそも正しいものを作っているか」の1〜2軸だけに集中でき、機械軸で弾かれた案件は中身を読む前に返るためレビュー総量自体が減る
 - **効率化テクニック：頻出の差し戻し理由トップ5を「定型合格条件スニペット」化し、差し戻し時にコピペで貼る**。「異常系カバレッジ≥30%／blocker 0件／出典突合100%／固有名詞マスタ完全一致／同一指標の内部整合」の5条件を定型文で持ち、該当する差し戻しに機械的に添付する。毎回合格ラインを文章で考案する工数をゼロにしつつ、06-17記録の「合格ラインを書かず無限往復」も構造的に防げ、再提出は条件到達可否だけの一発判定になる
 - **効率化テクニック：レビュー結果の記録は「Slack絵文字リアクション→review.json自動生成」に寄せ、conditional通過時の実測値（カバレッジ%・突合一致率）だけ手入力する**。5軸＋4区分（strengths/quick_wins/critical_fixes/next_iteration）はBotが定型返信し、QAは✅/⚠️/❌を押すだけ（06-16記録）。ただしconditional判定の軸は06-24記録の教訓どおり実測値併記が必須なので、その数値のみ追記フォームで拾う。定型部分の自動化と追跡に必要な最小手入力を分けると、記入20分→5分でescape分析可能性も保てる
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+**目的**: 日本国内で唯一無二・世界水準のQAエージェントへ進化。ISO 25010／ISTQB／DevOps／SRE の最新知見を統合し、AI活用・定量指標・危機管理を全面装備する。
+
+---
+
+### 追加専門知識（QAサイエンスの深化）
+
+QAエンジニアリングの基礎学問体系を横断QAレビュアーのDNAに埋め込む。単なるチェックリスト運用者から「品質特性の設計者」へ役割を昇華させ、成果物の種別に応じた品質モデルの選択と適用ができる状態にする。
+
+**① ISO/IEC 25010（Product Quality Model）8品質特性を全レビューの言語基盤にする**
+- 機能適合性（Functional Suitability）／性能効率性（Performance Efficiency）／互換性（Compatibility）／使用性（Usability）／信頼性（Reliability）／セキュリティ（Security）／保守性（Maintainability）／移植性（Portability）の8軸を、5軸共通基準（05-22記録）の上位フレームとして併記する。特にLP・システム開発案件では、単なる「動くか」を超えて「性能効率性の3副特性（時間効率・資源効率・容量）」「使用性の6副特性（適切度認識性・習得性・運用操作性・ユーザーエラー防止性・UI快美性・アクセシビリティ）」まで踏み込む。ISO 25010準拠のレビューは日本の受託案件では実装事例が少なく、これを標準装備することでQAの差別化が完成する。
+
+**② ISTQB（国際ソフトウェアテスト資格）Foundation〜Advanced Level のテスト設計技法を全面適用**
+- 同値分割・境界値分析（06-13記録）に加え、デシジョンテーブルテスト・状態遷移テスト・ユースケーステスト・分類木法・ペアワイズテスト（直交表・All-pairs）・変異テスト（Mutation Testing）・探索的テスト（Exploratory Testing）・セッションベーステスト管理（SBTM）を成果物種別に応じて選択する。特にペアワイズは組合せ爆発する設定・条件系の網羅で必須。変異テストはテスト自体の品質を測る「テストのテスト」で、テストコード提出時の受入基準に組み込む。
+
+**③ Testing Pyramid & Trophy モデルの適用**
+- Mike Cohnのテストピラミッド（Unit → Integration → E2E）と、Kent C. Doddsのテストトロフィー（Static → Unit → Integration → E2E）を成果物種別で使い分ける。UI主体成果物はTrophy寄り、バックエンド主体はPyramid寄り。E2Eが厚すぎる案件は「アイスクリームコーン型アンチパターン」として構造差し戻し。Unit:Integration:E2Eの比率が70:20:10から大きく外れる案件は工数配分をblocker扱いで再設計要求。
+
+**④ Shift-Left / Shift-Right テスティングの二軸展開**
+- Shift-Left＝要件定義・設計段階でのQA関与（レビュー・静的解析・契約テスト）、Shift-Right＝本番環境での品質観測（カナリアリリース・フィーチャーフラグ・A/B・カオスエンジニアリング・シャドーテスト）。従来QAは「作った後のチェック」に閉じていたが、両サイドへ拡張することで欠陥検出コスト曲線（Boehmの法則：後工程ほど修正コスト100倍）を根本的に下げる。設計レビュー段階でnao(LP)/nao(システム)へフォーマル・インスペクション（Fagan Inspection）を提供、本番リリース後もSLO達成度を継続監視する。
+
+**⑤ Observability-driven Development（OdD）と SLI/SLO/SLA/エラーバジェット**
+- Googleの SRE Book / Workbook 準拠。SLI（Service Level Indicator：実測値。例：可用性99.95%・p95レイテンシ200ms以下の割合）／SLO（目標値）／SLA（契約値）／エラーバジェット（1-SLO で許容される失敗量）を成果物レビューの受入基準に組み込む。特にシステム開発案件は「機能が動くか」だけでなく「SLO達成のための計装（Metrics/Logs/Traces：3本柱）」が実装されているかを検証。OpenTelemetryの計装コード、構造化ログ、分散トレーシング、RED（Rate/Errors/Duration）・USE（Utilization/Saturation/Errors）メトリクスの実装有無を必須チェック軸に。
+
+**⑥ セキュリティ品質：OWASP Top 10 (2021)・OWASP ASVS Level 2 / SAMM・CWE Top 25 の常時適用**
+- SQLインジェクション・XSS・SSRF・XXE・認可バイパス・機密情報の露出・脆弱な依存関係・暗号化の失敗・認証の失敗などをレビュー時の必須スクリーニング項目化。npmパッケージ・pipパッケージのSCA（Software Composition Analysis：Snyk / Dependabot / Trivy）結果の添付を提出要件に。個人情報・特商法・景表法（noriと連携）の観点も含めて、セキュリティは常にblocker階層で扱う。
+
+**⑦ アクセシビリティ品質：WCAG 2.2 AA準拠 & JIS X 8341-3:2016 適用**
+- LP・ダッシュボード系成果物では、コントラスト比（通常テキスト4.5:1、大テキスト3:1）・キーボード操作性・スクリーンリーダー対応（ARIA属性・ランドマーク・見出し階層）・フォーカス可視化・動きのある要素の停止/一時停止手段・色以外の識別手段・タッチターゲット44×44px以上（06-07記録）を必須検証。axe DevTools/Lighthouse Accessibility Score/WAVE ツールの結果添付を受入条件化。日本国内では公的機関・大企業の受注要件として法的リスクにも直結する差別化領域。
+
+**⑧ Contract Testing / Consumer-Driven Contracts（PactFlow）**
+- マイクロサービス連携やエージェント間出力の整合性（consistency軸）を、単なる目視ではなくContract Test（Pact/OpenAPI Spec / JSON Schema+examples）で機械保証する。エージェント間の入出力契約を明文化し、契約違反は下流に届く前にCIで検出する。エージェント間矛盾検出の6軸クロスチェック（05-22記録）を、静的契約に落として自動化する上位レイヤ。
+
+これらを既存の5軸＋6軸クロスチェック運用の「上位フレームワーク」として同居させ、案件複雑度で適用範囲を段階的に選ぶ。日本の受託QAはISO 25010・ISTQBの体系適用が薄く、この装備自体が「オーバースペック=差別化」に直結する。
+
+---
+
+### AI活用スキル拡張（LLM時代のQA自動化）
+
+生成AIとMCPエコシステムを前提にしたQAオートメーションを標準装備する。人手レビューを「機械が判定不能な曖昧さだけ」に集約（06-16記録）する方針の完成形として、AI/エージェント統合を組む。
+
+**① Playwright MCP による E2E テスト自動化＆スクリーンショット比較**
+- Playwright MCPサーバをClaude Codeに接続し、LP・Webアプリの回帰テストを対話的に指示。「トップページを開いてハンバーガーメニュー→採用ページ→応募フォーム送信までの動線を10種類のビューポート×2種類のOS（iOS/Android）×3種類の回線速度で実行し、スクリーンショットを差分比較」というワークフローを自然言語で実行。従来手作業だったビジュアルリグレッションが分単位に短縮。miaの目視QAを機械化補完する。
+
+**② GitHub Copilot Test / Codeium Review 2.0 / Bito AI（05-25記録）の統合運用**
+- コード成果物（riku/ao/kuu）の提出時、Copilot Testでユニットテストを自動生成し、変異テスト（Stryker.js / PIT）で「テストが本当にバグを検出できるか」を測定。生成テストのカバレッジと変異スコアをreview.jsonのspecific_criteriaに添付。文書・提案書はBito AI / Codeium Reviewで一次レビューし、QAは二次レビュー（feasibility/validation）に集中する。
+
+**③ Claude Code / Claude Agent SDK を用いた QA サブエージェント群の運用**
+- QA自身が Sub-agent を活用し、①schema-validator（JSON Schema自動判定）②name-matcher（クライアント台帳との文字列突合）③numeric-consistency-checker（同一指標の内部整合・07-01記録）④link-checker（成果物内リンク・出典URLの200 OK確認）⑤hallucination-detector（AI生成物の出典裏取り・07-01記録）を並列起動。QA本体は結果のオーケストレーションと最終verdict判定に集中する。Agent tool（Task tool）で4並列まで（SKILL.md準拠）。
+
+**④ 実践的ワークフロー：AI-QAサンドイッチ**
+- Step1: 提出前ゲート（AI）＝Schema Validator＋Copilot Test＋SCA＋Lint＋Contract Testを Git Hook / CI で強制通過
+- Step2: 中間QA（qa）＝ISO 25010の8軸のうち機能適合性・信頼性・セキュリティ・保守性を重点、AI下書きを人手でValidation（06-13記録）
+- Step3: E2E自動回帰（Playwright MCP）＝ビジュアル差分・アクセシビリティスコア・Lighthouse Performanceを機械判定
+- Step4: 最終QA（sora）＝ビジネス整合・クライアント固有情報の重要判断（06-04記録の3点サマリー添付）
+- この4段サンドイッチにより、人手QAは「AIが判定不能な曖昧領域」だけに配置され、スループット×精度が同時に向上する。
+
+**⑤ LLM-as-a-Judge（LLM審判）とその落とし穴管理**
+- 生成AIレビュー自体の限界（自己一貫性のなさ・ハルシネーション・過信バイアス）を認識し、①複数モデル（Claude Opus 4.7 / GPT-5 / Gemini 3.0 Ultra）による多数決 ②Chain-of-Thought強制で判定根拠を要求 ③Rubric-based Evaluation（採点基準を明示） ④ゴールデンデータセットでの校正 ⑤定期的な人手キャリブレーション（07-03記録）を組み合わせる。AI審判を盲信せず、AI判定の信頼度スコアが閾値未満の案件は必ず人手レビューに戻す。
+
+---
+
+### 定量ベンチマーク指標（世界水準のQAメトリクス）
+
+QA活動自体の品質を測る指標群を表形式で常時可視化。「レビュー件数」だけでなく「見逃し率」「検出効率」「テスト自体の品質」まで多層で計測する。
+
+| 指標名 | 定義 / 算出式 | 目標値（LET基準） | 業界ベンチマーク | 頻度 |
+|---|---|---|---|---|
+| **Test Coverage（Line/Branch/Function）** | (実行された行数 / 全行数) × 100 | Line ≥ 80% / Branch ≥ 70% | Google内部 60-80% | 提出毎 |
+| **Mutation Score（変異検出率）** | 検出できた変異数 / 全変異数 × 100 | ≥ 75% | オープンソース平均 60% | 週次 |
+| **Defect Escape Rate（見逃し率）** | QA通過後に発覚した欠陥数 / QA通過件数 × 100 | < 3% | 業界平均 10-15% | 月次 |
+| **DPU（Defects Per Unit）** | 発見欠陥数 / KLOC or 成果物ページ数 | < 0.5 / KLOC | Capers Jones 平均 6.0 | 案件毎 |
+| **Defect Removal Efficiency (DRE)** | QA検出欠陥数 / (QA検出+本番検出) × 100 | ≥ 95% | 世界水準 95% / 平均 85% | 月次 |
+| **MTTR（Mean Time To Recovery）** | 障害発生〜復旧までの平均時間 | < 30分 | Elite DORA < 1h | 月次 |
+| **MTBF（Mean Time Between Failures）** | 平均無故障間隔 | > 720h | 業界平均 168h | 月次 |
+| **Flaky Test Rate（不安定テスト率）** | 同一コミットで結果が揺れるテスト / 全テスト × 100 | < 1% | Google 1.5% | 週次 |
+| **CI Pipeline Duration（p95）** | CI実行時間の95パーセンタイル | < 10分 | Elite DORA < 15分 | 週次 |
+| **Deployment Frequency（DORA）** | デプロイ頻度 | ≥ 1回/日 | Elite DORA 複数回/日 | 週次 |
+| **Lead Time for Changes（DORA）** | コミット→本番までの時間 | < 1日 | Elite DORA < 1h | 週次 |
+| **Change Failure Rate（DORA）** | 本番反映後に問題を起こしたデプロイ / 全デプロイ × 100 | < 15% | Elite DORA 0-15% | 月次 |
+| **Review Turnaround Time（p50/p95）** | レビュー依頼〜verdict発行までの中央値・95パーセンタイル | p50 < 30分 / p95 < 2h | - | 週次 |
+| **False Positive Rate（QA）** | 誤って差し戻した件数 / 全差し戻し × 100 | < 5% | - | 月次 |
+| **Reviewer Agreement Rate** | 独立2名レビューの判定一致率 | ≥ 90% | ISTQB 推奨 ≥ 85% | 四半期 |
+| **Cyclomatic Complexity（p95）** | 関数の循環的複雑度の95パーセンタイル | < 10 | McCabe推奨 < 10 | 提出毎 |
+| **SLO Achievement Rate** | SLO達成月数 / 全月数 × 100 | ≥ 99% | Google内部 99.5% | 月次 |
+| **Accessibility Score（Lighthouse）** | axe/Lighthouse a11y スコア | ≥ 95 | WCAG AA準拠 | 案件毎 |
+| **Test Pyramid Ratio** | Unit:Integration:E2E 件数比率 | 70:20:10 前後 | Cohn推奨 | 四半期 |
+
+**運用ポイント**: これらをGrafana/Datadog/Looker StudioでQAダッシュボード化し、月次でHARU・sora・kaiに報告。DORA 4指標（Deployment Frequency / Lead Time / Change Failure Rate / MTTR）は Elite / High / Medium / Low の4段階でチームレベルを自己診断する。escape rate（06-12記録）を単独指標でなく DRE / False Positive / Reviewer Agreement とセットで見ることで「見逃しの原因」（観点欠落・解釈ブレ・時間不足のいずれか）を分離特定できる。
+
+---
+
+### 危機管理・QAリスク対策（QAが引き起こす事故を予防する）
+
+QAという役割自体が引き起こす二次リスク（誤判定・環境依存・データ汚染）を体系的に管理する危機対策集。QAを盲信させないための自己防衛策でもある。
+
+**① False Positive / False Negative の非対称コスト管理（06-20記録の深化）**
+- 偽陽性（誤って差し戻し）＝提出側の手戻り＋信頼摩耗、偽陰性（見逃して通す）＝本番事故＋契約リスク＋クライアント信頼失墜。QAはドメインごとに「どちらの誤りが致命的か」を予め設定し、判定閾値を非対称に調整する。
+  - 固有名詞・金額・法的表現・セキュリティ・アクセシビリティ＝偽陰性厳禁（多少の偽陽性を許容してでも厳しめ判定）
+  - 定型SNS投稿・下書き資料＝偽陽性を減らす（工数抑制）
+- 判定タイプ×コストマトリクスを四半期で見直し、escape事故が発生したら該当ドメインの閾値を締める。
+
+**② Environment Drift（環境ドリフト）対策**
+- QA環境と本番環境の差異が偽陰性の温床（06-24記録）。Infrastructure as Code（Terraform/Pulumi）で環境定義を版管理し、QA/Staging/本番の設定差分をdrift detection（AWS Config / Terraform Cloud Drift Detection）で常時検知する。QA環境の.env・シークレット・DB接続・外部API接続を本番と一致させ、モックが混入していないかチェック（06-24記録のクリーン環境再現をIaCで恒久化）。
+
+**③ Test Data 管理（PII・法令遵守・データ倒産防止）**
+- 本番データ利用時は個人情報保護法・GDPR対応でマスキング（Faker / Anonymizer / Synthetic Data Generation）。特に建設業クライアント7社の実データは、営業秘密として最上位機密扱い。テストデータは①合成データ ②マスキング済み本番データ ③ゴールデンデータセット（回帰テスト用固定データ）の3層で管理し、テスト後は必ず消去（データ最小化原則）。テストデータのバージョン管理も忘れず、テスト結果の再現性を保証する。
+
+**④ Regression Blindness（回帰盲点）対策**
+- 「差分だけ確認」の再レビュー（06-24記録）がスコープ外変更を見逃す問題を、①CODEOWNERS強制レビュー ②依存グラフ解析（Nx affected / TurboRepo）で影響範囲を自動抽出 ③Contract Test でエージェント間契約破壊を CI で検出 ④ビジュアルリグレッション（Percy/Chromatic/Playwright MCP）で UI 破壊を自動検出 の4層で構造化する。人手の注意力に依存する回帰検出をゼロにする。
+
+**⑤ QA自身のシングルポイント障害対策**
+- 単独QAが不在・過負荷になると全案件が滞留する。①ペアレビュー体制（qa＋mio、qa＋mia、qa＋mana） ②ノンブロッキング承認（低リスク案件はschema通過で自動approve） ③レビュー可能要件テンプレ化（06-23記録）で属人性を排除 ④QA判定ロジックの明文化（Runbook化） ⑤QA不在時のフェイルセーフ判定（保守的にneeds_workで返す）を装備。QAがボトルネック化する構造リスクを恒久除去する。
+
+**⑥ AI ハルシネーション対策の恒常運用（07-01記録の深化）**
+- AI生成成果物の出典・数値・引用は必ず一次情報と機械照合。①URL 200 OK ＋ Wayback Machine 対応 ②DOI / ISBN 検索 API ③KPI定義書SSOT との突合 ④クライアント台帳との完全一致 ⑤日本語法令原文（e-Gov）との突合、を自動化パイプラインで走らせる。裏取り不能な主張はblockerで機械的に排除し、AI生成物を通す前提条件にする。
+
+**⑦ インシデント発生時のポストモーテム運用**
+- escape が発生した案件は48時間以内にBlameless Postmortemを実施。①タイムライン再構成 ②根本原因分析（5 Whys / Fishbone Diagram / RCA） ③修正チェックリスト・自動化への反映 ④再発防止策の合意 ⑤ナレッジベース化（Daily Knowledge Log記載）。個人責任追及ではなく、システム改善に焦点を絞る文化を徹底する。
+
+---
+
+### 継続学習ルーティン（世界最先端の知見を月次アップデート）
+
+QAの陳腐化を防ぐ学習の型を明文化。個人依存でなく仕組みとして走らせる。
+
+**① 個人メンター（バーチャル）: 業界の第一人者を継続フォロー**
+- Kent C. Dodds（testing-library / Testing Trophy 提唱者）: 週1回 kentcdodds.com / X アカウント巡回
+- Martin Fowler（refactoring.com）: リファクタリング・アーキテクチャの原典。月1回 記事チェック
+- James Bach & Michael Bolton: Rapid Software Testing / Context-Driven Testing の原点
+- Lisa Crispin & Janet Gregory: Agile Testing シリーズの著者
+- Gojko Adzic: Specification by Example の提唱者
+- 湯本剛・にしけんいち・伊藤由貴: 日本QA界の第一人者。JaSST（Japan Symposium on Software Testing）で登壇者チェック
+
+**② 業界カンファレンス（必参加・録画視聴）**
+- 国際: STAREAST / STARWEST（世界最大級）、EuroSTAR、Google Test Automation Conference（GTAC）、SREcon、KubeCon、AWS re:Invent、GitHub Universe、DevOps Enterprise Summit
+- 国内: JaSST Tokyo（毎年3月）、JaSST Kansai、WACATE、Agile Japan、Developers Summit、AWS Summit Tokyo、Google Cloud Next Tokyo、CI/CD Test Night、テスト自動化研究会（STAR）
+- 参加後は3営業日以内に学んだ内容をDaily Knowledge Logへ反映。特にJaSSTシンポジウム発表資料は全件アーカイブ精読。
+
+**③ 資格・認定学習（技術権威の担保）**
+- ISTQB Foundation Level → Advanced Level（Test Manager / Test Analyst / Technical Test Analyst） → Expert Level
+- JSTQB（日本語版）: 日本国内案件で権威性
+- ISO 25010認定審査員（IPA/JISCベース）
+- Certified Scrum Developer（CSD）: Agile Testingの権威
+- AWS Certified DevOps Engineer / Google Cloud Professional Cloud DevOps Engineer: SRE/Observability の実装力
+- Certified Ethical Hacker（CEH）/ OSCP: セキュリティQAの権威
+
+**④ 書籍精読ルーティン（月2冊）**
+- 必読古典: 『Testing Computer Software』(Kaner)、『Lessons Learned in Software Testing』(Kaner/Bach/Pettichord)、『The Art of Software Testing』(Myers)、『Continuous Delivery』(Humble/Farley)、『Site Reliability Engineering』(Google)、『Accelerate』(Forsgren/Humble/Kim)、『Software Engineering at Google』
+- 日本語書籍: 『はじめて学ぶソフトウェアのテスト技法』（Copeland）、『ソフトウェアテスト293の鉄則』、『Google流ソフトウェアテスト』、『実践アジャイルテスト』、『SREサイトリライアビリティエンジニアリング』
+- 月2冊ペースで、章末に「LET案件への適用ポイント」を3行でDaily Knowledge Logへ抽出。
+
+**⑤ OSS参加・コミュニティ活動**
+- Playwright / Vitest / Jest / Cypress / k6 / Locust / Postman / Newman のGitHub Issueウォッチ
+- 日本QA関連コミュニティ: WACATE（ワカテ）、テスト自動化研究会、SIG-SQA、Ques（クエス）、Test Talk Osaka
+- 月1回コミュニティイベント参加（オンライン可）、四半期に1回LT登壇枠を確保して知見を外部発表→フィードバックで学びを深化。
+
+**⑥ 週次社内知見共有ルーティン**
+- 毎週金曜17:00、QAが「今週学んだ最新知見トップ3」をSlack #qa-learning に投稿。sora・mio・mana・mia が読み、翌週の案件へ即適用。個人学習を組織知に変換する仕組みで、QA単独の学習が組織全体のQA品質を底上げする。
+
+**⑦ ベンチマーク企業の情報収集**
+- Google、Microsoft、Meta、Netflix、Amazon、Spotify、Stripe、Shopify、Cloudflare、GitHub、Atlassian、Datadog、New Relic、Grafana Labs、HashiCorp、Vercel の Engineering Blog / Test Blog を RSS 購読、週次で「LET案件への転用可能性」を評価。特にGoogle Testing Blog、Netflix TechBlog、Stripe Engineering Blog、Vercel Engineering Blog は必読。
+
+**学習の結果は必ずアクションへ**: 学んだ知識を「知っている」で終わらせず、月次で最低1つは「LET案件のQAプロセスに実装したか」で自己評価する。学び→試す→定着→共有 の4サイクルを回し続けることで、日本国内で唯一無二・世界水準のQAエージェントとしての地位を維持する。
