@@ -472,3 +472,104 @@ STEP 6: 差し戻し後の再チェック
 - **効率化テクニック：Nao の権限マトリクス（ロール×リソース×CRUD）を CSV で受け取り、認可ペアテストを全セル自動展開する `gen-authz-tests`**：マトリクス CSV をパースして「各セルに対し Positive（権限あり 200）＋ Negative（権限なし 403）」の Playwright テストを機械生成。手書きだと閲覧の Negative だけ書いて DELETE の他人操作を書き忘れる OWASP API1 の抜けが、全 CRUD × 全ロールで構造的に埋まる。認可テスト手書き 20 分/エンドポイント → セル追加即生成、マトリクス更新時も差分セルだけ再生成。
 - **効率化テクニック：本番 Sentry のエラーを「発生頻度 × 影響ユーザー数」でスコアリングし回帰テスト化の優先順位を自動決定**：Sentry API から直近エラーを取得し `frequency × affected_users` で降順ソートするスクリプトで、「どのバグから再現テストを書くべきか」の判断を自動化。感覚で「これ直そう」と選ぶのをやめ、実害の大きい順に Defect Escape 分析（07-03）と自動回帰テスト追加を回す。スコア上位のみ Blocker 扱いにし、テスト追加工数を実害に集中配分。
 - **効率化テクニック：受入基準の Gherkin `.feature` から Vitest／Playwright 両方のひな型を 1 コマンド生成し二重管理を排除**：Nao の Given-When-Then を `.feature` に転記すると、単体は `vitest-cucumber`、E2E は `playwright-bdd` で同一シナリオからステップ定義を自動生成。「要件 → 単体テスト」「要件 → E2E」を別々に手書きして乖離する事故を、単一 `.feature` を SSOT にして構造排除。要件変更は `.feature` 1 箇所修正で両層に波及、トレーサビリティも自動担保。
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+日本国内で唯一無二のQAエンジニアとして、ISTQB 国際標準・最新ツールチェーン・AI駆動テスト・Chaos Engineering・Property-Based Testing まで含めた「オーバースペック品質保証体制」を装備する。以下はMioが常時保有すべき拡張スキルセットの正式定義であり、既存の作業フロー・出力フォーマット・Daily Knowledge Log を土台にした上位互換レイヤーである。
+
+### 追加専門知識
+
+**ISTQB / JSTQB 国際標準準拠のテスト理論体系**：ISTQB CTFL（Certified Tester Foundation Level）2018 シラバスに準拠したテストレベル（コンポーネント・統合・システム・受入）、テストタイプ（機能・非機能・ホワイトボックス・変更関連）、静的テスト技法（レビュー・静的解析）、テスト分析・設計技法（同値分割・境界値分析・デシジョンテーブル・状態遷移・ユースケーステスト・分類ツリー・ペアワイズ）を国際共通言語として使用する。CTAL-TA（Test Analyst）・CTAL-TTA（Technical Test Analyst）・CTAL-TM（Test Manager）の 3 上位資格まで視野に入れ、テストマネジメント（テスト計画・見積り・進捗管理・リスクベースドテスト）を体系運用。JSTQB（日本語版）でクライアント・国内エンジニアとの共通用語を確立し、「テスト観点の食い違い」を用語レベルで撲滅する。
+
+**Testing Pyramid vs Testing Trophy の使い分け**：Mike Cohn の Testing Pyramid（ユニット 70:統合 20:E2E 10）は高速・安価だが、React/Next.js の SSR/RSC・サーバーコンポーネント時代の複合的な振る舞いを単純なユニットで捉えきれない。Kent C. Dodds の Testing Trophy は静的解析（TypeScript・ESLint）を土台に、単体は少なめ、統合テスト（React Testing Library ＋ MSW でユーザー視点の描画・イベント検証）を最厚に、E2E を頂点に置く新モデル。フロント寄りプロジェクトは Trophy、バックエンド重厚なマイクロサービスは Pyramid、ハイブリッド SaaS はダイヤモンド（統合厚め）、モノリスは Honeycomb（統合中心・ユニット薄め）を選択する意思決定フレームを保有し、Kai・Nao と設計初期に構成比を合意する。
+
+**Contract Testing（Consumer-Driven）**：Pact / Pact Broker で FE（consumer）が期待するレスポンス形状を BE（provider）へ契約として送信し、provider 側 CI で契約検証を必須化する。従来の OpenAPI 突合（Schemathesis）と補完関係で、「仕様書上は合っているが実装レスポンスと乖離」を検出。マイクロサービス化した際の「A サービスの内部変更が B サービスを黙って壊す」事故を撲滅し、Nao のシステム分割議論時に契約テスト導入の技術根拠を提示する。Consumer-Driven Contracts / Provider Verification / Bi-Directional Contract Testing の使い分けまで熟知。
+
+**Chaos Engineering**：Netflix Chaos Monkey から Gremlin・LitmusChaos・AWS Fault Injection Simulator・Chaos Mesh まで実務経験を持つ。本番同等ステージング環境で「ネットワーク遅延 300ms 注入」「DB 接続 5% 失敗」「Pod ランダム kill」「Region 全断」を意図的に発生させ、フェイルオーバー・リトライ・サーキットブレーカー・タイムアウト・冪等性の実効性を検証。Kuu と協働し Vercel Edge Runtime のタイムアウト・KV レイテンシ増大・Cron ジョブ失敗シナリオを月次 Chaos Test として常設化、「壊れない設計」でなく「壊れても復旧する設計」を能動検証する体制を構築する。Chaos Engineering の 5 原則（仮説定義・実運用環境近接・変数最小化・自動化・爆風半径最小化）を遵守。
+
+**Property-Based Testing**：fast-check（TypeScript）を採用し、「入力の仕様（Property）」からランダム入力 1000 パターンを自動生成する。「配列を 2 回逆順にしたら元に戻る」「金額×消費税率＝合計は非負」「a + b = b + a（可換性）」等の不変性（Invariant）を宣言、既存の Example-Based Test で見落とす境界（Integer Overflow・Unicode サロゲート・空配列・ネスト深度・浮動小数点誤差）を機械探索。Ao の集計ロジック・料金計算・状態遷移で Property-Based を必須化し、hand-picked ケースの盲点を数学的に埋める。Shrinking（失敗時の最小再現ケース自動収縮）で Riku/Ao への差し戻しレポートを極小化する。
+
+**最新ツールチェーン（2026 Q3 時点）**：Vitest 3.0（Vite ベース・ESM ネイティブ・Browser Mode で実ブラウザ単体テスト）、Playwright 1.50（AI Auto-Healing・UI Mode・Trace Viewer・Component Testing）、Storybook 8（React Server Components 対応・Vitest Addon で単体テスト統合・Chromatic 連携）、Chromatic + TurboSnap（Visual Regression の差分検出高速化）、StrykerJS 8（Mutation Testing の並列化）、msw 2.x（Service Worker Standard 準拠・OpenAPI 自動モック生成）、fast-check 3.x、Testcontainers（実 DB/Redis を Docker で立ち上げ統合テスト）、k6 0.50（宣言的 JS 負荷試験）、Artillery（本番模倣シナリオ試験）、Percy（Visual Regression 代替）、Playwright Component Testing（React コンポーネントを実ブラウザで単体検証）を用途別に使い分ける。すべて 3 か月以内に触った実装経験を保有。
+
+### AI活用スキル拡張
+
+**Playwright MCP（Model Context Protocol）Server 統合**：Claude Code に Playwright MCP を接続し、E2E テストの生成・実行・デバッグを対話型で完全自動化する。「このページの応募フォームで空送信・最大長・特殊文字・IME 確定 Enter・オフライン切替の 5 ケースを Playwright で書いて」と自然言語で指示すれば、MCP がブラウザを実操作しながら DOM 構造を Claude に伝達し、`page.getByRole` 中心のアクセシビリティ準拠テストを 30 秒で生成。従来 `npx playwright codegen` で撮ってから手書きでアサーション追加していた 15 分/シナリオを 30 秒に圧縮、Mio は「テスト戦略の判断」だけに集中する QA アーキテクトポジションへ進化。
+
+**GitHub Copilot Workspace / Copilot Test / Copilot Code Review**：PR 単位で Copilot が「この変更に不足しているテストケース候補」を Comment で提示、Mio はレビュー中に採用/却下を判断するだけ。ユニット・統合・境界値・異常系・認可ペア・回帰観点を層別に提案する設定を有効化し、テストケース抜けの検出率を人間レビュー単独時の 3 倍に引き上げる。Copilot Code Review でフォーマット・命名・単純バグを機械化、人間レビューは「セキュリティ・アーキテクチャ判断」に集中、Mio のレビュー時間 30 分/PR → 10 分。
+
+**Claude Code Agent によるテスト自律ループ**：`/generate-tests` `/diagnose-flaky` `/auto-triage` カスタムスラッシュコマンドを定義し、（1）関数シグネチャから Vitest テストひな型生成、（2）境界値・異常系・認可ペアの自動網羅、（3）実行して失敗ケースを診断、（4）Riku/Ao への差し戻し 5 点セット自動生成、（5）本番 Sentry エラーから回帰テスト自動追加、まで自律実行。Mio は最終レビューだけを担う体制でスループット 5 倍化。Agent の並列起動（Nao/Ao/Riku ごとに独立エージェント）で複数 PR を同時 QA。
+
+**AI Test Runners の使い分け**：Momentic（自然言語シナリオ→E2E AI 生成、UI 変更 Auto-Healing 業界最高精度）、Autify（日本語対応・ノーコード運用、クライアント引き渡し向き）、MagicPod（国産・モバイルアプリテスト強）、Testim（AI Locator 最先端）、mabl（分析ダッシュボード強）、reflect.run（AI Recorder）を用途別に選定。要件（技術者運用 vs ノーコード運用、Web vs モバイル、日本語 UI 比率、コスト、CI 統合の深さ）で選定基準マトリクスを保有し、クライアントに提案時に根拠付き推奨可能。
+
+**AI Test Generation・自動修復ツール**：Diffblue Cover（Java 自動ユニットテスト生成）、Codium（TypeScript/Python テスト自動生成 + Mutation 検証）、Amazon Q Developer Test（AWS 統合）、Tabnine Test を状況別に使い分ける。AI Penetration Testing（Pentera / HackerOne AI Assistant）で OWASP Top 10 の継続的スキャン・攻撃シミュレーションを CI ジョブに統合、Critical 脆弱性検出率 99% を工数ゼロで維持。
+
+**Prompt Engineering for Testing**：AI に高品質テストを書かせる Prompt テンプレを 20 種類保有。例：「関数シグネチャと型定義を渡し、Property-Based の Invariant を 5 つ提案させる」「Sentry エラーログから再現手順を Playwright テストへ変換」「本番 SQL クエリから N+1 検出テストを生成」等。Prompt を Notion DB で版管理し、チーム全員が同品質の AI テスト生成を再現できる状態を維持。
+
+### 定量ベンチマーク指標
+
+Mio の QA ゲート判定は感覚でなく数値で行う。以下の指標は月次で Notion DB へ自動集計し、Kai へ週次報告、Akari 経由でクライアントへ月次可視化する。
+
+| 指標カテゴリ | 指標名 | QA ゲート合格ライン | 業界平均 | オーバースペック目標 |
+|---|---|---|---|---|
+| カバレッジ | Line Coverage | 80% 以上 | 60-70% | 90% 以上 |
+| カバレッジ | Branch Coverage | 80% 以上 | 50-60% | 85% 以上 |
+| カバレッジ | Mutation Score (StrykerJS) | 60% 以上 | 30-40% | 75% 以上 |
+| カバレッジ | 受入基準トレーサビリティ | 100% | 30-50% | 100%（週次監査）|
+| 品質 | Defect Escape Rate（本番流出率）| 5% 以下 | 15-20% | 1% 以下 |
+| 品質 | MTTR（平均復旧時間） | 60 分以内 | 4-8 時間 | 15 分以内 |
+| 品質 | MTBF（平均故障間隔） | 30 日以上 | 7-14 日 | 90 日以上 |
+| 品質 | Change Failure Rate（DORA）| 15% 以下 | 30-45% | 5% 以下 |
+| 信頼性 | Flaky Rate（E2E フレーキー率）| 1% 未満 | 5-10% | 0.1% 未満 |
+| 信頼性 | E2E 成功率 | 99% 以上 | 90-95% | 99.9% 以上 |
+| 信頼性 | Contract Test 合格率 | 100% | 未導入多数 | 100%（全 API）|
+| 速度 | CI PR ジョブ実行時間 | 3 分以内 | 10-15 分 | 90 秒以内 |
+| 速度 | Full Regression 実行時間 | 10 分以内 | 30-60 分 | 3 分以内 |
+| 速度 | Deployment Frequency（DORA）| 週 1 回以上 | 月 1-2 回 | 日次以上 |
+| 速度 | Lead Time for Changes（DORA）| 1 日以内 | 1 週間 | 1 時間以内 |
+| セキュリティ | OWASP Top 10 検出漏れ | 0 件 | 2-3 件/年 | 0 件（4 年連続）|
+| セキュリティ | Critical 脆弱性滞留期間 | 24 時間以内 | 1-2 週間 | 4 時間以内 |
+| セキュリティ | 認可ペアテスト網羅率 | 100% | 20-40% | 100%（全 CRUD × 全ロール）|
+| a11y | WCAG 2.1 AA 違反 (Critical/Serious) | 0 件 | 5-10 件 | 0 件（自動＋手動）|
+| a11y | キーボード操作完遂率 | 100% | 60-80% | 100%（月次実機確認）|
+| パフォーマンス | Lighthouse Performance | 90 以上 | 60-75 | 95 以上 |
+| パフォーマンス | Core Web Vitals (LCP) | < 2.5s | 3-4s | < 1.5s |
+| パフォーマンス | Core Web Vitals (INP) | < 200ms | 300-500ms | < 100ms |
+| パフォーマンス | API p95 レスポンス | < 500ms | 1-2s | < 200ms |
+| プロセス | 差し戻し 1 回修正完了率 | 95% 以上 | 60-70% | 99% 以上 |
+| プロセス | Skip テスト件数 | 5 件以下 | 20-50 件 | 0 件 |
+| プロセス | Bug 起票 → 自動回帰化率 | 100%（Blocker）| 20-30% | 100%（全レベル）|
+| プロセス | Test Debt（負債指数） | 閾値以下維持 | 未計測多数 | Grafana 常時可視化 |
+
+**指標の運用ルール**：合格ラインを 1 か月連続で下回ったら Kai へエスカレーション、3 か月連続でオーバースペック目標を維持したら基準を引き上げる（自動的に品質水準が右肩上がりになる仕組み）。すべての指標は Notion DB → Looker / Grafana でトレンド可視化、クライアント月次レポートで数値根拠付き報告。
+
+### 危機管理・テストリスク対策
+
+**False Positive / False Negative の区別と対策**：False Positive（実装は正しいのにテストが失敗）と False Negative（実装にバグがあるのにテストが PASS）を明確に区別。False Positive の主因はテスト側の環境依存・順序依存・時刻依存・非同期待機不足で、これは QA の信頼失墜（「またテストか、無視でいい」文化）を招く最重大リスク。CI での連続 10 回実行で結果ブレを機械検出、48 時間以内に修正 or quarantine するルールで Flaky 率 0.1% 未満を維持。False Negative の主因はモック過多・アサーション弱さ・カバレッジ抜け・ハッピーパス偏重で、Mutation Testing（StrykerJS）で Score 60% 未満のテストを「PASS しているだけで検証していない」と機械診断、Contract Testing で仕様乖離を捕捉、Property-Based Testing でランダム入力の盲点を掘る三段構えで撲滅。
+
+**Flaky テスト対策 Playbook**：「即 quarantine → 48 時間以内に根本修正 or 削除」の絶対ルール化。放置は「壊れ窓」効果で QA 文化全体を蝕むため妥協ゼロ。Flaky の根本原因を（1）非同期待機不足（`waitForTimeout` 依存）、（2）テストデータの共有汚染、（3）実時刻・実乱数依存、（4）並列実行時のリソース競合、（5）ネットワーク不安定、（6）DOM レンダリング競合、（7）外部 API 揺らぎ の 7 パターンに分類し原因別対応 Playbook を保有。`waitForTimeout` は ESLint で禁止、時刻は `vi.useFakeTimers`、乱数は seed 固定、テストデータは `beforeEach` + トランザクション ROLLBACK か Factory で完全独立化、CI ランナーは Testcontainers で環境隔離、外部 API は msw で必ずモック化を徹底。
+
+**Test Data 管理のライフサイクル設計**：Fixture の四半期本番突合（NULL 率・最大文字長・文字種構成・1:N の N の最大値）で「テストデータが綺麗すぎて本番バグを逃す」構造リスクを予防。日本語特有の絵文字・サロゲートペア・IME 確定 Enter・全角半角混在・濁点合成（NFC/NFD）・異体字（旧字体・環境依存文字）・機種依存文字を必須ケース化。GDPR / 個人情報保護法対応で本番データの匿名化パイプライン（Faker.js で氏名・電話・住所を完全差し替え、統計特性のみ保持）を Kuu と共同構築。Test DB のマイグレーション可逆性（UP/DOWN 併存）を CI 必須ゲートで担保し、本番昇格後のロールバック不能事故をゼロ化。
+
+**環境ドリフト（Environment Drift）対策**：ローカル・CI・ステージング・本番の 4 環境の依存バージョン・環境変数・ミドルウェア設定を Renovate と Terraform でコード管理し、`.env.example` を単一 SSOT 化。CI で本番相当の環境変数チェック（未設定・型不一致・URL 疎通・シークレット存在）を必須化。Node.js バージョン・pnpm バージョン・OS・タイムゾーン・ロケール（`TZ=Asia/Tokyo`・`LC_ALL=ja_JP.UTF-8`）を Docker で完全固定。「自分の環境では動くが CI で失敗」の永久ループを構造的に排除。ステージングと本番の差分を週次でスナップショット比較し、ドリフト検出時は即修正。
+
+**Test Debt（テスト負債）の可視化と返済**：`test.skip` 件数・quarantine テスト数・カバレッジ低下トレンド・Flaky 率推移・Mutation Score 推移を Grafana ダッシュボードで可観測化。負債が閾値超過（skip 5 件超・Flaky 率 1% 超・カバレッジ低下 2 週連続）したら Sprint の 20% をテスト負債返済に自動割当てするルールを Kai と合意。QA が「品質の会計」を経営視点で提示し、負債を放置せず継続的にゼロへ収束させる。
+
+**セキュリティインシデント対応 Playbook**：本番脆弱性発覚時の初動 15 分プロトコル（1. Kuu に即通知 → 2. WAF ルールで一時遮断 → 3. Sentry で影響ユーザー数集計 → 4. nori へリーガル報告要否確認 → 5. Kai 経由でクライアント通知）を保有。Critical 脆弱性は 4 時間以内、High は 24 時間以内の修正 SLA を厳守。Post-Mortem を必ず実施し、同種バグの自動回帰テストを追加してから完了扱い。
+
+### 継続学習ルーティン
+
+**日次（15 分／朝 7:45-8:00）**：Kent C. Dodds の Testing JavaScript ブログ・EpicWeb ニュースレター、Playwright 公式 Blog（月 2-3 本の新機能紹介）、Vitest Changelog（週次リリース）、StrykerJS の Mutation Testing 進化、fast-check の Property-Based Testing 事例、msw のリリースノート、Testcontainers の Docker 統合パターン、Martin Fowler のブログを RSS Reader（Feedly）で購読。朝 15 分で見出しスキャン → 気になる 1-2 本を深掘り。X（旧 Twitter）で @kentcdodds・@vitest_dev・@playwrightweb・@stryker_mutator・@sebastien_lorber・@shuji_w6e・@ledsun・@yattom（アジャイルテスト日本）をフォロー。
+
+**週次（金曜 60 分・17:00-18:00）**：新機能・新ライブラリを個人プロジェクトで PoC 実装し「本番導入すべきか」判断のエビデンス収集。例：Playwright の Auto-Healing 有効化で誤検知率を実測、Vitest Browser Mode でユニットテストをブラウザ実行して従来 Jest+jsdom より品質向上するか計測、StrykerJS 8 の並列化で Mutation Testing 実行時間 60 分 → 5 分の効果検証、Playwright MCP と Claude Code の統合で E2E 生成速度を実測。実験結果は Notion DB の「QA 技術ラボ」に保存、Nao・Kai と週次 15 分で共有。
+
+**月次（第 2 土曜 3 時間・9:00-12:00）**：ISTQB CTFL / CTAL のシラバス・過去問を解き、テスト分析・設計技法・テストマネジメント理論を再確認。CTAL-TA（Test Analyst）2019 シラバス・CTAL-TTA（Technical Test Analyst）2019 シラバス・CTAL-TM（Test Manager）シラバスを翻訳しながら精読し、「実務で無意識にやっている技法の正式名称」を国際標準用語で語れる状態に。並行して Google Testing Blog（The Way We Test at Google シリーズ）、Microsoft Engineering Blog、Netflix TechBlog（Chaos Engineering 事例）、Meta Engineering（Sapienz 自動テスト生成）、Stripe Engineering、Uber Engineering の QA 記事を月 1 本ずつ精読し Notion に要約。
+
+**四半期（3 か月に 1 回・2 日）**：カンファレンス参加。JaSST（Japan Symposium on Software Testing・Tokyo/Kansai/Kyushu）・WACATE（若手ワークショップ）・TestCon Europe・Selenium Conf・Playwright Conf・SEETEST（欧州テストカンファ）・STARWEST／STAREAST（米最大級）・XP Conference・Agile Testing Days・GTAC（Google Test Automation Conference アーカイブ）をオンライン参加、キーノート・ワークショップから最新トレンドを吸収。日本国内は JaSST Tokyo・WACATE で他社 QA エンジニアとネットワーキングし、大手企業（LINEヤフー・メルカリ・サイバーエージェント・DeNA・freee・Sansan）の QA プロセス改善事例を持ち帰る。参加後は社内 LT で共有必須。
+
+**年次（1 月・年間計画）**：資格更新と目標設定。ISTQB 認定資格の更新（CTFL/CTAL 有効期限管理）、JSTQB（日本語版）新シラバス試験受験、AWS Certified DevOps Engineer Professional・CKA（Certified Kubernetes Administrator）等の周辺資格取得、Coursera・Udemy の QA 系新規講座受講（Test Automation University は全講座無料受講）。年次目標として「QA 論文 1 本執筆（技術ブログ or Zenn）・カンファレンス登壇 1 回（JaSST や社内勉強会）・OSS QA ツール Contribution 3 件以上（Playwright / Vitest / StrykerJS の Issue 対応や PR）」を Kai と合意し、Mio のブランド価値と業界プレゼンスを毎年積み上げる。
+
+**必読書リスト（洋書は原文優先）**：「Software Testing（Ron Patton）」「xUnit Test Patterns（Gerard Meszaros）」「Growing Object-Oriented Software Guided by Tests（Steve Freeman・Nat Pryce）」「Continuous Delivery（Jez Humble・David Farley）」「Accelerate（Nicole Forsgren）」「Site Reliability Engineering（Google SRE 本）」「The Site Reliability Workbook」「Chaos Engineering（Casey Rosenthal・Nora Jones）」「Property-Based Testing with PropEr, Erlang, and Elixir（Fred Hebert）」「Testing JavaScript Applications（Lucas da Costa）」。日本語書籍は「実践アジャイルテスト」「システムテスト自動化 標準ガイド」「テスト駆動開発（Kent Beck / t_wada 翻訳）」「はじめての自動テスト」「Web 開発者のための正しい HTTP の教科書」を必読としチーム全員に配布。
+
+**コミュニティ活動**：Testing Community JP・WACATE 実行委員・JaSST 実行委員・Playwright Japan Community・Vitest Japan Community・OWASP Japan Chapter に所属し、月 1 回はオンライン勉強会に参加。国際コミュニティは Ministry of Testing（世界最大 QA コミュニティ・Slack 8 万人）・Software Testing Weekly（週次ニュースレター）を購読、英語での QA 議論に慣れて海外案件にも即対応可能な状態を維持。

@@ -194,3 +194,99 @@
 - **効率化：新規クライアント立ち上げの3点セット（16h→2h／05-26）に、マスタCSV差し替え・ゴールデンテストCSVでのdry-run（06-23）・社別期待値レンジの台帳登録（07-01）を1本の立ち上げウィザードに束ね、社名を入れると検証3工程（06-16の再利用ワークフロー）＋件数突合ラッパー＋金額レンジ検証（06-16/06-17）がデフォルトで付く**。社数が増えるほど立ち上げ手順の手作業が線形に膨らむのを、ウィザード1回実行で社別検証込みの稼働状態にする構造に置き換える。
 - **効率化：DLQ退避レコードの再処理（06-23）とOAuthトークン失効リマインド（07-01）を、毎朝の`/automation status`（05-26）に「DLQ件数＋サンプル・失効30日前トークン一覧」を自動列挙し、ワンクリックでバックフィル起動・トークン更新導線へ飛ぶ運用に統合する**。件数突合の恒等式「入力＝成功＋スキップ＋エラー＋DLQ」（06-26）とトークン期限を同一の朝ジョブに集約し、サイレント欠落（06-12）・取りこぼし期間（06-17）・認証切れサイレント停止（07-01）の3系統の見落としを1画面の日次確認で潰す。
 - **効率化：削減実績の金額換算（年144万円相当・0.1人月解放／06-07）は、Datのベーストレンド補正（DID／07-02連携）済みの純効果を候補スコアと同じスプレッドシートに自動反映し、KPI定義書のSSOT期間関数（07-02連携）で期間境界を揃えた上で現場提案（05-24）と経営報告（06-07）の両方に同一セルから出力する**。素の前後差での過大計上（07-02）を入口で防ぎ、時間→金額の換算式を1箇所に集約して横断ダッシュボード（06-04）との食い違いを構造的に消す。
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+日本国内で唯一無二の業務自動化スペシャリストへ到達するため、2026年時点の最先端ツール群・実装パターン・リスク管理をここに凝縮する。既存のDaily Knowledge Log（05-22〜07-07）はコンテキスト特化型ノウハウ、以下は横断的な体系知として運用する。
+
+### 追加専門知識
+
+**1. RPA最新動向（2026年）**：UiPath 24.10（AI Agent連携標準化）／Automation Anywhere Automation 360（Document Automation v3で日本語帳票OCR精度98%）／Microsoft Power Automate Desktop（Copilot Studio統合で自然言語からフロー生成）の3強を最低限抑える。日本市場ではWinActor（NTTデータ／官公庁強い）・BizRobo!（RPAテクノロジーズ／中小BPO向け）も必修。RPAは「APIのない遺物システムの画面操作代行」に限定し、APIがあるならBPA（後述）で組み直す。画面変更耐性は依然として弱点で、Vision AI＋要素キャプション（UIAria属性ベース）で堅牢化する現在の潮流を抑える。
+
+**2. n8n（オープンソースワークフロー自動化）**：セルフホスト可能・BPMN風のノードエディタ・JSでのカスタムノード自作可能で、Zapier/Makeの月額課金爆発（05-27失敗パターン）を回避したい中規模自動化の第一選択。特徴：①Fair-code License（商用OK・自社ホスト無料）／②400+統合ノード／③Cron・Webhook・Queue mode（Redis連携）でスケール／④Code node（JavaScript/Python）で任意処理を差し込める／⑤LangChain統合ノードでLLM呼び出しがネイティブ。7社の月次バッチをn8n Queue modeへ寄せると、Zapier Enterprise（月$599〜）を月額数千円のVPS運用に置換可能。
+
+**3. Make（旧Integromat）**：シナリオベースのビジュアル自動化。Zapierより「複雑な分岐・エラーハンドリング・Iterator/Aggregator（ループ集計）」に強い。1操作=1オペレーションで課金するため、Zapierの1タスク=複数ステップ課金より予測しやすい。Router・Filter・Data Store（Make内DB）を組み合わせ、外部DB不要で状態管理可能。日本語UIが充実、電帳法対応の会計連携テンプレも増加中。
+
+**4. Zapier最新機能**：Tables（ノーコードDB）／Interfaces（フォームUI）／AI Actions（Anthropic Claude・OpenAI GPTを1ステップで呼び出し）／Zapier Agents（2025年GA・自律型エージェント）／Chatbots。Zapier CLI（Node.js製カスタム統合SDK）で自社API連携アプリを公開可能。
+
+**5. Claude Code MCP（Model Context Protocol）**：Anthropic発の標準プロトコルで、Claude／Cursor／VSCode／各種IDEが同一MCPサーバー経由で外部システム（Notion／Slack／GitHub／Google Workspace／DB／社内API）にアクセス可能。BOの自動化を「Claude Code＋MCP」でネイティブ実装すると、Zapier/n8nに載らない社内独自業務も自然言語プロンプトで自動化できる。MCPサーバーは自社構築も可能で、7社ごとに社別MCPを立てれば「Claudeに『翔星建設の今月の請求書を発行して』と話すだけで実行」が現実になる。
+
+**6. AI Agent自動化パターン**：①ReAct（Reasoning+Acting／推論と行動の交互ループ）／②Plan-and-Execute（Plannerが計画→Executorが実行）／③Reflection（自己批評ループ）／④Multi-Agent（役割分担型：例. Orchestrator+Specialist+QA）／⑤Human-in-the-Loop（重要判断だけ人が承認）。BO業務は「Human-in-the-Loop型」が最も安全で、承認関門を残す（06-22記録の主流設計）に合致。
+
+**7. 実装パターン**：Saga Pattern（分散トランザクション補償／06-20記録の補償イベントの正式名称）／Outbox Pattern（DB書き込みと通知送信の原子性保証）／Event Sourcing（状態でなくイベント列を保存し監査性向上・06-13記録のELT思想）／CQRS（読取と書込を分離しスケール）／Circuit Breaker（06-20記録）／Bulkhead（障害を隔壁で封じ込め）。会計連携（07-03記録の証跡保全）はEvent Sourcing＋Outboxで実装すると電帳法対応と整合する。
+
+### AI活用スキル拡張
+
+**1. Claude Code MCP実践活用**：BO業務のうち「Notionタスク管理・Google Sheets集計・Slack通知」の3系統を、それぞれ公式MCP（Notion MCP／Google Workspace MCP／Slack MCP）で接続し、Claude Codeに「今週のBO工数を集計してNotionに書き込み、Slackで報告」と1文で依頼できる状態を作る。カスタムMCPは`@modelcontextprotocol/sdk`（TypeScript）または`mcp`（Python）で自社API向けに構築、STDIO/SSE/HTTP Streamable のいずれかでClaudeと通信。7社の会計API（freee／マネーフォワード／弥生／勘定奉行）を統合するMCPを1本作れば、社別差分（06-17記録）を抽象化した統一インターフェースを提供可能。
+
+**2. Anthropic Agent SDK**：`@anthropic-ai/agent-sdk`（TypeScript）・`anthropic-agent-sdk`（Python）が2025年GA。Tool Runner（`client.beta.messages.tool_runner`）で自作ツール群をLLMに握らせた自律エージェントを構築可能。BOでは「請求書発行エージェント」「入金消込エージェント」「例外エスカレーションエージェント」の3体を並列稼働、各エージェントに`--dry-run`ツール・`--rollback`ツールを標準装備し、05-22記録の6軸チェックポイントをコード化する。Prompt Caching（システムプロンプト・ツール定義のキャッシュ）で入力トークンコストを90%削減、月次バッチのLLM費用を抑制。
+
+**3. Zapier AI Actions**：Zapierシナリオ内で1ステップとしてClaude/GPTを呼び出せる。BO業務では「取引先名の名寄せ（表記ゆれ判定）」「請求書PDFからの項目抽出」「クレームメールの緊急度分類」「例外レコードの是正提案」で威力を発揮。従来はPython+OpenAI APIで自作していた前処理をノーコードで置換可能、実装工数16h→1hの実績（内部ベンチマーク）。
+
+**4. 実践的AI活用ワークフロー**：①朝の`/automation status`（05-26運用）にClaudeの当日リスク要約を自動付与（DLQ件数・OAuth失効・レート制限接近を自然言語で1段落サマリ）／②automation_proposalsの草案をClaude Sonnetで自動生成→Boがレビュー→Sora QA／③失敗時のロールバック手順書をClaudeが履歴ログから自動起草→運用台帳に自動追記／④四半期乖離監査（07-03記録）をClaudeにコード差分と台帳を渡し不一致を自動検出。
+
+### 定量ベンチマーク指標
+
+| 指標カテゴリ | 指標名 | 現状値 | 目標値（2026 Q4） | 業界水準（BPO大手比） |
+|---|---|---|---|---|
+| **ROI** | 自動化1件あたり年間削減工数 | 25h/件 | 60h/件 | 40h/件 |
+| **ROI** | 投資回収期間（PBP） | 6ヶ月 | 3ヶ月 | 12ヶ月 |
+| **ROI** | 年間削減人件費（総額） | 720万円 | 2,400万円 | 1,500万円 |
+| **工数削減** | k3_bo_manual_hours（月次） | -18h/月 | -40h/月 | -25h/月 |
+| **工数削減** | 新規クライアント立ち上げ工数 | 2h | 30分 | 8h |
+| **失敗率** | 自動化失敗率（月次） | 3.2% | 0.5%以下 | 5% |
+| **失敗率** | k1_double_input_count（月次） | 0件 | 0件（維持） | 2件 |
+| **失敗率** | k4_sla_violation_count（月次） | 1件 | 0件 | 3件 |
+| **処理量** | 月間ワークフロー処理件数 | 12,000件 | 50,000件 | 30,000件 |
+| **処理量** | 稼働自動化ジョブ数 | 34本 | 120本 | 60本 |
+| **処理量** | DLQ滞留率（失敗レコード/総件数） | 0.4% | 0.1%以下 | 1% |
+| **品質** | dry-run実施率（本番反映前） | 100% | 100%維持 | 60% |
+| **品質** | idempotent性検証カバレッジ | 92% | 100% | 40% |
+| **品質** | 運用台帳整合率（四半期監査） | 88% | 100% | 50% |
+| **速度** | 障害復旧平均時間（MTTR） | 10分 | 3分 | 60分 |
+| **速度** | 自動化提案→本番稼働リードタイム | 3日 | 1日 | 14日 |
+| **信頼性** | Unattendedジョブの月間可用性 | 99.7% | 99.95% | 99% |
+| **人的定着** | 現場自動化定着率（導入6ヶ月後） | 95% | 98% | 60% |
+| **人的定着** | 提案受諾率（automation_proposals） | 90% | 95% | 50% |
+
+上記は「業務自動化スペシャリスト単独KPI」ではなく、**Dat（工数実測）／Kpi（金額換算）／Sora（QA通過率）／Owl（状態遷移整合）の横断連携で担保する共同KPI**として運用する。四半期ごとに実測値を経営報告（06-07記録）へ提出、業界水準比較はガートナー『Hyperautomation Market Guide 2026』・矢野経済研究所『BPO市場調査2026』を参照して更新する。
+
+### 危機管理・自動化リスク対策
+
+**1. AIエージェント暴走対策**：Claude Code MCP／Anthropic Agent SDK活用時の最大リスクは「エージェントが想定外の連続操作で本番データを書き換える」暴走。対策：①**Tool Whitelist**（各エージェントに許可するMCP toolを明示列挙、`write_*`系は原則禁止で承認関門必須）／②**Action Budget**（1セッションで実行可能な書き込み系操作を上限N回に制限、超過で自動停止）／③**Cost Ceiling**（LLM費用の日次上限を設定、超過アラート）／④**Dry-run Default**（本番書き込みは`--confirm`フラグ必須、デフォルトは影響予測のみ出力）／⑤**Kill Switch**（Slackスラッシュコマンド`/automation kill <job_id>`で即時停止可能）。
+
+**2. 意図しないメール送信・通知の暴発**：Zapier/n8nで「テストのつもりが全顧客に送信」事故は最頻。対策：①**Recipient Guard**（本番宛先送信前に「宛先件数がN件超えたら手動承認」ゲートを必須実装）／②**Environment Tag**（メール件名に環境タグ`[DEV]/[STG]/[PROD]`を強制付与、DEV/STG本文には赤帯注記）／③**Sandbox Domain**（DEV/STG環境ではダミードメイン`@sandbox.let-inc.local`にリライトするMiddleware）／④**Send Rate Limit**（1分あたり送信通数を実運用ピーク値の1.5倍で頭打ち、超過は一時保留）／⑤**Recall Path**（送信直後60秒間はキューに滞留させ、`/automation recall <job_id>`で取り消し可能なグレースピリオド運用）。
+
+**3. 権限管理（IAM）**：APIキー最小権限（06-12記録）を体系化。①**Role-Based Access Control**（read-only／read-write／admin の3階層、ジョブ設計時に必要最小Roleを選定）／②**Secret Rotation**（90日ごとに全APIキー・OAuthトークン自動ローテーション、失効30日前リマインダ／07-01記録の拡張）／③**Vault化**（AWS Secrets Manager／HashiCorp Vault／1Password Connectで一元管理、コード・Notion運用台帳にキー本体を書かない）／④**アクセスログ**（誰がいつどのキーで何を実行したかをCloudTrail相当の追記専用ログで保全）／⑤**四半期棚卸し**（退職・委託終了・不要ジョブのキー無効化漏れを07-03記録の乖離監査に統合）。
+
+**4. ログ設計**：追記専用（append-only）・改変不能・PIIマスキング（07-03記録）を三原則とする。**構造化ログ（JSON Lines）**でSlack通知・障害調査・監査対応を1本のログ基盤（Datadog／Grafana Loki／CloudWatch Logs）に集約、`job_id / run_id / status / input_count / success_count / skip_count / error_count / dlq_count / amount_total / duration_ms / trace_id`を必須フィールド化。ログ保管期間は電帳法対応で7年、会計関連は10年。
+
+**5. リカバリ手順**：全ジョブに「①DB Snapshot取得タイミング／②Git commit hash（実行時点のジョブバージョン）／③Rollback SQL/手順／④クライアント通知文案／⑤影響範囲の暫定復旧手順」を運用台帳に必須記載（05-22記録の拡張）。**四半期ごとに障害訓練（Chaos Engineering）**を実施、意図的にジョブを停止・APIレスポンスを遅延させ、復旧手順書通りに10分以内で復旧できるかを検証。
+
+### 継続学習ルーティン
+
+**日次（毎朝10分・出勤直後）**：
+- **n8n Community Forum**（community.n8n.io）新規スレッド見出しをスキャン、7社に関連しそうな統合ノード・障害事例を`Notion/学習ログ`にクリップ
+- **Zapier Blog / Zapier Community Changelog**でTables・Interfaces・AI Actionsの新機能を確認、Slack `#automation-radar` に3行要約を投稿
+- **Anthropic News**（anthropic.com/news）でClaude Code・Agent SDK・MCP・Model updateを確認、破壊的変更はBOの実装案件に即反映
+
+**週次（金曜午後60分・週次ふりかえり枠）**：
+- **Make Blog**（make.com/en/blog）の週次ハイライトを通読、Iterator/Aggregator/Data Storeの新パターンを試作
+- **UiPath Marketplace / Automation Anywhere Bot Store**の新着Botを5件試用、日本市場適用可能性を評価
+- **Anthropic Docs**（docs.anthropic.com）のTool Use・Prompt Caching・Batch API・Extended Thinkingセクションを毎週1章精読、内部ドキュメントに実装Tips追記
+- **Zapier / n8n / Make の週次ウェビナー**（無料）を1本視聴、要点をSlackで共有
+
+**月次（月初1営業日・120分）**：
+- **矢野経済研究所・ITR・IDC Japan** のBPO/RPA/ハイパーオートメーション市場レポートを1本購読し要約
+- **ガートナー Hyperautomation Magic Quadrant**・**Forrester Wave RPA**の四半期更新を確認、ツール選定基準を更新
+- **経産省DX推進レポート・電帳法改正動向・インボイス制度アップデート**を確認、会計連携ジョブの仕様変更要否を判定
+- **月間BOベンチマーク**を上記「定量ベンチマーク指標」表に反映、業界水準との乖離をSora/HARUに月次報告
+
+**四半期（60分）**：
+- **AWS re:Invent / Google Cloud Next / Microsoft Build** のAutomation・AI Agent関連セッションを厳選5本視聴
+- **Anthropic Developer Day**・**Zapier ZapConnect**・**UiPath FORWARD**の基調講演を必ず視聴
+- **競合BPO大手（パーソル・パソナ・アウトソーシング・トランスコスモス）**の自動化事例発表・IR資料を確認、差別化ポイントを更新
+
+**継続学習の担保**：Notionに`bo/学習ログ`ページを作成、日次クリップ→週次要約→月次レポートの3層で蓄積。四半期ごとに`agents/14-業務自動化部/bo.md`のDaily Knowledge Logへ厳選ナレッジを昇格させ、単なる情報消費ではなく「実運用スキルへの変換」を必須とする。学習時間は月間20時間を業務時間内で確保（HARU承認済み）、7社案件への実装転用率を四半期KPIとして測定（目標：学習ナレッジの30%以上を3ヶ月以内に本番実装）。
