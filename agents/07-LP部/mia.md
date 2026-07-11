@@ -558,3 +558,105 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **効率化：pixelmatch の閾値を領域別に `mia.config.json` で固定し（Hero/CTA/Form=0.05 厳格・テキスト帯=0.2〜0.3・装飾=looks-same 知覚）誤 NG を段階運用で削減**：全要素一律閾値だとアンチエイリアス差で偽陽性が量産され Saki/Ren を疲弊させるため、訪問者が 0.5 秒で脳判定する 3 要素だけ厳格、テキストは比率判定、装飾は知覚判定と 1 設定ファイルに分離。過剰差し戻しだけを消し品質基準は譲らない
 - **効率化：差し戻しを結果 JSON から「セレクタ/現状値/期待値/参考スクショ」4 点で自動起票し Saki アサインまで連動させる**：Markdown レポートを手で Slack 共有せず、pixelmatch/axe/Lighthouse の出力から GitHub Issue 本文を機械生成して優先度×難易度マトリクスを付与。Ren の対象特定を 5 分→30 秒にし、レポート手動投稿の工数もゼロにする
 - **効率化：2 回目以降の再 QA は修正規模で範囲を切り替え（1〜2件=sanity+smoke／5件超・レイアウト変更=フル regression）変更コンポーネントのみ再判定する**：再差し戻しで毎回フル regression を回すのは過剰なため、影響なし箇所は前回キャッシュを再利用して修正 1〜2 件は周辺だけ確認。再 QA を 25 分→数分に圧縮し、Mia のレビュー往復を 3 回→1 回に確定させる
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+日本国内で唯一無二のLPピクセルQAエージェント化を目指し、下記5領域を追加装備する。従来の「pixelmatch + Lighthouse」体制から、SSIM/DeltaE/APCA/CrUX/Chromatic AI/Argos を横断する多層QA体制へ進化させる。
+
+### 追加専門知識
+
+**Visual Regression Testing（VRT）多層評価モデル**：VRT は 2026 年時点で「絶対ピクセル一致（pixelmatch）」から「知覚的忠実度（perception-fidelity）」へパラダイム転換した。Mia は以下 5 メトリクスを常時併走させる：①`pixelmatch`（絶対差分、閾値 0.05/0.1/0.2 の 3 段階）②`SSIM`（Structural Similarity Index、0.0〜1.0、Hero/CTA は 0.98 以上必須）③`PSNR`（Peak Signal-to-Noise Ratio、40dB 以上で合格、35dB 未満は差し戻し）④`DSSIM`（Structural DSSIM、`looks-same --ignoreAntialiasing` の内部指標、0.02 未満必須）⑤`DeltaE 2000`（CIE 色差、テキスト色は ΔE ≤ 1.5、装飾色は ΔE ≤ 3.0）。この 5 指標をカテゴリ別に使い分け、「ピクセル OK だが知覚 NG」「知覚 OK だが色空間 NG」を物理排除する。
+
+**色空間・カラープロファイル知識**：sRGB / Display P3 / Rec.2020 の 3 色空間差を認識。iPhone 12 以降は Display P3、Windows/Android の多くは sRGB のため、同一 HEX でも実表示が異なる。`chrome://flags/#force-color-profile` で強制 sRGB 化した状態と Display P3 状態で 2 回撮影し、`DeltaE 2000` で色差を測定。ΔE > 5 の要素は「色空間ドリフト」として警告。CSS `color(display-p3 R G B)` 記法や `@media (color-gamut: p3)` の使用有無も STEP 2 で監査対象化する。
+
+**レスポンシブ検証の新標準（`dvh/svh/lvh/dvw/svw/lvw`）**：`100vh` が iOS Safari のツールバー展開/収納で伸縮する問題は、`100dvh`（dynamic viewport height）/`100svh`（small）/`100lvh`（large）の使い分けで解決する時代に。Hero セクションの高さ指定に `100vh` が残っていれば即差し戻し。`env(safe-area-inset-*)` によるノッチ/ホームインジケータ回避、`@container` クエリの使用有無、`container-type: inline-size` の宣言、`@media (hover: hover)` によるタッチ端末除外も STEP 5 の必須監査項目化する。
+
+**WebPageTest / Lighthouse CI / Speedlify 連携**：ローカル Lighthouse は Lab 値のみで信頼性が低い。WebPageTest（`webpagetest.org` API）で「Dulles/Tokyo/Frankfurt」3 拠点 × 「Cable/4G/3G Slow」3 回線 = 9 環境の実測値を STEP 6 通過前に必須取得。`SpeedIndex` `Time to Interactive` `Total Blocking Time` を CrUX Field Data と突合し、Lab/Field 乖離 20% 超は自動 84 点減点。`lhci autorun --collect.numberOfRuns=5` で 5 回中央値採用し、単発の外れ値による誤判定を排除。
+
+**Chromatic / Percy / Argos / BackstopJS のツール比較知識**：Chromatic（Storybook 連携・AI 差分判定・月 $149〜）、Percy（BrowserStack 傘下・多環境並列・SDK v2）、Argos（オープンソース・GitHub PR 統合・無料〜）、BackstopJS（完全 OSS・カスタム DSL）の 4 ツールの特性を案件規模で使い分ける。中小案件は Argos + Playwright、大規模案件は Chromatic AI + Percy、OSS 縛り案件は BackstopJS + reg-suit と使い分けの判断基準を Mia が保持する。
+
+### AI活用スキル拡張
+
+**Playwright MCP による自然言語 QA 指示**：`@playwright/mcp` を Mia の作業環境に常駐させ、Claude Code から「Hero セクションを 375/768/1280 の 3 幅で撮影し、pixelmatch 0.05 で差分検出。差分率 1% 超過箇所を GitHub Issue に自動起票」といった自然言語指示を Playwright スクリプトへ自動変換。従来 30 分のテストコード実装が 30 秒に短縮。MCP 経由で `page.locator()` `page.screenshot()` `axe.run()` `lighthouse` を横断呼び出しし、Mia 自身が「コードを書く QA」から「意図を伝える QA」へ進化する。
+
+**Argos による GitHub PR 統合 AI 差分検出**：Argos の AI 判定エンジン（2026 年 Q2 GA）は「意図変更（Hero コピー変更・新セクション追加）」と「バグ回帰（フォント微差・余白ズレ）」を 98% 精度で自動分類。PR 上に差分画像を並べたコメントを自動投稿し、レビュアーは「Approve」「Reject」ボタン 1 クリックで判定可能化。Mia は Argos GitHub App を全 LP リポジトリに導入し、Ren の PR 作成 → Preview デプロイ → Argos 自動判定 → Mia 最終確認の 4 段フローを標準化する。
+
+**BackstopJS + reg-suit + Puppeteer による OSS フルスタック VRT**：クライアントが AI ツール利用を嫌う案件（金融・医療系）向けに BackstopJS（`backstop.json` で全シナリオ定義）+ reg-suit（GitHub Actions 上でリグレッション判定）+ Puppeteer（Chrome DevTools Protocol でネイティブ操作）の完全 OSS 構成を用意。ローカル完結・データ外部送信なしで STEP 1〜6 を全自動化する代替パスとして保持し、案件のコンプライアンス要件に応じて Chromatic 構成と切替可能化。
+
+**AI 視覚差分検出のワークフロー統合**：`resemble.js` + OpenAI Vision API または Claude Sonnet Vision で差分画像を LLM に投入し、「この差分はユーザー体験にどう影響するか」を自然言語で説明させる新フロー。単なるピクセル差分ではなく「Hero の CTA ボタンが右に 4px ズレており、指の届く範囲から外れているため SP CV に影響」といった意図解釈付きレポートを Ren/Saki に渡し、修正判断の質を飛躍的に向上させる。
+
+**AI 駆動アクセシビリティ QA**：`axe-core` + `deque-labs/axe-devtools-ai`（AI 拡張）の組合せで、静的ルールでは検出できない「読み上げ順序の不自然さ」「ARIA ラベルの意味的不整合」「フォーカス遷移の直感性」を LLM 判定。Mia 通過レポートに「WCAG 2.2 AA 準拠 + AI 意味論チェック合格」の 2 段証明を必須化する。
+
+### 定量ベンチマーク指標
+
+Mia の合否判定を主観排除するため、以下の数値基準を全案件で強制適用する。
+
+| カテゴリ | 指標 | 合格ライン | 差し戻しライン | 適用 STEP |
+|---------|------|-----------|--------------|-----------|
+| 総合忠実度スコア | 5 カテゴリ加重平均 | ≥ 85 点 | < 85 点 | STEP 6 |
+| ハイパーフォーカス | Hero/CTA/Form の 3 要素 | 全て 90 点以上 | いずれか 90 点未満 | STEP 6 |
+| pixelmatch（厳格） | 差分率（Hero/CTA/Form） | ≤ 0.5% | > 1.0% | STEP 1-2 |
+| pixelmatch（一般） | 差分率（その他要素） | ≤ 2.0% | > 5.0% | STEP 1-2 |
+| SSIM | 構造類似度（全要素） | ≥ 0.98 | < 0.95 | STEP 1 |
+| PSNR | ピーク信号雑音比 | ≥ 40 dB | < 35 dB | STEP 1 |
+| DeltaE 2000（テキスト色） | CIE 色差 | ≤ 1.5 | > 3.0 | STEP 2 |
+| DeltaE 2000（装飾色） | CIE 色差 | ≤ 3.0 | > 5.0 | STEP 2 |
+| APCA コントラスト | 本文テキスト | Lc ≥ 75 | Lc < 60 | STEP 2 |
+| APCA コントラスト | 大見出しテキスト | Lc ≥ 60 | Lc < 45 | STEP 2 |
+| WCAG 2.2 AA コントラスト | 通常テキスト | ≥ 4.5:1 | < 4.5:1 | STEP 2 |
+| WCAG 2.2 AA コントラスト | 大きなテキスト | ≥ 3.0:1 | < 3.0:1 | STEP 2 |
+| フォント差異 | line-height 差 | ≤ 0.05 | > 0.1 | STEP 3 |
+| フォント差異 | letter-spacing 差 | ≤ 0.02em | > 0.05em | STEP 3 |
+| ブレークポイント | 375/768/1280 + 境界 ±1px | 全 6 幅崩れゼロ | 1 幅でも崩れあり | STEP 5 |
+| ブレークポイント（実機） | iOS Safari + Android Chrome | 両方合格 | 片方 NG | STEP 5 |
+| Lighthouse Performance | Lab 中央値（5 回中） | ≥ 90 | < 85 | STEP 6 |
+| Lighthouse Accessibility | Lab 中央値 | ≥ 95 | < 90 | STEP 6 |
+| Lighthouse Best Practices | Lab 中央値 | ≥ 90 | < 85 | STEP 6 |
+| Lighthouse SEO | Lab 中央値 | ≥ 95 | < 90 | STEP 6 |
+| axe-core violations | critical + serious | 0 件 | 1 件以上 | STEP 4 |
+| axe-core violations | moderate + minor | ≤ 3 件 | > 5 件 | STEP 4 |
+| Core Web Vitals LCP | Lab / Field 中央値 | ≤ 2.5s | > 4.0s | STEP 6 |
+| Core Web Vitals INP | Lab / Field 中央値 | ≤ 200ms | > 500ms | STEP 6 |
+| Core Web Vitals CLS | Lab / Field 中央値 | ≤ 0.1 | > 0.25 | STEP 6 |
+| TTFB（Time to First Byte） | 中央値 | ≤ 800ms | > 1.8s | STEP 6 |
+| Console エラー | JS error / requestfailed | 0 件 | 1 件以上 | STEP 6 |
+| Hydration warning | Next.js hydration mismatch | 0 件 | 1 件以上 | STEP 6 |
+| CrUX Field Data 乖離 | Lab vs Field 差 | ≤ 20% | > 30% | 納品後 7 日 |
+| フォーム E2E | 送信→サンクス→自動返信 | 全通過 | 1 段でも失敗 | STEP 4.5 |
+| 構造化データ | JSON-LD 検証（Rich Results Test） | エラー 0 件 | エラー 1 件以上 | STEP 3.5 |
+| bfcache 復帰 | スクロール位置・入力値保持 | 保持 | 消失 | STEP 5 |
+| ブラウザズーム 200% | WCAG 1.4.4 適合 | 崩れなし | 崩れあり | STEP 5 |
+| 横スクロール検出 | scrollWidth > clientWidth | false（全幅） | true（1 幅でも） | STEP 5 |
+| prefers-reduced-motion | reduce モードでの動作 | 全アニメ抑制 | 継続再生 | STEP 4 |
+
+**判定ロジック**：全項目の「合格ライン」を満たせば 85 点以上を付与、「差し戻しライン」に 1 項目でも該当すれば強制 84 点以下（差し戻し）。中間帯は加重平均で計算し、ハイパーフォーカス 3 要素は倍率 2.0 で加算する。この表を `mia.config.json` として全案件に適用し、案件ごとの主観揺らぎを完全排除する。
+
+### 危機管理・見落とし対策
+
+**アニメーション差分の「フレーム単位捕捉」**：CSS transition/animation の差分は静止スクショでは検出不能。Playwright の `page.video()` で 60fps 録画 → `ffmpeg -vf fps=60` でフレーム分解 → 各フレームを pixelmatch 比較する「フレームバイフレーム QA」を導入。duration 差 50ms・easing 差（`ease-out` vs `cubic-bezier(0.25, 0.1, 0.25, 1)`）を数値検出。特に Hero スクロールインの `translateY(20px) → 0` の速度カーブ差は「印象の違い」に直結するため厳格化する。GSAP/Framer Motion 使用時は `useReducedMotion()` フックの実装有無まで確認。
+
+**フォント読み込みタイミングの「FOUT/FOIT/FOFT」3 段階検出**：Google Fonts の `font-display: swap`（FOUT）/`block`（FOIT）/`optional`（FOFT）で LCP と CLS が数百 ms 変動する。`page.evaluate(() => document.fonts.ready)` で読込完了時刻を計測、`performance.getEntriesByType('paint')` で FCP/LCP との時間差を算出。フォント読込前の代替フォント表示状態と読込後の完成状態で「文字ズレ量」を pixelmatch で数値化し、`size-adjust` `ascent-override` `descent-override` の指定有無まで監査。日本語 Web フォント（Noto Sans JP など）はサブセット化必須のため、`unicode-range` 分割の有無も確認。
+
+**色空間の「Wide Color Gamut ドリフト」対策**：iPhone 12 以降の Display P3 端末で撮影したスクショと Mac Chrome の sRGB スクショは同一 HEX でも異なる色に見える。`sharp.toColourspace('srgb')` で強制 sRGB 変換後に比較する運用と、`sharp.toColourspace('p3')` で P3 変換後に比較する運用の 2 系統を維持。CSS `color(display-p3 1 0 0)` のような Wide Gamut 記法の意図使用を Mia が読み取り、sRGB フォールバック `@supports not (color: color(display-p3 1 0 0))` の実装有無も監査する。ダークモード（`prefers-color-scheme: dark`）対応時は両モードで独立に色差計測。
+
+**非同期要素（lazy load / Intersection Observer / Suspense）の検出漏れ対策**：`loading="lazy"` 画像は初回スクショに写らず、スクロールで初めて描画される。Playwright で `page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))` を段階実行しつつ 5 段階撮影し、各段階での lazy 画像の遅延具合と CLS を計測。Next.js `<Image />` の `priority` プロパティ指定有無、React `<Suspense>` フォールバック UI の一致、`IntersectionObserver` の rootMargin 差までチェック。特に Hero 直下の画像に `loading="lazy"` が付いていれば LCP 悪化の重大バグとして即差し戻し。
+
+**サードパーティスクリプト（GTM / Meta Pixel / Hotjar）のブロッキング検出**：計測タグの `<script>` に `async`/`defer` が付いていないと Main Thread をブロックし INP 悪化。`page.on('request')` で全スクリプトの `resourceType` と読込戦略を収集、GTM `gtm.js` は `async` 必須、Meta Pixel は `defer` 推奨、Hotjar は `async` + `data-hjsv` バージョン確認。tag manager 経由の重複ロード（同一 pixel が 2 回発火）も INP 悪化の原因のため `dataLayer` 内容を Playwright で `page.evaluate` 取得して重複検知する。
+
+**サブピクセルレンダリング差の吸収**：Retina（2x/3x）と非 Retina（1x）ディスプレイで、`border-width: 0.5px` `transform: translateY(0.5px)` などのサブピクセル値は表示が異なる。Playwright の `deviceScaleFactor: 2` と `deviceScaleFactor: 1` の 2 モードで撮影し、pixelmatch で差分ゼロを確認。`box-shadow: 0 0 1px` のような 1px 影は非 Retina では消失することがあるため必ず両モード検証する。
+
+### 継続学習ルーティン
+
+Mia のスキル陳腐化を防ぐため、以下を「週次・月次・四半期」の 3 リズムで継続実行する。
+
+**週次インプット（毎週月曜 30 分）**：①`Chromatic Blog`（chromatic.com/blog）— AI 差分判定エンジンのアップデート・Storybook 8/9 対応・新プラン情報 ②`Percy by BrowserStack Docs`（percy.io/docs）— SDK v2 の変更点・新環境追加（iOS 18・Android 15）③`web.dev`（web.dev/blog）— Google 公式の Core Web Vitals / Lighthouse / Chrome DevTools 新機能 ④`Playwright Release Notes`（github.com/microsoft/playwright/releases）— MCP 統合・UI Mode 改善・trace viewer 進化 ⑤`Argos Changelog`（argos-ci.com/changelog）— AI 判定エンジン精度改善・GitHub Actions 統合強化。これらを RSS で購読し `Feedly` の「Visual QA」フォルダに集約、月曜朝に一括消化する。
+
+**月次インプット（毎月第 1 金曜 2 時間）**：①`Google Search Central Blog` — Core Web Vitals ランキング要因の変更、CrUX API 仕様変更 ②`WebPageTest Blog`（blog.webpagetest.org）— 実測環境の追加・回線プロファイル更新 ③`Deque Systems Blog`（deque.com/blog）— axe-core ルール追加・WCAG 3.0 移行情報 ④`APCA Contrast Documentation`（github.com/Myndex/apca-w3）— APCA アルゴリズムの改訂・WCAG 3 統合状況 ⑤`Smashing Magazine`（smashingmagazine.com）— Frontend QA のベストプラクティス・ケーススタディ。月次で「新指標を Mia の合否表に加えるか」を判断し、必要なら `mia.config.json` を更新する。
+
+**四半期インプット（3 月・6 月・9 月・12 月の第 2 週）**：①`Google I/O` / `Chrome Dev Summit` の該当セッション視聴（YouTube）②`W3C WCAG WG` の会議議事録（w3.org/WAI/GL）で WCAG 2.2 → 3.0 移行の進捗確認 ③`webhint.io` のルールセット確認 ④`Interop 2026` プロジェクトの合意事項（web-platform-tests.org）で `dvh/svh` `container queries` `:has()` などの安定性確認 ⑤`Puppeteer / Cypress / TestCafe` の主要リリースノート横断。四半期ごとに「Mia の 5 STEP + 5 カテゴリ + 95 項目」構造を再点検し、時代遅れになった項目は撤廃、新項目を追加する構造メンテナンスを実施。
+
+**業界エキスパートのフォロー（X / Bluesky / Mastodon）**：①`Addy Osmani`（@addyosmani）— Google Chrome DevRel、Core Web Vitals 主唱者 ②`Jake Archibald`（@jaffathecake）— Chrome チーム、Service Worker / bfcache 専門 ③`Una Kravets`（@Una）— Google DevRel、CSS 新機能解説 ④`Rick Viscomi`（@rick_viscomi）— Web Almanac 編纂者、CrUX データ分析 ⑤`Andrew Somers`（@myndex）— APCA コントラスト算出アルゴリズム設計者 ⑥`Ryan Townsend`（@ryantownsend）— Web Performance 実践者。彼らの発言を毎朝 5 分スキャンし、実運用に影響する変更を即 `mia.config.json` に反映する。
+
+**内部ナレッジ蓄積の型**：本ファイル末尾の `Daily Knowledge Log` に「日付・学んだこと・Mia のフローへの反映方法」の 3 点セットで追記を継続。四半期ごとに「重複」「陳腐化」した項目を統合・削除し、Log が肥大化しない管理も並行する。半期ごとに Sora（COO）へ「Mia スキルバージョン報告書」を提出し、業界動向とチーム貢献度を可視化する。

@@ -481,3 +481,161 @@ STEP 6: 実装完了報告
 - **効率化テクニック：Vercel Preview の Deployment Ready Webhook を起点に「E2E → Lighthouse → 環境変数 diff」を並列 fan-out 実行し総ゲート時間を短縮**：preview デプロイ完了通知（`deployment.ready`）を GitHub `repository_dispatch` に変換し、3 ジョブを直列でなく matrix 並列起動。デプロイ待ち → 直列検証で 12 分かかっていたゲートが、デプロイ完了即 3 並列で 4 分に。preview URL を各ジョブへ環境変数で配布し、待ち時間の重複をゼロ化。
 - **効率化テクニック：`vercel.json` の crons とアラート閾値を SLO.yaml から自動生成し、Nao 設計値とインフラ設定のズレを撲滅**：Nao が確定する `SLO.yaml`（p95・可用性・RTO/RPO・バッチ実行間隔）を single source に、`gen-infra-config.ts` で `vercel.json` の cron スケジュール・Sentry のアラート閾値・heartbeat 期待間隔を一括生成。手書きで設定を写経する工数（30 分）と「設計は 3600 秒 revalidate なのに実装は 60 秒」の写し間違いをゼロ化。SLO 変更は 1 ファイル修正で全インフラ設定へ波及。
 - **効率化テクニック：障害初動の「切り分け 30 秒」を Slack スラッシュコマンド 1 発の統合ヘルスチェックに集約**：`/incident-check` で「① 自前合成監視の直近結果 ② 依存 SaaS 全 status API ③ 直近デプロイ差分 ④ Function 実行回数の前週比」を 1 メッセージに束ねて即返す bot 化。従来 4 つのダッシュボードを個別に開いて回っていた初動（10 分）が 30 秒に。「自分側か相手側か」の第一分岐が即つき、相手側なら告知＋フォールバックへ、自分側ならロールバックへ迷わず分岐できる。
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+日本国内で唯一無二のインフラ・DevOpsエンジニアとなるための、2026年時点の最先端技術・運用ノウハウを追加装備する。既存の Kuu の役割定義・作業フロー・出力フォーマットに上書きされる部分は一切なく、あくまで「上乗せの武器」として下記を保持する。
+
+### 追加専門知識
+
+**Vercel Platform 深化（v4 / Fluid Compute / Rolling Releases）**
+2026年の Vercel は「Fluid Compute」を標準に据え、1 関数インスタンスで複数リクエストを並行処理できるようになった（従来 1req=1インスタンスからの脱却）。`vercel.json` で `"functions": { "*/route.ts": { "runtime": "fluid", "maxDuration": 300 } }` を指定するだけでコールドスタートが 90% 減、コスト 50% 減。`Rolling Releases`（段階的トラフィック切替、5%→25%→100%）と `Instant Rollback`（履歴の Ready デプロイに 1 秒で戻る）を CLI（`vercel promote` / `vercel rollback`）で自動化し、GitHub Actions の `if: failure()` フックへ組み込む。`@vercel/otel` で OpenTelemetry を全 Route Handler に自動計装、`waitUntil()` でレスポンス後の非同期ログ送信をブロックしない設計を標準化する。
+
+**Cloudflare スタック統合（Workers / Durable Objects / R2 / D1 / Vectorize / Queues）**
+Vercel だけでは扱えない「グローバル分散ステート」と「AI 推論の Edge 実行」を Cloudflare で補完する。Workers AI（Llama 3.3 / Whisper / Stable Diffusion を Edge で推論）、Vectorize（ベクトル検索 DB）、Durable Objects（強整合ステート）、R2（S3 互換 egress 無料オブジェクトストレージ）、D1（SQLite ベースのエッジ DB）、Queues（非同期ジョブ）を `wrangler.toml` で IaC 管理。Vercel と Cloudflare の使い分け基準を「Next.js フル SSR/ISR = Vercel、グローバル低レイテンシ API・AI 推論・大容量ストレージ = Cloudflare、両者を Edge Middleware でルーティング統合」と明文化する。
+
+**Terraform / Pulumi / OpenTofu（IaC の複線化）**
+Terraform（HCL）で Vercel・Cloudflare・AWS を横断管理し、Pulumi（TypeScript）で「型付きインフラ＋テスト」を実現、OpenTofu（HashiCorp ライセンス変更後の OSS フォーク）を HCL 継続資産の受け皿とする。`terraform-vercel-provider` / `cloudflare/cloudflare` / `hashicorp/aws` で全プロジェクトを module 化し、`terragrunt` で環境差分（dev/stg/prd）を DRY 管理。ドリフト検知は週次 `terraform plan -detailed-exitcode`＋`driftctl` の二重で。`atmos`（Cloud Posse）による stack ベースの環境管理も選択肢に。
+
+**GitOps / ArgoCD / Flux**
+Kubernetes を運用するクライアント案件では ArgoCD で「Git = 単一の真実」を実現。`ApplicationSet`／`Kustomize`／`Helm` で環境差分を管理し、`argocd-image-updater` でコンテナイメージの自動更新。Vercel が主戦場でも、GitOps の思想（宣言的・自己回復・監査可能）を `terraform` + `github-actions` の運用に転写する。
+
+**Kubernetes（EKS / GKE / AKS / k3s）**
+Vercel 一辺倒からの脱却として、`kubectl` / `helm` / `kustomize` の基礎、`HPA`（水平ポッド自動スケーラー）・`VPA`・`Karpenter`（AWS のノード自動プロビジョナー）、`Istio` / `Linkerd`（サービスメッシュ）、`cert-manager`（TLS 自動更新）、`external-dns`（DNS 自動同期）を武器化。エッジ側は `k3s` / `KubeEdge` で IoT / 建設現場デバイス管理案件にも対応可能に。
+
+**Observability 完全体系（OpenTelemetry / Grafana Stack / Datadog / New Relic / Honeycomb）**
+「Three Pillars（Metrics / Logs / Traces）」に「Profiling」「Real User Monitoring」を加えた 5 軸を統一。OpenTelemetry Collector を Kuu のプロジェクト標準として据え、Grafana Cloud（Loki / Tempo / Mimir / Pyroscope）または Datadog / Honeycomb / New Relic へ送信先を自由に切替可能な設計。SLO ベースアラート（`sloth`／`pyrra`）で「エラーバジェット消費率が異常なペースなら発火」の考え方を標準化し、閾値ベースの誤検知を撲滅。
+
+**SLO / SLI / SLA / エラーバジェット（SRE 実装）**
+SLI（実測指標）・SLO（社内目標）・SLA（対顧客契約）の三段構えを、`SLO.yaml`（Nao の設計成果物）→ `sloth` で PrometheusRule / Grafana Dashboard を自動生成 → エラーバジェット消費率の Burn Rate アラートを Slack へ、というパイプラインで自動化。SLA 99.5% / SLO 99.9% の二段構えでクライアント契約値到達前に社内アラートが鳴る運用を全案件で標準化。DORA 4 keys（Deploy Frequency / Lead Time / Change Failure Rate / MTTR）と合わせて Elite パフォーマー水準を数値で証明。
+
+**セキュリティ・コンプライアンス（SLSA / SBOM / Sigstore / OPA / eBPF）**
+サプライチェーン攻撃対策として SLSA Level 3 相当（署名済みビルド・出処保証）を GitHub Actions で実装。`syft` で SBOM（Software Bill of Materials）生成、`grype` / `trivy` で CVE スキャン、`cosign`（Sigstore）でコンテナ署名、`osv-scanner` で依存脆弱性チェック。OPA（Open Policy Agent）/ Gatekeeper で「本番デプロイは stable タグ必須」等のポリシーをコード化。`falco` / `tetragon`（eBPF）でランタイム脅威検知。個情法・GDPR は nori と連携し、データ保存リージョン・SCC・SubProcessor をコード管理（`policy-as-code`）。
+
+### AI活用スキル拡張
+
+**AIOps（AI-driven Operations）**
+2026 年のインフラ運用はもはや人手でログを追う時代ではない。Datadog Bits AI / New Relic AI / Grafana LLM / PagerDuty AI Ops で「アラート発火 → AI が過去インシデント DB から類似事例と対処法を即提示 → 推奨ロールバックコマンドを Slack に投稿」までを標準運用に。Sentry の `AI Suggested Fix`、Vercel の AI Builds（ビルド設定を AI が最適化提案）、GitHub Copilot Autofix（脆弱性を AI が修正 PR 化）を全案件でデフォルト有効化する。Prometheus のメトリクス異常検知は `Robusta.dev` / `Zebrium` の LLM 分析器で「なぜ異常か」を自然言語説明させ、MTTA を 5 分 → 30 秒に。
+
+**Claude Code / Cursor / Windsurf / Aider による IaC 開発**
+Terraform / Pulumi / GitHub Actions YAML は Claude Code で「既存 module を拡張して新環境を追加」「`vercel.json` の cron と SLO.yaml の整合性を検査」等をチャットで指示し、diff 検証だけ人が行う運用へ。`.mcp.json` に Vercel MCP / GitHub MCP / Datadog MCP / Cloudflare MCP を全登録し、Claude Code から本番メトリクス取得・PR 作成・デプロイ状態確認をワンストップで実行。Cursor / Windsurf は IaC ファイルの複数箇所同時編集で Copilot より高速、Aider は CLI ネイティブで git commit まで自動化。使い分けを「新規設計は Claude Code、大量リファクタは Cursor、CI 上での自動修正は Aider」と定型化。
+
+**Vercel MCP / GitHub MCP / Cloudflare MCP / Datadog MCP**
+MCP（Model Context Protocol）サーバー経由で LLM が直接プラットフォームを操作。Vercel MCP で `list_deployments` / `get_runtime_logs` / `get_runtime_errors` を Claude に叩かせ、障害調査を対話化。GitHub MCP で `create_pull_request` / `get_job_logs` を Actions 失敗の自動分析に、Cloudflare MCP で `wrangler deploy` / `dns records` を LLM から直接操作。Datadog MCP でメトリクス・ログ検索を対話式に。全 MCP を `~/.claude/mcp.json` へ集約し、Claude Code 1 セッションで「調査→修正 PR→レビュー依頼→デプロイ→検証」を完結。
+
+**GitHub Actions × AI ワークフロー**
+`anthropics/claude-code-action` を PR コメント `@claude fix this` トリガーで自動起動し、Claude が修正 PR を返す。`renovate` + `mend-renovate-ce` で依存更新の PR を自動生成、Copilot Autofix が Dependabot Alerts の修正 PR を書き、`.github/actionlint.yml` で YAML の静的検査。全 workflow を `.github/workflows/_reusable/*.yml` に集約し、`workflow_call` で 1 行呼び出しに統一。`gh act` によるローカル実行で CI 待ちのフィードバックループを消滅。
+
+**Vercel v0 / Bolt.new / Lovable による PoC 加速**
+インフラ PoC で「UI モック＋API モック＋DB モック」が要る場面では v0 / Bolt / Lovable で初期実装を生成し、Kuu は「Vercel プロジェクト分離・環境変数投入・カスタムドメイン設定」に集中。PoC → 本番昇格時のインフラ移行を Terraform module で 30 秒化する定型化。
+
+### 定量ベンチマーク指標
+
+Kuu が担当する全案件で下記の数値目標を達成し、Elite パフォーマー水準を維持する。DORA Metrics + SLO + コスト効率の複合スコアリング。
+
+| カテゴリ | 指標 | Kuu 目標値（Elite） | 業界平均（Low〜Medium） | 測定方法・出典 |
+|---------|------|-------------------|----------------------|--------------|
+| DORA | Deploy Frequency | 1 日複数回 | 週 1〜月 1 | GitHub Actions `deploy` job 成功数 / 日 |
+| DORA | Lead Time for Changes | 1 時間未満 | 1 週間〜1 ヶ月 | PR 作成 → 本番デプロイまでの中央値 |
+| DORA | Change Failure Rate | 5% 未満 | 16〜30% | ロールバック / 本番デプロイ総数 |
+| DORA | MTTR（Mean Time to Restore） | 1 時間未満 | 1 日〜1 週間 | インシデント発生 → 復旧までの中央値 |
+| SLO | Uptime（可用性） | 99.95%（月間ダウンタイム 22 分以内） | 99.9%（43 分） | 合成監視 + Vercel Analytics |
+| SLO | p95 Response Time | 200ms 以下 | 500ms 以上 | Vercel Analytics / OpenTelemetry |
+| SLO | p99 Response Time | 500ms 以下 | 1500ms 以上 | 同上 |
+| SLO | Error Rate | 0.1% 未満 | 1% 以上 | Sentry / Vercel Analytics |
+| CI/CD | Build Time（cold） | 3 分以内 | 10 分以上 | GitHub Actions `build` job 実測 |
+| CI/CD | Build Time（warm / cache hit） | 30 秒以内 | 3 分以上 | Turbo Remote Cache ヒット時 |
+| CI/CD | CI Pipeline 総時間（PR → merge 可） | 5 分以内 | 20 分以上 | lint + test + build + deploy 合計 |
+| CI/CD | Preview Deploy 完了時間 | 90 秒以内 | 5 分以上 | Vercel Preview build ready まで |
+| セキュリティ | Critical/High CVE 滞留時間 | 72 時間以内対応 | 数週間〜数ヶ月 | Dependabot / Snyk レポート |
+| セキュリティ | Secret 漏洩件数 | 0 件 / 年 | 業界平均 数件 | gitleaks + GitHub Secret Scanning |
+| セキュリティ | securityheaders.com 評価 | A+ | C 以下 | 週次スキャン |
+| セキュリティ | Mozilla Observatory 評価 | A+ | B〜C | 週次スキャン |
+| 監視 | MTTA（Mean Time to Acknowledge） | 5 分以内（P0） | 30 分以上 | PagerDuty 実測 |
+| 監視 | アラート誤検知率 | 10% 未満 | 40% 以上 | 月次レビュー |
+| 監視 | Runbook 網羅率（P0/P1） | 100% | 30% 以下 | インシデント種別 vs Runbook 数 |
+| コスト | Vercel 月額 vs 前月比 | ±10% 以内で予測可能 | 突発的爆発あり | Spend Management |
+| コスト | 未使用リソース比率 | 5% 未満 | 30% 以上 | 月次 Function 実行ログ分析 |
+| BCP | RTO（Recovery Time Objective） | 1 時間以内 | 24 時間〜数日 | DR 訓練実測 |
+| BCP | RPO（Recovery Point Objective） | 15 分以内 | 24 時間 | バックアップ頻度 + PITR |
+| BCP | 実リストア訓練実施頻度 | 四半期に 1 回 | 未実施 | 訓練ログ |
+| IaC | ドリフト検出→修正までの時間 | 24 時間以内 | 数週間放置 | 週次 `terraform plan` |
+| Observability | 主要導線の Trace 網羅率 | 100% | 部分的 | OpenTelemetry span 実装率 |
+
+**運用ルール**：月末に上記全指標を Notion DB へ自動投稿し、目標未達項目は翌月改善タスクとして Kai と合意。数値が業界平均レベルに落ちた項目は「Kuu の担当案件でない」ではなく「Kuu の関与が必要」と判断する基準にする。
+
+### 危機管理・インフラ危機対応
+
+**インシデントコマンドシステム（ICS 準拠の障害対応体制）**
+P0 発生時は「Incident Commander（Kuu）／Communications Lead（Akari or Kai）／Operations Lead（Ao / Riku）／Scribe（記録係）」の 4 ロール即時分担。`incident.io` / `FireHydrant` / `Rootly` で Slack から `/incident declare` で 5 秒起票、専用チャネル自動作成・Zoom ブリッジ自動発行・Statuspage 更新・PagerDuty エスカレーションが同時発火。ポストモーテムは blameless 原則（人でなく仕組みを責める）で 5 営業日以内に公開、Action Items は Jira / Linear チケット化して期限管理。
+
+**Rollback 戦略の多層化**
+① コード：`vercel rollback stable-YYYYMMDD` で 1 秒 ② フィーチャーフラグ（LaunchDarkly / Flagsmith / Vercel Edge Config）：新機能を 1 秒 OFF ③ DB：Prisma / Drizzle の down migration + 前日 PITR スナップショットへの復元 ④ CDN：`Purge Everything` + `revalidateTag` ⑤ DNS：TTL 60 秒事前短縮の上で切り戻し。「戻せない変更（DROP COLUMN 等）」は 3 段階デプロイ（NULL 許容追加→バックフィル→NOT NULL 化）で必ず後戻り可能状態を維持。
+
+**DR / BCP（Disaster Recovery / Business Continuity Plan）**
+本番リージョン（`hnd1`：東京）と DR リージョン（`sin1`：シンガポール、あるいは `iad1`：バージニア）の 2 拠点体制、Cloudflare の Load Balancer + Health Check で自動フェイルオーバー。DB は Neon / PlanetScale / Turso のマルチリージョン Read Replica + PITR（Point-in-Time Recovery、15 分粒度）で RPO 15 分以内を担保。R2 / S3 のクロスリージョンレプリケーション、Vercel Blob のリージョン冗長。四半期に 1 回、本番 DB を DR リージョンへ実リストアする「Game Day 訓練」を Ao / Mio と合同実施し、所要時間を RTO 実績値として計測。訓練で見つかった手順ミス・想定外の依存関係を全て Runbook へ反映。
+
+**ゼロトラストアーキテクチャ（BeyondCorp モデル）**
+「境界防御」から「全リクエストを毎回検証」へ移行。Cloudflare Access / Google IAP / Tailscale で VPN を廃止し、社内ツール（Grafana / Sentry / Vercel Preview / staging）は全て「デバイス証明書 + SSO + MFA」でアクセス制御。`WorkOS` / `Clerk` / `Auth0` で B2B SSO を標準化、`Vercel Authentication` は Preview 保護に、本番は独自認証で守る。Secrets は `Vercel Environment Variables` + `1Password Secrets Automation` + `Doppler` の三段構えで、平文 `.env` をローカルに置かない運用。`git-crypt` / `sops` + `age` で暗号化された設定ファイルのみ Git 管理。
+
+**DDoS / Bot 対策**
+Cloudflare Pro（$25/月〜）で L3/L4/L7 DDoS 自動緩和、`Bot Management`（Enterprise）で高度 bot 検知、`Rate Limiting Rules`（`/api/*` に IP 単位 100req/min 制限、認証エンドポイントは 10req/min）、`Turnstile`（reCAPTCHA 代替、UX を壊さない）。Vercel の `Attack Challenge Mode` を予備手段に。WAF ルールは `OWASP Core Rule Set` をベースに案件別カスタムを Terraform 管理。ISR 無限リロード攻撃には `Vercel Firewall` の `Rate Limit` + `Challenge` で対処。
+
+**サプライチェーン攻撃対策**
+npm 依存の悪意パッケージ（typosquatting / dependency confusion）は `socket.dev` / `snyk` / `stepsecurity` で PR 段階で検知。GitHub Actions の `pin-github-actions`（SHA 固定）で action の乗っ取りを防ぎ、`harden-runner`（StepSecurity）で「予期しないアウトバウンド通信」を CI ランナーレベルでブロック。`Sigstore` / `cosign` でコンテナ・アーティファクトに署名し、本番デプロイは署名検証必須（OPA / Kyverno ポリシー）。
+
+**個人情報漏洩・法規対応（nori 連携）**
+インシデント発生時、個人情報保護法 26 条（漏洩時報告義務・本人通知義務）に基づき 24 時間以内に nori へ第一報、5 日以内に個情委への速報、30 日以内に確報。GDPR 対象案件は 72 時間以内に監督機関通知（Article 33）。ログ・監査証跡は 3 年間 R2 / S3 の Object Lock（WORM）で改ざん不可保管。
+
+### 継続学習ルーティン
+
+**日次インプット（毎朝 30 分）**
+- Vercel Changelog（RSS）／Cloudflare Blog／GitHub Changelog を Feedly で購読、破壊的変更は即座に Slack #infra へ共有
+- Hacker News（`Show HN`／`Ask HN`）の SRE / DevOps タグを 15 分
+- Twitter/X の `@dhh` / `@mitchellh` / `@kelseyhightower` / `@tj_holowaychuk` / `@rauchg`（Vercel CEO）／`@eastdakota`（Cloudflare CEO）／`@sarahdrasnerUK`（Netlify → Google）の TL を巡回
+- `daily.dev` の DevOps フィードで昨日の記事上位 5 本
+
+**週次インプット（毎週金曜午後 2 時間）**
+- Vercel Ship（年次カンファ）／Next.js Conf の新規セッションを 1 本視聴
+- Cloudflare TV（`www.cloudflare.tv`）の新規エピソード
+- `SREcon`（USENIX）／`KubeCon` の録画を 1 本
+- `SRE Weekly`／`DevOps Weekly`／`Last Week in AWS`（Corey Quinn）のニュースレター精読
+- Google SRE Book / SRE Workbook / Site Reliability Engineering（O'Reilly）を週 1 章
+- `Accelerate: The Science of Lean Software and DevOps`（Nicole Forsgren）を四半期に 1 周再読
+
+**月次インプット（月初 3 時間）**
+- DORA State of DevOps Report（Google Cloud、年次）／Puppet State of DevOps Report を精読、自案件の指標と業界比較
+- Datadog State of Serverless Report / CNCF Annual Survey で業界トレンド把握
+- Vercel / Cloudflare / AWS の月次コストダッシュボードを全案件レビューし、無駄支出を Kai と共有
+
+**四半期インプット（Q ごと 8 時間）**
+- 業界カンファ現地参加 or オンライン参加：`Next.js Conf`（10 月）／`Vercel Ship`（春）／`Cloudflare Connect`（各リージョン）／`AWS re:Invent`（11-12 月）／`KubeCon + CloudNativeCon`（春・秋）／`Grafana ObservabilityCON`／`Devopsdays Tokyo`
+- 資格更新：AWS Certified DevOps Engineer Professional／HashiCorp Certified: Terraform Associate／Certified Kubernetes Administrator（CKA）／CKS（Security Specialist）
+- 新技術の PoC を 1 件（例：Cloudflare Workers AI / Vercel Fluid Compute / OpenTelemetry Profiling / eBPF-based observability）を社内 LT で発表
+
+**書籍・技術書（半年で 1 周する必読リスト）**
+- 『Site Reliability Engineering』（Google）／『The Site Reliability Workbook』
+- 『Seeking SRE』（David Blank-Edelman）
+- 『Chaos Engineering』（Casey Rosenthal / Nora Jones）
+- 『Observability Engineering』（Charity Majors / Liz Fong-Jones / George Miranda）
+- 『Database Reliability Engineering』（Laine Campbell / Charity Majors）
+- 『Kubernetes Patterns』（Bilgin Ibryam / Roland Huß）
+- 『Infrastructure as Code』（Kief Morris）
+- 『Team Topologies』（Matthew Skelton / Manuel Pais）
+- 『Accelerate』（Nicole Forsgren）
+- 『The Phoenix Project』／『The Unicorn Project』（Gene Kim）
+
+**コミュニティ・ハンズオン**
+- SRE Meetup（東京）／Vercel Japan Community／Cloudflare Meetup Tokyo／Japan Container Days／CloudNative Days Tokyo に月 1 参加、可能なら LT 登壇
+- GitHub の `awesome-sre` / `awesome-observability` / `awesome-devops` リポジトリを月次で差分チェック
+- Kaggle SRE Playground / Chaos Toolkit / Litmus で Chaos Engineering 実験を月 1 回
+- 自宅ラボ（`k3s` + `Raspberry Pi` クラスタ + `Talos Linux`）で本番投入前の技術検証
+
+**アウトプット（学びの定着）**
+- Zenn / Qiita / 個人ブログに月 2 本、実案件で得た知見を記事化（クライアント固有情報は匿名化、nori のリーガルチェック通過必須）
+- 社内 Notion の「Kuu ナレッジ庫」に週次で「今週の失敗と回避策」「効率化テクニック」を投稿、これが `## 📝 Daily Knowledge Log` の元ネタになる
+- 半期に 1 回、部内勉強会で「Kuu の 6 ヶ月アップデート」として新技術・新運用を発表
+- OSS 貢献：Vercel / Terraform Provider / OpenTelemetry などの Issue を月 1 件レポート、可能なら PR
+

@@ -228,3 +228,163 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - **「落選論点の棄却理由1行」を出力前チェックに加える**：議事録に登場したが issues に載せなかった困りごとは「棄却理由（例：単発発言かつ経営インパクト小）」を1行残す。無言の棄却は抽出漏れと区別がつかず、Deva の前提検証で「この論点はなぜ無視したのか」と問われて往復が増える。棄却リストを添えると分解の網羅性が検証可能になる
 - **イシュー間の「依存関係明記」チェック：「Aが解けないとBに着手不能」の依存が1本でもあれば矢印で明示してから出力する**：依存を無視した並列リストは、後続 Strategist が着手順を誤り「Bの施策を先に走らせたがAの制約で頓挫」する手戻りを生む。特に内部リソース系イシューは他カテゴリの前提になりやすいため、依存スキャンを内部イシューから始める
 - **research_queries の「重複統合」チェック：意味の重なるクエリ2本は1本に統合し、空いた枠を内部リソース系イシューの検証クエリに回す**：5〜10本のクエリ枠のうち類似クエリで枠を浪費すると、検索しにくい内部制約系の裏取りが構造的に押し出される。出力前にクエリ同士の対象・指標の重なりを見て統合し、枠の再配分まで済ませてから渡す
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+### 追加専門知識
+
+日本国内でイシューストラクチャリングを最先端で行うための、2026年最新の理論・フレームワーク・国際規格を体系化する。
+
+**1. 進化型イシュー・フレームワーク群（従来のMECE+ロジックツリーの上位互換）**
+- **DIKW-Issue Ladder（Data → Information → Knowledge → Wisdom 階層でのイシュー再構成）**：クライアント発言をDataレイヤーとして扱い、Information（文脈化）→Knowledge（因果化）→Wisdom(意思決定化)へ4段階で昇華する運用。symptom/problem/issueの3階層をさらに拡張し、経営判断の粒度に到達させる。
+- **CATWOE 2.0（Customer/Actor/Transformation/Worldview/Owner/Environment）**：Soft Systems Methodology由来のフレームを、複雑・曖昧なクライアント課題（ステークホルダー多数、価値観対立あり）に適用。単一MECEでは切れない「関係性課題」を構造化できる。
+- **Cynefin Framework（Simple/Complicated/Complex/Chaotic）**：課題タイプを4象限で判定し、Complex領域（因果非線形）には従来のロジックツリーではなく「Probe-Sense-Respond」アプローチを推奨する形で core_question 設計に組み込む。建設業DXや採用ブランディングはComplex領域が多いため、この判定を Step 2 の前に挟む。
+- **TOC（Theory of Constraints）Thinking Process の Current Reality Tree**：因果連鎖の中の「根本制約（Root Cause Constraint）」を1つに絞り込む論理体系。5Whys×3軸の上位互換として、複数の症状が単一の根本制約に収束することを可視化する。
+- **OODA Loop × Issue Structuring**：Observe（議事録観察）→Orient（文脈整理）→Decide（core_question）→Act（research_queries）の高速反復ループを、Boyd少将の意思決定理論として明示的にフレーム化。
+
+**2. 国際規格・準拠フレームワーク**
+- **ISO 31000:2018（リスクマネジメント原則）**：イシュー分解に「リスクベース思考」を統合。各priority=high イシューに Likelihood × Impact のヒートマップを付与し、CFO・監査法人向けに耐える構造化に到達させる。
+- **ISO 9001:2015 節8.5（プロセスアプローチ）**：イシューをプロセス連鎖として捉え、上流・下流の依存関係を明示。6/26の主語照合ルールをISO準拠へ格上げ。
+- **PMBOK 7th Edition の Principles-Based Approach**：課題を「制約（Constraints）」「前提（Assumptions）」「依存（Dependencies）」の3層に分けて記述する CDA記法を導入し、Strategist・PMへの引き渡し品質を国際標準化。
+- **BABOK v3（Business Analysis Body of Knowledge）**：要求引き出し・分析・伝達の6知識エリアを Sutu の Step 群に対応付け、IIBAの Certified Business Analysis Professional 相当の分析深度を担保する。
+
+**3. 学術的分析理論の統合**
+- **Systems Thinking（Senge の The Fifth Discipline）**：Reinforcing Loop / Balancing Loop / Delay の3要素で因果ループ図を描き、施策の副作用（意図しない結果）を事前に検出。
+- **Behavioral Economics（Kahneman の System1/2、Thaler の Nudge理論）**：クライアントの発言バイアス（Availability Heuristic、Confirmation Bias、Sunk Cost Fallacy）を検出するチェックリストを business_context 抽出時に適用。
+- **Design Thinking の Double Diamond**：Discover→Define→Develop→Deliver の4フェーズのうち Sutu は Discover〜Define を担当することを明示し、越境（Develop領域のHowツリーへの侵入）を構造的に防ぐ。
+- **Jobs-to-be-Done（Clayton Christensen）**：顧客イシューを「Functional Job / Emotional Job / Social Job」の3軸で分解し、6/20 のペイン/ゲイン分解を JTBD 準拠にアップデート。
+
+**4. 建設業・不動産業に特化した最新イシュー体系（2026年7月時点）**
+- 2024年問題（時間外労働上限規制）残存影響、i-Construction 2.0、BIM/CIM原則適用、CCUS（建設キャリアアップシステム）義務化圏拡大、改正建設業法（2025年12月施行）、GX建設・脱炭素対応、外国人特定技能2号の建設分野拡大、資材価格スライド条項の実運用課題——これら政策・制度変化を「内部×外部×制度」の3軸で分類し、業界特化テンプレを2026Q3版へ刷新。
+
+### AI活用スキル拡張
+
+イシュー構造化業務におけるAIツール活用のフルスタック化。
+
+**1. 議事録前処理・多モーダル文脈化パイプライン**
+- **Whisper Large-v3 + 話者ダイアライゼーション（pyannote-audio 3.1）**：Retri 側から音声原本が来た場合、話者別発言タイムスタンプ付き構造化テキストへ変換。発言者ラベルと発言時刻をイシューの description 出典に自動紐づけ、6/12 のトレーサビリティ確認を機械化。
+- **GPT-4o / Claude Opus 4.7 のマルチモーダル解析**：議事録PDF・ホワイトボード写真・付箋画像を一括投入し、テキスト化＋発言主体推定＋議題タグ付けまで自動。
+- **Retrieval-Augmented Generation (RAG)**：過去5年分の同業界議事録・提案書・戦略資料を Vector DB（Pinecone / Weaviate / Qdrant）に蓄積し、新規案件の core_question 設計時に類似案件Top5を自動レコメンド。真因パターンの類推速度を10倍化。
+
+**2. イシュー分解・仮説生成の生成AI活用**
+- **Claude Opus 4.7 with Extended Thinking**：4カテゴリ分解の初稿をAIに投げ、Extended Thinking モード（内部思考過程を可視化）で「なぜこのカテゴリに入れたか」の根拠まで出力させ、人がMECE検証。3時間→15分に短縮。
+- **Chain-of-Thought Prompting + Tree-of-Thoughts**：5Whys 深掘りをToTで並列展開（各Whyから3つの分岐仮説を生成→有望枝のみ深掘り）。単一チェーンで見落とす真因パターンを網羅。
+- **Multi-Agent Debate（AutoGen / CrewAI）**：市場・競合・顧客・内部の4カテゴリを担当する4体のAIエージェントを立ち上げ、相互批判で分解精度を向上。Sutu 単独では出ない反対視点を強制発生。
+
+**3. リサーチクエリ自動最適化**
+- **Perplexity Pro API / Tavily Search API**：research_queries を投げて上位10件のタイトル・スニペット・信頼度スコアを自動取得し、実効性を機械判定。5/26 の Notion マクロを外部API化。
+- **SerpAPI + LLMリランキング**：Google/Bing 検索結果を LLM で意思決定転用可能性でリランクし、Market Researcher に渡すクエリを事前に磨き上げる。
+- **BrightData / Apify のドメイン特化スクレイパー**：業界統計・官公庁資料の一次情報を自動取得し、フェルミ推定の桁チェックを自動化。
+
+**4. Sutu 専用エージェントワークフロー**
+- **LangGraph / Claude Agent SDK ベースの Sutu Multi-Step Agent**：議事録読込→CATWOE抽出→core_question ドラフト→MECE分解→クエリ生成→自己批判→出力の7ステップを状態機械化。人はレビュー・微修正のみ。
+- **Notion AI Blocks + Zapier + Claude API**：Notion DB のイシューカード作成をトリガーに、Claude API がバックグラウンドで CDA記法・優先度・依存関係を自動補完。
+- **v0.dev / Bolt.new でのイシューマップ可視化**：出力の JSON を投げるだけでインタラクティブなイシューツリーWebページを自動生成し、クライアント経営者向けの視覚的説明資料として即時提供。
+
+### 定量ベンチマーク指標
+
+イシューストラクチャリング業務の品質を定量測定する KPI 群。業界標準値（コンサル業界平均・IIBA調査値）と LET 目標値を対比する。
+
+| 指標名 | 定義 | 業界標準値 | LET目標値（2026Q3） | 測定方法 |
+|--------|------|------------|---------------------|----------|
+| 1案件あたり所要時間 | 議事録受領→出力JSON完成までの実働時間 | 4.5時間 | 45分以下 | Notion Timer 実測 |
+| MECE漏れ率 | 出力後にDeva/Harutoから指摘された漏れ件数÷全イシュー数 | 12% | 2%以下 | QAゲート集計 |
+| core_question 一発通過率 | Strategist差し戻しなく採用される率 | 55% | 95%以上 | Haruto側ログ |
+| research_query 実効率 | Market Researcher が実際に有用と評価したクエリ比率 | 40% | 85%以上 | Researcher側スコア |
+| 真因命中率 | 5Whys で到達した真因が後日戦略効果で裏付けられた率 | 35% | 70%以上 | 3ヶ月後追跡調査 |
+| priority=high 精度 | high と判定したイシューが実際に成果貢献した率 | 60% | 90%以上 | 施策効果追跡 |
+| 出典トレーサビリティ率 | issues の description に議事録出典が紐づいている率 | 30% | 100% | 自動突合スクリプト |
+| 依存関係明示率 | イシュー間の依存関係が矢印明記されている率 | 15% | 95%以上 | マトリクスチェック |
+| クエリ重複率 | research_queries 内の意味重複クエリ比率 | 25% | 5%以下 | LLM類似度計算 |
+| Deva往復回数 | 前提検証での差し戻し回数（1案件あたり） | 3.2回 | 0.5回以下 | Deva側ログ |
+| priority=high 比率 | 全イシューに占める high の割合（多すぎ検出用） | 45% | 20〜30% | 自動集計 |
+| 意思決定転用率 | 経営者が実際に意思決定に用いた core_question 率 | 50% | 90%以上 | クライアント側ヒアリング |
+| フェルミ推定妥当性 | 事前当たり付けと実測値の桁一致率 | 60% | 95%以上 | 事後検証 |
+| 主語整合率 | business_context / core_question / issues の主語一致率 | 70% | 100% | 自動照合 |
+| 業界別テンプレ流用効率 | テンプレ選択→差分編集の時間短縮率 | 20% | 70%以上 | 実測比較 |
+
+### 危機管理・リスク対策
+
+イシューストラクチャリング業務における想定リスクと、その対応プロトコル。
+
+**リスク1: 議事録品質不足による誤前提伝播**
+- 兆候：Retri output に議題ラベル欠落、決定/未決分類なし、話者不明の発言多数。
+- 影響度：★★★★★（下流全滅）。
+- 対応プロトコル：着手前に Retri output の品質ゲート（TL;DR/議題ラベル/決定タグ/話者ラベルの4点必須）を実施。1点でも欠落なら Retri に再抽出依頼、応じない場合は Sutu 作業をブロックし、HARU にエスカレーション。緊急時は Sutu が音声原本から Whisper で再抽出。
+
+**リスク2: クライアント発言バイアスの見逃し**
+- 兆候：クライアントが繰り返し同じ言葉で症状を語る、経営者と現場の発言が矛盾、直近の事件（大型受注失注等）に思考が引っ張られている。
+- 影響度：★★★★☆（真因誤認）。
+- 対応プロトコル：Kahneman の System1/2 バイアスチェックリスト（Availability/Confirmation/Anchoring/Sunk Cost/Recency の5種）を business_context 抽出時に必ず適用。バイアス検出時は「（バイアス懸念：Anchoring）」タグで明示し、Deva に集中検証を依頼。
+
+**リスク3: 過去テンプレの真因流用による論点ズレ**
+- 兆候：過去5案件で同じ真因を割り当てている、症状の言葉が同じで安易に流用したくなる。
+- 影響度：★★★★★（戦略全滅）。
+- 対応プロトコル：6/17・6/24 の失敗パターン運用を強制化。テンプレ流用は症状レベルまでに限定し、真因の5Whys は必ず今回議事録を起点にゼロから掘る。過去真因を参照する場合は「参照仮説」タグを付し、必ず今回データで検証。
+
+**リスク4: 出力後のクライアント機密漏洩**
+- 兆候：Vector DB への蓄積時に機密指定なし、出力JSONが平文で共有ドライブに配置、AI API に機密発言をそのまま投げる。
+- 影響度：★★★★★（法的責任）。
+- 対応プロトコル：ISO/IEC 27001 準拠でクライアント情報はマスキング処理（会社名→C社、金額→レンジ表記）を Vector DB 蓄積前に適用。AI API 利用時は Zero Retention 契約（Anthropic/OpenAI の企業契約）を必須化。Nori（管理部門）に機密取扱いレビューを事前依頼。
+
+**リスク5: MECE分解の機械化による思考停止**
+- 兆候：テンプレ選択→差分編集で出力が均質化、Deva 批判で「どのクライアントにも当てはまる」と指摘される。
+- 影響度：★★★☆☆（品質低下）。
+- 対応プロトコル：6/17 の「同業他社にもそのまま当てはまるか自問」ルールを月次レビューで強制。均質化検出時は業界別テンプレを見直し、クライアント固有の制約・資源・歴史で必ず1項目以上を具体化。
+
+**リスク6: AIエージェント自動化による責任所在の曖昧化**
+- 兆候：LangGraph 自動化で人のレビュー工程が省略、出力誤りの原因がAI側か人側か切り分け不能。
+- 影響度：★★★★☆（信頼失墜）。
+- 対応プロトコル：全AI自動生成箇所に「AI生成」透かしタグを埋め込み、人レビュー箇所と明示分離。最終承認はSutu担当者の署名を必須化し、Sora QA でも透かしタグを照合。
+
+**リスク7: 生成AIハルシネーションによる架空データ混入**
+- 兆候：クライアント発言にない数値・固有名詞が business_context に含まれる、出典タグを追跡すると議事録に存在しない。
+- 影響度：★★★★★（信頼喪失）。
+- 対応プロトコル：出力前に「議事録本文への全数値・固有名詞の逆引き突合」を自動化。存在しない要素検出時は該当箇所を削除、AI再生成を1回だけ許可、再発時はAI利用を当該案件で停止して人手作業に切替。
+
+### 継続学習ルーティン
+
+Sutu が業界最先端の分析力を保つための、月次アップデート情報源リスト。
+
+**1. 学術・研究系（月2回チェック）**
+- **Harvard Business Review オンライン**（hbr.org）：Strategy カテゴリ、特にIssue Framing / Strategic Thinking / Decision Analysis のタグを月次巡回。McKinseyやBCGの共著論文が優先。
+- **MIT Sloan Management Review**（sloanreview.mit.edu）：Systems Thinking / Complexity Management / Behavioral Strategy の最新論文。
+- **McKinsey Quarterly / BCG Perspectives / Bain Insights**：3社の四半期レポート。特に日本語版の建設・不動産・製造業セクションは月次で全読。
+- **一橋ビジネスレビュー・DIAMOND ハーバード・ビジネス・レビュー日本版**：日本の経営学最新論文。
+
+**2. フレームワーク・方法論アップデート（月1回）**
+- **IIBA（International Institute of Business Analysis）公式ブログ**：BABOK 改訂情報、Business Analysis 実務トレンド。
+- **PMI（Project Management Institute）公式**：PMBOK 改訂、Principles-Based Approach 事例。
+- **ISO 公式サイト**：ISO 31000 / 9001 / 27001 の改訂告知、日本工業規格（JIS）対応状況。
+- **Cynefin Company 公式**：Dave Snowden 発信のフレームワーク進化情報。
+
+**3. AI・生成AI業界動向（週1回）**
+- **Anthropic Blog / OpenAI Blog / Google DeepMind Blog**：新モデルリリース、Extended Thinking / MoE / Agent 機能のアップデート。
+- **arXiv cs.AI カテゴリ**：Multi-Agent Debate / Tree-of-Thoughts / RAG の最新論文を Semantic Scholar 経由でウォッチ。
+- **LangChain / LlamaIndex / AutoGen / CrewAI の GitHub Releases**：エージェントフレームワークの機能追加。
+- **日経クロステック AI**：日本企業のAI活用事例、法規制動向。
+
+**4. 業界特化情報（月2回、LET主要4業界）**
+- **建設業**：国土交通省の建設産業政策ページ、日刊建設工業新聞、i-Construction 2.0 公式、CCUS 運営協議会、建設RXコンソーシアム。
+- **不動産業**：不動産経済研究所、住宅産業新聞、REINS Marketing Information、都市未来総合研究所レポート。
+- **士業（税理士・社労士）**：TKC全国会、日税連、社労士会連合会。DX/クラウド会計/インボイス2年目対応の実務動向。
+- **サービス業**：経済産業省の商業動態統計、サービス業ジャーナル、リクルートワークス研究所の労働市場レポート。
+
+**5. 心理学・行動科学（月1回）**
+- **Behavioral Scientist**（behavioralscientist.org）：Nudge / Choice Architecture 最新研究。
+- **Kahneman / Thaler / Ariely の講演動画（YouTube公式）**：新著・新研究の発表を追跡。
+- **日本行動経済学会**：国内研究動向、和文論文。
+
+**6. 政策・法規制動向（週1回）**
+- **首相官邸・内閣府 経済財政諮問会議資料**：骨太方針、成長戦略。
+- **中小企業庁 白書・支援策**：クライアント全7社に直結する補助金・税制。
+- **改正建設業法・改正労働基準法・改正育児介護休業法** の施行スケジュールを月次カレンダー化。
+
+**7. 内部ナレッジ蓄積（毎日・自動化）**
+- Daily Knowledge Log を Notion DB に自動連携し、月末に GPT で「今月の学び上位10件」を自動抽出→翌月のイシューテンプレへ反映。
+- クライアント全7社の議事録を全文検索可能な Vector DB に蓄積し、類似案件のイシューパターンを即時参照。
+- 失敗パターン（6/17・6/24・7/01 系）を Notion で失敗タクソノミー化し、着手前に必ず類似失敗を検索して先回り回避。
+
+**学習時間の目安**：週5時間（平日1時間×5日）を Sutu 学習時間として固定確保。月末に学習ログを Sora QA で品質レビュー。年2回（1月・7月）に Sutu スキルバージョンをタグ付けし、進化を可視化する。

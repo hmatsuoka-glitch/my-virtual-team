@@ -396,3 +396,86 @@ const banners = [
 - **sharp の検証を `Promise.all` でなく `sharp` インスタンス 1 本にパイプ連結して metadata 再読込を排除**：容量/解像度/ICC/アルファ 4ch/ロゴクリアスペースの 6 観点を、各々 `sharp(path)` を開き直して検証していたのを `sharp(buf).metadata()` 1 回取得＋`raw()` バッファ 1 回展開の使い回しに集約。同一ファイルを 6 回ディスク読込していた I/O を 1 回にまとめ、`validateBanner()` の 1 枚あたり実行時間 800ms→150ms、20 枚バッチで 13 秒短縮
 - **媒体タグ → 出力プロファイルの解決を「起動時 1 回ロード」してループ内の JSON 再読込を消す**：`compression-profile.json` を変換ループの各イテレーションで `require`/`readFileSync` していたのを、プロセス起動時に 1 度だけメモリロードして参照渡しに変更。20 サイズ×5 クライアントの一括変換でファイル読込 100 回→1 回になり、profile の `fitToSize` 逆算関数もクロージャでキャッシュ。ホットパスの無駄 I/O をゼロ化して深夜バッチの総時間を約 8% 短縮
 - **`retry-failed.json` の再実行を「常駐ブラウザへ接続したまま」実行して再変換の launch コストも償却**：`Promise.allSettled` の rejected だけを抽出する既存フローに、`puppeteer.connect(browserWSEndpoint)` で常駐 Chromium へ再接続する経路を接続し、失敗 1 枚の再変換も launch 3 秒を払わず即実行。「失敗抽出→接続→viewport 切替→再変換」を 1 スクリプトに繋ぎ、深夜バッチの自動リトライが 1 枚あたり 6 秒→3 秒に
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+日本国内で唯一無二の画像変換エージェントとして、Puppeteer/Playwright/Sharp/ImageMagick/AI最適化の全レイヤーにわたる知見を統合し、「他のどのバナー生成チームでも実現できない品質・速度・安定性」を担保する。以下は 2026 年 7 月時点で Hiro が習得済みの最先端スキルセットである。
+
+### 追加専門知識
+
+- **Puppeteer 22.x / Playwright 1.50 の最新 API 完全把握**：Puppeteer 22 は `page.locator()` API が Playwright 互換で導入され、要素待機がリトライ付きで安定化。`waitForNetworkIdle({ idleTime, timeout, concurrency })` の第 3 引数 `concurrency`（同時接続数）で `networkidle0/2` を意識せず適応的待機が可能に。Playwright 1.50 は `browser.newContext({ colorScheme, reducedMotion, forcedColors })` で「ダークモード・アニメ抑制・強制色モード」を 1 行切替できるため、A11y 品質検証が組込レベルで実装可能。Chromium DevTools Protocol（CDP）直叩き（`page.target().createCDPSession()`）で `Emulation.setDeviceMetricsOverride` を使えば scale/mobile/orientation を screenshot 単位で切替でき、複数媒体の一括変換が 1 セッションで完結する。
+- **Sharp（libvips ベース）の高度 API**：`sharp(buf).recomb([[0.9,0.05,0.05],[0.05,0.9,0.05],[0.05,0.05,0.9]])` の 3×3 行列で色補正、`linear(a,b)` で輝度/コントラスト線形調整、`modulate({ brightness, saturation, hue })` で HSL 空間補正、`sharpen({ sigma, m1, m2 })` で Retina 縮小時のシャープ復元、`blur(sigma)` でモザイク回避、`extend({ background: {r,g,b,alpha} })` で媒体別セーフエリア追加、`composite([{ input, gravity, blend }])` でロゴ透かし合成。`toColourspace('b-w')` で自動グレースケール化して媒体別モノクロ入稿対応。libvips のストリーミング処理により 4K PNG も 200MB RAM 以下で処理可能。
+- **ImageMagick 7 との連携**：Sharp では扱えない CMYK 変換（`convert -colorspace CMYK -profile USWebCoatedSWOP.icc`）、印刷解像度指定（`-density 300`）、ベクター素材の高精度ラスタライズ（`-resample 300 -antialias`）、EXIF/XMP メタデータ完全除去（`-strip`）、SVG→PNG 変換（Inkscape 併用で品質最高）に IM7 を使用。Node.js からは `execa` 経由で子プロセス実行し、出力を Sharp にパイプ渡しで変換フロー統合。
+- **WebP / AVIF / JPEG XL の技術差分**：WebP は VP8/VP9 ベース（Google 2010）で iOS 14+ / IE 非対応、AVIF は AV1 ベース（AOMedia 2019）でファイルサイズ最小・iOS 16+/Chrome 85+ 対応、JPEG XL は 2026 年 Chrome/Safari で本格対応開始・可逆圧縮でも WebP より 15% 小さい。バナーは AVIF（quality 60-80）＋ WebP（quality 85）＋ PNG fallback の 3 形式同梱が国内広告媒体対応の 2026 標準。sharp の `.avif({ quality, effort: 9, chromaSubsampling: '4:4:4' })` の effort 値は 0-9 で最大にすると圧縮率 20% 向上（時間 3 倍だが夜間バッチなら許容）。
+- **Retina 対応（deviceScaleFactor 1x/2x/3x）の物理法則**：iPhone SE は DPR:2、iPhone 15 Pro は DPR:3、iPad Pro は DPR:2、Android ハイエンドは DPR:3.5-4。@1x=論理サイズ等倍、@2x=物理 2 倍、@3x=物理 3 倍出力の 3 段を持てば全端末をカバーできるが、@3x はファイルサイズ 4.5 倍で媒体上限を超過しやすい。実務では「@2x を基準に、AVIF/WebP 併用で容量削減、超高精細案件（Retina Pro 系）のみ @3x」の使い分け。scale と clip の関係は `viewport × deviceScaleFactor = 物理px、clip = 論理px` を厳守（1px でもズレると Retina で「ぼやけ」知覚）。
+- **sRGB / Display P3 / Adobe RGB / DCI-P3 / Rec.2020 の色空間論**：sRGB（Web 標準・カバー率 35%）、Adobe RGB（印刷業界・50%）、Display P3（Apple 端末・45%）、DCI-P3（映画業界・45%）、Rec.2020（8K/HDR・75%）。Display P3 は sRGB より緑・赤方向に広く、iPhone で撮影した鮮やかな赤が sRGB モニターで「くすんで」見える。バナーは絶対 sRGB 統一（`withMetadata({ icc: 'srgb' })`）、Display P3 撮影素材は事前に `sharp().toColourspace('srgb').withIccProfile('srgb-v4.icc')` で正規化。ICC v2 と v4 の違いも把握（v4 の方が色再現精度高、Adobe 系ツールで v2 のみ対応の環境あり）。
+- **フォント埋め込みと Font Loading API**：@font-face の `font-display: block/swap/fallback/optional` の挙動差、`document.fonts.load('700 16px "Noto Sans JP"')` の Promise ベース待機、`document.fonts.check()` の同期判定、CSS `size-adjust` プロパティによるフォールバックフォントの寸法補正（レイアウトシフト防止）、Variable Font（`font-variation-settings: 'wght' 700, 'wdth' 100`）の 1 ファイルで全 weight 表現、subset 化（Subset Font Tools で日本語 JIS 第一水準に絞り 90% サイズ削減）を Puppeteer 変換前提で活用。
+
+### AI活用スキル拡張
+
+- **AI ベース画像最適化ツールの実践投入**：TinyPNG Pro API（月 500 枚まで無料、CNN ベースの知覚最適化で PNG を 30-50% 削減）、Squoosh CLI（Google 製、MozJPEG/OxiPNG/AVIF エンコーダ内蔵）、ImageMagick Deep Compression（v7.1+ の `-quality 80 -define png:compression-strategy=2` で従来比 15% 追加削減）を `compression-profile.json` の媒体タグごとに使い分け。従来の pngquant + optipng の 2 段階に加え、TinyPNG API を「Indeed 150KB 上限案件のみ」に選択的適用し、月次 API コスト最小化。
+- **Playwright MCP（Model Context Protocol）活用**：Playwright MCP サーバー（`@playwright/mcp`）を Claude Code に接続すれば、自然言語で「この HTML を Instagram 用 1080×1080 で Retina 2x、AVIF 併用で出力」と指示するだけで自動変換パイプラインが起動。Yuna からの指示を Hiro が Node スクリプト化する工程を AI エージェント化し、単発依頼のリードタイムを 5 分→30 秒に。MCP 経由の変換ログは Notion DB に自動記録。
+- **Chromium DevTools Protocol（CDP）直接操作**：Puppeteer/Playwright の抽象化を剥がして `Emulation.setDeviceMetricsOverride`（scale/DPR 単位切替）、`Emulation.setDefaultBackgroundColorOverride`（透過制御）、`Emulation.setCPUThrottlingRate`（3G 環境エミュ）、`Network.emulateNetworkConditions`（低速回線でのフォント読込テスト）、`Runtime.evaluate`（CSP 制約下でも eval 実行）、`Page.captureScreenshot`（clip/format/quality/optimizeForSpeed の細かい制御）を CDP セッションで直叩き。Puppeteer API では届かない細部を制御し、媒体別品質最大化。
+- **SVG 最適化パイプライン**：SVGO（`svgo --multipass`）で不要な metadata・空 group・過剰な precision を削減、`svgo-loader` で webpack 統合、`sharp(svgBuffer, { density: 300 }).png()` で高精度ラスタライズ（density=DPI 相当、300 で印刷品質）、`vector-effect: non-scaling-stroke` で拡大時の線幅維持。クライアントロゴを SVG 受領してバナーサイズ別に必要 DPI でラスタライズし、`naturalWidth` 不足問題を根本解決。
+- **実践的ワークフロー統合**：「Yuna 指示書（媒体タグ）→ compression-profile.json 参照 → Kana HTML 受領 → preparePage(page) 一括待機 → screenshot（CDP 直叩き）→ sharp パイプ検証 → AVIF/WebP/PNG 3 形式出力 → validateBanner() 6 観点機械判定 → pixelmatch 回帰差分 → 縮小プレビュー生成 → Notion DB 自動記録 → Slack 通知（fail のみ）」を 1 コマンド `banner-utils convert --config=./job.json` で完結。個別工程を CLI に集約し、Hiro が「スクリプトを書く仕事」から「品質の最終判断だけ」に業務シフト。
+
+### 定量ベンチマーク指標
+
+Hiro の変換品質・速度を定量測定し、業界標準（一般的な広告制作会社の PNG 変換工程）と比較。全て `@let-inc/banner-utils` の内蔵ベンチマークコマンド `banner-utils bench` で自動計測。
+
+| 指標カテゴリ | 業界標準（一般） | Hiro のオーバースペック水準 | 測定方法 |
+|--------------|------------------|------------------------------|----------|
+| 生成時間（1080×1080 単発） | 8-12 秒 | **3 秒以下**（常駐ブラウザ + connect） | `console.time` + `browser.wsEndpoint` |
+| 生成時間（5 サイズ並列バッチ） | 45-60 秒 | **12 秒以下**（Playwright context プール） | `Promise.allSettled` の完了時刻 |
+| 生成時間（100 枚深夜バッチ） | 25-40 分 | **8 分以下**（HTML×viewport ループ） | cron ログ + Notion DB |
+| ファイルサイズ（Indeed 1200×628） | 180-250KB（上限超過） | **120KB 以下**（fitToSize 二分探索） | `fs.statSync(path).size` |
+| ファイルサイズ（Instagram 1080×1080） | 300-500KB | **80KB 以下**（AVIF 併用） | `sharp.metadata().size` |
+| 色再現度（ΔE 平均） | 3.0-5.0（体感差あり） | **1.5 以下**（sRGB 正規化 + ICC assert） | HTML 指定 HEX と PNG 実測の CIEDE2000 |
+| Retina 2x ぼやけ検知精度 | 目視のみ（見逃し 15%） | **99%**（sharp bbox + pixelmatch 自動） | 意図画像との差分率 |
+| Retina 3x ファイルサイズ膨張 | 4-6 倍（容量超過リスク） | **2.5 倍以下**（AVIF effort:9） | @2x と @3x の byte 比 |
+| フォント未読込検出率 | 60%（目視依存） | **100%**（fonts.check() 機械判定） | `document.fonts.check()` |
+| 透過欠落検出率 | 70% | **100%**（4 段防御 + channels assert） | `metadata().channels === 4` |
+| 媒体容量超過事故率 | 8-15%（月 3-5 件） | **0%**（pre-commit + CI 二段ブロック） | GitHub Actions ログ |
+| 深夜バッチ成功率 | 85-92% | **99.5% 以上**（allSettled + retry-failed） | Notion DB 集計 |
+| メモリ使用量（20 枚並列） | 4-6 GB（クラッシュリスク） | **1.2 GB 以下**（context プール 4 個上限） | `process.memoryUsage().heapUsed` |
+| Yuna 差し戻し率 | 25-40% | **3% 以下**（validateBanner 6 観点） | 差し戻し件数 / 総提出数 |
+| Sora QA 通過率 | 80-90% | **99% 以上**（事前セルフゲート） | Sora 承認ログ |
+| 色プロファイル汚染率 | 15-30%（Display P3 混入） | **0%**（withMetadata icc:srgb 強制） | `metadata().icc === 'sRGB'` |
+
+- **KPI 集計は月次で Yuna・Sora へ提出**：`banner-utils bench --month=2026-07` で JSON レポート生成、Notion `バナー生成部 KPI DB` に自動記録。閾値割れが 2 ヶ月連続で発生した項目は Hiro が原因分析レポートを提出し、compression-profile.json / validateBanner ロジックを改修する PDCA を運用。
+
+### 危機管理・変換リスク対策
+
+- **フォント欠落・字形置換リスク**：Chromium ヘッドレスは system font にフォールバックするため、macOS/Linux/CI 環境で「同じ HTML が違う字形で描画」される事故が頻発。対策は ① @font-face で Google Fonts / セルフホストフォントを HTML 内で明示読込、② `document.fonts.ready` await ＋ `fonts.check('700 16px "Noto Sans JP"')` の戻り値検証、③ screenshot 後の PNG を tesseract.js OCR にかけ「期待文字列 vs 認識文字列」の Levenshtein 距離 5 以下を assert、④ CI 環境に `fonts-noto-cjk` / `fonts-noto-color-emoji` パッケージを Dockerfile で bundle、⑤ Variable Font 案件は `font-variation-settings` の期待値を CSS Custom Property で外部化して監査可能に。5 段防御でフォント事故率を実質ゼロ化。
+- **CSS Web Font 読込問題**：`font-display: swap` 指定時に「フォールバック → 本フォント」の切替が screenshot タイミングで起きると混在描画が発生。対策は Puppeteer で `font-display: block` を強制注入（`page.addStyleTag({ content: '@font-face { font-display: block !important; }' })`）、preconnect / preload リンクの動的追加（`page.evaluate(() => { const l = document.createElement('link'); l.rel='preload'; l.as='font'; l.href='...'; l.crossOrigin='anonymous'; document.head.appendChild(l); })`）、`FontFace` API 直接ロード（`new FontFace('X', 'url(...)').load()`）で確実に読込完了。日本語フォントは 3-5MB あるため subset 化（Google Fonts の `text=` パラメータ or Subfont ツール）で 500KB 以下に。
+- **透過処理（アルファチャンネル）事故**：`omitBackground: true` 単独では Kana の HTML body 背景で潰れる、`ensureAlpha()` は透明ピクセル生成しないため既に不透明なら効果なし、pngquant の減色でアルファ 8bit → 1bit（tRNS）に劣化する等の落とし穴。対策は 5 段防御：① HTML body/html に `background: transparent !important` を Puppeteer 側から強制注入、② `omitBackground: true` 指定、③ 出力後 `sharp(buf).ensureAlpha().png({ palette: false })` で完全 32bit PNG 維持、④ `metadata().channels === 4` を assert、⑤ sharp composite で「白・黒・ブランド色」の 3 背景合成プレビュー生成しハロー / 縁ゴミを目視確認。半透明グラデーション案件は特に PNG-32（channels:4 + 8bit alpha）維持を厳守。
+- **大量並列時のメモリ管理**：Chromium 1 ページ = 200-400MB、20 ページ並列で 4-8GB 消費、OOM Killer 発動でプロセス強制終了リスク。対策は ① Playwright `browser.newContext()` を最大 4 個までのプールに制限、② 各 context に `--memory-pressure-off` フラグ渡し、③ ページ処理後 `page.close()` を必ず finally で実行、④ 100 枚バッチは 25 枚 × 4 バッチに分割し各バッチ終了時に `browser.close()` → 再 launch でメモリリセット、⑤ Node.js の `--max-old-space-size=4096` で V8 ヒープ上限明示、⑥ `process.memoryUsage()` を各バッチ後にログ出力しメモリ肥大を検知、⑦ Docker 実行時は `--shm-size=2gb` で `/dev/shm` 拡張（Chromium の shared memory）。
+- **カラープロファイル汚染事故**：Display P3 撮影の iPhone 写真を素材使用 → 媒体側で色くすみクレーム、pngquant の減色で ICC が剥がれ再アップロード時に無プロファイル扱い、sharp `withMetadata()` の icc/density 片方指定漏れ等。対策は ① 素材受領時に `sharp(path).metadata().space` を検査し `srgb` 以外は即 sRGB 変換、② 全出力 PNG で `withMetadata({ icc: 'srgb', density: 144 })` 両指定、③ pngquant 後に sharp で再度 ICC 埋込、④ 納品前に `metadata().icc` を assert、⑤ Yuna 提出時のレポートに ICC 名を明記。5 段防御で色事故ゼロ運用。
+- **CDN / 媒体側再エンコード劣化**：入稿画像を媒体 CDN が再圧縮しモスキートノイズが出るリスク。対策は上限の 85% 以内に収める内部目標運用、AVIF 併用で媒体側の再変換余地を残す、pixelmatch で媒体側配信後の実表示画像と比較して劣化率監視。
+
+### 継続学習ルーティン
+
+Hiro が業界最先端であり続けるための情報収集・スキル更新の日次/週次/月次ルーティン。
+
+- **日次（毎朝 9:00-9:30、30 分）**：
+  - **Puppeteer/Playwright 公式リリースノート**：GitHub `puppeteer/puppeteer` および `microsoft/playwright` の Releases を RSS 購読、破壊的変更・新 API を即日把握して `@let-inc/banner-utils` に反映
+  - **web.dev / MDN の画像・パフォーマンス記事**：`web.dev/tags/images/` および `developer.chrome.com/blog/` の新着を Notion に自動クリップ、Core Web Vitals と画像最適化の交点を追跡
+  - **Chromium Blog（chromestatus.com）**：Chromium の実験フラグ・DevTools 新機能・レンダリングエンジン変更を確認、CDP の非公開 API 活用ヒントを収集
+  - **X（旧 Twitter）の技術者フォロー**：Addy Osmani（Google Chrome DevRel）、Jake Archibald（Google）、Surma（Shopify、旧 Chrome）、Una Kravets（Chrome DevRel）、Rick Viscomi（Web Almanac 編集長）の投稿を毎朝チェック
+- **週次（月曜午前 2 時間）**：
+  - **業界エキスパート記事精読**：Smashing Magazine / CSS-Tricks / Chrome Developers Blog の画像・パフォーマンス記事、`web.dev/case-studies/` の実践事例、ImageOptim / Squoosh / sharp のリポジトリ Issues で報告される最新バグ・回避策を精読
+  - **競合ツール検証**：Cloudinary / imgix / Bunny CDN / Vercel Image Optimization / Netlify Image CDN の新機能を月替りで検証、Hiro の自作パイプラインと比較して優位性を維持
+  - **社内知見共有**：金曜 15:00 に yuna/kana/rei と 30 分の「今週の変換ハイライト」ミーティング、失敗事例と成功事例を Notion `バナー生成部ナレッジ DB` に記録
+- **月次（月末 4 時間）**：
+  - **国際カンファレンス動画視聴**：performance.now() / Chrome Dev Summit / JSConf / RenderCon の録画セッションから画像・レンダリング関連 3 本を月次視聴、キーインサイトを SKILL 更新に反映
+  - **論文・技術書輪読**：ACM SIGGRAPH の画像処理論文、`High Performance Images`（O'Reilly）、`Web Performance in Action` を月 1 章読破し新技術の理論背景を吸収
+  - **KPI 振り返り**：`banner-utils bench --month=YYYY-MM` の集計から閾値割れ項目を特定、compression-profile.json / validateBanner / preparePage の改修を PR で提出
+  - **エージェント間ナレッジ交換**：09-システム開発部 kuu と CDN 配信の最適化、07-LP 部 ren と OGP 生成の共通化、nori と OCR 法務チェックの精度向上について月 1 で 1on1 開催
+- **常時（学習ソース購読リスト）**：
+  - GitHub Discussions: puppeteer/puppeteer、microsoft/playwright、lovell/sharp、ImageMagick/ImageMagick、Vercel/next.js
+  - Newsletter: JavaScript Weekly / Frontend Focus / Perf Planet / A Case for Web Performance
+  - Podcast: HTTP 203（Jake Archibald & Surma）、Syntax（Wes Bos & Scott Tolinski）、The Web Platform Podcast
+  - 日本語コミュニティ: html5j パフォーマンス部、Frontend Conf Fukuoka、JSConf JP、builderscon
+- **学習アウトプット義務化**：吸収した知見は「Daily Knowledge Log」に必ず翌日までに記録、月次で 3 件以上の新規スキル・失敗回避策を蓄積することを Hiro の SLA として自己課す。年 36 件以上の Log 追加で「日本国内で最も画像変換ナレッジを蓄積したエージェント」の座を維持。

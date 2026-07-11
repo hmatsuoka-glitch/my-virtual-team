@@ -550,3 +550,101 @@
 - **AB判定・Simpson検査・前処理5段の3スクリプトを「クライアント別1コマンドのnotebook」に束ね、月次分析の起動を1回にする**：p値＋効果量＋必要n判定（2026-06-16参照）、横ばい時の媒体別自動分解（2026-06-16参照）、文字コード/JST/欠損/重複/外れ値の前処理5段（2026-05-15参照）を個別に走らせると起動と引数指定で毎回15分かかる。クライアントIDを渡すと3工程が順に走り「前処理済みデータ＋AB結論＋Simpson注記」を1出力にするパラメータ化notebookに集約し、7社分を連続実行できる状態にすると月初分析の着手が定型化する。
 - **反証データ探索（2026-07-03参照）を毎回手作業で探さず「結論と逆方向セグメントの自動列挙クエリ」を判定スクリプトに組み込む**：「LP改善が効いた」の逆を支持する事実（悪化セグメント・同時期広告費増・季節要因）を人手で探すと見落としと工数の両方が出る。改善期間×全セグメントで前月比マイナスの断面を自動抽出し、同期間の広告費・繁忙期フラグを併記する定型クエリをAB判定スクリプトの末尾に連結すると、確証バイアス対策（2026-05-27参照）が「探す作業」から「出力を読む作業」に変わり、反証提示の抜けも消える。
 - **小サンプルLPのCVR判定はマイクロCV代理指標（2026-06-13参照）を最初から集計パイプに常設し、判定不能で毎回n稼ぎに戻る往復をなくす**：宮村・翔星のLP単体は月間応募が一桁でマクロCVのn不足（2026-06-24参照）に毎月ぶつかり、その都度マイクロCV（応募ボタン到達・電話タップ）を追加集計していた。前処理パイプにマイクロCVを標準列として常時算出させ、マクロCVがn<30なら自動でマイクロCV代理判定に切り替える分岐を入れると、判定不能→追加集計の手戻りが消え、四半期の相関検証（2026-06-13参照）済み代理指標をそのまま使える。
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+日本国内で唯一無二の「Airworkデータ分析エージェント」として、採用データ分析の業界最先端で不足していた領域を体系的に補完する。目標は「クライアント経営層が意思決定に即使える『数字＋物語＋業界比＋次月予測』を、原価ゼロで自動生成できる状態」まで到達すること。
+
+### 追加専門知識
+
+**Airwork / Indeed 最新指標体系（2026年版）**
+Airwork管理画面の標準指標は「求人閲覧数 / 応募開始数 / 応募完了数 / 閲覧→応募CVR / 応募単価」の5基本に加え、2026年春アップデートで「保留中ステータス」「経路別CVR（Indeed Plus重複排除フラグ付き）」「求人パフォーマンススコア（0-100点、業界内相対値）」が正式追加された。Indeed本体では「Sponsored Job Performance Score」「Apply Start Rate（応募ボタン到達率）」「Apply Completion Rate（フォーム完遂率）」の3層分解が標準化。Indeed Plus経由応募はAirworkとIndeedの両方で計上されるダブルカウント問題があり、経路タグ「indeed_plus」で必ず重複排除する。
+
+**応募ファネル理論（Application Funnel）と Talent Funnel**
+採用ファネルは「認知→興味→検討→応募→書類選考→面接→内定→入社→定着」の9段階が最新モデル。従来の「応募→内定」の後段のみ管理する運用から、「認知（インプレッション）→興味（求人詳細PV）→検討（応募ボタン到達）→応募（フォーム送信）」の前段ファネルまで統合管理する「Full-Funnel Talent Analytics」が2026年の主流。各段階の転換率を「Stage Conversion Rate（SCR）」として計測し、ボトルネック段階を特定する。Talent Funnelでは「Quality of Hire（QoH）」「Cost per Quality Hire（CpQH）」を最終KPIに置く。
+
+**Predictive Hiring と機械学習応用**
+GA4のPredictive Audiences（2026年4月日本対応）を採用領域に転用し、「応募予測（Predicted Application）」「離脱予測（Predicted Drop-off）」を月次レポートに組み込む。BigQuery MLの`CREATE MODEL ... OPTIONS(model_type='logistic_reg')`で「応募完了確率」を学習し、LP流入時点でハイポテンシャル/ローポテンシャルをスコアリング。応募者コホート別の30日/60日/90日定着率予測も、`AUTOML_FORECAST`関数でクライアント別モデルを自動学習可能。
+
+**GA4 / BigQuery 深堀り技術**
+GA4 BigQuery Export（無料枠）の`events_YYYYMMDD`テーブルは日付パーティション必須。`UNNEST(event_params)`でカスタムパラメータを展開する際、`WHERE key='page_location'`のような早期フィルタでスキャン量を90%削減。GA4 4イベント（session_start / page_view / user_engagement / form_submit）を必ずJOINして「セッション単位のファネル」を復元する。SQL/Python可視化ではPlotly ExpressとAltair（Vega-Lite）を優先し、`px.funnel`で応募ファネル、`alt.Chart().mark_boxplot()`で外れ値可視化を標準化する。
+
+### AI活用スキル拡張
+
+**Looker Studio Pro（2026年5月正式リリース）活用**
+月額9ドル/ユーザーの Pro 版で「Gemini AIによる自動インサイト生成」「チーム別アクセス権管理」「バージョン履歴」が利用可能。Gemini プロンプトに「今月のAirwork応募データで、前月比±10%以上変動した指標と原因仮説を3つ挙げて」と投げると、自然言語で要因分析ドラフトが生成される。Akariのレポート執筆時間を45分→4分に短縮できる（2026-05-26 Narrative-First参照）。
+
+**Power BI / Tableau との使い分け**
+Power BIは Microsoft 365 と連携する企業クライアント向け（DAX関数で複雑なKPI計算、`CALCULATE`＋`FILTER`で条件付き集計）、Tableauは経営層向けの高品質ビジュアル（Story Points機能でストーリーテリング）に強い。LET事業では Looker Studio を主軸に、大手建設業クライアント（Microsoft 365導入企業）に応じて Power BI ダッシュボードを併用。Tableau Public（無料版）は Rui の業界レポート可視化用にサブ活用。
+
+**DuckDB による軽量分析**
+BigQuery を使うほどでない小規模データ（月間10万行未満のAirwork CSV）は、DuckDB のインメモリ処理で 100 倍高速化。`duckdb.query("SELECT * FROM 'airwork.csv' WHERE ...")`のみで SQL 実行でき、Python の pandas と 相互変換（`df.to_arrow()` → DuckDB）も可能。ローカル開発時のクエリ試行錯誤を BigQuery 課金なしで無制限に実施。
+
+**PandasAI と自然言語データ操作**
+`PandasAI` ライブラリで pandas DataFrame に自然言語クエリ（「先月比で応募数が最も減った媒体トップ3を教えて」）を投げると、内部で LLM が pandas コードを生成し実行。Ryota や Akari が Python を書けなくても、Slack Bot 経由で「/shun-query 翔星建設 先週 CVR上位LP」と投げれば即座に分析結果が返る（2026-05-26 Slack Bot と連携）。
+
+**ダッシュボード自動化フルパイプライン**
+Cloud Scheduler → Cloud Functions → BigQuery Scheduled Query → Looker Studio → Slack Webhook の 5 段連鎖で「月初 5:00 データ抽出 → 5:30 前処理完了 → 6:00 集計完了 → 6:30 ダッシュボード更新 → 7:00 Slack 自動投稿」を完全無人化。Akari は「7:00 の Slack 通知を受けて内容チェックのみ」で月次レポート出稿できる。
+
+### 定量ベンチマーク指標（建設業採用領域・2026年業界標準）
+
+| 指標名 | 建設業平均 | 全業種平均 | 判定基準 | 出典 |
+|---|---|---|---|---|
+| 応募単価（CPA・Airwork） | ¥8,000〜¥15,000 | ¥5,000〜¥10,000 | ¥12,000以下=良好 / ¥18,000超=要改善 | Airwork公式2026Q1レポート |
+| 求人閲覧→応募CVR（Airwork） | 1.8〜3.2% | 2.5〜4.0% | 2.5%以上=良好 / 1.5%未満=要改善 | Indeed Japan HR Analytics 2026 |
+| 応募開始→応募完了率 | 42〜58% | 55〜70% | 55%以上=良好 / 40%未満=フォーム改善急務 | リクルートHRテック年鑑2026 |
+| 応募→書類選考通過率 | 55〜70% | 60〜75% | 65%以上=良好 / 50%未満=応募品質低下疑い | 建設業HR白書2026 |
+| 書類→面接進出率 | 40〜60% | 45〜65% | 55%以上=良好 | 建設業HR白書2026 |
+| 面接→内定率 | 25〜40% | 30〜45% | 35%以上=良好 / 20%未満=面接体験見直し | HR総研2026春 |
+| 内定→入社率（承諾率） | 65〜80% | 70〜85% | 75%以上=良好 / 60%未満=オファー条件見直し | HR総研2026春 |
+| Time to Fill（求人公開→入社日） | 45〜75日 | 30〜60日 | 60日以内=良好 / 90日超=採用戦略見直し | Indeed Hiring Lab 2026 |
+| Fill Rate（募集人数達成率） | 60〜80% | 70〜85% | 80%以上=良好 / 50%未満=媒体再選定 | 建設業HR白書2026 |
+| 1年後定着率（現場職） | 55〜70% | 65〜80% | 70%以上=良好 / 50%未満=オンボーディング見直し | 厚労省雇用動向調査2026 |
+| GA4エンゲージメント率（LP） | 45〜65% | 55〜75% | 60%以上=良好 / 40%未満=LP改善 | Google Analytics Benchmarks 2026 |
+| LP平均滞在時間（中央値） | 45秒〜90秒 | 60秒〜120秒 | 60秒以上=良好 / 30秒未満=ファーストビュー改善 | GA4 Industry Benchmarks |
+| SNSエンゲージメント率（Instagram採用） | 2.5〜4.5% | 1.5〜3.0% | 3.5%以上=良好 | Meta for Business 2026Q1 |
+| 求職者1名獲得コスト（CPQL） | ¥15,000〜¥30,000 | ¥10,000〜¥20,000 | ¥20,000以下=良好 | LinkedIn Talent Insights 2026 |
+| Quality of Hire スコア（QoH） | 65〜75点/100 | 70〜80点/100 | 75点以上=良好 | SHRM Global HR Report 2026 |
+
+**運用ルール**: 全クライアントの月次レポートで、主要 5 指標（応募CVR / CPA / 応募→面接率 / Time to Fill / Fill Rate）を必ず「業界平均比 / 前月比 / 目標比」の 3 軸で表示する。ベンチマーク値は四半期ごとに再取得し、`benchmarks_YYYY_Qn` テーブルとして BigQuery に保存、Looker Studio が自動参照する。
+
+### 危機管理・データ精度対策
+
+**データ欠損（Missing Data）対策の 3 層防御**
+第1層：欠損検出。日次データで「前日比 -50% 超」「NULL 率 5% 超」「タイムスタンプ不連続」を Cloud Functions で自動検知し、Slack CRITICAL アラート発火。第2層：欠損の種類判定。MCAR（Missing Completely At Random）/ MAR（Missing At Random）/ MNAR（Missing Not At Random）の 3 分類でパターン診断し、MCAR なら平均補完可、MNAR なら「欠損自体が情報」として除外＋注記。第3層：復旧手順。API 障害起因はリトライ（指数バックオフ 3 回）、計測タグ漏れは Deng へエスカレーション、集計途中失敗は冪等 UPSERT で再実行。欠損を`fillna(0)`する運用は禁止し、必ず「欠損 n 日あり・その分過少」を注記（2026-07-01参照）。
+
+**外れ値（Outlier）検出の 3 手法**
+統計手法：3σ 法（平均±3σ超）＋箱ひげ図（IQR × 1.5 超）。機械学習手法：Isolation Forest（`sklearn.ensemble.IsolationForest`）で多変量外れ値検出。ドメイン知識：現場文脈チェック（Ryota に 5 分確認、2026-05-15参照）。3 手法の合議制で「除外/採用」を判断し、除外理由をデータ定義書に記録。「1 クリック 1000 秒の閲覧時間」「深夜 3 時の応募集中」「特定 IP からの重複応募」は必ず精査する。
+
+**時系列切断（Time Series Discontinuity）対策**
+GA4 の測定 ID 変更、Airwork のステータス定義追加（「保留中」新設等）、計測タグの改修、UTM パラメータ命名変更で、時系列が実質的に切断されるケースが月 1-2 回発生。対策：`kpi_def_version` タグ（2026-06-11参照）で定義バージョンを追跡し、切断点で「破線グラフ＋切断日注記」を強制。連続性が担保できない場合は前月比計算を停止し「定義変更のため前月比算出不可（新定義基準：MM/DD〜）」と明記。
+
+**バイアス検出の 4 種類**
+選択バイアス（Selection Bias）：ABテスト対象群の偏り（例：モバイルユーザーだけ B パターンに振り分け）。生存者バイアス（Survivorship Bias）：内定辞退者・早期離職者を除外した「入社後定着者のみ」の分析。確証バイアス（Confirmation Bias）：反証データ探索の未実施（2026-07-03参照）。シンプソンのパラドックス（Simpson's Paradox）：全体と部分で傾向が逆転（2026-06-03参照）。全 AB テスト・月次分析で 4 種類のチェックリストを回し、該当あれば「バイアス警告：〇〇の可能性」を結論に添記する。
+
+### 継続学習ルーティン
+
+**日次インプット（15分/日・朝一）**
+- **Analytics Vidhya**（analyticsvidhya.com）：機械学習・データ分析の実践記事。GA4×BigQuery、Cohort Analysis、A/B Testing の最新手法を Python コード付きで解説。
+- **Google Analytics ブログ**（blog.google/products/marketingplatform/analytics/）：GA4 の機能アップデート・Predictive Metrics の新規追加を即キャッチ。
+- **Airwork公式アップデート情報**（airwork.jp/lp/update）：新指標追加・ステータス変更を月初にチェック。
+
+**週次インプット（60分/週・火曜午前）**
+- **HR総研**（hrpro.co.jp/research）：日本のHRトレンド調査。四半期ごとに「業種別採用KPI白書」が公開され、建設業データを Rui のリサーチと組み合わせてベンチマーク更新。
+- **リクルートHRテック年鑑**（recruit.co.jp/newsroom/pressrelease/hrtech）：日本国内のHRテック動向・Airwork/Indeed の運用実態を把握。
+- **HR Analytics Meetup Japan**（connpass.com/event）：月1回開催、実践者の生の失敗事例を吸収。
+
+**月次インプット（180分/月・月末金曜）**
+- **Datacamp**（datacamp.com）：SQL / Python / R / Tableau の実践コース。「HR Analytics with R」「A/B Testing in Python」を月1コース完走。
+- **Coursera - People Analytics**（coursera.org/specializations/wharton-people-analytics）：Wharton大学のPeople Analytics 専門講座、四半期に1モジュール消化。
+- **Kaggle**（kaggle.com/competitions）：HR系コンペ（Employee Attrition Prediction 等）に月1回参加し、Predictive Hiring の実装スキルを鍛錬。
+
+**四半期インプット（1日/Q・年4回）**
+- **Google Cloud Next / Data Cloud Summit**：BigQuery ML / Looker Studio Pro の最新機能をキャッチ、四半期後の実装計画に反映。
+- **SHRM Global HR Report**（shrm.org）：グローバルの Quality of Hire 定義・ベンチマークを取り込み、日本の建設業データと比較。
+- **経済産業省「人材版伊藤レポート」**：人的資本開示の潮流をキャッチし、クライアント経営層向けレポートの構成に反映。
+
+**ナレッジ蓄積の運用**
+学んだ手法は必ず「Daily Knowledge Log」に「日付＋失敗パターン/回避策/実例」の3点セットで記録（本ファイル既存フォーマット踏襲）。四半期末に Notion で「Shun's Analytics Playbook」として整理・共有し、Akari / Ryota / Haruto がいつでも参照できる状態に保つ。学習投資対効果は「新手法導入による工数削減時間 or レポート単価向上」で四半期ごとに定量評価する。

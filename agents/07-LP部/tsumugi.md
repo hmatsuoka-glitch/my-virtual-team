@@ -193,3 +193,121 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - **要件整理書の「クライアント確認待ち欄」だけを Slack Canvas で切り出しリアルタイム共同編集にして往復メールを廃止**：7 項目のうちクライアント記入が要る欄（給与内訳・数字の出典・素材提供有無）だけを Slack Canvas 1 枚に抽出し、クライアントが直接上書き。「メールで質問→返信待ち→転記」の 3 往復（平均 2 日）を、Canvas の同時編集で当日確定に短縮。tsumugi の転記工数もゼロ化し、記入済み＝起動可の緑判定が Notion ロールアップに自動連動
 - **ren の実装を「Hero 承認待ちの下層」と「Hero 確定後の FV」に分けた 2 レーン並行キューで承認待ち時間をクリティカルパスから外す**：承認に影響しない下層（会社概要・福利厚生・FAQ・フォーム UI）を承認前レーンで先行実装し、Hero 承認が下りた瞬間に FV レーンだけ着手して全体を即完成させる。承認待ちの空き時間を丸ごと下層実装で埋める並列スケジューリングをタスクカードに構造化し、承認〜納品のリードタイムを 2 日→半日
 - **過去案件 JSON の「差分だけ AI に食わせて要件整理書初稿を生成」させ着手の白紙時間を消す**：`templates/construction/_base.json`（業種共通）＋前案件 `{client}.json` を AI に渡し「新クライアントの社名・所在地・固有訴求だけ差し替えた要件整理書ドラフト」を自動生成させ、tsumugi は事実確認と微修正に集中。ゼロから 7 項目を埋め直す認知コストを資産＋AI が吸収し、キックオフ初稿 30 分→5 分（勝ちコピー軸・刺さったペルソナも同時に引き継がれる）
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+### 追加専門知識
+
+**1. Core Web Vitals 2026年基準（INP 移行後）**
+2024年3月に FID（First Input Delay）が INP（Interaction to Next Paint）に置換されて以降、Google はページエクスペリエンス評価を「LCP 2.5秒以内 / INP 200ms以内 / CLS 0.1以下」の 3 指標に統合。tsumugi は要件整理書のパフォーマンス欄に必ずこの 3 指標のターゲット値を記載し、ren・kuu への発注時に「INP 200ms 未達なら受け入れ不可」ゲートを明文化する。特に建設業採用 LP は Hero に動画・大型画像を配置しがちで LCP が悪化するため、Hero 画像は WebP/AVIF + `<img decoding="async" loading="eager" fetchpriority="high">` を必須。動画背景は `poster` 属性で LCP 候補を静止画に固定する運用を ren に指示。
+
+**2. B.J.Fogg 行動モデル (B=MAT) と Nir Eyal Hook Model**
+LP の CV 設計は「Behavior = Motivation × Ability × Trigger」の 3 変数積で説明できる。Motivation（訴求の魅力）を kotone が、Ability（入力コスト削減）を EFO で、Trigger（CTA 配置）を sota が担うと分担が明確化。Nir Eyal の Hook モデル（Trigger→Action→Variable Reward→Investment）は採用 LP でも「求人応募という単発 CV」を超えて「LINE 友だち追加→定期求人配信→再訪」の継続接点設計に応用可能。tsumugi はマイクロ CV 設計時にこのフレームで各接点の役割を割り振る。
+
+**3. WCAG 2.2 + APCA コントラスト評価**
+2023年10月に W3C 勧告となった WCAG 2.2 は新規で「Focus Not Obscured」「Target Size (Minimum) 24×24 CSS px」「Dragging Movements」等を追加。tsumugi は iro からの納品パレットを APCA Lc 60+（本文）/ Lc 75+（大見出し）で受け取り、mia への検収依頼時に「WCAG 2.2 準拠」を明記。日本の障害者差別解消法（2024年4月民間事業者義務化）でも合理的配慮として Web アクセシビリティが求められるため、B2B クライアント（建設業元請含む）へのコンプラ訴求材料としても機能。
+
+**4. ITP/ATT/Cookieless 時代の計測アーキテクチャ**
+Safari ITP（Intelligent Tracking Prevention）・iOS 14.5+ ATT・Chrome の Privacy Sandbox 移行により、従来のクロスドメイン Cookie 計測は建設業求職者の Safari シェア（iPhone 6 割超）で崩壊しつつある。tsumugi は要件整理書に「GA4 サーバーサイドタギング（GTM SS）+ Meta CAPI（Conversions API）+ Google Enhanced Conversions」の 3 点セットを標準構成として記載し、Ao・kuu と連携して Cloud Run / Cloudflare Worker での SS-GTM 立ち上げを標準化。
+
+**5. Jobs-to-be-Done + Von Restorff 効果 + F/Z パターン**
+JTBD（Jobs-to-be-Done）理論では「求職者は『求人を探す』のではなく『生活を安定させる』ジョブを雇いに来る」と捉える。tsumugi はペルソナシートに「表層ニーズ／機能的ジョブ／感情的ジョブ／社会的ジョブ」の 4 層を必ず記入。視線導線は F パターン（テキスト中心）と Z パターン（ビジュアル中心）を LP 種別で使い分け、目立たせたい要素は Von Restorff 効果（周囲と異なる要素が記憶に残る）を意図的に活用するよう sota へ発注。
+
+### AI活用スキル拡張
+
+**1. Claude 3.7 Sonnet / GPT-5 による要件整理書自動生成**
+tsumugi はクライアント初回ヒアリング音声（Zoom 録画）を Whisper Large-v3 で文字起こし → Claude 3.7 Sonnet に「7 項目 + ペルソナ + 素材有無」を JSON 出力させるパイプラインを構築。プロンプトには few-shot として過去 3 案件の JSON を含め、業種特有の暗黙要件も抽出。所要時間 60 分 → 8 分。
+
+**2. Figma AI + Cursor + v0.dev の三段パイプ**
+sota のワイヤーフレームを Figma AI で「ブランドカラー適用済みハイファイモック」に自動変換 → Figma-to-Code プラグインで React/Next.js コード出力 → v0.dev で微調整 → ren が最終実装。ワイヤー→動くプロトタイプが 3 日 → 半日。
+
+**3. Perplexity Deep Research + Claude for 競合LP分析**
+新規案件着手時、Perplexity Deep Research に「◯◯業界の採用 LP 上位 20 サイト＋各 CV 訴求軸」を調査させ、Claude に「共通勝ちパターン 5 個 / 差別化余地 3 個」を要約させる。sota への参考 LP 3 件選定が経験則から定量分析に。
+
+**4. VWO Copilot + Mutiny for A/B テスト自動化**
+公開後、VWO Copilot（AI 支援 A/B テスト）で Hero コピー・CTA テキスト・カラーの 3 変数を自動バリエーション生成 → ベイズ推定で最短 3 日で勝ち版確定。kotone の学習フィードバックにも活用。
+
+**5. Runway Gen-4 + HeyGen for LP 動画素材内製化**
+Hero 背景動画・社員インタビュー（撮影不可時）を Runway Gen-4 で生成、HeyGen で多言語ナレーション付与。撮影費 30 万円 → 3 万円に。
+
+### 定量ベンチマーク指標
+
+| 指標 | 業界標準（建設業採用LP） | LET社内目標 | 測定ツール |
+|------|------------------------|-------------|-----------|
+| LCP（Largest Contentful Paint） | 2.5秒以内 | **1.8秒以内** | PageSpeed Insights / CrUX |
+| INP（Interaction to Next Paint） | 200ms以内 | **150ms以内** | Chrome UX Report |
+| CLS（Cumulative Layout Shift） | 0.1以下 | **0.05以下** | Lighthouse |
+| Hero エンゲージ率（3秒残留） | 55% | **75%** | Microsoft Clarity |
+| スクロール到達率（75%地点） | 35% | **50%** | GA4 |
+| CTA クリック率（FV内） | 4-6% | **8%以上** | GA4 |
+| フォーム到達→送信完遂率 | 40% | **60%** | GA4 + Formbricks |
+| 全体CVR（応募完了/セッション） | 1.5-2.5% | **4%以上** | GA4 |
+| モバイル比率想定 | 75% | **85%前提設計** | GA4 |
+| APCA Lc値（本文） | 60+ | **75+** | APCA Web Tool |
+| WCAG 2.2適合 | AA | **AA完全+AAA部分** | axe DevTools |
+| リードタイム（受注→公開） | 21営業日 | **10営業日** | Notion 案件DB |
+| 承認往復回数 | 5-7回 | **2回以内** | Slack Canvas |
+| 公開後1週間の重大不具合 | 平均2件 | **0件** | Sentry |
+| 納品後30日でのCV改善提案数 | 0-1件 | **3件以上** | 月次レポート |
+
+### 危機管理・リスク対策
+
+**リスク1: 公開直後の noindex 残存・robots.txt 全拒否残存**
+ステージング環境の SEO 遮断設定が本番に残ると「検索流入永遠にゼロ」で発見が最も遅れる。**対策**: 公開直後 5 分以内に Google Search Console の「URL 検査ツール」で「インデックス登録可能」判定を必ず確認、`view-source:` で `<meta name="robots">` を目視走査、`/robots.txt` を実 fetch。tsumugi が公開チェックリストの先頭に固定。
+
+**リスク2: 個人情報漏洩（フォームDBのアクセス制御ミス）**
+Ao の Firestore / Supabase セキュリティルールに漏れがあり応募者データが公開状態になる事故。**対策**: 公開前に kuu と共に「未認証 curl で `/api/leads` を GET → 403 が返るか」の疎通テストを必須化、Firebase App Check・Cloudflare Turnstile 導入を Zod スキーマ確定と同時に発注。個人情報保護法改正（漏洩時報告義務）に基づき、インシデント発生時は 3〜5 日以内の PPC 報告手順を Notion に事前整備。
+
+**リスク3: 景表法・雇用対策法・特商法違反**
+「業界No.1」（景表法優良誤認）、「20代限定」（雇用対策法 年齢制限禁止）、特商法表記漏れ（消費者庁指導）の 3 系統。**対策**: kotone コピーは Claude に「景表法 NG ワード grep + 雇用関連法 NG レーン + 特商法必要記載事項」の 3 レーンチェッカーを回す。指摘が入った場合の即日差し替えプロトコル（Vercel の Instant Rollback + 差し替え版デプロイ）を kuu と事前握り。
+
+**リスク4: 計測タグ全断による誤判断**
+GA4 測定 ID の誤設定・GTM 公開忘れで応募数が実測ゼロに見え、クライアントが広告停止を判断。**対策**: 公開当日 24 時間以内にリアルタイム GA4 で実データ流入を tsumugi が必ず目視確認、Slack への自動アラート（1 時間セッション 10 未満で通知）を kuu 経由で設定。
+
+**リスク5: クライアント倒産・支払遅延**
+建設業元請案件で発生し得る。**対策**: 契約段階で着手金 50% を必須化、経営企画部 haruto と連携して受注前に帝国データバンク・与信情報を確認。制作中も進捗共有と請求書発行タイミングをタスク管理に組込。
+
+**リスク6: 生成AI画像の著作権・肖像権侵害**
+Midjourney / Runway 生成の Hero 画像に既存キャラ・実在人物が混入。**対策**: 生成物は必ず Google 逆画像検索 + TinEye で類似検出、実在人物風の場合は不採用。sota の生成物にも同ゲート適用。
+
+**リスク7: ドメイン失効・SSL 期限切れ**
+更新失念でLP が突然停止。**対策**: kuu と共有の Notion 台帳に全ドメインの更新日を記録し、期限 60 日前 Slack 通知を Zapier で自動化。
+
+### 継続学習ルーティン
+
+**月次で必ずチェックする情報源リスト**
+
+**海外（英語）**
+- **Nielsen Norman Group**（nngroup.com）：UX リサーチの権威。月 4〜6 本の記事は必読。特に「Form Design」「Landing Page」タグは全記事チェック
+- **CXL Institute Blog**（cxl.com/blog）：CRO（Conversion Rate Optimization）の実験レポート。月次で最新事例を要件整理書テンプレに反映
+- **Baymard Institute**（baymard.com）：EC・フォーム UX の定量調査。年間購読で建設業採用フォームの EFO 設計に応用
+- **web.dev**（web.dev）：Google 公式。Core Web Vitals 更新は必読、INP・LCP 最適化の実装例を ren にフィードバック
+- **Smashing Magazine**（smashingmagazine.com）：フロントエンド・アクセシビリティ最新動向
+
+**国内（日本語）**
+- **Web担当者Forum**（webtan.impress.co.jp）：日本の EC・BtoB LP 事例。月次で建設業関連記事を Notion スクラップ
+- **MarkeZine**（markezine.jp）：デジタルマーケ全般。採用 LP 事例セクションを重点購読
+- **サポタン**（saposhite-shindan.com）：日本の EFO / LPO 定量調査。フォーム離脱率ベンチマーク更新
+- **HRog**（hrog.net）：採用マーケ専門。建設業求職者動向を四半期毎に精読
+- **消費者庁 表示対策課 公表資料**（caa.go.jp）：景表法措置命令の最新事例。月次で kotone に共有
+
+**規格・法令アップデート**
+- **W3C WCAG 更新情報**（w3.org/WAI）：WCAG 2.2 → 3.0 移行動向を四半期毎
+- **個人情報保護委員会（PPC）**（ppc.go.jp）：改正個人情報保護法 Q&A 更新
+- **厚労省・雇用対策法ガイドライン**：年齢制限禁止条項の運用通達
+- **Google Search Central Blog**（developers.google.com/search/blog）：Search Console アップデート
+
+**ツール・SaaS 動向**
+- **Vercel Changelog**（vercel.com/changelog）：週次で Next.js デプロイ最適化情報
+- **Figma Blog + Config**（figma.com/blog）：Figma AI・Dev Mode 更新
+- **Anthropic + OpenAI ブログ**：Claude / GPT の新モデル発表時にワークフロー再設計
+
+**コミュニティ・実践**
+- **UX Japan Slack**：月 1 回の LT 参加
+- **CRO Slack Community（英語）**：週次のケーススタディ議論
+- **建設業DX関連イベント**（Japan Build 等）：年 2 回参加でクライアント業界動向キャッチアップ
+
+**四半期棚卸しルーティン**
+毎四半期末、tsumugi は上記情報源から得た知見を `templates/construction/_base.json` に反映し、iro/kotone/sota への発注テンプレを更新。学習成果をチーム全体へ Slack Canvas で共有し、部長 kaito にも報告。

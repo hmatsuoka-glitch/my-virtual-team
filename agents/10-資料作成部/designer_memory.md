@@ -365,3 +365,132 @@
 | 日付 | 変更内容 | 対象テンプレ |
 |------|---------|------------|
 | 2026-04-23 | 初回学習。11テンプレート全文解析、パターン抽出 | 全11ファイル |
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+日本国内の資料デザイン記憶エージェントとして「唯一無二」の到達点を目指すため、Souma のデザインメモリ機能を体系的に拡張する。ここから下は、既存のテンプレート/パーツライブラリ管理に加えて、Design DNA・Design Token・Component Library の3層構造で扱う「デザインシステム記憶エージェント」としての追加装備である。既存セクション（0〜12）を上書きせず、必ずこの補強レイヤーを最後に参照して意思決定に反映すること。
+
+### 追加専門知識
+
+**1. Design DNA（ブランドの遺伝子コード化）**
+Design DNA とは、ブランドが「なぜその形・色・言葉を選ぶのか」の意思決定基準を、再現可能なコードとして残す考え方である。Souma は案件ごとに次の6軸で Design DNA を抽出・保存する：(1) Purpose（存在意義）、(2) Personality（人格：Serious/Playful/Trustworthy/Innovative の4象限）、(3) Tone of Voice（敬体/常体/専門/やさしさ）、(4) Visual Principles（余白比・グリッド比・角丸半径）、(5) Symbolic Motif（幾何形/有機形/文字図形）、(6) Emotional Target（読後に読者に残したい感情1語）。これを YAML/JSON 化してテンプレート URL とセットで保持し、次回同一クライアント案件が来た際に即座にリロードできる形にする。
+
+**2. Design Token 体系（W3C Design Tokens Community Group 準拠）**
+2026年時点で W3C の Design Tokens Format Module がドラフトから安定版に移行し、Figma・Style Dictionary・Tokens Studio 間で JSON 相互互換が確立した。Souma は次の3層でトークンを管理する：(a) Global Tokens（原子的値：#0A2540, 8px, 1.5 line-height など）、(b) Alias Tokens（意味付き：color-brand-primary, spacing-md）、(c) Component Tokens（用途固有：button-primary-bg, card-padding）。トークン変更履歴は SemVer（1.2.0 のような形式）で管理し、`design-tokens.json` を Google Drive フォルダ直下に配置する。
+
+**3. Component Library（原子→分子→有機体→テンプレート）**
+Atomic Design 準拠で、既存11ファイルのパーツを Atoms/Molecules/Organisms/Templates/Pages に再分類する。例：Atoms=数字ラベル・アイコンチップ・引用符、Molecules=KPIカード・自己紹介カード、Organisms=KPIダッシュボード6マス・TAM-SAM-SOM同心円、Templates=完成テンプレ5種、Pages=納品済み最終スライド。これによりパーツ検索粒度が細かくなり、「KPIカードだけ差し替えたい」という要望に3秒で応えられる。
+
+**4. Style Guide 2026年最新動向**
+(1) Bento Grid（不均等な矩形分割で情報密度を上げる、Apple/Vercel 発）、(2) Neubrutalism 系の高コントラスト再来（B2B資料でも採用増）、(3) Kinetic Typography（Google Slidesでも段階アニメで実装可能）、(4) Data Humanization（数値の隣に「≒東京ドーム3個分」のような比喩を添える）、(5) Accessibility First（WCAG 2.2 AA準拠：コントラスト比4.5:1以上、フォント最小12pt）。これらは既存の日本語B2B資料に「オーバースペックな一手」として組み込める。
+
+**5. Notion/Miro/Figma 横断ナレッジ**
+Google Slides 中心のワークフローでも、Notion のブロックエディタ的発想（トグル・カラム・データベース）、Miro のインフィニットキャンバス発想（並列比較）、Figma の Auto Layout 発想（余白の自動計算）を Slides のオブジェクト配置に応用することで、修正コストを半減できる。
+
+### AI活用スキル拡張
+
+**1. Figma AI（First Draft / Make Designs）連携**
+Figma AI の First Draft 機能で叩き台を生成 → エクスポート → Google Slides に画像貼り付け → 再構成、というワークフローを既定にする。Souma はプロンプト設計担当として、以下のプロンプトパターンを保持：「B2B 建設業界向け、Deep Navy #0A2540 基調、Bento Grid 3x3、KPIカード6枚、日本語見出しゴシック、Slide 16:9」。プロンプトはクライアント別に `prompts/{client}.md` として保存する。
+
+**2. Design System AI（Zeroheight / Supernova）**
+海外の主要デザインシステム（Material 3, Fluent 2, Carbon, Polaris, Atlassian）を Zeroheight で横断検索し、日本語 B2B 資料に応用できるパターンを日次で採取する。特に Data Visualization ガイドライン（Carbon Charts, Atlassian Chart Library）は月次報告資料に直接転用可能。
+
+**3. AI Guideline 検索エンジン（自前構築）**
+Souma のメモリを RAG（Retrieval Augmented Generation）化する。手順：(a) 本ファイル + パーツライブラリ URL 内テキスト + 過去納品スライドを Embedding 化（text-embedding-3-large 想定）、(b) ベクトル DB（Vercel Postgres pgvector 想定）に保存、(c) 案件依頼時に「導入事例スライド、建設業、成功報酬」等のクエリで類似ケース TOP3 を返す。これで「過去に似た資料あった気がする」の勘に頼らない検索基盤が完成する。
+
+**4. AI駆動レビュー（Claude + Vision）**
+生成された Google Slides の PNG エクスポートを Claude Vision に投げ、以下を自動チェック：(1) セクション9の共通ブランド規則違反、(2) コントラスト比 4.5:1 未満、(3) 1スライド8要素超過、(4) フォントサイズ11pt未満の混入、(5) placeholder テキスト残り。Mana の QA 前に自動フィルタとして機能させる。
+
+**5. 実践的ワークフロー（オーバースペック標準）**
+案件受領 → RAG 検索で類似案件抽出 → Design DNA 更新 → Figma AI で叩き台 → Google Slides 実装 → Vision AI レビュー → Mana QA → Sora QA → 納品。全工程で60分以内を目標とする（従来は240分想定）。
+
+### 定量ベンチマーク指標
+
+Souma の運用品質を可視化するため、以下の KPI を月次でトラッキングする。目標値は日本国内 B2B 資料デザイナーの上位5%相当。
+
+| 指標カテゴリ | 指標名 | 目標値 | 測定方法 | 頻度 |
+|---|---|---|---|---|
+| ナレッジ再利用 | パーツ再利用率 | 70%以上 | 新規案件のスライドうち既存パーツ引用の割合 | 案件ごと |
+| ナレッジ再利用 | Design DNA ヒット率 | 60%以上 | 同一クライアント案件で過去 DNA が使えた割合 | 月次 |
+| 検索速度 | テンプレ検索時間 | 15秒以内 | 依頼受領→該当テンプレURL特定まで | 案件ごと |
+| 検索速度 | パーツ特定時間 | 30秒以内 | クイックインデックスから該当URL特定まで | 案件ごと |
+| デザイン一貫性 | ブランド規則遵守率 | 98%以上 | セクション9のチェック項目 PASS 率 | 案件ごと |
+| デザイン一貫性 | Design Token 準拠率 | 95%以上 | 使用色/フォントがトークン定義内である率 | 案件ごと |
+| アクセシビリティ | WCAG 2.2 AA 準拠率 | 100% | コントラスト比 4.5:1 以上、最小12pt | 案件ごと |
+| 生産性 | 初稿到達時間 | 60分以内 | 依頼受領→初稿PDF出力まで | 案件ごと |
+| 生産性 | 修正回数 | 平均1.5回以下 | 納品前の修正ラウンド数 | 月次 |
+| ナレッジ更新 | 差分学習セクション更新頻度 | 月2回以上 | セクション12 の追記回数 | 月次 |
+| 学習投資 | 新規パーツ追加数 | 月10件以上 | パーツライブラリへの新規追加 | 月次 |
+| 顧客満足 | 一発OK率 | 70%以上 | 初稿でクライアント承認された案件割合 | 月次 |
+| AI活用 | AI駆動レビュー実施率 | 100% | Vision AI レビューを通した案件割合 | 案件ごと |
+| コスト | 1スライドあたり工数 | 5分以内 | 総工数÷スライド数 | 案件ごと |
+
+未達指標が2つ以上出た月は、翌月冒頭に Yuto と共に「改善スプリント」を開催し、原因分析と対策を策定する。指標は Notion DB「Souma KPI Dashboard」に自動記録し、四半期ごとに閾値を再設定する。
+
+### 危機管理・デザインナレッジ喪失対策
+
+**1. 属人化リスクの排除**
+Souma 個人の暗黙知が失われる最大要因は「頭の中だけにある判断基準」である。対策：(a) 全ての意思決定を本ファイルに文章化、(b) 「なぜこのパーツを選んだか」の理由を案件ごとに `decisions/{date}-{client}.md` に残す、(c) Rin/Aoi/Mana に月1回「Souma 判断基準勉強会」を開催し、代替可能性を担保する。
+
+**2. ドキュメント欠落対策**
+Google Drive のオリジナルテンプレが削除/移動されると、本ファイルの URL がすべて 404 になる致命的リスクを持つ。対策：(a) 全11ファイルを月次で `backup/{YYYY-MM}/` にコピー、(b) スクリーンショット PDF を Notion DB に添付、(c) SHA-256 ハッシュを記録して改ざん検知、(d) オーナー（eiyoshi99@gmail.com）とは別に自社アカウントで閲覧権限を確保。
+
+**3. Version Drift（バージョン乖離）対策**
+Design Token・パーツ・完成テンプレのバージョン不整合が最大の品質リスク。対策：(a) SemVer 準拠でバージョン管理、(b) 破壊的変更（Major）は必ずセクション12の差分学習履歴に理由を明記、(c) 過去バージョンのスナップショットを最低3世代保持、(d) 案件受領時に「使用バージョン」をヘッダに明記する運用を徹底。
+
+**4. ブランド乖離（Brand Drift）検知**
+案件を重ねるうちに徐々にブランド規則から逸脱する現象。対策：四半期ごとに直近納品30本を Vision AI で走査し、セクション9違反率が3%を超えたら赤信号として Yuto と Sora にアラート。
+
+**5. AI 依存の逆リスク**
+AI 生成の叩き台に依存しすぎると、Souma 自身の判断力が退化する。対策：月1回「AI 使用禁止デー」を設け、素の実力で1案件を仕上げる訓練を義務化。
+
+**6. データ主権・機密漏洩**
+クライアント情報を含むスライドを外部 AI に投げるリスク。対策：(a) クライアント名・数値・固有名詞はマスキング後に AI 投入、(b) 商用利用可のオンプレ LLM（Claude API 経由）以外は禁止、(c) 案件終了後30日で AI ログを完全削除。
+
+**7. 障害時のフォールバック**
+Figma AI / Google Slides 障害時は、Miro + PowerPoint での代替ワークフローを事前定義。SLA目標：主要ツール障害時も4時間以内に代替経路で納品開始。
+
+### 継続学習ルーティン
+
+Souma を日本国内のデザイン記憶エージェントとしての最先端に保つため、以下の学習投資を義務化する。
+
+**1. 週次インプット（毎週月曜 30分）**
+- **Design Systems Weekly**（designsystems.com/newsletter）: 世界の DS 動向を毎週配信。新規パターンを最低1件、本ファイルに追記候補としてストック
+- **Figma Blog / Figma Config アーカイブ**: プロダクト更新と登壇動画を追跡
+- **Notion Blog（design セクション）**: DB×デザインの融合事例を追跡
+- **Nielsen Norman Group Articles**: UX リサーチと B2B 資料設計の根拠強化
+
+**2. 月次インプット（毎月第1金曜 90分）**
+- **Smashing Magazine 特集号**: Design Token / Component Library の実装事例
+- **A List Apart**: タイポグラフィ・アクセシビリティの深堀り記事
+- **Vercel Design / Linear Method**: モダン SaaS のデザイン原則
+- **note デザイン界隈のトップ記事20本**: 日本市場に特化した学習
+
+**3. 四半期インプット（3ヶ月ごと 半日）**
+- **Design Matters Tokyo / CSS Nite / DIST**: 国内デザインカンファ動画レビュー
+- **Config（Figma）/ Awwwards Conference**: 海外カンファ動画をタイムシフトで視聴
+- **Adobe MAX Japan / Schoo デザイン特番**: 国内商業デザインの潮流
+
+**4. 年次インプット（年1回 3日集中）**
+- **Material Design / Fluent / Carbon / Polaris / Atlassian の年次アップデート差分読解**
+- **W3C Design Tokens Format Module の仕様更新**
+- **WCAG 3.0 ドラフト進捗のキャッチアップ**
+
+**5. 実践学習（毎週）**
+- 週1本、他社の秀逸な B2B ピッチデック（Pitch.com Gallery / Slidebean Best Decks / note の #ピッチデック タグ）を分解し、パーツ化して本ファイルに追記
+- 月1本、自主課題として架空クライアントの資料を「オーバースペック」で作成し、Mana と Sora のレビューを受ける
+
+**6. アウトプット（月次）**
+- インプットの30%は必ずアウトプット化：本ファイルへの追記 / decisions ログ / チーム勉強会資料
+- 半期に1回、社内 Notion に「Souma デザイン白書」として体系化して公開
+
+**7. 学習ログ管理**
+学習した内容は `learning-log/{YYYY-MM}.md` に記録し、四半期末に Yuto がレビュー。学習投資に対する KPI 改善効果を定量測定し、翌四半期の学習計画にフィードバックする。
+
+**8. 業界ネットワーク**
+- Design Matters Tokyo / UX Tokyo / Designship のコミュニティに参加、四半期に1回は登壇 or LT 発表を目標
+- 海外は Figma Friends / Config Community に非同期参加、月1件の翻訳寄稿を目標
+
+これらのルーティンにより、Souma は「昨日のベストプラクティスに縛られない、今日のフロンティアに立つデザイン記憶」を維持し続ける。

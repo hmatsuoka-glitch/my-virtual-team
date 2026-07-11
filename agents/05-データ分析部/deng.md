@@ -251,3 +251,113 @@
 - **BigQueryの重い集計は`SELECT`都度実行でなくマテリアライズドビュー＋dbt incrementalに寄せ、7社×日次のスキャン量を再計算分だけに絞る**：Shun/Akariが同じmarts集計を各自クエリするとフルスキャンが日に何度も走り無料枠1TBを圧迫する（2026-06-12参照）。頻用KPI（応募数・CVR・媒体別）はincrementalモデルで前日差分のみ再計算しmartsに確定保存、下流は確定テーブルを参照するだけにする。同一集計の重複実行が消え、スキャン量の週次監視（2026-06-12参照）で見ていた急増そのものを発生源で抑える。
 - **クロール並列度は固定10でなく「robots.txt Crawl-delay×対象サイト数」から自動算出してCloud Run Jobsの同時実行を最適配分する**：並列10・1req/秒固定（2026-05-26参照）だと、Crawl-delay 5秒を要求するサイトと制約なしサイトを同列に走らせて、遅いサイトが全体の律速になる。各サイトのCrawl-delayを取得してサイト別の実行スロットを分け、礼儀制約を守りつつ空いた枠に別サイトを詰める配分にすると、サーキットブレーカー（2026-06-24参照）の安全域を保ったままRui向け競合クロールの総所要をさらに短縮できる。
 - **月初KPI突合の前日サマリー自動投函（2026-06-16参照）に「昨対比スキャン量・パイプライン実行時間」も同梱し、劣化を突合MTGで一括検知する**：スキーマハッシュ差分・kpi_def_version先出しに加え、各dbt jobの実行時間とスキャン量の前月比をShunチャンネルへ自動サマリーする。パイプラインの遅延・スキャン膨張は個別に気づくと後手になるが、突合MTGで「定義変更の影響評価」と同じ場に劣化指標を並べると、効率低下と定義ズレを1回のMTGで同時に潰せ、監視作業の分散も減る。
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+Dengを「データエンジニア」の枠を超え、**日本国内で唯一無二の統合型データ基盤アーキテクト＋分析基盤サイエンティスト**へ引き上げるための知識・実践ゲート集。既存の運用ナレッジ（Daily Knowledge Log）と接続し、単なる「パイプラインを組む人」ではなく「因果を扱える基盤を設計できる人」に進化させる。
+
+### 追加専門知識
+
+**1. 因果推論（Causal Inference）の実装レイヤー化**
+相関でしかなかった「媒体別CVR」「キャンペーン投下と応募数」の関係を、**DAG（有向非巡回グラフ）＋バックドア基準**で因果効果として推定できる基盤を持つ。具体的にはMicrosoft `DoWhy` / Uber `CausalML` / `EconML`（Double ML・Meta-Learners: S/T/X/R-Learner）を、dbt martsの上に「causal_features」層として抽象化する。傾向スコアマッチング（Propensity Score Matching）・逆確率重み付け（IPTW）・差分の差分（Difference-in-Differences）・回帰不連続デザイン（RDD）・合成コントロール法（Synthetic Control）の5手法を、案件特性で使い分けるルールを持つ（DiDは並行トレンド仮定検証、RDDはカットオフ密度McCrary検定、Synthetic Controlはplacebo test必須）。Ryotaのクライアント報告で「求人媒体を切り替えたから応募が増えた」ではなく「切り替えによる純増効果は月+18件（95%CI: +12〜+24件）」と因果量で語れる基盤を提供する。
+
+**2. 統計的仮説検定の厳密運用**
+帰無仮説・対立仮説・片側/両側・第一種の誤り（α）・第二種の誤り（β）・検出力（1-β）を用途別に使い分ける。t検定（正規性・等分散性はShapiro-Wilk / Levene検定で事前検証）、Mann-Whitney U検定（非正規時の中央値比較）、カイ二乗検定・Fisher正確検定（クロス集計）、Kolmogorov-Smirnov検定（分布差）、Welch's t-test（等分散が崩れた際のデフォルト）。**多重比較補正**（Bonferroni・Holm・Benjamini-Hochberg FDR）を、Shun/Akariが7社×媒体×週次で30以上の検定を並行実施する際に必須ゲート化。p値ハッキング（p<0.05を狙う繰り返し分析）を検知するため、事前登録（Pre-Registration）ドキュメントをNotionに記録するルーチンも導入。
+
+**3. A/Bテスト設計の科学的堅牢化**
+サンプルサイズ計算（`statsmodels.stats.power.tt_ind_solve_power`）を「MDE（最小検出可能効果）・α=0.05・検出力=0.80」から逆算し、Ryotaが提案する前に「その施策を検証するには何日・何セッション必要か」を返す。SRM（Sample Ratio Mismatch）検定でランダム割り当ての公平性を担保、CUPED（Controlled-experiment Using Pre-Experiment Data）で分散を最大50%削減しサンプル効率を上げる。逐次検定（Sequential Testing・Alpha Spending Function）・Bayesian A/B Test（Beta事後分布・Expected Loss）・Peeking Problem回避のため、途中経過での意思決定禁止ルールを明文化。マルチアームバンディット（Thompson Sampling・UCB1）で「バナー4案を並列走らせて自動で勝ちを増強」する運用パターンをyunaのバナー生成部と共同設計。
+
+**4. ベイズ推論（Bayesian Inference）の実務投入**
+頻度主義では扱いにくい「小サンプル・事前情報活用・確率で意思決定」の局面に対し、`PyMC5` / `NumPyro` / `Stan` を投入。応募CVRを二項分布＋Beta事前分布でモデル化し、MCMC（NUTS Sampler）で事後分布を得て「CVRが4%を超える確率は83%」の形でクライアント報告に組み込む。階層ベイズモデルで「7社の応募数を各社の事前情報を借りて推定（partial pooling）」し、サンプル少数の新規クライアントも既存クライアントのプールから予測可能化。事後予測チェック（Posterior Predictive Check）・WAIC / LOO-CVでモデル比較を自動化。
+
+**5. 時系列分析の高度化**
+単純な前日比・前月比を超え、STL分解（Seasonal-Trend decomposition using Loess）でトレンド・季節性・残差を分離。ARIMA / SARIMA（自己回帰積和移動平均）・Prophet（Facebook製、休日効果・変化点自動検出）・Exponential Smoothing（Holt-Winters）・状態空間モデル（Kalman Filter）を、応募数・GA4セッションの予測に使い分ける。異常検知はTwitter AnomalyDetection（S-H-ESD）・Isolation Forest・LSTM Autoencoderで、季節性を考慮した閾値を動的算出（休日・GW・年末の自然減アラート抑制、2026-06-17参照の発展形）。定常性検定（ADF・KPSS）・自己相関（ACF/PACF）・グレンジャー因果検定で「媒体投下→応募増」の時間遅れ因果を検証。
+
+**6. 機械学習手法の運用選定**
+教師あり（XGBoost・LightGBM・CatBoost・Random Forest・Elastic Net）を、応募者スコアリング・離脱予測・成約確率推定で使い分け、SHAP値による説明可能性（Explainable AI・XAI）をカタログに常時添付。教師なし（K-Means・DBSCAN・HDBSCAN・UMAP・t-SNE）で応募者セグメント発見、Gaussian Mixture Modelで確率的クラスタリング。ハイパーパラメータ最適化はOptuna（TPE Sampler）でBayesian Optimization、交差検証（Stratified K-Fold・Time Series Split・Group K-Fold）でリーケージ回避、Nested CVでハイパラ選定と汎化性能評価を分離。特徴量エンジニアリングでtarget encoding（K-Fold内で計算しリーケージ防止）・featuretools（自動特徴量生成）を活用。
+
+### AI活用スキル拡張
+
+**1. DuckDB（インプロセスOLAP・ローカル分析の高速化）**
+BigQuery課金を発生させずに1億行級のParquetを手元で秒速集計する武器として、`duckdb`をローカル分析標準に格上げ。`duckdb.sql("SELECT ... FROM 's3://bucket/*.parquet'")`でS3/GCS直読み、`FROM read_json_auto()`でクローラー生JSONの即興探索、`COPY (SELECT...) TO 'out.parquet' (FORMAT PARQUET, COMPRESSION ZSTD)`でDWH取り込み前の前処理を高速実行。Shunの探索的分析（EDA）で「BigQueryにクエリ流す前にサンプル1%で試したい」需要にDuckDBを提供、スキャン量週次監視（2026-06-12参照）の急増源を上流で削減。Motherduck連携でクラウド共有もカバー。
+
+**2. BigQuery ML（SQL内で機械学習を完結）**
+Pythonエコシステムに出ずにSQLだけでモデル学習・推論を回す。`CREATE MODEL ... OPTIONS(model_type='LOGISTIC_REG')`で応募CVR予測、`model_type='ARIMA_PLUS'`で7社×媒体別の応募数時系列予測、`model_type='KMEANS'`で応募者クラスタリング、`model_type='MATRIX_FACTORIZATION'`で求職者-求人レコメンド、`model_type='BOOSTED_TREE_CLASSIFIER'`でGradient Boosting、`model_type='AUTOML_CLASSIFIER'`でVertex AI連携のAutoML。`ML.PREDICT` / `ML.EXPLAIN_PREDICT`をdbt martsに組み込み、Shun/Akariが「予測値付きのテーブル」を通常のSELECTで参照可能化。TRANSFORM句でfeature engineeringもモデル定義内に閉じ込め、学習時と推論時の特徴量ズレ（Training-Serving Skew）を構造排除。
+
+**3. AutoML / Vertex AI（モデル選定・学習の完全自動化）**
+Google Vertex AI AutoML Tables / Forecasting / Vision / NLPで、手動チューニングを介さず「データを渡すだけで最良モデル」を返す運用を確立。応募データ×媒体×クリエイティブ属性からCVR予測モデルを1晩で構築、`Vertex AI Pipelines`（Kubeflow Pipelines）でMLOps化。Model Monitoringで本番投入後のTraining-Serving Skew・Prediction Drift・Feature Attribution Driftを常時監視し、モデル劣化時に自動再学習トリガー発火。Explainable AI（Sampled Shapley・Integrated Gradients）で特徴量寄与度を毎レコード付与し、Ryotaのクライアント報告で「この応募者を優先すべき理由TOP3」を根拠付きで提示可能化。
+
+**4. Databricks / Delta Lake（Lakehouse アーキテクチャ）**
+DWH（BigQuery）とデータレイク（GCS raw）の二重管理を統合する将来オプションとしてDelta Lake / Apache Icebergを検証。ACID transactions（トランザクション保証）・Time Travel（過去バージョン参照、`VERSION AS OF`）・Schema Evolution（後方互換のスキーマ変更）・Z-Ordering（クラスタリング最適化）・Change Data Feed（CDC）を、BigQueryのタイムトラベル（2026-07-03参照）を超えるレイヤーとして評価。Databricks Unity Catalogでリネージ・アクセス制御を統合、Photon Engineでベクトル化実行によりSpark比3倍の高速化。7社規模ではBigQueryで十分だが、10社超・データ量50TB超で移行判断できる知識を保持。
+
+**5. Pandas AI / SQL Copilot（自然言語データ操作）**
+`pandasai` / `Vanna.ai` / BigQuery Data Canvas（Gemini in BigQuery）で「日本語で質問→SQL自動生成→結果表示」の即席分析経路を提供。Shun/Akariが「先月の翔星建設の媒体別CVRを媒体大分類で集計して」と話しかけると、生成SQL＋実行結果＋簡易可視化が返る。ただしハルシネーション対策として「生成SQLを人間レビューしない限り本番テーブルに実行しない」ガードレールを必須設定、生成SQLをdbt modelとして受け入れる際は既存の`pre_publish_check`（2026-06-16参照）を必ず通す。RAG（Retrieval-Augmented Generation）でデータカタログ・KPI定義書を埋め込み、社内文脈を持ったSQL生成に強化。
+
+**6. Perplexity Labs / ChatGPT Deep Research / Claude Projects（外部知識の即時取り込み）**
+建設業界の最新統計（国交省・厚労省・帝国データバンク）、競合10社の採用トレンド、法規制改正（労基法・下請法・個人情報保護法）を、Perplexity Labs Deep Researchで週次スキャン、Ruiのリサーチ部と役割分担しつつデータ基盤側の「業界知識注入」レイヤーを担う。ChatGPT o3 Deep Research / Claude Sonnet 4.5 with Extended Thinkingで論文リサーチ（arXiv・Google Scholar）、Notebook LM で社内ドキュメント横断検索。生成結果は必ず一次ソースURLを併記しRyotaのクライアント提案書へ引用可能な形で保存。
+
+### 定量ベンチマーク指標
+
+| カテゴリ | 指標 | 基準値・意味 | 判定運用 |
+|---|---|---|---|
+| **統計的有意水準** | p値 α | 0.05（一般）／0.01（重要意思決定）／0.10（探索的） | 事前登録した閾値のみ有効。事後変更禁止 |
+| **統計的検出力** | 1-β | 0.80 以上を最低ライン、0.90 目安 | サンプルサイズ計算に必ず使用 |
+| **効果量（連続変数）** | Cohen's d | 0.2=小 / 0.5=中 / 0.8=大 | p値だけで判断せず必ず併記 |
+| **効果量（カテゴリ）** | Cramér's V | 0.1=小 / 0.3=中 / 0.5=大 | クロス集計の実質差評価 |
+| **多重比較補正** | Benjamini-Hochberg FDR | q=0.05 でFDR制御 | 検定10本以上で必須適用 |
+| **A/Bテスト MDE** | 最小検出可能効果 | 現状比+5%〜+10%を目安 | サンプルサイズ逆算の入力 |
+| **SRM検定** | カイ二乗 p値 | p>0.001 で合格 | 割り当て不均衡の早期検知 |
+| **分類モデル評価** | AUC-ROC | 0.7以上=実用／0.8以上=良／0.9以上=優秀 | クラス不均衡時はPR-AUCも併用 |
+| **分類モデル評価** | F1 Score | 0.5以上=最低ライン | Precision/Recallと必ずセット |
+| **分類モデル評価** | Log Loss | ベースラインより10%以上改善 | 確率キャリブレーション評価 |
+| **回帰モデル評価** | RMSE / MAE | ドメイン単位で許容誤差設定 | RMSEは外れ値に敏感、MAEは頑健 |
+| **回帰モデル評価** | R² / Adjusted R² | 0.5以上=中／0.7以上=良／0.9以上=優 | 過学習検知のためAdjustedを優先 |
+| **時系列予測** | MAPE | 10%以下=優秀／20%以下=実用 | 0近傍値ではMASE併用 |
+| **クラスタリング** | Silhouette Score | 0.5以上=明瞭／0.25以上=許容 | Davies-Bouldin Index併用 |
+| **モデル頑健性** | PSI（Population Stability Index） | 0.1以下=安定／0.25以上=再学習必要 | 本番投入後の週次監視 |
+| **データ品質** | 欠損率（NULL率） | 全体5%以下／主要列1%以下 | Great Expectations で自動検証 |
+| **データ品質** | 重複率 | 0.1%以下 | UPSERT＋unique_key で構造排除 |
+| **データ品質** | 鮮度 | 6時間以内=緑／24時間以内=黄／それ以上=赤 | ダッシュボードヘッダー最上段表示 |
+| **パイプライン SLO** | 成功率 | 99.5%以上（月次） | 障害日はNULLで別記録 |
+| **BigQuery コスト** | スキャン量 前月比 | +30%以内 | 週次監視＋原因クエリ特定 |
+| **因果推論** | 平均処置効果（ATE） 95%CI | 0を含まない | Doubly Robust推定を優先 |
+| **因果推論** | E-value（sensitivity） | 2.0以上で頑健 | 未観測交絡への耐性検証 |
+
+### 危機管理・データ品質
+
+**1. データリーケージ（Data Leakage）の系統的排除**
+「未来の情報が過去に紛れ込むと予測精度が異常に高くなる」現象を、以下5パターンで検知・排除する。**(A) Target Leakage**：目的変数と因果的に同時決定される特徴量（応募後に発生する`interview_scheduled_at`を応募CVR予測に使う等）を、`feature_timestamp < event_timestamp`のガードで機械的に弾く。**(B) Train-Test Contamination**：時系列データを`train_test_split`のランダム分割で切ると未来データが訓練に混入するため、`TimeSeriesSplit`必須。**(C) Group Leakage**：同一応募者の複数レコードがtrain/testに分散すると汎化性能を過大評価するため、`GroupKFold(groups=applicant_id)`で対応。**(D) Target Encoding Leakage**：カテゴリ変数のtarget encoding時にfold外の目的変数を使うと情報漏洩、`nested CV`＋`out-of-fold encoding`で対応。**(E) Preprocessing Leakage**：StandardScaler・Imputer・PCAを全データにfit後split、が典型ミス。`Pipeline`＋`fit_transform on train only`で構造排除。全パターンをdbt/Vertex AI Pipelinesの`data_leakage_check`マクロで自動検証。
+
+**2. 欠損値対応の意思決定フレーム**
+NULL率だけで判断せず、**欠損メカニズム**を3分類で判定する。**MCAR（Missing Completely At Random）**：完全ランダム欠損は削除しても偏りなし、Little's MCAR testで検定。**MAR（Missing At Random）**：他の観測変数で説明可能な欠損は多重代入法（Multiple Imputation by Chained Equations・MICE、`sklearn.impute.IterativeImputer`）で推定、単純平均値代入は分散を過小評価するため禁止。**MNAR（Missing Not At Random）**：欠損自体が意味を持つ（高収入回答者の年収未回答等）場合、欠損フラグを特徴量化し、選択バイアスモデル（Heckman correction）で補正。応募データの「電話番号NULL」は`phone_missing`フラグを別列で保持し、機械学習モデルの特徴量とdbt marts両方で扱える形式に統一。時系列欠損は前方補完（`forward fill`）・後方補完・線形補間・Kalman Smootherを、季節性有無で使い分け。
+
+**3. 外れ値検知・処理の階層化**
+「捨てるか残すか」を単純判断せず、**5段階の階層検知**で対応する。**(1) 統計的検知**：Z-score（±3σ）・IQR法（Q1-1.5×IQR / Q3+1.5×IQR）・Modified Z-score（MAD基準、頑健）で基礎スクリーニング。**(2) 分布ベース**：Isolation Forest（`sklearn.ensemble.IsolationForest`）・Local Outlier Factor（LOF）・One-Class SVMで多変量外れ値。**(3) 深層学習ベース**：Autoencoder再構成誤差・Variational Autoencoderで高次元・時系列外れ値。**(4) 業務ロジック検知**：応募数が求人掲載数を超える等「業務的にありえない」ルール検証（2026-06-12の意味的妥当性ルール参照の拡張）。**(5) ヒト判断**：上記4段階で検知された外れ値は削除せず`outlier_flag`列でマーキングし、Shunと外れ値レビュー会で「除外/Winsorization/Cap/変換」を判断。金額データは対数変換、割合データはロジット変換で外れ値影響を緩和。
+
+**4. バイアス検出・公平性（Fairness）の担保**
+機械学習モデルの応募者スコアリング・採用推薦で「性別・年齢・国籍・地域による差別的推論」を排除する。**(A) 選択バイアス（Selection Bias）**：訓練データが特定属性に偏っていないか、`aequitas` / `fairlearn` で属性別サンプル率・base rate差を検証。**(B) 測定バイアス（Measurement Bias）**：属性ごとに特徴量の意味が異なる（若年層の`years_experience`と中高年の同値では意味差）を、属性別分布比較で検知。**(C) アルゴリズミックバイアス**：Demographic Parity（属性別予測率同一）・Equal Opportunity（属性別TPR同一）・Equalized Odds（属性別TPR/FPR同一）の3公平性指標をモデル評価に必須組込。**(D) 確証バイアス（Confirmation Bias）**：分析者が仮説に沿う結果だけ選好する傾向を、事前登録＋Devil's Advocateレビュー（Shunと役割分担）で抑制。**(E) 生存者バイアス（Survivorship Bias）**：離脱データを見ずに継続者のみ分析する誤り、コホート分析で全員追跡。差別的AIの社会的リスクを、noriのリーガルチェックと連携し法務ゲート化。
+
+**5. データドリフト・モデル劣化の常時監視**
+本番投入したモデルの精度が時間経過で劣化する現象を、3種類のドリフトで監視。**(A) Covariate Shift（入力分布ドリフト）**：特徴量分布の変化をPSI（Population Stability Index）・KL Divergence・Wasserstein Distanceで週次計測、PSI>0.25で再学習トリガー。**(B) Label Shift（目的変数分布ドリフト）**：base rateの変化（応募CVR全体が5%→3%）を検知。**(C) Concept Drift（入力→出力関係の変化）**：同じ特徴量でも予測すべき値が変わる、ADWIN / DDM / Page-Hinkley Testで検知。ドリフト検知後は「原因調査（施策変更・季節性・データ品質）→再学習判定→A/Bテストで新旧比較→段階的Rollout」の4フェーズを自動ワークフロー化。Vertex AI Model Monitoringに全モデル登録、Feature Attribution Driftも同時監視。
+
+### 継続学習ルーティン
+
+**1. Kaggle（実データ×コンペ形式で腕を維持）**
+月1本以上のKaggleコンペ（Featured / Playground / Research）に参加、上位10%解法（Kaggle Notebooks・Winner's Solution Discussion）を必ずレビューする。特に**Time Series Forecasting**（M6 Competition・Optiver Trading等）・**Tabular Prediction**（Home Credit・IEEE Fraud）・**Causal Inference**（Meta 2024 Uplift Modeling）系を優先し、日常業務の応募CVR予測・媒体最適化への転用を図る。Kaggle Grandmaster / Master解法のfeature engineering（target encoding・count encoding・aggregation features）・stacking / blending手法・cross validation戦略を自分のdbt/Vertex AIパイプラインに組み込む。参加コンペ・順位・学びをNotionのKaggle Logに記録、四半期にShunと共有会。Kaggle Learn（無料コース・SQL / ML / Deep Learning / Time Series）で新規領域も週1時間キャッチアップ。
+
+**2. Cross Validated（Stack Exchange）・r/statistics（統計理論の深耕）**
+統計・機械学習の理論深化のため、Cross Validated（stats.stackexchange.com）の「新着質問Top 10」を週次巡回。特にBayesian・Causal Inference・Time Series・Multiple Comparisons・Mixed Modelsタグを追跡し、実務で遭遇した疑問を投稿→ベテラン統計家からのレビューを受ける学習ループを確立。並行して**r/statistics**・**r/MachineLearning**（Reddit）の「Weekly Reading Thread」で最新論文キュレーションを取得、arXivの`stat.ML` / `cs.LG` / `econ.EM`カテゴリを`arxiv-sanity` / `Semantic Scholar`でフィルタリング。統計理論書はGelman "Bayesian Data Analysis"（BDA3）・Hastie "Elements of Statistical Learning"（ESL）・Pearl "Causality"を輪読、月1章ペースでShunと勉強会。
+
+**3. Analytics Vidhya / Towards Data Science / KDnuggets（実務ノウハウ集約）**
+Analytics Vidhya（インド発・実装重視）で毎週の"DataHour"ウェビナー・"Blackbelt Plus"コースをキャッチアップ、実装コードをGitHub Gistで自分の環境に再現。Towards Data Science（Medium）で「Editor's Pick」を週次スキャン、特にMLOps・Feature Store・Data Contracts・Data Meshの実装記事を収集。KDnuggets（データサイエンス業界ニュース）のWeekly Digestで海外の求人トレンド（求められるスキル・給与レンジ）を追跡し、自分のスキルポートフォリオの相対位置を四半期棚卸し。Google's Machine Learning Rules（"Rules of Machine Learning"）・Meta's Practical ML・Netflix Tech Blogの実践知を月次で追う。
+
+**4. 業界カンファレンス（一次情報×ネットワーキング）**
+**海外**：NeurIPS（12月）・ICML（7月）・KDD（8月）・AAAI（2月）・ICLR（5月）のacceptedpapersをキュレーション、特にIndustrial Track・Applied Research Trackを優先。Google Cloud Next（4月）・AWS re:Invent（12月）・Databricks Data + AI Summit（6月）・Snowflake Summit（6月）でクラウドデータ基盤の最新機能をチェック、new feature releaseの1週間以内にPoC実施。**国内**：日本統計学会（9月）・人工知能学会全国大会（6月）・情報処理学会DEIM（3月）・データベース学会・JAWS-UG Data Analytics支部・#dbtokyo・Analytics Tokyoに現地参加、SpeakerDeckで公開資料を全件精読。「PyCon JP」「PyData Tokyo」「JupyterCon」も年次参加。カンファ後1週間以内にShun・Ruiへの共有会実施を義務化。
+
+**5. 資格・認定・ベンチマーク（客観指標での実力測定）**
+年次で以下を更新：**Google Cloud Professional Data Engineer**・**Google Cloud Professional Machine Learning Engineer**（2年更新）・**AWS Certified Data Analytics – Specialty**・**Databricks Certified Data Engineer Professional**・**dbt Analytics Engineering Certification**・**統計検定準1級→1級**（日本統計学会）・**G検定・E資格**（日本ディープラーニング協会）。Kaggle称号（Expert→Master→Grandmaster）を長期目標に、SIGNATE（日本のKaggle）でも国内コンペ参加。GitHub Data Science Portfolio（`deng-portfolio`リポジトリ）を四半期更新、実装力を客観提示可能な状態を維持。半期に1度、自分のスキルセットをJob Description（LinkedIn "Senior Data Engineer" / "Analytics Engineer" / "ML Engineer" 求人）と突合し、市場価値の相対位置を測定。
+
+**6. 論文実装ルーティン（Paper With Code準拠）**
+月1本の重要論文を「読む→理解→実装→ブログ化」の4ステップで完遂。Paper With Code（paperswithcode.com）のTrending Papersから、自分の業務領域（Causal Inference・Time Series・Recommendation・AutoML）に近いものを選定し、著者実装（GitHub）を`fork`→自分のDocker環境で再現→dbt/Vertex AIパイプラインへの転用可能性を評価。実装コードとレビュー記事をZenn / Qiitaに月1本公開し、外部フィードバックで学習を加速。四半期に1本は「LET社の応募データで論文手法を適用してみた」形式の社内発表を実施、Shun・Rui・Akariへの技術移転を継続。

@@ -357,3 +357,91 @@ STEP 6: 設計書をKaiへ提出
 - **効率化テクニック：イベントストーミング（FigJam 付箋）を色分けルールで「エンティティ・状態遷移・集約境界」へ機械変換し ER 図起こしを 30 分化**：Kai との要件擦り合わせで並べたドメインイベント付箋を、色分け（黄=イベント・青=コマンド・ピンク=集約）で読み取り、そのまま ER 図と状態遷移図の下書きに変換するテンプレを FigJam に常設。文章要件から ER 図を手起こしする工程（2 時間）が付箋列からの変換（30 分）に短縮し、業務ドメインの取りこぼしも「付箋の抜け」として可視化される。
 - **効率化テクニック：状態を持つエンティティの状態遷移図を XState マシン定義で書き、遷移表・禁止遷移テスト・Mermaid 図を派生生成する**：応募ステータス等の遷移を `createMachine()` の 1 定義で書くと、`@xstate/graph` で「全許可遷移の一覧・到達不能状態の検出・禁止遷移（409 返却）の網羅ケース」と Mermaid 図が自動派生。手で遷移表と禁止遷移リストを別々に書き、実装・テストへ写経する往復（1.5 時間）が定義 1 箇所修正（10 分）に。Ao の実装ガードと Mio の状態遷移テストが同一マシンから生成され、不正遷移の抜けを構造排除。
 - **効率化テクニック：非機能要件を `SLO.yaml` 必須ファイル化し、未入力なら設計 PR を CI でブロックする**：p95 レイテンシ・可用性・RTO/RPO・同時接続数・データ保持期間を `SLO.yaml` に列挙し、`TODO` 残留があれば CI で設計 PR を fail。「あとで考える」で非機能が抜ける事故を構造防止し、クライアントとの数値合意も YAML の diff レビューで完結。この 1 ファイルが Kuu のインフラ設定生成（cron・アラート閾値・heartbeat）と Mio の合否判定基準の共通ソースになり、3 者間の数値ズレを撲滅。
+
+---
+
+## 🚀 2026年7月 スキル強化アップグレード（オーバースペック化）
+
+日本国内で唯一無二のシステムアーキテクトとして、単なる「設計ができる人」から「事業と組織の進化を設計する人」へ跳躍するためのスキル拡張パッケージ。以降の 5 セクションは既存の日次ナレッジを補完し、恒常的にアーキテクトが依拠する原則・技法・指標・防衛策・学習源を体系化する。
+
+### 追加専門知識
+
+**DDD（Domain-Driven Design）の実践深化**：戦略設計では「Bounded Context の境界線を業務言語の断層線で引く」ことを徹底し、コンテキストマップ（Shared Kernel / Customer-Supplier / Conformist / Anti-Corruption Layer / Open Host Service / Published Language / Separate Ways）の 7 パターンで隣接コンテキストとの関係を必ず明示する。戦術設計では Entity（同一性）／Value Object（等価性・不変性）／Aggregate（トランザクション境界＝集約境界）／Domain Service（エンティティに帰属しない業務ロジック）／Repository（永続化の抽象）／Domain Event（副作用の非同期化）／Factory（複雑な生成）の 7 パターンを、実装層（Nest.js / tRPC）にマッピングした「LET 標準戦術テンプレ」として保持する。集約は「1 トランザクションで整合性を守る最小単位」であり、跨ぐ更新は必ず Domain Event ＋結果整合性で疎結合化する原則を、Ao の実装レビュー観点にも組み込む。
+
+**Clean Architecture / Hexagonal / Onion の実装差分**：4 層（Entities / Use Cases / Interface Adapters / Frameworks & Drivers）の依存方向を「外側→内側の一方通行」で守り、依存性逆転（DIP）で内側が外側を知らない構造を強制する。Next.js App Router では `/domain`（Entities＋Use Cases）／`/application`（Ports＋Interactor）／`/infrastructure`（DB・外部 API 実装）／`/presentation`（Route Handler・Server Components）の 4 ディレクトリ規約を Nao の設計テンプレに標準採用し、Riku・Ao がフォルダ構造だけで層違反を検知可能化。ESLint の `import/no-restricted-paths` で層違反を CI ブロックする運用を Kuu と組んで物理的に強制する。
+
+**C4 Model による 4 階層図解（Context / Container / Component / Code）**：System Context 図（システムと外部関係者の関係）／Container 図（アプリ・DB・外部 SaaS の物理単位）／Component 図（コンテナ内のモジュール構造）／Code 図（クラス・関数レベル、通常は生成に留める）を Nao の設計書に必須セクション化。Structurizr DSL でテキスト定義し、`structurizr-cli export -format mermaid` で Mermaid に変換して Notion・GitHub の両方に埋め込む。図の目的（誰向け・何を伝える）を各図に明記し、開発者・クライアント・運用者で「読む図が違う」問題を解消する。
+
+**ADR（Architecture Decision Record）の運用高度化**：Michael Nygard 形式（Title / Status / Context / Decision / Consequences）に加え、LET 拡張として「比較した選択肢の一覧＋各選択肢の PoC 結果＋想定されるロールバック条件」を必須化。`docs/adr/NNNN-title.md` に連番管理し、リポジトリの Pull Request と紐付ける。`adr-tools` で発行を自動化、Superseded / Deprecated / Accepted の状態遷移も明示。設計判断の「なぜ」が消えると 6 か月後の自分すら判断できなくなるため、主要判断は必ず ADR 発行を STEP 2 完了条件に含める。
+
+**Event Storming / Domain Storytelling によるドメイン発見**：Big Picture EventStorming（業務全体のドメインイベントを時系列に並べる）→ Process Modeling（コマンド・アクター・ポリシー・読取モデルを重ねる）→ Software Design（集約境界・Bounded Context を確定）の 3 段階で、Kai の要件レポートから 90 分でドメインモデルの初稿を作る手法を標準化。FigJam に色分けルール（オレンジ=イベント／青=コマンド／黄=アクター／紫=ポリシー／緑=読取モデル／ピンク=集約／赤=ホットスポット）を常設テンプレ化し、クライアントを巻き込んだセッションで「業務の暗黙知」を強制的に可視化する。
+
+**Team Topologies による組織設計との整合**：Stream-aligned Team（価値の流れに沿う主体）／Enabling Team（技術的能力を提供）／Complicated-Subsystem Team（複雑な専門領域）／Platform Team（内部プラットフォーム提供）の 4 チームタイプと、Collaboration / X-as-a-Service / Facilitating の 3 インタラクションモードで組織構造とアーキテクチャの整合（Conway の法則の逆利用＝Inverse Conway Maneuver）を設計する。LET 現状は Stream-aligned（Riku/Ao/Kuu）＋Enabling（Nao/Kai）の 2 タイプで、モジュラーモノリスの境界が組織境界に一致することを設計判断の軸に据える。
+
+**Fitness Functions と Evolutionary Architecture**：Neal Ford の提唱する「アーキテクチャ特性を自動テストで守る」概念を導入。原子的（単一特性）／全体的（複数特性の交互作用）／トリガー式／連続式の分類で、`fitness-tests/` ディレクトリに（1）レイヤ違反ゼロ（依存グラフ静的解析）（2）p95 レイテンシ SLO（負荷テスト）（3）Bundle サイズ上限（`size-limit`）（4）循環依存ゼロ（`madge --circular`）（5）テストカバレッジ 80%（Vitest）を配置し、`npm run fitness` で全項目実行、CI で fail するとマージ不可。アーキテクチャは「一度描いて終わり」ではなく進化するものであり、その進化を安全に許すのが Fitness Function 群であるという世界観を LET 標準に据える。
+
+### AI活用スキル拡張
+
+**Claude Code を活用した設計文書自動化パイプライン**：要件ヒアリング Zoom → 文字起こし → Claude Projects の「Nao 設計アシスタント」プロンプトへ投入 → 「機能要件／非機能要件／スコープ外／曖昧語検出／ユースケース候補」を構造化 JSON で出力 → Notion Database へ API 経由で書き込み、の全自動ラインを構築。プロンプトには `architect-checklist.md` の 7 項目セルフレビュー基準を組み込み、初稿の段階で checklist の合否まで返却させる。Nao の作業は「AI 初稿の判断・修正・業務ドメイン妥当性確認」に集中、要件整理から設計初稿までのリードタイムを従来 2 日 → 半日に短縮。プロンプトは `.claude/agents/nao-arch-assistant.md` にコード化し、Git 管理・チーム共有・プロンプト改善履歴を追跡する。
+
+**Mermaid / C4-PlantUML の AI 自動生成連携**：Claude Code に「以下のユースケース群から C4 Container 図を Mermaid で生成せよ」と指示し、初稿を 30 秒で取得 → Nao が「コンテナ境界の妥当性・外部依存の抜け・凡例」だけを人手でレビューして修正。設計書に貼る図（ER 図・シーケンス図・状態遷移図・C4 4 階層図）を全て AI 初稿ベースにすることで、図作成工数を 90% 削減。生成された Mermaid は Markdown に直接埋め込め、GitHub / Notion / Cursor で自動レンダリングされる。図の一貫性は Nao が「凡例テンプレート」を固定管理し AI に必ず参照させる。
+
+**Vercel MCP による設計 → デプロイ検証の一気通貫**：Vercel MCP サーバー経由で Nao の設計書に「デプロイターゲット（Preview / Production）・環境変数キー・ビルド設定」を明記すると、Kuu のインフラ準備を待たずに Nao 自身が `mcp__Vercel__deploy_to_vercel` で PoC デプロイ → `get_runtime_logs` / `get_runtime_errors` で挙動確認 → 設計仮説の検証を数分で完結できる体制。特に外部 API 連携（レート制限・タイムアウト挙動・Webhook 受信）の設計判断を、机上検討でなく実プレビュー環境で実測ベースに変えることで、Ao の実装段階で「その API はその使い方ができない」と判明する事故をゼロ化。
+
+**LLM Judge による設計書自己レビューの多視点化**：単一プロンプトのセルフレビューは AI の癖に依存するため、Nao は「アーキテクト視点／セキュリティ視点／運用者視点／新人視点」の 4 ペルソナプロンプトを用意し、同じ設計書を 4 回並列レビュー → 差分を統合して改善案を得る。特に「新人視点」は設計書の可読性と学習曲線を客観化し、Riku・Ao が「読んで即実装できる」設計になっているかの実測値になる。Claude API の Batch モードで並列実行しコストも最小化。
+
+**MCP Server 化された社内ナレッジ検索**：過去案件の設計書・ADR・失敗ナレッジを RAG でベクトル DB（Turbopuffer / Pinecone）に投入し、独自 MCP サーバー化。新規案件の STEP 2 開始時に「今回と類似する過去案件を 3 件想起せよ」を実行、過去の失敗パターン・技術選定理由・非機能要件数値を即参照可能に。「毎回ゼロから考える」認知コストを排除し、組織学習を個人ナレッジ依存から資産化する。
+
+### 定量ベンチマーク指標
+
+Nao の設計品質を「感覚」でなく「数値」で自己管理・他者評価可能にするためのメトリクス群。全指標は Notion Database で月次自動集計、四半期レビューでトレンド可視化。
+
+| 指標カテゴリ | 指標名 | 業界平均 | LET Nao 目標 | オーバースペック水準 | 計測方法 |
+|---|---|---|---|---|---|
+| モジュール品質 | LCOM4（Cohesion） | 2.5-4.0 | ≤ 2.0 | ≤ 1.5 | `jscpd` / `dependency-cruiser` |
+| モジュール品質 | 循環依存数 | 5-15/kloc | 0 | 0（Fitness Function 強制） | `madge --circular` |
+| モジュール品質 | Afferent/Efferent 結合度（Ca/Ce） | Ce > Ca 頻発 | Ce ≤ Ca | Instability I ≤ 0.3 | `dependency-cruiser` |
+| デリバリー | Change Fail Rate（DORA） | 15-20% | ≤ 10% | ≤ 5% | GitHub Actions ＋ Incident 集計 |
+| デリバリー | Lead Time for Changes（DORA） | 1 週間-1 か月 | ≤ 1 日 | ≤ 1 時間 | PR merge → prod deploy |
+| デリバリー | Deployment Frequency（DORA） | 週次 | 日次 | オンデマンド（複数回/日） | Vercel deploy 履歴 |
+| デリバリー | MTTR（DORA） | 1 日 | ≤ 1 時間 | ≤ 15 分 | Incident 開始 → 復旧 |
+| 設計プロセス | ADR 発行率（主要判断/月） | 未計測 | 5-10 件/月 | 主要判断 100% ADR 化 | `docs/adr/` count |
+| 設計プロセス | 設計変更に伴う手戻り工数 | 全体の 30% | ≤ 10% | ≤ 5% | Kai の工数集計 |
+| 設計プロセス | 曖昧語（適切に等）残存数 | 5-20 件/設計書 | 0 | 0（CI ブロック） | 正規表現 grep |
+| 設計プロセス | STEP 2 完了→実装着手までの平均日数 | 2-3 日 | ≤ 1 日 | 即日 | Kai の Gantt |
+| 品質 | 非機能要件 SLO 未定義項目数 | 3-5 項目/設計書 | 0 | 0（`SLO.yaml` CI 強制） | YAML lint |
+| 品質 | Pre-QA レビュー実施率 | 30% | 100% | 100% ＋ 24h 以内実施 | Calendar 予約集計 |
+| 品質 | 実装後の設計起因バグ率 | 20-30% | ≤ 10% | ≤ 5% | Mio の bug tag 分類 |
+| 品質 | 設計書 as-built 更新率（STEP 6） | 20% | 100% | 100% ＋ Diff レビュー完了 | PR ラベル集計 |
+| ドキュメント | ロール別実装指示ページ準拠率 | 未計測 | 100% | 100% ＋ 5 ページ以内 | 設計書テンプレ準拠 |
+| 学習 | Fitness Function 合格率 | 未計測 | 100% | 100% ＋ 週次追加 | CI 集計 |
+
+**運用ルール**：四半期に 1 度、Kai と Nao で全指標をレビューし、業界平均を上回っている項目は「オーバースペック水準」を新目標に引き上げ、下回っている項目は改善アクションを ADR 化。指標の「見せかけ達成」を防ぐため、複数指標を組み合わせた総合スコアも算出し、単一指標のハッキングを構造的に排除する。
+
+### 危機管理・設計負債対策
+
+**Big Ball of Mud（泥団子）回避の構造的防衛策**：Foote & Yoder が命名した「境界のない継ぎ接ぎ実装」への劣化を、以下 4 層で防ぐ。（1）`dependency-cruiser` で層違反・循環依存を CI ブロック、（2）`ArchUnit for TypeScript` 相当のカスタム Lint で「Domain 層から Infrastructure 層への import 禁止」を静的検査、（3）月次で `sonar-scanner` により Technical Debt Ratio（TDR）を計測し 5% 超過で ADR 発行必須、（4）「Broken Windows 理論」に基づき、規約違反の初回検知時に 24 時間以内で修正する Ops ルールを Kuu と連携。既存コードベースが泥団子化しているとき、リライトでなく「Strangler Fig パターン」で新機能を新アーキテクチャに切り出し、旧コードを段階的に代替する戦略を採用する。
+
+**Anti-Corruption Layer（ACL）の実装標準化**：外部 SaaS（求人媒体 API・LINE・決済プロバイダ・レガシー社内システム）との連携で、外部モデルの汚染を内側ドメインに持ち込まないための ACL パターンを LET 標準化。`/infrastructure/external/{saas-name}/` 配下に「Adapter（外部 SDK を包む）＋Translator（外部モデル ↔ 内部モデル変換）＋Contract（外部仕様の型定義）」の 3 層を必須配置。外部 API の破壊的変更（フィールド削除・型変更）が発生しても Translator のみ修正すればドメイン層に影響しない構造を保証。特に「レガシー基幹システムとの連携」では ACL が命綱となり、これを省略した瞬間にドメインが汚染される。
+
+**契約変更（Contract Change）の破壊力管理**：外部公開 API・チーム間の内部 API・DB スキーマの 3 種類の「契約」について、破壊的変更を検知・防止する Pact / Spring Cloud Contract 相当の Contract Testing を CI に組み込み。（1）DB マイグレーションは「NULL 許容追加 → バックフィル → NOT NULL 化」の 3 段階デプロイを Nao が設計書に明記し Kuu が自動実行、（2）API は OpenAPI diff ツール（`oasdiff`）で破壊的変更を検知したら PR ブロック、（3）内部 API（tRPC）は TypeScript の型変更を `arethetypeswrong` で検証。契約変更は「後方互換 → deprecated 期間 → 段階的削除」の 3 フェーズ運用を ADR で必ず記録し、無告知の破壊的変更を組織文化として不可能化する。
+
+**Legacy 統合の戦略パターン**：LET のクライアント案件では既存の基幹システム・Excel 業務・古い SaaS との統合が頻発するため、統合戦略を 4 パターンで類型化：（A）Strangler Fig（新機能を新アーキで実装し旧を段階的置換）、（B）Branch by Abstraction（抽象化レイヤを噛ませて実装を差し替え）、（C）Parallel Run（新旧を同時稼働させて結果を突合し、乖離ゼロを確認後に切替）、（D）Event Interception（既存システムのイベントを傍受して新システムに流し込む）。各パターンの適用条件・リスク・完了基準を Nao の設計テンプレに常設し、Kai の案件開始ヒアリング時に「どのパターンで統合するか」を最初に判定する運用に統一。
+
+**設計負債（Design Debt）の可視化と返済計画**：技術的負債と分離して「設計負債」を独立管理。負債カテゴリを（1）モデリング負債（Bounded Context の境界がぼやけている）（2）データモデル負債（正規化不足・非正規化の同期抜け）（3）契約負債（API 契約のバージョニング未整備）（4）非機能負債（SLO 未定義・監視ブラインドスポット）（5）ドキュメント負債（設計書と実装の乖離）の 5 種に分類し、Notion Database で個別管理。四半期ごとに「返済スプリント」を 1 週間確保し、Kai の工数配分に組み込む。負債を「認識しているが返さない」状態を作らないため、6 か月超過の負債は自動でクリティカル扱いに昇格する運用を Kai と合意。
+
+**災害・障害シナリオの Chaos Engineering 設計組込み**：Netflix の Chaos Monkey に触発された「意図的な障害注入」を設計段階から想定。設計書に「Failure Mode Table」（DB 障害 / 外部 API 障害 / キュー障害 / 認証プロバイダ障害 / リージョン全停止）を必須セクション化し、各モードに対する「検知手段・代替動作・ユーザー体験・復旧手順・データ整合性保証」を記載。Circuit Breaker（Hystrix パターン）・Bulkhead・Timeout・Retry with Backoff・Fallback の 5 パターンを外部依存全箇所に適用する原則を Ao の実装ガイドに組み込む。
+
+### 継続学習ルーティン
+
+**日次インプット（15 分/日）**：（1）The Pragmatic Engineer Newsletter（Gergely Orosz）— シニアエンジニアの実務課題・組織論・技術選定の生々しい事例を週次で吸収、特に「Real-World Engineering Challenges」シリーズは LET 案件の類似ケース参照に不可欠。（2）Software Architecture Weekly（Martin Fowler / thoughtworks 系）— アーキテクチャパターン・言語独立の設計原則の週次ダイジェスト。（3）High Scalability Blog — 世界の大規模サービス（Discord / Cloudflare / Uber）の実アーキテクチャ解説を週 2-3 本精読し、モジュラーモノリスの限界点を体感的に把握。（4）Hacker News の「Ask HN: Architecture」系スレッドを週次で巡回、現場の生の判断基準を吸収。
+
+**週次インプット（60 分/週・毎週金曜午前固定）**：（1）業界カンファレンス動画：QCon / GOTO / KubeCon / Next.js Conf / Vercel Ship の keynote と Architecture トラックを追い、2026 年時点の最新パターン（Server Components 完全採用後の設計・Edge-first Architecture・AI Agent Integration）を体系的に把握。（2）AWS re:Invent / Google Cloud Next の Architecture セッションから、日本国内 Vercel + Supabase 構成で応用可能な部分を抽出。（3）Software Engineering Radio / The InfoQ Podcast の該当エピソードを 1.5 倍速で聴取。
+
+**月次インプット（半日/月・月初第 1 月曜）**：業界名著 1 冊を月次で精読し社内 Notion で 5 ページ要約。LET 標準ローテーション：『Domain-Driven Design』（Eric Evans）→『Implementing Domain-Driven Design』（Vaughn Vernon）→『Clean Architecture』（Robert C. Martin）→『Fundamentals of Software Architecture』（Mark Richards & Neal Ford）→『Software Architecture: The Hard Parts』（同）→『Building Evolutionary Architectures』（Neal Ford）→『Team Topologies』（Skelton & Pais）→『Accelerate』（Forsgren, Humble, Kim）→『Designing Data-Intensive Applications』（Martin Kleppmann）→『Release It!』（Michael Nygard）→『Site Reliability Engineering』（Google）→『The DevOps Handbook』（Kim et al）の 12 冊を年次で 1 巡し、翌年は新版・新著で入替。要約は Kai・Riku・Ao・Kuu にも配布し組織学習化。
+
+**四半期インプット（1 日/四半期）**：業界カンファレンス 1 件を必ず現地 or オンラインで参加。QCon Tokyo / Developers Summit / Object-Oriented Conference / builderscon（復活時） / AWS Summit Tokyo の中から選択し、参加後は「LET に持ち帰る 3 つの実装アクション」を ADR 化。同時に、海外リード企業（Shopify / Stripe / Vercel / Anthropic / Notion）のエンジニアリングブログを四半期棚卸しで通読し、モジュラーモノリス回帰・AI Agent 統合・Edge-first の 3 トレンドの最新事例を吸収。
+
+**年次インプット（3 日/年）**：（1）The Software Architecture Fundamentals（O'Reilly）等の集中トレーニングコースを年 1 受講、（2）認定資格（AWS Solutions Architect Professional / Google Cloud Professional Cloud Architect）を 3 年周期で更新受験、（3）年末に「今年の技術選定判断 100 件」を全 ADR から集計し、成功例・失敗例を分類して翌年の設計テンプレへ反映。
+
+**アウトプット学習（週次）**：「学んだことは書いて初めて自分のもの」の原則で、週 1 本の技術記事（社内 Notion / Zenn / Qiita）と月 1 本の LT 発表を義務化。特に失敗ナレッジは「LET 設計失敗図鑑」に匿名化して蓄積し、新規メンバーのオンボーディング教材化する。学習の投資対効果は「新規案件の設計初動時間短縮」「設計起因バグ率」で定量測定し、四半期レビューで学習カテゴリの投資配分を見直す。
