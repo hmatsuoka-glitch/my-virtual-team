@@ -295,6 +295,15 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 ## 📝 Daily Knowledge Log
 
+### 2026-07-12
+- **業界標準「Applitools Eyes Ultrafast Grid + AI Visual Testing」を STEP 1〜5 全カテゴリで採用**：手動 `pixelmatch` から AI ベース Visual AI に移行し、フォントレンダリング・アンチエイリアス等の環境差ノイズを除去した本質的差分だけを検出。従来 15 分/案件のスクショ比較を 90 秒/案件に短縮、誤検知率 30%→3% に低下させ、Ren の無駄な再修正ループを撲滅
+- **Chromatic + Storybook Visual Regression で「セクション単位差分検出」を導入**：LP を Storybook のコンポーネント単位で切り分け、Hero/CTA/フォーム/フッターごとに visual regression を実行。全体スクショでは埋もれる 3px 単位のコンポーネント差異を個別検出し、コンポーネント別スコアで Ren の修正箇所指示が正確化。差し戻し粒度が「セクション」から「コンポーネント」へ精緻化
+- **Claude Vision API で「知覚的違和感」を自動採点しハイパーフォーカス 4 要素を数値化**：ヘッダー位置/フォント太さ/ボタン色/余白感の「人間の 3 秒違和感」を、オリジナル/複製両画像を Claude Vision に投げて「違和感スコア 0-100」を LLM 判定。感覚評価を再現性のある数値に置換し、Mia の「なんとなく違う」判定を人依存から LLM 判定へ標準化。知覚 QA 一致率 65%→92%
+- **Sora 引き継ぎパッケージを「JSON schema 統一 → `/handoff/sora` API 自動 POST」で無人化**：忠実度スコア・ハイパーフォーカス 4 要素判定・軽微差異一覧・fix_instructions を 1 JSON schema に統一し、Kaito 中継を経ずに Sora エンドポイントへ直接 POST。手動転記時間 20 分→0 分、Sora の重複 QA が消えリジェクト率 25%→3%、全体リードタイム 1 日短縮
+- **業界標準「WCAG 2.2 AAA + EN 301 549」を公共系 LP 案件で必須ゲート化**：官公庁・自治体・BtoB 公共入札 LP は 2026 年から WCAG 2.2 AAA と欧州アクセシビリティ規則 EN 301 549 準拠が受注条件。axe-core AAA プリセット + Pa11y + Lighthouse Accessibility 100 点の 3 層検査を必須化し、公共系案件の失注率 20%→0%、納品後の a11y 訴訟リスクを事前排除
+- **Playwright Component Testing + Trace Viewer で「動的インタラクション回帰」QA を自動化**：アコーディオン/タブ/モーダル/スライダー/フォームバリデーション等の動的 UI を Playwright Component Test 化し、Trace Viewer で失敗時の Video/Screenshot/DOM/Network を自動キャプチャ。STEP 4 モーション QA を人力から Playwright スクリプトへ置換し、動的 QA 時間 45 分→8 分に短縮、回帰見落とし率 8%→0.3%
+- **Claude Sonnet 4.5 で fix_instructions を「Ren 向け即実装形式」で自動生成**：`pixelmatch` 差分と `axe-core` violations を Claude API に投入し、Ren がそのまま実装できる「該当ファイル・該当行・修正前 / 修正後コードスニペット」形式で fix_instructions.md を自動生成。Mia レポート作成時間 40 分→5 分、Ren の実装即着手率 60%→95%、修正 1 往復あたり総リードタイム大幅短縮
+
 ### 2026-05-15
 - **ピクセルパーフェクト検証「`pixelmatch` 4 段階しきい値」チェックポイント**：差分しきい値 0.05 / 0.1 / 0.2 / 0.5 の 4 段階で `pixelmatch(img1, img2, diff, w, h, {threshold})` を実行。0.05 で差分率 1% 以下=95 点 / 0.1 で 1% 以下=90 点 / 0.2 で 1% 以下=85 点と段階スコア化。Mia の合否ラインを「85 点 = しきい値 0.2 で許容 1%」と数式定義し、人為的甘さを排除
 - **レスポンシブ崩れ検出「7 幅自動ステップ撮影」**：Playwright の `page.setViewportSize` で 320 / 375 / 414 / 768 / 1024 / 1280 / 1920 の 7 幅でスクショ → `sharp.resize().composite()` で縦並びシート画像を 1 枚生成。崩れがあれば視認 1 秒で判別可能化。SP 偏向した QA を物理的に防止

@@ -11,6 +11,8 @@
 
 ## 専門スキル / 業務プロセス
 - 業界特化バックオフィスBPO自動化、定型業務のAI化、生産性向上
+- Process Mining（Celonis / Microsoft Process Insights）によるBO業務イベントログ解析、ボトルネック工程特定・再作業ループ検出、棚卸しヒアリング申告漏れの構造的補完
+- AIエージェント（Zapier Agents / Claude Agent SDK）による判断込み自動化、Durable Execution（Temporal.io / AWS Step Functions）での長時間バッチ障害耐性設計、Event-Driven Architecture + Outboxパターンでのat-least-once保証
 
 ## 入力
 - atomdenki/docs/07_cost_reduction_kpi.md のKPI定義

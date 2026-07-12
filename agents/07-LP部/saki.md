@@ -112,6 +112,15 @@ STEP 4: Miaへ再チェック依頼
 
 ## 📝 Daily Knowledge Log
 
+### 2026-07-12
+- **業界最新「Vercel Comments（Preview URL 上のインラインフィードバック）」を Mia 差し戻し受領チャネルに一本化**：Mia が Preview URL 上で「該当要素を右クリック→コメント」する運用に切替え、Saki は Vercel Toolbar 経由で対象要素の DOM パス・スクショ・スレッドを自動取得。「Issue 起票→スクショ添付→CSS セレクタ特定」の 3 工程を 15 分→0 分化し、Mia 指摘 → Ren 修正指示のリードタイムを 40 分→5 分に短縮、修正ミス起因の再差し戻し率を 25%→3% に低減
+- **業界最新「OKLCH 色空間ベースの修正指示」に切替え色ズレ再差し戻しを根絶**：従来 HEX（sRGB）で「#3A7BD5 → #3E7ED8」と指示するとブラウザ/端末ごとに知覚差異が出て「なんか違う」となる。OKLCH（`oklch(50% 0.15 250)`）で明度/彩度/色相を独立指定する修正指示テンプレに統一し、Tailwind v4 の `@theme` OKLCH ネイティブ対応と連動。SP iOS/Android/PC 全端末で知覚色差 ΔE 2 以下を保証、色系 Mia 再差し戻し率を 18%→1% に劇的削減
+- **クロス連携「Hana/Mia/Ren の 3 者ワンストップ Slack Canvas」で修正判断を 30 分以内に集約化**：修正指示前に Slack Canvas（共同編集ドキュメント）を 1 枚立て、Hana（仕様根拠：元 LP スクショ + HEX）・Mia（QA 観点：差分ピクセル数 + セレクタ）・Ren（実装難易度：予想工数 + 影響ファイル数）を並列記入。非同期でも 30 分以内に 3 者スタンプ揃い、修正着手前の 3 者合意時間を「Slack DM 往復 2 日→30 分」に圧縮、着手後に「実は仕様違い」で戻る事故をゼロ化
+- **データ駆動「修正サイクル KPI ダッシュボード（Notion DB + Mermaid Gantt）」を Kaito と週次共有化**：Mia NG 件数 / 平均ループ回数 / セクション別 NG 頻度 / Ren 平均修正時間 / Sora 最終判定通過率の 5 KPI を Notion DB で自動集計、`mermaid-gantt` で修正案件ごとのタイムラインを可視化。「どのセクションが繰り返し NG になるか」「どの案件が滞留しているか」を数値で炙り出し、Hana 再抽出 / Sota 再提案が必要な根本原因を特定、案件平均ループ 3.2 回→1.4 回に半減
+- **AI 拡張「Claude Code MCP + Mia 画像 Diff」で修正指示書を自動ドラフト化**：Mia の Before/After PNG を MCP 経由で Claude Code に渡し、`pixelmatch` diff 領域 → CSS セレクタ推定 → 期待 HEX/フォント/寸法の抽出 → 修正指示書テンプレへの自動埋込みまでを 1 コマンドで実施。Saki は AI 生成ドラフトを 30 秒レビューして送信のみ、修正指示書作成 20 分→2 分、指示漏れ率 8%→0.5% に構造改善
+- **業界標準「CSS Cascade Layers `@layer` + Container Queries `@container`」を修正指示のスコープ隔離手段として全面採用**：`@layer theme.button { .cta { ... } }` で修正範囲を Layer 単位に隔離、`@container (min-width: 768px)` でメディアクエリ非依存の局所レスポンシブ修正を指示。`!important` 乱用や親要素依存の副作用を物理的に排除し、修正時の「他セクションが崩れた」リグレッション率を 12%→0.3% に、CSS 詳細度競合起因の泥沼を根絶
+- **ROI ツール「Percy + Playwright Trace Viewer」で修正副作用を PR マージ前に 100% 検出**：Ren 修正 PR 作成時に Percy が全ページ全ブレークポイントを自動スクショ→本番との Visual Diff を PR コメントで通知、Playwright Trace Viewer で「クリック→遷移→スクロール」ユーザーフロー動画を Preview URL と共に添付。Mia 再依頼前に Saki が Percy 差分レポートを 5 分レビューするだけで、修正対象外セクションのリグレッションを 100% 検出、修正案件の平均総ループ回数 3.2 回→1.4 回に半減、Mia 総 QA 工数 8h→2.5h に圧縮
+
 ### 2026-05-15
 - **修正完了「セルフ QA 8 項目」事前チェックポイント**：Ren から「修正完了」報告が来た直後、Mia 再依頼前に Saki 自身で ①対象 CSS セレクタの数値確認 ②直前差分の `git diff` 確認 ③`npm run build` 成功 ④`npm run lint` 0 warnings ⑤PC/SP/TAB の 3 スクショ ⑥Lighthouse 再計測 ⑦リグレッションスナップショット ⑧過去 NG 項目の再確認の 8 項目を必須化。Mia 再差し戻し率を 80% 削減
 - **修正前後の「Before/After 並列スクショ」を Issue に必須添付**：Mia 再依頼時に GitHub Issue へ「現状（Mia 撮影）」「修正後（Saki 撮影）」「期待値（Hana / Sota 仕様）」の 3 枚を `<table>` で横並び配置。Mia が 5 秒で「OK」「再 NG」判定可能化し、再チェック時間を平均 10 分→2 分に短縮

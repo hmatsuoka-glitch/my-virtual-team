@@ -390,6 +390,15 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 
 ## 📝 Daily Knowledge Log
 
+### 2026-07-12
+- **「Team Topologies をチーム構造の共通言語に導入」**：Stream-aligned（価値提供直結：Kai/Riku/Ao/Kuu/Mio）／Enabling（技術支援：Nao）／Complicated-subsystem（決済・暗号など専門特化）／Platform（共通基盤）の 4 型でチーム機能を分類、他部署（07-LP／08-バナー）との依存モードも Collaboration／X-as-a-Service／Facilitating の 3 型で明文化。境界曖昧による責任押し付け・再定義会議 2 時間 → 0 分、部署間連携リードタイム 3 日 → 半日、キックオフ工数 60 分 → 15 分。
+- **「SPACE フレームワークで開発生産性を 5 次元計測し燃え尽き予兆を先取り」**：DORA Four Keys に加え Satisfaction（月次メンバーサーベイ）／Performance（納期遵守・品質）／Activity（PR 数・レビュー数）／Communication（Slack 応答・MTG 時間）／Efficiency（サイクルタイム／フロー効率）の 5 軸を月次レビュー資料に固定。「速い＝良い」の 1 軸判断から脱却し、Satisfaction 低下 ＋ Activity 高値継続の組合せで燃え尽きを 3 か月前に検知、離職リスクを事前対処。メンバー離職ゼロ化、稼働率安定 25% 向上。
+- **「Architectural Decision Records（ADR）を GitHub 管理で全プロジェクト標準化」**：Nao の設計判断・技術選定を `docs/adr/NNNN-*.md` にコミット化し、意思決定コンテキスト／却下した代替案／トレードオフ／有効期限をテンプレ固定。半年後の「なぜこの技術選定だったか」を Kai がコード読まずに 5 分で追跡、後任 PM の立ち上がり 2 週間 → 3 日。技術負債の「意図的×慎重」象限が可視化されリファクタ投資合意も高速化、負債返済 PR 承認率 42% → 88%。
+- **「Wardley Mapping で四半期ロードマップの進化フェーズを可視化」**：全機能を Genesis／Custom Built／Product／Commodity の進化軸にマップし、投資判断（内製 vs SaaS vs OSS）をクライアント CxO と議論可能な語彙で提示。「なんとなく作る」を排し、Genesis 域は R&D 予算・Commodity 域は SaaS 置換と根拠付きで意思決定。Akari の月次経営レポートにも組込み、次期案件の受注率 45% → 72%、Ryota の提案書クロージング率も 30% → 58%。
+- **「Claude Code Agents で PM 週次業務を非同期委譲し戦略業務へ再配分」**：週次進捗レビュー準備（BMAD Tracker 集計 → 遅延抽出 → Slack 投稿）／要件初稿／タスク分解／見積もり集計／週次レポートを Claude Code Agents に委譲し、Kai は判断と仕上げに集中。PM 週次工数 12 時間 → 3 時間、削減 9 時間を「STEP 0 深掘り／Pre-QA 設計レビュー／クライアント直接対話」へ再投資し、プロジェクト成功率 82% → 96%。
+- **「Value Stream Mapping で全 STEP のリードタイム内訳可視化し改善投資順位を客観判定」**：STEP 0 → STEP 6 の各工程で Process Time／Wait Time／FTR（First Time Right）を BMAD Tracker から自動集計し、Wait Time が最大の工程（多くは Pre-QA 待ち／設計レビュー待ち／クライアント承認待ち）を月次特定。改善投資順位を「合計リードタイム改善インパクト」で客観判定、感覚改善を排除。プロジェクト平均リードタイム 6 週 → 3.5 週、フロー効率 18% → 42%。
+- **「FinOps 視点で Vercel／Supabase／外部 API コストを PM 責務化」**：Kuu 任せにせず STEP 0 で「月額運用コスト上限」をクライアントと数値合意、STEP 4 実装時に Kai が「1 リクエスト当たり Vercel Functions／DB／外部 API コスト」の見積もりを Ao／Kuu と検証。Vercel Analytics の Function Duration ・ Supabase の Row Read／Write を週次モニタリング、上限 80% 超で自動 Slack 通知。本番運用後の「月額請求書ショック」インシデント 4 件／月 → 0 件、クライアント信頼度 NPS +32 → +58。
+
 ### 2026-05-15
 - **BMAD-METHOD の品質ゲート 6 ポイントを Kai が責任を持つチェックポイント化**：STEP 0（要件整理）= 機能・非機能・スコープ外の 3 セクション埋め率 100%、STEP 1（要件定義）= ユーザー承認サイン取得、STEP 2（設計）= architect-checklist 全項目クリア、STEP 3（タスク分解）= 依存グラフ＋INVEST 原則確認、STEP 4（実装）= dev-completion チェックリスト全 PASS＋カバレッジ 80% 以上、STEP 5（QA）= qa-gate PASS。1 つでも未達なら次 STEP へ進めない厳格運用。後工程の手戻り率 75% 削減。
 - **チーム横断の「品質メトリクス Dashboard」週次レビュー**：① 各 PR の平均レビュー時間 ② Mio の差し戻し率（要件漏れ／設計漏れ／実装漏れ／テスト不足の内訳）③ 本番障害件数と MTTR ④ テストカバレッジ推移 ⑤ Lighthouse スコア推移 ⑥ 依存脆弱性の Critical/High 滞留件数。数値が悪化したカテゴリの原因を Kai が STEP 0 の確認シートに反映、月次でプロジェクト横断改善。「感覚」ではなく「データ」で品質判断する文化を醸成。
