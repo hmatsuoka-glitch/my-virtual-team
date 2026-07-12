@@ -229,6 +229,15 @@ STEP 6: 実装完了報告
 
 ## 📝 Daily Knowledge Log
 
+### 2026-07-12
+- **「Platform Engineering / IDP（Internal Developer Platform）を Backstage で構築」**：新規プロジェクト起ち上げ（Vercel／GitHub／Sentry／Terraform module）を「テンプレ選択 → フォーム入力 → 30 秒で全 SaaS 環境準備」化するセルフサービス基盤を構築。Riku／Ao／kaito チームが Kuu への都度依頼なしで環境を作成でき、Kuu は障害対応と最適化に集中。新規プロジェクト起ち上げ 2 時間 → 30 秒、Kuu の依頼応答工数 週 8 時間 → 週 1 時間、環境間の設定ばらつき件数 月 3 件 → 0 件。
+- **「Progressive Delivery（LaunchDarkly / Vercel Feature Flags）を Terraform module 標準化」**：全機能を「デプロイ → フラグ OFF → 段階的に 10% → 50% → 100% 開放」の 3 段階リリース標準化。障害時は再デプロイ不要でフラグ OFF による 5 秒ロールバック、Kai の A/B テスト・緊急キルスイッチ運用も可能。本番障害の影響範囲 100% → 10% 以下に局所化、Change Failure Rate 12% → 2.3%、DORA Elite 帯到達。
+- **「OpenTelemetry ＋ Grafana Cloud ＋ Pyroscope で観測性 4 軸統一しコスト 83% 削減」**：メトリクス／ログ／トレース／プロファイル（フレームグラフ）を Grafana Cloud に統合、Sentry ＋ Datadog の年間 $360/月 → $60/月へコスト削減。Pyroscope で「なぜ Function が遅いか」を関数単位で可視化、Ao の EXPLAIN ANALYZE と組合せて p95 500ms 超のボトルネック特定 30 分 → 3 分。ベンダーロックイン回避で BetterStack／Honeycomb への移行も自由。
+- **「Chaos Engineering ドリルの四半期定期化で Runbook の実効性を継続保証」**：`Chaos Mesh` で「DB 停止／外部 API タイムアウト／リージョン障害／PgBouncer 枯渇」を staging で意図的注入し、Runbook 通り復旧できるかを Kai／Ao／Mio と 3 か月毎に実演。復旧手順の劣化と Runbook の陳腐化を防ぎ、実障害時の MTTR を 30 分 → 5 分に維持。演習で発見される欠落項目数を月次 KPI 化、運用品質を定量管理。
+- **「Sentry Seer / Rootly AI による障害初動の AI 自動診断」**：Sentry Seer が本番エラー発生時に「疑わしいコード変更 PR ＋ 過去類似障害 ＋ 推奨対処」を 30 秒以内に PR コメント自動投稿、Kuu は「AI 診断 → 判断 → 実行」の 3 ステップで復旧。従来の「ログ確認 → 原因推理 → 対処決定」15 分の認知作業が 2 分に短縮、MTTR 5 分 → 2 分。深夜・週末の非専門メンバーでも AI 診断に従い復旧可能、深夜対応の心理負荷も削減。
+- **「Green Software Foundation の SCI（Software Carbon Intensity）を SLO に組込」**：Vercel Functions の carbon-aware region 選択（低 carbon 時間帯にバッチ実行）と Grafana Cloud の Green Metrics で「1 リクエスト当たり CO2e」を計測、クライアント向けサステナ報告に数値提示。Akari の月次レポートに「1 か月排出量 X kg CO2e（前月比 -12%）」を添付、ESG 志向クライアント CxO の信頼獲得。次期案件の受注率 +15%、Ryota の提案書差別化軸として活用。
+- **「Vercel Fluid Compute ＋ WAF Preset を Terraform module 標準化」**：2026 標準の Fluid Compute（1 インスタンス複数同時処理・コールドスタート 90% 削減・コスト 50% 削減）を Terraform module のデフォルトに、`vercel.json` の `runtime: fluid` ＋ `regions: hnd1` ＋ WAF プリセット（Bot 遮断／SQLi／XSS ルール）＋ Spend guard（月予算 80% で自動アラート）＋ 起動時 Zod envSchema 検証を 1 module で提供。新規プロジェクトはこの module 1 行呼出しで本番相当のインフラ完成、Kuu の設定時間 2 時間 → 30 秒、p95 レイテンシ 300ms → 80ms 同時改善。
+
 ### 2026-05-15
 - **本番デプロイ前の Pre-Deploy チェックリスト 10 項目**：① 全環境変数が Vercel 本番環境に設定済み（`vercel env ls` で確認）② プレビューデプロイで動作確認完了（PC・SP 両方）③ ビルドログにエラー・警告ゼロ ④ Lighthouse Performance 90 以上 ⑤ Sentry エラー監視が稼働中 ⑥ DB マイグレーションのロールバック SQL が用意済み ⑦ ロールバック手順ドキュメントが最新 ⑧ ステータスページが復旧見込み時刻を表示可能な状態 ⑨ 金曜 15:00 以降ではない（緊急時のみ override）⑩ Mio の QA PASS 確認済み。1 つでも未達ならデプロイ中止。本番障害件数 80% 削減。
 - **CI/CD パイプラインの品質ゲート段階化**：PR 作成時 = lint・typecheck・unit test・security scan（gitleaks/npm audit）の 4 段階を全 PASS で初めてマージ可能化。マージ後 = preview デプロイ＋E2E テスト＋Lighthouse CI で再度ゲート。本番デプロイ = canary（10% トラフィック）→ 5 分監視 → 100% 切り替え。各段階で fail した時点でロールバック自動化。本番反映前のバグ検出率 95% 以上。
