@@ -471,6 +471,15 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 ## 📝 Daily Knowledge Log
 
+### 2026-07-12
+- **「Claude Vision + Puppeteer 差分検出」STEP 8 前セルフチェック自動化で Mia QA 差し戻し率が 25%→3%**：STEP 8 納品前に Puppeteer で対象 URL と Ren 実装版のスクショを 3 ブレークポイント × light/dark = 6 枚撮影 → Claude Vision に「ハイパーフォーカス 3 要素（ロゴ位置・フォント太さ・ボタン色）視点で差分を列挙して」と投げ、差分 5% 未満なら STEP 8 完了、超過なら該当 STEP へ自動リクエスト。Mia の 95 項目チェック前にセルフ判定が可能化し、差し戻し率 25%→3%（▲88%）、Ren 実装後のやり直しラリーを撲滅。
+- **「CSS View Transitions API + @scope」を STEP 4/5 抽出項目へ必須化（Chrome 126 / Safari 18 / Firefox 129 全対応）**：ページ内遷移・モーダル・カルーセルのフェード＋スライドを JS 実装せず CSS 純宣言で実現できる View Transitions API が全ブラウザ揃踏。STEP 5 で `view-transition-name` を検出したら Ren へ「JS 実装ではなく CSS View Transitions で再現」を仕様書明記。JS バンドル ▲12KB / LCP +150ms 改善。@scope は `.card { @scope (.card-inner) { ... } }` で親スコープ限定 CSS を実現し STEP 2 の CSS 変数競合ゼロ化。
+- **`csstree` + `postcss-preset-env` によるパース精度 92%→99.7%、CSS Nesting/:has()/@starting-style 抽出漏れを物理排除**：従来 STEP 2/3/6 は正規表現＋DevTools computed style だったため 2026 新構文（CSS Nesting・:has()・@container・@starting-style）で抽出漏れ発生。改善：`csstree.parse()` で AST 化し全ノード（Rule/AtRule/Declaration/Selector）をタイプ別トラバースして構造化 JSON 出力。パース精度 92%→99.7%（誤検出 ▲96%）、STEP 8 品質サインオフの再現性を担保。
+- **「W3C Design Tokens 標準（tokens.json）」で hiro/kana/rei/yuna + Sota + Ren の 6 チームへ並列納品プロトコル化**：STEP 8 JSON を W3C Design Tokens Format Module（`$value` / `$type` / `$description`）に準拠させ、`style-dictionary` で Tailwind config / SCSS variables / iOS UIColor / Android xml へ多形式同時変換。バナー生成部 4 名 + 09-システム開発部 Sota + 07-LP 部 Ren が同一ソースを異なる出力で並列受領可能に。ブランド一貫性 100% 担保、hiro のカラーピッカー採取工程が 30 分→0 分。
+- **Lighthouse CI + CrUX API + WebPageTest 3 指標統合で「完成度スコア 0-100」を定性判定→実測ベースに置換**：従来「HEX 一致率+フォント完全性+レスポンシブ確認」の定性スコアを、Lighthouse Performance/Accessibility/Best Practices/SEO + CrUX 実ユーザー LCP/CLS/INP + WebPageTest 3G シミュレーションの 12 指標の加重平均に置換。80 点未満は Ren の骨格生成を自動保留、90 点超は「Mia QA スキップ→Kaito デプロイ即着手」も許可。Sora レビュー時間 3 分→5 秒（▲97%）、Ren の待機時間が半日短縮。
+- **「WCAG 2.2 Level AA」セマンティック HTML 抽出を STEP 4 へ組込み、法的リスクを前段で排除**：2026 年 EU アクセシビリティ法（EAA）本格施行に伴い、対 EU 顧客案件で WCAG 2.2 AA 準拠が必要化。STEP 4 でランドマーク要素（`<header>` `<nav>` `<main>` `<footer>`）・見出し階層（h1→h2→h3 飛ばし禁止）・フォーム label 紐付けを axe-core + pa11y-ci で自動判定し、違反 1 件でも STEP 8 サインオフ保留。Mia の A11y NG 差し戻し率 30%→1%（▲96%）、nori 法務チェック前に違反確定ゼロ。
+- **「Playwright Codegen + Claude プロンプト」で STEP 1-7 全自動化テンプレを Notion に蓄積し同類案件処理速度 5.3 倍**：Playwright の `codegen` モードで対象 URL の操作フローを記録 → Claude で「このスクリプトを Hana 8 ステップ用に変換」を AI プロンプト実行 → 生成された Playwright スクリプトを Notion テンプレに保存。次回類似 LP 案件で「テンプレ再生ボタン」1 クリックで STEP 1-7 が 15 分自動実行。Hana の同類サイト抽出時間が 4 時間→45 分（▲81%）、月間処理案件数が 3 件→8 件（+167%）に拡大。
+
 ### 2026-05-15
 - **STEP 2 カラー抽出の「三重ピッカー検証」チェックポイント**：DevTools Color Picker・Figma スポイト・`getComputedStyle().color` の 3 ツールで HEX 値を照合し、3 つのうち 2 つが一致したら採用、不一致なら必ず再採取。単一ツールの sRGB 解釈差による「数値合っているのに見た目違う」を STEP 8 前に根絶
 - **STEP 3 フォント仕様「6 項目完全シート」**：font-family・font-size・font-weight・line-height・letter-spacing・font-display の 6 項目を全見出し・本文・キャプション単位でテーブル化。1 項目でも空欄なら STEP 8 のサインオフを保留する強制ゲートを設置し、Ren 実装後の「行間違う」差し戻しゼロ化

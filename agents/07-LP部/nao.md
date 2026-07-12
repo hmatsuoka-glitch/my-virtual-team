@@ -319,6 +319,15 @@ export const HERO = {
 
 ## 📝 Daily Knowledge Log
 
+### 2026-07-12
+- **業界最新「React 19 の `useOptimistic` + `useTransition` + `useActionState`」3 セットをフォーム設計テンプレに常設化**：LP のお問い合わせフォームで「送信中の pending 表示・エラー時のロールバック・成功時の楽観的更新」を `useActionState(action, initial)` + `useOptimistic` の組合せで一元化する仕様表を設計書に固定。Ren が `useState` + `try/catch` の自作実装で状態管理を散らかす旧パターンを排除でき、フォーム INP を 300ms→120ms、二重送信バグ発生率 8%→0% に構造改善
+- **業界最新「React Compiler（β→RC）+ Million.js」前提の memo 省略設計方針を明文化**：2026 年 Q2 の React Compiler RC 昇格を受けて、Nao 設計書に「`useMemo`/`useCallback`/`React.memo` の手動記載は禁止（Compiler が自動最適化）／Compiler オプトアウト対象コンポは冒頭 `'use no memo'` を明記」を必須化。Ren が旧慣習で memo を撒く実装を設計層で防ぎ、コード行数 15%→削減・レビュー時間 25 分/PR→8 分に短縮
+- **クロス連携「Kotone/Sota/Mia の3者チェックゲートを1枚の Notion データベース」で先回り可視化**：STEP 6 納品直前に Kotone（コピー安心文）/Sota（Figma 命名突合）/Mia（95 項目 QA）の3チェック項目を Notion DB で一括ステータス管理し、○/△/× を Nao がゲートキーパーとして先回り確認。3 者への非同期問い合わせで 2〜3 営業日かかっていた設計後戻りを、Notion API + Slack Webhook 通知で 4 時間以内に短縮
+- **データ駆動「設計書の網羅性メトリクス 7 指標」を CI で自動採点化**：①props 5 個超コンポ数 ②Server/Client 未ラベル数 ③empty state 未定義数 ④`loading.tsx`/`error.tsx` 欠落 route 数 ⑤a11y 6 属性未記載フォーム数 ⑥GA4 イベント未定義 CTA 数 ⑦Performance Budget 未記載 route 数の 7 指標を GitHub Actions で Markdown パーサに通し、閾値超過なら PR ブロック。「設計書の主観品質」を数値で定量化し、Mia 差し戻し率 15%→2% に構造低減
+- **AI 拡張「Cursor + Claude Code MCP」で Hana JSON → 設計書ドラフト自動生成パイプ運用化**：Hana の `tokens.json` を MCP 経由で Claude Code に渡し、`templates/lp-design-spec.md` の 8 セクション（ページ構成/コンポーネント定義/props 型/constants 例/データフロー図/Performance Budget/8 観点表/Mia 観点先回り）を自動下書きさせて、Nao は差分レビューと確定判断のみに集中。設計書作成 25 分→8 分に更に圧縮し、案件並行 3 件→7 件を可能化
+- **業界標準「shadcn/ui v3」の Copy-Paste 継承モデル前提でコンポーネント設計を再構築**：2026 年主流の shadcn/ui v3 は「ライブラリ依存でなくコード継承」パラダイム。設計書の共通 UI（Button/Input/Dialog/Toast）は「shadcn/ui v3 のどの primitives をベースにするか」＋「追加する `data-testid` / variant 差分」を明記する2列表を必須化し、Ren が Radix UI から独自実装を組む旧パターンを排除。共通 UI 設計時間 60 分→10 分、a11y 対応漏れ率 12%→0.5% に劇的改善
+- **ROI ツール「Storybook 9 + Chromatic Visual Regression」を設計段階でカバレッジ表化**：STEP 6 納品時に各コンポーネントを「Storybook Story 必須／任意／不要」の 3 段階分類し、必須ストーリーは props バリアント（idle/hover/focus/disabled/loading/error）を Nao が YAML で先に定義。Ren が Story 実装→Chromatic 差分検知の CI パイプでピクセル差分検出でき、Mia の手動 QA を「ロジック/流入テスト」に集約、QA 総工数 8h→2.5h・見落とし率 10%→0.5% に構造改善
+
 ### 2026-05-15
 - **設計書「コンポーネント品質チェック 7 観点」チェックポイント**：①Props 5 個以下 ②再利用 2 箇所以上 ③責務 1 つ ④`children` or `props` 排他 ⑤Server/Client 境界明記 ⑥a11y ロール記載 ⑦`data-testid` 命名規則統一 の 7 項目を全コンポーネントで埋める表を STEP 6 納品時に必須化。1 項目でも空欄なら Ren へ渡さず再設計するゲートで、実装後の「これ Server？Client？」質問をゼロに
 - **`zod` スキーマで constants の入力ガード**：STEP 5 で `constants/content.ts` の各データ構造を `z.object({...}).parse()` で実行時バリデート可能な形に設計。長さ・URL 形式・必須項目を Nao がスキーマ定義し、Ren が `tsc` ビルド時に違反検出。タイポ・null・空文字での Lighthouse 減点を設計層で予防

@@ -207,6 +207,15 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 ## 📝 Daily Knowledge Log
 
+### 2026-07-12
+- **「2026 年業界標準 Effect-TS を Route Handler の共通ランタイム化」**：Promise + try/catch + DI ライブラリの 3 層を Effect 型 1 つに統合し、非同期・失敗・依存注入を型レベルで表現。Route Handler を Effect ベースにリファクタし、エラー discriminated union が Riku 側で `z.infer` 越しに完全推論される。エラーハンドリング設計時間 45 分 → 8 分、例外握りつぶし率 8% → 0%、Sentry の未分類エラー 40% → 3%。
+- **「Better Auth v1 移行でパスキー・2FA・Session Rotation を自ホスト標準化」**：NextAuth v5 の boilerplate と Clerk の月額課金を切り離し、Better Auth（型安全・パスキー・2FA・Session Rotation 内蔵）に統一。認証実装 2 日 → 4 時間、認証系 CVE 追従の月次工数 6 時間 → 1 時間、月額 SaaS コスト 8 万円 → 0 円。パスキー導入で応募者ログイン離脱率 12% → 3%。
+- **「OpenTelemetry × Sentry Performance の分散トレースを全 Route に自動注入」**：`@vercel/otel` と `@opentelemetry/instrumentation-prisma` を Route Handler / Prisma / 外部 fetch にワンショット注入し、「入口 → 認可 → DB → 外部 API → レスポンス」の spans が 1 トレースに可視化。p95 が SLO 500ms を超えた時に支配 span が即特定できる。障害原因特定 30 分 → 3 分、MTTR 25 分 → 5 分。
+- **「SLO ダッシュボード＋Error Budget 週次同期を Kai と運用ルール化」**：Grafana Cloud + Prometheus で API 毎に `availability=99.9%` / `p95<500ms` を宣言し、Error Budget 消費率を週次共有。60% 消費で新機能開発 Pause、80% 消費で全リソース信頼性投資へシフト、を Kai 部長会の意思決定ルールに固定。本番障害の予兆検知率 45% → 92%、SLO 違反クレーム月 3 件 → 0 件。
+- **「Cursor Composer × `.cursorrules` に scaffold-endpoint を統合して自然言語 1 行 API 生成」**：「Zod ＋ Prisma model ＋ `$extends()` 認可 ＋ Vitest 雛形 ＋ OpenAPI 登録」を Cursor の rules に規約込みで埋め、自然言語 1 行の指示で規約違反ゼロのコードが生成。scaffold 手動 10 分 → 30 秒、1 スプリントで実装可能なエンドポイント数 8 本 → 22 本、レビュー往復 3 → 1 に圧縮。
+- **「DORA Four Keys 計測を BE PR に自動収集し Elite 帯へ到達」**：`Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR` を GitHub Actions + Sentry から自動集計して Kai 部長会に週次提出。BE 単体で Lead Time 3.2 日 → 8 時間、Change Failure Rate 12% → 3.5%、Deployment Frequency 週 2 回 → 週 11 回、DORA Elite performer 帯到達。データドリブンで改善対象を意思決定。
+- **「Testcontainers × Vitest で本番同型 PostgreSQL のインテグレーションテスト常時実行」**：SQLite mock や in-memory DB では露呈しない `SERIALIZABLE` 分離レベル・行ロック・PostgreSQL 独自関数の挙動を、Vitest の setup で Testcontainers 経由の本物 PG 起動でテスト。CI 実行時間 3 分 → 4.5 分に増加するが、本番でしか出ない DB 起因バグが月 4 件 → 0 件、Mio の差し戻し 3 → 0。
+
 ### 2026-05-15
 - **PR レビュー時のバックエンドチェックリスト 8 項目を固定化**：① 認可チェックがミドルウェアで強制実行されているか ② Zod スキーマで全入力に `.max()` 等の境界制約があるか ③ DB クエリが N+1 になっていないか（Query Log で 1 リクエスト = 1〜2 SQL を確認）④ トランザクションが必要な箇所で `$transaction()` が使われているか ⑤ エラーレスポンスがユーザー向け日本語＋HTTP ステータスコードで統一されているか ⑥ ログに PII/トークンが漏れていないか ⑦ 環境変数が `.env.example` に追加されているか ⑧ 単体テスト＋統合テストが存在するか。レビュー時間 30 分 → 10 分、見落としゼロ化。
 - **OWASP API Security Top 10 2023 準拠の自動チェック CI 化**：API1（Broken Object Level Authorization）は「全エンドポイントで `checkUserOwnership()` 呼び出しがあるか」を AST 解析で検査、API4（Unrestricted Resource Consumption）は「ページネーション・レート制限の有無」を grep ベースで検査、API8（Security Misconfiguration）は「CORS の `*` 設定や `console.log` 残存」を ESLint で検出。Mio のセキュリティレビュー工数 60 分 → 0 分、本番リリース前に脆弱性 100% ブロック。

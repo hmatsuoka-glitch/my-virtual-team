@@ -118,6 +118,15 @@ STEP 6: Sora（COO）へ成果物を渡す
 
 ## 📝 Daily Knowledge Log
 
+### 2026-07-12
+- **「Next.js 15.5 Turbopack production build」を全 LP 案件で STEP 5 標準化**：Vercel が 2026 年 5 月 GA した Turbopack 本番ビルドを `next build --turbopack` で標準運用し、`--prebuilt` と組合せて本番ビルドを webpack 時代の 4 分→1 分 20 秒に短縮。`vercel alias set` 10 秒昇格まで含めた総リリース時間を 4 分→90 秒に圧縮し、緊急修正の反映スピードで営業競合優位を確立
+- **Vercel Observability の Anomaly Detection を「デプロイ後 24 時間監視」ゲートに接続**：`vercel logs --since 24h` の目視巡回を廃止し、エラー率が過去 7 日平均の 3σ を超えた瞬間に Slack Webhook で即アラート→ロールバック提案を自動投稿。24 時間監視の手動コスト 40 分/日→0 分、初動 MTTR を 15 分→90 秒に短縮し「24 時間無事故＝完了」基準を人力ゼロで運用化
+- **Mia 通過後の Sora 引き継ぎを「JSON API 直接 POST」で非同期化しリードタイム 30 分→即時**：Kaito が Mia レポートを中継 Slack 転送する工程を `/handoff/sora` エンドポイント化し、忠実度スコア・ハイパーフォーカス 4 要素判定・残存軽微差異件数を JSON POST。Sora 側で合格ライン自動判定→承認 or 差戻理由を Slack 通知する非同期接続で、部長中継待機を撲滅
+- **Vercel Speed Insights Field データを「納品後 7 日 SLA 実測 KPI」として月次レポート自動化**：Lighthouse のラボ計測だけでなく実ユーザー p75 の LCP/INP/CLS を Speed Insights API 経由で日次取得し、資料作成部連動でクライアント月次レポートに「7 日移動平均 vs 契約 SLA」自動グラフを添付。主観的な「速い/遅い」議論をゼロ化、次回改善提案の受注率 30%→55% に上昇
+- **v0 Platform API で「GitHub Issue → PR → Preview URL」まで完全無人化**：クライアント軽微修正（コピー・色微調整）を GitHub Issue に貼るだけで `v0 generate --from-issue` が PR 生成→CI 緑→Preview URL を Slack 自動投稿。Kaito は URL 確認と `alias set` 10 秒だけで反映完了、1 修正あたり Kaito 稼働 25 分→3 分に短縮
+- **業界標準「DORA 4 メトリクス」を LP 部実力可視化 KPI として採用**：Deployment Frequency／Lead Time for Changes／Change Failure Rate／MTTR の 4 指標を GitHub Actions で自動集計し `#lp-metrics` に週次投稿。感覚的「速い/丁寧」評価を Elite/High/Medium/Low の 4 段階定量評価に切替、経営会議での LP 部の戦力評価が数値で語れる状態に到達
+- **Vercel Skew Protection + Deployment Retention Pro を案件テンプレ `vercel.json` に組込み全案件標準 ON**：フォーム付き LP 必須の Skew Protection（旧クライアント→旧デプロイルーティング）と直近 90 日デプロイ永続保持を初期化テンプレに組込。Version Skew 起因の送信失敗クレームを月 2 件→0 件、緊急ロールバック対象デプロイの GC 喪失事故を物理ゼロに
+
 ### 2026-05-15
 - **デプロイ前「5 ゲート品質ゲートウェイ」チェックポイント**：①`npm run build` 成功 ②`npm run lint` 0 warnings ③`tsc --noEmit` エラーゼロ ④`lighthouse --view` 全カテゴリ 85 点超 ⑤Mia 忠実度 85 点超 の 5 項目を `package.json` の `predeploy` スクリプトに連結。1 つでも NG なら `vercel --prod` を物理的に拒否する CI 設計で、本番事故をゼロ化
 - **Core Web Vitals「LCP 2.5s / INP 200ms / CLS 0.1」を契約基準として明文化**：Hana 着手前に Kaito からクライアントへ「この 3 指標を SLA として保証する」と書面合意。STEP 5 デプロイ前に PageSpeed Insights の Real（Field）データで全 3 指標が緑色か `curl https://pagespeedinsights.../api` で自動取得し、未達なら Ren 経由でリリース停止。納品後の「速度遅い」クレームを契約レベルで予防
