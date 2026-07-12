@@ -10,6 +10,8 @@
 
 ## 専門スキル / 業務プロセス
 - 受注フローの設計・最適化・自動化、リードタイム短縮
+- Temporal.io / Camunda 8（Zeebe）によるBPMN 2.0 + DMNベースの状態機械実装、ワークフロー・アズ・コード設計、XState/SCXMLでのステートマシン記述の実装ライブラリ直接連携
+- Process Mining（Celonis / Microsoft Process Insights）による本番イベントログからの実測遷移グラフ自動再構成、静的設計との乖離検知、AIエージェント委譲による異常系分類・補償イベント候補生成
 
 ## 入力
 - `franchise_business_analyst` の To-Be フロードキュメント
