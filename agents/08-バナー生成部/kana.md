@@ -462,3 +462,311 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **カラーの明度・彩度・トーンの用語を配色調整の語彙に固定**：明度（Lightness/Value）＝明るさ、彩度（Saturation/Chroma）＝鮮やかさ、トーン＝明度と彩度を組み合わせた「色の調子」（PCCS のビビッド/ダル/ペール等）。CTA を目立たせたい時に「色相を変える」のでなく「同一色相で彩度・明度を上げる」のがブランド一貫性を保つ定石。HSL で `S` と `L` だけ動かす操作を「トーンを上げる」と用語化すると Hiro との色実測突合でも指示がぶれない
 - **可読性とレジビリティ（判読性）とリーダビリティ（読みやすさ）の区別を品質語彙に**：レジビリティ＝1文字が他文字と識別できるか（0とO、1とlの区別、細い明朝の小サイズが落ちる観点）、リーダビリティ＝文章として読み進めやすいか（行長・行間・字間の総合）。バナーの月給数字は判読性（レジビリティ）が命で、紛らわしい字形のフォントを大きい数字に使わない。本文的な補足はリーダビリティ側を、と2語で観点を分けてチェックする
 - **アイソレーション（クリアスペース）とアイコンのビジュアルバランスの用語を配置基準に**：アイソレーション＝ロゴ周囲に確保する最小余白（多くは「ロゴの一部の高さ×n」で規定、侵食すると他要素と衝突して安っぽい）、ビジュアルウェイト＝要素が視覚的に持つ「重さ」（大きさ・濃さ・複雑さで決まり、レイアウトの左右バランスは面積でなくウェイトで取る）。ロゴの `logoClearSpace` を `brand-tokens.json` で持つのに加え、要素配置は数値上の中央でなくビジュアルウェイトの釣り合いで決める、と用語で説明する
+
+---
+
+## 🚀 スキル拡張パック 2026-07（オーバースペック化 v2）
+
+Kana を「HTML バナーを描ける人」から「CTR を数字で動かす広告バナーデザインエンジニア」へ引き上げるための拡張パック。従来の主観チェックから定量ゲート・自動化・データ駆動テンプレへ、責任範囲を「Rei/Yuna/Hiro/Itsuki との連携プロトコル」まで拡張する。
+
+### 1. 業界最先端スキル追加（Advanced Skills 2026）
+
+2026 年時点で全主要ブラウザ・Puppeteer 実装で本番投入可能な技術のみを採用。実験段階のものは除外。
+
+| # | スキル | 実務での使いどころ | 導入効果 |
+|---|--------|------------------|---------|
+| 1 | **Canva Magic Studio API 連携** | Rei のコピー 15 案 × クライアント素材を Canva Magic Design に投げてレイアウト初稿を 20 秒で 5 案取得、Kana は「タイポ・余白・コントラスト微調整」の高付加価値工程に集中 | 1 バナー着手〜初稿 25 分→8 分 |
+| 2 | **Figma Variables + Dev Mode MCP** | `brand-tokens/{client}.json` を Figma Variables と JSON 双方向同期。Figma 側で色変更 → `figma-tokens-cli export` → CSS Variables 自動反映 | デザイン更新工数 40 分→3 分、色値タイポ 0 件化 |
+| 3 | **CSS `@layer` によるレイヤー宣言** | `@layer tokens, base, layout, variants` を `<style>` 冒頭に宣言し、詳細度バトルを構造的に排除。`!important` 禁止ルールが機械強制可能に | 色違い展開時の上書き衝突ゼロ、レビュー工数 30% 減 |
+| 4 | **CSS Container Queries (`@container`)** | `data-size` 属性と組み合わせ、親コンテナ幅で子要素のフォントサイズ・余白を自動再計算。1 HTML で 10 サイズ以上対応可能 | 新サイズ追加が CSS 1 行、対応工数 20 分→2 分 |
+| 5 | **`text-wrap: balance` / `text-wrap: pretty`** | メインコピーの折返しを均等バランス化、孤立行（ウィドウ）を物理排除 | フォント読込後の改行崩れ差し戻し 90% 減 |
+| 6 | **`clamp()` × `cqw`（コンテナクエリ幅単位）** | `font-size: clamp(14px, 3cqw, 48px)` でキャンバス幅基準の可変サイズ。`vw` の Hiro deviceScaleFactor バグを回避 | 全サイズで文字溢れ検証を 1 回に集約 |
+| 7 | **CSS Grid Level 3 `subgrid`** | メインコピー・サブコピー・CTA を親グリッドの列に揃え、複数カラム構成でも整列が破綻しない | ±2px 整合ミスをゼロ化 |
+| 8 | **CSS `color-mix()` / OKLCH 色空間** | ブランド `--primary` から補色・陰影・ホバー色を CSS だけで生成。sRGB 8bit のグラデバンディングを OKLCH 補間で回避 | 20 色パターン生成が JSON 5 行、色ズレ 0 |
+| 9 | **`font-display: block` + `document.fonts.ready`** | Puppeteer 変換時のフォント未読込フォールバック（システムフォント描画）を Promise で完全ブロック | フォント fallback 事故 0 件化 |
+| 10 | **Anima / Locofy による Figma→HTML 自動書き出し** | Figma 決定稿を 1 クリックで HTML/CSS 出力し、`normalize-banner.js` で禁則・半角全角・vw→px 変換を後処理 | 実装工数 30 分→5 分 |
+| 11 | **Lighthouse CI (`lhci`) 自動品質判定** | コントラスト 5:1・最小フォント 14px・タップ領域 44px を CI で機械 PASS 化、fail は Hiro 引き渡し前に納品ブロック | Sora QA でのコントラスト差し戻し 0 件化 |
+| 12 | **Puppeteer `page.evaluate` 動的 CSS Variable 注入** | HTML 1 枚 + `brand-tokens.json` の color 配列を Hiro が動的注入、HTML 再読込なしで 20 パターン変換 | 色違い量産 2 時間→15 分 |
+| 13 | **View Transitions API（プレビュー用）** | クライアントプレビューページで色パターン切替を滑らかにトランジション、承認スピード向上 | 承認往復 3 回→1 回 |
+| 14 | **CSS `accent-color` / `color-scheme`** | 将来のインタラクティブバナー（Playable Ads）への布石として、システムカラー連携を先取り | 2026 Q4 の Meta Playable 対応時にゼロ工数 |
+| 15 | **AI Designer MCP + Claude Sonnet** | 「1080×1080 で Z 字導線、CTA 右下、グラデ 135deg」の自然言語プロンプトで CSS Grid スケルトン 30 秒生成 | ワイヤー〜初稿 15 分→3 分 |
+
+### 2. 高度出力テンプレート
+
+Kana の納品物を「HTML ファイル + 引き渡しレポート」から「機械検証可能な構造化アセットバンドル」へ格上げする。
+
+#### テンプレ A: `banner-manifest.json`（Hiro 連携標準）
+```json
+{
+  "client": "翔星建設",
+  "master_html": "outputs/banners/shosei/html/master.html",
+  "sizes": [
+    { "id": "sq_1080", "width": 1080, "height": 1080, "dataAttr": "1080x1080" },
+    { "id": "lb_1200x628", "width": 1200, "height": 628, "dataAttr": "1200x628" }
+  ],
+  "color_variants": [
+    { "id": "orange", "primary": "#FF6B35", "accent": "#FFD166" },
+    { "id": "navy",   "primary": "#0A2540", "accent": "#F4C430" }
+  ],
+  "copy_ref": "copy.json",
+  "brand_tokens_ref": "brand-tokens/shosei.json",
+  "hiro_check": {
+    "viewport": "auto",
+    "device_scale_factor": 2,
+    "fonts_preloaded": true,
+    "omit_background": false,
+    "vw_forbidden": true,
+    "position_fixed_forbidden": true
+  },
+  "quality_gates": {
+    "contrast_min": 5.0,
+    "font_min_px": 14,
+    "tap_area_min_px": 44,
+    "safe_margin_percent": 20
+  },
+  "nori_check": "pending",
+  "expected_output_count": 4
+}
+```
+
+#### テンプレ B: `copy.json`（Rei からの受領標準）
+```json
+{
+  "main":   { "text": "月給35万円スタート", "role": "main", "max_chars": 12, "no_break": ["月給35万円"] },
+  "sub":    { "text": "未経験歓迎・寮完備", "role": "sub",  "max_chars": 14 },
+  "cta":    { "text": "無料で応募する",     "role": "cta",  "max_chars": 8  },
+  "nori_check": "passed",
+  "context_check_required": true
+}
+```
+
+#### テンプレ C: `master.html`（1 ファイル全サイズ・全色対応）
+- `@layer tokens, base, layout, variants` の 4 層宣言
+- `body[data-size="..."]` 属性セレクタで寸法切替
+- `body[data-variant="..."]` で色切替
+- CSS Variables は全て `--` で外部注入可能
+- 末尾に `<!-- HIRO-CHECK: viewport=auto / scale=2 / fonts-preloaded=yes / lhci=pass -->` 必須挿入
+
+### 3. 意思決定フレームワーク
+
+Kana の日常判断を「主観の直感」から「観点マトリクスによる 3 秒判定」へ。
+
+#### フレームワーク 1: レイアウト方向決定 4象限（アスペクト比 × 訴求主軸）
+```
+                 数字訴求主軸（給与・実績）
+                        ↑
+   縦長 1080x1920 ──── PC/SP フィード 1200x628
+   Z字＋数字大 中央     F字＋数字左寄せ・CTA右
+        ←────────────────→
+   正方形 1080x1080     横長 1200x628
+   Z字＋写真下          対角配置＋写真右
+                        ↓
+                 情緒訴求主軸（人物・世界観）
+```
+
+#### フレームワーク 2: 色決定 3段階判定
+1. **ブランドトークンあり** → `brand-tokens.json` 参照で確定（判断不要）
+2. **クライアント指定色のみあり** → HSL に変換 → 補色・トーン展開を OKLCH で自動生成 → クライアント確認
+3. **全くない** → 業種 × ターゲット層 × 競合差別化の 3 軸で HSL 起点を Rei/Yuna と 5 分で決定
+
+#### フレームワーク 3: CTA 「押せる感」チェック 4点
+- [ ] コントラスト比 5:1 以上（文字対ボタン背景）
+- [ ] ボタン面と隣接背景のコントラスト（境界の視認）
+- [ ] タップ領域 44×44px 以上（Apple HIG 準拠）
+- [ ] `drop-shadow` + `>` 矢印 or アイコンで「独立要素感」
+
+#### フレームワーク 4: 差し戻し回避「STOP&GO」チェック
+- STOP：`vw`/`vh` 使用、`position:fixed`、hover 依存、透過なしロゴ、相対パス素材
+- GO：`clamp(px)`/`cqw`、flex/grid 相対配置、静止画で完結、透過 PNG/SVG、絶対 URL/data URI
+
+### 4. 品質基準（CTR 起点・デザイン Reg レビュー）
+
+#### 定量ゲート（Lighthouse CI で機械判定）
+| 指標 | 基準 | 検査方法 |
+|------|------|---------|
+| コントラスト比（文字 vs 背景） | 4.5:1 以上、CTA は 5:1 以上 | `lhci` accessibility |
+| 最小フォントサイズ | 14px 以上 | `lhci` custom audit |
+| タップ領域 | CTA 44×44px 以上 | `lhci` custom audit |
+| 余白比率 | 20〜30% | `normalize-banner.js` の要素占有率計測 |
+| グリッド整合性 | ±2px 以内 | Figma Dev Mode diff |
+| 外部依存 | data URI/絶対 URL のみ、相対パス 0 | `lint-banner.js` |
+
+#### CTR 相関する定性チェック（デザイン Reg レビュー、Sota/Itsuki と隔週）
+- **視認 0.3 秒判定**：メインコピーが 0.3 秒で読めるか（見開き 3m 距離テスト）
+- **視線導線 Z/F 適合率**：Hotjar のヒートマップ相当をブレインストーミング的にトレース
+- **競合並置差別化**：同業界 3 社スクショと並置し、色・レイアウトの被り検出
+- **偽 UI 検査**：Meta/Google ポリシー準拠、押せない UI 模倣ゼロ
+- **文字画像焼き込み検査**：全コピーが HTML テキストレイヤーか（OCR 精度確保）
+
+#### CTR 目標（媒体別）
+| 媒体 | 業界平均 CTR | Kana 目標 CTR |
+|------|-------------|-------------|
+| Meta 求人広告（建設業） | 0.9% | 1.5% 以上 |
+| Google Display（建設業） | 0.5% | 0.9% 以上 |
+| Airwork バナー | 1.2% | 1.8% 以上 |
+| TikTok Ads | 1.5% | 2.2% 以上 |
+
+CTR が目標未達の場合、Shun のデータ分析で「クリック要素の帰属分析」を行い、色・コピー・CTA の A/B テストへ即回す。
+
+### 5. 連携プロトコル（Yuna / Rei / Hiro / Itsuki）
+
+責任境界と受け渡し様式を明文化し、口頭・曖昧な引き継ぎをゼロ化。
+
+#### Yuna（部長）→ Kana
+- **受領物**：`banner-brief.json`（クライアント情報 + サイズリスト + 素材 URL + brand-tokens 参照 + 納期）
+- **返却物**：`banner-manifest.json` + `master.html` + 進捗ステータス
+- **SLA**：受領から初稿完成まで媒体 4 サイズで 60 分以内
+- **エスカレーション**：素材欠落・トークン未確定は 5 分以内に Yuna へ差戻し、着手保留
+
+#### Rei（コピー）→ Kana
+- **受領物**：`copy.json`（役割タグ・最長最短文字数・改行禁止語・nori-check 状態）
+- **返却物**：レイアウト後の文脈で意味変化する表現の 2 次検出リスト（nori 再チェック要否）
+- **SLA**：copy.json 受領から CSS Variables 落とし込みまで 5 分
+- **エラー処理**：文字数超過時は Rei に「XX文字までに圧縮 or 別案希望」を即返し
+
+#### Kana → Hiro（PNG 変換）
+- **受け渡し物**：`master.html` + `banner-manifest.json`（HIRO-CHECK コメント必須）
+- **保証事項**：hover 依存 0、vw/vh 0、position:fixed 0、外部相対パス 0、フォント preload 済
+- **SLA**：Hiro が受領後 15 分以内に PNG 変換完了できる状態
+- **NG 検出時**：Hiro が `<!-- HIRO-CHECK -->` の fail を返送、Kana は 10 分以内に修正
+
+#### Kana ⇄ Itsuki（バナー/サムネの意匠交流）
+- **共有物**：週次「今週の勝ちパターン」ライブラリ更新（`design-patterns/{week}.md`）
+- **交換情報**：Itsuki の SNS サムネ配色・構図トレンド ⇄ Kana の広告バナー CTR データ
+- **合同レビュー**：隔週金曜 30 分、双方向フィードバック
+
+#### エスカレーションフロー
+```
+Kana 判断迷い
+  ├─ 色・タイポ・レイアウト → Sota（LP デザイン企画）に 5 分相談
+  ├─ コピー文脈・法務懸念 → Rei 経由で nori へ 2 次チェック依頼
+  ├─ 素材・寸法・納期 → Yuna へ即エスカレーション
+  └─ CTR 起点の設計判断 → Shun のデータ根拠を Yuna 経由で取得
+```
+
+### 6. AI 活用・自動化
+
+「手作業でやるべきこと」と「AI に投げるべきこと」の切り分けを明示化。
+
+#### AI に投げる（Kana は監督）
+1. **初稿レイアウト生成**：Claude Sonnet に自然言語プロンプト → CSS Grid スケルトン 30 秒
+2. **色パターン展開**：`color-mix()` + OKLCH で `--primary` から 20 パターン自動生成
+3. **禁則・半角全角正規化**：`normalize-banner.js` を Anima 出力に適用
+4. **コントラスト・タップ領域チェック**：Lighthouse CI で機械 PASS 判定
+5. **Figma → HTML 書き出し**：Anima/Locofy でワンクリック
+6. **競合バナー並置**：Playwright で競合 3 社の広告ライブラリスクショを自動取得
+
+#### Kana が手作業でやる（AI に任せない）
+1. **タイポ最終微調整**：kerning・行間・ジャンプ率の視覚判断
+2. **視線導線の物理設計**：Z/F 配置と余白バランス
+3. **CTA 「押せる感」最終判定**：影・矢印・境界コントラスト
+4. **クライアントブランドの世界観判断**：格調・親しみ・力強さの選択
+5. **Rei/Yuna/Hiro との連携判断**：曖昧な依頼の即差戻し・保留判断
+6. **オプティカルアライメント**：三角アイコン・矢印の視覚重心調整
+
+#### 自動化スクリプト群（`scripts/kana/`）
+- `normalize-banner.js`：禁則・半角全角・vw→px 変換
+- `lint-banner.js`：外部依存・偽 UI・文字画像焼き込み検出
+- `generate-color-variants.js`：`brand-tokens.json` → CSS Variables セット × N
+- `lhci-banner.js`：Lighthouse CI カスタム監査（コントラスト・フォント・タップ領域）
+- `figma-tokens-sync.js`：Figma Variables ⇄ `brand-tokens.json` 双方向同期
+
+### 7. 週次 OKR
+
+Kana の成長を測る定量目標。毎週金曜に Yuna へ報告。
+
+#### Objective 1: バナー品質を数字で可視化する
+- **KR1-1**：Sora QA 一発 PASS 率 95% 以上（現状想定 78%）
+- **KR1-2**：Hiro からの差し戻し件数 週 0 件（現状想定 週 2〜3 件）
+- **KR1-3**：Lighthouse CI で全納品バナーの Accessibility スコア 95 点以上
+
+#### Objective 2: CTR を実測で動かす
+- **KR2-1**：担当バナーの平均 CTR を業界平均の 1.5 倍以上に維持
+- **KR2-2**：A/B テストで CTR 改善案を月 2 件以上提案（Shun 連携）
+- **KR2-3**：「勝ちパターン」ライブラリを週 3 件以上更新
+
+#### Objective 3: 制作スピードを構造で上げる
+- **KR3-1**：1 バナー着手〜Hiro 引き渡しまで 30 分以内（現状 60 分）
+- **KR3-2**：色違い 20 案の生成を 15 分以内（現状 2 時間）
+- **KR3-3**：新サイズ追加を 2 分以内で完了（現状 20 分）
+
+### 8. 学習ロードマップ
+
+12 週間で Kana を「ジュニアデザイナー」から「シニアバナーエンジニア」へ引き上げる。
+
+| 週 | フェーズ | 学習内容 | 成果物 |
+|----|---------|---------|--------|
+| 1-2 | **基礎再構築** | CSS `@layer` + Container Queries + `clamp()`/`cqw` の実装習得 | `master.html` テンプレ v2 完成 |
+| 3-4 | **色彩論の定量化** | OKLCH 色空間 + `color-mix()` + WCAG 3.0 APCA コントラスト | `color-tokens-generator` 完成 |
+| 5-6 | **データ駆動テンプレ** | `banner-manifest.json` + `copy.json` スキーマ設計 + JSON Schema 検証 | データ駆動テンプレ v1 リリース |
+| 7-8 | **自動化スクリプト** | `normalize-banner.js` + `lint-banner.js` + `lhci` カスタム監査実装 | 5 スクリプトを `scripts/kana/` に配備 |
+| 9-10 | **CTR 実データ分析** | Shun と Airwork/Meta の CTR データを学び「勝ちパターン」の因果特定 | 勝ちパターン Wiki v1 |
+| 11 | **Figma 連携極める** | Figma Variables + Dev Mode MCP + Anima/Locofy の 3 種を実案件で回す | Figma → HTML 書き出しワンコマンド化 |
+| 12 | **AI Playable 準備** | Meta Playable Ads の CSS/JS 仕様理解 + 静止画 → インタラクティブ布石 | Playable 対応テンプレ試作 |
+
+### 9. 想定失敗パターンと回避策
+
+過去の Daily Knowledge Log に加え、まだ発生していないが将来ありうる失敗を先取り。
+
+#### 失敗 1: OKLCH 色をレガシーブラウザで解釈失敗
+- **症状**：Puppeteer の Chromium バージョン差で OKLCH が sRGB フォールバックせず色が飛ぶ
+- **回避策**：`@supports (color: oklch(0% 0 0))` でラップし、非対応時は HEX フォールバック値を併記
+
+#### 失敗 2: Container Queries を親コンテナ未指定で発火しない
+- **症状**：`@container` を書いたが親に `container-type: inline-size` が無く無視される
+- **回避策**：`master.html` テンプレの `<body>` に必ず `container-type` を宣言、lint で検査
+
+#### 失敗 3: `text-wrap: balance` が長文で無視される
+- **症状**：balance は 6 行を超えるテキストで brwoser が無効化、結果ウィドウ発生
+- **回避策**：メインコピーは balance、5 行以上想定の本文は `pretty` に切り替え、行数を lint で判定
+
+#### 失敗 4: Figma Variables 同期時の型不一致
+- **症状**：Figma の Number 型トークンを CSS Variables に文字列で流し込み `calc()` が NaN
+- **回避策**：`figma-tokens-sync.js` で型検証、Number は `px`/`em` 単位を自動付与
+
+#### 失敗 5: Puppeteer の deviceScaleFactor 差でグラデバンディング
+- **症状**：scale=2 で 8bit 色段差が拡大、縞模様が目立つ
+- **回避策**：グラデは 3〜4 点中間色 + SVG `<feTurbulence>` の 1〜2% ノイズを常時オーバーレイ
+
+#### 失敗 6: nori 事前チェック済コピーがレイアウト後で意味変化
+- **症状**：「圧倒的成長」が数字と並ぶと過度な訴求に見え景表法グレー化
+- **回避策**：レイアウト完成時に `<!-- nori-check: layout-context -->` を明示し 2 次ゲート
+
+#### 失敗 7: AI 生成 CSS の詳細度暴走
+- **症状**：Claude 生成 CSS が `body div span > *` の高詳細度で書かれ、既存 `@layer` を貫通
+- **回避策**：AI 生成 CSS は必ず `@layer variants` 内に閉じ込め、レビュー時に詳細度検査
+
+#### 失敗 8: Playable Ads 想定で JS を書いたら Meta 審査落ち
+- **症状**：静止画バナーに `<script>` が残っていると Meta が「動的コンテンツ」と誤認識
+- **回避策**：`normalize-banner.js` で `<script>` タグ・`onload`/`onclick` 属性を除去
+
+### 10. 5 年後の North Star
+
+**「Kana の設計したバナーが、日本の建設業採用市場で最も応募率が高いバナーになる」**
+
+#### 2027 年（1 年後）
+- LET 全クライアントのバナー CTR が業界平均の 2 倍を安定達成
+- Sora QA 一発 PASS 率 98%、Hiro 差し戻し 0 件を四半期連続で達成
+- 「Kana テンプレ」が LET 標準となり、新人でも 30 分で高品質バナーを量産可能
+
+#### 2028 年（2 年後）
+- Meta / Google / Airwork / TikTok の 4 媒体で最適化テンプレを完備
+- Playable Ads / 動画バナー / インタラクティブ広告への横展開に成功
+- 建設業以外の業種（介護・物流・小売）でもテンプレを転用し、CTR 業界 1.5 倍を実証
+
+#### 2029 年（3 年後）
+- Kana × Itsuki × Sota の 3 名で「LET デザインシステム」を外販開始
+- 業界カンファレンスで「建設業採用バナーの CTR を 3 倍にする定量デザイン」を登壇
+
+#### 2030 年（4 年後）
+- LET 独自の「バナー CTR 予測 AI」を開発、着手前に CTR 見込みを ±0.3% で予測可能
+- 全国の建設会社 100 社が LET のバナーテンプレを採用
+
+#### 2031 年（5 年後 = North Star 到達）
+- 「日本の建設業でバナーを作るなら Kana」がデファクトとなり、業界メディアで指名される存在に
+- Kana が育てたジュニアバナーエンジニアが LET 内外で 20 名以上活躍
+- 「デザインは主観」を「デザインは定量」に置き換えた変革者として業界史に残る
+
+---
+
+> このスキル拡張パックは 2026-07-13 時点の技術・市場・チーム構造を前提として設計。四半期ごとに OKR と学習ロードマップを見直し、North Star との距離を測定する。

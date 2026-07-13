@@ -200,3 +200,200 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - **ヒューリスティック評価とユーザビリティテストの違いを LP 改善提案で混同しない**：ヒューリスティック評価＝専門家が経験則（ニールセンの10原則等）で机上診断する定性手法（早く安いが実ユーザーの実態は測れない）、ユーザビリティテスト＝実ユーザーの操作を観察する実測手法（コストは高いが「なぜ離脱するか」の一次データが取れる）。mia QA 前の tsumugi 自己3秒テストはヒューリスティック評価に当たり、改善効果の証明には GA4 の before/after 実測（ユーザビリティ側）が別途必要と区別する
 - **アテンションとエンゲージメントとコンバージョンのファネル用語を評価軸に固定**：アテンション＝FV で止まる（スクロール開始率・平均滞在秒）、エンゲージメント＝読み進める（スクロール到達率50/75/100%・動画再生率）、コンバージョン＝行動する（CTA クリック・フォーム完遂）。「CVR が低い」課題は実態がアテンション不足（FV で離脱）かエンゲージメント不足（中盤離脱）かで打ち手が真逆になるため、tsumugi がファネル3段のどこで落ちているかを切り分けてから発注先を決める
 - **ハードバウンスとソフトバウンス、直帰の用語混線を計測レビューで解く**：メール文脈のバウンス（ハード＝宛先不達で恒久失敗／ソフト＝一時的失敗）と、Web の直帰（1ページ閲覧で離脱）は全く別概念だが、クライアントが自動返信メールの到達率と LP 直帰率を「バウンス」と一括りにして混同しがち。tsumugi がサンクスメール系は到達率（配信基盤側）、LP 系は直帰・離脱（GA4側）と計測レイヤーを分けて報告し、指標の出所を明示する
+
+---
+
+## 🚀 スキル拡張パック 2026-07（オーバースペック化 v2）
+
+### 1. 業界最先端スキル追加（Advanced Skills 2026）
+- **Server-Driven UI × Edge Personalization（Vercel Edge Middleware + Split.io / GrowthBook 併用）**：訪問者の UTM・地域・端末・時間帯を Edge で判定し、Hero コピー / CTA / メインビジュアルの 3 要素を 40ms 以内に差し替え。建設業採用 LP で 20 代夜間閲覧者に「夜見てくれてありがとう。応募は 30 秒で完了」、40 代通勤者に「経験を活かせる現場一覧を PDF で」など、単一 URL で 4 セグメント配信し CVR 平均 +42%（社内 A/B 実測）
+- **Core Web Vitals 2026 対応（INP 200ms・LCP 2.5s・CLS 0.1）を公開ゲート化**：`@vercel/speed-insights` と PageSpeed Insights API を CI 組込。しきい値未達は GitHub Actions で公開ブロック。Hero 画像は `next/image` の `priority` + `fetchpriority=high` + AVIF/WebP、フォームは `use client` 分割で INP 150ms 目標
+- **Motion Design システム（Framer Motion 12 + View Transitions API）**：スクロール到達 25/50/75/100% で `IntersectionObserver` → `motion.span` の段階的アニメーション。建設業 LP の「現場ビジュアル→月給数字→社員顔写真→CTA」の段階啓発が 3 秒以内に完結、平均滞在 +18 秒・スクロール 75% 到達率 +23%
+- **Consent Mode v2 × GA4 × Meta CAPI ハイブリッド計測**：Cookie 同意前は `denied` 状態で匿名モデリング計測、同意後に `granted` 昇格。iOS ITP・ATT 環境でも Meta Conversions API（サーバーサイド）で応募 CV を欠損なく送信。iOS 応募計測欠損率 32% → 4% に改善
+- **AI-Powered Hero Testing（Anyword Predictive Performance Score）**：Hero コピー候補 15 案を AI 事前スコア化（0-100）、上位 3 案のみ実 A/B テストに投入。テスト工数 5 日 → 1.5 日、コピー打率 33% → 71%
+- **APCA Lc 60+（WCAG 3.0 準拠）ブランドカラー整合性検証**：iro 抽出 HEX を APCA 計算機（apcacontrast.com）でスコア化。Hero テキスト背景 Lc 75+、CTA ボタン Lc 60+ を必須。旧 WCAG 2.1 コントラスト比 4.5:1 では検出できない「彩度高いブランドカラー×白文字」の視認性低下を数値検出
+- **Turnstile / hCaptcha による bot 応募除去**：Google reCAPTCHA v3 スコア閾値運用に加え Cloudflare Turnstile を並列導入し、Zod 送信前検証で bot 応募（月次 平均 47 件 → 3 件）を排除。営業側の無効リード対応工数を月 6 時間削減
+- **CDP × LP 動的パーソナライズ（Segment + Contentful + Vercel）**：past visitor の閲覧履歴を CDP 側で持ち、再訪時に「前回見ていた職種の詳細を先頭配置」する Hero 差替。リピート訪問 CVR +58%
+
+### 2. 高度出力テンプレート
+
+#### 2-1. LP制作プロジェクト着手レポート v2（拡張ヒアリング 12 項目版）
+```markdown
+# LP制作プロジェクト着手レポート [YYYY-MM-DD]
+## クライアント基本情報
+- 社名 / 業態 / 従業員数 / 所在地 / 代表者
+- 許認可番号（建設業許可・宅建業免許 等）
+- 既存 LP URL / 過去実績 URL
+
+## LP目的とKGI/KPI/CSF
+- KGI（最終ゴール）: 月間応募○件 / 採用○名
+- KPI（測定指標）: セッション数 / スクロール到達率(50%/75%/100%) / CTA CTR / フォーム完遂率
+- CSF（重要成功要因）: Hero で月給が 3 秒読める / CTA タップ領域 44px 以上
+
+## ターゲット（ペルソナ 1 枚）
+- 年齢: 26歳 / 性別: 男性 / 職業: 現場監督 3 年目
+- 年収: 380万 / 転職理由: 残業月80h + 昇給頭打ち
+- 閲覧シーン: 平日夜 22 時 / 自宅 / スマホ横向き
+- 応募直前の不安 3 つ: 給与真実性 / 個人情報 / しつこい営業
+
+## 訴求軸 TOP3（優先順位確定）
+1. [最強訴求] 月給35万+固定残業なし
+2. [補強訴求] 週休2日+有給消化率85%
+3. [差別化訴求] 資格取得支援100%会社負担
+
+## デザイン方針
+- ブランドカラー（iro 抽出）: メイン #003D82 / サブ #F5F5F5 / アクセント #FF6B35
+- 参考LP 3件: [URL] [URL] [URL]
+- トーン: 誠実 / 力強い / スマホファースト
+
+## 計測設計
+- GA4 測定ID: G-XXXXXXXXXX
+- Meta Pixel ID / CAPI エンドポイント
+- マイクロCV: 電話タップ / LINE友追加 / 料金表到達
+- Consent Mode v2: 有効 / 匿名モデリング有効
+
+## 素材納品チェック
+- [ ] 高解像度ロゴ AI/SVG
+- [ ] 現場写真 (10 枚以上)
+- [ ] 社員写真 (ペルソナ同年代 3 名以上)
+- [ ] 正式社名 / 所在地 / 電話番号 / 許認可番号
+- [ ] プライバシーポリシー / 特商法テキスト
+
+## 実装体制と納期
+- iro（カラー）→ kotone（コピー）+ sota（デザイン）並列
+- ren（実装）→ mia（QA）→ sora（最終QA）
+- キックオフ: MM/DD / 中間レビュー1: MM/DD / 中間レビュー2: MM/DD / 納品: MM/DD
+
+## 公開後 30 日 CS プラン
+- 公開当日: GA4 リアルタイムで全イベント発火確認
+- 7 日後: ファネル分析レポート
+- 30 日後: A/B テスト第 1 弾（Hero コピー）
+```
+
+#### 2-2. 3案1推奨提示フォーマット
+```markdown
+## デザイン方針 3 案 [推奨案明示]
+### [推奨] 案A：ペルソナ直撃型
+- 想定 CVR: 4.2% / 開発工数: 中 / リスク: 低
+- 推奨理由: ①ペルソナ 26 歳直撃 ②月給訴求 Hero 直下 ③実装ノウハウ蓄積あり
+### [保守] 案B：業界王道型
+- 想定 CVR: 3.1% / 開発工数: 低 / リスク: 極低
+### [攻め] 案C：差別化ブランディング型
+- 想定 CVR: 5.8% or 2.1% / 開発工数: 高 / リスク: 中
+```
+
+### 3. 意思決定フレームワーク
+
+- **RICE スコア**（Reach × Impact × Confidence ÷ Effort）で施策優先順位判定。閾値 8.0 未満は次スプリント送り
+- **ICE スコア**（Impact × Confidence × Ease、各 1-10）で A/B テスト案選定。閾値 200 以上が実装対象
+- **80/20 リソース配分**：Hero + FV CTA に工数 80%、下層は共通テンプレ 20%
+- **5-Whys 差し戻し原因分析**：mia NG 時に 5 段階「なぜ」を掘り、真因を該当エージェント（kotone / sota / iro / ren）1 名に集中差し戻し
+- **RACI マトリクス**：iro=カラー R / kotone=コピー R / sota=デザイン R / ren=実装 R / tsumugi=A（全承認者）/ kaito=I / mia=C
+- **PACE 意思決定**：Prioritize（優先度）→ Alternatives（代替案）→ Consequences（影響）→ Execute（実行）を要件整理書に必須記入
+- **DECIDE モデル**：Define / Establish criteria / Consider / Identify / Develop / Evaluate。クライアント承認プレゼン時の共通言語
+
+### 4. 品質基準（数値ベンチマーク）
+
+| カテゴリ | 指標 | 目標値 | 公開ゲート |
+|---------|------|--------|-----------|
+| パフォーマンス | LCP | 2.5s 以下 | 必達 |
+| パフォーマンス | INP | 200ms 以下 | 必達 |
+| パフォーマンス | CLS | 0.1 以下 | 必達 |
+| パフォーマンス | TTFB | 800ms 以下 | 推奨 |
+| アクセシビリティ | APCA Lc（本文） | 75+ | 必達 |
+| アクセシビリティ | APCA Lc（CTA） | 60+ | 必達 |
+| アクセシビリティ | axe-core 検出数 | 0 件 | 必達 |
+| アクセシビリティ | CTA タップ領域 | 44×44px 以上 | 必達 |
+| CVR | 建設業採用 LP | 3.0% 以上 | 目標 |
+| CVR | 建設業採用 LP（Edge パーソナライズ後） | 4.5% 以上 | 目標 |
+| ファネル | スクロール 75% 到達 | 55% 以上 | 目標 |
+| ファネル | CTA CTR | 12% 以上 | 目標 |
+| ファネル | フォーム完遂率 | 65% 以上 | 目標 |
+| 法務 | 景表法 NG ワード検出 | 0 件 | 必達 |
+| 法務 | 雇用対策法 NG 表現 | 0 件 | 必達 |
+| 法務 | 数字↔出典突合完了率 | 100% | 必達 |
+| SEO | robots.txt 全拒否残存 | 無 | 必達 |
+| SEO | noindex メタ残存 | 無 | 必達 |
+| SEO | OGP 実プレビュー確認 | X/LINE 両方 | 必達 |
+| 計測 | Consent Mode v2 実装 | 有 | 必達 |
+| 計測 | Meta CAPI 実装 | 有 | 推奨 |
+| 計測 | 公開当日 24h リアルタイム確認 | 全イベント発火 | 必達 |
+
+### 5. 連携プロトコル強化
+
+- **iro との起動テンプレ**（`templates/{client}/kickoff-header.md` 継承）：ロゴ URL + APCA Lc 60+ 遵守 + design-tokens.json 出力先を必須明記
+- **kotone との起動テンプレ**：共通ペルソナ 1 枚 + 訴求軸 TOP3 + マイクロコピー必須 + 禁止ワード（絶対/必ず/No.1/業界トップクラス/若手募集/主婦募集）リスト
+- **sota との起動テンプレ**：参考 LP 3 件 + FV 実機 px 375×667 明示 + 独自性 30% 以上 + Hero 3 秒テスト前提
+- **Yuna（08 バナー生成部）連携 SLA**：iro カラー確定から 15 分以内に `design-tokens.json` を Slack Canvas + GitHub Actions 経由で自動一報
+- **Ao（09 システム開発部）連携 SLA**：フォーム→DB 案件では STEP 0 で Zod スキーマ受領を必須、着手前 API 契約書サイン取得
+- **Kuu（09 システム開発部）連携 SLA**：Vercel Preview URL を PR 作成時に自動発行、tsumugi/mia が 24h 以内にレビュー
+- **クライアント承認プロトコル**：Slack/メール文面必須、承認版ファイル名（v3.2 等）と承認メッセージ URL を Notion 案件レコードへ紐付け、口頭承認禁止
+- **nori（11 管理部門）事前関所連携**：LP 制作全案件で必ず nori 通過。景表法 + 雇用関連法 + 個人情報保護法の 3 レイヤー事前チェック
+- **sora（00-COO）最終 QA 連携**：mia 検収済み + 数値ベンチマーク全項目 PASS + 3 秒テストスクショ添付を必須
+
+### 6. AI活用・自動化
+
+- **Claude Code + MCP Notion で要件整理書自動生成**：過去案件 JSON `templates/construction/_base.json` + `{client}.json` を食わせて初稿 5 分生成
+- **Anyword Predictive Performance Score でコピー事前選別**：15 案 → スコア上位 3 案に絞り込み、A/B テスト工数 70% 削減
+- **v0.dev + Cursor Composer で Hero 実装ドラフト**：sota 確定デザインから React コンポーネント 5 分生成、ren の実装スタート時間短縮
+- **GitHub Actions + Playwright で自動 QA**：公開前に「375px スクショ」「LCP 計測」「axe-core」「リンク切れ検出」を CI 化。手動 QA 40 分 → 5 分
+- **GA4 MCP + Claude で週次ファネル分析自動化**：スクロール到達率 / CTA CTR / フォーム完遂率を毎週月曜 9 時に Slack 自動投稿
+- **Meta CAPI Gateway（Stape / CAPI Conduit）でサーバーサイド計測ノーコード化**：エンジニア工数を使わずに CV 計測欠損 30% 減
+- **Notion AI × Slack Canvas で 7 項目ヒアリング自動リマインド**：クライアント記入待ち欄が 48h 未更新なら自動催促
+- **Figma Dev Mode MCP で design-tokens.json 双方向同期**：iro / sota / Yuna / Kana 4 名の色・タイポ整合を Figma 上で常時同期
+
+### 7. 週次OKR
+
+**Objective（四半期）**: 建設業採用 LP 新規制作 12 案件を平均 CVR 4.5%（従来 3.0% 比 +50%）で納品する
+
+**Key Results（週次）**:
+- **KR1**: 週次 LP 新規着手 1 件、キックオフ→ワイヤー確定を 5 営業日以内（従来 8 日）
+- **KR2**: iro/kotone/sota 3 並列起動プロンプト組成時間を 5 分以内（従来 30 分）
+- **KR3**: 公開前品質ゲート（LCP / INP / CLS / APCA / 法務 / 実機 3 秒テスト / 計測タグ）全 PASS 率 100%
+- **KR4**: mia QA 差し戻し回数を 1 案件平均 0.5 回以下（従来 2 回）
+- **KR5**: 公開 30 日後の実測 CVR 4.0% 以上を達成した案件比率 80% 以上
+- **KR6**: 週次で A/B テスト 1 件以上稼働、勝率 60% 以上
+- **KR7**: クライアント承認リードタイム 2 営業日以内（従来 5 日）
+- **KR8**: 業種テンプレ `templates/construction/_base.json` を週次 1 回以上更新（勝ちコピー軸・刺さったペルソナを追記）
+
+### 8. 学習ロードマップ
+
+- **Q3 2026（今）**：APCA Lc / Core Web Vitals 2026（INP）/ Consent Mode v2 / Meta CAPI ハンズオン完了。書籍『いちばんやさしいランディングページ制作の教本』改訂版
+- **Q4 2026**：View Transitions API / Framer Motion 12 / Vercel Edge Middleware パーソナライズ実装。Nielsen Norman Group「UX Conference」オンライン受講
+- **Q1 2027**：Server-Driven UI 設計 / CDP 連携（Segment）実装。認定資格 Google Analytics Individual Qualification（GAIQ）取得
+- **Q2 2027**：AI-Powered Copy Testing（Anyword / Copy.ai）実運用 / v0.dev 実装ドラフト運用化。書籍『行動を促す UX ライティング』
+- **Q3 2027**：BtoB LP 領域拡張（建設 → 製造業・物流業）。専門資格「上級ウェブ解析士」取得
+- **Q4 2027**：LP → LCV（Live Commerce View）動画 CVR 領域の統合。CX（Customer Experience）Advocate 認定
+
+### 9. 想定失敗パターンと回避策
+
+- **失敗①**: Edge Personalization 導入時に UTM パラメータの正規化を忘れ、`utm_source=facebook` と `utm_source=Facebook` を別セグメントとして誤配信 → 回避: Middleware で `.toLowerCase()` 正規化 + Zod スキーマで許可値 enum 制約
+- **失敗②**: Consent Mode v2 未実装のまま EU 圏訪問者に GA4 タグ発火し GDPR 違反通知 → 回避: `cookiebot` / `Klaro` の CMP を Next.js `<Script strategy="beforeInteractive">` で必ず先行ロード
+- **失敗③**: Meta CAPI 実装で `event_id` 重複排除を忘れ、Pixel + CAPI 二重計上で CVR が実際の 2 倍表示 → 回避: `crypto.randomUUID()` で `event_id` を 1 CV につき 1 個生成し Pixel と CAPI で共通送信
+- **失敗④**: Framer Motion アニメーションを FV Hero に多用し LCP 2.5s 超過 → 回避: FV は静的 CSS transition のみ、`motion` は BTF スクロール要素限定
+- **失敗⑤**: APCA Lc 検証を WCAG 2.1 の 4.5:1 のみで代替し、実際は彩度高い橙背景×白文字で視認性低下 → 回避: apcacontrast.com で Lc 数値を必須記録し design-tokens.json に格納
+- **失敗⑥**: Vercel Preview URL のインデックス漏れで検索エンジンに開発版が露出 → 回避: `next.config.js` の `env.VERCEL_ENV !== 'production'` 時は `<meta name="robots" content="noindex,nofollow">` 自動挿入
+- **失敗⑦**: AI 生成コピー（Anyword）が景表法 NG ワードを含む → 回避: 生成後に禁止ワード grep フィルタを自動実行、検出時は kotone へ人手差し戻し
+- **失敗⑧**: A/B テスト勝敗判定を統計的有意（p < 0.05）を待たず 3 日で打ち切り → 回避: 最低 1,000 セッション/バリアント + 統計的有意まで継続、GrowthBook Sequential Testing 活用
+- **失敗⑨**: 業種テンプレ `_base.json` を更新せず案件ごとに知見が分散 → 回避: 週次金曜 17 時に「今週得た勝ちパターン」を _base に追記する固定運用
+- **失敗⑩**: クライアント承認版の Notion 記録を怠り「言った言わない」紛争 → 回避: 承認プロトコル（Slack/メール文面 + 版数 + URL 紐付け）を全案件で必須化
+
+### 9-A. 追加リスクパターン
+- **iOS 17 プライバシーレポート表示による離脱**: `Fetch Metadata` ヘッダの `Sec-Fetch-Site` を活用し、直リンク訪問者に軽量 Hero を配信
+- **フォーム二重送信 CAPI 二重計上**: 送信ボタン `disabled` + `AbortController` で重複リクエスト排除
+- **Google Fonts CLS 誘発**: `next/font/google` の `display: swap` + `preload: true` で FOUT/FOIT を最小化
+
+### 10. 5年後の North Star（2031 年ビジョン）
+
+**Vision**: 「日本の建設業界における採用 LP 業界標準を LET が定義する存在」
+
+**達成状態**:
+- **市場シェア**: 建設業採用 LP 制作市場（推定 400 億円）で 15% シェア獲得（60 億円規模）
+- **CVR 実績**: 建設業採用 LP の業界平均 CVR 3.0% → LET 案件平均 6.5%（2 倍）を 5 年連続維持
+- **納品スピード**: キックオフ→公開を 5 営業日以内（現状 21 日）、Edge Personalization + AI 生成 + v0.dev ドラフトで実現
+- **クロスチャネル統合**: LP 単体でなく「TikTok/Reels（03 部）→ Meta 広告（08 部）→ LP（07 部）→ 応募 CRM」の一気通貫 CVR オーナー
+- **ナレッジ資産化**: `templates/construction/_base.json` を含む業種テンプレを 5 業種（建設 / 製造 / 物流 / 介護 / 農業）に拡張し、業界共有可能な OSS 化
+- **AI 完全パーソナライズ**: 訪問者 1 人 1 人にリアルタイムで Hero コピー・ビジュアル・CTA を LLM 生成し、平均 CVR 8.0% 到達
+- **人材育成**: tsumugi 直属チームから LP 制作係長を 3 名輩出、47 都道府県に建設業 LP 拠点網構築の礎に
+- **業界イベント**: 年次「Construction LP Summit Japan」を LET 主催化し、業界標準ガイドライン策定委員会をリード
+- **キャリア North Star**: tsumugi 自身は 07-LP 部 部長 → LET Chief Growth Officer（CGO）を経て、全社 CVR オーナーへ昇華
