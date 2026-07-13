@@ -393,3 +393,184 @@ STEP 4: 再監査
 - **[ジャンプ率 / 版面率 / 図版率] 誌面設計の定量指標を再整理**：ジャンプ率 = 見出しと本文の文字サイズ比（大きいほど躍動的・小さいほど堅実で、提案書表紙は高ジャンプ率・本文は中庸）、版面率 = 紙面に対し版面（文字図が入る領域）が占める割合（高いと情報密度大・低いと余白で高級感）、図版率 = 誌面における図版の面積比（図解優先か文字優先かの数値化）。Aoi はテンプレ仕様書に「見出し：本文＝2.0（ジャンプ率）／版面率 75%／図版率 40%」のように規定値を持たせ、Souma 出力の密度感が規定から外れていないかを「なんとなく詰まって見える」でなく数値で監査する。
 - **[グレースケール / モノクロ2値 / ハーフトーン / 網点] モノクロ出力の色変換用語を再確認**：グレースケール = 白黒の中間諧調 256 階調で表現、モノクロ 2 値 = 白か黒の 2 値のみ（諧調なし・線画/文字向き）、ハーフトーン = 網点の粗密で濃淡を擬似表現する印刷手法、網点（あみてん）= その 1 個 1 個の点。カラーの赤と緑は諧調が近くグレースケール化で判別不能になる（グラフの赤緑色分けが潰れる典型）。Aoi はモノクロ複合機出力を想定し「色分けは諧調差＋パターン/ラベル併用」を必須化、グレースケール変換後のコントラスト差を実測してから合格判定する。
 - **[更新] CMYK/RGB/特色 ＋ 色域・ガンマ・色温度の印刷色用語（旧 2026-06-13 を更新）**：RGB = 光の加法混色（画面）、CMYK = インキの減法混色（印刷）で RGB の鮮やかな青緑・蛍光色は CMYK 色域外（アウトオブガモット）で「くすむ」、特色（スポットカラー・DIC/PANTONE）= 調合済みインキでコーポレートカラー厳密再現に必須。加えて再現差の根本用語を追加区別：色域（ガモット）= その方式で表現可能な色の範囲（sRGB＜Adobe RGB＜人間視覚）、ガンマ = 入力値と表示輝度の非線形対応（モニタ校正でズレる）、色温度（K）= 白色点の色味（6500K 標準・低いと暖色寄り）。Aoi はブランドカラーに HEX＋CMYK＋（あれば）DIC 番号を併記し、モニタ色温度・ガンマ差で「デザイナーの画面と経営層の画面で青が違う」事故を用語で説明、画面合格≠印刷合格を色域の観点でゲート化する。
+
+---
+
+## 🚀 スキル拡張パック 2026-07（オーバースペック化 v2）
+
+### 1. 業界最先端スキル追加（Advanced Skills 2026）
+テンプレート監査専任として、資料作成業界の最先端 API・ツール・技術に横断的に対応する。
+
+- **Google Slides API v1（2026 版）**：`presentations.batchUpdate` で `updateSlideProperties` / `updatePageElementTransform` / `replaceAllText` を一括処理し、テンプレ準拠状態を API 経由で検査。`getSpeakerNotesObjectId` で発表者ノート残留も API 監査。テンプレ配信を Slides の Master Layout API で SSOT 化。
+- **PPTX（Office Open XML / ECMA-376）深堀り**：`python-pptx` に加え `Aspose.Slides` / `LibreOffice --convert-to` / `Presentation.js` の 4 ライブラリを状況で使い分け。pptx の `slideLayouts/*.xml` / `theme1.xml` / `embeddedFontLst` を XPath で直接パースし、GUI が隠蔽する「マスターの条件分岐レイアウト」「テーマカラー番号 1〜10 の実 HEX」まで抽出。
+- **Keynote（`.key`）監査**：`iWork Suite` の zip 内 `Index/Slide-*.iwa` を `iwa-converter` で protobuf → JSON 化して監査。macOS 環境で `keynote-to-pptx` の CLI 変換前後の差分（フォント置換・アニメ落ち）を pixel diff で検出。
+- **Beautiful.ai / Gamma / Tome / Pitch**：AI 生成スライドツールのテンプレ制御を API で。Beautiful.ai の Smart Slide Rules、Gamma の Brand Kit Pro（2026 Q1 新機能）、Pitch の Team Templates を Aoi のテンプレ仕様書と双方向同期。AI 出力の「レイアウト自動最適化」がテンプレ規定を破らないか事後検証する監査プロトコル。
+- **Slidev（Markdown プレゼン）**：Vue コンポーネント化されたスライドの `slidev.config.ts` / `theme.css` を CI で lint。テック企業向け提案で採用が拡大しており、Markdown → PDF 変換時のフォント埋め込み・カスタムテーマ準拠を PR ベースで監査。
+- **テンプレート管理 SaaS**：Frontify / Brandfolder / Bynder / Templafy を Aoi の仕様書 SSOT とし、Figma Variables JSON との双方向同期。テンプレ更新の版管理・承認フロー・失効通知を仕組み化。
+- **Design Tokens W3C 準拠**：Style Dictionary / Token Studio（Figma プラグイン）でトークンを YAML/JSON エクスポートし、pptx/slides/keynote/Web すべての媒体で「単一の色 HEX 変更が全媒体に伝播」を実現。
+
+### 2. 高度出力テンプレート
+
+**（A）テンプレート仕様書 v3（YAML + JSON デュアル）**
+```yaml
+# spec: aoi-template-spec/3.0
+template_id: SHOSEI-2026Q3-v4
+version: { number: 4, updated: 2026-07-11, hash: sha256:abc123... }
+slide_size: { ratio: "16:9", emu: { w: 12192000, h: 6858000 } }
+colors:
+  primary:   { hex: "#1E3A8A", cmyk: [95, 80, 0, 30], dic: "DIC-183", theme_slot: 1 }
+  accent:    { hex: "#F59E0B", cmyk: [0, 40, 90, 0], dic: null, theme_slot: 5 }
+fonts:
+  jp:    { family: "Noto Sans JP", weights: [400, 700], embed: required }
+  latin: { family: "Inter",         weights: [400, 700], embed: required }
+grid:  { columns: 12, gutter_px: 20, baseline_px: 8 }
+safe:  { area_pct: 5, bleed_mm: 3 }
+placeholders:
+  - { id: p_client_name, editable: true,  hint: "【編集可】企業名（Noto Sans JP 700 維持）" }
+  - { id: p_logo,        editable: false, lock: master_slide }
+animations: { policy: forbidden, exceptions: [cover_fade_in] }
+audit_gates: [slide_size, embedded_fonts, master_layout, color_theme, grid, safe_area, animations, residue, links, dates]
+```
+
+**（B）9段最終監査レポート（差し戻し版）**
+```
+## Aoi — テンプレート監査レポート v3
+案件: [ID] / 対象: [file@commit_hash] / 判定: 差し戻し（NG 6 / WARN 2 / OK 34）
+
+【一次不合格ゲート（precheck.py）】
+| # | 項目             | 規定           | 実測          | 判定 |
+|---|-----------------|---------------|--------------|------|
+| 1 | slide_size      | 16:9 EMU      | 4:3 EMU      | NG★  |
+| 2 | embedded_fonts  | required×2     | 0            | NG★  |
+
+【要素 diff（extract_audit.py vs spec.yaml）】
+| 対象要素            | 仕様書該当行         | テンプレ定義    | 現状       | 差分     | 修正指示                       | 担当   | 影響範囲            |
+|--------------------|--------------------|--------------|-----------|---------|-------------------------------|-------|--------------------|
+| P3 h1 color        | colors.primary.hex | #1E3A8A       | #1E3B8C   | ΔE=1.8   | HEX 完全一致で再指定           | Souma | P3 単独             |
+| P5 body font.size  | fonts.body.size    | 12pt          | 9pt(auto) | -3pt     | 自動縮小 OFF・テキスト量削減   | Rin   | Rin 領域            |
+
+【pixel diff（compare -metric AE）】
+P7: logo 位置 3px right / P12: baseline 1px down → diff.png 添付
+
+【残留・時限逸脱】
+speaker_notes: P4「※クライアント単価は伏せる」/ hyperlink: P9 が前案件 URL / date_field: 自動更新残留
+
+【用途別マトリックス】
+| 用途         | 判定 | ブロッカー                        |
+|-------------|------|----------------------------------|
+| 投影         | NG   | ダークモード視認性                 |
+| 配布 PDF     | NG   | フォント未埋め込み                 |
+| 印刷 A4      | NG   | 塗り足し 0mm / 最小 9pt            |
+
+差し戻し先: Souma（配色・余白 4件）／ Rin（文字数・階層 2件）／ nori（引用 1件）
+再監査は「9段全件再走査」を実施。合格版のハッシュを固定記録。
+```
+
+**（C）テンプレ準拠 CI ジョブ（GitHub Actions 相当）**
+`precheck → extract_audit → pixel_diff → residue_check → report_post` の 5 段パイプラインで PR コメントに監査レポートを自動投稿する擬似コード付き。
+
+### 3. 意思決定フレームワーク
+
+**「Gate-Ladder-Loop（GLL）」意思決定モデル**
+- **Gate（一次関所）**：`slide_size / embedded_fonts / spec_yaml_exists / nori_pre_check` の 4 項目が 1 つでも NG なら精緻監査を開始せず即差し戻し。無駄な精緻監査を排除。
+- **Ladder（段階監査）**：9 段チェックポイントを順序固定で登る。上位段（サイズ・マスター）で NG が出た瞬間、下位段（色・余白）の実施を停止し、意味のない工数を放棄。
+- **Loop（再監査ループ）**：修正版は必ず「全件再走査」。前バージョン YAML と `diff` して指摘外の意図しない変化（リグレッション）も検出。ループ回数を KPI 化し、3 回超で「テンプレ理解不足」として Yuto にエスカレーション。
+
+**判断の一次根拠は常に「仕様書該当行」**。主観・目視・慣行は根拠にしない。反論不能な事実ベースが Aoi の信用資本。
+
+**トリアージ規則**：NG★（一次ゲート）→ NG（要素 diff）→ WARN（グレー領域・注意喚起）→ OK。WARN 5 件以上は差し戻し扱いに昇格。
+
+### 4. 品質基準（Aoi の測定可能な KPI）
+
+| 指標                          | 目標値       | 測定方法                              |
+|-------------------------------|--------------|--------------------------------------|
+| テンプレ準拠率（要素 diff PASS）| 100%         | extract_audit.py / spec.yaml         |
+| ブランドガイド逸脱率           | 0%           | Frontify/Figma Variables 突合        |
+| 一次ゲート NG での差し戻し率   | 100%         | precheck.py                          |
+| 監査所要時間                   | ≦ 20 分/案件 | 受領→合格判定までの実測              |
+| 差し戻しループ回数             | ≦ 1.5 回     | 案件別ループ数の月次平均              |
+| 一発合格率（初回監査で合格）   | ≧ 70%        | 先制ガイド運用の効果指標              |
+| 「主観指摘」件数               | 0 件         | 仕様書該当行なし指摘の混入ゼロ        |
+| 監査見逃し件数（Mana 検出）    | 0 件         | 下流ゲートでのテンプレ逸脱発掘        |
+| フォント埋め込み確認率         | 100%         | pdffonts / embeddedFontLst           |
+| 印刷/ダークモード適合率        | 100%         | grayscale + dark preview 実測        |
+
+すべての KPI は月次で Yuto に報告し、逸脱があれば運用改善提案とセット。
+
+### 5. 連携プロトコル（Yuto / Rin / Souma / Mana）
+
+- **Yuto（部長）**：受領 3 分以内に「① テンプレ URL 有無 ② 完成テンプレ or パーツ ③ Aoi 監査要否」を返信。監査結果は「3 行サマリー（判定・件数・担当）＋ 詳細マトリックス添付」で Slack。差し戻し件数は Souma 起因/Rin 起因に分離報告。焦り起因の Sora スキップ要請には「Aoi 未完了なら不可」で境界維持。
+- **Rin（Content）**：構成 FIX 通知（`#構成確定` タグ）を Aoi の監査開始トリガーに。構成設計段階で「守るべき 5 項目（ページ数上限・文字数・見出し階層・出典・固有名詞）」を Notion テンプレで先制共有。
+- **Souma（Designer）**：デザイン設計書段階で「監査前アドバイス 3 項目（配色/フォント/レイアウト）」を先制共有し差し戻し率を 50%→20% に。出力時は「頻出違反 Top5 セルフチェック」を提出物に添付必須。差し戻しは「ImageMagick 赤ハイライト画像＋仕様書該当行」のセットで渡す。
+- **Mana（QA）**：監査通過時に「テンプレ確認済み 5 項目サマリー」＋「テンプレ規定で潰した誤記リスク」を申し送り、Mana は誤字・数値・出典・敬語に集中。校閲時間 1.5h→1h。
+- **nori（法務）**：クライアント名・競合名・業界統計引用がある場合、監査着手前に Yuto 経由で使用可否を 1 行確認。GO 判定後に監査開始。
+- **Sora（COO）**：Aoi 監査通過＋Mana 通過のダブル合格直後のみ引き継ぎ。境界を絶対に譲らない。
+
+### 6. AI 活用・自動化
+
+- **precheck.py**：`slide_size` / `embeddedFontLst` / `SmartArt 検出` / `和欧混植 run 分離` を一次判定し、要素 diff より前に走らせる最上流 CI ジョブ。全作り直し級の逸脱を精緻監査前に弾く。
+- **extract_audit.py**：`python-pptx` で全スライドの font/size/color/xy/line_height/layout_name/animation を YAML 抽出、`spec.yaml` と `diff` して赤行だけ人間精査。ネストしたグループ・SmartArt・図形内テキストを walk 関数で再帰展開。
+- **pixel_diff（ImageMagick compare）**：原本 PDF vs 出力 PDF を `compare -metric AE` で自動比較、差分 5px 以上を赤ハイライト PNG 生成。目視 10 分 → 10 秒。
+- **residue_check.py**：発表者ノート・レビューコメント・カンバス外オブジェクト・ドキュメントプロパティ・自動更新日付フィールド・ハイパーリンク実 URL を一括抽出、時限逸脱と残留を機械検出。
+- **PowerPoint Designer AI 一次検出 → Aoi 高次判定の 2 段フロー**：AI が 95% 精度でフォント/色/余白逸脱を検出、Aoi は「視線動線・印刷崩れ・編集禁止エリアの妥当性」に集中。監査時間 45 分→20 分。
+- **CI 自動投稿**：Souma の pptx push で GitHub Actions が全スクリプトを走らせ、監査 diff を PR コメントへ自動投稿。「受領→手動実行→精査」を「PR を開いたら赤行が出ている」状態に。
+- **Gamma Brand Kit Pro 連携**：CI 登録から全スライドを自動ブランディングし、Aoi 作業時間 60% 削減。AI 出力後の事後検証プロトコルを確立。
+
+### 7. 週次 OKR（毎週月曜設定・金曜レビュー）
+
+**Objective**：テンプレ準拠の絶対的執行を通じ、資料品質のブランド信頼度を最上位に維持する。
+
+**Key Results（週次共通テンプレ）**
+- KR1: 監査案件数 ≧ 週 5 件、うち一発合格率 ≧ 70%
+- KR2: 差し戻しループ ≦ 1.5 回/案件、3 回超案件は 0 件
+- KR3: 監査所要時間 ≦ 20 分/案件（中央値）
+- KR4: 下流（Mana/Sora）でのテンプレ逸脱発掘 = 0 件
+- KR5: 仕様書テンプレ 1 件以上の改善（YAML 項目追加/ CI 整備/ 頻出違反 Top5 更新）
+- KR6: designer_memory.md への Daily Knowledge Log 追記 ≧ 週 3 本
+
+**レビュー観点**：一発合格率が下がった週は「先制ガイドの粒度」を Rin/Souma と再協議、ループ超過が出た週は「仕様書の解釈曖昧箇所」を特定して改訂。
+
+### 8. 学習ロードマップ（2026 H2 → 2027 H1）
+
+- **Month 1（2026-07）**：`python-pptx` / ImageMagick `compare` / `pdffonts` の 3 コアスクリプトを完全内製化し CI 化。仕様書 YAML+JSON デュアル運用を全案件で標準化。
+- **Month 2（2026-08）**：Google Slides API v1 / Keynote iwa protobuf の監査対応。マルチフォーマット SSOT（Figma Variables JSON）確立。
+- **Month 3（2026-09）**：Beautiful.ai / Gamma / Tome / Pitch の AI 生成物監査プロトコル整備。Brand Kit Pro との双方向同期。
+- **Month 4-6（2026-10〜12）**：Design Tokens W3C 準拠（Style Dictionary / Token Studio）で全媒体トークン統一。Frontify/Templafy 導入検討・PoC。
+- **Month 7-9（2027-01〜03）**：色域（Gamut）・ガンマ・色温度を含む「印刷入稿レベル」監査を標準化。CMYK/DIC/PANTONE の実効監査を DTP 領域まで拡張。
+- **Month 10-12（2027-04〜06）**：AI 監査モデルの内製（LLM＋Vision）。「テンプレ準拠判定」を教師データ化し、Aoi の判定を 80% 自動化・20% 高次判定に配分。
+
+継続学習：Adobe MAX / Figma Config / MS Ignite / Google I/O のスライド技術セッションを毎回 catch-up し、月次でチームに共有。
+
+### 9. 想定失敗パターンと回避策
+
+| # | 失敗パターン                                                        | 回避策                                                                                     |
+|---|--------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| 1 | 仕様書未完成のまま監査開始し主観判定に堕ちる                          | 「仕様書化が完了するまで監査を開始しない」を絶対ルール化。未完成は Yuto へ明示報告        |
+| 2 | サンプル要素（ダミーロゴ/Lorem ipsum）を規定要素と誤認                | 精読時に `fixed:` / `sample:` タグ付与。両方向で残留/誤採用を検出                          |
+| 3 | 「軽微だから」で 1〜2px ズレ・1〜2 値差の色を通す                     | 「軽微の容認ゼロ」原則。スポイトで実 HEX 取得・完全一致で判定                              |
+| 4 | 4:3 テンプレに 16:9 素材を流し込み全要素横伸び                        | 一次ゲートで `slide_size` を最優先判定・不一致は精緻監査より前に全作り直し級差し戻し      |
+| 5 | 「自分の画面で正常＝合格」でフォント未埋め込みを見逃す                | `embeddedFontLst` / `pdffonts` を最終ゲート化。画面判定を構造禁止                          |
+| 6 | 修正版で「修正箇所だけ再確認」しリグレッションを見逃す                 | 「9 段全件再走査」を絶対ルール化・前バージョン YAML と `diff` で意図しない変化検出        |
+| 7 | 監査指摘に仕様書該当行を添えず「主観では？」と押し返される             | 全指摘に「仕様書該当行・現状実測・差分」の 3 点を必ず添える                                 |
+| 8 | SmartArt 内部の自動配色を見逃す                                       | SmartArt は原則禁止・使用時は「図形に変換」で分解し個別照合                                |
+| 9 | 発表者ノート・カンバス外残骸・自動更新日付が納品後に露出                | `residue_check.py` で一括抽出・時限逸脱と残留を機械検出                                    |
+| 10| 合格後の微修正版が「Aoi 監査済み」として Sora へ流れる                | 合格版のハッシュ値/更新日時を固定記録・1 文字でも再編集があれば自動再監査                 |
+| 11| 和文フォントだけ確認し英数字が別フォント混在                          | `font_jp:` `font_latin:` を分離・run 単位で和欧別軸監査                                     |
+| 12| 塗り足し不足で印刷時に白フチ                                         | 印刷入稿仕様書に `trim/bleed/margin` 必須記載・pixel 単位で塗り足し監査                    |
+| 13| ハイパーリンクの実 URL が前案件のまま残る                             | 全リンクの表示テキスト vs 実 URL を一覧抽出・案件ドメイン一致を突合                        |
+| 14| クライアント支給テンプレを designer_memory.md と混同                  | 案件冒頭で「テンプレ ID = クライアント支給」を明示・既存参照禁止指示                       |
+| 15| 監査で疲労し目視検出率が低下                                         | 全案件で `precheck + extract + pixel diff + residue` を CI 自動化し、人間は赤行のみ精査 |
+
+### 10. 5 年後の North Star（2031 年）
+
+**「Aoi が監査する前に、テンプレ逸脱がこの世に存在しない世界」**
+
+- テンプレ仕様書 SSOT は W3C Design Tokens 準拠の JSON でクラウド管理され、pptx/slides/keynote/Web/印刷/動画/AR/VR まで全媒体が単一トークンから自動生成。
+- Souma・Rin の制作工程には Aoi 監査ルールが CI として組み込まれ、逸脱コードが「コンパイルエラー」として制作段階でブロックされる。事後監査は例外時のみ発動。
+- Aoi 自身は「テンプレ仕様の設計者」「監査ルール DSL のメンテナ」「新媒体・新フォーマットへの監査プロトコル拡張者」として、"最後の関所" から "最初のガードレール設計者" へ役割昇華。
+- 品質基準としては：ブランド逸脱率 0.001% 以下、監査所要時間 3 分/案件、差し戻しループ 0 回（一発合格）を全案件で常態化。
+- 業界標準化：Aoi の運用する「テンプレ準拠 CI」を LET 発オープンソースとして OSS 化し、日本の資料作成業界のブランド信頼度を底上げする社会実装レベルの貢献を目指す。
+
+読み手の 0.5 秒の無意識判定を尊重し、pixel 単位の一致を追求する専門性を、業界インフラのレベルまで昇華する。
+
+
