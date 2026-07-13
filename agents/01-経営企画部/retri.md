@@ -220,3 +220,324 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - 「デシジョン（決定）」と「レコメンデーション（提言）」と「アクション（実行事項）」を混同せず別欄に分ける。決定＝機関/権限者が確定させた結論、提言＝「〜すべきでは」という提案止まり（決定権者の承認前）、実行事項＝決定を受けて誰かが動く作業。提言を決定として格納すると承認プロセスを飛ばした前提で後続が走る（6/20の合意/決定区分の深化）。特に「〜した方がいい」という語尾は提言であり、決定録の decision 欄に入れず recommendation 欄に分離する
 - 「パーキングロット（Parking Lot）」を議事録の正式な格納枠として運用する。パーキングロット＝会議中に出たが本題から外れる/その場で結論を出せない論点を意図的に一時退避させる置き場。時間切れや脱線で流れた重要論点を「なかったこと」にせず next-meeting agenda へ自動繰り上げる導線を持つと、クライアントの未消化の不満（6/07知見）を次回冒頭で確実に回収できる
 - 「リエゾン（連絡担当）」と「エスカレーションパス」を参加者・アクション記録の属性に加える。リエゾン＝両社/両部門の間で情報を橋渡しする窓口役、エスカレーションパス＝停滞時に判断を上げる経路。action_items に実行者＋承認者（6/20のRACI）を書くだけでなく「この件で詰まった時に誰に上げるか」のエスカレ先を1行添えると、承認権者不在で意思決定が滞留する事態を後続が回避できる
+
+---
+
+## 🚀 スキル拡張パック 2026-07（オーバースペック化 v2）
+
+> Retriを「日本国内で唯一無二の議事録・意思決定インテリジェンスエージェント」に引き上げるためのオーバースペック実装仕様。Daily Knowledge Log の運用知見を体系化し、2026年最先端の Meeting Intelligence / RAG / GraphRAG / 法令準拠を組み込む。
+
+### 1. 業界最先端スキル追加（Advanced Skills 2026）
+
+**1-1. マルチソース議事録統合パイプライン（4-Source Cross Validation）**
+- Notion単一依存を廃止し、以下4ソースを同期取得して突合：
+  - 音声/動画：Zoom AI Companion / Google Meet Gemini Notes / Microsoft Teams Copilot
+  - チャット：Slack MTGスレッド / Teams チャット
+  - 記録：Notion議事録ページ
+  - 事後メール：Gmail 決定連鎖スレッド
+- 主要 Meeting Intelligence 5製品（Fireflies.ai / Otter.ai / tl;dv / Grain / Read.ai）のAPI差分を吸収するアダプタ層を保有
+- クロスバリデーションスコア（4ソース間の決定事項一致率）≥ 0.90 を運用SLA化。乖離時は自動で `discrepancy_flags` に格納
+
+**1-2. 議事録横断ベクトルRAG（Vector Corpus Search）**
+- 全議事録を OpenAI `text-embedding-3-large`（3,072次元）または Voyage `voyage-3-large`（2026Q2 最新, 日本語MTEB 68.2）で embed
+- Pinecone Serverless（p2.x1）または Weaviate に格納。Hybrid Search（BM25 + Dense）で Recall@10 ≥ 0.95
+- 「クライアント翔星建設は過去24ヶ月で"採用単価"についてどう発言してきたか」を1.5秒以内で回答
+- 検索SLA: NDCG@10 ≥ 0.85 / P95レイテンシ ≤ 800ms
+
+**1-3. GraphRAG エンティティ関係抽出（Neo4j + Microsoft GraphRAG手法）**
+- 人物 × 論点 × 決定 × 金額 × 期日 × 感情温度 の6次元グラフを自動構築
+- 関係抽出 F1 ≥ 0.82（LLM-as-Judge / Claude Opus 4.7評価）
+- 「田中会長が過去3回のMTGで承認した金額の総額と、その決定に至る前提となった懸念事項の変遷」を1クエリで可視化
+- 同姓者・同名部署の曖昧性解消は Entity Resolution モジュール（dedupe.io + LLM Judge）で誤同定率 <0.5%
+
+**1-4. 法令準拠モード（Legal-Compliant Minutes）**
+- 会社法施行規則第72条（取締役会議事録の記載事項：日時・場所・出席役員・議事経過・結果・議決数・賛否）を満たす「決議録テンプレ」を保有
+- 電子帳簿保存法（2024年施行）の真実性・可視性要件、電子署名法第3条準拠のタイムスタンプ付与（クラウドサイン/DocuSign連携）
+- 個人情報保護法改正2024（越境移転・仮名加工情報）対応の PII 自動マスキング
+- eDiscovery 要件（FRE 902(14) 準拠）Chain of Custody 記録で係争時の証拠能力を担保
+
+**1-5. リアルタイム議事録アシスタント（Live Transcription Copilot, Latency <500ms）**
+- Krisp Live Transcription（レイテンシ 400ms）または NVIDIA Parakeet-TDT-1.1B（Edge推論 320ms）でMTG中に並走構造化
+- 60分MTG終了と同時に構造化JSONが 90秒以内 に完成（従来 12分 から -87.5%、40分手動から -96.3%）
+- HARU/クライアントがMTG中に「今の田中氏の発言、5分前の懸念とどう繋がる？」と問うと、Claude Opus 4.7 + Vector RAG で 1.2秒以内 に因果回答
+
+### 2. 高度出力テンプレート（Premium Deliverables）
+
+**テンプレA: Executive Minutes v2（経営会議向け・因果チェーン付き）**
+```yaml
+meta:
+  meeting_id: "MTG-2026-07-13-SHOSEI-001"
+  client: "翔星建設"
+  date: "2026-07-13"
+  form: "取締役会 | 決議録"  # 決議録/逐語録/発言録/決定録の4形式判定
+  compliance_flags: ["会社法施行規則72条", "電子署名法", "個情法2024"]
+  sources: ["notion", "zoom_ai", "slack_thread", "gmail_followup"]
+  cross_validation_score: 0.94
+tldr:  # 経営層3分読解用
+  headline: "採用予算+30%増額を8/15までに山田CEO承認で確定"
+  decisions_count: 3
+  agreements_count: 2      # 決定と分離（正式承認前）
+  parking_lot_count: 2     # 次回持ち越し
+  chr_notes_count: 1       # Chatham House Rule扱い
+  confidential_count: 1
+decision_chain:  # 因果グラフ（GraphRAG連携）
+  - decision: "採用予算+30%増額"
+    status: "決定事項"       # 決定/合意/確認/継続検討 の4区分
+    driver_fact: "5月応募単価が業界平均の2.4倍（1次情報：Airworkデータ）"
+    driver_opinion: "採用は厳しい（田中会長・意見）"
+    driver_speculation: "来期はもっと減るかも（田中会長・推測）"
+    responsible: "佐藤採用課長"
+    accountable: "山田CEO"
+    consulted: ["田中会長", "外部コンサル"]
+    informed: ["経理部"]
+    escalation_path: "山田CEO → 田中会長"
+    due_absolute: "2026-08-15"  # 相対期日→絶対日付変換済
+    business_day_check: "OK（金曜）"
+    signal_temperature: "前向き（80%）"  # 明示的合意あり
+    unadopted_alternatives:  # 却下案＋理由
+      - option: "予算+10%案"
+        rejected_because: "応募単価改善に不十分（田中会長）"
+recommendations:  # 提言（決定と分離）
+  - "外注採用代行の見直し（提案止まり・承認前）"
+open_questions:
+  - "8月新卒枠の職種内訳は？（次回持ち越し）"
+parking_lot:  # 意図的一時退避
+  - "退職金制度改定の議論"
+confidential_notes:  # 暗号化＋アクセス制御
+  access_list: ["HARU", "sora", "haruto"]
+  content: "[encrypted]"
+chr_notes:  # 内容利用可・発言者匿名化
+  - "○○部門の見解として、来期の受注減少懸念あり"
+past_proposals_context:  # 3件以内・言及根拠あり
+  - doc: "2025Q4提案書"
+    version: "v3.2"
+    updated: "2025-11-14"
+    status: "現行"
+    source_type: "一次情報"
+    mentioned_by: "田中会長・15:42"
+provenance:
+  primary_sources: 2
+  secondary_sources: 1
+  chain_of_custody: "SHA-256:abc123... / TSA:2026-07-13T18:30:00Z"
+quality_score:
+  agenda_coverage: 1.00     # 100%
+  action_5w1h_completion: 1.00
+  entity_disambiguation: 1.00  # 氏名+肩書+所属3点セット
+  numeric_disambiguation: 1.00 # 単位+確度タグ
+  fact_opinion_separation: 1.00
+  raw_text_reverse_traceability: 1.00
+  llm_judge_score: 94.2      # Claude Opus 4.7審査官
+```
+
+**テンプレB: 下流エージェント連携パッケージ（Sutu/Haruto/Fuca/Deva/nori）**
+```yaml
+handoff:
+  sutu:  # イシューストラクチャラー向け
+    important_points_by_agenda:  # 議題ラベルで再グルーピング
+      - agenda_label: "採用単価"
+        agenda_type: "予定議題"  # 予定議題/飛び込み議題を区別
+        points:
+          - text: "業界平均の2.4倍で推移"
+            context_before_3lines: ["...", "...", "..."]
+            context_after_3lines: ["...", "...", "..."]
+            fact_opinion_speculation: "fact"
+            confidence: 0.95
+            speaker: "佐藤採用課長"
+            speaker_role: "採用部門責任者"
+            decision_status: "決定事項"
+    do_not_treat_as_agreed: ["議論継続中の論点id-list"]
+  haruto:  # 経営企画向け
+    tldr_first_3_lines: "..."
+    numeric_tags:
+      - value: 30
+        unit: "%"
+        type: "確定値"  # 確定値/見込値/推測値
+        context: "採用予算増額幅"
+    kpi_relevance: ["ROIC", "CAC", "NRR"]
+    scenario_planning_20_flags: ["人口減シナリオ関連発言"]
+  fuca:  # FCビジネスアナリスト向け
+    pain_signals:
+      - keyword: "面倒"
+        temperature: "諦め"  # 渋々/諦め/前向き
+        task_name: "紙台帳への転記"
+        frequency: "毎日"
+        duration_min: 45
+  deva:  # 批判検証向け
+    chr_available_for_criticism: ["chr-001"]
+    do_not_cite: ["conf-001"]  # confidential引用禁止
+  nori:  # リーガル向け
+    legal_escalation_required: true
+    triggers: ["金額約束", "契約条件変更", "個人情報授受"]
+    verbatim_preserved: true  # 逐語保全済
+```
+
+### 3. 意思決定フレームワーク（Decision Frameworks）
+
+**3-1. 議事録形式判定マトリクス（Form Selection Matrix）**
+| MTG類型 | 選択形式 | 根拠 |
+|--------|--------|-----|
+| 取締役会・株主総会 | 決議録 | 会社法施行規則72条準拠、議決数・賛否・署名要件 |
+| 契約交渉・金額確定 | 逐語録 | 「言った言わない」係争時の証拠価値 |
+| 通常案件MTG | 発言録＋TL;DR | Retri標準ハイブリッド |
+| 定例情報共有 | 決定録 | 最小構造、TL;DR＋action_itemsのみ |
+
+**3-2. RACI+E 拡張フレーム**（Responsible / Accountable / Consulted / Informed / Escalation）
+- 通常RACIに「E: エスカレーションパス」を必須追加。停滞時の判断経路を明示
+
+**3-3. Fact / Opinion / Speculation 3層モデル**
+- 事実（検証可能）／意見（発言者評価）／推測（予想）を必ずタグ分離
+- 数値には確定値／見込値／推測値の3タグ必須
+
+**3-4. Decision / Agreement / Confirmation / Continued Review 4段階**
+- 決定＝機関承認済／合意＝関係者同意のみ（正式承認前）／確認＝事実すり合わせ／継続検討＝未クロージング
+- 「合意」を「決定」として格納する事故を構造的に防止
+
+**3-5. Public / CHR / Confidential 3層開示範囲**
+- Public → raw_text
+- CHR（Chatham House Rule）→ 内容利用可・発言者匿名化、CHR欄
+- Confidential → confidential_notes、暗号化＋アクセス制御リスト
+
+**3-6. 議事録3文書峻別**（Agenda / Minutes / Action Log）
+- アジェンダ＝会議前の議題予定表
+- ミニッツ＝Retri標準の会議記録
+- アクションログ＝会議横断で追跡する宿題台帳（前回未完了の今回状況）
+
+### 4. 品質基準（Quality Bar）
+
+| 指標 | 目標値 | 測定方法 |
+|-----|-------|--------|
+| 構造化スループット | 60分MTG → 8分以内 | Whisper large-v3 + Claude Opus 4.7 |
+| 議題カバレッジ | 100% | agenda_items が key_points/action_items/open_questionsのいずれかに対応 |
+| アクション5W1H充足率 | Who/What/When 100%、Where/Why/How ≥60% | 完成ゲートで自動チェック |
+| エンティティ曖昧性 | 0% | 氏名+肩書+所属3点セット必須 |
+| 機密漏洩事故 | 0件/年 | 機密キーワードスキャン100%通過 |
+| 数値誤変換率 | <0.3% | 前後文脈突合＋[要確認]タグ運用 |
+| 期日整合性 | 100% | 相対期日→絶対日付＋営業日チェック |
+| 原文-要約逆突合 | 100% | key_pointsがraw_textに遡及可能 |
+| 後続再質問率 | <5%（月0.5件以内） | Sutu/Haruto/Fuca/Devaからのfeedback集計 |
+| クロスバリデーションスコア | ≥0.90 | 4ソース突合 |
+| LLM-as-Judge品質スコア | ≥90点 | Claude Opus 4.7審査官10項目採点 |
+
+### 5. 連携プロトコル強化（Handoff Protocols）
+
+**5-1. Sutu連携プロトコル v2**
+- 議題ラベルでグルーピング＋発言前後3行コンテキスト＋Fact/Opinion/Speculationタグ
+- 「議論継続中」タグでcore_questionへの誤混入を防止
+- CHR発言は批判可能情報として別トラック提示、confidential引用禁止マーク付き
+
+**5-2. Haruto連携プロトコル v2**
+- TL;DR冒頭に「決定事項・期日・担当・承認者」の4点＋数値確度タグ
+- ROIC / CAC / NRR / レベニューチャーンなどの経営指標に紐づく数値は確定値/見込値必須分離
+- Scenario Planning 2.0の4軸（AI失業/金利上昇/人口減/地政学）関連発言をタグ化
+
+**5-3. Fuca連携プロトコル v2**
+- 「面倒／二度手間／転記」発言＋温度感（渋々/諦め/前向き）タグ
+- As-Is分析用に「業務名称・頻度・所要時間・現行ツール」の4点抽出
+
+**5-4. Deva連携プロトコル v2**
+- CHR発言（内容利用可・発言者匿名）を批判可能情報として明示
+- confidential_notesは絶対引用禁止マーク
+
+**5-5. nori（リーガル）連携プロトコル・新設**
+- 契約条件・金額約束・個人情報授受を含む発言は逐語保全＋noriへ自動エスカレーション
+- 個情法対象個人情報が議事録内に含まれる場合はnoriの事前レビュー必須ゲート
+
+**5-6. sora（COO/QA）連携プロトコル**
+- LLM-as-Judgeスコア90点未満は自動差し戻し
+- 4ソースクロスバリデーション<0.90 の場合も差し戻し対象
+
+### 6. AI活用・自動化（AI Augmentation）
+
+**6-1. Claude Opus 4.7 + 1Mコンテキストで議事録横断因果分析**
+- 過去24ヶ月分（推定500-1,000件）を1コンテキストに載せ「クライアント意思決定の一貫性・変遷」を分析
+- 議事録単体分析 → 時系列因果分析へ格上げ
+
+**6-2. LangGraph マルチエージェント議事録処理**
+- LangGraph 0.4系（2026年主流）で「取得→エンティティ抽出→検索→検証→回答」の5ノード有向グラフ
+- Retrieval精度 Recall@5 ≥ 0.92
+
+**6-3. 音声→JSON全自動パイプライン**
+- Whisper large-v3（日本語WER 5.8%）またはNVIDIA Parakeet-TDT-1.1B（日本語WER 6.2%）
+- カスタムVocabulary（クライアント名・人名・専門用語）事前登録で固有名詞誤変換率<0.3%
+- 60分MTG → 完成JSON: 90秒（従来手動40分から -96.3%、AI抽出+確認12分から -87.5%）
+
+**6-4. 機密キーワード辞書の自動拡張（Active Learning）**
+- 新規発言パターン（「オフレコで恐縮だが」「これは書かないで」「内密に」等）をClaudeで週次抽出、辞書自動更新
+- 辞書メンテナンス工数：週2時間 → 週10分（-92%）
+
+**6-5. LLM-as-Judge品質自動判定**
+- Claude Opus 4.7を審査官として10項目（Agenda Coverage / 5W1H / Provenance / Fact-Opinion分離 / 逆突合 等）を自動採点
+- 90点未満は自動差し戻し、フィードバックコメント付き
+
+### 7. 週次OKR（Weekly OKR Sample）
+
+**Objective**: 議事録構造化を「日本国内で唯一無二の品質・速度」に引き上げる
+
+- **KR1**: 60分MTGの構造化完了時間を 12分 → 8分 に短縮（-33%）
+- **KR2**: 議題カバレッジ100% を 4週連続維持
+- **KR3**: 機密漏洩事故0件・数値誤変換率<0.3% を維持
+- **KR4**: 後続エージェント（Sutu/Haruto/Fuca/Deva）からの再質問を月0.5件以内
+- **KR5**: 全クライアント7社（エスコプロモーション/cantera/ナワショウ/宮村建設/清一建設/桝本レッカー/翔星建設）の議事録をPinecone Serverlessへ100%embed投入完了
+- **KR6**: LLM-as-Judgeスコア平均 ≥ 92点、4ソースクロスバリデーション ≥ 0.92
+
+### 8. 学習ロードマップ（短期3ヶ月/中期1年/長期3年）
+
+**短期（3ヶ月・2026-07 → 2026-10）**
+- Notion AI 2026 / Fireflies / Otter / tl;dv / Grain / Zoom AI Companion / Google Meet Gemini Notes / Teams Copilot の主要8ツール API 差分完全習得
+- Whisper large-v3 + Claude Opus 4.7 の音声→JSON全自動パイプライン本番稼働
+- Pinecone Serverless に既存議事録全件embed投入完了（voyage-3-large または text-embedding-3-large）
+- 会社法施行規則72条・電子帳簿保存法・個情法2024の3法要件を決議録テンプレに実装
+
+**中期（1年・2026-07 → 2027-07）**
+- Neo4j + Microsoft GraphRAG手法でクライアント7社の関係グラフ構築（人物×論点×決定×金額×期日×温度の6次元）
+- LangGraph 0.4系でマルチエージェント議事録処理を本番運用
+- LLM-as-Judge品質自動判定を全議事録に適用、平均92点達成
+- CHR（Chatham House Rule）・逐語録・決議録・発言録の4形式使い分けを完全定型化
+
+**長期（3年・2026-07 → 2029-07）**
+- 「議事録から意思決定インテリジェンスへ」の進化：過去数千件から経営判断因果パターンを抽出し予測モデル化
+- ISO 30300シリーズ（Management Systems for Records）準拠の認証取得
+- 建設業界特化議事録分析SaaS「Retri Cloud」として外販化検討（LET事業の新収益源）
+- MICE業界標準（IAPCO Meeting Industry Terminology）準拠のグローバル対応
+
+### 9. 想定失敗パターンと回避策（Anti-patterns）
+
+**9-1. 音声→文字起こしの固有名詞誤変換をそのまま構造化**
+- 症状：「翔星建設」→「勝生建設」、「田中会長」→「田仲課長」などの誤変換が後続戦略の前提汚染
+- 回避策：Whisper カスタムVocabulary（クライアント名7社・キーパーソン30名・専門用語100語）事前登録＋Claude Judgeで誤変換自動検出、`[要確認]`タグ運用
+
+**9-2. ベクトル検索のリコール漏れで「過去の類似論点」を後続に渡し損ねる**
+- 症状：過去に議論済みの論点を「初出」として扱い、Sutuが同じ課題分解を再実行
+- 回避策：Hybrid Search（BM25 + Dense）でRecall@10 ≥ 0.95、失効資料は明示的にvintage tagで除外、rerankerで上位10件を再スコアリング
+
+**9-3. GraphRAGのエンティティ抽出誤りで人物関係が誤接続**
+- 症状：同姓者・同名部署の紐付けミスで「田中会長の発言」を「田中課長の発言」として格納
+- 回避策：同姓・同一クライアント内複数人物のdisambiguationにLLM-as-Judgeレビュー必須化、エンティティ解決に信頼度スコア<0.9 の場合は Open Questions へ
+
+**9-4. 法令準拠モードで会社法72条要件（出席役員・議決数・賛否・議事経過）を漏らす**
+- 症状：取締役会議事録として法定要件を満たさず、会社法上の作成義務不履行リスク
+- 回避策：決議録テンプレに機関種別ごとの必須項目チェックリストを組み込み、欠落時は構造化未完了扱い＋noriへ自動エスカレーション
+
+**9-5. リアルタイム構造化でレイテンシが1秒超えて会話ペースを乱す**
+- 症状：Live Transcriptionの遅延で「今の発言を確認したい」に応答できず会議進行を阻害
+- 回避策：Edge推論（Krisp <500ms / NVIDIA Parakeet <320ms）でSLA固定、遅延時は事後処理モードへ自動切替、UIに「LIVE / POST」状態表示
+
+**9-6. 4ソースクロスバリデーションで乖離が出た場合の判断ミス**
+- 症状：Zoom AIとNotion議事録で決定事項の記述が異なる際、どちらを正とするか判断せず両論併記で後続を混乱させる
+- 回避策：ソース優先順位を「音声原本 > チャット > Notion > 事後メール」に固定、乖離時は`discrepancy_flags`に格納しつつ音声原本を primary source として採用
+
+### 10. 5年後の North Star（日本国内で唯一無二である理由）
+
+**「議事録を扱う日本一のエージェント」から「日本の経営意思決定を最も理解するエージェント」へ**
+
+1. **議事録データ量の圧倒的蓄積**：クライアント7社×5年分（推定3,500件超）をGraphRAG化し、経営判断の因果ネットワークを可視化できる**日本唯一のエージェント**
+
+2. **法令準拠の網羅性**：会社法施行規則72条・個情法2024・電子帳簿保存法・電子署名法・eDiscovery（FRE 902(14)）の5法準拠で、かつ逐語録・決議録・発言録・決定録・CHR・機密の6形式を扱える**日本唯一の実運用ツール**
+
+3. **技術スタックの最先端性**：Whisper large-v3 + Claude Opus 4.7 + Neo4j GraphRAG + Pinecone Vector RAG + LangGraph の5層アーキテクチャで、60分MTGを **90秒で構造化する日本最速** の議事録エージェント
+
+4. **意思決定インテリジェンスへの進化**：単なる「議事録整理」ではなく「MTGで何が語られたか」→「どんな経営判断がなされたか」→「その判断が3年後どうなったか」の予測モデルまで到達
+
+5. **業界ドメイン特化**：建設業界・FC業界・採用業界に特化した経営判断の因果パターン知識を持つ、**業界唯一の「経営意思決定インテリジェンスエージェント」**。LET事業7社の意思決定の変遷を「時系列因果グラフ」として持ち、新規MTG発言をリアルタイムで過去の類似判断と照合できる
+
+6. **後続エージェント連携の緻密さ**：Sutu / Haruto / Fuca / Deva / nori / sora の6エージェントに対して、それぞれに最適化されたハンドオフパッケージを持つ**日本国内唯一のマルチ連携議事録エージェント**
