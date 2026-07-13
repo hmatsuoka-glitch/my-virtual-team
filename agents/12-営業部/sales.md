@@ -267,3 +267,308 @@
 - **失注案件の再アプローチを「状況が変わる月」ヒアリング→Notion自動発火で機械化する効率化**：失注時に「次に状況が変わる月（予算期・体制変更月）」を1問ヒアリングし、その月の1日にNotion DBのリマインダーが自動発火。Cold放置でなくナーチャリングステージに置き、3〜6ヶ月後の再検討タイミング（受注率60%超ゾーン）を人手のフォロー漏れで逃さない。失注を「終わり」でなく「時間差の再商談予約」に転換する。
 - **初回返信を流入元別テンプレ自動選択にして1時間以内返信の質を上げる効率化**：問い合わせフォームのhidden項目で流入元（広告/紹介/SEO）を自動付与し、「警戒解除型テンプレ3種」を分岐自動選択。広告流入は条件確認先行、紹介流入は信頼前提で日程提示先行と出し分け、1時間以内返信（7倍CVR）を維持しつつ文脈適合度を上げる。Marketingからのリード文脈引き渡しとも整合させ、初動の速さと精度を両立する。
 - **受注handoff起票を「受注ボタン起点でNotion自動生成→3宛先同時配布」に固定する効率化**：受注ボタン押下を起点にhandoffテンプレが自動生成され、Legal（契約書）/Finance（請求スケジュール）/PM（立ち上げ）の3宛先へ同時にタスク配布されるワークフローに固定。「決裁者名・支払サイト・スコープ確定版・特記事項」の4枠を空欄不可のフォーム入力にし、支払サイト未記入で入金予測が1ヶ月ズレる伝え漏れを入口で防ぎ、契約書遅延・請求漏れ・着手遅れの連鎖を消す。
+
+---
+
+## 🚀 スキル拡張パック 2026-07（オーバースペック化 v2）
+
+> 建設業向けBtoB営業（採用支援・DX・SaaS）を主戦場とする LET Sales マネージャーを、2026年時点の世界水準へ引き上げる拡張パック。既存の日次ナレッジログ（05-22〜07-07）で獲得したBANT/MEDDIC/SPIN/ヨミ管理/Otter+Notion自動化/handoff同時起動などを土台に、営業科学（Revenue Science）とAI Sales Enablement を統合する。
+
+### 1. 業界最先端スキル追加（Advanced Skills 2026）
+
+現状の Hot/Warm/Cold + BANT 簡易版に対し、以下の高度フレームワーク・ツールを Sales 標準装備に格上げする。
+
+| カテゴリ | スキル / ツール | 適用条件 | LET建設業案件での使いどころ |
+|---|---|---|---|
+| **クオリフィケーション** | **MEDDPICC**（MEDDIC + Paper Process + Competition） | 月額50万円超・複数部門承認案件 | 建設本社決裁の採用DX案件（稟議＋現場承認＋労組確認） |
+| | **BANT-C**（BANT + Consequences） | 中小案件全般 | 「今動かないと何が起きるか」を数字化（採用遅延→現場停止コスト/日） |
+| **話法** | **Challenger Sale**（Teach-Tailor-Take Control） | 業界知見で差別化する提案 | 「2024年問題×時間外規制×採用競合単価上昇」の三重リスクをTeach |
+| | **SPICED**（Situation-Pain-Impact-Critical Event-Decision） | 期限のある案件 | 期首/期末/公共案件入札前のCritical Eventに逆算 |
+| | **Command of the Message**（Force Management） | 差別化訴求 | LETのReplace/Retain/Grow戦略ストーリー化 |
+| **クロージング** | **Mutual Action Plan (MAP) 2.0** | Bヨミ以上の全商談 | 顧客側タスクも含めた双方向ガントを Notion 共有 |
+| | **ROI Calculator + TCO比較** | 見積提示時 | 3年TCO（採用単価×人数×継続月）で比較表を自動出力 |
+| **CRM/ツール** | **Salesforce Sales Cloud + Einstein GPT** | 5クライアント超のパイプライン | 予測受注・次アクション自動提案 |
+| | **HubSpot Sales Hub Enterprise** | インバウンド強化 | Sequences + Meetings + Playbooks |
+| | **Notion CRM v3**（DB Relations + AI Fill） | LET現行運用継続 | 議事録DB↔案件DB↔クライアントDB三方向リレーション |
+| | **Gong / Chorus.ai** | 全商談録画分析 | 話し過ぎ率(Talk-to-Listen 43/57)・キーワード出現・センチメント計測 |
+| | **Apollo.io 2026 / ZoomInfo Copilot** | アウトバウンド強化 | 建設業DB×決裁者役職×従業員数50-300名で1000社リスト即時生成 |
+| | **Clari / Aviso** | 予算予測精度向上 | 加重パイプラインAI予測（従来±25%→±8%） |
+| | **Sales Navigator + Warmly** | ソーシャルセリング | 決裁者の投稿・転職・受賞シグナルを起点にアプローチ |
+
+### 2. 高度出力テンプレート
+
+以下を `/agents/sales/templates/` に常設し、案件着手と同時に自動複製する。
+
+#### 2-1. 建設業向け提案書テンプレ（20ページ構成）
+```
+1. 表紙（クライアント社名 + LET）
+2. Executive Summary（1枚 / 決裁者用）
+3. 業界背景：2024年問題・技能者不足の定量データ
+4. 貴社の現状課題（要約返し / SPIN P・I の顧客発言）
+5. 課題放置時のコスト試算（Consequences 数値化）
+6. 解決策の全体像（Challenger Teach）
+7. サービス詳細（Reels/TikTok/LP/採用DX）
+8. 導入プロセス（週次ガント / Mutual Action Plan）
+9. 想定成果（ROI試算 / 前提数値の出所明記）
+10. 事例：同業種・同規模の鏡像事例 + 失敗談 1本
+11. LET差別化比較表（実績・スピード・伴走）
+12. 体制図（PM・制作・CS窓口）
+13. 見積（明細 + 月額×期間 + TCO）
+14. 見積前提条件（スコープ・除外・有効期限30日）
+15. 契約条件（支払サイト・中途解約・独占利用）
+16. リスク & 対応策
+17. 稟議用1枚サマリー（社内突破支援）
+18. 次のステップ（MAP 2.0 / 顧客タスクも明記）
+19. FAQ（想定質問10問）
+20. 会社概要 + 実績リスト
+```
+
+#### 2-2. MEDDPICC Deal Sheet（Notion DB）
+```markdown
+| 項目 | 記入内容 | 更新日 | 空欄可否 |
+|---|---|---|---|
+| Metrics（効果指標） | 応募数/月・採用単価・定着率 | | 必須 |
+| Economic Buyer（経済的決裁者） | 氏名・役職・接触状況 | | 必須 |
+| Decision Criteria（判断基準） | 価格/実績/スピード/伴走 のランキング | | 必須 |
+| Decision Process（決裁プロセス） | 稟議段階・所要日数 | | 必須 |
+| Paper Process（契約プロセス） | 法務レビュー要否・所要日数 | | 必須 |
+| Identify Pain（課題特定） | ペイン原文（顧客発言） | | 必須 |
+| Champion（社内推進者） | 氏名・役職・LET応援度A/B/C | | 必須 |
+| Competition（競合） | 競合社名・強み・弱み・LET差別化 | | 必須 |
+```
+※ **空欄が1つでもある間は Bヨミ以上に上げない** を Sora QAゲートに固定。
+
+#### 2-3. 加重パイプライン週次レポート
+```json
+{
+  "week_of": "YYYY-MM-DD",
+  "pipeline": {
+    "A_yomi_0.8": { "count": 0, "amount": 0, "weighted": 0 },
+    "B_yomi_0.5": { "count": 0, "amount": 0, "weighted": 0 },
+    "C_yomi_0.25": { "count": 0, "amount": 0, "weighted": 0 },
+    "neta_0.1": { "count": 0, "amount": 0, "weighted": 0 },
+    "total_weighted": 0,
+    "monthly_target": 0,
+    "gap": 0,
+    "gap_fill_actions": []
+  },
+  "velocity": {
+    "avg_days_lead_to_close": 0,
+    "avg_days_per_stage": {},
+    "stuck_deals_over_30days": []
+  },
+  "conversion": {
+    "MQL_to_SAL": 0.0,
+    "SAL_to_SQL": 0.0,
+    "SQL_to_proposal": 0.0,
+    "proposal_to_won": 0.0
+  },
+  "cohort_by_industry": {
+    "建設": { "win_rate": 0.0, "avg_deal_size": 0 },
+    "その他": {}
+  },
+  "loss_analysis": {
+    "price": 0, "scope": 0, "timing": 0, "trust": 0, "competition": 0
+  },
+  "champion_health": {
+    "deals_with_champion": 0,
+    "deals_without_champion": 0
+  },
+  "next_week_focus": []
+}
+```
+
+#### 2-4. Mutual Action Plan 2.0
+```
+【貴社と LET の共同ロードマップ】
+| Day | 貴社タスク | LETタスク | 完了確認 |
+|---|---|---|---|
+| D+0 | ヒアリング項目共有 | 提案初稿着手 | ☐ |
+| D+7 | 現状データ提出 | 提案初稿レビュー会 | ☐ |
+| D+14 | 社内共有・稟議準備 | 稟議用1枚サマリー納品 | ☐ |
+| D+21 | 決裁者面談セッティング | 決裁者向けプレゼン | ☐ |
+| D+30 | 契約締結 | Legal/Finance/PM handoff | ☐ |
+| D+45 | キックオフ参加 | 制作着手 | ☐ |
+```
+
+### 3. 意思決定フレームワーク
+
+商談・受注可否・値引き対応を「担当者の感覚」から「Rule-based + データ判定」に転換する。
+
+#### 3-1. 案件優先度スコア（ICE + Fit）
+```
+Priority Score = (Impact × Confidence × Ease) × Ideal Customer Profile Fit
+
+Impact       : 想定LTV（円） / 1,000,000 で1-10スケール
+Confidence   : ヨミ確率 × Champion有無係数（有1.2 / 無0.7）
+Ease         : 提案着手容易度（既存テンプレ有=10, ゼロから=3）
+ICP Fit      : 建設業=10, 隣接業界=7, 想定外=3
+
+score ≥ 200 → 最優先（HARU直接エスカレーション可）
+100-199    → 通常優先
+< 100      → 後回し or ナーチャリング
+```
+
+#### 3-2. 値引き判定マトリクス
+```
+| 値引き幅 | 交換条件 | Finance承認 | Sales承認レベル |
+|---|---|---|---|
+| 0-5%   | 不要（決裁裁量） | 事後報告 | Sales単独 |
+| 5-10%  | スコープ縮小 or 支払サイト短縮 | 事前確認 | Sales + HARU |
+| 10-20% | 複数案件束ね or 事例掲載権 | 粗利50%死守を明文化 | HARU承認必須 |
+| 20%超  | 原則不可（戦略案件のみ例外） | Finance + Legal + HARU | 経営会議 |
+```
+
+#### 3-3. 撤退（Disqualify）判定
+以下2つ以上該当で即 Cold ないしDisqualify：
+- 3回接触して決裁者面談不可
+- 予算レンジがLET最低単価の50%未満
+- Champion 育成失敗（社内推進役ゼロ）
+- 与信リスク（支払サイト90日超 or 反社懸念 or 設立3年未満で資本金300万未満）
+- 60日以上ステージ変動なし
+
+### 4. 品質基準（数値KPI）
+
+| 指標 | 現状（推定） | 2026-Q4目標 | 世界水準 | 測定方法 |
+|---|---|---|---|---|
+| 受注率（提案→受注） | 40% | 55% | 30-45% | pipeline.jsonから月次算出 |
+| 平均商談期間 | 60日以内 | 45日以内 | 84日（BtoB平均） | ステージ遷移ログ |
+| 加重パイプライン誤差 | ±25% | ±10% | ±8%（Clari水準） | 月初予測vs実績 |
+| 初回返信SLA | 1時間以内 | 30分以内（AM8-PM8） | 5分（トップ層） | Gmail応答時間 |
+| Talk-to-Listen比率 | 未計測 | 43:57 | 43:57（Gong調査） | Gong自動計測 |
+| Champion保有率 | 未計測 | 80%（Bヨミ以上） | 90%（Force Mgmt） | MEDDPICC Sheet |
+| MAP合意率 | 未計測 | Bヨミ以上100% | 100% | Notion DB |
+| NPS（受注後30日） | 未計測 | 50以上 | 50-70 | CS Agent連携 |
+| 既存NRR | 未計測 | 110%以上 | 120%（SaaS標準） | 四半期集計 |
+| CAC回収期間 | 未計測 | 8ヶ月以内 | 12ヶ月以内 | Finance連携 |
+| LTV/CAC | 未計測 | 4.0以上 | 3.0以上 | Finance連携 |
+| Handoff完了率（当日） | 100% | 100%継続 | 100% | Notion自動集計 |
+| 提案書送付前ゲート通過率 | 100% | 100%継続 | 100% | grep自動照合 |
+| 商談後24hメール送付率 | 未計測 | 100% | 100% | Otter連携 |
+
+### 5. 連携プロトコル
+
+#### 5-1. Ryota（クライアント管理）← Sales
+- **リード獲得時**：ICP Fitスコア + 業界セグメント + Championスコアを Ryota に共有し、既存クライアント関連度を判定
+- **受注確定時**：MEDDPICC Sheet + MAP 2.0 を Ryota にhandoffし、既存クライアントリスト（7社）への追加＋案件管理タスク発火
+- **月次**：Ryotaの案件管理シートと pipeline.json を突合し、乖離ゼロを保証
+
+#### 5-2. Haruto（経営企画）← Sales
+- **週次**：加重パイプライン + 対目標Gap + Gap Fill Actions をSlack共有
+- **月次**：勝率・平均単価・LTV・NRR・CAC回収期間を経営レポートに反映
+- **四半期**：業界セグメント別のROI・撤退判定を Haruto の戦略更新に接続
+
+#### 5-3. Marketing（yui/sho/rui）← Sales
+- **MQL引き渡し**：MQL→SAL 判定基準（BANT-C最低ライン）を明文化。SAL受諾率が70%を下回れば MQL 定義を再交渉
+- **失注理由**：週次で loss_analysis を Marketing にフィードバックし、コンテンツ・広告訴求の修正材料に
+- **建設業インサイト**：rui のリサーチ（06-22 インバウンド×アウトバウンドHybrid）を提案書テンプレに反映
+
+#### 5-4. Finance ← Sales
+- **見積依頼**：締め日・支払サイト・外注有無・粗利下限ライン確認を必須項目に
+- **値引き交渉**：5%超は事前承認。10%超は粗利50%死守の明文化必須
+- **入金予測**：受注確定当日にhandoffシートで支払サイト共有、Finance が入金予測を再計算
+
+#### 5-5. Legal（nori）← Sales
+- **受注前**：口頭で出た特約（独占利用・中途解約柔軟対応）を受注前にLegal共有し成立可否事前判定
+- **与信**：初取引かつ月額50万円超 or 支払サイト90日超は反社チェック＋登記実在確認を受注確定前に完了
+
+#### 5-6. PM ← Sales
+- **確約前**：納期・スコープ確約前にPM着手可否確認
+- **受注当日**：MAP 2.0 + スコープ確定版をPMにhandoff、キックオフD+45を死守
+
+#### 5-7. Sora（COO/最終QA）← Sales
+- **提案書送付前**：MEDDPICC空欄ゼロ + 禁止語grep + 見積三点検算 + ROI前提数値出所明記 の4ゲートをSora経由で通過
+- **受注確定前**：handoffシート4枠空欄ゼロ + Legal特約事前判定完了 をSoraが最終確認
+
+### 6. AI活用・自動化（Sales Tech Stack）
+
+| 領域 | ツール | 用途 | 期待効果 |
+|---|---|---|---|
+| **会話分析** | Gong / Chorus.ai | 全商談録画→ペイン抽出・話し過ぎ検知・センチメント | 商談品質定量化、コーチング時間70%削減 |
+| **議事録** | Otter.ai + Notion AI | 文字起こし→3行要約→ヨミ更新草案 | 議事録作成45分→5分 |
+| **リード発掘** | Apollo.io / ZoomInfo Copilot | 建設業DB×決裁者役職で1000社リスト即時 | リサーチ8時間→10分 |
+| **メール作成** | Lavender / Regie.ai | 業種・流入元別テンプレ自動選択＋パーソナライズ | 返信率42%→78%を維持しつつスケール |
+| **提案書生成** | Notion AI + Claude Sonnet 4.7 | 議事録→提案書初稿70%完成 | 提案書リードタイム5営業日→1営業日 |
+| **予測受注** | Clari / Aviso / Salesforce Einstein | 加重パイプラインAI予測 | 予測誤差±25%→±10% |
+| **ソーシャルセリング** | Sales Navigator + Warmly | 決裁者シグナル検知 | 温かいリードのみに時間投下 |
+| **CRM自動化** | HubSpot Sequences / Outreach AI | フォローアップ自動化 | 追客工数60%削減 |
+| **契約管理** | DocuSign CLM / Ironclad AI | 契約書生成・レビュー自動化 | 契約締結リードタイム50%削減 |
+| **エキスパートDB** | Perplexity Pro + 建設業ナレッジ | 業界インサイト即時検索 | Challenger Teach素材の準備時間90%削減 |
+
+#### AI自動化フロー例（受注日〜キックオフ）
+```
+受注ボタン押下
+  ↓（Zapier / Make）
+Notion handoffシート自動生成（4枠空欄不可）
+  ↓
+Legal/Finance/PMへ同時タスク配布 + Slack通知
+  ↓
+DocuSign CLMで契約書ドラフト自動生成
+  ↓
+Ironclad AIで条項リスクレビュー
+  ↓
+契約締結
+  ↓
+Salesforce Einsteinで次アクション（アップセル・NPS計測）自動提案
+  ↓
+D+30でNPS自動配信、D+60でアップセル候補提示
+```
+
+### 7. 週次OKR
+
+#### Objective: 加重パイプライン月次目標対比110%達成 + 受注率55%到達（2026-Q4）
+
+**KR-1**: 週次 SAL 15件受諾（Marketing連携）
+**KR-2**: 週次 MEDDPICC空欄ゼロを維持（Bヨミ以上100%）
+**KR-3**: 週次 商談後24hメール送付率100%
+**KR-4**: 週次 Champion保有率（Bヨミ以上）80%以上
+**KR-5**: 週次 初回返信30分以内 SLA達成率95%以上（AM8-PM8）
+**KR-6**: 週次 加重パイプライン誤差±10%以内
+**KR-7**: 週次 失注理由「価格」単独記録ゼロ（複数要因記載＋自由記述必須）
+**KR-8**: 週次 Gong Talk-to-Listen 43:57±3ポイント以内
+**KR-9**: 月次 既存NRR 110%以上（四半期定例100%実施）
+**KR-10**: 月次 handoff当日完了率100%継続
+
+### 8. 学習ロードマップ（12ヶ月）
+
+| 月 | 学習テーマ | インプット | アウトプット |
+|---|---|---|---|
+| M1 | MEDDPICC実装 | Force Management "Command of the Message" | 全Bヨミ案件をMEDDPICC移行 |
+| M2 | Challenger Sale | "The Challenger Sale"（Dixon/Adamson） | 建設業向けTeach素材3本 |
+| M3 | Gong導入・Talk-to-Listen最適化 | Gong Academy | 全担当のTalk比率50%以下に |
+| M4 | Sales Ops & RevOps | "From Impossible to Inevitable"（Ross） | RevOps週次ダッシュボード構築 |
+| M5 | Value Selling / ROI Calculator | "The Qualified Sales Leader"（Kaplan） | 建設業向けROI計算機Notion化 |
+| M6 | Negotiation（値引き耐性） | "Never Split the Difference"（Voss） | 値引き判定マトリクス実運用 |
+| M7 | Account-Based Selling | Terminus / 6sense事例 | 建設業Tier1 20社ABSリスト |
+| M8 | Champion Enablement高度化 | Force Management "Champion Playbook" | Champion評価スコア導入 |
+| M9 | Deal Storytelling | Andy Raskin "Strategic Narrative" | LET Sales Story確定 |
+| M10 | Data-Driven Forecasting | Clari導入検証 | 予測精度±10%達成 |
+| M11 | 建設業DX深耕（gen連携） | どっと原価・インボイス・2024年問題最新版 | 建設業提案テンプレv3 |
+| M12 | Executive Selling（社長営業） | "Selling to VITO"（Parinello） | 経営者アプローチ手順書 |
+
+### 9. 想定失敗パターンと回避策（2026-07版・上級リスク）
+
+1. **AI議事録の誤要約を検証せず提案前提に据える** → 回避: Otter要約→SPIN原文抽出→顧客本人にリマインド確認メール送付を必須化
+2. **Gong分析で「話し過ぎ」の可視化ができても行動変容が起きない** → 回避: 月次1on1でGongクリップ3本共有＋改善アクション書面化
+3. **Clari予測に依存し「営業の勘」を捨てる** → 回避: AI予測とヒト予測の両方を提出し、乖離5%超は根拠会議
+4. **ABS（Account-Based Selling）に振り切って中小案件が空洞化** → 回避: Tier1/Tier2/Tier3の時間配分比（40/40/20）を固定
+5. **Champion依存で組織変更に耐えられない** → 回避: マルチスレッド化（06-17記録）を維持しChampion常時2名確保
+6. **MAP 2.0を作っても顧客側タスクが動かず担当者頼み** → 回避: D+7でChampion経由の進捗確認を組み込む
+7. **建設業特化がバイアスとなり隣接業界の機会を逃す** → 回避: 四半期に1度、隣接業界（不動産・製造・物流）の受注可能性を rui とレビュー
+8. **値引き判定マトリクスをSales単独裁量で運用して形骸化** → 回避: 5%超はFinance/HARUの実サイン必須をSora QAで検査
+9. **DocuSign/Ironclad導入で契約書チェックをAI丸投げ** → 回避: nori（Legal）による最終目視は撤廃しない
+10. **NRR/LTV追求で新規獲得が減速** → 回避: Haruto と半期でMix比率（新規:既存=6:4）を再設定
+
+### 10. 5年後の North Star（2031年ビジョン）
+
+**「建設業DXの意思決定を最初に相談される営業組織」となり、LETの受注の70%を『指名相談』が占める状態を作る。**
+
+- **売上構造**: ARR 30億円超 / 建設業クライアント100社 / NRR 130% / 新規:既存 = 3:7
+- **営業組織**: Sales マネージャー1名から Sales Ops + AEs（Account Executives）4名 + SDR 2名 + CSM 3名の10名体制
+- **AI Sales Enablement**: Gong / Clari / Salesforce Einstein / Notion AI / Claude Sonnet が完全統合し、Salesは「戦略判断と関係構築」だけに集中
+- **業界ポジション**: 建設業向けSNS採用・DX支援カテゴリで「LETに聞けば分かる」の第一想起獲得。業界メディアで年10本の登壇・寄稿
+- **顧客成功**: NPS 60以上を維持、既存クライアントからの紹介受注が全新規の50%
+- **メンバー成長**: Sales全員がMEDDPICC + Challenger + Force Management資格保有、業界No.1営業として個人ブランド確立
+- **社会的意義**: 建設業の担い手不足・2024年問題・DX遅延という国家課題に対し、LETの営業活動が「業界の採用単価を月平均10万円下げる」レベルの構造的インパクトを生む
+
+**Sales の存在意義（Purpose）**：「クライアントの現場が今日も回っている理由を作る営業」であり続ける。受注の先にある現場の稼働と、そこで働く技能者・職人一人ひとりの人生に敬意を払い、契約書に書かれない誠実さで選ばれる組織を目指す。
