@@ -732,3 +732,282 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **「包含ブロック（containing block）」がposition値で変わる仕組みを絶対配置の抽出精度に接続して再確認**：`position:absolute`の基準（top/leftが何に対してか）＝最も近い`position`が static 以外の祖先の包含ブロックで、`fixed`はビューポート、ただし祖先に`transform`/`filter`/`will-change`があると`fixed`でもその祖先が包含ブロックになる（2026-07-01のbackdrop-filter抽出と接続）。absolute要素のtop/left px値だけ採取して包含ブロックの基準を記録しないと、Ren環境で祖先のtransform有無が変わった瞬間に配置基準がずれて要素が飛ぶ。STEP 4でabsolute/fixed要素は「基準となる包含ブロックの祖先と、それがどのプロパティで包含ブロック化しているか」をセット記録する。
 - **「論理プロパティ（logical properties）」と「物理プロパティ」の区別を余白抽出で再確認**：`margin-inline-start`/`padding-block`等の論理プロパティは書字方向（`writing-mode`/`direction`）で物理方向にマッピングされ、日本語縦書きや将来の多言語展開で`margin-left`（物理）とは挙動が変わる。モダンLPは論理プロパティで組まれることが増え、これを`getComputedStyle`の物理値（`margin-left`）だけで採取すると、宣言が論理か物理かの情報が消える（2026-06-26の宣言値/解決値併記と同型の問題）。STEP 4で余白が論理プロパティ宣言か物理プロパティ宣言かを生CSSで判別し、論理で書かれた箇所は論理のままRenへ渡して書字方向依存の設計意図を保持する。
 - **「カスケードの優先順位」の正式な決定順序（レイヤー→詳細度→順序）を再確認**：あるプロパティの最終値は「①オリジン＆重要度（`!important`含む）→②カスケードレイヤー（`@layer`の宣言順、2026-06-13参照）→③詳細度（specificity、2026-06-20参照）→④ソース順」の順で決まり、詳細度より`@layer`が先に効く点が誤解されやすい。詳細度が高いルールでも、後のレイヤーの詳細度の低いルールに負けることがある（レイヤー付きは無しより弱い等の逆転もある）。STEP 1のCSS読み込みマップで「どのルールがどのレイヤーに属し、レイヤー宣言順は何か」を詳細度と併せて記録し、Renが「なぜ詳細度が高いのに効かない」をレイヤー順で診断できる状態にする。
+
+---
+
+## 🚀 スキル拡張パック 2026-07（オーバースペック化 v2）
+
+現状スキルの10ステップ分析結果、CSS完全抽出は「HEX/フォント/余白/アニメ/レスポンシブ」の従来6軸に加え、宣言値/解決値ペア・スタッキングコンテキスト・カスケードレイヤー・コンテナクエリ・論理プロパティ・スクロール駆動アニメ等の2025-2026新仕様まで到達済み。次フェーズは「Web Platform Baseline 2026フル準拠」「AI補助でのゼロ工数抽出」「Ren/Nao(LP)への納品を Design Token W3Cフォーマット統一」へ引き上げる。
+
+### 1. 業界最先端スキル追加（Advanced Skills 2026）
+
+**CSSアーキテクチャ最新仕様**
+- **CSS Cascade Layers (`@layer`)**：レイヤー宣言順→詳細度→ソース順の優先順位ツリーを`stylesheet-hierarchy.json`で吐き、Renの`@layer reset, base, components, utilities`テンプレへ直挿し
+- **Container Queries (`@container` / `container-type: inline-size` / `cqw/cqh/cqi/cqb`)**：親コンテナ基準の再利用部品を viewport 基準と誤読しない抽出フロー
+- **CSS Subgrid**：親gridのトラックを継承する子grid（採用実績カード等の縦横整列）を`grid-template-rows: subgrid`として保持
+- **`:has()` 親セレクタ**：子要素の状態で親をスタイルする「フォームに未入力エラーがあればセクション全体を赤枠」等のパターンを検出
+- **`@scope { }`**：コンポーネントスコープをネスト構造で保持し Ren の CSS Modules へ変換
+- **CSS Nesting (native)**：SCSSライクなネストをネイティブCSSで書いた箇所を`&`起点で正確に抽出
+- **`color-mix()` / `oklch()` / `color()` P3 wide gamut**：iro連携時の色空間統一（sRGB→OKLCH変換）
+- **`animation-timeline: scroll() / view()`（Scroll-Driven Animations）**：JS不要のスクロール駆動を CSS ネイティブで検出
+- **View Transitions API（`view-transition-name`）**：ページ遷移アニメの命名規則を抽出
+
+**CSSフレームワーク・ツール最新**
+- **Tailwind CSS v4（Oxide engine / `@theme`ディレクティブ / CSS-first config）**：`tailwind.config.js`廃止→`@theme`変数への直変換パイプライン
+- **PostCSS v9 + Lightning CSS**：Rust製ビルダーでの minify/autoprefix
+- **CSS Modules + `:global()` / `composes:`**：スコープ化とグローバル参照の混在パターン
+- **Panda CSS / Vanilla Extract / StyleX**：zero-runtime CSS-in-JS の吐き出しCSSを抽出
+- **Open Props**：CSS変数ベースのデザイントークン集を検出時に橋渡し
+
+**AI・自動化ツールチェーン**
+- **Puppeteer + Playwright併用**：ヘッドレスDOMスキャン＋クロスブラウザcomputed値取得
+- **Figma Dev Mode + Code Connect**：Figma側のトークンとLP側のCSS変数を双方向マップ
+- **Anima / Locofy.ai**：Figma→React/Tailwindの自動変換で抽出後のRen工数を短縮
+- **Style Dictionary（W3C Design Tokens）**：`tokens.json`を W3C仕様の DTCG フォーマットへ統一
+
+### 2. 高度出力テンプレート
+
+**CSS完全仕様書 v2（宣言値/解決値ペア＋メタ情報）**
+```json
+{
+  "meta": {
+    "url": "https://example.com",
+    "extracted_at": "2026-07-13T10:00:00+09:00",
+    "user_agent": "Puppeteer/22.x",
+    "viewports": ["375", "768", "1280", "1920"],
+    "html_font_size_root": "16px",
+    "prefers_color_scheme_support": true,
+    "prefers_reduced_motion_support": true
+  },
+  "cascade_layers": ["reset", "base", "tokens", "components", "utilities"],
+  "tokens": {
+    "color": {
+      "brand.primary": {
+        "$value": "oklch(63% 0.22 264)",
+        "$type": "color",
+        "$description": "CTAボタン・見出しアクセント",
+        "declared": "var(--brand-primary)",
+        "resolved": "#3b82f6",
+        "used_in": ["Hero.CTA", "Card.title", "Footer.link:hover"]
+      }
+    },
+    "spacing": {
+      "space.lg": {
+        "$value": "1.5rem",
+        "$type": "dimension",
+        "declared": "1.5rem",
+        "resolved": "24px",
+        "used_in": ["Section.padding-block", "Card.gap"]
+      }
+    }
+  },
+  "stacking_map": [
+    {
+      "selector": ".header",
+      "z_index": 100,
+      "stacking_context_reason": "position:sticky",
+      "layer": "components",
+      "parent_context": "root"
+    }
+  ],
+  "flags": {
+    "keyboard_accessibility_ng": ["nav a", ".cta"],
+    "tap_target_below_44px": [".footer .sns-link"],
+    "hover_only_content": [".product-card:hover .detail"],
+    "backdrop_filter_no_fallback": [".modal-overlay"],
+    "container_queries_used": [".card"],
+    "logical_properties_used": [".article-body"]
+  }
+}
+```
+
+**Tokens早見表（Excel/CSVエクスポート想定）**
+| Category | Token | Declared | Resolved | Type | Applied Section |
+|----------|-------|----------|----------|------|-----------------|
+| Color | brand.primary | var(--brand-primary) | #3B82F6 | color | Hero.CTA / Card.title |
+| Space | space.lg | 1.5rem | 24px | dimension | Section.padding |
+| Font | font.heading | var(--font-noto) | "Noto Sans JP" | fontFamily | h1〜h4 |
+
+### 3. 意思決定フレームワーク
+
+**抽出方式の選択（DACI形式）**
+- **Driver**：Hana（抽出責務）
+- **Approver**：Kaito（LP部長）
+- **Contributors**：Iro（色役割）／Ren（実装可能性）／Nao(LP)（設計）
+- **Informed**：Mia（QA）／nori（法務）
+
+**判断ロジック（抽出深度）**
+```
+IF LP新規複製 AND ライセンス懸念あり
+  → nori 事前チェック + 生CSS+computed両走査
+IF 既存LP改修（部分差分）
+  → 変更セクションのみ差分抽出 + 既存tokens.jsonマージ
+IF ブランド刷新（iro新カラー適用）
+  → 骨格CSS抽出 + iro側で色差し替え前提のトークン分離
+IF スピード優先（デモ用）
+  → プリフライトのみ + 主要3セクション抽出 + 残りRen推測
+```
+
+**新仕様採用ゲート**
+- Baseline 2026 で newly available → Ren実装 OK
+- limited availability → `@supports` フォールバック必須
+- 未対応 → 検出のみ、実装は Ren と協議
+
+### 4. 品質基準
+
+**ピクセル差分（Mia QA連動）**
+- Hero領域：≤ 2px差分
+- 本文セクション：≤ 5px差分
+- カラー差分：ΔE ≤ 2（CIE 2000）
+- フォントサイズ：宣言値100%一致
+
+**ブラウザ互換マトリクス**
+| Browser | Version | 対応要求 |
+|---------|---------|---------|
+| Chrome | 最新3世代 | 100% |
+| Safari | iOS 16+ / macOS 13+ | 100% |
+| Firefox | 最新2世代 | 95% |
+| Edge | 最新2世代 | 100% |
+| Samsung Internet | 最新 | 90% |
+
+**Lighthouse Score目標**
+- Performance ≥ 90（Mobile）／≥ 95（Desktop）
+- Accessibility ≥ 95
+- Best Practices ≥ 95
+- SEO ≥ 90
+- LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1
+
+**アクセシビリティ最低ライン（WCAG 2.2 AA）**
+- コントラスト比 4.5:1（本文）／3:1（大文字・UI）
+- タップターゲット 44×44px 以上
+- `:focus-visible` リング 2px以上
+- `prefers-reduced-motion` 遵守
+
+### 5. 連携プロトコル
+
+**Kaito（統括・受注）**
+- Input：URL / スケジュール / クライアント制約
+- Output：CSS完全仕様データ（JSON）／ ライセンス一覧（STEP 7時点で先出し）
+- SLA：抽出45分以内（プリフライト15分＋抽出25分＋検証5分）
+
+**Ren（コード骨格生成・並列）**
+- Input：`tokens.json`（W3C DTCG形式）／ `stacking_map.json`／ `cascade_layers.json`
+- Output（Renから返却）：`tailwind-@theme.css`／ 実装差分レポート
+- 同期タイミング：STEP 4完了時点で骨格用トークンを先渡し
+
+**Nao(LP)（設計書作成）**
+- Input：セクション別トークン適用マップ／ ブレークポイント表／ コンポーネント階層図
+- Output（Naoから返却）：設計書（Figma or Markdown）
+- 同期タイミング：STEP 3完了で見出しトーン、STEP 6完了でレスポンシブ確定
+
+**Mia（ピクセル単位QA）**
+- Input：DevTools computed値スクショ／ 抽出値の採取根拠エビデンス
+- Output（Miaから返却）：差分レポート／ NG項目リスト
+- 責務境界：色/フォント/アニメNG → Hana再抽出、レイアウトNG → Ren修正
+
+**Iro（色設計）**
+- Input：抽出したブランド色（生値）＋ 適用箇所マップ
+- Output：OKLCH変換済トークン／ ダークモード版
+- STEP 2着手前5分ミーティングで色役割合意（Hana=骨格色、iro=ブランド色）
+
+### 6. AI活用・自動化
+
+**Claude Code（メインドライバー）**
+- URL入力→プリフライト→抽出→検証→トークン変換までを1コマンドで直列実行
+- exit code 1でNG工程を可視化しハンドオフ阻止
+
+**GitHub Copilot / Cursor**
+- 抽出スクリプトの正規表現・Puppeteerセレクタ補完
+- computed値パーサの微修正で工数半減
+
+**Figma Dev Mode + Code Connect**
+- Figma側デザイントークンとの双方向マッピング
+- `mcp__Figma__get_variable_defs` で iro のFigma変数を即取得しCSSと突合
+
+**Anima / Locofy.ai**
+- Figma→React/Tailwind自動変換の結果をベースにRen着手工数を圧縮
+- 変換誤差を Hana の抽出値で補正
+
+**Puppeteer + Playwright**
+- ヘッドレスDOMスキャン（Puppeteer）＋ クロスブラウザcomputed値取得（Playwright）
+- スクリーンショット・DevTools Protocol・CSS Coverage APIで未使用CSS検出
+
+**Percy / Chromatic**
+- ビジュアルリグレッションで抽出→実装のピクセル差分を自動検知
+- Mia QAの前段フィルターとして稼働
+
+**Style Dictionary + Terrazzo**
+- W3C DTCG準拠のトークン変換パイプライン
+- `tokens.json` → Tailwind `@theme` / CSS変数 / iOS Swift / Android XML へマルチ出力
+
+### 7. 週次OKR（毎週月曜設定）
+
+**Objective：LP複製の抽出工程を「Ren着手までの摩擦ゼロ」にする**
+
+| KR | 指標 | 目標 |
+|----|-----|-----|
+| KR1 | 抽出リードタイム | 45分以内（プリフライト＋抽出＋検証） |
+| KR2 | Mia QA差し戻し率 | 5%以下（色/フォント/アニメNG起因） |
+| KR3 | Ren質問回数 | 案件あたり2回以下（仕様データ完全性） |
+| KR4 | Baseline 2026新機能検出率 | 対応LPで100%（`:has()`/`@container`/`@scope`等） |
+| KR5 | 抽出スクリプト再利用率 | 案件間で80%以上（案件固有ロジックを最小化） |
+
+### 8. 学習ロードマップ
+
+**Q3 2026（7-9月）：Baseline 2026完全準拠**
+- W3C Design Tokens Community Group 仕様書精読
+- CSS Cascade Layers / Container Queries 実装パターン集
+- Tailwind v4 Oxide engine 内部構造理解
+- OKLCH色空間実務適用（iro連携）
+
+**Q4 2026（10-12月）：AI補助自動化**
+- Claude Code MCP サーバー実装（自作Figma連携）
+- Puppeteer + LLMで「元LPの意図を推定した抽出コメント自動生成」
+- Style Dictionary + Terrazzo でマルチプラットフォーム変換
+
+**Q1 2027（1-3月）：デザインシステム統括へ拡張**
+- iro との協働で LET社ブランドトークン標準化
+- クライアント別トークンライブラリ運用
+- Ren/Nao(LP) と共同で「複製の8割を骨格再利用で終わらせる」ライブラリ構築
+
+**Q2 2027（4-6月）：Figma Variables完全連携**
+- Figma Variables API + Code Connect で双方向同期
+- クライアント側デザイナーへの直接ハンドオフ体制
+
+### 9. 想定失敗パターンと回避策
+
+**失敗①：Tailwind v4 の `@theme` を旧v3の `theme.extend` として抽出**
+→ 回避：v3/v4判別を STEP 7 で必須化、v4検出時は `@theme` ディレクティブ形式で納品
+
+**失敗②：`:has()` 親セレクタを詳細度計算に含めず Ren の実装が上書きされない**
+→ 回避：`:has()` 内の詳細度は括弧内で最も高い要素の詳細度が加算される仕様を仕様書に併記
+
+**失敗③：OKLCH色を sRGB HEX へ強制変換して P3広色域の彩度が失われる**
+→ 回避：`display-p3` メディアクエリ検出時は OKLCH のまま Ren へ渡し、`color(display-p3 ...)`実装を指示
+
+**失敗④：Container Queries の `container-type: inline-size` 宣言を見落として親幅を viewport 幅と誤認**
+→ 回避：STEP 4 で `container-type` 保持要素を先に全列挙し、その配下の `@container` を紐付け
+
+**失敗⑤：View Transitions の `view-transition-name` を CSS変数化せず一意名で埋め込みRenが動的生成できない**
+→ 回避：ページ遷移対象要素の命名規則（動的index含む）を設計書化して Nao(LP) へ渡す
+
+**失敗⑥：Figma Variables との名前空間衝突（iro命名 vs 元LP命名）**
+→ 回避：`--brand-` / `--layout-` / `--surface-` の接頭辞ルールを STEP 2 着手前に iro と合意（既存ルール強化）
+
+**失敗⑦：スクロール駆動アニメ（`animation-timeline: scroll()`）を JS の GSAP と誤認して重複実装**
+→ 回避：生CSS走査で `animation-timeline` / `scroll-timeline` を検出し JSライブラリ検出結果と突合
+
+**失敗⑧：CSS Nesting（native）を SCSS と誤認して PostCSS の nesting プラグイン設定を漏らす**
+→ 回避：`<style>` タグ内の `&` ネストを検出したら PostCSS or Lightning CSS の nesting パーサ必須と Ren へ明記
+
+### 10. 5年後の North Star
+
+**「LP複製の抽出工程を人間から消し、Hanaは『複製不可能な設計意図の解読』に専念する」**
+
+- 2027：Tailwind v4/v5・Baseline 2027 完全自動抽出（人手0秒）
+- 2028：Figma / Framer / Webflow / STUDIO の各エディタから直接デザイントークン取得
+- 2029：AIエージェント（Claude Code配下）が「元LPの意図＝なぜこの余白か・なぜこの色か」を自動推定し設計書化
+- 2030：Hanaは「LET社デザインシステム統括」として、iro/Nao(LP)/Ren/Mia を横断する Design Ops リード
+- 2031：クライアント側デザイナーが Figma に描いた瞬間、LP部の Ren コードが自動生成され Mia QA も自動通過する「複製ゼロ・生成のみ」の世界へ
+
+Hanaの本質価値は「抽出精度」から「設計意図の翻訳」へシフトする。CSS完全抽出は前提条件となり、LET社のLP部が『複製の外注業者』から『デザイン意図の増幅装置』へ進化する起点を担う。
