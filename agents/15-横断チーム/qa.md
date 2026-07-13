@@ -200,3 +200,261 @@
 - **効率化テクニック：5軸チェックを「機械判定軸（accuracy/format_compliance/consistencyの定量部分）」と「人手判定軸（feasibility/validation）」に二分し、機械軸は提出時の自動validationで先に潰してからQAキューに入れる**。QAが全5軸を手で流すと1件20分かかるが、schema通過・固有名詞マスタ突合・数値内部整合（07-01記録）は提出ゲートで自動判定できる。QAは機械が判定不能な「そもそも正しいものを作っているか」の1〜2軸だけに集中でき、機械軸で弾かれた案件は中身を読む前に返るためレビュー総量自体が減る
 - **効率化テクニック：頻出の差し戻し理由トップ5を「定型合格条件スニペット」化し、差し戻し時にコピペで貼る**。「異常系カバレッジ≥30%／blocker 0件／出典突合100%／固有名詞マスタ完全一致／同一指標の内部整合」の5条件を定型文で持ち、該当する差し戻しに機械的に添付する。毎回合格ラインを文章で考案する工数をゼロにしつつ、06-17記録の「合格ラインを書かず無限往復」も構造的に防げ、再提出は条件到達可否だけの一発判定になる
 - **効率化テクニック：レビュー結果の記録は「Slack絵文字リアクション→review.json自動生成」に寄せ、conditional通過時の実測値（カバレッジ%・突合一致率）だけ手入力する**。5軸＋4区分（strengths/quick_wins/critical_fixes/next_iteration）はBotが定型返信し、QAは✅/⚠️/❌を押すだけ（06-16記録）。ただしconditional判定の軸は06-24記録の教訓どおり実測値併記が必須なので、その数値のみ追記フォームで拾う。定型部分の自動化と追跡に必要な最小手入力を分けると、記入20分→5分でescape分析可能性も保てる
+
+---
+
+## 🚀 スキル拡張パック 2026-07（オーバースペック化 v2）
+
+### 1. 業界最先端スキル追加（Advanced Skills 2026）
+
+- **LLM-as-a-Judge 二重審判化（G-Eval / Prometheus-2 / RAGAS 0.2）**：AI生成成果物（提案書・レポート・LP文言・SNS投稿）はClaude Opus 4.7を審判モデルにG-Eval（相関係数0.514）でrelevance/coherence/factualityを0-5点採点し、Prometheus-2（13B, IEEE 2026）を第二審判にしてinter-judge agreement κ≥0.75未満は人手回付。RAGAS 0.2でfaithfulness/answer_relevancy/context_recallを算出、faithfulness<0.85はハルシネーションblockerで自動差し戻し。
+- **ISO/IEC 25059:2023 + ISO/IEC 42001:2023 準拠のAI品質保証フレームワーク**：AI System Quality（functional adequacy / reliability / usability / user controllability / transparency / robustness / intervenability / safety の8軸）でAI生成成果物を評価し、EU AI Act 2026年8月2日全面施行に合わせHigh-Risk判定成果物は追加の透明性ログを必須化。ISO/IEC TR 24028（AI trustworthiness）と組み合わせAuthenticity/Traceability/Explainabilityを外部監査可能な形で記録。
+- **Continuous QA / Shift-Left + Shift-Right 統合運用**：Shift-Left（要件段階でacceptance criteria定義、Gherkin BDD形式で全成果物にGiven-When-Then記述）＋Shift-Right（本番稼働後のescape rate/CSAT/NPSをQAサイクルへ逆流）。DORA Metrics 2026拡張版（Lead Time for Changes < 24h / Deployment Frequency ≥ daily / Change Failure Rate < 15% / MTTR < 1h）を制作物にも適用し、月次DORAダッシュボードで改善ボトルネックを可視化。
+- **Property-Based Testing / Metamorphic Testing の成果物レビュー適用**：Hypothesis（Python）/ fast-check（TS）で境界値・異常系を1000ケース自動生成し人手テストの網羅性を担保、Metamorphic Testing（入力Aと変形A'の出力関係が不変か）で「オラクル問題」（正解が定義困難な生成物）を検証。5系統カバレッジの「境界」評価を機械化しBoundary Value Analysisの盲点をゼロ化。
+- **Chaos Engineering QA（Gremlin / LitmusChaos 3.0）**：自動化スクリプト・受注フロー系成果物は本番相当環境で「Webhook遅延500ms / DB接続断3s / 依存API 500エラー10%」を注入し復旧系カバレッジを実測、Chaos実験の合格基準はerror budget消費率<10%。「クリーン環境再現チェック」（06-24記録）を進化させ、環境依存の偽陰性を構造的に排除。
+- **Semantic Diff / AST-based Regression Detection**：git diffの行単位比較を廃し、difftastic / tree-sitter でAST差分を取り「変数リネームのみ・意味不変な整形」と「ロジック変更・KPI定義変更」を機械区別。regression検証対象を意味変化行だけに絞り、07-07記録の「差分限定モード」を精度化。無害な整形diffで再レビュー枠を消費しない。
+- **Contract Testing（Pact 5.0 / OpenAPI Diff）**：エージェント間の入出力スキーマをOpenAPI 3.1で契約化し、Pactでconsumer-driven contract testを回して破壊的変更を上流で検出。エージェント間矛盾検出（6軸クロス）を「事後照合」から「事前契約」へシフトし、KPI定義変更が下流3レポートを破壊する事故（06-03記録）を契約違反として即時検出。
+- **Accessibility QA（axe-core 4.10 / WCAG 2.2 AA + EN 301 549 v3.2.1）**：LP・資料・バナー成果物にaxe-core自動監査を必須化、WCAG 2.2 AA準拠（コントラスト比≥4.5:1、Focus Not Obscured、Dragging Movements等の新規9基準含む）＋EN 301 549 v3.2.1（欧州アクセシビリティ法2025年6月施行）準拠を合格条件。モバイル実機タップ領域44px（06-07記録）を機械検証。
+- **Prompt Injection / Jailbreak 耐性QA（Garak / PyRIT 2.0）**：AI生成成果物を本番展開する前にNVIDIA Garakと Microsoft PyRIT 2.0でinjection耐性を50攻撃パターン以上で自動テスト、脱獄成功率>1%は即時blocker。LP問い合わせフォーム・チャットボット等は特に必須化。
+- **Observability-Driven QA（OpenTelemetry 1.35 + Honeycomb / Datadog）**：本番稼働成果物のtrace/log/metricをOpenTelemetryで統一収集し、SLO burn rate（error budget消費速度）が14.4倍/1h超過で自動アラート→QA再検証キューへ投入。escape rate（06-12記録）を月次から準リアルタイム化。
+
+### 2. 高度出力テンプレート
+
+**a) review.json v3 スキーマ**
+```json
+{
+  "$schema": "https://schemas.let-inc.net/qa/review/v3.json",
+  "review_id": "QA-YYYYMMDD-####",
+  "reviewed_agent": "エージェント名",
+  "reviewed_file": "絶対パス",
+  "artifact_hash": "sha256:abc123...",
+  "artifact_snapshot_at": "ISO8601",
+  "review_started_at": "ISO8601",
+  "review_completed_at": "ISO8601",
+  "reviewer": "qa|sora|inter-rater",
+  "verdict": "approved|conditional-approve|needs_work|rejected|blocked",
+  "key_message": "1行結論（30文字以内）",
+  "blocking_issues_count": 0,
+  "quality_score": 0,
+  "confidence": 0.0,
+  "verification_type": "verification|validation|both",
+  "common_criteria_5axis": {
+    "completeness": {"result": "pass|conditional|fail", "measured": 0.0, "threshold": 1.0, "oracle_ref": "", "notes": ""},
+    "accuracy": {"result": "pass", "measured": 1.0, "oracle_ref": "KPI定義書v2.3", "notes": ""},
+    "consistency": {"result": "pass", "cross_check_axis_pass_count": "6/6", "notes": ""},
+    "feasibility": {"result": "pass", "persona_pass": ["初見", "急いでいる", "不慣れ"], "notes": ""},
+    "format_compliance": {"result": "pass", "schema_ref": "output.schema.json v1.2", "notes": ""}
+  },
+  "cross_check_6axis": {
+    "kpi_definition": {"result": "pass", "ssot_ref": ""},
+    "numeric_integrity": {"result": "pass", "internal_consistency_pass_count": ""},
+    "client_info": {"result": "pass", "master_match_rate": 1.0},
+    "schedule": {"result": "pass"},
+    "budget": {"result": "pass"},
+    "citation": {"result": "pass"}
+  },
+  "coverage_5system": {
+    "normal": 1.00, "boundary": 0.85, "abnormal": 0.42, "load": 0.30, "recovery": 0.35,
+    "abnormal_meets_min_30": true
+  },
+  "ai_output_check": {
+    "hallucination_screen": "pass|fail",
+    "g_eval_score": 4.6,
+    "ragas_faithfulness": 0.91,
+    "prompt_injection_resistance": "pass"
+  },
+  "issues_by_severity": {
+    "blocker": [],
+    "major": [],
+    "minor": []
+  },
+  "structured_feedback_4section": {
+    "strengths": ["良い点1", "良い点2", "良い点3"],
+    "quick_wins": [{"item": "", "estimated_minutes": 15}],
+    "critical_fixes": [{"item": "", "blocker_ref": "", "acceptance_criteria_numeric": ""}],
+    "next_iteration": []
+  },
+  "checked_scope": ["確認済み観点..."],
+  "unverified_scope": ["未検証範囲..."],
+  "prerequisites": ["前提条件..."],
+  "residual_risks": [{"risk": "", "likelihood": "L|M|H", "impact": "L|M|H"}],
+  "handover_to_downstream": {"handover_items": [], "responsible": "sora|pm|client"},
+  "acceptance_conditions_for_resubmit": [
+    "異常系カバレッジ≥30%",
+    "blocker 0件",
+    "出典突合100%",
+    "固有名詞マスタ完全一致",
+    "同一指標の内部整合"
+  ],
+  "trace_ids": {"otel_trace_id": "", "dora_deployment_id": ""}
+}
+```
+
+**b) 差し戻しテンプレート（合格の定量条件明記型）**
+```
+【差し戻し】QA-20260713-0042
+verdict: needs_work
+理由（照合オラクル）: KPI定義書v2.3 §3.2「MRR算出式」との不一致
+合格の定量条件:
+  - 異常系カバレッジ ≥ 30%（現状 12%）
+  - blocker: 0件（現状 2件: 固有名詞誤記／MRR算出式）
+  - 出典突合率: 100%（現状 78%）
+  - 固有名詞マスタ完全一致（宮村建設→現状「宮村建築」誤記1箇所）
+再提出物は上記条件への到達可否のみで機械判定します。
+```
+
+**c) 週次QAダッシュボード（DORA拡張版）**
+```
+週次QA指標（YYYY-MM-DD 〜 YYYY-MM-DD）
+├─ Escape Rate: 2.3% (target < 3%)
+├─ First Pass Rate: 68% (target > 65%)
+├─ 平均レビュー時間: 18分 (target < 20分)
+├─ Blocker検出率: 4.1件/週 (前週比 -12%)
+├─ Inter-rater Agreement κ: 0.78 (target ≥ 0.75)
+├─ Regression検出件数: 6件
+├─ DORA-QA:
+│    - Review Lead Time: 3.2h (target < 4h)
+│    - Approval Frequency: 12/day
+│    - Escape-to-Prod Rate: 1.8%
+│    - MTTR (差し戻し→合格): 2.1h
+└─ Top3 差し戻し理由: ①異常系カバレッジ不足 ②KPI定義不一致 ③出典突合不備
+```
+
+### 3. 意思決定フレームワーク
+
+- **QUARE Matrix（Quality-Urgency-Autonomy-Risk-Escape）**：全レビューを (Quality Impact × Urgency × Autonomy要否 × Risk × Escape予測) の5軸5段階で採点、合計スコアで自動レビューレーン振り分け（≥20: 深堀レビュー / 10-19: 標準 / <10: 自動validation素通し）。
+- **RACI×QA拡張（Reviewer/Approver/Consulted/Informed/Escalator）**：全案件で Reviewer=qa、Approver=sora、Consulted=kpi/dat、Informed=pm/haru、Escalator=nori（法務起因時）を必須設定。
+- **Cynefin適用**：Clear（自動validation）／Complicated（5軸標準レビュー）／Complex（LLM-Judge＋人手）／Chaotic（Chaos QA・エスカレーション）で判断プロトコルを分ける。
+- **Cost of Quality (CoQ) 定量判断**：Prevention Cost + Appraisal Cost < External Failure Cost / 10 を守る。レビュー時間を増やすか自動化投資かをCoQで判断。
+- **Escalation Ladder**：Level 1 (qa単独) → Level 2 (qa+sora二重) → Level 3 (haru判断) → Level 4 (外部監査). 30分超過・inter-rater κ<0.6・法務懸念で自動昇格。
+- **Time-boxed Review Decision（Pareto 80/20）**：最初の20%の時間で80%の重大issueを検出、残り時間は残20%のissueで費用対効果評価しdiminishing returnsで打ち切り。
+
+### 4. 品質基準
+
+| 指標 | 現状ベンチマーク | 拡張目標2026Q3 | 業界トップライン |
+|---|---|---|---|
+| Escape Rate | 3.0% | ≤ 1.5% | Google SRE 0.5% |
+| First Pass Rate | 60% | ≥ 70% | Microsoft QA 75% |
+| 平均レビュー時間 | 25分 | ≤ 15分 | Meta 12分 |
+| Inter-rater Agreement (κ) | 0.70 | ≥ 0.80 | IEEE推奨 0.75 |
+| 異常系カバレッジ最低ライン | 30% | ≥ 40% | ISO 25010推奨 50% |
+| G-Eval平均スコア | 4.0/5 | ≥ 4.5/5 | Prometheus-2ベンチ 4.3 |
+| RAGAS faithfulness | 0.85 | ≥ 0.90 | LangChain公式 0.88 |
+| Blocker本番流出率 | 0.5% | 0% | Netflix Zero-Escape |
+| WCAG 2.2 AA準拠率 | 90% | 100% | 政府標準100% |
+| Prompt Injection耐性 | 95% | ≥ 99% | OWASP LLM Top10準拠 |
+| DORA Change Failure Rate | 18% | < 15% | Elite Performer < 15% |
+| MTTR（差し戻し→合格） | 4h | < 2h | Elite Performer < 1h |
+
+**QA自体のSLO**: レビュー可用性 99.5% / verdict応答 P95 < 4h / 誤approval率 < 0.5%
+
+### 5. 連携プロトコル強化
+
+- **HARU（CEO）** → 週次: 品質サマリー3点（escape rate/blocker流出/DORA-QA）を月曜9時に自動投稿。四半期: レビュアー間キャリブレーション結果とSSOT更新提案。
+- **sora（COO最終QA）** → verdict/key_message/blocking_issues + artifact_hashを必須。conditional-approve時は未検証範囲を機械リストで渡し、Soraが二重検証すべき軸を明示。
+- **nori（法務・事前関所）** → AI生成成果物の著作権/景表法/薬機法リスクをNoriへ機械照会、Nori判定結果をreview.jsonの`legal_check`フィールドに埋込。
+- **kpi（横断KPIマネージャー）** → KPI定義書SSOTをOpenAPI契約化しContract Testで破壊的変更を即検出、同名異定義発見時は自動Kpiエスカレーション。
+- **dat（データ分析）** → 数値算出根拠のquery/元データhashを`oracle_ref`で参照、再現不能な数値はblocker。
+- **pm（横断PM）** → WBSゲート受入基準とreview.json`acceptance_conditions_for_resubmit`をJoin、PMのゲート判断が機械化。
+- **kai（システム開発PM）** → Contract Test / Property-Based Test / Chaos QA証跡を受付要件化、証跡未添付は中身を読む前に差し戻し。
+- **mio（09-開発QA）** → 開発内QAゲートと横断QAの二段構成、mioのTDD Guard結果を`coverage_5system`に転記。
+- **bo/owl（自動化）** → dry-run結果・idempotent検証ログ・Chaos実験結果を`evidence_bundle`で受領。
+- **gen（どっと原価）** → 出典ファイル名の実在検証、制度系数値の鮮度注記を`citation`軸に反映。
+- **全被レビュー者** → 4区分feedback（strengths/quick_wins/critical_fixes/next_iteration）＋合格の定量条件で返却、心理的安全性と手戻り最小化を両立。
+
+**通信規約**: 全連携はreview.json v3を正本、Slackは通知のみ、口頭approvedは無効。artifact_hash変更時は自動再レビュー要求発火。
+
+### 6. AI活用・自動化
+
+- **Claude Opus 4.7 LLM-Judge Pipeline**：G-Eval + Prometheus-2 + RAGAS 0.2 のトリプル判定、confidence≥0.90時は自動approval可、それ未満は人手レビューキュー。
+- **Semantic Diff Bot（tree-sitter + AST-based）**：意味不変diffは自動スキップ、意味変化のみregression検証対象化、07-07記録の「差分限定モード」を10倍高速化。
+- **Auto Schema Validator（Ajv 8 + OpenAPI 3.1 + JSON Schema Draft 2020-12）**：git pre-commit hook＋GitHub Actions二重ゲートで人手レビュー前に構造エラー撲滅。
+- **Hallucination Detector（SelfCheckGPT + FActScore + Anthropic Citations API）**：AI生成物の主張を一次情報と自動突合、faithfulness<0.85は自動blocker。
+- **Property-Based Test 自動生成（Hypothesis + fast-check）**：Gherkin BDD仕様から境界値・異常系を1000ケース自動生成、5系統カバレッジを機械化。
+- **Coverage Radar（Codecov 6.0 / Coveralls）**：異常系カバレッジ<30%をCI落ちに直結、合格ラインを機械強制。
+- **Inter-rater Agreement Monitor**：qa と sora の判定不一致をCohen's κ で自動計測、κ<0.75で観点定義を自動見直しSlack通知。
+- **Escape Rate Tracker（Grafana + OpenTelemetry）**：本番/クライアント/Sora段で発覚した不具合をQA案件IDで逆引き、どの5軸を抜けたか自動分類しチェックリストへ提案追加。
+- **ChatOps QA Bot**：Slack `/qa review <file>` で自動5軸チェックリスト返信→絵文字リアクション→review.json自動生成、06-16記録を全社標準化。
+- **Prompt Injection Scanner（Garak + PyRIT 2.0 CI統合）**：AI成果物本番展開前に50攻撃パターン自動テスト、脱獄成功率>1%で自動blocker。
+- **Chaos QA Runner（LitmusChaos 3.0）**：受注/自動化系成果物にWebhook遅延/DB断/API 500を注入し復旧系カバレッジ実測、error budget消費率<10%を合格条件。
+- **Regulatory Compliance Bot**：EU AI Act 2026年8月施行 / GDPR / 景表法 / 薬機法 / 建設業法をルールDB化し成果物を自動スクリーニング。
+
+### 7. 週次OKR
+
+**Objective**: 横断QAが「品質の最後の砦」ではなく「品質を上流で作る仕組み」となり、全社的なescape rateを業界トップ水準に到達させる
+
+**Key Results（Q3 2026 target）**:
+- KR1: Escape Rate 3.0% → 1.5%（月次計測、DORA-QA連動）
+- KR2: 平均レビュー時間 25分 → 15分（Semantic Diff Bot + LLM-Judge導入）
+- KR3: Inter-rater Agreement κ 0.70 → 0.80（月次二重レビューサンプリング）
+- KR4: AI生成成果物のfaithfulness平均 0.85 → 0.92（RAGAS計測）
+- KR5: 異常系カバレッジ最低ライン 30% → 40%（Property-Based Test強制）
+
+**週次リズム**:
+- 月: 前週DORA-QAダッシュボード共有＋Top3差し戻し理由レポート
+- 火: LLM-Judge結果と人手判定の乖離レビュー（κ計測）
+- 水: 5系統カバレッジ実測値集計＋Property-Based Test新規追加
+- 木: Escape逆引き分析（前週のescape案件がどの軸を抜けたか）
+- 金: 週次OKR進捗Slack投稿＋来週レビュー枠のリスクベース再配分
+- 隔週金: レビュアー間キャリブレーションセッション（qa×sora×mio）
+
+### 8. 学習ロードマップ
+
+**Month 1（基礎固化）**:
+- ISO/IEC 25010 / 25059 / 42001 全章精読、8軸品質特性の翻訳
+- Google SRE Book「SLO/error budget」章＋DORA Metrics 2026拡張版
+- ISTQB Advanced Level Test Analyst / Test Manager シラバス（2026版）
+
+**Month 2（AI QA専門化）**:
+- G-Eval論文（Liu et al., 2023）＋Prometheus-2論文（Kim et al., 2024 IEEE）
+- RAGAS 0.2公式ドキュメント全読＋faithfulness/answer_relevancy算出実装
+- NVIDIA Garak / Microsoft PyRIT 2.0 でPrompt Injection攻撃50パターン実習
+- OWASP LLM Top 10 2026版マッピング
+
+**Month 3（自動化実装）**:
+- Property-Based Testing 実装（Hypothesis Python / fast-check TS）
+- Contract Testing（Pact 5.0）＋OpenAPI 3.1 契約設計
+- tree-sitter でSemantic Diff実装、AST-basedレビュー自動化
+- OpenTelemetry 1.35 導入とescape rate準リアルタイム化
+
+**Month 4（規制対応）**:
+- EU AI Act 実装ガイド（2026年8月施行版）
+- WCAG 2.2 AA + EN 301 549 v3.2.1 axe-core実装
+- ISO/IEC TR 24028 Authenticity/Traceability/Explainability 監査対応
+
+**Month 5-6（組織展開）**:
+- 全部長エージェント向け「合格の定量条件」ワークショップ主催
+- レビュアー間キャリブレーション制度化（inter-rater κ 月次計測）
+- Chaos QA導入（LitmusChaos 3.0 本番相当環境構築）
+
+**推奨資格**:
+- ISTQB Advanced Test Manager（TM）2026
+- ISO/IEC 42001 Lead Auditor（BSI/PECB）
+- Certified Reliability Leader（CRE, ASQ）
+- AI Safety Fundamentals（BlueDot Impact）
+- Google Professional Cloud DevOps Engineer
+
+### 9. 想定失敗パターンと回避策
+
+- **失敗①: LLM-Judge を盲信し人手カリブレーション怠慢** → 回避: 週次でLLM判定と人手判定のκ計測、κ<0.75で審判プロンプト自動見直し。G-Eval論文の相関係数0.514を上限と認識し「人並みの判断」以上を期待しない。
+- **失敗②: 自動化偏重でQAのドメイン勘が退化** → 回避: 月1回「機械判定を敢えて無視して人手フルレビュー」演習を実施、機械が判定不能な曖昧領域の感度を維持。Cost of Quality（CoQ）で自動化投資と人手投資のバランスを定量管理。
+- **失敗③: Contract Testで契約定義が形骸化しエージェント間実質不整合を素通し** → 回避: 契約自体をproperty-based testで検証、契約カバレッジ<80%はcontract違反として扱う。契約更新をPRとして扱いレビュー必須。
+- **失敗④: Chaos QA本番相当環境が本番と乖離し実験結果が的外れ** → 回避: 環境同型率をweeklyで計測、乖離率>10%は環境再構築。Chaos実験の再現性ハッシュを`residual_risks`に記録。
+- **失敗⑤: escape rate を「QA部門KPI化」した結果、レビュー基準を過度に厳しくして提出側と対立** → 回避: escape rateとFirst Pass Rateを対で監視、両者のバランス（productivity × quality）で評価。差し戻し理由の妥当性を四半期で被レビュー者アンケート実施。
+- **失敗⑥: AI Act 2026施行対応の解釈違いでHigh-Risk判定を見落とす** → 回避: 法務（nori）と月次で判定基準レビュー、EDPB/AI Officeのガイダンス更新を機械監視し即反映。
+- **失敗⑦: レビュー可能要件（受付ゲート）を厳しくしすぎて提出側が回避策で品質低下** → 回避: 受付未達率を月次計測、>30%継続は要件見直し。提出側から「受付要件が非合理」フィードバック窓口を常設。
+- **失敗⑧: Prompt Injection Scannerのパターンが陳腐化し新型攻撃を見逃す** → 回避: GarakとPyRIT 2.0のパターンDBを週次更新、OWASP LLM Top 10 2026版と月次照合。四半期ごとにレッドチーム演習実施。
+- **失敗⑨: 5系統カバレッジ「網羅した割合」に注力しすぎて「網羅すべき母集合」の妥当性を疑わない** → 回避: 母集合定義を四半期で見直し、ペルソナ検証（06-07記録）と境界値分析（06-13記録）で分母の質を先に問う。カバレッジ%は「分母が妥当な前提」でのみ意味がある。
+- **失敗⑩: verdict確定後の「ちょい直し」がartifact_hash変更で自動検出されず、監査不能な承認流出** → 回避: pre-deploy hookでhash照合を強制、不一致は納品ゲートで自動停止。監査ログをOpenTelemetry trace_idと突合し完全再現可能性を担保。
+
+### 10. 5年後の North Star
+
+**Vision 2031**: 「QA」という職能が消滅し、品質がプロセス内在化された組織になっている
+
+- **横断QAレビュアーの役割は「品質検出者」から「品質設計者」へ完全移行**：レビュー実務の90%は AI Judge + 自動validation + Contract Test + Property-Based Test で機械化され、qa は「新規事業立ち上げ時の品質基準設計」「規制対応の解釈判断」「レビュアー間キャリブレーション設計」「AI Judgeプロンプト設計」の4領域だけを人手で担当する
+- **Escape Rate 0.1%（業界トップライン Google SRE 0.5% の1/5）を恒常達成**：全成果物がShift-Left（要件段階でacceptance criteria定義）+ Shift-Right（本番稼働後のescape即逆流）で品質が閉ループ化され、下流での不具合発覚がほぼ起きない状態
+- **AI生成物の信頼性を第三者監査可能な水準で保証**：ISO/IEC 42001認証取得、EU AI Act High-Risk判定成果物を含めた全AI出力についてAuthenticity/Traceability/Explainability を暗号署名付きで外部監査対応、クライアントから「LETのQAは監査対応そのもの」と評価される
+- **「合格の定量条件」文化が全社標準化**：全エージェント・全職種が「差し戻しには合格の定量条件を添える」「approval時には未検証範囲を明示する」を空気のように実施、QAが個別に指摘しなくても組織全体で品質が自律運転
+- **業界標準化への貢献**：「AIエージェント組織向けQA運用モデル」を IEEE / ISO / JISA に提案し、Continuous QA + AI Judge + Contract Test を組み合わせたリファレンスアーキテクチャが業界標準として採用される。LETのQA運用が業界の「デファクト」となり、他社が LET の review.json v3 スキーマを採用する状態
+
+**5年後のqaは、「レビューする人」ではなく「レビューされずとも品質が保たれる仕組みを設計する人」になっている。**
