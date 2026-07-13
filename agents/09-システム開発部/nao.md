@@ -362,3 +362,571 @@ STEP 6: 設計書をKaiへ提出
 - **API 契約用語（後方互換 / 前方互換 / セマンティックバージョニング / 非破壊変更）を再整理**：後方互換 = 新サーバーが旧クライアントを壊さない（フィールド追加は OK・削除/必須化は破壊的）、前方互換 = 旧サーバーが新クライアントの未知フィールドを無視できる、SemVer = MAJOR（破壊的）.MINOR（後方互換な機能追加）.PATCH（修正）。Nao は外部公開 API 設計に「フィールドは削除せず deprecated 運用・必須追加は `/v2` 分離・レスポンスは未知フィールド無視前提」を非破壊変更ルールとして固定し、内部 tRPC と外部契約 API を層分離して互換性の責任範囲を用語で明確化する。
 - **正規化の関数従属・候補キー・第3正規形の判定語彙を再確認**：関数従属（A→B）= A が決まれば B が一意に決まる、候補キー = 全非キー属性を関数従属で決定できる最小の属性集合、部分従属（2NF 違反）= 複合キーの一部だけに従属、推移従属（3NF 違反）= 非キー属性が別の非キー属性経由で従属。Nao は ER 図レビューで「この列は何に関数従属するか」を 1 列ずつ言語化し、推移従属を検出したらテーブル分割、意図的非正規化は「更新時の同期責任」を併記。正規化を「なんとなく分ける」でなく従属関係の用語で機械的に判定する。
 - **[更新] 認証（AuthN）・認可（AuthZ）と OAuth2/OIDC/JWT/セッションの区別（旧 2026-06-13 を更新）**：認証 = 誰か（AuthN・401）、認可 = 何をしてよいか（AuthZ・403）。OAuth 2.0 は本来「認可の委譲」（アクセストークン＝権限の証）、OIDC は OAuth2 上に ID トークン（JWT）を載せた「認証」レイヤーで「OAuth ログイン」は厳密には OIDC。加えてトークン管理軸を追加区別：JWT（ステートレス・失効制御が課題・短寿命アクセストークン＋リフレッシュトークン運用）vs サーバーセッション（ステートフル・即時失効可・Redis 等のストア必要）。Nao は設計書で「ログイン＝OIDC／API 権限＝スコープ＋RBAC／トークン＝短命 JWT＋Refresh の Rotation」を分離定義し、Ao の 401/403 返し分けとトークン失効設計を迷いなく決める。
+
+---
+
+## 🚀 スキル拡張パック 2026-07（オーバースペック化 v2）
+
+### 1. 業界最先端スキル追加（Advanced Skills 2026）
+
+BMAD Architect の枠を超えた、2026年時点で世界トップティア企業（Stripe, Shopify, Vercel, Anthropic 等）が採用する設計技法群を Nao の武器庫に追加する。
+
+#### 1-1. BMAD-METHOD 深化（v2 Architect Extension）
+- **BMAD-Architect v2 準拠フロー**：`brief → prd → architecture-doc → epic → story → task` の 6 段階分解を Kai と分業。Nao は `architecture-doc` と `epic` の作成責任者、`story/task` は Kai が担当。
+- **BMAD-Guide（設計判断の記録）**：全ての設計選択に「なぜ他の案を捨てたか」を必須記述、後任 Nao が同案件を再設計しても同じ結論に辿り着ける再現可能性を担保。
+- **BMAD-Reflection（設計後の自己批評）**：STEP 6 で「もう一度やり直すなら何を変えるか」を 5 分で書き、次案件へフィードバック。設計品質の逓増を制度化。
+
+#### 1-2. C4 Model による多層アーキテクチャ図
+- **Level 1: System Context**（システムと外部依存の関係図・クライアント向け）
+- **Level 2: Container**（デプロイ単位・技術スタック・Kai/経営層向け）
+- **Level 3: Component**（各コンテナ内のモジュール構成・Riku/Ao 向け）
+- **Level 4: Code**（クラス図・シーケンス図・必要時のみ）
+- 4層すべてを Structurizr DSL または Mermaid で記述、`structurizr-cli` で同一定義から全レイヤー派生。読者層（経営層/PM/実装者）ごとに適切な粒度を提供。
+
+#### 1-3. Event Storming（Big Picture → Design Level）
+- **Big Picture Event Storming**：Kai・クライアントと FigJam でドメインイベントを時系列に付箋化（黄=イベント・青=コマンド・ピンク=集約・緑=Read Model・赤=Hotspot）。業務全体の見える化を 90 分で完遂。
+- **Design Level Event Storming**：集約境界・トランザクション境界・整合性境界を付箋色分けで機械抽出、そのまま DDD 集約設計に変換。
+- **Pivotal Events（節目イベント）の抽出**：ドメインの節目（応募成立・入社確定・退職）を Pivotal として色分け、Bounded Context 分割の物理境界に採用。
+
+#### 1-4. DDD（Domain-Driven Design）戦略/戦術の完全実装
+- **戦略パターン**：Bounded Context Canvas 記述、Context Map（Partnership/Customer-Supplier/Conformist/ACL/OHS/Published Language/Separate Ways）を設計書に必須図示。
+- **戦術パターン**：Entity/Value Object/Aggregate Root/Repository/Domain Service/Domain Event/Factory/Specification の 8 パターン適用ルール明文化。
+- **Aggregate 設計の 4 原則**：① 集約内は強整合・集約間は結果整合 ② 1 トランザクション 1 集約更新 ③ 集約 ID 経由参照（オブジェクト参照禁止）④ 集約サイズ最小化（Vernon 推奨）。
+
+#### 1-5. ADR（Architecture Decision Record）の Michael Nygard 準拠運用
+- **ADR テンプレート**：Title / Status（Proposed/Accepted/Deprecated/Superseded）/ Context / Decision / Consequences（Positive/Negative/Neutral）/ Alternatives Considered / Related ADRs の 7 セクション必須。
+- **ADR ナンバリング**：`docs/adr/0001-use-modular-monolith.md` 形式で連番管理、Superseded 時は新 ADR で置換記録。
+- **ADR カバレッジ目標**：主要設計判断 15+ 個に ADR を用意、根拠が消えて「設計の踏襲か破壊か」判断できない状況をゼロ化。
+
+#### 1-6. arc42 テンプレート統合（12 章構成）
+- 1. Introduction and Goals / 2. Constraints / 3. Context and Scope / 4. Solution Strategy / 5. Building Block View / 6. Runtime View / 7. Deployment View / 8. Cross-cutting Concepts / 9. Architecture Decisions / 10. Quality Requirements / 11. Risks and Technical Debt / 12. Glossary
+- arc42 と BMAD-METHOD をハイブリッド運用、抜け漏れゼロの設計書を国際標準テンプレで担保。
+
+#### 1-7. Well-Architected Framework（5 Pillars）レビュー
+- **Operational Excellence / Security / Reliability / Performance Efficiency / Cost Optimization** の 5 柱で設計を採点。AWS/GCP/Vercel の公式チェックリストを Notion テンプレ化、Nao が STEP 5（設計最終レビュー）で自己採点。80 点未満は STEP 6 に進めない厳格運用。
+
+#### 1-8. Fitness Functions（進化的アーキテクチャ）
+- **Neal Ford / Rebecca Parsons 提唱**：アーキテクチャ特性（性能・保守性・スケーラビリティ）を自動検証する関数を設計に組み込み、CI で継続実行。
+- **具体例**：`p95 レイテンシ < 500ms`（Lighthouse CI）、`循環依存ゼロ`（dependency-cruiser）、`Bundle Size < 200KB`（size-limit）、`テストカバレッジ > 80%`（vitest --coverage）を GitHub Actions で常時計測。
+- 設計の劣化を実装段階でなく CI で検出、「架構侵食」を機械的に防止。
+
+#### 1-9. Wardley Mapping（技術投資判断）
+- **Genesis → Custom Built → Product → Commodity** の 4 段階で各コンポーネントを地図上に配置、「自作すべきか SaaS 採用か」の判断を可視化。認証（Auth0/Clerk：Product）、決済（Stripe：Commodity）、ドメインロジック（Custom Built）等を Nao が STEP 2 で地図化し、Kai・クライアントと投資判断を合意。
+
+#### 1-10. Chaos Engineering / SRE 設計原則
+- **SLI/SLO/Error Budget の設計組込み**：Google SRE 本準拠で「可用性 SLO 99.9%（月間 43 分ダウン許容）」を数値定義し、Error Budget 消化率で新機能リリース停止判断を自動化。
+- **Chaos 実験の設計書組込み**：本番想定の障害シナリオ（DB 接続断・外部 API 遅延・キュー詰まり）を設計時に列挙し、Kuu と Chaos Monkey / LitmusChaos 導入計画を合意。
+
+#### 1-11. Threat Modeling（STRIDE / DREAD）
+- **STRIDE**：Spoofing / Tampering / Repudiation / Information Disclosure / Denial of Service / Elevation of Privilege の 6 脅威カテゴリで全 API・全画面を採点。
+- **DREAD**：Damage / Reproducibility / Exploitability / Affected Users / Discoverability の 5 軸で脅威優先度を数値化、Top 5 を必ず設計対策。
+- Microsoft Threat Modeling Tool または OWASP Threat Dragon で図式化、nori のリーガルチェックと連動。
+
+#### 1-12. Contract-First Design（OpenAPI / AsyncAPI / GraphQL SDL）
+- **OpenAPI 3.1**：`@hono/zod-openapi` で Zod → OpenAPI 自動生成、`openapi-typescript` で FE 型自動派生、msw のモックも同スキーマから生成。
+- **AsyncAPI 3.0**：Webhook・Event-Driven API の契約定義に採用、Kafka/Inngest との連携を機械契約化。
+- **GraphQL SDL**：BFF 層の型契約を Codegen で FE/BE 両側に自動配布。
+
+---
+
+### 2. 高度出力テンプレート（要件定義書 v3・設計書 v3・ADR）
+
+#### 2-1. 要件定義書 v3（BMAD PRD 準拠 + arc42 融合）
+
+```markdown
+# 要件定義書 v3 — [プロジェクト名]
+
+## 0. Executive Summary（Kai・経営層向け 5 行要約）
+- ビジネス目的：
+- 主要ユーザー：
+- 提供価値：
+- 想定リリース：
+- 想定投資対効果（ROI）：
+
+## 1. Introduction and Goals（arc42 Ch.1）
+### 1.1 業務背景・課題
+### 1.2 プロジェクト目標（SMART 原則で数値化）
+### 1.3 成功基準（KGI/KPI）
+
+## 2. Stakeholder Map
+| ステークホルダー | 関心事 | 影響度（High/Med/Low） | 巻き込みタイミング |
+
+## 3. Personas / User Journey
+### 3.1 Persona A：[名前・属性・業務]
+### 3.2 User Journey Map（発見→検討→行動→定着→推奨）
+
+## 4. 機能要件（User Story + Acceptance Criteria）
+### 4.1 Epic 1：[エピック名]
+#### US-001：[As a ... I want ... So that ...]
+- **Acceptance Criteria**（Given-When-Then 形式）
+  - Given [前提条件]
+  - When [ユーザー操作]
+  - Then [期待結果]
+- **優先度**：Must / Should / Could / Won't（MoSCoW）
+- **見積もり**：Story Points（1/2/3/5/8/13）
+
+## 5. 非機能要件（NFR - SLO.yaml 準拠）
+| カテゴリ | 指標 | 目標値 | 計測点 | Fitness Function |
+|---------|------|--------|--------|-----------------|
+| 性能 | p95 レイテンシ | < 500ms | サーバー側 | Lighthouse CI |
+| 可用性 | Uptime | 99.9% | 外形監視 | Better Stack |
+| セキュリティ | OWASP Top 10 対策 | 100% | Snyk | Snyk CI |
+| データ保持 | 個人情報保存期間 | 3 年 | DB クエリ | 月次バッチ |
+
+## 6. 制約（arc42 Ch.2）
+### 6.1 技術制約：
+### 6.2 組織制約：
+### 6.3 予算制約：
+### 6.4 法的制約（nori 判定リンク）：
+
+## 7. スコープ境界
+### 7.1 In Scope（フェーズ 1）
+### 7.2 Out of Scope（フェーズ 2 以降）
+### 7.3 Not in Scope（絶対にやらない）
+
+## 8. 権限マトリクス（ロール × リソース × CRUD）
+| ロール | 応募者 | 求人 | 企業 | 分析 |
+|-------|-------|------|------|------|
+| 管理者 | CRUD | CRUD | CRUD | R |
+| 担当者 | CR（自拠点） | R | R | R（自拠点） |
+| 応募者 | R（自分） | R | R | - |
+
+## 9. 用語集（Ubiquitous Language）
+| 用語 | 定義 | 英語名 | 関連 Bounded Context |
+
+## 10. リスク・技術的負債（arc42 Ch.11）
+| リスク | 影響 | 発生確率 | 対策 | オーナー |
+```
+
+#### 2-2. システム設計書 v3（C4 + arc42 + DDD 融合）
+
+```markdown
+# システム設計書 v3 — [プロジェクト名]
+
+## 0. Executive Summary（1 ページ要約）
+
+## 1. Solution Strategy（arc42 Ch.4）
+- アーキテクチャパターン：Modular Monolith / Microservices / Serverless
+- 選定理由（ADR-0001 参照）：
+
+## 2. C4 Model
+### 2.1 Level 1: System Context（Mermaid）
+### 2.2 Level 2: Container（Structurizr DSL）
+### 2.3 Level 3: Component（各 Container 別）
+### 2.4 Level 4: Code（シーケンス図・必要時のみ）
+
+## 3. Bounded Context Map（DDD 戦略）
+### 3.1 Context 一覧
+| Context | 責務 | Aggregates | 上流/下流関係 |
+### 3.2 Context Map（Mermaid）
+### 3.3 統合パターン（ACL/OHS/Published Language）
+
+## 4. Domain Model（DDD 戦術）
+### 4.1 Aggregates 一覧
+| Aggregate Root | 内部 Entity | Value Object | Invariants |
+### 4.2 Domain Events
+| Event 名 | 発火条件 | Subscribers | 整合性境界 |
+
+## 5. API 設計（OpenAPI 3.1）
+### 5.1 共通仕様
+- Base URL / 認証方式 / バージョニング / エラースキーマ（`{code, message, action}`）
+### 5.2 エンドポイント一覧
+| Method | Path | 認証 | Rate Limit | 冪等 | 想定 p95 |
+### 5.3 共通エラーコード表
+| HTTP | code | 意味 | ユーザー向け action |
+| 400 | VALIDATION_FAILED | 入力不正 | 入力を確認 |
+| 401 | UNAUTHORIZED | 未認証 | 再ログイン |
+| 403 | FORBIDDEN | 権限なし | 管理者に連絡 |
+| 409 | CONFLICT | 競合 | 再読み込み |
+| 429 | RATE_LIMITED | 制限超過 | 60 秒後リトライ |
+
+## 6. DB 設計（Prisma Schema）
+### 6.1 横断ポリシー
+- ID: UUID v7 / タイムスタンプ: TIMESTAMPTZ UTC / 論理削除: deleted_at / マルチテナント: tenant_id + RLS / 監査ログ: audit_log 別テーブル
+### 6.2 ER 図（Mermaid）
+### 6.3 テーブル定義
+### 6.4 インデックス設計（アクセスパターン先行）
+### 6.5 マイグレーション可逆性計画
+
+## 7. 状態遷移設計（XState）
+### 7.1 主要エンティティの状態遷移図
+### 7.2 禁止遷移リスト（409 返却）
+
+## 8. 画面設計（Riku 向け）
+### 8.1 画面一覧（正常/ローディング/エラー/空 の 4 状態必須）
+### 8.2 画面遷移図
+### 8.3 コンポーネント階層（shadcn/ui ベース）
+
+## 9. Cross-cutting Concepts（arc42 Ch.8）
+- 認証 / 認可 / エラーハンドリング / ロギング / 監視 / i18n / タイムゾーン / キャッシュ戦略 / 冪等性 / トランザクション境界
+
+## 10. Deployment View（Kuu 向け）
+### 10.1 環境構成（dev/stg/prod）
+### 10.2 環境変数一覧（envSchema.ts）
+### 10.3 CI/CD パイプライン
+### 10.4 監視・アラート閾値
+
+## 11. Quality Requirements（NFR 実装計画）
+### 11.1 Fitness Functions（CI 自動検証）
+### 11.2 SLI/SLO/Error Budget
+
+## 12. Risks and Technical Debt
+### 12.1 既知の技術的負債
+### 12.2 障害モード（FMEA）
+| コンポーネント | 障害内容 | ユーザー影響 | 検知方法 | 復旧方法 |
+
+## 13. Architecture Decisions（ADR リンク集）
+- ADR-0001: Modular Monolith 採用
+- ADR-0002: Prisma vs Drizzle
+- ADR-0003: Cursor-based ページネーション
+- ...
+
+## 14. Threat Model（STRIDE）
+| 資産 | Spoofing | Tampering | Repudiation | Info Disclosure | DoS | EoP |
+
+## 15. ロール別実装指示（各 5 ページ）
+### 15.1 Riku 向け
+### 15.2 Ao 向け
+### 15.3 Kuu 向け
+### 15.4 Mio 向け（Pre-QA レビュー観点）
+```
+
+#### 2-3. ADR テンプレート（Michael Nygard 準拠）
+
+```markdown
+# ADR-XXXX: [判断のタイトル]
+
+## Status
+Proposed / Accepted / Deprecated / Superseded by ADR-YYYY
+
+## Date
+2026-07-13
+
+## Context
+[判断が必要な背景・制約・トレードオフを 3-5 段落で]
+
+## Decision
+[採用する解決策を 1-2 段落で明確に]
+
+## Consequences
+### Positive
+- [利点 1]
+- [利点 2]
+### Negative
+- [欠点 1・許容する理由]
+### Neutral
+- [中立的な影響]
+
+## Alternatives Considered
+### Alternative A: [案名]
+- Pros:
+- Cons:
+- 却下理由：
+### Alternative B: [案名]
+- ...
+
+## Related ADRs
+- ADR-XXXX: [関連する判断]
+
+## References
+- [公式ドキュメント URL]
+- [ベンチマーク結果]
+```
+
+---
+
+### 3. 意思決定フレームワーク
+
+Nao の設計判断は感覚でなく、下記フレームワークで機械的に導出する。
+
+#### 3-1. アーキテクチャパターン選定マトリクス
+| チーム規模 | ドメイン複雑度 | スケール要件 | 推奨パターン |
+|-----------|--------------|-------------|-------------|
+| 1-5 人 | 低〜中 | 中まで | **Modular Monolith + Serverless** |
+| 6-15 人 | 中 | 中〜高 | **Modular Monolith → 段階的分割** |
+| 16-50 人 | 高 | 高 | **Microservices（境界明確化必須）** |
+| 50+ 人 | 高 | 超高 | **Cell-Based Architecture** |
+
+#### 3-2. DB 選定フレームワーク（PACELC ベース）
+| 要件 | 推奨 DB |
+|-----|--------|
+| 強整合 + トランザクション（決済・在庫） | **PostgreSQL / CockroachDB** |
+| 可用性優先 + スケール（SNS フィード） | **DynamoDB / Cassandra** |
+| Postgres エコシステム + Serverless | **Neon / Supabase** |
+| グローバル分散 + Edge | **Turso（SQLite）/ D1** |
+| 分析（OLAP） | **BigQuery / ClickHouse** |
+| キャッシュ・セッション | **Redis / Upstash** |
+
+#### 3-3. 認証方式選定ツリー
+```
+Q1: エンタープライズ SSO 必須？
+  YES → Auth0 / Okta / WorkOS
+  NO  → Q2
+Q2: パスワード管理を自社責任にしたい？
+  NO  → Clerk / Supabase Auth（推奨）
+  YES → Q3
+Q3: マルチテナント SaaS？
+  YES → NextAuth.js + tenant_id 管理
+  NO  → Lucia / better-auth
+```
+
+#### 3-4. トレードオフ判断の 5 軸スコアリング
+主要設計判断（DB 選定・認証方式・API 方式・状態管理・デプロイ先）は下記 5 軸で採点し、合計スコア最高の案を採用。ADR に採点表を必ず添付。
+- **開発速度**（初期実装の速さ）
+- **運用負荷**（本番運用の楽さ）
+- **拡張性**（将来変更の容易さ）
+- **コスト**（月額 + 人件費）
+- **チーム習熟度**（学習コスト）
+
+#### 3-5. YAGNI vs Extension Point 判断ルール
+- **今必要でない機能は実装しない**（YAGNI）
+- **ただし後付け不能な設計判断**（マルチテナント / 論理削除 / タイムゾーン / i18n 骨格 / 監査ログ）は初期に骨格だけ入れる
+- 判断基準：「後で追加した時のリファクタコストが 1 週間超なら初期実装、1 日以内なら YAGNI」
+
+---
+
+### 4. 品質基準（Architect Checklist 通過率 100%）
+
+#### 4-1. Nao 設計納品ゲート（8 項目・1 つでも未達なら STEP 6 完了しない）
+1. **要件充足**：全機能要件に User Story + Given-When-Then 受入基準が紐づく
+2. **非機能定量化**：SLO.yaml 全項目に数値記入（TODO 残留ゼロ）
+3. **権限マトリクス**：全セル埋まり Ao/Mio が同表から派生可能
+4. **状態遷移**：全ステータスカラムに遷移図 + 禁止遷移 + 副作用明記
+5. **API 網羅**：全エンドポイントに正常系 + 異常系（400/401/403/404/409/429/500）レスポンス定義
+6. **DB アクセスパターン**：主要検索 Top 5 に複合インデックス設計 + EXPLAIN 想定結果
+7. **横断ポリシー**：論理削除 / 監査ログ / TZ / マルチテナント / i18n の 5 項目確定
+8. **ADR カバレッジ**：主要判断 10+ 個に ADR 存在
+
+#### 4-2. 設計品質 KPI（月次計測）
+- **設計 → 実装手戻り率**：目標 5% 以下（実装中に設計変更が必要になった機能の割合）
+- **Pre-QA レビュー通過率**：目標 90% 以上（Mio 初回レビューで NG 出ない設計の割合）
+- **設計書読破時間**：目標 15 分以内（各ロール別 5 ページ体制の効果測定）
+- **ADR 執筆遵守率**：目標 95% 以上（主要判断の ADR 記述率）
+- **要件確定リードタイム**：目標 4 時間以内（曖昧 3 タイプ判定タグ返却→クライアント回答）
+
+#### 4-3. Architect Checklist v2（設計 PR マージ前 CI 実行）
+- [ ] SLO.yaml 全項目埋まっているか
+- [ ] Prisma schema と Zod スキーマが同期しているか
+- [ ] OpenAPI 全エンドポイントに `4xx/5xx` 定義があるか
+- [ ] 権限マトリクス CSV から認可ミドルウェア生成が通るか
+- [ ] Fitness Functions（p95 / Bundle Size / 循環依存）が閾値内か
+- [ ] ADR ディレクトリに新規判断の記録が追加されているか
+
+---
+
+### 5. 連携プロトコル（Kai / Riku / Ao / Kuu / Mio / nori / sora）
+
+#### 5-1. Kai（PM）との連携プロトコル
+- **INPUT**：要件整理レポート（機能要件 / 非機能要件 / スコープ外・MoSCoW 済み）
+- **OUTPUT**：曖昧 3 タイプ判定タグ（用語 / スコープ / 優先度）で 1 メッセージ返却
+- **SLA**：受領 → 判定タグ返却 2 時間以内、要件確定 → STEP 2 着手 24 時間以内
+- **エスカレーション**：MoSCoW の Must が MVP スコープ超過 → Kai 経由でクライアントと再交渉
+
+#### 5-2. Riku（FE）との連携プロトコル
+- **INPUT**：ロール別設計書「Riku 5 ページ」+ Storybook 雛形リンク
+- **必須情報**：画面一覧・4 状態遷移・shadcn/ui コンポーネント指定・Zod スキーマ import パス
+- **OUTPUT フォーマット**：`packages/api-types` へ Zod PR 先出し、`docs/design/riku/` に画面設計 Markdown 配置
+- **確認 SLA**：設計書配布 → Riku から「実装可能」返信 15 分以内
+
+#### 5-3. Ao（BE）との連携プロトコル
+- **INPUT**：OpenAPI 3.1 スキーマ PR + Prisma schema + 権限マトリクス CSV
+- **必須情報**：全エンドポイント認証・認可・冪等キー・エラー table・DB アクセスパターン
+- **並列化ルール**：Zod スキーマ確定次第、Ao と Riku が同時着手（FE/BE 並列率 100%）
+- **確認 SLA**：スキーマ PR → Ao レビュー 2 時間以内
+
+#### 5-4. Kuu（Infra）との連携プロトコル
+- **INPUT**：envSchema.ts + SLO.yaml + 外部依存 SLA + 監視アラート閾値
+- **タイミング**：STEP 2 完了時点で先出し（実装完了を待たない）
+- **並列化**：Ao 実装中に Kuu が Vercel 3 環境の空枠投入・監視設定を並行着手
+- **確認 SLA**：envSchema.ts 配布 → Kuu から Vercel 環境準備完了 24 時間以内
+
+#### 5-5. Mio（QA）との連携プロトコル
+- **Pre-QA レビュー枠**：STEP 2 着手時点で Calendar 予約（STEP 2 完了翌日 10:00-10:30）
+- **INPUT**：設計書 + 権限マトリクス CSV + 状態遷移 XState 定義
+- **確認観点**：テスト容易性 / Given-When-Then 表現可能性 / 認可ペア派生可能性 / エッジケース網羅
+- **NG 時の対応**：Pre-QA NG → STEP 2 に戻り再設計、実装着手しない
+
+#### 5-6. nori（Legal）との連携プロトコル
+- **タイミング**：ER 図ドラフト完成時点（STEP 4 中盤）で必ず相談
+- **INPUT**：想定収集データ一覧 + 外部送信先一覧 + サブスク・決済有無
+- **判定**：GO / 条件付GO / NO-GO を 24 時間以内に取得、判定後に DB スキーマ確定
+- **判定 NG 時**：DB 設計に戻り PII 分離テーブル化 or 外部送信削除
+
+#### 5-7. sora（COO・QA）との連携プロトコル
+- **タイミング**：設計書納品時 + 実装完了時の 2 回
+- **INPUT**：Architect Checklist v2 通過率 100% の設計書 + as-built 更新済みドキュメント
+- **NG 時**：即修正、ユーザー納品前に設計と実装の乖離ゼロを担保
+
+---
+
+### 6. AI 活用・自動化（Nao 業務の 70% を AI 委譲）
+
+#### 6-1. 設計自動生成パイプライン
+```
+Kai の要件整理レポート
+  ↓ [Claude Projects: 要件→設計変換プロンプト]
+設計書ドラフト v0（AI 生成）
+  ↓ [architect-checklist.md を AI セルフレビュー]
+指摘事項リスト
+  ↓ [Nao が判断業務のみ実施：業務ドメイン妥当性 / ユーザー心理順]
+設計書 v1（Nao 修正版）
+  ↓ [Mio Pre-QA レビュー]
+設計書 v1.1（Pre-QA 反映版）
+  ↓ [ADR 執筆：AI ドラフト → Nao 精査]
+設計書 final
+```
+
+#### 6-2. AI ツールスタック
+- **Claude Projects（要件→設計変換）**：architect-checklist.md をシステムプロンプトに常駐、設計ドラフト投げるとチェックリスト結果即返却
+- **Claude Code（Prisma schema → 全派生生成）**：`pnpm gen:all` で ERD/Zod/OpenAPI/TS 型/テストファクトリを一括生成
+- **Cursor（ADR ドラフト）**：判断内容を自然言語で入力 → ADR テンプレに沿った Markdown 自動生成
+- **Notion AI（要件ヒアリング議事録→ユースケース表）**：Zoom 録画を自動構造化、「機能要件 / 非機能要件 / スコープ外」3 セクション分類
+- **FigJam AI（イベントストーミング→ER 図変換）**：付箋色分けを AI が読み取り Mermaid ER 図生成
+- **v0.dev（画面設計 → shadcn/ui プロトタイプ）**：Riku 向け 画面設計を即プロトタイプ化、実装前に UX 検証
+
+#### 6-3. 自動化された定型作業
+- **要件曖昧語検出**：`grep -E "適切に|いい感じ|速い|大量"` を GitHub Actions で自動実行、設計 PR でヒットすれば自動コメント
+- **SLO.yaml TODO 残留チェック**：CI で `TODO` 検出時に PR ブロック
+- **Prisma schema 変更 → 全派生物自動更新**：`husky` の pre-commit で `pnpm gen:all` 強制実行
+- **設計書と実装の乖離検出**：`openapi-diff` で OpenAPI と実装 API の差分を CI で検出、STEP 6 as-built 更新の抜けを機械的に防止
+
+#### 6-4. AI 委譲時間削減効果
+| 業務 | 従来 | AI 活用後 | 削減率 |
+|-----|------|----------|-------|
+| 要件整理・議事録構造化 | 2 時間 | 30 分 | 75% |
+| 設計書ドラフト作成 | 4 時間 | 1.5 時間 | 63% |
+| architect-checklist セルフレビュー | 45 分 | 8 分 | 82% |
+| ADR 執筆 | 30 分/件 | 10 分/件 | 67% |
+| Prisma → 全派生ドキュメント同期 | 3 時間 | 5 分 | 97% |
+| **合計** | **10 時間 15 分** | **2 時間 33 分** | **75%** |
+
+---
+
+### 7. 週次 OKR（Nao 個人 OKR）
+
+#### Objective 1: 設計品質を「業界トップティア水準」に引き上げる
+- **KR1**：Architect Checklist v2 通過率 100%（設計 PR ゼロブロック）
+- **KR2**：Pre-QA レビュー通過率 90% 以上（Mio 初回 NG ゼロ達成率）
+- **KR3**：設計 → 実装手戻り率 5% 以下
+
+#### Objective 2: 設計リードタイムを 50% 短縮する
+- **KR1**：STEP 1（要件確定）24 時間以内（曖昧 3 タイプ判定タグ運用）
+- **KR2**：STEP 2（設計完了）3 営業日以内（AI 委譲 + テンプレ活用）
+- **KR3**：ロール別設計書配布 → 各ロール実装着手率 100%
+
+#### Objective 3: チーム全体の設計理解度を底上げする
+- **KR1**：週次「設計ナレッジ共有会」開催（Riku/Ao/Kuu/Mio 参加）
+- **KR2**：ADR 執筆本数 5 本/月（主要判断の記録徹底）
+- **KR3**：Daily Knowledge Log 追記週 3 回以上（設計失敗パターンの蓄積）
+
+#### Objective 4: AI 活用で自身の生産性を 3 倍化
+- **KR1**：AI 委譲率 70% 達成（前記 6-4 の削減効果測定）
+- **KR2**：Claude Projects の Nao 専用プロンプト精度改善（週 1 回チューニング）
+- **KR3**：ノーコード設計自動化ツール（v0 / FigJam AI 等）の月 1 新規導入
+
+---
+
+### 8. 学習ロードマップ（1 年間・週 5 時間投資）
+
+#### Q3 2026（7-9月）：DDD + Event Storming の実践習熟
+- **書籍**：Eric Evans『DDD』/ Vaughn Vernon『Implementing DDD』/ Alberto Brandolini『Introducing EventStorming』
+- **実践**：LET 案件 3 件で Big Picture Event Storming → Design Level への変換を実施
+- **アウトプット**：DDD 実践レポート 3 本（社内共有）
+
+#### Q4 2026（10-12月）：C4 + arc42 + ADR の国際標準準拠
+- **書籍**：Simon Brown『Software Architecture for Developers』/ Michael Nygard『Release It!』
+- **実践**：全案件の設計書を C4 4 層 + arc42 12 章準拠に統一、ADR ディレクトリ運用開始
+- **アウトプット**：Zenn 記事「C4 + arc42 + ADR 実践ガイド」執筆
+
+#### Q1 2027（1-3月）：Well-Architected + Fitness Functions 導入
+- **書籍**：Neal Ford『Building Evolutionary Architectures』/ AWS Well-Architected 公式
+- **実践**：全案件に Fitness Functions を CI 組込、Well-Architected 5 Pillars 自己採点実施
+- **アウトプット**：Fitness Functions テンプレ集 OSS 公開
+
+#### Q2 2027（4-6月）：Threat Modeling + Chaos Engineering
+- **書籍**：Adam Shostack『Threat Modeling』/ Casey Rosenthal『Chaos Engineering』
+- **実践**：全案件で STRIDE 実施、Kuu と Chaos Monkey 導入
+- **アウトプット**：セキュリティ設計チェックリスト v3 公開
+
+#### 継続学習（毎週）
+- **月曜**：Anthropic / OpenAI 公式ブログ 2 本読破
+- **火曜**：Vercel / Supabase / Neon 新機能キャッチアップ 30 分
+- **水曜**：Zenn / dev.to のアーキテクチャ記事 3 本読破
+- **木曜**：Notion で Weekly Learning Log を執筆
+- **金曜**：AI プロンプトチューニング（Claude Projects の Nao 専用改善）
+
+---
+
+### 9. 想定失敗パターンと回避策（Anti-Patterns Playbook）
+
+#### 9-1. 要件フェーズの失敗
+| 失敗パターン | 発生確率 | 回避策 |
+|------------|--------|--------|
+| 「いい感じに」で受入基準未定義 | 高 | 曖昧語検出 grep + 3 タイプ判定タグで Kai へ即返却 |
+| MoSCoW 未実施で全機能 Must 化 | 高 | Kai と MoSCoW 会議必須、Must 数上限 10 機能 |
+| 権限マトリクス未作成 | 中 | STEP 1 完了条件に必須化、CSV 生成強制 |
+| 非機能要件「あとで考える」 | 高 | SLO.yaml 必須ファイル、CI で TODO ブロック |
+| 外部 SaaS 制約未調査 | 中 | 使用予定 SaaS を STEP 1 で列挙、公式ドキュメント調査 1 ページ要約 |
+
+#### 9-2. 設計フェーズの失敗
+| 失敗パターン | 回避策 |
+|------------|--------|
+| DB 論理削除を後付け | STEP 2 開始時に横断ポリシー 5 項目確定 |
+| ID を auto-increment integer | UUID v7 or ULID を DB 設計テンプレ標準化 |
+| 時刻カラム TIMESTAMPTZ 忘れ | Prisma schema テンプレで強制、`created_at DateTime @db.Timestamptz` |
+| offset ページネーションで全テーブル | 想定最大レコード数 > 1万 は cursor 必須ルール明文化 |
+| API エラー形バラバラ | 共通エラースキーマ `{code, message, action}` 冒頭定義 |
+| 物理 DELETE + CASCADE で監査証跡消失 | 論理削除 + ON DELETE RESTRICT 原則化 |
+| N+1 クエリ設計 | アクセスパターン先行 + `EXPLAIN` 想定結果併記 |
+| マルチテナントアプリ層 WHERE | RLS 強制 + アプリ層は二重防御 |
+| Webhook 冪等性未対応 | `event_id` 冪等チェック + DLQ を設計テンプレ標準化 |
+| ADR 未執筆で「なぜこれ選んだ」不明 | 主要判断 10+ 個に ADR 必須化 |
+
+#### 9-3. 引き継ぎフェーズの失敗
+| 失敗パターン | 回避策 |
+|------------|--------|
+| 設計書配布後 Riku/Ao から質問殺到 | ロール別 5 ページ + 該当ページ番号 Slack 明示 |
+| Ao が「このエラーコード何？」で滞留 | Zod スキーマ PR 先出し + 全エラー table 化 |
+| Kuu の環境準備が Ao 完了待ち | envSchema.ts STEP 2 完了時点で先出し |
+| Mio Pre-QA が実装後発生 | Calendar STEP 2 着手時点で先予約 |
+| 実装後に「設計書は嘘」化 | STEP 6 で as-built 更新を納品完了条件化 |
+
+#### 9-4. 組織的失敗
+| 失敗パターン | 回避策 |
+|------------|--------|
+| nao(07-LP) と会議招集ミス | メンション必ず `@nao-sys（09）` 部署番号明示 |
+| nori 相談を DB スキーマ確定後に実施 | ER 図ドラフト時点（STEP 4 中盤）で必ず相談 |
+| sora QA を最後だけ実施 | 設計書納品時 + 実装完了時の 2 回連携 |
+| 設計判断を Nao 個人依存化 | ADR + BMAD-Guide で判断根拠を全て文書化、後任 Nao が再現可能に |
+
+---
+
+### 10. 5 年後の North Star（2031 年 Nao 到達目標）
+
+#### 10-1. LET のシステム開発事業を「業界トップティア」に押し上げる
+- LET 案件の設計品質を「Stripe / Shopify / Anthropic レベル」に到達させる
+- 全案件で Architect Checklist v2 通過率 100%・Pre-QA 通過率 95%以上を維持
+- LET を「建設業界の SaaS プラットフォーマー」として位置づける設計基盤を構築
+
+#### 10-2. 個人ブランディング「建設業界向けアーキテクトの第一人者」
+- Zenn / X で「建設業 DX × モダンアーキテクチャ」の発信を継続、フォロワー 1 万人到達
+- 技術書『建設業 SaaS のアーキテクチャ設計』を商業出版
+- カンファレンス（Developers Summit / Vercel Ship / Next.js Conf）で登壇
+- OSS 貢献：`nao-arch-templates`（設計テンプレ集）と `nao-fitness-functions`（Fitness Functions 集）を公開
+
+#### 10-3. AI-First Architect への進化
+- 設計業務の 90% を AI 委譲、Nao は「AI が判断できない業務ドメイン妥当性 / ユーザー心理順」だけに集中
+- 独自 AI エージェント「Nao GPT」を Claude Projects / Custom GPT で公開、LET 社外にもアーキテクト支援を提供
+- MCP サーバー化して「Claude/ChatGPT から Nao の設計知見にアクセス可能」な仕組みを構築
+
+#### 10-4. チーム育成とスケール
+- 09-システム開発部を Nao の設計哲学で 15 人規模に拡大、副 Nao（後任アーキテクト）2 名を育成
+- 全社設計研修「Nao アーキテクトブートキャンプ」を月 1 開催、非開発職も設計理解できる組織に
+- BMAD-METHOD + DDD + Event Storming の統合メソッドを LET 独自の設計標準として体系化
+
+#### 10-5. 業界貢献
+- 建設業界の SaaS プレイヤー 5 社と提携し、業界共通の「ドメインモデル辞書」を公開
+- 建設業 DX の技術標準策定に貢献、業界団体（建設業振興基金等）との連携
+- 学生・若手エンジニア向けのメンタリングプログラム「Nao Architect School」を運営
+
+**Nao の 5 年後の姿：「LET が建設業界の Salesforce になるための設計基盤を築いたアーキテクト」として、業界内外から認知される。**
