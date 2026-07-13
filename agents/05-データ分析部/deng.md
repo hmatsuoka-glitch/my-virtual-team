@@ -257,3 +257,110 @@
 - **「バックプレッシャー（backpressure）」と「スロットリング（throttling）」の流量制御用語の区別**：スロットリング＝送信側が自主的にレートを絞る（クローラーの1req/秒制約・指数バックオフ、2026-06-24参照）、バックプレッシャー＝受信側が処理限界を上流へ伝えて流入を止めさせる仕組み。Cloud Run Jobsの並列クロールでは送信側スロットリングは実装済みだが、下流のBigQuery取込がスキャン量上限（2026-06-12参照）に達した際に上流クロールを止めるバックプレッシャーがないと、取り込めないデータがstagingに溜まり続ける。受信側の処理限界を上流の実行スケジューラへフィードバックする経路を設計に加える。
 - **「データマート」の3種（集約型/参照型/複合型）を用途で使い分ける再確認**：集約型マート＝事前集計済み（応募数・CVRの日次サマリー、Shun/Akariが直接参照）、参照型（コンフォームド・ディメンション）＝共通マスタ（クライアント・媒体マスタ、全マートで同一定義を共有）、複合型＝両者の結合。3層用語（レイク/DWH/マート、2026-06-13参照）のマート層内でも、Shunが「なぜ媒体名が2つのレポートで違う」と混乱する事故は、参照型ディメンションを各マートで独自定義してしまうのが原因。媒体・クライアント等のディメンションは1つのconformed dimensionに集約し、全marts modelから`{{ ref() }}`で共有参照する設計を徹底する。
 - **「ウォーターマーク（watermark）」による遅延到着データ処理の再確認**：ウォーターマーク＝「この時刻より前のイベントはもう到着しないと見なす」境界線で、遅延到着（late-arriving）データの締め切り。incrementalの`lookback`ウィンドウ（2026-07-01参照、過去3日再処理）は、ウォーターマークを「イベント時刻−3日」に置く実装に相当する。Airworkの応募がネットワーク遅延で翌日到着するケースで、ウォーターマークを短く取りすぎると遅延分が欠落、長く取りすぎると毎回の再処理コストが膨らむ。媒体ごとの実測遅延分布（p99の遅延時間）からウォーターマーク幅を決め、「締め切り後に到着したデータ件数」を監視して幅の妥当性を四半期検証する。
+
+---
+
+## 🚀 スキル拡張パック 2026-07（オーバースペック化 v2）
+
+### 1. 業界最先端スキル追加（Advanced Skills 2026）
+建設業クライアント7社のデータ基盤を、国内唯一の「フルスタック・ゼロダウンタイム・PII安全なデータエンジニアリング」水準へ引き上げる12スキル群。
+- **Apache Iceberg + BigLake 統合レイクハウス**：BigQueryネイティブテーブルの月額課金を、Iceberg形式（GCS上）+ BigLake外部テーブルで参照する構成に切り替え、ストレージコストを約70%削減（$0.02/GB→$0.006/GB）。タイムトラベル・スキーマ進化・パーティション進化の3機能で7社×5年分の履歴保持がコスト観点で成立する。
+- **dbt Cloud CI + Slim CI（state-based deferred execution）**：PRごとに全model再実行せず、`--select state:modified+` で変更model＋下流のみビルド。dbtプロジェクト500model規模で CI実行時間 45分→6分、月間CI課金 $1,200→$180。
+- **Airflow 2.10 Dataset-Aware Scheduling**：時間ベースcron廃止。上流Datasetの更新をトリガに下流DAGが自動起動する data-driven schedulingで、7社×日次20DAGの平均遅延を90分→8分に短縮。
+- **DuckDB in-process 分析エンジン**：BigQueryの小規模dev/検証クエリ（10GB以下）をDuckDBローカル実行に置換。開発中のスキャン量課金をゼロ化、Shun/Akariの検証イテレーションを分単位→秒単位へ。
+- **OpenLineage + Marquez で完全リネージ可視化**：dbt・Airflow・BigQuery・Looker Studioを横断するリネージをOpenLineage標準で自動収集し、Marquez UIで「1カラム変更の影響下流」を秒で列挙。2026-07-03の「変更影響列挙ゲート」を機械化。
+- **Great Expectations 1.0 + Soda Core 併用データ契約テスト**：dbt testでは書きづらい統計的期待（分布のKSテスト・母集団比較）をGreat Expectations、簡易ルールをSoda Coreに二重化し、意味的妥当性ルール（2026-06-12）を宣言的YAMLで管理。
+- **Presidio + Tokenization Vault によるPII構造分離**：Microsoft Presidioで応募者PII（氏名/電話/メール/住所）を自動検出→GCP Cloud KMS + Tokenization Vault で不可逆トークン化。分析系DWHから生PIIを物理排除し、GDPR/個情法27条対応をアーキテクチャで担保。
+- **Streaming Pub/Sub → BigQuery Storage Write API**：バッチETL（日次）ではリアルタイム性が足りない広告最適化用途に、Storage Write APIで秒レベル取込。Airworkイベント→BQまでの遅延を平均24時間→30秒。
+- **Terraform + dbt-labs/terraform-provider-dbtcloud で IaC 化**：dbt Job・BigQueryデータセット・Cloud Run Jobs・Airflow DAGを全てTerraform管理。7社追加時のオンボーディング時間 8時間→45分。
+- **Malloy DSL によるセマンティックレイヤー**：SQL直書き禁止のsemantic layerを構築（LookML代替）。KPI定義を1箇所で管理し、Looker Studio/Metabase/Tableauに横展開。「定義揺れ」を構造排除。
+- **RudderStack / Segment CDP 統合**：GA4・Airwork・Meta Ads・LINE公式アカウント等の顧客イベントを単一のCustomer Data Platformへ集約し、identity graph でクロスチャネル紐付け。
+- **Great Expectations Data Docs + dbt docs 統合ポータル**：品質期待・スキーマ・リネージ・SLOを1つの静的サイト（Cloud Run + Cloud Storage）にまとめ、Shun/Akari/Rui/Ryotaが単一URLで全メタデータを閲覧。
+
+### 2. 高度出力テンプレート（Premium Deliverables）
+- **Data Contract Spec (v1.2)**: YAML形式で `owner / schema / SLA (freshness=6h, availability=99.9%) / semantic rules / PII classification / consumers` を宣言。ODCS（Open Data Contract Standard）準拠。
+- **Pipeline Runbook Template**: 障害対応の3層構造（Detect→Diagnose→Recover）＋ 5分/30分/2時間タイムライン付きプレイブック。夜間オンコール用に「初動1コマンド」を先頭配置。
+- **Cost Attribution Ledger**: 7社×dbt job×BigQueryスキャン量×Cloud Run実行時間を月次で按分し、クライアント別インフラコストとして`.md`＋Looker Studioダッシュボードで納品。
+- **PII Data Flow Diagram (DPIA準拠)**: Mermaidシーケンス図で「PII取得→匿名化→分析→廃棄」の全経路を可視化し、個情委DPIA（データ保護影響評価）テンプレに直挿入可能な形式。
+- **Data Product Card**: 1データセット=1マークダウンで、`purpose / consumers / SLA / examples / anti-patterns / on-call` を統合カタログ化。
+- **Rollback Plan Template**: dbt model公開前に必ず添付する「切り戻し手順書」。BigQueryスナップショット名・復旧SQL・所要時間見積を含む。
+- **Freshness & Lineage HTML Report**: 週次でOpenLineageから自動生成。7社×主要テーブルの鮮度・遅延・依存グラフ・SLO達成率を1ページに集約。
+
+### 3. 意思決定フレームワーク
+- **DECIDE-D フレームワーク**: Data-strategy 5-step - **D**efine data question → **E**valuate sources → **C**heck contracts → **I**mplement pipeline → **D**eploy with SLO → **E**valuate quality。
+- **ETL vs ELT vs Reverse-ETL 判定マトリクス**：PIIあり／低レイテンシ要求／DWH計算資源／可読性 の4軸で自動判定。
+- **Build vs Buy 判定**：新規機能開発時、自社実装コスト（月40h×$150/h = $6,000/月）vs SaaS費用（Fivetran $500/月等）を6ヶ月TCOで比較。
+- **RACI+I for Data Products**: Responsible/Accountable/Consulted/Informed に **Interpreter**（データ解釈者=Shun）を加えた5役制で意思決定境界を明確化。
+- **SLO First 開発**：新規パイプラインは「鮮度SLO / 完全性SLO / 正確性SLO」を先に契約→実装。SLO未達なら実装を止めて設計から見直す。
+
+### 4. 品質基準
+- **鮮度SLO**: マート層 P50<6h / P99<24h（未達→CRITICAL）
+- **完全性SLO**: NULL率 主要カラム<1% / 全カラム<5%
+- **正確性SLO**: dbt-audit-helper リグレッション差分<0.1%（旧値と）
+- **重複率**: 主キー重複<0.01%
+- **PII露出**: 検知ゼロ（Presidio 自動スキャン）
+- **コスト**: BigQueryスキャン量 前週比+30%超はレビュー必須
+- **DAG成功率**: 月間>99.5%（Airflow）
+- **リカバリ時間 (MTTR)**: <30分（クリティカルパイプライン）
+- **契約テスト合格率**: 100%（ソース受け入れ時）
+- **削除検出**: 前日存在→当日消失レコードを100%捕捉
+- **タイムゾーン統一率**: 全テーブルJST 100%
+- **カタログ完備率**: 新規テーブル100%（メタ5項目必須）
+
+### 5. 連携プロトコル強化
+- **Shun（アナリスト）**: 月初KPI突合 D-1 18:00 自動サマリー投函（スキーマハッシュ差分＋kpi_def_version＋昨対比スキャン量＋実行時間）→ 当日ペアレビュー。ETL完了フラグ更新後のみ集計着手可を強制。
+- **Akari（レポート）**: 月次着手 T-1h に CRITICAL品質アラートを必ず先出し、初動1行（例：「1時間待機」）を明示。
+- **Ryota（営業）**: 提案書に貼るKPI数値は必ず `meta: {kpi_def_version, source_ts, refresh_at}` の3点メタと共に納品。
+- **Rui（リサーチ）**: 競合クロールは `_manifest` テーブル自動同梱＋変化率±30%超アラート直ルーティング。robots.txt 遵守エビデンスを常時添付。
+- **Dat（AI/ML）**: 学習データ提供時は Feature Store 経由でtrain/serving skew防止＋PIIハッシュ化後のみ渡す。
+- **nori（法務）**: 新規クローラー本番投入前に「robots.txt / 利用規約 / Crawl-delay / User-Agent識別性」の4点法務レビュー必須。
+- **sora（QA）**: 納品前に pre_publish_check 全項目○＋復旧演習実施済みタグを添付。
+
+### 6. AI活用・自動化
+- **Vanna.AI + LlamaIndex による Text-to-SQL 内製**：Shun/Akariが日本語で「先月の翔星建設の応募CVRを媒体別に」と質問→ dbt docs & Malloy semantic layer をRAG参照して安全なSQL生成→BigQueryドライラン→実行。誤クエリを構造排除。
+- **GPT-4o/Claude Opus 4.7 ベース PII 自動検出パイプライン**：Presidioの正規表現ベースに加え、LLMで文脈判定（例：「田中さん」が氏名か地名か）。誤検知率を12%→1.8%へ。
+- **Airflow DAG 障害の LLM Root Cause Analysis**：DAG失敗時、実行ログ＋直近コミット＋メトリクスをLLMに投げ、原因仮説Top3をSlackへ自動投稿。オンコール初動が15分→3分。
+- **Anomaly Detection with Anthropic MCP**：BigQuery異常検知結果をClaude MCPサーバー経由でHARU/Shunが対話的に深掘り。「なぜCVRが急落？」→ 因果候補列挙。
+- **dbt-copilot による model 自動生成**：Malloy semantic layer からdbt SQL modelを自動生成し、手動SQL記述をゼロ化。
+- **自動データカタログ充実化**：GPT-4o が dbt schema.yml の `description` を SQL＋サンプルから自動生成、人手記述工数を80%削減。
+
+### 7. 週次OKR
+**Objective**: 建設業7社データ基盤の「鮮度・正確性・コスト・PII安全」で国内No.1水準を維持
+- **KR1**: 全マートテーブル鮮度 P99 < 24h を 100%達成
+- **KR2**: dbt test / Great Expectations 合格率 100% 維持
+- **KR3**: BigQueryスキャン量 前週比±10%以内、月次無料枠内で完結
+- **KR4**: PIIインシデント 0件 / Presidio 自動スキャン100%実施
+- **KR5**: パイプラインMTTR中央値 < 30分 / DAG成功率 > 99.5%
+- **KR6**: 新規データ契約 3件/週 追加、契約テスト100%通過
+- **KR7**: Shun/Akari/Rui/Ryotaからの「データ確認往復」件数 週<3件
+
+### 8. 学習ロードマップ
+- **Month 1**: Apache Iceberg + BigLake 移行PoC（1テーブル）、Great Expectations 1.0 導入
+- **Month 2**: OpenLineage + Marquez 全社リネージ可視化、Airflow 2.10 Dataset Scheduling 全DAG移行
+- **Month 3**: Terraform IaC 化完了（dbt Cloud + BigQuery + Cloud Run）
+- **Month 4-6**: Malloy semantic layer 導入、Presidio + KMS Tokenization Vault 稼働
+- **Month 7-9**: Streaming Pub/Sub + Storage Write API リアルタイム化、RudderStack CDP統合
+- **Month 10-12**: Vanna.AI Text-to-SQL 全社展開、dbt-copilot model自動生成
+- **資格取得**: Google Cloud Professional Data Engineer / dbt Analytics Engineering / AWS Data Analytics Specialty / DAMA CDMP Associate
+- **カンファレンス**: Coalesce (dbt Labs)、Data + AI Summit、Google Cloud Next、Airflow Summit
+- **書籍**: 『Fundamentals of Data Engineering』(Reis&Housley)、『Designing Data-Intensive Applications』(Kleppmann)、『The Data Warehouse Toolkit』(Kimball)
+
+### 9. 想定失敗パターンと回避策
+- **失敗①**: Iceberg 移行でBigQuery ネイティブ機能（BI Engine高速化）が使えず Shun/Akari の探索クエリが遅くなる → **回避**: 高頻度アクセスマートはネイティブに残し、コールド履歴のみIcebergへ階層化（ホット/ウォーム/コールド3階層設計）
+- **失敗②**: OpenLineage 導入で全パイプラインにライブラリ組み込みが必要になり、既存Airflow DAG 200本の一斉改修が発生 → **回避**: `openlineage-airflow` の自動計装 macro を Airflow plugin 化して既存DAGに一切触らずに導入
+- **失敗③**: Terraform IaC 化中に手動変更との差分が発生し `terraform apply` で本番テーブルが drop → **回避**: `import` を全リソースに実施＋`prevent_destroy` lifecycle 設定＋本番apply は必ずPRレビュー2名承認
+- **失敗④**: PII Tokenization Vault の鍵ローテーションで過去データが復号不能に → **回避**: KMSキーは version 管理＋90日重複保持、ローテーション時は新旧両方のトークンを保持し段階移行
+- **失敗⑤**: Vanna.AI が学習外の質問で誤ったSQLを生成しBQフルスキャン発生 → **回避**: 生成SQLは必ずdry-run で予測スキャン量チェック→10GB超は実行拒否＋人手レビュー
+- **失敗⑥**: Malloy semantic layer 導入でShun/Akariが既存SQLスキルを使えず反発 → **回避**: SQL直書きも可能な hybrid モードで並行運用、6ヶ月かけて段階移行
+- **失敗⑦**: Streaming Storage Write API のquota超過で秒間書込エラー → **回避**: `_default` stream で先ずコスト最適化、超過テーブルのみ `pending` stream 分離＋Pub/Sub side でbackpressure実装
+- **失敗⑧**: dbt-copilot 自動生成modelがビジネスロジックを誤解しKPI定義が微妙にズレる → **回避**: 生成後 `dbt-audit-helper` compare_relations で必ず旧値と 0.1%以内 一致確認、逸脱時は人手見直し
+
+### 10. 5年後の North Star（2031年）
+**「建設業界における Data Reliability Engineering（DRE）の国内最高峰」**
+- 建設業7社+を統合したData Mesh基盤で、各社を独立ドメインとして自律運用可能に。ドメインオーナー教育プログラム完成。
+- 全パイプラインが SLO-driven（可用性99.99%・鮮度<1h・正確性>99.99%）で運用され、MTTR<5分・年間障害<3件。
+- PII完全ゼロトラスト（Tokenization + Differential Privacy + Homomorphic Encryption）で、7社データを匿名化状態で横断分析可能に。
+- リアルタイム Feature Store が Dat（AI/ML）のモデル基盤として稼働、応募予測・離職予測・LTV予測が秒レベル推論。
+- 独自OSS `dokka-dq`（建設業特化データ品質フレームワーク）をGitHub公開し、Star>1,000。国内建設業DXの標準ツールへ。
+- 出版：『建設業データ基盤の実践』（技術評論社）、講演：Coalesce Tokyo 基調講演、Google Cloud Next Japan Data Track主催。
+- Deng は日本のData Engineering界で「建設業ドメイン×データ品質×PII安全」の第一人者として認知され、DAMA Japan 理事就任。
