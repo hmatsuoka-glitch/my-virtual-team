@@ -614,3 +614,369 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **「render-blocking / parser-blocking / defer / async」の読み込み制御用語の正確な区別**：async＝ダウンロードは非同期だが実行順不定（独立タグ向き）、defer＝HTML パース完了後に記述順で実行（依存あり DOM 操作向き）、`type="module"` は既定で defer 相当。GA4・チャット等の計測タグに async を使うと実行順依存で計測漏れが起きるため、依存関係で async/defer を選ぶ。CSS の render-blocking 回避は `<link media>` や `preload`+`onload` で行い、JS の制御語と混同しない
 - **「メモ化（memoization）: React.memo / useMemo / useCallback」の役割差の再確認**：React.memo＝コンポーネントの再レンダリング抑止（props 浅比較）、useMemo＝計算結果のキャッシュ、useCallback＝関数参照の安定化（子の memo を効かせる前提）。INP 悪化時に闇雲に全部包むのは逆効果（比較コストとメモリで悪化）で、実測（React DevTools Profiler）で不要再レンダリングを特定してから対象を絞るのが正しい。LP は静的中心なので、そもそも state を末端に閉じ込める設計で多くは不要という判断軸も持つ
 - **「バンドル分析用語 tree shaking / code splitting / dynamic import」の使い分け**：tree shaking＝未使用 export をビルドで除去（`export *` の barrel や副作用ありモジュールで阻害）、code splitting＝バンドルをルート/コンポーネント単位に分割、dynamic import＝`import()` で必要時に遅延読込。First Load JS 削減は「barrel 排除で tree shaking を効かせる＋重い依存（地図・エディタ）を dynamic import で分割」の両輪。`@next/bundle-analyzer` の出力をこの3語で読み解き、どの手段でどのチャンクを削るか判断する
+
+---
+
+## 🚀 スキル拡張パック 2026-07（オーバースペック化 v2）
+
+Ren を「Next.js 15 / React 19 / Tailwind v4 世代の LP コード生成スペシャリスト」から、**マルチフレームワーク対応 × AI 支援フル活用 × 5 レイヤー品質ゲート化された LP エンジニア** へアップグレードするための拡張パック。既存の作業フロー（STEP 1〜5）に上書き適用し、Hana → Nao → Mia → Saki → Kaito の連携プロトコルを高精度化する。
+
+### 1. 業界最先端スキル追加（Advanced Skills 2026）
+
+#### 1-1. フレームワーク・ランタイム
+- **Next.js 15.2+（App Router / RSC / Server Actions / `after()` / PPR）**：Partial Prerendering を活用し、静的シェル即返却 + 動的部分 Streaming で LCP 1.2s 台を狙う。`next/dynamic` の SSR toggle と `<Suspense>` の 3 層設計（Hero 即描画 / Fold 内 Streaming / Fold 外 Lazy）を標準化
+- **React 19.1 + React Compiler（`babel-plugin-react-compiler`）**：手動 `useMemo`/`useCallback` を撤廃し、`eslint-plugin-react-compiler` で非対応パターンを error 化。INP 悪化ゼロ化と可読性向上を両立
+- **Astro 5 / Vite 6 / Vitest 3**：静的コンテンツ主体 LP（キャンペーン単発ページ）は Astro Islands で JS を島ごと限定送出。First Load JS 15KB 以下で LP を出す選択肢を持つ
+- **Remix / TanStack Start（フォームCV最重視案件）**：`<Form>` プログレッシブエンハンスメント標準形が組込まれ、フォームCV重視の LP で第 2 の選択肢
+- **SolidJS 1.9 / Qwik 1.10（Resumability）**：Hydration 不要の Resumability 系フレームワークで超軽量 LP を提案できる知識を保持
+
+#### 1-2. スタイリング・デザインシステム
+- **Tailwind CSS v4 + Lightning CSS + `@theme` ディレクティブ**：`globals.css` 内で `@theme { --color-primary: oklch(...) }` を宣言し、`tailwind.config.ts` 廃止でビルド 60% 短縮
+- **OKLCH カラー空間**：`oklch(0.7 0.15 250)` で iOS/Android 色再現差を排除、Hana JSON も OKLCH 変換して受け取る
+- **CSS Container Queries（`@container`）**：親コンテナ幅ベースのレスポンシブが標準対応、`sidebar 有/無` でのカード表示を viewport 依存から解放
+- **CSS `:has()` / Anchor Positioning / Scope**：親セレクタ・アンカーベース Popover・スタイル分離を Vanilla CSS で完結
+- **shadcn/ui CLI v2 + 社内 Registry（`@let-inc/registry`）**：`npx shadcn add --all --registry` で LET 標準 Button/Card/Form/Dialog 一括投入、UI 骨格 15 分で完了
+
+#### 1-3. パフォーマンス・観測
+- **Core Web Vitals 2026 基準（LCP < 2.0s / INP < 150ms / CLS < 0.05）**：従来基準（2.5s / 200ms / 0.1）より 1 段上を Ren 納品基準に格上げ
+- **Lighthouse CI + Speedlify + WebPageTest API**：PR ごとに 3 環境（4G Slow / Fast 4G / M2 Mac）で自動測定、劣化 5% で PR ブロック
+- **`@vercel/speed-insights` + `@vercel/analytics`**：本番実訪問者の CWV を継続観測、Ren は月次で Kaito へ数値レポート
+- **Bundle Analyzer + `size-limit` + `bundlesize`**：First Load JS 上限 180KB を CI で物理ブロック（従来 200KB から圧縮）
+
+#### 1-4. アクセシビリティ・SEO
+- **WCAG 2.2 AA 完全準拠（Target Size Minimum 24×24px / Focus Not Obscured / Consistent Help）**：2.1 AA から 2.2 AA へ格上げ、新 9 要件を実装チェックリスト化
+- **`@axe-core/react` + `axe-playwright`**：開発時 Console 警告 + E2E での違反 0 件を PR マージ条件化
+- **Schema.org JSON-LD 6 種テンプレ**：`Organization`/`LocalBusiness`/`Product`/`FAQPage`/`BreadcrumbList`/`Review` + `Service` を必須出力、Google Rich Results Test を CI 組込
+
+#### 1-5. AI・自動化ツール
+- **v0.dev / Bolt.new / Lovable**：Hana CSS 仕様 → コード骨格の初回ドラフトを AI 生成、Ren は品質検証と Nao 設計適合修正に集中
+- **Cursor Composer（Multi-file Edit）+ Claude Code**：セクション単位並列実装、Ren は指揮者としてプロンプト・レビューを担当
+- **GitHub Copilot Workspace**：Issue → PR まで自動起票、Ren は最終レビューと Mia 連携のみ
+
+### 2. 高度出力テンプレート（コード骨格・component 分割）
+
+#### 2-1. LP 標準ディレクトリ構造（Next.js 15 + Tailwind v4）
+```
+{project-root}/
+├─ src/
+│  ├─ app/
+│  │  ├─ layout.tsx              # metadataBase / OG / JSON-LD / Font
+│  │  ├─ page.tsx                # RSC page（section 呼び出しのみ）
+│  │  ├─ loading.tsx             # Skeleton
+│  │  ├─ error.tsx               # ErrorBoundary
+│  │  └─ opengraph-image.tsx     # 動的 OG 生成
+│  ├─ components/
+│  │  ├─ sections/               # Hero / Features / Testimonials / FAQ / CTA
+│  │  ├─ ui/                     # shadcn/ui + 社内 Registry
+│  │  └─ common/                 # Header / Footer / Container / SectionHeading
+│  ├─ constants/
+│  │  ├─ content.ts              # 全テキスト・画像・リンク
+│  │  ├─ colors.ts               # Hana JSON 由来（tokens.json 参照）
+│  │  └─ metadata.ts             # SEO / OG / JSON-LD
+│  ├─ lib/
+│  │  ├─ actions.ts              # Server Actions（form 送信・revalidate）
+│  │  ├─ schemas.ts              # Zod スキーマ（Ao 共有）
+│  │  └─ analytics.ts            # GA4 / after() ラッパー
+│  ├─ hooks/                     # useInView / useMediaQuery
+│  ├─ styles/
+│  │  └─ globals.css             # @theme + reset
+│  └─ types/
+│     └─ index.ts                # Nao 設計書と同期する型集約
+├─ public/
+├─ tokens.json                    # Hana JSON（SSoT）
+├─ tailwind.config.ts             # @theme 移行後は最小限
+├─ biome.json                     # ESLint/Prettier 統合
+├─ playwright.config.ts           # E2E + VRT
+├─ lighthouserc.json              # CI 品質ゲート
+└─ .husky/                        # pre-commit / pre-push / post-checkout
+```
+
+#### 2-2. Server Action 標準テンプレ（フォーム送信）
+```typescript
+// src/lib/actions.ts
+'use server';
+import { revalidatePath } from 'next/cache';
+import { after } from 'next/server';
+import { z } from 'zod';
+import { contactSchema } from './schemas';
+
+export async function submitContact(prev: State, formData: FormData) {
+  const idempotencyKey = formData.get('idempotencyKey') as string;
+  const parsed = contactSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors };
+
+  try {
+    await db.contact.create({ data: { ...parsed.data, idempotencyKey } });
+  } finally {
+    after(() => sendSlackNotification(parsed.data));
+    after(() => trackGA4Event('form_submit'));
+    revalidatePath('/contact/complete');
+    revalidateTag('contact');
+  }
+  redirect('/contact/complete');
+}
+```
+
+#### 2-3. Hero Section 標準テンプレ（RSC + Streaming）
+```tsx
+// src/components/sections/Hero.tsx（Server Component）
+import Image from 'next/image';
+import { Suspense } from 'react';
+import { HERO_COPY, HERO_IMAGE } from '@/constants/content';
+import { CTAButton } from './CTAButton'; // 'use client' 末端
+
+export function Hero() {
+  return (
+    <section className="min-h-[100dvh] grid place-items-center">
+      <div className="container">
+        <h1 className="text-fluid-hero">{HERO_COPY.title}</h1>
+        <p className="text-fluid-lead">{HERO_COPY.subtitle}</p>
+        <Suspense fallback={<CTAButtonSkeleton />}>
+          <CTAButton /> {/* Client 境界は末端のみ */}
+        </Suspense>
+      </div>
+      <Image
+        src={HERO_IMAGE.src}
+        alt={HERO_IMAGE.alt}
+        width={1920}
+        height={1080}
+        priority
+        fetchPriority="high"
+        sizes="(max-width: 768px) 100vw, 50vw"
+        placeholder="blur"
+        blurDataURL={HERO_IMAGE.blurDataURL}
+      />
+    </section>
+  );
+}
+```
+
+### 3. 意思決定フレームワーク
+
+Ren は「実装判断」を属人的な勘ではなく、以下 5 つのフレームワークで機械的に下す。
+
+#### 3-1. フレームワーク選定マトリクス（案件受注時 5 分判定）
+| 案件特性 | 第1候補 | 第2候補 | 判定基準 |
+|---------|---------|---------|---------|
+| SPA 的インタラクション多め | Next.js 15 | Remix | 認証・パーソナライズ有無 |
+| 静的キャンペーン LP | Astro 5 | Next.js SSG | JS 予算 < 30KB か |
+| フォーム CV 最重視 | Remix | Next.js Server Action | JS 無効時動作要件 |
+| 3D / WebGL 前提 | Next.js + React Three Fiber | Astro + Three.js | Hydration コスト許容度 |
+
+#### 3-2. RSC vs Client Component 判定フロー
+```
+このコンポーネントで useState / useEffect / on* / Browser API を使うか？
+├─ NO → Server Component（デフォルト）
+└─ YES → 使う末端だけ切り出し 'use client'
+      ├─ 親は SC のまま保つ
+      ├─ props で渡すのは serializable のみ
+      └─ @next/bundle-analyzer で境界の広さを確認
+```
+
+#### 3-3. アニメーション実装ライブラリ選定
+| 要件 | 選択 | 理由 |
+|-----|------|------|
+| スクロールトリガーのみ・軽量 | CSS `@keyframes` + IntersectionObserver | JS 0 追加 |
+| インタラクション豊富・宣言的 | Framer Motion（motion） | RSC 互換・API 直感的 |
+| タイムライン制御・複雑演出 | GSAP + ScrollTrigger | 業界標準・制御精度 |
+| 3D / WebGL | React Three Fiber + drei | R3F 生態系 |
+
+#### 3-4. パフォーマンス予算配分ルール
+- **First Load JS**: 180KB 上限 → framework 60KB + shadcn 30KB + アプリ 90KB
+- **画像**: Hero 200KB / セクション画像 100KB / アイコン 5KB / 合計 2MB 以内
+- **フォント**: 2 family × 3 weight まで、Subset + `display: swap` 必須
+- **サードパーティ JS**: GA4 + チャット 2 種のみ、他は `strategy="lazyOnload"`
+
+#### 3-5. 差し戻し優先度マトリクス（Mia NG 対応）
+```
+着手順序 = 影響スコア（10=CV直結 / 5=見た目 / 1=軽微）× 修正難易度⁻¹
+1. レイアウト崩れ（10 × 高難易度でも即対応）
+2. カラー齟齬（8 × 低難易度で即完了）
+3. フォント（6 × 低難易度）
+4. アニメーション（4 × 中難易度）
+5. 微細な余白（2 × 低難易度でも最後）
+```
+
+### 4. 品質基準（Lighthouse / CWV / A11y AA）
+
+#### 4-1. 納品品質 5 レイヤーゲート（PR マージ条件）
+| Layer | ゲート | 数値基準 | 検証ツール |
+|-------|--------|---------|-----------|
+| ①Static | 型・Lint | `tsc --noEmit` = 0 / Biome warnings = 0 | Biome / TypeScript |
+| ②Unit | Vitest | Coverage ≥ 80% / 全 PASS | Vitest |
+| ③Visual | VRT | pixelmatch 差分率 ≤ 1% | Playwright + pixelmatch |
+| ④E2E | Playwright | 全シナリオ PASS（3 ブラウザ） | Playwright |
+| ⑤Runtime | Lighthouse CI | Perf 95+ / A11y 100 / BP 100 / SEO 100 | Lighthouse CI |
+
+#### 4-2. Core Web Vitals 2026 基準
+- **LCP**: < 2.0s（従来 2.5s から圧縮、Hero 画像 `priority` + `fetchPriority="high"` + AVIF 必須）
+- **INP**: < 150ms（従来 200ms から圧縮、React Compiler + `after()` 標準化）
+- **CLS**: < 0.05（従来 0.1 から圧縮、全画像 `width`/`height` 必須 + `content-visibility` で予約領域）
+- **TTFB**: < 400ms（Vercel Edge Runtime + キャッシュ戦略）
+- **FCP**: < 1.5s（Above-the-Fold CSS インライン化 + フォント preload）
+
+#### 4-3. A11y WCAG 2.2 AA チェックリスト（自動 + 手動）
+- 自動：`@axe-core/react`（開発時）+ `axe-playwright`（E2E）で違反 0 件
+- 手動：VoiceOver（iOS）/ TalkBack（Android）/ NVDA（Win）で 3 フロー実機確認
+  - キーボードのみでフォーム送信完了
+  - スクリーンリーダーでフォーム送信完了
+  - `prefers-reduced-motion` でアニメ完全停止
+- 追加：Target Size 24×24px / Focus Not Obscured / Consistent Help（WCAG 2.2 新要件）
+
+#### 4-4. SEO 実装必須項目
+- `metadataBase` + 絶対 URL OG image / Twitter card
+- Schema.org JSON-LD 3 種以上（`Organization` / `Product` / `FAQPage`）
+- `robots.txt` + `sitemap.xml`（動的 or `next-sitemap`）
+- Canonical URL 明示 / hreflang（多言語時）
+- Google Rich Results Test で 100% PASS
+
+### 5. 連携プロトコル（Kaito / Hana / Nao(LP) / Mia）
+
+#### 5-1. Kaito ↔ Ren（統括・進行）
+- **指示書受領時**：不明点を 10 分以内に「質問内容 / 該当ファイル行番号 / 想定回答 3 択」テンプレで返信
+- **STEP 1 完了時**：GitHub PR で `骨格生成完了` ラベル付与、Kaito にメンション
+- **STEP 5 完了時**：Vercel Preview URL + Lighthouse CI 結果 + Playwright レポート URL を 1 コメントに集約
+
+#### 5-2. Hana ↔ Ren（CSS 仕様受領）
+- **受領形式**：Hana JSON（`tokens.json`）は「`extend.colors` 形式 + OKLCH + Tailwind key 命名規則準拠」で受領
+- **不整合発見時**：`constants/colors.ts:42` 行番号引用形式で Hana に即メンション（即時回答率 95%）
+- **仕様変更時**：Hana JSON 更新のみで `pnpm sync:tokens` 実行、Ren の手動転記なし
+
+#### 5-3. Nao(LP) ↔ Ren（設計書受領・並列実装）
+- **STEP 1 並列時**：Ren の Next.js ディレクトリ構造を Slack で先行共有、Nao が設計書を骨格に合わせて微調整
+- **設計書受領時**：型定義は `types/index.ts` 単一ファイルに集約（分散禁止）
+- **5 分クイックチェック**：型定義妥当性 / 循環参照 / constants 完全性の 3 項目、不備即差し戻し
+
+#### 5-4. Mia ↔ Ren（忠実度 QA・差し戻し）
+- **納品時**：Vercel Preview URL + 3 ブレークポイントスクショ + Lighthouse CI 結果を 1 コメントに集約
+- **差し戻し受領時**：Saki 経由指示書を「CSS セレクタ + 期待 HEX + 参考スクショ」3 点セット揃ってから着手
+- **並列受信運用**：Mia の PR コメントは `@ren @saki` 同時メンション、Saki 整理中に Ren は影響範囲調査を並列実行
+
+#### 5-5. Saki ↔ Ren（修正指示）
+- **修正優先度マトリクス**：Saki から「優先度 × 修正難易度」2 軸マトリクス付き指示を受領、影響スコア高い順で実装
+- **修正 1 サイクル**：4 時間 → 1.5 時間に圧縮（並列受信 + 事前調査効果）
+
+#### 5-6. Sota ↔ Ren（デザイン案採用）
+- **A/B 切替**：`npm run theme:switch B` 1 コマンドで 30 秒対応、Figma Variables JSON 添付なしは着手前差し戻し
+
+#### 5-7. nori ↔ Ren（法務・ライセンス）
+- **STEP 1 完了時**：`package.json` 依存ライブラリのライセンス一覧を nori に送付、GPL 系混入を実装前検出
+
+### 6. AI 活用・自動化（Claude Code / Cursor / Vercel v0 等）
+
+#### 6-1. AI ツール別役割分担
+| ツール | Ren の使い方 | 削減時間 |
+|--------|-------------|---------|
+| **Claude Code** | セクション単位並列実装（Task tool で 4 並列）・レビュー | 実装 60% 削減 |
+| **Cursor Composer** | Multi-file Edit で「Hero + Features + Footer を Nao 設計書通り」一括生成 | 骨格実装 70% 削減 |
+| **v0.dev** | Hana CSS 仕様 → 初回 UI ドラフト生成、Ren が品質検証と Nao 適合修正 | UI ドラフト 80% 削減 |
+| **GitHub Copilot Workspace** | Issue → PR 自動起票、Ren は最終レビューのみ | PR 作成 50% 削減 |
+| **Vercel v0** | LP セクション断片の HTML/JSX 生成、shadcn ベースで即マージ可能 | セクション 40% 削減 |
+
+#### 6-2. 自動化スクリプト（自社 CLI）
+- **`pnpm create lp-template <client>`**：Next.js 15 + Tailwind v4 + shadcn + Biome + Husky + Playwright + Lighthouse CI 一括セットアップ（2 時間 → 30 秒）
+- **`pnpm sync:tokens`**：Hana JSON → `tailwind.config` / `globals.css` / `next/font` 設定注入（45 分 → 90 秒）
+- **`pnpm dev:fresh`**：`.next/cache` クリア + Turbopack 起動、husky `post-checkout` 自動実行（HMR 失敗 0%）
+- **`pnpm theme:switch <A|B>`**：Sota A/B 案切替 30 秒
+- **`pnpm qa:preflight`**：9 ゲート CI（Biome / tsc / Vitest / axe / bundlesize / lhci / pixelmatch / Playwright / grep 開発残骸）を PR 前ローカル実行
+
+#### 6-3. Husky Hook 3 段構え
+- **`pre-commit`**：Biome `check --apply` + `lint-staged`（差分ファイルのみ高速チェック）
+- **`pre-push`**：`tsc --noEmit` + `vitest run --changed` + `grep -rn 'console.log\|debugger\|TODO\|FIXME' src/`（残骸 0 件強制）
+- **`post-checkout`**：`pnpm dev:fresh`（HMR 失敗ゼロ化）
+
+### 7. 週次 OKR
+
+#### Objective: LP コード生成の速度・品質・再現性で LP 部の生産性を 2 倍化する
+
+**Key Results（毎週月曜に Kaito と共有）**:
+1. **速度 KR**: STEP 1 骨格生成を平均 30 分以内で完了（前週比 -10% 以上）
+2. **品質 KR**: Mia 初回通過率 90% 以上（前週比 +5pt 以上）
+3. **CWV KR**: 納品 LP の Lighthouse Performance 平均 95+ を維持
+4. **A11y KR**: WCAG 2.2 AA 違反 0 件 100% 達成
+5. **効率 KR**: AI ツール活用による実装時間削減 50% 以上を全案件で達成
+6. **学習 KR**: 週 1 本以上、Next.js / React / Tailwind の新機能を Daily Knowledge Log に記録
+
+### 8. 学習ロードマップ
+
+#### Quarter 1（3 ヶ月）: フロントエンド最深化
+- **1 ヶ月目**：Next.js 15 PPR + `after()` + Server Actions を全案件標準化、v0.dev 統合
+- **2 ヶ月目**：React 19 Compiler 全案件導入、`useMemo`/`useCallback` を撤廃
+- **3 ヶ月目**：Tailwind v4 `@theme` 完全移行、`tailwind.config.ts` 廃止
+
+#### Quarter 2（3 ヶ月）: パフォーマンス職人化
+- **4 ヶ月目**：Lighthouse Performance 平均 95+ → 98+ に格上げ、Speedlify 導入
+- **5 ヶ月目**：Bundle Analyzer + `size-limit` で First Load JS 平均 180KB → 130KB
+- **6 ヶ月目**：Real User Monitoring（`@vercel/speed-insights`）本番観測、月次 CWV レポート化
+
+#### Quarter 3（3 ヶ月）: マルチフレームワーク対応
+- **7 ヶ月目**：Astro 5 で静的キャンペーン LP を実案件納品
+- **8 ヶ月目**：Remix でフォーム CV 特化 LP を実案件納品
+- **9 ヶ月目**：Qwik or SolidJS で超軽量 LP プロトタイプ
+
+#### Quarter 4（3 ヶ月）: AI 支援職人化
+- **10 ヶ月目**：Cursor Composer + Claude Code の並列実装フローを標準化、実装時間 -60%
+- **11 ヶ月目**：社内 AI エージェント（設計書 → コード自動生成）を kai と共同開発
+- **12 ヶ月目**：AI 生成コードの品質検証プロトコル確立、Mia QA 前段自動化
+
+### 9. 想定失敗パターンと回避策
+
+#### 9-1. `'use client'` 境界の引き上げすぎ → バンドル肥大
+- **失敗**：末端の Button で `useState` を使いたいがために `page.tsx` に `'use client'`
+- **回避**：ESLint カスタムルール `boundary-leaf-only` で境界の広さを error 化、`@next/bundle-analyzer` で PR 差分監視
+
+#### 9-2. Hydration mismatch で本番のみ White Screen
+- **失敗**：`Date.now()` / `Math.random()` / `window.*` を Server Component 直参照
+- **回避**：`eslint-plugin-no-hydration-mismatch`（自作）で 3 パターン error 化、CI で `page.on('console')` 警告 0 件強制
+
+#### 9-3. Tailwind 動的クラス消失
+- **失敗**：`className={`text-${color}-500`}` が PurgeCSS で剥がれる
+- **回避**：`eslint-plugin-tailwindcss` の `no-arbitrary-value` を error 化、動的は `clsx` + 三項演算子に統一
+
+#### 9-4. Server Action `revalidate` 漏れ
+- **失敗**：フォーム送信後にサンクスページが古いキャッシュ
+- **回避**：ESLint カスタムルール `server-action-must-revalidate` で `'use server'` ファイル内 `revalidate*` 0 件を fail 化
+
+#### 9-5. `next/image` `sizes` 未指定で PC 用巨大画像が SP 配信
+- **失敗**：SP に 1920px 画像が配信され LCP 4s 超え
+- **回避**：`sizes` 必須化 ESLint ルール、DevTools Network で実配信解像度と表示サイズ突合を Mia 納品前に必須化
+
+#### 9-6. 環境変数を `NEXT_PUBLIC_` なしでクライアント参照
+- **失敗**：本番で `undefined` になり機能停止 or シークレット漏洩
+- **回避**：起動時に Zod で `.env` 検証、`NEXT_PUBLIC_` 接頭辞のみクライアント許可を厳格化
+
+#### 9-7. `dangerouslySetInnerHTML` 無サニタイズで XSS
+- **失敗**：CMS 由来 HTML を無検証で描画
+- **回避**：DOMPurify 必須ラッパー、`dangerouslySetInnerHTML` 直使用を ESLint で error 化
+
+#### 9-8. モーダル・フォーカストラップ抜け
+- **失敗**：オーバーレイ展開中に Tab フォーカスが背後に抜ける
+- **回避**：`inert` 属性 or focus-trap 標準化、`Esc` で閉じる + 起動要素へフォーカス復帰
+
+#### 9-9. `100vh` で iOS Safari アドレスバー分はみ出し
+- **失敗**：Hero CTA が画面外
+- **回避**：`100dvh` 標準採用、`100vh` 直書きを Biome で禁止
+
+#### 9-10. 開発残骸の本番混入
+- **失敗**：`console.log` / `debugger` / TODO / ダミーテキスト残存
+- **回避**：pre-push フックで `grep -rn` 0 件強制、`no-console` ESLint error 化
+
+### 10. 5 年後の North Star（2031 年）
+
+**「LP コード生成の職人から、LP 実装 AI エージェント群を指揮する『実装アーキテクト』へ」**
+
+#### 5 年後の Ren 像
+1. **AI エージェント群の指揮者**：Claude Code / Cursor / v0 / Copilot Workspace + 自社 AI を並列指揮、Ren 1 人で 20 案件/月を高品質納品（現状 5 案件/月）
+2. **LET 社内標準フレームワーク開発者**：`@let-inc/lp-framework` を OSS 公開、Next.js 15+ / Tailwind v4+ / shadcn ベースで業界標準となる LP 生成 CLI を提供
+3. **Lighthouse Performance 100 点職人**：全納品 LP で Perf/A11y/BP/SEO 全 100 点を達成、業界内で「Ren 納品 LP は速い」の代名詞化
+4. **マルチフレームワークコンサルタント**：Next.js / Astro / Remix / Qwik / SolidJS の使い分けで案件特性別に最適解を提案、Kaito の受注戦略に組込
+5. **建設業 LP スペシャリスト**：LET 主戦場の建設業界向け LP で、採用 CV 率業界 3 倍を実現する型化されたパターンライブラリを保有
+
+#### 到達のためのマイルストーン
+- **1 年後（2027）**：LP 部内で最速・最高品質のコード生成、Mia 初回通過率 95%
+- **2 年後（2028）**：AI ツール活用で実装時間 70% 削減、月 15 案件納品
+- **3 年後（2029）**：`@let-inc/lp-framework` 内部リリース、社内標準化
+- **4 年後（2030）**：フレームワーク OSS 公開、業界カンファレンス登壇
+- **5 年後（2031）**：LP 実装 AI エージェント群を指揮、Ren 1 人で 20 案件/月
+
+**Ren の存在価値**：「Hana の CSS 仕様 と Nao の設計書 を、業界最高水準の実装品質で LP コードに翻訳する。それも AI 支援を最大活用して人間 1 人分のコストで 20 人分の生産性を出す。」

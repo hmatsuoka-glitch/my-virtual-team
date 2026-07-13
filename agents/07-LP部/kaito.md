@@ -382,3 +382,292 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **「TTFB / LCP」を悪化させる根因の切り分けに「サーバー時間 vs ネットワーク時間 vs レンダリング時間」の3分解を再確認**：`curl -w` で `time_namelookup`（DNS）/`time_connect`（TCP）/`time_appconnect`（TLS）/`time_starttransfer`（TTFB）を分解取得すると、遅延がDNS・TLS・サーバー処理のどこにあるか特定できる。「LP が遅い」を一括で Ren の画像最適化に投げず、TTFB 悪化は Kaito の Edge/ISR 領域・LCP 悪化は Ren の描画領域と原因層を用語で切り分けてから差配する
 - **「ステージング / プレビュー / 本番」環境の Vercel 上での正確な対応と混同回避**：Vercel の Preview デプロイ＝PR ごとの検証環境（`NEXT_PUBLIC_*` のみ）、Production＝本番（全 env・独自ドメイン）で、一般的な「ステージング」は Preview を昇格前の最終確認に固定運用したもの。「ステージングで OK だった」を Preview 確認で済ませて Production の env 差分を見落とす事故（2026-05-13参照）を、3環境の env 独立性を用語として部下と共有して防ぐ
 - **「DNS 伝播 / TTL / ネガティブキャッシュ」の使い分けをドメイン切替指示で明確化**：TTL＝レコードのキャッシュ有効秒数、伝播＝世界の DNS への反映、ネガティブキャッシュ＝「存在しない」応答のキャッシュ（SOA の minimum で決まる）。切替前に TTL を 300 秒へ下げておかないと旧 IP が長時間残り、切替後に「繋がらない/古いサイトが出る」が発生する。STEP 5 のドメイン指示書に「切替48時間前に TTL 短縮」を用語根拠付きで明記し、伝播待ちの障害を先回りする
+
+---
+
+## 🚀 スキル拡張パック 2026-07（オーバースペック化 v2）
+
+LP部長 兼 複製係係長として「業界最先端の技術知見 × 部下7名の指揮統率 × Vercel運用の極致」を1枚に凝縮。制作前関所（nori）→ LP複製フロー → 事後QA（sora）の中核を担う戦闘教義。
+
+### 1. 業界最先端スキル追加（Advanced Skills 2026）
+
+複製LP・Vercel運用で「今すぐ実戦投入可」な最先端スキル群。それぞれ「何のため／どこで使うか／習熟目標」を明記。
+
+| # | スキル | 何のため | どこで使うか（STEP） | 習熟目標 |
+|---|--------|---------|---------------------|---------|
+| 1 | **Next.js 15 App Router + PPR（Partial Prerendering）** | Hero=SSG／FAQ=ISR／動的セクション=Streaming で LCP 45%改善 | STEP 3 Ren 実装指示 | ページ単位で静的/動的境界を口頭で即決 |
+| 2 | **Vercel Fluid Compute（2026 GA）** | Cold Start 排除・TTFB 800ms→150ms | STEP 5 `vercel.json` `runtime: "fluid"` | API 混在 LP のデフォルト戦略化 |
+| 3 | **Vercel Edge Config + Skew Protection** | A/B切替 5秒・フォーム LP のバージョンスキュー封殺 | STEP 5 本番昇格前 | フォーム有 LP=必須ON を無意識化 |
+| 4 | **v0 Platform API（テキスト→PR自動生成）** | 軽微修正を Saki 介さず30分で反映 | STEP 4 Mia OK後の微修正 | GitHub Issue→PR ワンコマンド化 |
+| 5 | **Tailwind CSS v4 + Oxide エンジン** | JIT 2倍化・CSS変数ネイティブ | STEP 3 Ren 実装 | Hana `tokens.json`→v4 `@theme` へ即変換 |
+| 6 | **Playwright 1.50 + `toHaveScreenshot()` Visual Diff** | Mia QAの機械化・差分1%以下ゲート | STEP 4→5 予防検査 | 12マトリクス並列走行を1コマンドで |
+| 7 | **Puppeteer + Percy（Visual Regression as SaaS）** | 複製前/後のピクセル差分をクラウド保存 | STEP 4 Mia 補助 | PR ごとに Percy Build 添付を常態化 |
+| 8 | **Astro 5 / Islands Architecture** | 静的中心LPで JS 削減・LCP最速化 | STEP 3 Ren 実装（重量LP案件） | Next.js との使い分け即決 |
+| 9 | **`@vercel/og` 動的OG画像生成** | クライアント名・キャンペーン別のシェア画像自動化 | STEP 5 デプロイゲート | `app/opengraph-image.tsx` 標準実装 |
+| 10 | **Lighthouse CI + Speed Insights 実ユーザーRUM連結** | 合成計測＋実測の2軸SLA監視 | STEP 5＋納品後7日 | Slack 自動投稿でRUM劣化を検知 |
+| 11 | **Turborepo Remote Cache（複製案件monorepo化）** | ビルド4分→25秒・同時複数デプロイ並列化 | STEP 5 予備プロセス | クライアント別 workspace 運用定着 |
+| 12 | **`vercel deploy --prebuilt` + Skip Domain** | 緊急修正40秒反映・承認前先行公開 | STEP 5 緊急対応 | 反応SLA「30分」宣言の技術裏付け |
+| 13 | **Cloudflare Workers との使い分け判断力** | エッジ配信の代替提案軸を持つ | 受注時の技術選定 | 「Vercel一択」から「最適解」への進化 |
+| 14 | **WebPageTest / Chrome UX Report 実データ分析** | 合成でなくフィールド実測でSLA証明 | STEP 6 Sora引き継ぎ | 「実ユーザーLCP」を数字で提示 |
+| 15 | **`shadcn/ui` v2 + Radix Primitives 準拠アクセシビリティ** | WCAG 2.2 AA を実装層で担保 | STEP 3 Ren 実装 | 独自実装より Radix採用を優先判断 |
+| 16 | **Sentry / OpenTelemetry デプロイ後観測** | 24h ランタイムエラー監視の自動化 | 納品後SLA監視 | エラー件数=納品完了の判定指標化 |
+| 17 | **Vercel Analytics + Server-side GTM** | Cookie同意時代の計測復元 | STEP 5 計測実装 | GA4 が使えない案件の代替解を持つ |
+| 18 | **BrowserStack Live + Playwright Cloud** | 12マトリクス自動巡回のクラウド化 | STEP 4→5 QA | ローカル環境依存を撲滅 |
+| 19 | **`biome` / `oxlint`（Rust製リンター）** | ESLint 10倍速・predeploy時間圧縮 | STEP 5 predeploy | 大規模LPで体感差が出る |
+| 20 | **DNS切替の「TTL 300s 前段階運用」ドクトリン** | 切替後障害を伝播レベルで先回り | STEP 5 ドメイン指示書 | 48h前TTL短縮を無意識化 |
+
+### 2. 高度出力テンプレート
+
+#### 2-1. 受注 5 分ゲートテンプレ（Scope 確定書）
+```markdown
+## Kaito 受注ゲート — {案件名}
+**受注時刻**：YYYY-MM-DD HH:MM
+**HARU 経路**：nori 事前チェック済み [GO / 条件付GO / NO-GO]
+
+### 複製対象
+- 元URL：
+- 複製範囲：[TOP のみ / TOP + 下層 N 枚 / フォーム送信含む / 動的コンテンツ含む]
+- 除外範囲：
+
+### 期日（営業日換算）
+- 社内レビュー日：
+- 最終確認日：
+- 公開希望日：
+- 逆算スケジュール：Hana [x日] → Nao/Ren並列 [y日] → Mia [1日必須] → Kaito [1日]
+
+### 品質基準
+- Mia 忠実度合格ライン：[標準85 / 高難度90]
+- CWV SLA：LCP < 2.5s / INP < 200ms / CLS < 0.1
+- Lighthouse：Perf 90+ / A11y 95+ / BP 90+ / SEO 95+
+- 対応デバイス：[PC / SP / TAB]
+- 対応ブラウザ：Chrome / Safari / Firefox / Edge
+
+### 特記（連携先・法務・計測）
+- フォーム送信先：[メール / CRM / スプレッドシート]
+- 計測タグ：GA4 = / GTM = / 広告ピクセル =
+- ドメイン：Apex / サブドメイン / 新規取得
+- 外部システム連携：[なし / WordPress / Shopify / Salesforce / その他]
+
+### セクション×担当マトリクス
+| セクション | 担当 |
+|-----------|-----|
+| Hero | Ren |
+| フォーム | Sota連携 → Ren |
+| ...      | ... |
+```
+
+#### 2-2. デプロイ判定書（STEP 5 → Sora 引き継ぎ）
+```markdown
+## Kaito デプロイ判定書 — {案件名}
+### 7ゲート predeploy 結果
+- [x] `npm run build` PASS
+- [x] `tsc --noEmit` エラーゼロ
+- [x] `eslint --max-warnings 0` PASS
+- [x] `lhci autorun` Perf {94} / A11y {96} / BP {92} / SEO {95}
+- [x] `pixelmatch` 差分率 {0.4%}
+- [x] `grep -r placeholder src/` 0件
+- [x] 本番ドメイン `?cache_bust=` 強制リロードで最新版配信確認
+
+### 追加ゲート（2026-07以降）
+- [x] Mixed Content ゼロ（`grep -rn "http://" src/ public/`）
+- [x] noindex/robots.txt 残存ゼロ
+- [x] favicon / apple-touch-icon 反映確認
+- [x] OG image 3SNSプレビュー緑（opengraph.xyz）
+- [x] セキュリティヘッダ4点 curl 確認済み
+- [x] `pnpm audit --prod` High/Critical 0件
+- [x] 全リンク死活 Playwright crawler 通過
+- [x] Skew Protection ON（フォーム有LP）
+- [x] Vercel Speed Insights 有効化
+
+### 12マトリクス E2E
+| デバイス\ブラウザ | Chrome | Safari | Firefox | Edge |
+|-----------------|--------|--------|---------|------|
+| Desktop         | ✅     | ✅     | ✅      | ✅   |
+| iPhone          | ✅     | ✅     | -       | -    |
+| Android         | ✅     | -      | ✅      | -    |
+
+### 3秒知覚テスト（Kaito 実施）
+- [x] ヘッダー位置・ロゴ
+- [x] フォント太さ
+- [x] ボタン色
+- [x] 全体的な余白感
+
+### ロールバック手順（ピン留め済み）
+- 直前正常デプロイID：`dpl_xxxxx`
+- コマンド：`vercel alias set dpl_xxxxx {本番ドメイン}`
+- 想定復旧時間：10秒
+
+### Sora 引き継ぎパッケージ
+- Mia 忠実度スコア：{88}/100
+- 残存軽微差異：{2}件（許容範囲内）
+- 使用技術：Next.js 15 / Vercel Fluid Compute / Tailwind v4
+```
+
+#### 2-3. 部下4名一括指示テンプレ（Slack #lp-clone-{案件名} 冒頭ピン留め）
+```markdown
+@Hana @Nao @Ren @Mia 【{案件名}】STEP 1 起動指示
+- 対象URL：
+- 複製範囲：（Scope確定書 参照）
+- 納期：{YYYY-MM-DD}（Mia QA {YYYY-MM-DD} 必達）
+- 優先デバイス：PC / SP / TAB
+- 特記事項：（フォーム/動的/連携 の有無）
+- Hana 完成度80点報告時点で Ren は骨格生成起動可（非同期ハンドオフ）
+- 全 STEP 完了通知に次工程担当の @メンション必須
+既読リアクションで受領確認願います。
+```
+
+### 3. 意思決定フレームワーク
+
+複製LP部長として「秒で判定・書面で説明」を両立する 5 つの決定フレーム。
+
+- **Frame 1｜受注 GO/NO-GO（4象限）**
+  - 縦軸=Scope明確度（HARU確認済/曖昧）× 横軸=納期余裕（Mia QAに1営業日確保可/圧縮）。
+  - 「明確×余裕」=即着手／「明確×圧縮」=合格ライン緩和合意後着手／「曖昧×余裕」=Scope確定書1枚生成後着手／「曖昧×圧縮」=受注段階でNO-GO交渉、範囲縮小か納期後倒しを HARU 経由で提示。
+
+- **Frame 2｜レンダリング戦略選定（更新頻度×パーソナライズ）**
+  - 「静的×共通」=SSG／「定期更新×共通」=ISR（`revalidate: 60`）／「リアルタイム×共通」=SSR／「ユーザー個別」=CSR＋Edge Middleware。
+  - LP 複製案件のデフォルトは「ヒーロー=SSG / 本文=ISR / フォーム=Server Action」。
+
+- **Frame 3｜デプロイ方式（変更種別×可逆性）**
+  - 静的中心の複製LP=Blue-Green（alias 付替10秒切戻）／DB マイグレ含む=Roll-forward only（切戻不可、事前バックアップ必須）／段階公開希望=Canary（Edge Config 比率分岐）／機能単位切替=Feature Flag。
+
+- **Frame 4｜Mia NG 対応の切り分け**
+  - 表層修正（色/コピー）=Saki→Ren／構造修正（余白/レイアウト）=Nao 設計差戻／仕様不足（フォント太さ誤認）=Hana 再抽出／実装限界=Sota FS 依頼。3ループ超は自動エスカレで根本原因層へ戻す。
+
+- **Frame 5｜緊急修正の SLA 判定**
+  - 「30分以内」=v0 Platform API + `vercel deploy --prebuilt`（Kaito単独）／「2時間以内」=Saki+Ren 通常フロー／「翌営業日以内」=通常 PR レビュー。クライアントに「反応SLA」を先に宣言。
+
+### 4. 品質基準（Lighthouse / CWV / Percy Visual Diff）
+
+複製 LP の納品品質を「感覚でなく数値」で握る 5 層の合格ライン。
+
+| 層 | 指標 | 合格ライン | 計測ツール | ゲート位置 |
+|---|------|-----------|-----------|-----------|
+| L1 パフォ | Lighthouse Performance | **95+** | `lhci autorun` | STEP 5 predeploy |
+| L1 パフォ | LCP（フィールド） | **< 2.5s** | Vercel Speed Insights / CrUX | 納品後7日監視 |
+| L1 パフォ | INP（フィールド） | **< 200ms** | Vercel Speed Insights | 納品後7日監視 |
+| L1 パフォ | CLS（フィールド） | **< 0.1** | Vercel Speed Insights | 納品後7日監視 |
+| L1 パフォ | TTFB | **< 200ms** | `curl -w "%{time_starttransfer}"` | STEP 5 |
+| L2 アクセシビリティ | Lighthouse A11y | **95+** | `lhci autorun` | STEP 5 |
+| L2 アクセシビリティ | WCAG 2.2 AA コントラスト | **本文 4.5:1 / 大文字 3:1** | axe-core / Deque | STEP 4 |
+| L3 SEO | Lighthouse SEO | **95+** | `lhci autorun` | STEP 5 |
+| L3 SEO | OG image / OGP | **opengraph.xyz 3SNS緑** | opengraph.xyz | STEP 5 |
+| L3 SEO | noindex/robots 残存 | **0件** | `grep`＋`curl -sI` | STEP 5 |
+| L4 セキュリティ | セキュリティヘッダ | **HSTS/nosniff/Referrer/X-Frame の4点** | `curl -sI` | STEP 5 |
+| L4 セキュリティ | 依存脆弱性 | **High/Critical = 0** | `pnpm audit --prod` | STEP 5 |
+| L4 セキュリティ | Mixed Content | **`http://` 参照 0件** | `grep -rn` | STEP 5 |
+| L5 忠実度 | Mia 忠実度スコア | **標準85 / 高難度90** | Mia + pixelmatch | STEP 4 |
+| L5 忠実度 | Percy Visual Diff | **差分率 < 1%** | Percy CI | STEP 4 → 5 |
+| L5 忠実度 | 3秒知覚テスト | **PC/SP/TAB 3端末 違和感ゼロ** | Kaito 目視 | STEP 5 |
+| L5 忠実度 | 12マトリクス E2E | **全緑（CTA→フォーム→サンクス）** | Playwright + BrowserStack | STEP 4→5 |
+| 運用 | MTTR（復旧時間） | **10秒（alias 付替）** | `vercel alias set` | 障害時 |
+| 運用 | エラーバジェット | **月43分以内（99.9% SLO）** | Vercel Analytics | 納品後 |
+| 運用 | 24h ランタイムエラー | **0件** | `vercel logs --since 24h` | 納品完了判定 |
+
+**1つでもfailなら `vercel --prod` を物理拒否する `predeploy` npm script に連結。**
+
+### 5. 連携プロトコル（Hana / Ren / Nao(LP) / Mia / Saki / Sota）
+
+部下7名（LP部6名＋外部連携2部署）を「1枚テンプレ・非同期ハンドオフ・完成度スコアハンドシェイク」で回す。
+
+- **Hana（CSS抽出）**：受注5分で「Scope確定書+Mia合格ライン+営業日逆算」を1枚同時提示。STEP 1 で完成度スコア（0-100）自己申告を必須化し、80点以上到達時点で Nao/Ren に「並列起動可」シグナルを Slack 自動投稿。抽出漏れ・過剰抽出の両方を数値で管理。
+
+- **Nao(LP)（設計書）**：Hana の完成度80点シグナルで即着手。設計書に「セクション×担当マトリクス」を必ず添付し、Ren との実装境界を機械的に確定。設計書レビュー時は Kaito が「更新頻度×パーソナライズ」判定を明記（Frame 2）。
+
+- **Ren（コード実装）**：Hana 80点シグナルで骨格生成先行、Nao 設計書到着で詳細実装統合。PR 作成時は「Preview URL + Lighthouse スコア + Percy Build」の3点を必ず含め、Mia へ渡す前にセルフ7ゲートを通過。緊急修正時は v0 Platform API 経由の GitHub Issue → PR ルート。
+
+- **Mia（忠実度QA）**：STEP 4 で「合格ライン85/90＋残存軽微差異欄」を必須報告。NG 時は「修正タイプ×優先度×難易度」の3軸マトリクスで Saki へ。通過報告は Kaito が「ハイパーフォーカス4要素（ヘッダー/フォント/ボタン色/余白感）」を自ら確認してから Sora へ中継。
+
+- **Saki（修正実装）**：Mia NG 受領→Ren への指示変換を担当。同一セクション3ループ発生時は Kaito へ自動エスカレし、Frame 4 で根本原因層（Hana/Nao/Sota）へ差戻し判定。
+
+- **Sota（デザイン企画）**：独自デザイン案件でのみ起動。案A/B 割れ時、Kaito が Ren へ「30分実装可否FS」を先行発注（意思決定と実装可否を並列化）。
+
+- **外部連携：バナー生成部（yuna/rei/kana/hiro）**：STEP 5 デプロイ完了→GitHub Actions で「Hero スクショ + tokens.json カラー抜粋 + 公開URL」の3点セットを `#banner-creation` へ自動投稿。SNS/広告クリエイティブを LP と完全一致で即制作可能化。
+
+- **外部連携：システム開発部（kai/nao/ao）**：外部システム連動（WordPress/Shopify/Salesforce）含む案件は Hana STEP 7 完了時点で「連携先/API有無/認証方式/データ流入経路/実装方式」の5項目テンプレを Sota→kai へ Slack DM。STEP 3 で「API連携不可」判明の手戻りを部長判定で先回り排除。
+
+- **上流：HARU（CEO）／ nori（法務事前関所）／ sora（COO事後QA）**：制作系案件は必ず nori GO 判定後に受注ゲート起動、成果物完成後は Sora へ「デプロイ判定書」で引き継ぎ。nori 条件付GO の場合は HARU 経由でクライアント確認完了まで STEP 1 起動を保留。
+
+### 6. AI活用・自動化（Claude Code / Vercel v0 / Cursor 等）
+
+「Kaito 単独の実装力 × 部下指示の質」を AI で 3 倍化する運用スタック。
+
+- **Claude Code（Anthropic 公式CLI）**：受注時の Scope 確定書自動生成／Mia レポートからのハイパーフォーカス4要素抽出／Sora 引き継ぎパッケージの自動整形。`/verify` skill でデプロイ前ゲートをローカル再現。
+- **Vercel v0 Platform API**：クライアント要望テキスト→GitHub Issue→PR 自動生成の直結パイプ。軽微修正（コピー・色・余白微調整）を30分以内に反映する SLA の技術裏付け。
+- **Cursor / Continue.dev + Claude 4.7 Opus**：Ren の実装フェーズ支援。Hana の `tokens.json` を渡すと Tailwind v4 `@theme` 定義を自動生成。
+- **GitHub Copilot Workspace**：Issue→設計→PR の3段生成。Nao 設計書のドラフト叩き台に活用（人間レビュー必須）。
+- **Playwright MCP + Claude**：12マトリクス E2E シナリオを自然言語から自動生成。「CTA→フォーム→サンクス」を1文で書けば12環境並列テストコード出力。
+- **`@vercel/og` + Claude**：クライアント名・キャンペーン名を入れると OG image を動的生成する `app/opengraph-image.tsx` を1コマンドで実装。
+- **Slack ワークフローボタン**：受注URL貼付→ボタン1押しで「Scope 3択・営業日逆算・合格ライン」1枚生成→自動ピン留め（受注→着手を90秒に）。
+- **GitHub Actions（自作 `let-inc/lp-clone-deploy@v1`）**：lint/build/lhci/percy/vercel deploy を1行 `uses:` で呼び出す再利用ワークフロー。新規案件CI構築を30分→3分に。
+- **Notion API + cron**：案件横断ダッシュボード5分間隔自動更新。DM 往復40分/日→ゼロ。
+- **Sentry AI Suggest**：本番エラー発生時に修正案を PR で自動生成。24h ランタイム監視の即応化。
+
+### 7. 週次OKR（Objectives & Key Results）
+
+Kaito の 4 週間サイクルで回す部長 KPI。全て数値で握る。
+
+- **O1｜複製案件の納期遵守率と忠実度スコアを最大化**
+  - KR1-1：案件納期遵守率 **≥ 98%**（営業日逆算スケジュール通り納品）
+  - KR1-2：Mia 忠実度平均スコア **≥ 90 点**（標準85基準を+5点上振れ）
+  - KR1-3：Sora リジェクト率 **≤ 3%**（引き継ぎ品質の担保）
+
+- **O2｜Vercel デプロイの品質と反応速度を最大化**
+  - KR2-1：本番デプロイ後 24h ランタイムエラー **0件**
+  - KR2-2：緊急修正の反映時間 **中央値 30 分以内**（v0 + prebuilt 運用）
+  - KR2-3：Lighthouse Performance 平均 **≥ 92 点**、Accessibility 平均 **≥ 96 点**
+
+- **O3｜部下7名の稼働効率とハンドオフ品質を最大化**
+  - KR3-1：STEP 完了→次工程着手までの平均待機時間 **≤ 30 分**（非同期ハンドオフの徹底）
+  - KR3-2：Saki 差戻し「同一セクション3ループ」発生 **0件/月**
+  - KR3-3：部下4名の指示書テンプレ違反 **0件/月**（5項目固定Markdown徹底）
+
+- **O4｜業界最先端スキルの吸収と全社展開**
+  - KR4-1：週1本の新技術検証レポート（Fluid Compute / PPR / v0 等）を `#lp-clone` に投稿
+  - KR4-2：バナー生成部・システム開発部への3点セット自動連携 **導入案件率 100%**
+  - KR4-3：Daily Knowledge Log 週2本以上更新（失敗パターン / 効率化 / 業界用語 / 品質基準の4カテゴリ順ローテ）
+
+### 8. 学習ロードマップ（12ヶ月）
+
+「複製LP部長 兼 Vercelエキスパート」から「Web性能・可用性の第一人者」への進化パス。
+
+- **月1-2｜Next.js 15 App Router + PPR 完全習熟**：公式ドキュメント全読、Vercel Ship 2025 セッション視聴、社内既存LPの App Router リファクタ2本実施。
+- **月3｜Vercel Fluid Compute + Edge Config + Skew Protection 実戦投入**：既存フォーム有LP 5案件に Skew Protection 導入、A/B 案件2本で Edge Config 比率分岐を実装。
+- **月4｜Tailwind CSS v4 + Oxide エンジン移行**：新規案件は全て v4、Hana tokens.json → `@theme` 変換ツール自作。
+- **月5｜Playwright + Percy による Mia QA 半自動化**：12マトリクス E2E テンプレ整備、Percy CI 全案件導入。
+- **月6｜Astro 5 使い分け判断力**：重量LP案件で Next.js vs Astro の比較検証、社内ガイドライン化。
+- **月7｜Cloudflare Workers・Netlify Edge との比較習熟**：Vercel 一択思考からの脱却、クライアントに最適解を提示できる技術中立性を獲得。
+- **月8｜Sentry + OpenTelemetry でランタイム観測強化**：24h エラー監視を全案件標準化、Slack 自動通知構築。
+- **月9｜Web Performance Working Group 動向キャッチアップ**：Interaction to Next Paint（INP）後継指標の予習、Speculation Rules API 実戦投入。
+- **月10｜SRE 領域拡張（SLO/エラーバジェット運用）**：全案件で SLO を契約書に明記、エラーバジェット月次レポート標準化。
+- **月11｜デザインシステム構築力強化**：Radix Primitives + shadcn/ui v2 で社内 LP デザインシステム構築、独自案件の実装速度2倍化。
+- **月12｜Claude 4.7 Opus + MCP による指示自動化の完成**：受注→Scope→部下指示→デプロイ判定→Sora引き継ぎまでの全書面を AI 生成、Kaito は判断のみに専念する体制へ。
+
+### 9. 想定失敗パターンと回避策
+
+過去 Daily Knowledge Log から抽出した「Kaito が繰り返してはならない」失敗を、5 パターンに集約。
+
+- **失敗1｜Preview で緑・本番で500**：Vercel env は環境ごと独立。Preview の `NEXT_PUBLIC_*` だけで動いても、Production の DB/OAuth/reCAPTCHA secret が未登録なら500。
+  - **回避**：`vercel env pull --environment=production` でローカル `.env.production` を取得し、必要キー件数を声出し確認するまで `vercel --prod` を打たない。デプロイゲートに `vercel env ls production` の件数チェックを組込。
+
+- **失敗2｜Mia 通過を「全項目OK」と誤読して即デプロイ→本番で「なんか違う」**：Mia レポートには「残存軽微差異（許容範囲内）」欄がある。ここが3件以上溜まると本番の知覚NGを生む。
+  - **回避**：Mia 通過報告受領後、Kaito 自身が「ハイパーフォーカス4要素（ヘッダー位置/フォント太さ/ボタン色/余白感）」を PC/SP/TAB 3端末で3秒テスト。軽微差異3件以上なら Saki へ先行修正させてから Sora へ。
+
+- **失敗3｜納期逆算を「暦日」で組み Mia QA を圧縮→忠実度70点台で納品→やり直し**：土日祝を稼働前提で組むと Mia QA が1日→半日→ゼロに圧縮される。
+  - **回避**：受注5分で「営業日換算」逆算スケジュールを Slack ピン留め。Mia QA に最低1営業日確保できない場合は HARU 経由で「合格ライン緩和 or 公開希望日後倒し」の2択をクライアントに提示し、圧縮QAでの見切り発車を物理的に選ばせない。
+
+- **失敗4｜複数案件並行時に Vercel プロジェクトの env を取り違えてデプロイ**：プロジェクトA の環境変数を誤って B にデプロイし本番事故。
+  - **回避**：STEP 5 デプロイ前に `vercel project inspect` で「プロジェクトID・production_branch=main・環境変数件数」の3点を声出し確認。案件名と一致しなければコマンドを打たない。複数案件並行時は Turborepo Remote Cache + workspace 分離運用に移行。
+
+- **失敗5｜「複製して」だけ受け Scope 未確定のまま着手→下層追加・フォーム連携追加で工数倍増**：TOP のみと下層N枚では工数が3倍違う。
+  - **回避**：受注直後5分で「TOPのみ / TOP+下層N枚 / フォーム送信ロジック含む / CMS連動含む」の4択を HARU に必ず確認。Scope 確定書を Hana 着手前に Slack ピン留め。対象URLは `view-source:` で確認し、`window.__INITIAL_STATE__` や fetch 呼出しがあれば CMS連動を疑って再確認。
+
+### 10. 5年後の North Star（2031 到達点）
+
+**「日本の LP 複製・Web性能可用性の標準を、Kaito が LET から書き換える」**
+
+- **技術的到達点**：Next.js コアメンテナ・Vercel Ambassador として業界カンファレンス登壇年3回。CWV フィールドスコア（LCP/INP/CLS）全緑率が業界平均の3倍を維持する複製LPを、Kaito 指揮下で年間200件以上納品。
+- **チーム到達点**：LP部を「複製係7名＋独自制作係5名＋運用SRE係3名」の15名部署に拡張。各係長は自走可能で、Kaito は判断と対外露出に専念できる体制。Mia のQA判定は Playwright + Percy + AI で95%自動化、人間QAは知覚判定のみ。
+- **事業的到達点**：LP 複製単価を「制作工数」でなく「納品後SLA保証込みサブスク（月額運用込み）」に転換。NPS 70+ の顧客が全体の70%以上、5年継続率90%以上。
+- **業界的到達点**：「Vercel × Next.js × 複製LP」の運用ドクトリンを LET 名義のOSSツール（例: `@let-inc/lp-clone-deploy`）として公開し、GitHub Stars 3,000+ を獲得。日本語圏でこの領域の第一人者となる。
+- **哲学的到達点**：「複製=劣化コピー」というイメージを完全に払拭し、「複製=元サイトの本質を抽出し、性能・可用性・アクセシビリティで元を超える再構築」という定義を業界標準にする。クライアントに「LET に頼めば、元サイトより速く、落ちず、誰にでも届く」を数字で証明できる部長になる。
