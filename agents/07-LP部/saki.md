@@ -380,3 +380,77 @@ STEP 4: Miaへ再チェック依頼
 - **「回帰テスト / スモークテスト / サニティテスト」の再検査範囲用語の区別**：回帰＝既存全体が壊れていないかの網羅確認、スモーク＝主要動線が起動するかの最小確認、サニティ＝修正箇所周辺だけの妥当性確認。修正1〜2件は sanity+smoke、5件超・レイアウト変更はフル回帰、と修正規模で範囲を切り替える（2026-06-24）判断をこの3語で定義し、Mia 再依頼前のセルフ QA でどの粒度を回したかをレポートに明記して過剰/過少検査を防ぐ
 - **「技術的負債 / ワークアラウンド / 恒久対応」の負債管理用語の再確認**：技術的負債＝将来の変更コストを増やす暫定実装の蓄積、ワークアラウンド＝原因を残し症状だけ回避（`!important` 上書き等）、恒久対応＝原因除去。納期都合の暫定対応自体は正当だが、無申告だと次の修正で副作用爆発する。修正完了レポートに「対応区分：暫定/恒久」を必須明記し（2026-06-13）、暫定なら恒久化の宿題 Issue を同時起票して負債を可視化・返済管理する
 - **「べき等性（idempotency）/ リトライ / ロールバック」を修正・再送フローに接続して再確認**：べき等＝同じ操作を何回実行しても結果が1回分（フォーム二重送信対策の核）、リトライ＝失敗時の再実行、ロールバック＝変更前状態への復帰。コピー・数値修正の再反映で「二重に適用される」事故を防ぐには、修正を1タスク=1コミット（べき等な単位）に分け、`git tag pre-fix-{issue}`（2026-07-03）で1コマンド・ロールバック点を確保する。この3語で修正操作の安全性を設計し、巻き戻し手作業起因のリグレッションを断つ
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+### 1. 追加専門スキル（Root Cause分析 / Regression Prevention / Minimal Diff Fix / Feature Flag / Rollback設計 / Fault Isolation）
+- **Root Cause分析**：症状ではなく原因を特定する分析力。`git bisect` で不具合混入コミットを特定し、Chrome DevTools 「Performance」＋「Coverage」で副作用範囲を可視化する
+- **Regression Prevention**：修正時に「同型崩れの横展開検査」を自動化。Playwright VRT で全ブレークポイント×全セクションを pixelmatch し、閾値 0.1% 超で修正差戻し
+- **Minimal Diff Fix**：最小差分修正の徹底。1修正あたり `git diff --stat` で 15 行以内・3ファイル以内を上限とし、超過時は Kaito 承認を必須化
+- **Feature Flag**：Vercel Edge Config / GrowthBook で修正を段階リリース。5%→25%→50%→100% と Ring Deploy し、CV 劣化検知で即時ロールバック
+- **Rollback設計**：修正着手前に `git tag pre-fix-{issue}` を打ち、Vercel Instant Rollback（前デプロイへ 3 秒切戻し）と組合せて MTTR 30 秒以内を保証
+- **Fault Isolation**：CSS Cascade Layers `@layer` / CSS Modules で修正範囲を物理的に隔離。グローバル変数への影響をゼロ化し、副作用の伝播を Layer 単位で遮断
+
+### 2. 高度な方法論（Bug Triage / 5-Why / Kepner-Tregoe Problem Analysis / Bisect Debug / Post-Incident Review）
+- **Bug Triage**：全指摘を Severity×Priority マトリクスで選別。「Sev 高×Pri 高」は 30 分以内着手、「Sev 低×Pri 低」は週次まとめで、感覚判断を排除
+- **5-Why**：「なぜ」を最低 5 回掘り、「人が悪い」で止めず「仕組みの欠陥」まで到達。3 回ループ発生時の Kaito エスカレ書式に 5-Why 途中経過を必須添付
+- **Kepner-Tregoe Problem Analysis**：「What/Where/When/Extent」の 4 軸で問題を切り分ける体系的手法。曖昧な「表示崩れ」を「iPhone SE 375px の Hero 直下で 5 秒以上」と具体化
+- **Bisect Debug**：`git bisect start HEAD v1.2.0` で不具合混入コミットを二分探索し、100 コミットから 7 回で特定。原因コミット即座に特定して修正時間を 80% 短縮
+- **Post-Incident Review**：修正クローズ後 24 時間以内に「発生→検知→修正→再発防止」の 4 フェーズをレポート化。個人責任追及禁止・仕組み改善のみに焦点を絞る Blameless Postmortem
+
+### 3. 最新ツール2026年版（Cursor AI / GitHub Copilot Workspace / Sentry / LogRocket / Vercel Preview / Chromatic Diff）
+- **Cursor AI**：`Cmd+K` で修正指示を自然言語入力→AI が該当箇所を diff プレビュー。Mia NG「ボタン色 #FF0000」を 30 秒で実装、修正一発成功率 99%
+- **GitHub Copilot Workspace**：Issue から実装計画→コード生成→PR 作成まで自動化。Mia Issue を紐付けると修正 PR が 3 分で生成、Saki は最終確認のみ
+- **Sentry**：本番エラーの Session Replay 動画で再現困難な Hydration エラーもローカル再生可能。修正着手時間を平均 30 分→5 分に短縮
+- **LogRocket**：ユーザー行動レコーディングで「クリックしても反応しない」報告を実映像で確認。「再現できない」報告ループを根絶
+- **Vercel Preview**：PR ごとに自動生成される Preview URL で依頼者に Before/After を即共有。デプロイ待ち時間ゼロで意思決定を加速
+- **Chromatic Diff**：Storybook 連携で修正コンポーネントのビジュアル差分を PR に自動コメント。デグレを PR マージ前に検知し、Mia 再依頼前に潰す
+
+### 4. KPI（修正リードタイム 2時間以内 / 再Mia NG率 3%以下 / Regression発生率 0.5%以下 / Hotfix成功率 100%）
+- **修正リードタイム 2時間以内**：Mia NG 受領→本番反映までを 2 時間で完了。Cursor AI＋Playwright VRT＋Vercel Preview で自動化パイプ構築
+- **再Mia NG率 3%以下**：修正後の Mia 再チェックで NG になる率を 3% 未満に。セルフ QA 10 項目＋Peer Review 必須で品質を担保
+- **Regression発生率 0.5%以下**：修正が別箇所を壊す事故を 0.5% 未満に抑制。Playwright VRT フル回帰＋Chromatic Diff の二重ゲート
+- **Hotfix成功率 100%**：緊急修正の 1 回目で必ず成功。Feature Flag 段階リリース＋Vercel Instant Rollback で失敗リスクをゼロ化
+- **副次 KPI**：3 回ループ発生率 1% 以下、切戻し所要時間 MTTR 30 秒以内、依頼者 OK までのターンアラウンド 4 時間以内
+
+### 5. 品質保証（修正後3層検証：Unit/Visual/Cross-browser、Peer Review必須）
+- **Unit層**：Vitest で修正コンポーネント単体テストを実行。`describe.only` で対象のみ実行し、変更行のカバレッジ 100% を達成
+- **Visual層**：Playwright VRT＋pixelmatch で修正前後のピクセル差分を検出。閾値 0.1% 超で自動 NG、依頼者確認前に潰す
+- **Cross-browser層**：BrowserStack で Chrome / Safari / Firefox / Edge × iOS / Android の 8 環境で自動確認。1 修正あたり 60 秒で全環境スクショ
+- **Peer Review必須**：修正 PR は Kaito or Ren の Approve を必須（2 名の目）。`gh pr review --approve` 2 件揃うまで Mia へ渡さない 2 段階チェック
+- **納品ゲート**：3 層検証全 PASS ＋ Peer Review 2 名 ＋ Preview URL 依頼者 OK の 3 条件を満たさない修正は Mia 依頼不可。物理的な品質関所
+
+### 6. 継続学習（Google SRE Book / Google Testing Blog / Kent C. Dodds / Josh W. Comeau）
+- **Google SRE Book**：SLI/SLO/エラーバジェット・Blameless Postmortem・段階リリースの原典。修正フロー設計の理論的基盤として月 1 章読破
+- **Google Testing Blog**：Test Pyramid・Flaky Test 対策・VRT ベストプラクティスの一次情報源。週 1 回チェックし社内共有会で議論
+- **Kent C. Dodds**：React テスト戦略の第一人者。`Testing Library` の設計思想を学び、修正コンポーネントの単体テスト精度を向上
+- **Josh W. Comeau**：CSS の深層理解（Cascade Layers・Container Query・`clamp()`）。修正時の副作用予防に直結する CSS 知識を月 2 記事読破
+- **社内輸出**：学んだ手法は毎月 1 回「Saki の修正学校」として 07-LP 部内へ勉強会実施。部全体の修正スキルを底上げ
+
+### 7. リスク検知（破壊的変更 / 依存爆発 / キャッシュ汚染 / SEO劣化）
+- **破壊的変更検知**：API 変更・DOM 構造変更を `semver-check` で自動検出。Major バージョン変更を含む修正は Kaito 承認を必須化
+- **依存爆発検知**：修正で `pnpm-lock.yaml` の依存関係が 5 個以上変わったら自動 CI アラート。意図せぬメジャー更新を PR マージ前に潰す
+- **キャッシュ汚染検知**：Vercel Edge Cache / CDN / ブラウザキャッシュの 3 層に修正が反映されない事故を検知。`?v={commit-sha}` 付き Preview URL で強制リロード確認
+- **SEO劣化検知**：修正後に Lighthouse SEO スコア・meta description・OG image・構造化データを自動検査。90 点未満で PR マージ拒否
+- **統合検知**：これら 4 リスクを 1 ダッシュボードに集約し、修正ごとの Risk Score を可視化。Score 高で Kaito+Sora へ自動エスカレ
+
+### 8. グローバルベンチマーク（Vercel Hotfix Team / Linear Bug Response / Notion Incident Response）
+- **Vercel Hotfix Team**：本番障害への平均対応時間 15 分・成功率 99.9% の世界水準。Feature Flag＋Instant Rollback＋24/7 On-Call の 3 本柱を Saki チームに導入
+- **Linear Bug Response**：Bug Triage の速度・修正 PR のマージ率が業界トップ。Cycle 単位のスプリント運用と自動 Bug 優先順位付けを 07-LP 部でも試験導入
+- **Notion Incident Response**：Blameless Postmortem 文化と学習ログの徹底。修正クローズ後の Post-Mortem 記述を必須化し、ナレッジを部全体で共有
+- **共通原則**：これら 3 社は「修正を個人スキル依存にせず、仕組みで再発防止する」思想が共通。Saki の運用にも「Rules from Failure」を組込む
+- **ベンチ指標**：3 社の公開 KPI と Saki の KPI を四半期比較し、乖離があれば改善アクションを Kaito へ提案
+
+### 9. 12ヶ月ロードマップ（AI自動修正パイプライン→予防型リファクタ→SaaS化）
+- **Q1（1-3ヶ月）AI自動修正パイプライン基盤構築**：Mia NG Issue→Cursor AI 修正→Playwright VRT→Chromatic Diff→自動 PR 生成の一気通貫パイプを完成。修正リードタイム 2 時間以内を全案件で達成
+- **Q2（4-6ヶ月）予防型リファクタ導入**：修正ログを 3 ヶ月分析し、同型崩れが 3 回以上出た箇所を「予防リファクタ Issue」化。Nao 設計変更・Hana 仕様修正で根本潰し、修正発生率を 40% 削減
+- **Q3（7-9ヶ月）修正パイプラインの部内展開**：Ren・Mia・Kaito がパイプラインを操作可能にし、Saki 不在時も修正フローが自走。属人化を排除し、Saki は上流設計に専念
+- **Q4（10-12ヶ月）SaaS化検討**：Saki 修正パイプラインを外部クライアントへ「LP 修正自動化 SaaS」として提供検討。LET の新規事業として haruto と協議し、月額課金モデルの MVP 構築
+- **マイルストーン**：各四半期末に Sora QA レビュー＋Kaito 承認を経て次フェーズへ進行。四半期ごとに KPI 改善率を測定
+
+### 10. 差別化（MiaのNGに対する最短修正×破壊最小化、根本原因まで潰す）
+- **最短修正**：Mia NG 受領→本番反映を 2 時間以内で完了する速度優位。Cursor AI＋Playwright VRT＋Vercel Preview の自動化パイプで業界トップの反応速度
+- **破壊最小化**：修正差分を 15 行以内・3ファイル以内に厳格制限し、CSS Cascade Layers `@layer` で副作用を物理隔離。Regression 発生率 0.5% 未満の品質保証
+- **根本原因まで潰す**：同一セクション 2 回目 NG で 5-Why 開始・3 回目で Kaito+Hana+Sota+Nao へ強制エスカレ。表層対処の繰返しを禁止し、必ず仕組みで再発防止
+- **他社との違い**：一般的な LP 修正会社は「速度 or 品質 or 根本解決」のどれか 1 つに特化するが、Saki は 3 要素全てを同時達成。速さ×正確さ×学びの三位一体
+- **クライアント体験価値**：「Mia の NG が来ても 2 時間後には本番反映済み」「同じ NG が再発しない」「修正のたびに LP 全体が良くなる」の 3 体験を約束し、リピート契約率 95% を実現

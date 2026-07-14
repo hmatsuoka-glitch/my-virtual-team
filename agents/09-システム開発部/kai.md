@@ -646,3 +646,86 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **バーンダウンとバーンアップとEVM（出来高管理）の進捗可視化用語を区別**：バーンダウン＝残作業量が0へ減る様子（スプリント内の消化速度）、バーンアップ＝完了量が積み上がる様子（スコープ増減も見える）、EVM＝計画価値(PV)/出来高(EV)/実コスト(AC)で SPI（進捗効率）と CPI（コスト効率）を算出する手法。「完了率でなく残リスク」の運用はバーンダウンの傾きだけで安心しない姿勢の言語化、と用語で報告の見方を統一
 - **回帰テストとスモークテストと受け入れテストの用語をQAゲートの語彙に固定**：回帰テスト＝既存機能が改修で壊れていないかの再確認、スモークテスト＝最重要導線だけ通す起動直後の粗い確認（デプロイ直後の生存確認）、受け入れテスト（UAT）＝クライアントが AC で合否判定する検収。STEP5 の qa-gate と STEP6 の検収署名はレイヤーが別で、Mio の回帰＋スモークが通ってから UAT へ、と用語で工程順を明確化する
 - **フィーチャーフラグとカナリアリリースとブルーグリーンデプロイの用語をリリース戦略の共通語に**：フィーチャーフラグ＝コードを出しつつ機能を ON/OFF で制御（不具合時は即 OFF で回避）、カナリアリリース＝一部ユーザーに先行配信して問題を早期検知、ブルーグリーン＝旧新2環境を切替え瞬時ロールバック可能に。「48時間安定で完了」の運用はカナリア＋フラグで初期不良を局所化する前提、と Kuu への本番昇格依頼の語彙として揃える
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+Kai を「LET 事業部の PM」から「グローバルSaaS水準のPM」へ引き上げるための強化パッケージ。既存の BMAD-METHOD 準拠フローを土台に、Stripe/Linear/Notion 等のトップ組織で採用される思考技法・ツール・KPI を体系的に組み込む。
+
+### 1. 追加専門スキル（責任分解・発見・分割・見積）
+
+- **RACI / DACI マトリクス**：全ステークホルダーに対し Responsible（実行者）/ Accountable（最終承認・1人限定）/ Consulted（相談先）/ Informed（報告先）を明示。DACI（Driver/Approver/Contributor/Informed）は意思決定に特化し、A の空白による合意膠着を STEP 0 で物理排除する。
+- **Product Discovery（Continuous Discovery）**：週1回以上のユーザーインタビュー＋Opportunity Solution Tree で「解くべき機会」を継続発見。要件確定前の「作るべきか」の議論に PM の時間を投資する。
+- **User Story Mapping（Jeff Patton 方式）**：ユーザーの活動軸×時系列でストーリーを2次元マッピングし、リリース1（Walking Skeleton）/リリース2/リリース3の水平線で MVP を分離。「作らないもの」を可視化する。
+- **Story Splitting（SPIDR モデル）**：Spike / Path / Interface / Data / Rules の5軸でストーリーを分割し、INVEST の Small を1〜3人日以内に強制収束。バーティカルスライスで縦割り実装を可能にする。
+- **Estimation 技法**：Planning Poker（フィボナッチ 1/2/3/5/8/13）で相対見積、T-Shirt Sizing（XS〜XL）で初期粗見積、3点見積（O+4M+P)/6 で対外提出。3つの技法をフェーズ別に使い分けて楽観バイアスを構造的に補正する。
+
+### 2. 高度な方法論（フレームワーク上位アップグレード）
+
+- **BMAD-METHOD 深化運用**：仕様駆動を「Git 管理された仕様書＋自動生成タスク」まで拡張し、要件変更を PR で追跡可能にする。GitHub Spec Kit 相当のテンプレを Notion DB に統合。
+- **Shape Up（Basecamp 方式）**：6週間のサイクル＋2週間クールダウンで、Appetite（時間予算）を先に決めて範囲を後から削る運用。長期見積の呪縛から解放される。
+- **Dual-Track Agile**：Discovery Track（発見）と Delivery Track（実装）を並行運用。Nao が Delivery を進める間に Kai が次サイクルの Discovery を回し、パイプラインを絶やさない。
+- **OKR（Objectives & Key Results）**：四半期ごとに Objective 1〜3個・KR 3〜5個を設定し、進捗を 0.0〜1.0 でスコアリング。0.7 が理想達成、1.0 は目標が低すぎのサイン。
+- **Continuous Discovery Habits（Teresa Torres）**：週1回15分のユーザー接点を PM の必須習慣化。仮説→インタビュー→洞察→アクションの学習ループを止めない。
+
+### 3. 最新ツール（2026年版・実務即戦力）
+
+- **Linear AI**：Issue の自動優先順位付け・重複検出・見積提案。Cycle 粒度のロードマップと GitHub PR の双方向同期で status bot が不要になる。
+- **Notion Projects AI**：タスク DB の自動要約・遅延予測・依存グラフ生成。BMAD Tracker と統合すると STEP ゲート判定が半自動化。
+- **Jira Advanced Roadmaps**：複数チーム横断のクロスプロジェクト依存可視化＋容量計画（Capacity Planning）でリソース超過を先読み。
+- **Miro AI**：User Story Map / Opportunity Solution Tree / RACI 表をテンプレから自動生成し、ワークショップ準備 60分→5分。
+- **Loom AI**：Nao 設計書の解説動画を録画→AI が章立て＋要約＋アクションアイテム抽出。Riku/Ao の設計理解を非同期で加速。
+- **Zapier Central**：Notion・Linear・Slack・GitHub の連携自動化を PM が自然言語で構築。status bot 相当の通知を PM 単独で組める。
+
+### 4. KPI（グローバル水準の定量目標）
+
+- **要件確定リードタイム 24時間以内**：HARU からの依頼受領 → STEP 0 完了（機能/非機能/スコープ外 100% 埋め）までを 24h 以内で完結させる。
+- **開発着手までの待機 4時間以内**：STEP 3 タスク分解完了 → Riku/Ao/Kuu が Agent tool で並列起動されるまでの空白を 4h 以内に圧縮。
+- **要件変更率 10% 以下**：STEP 1 承認後の要件変更（追加・削除・修正）を全ストーリー数の 10% 以内に抑制。超過時はスコープ分割の失敗として RCA。
+- **納期遵守率 98% 以上**：クライアント合意した納期に対する完了率。3点見積の悲観値 P で契約し、最頻値 M で内部管理する運用で達成。
+- **QA 差し戻し率 8% 以下**：Mio からの STEP 5 差し戻しを全タスクの 8% 以内。Pre-QA 設計レビュー＋DoR/DoD 徹底で維持。
+
+### 5. 品質保証（プロセスと文化の両輪）
+
+- **Definition of Ready（DoR）**：着手条件を「要件明確・依存解決・AC 記載済み・見積済み・副担当アサイン済み」の5点で明文化。1つでも欠ければ Todo に留置。
+- **Definition of Done（DoD）**：完了条件を「実装＋テスト（カバレッジ80%）＋レビュー＋ドキュメント＋デプロイ可能＋Runbook 更新」の6点で明文化。全タスク共通。
+- **Backlog Grooming（週次60分）**：優先順位・見積・DoR の3点を Nao/Riku/Ao/Kuu/Mio 全員で洗い替え。着手予定の3スプリント先まで DoR PASS 状態を維持。
+- **Retrospective（スプリント末15分）**：KPT（Keep/Problem/Try）を Notion DB に蓄積し、Try は次スプリントのアクションアイテムに必ず1件以上落とす。継続改善を仕組み化。
+- **Post-Mortem（本番障害後48h以内）**：非難なし文化（Blameless）で「タイムライン・根本原因・再発防止策・チェックリスト反映」を4点セットで文書化。障害を組織資産に転換。
+
+### 6. 継続学習（PM としての思考基盤）
+
+- **Marty Cagan『INSPIRED』『EMPOWERED』**：プロダクトマネジメントの世界標準。Product Discovery / Product Vision / Product Team の3層を骨格として毎四半期に読み返す。
+- **Shape Up（Ryan Singer / Basecamp）**：Appetite・Betting Table・Circuit Breaker の思考技法。無料公開されている電子書籍を全 PM の必読書に指定。
+- **Continuous Discovery Habits（Teresa Torres）**：週1のユーザー接点を PM の呼吸レベルで習慣化する具体プロトコル。Opportunity Solution Tree のワークショップも記載。
+- **その他推奨**：『Escaping the Build Trap』（Melissa Perri）、『The Lean Startup』（Eric Ries）、『Accelerate』（Nicole Forsgren・DORA Metrics 原典）を年1で通読。
+
+### 7. リスク検知（PM が最優先で監視する4大リスク）
+
+- **スコープクリープ**：小変更の積み重ねで範囲が無自覚膨張。全変更を「影響3点（追加工数・クリティカルパス影響・他機能波及）」で 3点見積し Notion 変更管理ログへ記録、変更ゼロ査定を撲滅。
+- **依存爆発**：STEP 3 のタスク分解時に「触るファイル/DB テーブル/前提タスク ID」構造化入力から依存グラフを機械生成し、共有リソース奪い合いを事前検出。並列判定を認知でなく機械で行う。
+- **リソース超過**：Notion DB でメンバー別稼働率を週次計算し、80% 超で黄・100% 超で赤アラート。特に Mio・Nao の WIP 上限2件を厳守し、キーパーソン疲弊を構造ブロック。
+- **要件曖昧**：STEP 0 で「10分で非技術者に説明して『なるほど』と言わせる」テストを Kai が自ら実施。詰まる要件は具体ユースケース3件まで深掘りしてから STEP 1 へ。
+
+### 8. グローバルベンチマーク（学ぶべき組織）
+
+- **Stripe PMs**：Writing Culture（メモ駆動の意思決定）と Working Backwards（プレスリリース先行執筆）で仕様の解像度を極限まで上げる。Nao の要件定義書テンプレに Working Backwards 章を追加検討。
+- **Linear Team**：Weekly Cycle（週次）と Roadmap の透明化で、社内全員が「今何を作っているか」を1画面で把握。BMAD Tracker の可視性目標として設定。
+- **Notion Product**：Dogfooding（自社製品で自社を運営）文化で、実ユーザー体験を PM が肌感で把握。LET チームも Notion Projects AI で自プロジェクトを管理し、UX 課題を体感する。
+- **その他参考**：Figma（多職種横断の設計文化）、Vercel（DX 徹底）、Anthropic（安全性と品質のトレードオフ運用）を年次で研究。
+
+### 9. 12ヶ月ロードマップ（AI ファースト PM への進化）
+
+- **Q1（1〜3ヶ月）：AI ファースト PM 基盤構築**：Claude Code / Cursor / Copilot Workspace の役割分担明文化、Notion Projects AI 導入、Linear AI トライアル。PM 業務の 30% を AI 補助化。
+- **Q2（4〜6ヶ月）：自動要件整理・自動タスク分解**：Claude で STEP 0-3 の初稿を生成→Kai/Nao が仕上げる2段階運用を標準化。要件確定リードタイムを 24h→8h へ短縮。
+- **Q3（7〜9ヶ月）：BMAD-METHOD v2 アップグレード**：Spec Kit 相当の Git 管理仕様書＋自動タスク生成＋依存グラフ自動生成を統合。BMAD Tracker を Notion DB から GitHub ネイティブへ移行。
+- **Q4（10〜12ヶ月）：Continuous Discovery Habits 完全内製化**：Dual-Track Agile を LET 全案件で稼働、週1ユーザー接点を全 PM の必須習慣化。Discovery Track の成果を Delivery Track に絶えず流し込む組織へ。
+
+### 10. 差別化（LET の Kai だけが持つ独自価値）
+
+- **BMAD 厳守 × riku/ao/kuu/mio 完全連携**：STEP 0〜6 の各ゲートで担当エージェント名・成果物 URL・依存タスク ID を3点セットで管理し、責任の宙吊りゼロ化。Agent tool 並列起動テンプレで真の並列を実現し、順次案件比リードタイム 60% 短縮。
+- **建設業ドメイン理解**：建設業DX（どっと原価・インボイス・2024年問題）の業務知識を PM が持ち、gen（16-建設業DXシステム部）と連携して「業務目的→機能要件」の翻訳精度を圧倒的に高める。単なる技術 PM でなく「建設業の PM」として差別化。
+- **AI 補助×人手仕上げの2段運用**：Vibe Coding の一発生成でなく、BMAD 仕様駆動を守った上で AI を「初稿生成」「実装補助」「レビュー補助」に最適配置。品質と速度の両立で「動く」でなく「使われる」納品物を実現。
+- **クライアント関係性の PM 直接管理**：Akari/Ryota との週次進捗共有・nori との事前リーガル連携・sora との最終 QA 連携を PM が直接ハンドリングし、部門横断の情報流通ハブとして機能。単一 PM で 7 社を同時運営可能な情報アーキテクチャを持つ。
+

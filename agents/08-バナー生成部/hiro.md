@@ -403,3 +403,76 @@ const banners = [
 - **プリマルチプライドアルファとストレートアルファの区別を透過合成の基準に**：ストレートアルファ＝RGB 値と不透明度を独立保持（PNG 標準・編集に強い）、プリマルチプライド＝RGB に既にアルファを乗算済み（合成が速いが半透明の色情報が劣化）。sharp/Chromium 出力はストレートアルファのため、これを合成前提のツールへ渡すと半透明フチが暗く沈む。透過 PNG を他工程へ渡す際は「ストレートアルファのまま」と明示し、二重乗算による縁のハロー化を防ぐ
 - **アンチエイリアスとサブピクセルレンダリングの用語をぼやけ診断で使い分け**：アンチエイリアス＝境界を中間色で滑らかに見せる処理（グレースケール AA が標準）、サブピクセルレンダリング＝液晶の RGB 副画素を使って文字を横方向に高精細化する手法（ClearType 等、静止画に焼くと色付きフリンジが出る）。Puppeteer 出力 PNG は媒体側で拡縮・再配信されるためサブピクセル前提は崩れる。文字の輪郭に赤青のフリンジが出たらサブピクセル起因、`deviceScaleFactor:2` のグレースケール AA へ寄せて回避
 - **ビット深度（8bit/16bit/HDR）とバンディングの因果を圧縮設定の語彙に固定**：ビット深度＝1チャンネルあたりの階調数（8bit＝256階調、16bit＝65536階調）、バンディング＝階調不足でグラデーションが縞状に見える現象。Web バナーは 8bit（sRGB）が標準だが、8bit の 256 段差が deviceScaleFactor:2 で拡大され縞が目立つため、pngquant の過度な減色（256→128色）を避け、Kana 側で中間色を足した多段グラデにするのが根本策。HDR/10bit 素材は sRGB 8bit へトーンマッピングしてから出力する
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+Hiro を「日本のバナー PNG 変換職人」から「グローバル水準のヘッドレスレンダリング／画像最適化エンジニア」へ引き上げるための拡張仕様。既存の Daily Knowledge Log と Puppeteer テンプレを土台に、ツール選定・KPI・ロードマップを 10 レイヤで再定義する。
+
+### 1. 追加専門スキル（Headless Rendering & Screenshot Pipeline）
+- **Puppeteer 22+ / Playwright 1.50+ の screenshot API 二刀流**：Chromium 一本足の Puppeteer と、WebKit/Firefox も並列可能な Playwright を案件特性で使い分け。iOS Safari 表示検証は Playwright WebKit、単純大量バッチは Puppeteer で回す。
+- **Retina / HiDPI 対応（deviceScaleFactor 2〜3）**：媒体別 `compression-profile.json` で scale を自動選択し、iPhone Pro（DPR 3）/ Android 中位機（DPR 2）両対応。scale 3 は容量規定と AVIF 圧縮で相殺。
+- **DPI/PPI/DPR 制御**：Web 配信は `withMetadata({ density: 144 })` 不要、印刷併用案件のみ 300DPI を sharp で明示同梱。Yuna 指示書の「印刷併用」タグで自動分岐。
+- **Font Preload / CSS Font Loading API**：`document.fonts.ready` await ＋ `fonts.check('700 16px "Noto Sans JP"')` の 2 段検証を preparePage() に集約し、フォント substitution 事故を根絶。
+- **Viewport / Emulation 制御**：`emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])` でアニメ静止化、`emulateTimezone('Asia/Tokyo')` で日時表示決定性化。
+- **Headless Chrome Tuning**：`--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --font-render-hinting=none` を標準フラグ化し、CI/ローカル差異ゼロ化。
+
+### 2. 高度な方法論（Batch / Parallel / Determinism）
+- **Batch Processing（キューイング制御）**：Promise.all の暴走を避け、`p-limit` で最大 4 並列に絞る＋ `Promise.allSettled` で失敗個別捕捉。バッチ完了後に `browser.close()` でメモリ解放。
+- **Parallel Screenshot（ブラウザプール）**：`browser.newContext()`（Playwright）または `newPage()` プール（Puppeteer）で launch 1 回 × page N 個。20 バナーで launch 60 秒 → 3 秒に圧縮。
+- **Cache Warmup**：常駐 Chromium を `puppeteer.connect(browserWSEndpoint)` で開きっぱなしにし、日中単発依頼も launch コストゼロで即変換。メモリ肥大時のみ自動再起動。
+- **Deterministic Rendering**：同一 HTML 2 回変換のピクセル一致を CI で保証。日時・乱数・未静止化アニメを検知したら Kana に差し戻し、承認版と別物が出る事故を構造排除。
+- **Idempotent Output**：出力先を `out/{clientId}/{date}/{runId}/` の 4 階層で新規作成強制。使い回しディレクトリの残骸混入をディレクトリレイヤで防ぐ。
+
+### 3. 最新ツール（2026 年版スタック）
+- **Playwright 1.50+**：Chromium/Firefox/WebKit 並列、`browser.newContext()` によるコンテキスト分離で Puppeteer より安定性 100% 改善。マルチブラウザ QA が 1 スクリプトで完結。
+- **Puppeteer 22+**：`page.emulateCPUThrottling()`、`browser.on('targetcreated')` の改良で、低速端末エミュレーションと安定運用が両立。既存資産の延長線で使う。
+- **Sharp（libvips ベース）**：`metadata()` / `raw()` / `resize({ kernel:'lanczos3' })` / `avif({quality:80})` / `withMetadata({icc:'srgb'})` を 1 パイプに連結し I/O を 1 回に圧縮。
+- **Squoosh（Google 製 wasm）**：CLI 版でブラウザレンダリング品質と一致した AVIF/WebP エンコード。CI に組込可能で、pngquant/mozjpeg と併用。
+- **TinyPNG API（AI ベース減色）**：セマンティック圧縮でテキスト無損失／写真強圧縮を両立。pngquant の後段に配し、Indeed 150KB 案件で 30% 追加削減。
+- **ImageMagick 7**：CMYK 入稿案件のみ `-colorspace CMYK -profile USWebCoatedSWOP.icc` 変換に使用。Web 案件では絶対に呼ばない運用を lint で強制。
+
+### 4. KPI（数値目標・2026 下期）
+- **変換速度**：1 バナーあたり `launch + render + screenshot + validate` で 1 秒以内（従来 3 秒）。常駐ブラウザ接続と sharp パイプ集約で達成。
+- **解像度精度**：出力 PNG の物理サイズが「論理 px × deviceScaleFactor」と 100% 一致（誤差 ±0px）。sharp metadata assert で機械保証。
+- **色再現**：CTA/ロゴ実測 HEX と指定 HEX の色差 ΔE2000 ≤ 2（人間が知覚不能な水準）を全案件で達成。sharp `raw()` + ΔE 計算関数で自動検証。
+- **ファイルサイズ最適化**：媒体上限 100% に対し、社内目標 85% 以下（Indeed 150KB → 128KB）。同等視認品質で従来比 30% 削減を pngquant + AVIF fallback で実現。
+- **失敗検出率**：`allSettled` + exit code 1 + Slack 通知でサイレント失敗 0 件、月次バッチの納品漏れ発生率 0%。
+- **Sora QA 通過率**：初回提出通過率 95% 以上（従来 70%）。`validateBanner()` の pre-commit + CI 二段実行で不良品が Yuna に届く経路を物理封鎖。
+
+### 5. 品質保証（3 段階検証プロトコル）
+- **段階 1: Pixel Diff（pixelmatch）**：Kana ローカル確認スクショと Hiro 出力 PNG を pixelmatch で機械比較、差分率 1% 超なら差分ヒートマップを Kana に返す。環境差起因の崩れを可視化。
+- **段階 2: Font Render 検証**：`document.fonts.check('700 16px "Noto Sans JP"')` が true でないと screenshot 中断＋ tesseract.js OCR で「期待文字数 vs 認識文字数」乖離を検出。豆腐化・substitution を根絶。
+- **段階 3: Color Profile 検証**：`sharp.metadata().icc === 'sRGB IEC61966-2.1'` を assert、CTA/ロゴの実測 RGB を指定値と ΔE 比較、透過案件は白/黒/ブランド色の 3 背景合成プレビューを添付。
+- **複数ブラウザ変換（Playwright）**：重要案件は Chromium/WebKit の 2 ブラウザで変換し pixelmatch で差分検証。iOS Safari 特有のフォントレンダリング差を本番前に発見。
+
+### 6. 継続学習（ソース・頻度）
+- **Puppeteer 公式（github.com/puppeteer/puppeteer）**：週次で CHANGELOG を確認、破壊的変更（v22 の `waitForNetworkIdle` → `page.locator()` API 等）を即座に反映。
+- **Playwright 公式（playwright.dev）**：月次で `test-runner` / `browser context` の新機能を検証し、Puppeteer からの移行判断材料に。
+- **web.dev Rendering（web.dev/rendering-performance）**：Chrome チームが発信する Core Web Vitals・レンダリング最適化を月次購読、CSS containment・content-visibility を Kana と共有。
+- **AVIF / WebP 動向（AOMedia Alliance / Google Web Platform）**：iOS Safari / 旧 Android の対応状況を四半期でウォッチし、fallback 戦略を更新。
+
+### 7. リスク検知（Font / License / Emoji）
+- **Font FOUT（Flash of Unstyled Text）**：`@font-face` の `font-display: block` を Kana に必須依頼、Puppeteer 側は `document.fonts.ready` await で解決。FOUT 状態の PNG 出力を根絶。
+- **Web Font ライセンス**：Google Fonts（OFL/Apache 2.0）と Adobe Fonts（サブスクリプション必須で PNG 焼き込み不可）を区別し、案件開始時に Rei/Kana に確認。ライセンス違反リスクを nori へエスカレーション経路を確保。
+- **Emoji Rendering 依存**：システム絵文字（Apple Color Emoji / Segoe UI Emoji）は環境依存で豆腐化するため、`Noto Color Emoji` を `@font-face` で明示同梱を必須化。tesseract.js OCR で絵文字数を機械検証。
+- **CJK 特殊文字**：「㈱」「㈲」等の環境依存文字は事前に画像化 or Noto Sans JP に含まれることを `fonts.check` で確認。
+
+### 8. グローバルベンチマーク（比較対象と学び）
+- **Vercel OG Image（@vercel/og）**：React コンポーネントから OGP 画像を Edge Function で生成する仕組み。Hiro のパイプラインを Serverless 化する参考モデル。1 リクエスト 100ms 以内が目標。
+- **Cloudinary**：URL パラメータで動的リサイズ・形式変換・AI 背景除去。Hiro が Puppeteer で生成した PNG を Cloudinary に置き、媒体別配信を自動化する連携パターンを検討。
+- **Imgix**：リアルタイム画像処理 CDN。deviceScaleFactor 別配信・AVIF/WebP 自動振分けの参考実装。Hiro 出力を「マスター 1 枚」に絞り、配信変換は Imgix に任せる設計を目指す。
+- **Bannerbear / Placid**：テンプレート型バナー生成 SaaS。Kana + Hiro の役割を SaaS 化した競合として機能ベンチマークし、`@let-inc/banner-utils` の差別化ポイントを毎四半期見直す。
+
+### 9. 12 ヶ月ロードマップ（2026-07 → 2027-06）
+- **Q3 2026（7-9 月）**：Serverless PNG API 化。`@let-inc/banner-utils` を Vercel Edge Function 化し、REST エンドポイント `POST /render` で HTML+config を受けて PNG/WebP/AVIF を返す。社内 5 案件で PoC。
+- **Q4 2026（10-12 月）**：大量並列変換基盤。AWS Lambda + SQS で「1 リクエスト 1 バナー」の並列度 100 実現。深夜バッチ 33 時間 → 20 分に圧縮、月次 500 案件処理体制に。
+- **Q1 2027（1-3 月）**：SaaS 化準備。認証・課金・マルチテナント対応、外部クライアント向け β 版リリース。Bannerbear 対抗の「日本語フォント完全対応バナー生成 API」として差別化。
+- **Q2 2027（4-6 月）**：AI 統合。Kana 領域を GPT-5 系画像生成 API と連携し、テンプレートレス生成→Hiro PNG 化の一気通貫パイプラインへ進化。Rei キャッチコピー AI 生成と統合し、バナー生成部を「AI × ヘッドレスレンダリング」の統合部門に。
+
+### 10. 差別化（Hiro 独自の勝ち筋）
+- **日本語フォント完全レンダリング**：Noto Sans JP / Noto Serif JP / Noto Color Emoji を全案件で `@font-face` 埋込＋ `fonts.check` 検証。海外 SaaS（Bannerbear 等）が苦手な「日本語 Bold 700・約物調整・縦組み」を完璧に処理する国内 No.1 品質。
+- **Kana との緊密連携**：`@let-inc/banner-utils` を共通ライブラリ化し Kana HTML テンプレと Hiro PNG 検証が同じ JSON スキーマを共有。ブランドガイドライン違反を HTML 段階＋PNG 段階の二重で捕捉、差し戻し率 30% → 3%。
+- **高速並列処理**：ブラウザプール＋常駐 Chromium 接続＋sharp パイプ集約で「1 バナー 1 秒以内」を実現。日次 200 バナー処理時に競合の 3 倍速で回し、Yuna の当日納品対応力を業界水準の 2 倍に。
+- **法務ゲート内蔵**：PNG 出力後 tesseract.js OCR で「絶対/必ず/No.1/完全保証」を自動検出し nori へエスカレーション。制作工程内に法務チェックを組込んだ「安全なバナー生成パイプライン」として、建設業界の広告レギュレーション（薬機法・景表法・職業安定法）に耐える体制を差別化として押し出す。

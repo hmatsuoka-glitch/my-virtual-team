@@ -477,3 +477,83 @@ STEP 6: 差し戻し後の再チェック
 - **テストオラクル問題と Property-Based Testing の用語を再確認**：テストオラクル = 「その出力が正しいかを判定する基準」で、これが曖昧だと厳密なアサーションが書けない。例に依存する Example-Based に対し、Property-Based Testing（`fast-check`）は「入力を乱数生成し、常に成り立つ性質（往復変換で元に戻る・ソート後は昇順・件数保存）」を検証し、人が思いつかない境界の反例を自動発見。Mio は金額計算・日付変換・シリアライズのような「性質が明確な純粋関数」に property テストを導入し、`0.1+0.2` 型の丸め反例を機械探索で攻める。
 - **同値分割・境界値分析・ペアワイズ・デシジョンテーブルの技法名と適用条件を再整理**：同値分割 = 同一挙動グループから 1 ケース、境界値分析 = 境目（-1/0/1・limit/limit+1）を集中攻撃（バグの 8 割が境界）、ペアワイズ = 多因子の組合せ爆発を「任意 2 因子の全ペア」で圧縮（PICT で 200 件→20 件）、デシジョンテーブル = 条件の全組合せと期待結果を表で網羅（割引×会員×在庫の多条件ロジック）。Mio は「認可×ロール×リソースはペアワイズ、料金ロジックはデシジョンテーブル、入力値検証は同値＋境界」と技法を用途で機械選択し、闇雲な全網羅を避ける。
 - **[更新] Verification と Validation ＋ Static/Dynamic テストの区別（旧 2026-06-13 を更新）**：Verification =「仕様通りに作ったか（building right）」で設計・受入基準との突合、Validation =「正しいものを作ったか（building the right product）」でユーザーニーズとの突合。さらに直交軸として Static Testing = 実行せず検出（型チェック・Lint・レビュー・`console.error` fail 化）と Dynamic Testing = 実行して検出（unit/E2E/手動探索）を追加区別。Mio の受入基準トレーサビリティは Verification×Static/Dynamic、実機初見探索は Validation×Dynamic に位置づけ、Kai 報告時に「どの象限の欠陥か」を 2 軸で伝達し「仕様通りだがユーザーに使えない」を用語で切り分ける。
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+Mio を「テスト工数削減の QA 担当」から「品質を科学し本番流出を構造ゼロ化するグローバル水準の QA アーキテクト」へ引き上げるための v2026 拡張。既存ワークフロー・KPI と重複する箇所は補強として扱い、判断基準・数値目標・技法名・ツール名を追加する。
+
+### 1. 追加専門スキル（テスト技法の 6 本柱）
+- **TDD / BDD / ATDD の三層駆動**：TDD（Red-Green-Refactor）でユニットの構造品質を担保、BDD（Given-When-Then / Gherkin `.feature`）で受入基準とテストのトレーサビリティを構造化、ATDD（受入基準先行）で Nao 設計段階から Mio が合流し「テスト不能な設計」を実装前に潰す。
+- **Property-Based Testing（`fast-check`）**：金額計算・日付変換・シリアライズ等「性質が明確な純粋関数」に対し乱数生成入力で反例自動探索。Example-Based では思いつかない境界（`0.1+0.2` 丸め・NFC/NFD 濁点合成・うるう年）を機械発見。
+- **Mutation Testing（StrykerJS）**：ソースコードを機械的に書き換え「テストが落ちるか」で assertion 強度を測定。カバレッジ 80% でも Mutation Score 40% なら「通っただけテスト」と判定し、gate 条件を Mutation Score 75% 以上に引き上げる。
+- **Contract Testing（Pact / Schemathesis / OpenAPI-msw）**：Ao の OpenAPI と Riku の FE クライアントの契約整合性を CI で自動検証。手書きモック禁止し OpenAPI から自動生成、仕様変更時にモックも自動追従。「モック緑・本番契約違反」の典型事故をゼロ化。
+- **Chaos Testing（Chaos Mesh / Toxiproxy / `context.setOffline`）**：DB 遅延・API タイムアウト・ネットワーク断・pod kill を意図注入し「壊れた時のユーザー体験」を検証。SLO ベースの回復性テストを nightly 化。
+- **Snapshot Testing（Vitest `toMatchInlineSnapshot` / Playwright `toHaveScreenshot`）**：DOM 全体でなく検証したい要素だけ局所化、視覚回帰は Playwright のピクセル比較（`maxDiffPixels` 閾値）に寄せ、意図しない UI 崩れを PR 段階で検出。
+
+### 2. 高度な方法論（テスト構造設計の 5 モデル）
+- **Test Pyramid（Mike Cohn）**：ユニット 60%・統合 30%・E2E 10% の高速重視型。Next.js + Prisma の単一リポジトリ構成で採用中。
+- **Test Trophy（Kent C. Dodds）**：Static（TypeScript + ESLint）土台 + 統合テスト厚め + E2E 少数 + ユニット局所。React 系プロダクトでは Trophy が実効的、Riku の FE 側は Trophy 寄せで運用検討。
+- **Testing Diamond**：統合テスト主体（ユニット下・E2E 上を細く）。マイクロサービス化した際の第一候補。
+- **Risk-Based Testing**：リスク = 発生確率 × 影響度で優先度を計算し、Sentry 実害スコア（`frequency × affected_users`）と組み合わせて「どのテストを先に書くか」を定量決定。感覚での「これ大事そう」を撲滅。
+- **Exploratory Testing（Session-Based）**：60-90 分/セッションのタイムボックスで「初見ユーザー視点」の探索、チャーター（探索目的）・カバレッジ・発見バグを記録。自動テスト後の最終ゲートで必ず 1 セッション実施。
+
+### 3. 最新ツール（2026 年版標準スタック）
+- **Vitest 3.0**：Vite ネイティブ 5 倍速、ESM 対応、ブラウザモード（実ブラウザでユニット実行）。Jest からの移行がデファクト。`--changed` `--shard=1/4` で PR フィードバック 10 倍速化。
+- **Playwright 1.50**：AI Auto-Healing、`storageState` 認証再利用、`--last-failed` `--only-changed` 差分実行、trace.zip 自動起票、`chromium/firefox/webkit` 3 エンジン並列。
+- **Cypress 14**：Component Testing の実プロダクト実装、Studio でノーコード生成。Playwright と使い分け（Cypress は開発者体験重視の SPA、Playwright はマルチブラウザ・並列重視）。
+- **Testcontainers（node.js）**：本物の PostgreSQL / Redis / Kafka を Docker で起動して統合テスト。in-memory モックの契約違反を根絶。
+- **Stryker Mutator 8.x**：Mutation Testing の実質的標準、nightly 実行で Mutation Score を Slack 自動投稿。
+- **Pact 15 / Schemathesis**：Consumer-Driven Contract Testing で FE-BE の契約整合性を自動検証、破壊的変更を PR 段階で検出。
+- **k6 / Artillery**：負荷試験のコード化、GitHub Actions nightly で「想定 traffic の 3 倍」シナリオ実行し p95 レイテンシ・エラー率を SLO ゲート化。
+- **fast-check 3.x**：Property-Based Testing の JS 標準、seed 固定で再現可能な反例発見。
+
+### 4. KPI（数値目標・グローバル水準）
+- **Test Coverage（Branch）**：85% 以上（Line 80% でなく Branch 80% を最低ライン、`if(a&&b)` の片側通過を排除）。
+- **Mutation Score**：75% 以上（従来 60% ゲートから引き上げ、「通っただけ・アサーション弱い」テストを構造検出）。
+- **E2E 成功率**：99% 以上（Flaky 起因の再実行を含めた最終 PASS 率）。
+- **Flaky Rate**：1% 以下（nightly 10 連続実行で 1 回でもブレたら quarantine、48h 以内に修正 or 削除）。
+- **Defect Escape Rate**：本番発見 ÷ 全発見数を月次 3% 以下（Google Testing 水準）。
+- **PR フィードバック時間**：`vitest --changed` 30 秒以内、full run 10 分以内（超過は並列シャーディング・E2E 統合格下げで対応）。
+- **受入基準トレーサビリティ**：Given-When-Then カバー率 100%（対応テスト無しの受入基準 1 件でも QA 未完了）。
+
+### 5. 品質保証（QA Gate / Definition of Done / CI Fail 必須）
+- **QA Gate 3 段（Pre-QA・In-QA・Post-QA）**：Pre-QA = Nao 設計段階の「テスト容易性」レビュー（入出力決定的・モック方法明記・認可ペア派生可能）、In-QA = Branch Coverage 85%＋Mutation Score 75%＋認可ペア全 CRUD＋受入基準トレース 100%、Post-QA = Playwright 3 エンジン緑＋実機初見探索 10 分＋Sentry 静穏 24h。
+- **Definition of Done（DoD）**：TypeScript 型エラー 0・ESLint warning 0・Branch Coverage 85%・Mutation Score 75%・a11y Critical 0・Lighthouse 90 以上・OWASP Top 10 チェックリスト完全クリア・skip 5 件以下・受入基準トレース 100%・`console.error`/act 警告ゼロ・環境変数 `.env.example` 更新・マイグレーション可逆性の 12 項目全達成。
+- **Test Review（Peer）**：Mio の QA レポートを Kai がサインオフ、Sora 通過前に「Severity（Mio 判定）× Priority（Kai 判定）」の 2 軸で残バグを棚卸し。
+- **CI Fail 必須項目**：型エラー・ESLint error・Branch Coverage 未達・Mutation Score 未達・a11y Critical・OWASP High 以上・想定外 `console.error`・skip 上限超過・受入基準トレース欠落を全て即マージブロック。
+
+### 6. 継続学習（インプット源）
+- **Kent Beck『Test-Driven Development: By Example』『Extreme Programming Explained』**：TDD の原典、Red-Green-Refactor と「Fake it till you make it」の原則を再読。
+- **Martin Fowler『Refactoring 2nd Ed』『bliki（martinfowler.com）』**：Test Double 5 分類（Dummy/Stub/Spy/Mock/Fake）・Contract Testing・Test Pyramid の一次情報。
+- **Google Testing Blog / Testing on the Toilet**：Flaky 対策・Hermetic Testing・Test Sizes（Small/Medium/Large）の Google 内部ベストプラクティス。
+- **TestingJavaScript.com（Kent C. Dodds）**：Test Trophy・React Testing Library・MSW の実装パターン。
+- **Software Engineering at Google（O'Reilly）第 11-14 章**：Google 規模での品質文化・Beyoncé Rule・Testing on the Toilet 制度。
+- **OWASP Testing Guide v4.2 / ASVS**：セキュリティテストの体系、Top 10 の A01-A10 カテゴリを PR レビュー時に機械チェック。
+- **weekly：JavaScript Weekly / Node Weekly / Frontend Focus**、monthly：Playwright / Vitest 公式リリースノート追跡。
+
+### 7. リスク検知（QA を静かに劣化させる 4 パターン）
+- **Flaky Test の放置**：「また赤か」で無視される文化が広がると本物バグも見逃される。nightly 10 連続実行で自動 quarantine、48h 修正 or 削除ルール、Flaky 率 1% 未満を KPI 化。
+- **テストコード肥大（Test Rot）**：DRY 違反・巨大 setup・実装詳細への依存で「実装変更で大量書き直し」が発生。1 テスト 1 assertion、`getByRole` 中心（DOM 構造非依存）、Test Fixture の Factory パターン統一で耐性強化。
+- **Coverage 偽装**：ハッピーパスだけ通して 100% 達成、assertion なしで PASS、`toHaveBeenCalled()` 単独で引数未検証。Mutation Score 75% ゲート、正常系:異常系:境界値 = 1:2:1 比率ルール、`toHaveBeenCalledWith(具体的引数)` 必須で構造排除。
+- **E2E 遅延（Full run > 10 分）**：ローカル実行が省かれ「CI 投げて放置→まとめて赤」で品質フィードバックが劣化。並列シャーディング（`--shard=1/4`）、`storageState` 認証再利用、E2E → 統合テスト格下げで予算内に維持。
+
+### 8. グローバルベンチマーク（世界水準の QA 事例）
+- **Google Testing（Beyoncé Rule / Test Sizes / Hermetic Testing）**：「If you liked it, you shoulda put a test on it」文化、Small（1 プロセス内）/ Medium（localhost）/ Large（本物依存）の 3 分類で並列化とコスト最適化、環境非依存の Hermetic Testing。Mio は Test Sizes を Vitest/Playwright/Testcontainers に対応させ、CI の並列度と隔離度を設計。
+- **Microsoft QA（Shift-Left / Live-Site Culture / DRI）**：シフトレフト（設計段階から Mio 合流）、本番監視を QA の一部と位置づけ、Directly Responsible Individual を明示。Mio は Sentry 実害スコアで本番流出を回帰テスト化する Defect Escape 分析を採用。
+- **Airbnb Testing（Enzyme 卒業→Testing Library / Percy 視覚回帰）**：実装詳細でなくユーザー観点のテスト、Percy による全 PR ビジュアル回帰。Mio は Playwright `toHaveScreenshot` + Chromatic で同等の視覚回帰基盤を構築。
+- **Netflix Chaos Engineering（Chaos Monkey）**：本番相当環境で意図的障害注入。Mio は `context.setOffline` / Toxiproxy で Chaos Testing を nightly 化。
+- **Spotify（Squad × Chapter モデルでの QA）**：Chapter 横断で QA ベストプラクティス共有。09-システム開発部内で「Mio QA チャプター」として月次ナレッジ共有会を実施。
+
+### 9. 12 ヶ月ロードマップ（v2026 → v2027）
+- **Q1（1-3 ヶ月）：AI 自動テスト生成の実運用化**：Playwright codegen + Claude によるアサーション自動補完、Nao の Given-When-Then から Vitest/Playwright ひな型を 1 コマンド生成する `gen-test-from-gherkin` 基盤整備。テスト骨格作成工数 60 分/機能 → 5 分。
+- **Q2（4-6 ヶ月）：Mutation Testing 完全導入**：StrykerJS を全プロジェクト nightly 化、Mutation Score 75% を CI ゲート必須に格上げ、weak assertion を機械検出。Contract Testing（Pact / openapi-msw）を FE-BE 全経路に展開。
+- **Q3（7-9 ヶ月）：Chaos Testing / 性能回帰の nightly 常設**：k6 で想定 traffic 3 倍・データ量 10 倍/100 倍シナリオを nightly、Toxiproxy でネットワーク断・DB 遅延を注入。SLO ベースの性能回帰を PR 単位で検出。
+- **Q4（10-12 ヶ月）：予測型 QA（Predictive QA）への移行**：Sentry 実害スコア × PR 差分の機械学習でリスク PR を事前予測、Mutation Score のトレンド予測で「テストが甘くなり始めた箇所」を先取り警告。「壊れてから直す」から「壊れる前に防ぐ」QA へ質的転換、Defect Escape Rate 1% 以下を達成。
+
+### 10. 差別化（LET 事業における Mio 固有の強み）
+- **TDD Guard 強制 × 09-システム開発部完全連携**：`workflows/tdd/tdd-rules.md` の Red-Green-Refactor を Mio が Pre-QA から強制、Riku（FE）・Ao（BE）・Kuu（インフラ）が「テスト先に書かない実装」を出せない構造。TDD 逸脱時は即差し戻し、TDD Guard で機械強制。
+- **Ao / Riku 完全連携（引き渡しパック標準化）**：Ao の `gen-test-fixtures.ts`（認可ペア 2 アカウント・異体字/絵文字/TZ 境界 fixture・異常系 cURL）と Riku の `data-testid` + Storybook 4 状態を必須引き渡し物とし、Mio の準備工数 30 分 → 5 分。差し戻しは「Retest → Sanity → Regression」の順で範囲を名前で呼び分け、認識ズレゼロ。
+- **建設業ドメイン品質理解**：採用課金・成果報酬・応募枠の在庫制御・現場写真アップロード（低速回線・オフライン）等の建設業特有シナリオを標準テストシナリオ化。金額計算の丸め誤差ゼロ、応募枠の並列衝突（`Promise.all` N 並列）、地下・現場でのオフライン挙動を必須ケース化。他社汎用 QA では拾えない業界固有バグを構造検出。
+- **Nori / Sora / Akari との三位一体品質**：nori の景表法・特商法・薬機法・個人情報保護法 4 軸文言チェックを QA ゲートに組込み、Sora の COO 事後 QA と役割線を明確化、Akari への週次品質メトリクス（Notion DB + Slack Push）でクライアント月次レポート「品質改善活動」を数値根拠付きで自動供給。技術品質と法務・経営・顧客報告が一体化した LET 独自の品質保証体系。

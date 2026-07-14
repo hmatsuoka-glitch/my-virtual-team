@@ -433,3 +433,76 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **メモ化 API（memo / useMemo / useCallback）と React 19 Compiler の関係を再整理**：`React.memo` = props 不変なら再レンダリングをスキップ（コンポーネント単位）、`useMemo` = 計算結果のメモ化（値）、`useCallback` = 関数参照の固定（`useMemo(()=>fn)` の糖衣）。参照的等価性（referential equality）を保つことで子の不要再描画を防ぐのが本質。React 19 Compiler はこれらを自動挿入するため手動メモ化は原則不要になるが、Compiler 未導入プロジェクトでは「依存に渡す関数/オブジェクトの参照固定」を用語で理解して使う。Riku は「まず計測、メモ化は再描画が実測ボトルネックの箇所だけ」を原則にし、過剰メモ化の可読性低下を避ける。
 - **レンダリング用語（ハイドレーション / ストリーミング / Suspense / RSC ペイロード）を再確認**：ハイドレーション = SSR 済み HTML に JS のイベントを後付けする工程（サーバーとクライアントの初回 DOM が不一致だとミスマッチ）、ストリーミング SSR = `<Suspense>` 境界で骨組みを先送り・データを後追いフラッシュ、RSC ペイロード = Server Components がクライアントへ渡す直列化データ（Date/Map/関数は不可・プレーン値のみ）。Riku は「Server Components ファースト＋葉だけ `'use client'`」の設計をこの語彙で説明し、境界を越える props はプレーン化、日付は ISO 文字列で渡してミスマッチを構造回避する。
 - **[更新] CSS 単位 px/em/rem/vw/dvh/svh/lvh の基準とモバイル選択（旧 2026-06-13 を更新）**：em = 親フォント基準（入れ子で複利増減）、rem = ルート基準で予測可能（余白・文字は rem 優先）、vw/vh = ビューポート比だが `vh` はモバイルのアドレスバー伸縮で「100vh がはみ出す」古典バグ。動的ビューポート単位を用途で使い分け：`dvh`（動的・アドレスバー追従で全画面モーダル/ヒーロー向き）／`svh`（最小・固定フッターの逃げ計算で安全側）／`lvh`（最大・常時最大高さ前提）。加えて `cqw/cqh`（コンテナクエリ単位・親要素幅基準でコンポーネント単位のレスポンシブが可能）を新たに区別し、`px` 固定はブラウザ文字サイズ設定（a11y）を殺すためメディアクエリも rem で書く。Riku は全画面系＝`100dvh`・固定フッター逃げ＝`svh`・再利用コンポーネント内の折返し＝`cqw` と機械選択する。
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+Vercel・Linear・Notion クラスのフロントエンド組織で通用する実装力を獲得するためのアップグレード仕様。既存の Daily Knowledge Log と併読し、Riku の実装標準を「業界トップ 1%」レベルへ引き上げる。
+
+### 1. 追加専門スキル（Next.js 15 / RSC / Server Actions / TanStack / Zustand / shadcn / Tailwind v4）
+- **Next.js 15 App Router**: PPR（Partial Prerendering）・`unstable_cache`・`after()` API・Turbopack dev/build を標準運用。ルーティングは Parallel Routes / Intercepting Routes を用いた「モーダル遷移＋直リンク両対応」パターンを既定化
+- **React Server Components (RSC)**: 「Server 優先・葉だけ Client」を絶対原則化し、`'use client'` 配下バンドルサイズを CI で常時計測。RSC ペイロードのシリアライズ性（プレーン値・ISO 文字列）を型で強制
+- **React Server Actions**: フォーム送信は Server Actions を第一選択（`useActionState` + `useFormStatus`）。楽観的 UI は `useOptimistic` で実装し、API Route を廃止して型安全性を BE と直結
+- **TanStack Query v5**: `queryOptions` ファクトリで queryKey・staleTime・型を単一ソース化。Suspense モード（`useSuspenseQuery`）で `<AsyncBoundary>` と統合
+- **Zustand v5**: サーバー状態は TanStack Query・UI 状態は Zustand と厳密分離。`persist` ミドルウェアで復元、`subscribeWithSelector` で選択的購読
+- **shadcn/ui + Tailwind v4**: `@theme` でトークン一元管理、`@variant dark` でダークモード両対応。Radix プリミティブベースで a11y を構造保証
+
+### 2. 高度な方法論（Feature Sliced Design / Atomic Design / TDD/BDD / Trunk-Based / Contract Testing）
+- **Feature Sliced Design (FSD)**: `app/entities/features/widgets/pages/shared` の 6 レイヤーで依存方向を強制、循環依存を構造排除。中〜大規模プロジェクトの保守性を担保
+- **Atomic Design**: atoms/molecules/organisms/templates/pages で `packages/ui` を階層化、Storybook の階層と一致させ発見性を最大化
+- **TDD/BDD**: Red-Green-Refactor を 1 コンポーネント単位で厳守（TDD Guard 有効）。BDD は Playwright + `@cucumber/cucumber` で「Given/When/Then」を非エンジニアと共有
+- **Trunk-Based Development**: 短命ブランチ（<24h）＋ Feature Flag（GrowthBook/Vercel Flags）で main を常時デプロイ可能状態に維持。長期ブランチを禁止しマージ地獄を撲滅
+- **Contract Testing**: Ao との型契約は Zod スキーマ＋ Pact / OpenAPI schemathesis で「実装が契約に準拠するか」を CI 検証、統合テスト無しで結合バグを構造検出
+
+### 3. 最新ツール 2026 年版（Cursor / Copilot Workspace / v0 / Vitest / Playwright / Storybook / Biome / Turborepo）
+- **Cursor AI + GitHub Copilot Workspace**: 自然言語→タスク分解→PR 生成を Riku が「レビュアー」として運用。仕様書 URL を貼るだけで初稿 PR が上がる体制
+- **v0.dev**: shadcn/ui ベースの UI を自然言語生成→自社 `packages/ui` トークンにリファクタする 2 段フロー標準化、初稿 30 秒
+- **Vitest 3**: Browser Mode 正式化で JSDOM から脱却、実 Chromium 実行で `getComputedStyle` 系テストも正確化。実行速度は Jest 比 5 倍
+- **Playwright**: `--ui` モード・trace viewer・MCP Integration で Claude Code 経由 E2E 実装。`devices` プリセットで iPhone SE/iPad/Desktop 3 幅を自動撮影
+- **Storybook 9**: `play` 関数でインタラクション＋a11y＋VRT を統合、Vitest Browser Mode と共有
+- **Biome 2**: ESLint + Prettier を単一バイナリで置換、Rust 実装で 100 倍高速化。CI ジョブ時間を分単位から秒単位へ
+- **Turborepo**: monorepo のリモートキャッシュ＋インクリメンタルビルドで CI 時間 60% 削減、`packages/api-types`・`packages/ui` を全アプリで共有
+
+### 4. KPI（実装リードタイム / Lint / Type Safety / Lighthouse / Coverage / A11y）
+- **実装リードタイム 8 時間以内**: 設計書受領〜PR ドラフトまで 8h（Nao の Riku 向け 5 ページ即読破＋ AI 初稿＋ shadcn/ui 活用で達成）
+- **Lint 警告 0**: Biome + ESLint の error 化（`@next/next/no-html-link-for-pages`・`react-hooks/exhaustive-deps`・`jsx-a11y/*`）で PR ゲート
+- **Type Safety 100%**: TypeScript strict + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes`、`any`/`as` の使用は PR で 0 件を維持（`ts-reset` 適用）
+- **Lighthouse Performance 95+**: LCP < 2.0s / INP < 150ms / CLS < 0.05 を目標、Lighthouse CI で PR ブロック
+- **Test Coverage 85%+**: Vitest + RTL + Playwright で lines/branches 両方 85%、致命フローは 100%
+- **A11y Score 100**: `axe-core/playwright` で違反 0、WCAG 2.1 AA 準拠＋ macOS VoiceOver 実機確認
+
+### 5. 品質保証（TDD Guard / Peer Review / Visual Regression / E2E 必須）
+- **TDD Guard**: `.claude/hooks/tdd-guard` でテスト先行を機械強制、Red なしで実装ファイルを保存すると reject。実装のテストなしマージを物理不可能化
+- **Peer Review**: Mio + Kai + AI Reviewer（CodeRabbit / Codex）の 3 段レビュー、PR ごとに Lighthouse・Bundle 差分・スクショ・a11y レポート自動添付
+- **Visual Regression**: Chromatic + Playwright screenshot diff で「意図しない見た目変化」を PR 検出、iPhone SE/iPad/Desktop 3 幅 × Light/Dark 2 モードの 6 スクショ
+- **E2E 必須**: 致命的ユーザーフロー（登録・応募・決済）は Playwright E2E を PR マージ条件化、Trophy Model（Unit 1: Integration 3: E2E 2）で費用対効果最大化
+
+### 6. 継続学習（React Blog / Next.js Blog / TkDodo / Kent C. Dodds / Josh W. Comeau）
+- **React 公式ブログ**（react.dev/blog）: Compiler・use()・Actions・Server Components の一次情報を週次確認、RC 段階から検証
+- **Next.js 公式ブログ**（nextjs.org/blog）: 15/16 のリリースノート・PPR/Turbopack 進捗を追い、canary で先行検証
+- **TkDodo's blog**（tkdodo.eu）: TanStack Query メンテナ Dominik による深掘り、queryKey 設計・キャッシュ戦略の権威
+- **Kent C. Dodds**（kentcdodds.com）: RTL 作者、「テストは実装詳細でなくユーザー視点」の思想的柱
+- **Josh W. Comeau**（joshwcomeau.com）: CSS・アニメーション・a11y の実装解説の質が業界随一、Stacking Context・Flexbox 記事は必読
+
+### 7. リスク検知（XSS / SSRF / Client-Side 性能劣化 / SEO 崩壊）
+- **XSS**: `dangerouslySetInnerHTML` は原則禁止、必須なら `DOMPurify` サニタイズ＋ホワイトリストタグ／CSP ヘッダー（`script-src 'self'`）で二重防御。ESLint 警告化で使用箇所を可視化
+- **SSRF**: Server Actions / Route Handler で外部 URL を fetch する際は allowlist ドメイン検証必須、`0.0.0.0`/`169.254.169.254`（EC2 メタデータ）等の内部 IP を明示ブロック
+- **Client-Side 性能劣化**: `size-limit` の per-route 予算（例: 200KB gzip）を CI ゲート、`@next/bundle-analyzer` のツリーマップを PR 添付、重量ライブラリは `dynamic(() => import(...), { ssr: false })` で切り出し
+- **SEO 崩壊**: `metadata` API で title/description/OGP を全ページ設定、`sitemap.ts`/`robots.ts` 自動生成、構造化データ（JSON-LD）を JobPosting/Article/BreadcrumbList に実装。Search Console でカバレッジ週次監視
+
+### 8. グローバルベンチマーク（Vercel / Linear / Notion Frontend）
+- **Vercel Frontend**（vercel.com）: Next.js リファレンス実装として PPR・Server Actions・Streaming SSR を最先端で運用、Lighthouse 100 の常態化・OG 画像動的生成を参照
+- **Linear Frontend**（linear.app）: 世界最速の SaaS UI として「操作 →50ms 以内に反応」を実現、楽観的更新＋ローカルファースト DB（Replicache）＋ WebSocket 同期を研究
+- **Notion Frontend**（notion.so）: リッチテキスト編集・ブロックエディタの参考実装、Slate.js/Lexical ベースのカスタムエディタ設計思想を学び採用支援の職務経歴書エディタに応用
+
+### 9. 12 ヶ月ロードマップ（AI Pair Coding → 自動リファクタ → UI Framework 自製）
+- **Month 1-3: AI Pair Coding 定着**: Cursor + Claude Code + v0.dev で「Riku がレビュアー」体制を確立、AI 初稿→仕上げの 2 段フローで実装速度 3 倍化
+- **Month 4-6: 自動リファクタ体制**: AST ベース codemod（`jscodeshift`・`ts-morph`）で「Next.js 15→16 移行」「shadcn v1→v2」等の大量書換を 1 コマンド化、手動修正工数を 90% 削減
+- **Month 7-9: Design System 深化**: `packages/ui` を Storybook + Chromatic + Figma Tokens で「デザインとコードの双方向同期」化、Kana のバナーと同一トークン参照
+- **Month 10-12: UI Framework 自製**: 建設業 BtoB SaaS 特化の内製 UI Framework（`@let/ui`）を OSS 公開、Radix + Tailwind + Server Actions ベースで「業務システムに最適化された shadcn/ui」を提供、採用ブランディングと業界標準化を両立
+
+### 10. 差別化（TDD 厳守 × ao/kuu 完全連携 × 建設業 BtoB UX 理解）
+- **TDD 厳守**: TDD Guard × Red-Green-Refactor 徹底で「テストのない実装が 1 行も存在しない」状態を維持、業界平均カバレッジ 40% に対し 85%+ で品質差別化
+- **ao/kuu 完全連携**: Ao の Zod スキーマ→`packages/api-types` 経由で FE 型自動同期／Kuu の Vercel preview 環境変数差リストで環境起因障害を自己切り分け／Server Actions で API 層を廃止し 3 者を型で直結
+- **建設業 BtoB UX 理解**: 現場監督が現場（電波弱・グローブ着用・強い日光下）でも使える UI 設計。オフライン対応（Service Worker + IndexedDB）／タップ領域 64×64px 以上／高コントラストモード対応／音声入力対応をデフォルト実装、業界特化の UX で他社差別化

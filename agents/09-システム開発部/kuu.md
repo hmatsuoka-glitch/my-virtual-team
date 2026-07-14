@@ -487,3 +487,87 @@ STEP 6: 実装完了報告
 - **「べき等リトライ」と「アットレストな配信保証」の 3 種を区別**：at-most-once（最大 1 回・欠落あり・通知の一部で許容）／at-least-once（最低 1 回・重複あり・Webhook の標準）／exactly-once（正確に 1 回・分散では実質「at-least-once ＋冪等消費」で近似）。「exactly-once を保証する」は分散システムでは誤用で、正しくは「配信は at-least-once、消費側を冪等にして実質 exactly-once」。Kuu は Inngest/QStash の Job 設計時にこの語彙で「重複前提の冪等処理」を必須化し、二重実行を構造前提として扱う。
 - **キャパシティ用語 QPS / RPS / 同時実行数 / スロットリング / バックプレッシャの区別**：QPS/RPS = 秒間リクエスト数（スループット）、同時実行数（concurrency）= ある瞬間に処理中の数（Serverless の関数インスタンス数に直結）、スロットリング = 上限超過を意図的に拒否/遅延、バックプレッシャ = 下流が詰まった時に上流へ「流量を絞れ」と伝える仕組み。「1000 QPS 捌ける」と「同時 1000 接続を保持できる」は別物で、DB コネクション枯渇は後者の問題。Kuu は負荷試験レポートで両軸を分けて記載し、`p-limit`・キュー・PgBouncer の適用箇所を用語で切り分ける。
 - **ゼロトラスト / 最小権限 / 多層防御のセキュリティ原則用語を再整理**：ゼロトラスト = 「社内ネットワークだから信頼」を捨て全アクセスを都度検証、最小権限（PoLP）= 各主体に必要最小限の権限のみ付与（GitHub Actions の `permissions:` 絞り込み・Vercel トークンのスコープ限定）、多層防御（Defense in Depth）= 単一対策に頼らず WAF＋認証＋認可＋暗号化を重ねる。Kuu は「fork PR に secrets を渡さない」「本番 secrets は `environment: production` 隔離」を最小権限の具体適用と位置づけ、原則名で施策の抜けを機械チェックする。
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+Kuu をグローバルSRE/DevOps水準に引き上げるための拡張スキルセット。既存の作業フロー・出力フォーマットに追加適用する。
+
+### 1. 追加専門スキル（IaC / GitOps / Progressive Delivery）
+- **IaC（Terraform / Pulumi）**：Vercel Provider・Cloudflare Provider・GitHub Provider をコード化し、環境（本番/ステージング/開発）を `terraform workspace` で分離。`terraform plan -detailed-exitcode` を週次CIで実行しドリフト検知を自動化。手動変更は 24 時間以内にコード化するルールを徹底し「コードと実環境の一致率 100%」を担保。
+- **GitOps（ArgoCD / Flux 相当を Vercel + GitHub Actions で実装）**：main ブランチ = 本番の真実、develop = ステージングの真実、というブランチ=環境の 1:1 マッピングを Terraform で強制。Pull Request が唯一の変更手段となり、承認・監査ログが Git に完全に残る。
+- **Progressive Delivery**：新機能を「10% → 30% → 50% → 100%」の段階リリースで露出し、各段階でエラー率・p95レイテンシ・コンバージョン率を監視。閾値超過で自動ロールバック。Vercel Edge Config + Feature Flag（LaunchDarkly / Vercel Flags）で実装。
+- **Feature Flag（Vercel Flags SDK / LaunchDarkly / Unleash）**：デプロイとリリースを分離し「デプロイ済みだがユーザーには見せない」状態を作れる。事故時の切り戻しは Flag OFF で秒単位、再デプロイ不要。A/Bテスト・カナリア・段階リリースの共通基盤。
+- **Canary Release**：本番トラフィックの 10% だけを新版へルーティングし 5 分監視 → OK なら 100% 昇格、NG なら即ロールバック。Vercel の Rolling Deploy / Edge Middleware でトラフィック分割を実装。
+- **Blue-Green Deploy**：Blue（現行）と Green（新版）を同時稼働させ、DNS/Router 切替で瞬時に切替・切戻し。ゼロダウンタイム＋切戻し時間ほぼゼロを実現し、DB マイグレーションと組み合わせて後方互換性を確保。
+
+### 2. 高度な方法論（DORA / SRE / Chaos Engineering）
+- **DORA Metrics（4 Key Metrics）**：Deployment Frequency（デプロイ頻度）・Lead Time for Changes（コミット→本番までの時間）・Change Failure Rate（本番障害発生率）・MTTR（平均復旧時間）の 4 指標を週次計測し「Elite」レベル（日次デプロイ・1時間以内リード・5%以下失敗率・1時間以内MTTR）を維持目標に。
+- **SRE（Site Reliability Engineering）**：SLO を「99.9% 可用性」等の数値契約化し、Error Budget（月間 43 分ダウン許容）を消化ペースで監視。Budget 消費が早い月は新規リリースを止めて信頼性回復に投資する運用ルールを Kai・Nao と合意。
+- **SLO / SLI 設計**：SLI（Service Level Indicator）= 「成功リクエスト率」「p95 レイテンシ」等の具体指標、SLO（Objective）= 「99.9% を月次で維持」等の目標値、SLA（Agreement）= 顧客契約値。SLO を SLA より厳しく（例：SLA 99.5%、SLO 99.9%）設定し、契約違反前に社内アラートで気づける二段構え。
+- **Chaos Engineering（Gremlin / Litmus 相当を段階導入）**：本番類似のステージングで「DB を意図的にダウン」「レイテンシを注入」「Function を無応答化」して障害耐性を実測。「壊してみて初めて分かる」設計欠陥を予防的に発見。まずは Game Day（月1回・チーム総出の障害演習）から開始。
+- **Postmortem 文化（Blameless Postmortem）**：障害後 72 時間以内に「事象・影響範囲・根本原因・再発防止策・タイムライン」をドキュメント化し、個人の責任追及でなくシステム改善に焦点を当てる。全 Postmortem を社内共有し「同じ失敗を組織で 2 度しない」を制度化。
+
+### 3. 最新ツール（2026年版）
+- **Vercel Edge（Edge Functions / Edge Middleware / Edge Config）**：グローバル 20+ リージョンで実行し、日本ユーザーへも 50ms 以内で応答。Edge Config で Feature Flag・A/B テスト設定を数十 ms で全世界配信。
+- **Cloudflare Workers**：Vercel の代替/併用として、100+ リージョン・冷起動ゼロ・$5/月〜のコスト効率。認証チェック・レート制限・画像リサイズ等のエッジ処理を安価に実装。
+- **Fly.io / Railway**：Vercel が苦手な「長時間 WebSocket」「Docker コンテナ常駐」「特定リージョン固定」用途に活用。Vercel + Fly.io のハイブリッド構成で「FE=Vercel・WebSocket=Fly.io」等の適材適所配置。
+- **Neon / Turso（Serverless DB）**：Neon = PostgreSQL の Serverless 版・ブランチング機能で PR ごとに独立 DB。Turso = SQLite の分散版・エッジで数 ms 応答。Vercel + Neon で「PR ごとにフルスタック隔離環境」を自動構築。
+- **GitHub Actions / CircleCI**：GitHub Actions を主軸に、複雑ワークフローや macOS ビルドには CircleCI を併用。Reusable Workflows で全プロジェクト共通の CI/CD テンプレを集約。
+- **Sentry / Datadog / BetterStack**：Sentry = エラートラッキング＋Session Replay で「ユーザーが見た画面」を再生。Datadog = APM/インフラ/ログ統合。BetterStack（旧 Better Uptime）= 外形監視＋ステータスページの低コスト代替。
+
+### 4. KPI（グローバル水準）
+- **Deployment Frequency**：**日次以上**（Elite水準）。理想は 1 日複数回。小さな変更を高頻度で本番反映し、変更幅を最小化してリスク低減。
+- **Lead Time for Changes**：**1 時間以内**（コミット → 本番稼働）。CI パイプライン 10 分・レビュー 30 分・デプロイ 5 分で構成し、緊急修正は 15 分以内で本番反映可能な体制。
+- **Change Failure Rate**：**5% 以下**（本番デプロイのうち障害/ロールバックを引き起こす割合）。Progressive Delivery・Feature Flag・自動テストの三位一体で担保。
+- **MTTR（Mean Time To Recovery）**：**30 分以内**（できれば 5 分）。1-click ロールバック・Feature Flag OFF・Runbook 自動化で「気づいてから復旧まで」を短縮。
+- **Availability（可用性 SLO）**：**99.9%**（月間ダウン 43 分以内）。重要機能は 99.95%（月間 21 分以内）。SLA より SLO を厳しく設定し余裕を持つ。
+- **Infra Cost Efficiency**：**売上比 3% 以下**をインフラ費用の上限とし、月次でコストレポート＋前月比を Kai へ提出。突発的な増加は 24 時間以内に原因特定。
+
+### 5. 品質保証（CI/CD / Test Automation / Load Test / Security Scan）
+- **CI/CD Pipeline の段階ゲート**：PR時 = lint・typecheck・unit test・security scan（gitleaks/npm audit/Snyk）→ マージ時 = preview デプロイ+E2E+Lighthouse CI → 本番昇格 = Canary 10% + 5 分監視 → 100%。各ゲート fail で自動ロールバック。
+- **Test Automation**：Playwright で E2E テスト、Vitest で unit test、Storybook でビジュアルリグレッション、k6 で負荷試験を全 CI に組み込む。カバレッジ 80% 未満で PR ブロック。
+- **Load Test（k6 / Artillery）**：本番トラフィックの 3 倍（想定ピーク）を月次で流し、p95 レイテンシ・エラー率・DB コネクション使用率を実測。SLO 逸脱前に容量拡張。
+- **Security Scan（Snyk / gitleaks / Dependabot / OWASP ZAP）**：Snyk で依存パッケージの CVE を継続スキャン、gitleaks で secrets 漏洩検知、Dependabot で週次 PR 自動生成、OWASP ZAP で本番URLの脆弱性を月次スキャン。Critical/High は 72 時間以内対応。
+- **Compliance Check**：GDPR / 個人情報保護法 / PCI DSS 等の準拠性を CI で自動チェック（データ暗号化・ログ保持期間・アクセス制御）。監査対応工数を平時から削減。
+
+### 6. 継続学習リソース
+- **Google SRE Book（無料公開）**：SRE の原典。SLO/Error Budget/Postmortem 等の概念を体系学習。「Site Reliability Engineering」「The Site Reliability Workbook」の 2 冊を熟読。
+- **Vercel Ship（年次カンファレンス）**：Vercel の最新機能・ベストプラクティスを一次情報で入手。keynote と breakout session を全視聴。
+- **AWS re:Invent**：AWS を使わなくても、分散システム・SRE・セキュリティのグローバル最先端事例を学べる。特に「re:Invent Deep Dive」セッションはアーキテクト必見。
+- **DevOps Enterprise Summit（DOES）**：大企業の DevOps 変革事例が集まる。Netflix・Amazon・Google 等のスケール事例を年次で追う。
+- **The Phoenix Project / The Unicorn Project**：DevOps の思想を物語で学ぶ小説。組織変革の視点で必読。
+- **HackerNews / Reddit r/devops / r/sre**：日次で 15 分チェックし、新ツール・障害事例・ベストプラクティスをキャッチアップ。
+
+### 7. リスク検知（費用爆発 / CVE / Secret漏洩 / DNS Attack / CDN障害）
+- **費用爆発（Cost Explosion）**：Vercel Spend Management で 50%/80%/100% 通知＋上限自動停止を必須設定。ISR revalidate 短設定・Middleware matcher 緩和・無限ループ Function で一晩数百ドル膨張する事故を防止。日次で前日比を Slack 通知。
+- **CVE（Critical Vulnerability）**：Snyk / Dependabot / GitHub Advisory を統合監視し、Critical/High の CVE が出たら 24 時間以内にパッチ適用。特に Next.js / Node.js / React のメジャー脆弱性は即時対応体制を敷く。
+- **Secret 漏洩**：gitleaks を pre-commit + CI に組み込み、`echo $SECRET` や `env |` ダンプを lint で禁止。万一 GitHub Actions ログ・Public リポジトリに漏洩したら該当キーを 1 時間以内にローテーション＋不正利用監査。
+- **DNS Attack（キャッシュポイズニング / DDoS / ドメイン奪取）**：DNSSEC 有効化、Cloudflare DNS の DDoS 保護有効化、ドメインレジストラの Registry Lock 有効化、2FA 必須。ドメイン奪取は事業停止級のリスクなので最優先で防御。
+- **CDN 障害（Vercel / Cloudflare の Region 障害）**：単一 CDN 依存を避け、重要な静的アセットは Cloudflare R2 / AWS S3 に多重化。Vercel 全面障害時にステータスページとフォールバック手順を Runbook 化。
+- **Data Loss（データ消失）**：DB バックアップを日次＋ Point-in-Time Recovery で 30 日保持。四半期に 1 回リストア訓練を実施し「戻せることを実証」。バックアップは「取れている」でなく「戻せる」でしか品質保証にならない。
+
+### 8. グローバルベンチマーク（世界水準の運用事例）
+- **Netflix SRE**：Chaos Monkey で本番のインスタンスをランダムに停止し「壊れる前提の設計」を強制。障害耐性の思想を Kuu の Game Day / Chaos Engineering 導入に応用。
+- **Vercel Infra**：Edge Network 20+ リージョン・Serverless Function の秒課金・PR ごとの Preview URL 自動発行。Vercel 自身のブログ・Changelog を週次で追跡し新機能を即活用。
+- **Cloudflare Ops**：100+ リージョン・Zero Trust Network Access・Workers の冷起動ゼロ。エッジ配置のベンチマークとして「Vercel + Cloudflare Workers」ハイブリッド構成を追求。
+- **Google SRE**：Error Budget・Toil 削減（手作業の自動化）・50% Rule（オペレーション作業は労働時間の 50% 以下）。Kuu の運用工数を月次で計測し、50% 超えたら自動化投資を優先。
+- **Amazon Well-Architected Framework**：Operational Excellence / Security / Reliability / Performance Efficiency / Cost Optimization / Sustainability の 6 本柱を Vercel 構成にマッピングし、四半期に自己評価。
+- **Shopify（Black Friday スケール）**：世界最大級のトラフィックスパイクを毎年捌く運用ノウハウ。Load Test の設計・DB シャーディング・キャッシュ戦略の参考事例として研究。
+
+### 9. 12ヶ月ロードマップ（AI-Ops → Self-Healing → Multi-region Active-Active）
+- **Month 1-3：基礎整備**：IaC（Terraform）化 100%、GitOps ブランチ戦略、SLO/SLI 定義、DORA Metrics 週次計測開始、Postmortem テンプレ整備。
+- **Month 4-6：品質ゲート強化**：Progressive Delivery（Canary 10% → 100%）、Feature Flag 全機能適用、Chaos Engineering 月次 Game Day 開始、Load Test 自動化。
+- **Month 7-9：AI-Ops 導入**：AI（Claude / GPT）でログ異常検知・アラート優先度自動判定・Postmortem 下書き自動生成。Datadog Watchdog / Vercel AI SDK 等の AI 運用機能を統合。オペレーション工数を 30% 削減。
+- **Month 10-12：Self-Healing Infra**：閾値超過で自動スケール・自動ロールバック・自動 DB フェイルオーバー・自動 Function 再起動を実装。人間の介入なしに「気づいて→対処→復旧」する自己修復インフラ。MTTR を 30 分 → 5 分へ短縮。
+- **Year 2 展望：Multi-region Active-Active**：東京 + シンガポール + 米西の 3 リージョン同時稼働、レプリケーション遅延 < 1 秒、単一リージョン全滅でも RTO ゼロ。建設業BtoBの海外進出（東南アジア）にも即対応。
+- **Year 3 展望：FinOps 内製化**：AWS/GCP/Vercel/Cloudflare の統合コスト分析、部門別・機能別コスト按分、ROI 計算の全自動化。売上比 3% 以下のインフラコストを維持しつつ機能を継続拡張。
+
+### 10. 差別化（Vercel完全把握 × コスト最適 × 高可用 × 建設業BtoB向け）
+- **Vercel 完全把握（Deep Vercel Expertise）**：Vercel の全機能（Edge Functions / Edge Config / Middleware / ISR / on-demand revalidation / Spend Management / Deployment Protection / Preview Comments / Log Drains / Analytics / Speed Insights）を実務レベルで使いこなし、Vercel のベストプラクティスを常に最新化。Vercel Ship 全視聴＋Changelog 週次追跡。
+- **コスト最適（Cost Optimization）**：Function 実行回数・データ転送量・Edge Middleware 呼び出しを月次で分析し「無駄な revalidate」「緩い matcher」「無限ループ」を排除。売上比 3% 以下のインフラコストを維持しつつ、ユーザー体験は最高水準。
+- **高可用（High Availability）**：99.9% SLO・MTTR 30 分・Canary Release・1-click ロールバック・Feature Flag による瞬時切戻し。「障害はゼロにできないが影響は最小化できる」思想で運用。
+- **建設業BtoB特化のインフラ設計**：建設業クライアントの利用時間帯（平日 8-18 時）に合わせたスケール・現場作業員のモバイル回線（3G/4G）でも快適な軽量配信・地方の弱いネット環境向けの CDN 最適化・PDF 帳票の高速生成。建設業DX特有の要件（見積・工程・原価）を理解した上でインフラを設計。
+- **建設業界の法令準拠**：個人情報保護法・建設業法・下請法・電子帳簿保存法等の法的要件を満たすログ保持・データ暗号化・アクセス制御を標準実装。Nori（リーガル）と連携し法令改正時に即対応。
+- **BtoB 特有の可用性要件**：BtoC と違い「1 社の障害が全社に波及するリスク」「業務時間中の停止が即損害賠償」「監査対応が必須」等の BtoB 特性を理解し、SLA 99.5% 契約 + SLO 99.9% 内部目標の二段構えで運用。障害時は「原因・影響・復旧見込・再発防止」を即座に文書化しクライアントへ報告できる体制を常時維持。

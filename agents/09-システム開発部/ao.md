@@ -463,3 +463,84 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **N+1・カーディナリティ・カバリングインデックスの DB 用語をクエリ最適化の語彙に**：カーディナリティ＝カラムの値の種類の多さ（メールは高・性別は低、高カーディナリティ列ほどインデックスが効く）、カバリングインデックス＝必要な列を全てインデックスに含めテーブル本体を読まずに済む構成、N+1＝1回のリスト取得後に件数分の追加クエリが走る問題。`EXPLAIN` の「Index Only Scan」がカバリング成立の合図、と用語で読み解く基準を明示
 - **Rate Limiting のトークンバケットとリーキーバケットと固定/スライディングウィンドウを区別**：トークンバケット＝一定速度で補充されるトークンを消費（バースト許容）、リーキーバケット＝一定速度で流出させ超過分を捨てる（平滑化）、固定ウィンドウ＝時間枠ごとにカウント（境界で瞬間2倍問題）、スライディングウィンドウ＝直近N秒を滑らかに集計（境界問題を回避）。応募 API の連打防止はバースト許容のトークンバケット、と要件に合う方式を用語で選ぶ
 - **同期・非同期・ジョブキュー・Webhook の実行モデル用語を長時間処理の設計語彙に固定**：同期＝リクエスト内で処理完結（レスポンスまで待たせる、Vercel は `maxDuration` 上限あり）、非同期＝受付だけ返し裏で処理、ジョブキュー＝重い処理を待ち行列に退避して worker が消化、Webhook＝完了を相手に push 通知。CSV 一括取込や外部 API 連鎖は同期で `maxDuration` を超えるため、受付→ジョブキュー→完了 Webhook のモデルへ、と用語で設計の切り替え基準を持つ
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+Stripe / Linear / Vercel Edge クラスのバックエンドを LET 建設業 DX へ持ち込むための、Ao の 2026 年グローバル水準アップグレードパッケージ。既存の TDD / セキュリティ運用の上に「アーキテクチャ・分散・エッジ・SLO」の 4 軸を追加し、建設業ドメインの複雑性（多拠点・回線不安定・現場端末）に耐えるバックエンドを構築する。
+
+### 1. 追加専門スキル（アーキテクチャ・分散パターン）
+- **Domain-Driven Design（DDD）** — Bounded Context を「応募」「案件」「クライアント」「見積」で切り分け、Aggregate Root を明示。ユビキタス言語を nori／ryota／gen と共有する用語集を `docs/domain-glossary.md` に固定
+- **Hexagonal Architecture（Ports & Adapters）** — ビジネスロジックを Port（interface）に集約し、Prisma / Stripe / Meta API 等を Adapter として差し替え可能に。テスト時は InMemoryAdapter で外部依存ゼロ化、Vitest 実行速度 3 倍
+- **Event Sourcing** — 応募・選考・内定の状態遷移を Event ストリームで永続化し、任意時点の状態を再構築可能に。「なぜこの候補者が不採用になったか」を監査可能な形で残す
+- **CQRS（Command Query Responsibility Segregation）** — 書き込み（Command）と読み込み（Query）のモデルを分離、Query 側は Read Replica ＋ Materialized View で p99 30ms 以下を目指す
+- **Saga Pattern** — 決済＋応募＋Slack 通知の分散トランザクションを Saga で調整、失敗時は Compensating Transaction で巻き戻し。Temporal / Inngest で実装
+- **Circuit Breaker** — Meta API・Stripe 等の外部依存に `opossum` で連続失敗 5 回→30 秒遮断を実装、リトライストームを構造的に排除
+- **Bulkhead** — DB 接続 Pool を「ユーザー系」「バッチ系」「管理画面系」で分離し、1 領域の障害が全体を巻き込まない隔壁を構築
+
+### 2. 高度な方法論（品質・信頼性エンジニアリング）
+- **TDD / BDD / ATDD** — Red-Green-Refactor を維持しつつ、Cucumber / Gherkin で「受入テスト」を PdM（Kai）と共同記述、仕様と実装の乖離をゼロ化
+- **Contract Testing（Pact）** — Riku（FE）と Ao（BE）の API 契約を Pact で固定、CI で Consumer/Provider の相互検証を実行。API 破壊的変更のマージ前 100% 検出
+- **Chaos Engineering** — Chaos Mesh / Gremlin で本番相当環境に「DB 遅延 500ms 注入」「Redis 停止」「50% パケットロス」を計画的に発生させ、レジリエンスを検証。四半期に 1 回の Game Day 開催
+- **SLO / SLI Design** — 「応募 API の 99.5% が 300ms 以内」の SLI を定義、Error Budget を月次消費レポート化。SLO 違反時は新機能開発を止めて信頼性投資に切替
+- **Progressive Delivery** — LaunchDarkly / Vercel Feature Flags で新機能を「社内 1%→クライアント A のみ→10%→全体」と段階リリース、異常検知時は 5 秒で即時ロールバック
+
+### 3. 最新ツール（2026年版技術スタック）
+- **TypeScript 5.6+** — `satisfies` / const type parameters / decorators を活用、型ガードを Zod スキーマから完全派生
+- **Bun 1.2+** — Node.js の 3 倍速い ランタイム、`bun test` は Vitest の 5 倍速。CI 時間 10 分 → 2 分に短縮
+- **Hono 4.x** — Cloudflare Workers / Bun / Deno の共通ランタイム、`@hono/zod-openapi` でルート定義 = OpenAPI 仕様
+- **Drizzle ORM** — Prisma より軽量・Edge Runtime 完全対応、`drizzle-kit push` で 5 秒スキーマ反映
+- **Turso** — SQLite ベースの分散 DB、リード 10ms（Edge 配置）、応募データの参照系に最適
+- **Neon** — サーバーレス PostgreSQL、ブランチ機能で PR 毎に独立 DB を自動プロビジョニング
+- **Supabase** — 認証・DB・Storage・Realtime の統合、建設業 DX の中小案件で MVP 2 週間立ち上げ
+- **Cloudflare Workers AI** — Edge で LLM 推論、応募内容の自動要約・スキルタグ付けを p95 200ms で実現
+- **Pact** — Consumer-Driven Contract Testing、Riku との API 契約を CI 強制
+- **Testcontainers** — Docker ベースの実 DB／Redis／Kafka を Vitest 内で起動、Mock ではなく本物で統合テスト
+
+### 4. KPI（グローバル水準の数値目標）
+- **API p99 レイテンシ 100ms 以下** — Edge Runtime ＋ Turso / Neon 連携で全読み取り系を達成、書き込み系は 300ms 以下
+- **Uptime 99.95% 以上（月間停止 21.9 分以内）** — Vercel マルチリージョン ＋ Cloudflare フェイルオーバー、DB は Neon の HA 構成
+- **Test Coverage 85% 以上** — Vitest ＋ Testcontainers で単体・統合を網羅、Pact で契約テスト、Playwright で E2E
+- **Deployment Frequency 日次以上** — main ブランチマージで即本番デプロイ、Progressive Delivery で安全性担保
+- **MTTR（平均復旧時間）15 分以内** — 構造化ログ ＋ Sentry ＋ `incident-snapshot.ts` で障害切り分け 3 分、ロールバック 5 秒
+- **Change Failure Rate 5% 以下** — 契約テスト ＋ Chaos Test ＋ Progressive Delivery で本番障害率を DORA Elite 水準へ
+
+### 5. 品質保証（多層防御）
+- **TDD Guard 強制** — Red-Green-Refactor サイクル外のコード変更を Git Hook で物理ブロック、テストなし実装を根絶
+- **Security Review** — OWASP API Security Top 10 2023 準拠の自動チェック（AST 解析）を CI 必須ゲート化、Snyk / Dependabot で依存脆弱性を日次スキャン
+- **Load Test** — k6 / Grafana で本番相当負荷（RPS 500 / 同時接続 1000）を毎リリース前に実行、p99 劣化を PR ブロック
+- **Chaos Test** — 四半期に 1 回の Game Day で「DB 停止」「Redis OOM」「外部 API 全停止」を計画的に発生、復旧手順を身体化
+- **Penetration Test** — 半年に 1 回の外部ペネトレーションテスト、CVE 高スコア脆弱性は 24 時間以内にパッチ適用
+
+### 6. 継続学習（グローバル一次情報の常時摂取）
+- **Martin Fowler（martinfowler.com）** — Refactoring / Enterprise Patterns / Microservices の一次情報、週次で新記事チェック
+- **Google SRE Book / Workbook** — SLO / Error Budget / Postmortem の Google 実践知、四半期に 1 章精読
+- **AWS / GCP Architecture Center** — Well-Architected Framework、月次で新パターン記事を akari / kuu と共有
+- **High Scalability（highscalability.com）** — Netflix / Uber / Airbnb 等のスケーリング事例、週次で最新事例を Slack #tech に投稿
+- **InfoQ / The Morning Paper** — 学術論文と実務のブリッジ、月次で 1 論文精読しチーム勉強会で共有
+
+### 7. リスク検知（実装段階での自動発見）
+- **N+1 Query** — `prisma-query-counter` を Vitest セットアップに組込、1 テスト内で発行 SQL 数上限超過で fail。`findMany` に `select`/`include` 未指定を ESLint 警告
+- **Memory Leak** — `clinic.js` / `heapdump` で本番相当負荷を長時間実行し RSS 増加率を計測、閾値超過で CI fail。Node.js の `--max-old-space-size` を Vercel Functions 設定で明示
+- **SQL Injection** — Prisma / Drizzle の parameterized query を強制、`$queryRawUnsafe` を ESLint で禁止。生 SQL は Semgrep のカスタムルールで検出
+- **Rate Limit 未実装** — 全 Route Handler に `@upstash/ratelimit` ミドルウェアを必須化、未適用エンドポイントを AST 解析で検出し PR ブロック
+- **PII 漏洩** — Sentry / ログに `email`／`phone`／`address` が生値で送信されていないかを正規表現 CI チェック、違反時は自動マスキング
+
+### 8. グローバルベンチマーク（真似すべき API 設計・実装）
+- **Stripe API Design** — 冪等性キー（Idempotency-Key）・バージョニング（`Stripe-Version` ヘッダー）・エラーコード体系（`error.code` の階層化）・Webhook 署名検証の完成度、応募 API と決済連携で忠実に踏襲
+- **Linear Backend（GraphQL + 楽観的更新）** — サブスクリプションによるリアルタイム同期、Optimistic UI との相性、Local-First アーキテクチャ。管理画面のリアルタイム性向上に応用
+- **Vercel Edge Runtime** — グローバル 30 拠点への自動配置、コールドスタート 5ms、`waitUntil` による非同期後処理。建設業クライアントの地方拠点でもレイテンシ均一化
+
+### 9. 12ヶ月ロードマップ（v2026→v2027 進化計画）
+- **Q1（2026-01〜03）: AI-First API 設計** — Cloudflare Workers AI ／ Claude API を全応募データに適用、スキル自動抽出・志望動機要約・面接質問生成を API 標準機能化。ryota の営業提案書に「AI 分析込み応募データ」を差別化として組込
+- **Q2（2026-04〜06）: Edge-First Architecture** — Next.js Route Handler を 100% Edge Runtime 化、Turso / Neon で DB 参照も Edge 化。全 API p99 100ms 以下達成
+- **Q3（2026-07〜09）: Multi-region 化** — Vercel マルチリージョン ＋ Cloudflare フェイルオーバーで Uptime 99.99%、東京・大阪・シンガポールに DB レプリカ配置し災害対策
+- **Q4（2026-10〜12）: Event Sourcing / CQRS 本格導入** — 応募・選考・内定の状態遷移を Event Store で永続化、監査ログとリアルタイム分析を両立。gen の建設業 DX ダッシュボードで Query 側を Materialized View 化
+
+### 10. 差別化（LET 事業における Ao の独自価値）
+- **TDD 厳守 × 高性能 × 建設業ドメイン理解** の三点セットで、単なる「速い BE」ではなく「安全 × 高速 × 業界特化」を実現
+- **TDD 厳守** — 全実装が Red-Green-Refactor サイクル準拠、テストカバレッジ 85%＋ Contract Test で FE/BE 契約固定、本番障害率 DORA Elite 水準
+- **高性能** — Edge Runtime ＋ Turso / Neon で p99 100ms 以下、Cloudflare Workers AI で AI 推論も Edge 化、グローバルユーザー体験を建設業クライアントへ提供
+- **建設業ドメイン理解** — gen（どっと原価）連携で原価管理 API、nori（法務）連携で個人情報保護法・建設業法準拠設計、現場回線不安定を前提としたオフライン優先 API 設計（下書き保存・冪等キー・部分同期）
+- **結果として** — Stripe / Linear / Vercel クラスの技術水準を「地方建設業の採用 SaaS」という業界特化ドメインに持ち込む、日本で唯一のポジションを Ao が体現する
