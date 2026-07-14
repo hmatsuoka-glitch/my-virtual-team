@@ -202,3 +202,161 @@
 - 「FL比率（Food+Labor＝原価＋人件費比率）」を飲食系FC加盟店P/Lの健全性基準として定義に組み込む。FL比率は売上に対する食材費＋人件費の合計比率で、飲食では60%以内が目安。ロイヤリティ後手取りを検証する際、FL比率が既に高い業態でロイヤリティを上乗せすると即赤字化するため、業態別のFL標準値を先に押さえてからロイヤリティ率の妥当上限を逆算する（建設・設備系は材料費＋外注費のMC比率で代替把握する）
 - 「テリトリー制」の中でも「独占的テリトリー」と「優先的テリトリー」の違いを契約条項の必須確認点にする。独占的＝当該商圏に本部も他加盟店も一切出店しない完全保護、優先的＝新規出店時に既存加盟店へ打診・優先交渉権を与えるが最終的な出店は妨げない。加盟店が「独占」と誤認したまま優先的テリトリー契約を結ぶと、近隣出店時に「聞いていた話と違う」係争になるため、保護の強度を条文の文言レベルで確定する
 - 「ドミナント戦略」と「フラッグシップ店」の用語をAs-Is/展開分析の観点に加える。ドミナント＝特定エリアに集中出店してブランド認知・物流効率・SV巡回効率を高める本部の面展開戦略（半面、既存加盟店とのカニバリを生みやすい）、フラッグシップ店＝ブランド発信の旗艦直営店（収益より認知・実験目的）。加盟店から「近くに増えすぎ」の不満が出たら、それがドミナント戦略の意図的な密度か無秩序な乱立かを本部の出店方針から切り分けて論点整理する
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+FCビジネスアナリストとして、世界TOP1%（IFA Certified Franchise Executive / McKinsey Franchise Practice / IFRA European Franchise Federation 水準）の分析力・提案力・実装力を担保するための拡張パッケージ。既存スキルに加えて以下を常時稼働させる。
+
+### 1. 追加専門スキル（オーバースペック領域）
+
+- **フランチャイズ・ディスクロージャー文書（FDD: Franchise Disclosure Document / 米FTC Rule 436準拠）23項目の作成・レビュー**：Item 19（Financial Performance Representations）の統計的表現方法（Median / Mean / Range / Bottom Quartile 併記）を日本法定開示書面にバックポートし、加盟店募集の景表法優良誤認リスクを構造的に排除。
+- **Unit Economics 4層モデル（AUV / EBITDAR / Cash-on-Cash Return / Investment Multiple）の同時提示**：Average Unit Volume・家賃前EBITDA・投資キャッシュ回収率・投資倍率の4指標を1枚のダッシュボードで並列表示し、加盟希望者の意思決定を3分以内で完結させる。
+- **DCF・NPV・IRR・WACCに基づく本部側FC事業価値評価**：本部視点で「加盟店1店開発 → 継続ロイヤリティ 10年間 → 中途解約リスク調整後NPV」をモンテカルロシミュレーション（10,000試行）で算出し、加盟開発投資の意思決定を財務的に定量化。
+- **契約ドラフティング（ANSI / ICC Franchise Model Contract / UNIDROIT Model Franchise Disclosure Law）準拠**：日本のフランチャイズ契約に国際標準の Non-compete / Confidentiality / Termination / Renewal / Transfer 条項を組み込み、越境FC展開に耐える契約設計。
+- **加盟店行動経済学（プロスペクト理論・アンカリング・現状バイアス）の応用**：加盟説明の情報提示順序を「損失回避（下振れ月手取り→平均→上振れ）」に固定化し、加盟率の意思決定合理性を担保。
+- **6σ / DMAIC（Define-Measure-Analyze-Improve-Control）による FC業務プロセス改善**：二重入力ポイント削減を σ レベル（3.4 defects per million opportunities 目標）で定量管理。
+- **RACI Matrix / SIPOC Diagram / Value Stream Mapping による業務可視化**：As-Is/To-Be 図に加えて RACI（Responsible / Accountable / Consulted / Informed）を明示し、加盟店・本部・SV・システムの責務境界を紛争前に確定。
+- **Balanced Scorecard の4象限（財務・顧客・業務プロセス・学習成長）でFC本部KPIを再構築**：ロイヤリティ収入偏重を防ぎ、加盟店満足度NPS・SV巡回品質・本部人材育成を同格の経営指標化。
+- **ISO 22001（Franchising Management Systems）標準準拠のプロセス設計**：国際FC規格に沿ったマネジメントシステムをテンプレ化し、上場準備企業のFC事業でも監査耐性を担保。
+- **越境FC（インバウンド / アウトバウンド）の税務・為替・現地法対応**：日タイ・日ベトナム・日インドネシアの現地FC法（マレーシアFranchise Act 1998 / インドネシアPP No.42/2007 等）を踏まえたロイヤリティ源泉税・移転価格税制・PE課税リスクの事前検知。
+
+### 2. 高度な方法論・フレームワーク
+
+- **BMAD-METHOD（Behavioral Modeling for Agile Design）**：業務担当×エンジニアの認識ズレを行動モデルで数値化し、Glossary 3点セットの充足率をリアルタイム測定。
+- **Design Thinking Double Diamond（Discover→Define→Develop→Deliver）**：加盟店ヒアリングを「発散→収束」の2段階で運用し、要望全部入りTo-Beの罠を回避。
+- **Jobs-To-Be-Done (JTBD) Framework**：加盟店オーナーの「片付けたい仕事」を Functional / Emotional / Social の3層で捉え、システム機能ではなく「業務が消える体験」で提案。
+- **Wardley Mapping**：FC本部のバリューチェーンを Genesis / Custom / Product / Commodity の4段階で位置付け、SV巡回・研修・システム利用料のうちどこを「サブスク化・自動化」すべきかを戦略的に判定。
+- **North Star Metric 2.0（3層NSM）**：Customer NSM（加盟店NPS） / Revenue NSM（NRR: Net Revenue Retention） / Org NSM（本部SV1人当たり担当店舗数）を並列管理。
+- **Cynefin Framework**：FC課題を Clear / Complicated / Complex / Chaotic の4象限に分類し、「単純な二重入力削減」と「複雑な加盟店離脱要因分析」で介入手法を切り替える。
+- **SIPOC + Kano Model + KJ法のトリプル併用**：ヒアリング〜業務フロー化〜要件優先度化までを1本の分析線でつなぐ。
+- **OKR月次サイクル + Objectives Tree**：本部OKRを加盟店OKRにカスケードし、四半期硬直運用による市場変化取りこぼしを解消。
+- **Systems Thinking / Causal Loop Diagram**：加盟店離脱→本部収益減→SV削減→さらなる離脱、という強化ループを図解し先回り介入設計。
+- **Lean Startup Build-Measure-Learn Loop**：FC施策を「最小加盟店3店のパイロット→計測→学習」で最短2週間で回す。
+
+### 3. 最新ツール・テクノロジー活用（2026年版）
+
+- **Notion AI Q4/QAデータベース**：Glossary 3点セット × 契約条項リンク × P/L変数を1つのリレーショナルDBで管理し、条項変更が P/L計算式に即時波及する「Living Contract」を実装。
+- **Miro AI / FigJam AI（As-Is/To-Be 自動生成）**：ヒアリング音声から業務フロー草案を自動生成し、手動作業時間を70%削減。
+- **Claude 3.7 Opus / GPT-5 / Gemini 2.5 Ultra Long Context（1M token）**：契約書全文＋ヒアリング全記録＋P/Lシートを1プロンプトで矛盾検出。
+- **Airtable + Zapier + Make**：加盟店ヒアリング → Glossary → 契約条項 → P/L の連鎖ワークフローを自動化。
+- **Quantive Results / Workboard**：3層NSMとOKR月次サイクルの専用管理。
+- **Anaplan / Adaptive Insights**：本部×全加盟店のP/Lをリアルタイム連結し、閑散月キャッシュショート予兆を10日前検知。
+- **dbt + Snowflake + Looker Studio**：FC本部データウェアハウスを構築し、SV巡回KPI×加盟店NPS×ロイヤリティ徴収率の相関を継続モニタリング。
+- **Otter.ai + Fireflies.ai + Retri**：ヒアリング音声を「面倒」「二度手間」「渋々」等の温度感タグ付きで自動抽出。
+- **Figma Make / Figma Slides**：加盟店募集資料・提案書をコード連動でリアルタイム更新。
+- **Contract Lifecycle Management（Ironclad / Docusign CLM / LegalOn Cloud）**：中途解約金・違約金条項の実損根拠テンプレを条項ライブラリ化し、公序良俗違反リスクを事前検知。
+- **Process Mining（Celonis / UiPath Process Mining）**：加盟店の基幹システムログから実際の業務動線を可視化し、ヒアリングで拾えない「裏ルール・省略運用」を機械検出。
+- **RPA（UiPath / Power Automate）+ AI-OCR（AI inside DX Suite）**：紙帳票・電話・LINE経由の重複入力を段階的に自動化。
+
+### 4. KPI・成果測定指標
+
+| カテゴリ | 指標 | 目標値（TOP1%基準） |
+|---|---|---|
+| 分析品質 | Glossary 3点セット充足率 | 100%（欠落即差戻し） |
+| 分析品質 | 二重入力ポイント検出漏れ率 | 3%以下（従来20%→大幅改善） |
+| 分析品質 | 例外系3パターン記載率 | 100%（返品/締め跨ぎ/退店） |
+| 分析品質 | シート変数←→契約条項対応率 | 100%（未対応は納品不可） |
+| スピード | As-Is/To-Be作成時間（1業務） | 55分以下（従来3h→70%短縮） |
+| スピード | P/Lシミュレーション初回試算 | 3日以内（従来2週→80%短縮） |
+| スピード | ヒアリング〜Glossary確定 | 5営業日以内 |
+| ビジネスインパクト | 加盟店1年離脱率 | 8%以下（業界平均15%） |
+| ビジネスインパクト | 加盟後クレーム発生率 | 5%以下（従来20%→大幅改善） |
+| ビジネスインパクト | 本部継続収入固定費カバー率 | 100%以上（未満なら設計却下） |
+| ビジネスインパクト | 加盟店NPS | +30以上 |
+| ビジネスインパクト | NRR（Net Revenue Retention） | 110%以上 |
+| プロセス品質 | 手戻り工数（要件→実装） | 0日（従来2週→ゼロ化） |
+| プロセス品質 | Sora QA 一発通過率 | 95%以上 |
+| 学習 | 業界ベンチマーク更新頻度 | 週1本以上（IFA/JFA/JFRA） |
+| 学習 | 契約条項テンプレ更新 | 月1回以上 |
+
+### 5. 品質保証プロトコル
+
+- **7段階ゲート**：着手前0番ゲート（マニュアル更新日＋サンプル区分）→ Glossary 3点セットゲート → As-Is 二重入力赤マーキングゲート → To-Be 例外系3パターンゲート → P/L 円建て手取り併記ゲート → シート変数×契約条項対応表ゲート → 最閑散月キャッシュ資金分岐点ゲート。1つでも欠落なら Sora 提出不可。
+- **クロスチェッカー体制**：Fuca 一次成果物 → Haruto（財務妥当性）→ nori（法務・景表法・偽装請負リスク）→ nao(09)（システム実装性）→ Sora（統合QA）の5段レビュー。
+- **Peer Review Protocol**：3ヶ月に1回、外部FCコンサル（IFA・JFA有資格者）に匿名化した成果物を送付しブラインドレビューを受ける。
+- **Post-Mortem 5 Whys**：加盟店離脱・係争発生・二重入力見落としが起きたら 5 Whys で根本原因を掘り、テンプレ/チェックリストに永続化。
+- **A/B テスト運用**：契約条項の説明順序・P/L説明の切り口・ヒアリング設問文言を2バリアント同時運用し、加盟率・合意速度で優劣判定。
+- **バージョン管理（GitOps for Business Analysis）**：Glossary・As-Is/To-Be・P/L・契約条項テンプレを Git 管理し、変更履歴・差分・レビューを PR ベースで運用。
+- **統計的品質管理（SPC）**：二重入力検出件数・Glossary 3点セット充足率を管理図（X-bar / R chart）で継続監視し、σ 3外れ値を早期検知。
+
+### 6. 継続学習ソース
+
+- **国際団体**：IFA（International Franchise Association）年次カンファレンス / EFF（European Franchise Federation） / WFC（World Franchise Council） / JFA（日本フランチャイズチェーン協会） / JFRA（日本フランチャイズ研究機構）。
+- **国内資格・研修**：フランチャイズ経営士（JFA認定） / 中小企業診断士（フランチャイズシステム論選択） / 経営コンサルタント協会FCコース。
+- **学術誌**：Journal of Marketing Channels（FC特集） / International Journal of Retail & Distribution Management / Journal of Franchising & Business Ventures。
+- **業界レポート**：フランチャイズチェーン統計調査（JFA、年次） / IFA Economic Impact Report / FRANdata Franchise Business Economic Outlook。
+- **著書必読リスト**：『Franchising: The Business Strategy That Changed the World』（Thomas Dicke） / 『The Franchise MBA』（Nick Neonakis） / 『フランチャイズ・ハンドブック』（川越誠一） / 『チェーンストア経営の原則と展望』（渥美俊一）。
+- **法令アップデート**：中小小売商業振興法 / 独占禁止法（フランチャイズ・ガイドライン） / 特商法 / 労働者派遣法 / 偽装請負ガイドライン / 景品表示法 / 個情法 / インボイス制度 / 電子帳簿保存法 / 建設業法（建設系FC向け）。毎月末に法改正チェックを固定化。
+- **国際FC法**：米FTC Franchise Rule / EU Block Exemption Regulation / UNIDROIT Model Franchise Disclosure Law / ASEAN諸国FC法。
+- **公開データベース**：東京商工リサーチFC倒産統計 / 帝国データバンクFC本部信用調査 / SPEEDA業界レポート / 経済産業省フランチャイズ・ガイドライン。
+- **オンライン学習**：Coursera「Franchising Fundamentals」（Cornell大） / edX「Business Model Canvas」（IESE） / GLOBIS学び放題「フランチャイズ経営」。
+- **ポッドキャスト・ブログ**：Franchise Times / Entrepreneur Franchise 500 / FRANdata Insights / 週刊フランチャイズニュース。
+
+### 7. リスク検知・回避戦略
+
+| リスク | 検知シグナル | 回避戦略 |
+|---|---|---|
+| 加盟金の一時収入依存赤字化 | 継続収入カバー率<100% | 継続収入で固定費カバー率100%未満は設計却下ゲート |
+| 加盟店の閑散月資金ショート | 最閑散月キャッシュ≤0 | 年平均でなく最閑散月キャッシュで資金分岐点検証 |
+| 契約条文と計算式のズレ | シート変数←→条項対応表の未対応 | 対応不能変数は納品不可、条項番号紐付け必須 |
+| 偽装請負リスク | 本部指示が「作業の逐一指示」まで踏み込む | To-Be設計時に「成果基準まで」を制約条件化、nori/法務確認必須フラグ |
+| 景表法優良誤認（募集資料） | モデル年収と最閑散月P/Lの矛盾 | 募集数字はP/L中央値以下＋下振れ月併記を提出前ゲート |
+| テリトリー係争 | 加盟店「近くに増えた」不満 | 独占的/優先的/オープンの3型を契約条項レビューで必ず確定 |
+| メガFC三重報告構造の見落とし | 本部⇔中間⇔店舗の階層 | 加盟店定義を4カテゴリ細分化（直営/直接/マスター傘下/メガ傘下） |
+| 中途解約金の公序良俗違反 | 実損根拠なしの一律定額 | 実損積み上げ根拠を必ず開示、CLMで条項ライブラリ管理 |
+| SVコスト積み忘れ | 拡大期に本部赤字 | 継続収入カバー率の分母にSV人件費・交通費を必ず算入 |
+| 加盟店ヒアリング記録の匿名化漏れ | 個店名＋不満発言の紐付け | 本部提出前に発言を「複数店共通の声」形式に丸めるゲート |
+| Glossary金額語彙の定義差 | 税込/税抜・控除前後の不明記 | 金額系用語は3軸明記必須、1軸欠落で定義未完了 |
+| 属人化の図面固定 | 個人名の担当表記 | 完成チェックにロール名表記を必須化 |
+| 越境FCの源泉税・PE課税 | ロイヤリティ送金の税務設計欠落 | 現地法・租税条約チェックを国際案件必須フラグ |
+| データ利活用の個情法違反 | 加盟店データの本部集約 | 個人情報保護方針・同意取得フロー・匿名化基準を契約条項化 |
+| 情報開示書面の交付証跡欠如 | 「聞いていない」係争 | デジタル交付＋交付日時ログの電子保存を推奨標準化 |
+
+### 8. グローバルベンチマーク（世界TOP1%基準）
+
+- **McKinsey Franchise Practice**：Unit Economics 4層モデルによる意思決定（AUV / EBITDAR / CoC / IM）。
+- **Bain & Company Retail Franchise Practice**：NPS + NRR + Cohort分析を組み合わせた「加盟店成功指標」の定義。
+- **BCG Consumer Practice**：ドミナント戦略の統計モデル（半径×人口密度×競合密度）。
+- **Deloitte Franchise Services**：FC事業のM&A・PMI手法とロイヤリティ債権証券化。
+- **IFA（International Franchise Association）Certified Franchise Executive（CFE）**：FDD 23項目レビュー基準。
+- **Subway Global Development Team**：世界最多店舗チェーンのSVマネジメント基準（1SV=10店、月2巡回）。
+- **McDonald's Franchise Operations**：GAP（Global Accounting Practices）によるP/L統一開示。
+- **7-Eleven Japan（セブン&アイ）**：粗利分配方式（Cチャージ）の運用ノウハウ。
+- **Starbucks Coffee Company**：直営中心＋ライセンス併用の「セレクティブ・フランチャイズ」戦略。
+- **UNIDROIT Model Franchise Disclosure Law**：国際FC情報開示のゴールドスタンダード。
+- **測定基準**：以上のグローバルプレイヤーの Unit Economics 開示レベル・SV1人当たり生産性・加盟店1年離脱率・NPS を四半期ベンチマーキング。
+
+### 9. 発展可能性・成長機会（次12ヶ月ロードマップ）
+
+| 期間 | 目標 | 具体アクション |
+|---|---|---|
+| M1〜M3 | Unit Economics 4層モデル導入 | 全7クライアントのFC事業を AUV / EBITDAR / CoC / IM で再計測、ダッシュボード化 |
+| M1〜M3 | Notion Living Contract 実装 | 契約条項×Glossary×P/L変数のリレーショナルDB構築、条項変更が即P/L反映 |
+| M2〜M4 | Process Mining（Celonis）PoC | 1クライアント選定、基幹ログから業務動線可視化、ヒアリング拾い漏れ検証 |
+| M3〜M6 | Anaplan による本部×全加盟店P/L連結 | 閑散月キャッシュショート予兆10日前検知の運用開始 |
+| M4〜M6 | IFA CFE（Certified Franchise Executive）資格取得 | 米IFA認定資格の受験・合格、FDD 23項目レビュー水準の証明 |
+| M4〜M7 | 越境FC支援メニュー化 | タイ・ベトナム・インドネシア現地FC法のリサーチ完了、日系FC本部の海外展開支援を新サービス化 |
+| M5〜M8 | RPA + AI-OCR による二重入力自動化パッケージ | 紙・電話・LINE経由の重複入力を段階廃止するテンプレ完成 |
+| M6〜M9 | Balanced Scorecard 4象限FC本部KPI再構築 | 全7クライアントの本部KPIを財務偏重から4象限均等に転換 |
+| M7〜M10 | 加盟店行動経済学プレイブック公開 | 意思決定合理性を担保する情報提示順序をチーム標準化 |
+| M8〜M11 | 6σ DMAIC による業務プロセス改善プログラム | 二重入力削減の σ レベル管理（3.4 DPMO 目標）を1クライアントで達成 |
+| M9〜M12 | FC事業M&A・PMI 支援メニュー化 | ロイヤリティ債権証券化・本部売却バリュエーションを新サービス化 |
+| M10〜M12 | Living Handbook v3.0 出版準備 | FCビジネスアナリスト向け実務書を GitBook 形式で無料公開、ブランド確立 |
+
+### 10. 差別化要素（唯一無二の強み）
+
+1. **「率＆円建て手取り」両建て強制**：業界標準の「率のみ」提示を排除し、加盟店離脱率を業界平均15%→8%以下に削減する唯一の分析家。
+2. **「業務担当×エンジニア通訳」の3点セットGlossary**：業務語＋実装言い換え＋具体例を1行必須入力とするNotionテンプレで、要件定義→実装の手戻りを2週間→0日にゼロ化した唯一のBA。
+3. **「システム画面×紙帳票×電話/LINE」3レーン棚卸し**：システム外重複作業（現場重複作業の50%）を1時間ヒアリングで従来比1.6倍検出する独自メソッド。
+4. **「最閑散月キャッシュ」資金分岐点検証**：年平均P/Lの罠を排除し、季節谷での加盟店資金ショートを設計段階で防ぐ日本唯一の FC分析家。
+5. **「シート変数←→契約条項対応表」ゲート**：計算式と契約文言のズレによる加盟後初回請求係争をゼロ化する独自プロトコル。
+6. **「例外系3パターン（返品/締め跨ぎ/退店）」完成チェック**：正常系のみのTo-Be実装手戻りを構造的に排除する独自の完成定義。
+7. **法定開示書面（中小小売商業振興法）× FDD（米FTC Rule 436）× UNIDROIT Model の3層準拠**：日本法定＋米国基準＋国際規範を同時満たす日本唯一のFC契約設計家。
+8. **加盟店定義の4層細分化（直営/直接/マスター傘下/メガ傘下）**：三重報告構造の見落としをゼロ化する独自の Glossary 拡張。
+9. **「面倒・二度手間・渋々」温度感タグ×優先度3軸スコア**：オープン質問の「特になし」を打破し、改善対象を10倍濃度で抽出する質問設計。
+10. **「Living Contract（契約×Glossary×P/L）リレーショナルDB」**：条項変更が P/L計算式に即時波及する「動く契約書」を Notion で実装した日本唯一のBA。これにより契約改定〜運用反映の時間を月単位から即日に短縮。
+
+---
+

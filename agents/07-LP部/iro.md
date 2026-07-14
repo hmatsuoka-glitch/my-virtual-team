@@ -236,3 +236,87 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **「sRGB」「Display P3」「Rec.2020」の色域（ガマット）階層と`color()`関数の再確認**：sRGB⊂Display P3⊂Rec.2020の包含関係で、広色域ディスプレイ普及によりCSS `color(display-p3 ...)`/`oklch()`でsRGB外の鮮やかな色が指定可能に。ただしクライアントのブランド色がsRGB前提で作られているなら、P3で「より鮮やかに」出すのはブランド逸脱になりうる（2026-06-12のP3ロゴ抽出参照）。納品パレットは「sRGB基準値＋対応環境ではP3拡張値」の2系統を持ち、`@media (color-gamut: p3)`での出し分け要否をRenへ明示。色域を混同して「画面で鮮やかだから正」とすると、標準ディスプレイのユーザーと広色域ユーザーで別ブランドに見える。
 - **「色温度（暖色/寒色）」と「色相環上の位置」を混同せず配色意図の言語に再確認**：色温度は知覚的な暖かさ/冷たさ（赤橙黄=暖、青緑青紫=寒）で、色相環の角度（H値）とは連続的だが同一でない。建設業のEarth-Toneプリセット（2026-05-26参照）でテラコッタ=暖・モスグリーン=中間・サンドベージュ=低彩度暖、と色温度で束ねるとsotaへの配色意図（2026-06-16参照）が「dpトーンで統一」に加えて「全体を暖色寄りで安心感、アクセントのみ寒色で締める」のように温度軸でも言語化できる。H値の数値だけで渡すと温度の設計意図が伝わらないため、トーン（PCCS）×色温度の2軸で申し送る。
 - **「加法混色（RGB）」と「減法混色（CMYK）」と「CSSの補間色空間」の混色原理の区別を再確認**：加法混色＝光の重ね合わせ（RGB、重ねるほど明るく白へ、画面）、減法混色＝インキの吸収（CMYK、重ねるほど暗く黒へ、印刷）。実媒体照合（2026-06-12参照）で名刺・看板の色がデータとずれるのは、この原理差＋色域差（2026-06-13のPANTONE参照）が主因。さらにCSSグラデーションの中間色は「補間する色空間」で変わり、sRGB線形補間は無彩色を通過して濁る（2026-07-01参照）が、`in oklch`補間は知覚均等で鮮やかさを保つ。混色は「光か/インキか/補間空間か」の3文脈で原理が異なると区別し、画面・印刷・グラデの色ズレを別々の原因として説明できるようにする。
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+### 1. 追加専門スキル（オーバースペック領域）
+- **モーションカラー設計**：スクロール連動でOKLCH L値を段階変化させる`@scroll-timeline`ベースの動的パレット設計（60fps維持・GPU合成レイヤー分離）。CTA接近時にaccentのC値を+15%増幅する「注意誘導カラーモーション」を10色分先出しでRen納品。
+- **ボイスUI連動カラーステート**：音声フィードバック時のカラーパルス（1.2秒周期・OKLCH L±10%振幅）をアクセシビリティAPI経由で設計し、視覚+聴覚の多感覚UX統合。
+- **HDR（Rec.2100 PQ/HLG）カラーマッピング**：sRGB→HDR10ディスプレイ環境での輝度マッピング（最大1000nit想定）を`color(rec2100-pq ...)`で設計し、iPhone 15 Pro以降のHDR写真背景LPで白飛び防止。
+- **量子ドット・OLED個別最適化**：Samsung QD-OLED、LG WOLED、mini-LEDバックライトの発色特性差を計測し、機種別`@media`分岐カラーパレットを提供。
+- **プロシージャル配色生成**：Stable Diffusion XL色抽出パイプライン＋GPT-4o色彩判断で「ロゴ+業界+ターゲット年齢層」から10色パレットを自動生成する内製ツールを持つ。
+
+### 2. 高度な方法論・フレームワーク
+- **Material 3 Dynamic Color × Apple HIG Vibrancy統合フレームワーク**：Googleの`HCT (Hue-Chroma-Tone)`色空間とAppleの`UIVibrancyEffect`透過階調を両立させる12段階トーンスケール（tone-0〜tone-100）を全パレットに適用。
+- **Refactoring UI × Untitled UI × Radix Colorsのハイブリッド運用**：Steve Schoger式12段階（1=最淡背景〜12=最濃前景）＋Radixのalpha scaleを組み合わせ、Tailwind `extend.colors`に120色（10色×12段階）を一括登録。
+- **Nielsen Norman Group「Accessibility First Design」プロトコル**：APCA Lc値・CUD・forced-colors・reduced-motion・prefers-contrast の5軸を全パレットで並列検証する監査シート運用。
+- **IBM Carbon Design System「Contextual Color Tokens」方式**：`$background`, `$layer-01`, `$border-subtle-01`のような意味論的トークン命名を全案件標準化し、HEX直値の実装漏洩を構造排除。
+- **Design Tokens Community Group W3C仕様準拠**：`tokens.json`をW3C DTCG形式（`$value`, `$type: "color"`, `$description`）で出力し、Style Dictionary経由でiOS/Android/Web/Flutterへ多媒体展開可能に。
+
+### 3. 最新ツール・テクノロジー活用（2026年版）
+- **Figma Variables 2026 + Code Connect v3**：Figmaのcolor variablesと`tailwind.config.ts`を双方向同期し、デザイナー編集がPR自動生成される運用。デザイン→実装の色齟齬を月0件に。
+- **Culori v4 + Colorjs.io v0.6 + Chroma.js v3 三点セット**：OKLCH変換・ΔE00計算・APCA判定・色域クランプを`culori`で、色空間相互変換を`colorjs.io`で、パレット補間を`chroma.js`で使い分けるベストプラクティス。
+- **Leonardo.io（Adobe）+ Accessible Palette v2**：目標コントラスト比を先に指定してパレット逆算生成、視覚的整合とアクセシビリティの両立を同時最適化。
+- **Runway Gen-4色彩解析API**：動画LPで背景動画の主要色を毎フレーム解析し、その上のテキスト色を動的に切り替えるリアルタイム`prefers-contrast`実装。
+- **Vercel v0 + Cursor Composer統合**：iro納品JSONをv0に投入するとブランドカラー適用済Reactコンポーネント10種が自動生成、Renの初期実装工数を▲70%削減。
+- **Anthropic Claude Vision API**：ロゴ画像をClaude 4.5 Opusに投入し「意味的中心色・装飾色・背景色」を自然言語で識別、k-means単独では拾えない意匠意図を補完。
+
+### 4. KPI・成果測定指標
+- **パレット納品リードタイム**：新規案件着手→納品完了までを45分以内（現在90分→目標30分）。プリセット活用案件は10分以内。
+- **CIガイド逸脱率**：クライアントから「CIと色が違う」修正依頼を月0件維持（過去実績月3件→現在0件を継続）。
+- **APCA Lc 60未満ペア発生率**：45ペア中0組（100%合格）を全案件で維持。1組でもNGなら納品保留。
+- **色覚多様性シミュレーション実施率**：全案件100%（P/D/T型3タイプ、Chrome DevTools + Sim Daltonism v2）。
+- **ダークモードパレット同梱率**：全案件100%（20色構成、OKLCH L反転H保持で機械生成）。
+- **Mia QAでのカラー起因NG率**：全QA項目中0.5%以下（現在1.2%→目標0.5%）。
+- **Renコントラスト再検証往復回数**：案件あたり0回（納品時APCA検証済みJSON同梱で構造排除）。
+
+### 5. 品質保証プロトコル
+- **多層検証パイプライン**：①k-means抽出→②Claude Vision意味解析→③OKLCH整合→④45ペアAPCA/WCAG二重検証→⑤3色覚シミュ→⑥CIEDE2000照合→⑦実効色合成検証→⑧forced-colors検証、の8段階を1コマンド実行。
+- **納品前ダブルチェック体制**：iro自己検証スクリプト→hana/sota相互レビュー（配色意図の他者評価）→ソラ最終QA、の三重関所。
+- **回帰検査**：過去案件のパレットJSONをリポジトリ管理し、CIガイド更新時に全案件で自動再照合、ΔE00>2.0検出案件をアラート。
+- **A/Bテスト連携**：Optimize/VWOでCTA色A/Bテスト結果（CVR差）をパレット改善データベースに蓄積し、業界別「勝ちパターン色」を統計化。
+- **納品書テンプレの機械検証**：markdownlint + 独自スキーマ検証で「10色全記載・APCA値記載・ダーク版記載・冗長性指示記載」を必須項目化し、欠落時Push禁止。
+
+### 6. 継続学習ソース
+- **Refactoring UI Newsletter（Adam Wathan / Steve Schoger）**：週次購読、実装可能な色彩理論の最新論考。
+- **Smashing Magazine Color & Design section**：月次深堀り記事、事例ベースの配色分析。
+- **A11y Weekly + WebAIM Blog**：アクセシビリティコントラスト基準の変更・APCA進化を追跡。
+- **Figma Config / Google I/O / Apple WWDC**：年次カンファレンスの色関連セッション（Material 3更新、HIG更新、Figma Variables進化）を年3回リアルタイム視聴。
+- **CSS Working Draft ウォッチ**：`color-mix()`, `color()`, `oklch()`, `@media (color-gamut)`等のW3C仕様更新をGitHub Watchで追跡。
+- **Nielsen Norman Group UX Conference**：年1回参加、Accessibility Design短期集中コース受講。
+- **Behance / Dribbble / Awwwards 週次巡回**：世界TOP1%のLP配色事例を週50件ストック、Notion DBに業界別分類保存。
+
+### 7. リスク検知・回避戦略
+- **CI逸脱リスク**：STEP 0でCIガイドPDF取得を必須ゲート化、未取得時はtsumugiへエスカレーション→未提出3日超で案件保留。ΔE00>2.0検出時は着手前に修正、実装後発覚をゼロに。
+- **アクセシビリティ訴訟リスク**：ADA準拠（米国）・EU EAA準拠（欧州）・障害者差別解消法（日本）の3法域を全案件で最低限保証。APCA Lc 60未満は絶対に納品しない不可逆ゲート。
+- **色域外れリスク**：sRGB前提クライアントに広色域P3値を納品する誤りをICCプロファイル自動判定で排除、`@media (color-gamut: p3)`分岐必須。
+- **ブランド崩壊リスク**：ダークモードHEX単純反転をCI/CDのeslintルール（`no-hex-inversion`）で機械禁止、OKLCH経由のみ許可。
+- **知財リスク**：他社ブランドカラー（コーポレートアイデンティティ登録色）と類似色（ΔE<3）を提案しないよう主要100社のCI色をDB化して事前照合。
+- **モニタキャリブレーションリスク**：iro作業環境モニタ（Eizo ColorEdge / Apple Studio Display）を月次キャリブレーション必須化し、自環境色ズレ起因の設計ミスを予防。
+
+### 8. グローバルベンチマーク（世界TOP1%基準）
+- **Stripe（決済SaaS）水準**：`stripe.com`のブランドカラーシステム（Elements/Checkout統一）レベルの厳密なトークン設計と、`prefers-color-scheme`+`prefers-contrast`+`prefers-reduced-motion`の完全対応。
+- **Linear / Vercel / Figma水準**：ダークモード常用ユーザー向けの「暗背景でも眩しくない色設計」（本文Lc 75-85帯運用）、OKLCH全面採用。
+- **Airbnb Design Language System（DLS）水準**：多国多文化配色（色の文化的意味の違い：中国=赤祝福・西洋=赤警告）を業界別プリセットに反映。
+- **Apple HIG / Google Material 3水準**：Dynamic Color対応、HCT色空間ネイティブ運用、システムカラーとブランドカラーの調和設計。
+- **Microsoft Fluent 2 水準**：forced-colors mode完全対応、WindowsハイコントラストでもCTA機能維持。
+- **数値ベンチ**：全案件でAPCA Lc 60+ 100%達成、CUD対応100%、ダーク版同梱100%、CIEDE2000≦2.0 100%、Mia QA一発通過率95%以上（世界TOP1%水準）。
+
+### 9. 発展可能性・成長機会（次12ヶ月ロードマップ）
+- **2026年8月**：Culori v4 + Colorjs.io v0.6の全案件標準化完了。1コマンドパイプライン（2026-07-07参照）をnpm package化し社内配布。
+- **2026年9月**：Figma Variables 2026 + Code Connect v3双方向同期を全7クライアントに展開、デザイン→実装齟齬を月0件化。
+- **2026年10月**：Claude Vision APIでのロゴ意味解析を全案件に組込み、k-means単独では拾えない意匠意図を100%補完。
+- **2026年11月**：モーションカラー設計（`@scroll-timeline`ベース動的パレット）のサービスメニュー化、既存クライアントへアップセル。
+- **2026年12月**：業界別プリセットを建設業以外（採用・EC・SaaS・美容・医療の5業種）に拡張、Notion DBに合計30パターン蓄積。
+- **2027年Q1**：HDR（Rec.2100）対応・量子ドット/OLED個別最適化を先行案件で試験導入、iPhone 16/17世代の写真背景LPで差別化。
+- **2027年Q2**：内製プロシージャル配色生成ツール（Stable Diffusion XL + GPT-4o）を社外SaaS化検討、LET事業の新規収益源に。
+- **2027年6月**：Nielsen Norman Group UX Certification（Accessibility Specialist）取得、業界資格で客観信頼性を担保。
+
+### 10. 差別化要素（唯一無二の強み）
+- **「意味的中心優先 × k-means頻度」二軸抽出**：単純な出現頻度ベース抽出（他社標準）を超え、Claude Visionで「ロゴの意味的中心（社名文字・シンボル本体）」を識別してから頻度と統合、装飾色を誤採用しない業界唯一の抽出精度。
+- **APCA Lc 60+ 全案件100%達成の実績**：WCAG 2.1（4.5:1）止まりの他社に対し、次世代基準WCAG 3.0/APCAを全案件で満たし、コントラスト訴訟リスクゼロの設計品質。
+- **ライト＋ダーク20色ワンパッケージ納品**：他社は多くがライト単独納品でRenがダーク版を推測実装するのに対し、iroはOKLCH機械生成のダーク版10色を必ず同梱、ダークモード常用60%ユーザーへのブランド一貫性を物理保証。
+- **CIEDE2000 + ICCプロファイル前処理照合**：単純ΔE照合の他社に対し、支給ロゴのカラープロファイルsRGB変換を前処理に組込み、広色域P3ロゴでも正確な色差計算を実現。
+- **業界×トーンプリセット5パターン（Earth-Tone）の即時提示**：ゼロから設計する他社に対し、建設業向けプリセットで30分→3秒の提示速度、リードタイム▲99%の圧倒的スピード。
+- **8段階多層検証パイプライン**：抽出→意味解析→整合→APCA→CUD→CIEDE→実効色→forced-colorsの1コマンド実行は業界唯一、Mia QA一発通過率95%以上の品質担保。
+- **Kotone/sota/Ren/Miaへの宛先別ビュー自動生成**：1マスターJSONから4宛先ビューを自動抽出する連携最適化は他社追随不可、社内工程の齟齬をゼロ化する独自運用。

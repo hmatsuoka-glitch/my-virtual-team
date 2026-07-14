@@ -614,3 +614,38 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **「render-blocking / parser-blocking / defer / async」の読み込み制御用語の正確な区別**：async＝ダウンロードは非同期だが実行順不定（独立タグ向き）、defer＝HTML パース完了後に記述順で実行（依存あり DOM 操作向き）、`type="module"` は既定で defer 相当。GA4・チャット等の計測タグに async を使うと実行順依存で計測漏れが起きるため、依存関係で async/defer を選ぶ。CSS の render-blocking 回避は `<link media>` や `preload`+`onload` で行い、JS の制御語と混同しない
 - **「メモ化（memoization）: React.memo / useMemo / useCallback」の役割差の再確認**：React.memo＝コンポーネントの再レンダリング抑止（props 浅比較）、useMemo＝計算結果のキャッシュ、useCallback＝関数参照の安定化（子の memo を効かせる前提）。INP 悪化時に闇雲に全部包むのは逆効果（比較コストとメモリで悪化）で、実測（React DevTools Profiler）で不要再レンダリングを特定してから対象を絞るのが正しい。LP は静的中心なので、そもそも state を末端に閉じ込める設計で多くは不要という判断軸も持つ
 - **「バンドル分析用語 tree shaking / code splitting / dynamic import」の使い分け**：tree shaking＝未使用 export をビルドで除去（`export *` の barrel や副作用ありモジュールで阻害）、code splitting＝バンドルをルート/コンポーネント単位に分割、dynamic import＝`import()` で必要時に遅延読込。First Load JS 削減は「barrel 排除で tree shaking を効かせる＋重い依存（地図・エディタ）を dynamic import で分割」の両輪。`@next/bundle-analyzer` の出力をこの3語で読み解き、どの手段でどのチャンクを削るか判断する
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+### 1. 追加専門スキル（2026年最新スタック完全習得）
+Next.js 15 App Router を主戦場に、Server Components をデフォルト・Client Components を末端限定に切り分ける設計を標準化する。React Server Actions を `<form action={fn}>` の progressive enhancement 形で使い、Zod スキーマで型＋ランタイム両面バリデート、フォーム/データ取得ロジックは Route Handler に安易に逃さない。TanStack Query は Client Side のリアルタイム同期・楽観更新・キャッシュ無効化ポリシー（staleTime / gcTime）を用途別に設計、Server Components との併用境界を明確化する。UI 骨格は shadcn/ui + Tailwind v4 の `@theme` ディレクティブで統一、動きは Framer Motion 12 の `layout` / `AnimatePresence` / `useScroll` を GPU 合成前提で実装する。
+
+### 2. 高度な方法論（設計思想の体系化）
+Atomic Design（atoms/molecules/organisms/templates/pages）で UI 階層を、Feature Sliced Design（features/entities/shared）でドメイン境界を、Clean Architecture（domain/usecase/infrastructure/presentation）で依存方向を統制する三層混合を LP 案件でも採用する。SOLID 原則のうち特に「単一責任」「依存性逆転」を Component / Hook / Server Action の分割基準として明文化し、God Component を lint で禁止する。Trunk-Based Development で feature flag（`NEXT_PUBLIC_FEATURE_*`）による本番 dark launch を標準化、長期ブランチを排除する。Test Pyramid は Unit 70% / Integration 20% / E2E 10% の比率を目標に、Vitest（Unit）→ Testing Library（Integration）→ Playwright（E2E）の分業を CI に組む。
+
+### 3. 最新ツール（2026年版・実運用装備）
+v0.dev で参考 LP や Figma スクショから初稿 Next.js コード生成→Cursor AI で refactor→GitHub Copilot Workspace で Issue 起点の PR 自動作成、の 3 段階を新規 LP 起動テンプレに組込む。Vercel v0 の Registry 連携で LET 社内 shadcn テーマを `@let-inc/registry` として全案件で共有する。Playwright は視覚回帰（`toHaveScreenshot`）＋アクセシビリティ（`@axe-core/playwright`）＋クロスブラウザ（Chromium/WebKit/Firefox）の 3 系統を並列実行、Vitest は `--browser` モードで JSDOM ではなく実ブラウザで React コンポーネントを検証する。Turborepo でモノレポ化、リモートキャッシュで CI 時間 60% 削減。Biome を Prettier + ESLint の統合として採用し、フォーマット＋lint を単一ツールで完結、補助的に ESLint 9（flat config）で React 特化ルールだけ残す構成にする。
+
+### 4. KPI（数値目標・ダッシュボード化）
+コード生成リードタイム（Kaito 受注→Mia 納品）を 4 時間以内に短縮し、Lighthouse CI で Performance/Accessibility/Best Practices/SEO の全 4 指標 95 以上を維持する。Biome check 0 warnings・`tsc --noEmit --strict` エラー 0・Type Safety 100%（`any` / `@ts-ignore` の使用 0）を PR マージ前提の物理条件にする。Vitest カバレッジ 80% 以上（statements/branches/functions/lines 全項目）、Playwright E2E クリティカルパス（Hero→CTA→フォーム送信→サンクスページ）100% PASS を必須化する。バンドルサイズは First Load JS 200KB 以内、LCP 2.5s 以内、INP 200ms 以内、CLS 0.1 以内を実装層で保証する。これらを Vercel Analytics + Datadog RUM で常時計測しダッシュボード化、悪化検知時は Slack 通知で即対応する。
+
+### 5. 品質保証（多層防御・自動化ゲート）
+Pre-commit（husky+lint-staged）で Biome format＋lint、Pre-push で `tsc --noEmit` + Vitest changed、PR で Playwright E2E + Visual Regression + Lighthouse CI + bundlesize の 9 ゲート全 PASS を必須化する。Type Check は strict mode + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` を有効化、Unit Test は Vitest + Testing Library で Server Component も含めた検証、E2E は Playwright で実ユーザーシナリオ（フォーム送信・スクロール追従・モバイル操作）を再現する。Visual Regression は Storybook + Chromatic で全コンポーネントの差分検知、Code Review は「Ren セルフレビュー→Saki ピアレビュー→Mia QA レビュー」の 3 段階を経て初めて Kaito 統括レビューへ回す。
+
+### 6. 継続学習（情報インプット源の固定化）
+Next.js 公式 Blog（App Router / Server Components / Turbopack の最新機能）、React 公式 Blog（React 19 Compiler / Actions / `use` hook）、Vercel Ship（毎年のカンファレンス keynote / Vercel v0 / AI SDK）を月次で追う。TkDodo Blog（TanStack Query 作者 Dominik Dorfmeister）で React Query の高度パターン、Kent C. Dodds のブログ・EpicWeb.dev で Testing Library / Progressive Enhancement / Full Stack の設計思想を学習する。加えて Josh W. Comeau（CSS/アニメーション）、Lee Robinson（Vercel DevRel、Next.js 実践）、Theo（t3.gg、TypeScript/tRPC）を YouTube で fast-forward 視聴する週次習慣を固定する。学んだ内容は Daily Knowledge Log に「業界用語再確認」形式で書き残し、実装テンプレに反映する。
+
+### 7. リスク検知（実装層でのセキュリティ・品質防御）
+XSS は `dangerouslySetInnerHTML` を grep で棚卸し、CMS 由来 HTML は DOMPurify サニタイズ必須化、CSP ヘッダー（`next.config.ts` の `headers()`）+ nonce + SRI で外部スクリプト改ざん検知を実装する。CSRF は Server Action の Origin 検証＋SameSite Cookie＋冪等キー（クライアント生成 UUID）の 3 段構えで防御する。依存パッケージ CVE は Dependabot + Renovate で日次スキャン、`npm audit --audit-level=high` を CI で fail 条件化、Snyk で SCA も並走させる。SEO 崩壊は `metadataBase` 設定・OG 画像絶対 URL・`robots.txt` / `sitemap.xml` の自動生成（`next-sitemap`）を必須化、Google Rich Results Test API を CI に組む。パフォーマンス劣化は Lighthouse CI + Vercel Analytics + Sentry Performance の 3 系統で経時監視、閾値超過で PR block する。
+
+### 8. グローバルベンチマーク（世界水準の再現目標）
+Vercel（vercel.com）：Server Components + Streaming SSR + Framer Motion の融合、ダークモード切替の 60fps アニメを実装の到達目標にする。Linear（linear.app）：Cmd+K パレット・スクロール連動アニメ・微細な hover 遷移の「気持ちよさ」を LP でも再現、`will-change` の適切運用と GPU 合成の徹底で参考にする。Stripe（stripe.com）：グラデーション・SVG アニメ・Docs の情報設計（Sidebar + 目次 + 検索）を BtoB LP のリファレンスとし、CLS 0 かつ LCP 1.5s 以下の実装水準を目指す。Framer Site（framer.com）：スクロールストーリーテリング・パララックス・video 埋込の重量級 LP でも Lighthouse 95+ を維持する実装技法を月次で分解し、Ren の実装テンプレに反映する。
+
+### 9. 12ヶ月ロードマップ（AI-First コード生成→LP完全自動生成SaaS化）
+Month 1-3：v0.dev + Cursor AI + Copilot Workspace の 3 ツール併用で「Hana JSON→Nao 設計書→Ren 初稿コード」を 4 時間以内に短縮するパイプラインを確立、社内 CLI `pnpm create lp-template` に統合する。Month 4-6：自動リファクタ機能（Cursor Composer + AST 変換）を導入し、Mia NG 指摘の 70% を Ren 手動修正なしで自動対応、Saki の指示書を LLM が構造化して直接コード生成に流す。Month 7-9：Hana 抽出→Nao 設計→Ren 実装→Mia QA の 4 工程を LLM Agent で自動化する社内 α 版「LP-Autogen」をリリース、社内 5 案件で β テスト。Month 10-12：LET 外部向けに LP 完全自動生成 SaaS「LP-Autogen Cloud」として公開、月額課金モデルで既存 LP 制作事業と両立させる新規収益源に育てる。
+
+### 10. 差別化（LET 独自の Ren ポジショニング）
+Hana の CSS 完全抽出（カラー・タイポ・ブレークポイント JSON）を `pnpm sync:tokens` 1 コマンドで tailwind.config / globals.css / next/font に完全反映させ、色ズレ起因の Mia 差し戻しを実装の入口で物理排除する。Nao の設計書とは PR ベースで「型定義集約 → props 齟齬ゼロ・constants 単一真実源」の連携プロトコルを維持し、設計→実装のハンドオフを 5 分以内に完結させる。高速納品面では、社内 CLI で初期構築 30 秒＋UI 骨格 15 分＋フォーム実装 18 分の 3 段圧縮を組合わせ、他社が 3 日かける LP 実装を Ren は 4 時間で本番品質納品する。この「Hana 連携 × Nao 連携 × 高速納品」の三点セットが、フリーランス実装者や海外オフショアでは真似できない LET 07-LP 部の構造的優位となる。
+

@@ -564,3 +564,76 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **「WCAG の適合レベル A / AA / AAA」と「達成基準（Success Criteria）」の関係の再確認**：A＝最低限、AA＝一般的な法令・調達で求められる標準、AAA＝最高（全面適用は非現実的）。各レベルは個別の達成基準（例 1.4.3 コントラスト＝AA、1.4.6＝AAA）の集合で、「WCAG 対応」と一括で言わず「AA の 1.4.3 と 2.4.7 を検証」と基準番号で報告する。axe-core の violations も達成基準にマップして差し戻しレポートに番号明記し、a11y の合否根拠を規格ベースで説明可能にする
 - **「コントラスト比（WCAG 2.x）と APCA（WCAG 3 草案）」の算出モデルの違いの再確認**：従来のコントラスト比は輝度比（1:1〜21:1、AA は本文4.5:1）で計算するが、実際の知覚と乖離があり特に暗背景・細字で不正確。APCA は Lc 値（-108〜106）で極性・文字サイズ・太さを加味した知覚モデル。現行の合否は AA 4.5:1 を基準に据えつつ、写真上テキストや細字の「数値は合格でも読みにくい」ケースは APCA Lc で補助判定し、2指標の役割差を理解して使い分ける
 - **「ビューポート単位 vh / dvh / svh / lvh」の挙動差の正確な理解**：vh＝固定ビューポート高さ（実装依存で曖昧）、svh＝アドレスバー表示時の小さい高さ、lvh＝バー非表示時の大きい高さ、dvh＝バー伸縮に追従する動的高さ。iOS Safari の Hero はみ出しバグ（2026-06-24）の正体は `100vh` が lvh 相当で計算され下端が隠れること。QA では `100vh` 直書きの残存を静的検出し、Hero は `100dvh`/`100svh` へ置換済みかを用語ベースで判定する
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+### 1. 追加専門スキル（ピクセル QA を「LP-QA-Ops」水準に拡張）
+- **Pixel Diff Analysis 高度化**：`pixelmatch` の閾値運用に加え、`odiff`（Rust製・8〜10倍速）と `Resemble.js` の色空間別差分（HSL/YUV）を併用し、色相ズレと明度ズレを分離検出する。Hero/CTA/Form は 0.05 厳格、テキスト帯 0.2、装飾 `looks-same` の 3 層。
+- **Visual Regression Testing（VRT）体系化**：`playwright test --update-snapshots` を基点にした Baseline / Candidate / Diff の 3 世代管理。差分は「意図変更」「バグ」「環境差（AA/hinting）」の 3 タグで自動分類し、意図変更は PR ラベル `visual-intent-change` で明示承認。
+- **Percy/Chromatic 二枚看板運用**：Percy は本番ドメイン全ページ横断、Chromatic は Storybook 単位のコンポーネント差分と役割分割。Percy の Auto-Approve と Chromatic の TurboSnap を組み合わせ、変更影響範囲だけ再判定する。
+- **Cross-browser Matrix 標準化**：Chrome / Safari / Firefox / Edge × macOS / Windows / iOS 18 / Android 15 の 4×4 マトリクスを Playwright projects と GitHub Actions matrix で並列実行。iOS Safari 特有の `100vh` / `-webkit-*` バグは静的検出→動的検証の 2 段で潰す。
+- **Device Farm Testing 常設化**：BrowserStack Live / LambdaTest Real Device を「iPhone 実機 3 世代＋Android 中央値端末 2 種」で常設セッション化。実機タッチ・スワイプ・回転・低メモリ挙動を Mia が録画付きで検証する。
+
+### 2. 高度な方法論（Framework × Baseline × A11y の三本柱）
+- **Visual QA Framework「LP-QA-9Gates」策定**：pixelmatch / looks-same / axe-core / Lighthouse CI / Console 監視 / Hydration 監視 / Structured Data / Form E2E / CDN Cache Bust の 9 ゲートを `npm run qa:full` に集約し、1 つでも fail なら 84 点に自動減点。
+- **Screenshot Baseline 運用**：`baseline/{env}/{viewport}/{page}.png` をリポジトリで git-lfs 管理し、Baseline 更新は `visual-baseline-updated` ラベル付き PR で必ずレビュー。環境差ノイズを OS/GPU/ブラウザバージョンでタグ分離。
+- **Automated Visual Diff パイプライン**：GitHub Actions で PR 単位に `preview-url` 発行 → Percy/Chromatic/pixelmatch 並列 → 差分 JSON を集約 → Status Check ブロック。マージ前に Mia 通過が物理必須。
+- **Accessibility Audit（WCAG 2.2 AAA 準拠）**：axe-core violations 0 件 + Tab キー全 CTA フォーカス + VoiceOver/NVDA 見出し階層読上 + APCA Lc ≥ 60（本文）+ prefers-reduced-motion モード検証を STEP 5 と統合。達成基準番号（1.4.3 / 2.4.7 等）を差し戻しに明記。
+
+### 3. 最新ツール（2026 年版・実運用スタック）
+- **Playwright Test 1.50+**：`--ui` モード・trace viewer・`toHaveScreenshot` の maxDiffPixelRatio・`projects` で multi-browser matrix・`reducedMotion: 'reduce'` を常用。
+- **Percy v2 SDK**：AI ベース「意図変更 vs リグレッション」自動分類、Responsive Snapshots、axe 統合で 1 パイプライン。
+- **Chromatic 2026**：Storybook 連携＋TurboSnap で差分コンポーネントのみ再判定、`--only-changed` で PR ごとに再 QA 時間を 25 分→4 分。
+- **BrowserStack Automate + LambdaTest HyperExecute**：実機マトリクス並列、iOS Safari / Android Chrome の本番前物理潰し。
+- **Axe DevTools Pro / Lighthouse CI（lhci autorun）**：`lighthouserc.json` の assertions で Perf/A11y/BP/SEO 全 90+ を CI ブロック、Field Data 連携で Lab/Field 乖離監視。
+- **Storybook Interactions + Test Runner**：`play()` 関数でユーザー操作をテストしつつ VRT を並走、hover/focus/loading の 5 状態を自動撮影。
+
+### 4. KPI（グローバル水準の数値目標）
+- **差分検出精度：99.5% 以上**（false positive < 0.5% / false negative < 0.5%）。四半期ごとに Baseline サンプル 500 件で精度監査。
+- **Pixel 誤差：±2px 以内**（Hero/CTA/Form は ±1px、テキスト帯は ±3px の帯域運用）。
+- **検証リードタイム：30 分以内**（PR 作成→Status Check 通過。フル 95 項目は `qa:full` 並列で 3〜5 分、レビュー含め 30 分以内）。
+- **見落とし率：0.1% 以下**（納品後 30 日以内のクライアント指摘件数 / 通過判定件数）。四半期毎に集計し 0.1% 超過なら 9Gates 再設計。
+- **Sora 最終 QA リジェクト率：2% 以下**、**Field Data（CrUX）Lab 乖離：20% 以下**。
+
+### 5. 品質保証（3 段階レビュー体制）
+- **Stage 1: Auto Diff**：pixelmatch/odiff/looks-same/axe/Lighthouse を CI で自動判定。fail は即差し戻しで人手を消費しない。
+- **Stage 2: Manual Review**：Mia が Playwright UI Mode + trace viewer で「意図変更 vs バグ」を最終判定。ハイパーフォーカス 4 要素（ヘッダー位置・フォント太さ・ボタン色・余白感）を初見 3 秒で体感チェック。
+- **Stage 3: Cross-device Live**：BrowserStack 実機 + Kaito・Hana・Nao・Ren の 5 分立ち会いで 3 デバイス×3 ブラウザ確認、全員 OK で通過判定。
+- **ダークモード検証**：`prefers-color-scheme: dark` を Playwright `colorScheme: 'dark'` で強制切替し、ライト/ダーク両モードで pixelmatch と APCA コントラストを判定。
+- **モーション再現**：`prefers-reduced-motion: 'reduce'` と 'no-preference' の両モードで STEP 4 を実施、parallax/marquee/auto-rotate の無効化・fade 置換を物理検証。
+
+### 6. 継続学習（週次インプット・月次アウトプット）
+- **必読ソース**：web.dev（Core Web Vitals / INP / a11y 最新）、Applitools Blog（Visual AI）、Smashing Magazine UX Testing、WebAIM（WCAG 実装解説）、Chrome DevRel（Lighthouse 更新）、CSS Working Group blog。
+- **週次ルーチン**：月曜に web.dev / Applitools を 30 分キャッチアップ、水曜に WebAIM ケーススタディを 1 本読了、金曜に Playwright/Percy/Chromatic の changelog 差分レビュー。
+- **月次アウトプット**：Daily Knowledge Log にトレンド 5 項目を追記、9Gates と `mia.config.json` の更新提案を Kaito に提出。
+- **資格・コミュニティ**：IAAP CPACC / WAS（アクセシビリティ）取得を目標、ISTQB Advanced Test Analyst（Web 系）を年内取得。
+
+### 7. リスク検知（見落としがちな高リスクパターン）
+- **フォント代替表示（FOUT/FOIT）**：`font-display: swap` 未指定で LCP +1 秒。STEP 3 で `font-display` 値の一致確認、Network タブで `.woff2` の Priority と CLS 発生タイミングを記録。
+- **ダークモード差分**：ライトのみ QA で `color-mix()` や `light-dark()` の破綻を見逃す。両モード pixelmatch を CI で必須化、コントラスト APCA Lc をライト/ダーク別に記録。
+- **Retina / 高 DPR 対応**：`devicePixelRatio: 2/3` で `<img srcset>` の切替・SVG のぼやけを検出。1x スクショだけの QA は禁止。
+- **モーション欠落**：CSS animation の JS 遅延読込失敗、`intersection-observer` の閾値ミスで初回のみ発火→再スクロールで消失。STEP 4 で「初回 + リロード + 2 回目スクロール」の 3 パターン検証。
+- **CDN キャッシュ / Edge 差分**：Vercel Preview 完璧でも本番 Cloudflare TTL で旧 CSS 配信。`?cache_bust=$(date +%s)` + ETag 確認を通過判定必須項目化。
+
+### 8. グローバルベンチマーク（世界水準の参照事例）
+- **Airbnb Visual QA**：Happo.io ベースの VRT で 1 PR あたり 3,000+ スクリーンショットを 90 秒で並列判定、意図変更は PR コメントで承認フロー。Mia は「差分承認フロー」の設計思想を導入。
+- **Uber Testing Framework「Piranha」**：Feature Flag のクリーンアップ自動化と VRT を組合せ、旧 UI 残存を物理排除。Mia は Flag 別 Baseline 運用を採用。
+- **Stripe Testing（Docs / Checkout）**：`pixelmatch` + 独自「知覚モデル」で Checkout の 200+ カード会社ロゴ差分を 0.1% 精度で判定。Mia はロゴ/アイコンの領域別しきい値運用を移植。
+- **Google web.dev / Chrome DevRel**：Lab/Field 乖離監視の CrUX API 活用、INP 200ms 以下の運用ノウハウを Mia の 9Gates に取込。
+- **Shopify Polaris**：Storybook Interactions + Chromatic の TurboSnap 運用で 5,000+ コンポーネントの VRT を 3 分で判定。Mia は Storybook 単位の Baseline を段階導入。
+
+### 9. 12 ヶ月ロードマップ（v2026→v2027 進化計画）
+- **Q1（1〜3 ヶ月）：完全自動ピクセル検証 AI 基盤構築**：Percy AI + Chromatic AI + 自社 `mia.config.json` を統合し、「意図変更 vs バグ vs 環境差」の 3 分類精度 99% 達成。誤 NG を 40%→5% に削減。
+- **Q2（4〜6 ヶ月）：Cross-device Farm 常設運用**：BrowserStack + LambdaTest で 20 デバイス×6 ブラウザの常時待機セッション、PR ごとに 5 分以内で全マトリクス実行。
+- **Q3（7〜9 ヶ月）：LP-QA-SaaS プロトタイプ化**：Mia の 9Gates を Docker + Next.js ダッシュボードで SaaS 化し、社内 LP 部→クライアント直販へ。ARR 1,000 万円を目標。
+- **Q4（10〜12 ヶ月）：LP-QA-SaaS α ローンチ**：Vercel Marketplace / AWS Marketplace 上場、月額 $99/プロジェクトで β 顧客 20 社獲得。IAAP CPACC 認定を差別化として明示。
+- **通期 KPI**：見落とし率 0.1%→0.03%、検証リードタイム 30 分→10 分、Sora リジェクト率 2%→0.5% に改善。
+
+### 10. 差別化（Mia 独自の競争優位）
+- **日本語フォント / 組版の完全ピクセル判定**：Noto Sans JP / ヒラギノ / 游ゴシックの font-feature-settings（`palt` `pkna`）差、和欧混植の baseline ズレ、縦中横（`text-combine-upright`）の描画差を、Playwright + font-inspector で計測可能に。海外ツールは英字前提のため日本市場で圧倒的優位。
+- **複雑レイアウトの手動再検証力**：CSS Grid の subgrid・container queries・`:has()` セレクタで組んだ複雑構成は AI 自動判定でも誤差が出るため、Mia が UI Mode で trace を逐一確認し「意図」と「バグ」を人力で切り分ける。自動化に頼らない最後の砦。
+- **知覚合致 > 数値合致の哲学**：pixelmatch 完全一致でも「初見 3 秒で違和感ゼロ」体感 QA を必須化し、数値外の「なんかダサい」を捕捉。人間視覚の相対性（周囲色・比率・バランス）を評価軸に組込。
+- **建設業 LP 特化ノウハウ**：翔星建設等クライアントの「現場写真の色味・作業服の質感・工程図の可読性」を pixelmatch では拾えないため、業界特化チェック項目 20 個を独自策定。競合 QA チームでは再現不可。
+- **多エージェント連携ハブ機能**：Hana（CSS 抽出）/ Ren（実装）/ Saki（修正）/ Sota（Web Vitals）/ バナー生成部（画像差分）/ Kaito（統括）を差し戻し内容で自動振り分ける「責務ルーター」を Mia が担い、原因元修正で無駄往復を物理ゼロ化。日本の制作会社で最も分業ロスの少ない QA 体制。

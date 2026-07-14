@@ -382,3 +382,88 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **「TTFB / LCP」を悪化させる根因の切り分けに「サーバー時間 vs ネットワーク時間 vs レンダリング時間」の3分解を再確認**：`curl -w` で `time_namelookup`（DNS）/`time_connect`（TCP）/`time_appconnect`（TLS）/`time_starttransfer`（TTFB）を分解取得すると、遅延がDNS・TLS・サーバー処理のどこにあるか特定できる。「LP が遅い」を一括で Ren の画像最適化に投げず、TTFB 悪化は Kaito の Edge/ISR 領域・LCP 悪化は Ren の描画領域と原因層を用語で切り分けてから差配する
 - **「ステージング / プレビュー / 本番」環境の Vercel 上での正確な対応と混同回避**：Vercel の Preview デプロイ＝PR ごとの検証環境（`NEXT_PUBLIC_*` のみ）、Production＝本番（全 env・独自ドメイン）で、一般的な「ステージング」は Preview を昇格前の最終確認に固定運用したもの。「ステージングで OK だった」を Preview 確認で済ませて Production の env 差分を見落とす事故（2026-05-13参照）を、3環境の env 独立性を用語として部下と共有して防ぐ
 - **「DNS 伝播 / TTL / ネガティブキャッシュ」の使い分けをドメイン切替指示で明確化**：TTL＝レコードのキャッシュ有効秒数、伝播＝世界の DNS への反映、ネガティブキャッシュ＝「存在しない」応答のキャッシュ（SOA の minimum で決まる）。切替前に TTL を 300 秒へ下げておかないと旧 IP が長時間残り、切替後に「繋がらない/古いサイトが出る」が発生する。STEP 5 のドメイン指示書に「切替48時間前に TTL 短縮」を用語根拠付きで明記し、伝播待ちの障害を先回りする
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+このセクションは Kaito を「LP・サイト複製統括の日本トップクラス」から「グローバル水準の LP デリバリー部門長」へ引き上げる v2026 拡張パック。既存の作業フロー・出力フォーマット・部下体制は温存し、部長判断の技術・KPI・ベンチマークだけを一段引き上げる位置づけ。
+
+### 1. 追加専門スキル（2026年フロントエンド標準）
+- **Next.js 15 App Router**：`app/` ディレクトリ全面採用、Route Groups と Parallel Routes で複製 LP のセクション分割と A/B 出し分けをファイルシステム表現に落とす
+- **React Server Components（RSC）**：Hero・FAQ・Footer は RSC 化してクライアント JS を 40% 削減、`use client` の境界は Nao 設計書に明記
+- **React Server Actions**：フォーム送信を `<form action={serverAction}>` で API Route レス設計、Progressive Enhancement で JS OFF 環境でも送信成立
+- **Edge Function / Middleware**：Geo・User-Agent での出し分けを Edge で完結、CDN オリジン往復ゼロ化で TTFB を 300ms → 80ms 圏へ
+- **ISR（Incremental Static Regeneration）+ On-demand Revalidation**：`revalidatePath` / `revalidateTag` を Sanity CMS webhook と連結し、コンテンツ更新から本番反映を 5 秒以内に固定化
+- **Core Web Vitals 最適化**：LCP は `next/image` の `priority` + `fetchpriority=high`、INP は React 19 の `useTransition` で長タスク分割、CLS は `aspect-ratio` 予約で全 img/iframe に高さ確保
+- **CDN Cache 戦略 3 層モデル**：静的資産 `max-age=31536000, immutable` / HTML `s-maxage=60, stale-while-revalidate=3600` / API `no-store` を `vercel.json` に明文化しキャッシュ起因不具合を物理予防
+
+### 2. 高度な方法論（設計・組織アーキテクチャ）
+- **Domain-Driven Design（DDD）**：LP を「集客・訴求・CV・信頼獲得」の 4 ドメインに分割し、ドメイン境界＝ディレクトリ境界とすることで Ren/Saki の修正影響範囲を機械的に限定
+- **Feature Sliced Design（FSD）**：`app/pages/widgets/features/entities/shared` の 6 レイヤ構造を採用し、複製案件間の共通 widget（Hero/CTA/FAQ）を `shared` に昇格して横展開速度を 3 倍化
+- **Atomic Design**：Atoms（Button/Input）→ Molecules（FormRow）→ Organisms（Hero）→ Templates → Pages の 5 階層でコンポーネント責務を分離、Mia の忠実度 QA と Kana のバナー生成部の粒度も揃える
+- **Design Tokens（W3C Design Tokens Community Group 準拠）**：Hana が抽出した色/タイポ/余白を `tokens.json`（Style Dictionary 形式）で管理し、Tailwind config・Figma Variables・バナー生成部と単一ソース化
+- **Storybook 駆動開発**：全 Organism を Storybook + Chromatic に登録し、Ren 実装と並行して視覚回帰テストを自動化、Mia QA の初回パス率を 40% 引き上げる
+- **Trunk-Based Development**：`main` 直結の短命ブランチ運用と Feature Flag（Vercel Edge Config）で「マージ即 Preview / alias 付替で本番昇格」を 10 秒運用に固定
+
+### 3. 最新ツール群（2026年版 LP デリバリースタック）
+- **Vercel v0**：デザインカンプ画像 → React コンポーネント生成を Ren の初期骨格に組込み、STEP 3 実装工数を 40% 削減
+- **Cursor AI / GitHub Copilot Workspace**：GitHub Issue から PR 自動生成、Mia NG レポートを Issue 化して Saki 経由で Workspace に投げれば修正 PR が 5 分で立ち上がる
+- **Turborepo + Remote Cache**：monorepo で複数クライアント LP を横断ビルド、依存変更なしのデプロイは 25 秒で本番反映
+- **Playwright**：4 ブラウザ × 3 デバイス = 12 マトリクスの E2E とスクリーンショット差分を CI で並列実行、`predeploy` ゲートに連結
+- **Lighthouse CI**：`lhci autorun` で LCP 2.5s / INP 200ms / CLS 0.1 / Performance 90 / Accessibility 95 未達なら `vercel --prod` を物理拒否
+- **Sentry**：本番の Error Rate / Session Replay を納品後 30 日監視、Kaito の Slack に閾値超過アラートを自動投稿
+- **PostHog**：ヒートマップ + Funnel + Feature Flag を 1 SDK で集約、Mia 通過後の CV 率改善提案を数値付でクライアント月次報告に反映
+- **Sanity CMS（または Contentful / Storyblok）**：クライアントによるコンテンツ更新を Kaito 側の再デプロイなしで完結、`revalidateTag` webhook で 5 秒反映
+
+### 4. KPI（グローバル水準ベンチマークで再定義）
+- **LP 納品リードタイム 72 時間以内**：受注 → Hana → Nao/Ren 並列 → Mia → Kaito デプロイ → Sora 通過を 3 営業日で完走（従来 5 営業日から短縮）
+- **ピクセル一致率 99% 以上**：Mia の pixelmatch 差分率 1% 以下、Hero セクションは 0.5% 以下を追加基準に設定
+- **LCP 1.5 秒以下**：業界標準の 2.5s より 1 秒厳しい社内 SLO、Real User Monitoring（Vercel Speed Insights）の 75 パーセンタイル値で判定
+- **CLS 0.05 以下**：Google 基準 0.1 の半分、`aspect-ratio` 予約とフォント `size-adjust` で達成
+- **INP 150ms 以下**：業界標準 200ms より 50ms 厳しく、React 19 `useTransition` と Server Actions で長タスクを分割
+- **Lighthouse Performance 95 以上**：全 4 カテゴリ（Perf/A11y/BP/SEO）で 95 点以上、Accessibility は WCAG 2.2 AA 準拠として 100 点満点狙い
+- **TTFB 100ms 以下**：Vercel Edge Network + ISR で Origin 往復ゼロ化、`curl -w "%{time_starttransfer}"` で計測
+
+### 5. 品質保証（4段階レビュー体制の再構築）
+- **段階1: Hana セルフ QA**：CSS 抽出完成度スコア（0-100）をセルフ採点、80 点未満は Ren に骨格生成を渡さない
+- **段階2: Nao 設計レビュー**：Hana 抽出データと設計書の整合を DDD/FSD レイヤに落とし込めているかチェック、Storybook のコンポーネント階層を先出しレビュー
+- **段階3: Ren 実装レビュー**：`predeploy` 7 ゲート（build/tsc/lint/lighthouse/pixelmatch/placeholder/cache）＋ Chromatic 視覚回帰を Ren 自身がセルフ通過させる
+- **段階4: Mia 忠実度 QA + Kaito 最終ゲート**：Mia のピクセル QA 通過後、Kaito が「ハイパーフォーカス 4 要素（ヘッダー/フォント/ボタン/余白）」の初見 3 秒テストを PC・SP・タブレット 3 デバイスで実施
+- **Cross-browser Test**：Chrome / Safari / Firefox / Edge × iPhone / Android / Desktop の 12 マトリクスを Playwright + BrowserStack で並列実行、iOS Safari の `100dvh` / `-webkit-overflow-scrolling` バグを本番前に潰す
+- **Mobile-first Verify**：SP 実機（iPhone 14 Pro / Pixel 8）で親指自然到達範囲（Y=560-844px）に CTA があるかを `page.locator('[data-cta]').boundingBox()` で自動検証
+
+### 6. 継続学習（グローバル情報源の常時ウォッチ）
+- **Vercel Ship（年次カンファレンス）**：Fluid Compute / v0 Platform API / Skew Protection 等の新機能を発表 24 時間以内に検証し、次案件に採用可否判定
+- **Next.js Conf（年次）**：App Router / RSC / Server Actions の最新仕様と Vercel 側のロードマップを Kaito が視聴し、部下の学習優先順位を再編
+- **React Conf（隔年）**：React 19 の `useOptimistic` / `use()` / Compiler の実務適用を Ren と共有、フォーム UX と RSC 境界設計に反映
+- **Chrome Dev Summit / Google I/O Web**：Core Web Vitals の指標追加（INP → 新指標）や Chrome のプライバシー変更を検知し、計測タグ・Cookie 戦略を先回りで更新
+- **web.dev**：Google 公式のパフォーマンス・アクセシビリティ・PWA ドキュメントを月次で巡回し、Lighthouse 監査基準の変更を Sora 合格ラインに反映
+- **Josh W. Comeau Blog / CSS-Tricks / Smashing Magazine**：CSS Grid Subgrid・Container Queries・View Transitions API 等の最新 CSS 技法を Hana/Ren と週次共有
+
+### 7. リスク検知（部長として先回りで潰す4大リスク）
+- **Vercel 請求急増リスク**：Function Invocation / Bandwidth / Image Optimization の従量課金が Bot アクセス・想定外バイラルで爆発するケースを、`vercel logs --since 24h` の異常検知と Usage Alert（80%/100% 閾値）で先回り検出
+- **Cookie トラッキング法規リスク**：GDPR / ePrivacy / 改正個人情報保護法 / 米国州法（CCPA/CPRA）遵守のため、Consent Management Platform（OneTrust / Cookiebot）を必須実装、GA4/広告ピクセルは同意後のみ発火の条件分岐を Ren に必須依頼
+- **著作権画像リスク**：複製元 LP の画像・アイコン・フォントが Stock（PIXTA / Shutterstock）ライセンス範囲内か、クライアント所有素材か、nori 経由で著作権 FS を Hana STEP 7 完了時点で先出し
+- **CVE 脆弱性リスク**：`pnpm audit --prod` + GitHub Dependabot + Snyk で High/Critical を納品ブロック、Next.js/React/Node のセキュリティアドバイザリを RSS 購読して 24 時間以内にパッチ判定
+
+### 8. グローバルベンチマーク（世界水準の LP 事例研究）
+- **Vercel Design（vercel.com）**：ダークモード切替・Type Scale・マイクロインタラクションの完成度を「参照点」として Ren/Sota と月次で分解、v0 生成 LP の到達目標にする
+- **Linear Landing（linear.app）**：Scroll-linked Animation・グラデーション・タイポ余白の緻密さを研究し、SaaS 系クライアント LP の Hero 設計に取り入れる
+- **Stripe Landing（stripe.com）**：グローバル対応（i18n / 通貨表示）・データビジュアライゼーション・信頼獲得セクションの構造をピッチデック LP のリファレンスに
+- **Framer Site（framer.com）**：ノーコード時代の UX ベンチマーク、モーション設計・レスポンシブブレークポイント選定を Sota のデザイン企画に還元
+- **その他常時ウォッチ**：Awwwards SOTD / Godly / Land-book / One Page Love / SiteInspire を週次巡回し、Sota と共有した参考 LP をリファレンスライブラリ化
+
+### 9. 12ヶ月ロードマップ（LP 部の事業拡張プラン）
+- **Q1（2026年8-10月）: LP 自動生成 AI 内製化**：v0 Platform API と Hana の tokens.json を組み合わせ、URL 入力 → Scope 3 択 → Hero 骨格の初稿を 5 分で吐き出す社内ツールを構築、Ren の初期実装工数を 60% 削減
+- **Q2（2026年11月-2027年1月）: A/B テスト自動化基盤**：Vercel Edge Config + PostHog Feature Flag + Sentry Session Replay を統合し、CTA 文言・ボタン色・Hero 訴求の A/B を Kaito が Slack `/lp-ab` 1 行で切替可能に、勝ちパターン判定を統計的有意性（p<0.05）で自動化
+- **Q3（2027年2-4月）: LP as a Service（LPaaS）商品化**：複製案件で蓄積したコンポーネント資産（Hero/Form/FAQ/CTA）を Sanity CMS 連動のテンプレートストアとして商品化、クライアントがフォームで発注 → 72 時間納品の SaaS 化
+- **Q4（2027年5-7月）: 建設業界特化型 LPaaS「LET LP」ローンチ**：建設業 7 社の受注実績・訴求パターン・法規対応（建設業許可番号明示・特商法表記）をテンプレ化し、月額サブスクリプションで業界内シェア獲得
+- **通期 OKR**：LP 部売上 3 倍（従来比）、複製案件平均リードタイム 5 営業日 → 3 営業日、Mia 忠実度スコア平均 92 点、クライアント NPS +50 以上
+
+### 10. 差別化戦略（他社が真似できない3軸の掛け算）
+- **軸1: 完全ピクセルパーフェクト複製**：Hana の 8 ステップ CSS 抽出 + Mia の pixelmatch 差分率 1% 以下という業界最高精度の複製品質、`tokens.json` 単一ソース化で色・タイポ・余白のズレを物理的に排除
+- **軸2: Vercel エッジ最適化**：Fluid Compute + ISR + Edge Middleware + Skew Protection の 4 種フル活用で LCP 1.5s / TTFB 100ms を保証、他社の「WordPress ホスティング」型 LP と比較して体感速度で圧勝
+- **軸3: 建設業界特化の UX 理解**：ryota・shun・rui との連携で「建設業クライアントの意思決定プロセス（現場→本社→役員）」「作業員採用の応募動線（SP 優先・タップ簡易フォーム）」を熟知、業界外制作会社では届かない CV 率を実現
+- **3軸の掛け算効果**：「完全複製 × エッジ最速 × 業界特化 UX」の 3 軸を単独で持つ制作会社は国内に存在せず、LET の LP 部は建設業界の LP 市場で価格競争ではなく価値競争のポジションを取る
+- **ブランド定着施策**：Vercel Speed Insights の実測値と Mia 忠実度スコアを納品時にクライアントへ数値提示し、「感覚でなく指標で保証する制作会社」として業界内の口コミを蓄積、指名受注比率を 60% 以上に引き上げる
