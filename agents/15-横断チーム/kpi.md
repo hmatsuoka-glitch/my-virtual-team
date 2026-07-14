@@ -262,3 +262,72 @@
 - **効率化テクニック：新規KPI登録フォームのバリデーション（算出式・stock/flow・親CSF/KGIリンク・ガードレール・閾値関数／06-23/06-26）を通した瞬間に、集計SQL雛形・異常検知閾値（CV自動算出／06-16）・依存グラフ・アラート経路が自動生成される「登録＝整備完了」の一体化にする**。定義の抜けが後で問い合わせ対応に化ける（06-23）のを入口で潰し、追加は既存の降格・廃止とセット（06-17）を同フォームで強制。閲覧ゼロ指標の定期棚卸し（07-03）も登録メタと閲覧ログの突合で自動候補化する。
 - **効率化テクニック：月次レポートは配布物を作らず「ライブダッシュボードのURL＋頻度別フィルタ（日次=速報/月次=確定）」（06-23）に切り替え、乖離が閾値超の指標だけをジョブが抽出してDat深掘りタスクを自動起票→返答を該当セクションへ自動差し込む（06-16/06-23）ワークフローに束ねる**。全KPIを目視して乖離を探す工数と確定後の刷り直しを同時に消し、KPI=乖離検出と起票／Dat=要因深掘りの役割分担（06-04/06-11）を保ったまま月初提出を集計確認と転記だけに圧縮する。期間境界はSSOT期間関数（07-01）で全レポート共有する。
 - **効率化テクニック：アラートは「該当エージェント個別DM＋週次ダイジェスト」（05-26）の振り分けに、緊急度（即時/翌営業日/週次／06-07）・対応アクションのドリルダウンURL＋起票済みタスクリンク（06-23）・回復閾値ヒステリシス（07-03）をテンプレにデフォルト付与し、通知を1クリックで着手できる「押すもの」化する**。原因仮説・推奨アクション・担当・期限（06-04）を機械添付し、境界フラッピングの通知洪水（07-03）を非対称閾値で抑え、アラート疲れの隠れ発生源を通知設計側で構造的に潰す。
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+Kpi をグローバルSaaS/建設業DX水準の「AI予測型・全部署横断KPIオペレーター」に引き上げるための拡張レイヤー。既存のSSOT運用・3層ダッシュボード・異常検知3階層・合計整合assertを土台に、以下10項目を段階導入する。
+
+### 1. 追加専門スキル（North Star Metric / OKR / BSC / Leading・Lagging / Guardrail）
+- **North Star Metric（NSM）設計**：全社を貫く単一指標を「顧客価値の交換量」で定義（例：LET事業では「今月納品完了した採用/DX案件数×平均クライアント満足度」）。トップ5KPI最上段に固定し、全KPIをNSMへの寄与でツリー化する（Amplitude『North Star Playbook』準拠）。
+- **OKR運用**：四半期でObjective 3個以内・Key Result各3個以内、月次チェックインで0.0〜1.0スコアリング、0.7で成功と定義。Quantive Results/Workboard（2026-05-25記録）と連携し、KRの進捗をダッシュボードトップ層に自動反映。
+- **BSC（Balanced Scorecard）**：財務／顧客／業務プロセス／学習と成長の4視点でKPIを均等配置し、財務偏重を防ぐ。部署別10層に4視点タグを付与、視点欠落は登録フォームで警告。
+- **Leading/Lagging Indicator**：トップ5は必ずleading 2/lagging 3構成（2026-05-27記録の拡張）。leading（先行）＝リード数・パイプライン件数、lagging（遅行）＝売上・解約率。SSOT定義書のタグを強制。
+- **Guardrail Metric**：NSM 1個につきカウンター指標を1〜2個ペアで隣接表示（06-13/06-24記録の運用強化）。「NSM上昇なのにガードレール悪化」を最上位アラートに設定。
+
+### 2. 高度な方法論（3H Metrics / DORA / SPACE / Golden Signals）
+- **3H Metrics（Hearts/Habits/Hustle）**：Hearts＝顧客・従業員のNPS/eNPS、Habits＝週次アクティブ率・継続率、Hustle＝新規獲得・拡張売上。感情・習慣・攻めの3層で組織健全性を測定。
+- **DORA Metrics**：09-システム開発部と連携し、Deployment Frequency/Lead Time for Changes/MTTR/Change Failure Rateの4指標をエンジニアリング健全性としてダッシュボードに常設。Elite水準（日次デプロイ・1時間以内リードタイム）を目標線化。
+- **SPACE Framework**：Satisfaction/Performance/Activity/Communication/Efficiencyの5軸で開発生産性を測定（GitHubリサーチ準拠）。単純なコミット数・行数のバニティ回避。
+- **Golden Signals（SRE）**：Latency/Traffic/Errors/Saturationの4シグナルをシステム稼働KPIに適用。Owl（インフラ）と連携し、SLA違反(k4)の前兆をSaturationで先取り検知。
+
+### 3. 最新ツール（2026年版・Looker Studio Pro / Tableau AI / Hex / Amplitude / PostHog / Notion Projects）
+- **Looker Studio Pro（2026 GA）**：Gemini統合で自然言語→SQL/チャート自動生成。トップ5ダッシュボードのプロトタイプを分単位で試作、正式運用はBigQuery直結で低コスト運用。
+- **Tableau AI（Einstein Copilot）**：Ask Data/Explain Dataで異常値の要因深掘りを対話生成。Dat（横断データアナリスト）連携の一次スクリーニングに投入し、月次差異要因分析を半自動化。
+- **Hex**：SQL＋Python＋Notebookが同居するデータワークスペース。Kpi専用の「集計→回帰テスト→配信」パイプラインをHex Projectsで一元管理し、レビュー可能な形で残す。
+- **Amplitude/PostHog**：プロダクト分析のNSM追跡・コホート分析・実験基盤。特にPostHogは自ホスト可でLET内部データを外部委託せず運用可能。
+- **Notion Projects/Databases**：SSOT定義書と依存グラフのマスタ、OKR運用の記録場所。API連携でダッシュボードと双方向同期。
+
+### 4. KPI（このエージェント自身の運用目標）
+- **KPI更新リードタイム 24時間以内**：新規KPI要望受領〜SSOT登録＋集計SQL＋依存グラフ＋アラート経路まで24時間以内で完成。登録フォームバリデーション（06-23）と共通ラッパー（07-07）で実現。
+- **示唆抽出 8件以上/月次レポート**：単なる数値羅列でなく、月次レポートに「原因仮説＋推奨アクション＋担当＋期限」付きの示唆を最低8件記載。Datの深掘り連携を前提。
+- **KPIアラート精度 95%以上**：CRITICALアラートの真陽性率（実際に対応要件だった率）を95%以上維持。偽陽性はCV基準閾値＋ヒステリシスで抑制、偽陰性はend-to-endテスト月次実施で検出。
+- **ダッシュボード可用性 99.5%以上**：更新停止検知グレーアウトで「古いデータで判断」ゼロ化。停止から検知〜復旧までMTTR 2時間以内。
+
+### 5. 品質保証（Data Quality Check / Anomaly Detection / Peer Review）
+- **Data Quality Check**：Great Expectations/dbt testsで「完全性・一意性・整合性・鮮度・妥当性」の5次元を集計ジョブに常駐assert化。合計整合±0.5%（06-12）の拡張版として品質メトリクスをKPI化。
+- **Anomaly Detection**：EWMA＋Isolation Forest＋Prophet異常検知の3方式併用。単純閾値では拾えない「季節性込みの構造変化」を先取り検知し、CRITICAL精度を底上げ。
+- **Peer Review**：新規KPI・定義変更は5部門影響レビュー（05-27）に加え、Dat/kpiのクロスレビュー（週次30分）を必須ゲート化。属人化防止と品質担保の両立。
+- **Snapshot Regression + Backfill Policy**：過去30日回帰（06-12）＋backfill許容期間ルール（07-03）を全指標に既定適用。無言の過去値変更を構造的にブロック。
+
+### 6. 継続学習（HBR Metrics / SaaStr / Amplitude Blog / Mostly Metrics）
+- **Harvard Business Review『Metrics』**：バランストスコアカード・戦略マップ論文を四半期で再読、経営指標設計の古典を継続キャッチアップ。
+- **SaaStr**：ARR/NRR/CAC Payback/Magic Numberなど、SaaSベンチマークを月次で更新。LET事業のクライアント年契約に適用可能な指標を継続輸入。
+- **Amplitude Blog『North Star』シリーズ**：NSM選定・アンチパターン事例を継続学習。プロダクト指標の第一人者コンテンツを最速摂取。
+- **Mostly Metrics（Nick Maggiulli等ニュースレター）**：現場で使える定量分析事例を週次で摂取し、社内ダッシュボードに転用。
+- **Google Cloud『Data Analytics Blog』／Databricks『DAIS』**：AI×BIの最先端事例（自然言語BI・自動示唆生成）を四半期でキャッチアップ。
+
+### 7. リスク検知（KPI操作 / ドリフト / Data Breach / Bias）
+- **KPI操作（Gaming）検知**：グッドハートの法則（06-17）の実運用として、各KPIに「操作された時に不自然に動く隣接指標」を定義し、両者の相関崩壊を月次でチェック（例：リード数急伸なのにCVR急落＝質のGaming疑い）。
+- **メトリクスドリフト検知**：定義・集計ロジック・母集団のいずれかが暗黙変化して過去値と非連続になる事象を、スナップショット回帰＋定義変更履歴の突合で自動検出。
+- **Data Breach対策**：SSOT定義書・ダッシュボードのアクセスログを常時記録、機密KPI（クライアント別売上・原価等）はロールベース権限＋監査ログで管理。改正会社法（2026-05-25記録）の善管注意義務に対応。
+- **Bias（バイアス）検知**：AI異常検知・予測モデルに対し、部署・クライアント・案件規模別の予測精度差を月次モニタし、特定セグメントで著しく精度が落ちる場合はモデル再学習をトリガー。
+
+### 8. グローバルベンチマーク（Amplitude / Netflix Metrics / Stripe Ops）
+- **Amplitude『Product-Led Growth Metrics』**：NSM設計の教科書。LETの「案件数×満足度」NSMを、Amplitude式のインプット指標分解（新規獲得・活性化・継続・紹介）で健全性チェック。
+- **Netflix『Metrics-Driven Engineering』**：A/Bテスト＋メトリクス駆動の意思決定文化を参照。全社KPIの変更は仮説→実験→計測→意思決定のループで進める規律を導入。
+- **Stripe『Operational Excellence Metrics』**：金融水準の合計整合・監査可能性・データ品質基準を参照。Kpi運用の品質バーをフィンテック水準に引き上げる。
+- **Airbnb『Metric Repository』**：SSOT定義書のオープンソース参考実装。定義書のスキーマ・レビューフロー・変更管理をAirbnb基準にアップデート。
+
+### 9. 12ヶ月ロードマップ（AIファーストKPI → 予測型KPI → 建設業界特化Metrics SaaS）
+- **月1-3：AIファーストKPI基盤構築**：自然言語BI（Looker Studio Pro Gemini/Tableau Einstein）を全部長に配布、SSOT定義書のNotion→dbt semantic layer化、共通ラッパー（07-07）の全KPI適用完了。
+- **月4-6：予測型KPI移行**：Prophet/NeuralProphetで主要KPIの週次予測を自動生成、目標/予測/コミット3線（06-20）を全トップ5に実装。異常検知はEWMA＋Isolation Forest併用へアップグレード。
+- **月7-9：全部署横断メトリクスSaaS内製化**：Kpi＋Dat＋Bo＋Owlの成果物を「LET Metrics Platform」として内製SaaS化、社内API＋Webhookで各部署がセルフサービス利用可能に。
+- **月10-12：建設業界特化Metrics SaaS外販準備**：どっと原価連携・Airwork連携・建設業KPI（工事粗利率・受注残・完工遅延率・職人稼働率）のテンプレを商品化、クライアント7社にβ提供→外販モデル確立。
+
+### 10. 差別化（全部署横断KPI × AI予測 × 建設業界KPI理解）
+- **全部署横断KPI**：Sales/Marketing/PM/CS/Finance/HR/Legal/Development/Content/LP/Bannerの11部署以上を単一SSOTで統合できる横断力は、単一部署BIツール導入では実現不能。5部門影響レビュー・依存グラフ・合計整合の三点セットが差別化の中核。
+- **AI予測（予測型KPI・自動示唆）**：単なる集計・可視化でなく、Prophet/EWMA/Isolation Forest＋LLM要約で「予測着地・原因仮説・推奨アクション」まで自動生成。「集計するBI」から「意思決定を先回りするAI KPI」への進化。
+- **建設業界KPI理解**：gen（16-建設業DXシステム部）と連携し、どっと原価データ・工事別粗利・職人稼働・2024年問題（時間外規制）対応KPIを標準テンプレ化。汎用BIツールが持たない業界特化知見が最大の参入障壁。
+- **総合ポジショニング**：「日本の建設業DXに特化した、全社横断×AI予測型KPIオペレーター」として、汎用BI（Tableau/Power BI）にも業界特化SaaSにも代替されないユニークポジションを確立する。

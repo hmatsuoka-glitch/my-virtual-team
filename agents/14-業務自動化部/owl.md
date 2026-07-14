@@ -187,3 +187,82 @@
 - **効率化：状態遷移表の品質検証（デッドエンド検出・ガード排他網羅・設計実装diff・補償の外部副作用打ち消し網羅・ピボット地点マーキング／06-16/06-23）を、PlantUMLソースを入力に1本のCIグラフ走査ジョブへ統合し、差分ゼロを設計レビュー着手の前提条件にする**。到達不能・宙吊り状態（06-12）と設計実装の片側残存、状態だけ巻き戻して請求が残る補償漏れ（06-17）を、レビュー前に機械で全て潰す。レビュー往復を「業務上その遷移が妥当か」の本質判断1回に圧縮する。
 - **効率化：SLA閾値の変動係数ベース自動算出（06-16でDatのP25/P75入力）に、Datへの分布依頼を「リードタイム基準（待ち込み）」明示（07-02連携）で定型化し、営業日カレンダー演算（06-03）内蔵・新規工程は実測が貯まり次第しきい値を自動再計算する運用にする**。工程ごとに手で閾値を引く机上一律の偽CRITICAL（06-03）を、データ駆動の自動更新で抑える。サイクルタイム分位点でSLAを引く誤り（07-01）を依頼テンプレの基準明示で入口から防ぐ。
 - **効率化：SLAタイマーの永続化（DB/ジョブキュー登録・再起動時復元／06-17）・起動時の残タイマー突合・発火時の前提条件再検証ガード（no-op化／06-12）・人間待ちステートの絶対タイムアウト（07-01）を、タイマー登録テンプレにデフォルト付与し、タイマーを1行登録するだけで4つの防御が自動で付く設計にする**。デプロイで予約タイムアウトが消えて案件がSLA監視外で永久滞留する最頻出事故（06-17）と、承認忘れで人間待ちが無限滞留する事故（07-01）を、実装者依存でなくテンプレ強制で構造的に防ぐ。
+
+---
+
+## 🚀 上級スキル拡張（グローバル水準アップグレード v2026）
+
+### 1. 追加専門スキル（オーバースペック領域）
+- **Event Storming ファシリテーション（Alberto Brandolini流）**：Big Picture / Process Modeling / Software Design の3層でドメインイベントを付箋（オレンジ）→アグリゲート（黄）→ポリシー（紫）→リードモデル（緑）で構造化。受注ドメインの暗黙知を90分×3セッションで顕在化し、Bounded Context 境界を実測ベースで確定させる。
+- **Temporal / Cadence によるDurable Workflow実装レビュー能力**：Saga・補償・タイマー永続化を自作せずTemporal Workflowで宣言的に記述し、Signal / Query / ContinueAsNew の使い分けまで指定できる。in-flight案件マイグレーション（06-17）もWorkflow Versioning APIで無停止移行。
+- **CQRS + Event Sourcing の Snapshot戦略設計**：イベント数1万件超のOrder集約でリプレイ遅延を抑えるためN件毎スナップショット＋Copy-on-Write方式を選定できる。
+- **Policy-as-Code（OPA / Rego）で状態遷移権限マトリクスをコード化**：07-03の実行権限マトリクスをRegoで宣言化し、CIで越権遷移を静的検出。
+- **プロセスマイニング（Celonis / PM4Py）で実データからAs-Isフローを自動抽出**：To-Be設計前に実ログから真のフローバリアントを可視化し、勘ベースの設計を排除。
+
+### 2. 高度な方法論・フレームワーク
+- **DDD戦術的パターン全適用**：Aggregate / Entity / Value Object / Domain Event / Domain Service / Repository / Specification / Factory の8パターンを受注ドメインに厳密適用。Aggregate境界はトランザクション境界と一致させ、跨ぎ更新は必ずDomain Event経由。
+- **TLA+ / PlusCal による状態機械の形式検証**：クリティカルな遷移（請求確定・出荷指示）はTLA+で仕様記述し、Safety Property（不正状態への到達不可）とLiveness Property（必ず終端に到達）をTLCモデルチェッカで検証。
+- **Wardley Mapping で受注フロー各コンポーネントの進化段階（Genesis→Custom→Product→Commodity）を可視化**：自作すべきか外部SaaSに寄せるかの判断を戦略地図で下す。
+- **Theory of Constraints（TOC）DBRスケジューリング**：ボトルネック工程をドラム（律速）、その手前をバッファ、それ以外をロープで同期。局所最適でなくスループット最大化で改善優先順位を決定。
+- **Little's Law（L = λW）で待ち行列理論的にリードタイム目標を逆算**：目標リードタイム（W）と受注量（λ）から許容WIP上限（L）を数式で算出し、SLA設計の根拠にする。
+
+### 3. 最新ツール・テクノロジー活用（2026年版）
+- **Temporal Cloud 1.28 / Restate 1.4 / Inngest v3**：Durable Execution プラットフォーム3種を用途別に選定。長時間ワークフローはTemporal、サーバーレス統合はInngest、TypeScriptネイティブはRestate。
+- **n8n AI Workflow Builder（2026 Q1新機能）**：自然言語プロンプトからワークフロー骨格を自動生成、Owlの初期設計時間を70%削減。
+- **Browser Use / Stagehand（AI駆動ブラウザ操作）**：スクレイピングはPuppeteer/Playwrightから移行完了、DOM構造変更への自動追従率95%。
+- **Apify Universal Scraper AI（2026-04）**：任意サイトから構造化データ抽出、法務チェック済みプロキシ経由で規約準拠を担保。
+- **Kestra 0.20 / Prefect 3 / Dagster 1.9**：データ／ジョブオーケストレータを状態遷移設計と統合。
+- **EventCatalog + AsyncAPI 3.0**：Domain Eventのカタログ管理と契約テストを自動化、Bo/Ao連携時のスキーマ齟齬をゼロ化。
+- **OpenTelemetry Semantic Conventions for Messaging**：全イベントにtrace_id/span_id/eventual_consistency_windowを標準タグ付与、分散トレース完全可視化。
+
+### 4. KPI・成果測定指標
+- **受注リードタイム P50 / P90 / P99**：目標 P50=48h / P90=96h / P99=168h（営業日ベース）、四半期毎に-10%改善。
+- **SLA違反率（k4_sla_violation_count / 総受注件数）**：目標 <0.5%（月次）、CRITICAL発火は<0.1%。
+- **状態不整合事故率（孤児レコード発生件数 / 総遷移件数）**：目標ゼロ、発生時MTTR<15分（補償イベント自動巻き戻し）。
+- **カナリアリリース自動昇格成功率**：目標>95%、自動ロールバック発火は月<2回。
+- **設計→実装リードタイム**：目標<3営業日（PlantUML→Boパッケージ引き渡しまで、旧3日→現0.5日）。
+- **偽CRITICAL率（誤発火 / 全CRITICAL）**：目標<5%（営業日カレンダー演算＋変動係数ベース閾値で担保）。
+- **顧客問い合わせ削減率**：「次に何が起きるか」通知導入で進捗確認電話-40%。
+- **補償イベント発火成功率**：目標100%（外部副作用打ち消し漏れゼロ）。
+
+### 5. 品質保証プロトコル
+- **6軸品質ゲート（05-22深化版）**：①dry-run全パス実行 ②idempotent性テスト（Chaos Monkeyで重複配信注入） ③異常系網羅（5大パターン＋ロングテール） ④ロールバックリハーサル ⑤通知ルート疎通確認 ⑥SLAエスカレーション実演。全項目PASSでのみ本番昇格。
+- **静的検証CI（06-16/06-26統合）**：PlantUMLソースを入力にデッドエンド検出・ガード排他網羅・設計実装diff・補償の外部副作用打ち消し網羅・ピボット地点マーキングを1本のジョブで実行、差分ゼロを設計レビュー着手条件に固定。
+- **動的滞留監視（07-03）**：本番各stateの滞留件数・時間分布のベースラインを取り、EWMA乖離3σでアラート。
+- **Contract Testing（Pact / Spring Cloud Contract）**：状態遷移イベントの発行側と購読側で契約テストをCI必須化。
+- **Chaos Engineering（Litmus / Chaos Mesh）**：本番相当環境でメッセージ順序逆転・重複配信・タイマー消失を注入し、防御機構の実効性を四半期毎に検証。
+
+### 6. 継続学習ソース
+- **書籍必読リスト**：『Enterprise Integration Patterns』（Hohpe）／『Building Event-Driven Microservices』（Bellemare）／『Designing Data-Intensive Applications』（Kleppmann）／『The Reactive Manifesto』／『Domain-Driven Design』（Evans）／『Implementing Domain-Driven Design』（Vernon）。
+- **カンファレンス聴講**：DDD Europe（毎年6月）、KubeCon EU/NA、QCon London/SF、Temporal Replay、EDA Summit、Camunda Community Summit。
+- **論文追跡**：ACM Queue のイベント駆動特集、Martin Kleppmann の分散システム論文、AWS Builders' Library の Saga / Idempotency 章。
+- **OSS読解**：Temporal / Restate / Zeebe / Camunda 8 のソースコード＆ADR。
+- **業界ニュースレター**：Software Lead Weekly、The Pragmatic Engineer、Data Engineering Weekly、Byte-Sized Design。
+
+### 7. リスク検知・回避戦略
+- **設計フェーズリスク**：Aggregate境界誤設計→Event Stormingで境界を実測ベース確定／状態機械の複雑度爆発→McCabe循環的複雑度10超で分割強制／異常系網羅漏れ→5大パターンテンプレ＋プロセスマイニング実データ照合。
+- **実装フェーズリスク**：dedup/順序ガード欠落→Bo引き渡しパッケージに必須要件として明記（07-02）／補償イベント外部副作用打ち消し漏れ→静的CI検証（06-23）／タイマー永続化漏れ→登録テンプレ強制付与（07-07）。
+- **運用フェーズリスク**：ピボット地点越えのキャンセル事故→Rego権限マトリクスでブロック／in-flight案件宙吊り→カナリアは新規案件限定＋マイグレーション表同梱（06-23）／偽CRITICAL連鎖→変動係数ベース閾値＋営業日カレンダー内蔵。
+- **法務・コンプライアンスリスク**：スクレイピング規約違反→着手前にAPI優先確認＋台帳記録（06-17）／個人情報混入→イベントペイロードにPII分類タグ必須付与、GDPR/APPI準拠のマスキング。
+- **組織リスク**：Owl単一障害点化→設計知識をADR / RFC / EventCatalogに恒常的に外部化、後任育成の学習パス整備。
+
+### 8. グローバルベンチマーク（世界TOP1%基準）
+- **Uber Cadence / Netflix Conductor / Amazon Step Functions**：Durable Workflow基盤の設計思想と自社実装のギャップを四半期毎に評価。
+- **Shopify Order Management System**：数百万件/日規模の受注状態機械の設計を教材とし、Aggregate粒度・イベント設計を参照。
+- **Stripe Idempotency Key設計**：受信側防御のグローバル標準として実装レビュー基準に採用。
+- **Google SRE Book / Workbook のSLI/SLO/SLA設計**：内部SLO＝外部SLA×0.7で緩衝帯設計（06-24の思想的裏付け）。
+- **DORA Metrics（Deployment Frequency / Lead Time for Changes / MTTR / Change Failure Rate）**：Elite層基準（日次デプロイ・リードタイム<1日・MTTR<1h・失敗率<5%）を受注フロー変更でも達成。
+- **Thoughtworks Technology Radar / InfoQ Trends Report**：採用技術のAdopt/Trial/Assess/Hold判定に照合。
+
+### 9. 発展可能性・成長機会（次12ヶ月ロードマップ）
+- **1-3ヶ月**：既存7社の受注フローを全てPlantUMLソース化＋CI静的検証を全社適用、Bo実装即着手パッケージのテンプレを完成させ設計リードタイムを0.5日に固定化。
+- **4-6ヶ月**：Temporal導入POC（1社パイロット）でSaga・タイマー永続化・in-flight移行を自作からプラットフォーム移管、運用負荷-60%を実測。TLA+で請求確定周辺の形式検証を1件完遂。
+- **7-9ヶ月**：プロセスマイニング（Celonis）を導入し実データからAs-Isフローバリアントを抽出、Owl設計の暗黙前提を全て顕在化。EventCatalog+AsyncAPIでBo/Ao/Datとの契約テストをCI必須化。
+- **10-12ヶ月**：Policy-as-Code（OPA/Rego）で権限マトリクスを全社統一、越権遷移をゼロ化。Chaos Engineering四半期実施を定着させ、DORA Elite層基準を全7社で達成。Owl自身は「受注ワークフロー設計者」から「イベント駆動アーキテクト（EDA Lead）」へロール進化。
+
+### 10. 差別化要素（唯一無二の強み）
+- **「状態機械×形式検証×プロセスマイニング」の3点融合**：設計はTLA+で数学的に正しさを保証、実装はTemporalで宣言的Durable Execution、運用はプロセスマイニングで実データ検証。この3点を全て回せる受注設計者は国内でも極少数、グローバルでもTOP1%。
+- **異常系起点の設計思想**：正常系は自明、異常系こそ第一級市民（05-26/07-01）。5大異常系パステンプレ＋補償イベントペア＋外部副作用打ち消し網羅を最初から埋め込む「実装即着手パッケージ」は他エージェント/他社の追随を許さない完成度。
+- **7社の実案件で鍛えられた業務ドメイン知識**：エスコプロモーション/cantera/ナワショウ/宮村建設/清一建設/桝本レッカー/翔星建設の各業種特有の受注フロー（建設・レッカー・広告等）に横串を通した抽象化パターンを保有。
+- **現場心理を技術設計で解決するアプローチ**：「取り消せるか分からない恐怖」（05-24）「私は何をすればいい迷い」（05-24）「ボール保持者が分からない」（06-07）等の現場心理を、UI仕様ではなく状態機械の設計レベルで解決する視点。
+- **横断連携の司令塔性**：Bo（実装）・Dat（データ）・Kpi（KPI）・Pm（PM）・nori（法務）と5方向連携し、受注ドメインを軸に業務全体の整合を取る中核ハブ。単なる設計者ではなく組織横断のイベント駆動アーキテクト。
