@@ -362,3 +362,92 @@ STEP 6: 設計書をKaiへ提出
 - **API 契約用語（後方互換 / 前方互換 / セマンティックバージョニング / 非破壊変更）を再整理**：後方互換 = 新サーバーが旧クライアントを壊さない（フィールド追加は OK・削除/必須化は破壊的）、前方互換 = 旧サーバーが新クライアントの未知フィールドを無視できる、SemVer = MAJOR（破壊的）.MINOR（後方互換な機能追加）.PATCH（修正）。Nao は外部公開 API 設計に「フィールドは削除せず deprecated 運用・必須追加は `/v2` 分離・レスポンスは未知フィールド無視前提」を非破壊変更ルールとして固定し、内部 tRPC と外部契約 API を層分離して互換性の責任範囲を用語で明確化する。
 - **正規化の関数従属・候補キー・第3正規形の判定語彙を再確認**：関数従属（A→B）= A が決まれば B が一意に決まる、候補キー = 全非キー属性を関数従属で決定できる最小の属性集合、部分従属（2NF 違反）= 複合キーの一部だけに従属、推移従属（3NF 違反）= 非キー属性が別の非キー属性経由で従属。Nao は ER 図レビューで「この列は何に関数従属するか」を 1 列ずつ言語化し、推移従属を検出したらテーブル分割、意図的非正規化は「更新時の同期責任」を併記。正規化を「なんとなく分ける」でなく従属関係の用語で機械的に判定する。
 - **[更新] 認証（AuthN）・認可（AuthZ）と OAuth2/OIDC/JWT/セッションの区別（旧 2026-06-13 を更新）**：認証 = 誰か（AuthN・401）、認可 = 何をしてよいか（AuthZ・403）。OAuth 2.0 は本来「認可の委譲」（アクセストークン＝権限の証）、OIDC は OAuth2 上に ID トークン（JWT）を載せた「認証」レイヤーで「OAuth ログイン」は厳密には OIDC。加えてトークン管理軸を追加区別：JWT（ステートレス・失効制御が課題・短寿命アクセストークン＋リフレッシュトークン運用）vs サーバーセッション（ステートフル・即時失効可・Redis 等のストア必要）。Nao は設計書で「ログイン＝OIDC／API 権限＝スコープ＋RBAC／トークン＝短命 JWT＋Refresh の Rotation」を分離定義し、Ao の 401/403 返し分けとトークン失効設計を迷いなく決める。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「システムアーキテクト」となるため、要件定義・アーキテクチャ設計・API/DB設計・非機能要件・セキュリティ・データ基盤・可観測性・レジリエンス・プライバシー・コスト最適の10領域で世界水準スキルを追加習得する。「日本語で世界最強のアーキテクト」を目指し、Fortune 500企業のPrincipal Engineer相当の設計判断力を獲得する。
+
+### 1. 形式手法による仕様検証（Formal Methods 2026）
+- **現状**: architect-checklist.md による人手セルフレビューが主。仕様の論理矛盾・並行性デッドロック・状態爆発は実装後の障害で発覚することが多い。
+- **強化**: **TLA+ / PlusCal**（Leslie Lamport, AWS S3・DynamoDB本番採用）で分散処理・並行状態遷移のモデル検査、**Alloy 6**（時相論理拡張）で構造的不変条件の反例探索、**P言語**（Microsoft, Azure Storage採用）でイベント駆動プロトコル検証、**Lean 4 / Coq**で決済ロジック等の完全証明。Amazon の "Use of Formal Methods at AWS" (CACM 2015 / 2024更新) の手法を採用SaaS の状態遷移・整合性クリティカル領域に適用。
+- **実務適用**: 応募ステータス遷移（新規→書類→面接→内定→辞退）を PlusCal で書き、TLC モデル検査で「内定→新規に戻せる」等の不正遷移・デッドロックを実装前に機械検出。決済・在庫減算等の Lost Update 相当は TLA+ で並行実行を全網羅検証、設計段階で不変条件（残高≥0・二重課金不可）を証明。設計書に `spec/*.tla` を併載し PR CI で `tlc` 実行を必須化。
+- **KPI**: クリティカル機能（決済・在庫・状態遷移）の設計起因障害を年間0件、モデル検査で発見した設計欠陥数を Sprint 毎に計測（目標: 案件あたり3件以上を実装前に排除）、Mio の状態遷移テストケース網羅率100%（形式仕様から自動派生）。
+
+### 2. 進化的アーキテクチャ設計（Evolutionary Architecture 2026）
+- **現状**: Modular Monolith を標準とし、横断ポリシー（論理削除・監査ログ・TZ・マルチテナント）をプリセット化。ただし「将来変更シナリオ3件」の机上テストは属人的で、変更容易性を定量測定できていない。
+- **強化**: Neal Ford『Building Evolutionary Architectures 2nd ed』(2023) の**Fitness Functions**（適合性関数）を導入。①**構造適合性**（`ArchUnit for TypeScript` / `dependency-cruiser` でレイヤ依存違反を CI 検出）②**性能適合性**（`k6` で p95 SLO を PR ごと計測）③**セキュリティ適合性**（`Semgrep` / `CodeQL` で禁止パターン検出）④**進化性適合性**（Cyclomatic Complexity・凝集度メトリクスを継続測定）を Fitness Function として CI に組み込み、アーキテクチャの侵食を機械的に防ぐ。加えて Team Topologies (Manuel Pais, 2019 / 2025更新) の**Stream-Aligned / Platform / Enabling / Complicated Subsystem** 4チーム型を組織設計に反映。
+- **実務適用**: 新規案件の設計書に `fitness-functions.yaml` を必須添付し、レイヤ依存（UI→App→Domain→Infra 一方向）・p95 レイテンシ・脆弱性数・複雑度上限を宣言。PR で1つでも違反すれば merge ブロック。LET のシステム開発部を Stream-Aligned チームとし、Kuu をプラットフォームチーム、Mio を Enabling チームとして責務再定義。
+- **KPI**: アーキテクチャ違反（レイヤ逆流・God Object 発生）の CI 検出率 100%、Fitness Function 違反による PR ブロック件数（月次）、変更容易性メトリクス（新機能追加時の影響ファイル数を6ヶ月移動平均で減少傾向維持）。
+
+### 3. ドメイン駆動設計 Advanced（Strategic DDD × Event Modeling 2026）
+- **現状**: DDD 戦略/戦術パターン、イベントストーミング（FigJam付箋）、集約境界の設計は導入済み。ただし Context Mapping・Team Topologies との整合、Adam Dymitruk の Event Modeling への進化はまだ。
+- **強化**: **Context Mapping パターン9種**（Shared Kernel / Customer-Supplier / Conformist / ACL / OHS / Published Language / Partnership / Separate Ways / Big Ball of Mud）を Miro に常設テンプレ化。**Event Modeling**（Wireframes→Commands→Events→Read Models の4スイムレーン）で「業務→UI→システム挙動」を単一時系列に統一。**Vaughn Vernon『Implementing DDD』**の集約設計7ルール（小さく・一貫性境界・IDで参照・単一集約更新・結果整合・ドメインイベント・アプリケーションサービス薄く）を設計チェックリスト化。CQRS + Event Sourcing の適用判断基準を明文化（監査要件強・読み書き非対称なら採用）。
+- **実務適用**: 採用管理 SaaS を「求人管理／応募管理／選考管理／通知」の4 Bounded Context に分割、Context Map で ACL（他社ATSとの防腐層）を明示。Event Modeling で「応募者が求人一覧を見る→応募ボタン→応募Command→ApplicationSubmitted Event→ダッシュボード ReadModel 更新」を1枚のスイムレーンに描き、Riku/Ao/Mio が同じ絵を見て並行実装。集約境界を「トランザクション境界＝一貫性境界」の原則で機械決定。
+- **KPI**: 全新規案件で Context Map 作成率100%、Event Modeling スイムレーン作成による設計会議時間 -50%（言語ズレの往復消滅）、集約またぎトランザクション（アンチパターン）発生数0件、ドメインイベント数を KPI 化しビジネス変化への追従度を可視化。
+
+### 4. プラットフォームエンジニアリング × Internal Developer Platform（IDP 2026）
+- **現状**: Kuu 単独でインフラ・CI/CD 管理。新規案件立ち上げごとに環境構築・監視・シークレット管理を毎回設計、認知負荷が Kuu に集中しボトルネック化。
+- **強化**: **Backstage**（Spotify OSS, CNCF Graduated 2024）または **Port** で **Internal Developer Portal** を構築。**Golden Path**（推奨技術スタックのテンプレ）・**Software Catalog**（全サービスのメタ管理）・**TechDocs**（設計書の統合検索）を集約。**Crossplane** / **Terraform Cloud** で Infrastructure as Code の宣言的管理。**Team Topologies** に基づき「Nao の設計 → Platform（Backstage テンプレ）→ Stream-Aligned チーム（Riku/Ao）が Self-Service で環境調達」の流れを構築。CNCF 2026 Platform Engineering Maturity Model の Level 3（Scalable）到達を目標化。
+- **実務適用**: 新規案件着手時、Riku/Ao が Backstage の "Create New Service" で「Next.js + Prisma + Vercel」テンプレを選ぶだけで、GitHub Repo・Vercel Project・環境変数・監視ダッシュボード・Sentry・PagerDuty 連携が5分で完成。Nao の設計書テンプレも Backstage TechDocs で全案件横断検索可能に。Kuu は個別対応でなくプラットフォーム改善に時間集中。
+- **KPI**: 新規サービス立ち上げリードタイム（Kuu 対応込み）1週間→30分、Kuu の個別インフラ対応チケット数 -80%、Golden Path 適用率90%以上（逸脱案件は ADR 必須）、開発者体験スコア（DevEx Survey 四半期）4.5/5.0 以上。
+
+### 5. Zero Trust Architecture × Threat Modeling（Security by Design 2026）
+- **現状**: RLS・OIDC・RBAC 等の個別セキュリティ設計は明文化済み。ただし全体としての Zero Trust 原則・脅威モデリング（STRIDE / PASTA）・SBOM 管理は未体系化。
+- **強化**: **NIST SP 800-207 Zero Trust Architecture** および **CISA Zero Trust Maturity Model 2.0**（2023）を設計原則化。「Never Trust, Always Verify」を全 API・全内部通信に適用（mTLS・SPIFFE/SPIRE によるワークロード ID）。**STRIDE**（Spoofing/Tampering/Repudiation/Information Disclosure/DoS/Elevation）による脅威モデリングを全新機能で必須化、**Microsoft Threat Modeling Tool** または **OWASP Threat Dragon** でモデル図＋脅威一覧を設計書に添付。**SLSA v1.0**（Supply-chain Levels for Software Artifacts）Level 3 準拠、**CycloneDX / SPDX** による SBOM 自動生成、**Sigstore / cosign** でアーティファクト署名。**OWASP API Security Top 10 (2023)** / **OWASP LLM Top 10** を設計チェックに組み込み。
+- **実務適用**: 新機能設計時に FigJam で Threat Model 図を描き、STRIDE の6カテゴリで各データフローを分析、Mitigation を設計書に併記。DB アクセスは PostgreSQL RLS + `SET app.tenant_id` で強制、内部サービス間は mTLS。GitHub Actions で `cosign sign` + `syft sbom` を Build 毎に実行、Vercel Deployment に SBOM を添付。四半期に一度 nori と合同で ThreatModel レビュー会。
+- **KPI**: 全新規機能で Threat Model 作成率100%、SLSA Level 3 準拠率100%、SBOM 出力率100%、外部ペネトレーションテスト指摘の Critical/High 0件維持、Mean Time To Remediate（脆弱性検出→修正）7日以内。
+
+### 6. AI-Native アーキテクチャ設計（LLM × Agents × MCP 2026）
+- **現状**: MCP（Model Context Protocol）の業界標準化を認識、AI Agent 統合を設計選択肢として言及。ただし RAG / Agent Orchestration / Guardrails / Evaluation の体系的な設計手法は未整備。
+- **強化**: **Anthropic MCP 仕様書 v0.5 (2026)** に準拠した MCP Server 設計を全新規 SaaS の必須オプションに。**RAG 2.0（Hybrid Search + Reranking + Contextual Retrieval, Anthropic 2024）** の設計パターン化：`pgvector` / `Qdrant` / `Turbopuffer` の選定基準、chunking 戦略（semantic / hierarchical / late-chunking）、Reranker（`Cohere Rerank 3.5` / `bge-reranker-v2`）。**Agent Orchestration** は LangGraph / CrewAI / **Anthropic Claude Agent SDK** で Multi-Agent 設計、`Judge LLM` によるアウトプット検証、`Guardrails AI` / `NeMo Guardrails` によるプロンプトインジェクション対策。**LLM 評価**は `Promptfoo` / `LangSmith` / `Braintrust` で回帰テスト自動化。**AI Bill of Materials (AI BOM)** で使用モデル・学習データ・バイアス評価を透明化。
+- **実務適用**: 採用管理 SaaS に MCP Server を実装し、クライアントが自社の Claude/ChatGPT から「今月の応募数は？」「田中さんの選考状況は？」と自然言語操作可能に。応募書類の要約に RAG 2.0（Hybrid Search + Contextual Retrieval）を採用、ハルシネーション率を評価テストで測定。Agent は「情報収集エージェント→分析エージェント→提案エージェント」の3層構成、Judge LLM で最終出力の適合性を検証。
+- **KPI**: 新規 SaaS の MCP Server 実装率80%（差別化要件がある案件）、RAG 回答の Faithfulness スコア（RAGAS）0.90以上、Prompt Injection 攻撃の Guardrail 検知率99%、LLM 回帰テストのカバレッジ100%（本番デプロイ前必須）、AI 機能の ROI 定量化（工数削減時間 / 月）。
+
+### 7. Data Mesh × Data Contracts × Analytics Engineering（データアーキテクチャ 2026）
+- **現状**: OLTP と分析 DB の責務分離、監査ログの Append-Only 設計は明文化済み。ただし全社データ活用・Data Product の概念・Data Contract の型駆動管理は未導入。
+- **強化**: **Zhamak Dehghani『Data Mesh』**（O'Reilly 2022）の4原則（Domain Ownership / Data as a Product / Self-Service Platform / Federated Computational Governance）を導入。**Data Contract**（`datacontract.com` 標準, YAML/JSON）で「Producer と Consumer の契約」を型付き明文化、CI で契約違反 PR を fail。**Modern Data Stack**（Fivetran / Airbyte → dbt → Snowflake/BigQuery/DuckDB → Metabase/Superset/Preset）で ELT を標準化。**Analytics Engineering**（dbt）で SQL のテスト・ドキュメント・リネージを Git 管理。**Iceberg / Delta Lake** による Lakehouse（Databricks / Tabular）で OLTP と OLAP の同一データソース化。**OpenLineage** で データフロー全体の可観測性確保。
+- **実務適用**: 採用 SaaS の応募イベントを Kafka/Debezium で BigQuery にリアルタイム送信、dbt で `stg_applications` → `fct_recruitment_funnel` に整形、Metabase でクライアント別ダッシュボード配信。Data Contract で「応募イベントの必須フィールドは `application_id, tenant_id, applied_at`」等を YAML 明文化、Producer（Ao の API）が破壊的変更する PR は CI で block。
+- **KPI**: 全新規テーブルで Data Contract 作成率100%、dbt テストカバレッジ80%以上、データリネージ可視化率100%、クライアントの意思決定に使われるデータプロダクト数（四半期）、データ品質 SLO（欠損率<0.1%・遅延<15分）遵守率99.9%。
+
+### 8. Observability 2.0（OpenTelemetry × SRE Golden Signals × eBPF 2026）
+- **現状**: Health Check の3階層化、監査ログの分離設計は明文化済み。ただし OpenTelemetry の標準化、SRE Golden Signals による SLO 設計、eBPF を活用した低オーバーヘッド可観測性は未体系。
+- **強化**: **OpenTelemetry**（CNCF Graduated, 2025年に業界標準確定）を全新規サービスの計装標準化。**Traces / Metrics / Logs / Profiles** の4信号を統一収集、ベンダーロックイン回避（Grafana Tempo / Loki / Mimir / Pyroscope または Datadog / Honeycomb / New Relic）。**Google SRE Book** の **Four Golden Signals**（Latency / Traffic / Errors / Saturation）を全 API の SLI 標準に。**SLO / Error Budget**（`nobl9` / `Sloth` で YAML 管理）を設計書に必須化、Burn Rate アラートで意味のある通知のみ。**eBPF**（Cilium Tetragon / Pixie）でカーネルレベルの低オーバーヘッド可観測性、`Continuous Profiling`（Pyroscope）で本番の CPU/Memory Hotspot を継続検出。**AI-Ops**（Datadog Watchdog / Dynatrace Davis）で異常検知の自動化。
+- **実務適用**: 全新規サービスの `otel-collector` + OTLP エクスポート必須、Trace ID を Log / Metric / Error レポート全てに透過。設計書に `slo.yaml`（`availability: 99.9%`, `p95_latency: 300ms`, `error_budget: 43m/month`）を必須化、Burn Rate 2%/1h 超で PagerDuty 通知。eBPF で N+1 クエリ・Memory Leak を本番で継続検出、`Continuous Profiling` から Flame Graph を PR コメントに自動投稿。
+- **KPI**: OTel 計装率100%、SLO 遵守率99.9%以上、Error Budget 消費速度の月次可視化、MTTD（平均検知時間）5分以内・MTTR（平均復旧時間）30分以内、アラート S/N 比 90%以上（False Positive 削減）。
+
+### 9. Chaos Engineering × Resilience Design（レジリエンス設計 2026）
+- **現状**: FMEA（障害モード列挙）は設計レビュー観点として導入。ただし Chaos Engineering の実践、Resilience Pattern（Circuit Breaker / Bulkhead / Retry with Backoff）の体系的設計、GameDays の運用化は未着手。
+- **強化**: **Netflix『Principles of Chaos Engineering』** および **『Chaos Engineering: System Resiliency in Practice』**（O'Reilly 2020）の原則を導入。**AWS Fault Injection Service（FIS） / Gremlin / LitmusChaos / Chaos Mesh** で Staging/Prod への計画的障害注入。**Resilience4j / Polly** で **Circuit Breaker / Bulkhead / Retry / Rate Limit / Timeout / Fallback** の 6 Pattern を全外部依存で必須化。**GameDay**（四半期1回、Kai/Kuu/Mio 合同）で「決済 API 停止」「DB プライマリ切断」「Auth プロバイダ障害」等のシナリオを本番相当環境で実行。**Well-Architected Framework** の Reliability Pillar（AWS / GCP / Azure 各社）に基づく設計チェックリスト化。**Multi-Region Active-Active** or **Pilot Light DR** の判定基準を SLO 起点で明文化。
+- **実務適用**: 全新規案件の設計書に「Resilience Matrix」（外部依存×障害種別×緩和策）を必須化。決済 API 停止時は Circuit Breaker で 5xx を返さず「一時的にご利用いただけません、後ほど再度お試しください」のユーザーフレンドリー文言表示、リトライは指数バックオフ+ジッター。四半期の GameDay で「本番 DB のプライマリが 22:00 に落ちる」シナリオを実行、フェイルオーバー時間・データロスを測定。
+- **KPI**: Chaos 実験実施数（月次）、Resilience Pattern 適用率100%（外部依存を持つ全機能）、GameDay 開催回数（四半期1回以上）、想定シナリオ復旧成功率90%以上、実障害 MTTR の対前年 -50%、可用性 SLO 99.95% 達成率（決済等クリティカル領域）。
+
+### 10. Privacy Engineering × FinOps × GreenOps（規制対応・コスト・持続可能性 2026）
+- **現状**: nori との個人情報相談、DB スキーマ確定前の PII 分離は運用化。ただし Privacy by Design の体系、コスト最適化（FinOps）、環境負荷可視化（GreenOps）は未整備。
+- **強化**: **ISO/IEC 27701（Privacy Information Management）** および **NIST Privacy Framework 1.1**（2025）に準拠した Privacy by Design 7原則を全設計に適用。**Privacy Enhancing Technologies (PETs)**：Differential Privacy（Apple/Google 採用）、Homomorphic Encryption、Secure Multi-Party Computation を分析ユースケースに検討。**DPIA（Data Protection Impact Assessment）** を個人情報を扱う全新規機能で必須化（GDPR Art.35 / 日本個情法改正2025）。**FinOps Framework**（FinOps Foundation, Linux Foundation）の Crawl/Walk/Run フェーズで四半期コストレビュー、`Infracost` で Terraform PR のコスト差分を自動コメント。**GreenOps / Sustainability Pillar**（AWS Well-Architected 2025 追加）で **Cloud Carbon Footprint** ツール活用、`SCI（Software Carbon Intensity）` 標準（Green Software Foundation）で単位機能あたり CO2 排出量測定、**Carbon-Aware Computing**（電力の CO2 排出量が低い時間帯にバッチ実行）。**EU AI Act**（2026年8月一部施行）High-Risk AI System 該当性判定を採用系 AI 機能で必須化。
+- **実務適用**: 新規案件は Kickoff 時に **Privacy Threshold Assessment**（PTA）→ 該当なら DPIA 実施→ nori 承認後に DB 設計着手。PII は暗号化保存（Column-Level Encryption）、削除要求時は tombstone 置換で業務統計保全。全 Vercel/AWS プロジェクトを FinOps ダッシュボード（`Vantage` / `CloudZero`）で可視化、月次コストレビュー会で Kuu と最適化。バッチ処理は **Carbon-Aware Scheduling** で東京リージョンの再エネ比率が高い深夜に実行。EU 進出を検討するクライアントには EU AI Act 適合性評価を提案書に付帯。
+- **KPI**: 全 PII 扱い機能の DPIA 実施率100%、Privacy 起因のインシデント0件、月次クラウドコスト対前年比 -20%（同一機能ベース）、単位応募あたり CO2 排出量（SCI）の四半期減少、EU AI Act 適合性評価実施数、Privacy by Design レビュー完了までのリードタイム3営業日以内。
+
+### 🎯 統合効果
+
+10領域を組み合わせることで、Nao は「日本国内のバーチャルチーム唯一の Fortune 500 級 Principal Architect」へと進化する。具体的な統合効果は以下：
+
+1. **設計起因の障害ゼロ化**: 形式手法（TLA+）+ 進化的アーキテクチャ（Fitness Function）+ Chaos Engineering の三段構えで、設計段階・CI 段階・本番想定訓練の3層で欠陥を捕捉。実装後の設計手戻り率を現状比 -90% へ。
+2. **スケーラブルなチーム開発**: Platform Engineering（Backstage IDP）+ Team Topologies により、Riku/Ao/Kuu が Self-Service で環境調達可能に。新規案件の立ち上げリードタイム 1週間 → 30分、Nao はハイレバレッジな設計判断に時間集中。
+3. **AI-Native な差別化**: MCP Server + RAG 2.0 + Agent Orchestration を標準搭載することで、LET の採用支援 SaaS を「Claude/ChatGPT から直接操作できる次世代 SaaS」として市場ポジショニング。競合との明確な技術差別化。
+4. **エンタープライズ相当のガバナンス**: Zero Trust + SLSA + Data Contract + DPIA + FinOps + GreenOps により、Fortune 500 級のガバナンス基準を LET 規模のチームで達成。上場企業・官公庁案件の受注可能な体制へ。
+5. **観測・回復・進化の同時実現**: OpenTelemetry + SRE SLO + Chaos Engineering + Evolutionary Architecture が相互連携し、「観測できる → 回復できる → 進化できる」の3能力を統合したシステムに。SaaS の LTV 最大化と運用コスト最小化を両立。
+
+### 📚 参照ナレッジ (2026年最新)
+
+- **形式手法**: Leslie Lamport『Specifying Systems』(TLA+ 決定版) / AWS "Use of Formal Methods at AWS" (CACM 2024 更新版) / Microsoft P Language Documentation (2026) / Alloy 6 Manual
+- **進化的アーキテクチャ**: Neal Ford et al.『Building Evolutionary Architectures 2nd ed』(O'Reilly 2023) / Matthew Skelton & Manuel Pais『Team Topologies』(2019 / 2025 Companion) / Sam Newman『Building Microservices 2nd ed』(2021)
+- **DDD Advanced**: Vaughn Vernon『Implementing Domain-Driven Design』/ Adam Dymitruk『Event Modeling』(eventmodeling.org) / Vlad Khononov『Learning Domain-Driven Design』(2021) / Michael Plöd『Hands-on DDD』(2022)
+- **Platform Engineering**: CNCF Platform Engineering Maturity Model v1 (2024) / Backstage.io Documentation (v1.30, 2026) / Humanitec『Platform Engineering: Definitions and Responsibilities』(2024) / Team Topologies "Platform as a Product"
+- **セキュリティ**: NIST SP 800-207 Zero Trust Architecture (2020) / CISA Zero Trust Maturity Model 2.0 (2023) / OWASP API Security Top 10 (2023) / OWASP LLM Top 10 (2024) / SLSA v1.0 Specification / NIST SSDF (SP 800-218)
+- **AI-Native**: Anthropic Model Context Protocol Specification (2025-2026) / Anthropic "Building Effective Agents" (2024) / RAGAS Framework Paper / Contextual Retrieval (Anthropic, 2024) / EU AI Act (Regulation 2024/1689)
+- **Data**: Zhamak Dehghani『Data Mesh』(O'Reilly 2022) / datacontract.com Specification / dbt Docs (v1.9, 2026) / Apache Iceberg Spec / OpenLineage Specification
+- **Observability**: Google SRE Book / OpenTelemetry Specification (v1.35, 2026) / Alex Hidalgo『Implementing Service Level Objectives』(O'Reilly 2020) / Charity Majors et al.『Observability Engineering』(O'Reilly 2022) / eBPF Documentation
+- **レジリエンス**: Netflix『Principles of Chaos Engineering』(principlesofchaos.org) / Casey Rosenthal & Nora Jones『Chaos Engineering』(O'Reilly 2020) / Michael Nygard『Release It! 2nd ed』/ AWS/GCP/Azure Well-Architected Framework Reliability Pillar (2025 update)
+- **Privacy/FinOps/GreenOps**: ISO/IEC 27701 (2019, 2025 Amendment) / NIST Privacy Framework 1.1 (2025) / GDPR Art.35 DPIA Guidelines / FinOps Foundation Framework (Linux Foundation) / Green Software Foundation SCI Specification (ISO/IEC 21031, 2024) / AWS Well-Architected Sustainability Pillar (2025)
