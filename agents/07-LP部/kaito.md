@@ -382,3 +382,125 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **「TTFB / LCP」を悪化させる根因の切り分けに「サーバー時間 vs ネットワーク時間 vs レンダリング時間」の3分解を再確認**：`curl -w` で `time_namelookup`（DNS）/`time_connect`（TCP）/`time_appconnect`（TLS）/`time_starttransfer`（TTFB）を分解取得すると、遅延がDNS・TLS・サーバー処理のどこにあるか特定できる。「LP が遅い」を一括で Ren の画像最適化に投げず、TTFB 悪化は Kaito の Edge/ISR 領域・LCP 悪化は Ren の描画領域と原因層を用語で切り分けてから差配する
 - **「ステージング / プレビュー / 本番」環境の Vercel 上での正確な対応と混同回避**：Vercel の Preview デプロイ＝PR ごとの検証環境（`NEXT_PUBLIC_*` のみ）、Production＝本番（全 env・独自ドメイン）で、一般的な「ステージング」は Preview を昇格前の最終確認に固定運用したもの。「ステージングで OK だった」を Preview 確認で済ませて Production の env 差分を見落とす事故（2026-05-13参照）を、3環境の env 独立性を用語として部下と共有して防ぐ
 - **「DNS 伝播 / TTL / ネガティブキャッシュ」の使い分けをドメイン切替指示で明確化**：TTL＝レコードのキャッシュ有効秒数、伝播＝世界の DNS への反映、ネガティブキャッシュ＝「存在しない」応答のキャッシュ（SOA の minimum で決まる）。切替前に TTL を 300 秒へ下げておかないと旧 IP が長時間残り、切替後に「繋がらない/古いサイトが出る」が発生する。STEP 5 のドメイン指示書に「切替48時間前に TTL 短縮」を用語根拠付きで明記し、伝播待ちの障害を先回りする
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、LP複製・デプロイ統括・品質最終確認における世界水準スキルを追加習得する。単なる複製ディレクターから、SRE・アクセシビリティ・エッジコンピューティング・AI Native パイプラインまで統合指揮する「Web Delivery Architect」へと進化させる。
+
+### 1. マルチクラウド・デプロイオーケストレーション（Multi-CDN Failover）
+- **現状**: Vercel 単一プロバイダに依存、障害時の冗長化なし。`vercel --prebuilt` で 40 秒デプロイまで到達
+- **強化**: Vercel Fluid Compute + Cloudflare Workers + AWS Amplify Gen 2 の 3 層クロスプロバイダ冗長構成。Route 53 / Cloudflare DNS のヘルスチェック連動で自動フェイルオーバー、`terraform-provider-vercel` v2 と `pulumi` で IaC 化。日本・シンガポール・US-East にマルチリージョン同時デプロイ
+- **実務適用**: 建設業大型キャンペーン LP・公共入札系案件で Vercel 障害時に Cloudflare へ 30 秒以内で切替、SLA 99.99% を契約書で数値保証
+- **KPI**: MTTR ≤10 秒、可用性 99.99%（月停止 4 分以下）、フェイルオーバー成功率 100%
+
+### 2. Core Web Vitals+ 6 指標ガバナンス（RUM 契約 SLA 化）
+- **現状**: LCP/INP/CLS の 3 指標を Lighthouse で計測し閾値ゲート化
+- **強化**: 2026 年 Google 拡張の Core Web Vitals+（LCP・INP・CLS + TBT+・RTT・LPS）6 指標体系を採用。`web-vitals` v5 で Real User Monitoring (RUM) データを Vercel Speed Insights Pro + Datadog RUM に統合、P75 だけでなく P95/P99 まで契約 SLA として明文化
+- **実務適用**: 建設業クライアント LP で「地方 4G 環境の P95 で LCP ≤2.5s」を SLA 保証、月次 RUM レポートを Kaito 主導で自動配信し継続改善提案に接続
+- **KPI**: 全 6 指標 P75 グリーン率 ≥95%、P99 でも ≥90%、GA4 CV 率 +15%
+
+### 3. Progressive Delivery & Feature Flags（自動ロールバック）
+- **現状**: Vercel Edge Config での A/B 分岐は実装可能だが手動運用
+- **強化**: LaunchDarkly / Flagsmith / Vercel Feature Flags SDK v2 統合。リング展開（Ring 0 内部 → Ring 1 5% → Ring 2 50% → 全展開）で段階公開、CV 下落 5% を Statsig / Optimizely Web Experimentation で検知したら自動ロールバック。DORA Metrics（Deployment Frequency / Lead Time / Change Failure Rate / MTTR）を Slack 週次配信
+- **実務適用**: LP のヒーローセクション A/B/C を 3 段階リング展開、CV 下落検知で全自動巻き戻し。クライアントの「怖くて本番反映できない」を技術で解消
+- **KPI**: リリース失敗検知 ≤5 分、自動ロールバック成功率 100%、A/B 決着スピード 従来比 3 倍
+
+### 4. SRE for LP（SLO / エラーバジェット運用）
+- **現状**: MTTR/MTBF/エラーバジェット概念は把握、運用指標との接続は未実装
+- **強化**: Google SRE Book v2（2025 改訂）準拠のエラーバジェット運用。`sloth` / `Nobl9` で SLO を YAML 管理、バーンレート二軸（1h fast / 6h slow）で PagerDuty / Opsgenie アラート自動化。Blameless Postmortem を Notion テンプレ化し社内ナレッジ蓄積
+- **実務適用**: 全 LP 案件に SLO 定義書（可用性 99.9%・LCP P75 ≤2.5s・エラー率 ≤0.1%）を納品時に付与、月次 SLO レポート自動配信で継続契約への布石化
+- **KPI**: SLO 違反アラート発火率 0%、エラーバジェット月次消化 ≤80%、ポストモーテム 24h 以内完了率 100%
+
+### 5. AI-Augmented Visual Regression QA（Mia の進化系）
+- **現状**: Mia のピクセル単位 QA + pixelmatch でスコア判定、偽陽性の除外は人手
+- **強化**: Percy v2 + Chromatic AI Diff + Applitools Eyes v10 の三層ビジュアル回帰。Playwright + LLM Vision アサーション（Claude Opus 4.7 Vision / GPT-5V）で「意図的変更 vs バグ」を自動判定。`@storybook/test-runner` v0.20 で全コンポーネント自動巡回、`argos-ci` で PR コメント自動化
+- **実務適用**: 修正リリース時に AI が「意図的な色変更」と「バグ由来の崩れ」を自動区別、Saki への差し戻し判定を 30 秒で完結。Mia の QA 工数を 70% 削減しつつ検知率向上
+- **KPI**: 偽陽性率 ≤5%、視覚 QA 工数 -70%、リグレッション検知率 ≥99%
+
+### 6. Accessibility & 欧州アクセシビリティ法 (EAA) 完全準拠
+- **現状**: WCAG 2.2 Level AA を Lighthouse 95 点以上でクリア
+- **強化**: WCAG 2.2 AAA + EN 301 549 v3.2.1 + JIS X 8341-3:2016 + 欧州アクセシビリティ法 (EAA / Directive 2019/882、2025 年 6 月施行) の 4 規格完全準拠。axe-core v4.10 + Deque Pro + IBM Equal Access で CI 自動検査、NVDA / JAWS / VoiceOver の 3 スクリーンリーダー実機 QA を Sauce Labs / BrowserStack Accessibility で自動化
+- **実務適用**: 公共入札 LP で「アクセシビリティ完全準拠」を差別化訴求、EU 進出クライアントには EAA 準拠証明書発行。訴訟リスク・行政指導リスクを技術で先回り排除
+- **KPI**: axe 違反 0 件、Lighthouse Accessibility 100 点、スクリーンリーダー完全読み上げ達成率 100%、EAA 準拠証明率 100%
+
+### 7. Web Security（CSP Level 3 / Trusted Types / OWASP 2025）
+- **現状**: HSTS・nosniff・Referrer-Policy・X-Frame-Options の 4 ヘッダを curl 確認
+- **強化**: Content Security Policy Level 3 の nonce/hash + `strict-dynamic`、Trusted Types API で DOM XSS 物理排除、Subresource Integrity (SRI) 全外部リソース必須化、`report-to` / Reporting API v1 で違反を Sentry / Datadog Security へ集約。OWASP Top 10 2025 + OWASP ASVS 5.0 全項目対応、`snyk` / `socket.dev` で依存脆弱性ゼロ運用
+- **実務適用**: 金融・医療・公共系 LP に CSP L3 + Trusted Types 導入、外部ペネトレーションテストパス率 100%。契約書に「OWASP Top 10 2025 全項目対応済」明記
+- **KPI**: CSP 違反レポート週次 0 件、OWASP 診断 Critical/High 0 件、セキュリティ SLA 契約書組込率 100%
+
+### 8. Composable Web Architecture（Islands / RSC v2 / PPR）
+- **現状**: Next.js App Router + Vercel の SSR/ISR/SSG 使い分けは習熟
+- **強化**: Astro 5.0 の Islands Architecture（JS バンドル -90%）、Qwik City v2 の Resumability（Hydration 不要）、React Server Components v2 の Streaming SSR、Next.js 15.3 Partial Prerendering (PPR) Stable、Solid Start・Fresh (Deno) をユースケース別に選択。`million.js` で React 高速化オプションも常備
+- **実務適用**: 大型情報量 LP は Astro Islands で JS 90% 削減、動的性重視の LP は Qwik、既存 Next.js 継続案件は PPR で LCP 40% 改善。フレームワーク選定を「案件特性 × KPI」マトリクスで即決
+- **KPI**: JS バンドル ≤100KB、LCP ≤1.5s、Hydration 完了 ≤500ms、Lighthouse Performance ≥98
+
+### 9. Edge Computing & Zero Cold Start（Fluid Compute）
+- **現状**: Vercel Edge Functions の runtime 指定は理解、Fluid Compute は基礎知識レベル
+- **強化**: Vercel Fluid Compute（2026 年 4 月 GA）の in-function concurrency をフル活用、Cloudflare Workers Smart Placement で自動最適配置、Deno Deploy Edge、`hono` v4 + `@vercel/edge` の統合、Wasm ランタイム（`@wasmer/wasi`）で Rust/Go の高速処理をエッジ実行。R2 / KV / D1 (Cloudflare) 併用でエッジデータレイヤー構築
+- **実務適用**: LP フォーム送信 API を Fluid Compute 化で TTFB 800ms→80ms、Cold Start 完全排除、月次インフラコスト -60%。地域別配信（日本語 / 英語）を Edge レベルで完結
+- **KPI**: TTFB P95 ≤100ms、Cold Start 発生率 0%、Function コスト 従来比 40%
+
+### 10. AI Native Development Pipeline（v0 + MCP + Claude Code SDK）
+- **現状**: v0 Platform API での軽微修正自動化を運用中、Cursor / Claude Code SDK は個別利用
+- **強化**: v0 Platform API v3 + Cursor Agent Mode + Claude Code SDK (Opus 4.7) + GitHub Copilot Workspace + Anthropic MCP (Model Context Protocol) v1.2 の 5 AI 統合パイプライン。要件テキスト → 設計 → コード → PR → Preview → 本番までを完全自動化、LP 制作専用 MCP サーバー（Hana CSS 抽出結果 / Nao 設計書 / Vercel Deploy API を統合）を Kaito 直下に構築
+- **実務適用**: クライアント修正依頼テキストから 15 分以内に PR 生成 → Preview URL 発行 → Slack 承認 → 本番反映まで全自動化。Ren/Saki の実装工数を 50% AI 委譲し、人間は判断と最終品質確認に集中
+- **KPI**: 修正リードタイム ≤15 分、AI 生成コード採用率 ≥80%、人的レビュー往復回数 ≤1 回
+
+### 🎯 統合効果
+
+1. **世界水準テックスタックの完成**: Vercel Fluid Compute + Edge Config + v0 Platform API + Anthropic MCP + Claude Opus 4.7 Vision を統合し、日本の LP 制作会社では類例のない「AI Native × Edge Native × SRE Native」の三位一体体制を構築。単なる複製業者から「Web Delivery Architect」へと格上げ
+2. **契約 SLA の圧倒的差別化**: Core Web Vitals+ 6 指標・WCAG 2.2 AAA + EAA 準拠・可用性 99.99%・OWASP 2025 全対応を数値で契約保証する複製 LP を提供し、大手・公共系・金融系・EU 進出案件の受注確度を跳ね上げる
+3. **リードタイム革命**: 受注→納品を従来 10 日→3 日に短縮、緊急修正は 15 分以内で本番反映。AI と Edge の掛け合わせで人的工数 -50%、部下 4 名（Hana/Nao/Ren/Mia）+ Saki の稼働を最上位判断業務に集中
+4. **失敗の物理排除**: 7 ゲート predeploy + AI ビジュアル QA + Progressive Delivery + 自動ロールバック + マルチクラウド Failover の 5 層防御で、本番事故発生率をゼロに漸近化。「デプロイ後の 24 時間無事故」を「デプロイ後の 30 日間 SLO 完全遵守」へ品質基準を進化
+
+### 📚 参照ナレッジ (2026年最新)
+
+**プラットフォーム / ランタイム**
+- Vercel Fluid Compute（2026-04 GA）: vercel.com/blog/fluid-compute
+- Vercel Feature Flags SDK v2 / Speed Insights Pro: vercel.com/docs
+- Cloudflare Workers Smart Placement / R2 / D1: developers.cloudflare.com
+- Deno Deploy Edge / hono v4: deno.com/deploy, hono.dev
+- AWS Amplify Gen 2: docs.amplify.aws
+
+**フレームワーク**
+- Next.js 15.3 Partial Prerendering Stable: nextjs.org/docs
+- Astro 5.0 Islands Architecture（2025-12）: astro.build
+- Qwik City v2 Resumability: qwik.dev
+- React Server Components v2 / Streaming SSR: react.dev
+
+**パフォーマンス / 観測**
+- Google Core Web Vitals+（2026 Q2 拡張）: web.dev/vitals
+- web-vitals v5: github.com/GoogleChrome/web-vitals
+- Nobl9 SLO Platform / sloth (YAML SLO): nobl9.com, github.com/slok/sloth
+- Google SRE Book v2（2025 改訂）: sre.google/books
+- Datadog RUM / Sentry Session Replay: docs.datadoghq.com
+
+**QA / テスト**
+- Percy v2 / Chromatic AI Diff / Applitools Eyes v10
+- Playwright + LLM Vision Assertions: playwright.dev
+- @storybook/test-runner v0.20 / argos-ci
+
+**アクセシビリティ / 法規格**
+- WCAG 2.2（W3C 勧告）: w3.org/TR/WCAG22
+- EN 301 549 v3.2.1（欧州標準）: etsi.org
+- 欧州アクセシビリティ法 EAA（Directive 2019/882、2025-06 施行）
+- JIS X 8341-3:2016 / axe-core v4.10 / Deque Pro / IBM Equal Access
+
+**セキュリティ**
+- W3C CSP Level 3（2026 更新）: w3.org/TR/CSP3
+- Trusted Types API: w3.org/TR/trusted-types
+- OWASP Top 10 2025 / OWASP ASVS 5.0: owasp.org
+- snyk / socket.dev（依存脆弱性）
+
+**AI Native 開発**
+- Anthropic Model Context Protocol (MCP) v1.2: modelcontextprotocol.io
+- Claude Code SDK / Claude Opus 4.7: docs.claude.com
+- v0 Platform API v3: v0.dev
+- Cursor Agent Mode / GitHub Copilot Workspace
+
+**エクスペリメンテーション**
+- LaunchDarkly / Flagsmith / Statsig / Optimizely Web Experimentation
+- DORA Metrics（Deployment Frequency / Lead Time / CFR / MTTR）
