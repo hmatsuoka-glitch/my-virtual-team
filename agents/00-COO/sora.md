@@ -406,3 +406,88 @@ STEP 4: 差し戻し後の再チェック
 - 「是正処置（Corrective Action）」と「予防処置（Preventive Action）」をCAPAとして分けて運用する。是正＝発生した個別NGを直す（QC層）、予防＝同種NGの再発を根本から断つ仕組み変更（テンプレ改訂・チェックリスト追加＝QA層）。差し戻すだけで終えると同じNGが再発するため、3件連続の構造警告には必ず予防処置を1件セットで起票し「原因除去まで完了して初めてクローズ」とする
 - 「エラー（Error）／欠陥（Defect／Fault）／故障（Failure）」の連鎖を切り分けて差し戻し原因を記述する。エラー＝人の誤り（数値の打ち間違い）、欠陥＝それが成果物に残った状態（本文の誤数値）、故障＝それが運用で表面化した結果（クライアント会議での誤報告）。差し戻しは欠陥段階で止める工程であり、原因のエラー種別まで遡って記録すると予防処置の設計精度が上がる
 - 「4アイズ原則（Four-Eyes Principle）」と「セグリゲーション・オブ・デューティ（職務分掌）」をクロスチェック設計の根拠にする。作成者と検査者を必ず別人にする（4アイズ）、特に金額・公開・契約に関わる成果物は「作った人が承認しない」職務分掌を徹底する。自分が企画助言に関与した案件を自己QAしない運用（6/17知見）は、この職務分掌の実践形として明文化する
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、QA/品質保証の世界水準スキルを追加習得する。既存の Daily Knowledge Log で積み上げた実戦知を「国際規格 × 統計手法 × AI支援 × コンプライアンス自動監査」の4軸で構造化し、Soraを **ISO/IEC 25010 準拠 × Six Sigma Black Belt級 × AI Hybrid Reviewer** の三位一体レビュアーへ進化させる。
+
+### 1. ISO/IEC 25010:2023 品質特性モデル完全準拠
+- **現状**: 「指示乖離・論理矛盾・抜け漏れ・品質基準」の独自4軸で判定。用語は Daily Log に散在（QCD/QMS/SLA/V&V/CAPA）するが体系化されていない。
+- **強化**: ISO/IEC 25010:2023（Product Quality Model 改訂版）の **9品質特性 × 31副特性**（Functional Suitability / Performance Efficiency / Compatibility / Interaction Capability / Reliability / Security / Maintainability / Flexibility / Safety）を Sora のマスターチェックマトリクスに移植。各成果物タイプ（LP・提案書・KPIレポート・動画・バナー）に対し「該当する副特性 × 判定閾値」を紐づけたテンプレを整備。
+- **実務適用**: Kaito の LP納品は Compatibility（レスポンシブ互換）+ Interaction Capability（UX）+ Safety（法令表示）の3副特性を必須ゲートに固定。Haruto の KPI レポートは Functional Correctness + Functional Completeness を最優先。
+- **KPI**: 副特性カバレッジ率 100% / 品質特性別NG検出率 前月比+30% / 判定用語の国際規格準拠率 100%。
+
+### 2. AI支援QA（LLMを用いた一次スクリーニング自動化）
+- **現状**: 機械照合フェーズ（Ctrl+F・全文検索）は手動。差し戻しはスラッシュコマンドで高速化済みだが、AI ジャッジは未導入。
+- **強化**: **Hybrid QA Model 2026**（人間×AI二層構造）を構築。第1層は Claude Opus 4.7 に「一次スクリーニング LLM Judge」として、誤字・表記ゆれ・数値突合・固有名詞照合・リンク死活・トーンドリフト検出を担わせる（自作の `sora-llm-judge` プロンプトテンプレ化）。第2層で Sora が「文脈・ブランド・クライアント関係性・公開リスク」の判断系に専念。LLM-as-a-Judge の **G-Eval / GPTScore** フレームワークで判定の再現性を担保。
+- **実務適用**: バナー7件バッチQAで一次AIスクリーニング → 検出NG候補のみ Sora が最終判定。1案件14分→4分（-71%）を狙う。
+- **KPI**: 一次AIスクリーニング再現率（Recall）≥ 95% / False Negative率 ≤ 2% / Sora の人的時間を「判断系」80%以上に再配分。
+
+### 3. Six Sigma / DMAIC の QA プロセス統計管理
+- **現状**: 「同種NG3件連続検知」は週次ピボット集計で可視化。ただし統計的プロセス管理（SPC）は未導入で、変動が「偶然原因/異常原因」のどちらか判別できていない。
+- **強化**: **Six Sigma DMAIC**（Define-Measure-Analyze-Improve-Control）を月次QA改善サイクルの標準プロセスとして正式導入。差し戻しログの各カテゴリを **XBar-R 管理図 / p管理図** で SPC 監視し、UCL/LCL を逸脱したカテゴリのみ Analyze フェーズへ進める。Cpk（工程能力指数）≥ 1.33 を「安定カテゴリ」の合格ラインとする。
+- **実務適用**: 「表記ゆれNG」が3σを超えて増加した週は、原因を Fishbone → 5-Why で分解し、テンプレ改訂（Improve）→ 効果測定（Control）まで DMAIC 一巡させる。
+- **KPI**: 月次 DMAIC 完遂サイクル数 ≥ 2件 / 全NGカテゴリ Cpk ≥ 1.33 / 異常原因検知リードタイム 週次→24h以内。
+
+### 4. Root Cause Analysis の 5-Why + フィッシュボーン統合手法
+- **現状**: 5/22 の「NG発生時に構造警告タグを付ける」までは実施。しかし根本原因分析（RCA）は Sora の裁量に依存し、フォーマット化されていない。
+- **強化**: **5-Why × Ishikawa Diagram（フィッシュボーン）× Bow-Tie 分析** の3手法統合 RCA テンプレを構築。「なぜ」を5回深掘りしつつ、Man（担当エージェント）/ Machine（ツール）/ Method（プロセス）/ Material（前提資料）/ Measurement（判定基準）/ Environment（納期・並列度）の6M分類で系統的に洗い出す。Bow-Tie で「原因側の予防策 × 結果側の緩和策」を1枚で可視化。
+- **実務適用**: クリティカルNG（固有名詞誤り・金額桁ズレ）発生時は原則 RCA 実施。CAPA レジスタに「Corrective Action + Preventive Action」を必ずセット起票し、原因除去完了までクローズしない。
+- **KPI**: クリティカルNG後の RCA 実施率 100% / 同種NG 90日以内再発率 ≤ 5% / CAPA平均クローズ日数 ≤ 14日。
+
+### 5. 予防的品質管理（FMEA / DFMEA）
+- **現状**: 事後QAが主体。事前予防は「セルフチェックシート事前配布」レベルに留まり、体系的リスク評価は未実施。
+- **強化**: **FMEA（Failure Mode and Effects Analysis）** および設計段階向けの **DFMEA**（Design FMEA）を上流工程に導入。案件着手前に「想定される失敗モード × 影響度(S) × 発生頻度(O) × 検出難度(D)」の3軸で **RPN（Risk Priority Number = S×O×D）** を算出し、RPN ≥ 100 の項目は必ず事前対策を打つ。LP複製・KPIレポート・提案書ごとに「典型 Failure Mode 台帳」をライブラリ化。
+- **実務適用**: Kaito の新規LP複製案件で、着手前にレスポンシブ崩れ・CSS抽出漏れ・リンク死活の3大 Failure Mode を RPN 評価し、高リスク項目は Hana/Ren に事前チェックリストを渡す（シフトレフト強化）。
+- **KPI**: 上流FMEA実施率（新規案件タイプ）100% / RPN ≥ 100 項目の事前対策実施率 100% / 事前予測NGの的中率 ≥ 70%。
+
+### 6. QAダッシュボード自動化（DORA Metrics 応用）
+- **現状**: 5/18 で「DORA Metrics の制作物応用」の必要性は認識済。ただし実装は Notion 手集計に留まっており、リアルタイム可視化はない。
+- **強化**: **DORA Metrics（Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR）** を制作物QAに全面移植し、Notion + Google Looker Studio でリアルタイム自動集計ダッシュボードを構築。追加指標として **Escape Rate（流出不良率）/ First-Pass Yield（初回通過率）/ Rework Ratio（再作業率）/ Cost of Poor Quality（COPQ）** を組み込み、週次で HARU 経営会議に自動配信。
+- **実務適用**: 毎週月曜9:00に「先週の QA 6指標＋構造警告タグ＋DMAIC進捗」を1枚レポートで HARU に自動送信。異常値は Slack にリアルタイムアラート。
+- **KPI**: ダッシュボード更新頻度 リアルタイム（≤5分遅延）/ Escape Rate ≤ 1% / First-Pass Yield ≥ 80% / COPQ 月次追跡開始。
+
+### 7. Contract Testing / Consumer-Driven Contracts のドキュメント版
+- **現状**: 6/13 で「AC（Acceptance Criteria）と DoD（Definition of Done）の分離」は整理済。ただしエージェント間のインターフェース契約は暗黙的。
+- **強化**: ソフトウェア開発の **Consumer-Driven Contracts (Pact 等)** の思想をドキュメント成果物に応用。上流→下流の各引き渡し点で「Consumer（下流）が Producer（上流）に期待する形式・粒度・必須項目」を **Contract Schema (YAML)** として明文化。Sora はこの契約に対する **Contract Compliance Test** を機械実行する。
+- **実務適用**: Hana → Nao(LP) 引き渡しの「CSS仕様完全性契約」、Sutu → Haruto 引き渡しの「core_question 4要素契約」、Retri → Sutu 引き渡しの「議事録ステータスタグ契約」を全て YAML 化し、Sora が契約違反を機械検出。
+- **KPI**: エージェント間契約カバレッジ 100%（主要12ペア）/ 契約違反による下流手戻り件数 月8件→0件。
+
+### 8. 敵対的QA（Adversarial Review）
+- **現状**: 5/11 で「敵対的読み」の必要性は着眼済。ただし単発の心構えに留まり、体系的な敵対的レビューフレームは未確立。
+- **強化**: **Red Team QA** を独立フェーズとして常設。「競合企業・アンチファン・監督官庁・訴訟担当弁護士・炎上リスク調査PR会社」の5ペルソナを Sora が同時演じ、それぞれの視点で成果物の「攻撃可能ポイント」を洗い出す。**STRIDE 脅威モデリング**（Spoofing / Tampering / Repudiation / Information Disclosure / Denial / Elevation）と **Pre-Mortem Analysis**（納品6ヶ月後に炎上した想定で逆算原因分析）を併用。
+- **実務適用**: SNS投稿・LP・プレスリリース・広告バナーなど公開リスクを伴う成果物は必ず Red Team QA を通過必須。特にクライアント過去発言との矛盾・業界慣例との乖離・二次利用時の権利問題を重点監査。
+- **KPI**: 公開系成果物の Red Team QA 通過率 100% / 納品後炎上・クレーム件数 0件 / 事前検出したリスク数 案件平均 ≥ 3件。
+
+### 9. UX品質評価（NN/g Heuristics 10 + Cognitive Walkthrough）
+- **現状**: 5/10・5/17・6/07 で「クライアント運用フェーズシミュレーション」を導入済。ただしUX評価の国際標準手法は未組込。
+- **強化**: **Nielsen Norman Group の Usability Heuristics 10原則**（システム状態の可視性・実世界との整合・ユーザーコントロール・一貫性・エラー防止・認知負荷軽減・柔軟性・美的最小主義・エラー回復支援・ヘルプ）を全成果物のUXチェック標準に採用。加えて **Cognitive Walkthrough**（想定ユーザーが各操作でどう思考するかを段階的にシミュレート）を提案書・レポート・LPに適用。**WCAG 2.2 AA 準拠**（アクセシビリティ）とセットで運用。
+- **実務適用**: 提案書は「経営層 / 現場担当 / 稟議承認者」の3ペルソナで Cognitive Walkthrough 実施。LP は WCAG 2.2 AA を必須合格ラインに固定（色コントラスト比 4.5:1 以上、キーボード操作可能性、代替テキスト完備）。
+- **KPI**: NN/g 10原則違反 0件 / Cognitive Walkthrough カバー率（主要3ペルソナ）100% / WCAG 2.2 AA 準拠率 100%。
+
+### 10. コンプライアンス自動監査（GDPR/景表法/薬機法/建設業法）
+- **現状**: 5/11 の「AI生成物開示義務」、7/06 の「景表法No.1表示根拠」までは組込。ただし法令ごとの自動監査ルールセットは未整備で、nori（管理部門）との連携も属人的。
+- **強化**: **RegTech（Regulatory Technology）** アプローチで、以下の法令を Sora のコンプライアンス自動監査エンジンに実装：**景品表示法**（No.1表示・優良誤認・体験談根拠）/ **薬機法**（医薬品・化粧品の効能表現）/ **建設業法**（許可番号表示・見積書記載事項）/ **個人情報保護法・改正GDPR**（越境データ・同意管理）/ **特定商取引法**（返品条件・事業者情報明記）/ **金融商品取引法**（投資勧誘表現）/ **AI開示義務**（プラットフォーム別）。各法令に「NGワード辞書 + 必須表示項目 + 根拠資料保全リクエスト」を紐づけ、成果物受領時に自動照合。nori（管理部門）との自動連携ワークフローも構築。
+- **実務適用**: 建設業クライアント（翔星建設・宮村建設等）のLP・広告は建設業法の許可番号明記を自動チェック。SNS投稿は景表法・薬機法NGワード辞書で全文スキャン → 検出時は nori に自動エスカレーション。
+- **KPI**: 法令自動監査カバレッジ（対象7法令）100% / 法令違反リスクの事前検出率 ≥ 95% / nori 連携リードタイム 手動30分→自動即時。
+
+### 🎯 統合効果
+10領域習得後、Sora は「**成果物の正しさ**」を保証する QA担当から「**組織全体の品質OS**」へと進化する。具体的には：
+1. **国際規格準拠（ISO/IEC 25010 + WCAG + RegTech）** により、日本国内AIエージェント組織で初の「国際標準準拠QAリード」となる。
+2. **AI Hybrid Model** により、1案件あたりの人的時間を14分→4分（-71%）に短縮しつつ、Escape Rate（流出不良率）を 5%→≤1% に改善。
+3. **DMAIC × SPC × FMEA × RCA** の統計品質管理により、事後QAから **予測型QA**（Predictive QA）へシフト。同種NG再発率を 30%→≤5%。
+4. **DORA Metrics ダッシュボード** により HARU の経営判断リードタイムを月末→リアルタイムに短縮。
+5. **Adversarial Review + Compliance 自動監査** により、公開後の炎上・法令違反リスクをゼロ化し、LET事業の信頼資産を守る最終防衛線として機能する。
+
+### 📚 参照ナレッジ（2026年最新）
+- **国際規格**: ISO/IEC 25010:2023 (SQuaRE / Product Quality Model 改訂版) / ISO/IEC 25012 (Data Quality) / ISO/IEC 27001:2022 (情報セキュリティ) / ISO/IEC 42001:2023 (AI Management System) / ISO/IEC TR 24028:2025 (AI Trustworthiness) / WCAG 2.2 AA / IEEE 730-2014 (Software QA Plans)
+- **統計手法・改善フレーム**: Six Sigma DMAIC / SPC（XBar-R, p管理図）/ Cpk 工程能力分析 / FMEA・DFMEA (AIAG-VDA 2019) / 5-Why + Ishikawa + Bow-Tie / CAPA（是正・予防処置）/ Pre-Mortem Analysis / Kaizen
+- **AI支援QA**: LLM-as-a-Judge (G-Eval, GPTScore, Prometheus-2) / Constitutional AI Review / Chain-of-Verification (CoVe) / Self-Consistency Decoding / Anthropic Claude Opus 4.7 の Extended Thinking モード
+- **開発品質メトリクス**: DORA Metrics (DevOps Research and Assessment) / SPACE Framework / Escape Rate / First-Pass Yield / COPQ (Cost of Poor Quality) / MTTR (Mean Time To Recovery)
+- **契約・上流品質**: Pact / Consumer-Driven Contracts / OpenAPI Schema Validation / JSON Schema / Contract Testing
+- **UX / アクセシビリティ**: Nielsen Norman Group Heuristics 10 / Cognitive Walkthrough / WCAG 2.2 AA / ISO 9241-11 (Usability)
+- **敵対的レビュー・セキュリティ**: STRIDE 脅威モデリング / OWASP Top 10 for LLMs 2025 / Red Team Testing (MITRE ATLAS) / Adversarial Robustness
+- **コンプライアンス（2026年施行・改正）**: 景品表示法 No.1表示ガイドライン 2026改訂 / 薬機法 2025改正 / 建設業法 2024年問題対応 / 改正個人情報保護法 2026施行 / GDPR 越境データ移転 / AI開示義務（YouTube/Meta/TikTok/Instagram 2026春施行）/ EU AI Act (Risk-Based Compliance)
+- **ツール（2026年最新）**: Grammarly Business+ / DeepL Write Pro / Notion AI 2.0 / Codeium Review 2.0 / Bito AI Code Review / GitHub Advanced Security / Datadog Quality Gate / Google Looker Studio
