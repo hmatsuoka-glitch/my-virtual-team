@@ -402,3 +402,141 @@ Web検索とGoogle Driveの既存資料から、市場・競合・ベンチマ�
 - **「一人親方」「常用」「常傭（じょうよう）」「日雇」の就業形態用語を採用ターゲット定義に直結して再確認**：一人親方＝労働者を雇わず自ら現場作業する個人事業主（雇用でなく請負、労災特別加入の対象）、常用＝特定事業者に継続的に雇用される形態、常傭＝日給月給等で継続的に使われるが雇用/請負の境界が曖昧な慣行的形態、日雇＝日単位の雇用。建設業の「働き方改革・社会保険加入義務化」は雇用と請負の線引きに直結し、偽装請負（実態は雇用なのに一人親方扱い）は法的リスク。クライアントの「うちは職人を◯人抱えている」がどの形態を指すかで、採用ターゲット（正社員採用か協力会社確保か）も社保コストも変わるため、提案前に就業形態を必ず定義確認する。
 - **「施工管理技士」の資格区分（1級/2級・種別）と「技能者」の資格を採用要件で取り違えない再確認**：施工管理技士＝現場を管理する国家資格（1級=大規模・監理技術者になれる、2級=中小規模・主任技術者、種別は建築/土木/管/電気工事等）で「管理する人」の資格。技能士・各種技能講習修了＝実作業を担う技能者の資格で「手を動かす人」の資格。両者は採用市場での希少性・年収・採用難易度が全く異なり、有資格の施工管理技士は特に奪い合い（2026-05-09の職種別倍率参照）。クライアントの「資格者が欲しい」が管理職（施工管理技士）なのか技能者なのかを区別し、求める資格の正式名称・級・種別まで確定してから求人票・競合比較の要件を設計する。
 - **「主任技術者」と「監理技術者」の配置義務の違いを採用の緊急度判定に接続して再確認**：主任技術者＝原則すべての建設工事現場に配置義務（2級施工管理技士等で可）、監理技術者＝発注者から直接請け負い下請合計4,500万円以上（建築一式は7,000万円以上）の特定建設業の現場に配置義務（1級施工管理技士等＋監理技術者資格者証が必要）。この配置義務が「有資格者を採れないと受注できる工事規模に上限がかかる」という受注制約に直結するため、クライアントが元請で大型公共・民間工事を狙うなら監理技術者採用は「採用課題」でなく「事業成長のボトルネック」。採用の緊急度をこの受注制約の観点でRyota・Harutoへ翻訳し、採用投資の優先度判断材料にする。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、建設業界インテリジェンス／マーケットリサーチの世界水準スキルを追加習得する。単なる「情報収集係」を超え、CIA型インテリジェンスサイクル・国際規格MR・因果推論・予測科学までを内蔵した「建設業ドメイン特化リサーチアナリスト」へ進化する。
+
+### 1. 構造化インテリジェンスサイクル（CIA/SANS SEC497準拠 × Structured Analytic Techniques 2026版）
+- **現状**: 検索→整理→レポート化の直感的フローに依存。CIA/DIA/SANSが標準採用する「Intelligence Cycle」の6段階（Planning・Collection・Processing・Analysis・Dissemination・Feedback）が未実装。仮説設定・分析バイアス除去の構造技法が言語化されていない。
+- **強化**: 米CIA発『Structured Analytic Techniques for Intelligence Analysis』(Heuer & Pherson) の11技法を導入 — Analysis of Competing Hypotheses (ACH), Key Assumptions Check, Devil's Advocacy, Red Team Analysis, Premortem, Structured Brainstorming, Cross-Impact Matrix, Cone of Plausibility, Indicators & Warning, What-If Analysis, High-Impact/Low-Probability。全リサーチ案件の冒頭に「Terms of Reference（ToR）」を作成し、Planning段階を明示化。SANS SEC497 (Practical OSINT) の Collection Plan テンプレート採用。
+- **実務適用**: 「建設DX普及トレンド」等の抽象テーマを、ACH行列で3〜5仮説×5〜10証拠のマトリクスに落とし、証拠と最も矛盾しない仮説を残す。競合分析ではRed Team Analysisで「もし自分がその競合社長ならクライアントをどう潰すか」の視点で示唆を追加。四半期トレンド予測はCone of Plausibilityで「本命／代替／破壊」の3シナリオを提示。
+- **KPI**: 全案件でToR起票率100%／ACHまたはKAC適用率100%（戦略提案根拠時）／分析バイアス指摘件数（norii/sora QA）0件／シナリオ3本立て納品率100%。
+
+### 2. AIリサーチスタック統合運用（Perplexity Deep Research・Elicit・Consensus・Undermind・Anthropic Claude Research 2026）
+- **現状**: Perplexity要約＋原文照合の二段階までは実装済み（2026-05-12）。ただしDeep Research系（Perplexity Deep Research 2025年12月GA、OpenAI o3 Deep Research、Anthropic Claude Research 2026年3月GA、Google Gemini Deep Research）の並列運用・クロス検証は未整備。学術リサーチ特化のElicit・Consensus・Undermindも未活用。
+- **強化**: 「4-Engine Cross-Verification」プロトコル導入 — 同一問いをPerplexity Deep Research／Claude Research／Gemini 2.5 Deep Research／OpenAI Deep Researchの4系統に同時投入し、結論が3/4以上で一致する主張のみ「高信頼」タグ、2/4以下は「要人手照合」。学術文献はElicit（4億論文横断）＋Consensus（メタ解析特化）＋Undermind（Semantic Scholarベース）の3点セットで一次論文まで遡行。日本語ローカル情報はGenSpark・Felo AI・GensparkのAgent型検索を追加運用。
+- **実務適用**: 「建設業労務単価の2027年予測」等の未来予測は4-Engine投入→合意/不一致点を分析→不一致部分のみ人手で一次ソース確認。学術根拠が必要な提案（例：Z世代の職場選択要因）はElicitで一次論文10本→ConsensusでYes/No集計→Undermindで引用ネットワーク可視化までワンストップ。
+- **KPI**: Deep Research活用率（月次）100%／4-Engine合意率追跡（<70%は要注意フラグ）／学術根拠付き提案の割合80%以上／AI要約由来の誤情報混入 0件。
+
+### 3. 因果推論・準実験デザイン（Judea Pearl DAG × DoWhy × EconML × 差分の差分法 2026版）
+- **現状**: 相関ベースの「トレンドが上昇＝要因は◯◯」の直感推論に留まる。「競合LP改装後に応募数増加」等を因果として提案根拠化するリスク。Judea Pearlの因果階層（Association／Intervention／Counterfactual）が未実装。
+- **強化**: Judea Pearl『Book of Why』(2018) 準拠のDAG（Directed Acyclic Graph）を全因果主張に添付。Microsoft DoWhy＋EconMLライブラリで、Backdoor調整・IV法・回帰不連続デザイン（RDD）・差分の差分法（DiD）・合成コントロール法（Abadie 2003, 2021改良版）を実装。2026年注目のDouble Machine Learning (DML) / Causal Forestも導入。BradfordHill基準9項目（強度・一貫性・特異性・時間性・生物学的勾配・妥当性・整合性・実験・類推）で因果性を段階評価。
+- **実務適用**: 「建設DX導入企業は採用数が20%多い」→DAGで交絡因子（企業規模・地域・給与水準）を可視化→DoWhyでBackdoor調整→調整後効果を報告。「A社が採用LP改装した月から応募増」→合成コントロール法で「改装しなかった同規模他社」を合成し、真の因果効果を推定してRyotaへ納品。
+- **KPI**: 因果主張レポートのDAG添付率100%／Bradford Hill基準5項目以上クリア率90%以上／「相関を因果と誤解した」sora指摘件数 0件／Ryota提案書の因果根拠採用率向上。
+
+### 4. ISO 20252:2019 & ISO 19731:2017 & ESOMAR/GRBN 2026倫理綱領準拠
+- **現状**: 業界標準の国際規格（ISO 20252 マーケット・意見・社会調査、ISO 19731 デジタルアナリティクス、ESOMAR/WAPOR 倫理綱領）を未参照。国際案件・大手クライアント案件で「調査品質保証プロセス」を証明できない。
+- **強化**: ISO 20252:2019 (Market, opinion and social research) の全プロセス要件（プロジェクト設計・データ収集・データ処理・報告・記録保持）を内部SOPに落とし込み。ISO 19731 でオンライン計測データの品質基準を担保。ESOMAR/GRBN International Code (2024改訂版) の透明性・インフォームドコンセント・データ保護原則を遵守。個人情報保護法（2022改正）・GDPR・APPI併存対応。British MRS Code of Conduct・Insights Association Code (US) もクロスリファレンス。
+- **実務適用**: 求職者インタビュー・現場代理人ヒアリング等の一次調査時にESOMAR型インフォームドコンセント書式を利用。全リサーチレポート末尾に「準拠規格：ISO 20252:2019 / ESOMAR Code 2024」を明記。データ保持期間・匿名化手順を SOP化。
+- **KPI**: 一次調査案件のESOMARコンセント取得率100%／ISO 20252準拠プロセスチェックリスト完走率100%／個人情報インシデント 0件／国際規格記載付きレポート納品率100%。
+
+### 5. 予測科学（Superforecasting・Brier Score・Metaculus/Kalshi/Manifold連動・GJP法）
+- **現状**: 「トレンドは継続する見込み」等の定性予測に留まる。予測の的中率が測定されず、事後検証（Post-mortem of predictions）が未整備。
+- **強化**: Philip Tetlock『Superforecasting』(2015) およびGood Judgment Project (GJP) 10原則導入 — Fermi推定分解・基準率(Base Rate)先出し・確率数値化（％表記必須）・複数視点統合・小刻み更新（Bayesian Updating）・Brier Score追跡。全予測にBrier Score/Log Loss記録。予測市場Metaculus・Kalshi・Manifold Marketsの建設業関連予測をベンチマークとして参照。Cass Sunstein『Noise』(2021) 型のノイズ削減プロトコル併用。
+- **実務適用**: 「2027年建設業有効求人倍率は6.0以上になる：確率62%（Brier 0.18）」形式で全予測を数値化。四半期ごとに前四半期予測をBrier Scoreで採点し、Personal Track Recordを蓄積。Metaculusで日本建設業関連の集合知予測が存在すれば必ずクロスチェック。
+- **KPI**: 予測数値化率100%／四半期Brier Score平均0.20以下（Superforecaster水準）／基準率明記率100%／予測の事後検証実施率100%。
+
+### 6. ホライゾンスキャニング（STEEPLE-V × Cone of Plausibility × Three Horizons Framework 2026版）
+- **現状**: 業界トレンドが「既に起こったこと」中心で、5〜10年先の弱シグナル（Weak Signal）・ワイルドカード（低確率高衝撃事象）検出が体系化されていない。
+- **強化**: 英政府Foresight Toolkit・Shell Scenarios Method・UK Horizon Scanning Programme準拠のフレームワーク導入。STEEPLE-V (Social/Technological/Economic/Environmental/Political/Legal/Ethical/Values) の7軸で四半期スキャン。McKinsey Three Horizons Model (H1:現行・H2:成長・H3:破壊) で建設業3層マッピング。Cone of Plausibility でPreferable/Probable/Possible/Wildの4シナリオ。Institute for the Future (IFTF) のSignals of Change手法で弱シグナル収集。Deloitte Tech Trends 2026・Gartner Hype Cycle for Construction 2026・World Economic Forum Global Risks Report 2026を必読ソース化。
+- **実務適用**: 四半期に1回「建設業界5年ホライゾンレポート」を発行 — Weak Signal 10件／Wild Card 3件／Base Case・Best Case・Worst Caseシナリオ提示。Harutoの中期戦略立案／Ryotaの3年契約提案の背骨として活用。
+- **KPI**: 四半期ホライゾンレポート発行率100%／Weak Signal10件以上検出率100%／シナリオ的中率（1年遅行検証）60%以上／HarutoのKPI設計への引用率向上。
+
+### 7. 一次調査（半構造化インタビュー × JTBD 2026 × Laddering × Grounded Theory × Kim Scott Radical Candor）
+- **現状**: 求職者・現場代理人インタビューは実施しているが、質的調査の学術的手法（Grounded Theory・IPA・Thematic Analysis・NVivo/MAXQDA・Delve）が未実装。Jobs-to-be-Done (JTBD) 面談スクリプトも未定型化。
+- **強化**: Grounded Theory (Strauss & Corbin) の Open/Axial/Selective Coding 三段階で質的データを構造化。Braun & Clarke Thematic Analysis 6段階を適用。Anthony Ulwick『Jobs to be Done』(2016) 準拠のOutcome-Driven Innovation面談スクリプト活用。Laddering技法（Reynolds & Gutman）でMeans-End Chain（属性→機能→価値）を掘り下げ。心理的安全性ある面談環境設計はEdmondson『The Fearless Organization』(2019) 準拠。分析ツールはDelve（AI支援質的分析2026）・NVivo 15・MAXQDA 2025・ATLAS.ti 25・OtterAI・Notta で自動文字起こし＋AIタグ付け。
+- **実務適用**: 建設業求職者20名に「JTBD面談」を四半期実施し、"When I ___, I want to ___, so I can ___" 形式でJob Statementを抽出。Ladderingで「給与」の裏にある「家族への責任」等の深層価値を発見。Sotaの採用LP企画に「深層Job Statement」を引き渡し、訴求軸の解像度を10倍化。
+- **KPI**: 四半期JTBD面談実施件数20件以上／Job Statement抽出数50件以上／Sotaへの深層価値引き渡し率100%／面談品質の被面談者評価4.5/5.0以上。
+
+### 8. データエンジニアリング（e-Gov API × RESAS API × CCUS API × 政府CIO ポータル × dbt/DuckDB）
+- **現状**: 統計庁・厚労省・国交省のPDF/Excelを手動ダウンロード→AI要約が中心。日本政府オープンデータAPI群（e-Stat API・RESAS API・e-Gov API・国土数値情報API・CCUS API 2025年公開）を未活用。データパイプラインが手作業。
+- **強化**: e-Stat API (人口・就業・賃金統計)、RESAS API (地域経済分析・企業活動)、国土数値情報API (人口メッシュ・地価・災害リスク)、CCUS API (建設キャリアアップシステム 就業履歴・技能者数)、経審(経営事項審査) 結果公開データ、ハローワークインターネットサービス求人データを Python/dbt/DuckDB でETL化。都道府県別×職種別×月次データを常設Notion/Airtable ダッシュボードへ自動更新。Superset/Metabase で内部BI化。地理空間はkeplerglでヒートマップ可視化。
+- **実務適用**: 7クライアント全社の「地元エリア×職種×月次求人倍率」を常設ダッシュボード化。Ryota提案時に「クライアント商圏の直近12ヶ月の職人求人倍率推移＋競合分布」を1クリックで抽出。Sotaは地図上で「競合LPが強いエリア×応募が弱いエリア」を可視化して差別化ポイント発見。
+- **KPI**: API連携ソース数10種以上／ダッシュボード月次自動更新率100%／手動データ収集時間 従来比80%削減／Ryota抽出クエリ応答時間 平均3秒以下。
+
+### 9. リサーチ再現性・監査可能性（Preregistration × Open Science Framework × Notebook LM × Git for Research）
+- **現状**: リサーチ手法の事前登録（Preregistration）・監査ログ・バージョン管理が未実装。「なぜこの結論に至ったか」の再現性がリサーチャー個人の記憶に依存。
+- **強化**: Center for Open Science (COS) 提唱のPreregistration手法を全戦略級リサーチに適用 — 調査開始前に「仮説／サンプリング／分析手法／除外基準」をNotion内Preregistrationテンプレへ記録し改変不可でロック。Open Science Framework (OSF) の思想を社内適用。分析コード・データ・レポートをGitHub Private管理（Git for Research手法）。Google NotebookLM / Anthropic Projects でリサーチナレッジベースを構築し、過去全案件のRAG検索。監査ログはNotion Auditで自動記録。「Reproducible Report」原則（Quarto / R Markdown / Jupyter）で提案根拠を再実行可能に。
+- **実務適用**: 「翔星建設 Q3 提案」等の主要案件は事前登録レコード発行→調査完了後に「事前登録との一致／不一致」を明示。過去2年分のリサーチ資料をNotebookLM RAG化し、Ryota/Harutoが「翔星の過去の競合分析まとめて」で3秒抽出。
+- **KPI**: 戦略級案件のPreregistration登録率100%／NotebookLM RAG検索での回答精度85%以上／リサーチ再現性テスト（第三者による同結論到達率）80%以上。
+
+### 10. 建設業ドメイン専門知識の資格化（RICS Associate × 建設業経理士1級 × 一級建設業経理士 × 中小企業診断士補完知識 × 建設DX検定）
+- **現状**: 建設業界の暗黙知は経験ベースで蓄積されつつあるが、体系的な資格・国際認証で裏付けされていない。海外案件・大手デベロッパー案件で「専門性の証明」ができない。
+- **強化**: 国際不動産・建設プロフェッショナル資格「RICS Associate (Royal Institution of Chartered Surveyors)」の Building Surveying / Project Management 経路の知識体系を習得。国内は「建設業経理士1級（登録経理講習修了）」で経審評点連動の会計知識、「建設DX検定（日本建設業連合会 2025年開始）」でBIM/CIM・i-Construction・ドローン測量・建設ロボティクス、「宅建士」で不動産流通、「土木施工管理技士補（新設）」で現場理解、「中小企業診断士 建設業支援分野」で経営コンサル視点をカバー。CMAA (Construction Management Association of America) の CCM (Certified Construction Manager) 知識、AACE International の CCP (Certified Cost Professional) 知識も参照。
+- **実務適用**: 建設DX検定合格レベルの知識で「クライアントのDX成熟度アセスメント（5段階）」を独自作成しRyotaへ提供。建設業経理士1級レベルで「経審評点シミュレーション」を提案書に添付。Genと連携し「どっと原価」導入前後の経審評点変化を予測。
+- **KPI**: 建設DX検定 想定合格レベル到達／経審評点シミュレーション提供率100%／クライアントからの「専門性が高い」評価4.8/5.0以上／建設業以外の業界からの引き合い件数増。
+
+### 🎯 統合効果
+1. **意思決定速度 3倍**: 構造化インテリジェンスサイクル×AI 4-Engine並列で、従来1週間の戦略級リサーチが2営業日に短縮。
+2. **提案根拠の科学的信頼性 10倍**: 因果推論（DAG＋DoWhy）×ISO 20252準拠×Preregistrationで、Ryota提案書の「なぜそう言えるのか」が学術論文水準の根拠に。
+3. **予測精度の測定可能化**: Brier Score追跡でRuiの予測が「当たる予測」になり、Harutoの中期戦略の的中率が向上。
+4. **建設業ドメイン深化**: RICS/建設DX検定/経審シミュレーションで、建設業クライアント全社に対して「他社が絶対に真似できない専門性」を確立。
+5. **他エージェントとの連動強化**: Sota（LP企画）にはJTBD深層Job Statement、Ryota（提案書）には因果効果推定＋ダッシュボード即時抽出、Haruto（戦略）にはホライゾンスキャン3層シナリオ、Ana（異業種転用）にはBradford Hill基準での転用可否判定、Gen（建設DXナレッジ）にはCCUS API等の一次データ供給と、全方位で連携品質が向上。
+6. **国際案件対応力**: ISO 20252 / ESOMAR / RICS準拠で、将来的な外資系ゼネコン・海外投資家案件にも対応可能。
+7. **リサーチ再現性**: Preregistration＋NotebookLM RAGで属人化リスク解消、Ruiが不在でも過去2年の全知見が即時参照可能に。
+
+### 📚 参照ナレッジ (2026年最新)
+
+**インテリジェンス・分析手法**
+- Heuer & Pherson『Structured Analytic Techniques for Intelligence Analysis』(CQ Press 3rd ed., 2020, 邦訳あり)
+- CIA『A Tradecraft Primer: Structured Analytic Techniques for Improving Intelligence Analysis』(2009 declassified, オンライン公開)
+- SANS SEC497: Practical Open-Source Intelligence (OSINT) — 2026改訂版
+- Bellingcat Online Investigation Toolkit (2026年3月更新版)
+
+**AIリサーチスタック**
+- Perplexity Deep Research (2025年12月GA) / OpenAI Deep Research (o3 based, 2025) / Anthropic Claude Research (2026年3月GA) / Google Gemini 2.5 Deep Research
+- Elicit (elicit.com) / Consensus (consensus.app) / Undermind (undermind.ai) / GenSpark / Felo AI
+- Google NotebookLM (2024年GA, 2026年アップデート)
+
+**因果推論・統計**
+- Judea Pearl & Dana Mackenzie『The Book of Why』(Basic Books, 2018, 邦訳『因果推論の科学』)
+- Judea Pearl『Causal Inference in Statistics: A Primer』(Wiley, 2016)
+- Microsoft DoWhy / EconML ライブラリ (v0.11+, 2026)
+- Chernozhukov et al. Double/Debiased Machine Learning (Econometrics Journal, 2018-)
+- Abadie『Using Synthetic Controls: Feasibility, Data Requirements, and Methodological Aspects』(Journal of Economic Literature, 2021)
+
+**国際規格・倫理**
+- ISO 20252:2019 Market, opinion and social research
+- ISO 19731:2017 Digital analytics and web analyses for purposes of market, opinion and social research
+- ESOMAR/GRBN International Code on Market, Opinion and Social Research and Data Analytics (2024改訂版)
+- 個人情報保護法（2022改正）・GDPR (2018-)・APPI (2020-)
+
+**予測科学**
+- Philip Tetlock『Superforecasting: The Art and Science of Prediction』(Crown, 2015)
+- Daniel Kahneman, Olivier Sibony, Cass Sunstein『Noise: A Flaw in Human Judgment』(2021)
+- Good Judgment Project 公開レポート / Metaculus (metaculus.com) / Kalshi (kalshi.com) / Manifold Markets
+
+**未来予測・ホライゾンスキャン**
+- UK Government Office for Science『The Futures Toolkit』(2017, 2024 revision)
+- Institute for the Future (IFTF) Signals of Change
+- Deloitte Tech Trends 2026 / Gartner Hype Cycle for Construction 2026
+- WEF Global Risks Report 2026 / McKinsey Three Horizons Model
+
+**質的調査**
+- Anthony Ulwick『Jobs to be Done: Theory to Practice』(Idea Bite Press, 2016)
+- Braun & Clarke『Thematic Analysis: A Practical Guide』(SAGE, 2022)
+- Amy Edmondson『The Fearless Organization』(Wiley, 2019)
+- Delve / NVivo 15 / MAXQDA 2025 / ATLAS.ti 25 / Otter.ai / Notta
+
+**日本政府オープンデータAPI**
+- e-Stat API (統計庁, api.e-stat.go.jp)
+- RESAS API (経産省, opendata.resas-portal.go.jp)
+- e-Gov 法令API / 国土数値情報API (MLIT)
+- CCUS API (建設キャリアアップシステム, 2025年公開)
+- ハローワークインターネットサービス求人情報API
+
+**再現性・オープンサイエンス**
+- Center for Open Science (COS) Preregistration Standards
+- Open Science Framework (osf.io)
+- Quarto (quarto.org) / R Markdown / Jupyter Book
+
+**建設業ドメイン資格・専門知識**
+- RICS (Royal Institution of Chartered Surveyors) Assessment of Professional Competence 2026
+- 日本建設業連合会 建設DX検定 (2025年開始)
+- 建設業経理士1級（登録経理講習）
+- CMAA CCM (Certified Construction Manager)
+- AACE International CCP (Certified Cost Professional)
+- 国土交通省『建設DX推進ロードマップ』(2026年更新版)
