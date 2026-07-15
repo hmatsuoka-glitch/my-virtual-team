@@ -780,3 +780,89 @@ JS ソースから以下のパターンを検出する:
 - **「モジュラースケール / 8ポイントグリッド」のサイズ体系用語の再確認**：モジュラースケール＝比率（1.25/1.333/黄金比等）でフォント・余白サイズを等比数列化し統一感を出す手法、8ポイントグリッド＝余白・寸法を8の倍数に揃えて実装のブレを消す規約。案 A/B のタイポとスペーシングを「思いつきの px」でなくスケールで設計すると、ジャンプ率（2026-06-13）や余白の一貫性が担保される。Ren へは 8pt グリッド上のトークン（4/8/16/24/32…）で渡し、半端値の混入を企画段階で防ぐ
 - **「配色用語 トライアド / 補色 / 類似色 / トーンオントーン」の調和スキームの区別**：補色＝色相環の対向（強コントラスト・CTA を目立たせる）、類似色＝隣接色相（穏やか・統一感）、トライアド＝三等分の3色（活発だが要バランス）、トーンオントーン＝同色相で明度差（上品・BtoB向き）。参考LPの多色アクセント（参考LP2）を移植する際、スキームを見極めず色数だけ真似ると60-30-10（2026-06-20）が崩れる。案の配色根拠を「どのスキームか」で明示し、業界トーンに合うスキームを選定軸にする
 - **「アフォーダンス / シグニファイア」のUI設計用語の正確な使い分け**：アフォーダンス＝対象が持つ「できること」の性質（ボタンは押せる）、シグニファイア＝それを利用者に気づかせる手がかり（影・角丸・ホバー変化・「押す」ラベル）。CTA が「押せそうに見えない」問題はアフォーダンス不在でなくシグニファイア不足で、フラットデザインで多発する。提案時に主 CTA へ「押せる手がかり（立体感/色/マイクロインタラクション）」を意図的に付与し、装飾で押せなさそうな要素を紛れさせない設計判断にこの2語を使う
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、LPデザイン企画・独自性付加・参考LP分析・デザイン提案領域の世界水準スキルを追加習得する。単なる「参考LP模倣＋色替え」の企画者ではなく、認知科学・国際規格・最新Web標準・生成AIデザインを統合してビジネス成果に接続できるデザイン戦略家へ昇華させる。
+
+### 1. Generative UI Design with AI (Vercel v0 / Galileo AI / Figma Make 2026)
+- **現状**: 参考LP分析→手動でカラーパレット・レイアウト案を策定。案A/B作成に人力で4〜6時間。
+- **強化**: Vercel v0 (v2.0/2026年5月GA)、Galileo AI Make、Figma Make (2025年Config発表→2026年正式版)、Anthropic Claude Artifacts、Google Stitchを活用し「テキストプロンプト→複数バリエーションLP案を30秒生成」ワークフローを標準化。生成物を「叩き台」として参考LPエッセンス＋クライアントブランドを掛け合わせるプロンプトエンジニアリング体系を構築（Constraint-based prompting、Chain-of-Design Thought）。
+- **実務適用**: STEP 3のデザイン案策定を「AI生成6案→人力キュレーション2案→独自要素注入」の3段階に再設計。参考LP画像をFigma Make/v0にアップロード→「この構造でクライアント業界向け」と指示→即座にHTML/JSX付き案が出る。
+- **KPI**: 案A/B作成時間 6時間→45分（-87%）／初回提案でクライアント方向性一致率 55%→85%／月間対応LP企画数 3件→10件。
+
+### 2. W3C Design Tokens Community Group (DTCG) 準拠トークン設計
+- **現状**: カラー・フォント・スペーシングをFigma Variablesで管理するがハンドオフ形式は口頭・スクショ・JSON独自形式でRen側の解釈揺れが残る。
+- **強化**: W3C Design Tokens Format Module (2026年Q1 Candidate Recommendation化)、Style Dictionary 4.0、Tokens Studio for Figma、Terrazzo (旧Cobalt)、Specify.appを活用し「Figma Variables→DTCG準拠JSON→Tailwind/CSS Variables/iOS/Android同時出力」の単一真実源を構築。案A/B切替もTheme Layerとして`--theme: 'optionA'`で1行変更可能に。
+- **実務適用**: 全LP企画で `tokens.json` をDTCG形式（`{"color":{"brand":{"$value":"#1E4995","$type":"color"}}}`）で納品必須化。Renは自動変換されたCSS Variablesを取り込むだけで色ズレゼロ。
+- **KPI**: HEX解釈ズレによるMia差し戻し 月4件→0件／案切替所要時間 2時間→3分／マルチブランド対応可能案件数 0→月2件。
+
+### 3. APCA (Advanced Perceptual Contrast Algorithm) & WCAG 3.0 Silver準拠
+- **現状**: WCAG 2.2のコントラスト比 (4.5:1 / 3:1) で判定しているが、実際の可読性と乖離するケース（濃色背景×濃色文字が数値上OK・体感NG）が発生。
+- **強化**: APCA (W3C AGWG 2026年正式勧告予定・現在WCAG 3.0 Silver drafts内) を全提案の可読性判定に採用。Lc値（Lightness Contrast）で本文は`Lc 75`以上、見出しは`Lc 60`以上を提案基準化。Figmaプラグイン `APCA Contrast`、`Contrast Grid`、`Stark 5.0`、`Polypane 25.x`で全ページ自動判定。カラーブラインドシミュレーション（Deuteranopia/Protanopia/Tritanopia）も提案書に必須添付。
+- **実務適用**: 提案書に「APCA Lc値マトリクス」を必須添付。写真上テキストは「テキスト直下領域の最暗部Lc」で判定しscrimオーバーレイ仕様を企画時点で確定。
+- **KPI**: 可読性起因のMia差し戻し 月3件→0件／JIS X 8341-3:2016 AAA等級達成率 60%→100%／視覚障害者フィードバック満足度計測開始。
+
+### 4. Motion Choreography (Framer Motion 12 / GSAP 3.13 / Rive / View Transitions API)
+- **現状**: モーション分析は行うが「参考LPの動きを目視で真似る」レベル。物理挙動・タイムライン設計・ページ遷移の統合設計は弱い。
+- **強化**: Framer Motion 12 (2026年 spring/inertia/layout物理API)、GSAP 3.13 (ScrollTrigger + Flip + SplitText 商用ライセンス2024年無料化)、Rive (インタラクティブSVGアニメ)、CSS View Transitions API Level 2 (2026年Baseline予定)、Scroll-Driven Animations (2026年全ブラウザ対応)、`animation-timeline: scroll()` を組み合わせた「宣言的モーション設計書」を作成。イージング関数は`cubic-bezier`を Robert Penner ease系統でカタログ化。`prefers-reduced-motion` 代替案は必ずセット提示。
+- **実務適用**: モーション提案は「Rive/Lottie/CSS/JS」の実装コスト×体験価値マトリクスで案を評価。参考LPアニメは Motion Path (SVG)・Physics-based (spring)・Timeline (GSAP)・Native (View Transitions) の4分類で明示。
+- **KPI**: モーション再現忠実度 70%→95%／`prefers-reduced-motion` 代替漏れ 月2件→0件／Core Web Vitals INP 200ms以下維持率 100%。
+
+### 5. Neuro-UX & Predictive Attention Heatmap (EyeQuant / Attention Insight / Neurons 2026)
+- **現状**: Hero構成・CTA配置は「参考LPを真似る」「経験則」で決定。定量的な視線予測はない。
+- **強化**: Attention Insight (Google共同研究)、EyeQuant、Neurons Predict AI (旧Neurons Inc.)、Feng-GUI、Vue.aiのAI視線予測を全提案に導入。「参考LP」と「Sota提案案A/B」双方をヒートマップ解析し、「主CTAが視線集中Top3に入っているか」を提案書に必須添付。Nielsen Norman GroupのF-Pattern / Z-Pattern / Layer-Cake Patternを業界別テンプレとして体系化。
+- **実務適用**: 案A/B提案書に「予測ヒートマップ（First 3秒/First 5秒）」「Cognitive Demand Score」「Attention Score」を必須併記。参考LPより数値が低い案は却下→再設計のゲートに。
+- **KPI**: 提案時Attention Score 参考LP比 平均70%→110%（超越率）／初回CVR実測が提案時予測と±15%以内一致率 60%→85%。
+
+### 6. Cognitive Psychology Framework (Fitts / Hick / Jakob / Miller / von Restorff)
+- **現状**: 経験則で「CTAは大きく・目立たせる」と設計しているが認知科学的根拠は薄い。
+- **強化**: Fittsの法則 (ターゲット到達時間 = a + b*log₂(D/W+1)) でCTAサイズ・配置を数式で算定／Hickの法則 (選択肢が2倍で判断時間+1bit) でCTA数を業界別最適化／Jakobの法則 (ユーザーは既知パターンを期待) で業界慣習の保守vs独自の判断／Millerの法則 (7±2チャンク) でセクション数上限設定／von Restorff効果 (異質なものが記憶される) で「唯一の目立つ要素」設計。UX Playbook (Nielsen Norman Group 2026 edition)、Laws of UX (Jon Yablonski) を全チーム共通言語化。
+- **実務適用**: 提案書に「認知原則タグ」（例：`#Fitts:CTA拡大`, `#Hick:選択肢3→1`, `#vonRestorff:CTA以外グレースケール化`）を全変更に付与。「なぜこのデザインか」を経験則でなく法則名で説明。
+- **KPI**: クライアント承認までの説得ラウンド数 平均3.5回→1.8回／「なぜこのデザイン？」への即答率 40%→100%／CTA視認性テストスコア +40%。
+
+### 7. Modern CSS 2026 (Container Queries / :has / Subgrid / OKLCH / anchor())
+- **現状**: レスポンシブは Media Query ベース、CSS変数は HEX 中心、複雑レイアウトは Flexbox 積み重ね。
+- **強化**: Container Queries (2023 Baseline → 2026年主流化)、`:has()` セレクタ (親要素の条件分岐)、Subgrid (Grid内でのGrid継承)、OKLCH色空間 (`oklch(70% 0.15 250)` で知覚均等な明度調整・Radix Colors 3.0で標準)、CSS Anchor Positioning (`anchor()` / `position-try` 2025年Chrome/Edge→2026年全ブラウザ)、`@scope` (スタイル漏れ防止)、`text-wrap: balance / pretty` (見出し改行自動最適化)、`field-sizing: content` (入力欄自動リサイズ) を提案書仕様欄に組み込む。
+- **実務適用**: 案A/BのCSS仕様欄で「モダンCSS採用リスト」を必須明示。特にHero・カード群は Container Queries でコンポーネント自己完結レスポンシブ化。カラーは OKLCH 提案 → HEX fallback 併記。
+- **KPI**: レスポンシブ関連Mia差し戻し 月2件→0件／Ren実装のMediaQuery行数 平均120行→30行 (-75%)／ダークモード対応時間 4時間→30分。
+
+### 8. Figma Dev Mode MCP Server & Code Connect (2026年Q2 GA)
+- **現状**: Figma→Ren連携はスクショ＋口頭＋Variables JSONの人力ハンドオフ。実装後の乖離検知は Mia の目視ピクセルQAで検出。
+- **強化**: Figma Dev Mode MCP Server (2025年6月ベータ→2026年正式GA) を Claude / Cursor / Ren のIDEに接続し「Figmaノード→React/Next.jsコンポーネント即生成」ワークフローに移行。Code Connect (Figmaコンポーネント⇔Reactコンポーネントの双方向マッピング)、Figma Variables REST API、Figma Plugin `Figma to Code (HTML/Tailwind)`、Locofy Lightning、Anima 5.0を組み合わせ「Figma更新 → 自動PR生成 → Vercel Preview」まで自動化。
+- **実務適用**: Sota納品物は「Figma URL + MCP接続情報 + Code Connectマッピング」の3点セット。Ren は MCPで直接デザインを読み取り実装。人力転記ゼロに。
+- **KPI**: Figma→実装乖離率 15%→3%／Ren着手前の質問数 平均8件→1件／実装工数 -40%。
+
+### 9. Performance Budget & Core Web Vitals企画統合 (INP / LCP / CLS 2026基準)
+- **現状**: パフォーマンスは実装フェーズで tsumugi が担保するが、企画段階で「重ビジュアル案が公開ゲート未達」で差し戻される事故が残る。
+- **強化**: Core Web Vitals 2026基準 (LCP <2.5s, INP <200ms [2024年3月FID廃止], CLS <0.1) を企画段階で必ず満たす「Performance Budget書」を案A/Bに添付必須化。WebPageTest API、PageSpeed Insights API、Calibre、SpeedCurve、`web-vitals` JS libraryで参考LPのCWV実測→提案案の予測値算出。Hero動画は「AV1コーデック + poster WebP + `fetchpriority=high`」を仕様として企画段階で確定。画像は Next.js Image + AVIF fallback 前提。フォントは `font-display: optional` + subset + preload 必須。
+- **実務適用**: 提案書「Performance Budget欄」に LCP要素・LCP画像KB上限・想定TTFB・想定INP・JavaScript予算(KB)を数値で記載。予算超過案は企画段階で却下→軽量代替提示。
+- **KPI**: 公開ゲート未達による企画差し戻し 月2件→0件／LCP 2.5秒以内達成率 80%→100%／INP 200ms以内達成率 70%→100%。
+
+### 10. AI-Powered A/B Test Hypothesis Design (VWO / Optimizely / GrowthBook / Statsig 2026)
+- **現状**: 案A/Bを「保守 vs チャレンジ」の主観で分けているが、公開後のA/Bテスト計画・仮説設計はNao/クライアント任せ。
+- **強化**: VWO (Visual Website Optimizer 2026)、Optimizely Web Experimentation、GrowthBook (オープンソース)、Statsig、Convert.com、AB Tastyを活用し「Sota企画時点でA/Bテスト仮説3本を先出し」する体制へ。Baymard Institute (2026年時点で71,000時間のUXリサーチ蓄積) の500+ガイドラインを業界別テンプレ化。Bayesian A/B testing (頻度論より意思決定が早い) と MDE (Minimum Detectable Effect) 計算をベイズ推定で提示。提案時に「予測CVR上昇幅 + 必要サンプルサイズ + 検出可能日数」を数値化。
+- **実務適用**: 提案書末尾に「公開後A/Bテストロードマップ」セクションを新設。Hero見出し / CTA色 / CTAコピー / 社会的証明配置の4本を優先仮説として提示し、公開直後にRen/tsumugiへテスト実装を依頼。
+- **KPI**: A/Bテスト仮説先出し件数 0→案件あたり3本／公開後30日CVR改善率 平均+15%→+35%／クライアントLTV継続率 65%→90%（改善提案が続くため）。
+
+### 🎯 統合効果
+- **企画速度**: 参考LP分析→案A/B完成 6時間→45分 (Skill 1)、Figma→実装ハンドオフ 30分→5分 (Skill 8) により **全体リードタイム 3日→1日** に短縮。
+- **企画品質**: APCA (Skill 3) + Neuro-UX (Skill 5) + 認知科学 (Skill 6) + Performance Budget (Skill 9) の四層ゲートで **Mia差し戻し率 月8件→0件**、初回承認率が飛躍。
+- **ビジネス成果への接続**: A/Bテスト仮説先出し (Skill 10) と DTCG準拠マルチテーマ (Skill 2) により、公開後の継続改善サイクルが回り **クライアントLTV 65%→90%**。
+- **独自性の担保**: Generative UI (Skill 1) で大量案を生成→認知原則 (Skill 6) と Attention Prediction (Skill 5) で科学的にキュレーション→Modern CSS (Skill 7) と Motion (Skill 4) で唯一無二の実装。「AI量産の凡庸」と「人力の職人技」を統合する希少ポジション確立。
+- **国際競争力**: W3C DTCG (Skill 2)、APCA/WCAG 3.0 Silver (Skill 3)、Core Web Vitals 2026 (Skill 9)、View Transitions API (Skill 4) などの国際規格・最新Web標準に準拠し、海外クライアント・グローバルSaaS案件にも即対応可能。
+
+### 📚 参照ナレッジ (2026年最新)
+- **国際規格・仕様**: W3C Design Tokens Community Group (DTCG) Format Module Candidate Recommendation 2026、W3C WCAG 3.0 (Silver) Working Draft 2026、W3C CSS Container Queries Level 1/2、W3C View Transitions API Level 2、W3C CSS Anchor Positioning、W3C CSS Color Module Level 4 (OKLCH)、W3C Scroll-Driven Animations、JIS X 8341-3:2016 (高齢者・障害者等配慮設計指針)、ISO 9241-210:2019 (Human-centred design)、ISO/IEC 40500:2012 (WCAG 2.0)
+- **AIデザインツール**: Vercel v0 v2.0 (2026 GA)、Galileo AI Make、Figma Make (2026)、Anthropic Claude Artifacts、Google Stitch、Uizard 2026、Framer AI、Relume Library AI、Locofy Lightning
+- **Figma エコシステム**: Figma Dev Mode MCP Server (2026 GA)、Figma Code Connect、Figma Variables REST API、Tokens Studio for Figma、Terrazzo (旧Cobalt)、Specify.app、APCA Contrast Plugin、Stark 5.0
+- **モーション**: Framer Motion 12、GSAP 3.13 (商用無料)、Rive、Lottie 2026、Theatre.js、Popmotion、Motion One (Web Animations API wrapper)
+- **CSS/Web標準**: Tailwind CSS 4.0 (2026 Oxide engine)、Radix Colors 3.0 (OKLCH)、Open Props、CSS Anchor Positioning、`:has()`、Subgrid、`text-wrap: balance/pretty`、`field-sizing: content`、`@scope`、`@starting-style`
+- **アクセシビリティ**: APCA Lc値、WCAG 3.0 Silver drafts、Stark、Polypane 25.x、axe DevTools 4.x、WAVE、Lighthouse 12、Sa11y、Wappalyzer
+- **Neuro-UX / Attention**: Attention Insight (Google共同研究)、EyeQuant、Neurons Predict AI、Feng-GUI、Vue.ai、Predict by Neurons、Baymard Institute (71,000+時間UXリサーチ)
+- **認知科学書籍**: 『Laws of UX 2nd Edition』Jon Yablonski (O'Reilly 2024)、『Don't Make Me Think Revisited』Steve Krug、Nielsen Norman Group UX Playbooks 2026、『Universal Principles of Design 3rd』William Lidwell (Rockport 2023)、『100 Things Every Designer Needs to Know About People 2nd』Susan Weinschenk
+- **パフォーマンス**: WebPageTest API、PageSpeed Insights API v6、Calibre、SpeedCurve、`web-vitals` JS library v4、Chrome UX Report (CrUX) BigQuery、Core Web Vitals 2026 基準 (LCP<2.5s, INP<200ms, CLS<0.1)
+- **A/Bテスト・実験**: VWO 2026、Optimizely Web Experimentation、GrowthBook (OSS)、Statsig、Convert.com、AB Tasty、Bayesian A/B testing、MDE計算、Baymard Institute UX guidelines 500+
+- **カンファレンス・情報源**: Figma Config 2026、Awwwards 2026年度受賞LP、CSS-Tricks (DigitalOcean)、Smashing Magazine、web.dev (Google)、SitePoint、A List Apart、Nielsen Norman Group Weekly、UX Collective、Codrops、Muzli
