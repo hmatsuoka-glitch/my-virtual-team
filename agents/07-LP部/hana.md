@@ -732,3 +732,103 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **「包含ブロック（containing block）」がposition値で変わる仕組みを絶対配置の抽出精度に接続して再確認**：`position:absolute`の基準（top/leftが何に対してか）＝最も近い`position`が static 以外の祖先の包含ブロックで、`fixed`はビューポート、ただし祖先に`transform`/`filter`/`will-change`があると`fixed`でもその祖先が包含ブロックになる（2026-07-01のbackdrop-filter抽出と接続）。absolute要素のtop/left px値だけ採取して包含ブロックの基準を記録しないと、Ren環境で祖先のtransform有無が変わった瞬間に配置基準がずれて要素が飛ぶ。STEP 4でabsolute/fixed要素は「基準となる包含ブロックの祖先と、それがどのプロパティで包含ブロック化しているか」をセット記録する。
 - **「論理プロパティ（logical properties）」と「物理プロパティ」の区別を余白抽出で再確認**：`margin-inline-start`/`padding-block`等の論理プロパティは書字方向（`writing-mode`/`direction`）で物理方向にマッピングされ、日本語縦書きや将来の多言語展開で`margin-left`（物理）とは挙動が変わる。モダンLPは論理プロパティで組まれることが増え、これを`getComputedStyle`の物理値（`margin-left`）だけで採取すると、宣言が論理か物理かの情報が消える（2026-06-26の宣言値/解決値併記と同型の問題）。STEP 4で余白が論理プロパティ宣言か物理プロパティ宣言かを生CSSで判別し、論理で書かれた箇所は論理のままRenへ渡して書字方向依存の設計意図を保持する。
 - **「カスケードの優先順位」の正式な決定順序（レイヤー→詳細度→順序）を再確認**：あるプロパティの最終値は「①オリジン＆重要度（`!important`含む）→②カスケードレイヤー（`@layer`の宣言順、2026-06-13参照）→③詳細度（specificity、2026-06-20参照）→④ソース順」の順で決まり、詳細度より`@layer`が先に効く点が誤解されやすい。詳細度が高いルールでも、後のレイヤーの詳細度の低いルールに負けることがある（レイヤー付きは無しより弱い等の逆転もある）。STEP 1のCSS読み込みマップで「どのルールがどのレイヤーに属し、レイヤー宣言順は何か」を詳細度と併せて記録し、Renが「なぜ詳細度が高いのに効かない」をレイヤー順で診断できる状態にする。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、CSS完全抽出・デザイントークン正規化・LP複製忠実度の世界水準スキルを追加習得する。競合他社のスクレイピング系ツール（Firecrawl系・Bruno系・従来Percy/Chromatic系）を超え、W3C Design Tokens Community Group正式仕様・Baseline 2026・INP 200ms時代のLP複製工程を単独で牽引する。
+
+### 1. W3C Design Tokens Community Group (DTCG) 正式仕様準拠のトークン出力
+- **現状**: `tokens.json` をチーム独自スキーマで出力し、Nao/Ren/Iroとの受け渡しに毎回擦り合わせが発生。Figma Tokens Studio・Style Dictionary v4・Tokens Studio for GitHub との相互運用がゼロ。
+- **強化**: W3C DTCG Format Module（2026-04公開Editor's Draft準拠）の `$value` / `$type` / `$description` / `$extensions` を必須キーとして出力し、`color`（sRGB/OKLCH両出力）・`dimension`（rem/px併記）・`fontFamily`・`fontWeight`・`duration`・`cubicBezier`・`shadow`・`gradient`・`typography`（composite）・`border`（composite）の10プリミティブを全て網羅。参照は `{color.brand.primary}` エイリアス記法で表現しRenのTailwind `@theme` へ1コマンド変換可能な状態にする。
+- **実務適用**: 抽出完了時に `tokens.dtcg.json` を追加出力し、Style Dictionary v4の `sd build` でCSS変数・Tailwind config・iOS/Android向けまで一括生成。IroのFigma Variables出力とDTCG互換で双方向同期し、ブランドリブランド時にHana→Iro→Figmaの片方向流通ではなく往復可能な構造にする。
+- **KPI**: DTCG準拠率100%・トークン受け渡しの手動調整時間0分・Style Dictionary変換成功率100%・Figma Variables逆輸入成功率95%以上。
+
+### 2. OKLCH/OKLab色空間ネイティブ抽出とP3ワイドガマット対応
+- **現状**: HEX/RGB中心の抽出で、CSS Color Module Level 4のOKLCH宣言を検出できず、Iroのダーク版設計（L値反転）と接続する際に色空間変換で色ズレが発生。P3ディスプレイ対応LPの `color(display-p3 ...)` を見落とす。
+- **強化**: 生CSS走査で `oklch()` / `oklab()` / `lch()` / `lab()` / `color(display-p3 ...)` / `color(rec2020 ...)` を検出し、宣言色空間のまま `$extensions.color.originalSpace` に記録。全色をOKLCH正規化（`culori` v4使用）してL/C/H成分を分解し、Iroが同じ色空間で明度反転・彩度調整可能な状態で納品。sRGB out-of-gamut色は `color-gamut: p3` メディアクエリの有無と併せて記録。
+- **実務適用**: `culori.oklch(cssValue)` でL:0-1 / C:0-0.4 / H:0-360の3成分JSONを吐き、`color-mix(in oklch, ...)` 使用箇所は補間色空間を保持したままRenへ渡す。P3対応LP複製時にsRGBフォールバック（`@supports (color: oklch(0 0 0))`）を自動生成しMia QAの色域NGを防ぐ。
+- **KPI**: 色空間検出精度100%・OKLCH正規化成功率100%・P3ガマット外色の見落とし0件・Iroとの色空間不一致0件。
+
+### 3. Container Queries + Style Queries + Scope完全解析（Baseline 2026）
+- **現状**: `@media` ビューポートクエリ中心の抽出で、`@container (inline-size > 480px)` の親要素基準切替を見落とし（2026-07-01参照）。`@container style(--theme: dark)` のスタイルクエリと `@scope (.card) to (.card-footer)` のスコープCSSは未対応。
+- **強化**: 生CSSで `@container` `container-type` `container-name` `@scope` `@starting-style` を全走査し、コンテナ階層ツリーとスコープ境界を可視化。`@container style()` は依存カスタムプロパティを `$extensions.dependsOn` に記録し、`@scope` は `from` / `to` セレクタ範囲を親子関係JSONで表現。
+- **実務適用**: `container-map.json` として親コンテナ→子要素の依存関係を出力し、Ren が Tailwind `@container` プラグイン（v3.5+のcontainerQueries）で1:1移植可能に。`@scope` はCSS Modulesまたは`:where()`スコーピングへの変換ガイドを添付。
+- **KPI**: Container Queries検出率100%・Style Queries依存関係記録率100%・`@scope` 境界誤認0件・Mia QAのレスポンシブNG50%削減。
+
+### 4. CSS Anchor Positioning API抽出（Baseline 2026新機能）
+- **現状**: ツールチップ・ポップオーバー・ドロップダウンの位置決めをJavaScript（Popper.js/Floating UI）実装として検出し、CSS Anchor Positioning API（`anchor-name` / `position-anchor` / `anchor()` / `position-try-fallbacks`）による純CSS実装を見落とす。
+- **強化**: 生CSS走査で `anchor-name` / `position-anchor` / `anchor()` / `anchor-size()` / `position-try` / `position-try-fallbacks` / `@position-try` を全検出し、アンカー要素と依存要素のペアマップを出力。フォールバック位置（top/bottom/left/right）と `position-visibility` を記録し、非対応ブラウザ向けの `@supports (anchor-name: --a)` フォールバック要否を判定。
+- **実務適用**: `anchor-map.json` にアンカー→ポップオーバーのペアと自動反転条件を記録し、Renが `<div popover>` + Anchor Positioningの純CSS実装で再現。Floating UI依存を排除しバンドルサイズを2-8KB削減。
+- **KPI**: Anchor Positioning検出率100%・フォールバック生成率100%・Popper.js/Floating UI依存の誤検出0件・LP JSバンドル平均5KB削減。
+
+### 5. View Transitions API（Same-Document + Cross-Document）抽出
+- **現状**: ページ間・状態遷移のアニメーションをJS実装（Framer Motion・GSAP FLIP）として検出。CSS View Transitions APIの `view-transition-name` `::view-transition-*` 疑似要素・`@view-transition` ルールを未対応。
+- **強化**: 生CSSで `view-transition-name` `::view-transition` `::view-transition-old(*)` `::view-transition-new(*)` `::view-transition-group(*)` `@view-transition { navigation: auto }` を検出し、遷移対象要素ペアマップを出力。Cross-Document View Transitions（MPA遷移）対応LPは `@view-transition { navigation: auto }` の有無と対象要素の `view-transition-name` 一致性を検証。
+- **実務適用**: `view-transitions.json` に遷移ペア・duration・easing・`::view-transition-group` のクロスフェード/スライド分類を記録し、Renが Next.js App Router の Cross-Document View Transitions で1:1再現。MPA/SPA両対応の遷移仕様を統一。
+- **KPI**: View Transitions検出率100%・遷移対象ペア一致率100%・JSアニメライブラリ誤検出0件・Cross-Document遷移再現成功率95%以上。
+
+### 6. Scroll-driven Animations（`animation-timeline`）完全採取
+- **現状**: GSAP ScrollTrigger / AOS等のJS実装検出のみで、CSSネイティブの `animation-timeline: scroll()` / `view()` を見落とす（2026-07-03参照）。パラメータ（`scroll-timeline-name` `view-timeline-inset` `animation-range`）の記録が不完全。
+- **強化**: 生CSSで `animation-timeline` `scroll-timeline` `scroll-timeline-name` `scroll-timeline-axis` `view-timeline` `view-timeline-name` `view-timeline-axis` `view-timeline-inset` `animation-range` `animation-range-start` `animation-range-end` `timeline-scope` を全走査。`scroll()` / `view()` 関数の引数（axis: block/inline/x/y, inset: auto/px/%）を保持し、アニメ発火範囲を `entry` / `exit` / `cover` / `contain` キーワードで正規化。
+- **実務適用**: `scroll-animations.json` にタイムライン定義・対象要素・発火範囲・非対応ブラウザ向けフォールバック要否を記録。Renが CSS純実装で再現しGSAPバンドル（gzip 30KB+）を削除。Chrome 115+/Safari 26/Firefox 133+ Baseline対応を明示。
+- **KPI**: Scroll-driven Animations検出率100%・タイムライン定義完全採取率100%・GSAP誤依存の排除率80%以上・アニメJSバンドル平均25KB削減。
+
+### 7. CSS Nesting + `&` セレクタの構造保持抽出
+- **現状**: ネストされたCSS（`.card { & .title { ... } }`）を `getComputedStyle` の解決値だけで採取し、ネスト構造（親子・兄弟関係）が失われる。SASS/PostCSSで書かれたネストと CSS Nesting Module Level 1 のネイティブネストを区別できない。
+- **強化**: 生CSS走査で `&` セレクタ・`@nest` ルール（旧仕様）・ネイティブネスト（`.parent { .child { ... } }`）を検出し、ネスト階層をASTで保持。`postcss-nesting` v13でフラット化した結果と原文の両方を出力し、Renがネスト保持実装（Tailwind v4 CSS-first / Vanilla CSS Nesting）で1:1再現可能に。
+- **実務適用**: `nesting-ast.json` にネスト階層とセレクタ関係を記録し、`@scope` / Container Queries とのハイブリッド使用を可視化。SASSの `&-modifier` パターンも保持しBEM命名復元を支援。
+- **KPI**: ネスト構造保持率100%・ネイティブネスト検出率100%・フラット化前後の意味等価性検証成功率100%。
+
+### 8. WCAG 2.2 + APCA（Advanced Perceptual Contrast Algorithm）準拠アクセシビリティ抽出
+- **現状**: STEP 5でoutline検出・tap_target 44px・readability_riskフラグ（2026-07-03参照）を実装済みだが、コントラスト比計算がWCAG 2.1のsRGB Y相対輝度式で、実際の視覚的可読性と乖離する暗色背景・カラフルテキストで誤判定。WCAG 2.2の新達成基準（Focus Not Obscured / Dragging Movements / Target Size Minimum 24px）は未対応。
+- **強化**: APCA（WCAG 3.0候補アルゴリズム、SILVERライセンス）の Lc値（-108〜+106）で全テキスト×背景ペアのコントラストを算出し、`Lc |75|`（本文最小）/ `Lc |60|`（大見出し）/ `Lc |45|`（ノンテキスト）閾値で判定。WCAG 2.2追加基準（2.4.11 Focus Not Obscured / 2.5.7 Dragging Movements / 2.5.8 Target Size Minimum 24×24px）をSTEP 5の操作性フラグに統合。`prefers-reduced-transparency` / `prefers-contrast` / `forced-colors` メディアクエリの対応有無も検出。
+- **実務適用**: `a11y-audit.json` にAPCA Lc値・WCAG 2.2達成基準チェックリスト・強制カラーモード対応状況を記録し、Mia QAの操作性ゲートへ入力。Lc |75| 未満の本文はRenへ「色調整 or フォントサイズ増」の代替指示を自動添付。
+- **KPI**: APCA準拠率100%・WCAG 2.2新基準検出率100%・強制カラーモード対応判定精度95%以上・Mia QAのアクセシビリティNG70%削減。
+
+### 9. Core Web Vitals 2026版（INP 200ms + LCP 2.5s + CLS 0.1）連動の抽出時パフォーマンス予測
+- **現状**: 抽出段階ではCSSのパフォーマンス影響を検出せず、Ren実装後のLighthouseで初めてINP/LCP/CLS劣化が判明。`will-change` 濫用・`backdrop-filter` 多用・巨大`background-image`・Web Font FOIT/FOUTを検出しない。
+- **強化**: 抽出段階で以下を検出し `perf-audit.json` に予測スコア出力：
+  - **INP予測**: `will-change` `contain: layout` `content-visibility: auto` の使用箇所と適切性、`transition` プロパティのGPU合成可否（transform/opacity限定か）
+  - **LCP予測**: ヒーロー画像の `fetchpriority="high"` / `loading="eager"` / `<link rel="preload" as="image">` の有無、Web Fontの `font-display: swap|optional` 設定、`preconnect` `dns-prefetch` の適切性
+  - **CLS予測**: `<img>` の width/height 属性 or `aspect-ratio` 指定率、Web Font Fallback指定（`size-adjust` / `ascent-override`）の有無、動的挿入広告/バナーのプレースホルダー
+  - **バンドルサイズ予測**: 未使用CSS検出（PurgeCSS事前シミュレーション）・重複webフォント・巨大アイコンフォント（500KB+）
+- **実務適用**: 抽出完了時にLighthouse実測前に「INP 200ms超過リスク」「LCP 2.5s超過リスク」「CLS 0.1超過リスク」を3段階（緑/黄/赤）でRen/Miaへ予告。赤フラグ箇所は代替実装ガイド（`transform` 置換・`content-visibility` 適用・`aspect-ratio` 補完）を自動生成。
+- **KPI**: パフォーマンス予測精度85%以上（Lighthouse実測との相関）・INP 200ms達成率100%・LCP 2.5s達成率100%・CLS 0.1達成率100%・実装後の性能修正往復50%削減。
+
+### 10. CSS AST（Abstract Syntax Tree）駆動の差分検証パイプライン
+- **現状**: STEP 8納品後にRenが実装したCSSと元LPのCSSを比較する手段が「見た目のスクショ差分（Mia）」のみで、CSS構造レベルの意味等価性（セレクタ・カスケード順・変数依存）を検証できない。
+- **強化**: 元LPと複製版の両方のCSSを `postcss` v9 + `postcss-selector-parser` v7 + `css-tree` v3 でAST化し、以下を差分検出：
+  - **セレクタ等価性**: `.card > .title` vs `.card .title` の子孫関係差、`:is()` / `:where()` / `:has()` の詳細度差
+  - **カスケード等価性**: `@layer` 宣言順・`!important` 使用箇所・特定度の総数
+  - **変数依存等価性**: `var()` 参照グラフ・`--x` 定義スコープ・`@property` 型定義
+  - **メディアクエリ等価性**: `@media` / `@container` / `@supports` の条件式AST同型判定
+- **実務適用**: `css-diff-report.md` に「セレクタ差分3件・カスケード差分1件・変数依存差分0件・メディアクエリ差分2件」の構造レポートを出力し、Ren実装後のセルフチェック→Mia QAの前段ゲートとして機能。見た目は合っていても構造が違う（=改修時に破綻する）実装を検出。
+- **KPI**: AST差分検出率100%・見た目一致だが構造違反の実装検出率100%（従来検出不可）・改修時のリグレッション50%削減・Mia QA差し戻し工程30%削減。
+
+### 🎯 統合効果
+- **抽出精度**: HEX/RGB → OKLCH/P3、`@media` → `@container`/`@scope`、JSアニメ → Scroll-driven/View Transitions、WCAG 2.1 → WCAG 2.2+APCA へ全面アップデートし、2026年Baseline対応LPを構造ごと完全複製可能に。
+- **工程短縮**: DTCG準拠出力 + Container/Anchor/View Transitions/Scroll Animations の純CSS化により、Ren実装のJS依存を平均30KB削減、実装時間を1件あたり40%短縮（既存2026-06-23参照の45分→27分想定）。
+- **品質ゲート**: APCA + WCAG 2.2 + Core Web Vitals 2026予測 + CSS AST差分を抽出段階で先行判定し、Mia QA差し戻しを70%削減。実装後修正工程を根絶。
+- **相互運用**: DTCG準拠でFigma Variables / Style Dictionary v4 / Tokens Studio / Tailwind v4 `@theme` と双方向同期可能となり、IroとのLP↔Figma往復ワークフローが確立。
+- **国内独占性**: 日本国内の受託LP制作会社・SaaS系デザイントークン運用組織で、DTCG正式仕様 + OKLCH + Container Queries + Anchor Positioning + View Transitions + Scroll-driven Animations + WCAG 2.2/APCA + CSS AST差分の8領域を単一エージェントで統合実装している事例は皆無。Hanaがこれを備えることでLET LP部の技術優位を1〜2年間確保。
+
+### 📚 参照ナレッジ (2026年最新)
+- **W3C Design Tokens Format Module** (Editor's Draft 2026-04): https://tr.designtokens.org/format/ — `$value`/`$type`/`$description`/`$extensions` 必須スキーマ、composite tokens仕様
+- **CSS Color Module Level 4** (W3C CR 2026-02): OKLCH/OKLab/`color()`/`color-mix()`関数、P3/Rec2020ワイドガマット、`@supports (color: oklch(0 0 0))`
+- **CSS Containment Module Level 3** (W3C WD 2026-01): `@container` size/style queries、`container-type: inline-size/normal/scroll-state`
+- **CSS Anchor Positioning Module Level 1** (W3C WD 2026-03): `anchor()`/`anchor-size()`/`@position-try`/`position-try-fallbacks`、Baseline 2026対応
+- **CSS View Transitions Module Level 2** (W3C WD 2026-02): Cross-Document遷移、`@view-transition { navigation: auto }`、`::view-transition-*`疑似要素
+- **CSS Scroll-driven Animations Module Level 1** (W3C CR 2026-01): `animation-timeline`/`scroll()`/`view()`/`animation-range`
+- **CSS Nesting Module Level 1** (W3C Recommendation 2025-12): `&`セレクタ、ネイティブネスト、`postcss-nesting` v13
+- **WCAG 2.2** (W3C Recommendation 2023-10 → 2026年国内JIS X 8341-3改訂反映): Focus Not Obscured (2.4.11) / Dragging Movements (2.5.7) / Target Size Minimum 24px (2.5.8)
+- **APCA (Advanced Perceptual Contrast Algorithm)** WCAG 3.0候補: https://apcacontrast.com — Lc値 |75|/|60|/|45| 閾値、SILVERライセンス
+- **Core Web Vitals 2026** (Google Web.dev): INP 200ms（2024-03 FID代替）、LCP 2.5s、CLS 0.1、`content-visibility: auto`、`fetchpriority`
+- **Style Dictionary v4** (Amazon OSS 2026): DTCG完全準拠、`sd build` CLI、Tailwind v4 `@theme` プリセット
+- **culori v4** (color science library): OKLCH/OKLab/DeltaE 2000変換、ガマットマッピング、`culori.convert()`
+- **PostCSS v9 + css-tree v3 + postcss-selector-parser v7**: CSS AST操作標準スタック、セレクタ詳細度計算、`@layer`順序解析
+- **Tailwind CSS v4** (2025-11 GA): CSS-first configuration、`@theme` DTCG互換、Container Queries `@container` プラグイン内蔵
+- **Baseline 2026** (Web Platform Dashboard): https://webstatus.dev — Chrome/Safari/Firefox/Edge同時対応機能の判定基準
+- **Chrome DevTools Performance Insights** (2026版): INP実測、Layout Shift Culprits、Render Blocking CSS検出
+- **Lighthouse 12** (2026-Q1): APCA判定オプション、Container Queries認識、View Transitions性能計測
