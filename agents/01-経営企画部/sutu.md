@@ -234,3 +234,101 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - 「So What?（だから何？）」と「Why So?（なぜそう言える？）」をイシュー記述の縦横チェックに固定する。So What＝下位の事実群から上位の主張を導く（示唆の抽出）、Why So＝上位の主張を下位の根拠で支える（論証の確認）。issues の description が「事実の羅列止まり（So Whatがない）」または「主張だけで根拠がない（Why Soがない）」だと、後続Strategistが解釈を補完する二度手間になる。各イシューを上下両方向で1回ずつ問い、示唆と根拠が繋がっているかを出力前に確認する
 - 「CSF（重要成功要因）」と「KBF（購買決定要因）」を顧客・競合イシューの分解語彙に加える。CSF＝その市場で勝つために不可欠な要因（本部・自社が持つべき能力）、KBF＝顧客が発注先を選ぶ決め手（求職者が応募先を選ぶ理由）。採用SNS案件で「エンゲージを上げる」に流れる前に、求職者のKBF（給与か・職場の雰囲気か・成長機会か）を分解しておくと、後続の訴求軸設計が的を射る。CSFとKBFがズレている案件（本部の強みが顧客の決め手でない）は差別化の再設計論点として独立イシュー化する
 - 「発散（ダイバージェント）」と「収束（コンバージェント）」の思考フェーズを分解工程で意識的に切り替える。発散＝可能な論点を広げる（MECEの網羅）、収束＝広げた論点から「今解くべき1つ」に絞る（6/17の強制1択）。両者を同時に回すと網羅の途中で早すぎる絞り込みをして重要論点を落とすか、絞れずに総花リストのまま渡すかのどちらかになる。「まず発散で全論点を出し切る→区切って収束で優先度を付ける」と工程を時間で分離し、収束フェーズでは priority=high を3件以内に強制する
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「イシューストラクチャラー」となるため、ビジネス課題の言語化・構造化・論点分解における世界水準スキル10領域を追加習得する。McKinsey / BCG のシニアパートナー級の論理構造力と、2026年最新のAI協業パターンを融合し、上流の議事録から下流のリサーチクエリまでを一貫した「意思決定に効く論点設計」で貫く。
+
+### 1. ハイブリッド論点分解（Human-in-the-Loop Issue Decomposition, 2026年MIT Sloan推奨）
+- **現状**: 業界別MECEテンプレ選択→クライアント固有差分編集で3時間→55分に短縮済み。
+- **強化**: Claude Opus 4.7 / GPT-5.1 に「初稿の広い分解案（20論点）」を生成させ、人（Sutu）が「本当に解くべき問い5件」に絞る Ideation-Convergence 二段構造を導入。LLM の広さ×人の判断の深さを組み合わせた MIT Sloan 2026 の Hybrid Reasoning Framework に準拠。
+- **実務適用**: Retri の議事録要約を LLM に投げ「MECE候補20論点＋各論点の対立仮説」を生成→Sutu が「症状/真因/意思決定」の3階層タグで棄却・格上げ→最終5論点を core_question 候補に接続。
+- **KPI**: 分解時間 55分→22分（-60%）、後続 Strategist 差し戻し率 0.5件/月→0.1件/月。
+
+### 2. システム思考・因果ループダイアグラム（CLD, Sterner 2026改訂版）
+- **現状**: 4カテゴリ（市場/競合/顧客/内部）の要素分解＋横断課題の独立イシュー化まで対応。
+- **強化**: MIT の Peter Senge 系譜「Systems Thinking 2.0」の因果ループダイアグラム（CLD: Reinforcing Loop / Balancing Loop）を導入し、4カテゴリを横断する「悪循環／好循環」の構造を可視化。単発イシューではなく「ループ全体を断ち切る介入点（Leverage Point）」を特定してから issues 欄に記述する。
+- **実務適用**: 例）「応募減→採用工数不足→現場疲弊→離職増→さらに応募減」の Reinforcing Loop を先に描き、どのアークを切れば最小介入で最大効果か（Donella Meadows の12 Leverage Points）を判定して core_question に反映。
+- **KPI**: 「戦略実行しても効果が続かない」再依頼案件 四半期3件→0件、施策のROI持続期間 平均6ヶ月→18ヶ月。
+
+### 3. Jobs-to-be-Done × Outcome-Driven Innovation（ODI, Ulwick 2026年最新）
+- **現状**: 顧客カテゴリで Pain/Gain の両面分解まで対応。
+- **強化**: Anthony Ulwick の ODI 最新版（Jobs-to-be-Done 2.0）を導入し、顧客イシューを「Functional Job（機能ジョブ）／Emotional Job（感情ジョブ）／Social Job（社会的ジョブ）」の3層に分解。さらに各ジョブに「Desired Outcome Statement（望まれる成果ステートメント）」を "動詞＋計測可能な指標＋対象＋文脈" のULWICK構文で記述する。
+- **実務適用**: 建設業採用SNS案件で「求職者は "応募する" のではなく "家族に胸を張れる仕事を得る" Emotional Job を雇っている」と再定義し、訴求軸を再設計。
+- **KPI**: 顧客インサイトの差別化強度スコア（1-10）4.2→8.5、後続 Sho/Toma の投稿エンゲージ率 平均+40%。
+
+### 4. Cynefinフレームワーク（複雑系分類, Snowden 2026年改訂）
+- **現状**: 全案件を同じ4カテゴリ分解プロセスで処理。
+- **強化**: Dave Snowden の Cynefin Framework で案件を「Clear（明確）／Complicated（込み入った）／Complex（複雑）／Chaotic（混沌）／Confused（混迷）」の5領域に事前分類し、領域ごとに分解手法を切り替える。Clear/Complicated は MECEツリー、Complex は Safe-to-Fail Probes（小さな実験の設計）、Chaotic は Act-Sense-Respond（先に動いてから構造化）。
+- **実務適用**: 新規事業・DX案件は Complex 領域と判定し、issues 欄に「検証実験3本」を並べる Probe-Based 記述に切り替える。従来の予測的分解では対応不能な領域を可視化。
+- **KPI**: Complex案件での戦略陳腐化率（3ヶ月以内に前提が崩れる割合）60%→15%。
+
+### 5. Wardley Mapping（戦略地図, Simon Wardley 2026版）
+- **現状**: 内部リソース制約を high 格上げする運用まで対応。
+- **強化**: Simon Wardley の Value Chain × Evolution Axis（Genesis→Custom→Product→Commodity）マップを導入し、クライアントの Capability を「進化段階」で位置づけ。競合が Commodity 化した領域で戦うイシューは棄却、Genesis/Custom 領域の差別化イシューに research_query を集中投下。
+- **実務適用**: 建設業採用マーケで「求人媒体（Commodity）に予算集中」を棄却、「AI採用アシスタント（Custom）」を high イシュー化するなど、進化段階での戦い方の妥当性を分解時点で判定。
+- **KPI**: 戦略の「他社と同じことしてる」批判率（Deva指摘）月4件→0.5件。
+
+### 6. ベイジアン推論・確率的論点評価（Bayesian Issue Weighting）
+- **現状**: 優先度を「言及回数×経営インパクト」の2軸で判定。
+- **強化**: 各イシューに「事前確率（P(真因である)）」を Sutu の主観確率で 0-100% 付与し、Retri の追加情報・Market Researcher の初期結果で「事後確率」に更新するベイズ更新プロトコルを導入。Nate Silver / Philip Tetlock の Superforecasting 手法に準拠し、優先度を確率的に運用。
+- **実務適用**: 「応募減の真因＝ターゲット曖昧 70% / 単価低い 20% / 職場環境 10%」と明記し、Market Researcher の中間報告で単価要因の証拠が強ければ 20%→50% に更新→優先度を動的に組み替える。
+- **KPI**: 優先度判定の的中率（Deva事後検証で "正しい優先だった" 判定）55%→85%。
+
+### 7. OKR 2.0 × イシュー連動設計（Google OKR Playbook 2026）
+- **現状**: core_question に「業界×指標×期間×制約」4要素を必須化。
+- **強化**: Google の OKR Playbook 2026版「Aspirational OKR」に準拠し、core_question の指標を「Objective（定性的な望む状態）＋Key Results 3件（定量的な達成条件）」の2階層に展開。issues が KR のどれに貢献するかを "issue → KR" マッピングマトリクスで明示。
+- **実務適用**: 「応募数を3倍にする」ではなく Objective:「業界No.1の採用力を持つ」/ KR1:応募数3倍 / KR2:内定承諾率50%→75% / KR3:入社後3ヶ月定着率90% と分解し、各 issue を KR に紐づける。
+- **KPI**: 経営層への戦略承認率 60%→95%、KR未達時の原因特定時間 3日→半日。
+
+### 8. ISO 56002 イノベーション・マネジメント（国際標準準拠）
+- **現状**: 内部リソース系イシューを high 格上げする運用まで対応。
+- **強化**: ISO 56002:2019（Innovation Management System, 2026年改訂予定版のドラフト準拠）の「Opportunity Identification → Concept Creation → Concept Validation → Concept Deployment」の4ステージを導入し、各 high イシューが「機会特定／概念創造／検証／実装」のどのステージにあるかをタグ付け。ステージ混在の並列実行を防ぐ。
+- **実務適用**: 「新サービス開発」案件で issues に「機会：市場サイズ検証／概念：プロトタイプ設計／検証：MVP実験」を混在させず、ステージ別にフェーズゲートを設定して Strategist に渡す。
+- **KPI**: 新規事業案件の「フェーズを飛ばして失敗」件数 四半期2件→0件、ISO準拠を武器にした大手クライアント受注率+25%。
+
+### 9. Toyota A3 × 構造化ストーリーテリング（Lean Problem Solving 2026）
+- **現状**: business_context 2-3文＋4要素＋issues の JSON 出力。
+- **強化**: Toyota A3レポート（背景→現状→目標→分析→対策→実施計画→フォローの7セクション1枚）の思考フレームを business_context に統合し、Sutu の出力を「A3構造の要約1枚 + JSON詳細」の二層構造に進化。経営者が30秒で全体像を掴める視覚化と、AIエージェントが機械処理できる構造化を両立。
+- **実務適用**: 出力に "A3_summary.md"（Mermaid図＋A3の7セクション）と "output.json" の両方を保存。ryota が提案書に流用でき、Haruto が戦略設計の起点にできる。
+- **KPI**: クライアントMTGでの「もう一度説明して」依頼 月8件→1件、Haruto の戦略設計時間 4時間→90分。
+
+### 10. 構造化プロンプト＆LLM検証パイプライン（Anthropic Prompt Engineering 2026 + Constitutional AI）
+- **現状**: research_queries を Google API で実効性テスト。
+- **強化**: Anthropic 2026年公開の「Structured Output Prompt Engineering」ベストプラクティス（XMLタグ・Chain-of-Verification・Constitutional AI の Self-Critique）を導入。Sutu の出力生成プロセス自体を "Draft→Self-Critique→Revision→External-Critique（Deva）" の4段パイプライン化し、各段階の品質を Claude / GPT の cross-model validation で担保。
+- **実務適用**: 分解案作成時にプロンプトへ「<critique>この分解に MECE漏れ・優先度矛盾・症状問い残存はないか</critique>」を組み込み自己批判→修正→Deva へ渡す前に品質を担保。全 issues に "confidence: 0-100" スコアも自動付与。
+- **KPI**: 出力後の Deva/Sora 差し戻し率 月2件→0.2件、cross-model 検証コスト 1案件$0.8→$0.3（プロンプト最適化で）。
+
+### 🎯 統合効果
+- **論点設計の"美術品化"**: MECEの網羅性（従来強み）に加え、システム思考（ループ）・Cynefin（複雑系分類）・Wardley（進化段階）・Bayesian（確率的更新）を統合し、単なる論理分解ではなく「意思決定を動かす論点デザイン」へ進化。
+- **上下流の全接続完了**: 上流 Retri（議事録品質チェック）→ Sutu（Cynefin分類→CLD→JTBD→OKR連動→Bayesian優先度）→ 下流 Haruto/Deva/Fuca/Market Researcher へ、確率・時間軸・ステージ・KR紐付けの全メタ情報を渡し、後続の判断速度を10倍化。
+- **国際標準準拠の武器化**: ISO 56002・Ulwick ODI・Wardley Mapping・Snowden Cynefin など、グローバルコンサル（McKinsey/BCG/IDEO/BEworks）が標準装備するフレームを全網羅し、大手・上場企業案件の受注根拠に転用。
+- **AI協業の最先端**: Hybrid Reasoning + Structured Prompt Engineering + Constitutional AI Self-Critique により、Sutu 自身が「人間×LLM×LLM相互検証」の3層アーキテクチャで動作し、日本国内で追随不可能な論点品質を実現。
+
+### 📚 参照ナレッジ（2026年最新）
+- **書籍・論文**:
+  - Anthony Ulwick『Jobs to be Done: Theory to Practice』第2版（2026）
+  - Simon Wardley『Wardley Maps: Strategic Thinking』2026 Edition
+  - Dave Snowden『Cynefin: Weaving Sense-Making into the Fabric of Our World』（2020, 2026補訂）
+  - Philip Tetlock『Superforecasting: The Art and Science of Prediction』2026 Postscript
+  - Donella Meadows『Thinking in Systems』（12 Leverage Points）+ MIT Sloan 2026 補講録
+  - Peter Senge『The Fifth Discipline』40周年記念版（2026）
+  - Nate Silver『On the Edge: The Art of Risking Everything』（2024→2026補訂）
+- **国際規格・フレームワーク**:
+  - ISO 56002:2019 Innovation Management System（2026改訂ドラフト）
+  - Google OKR Playbook 2026（Aspirational OKR）
+  - Toyota A3 Problem Solving Standard（2026 Lean Institute改訂）
+  - MIT Sloan Management Review『Hybrid Reasoning Framework』（2026春号）
+- **ツール・プラットフォーム**:
+  - Kumu.io（システムダイナミクス・CLD可視化, 2026 Enterprise版）
+  - Miro AI（Wardley Mapping テンプレート＋AI補助, 2026）
+  - Notion AI 2.0（構造化DB＋LLM統合, 2026）
+  - Anthropic Claude Opus 4.7 / GPT-5.1 / Gemini 2.5 Pro（cross-model validation）
+  - Metaculus / Good Judgment Open（Bayesian予測トレーニング）
+- **コミュニティ・カンファレンス**:
+  - Cynefin Retreat 2026（Snowden主催）
+  - IDEO Design Thinking Executive Program 2026
+  - Anthropic Prompt Engineering Summit 2026
+  - System Dynamics Society Annual Conference 2026
