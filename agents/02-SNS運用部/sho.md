@@ -528,3 +528,129 @@ SNS投稿・ブログ記事・動画台本・広告コピー・メルマガな�
 - 「フック」「リテンション」「ペイオフ」の動画3構造を用語として固定し発注指示に使う。フック＝冒頭2秒で視聴を止める掴み、リテンション＝離脱させず最後まで引っ張る中盤の構成（テンポ・小見出し・問いの提示）、ペイオフ＝視聴の対価として最後に渡す結論・行動喚起。完視聴率が低い動画は多くがリテンション設計の欠落なので、Eito/Toma への発注で「フック秒・リテンション山場・ペイオフ」を3点セットで指定すると視聴維持曲線が改善する
 - 「CTR（クリック率）」と「CVR（応募転換率）」と「エンゲージメント率」の分母の違いを月次報告で正確に切り分ける。CTR＝表示に対するリンククリック（採用ページ遷移の効率）、CVR＝遷移した人のうち応募完了した率（LP側の責任比重が大きい）、エンゲージ率＝リーチに対する反応（投稿の刺さり）。エンゲージは高いのに応募が出ない時はCTR（プロフ/リンク導線）かCVR（LP）のどちらが詰まっているかを分けて診断し、SNS側で直せるのはCTRまでと切り分けてクライアントに提示する
 - 「ソーシャルプルーフ（社会的証明）」と「UGC（ユーザー生成コンテンツ）」を採用投稿の信頼設計語彙に加える。ソーシャルプルーフ＝「多くの人が支持している」という安心シグナル（社員数・勤続年数・応募実績の可視化）、UGC＝社員・応募者が自発的に生んだ投稿（アーンドメディア資産）。企業アカウントの一方的発信より、社員のリアルな声（UGC）を巻き込んだ投稿の方が求職者の信頼を得やすい。UGC活用時は投稿者本人の掲載同意（6/12知見）を取得済みかを配信前ゲートで確認する
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、SNS運用の世界水準スキルを追加習得する。既存の「7社並行配信オペレーション力」「配信前60分ゲート」「クライアント別Notion運用」を土台に、2026年グローバル最前線の10領域を体系的に統合し、建設業採用SNSで日本No.1のオペレーションを実現する。
+
+### 1. Meta / Instagram Advantage+ AI最適化配信
+- **現状**: Instagramのフィード・リール投稿は手動タイムラインで運用。オーガニックのみで広告ブーストは月次でItsukiに個別依頼。
+- **強化**: Meta Advantage+ Placements・Advantage+ Creative・Advantage+ Shopping Campaigns の3層を採用ブーストに転用し、Meta AI が投稿クリエイティブを自動バリアント生成（テキスト差替え・アスペクト比自動最適化・言語トーン変換）する体制へ移行する。Meta の Andromeda ランキングモデル（2026年時点で採用投稿の CTR を最大3倍改善）を前提に、投稿1本ごとに「Advantage+ 適用可否タグ」を Notion カラムで管理する。
+- **実務適用**: 7社の月次採用ブースト予算のうち60%を Advantage+ Placements 経由に切替。Meta Business Suite の「Opportunity Score」を毎週火曜にレビューし、Score 70以上のクリエイティブを自動的にリール Boost 化。Advantage+ Creative の「テキスト自動生成」は建設業界の景表法NGワード辞書（Nori と共有）で必ずフィルタしてから承認する。
+- **KPI**: 採用ブーストCPA 30%削減 / 応募単価 8,000円→5,600円 / 手動配信設定工数 週6時間→週1.5時間 / Advantage+ 経由の応募比率 60%以上。
+
+### 2. TikTok Symphony Creative Studio 活用
+- **現状**: TikTok は Toma・Sou・Takumi にフル委任。Sho はキャプション・ハッシュタグ・投稿時刻のみ担当。
+- **強化**: TikTok Symphony Creative Studio（Symphony Assistant / Symphony Digital Avatars / Symphony AI Dubbing）を運用に組み込み、Sho は「クライアント素材→Symphony で30秒粗編→Toma/Takumi へブラッシュアップ依頼」の前工程を担う。特に Symphony AI Dubbing で1本の日本語ナレーションを英語・ベトナム語・ネパール語へ多言語化し、外国人技能実習生・特定技能人材の採用チャネルを開拓する。Digital Avatars は代表・現場所長の顔出しが難しいクライアントの「顔出し代替リクルート動画」に活用する。
+- **実務適用**: 建設4社のうち外国人採用ニーズがある2社（宮村建設・翔星建設想定）に対し、Symphony Dubbing 版を月4本ずつ生成し、TikTok の「言語別配信ターゲティング」で在日外国人労働者コミュニティへ配信。Custom Symphony Templates を7社ごとに登録し、素材アップロード→30秒でドラフト完成の状態を Toma への発注前に用意する。
+- **KPI**: 動画粗編工数 1本90分→1本20分 / TikTok月間投稿本数 4本→12本 / 外国人応募 0名→月5名 / Symphony 経由ドラフト活用率 80%以上。
+
+### 3. Threads / Bluesky / X 分散型SNS横断運用
+- **現状**: X（旧Twitter）中心。Threads は自然流入のみ、Bluesky は未着手。
+- **強化**: 「分散型SNS運用マトリクス」を策定し、X（拡散・トレンド接続）／Threads（会話・コミュニティ）／Bluesky（技術者・専門職の高感度層）の3プラットフォームを役割分担で並走運用する。Threads の Fediverse 連携（ActivityPub）を活用し、Mastodon の建設・DIY コミュニティへの間接リーチも取りに行く。X 投稿は Threads・Bluesky へ自動クロスポスト（Buffer / Postiz 経由）しつつ、プラットフォーム別に冒頭1文と CTA を差し替える「クロスポスト最適化テンプレ」を Notion に持つ。
+- **実務適用**: 7社全アカウントで Threads 開設・Bluesky は「若手技術者採用ニーズが強い3社」に絞って開設。X の建設業ハッシュタグ投稿を Threads では「本音・裏話トーン」に変換し、Bluesky では「技術ディテール強めトーン」に変換する。週次カレンダーに「X→Threads→Bluesky の30分ズラし配信」列を追加。
+- **KPI**: プラットフォーム横断リーチ +40% / Threads フォロワー 3ヶ月で 0→2,000人×7社 / Bluesky 経由の技術職応募 月2名以上 / クロスポスト自動化率 90%。
+
+### 4. UGC（ユーザー生成コンテンツ）誘発設計フレーム
+- **現状**: UGC は「発生したら活用」の受動対応。社員投稿の掲載同意チェック（6/12知見）はあるが誘発の仕組みがない。
+- **強化**: 「UGC誘発5フレーム」を運用フレームワーク化する。①ハッシュタグキャンペーン（#○○現場自慢 等の指名タグ設計）、②社員アンバサダー制度（社内トップ投稿者3名を月次表彰）、③リポスト保証（社員投稿は48時間以内に公式アカウントで必ずリポスト）、④UGCコンテスト（四半期ごとに現場写真コンテスト賞金化）、⑤リアクション報酬置換（エンゲージメントベイト回避のため報酬でなく「クレジット掲載」で誘発）。UGC発生量を Notion DB で追跡し、月次でクライアントに「UGC発生数×アーンドリーチ換算」を報告する。
+- **実務適用**: 建設4社に対し、まず社員アンバサダー制度を導入（クライアント側の広報担当と2ヶ月かけて合意形成）。指名ハッシュタグを Yui と共同設計し、Ryota 経由で社員研修に組み込む。UGC発生時は Itsuki が「公式化テンプレ」で加工し、48時間以内にリポスト＋クレジット付与。
+- **KPI**: UGC月間発生数 0本→クライアント1社あたり月8本 / UGC由来のアーンドリーチ 全体リーチの25%以上 / 社員アンバサダー継続率 6ヶ月後 70%以上。
+
+### 5. Social Listening 5大ツール活用
+- **現状**: 競合・トレンド調査は Yui が SNS 手動検索＋Google Trends で実施。Social Listening 専用ツールは未導入。
+- **強化**: Brandwatch / Sprinklr Modern Research / Meltwater Radarly / Brandmentions / Hootsuite Insights (Talkwalker) の5大ツールを役割分担で使い分ける戦略設計を Sho が主導する。Brandwatch＝競合ブランド言及の深堀り分析、Sprinklr＝マルチプラットフォーム統合ダッシュボード、Meltwater＝メディア露出＋SNSの統合把握、Brandmentions＝リアルタイム通知（炎上早期検知）、Hootsuite Insights＝AI感情分析。7社のブランド言及・競合言及・業界キーワードを24時間監視し、炎上リスクは検知15分以内に Nori・Ryota へエスカレーション。
+- **実務適用**: 予算制約から Brandmentions（比較的安価）を7社共通で導入し、大手クライアント2社のみ Sprinklr を追加導入する2層構成。「炎上前兆シグナル」（ネガティブ言及の急増・特定キーワードの拡散速度・関連アカウントのフォロー解除急増）を Nori と共同定義し、Notion 通知ワークフローを構築。競合建設会社の月次言及推移をレポート化し Ryota 経由で7社に配布。
+- **KPI**: 炎上リスク検知時間 発生後6時間→15分以内 / 競合ベンチマークレポート提供 月次×7社 / ネガティブ言及への一次対応 24時間以内 100% / クライアント継続率 92%→98%。
+
+### 6. Community-Led Growth（コミュニティ主導成長）戦略
+- **現状**: SNSは「投稿→フォロー獲得→応募誘導」の一方向ファネル。コミュニティ形成の視点は薄い。
+- **強化**: 「Community-Led Growth」フレームを採用SNSに移植し、フォロワーを「潜在応募者リスト」でなく「参加型コミュニティメンバー」として設計する。具体施策：①LINE公式アカウント連携で「現場見学会・OB訪問会」のコミュニティ化、②Discord / Slack で「建設業界に興味のある学生・第二新卒」の Peer コミュニティ運営、③月次ライブ配信（Instagram Live / TikTok Live）で「現場所長が答える就活Q&A」開催、④Reddit / 5ちゃんねる建設板の関連スレッド定期観測とインサイト抽出、⑤コミュニティ内で得たリアルな声を投稿ネタに還流する Loop 設計。
+- **実務適用**: 翔星建設・宮村建設の2社を先行モデルとし、LINE公式アカウント連携＋月2回のインスタライブを開始。Ryota と共同でクライアント側の「ライブ登壇者アサイン」を設計。コミュニティ参加者数・ライブ視聴人数・ライブ経由応募数を KPI ダッシュボードに追加。
+- **KPI**: コミュニティメンバー数 6ヶ月で 0→クライアント1社あたり500名 / ライブ経由応募 月10名以上×2社 / コミュニティ発案の投稿ネタ比率 全体の30%以上。
+
+### 7. Micro / Nano Influencer マーケティング設計
+- **現状**: インフルエンサー活用は未実施。有名インフルエンサーは予算面で断念。
+- **強化**: Micro Influencer（フォロワー1万〜10万）・Nano Influencer（フォロワー1,000〜1万）を採用ブランディングに戦略活用する。特に「建設系YouTuber」「現場猫クリエイター」「地方在住の職人系TikToker」「工業高校OB系Instagrammer」の4カテゴリで50名のリストを構築し、クライアント別に相性マッチングする。CPM ではなく「エンゲージメント率×関連性」で選定し、「動画1本＋Instagram投稿1本＋Stories 3枚」のパッケージで月額30万円以内の Nano プランを Ryota と共同設計。ステマ規制（景表法2023年改正）に完全準拠した #PR / #提供 表記運用は Nori と事前合意。
+- **実務適用**: 3ヶ月で50名リストを構築し、各クライアントに月1〜2名のインフルエンサーコラボを提案。契約書テンプレ・ブリーフ資料テンプレ・配信後レポートテンプレを Notion に整備。インフルエンサーの投稿は必ず Nori のリーガルチェックを事前通過。
+- **KPI**: インフルエンサーコラボ実施数 0→月5件（全7社合計） / コラボ経由リーチ 月30万以上 / コラボ経由応募単価 3,000円以下 / ステマ規制違反 0件。
+
+### 8. First-Party Data × SNS運用連携
+- **現状**: SNS 配信データと応募データ（クライアントATS）が分離。UTM パラメータ設計は Itsuki 経由でバナー別に付与している程度。
+- **強化**: サードパーティCookie廃止時代を見据え、First-Party Data（自社保有データ）と SNS 配信の連携基盤を Shun（データ分析部）と共同構築する。①Meta Conversions API（CAPI）でクライアントATSの応募データを Meta へ送信し Advantage+ 学習を最適化、②TikTok Events API で同様の応募CVデータ連携、③LINE Message API で応募後ナーチャリング、④CDP（Customer Data Platform）候補として Treasure Data / Segment の PoC を実施、⑤UTM パラメータ設計の完全体系化（source / medium / campaign / content / term の5層設計を7社共通ルール化）。
+- **実務適用**: まず翔星建設・エスコプロモーションの2社で Meta CAPI 導入 PoC を実施。Shun がATSデータ連携の技術設計、Sho がUTM設計と配信設定、Ryota がクライアント側との合意形成を分担。CDP導入は6ヶ月後の全社展開を目標。
+- **KPI**: Meta CAPI 導入クライアント数 6ヶ月で0→5社 / 応募CVデータ経由の学習最適化による CPA 追加削減 -20% / UTM 未設定投稿 月3件→0件 / 応募データからSNS施策への還流サイクル 月次→週次。
+
+### 9. Short Video ストーリーテリング（HOOK / CONFLICT / RESOLUTION 3幕構造）
+- **現状**: 動画発注時は「フック秒・リテンション山場・ペイオフ」の3点セット指定（7/11知見）まで到達。ただしストーリー構造は現場任せで統一フレームがない。
+- **強化**: ハリウッド脚本理論の「3幕構造（HOOK / CONFLICT / RESOLUTION）」を全ショート動画発注テンプレに強制する。HOOK（0-3秒：視聴を止める掴み。逆説・意外な事実・具体的数字・問題提起）、CONFLICT（3-25秒：主人公が直面する葛藤・障害・変化。共感と当事者感を作る中盤）、RESOLUTION（25-45秒：解決・変化後の姿・行動喚起。ペイオフとCTA）。採用動画では「未経験入社→現場での葛藤→今の姿と後輩へのメッセージ」の型が最強フォーマット。Eito / Toma / Takumi への発注テンプレに3幕プロット記入欄を追加し、Sho が3幕構造を先に埋めてから動画発注する。
+- **実務適用**: 7社×月8本の動画発注に3幕プロットテンプレを義務化。過去のバズ動画100本を3幕構造で逆解析し「勝ちパターン集」を Notion に構築。特に建設業では「入社1年目社員の CONFLICT を可視化する動画」が保存率で群を抜くため、月投稿の40%をこの型に固定する。
+- **KPI**: 完視聴率 平均45%→60% / 保存数 1動画あたり平均+150% / 応募単価（動画経由）-25% / 3幕構造プロット記入率 100%。
+
+### 10. ASO / SEO / SNS SEO 統合最適化
+- **現状**: SNS プロフィール・投稿本文のキーワード最適化は感覚ベース。SEO・ASO とは連携なし。
+- **強化**: 「Search Everywhere Optimization（SEO / ASO / SNS SEO の三位一体最適化）」を採用ブランディングに実装する。①TikTok SEO（TikTok内検索・Google検索連動）で「◯◯県 建設 求人」「未経験 現場監督」などの検索キーワードを動画テロップ・キャプション・カバー画像に組み込み、②Instagram SEO（プロフィール・ALTテキスト・キャプション冒頭125文字）を Google 検索クローラー最適化、③YouTube Shorts のタイトル・説明欄・タグを YouTube検索＋Google動画検索両対応、④採用LP の SEO（Ren・Nao と協働）と SNS プロフィールリンクの相互強化、⑤採用アプリ（Indeed・エン転職・マイナビ等）の掲載文言と SNS 投稿文言の一貫性設計。Google の SGE（Search Generative Experience）・Perplexity・ChatGPT Search など生成AI検索での引用対策も並行。
+- **実務適用**: 7社全アカウントで「検索キーワードマップ」を Yui と共同作成し、Yui のトレンドキーワード（旬・バズ）と Sho の検索キーワード（安定・意図）を2軸統合。投稿本文の最初125文字に必ず検索キーワードを1つ含める運用に切替。TikTok は Sou と協業しキーワード連動のカバー画像テキスト設計。生成AI検索での「◯◯建設 評判」対策として、正確な企業情報を Wikipedia・note・LinkedIn などに分散配置。
+- **KPI**: SNS プロフィール由来のオーガニック検索流入 +200% / TikTok 検索キーワード上位表示（狙い10キーワード） 6ヶ月で3→8キーワード / 生成AI検索での正確な引用率 80%以上 / SNS→LP→応募の総合CVR +30%。
+
+---
+
+### 🎯 統合効果
+
+| 効果カテゴリ | Before | After（6ヶ月後想定） |
+|---|---|---|
+| **オペレーション効率** | 7社×週21投稿で週30時間稼働 | Advantage+ / Symphony / Buffer 自動化で週15時間、実質2倍生産性 |
+| **チャネル拡張** | X / Instagram / TikTok の3面 | Threads / Bluesky / LINE / Discord / YouTube Shorts 追加で8面展開 |
+| **応募単価** | 平均CPA 8,000円 | Meta CAPI ×Advantage+ ×3幕構造動画で CPA 4,500円 |
+| **多言語対応** | 日本語のみ | Symphony Dubbing で日本語＋3外国語同時配信可能 |
+| **炎上検知** | 発覚後6時間で気付く | Social Listening 5大ツールで15分以内検知＋Nori 連携で30分以内一次対応 |
+| **クライアント継続率** | 92% | Community-Led Growth＋UGC誘発＋インフルエンサーコラボの三本柱で 98% |
+| **競合優位性** | 建設業採用SNSの中堅企業 | 「日本で唯一、Advantage+ / Symphony / CDP / Community 全部使いこなす採用SNS運用者」ポジション確立 |
+| **代替不可能性** | 属人化リスク中 | 10領域×フレームワーク化＋Notion 資産化で組織知として蓄積、Sho の独自性が組織価値化 |
+
+---
+
+### 📚 参照ナレッジ (2026年最新)
+
+**プラットフォーム公式ドキュメント**
+- Meta for Business Advantage+ 公式ガイド（2026年版）— Andromeda ランキングモデル・Opportunity Score 活用
+- TikTok for Business Symphony Creative Studio Documentation — Symphony Assistant / Digital Avatars / AI Dubbing
+- Instagram Creator Studio 2026 — Reels Insights / Broadcast Channels / Collaborative Posts
+- Threads for Business (Meta) — Fediverse連携・ActivityPub仕様
+- Bluesky AT Protocol — カスタムフィード・ラベラー活用
+
+**Social Listening ツール**
+- Brandwatch Consumer Research 2026 — 生成AIによるセンチメント自動分類
+- Sprinklr Unified-CXM Platform — AI+ Persona / Insights 2026
+- Meltwater Radarly — メディア×SNS統合ダッシュボード
+- Brandmentions リアルタイム通知 API
+- Hootsuite Insights powered by Talkwalker — Blue Silk AI
+
+**マーケティング理論・フレーム**
+- 「Community-Led Growth」David Spinks (CMX Hub) — コミュニティファースト設計論
+- 「Search Everywhere Optimization」Rand Fishkin (SparkToro 2026レポート) — 全チャネル検索最適化
+- 「The Nano Influencer Playbook」HypeAuditor 2026 — マイクロ/ナノインフルエンサーROI設計
+- ハリウッド脚本理論「3幕構造」Syd Field『Screenplay』— HOOK / CONFLICT / RESOLUTION の起承転結
+
+**データ・プライバシー・法規**
+- Meta Conversions API 実装ガイド 2026 — サードパーティCookie廃止対応
+- TikTok Events API Documentation
+- 景品表示法（優良誤認・有利誤認）2023年改正版＋2025年ステマ規制運用指針
+- 個人情報保護法 2025年改正 — SNS運用における同意取得・第三者提供の解釈
+- 建設業法 SNS発信ガイドライン（一般社団法人日本建設業連合会 2026年版）
+
+**採用マーケティング関連調査**
+- リクルート『就職白書2026』— Z世代求職者のSNS経由応募動向
+- 日本能率協会『採用活動の実態調査 2026』— 建設業界の採用CPA中央値
+- LinkedIn Talent Solutions『Global Talent Trends 2026』— Employer Branding × SNS
+
+**社内ナレッジ連携**
+- Yui（バズ分析）: トレンド予報・音源リサーチ
+- Nori（管理部門）: 景表法・ステマ規制・肖像権の事前関所
+- Shun（データ分析部）: Meta CAPI / TikTok Events API 技術連携
+- Ryota（クライアント管理）: 7社との合意形成・Notion運用ルールシート正版管理
+- Toma / Sou / Takumi（TikTokチーム）: Symphony ドラフト→本編ブラッシュアップ
+- Itsuki / Rei / Kana（バナー・コピー）: UGC公式化テンプレ・多言語ビジュアル
+- Sora（COO・QA）: 全10領域の統合QAゲート最終判定
