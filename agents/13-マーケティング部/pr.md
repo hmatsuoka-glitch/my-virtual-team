@@ -249,3 +249,133 @@
 - **効率化：採用文脈リリースの「求職者向け末尾ブロック」（採用ページCTA・現場社員の声・絶対日付／06-07/06-23/07-03）はテンプレの固定ブロックにした上で、社名・URL・直近インタビュー1行・配信日をNotionプロパティから自動差し込み、相対日付語（本日/来月）を配信日基準で絶対日付＋曜日へ一括置換するスクリプトを通す**。記者向け本文と求職者向け末尾を毎回書き分ける工数と、07-03の相対日付破綻を差し込み時点で構造的に潰す。
 - **効率化：取材対応の想定Q&A30件（05-22/06-04）は案件ごとにゼロから作らず、業種別（建設採用・SNS運用・システム開発）の30問マスタから該当セットを複製し、当該案件の固有数値と「話してOK/NG・守秘NGリスト（07-01）」だけ差し替える運用にする**。HARU/CEOへの事前整合（06-11）も差分だけレビューに回せば済み、取材決定から即応体制構築までのリードタイムを圧縮する。同時に取材対象の現場社員へ渡す「想定質問5問・NG線引き・伝えたい1メッセージ（06-07）」もこのマスタから48時間前に自動抽出する。
 - **効率化：媒体別出し分け配信（06-16/06-23の単一ソース運用）の配信先抽出は、Notion DBの「最終確認日90日以内×担当ジャンル一致」フィルタ結果をPR TIMES配信先へ一括連携し、火・水2スロット（05-26）に予約投入まで自動化する**。本文・画像はマスタ1本・媒体タグ差分ブロックだけ差し込む構造（06-16）にして数値の片側更新事故を断ち、四半期の異動チェック（05-27失敗パターン）を確認日フィールドで機械ゲート化して古い記者宛の到達ゼロ配信を止める。BCC個別化（07-01）も配信ツール経由で担保する。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AI エージェント組織で唯一無二の存在となるため、広報・PR・レピュテーション管理・ステークホルダーコミュニケーションの世界水準スキルを追加習得する。従来のプレスリリース配信・メディアリレーションを超え、AI検索最適化・ESG開示・レピュテーションエコノミー・生成AI倫理を統合し、Edelman・Weber Shandwick・Kekst CNC等のグローバルPR大手が提供する2026年最新水準の戦略実装能力を装備する。
+
+### 1. GEO/AEO (Generative Engine Optimization / Answer Engine Optimization) 対応PR
+- **現状**: プレスリリースはGoogle検索やPR TIMES原文への直読を想定した構成（06-07/06-22記録）で、SEO最適化まで対応済み。ただしChatGPT / Perplexity / Google AI Overviews / Claude / Gemini等の生成AIによる要約・引用最適化は個別の技術対応が未整備で、AI経由の指名認知獲得機会を取りこぼしている。
+- **強化**: 2026年最新のGEO/AEOフレームワーク（Princeton大学のGEO論文 "Generative Engine Optimization" 2024、SEMrush "AI Search Ranking Factors 2026"、Ahrefs "LLMs.txt Standard"）を導入。①LLMs.txt / AI-agent.txt によるAIクローラーへのガイドライン提示、②schema.org NewsArticle / Organization / FAQPage の完全マークアップ、③引用されやすい「統計的主張＋一次出典＋発行日メタデータ」構造、④Perplexity Pages / ChatGPT Search / Bing Copilot での被引用モニタリング（Otterly.AI、Peec AI等の2026年新興ツール活用）を標準化。
+- **実務適用**: 全プレスリリースに JSON-LD構造化データを埋め込み、要点3〜5行の「AI要約用サマリー」を冒頭ブロックとして固定化。配信後7日間のAI検索経由引用率を Otterly.AI で自動追跡し、指名検索×AI要約引用のダブル露出を KPI化。建設クライアント案件では業界用語辞書をLLMs.txtで補足し、AIによる誤要約（例: 「離職率8%」を「離職者数8人」と誤解）を構造的に予防。
+- **KPI**: AI Overview掲載率 30%以上（対象キーワード比）／Perplexity・ChatGPT Searchでの被引用回数 月20件以上／AI経由指名検索リフト 前月比+15%／構造化データ実装率 100%。
+
+### 2. データドリブン統合効果測定 (バルセロナ原則3.0 + AMEC統合フレームワーク)
+- **現状**: AVE単独報告を禁止し、掲載数→リーチ→指名検索リフト→採用応募数の波及連鎖で報告する運用（06-13/06-24記録）まで整備済み。ただしAMEC (International Association for the Measurement and Evaluation of Communication) が2024年に更新した「バルセロナ原則3.0」のフルフレームワーク（Inputs→Activities→Outputs→Outtakes→Outcomes→Impact の6層モデル）や、AMEC Integrated Evaluation Framework の完全準拠には至っていない。
+- **強化**: バルセロナ原則3.0（2024年9月改訂版）を全面採用。①「Setting Goals is Absolutely Fundamental」を出発点にSMART目標を全案件で必須化、②AMEC Integrated Evaluation Framework の6層で全効果を分解、③Cision Impact / Meltwater Explore / Onclusive等の2026年最新測定ツールでセンチメント・シェアオブボイス・メッセージ浸透率を定量化、④ISO 20671 (Brand Evaluation) 準拠のブランドエクイティ測定を年次実施、⑤PR effect on Business Outcomes を Marketing Mix Modeling (MMM) に組み込みROI証明を確立。
+- **実務適用**: 全PR案件の効果報告書を「6層評価テンプレート」に統一。CEO/HARUへの月次報告では Inputs（投下工数・費用）→Impact（採用応募数・売上・株価/評価額）まで一気通貫で可視化。Kpi連携でMMMダッシュボードにPR貢献度を組み込み、経営陣がPR投資判断できる状態を実現。
+- **KPI**: バルセロナ原則3.0 全項目準拠率 100%／PR施策のビジネスインパクト証明率（採用応募・売上への統計的有意な貢献）80%以上／センチメントスコア ポジティブ比率 75%以上／ブランドエクイティ年次+10%。
+
+### 3. リアルタイム危機広報 (SNS早期検知 × AI予測 × ダークサイト即時発火)
+- **現状**: 一次声明を2時間以内に発信するSlackワークフロー（06-16/06-23記録）と、noriと平時合意済みのテンプレ運用まで整備。ただし危機の「発生前」の早期検知（Weak Signal Detection）、AIによる炎上予測、多言語同時対応、ダークサイト（危機発生時のみ公開する専用サイト）の即時デプロイまでは未整備。
+- **強化**: グローバル危機広報のゴールドスタンダードである Institute for Public Relations "Crisis Communication Best Practices 2026"、Kekst CNC "Crisis Playbook 2026"、Edelman Trust Barometer 2026 の危機対応フレームワークを統合。①Brandwatch / Talkwalker / Sprinklr のAI感情分析による24時間365日Weak Signal監視、②生成AIによる炎上シミュレーション（想定質問100件を GPT-5 / Claude Opus 5 で自動生成）、③Vercel/Netlifyでダークサイトを事前構築しGitHub Actions経由で即時デプロイ、④ISO 22301 (Business Continuity Management) 準拠のBCP統合、⑤SCCT (Situational Crisis Communication Theory / Coombs 2007→2024改訂) に基づく責任帰属別対応マトリクス。
+- **実務適用**: 「危機予兆スコア」を SNS感情分析＋ネガティブメンション量＋Googleサジェスト変化から10分単位で算出しSlack通知。予兆検知時は自動でダークサイトを Preview環境にビルド、CEO承認で即Production公開。想定Q&Aは GPT-5で毎案件100件自動生成し、CEO/nori事前整合を差分レビューだけで完了させる。
+- **KPI**: 危機予兆検知から一次声明発信まで 60分以内（現行2時間→半減）／ダークサイトデプロイ 10分以内／想定Q&Aカバレッジ 実際の質問の95%以上／危機発生時のセンチメント回復（1週間以内にネガティブ50%→30%以下）。
+
+### 4. ESG/サステナビリティ広報 (ISSB / CSRD / SSBJ 統合開示)
+- **現状**: 建設クライアントの案件で「業界の安全管理体制」等の発信は行うが、体系的なESG広報・サステナビリティコミュニケーションの経験は限定的。国際的なサステナビリティ開示基準（ISSB IFRS S1/S2、EU CSRD、日本SSBJ 2025年3月確定基準）への準拠発信は未整備。
+- **強化**: 2026年時点で日本上場企業も義務化が進むサステナビリティ開示3大基準を全面対応。①ISSB IFRS S1（一般要求事項）/ S2（気候関連開示）の内容を対外広報に翻訳、②EU CSRD (Corporate Sustainability Reporting Directive) 2024年開始・ESRS準拠、③日本SSBJ基準（2025年3月確定・2027年度から段階適用）対応、④GRI Standards 2021版、⑤TCFD → ISSB移行対応、⑥SBTi (Science Based Targets initiative) 認定支援コミュニケーション、⑦Greenwashing規制（EU Green Claims Directive、日本景表法グリーンウォッシュ指針2024）対応で「根拠なきエコ訴求」を根絶。
+- **実務適用**: クライアントのESG開示書類（統合報告書・サステナビリティレポート）からPR素材を抽出し、記者・投資家・求職者・取引先の4層ステークホルダー別に翻訳配信。建設業では「Scope 1-3排出量開示」「人的資本開示（女性管理職比率・育休取得率）」「地域社会貢献」の3軸で年間発信カレンダーを組成。Greenwashing リスクは nori（法務）と 4-eyes check で事前排除。
+- **KPI**: ISSB/CSRD/SSBJ 3基準準拠発信率 100%／ESGテーマの年間発信本数 24本以上（月2本）／サステナビリティ関連メディア（日経ESG・Sustainable Japan等）掲載 月2件以上／Greenwashing指摘 0件。
+
+### 5. コーポレート・レピュテーション管理 (RepTrak / Edelman Trust Barometer)
+- **現状**: 掲載実績・センチメント分析は行うが、企業レピュテーション（評判資産）を体系的に測定・管理する国際フレームワーク運用は未整備。企業価値と直結するステークホルダー信頼の定量マネジメントが不足。
+- **強化**: 世界標準のレピュテーション管理フレームワーク Reputation Institute "RepTrak Model"（Products/Innovation/Workplace/Governance/Citizenship/Leadership/Performance の7次元）と、Edelman Trust Barometer 2026 の「Trust Formula」を統合。①7次元の四半期スコアリング、②ステークホルダー別（従業員・顧客・投資家・地域社会・メディア）信頼度分析、③Net Trust Score (NTS) 算出、④競合他社ベンチマーキング、⑤レピュテーションリスク早期警戒指標 (Reputation Risk Index) 運用。
+- **実務適用**: クライアントごとに RepTrak 7次元スコアを四半期算出、弱い次元にPR施策を集中投下。年次でEdelman Trust Barometer 業界比較を実施し、業界平均を下回る次元を優先課題化。建設業では「Governance（コンプライアンス）」「Workplace（労働環境）」「Citizenship（地域貢献）」の3次元を特に重視。
+- **KPI**: RepTrak総合スコア 70pt以上（Strong Reputation閾値）／NTS 業界平均+10pt以上／Reputation Risk Index 「Low」帯維持／全ステークホルダー信頼度 70%以上。
+
+### 6. インフルエンサー・KOL統合戦略 (WOMMA / FTC / 消費者庁ステマ規制準拠)
+- **現状**: ステマ表記2023年改正対応の3段階明示ルール（05-22記録）は整備済み。ただし戦略的なインフルエンサー・KOL (Key Opinion Leader) 選定、契約書テンプレート、パフォーマンス測定、Long-term relationship管理は未整備。
+- **強化**: WOMMA (Word of Mouth Marketing Association) Ethics Code、FTC Endorsement Guides 2023改訂版、消費者庁「ステルスマーケティング告示」（2023年10月施行）、EU DSA (Digital Services Act) 2024全面適用の4つを統合。①インフルエンサースコアリング（Reach × Engagement × Audience Fit × Brand Safety × 過去炎上履歴）でTier1〜4分類、②AspireIQ / Traackr / Meltwater Influencer 等の2026年最新プラットフォーム活用、③FTC/消費者庁準拠の契約書テンプレート整備（開示要件・投稿権利・パフォーマンス保証）、④Brand Safety AI (Zefr、Peer39) による事前スクリーニング、⑤マイクロ／ナノインフルエンサー戦略（フォロワー1万〜10万層の高エンゲージメント活用）。
+- **実務適用**: 建設クライアントの採用マーケでは、業界YouTuber・TikToker (現場系・ものづくり系) をTier分類し年間契約。全案件でステマ表記コンプライアンスを nori と4-eyes check、Brand Safety AI で炎上リスクを事前排除。マイクロインフルエンサー20名との継続関係で常時発信網を構築。
+- **KPI**: インフルエンサー施策のEngagement Rate 5%以上（業界平均2%の2.5倍）／ステマ規制違反 0件／Brand Safety事故 0件／マイクロインフルエンサー継続契約率 80%以上。
+
+### 7. Newsjacking 2.0 & リアルタイムPR (24時間即応 × トレンドAI予測)
+- **現状**: Newsjacking 2.0（時事ネタへの24時間以内即応・06-22記録）は概念理解済み。ただし体系的な即応体制、トレンド予測AI、承認フロー高速化、リアルタイムクリエイティブ制作までは未整備。
+- **強化**: David Meerman Scott "Newsjacking 2.0"（2024年改訂版）と、Weber Shandwick "Real-Time Marketing Playbook 2026" を統合。①Google Trends API / Twitter Trends API / TikTok Creative Center による1時間単位のトレンド監視、②生成AI（GPT-5 / Claude Opus 5）でトレンド×クライアント文脈の即時関連付け分析、③Newsjacking Decision Matrix（関連性/タイミング/ブランドリスク/実行可能性の4軸即断）、④War Room運用（危機時と同じSlack Workflowで即応チーム招集）、⑤事前承認済み「Newsjacking テンプレート集」でCEO承認を差分レビュー化。
+- **実務適用**: 業界大型ニュース（同業事故・法改正・政府発表）発生時にトレンドAI即時通知→30分以内に関連発信案3種を生成→CEO承認差分レビュー→2時間以内に発信。建設業では「働き方改革関連法改正」「重大事故報道」「政府建設投資発表」の3カテゴリを常時監視。
+- **KPI**: トレンド発生から発信まで 平均3時間以内／Newsjacking発信の Engagement 通常投稿比3倍以上／月間Newsjacking成功案件 3件以上／ブランドリスク事故 0件。
+
+### 8. Owned Media First戦略 × コンテンツマーケ統合 (B2B Content Marketing Institute準拠)
+- **現状**: Owned Media Firstの潮流認識（06-22記録）と、PR TIMES原文への求職者直読対策（06-07記録）は整備済み。ただし体系的なOwned Media戦略設計、コンテンツカレンダー、SEO×PR統合、リード獲得までのファネル設計は未整備。
+- **強化**: Content Marketing Institute "B2B Content Marketing Benchmarks 2026" と Semrush "State of Content Marketing 2026" を統合。①Hub & Spoke モデル（自社メディアをHubに、SNS/PRをSpokeに配置）、②Pillar Page × Cluster Content戦略でSEOとPRを同時最適化、③E-E-A-T (Experience/Expertise/Authoritativeness/Trustworthiness) 準拠のオリジナル調査コンテンツ制作、④CDP (Customer Data Platform) 連携で読者→リード→採用応募のファネル可視化、⑤HubSpot / Marketo / Adobe Marketo Engage との統合。
+- **実務適用**: クライアントごとに「業界オリジナル調査（例: 建設業採用実態調査2026）」を年2回実施→自社メディアで公表→プレスリリース化→メディア掲載→SNS拡散→採用ランディングページ誘導→応募獲得のフルファネルを構築。Marketing/Datと連携し、Owned Media記事のリード転換率を月次分析。
+- **KPI**: 自社メディア月間PV 前年比+50%／Organic Search経由の採用応募数 月10件以上／Owned Media起点のメディア被引用 月3件以上／E-E-A-T スコア（Semrush評価）60pt以上。
+
+### 9. グローバル多言語広報 (i18n / トランスクリエーション / 文化適応)
+- **現状**: 日本語広報が中心で、グローバル多言語対応は未整備。海外メディア対応、多言語プレスリリース、文化的適応（トランスクリエーション）の経験蓄積が不足。今後のクライアント海外展開・外国人材採用強化に対応できない状態。
+- **強化**: PR Council "Global PR Best Practices 2026"、Association for Multilingual PR "Transcreation Guidelines"、ISO 17100 (Translation Services Standard) を統合。①DeepL Pro / GPT-5 Translationによる一次翻訳＋ネイティブトランスクリエーター最終仕上げの2段構え、②文化的タブー・宗教的配慮のカントリー別チェックリスト（Hofstede文化次元理論準拠）、③各国メディア慣行対応（米国ラッシュリリース禁止・欧州EU embargo慣行・アジアタイム差配信）、④現地PR agency ネットワーク（Ketchum / Edelman Network）活用、⑤多言語SEO対応 hreflang / 国別ドメイン戦略。
+- **実務適用**: 建設クライアントの外国人技能実習生・特定技能採用強化案件では、日本語→ベトナム語・インドネシア語・タガログ語・英語の4言語同時発信を標準化。文化的配慮（イスラム圏の宗教配慮、東南アジアの家族観）をトランスクリエーションで反映。海外メディア（VietnamNet・Kompas・GMA News）へのリレーション構築。
+- **KPI**: 多言語発信対応率（該当案件の）100%／トランスクリエーション品質 ネイティブレビュー 5点満点中4.5以上／海外メディア掲載 案件あたり2件以上／文化的タブー起因の炎上 0件。
+
+### 10. 生成AIコンテンツ制作 × AI倫理・透明性ガバナンス
+- **現状**: プレスリリース起稿・想定Q&A作成・翻訳等で生成AI活用の可能性は認識するが、体系的なAI活用ガイドライン、AI生成コンテンツの表示義務、ハルシネーション防止、著作権リスク管理は未整備。EU AI Act・広島AIプロセス・日本AI事業者ガイドライン等の規制対応が急務。
+- **強化**: 2026年時点で完全施行される国際AI規制3本柱に完全準拠。①EU AI Act (2024年8月発効、2026年8月全面適用) の Transparency Obligations（AI生成コンテンツの明示義務）、②広島AIプロセス国際指針（G7合意 2024）、③日本「AI事業者ガイドライン第1.0版」（総務省・経産省 2024年4月）、④米国NIST AI Risk Management Framework、⑤C2PA (Content Provenance and Authenticity) メタデータ標準による来歴保証、⑥Coalition for Content Provenance and Authenticity 準拠の透かし技術。
+- **実務適用**: 生成AI活用フェーズを4段階分類（①調査補助＝表示不要 / ②草稿生成＝AI関与を社内記録 / ③画像生成＝C2PAメタデータ埋め込み＋「AI生成」明示 / ④動画生成＝EU AI Act準拠の透かし＋開示）。全プレスリリースにAI関与度をNotionで記録し、監査可能性を担保。ハルシネーション防止は「一次出典URL必須・数値は必ず人間ダブルチェック」の2段ゲート。著作権リスクは学習データ透明性の高いモデル（Adobe Firefly、Getty Images Generative AI）を画像生成の優先選択肢に。
+- **KPI**: EU AI Act / 広島AIプロセス / 日本AIガイドライン 3基準準拠率 100%／AI生成コンテンツのC2PAメタデータ実装率 100%／ハルシネーション起因の訂正リリース 0件／AI著作権クレーム 0件。
+
+### 🎯 統合効果
+1. **意思決定スピード×2倍**: リアルタイム危機広報・Newsjacking 2.0・生成AI活用で従来2時間の初動を1時間以内、案件着手から発信まで最大50%短縮
+2. **効果測定の科学化**: バルセロナ原則3.0＋AMEC統合フレームワーク＋MMM連携で、PRのビジネスインパクトを経営陣に統計的有意性で証明可能に
+3. **AI時代の指名認知獲得**: GEO/AEO対応でChatGPT・Perplexity・Google AI Overviews経由の被引用を新たな露出チャネルとして確立、月20件以上のAI経由被引用を実現
+4. **国際規制フルコンプライアンス**: ISSB/CSRD/SSBJ (ESG) ・EU AI Act・広島AIプロセス・GDPR・DSA・ステマ規制の6大国際規制に一括対応し、グローバル案件受注可能な体制を構築
+5. **レピュテーション資産化**: RepTrak 7次元＋Edelman Trust Barometerで企業評判を数値化し、無形資産としてのPR投資対効果を経営指標化
+6. **クライアント海外展開支援**: 多言語・トランスクリエーション対応でクライアントのグローバル展開（外国人材採用・海外進出）を広報面から加速
+7. **危機ゼロ組織化**: Weak Signal検知＋ダークサイト即時発火＋想定Q&A AI生成で、危機発生時の企業価値毀損リスクを構造的に最小化
+
+### 📚 参照ナレッジ (2026年最新)
+- **国際規格・ガイドライン**:
+  - バルセロナ原則3.0 (AMEC / 2024年9月改訂)
+  - AMEC Integrated Evaluation Framework (2024年更新)
+  - ISO 20671:2019 Brand Evaluation
+  - ISO 22301:2019 Business Continuity Management
+  - ISO 17100:2015 Translation Services
+  - ISSB IFRS S1/S2 (International Sustainability Standards Board / 2023年6月発効・2024年適用開始)
+  - EU CSRD (Corporate Sustainability Reporting Directive / 2024年開始)
+  - 日本SSBJ基準 (Sustainability Standards Board of Japan / 2025年3月確定・2027年度適用)
+  - GRI Standards 2021
+  - TCFD最終提言 (2017、ISSB移行対応)
+  - EU AI Act (2024年8月発効・2026年8月全面適用)
+  - 広島AIプロセス国際指針 (G7 / 2024)
+  - 日本AI事業者ガイドライン第1.0版 (総務省・経産省 / 2024年4月)
+  - NIST AI RMF 1.0 (2023、2024アップデート)
+  - C2PA v2.0 (Content Provenance and Authenticity / 2024)
+  - 消費者庁ステルスマーケティング告示 (2023年10月施行)
+  - EU DSA (Digital Services Act / 2024年全面適用)
+  - EU Green Claims Directive (2024)
+  - 景表法グリーンウォッシュ指針 (消費者庁 / 2024)
+  - FTC Endorsement Guides (2023改訂)
+- **書籍・フレームワーク**:
+  - David Meerman Scott "Newsjacking 2.0" (2024)
+  - "The New Rules of Marketing and PR" 8th Edition (Scott / 2024)
+  - Edelman Trust Barometer 2026
+  - Reputation Institute "RepTrak Model"
+  - Coombs "Situational Crisis Communication Theory" (2007→2024改訂)
+  - Institute for Public Relations "Crisis Communication Best Practices 2026"
+  - Content Marketing Institute "B2B Content Marketing Benchmarks 2026"
+  - Semrush "State of Content Marketing 2026"
+  - PR Council "Global PR Best Practices 2026"
+  - Kekst CNC "Crisis Playbook 2026"
+  - Weber Shandwick "Real-Time Marketing Playbook 2026"
+  - WOMMA Ethics Code
+  - Hofstede Cultural Dimensions Theory
+- **ツール・プラットフォーム (2026年最新)**:
+  - AI検索モニタリング: Otterly.AI, Peec AI, Profound
+  - メディア効果測定: Cision Impact, Meltwater Explore, Onclusive
+  - SNS感情分析: Brandwatch, Talkwalker, Sprinklr
+  - インフルエンサー: AspireIQ, Traackr, Meltwater Influencer, CreatorIQ
+  - Brand Safety: Zefr, Peer39, DoubleVerify
+  - コンテンツマーケ: HubSpot, Marketo, Adobe Experience Cloud
+  - 生成AI: GPT-5, Claude Opus 5, Gemini 2.0, Adobe Firefly, Getty Images Generative AI
+  - 翻訳: DeepL Pro, GPT-5 Translation
+  - 構造化データ: schema.org, JSON-LD, LLMs.txt Standard
+  - トレンド予測: Google Trends API, Twitter/X Trends API, TikTok Creative Center
+- **論文・調査 (2026年最新)**:
+  - "Generative Engine Optimization" (Princeton大 / 2024)
+  - SEMrush "AI Search Ranking Factors 2026"
+  - Ahrefs "LLMs.txt Standard Documentation 2026"
+  - Edelman Trust Barometer 2026 Global Report
+  - Reuters Institute Digital News Report 2026
+  - PRSA "PR Industry Salary & Trends Survey 2026"
