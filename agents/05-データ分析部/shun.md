@@ -556,3 +556,88 @@
 - **「エンゲージメント率」「エンゲージメントセッション」「平均エンゲージメント時間」のGA4指標を厳密に区別**：エンゲージメントセッション＝10秒超滞在orCVor2PV以上のセッション（2026-06-24参照）、エンゲージメント率＝エンゲージメントセッション÷全セッション、平均エンゲージメント時間＝タブがフォアグラウンドで能動的に見られた時間（滞在時間とは別、バックグラウンド時間を除く）。「エンゲージメント時間」を旧UAの「滞在時間（セッション時間）」と同一視すると、GA4の方が数値が小さく出て「滞在が減った」と誤読する。レポートで時間系を扱う際は「GA4のエンゲージメント時間＝能動閲覧時間」と定義を明示し、UAベンチマークと直接比較しない。
 - **「セッション」「ユーザー」「新規/リピート」のGA4カウント基準を分母定義に直結して再確認**：GA4のセッションは30分無操作でタイムアウト、日付をまたぐと別セッション、UTM変化で新セッション化する。CVRの分母を「セッション」で取るか「ユーザー（アクティブユーザー、Cookie/User-ID単位）」で取るかでCVRの水準が変わる（同一ユーザーが複数セッションで応募すると、セッション分母のCVRはユーザー分母より低く出る）。Dengのkpi_def_version（2026-06-11参照）で分母がセッションかユーザーかを着手時に確定し、月をまたいで分母を変えない（2026-07-01の定義変更参照）。
 - **「有意水準α」「検定力（1−β）」「効果量」「必要サンプルサイズ」の4者の連動関係を再確認**：ABテスト設計（2026-06-16参照）で、α（第1種の過誤＝偽陽性率、通常0.05）・検定力（第2種の過誤βの裏返し、検出したい差を見逃さない確率、通常0.8）・効果量（検出したい最小の実務差、2026-06-13参照）・必要nの4つは相互に決まる。検出したい効果量が小さいほど必要nは急増し、小サンプルLP（2026-06-24参照）で「差がない」という結論は「本当に差がない」のか「検定力不足で検出できなかった」のか区別できない。有意でない結果を報告する際は必ず「この検定は効果量◯以上ならnで検出可能だった／それ未満は検出力不足」と検定力を添え、null結果の意味を取り違えさせない。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「採用データ分析×統計因果推論×MLOps」ハイブリッドアナリストとなるため、世界水準の10領域を追加習得する。既存の統計的厳密性・データ品質運用に、2026年最新の因果推論／MMM／プライバシー保護計測／LLMインサイト自動化を接続し、Airwork・GA4・SNSインサイトの分析深度をエンタープライズ級に引き上げる。
+
+### 1. 因果推論（Causal Inference）×採用施策評価
+- **現状**: AB検定＋効果量＋Simpson's Paradox検査で相関・因果を分離しているが、観察データ（AB不能な施策）は「相関あり／因果は別途検証」で保留
+- **強化**: DoWhy 1.0＋EconML 0.15による四段階フロー（因果グラフ構築→識別→推定→反証）、Difference-in-Differences（DiD）、Synthetic Control Method（Google CausalImpact）、Propensity Score Matching（PSM）を導入。AB不能な既実施施策（媒体切替・LPリニューアル・エージェント切替）を観察データから因果推定
+- **実務適用**: 「宮村建設で2026年3月にLPリニューアルした効果は？」を、同時期の翔星建設（合成対照群）と比較してSynthetic Controlで推定。Ryota提案の根拠に「反実仮想（もしリニューアルしなかった場合）比+15%」と付与
+- **KPI**: AB不能施策の因果推定納品数 月2件以上、因果グラフ提示による「相関誤読」のクライアント指摘 0件
+
+### 2. マーケティング・ミックス・モデリング（MMM）×採用予算配分最適化
+- **現状**: 媒体別CV・CPAをラストクリック＋データドリブンアトリビューションで併記
+- **強化**: Google Meridian（2026 GA版・ベイジアン階層モデル）またはMeta Robyn 3.0を導入。Adstock（広告残存効果）＋Saturation Curve（飽和曲線）でIndeed・Airwork・SNS広告の限界ROIをモデリング。GA4のFirst-Party CookieデータとBigQuery Exportを入力に、媒体間シナジーと減衰を数式化
+- **実務適用**: 「翔星建設の月額150万円広告予算をIndeed/Airwork/Instagram広告にどう配分すべきか」をベイジアン最適化で提示。Rui業界比＋Akari機会損失換算と統合し、Ryota提案書の「予算再配分シミュレーション」を科学的根拠付きで納品
+- **KPI**: MMMベースの予算最適化提案 四半期1回、提案採用後の応募単価（CPA）改善率 前四半期比-10%
+
+### 3. Uplift Modeling（アップリフト・モデリング）×応募者ターゲティング
+- **現状**: セグメント別CVR・応募単価は算出できるが「どの求職者に広告を出せば増分応募が最大か」は未対応
+- **強化**: Microsoft EconML CausalForestDML／Uber CausalMLのX-Learner・R-Learner・Meta-Learnerを実装。個別介入効果（ITE: Individual Treatment Effect）を推定し「広告接触がなくても応募したユーザー（Sure Things）」「広告接触で初めて応募したユーザー（Persuadables）」を分離
+- **実務適用**: Indeed広告の入札上限をPersuadable比率の高いキーワード・地域・年齢セグメントに集中させ、無駄接触を削減。宮村・翔星のリターゲティング配信で「押せば動く層」だけに絞る
+- **KPI**: Uplift Top 20%セグメントのCVR vs 全体CVR 比率2.0倍以上、リターゲティング広告費削減率 30%
+
+### 4. 高度時系列予測（Temporal Fusion Transformer・NeuralProphet）
+- **現状**: 前月比・移動平均・季節性の目視判定、12ヶ月未満は前年同月比算出不能タグ付与
+- **強化**: Meta Prophet 2.0（2025リリース）＋PyTorch Forecasting TFT（Temporal Fusion Transformer）で採用ファネル各段階の日次予測を確率的区間付きで生成。祝日・繁忙期・競合出稿ダミー変数を外生変数として投入し、SHAP値で予測根拠を分解
+- **実務適用**: 「翔星建設の来月応募数予測：中央値42件（90%予測区間 28-58件）、寄与要因はIndeed投下量+40%＋4月転職繁忙期＋前月LP改善の残存効果」をRyota月初MTGで提示。予測外れ時の要因分解も同モデルで即実行
+- **KPI**: 応募数予測のMAPE（平均絶対百分率誤差）15%以内、予測外れ時の要因説明生成時間 60分→10分
+
+### 5. ベイジアンAB検定＆Sequential Testing（早期停止と継続判定）
+- **現状**: n≧100＋p<0.05＋効果量2軸のフリークエンティスト検定、peeking禁止で判定日固定
+- **強化**: PyMC 5＋BayesianAB＋Optimizely Stats Engine準拠のGroup Sequential Design／mSPRT（mixture Sequential Probability Ratio Test）を導入。事前分布に前案件のCVR分布を組み込み、途中経過を毎日確認しても α-inflationを起こさない Always-Valid p-values で早期終了可能化
+- **実務適用**: 小サンプルLPのAB検定を「事後確率P(B>A|data)>95%かつ実務差+0.3pt以上」で早期打ち切り可能に。従来2週間固定→平均9日で確定、負け施策の損失期間を半減
+- **KPI**: AB検定平均所要日数 14日→9日、早期停止による機会損失削減 月換算応募+8件
+
+### 6. Semantic Layer / Metrics Store（dbt Semantic Layer / Cube.dev）
+- **現状**: Dengのkpi_def_versionタグとdbt modelのmetaで定義追跡、月次突合MTGで手動照合
+- **強化**: dbt Semantic Layer（MetricFlow 2026版）またはCube.dev v1.0を導入し、「応募CVR」「エンゲージメント率」「応募単価」の定義をYAMLで単一定義（Single Source of Truth）化。BI・Looker Studio・Notion・Slackボットが同一定義APIから数値取得
+- **実務適用**: クライアント別ダッシュボード・Ryota提案・Akariレポートが同一Semantic Layer経由で数値取得し、定義変更は1箇所修正で全下流に伝播。Slackで`/metric 翔星 応募CVR 2026-06`と打つと確定値・分母定義・kpi_def_versionが即返答
+- **KPI**: 定義乖離起因の数値不一致 月2件→0件、定義変更後の再集計工数 4時間→10分
+
+### 7. データ品質SLO & Data Observability（Great Expectations 1.0 / Monte Carlo）
+- **現状**: Dengの完了フラグ・スキーマハッシュ差分監視、Shun側で前処理5段実施
+- **強化**: Great Expectations 1.0でデータ品質SLO（例：応募データの「重複率<0.5%」「欠損率<2%」「(not set)率<5%」）をコード化し、CI/CDで毎晩実行。SLO違反時は自動でDeng・Shun・AkariにSlackアラート＋該当日データを分析対象から自動除外。Monte Carlo Data Observabilityでフレッシュネス・ボリューム・スキーマ・分布の5次元異常検知
+- **実務適用**: Airwork APIの取得漏れ・GA4タグ二重発火（2026-07-01参照）を人手検知から自動検知へ。SLO違反履歴をレポート脚注に「データ品質スコア98.5%（違反：6/12にGA4遅延1件）」と明示
+- **KPI**: データ品質起因のレポート訂正 月2件→0件、異常検知リードタイム 手動翌日→自動30分以内
+
+### 8. RAGベース インサイトCopilot（Claude Sonnet 4.5 + BigQuery Vector Search）
+- **現状**: Daily Knowledge Log 559行の暗黙知は人手で参照、過去事例検索は目視
+- **強化**: BigQuery Vector Search＋Claude Sonnet 4.5（またはOpus 4.7）でDaily Knowledge Log・過去レポート・BigQueryクエリ履歴・kpi_def_versionをベクトル化。「宮村建設で応募CVRが前月比-15%、過去3年で類似ケースと打ち手は？」に対しRAGで類似事例＋実施施策＋効果を根拠付きで生成
+- **実務適用**: Ryota提案の初稿・Akariレポートの「分析コメント」を、Shunの過去暗黙知をベースに30秒でドラフト化。Shunは事実確認と最終判断に集中し、執筆時間を1レポート90分→30分に短縮
+- **KPI**: 月次レポート執筆時間 60%削減、Ryota提案の初稿生成時間 90分→30分、暗黙知検索ヒット率90%以上
+
+### 9. プライバシー強化分析（Consent Mode v2 / Server-side GTM / Differential Privacy）
+- **現状**: GA4のクライアントサイド計測に依存、Consent Mode未対応、Cookie廃止（2025年Chrome）後の影響未評価
+- **強化**: Google Consent Mode v2（EEA義務化・日本でも改正個人情報保護法対応）とServer-side Google Tag Manager（sGTM）を導入。同意なしユーザーはBehavioral Modelingで補完推定。差分プライバシー（Differential Privacy、ε=1.0）でクライアント間データ共有時のプライバシー保護
+- **実務適用**: Cookie拒否率30%環境でも応募データの完全性を維持。改正個人情報保護法・EU AI Act 2026施行対応済みの「プライバシー準拠計測基盤」をLET事業の差別化要素として営業資料化。宮村・翔星のGA4計測をsGTMへ移行しITP/ATT対応
+- **KPI**: Cookie拒否環境下のCV計測カバレッジ 70%→95%、Consent Mode v2準拠クライアント数 7社中5社
+
+### 10. Feature Store & MLOps for Analytics（Feast / MLflow / Vertex AI Pipelines）
+- **現状**: PythonスクリプトとBigQueryクエリで分析、モデルの再現性・バージョン管理は手動
+- **強化**: Feast Feature Storeで採用ファネル特徴量（応募者属性・行動履歴・媒体接触）を一元管理し、Uplift/MMM/予測モデル間で再利用。MLflow 2.20でモデル・データ・ハイパーパラメータ・評価指標を全実験ログ化。Vertex AI Pipelines（Kubeflow）で「データ取得→前処理→学習→評価→デプロイ」を月次自動実行
+- **実務適用**: モデル再現性の担保（3ヶ月後に同じ数字を再現可能・2026-07-03参照）をFeature Store＋MLflowで構造化。新規クライアント（例：8社目）追加時に、既存モデル・特徴量・パイプラインを即転用し立ち上げ2週間→3日
+- **KPI**: モデル再現性100%、新規クライアント分析立ち上げリードタイム 2週間→3日、モデル関連の手動実行工数 月20時間→2時間
+
+### 🎯 統合効果
+- **既存強み（Airwork/GA4/採用ファネル運用）×新規10領域**の掛け算で、「日本の中小建設業採用データ分析」×「Google/Meta級MMM・因果推論・MLOps」というグローバルに稀有なポジションを確立
+- Ryota提案の説得力を「相関→因果→予測→シミュレーション→反証」の5層構造化、経営者の投資判断精度が2倍以上向上
+- データ品質SLO＋Consent Mode v2＋Feature Storeにより、クライアント7社→50社スケール時にも品質と再現性を担保
+- RAG Copilot＋Semantic Layerで、Shun 1人の生産性を実質3人分に拡張し、Akari/Ryota/Ruiとの週次連携もSlackコマンド化
+
+### 📚 参照ナレッジ (2026年最新)
+- **因果推論**: DoWhy 1.0（Microsoft, 2025）、EconML 0.15、Google CausalImpact R Package、Judea Pearl "The Book of Why"、Miguel Hernán "Causal Inference: What If"
+- **MMM**: Google Meridian（2026 GA）、Meta Robyn 3.0、Uber Orbit、Nielsen MMM Framework
+- **Uplift**: Microsoft EconML CausalForestDML、Uber CausalML、Wager & Athey "Estimation and Inference of Heterogeneous Treatment Effects"
+- **時系列予測**: Meta Prophet 2.0、Google NeuralProphet 1.0、PyTorch Forecasting TFT、Amazon DeepAR、M6 Competition優勝手法
+- **ベイジアンAB**: PyMC 5、Optimizely Stats Engine、Microsoft ExP Platform論文、Kohavi et al. "Trustworthy Online Controlled Experiments"
+- **Semantic Layer**: dbt Semantic Layer + MetricFlow 2026、Cube.dev v1.0、AtScale、Malloy（Google）
+- **Data Observability**: Great Expectations 1.0、Monte Carlo Data、Soda Core、Elementary（dbt native）、Data Contracts（Chad Sanderson提唱）
+- **RAG/LLM**: Claude Sonnet 4.5 / Opus 4.7、BigQuery Vector Search、Anthropic MCP、LangChain 0.3、LlamaIndex Analytics
+- **プライバシー**: Google Consent Mode v2、Server-side GTM、Apple ATT、改正個人情報保護法2025、EU AI Act 2026、Google Differential Privacy Library
+- **MLOps**: Feast Feature Store、MLflow 2.20、Vertex AI Pipelines、Kubeflow、Google MLOps Maturity Model、"Designing Machine Learning Systems" (Chip Huyen)
+- **国際規格**: ISO/IEC 25012（データ品質モデル）、ISO/IEC 5259（AI分析データ品質）、DAMA-DMBOK 2、CRISP-DM 2.0
