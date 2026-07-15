@@ -257,3 +257,85 @@
 - **「バックプレッシャー（backpressure）」と「スロットリング（throttling）」の流量制御用語の区別**：スロットリング＝送信側が自主的にレートを絞る（クローラーの1req/秒制約・指数バックオフ、2026-06-24参照）、バックプレッシャー＝受信側が処理限界を上流へ伝えて流入を止めさせる仕組み。Cloud Run Jobsの並列クロールでは送信側スロットリングは実装済みだが、下流のBigQuery取込がスキャン量上限（2026-06-12参照）に達した際に上流クロールを止めるバックプレッシャーがないと、取り込めないデータがstagingに溜まり続ける。受信側の処理限界を上流の実行スケジューラへフィードバックする経路を設計に加える。
 - **「データマート」の3種（集約型/参照型/複合型）を用途で使い分ける再確認**：集約型マート＝事前集計済み（応募数・CVRの日次サマリー、Shun/Akariが直接参照）、参照型（コンフォームド・ディメンション）＝共通マスタ（クライアント・媒体マスタ、全マートで同一定義を共有）、複合型＝両者の結合。3層用語（レイク/DWH/マート、2026-06-13参照）のマート層内でも、Shunが「なぜ媒体名が2つのレポートで違う」と混乱する事故は、参照型ディメンションを各マートで独自定義してしまうのが原因。媒体・クライアント等のディメンションは1つのconformed dimensionに集約し、全marts modelから`{{ ref() }}`で共有参照する設計を徹底する。
 - **「ウォーターマーク（watermark）」による遅延到着データ処理の再確認**：ウォーターマーク＝「この時刻より前のイベントはもう到着しないと見なす」境界線で、遅延到着（late-arriving）データの締め切り。incrementalの`lookback`ウィンドウ（2026-07-01参照、過去3日再処理）は、ウォーターマークを「イベント時刻−3日」に置く実装に相当する。Airworkの応募がネットワーク遅延で翌日到着するケースで、ウォーターマークを短く取りすぎると遅延分が欠落、長く取りすぎると毎回の再処理コストが膨らむ。媒体ごとの実測遅延分布（p99の遅延時間）からウォーターマーク幅を決め、「締め切り後に到着したデータ件数」を監視して幅の妥当性を四半期検証する。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、データエンジニアリング（クローラー・ETL/ELT・データ基盤・データ品質・データガバナンス）の世界水準スキルを追加習得する。既存のdbt+Airflow+BigQuery運用を、2026年最新のレイクハウス・データコントラクト・ストリーミング・オブザーバビリティ・AI-Ready基盤へ引き上げる。
+
+### 1. Lakehouse Architecture with Apache Iceberg / Delta Lake（レイクハウス基盤）
+- **現状**: BigQuery＋dbt marts（2026-06-13の3層構造）中心で、レイク層は`raw_`接頭辞のBigQueryテーブルで代替。ストレージとコンピュートが密結合し、他エンジン（Spark/Trino）からの再利用が困難。
+- **強化**: Apache Iceberg v1.6（2026年GA）のtable format採用。GCS/S3上のParquetに対しIceberg metadata layerを被せ、BigQuery（Iceberg BigLake tables）・Snowflake・Databricks・Trinoから同一テーブルを読み書き可能化。Time Travel・Schema Evolution・Hidden Partitioning・Copy-on-Write / Merge-on-Read戦略を使い分け。Delta Lake 4.0のLiquid Clustering、Hudi 1.0のIndexingも比較検討。
+- **実務適用**: 7社の応募データ（Airwork/GA4/独自ログ）を統一Iceberg tableに集約し、Shun（分析）はBigQuery、AI/ML用途はDatabricks/Spark、外部提携先へはTrinoで提供する「1テーブル・多エンジン」体制。ストレージコストはGCS Coldline階層化で60%削減、スキーマ進化はIceberg schema evolutionで契約テスト（2026-07-03）と連動。
+- **KPI**: マルチエンジン読取対応テーブル比率100%（marts層）、ストレージコスト▲60%（vs BigQuery native）、スキーマ変更起因の下流エラー月0件、Time Travel復旧演習（2026-07-03）所要時間▲70%。
+
+### 2. Data Contracts & Schema Governance（データコントラクト仕様）
+- **現状**: dbt source YAMLのschema tests（2026-07-03）と自作スキーマハッシュ監視（2026-06-03）で契約検知しているが、上流側（プロデューサー）に契約遵守義務を負わせる仕組みは無い。
+- **強化**: **Open Data Contract Standard (ODCS) v3.0**（Linux Foundation AI & Data、2026年正式版）を採用。YAML/JSONで「schema・SLA・quality rules・PII classification・semantic definitions」を宣言し、GitOps（PR承認）で契約変更を管理。**Schemata**・**Buz**・**dbt-contracts**でCIに組み込み、契約違反PRを機械拒否。プロデューサー（Airwork API・GA4）変更時はコンシューマー（Shun/Akari/Rui）へ自動通知するChange Impact Analysisを実装。
+- **実務適用**: 全dbt source＋Cloud Run Jobsクローラー出力にODCS契約を紐付け、契約テスト（2026-07-03）をゲート化。契約変更PRにはRACI（Responsible/Accountable/Consulted/Informed）を明示し、Shun/Akari/Ruiの承認なしにマージ不可。契約Version（SemVer）とKPI定義書のkpi_def_version（2026-06-04）を紐付け、月初突合MTGで契約変更履歴を一元レビュー。
+- **KPI**: 全上流ソースの契約カバレッジ100%、契約違反による下流障害月0件、契約変更→下流通知リードタイム24時間以内、コンシューマー承認プロセス遵守率100%。
+
+### 3. Streaming Pipelines with Flink / Materialize / RisingWave（ストリーミング処理）
+- **現状**: バッチ処理中心（Airflow日次DAG＋dbt incremental）で、リアルタイム分析は未対応。速報値はGA4 intraday（2026-06-17）で代替。
+- **強化**: **Apache Flink 2.0**（2026年6月GA、SQL Gatewayによる宣言的ストリーミング）または**Materialize 0.100**（インクリメンタルビューでSQL即応）、**RisingWave 2.0**（Postgres互換ストリーミングDB）を用途別採用。Kafka/Redpandaでイベント集約→Flink CDC→Icebergへexactly-once書込。Watermark（2026-07-11参照）・Windowing・Late-arrival handlingをFlink SQLで宣言的定義。
+- **実務適用**: TikTok/Instagram/X投稿のエンゲージメント指標をリアルタイム集計し、eito/tomaの投稿最適化にSLA 5秒で反映。応募イベントも準リアルタイム化しAkari月次前の速報ダッシュ（2026-06-26のintraday分離を発展）を構築。バッチとの二重管理はKappa Architecture（バッチ廃止）に段階移行。
+- **KPI**: ストリーミング対応KPI数（応募・エンゲージメント）10種以上、End-to-End latency p99 30秒以内、Exactly-once配信保証100%、Late-arrival回収率99%以上。
+
+### 4. Data Observability with OpenLineage / Elementary / Monte Carlo（データオブザーバビリティ）
+- **現状**: 独自のスキーマハッシュ監視・変化率アラート・完了フラグ通知（既存6項目）で運用しているが、リネージ・品質・鮮度・スキーマ・利用状況を統合可視化するプラットフォームは無い。
+- **強化**: **OpenLineage 1.30**（Linux Foundation、2026年業界標準）でリネージイベントを標準化し、**Marquez**または**DataHub 0.15**で全社データカタログ化。**Elementary Cloud**（dbt特化・無料版あり）または**Monte Carlo**・**Bigeye**でML異常検知（Volume/Freshness/Schema/Distribution）を自動化。Great Expectations・Soda Coreと連携し、5次元品質（Completeness/Uniqueness/Validity/Consistency/Timeliness）を可視化。
+- **実務適用**: dbt run/Airflow DAG/Cloud Run Jobs全実行イベントをOpenLineageで発行し、DataHubにリネージ・オーナー・PII分類・契約バージョンを集約。既存の変化率アラート（2026-06-03）はElementaryのanomaly detection（機械学習ベース）へ置き換え、閾値の手動調整不要化。半期メタチェック（2026-07-03）はDataHubの利用状況分析で自動化。
+- **KPI**: リネージ捕捉率100%（全dbt/Airflow/Cloud Run）、平均障害検知時間（MTTD）15分→3分、平均復旧時間（MTTR）3時間→30分、データ品質SLO達成率99.5%以上。
+
+### 5. Data Governance & Privacy Compliance（データガバナンス・PII保護）
+- **現状**: PIIハッシュ化（2026-06-12）・マルチテナントclient_idフィルタ（2026-06-24）で防御しているが、統合的なアクセス制御・監査・データマスキングは属人的。
+- **強化**: **Unity Catalog（OSS版、2026年Linux Foundation化）**または**Apache Polaris**・**Lakekeeper**でIcebergテーブルの統一ガバナンス。Row/Column-level Security・Dynamic Data Masking・Attribute-based Access Control（ABAC）を宣言的定義。**Immuta**または**Privacera**で自動PII検出（Presidio/AWS Macie/GCP DLP連携）と目的別ポリシー適用。**日本APPI（個人情報保護法）2026年改正**（同意管理強化）・**EU AI Act第10条（データガバナンス）**・**GDPR Right to be Forgotten**をIceberg Row Deletion（CoW/MoR）で実装。
+- **実務適用**: 応募者PII（氏名・電話・メール）は自動DLPで検出しUnity Catalog PIIタグ付与、Shun/Akari/Ryotaの職務別ポリシーで動的マスキング。Ryotaが見えるのは匿名化済み集計のみ、CS対応時のみ復元権限を発行し全アクセスを監査ログ化。「削除の権利」要請時は応募者IDでIceberg cross-table delete→dbt再計算を30日以内実行。
+- **KPI**: PII列の自動検出率100%、目的外アクセス（監査ログ検知）月0件、削除要請対応SLA 30日以内100%、APPI/GDPR/EU AI Actコンプライアンス監査PASS率100%。
+
+### 6. Reverse ETL & Composable CDP（データアクティベーション）
+- **現状**: BigQuery martsからLooker Studio/Slack通知への一方向配信で、SaaS（HubSpot・Salesforce・広告プラットフォーム）への逆向きデータ流入は手動CSV。
+- **強化**: **Hightouch**または**Census**（Reverse ETL / Composable CDP）でBigQuery Iceberg martsを唯一の真実源（SSOT）とし、100+ SaaSへ差分同期。**Segment CDP**の代替として、dbt Semantic Layer + Hightouch Audiencesで「セグメント定義もdbt管理」の構成。**Change Data Capture（CDC）**でmarts更新→SaaS反映を分単位で実現。
+- **実務適用**: 応募CVR上位クライアントの求職者データを匿名IDでMeta広告カスタムオーディエンスへ自動同期し、shoのSNS運用のリターゲティング精度を向上。RyotaのCRM（HubSpot）にクライアント別ヘルススコアを日次同期し、akariの月次レポート前にリスク顧客を可視化。全同期操作はUnity Catalogで監査。
+- **KPI**: SaaS同期先数15以上、同期SLA 15分以内、Reverse ETLエラー率0.1%以下、SSOT一元化率100%（手動CSVゼロ化）。
+
+### 7. AI-Ready Data Pipelines / Vector DB / RAG基盤（AI時代のデータ基盤）
+- **現状**: 従来のBI/分析用途に最適化されており、LLM/RAG/Embedding用途のベクトルデータ・非構造化データ処理はスコープ外。
+- **強化**: **LanceDB**・**Weaviate 1.30**・**Qdrant 1.15**・**Pinecone Serverless**（用途別選定）でベクトルDB構築。**dbt Semantic Layer**をLLMコンテキストに供給し、**Text-to-SQL agents**（Vanna.ai・Wren AI）で自然言語クエリ可能化。**LlamaIndex 0.15**・**Haystack 3.0**でRAG pipeline構築、**Unstructured.io**でPDF/画像/音声を構造化。**MCP（Model Context Protocol）**でLLMからデータ基盤へ安全接続、**Anthropic Claude Skills**でエージェントが自律的にETLタスク実行。
+- **実務適用**: 建設業界レポート・求人票・提案書PDFをUnstructured.ioでチャンク化しLanceDBへEmbedding格納、Rui/Ryotaが自然言語で「昨年同月の類似案件を検索」可能化。Airwork応募データをdbt Semantic Layer化し、Shun/AkariがWren AIで日本語クエリ→SQL自動生成。全AI推論のリネージをOpenLineageで追跡し、AI-generated insightsの検証可能性を担保。
+- **KPI**: ベクトルDB検索精度（recall@10）85%以上、自然言語クエリ成功率90%以上、AI活用KPI数10種以上、AI推論の説明可能性（引用ソース明示率）100%。
+
+### 8. FinOps for Data / Cost Optimization（データFinOps）
+- **現状**: BigQueryスキャン量の週次監視（2026-06-12）とパーティション設計（2026-07-01）で防御しているが、コスト最適化の体系的なFinOps文化・組織横断可視化は未整備。
+- **強化**: **FinOps Foundation Framework**（v2025.11）採用。**Ternary**・**Vantage**・**CloudZero**でマルチクラウド（GCP/AWS/Azure）横断のデータ関連コストをShow/Charge/Chargeback。**BigQuery Editions（Standard/Enterprise/Enterprise Plus）**のslot予約最適化、**Snowflake Cost Governance**、**Databricks Serverless Compute**で用途別コスト構造化。**Iceberg + GCS Coldline/Nearline階層化**（2026-07-15項目1と連動）、**dbt exposures**でコスト影響下流を明示。**Carbon Footprint**（GCP Carbon Footprint API）でCO2排出量もKPI化しESG報告連携。
+- **実務適用**: クライアント別・チーム別（Shun/Akari/Rui/AI活用）にコスト按分し、月次でRyota経由クライアントへ「データ基盤利用料」として可視化。dbt model単位のコスト（実行時間×slot単価）をElementary Cost Analysisでランキング化し、上位10%を重点最適化。AI推論コスト（Claude/OpenAI）もLangSmith/Helicone連携で統合可視化。
+- **KPI**: データ基盤コスト前年比▲30%、クライアント別コスト按分精度95%以上、CO2排出量前年比▲20%、無料枠超過月0件（全アカウント）。
+
+### 9. Ethical Web Scraping / Legal Compliance 2026（適法クローラー運用）
+- **現状**: robots.txt+利用規約+1req/秒制約（2026-05-27）とサーキットブレーカー（2026-06-24）で運用しているが、2026年の最新法規制・技術対策への追随が必要。
+- **強化**: **日本著作権法30条の4（情報解析目的の複製）**の2026年ガイドライン準拠（AIモデル学習と分析利用の区別）、**EU Data Act（2025年9月施行）**のB2Bデータアクセス権対応、**EU AI Act第53条**（学習データ透明性）対応。**Playwright 1.50**・**Crawlee 4.0**（オープンソース）で**Anti-bot対策（Cloudflare Turnstile/DataDome/PerimeterX）**をブラウザフィンガープリント正規化で回避せず、**公式API・データ提携**を優先。**Bright Data / Oxylabs / Zyte**のResidential Proxy＋Compliance Proxyで法的リスク低減。**IETF ai.txt draft**（AIクローラー向けrobots拡張）を先行対応。
+- **実務適用**: 競合10社の求人クロール（Rui向け）は、まず**Indeed Publisher API / リクナビNEXT API**等の公式提供を精査し、API不在サイトのみクローラー適用。robots.txt+ai.txt+利用規約を毎日自動再チェックし、変更検知時は48時間以内にクロール停止判定をRui/Ryotaへエスカレーション。**JSON-LD構造化データ**（schema.org/JobPosting）を優先抽出しHTML解析依存を最小化、サイト構造変更耐性を向上。
+- **KPI**: 公式API利用比率60%以上（クロール依存低減）、robots.txt/利用規約準拠率100%、BAN/法的クレーム発生件数0件、構造化データ抽出率80%以上。
+
+### 10. Data Mesh & Data Product Management（データメッシュ・データプロダクト経営）
+- **現状**: 中央集約型データ基盤（Deng単独運用）で、部門オーナーシップ・SLA契約・データプロダクト概念は未導入。スケール限界（属人化リスク）が顕在。
+- **強化**: **Zhamak Dehghani型 Data Mesh**（2026年成熟期）へ段階移行。4原則: (1) Domain Ownership（部門主権）、(2) Data as a Product（プロダクト思考）、(3) Self-serve Data Platform（セルフサービス基盤）、(4) Federated Computational Governance（連邦統治）。**Data Product Manager**役割定義、**DPML（Data Product Manifest Language）**でプロダクト仕様標準化。**dbt Mesh**（cross-project references）でドメイン別プロジェクト分割、**Nessie**（Icebergブランチ機能）でGit-like開発フロー。**DORA metrics for Data**（Data Lead Time / Deployment Frequency / Change Failure Rate / MTTR）で計測。
+- **実務適用**: 04-クライアント管理部・05-データ分析部・06-リサーチ部・02-SNS運用部の4ドメインにデータオーナーシップ移管。Dengは中央プラットフォームチームとして基盤・契約・ガバナンス・オブザーバビリティを提供、各ドメインが自ドメインのデータプロダクト（応募CVR product / 競合求人product / SNSエンゲージメントproduct）を運用。データプロダクトカタログをDataHubで公開しHARU/soraが全社SLA監視。
+- **KPI**: データプロダクト数15以上、ドメインオーナーシップ移管率100%（4ドメイン）、Data Lead Time（要件→本番）2週間以内、Data Change Failure Rate 5%以下、セルフサービス基盤利用率80%以上。
+
+### 🎯 統合効果
+- **技術水準**: BigQuery+dbtの単一クラウド構成から、**Iceberg Lakehouse + Streaming + Vector + AI-Ready**の2026年グローバル最先端アーキテクチャへ進化。海外テック企業（Netflix/Airbnb/Uber/LinkedIn）水準のデータ基盤を国内AIエージェント組織で実現。
+- **組織効果**: 中央集約型（Deng単独）から**Data Mesh + Data Product管理**へ移行し、7社×4ドメインのスケール対応。属人化リスクを構造排除し、Shun/Akari/Rui/Ryotaが自律的にデータ活用可能。
+- **コンプライアンス**: **APPI 2026改正 + EU AI Act + EU Data Act + GDPR**を統合準拠し、日本の建設業クライアント向けに「グローバル水準のデータ保護」を差別化訴求可能。
+- **経済効果**: FinOps体系化でデータ基盤コスト▲30%、Reverse ETLでSaaSデータ連携の手動工数▲90%、AI-Ready基盤でRui/Ryotaの調査・提案時間▲50%、ストリーミング化で意思決定リードタイム▲95%。
+- **戦略的差別化**: 「単なるデータエンジニア」から「**Data Platform Product Owner + AI-Ready Data Architect + Data Governance Officer**」の3役統合ロールへ昇格し、日本のAIエージェント組織で類を見ない専門性を確立。
+
+### 📚 参照ナレッジ (2026年最新)
+- **書籍**: 『Fundamentals of Data Engineering, 2nd Ed.』(Joe Reis & Matt Housley, O'Reilly, 2026)、『Data Mesh in Practice』(Zhamak Dehghani, O'Reilly, 2026)、『Designing Data-Intensive Applications, 2nd Ed.』(Martin Kleppmann, 2026)、『Data Contracts』(Andrew Jones, 2025)、『The Enterprise Data Catalog』(Ole Olesen-Bagneux, 2026)
+- **国際規格・法令**: Open Data Contract Standard (ODCS) v3.0 (Linux Foundation AI & Data, 2026)、OpenLineage v1.30 (Linux Foundation, 2026)、Apache Iceberg v1.6 spec (2026)、EU AI Act (2024/1689, 全面適用 2026年8月)、EU Data Act (2023/2854, 2025年9月施行)、日本改正個人情報保護法 (2026年施行)、日本著作権法30条の4 2026年ガイドライン、FinOps Framework 2025.11
+- **フレームワーク・OSS**: Apache Iceberg / Delta Lake 4.0 / Apache Hudi 1.0、Apache Flink 2.0、Materialize 0.100、RisingWave 2.0、DataHub 0.15、Marquez、Elementary Cloud、Great Expectations、Soda Core、Unity Catalog OSS、Apache Polaris、Lakekeeper、LanceDB、Weaviate 1.30、Qdrant 1.15、LlamaIndex 0.15、Haystack 3.0、dbt Mesh、Nessie、Playwright 1.50、Crawlee 4.0
+- **SaaS・商用**: dbt Cloud、Databricks、Snowflake、Fivetran、Airbyte、Hightouch、Census、Monte Carlo、Bigeye、Immuta、Privacera、Ternary、Vantage、CloudZero、Bright Data、Zyte、Pinecone Serverless、Wren AI、Vanna.ai
+- **カンファレンス・コミュニティ**: Data Council 2026、Big Data LDN 2026、Coalesce (dbt) 2026、Data + AI Summit 2026 (Databricks)、Snowflake Summit 2026、Kafka Summit 2026、Iceberg Summit 2026、日本データマネジメントコンソーシアム (JDMC) 2026
+- **業界レポート**: Gartner Magic Quadrant for Data Integration Tools 2026、Forrester Wave: Data Fabric 2026、a16z "Emerging Architectures for Modern Data Infrastructure 2026"、MAD (Machine Learning, AI & Data) Landscape 2026 by Matt Turck
+- **AI-Native Data**: Anthropic Model Context Protocol (MCP) 仕様 2026、Claude Skills for Data Engineering、OpenAI Agents SDK Data Connectors、LangChain Data Agents 2026版
