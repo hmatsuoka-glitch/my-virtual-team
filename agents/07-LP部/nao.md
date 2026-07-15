@@ -587,3 +587,134 @@ export const HERO = {
 - **「単一責任原則（SRP）/ 関心の分離（SoC）」のコンポーネント分割での正確な区別**：SRP＝1コンポーネントが変更理由を1つだけ持つ（`Hero` に「表示」と「フォーム送信ロジック」を混ぜない）、SoC＝異なる関心事（データ取得/表示/スタイル）を層で分ける。props 5個超の強制分割（2026-05-15）の判断根拠は SRP であり、Server で fetch・Client で表示の境界設計は SoC。2語を混同せず「変更理由で割るのか／関心事で層を分けるのか」を意識して分割方針を設計書に記述する
 - **「レイアウトシフト（CLS）を生む設計要因」を寸法予約の用語で先回り定義**：CLS の設計起因は①画像/iframe の寸法未予約（`aspect-ratio`/width・height 明記で防ぐ）②Web フォント差替時のメトリクスズレ（`size-adjust`/`ascent-override` を設計で指定）③動的挿入要素の高さ未確保（`min-height`/skeleton 予約）。Nao は「見た目」でなく「読込中に何が動くか」を設計段階で洗い、各画像スロット仕様表（2026-06-12）に予約寸法を必須化して Ren が CLS を生む余地を消す
 - **「WAI-ARIA のロール / プロパティ / ステート」の3分類を Form・インタラクティブ要素設計に適用**：ロール＝要素の役割（`role="dialog"`）、プロパティ＝基本的に不変の属性（`aria-labelledby`）、ステート＝変化する状態（`aria-expanded`/`aria-invalid`）。アコーディオン・モーダル・フォームエラーの設計で「div でボタン風」を組むとロール欠落で操作不能になるため、設計書のコンポーネント仕様に role/property/state の3列を明記し、Ren が semantic に実装せざるを得ない状態で渡す（Mia の a11y ツリー照合 2026-06-20 と対応）
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、LP設計・フロントエンドアーキテクチャの世界水準スキルを追加習得する。Vercel/Netlify/Cloudflare Pages を利用する世界の先端 LP チームと同一言語で設計書を書ける状態にし、Ren/Mia/Kaito が「日本語で書かれた世界標準スペック」で動ける状態を作る。
+
+### 1. W3C Design Tokens Community Group (DTCG) 準拠トークン設計
+- **現状**: Hana の `tokens.json` を独自スキーマで受領し、Tailwind / CSS 変数へ手動または `style-dictionary` で変換している。命名は案件ごとにブレが残る。
+- **強化**: 2026年正式化された **W3C DTCG Format Module (Editor's Draft 2026)** の `$value` / `$type` / `$description` / `$extensions` を必須スキーマとして採用。`color`/`dimension`/`fontFamily`/`fontWeight`/`duration`/`cubicBezier`/`shadow`/`gradient`/`typography`/`transition` の10 primitive type を Nao 側の設計書側でも同一キーで参照。**Tokens Studio 2.x** / **Style Dictionary v5** / **Figma Variables REST API 2026** と往復同期。
+- **実務適用**: STEP 4 直後に `design-tokens.tokens.json`（DTCG 準拠）を Single Source of Truth として発行し、Tailwind config・iOS SwiftUI・Android Compose・メール HTML の 4 ターゲットへ `style-dictionary build --platforms web,ios,android,email` で一括生成。Ren は import するだけ、色変更依頼は Nao のトークン1行修正で全チャネル追従。
+- **KPI**: ①案件間の命名ゆれ 0 件（`primary` vs `main` vs `brand-1` の混在ゼロ）②色変更依頼のリードタイム 2h→10min ③マルチプラットフォーム展開時のトークン重複定義 0
+
+### 2. WCAG 2.2 完全準拠 + WCAG 3.0 (Silver / Bronze) 先行対応設計
+- **現状**: WAI-ARIA の role/property/state 3列表と `inputmode`/`autocomplete` を仕様に明記する運用まで到達。ただし WCAG 2.2 で追加された 9 success criteria、および WCAG 3.0 のスコアリング方式には未対応。
+- **強化**: **WCAG 2.2 (2023年勧告)** の追加 SC を全て網羅：`2.4.11 Focus Not Obscured (Minimum)` / `2.4.12 Focus Not Obscured (Enhanced)` / `2.4.13 Focus Appearance` / `2.5.7 Dragging Movements` / `2.5.8 Target Size (Minimum)` = 24×24 CSS px / `3.2.6 Consistent Help` / `3.3.7 Redundant Entry` / `3.3.8/3.3.9 Accessible Authentication`。加えて **WCAG 3.0 (Working Draft 2026)** の "Bronze/Silver/Gold" 3 段階スコアリングと "Functional Outcomes" を設計書冒頭に明記。**ARIA Authoring Practices Guide (APG) 2026** のパターン (dialog / combobox / disclosure / tabs / carousel) を Nao 側で採択宣言。
+- **実務適用**: STEP 6 納品前に「WCAG 2.2 適合表（30 SC × A/AA/AAA + 対応コンポーネント）」を必須添付。**axe-core 4.10** / **Pa11y 2026** / **Lighthouse Accessibility 100** の 3 ツールで CI 通過する設計にする。fixed ヘッダーは `2.4.11` の観点から `scroll-margin-top` を全アンカー先に必須指定、CTA は `2.5.8` から `min-width:44px; min-height:44px` を設計トークンで固定。
+- **KPI**: ①axe-core critical/serious 違反 0 件 ②Lighthouse Accessibility ≥ 98 ③WCAG 2.2 AA 30 SC 全項目 ✅ ④Mia の a11y 差し戻し 0
+
+### 3. Core Web Vitals 2026 (INP + Long Animation Frames + CWV Extended) 設計最適化
+- **現状**: Performance 90 / a11y 95 の目標値と CLS 対策（`aspect-ratio` / `size-adjust`）を設計書に明記する運用まで到達。ただし INP は Ren に丸投げ気味。
+- **強化**: 2024 年に FID から置換された **INP (Interaction to Next Paint) < 200ms** を設計フェーズで担保。Chrome の **Long Animation Frames API (LoAF)** / **Speculation Rules API** / **View Transitions API Level 2** を設計に組込み。フォーム・アコーディオン・カルーセルの各 handler は「useTransition / startTransition / requestIdleCallback / scheduler.postTask」のどれで捌くかを設計表に指定。**PageSpeed Insights 2026** の Field Data (CrUX) 目標値も設計書冒頭に明記（LCP < 2.5s / INP < 200ms / CLS < 0.1 / TTFB < 800ms）。
+- **実務適用**: STEP 3 の props 定義時に、各インタラクションに `interactivity_class` (immediate / deferred / idle / offscreen) を付与。CTA クリックは immediate、モーダル open は deferred（useTransition 必須）、アニメ発火は offscreen（IntersectionObserver + LoAF 監視）と設計層で区分。Speculation Rules は同一ドメイン CTA 遷移先を `prerender`、外部リンクを `prefetch` に設計書で指定。
+- **KPI**: ①CrUX INP p75 < 200ms ②LoAF > 50ms のフレーム 0 ③Lighthouse Performance ≥ 92 ④View Transition 適用 CTA/ページ遷移 100%
+
+### 4. RSC + Partial Prerendering + Islands Architecture 境界設計
+- **現状**: 2026-07-01 で SC/CC 区分表を導入したが、Partial Prerendering (PPR) / Streaming SSR / Suspense boundary の設計は Ren 任せ。
+- **強化**: **Next.js 15 App Router + PPR (Stable)** / **React 19 use() + Server Actions** / **Astro 5 Islands** / **Qwik 2 Resumability** の 4 パラダイムを「案件フィット表」で使い分け宣言。Nao 側で「Static Shell / Dynamic Hole / Client Island」の3レイヤを設計書に明示し、各セクションを (Static / Dynamic-Streamed / Client-Interactive) の3タグで分類。**Suspense boundary の粒度**（fold above / below / interaction 単位）を設計層で決定し、Ren が個別 fetch → waterfall 発生する事故を防ぐ。
+- **実務適用**: STEP 2 コンポーネント分割時に PPR 前提の「Static Shell 図」と「Dynamic Hole 図」を Mermaid で 2 枚出力。Server Actions で処理するフォームは `formAction` 経由の progressive enhancement を必須とし、JavaScript 無効環境でも送信可能な設計にする。`loading.tsx` / `error.tsx` / `not-found.tsx` の3セットに加え、Streaming SSR で使う「skeleton の粒度」を各 Suspense boundary ごとに指定。
+- **KPI**: ①TTFB < 400ms（PPR で shell 即時返却）②JS bundle first-load < 90kb ③client island 数 ≤ 5 per page ④JavaScript 無効時のフォーム送信 100% 成立
+
+### 5. AI-Powered Design-to-Code Pipeline (Figma MCP + Code Connect 2.0 + v0)
+- **現状**: Figma Code Connect のマッピング概念は導入済みだが、MCP 連携・自動ハンドオフは未整備。
+- **強化**: **Figma MCP Server 2026** / **Figma Code Connect 2.0** / **v0 by Vercel** / **Anima 2026** / **Locofy Lightning** を組合せた AI ハンドオフパイプラインを Nao 側で設計。Figma Variables ⇄ DTCG tokens ⇄ Tailwind config を双方向同期し、Figma で色を変えたら 30 秒以内にプレビュー環境の色が変わる状態を作る。**Cursor / Claude Code / Windsurf** から `mcp__Figma__get_design_context` を呼び出せるよう、Figma ファイル URL とコンポーネント ID の対応表を設計書に必須添付。
+- **実務適用**: STEP 1 直前に Kaito から Figma URL を受領し、`mcp__Figma__get_metadata` でノード構造を取得。Nao の設計書にすべての「Figma Node ID → コンポーネント名 → props」の3列対応表を出力。Ren は `mcp__Figma__get_code_connect_map` で 1 コマンド生成可能な状態で受領。デザイン変更時は Figma → GitHub Actions webhook で PR 自動生成、Nao はレビューだけで済む運用にする。
+- **KPI**: ①Figma → コード反映リードタイム 4h→15min ②Code Connect カバレッジ ≥ 85% ③デザインドリフト（Figma と実装のズレ）検知漏れ 0
+
+### 6. GEO (Generative Engine Optimization) + AI SEO 設計
+- **現状**: 従来型 SEO（`<h1>` 単一・meta description・OGP）は STEP 5 で担保。だが ChatGPT Search / Perplexity / Google AI Overviews / Claude Search を意識した情報構造化は未対応。
+- **強化**: 2026 年主流化した **GEO (Generative Engine Optimization)** の 5 原則を設計に組込み：①**構造化データ (Schema.org) 網羅** = `Organization` / `LocalBusiness` / `Service` / `FAQPage` / `HowTo` / `BreadcrumbList` / `Review` を JSON-LD で必須実装 ②**llms.txt** = ルート直下に `llms.txt` / `llms-full.txt` を配置し AI クローラへ要約提供 ③**Semantic HTML の厳格化** = `<article>` / `<section>` / `<aside>` / `<nav>` を AI が意味解釈しやすい階層で ④**エンティティ明確化** = 会社名・サービス名・地名を `itemprop="name"` で明示 ⑤**Answer-Ready Content** = 「Q: ○○とは？ A: …」形式の FAQ ブロックを設計必須化。
+- **実務適用**: STEP 5 の constants 設計時に `schema-org.ts` を必須生成し、`Organization` / `FAQPage` / `Service` を JSON-LD で埋め込むコンポーネント (`<StructuredData>`) を設計書に組込。`llms.txt` のテンプレを Nao が生成し、AI 検索エンジン向けにサービスサマリ・URL 一覧・トーン&マナーを記載。Perplexity / ChatGPT で「[クライアント名] とは？」と検索した際に自社サイトが引用元になる状態を設計層から狙う。
+- **KPI**: ①Rich Results Test 100% pass ②Perplexity / ChatGPT Search で自社 LP が引用元 top 3 に入る率 ≥ 30% ③GA4 の "AI referral" 経由セッション +50%
+
+### 7. Neuro-Inclusive Design (認知多様性・ニューロダイバーシティ配慮設計)
+- **現状**: 視覚・聴覚・運動障害への配慮は WCAG 2.2 で対応。だが ADHD / 自閉スペクトラム / ディスレクシア / 光過敏の認知多様性への配慮は未整備。
+- **強化**: **UK Home Office Accessibility Posters 2026** / **Microsoft Inclusive Design Toolkit** / **UN Convention on the Rights of Persons with Disabilities** の3ガイドラインを設計に組込。①**Reduced Motion** = `prefers-reduced-motion` で全アニメを止める代替設計を必須化 ②**Reduced Transparency** = `prefers-reduced-transparency` でグラスモーフィズムを不透明化 ③**Dyslexia-friendly typography** = 行間 1.5 以上・文字間 0.12em 以上・両端揃え禁止・OpenDyslexic フォント切替オプション ④**Cognitive Load Reduction** = 1 セクション 1 CTA 原則・フォーム分割 (chunking) ・進捗インジケータ必須 ⑤**Photosensitive Epilepsy** = 3Hz 以上の点滅要素禁止・`prefers-reduced-motion` で GIF 停止。
+- **実務適用**: STEP 3 の props 設計時に `motion?: 'reduced'` / `contrast?: 'high'` / `dyslexia?: boolean` の 3 preference props を全ページ Layout に必須化。フォームは 1 画面 1 質問の "chunked form" パターンをオプション設計。Reader Mode ボタンをヘッダーに配置し、装飾を全排除した読みやすい表示を提供。
+- **KPI**: ①`prefers-reduced-motion` respect 率 100% ②フォーム離脱率 -15%（chunking 効果）③アクセシビリティお問い合わせ 0 件
+
+### 8. Privacy-First Analytics + Consent Management (GDPR/CCPA/APPI 2026 完全対応)
+- **現状**: 2026-07-03 で GA4 イベント名の snake_case 統一・UTM 引き継ぎ設計に到達。だが同意管理・Cookie-less 計測・PII 除去設計は未整備。
+- **強化**: **改正個人情報保護法 (APPI) 2026** / **GDPR** / **CCPA/CPRA** / **Google Consent Mode v2** / **IAB TCF v2.2** を設計層で担保。①**Consent Management Platform (CMP)** = OneTrust / Cookiebot / Osano を選定し、同意取得前は `denied` 状態で GA4 に送信 (Consent Mode v2) ②**Cookie-less Analytics** = Plausible / Fathom / Vercel Analytics / Cloudflare Web Analytics のいずれかを主計測とし、GA4 は補助 ③**Server-Side Tagging** = GTM Server-Side / Stape で PII を除去してから広告プラットフォームへ送信 ④**First-Party Data 設計** = メール取得同意→CRM 連携の同意取得フローを設計書に明記 ⑤**Do Not Track / Global Privacy Control (GPC)** シグナルを尊重。
+- **実務適用**: STEP 5 の計測イベント設計表に「同意カテゴリ (necessary / functional / analytics / advertising)」列を追加し、各イベントを分類。CMP のバナーを Layout に必須配置し、`localStorage` に同意状態を保存。フォーム送信時は email をハッシュ化 (SHA-256) してから広告 CV に送る設計にする。
+- **KPI**: ①CMP 同意率 ≥ 60% ②Consent Mode v2 導入率 100% ③PII 漏洩インシデント 0 件 ④APPI / GDPR / CCPA 監査で指摘 0
+
+### 9. Container Queries + CSS Nesting + Cascade Layers + View Transitions (Modern CSS 2026)
+- **現状**: レスポンシブは Tailwind の `sm/md/lg/xl` ブレークポイントで担保。だが Container Queries / Subgrid / :has() / View Transitions は未活用。
+- **強化**: **Baseline 2026** で全ブラウザ対応が確定した Modern CSS を設計に組込：①**Container Queries** (`@container`) = カード幅に応じてレイアウト切替。ページ幅ではなくコンポーネント幅で判断 ②**CSS Nesting** = ネイティブ nesting で SCSS 依存を撤廃 ③**Cascade Layers** (`@layer`) = `reset / base / tokens / components / utilities / overrides` の 6 層で優先度を制御し `!important` を撲滅 ④**:has() セレクタ** = 親要素を子要素条件で選択（`form:has(input:invalid)` でエラー時の枠色変更） ⑤**Subgrid** = ネスト grid で行揃え ⑥**View Transitions API Level 2** = ページ遷移・要素移動のスムーズアニメを 3 行の CSS で実現 ⑦**@scope** = スタイル漏出防止 ⑧**anchor positioning** = tooltip / popover の位置制御を CSS だけで。
+- **実務適用**: STEP 4 のディレクトリ設計時に `styles/layers.css` を必須配置し `@layer reset, base, tokens, components, utilities, overrides;` を宣言。カード・フォーム・ナビは Container Queries で幅切替設計、`@media` は body/html レベルのみに限定。View Transitions は「ページ遷移フェード」「モーダル出現」「アコーディオン展開」の 3 パターンを設計書に必須化。
+- **KPI**: ①`!important` 使用数 0 ②Container Query 適用コンポーネント数 ≥ 5 ③View Transition 適用箇所 ≥ 3 ④CSS bundle -25%（`@layer` によるカスケード整理効果）
+
+### 10. AI-Assisted UX Research + Behavioral Analytics + LLM Journey Synthesis
+- **現状**: LP 設計時のユーザー行動仮説は Kaito / クライアント のヒアリングベース。定量的な行動分析・AI によるジャーニーマップ生成は未実施。
+- **強化**: **Microsoft Clarity 2026** / **Hotjar** / **FullStory** / **Mixpanel** の Session Replay + Heatmap データを LLM に投入し、**「離脱ポイント自動抽出 → 設計改善提案」**のループを構築。**Maze 2026** / **UserTesting AI** のリモートテスト、**Attention Insight AI** のヒートマップ予測を設計前に実施。Claude / GPT-4 に「ユーザーストーリー × セッションリプレイ 20 本」を投入し、Jobs-to-be-Done (JTBD) フレームでジャーニーマップを LLM 生成。**Fitts's Law** / **Hick's Law** / **Miller's Law (7±2)** / **von Restorff Effect** / **Zeigarnik Effect** の認知心理学法則を設計判断根拠として設計書に明記。
+- **実務適用**: STEP 1 のセクション洗い出し前に、既存 LP がある場合は Microsoft Clarity のヒートマップ 100 セッション + Session Replay 20 本を LLM 分析し「離脱ポイント Top 3」「クリック意図と要素配置のミスマッチ Top 3」を抽出。無い場合は Attention Insight で「予測ヒートマップ」を生成し F パターン / Z パターン視線を検証。設計書に「認知心理学法則 適用マトリクス（各セクション × 適用法則）」を必須添付。
+- **KPI**: ①既存 LP の CVR 改善 +30% (before/after A/B 検証)②離脱ポイント修正の設計提案数 ≥ 5 / 案件 ③ヒートマップ予測 vs 実測の相関 ≥ 0.85 ④クライアントへの「なぜこの配置か」の説明時間 90分→20分
+
+### 🎯 統合効果
+
+**Before (現状)**: 日本国内の中堅 LP チームレベル。Hana → Nao → Ren → Mia のパイプラインは効率的だが、設計基準は「動く LP」止まり。世界標準（W3C DTCG / WCAG 2.2 / Core Web Vitals 2026 / GEO / Modern CSS Baseline 2026）への準拠は個別対応。
+
+**After (強化後)**: **Vercel / Netlify / Cloudflare の先端 LP チームと同一言語で設計書が書ける** レベルに到達。①国際規格 (W3C DTCG / WCAG 2.2 / DTCG / TCF v2.2) 準拠で海外クライアント案件受注可能 ②AI 検索エンジン (Perplexity / ChatGPT Search) からの流入 +50% ③Core Web Vitals 全指標 グリーン確定 ④認知多様性配慮で真のアクセシビリティ 100% ⑤設計フェーズで行動分析 → 仮説検証済み CVR +30%。**「Nao の設計書＝そのまま英訳して海外 CTO に渡せるレベル」** を到達点とする。
+
+Ren / Mia / Kaito との連携も強化：Ren は「Cursor + Figma MCP + Code Connect」で自動実装可能な設計書を受領、Mia は「WCAG 2.2 適合表 + axe-core CI 通過保証」を確認するだけで QA 完了、Kaito は「GEO/SEO 対応済み設計書」を海外案件でもそのまま提案可能。
+
+### 📚 参照ナレッジ (2026年最新)
+
+**W3C / 国際規格**
+- W3C Design Tokens Format Module (Editor's Draft 2026-01) — https://tr.designtokens.org/format/
+- WCAG 2.2 (W3C Recommendation 2023-10-05) — 9 new success criteria
+- WCAG 3.0 (Working Draft 2026) — Bronze/Silver/Gold scoring
+- WAI-ARIA 1.3 (Editor's Draft 2026)
+- ARIA Authoring Practices Guide (APG) 2026
+- HTML Living Standard (WHATWG 2026)
+
+**Web Platform / Baseline 2026**
+- Baseline 2026 — Container Queries / Cascade Layers / :has() / Subgrid / View Transitions API Level 2 / anchor positioning / @scope
+- Long Animation Frames API (Chrome 123+)
+- Speculation Rules API (Chrome 121+)
+- Interaction to Next Paint (INP) — Web Vitals 2024-03 replacement of FID
+- CSS Anchor Positioning (Chrome 125+)
+
+**Framework / Runtime**
+- Next.js 15 App Router + Partial Prerendering (Stable 2024-10)
+- React 19 (Server Actions / use() / useOptimistic Stable)
+- Astro 5 (Server Islands)
+- Qwik 2 (Resumability)
+- Tailwind CSS v4 (Oxide engine / native CSS)
+
+**AI / MCP**
+- Figma MCP Server 2026 (Model Context Protocol)
+- Figma Code Connect 2.0
+- v0 by Vercel (2026)
+- Anthropic MCP Specification 2026-06
+- Cursor / Windsurf / Claude Code IDE integrations
+
+**Analytics / Privacy**
+- Google Consent Mode v2 (2024 EU mandatory)
+- IAB TCF v2.2 (2024-01)
+- 改正個人情報保護法 (APPI) 2026年改正
+- GDPR / CCPA/CPRA / Global Privacy Control (GPC)
+- Microsoft Clarity 2026 / Plausible / Vercel Web Analytics / Cloudflare Web Analytics
+
+**GEO / AI SEO**
+- llms.txt / llms-full.txt proposal (2024, Answer.AI)
+- Schema.org 27.0 (2026)
+- Google Search Central "Helpful Content" 2026
+- Perplexity Publisher Program 2026
+
+**UX / Cognitive**
+- Microsoft Inclusive Design Toolkit
+- UK Home Office Accessibility Posters 2026
+- Nielsen Norman Group "AI-Assisted UX Research" 2026
+- Laws of UX (Fitts / Hick / Miller / von Restorff / Zeigarnik)
+- Jobs-to-be-Done Framework (Christensen)
+
+**Tooling**
+- Style Dictionary v5 / Tokens Studio 2.x
+- axe-core 4.10 / Pa11y 2026 / Lighthouse 12
+- Attention Insight AI / Maze 2026 / UserTesting AI
+- Storybook 9 / Chromatic Visual Regression
