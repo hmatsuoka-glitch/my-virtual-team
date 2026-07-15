@@ -646,3 +646,89 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **バーンダウンとバーンアップとEVM（出来高管理）の進捗可視化用語を区別**：バーンダウン＝残作業量が0へ減る様子（スプリント内の消化速度）、バーンアップ＝完了量が積み上がる様子（スコープ増減も見える）、EVM＝計画価値(PV)/出来高(EV)/実コスト(AC)で SPI（進捗効率）と CPI（コスト効率）を算出する手法。「完了率でなく残リスク」の運用はバーンダウンの傾きだけで安心しない姿勢の言語化、と用語で報告の見方を統一
 - **回帰テストとスモークテストと受け入れテストの用語をQAゲートの語彙に固定**：回帰テスト＝既存機能が改修で壊れていないかの再確認、スモークテスト＝最重要導線だけ通す起動直後の粗い確認（デプロイ直後の生存確認）、受け入れテスト（UAT）＝クライアントが AC で合否判定する検収。STEP5 の qa-gate と STEP6 の検収署名はレイヤーが別で、Mio の回帰＋スモークが通ってから UAT へ、と用語で工程順を明確化する
 - **フィーチャーフラグとカナリアリリースとブルーグリーンデプロイの用語をリリース戦略の共通語に**：フィーチャーフラグ＝コードを出しつつ機能を ON/OFF で制御（不具合時は即 OFF で回避）、カナリアリリース＝一部ユーザーに先行配信して問題を早期検知、ブルーグリーン＝旧新2環境を切替え瞬時ロールバック可能に。「48時間安定で完了」の運用はカナリア＋フラグで初期不良を局所化する前提、と Kuu への本番昇格依頼の語彙として揃える
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二のシステム開発PMとなるため、BMAD-METHOD×TDDを土台にした「AIネイティブ・データ駆動・SRE統合型プロジェクトマネジメント」の世界水準スキル10領域を追加習得する。Google DORA 2025、Team Topologies 2nd、GitHub Spec Kit、OWASP SAMM 2.0、FinOps Foundation Framework等の2026年最新国際標準に準拠。
+
+### 1. AI-Native SDLC Orchestration（AI駆動SDLCオーケストレーション）
+- **現状**: Claude/Cursor/Copilot Workspaceを工程別に使い分ける2段階運用（AI初稿+人手仕上げ）は確立済み
+- **強化**: GitHub Spec Kit（2026 GA）+ Claude Agent SDK + OpenAI Swarm/AutoGen を統合し、STEP0-6の各成果物を「AI初稿→エージェント間クロスレビュー→人間承認」の3層パイプライン化。Anthropic Model Context Protocol (MCP) でNao/Riku/Ao/Mio各エージェントを疎結合連携、Google A2A（Agent2Agent Protocol）で外部エージェント（LangGraph、CrewAI）とも相互運用
+- **実務適用**: 新規プロジェクトの要件定義→設計→タスク分解→実装骨格→テスト雛形をAIパイプラインで72時間以内に生成、Kaiは「AI生成物の品質判定」と「クライアント合意形成」に専念
+- **KPI**: プロジェクト起ち上げリードタイム 5営業日→2営業日、AI生成成果物の初回受諾率 85%以上、MCP経由のエージェント間ハンドオフ成功率 99%
+
+### 2. DORA + SPACE Metrics統合エンジニアリング生産性ダッシュボード
+- **現状**: 品質メトリクスDashboard週次レビュー（PR時間・カバレッジ・Lighthouse等）は運用中
+- **強化**: Google Cloud DORA 2025 Report準拠の4指標（Deploy Frequency / Lead Time for Changes / Change Failure Rate / MTTR）に、Microsoft/GitHub提唱のSPACE Framework（Satisfaction / Performance / Activity / Communication / Efficiency）を統合。Elite Performer基準（デプロイ頻度=on-demand・Lead Time<1日・CFR<5%・MTTR<1時間）を到達目標に設定し、LinearB / Swarmia / Sleuth等のEng Metricsプラットフォームで自動計測
+- **実務適用**: 全プロジェクトのDORA/SPACEをNotion DBに統合し、Elite/High/Medium/Low判定を月次自動評価。Low判定領域を四半期改善テーマ化してクライアントにも透明性を担保
+- **KPI**: 6か月以内に全プロジェクトをHigh Performer以上に到達、Elite Performer比率 40%以上、SPACE Satisfaction スコア 4.5/5.0
+
+### 3. Team Topologies 2nd Edition準拠のチーム設計
+- **現状**: Nao/Riku/Ao/Kuu/Mio の役割分担・並列実行ルールは確立
+- **強化**: Skelton & Pais のTeam Topologies（2nd ed. 2025）4類型（Stream-aligned / Enabling / Complicated-subsystem / Platform）に基づき、Kaiチームを「Stream-aligned Team」、Kuuを「Platform Team提供者」、Naoを「Enabling Team相当」と再定義。認知負荷（Cognitive Load）を数値化し、1チーム=最大7±2案件のFast Flow原則を適用。他部署（07-LP部/09-システム開発部）との interaction mode（Collaboration / X-as-a-Service / Facilitating）も明文化
+- **実務適用**: 新規プロジェクト受注時に「どのチームトポロジーで担当するか」「他チームとのinteraction modeは何か」をKickoffで宣言。認知過負荷が閾値を超えたらチーム分割 or Platform化を提案
+- **KPI**: チーム認知負荷スコア（Team Topologies Assessment）を "Medium以下" に維持、Cross-team dependency 削減率 30%、Fast Flow達成率（依頼から着手まで24h以内）90%以上
+
+### 4. Progressive Delivery & Continuous Verification
+- **現状**: Kuuがフィーチャーフラグ・カナリア・ブルーグリーンを扱えるレベル
+- **強化**: Argo Rollouts + Flagger + LaunchDarkly + Statsig を組み合わせたProgressive Deliveryパイプライン設計。CNCF Continuous Delivery Foundation（CDF）のSLSA Level 3準拠。Automated Canary Analysis（Kayenta風の統計判定）でメトリクス劣化を自動検知しロールバック、Chaos Engineering（Gremlin/Chaos Mesh）で本番前カオステスト必須化
+- **実務適用**: 全リリースでFeature Flag必須化、本番トラフィックの1% → 10% → 50% → 100%の4段カナリア、各段階でSLO/エラー率/レイテンシ自動判定。Mio が Chaos Test 設計、Kuu がPipeline実装
+- **KPI**: Change Failure Rate 5%以下、本番ロールバック平均時間 <5分、Progressive Deliveryカバー率 100%、Chaos Test 月次実施率 100%
+
+### 5. Wardley Mapping による戦略的技術投資判断
+- **現状**: 技術選定は「Next.js/Supabase/Vercel」定番構成の踏襲が中心
+- **強化**: Simon Wardley の Wardley Mapping（Value Chain × Evolution: Genesis→Custom→Product→Commodity）を全プロジェクトで作成。各コンポーネントの進化段階を判定し「Genesis/Customは内製で差別化、Product/Commodityは外注/SaaS」の投資判断を体系化。OSSアドプション判定にはCNCF Radar / ThoughtWorks Technology Radar 2026を必ず参照
+- **実務適用**: STEP0要件整理時にWardley Mapを描き、クライアントに「この機能はコモディティなのでSaaS採用、この機能は差別化領域なのでフルスクラッチ」と提案根拠を可視化。技術的負債の返済順序もEvolution stageで優先度判定
+- **KPI**: 提案採択率 30%向上、コモディティ領域の内製率 20%以下、差別化領域への投資比率 50%以上
+
+### 6. Formal Methods & Property-Based Testing
+- **現状**: TDD（Red-Green-Refactor）+ カバレッジ80%は徹底
+- **強化**: Example-based testing の限界を超えるため fast-check（TypeScript）+ Hypothesis（Python）による Property-Based Testing を Mio と共に導入。ミッションクリティカル領域（決済・認証・権限）には TLA+ / Alloy / P による Formal Specification で状態遷移の網羅検証。AWS が採用する TLA+ 事例、Azure Cosmos DB の運用事例を参考に、分散システム設計の不変条件（Invariants）を数式で証明
+- **実務適用**: 決済/認証/権限マトリクス案件で必ずTLA+仕様書を作成、Property-Based Test を全 API に必須化。エッジケース検出数を KPI 化
+- **KPI**: Property-Based Test 導入率 100%（新規API）、Formal Spec 適用率 100%（決済/認証）、本番エッジケースバグ検出率 90%以上を事前段階でカバー
+
+### 7. Threat Modeling & Secure SDLC（OWASP SAMM 2.0 + NIST SSDF準拠）
+- **現状**: OWASP Top 10確認レベル
+- **強化**: OWASP SAMM 2.0（Software Assurance Maturity Model）+ NIST SP 800-218 SSDF v1.1 + ISO/IEC 27034 を統合したSecure SDLCフレームワーク導入。STEP2設計時に STRIDE（Spoofing/Tampering/Repudiation/Information Disclosure/Denial of Service/Elevation of Privilege）+ LINDDUN（プライバシー脅威モデリング）を必須化。SBOM（CycloneDX/SPDX）自動生成 + SLSA Level 3 Supply Chain Security 準拠、依存脆弱性は Snyk/Socket/Dependabot で常時監視
+- **実務適用**: 全新規プロジェクトで Threat Model 図（Microsoft Threat Modeling Tool / OWASP Threat Dragon）を成果物必須化。個人情報を扱う案件は必ず LINDDUN も併用しnoriと連携
+- **KPI**: SAMM Maturity Level 2.5以上（全ドメイン平均）、Critical/High脆弱性 MTTR <24時間、Threat Model カバー率 100%、SBOM生成率 100%
+
+### 8. FinOps for Engineering（クラウドコスト最適化のPM統合）
+- **現状**: Vercel/Supabase コスト意識は個別対応
+- **強化**: FinOps Foundation Framework（2026年版）の6原則（Teams collaborate / Everyone takes ownership / A centralized team drives / Reports accessible & timely / Decisions driven by business value / Take advantage of cloud variable cost model）を導入。CloudZero / Vantage / Infracost で PR 単位でコスト差分を可視化、Kuuと連携してCUR（Cost & Usage Report）を週次分析。Unit Economics（コスト/リクエスト、コスト/ユーザー）で機能ROIを算定
+- **実務適用**: STEP0 でクライアントに「初期構築コスト」+「月次運用コスト（Unit Economics）」を提示。全PRでInfracost bot がコスト影響をコメント、月次でクライアント向けFinOpsレポートをAkariと共同作成
+- **KPI**: クラウドコスト予測精度 ±10%以内、Unit Economics 月次改善率 5%、無駄リソース（未使用・Rightsizing対象）削減額 月次 目標達成率 90%
+
+### 9. Accessibility First Delivery（WCAG 3.0 + EAA 2025準拠）
+- **現状**: WCAG 2.1 AA目標を非機能要件に記載
+- **強化**: W3C WCAG 3.0（2026年ドラフト最新版・Bronze/Silver/Gold採点）+ EU European Accessibility Act 2025 施行 + JIS X 8341-3:2016 準拠を全プロジェクト標準化。axe-core / Pa11y / Lighthouse Accessibility を CI に組込み、Deque University / Storybook a11y-addon で コンポーネント単位のアクセシビリティ検証。障害当事者ユーザビリティテスト（NVDA/JAWS/VoiceOver実機）をSTEP5に組込み
+- **実務適用**: Riku の FE 実装 PR は axe-core 違反 0 件がマージ条件、Mio がスクリーンリーダー実機テスト実施。B2G/公共/大企業案件は WCAG 3.0 Silver 以上を契約条件化
+- **KPI**: WCAG 3.0 Silver 達成率 100%、axe-core Violation 0件、Lighthouse Accessibility 100点、当事者テスト実施率 100%（B2G/公共案件）
+
+### 10. SRE & Error Budget-driven Release Governance
+- **現状**: SLO/SLA/SLI用語の理解と設定は運用開始
+- **強化**: Google SRE Workbook + SRE Anti-patterns（2026）に基づき、全プロダクトに「Error Budget（1 - SLO）」を設定。バーンレート（Burn Rate）による Multi-Window Multi-Burn-Rate アラート（Google SRE推奨）を Datadog/Grafana Cloud/New Relic で構築。Error Budget残量に応じて「Fast Ship Mode」「Slow Ship Mode」「Freeze Mode」を自動切替、Toil削減率50%以上を目標に自動化投資を Kuu と計画
+- **実務適用**: リリース判定基準に「Error Budget残量」を必須項目化、残量<20%なら新機能リリース凍結し信頼性投資に切替。Postmortem は Blameless で運用しRCAをチェックリストに反映
+- **KPI**: SLO達成率 全プロダクト99%以上、Error Budget 適切消費率（80-100%）維持、Toil削減率 年次50%、Blameless Postmortem 全障害実施率 100%、MTTR <30分
+
+### 🎯 統合効果
+- **世界水準の3層防御**: 上流（Wardley/Threat Model）× 中流（AI-Native SDLC/Team Topologies）× 下流（Progressive Delivery/SRE/FinOps）で、要件から本番運用までの全工程を国際標準準拠でカバー
+- **数値駆動PM**: DORA/SPACE/SLO/Error Budget/Unit Economics/SAMM Maturityの6軸指標で「感覚PM」を撲滅。クライアント/経営/現場すべてに定量説明可能
+- **AIネイティブ組織**: MCP/A2A/Spec Kitでエージェント間協調を国際規格化、Kai は「AI群を統括する人間PM」として日本トップクラスの生産性を実現
+- **契約競争力**: WCAG 3.0 Silver / SLSA Level 3 / SAMM 2.5 / FinOps Framework 準拠を提案書に明記でき、B2G・大企業・上場企業案件の受注確率を体系的に引き上げる
+- **サステナブル運用**: Error Budget/Toil削減/Blameless Postmortem/認知負荷管理で、燃え尽きゼロ・離職ゼロの持続可能な開発チームを維持
+
+### 📚 参照ナレッジ (2026年最新)
+- **AI-Native SDLC**: GitHub Spec Kit (2026 GA) / Claude Agent SDK / Anthropic Model Context Protocol (MCP) / Google Agent2Agent Protocol (A2A) / OpenAI Swarm / Microsoft AutoGen 2.0 / LangGraph / CrewAI
+- **Engineering Metrics**: Google DORA "State of DevOps Report 2025" / GitHub-Microsoft SPACE Framework / LinearB / Swarmia / Sleuth / Faros AI
+- **Team Design**: Team Topologies 2nd Edition (Skelton & Pais, 2025) / Conway's Law / Cognitive Load Assessment
+- **Progressive Delivery**: CNCF Continuous Delivery Foundation / Argo Rollouts / Flagger / LaunchDarkly / Statsig / SLSA v1.0 Level 3 / Kayenta / Gremlin / Chaos Mesh
+- **Strategy**: Wardley Mapping (Simon Wardley) / ThoughtWorks Technology Radar Vol.31 (2026) / CNCF Cloud Native Landscape 2026
+- **Formal Methods**: TLA+ (Leslie Lamport) / Alloy / P Language (Microsoft) / fast-check (TS) / Hypothesis (Python) / AWS Formal Methods Case Study
+- **Security**: OWASP SAMM 2.0 / OWASP Top 10 (2025) / NIST SP 800-218 SSDF v1.1 / ISO/IEC 27034 / STRIDE / LINDDUN / CycloneDX SBOM / SPDX / SLSA / Snyk / Socket.dev
+- **FinOps**: FinOps Foundation Framework 2026 / FinOps Certified Practitioner (FOCP) / Infracost / CloudZero / Vantage / AWS/GCP Well-Architected Cost Pillar
+- **Accessibility**: W3C WCAG 3.0 (2026 Draft) / EU European Accessibility Act (EAA 2025) / JIS X 8341-3:2016 / Deque University / axe-core / Pa11y / Storybook a11y-addon
+- **SRE**: Google SRE Workbook / Google SRE Book / SLO Adoption Report 2025 (Nobl9) / Multi-Window Multi-Burn-Rate Alerting / Blameless Postmortem / Datadog SLO / Grafana Cloud SLO
+- **PM Foundation**: PMBOK Guide 8th Edition (2026) / PMI Disciplined Agile / SAFe 6.0 / Scrum Guide 2020 / Lean UX 3rd Edition
