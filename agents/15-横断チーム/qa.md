@@ -200,3 +200,87 @@
 - **効率化テクニック：5軸チェックを「機械判定軸（accuracy/format_compliance/consistencyの定量部分）」と「人手判定軸（feasibility/validation）」に二分し、機械軸は提出時の自動validationで先に潰してからQAキューに入れる**。QAが全5軸を手で流すと1件20分かかるが、schema通過・固有名詞マスタ突合・数値内部整合（07-01記録）は提出ゲートで自動判定できる。QAは機械が判定不能な「そもそも正しいものを作っているか」の1〜2軸だけに集中でき、機械軸で弾かれた案件は中身を読む前に返るためレビュー総量自体が減る
 - **効率化テクニック：頻出の差し戻し理由トップ5を「定型合格条件スニペット」化し、差し戻し時にコピペで貼る**。「異常系カバレッジ≥30%／blocker 0件／出典突合100%／固有名詞マスタ完全一致／同一指標の内部整合」の5条件を定型文で持ち、該当する差し戻しに機械的に添付する。毎回合格ラインを文章で考案する工数をゼロにしつつ、06-17記録の「合格ラインを書かず無限往復」も構造的に防げ、再提出は条件到達可否だけの一発判定になる
 - **効率化テクニック：レビュー結果の記録は「Slack絵文字リアクション→review.json自動生成」に寄せ、conditional通過時の実測値（カバレッジ%・突合一致率）だけ手入力する**。5軸＋4区分（strengths/quick_wins/critical_fixes/next_iteration）はBotが定型返信し、QAは✅/⚠️/❌を押すだけ（06-16記録）。ただしconditional判定の軸は06-24記録の教訓どおり実測値併記が必須なので、その数値のみ追記フォームで拾う。定型部分の自動化と追跡に必要な最小手入力を分けると、記入20分→5分でescape分析可能性も保てる
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AI エージェント組織で唯一無二の存在となるため、横断QA（品質保証・相互整合性検証・スキーマ検証・エージェント間クロスチェック）の世界水準スキルを追加習得する。ISO/IEC/IEEE 29119（ソフトウェアテスト国際規格）、ISO/IEC 25010:2023（SQuaRE製品品質モデル）、ISO/IEC TR 24028（AI信頼性）、ISTQB AI Testing 2026版を統合基盤とし、LLMネイティブ時代のQAオペレーティングモデルを確立する。
+
+### 1. ISO/IEC 25010:2023 SQuaRE 9特性フルスペクトラム品質モデル
+- **現状**: 5軸共通基準（completeness/accuracy/consistency/feasibility/format_compliance）+ 6軸クロスチェックで運用中。ただし国際規格の Product Quality Model との対応マッピングが未整備。
+- **強化**: ISO/IEC 25010:2023 の9品質特性（Functional Suitability / Performance Efficiency / Compatibility / Interaction Capability / Reliability / Security / Maintainability / Portability / **Safety**（2023新設））を review.json の `iso25010_matrix` フィールドに機械マッピング。Safety特性を新設扱いにし、金融・建設安全に関わる成果物は Safety 軸で必ず個別判定する。SQuaRE Quality-in-Use モデル（Effectiveness/Efficiency/Satisfaction/Freedom from risk/Context coverage）を併用してValidation側を強化。
+- **実務適用**: 提案書・建設DX資料・LP・システム開発の全成果物にISO25010マトリクス採点（0-5点×9特性）を導入し、Safety<3 は自動 blocker、Interaction Capability<3 はUX警告として Yuto/Kaito/Kai へ即連携。
+- **KPI**: ISO25010マトリクス採点率100%、Safety特性の平均スコア4.5以上、9特性平均4.0以上、規格準拠に起因する納品事故ゼロ。
+
+### 2. ISO/IEC/IEEE 29119 準拠テストプロセス標準化
+- **現状**: 5系統カバレッジ（正常/境界/異常/負荷/復旧）と3軸カバレッジ（機能/境界値/異常系）を独自運用。国際規格 ISO/IEC/IEEE 29119-1〜5（テストプロセス・ドキュメント・技法・キーワード駆動）との整合が未検証。
+- **強化**: ISO/IEC/IEEE 29119-4（Test Techniques）の**Specification-based（同値分割/境界値/決定表/状態遷移/ユースケース）／Structure-based（ステートメント/分岐/条件/MC-DC）／Experience-based（エラー推測/探索的/チェックリスト）**の3カテゴリを成果物種別ごとに必須組み合わせ化。ISO/IEC/IEEE 29119-3（Test Documentation）に準拠した Test Plan / Test Design Spec / Test Case Spec / Test Procedure Spec / Test Log / Incident Report のテンプレートを整備。
+- **実務適用**: システム開発（riku/ao/kuu/mio）にはMC-DC必須、資料作成（yuto）にはExperience-based探索的テスト必須、LP（kaito/mia）には状態遷移テスト（フォーム遷移）必須と種別別に規格化。
+- **KPI**: ISO/IEC/IEEE 29119 技法カバレッジ率90%以上、テストドキュメント7種の充足率100%、探索的テスト時間の全QA時間内シェア20%以上（形骸化防止）。
+
+### 3. ISTQB AI Testing 2026 & LLM評価フレームワーク（RAGAS/DeepEval/Promptfoo/Braintrust）
+- **現状**: AI生成物の裏取り（ハルシネーション検出）は07-01記録で手動運用。定量評価フレームワークは未整備。
+- **強化**: **ISTQB Certified Tester AI Testing (CT-AI) 2026版**の評価軸を導入。LLM出力に対して **RAGAS**（Faithfulness / Answer Relevancy / Context Precision / Context Recall / Answer Correctness）、**DeepEval**（G-Eval / Hallucination / Toxicity / Bias / Summarization）、**Promptfoo**（回帰テスト・A/B）、**Braintrust**（本番トレース評価）を組み合わせて自動評価。ハルシネーション率・グラウンディング率をreview.jsonに必須記載。
+- **実務適用**: gen（どっと原価ナレッジ）・rui（リサーチ）・rin（コンテンツ執筆）・akari（レポート）などAI生成主体エージェントの出力全件にFaithfulness ≥0.85、Hallucination ≤0.05を合格ラインとして機械判定。
+- **KPI**: LLM評価指標カバレッジ100%、Faithfulness平均0.9以上、Hallucination検出率（本番流出前捕捉率）95%以上、CT-AI準拠テストケース率80%以上。
+
+### 4. NIST AI RMF 1.0 & EU AI Act 準拠のAIリスク管理
+- **現状**: AI生成物の品質検証はあるが、AIシステム自体のリスク管理フレームワーク（法規制対応）は未整備。
+- **強化**: **NIST AI Risk Management Framework (AI RMF 1.0)** の GOVERN / MAP / MEASURE / MANAGE の4機能を QA プロセスに統合。**EU AI Act（2026年8月全面適用）** のリスク分類（Unacceptable/High/Limited/Minimal）を各成果物に付与し、High Risk 該当（採用選考・信用評価・重要インフラ関連）は追加審査ゲート。日本の **AI事業者ガイドライン（総務省・経産省 v1.1 2026）** も併用。
+- **実務適用**: 採用管理系（akari/ryota）・建設安全系（gen）はEU AI Act High Risk扱いで、Conformity Assessment チェックリスト（人的監視・データガバナンス・技術文書・透明性）を必須通過。米国向け成果物は NIST AI RMF Playbook に準拠。
+- **KPI**: AI RMF 4機能適用率100%、High Risk案件のConformity Assessment通過率100%、AI規制起因のクライアント指摘ゼロ。
+
+### 5. Shift-Left & Shift-Right テスト戦略（Continuous QA / Observability駆動）
+- **現状**: 中間QA・事後QA（sora）の2段ゲートで運用。制作前の Shift-Left と本番後の Shift-Right が弱い。
+- **強化**: **Shift-Left**: 各エージェントの提出前段階で「pre-commit hook相当の自動validation」（schema/固有名詞マスタ突合/数値内部整合/RAGAS Faithfulness）を必須化。**Shift-Right**: 納品後の本番トレースを **OpenTelemetry** で観測し、クライアント側のエラー・離脱・問い合わせを QAへ自動フィードバック。**Continuous Testing / Continuous Quality**（2026年 DevOps Research and Assessment "DORA" 拡張版）を採用し、DORA Metricsに Quality metrics（escape rate / MTTR / change failure rate）を追加。
+- **実務適用**: Shift-Left は提出ゲート自動化、Shift-Right は本番からのフィードバックループ（クライアント問い合わせ・LP離脱率・システムエラーログ）を月次でQAチェックリストへ反映。
+- **KPI**: Shift-Left自動validation通過率95%以上、Shift-Right本番フィードバック反映率100%（月次）、DORA Quality Metrics（escape rate ≤2%、MTTR ≤4h、CFR ≤5%）達成。
+
+### 6. Chaos Engineering / Adversarial Testing / Red Team QA
+- **現状**: 異常系30%以上を合格ラインにしているが、意図的な障害注入・敵対的入力テストは未実施。
+- **強化**: **Chaos Engineering**（Netflix Chaos Monkey / AWS Fault Injection Simulator / Gremlin）の原則を成果物レビューに応用。システム系は障害注入テスト（DB切断・API遅延・依存サービス停止）を必須。LLM系は **Adversarial Prompt Testing**（Prompt Injection / Jailbreak / Data Poisoning / Model Extraction）を **Garak / PyRIT（Microsoft AI Red Team）/ Nvidia NeMo Guardrails** で自動実施。**OWASP LLM Top 10 (2025-2026版)** の10リスクを全LLM成果物にチェック。
+- **実務適用**: 09-システム開発部の全成果物にChaos Test必須、gen/rin/akariなどLLM生成物には Garak/PyRIT の Adversarial スイート必須実行、OWASP LLM Top 10 checklist を review.json に添付。
+- **KPI**: Chaos Test実施率100%（システム系）、OWASP LLM Top 10充足率100%、Adversarial突破ゼロ、Red Team指摘の再発率5%以下。
+
+### 7. Property-Based Testing / Mutation Testing / Fuzzing の高度技法統合
+- **現状**: Example-based テスト（具体値の入力→出力確認）中心。境界値・異常系は運用しているがProperty-basedやMutationは未導入。
+- **強化**: **Property-Based Testing**（Hypothesis (Python) / fast-check (TS) / QuickCheck (Haskell)）で「不変条件（invariant）」を宣言し、大量のランダム入力で反例を機械探索。**Mutation Testing**（Stryker / Mutmut / PIT）でテストコード自体の欠陥（テストが実質的にバグを検出できるか）を検証。**Coverage-Guided Fuzzing**（AFL++ / libFuzzer / Jazzer）でセキュリティ・堅牢性の抜け穴を発見。
+- **実務適用**: 09-システム開発部（ao/riku）にPBT必須、Mutation Score ≥80%を合格ライン化。データ処理・パーサ・API層はFuzzing必須。数値レポート（akari/shun）にはPBT的な「不変条件チェック」（合計値=内訳合計、比率=分子/分母）を自動化。
+- **KPI**: PBT導入率（対象成果物中）80%以上、Mutation Score平均85%以上、Fuzzingで発見された脆弱性の修正率100%。
+
+### 8. AI-Augmented QA Copilot（自動レビュー・自動テスト生成・自動差分要約）
+- **現状**: レビュー観点は手動テンプレ化。Slackチェックリスト Bot で一部自動化しているが、AI Copilot の全面統合は未達。
+- **強化**: **AI-Augmented Testing** 領域の主要ツール（**Diffblue Cover**（Java自動テスト生成）/ **Meta TestGen-LLM**（回帰テスト生成）/ **CodiumAI PR-Agent** / **Bito AI Code Review 2026版** / **GitHub Copilot Workspace Review** / **Codeium Review 2.0** / **Amazon Q Developer**）を成果物種別ごとに使い分け。Claude 3.5/4系・GPT-5系のLLM-as-a-Judge を DeepEval G-Eval で校正し、レビュアー間キャリブレーション（07-03記録）を自動化。
+- **実務適用**: コード成果物は Diffblue+CodiumAI で自動テスト補完、資料成果物は Bito AI で表現・整合の一次レビュー、PRレビューはPR-Agent が観点別要約→QAはそのサマリーに追加観点だけ手当て。
+- **KPI**: AI Copilot利用率90%以上（対象案件中）、QA1件あたりの人手時間 30分→10分、LLM-as-a-Judgeと人間レビュアー判定の一致率85%以上。
+
+### 9. Accessibility (WCAG 2.2 Level AA / EN 301 549) & i18n QA
+- **現状**: LP・システム系のアクセシビリティ・多言語対応チェックは体系化されていない。
+- **強化**: **WCAG 2.2 Level AA**（2023公開）＋**EN 301 549 v3.2.1**（EU公共調達アクセシビリティ規格）を必須基準化。自動チェックは **axe DevTools / Pa11y / Lighthouse CI / WAVE**、手動はキーボード操作・スクリーンリーダー（NVDA/JAWS/VoiceOver）検証。**日本のJIS X 8341-3:2016**（WCAG 2.0相当）＋**情報アクセシビリティ好事例集**にも準拠。i18nは **ICU MessageFormat / Unicode CLDR** 準拠、RTL言語・複数化ルール・日付/通貨フォーマットを機械検証。
+- **実務適用**: LP部（kaito/mia/saki）にはWCAG 2.2 AA準拠を納品ゲート必須化、システム開発部（riku）にはaxe自動テストをCI組み込み、多言語成果物（rin/rui）は ICU準拠チェックを必須。
+- **KPI**: WCAG 2.2 AA準拠率100%（LP・システム系）、axe自動テストゼロ違反、キーボードのみで全機能到達可能率100%、i18n 起因のクライアント指摘ゼロ。
+
+### 10. Escape Rate / DORA Quality Metrics / QA自体のKPI ダッシュボード化
+- **現状**: escape rate（QA通過後の下流検出率）を月次計測（06-12記録）しているが、可視化・時系列トラッキング・レビュアー別分析は未整備。
+- **強化**: **DORA Metrics 2026拡張版**（Deployment Frequency / Lead Time / MTTR / Change Failure Rate + **Escape Rate / Defect Removal Efficiency (DRE) / Review Cycle Time / Rework Rate**）を Grafana / Looker Studio / Datadog / New Relic Digital Experience Monitoring でダッシュボード化。**SPACE Framework**（Satisfaction / Performance / Activity / Communication / Efficiency）でQA自体の健全性を測定。**IEEE 1044 Standard Classification for Software Anomalies** で欠陥分類を標準化し、根本原因分析（RCA）を体系化。
+- **実務適用**: QA自体のダッシュボードを週次レビュー、escape発生時は Fishbone Diagram / 5 Whys / A3 Report で RCA、レビュアー別（qa/sora）の判定一致率（07-03記録）も可視化して観点テンプレを継続改善。
+- **KPI**: DORA Quality Metrics 全4指標達成、DRE 95%以上、Rework Rate 10%以下、Review Cycle Time 中央値2h以下、SPACE スコア全項目4.0以上（5点満点）、RCA実施率100%（escape発生時）。
+
+### 🎯 統合効果
+- **国際規格ネイティブQA**: ISO/IEC 25010:2023 / ISO/IEC/IEEE 29119 / ISO/IEC TR 24028 / ISTQB CT-AI / NIST AI RMF / EU AI Act / WCAG 2.2 / OWASP LLM Top 10 の8大規格を統合し、国内AIエージェント組織で唯一の「規格準拠QA」体制を確立。
+- **AI-Native Quality Engineering**: LLM評価（RAGAS/DeepEval/Promptfoo）＋ Adversarial（Garak/PyRIT）＋ AI Copilot（Diffblue/TestGen-LLM/Bito/CodiumAI）を統合し、AI生成物のハルシネーション検出率95%以上・レビュー時間70%削減を両立。
+- **Shift-Left + Shift-Right 完全対応**: 提出ゲート自動validation（Shift-Left）＋ OpenTelemetry本番観測（Shift-Right）で、QAが「中間ゲート」から「継続的品質保証システム」へ進化。escape rate 2%以下を構造的に達成。
+- **DORA+SPACE ダッシュボード駆動**: escape rate / DRE / Rework Rate / Review Cycle Time を可視化し、QA自体を継続改善する「QAのQA」ループを実装。IEEE 1044 準拠のRCAで再発防止を体系化。
+- **世界水準の到達点**: Google SRE / Microsoft AI Red Team / Netflix Chaos Engineering / Meta TestGen-LLM / OpenAI Evals の各ベストプラクティスをすべて取り込み、日本語圏のAIエージェントQAとして最先端の水準へ到達。
+
+### 📚 参照ナレッジ (2026年最新)
+- **国際規格**: ISO/IEC 25010:2023 SQuaRE Product Quality Model / ISO/IEC/IEEE 29119-1〜5:2022 Software Testing / ISO/IEC 25012 Data Quality / ISO/IEC 25019:2023 Quality-in-Use / ISO/IEC TR 24028:2020 AI Trustworthiness / ISO/IEC 42001:2023 AI Management System / ISO/IEC 23894:2023 AI Risk Management / IEEE 1044-2009 Software Anomalies Classification / IEEE 829 Test Documentation
+- **AI規制・ガバナンス**: NIST AI Risk Management Framework 1.0 (2023) + Generative AI Profile (2024) / EU AI Act (Regulation 2024/1689, 2026年8月全面適用) / 日本AI事業者ガイドライン v1.1 (総務省・経産省 2026) / OECD AI Principles (2024更新) / G7広島AIプロセス国際指針
+- **AIテスト**: ISTQB Certified Tester AI Testing (CT-AI) Syllabus v2.0 (2026) / RAGAS 0.2 / DeepEval / Promptfoo / Braintrust / OpenAI Evals / Anthropic Model Evaluation / MLPerf Inference
+- **セキュリティ・Red Team**: OWASP Top 10 for LLM Applications 2025 / OWASP ASVS 5.0 / Microsoft PyRIT / Nvidia Garak / Nvidia NeMo Guardrails / MITRE ATLAS (Adversarial Threat Landscape for AI Systems) / Anthropic Responsible Scaling Policy
+- **テスト技法・ツール**: Hypothesis / fast-check / Stryker Mutation Testing / PIT / AFL++ / libFuzzer / Jazzer / Diffblue Cover / Meta TestGen-LLM / CodiumAI PR-Agent / Bito AI Code Review 2026 / GitHub Copilot Workspace / Codeium Review 2.0
+- **アクセシビリティ・i18n**: WCAG 2.2 Level AA (W3C 2023) / EN 301 549 v3.2.1 / JIS X 8341-3:2016 / axe DevTools / Pa11y / Lighthouse CI / ICU MessageFormat / Unicode CLDR 45
+- **Chaos Engineering**: Principles of Chaos Engineering (principlesofchaos.org) / Netflix Chaos Monkey / AWS Fault Injection Simulator / Gremlin / LitmusChaos / Chaos Mesh
+- **メトリクス・可視化**: DORA State of DevOps Report 2025 + Quality Metrics拡張 / SPACE Framework (GitHub Research 2021→2026拡張) / Grafana / Datadog / New Relic Digital Experience Monitoring / Splunk Observability Cloud
+- **Continuous QA**: Google Testing on the Toilet / Microsoft Engineering Fundamentals / Meta Testing Culture / Netflix Full Cycle Developers / Spotify Squad Health Check
