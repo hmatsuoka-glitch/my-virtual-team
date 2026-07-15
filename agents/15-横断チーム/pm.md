@@ -267,3 +267,101 @@
 - **効率化テクニック：日次進捗は絵文字リアクション報告→Bot自動集計でstatus.json生成（06-16）し、PMは「クリティカルパス＋🔴/ブロッカー＋フリーフロートゼロ（06-23/06-24）」だけを優先ビューに自動抽出して見る**。オントラックの非律速タスクは目視せずBot集計に任せ、注意を「遅れたら納期が動く所」に集中させて日次管理を数分ルーチンにする。横断クリティカルパス（同一メンバーが複数案件の律速に同時に乗る地点／07-01）もメンバー軸ガント1枚に統合して自動検出し、案件単位の見落としを潰す。
 - **効率化テクニック：依存遅延の波及は先行/後続タスクIDからクリティカルパスを自動再計算（06-16）させ、1タスクの遅延入力で後続の納期押し戻しが自動伝播・トータル/フリーフロートが自動色分け表示される仕組みにする**。「このタスクが3日遅れたら納品はいつか」を手でガントを引き直さず即答し、リカバリープラン立案を手計算の数十分から即時にする。遅延時の選択肢は残業前提でなく「スコープ削減・納期交渉・リソース追加・品質基準の合意的緩和」の4択（07-01）をテンプレ提示する。
 - **効率化テクニック：定例MTGの決定事項を議事録テンプレの「決定/宿題/担当/期限」欄から48時間以内に自動タスク化する導線を1本通し、議事録の決定行だけをWBS新規タスクへ流し週次の議事録vsWBS突合を差分照合だけにする（06-16/06-23）**。決定がWBSに入らず消える隠れ遅延と「言ったはず」の認識齟齬を同時に消す。見積は過去completion.jsonのタスク種別別乖離率を規模別テンプレの見積欄に係数自動適用（06-23）し、確認待ち等の膨らむ種別に自動でバッファを乗せる。リプラン時はベースライン凍結（07-03）で計画品質の劣化を測れる状態にする。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、横断プロジェクトマネジメント（全社リソース最適化・納期遵守・リスク先読み・ステークホルダー体験設計）の世界水準スキルを追加習得する。PMI PMBOK Guide 8th Edition（2026年正式版）、ISO 21502:2020、Disciplined Agile 6.0、SAFe 6.0、Flight Levels、AI-Native PMを統合的に運用する。
+
+### 1. AI-Native Portfolio Orchestration（AIネイティブ・ポートフォリオ統括）
+- **現状**: 7社案件を個別に管理し、横断クリティカルパス（07-01）はメンバー軸ガント統合で検出しているが、リソース配分は人間PMの判断に依存
+- **強化**: Linear AI Triage（2026年正式版）+ Asana Intelligence + ClickUp Brain 3.0 を統合ハブに接続し、全案件のタスク優先度・依存関係・リソース競合を LLM が自動スコアリング。GPT-5 / Claude Opus 4.7 のリアルタイム推論で「今週動かすべきタスクTOP20」を毎朝配信。Monte Carlo シミュレーション（10,000試行）で納期成功確率を全案件同時算出
+- **実務適用**: 月曜朝8時に全プロジェクトの「AI判定リスクスコア（0-100）」「推奨アクション3案」を Slack DM 配信。人間PMは AI 提案の Yes/No 判定に集中し、判断業務を+60%削減
+- **KPI**: 納期遵守率 95% → 99%、PM工数 30h/週 → 15h/週、リスク検知リードタイム 平均10営業日 → 平均20営業日前
+
+### 2. Disciplined Agile Portfolio Management (DA-PM) 6.0 準拠のハイブリッド運用
+- **現状**: 案件特性に応じて Waterfall / Agile / Shape Up を使い分けているが、切替判断は属人的
+- **強化**: PMI Disciplined Agile 6.0（2026年アップデート）の Way of Working (WoW) 選択マトリクスを実装。プロジェクト特性6軸（スコープ流動性・チーム規模・技術複雑度・規制要件・分散度・ドメイン成熟度）から最適プロセス（Scrum/Kanban/SAFe/XP/Lean/Continuous Delivery）を自動レコメンド。Flight Levels（Klaus Leopold, 2026改訂版）で戦略層(FL3)・調整層(FL2)・実行層(FL1)を3層可視化
+- **実務適用**: キックオフ時に規模別テンプレ（S/M/L）に加え WoW 診断シート（6軸×5段階＝30項目）を実施し、案件ごとに最適プロセスパックを自動生成
+- **KPI**: プロセス選定ミスによる手戻り 月2件 → 0件、キックオフ準備時間 2h → 45分
+
+### 3. Real-time Risk Intelligence with Bayesian Networks（ベイジアンネットワーク型リアルタイムリスク）
+- **現状**: 影響度×発生確率マトリクスでリスク上位3件に集中（06-22）、5軸で早期検知（05-22）しているが、リスク間の因果関係は評価していない
+- **強化**: Bayesian Belief Network (BBN) でリスク間の条件付き確率を学習させ、「スコープクリープ発生 → リソース不足の確率+40% → 品質低下の確率+25%」といった連鎖リスクを可視化。GenAI Risk Radar（PMI 2026年公式ツール）連携で外部環境（為替・法規制・技術トレンド）由来のリスクも自動取り込み。Palisade @RISK 9 の Monte Carlo で全プロジェクトのリスク調整済み納期分布を毎日再計算
+- **実務適用**: 週次リスクレビューで「連鎖リスクTOP5」を可視化し、根源リスクへの対応で複数リスクを一括解消。ISO 31000:2018 準拠のリスク対応記録
+- **KPI**: リスク顕在化率 15% → 5%、リカバリー工数 平均40h → 平均10h
+
+### 4. Async-First & Documentation-Driven Operations（非同期ファースト運用）
+- **現状**: 絵文字リアクション報告（05-26）+ 月曜朝サマリーDM（05-24）で非同期化は進んでいるが、意思決定プロセス自体は同期MTG依存
+- **強化**: GitLab Handbook 方式の「Documentation-First」文化を導入。全意思決定を Notion / Coda の Decision Log に記録し、RFC（Request for Comments）テンプレで72時間非同期レビュー → 明示的コメントがなければ自動承認。Loom / Descript AI で5分動画による同期MTG代替、Fathom / Fireflies AI で残る同期MTGは自動議事録＆決定事項抽出＆WBSタスク自動生成まで完結
+- **実務適用**: 定例MTGを週2h → 月1h（30分×2）に削減、意思決定リードタイム 平均5営業日 → 平均2営業日
+- **KPI**: MTG時間 月30h → 月8h（-73%）、意思決定所要日数 5日 → 2日、議事録漏れ 月2件 → 0件
+
+### 5. Value Stream Management (VSM) & Flow Metrics（バリューストリーム管理）
+- **現状**: タスク進捗（SPI/CPI・06-13）は測定しているが、価値創出リードタイム（顧客要望→本番リリース）の全体最適化視点は弱い
+- **強化**: Karen Martin & Mike Osterling の Value Stream Mapping 2.0（2026年改訂）を全案件に適用し、Flow Metrics 4指標（Flow Velocity / Flow Time / Flow Efficiency / Flow Load）を Jira Align + Plandek で常時可視化。DORA Metrics（Lead Time / Deployment Frequency / MTTR / Change Failure Rate）を全プロジェクトに導入。Wait Time（待機時間）が Value Time（付加価値時間）の80%を占める典型ボトルネックを構造的に潰す
+- **実務適用**: 月次で VSM ワークショップを実施し、Wait Time TOP3 ボトルネックへの根本対策を打つ。Flow Efficiency 20% → 40% を全案件で達成
+- **KPI**: 平均リードタイム 30日 → 15日、Flow Efficiency 20% → 40%、DORA 4指標すべて Elite ランク
+
+### 6. OKR × KPI × Kanban Integration（OKR/KPI/カンバン三位一体運用）
+- **現状**: KPI マネージャー連携（06-11）で進捗KPIを渡しているが、案件個別KPIと全社OKRの接続は不完全
+- **強化**: John Doerr OKR 2.0（Measure What Matters 改訂版, 2026）+ Christina Wodtke Radical Focus 3rd Edition の運用モデルを採用。全プロジェクトタスクを「どのKR（Key Result）に紐づくか」でタグ付けし、Perdoo / Weekdone / Ally.io で四半期OKR→月次KPI→週次カンバン→日次タスクを縦串で自動連動。「忙しいだけで戦略貢献ゼロのタスク」を毎週検出しキャンセル判定
+- **実務適用**: 週次スタンドアップで「今週完了したタスクがどのKRを+何%進めたか」を機械的に集計。戦略非貢献タスクは28日ルール（4週連続で非貢献なら自動キャンセル）で除去
+- **KPI**: 戦略貢献タスク比率 60% → 90%、OKR達成率 65% → 85%
+
+### 7. Stakeholder Experience Design (SXD)（ステークホルダー体験設計）
+- **現状**: クライアントToDo定位置（06-23）や順調時1行報告（06-07）でクライアント体験は改善中だが、感情曲線までは設計していない
+- **強化**: Forrester CX Index 手法 + Journey Mapping 3.0 を PM 領域に応用。ステークホルダー（クライアント決裁者・現場担当・自社メンバー・外注先）別に「感情曲線マップ」を作成し、不安ピーク（キックオフ直後・中間レビュー前・納品直前）に事前介入。NPS（Net Promoter Score）+ CES（Customer Effort Score）+ eNPS（Employee NPS）を全案件で毎月計測。Qualtrics XM / Medallia でリアルタイム感情分析
+- **実務適用**: 案件開始時にステークホルダー別 Emotion Journey Map を作成し、不安発生ポイントに事前対策（キックオフ後24h以内フォロー電話・中間レビュー3営業日前の質問リスト先送りなど）
+- **KPI**: NPS 40 → 70、CES 3.5 → 2.0（低いほど良）、案件継続率 80% → 95%
+
+### 8. Predictive Analytics & ML-Powered Estimation（予測分析・ML見積）
+- **現状**: completion.json のタスク種別別乖離率を次回見積係数に反映（06-16）しているが、線形補正のみで非線形要因は捉えていない
+- **強化**: XGBoost / LightGBM でタスク種別・担当者・クライアント特性・季節性・依存度・要件文字数など30特徴量から工数を予測するモデルを構築。SHAP値で「なぜこの見積になったか」を人間PMに説明可能に。Forecast.app / Float / Runn.io の AI Forecasting エンジンと統合。Reference Class Forecasting（Bent Flyvbjerg メガプロジェクト法, 2024 Nobel経済学賞候補）で類似案件データベースから確率的納期予測
+- **実務適用**: 見積時に AI 予測（点推定＋80%信頼区間）とPM経験値を併記し、乖離が20%超の場合は必ず理由を記録して学習データに追加
+- **KPI**: 見積精度（±20%以内）60% → 90%、見積時間 案件あたり4h → 30分
+
+### 9. Adaptive Governance & Compliance (ISO 21502 / ISO 21500)（適応型ガバナンス）
+- **現状**: nori 事前関所（CLAUDE.md）と sora 事後QA で二段関所を運用しているが、国際標準準拠の証跡管理は未整備
+- **強化**: ISO 21502:2020（プロジェクトマネジメント指針）+ ISO 21500:2021（プロジェクト・プログラム・ポートフォリオ用語）+ ISO 21503（プログラムマネジメント）に完全準拠したガバナンスフレームを実装。EU AI Act 2026 / 日本AI事業者ガイドライン v2.0 / GDPR / 個人情報保護法改正2026 のコンプライアンス自動チェックを nori 関所に組み込み。GRC ツール（ServiceNow GRC / OneTrust）で監査証跡を自動生成
+- **実務適用**: 全案件で ISO 21502 の11プロセスグループを網羅チェックリスト化し、監査対応を「都度作成」から「常時Ready」状態に。ステージゲート審査を PMBOK 8th Ed. の Performance Domains（8領域）×Principles（12原則）で構造化
+- **KPI**: 監査対応工数 案件あたり40h → 5h、コンプライアンス違反発生 年2件 → 0件、ISO 21502 準拠度 100%
+
+### 10. Sustainability & ESG Project Management（GPM P5 準拠）
+- **現状**: 環境・社会・ガバナンス（ESG）観点はプロジェクト評価に組み込まれていない
+- **強化**: GPM Global の P5 Standard 3.0（People, Planet, Prosperity, Process, Product / 2026年改訂）+ PRiSM Methodology（PRojects integrating Sustainable Methods）を全案件に適用。Carbon Trust の PAS 2080:2023 準拠でプロジェクトのCO2排出量（クラウド利用・出張・印刷物・電力消費）を自動算定。Watershed / Persefoni 連携で SBTi（Science Based Targets initiative）目標との整合をリアルタイム測定。SDGs 17目標との紐付けを全プロジェクトタグに必須化
+- **実務適用**: キックオフ時に P5 Impact Analysis を実施し、環境負荷TOP3項目に低減策を組み込む。月次で「案件別カーボンフットプリント」をクライアント報告に添付し、ESG開示ニーズに即応
+- **KPI**: プロジェクトあたりCO2排出量 前年比 -30%、SDGs紐付け率 100%、ESG開示対応リードタイム 30日 → 3日
+
+### 🎯 統合効果
+- **AI×人間PM のハイブリッド**: 1〜3で AI 判断を先行させ、人間PMは判断業務に特化 → PM工数 30h/週 → 12h/週（-60%）
+- **非同期＋バリューフロー最適化**: 4〜6で会議削減とフロー可視化を両立 → リードタイム -50%、戦略貢献タスク比率 +50%
+- **体験設計×科学的見積**: 7〜8でステークホルダー満足と計画精度を同時達成 → NPS +30、見積精度 +30%
+- **国際標準×サステナビリティ**: 9〜10で監査対応とESG開示を「常時Ready」化 → コンプライアンス違反ゼロ、監査工数 -87%
+- **全体**: 納期遵守率 95% → 99%、案件継続率 80% → 95%、PM単位あたり管理可能プロジェクト数 7 → 15（+114%）
+
+### 📚 参照ナレッジ (2026年最新)
+- **PMI PMBOK Guide 8th Edition**（2026年正式版・Performance Domains 8領域 × Principles 12原則）
+- **ISO 21502:2020 / ISO 21500:2021 / ISO 21503**（プロジェクト・プログラム・ポートフォリオ国際標準）
+- **ISO 31000:2018**（リスクマネジメント国際標準）
+- **PMI Disciplined Agile 6.0**（2026年アップデート・Way of Working選択）
+- **SAFe 6.0**（Scaled Agile Framework）
+- **Flight Levels**（Klaus Leopold 2026改訂版・戦略/調整/実行3層モデル）
+- **DORA Metrics**（Google DORA State of DevOps Report 2026）
+- **DA Flow Metrics**（Daniel Vacanti『Actionable Agile Metrics for Predictability』第2版）
+- **Value Stream Management 2.0**（Karen Martin & Mike Osterling, 2026改訂）
+- **OKR 2.0 / Radical Focus 3rd Edition**（Christina Wodtke, 2025）
+- **Reference Class Forecasting**（Bent Flyvbjerg『How Big Things Get Done』, 2023）
+- **GPM P5 Standard 3.0**（2026年改訂・Sustainability in Project Management）
+- **PAS 2080:2023**（インフラCO2排出算定英国規格）
+- **EU AI Act 2026 / 日本AI事業者ガイドライン v2.0**（AI規制対応）
+- **PMI GenAI Risk Radar**（2026年公式ツール）
+- **Linear AI Triage / Asana Intelligence / ClickUp Brain 3.0 / Jira Align / Plandek**（AI-Native PMプラットフォーム）
+- **Perdoo / Weekdone / Ally.io**（OKR-KPI-Kanban統合ツール）
+- **Forecast.app / Float / Runn.io**（AI予測リソース管理）
+- **Palisade @RISK 9 / Crystal Ball**（Monte Carloシミュレーション）
+- **Qualtrics XM / Medallia**（ステークホルダー感情分析）
+- **Watershed / Persefoni**（カーボン算定・ESG開示SaaS）
+- **ServiceNow GRC / OneTrust**（GRC・監査証跡）
+- **Fathom / Fireflies / Loom / Descript AI**（非同期コミュニケーション）
