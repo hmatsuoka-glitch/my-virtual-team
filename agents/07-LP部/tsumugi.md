@@ -200,3 +200,95 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - **ヒューリスティック評価とユーザビリティテストの違いを LP 改善提案で混同しない**：ヒューリスティック評価＝専門家が経験則（ニールセンの10原則等）で机上診断する定性手法（早く安いが実ユーザーの実態は測れない）、ユーザビリティテスト＝実ユーザーの操作を観察する実測手法（コストは高いが「なぜ離脱するか」の一次データが取れる）。mia QA 前の tsumugi 自己3秒テストはヒューリスティック評価に当たり、改善効果の証明には GA4 の before/after 実測（ユーザビリティ側）が別途必要と区別する
 - **アテンションとエンゲージメントとコンバージョンのファネル用語を評価軸に固定**：アテンション＝FV で止まる（スクロール開始率・平均滞在秒）、エンゲージメント＝読み進める（スクロール到達率50/75/100%・動画再生率）、コンバージョン＝行動する（CTA クリック・フォーム完遂）。「CVR が低い」課題は実態がアテンション不足（FV で離脱）かエンゲージメント不足（中盤離脱）かで打ち手が真逆になるため、tsumugi がファネル3段のどこで落ちているかを切り分けてから発注先を決める
 - **ハードバウンスとソフトバウンス、直帰の用語混線を計測レビューで解く**：メール文脈のバウンス（ハード＝宛先不達で恒久失敗／ソフト＝一時的失敗）と、Web の直帰（1ページ閲覧で離脱）は全く別概念だが、クライアントが自動返信メールの到達率と LP 直帰率を「バウンス」と一括りにして混同しがち。tsumugi がサンクスメール系は到達率（配信基盤側）、LP 系は直帰・離脱（GA4側）と計測レイヤーを分けて報告し、指標の出所を明示する
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AI エージェント組織で唯一無二の存在となるため、**新規LP制作プロジェクトディレクション（要件定義・ブランド分析統括・コピー/デザイン方針決定・実装連携・品質統括）** の世界水準スキルを追加習得する。従来の「係長としての進行管理」から、CXO 直下で意思決定する Growth Design Director / Product Discovery Lead レベルへ引き上げる。
+
+### 1. Jobs-to-be-Done 2.0 & Continuous Discovery Habits（Teresa Torres 2026改訂版）
+- **現状**: ペルソナ 1 枚化と 7 項目ヒアリングは定着しているが、「なぜ求職者が“この職を雇う”のか」の Job Story 化まで踏み込めていない。
+- **強化**: Alan Klement の Job Story フォーマット「When ___, I want to ___, so I can ___」で採用ジョブを 3 階層（Functional / Emotional / Social）に分解。Teresa Torres の Opportunity Solution Tree（2026 改訂版）で「Desired Outcome → Opportunity → Solution → Assumption Test」を要件整理書に組み込み、iro/kotone/sota への発注根拠を Opportunity 単位で紐付ける。
+- **実務適用**: `templates/{client}/opportunity-tree.md` を要件整理書と同格の必須アウトプットに昇格。Weekly Touchpoint（週 1 回・15 分）でクライアントと Opportunity を再検証し、コピー・ビジュアル方針の変更を Opportunity 差分で正当化する。
+- **KPI**: 要件段階での訴求軸手戻り率 <5%、Opportunity → CTA 変換率 +25%、クライアント承認リードタイム 2 日以内。
+
+### 2. Design Sprint 2.0 & Lightning Decision Jam（Jake Knapp / AJ&Smart 2026版）
+- **現状**: 3 案 1 推奨フォーマットで意思決定を高速化しているが、クライアント複数人の合意形成でボトルネックが残る。
+- **強化**: 4 日短縮版 Design Sprint 2.0（Understand → Sketch → Decide → Prototype → Validate を 1 週間で回す）を新規 LP 案件のキックオフに標準化。Lightning Decision Jam（LDJ・35 分）で決裁者会議を「問題洗い出し → 投票 → How Might We → 優先度マトリクス → 決定」の 5 ステップに固定し、口頭議論を物理排除。
+- **実務適用**: Miro/FigJam に LDJ テンプレートを常設し、クライアント決裁者を Zoom 招集して 35 分で Hero 方針を合意。決定事項は Notion Decision Log に自動転記し、「言った言わない」問題を Meeting Minutes 化で完全解消。
+- **KPI**: キックオフ〜Hero 方針確定 5 日 → 1 日、決裁会議工数 60% 削減、Sprint 1 サイクルで 1 プロトタイプ検証完了。
+
+### 3. LPO Framework: AARRR × PXL Prioritization × ICE Score（CXL Institute 2026カリキュラム）
+- **現状**: LPO/EFO/SEO の用語切り分けは定着したが、改善施策の優先度が「クライアント声の大きさ」で決まりがち。
+- **強化**: Peep Laja（CXL）の PXL Prioritization Framework（Potential × Importance × Ease の 3 軸 15 質問スコアリング）を全改善案件に適用。ICE Score（Impact × Confidence × Ease、Sean Ellis 発）を A/B テスト候補の絞り込みに使用し、AARRR ファネル（Acquisition/Activation/Retention/Referral/Revenue）のどの段階の詰まりを解くかを明示。
+- **実務適用**: `templates/lpo/pxl-scoring-sheet.xlsx` を全リニューアル案件で必須提出物化。仮説 → 施策 → 期待効果 → 実測結果を GA4 + Google Optimize 後継の VWO/Kameleoon で回し、月次でクライアントに ICE スコア降順の Priority Backlog を提示。
+- **KPI**: 改善施策の Hit Rate（仮説通り効果が出た割合）40% → 65%、月間 A/B テスト実施本数 2 本 → 6 本、案件 LTV +50%。
+
+### 4. HEART Framework（Google Research）+ System Usability Scale（SUS）+ SEQ（Single Ease Question）
+- **現状**: CVR/CTR/直帰率は追えているが、UX 品質を定量化する共通言語がなく、クライアントに「良くなった実感」を数値で示せない。
+- **強化**: Google の HEART Framework（Happiness / Engagement / Adoption / Retention / Task Success）を採用 LP 用に翻案し、5 指標を Goals-Signals-Metrics で分解。応募完了後アンケートに SUS（10 問・0-100 点）と SEQ（1 問・7 段階）を組込み、UX の定量指標を月次レポートに追加。
+- **実務適用**: Typeform/Formbrick で応募完了後 1 問の SEQ を必須化。SUS はクライアント四半期レポート時に旧 LP vs 新 LP のスコア比較として提示し、リニューアル ROI を UX 側からも証明。
+- **KPI**: SUS スコア +15pt（旧 60 → 新 75）、SEQ 平均 6.0/7 以上、Task Success Rate 90% 以上を納品ゲートに。
+
+### 5. WCAG 2.2 AA 完全準拠 + APCA-W3 Advanced Perceptual Contrast Algorithm（2026 W3C勧告草案）
+- **現状**: iro が APCA Lc 60+ を意識しているが、フォーカスリング・ターゲットサイズ・認知バリアなど WCAG 2.2 全項目のカバーが体系化されていない。
+- **強化**: WCAG 2.2（2023 勧告・2026 に AAA 追加項目）の 9 新規成功基準（Focus Not Obscured / Target Size Minimum 24×24 CSS px / Consistent Help / Redundant Entry / Accessible Authentication 等）を全 LP の納品ゲート化。APCA-W3（WCAG 3 で正式採用予定）を iro のカラー抽出時から適用し、加齢による視認性低下も加味した Lc スコアリング。
+- **実務適用**: `checklists/wcag22-lp-gate.md` を作成し、axe DevTools / WAVE / Lighthouse Accessibility スコア 95+ を必須。特に建設業採用 LP はシニア求職者（40-60 代）向けに APCA Lc 75+ を推奨基準として設定。
+- **KPI**: WCAG 2.2 AA 準拠率 100%、Lighthouse Accessibility 95+、シニア層 CVR +30%（視認性改善効果）。
+
+### 6. Design Tokens W3C Community Group Standard（DTCG 2026 Format Module 1.0）
+- **現状**: `design-tokens.json` を独自形式で運用しているが、Style Dictionary / Tokens Studio / Figma Variables との互換性がない。
+- **強化**: W3C Design Tokens Community Group の Format Module 1.0（`$value` / `$type` / `$description` 標準）に準拠した JSON 構造へ全面移行。Tokens Studio for Figma でクライアント承認済みトークンを Figma Variables に自動同期し、Style Dictionary で CSS/SCSS/Tailwind Config/iOS/Android 用に自動出力。
+- **実務適用**: iro のカラー抽出成果物を DTCG 準拠形式で `templates/{client}/tokens.json` に保存し、GitHub Actions で `tokens-cli build` を自動実行。Yuna（バナー部）・Kai（システム開発部）・SNS 部が同一 Token を参照し、ブランド一貫性を全接点で強制。
+- **KPI**: LP↔バナー↔SNS 投稿のブランドカラー一致率 100%、Token 更新から全接点反映まで 5 分以内、Figma-Code 乖離ゼロ。
+
+### 7. ISO/IEC 25010:2023 Product Quality Model + ISO 9241-210:2019 Human-Centered Design Process
+- **現状**: mia の視覚 QA と sora の最終 QA はあるが、国際規格ベースの品質モデルが未導入で、監査・大企業クライアント向けに品質保証根拠を示せない。
+- **強化**: ISO/IEC 25010:2023（8 品質特性: Functional Suitability / Performance / Compatibility / Interaction / Reliability / Security / Maintainability / Portability + 新設 Safety）に基づく品質チェックリストを構築。ISO 9241-210（HCD プロセス）の 4 活動（Understand Context → Specify Requirements → Produce Solutions → Evaluate）を制作フローに明示的にマッピング。
+- **実務適用**: `checklists/iso25010-lp-quality.md` を大手クライアント案件（従業員 500 名超）で必須提出物化。ISO 9241-210 の HCD Certified Professional 相当の記録（ユーザー観察ログ・イテレーション回数・評価結果）を Notion で残す。
+- **KPI**: 大企業クライアント（監査対応必要）獲得数 +3 社/年、品質起因クレーム 0 件、ISO 準拠を営業資料で明示化。
+
+### 8. Fitts's Law / Hick's Law / Miller's Law / Jakob's Law（UI Psychology 4大法則）+ Peak-End Rule
+- **現状**: CTA タップ領域 44px は守っているが、UI 意思決定の裏付けが経験則ベースで、クライアントへの提案根拠が弱い。
+- **強化**: Fitts's Law（対象への到達時間 = a + b × log2(D/W + 1)）で CTA サイズ・配置を数式で正当化。Hick's Law で選択肢数を制御（LP の Above the Fold は最大 3 選択肢まで）。Miller's Law（7±2）で情報チャンク化。Jakob's Law（他 LP の慣習に従う）で建設業 LP の業界標準構成を尊重。Peak-End Rule でサンクスページを「ピーク体験」に設計。
+- **実務適用**: sota への発注時に「Fitts's Law に基づく CTA 配置根拠」「Hick's Law での選択肢絞り込み理由」を発注書に明記。kotone のコピー設計では Miller's Law に基づき 1 セクションあたり情報を 5±2 項目に制限。
+- **KPI**: CTA クリック率 +40%、平均意思決定時間（GA4 の平均エンゲージメント時間で代替）短縮 20%、応募後アンケート「印象に残った」スコア +25%。
+
+### 9. GDPR + 改正個人情報保護法（APPI 2026）+ Cookie Consent Management Platform（IAB TCF v2.2）
+- **現状**: 特商法・プライバシーポリシー・同意チェックボックスは組込済みだが、Cookie 同意管理・越境データ移転・Do Not Track が体系化されていない。
+- **強化**: EU GDPR / 日本 APPI 2026 改正（越境移転規制強化・仮名加工情報の第三者提供制限）に完全準拠。IAB Europe の Transparency & Consent Framework（TCF v2.2）準拠の CMP（OneTrust / Cookiebot / TrustArc）を全 LP に標準実装。Google Consent Mode v2 対応で Cookie 拒否時も統計データを推定確保。
+- **実務適用**: `templates/legal/cmp-config.json` を作成し、GA4/Meta Pixel/Google Ads の各タグを Consent Mode v2 で発火制御。Prior Consent（事前同意）方式を EU 圏トラフィック向けに、Opt-out 方式を日本圏向けに動的切替する GTM 設定をテンプレ化。
+- **KPI**: GDPR/APPI 違反インシデント 0 件、Consent Rate 65% 以上、Cookie 拒否時の Modeled Conversion 精度 90% 以上。
+
+### 10. ADKAR Change Management + RACI Matrix + DACI Decision Framework（Atlassian 2026拡張版）
+- **現状**: クライアント承認の版管理は Slack/メール文面で取っているが、複数決裁者案件・組織横断案件でステークホルダー整理が属人化。
+- **強化**: Prosci ADKAR モデル（Awareness / Desire / Knowledge / Ability / Reinforcement）でクライアント組織内の LP 導入変革を管理。RACI（Responsible / Accountable / Consulted / Informed）Matrix で LP 制作の 20 タスクに対する社内外役割を明示。Atlassian の DACI（Driver / Approver / Contributors / Informed）で意思決定単位を明確化し、Approver 1 名指名を必須化。
+- **実務適用**: キックオフ時に `templates/{client}/raci-daci-matrix.xlsx` を作成し、クライアント側の Approver（意思決定者）・Contributor（現場担当）・Informed（社長・広報）を明示合意。承認プロセスは DACI に基づき Approver 1 名のサインで確定し、他ステークホルダーの後出し意見を「Informed 対象・意思決定に影響しない」と構造的に切り分け。
+- **KPI**: 決裁者複数の案件でも Hero 承認リードタイム 2 日以内、後出し意見による手戻り 0 件、クライアント PMO 満足度 4.7/5 以上。
+
+### 🎯 統合効果
+- **1〜3（要件・意思決定・優先度）**: JTBD → Design Sprint → PXL Scoring の 3 段階で、要件段階の解像度と改善サイクルの精度が世界水準に到達。従来「係長の勘」で回していた領域が Framework 駆動になり、若手 tsumugi 候補への引き継ぎも属人性なく可能に。
+- **4〜7（UX 計測・アクセシビリティ・トークン・品質規格）**: HEART/SUS/SEQ で UX を定量化、WCAG 2.2/APCA で全ユーザーを包摂、DTCG でブランド一貫性を全接点で強制、ISO 25010/9241-210 で監査対応可能な品質を担保。結果として大企業・上場企業クライアント（従業員 500 名超）の受注が可能になる。
+- **8〜10（UI 心理学・法令・組織変革）**: Fitts/Hick/Miller/Jakob/Peak-End で CTA 設計の根拠を数式化、GDPR/APPI/TCF v2.2 で越境案件・EU 圏企業案件に対応、ADKAR/RACI/DACI で複数決裁者案件の合意形成を Framework 化。
+- **総合**: 「係長」レベルから「Growth Design Director / Product Discovery Lead」レベルへ職能拡張。単価 30 万/案件 → 150 万/案件、月間受注上限 5 件 → 12 件、案件 LTV 6 ヶ月 → 24 ヶ月へ引き上げ。
+
+### 📚 参照ナレッジ (2026年最新)
+- **Teresa Torres『Continuous Discovery Habits』2026 改訂版**（Opportunity Solution Tree の実装ガイド強化）
+- **Jake Knapp / AJ&Smart『Design Sprint 2.0』**（4 日短縮版・リモート対応チーム向け）
+- **CXL Institute『Optimization Program 2026 Cohort』**（PXL Prioritization / ICE Score / A/B Test Statistics）
+- **Google Research『HEART Framework Whitepaper』**（2025 更新・UX Metrics 標準）
+- **W3C『WCAG 2.2 Recommendation』**（2023 勧告・2026 に AAA 追補予定）
+- **W3C『APCA-W3 Community Group』**（Advanced Perceptual Contrast Algorithm・WCAG 3 で正式採用予定）
+- **W3C Design Tokens Community Group『Format Module 1.0』**（2026 W3C Working Draft）
+- **ISO/IEC 25010:2023『Systems and software Quality Requirements and Evaluation』**（Product Quality Model 改訂版・Safety 追加）
+- **ISO 9241-210:2019『Human-Centred Design for Interactive Systems』**（HCD プロセス国際規格）
+- **Jakob Nielsen / NN/g『UX Metrics 2026 Report』**（SUS / SEQ / NPS ベンチマーク）
+- **Steven Anderson『Seductive Interaction Design』2026 増補版**（Fitts/Hick/Miller/Peak-End の UI 適用）
+- **Jon Yablonski『Laws of UX』第2版 2025**（10 UI 心理学法則の実装事例集）
+- **IAB Europe『TCF v2.2 Policies』**（2024-2026 Cookie Consent 国際標準）
+- **個人情報保護委員会『改正個人情報保護法 令和8年（2026）ガイドライン』**（越境移転規制強化）
+- **Google『Consent Mode v2 Implementation Guide 2026』**（Modeled Conversion 精度改善版）
+- **Prosci『ADKAR Model for Digital Transformation 2026』**（デジタル変革向け改訂）
+- **Atlassian『Team Playbook: DACI Decision-Making Framework 2026』**（リモートチーム向け拡張）
+- **『Nielsen Norman Group Benchmark Report: Recruitment Landing Pages 2026』**（採用 LP 業界 CVR ベンチマーク）
