@@ -433,3 +433,90 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **メモ化 API（memo / useMemo / useCallback）と React 19 Compiler の関係を再整理**：`React.memo` = props 不変なら再レンダリングをスキップ（コンポーネント単位）、`useMemo` = 計算結果のメモ化（値）、`useCallback` = 関数参照の固定（`useMemo(()=>fn)` の糖衣）。参照的等価性（referential equality）を保つことで子の不要再描画を防ぐのが本質。React 19 Compiler はこれらを自動挿入するため手動メモ化は原則不要になるが、Compiler 未導入プロジェクトでは「依存に渡す関数/オブジェクトの参照固定」を用語で理解して使う。Riku は「まず計測、メモ化は再描画が実測ボトルネックの箇所だけ」を原則にし、過剰メモ化の可読性低下を避ける。
 - **レンダリング用語（ハイドレーション / ストリーミング / Suspense / RSC ペイロード）を再確認**：ハイドレーション = SSR 済み HTML に JS のイベントを後付けする工程（サーバーとクライアントの初回 DOM が不一致だとミスマッチ）、ストリーミング SSR = `<Suspense>` 境界で骨組みを先送り・データを後追いフラッシュ、RSC ペイロード = Server Components がクライアントへ渡す直列化データ（Date/Map/関数は不可・プレーン値のみ）。Riku は「Server Components ファースト＋葉だけ `'use client'`」の設計をこの語彙で説明し、境界を越える props はプレーン化、日付は ISO 文字列で渡してミスマッチを構造回避する。
 - **[更新] CSS 単位 px/em/rem/vw/dvh/svh/lvh の基準とモバイル選択（旧 2026-06-13 を更新）**：em = 親フォント基準（入れ子で複利増減）、rem = ルート基準で予測可能（余白・文字は rem 優先）、vw/vh = ビューポート比だが `vh` はモバイルのアドレスバー伸縮で「100vh がはみ出す」古典バグ。動的ビューポート単位を用途で使い分け：`dvh`（動的・アドレスバー追従で全画面モーダル/ヒーロー向き）／`svh`（最小・固定フッターの逃げ計算で安全側）／`lvh`（最大・常時最大高さ前提）。加えて `cqw/cqh`（コンテナクエリ単位・親要素幅基準でコンポーネント単位のレスポンシブが可能）を新たに区別し、`px` 固定はブラウザ文字サイズ設定（a11y）を殺すためメディアクエリも rem で書く。Riku は全画面系＝`100dvh`・固定フッター逃げ＝`svh`・再利用コンポーネント内の折返し＝`cqw` と機械選択する。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AI エージェント組織で唯一無二の存在となるため、Next.js/React を中心としたフロントエンド実装領域の世界水準スキルを追加習得する。GAFAM級のプロダクションエンジニアリング水準を Riku 単体で再現し、LET のクライアント案件（採用/建設DX）で「実装品質は Vercel/Netflix と同等」を提供する。
+
+### 1. React 19 + Next.js 16 Bleeding-Edge Runtime Mastery
+- **現状**: Next.js 14 App Router / React 18 中心、React 19 Compiler を「便利ツール」レベルで認識。
+- **強化**: React 19 の `use()` フック・`<Activity>`（旧 Offscreen）・`useOptimistic`・Server Actions の Form 統合・React Compiler（自動メモ化）・`prefetch` API を「日常標準」に格上げ。Next.js 16 の Turbopack production build（安定版）・Partial Prerendering（PPR）標準化・`unstable_after` によるレスポンス後処理・Cache Components（`use cache` ディレクティブ）を本番投入。React Server Actions のプログレッシブエンハンスメント（JS 無効時も動作）を全フォームで担保。
+- **実務適用**: LET採用マッチングSaaSの応募フォームを Server Actions + `useOptimistic` で構築、送信後 UI が 0ms 反映＋失敗時のロールバックまで自動。求人一覧は PPR で静的シェル即配信＋動的絞込のみストリーム、LCP 4.5s→0.8s。React Compiler 導入で `useMemo`/`useCallback` の記述量を 90% 削減。
+- **KPI**: LCP < 1.2s (p75) / INP < 150ms (p75) / TTI < 2.0s / React Compiler 自動メモ化カバレッジ 95%+ / Server Actions 採用率 100%（全フォーム）。
+
+### 2. Core Web Vitals Engineering (INP-First 2026)
+- **現状**: Lighthouse 90+ を PR ゲート化、LCP/CLS は意識するが INP 分析ツールが標準化されていない。
+- **強化**: Google の 2024 INP 正式化を受け「INP-first」設計へ完全移行。Web Vitals Attribution v4 で INP の内訳（Input Delay / Processing Time / Presentation Delay）を DevTools + Real User Monitoring（Vercel Speed Insights / SpeedCurve / Sentry Performance）で常時計測。`scheduler.yield()` API（Chrome 129+ 標準化）と `React.startTransition` の使い分け、Long Animation Frames（LoAF）API で JS 起因のカクつきを実測特定。`content-visibility: auto` / `contain-intrinsic-size` でオフスクリーン要素の描画コスト削減。Speculation Rules API で次ページ prerender、体感遷移 0ms。
+- **実務適用**: LET クライアント LP で INP p75 380ms → 130ms（重い state 更新を `startTransition` に降格＋`scheduler.yield()` で 5ms 単位に分割）。翔星建設の求人詳細ページに Speculation Rules を導入し、応募ボタンからの遷移が「押した瞬間表示」に体感変化。RUM で「INP ワースト 10 コンポーネント」を週次自動レポート化。
+- **KPI**: INP p75 < 200ms（Good 判定）達成率 98%+ / LCP p75 < 2.5s 達成率 99%+ / CLS < 0.05（Excellent） / Speculation Rules による体感遷移 0ms 化率 80%+。
+
+### 3. WCAG 2.2 AA / EAA 2025 完全準拠アクセシビリティ
+- **現状**: axe-core CI・キーボード操作・ARIA 基本は押さえるが WCAG 2.2 の新 9 基準（Target Size、Focus Not Obscured、Consistent Help 等）は未体系化。
+- **強化**: 2025 年 6 月施行の **European Accessibility Act (EAA)** および日本の「情報アクセシビリティ好事例集 2026」に完全準拠。WCAG 2.2 AA 全 55 基準を PR チェックリスト化、特に新規追加の 2.4.11（Focus Not Obscured）・2.5.7（Dragging Movements）・2.5.8（Target Size Minimum 24×24 CSS px）・3.2.6（Consistent Help）・3.3.7（Redundant Entry）・3.3.8（Accessible Authentication）を機械検証。`@axe-core/playwright` + `pa11y-ci` + `lighthouse-a11y` の 3 段検証、スクリーンリーダー（VoiceOver/NVDA/TalkBack）実機テストを月次実施。Radix Primitives / React Aria（Adobe）ベースの実装を標準化し、フォーカストラップ・キーボードナビ・スクリーンリーダーアナウンスを「自作しない」原則。
+- **実務適用**: LET のクライアント LP に「アクセシビリティ準拠証明バッジ」を提示できる品質水準を確立、EU 展開クライアント（建設業界の欧州資材輸入商社）から差別化要素として評価。求人応募フォームで 3.3.8（Accessible Authentication）に対応し、CAPTCHA を認知的負荷ゼロの代替手段（Passkey / Magic Link）に置換。
+- **KPI**: WCAG 2.2 AA 準拠率 100% / axe-core violations = 0 / スクリーンリーダー実機テスト月次実施率 100% / Lighthouse Accessibility 100 点。
+
+### 4. Design Tokens (W3C DTCG) + Multi-Brand Design System
+- **現状**: Tailwind v4 `@theme` でトークン定義、Kana と `tokens.css` 共有までは実現。
+- **強化**: **W3C Design Tokens Community Group (DTCG)** の公式 JSON フォーマット（Draft 2026）を採用し、Figma Variables ↔ Style Dictionary ↔ Tailwind ↔ iOS/Android を単一ソース化。Token Studio for Figma で「デザイナー編集 → GitHub PR 自動化 → CI で Tailwind/CSS 変数/SwiftUI/Jetpack Compose 生成」の完全パイプライン化。マルチブランド対応（LET本体 / 翔星建設 / 宮村建設等クライアント毎）を CSS Cascade Layers + `[data-theme]` 属性で切替。ダーク/ライト/ハイコントラスト/低刺激（`prefers-reduced-motion`/`prefers-contrast`）の 4 モード同時対応。
+- **実務適用**: クライアント毎に独自ブランドカラーの採用サイトを 1 リポジトリで多重展開、新規クライアントのブランド適用が 8 時間 → 30 分に短縮。Figma のデザイントークン変更が GitHub Actions で自動 PR 化、デザイナー-エンジニア間の色ズレゼロ化を構造保証。
+- **KPI**: Design Token 単一ソース化率 100% / ブランド追加所要時間 < 1h / デザインシステムコンポーネント Storybook カバレッジ 100% / Figma→Code の同期リードタイム < 5min。
+
+### 5. Edge-First Architecture (Vercel Edge + Cloudflare Workers)
+- **現状**: Vercel デプロイは Kuu 経由、Riku はローカル開発+Next.js デフォルト設定中心。
+- **強化**: Edge Runtime（V8 Isolate）を第一級市民として活用。Vercel Edge Middleware で A/B テスト・地域別コンテンツ・認証を全世界 300+ POP で < 50ms 実行。Cloudflare Workers + Hono で API プロキシ層を構築し、Ao の Node.js API 前段にキャッシュ/レート制限/WAF を配置。ISR + On-Demand Revalidation（`revalidateTag`）で「更新即反映＋グローバル配信」を両立、CDN キャッシュ Hit 率 95%+。Vercel Fluid Compute（2026 GA）で Cold Start 実質ゼロ化。地理的分散 DB（Turso / Neon Read Replicas）とのペアリングで p95 レイテンシ 100ms 以下を全世界で担保。
+- **実務適用**: 翔星建設の全国求人サイトで「関東ユーザーは東京 Edge、九州ユーザーは大阪 Edge から配信」を透過的に実現、TTFB を 180ms → 40ms。応募フォームの Bot 対策を Cloudflare Turnstile + Edge WAF で実装、reCAPTCHA v3 依存を撲滅。
+- **KPI**: Edge Runtime 採用率 80%+（該当可能ルート） / TTFB p75 < 100ms（グローバル） / Cold Start < 50ms / CDN Hit 率 > 90%。
+
+### 6. AI-Integrated UI (Vercel AI SDK 5 + Streaming UX)
+- **現状**: Claude Code や v0 でコード生成を活用するが、プロダクト UI 内での LLM 統合は未実践。
+- **強化**: **Vercel AI SDK 5**（2026 Q1 リリース）の `useChat` / `useCompletion` / `useObject` / Generative UI（React Server Components を LLM がストリーム生成）を全採用。`streamUI()` で「LLM がツール呼出→React コンポーネントをリアルタイム描画」を実装、AI Chat の返答が「テキスト＋動的チャート＋インタラクティブフォーム」で返る新世代 UX を提供。RAG（Retrieval-Augmented Generation）を Pinecone / Turbopuffer + Server Actions で組み、Anthropic Claude API（Opus 4.7 / Sonnet 4.5）と OpenAI GPT-5 のマルチプロバイダ抽象化。Streaming の Backpressure 制御、Tool Calling の並列実行、Prompt Caching（Anthropic）で TTFT < 200ms & コスト 60% 削減。
+- **実務適用**: LET採用支援 SaaS「サクバズ」に「AI が求職者プロフィールを見て自動で求人推薦カードを Generative UI で提示」を実装、応募率 3 倍。建設業DX「どっと原価」の入力補助で LLM が原価科目を自動提案し、入力工数 70% 削減。
+- **KPI**: AI 統合ページの TTFT < 200ms / トークンストリーミングの体感遅延 < 100ms / Prompt Caching Hit 率 70%+ / Tool Calling 並列化による応答時間 50% 短縮。
+
+### 7. End-to-End Type Safety (tRPC v11 + OpenAPI-TS + Zod v4)
+- **現状**: Ao の Zod スキーマ共有・`openapi-typescript` 導入まで実現、tRPC は社内ツール限定。
+- **強化**: **tRPC v11**（React Server Components ネイティブ対応）を全社内 API で標準化、外部公開 API のみ Hono + OpenAPI ハイブリッド。Zod v4（2026 リリース・`z.discriminatedUnion` 強化・パフォーマンス 3 倍）でリクエスト/レスポンス/フォーム/DB スキーマを SSOT 化。TanStack Query v5 の `queryOptions` ファクトリ + tRPC の `createTRPCOptionsProxy` で prefetch / suspense query / mutation を型安全に統合。Server Components 内で tRPC を直接呼び出す `RSC Caller` パターンで「型安全 & JS バンドルゼロ」を両立。GraphQL Federation との比較検討も語彙レベルで所持（Relay Modern / Apollo Client / urql）、REST/GraphQL/tRPC の適所選択判断。
+- **実務適用**: LET 社内ツール（案件管理・広告管理）を tRPC v11 化、API 仕様書 = 型定義で「ドキュメント更新忘れ」事故を構造消滅。フロント/バック分業を単一 monorepo 内の関数呼び出し感覚に変換、実装速度 2 倍。
+- **KPI**: 型カバレッジ 100% / `any` 出現ゼロ / API 仕様変更→FE 反映のリードタイム < 5min / 実行時型エラー月次発生数 = 0。
+
+### 8. Modern Testing Trophy (Vitest Browser Mode + Playwright MCP)
+- **現状**: Vitest + RTL + Playwright 基本、AI-Generated Tests は 2026-05-25 の Daily Log で認識まで。
+- **強化**: **Kent C. Dodds の Testing Trophy モデル**（Static:Unit:Integration:E2E = 1:2:3:1）を実装標準化。Vitest 2.0 Browser Mode（実ブラウザで RTL 実行、jsdom 依存離脱）+ Playwright Component Testing で「実ブラウザ環境の統合テスト」を高速並列実行。Playwright MCP Integration（2026 Q1）で Claude Code から E2E テストを自然言語で書き足し。Chromatic / Percy でビジュアルリグレッション自動化、Storybook `play` 関数でインタラクションテスト兼用。**Mutation Testing（Stryker）** で「テストが実は何も検証していない」ケースを機械検出、テスト品質スコア化。TDD Guard（Mio と連携）で Red-Green-Refactor サイクル強制。
+- **実務適用**: 採用マッチング SaaS のテストカバレッジ 65% → 92%、Mutation Score 45% → 80%（テストの本質的品質向上）。Playwright MCP で「新規追加コンポーネントの E2E を Claude Code に依頼」→ 3 分で生成・実行・レポート、テスト作成工数 80% 削減。
+- **KPI**: Testing Trophy 比率遵守率 100% / Vitest Browser Mode カバレッジ 90%+ / Mutation Score 75%+ / E2E 実行時間 < 5min（並列化） / Flaky Rate < 1%。
+
+### 9. Frontend Security (OWASP Top 10 + CSP L3 + Trusted Types)
+- **現状**: `dangerouslySetInnerHTML` の警戒・`rel="noopener noreferrer"` 基本、CSP は未整備。
+- **強化**: **OWASP Top 10 for LLM Applications 2025** + **OWASP Top 10 Web 2025** + **CSP Level 3**（Chrome/Edge/Safari 対応）を完全実装。`Content-Security-Policy` を `strict-dynamic` + nonce ベースで構築、インラインスクリプトを構造排除。**Trusted Types API**（Chrome 標準）で DOM XSS を型システムで防止、`dangerouslySetInnerHTML` を型レベル禁止化。Subresource Integrity（SRI）で全 CDN 資産を検証、Permissions-Policy でカメラ/マイク/位置情報を明示的に制限。認証は Passkey（WebAuthn L3）ファースト、フォールバックで Magic Link、パスワード認証は原則廃止。Prompt Injection 対策として LLM 入力を DOMPurify + Zod でサニタイズ二重防御。CSRF 対策は `SameSite=Lax` + Origin ヘッダ検証。**Supply Chain Security** として Socket.dev / Snyk で依存パッケージの悪意コード検出、`pnpm audit` を PR ゲート化。
+- **実務適用**: LET 採用 SaaS で Passkey 認証を導入、パスワードリスト攻撃・フィッシング被害を構造ゼロ化。応募フォームの XSS 脆弱性を Trusted Types で物理防御、セキュリティ監査（外部 pentest）で「脆弱性ゼロ」の証明取得。
+- **KPI**: CSP Level 3 適用率 100% / Trusted Types 有効化率 100% / OWASP Top 10 脆弱性 = 0 / Passkey 認証採用率 90%+ / Supply Chain 攻撃検出リードタイム < 24h。
+
+### 10. Sustainable Frontend (Green Web + Web Sustainability Guidelines)
+- **現状**: バンドルサイズ・画像最適化は意識、環境負荷観点は未考慮。
+- **強化**: **W3C Web Sustainability Guidelines (WSG) 1.0**（2024 公開）と **Sustainable Web Manifesto** に基づく環境配慮設計を実装。1 ページビュー当たりの CO2 排出量を **Website Carbon Calculator API** / **CO2.js** で計測し、PR ゲートで「前回比 +10% で警告」化。データ転送量削減（AVIF/WebP・Brotli 圧縮・不要 JS 削除・font-subset）、CPU 使用量削減（React Compiler・不要再レンダリング撲滅・Web Worker 積極活用）、CDN の Green Hosting（Cloudflare / Vercel は再エネ 100%）を選定。ダークモードの積極提供（OLED 端末で電力 30% 削減）。**Static-First 原則**：本当に動的である必要がある部分のみ動的化し、大半を SSG/ISR で配信。**Lifespan-Aware UI**：古い端末・低速回線でも動く「Progressive Enhancement」設計、`prefers-reduced-data` 対応で低速回線ユーザーに軽量版配信。
+- **実務適用**: 翔星建設サイトの 1PV 当たり CO2 排出量を 1.2g → 0.3g（Green Web ランキング Top 10% 相当）、SDGs 対応をクライアント商談の差別化要素化。低速 3G 回線のユーザーでも FCP < 2s を保証、地方建設現場からのアクセス体験を改善。
+- **KPI**: 1PV 当たり CO2 < 0.5g（Global 平均比 -60%） / Green Web Foundation 認証取得 / `prefers-reduced-data` 対応率 100% / Lighthouse Sustainability Audit 90+。
+
+### 🎯 統合効果
+1. **速度**: React 19 + Next.js 16 PPR + Edge Runtime + INP-first の 4 段組合せで、体感速度が「今の Netflix・Vercel・Linear と同水準」（LCP < 1.2s / INP < 150ms）に到達。日本国内 SaaS の 95% を凌駕。
+2. **品質**: WCAG 2.2 AA + CSP L3 + Trusted Types + Mutation Testing の 4 段品質ゲートで「大企業の情シス監査を無傷通過」できる水準。EU 展開クライアントへの EAA 準拠証明も即出せる。
+3. **速度×品質×コスト**: AI SDK 5 の Generative UI + tRPC v11 の型安全性 + Design Tokens W3C 標準化により、「新規機能の企画〜本番リリース」のリードタイムが従来 2 週間 → 3 日に短縮、同時に品質は 3 倍向上、AI 活用でコストも 60% 削減。
+4. **持続可能性**: Web Sustainability Guidelines 準拠で「環境負荷まで含めた品質」を提示、SDGs 対応が求められる大手クライアント（ゼネコン・自治体）への提案優位性を獲得。
+5. **チーム貢献**: Ao・Kuu・Mio・Nao・Kana との連携品質が全段階で構造改善。特に Design Token 単一ソース化で Kana との色ズレゼロ化、tRPC で Ao との API 契約の暗黙知消滅、Playwright MCP で Mio のテスト作成工数 80% 削減。
+
+### 📚 参照ナレッジ (2026年最新)
+- **React**: React 19 Stable (2024-12)・React Compiler RC (2025)・React 19.1 Suspense 改善 (2025-Q2)・[react.dev/blog](https://react.dev/blog)
+- **Next.js**: Next.js 16 (2026-Q1・Turbopack Production Stable / PPR 標準化 / Cache Components)・[nextjs.org/blog](https://nextjs.org/blog)・Vercel Ship 2026 Keynote
+- **Core Web Vitals**: [web.dev/articles/inp](https://web.dev/articles/inp)（Google 2024 INP 正式化）・Long Animation Frames API・`scheduler.yield()` Chrome 129+・Speculation Rules API L1
+- **Accessibility**: WCAG 2.2 W3C Recommendation (2023-10)・European Accessibility Act (EAA) 2025-06 施行・React Aria (Adobe)・Radix Primitives 2.0・情報アクセシビリティ好事例集 2026（総務省）
+- **Design Tokens**: W3C Design Tokens Format Module Draft 2026・Style Dictionary v4・Token Studio for Figma・Tailwind CSS v4 (`@theme`)
+- **Edge**: Vercel Fluid Compute (2026 GA)・Cloudflare Workers Smart Placement・Hono v5・Turso / Neon Read Replicas
+- **AI SDK**: Vercel AI SDK 5 (2026-Q1)・Anthropic Claude Opus 4.7 / Sonnet 4.5・OpenAI GPT-5・Model Context Protocol (MCP) 1.0・Pinecone / Turbopuffer
+- **Type Safety**: tRPC v11 (2025-Q3・RSC Native)・Zod v4 (2026・パフォーマンス 3 倍)・`openapi-typescript` v7・TanStack Query v5
+- **Testing**: Vitest 2.0 Browser Mode (2026-04)・Playwright MCP Integration (2026-Q1)・Kent C. Dodds Testing Trophy・Stryker Mutation Testing・Chromatic Visual Testing
+- **Security**: OWASP Top 10 Web 2025・OWASP Top 10 LLM Applications 2025・CSP Level 3 W3C・Trusted Types API・WebAuthn L3 (Passkey)・Socket.dev Supply Chain Security
+- **Sustainability**: W3C Web Sustainability Guidelines 1.0 (2024)・Sustainable Web Manifesto・Website Carbon Calculator API・CO2.js・Green Web Foundation
+- **標準仕様**: WHATWG HTML Living Standard・TC39 ECMAScript 2026 (Stage 4 提案: Records & Tuples / Temporal / Signals)・CSS Working Group Snapshot 2026（Container Queries L2 / `@scope` / `has()` / View Transitions L2）
