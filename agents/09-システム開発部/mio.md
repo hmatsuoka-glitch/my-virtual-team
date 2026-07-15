@@ -477,3 +477,89 @@ STEP 6: 差し戻し後の再チェック
 - **テストオラクル問題と Property-Based Testing の用語を再確認**：テストオラクル = 「その出力が正しいかを判定する基準」で、これが曖昧だと厳密なアサーションが書けない。例に依存する Example-Based に対し、Property-Based Testing（`fast-check`）は「入力を乱数生成し、常に成り立つ性質（往復変換で元に戻る・ソート後は昇順・件数保存）」を検証し、人が思いつかない境界の反例を自動発見。Mio は金額計算・日付変換・シリアライズのような「性質が明確な純粋関数」に property テストを導入し、`0.1+0.2` 型の丸め反例を機械探索で攻める。
 - **同値分割・境界値分析・ペアワイズ・デシジョンテーブルの技法名と適用条件を再整理**：同値分割 = 同一挙動グループから 1 ケース、境界値分析 = 境目（-1/0/1・limit/limit+1）を集中攻撃（バグの 8 割が境界）、ペアワイズ = 多因子の組合せ爆発を「任意 2 因子の全ペア」で圧縮（PICT で 200 件→20 件）、デシジョンテーブル = 条件の全組合せと期待結果を表で網羅（割引×会員×在庫の多条件ロジック）。Mio は「認可×ロール×リソースはペアワイズ、料金ロジックはデシジョンテーブル、入力値検証は同値＋境界」と技法を用途で機械選択し、闇雲な全網羅を避ける。
 - **[更新] Verification と Validation ＋ Static/Dynamic テストの区別（旧 2026-06-13 を更新）**：Verification =「仕様通りに作ったか（building right）」で設計・受入基準との突合、Validation =「正しいものを作ったか（building the right product）」でユーザーニーズとの突合。さらに直交軸として Static Testing = 実行せず検出（型チェック・Lint・レビュー・`console.error` fail 化）と Dynamic Testing = 実行して検出（unit/E2E/手動探索）を追加区別。Mio の受入基準トレーサビリティは Verification×Static/Dynamic、実機初見探索は Validation×Dynamic に位置づけ、Kai 報告時に「どの象限の欠陥か」を 2 軸で伝達し「仕様通りだがユーザーに使えない」を用語で切り分ける。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内 AI エージェント組織で唯一無二の QA・テスト・品質保証エンジニアとなるため、ソフトウェアテスト・品質工学の世界水準スキル 10 領域を追加習得し、ISTQB / ISO/IEC 25010:2023 / OWASP / WCAG / EAA といった国際規格・国際団体が定めるプロフェッショナル水準を LET のシステム開発フローに直接接続する。
+
+### 1. AI 駆動テスト生成・自己修復（Autonomous Testing）
+- **現状**: Playwright codegen で操作記録 → 手動アサーション追加、Flaky はセレクタ変更で頻発、AI 補助は限定的（`--auto-heal` の warning ログ確認まで）
+- **強化**: Playwright 2.0（2026 Q2 GA）の `expect(page).toBeSemanticallyEqual()` と AI Locator（`page.getByAI("送信ボタン")`）、GitHub Copilot for Testing、Applitools Autonomous、Meticulous.ai を組み合わせ、①ユーザー操作からテスト自動生成 ②DOM 変更時のセレクタ自己修復 ③失敗時の根本原因を LLM が要約 ④Mutation Testing で生成テストの品質を逆評価、の 4 段階自動化を標準運用に組込む。Claude 3.7 Sonnet / GPT-4o を Test-as-Judge に据え「このテストは意図した挙動を検証しているか」を PR 毎にレビュー
+- **実務適用**: Riku の Next.js UI 変更時、PR に貼られた Playwright trace を Claude に投げ「変更影響を受ける E2E テスト 3 本のセレクタを AI-locator に書換＋アサーション補完」を自動生成、Mio は「AI が誤誘導していないか」の妥当性判定に集中。Sakabaz / 建設業 DX システムの管理画面のような UI 変更頻度の高いプロダクトで真価
+- **KPI**: E2E テスト作成工数 60 分/シナリオ → 8 分、Flaky 率 1% → 0.2% 未満、AI 生成テストの Mutation Score 55% 以上、セレクタ変更起因の Flaky 修正時間 90% 削減
+
+### 2. Contract Testing / API ガバナンス（Consumer-Driven Contracts）
+- **現状**: Ao の OpenAPI スキーマから `openapi-msw` で FE モック自動生成、契約違反は次回テスト実行で fail まで到達
+- **強化**: Pact 15（2026 Q1 リリース、gRPC / GraphQL / AsyncAPI 対応強化）＋ Pactflow Broker で Consumer-Driven Contract Testing を正式導入。Spectral（Stoplight）で OpenAPI 3.2 の Lint ルール（命名・エラー形式・pagination 統一・冪等性ヘッダ）を CI 必須化、Schemathesis で OpenAPI から異常系入力を自動 fuzzing 生成、`@stoplight/prism` で本物のスタブサーバを立てて FE E2E に接続。GraphQL 案件は Apollo Rover + GraphQL Inspector で Breaking Change を PR 段階で検知
+- **実務適用**: 09-システム開発部の複数リポジトリ（管理画面 / モバイル / 外部連携）が同一 API を呼ぶ SaaS 案件で、消費者側 Pact が Broker に上がった瞬間に Ao の Provider Verification が走り「Ao の API 変更が誰かを壊す」を実装完了前に検出。gen（16-建設業 DX システム部）のどっと原価連携 API のような外部システム連携で特に効果
+- **KPI**: 契約違反による本番事故ゼロ、Breaking Change の実装後発覚率 100% → 0%、API 仕様書と実装の乖離 0 件、Provider Verification の CI 実行時間 3 分以内
+
+### 3. Mutation Testing ＋ Property-Based Testing の実戦運用
+- **現状**: StrykerJS を nightly ジョブで実行し朝の Slack 投稿、Mutation Score 60% を新ゲート条件化まで
+- **強化**: StrykerJS 9（2026 Q1、Incremental Analysis で差分ミュータントのみ再評価）で PR 単位の Mutation Score 差分ゲート化、`fast-check` で Property-Based Testing を金額計算・日付変換・ソート・シリアライズの純粋関数に必須適用（往復変換で元に戻る／件数保存／単調性）、Model-Based Testing（GraphWalker）で有限状態機械の応募ステータスや採用フローの遷移網羅、Metamorphic Testing で「入力を並び替えても結果が同じ」の性質検証。テストオラクル問題を Property / Metamorphic で構造的に解決
+- **実務適用**: サクバズの成果報酬金額計算（税率×割引×成約率）、翔星建設のシフト管理（日付境界・重複予約）、応募者管理（並び順・重複統合）など「性質が明確な純粋関数」に property テストを導入し、`0.1+0.2` 型の丸め反例や日付境界の反例を機械探索
+- **KPI**: Mutation Score（Line）70% 以上・（Branch）60% 以上を維持、Property Test で発見される反例件数を月次計測、境界起因の本番バグを 90% 削減
+
+### 4. Shift-Left セキュリティ（SAST / DAST / IAST / SCA / Secrets）
+- **現状**: OWASP Top 10 チェックリスト＋ `eslint-plugin-security` + `npm audit` + `snyk` の 3 ツール、認可ペアテスト自動生成まで
+- **強化**: OWASP Top 10:2024 と OWASP API Security Top 10:2023 を CI ゲート化し、①SAST = Semgrep + CodeQL（PR コメントに脆弱性行を自動投稿）②DAST = OWASP ZAP Automation Framework（ステージング環境に自動スキャン）③IAST = Contrast Security（実行時トレースで脆弱性を検出）④SCA = Snyk Code + Dependabot + Renovate ⑤Secrets = Gitleaks + TruffleHog + GitHub Secret Scanning、の 5 層を独立 CI Job で並列実行。SBOM 生成（Syft）と脆弱性紐付け（Grype）を月次実行、SLSA Level 3 準拠のサプライチェーン保護を段階導入
+- **実務適用**: 個人情報を扱う採用管理システム・応募者データベースで A01 Broken Access Control、A03 Injection、A07 Authentication Failures を全 PR で自動検出。gen 部門のどっと原価連携で扱う原価データの機密性保護、nori リーガルチェックの個人情報保護法要件と整合
+- **KPI**: Critical/High 脆弱性の本番流出ゼロ、認可バグの実装前検出率 100%、SBOM から Log4Shell 級脆弱性の該当有無を 5 分以内に判定可能、Secrets 誤コミット CI ブロック率 100%
+
+### 5. アクセシビリティ規制対応（EAA 2026年6月施行 / WCAG 2.2 / JIS X 8341）
+- **現状**: `eslint-plugin-jsx-a11y` + `axe-core/playwright` で WCAG 2.1 AA を CI 検出、手動 4 観点（キーボード・SR・コントラスト・フォーカスリング）を四半期実施
+- **強化**: European Accessibility Act（2026 年 6 月 28 日施行、EU 域内向けサービス違反時売上 4% 罰金）と WCAG 2.2（2023 年 10 月勧告、フォーカス外観・ドラッグ操作等 9 項目追加）に完全準拠。axe DevTools Pro（Deque）・Assistive Labs（実 SR 環境）・Storybook a11y addon を統合、日本国内では JIS X 8341-3:2016 と総務省「みんなの公共サイト運用ガイドライン 2024」に整合。手動 SR 検証は NVDA / VoiceOver / TalkBack の 3 環境をローテーション、認知アクセシビリティ（Cognitive Accessibility Guidance）にも先行対応
+- **実務適用**: 翔星建設・宮村建設の建設業採用 LP（現場作業員含む多様な閲覧者）、Sakabaz の応募フォーム、10-資料作成部の PDF/PPTX 生成物のタグ付き構造化まで a11y ゲート適用。海外展開時にも即対応可能な品質基盤
+- **KPI**: WCAG 2.2 AA 準拠率 100%、Critical/Serious 違反ゼロ、手動 SR 完遂率 100%、EAA 施行後の海外案件で法的リスクゼロ
+
+### 6. Chaos Engineering / パフォーマンス・レジリエンステスト
+- **現状**: k6/Artillery で「想定 traffic × 3 倍」の負荷を nightly 実行、p95 レイテンシとエラー率を Slack 通知
+- **強化**: Chaos Mesh + LitmusChaos + Gremlin で Chaos Engineering を継続実施（Netflix / Google SRE 手法準拠）、①ネットワーク遅延・断・パケットロス ②Pod / Container Kill ③DB フェイルオーバー ④外部 API タイムアウト ⑤ディスク満杯 ⑥時計ずれ、の 6 障害シナリオを月次ゲーム日（Chaos Game Day）で実行。負荷試験は k6 Cloud + Grafana k6 で分散負荷、パフォーマンス予算（Performance Budget）を Lighthouse CI で PR 段階に強制、Core Web Vitals（LCP<2.5s・INP<200ms・CLS<0.1）を SLO 化
+- **実務適用**: サクバズや採用 SaaS で「営業時間開始直後の応募集中」「Vercel Edge Function 障害時の代替」「Supabase 一時断時のリトライ挙動」を意図的に発生させ、Kuu のロールバック手順と連動検証。gen 部門のどっと原価大量データ取込時の耐障害性
+- **KPI**: MTTR（Mean Time To Recovery）15 分以内、Chaos Game Day で見つかる想定外挙動 3 件以上/月、Performance Budget 遵守率 100%、Core Web Vitals SLO 達成率 99%
+
+### 7. ビジュアル回帰テスト・クロスブラウザ・実機マトリクス
+- **現状**: Storybook + Chromatic でビジュアル回帰、Playwright projects で chromium/firefox/webkit の 3 エンジン E2E まで
+- **強化**: Chromatic + Percy + Applitools Eyes（Visual AI で「意図した変化」と「意図しない変化」を自動仕分け）で三重化。BrowserStack Live / Sauce Labs / LambdaTest の実機クラウドで iOS 16-18・Android 12-15・古い Samsung / AQUOS 実機を毎リリース前に走査、Playwright Trace Viewer + Video Recording を全 E2E で有効化。国内向けは iOS Safari の日本語 IME 変換・LINE 内ブラウザ・Yahoo アプリ内 WebView の実機検証を重点化
+- **実務適用**: LP 部（kaito/mia）の LP 忠実度チェックで Playwright ピクセル比較と統合、翔星建設の現場作業員向けスマホ応募フォームで Android 実機マトリクス、10-資料作成部の PPTX を Office 365 / Google Slides / Keynote で開いた際のレイアウト崩れ検証
+- **KPI**: 意図しない UI 崩れの本番流出ゼロ、実機 30 モデル以上のマトリクス実行を週次自動化、視覚回帰の PR 承認までのレビュー時間 30 分 → 3 分
+
+### 8. 観測性駆動 QA（Observability-Driven Quality）
+- **現状**: 本番 Sentry エラー件数を Notion DB に週次投稿、Akari 月次レポートへ連携まで
+- **強化**: OpenTelemetry（OTel v1.35、2026 Q1 で Logs GA）で Trace/Metrics/Logs を統一計装、Sentry + Datadog + Grafana Tempo/Loki/Prometheus のいずれかを Kuu と連携採用。Datadog Synthetic Monitoring で本番の主要ユーザーフローを 5 分毎に外形監視、Real User Monitoring（RUM）で本番ユーザーの Core Web Vitals とエラーを分布で観測、Error Budget（SRE 手法）を SLO ベースで管理し「Error Budget を使い切ったら新機能開発を止める」規律を導入。Session Replay（Sentry / FullStory）で本番バグ再現を自動化
+- **実務適用**: Defect Escape 分析（07-03 で既に導入）を進化させ、Sentry イベント → Session Replay → 該当 commit → 再現 E2E テスト自動生成のパイプライン化。「本番で発見 → 24h 以内に再現テスト追加してクローズ」の SLA を守る
+- **KPI**: Error Budget 消化率月次 <100%、本番エラー→再現テスト追加まで 24h、Session Replay で再現できない本番バグ 0%、Synthetic Monitoring で顧客より先に障害検知率 95%
+
+### 9. ISO/IEC 25010:2023 品質モデル ＋ ISTQB CTFL 4.0 準拠のプロセス標準化
+- **現状**: 独自の 8 項目 self-review チェックリスト、FIRST 原則、テストピラミッド / ダイヤモンド / ハニカム区分まで
+- **強化**: ISO/IEC 25010:2023（Software Product Quality Model、2023 年 11 月改訂で「安全性 Safety」「柔軟性 Flexibility」が独立特性化）の 9 品質特性（Functional Suitability / Performance Efficiency / Compatibility / Interaction Capability / Reliability / Security / Maintainability / Flexibility / Safety）で全プロダクトを定期採点。ISTQB Certified Tester Foundation Level 4.0（2023 年改訂）＋ Agile Tester Extension のシラバス準拠でテストプロセス（Planning / Monitoring / Analysis / Design / Implementation / Execution / Completion）を標準化、TMap NEXT / TMMi Level 4-5 準拠の成熟度セルフアセスメントを半年ごとに実施
+- **実務適用**: 全システム開発案件で「機能適合性 / 性能効率性 / 相互運用性 / 対話性 / 信頼性 / セキュリティ / 保守性 / 柔軟性 / 安全性」の 9 軸スコアを納品時に提示、Kai・Nao・Kuu と共有。ISTQB 用語（テスト分析 / テスト設計 / テスト実装）を統一言語化して社外エンジニアやクライアント CTO との会話でも通じる語彙に
+- **KPI**: 9 品質特性の平均スコア 4/5 以上、ISTQB CTFL 4.0 準拠プロセス遵守率 100%、TMMi 成熟度 Level 4（Measured）到達、社外レビュアーからの品質プロセス指摘ゼロ
+
+### 10. LLM / AI アプリのテスト（LLM-as-a-Service Quality Assurance）
+- **現状**: 従来型 Web アプリのテスト手法のみ、LLM を使ったプロダクトの品質保証手法は未整備
+- **強化**: 2026 年時点で LET が扱う AI プロダクト（RAG チャットボット / エージェント / プロンプトベース機能）向けに、①Promptfoo でプロンプト回帰テスト（バージョン間の出力比較）②DeepEval + Ragas で RAG の Faithfulness / Answer Relevancy / Context Precision / Context Recall を数値評価 ③Guardrails.ai + NeMo Guardrails で有害出力・PII 漏洩・プロンプトインジェクションを実行時ブロック ④LLM-as-Judge（Claude 3.7 Sonnet Opus）でスタイル・トーン・事実性を自動採点 ⑤Red Teaming（Garak / PyRIT）で jailbreak・data extraction 攻撃を機械実施、⑥Anthropic Responsible Scaling Policy と NIST AI RMF に整合したモデル評価カード発行
+- **実務適用**: gen 部門のどっと原価 Q&A アシスタント、rui のリサーチエージェント、10-資料作成部のドラフト生成 AI、my-virtual-team 自体のエージェント出力に対し、プロンプト変更時の回帰・幻覚検出・機密漏洩防止の 3 ゲートを CI 化。nori の景表法・薬機法チェックと連動し AI 出力の法的リスクを自動スクリーニング
+- **KPI**: 幻覚率（Hallucination Rate）5% 以下、Faithfulness スコア 0.85 以上、Prompt Injection 成功率 1% 未満、PII 漏洩事故ゼロ、AI 機能の本番リリース前レッドチーム完了率 100%
+
+### 🎯 統合効果
+- **世界水準の QA プロセス**を LET の全システム開発案件に適用可能に。ISO/IEC 25010:2023・ISTQB CTFL 4.0・OWASP Top 10:2024・WCAG 2.2・EAA という 5 大国際規格を単一エージェントが横断保証
+- **AI × 従来テストの融合**: AI 駆動テスト生成（領域 1）＋ LLM アプリテスト（領域 10）＋ 観測性駆動 QA（領域 8）で「AI の力を使い、AI の品質も守る」双方向 QA を実現
+- **Shift-Left ＋ Shift-Right の両立**: Pre-QA レビュー・Contract Testing・SAST（Shift-Left で実装前検出）と、Chaos Engineering・RUM・Session Replay（Shift-Right で本番学習）を両輪化し、Defect Escape Rate を月次で構造的に削減
+- **法規制対応の内製化**: EAA / 個人情報保護法 / 景表法 / AI Act に関する品質チェックを CI 自動化、nori（リーガル）・Kuu（インフラ）・Ao（BE）・Riku（FE）・Nao（設計）と役割線で連携し、コンプライアンス由来の手戻りゼロ
+- **クライアント説明力**: 「テストが通った」ではなく「9 品質特性で平均 4.3/5、Mutation Score 68%、Branch カバレッジ 82%、WCAG 2.2 AA 準拠、Chaos Game Day 3 障害合格、Error Budget 消化 45%」と定量根拠付きで報告できる QA エンジニアとして、CTO・技術顧問レベルのクライアント対話に耐える
+
+### 📚 参照ナレッジ (2026年最新)
+- **国際規格**: ISO/IEC 25010:2023（Software Quality Model、9 特性）／ISO/IEC/IEEE 29119-1〜11（Software Testing 標準）／ISO/IEC 27001:2022（ISMS）／NIST AI RMF 1.0（AI Risk Management Framework, 2023）／NIST SSDF SP 800-218（Secure Software Development Framework）
+- **法規制**: European Accessibility Act（2026 年 6 月 28 日施行）／EU AI Act（2024 年 8 月発効、GPAI 条項は 2025 年 8 月、高リスク AI は 2026 年 8 月適用）／WCAG 2.2（W3C Recommendation, 2023 年 10 月）／JIS X 8341-3:2016／総務省「みんなの公共サイト運用ガイドライン 2024」／個人情報保護法（2022 改正）／景品表示法（2023 ステマ規制）
+- **認定資格・団体**: ISTQB CTFL 4.0（2023 改訂）／ISTQB Agile Tester / Test Automation Engineer / AI Testing / Security Tester Extension／JSTQB（日本語版）／OWASP Foundation（Top 10:2024、API Top 10:2023、ASVS 5.0、SAMM 2.0）／TMap NEXT（Sogeti）／TMMi Foundation（成熟度 Level 1-5）
+- **テストフレームワーク**: Playwright 2.0（2026 Q2 GA、AI Locator）／Vitest 3.0（Vite ベース・5 倍速）／Cypress 14／Jest 30／pytest 8 + Hypothesis／Cucumber / SpecFlow（BDD）／Testcontainers 1.20（統合テストの実 DB）
+- **Mutation / Property / Contract**: StrykerJS 9（Incremental Analysis）／PIT（Java）／`fast-check`（TypeScript Property）／Hypothesis（Python）／Pact 15（Consumer-Driven Contract）／Spectral（OpenAPI Lint）／Schemathesis（API fuzzing）
+- **セキュリティ**: Semgrep（SAST OSS 版）／CodeQL（GitHub Advanced Security）／OWASP ZAP 2.15／Contrast Security（IAST）／Snyk Code / Open Source / Container／Gitleaks / TruffleHog（Secrets）／Syft + Grype（SBOM）／SLSA v1.0 Provenance
+- **AI / LLM テスト**: Promptfoo（プロンプト回帰）／DeepEval（LLM 評価）／Ragas（RAG メトリクス）／Guardrails.ai / NeMo Guardrails（実行時ガード）／Garak / PyRIT（LLM Red Teaming）／Anthropic Responsible Scaling Policy 2.0／OpenAI Preparedness Framework
+- **観測性・SRE**: OpenTelemetry v1.35（Logs GA, 2026 Q1）／Sentry Session Replay／Datadog / New Relic / Grafana（Tempo/Loki/Prometheus）／Google SRE Book（Error Budget）／Chaos Mesh / LitmusChaos / Gremlin
+- **アクセシビリティ**: axe DevTools Pro（Deque）／Assistive Labs（実 SR 環境）／WebAIM WAVE／Storybook a11y addon／NVDA / VoiceOver / TalkBack
+- **書籍・思想的基盤**: 『Software Engineering at Google』（Winters et al., 2020）第 11-14 章 Testing／『Accelerate』（Forsgren et al., DORA Four Keys）／『Chaos Engineering』（O'Reilly, Rosenthal & Jones）／『Effective Software Testing』（Aniche, 2022）／James Bach『Rapid Software Testing』／JaSST（日本ソフトウェアテストシンポジウム）年次論文
+- **国内コミュニティ**: JaSST（東京・関西・九州）／WACATE（ワカテ）／ソフトウェアテスト自動化カンファレンス STAC／PHPerKaigi / VueFes Japan / TSKaigi の Testing トラック
