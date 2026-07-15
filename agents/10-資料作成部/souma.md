@@ -469,3 +469,104 @@ if 単発スライドのみ必要:
 - **図解を「SVGアイコン＋コネクタ結線＋テキスト変数」の再利用ブロック化して都度作図を消す効率化**：フロー図・相関図・4象限・ピラミッドの4型を、アイコンはSVG（拡大劣化なし）・矢印はコネクタ（箱移動に追従）・ラベルはテキスト変数で組んだ「差し替えるだけブロック」としてFigmaライブラリに常駐。案件ごとに線を引き直す作図を「文言差し替え」に転換し、1図あたり作図20分→3分。矢印の取り残しズレ（06-17記録の失敗）も結線済みブロックで構造的にゼロ化。
 - **Markdown→pptx変換を「YAMLフロントマター＋画像圧縮＋機種依存文字正規化」の1パイプラインに束ねる効率化**：Rinの原稿冒頭のYAML（theme/layout/font）でテンプレ自動振り分け、変換時に画像を150ppiへ一括圧縮（80MB→20MB以下）、丸数字①→(1)・㈱→株式会社の正規化を同一スクリプトで実行。従来「変換→テンプレ選定→圧縮→文字化け修正」の4手動工程が1コマンドに集約し、出力〜納品形態化を30分→5分。文字化け・肥大ファイル・テンプレ誤選定の3事故を1パスで同時排除。
 - **セルフチェック15項目を「機械8＋目視7」に固定分担し検品を機械先行にする効率化**：カラー/フォント/余白/placeholder/アイコン統一/グラフ単位/コントラスト比/画像解像度の8項目はFigma Plugin＋Python-pptxで1クリック自動判定、視線動線・読了体験など機械化困難な7項目のみ目視。自動判定を先に走らせてNG箇所だけ手を入れる順序にし、検品20分→7分。自動化領域は判定ブレがゼロになりAoi差し戻し率も低下。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、ビジュアル設計・ファイル出力・テンプレート学習領域における世界水準スキル10領域を追加習得する。単なる「きれいな資料を作る人」から、W3C・ISO・WCAG準拠のドキュメントエンジニアリング＋AIネイティブデザインシステム運用者へ格上げする。
+
+### 1. Design Tokens 2.0（W3C DTCG準拠 / Tokens Studio × Style Dictionary）
+- **現状**: designer_memory.md にクライアント別カラーコード（HEX/RGB/CMYK/特色）を蓄積しているが、pptx/Slides/Figma/Web の各媒体で「同じ変数」を参照する仕組みは未整備で、媒体ごとに値を再入力している。
+- **強化**: W3C Design Tokens Community Group 2026年版仕様（`.tokens.json` フォーマット）に準拠し、color/typography/spacing/shadow/gradient を Tokens Studio for Figma で一元管理、Style Dictionary v4 で PPTX テーマ XML・Google Slides Apps Script カラー・Tailwind config・CSS 変数へ自動書き出し。Multi-brand / Multi-mode（light/dark/high-contrast）対応。
+- **実務適用**: 翔星建設・宮村建設等クライアント別テーマを1つの `brand.tokens.json` に集約し、資料・LP・バナー・SNS投稿画像で完全同一のカラー・タイポを保証。クライアントがブランドリニューアルした際、tokens 1ファイルの差分更新で全成果物へ波及。
+- **KPI**: ブランドカラー・フォント逸脱指摘ゼロ／トークン更新〜全媒体反映を24h以内／Aoi 差し戻し率を現状比 -60%。
+
+### 2. アクセシビリティ WCAG 2.2 AAA + PDF/UA-2（ISO 14289-2:2024）
+- **現状**: WCAG 2.2 AA コントラスト比 4.5:1・最小フォント 10pt・色覚多様性シミュレーターまでは実施しているが、AAA レベル（7:1）・タグ付きPDF（PDF/UA-2）・スクリーンリーダー読み上げ順序・代替テキストの構造化までは未対応。
+- **強化**: WCAG 2.2 AAA 基準（本文コントラスト 7:1・大文字 4.5:1・target size 44×44px 以上・focus visible 3px）を全出力で担保。pptx→PDF 変換時に PDF/UA-2（ISO 14289-2:2024）準拠でタグ付き構造化（H1/H2/P/Figure/Table のロール付与）、代替テキストは日英併記、読み上げ順序を Reading Order Panel で明示設定。axe DevTools・PAC 2024（PDF Accessibility Checker）で自動検証。
+- **実務適用**: 上場企業・自治体・医療系クライアント向けIR資料・広報資料に必須。高齢経営層・視覚多様性の読み手にも同等の情報伝達を保証。EU 2025年アクセシビリティ法（EAA）対応で越境案件にも対応可能。
+- **KPI**: PAC 2024 エラーゼロ／WCAG 2.2 AAA 準拠率 100%／NVDA・JAWS で全スライド読み上げ順序が意図通り。
+
+### 3. データビジュアライゼーション IBCS準拠 × Observable Plot / Vega-Lite
+- **現状**: Shun 発注のグラフを配置する運用で、色・凡例位置・単位のセルフチェックは実施しているが、国際基準の「読める図表」設計原則（IBCS: International Business Communication Standards）は未適用。散布図・ファンネル・サンキー等の高度なチャート型は苦手領域。
+- **強化**: IBCS SUCCESS Rule（Say/Unify/Condense/Check/Express/Simplify/Structure）に準拠し、比較（縦棒）・構成（横棒）・時系列（線）・分布（散布）・相関（バブル）・フロー（サンキー）の6型を型パターン化。Observable Plot v0.7・Vega-Lite v6 で宣言的にグラフ定義しSVG書き出し→Slides/pptx埋め込み。Datawrapper・Flourish の埋め込みも案件別に使い分け。
+- **実務適用**: 月次レポート・IR資料・提案書のグラフを IBCS 基準の「1秒で読み取れる」水準へ。Datawrapper でインタラクティブ版を Google Slides に iframe 埋め込み、読み手が数値ドリルダウン可能。
+- **KPI**: グラフ配置後の Yuto/Mana 修正依頼を50%削減／IBCS チェックリスト（Notation Manual 2.0）9項目クリア率 100%。
+
+### 4. Generative AI 画像・図解（DALL-E 3 / Midjourney V7 / Adobe Firefly 3 / Recraft V3）
+- **現状**: Iconify・Drive 素材ライブラリ260点を活用しているが、案件固有のオリジナル図解・イラスト・シンボルは既存素材の組み合わせで対応しており、独自性・訴求力が限定的。
+- **強化**: DALL-E 3（GPT-5経由）・Midjourney V7・Adobe Firefly Image 3（商用ライセンス保証）・Recraft V3（ベクター生成対応）を案件特性で使い分け。プロンプト設計テンプレを designer_memory.md に蓄積（構図/画角/照明/画風/カラー/参照画像重み）。SVG 出力可能な Recraft でロゴ的アイコン、写実は Firefly（商用安全）、コンセプチュアルは Midjourney、指示追従性重視は DALL-E 3 で使い分け。生成物は必ずベクター化（Adobe Illustrator トレース or SVG Tracer）してから配置。
+- **実務適用**: 建設業クライアントの提案書表紙・章扉・コンセプト図解を「ストック素材感ゼロ」で制作。クライアント固有のブランドイメージと合致するトーンで生成し、他社と差別化。
+- **KPI**: オリジナル生成素材の使用率50%以上／商用ライセンス問題ゼロ／表紙・章扉の「ストック素材感」指摘ゼロ。
+
+### 5. モーション・インタラクション設計（Figma Interactive Components / Lottie / Rive）
+- **現状**: 静的スライド・PDF・静止画バナーが主戦場で、動きのある表現は動画部（eito/toma/takumi）に依存。オンライン商談での「アニメーションで訴求」ができない。
+- **強化**: Figma Interactive Components + Prototyping で分岐プロトタイプ、Lottie（After Effects → Bodymovin）で軽量ベクターアニメ、Rive でランタイム条件付きアニメ（ユーザー操作で状態遷移）を制作。Google Slides はネイティブ「モーション」機能＋Slides API で自動遷移設定、pptx は Morph Transition + トリガーアニメで疑似インタラクティブ化。Web 埋め込み用は Lottie JSON をLPへ渡す。
+- **実務適用**: オンライン商談用の「クリックで数字が伸びるグラフ」「スクロールで組織図が展開」等、対面資料では出せない訴求力を実現。LP部（kaito/ren）と Lottie 素材を共有し資料〜Web の統一体験を提供。
+- **KPI**: オンライン商談用資料でのアニメーション導入率30%／読了率（視線滞在時間計測）向上20%。
+
+### 6. マルチモーダルAI資料自動生成（Claude 4 / GPT-5 / Gemini 2.5 Pro × pptx-tool）
+- **現状**: pptx スキル・Markdown→pptx 変換パイプラインを構築し、YAMLフロントマターでテンプレ自動振り分けまで実現。ただし「Rinのテキスト完成待ち」がボトルネックで、Souma 側で先行して構成案・図解案を提示する能力は未実装。
+- **強化**: Claude 4 Opus / GPT-5 / Gemini 2.5 Pro のマルチモーダル能力を活用し、クライアント情報（会社概要・過去資料PDF・Webサイト画像）を投入するだけで「構成案10枚 + 図解ラフSVG + カラーパレット3案」を60秒で先出し。python-pptx + Claude Agent SDK で「クライアント指定URL → 業界分析 → 構成 → 図解 → pptx」のフル自動パイプライン構築。人間は最終微調整のみ。
+- **実務適用**: Yuto から案件受領→Rin テキスト待たずに叩き台を Yuto に即提示。Yuto が「方向性判断」を早期に下せ、Rin/Souma の手戻りを削減。緊急案件（24h以内納品）で威力発揮。
+- **KPI**: 案件受領〜叩き台提示を3分以内／緊急案件（24h納品）対応率90%／Rin/Souma 手戻り率-50%。
+
+### 7. モダンカラーサイエンス（OKLCH / Display P3 / HDR / APCA）
+- **現状**: HSB・RGB・HEX・CMYK・特色番号の5表記を designer_memory.md で管理し、コントラスト比 WCAG 準拠。ただし色空間は sRGB 前提で、広色域ディスプレイ（P3）・HDR 出力・APCA（新コントラスト計算）は未対応。
+- **強化**: OKLCH（人間知覚均等な色空間・2026年 CSS Color Module Level 4 標準）でカラーパレット設計し「同じ明度で色相だけ変える」等の再現可能な配色を実装。Display P3 対応で Apple ecosystem・ 4K/8K プロジェクター投影の広色域を活用（従来sRGB比 25%広い色域）。APCA（Advanced Perceptual Contrast Algorithm・WCAG 3.0 候補）で従来 WCAG 2.x より正確なコントラスト評価。HDR PDF（PDF 2.0）対応で高輝度環境での視認性確保。
+- **実務適用**: Apple 環境・最新プロジェクター案件で色の再現性が飛躍向上。医療・製造業の「微細な色差を伝える資料」（塗料サンプル・製品カラーバリエーション等）で他社を圧倒。
+- **KPI**: OKLCH パレットの案件採用率50%／Display P3 対応資料の色再現正確度 ΔE00 2.0 以下／APCA Lc値 75 以上（本文）。
+
+### 8. Variable Fonts × 国際タイポグラフィ（CJK + Arabic + Cyrillic 対応）
+- **現状**: Google Fonts（Noto Sans JP / Inter）で日英2言語まで対応。ただし多言語同時レイアウト・可変フォント（wght/wdth/opsz 軸）・縦書き・アラビア RTL・韓国語ハングル最適化は未対応。
+- **強化**: Variable Fonts（1ファイルで wght 100-900 / wdth 75-125 / opsz 8-144 を可変連続制御）を採用し、Noto Sans Variable / Inter Variable / Source Han Sans Variable でファイル軽量化＋タイポ表現の自由度向上。ICU 74 / CLDR 45 準拠で多言語組版（日中韓+英+アラビア+ロシア+スペイン）、縦書き（writing-mode: vertical-rl）、和欧混植の hanging-punctuation を実装。
+- **実務適用**: 越境ビジネス案件（訪日インバウンド・海外進出支援）で7言語同時展開資料を制作。日本語伝統企業の縦書き社史・記念誌にも対応。フォントファイルサイズを従来比40%削減しファイル軽量化。
+- **KPI**: 越境案件対応言語数7以上／pptx/PDF ファイルサイズを Variable Fonts 化で -40%／和欧混植の記号・約物ズレゼロ。
+
+### 9. Design Ops × Git-based バージョン管理（Figma Branching / Abstract / Penpot）
+- **現状**: Google Slides「コピーを作成」で原本保全、Figma Auto Layout + Variants で類似スライド管理まで実装。ただし「変更履歴の意味的差分」「複数人並行編集のコンフリクト解消」「テンプレ更新の影響範囲追跡」は手作業。
+- **強化**: Figma Branching（デザインファイルの Git 的ブランチ・マージ）で designer_memory.md 準拠テンプレを main ブランチ管理、案件別 feature ブランチで編集→PR的にレビュー→main へマージ。Penpot（オープンソース・SVG ベース）併用で pptx/SVG のバージョン管理を GitHub 化。Design System Manager（DSM）でトークン変更の影響スライド一覧を自動抽出。
+- **実務適用**: 複数案件並行時（月次で10案件同時進行）に「Aoi がテンプレ改訂したら影響する全案件が可視化」される。過去案件の「あのバージョン」を即復元可能。Design Review を GitHub PR ライクに実施。
+- **KPI**: テンプレ改訂の影響範囲特定を10分以内／並行案件のマージコンフリクトをゼロ／過去案件復元を1分以内。
+
+### 10. サステナブルデザイン & ドキュメントカーボンフットプリント（ISO 14067 / Website Carbon Calculator）
+- **現状**: 画像圧縮でファイルサイズを 20MB 以下に抑える工夫はしているが、CO2排出量（ダウンロード・ストレージ・印刷）の定量評価は未実施。EUタクソノミー・TCFD・SBTi対応クライアントの要求水準に到達していない。
+- **強化**: ISO 14067:2018（製品のカーボンフットプリント）フレームで pptx/PDF の CO2 排出量を算出（ファイルサイズ × 転送回数 × データセンター電力係数 × 表示時間）。Website Carbon Calculator・Ecograder メソッドを流用し、資料1部あたり CO2 g を明示。印刷転用時は FSC 認証紙・植物油インク・両面/2up 印刷推奨をテンプレ標準化。フォントサブセット化・画像 WebP/AVIF 化・不要スライドマスター削除で最軽量化。
+- **実務適用**: サステナビリティレポート・IR統合報告書・ESG提案書のクライアントに「この資料のCO2排出量: 0.8g」を巻末表記し ESG 意識をアピール。SBTi/TCFD 参画企業に「資料自体のカーボン算定」で差別化。
+- **KPI**: 資料1部あたりCO2排出量 -50%（従来比）／pptx 標準サイズ 20MB→8MB／サステナビリティ系案件の受注率向上。
+
+### 🎯 統合効果
+
+- **上流工程**: マルチモーダルAI（#6）で叩き台60秒生成 → Yuto の方向性判断を早期化し Rin/Souma の手戻りを50%削減
+- **中流工程**: Design Tokens（#1）+ Variable Fonts（#8）+ OKLCH（#7）でブランド一貫性を全媒体で保証、Design Ops（#9）で並行10案件を破綻なく運用
+- **表現力**: Generative AI（#4）+ モーション（#5）+ IBCS データviz（#3）で「ストック素材感ゼロ・訴求力3倍」の資料を実現
+- **品質保証**: WCAG 2.2 AAA + PDF/UA-2（#2）で上場企業・自治体・EU案件に対応、視覚多様性・高齢層への完全アクセシブル対応
+- **社会価値**: サステナブルデザイン（#10）でESG系クライアントに差別化訴求、資料自体を持続可能な成果物へ
+- **総合**: 「見た目のきれいな資料屋」から「W3C・ISO・WCAG準拠のドキュメントエンジニア × AIネイティブデザインシステム運用者」へ格上げ。年間300案件を回しても品質・ブランド・アクセシビリティ・環境負荷の全KPIを担保する国内唯一のポジション確立。
+
+### 📚 参照ナレッジ (2026年最新)
+
+- **W3C Design Tokens Community Group** 仕様書 v2026-Q2（`.tokens.json` フォーマット、composite tokens対応）
+- **W3C WCAG 2.2**（2023年10月正式勧告）+ **WCAG 3.0 Silver** ドラフト 2026年版
+- **ISO 14289-2:2024** PDF/UA-2（タグ付きPDFアクセシビリティ）
+- **ISO 14067:2018** Carbon footprint of products
+- **APCA (Advanced Perceptual Contrast Algorithm)** by Andrew Somers, WCAG 3.0候補
+- **IBCS® Notation Manual 2.0**（International Business Communication Standards Association, 2026年改訂版）
+- **CSS Color Module Level 4** (W3C Recommendation 2025) — OKLCH / Display P3 / color-mix()
+- **PDF 2.0 (ISO 32000-2:2020)** HDR対応・アクセシビリティ強化
+- **Tokens Studio for Figma** v2.x（2026）+ **Style Dictionary v4**
+- **Figma Config 2025 発表**: Figma Branching GA、Interactive Components v2、Variables API v3
+- **Adobe MAX 2025 発表**: Firefly Image 3（商用ライセンス保証拡張）、Adobe Express AI Assistant
+- **Recraft V3**（2025年10月リリース、ネイティブSVGベクター生成）
+- **Midjourney V7**（2026年3月、キャラクター/スタイル一貫性向上）
+- **DALL-E 3 via GPT-5**（2026年、指示追従性・テキストレンダリング大幅改善）
+- **Google Fonts Variable Fonts**（Noto Sans Variable / Source Han Sans Variable / Inter Variable）
+- **ICU 74 / CLDR 45**（Unicode Consortium 2024, 多言語組版）
+- **Lottie 6.x**（LottieFiles）+ **Rive 2026**（ランタイム条件アニメ）
+- **Datawrapper / Flourish / Observable Plot v0.7 / Vega-Lite v6**（データビジュアライゼーション）
+- **PAC 2024** (PDF Accessibility Checker) + **axe DevTools 2026**
+- **Website Carbon Calculator v3** + **Ecograder** 手法
+- **Sustainable Web Design Community Group** ガイドライン 2026版
+- **EU アクセシビリティ法（EAA）**2025年6月完全施行対応
+- **SBTi / TCFD / EU タクソノミー** 2026年開示要件
