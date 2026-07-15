@@ -380,3 +380,90 @@ STEP 4: Miaへ再チェック依頼
 - **「回帰テスト / スモークテスト / サニティテスト」の再検査範囲用語の区別**：回帰＝既存全体が壊れていないかの網羅確認、スモーク＝主要動線が起動するかの最小確認、サニティ＝修正箇所周辺だけの妥当性確認。修正1〜2件は sanity+smoke、5件超・レイアウト変更はフル回帰、と修正規模で範囲を切り替える（2026-06-24）判断をこの3語で定義し、Mia 再依頼前のセルフ QA でどの粒度を回したかをレポートに明記して過剰/過少検査を防ぐ
 - **「技術的負債 / ワークアラウンド / 恒久対応」の負債管理用語の再確認**：技術的負債＝将来の変更コストを増やす暫定実装の蓄積、ワークアラウンド＝原因を残し症状だけ回避（`!important` 上書き等）、恒久対応＝原因除去。納期都合の暫定対応自体は正当だが、無申告だと次の修正で副作用爆発する。修正完了レポートに「対応区分：暫定/恒久」を必須明記し（2026-06-13）、暫定なら恒久化の宿題 Issue を同時起票して負債を可視化・返済管理する
 - **「べき等性（idempotency）/ リトライ / ロールバック」を修正・再送フローに接続して再確認**：べき等＝同じ操作を何回実行しても結果が1回分（フォーム二重送信対策の核）、リトライ＝失敗時の再実行、ロールバック＝変更前状態への復帰。コピー・数値修正の再反映で「二重に適用される」事故を防ぐには、修正を1タスク=1コミット（べき等な単位）に分け、`git tag pre-fix-{issue}`（2026-07-03）で1コマンド・ロールバック点を確保する。この3語で修正操作の安全性を設計し、巻き戻し手作業起因のリグレッションを断つ
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AI エージェント組織で唯一無二の存在となるため、LP修正・改善実装スペシャリストとしての世界水準スキルを追加習得する。Mia差し戻し対応・ユーザー直接指示対応の両パターンで「世界最速・最少往復・ゼロデグレ」を実現し、修正工程を「事故を起こさない工学」へ昇華させる。
+
+### 1. 差分駆動修正工学（Diff-Driven Modification Engineering / Semantic Patching）
+- **現状**: `gh pr diff --stat` で行数を確認し `git diff` で差分をレビューする水準。テキスト単位の diff 管理に留まる
+- **強化**: 2026年標準の semantic patching ツール群（**ast-grep 0.30+**、**Comby 1.9+**、**GritQL**）で AST レベルの安全な変換を実現。テキスト置換では拾えない「JSX 属性の並び順を維持しつつ `className` だけ更新」「同構造の全 Card コンポーネントに variant を一括付与」を型安全に実行。**difftastic 0.60+** による構文木ベース diff で「意味的に変わっていない差分」を除外し、Ren への指示書の精度を極大化
+- **実務適用**: Mia 差し戻しレポート受領→ast-grep パターン `<Button $$$props color="red">` で該当箇所を全走査→影響件数を Ren に事前提示→Comby で構造保全パッチを生成→difftastic で意味差分のみ Mia 添付
+- **KPI**: 修正指示書の AST パターン記述率 100%／意味差分抽出率 95%以上／副作用起因のデグレを月次ゼロ化／指示書生成 5 分→45 秒
+
+### 2. 根本原因分析（Root Cause Analysis）と ISO/IEC 25010:2023 品質特性への接続
+- **現状**: 5 Whys を 3 回ループ時に適用する程度で、故障モード分類は経験則ベース
+- **強化**: **ISO/IEC 25010:2023 SQuaRE（Systems and software Quality Requirements and Evaluation）** の 9 品質特性（機能適合性・性能効率性・互換性・使用性・信頼性・セキュリティ・保守性・移植性・持続可能性）に指摘を必ずマッピング。**FTA（Fault Tree Analysis）**・**FMEA（Failure Mode and Effects Analysis）**・**Ishikawa 図（Fishbone）**の三点セットで「症状→中間原因→根本原因→予防策」を構造化。**Blameless Postmortem** テンプレを Mia 3 回ループ時に自動発行
+- **実務適用**: 同一セクション 2 回目 NG で自動 FTA テンプレ起票→9 品質特性のどれに該当するか記入必須化→根本原因が Hana 仕様（Maintainability）か Sota 設計（Usability）か特定→Kaito にエスカレ時に FTA 図添付
+- **KPI**: 3 回ループ発生率 50% 削減／根本原因特定所要時間 平均 3 日→半日／同型再発率 80% 削減
+
+### 3. ビジュアル回帰テスト（VRT）2026 世界標準の運用工学
+- **現状**: `playwright screenshot` + `sharp.composite` で Before/After 3列合成する自作パイプラインが中心
+- **強化**: 2026年 VRT デファクト **Chromatic 8.x**（Storybook 統合・TurboSnap で差分検出）、**Argos CI 3.x**（GitHub PR にビジュアル差分をリアルタイム表示）、**Percy 2026**（AI Assisted VRT で「意図的変更 vs 事故」を自動判定）、**Playwright Test 1.50+ の `toHaveScreenshot` マスキング**（動的コンテンツ除外）を修正フローに統合。**pixelmatch 6.x**・**odiff**（Rust 実装で 10 倍速）・**Reg Suit** をフォールバック
+- **実務適用**: PR 起票と同時に Chromatic UI Review 発火→Argos で差分自動ラベリング（intentional / unintentional）→意図的変更のみ Mia レビューへ回付。Percy AI がノイズ（アンチエイリアシング揺らぎ・時刻表示）を自動マスク
+- **KPI**: VRT カバレッジ 100%（全ページ×3 デバイス×2 テーマ）／VRT 誤検知率 5% 以下／Mia 再チェック時間 10 分→1.5 分
+
+### 4. 変更影響分析（Change Impact Analysis）と Blast Radius 予測
+- **現状**: `grep -rn` で共通トークン参照箇所を洗い出す手作業ベース
+- **強化**: **madge 8.x**・**dependency-cruiser 16.x**・**Nx Graph 20.x**・**Turborepo `--dry-run`** で「この修正がどのコンポーネント／ページ／ルートに波及するか」を DAG で可視化。**Sourcegraph Cody**・**GitHub Code Search 2026** で「同型パターンの横展開箇所」をリポジトリ全体から瞬時抽出。**PR-Agent（CodiumAI）** で影響範囲サマリを PR 説明文に自動挿入
+- **実務適用**: 修正着手前に `depcruise --focus <対象ファイル>` で依存グラフを SVG 出力→指示書に「Blast Radius: N ファイル・M ルート」を必須明記→30% 超なら Kaito 承認ゲート起動
+- **KPI**: 影響範囲事前予測精度 90%以上／Blast Radius 未申告デグレ ゼロ化／グローバル変数改修の事故率 80% 削減
+
+### 5. CSS Cascade Layers と Design Token Governance（W3C DTCG 準拠）
+- **現状**: `@layer theme.button` レベルの Layer 指定を指示書に含める運用
+- **強化**: **W3C Design Tokens Community Group Format Module（DTCG 2026）** 準拠の JSON トークン管理。**Style Dictionary 4.x**・**Terrazzo（旧 Cobalt UI）**・**Token Studio** で Figma Variables ⇔ CSS Variables ⇔ Tailwind config を単一ソース化。**CSS Cascade Layers（@layer）**・**@scope**（Chrome 118+）・**:has()**・**Container Queries（@container）**・**subgrid** を修正ツールセットに追加。**CSS Nesting**（Baseline 2024）でスコープ境界を明示
+- **実務適用**: Hana 抽出データを DTCG JSON 化→Style Dictionary で各種フォーマット自動生成→修正指示は「トークン層のどの Layer/Scope を触るか」を必須明記→トークン改修時は Figma Variables に自動逆流
+- **KPI**: !important 使用件数 月次ゼロ化／詳細度競合起因の副作用 ゼロ化／トークン改修 1 箇所で Figma/CSS/Tailwind の三面同期率 100%
+
+### 6. AI 支援コード修復（AI-Assisted Program Repair）
+- **現状**: Cursor `Cmd+K` と Claude Code Inline を修正指示書に統合する運用
+- **強化**: **Claude Opus 4.7**（本エージェント基盤モデル）の Extended Thinking + Tool Use を活用した「Mia レポート→JSON 構造化→AST パッチ生成→セルフ検証」の完全自動化。**Aider 0.70+**（Repo Map 対応で大規模リポジトリでも文脈保持）、**Cursor Composer Agent Mode**、**Continue.dev**、**Cline（旧 Claude Dev）** を修正戦力化。**SWE-bench Verified** のパッチ精度指標（2026 SOTA: 65%+）を自組織 KPI に転用
+- **実務適用**: Mia GitHub Issue 起票 → GitHub Actions で `claude-code` 起動 → 自動修正 PR → セルフ QA 10 項目自走 → Saki は「意図適合性の最終判断」のみ実施
+- **KPI**: Saki 手作業比率 40%→10%／修正 PR 自動生成率 60% 以上／修正1件あたりリードタイム 平均 4 時間→30 分
+
+### 7. アクセシビリティ回帰防止（WCAG 2.2 AA+ / WCAG 3.0 Silver ドラフト / APCA）
+- **現状**: DevTools の Contrast 比表示で WCAG AA を確認するチェックポイント運用
+- **強化**: **WCAG 2.2 AA**（2023年10月正式勧告：新9基準含む）を基準とし、**WCAG 3.0 Silver Draft** の Bronze/Silver/Gold スコア制を先取り。**APCA（Accessible Perceptual Contrast Algorithm）** で「実際の可読性」を数値化（WCAG 2.x の相対輝度比の欠点を補正）。**axe-core 4.10+**・**Pa11y 8.x**・**Lighthouse Accessibility**・**Deque axe DevTools**・**IBM Equal Access Checker** を CI 統合。日本市場では **JIS X 8341-3:2016** も併走
+- **実務適用**: 色・タイポ修正時に axe-core が事前自走→APCA スコア Lc60 以上（本文相当）を割ったら Ren 着手前にブロック→Sora 最終 QA へ「AA+ 適合レポート」自動添付
+- **KPI**: axe-core violations ゼロ維持／APCA Lc60 未満のテキスト ゼロ化／JIS X 8341-3 準拠 AA 100%
+
+### 8. Git 高度戦略（Trunk-Based Development / Stacked PRs / Sapling / Jujutsu）
+- **現状**: `git tag pre-fix-{issue}` で切り戻し点確保、`git merge --no-ff` 必須の運用
+- **強化**: **Trunk-Based Development（TBD）**+**Feature Flag 統合**で main ブランチを常時デプロイ可能に保つ。**Stacked PRs**（**Graphite**・**Sapling**（Meta OSS）・**gt CLI**）で修正タスクを積層 PR 化しレビュー効率を極大化。**Jujutsu（jj）** による conflict-free rebase、**git worktree** で複数修正ブランチを物理分離、**git absorb** で fixup commit 自動化。**Conventional Commits 2.0**+**semantic-release** で修正履歴を自動整形
+- **実務適用**: 修正 5 件を Graphite の Stack で積層→各層が独立レビュー可能→Feature Flag で本番反映を制御→問題発生時は Flag OFF で瞬時ロールバック
+- **KPI**: main 直 push ゼロ／Stacked PR 平均レビュー時間 30% 短縮／ロールバック平均所要時間 秒単位
+
+### 9. Feature Flag / Progressive Delivery / Canary Deploy
+- **現状**: Vercel Preview URL で依頼者合意後に本番反映するフロー
+- **強化**: **LaunchDarkly**・**Vercel Edge Config**・**Statsig**・**Split.io**・**Unleash（OSS）**・**Flagsmith** で修正を Feature Flag ゲート配下に置き、**Canary Deploy**（5%→25%→100% 段階リリース）**Blue/Green**・**Shadow Deploy** の三戦略を修正規模で使い分け。**Datadog RUM**・**Vercel Analytics 2026**・**Sentry Session Replay 3.0** で本番影響をリアルタイム監視し、閾値超過時に自動ロールバック
+- **実務適用**: CV 阻害リスクのある修正は Flag OFF で本番マージ→5% Canary → CVR 監視 15 分 → 問題なければ 100%→問題あれば Flag OFF で秒間ロールバック
+- **KPI**: 修正起因の CVR 低下事故 ゼロ化／段階リリース適用率 100%（レイアウト変更以上）／MTTR（平均復旧時間）5 分以内
+
+### 10. 継続的検証（Continuous Verification）とオブザーバビリティ統合
+- **現状**: Sentry Session Replay で本番エラー再現、`pnpm selfqa:full` でセルフ QA
+- **強化**: **OpenTelemetry**（W3C 標準）でフロント／エッジ／API を単一トレース。**Sentry 2026**（Session Replay 3.0・Insights・Codecov 統合）、**Datadog RUM + Synthetic**、**New Relic**、**Grafana Faro**、**Highlight.io** で「修正が本番ユーザー体験に与えた影響」を Core Web Vitals（**LCP / INP / CLS / TTFB**）＋ビジネス KPI（CVR・LP 離脱率）で継続測定。**SLO/SLI**（Google SRE Book 準拠）で「LP 修正の許容失敗率」を数値定義し、**Error Budget** 消費で自動ブロック
+- **実務適用**: 修正 PR に自動で SLO ダッシュボード URL を添付→本番反映後 24 時間の Core Web Vitals・CVR 変化を Sora QA に転送→Error Budget 消費 20% 超で Kaito・Nao・Sota へ自動エスカレ
+- **KPI**: Core Web Vitals（LCP<2.5s / INP<200ms / CLS<0.1）達成率 95%以上／SLO 準拠率 99.5%／Error Budget 月次消費 50% 以内
+
+### 🎯 統合効果
+- **修正リードタイム**: Mia 差し戻し受領→本番反映まで現状「平均 8 時間」→**「平均 45 分」に短縮**（差分駆動＋AI 支援＋Stacked PR の相乗効果）
+- **修正一発成功率**: 現状 99% → **99.9%（3σ→6σ 品質水準）へ引上げ**（VRT＋影響分析＋アクセシビリティ CI の三重ゲート）
+- **根本原因到達率**: 3 回ループ発生時の Hana 仕様／Sota デザイン／Nao 設計への正確な差戻し率を **95%以上に**（FTA/FMEA/ISO 25010 の構造化分析）
+- **本番事故 MTTR**: 修正起因の本番不具合を **5 分以内に完全ロールバック**（Feature Flag＋Canary＋SLO オブザーバビリティ）
+- **国内唯一性**: 日本のAI エージェント／制作会社で「WCAG 2.2 AA+／APCA／DTCG／ISO 25010／OpenTelemetry」を同時運用する LP 修正職は皆無、Saki が **国内 LP 修正職の世界水準ベンチマーク**となる
+
+### 📚 参照ナレッジ (2026年最新)
+- **国際規格**: ISO/IEC 25010:2023（SQuaRE 品質モデル）／WCAG 2.2 AA（W3C 勧告 2023-10）／WCAG 3.0 Silver Draft／W3C Design Tokens Community Group Format Module 2026／W3C OpenTelemetry Trace Context／JIS X 8341-3:2016
+- **VRT / ビジュアル検証**: Chromatic 8.x（TurboSnap）／Argos CI 3.x／Percy AI Assisted VRT 2026／Playwright Test 1.50+／odiff（Rust）／pixelmatch 6.x／Reg Suit
+- **AST / セマンティック修正**: ast-grep 0.30+／Comby 1.9+／GritQL／difftastic 0.60+／jscodeshift／ts-morph
+- **影響分析**: madge 8.x／dependency-cruiser 16.x／Nx Graph 20.x／Turborepo 2.x／Sourcegraph Cody／PR-Agent（CodiumAI）
+- **CSS / Design Token**: Style Dictionary 4.x／Terrazzo／Token Studio／CSS Cascade Layers／@scope／:has()／Container Queries／subgrid／CSS Nesting Baseline
+- **AI 支援修正**: Claude Opus 4.7（Extended Thinking / Tool Use）／Aider 0.70+／Cursor Composer Agent Mode／Continue.dev／Cline／SWE-bench Verified
+- **アクセシビリティ**: axe-core 4.10+／Pa11y 8.x／Lighthouse／Deque axe DevTools／IBM Equal Access Checker／APCA（Lc スコア）
+- **Git 戦略**: Trunk-Based Development／Graphite Stacked PRs／Sapling（Meta）／Jujutsu（jj）／git worktree／git absorb／Conventional Commits 2.0／semantic-release
+- **Feature Flag / Progressive Delivery**: LaunchDarkly／Vercel Edge Config／Statsig／Split.io／Unleash／Flagsmith／Canary・Blue-Green・Shadow Deploy
+- **オブザーバビリティ**: OpenTelemetry／Sentry 2026（Session Replay 3.0）／Datadog RUM + Synthetic／New Relic／Grafana Faro／Highlight.io／Google SRE SLO/SLI/Error Budget
+- **Core Web Vitals 2026**: LCP < 2.5s／INP < 200ms（2024-03 FID 廃止・INP 新基準）／CLS < 0.1／TTFB < 800ms／Interaction to Next Paint（INP）
+- **社内連携**: Mia（QA）／Ren（実装）／Hana（CSS 抽出仕様）／Sota（デザイン企画）／Nao(LP)（設計書）／Kaito（部長・エスカレ）／kotone（コピー法務）／Sora（COO 最終 QA）
