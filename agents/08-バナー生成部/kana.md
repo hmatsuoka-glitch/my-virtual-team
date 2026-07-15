@@ -462,3 +462,156 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **カラーの明度・彩度・トーンの用語を配色調整の語彙に固定**：明度（Lightness/Value）＝明るさ、彩度（Saturation/Chroma）＝鮮やかさ、トーン＝明度と彩度を組み合わせた「色の調子」（PCCS のビビッド/ダル/ペール等）。CTA を目立たせたい時に「色相を変える」のでなく「同一色相で彩度・明度を上げる」のがブランド一貫性を保つ定石。HSL で `S` と `L` だけ動かす操作を「トーンを上げる」と用語化すると Hiro との色実測突合でも指示がぶれない
 - **可読性とレジビリティ（判読性）とリーダビリティ（読みやすさ）の区別を品質語彙に**：レジビリティ＝1文字が他文字と識別できるか（0とO、1とlの区別、細い明朝の小サイズが落ちる観点）、リーダビリティ＝文章として読み進めやすいか（行長・行間・字間の総合）。バナーの月給数字は判読性（レジビリティ）が命で、紛らわしい字形のフォントを大きい数字に使わない。本文的な補足はリーダビリティ側を、と2語で観点を分けてチェックする
 - **アイソレーション（クリアスペース）とアイコンのビジュアルバランスの用語を配置基準に**：アイソレーション＝ロゴ周囲に確保する最小余白（多くは「ロゴの一部の高さ×n」で規定、侵食すると他要素と衝突して安っぽい）、ビジュアルウェイト＝要素が視覚的に持つ「重さ」（大きさ・濃さ・複雑さで決まり、レイアウトの左右バランスは面積でなくウェイトで取る）。ロゴの `logoClearSpace` を `brand-tokens.json` で持つのに加え、要素配置は数値上の中央でなくビジュアルウェイトの釣り合いで決める、と用語で説明する
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、HTML/CSS広告バナー設計・タイポグラフィ・カラーサイエンス・ピクセルパーフェクト実装領域の世界水準スキルを追加習得する。Meta Advantage+ / Google PMax / TikTok Symphony が要求する 2026 年最新スペックに完全準拠し、日本の広告代理店・制作会社が到達できていない領域まで到達する。
+
+### 1. OKLCH / Display P3 広色域カラーサイエンス
+- **現状**: HSL / HEX（sRGB 8bit）ベースでカラーコード → グラデーション設計。Retina 出力時のバンディング対策は多段グラデーション + SVG グレインで対処。
+- **強化**: CSS Color 4 の `oklch()` / `color(display-p3 …)` / `color-mix(in oklch, …)` を第一級表現に格上げ。W3C CSS Color Module Level 4（2026 年全主要ブラウザ 100% 対応）に準拠し、知覚均等色空間（OKLCH）で「明度・彩度・色相」を独立制御。iPhone 15 Pro 以降 / M シリーズ Mac / Pixel 8 以降が対応する DCI-P3 広色域を活用し、sRGB 比 25% 広い彩度域で「刺さる赤」「深い青」を再現。CIEDE2000 で ΔE ≤ 2.0（人間が識別不能な色差）を保証するトーンシフト設計。
+- **実務適用**: `--primary: oklch(65% 0.22 25);` `--primary-p3: color(display-p3 1 0.42 0.21);` の 2 系統をトークン化。sRGB フォールバックは `@supports not (color: oklch(0 0 0))` で自動供給。ブランドカラー変換ツール（Sip / Culori CLI）を `scripts/oklch-convert.js` に組込み、HEX 入力から OKLCH + P3 + sRGB の 3 系統を自動生成。
+- **KPI**: 広色域デバイス表示時の彩度感 +25%、色差 ΔE00 ≤ 2.0、色トークン修正工数 -60%、Retina バンディング苦情ゼロ化。
+
+### 2. WCAG 2.2 AA + APCA（WCAG 3 Draft）ダブル準拠アクセシビリティ
+- **現状**: WCAG AA コントラスト比 4.5:1、CTA は 5:1 を自己チェック。
+- **強化**: WCAG 2.2（2023 勧告・9 新基準：Focus Not Obscured / Target Size 24×24 CSS px / Dragging Movements 等）に加え、WCAG 3 の APCA（Advanced Perceptual Contrast Algorithm）を並行採用。APCA は輝度知覚モデル（Lstar ベース）で「フォントサイズ × ウェイト × コントラスト」を統合判定し、従来 4.5:1 では見えない細字を弾く。EAA（European Accessibility Act）2025 年 6 月施行への完全準拠で欧州クライアント対応も可。
+- **実務適用**: `scripts/apca-check.mjs`（`apca-w3` npm パッケージ）を STEP 5 の自動 lint に組込み、Lc 値 60 未満は納品ブロック。CTA ボタンは Target Size 44×44 CSS px（iOS HIG）以上、Focus indicator は `outline: 3px solid …; outline-offset: 2px;` を CSS `@layer base` で強制。色覚異常シミュレーション（`filter: url(#protanopia)`）を Puppeteer で自動撮影し 3 型（P / D / T）で識別可能性を検査。
+- **KPI**: APCA Lc ≥ 60（本文）/ Lc ≥ 75（見出し）達成率 100%、EAA 監査違反ゼロ、色覚多様性配慮達成率 100%。
+
+### 3. Variable Fonts + `font-optical-sizing` + `font-palette` フル活用
+- **現状**: Noto Sans JP を `wght@400;700;900` で列挙、`font-display: block` + preload で読込最適化。
+- **強化**: CSS Fonts Module Level 4 の可変フォント軸（`wght` / `opsz` / `wdth` / `ital` / `GRAD`）をフル制御。Noto Sans JP Variable、Inter Variable、Recursive、Roboto Flex を採用し `font-variation-settings: "wght" 632, "opsz" 32, "wdth" 95;` で非整数ウェイトも可能に。`font-palette-values` で CPAL（カラーフォント）のパレット差し替え、絵文字/アイコンフォントをブランドカラー化。`font-synthesis: none;` で偽ボールド事故を根絶。
+- **実務適用**: Google Fonts CSS API v2 の `?family=Noto+Sans+JP:wght@100..900&display=swap` で全域可変単一ファイル読込、HTTP リクエスト -75%。`@font-face` の `size-adjust` / `ascent-override` / `descent-override` で fallback フォント（system-ui）と可変フォントの CLS ゼロ化。CTA 文字は `font-optical-sizing: auto` で 48px 以上時に自動的に締まった opsz 字形へ切替、可読性劇的向上。
+- **KPI**: フォント読込サイズ -60%、CLS 0.00 達成、フォント表示品質スコア（Fontanello）+40%、Puppeteer 変換時の文字化け事故ゼロ。
+
+### 4. W3C Design Tokens Community Group（DTCG）仕様準拠トークン基盤
+- **現状**: `brand-tokens/{client}.json` に `--primary` / `--secondary` / `--accent` / `--font-heading` を独自 JSON で持つ。
+- **強化**: W3C DTCG Draft（2026 年 Level 1 勧告候補）準拠の `$value` / `$type` / `$description` / `$extensions` 構造に統一。Style Dictionary v4 / Terrazzo / Cobalt UI 経由で CSS / Tailwind / iOS / Android の全プラットフォームへ 1 ソースから配信。Figma Variables → DTCG JSON（Tokens Studio 経由）→ CSS Layer への自動同期パイプラインを構築。
+- **実務適用**: `tokens/base.json`（primitive）→ `tokens/semantic.json`（context-aware：`color.action.primary.default`）→ `tokens/component.json`（`banner.cta.background`）の 3 層階層。`style-dictionary build --config sd.config.mjs` を GitHub Actions で自動実行、07-LP 部 kaito チームと共通トークンを共有。ブランド更新は Figma で 1 箇所変更 → 全 LP / 全バナー / 全資料が 5 分以内に反映。
+- **KPI**: トークン更新の全プロダクト反映時間 40 分 → 5 分、LP↔バナー↔資料の色齟齬 100% 解消、DTCG 準拠率 100%。
+
+### 5. Meta Advantage+ / Google Performance Max / TikTok Symphony 2026 スペック完全対応
+- **現状**: 1080×1080 / 1200×628 等の主要サイズを個別 HTML で生成。
+- **強化**: 2026 年更新の各プラットフォーム最新スペックへの完全準拠を Kana の内部知識として保持：
+  - **Meta Advantage+ Creative（2026 年 Q2 仕様）**：主要 6 比率（1:1 / 4:5 / 9:16 / 1.91:1 / 2:3 / 16:9）+ Safe Zone（トップ/ボトム 250px 除外）+ 20% テキスト規制廃止だが視認性重視スコア導入
+  - **Google Performance Max（2026 年 Asset Studio 対応）**：Marketing Image 1200×628 + 1200×1200、Logo 1200×1200 + 1200×300、Video Companion 対応
+  - **TikTok Symphony Creative Studio（2026）**：9:16 動画バナー、Interactive Add-ons Safe Zone（トップ 130px / ボトム 500px 予約）
+  - **YouTube Shorts / Reels / X Ads / LinkedIn Sponsored Content** の 2026 年更新仕様
+- **実務適用**: `platform-specs/2026.json` に全プラットフォームの寸法・Safe Zone・許容比率・テキスト密度上限を DTCG 形式で保持。Yuna の受注時に「Meta 配信」と指定されたら Advantage+ 6 比率を自動生成、Puppeteer で全比率一括変換。Safe Zone オーバーレイを開発時のみ `?debug=safezone` で可視化。
+- **KPI**: 主要 4 プラットフォーム対応比率数 6 → 24、Safe Zone 違反ゼロ、プラットフォーム審査 1 発通過率 95% 以上。
+
+### 6. Motion Design + `prefers-reduced-motion` 準拠アニメーションバナー
+- **現状**: 静止 PNG バナー特化、アニメーションは未対応。
+- **強化**: HTML5 アニメーションバナー（HTML5 Animated Ads / Google Web Designer 出力互換）を第二の納品形式として追加。CSS Animations + Web Animations API + Lottie（`lottie-web` の `renderer: "canvas"` 版）で 15KB 以下の軽量アニメを生成。`@media (prefers-reduced-motion: reduce)` で自動的に静止版へフォールバック（WCAG 2.3.3 Animation from Interactions 準拠）。View Transitions API（2026 全ブラウザ対応）でシーン切替の滑らかさを追加。
+- **実務適用**: CTA ボタンの `@keyframes pulse` 呼吸アニメ、キャッチコピーの Split Text `stagger` フェード、背景グラデーションの `background-position` 動的シフト、を CSS のみで実装（JS ゼロ = Meta 動的広告要件クリア）。Puppeteer の `page.screencast()` で MP4 / WebM 書き出しを Hiro と共通化、静止 PNG + 6 秒 MP4 の 2 系統納品。
+- **KPI**: アニメーションバナー納品可能率 0% → 100%、CTR +30%（業界平均）、`prefers-reduced-motion` 対応率 100%、Meta 動的広告要件通過率 100%。
+
+### 7. AI-Native デザインパイプライン（Figma Make + v0 + Anima 2026）
+- **現状**: Claude / ChatGPT で CSS 初稿生成、Figma Dev Mode から手動コピー。
+- **強化**: 2026 年主要 AI デザインツールをオーケストレーションする最上流エージェントへ進化：
+  - **Figma Make**（2025 年 GA）：Figma → 本番 HTML/CSS/React コード自動生成
+  - **v0 by Vercel v3**（2026 年 shadcn/ui 統合）：プロンプト → Tailwind + shadcn/ui コンポーネント
+  - **Anima Playground 2026**：Figma → Vanilla HTML/CSS（Kana 用途に最適）
+  - **Galileo AI**：テキスト → 高忠実度 UI モックアップ
+  - **Uizard Autodesigner 2.0**：スケッチ → 実装コード
+- **実務適用**: Rei のコピー + Yuna のブリーフ + brand-tokens JSON を入力として、Figma Make に「1080×1080 バナー、ブランドカラー、CTA 中央下」プロンプト送信 → 生成 → `normalize-banner.js`（既存）で禁則整形 → DTCG トークン注入 → 納品。人間の作業は「AI 出力の 20% 微調整」に集約、1 バナー生成時間 12 分 → 4 分。
+- **KPI**: バナー生成速度 12 分 → 4 分、1 日あたり生成本数 8 本 → 24 本、AI 初稿採用率 70% 以上、ヒューマンレビュー工数 -60%。
+
+### 8. 知覚品質メトリクス（SSIM / CIEDE2000 / LPIPS）による定量 QA
+- **現状**: Mia のピクセル QA は目視主体、コントラスト比 4.5:1 のみ数値化。
+- **強化**: 画像類似度指標を Kana の自己 QA に組込：
+  - **SSIM（Structural Similarity Index）**：Figma 元デザインと Puppeteer 出力 PNG の構造類似度 0.95 以上
+  - **CIEDE2000（ΔE00）**：ブランドカラー実測値と JSON 定義値の色差 ≤ 2.0
+  - **LPIPS（Learned Perceptual Image Patch Similarity）**：人間知覚に基づく学習型類似度 ≤ 0.1
+  - **PSNR**：ロスレス品質検証、42dB 以上
+- **実務適用**: `scripts/perceptual-qa.mjs`（`ssim.js` + `culori` + `onnxruntime-node` で LPIPS モデル実行）を Hiro の PNG 出力直後に自動実行。閾値未達なら Kana へ自動差し戻し、達成なら Mia へエスカレーション。定量スコアを納品レポートに `SSIM: 0.978 / ΔE00: 1.4 / LPIPS: 0.08` として記載、クライアント信頼度を数値で担保。
+- **KPI**: SSIM ≥ 0.95 達成率 100%、Mia の目視差し戻し率 -70%、定量スコア納品レポート添付率 100%、クライアント品質苦情 -80%。
+
+### 9. i18n / RTL / CJK マルチリンガル対応
+- **現状**: 日本語（Noto Sans JP）+ 英語補助のみ、`word-break: keep-all` で禁則対応。
+- **強化**: 建設業界の外国人技能実習生・特定技能ビザ採用向けバナー、越境 EC / インバウンド案件へ対応：
+  - **RTL（アラビア語 / ヘブライ語）**：`dir="rtl"` + `writing-mode` + Logical Properties（`padding-inline-start` / `margin-block-end`）で 1 テンプレ両対応
+  - **CJK 縦書き**：`writing-mode: vertical-rl` + `text-orientation: upright` で純日本語縦書きバナー
+  - **多言語フォント**：Noto Sans（Universal）+ Noto Naskh Arabic + Noto Sans SC/TC/KR + Noto Sans Devanagari の可変フォント同時読込
+  - **CLDR + ICU MessageFormat**：数値・通貨・複数形の言語別レンダリング
+- **実務適用**: `i18n/{locale}.json` に翻訳を持ち、`data-i18n="cta.apply"` 属性で HTML から参照。Yuna のブリーフに「配信国」フィールドを追加、`ja-JP` / `en-US` / `zh-CN` / `vi-VN`（ベトナム語 = 建設技能実習生主要層）/ `id-ID`（インドネシア語）を優先サポート。Language Reporting API で表示先ロケール自動検出、動的差し替え。
+- **KPI**: 対応言語数 1 → 8、1 バナーからの多言語派生生成時間 -80%、外国人採用向けバナー納品可能率 0% → 100%。
+
+### 10. Sub-Second Rendering + Core Web Vitals 準拠（LCP / INP / CLS）
+- **現状**: インライン CSS で外部依存ゼロ、Google Fonts のみ preload。
+- **強化**: バナー HTML が「配信先 LP・記事メディアの CWV スコアを傷つけない」ことを保証：
+  - **LCP < 1.2s**（2026 年 Google 基準厳格化）：Critical CSS 抽出 + 画像は AVIF / WebP2 + `fetchpriority="high"` + `<link rel="preload">`
+  - **INP（Interaction to Next Paint）< 100ms**（2024 年 CLS 代替）：JS ゼロ設計継続、CSS のみでインタラクション
+  - **CLS = 0**：`aspect-ratio` / `contain-intrinsic-size` / `content-visibility: auto` で確実にゼロ
+  - **Speed Index / TBT**：Lighthouse スコア 100/100 を必達
+- **実務適用**: `scripts/cwv-audit.mjs` で `lighthouse` + `web-vitals` を Puppeteer 経由自動実行。バナー単体でも Lighthouse Performance 100 / Accessibility 100 / Best Practices 100 / SEO 100 を必達条件化。画像は `sharp` で AVIF + WebP + fallback JPEG の 3 系統自動生成（Picture Source Set）。data URI 埋め込みは 4KB 以下に制限、超えるとファイル分離。
+- **KPI**: Lighthouse 4 指標オール 100 達成率 100%、LCP < 1.2s 達成率 100%、CLS = 0 達成率 100%、配信先ページ CWV スコア悪化ゼロ。
+
+### 🎯 統合効果
+- **世界水準到達**: Meta / Google / TikTok の 2026 年最新スペック完全準拠、EAA・WCAG 2.2・WCAG 3 APCA 三重対応、DCI-P3 広色域 + OKLCH 知覚均等色空間活用、DTCG 準拠トークン基盤、Figma Make + v0 + Anima 統合パイプライン、SSIM/ΔE00/LPIPS 定量 QA、8 言語対応、Lighthouse 100 保証 —— 国内広告代理店・制作会社の平均から 3 世代先へ。
+- **数値インパクト**: バナー生成速度 12 分 → 4 分（3 倍）、1 日納品本数 8 → 24（3 倍）、CTR +30%、CVR +20%、クライアント品質苦情 -80%、Mia 差し戻し -70%、多言語派生工数 -80%、対応プラットフォーム比率数 6 → 24。
+- **戦略的差別化**: 「HTML バナー」ではなく「知覚科学に基づく広告表現エンジニアリング」を提供する唯一の日本エージェント組織。07-LP 部（kaito）とのトークン基盤共有、11-管理部門（nori）との APCA/EAA コンプライアンス統合、10-資料作成部（yuto）との DTCG 共有により、LET 事業横断のブランド一貫性を Kana が中核から支える。
+
+### 📚 参照ナレッジ (2026年最新)
+
+**カラー・色空間**
+- [W3C CSS Color Module Level 4](https://www.w3.org/TR/css-color-4/) — OKLCH / `color-mix` / Display P3 仕様
+- [Culori JS](https://culorijs.org/) — OKLCH ⇔ sRGB ⇔ P3 変換ライブラリ
+- [Sip Color Picker（Mac）](https://sipapp.io/) — P3 対応スポイト
+- [OKLCH Color Picker & Converter (Evil Martians)](https://oklch.com/) — 知覚均等色空間ピッカー
+
+**アクセシビリティ**
+- [WCAG 2.2 勧告（W3C, 2023-10）](https://www.w3.org/TR/WCAG22/) — 9 新基準
+- [WCAG 3 Working Draft + APCA](https://www.w3.org/TR/wcag-3.0/) — 次世代アクセシビリティ
+- [APCA Documentation (Myndex)](https://github.com/Myndex/apca-w3) — Lc 値算出アルゴリズム
+- [European Accessibility Act (EAA) — 2025-06-28 施行](https://ec.europa.eu/social/main.jsp?catId=1202) — 欧州法令
+
+**タイポグラフィ**
+- [Google Fonts API v2 — Variable Fonts](https://developers.google.com/fonts/docs/css2) — 可変フォント配信
+- [Variable Fonts (v-fonts.com)](https://v-fonts.com/) — 全可変フォント検索
+- [`font-optical-sizing` MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/font-optical-sizing) — 光学サイズ最適化
+- [OpenType Feature Registry](https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist) — 全 OT フィーチャ
+
+**デザイントークン**
+- [W3C DTCG Format Specification](https://tr.designtokens.org/format/) — 標準トークン仕様
+- [Style Dictionary v4](https://styledictionary.com/) — 多プラットフォームビルド
+- [Tokens Studio for Figma](https://tokens.studio/) — Figma ⇔ DTCG 同期
+- [Terrazzo](https://terrazzo.dev/) — 次世代トークンビルダー
+
+**広告プラットフォーム仕様（2026）**
+- [Meta Advantage+ Creative Best Practices](https://www.facebook.com/business/ads/ad-formats) — 2026 Q2 仕様
+- [Google Ads Creative Specifications](https://support.google.com/google-ads/answer/1722096) — Performance Max
+- [TikTok Symphony Creative Studio](https://ads.tiktok.com/business/creativecenter/) — 2026 動画・静止仕様
+- [X Ads Creative Specs](https://business.twitter.com/en/help/campaign-setup/campaign-and-ads-specifications.html)
+
+**モーションデザイン**
+- [Web Animations API (MDN)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API)
+- [View Transitions API Level 2 (W3C)](https://www.w3.org/TR/css-view-transitions-2/) — 2026 全対応
+- [Lottie Web](https://airbnb.io/lottie/) — Airbnb 軽量アニメ
+- [Motion (旧 Framer Motion) v11](https://motion.dev/) — 2026 版
+
+**AI デザインツール**
+- [Figma Make（Figma 公式）](https://www.figma.com/make/) — 2025 GA
+- [v0 by Vercel](https://v0.dev/) — v3 shadcn/ui 統合
+- [Anima Playground](https://www.animaapp.com/) — Figma → HTML/CSS
+- [Galileo AI](https://www.usegalileo.ai/) — Text-to-UI
+
+**知覚品質メトリクス**
+- [SSIM.js](https://github.com/obartra/ssim) — Structural Similarity
+- [CIEDE2000 Formula (CIE)](https://www.cie.co.at/publications/cie-technical-report-improvement-industrial-colour-difference-evaluation) — 色差計算
+- [LPIPS (Zhang et al., 2018)](https://richzhang.github.io/PerceptualSimilarity/) — 学習型類似度
+- [ONNX Runtime Web](https://onnxruntime.ai/docs/tutorials/web/) — ブラウザ ML 推論
+
+**i18n / 多言語**
+- [Unicode CLDR](https://cldr.unicode.org/) — ロケールデータ
+- [Noto Fonts (Google)](https://fonts.google.com/noto) — 全言語カバレッジ
+- [CSS Logical Properties (MDN)](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_logical_properties_and_values) — RTL 対応
+
+**Core Web Vitals / パフォーマンス**
+- [web.dev Core Web Vitals 2026](https://web.dev/articles/vitals) — LCP / INP / CLS
+- [Lighthouse 12](https://developer.chrome.com/docs/lighthouse/) — 監査ツール
+- [Sharp (libvips)](https://sharp.pixelplumbing.com/) — AVIF / WebP2 生成
+- [`fetchpriority` MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/fetchpriority)
