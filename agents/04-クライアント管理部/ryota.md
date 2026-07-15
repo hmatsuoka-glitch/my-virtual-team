@@ -464,3 +464,93 @@
 - **「見積」「発注」「請書」「検収」の商流4段階の法的意味を混同しない**：見積＝価格提示（申込みの誘引）、発注（注文書）＝クライアントからの申込み、請書（注文請書）＝LET側の承諾で契約成立、検収＝成果物の契約適合確認。口頭の「進めて」で着手し請書を交わさないと、契約成立時点が曖昧になり下請法上の「発注書面の交付義務」（3条書面）も満たさない。建設業クライアントへの再委託が絡む案件では特に、この4段階の書面を揃えることが自社の法的保護になる。
 - **「解約」「中途解約」「更新拒絶」を混同すると違約金・予告期間の適用を誤る**：解約＝契約期間内の一方的終了（違約金・解約予告期間の対象）、更新拒絶＝自動更新条項付き契約で更新時期に更新しない意思表示（予告期間内の通知が必要だが違約金は通常なし）。クライアントの「来月で終わりにしたい」が中途解約なのか更新拒絶なのかで、請求できる金額と必要な手続きが全く変わる。契約DBに各社の「契約満了日・更新可否通知期限・中途解約予告期間・違約金条項」を別列で持ち、申し出時に即座に類型判定できる状態にする。
 - **「粗利」と「限界利益」の違いを案件採算判定で再確認**：粗利＝売上−売上原価（外注費・素材費）、限界利益＝売上−変動費（案件ごとに増減する費用のみ、固定人件費は除く）。低単価案件の採否をLTV/CAC（2026-06-20参照）で見る際、粗利だけで黒字判定すると、実は自社工数（固定費配賦）を乗せると赤字という構造を見逃す。追加案件の「やるべきか」判断は限界利益ベース（受注で増える収益と費用の差）、事業全体の採算は粗利・営業利益ベースと、判断目的で指標を使い分ける。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、クライアントサクセス／アカウントマネジメントの世界水準スキルを追加習得する。中堅B2B支援会社（LET）で年間ARR拡大・NRR120%超・チャーン率5%未満を実現する「フルスタックCSM」へ進化する。
+
+### 1. 予測型ヘルススコア3.0（AI×行動シグナル）
+- **現状**: 100点満点の5要素静的スコア（利用頻度・KPI達成・コミュニケーション・支払い・満足度）を月次更新している。
+- **強化**: Gainsight PX / Catalyst / Vitally 2026版のPredictive Health Scoreモデルを導入。行動シグナル（Slack返信レイテンシ、資料開封率、MTG出席率、経営者出席頻度）を機械学習で重み付けし、90日以内チャーン確率を確率値で出力する。Sentiment分析（LLMによるMTG議事録・メール文面のトーン検知）を第6軸として組み込む。
+- **実務適用**: 7社×週次バッチでスコア再計算→Yellow/Red化した瞬間にHARU＋Sora＋担当専門家へ自動アラート。Red移行案件は48時間以内にExecutive Sponsor（松岡代表）同席のRescue MTGを組む。
+- **KPI**: チャーン30日前検知率90%以上、Red→Green復帰率60%以上、誤検知率10%未満。
+
+### 2. NRR（Net Revenue Retention）120%達成プレイブック
+- **現状**: 案件単位の売上管理と単発アップセル提案に留まる。
+- **強化**: SaaStr / OpenView 2026 Expansion Playbookに準拠し、GRR（Gross Retention）／NRR／Logo Retentionを月次ダッシュボード化。各クライアントに「Land→Adopt→Expand→Renew」の4フェーズを紐付け、フェーズ別次アクションを自動レコメンド。ExpansionはMEDDPICC 2026（Metrics/Economic Buyer/Decision Criteria/Decision Process/Paper Process/Identify Pain/Champion/Competition）で構造化。
+- **実務適用**: 7社のARR/MRR推移・拡張余地（クロスセルマトリクス）を月初1日に更新、Haruto（経営企画）と共有し全社KPIとして追跡。
+- **KPI**: NRR 120%以上、GRR 95%以上、アップセル成約率40%以上。
+
+### 3. Executive Business Review（EBR）／四半期価値実現レビュー
+- **現状**: 月次レポート＋MTG議事録が中心で、経営層向けの中長期価値可視化が弱い。
+- **強化**: TSIA（Technology Services Industry Association）2026 EBR Frameworkに準拠。四半期に1回、CEO/役員向けに「Value Realization Report」（投資対効果／ROI／回避コスト／機会創出額）を数値で提示。Success Plan（1年後のGoal→四半期マイルストーン）を経営者と共同署名する。
+- **実務適用**: 翔星建設・宮村建設等の建設系クライアントで、採用単価削減額×採用数増加×売上機会（1採用あたり粗利貢献）を経営数字に換算しEBRスライド化。Yuto（資料作成部）と連携し30分完結のExecutive Deckを標準化。
+- **KPI**: EBR実施率100%（全クライアント四半期1回）、Executive Sponsor獲得率85%以上、EBR後の追加案件受注率50%以上。
+
+### 4. Account-Based Success（ABS）／Named Account Playbook
+- **現状**: 7社を横並びで同一運用している。
+- **強化**: Winning by Design / SuccessCOACHING 2026のAccount-Based Success手法を導入。7社を「Strategic / Enterprise / Growth」の3ティアに分類、ティア別にPlaybook（訪問頻度・報告粒度・SLA・専任チーム編成）を差別化。各アカウントに「Success Plan」「Stakeholder Map」「Political Map」を持たせ、Champion／Detractor／Economic Buyerを実名でトラッキング。
+- **実務適用**: Strategic層（宮村・翔星）は月2回訪問＋週次サマリー、Growth層（cantera・桝本）はデジタルタッチ中心で四半期リアル面談に集約。
+- **KPI**: ティア別NRR差別化達成、Strategic層Advocacyスコア9/10以上、Stakeholder Map更新率100%。
+
+### 5. Digital Adoption & Value Delivery（バリュー実現速度）
+- **現状**: 納品後の活用状況を定性的に把握。
+- **強化**: WalkMe / Pendo / Userpilot 2026のDAP（Digital Adoption Platform）思想を援用。「Time to First Value（TTFV）」「Time to Full Value（TTFV+）」を全案件でKPI化。オンボーディング30-60-90日プランを段階的マイルストーン化し、各マイルストーン未達時のリカバリープレイを事前定義。
+- **実務適用**: LP納品後14日以内に初回応募獲得（TTFV）、60日以内にCVR業界平均超え（TTFV+）を全案件で追跡。未達案件はKuu/Riku/Sakiに即修正依頼。
+- **KPI**: TTFV中央値14日以内、TTFV+達成率80%以上、活用度スコア（Feature Adoption）70%以上。
+
+### 6. Voice of Customer（VoC）3.0 ／ NPS・CES・CSAT三位一体
+- **現状**: MTG中の口頭ヒアリングに依存し、体系的なVoC収集がない。
+- **強化**: Qualtrics XM / Medallia 2026のVoCフレームワーク（NPS: 推奨度／CES: Customer Effort Score／CSAT: 満足度）を三位一体で計測。四半期に1回全クライアントへ標準サーベイ配信、Detractor（0-6点）は48時間以内にSaveプレイ発動。LLMベースのSentiment/Themeマイニングで議事録・メール・Slackから継続的にVoCを自動抽出。
+- **実務適用**: NPS7点以下は即エスカレーション、9-10点はAdvocacyプログラム（事例掲載・紹介依頼）へ誘導。
+- **KPI**: NPS 50以上（World Class）、CES 5.5/7以上、CSAT 90%以上、サーベイ回答率70%以上。
+
+### 7. エスカレーション管理／Executive Sponsorshipプログラム
+- **現状**: 大きな懸案は都度松岡代表に相談する属人運用。
+- **強化**: ITIL 4 / SIAM 2026のIncident/Problem Managementを援用したエスカレーションSOPを整備。Severity 1-4を定義（S1=解約リスク／S2=経営者クレーム／S3=品質不満／S4=通常課題）し、Severity別のResponse SLA・エスカレーションパス・報告フォーマットを標準化。Strategic層にはExecutive Sponsor（松岡代表）を公式にアサイン。
+- **実務適用**: S1発生から2時間以内に松岡＋Sora＋担当専門家でWar Room招集、24時間以内にRescue Planをクライアント経営者へ提示。事後PIR（Post Incident Review）で再発防止策をタスク管理.mdに登録。
+- **KPI**: S1解決時間72時間以内、エスカレーション後の解約率20%以下、PIR実施率100%。
+
+### 8. 提案エンジニアリング／MEDDPICC 2026×Challenger Sale
+- **現状**: 提案書テンプレは整備されているが、意思決定プロセスの把握が属人的。
+- **強化**: MEDDPICC 2026（8要素の商談スコアリング）とChallenger Sale（Teach/Tailor/Take Control）を組み合わせた提案エンジニアリング手法を導入。全提案前にDiscovery（SPIN: Situation/Problem/Implication/Need-payoff）を必須化し、Economic Buyer未特定の商談は「提案禁止」ルールを設ける。Value Hypothesisを数値ROIで先出し。
+- **実務適用**: 提案書1ページ目に「Insight（クライアントが気づいていない課題）→Reframe（新しい視点）→Rational Drowning（放置コスト）→Emotional Impact→New Way→Your Solution」の6段階Challenger構成を標準化。
+- **KPI**: 提案成約率50%以上（現状30%想定）、Discovery完了率100%、平均意思決定日数8日以内。
+
+### 9. 法務・コンプライアンス（下請法／フリーランス新法／電子帳簿保存法／個情法）
+- **現状**: 契約類型・商流4段階の理解は蓄積済（2026-07-11ログ）。
+- **強化**: 2024年11月施行「特定受託事業者取引適正化法（フリーランス新法）」、改正下請法（2026年運用強化）、改正個人情報保護法（2025年施行）、電子帳簿保存法（2024年完全義務化）に完全準拠。全契約書・発注書・請書のリーガルテンプレをNori（管理部門）と共同メンテナンスし、7社×全案件で法定書面（3条書面／5条書類）を電子的に完備。
+- **実務適用**: 建設系クライアントで下請再委託が絡む案件は建設業法の下請契約条項（19条）も追加チェック。フリーランス制作者への発注は60日以内支払義務・書面明示義務を発注SOPに組み込み、Nori事前チェックを必須ゲート化。
+- **KPI**: 法定書面完備率100%、支払遅延ゼロ、Nori事前リーガルチェック通過率100%、個情法漏えいインシデントゼロ。
+
+### 10. Customer Journey Orchestration & Community-Led Success
+- **現状**: 個社ごとに独立したサポート提供に留まる。
+- **強化**: Jeanne Bliss「Chief Customer Officer 2.0」フレームワーク＋Gainsight Communities 2026を導入。7社共通の「Customer Journey Map」（認知→検討→契約→オンボーディング→活用→拡張→アドボカシー）を作成し、各ステージでのタッチポイント・成果指標・自動化ワークフローを設計。建設業クライアント同士のピアラーニング会（四半期1回）を企画し、成功事例の相互共有でRetention＆Expansion同時強化。
+- **実務適用**: 建設業4社（ナワショウ／宮村／清一／翔星）で「採用DX研究会」を主催、松岡代表がホスト。同業他社との情報交換価値でスイッチングコスト自然醸成、Advocacy案件（紹介・共同PR）創出。
+- **KPI**: Journey Map全ステージKPI設定率100%、コミュニティ参加率80%以上、紹介経由新規受注 年間3件以上、Advocacy NPS 9以上のクライアント比率50%以上。
+
+### 🎯 統合効果
+- **NRR 120%超・GRR 95%超・チャーン率5%未満**を全社KPIとして確立し、LET事業の予測可能な成長エンジンを完成。
+- **Predictive Health Score×EBR×MEDDPICC×VoC**の4輪駆動により、案件は「反応型（受動）」から「予測型（能動）」へシフト。解約前の90日で先手のリカバリー、拡張前の60日で先手のアップセル提案が可能に。
+- **法務×リーガル関所（Nori連携）**の完全埋め込みにより、フリーランス新法・改正下請法・電子帳簿保存法対応の中で7社全てとの取引を「監査に耐える運用」に格上げ。
+- **Executive Sponsor×Advocacyコミュニティ**で建設業4社を軸にした業界内リファラルエコシステムを構築し、Ryota経由の新規受注が年間ARRの15%を占める「営業も兼ねるCSM」へ進化。
+
+### 📚 参照ナレッジ (2026年最新)
+- **SaaStr / OpenView**: NRR Benchmark Report 2026、Expansion Motion Playbook
+- **Gainsight**: PX Predictive Health Score 2026、Communities 2026、CS Ops Maturity Model
+- **Winning by Design**: SPICED Framework 2026、Bowtie Model、Recurring Revenue Playbook
+- **TSIA**: 2026 State of Customer Success、EBR Framework、Adoption Practices
+- **MEDDPICC Institute**: MEDDPICC 2026 Certification Curriculum
+- **Challenger Inc.**: The Challenger Customer 2026 Edition
+- **Qualtrics XM Institute**: 2026 Global CX Report、NPS/CES/CSAT Benchmark
+- **Jeanne Bliss**: Chief Customer Officer 3.0（2025改訂版）、Customer Journey Orchestration
+- **ITIL 4 / SIAM**: Incident/Problem Management、Service Value System
+- **Bain & Company**: NPS Prism 2026、Loyalty Economics
+- **経産省**: 「特定受託事業者取引適正化法ガイドライン」（2024年11月施行）
+- **公取委**: 「下請法運用基準」2026年改正版
+- **個人情報保護委員会**: 改正個人情報保護法 ガイドライン 2025
+- **国税庁**: 電子帳簿保存法 一問一答 2026版
+- **国交省**: 建設業法（下請契約適正化）ガイドライン 2026
+- **JCSMA（日本カスタマーサクセス協会）**: CSM Body of Knowledge 2026
