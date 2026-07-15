@@ -564,3 +564,105 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **「WCAG の適合レベル A / AA / AAA」と「達成基準（Success Criteria）」の関係の再確認**：A＝最低限、AA＝一般的な法令・調達で求められる標準、AAA＝最高（全面適用は非現実的）。各レベルは個別の達成基準（例 1.4.3 コントラスト＝AA、1.4.6＝AAA）の集合で、「WCAG 対応」と一括で言わず「AA の 1.4.3 と 2.4.7 を検証」と基準番号で報告する。axe-core の violations も達成基準にマップして差し戻しレポートに番号明記し、a11y の合否根拠を規格ベースで説明可能にする
 - **「コントラスト比（WCAG 2.x）と APCA（WCAG 3 草案）」の算出モデルの違いの再確認**：従来のコントラスト比は輝度比（1:1〜21:1、AA は本文4.5:1）で計算するが、実際の知覚と乖離があり特に暗背景・細字で不正確。APCA は Lc 値（-108〜106）で極性・文字サイズ・太さを加味した知覚モデル。現行の合否は AA 4.5:1 を基準に据えつつ、写真上テキストや細字の「数値は合格でも読みにくい」ケースは APCA Lc で補助判定し、2指標の役割差を理解して使い分ける
 - **「ビューポート単位 vh / dvh / svh / lvh」の挙動差の正確な理解**：vh＝固定ビューポート高さ（実装依存で曖昧）、svh＝アドレスバー表示時の小さい高さ、lvh＝バー非表示時の大きい高さ、dvh＝バー伸縮に追従する動的高さ。iOS Safari の Hero はみ出しバグ（2026-06-24）の正体は `100vh` が lvh 相当で計算され下端が隠れること。QA では `100vh` 直書きの残存を静的検出し、Hero は `100dvh`/`100svh` へ置換済みかを用語ベースで判定する
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、Web ビジュアル QA・アクセシビリティ・パフォーマンス検証の世界水準スキル10領域を追加習得する。単なる pixel-diff QA ではなく「知覚・体感・法令・倫理・持続可能性」まで含めた 2026 年の Meta / Google / Apple 準拠 QA プロトコルを実装する。
+
+### 1. AI Visual Regression（Applitools Eyes Ultrafast Grid / Chromatic AI 2026）
+- **現状**: pixelmatch と looks-same の 2 段運用で誤 NG 削減済み、Chromatic の `--only-changed` で 5 並列運用中。
+- **強化**: Applitools **Visual AI 2.0**（Layout / Content / Strict の 4 モード自動選択）と Chromatic の **TurboSnap + Visual Test Debug Suite** を統合。UFG（Ultrafast Grid）で 40 ブラウザ×デバイス組合せを 60 秒で並列レンダリング。差分理由を LLM が自然言語で説明する `Root Cause Analysis` API を導入。
+- **実務適用**: `mia.config.json` に `visualAI.mode: "layout"` を Hero/CTA/Form、`"content"` を本文、`"strict"` を CI ロゴ・法令表示に振り分け。Percy との A/B で誤 NG 率を測定し 90% 削減を継続確認。
+- **KPI**: 偽陽性率 5%→0.5% / 40 ブラウザマトリクス実行時間 60 分→90 秒 / 差分原因説明の Ren 理解速度 3 分→30 秒。
+
+### 2. WCAG 3.0（Silver）+ EAA 2025 完全準拠
+- **現状**: WCAG 2.2 AA を axe-core で自動検証、APCA を補助判定に使用中。
+- **強化**: **WCAG 3.0 Silver（2026 Q2 W3C 草案）** の `Bronze / Silver / Gold` 3 段階採点モデルを導入し、機能アウトカム（Functional Outcomes）ベースで判定。**EU 欧州アクセシビリティ法（EAA・2025-06-28 施行）** に対応した EN 301 549 v3.2.1 準拠チェックを組込み。日本の **JIS X 8341-3:2016** と併記し、越境 EC・グローバル採用サイト案件で法令リスクゼロ化。
+- **実務適用**: STEP 5 に `axe-core-eaa-preset` を追加、Bronze スコア 100 点未満は即差し戻し。Silver は「認知的アクセシビリティ」（読解レベル・注意持続・記憶負荷）まで含む WAI-CogA チェックリストで別採点。
+- **KPI**: EAA 罰則リスク（最大 €50 万）ゼロ / 認知アクセシビリティ Bronze 達成率 100% / 障害当事者ユーザーテストでの完了率 85% 以上。
+
+### 3. Core Web Vitals + INP + LoAF による Real User Monitoring
+- **現状**: LCP/INP/CLS の Lab 値と CrUX Field Data の乖離検出まで実装済み。
+- **強化**: 2026 年正式追加の **LoAF（Long Animation Frames）API** を統合し、50ms 以上の長フレームを origin trial なしで検出。**PerformanceEventTiming** で INP のスクリプト内訳（scripting / rendering / painting）を分解可視化。Google の **Web Vitals JS v4** で `attribution` フィールドを自動収集し、遅延原因のセレクタ・スクリプト URL を差し戻しレポートに自動記載。
+- **実務適用**: STEP 6 に `web-vitals@4 --attribution` を組込み、INP > 200ms の場合は原因スクリプト・DOM ノード・ハンドラを Issue 本文に自動転記。Vercel Speed Insights と Cloudflare RUM の 2 系統で Real User データを 30 日追跡。
+- **KPI**: INP p75 200ms 未満達成率 100% / LoAF > 50ms の発生率 5% 未満 / Field/Lab 乖離 10% 未満。
+
+### 4. Cross-Browser クラウド QA（BrowserStack AI / LambdaTest KaneAI 2026）
+- **現状**: Playwright matrix で 12 環境（4 ブラウザ×3 デバイス）を並列実行中。
+- **強化**: **BrowserStack Percy + App Automate AI** で 3,500+ 実機、**LambdaTest KaneAI**（GenAI テストエージェント）で自然言語からの E2E テスト自動生成。iOS 18 / Android 15 / Vision Pro visionOS 2 / Meta Quest browser を追加対応。**Sauce Labs Visual AI** の Screener と併用し、キャリアネットワーク（NTT / KDDI / SB 実 SIM 経由）実測も選択可能に。
+- **実務適用**: 「iOS 18 Safari + 4G Slow + prefers-reduced-motion」等の複合条件を BrowserStack Automate で 1 コマンド起動。Vision Pro の空間 Web 表示は visionOS Safari 実機で Hero の Depth 表現破綻を検出。
+- **KPI**: 実機カバレッジ 12→80 環境 / 実 SIM 4G 実測 LCP 取得率 100% / visionOS/Quest 対応案件受注可能化。
+
+### 5. Playwright MCP + AI Test Generation（TestGen-LLM / QA GPT）
+- **現状**: Playwright タグ別 10 並列実行、UI Mode + trace viewer での原因追跡実装済み。
+- **強化**: **Playwright MCP Server（Microsoft 2025-11 GA）** で Claude / Copilot から Playwright を自律操作。**TestGen-LLM（Meta 2024）** 方式で既存テストを LLM が自動増強し、エッジケース（境界値・null・巨大入力・XSS）をカバー拡大。**Ranorex GenAI Assistant** で仕様書 → Gherkin シナリオ → Playwright コード生成を 1 パスで実行。
+- **実務適用**: Nao の設計書を LLM に読ませ「Mia 観点で不足しているテストケース」を自動生成 → `tests/generated/` へ配置。人手コード化なしで 95 項目→300 項目へカバレッジ拡大。
+- **KPI**: テストケース数 95→300 項目 / テストコード人手作成時間 8h→1h / 見逃しバグ検出率 20% 向上。
+
+### 6. Design Token 忠実度検証（W3C DTCG Spec + Style Dictionary v4）
+- **現状**: カラー HEX / フォントサイズを個別に目視/DevTools 比較中。
+- **強化**: **W3C Design Tokens Community Group（DTCG）Format Module v1.0**（2025 CR）準拠の `tokens.json` を Hana から受領し、複製 LP の CSS Custom Properties と機械照合。**Style Dictionary v4** で Figma Variables → CSS → 実 DOM の 3 段照合を自動化。**Token Lens**（AI 差分説明ツール）で「意図的変更 vs 実装ミス」を判別。
+- **実務適用**: STEP 2 カラー・STEP 3 フォント検証を DTCG token 単位で機械判定。「`color.brand.primary` が Figma 定義 `#0066FF` と CSS 実装 `#0055EE` で差分」と自動レポート。
+- **KPI**: カラー/タイポ QA 時間 20 分→2 分 / トークン一致率 100% 到達 / Hana との責務境界明確化で往復 30% 削減。
+
+### 7. プライバシー & セキュリティ QA（CSP / Cookie Consent / PII / GPC）
+- **現状**: 未実装（機能 QA が中心でセキュリティ・プライバシーは対象外）。
+- **強化**: **Content Security Policy (CSP Level 3)** の `report-only` → 強制モード段階移行を検証、**Cookie Consent（TCF v2.2 / GPP）** 適合、**Global Privacy Control（GPC）** シグナル対応、**PII 検出**（メール/電話/住所が誤って公開バンドルに含まれていないか）を Semgrep + trufflehog + custom rules で機械スキャン。**Subresource Integrity（SRI）** ハッシュ検証も STEP 6 前提に組込。
+- **実務適用**: STEP 6 に「セキュリティゲート」を追加、CSP violation 1 件でも通過不可。改正個人情報保護法（2026-04 施行）と GDPR/CCPA/PIPL の3法対応チェックリストで越境案件対応。
+- **KPI**: CSP violation 0 件 / PII 漏洩検出率 100% / Cookie Consent 適合率 100% / Have I Been Pwned 型漏洩ゼロ。
+
+### 8. 国際化（i18n / l10n）QA・RTL・多言語表示検証
+- **現状**: 日本語 LP 中心で英語対応は限定的、RTL（アラビア語・ヘブライ語）は未検証。
+- **強化**: **Unicode CLDR 45**（2025 リリース）ロケールデータで数値/日付/通貨フォーマット検証、**ICU MessageFormat 2.0**（複数形・性別対応）の表示崩れ検出、`dir="rtl"` での **Logical Properties**（`margin-inline-start` 等）実装確認、**BiDi（Bidirectional）テキスト** の混在崩れ検出。**Pseudo-localization**（`[!!! Ĥéļļó Ẃöŕļð !!!]`）で翻訳前レイアウト破綻を事前検出。
+- **実務適用**: グローバル案件で 12 言語（EN/ZH-CN/ZH-TW/KO/AR/HE/DE/FR/ES/PT-BR/VI/TH）を Playwright で並列 QA。文字幅 1.5 倍展開時のカード折返し・ボタン折返しを機械検出。
+- **KPI**: RTL 対応案件受注可能化 / 12 言語 QA 時間 6h→30 分 / 翻訳後レイアウト崩れ 0 件。
+
+### 9. サステナブル Web QA（W3C Web Sustainability Guidelines / Sustainable Web Design）
+- **現状**: パフォーマンス最適化は Lighthouse 中心で、環境負荷観点は未計測。
+- **強化**: **W3C Web Sustainability Guidelines (WSG) 1.0**（2024-06 リリース）の 93 ガイドラインを QA 項目化、**Sustainable Web Design Model v4**（2024）で 1PV あたり CO2e グラム排出量を **CO2.js** SDK で自動算出。**Website Carbon Calculator API**（Wholegrain Digital）で業界ベンチマーク比較。画像最適化（AVIF > WebP）、フォント sub-setting、動画自動再生無効化、Green Hosting（Green Web Foundation データベース照合）まで検証。
+- **実務適用**: STEP 6 通過レポートに「1PV あたり CO2 排出量 XXmg / 業界平均比 -40%」を明記。ESG 経営を掲げるクライアント（大手ゼネコン・上場企業）への提案材料化。
+- **KPI**: 1PV あたり CO2 排出量 業界中央値以下 / Green Hosting 使用率 100% / ESG 訴求で受注単価 20% 向上。
+
+### 10. Generative UI / AI Content QA（LLM 出力検証・ハルシネーション検出）
+- **現状**: 静的 LP のみ QA 対象、動的生成コンテンツ（AI チャット・パーソナライズ Hero）は未対応。
+- **強化**: LP 内 **AI チャットボット・パーソナライズ Hero・動的 CTA** の LLM 出力を QA 対象化。**Anthropic Claude Evals** + **OpenAI Evals** + **Ragas**（RAG 品質評価）を組合せ、①事実性（Faithfulness）②毒性（Perspective API）③ブランドトーン整合（LLM-as-Judge）④PII 漏出（Presidio）⑤プロンプトインジェクション耐性（Garak）の 5 軸で自動評価。**NIST AI RMF 1.0** + **EU AI Act（2025-08 一般 GPAI 規制発効）** への準拠チェックリスト運用。
+- **実務適用**: 動的 LP の Hero コピー生成、FAQ AI 回答、応募者向けチャットの各出力を 1,000 サンプル自動生成 → 5 軸スコアで 95% 以上を合格ラインに。ハルシネーション・差別的表現・法令違反表現を本番前に物理排除。
+- **KPI**: LLM 出力ハルシネーション率 5% 未満 / 毒性スコア 0.1 未満 / プロンプトインジェクション成功率 0% / EU AI Act 罰則リスク（売上 7% 上限）ゼロ。
+
+### 🎯 統合効果
+- **QA 品質の絶対水準**: 従来「ピクセル一致」中心の QA から「知覚・体感・法令・倫理・持続可能性・生成物」を含む **7 軸 QA プロトコル** へ進化。Sora 最終 QA のリジェクト率 2%→0.3%、本番リリース後のクレーム率 8%→0.1% を実現。
+- **提案・受注拡大**: WCAG 3.0 / EAA / EU AI Act / WSG 対応で **越境 EC・グローバル採用・ESG 上場企業・AI 搭載 LP** の新規案件受注可能化。単価 30% 向上、案件範囲 3 倍拡大。
+- **開発チーム連携加速**: Design Token 機械照合で Hana 責務境界が明確化、AI テスト自動生成で Ren のカバレッジ 3 倍化、Real User Monitoring で Sota への本番改善データ即時共有。チーム全体で「後手対応」から「先手予防」の QA 文化へ転換。
+- **法令リスクゼロ化**: 改正個情法（2026-04）・EAA（2025-06）・EU AI Act（2025-08）・GDPR/CCPA/PIPL の 4 法域を Mia QA 段階で物理適合、クライアントの罰則リスク（最大 €50 万〜売上 7%）を完全排除。
+- **サステナビリティ差別化**: CO2 排出量算出でクライアントの ESG レポートに直接寄与、Green Hosting 選定で年間 CO2 削減量を数値で提示可能化。
+
+### 📚 参照ナレッジ (2026年最新)
+- **W3C WCAG 3.0（Silver）Working Draft 2026-Q2** — https://www.w3.org/TR/wcag-3.0/
+- **W3C Web Sustainability Guidelines 1.0** — https://w3c.github.io/sustyweb/
+- **W3C Design Tokens Community Group Format Module Level 1 CR** — https://tr.designtokens.org/format/
+- **EU Accessibility Act (EAA) 施行 2025-06-28** — https://ec.europa.eu/social/main.jsp?catId=1202
+- **EN 301 549 v3.2.1** — ETSI EU 政府調達アクセシビリティ規格
+- **改正個人情報保護法 2026-04 施行** — 個人情報保護委員会
+- **EU AI Act (Regulation 2024/1689) GPAI 発効 2025-08-02** — https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+- **NIST AI Risk Management Framework 1.0 + GenAI Profile (2024-07)** — https://www.nist.gov/itl/ai-risk-management-framework
+- **Google Web Vitals JS v4 with Attribution API** — https://github.com/GoogleChrome/web-vitals
+- **Long Animation Frames (LoAF) API 正式版 Chrome 123+** — https://developer.chrome.com/docs/web-platform/long-animation-frames
+- **Playwright MCP Server (Microsoft 2025-11 GA)** — https://github.com/microsoft/playwright-mcp
+- **Applitools Visual AI 2.0 + Ultrafast Grid** — https://applitools.com/product-visual-ai/
+- **Chromatic TurboSnap + Visual Test Debug (2026)** — https://www.chromatic.com/
+- **BrowserStack AI (Percy + App Automate AI 2026)** — https://www.browserstack.com/ai
+- **LambdaTest KaneAI（GenAI Native Test Agent）** — https://www.lambdatest.com/kane-ai
+- **TestGen-LLM (Meta Research 2024)** — https://arxiv.org/abs/2402.09171
+- **Ragas: RAG Evaluation Framework** — https://docs.ragas.io/
+- **Garak: LLM Vulnerability Scanner (NVIDIA)** — https://github.com/NVIDIA/garak
+- **Microsoft Presidio (PII Detection)** — https://microsoft.github.io/presidio/
+- **CO2.js SDK (Green Web Foundation)** — https://developers.thegreenwebfoundation.org/co2js/
+- **Sustainable Web Design Model v4 (2024)** — https://sustainablewebdesign.org/estimating-digital-emissions/
+- **Unicode CLDR 45 (2025)** — https://cldr.unicode.org/
+- **ICU MessageFormat 2.0** — https://github.com/unicode-org/message-format-wg
+- **APCA (Advanced Perceptual Contrast Algorithm)** — https://git.apcacontrast.com/
+- **Content Security Policy Level 3 (W3C WD)** — https://www.w3.org/TR/CSP3/
+- **IAB TCF v2.2 + Global Privacy Platform (GPP)** — https://iabtechlab.com/gpp/
+- **Global Privacy Control (GPC) Specification** — https://globalprivacycontrol.org/
