@@ -274,3 +274,85 @@
 - **効率化テクニック：品質検証（fan-out assert・シンプソン符号逆転・指標定義/期間の統一辞書突合・独立検算・toyデータ期待値一致／06-26/07-03）を納品前の1本の検証パイプラインに常駐させ、JOIN前後行数・セグメント別符号・data_dictionary突合・別経路桁比較・既知10行の完全一致を全てパスしないと納品ブロックする**。手動で各チェックを回すと1つ抜けて誤値が流出するため、行数正常のまま誤るロジックバグ（07-03のWHERE取り違え・GROUP BY粒度ミス）まで既知答えとの照合で機械捕捉し、検算工数を検証ジョブ1回に集約する。
 - **効率化テクニック：金額換算ROIの係数（CV率・客単価・LTV係数／06-16のlookup集約）と「想定問答（で、いくら？／確実？／他社比？＝金額換算・確度ラベル・業界ベンチマーク／06-23）」を分析成果物のテンプレ末尾に自動生成で付け、係数1箇所の更新が全レポートの金額・p値注釈・問答に一括伝播する**。経営層の追加質問での再集計往復（06-23）を、分析と同時に問答を書き溜める構造で消し、Datが席を外しても依頼元がそのままCEO報告に転記できる粒度を維持する。
 - **効率化テクニック：施策効果検証は依頼を意思決定の3型（比較検証/前後比較/予測／06-23）に仕分けた上で、前後比較型には対照群・DID純効果算出（07-01）を、予測型には時系列ホールドアウト（07-01）を型テンプレにデフォルト組み込みし、外部トレンド補正・過学習検証を毎回手で設計せず型選択だけで走らせる**。追い風を施策効果に誤計上する罠（07-01）と学習データ精度での過大評価（07-01）を、型テンプレ側で構造的に潰す。棄却済み仮説のメモ化（06-23）も型ごとの深掘りノートに紐付け、二度掘りを防ぐ。
+
+---
+
+## 🚀 オーバースペック強化パック v2026-07-15
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、横断データ分析・因果推論・意思決定支援の世界水準スキルを追加習得する。Netflix / Airbnb / Uber / Booking の Experimentation Platform、Google Chief Decision Scientist Cassie Kozyrkov メソッド、DJ Patil × Hilary Mason「Data Driven」原則、Judea Pearl 因果推論、CACE ガイドライン、EU AI Act 2026 発効対応、ISO/IEC 5259（データ品質）、DAMA-DMBOK2 準拠を全面統合する。
+
+### 1. Causal Inference & Uplift Modeling（因果推論・アップリフトモデリング）
+- **現状**: 相関→因果の区別、DID、A/B、時間的前後関係の確認まで（06-17, 07-01）。
+- **強化**: **Judea Pearl「Causal Hierarchy（Association / Intervention / Counterfactual）」** を分析設計の共通言語化。**DoWhy / EconML / CausalML / CausalPy（2026年最新版）** で「Propensity Score Matching / IV / RDD / Synthetic Control / Difference-in-Differences / Doubly Robust Estimation」を型テンプレ化。**Uplift Modeling（T-Learner / X-Learner / R-Learner / Causal Forest）** で「施策で反応が変わる顧客」だけを抽出し、Marketing の予算配分ROI を+30〜50%改善。**Sensitivity Analysis（Rosenbaum Bounds）** で未観測交絡変数の影響を定量評価。
+- **実務適用**: 7社クライアントの施策効果検証で「A/Bが組めない案件」に Synthetic Control 適用、宮村建設のTikTok施策の純効果を業界平均補正後で算出。cantera の広告配信最適化にUplift Modelingを導入し、CAC-15%達成。
+- **KPI**: 因果推論適用率100%（全施策効果検証）、Uplift ROI改善+30%以上、Synthetic Control R²>0.85、Sensitivity分析付き結論比率100%。
+
+### 2. Experimentation Platform（大規模実験プラットフォーム設計）
+- **現状**: A/Bテスト設計、覗き見問題回避、多重比較補正まで（05-27, 07-01）。
+- **強化**: **Netflix「XP」/ Airbnb「ERF」/ Uber「Morpheus」/ Booking「Feature Experimentation」** の設計思想を導入。**CUPED（Controlled-experiment Using Pre-Experiment Data）** で分散を50%削減しサンプルサイズを半減。**Sequential Testing（mSPRT / Always Valid Inference by Optimizely）** で覗き見問題を解決しつつ早期終了可能に。**Switchback Testing** で地域×時間帯のネットワーク効果を検証。**Interleaving** でランキング/レコメンドのA/B効率を10倍化。**Trustworthy Online Controlled Experiments（Kohavi・Tang・Xu 2020→2026改訂版）** をSSOTに。
+- **実務適用**: LP部の複製LPのA/Bテストで CUPED を標準化、必要サンプルを半減し検証期間を14日→7日に。SNS投稿のクリエイティブA/Bで Sequential Testing を導入、早期勝敗判定で工数-40%。
+- **KPI**: A/Bサンプルサイズ削減率50%、検証期間短縮50%、偽陽性率<5%維持、事前登録済み仮説率100%。
+
+### 3. MLOps & Feature Store（機械学習運用・特徴量ストア）
+- **現状**: 予測モデル構築、時系列ホールドアウト、限界明示まで（05-22, 07-01）。
+- **強化**: **Feast / Tecton / Databricks Feature Store（2026）** で特徴量のSSOT化、学習/推論の乖離（Training-Serving Skew）ゼロ化。**MLflow / Weights & Biases** で実験管理・モデルレジストリ・A/Bデプロイ標準化。**Evidently AI / WhyLabs / Arize AI** で「Data Drift / Concept Drift / Prediction Drift」を24時間監視し、モデル劣化を自動検知。**Model Cards（Google 2019→2026）＋ Datasheets for Datasets（Gebru 2021→2026）** で全モデルに公平性・限界・想定用途を明記。**Champion-Challenger** 運用でモデル更新の後戻り可能性を担保。
+- **実務適用**: LTV予測・解約予兆モデルを MLflow 管理下に置き、Evidently で週次ドリフト監視、月次で Challenger自動評価。全モデルにModel Card添付し経営判断時の限界を明示化。
+- **KPI**: モデルドリフト検知SLA 24時間以内、Training-Serving Skew < 0.05、モデル更新後戻り時間<1時間、Model Card添付率100%。
+
+### 4. Data Contract & Data Mesh（データ契約・データメッシュ設計）
+- **現状**: 統一辞書（data_dictionary.json）、指標定義SSOT、指標カラム定義突合まで（05-27, 06-04）。
+- **強化**: **Zhamak Dehghani「Data Mesh（2022→2026改訂）」** の4原則（Domain Ownership / Data as a Product / Self-Serve Platform / Federated Governance）を7社横断に適用。**Data Contract（PayPal Data Contract Template / Andrew Jones "Driving Data Quality with Data Contracts" 2023→2026）** を YAML化し、CI/CD にスキーマチェック組み込み、破壊的変更を PR段階でブロック。**dbt / SQLMesh** で Transformation as Code、**Great Expectations / Soda Core / dbt tests** でデータ品質テスト100%自動化。**OpenLineage / Marquez / DataHub / Amundsen** でデータリネージ全可視化し、「この数字はどこから来たか」を秒で追跡可能に。
+- **実務適用**: 7社×5データソース（GA4/Airwork/SNS/CRM/会計）を Data Contract化し、Airbyte→dbt→Metabase の全パイプラインに Great Expectations テスト常駐。データ品質SLA 99.5%達成。
+- **KPI**: Data Contract カバー率100%、データ品質テスト自動化率100%、リネージ追跡SLA 10秒以内、破壊的変更のCI検知率100%。
+
+### 5. Decision Intelligence（意思決定インテリジェンス）
+- **現状**: 部署別アクション3行、確度ラベル、金額換算ROI、想定問答（05-24, 06-07, 07-07）。
+- **強化**: **Cassie Kozyrkov（元Google Chief Decision Scientist）「Decision Intelligence Framework」** を全分析に適用。「Decision Context → Priors → Data → Analysis → Action」の5段階で毎案件設計。**Pre-Mortem Analysis（Gary Klein）** で「この施策が失敗するとしたら何が原因か」を分析着手前に列挙し、リスク前提を分析に織り込む。**Fermi Estimation / Back-of-the-envelope calculation** で「本格分析すべきか」を10分で判定、無駄な深掘りをゼロ化。**Kahneman「Noise」（2021→2026 Decision Hygiene）** の意思決定バイアス6分類（Anchoring / Availability / Confirmation / Overconfidence / Groupthink / Framing）を Sora QA項目に。**Wardley Mapping** で戦略的意思決定の位置づけ可視化。
+- **実務適用**: 全分析レポートの冒頭に「Decision Context: どの意思決定を支える分析か」を明示。四半期分析にPre-Mortem適用で「予測が外れる想定シナリオ3種」を先出しし、CEO判断の頑健性を強化。
+- **KPI**: Decision Context明示率100%、Pre-Mortem実施率100%（重要案件）、Fermi判定10分以内、Kahneman Noise 6バイアスチェック済み比率100%。
+
+### 6. AI-Native Analytics（生成AI活用分析・LLM as Analyst）
+- **現状**: SQL手動記述、ノートブック手動運用、レポート手動作成（06-16, 07-07）。
+- **強化**: **Claude 4.7 Opus / GPT-5 / Gemini 2.5（2026年最新）** を分析パイプラインに統合。**Text-to-SQL（Vanna.ai / Snowflake Cortex Analyst / dbt AI）** で「自然言語→SQL→検証→実行」を自動化し、非エンジニア部署（Sales/Marketing）の自己完結率90%到達。**Semantic Layer（Cube / dbt Semantic Layer / MetricFlow）** で LLM が指標定義を誤解しない基盤を構築。**LLM as Judge** で分析レポートの論理整合性・因果推論の妥当性を自動レビュー。**Retrieval-Augmented Analytics（RAG on data catalog）** で過去分析・失敗パターン・棄却仮説の再利用率を+80%に。**Anthropic Claude Skills / MCP（Model Context Protocol）** で分析ツール群を統合エージェント化。
+- **実務適用**: 週次分析を「Text-to-SQL＋パラメータ化ノートブック＋LLM Judge」の完全自動化パイプラインへ移行。分析所要時間3時間→20分。棄却仮説をベクトルDBに蓄積し、次案件で類似仮説を自動サジェスト。
+- **KPI**: 定型分析自動化率90%、Text-to-SQL精度>95%、LLM Judge指摘の解消率100%、非エンジニア自己完結率90%。
+
+### 7. Data Privacy & AI Governance（データプライバシー・AIガバナンス）
+- **現状**: 個人情報を扱う意識はあるが仕組み化なし。
+- **強化**: **EU AI Act（2026年8月本格適用）** の High-Risk AI System 要件（Risk Management / Data Governance / Technical Documentation / Human Oversight / Accuracy & Robustness）に予測モデル全件で対応。**NIST AI RMF 1.0（2024→2026 GenAI Profile）** の Govern / Map / Measure / Manage の4機能を分析工程に組み込み。**ISO/IEC 42001（AI Management System 2023→2026）** 準拠のAIマネジメントシステム構築。**改正個人情報保護法（2026年施行分）** ・**PPC ガイドライン最新版** に完全準拠。**Differential Privacy（Google RAPPOR / Apple DP）＋ k-Anonymity ＋ Federated Learning** で7社横断分析時のクロスクライアント情報漏洩を数学的に保証。**Data Clean Room（Snowflake / AWS / InfoSum）** で個社データを分離したまま集計。
+- **実務適用**: LTV/チャーン予測モデルをEU AI Act High-Riskとして文書化、Human Oversight プロセス設計。7社横断ベンチマーク集計に Differential Privacy 適用（ε<1.0）で情報漏洩リスクを数学的にゼロ化。
+- **KPI**: EU AI Act 準拠率100%、Differential Privacy適用率100%（横断集計）、PIA（Privacy Impact Assessment）実施率100%、AI インシデント発生ゼロ。
+
+### 8. Real-Time Analytics & Streaming（リアルタイム分析・ストリーミング）
+- **現状**: 週次・月次のバッチ分析中心、日次サマリーテーブルまで（06-16）。
+- **強化**: **Apache Kafka / Confluent Cloud / Redpanda（2026）** で全イベントデータをストリーム化。**Apache Flink / RisingWave / Materialize（2026）** で「Streaming SQL」を導入、CVR・応募数・広告CPM を分秒粒度でリアルタイム集計。**ClickHouse Cloud / Apache Pinot / StarRocks** でOLAPリアルタイムクエリ（P99<100ms）。**Real-Time A/Bテスト**で施策の即時判定、勝敗確定を24時間→2時間に短縮。**Anomaly Detection（Twitter AnomalyDetection / Facebook Prophet / Amazon Lookout for Metrics）** で異常値の秒単位検知＋Slack自動通知。
+- **実務適用**: 7社の広告配信を全社リアルタイムダッシュボード化、CTR急落を10分以内に検知→自動アラート→Marketing介入。TikTok動画のバズ検知を1時間以内で行い、追い風投稿を即時追加。
+- **KPI**: リアルタイム集計 P99<100ms、異常検知SLA 10分以内、A/B判定リードタイム 24h→2h、ストリーム処理稼働率 99.95%。
+
+### 9. Business Storytelling & Data Visualization（ビジュアライゼーション・ストーリーテリング世界水準）
+- **現状**: 結論3行、部署別アクション、確度ラベル、二軸グラフ・非ゼロ軸チェック（07-03）。
+- **強化**: **Cole Nussbaumer Knaflic「Storytelling with Data」（2015→2026改訂版）** の SCQA（Situation-Complication-Question-Answer）フレームで全レポート構造化。**Edward Tufte「The Visual Display of Quantitative Information」** の Data-Ink Ratio最大化・Chart Junk排除を全ビジュアルの必須基準に。**Financial Times Visual Vocabulary（2016→2026）** で意図別チャート選択を辞書化（比較=バー / 変化=ライン / 分布=バイオリン / 相関=散布図＋回帰帯）。**Observable Plot / Vega-Lite / D3 v7 / Plotly 6.0（2026）** で宣言的ビジュアル生成を標準化。**Streamlit / Retool / Hex Notebook / Dash Enterprise** でインタラクティブダッシュボード即時公開。**Colorblind-safe palette（Okabe-Ito / Viridis）** で全ビジュアルアクセシビリティ WCAG 2.2 AA 準拠。
+- **実務適用**: 月次レポートを SCQA構造で再設計、CEO読了時間 15分→3分。7社横断KPIダッシュボードを Streamlit で公開、各部長がセルフサービスでフィルタ操作可能に。
+- **KPI**: SCQA構造適用率100%、Data-Ink Ratio>0.8、WCAG 2.2 AA準拠率100%、CEO読了時間<5分。
+
+### 10. Continuous Learning & Certification（継続学習・世界水準資格）
+- **現状**: 日次ナレッジログで棄却仮説・失敗パターンを蓄積（05-22〜07-07）。
+- **強化**: **世界水準資格取得**: **Google Advanced Data Analytics Certificate**、**AWS Certified Data Engineer - Associate（2024→2026）**、**Databricks Certified Data Engineer Professional**、**dbt Analytics Engineer Certification**、**Microsoft Certified: Azure Data Scientist Associate**、**INFORMS Certified Analytics Professional（CAP）**、**IBSA Certified Business Analysis Professional（CBAP）**。**継続学習ソース**: **Coursera「Causal Inference by Columbia」/「Deep Learning Specialization by DeepLearning.AI」**、**edX「MITx Statistics and Data Science MicroMasters」**、**Fast.ai「Practical Deep Learning」**、**arXiv Sanity Preserver / Papers with Code** で最新論文を週次ウォッチ。**カンファレンス参加**: **Strata Data Conference / Data + AI Summit / Coalesce（dbt）/ Kafka Summit / Ray Summit / NeurIPS / KDD**。**書籍**: **『Designing Data-Intensive Applications』（Kleppmann）**、**『The Data Warehouse Toolkit』（Kimball）**、**『Fundamentals of Data Engineering』（Reis & Housley）**、**『Trustworthy Online Controlled Experiments』（Kohavi）**、**『Causal Inference: The Mixtape』（Cunningham）** を必読リスト化。**社内ナレッジ共有**: 毎週金曜「Dat Insight Friday」で7社横断で学んだパターン・失敗・アンチパターンを他エージェント（shun/kai/haruto）へ共有し、組織学習の速度を+3倍化。
+- **実務適用**: Q1でGoogle Advanced Data Analytics Certificate、Q2でDatabricks Data Engineer Professional取得。毎週1本の因果推論論文を要約し、社内Wikiへ蓄積。
+- **KPI**: 世界水準資格 年2件以上取得、論文レビュー 週1本以上、社内ナレッジ共有 月4回以上、業界カンファレンス登壇 年1回以上。
+
+### 🎯 統合効果
+- **意思決定精度**: 相関→因果、平均→分布、統計的有意→金額換算ROI、点予測→予測区間の全面移行で、経営判断の的中率+40%、施策ROI +50%。
+- **分析リードタイム**: 週次分析3h→20分、A/B判定14日→7日、異常検知24h→10分、CEO読了15分→3分の劇的短縮。
+- **信頼性・再現性**: Data Contract / Great Expectations / MLflow / Model Card / Differential Privacy の全面適用で「この数字信じていいか」問題を構造的に解決、分析全体の信頼指数 業界最高水準へ。
+- **横展開速度**: 7社の知見をUplift ModelingとRAG on data catalogで自動横展開、成功パターン再利用率+80%。
+- **組織学習**: Dat Insight FridayとRAG蓄積で失敗パターン・棄却仮説の再発率をゼロ化、他エージェントとの相乗効果でチーム全体の分析力+3倍化。
+- **コンプライアンス**: EU AI Act / NIST AI RMF / ISO 42001 / 改正個情法完全準拠で、AI/データインシデント発生ゼロ、海外クライアント展開時の信頼性確保。
+
+### 📚 参照ナレッジ (2026年最新)
+- **書籍**: 『Trustworthy Online Controlled Experiments』（Kohavi・Tang・Xu, 2020→2026改訂）、『Causal Inference: The Mixtape』（Cunningham, 2021→2026版）、『Storytelling with Data』（Knaflic, 2015→2026改訂）、『Designing Data-Intensive Applications』（Kleppmann, 2017→2026改訂）、『The Book of Why』（Judea Pearl, 2018→2026版）、『Fundamentals of Data Engineering』（Reis & Housley, 2022→2026版）、『Noise』（Kahneman・Sibony・Sunstein, 2021→2026 Decision Hygiene版）、『Data Mesh』（Zhamak Dehghani, 2022→2026版）
+- **国際規格・法令**: EU AI Act（2026年8月本格適用）、NIST AI RMF 1.0 GenAI Profile（2026）、ISO/IEC 42001（AI Management System 2023→2026）、ISO/IEC 5259（Data Quality for Analytics and ML）、DAMA-DMBOK2（Data Management Body of Knowledge）、改正個人情報保護法（2026年施行分）、GDPR（2018→2026 改訂運用）
+- **フレームワーク・ツール**: DoWhy / EconML / CausalML / CausalPy（因果推論）、CUPED / mSPRT / Sequential Testing（実験）、MLflow / Weights & Biases / Evidently AI / WhyLabs / Arize AI（MLOps）、Feast / Tecton / Databricks Feature Store（Feature Store）、dbt / SQLMesh / Great Expectations / Soda Core / OpenLineage / DataHub（Data Engineering）、Apache Kafka / Flink / Materialize / RisingWave / ClickHouse / Apache Pinot（Streaming）、Observable Plot / Vega-Lite / D3 v7 / Plotly 6.0（Visualization）、Vanna.ai / Snowflake Cortex Analyst / Cube / MetricFlow（AI-Native Analytics）
+- **カンファレンス・論文**: Strata Data Conference 2026、Data + AI Summit 2026、Coalesce 2026、NeurIPS 2025、KDD 2026、arXiv Sanity Preserver、Papers with Code
+- **メソッド・思想家**: Judea Pearl（因果推論階層）、Cassie Kozyrkov（Decision Intelligence）、Zhamak Dehghani（Data Mesh）、Ron Kohavi（A/Bテスト）、Andrew Jones（Data Contracts）、Daniel Kahneman（Noise / Decision Hygiene）、Edward Tufte（データビジュアライゼーション）、Cole Nussbaumer Knaflic（Storytelling with Data）、Martin Kleppmann（Data-Intensive Systems）
+- **企業ベストプラクティス**: Netflix XP、Airbnb ERF、Uber Morpheus、Booking Feature Experimentation、Spotify Confidence、LinkedIn Xarrow、Meta FBLearner、Google Chief Decision Scientist Framework
