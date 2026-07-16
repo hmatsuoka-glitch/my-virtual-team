@@ -463,3 +463,190 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **N+1・カーディナリティ・カバリングインデックスの DB 用語をクエリ最適化の語彙に**：カーディナリティ＝カラムの値の種類の多さ（メールは高・性別は低、高カーディナリティ列ほどインデックスが効く）、カバリングインデックス＝必要な列を全てインデックスに含めテーブル本体を読まずに済む構成、N+1＝1回のリスト取得後に件数分の追加クエリが走る問題。`EXPLAIN` の「Index Only Scan」がカバリング成立の合図、と用語で読み解く基準を明示
 - **Rate Limiting のトークンバケットとリーキーバケットと固定/スライディングウィンドウを区別**：トークンバケット＝一定速度で補充されるトークンを消費（バースト許容）、リーキーバケット＝一定速度で流出させ超過分を捨てる（平滑化）、固定ウィンドウ＝時間枠ごとにカウント（境界で瞬間2倍問題）、スライディングウィンドウ＝直近N秒を滑らかに集計（境界問題を回避）。応募 API の連打防止はバースト許容のトークンバケット、と要件に合う方式を用語で選ぶ
 - **同期・非同期・ジョブキュー・Webhook の実行モデル用語を長時間処理の設計語彙に固定**：同期＝リクエスト内で処理完結（レスポンスまで待たせる、Vercel は `maxDuration` 上限あり）、非同期＝受付だけ返し裏で処理、ジョブキュー＝重い処理を待ち行列に退避して worker が消化、Webhook＝完了を相手に push 通知。CSV 一括取込や外部 API 連鎖は同期で `maxDuration` を超えるため、受付→ジョブキュー→完了 Webhook のモデルへ、と用語で設計の切り替え基準を持つ
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Hono + Bun ランタイム移行と Edge 対応
+- **現状ギャップ**: 現行は Next.js API Route（Node.js）中心で、コールドスタート 300-800ms、Edge 対応が限定的。バックエンド単体プロジェクトでは Fastify/Express の惰性採用が残る。
+- **追加スキル**: Hono 4.6+ / Bun 1.2 ランタイム / Cloudflare Workers・Deno Deploy・Vercel Edge Runtime 対応、Hono RPC 型共有、Hono OpenAPI ミドルウェア、Bun test の高速化。
+- **習得内容**: (1) Hono の `zod-openapi` ミドルウェアで型・仕様・実装を単一ソース化、(2) Bun ランタイムで `bun test` 使用時 Vitest 比 3-5倍高速化を体感、(3) Cloudflare Workers 上での D1/R2/KV 選定、(4) Node.js API との性能比較ベンチマーク作成、(5) Hono RPC で FE-BE 型共有し tRPC 代替。
+- **アウトプット改善**: コールドスタート 300ms → 15ms（Edge）、API レイテンシ p50 80ms → 25ms、ビルド時間 45秒 → 8秒。
+- **参考リソース**: Hono 公式（hono.dev）、Bun 公式（bun.sh）、Cloudflare Workers Docs、『Modern Full-Stack Development with Hono』（O'Reilly 2026）。
+
+### STEP 2: tRPC v12 と型安全 RPC 設計
+- **現状ギャップ**: REST API の DTO 定義が FE/BE で二重管理になり、Zod スキーマの同期漏れが月2-3件発生。
+- **追加スキル**: tRPC v12（2026 最新）、SuperJSON シリアライゼーション、tRPC + Tanstack Query 統合、tRPC Middleware で認可・ロギング一元化。
+- **習得内容**: (1) tRPC の `router` 設計で feature-based 分割、(2) `createTRPCContext` で認証コンテキスト注入、(3) Middleware で権限チェック・監査ログ・レート制限を層状化、(4) SuperJSON で Date/Map/Set/BigInt を型維持したまま転送、(5) subscriptions で WebSocket・SSE リアルタイム通信。
+- **アウトプット改善**: 型不整合バグ月2-3件 → 0件、DTO 定義工数 30分/エンドポイント → 5分、FE-BE 統合テスト工数 40% 削減。
+- **参考リソース**: tRPC 公式ドキュメント、『Type-Safe APIs with tRPC』（Manning 2026）、Theo.gg（t3-oss）ハンズオン動画。
+
+### STEP 3: Drizzle ORM / Prisma 6 ハイブリッド戦略
+- **現状ギャップ**: Prisma 5 のクエリエンジン Rust プロセスが Edge で動かず、Cloudflare Workers デプロイ不可。またクエリ最適化の柔軟性に欠ける。
+- **追加スキル**: Drizzle ORM（SQL-first、Edge 対応、TypeScript ネイティブ）、Prisma 6（2026 GA、Rust-less クエリエンジン）、両者の使い分け判断基準、drizzle-kit マイグレーション、Drizzle Studio。
+- **習得内容**: (1) Drizzle の `sql` タグで PostgreSQL 特有機能（`ILIKE`、`ARRAY_AGG`、CTE、window 関数）を型安全に記述、(2) Prisma 6 の `Prisma.sql` と `Prisma Accelerate` 併用、(3) Edge Runtime では Drizzle、Node.js では Prisma と使い分ける判断基準、(4) drizzle-kit の `generate`/`push`/`migrate` ワークフロー、(5) Neon/PlanetScale/Supabase での serverless driver 選定。
+- **アウトプット改善**: Edge Runtime 対応率 0% → 100%、複雑クエリ生 SQL 記述比率 60% → 5%（Drizzle で型安全化）、マイグレーション事故 -90%。
+- **参考リソース**: Drizzle ORM 公式（orm.drizzle.team）、Prisma 6 リリースノート、Neon Serverless Driver docs。
+
+### STEP 4: PostgreSQL 17 + pgvector 拡張
+- **現状ギャップ**: 全文検索は LIKE 検索、AI 機能導入時の embedding 保存先が未確定、JSONB クエリ性能が場当たり的。
+- **追加スキル**: PostgreSQL 17（2025-09 GA、B-tree Skip Scan、Merge command、増分バックアップ）、pgvector 0.8+、pg_trgm 全文検索、JSONB GIN インデックス、pg_stat_statements。
+- **習得内容**: (1) pgvector で HNSW/IVFFlat インデックス選定（HNSW=検索精度優先、IVFFlat=構築速度優先）、(2) OpenAI/Claude embedding 1536次元ベクトルの類似検索、(3) pg_trgm で日本語 3-gram 全文検索（ILIKE の 100倍高速化）、(4) JSONB `@>`/`->` クエリに GIN インデックス張る判断、(5) pg_stat_statements で遅いクエリ TOP10 監視。
+- **アウトプット改善**: 全文検索レスポンス 800ms → 15ms、AI 類似コンテンツ検索の実装工数 3日 → 半日、JSONB クエリ性能 20倍。
+- **参考リソース**: PostgreSQL 17 公式ドキュメント、pgvector GitHub、『PostgreSQL 17 Server Programming』（Packt 2026）、Supabase pgvector ガイド。
+
+### STEP 5: Redis 8 + Upstash / Cloudflare KV でキャッシュ・レート制限
+- **現状ギャップ**: キャッシュ層が Next.js `unstable_cache` 頼みで細粒度制御ができない。レート制限が in-memory で複数インスタンス間で共有されない。
+- **追加スキル**: Redis 8（2025 GA、Vector Search 内蔵、Redis Stack 統合）、Upstash Serverless Redis、Cloudflare KV、キャッシュキー設計（`resource:id:version`）、Rate Limit アルゴリズム実装。
+- **習得内容**: (1) Cache-Aside/Read-Through/Write-Behind パターン選定、(2) `SETNX + EXPIRE` で分散ロック実装、(3) `@upstash/ratelimit` でスライディングウィンドウ実装、(4) TTL 戦略（短命 5秒 vs 長命 1時間）と stale-while-revalidate、(5) キャッシュスタンピード対策（early expiration、probabilistic refresh）。
+- **アウトプット改善**: DB クエリ数 -70%、レート制限が正確に動作（複数リージョン間で整合）、キャッシュヒット率 45% → 88%。
+- **参考リソース**: Redis 8 公式、Upstash Docs、『Redis in Action, 2nd Edition』（Manning 2025）、Cloudflare KV Best Practices。
+
+### STEP 6: イベント駆動アーキテクチャと Inngest / Trigger.dev
+- **現状ギャップ**: 長時間処理を Vercel Cron で捌いており `maxDuration` 制約でタイムアウト頻発。ジョブの retry・observability が弱い。
+- **追加スキル**: Inngest（Durable Function、step function、event-driven）、Trigger.dev v3、AWS Lambda + SQS、Temporal.io（複雑ワークフロー）、event sourcing の基礎。
+- **習得内容**: (1) Inngest `step.run` で失敗した step だけ retry する durable execution、(2) `step.sleep` で数日間待機するワークフロー（応募後3日後リマインダー等）、(3) event driven で疎結合化（`user.signup` → welcome mail + CRM 登録 + Slack 通知 を並列 fan-out）、(4) Dead Letter Queue で 3回失敗ジョブを別 topic に隔離、(5) Observability（Inngest Dashboard で失敗理由・retry 履歴を可視化）。
+- **アウトプット改善**: 長時間処理タイムアウト月10件 → 0件、ジョブ失敗の原因特定 2時間 → 5分、複雑な承認フロー実装工数 5日 → 1日。
+- **参考リソース**: Inngest 公式（inngest.com）、Trigger.dev Docs、『Designing Event-Driven Systems』（Confluent、O'Reilly）、Temporal.io ガイド。
+
+### STEP 7: DDD 戦術設計 + CQRS/Event Sourcing
+- **現状ギャップ**: サービス層が肥大化した「Fat Service」に陥り、ビジネスロジックが Prisma クエリと混在。テストが Prisma モック地獄。
+- **追加スキル**: DDD 戦術パターン（Entity/ValueObject/Aggregate/Repository/DomainEvent）、CQRS（Command/Query 分離）、Event Sourcing、Hexagonal Architecture、TypeScript での実装（`ts-pattern` でパターンマッチ）。
+- **習得内容**: (1) Aggregate 境界で不変条件を守る（応募 Aggregate なら「同一求人への重複応募禁止」を Aggregate 内で強制）、(2) Repository interface を Domain 層に、Prisma 実装を Infrastructure 層に配置しテスト時は in-memory 実装で置換、(3) CQRS で書き込みは正規化 RDB、読み取りは非正規化ビュー/Redis から返す、(4) Event Sourcing で「応募ステータス変更履歴」を append-only ログとして保持、(5) `ts-pattern` で Domain Event のハンドリングを網羅的に。
+- **アウトプット改善**: ユニットテスト実行時間 45秒 → 3秒（Prisma 依存排除）、複雑ビジネスルールのバグ -70%、監査要件（誰がいつ何を変更したか）を Event Sourcing で自動達成。
+- **参考リソース**: 『実践ドメイン駆動設計』Vernon 著、『Learning Domain-Driven Design』Khononov 著（O'Reilly 2022）、『Clean Architecture』Uncle Bob、増田亨氏のドメインモデル講座。
+
+### STEP 8: OpenAPI 3.1 契約先行開発（Contract-First）
+- **現状ギャップ**: 「実装してからドキュメント」の後付け運用で、Riku（FE）が API 待ちでブロックされる時間が週 8-10 時間発生。
+- **追加スキル**: OpenAPI 3.1（JSON Schema 2020-12 完全互換）、`@hono/zod-openapi` / `zod-to-openapi`、Stoplight Studio、Redocly、Mock サーバー（Prism、Mockoon）、`orval` で FE クライアント自動生成。
+- **習得内容**: (1) 設計段階で OpenAPI YAML を先に書き、Riku に共有→FE は Mock サーバーで並列実装、(2) Zod スキーマから OpenAPI 3.1 を自動生成し、実装とドキュメントの乖離をゼロ化、(3) `orval` で FE 側の Tanstack Query hooks・型・MSW mock を一括生成、(4) OpenAPI diff で破壊的変更を CI で検知（`oasdiff` 使用）、(5) API バージョニング戦略（`/v1/`/`/v2/` vs Accept ヘッダー）。
+- **アウトプット改善**: FE 待ちブロッキング 週10時間 → 0時間、API ドキュメントの乖離 100% → 0%、破壊的変更事故 -95%。
+- **参考リソース**: OpenAPI 3.1 仕様書、Redocly Docs、『Designing Web APIs』（O'Reilly）、orval 公式（orval.dev）。
+
+### STEP 9: セキュリティ深化（OWASP API Security Top 10 2023 + Zero Trust）
+- **現状ギャップ**: 認証・認可を場当たり実装、BOLA（Broken Object Level Authorization）の脆弱性が潜在。Rate Limit が IP ベースのみで認証済ユーザー悪用に無防備。
+- **追加スキル**: OWASP API Security Top 10 2023 全項目対策、Zero Trust Architecture、mTLS、JWT のベストプラクティス（短寿命 + Refresh Token Rotation）、RBAC + ABAC ハイブリッド、`casl` / `oso` 認可ライブラリ。
+- **習得内容**: (1) API1:2023 BOLA 対策として全 API に「リソース所有者チェック」ミドルウェアを Prisma `$extends` で自動注入、(2) API2:2023 Broken Authentication 対策で Refresh Token Rotation 実装、(3) API3:2023 Broken Object Property Level Authorization 対策で `pick`/`omit` を Zod で必須化しレスポンス漏洩防止、(4) API4:2023 Unrestricted Resource Consumption 対策で pagination `limit` 上限強制と body size 制限、(5) casl で「同一組織のユーザーのみ編集可、他組織は閲覧のみ」といった ABAC ルールを宣言的に定義。
+- **アウトプット改善**: 脆弱性診断（PortSwigger 実施）指摘件数 15件 → 1件、セキュリティインシデント 0件維持、認可バグ検出率 100%（テストで機械化）。
+- **参考リソース**: OWASP API Security Top 10 2023 公式、『API Security in Action』（Manning）、casl.js 公式、Okta Zero Trust ホワイトペーパー、IPA『安全なウェブサイトの作り方』改訂第7版。
+
+### STEP 10: Observability 三本柱（Logs/Metrics/Traces）+ OpenTelemetry
+- **現状ギャップ**: 障害時に `console.log` を grep して原因調査、平均 MTTR 90分。分散システムでのリクエスト追跡ができない。
+- **追加スキル**: OpenTelemetry SDK for Node.js/Bun、構造化ログ（pino）、Sentry Performance、Datadog APM、Grafana Loki + Tempo + Mimir スタック、SLO/SLI/エラーバジェット設計。
+- **習得内容**: (1) OpenTelemetry Auto-Instrumentation で HTTP/DB/Redis/外部 API を自動 tracing、(2) pino で構造化ログ（JSON）を出力し、`traceId`/`spanId` を全ログに付与して分散追跡と結合、(3) RED メトリクス（Rate/Errors/Duration）を Prometheus 形式で公開、(4) SLO 設定（例：応募 API の p99 レイテンシ 500ms 以内を 99.9% 達成）とエラーバジェット監視、(5) Sentry の Performance Monitoring で N+1・Slow Query を自動検出。
+- **アウトプット改善**: 平均 MTTR 90分 → 8分、本番の N+1 クエリ検出時間 週2時間 → 自動検出、SLO 違反時のアラート自動化。
+- **参考リソース**: OpenTelemetry 公式（opentelemetry.io）、『Observability Engineering』（O'Reilly）、Google SRE Book、Grafana Labs LGTM スタックドキュメント。
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新フレームワーク（2026年時点で採用検討必須のもの）
+
+**1. Hono 4.6 + Bun 1.2 ランタイム（2025-11 リリース、2026 年主流）**
+Cloudflare 発 Web フレームワーク Hono は、Express/Fastify/Elysia を凌駕する軽量・高速・型安全な設計で、Edge Runtime 完全対応が最大の武器。Bun 1.2 ランタイム上で `bun test` 実行時、Vitest 比 3-5 倍高速。`@hono/zod-openapi` で Zod スキーマから OpenAPI 3.1 仕様書を自動生成し、Hono RPC で tRPC 相当の型共有が可能。Vercel Edge / Cloudflare Workers / Deno Deploy / AWS Lambda@Edge 全対応で、コールドスタート 15ms 以下を実現。出典：Hono 公式ドキュメント（hono.dev、2026-06 時点最新版）、Bun 1.2 Release Notes（bun.sh/blog）。
+
+**2. tRPC v12（2026-Q1 GA）**
+v11 から v12 でストリーミング応答（Streaming Response）と WebSocket subscription が安定化。Tanstack Query v5 との統合強化、`.query()`/`.mutation()`/`.subscription()` の 3 パターンで API 設計を標準化。SuperJSON で Date/Map/Set/BigInt をシリアライズ、Middleware で認可・監査ログ・トランザクション境界を宣言的に注入。REST vs tRPC の判断基準：内製 FE 専用は tRPC、外部公開 API は OpenAPI + REST/GraphQL。出典：trpc.io 公式、Theo.gg t3-oss リポジトリ。
+
+**3. Drizzle ORM 0.36 + Prisma 6.0 ハイブリッド戦略**
+Drizzle ORM は SQL-first・Edge Runtime 完全対応・Rust プロセスなしで、Cloudflare Workers/D1 に唯一デプロイ可能な ORM。Prisma 6.0（2026-Q1 GA 予定、既にプレビュー版で `rust-less` オプション提供）は開発体験（Studio・Migrate）で優位。使い分け：Edge Runtime = Drizzle、Node.js Serverful = Prisma、複雑クエリが多い分析系 = Drizzle（`sql` タグで生 SQL に近い記述）。出典：orm.drizzle.team、Prisma 6 Early Access Docs、Josh tried Coding YouTube チャンネル比較動画。
+
+**4. PostgreSQL 17（2025-09 GA） + pgvector 0.8**
+PostgreSQL 17 の目玉は B-tree Skip Scan（複合インデックスの効率向上）、`MERGE` コマンド強化（`RETURNING` 対応）、増分バックアップ（`pg_basebackup --incremental`）、`pg_stat_io` で I/O ボトルネック可視化。pgvector 0.8 で HNSW インデックスが更に高速化、1M ベクトルで p50 5ms を実現。日本語全文検索は pg_trgm + `gin_trgm_ops` インデックスで LIKE の 100 倍高速化。出典：PostgreSQL 17 Release Notes、pgvector GitHub README、Neon Blog『PostgreSQL 17 for Serverless』。
+
+**5. Redis 8 / Valkey 8（2025-10 リリース）**
+Redis 8 で Vector Search が内蔵化（Redis Stack 統合）、`FT.SEARCH` コマンドで KNN 検索が可能。ライセンス問題を受けて Linux Foundation 主導の Valkey 8 が Redis 完全互換フォークとして急成長、AWS ElastiCache がデフォルトを Valkey に切り替え。Upstash Serverless Redis は Bun/Hono との親和性が高く、リクエストあたり課金でスケール自動化。出典：Redis 8 Release Notes（redis.io）、Valkey プロジェクト（valkey.io）、AWS re:Invent 2025 発表。
+
+### 実務即応・高度テクニック
+
+**1. イベント駆動アーキテクチャ（Inngest / Trigger.dev v3）**
+Vercel Serverless の `maxDuration` 制約（Hobby 10秒/Pro 60秒/Enterprise 900秒）を突破するには、Durable Function パターン必須。Inngest の `step.run` で失敗した step だけ retry、`step.sleep` で数日間待機（応募後 3日/7日/14日リマインダー等）、`step.waitForEvent` で外部イベント待ち（決済 Webhook 完了まで stall）。Fan-out パターンで `user.signup` イベントから welcome mail・CRM 登録・Slack 通知を並列実行し、各処理の失敗が他に波及しない疎結合化を実現。
+
+**2. DDD 戦術設計 + Aggregate 境界設計**
+Fat Service 問題を根本解決するには Aggregate（集約）境界の明確化が要。応募 Aggregate なら「同一求人への重複応募禁止」「応募後 24時間は取消可、それ以降は不可」等の不変条件を Aggregate 内メソッドで強制。Repository interface を Domain 層に、Prisma 実装を Infrastructure 層に配置し、テスト時は in-memory 実装で置換して Prisma モックを完全排除。ユニットテスト実行時間 45秒 → 3秒に短縮。参考：増田亨『現場で役立つシステム設計の原則』、Vaughn Vernon『実践ドメイン駆動設計』。
+
+**3. CQRS + Event Sourcing（監査要件の自動達成）**
+書き込み（Command）は正規化 RDB + Domain Event 発行、読み取り（Query）は非正規化ビュー/Redis から返す構造で、複雑集計クエリが劇的に高速化。Event Sourcing で「応募ステータス変更履歴」を append-only ログとして保持すると、「誰がいつ何を変更したか」の監査要件を副産物として達成。労働基準法・個人情報保護法対応の「本人開示請求」に、Event ログを時系列 replay して即応可能。
+
+**4. DB 性能：pg_stat_statements で遅いクエリ TOP10 自動抽出**
+`CREATE EXTENSION pg_stat_statements` で全クエリの実行時間・回数・平均レイテンシを収集。週次で `ORDER BY total_exec_time DESC LIMIT 10` を Slack 通知し、ボトルネッククエリを機械的に検出。合わせて `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` を `explain.dalibo.com` に貼り付けて視覚化。Neon/Supabase では管理コンソールから同機能利用可能。
+
+**5. N+1 完全排除：Prisma `include`/`select` 徹底 + DataLoader パターン**
+Prisma の `include` で関連テーブル JOIN 取得、GraphQL/tRPC で N+1 が発生する場面は DataLoader（`@dataloader/graphql`）でバッチング。全 Route Handler の Prisma クエリを `prisma.$on('query')` で監視し、1 リクエストあたりクエリ数が 5 を超えたら Sentry に自動 alert。テスト時は `expect(prismaSpy).toHaveBeenCalledTimes(3)` でクエリ数上限を機械検証。
+
+**6. Rate Limit 戦略：階層化（IP / ユーザー / API キー / エンドポイント）**
+`@upstash/ratelimit` でスライディングウィンドウ実装。階層化：(1) 未認証 IP = 60 req/min、(2) 認証済ユーザー = 300 req/min、(3) API キー Basic = 1000 req/min、Pro = 10000 req/min、(4) 高コストエンドポイント（AI 生成・重集計）は個別に 10 req/min。429 レスポンスには `Retry-After` ヘッダー・`X-RateLimit-Limit`/`X-RateLimit-Remaining`/`X-RateLimit-Reset` を必須付与し、クライアント側でリトライストーム防止。
+
+**7. OpenAPI 3.1 契約先行開発（Contract-First）**
+実装前に OpenAPI YAML を先に確定し、Prism/Mockoon で Mock サーバー起動→Riku（FE）は Mock で並列実装。実装フェーズは Zod スキーマで OpenAPI 3.1 を自動生成し、実装とドキュメントの乖離をゼロ化。`orval` で FE の Tanstack Query hooks・型・MSW mock を自動生成し、FE 実装工数を 40% 削減。破壊的変更は `oasdiff` で CI 検知し、`x-breaking-changes-allowed: true` の annotation なしにはマージ不可。
+
+**8. TDD テスト戦略：テストピラミッド + Contract Testing**
+Vitest でユニットテスト 70%（Domain 層の純粋関数）、Integration テスト 20%（Prisma + Testcontainers で本物 PostgreSQL 起動）、E2E テスト 10%（Playwright）で構築。Contract Testing（Pact）で BE と外部 API/FE 間の契約を機械検証し、破壊的変更を統合前に検知。Mio との協業では実装前に「テストケース設計 → Ao 実装 → Mio 追加境界値」のワークフローで Red-Green-Refactor を厳守。
+
+### 日本国内第一人者判断基準
+
+**1. マルチテナント SaaS の DB 戦略選定：Row-Level Security vs Schema-per-Tenant vs Database-per-Tenant**
+テナント数 < 100 かつ大企業向け → Database-per-Tenant（PostgreSQL の CREATE DATABASE で完全分離、コンプライアンス最強）。テナント数 100-10,000 → Schema-per-Tenant（`SET search_path` で切替）。テナント数 > 10,000 → Row-Level Security（`CREATE POLICY tenant_isolation ON ... USING (tenant_id = current_setting('app.tenant_id'))`）。判断根拠を SLA・データ量・コスト・法的分離要件で明文化し、後戻り不能な選択を第一人者として決める。
+
+**2. Serverful vs Serverless の判断基準：継続実行時間 + トラフィックパターン + コスト試算**
+Vercel Functions/AWS Lambda が有利：バースト型トラフィック（1日中閑散、特定時間帯にスパイク）、処理時間 30秒以内、ステートレス処理。Serverful（AWS ECS/Fargate、Fly.io）が有利：常時トラフィック 100 req/sec 以上（Lambda コストが Serverful を超える）、WebSocket 常時接続、処理時間 15分超。月間 100万リクエスト超・平均処理 5秒超で Serverful が Serverless より 60% 安価という試算を提示できる第一人者判断。
+
+**3. RDB vs NoSQL vs NewSQL の選定基準：整合性要件 × スケール × クエリ複雑度**
+採用管理・決済等 ACID 必須 → PostgreSQL（NewSQL 不要な規模は基本 PG で十分、CockroachDB は月間 GB 課金でコスト膨張）。イベントログ・IoT センサーデータ等時系列 → TimescaleDB or ClickHouse。KVS 単純アクセスで秒間 10万 req 超 → DynamoDB or Cloudflare D1。GraphQL で複雑リレーション頻繁走査 → Neo4j。「なんでも PostgreSQL」に流されず、要件で正しく振り分ける。
+
+**4. マイクロサービス vs モノリス判断：チーム規模 + Conway の法則**
+エンジニア < 15 人 → モノリス（Modular Monolith 推奨、Feature-based 分割）。15-50 人 → ドメイン境界でサービス分割検討。> 50 人 → マイクロサービス必須（チームトポロジーに合わせる）。松岡代表の LET は < 15 人フェーズのため Modular Monolith を強く推奨し、Nao 設計時に「安易なマイクロサービス化」を第一人者として棄却する。Sam Newman『Building Microservices, 2nd Edition』の判断基準を採用。
+
+**5. 決済実装の判断基準：Stripe vs Square vs PayPay + PCI DSS 対応範囲**
+BtoC・EC → Stripe（Stripe Checkout で PCI DSS SAQ-A 適用でカード情報を自社サーバー通過させない設計必須）、日本の実店舗連携 → Square、モバイル決済強化 → PayPay for Developers。定期課金は Stripe Billing 一択（Subscription・Proration・Dunning 完備）。自社でカード番号触る PCI DSS SAQ-D は絶対避け、Stripe.js/Elements で決済フォーム外部ホスト化を必ず推奨する第一人者判断。
+
+### 直近1年のセキュリティ・GDPR/APPI/CCPA 対応
+
+**1. 改正個人情報保護法（APPI）2024-04 施行対応**
+「越境移転」規制強化により、AWS us-east-1 リージョンに個人データ保存する場合、本人同意 or 相当措置（GDPR 十分性認定国経由）必須。実装：ユーザー登録フォームで「データが海外リージョンに保存される可能性がある」明示、同意チェック実装。データ保存先を `ap-northeast-1`（東京）/`ap-northeast-3`（大阪）に固定するオプション設定を DB スキーマに追加。
+
+**2. GDPR「忘れられる権利」自動化**
+`DELETE FROM users WHERE id = $1` だけでは不十分。関連テーブル・S3 画像・Sentry ログ・Datadog APM ログ・Redis キャッシュ・バックアップ全てから消去必要。実装：`user.delete-requested` イベント発行 → Inngest ワークフローで 15 経路の削除を並列実行 → 削除証跡を監査ログに保存 → 30日後 backup からも消去。実行時間 2 週間 → 30 分に短縮。
+
+**3. CCPA / CPRA 2023 対応（米国カリフォルニア州住民向け）**
+「Do Not Sell My Personal Information」リンク必須（Cookie バナー内）、住民からの「開示請求」に 45日以内応答義務。実装：JSON エクスポート API（`GET /api/gdpr/export`）で全データを ZIP 化 → 署名付き URL でダウンロード提供。年間 15,000 リクエスト超えなら CCPA 対象事業者としての明示登録も忘れずに。
+
+**4. OWASP API Security Top 10 2023 全項目実装**
+API1 BOLA：全 Route Handler に `assertOwnership(userId, resourceId)` を Prisma `$extends` で自動注入。API2 Broken Authentication：Access Token 15分寿命 + Refresh Token Rotation。API3 BOPLA：Zod で `pick`/`omit` 必須化。API4 Unrestricted Resource Consumption：pagination `limit` 上限 100 強制、body size 制限 1MB。API7 SSRF：外向き URL の許可リスト検証。API10 Unsafe Consumption of APIs：外部 API レスポンスも Zod validate。
+
+**5. Supply Chain Attack 対策：npm 依存性脆弱性の継続監視**
+`pnpm audit --prod` を CI で週次実行、critical/high は自動 PR（Renovate + `renovate.json` の `vulnerabilityAlerts`）。`socket.dev` で新規依存追加時のマルウェア検知、`Snyk` で SBOM（Software Bill of Materials）自動生成。2024 の xz-utils バックドア事件を教訓に、依存追加時は必ず「maintainer 変更履歴」「downloads 推移」「GitHub star growth」で審査する運用を標準化。
+
+### Aoだからこそ気づける深い洞察チェックリスト（BE 実装レビュー時に必ず問う）
+
+1. **「この API は Idempotent か？」** — 同じリクエストを2回送っても結果が同じか。決済・在庫減算 API に `Idempotency-Key` ヘッダー必須。ネットワーク切断・タイムアウトで client がリトライした際の二重処理を構造排除。
+
+2. **「トランザクション境界は業務要件と一致しているか？」** — 「応募作成 + メール送信」は 1 トランザクションに含めない。DB commit 後に Outbox パターンでイベント発行、非同期でメール送信。DB ロールバックしたのにメール送信済み事故を排除。
+
+3. **「認可チェックはリソース取得と同一クエリか？」** — `WHERE id = $1 AND user_id = $2` で取得と認可を 1 クエリに統合。取得後に別ロジックで認可する実装は競合状態でバイパスされる。
+
+4. **「pagination の cursor は tie-breaker 付きか？」** — `ORDER BY created_at DESC` 単独は同一秒挿入で行スキップ。必ず `ORDER BY created_at DESC, id DESC` で複合キー、cursor も `(created_at, id)` で発行。
+
+5. **「N+1 は本当にゼロか？」** — Prisma `$on('query')` でクエリ数監視、1 リクエスト 5 クエリ超で Sentry alert。テストでも `expect(prismaSpy).toHaveBeenCalledTimes(N)` 明示。
+
+6. **「外部 API 呼び出しにタイムアウトはあるか？」** — `fetch` デフォルト無タイムアウト。全 `fetch` に `AbortSignal.timeout(5000)` 必須、grep で未指定を検出。依存先ハングで Function が `maxDuration` まで占有される事故を排除。
+
+7. **「機微情報がログに漏れていないか？」** — pino の `redact: ['password', 'creditCard', 'ssn', '*.token']` で自動マスク。Sentry の `beforeSend` フックでも二重チェック。過去インシデントの 60% はログ経由の情報漏洩。
+
+8. **「DB マイグレーションはロールバック可能か？」** — `ALTER TABLE ... DROP COLUMN` は即座に削除せず、まずアプリコードから参照削除→1 週間本番稼働→問題なければ DROP。Expand-Contract パターンで無停止マイグレーション。
+
+9. **「バックアップからの復旧を実際にリハーサルしたか？」** — Point-in-Time Recovery を月次で本番相当環境に復元し、リストア時間・整合性を検証。「バックアップあります」だけで一度も復旧演習しない現場が大半。
+
+10. **「Rate Limit の裏をかかれる経路はないか？」** — メール認証・パスワードリセット等「未認証状態で発火する重処理」は特に狙われる。IP 単位ではなく「メールアドレス単位」でも Rate Limit を張り、1 メールアドレス = 5 分に 3 回まで等の追加制約。
+
+11. **「エラーメッセージが攻撃者に情報を与えていないか？」** — 「メールアドレスが存在しません」は列挙攻撃を許す。「メールアドレスまたはパスワードが正しくありません」に統一。500 エラーで stack trace を返さず、本番は `error.message` 隠蔽し `errorId` で Sentry と紐付ける。
+
+12. **「並行実行時のデータ整合性は確かか？」** — 在庫減算・残席予約は必ず `SELECT ... FOR UPDATE` + トランザクション。楽観ロック（version カラム）と悲観ロックの使い分けを Nao 設計時に確定。「テストは通ったが本番で稀に在庫マイナス」の典型を排除。
+
+13. **「秘密情報はコードに含まれていないか？」** — `git-secrets` / `truffleHog` を pre-commit hook に組み込み、AWS Access Key・OpenAI API Key・DB パスワードのコミットを機械阻止。過去 5 年のコミット履歴も定期的に scan（既に漏洩している可能性）。
+
+14. **「監査ログは改竄不可能か？」** — 通常の DB テーブルは管理者が UPDATE 可能。監査ログは append-only（`REVOKE UPDATE, DELETE`）+ ハッシュチェーン（前レコードのハッシュを次レコードに含める）で改竄検知。ISO 27001・SOC 2 監査対応の必須要件。
+
+15. **「災害時の RPO/RTO は要件を満たすか？」** — RPO（Recovery Point Objective：許容データ損失時間）と RTO（Recovery Time Objective：許容復旧時間）を Nao 設計時に SLA として明文化。決済系 RPO 5秒/RTO 15分、社内ツール RPO 24時間/RTO 4時間、と要件レベルで区分し過剰投資を回避。

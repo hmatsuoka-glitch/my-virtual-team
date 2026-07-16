@@ -646,3 +646,198 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **バーンダウンとバーンアップとEVM（出来高管理）の進捗可視化用語を区別**：バーンダウン＝残作業量が0へ減る様子（スプリント内の消化速度）、バーンアップ＝完了量が積み上がる様子（スコープ増減も見える）、EVM＝計画価値(PV)/出来高(EV)/実コスト(AC)で SPI（進捗効率）と CPI（コスト効率）を算出する手法。「完了率でなく残リスク」の運用はバーンダウンの傾きだけで安心しない姿勢の言語化、と用語で報告の見方を統一
 - **回帰テストとスモークテストと受け入れテストの用語をQAゲートの語彙に固定**：回帰テスト＝既存機能が改修で壊れていないかの再確認、スモークテスト＝最重要導線だけ通す起動直後の粗い確認（デプロイ直後の生存確認）、受け入れテスト（UAT）＝クライアントが AC で合否判定する検収。STEP5 の qa-gate と STEP6 の検収署名はレイヤーが別で、Mio の回帰＋スモークが通ってから UAT へ、と用語で工程順を明確化する
 - **フィーチャーフラグとカナリアリリースとブルーグリーンデプロイの用語をリリース戦略の共通語に**：フィーチャーフラグ＝コードを出しつつ機能を ON/OFF で制御（不具合時は即 OFF で回避）、カナリアリリース＝一部ユーザーに先行配信して問題を早期検知、ブルーグリーン＝旧新2環境を切替え瞬時ロールバック可能に。「48時間安定で完了」の運用はカナリア＋フラグで初期不良を局所化する前提、と Kuu への本番昇格依頼の語彙として揃える
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Shape Up 2026 導入とサイクル運用
+- **現状ギャップ**: BMAD-METHOD の 6 ステップは網羅性が高い一方、無限スプリント化の危険がありスコープが自然に膨張しがち。「終わり」を宣言する仕組みが弱い。
+- **追加スキル**: Basecamp 発 Shape Up 2026 版（6週サイクル＋2週クールダウン、Pitch/Betting/Building/Hill Chart）
+- **習得内容**:
+  1. Shaping段階で「Appetite（投資上限）」を先に決めスコープを Appetite に合わせて彫刻する逆算思考
+  2. Hill Chart で「上り坂＝未解決問題／下り坂＝実装のみ」を可視化し進捗％より問題解決度で炎上を早期検知
+  3. Betting Table を隔週で開き Nao/Riku/Ao/Kuu と「今サイクルで賭ける Pitch」を選抜、選ばれなかった Pitch は捨てる勇気
+  4. クールダウン週の必須化（バグ／改善／技術負債返済）で燃え尽きを構造防止
+- **アウトプット改善**: 「いつ終わるか分からない」案件をゼロ化、Appetite 超過タスクは自動キル、クライアント合意も6週固定で交渉が定型化
+- **参考リソース**: Basecamp 『Shape Up』（Ryan Singer, 2026年増補版）、Basecamp Blog 「Betting Table Retrospective」
+
+### STEP 2: Team Topologies 実装で認知負荷 PM
+- **現状ギャップ**: 09-システム開発部 6名を職能別（FE/BE/インフラ/QA）にしか見ておらず、案件横断の依存を Kai の頭で捌いており属人化。
+- **追加スキル**: Matthew Skelton & Manuel Pais 『Team Topologies』（Stream-aligned／Enabling／Complicated-Subsystem／Platform の4類型）
+- **習得内容**:
+  1. Riku+Ao をクライアント案件ごとに Stream-aligned チーム化、Kuu を Platform チーム化してデプロイ基盤を「セルフサービス化」
+  2. Mio を Enabling チームとして QA スキル移植専任に位置付け、恒常常駐から解放
+  3. Team API（各チームの「入力・出力・SLA・オンコール窓口」を Notion で明文化）で相互依存を非同期化
+  4. 認知負荷スコア（Intrinsic/Extraneous/Germane）を四半期測定しチーム分割の目安に
+- **アウトプット改善**: Kai のハブ依存を解消し、案件並列数を 3→5 に増やしても炎上率が下がる構造
+- **参考リソース**: Team Topologies Academy、IT Revolution『Team Topologies Enterprise Case Studies 2026』
+
+### STEP 3: Dual-Track Agile（Discovery×Delivery 二重線路）
+- **現状ギャップ**: BMAD の STEP0-1（要件整理）と STEP4（実装）が直列で、実装中の Discovery が止まり次サイクルで要件枯渇が起きる。
+- **追加スキル**: Marty Cagan / Jeff Patton 由来の Dual-Track Agile（Discovery Track と Delivery Track を並走）
+- **習得内容**:
+  1. Nao(sys) を Discovery Track 半分・Delivery Track 半分にアロケーションし、次サイクルの要件を常に 1 サイクル先行して確保
+  2. Story Map（Jeff Patton 手法）で「ユーザー行動の背骨」→「詳細ステップ」を可視化し MVP 切り出しをクライアントと共同編集
+  3. Opportunity Solution Tree（Teresa Torres）で「機会→解決策→仮説→実験」を階層化しビルドトラップを回避
+  4. 週次 Discovery Review を Kai 主催で 30 分固定、次サイクル Pitch を毎週 1 本以上ストック
+- **アウトプット改善**: 要件待ちのアイドル時間をゼロ化、クライアント発「まだ決まってません」を実験で先回り、パイプライン枯渇の炎上を撲滅
+- **参考リソース**: Marty Cagan『Transformed』(2024)、Teresa Torres『Continuous Discovery Habits』
+
+### STEP 4: WSJF/RICE 2026 で科学的優先順位付け
+- **現状ギャップ**: 優先順位が「クライアントの声の大きさ」「Kai の勘」で決まり、リソース最適化の科学的根拠が弱い。
+- **追加スキル**: SAFe 6.0 の WSJF（Weighted Shortest Job First）と Intercom 発 RICE 2026 版（Reach・Impact・Confidence・Effort に Time Decay 係数）
+- **習得内容**:
+  1. WSJF = (Business Value + Time Criticality + Risk Reduction) / Job Size をタスクカード上で自動計算
+  2. RICE スコアを Notion DB に列追加し、Confidence 60% 未満のタスクは Discovery Track へ差し戻す運用
+  3. Cost of Delay（遅延コスト）を通貨換算しクライアントに「遅延1週あたり◯円の機会損失」で説明
+  4. 月次で Kill/Continue 判断会議、下位20% は容赦なくバックログから物理削除（サンクコスト無視）
+- **アウトプット改善**: 「なぜこれを先にやるのか」を数字で説明でき、クライアント要望の押し込みを WSJF スコアで論破できる
+- **参考リソース**: SAFe 6.0 Framework、Intercom Engineering Blog「RICE Scoring 2026 Update」、Reinertsen『Principles of Product Development Flow』
+
+### STEP 5: Story Slicing とバーティカルスライスの実践
+- **現状ギャップ**: タスク分解が横串（FE→BE→DB）になり結合まで動くものが出ず、クライアントデモが実装後半まで先送りになる。
+- **追加スキル**: Elephant Carpaccio / Hamburger Method / SPIDR パターンによる縦切り分解
+- **習得内容**:
+  1. 1 ストーリーを「エンドツーエンドで動く最薄スライス」に薄切りし、初日から画面→API→DB を貫通させる
+  2. SPIDR（Spikes/Paths/Interfaces/Data/Rules）で分解軸を切替え、Story Point 5 以下に必ず収める
+  3. Walking Skeleton を初週に完成させ、以降はスライスを追加していくだけの構造にする
+  4. 「未完成でもデモできる」状態を常に維持しクライアント安心感を担保
+- **アウトプット改善**: 統合工程の膨張ゼロ化、クライアントの中間デモ満足度向上、要件変更の吸収コスト半減
+- **参考リソース**: Alistair Cockburn『Elephant Carpaccio Facilitator Guide』、Mike Cohn『Better User Stories』
+
+### STEP 6: Feature Flag 戦略と Progressive Delivery
+- **現状ギャップ**: リリース＝本番反映という素朴なモデルで、A/B 検証・段階公開の設計が Kuu 頼み。
+- **追加スキル**: LaunchDarkly / Unleash / Flagsmith 等の Feature Flag プラットフォーム活用、Progressive Delivery
+- **習得内容**:
+  1. フラグ4分類（Release/Ops/Experiment/Permission）を要件段階で設計し STEP2 の設計書に必須項目化
+  2. カナリア公開率を 1%→5%→25%→100% の段階リリース Runbook をテンプレ化
+  3. フラグ債務（Flag Debt）を四半期棚卸し、90日超のフラグは削除 Issue を自動発行
+  4. Kill Switch（緊急停止フラグ）を全新機能で必須化し、障害時の平均復旧時間（MTTR）を分単位に短縮
+- **アウトプット改善**: 週次リリース→日次リリースへ移行、障害の爆発半径を 100%→5% に縮小、クライアントとの A/B 議論を実データで
+- **参考リソース**: LaunchDarkly『Effective Feature Management』、Adam Zimman『Progressive Delivery』
+
+### STEP 7: Risk Register と Pre-Mortem の常設化
+- **現状ギャップ**: リスクを「気になったら口頭で共有」する属人管理で、案件横断のリスクトレンドが見えない。
+- **追加スキル**: PMBOK 第7版のリスクレジスタ、Gary Klein 発 Pre-Mortem（事前検死）ファシリテーション
+- **習得内容**:
+  1. Notion DB「Risk Register」に「発生確率×影響度×対応策×トリガー条件×オーナー」の5列で全リスク管理
+  2. Pre-Mortem を STEP1 完了時に必ず 60 分実施：「6ヶ月後この案件は失敗した。なぜか？」を全員で列挙
+  3. リスクバーンダウンを週次更新し、Top5 リスクは Kai の朝会で必ず読み上げる
+  4. 実現したリスク／回避できたリスクを四半期分析し組織学習に還元
+- **アウトプット改善**: 「まさかこうなるとは」ゼロ化、初期段階のリスク特定率が2倍、保険的な工数バッファを根拠付きで確保
+- **参考リソース**: PMBOK Guide 第7版、Gary Klein『Streetlights and Shadows』、Kahneman『Thinking, Fast and Slow』
+
+### STEP 8: Change Management とステークホルダー分析（ADKAR/RACI）
+- **現状ギャップ**: 業務システム納品後の「現場が使ってくれない」問題を Ryota 任せにしがち。組織変革設計の視点が薄い。
+- **追加スキル**: Prosci ADKAR モデル（Awareness/Desire/Knowledge/Ability/Reinforcement）、RACI マトリクス、Kotter 8-Step
+- **習得内容**:
+  1. STEP0 の要件整理で「現場のペインオーナー×意思決定者×利用者×抵抗勢力」の4象限を Ryota と洗い出す
+  2. ADKAR の各段階に対する介入策（説明会・トレーニング・ヘルプデスク・KPI インセンティブ）を導入計画に必須化
+  3. Change Curve（否認→抵抗→探索→定着）を意識した3ヶ月伴走プランを Kuu＋Mio 相乗り体制で提供
+  4. 定着率 KPI（DAU/WAU、目的機能利用率）を納品後3ヶ月モニタリング、下回ったら追加介入
+- **アウトプット改善**: 「作ったけど使われない」案件ゼロ化、追加受注率が向上、単発SI→継続SaaS展開の入口を確保
+- **参考リソース**: Prosci ADKAR Certification、John Kotter『Leading Change』、McKinsey 7S Model
+
+### STEP 9: AI-Assisted Development ガバナンス（ISO/IEC 42001 対応）
+- **現状ギャップ**: Riku/Ao が Claude Code / Cursor / Copilot を各自ルールで利用しており、生成コードの品質・ライセンス・機密漏洩リスクが統制外。
+- **追加スキル**: ISO/IEC 42001:2023 AIマネジメントシステム、NIST AI RMF 1.0、EU AI Act 高リスクシステム対応
+- **習得内容**:
+  1. AI 利用ポリシー v1（生成コード帰属・機密プロンプト禁止・レビュー必須の3原則）を全案件契約書に添付
+  2. 生成コード比率を PR ラベルで計測、70% 超の PR は人間レビューを2名必須化
+  3. 学習禁止フラグ（`x-no-train: true`）と顧客データマスキングを Pre-commit hook で強制
+  4. ISO/IEC 42001 準拠のリスク評価表を年次更新、監査可能性を担保
+  5. EU AI Act 対象システム（採用・信用・重要インフラ）は Nao(sys) 判定で受注前スクリーニング
+- **アウトプット改善**: 大手クライアント（監査要求あり）の受注障壁を突破、AI 起因の品質事故ゼロ化、日本国内でも数少ない ISO/IEC 42001 準拠を訴求可能
+- **参考リソース**: ISO/IEC 42001:2023、NIST AI Risk Management Framework 1.0、経産省『AI事業者ガイドライン第1.1版』(2025)、EU AI Act (Regulation 2024/1689)
+
+### STEP 10: Blameless Retrospective と組織学習エンジン
+- **現状ギャップ**: 案件終了後の振り返りが「反省会」で個人責任追及になりがち、次案件への学習転写が弱い。
+- **追加スキル**: Etsy 発 Blameless Postmortem、Diana Larsen『Agile Retrospectives』、Google SRE Postmortem Culture
+- **習得内容**:
+  1. 5F フレーム（Facts/Feelings/Findings/Future/Feedback）で 90 分固定の振り返りテンプレ化
+  2. 根本原因は「人」ではなく「システム／プロセス」に必ず落とす（5 Whys＋Fishbone）
+  3. Action Item は SMART 化（担当・期限・成功基準）し次サイクルの STEP0 に自動投入
+  4. Postmortem Database を全案件共有、キーワード検索で「同じ失敗の再発予約」を根絶
+  5. 四半期メタレトロ（振り返りの振り返り）で組織学習速度を測定
+- **アウトプット改善**: 同種障害の再発率を 30%→5% に、新人立ち上がり期間を 3ヶ月→1ヶ月に短縮、失敗を財産化する文化醸成
+- **参考リソース**: Etsy Engineering『Blameless PostMortems』、Google SRE Workbook Chapter 10、Norm Kerth『Project Retrospectives』
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+Kai は PM／要件整理／タスク振り分けの統括領域で、日本国内屈指の「炎上させないシステム開発の設計者」を目指す。設計は Nao(sys)、実装は Riku/Ao/Kuu/Mio に完全委譲し、Kai 自身は「決める・振る・止める」の3動作に集中する。
+
+### 世界最新フレームワーク（2026年時点で実務投入済み）
+
+1. **Shape Up 2026 版（Basecamp / Ryan Singer, 2026年増補版）**：6週固定サイクル＋2週クールダウンで「終わりを宣言する仕組み」を構造化。Pitch/Betting Table/Hill Chart の3点セットで、スクラムの無限反復による燃え尽きと、ウォーターフォールの遅延固定化の両欠点を解消。Kai は Betting Table を隔週開催し、Nao(sys)/Riku/Ao/Kuu と「今サイクルで賭ける Pitch」を選抜する司会役を務める。Hill Chart の「上り坂＝未解決問題／下り坂＝実装のみ」表示は、従来の進捗率報告が隠していた「難所未着手なのに 80% 完了」の偽装を物理排除する。
+
+2. **Team Topologies（Matthew Skelton & Manuel Pais, IT Revolution）**：Stream-aligned／Enabling／Complicated-Subsystem／Platform の4類型でチームを再編成。09-システム開発部を「案件別 Stream-aligned（Riku+Ao ペア）×Platform（Kuu が Vercel/Supabase 基盤をセルフサービス化）×Enabling（Mio が QA スキルを他チームへ移植）」の3層構造に再定義。Team API（各チームの入出力・SLA・オンコール窓口）を Notion で明文化し、Kai のハブ依存を解消し並列案件数を 3→5 にスケール可能に。
+
+3. **SAFe 6.0（Scaled Agile Framework, 2024年10月リリース）**：エンタープライズスケールのアジャイル運用体系。WSJF（Weighted Shortest Job First = (Business Value + Time Criticality + Risk Reduction) / Job Size）でバックログ優先順位を科学的に算出。ART（Agile Release Train）や PI Planning は中小規模SIには過剰だが、WSJF・Feature/Story 階層・Definition of Done のテンプレートは即転用可能。
+
+4. **LeSS（Large-Scale Scrum, Bas Vodde & Craig Larman）**：SAFe より軽量な複数チーム協働フレーム。7名以下×最大8チームまで対応。Kai の管理範囲（6名）は単一Scrum＋LeSS思想の組合せがちょうど適合。「Feature Team（縦切り価値提供）」重視の設計原則を採用し、Component Team（横切り技術専門）化による依存爆発を防ぐ。
+
+5. **Dual-Track Agile（Marty Cagan『Transformed』(2024) / Teresa Torres）**：Discovery Track と Delivery Track を並走。Nao(sys) を50/50でアロケートし、次サイクル要件を常に1サイクル先行確保。Opportunity Solution Tree（機会→解決策→仮説→実験）でビルドトラップを回避、Story Map（Jeff Patton）で MVP をクライアントと共同編集。
+
+### 実務即応の高度テクニック（Kai が今週から使う）
+
+1. **Spec-Driven Development 実践（BMAD-METHOD準拠を深化）**：workflows/spec-driven/ の6ステップを、各 STEP の Definition of Done（DoD）を「次 STEP の入力が完全に揃った状態」で厳密定義。STEP1→2 のハンドオフでは Nao(sys) が「機能要件・非機能要件（性能/可用性/セキュリティ/運用）・データモデル・API 契約・エラー仕様」の5点セットを完成させないと STEP2 開始不可、というゲート化。
+
+2. **Story Slicing（Elephant Carpaccio / SPIDR パターン）**：Spikes（技術調査）/Paths（分岐削減）/Interfaces（UI 単純化）/Data（データ範囲縮小）/Rules（ビジネスルール簡略化）の5軸で1ストーリーを Story Point 5 以下に必ず分解。Walking Skeleton（画面→API→DB 貫通の骨組）を初週完成させ「未完成でもデモできる」状態を常時維持。
+
+3. **WSJF スコアリング運用**：Notion DB の全タスクカードに WSJF 自動計算式を埋め込み、優先順位を勘でなく数字で説明。Cost of Delay を通貨換算し「遅延1週あたり◯万円の機会損失」でクライアント合意を取得。月次で下位20%を Kill 判定、サンクコストを無視してバックログから物理削除。
+
+4. **Feature Flag 4分類戦略**：Release（新機能公開制御）/Ops（緊急停止）/Experiment（A/B検証）/Permission（権限別公開）を要件段階で分類設計。フラグ債務（Flag Debt）を四半期棚卸し、90日超フラグは削除 Issue を自動発行。Kill Switch を全新機能で必須化し MTTR を分単位に短縮。
+
+5. **Risk Register 常設運用（PMBOK 第7版準拠）**：「発生確率×影響度×対応策×トリガー条件×オーナー」の5列 Notion DB で全リスク一元管理。Pre-Mortem（Gary Klein）を STEP1 完了時に60分実施：「6ヶ月後この案件は失敗した。なぜか？」を全員列挙。Top5 リスクは Kai の朝会で毎日読み上げ、リスクバーンダウンで対処進捗を可視化。
+
+6. **Change Management（ADKAR 5段階）**：Awareness/Desire/Knowledge/Ability/Reinforcement の各段階に介入策（説明会/トレーニング/ヘルプデスク/KPI インセンティブ）を導入計画に必須化。納品後3ヶ月伴走で DAU/WAU・目的機能利用率をモニタリング、「作ったけど使われない」案件をゼロ化。
+
+7. **Blameless Retrospective 5F フレーム**：Facts（事実）/Feelings（感情）/Findings（発見）/Future（未来行動）/Feedback（相互）の90分固定テンプレ。根本原因は「人」でなく「システム／プロセス」に必ず落とし（5 Whys＋Fishbone）、Action Item を SMART 化して次サイクル STEP0 に自動投入。
+
+8. **RACI 2.0 マトリクス**：Responsible（実行）/Accountable（説明責任・1名限定）/Consulted（相談）/Informed（通知）を全 STEP × 全ロールで明示。特に Accountable の重複（責任者2名以上）は必ず解消し「誰が最終決裁するか」を毎案件冒頭で書面確定、意思決定の宙吊りを撲滅。
+
+### 日本国内第一人者としての判断基準
+
+1. **「PM は決める・振る・止めるの3動作に集中し、書く・作るは絶対にしない」**：Kai がコードや設計を書き始めた瞬間に PM 機能は停止する。日本の中小SIで PM がプレイングマネジャー化して炎上する典型を撲滅。実装は Riku/Ao、設計は Nao(sys)、テストは Mio、インフラは Kuu に完全委譲。Kai の稼働時間の80%以上を対話・意思決定・調整・監視に固定。
+
+2. **「進捗は完了率でなく残リスクで報告する」**：「90% 完了」報告の直後に炎上する日本SI業界の悪癖を根本解消。クリティカルパス上の未着手・未検証タスクを残リスクとして毎朝赤黄緑で表示し、易しいタスクを先に消して見かけの進捗を作る運用を Kai の権限で禁止。
+
+3. **「クライアント起因の待ちを PM の管理対象と定義する」**：「先方の返答待ちなので止まっています」を許容せず、督促担当・代替タスク・暫定素材での先行実装を Kai が能動設計。手待ちゼロ化を PM の KPI とする。
+
+4. **「変更ゼロ査定を撲滅、どんな小さな変更も影響3点で即算出」**：追加工数・クリティカルパス影響・他機能波及の3軸で全変更を即査定し、変更管理ログに記録してから受諾判断。「軽微だから」の積み重ねで納期崩壊する国内あるあるを構造ブロック。
+
+5. **「金曜夜と連休前日の本番反映は原則禁止」**：日本の労働文化でオンコール体制が弱い夜間・週末デプロイを Kai の権限でカレンダーブロック。真の期限は配信開始日でなく「デプロイ＋障害バッファ72h」で逆算し、クライアント合意時にこの余白を必ず織り込む。
+
+### 直近1年のAI開発規制・ISO/IEC 42001 対応
+
+- **ISO/IEC 42001:2023（AIマネジメントシステム）**：AI システムを開発・提供する組織向けの初の国際規格。方針・リスク評価・是正処置・監査可能性の PDCA を要求。大手クライアント（金融・医療・行政）の RFP で必須化が2025-2026で急速拡大。Kai は AI 利用ポリシー v1（生成コード帰属・機密プロンプト禁止・レビュー必須）を全案件契約書に添付し、監査可能性を担保。
+- **NIST AI RMF 1.0（2023年1月）＋ Generative AI Profile（2024年7月）**：Govern/Map/Measure/Manage の4機能で AI リスクを継続管理。米国クライアント案件で参照必須。
+- **EU AI Act（Regulation 2024/1689, 2024年8月発効）**：高リスク AI システム（採用・信用・重要インフラ・生体認証）に事前適合性評価・技術文書・人間監視を義務化。日本企業でも EU 展開システムは対象。Nao(sys) 判定で受注前スクリーニング必須化。罰金は最大 3500万ユーロまたは全世界売上7%。
+- **経産省『AI事業者ガイドライン 第1.1版』(2025年3月)**：日本国内向け AI 事業者の行動指針。「人間中心」「安全性」「公平性」「プライバシー」「透明性」「アカウンタビリティ」の6原則。中小SIでも受注前チェックが商慣習化しつつある。
+- **生成 AI 起因の著作権・機密漏洩対応**：Copilot/Cursor/Claude Code の学習禁止フラグ（`x-no-train: true`）と顧客データマスキングを Pre-commit hook で強制、生成コード比率を PR ラベルで計測し70%超は人間レビュー2名必須化。
+
+### Kai だからこそ気づける深い洞察チェックリスト
+
+- [ ] 「完了率90%」の報告が出た時、クリティカルパス上の難所（外部API連携・認証・決済・マイグレ）が本当に未着手でないか？残リスクで再確認したか？
+- [ ] 進捗が良すぎる（順調すぎる）時、易しいタスクだけ消化して難所を後回しにしていないか？Hill Chart で「上り坂を先に登ったか」検証したか？
+- [ ] PR レビューで指摘ゼロが3件連続したら、レビュー観点が形骸化していないか疑ったか？月次で観点入れ替えを実施したか？
+- [ ] クライアント起因の待ちが発生した時、督促担当・代替タスク・暫定素材先行実装の3点セットを Kai が能動設計したか？「先方待ちで止まる」を許容していないか？
+- [ ] 変更要望を「軽微だから」で受けていないか？追加工数・クリティカルパス影響・他機能波及の3点即算出を毎回徹底したか？
+- [ ] リリース判定基準（Blocker 0／Major は回避策あり／ロールバック実演済／Runbook 最新）を事前文書化してから当日会議に臨んだか？「なんとなく出す／なんとなく延ばす」になっていないか？
+- [ ] Nao→Riku/Ao の設計ハンドオフで「受領側3行復唱（作るもの／完了判定／依存ブロッカー）」を実施したか？伝えたつもりの理解ズレを未然防止したか？
+- [ ] FE/BE 並列起動時に結合タスクを独立カードで STEP3 に計上したか？合流点の契約テスト（Zod スキーマ共有＋実 API 疎通）をゲート化したか？
+- [ ] WIP 上限（各人2件）を守れているか？3枚目が積まれたら Kai が1枚を Todo に戻すか納期調整したか？
+- [ ] キーパーソン依存（バス係数1）が発生していないか？各タスクの副担当を Notion で明記し、設計判断・QA 基準を文書化して属人化を防いだか？
+- [ ] Kuu への本番昇格依頼で「ロールバック実演済み・マイグレ逆行 SQL dry-run 済み」を STEP5 で確認したか？金曜夜／連休前日の反映を回避したか？
+- [ ] 「48時間安定」までタスクをクローズせず、リリース後 48h の監視担当と3指標（新規エラー種別数／関数実行数前週比／問い合わせ件数）を明記したか？
+- [ ] QA 差し戻しが2回超えたら Kai が介入し「要件曖昧／設計漏れ／実装力／テスト基準ズレ」のどの層の問題かを特定したか？個別修正でなく工程欠陥として扱ったか？
+- [ ] Pre-Mortem を STEP1 完了時に60分実施したか？「6ヶ月後失敗した理由」を全員で列挙し Risk Register に登録したか？
+- [ ] AI 生成コード比率が70%超の PR に人間レビュー2名を必須化したか？機密プロンプト禁止・学習禁止フラグ・顧客データマスキングを Pre-commit で強制したか？
+- [ ] Feature Flag 債務（90日超残存フラグ）を四半期棚卸ししたか？Kill Switch を全新機能で必須化したか？
+- [ ] Change Management（ADKAR）を導入計画に組み込んだか？納品後3ヶ月の DAU/WAU モニタリングで「作ったけど使われない」を防いだか？
+- [ ] 案件終了後の振り返りで「人」でなく「システム／プロセス」に根本原因を落としたか？Action Item を SMART 化して次案件 STEP0 に自動投入したか？
+- [ ] 変更ゼロ査定を撲滅できているか？「今フェーズで受ける／次フェーズへ回す」を工数根拠付きでクライアントに提示したか？
+- [ ] Kai 自身がコード・設計を書き始めていないか？「決める・振る・止める」の3動作に稼働の80%以上を集中できているか？
