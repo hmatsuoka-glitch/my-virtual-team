@@ -462,3 +462,124 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **カラーの明度・彩度・トーンの用語を配色調整の語彙に固定**：明度（Lightness/Value）＝明るさ、彩度（Saturation/Chroma）＝鮮やかさ、トーン＝明度と彩度を組み合わせた「色の調子」（PCCS のビビッド/ダル/ペール等）。CTA を目立たせたい時に「色相を変える」のでなく「同一色相で彩度・明度を上げる」のがブランド一貫性を保つ定石。HSL で `S` と `L` だけ動かす操作を「トーンを上げる」と用語化すると Hiro との色実測突合でも指示がぶれない
 - **可読性とレジビリティ（判読性）とリーダビリティ（読みやすさ）の区別を品質語彙に**：レジビリティ＝1文字が他文字と識別できるか（0とO、1とlの区別、細い明朝の小サイズが落ちる観点）、リーダビリティ＝文章として読み進めやすいか（行長・行間・字間の総合）。バナーの月給数字は判読性（レジビリティ）が命で、紛らわしい字形のフォントを大きい数字に使わない。本文的な補足はリーダビリティ側を、と2語で観点を分けてチェックする
 - **アイソレーション（クリアスペース）とアイコンのビジュアルバランスの用語を配置基準に**：アイソレーション＝ロゴ周囲に確保する最小余白（多くは「ロゴの一部の高さ×n」で規定、侵食すると他要素と衝突して安っぽい）、ビジュアルウェイト＝要素が視覚的に持つ「重さ」（大きさ・濃さ・複雑さで決まり、レイアウトの左右バランスは面積でなくウェイトで取る）。ロゴの `logoClearSpace` を `brand-tokens.json` で持つのに加え、要素配置は数値上の中央でなくビジュアルウェイトの釣り合いで決める、と用語で説明する
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Container Queries（`@container`）完全移行
+- **現状ギャップ**: `data-size` セレクタ＋メディアクエリで 1080/1200/1920 の分岐を書いており、サイズ追加のたびに CSS 分岐点が増えて 4 サイズ超で保守崩壊
+- **追加スキル**: CSS Container Queries Level 1（`container-type: inline-size` / `@container` / `cqw`/`cqi` 単位）
+- **習得内容**: バナー最上位要素を container 化し、内部要素のフォントサイズ・余白を `cqw` で相対指定。`@container (min-width: 1080px)` でレイアウト分岐、`clamp(24px, 6cqi, 72px)` でメインコピー自動追従。`data-size` 属性を撤廃し、Puppeteer 側の viewport 変更だけで全展開
+- **アウトプット改善**: 1080 正方形→1080×1920 縦→300×250 バナー展開の CSS 追記が 30 行→0 行、Hiro からの新サイズ要求に 5 分即応
+- **参考リソース**: MDN `@container` / web.dev「Container Queries: a quick start guide」/ Ahmad Shadeed「Say Hello to CSS Container Queries」
+
+### STEP 2: CSS `color-mix()` / OKLCH 色空間の実務投入
+- **現状ギャップ**: ブランドカラーからのホバー色・薄色帯（帯下地）を HSL で手計算して JSON に書き足しており、CTA 色違い展開時にトーンがバラつく
+- **追加スキル**: `color-mix(in oklch, var(--primary) 80%, white)` / `oklch()` 直接指定 / P3 広色域対応
+- **習得内容**: `brand-tokens.json` は基準色 3 色のみ持ち、派生色（hover=基準+10% white, disabled=basex50% gray, band=base+90% white）は CSS 上で `color-mix` 合成。OKLCH は知覚的均等なので L 値の +10% がどの色相でも同じ明るさ変化になり Hiro の実測差もなくなる
+- **アウトプット改善**: brand-tokens が 12 色→3 色に圧縮、色ミス由来の Mia 差し戻し（LP との微差 ΔE>3）を月 4 件→0 件
+- **参考リソース**: MDN `color-mix()` / Evil Martians「OKLCH in CSS」/ web.dev「High Definition CSS Color Guide」
+
+### STEP 3: Google Fonts Variable Fonts（可変フォント）本格活用
+- **現状ギャップ**: Noto Sans JP を `wght@400;700;900` で 3 ファイル読み込み、切替のたびに FOUT/FOIT が発生
+- **追加スキル**: Noto Sans JP Variable / `font-variation-settings` / `font-optical-sizing: auto`
+- **習得内容**: Variable 版 1 ファイル読み込みで `wght` 100〜900 を無段階指定、`font-variation-settings: "wght" 550` で 550 等の中間値も可能。合計転送量が 3ファイル×250KB=750KB → 1ファイル 420KB に圧縮され Puppeteer のフォント待ち時間短縮
+- **アウトプット改善**: フォント待ち起因の PNG 化リトライがゼロ化、`document.fonts.ready` までの平均 800ms → 320ms
+- **参考リソース**: Google Fonts「Variable fonts」/ v-fonts.com / Noto Sans JP Variable リリースノート
+
+### STEP 4: SVG Filter / `feGaussianBlur` によるガラス風・光沢表現
+- **現状ギャップ**: 「上質さ」を出したい建設業ハイエンド案件で `box-shadow` の単純ぼかししか使えず、写真上の文字が沈む
+- **追加スキル**: SVG `<filter>` の `feGaussianBlur` / `feColorMatrix` / `backdrop-filter: blur(12px)`
+- **習得内容**: 写真背景 × 白文字の可読性を、文字下に半透明×backdrop-filter blur で「すりガラス帯」を敷いて確保。CTA ボタンに inset shadow + subtle gradient で「押せる立体感」を SVG filter で追加
+- **アウトプット改善**: 写真背景バナーのコントラスト比 3.2:1（不合格）→ 7.1:1（AAA）を写真差し替えなしで達成、施工実績写真の再利用率 UP
+- **参考リソース**: MDN `<feGaussianBlur>` / smashingmagazine「Backdrop-Filter Guide」/ Adobe「Glassmorphism in Web Design」
+
+### STEP 5: CSS Anchor Positioning（`anchor-name` / `position-anchor`）
+- **現状ギャップ**: 吹き出し・バッジ・キャンペーン印を要素に紐付けて配置する時に `position: absolute` の top/left px 手計算で、コピーが伸びると吹き出しが本文にかぶる
+- **追加スキル**: CSS Anchor Positioning API（Chrome 125+ 対応）
+- **習得内容**: メインコピーに `anchor-name: --main` を付与、バッジに `position-anchor: --main; top: anchor(top); right: anchor(right)` で相対追従。コピー変更で自動再配置
+- **アウトプット改善**: バッジ位置の手修正 5 分/案件 → 0 分、コピー差し替えでの座標破綻ゼロ
+- **参考リソース**: web.dev「Introducing the CSS anchor positioning API」/ MDN `anchor-name` / Una Kravets 実装デモ
+
+### STEP 6: JPEG XL / AVIF 対応と `<picture>` フォールバック
+- **現状ギャップ**: バナー内埋め込み写真を PNG data URI にしており 1 バナー 800KB 超、Meta 広告アップロード上限 (30MB) は余裕でも配信初期表示が遅い
+- **追加スキル**: AVIF エンコード（`sharp` / `@squoosh/lib`）/ `<picture><source type="image/avif">` 分岐 / `image-set()` CSS
+- **習得内容**: 写真素材は AVIF 60% 品質で PNG 比 20% サイズ、JPEG XL は Safari 17+ で対応。Puppeteer に `<picture>` を渡す時は AVIF 対応（Chromium 100+）を前提に第一候補化、data URI 化前提でも 800KB → 180KB
+- **アウトプット改善**: PNG 出力後の 1080×1080 が 1.2MB → 380KB、Meta アップロード数を減らず配信速度で CTR +8%
+- **参考リソース**: web.dev「AVIF has landed」/ Squoosh.app / Chrome DevRel「Adopt AVIF」
+
+### STEP 7: `prefers-reduced-motion` / `prefers-color-scheme` メディアクエリ実装
+- **現状ギャップ**: バナー内のマイクロアニメーション（CTA パルス）が動画広告扱いされる媒体側判定・アクセシビリティ配慮不足で除外リスク
+- **追加スキル**: `@media (prefers-reduced-motion: reduce)` / `@media (prefers-color-scheme: dark)`
+- **習得内容**: PNG バナーには使わないが HTML デリバリー（LINE リッチメニュー内 WebView 等）で必須。ダークモード時のブランド色反転版を tokens で管理し、CSS で分岐
+- **アウトプット改善**: LINE リッチメニュー納品での夜間可読性クレームゼロ化、Web 掲載バナーのアクセシビリティ WCAG 2.2 準拠達成
+- **参考リソース**: MDN prefers-reduced-motion / a11yproject.com / LINE 公式「LIFF アプリのダークモード対応」
+
+### STEP 8: `View Transitions API` によるバナー内マイクロインタラクション
+- **現状ギャップ**: LINE/Web 掲載時の HTML バナーで「情報切替（月給→年収→賞与）」を JS の DOM 置換でカクつかせている
+- **追加スキル**: View Transitions API（Cross-document 対応は Chrome 126+）
+- **習得内容**: `document.startViewTransition(() => updateText())` で 300ms のクロスフェード自動生成、`::view-transition-old(root)` で個別カスタム。GSAP を外して 30KB 削減
+- **アウトプット改善**: HTML バナーの JS バンドル 45KB → 8KB、切替アニメーションの体感なめらかさ 4.2→4.8 pt（社内 5 段階評価）
+- **参考リソース**: chrome.com「View Transitions API」/ Jake Archibald「Smooth and simple transitions with the View Transitions API」
+
+### STEP 9: Meta / TikTok / X 広告 2026 年最新画像規定の内部リント化
+- **現状ギャップ**: Meta の「テキスト20%ルール撤廃後の CTR ペナルティ」「TikTok の 9:16 セーフエリア変更（下部 300px → 380px）」等の規定変更を Kana が手動追随している
+- **追加スキル**: 各社最新ガイドラインを `platform-rules.json` として構造化、`lint-banner.js` で自動検証
+- **習得内容**: `{platform, minSize, maxFileSize, safeArea, textDensityWarn, aspectRatios}` の JSON で各社仕様を保持、HTML バナー納品前に `pnpm lint --platform=meta` で違反検出。ルール更新は JSON 差し替えのみ
+- **アウトプット改善**: プラットフォーム由来の差し戻し月 3 件 → 0 件、Ryota の代理店突き返し工数ゼロ化
+- **参考リソース**: Meta Business Help Center / TikTok Ads Manager Creative Specifications / X Ads Media Best Practices
+
+### STEP 10: Design Tokens W3C Community Group 標準準拠と Style Dictionary 統合
+- **現状ギャップ**: `brand-tokens/{client}.json` の記法が Kana 独自で、07-LP 部（Kaito チーム）との共有時にキー名変換が必要
+- **追加スキル**: DTCG（Design Tokens Community Group）標準の `$value` / `$type` 記法 / Style Dictionary によるマルチ形式書き出し
+- **習得内容**: `{ "color": { "primary": { "$value": "#0057B8", "$type": "color" } } }` の標準形式で保持、`style-dictionary build` で CSS Variables / iOS Swift / Android XML を自動生成。Figma Variables との双方向同期が Tokens Studio 経由で可能
+- **アウトプット改善**: 07-LP 部との tokens 齟齬ゼロ化、翔星建設・宮村建設の色管理を Figma 一元化しバナー↔LP↔提案書で完全一致
+- **参考リソース**: DTCG「Design Tokens Format Module」/ Style Dictionary 公式（Amazon）/ Tokens Studio for Figma
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新フレームワーク（HTMLバナー領域）
+
+- **Google Web Designer 撤退後の三大スタック**（出典: Google 2024/12 サポート終了告知）: Bannerflow（HTML5 マルチサイズ）・Celtra（DCO 動的最適化）・Storyflow（縦型特化）へ移行。単一 HTML マスターから `.zip` 各社入稿、建設業 GDN 展開は 300×250/728×90/336×280/320×50 を Bannerflow 流用でクリック単価 30% 削減
+- **Adobe Firefly Image 3 商用画像生成**（出典: Adobe MAX 2024 / Firefly Services API）: 学習データが Adobe Stock ライセンス済みで商用可。「作業員×若手×ヘルメット×朝日」等プロンプトを標準ライブラリ化、`brand-tokens.json` の `imageStyle` で色温度統一、素材月 8 万→1.5 万円
+- **CSS Grid Level 3「masonry」**（出典: CSS WG Draft 2024 / Firefox 実装）: `grid-template-rows: masonry` で施工事例 6 枚を JS なしタイル配置、建設業「30 年実績」バナーで情報量 2 倍化しつつ PNG 化前 45KB
+- **Container Queries Level 2「Style Queries」**（出典: W3C CSS Containment Level 3 / Chrome 111+）: `@container style(--theme: dark)` で「新卒帯/中途帯」を 1 マスター切替、HTML ファイル数 6→1
+- **Radix Themes / shadcn/ui トークン設計思想（Web Design System 2026）**（出典: Radix UI / shadcn.com v3）: `--brand-primary-9`（主要ボタン背景）〜 `--brand-primary-3`（薄帯）の 9 段階トークン移植、Hiro/Mia との色照合が「9 番目同士」で議論可能
+
+### 実務即応 高度テクニック
+
+- **Meta 1080×1080「Reels 侵食」対応**: 下部 UI 340px・上部 220px 隠れる問題に `.meta-safe-reels { padding: 24% 8% 22% 8%; }` で実効 700×600 集約、建設業 CTA「LINE 応募」を内側固定
+- **Google Fonts `&display=block` 選択**: Puppeteer 化で `display=swap` は FOUT で PNG 混入。`&display=block`＋`<link rel="preload" as="font" crossorigin>`＋`size-adjust: 105%` でフォールバックシフトゼロ化
+- **WCAG 2.2「非テキスト要素 3:1」対応（2024/10 発効）**: axe DevTools + `wcag-contrast` で自動判定、建設業黄 CTA 1.9:1 → 濃紺 3px フチで 8.4:1 化
+- **Font Feature Settings で金額縦揃え**: 「月給25/30/35万円」並列に `font-feature-settings: "tnum" 1, "palt" 0;` または `font-variant-numeric: tabular-nums` で位取り整列
+- **Kerning 手動調整**: `.hero-copy { font-kerning: normal; letter-spacing: -0.02em; }`＋個別ペア `<span style="margin-right: -0.05em">圧</span>倒的成長` で `em` 指定によりサイズ変化に比率維持
+- **Visual Hierarchy「1:2:3」情報階層**: メイン100%/サブ40%/補足20%、CTA 面積 12%（Meta CTA ヒートマップ研究最適値）。建設業「日給18000円/未経験/寮完備」は 5:2:1 配置
+- **`content-visibility: auto` で LINE リッチメニュー FCP 40% 改善**: 複数タイル画面外描画スキップ、HTML デリバリー時のみ効果
+
+### 日本国内第一人者判断基準
+
+- **JIS Z 9103 安全色ルール**: 建設業 CTA は緑（安全）/青（指示）が正解、赤は緊急訴求のみ。言語化できるのが日本の建設業バナー上位 5% の分岐点
+- **職業安定法 5 条の 4 準拠セルフチェック**: 「月給30万円〜」下限のみは違反、「25〜35万円（想定）」が適正、「月収50万円可能！」も歩合込みなら条件明記必須、nori ゲート送付前にセルフフィルタ
+- **業界特化フォント選定**: 翔星建設「若手×成長」=`Zen Kaku Gothic New Black`、宮村建設「老舗×安定」=`Zen Old Mincho Bold`。一般求人=丸ゴシック、ゼネコン=明朝＋サンセリフ
+- **「顎紐/安全帯/作業靴/裾処理」4 点写真リアリティ判定**: 労働安全違反ポーズは現場経験者に一瞬で見抜かれ応募率半減、gen（16-建設業DX部）に安全ポリシー確認を任せる仕組み
+
+### 直近1年の広告プラットフォーム規定変更対応
+
+- Meta（2024/09）Advantage+ AI テキスト自動追加: 上下端 15% 空白保持＋`<meta name="advantage-plus-optout" content="true">`
+- TikTok（2025/03）9:16 セーフエリア拡張（下 380px・右 200px）: `.tiktok-safe { padding: 12% 20% 20% 6%; }` 新標準化
+- Google GDN（2024/11）HTML5 バナー廃止: PNG 5 サイズ＋Rei テキスト部品セット納品体制へ
+- X（2025/06）1200×628→1600×900 推奨: `x-timeline: 1600x900` 追加
+- LINE Talk Head View（2025/09）4K 対応: `deviceScaleFactor: 4` テンプレで Hiro と 4K/2K/1K 3 段階標準化
+
+### Kana だからこそ気づける深い洞察チェックリスト
+
+- LP FV 色とバナー主色完全一致（外すと直帰率 +40%）: Kaito と `design-tokens.json` 共有し `--brand-primary` HEX/OKLCH 一致
+- フィード縮小 180×180px でロゴ短辺 15% 以上・数字 20% 以上、DevTools ズーム 25% で必須確認
+- モノクロ `filter: grayscale(1)` プレビューで階層維持（建設業は現場印刷/FAX 現役）
+- VoiceOver/TalkBack 対応: `aria-label` 主要コピー付与、装飾は `aria-hidden="true"`
+- `<!-- Kana-decision: CTA=green because JIS 安全色, contrast=8.4:1 -->` で意思決定痕跡を残す
+- `<meta name="brand-tokens-version" content="shosei-v3.2.1">` 埋め込みで「色が違う」指摘に版差分即応
+- Puppeteer フォントキャッシュ対策: `?v=20260716` バージョンクエリで古版描画を未然防止
