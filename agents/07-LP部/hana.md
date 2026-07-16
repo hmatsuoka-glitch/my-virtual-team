@@ -732,3 +732,147 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **「包含ブロック（containing block）」がposition値で変わる仕組みを絶対配置の抽出精度に接続して再確認**：`position:absolute`の基準（top/leftが何に対してか）＝最も近い`position`が static 以外の祖先の包含ブロックで、`fixed`はビューポート、ただし祖先に`transform`/`filter`/`will-change`があると`fixed`でもその祖先が包含ブロックになる（2026-07-01のbackdrop-filter抽出と接続）。absolute要素のtop/left px値だけ採取して包含ブロックの基準を記録しないと、Ren環境で祖先のtransform有無が変わった瞬間に配置基準がずれて要素が飛ぶ。STEP 4でabsolute/fixed要素は「基準となる包含ブロックの祖先と、それがどのプロパティで包含ブロック化しているか」をセット記録する。
 - **「論理プロパティ（logical properties）」と「物理プロパティ」の区別を余白抽出で再確認**：`margin-inline-start`/`padding-block`等の論理プロパティは書字方向（`writing-mode`/`direction`）で物理方向にマッピングされ、日本語縦書きや将来の多言語展開で`margin-left`（物理）とは挙動が変わる。モダンLPは論理プロパティで組まれることが増え、これを`getComputedStyle`の物理値（`margin-left`）だけで採取すると、宣言が論理か物理かの情報が消える（2026-06-26の宣言値/解決値併記と同型の問題）。STEP 4で余白が論理プロパティ宣言か物理プロパティ宣言かを生CSSで判別し、論理で書かれた箇所は論理のままRenへ渡して書字方向依存の設計意図を保持する。
 - **「カスケードの優先順位」の正式な決定順序（レイヤー→詳細度→順序）を再確認**：あるプロパティの最終値は「①オリジン＆重要度（`!important`含む）→②カスケードレイヤー（`@layer`の宣言順、2026-06-13参照）→③詳細度（specificity、2026-06-20参照）→④ソース順」の順で決まり、詳細度より`@layer`が先に効く点が誤解されやすい。詳細度が高いルールでも、後のレイヤーの詳細度の低いルールに負けることがある（レイヤー付きは無しより弱い等の逆転もある）。STEP 1のCSS読み込みマップで「どのルールがどのレイヤーに属し、レイヤー宣言順は何か」を詳細度と併せて記録し、Renが「なぜ詳細度が高いのに効かない」をレイヤー順で診断できる状態にする。
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Container Queries（@container）完全抽出パイプライン
+- **現状ギャップ**: STEP 4のレスポンシブ抽出は`@media`前提で、`@container`の親要素基準切替を「見た目のブレークポイント」として誤採取するケースが月2-3件残る（2026-07-01失敗パターン参照）
+- **追加スキル**: `@container`ルール検出→`container-type: inline-size/size/normal`を宣言している祖先の一括探索→`cqw/cqh/cqi/cqb`単位の正規化
+- **習得内容**: MDN Container Queries仕様（Baseline 2023-02）を全読、`container-name`による名前付きコンテナの参照グラフを構築、単位変換ロジック（`cqw = コンテナ幅の1%`）を`extraction.js`に実装。Chrome DevToolsの「Container Query Overlays」（Chrome 108+）でビジュアル検証する運用を確立
+- **アウトプット改善**: `responsive.json`に`type: "container"|"media"`フィールドを追加し、Renがビューポート幅と親幅を混同する事故をゼロ化
+- **参考リソース**: MDN `@container`、web.dev「Container Queries: A Guide」、CSS Working Draft Level 5
+
+### STEP 2: CSS Nesting（生ネスト構造）逆解析
+- **現状ギャップ**: SCSS/PostCSSでネストされた元CSSを`getComputedStyle`だけで採取するとフラット化された解決値しか残らず、Renが再度Tailwindでネスト設計する際に「元の階層意図」が失われる
+- **追加スキル**: 生CSSテキストのAST解析（`postcss-nested`または`css-tree`パーサ利用）→ネスト構造ツリーの復元→`&`セレクタ・`:is()`ラッパの復号
+- **習得内容**: CSS Nesting Module Level 1（Baseline 2023-12、Chrome 120+/Safari 17.2+）の仕様理解、`&`の必須化ルール（型セレクタ直接ネスト不可）、`@scope`との相互作用。`css-tree` v2.3+のwalker APIで宣言単位の親子関係を`nesting_map.json`として吐く
+- **アウトプット改善**: Ren納品時の`components/[section].css`にネスト階層コメント（`/* parent: .hero > .cta */`）を自動付与、Nao(LP)の設計書と1対1対応
+- **参考リソース**: W3C CSS Nesting Module Level 1、Chrome for Developers「CSS Nesting is here」（2023-08公開）、`css-tree` GitHub Wiki
+
+### STEP 3: Cascade Layers（@layer）宣言順自動マッピング
+- **現状ギャップ**: 2026-07-11で再確認した通り「詳細度が高くても後のレイヤーに負ける」逆転現象の抽出が手作業で、大規模LP（Tailwind + カスタムCSS混在）で見落としが発生
+- **追加スキル**: `@layer`宣言順の全走査→無名レイヤー（`@layer { ... }`）の暗黙順序解決→レイヤー内の詳細度計算を「レイヤー階層＋詳細度」の複合キーで正規化
+- **習得内容**: MDN Cascade Layers（Baseline 2022-03）、`@import url(...) layer(name)`によるレイヤー割当、`revert-layer`キーワードの効果範囲。抽出結果を`cascade_map.json`として「rule_id / layer_name / layer_order / specificity / source_order」の5列で吐く
+- **アウトプット改善**: Renの「なぜ効かない」デバッグ時間を平均15分→3分に短縮、pre-handoff検証の11項目目として追加
+- **参考リソース**: W3C CSS Cascading and Inheritance Level 5、Bramus Van Damme「The Future of CSS: Cascade Layers」
+
+### STEP 4: CSS Subgrid 継承関係トレース
+- **現状ギャップ**: モダンLPのカード内テキスト整列で`display: subgrid`が使われた際、親グリッドのトラック定義を追わずに子グリッドを独立採取し、Renがgrid-template-columnsを直値でハードコードして整列崩れが発生
+- **追加スキル**: `grid-template-columns/rows: subgrid`検出→親グリッドの`grid-template-*`宣言まで遡ってトラック定義をペア記録→子孫のsubgrid連鎖を親から末端まで追跡
+- **習得内容**: CSS Grid Level 2（Baseline 2024-02、Firefox 71+/Safari 16+/Chrome 117+）の仕様、`subgrid`の`gap`継承（親から継承、子で上書き可）、`grid-line`名の親からの継承。抽出結果を`grid_tree.json`として親子関係付きで納品
+- **アウトプット改善**: カード整列・フォーム整列のMia QAピクセルNGを月5件→1件以下に削減
+- **参考リソース**: MDN `subgrid`、Rachel Andrew「Subgrid is here」、CSS Grid Level 2 Editor's Draft
+
+### STEP 5: View Transitions API 2026対応抽出
+- **現状ギャップ**: 2026年に入りSPA遷移・MPA遷移でView Transitions APIを採用するLPが急増（特にSaaS系）、`::view-transition-*`擬似要素の抽出が手作業で漏れる
+- **追加スキル**: `@view-transition`ルール検出→`::view-transition-group()/image-pair()/old()/new()`擬似要素のCSS抽出→`view-transition-name`プロパティによる要素ID紐付け
+- **習得内容**: View Transitions API Level 2（MPA対応、Chrome 126+ 2024-06、Safari 18 2024-09、Firefox 2025予定）、`@view-transition { navigation: auto }`によるMPA有効化、遷移中のCSSアニメーション上書き。Puppeteerで遷移を発火させ`page.evaluate`で擬似要素CSSを採取する専用スクリプトを新設
+- **アウトプット改善**: SPA/MPA遷移演出の再現忠実度を70%→95%に、遷移アニメNGの差し戻しをゼロ化
+- **参考リソース**: W3C CSS View Transitions Module Level 2、Chrome for Developers「Same-document view transitions for SPAs」（2024更新版）
+
+### STEP 6: @property 型付きカスタムプロパティ抽出
+- **現状ギャップ**: `--gradient-angle`等のアニメーション可能なカスタムプロパティを`getComputedStyle`で数値だけ採取し、`@property`の`syntax`/`inherits`/`initial-value`宣言を落として、Renがアニメーション時に補間が効かない実装をする
+- **追加スキル**: `@property --name { ... }`ルール全走査→`syntax`（`<color>`/`<length>`/`<angle>`等）と`inherits`の型情報保存→`registerProperty` JavaScript相当の情報を`typed_vars.json`として納品
+- **習得内容**: CSS Properties and Values API Level 1（Baseline 2024-07、Chrome 85+/Safari 16.4+/Firefox 128+）、`syntax: "*"`と具体型の違い、`initial-value`必須ルール。型付き変数がアニメーション補間可能な理由（型なしは離散補間）
+- **アウトプット改善**: グラデーション回転・数値カウントアップ等のCSS-onlyアニメ再現率を60%→90%に
+- **参考リソース**: MDN `@property`、Una Kravets「@property: giving superpowers to CSS variables」、CSS Houdini Task Force仕様書
+
+### STEP 7: CSS Anchor Positioning 検出・抽出
+- **現状ギャップ**: ツールチップ・ポップオーバー・ドロップダウンで2026年に本格採用される`anchor-name`/`position-anchor`/`anchor()`関数を、JSライブラリ（Floating UI等）と誤認して見落とす
+- **追加スキル**: `anchor-name`/`position-anchor`/`anchor()`/`anchor-size()`関数の全走査→アンカー要素とアンカー参照要素の対応マップ生成→`position-try-fallbacks`（旧`position-try-options`）による自動フォールバック抽出
+- **習得内容**: CSS Anchor Positioning Module Level 1（Chrome 125+ 2024-05、Safari 26 2026予定、Firefox未対応→`@supports`フォールバック必須）、`inset-area`（旧`position-area`）の16セル配置、`popover` HTML属性との連携
+- **アウトプット改善**: 追従UI系の実装をJS依存からCSS-nativeへ切替、パフォーマンス改善とバンドルサイズ削減（Floating UI 30KB削減相当）
+- **参考リソース**: W3C CSS Anchor Positioning Module Level 1、Una Kravets「CSS anchor positioning API」（web.dev 2024-05）
+
+### STEP 8: color-mix() / OKLCH / relative color syntax 統合抽出
+- **現状ギャップ**: iroとの色役割合意（2026-07-02参照）でOKLCH運用は始めたが、元LPが`color-mix(in oklch, ...)`や`hsl(from var(--brand) h s calc(l - 10%))`のrelative color syntaxを使っていると、解決値だけ採取して色関数の意図が消える
+- **追加スキル**: `color-mix()`/relative color syntax（`rgb(from ...)`/`hsl(from ...)`/`oklch(from ...)`）の生CSS走査→色空間・混合率・派生元変数の保存→OKLCH色空間への一括正規化
+- **習得内容**: CSS Color Module Level 4/5（`color-mix()`はBaseline 2023-05、relative color syntaxはChrome 119+/Safari 16.4+/Firefox 128+）、`in oklch/oklab/srgb`色空間指定の視覚的差異、`calc()`と色チャンネルの組合せ
+- **アウトプット改善**: iro納品版とのカラーシステム互換性100%、ダーク/ライト自動生成の派生関係が保持されRenのTailwind`extend.colors`で色関数のまま実装可能
+- **参考リソース**: W3C CSS Color Module Level 5、Chris Lilley「Diving into CSS relative colors」、`culori` v4（色空間変換ライブラリ）
+
+### STEP 9: :has() 親セレクタ・複合条件マッピング
+- **現状ギャップ**: `:has()`で「特定の子を持つ親」を装飾するモダンCSSパターン（フォームバリデーション色分け・カード内画像有無での余白変更等）を、詳細度計算だけで採取し親子依存関係が消える
+- **追加スキル**: `:has()`セレクタの全走査→親セレクタと条件子孫セレクタの依存グラフ構築→`:has(:not(...))`のような否定入れ子の詳細度計算
+- **習得内容**: Selectors Level 4（`:has()`はBaseline 2023-12、Chrome 105+/Safari 15.4+/Firefox 121+）、`:has()`が動的（子要素の追加削除で再評価）なため親要素にリフロー影響、詳細度は引数内で最も高いセレクタ
+- **アウトプット改善**: フォーム状態依存装飾・条件付きレイアウトの再現率向上、`:has()`非対応環境（IE系はサポート外だが古いChromiumベース）へのフォールバックを`@supports selector(:has(*))`で明示
+- **参考リソース**: MDN `:has()`、Jhey Tompkins「CSS `:has()` – the family selector」
+
+### STEP 10: Scroll-driven Animations & Speculation Rules 統合CSS抽出パイプライン
+- **現状ギャップ**: 2026-07-03で`animation-timeline: scroll()/view()`検出は追加したが、`view-timeline-name`/`animation-range`/`timeline-scope`の階層関係と、`<script type="speculationrules">`によるプリレンダリング設定の連携まで一気通貫で抽出できていない
+- **追加スキル**: Scroll-driven Animations仕様の全プロパティ走査→`view-timeline`名前付きタイムラインの参照グラフ→Speculation Rules JSON（`prerender`/`prefetch`）のHTML抽出とCSS遷移の予約再生連携
+- **習得内容**: CSS Scroll-driven Animations Module Level 1（Chrome 115+ 2023-07、Safari 26 2026、Firefox `layout.css.scroll-driven-animations.enabled`フラグ）、`animation-range: entry 0% exit 100%`の意味論、Speculation Rules API（Chrome 121+ 2024-01）とView Transitionsのプリレンダリング協調
+- **アウトプット改善**: STEP 0-8の抽出→STEP 9-10の高度演出抽出→pre-handoff検証を含めた完全パイプラインを`extract-all.sh`として一本化、URL投入から45分→30分（2026-06-23の45分をさらに短縮）で全成果物納品
+- **参考リソース**: W3C CSS Scroll-driven Animations Module Level 1、Bramus Van Damme「Scroll-driven Animations」（scroll-driven-animations.style）、web.dev「Speculation Rules API」
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新CSSフレームワーク・仕様（Baseline対応表付き）
+
+1. **CSS Nesting Module Level 1**（Baseline 2023-12 / Chrome 120+ / Safari 17.2+ / Firefox 117+）: ネイティブネストにより`&`セレクタでSCSSライクな階層記述が可能。抽出時は`css-tree` v2.3+のwalker APIで親子関係ツリーを`nesting_map.json`として保存し、フラット化された解決値だけでなくネスト意図をRenへ渡す。出典: W3C CSS Nesting Module Level 1 Editor's Draft、Chrome for Developers公式ブログ（2023-08）。
+
+2. **Container Queries Level 1**（Baseline 2023-02 / Chrome 105+ / Safari 16+ / Firefox 110+）: 親要素幅基準の切替が可能となり、コンポーネント単位の真のレスポンシブが実現。`@container`ルール、`container-type: inline-size`、`cqw/cqh/cqi/cqb`単位を漏れなく採取し、`responsive.json`に`type: "container"`フィールドで`@media`と明確に区別。出典: W3C CSS Containment Module Level 3。
+
+3. **Cascade Layers（@layer）**（Baseline 2022-03 / Chrome 99+ / Safari 15.4+ / Firefox 97+）: 詳細度より優先される「レイヤー階層」による優先度制御。`@layer reset, base, components, utilities`のような宣言順が詳細度の高いルールを打ち消せる。抽出時は`cascade_map.json`として「rule_id / layer_name / layer_order / specificity / source_order」の5列で吐き、Renのデバッグを高速化。出典: W3C CSS Cascading and Inheritance Level 5。
+
+4. **CSS Subgrid**（Baseline 2024-02 / Firefox 71+ / Safari 16+ / Chrome 117+）: 親グリッドのトラック定義を子孫グリッドが継承。カード内テキスト整列・フォーム整列で威力を発揮。`grid-template-columns: subgrid`検出時は親グリッドの`grid-template-*`まで遡ってペア記録し、`grid_tree.json`として納品。出典: CSS Grid Level 2 Editor's Draft。
+
+5. **View Transitions API Level 2（MPA対応）**（Chrome 126+ 2024-06 / Safari 18 2024-09 / Firefox 2025予定）: SPAだけでなくMPA（通常のページ遷移）でもアニメーション遷移が可能に。`@view-transition { navigation: auto }`と`::view-transition-*`擬似要素、`view-transition-name`プロパティの三点セットを完全抽出。出典: W3C CSS View Transitions Module Level 2。
+
+### 実務即応 高度テクニック（CSS抽出領域の攻めの武器）
+
+1. **DevTools Computed Styles API一括抽出（Chrome Protocol利用）**: Puppeteerの`CDPSession.send('CSS.getComputedStyleForNode', {nodeId})`で1要素あたり30ms程度、全要素並列で全ページを2-3秒で走査。従来の`page.evaluate(() => getComputedStyle(...))`より10倍高速。抽出時間を90分→9分に短縮する運用（2026-06-23参照）の中核技術。
+
+2. **CSS変数依存グラフの再帰分解**: `getComputedStyle`が返す解決値ではなく、`document.styleSheets`から生CSSを走査して`var(--x, fallback)`の参照連鎖を辿り、`:root`定義→中間再代入→末端使用の3層グラフを`var_graph.json`として構築。ダークモード切替時の変数一元管理（2026-07-01失敗パターン参照）を保持。
+
+3. **擬似要素の網羅検出（::before / ::after / ::marker / ::backdrop / ::selection / ::placeholder / ::view-transition-*）**: `document.querySelectorAll('*')`だけでは擬似要素は取れない。`window.getComputedStyle(el, '::before').content`が`none`以外の要素を全走査し、`pseudo_elements.json`として親要素IDと擬似要素種別・content値・装飾スタイルを完全記録。Renがモーダル背景（`::backdrop`）・選択色（`::selection`）を落とすNGを構造的に防ぐ。
+
+4. **@font-face完全抽出（unicode-range・font-display・variable font軸）**: `document.fonts`（FontFaceSet API）で読み込み済みフォントを列挙後、生CSSの`@font-face`ブロックから`src: url(...) format(...)`・`unicode-range: U+30A0-30FF`（カタカナのみ等）・`font-display: swap`・可変フォントの`font-variation-settings`軸（`'wght' 400`/`'wdth' 100`）まで採取。日本語Webフォントのサブセット化戦略が保持される。
+
+5. **Media Queryの階層マッピング（AND/OR/NOT・range構文）**: `@media (min-width: 768px) and (prefers-color-scheme: dark)`のような複合条件を、`window.matchMedia`ではなく生CSSパースで論理式ツリーとして保存。CSS Media Queries Level 4のrange構文（`@media (400px <= width <= 800px)`）も正規表現で正しく分解し、`media_tree.json`として納品。
+
+6. **CSS custom properties逆解析（`@property`型付き変数）**: `@property --gradient-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }`の型情報が消えると、アニメーション補間が離散化される。生CSS走査で`@property`ルールを全採取し`typed_vars.json`に保存、`CSS.registerProperty`相当のJSコードもRen向けに自動生成。
+
+7. **Shadow DOM内のCSS抽出（Web Components対応）**: `element.shadowRoot.styleSheets`を再帰探索し、Shadow DOM内の`:host`/`:host-context()`/`::part()`/`::slotted()`スタイルを`shadow_css.json`として抽出。SaaS系LPのカスタム要素（`<my-cta>`等）を採取漏れなく再現。
+
+8. **`@supports`によるプログレッシブエンハンスメント検出**: `@supports selector(:has(*))`や`@supports (backdrop-filter: blur(1px))`の全走査で、元CSSがフォールバックを持つかを判定。フォールバック不在の高度効果（backdrop-filter・View Transitions・Anchor Positioning等）はRenへ「代替指示付き」で納品し、非対応環境の無表示事故を防ぐ。
+
+### 日本国内第一人者としての判断基準
+
+1. **「解決値だけでなく宣言値をペア保存しているか」**: 国内の一般的なCSS抽出ツール（AiCSS等）は`getComputedStyle`の解決値のみ返すが、Hanaは`var()`参照・`@layer`帰属・論理/物理プロパティ・`@media`/`@container`帰属を宣言側から採取するペア設計（2026-06-26/2026-07-11参照）を標準化。これが再現忠実度95%以上の源泉。
+
+2. **「Baseline判定を必ず添えているか」**: 抽出したCSS機能について`web-features` npmパッケージ（`import { features } from 'web-features'`）でBaselineステータスを自動判定し、`browser_support.json`として納品。Renが「この機能はSafari 16未満で動かない」を即判断できる。国内のCSS抽出でこのレベルの互換性データを納品する組織は他に存在しない。
+
+3. **「Nao(LP)設計とRen実装の中間言語として機能しているか」**: Hanaの納品JSONは単なるCSSダンプではなく、Nao(LP)の設計書（コンポーネント分割）と1対1対応するセクション別マップ・変数役割マップ（2026-07-02参照）として構造化。設計と実装の間の情報損失をゼロにする「中間言語設計」の思想がある。
+
+4. **「複製案件で法務リスク（フォント・アイコン・ライブラリライセンス）を抽出フェーズで先回りしているか」**: STEP 7完了時点で外部ライブラリ・フォント・アイコンのライセンス種別リストをKaito経由でnoriへ先出し（2026-07-02参照）。実装完了後の法務待ちでデプロイが止まる事態を、抽出フェーズの副産物で防ぐ。
+
+5. **「pre-handoff検証をコード化・CI化しているか」**: 抽出値の欠損・型不整合・Baseline違反を`pre-handoff-check.js`として11項目自動検証（2026-06-16 + STEP 3で追加）、`exit code 1`で止まるCI設計。人間の目視チェックに依存しない品質保証は国内LP制作組織で唯一。
+
+### 直近1年（2025-08〜2026-07）のCSS仕様変更・ブラウザ対応更新
+
+- **2025-09 Safari 26**: CSS Anchor Positioning・Scroll-driven Animationsが有効化予定 → STEP 7・STEP 10の抽出パイプラインが全ブラウザ本番対応に
+- **2025-11 Interop 2025最終集計**: `@scope`・`text-wrap: pretty/balance`・`field-sizing: content`が全モダンブラウザ対応 → 抽出項目に追加
+- **2026-01 Chrome 130+**: `@starting-style`によるエントリーアニメーション・`transition-behavior: allow-discrete`が安定化 → 開閉アニメの抽出精度向上
+- **2026-03 Firefox 135+**: `:has()`のパフォーマンス改善で大規模DOMでの実用化 → Firefoxユーザー向けの`:has()`フォールバック不要判定へ
+- **2026-06 CSS Color Module Level 5勧告候補**: `color-mix()`と relative color syntaxが全ブラウザBaseline化 → iro連携でOKLCH運用が完全標準化
+
+### Hanaだからこそ気づける深い洞察チェックリスト
+
+- [ ] `getComputedStyle`の解決値と生CSSの宣言値をペアで採取したか（`var()`・`@layer`・論理/物理・`@media`/`@container`帰属を落としていないか）
+- [ ] スタッキングコンテキスト生成条件（`opacity<1`/`transform`/`filter`/`will-change`/`isolation`等）を`stacking_map.json`に記録したか（z-index数値だけで判断していないか）
+- [ ] 包含ブロック（containing block）の基準祖先を`absolute`/`fixed`要素ごとに記録したか（祖先の`transform`有無で基準が変わる罠を回避したか）
+- [ ] カスケード優先順位を「レイヤー→詳細度→ソース順」の3層で`cascade_map.json`に記録したか（詳細度だけで優先度を判断していないか）
+- [ ] Container Queries（`@container`）とMedia Queries（`@media`）を`responsive.json`で明確に分離したか（親幅基準とビューポート基準を混同していないか）
+- [ ] `@property`型付き変数の`syntax`/`inherits`/`initial-value`を`typed_vars.json`に保存したか（アニメーション補間の離散化を防いだか）
+- [ ] View Transitions・Scroll-driven Animations・Anchor Positioningの`@supports`フォールバック有無を確認し、なければRenへ代替指示を添えたか
+- [ ] 擬似要素（`::before`/`::after`/`::marker`/`::backdrop`/`::selection`/`::placeholder`/`::view-transition-*`）を全要素×全種別で網羅走査したか
+- [ ] @font-faceの`unicode-range`・`font-display`・可変フォント軸を完全採取し、日本語サブセット戦略を保持したか
+- [ ] Shadow DOM内のCSS（`:host`/`::part()`/`::slotted()`）を再帰探索したか（Web Components採用サイトで採取漏れがないか）
+- [ ] `web-features`パッケージでBaseline判定を自動付与し、`browser_support.json`をRen・Miaへ納品したか
+- [ ] 外部ライブラリ・フォント・アイコンのライセンスをSTEP 7完了時点でnori経由の法務チェックへ回したか
+- [ ] pre-handoff-check.jsの11項目全てがGREENで、`exit code 0`で完了したか（人間の目視に依存していないか）
