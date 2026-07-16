@@ -614,3 +614,135 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **「render-blocking / parser-blocking / defer / async」の読み込み制御用語の正確な区別**：async＝ダウンロードは非同期だが実行順不定（独立タグ向き）、defer＝HTML パース完了後に記述順で実行（依存あり DOM 操作向き）、`type="module"` は既定で defer 相当。GA4・チャット等の計測タグに async を使うと実行順依存で計測漏れが起きるため、依存関係で async/defer を選ぶ。CSS の render-blocking 回避は `<link media>` や `preload`+`onload` で行い、JS の制御語と混同しない
 - **「メモ化（memoization）: React.memo / useMemo / useCallback」の役割差の再確認**：React.memo＝コンポーネントの再レンダリング抑止（props 浅比較）、useMemo＝計算結果のキャッシュ、useCallback＝関数参照の安定化（子の memo を効かせる前提）。INP 悪化時に闇雲に全部包むのは逆効果（比較コストとメモリで悪化）で、実測（React DevTools Profiler）で不要再レンダリングを特定してから対象を絞るのが正しい。LP は静的中心なので、そもそも state を末端に閉じ込める設計で多くは不要という判断軸も持つ
 - **「バンドル分析用語 tree shaking / code splitting / dynamic import」の使い分け**：tree shaking＝未使用 export をビルドで除去（`export *` の barrel や副作用ありモジュールで阻害）、code splitting＝バンドルをルート/コンポーネント単位に分割、dynamic import＝`import()` で必要時に遅延読込。First Load JS 削減は「barrel 排除で tree shaking を効かせる＋重い依存（地図・エディタ）を dynamic import で分割」の両輪。`@next/bundle-analyzer` の出力をこの3語で読み解き、どの手段でどのチャンクを削るか判断する
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Next.js 15 App Router 完全掌握（PPR / Server Actions / after()）
+- **現状ギャップ**: Pages Router 時代の実装癖（`getServerSideProps` 発想）が残り、Partial Prerendering・`use cache` の適用判断がブレる。建設業LPで問い合わせフォームだけを動的に、それ以外は静的化する「境界」を設計書段階で示せない
+- **追加スキル**: PPR の Suspense 境界設計、`unstable_after` による計測タグの応答外実行、Server Actions の revalidateTag / revalidatePath 使い分け、`use cache` directive の粒度設定
+- **習得内容**: Vercel 公式ドキュメントの PPR ガイドを全読み、翔星建設LPの CTA 直上に Suspense を切って TTFB を 200ms 台へ。Server Action からの Slack 通知を `after()` に逃がし INP 悪化を防ぐパターンを常用化。`unstable_cache` の tag 設計を Nao 設計書と1対1マッピング
+- **アウトプット改善**: LCP 2.5秒→1.8秒、Server Action 応答 800ms→180ms（重い処理を `after` で分離）、静的部分と動的部分の境界を Ren の PR で明示化
+- **参考リソース**: Next.js 15 公式 App Router ドキュメント、Vercel Blog「Partial Prerendering (GA)」、Lee Robinson 氏の App Router mental model 記事
+
+### STEP 2: React 19 Server Components / Actions / use() 実装体得
+- **現状ギャップ**: `'use client'` の切り方が肥大化しがちで、Hydration コストを不必要に払っている。フォームは RHF＋onSubmit で組みがちで、React 19 の `useActionState`/`useFormStatus`/`useOptimistic` 未活用
+- **追加スキル**: RSC でのデータフェッチ集約、`useActionState` による pending/error 一元管理、`useOptimistic` での楽観的 UI、`use(promise)` による Suspense 連携
+- **習得内容**: 建設業LPの資料請求フォームを Server Action＋`useActionState` に統一。送信時の楽観的表示（「ありがとうございました」を即時表示→裏で送信）で体感速度を 2秒→即時に。'use client' 境界を「末端の interactive リーフ」に限定するリファクタ手順を確立
+- **アウトプット改善**: First Load JS を 180KB→95KB、Hydration 時間 40%削減、フォーム完了率+15%（体感速度改善効果）
+- **参考リソース**: React 19 公式リリースノート、Dan Abramov 氏の RSC 解説、次期 React DevTools の Suspense タブ
+
+### STEP 3: TailwindCSS v4（Oxide エンジン / CSS-first config）移行
+- **現状ギャップ**: `tailwind.config.ts` の JS 設定に依存し、v4 の CSS-first（`@theme` / `@utility`）に切替できていない。ビルド速度が大規模LPで頭打ち
+- **追加スキル**: `@theme` ディレクティブでの token 宣言、`@utility` でのカスタムユーティリティ、`--color-*` CSS 変数の自動生成、`@source` によるコンテンツ検出
+- **習得内容**: Hana JSON→`@theme` 直書きの自動変換スクリプトを Ren 内製化。Oxide エンジンで build 時間 800ms→80ms へ短縮。カスタムユーティリティを `@utility` に統一し globals.css の @layer components 肥大化を解消
+- **アウトプット改善**: pnpm build 時間 40秒→12秒、CSS バンドル 45KB→28KB、Hana との token 齟齬をゼロ化
+- **参考リソース**: Tailwind CSS v4 公式ドキュメント、Adam Wathan 氏の v4 launch 動画、tailwindlabs/tailwindcss v4 リポジトリの CHANGELOG
+
+### STEP 4: shadcn/ui（Registry v2）＋Radix Primitives 完全活用
+- **現状ギャップ**: shadcn コンポーネントを CLI コピー後に手動改変してしまい、後続バージョンアップの差分取り込みが困難。Radix の a11y 属性を上書きで潰しがち
+- **追加スキル**: Registry v2 の自社 registry 構築、`components.json` の aliases 統一、Radix の `data-*` state セレクタでのスタイリング、`asChild` パターンでの polymorphism
+- **習得内容**: LET 内製の共通コンポーネント（建設業向け Hero / FeatureCard / CTABlock）を自社 registry として公開し `npx shadcn add @let/hero` で全 LP に配信。Radix の keyboard navigation は一切上書きしない実装ルールを Mia チェック項目化
+- **アウトプット改善**: 新規LP起動時のコンポーネント実装工数 50%削減、a11y 差し戻し 80%減、shadcn upstream 更新の取り込みを月1回化
+- **参考リソース**: shadcn/ui 公式 Registry ドキュメント、Radix UI Primitives 公式、shadcn 氏の Twitter で流れる新パターン
+
+### STEP 5: Astro 5＋Content Collections でのLP高速化オプション拡張
+- **現状ギャップ**: 全案件を Next.js で組んでおり、静的コンテンツ中心のLP（採用ピッチLP等）で JS ペイロード過多。Astro 5 の Islands Architecture 未検討
+- **追加スキル**: Astro 5 の Content Layer API、View Transitions API による SPA-like 遷移、`client:visible` によるハイドレーション制御、Astro DB（experimental）
+- **習得内容**: 「フォームが CTA 1つだけ・その他完全静的」なLPは Astro を第2選択肢に据える判断基準を Kaito と合意。Astro＋React Islands で JS 15KB 以下を実現するテンプレを整備し、Next.js とのハイブリッド運用に慣れる
+- **アウトプット改善**: 該当型LPで Lighthouse Performance 100点、First Load JS 15KB以下、宮村建設の採用LPで LCP 1.2秒達成
+- **参考リソース**: Astro 5 公式ドキュメント、Astro Blog「Content Layer API」、Fred K. Schott 氏の講演
+
+### STEP 6: HTMX 2＋Alpine.js による Progressive Enhancement 選択肢
+- **現状ギャップ**: 全てを React で組むオーバースペック案件が存在し、コスト・保守性を圧迫。JS 無効環境での動作担保が弱い
+- **追加スキル**: HTMX 2 の `hx-*` 属性でのサーバー駆動UI、Alpine.js のディレクティブ、CSP 対応のセットアップ、htmx＋Server Actions の連携パターン
+- **習得内容**: 「フォーム主体・SEO 最優先・JS 最小化」の要件時に HTMX を提案できる引き出しを確保。JS 無効時もサーバー再描画で動作する Progressive Enhancement を実装ルール化
+- **アウトプット改善**: 選択肢の広さでクライアント要件フィット率向上、JS 完全無効環境でも 100% 機能する堅牢LPを提供可能
+- **参考リソース**: htmx 2.0 公式ドキュメント、Alpine.js 公式、Carson Gross 氏の Hypermedia Systems 書籍
+
+### STEP 7: View Transitions API＋CSS @scope でネイティブ滑らかUI
+- **現状ギャップ**: 遷移・展開アニメを Framer Motion に頼りバンドル肥大。ネイティブAPI（View Transitions / @scope / :has()）活用が未成熟
+- **追加スキル**: `document.startViewTransition()` の使い分け、`view-transition-name` による要素マッピング、CSS `@scope` によるスタイル汚染防止、`:has()` セレクタでの親条件付きスタイル
+- **習得内容**: LP内のモーダル・タブ切替を Framer Motion から View Transitions に置換し JS -35KB。`@scope` で セクション単位のスタイル閉じ込めを実装ルール化
+- **アウトプット改善**: JS バンドル -35KB、アニメーション実装工数 30%削減、Framer Motion 依存を「必要な複雑ケースのみ」に限定
+- **参考リソース**: MDN「View Transitions API」、web.dev「Smooth transitions with the View Transition API」、Bramus Van Damme 氏のブログ
+
+### STEP 8: Core Web Vitals 2026（INP / LCP / CLS）実装深化
+- **現状ギャップ**: LCP 中心のチューニングに偏り、INP（Interaction to Next Paint）対応が場当たり。フィールドデータ（CrUX）の継続監視が未整備
+- **追加スキル**: INP デバッグ手法（Long Animation Frames API・PerformanceObserver）、`content-visibility: auto` による初期描画スキップ、`scheduler.yield()` によるメインスレッド解放、Speculation Rules API による先読み
+- **習得内容**: Mia の Lighthouse だけでなく PageSpeed Insights の実ユーザー計測（CrUX）を Kaito と Sora で週次レビュー。INP 200ms 超えを自動アラート化し、`scheduler.yield()` で長時間タスクを分割する実装を標準化
+- **アウトプット改善**: 全案件で INP p75 200ms以下を保証、LCP p75 2.5秒以下、CLS 0.1以下の3指標を SLA 化
+- **参考リソース**: web.dev「Core Web Vitals」ガイド、Chrome DevRel の Addy Osmani 氏の記事、`web-vitals` ライブラリ v4
+
+### STEP 9: 情報アクセシビリティ法令対応（改正障害者差別解消法 / WCAG 2.2 AA）
+- **現状ギャップ**: 2024年4月施行の改正障害者差別解消法（民間事業者にも合理的配慮が法的義務化）への対応が案件差別化ポイントに。WCAG 2.2 の新規基準（Focus Not Obscured / Target Size等）未対応
+- **追加スキル**: WCAG 2.2 の新基準9項目（Focus Not Obscured (Minimum) / Dragging Movements / Target Size (Minimum) 24×24CSS px等）、axe-core 自動テスト、`prefers-reduced-motion` / `prefers-contrast` メディアクエリ対応
+- **習得内容**: 全LPで WCAG 2.2 AA 準拠をベースラインに。CTAボタンは最小 44×44 CSS px（Apple HIG 準拠）で組み、focus ring は sticky header で隠れないよう `scroll-margin-top` 設定を標準化
+- **アウトプット改善**: 建設業クライアント（公共工事受注あり）向けに「アクセシビリティ準拠LP」として提案書に明記可能、axe-core 検出 0件を納品条件化
+- **参考リソース**: 内閣府「改正障害者差別解消法」ガイドライン、W3C WCAG 2.2 勧告、総務省「みんなの公共サイト運用ガイドライン」
+
+### STEP 10: Web セキュリティ（CSP Level 3 / Trusted Types / Permissions Policy）実装力
+- **現状ギャップ**: CSP は `unsafe-inline` を許可した緩い設定で運用しがち。フォームからの XSS リスク・サードパーティタグの権限管理が場当たり
+- **追加スキル**: CSP Level 3 の `strict-dynamic`＋nonce 運用、Trusted Types API による DOM XSS 防御、Permissions Policy でのカメラ/位置情報デフォルト拒否、Subresource Integrity（SRI）
+- **習得内容**: Next.js middleware で nonce を注入する CSP テンプレを整備し、`unsafe-inline` を根絶。GA4・Meta Pixel 等は SRI＋Permissions Policy で明示許可。建設業クライアントの個人情報取扱LP（資料請求フォーム）を Trusted Types 対応化
+- **アウトプット改善**: securityheaders.com で A+ 評価を全LPで達成、個人情報保護委員会ガイドライン準拠、クライアント法務レビュー一発通過
+- **参考リソース**: MDN「Content Security Policy」、web.dev「Strict CSP」、Google Web Security Fundamentals、個人情報保護委員会「個人情報の保護に関する法律についてのガイドライン」
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新フレームワーク（実装採用可否まで判定できる状態）
+
+1. **Next.js 15.4（App Router / Turbopack GA）**: Turbopack が dev/build 双方で安定版に到達。Partial Prerendering は experimental→stable フラグへ移行段階、`use cache` directive で段階的キャッシュを宣言可能。建設業LPでは「フォーム以外は静的化＋PPR でフォーム部だけ動的」の設計が Kaito 標準となり、Vercel Edge Network で TTFB 100ms 台を実現。出典: Next.js 公式ブログ「Next.js 15.4」（2025年公開）／Vercel Ship 2025 発表
+2. **React 19（安定版）＋React Compiler**: `useActionState`/`useOptimistic`/`use()` の3種が実務投入段階。React Compiler は Meta 内本番導入済で OSS 版も RC 到達。手動メモ化（useMemo/useCallback）が原則不要となり、Ren の実装コードから memo 系のノイズを削減できる。ただし Compiler の Bailout（オプトアウト）ケースの見極めが必要で、React DevTools の Compiler タブで検証する運用を確立。出典: React 公式ブログ「React 19」／React Conf 2024 講演
+3. **TailwindCSS v4.0（Oxide）**: Rust 製 Oxide エンジンで従来比 10 倍以上の高速化。CSS-first config（`@theme`/`@utility`）で JS 設定ファイル不要化。CSS 変数として color token が自動生成され、`color-mix()` との相性が良い。建設業LPの複数ブランド（本体色を差し替えて A/B）運用で威力を発揮。出典: Tailwind CSS 公式「v4.0: Open Sourced」（2025年1月）
+4. **Astro 5（Content Layer API＋Server Islands）**: Server Islands で「静的骨格＋動的部品を非同期に流し込む」パターンを標準化。Content Layer API で CMS/Markdown/JSON を統一データソースとして扱える。Next.js とのハイブリッド提案時、静的LPは Astro に寄せる判断軸。出典: Astro 公式「Astro 5」（2024年12月）
+5. **shadcn/ui Registry v2**: 自社コンポーネントを OSS 同等の Registry として公開でき、`npx shadcn add @let/*` で全LPに配信可能。LET 内製の建設業特化コンポーネント（施工事例カード・工程スケジュール・お問合せフォーム）を Registry 化することで、案件横断の DRY を実現。出典: shadcn/ui 公式ドキュメント Registry セクション
+
+### 実務即応の高度テクニック（すぐ使える現場実装）
+
+1. **Container Queries（`@container`）フル活用**: メディアクエリではなく親要素幅で分岐。建設業LPの施工事例カードを、Hero下・Feature下・Footer上で同一コンポーネントのまま最適レイアウトに自動切替。`container-type: inline-size` を親に指定し `@container (min-width: 480px)` で分岐を書く。全ブラウザ対応済（2024年時点で 95%+）
+2. **CSS `clip-path` によるヒーロー動的マスキング**: 建設業LP頻出の「斜めカット Hero」を SVG マスクではなく `clip-path: polygon()` で実装。Framer Motion 不要でスクロール連動アニメも `animation-timeline: scroll()` と組み合わせ JS ゼロ実装可能
+3. **Interaction Media Queries（`@media (hover: hover)` / `(pointer: fine)`）**: マウス環境限定のホバー効果を安全に分離。SP のタップで「ホバー状態が残り続ける」バグを撲滅。CTA ボタンのホバー拡大は `@media (hover: hover) and (pointer: fine)` 内でのみ発火させる
+4. **View Transitions API でモーダル・タブをネイティブ滑らか化**: `document.startViewTransition(() => { /* DOM 更新 */ })` で Framer Motion 依存を排除。SPA 遷移も `@view-transition { navigation: auto; }` で1行対応（Chromium 系対応、Safari 順次対応）
+5. **Progressive Enhancement 徹底（JS 無効でも機能）**: フォーム送信を `<form action="/api/submit" method="POST">` で書き、JS が動く場合のみ Server Action で楽観的UIに上書き。JS ブロック環境（社内プロキシ・低速回線）でも動作する堅牢LPを納品
+6. **`content-visibility: auto` による初期描画スキップ**: Above-the-fold 以外の巨大セクション（施工事例100件）に `content-visibility: auto; contain-intrinsic-size: 500px 800px;` を付与し、初期レンダリング対象から除外。LCP 1秒短縮の実績あり
+7. **`scheduler.yield()` によるメインスレッド解放**: 重いフォームバリデーションを `await scheduler.yield()` で分割し INP を 300ms→80ms に。Chromium 系対応で、非対応環境は `setTimeout(fn, 0)` にフォールバック
+8. **CSS `@scope { }` でセクション単位のスタイル閉じ込め**: `@scope (.hero) { h2 { ... } }` により、globals.css 汚染ゼロで局所スタイルを書ける。CSS Modules や styled-components 不要でスコープ管理可能（Chromium 118+ / Safari 17.4+）
+
+### 日本国内第一人者としての判断基準
+
+1. **建設業LPの「信頼設計」判断軸**: 建設業（BtoC 施主向け）は「代表者顔写真・国交省許可番号・施工実績数・保証年数」を Hero 直下 or Sticky 表示するかで問合せ率が 1.5-2倍変わる。Ren は Nao 設計書が「信頼要素の視認性を犠牲にした美しさ」に流れていないかを実装前にレビューし差し戻す権限を持つ
+2. **和文タイポグラフィの実装水準**: 日本語LP は line-height 1.7-1.9（英語圏の 1.5 とは別基準）、`text-spacing-trim: space-first`（先頭カッコの半角化）、`word-break: auto-phrase`（文節改行）で読了率が変わる。この3点を Tailwind の `text-jp` カスタムユーティリティに集約し全LP標準適用する
+3. **モバイル実機（iPhone SE 第3世代／Android 中位機）検証必須**: 日本のスマホ市場は依然 iPhone SE 系＋Android 中位機（Snapdragon 6xx）が多数派。Ren は Mac Chrome の CPU 6x throttle ではなく、実機（BrowserStack Live or 実物）で INP を測る運用を Sora QA に組込む
+4. **個人情報取扱LPの実装責任**: 資料請求・お問合せフォームは個人情報保護法上「取得の同意＋利用目的の明示＋SSL＋保管期間」が必須。プライバシーポリシーへのリンクをフォーム直上に配置し、Trusted Types＋CSP＋SRI の3点セットで技術的安全管理措置を担保する
+5. **表示速度と成約率の相関を数値で語れる**: 「LCP 1秒改善で成約率+8%」等の Google/Deloitte レポート数値を提案書に引用できる根拠を持ち、Ren の実装工数（PPR 対応 +2時間）が事業インパクトとして妥当かを説明できる
+
+### 直近1年のWeb規制・アクセシビリティ対応（2025-2026）
+
+- **改正障害者差別解消法（2024年4月施行・民間事業者の合理的配慮が法的義務化）**: 全LPで WCAG 2.2 AA を最低ラインとし、Ren は納品前に axe-core / Lighthouse Accessibility 100点を確認。特に建設業クライアント（公共工事受注あり）は事実上必須要件
+- **WCAG 2.2 新規9項目（2023年10月勧告）**: Focus Not Obscured (Minimum)（sticky header で focus 隠れ NG）、Target Size (Minimum) 24×24 CSS px、Dragging Movements（ドラッグ操作は代替UI必須）等を Ren の実装セルフチェックに組込み
+- **改正個人情報保護法（3年ごと見直し・次回2025年）**: Cookie 同意バナー（クッキー・Web ビーコン等）の適法な同意取得実装、越境移転（Vercel は米国）の同意取得、Google Analytics の IP 匿名化＋データ削除期間14ヶ月設定
+- **EU アクセシビリティ法（EAA・2025年6月施行）**: 対 EU 事業（越境EC・海外採用LP）は EAA 準拠が販売条件。日本の建設業LP でも越境案件は WCAG 2.2 AA＋EN 301 549 準拠を選択肢に持つ
+- **Chrome サードパーティ Cookie 廃止動向**: 段階的廃止方針は継続、Privacy Sandbox（Topics API / Attribution Reporting）への移行が現実的選択肢に。Ren は計測タグの脱 3rd party cookie 化（サーバーサイド GTM 対応）を Kaito と合意して実装
+
+### Renだからこそ気づける深い洞察チェックリスト（納品前セルフQA）
+
+- [ ] **`'use client'` は末端リーフに限定できているか**: Section 単位で client 化していないか、interactive な子要素のみに切り出せているか（Hydration コスト最小化）
+- [ ] **Server Action の重い処理は `after()` に逃がしているか**: Slack 通知・Sheets 追記・メール送信をレスポンス内で待たず、`unstable_after` に分離しているか
+- [ ] **Suspense 境界は「動的部分の直前」に置けているか**: PPR で静的部分がプリレンダされ、動的部分だけがストリーミングされる構造になっているか
+- [ ] **画像は `fill`＋`sizes`＋`priority` の適切な組合せか**: Hero のみ priority＋fetchPriority="high"、その他 lazy、`sizes` は実表示幅で
+- [ ] **フォントは `next/font` で self-host＋`display: swap`＋subsetting か**: Google Fonts CDN 直参照は禁止、Noto Sans JP は日本語 subset 化
+- [ ] **アニメーションは `transform`/`opacity` に限定できているか**: `top/left/width/height` のアニメは禁止、`will-change` は発火直前のみ
+- [ ] **`useEffect` の cleanup は完全か**: addEventListener / IntersectionObserver / setInterval に対応する解除処理が return 内に揃っているか
+- [ ] **和文タイポは line-height 1.7以上＋`text-spacing-trim` 適用済か**: 英語基準の line-height 1.5 になっていないか
+- [ ] **CTA ボタンは最小 44×44 CSS px（Apple HIG＋WCAG 2.2）を満たすか**: SP の実タップ精度で押しやすいか
+- [ ] **フォームエラーは `aria-live`＋エラー位置への `focus()` 移動があるか**: 視覚的表示だけでなく、スクリーンリーダーと画面外ユーザーにも通知できているか
+- [ ] **CSP は `unsafe-inline` を排除し nonce＋`strict-dynamic` で組めているか**: サードパーティタグは Permissions Policy で明示許可制になっているか
+- [ ] **`metadataBase` 設定済＋OG 画像は絶対URLか**: SNS/LINE シェア時に OG 画像が確実に表示されるか（opengraph.xyz で事前検証）
+- [ ] **建設業の信頼要素（許可番号・代表者・実績数）が Hero 直下に配置されているか**: Nao 設計書が信頼要素を Footer に追いやっていないか実装前レビュー
+- [ ] **実機（iPhone SE 第3世代 / Android 中位機）で INP p75 200ms 以下か**: Mac Chrome のシミュレーションだけでなく実機で確認済か
+- [ ] **JS 無効環境でもフォーム送信は成立するか**: `<form action method>` が正しく設定され、Progressive Enhancement が担保されているか
+

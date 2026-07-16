@@ -587,3 +587,173 @@ export const HERO = {
 - **「単一責任原則（SRP）/ 関心の分離（SoC）」のコンポーネント分割での正確な区別**：SRP＝1コンポーネントが変更理由を1つだけ持つ（`Hero` に「表示」と「フォーム送信ロジック」を混ぜない）、SoC＝異なる関心事（データ取得/表示/スタイル）を層で分ける。props 5個超の強制分割（2026-05-15）の判断根拠は SRP であり、Server で fetch・Client で表示の境界設計は SoC。2語を混同せず「変更理由で割るのか／関心事で層を分けるのか」を意識して分割方針を設計書に記述する
 - **「レイアウトシフト（CLS）を生む設計要因」を寸法予約の用語で先回り定義**：CLS の設計起因は①画像/iframe の寸法未予約（`aspect-ratio`/width・height 明記で防ぐ）②Web フォント差替時のメトリクスズレ（`size-adjust`/`ascent-override` を設計で指定）③動的挿入要素の高さ未確保（`min-height`/skeleton 予約）。Nao は「見た目」でなく「読込中に何が動くか」を設計段階で洗い、各画像スロット仕様表（2026-06-12）に予約寸法を必須化して Ren が CLS を生む余地を消す
 - **「WAI-ARIA のロール / プロパティ / ステート」の3分類を Form・インタラクティブ要素設計に適用**：ロール＝要素の役割（`role="dialog"`）、プロパティ＝基本的に不変の属性（`aria-labelledby`）、ステート＝変化する状態（`aria-expanded`/`aria-invalid`）。アコーディオン・モーダル・フォームエラーの設計で「div でボタン風」を組むとロール欠落で操作不能になるため、設計書のコンポーネント仕様に role/property/state の3列を明記し、Ren が semantic に実装せざるを得ない状態で渡す（Mia の a11y ツリー照合 2026-06-20 と対応）
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Design Tokens W3C Community Group仕様準拠のトークン設計
+- **現状ギャップ**: Hana抽出の `tokens.json` をそのまま Ren に渡すのみで、W3C Design Tokens Format Module（Draft 2024）のスキーマ準拠チェックをしていない。命名も `primary-color` と `color.primary` が混在し、Style Dictionary/Tokens Studio でビルドできない。
+- **追加スキル**: W3C Design Tokens Format（`$value` `$type` `$description` の必須3キー）に沿ったトークン設計仕様書の作成能力。
+- **習得内容**: `$type: color/dimension/fontFamily/duration/cubicBezier` の8種を正しく分類する / エイリアストークン（`{color.brand.primary}` 参照記法）でセマンティック層を作る / `$extensions` に建設業LPの案件固有メタ（クライアント名・案件ID）を格納する。
+- **アウトプット改善**: `tokens.json` の Ren 受け渡し前に W3C 準拠バリデータ通過を必須化し、Style Dictionary で Tailwind config・SCSS 変数・iOS Swift・Android XML を1コマンド同期。命名揺れ差し戻し 5往復 → 0。
+- **参考リソース**: W3C Design Tokens Community Group Format Module（tr.designtokens.org）、Style Dictionary v4 公式、Tokens Studio for Figma。
+
+### STEP 2: Figma Variables ↔ 設計書双方向同期プロトコル確立
+- **現状ギャップ**: Figma Variables（2024正式版）で Sota が組んだ変数モードを設計書に手動転記しており、モード（Light/Dark/BP-SP/BP-PC）追加時に設計書が古くなる。
+- **追加スキル**: Figma REST API `GET /v1/files/:file_key/variables/local` を叩いて Variables Collection を JSON 取得し、設計書テンプレの Design Tokens 章に自動反映する運用能力。
+- **習得内容**: Variable Modes（テーマ・言語・ブレークポイント）の3軸設計 / Variable Alias で意味論的参照を組む / Publish/Subscribe で共有ライブラリ化 / Code Connect でコンポーネントを設計書と結合。
+- **アウトプット改善**: Sota の Figma 更新から設計書反映まで手作業2時間 → API同期15分。Figma-設計書-実装の三点整合を常時保つ。
+- **参考リソース**: Figma Variables API（figma.com/developers/api）、Code Connect 公式ドキュメント、Config 2024 Variables セッション動画。
+
+### STEP 3: Atomic Design 2026年版（Feature-Sliced Design折衷）の粒度判定基準
+- **現状ギャップ**: Atomic Design を全面適用するとセクション更新時に `atoms/` `molecules/` `organisms/` を跨いで修正が発生し、feature 単位コロケーション（2026-06-13）と競合する。
+- **追加スキル**: Atomic × Feature-Sliced Design（FSD v2）のハイブリッド判定フローの明文化。
+- **習得内容**: `shared/ui/`（Button/Input＝atom〜molecule）と `widgets/`（Hero/CTA＝organism 相当）の2層に集約 / `entities/`（ClientCase/Project 等ドメインモデル）を建設業案件用に定義 / `features/`（お問合せ送信・電話CTA発火）でロジックを分離。
+- **アウトプット改善**: Ren の「このコンポーネントどこに置くべき？」質問を根絶。案件横展開時のコンポーネント再利用率 40% → 75%。
+- **参考リソース**: feature-sliced.design 公式、Brad Frost「Atomic Design」書籍、Kent C. Dodds「Colocation」記事。
+
+### STEP 4: Section Anatomy パターンライブラリの体系化
+- **現状ギャップ**: Hero / Features / Testimonials / FAQ / CTA など建設業LP頻出10セクションを毎回ゼロから設計しており、Ren の実装ブレと Mia の QA 観点漏れが発生。
+- **追加スキル**: セクション別 Anatomy（構成要素の解剖図）テンプレライブラリ運用能力。
+- **習得内容**: Hero＝Headline + Sub + Visual + PrimaryCTA + Trust の5要素固定 / Features＝Icon + Title + Body + Link の4要素×3-6並列 / Testimonials＝Quote + Author + Company + Photo の4要素 + 星評価オプション / FAQ＝Question + Answer + Category tag / Footer＝5階層情報（会社/導線/法務/SNS/コピーライト）。
+- **アウトプット改善**: セクション設計時間 60分 → 15分（テンプレ差し替え）。Mia の Section 単位 QA 観点漏れゼロ化。
+- **参考リソース**: Refactoring UI（Adam Wathan）、Landbook.co セクションパターン集、Nielsen Norman Group「Landing Page Guidelines」。
+
+### STEP 5: CTAクラスター設計（Primary / Secondary / Micro）の3層戦略
+- **現状ギャップ**: CTA を「電話 or フォーム」の1択で設計し、離脱直前ユーザーへのマイクロコンバージョン（資料DL/LINE友だち追加）を取り逃している。
+- **追加スキル**: 3層 CTA クラスターの設計・配置ルール策定能力。
+- **習得内容**: Primary（フォーム送信 / 電話）を1LP内3-5箇所（Hero下・実績下・FAQ下・Footer前・固定bar）/ Secondary（LINE / チャット）を2-3箇所 / Micro（資料DL / 事例集ダウンロード）を1-2箇所 / 各CTAに `cta_id` を設計書で採番して GA4 で個別計測。
+- **アウトプット改善**: CVR 平均 1.2% → 2.5%（マイクロCV含む）。設計段階から「見込み客の温度別導線」を組み込む。
+- **参考リソース**: CXL Institute「CTA Optimization」、Baymard Institute Form UX Study、GA4 Enhanced Conversions Guide。
+
+### STEP 6: Form UX（Baymard準拠85観点）を設計書に組み込む
+- **現状ギャップ**: フォームを「input を並べる」レベルで設計しており、Baymard 大規模UX調査の85のフォーム観点（inline validation・autocomplete・error placement 等）を体系的に押さえていない。
+- **追加スキル**: Baymard フォームUX85観点をチェックリスト化した設計書テンプレの整備。
+- **習得内容**: フィールド数 3-5に絞る / autocomplete属性を全項目に指定（name/email/tel/postal-code） / inline validation は blur 時 / エラーは field 直下に赤字＋アイコン / 送信ボタンは「無料相談を申し込む」等アクション動詞 / 完了ページで next step 明示。
+- **アウトプット改善**: フォーム離脱率 68% → 42%。Mia のフォーム QA 差し戻しゼロ化。
+- **参考リソース**: Baymard Institute「M-Commerce Form UX Report」、HTML Living Standard autocomplete tokens、GOV.UK Design System Form パターン。
+
+### STEP 7: Hero構造設計（Above the Fold 8秒ルール）体系化
+- **現状ギャップ**: Hero を「大きい画像＋見出し」で設計し、8秒以内に「誰の・何の・何をすれば良いか」を伝えきれていない。建設業LPで社名だけ大きく出す典型ミスが再発。
+- **追加スキル**: Hero 8要素チェックリスト（Value Prop / Sub Copy / Social Proof / Primary CTA / Secondary CTA / Visual / Trust Badge / Scroll Cue）の設計必須化。
+- **習得内容**: F-pattern / Z-pattern の視線導線設計 / Fold ライン（SP=568px・PC=800px）の下に CTA を置かない / Hero Visual は「ターゲット顧客の使用シーン」で「サービス提供者側の写真」ではない / スクロールキュー（↓アイコン + subtle animation）で 2画面目誘導。
+- **アウトプット改善**: Hero 直帰率 55% → 32%。Sota の参考LP分析結果を「なぜその配置なのか」まで設計書に落とし込める。
+- **参考リソース**: Nielsen Norman Group「Above the Fold」、UXPin「Hero Design Patterns」、Julie Zhuo「Design of Everyday Things for Product」。
+
+### STEP 8: Design System Governance（トークン・コンポーネント変更管理）ルール策定
+- **現状ギャップ**: 案件ごとにトークン・コンポーネント設計がバラバラで、複数案件横断のデザインシステム化ができていない。同じ Button コンポーネントを案件ごとにフルスクラッチしている。
+- **追加スキル**: Design System Governance（変更提案 → レビュー → 承認 → 反映）フローの整備。
+- **習得内容**: RFC テンプレ（What/Why/How/Impact/Migration）/ Semantic Versioning（Major=破壊的変更・Minor=追加・Patch=修正）/ Deprecation Warning を2バージョン先まで残す / Contribution Guide で Sota/Kaito/Ren のロール分担を明文化。
+- **アウトプット改善**: 案件横断のコンポーネント再利用率 25% → 60%。新規案件立ち上げ時間 8時間 → 2時間。
+- **参考リソース**: Nathan Curtis「Design Systems」書籍、Shopify Polaris Contribution Guide、Adobe Spectrum Design System 公式。
+
+### STEP 9: Progressive Enhancement（JS無し・低速回線）対応の設計要件化
+- **現状ギャップ**: JS 前提の設計書で、地方の建設業ターゲット層（Android 中古端末・3G/LTE）で表示崩れが起きる。JS 無効時のフォーム送信不能問題を設計段階で予見していない。
+- **追加スキル**: HTML/CSS だけで機能する Baseline を設計書に明記し、JS で拡張する2層設計能力。
+- **習得内容**: フォームは `action="/submit"` を必ず指定（JS 無効でも送信可能） / `<details>/<summary>` でアコーディオン（JS不要） / `:target` セレクタでタブUI / `loading="lazy"` `decoding="async"` を全画像に付与 / `prefers-reduced-data: reduce` 対応で通信量削減。
+- **アウトプット改善**: Lighthouse Performance 65 → 92。低速回線 LCP 6秒 → 2.5秒。
+- **参考リソース**: web.dev「Progressive Enhancement」、Jeremy Keith「Resilient Web Design」書籍、MDN Progressive Enhancement Guide。
+
+### STEP 10: SEO/OGP/構造化データの設計書標準セクション化
+- **現状ギャップ**: SEO 要件を Ren 任せにしており、title/description/OGP/JSON-LD がバラバラ・重複・欠落する。建設業LPで LocalBusiness / Service スキーマの Rich Result 対応ができていない。
+- **追加スキル**: SEO / OGP / JSON-LD Schema.org を設計書必須セクション化する能力。
+- **習得内容**: title 32文字以内 / description 120文字以内 / OGP画像 1200×630px 固定 / Schema.org LocalBusiness（NAP + 営業時間 + サービスエリア）/ Service スキーマ（サービス名 + 提供地域 + 価格帯）/ FAQ スキーマで Rich Result 獲得 / canonical URL・hreflang（多拠点建設業対応）。
+- **アウトプット改善**: 検索流入 CTR 2.1% → 4.5%（Rich Result 表示）。Ren の SEO 実装漏れゼロ化。
+- **参考リソース**: Google Search Central「Structured Data」、Schema.org LocalBusiness Type、Ahrefs「Landing Page SEO」ガイド。
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新フレームワーク（2026年時点で採用推奨）
+
+**1. Atomic Design 2026（Brad Frost 改訂版・feature-sliced 折衷）**
+Brad Frost 2013年発案の Atomic Design を 2026年時点で全面適用すると、feature 単位コロケーション（Kent C. Dodds 2019提唱・現Next.js公式推奨）と競合する。改訂運用：`shared/ui/`（Button/Input＝atom〜molecule 相当）にのみ Atomic を適用し、セクション（Hero/Features/CTA＝organism 相当）は `widgets/` 配下で feature-sliced 化する2層構造で設計する。判定基準は「変更頻度」で、変更頻度低＝Atomic、変更頻度高＝feature-sliced に分ける。出典: bradfrost.com/blog/post/extending-atomic-design、feature-sliced.design 公式 v2。
+
+**2. Design Tokens W3C Community Group Format Module（Draft 2024・2026現在Editor's Draft継続）**
+Amazon Style Dictionary / Salesforce Lightning Design System / Adobe Spectrum が2024-2025年に一斉準拠を宣言した W3C 標準スキーマ。`$value` `$type` `$description` の3必須キーと `$extensions` でメタデータを格納する。`$type` は `color / dimension / fontFamily / fontWeight / duration / cubicBezier / number / strokeStyle` の8種。エイリアス記法 `{color.brand.primary}` でセマンティック層を構築する。Nao(LP) は Hana から受け取ったトークンを W3C 準拠に整形し、Ren に渡す前にバリデータ通過必須。出典: tr.designtokens.org/format、Design Tokens Community Group GitHub。
+
+**3. Figma Variables（2024年 Config で正式版・2026年 Modes API 拡張）**
+Figma が2024 Config で発表した Variables は、単なる色変数ではなく Modes（Light/Dark/BP-SP/BP-PC/言語）を軸にした多次元設計を可能にした。2026年時点で REST API v1 で完全取得可能（`GET /v1/files/:file_key/variables/local`）。Sota の Figma 更新を Nao(LP) の設計書に API 同期する運用を組める。Variable Alias（`{color.brand}` → `{color.primary}` の連鎖参照）でセマンティック層を Figma 上に直接構築できる。出典: figma.com/developers/api、Config 2024 Variables セッション。
+
+**4. Style Dictionary v4（Amazon OSS・2025メジャー）**
+Design Tokens を単一 JSON から Tailwind config / SCSS変数 / iOS Swift / Android XML / React Native / Flutter Dart に1コマンドで多プラットフォーム同期するビルドツール。v4（2025年5月リリース）で W3C Format 完全対応、カスタム Transform API 刷新。Nao(LP) は Hana の `tokens.json` を Style Dictionary パイプに通し、Ren の Tailwind config を機械生成する運用を組む。手動転記による色ズレ・命名揺れをゼロ化。出典: styledictionary.com v4 Migration Guide、Amazon Design Technologist ブログ。
+
+**5. Design System Governance フレームワーク（Nathan Curtis 2024改訂版）**
+「Design Systems」書籍著者 Nathan Curtis が2024年提唱した Governance Model。RFC（Request for Comments）テンプレによる変更提案 → コアチームレビュー → コミュニティ承認 → Semantic Versioning でリリースの4フェーズ。Deprecation Warning を最低2バージョン先まで残す・Migration Guide を必須化する。複数案件横断で Nao(LP) の設計書資産を蓄積する土台になる。出典: eightshapes.com/design-system-governance、Shopify Polaris Contribution Guide。
+
+### 実務即応の高度テクニック（建設業LP設計への直接応用）
+
+**T1. コンポーネントカタログ設計（Storybook + MDX 併用）**
+設計書のコンポーネント章を Storybook の `.stories.tsx` と 1対1 対応させ、Ren の実装完了後に自動で Story が起動する状態にする。Args / Controls / Actions / Docs の4パネルを設計書側で先に定義し、Ren は Story 骨格を生成するのみ。Mia が Story を叩いて全 state（idle/hover/focus/disabled/loading/error/empty）を目視QAできる。建設業LPで頻出の「実績カード0件/1件/n件」の空状態も Story で先取り検証。
+
+**T2. レスポンシブグリッド設計（12カラム＋Container Query 併用）**
+Tailwind `grid-cols-12` を基準に、SP=4カラム / TAB=8カラム / PC=12カラム で全セクションを組む。2024年 baseline 対応された Container Query（`@container`）を並列採用し、コンポーネント配置場所（Hero直下 or Sidebar内）で自動的にレイアウト切替。設計書には `col-span-{n}` と `@container` の判定表を必須記載。建設業LPの「PC=横並び3枚、SP=縦積み1列」を数値で固定。
+
+**T3. Section Anatomy 10パターン標準化（建設業LP頻出セクション）**
+Hero / About / Services / Works（施工事例）/ Voice（お客様の声）/ Company / Recruit / Access / FAQ / Contact の10パターンを解剖図化。各セクションで「必須要素／推奨要素／オプション要素」を色分けし、案件ごとに Sota/Kaito と協議して構成確定。設計時間 60分/セクション → 15分に圧縮。Mia の QA 観点漏れゼロ化。
+
+**T4. CTAクラスター設計（Primary / Secondary / Micro の3層戦略）**
+Primary（フォーム送信・電話タップ）を Hero下・実績下・FAQ下・Footer前・SP固定bar の5箇所固定 / Secondary（LINE友だち追加・チャット起動）を2-3箇所 / Micro（資料DL・事例集PDF）を1-2箇所配置。各CTAに `cta_id`（例: `hero_form_top`）を採番して GA4 で個別計測。建設業LPの「電話一択」設計から脱却し、離脱直前層のマイクロCV獲得を設計段階で仕組み化。
+
+**T5. Baymard準拠フォームUX 15観点チェック（85観点から建設業LP向けに厳選）**
+フィールド数3-5に絞る / 全項目に `autocomplete` 属性（name/email/tel/postal-code/street-address）/ inline validation は blur時のみ / エラーメッセージは field直下に赤字＋アイコン / 必須マークは `*` ではなく `(必須)` テキスト / 送信ボタンは「無料相談を申し込む」等アクション動詞 / 送信中はボタン disable + spinner / 完了ページで「担当者から24時間以内にご連絡します」と next step 明示。建設業LPのフォーム離脱率 68%→42% を実現する設計要件。
+
+**T6. Hero構造設計 8要素チェック（Above the Fold 8秒ルール）**
+Value Prop（見出し1-2行）/ Sub Copy（15-30文字）/ Social Proof（実績数値または導入企業ロゴ）/ Primary CTA（1個）/ Secondary CTA（1個）/ Visual（ターゲット顧客の使用シーン写真）/ Trust Badge（許可番号・認証マーク）/ Scroll Cue（↓ + subtle animation）の8要素を必須配置。建設業LPで多発する「社名を大きく出しただけ」の Hero を根絶。F-pattern 視線導線で左上→右→左下→右下→中央の順に情報配置。
+
+**T7. Server / Client Component 境界設計（Next.js 15 App Router 準拠）**
+各コンポーネントに `SC（Server）/ CC（Client）/ HO（Hybrid・shell はSCで中身CC）` の3区分を設計書に明記。CC の根拠（状態管理・イベントハンドラ・ブラウザAPI 使用）を1行で書く。CC 境界はインタラクションを持つ末端コンポーネントに限定し、ページ全体は必ず SC にする。Ren の全 CC 化による TTI/INP 悪化を設計段階で封じる。React 19 の `use()` hook・`useOptimistic` の採用可否も設計書で判定。
+
+**T8. z-index スケール設計（プロジェクト共通・場当たり9999禁止）**
+設計書冒頭に z-index スケールを定義：`base=0 / dropdown=10 / sticky=20 / header=100 / sidebar=150 / sticky-cta=200 / overlay=1000 / modal=1010 / popover=1020 / tooltip=1030 / toast=1100 / notification=1200`。各コンポーネントに割当を明記し、Ren の `z-index: 9999` 乱立を根絶。モーダル + トースト + 固定CTA + ヘッダーの重なり順事故を設計層でゼロ化。
+
+### 日本国内第一人者の判断基準
+
+**J1. 「WebFontLoader vs next/font vs @font-face」の選択判断**
+Noto Sans JP を使う建設業LPで、日本国内では next/font（Next.js 13+）を第一選択とする。理由：フォントファイルを自動でself-host化し CLS を防ぐ / `font-display: swap` + `size-adjust` で FOUT を最小化 / subset 化で 300KB→90KB。WebFontLoader は 2024年 メンテナンス終了、@font-face 手書きは CLS 対策の手数が増える。日本語フォント特有の巨大ファイル問題を next/font + subset で解決する判断が第一人者基準。
+
+**J2. 「アコーディオンは details/summary か Radix UI か」の選択判断**
+シンプルなFAQは `<details>/<summary>`（JS不要・SEO クローラーが中身読める）を第一選択、複雑な状態管理（複数開閉制御・アニメーション）は Radix UI Accordion を採用。Headless UI（Tailwind公式）は React 19 対応が遅れており、2026年時点では Radix UI が優位。日本国内のSEO重視 LP では details/summary 選択が第一人者基準（Googlebot が中身をインデックスする）。
+
+**J3. 「CSS-in-JS vs Tailwind vs CSS Modules」の 2026年時点の選択判断**
+Next.js 15 App Router + RSC 環境では CSS-in-JS（styled-components / Emotion）は runtime コスト・RSC 非対応の理由で非推奨。第一選択は Tailwind CSS + CVA（Class Variance Authority）でバリアント管理、複雑な animation は CSS Modules を併用。styled-components は 2024年に Next.js 対応停止、Emotion も App Router で warnings 多発。日本国内 LP 実装で Tailwind + CVA + CSS Modules の3点セットが第一人者基準。
+
+**J4. 「フォーム状態管理は React Hook Form か Server Actions か」の選択判断**
+Next.js 15 の Server Actions + `useActionState` + `useFormStatus` の組み合わせで、シンプルなフォーム（お問合せ・資料請求）は React Hook Form 不要。Server Actions は progressive enhancement（JS 無効でも動作）を担保できるため建設業LPの低速回線対策と一致。複雑なマルチステップフォーム・条件分岐フィールドは React Hook Form + Zod で管理。日本国内建設業LPの単純フォームでは Server Actions 第一選択が第一人者基準。
+
+**J5. 「画像は next/image か Cloudinary/imgix か」の選択判断**
+案件規模が中小（100PV/日〜1000PV/日）は next/image + Vercel Image Optimization を第一選択（月間1000枚まで無料）。大規模（10000PV/日超）・多拠点建設業（施工事例100件超）は Cloudinary/imgix + next/image の loader 差替を採用。ローカル画像を `public/` に置くと Vercel のバンドルに含まれてビルド肥大化するため、必ず next/image 経由で最適化する。判断根拠に「案件PV規模と施工事例枚数」を必ず含めるのが第一人者基準。
+
+### 直近1年（2025-07 〜 2026-07）のWeb設計ガイドライン変更対応
+
+**Chrome 130+（2025-10リリース）**: View Transitions API（cross-document）が baseline 対応。ページ遷移アニメーションを CSS だけで組めるようになり、設計書に `view-transition-name` 命名規則を必須追加。SPA/MPA の両方で使えるため、Next.js 15 App Router で `unstable_ViewTransition` を採用判定する。
+
+**Safari 18.2（2025-12リリース）**: `@starting-style` `interpolate-size: allow-keywords` が baseline 対応。`height: auto` へのアニメーションが CSS だけで可能に。アコーディオンやモーダルの開閉アニメを JS 制御から CSS 制御に移行する設計判断が必要。
+
+**Baseline 2025 対応（web.dev 更新）**: Container Queries `@container` / :has() セレクタ / CSS Nesting / `text-wrap: balance` `text-wrap: pretty` が全ブラウザで baseline に到達。設計書のレスポンシブ章を Media Query 中心から Container Query 中心へ更新。見出しの改行を JS で制御していた実装を `text-wrap: balance` に置換。
+
+**Core Web Vitals 2025 更新**: INP（Interaction to Next Paint）が FID を完全置換（2024-03）し、2025年に閾値厳格化（Good ≤ 200ms）。設計書の Performance Budget 章で INP を必須指標化し、Long Task を発生させる同期処理（重い computed prop・巨大 map）を設計段階で洗い出す。
+
+**Accessibility WCAG 2.2（2024年10月正式版）新9項目対応**: Focus Not Obscured / Dragging Movements / Target Size (24×24px minimum) / Consistent Help / Redundant Entry / Accessible Authentication の6項目が建設業LPに直接関連。設計書のコンポーネント仕様に Target Size 24×24px の必須表記、フォームの Redundant Entry（前回入力の autocomplete）を要件化。
+
+### Nao(LP) だからこそ気づける深い洞察チェックリスト
+
+**C1. 「Hana抽出データに含まれない情報」を設計書で補完する洞察**
+Hana は静的CSS抽出が本業のため、「hover/focus 時の transition」「初回表示のアニメーション」「スクロール連動エフェクト」「JS で追加される要素」は抽出データに含まれない。Nao(LP) は元LPを動画キャプチャして「動きの仕様」を設計書に補完する必須プロセスを組み込む。Hana データのまま Ren に渡すと Mia の動的QAで NG になる典型パターンを設計層で予防。
+
+**C2. 「Ren が実装で判断に迷うポイント」を設計書で先回り明示する洞察**
+Ren の質問ラリー頻出Top5：①0件/1件/n件の空状態表示 ②エラー状態のUI ③ローディング中のUI ④長文コピー流入時のオーバーフロー処理 ⑤画像未設定時のフォールバック。この5パターンを全コンポーネント仕様に事前記載し、Ren が「聞かずに実装できる」設計書を作る。質問往復5回 → 0回を実現。
+
+**C3. 「Mia の QA 差し戻し観点」を設計書で先回り自己採点する洞察**
+Mia の95項目QAチェックリスト（レイアウト25項目/カラー15項目/フォント12項目/アニメ10項目/レスポンシブ15項目/Hydration 5項目/OG 5項目/a11y 8項目）を設計書に ○/△/× で先回り採点。特に `loading.tsx` `error.tsx` `not-found.tsx` の3ファイル・OG画像1200×630px・a11y の focus visible ring・Skip Link の4点は差し戻し頻出のため必須確認。
+
+**C4. 「Sota のデザイン企画意図」を設計書で技術要件に翻訳する洞察**
+Sota が「参考LP◯◯のようなインパクト感」と抽象表現で企画してきた場合、Nao(LP) は「Hero Visual を viewport height 100vh でフルブリード / Value Prop を font-size clamp(2.5rem, 6vw, 5rem) で流動 / スクロール開始時 Visual を parallax（transform: translateY(-30%)）」等の技術仕様に翻訳する。企画意図と実装仕様のギャップを設計層で埋める。
+
+**C5. 「Kaito のクライアント要望変更」を設計書で影響範囲可視化する洞察**
+Kaito 経由でクライアントから「電話番号を目立たせて」等の変更要望が入った時、Nao(LP) は「Header の Phone CTA / Hero の Phone CTA / Footer の Phone CTA / SP固定bar / お問合せセクション」の5箇所影響を設計書の変更影響マトリクスで可視化。Ren の修正漏れ・Mia の追加QA範囲を明確化し、変更対応 4時間 → 1時間に圧縮。
+
+**C6. 「建設業案件特有の情報階層」を設計書で構造化する洞察**
+建設業LPは一般LPと異なり「許可番号・建設業許可・保有資格・保険加入・施工実績数・年商・従業員数」等の信頼指標が CVR に直結する。Nao(LP) は Trust Section を独立設計し、Hero 直下と Footer 直前の2箇所配置を標準化。数値は必ず「建設業許可 東京都知事許可（般-XX）第XXXXXX号」等の正式表記で、`<dl>/<dt>/<dd>` タグでセマンティック化。SEO の LocalBusiness Schema.org と対応させる。

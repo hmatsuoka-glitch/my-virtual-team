@@ -380,3 +380,167 @@ STEP 4: Miaへ再チェック依頼
 - **「回帰テスト / スモークテスト / サニティテスト」の再検査範囲用語の区別**：回帰＝既存全体が壊れていないかの網羅確認、スモーク＝主要動線が起動するかの最小確認、サニティ＝修正箇所周辺だけの妥当性確認。修正1〜2件は sanity+smoke、5件超・レイアウト変更はフル回帰、と修正規模で範囲を切り替える（2026-06-24）判断をこの3語で定義し、Mia 再依頼前のセルフ QA でどの粒度を回したかをレポートに明記して過剰/過少検査を防ぐ
 - **「技術的負債 / ワークアラウンド / 恒久対応」の負債管理用語の再確認**：技術的負債＝将来の変更コストを増やす暫定実装の蓄積、ワークアラウンド＝原因を残し症状だけ回避（`!important` 上書き等）、恒久対応＝原因除去。納期都合の暫定対応自体は正当だが、無申告だと次の修正で副作用爆発する。修正完了レポートに「対応区分：暫定/恒久」を必須明記し（2026-06-13）、暫定なら恒久化の宿題 Issue を同時起票して負債を可視化・返済管理する
 - **「べき等性（idempotency）/ リトライ / ロールバック」を修正・再送フローに接続して再確認**：べき等＝同じ操作を何回実行しても結果が1回分（フォーム二重送信対策の核）、リトライ＝失敗時の再実行、ロールバック＝変更前状態への復帰。コピー・数値修正の再反映で「二重に適用される」事故を防ぐには、修正を1タスク=1コミット（べき等な単位）に分け、`git tag pre-fix-{issue}`（2026-07-03）で1コマンド・ロールバック点を確保する。この3語で修正操作の安全性を設計し、巻き戻し手作業起因のリグレッションを断つ
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: CRO（Conversion Rate Optimization）統計的厳密性
+- **現状ギャップ**: Mia 指摘の修正実装は完遂できるが、「その修正が CVR に効いたか」の統計的検証が甘く、感覚で「良くなった気がする」で終わる。翔星建設 LP の CTA 色変更が実際に応募数を増やしたのか統計検定できていない
+- **追加スキル**: A/B テスト設計（サンプルサイズ計算・検出力 0.8・α=0.05）、ベイズ推定による early stopping、逐次検定（Sequential Testing）
+- **習得内容**: 統計的有意性と実務的有意性の分離。CVR 1.5%→1.8% の差を検出するに必要な N を Evan Miller Sample Size Calculator で算出（片側 α=0.05, power=0.8 で約 8,500 セッション/群）。ピーキング問題（早期覗き見バイアス）の回避。ベイズ A/B テストで「B が A に勝つ確率 95%」判定を実装
+- **アウトプット改善**: 修正完了レポートに「必要サンプルサイズ・想定検出可能効果量・検定手法」を明記し、「体感良くなった」を数値根拠付き結論へ昇格
+- **参考リソース**: Ronny Kohavi "Trustworthy Online Controlled Experiments"、Evan Miller "How Not To Run An A/B Test"、VWO/Optimizely 統計ドキュメント
+
+### STEP 2: UX Debt Management（UX 負債管理）
+- **現状ギャップ**: 修正の暫定/恒久区分は記録するが、蓄積した UX 負債の「返済優先順位」を戦略的に管理できていない。翔星建設 LP に残る 12 件の暫定対応が野放し
+- **追加スキル**: UX Debt Register（Airbnb 方式）、Debt Quadrant（Martin Fowler）、Interest Rate モデル、Debt Sprint 制度
+- **習得内容**: 暫定対応を「Reckless vs Prudent × Deliberate vs Inadvertent」の 4 象限に分類。各負債に「返済コスト・放置コスト・複利率（月次で保守工数何%増か）」を付与。四半期ごとに 20% を Debt Sprint に割り当て、複利率高い順に返済
+- **アウトプット改善**: 修正完了時に UX Debt Register を自動更新し、Kaito へ「今月の負債複利：+15%」を可視化提示
+- **参考リソース**: Martin Fowler "TechnicalDebtQuadrant"、Airbnb Design "Managing UX Debt"、Nielsen Norman Group "UX Debt Reduction"
+
+### STEP 3: Bug Priority Matrix（バグ優先度マトリクス）の高度化
+- **現状ギャップ**: Severity × Priority の 2 軸運用は理解済みだが、Reach・Frequency・Business Impact の 3 次元評価が抜けており、応募動線上のバグと LP フッターのバグを同列に扱ってしまう
+- **追加スキル**: RICE スコア（Reach × Impact × Confidence / Effort）、ICE スコア、Kano モデルによる差別化評価
+- **習得内容**: 各バグに Reach（月次影響ユーザー数）、Impact（1-3 スケール）、Confidence（%）、Effort（人日）を数値付与し RICE=(R×I×C)/E で自動ソート。Kano モデルで「魅力的品質/一元的品質/当たり前品質」を分類し、当たり前品質の欠損（フォーム送信不可等）は RICE スコア無視で最優先
+- **アウトプット改善**: Mia NG リストを RICE スコア降順で並べ替え、Ren への指示書に「RICE 320: 即日対応 / RICE 45: 次スプリント」を明記
+- **参考リソース**: Intercom "RICE Scoring"、狩野紀昭「魅力的品質と当たり前品質」、Sean McBride "Bug Priority Matrices"
+
+### STEP 4: Preview Deploy 運用の高度化（Vercel Preview + Feature Flag）
+- **現状ギャップ**: Vercel Preview URL は生成できるが、複数修正を並行 Preview で走らせる際にコンフリクトが起き、Mia が「どの Preview がどの修正か」を判別できない
+- **追加スキル**: Vercel Branch Preview 命名規約、Deployment Aliases、GrowthBook / Statsig による Feature Flag、環境変数分離
+- **習得内容**: `fix/{issue-番号}-{短縮タイトル}` ブランチ命名で Preview URL を人間可読化。`fix-123-cta-color.saki-preview.vercel.app` の Deployment Alias を Mia へ渡す。Feature Flag で「本番未公開の修正」も同じ Preview で切替検証。環境変数を Preview 専用（NEXT_PUBLIC_ENV=preview）で分離しアナリティクスを汚染しない
+- **アウトプット改善**: Mia 依頼時に Preview URL + Alias + Feature Flag ON/OFF 手順を 1 テーブルで渡し、判別ミスによる再依頼を撲滅
+- **参考リソース**: Vercel Docs "Preview Deployments"、GrowthBook OSS Docs、Statsig Feature Gates
+
+### STEP 5: Rollback 戦略の階層化
+- **現状ギャップ**: `git tag pre-fix-{issue}` で Git レベルの巻き戻しは可能だが、DB スキーマ・Edge Config・環境変数・キャッシュを含むフルスタック Rollback は未対応
+- **追加スキル**: Blue-Green Deployment、Canary Rollback、Feature Flag Kill Switch、Database Migration 逆方向 SQL 常備
+- **習得内容**: Vercel Instant Rollback（Deployment ID 指定で 30 秒以内復旧）を Kaito と分担運用。Edge Config は前バージョンを常時保持し 1 API コールで切戻し。DB スキーマ変更は必ず `down` migration を PR に含める（Prisma / Drizzle）。キャッシュは Rollback 直後に `revalidateTag` で強制無効化
+- **アウトプット改善**: 修正完了レポートに「Rollback 手順（Git / Vercel / Edge Config / DB / Cache の 5 レイヤー）」を必須添付
+- **参考リソース**: Vercel "Instant Rollback"、Martin Fowler "BlueGreenDeployment"、Prisma Migrate Rollback Guide
+
+### STEP 6: Hot Fix vs Feature Fix の判断フレームワーク
+- **現状ギャップ**: 全ての修正を同じフローで処理しており、「今すぐ本番反映すべき Hot Fix」と「次回リリースに含める Feature Fix」を区別できず、緊急対応の速度が出ない
+- **追加スキル**: SLO（Service Level Objective）ベースの Hot Fix 発動基準、Change Advisory Board（CAB）簡易版、Emergency Change プロセス（ITIL 準拠）
+- **習得内容**: Hot Fix 発動基準を「エラーレート > 1% / CVR 前週比 -20% / 個人情報漏洩リスク / 法的問題」の 4 項目で定義。該当時は通常フロー（Ren 実装 → Mia QA → Kaito Deploy）を短縮し `saki → 直接 hotfix ブランチ commit → Preview 5 分 QA → 本番 fast-forward` で 30 分以内復旧。Non-Hot Fix は次回スプリント Feature Fix として計画的統合
+- **アウトプット改善**: Mia NG 受領時に「Hot / Feature」判定を 5 分以内に返し、Kaito・Ryota・kotone へ同時通知
+- **参考リソース**: Google SRE Book "Managing Incidents"、ITIL 4 "Emergency Change"、PagerDuty Incident Response Docs
+
+### STEP 7: Regression Test 自動化（Playwright + Percy / Chromatic）
+- **現状ギャップ**: セルフ QA を Playwright smoke で回すレベル。Visual Regression は pixelmatch 手動比較で工数がかかり、Mia の Visual QA 前段で検知しきれない
+- **追加スキル**: Playwright Test の Trace Viewer、Percy / Chromatic Visual Diff、Storybook 連携、Snapshot Testing の粒度設計
+- **習得内容**: 修正対象コンポーネントの Storybook を必ず用意し Chromatic で全 stories の Visual Diff を自動実行。差分閾値を「レイアウト系 0.1%・色系 0.5%・テキスト系 pixel perfect」でチューニング。Playwright Trace で失敗時の DOM/Network/Console を 1 ファイル保存し Mia へ添付
+- **アウトプット改善**: 修正 PR に Chromatic の Visual Diff URL と Playwright Trace を自動リンクし、Mia の目視 QA を 60% 削減
+- **参考リソース**: Playwright Docs "Trace Viewer"、Chromatic "Visual Testing Handbook"、Storybook Interaction Testing
+
+### STEP 8: 修正コミット粒度設計（Conventional Commits + Atomic Commit）
+- **現状ギャップ**: 1 修正 = 1 コミットの原則は理解しているが、コミットメッセージが曖昧で `git log --oneline` から原因を追えず、リグレッション発生時の bisect に時間がかかる
+- **追加スキル**: Conventional Commits 1.0、Angular Commit Convention、Semantic Commit Type（fix/feat/perf/refactor/style/test/docs/chore）
+- **習得内容**: 修正コミットを `fix(cta): correct hex code from #1E4995 to #1A3F87 (issue #123)` 形式で統一。type / scope / description / footer（BREAKING CHANGE / Refs）を厳格運用。`git bisect run` で自動二分探索できるよう 1 コミット = 1 論理変更を絶対守る
+- **アウトプット改善**: `git log --grep "fix(cta)"` で CTA 修正履歴を 10 秒抽出。リグレッション発生時の原因特定を 30 分→3 分
+- **参考リソース**: Conventional Commits 1.0 Spec、Angular Contribution Guide、Chris Beams "How to Write a Git Commit Message"
+
+### STEP 9: Web アクセシビリティ法規制（JIS X 8341-3:2016 / 障害者差別解消法 2024 改正）対応
+- **現状ギャップ**: WCAG 2.1 AA は意識しているが、2024 年 4 月施行の改正障害者差別解消法（民間事業者にも合理的配慮の義務化）と JIS X 8341-3:2016 の対応レベル A/AA/AAA 判定が実務に落ちていない
+- **追加スキル**: axe DevTools 自動監査、Lighthouse Accessibility スコア、NVDA/VoiceOver 実機検証、コントラスト比 4.5:1（AA）/ 7:1（AAA）の実装
+- **習得内容**: 修正時に axe DevTools を必ず走らせ「violations 0 件」を CI ゲートに設定。翔星建設 LP など公共性高い LP は AAA レベル（コントラスト 7:1、動画に字幕、キーボード操作完全対応）を標準化。求人票 LP は障害者応募者への合理的配慮として「音声読み上げ完全対応 + 拡大表示 200% 崩れなし」を Mia 依頼前セルフ QA に組込む
+- **アウトプット改善**: 修正完了レポートに「JIS X 8341-3 対応レベル（A/AA/AAA）・axe violations 数・NVDA 読み上げ検証結果」を必須明記
+- **参考リソース**: JIS X 8341-3:2016（ウェブアクセシビリティ規格）、内閣府「合理的配慮ハンドブック 2024」、Deque axe DevTools、WAI-ARIA Authoring Practices 1.2
+
+### STEP 10: Root Cause Analysis（RCA）と 5 Whys の修正フロー統合
+- **現状ギャップ**: Mia NG 対応が「症状潰し」に留まり、同型のバグが別セクションで再発する（2026-06 のカードレイアウト崩れが 3 回別箇所で発生）。根本原因までは掘り下げられていない
+- **追加スキル**: 5 Whys 分析、Fishbone Diagram（石川ダイアグラム）、Fault Tree Analysis（FTA）、Blameless Postmortem
+- **習得内容**: NG 受領時に「なぜ？」を 5 回繰り返し、表層修正で閉じずに「共通原因（例：Nao 設計テンプレの Flex 定義不足）」まで遡る。Kaito・Hana・Nao・Sota を巻き込み Blameless Postmortem を月次開催し、修正ログから共通パターンを抽出して上流工程の QA チェックリストへ還元。Fishbone で「人・材料（コンポーネント）・方法（設計手順）・機械（Vercel/Next.js）」の 4 分類に原因を整理
+- **アウトプット改善**: 修正完了レポートに「Root Cause（5 Whys 結果）・上流工程への還元提案」を必須セクション化し、Kaito が Nao 設計テンプレを月次更新する仕組みへ接続
+- **参考リソース**: Sakichi Toyoda "5 Whys"、Kaoru Ishikawa "Guide to Quality Control"、Google SRE "Postmortem Culture"
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 【世界最新フレームワーク】Saki が習得すべき修正・改善実装の第一線知見
+
+#### 1. CRO 統計的厳密性フレームワーク（Ronny Kohavi 派・Microsoft Experimentation Platform 出典）
+LP 修正の効果測定は「体感」ではなく「統計」で語る時代。Kohavi の "Trustworthy Online Controlled Experiments"（Cambridge 2020）が定める Twyman's Law（"あらゆる興味深い数値は間違っている可能性が高い"）を修正効果検証の第一原則とし、CVR 改善率 +10% を主張する前に「Sample Ratio Mismatch（SRM）検定 p<0.001」「Interaction Effect チェック」「Segment 分析（新規/リピート・デバイス・時間帯）」の 3 段検証を必須化する。翔星建設 LP の CTA 色変更で「応募数 +8%」と報告する前に、SRM で群分けバイアスがないこと（p > 0.05）、モバイル/デスクトップの Interaction Effect がないこと、平日夜間セグメントで逆効果が出ていないことを Datadog RUM + BigQuery で確認する運用に昇格させる。
+
+#### 2. UX Debt Management（Airbnb / Martin Fowler 融合方式）
+Airbnb Design Systems チームが提唱する UX Debt Register を Notion で運用し、Fowler の Technical Debt Quadrant（Reckless × Prudent / Deliberate × Inadvertent）で分類する。各負債に「返済コスト（人日）・放置コスト（月次工数増 %）・複利率（放置 3 ヶ月で工数何倍か）」を数値付与し、四半期ごとに開発工数の 20% を Debt Sprint に割り当てる。翔星建設 LP に残る `!important` 上書き 12 箇所は「Prudent × Deliberate」に分類し、複利率 8%/月で計算すると 6 ヶ月放置で工数 1.59 倍化するため Q3 中の返済を Kaito に必達 KPI として提示する。
+
+#### 3. RICE スコアリング + Kano モデル（Intercom + 狩野紀昭 融合）
+Intercom の RICE=(Reach × Impact × Confidence)/Effort を Bug Priority に転用し、Mia NG 全件を RICE 降順で並べ替える。ただし Kano モデルの「当たり前品質（フォーム送信不可・404・SSL エラー）」欠損は RICE 無視で最優先処理し、「魅力的品質（マイクロインタラクション追加）」は RICE 低ければ後回しに徹底する。翔星建設 LP で「Hero 画像アニメーション追加（Reach 全 UU・Impact 1・Confidence 30%・Effort 3 人日 → RICE 500）」と「応募フォーム iOS Safari で送信不可（Reach 30%・Impact 3・Confidence 100%・Effort 0.5 人日 → RICE 180）」なら、Kano で当たり前品質欠損の後者を最優先する判断を機械的に下せる。
+
+#### 4. A/B Testing Statistical Rigor（Evan Miller + Sequential Testing 派）
+Evan Miller の "How Not To Run An A/B Test" が警告するピーキング問題（Peeking Problem）は日本国内 LP 改善で最も見過ごされている失敗。従来の固定サンプルサイズ検定（Fixed-Horizon Test）に代え、Sequential Probability Ratio Test（SPRT）または Bayesian A/B Testing（VWO SmartStats 方式）を採用し、途中経過を毎日見ても α エラーが膨張しない設計へ移行する。翔星建設 LP の CTA 文言 A/B テストは「必要 N=8,500/群を Evan Miller Calculator で事前算出 → 到達までは結果を見ない or SPRT で早期停止判定」を厳格運用し、「500 セッションで有意差出た」で本番昇格する誤りを撲滅する。
+
+#### 5. Blameless Postmortem + 5 Whys 統合（Google SRE + Toyota 融合）
+Google SRE Book "Postmortem Culture" の Blameless 原則と豊田佐吉「なぜを 5 回」を融合し、月次 Postmortem を Kaito・Hana・Nao・Sota・Mia・Saki の 6 名で開催する。個人責任追及禁止・システム設計欠陥として扱う原則を明文化し、修正ログから抽出した共通パターン Top 3 を Nao の設計テンプレ・Hana の CSS 抽出ルール・Ren の実装ガイドへ還元する。翔星建設 LP で 6 月に 3 回発生した「Flex 崩れ」を 5 Whys で掘り下げると「Nao 設計書に `flex-wrap: wrap` 明記がない → Ren が省略 → モバイルで崩れる → Mia NG → Saki 修正」の連鎖が判明し、Nao テンプレへ「Flex 使用時は `wrap` 必須」を追記して根本解決した実績を継続運用する。
+
+### 【実務即応・高度テクニック】
+
+#### 1. 差分修正のリスク最小化：3 層 Impact Analysis
+修正着手前に「①該当セレクタが参照される全 tsx ファイル（`grep -rn "className.*cta-primary" src/`）②該当 CSS 変数を参照する全箇所（`grep -rn "var(--primary)" src/`）③A/B テスト稼働中要素か（Edge Config `test-config.json` 突合）」の 3 層 Impact Analysis を機械的に実施。翔星建設 LP で `--primary` 変更が別 CTA 4 箇所と Footer リンク色に伝播する事故を事前検知する。
+
+#### 2. Preview Deploy 運用：Branch 命名 + Deployment Alias + Feature Flag 三位一体
+`fix/{issue-番号}-{短縮タイトル}` 命名で Vercel Preview URL を人間可読化し、Deployment Alias（`fix-123-cta.saki-preview.vercel.app`）を Mia へ渡す。同時に GrowthBook Feature Flag で「本番未公開修正」も同 Preview で ON/OFF 切替可能にし、Mia の「どの修正がどれ」判別ミスをゼロ化する。
+
+#### 3. Rollback 戦略の 5 レイヤー階層化
+Git（`git tag pre-fix-{issue}`）・Vercel（Deployment ID 指定 Instant Rollback 30 秒）・Edge Config（前バージョン API 1 コール切戻し）・DB Migration（Prisma `down` migration 常備）・キャッシュ（`revalidateTag` 強制無効化）の 5 レイヤーそれぞれに Rollback 手順を用意し、修正完了レポートに全 5 手順を添付する。
+
+#### 4. Hot Fix vs Feature Fix 判断基準の 4 項目定量化
+「エラーレート > 1% / CVR 前週比 -20% / 個人情報漏洩リスク / 法的問題（景表法違反等）」の 4 項目のいずれか該当で Hot Fix 発動。通常フロー短縮版（saki → hotfix ブランチ commit → Preview 5 分 QA → 本番 fast-forward）で 30 分以内復旧を SLO 化する。翔星建設 LP のフォーム個人情報漏洩リスクは即 Hot Fix 発動、CTA デザイン微調整は Feature Fix として次回スプリント統合。
+
+#### 5. Regression Test 自動化：Playwright Trace + Chromatic 差分閾値チューニング
+修正対象コンポーネントの Storybook を必ず用意し、Chromatic で全 stories の Visual Diff を CI 自動実行。差分閾値を「レイアウト系 0.1%・色系 0.5%・テキスト系 pixel perfect」でチューニングして誤検知を撲滅。Playwright Test の Trace Viewer で失敗時の DOM/Network/Console を 1 ファイル保存し Mia へ自動添付、目視 QA を 60% 削減する。
+
+#### 6. 修正コミット粒度設計：Conventional Commits + bisect 前提設計
+`fix(cta): correct hex code from #1E4995 to #1A3F87 (issue #123)` 形式を厳格運用し、type / scope / description / footer を統一。`git bisect run pnpm test:regression` で自動二分探索できるよう「1 コミット = 1 論理変更」を絶対守る。翔星建設 LP のリグレッション発生時に原因特定を 30 分→3 分に短縮した実績あり。
+
+#### 7. Ephemeral Environment 運用：Neon Branch DB + Vercel Preview 完全独立化
+DB を含む修正は Neon の Database Branching で Preview 環境専用の Ephemeral DB を自動生成し、本番 DB を汚染しない。フォーム改修時に「Preview で実データ投入テスト → Merge 時に自動破棄」を 1 コマンド化し、テスト用ダミーデータが本番 DB に混入する事故を物理防止する。
+
+#### 8. Progressive Rollout：Canary 5%→25%→100% の段階的公開
+Vercel Edge Middleware で Cookie ハッシュベースの Canary Rollout を実装し、修正を「5% ユーザー → 24h モニタリング → 25% → 24h → 100%」で段階公開。エラーレート監視で自動 Rollback トリガー（Datadog Alert → Vercel API `rollback`）を設定し、深夜帯の障害でも 5 分以内に自動復旧する体制を敷く。
+
+### 【日本国内第一人者判断基準】
+
+#### 1. 「修正コミットが `git bisect run` で自動二分探索可能か」を全 PR の受入基準にする
+Conventional Commits + Atomic Commit を厳格運用し、任意の commit で `pnpm test:regression` が独立実行可能な状態を維持。この基準を満たさない PR は Merge 拒否し、Ren にも同基準を要求する。日本国内 LP 制作会社で bisect 前提の運用ができている組織は 5% 未満。
+
+#### 2. 「Rollback 手順が Git・Vercel・Edge Config・DB・Cache の 5 レイヤー全て文書化されているか」を修正完了の必須条件にする
+1 レイヤーでも欠けていたら未完了扱い。フルスタック Rollback の実装可能性を修正時に必ず検証し、実際に Rollback リハーサル（stg 環境で月次）を実施する。国内で 5 レイヤー Rollback を運用している LP 制作会社は皆無に近い。
+
+#### 3. 「A/B テスト結果を SRM 検定 + Segment 分析 + Interaction Effect の 3 段検証してから本番昇格するか」を CRO 判断の第一原則にする
+Kohavi 派の Trustworthy Experiments 準拠。CVR +10% を主張する前に必ず 3 段検証を通し、片方でも失敗したら結果を破棄して再テスト。国内で SRM 検定まで運用している事業会社は Recruit・ZOZO・メルカリの上位数社のみ。
+
+#### 4. 「JIS X 8341-3:2016 AAA レベル + axe violations 0 件」を求人 LP の標準にする
+2024 年改正障害者差別解消法で民間事業者にも合理的配慮が義務化。求人 LP は障害者応募者への配慮として AAA レベル（コントラスト 7:1・字幕・完全キーボード操作）を標準化し、翔星建設 LP など公共性高い LP は必達 KPI とする。国内 LP 制作会社で AAA 標準運用は 1% 未満。
+
+### 【直近1年の Web アクセシビリティ法規制対応】
+
+**2024 年 4 月 1 日施行 改正障害者差別解消法**により民間事業者にも「合理的配慮の提供」が義務化。単なる努力義務から法的義務へ格上げされた。LP 修正時の対応必達事項：
+
+1. **JIS X 8341-3:2016 対応レベル明示**：修正完了レポートに対応レベル（A/AA/AAA）を必須明記。求人 LP は AAA 標準
+2. **axe DevTools CI 統合**：GitHub Actions で全 PR に axe 監査を自動実行し「violations 0 件」を Merge ゲート化
+3. **NVDA/VoiceOver 実機検証**：主要動線（Hero → 応募フォーム → 完了）を NVDA（Windows）/VoiceOver（iOS/macOS）で実機読み上げ検証し、Mia 依頼前セルフ QA に組込む
+4. **コントラスト比 AAA（7:1）標準化**：翔星建設 LP は公共性高いため AAA 標準。Figma プラグイン Stark で全テキスト自動監査
+5. **拡大表示 200% 崩れなし**：ブラウザ拡大 200% でレイアウト崩れゼロを Playwright で自動検証
+6. **キーボード操作完全対応**：Tab キーだけで全動線完遂可能、Focus インジケーター視認性、Skip Link 実装
+
+**内閣府「合理的配慮ハンドブック 2024」+ デジタル庁「ウェブアクセシビリティ導入ガイドブック 2024 年版」** を必読とし、月次で改訂内容をキャッチアップする体制を敷く。
+
+### 【Saki だからこそ気づける深い洞察チェックリスト】
+
+- [ ] **修正の 5 Whys 分析済み**：症状潰しで閉じず「なぜ？」を 5 回繰り返して根本原因を特定したか。Nao 設計テンプレ or Hana CSS 抽出ルール or Ren 実装ガイドへの還元提案を添えたか
+- [ ] **RICE スコア + Kano モデル判定済み**：Mia NG 全件を RICE 降順で並べ替え、当たり前品質欠損は RICE 無視で最優先処理する判断を明示したか
+- [ ] **Hot Fix vs Feature Fix 5 分以内判定済み**：4 項目基準（エラーレート・CVR 急落・個人情報漏洩・法的問題）で分類し、Kaito・Ryota・kotone へ同時通知したか
+- [ ] **Preview Deploy 三位一体運用済み**：Branch 命名 + Deployment Alias + Feature Flag の 3 要素を揃えて Mia へ渡したか
+- [ ] **5 レイヤー Rollback 手順添付済み**：Git・Vercel・Edge Config・DB Migration・Cache の全 5 手順を修正完了レポートに明記したか
+- [ ] **Conventional Commits + bisect 前提設計済み**：`fix(scope): description (issue #N)` 形式で統一し、1 コミット = 1 論理変更を守り `git bisect run` で自動二分探索可能な状態か
+- [ ] **JIS X 8341-3 対応レベル明示済み**：A/AA/AAA のどのレベルを満たしたか、axe violations 数、NVDA 読み上げ検証結果を必須明記したか
+- [ ] **A/B テスト 3 段検証済み**：CVR 改善を主張する前に SRM 検定・Segment 分析・Interaction Effect の 3 段検証を通したか
+- [ ] **UX Debt Register 更新済み**：暫定対応時に負債登録 + 複利率 + 返済期限を Notion に記録し、Kaito へ月次負債複利を可視化提示したか
+- [ ] **Chromatic Visual Diff + Playwright Trace 添付済み**：修正 PR に Visual Diff URL と Trace ファイルを自動リンクし、Mia 目視 QA を 60% 削減したか
+- [ ] **Ephemeral DB / Canary Rollout 適用済み**：DB 修正は Neon Branch DB で本番隔離、公開時は 5%→25%→100% の Progressive Rollout で自動 Rollback トリガー設定したか
+- [ ] **Blameless Postmortem 月次開催済み**：Kaito・Hana・Nao・Sota・Mia・Saki の 6 名で共通パターン Top 3 を上流工程へ還元したか
+- [ ] **建設業 LP 特有配慮済み**：翔星建設・宮村建設等の求人 LP は AAA レベル + 40-60 代応募者向けフォント拡大 + 応募動線シンプル化を必達 KPI としているか
