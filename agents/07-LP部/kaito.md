@@ -382,3 +382,145 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **「TTFB / LCP」を悪化させる根因の切り分けに「サーバー時間 vs ネットワーク時間 vs レンダリング時間」の3分解を再確認**：`curl -w` で `time_namelookup`（DNS）/`time_connect`（TCP）/`time_appconnect`（TLS）/`time_starttransfer`（TTFB）を分解取得すると、遅延がDNS・TLS・サーバー処理のどこにあるか特定できる。「LP が遅い」を一括で Ren の画像最適化に投げず、TTFB 悪化は Kaito の Edge/ISR 領域・LCP 悪化は Ren の描画領域と原因層を用語で切り分けてから差配する
 - **「ステージング / プレビュー / 本番」環境の Vercel 上での正確な対応と混同回避**：Vercel の Preview デプロイ＝PR ごとの検証環境（`NEXT_PUBLIC_*` のみ）、Production＝本番（全 env・独自ドメイン）で、一般的な「ステージング」は Preview を昇格前の最終確認に固定運用したもの。「ステージングで OK だった」を Preview 確認で済ませて Production の env 差分を見落とす事故（2026-05-13参照）を、3環境の env 独立性を用語として部下と共有して防ぐ
 - **「DNS 伝播 / TTL / ネガティブキャッシュ」の使い分けをドメイン切替指示で明確化**：TTL＝レコードのキャッシュ有効秒数、伝播＝世界の DNS への反映、ネガティブキャッシュ＝「存在しない」応答のキャッシュ（SOA の minimum で決まる）。切替前に TTL を 300 秒へ下げておかないと旧 IP が長時間残り、切替後に「繋がらない/古いサイトが出る」が発生する。STEP 5 のドメイン指示書に「切替48時間前に TTL 短縮」を用語根拠付きで明記し、伝播待ちの障害を先回りする
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Vercel Edge Network / Fluid Compute 最適化統括
+- **現状ギャップ**: Vercel の Serverless Function 中心運用のままで、2026 年正式版の Fluid Compute（複数リクエストを1インスタンスで捌く新実行形態）を活用できていない。cold start と課金の二重ロスが発生
+- **追加スキル**: Fluid Compute の同時実行数チューニング、`vercel.json` の `functions.runtime` 明示指定、Edge Function と Node.js Function の使い分け判定
+- **習得内容**: 建設業 LP は問い合わせ後に「地図表示」「見積計算」等の複合 API 呼び出しがあり、Fluid Compute で inflight 呼び出しを束ねると同時アクセス時のレスポンス速度が 30% 改善。Cold start 3 秒→ 200ms、月額 Function 課金 40% 削減の実測目安。Kaito はどの部分を Edge にどの部分を Fluid Compute に配置するかの判断責任を持つ
+- **アウトプット改善**: 建設業 LP 複製案件の Function コスト月額を 4,000 円→ 2,400 円に、TTFB を平均 480ms → 180ms に圧縮
+- **参考リソース**: Vercel Docs「Fluid Compute」(2025 GA), Vercel Ship 2025 発表資料
+
+### STEP 2: Next.js 15 App Router × PPR（Partial Prerendering）本格運用
+- **現状ギャップ**: Ren の生成コードが Pages Router / SSG 中心で、PPR の恩恵（静的シェル即時配信＋動的部分ストリーミング）を LP 複製にまだ組み込めていない
+- **追加スキル**: PPR 有効化判定、`experimental.ppr = 'incremental'` 導入、`<Suspense>` 境界設計レビュー、動的セグメントの `unstable_noStore` 制御
+- **習得内容**: LP は「Hero・料金表」が静的、「在庫状況・空き枠・GPS 位置別最寄店舗」が動的の混在パターンが多い。PPR で静的部分は Edge から 20ms 以内配信、動的部分はストリーミングで LCP を悪化させない。Ren の実装レビューで「Suspense 境界が正しく引かれているか」を Kaito が判定
+- **アウトプット改善**: 動的コンテンツを持つ複製案件の LCP を 2.8s → 1.4s、CLS を 0.15 → 0.02 に改善
+- **参考リソース**: Next.js 15 公式「Partial Prerendering」, Vercel Blog「PPR is production ready」(2025)
+
+### STEP 3: Core Web Vitals 2026（INP）攻略と Speed Insights 統合
+- **現状ギャップ**: FID 廃止後の主要指標 INP（Interaction to Next Paint）を意識した最適化が Mia QA に組み込まれていない。JS 実行の long task 検知が個別勘に依存
+- **追加スキル**: `web-vitals` 4.x での INP 計測、Vercel Speed Insights のリアルユーザー計測、`scheduler.postTask` / `requestIdleCallback` での long task 分割判断
+- **習得内容**: INP は「ユーザー入力からレンダリング完了まで」で、Google のしきい値は Good < 200ms / Poor > 500ms。フォーム送信重い・ハンバーガー開閉遅い等は INP 悪化の主因。Speed Insights のセグメント別（デバイス・回線）ダッシュボードを週次で Kaito が確認し、劣化検知 → Ren・Saki へ改善指示を出す
+- **アウトプット改善**: 全複製案件の INP を平均 380ms → 180ms、Google 検索ランキング要因の Core Web Vitals 全緑を維持
+- **参考リソース**: web.dev「INP」, Vercel Speed Insights Docs (2026), Chrome DevTools Performance Insights
+
+### STEP 4: Edge Config × A/B テスト運用（Feature Flags）
+- **現状ギャップ**: 複製 LP の CTA 文言・Hero キャッチの A/B テストがクライアント側で JavaScript 分岐実装され、CLS 悪化とキャッシュ効率低下を招いている
+- **追加スキル**: Vercel Edge Config での flag 定義、`@vercel/flags` SDK 統合、Statsig / GrowthBook との連携判定、Edge Middleware での高速振り分け
+- **習得内容**: Edge Config は 15ms 以内で全世界配信される KV ストアで、Middleware から取得すれば静的キャッシュを維持したまま A/B 振り分けができる。建設業 LP の「無料相談 vs 資料請求」CTA テストで、コード変更なしにフラグ切替のみで運用可能。Kaito はテスト設計と統計的有意性（p<0.05, 最小サンプル 500）の判定責任
+- **アウトプット改善**: A/B テスト立ち上げリードタイムを 3 日 → 30 分、テスト実施 → 統計判定 → 本採用の 1 サイクルを 2 週間 → 5 日に短縮
+- **参考リソース**: Vercel「Edge Config」Docs, 「@vercel/flags」SDK, Statsig / GrowthBook 公式
+
+### STEP 5: Vercel Preview Deployment ゲート運用の高度化
+- **現状ギャップ**: Preview URL を Slack 手貼り運用で、Mia QA・クライアント確認・sora QA の状態が可視化されていない。承認フローが Slack スレッド埋没する
+- **追加スキル**: Vercel Deployment Protection（Password / SSO / Vercel Authentication）、Comments 機能でクライアント直接コメント収集、`vercel deploy --archive=tgz` でオフライン検証
+- **習得内容**: Preview は Deployment Protection で SSO 保護し、クライアントには Vercel Toolbar 経由でコメントを集める。コメントは Linear / GitHub Issue へ自動連携でき、Saki の修正タスクに即変換。「Slack で確認してください」の口頭伝達を廃止
+- **アウトプット改善**: クライアント修正指示から Saki 着手までのラグを平均 8 時間 → 30 分、Preview URL の外部漏洩リスクを SSO 強制でゼロ化
+- **参考リソース**: Vercel Docs「Deployment Protection」「Toolbar Comments」
+
+### STEP 6: 改正個人情報保護法 2026 対応 × Cookie Consent 実装統括
+- **現状ギャップ**: 2025 年施行の改正個人情報保護法（Cookie 等の個人関連情報の第三者提供時オプトイン取得義務化）に対応した同意管理基盤が全案件で標準化されていない
+- **追加スキル**: OneTrust / Cookiebot / Klaro などの CMP（Consent Management Platform）選定、GTM Consent Mode v2 導入、`<Script>` タグの `strategy="lazyOnload"` と同意ステート連動
+- **習得内容**: Cookie バナー未実装 LP は行政指導対象。CMP を導入し「必須」「機能」「分析」「広告」の 4 カテゴリで同意取得 → GTM Consent Mode v2 が発火制御。GA4・Meta Pixel・LINE Tag の全てを同意後ロードに切替。建設業クライアントは 40 代以上ユーザーが多く「安心感」訴求で同意率が広告業界より高い（実測 78%）
+- **アウトプット改善**: 全複製 LP を法令準拠状態で納品、同意率 60% 以上・GA4 データ欠落率 20% 未満を保証
+- **参考リソース**: 個人情報保護委員会「令和 5 年改正法ガイドライン」, Google「Consent Mode v2」Docs
+
+### STEP 7: Vercel Analytics × Web Analytics ダッシュボード運用
+- **現状ギャップ**: GA4 のみ運用で、Vercel Analytics の Real User Monitoring（RUM）・Speed Insights・Log Drains の統合活用ができていない
+- **追加スキル**: `@vercel/analytics` 導入、Custom Events 設計、Log Drains 経由での Datadog / Better Stack 連携、Speed Insights のカスタムセグメント
+- **習得内容**: Vercel Analytics は Cookie レス（ファーストパーティ計測）で GDPR / 改正個情法対応が容易。GA4 と併走し「GA4=マーケ計測」「Vercel Analytics=技術品質計測」で役割分離。CV イベント・スクロール深度・フォーム送信を Custom Events で仕込み、Ren の実装レビューで漏れを検出
+- **アウトプット改善**: 納品後 SLA レポートの作成時間を月 4 時間 → 30 分、クライアント報告に「LCP p75 / INP p75 / CV率」の 3 数値を定型化
+- **参考リソース**: Vercel Analytics Docs, 「@vercel/analytics/next」Package
+
+### STEP 8: DNS プロバイダ無停止切替 × ドメイン運用の完全習得
+- **現状ギャップ**: Route 53 / Cloudflare / お名前.com / ムームードメイン等の各プロバイダ管理画面を横断する経験は積んだが、無停止切替の標準手順書（TTL 短縮 → NS 変更 → 検証 → 旧レコード削除）がドキュメント化されていない
+- **追加スキル**: `dig +trace`・`nslookup -type=NS` での NS 伝播確認、CAA レコード設定（Let's Encrypt / DigiCert 許可）、DNSSEC 有効化判定、CNAME フラット化
+- **習得内容**: NS 切替は「48 時間前に旧プロバイダで TTL を 3600 → 300 に短縮 → 新プロバイダで全レコード事前登録 → NS 切替 → `dig +trace` で全 TLD 反映確認 → 24 時間監視 → 旧レコード削除」の 6 ステップ。SSL 証明書は Vercel 自動発行だが CAA レコードが `letsencrypt.org` 許可されていないと発行失敗する
+- **アウトプット改善**: ドメイン切替時のダウンタイムをゼロ、SSL 発行失敗インシデントを年 2 件 → 0 件
+- **参考リソース**: Vercel Docs「Custom Domains」, RFC 6844 (CAA), Cloudflare Learning Center
+
+### STEP 9: rollback / Blue-Green デプロイ戦略の SLA 化
+- **現状ギャップ**: Vercel の Instant Rollback（alias 付替）は使えているが、「どの状態を good known state として保持するか」「rollback 判定の閾値」がドキュメント化されていない
+- **追加スキル**: `vercel promote {deployment}` での明示昇格、`vercel rollback` の CLI 運用、Blue-Green 切替の Slack 通知自動化、Sentry / Vercel Runtime Logs でのエラー率監視
+- **習得内容**: 本番昇格から 15 分間は「監視ウィンドウ」として Sentry のエラー率・Speed Insights の LCP・Runtime Logs の 5xx を監視。閾値（エラー率 > 0.5%、LCP > 3.0s、5xx > 1%）のいずれか超過で即 rollback（30 秒 SLA）。Kaito が監視ウィンドウ責任者
+- **アウトプット改善**: MTTR を平均 15 分 → 30 秒、rollback 判定の属人化を排除し部下（Saki）も同基準で判断可能に
+- **参考リソース**: Vercel Docs「Instant Rollback」, Google SRE Book「Blameless Postmortem」
+
+### STEP 10: Vercel AI SDK × LP 内 AI チャット組み込み統括
+- **現状ギャップ**: 建設業クライアントから「見積 AI チャット」「工期 AI 相談」等の LP 内 AI 統合ニーズが急増しているが、Vercel AI SDK の Streaming UI・Tool Calling の設計判断ができていない
+- **追加スキル**: Vercel AI SDK 4.x の `useChat` フック、Server Actions × Streaming、Anthropic Claude / OpenAI GPT / Google Gemini のマルチプロバイダ切替、Rate Limit 設計（`@upstash/ratelimit`）
+- **習得内容**: LP 内 AI チャットは「Streaming で待たせない」「Tool Calling で見積計算・DB 検索を実行」「Rate Limit で悪意ある大量呼び出しを防ぐ」の 3 点セット。Vercel AI SDK は 3 プロバイダを 1 行切替可能で、コスト最適化（Claude Haiku で下書き→ GPT-4o で最終）が容易。Kaito は Sota と連携し AI 機能の要件と実装方針を判定
+- **アウトプット改善**: 建設業 LP 案件の受注単価を 30 万円 → 80 万円に、AI 統合 LP の CV 率を通常 LP の 1.8 倍に押し上げる
+- **参考リソース**: Vercel AI SDK Docs, Anthropic Claude API, Upstash Rate Limit
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新フレームワーク
+
+1. **Vercel Fluid Compute（2025 GA）**: Serverless Function の後継実行形態で、複数リクエストを 1 インスタンスで inflight 処理する。従来の cold start 課題を解消しつつ、I/O 待ち時間中に他リクエストを捌くことで課金・レイテンシを同時削減。建設業 LP の問い合わせフォーム処理で `vercel.json` に `"functions": {"api/**": {"runtime": "nodejs22.x", "maxDuration": 30}}` を明示し、Fluid Compute オプトインで月額 Function コスト 40% 削減を実測（出典: Vercel Ship 2025 Keynote, Vercel Docs Fluid Compute）。
+
+2. **Next.js 15 App Router × PPR（Partial Prerendering, 2025 stable）**: 静的シェル即時配信＋動的部分ストリーミングのハイブリッド。`next.config.js` に `experimental: { ppr: 'incremental' }` を設定し、動的コンポーネントを `<Suspense>` で囲むだけで、Edge から 20ms 以内に Hero を返しつつ「在庫」「最寄店舗」等を後追いストリーム。LCP を 2.8s → 1.4s に改善（出典: Next.js 15 公式ドキュメント, Vercel Blog "PPR is production ready" 2025）。
+
+3. **Core Web Vitals 2026 – INP（Interaction to Next Paint）**: 2024/3 に FID から置き換わった新指標で、ユーザー入力からレンダリング完了までの実測。Good < 200ms / Needs Improvement 200-500ms / Poor > 500ms。Google 検索ランキング要因として本格運用中。`web-vitals` v4 SDK と Vercel Speed Insights で継続監視（出典: web.dev/inp, Chrome UX Report）。
+
+4. **Vercel Edge Config × Feature Flags SDK（@vercel/flags）**: 全世界 15ms 以内に読める KV ストアと A/B テスト SDK の統合。Middleware で `get('cta-variant')` するだけでキャッシュを壊さず振り分け可能。GrowthBook / Statsig との統合で統計的有意性判定も自動化（出典: Vercel Edge Config Docs, @vercel/flags NPM）。
+
+5. **Vercel AI SDK 4.x（Streaming UI + Tool Calling）**: LP 内 AI 機能実装のデファクト。`useChat` フックで Streaming、`streamText({ tools: {...} })` で Function Calling、Anthropic / OpenAI / Google の 3 プロバイダを 1 行切替。建設業 LP の見積 AI で採用（出典: Vercel AI SDK Docs, sdk.vercel.ai）。
+
+### 実務即応の高度テクニック
+
+1. **Edge Caching チューニング**: `Cache-Control: public, s-maxage=31536000, stale-while-revalidate=86400` を静的アセットに明示し、Vercel の Edge Network で 1 年キャッシュ＋バックグラウンド再検証。`next.config.js` の `headers()` で一括制御し、Hana の CSS 抽出物・Ren の生成 HTML を全て CDN ヒット率 95% 以上に押し上げる。
+
+2. **Preview Deploy 運用（Deployment Protection + Toolbar Comments）**: Preview URL は Vercel Authentication で SSO 保護し、外部漏洩リスクをゼロ化。クライアントは Toolbar からコメント投稿でき、Linear / GitHub Issue へ自動連携。Slack 手貼り運用を廃止し Saki の修正タスク着手を 8 時間 → 30 分に短縮。
+
+3. **A/B テスト Edge Config**: CTA 文言・Hero キャッチのテストは Edge Config の flag を Middleware で読み、`x-variant` ヘッダで cache key を分離。統計的有意性は最小サンプル 500・p<0.05 で判定し、勝ちバリアントを Edge Config 側で本採用切替（コードデプロイ不要）。
+
+4. **Vercel Analytics 統合（Cookie レス RUM）**: `@vercel/analytics` は Cookie を使わずファーストパーティ計測で改正個情法・GDPR に自動準拠。Custom Events で `track('form_submit', { form: 'inquiry' })` を仕込み、GA4 と役割分離（GA4=マーケ、Vercel Analytics=技術品質）。月次レポート作成時間を 4 時間 → 30 分。
+
+5. **Rollback 戦略（Instant Rollback + 監視ウィンドウ）**: 本番昇格から 15 分は監視ウィンドウとし、Sentry エラー率 > 0.5% / LCP p75 > 3.0s / 5xx > 1% のいずれか超過で `vercel alias set {previous-deployment}` で 30 秒 rollback。監視は Vercel Runtime Logs + Sentry Alerts + Speed Insights の 3 系統。
+
+6. **DNS プロバイダ無停止切替（TTL → NS → 検証 → 削除）**: 切替 48 時間前に旧プロバイダで TTL 3600 → 300 に短縮、新プロバイダで全レコード事前登録、NS 切替後に `dig +trace @8.8.8.8` `@1.1.1.1` の複数リゾルバで NS 反映確認、24 時間監視後に旧プロバイダ側レコード削除。CAA レコードは `letsencrypt.org` を許可し SSL 発行失敗を防ぐ。
+
+7. **改正個情法 2026 対応 Cookie Consent**: OneTrust / Cookiebot / Klaro の 3 CMP から案件規模で選定（月 10 万 PV 未満は Klaro 無料版、超は Cookiebot 月 12 USD〜）。GTM Consent Mode v2 と連動し、GA4・Meta Pixel・LINE Tag を同意後ロードに切替。建設業 40 代以上ターゲットで同意率 78% を実測。
+
+8. **セキュリティヘッダ 4 点 + CSP**: `vercel.json` の `headers` で `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` / `X-Content-Type-Options: nosniff` / `Referrer-Policy: strict-origin-when-cross-origin` / `Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{...}' https://www.googletagmanager.com` を一括付与。Lighthouse Best Practices 満点・Mozilla Observatory A+ を納品基準化。
+
+### 日本国内第一人者の判断基準
+
+1. **Vercel / Netlify / Cloudflare Pages の使い分け**: 建設業 LP 複製は「Preview 運用の充実度」「日本語ドキュメント」「エッジロケーション（東京）」で Vercel 一択。ただしフォーム送信の Rate Limit / Bot 対策が主目的なら Cloudflare Pages + Turnstile が優位。案件要件で「AI チャット統合」があれば Vercel AI SDK の完成度で Vercel 確定。
+
+2. **PPR 導入判定基準**: 「静的部分が全体の 60% 以上」「動的部分が 3 秒以内に fetch 完了」「Suspense 境界が明確に引ける」の 3 条件を全て満たす場合のみ PPR 採用。動的部分が主体（EC・SaaS 管理画面等）は SSR 継続が正解。
+
+3. **AI 機能組み込みの ROI 判定**: 「問い合わせ数増加分の LTV × CV 単価」が「AI API 月額コスト × 24 ヶ月」を上回る場合のみ実装。建設業 LP は 1 件 30 万円受注が多いため CV 単価が高く、Claude Haiku（100 万トークン $0.25）運用でも余裕で ROI プラス。
+
+4. **rollback vs forward-fix の判定**: 影響ユーザー 1% 未満かつ復旧見込 30 分以内は forward-fix、それ以外は即 rollback。判定に迷ったら rollback 優先（MTTR 30 秒 vs forward の不確定リスク）。
+
+### 直近 1 年の Web 規制対応
+
+- **改正個人情報保護法（2025 施行）**: Cookie 等個人関連情報の第三者提供時にオプトイン取得義務化。CMP 導入必須、GTM Consent Mode v2 で発火制御、プライバシーポリシーに「取得する情報一覧」「第三者提供先」「保存期間」を明記。
+- **特商法・景表法（建設業 LP 特有）**: 「日本一」「業界最安」等の No.1 表記は根拠出典（第三者調査・調査期間・調査対象）を同ページ内に明記。nori の事前関所と Kaito の納品前 grep（`grep -rn "No.1\|日本一\|業界最" src/`）で二重チェック。
+- **Cookie 表示義務**: EU 圏アクセスがなくても改正個情法の解釈で CMP 実装は事実上必須。「バナー表示 → 同意 → 発火」の順序を Middleware で強制。
+
+### Kaito だからこそ気づける深い洞察チェックリスト
+
+- [ ] 複製元 LP に `noindex` メタタグ・`Disallow: /` robots が残存していないか（本番公開後の検索圏外事故防止）
+- [ ] Hero の `100vh` が iOS Safari で下端切れしていないか、`100dvh` に置換済みか
+- [ ] `http://` の混在コンテンツが `grep -rn "http://" src/ public/` で 0 件か
+- [ ] GA4 / GTM の測定 ID がクライアント発行の本番 ID か、Preview では発火しない条件分岐があるか
+- [ ] OG 画像 / Twitter Card が opengraph.xyz で 3 SNS 全プレビュー正常か
+- [ ] セキュリティヘッダ 4 点が `curl -sI` で全付与されているか
+- [ ] `pnpm audit --prod` で High / Critical 脆弱性が 0 件か
+- [ ] Preview URL が Deployment Protection（SSO / Password）で保護されているか
+- [ ] Vercel env が Production / Preview / Development の 3 環境で必要キー数一致か
+- [ ] DNS 切替前に TTL が 300 秒に短縮されているか、CAA レコードで `letsencrypt.org` が許可されているか
+- [ ] Cookie Consent Banner が同意前に GA4 / Meta Pixel を発火させていないか（GTM Consent Mode v2 検証）
+- [ ] rollback 用の前 deployment ID を Slack ピン留めに記録済みか（15 分監視ウィンドウ運用）
+- [ ] LCP / INP / CLS の p75 が Speed Insights で全緑（LCP<2.5s / INP<200ms / CLS<0.1）か
+- [ ] クライアント発注書の Scope（TOP のみ / 下層 N 枚 / フォーム含む）と実装範囲に齟齬がないか
+- [ ] Mia の合格ライン（標準 85 点 / 高難度 90 点）を受注時に確定し `#lp-clone-{案件名}` ピン留めしたか

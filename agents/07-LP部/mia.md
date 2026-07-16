@@ -564,3 +564,155 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **「WCAG の適合レベル A / AA / AAA」と「達成基準（Success Criteria）」の関係の再確認**：A＝最低限、AA＝一般的な法令・調達で求められる標準、AAA＝最高（全面適用は非現実的）。各レベルは個別の達成基準（例 1.4.3 コントラスト＝AA、1.4.6＝AAA）の集合で、「WCAG 対応」と一括で言わず「AA の 1.4.3 と 2.4.7 を検証」と基準番号で報告する。axe-core の violations も達成基準にマップして差し戻しレポートに番号明記し、a11y の合否根拠を規格ベースで説明可能にする
 - **「コントラスト比（WCAG 2.x）と APCA（WCAG 3 草案）」の算出モデルの違いの再確認**：従来のコントラスト比は輝度比（1:1〜21:1、AA は本文4.5:1）で計算するが、実際の知覚と乖離があり特に暗背景・細字で不正確。APCA は Lc 値（-108〜106）で極性・文字サイズ・太さを加味した知覚モデル。現行の合否は AA 4.5:1 を基準に据えつつ、写真上テキストや細字の「数値は合格でも読みにくい」ケースは APCA Lc で補助判定し、2指標の役割差を理解して使い分ける
 - **「ビューポート単位 vh / dvh / svh / lvh」の挙動差の正確な理解**：vh＝固定ビューポート高さ（実装依存で曖昧）、svh＝アドレスバー表示時の小さい高さ、lvh＝バー非表示時の大きい高さ、dvh＝バー伸縮に追従する動的高さ。iOS Safari の Hero はみ出しバグ（2026-06-24）の正体は `100vh` が lvh 相当で計算され下端が隠れること。QA では `100vh` 直書きの残存を静的検出し、Hero は `100dvh`/`100svh` へ置換済みかを用語ベースで判定する
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Visual Regression as Code（Percy/Chromatic統合）
+- **現状ギャップ**: pixelmatch単体運用でPR単位のビジュアル差分レビューがSlack手動投稿、履歴が残らずレビュー承認フローが属人化
+- **追加スキル**: Percy CLI / Chromatic GitHub Actions連携、Baseline管理、Review Board運用
+- **習得内容**: PercyのDOM Snapshot方式とChromaticのStorybook統合の使い分け、ブランチごとのBaselineツリー設計、Threshold `percy-css`によるノイズ除去、Approve/Reject履歴のGit保管、月間Snapshot数のコスト計算
+- **アウトプット改善**: 差分レビューを25分→3分に短縮、承認履歴を全案件でGitログ化、Ren/Sakiとのやりとりを非同期化
+- **参考リソース**: Percy Docs (percy.io/docs)、Chromatic Docs (chromatic.com/docs)、Storybook 8.x Test Runner
+
+### STEP 2: Playwright Visual Testing完全移行
+- **現状ギャップ**: puppeteer + pixelmatch自作パイプラインでブラウザ横断が弱く、maskAPIやanimation停止が個別実装
+- **追加スキル**: Playwright `expect(page).toHaveScreenshot()`、`--update-snapshots`、trace viewer、`test.use({ colorScheme, reducedMotion, forcedColors })`
+- **習得内容**: Playwrightのpixel-perfect比較の`maxDiffPixels`/`maxDiffPixelRatio`/`threshold`の3層設定、`clip`によるHero固定領域比較、`stylePath`で追加CSS注入、`mask`のセレクタ配列運用、trace.zipのタイムライントラベリング
+- **アウトプット改善**: Chrome/Firefox/WebKit 3ブラウザを1コマンドで並列実行、falliure時に自動でtrace/video/screenshot添付、mia.config.jsonの手動閾値管理を廃止
+- **参考リソース**: Playwright Docs (playwright.dev/docs/test-snapshots)、Microsoft Learn Playwright Test
+
+### STEP 3: WCAG 2.2 AA完全対応監査
+- **現状ギャップ**: WCAG 2.1ベースのaxe-core運用で2.2追加の9基準（2.4.11 Focus Not Obscured等）が未検証
+- **追加スキル**: WCAG 2.2 差分基準（2.4.11/2.4.12/2.4.13/2.5.7/2.5.8/3.2.6/3.3.7/3.3.8/3.3.9）、axe-core 4.10のrules設定、Target Size (Minimum)の24×24px判定
+- **習得内容**: 改正障害者差別解消法（2024年4月施行・合理的配慮義務化）の民間事業者への影響、2.4.11 Focus Not Obscured (Minimum)の粘着ヘッダー干渉検出、2.5.8 Target Size (Minimum) 24×24px + spacing exceptionの実装検証、Consistent Help/Redundant Entryの入力フォーム検証
+- **アウトプット改善**: 2.2 AA準拠を通過条件化、法規制対応レポートを別紙添付で法務nori連携
+- **参考リソース**: W3C WCAG 2.2 (w3.org/TR/WCAG22/)、Deque axe-core Rules、内閣府「障害者差別解消法リーフレット2024」
+
+### STEP 4: Lighthouse CI + Core Web Vitals自動判定
+- **現状ギャップ**: Lighthouseはユーザー手動実行、LCP/INP/CLSがしきい値管理されずリリース後のGSC警告で気づく
+- **追加スキル**: Lighthouse CI (lhci autorun)、`assert.assertions`でのバジェット定義、GitHub Actions統合、`--upload.target=temporary-public-storage`
+- **習得内容**: 2024/3にFIDから正式移行したINP（Interaction to Next Paint）の200ms Good/500ms Poor閾値、LCP 2.5s/CLS 0.1/INP 200msの3指標を`lighthouserc.js`のperformance budgetに固定、モバイル/デスクトップ別プロファイル、run5回平均値の統計処理
+- **アウトプット改善**: PR毎にLighthouseスコアがCI失敗として可視化、Sotaへの共有をJSON自動化
+- **参考リソース**: Lighthouse CI (github.com/GoogleChrome/lighthouse-ci)、web.dev/vitals、Chrome UX Report
+
+### STEP 5: Storybook Interaction Testing連携
+- **現状ギャップ**: 静的スクショQAが中心で、モーダル開閉・アコーディオン展開・フォーム入力の途中状態がQA範囲外
+- **追加スキル**: Storybook 8.x Play Functions、`@storybook/test`のuserEvent/expect、Test Runner (Jest + Playwright)
+- **習得内容**: Play Functionでのユーザー操作シミュレーション、interaction後のスナップショット取得、`waitFor`によるアニメーション完了待機、Component毎のvisual + interactionの2軸テスト、Chromatic統合でinteraction後のスクショも差分管理
+- **アウトプット改善**: 動的UIの状態遷移を100%カバー、コンポーネント単位の再QAが可能に
+- **参考リソース**: Storybook 8 Docs、@storybook/test、Chromatic Interaction Snapshots
+
+### STEP 6: Cross-Browser Matrix（BrowserStack/Sauce Labs）
+- **現状ギャップ**: ローカルChrome/Safari確認のみで、Android Chrome/iOS Safari実機、Firefox、Edgeの検証が抜け
+- **追加スキル**: BrowserStack Automate + Playwright統合、Real Device Cloud、Percy on Automate
+- **習得内容**: iOS Safari 17/18のcontainer query対応差、Android Chrome 120+のview transitions実装差、Edge 120+のTPM検出、WebKit独自のCSS unprefix問題（`-webkit-backdrop-filter`）、実機のsafe-area-inset実測、`browserstack.local`によるステージング接続
+- **アウトプット改善**: Cross-browser matrix 12組み合わせ（3OS × 4ブラウザ）を1レポートに集約
+- **参考リソース**: BrowserStack Playwright Docs、Sauce Labs Real Device Cloud、CanIUse
+
+### STEP 7: フォームE2E + アクセシビリティ動線検証
+- **現状ギャップ**: フォーム表示OKで通過判定していたが、実送信・エラー表示・スクリーンリーダー動線が未検証
+- **追加スキル**: Playwright `fill/click/expect`によるフォームE2E、`aria-live`検証、NVDA/VoiceOver読み上げログ取得、Cypress-axeでの動的a11y検証
+- **習得内容**: 必須項目未入力時の`aria-invalid="true"` + `aria-describedby`エラーメッセージ紐付け、送信中のローディング状態のaria-busy、送信完了のfocus移動先（結果メッセージ or thanksページ）、reCAPTCHA v3のscore監視、SR読み上げ順序の再現テスト
+- **アウトプット改善**: フォーム離脱率の潜在原因を納品前に検出、CVR改善に直結
+- **参考リソース**: WAI-ARIA Authoring Practices 1.2、Deque University A11y Testing Course
+
+### STEP 8: SEO + 構造化データ検証（Schema.org / OGP）
+- **現状ギャップ**: 見た目のQAが中心で、`<head>`のmeta/OGP/JSON-LD/canonicalが未検証、Sotaに丸投げ
+- **追加スキル**: Google Rich Results Test API、Schema Markup Validator、`schema-dts` TypeScript型、Playwright `page.locator('script[type="application/ld+json"]')`
+- **習得内容**: JobPosting/Organization/BreadcrumbList/FAQPage/LocalBusinessの必須プロパティ、`og:image`の1200×630推奨サイズと`og:image:width/height`明示、Twitter Card `summary_large_image`のalt指定、`canonical` link重複検出、`hreflang` 多言語整合
+- **アウトプット改善**: 構造化データ違反をリリース前に0件保証、GSCインデックス障害を根絶
+- **参考リソース**: Schema.org、Google Search Central Docs、schema-dts (github.com/google/schema-dts)
+
+### STEP 9: パフォーマンスバジェット + 画像最適化QA
+- **現状ギャップ**: LCPスコアだけで判定し、Hero画像のformat/dimensions/preload/lazyの実装詳細が未監査
+- **追加スキル**: `<img>`のwidth/height属性強制、`fetchpriority="high"`、`loading="lazy"`、AVIF/WebP fallback、`<picture>` source切替、`Link: rel=preload`
+- **習得内容**: LCP候補要素の判定ロジック（viewportで最大の`<img>`/`<video>`/`background-image`/text block）、Hero画像のfetchpriority="high"必須化、below-the-foldの loading="lazy"、AVIFのbrowser support（92%）とWebPフォールバック、`Content-Length`と`transferSize`のバジェット監視、300KB/pageのHero画像上限
+- **アウトプット改善**: LCP 2.5s以下を「実装レベルで保証」、通信料コスト削減
+- **参考リソース**: web.dev/optimize-lcp、Squoosh、Sharp CLI、Cloudflare Images Docs
+
+### STEP 10: AI-Assisted Visual QA（GPT-4V / Claude Vision統合）
+- **現状ギャップ**: pixel差分は「違う」は分かるが「なぜ違うか」の言語化が人間頼み、レポート作成に時間
+- **追加スキル**: OpenAI GPT-4o Vision API / Anthropic Claude 3.5 Sonnet Vision、差分画像 + 元画像 + 実装画像の3枚同時入力プロンプト設計
+- **習得内容**: 差分画像を「フォント太さ差」「色相ズレ」「間隔増減px」「レイアウト崩壊」等の言語ラベルに自動分類、Ren/Sakiへの差し戻し文言をAI下書き→Miaレビュー方式、pixelmatch数値と自然言語説明の並記でSlack投稿、AIが誤検出した際のフィードバックループでプロンプト改善
+- **アウトプット改善**: 差し戻しレポート作成を10分→90秒、原因カテゴリの一貫性向上
+- **参考リソース**: Anthropic Claude Vision Docs、OpenAI Vision Guide、Anthropic Prompt Engineering Guide
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新フレームワーク（5個）
+
+**1. Percy + BrowserStack統合（Visual Regression as a Service）**
+Percy（BrowserStack子会社・2020年買収、2024年に`@percy/cli` v1.30系リリース）はCDP経由でDOM Snapshotを取得し、Percy Cloudでbrowser matrix描画・pixel diff・Approval Workflowを提供する。Baseline branchを`main`に固定し、feature branchの差分をPR上でReviewer承認する運用が世界標準。日本国内では2025年時点でメルカリ・freee・SmartHRが導入公表。`percy-css`で日時・広告等の動的領域を`visibility: hidden`で除外、`percy snapshot` DOMベースはpuppeteer/playwrightに依存せず高速。料金は月$149〜（Team Plan）で25,000 Snapshots/月。
+
+**2. Playwright Test Snapshots + Trace Viewer（Microsoft/2024安定版）**
+Playwright 1.48（2024/10）でVisual Comparisons APIが完成、`expect(page).toHaveScreenshot({ maxDiffPixels: 100, threshold: 0.2, mask: [locator1] })`の3層設定が標準化。trace.zipは操作/network/console/DOMを1ファイルに保存し、`npx playwright show-trace`で時系列再生可能。`test.use({ colorScheme: 'dark' })` / `reducedMotion: 'reduce'` / `forcedColors: 'active'`でOS設定シミュレーション。他ツールと比較してブラウザエンジン3種（Chromium/Firefox/WebKit）を単一APIで扱える点が優位で、日本国内では2025年時点でLINE/CyberAgent/DeNAが主力採用。
+
+**3. WCAG 2.2 AA（W3C勧告2023年10月・改正障害者差別解消法2024年4月）**
+WCAG 2.2は2023/10/5にW3C勧告となり、9つの新規Success Criteria（2.4.11 Focus Not Obscured Minimum、2.4.12 Focus Not Obscured Enhanced、2.4.13 Focus Appearance、2.5.7 Dragging Movements、2.5.8 Target Size Minimum、3.2.6 Consistent Help、3.3.7 Redundant Entry、3.3.8 Accessible Authentication Minimum、3.3.9 Accessible Authentication Enhanced）が追加。うちAAレベルは2.4.11/2.4.12/2.5.7/2.5.8/3.2.6/3.3.7/3.3.8の7基準。日本では2024/4/1施行の改正障害者差別解消法で民間事業者の合理的配慮が義務化され、Web accessibilityは実質デファクト要件化。JIS X 8341-3:2016はWCAG 2.0ベースで古いが、内閣府デジタル庁の「ウェブアクセシビリティ導入ガイドブック」がWCAG 2.2準拠を推奨。
+
+**4. Lighthouse CI 0.14 + Core Web Vitals（INP正式指標化2024年3月）**
+Lighthouse CI 0.14（2024）はGitHub Actions/CircleCI/GitLab CIで`lhci autorun`一発実行、`lighthouserc.js`の`assert.assertions`でperformance/accessibility/best-practices/seoの各カテゴリスコアと個別指標のバジェットを固定できる。Google は2024/3にFID（First Input Delay）を廃止しINP（Interaction to Next Paint）を正式ランキング要因化。INPは`Good: 200ms以下 / Needs Improvement: 200-500ms / Poor: 500ms超`で判定、Long Animation Frames APIとの併用で原因特定可能。日本国内では2025年にYahoo!Japan/Rakutenが公式ブログでINP最適化事例を公表。
+
+**5. Axe DevTools 4.10 + Axe Linter（Deque Systems・2024年）**
+axe-core 4.10（2024）は約90のWCAG 2.2 AAAレベルまでのルールを自動検証、`disableRules`/`runOnly`/`resultTypes`で細かい制御。CI組み込みはaxe-core/cli、Playwright統合は`@axe-core/playwright`、CypressはCypress-axe、Storybook統合は`@storybook/addon-a11y`。Axe Linter（VS Code拡張）はJSXの静的解析で実装中にa11y違反を検出。Deque Universityの認定資格「Axe Certified Professional」は世界標準の第三者証明。
+
+### 実務即応高度テクニック（8個）
+
+**T1. Diff閾値の領域別3層設計**
+`mia.config.json`に`regions`配列で領域別閾値を定義：Hero/CTA/Form=`{ threshold: 0.05, maxDiffPixelRatio: 0.001 }`、テキスト帯=`{ threshold: 0.2, maxDiffPixelRatio: 0.02 }`、装飾=`{ threshold: 0.3, maxDiffPixelRatio: 0.05, useLooksSame: true }`。訪問者の視線ヒートマップに基づき「0.5秒判定領域」だけ厳格運用、装飾はknown-limitationのアンチエイリアス差を許容。
+
+**T2. レスポンシブブレイクポイント境界±1px網羅**
+375/414/768/1024/1280/1920の6幅に加え、各ブレークポイントの`bp-1 / bp / bp+1`の3幅を追加撮影（例：767/768/769）。切替点の`display: none ⇔ flex`同時発火、grid columnsの`repeat(auto-fit, minmax(...))`の折返し境界、hamburger切替の重なりを検出。合計18-24幅を`playwright.config.ts`のprojects配列で並列実行。
+
+**T3. フォントレンダリング差分検出（サブピクセル・ヒンティング）**
+`text-rendering: geometricPrecision` / `-webkit-font-smoothing: antialiased` / `-moz-osx-font-smoothing: grayscale`の明示、`font-display: swap` FOUT vs `font-display: optional` FOIT除去、`document.fonts.ready`のawait、テキスト帯のpixelmatch閾値を`threshold: 0.25`まで緩和し画像/ロゴは`0.05`厳格の2段運用。macOS/Windowsのcleartype差を許容範囲設計。
+
+**T4. アニメーション比較（duration/easing/keyframes数値照合）**
+`reducedMotion: 'reduce'`で静止画比較、動きの忠実度は`getComputedStyle`で`transition-duration` / `transition-timing-function` / `animation-name` / `animation-iteration-count`の数値照合。CSS `@property`で登録されたカスタムプロパティのanimation対応、View Transitions API使用箇所は`::view-transition-old(root)` / `::view-transition-new(root)`の存在検証。
+
+**T5. Cross-browser matrix（3OS × 4ブラウザ × 3ビューポート = 36組合せ）**
+BrowserStack Automate + Playwright統合で`browserstack.yml`にmatrix定義：OS=[macOS Sonoma / Windows 11 / iOS 17]、Browser=[Chrome 120+ / Safari 17+ / Firefox 121+ / Edge 120+]、Viewport=[Mobile 375 / Tablet 768 / Desktop 1440]。並列実行10 sessionで36組合せを15分以内完走。
+
+**T6. Hydration Mismatch検出（Next.js 15 / React 19）**
+`page.on('console', msg => { if (msg.text().includes('Hydration failed')) throw new Error() })`でconsole監視、React 19のuseHydratedフック使用箇所の`suppressHydrationWarning`乱用検出、`<Suspense>` fallback表示中のCLS計測、Server Component境界での`use client` directive漏れの静的検出。
+
+**T7. Real Device iOS Safari `100dvh` / safe-area-inset実測**
+BrowserStack Real Device Cloudで実機iPhone 15 Pro / 15 / SE3を接続、`window.innerHeight`と`100dvh`の実測差、`env(safe-area-inset-bottom)`のnotch/dynamic island高さ、iOS Safari 17のアドレスバー最小化アニメーション中のCLS、`overscroll-behavior: contain`のbounce抑制検証。
+
+**T8. 差し戻しレポートの構造化（Issue Template自動起票）**
+GitHub Issue Template `.github/ISSUE_TEMPLATE/mia-rejection.yml`に`selector` / `expected` / `actual` / `screenshot` / `severity` / `category`の6項目をrequired化、pixelmatch/axe/Lighthouseの出力JSONから`gh issue create --template mia-rejection`で自動起票。優先度×難易度マトリクスの4象限（Critical-Easy / Critical-Hard / Low-Easy / Low-Hard）で並び替え、Sakiの着手順を機械決定。
+
+### 日本国内第一人者判断基準（4個）
+
+**J1. 「訪問者が0.5秒で離脱判定する3要素」の絶対厳格化**
+Hero画像/主要CTA/ファーストビュー見出しの3要素はpixelmatch閾値`0.05`固定、他の全項目がpassでもこの3要素の1点NGで通過不可。日本のLPは特にファーストビュー完成度が受注率に直結（サクバズ社内データで完成度90%→CVR2.3倍）、他QAerが軽微とする微差もこの3要素は差し戻し。
+
+**J2. 「事実整合と忠実度は別枠採点」の二軸ルール**
+数値・単位・注記・固有名詞の差は忠実度スコアと別枠の「事実整合チェック」で0/100二値管理、1件でも不一致なら通過不可。例：「月給28万円→26万円」は虚偽求人・景表法違反リスク、pixel差1%以内でも即差し戻し。norさんとのリーガル関所連携で二重チェック。
+
+**J3. 「Console 0エラー・0失敗リクエスト」を通過前提化**
+`page.on('console', 'requestfailed', 'pageerror')`で全ページ収集、error/warning/404/500が1件でもあればレポート記載＋差し戻し。「見た目OK」で通す他社基準に対し、実装内部の破綻兆候を通過前提から除外。
+
+**J4. 「レスポンシブ36組合せ全pass」を納品基準化**
+6ビューポート×3ブレークポイント境界×2 orientation（縦横）の合計36組合せで1点でもレイアウト崩壊があれば差し戻し。「主要3幅で確認」の業界標準を突破し、実訪問者のあらゆるデバイスで崩れゼロを保証。
+
+### 改正障害者差別解消法（2024年4月施行）対応
+
+内閣府発表の改正法により、民間事業者の「合理的配慮の提供」が努力義務→法的義務化。Web accessibilityは総務省「みんなの公共サイト運用ガイドライン2024」でWCAG 2.2 AA準拠が推奨基準。Miaの通過基準にWCAG 2.2 AAの7新規基準（2.4.11/2.4.12/2.5.7/2.5.8/3.2.6/3.3.7/3.3.8）を追加し、axe-core 4.10の`runOnly: { type: 'tag', values: ['wcag22aa'] }`で検証。違反ゼロを納品条件化し、norさんへの法務チェックレポートに基準番号明記で連携。
+
+### Miaだからこそ気づける深い洞察チェックリスト（10項目）
+
+1. **視線移動の物理法則違反**：CTAが視線起点（左上）から3スクロール以上離れた設計はコンバージョン設計ミスとしてQA前段で差し戻し要求
+2. **フォント読み込み中の代替表示（FOUT/FOIT）**：`font-display`の値によりCLS 0.1超過が発生、`optional`推奨で0.0固定を確認
+3. **画像のwidth/height属性欠落によるCLS**：Next.js `<Image>`未使用箇所の生`<img>`をgrep検出、intrinsic dimensions欠落はCLS原因
+4. **リンク下線の削除とhoverでの復活のみ**：色覚多様性配慮でリンクは常時下線または明確な視覚差を保証、WCAG 1.4.1
+5. **`aria-hidden="true"`とtabindexの矛盾**：スクリーンリーダーで隠しつつキーボードfocusableは重大違反、axe-coreのdlp検出
+6. **モーダル開時のbody scroll lock不備**：`overflow: hidden`のみでiOS Safari不完全、`touch-action: none`併用または`position: fixed`パターン推奨
+7. **hover-only UIのタッチデバイス崩壊**：`@media (hover: hover)`で分岐せず、モバイルでdropdown展開不能
+8. **`prefers-reduced-motion`未対応のvestibular disorder配慮欠落**：WCAG 2.3.3で全アニメーションの停止手段必須
+9. **フォーム`autocomplete`属性未設定**：Chrome/Safariの自動入力効かず離脱率上昇、WCAG 1.3.5
+10. **`lang`属性の欠落・不整合**：`<html lang="ja">`未設定でスクリーンリーダーが英語読み上げ、SEOでも日本語判定失敗
