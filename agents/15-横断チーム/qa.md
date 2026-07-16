@@ -200,3 +200,175 @@
 - **効率化テクニック：5軸チェックを「機械判定軸（accuracy/format_compliance/consistencyの定量部分）」と「人手判定軸（feasibility/validation）」に二分し、機械軸は提出時の自動validationで先に潰してからQAキューに入れる**。QAが全5軸を手で流すと1件20分かかるが、schema通過・固有名詞マスタ突合・数値内部整合（07-01記録）は提出ゲートで自動判定できる。QAは機械が判定不能な「そもそも正しいものを作っているか」の1〜2軸だけに集中でき、機械軸で弾かれた案件は中身を読む前に返るためレビュー総量自体が減る
 - **効率化テクニック：頻出の差し戻し理由トップ5を「定型合格条件スニペット」化し、差し戻し時にコピペで貼る**。「異常系カバレッジ≥30%／blocker 0件／出典突合100%／固有名詞マスタ完全一致／同一指標の内部整合」の5条件を定型文で持ち、該当する差し戻しに機械的に添付する。毎回合格ラインを文章で考案する工数をゼロにしつつ、06-17記録の「合格ラインを書かず無限往復」も構造的に防げ、再提出は条件到達可否だけの一発判定になる
 - **効率化テクニック：レビュー結果の記録は「Slack絵文字リアクション→review.json自動生成」に寄せ、conditional通過時の実測値（カバレッジ%・突合一致率）だけ手入力する**。5軸＋4区分（strengths/quick_wins/critical_fixes/next_iteration）はBotが定型返信し、QAは✅/⚠️/❌を押すだけ（06-16記録）。ただしconditional判定の軸は06-24記録の教訓どおり実測値併記が必須なので、その数値のみ追記フォームで拾う。定型部分の自動化と追跡に必要な最小手入力を分けると、記入20分→5分でescape分析可能性も保てる
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: ISO 9001:2015 QMS を組織横断QAに正式実装
+- **現状ギャップ**: 現行の5軸レビュー（accuracy/consistency/feasibility/validation/format_compliance）は成果物単位で局所最適だが、組織としての「品質マネジメントシステム（QMS）」としては未成熟。文書管理・是正処置・マネジメントレビューが暗黙運用で、監査可能性が低い。
+- **追加スキル**: ISO 9001:2015 の 7 大原則（顧客重視・リーダーシップ・人々の積極的参加・プロセスアプローチ・改善・客観的事実に基づく意思決定・関係性管理）を横断QA運用に落とし込むスキル。
+- **習得内容**: Clause 4（組織の状況）〜Clause 10（改善）の各条項をQA運用フローと対応付ける。特に Clause 7.5（文書化情報）で review.json を「維持文書」化、Clause 9.1（監視測定）で escape rate をKPI化、Clause 10.2（不適合と是正処置）でNCR/CAPAを制度化。PDCA サイクルを Plan（レビュー計画）→Do（実行）→Check（escape測定）→Act（是正）でループ化。
+- **アウトプット改善**: review.json に `iso9001_clause` タグを付与し、監査時にどの条項要求に応えているかを可視化。年次マネジメントレビューで QA プロセス全体の有効性を経営層へ報告可能に。
+- **参考リソース**: ISO 9001:2015（JIS Q 9001:2015）、ISO/TS 9002:2016（ガイダンス）、日本規格協会『ISO 9001:2015 要求事項の解説』。
+
+### STEP 2: Six Sigma DMAIC による欠陥削減プロジェクト運用
+- **現状ギャップ**: escape rate（品質見逃し率）を測っていても「なぜ発生し・どう再発防止するか」の統計的アプローチが未整備。感覚的な対症療法で終わり、DPMO（Defects Per Million Opportunities）の目標値も未設定。
+- **追加スキル**: Six Sigma の DMAIC（Define/Measure/Analyze/Improve/Control）5フェーズを、QA改善プロジェクトのプロトコルとして運用するスキル。
+- **習得内容**: Define で問題ステートメント・SIPOC 図・CTQ（Critical to Quality）を定義、Measure で現状 DPMO・シグマレベル（3σ→4σ→6σ）を測定、Analyze で Pareto 分析・Fishbone・5 Whys で真因特定、Improve で対策実装と Pilot 検証、Control で SPC チャートと歯止め策で維持。品質コスト（COPQ: Cost of Poor Quality）を金額換算し ROI を提示。
+- **アウトプット改善**: 四半期ごとに DMAIC プロジェクト1本を回し、escape rate を3σ（66,807 DPMO）→4σ（6,210 DPMO）→5σ（233 DPMO）と段階的に改善。
+- **参考リソース**: ASQ（American Society for Quality）Six Sigma Green Belt Body of Knowledge、日科技連『シックスシグマ・ハンドブック』、Motorola University DMAIC Reference。
+
+### STEP 3: Lean QC 7 Tools + New QC 7 Tools の統合活用
+- **現状ギャップ**: 定量分析ツールが Excel の集計止まりで、統計的品質管理（SQC）の基本ツールを体系的に使いこなせていない。定性データ（クレーム文言・NCR記述）の構造化分析も未実装。
+- **追加スキル**: 旧 QC 7 つ道具（Pareto/Fishbone/Histogram/Check Sheet/Scatter Diagram/Control Chart/Stratification）と新 QC 7 つ道具（Affinity/Relations/Tree/Matrix/Arrow Diagram/PDPC/Matrix Data Analysis）の使い分けスキル。
+- **習得内容**: 定量データには旧7つ道具、定性データ・企画段階には新7つ道具を適用。特に Pareto でトップ20%の差し戻し要因が全体80%を占める構造を可視化、Control Chart（X̄-R管理図）で escape rate の異常変動を UCL/LCL で自動検知、Affinity Diagram でクレーム文言をクラスタリング。
+- **アウトプット改善**: 月次 QA レポートに Pareto + Control Chart を必須添付。異常変動時は自動でアラート発火。
+- **参考リソース**: JIS Z 8101（統計用語）、石川馨『日本的品質管理』（QC 7 つ道具の原典）、日科技連『新QC7つ道具』。
+
+### STEP 4: Testing Trophy 2026（AI時代の統合テスト戦略）
+- **現状ギャップ**: システム開発部（riku/ao/mio）のテストピラミッド観に依存し、横断QA視点での「テスト戦略の妥当性検証」ができていない。単体テスト偏重で E2E・統合テストの網羅性判定が未整備。
+- **追加スキル**: Kent C. Dodds が提唱し2026年に AI/LLM 時代版へ進化した Testing Trophy（Static→Unit→Integration→E2E＋AI Eval）を、QA レビュー観点として取り込むスキル。
+- **習得内容**: 4層（Static: TypeScript/ESLint、Unit: 個別関数、Integration: モジュール結合、E2E: ユーザーフロー）＋新層（AI Eval: LLM出力の hallucination・bias 検証）の各層で「何が担保され何が担保されないか」を判定。特に Integration が最も投資対効果が高い（Trophy の胴体部分）ことを踏まえ、mio へのフィードバックで層配分の是正提案を行う。
+- **アウトプット改善**: システム開発案件のQAレポートに「テスト層配分の妥当性」欄を追加し、偏りがあれば conditional-approve で是正要求。
+- **参考リソース**: Kent C. Dodds『Testing Trophy』（testingjavascript.com）、Google Testing Blog『Testing on the Toilet』、ISO/IEC/IEEE 29119（Software Testing Standards）。
+
+### STEP 5: ISO/IEC 25010:2023 ソフトウェア品質モデル準拠のQA観点拡張
+- **現状ギャップ**: 5軸レビューは主に機能適合性（Functional Suitability）に偏重し、性能効率・セキュリティ・保守性・互換性・信頼性・使用性・移植性の判定が観点不足。
+- **追加スキル**: ISO/IEC 25010:2023（改訂版）の9品質特性（Functional Suitability/Performance Efficiency/Compatibility/Interaction Capability/Reliability/Security/Maintainability/Flexibility/Safety）を成果物種別ごとに重み付けで適用するスキル。
+- **習得内容**: LP案件では Performance Efficiency（Core Web Vitals: LCP<2.5s/INP<200ms/CLS<0.1）と Security（HTTPS/CSP）を重点、システム開発では Maintainability（保守容易性）と Reliability（可用性）を重点、資料作成では Interaction Capability（ユーザビリティ）を重点、というように成果物別のQAプロファイルを設定。
+- **アウトプット改善**: 成果物種別テンプレ（07-01記録）に25010品質特性マトリクスを組み込み、抜け漏れをゼロに。
+- **参考リソース**: ISO/IEC 25010:2023（JIS X 25010:2024）、IPA『ソフトウェア品質評価ガイド』、SQuBOK Guide V3。
+
+### STEP 6: Root Cause Analysis 高度化（5 Whys / Fishbone / FTA / Bow-Tie）
+- **現状ギャップ**: 差し戻し理由が「症状の記述」に留まり、真因特定が浅い。同種issue3回でチェックリスト追加（06-03記録）を続けても、根本原因を潰さない限り再発する。
+- **追加スキル**: 4手法を使い分ける RCA スキル。5 Whys（単純事象）、Fishbone/石川ダイアグラム（多要因整理・4M/5M1E）、Fault Tree Analysis / FTA（トップダウン論理分解）、Bow-Tie Analysis（原因→事象→結果の一気通貫リスク分析）。
+- **習得内容**: 5 Whys で「なぜ？」を5回問う技法と陥穽（early stopping / 単線思考の罠）、Fishbone で Man/Machine/Material/Method/Measurement/Environment の6M軸で網羅、FTA で AND/OR ゲートを使い定量的な発生確率算出、Bow-Tie で予防バリアと軽減バリアを可視化。
+- **アウトプット改善**: NCR（Non-Conformance Report）に RCA 手法選択欄と真因（root cause）と潜在原因（latent cause）を分離記載。是正処置の再発率を半減。
+- **参考リソース**: ASQ Root Cause Analysis Body of Knowledge、Andersen & Fagerhaug『Root Cause Analysis: Simplified Tools and Techniques』、NASA『Root Cause Analysis Handbook』。
+
+### STEP 7: NCR / CAPA サイクル（Non-Conformance Report / Corrective and Preventive Action）制度化
+- **現状ギャップ**: 差し戻し記録は Slack・review.json に散在し、是正処置（CA）と予防処置（PA）の追跡・有効性検証（Effectiveness Check）が制度化されていない。監査時に証跡を提示できない。
+- **追加スキル**: 医療機器業界（ISO 13485）・製薬業界（GMP）で確立された NCR/CAPA プロトコルを組織横断QAに導入するスキル。
+- **習得内容**: NCR 発行 → Containment（暫定処置）→ Root Cause Analysis → Corrective Action（是正処置）→ Preventive Action（予防処置）→ Effectiveness Check（有効性検証・90日後再測定）→ Closure の7段階フロー。CAPA Log で全案件を追跡可能に。
+- **アウトプット改善**: 四半期に1回 CAPA Log をレビューし、Effectiveness Check で「効いていない是正」を再アプローチ。年間 escape rate を継続的に低減。
+- **参考リソース**: ISO 13485:2016 Section 8.5、FDA 21 CFR Part 820.100（CAPA）、ICH Q10（Pharmaceutical Quality System）。
+
+### STEP 8: ISO 19011:2018 準拠の内部監査プロトコル運用
+- **現状ギャップ**: QA自体の品質検証（メタQA）が実施されておらず、レビュアー間キャリブレーション（07-03記録）は言及されつつも制度化されていない。監査プログラムが未定義。
+- **追加スキル**: ISO 19011:2018（マネジメントシステム監査のための指針）に基づく内部監査スキル。
+- **習得内容**: Audit Program（年次計画）→ Audit Plan（個別監査計画）→ Opening Meeting → Fieldwork（証拠収集・面談・観察）→ Findings（Nonconformity/Observation/OFI: Opportunity for Improvement）→ Closing Meeting → Audit Report → Follow-up の8段階。監査員力量要件（客観性・独立性・公正性）を満たす。
+- **アウトプット改善**: 年2回の内部監査でQAプロセス自体の有効性を第三者視点で検証。監査所見は CAPA として登録し継続改善。
+- **参考リソース**: ISO 19011:2018（JIS Q 19011:2019）、IAF Mandatory Document（監査人資格）、日本規格協会『内部監査員養成テキスト』。
+
+### STEP 9: ISO/IEC 42001:2023 AI Management System 対応（AI品質保証の制度化）
+- **現状ギャップ**: AI生成物のハルシネーション・バイアス検証（07-01記録）は個別対応で、AI全体の品質マネジメントシステムが未整備。EU AI Act・日本のAI事業者ガイドラインへの対応も断片的。
+- **追加スキル**: 世界初のAI マネジメントシステム国際規格 ISO/IEC 42001:2023 を、my-virtual-team のAIエージェント運用に適用するスキル。
+- **習得内容**: AI システムのライフサイクル（Design→Development→Deployment→Operation→Retirement）全段階での品質・倫理・リスク管理。Impact Assessment（影響評価）、Data Quality Management、Bias Testing、Explainability、Human Oversight の要求事項。特に generative AI 出力に対する Fact-checking Protocol・Citation Verification・Hallucination Detection Metric（信頼度スコア）の標準化。
+- **アウトプット改善**: AIエージェント出力の review.json に `ai_quality` セクション追加（hallucination_check・bias_score・explainability_level）。EU AI Act 高リスクAI 相当の統制を先取り。
+- **参考リソース**: ISO/IEC 42001:2023、EU AI Act（Regulation 2024/1689）、総務省・経済産業省『AI事業者ガイドライン第1.0版』（2024年4月）、NIST AI RMF 1.0。
+
+### STEP 10: QA KPIダッシュボード（Cost of Poor Quality / Escape Rate / MTTR / Cycle Time）
+- **現状ギャップ**: QA活動の成果が数値化されておらず、経営層への価値提示ができていない。escape rate・修正コスト・再発率・レビュー効率などの主要 KPI が散在管理。
+- **追加スキル**: SQC + Six Sigma の指標体系を QA ダッシュボードとして統合運用するスキル。
+- **習得内容**: 8大 KPI ─ ①Escape Rate（品質見逃し率、目標<2%）、②DPMO（100万機会あたり欠陥数、目標<6,210 = 4σ）、③COPQ（品質不良コスト、売上比目標<3%）、④First Pass Yield（初回通過率、目標>85%）、⑤MTTR for Quality Issues（品質問題平均修復時間、目標<48h）、⑥Review Cycle Time（レビュー所要時間、目標<24h）、⑦Reviewer Agreement Rate（レビュアー一致率、目標>90%）、⑧CAPA Closure Rate on Time（是正処置期限内完了率、目標>95%）。
+- **アウトプット改善**: 月次で QA スコアカードを HARU・sora へ提出。四半期で改善プロジェクトの ROI を経営指標化。
+- **参考リソース**: ASQ『Cost of Quality: What and How』、Juran『Quality Handbook』第7章、日経BP『品質KPI設計』。
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+横断QA（組織横断品質マネジメント）第一人者として、成果物単位のQAではなく「QA そのものの仕組み」を設計・監査・改善するスキルを体系化する。sora（COO最終QA）は個別成果物のゲート、各部長（yuto/kaito/kai/yuna 等）は部門内QA、gen等の Q&A は関所不要、という三層構造の中で、横断QAは「プロセス・基準・監査可能性・組織学習」を担う。以下は 2026 年時点で世界的に確立した上級フレームワークと実務テクニックを、日本のスタートアップ規模（従業員数〜30名）で運用可能な粒度に翻訳したもの。
+
+### 1. 世界最新フレームワーク
+
+**(a) ISO 9001:2015 品質マネジメントシステム（JIS Q 9001:2015）**
+QMS の国際デファクト。7原則（顧客重視／リーダーシップ／人々の積極的参加／プロセスアプローチ／改善／客観的事実に基づく意思決定／関係性管理）と PDCA を統合。Clause 4〜10 の要求事項をQA運用に対応付けることで、「明日から新人が来ても同じ品質でQAが回る」再現性を担保。出典: 日本規格協会 ISO 9001:2015 公式和訳。
+
+**(b) Six Sigma DMAIC（Motorola 発祥・GE で体系化）**
+Define/Measure/Analyze/Improve/Control の5段階で欠陥を統計的に削減。目標は 6σ = 3.4 DPMO（100万機会あたり3.4件）だが、まず 3σ→4σ（66,807→6,210 DPMO）を目指す。出典: ASQ Green Belt Body of Knowledge、日科技連『シックスシグマ・ハンドブック』。
+
+**(c) Lean QC 7 Tools + New QC 7 Tools（石川馨・日本発祥）**
+定量分析7道具（Pareto/Fishbone/Histogram/Check Sheet/Scatter/Control Chart/Stratification）と定性分析7道具（Affinity/Relations/Tree/Matrix/Arrow Diagram/PDPC/Matrix Data Analysis）。日本の QC サークル活動で世界的地位を確立。出典: 石川馨『日本的品質管理』1981年、JUSE『新QC7つ道具』。
+
+**(d) Testing Trophy 2026（Kent C. Dodds evolved）**
+4層（Static/Unit/Integration/E2E）＋新層 AI Eval のピラミッド逆転版。Integration が最投資対効果、AI Eval で LLM出力の hallucination・bias を検証。出典: kentcdodds.com『The Testing Trophy』、Google Testing Blog 2025年AI Eval 特集。
+
+**(e) ISO/IEC 42001:2023 AI Management System**
+世界初のAI MS国際規格（2023年12月発行）。AI ライフサイクル全段階での品質・倫理・リスク管理。EU AI Act（2024年施行）と整合。出典: ISO 公式、総務省『AI事業者ガイドライン第1.0版』2024年4月。
+
+### 2. 実務即応の高度テクニック
+
+**(a) QA プロセス設計（RACI + Gate Criteria + SIPOC）**
+成果物種別 × QA段階（受付/中間/最終/納品後）× 責任者を RACI マトリクス（Responsible/Accountable/Consulted/Informed）で明確化。各ゲートに定量的合格条件（例: 異常系カバレッジ≥30%／blocker=0／出典突合100%）を SIPOC 図（Supplier-Input-Process-Output-Customer）と共に定義。曖昧なゲートは無限往復（06-17記録）の温床のため、条件は数値化必須。
+
+**(b) 5 Whys + Fishbone + FTA + Bow-Tie の使い分け RCA**
+単純事象は 5 Whys、多要因は Fishbone（6M: Man/Machine/Material/Method/Measurement/Environment）、システム障害は FTA（AND/OR ゲート論理分解）、包括的リスク分析は Bow-Tie（原因→事象→結果、予防バリア＋軽減バリア）。真因（root cause）と潜在原因（latent cause）を分離記述することで、対症療法と根本対策を混同しない。
+
+**(c) 内部監査プロトコル（ISO 19011:2018 準拠）**
+Audit Program 年次計画 → Individual Audit Plan → Opening Meeting → Fieldwork（証拠収集・面談・観察）→ Findings 3区分（Nonconformity 不適合 / Observation 所見 / OFI 改善機会）→ Closing Meeting → Report → Follow-up。監査員は被監査プロセスから独立していることが必須。
+
+**(d) NCR（Non-Conformance Report）書式設計**
+必須項目8つ: ①NCR-ID、②発生日時、③発見者、④成果物ID、⑤不適合内容（What）、⑥要求事項からの逸脱度（How much）、⑦Containment 暫定処置、⑧Root Cause 待ちフラグ。医療機器・製薬業界の様式を SNS/LP/資料業界向けに簡素化。
+
+**(e) CAPA（Corrective and Preventive Action）ライフサイクル管理**
+Correction（不良品修理）≠ Corrective Action（再発防止）≠ Preventive Action（未然防止）の3階層を峻別。CAPA Log で全案件を Open/Investigating/Implementing/Verifying/Closed の5ステータス管理。90日後 Effectiveness Check で「効いていない是正」を検出し再アプローチ。
+
+**(f) SPC（Statistical Process Control）による escape rate 監視**
+X̄-R 管理図で escape rate の管理限界（UCL/LCL = 中心線 ± 3σ）を設定。Western Electric Rules（8ルール）で異常パターン検知（連続8点が中心線片側／連続6点上昇 or 下降／2点連続 2σ外側等）。異常検知時は即座に RCA を発動。
+
+**(g) COPQ（Cost of Poor Quality）金額換算**
+4分類 ─ Prevention Cost（予防コスト: QAレビュー時間×時給）、Appraisal Cost（評価コスト: 監査時間×時給）、Internal Failure Cost（内部失敗: 差し戻し修正工数×時給）、External Failure Cost（外部失敗: クライアント信頼失墜・契約解除逸失利益）。COPQ を売上比 %で経営層へ月次報告し、QA投資 ROI を可視化。
+
+**(h) レビュアー間キャリブレーション（Inter-Rater Reliability）**
+同一成果物を2名以上が独立レビューし、Cohen's Kappa 係数で一致度測定（>0.8: excellent、0.6-0.8: substantial、0.4-0.6: moderate）。四半期に1回実施し、乖離が大きい観点は合格基準の記述を具体化。escape rate の原因を「観点欠落」か「解釈ブレ」に切り分ける。
+
+### 3. 日本国内第一人者としての判断基準
+
+**(a) 「品質は上流で作り込む」原則**
+下流QAで検出した不良は、上流プロセスの欠陥の顕在化と見なす。同種issueが3回発生したら「レビューを厳しくする」ではなく「テンプレ・自動validation・チェックリスト」で上流に是正を戻す。QA工数増は品質改善ではなく品質劣化の兆候。
+
+**(b) 「監査可能性 > 完璧主義」の優先順位**
+100点の成果物を1件納品するより、80点の成果物を100件納品して全件の判断根拠を review.json で追跡可能にする方が組織学習が進む。監査可能性（Auditability）は品質管理の基盤機能であり、これを犠牲にした品質改善はない。
+
+**(c) 「escape rate > 内部指摘数」を主要KPIに**
+QA工程内の指摘件数が多いことは「QAが機能している」証拠ではなく「上流品質が悪い」証拠。真の指標はクライアント発見不良 escape rate。目標<2%（100件納品して2件以下のクライアント発見不良）。
+
+**(d) 「conditional-approve は責任移転ではなく検証延期」原則**
+中間QAでの条件付き承認は、下流での検証実施を条件とする。申し送り項目リストに「検証実施者・実施日」欄を設け、空欄が残る場合は納品ゲートで停止（07-03記録の延長）。責任のバケツリレーを禁じる。
+
+### 4. 直近1年（2025-2026）の品質管理動向・AI品質保証対応
+
+**(a) ISO/IEC 42001 AI MS の実装フェーズ突入**
+2023年12月発行後、2025年から欧州・アジアで認証取得が本格化。EU AI Act（2024年施行）の高リスクAI要求と整合。my-virtual-team は32エージェント全てが「AI システム」に該当するため、Impact Assessment・Data Quality・Bias Testing の3要素を review.json に組み込む必要がある。
+
+**(b) LLM Evaluation Framework の標準化**
+2025年 Anthropic・OpenAI・Google 各社が LLM Eval Framework を公開。特に (i) Faithfulness（出典忠実性）、(ii) Answer Relevance（質問適合度）、(iii) Context Precision（文脈精度）、(iv) Hallucination Rate（幻覚率）の4指標が標準化。generative AI 成果物には必須。
+
+**(c) 総務省・経産省「AI事業者ガイドライン第1.0版」2024年4月**
+日本独自のAIガバナンス指針。「人間中心」「安全性」「公平性」「プライバシー保護」「セキュリティ確保」「透明性」「アカウンタビリティ」「イノベーション」の8原則。my-virtual-team は「AI開発者」「AI提供者」「AI利用者」全役割に該当するため三役割の統制が必要。
+
+**(d) NIST AI Risk Management Framework 1.0（2023年1月）と Playbook 更新（2025年）**
+Govern（統制）/ Map（マッピング）/ Measure（測定）/ Manage（管理）の4機能で AI リスクを体系化。特に Measure 機能で TEVV（Testing・Evaluation・Verification・Validation）を推奨。
+
+**(e) 「AI-augmented QA」テクノロジー普及**
+GitHub Copilot for PR review、CodeRabbit、Snyk AI 等の AI QAツールが2025年に実用フェーズ。人間QAは「AIレビュアーのメタレビュー（AIの見落としと過剰検出の判定）」へ役割移行。
+
+### 5. 横断QAだからこそ気づける深い洞察チェックリスト
+
+1. **「品質基準そのもの」が古くなっていないか**: 半年前に定めた合格ラインが、市場水準・クライアント期待水準の上昇に追いついているか（四半期見直し必須）
+2. **「QAが機能している」の錯覚**: 指摘件数の多寡ではなく escape rate（クライアント発見不良）で判定しているか
+3. **「同一エージェント × 同一種別」の見落としパターン**: エージェント別 × 成果物種別のクロス集計で escape 傾向を分析しているか
+4. **「レビュアー疲労」の構造化検出**: 1日のレビュー件数上限・連続レビュー時間上限（推奨90分）を設定しているか
+5. **「基準の追加のみ・削除なし」による肥大化**: チェックリスト総項目数の推移を KPI 監視し、90日指摘ゼロ項目は統合・降格しているか
+6. **「AI生成物のもっともらしさ」による偽陰性**: 文体流暢性がハルシネーションを隠す罠を、出典突合の機械判定でブロックしているか
+7. **「conditional-approve の申し送り漏れ」**: 下流での検証実施者・実施日の記入を納品ゲートで機械チェックしているか
+8. **「レビュアー間の解釈ブレ」の測定**: Cohen's Kappa で四半期に1回キャリブレーションしているか
+9. **「品質コストの金額化なき投資議論」**: COPQ を売上比%で経営層に月次提示し、QA投資 ROI を可視化しているか
+10. **「監査時に証跡を出せない CAPA」**: NCR/CAPA Log を維持文書として ISO 9001 Clause 7.5 準拠で管理しているか
+11. **「上流プロセス欠陥」への逆流是正**: 下流QAで捕捉した不良を上流テンプレ・自動validationに戻す仕組みが動いているか
+12. **「品質と速度のトレードオフの数値化」**: 品質ゲート追加による Cycle Time 増加を測定し、正味価値（品質改善 − 速度低下）で判定しているか
+13. **「AI エージェント固有リスク」の追跡**: プロンプトインジェクション・データリーク・バイアス増幅の3リスクを月次モニタリングしているか
+14. **「クライアント×成果物種別の期待水準マトリクス」**: 7社別に「必ず守る/期待を超える/差別化する」の3段階基準を明文化しているか
+15. **「QA自体のQA（メタQA）」**: 内部監査を年2回実施し、QAプロセスの有効性を第三者視点で検証しているか
