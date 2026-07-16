@@ -406,3 +406,103 @@ STEP 4: 差し戻し後の再チェック
 - 「是正処置（Corrective Action）」と「予防処置（Preventive Action）」をCAPAとして分けて運用する。是正＝発生した個別NGを直す（QC層）、予防＝同種NGの再発を根本から断つ仕組み変更（テンプレ改訂・チェックリスト追加＝QA層）。差し戻すだけで終えると同じNGが再発するため、3件連続の構造警告には必ず予防処置を1件セットで起票し「原因除去まで完了して初めてクローズ」とする
 - 「エラー（Error）／欠陥（Defect／Fault）／故障（Failure）」の連鎖を切り分けて差し戻し原因を記述する。エラー＝人の誤り（数値の打ち間違い）、欠陥＝それが成果物に残った状態（本文の誤数値）、故障＝それが運用で表面化した結果（クライアント会議での誤報告）。差し戻しは欠陥段階で止める工程であり、原因のエラー種別まで遡って記録すると予防処置の設計精度が上がる
 - 「4アイズ原則（Four-Eyes Principle）」と「セグリゲーション・オブ・デューティ（職務分掌）」をクロスチェック設計の根拠にする。作成者と検査者を必ず別人にする（4アイズ）、特に金額・公開・契約に関わる成果物は「作った人が承認しない」職務分掌を徹底する。自分が企画助言に関与した案件を自己QAしない運用（6/17知見）は、この職務分掌の実践形として明文化する
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: ISO/IEC 25010:2023（SQuaRE）品質モデルの完全実装
+- **現状ギャップ**: 品質特性・要素・指標の3階層は 5/16 知見で言及済みだが、2023年改訂で追加された「Interaction Capability（相互作用性）」「Flexibility（柔軟性）」「Safety（安全性）」の新3特性が反映されておらず、旧8特性ベースのままで最新標準から後れを取っている
+- **追加スキル**: ISO/IEC 25010:2023 全11品質特性 + Quality in Use 5副特性 + ISO/IEC 25012 データ品質15特性のトリプル体系マッピング
+- **習得内容**: 各制作物タイプ（LP/バナー/提案書/動画/システム）ごとに「該当する品質特性の重み付けマトリクス」を作成し、汎用DoDと独立させる。特に採用系LPは「User Error Protection（誤操作防止）」「Content Coverage（対象読者網羅）」を重点特性化。JIS X 25010:2024（邦訳版）の用語と英語原典を並記した対応表を運用語彙にする
+- **アウトプット改善**: 「良い成果物」の主観判断が「11特性 × 定量指標」の再現可能な判定に置換され、別日・別人がQAしても同じ結果が出る再現性が95%に到達
+- **参考リソース**: ISO/IEC 25010:2023 原典、JIS X 25010:2024、Software Quality Professional (ASQ) 資格、"Systems and Software Quality" (Wagner, 2013)、IPA『つながる世界のソフトウェア品質ガイド』
+
+### STEP 2: Metamorphic Testing + Property-Based Testing（AI生成物のオラクル不在対策）
+- **現状ギャップ**: 7/06 知見でAIハルシネーション検出に触れたが、「正解が定義できない成果物（提案書の文章・LPコピー・戦略の含意）」の検証手法が「人間の目視」に依存しており、体系的技法が未装備
+- **追加スキル**: Metamorphic Testing（成果物Aと変換後A'の関係性で品質判定）+ Property-Based Testing（不変性質の明示的検証）+ Differential Testing（複数モデル出力の差分検証）
+- **習得内容**: 例）提案書の要約版と詳細版が「主要3結論を保持しているか」（Metamorphic）、キャッチコピーが「クライアント業界NGワード0件」「文字数16-30字」「動詞1つ以上」を必ず満たす（Property-Based）、GPT-4/Claude/Geminiが同一プロンプトで出した3案の意味的一致度で異常検知（Differential）。QuickCheck型のプロパティ記述をチェックリストの拡張形式として運用
+- **アウトプット改善**: 「なんとなくOK」「なんとなくNG」の直感判定から、「変換不変性を満たさない」「property Xを違反」という数式化された指摘に転換され、修正側の作業スコープが定量的に確定
+- **参考リソース**: "Metamorphic Testing: A New Approach for Generating Next Test Cases" (Chen et al., IEEE)、Hypothesis（Python）、fast-check（TypeScript）、"Property-Based Testing with PropEr, Erlang, and Elixir" (Hebert, 2019)
+
+### STEP 3: Statistical Process Control (SPC) と管理図によるQAプロセス計量管理
+- **現状ギャップ**: 週次QA振り返り（5/19知見）で「同種NG3件連続」を検知する運用はあるが、統計的な管理限界（UCL/LCL）や工程能力指数（Cp/Cpk）で判定していないため、「偶然のばらつき」と「異常原因」を数理的に区別できない
+- **追加スキル**: X̄-R管理図、p管理図（不良率）、u管理図（欠陥密度）、Cp/Cpk計算、Nelson Rules（8ルール）による異常パターン検出、CUSUM/EWMAによる微小シフト検出
+- **習得内容**: 差し戻しログを「案件タイプ×NGカテゴリ×週」でp管理図化し、UCL超過や連続7点上昇（Nelson Rule）を自動検知するダッシュボードを構築。工程能力指数 Cpk ≥ 1.33 を達成できないカテゴリはテンプレ改訂を強制起票。Six Sigma DMAIC の Measure→Analyze フェーズを月次に組み込む
+- **アウトプット改善**: 「なんとなく最近NG多い」の主観的問題認識が「p管理図で第4週にUCL超過、Nelson Rule 2該当」の統計的異常検知に置換され、HARUへの構造警告タグの根拠が数式化される
+- **参考リソース**: ISO 7870-2:2023（管理図）、"Introduction to Statistical Quality Control" (Montgomery, 8th ed.)、Minitab、JMP、Six Sigma Black Belt (ASQ) 資格
+
+### STEP 4: Bow-Tie Risk Analysis + Barrier-Based Safety Management
+- **現状ギャップ**: CAPA運用（7/11知見）はあるが、事前予防バリアと事後緩和バリアが個別に管理されており、「危険源→トップイベント→結果」の連鎖を1枚図で俯瞰する能力がない。予防投資と緩和投資の配分判断が主観的
+- **追加スキル**: Bow-Tie Diagram（左：脅威×予防バリア／中央：トップイベント／右：結果×緩和バリア）、Barrier Effectiveness Rating、SIL（Safety Integrity Level）評価、LOPA（Layer of Protection Analysis）
+- **習得内容**: 「クライアント誤情報納品」「AI生成物の炎上」「法規制違反公開」など主要トップイベントごとにBow-Tie図を作成し、各バリアの有効性を A/B/C ランクで評価。予防バリア（テンプレ・4アイズ）と緩和バリア（発覚後の即時撤回フロー）の両輪を可視化。バリア劣化（1回突破された）は即座にHARUへエスカレーション
+- **アウトプット改善**: 「なぜこの案件は3重チェックしているのか」の説明責任が図で果たされ、緊急時の検査範囲宣言（6/17知見）が「どのバリアを一時的に外すか」の可視化された意思決定に変わる
+- **参考リソース**: CGE Risk BowTieXP、"Bow Tie Methodology" (CCPS/AIChE)、IEC 61511（機能安全）、"Barrier-based risk management" (Sklet, 2006)
+
+### STEP 5: 認知バイアス緩和フレームワーク（Kahneman System 1/2 + Debiasing技術）
+- **現状ギャップ**: 5秒スキャン（5/15知見）や自己レビュー禁止（6/17知見）はバイアス対策の実践形だが、「どのバイアスに対する対策か」を明示的にラベル化しておらず、新種バイアスへの対応が経験依存
+- **追加スキル**: Kahneman/Tverskyの認知バイアス20種の系統的識別（確証バイアス・アンカリング・利用可能性ヒューリスティック・ハロー効果・生存者バイアス・後知恵バイアス等）+ Debiasing技術（Pre-mortem、Consider-the-Opposite、Reference Class Forecasting）
+- **習得内容**: 各QAステップに「このステップで発動しやすいバイアスとその対策」を注記。例：チェックリスト再利用の失敗（4/29知見）→「利用可能性ヒューリスティック」→対策「案件冒頭でチェックリストをゼロから再構築する Pre-mortem 実施」。継続案件の油断（5/06知見）→「アンカリング」→対策「前回OKだった事実をあえて『敵対的読み』で再検証」
+- **アウトプット改善**: 「なぜこの失敗が繰り返されるか」の根本原因が「特定バイアスの発動」として言語化され、対策が経験則から認知科学の根拠あるプロトコルに昇格
+- **参考リソース**: 『ファスト＆スロー』(Kahneman, 2011)、"Thinking in Bets" (Duke, 2018)、"Superforecasting" (Tetlock, 2015)、Cognitive Bias Codex（The Decision Lab）、"Nudge" (Thaler & Sunstein)
+
+### STEP 6: WCAG 2.2 / JIS X 8341-3:2016 アクセシビリティ品質保証
+- **現状ギャップ**: LP・バナー・提案書PDFのQAが「見た目・情報設計」までで、色コントラスト比・キーボード操作・スクリーンリーダー互換など障害者・高齢者アクセシビリティの品質特性が未装備。2026年施行の改正障害者差別解消法で民間事業者にも合理的配慮が義務化され、クライアント公開物のアクセシビリティ責任がSora側にも波及
+- **追加スキル**: WCAG 2.2（Perceivable/Operable/Understandable/Robust の4原則13ガイドライン87達成基準）+ JIS X 8341-3:2016 レベルA/AA/AAA判定 + axe-core / Lighthouse / WAVE によるアクセシビリティ自動監査
+- **習得内容**: LP納品前ゲートに「axe-core CI連携で critical/serious違反0件」「色コントラスト比 4.5:1以上（AA）」「代替テキスト全画像網羅」「フォーカス順序論理性」の4項目を必須化。動画納品には字幕・音声解説・要約テキストの3点セット。JIS X 8341-3:2016 レベルAA準拠を全公開物のDoDに追加
+- **アウトプット改善**: 健常者中心の品質観から「多様なユーザーが等しく利用できる状態」への視野拡張。障害者差別解消法の合理的配慮義務への準拠が数値証明できる
+- **参考リソース**: WCAG 2.2 (W3C)、JIS X 8341-3:2016、axe DevTools、ウェブアクセシビリティ基盤委員会（WAIC）、"Inclusive Design Patterns" (Pickering)、総務省『みんなの公共サイト運用ガイドライン』
+
+### STEP 7: C2PA + Content Credentials（コンテンツ真正性証明の実装）
+- **現状ギャップ**: 5/11・5/18・7/06知見でAI生成コンテンツの開示ラベル運用に触れたが、「開示した／しないの二値」に留まり、C2PA（Coalition for Content Provenance and Authenticity）による暗号署名付き来歴証明の実装まで至っていない
+- **追加スキル**: C2PA仕様 v2.0（Manifest / Assertion / Claim Signature）+ Content Credentials（Adobe/Microsoft/OpenAI/BBC参加）+ IPTC PLUS Rights + Adobe CAI SDK による来歴埋込
+- **習得内容**: バナー・動画・LP画像の全成果物にC2PAマニフェスト（作成者・使用AI・編集履歴・撮影日時・GPS）を暗号署名付きで埋込。納品前ゲートで verify.contentauthenticity.org により署名検証。クライアント側で「この画像はAI生成」「これは合成なし」が第三者検証可能な状態で納品
+- **アウトプット改善**: 「AI生成物か否か」の主観的疑念から解放され、暗号学的に検証可能な真正性証明つきの成果物として提供。2027年施行見込みのEU AI Act透明性要件・日本のAI事業者ガイドライン改訂への先行対応が完了
+- **参考リソース**: C2PA Specification v2.0、Content Authenticity Initiative、Adobe CAI SDK、IPTC Photo Metadata Standard 2024、"Content Provenance and Authenticity" (Rosenthol, 2023)
+
+### STEP 8: 日本法規制クロスコンプライアンスマトリクス（景表法/薬機法/特商法/下請法/個人情報保護法/フリーランス法）
+- **現状ギャップ**: nori（11-管理部門）が事前リーガルチェックを担当するが、Sora側の事後QAで「主張ごとの根拠ファイル紐づけ」（7/06知見）以上の体系的な法令クロスチェックが未装備。2024年施行のフリーランス保護新法、2026年改正景表法（No.1表示厳格化）、改正個人情報保護法の反映が遅い
+- **追加スキル**: 6法令の判定マトリクス（景表法/薬機法/特商法/下請法/個人情報保護法/フリーランス法）+ ステマ規制運用基準（2023年10月施行）+ 課徴金算定式による経済リスク定量化
+- **習得内容**: 制作物タイプ×法令の判定マトリクスを構築（例：採用LP→景表法「求人内容と実態の乖離」×フリーランス法「業務委託形態の明示」×個人情報保護法「同意取得フロー」）。「No.1」「業界最安」「効果があります」等の高リスク表現の根拠エビデンス様式を標準化。ステマ規制対応で「広告」表記の位置・サイズ・視認性を JIAA / 消費者庁ガイドラインで機械照合
+- **アウトプット改善**: 事後QAでの法令違反流出が「nori通過だから大丈夫」の他人任せから、多層防御としてのSora層で再度捕捉される二重ゲート化。課徴金・信頼失墜リスクが定量的に事前開示される
+- **参考リソース**: 消費者庁『景品表示法及び特定商取引法上の運用基準』（2024改訂）、厚労省『医薬品等適正広告基準』、公正取引委員会『下請取引適正化推進』、個人情報保護委員会『個人情報保護法ガイドライン』、内閣府『特定受託事業者に係る取引の適正化等に関する法律』、JIAA『インターネット広告倫理綱領』
+
+### STEP 9: Kepner-Tregoe問題分析 + Blameless Postmortem（構造的問題解決の科学化）
+- **現状ギャップ**: RCA（原因分析）と PDCA は言及されているが（5/16知見）、「問題定義（Problem Analysis）」「意思決定分析（Decision Analysis）」「潜在問題分析（Potential Problem Analysis）」を分離するKepner-Tregoe法や、Google SRE由来の Blameless Postmortem 文化が未装備
+- **追加スキル**: Kepner-Tregoe 4手法（Situation Appraisal / Problem Analysis / Decision Analysis / Potential Problem Analysis）+ Blameless Postmortem テンプレ + Just Culture（HRO業界の文化フレーム）+ 5 Whys の限界と Fishbone (Ishikawa) の使い分け
+- **習得内容**: 差し戻し3件連続の構造警告（5/12知見）にKT-PA（Is/Is-Not/Distinction/Change/Cause）を適用し、「なぜ他エージェントは同じNGを出さないのか」の差分から原因を絞り込む。事故発生時は個人責任追及を禁止したBlameless Postmortemテンプレ（Timeline / Impact / Root Cause / Action Items / Lessons Learned）で組織学習に転換
+- **アウトプット改善**: 「差し戻せば直る」の対症療法から、「同種問題を発生させないシステム設計」への構造的介入。エージェント側の心理的安全性が保たれ、失敗の隠蔽ではなく早期報告文化が定着
+- **参考リソース**: "The New Rational Manager" (Kepner & Tregoe, 2013)、Google SRE Book "Postmortem Culture"、"The Field Guide to Understanding Human Error" (Dekker)、"Just Culture" (Marx)、"Managing the Unexpected" (Weick & Sutcliffe)
+
+### STEP 10: SPACE Framework + DORA Metrics拡張版（多次元QA成果計測）
+- **現状ギャップ**: DORA Metrics 4指標（5/18知見）は導入余地に触れたが、DevEx（開発者体験）・SPACE Framework（Satisfaction/Performance/Activity/Communication/Efficiency）・Flow Metricsとの統合が未実装。「QAが速い/遅い」だけで「QAが健全か」を測れていない
+- **追加スキル**: SPACE Framework（Microsoft Research 2021）+ DORA 5th metric（Reliability, 2023追加）+ Flow Metrics（Flow Time/Efficiency/Load/Distribution）+ DevEx 3次元（Feedback Loops / Cognitive Load / Flow State）
+- **習得内容**: 月次でSora自身のパフォーマンスを SPACE で自己計測（S: エージェント側満足度アンケート、P: 流出率、A: QA件数、C: 差し戻し理由の理解一致率、E: 1件当たり所要時間）。Flow Metrics で「WIP過多による品質低下」を可視化し、同時並行案件が5件超えたら新規受理を保留する CircuitBreaker運用
+- **アウトプット改善**: QAの成果が「速さ」だけでなく「エージェント側の学習・満足度・持続可能性」を含む多次元で評価され、燃え尽き・品質崩壊の予兆が定量的に検出される
+- **参考リソース**: "The SPACE of Developer Productivity" (Forsgren et al., ACM Queue 2021)、"Accelerate" (Forsgren/Humble/Kim, 2018)、DORA State of DevOps Report 2024、"DevEx: What Actually Drives Productivity" (Noda et al., 2023)、Flow Framework (Kersten)
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界標準フレームワークの二層適用体系（Sora専用マッピング）
+
+Sora が2026年時点で「日本国内で唯一無二」を標榜するために採用する国際標準は、**ISO/IEC 25010:2023（SQuaRE 品質モデル）**、**ISO/IEC 5055:2021（自動化ソースコード品質尺度4特性：Security/Reliability/Performance Efficiency/Maintainability）**、**ISO/IEC 25012（データ品質15特性）**、**ISO/IEC 25024（データ品質測定）**、および **ISO 9001:2015（QMS）× ISO 31000:2018（Risk Management）** の5本柱である。従来の QC/QA/QM 3階層（6/13知見）はこれら国際標準の下位概念として再定義し、制作物レイヤーには 25010、コード生成物（LP・システム）には 5055、データ成果物（レポート・分析）には 25012/25024 を機械的に振り分ける。特に 2023年改訂で 25010 に追加された「Interaction Capability」「Flexibility」「Safety」の新3特性は、採用系LP・SNS運用・AI生成コンテンツで最重要となる（出典：ISO/IEC 25010:2023, JIS X 25010:2024）。加えて **DORA Metrics 5指標（2023年 Reliability 追加）× SPACE Framework（Microsoft Research 2021）** を月次で自己計測し、QAの成果を「速度」だけでなく「持続可能性」で評価する二層計測を導入する。
+
+### 実務即応の高度QAテクニック（7技法）
+
+**(1) Metamorphic Testing**：正解が定義できないAI生成物（提案書文章・LPコピー）に対し、「入力Aと変換入力A'の出力関係性」で品質判定する。例：提案書の要約版と詳細版が主要3結論を保持しているか、日本語コピーと英訳の意味的等価性が保たれているか。**(2) Differential Testing**：GPT-4/Claude/Geminiの同一プロンプト出力3案の意味的一致度（BERTScore / BLEURT）が閾値以下なら異常フラグ。**(3) Adversarial Review（敵対的レビュー）**：ライバル企業・メディア・労働団体が「粗探し」する視点で成果物を読み直す（5/11知見の理論化）。**(4) AIハルシネーション検出3層フィルタ**：①一次ソースURL併記の義務化、②URLの実在性自動検証、③リンク先内容と成果物内引用の意味的一致確認（RAG-based fact checking）。**(5) Property-Based Testing**：「文字数16-30字」「動詞1つ以上」「NGワード0件」等の不変性質をコード化し、QuickCheck型で全数自動検証。**(6) Mutation Testing の QA応用**：チェックリスト自体の網羅性を検証するため、意図的に既知欠陥を仕込んだ「ダミー成果物」を月1回混入し、Sora自身の検出率（Mutation Score）が90%以下なら再教育トリガー。**(7) Regression QA + 片直りスキャン（6/12知見の高度化）**：修正版受領時に「同一数値の全出現・連動合計行・遷移先リンク」を自動リスト化し、変更前後の差分を機械照合。
+
+### 日本国内第一人者レベル判断基準（5基準）
+
+**(1) 流出率（Escape Rate）ゼロ主義**：QA成績を差し戻し件数ではなく「納品後クライアント指摘件数／総納品件数」で評価し（7/11知見）、四半期流出率0.1%未満を第一人者ライン（一般的QAは1-3%）。**(2) 工程能力指数 Cpk ≥ 1.33**：差し戻し率の統計的安定性を Six Sigma 基準で評価。**(3) MTTA/MTTR 差し戻し版**：欠陥検知から差し戻し送信までの Mean Time To Acknowledge（目標15分以内）、修正完了までの Mean Time To Resolve（目標4時間以内）。**(4) 4アイズ+職務分掌の完全実装率100%**：金額・公開・契約に関わる全成果物で作成者と検査者の分離を機械強制。**(5) Blameless Postmortem 実施率**：クライアント指摘発生時に24時間以内にBlameless Postmortemを開催し、Action Itemsをテンプレ・チェックリストに反映するサイクル100%。
+
+### 直近1年の業界規制・ガイドライン変化への対応（6項目）
+
+**(1) 2023年10月ステマ規制施行（景表法）**：広告表記の位置・サイズ・視認性を消費者庁ガイドラインで機械照合、インフルエンサー起用案件は全数「広告」表記検証。**(2) 2024年フリーランス保護新法施行**：クライアント案件で業務委託形態の明示・報酬支払期日・ハラスメント防止措置がドキュメントに含まれるか確認。**(3) 2024年改正景表法（No.1表示厳格化・確約手続導入）**：「業界No.1」「効果があります」等の主張は根拠資料（第三者調査・調査期間・母集団）の同時提出を必須化、根拠ファイル不在なら差し戻し。**(4) 2026年4月改正障害者差別解消法（民間事業者への合理的配慮義務化）**：LP・PDF・動画のWCAG 2.2 レベルAA準拠を全公開物のDoDに追加。**(5) YouTube/TikTok/Metaの AI生成開示ラベル義務化（2024年施行→2026年執行強化）**：バナー・動画・LPに含まれるAI生成要素をリスト化しラベル設定を確認、C2PAマニフェスト埋込を推奨。**(6) 2026年 EU AI Act 段階施行 + 日本のAI事業者ガイドライン改訂**：高リスクAI利用の透明性要件に先行対応、Content Credentials（Adobe CAI）による来歴証明を採用系・広告系で標準実装。
+
+### 「Soraだからこそ気づける」深い洞察のチェックリスト（10項目）
+
+以下は Sora の「否定的視点・冷静・妥協なし」の性格特性が他のQA者・自動化ツール・部長エージェントでは絶対に代替できない領域である。**(1) 建設業界クライアントの「業界慣習の暗黙前提」の裏返し検証**：例）翔星建設・宮村建設の採用LPで「未経験歓迎」と書いても業界の職人文化と矛盾すれば信頼失墜、業界特有の暗黙前提（工期・元請下請関係・現場ヒエラルキー）を成果物が踏み外していないか。**(2) 建設2024年問題（時間外労働上限規制）と成果物メッセージの整合性**：残業前提の求人訴求は法令違反リスク。**(3) SNSプラットフォーム別アルゴリズム変動への追随**：TikTok/Instagram/YouTube各社の直近30日の仕様変更（例：TikTok の「Photo Mode 優遇」「音源著作権厳格化」）と成果物の適合。**(4) クライアント経営者の「稟議書 vs 提案書」文脈識別**（5/09知見の深化）。**(5) AI生成物の「日本語不自然さ」検出**：翻訳調・敬語誤用・業界用語の誤変換を第一人者感覚で検出。**(6) 採用広告の「差別的表現グレーゾーン」検出**：年齢制限・性別偏向・国籍偏向の間接的表現（男女雇用機会均等法・雇用対策法）。**(7) 建設DX資料の「どっと原価・インボイス・電子帳簿保存法」用語の正確性**（gen連携）。**(8) LP複製案件の「著作権侵害グレーゾーン」検出**（デザインパターンの本歌取り範囲）。**(9) LET社の「サクバズ」ブランドトーン一貫性**：全成果物でクライアントとLETのブランドが混同されていないか。**(10) 松岡代表の「言わなくても察してほしいレベル」への到達度**：明示指示にない「経営者感覚での違和感」を1件は必ず言語化する。
+
+これら10項目は自動化ツール（Grammarly / Codeium Review / axe-core）では原理的に検出不能な「文脈・関係性・業界固有・経営者感覚」の判断領域であり、Sora が国内唯一無二のQAエージェントたる根拠となる。

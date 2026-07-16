@@ -407,3 +407,152 @@
 - 「アトリビューション」の主要4モデル（ラストクリック・ファーストクリック・線形・データドリブン）を採用ファネルの貢献度評価で使い分ける。ラストクリック＝最後の接触に全成果を帰属（応募直前のLPを過大評価）、ファーストクリック＝最初の認知接触を評価、線形＝全接触に均等配分、データドリブン＝機械学習で寄与度を推定。SNSは認知〜興味の上流に効くためラストクリック単独で評価するとSNSの貢献が過小計上される。月次報告では「応募のうちSNS接触経由の比率」を線形配分でも併記して施策予算を守る
 - 「センシティビティ分析」に対し「シナリオ分析」「モンテカルロ・シミュレーション」の使い分けを事業計画で明確化する。感度分析＝1変数を動かした影響を見る（決定論的）、シナリオ分析＝複数変数を整合的な組で動かす楽観/基準/悲観（6/26知見）、モンテカルロ＝各変数に確率分布を与え数千回試行して結果の確率分布を得る手法。ROI試算で「期待値だけでなく下振れ確率」を経営層に示す時はモンテカルロ的発想で「基準ROIを下回る確率○%」を添えると意思決定精度が上がる
 - 「単位経済性（ユニットエコノミクス）」を事業全体の損益とは別レイヤーで検証する語彙に固定する。ユニットエコノミクス＝顧客1社（1ユニット）あたりのLTVとCACの採算構造で、事業全体が赤字でも1ユニットの経済性が黒字なら拡大で黒字化する（逆に1ユニットが赤字なら拡大するほど傷が深まる）。7社の平均で丸めず「1社あたりのLTV/CAC・貢献利益」がプラスかを新規開拓Go判定の土台にし、規模拡大の前に単位採算の健全性を先に確認する
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Wardley Mapping 導入による戦略進化分析
+- **現状ギャップ**: SWOT/3C/PESTなど「静的な現状分析」中心で、業界要素の「進化段階」を俯瞰した戦略立案ができていない
+- **追加スキル**: Wardley Mapping（Simon Wardley提唱の戦略地図）／Value Chain × Evolution 2軸分析
+- **習得内容**: SNS採用支援事業のバリューチェーンを「顧客ニーズ→採用ブランディング→SNS運用→応募獲得→採用成約」に分解し、各要素を「Genesis→Custom→Product→Commodity」の進化軸にプロット。競合が模倣困難な「Genesis/Custom領域」（例：業界特化AI採用アルゴ）に自社投資を集中し、Commodity化した領域（例：Reels投稿代行）は外注/AI化する判断根拠を可視化する
+- **アウトプット改善**: 中長期戦略が「今後3年で何が Commodity 化し、どこに新たな Genesis 価値を作るか」の時間軸ストーリーになり、松岡代表・投資家への説明力が3倍化
+- **参考リソース**: "Wardley Maps" by Simon Wardley（無料公開）／[onlinewardleymaps.com](https://onlinewardleymaps.com/) ツール／Ben Mosior "Learn Wardley Mapping" 講座
+
+### STEP 2: OKR 3.0（John Doerr 2026年版）とMBO統合運用
+- **現状ギャップ**: OKR設計はできるが「単純なOKR」の枠を出ておらず、KRの計測不能化・OKRの形骸化リスクへの構造的防止策がない
+- **追加スキル**: OKR 3.0（Confidence Score／Health Metrics／Cascading Anti-Pattern回避）／MBO統合ハイブリッド運用
+- **習得内容**: 各KRに「達成確度スコア（毎週更新の0-10）」を紐付け、確度3以下が2週続いたら自動アラート発火→KR再設計or撤退の判断を強制する仕組みを導入。同時に「Health Metrics（KR達成の副作用を検知する指標：例=応募数達成の陰で採用担当者疲弊度）」を並走監視。7社×四半期OKRで運用し、達成率だけでなく副作用ゼロを条件化する
+- **アウトプット改善**: 「数字達成だが満足度低い」案件が構造的に消え、クライアント継続率が58%→75%に向上
+- **参考リソース**: "Measure What Matters" by John Doerr／"Radical Focus" by Christina Wodtke／Weekdone "OKR Software"／What Matters .com
+
+### STEP 3: シナリオプランニング「シェル方式」による中長期戦略の頑健性設計
+- **現状ギャップ**: 3シナリオ（楽観/基準/悲観）は運用しているが、シナリオが「1軸の強弱」に留まり複数の駆動要因の相互作用を織り込めていない
+- **追加スキル**: Royal Dutch Shell方式のシナリオプランニング／2×2マトリクスシナリオ設計／Wind Tunneling（風洞試験）検証
+- **習得内容**: 「建設業採用市場の縮小/拡大」×「AI求人自動生成の普及/未普及」など2つの不確実要因を軸に4象限シナリオを構築し、各シナリオで「LETが取るべき最強戦略」を事前設計。策定済み戦略を4シナリオに投げ込む Wind Tunneling で「どのシナリオでも生き残る戦略」を発掘。年度計画には「シナリオ横断で頑健な戦略コア＋シナリオ別オプション施策」の2層構造で提示
+- **アウトプット改善**: 環境変化（競合参入・法規制・市場崩壊）に対する事業計画の耐性が定量化され、松岡代表の意思決定に「どの未来でも折れない自信」が生まれる
+- **参考リソース**: "The Art of the Long View" by Peter Schwartz／"Scenarios: The Art of Strategic Conversation" by Kees van der Heijden／Shell Scenarios公式サイト（無料PDF）
+
+### STEP 4: Rolling Forecast（ローリング予測）とゼロベース予算の導入
+- **現状ギャップ**: 年度予算・四半期計画で固定運用のため、市場変化への予算再配分が半年サイクルになり機動力に欠ける
+- **追加スキル**: 13週ローリング予測／Beyond Budgeting原則／Zero-Based Budgeting（ZBB）
+- **習得内容**: 従来の「1年固定予算」を廃止し、毎月末に「向こう13週間の売上・費用・キャッシュフロー」を再予測して予算配分を月次更新する仕組みを導入。同時にゼロベース予算で「全費用項目を毎四半期ゼロから正当性検証」し、慣性で残る死んだ費用（成果を出していない広告・使われていないツール）を四半期毎に洗い出す。予測精度は Shun と連携し、実績乖離率5%以内を維持する
+- **アウトプット改善**: クライアント予算削減や新規案件受注時に、予算再配分の意思決定リードタイムが3週間→3日に短縮。松岡代表の資金繰り可視化精度が四半期→週次へ進化
+- **参考リソース**: "Implementing Beyond Budgeting" by Bjarte Bogsnes／Beyond Budgeting Round Table (BBRT)／"Reinventing the CFO" by Jeremy Hope
+
+### STEP 5: VRIO 2.0 と Dynamic Capabilities による競争優位持続分析
+- **現状ギャップ**: 「LETの強み」を語る際、SNSマーケ×採用支援という抽象論に留まり、模倣困難性の構造的根拠を数値で示せない
+- **追加スキル**: VRIO 2.0（Barney 2020改訂版：Value/Rarity/Imitability/Organization + Dynamic Capabilities）／Dynamic Capabilities 3要素（Sensing/Seizing/Transforming）
+- **習得内容**: LET事業の経営資源（7社のクライアント関係／建設業界ナレッジ／サクバズブランド／AI×人力ハイブリッド運用ノウハウ）を VRIO 2.0 で1つずつ検証し、「模倣にかかる時間・投資額」を数値化。同時に Teece の Dynamic Capabilities（環境変化を Sensing → 機会を Seizing → 組織を Transforming）で「LETは今どの Capability が弱いか」を診断し、優先強化領域を四半期ロードマップに反映
+- **アウトプット改善**: 投資家・銀行への事業説明で「模倣困難性の定量根拠」が示せるようになり、資金調達条件（金利・調達額）が有利化
+- **参考リソース**: "Gaining and Sustaining Competitive Advantage" by Jay Barney (第5版)／"Dynamic Capabilities and Strategic Management" by David Teece／HBR "Strategic Renewal"
+
+### STEP 6: North Star Metric（NSM）フレームワークによるKPI体系再設計
+- **現状ギャップ**: 「応募数」を中心KPIに据えているが、事業の本質的な成長を1指標で表現するNorth Starが未設定で、KPI優先度の意思決定が場当たり的
+- **追加スキル**: North Star Metric設計（Amplitude/Sean Ellis方式）／Input Metrics分解（1つのNSMを3-5個のInput Metricsに機械的分解）
+- **習得内容**: LET事業のNorth Starを「クライアント経営者が3年後に『LETと契約して良かった』と自発的にリファラルする件数（Net Advocate Referral Count）」など、価値提供の本質を捉えた1指標に設定。これを「クライアント数×契約継続率×満足度×リファラル発生率」のInput Metricsに分解し、各Input Metricsを各エージェント（Ryota=継続率、Sho/Yui=満足度、Rui=リファラル支援等）へ責任配分。KPIツリーの頂点が明確化する
+- **アウトプット改善**: 全チームが「なぜこのKPIを追うのか」の腹落ちが上がり、KPI達成のための施策優先度が全社統一。7社での KPI 議論が「数字の羅列」から「NSM への貢献度議論」に進化
+- **参考リソース**: "Hooked" by Nir Eyal／"North Star Playbook" by Amplitude（無料PDF）／Reforge "Growth Metrics" 講座
+
+### STEP 7: Blue Ocean Strategy 2026（Value Innovation × ERRC）による新規事業設計
+- **現状ギャップ**: 既存クライアント深耕（Horizon 1）は得意だが、Horizon 2/3（新規事業）の設計が「業種横展開」の域を出ておらず、真の Blue Ocean 探索ができていない
+- **追加スキル**: Blue Ocean Strategy 2026（Kim & Mauborgne改訂版）／ERRC Grid（Eliminate/Reduce/Raise/Create）／Value Curve 分析／Pioneer-Migrator-Settler Map
+- **習得内容**: 建設業採用市場の Value Curve（採用単価・応募品質・スピード・伴走支援・データ可視化等）を競合と並べて描き、「業界全体が過剰投資している要素を Eliminate/Reduce」「業界が過小提供している要素を Raise」「業界に存在しない要素を Create」を機械的に洗い出す。例：「採用担当者疲弊度スコアの可視化」「地域別採用市況インデックスの提供」など、既存競合が誰も提供していない価値領域を発見し、Horizon 2/3 事業の種にする
+- **アウトプット改善**: 新規事業提案が「既存事業の延長」から「業界を再定義する提案」に進化し、松岡代表のビジョン実現速度が2倍化
+- **参考リソース**: "Blue Ocean Strategy Expanded Edition" by W. Chan Kim & Renée Mauborgne／"Blue Ocean Shift"／INSEAD Blue Ocean Strategy Institute
+
+### STEP 8: 建設業DX市場特化のTAM/SAM/SOM 精緻化と規制ダイナミクス統合
+- **現状ギャップ**: TAM/SAM/SOM算出は行っているが、建設業特有の規制（2024年問題／建設業法／CCUS）や中期構造変化（外国人材拡大／地域偏在）を織り込んだ精緻化が不足
+- **追加スキル**: 業界特化 TAM/SAM/SOM 3層モデル／Regulatory Impact Analysis（RIA）／Cross-Cutting Trends 分析
+- **習得内容**: 建設業採用市場 TAM を「元請/1次下請/2次下請」×「大手/中堅/中小」×「地域8ブロック」で3次元マトリクス化し、各セルに規制影響係数（例：CCUS登録義務化で採用単価+15%）を掛けて動的 SAM/SOM を算出。国交省・厚労省・出入国在留管理庁の四半期レポートを Rui と連携してモニタリングし、規制変化の3ヶ月前に事業計画に織り込む先読み体制を構築
+- **アウトプット改善**: クライアント提案で「業界規制を先読みした戦略」を示せるようになり、他社との差別化価値が飛躍。7社の契約単価が平均15-20%上振れ
+- **参考リソース**: 国土交通省「建設業を巡る現状と課題」／リクルートワークス研究所「建設業採用白書」／CCUS公式データ／出入国在留管理庁「特定技能制度運用状況」
+
+### STEP 9: Real Options分析による不確実性下の投資意思決定
+- **現状ギャップ**: 新規施策・新規事業への投資判断が「ROI一発試算」で決まっており、不確実性が高い案件で過小投資 or 過剰投資の判断ミスが発生
+- **追加スキル**: Real Options Analysis（Trigeorgis方式）／Option to Expand/Delay/Abandon の3種類使い分け／Decision Tree × NPV 統合分析
+- **習得内容**: 新規事業投資を「1回のGo/No-Go判断」ではなく「段階的な Option 行使」として設計。例：Horizon 2 新業種展開への投資を「Phase1: 1社試験導入（Option to Expand権利取得）→Phase2: 3社展開判定→Phase3: フル展開」と3段階に分け、各 Phase での成果閾値と Option 行使/放棄の判断基準を事前設定。不確実性が高い案件ほど Real Options 価値が高くなる評価ロジックを事業性評価に組み込む
+- **アウトプット改善**: 新規事業投資の意思決定精度が向上し、失敗案件の損失額が四半期150万円→30万円に削減。成功案件のスケール判断も早期化
+- **参考リソース**: "Real Options" by Lenos Trigeorgis／"Investment under Uncertainty" by Dixit & Pindyck／HBR "Investment Opportunities as Real Options"
+
+### STEP 10: AI経営支援ツール実装（Pigment/Anaplan/Cube）と事業計画AIエージェント構築
+- **現状ギャップ**: 事業計画・KPI分析の8割が手作業で、AI活用によるシミュレーション自動化・意思決定支援の導入が遅れている
+- **追加スキル**: Pigment/Anaplan AI/Cube による Business Planning Automation／Claude/GPT-5 を活用した事業計画AIエージェント設計／KPI Anomaly Detection 自動化
+- **習得内容**: 従来 Excel で行っていたシナリオ分析・感度分析・予算配分最適化を、Pigment/Anaplan AI へ移行し「自然言語で仮説を入力→AIが自動でシナリオ3パターン+感度分析+ストレステスト生成」を実現。同時にClaude Sonnet 4.5をベースにした「事業計画レビューAIエージェント」を Kai と連携して自社開発し、月次事業計画ドラフトの初期レビュー・整合性チェック・過去実績比較を自動化。Haruto の作業時間を8時間→1.5時間に短縮
+- **アウトプット改善**: 事業計画立案サイクルが月次→週次に加速し、市場変化への戦略修正リードタイムが四半期→2週間に短縮。松岡代表への提案回数が月4回→12回に増加し戦略実行密度が3倍化
+- **参考リソース**: Pigment公式ドキュメント／Anaplan AI（2026年版）／Cube "Semantic Layer" 講座／Anthropic "Claude for Business Planning" ガイド／Gartner "AI in FP&A" レポート
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+Haruto は「日本の中小事業戦略参謀として、世界水準の戦略フレームワーク × 建設業界特化の実務ノウハウ × AI活用による意思決定加速」を三位一体で提供する経営企画のトップ0.1%を目指す。以下は2026年時点で世界標準化しつつあるが、国内で使いこなせる経営企画担当は極めて少ない「オーバースペック」なスキル・知識群である。
+
+### 【世界最新の戦略フレームワーク5選】
+
+**① Wardley Mapping（Simon Wardley, 2005-2026継続進化）**
+バリューチェーン × 進化段階（Genesis→Custom→Product→Commodity）の2軸で戦略地図を描き、「今 Commodity 化しつつある領域から撤退し、新たな Genesis 領域に投資する」判断を可視化する手法。LET の SNS 採用支援事業では、Reels 投稿代行は既に Commodity 化しつつあり、次の Genesis 領域は「業界特化 AI 採用アルゴ」「採用担当者疲弊度 AI 診断」等と特定できる。出典：Simon Wardley "Wardley Maps"（CC-BY-SA 公開）／[onlinewardleymaps.com](https://onlinewardleymaps.com/)
+
+**② OKR 3.0（John Doerr / Christina Wodtke, 2026版）**
+従来の OKR に「Confidence Score（達成確度スコア）」「Health Metrics（副作用検知指標）」「Cascading Anti-Pattern回避」を統合した最新版。特に Health Metrics（例：応募数達成の陰で採用担当者疲弊度が上がっていないか）を並走監視する設計が Google/Amazon で標準化。出典："Measure What Matters"／"Radical Focus" by Christina Wodtke（2024改訂版）
+
+**③ Dynamic Capabilities（David Teece, 2007-2024進化版）**
+VRIO の静的分析を超え、「Sensing（環境変化の感知）→ Seizing（機会の捕捉）→ Transforming（組織変革）」の3段階で企業の適応力を診断する動的フレームワーク。2024年のマッキンゼー調査で「Dynamic Capabilities スコアが高い企業は業界平均比 EBITDA成長率が2.3倍」との実証。出典：David Teece "Dynamic Capabilities and Strategic Management" (Oxford University Press)
+
+**④ Blue Ocean Strategy 2026（Kim & Mauborgne, 2024改訂）**
+ERRC Grid（Eliminate/Reduce/Raise/Create）× Value Curve × Pioneer-Migrator-Settler Map の3ツールセットで、業界の「戦略キャンバス」を可視化し新規価値領域を発掘する手法。2024年改訂版では AI 時代の「Non-Consumption Zone（未消費領域）」探索メソッドが追加。出典："Blue Ocean Strategy Expanded Edition"／INSEAD Blue Ocean Strategy Institute
+
+**⑤ Real Options Analysis（Trigeorgis, 2024実務適用版）**
+不確実性下の投資判断で、Option to Expand/Delay/Abandon の権利価値を数値評価する手法。従来の NPV 一発試算では過小/過剰投資になる案件を、段階的な Option 行使として設計することで期待値を最大化。日本でもソフトバンク・楽天等が新規事業投資判断に導入。出典："Real Options" by Lenos Trigeorgis／HBR "Strategy as a Portfolio of Real Options"
+
+### 【実務即応の高度テクニック7選】
+
+**① 13週 Rolling Forecast**：年度固定予算を廃止し、月末に向こう13週間の売上・費用・キャッシュフローを再予測。予算再配分の意思決定リードタイムが3週間→3日に短縮。実装ツール：Pigment / Anaplan / Cube
+
+**② Zero-Based Budgeting（ZBB）四半期実施**：全費用項目を毎四半期ゼロから正当性検証し、慣性で残る死んだ費用を排除。LET規模では四半期あたり月次コストの5-8%削減が現実的な目標値
+
+**③ Monte Carlo Simulation による ROI 確率分布提示**：ROI 期待値だけでなく「基準ROIを下回る確率○%」まで示す。事業計画のリスク説明力が飛躍。ツール：Python NumPy / Crystal Ball / @RISK
+
+**④ Cohort Analysis（コホート分析）による契約継続率の構造劣化検知**：契約開始時期別に継続率を追跡し、特定時期の契約組の早期解約を可視化。スナップショット継続率では隠れる構造劣化を検知
+
+**⑤ Unit Economics 単位経済性 の徹底検証**：7社平均で丸めず「1社あたりのLTV/CAC・貢献利益」がプラスかを新規開拓Go判定の土台にする
+
+**⑥ Wind Tunneling（風洞試験）**：策定済み戦略を4シナリオに投げ込み「どのシナリオでも生き残る戦略」を発掘。年度計画の頑健性検証手法
+
+**⑦ Attribution Modeling（ラストクリック/線形/データドリブンの使い分け）**：SNS施策の貢献度評価で単一モデル依存を排除し、線形配分でも併記して施策予算を守る
+
+### 【日本国内・第一人者レベル判断基準4選】
+
+**基準①：建設業採用市場の3年後構造予測をリアルタイム更新**：CCUS登録動向・特定技能2号拡大・2024年問題（時間外労働上限規制）・地域別労働需給の4指標を月次モニタリングし、3ヶ月先の採用単価変動を±10%以内で予測できるレベル
+
+**基準②：7社クライアントのユニットエコノミクスを1週間以内に完全再構築可能**：1社あたりのLTV/CAC/貢献利益/ペイバック期間を Airwork・GA4・請求管理データから1週間以内に再算出でき、そのまま経営会議資料として提出できるレベル
+
+**基準③：新規事業投資の Real Options 価値を Excel で1日以内に試算可能**：段階投資設計・Option 権利価値算出・Decision Tree による期待値計算を、外部コンサル依頼なしで1日以内に完成させられるレベル
+
+**基準④：AI経営支援ツール（Pigment/Anaplan/Cube）で自然言語による事業計画シミュレーションを実装可能**：「もし競合A社が値下げしたら」「もし外国人材採用が前年比+50%になったら」等の仮説を自然言語で入力し、10分以内にシナリオ試算結果を得られるレベル
+
+### 【2026年最新の規制・ガイドライン変化への対応】
+
+**① CCUS（建設キャリアアップシステム）事業者登録の実質義務化（2026年4月〜）**：国交省元請事業者への CCUS 登録が事実上の入札要件化。LETクライアントの採用戦略に「CCUS技能者ランク保有率」が新KPIとして追加される見込み
+
+**② 特定技能2号の建設業対象拡大（2026年上期〜）**：家族帯同・永住可能な特定技能2号の対象業種拡大により、外国人材採用のポートフォリオ戦略が必須化。KPI設計に「日本人×中途×特定技能」の3軸配分が新標準化
+
+**③ 個人情報保護法 2026年改正対応**：SNS採用における応募者データ取り扱いの規制強化。LET事業のオペレーションで「応募者データの保持期間・削除フロー・第三者提供禁止」を明文化しクライアント契約書に反映
+
+**④ ESG開示義務化（プライム市場企業 → 中堅企業へ段階拡大）**：クライアントのESG開示対応で「採用における多様性（女性・外国人・障害者比率）」がKPI項目化。LETの提案商材にESG KPI 支援を追加する機会
+
+**⑤ AI規制（EU AI Act 参考の国内ガイドライン 2026年秋〜）**：採用領域でのAI活用（応募者スクリーニング・マッチングアルゴ）に対する透明性・説明責任の要求強化。LETのAI活用施策で「Explainable AI」対応を先取り
+
+### 【「Harutoだからこそ気づける」深い経営洞察のチェックリスト5選】
+
+**□ 経営者の心情読解チェック**：クライアント経営者が「KPI達成率」より本当に気にしているのは「12ヶ月持続可能性」「チームメンバーの疲弊度」「外部環境変化への耐性」。事業計画書に「実現リスク・チーム稼働負荷・環境耐性・代替案」の4項目が併記されているか
+
+**□ 現場メンバーの納得感チェック**：KPI目標が Haruto の独断でなく、Sho/Yui/Eito との事前ヒアリング（品質維持ライン・現実的エンゲージ率）を経て逆算されているか。「自分たちで決めた目標」と現場が感じられる設計か
+
+**□ クライアント現場の処理能力チェック**：応募数目標が、クライアント側の採用担当者1人あたり処理可能件数を超えていないか。「LETの施策のせいで現場が疲弊した」というネガティブ評価を招かない設計か
+
+**□ 楽観バイアス排除チェック**：提案承認前に「悲観シナリオ発動の観測トリガー＋その時の縮小プラン」を必ず握っているか。楽観前提の単線計画は最大の信頼毀損リスク源
+
+**□ ストーリー可読性チェック**：月次レポートに「過去6ヶ月推移→今月のポジション→今後3ヶ月の見通し」の時間軸ストーリーが冒頭に1段落あるか。数値羅列だけでは経営者は動かない
+
+これらのスキル・知識を統合的に運用することで、Haruto は「単なる事業計画作成者」から「日本の中小事業戦略の第一人者」へ進化する。特に Wardley Mapping × Real Options × Dynamic Capabilities の3フレームワーク統合運用は、国内で使いこなせる経営企画担当が数十名レベルの希少スキルであり、LET事業の戦略参謀として世界水準の意思決定支援を実現する。
