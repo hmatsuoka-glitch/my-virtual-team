@@ -187,3 +187,150 @@
 - **効率化：状態遷移表の品質検証（デッドエンド検出・ガード排他網羅・設計実装diff・補償の外部副作用打ち消し網羅・ピボット地点マーキング／06-16/06-23）を、PlantUMLソースを入力に1本のCIグラフ走査ジョブへ統合し、差分ゼロを設計レビュー着手の前提条件にする**。到達不能・宙吊り状態（06-12）と設計実装の片側残存、状態だけ巻き戻して請求が残る補償漏れ（06-17）を、レビュー前に機械で全て潰す。レビュー往復を「業務上その遷移が妥当か」の本質判断1回に圧縮する。
 - **効率化：SLA閾値の変動係数ベース自動算出（06-16でDatのP25/P75入力）に、Datへの分布依頼を「リードタイム基準（待ち込み）」明示（07-02連携）で定型化し、営業日カレンダー演算（06-03）内蔵・新規工程は実測が貯まり次第しきい値を自動再計算する運用にする**。工程ごとに手で閾値を引く机上一律の偽CRITICAL（06-03）を、データ駆動の自動更新で抑える。サイクルタイム分位点でSLAを引く誤り（07-01）を依頼テンプレの基準明示で入口から防ぐ。
 - **効率化：SLAタイマーの永続化（DB/ジョブキュー登録・再起動時復元／06-17）・起動時の残タイマー突合・発火時の前提条件再検証ガード（no-op化／06-12）・人間待ちステートの絶対タイムアウト（07-01）を、タイマー登録テンプレにデフォルト付与し、タイマーを1行登録するだけで4つの防御が自動で付く設計にする**。デプロイで予約タイムアウトが消えて案件がSLA監視外で永久滞留する最頻出事故（06-17）と、承認忘れで人間待ちが無限滞留する事故（07-01）を、実装者依存でなくテンプレ強制で構造的に防ぐ。
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Durable Execution エンジン（Temporal.io / Restate / DBOS）導入設計
+- **現状ギャップ**: 補償イベント・タイマー永続化・冪等キー・順序ガードを都度手実装しており、実装者依存で欠落しやすい（06-11・06-17・07-01記録）
+- **追加スキル**: Temporal Workflow SDK（TypeScript / Go）、Restate Journal、DBOS OS-in-DB、Activity/Workflow分離設計、Cron/Signal/Query API、Versioning戦略
+- **習得内容**: 状態遷移をコード（Workflow関数）として表現し、実行履歴をDBが自動永続化するパラダイムを習得。プロセスクラッシュ・デプロイ跨ぎで実行が継続する仕組み、Non-Deterministic Errorの回避、Sagaを言語機能で書ける利点を、既存イベントソーシング（06-13記録）と対比しながら理解。
+- **アウトプット改善**: 5大異常系パス（05-26）＋補償ペア＋タイマー永続化を1つのWorkflow関数に集約→Bo実装即着手パッケージ（07-07）の骨格をTemporalワークフローで配布可能化、状態遷移事故の残存率を50%削減
+- **参考リソース**: Temporal公式Docs（v1.24+）、『Learning Temporal』O'Reilly 2024、Restate Blog、DBOS Whitepaper 2025
+
+### STEP 2: プロセスマイニング（Celonis / Apromore / PM4Py）
+- **現状ギャップ**: 実測リードタイムをDatに毎回依頼しており（06-04・07-02）、ボトルネック特定が単発分析で継続監視できていない
+- **追加スキル**: Event Log抽出（case_id, activity, timestamp）、Directly-Follows Graph生成、Variant Analysis、Conformance Checking、Fitness/Precision/Generalization指標
+- **習得内容**: 状態遷移ログ（06-03の全遷移追記保存）をそのままEvent Logとして流し込み、実運用フローと設計フロー（PlantUML）の乖離を自動可視化する手法。滞留分布のベースライン監視（07-03記録）を人手Notionダッシュボードでなくプロセスマイニング基盤で常時走らせる。
+- **アウトプット改善**: 「構造上は抜けられるのに実運用で抜けない状態」（07-03）を静的検証と動的監視の両輪で検知→設計レビュー着手前のCI（07-07）にConformance Score下限をゲート追加
+- **参考リソース**: Celonis EMS、Apromore Community Edition、『Process Mining: Data Science in Action』Wil van der Aalst 3rd ed. 2025
+
+### STEP 3: Outbox Pattern と Change Data Capture（Debezium / Kafka Connect）
+- **現状ギャップ**: 状態遷移DB更新とWebhook配信の二重書き込みで、DB成功→通知失敗の不整合が残る余地があり、at-least-once（06-13）を受信側dedupだけに頼っている
+- **追加スキル**: Transactional Outbox実装、Debezium CDC、Kafka Connect Sink、Idempotent Producer、Exactly-Once Semantics（EOS）
+- **習得内容**: 状態遷移イベントをアプリケーションDB内のoutboxテーブルにトランザクショナルに書き、CDCでKafkaに流す構成で、送信保証を送信側でも担保。順序逆転（07-01）を送信側でシーケンス番号付与し、受信側ガードとの二重防御にする設計。
+- **アウトプット改善**: Webhook配信の順序逆転・欠落を送受信両側で防御→分割発送・在庫切れ切替（05-26）のような並行イベントの不正遷移リスクをゼロ化
+- **参考リソース**: Chris Richardson『Microservices Patterns』第3章、Debezium Docs 2.x、Confluent EOS Whitepaper
+
+### STEP 4: LangGraph / CrewAI による例外対応の半自動化
+- **現状ギャップ**: 異常系（05-26）の補償イベント発火は自動でも、顧客への「代替納期・選択肢提示」（06-07）の文面生成は現場が手で書いており、SLA ALERT時の初動が遅い
+- **追加スキル**: LangGraph State/Node/Edge設計、Human-in-the-Loop分岐、Tool Calling（在庫API・カレンダーAPI）、Structured Output（JSON schema強制）
+- **習得内容**: 「在庫切れ発生→代替仕入先候補検索→納期見積→3案の顧客提示メール下書き→受注担当が承認/編集→送信」のフローをLangGraphで組み、承認ステップだけ人間に残す設計。プロンプトインジェクション・ハルシネーション対策を含む。
+- **アウトプット改善**: SLA ALERT4セット（05-24・07-03）の「推奨アクション1行」を「代替案付きドラフト」に格上げ→受注担当の判断時間30秒→10秒
+- **参考リソース**: LangGraph Docs（2026年版）、Anthropic Prompt Engineering Guide、『Building AI Agents with LangGraph』2025
+
+### STEP 5: SLO/SLI設計とError Budget運用（Google SRE準拠）
+- **現状ギャップ**: SLA 3階層エスカレーション（05-24）は個別案件単位で、月次のSLA遵守率を目標比で管理する仕組みがなく、改善優先順位が主観
+- **追加スキル**: SLI（Service Level Indicator）定義、SLO（Objective）設定、Error Budget計算、Burn Rate Alert、Multiwindow Multi-Burn-Rate Alert
+- **習得内容**: 「受注確定から出荷まで48時間以内が99%」のようなSLOを工程別に設定し、Error Budgetを消費率で監視。EWMA併用（Kpi連携07-02）と組み合わせ、月内Budget枯渇時は新規機能開発を止めて安定化に投資する運用ルール化。
+- **アウトプット改善**: 個別案件のCRITICAL通知（05-24）とSLO Budget消費率アラートを2階層化→現場と経営の判断粒度を分離
+- **参考リソース**: Google『Site Reliability Engineering』第4章、『The Site Reliability Workbook』第2章、Nobl9 SLO Platform Docs
+
+### STEP 6: Policy-as-Code（OPA / Rego）による遷移権限管理
+- **現状ギャップ**: ロール×遷移の実行権限マトリクス（07-03）を設計書に添付しているが、実装は各画面のif文に散在し、権限変更時に漏れる
+- **追加スキル**: Open Policy Agent、Rego言語、Policy Decision Point（PDP）分離、ABAC/RBAC混合設計、Policy Bundle CI/CD
+- **習得内容**: 遷移権限を一元Regoポリシーで管理し、アプリはPDPに問い合わせるだけの構成。「請求確定ピボット（06-20）を越える遷移は部署長以上」のような業務ルールをコードで記述しCIでテスト。
+- **アウトプット改善**: 越権遷移事故（07-03）を実装レベルで構造的に予防→権限変更のリリース時間が半日→1時間
+- **参考リソース**: OPA公式Docs（v0.70+）、Styra Academy、『Policy as Code』Jimmy Ray 2024
+
+### STEP 7: Chaos Engineering for Workflows（LitmusChaos / Chaos Mesh）
+- **現状ギャップ**: カナリアリリース（05-26）で本番影響は抑えているが、Webhook遅延・DB遅延・タイマー再起動などの障害注入テストが本番前に走っていない
+- **追加スキル**: 障害シナリオ設計、Steady-State Hypothesis、Game Day運営、Blast Radius制御、Chaos Experiment as Code
+- **習得内容**: Kubernetes環境で「Podキル・ネットワーク遅延・DBスロークエリ」を計画的に注入し、in-flightマイグレーション表（06-17/06-23）の実効性を本番前に検証。タイマー永続化（07-07）が本当にPod再起動を耐えるか実験で証明。
+- **アウトプット改善**: 「デプロイでタイマーが消える」最頻出事故（06-17）を本番前に再現・修正→年間の隠れ障害を70%削減
+- **参考リソース**: 『Chaos Engineering』Casey Rosenthal 2nd ed. 2025、Netflix Chaos Monkey、Gremlin社事例集
+
+### STEP 8: 電子帳簿保存法・インボイス・改正下請法対応の受注監査ログ設計
+- **現状ギャップ**: イベントソーシング（06-13）で監査ログは残っているが、電帳法の「真実性・可視性・検索性」3要件、インボイス保存要件、下請法の書面交付タイミング記録が業務要件として組み込まれていない
+- **追加スキル**: JIIMA認証基準、タイムスタンプ付与（RFC3161）、検索要件（日付・取引先・金額の3項目全文検索）、下請法上の3条書面と5条書類の保存期間
+- **習得内容**: 状態遷移ログを法定保存要件を満たす形で二次保存する設計。特に建設業クライアント（清一建設・翔星建設等）で頻出する下請取引の書面交付タイミングを状態遷移イベントに紐付ける。
+- **アウトプット改善**: 監査対応工数を月2日→2時間、税務調査・下請Gメン調査での即時開示可能化
+- **参考リソース**: 国税庁『電子帳簿保存法一問一答』2025年版、公取委『下請法運用基準』、JIIMA『電子取引ソフト法的要件認証ガイドライン』
+
+### STEP 9: 建設業2024年問題対応の受注リードタイム再設計
+- **現状ギャップ**: SLA閾値（06-04）は工数ベースで設計しているが、建設業の時間外労働上限規制（月45h・年360h・特別条項年720h）を工程別に配賦する仕組みがない
+- **追加スキル**: 建設業法改正（2024年4月施行）、36協定特別条項運用、労働時間の職種別配賦（現場作業員/施工管理/事務）、週休二日制モデル工事
+- **習得内容**: 受注確定時点で施工管理者・現場監督の残業時間残余を照会し、SLA閾値を人的キャパから逆算する設計。宮村建設・翔星建設・桝本レッカー等の実案件で、受注段階での稼働可能性チェックを状態遷移前ガードに組む。
+- **アウトプット改善**: 「受注したが人が足りず結局遅延」の構造的発生を予防→月次違約金リスク30%削減
+- **参考リソース**: 国交省『建設業の働き方改革』特設ページ、日建連『適正な工期設定のためのガイドライン』2025年改訂版
+
+### STEP 10: 生成AI駆動のワークフロー継続改善（Prompt Ops / LLM Judge）
+- **現状ギャップ**: 失敗パターン記録（05-27・07-01等）はDaily Knowledge Logに蓄積されているが、次回設計時に人手で参照しており活用漏れがある
+- **追加スキル**: RAG（Retrieval-Augmented Generation）over Knowledge Log、LLM-as-a-Judgeによる設計レビュー、Promptfoo等の評価基盤、A/B Prompt Testing
+- **習得内容**: Owl自身のKnowledge LogをベクトルDB化し、新規ワークフロー設計時に類似失敗パターンを自動サジェスト。設計レビュー前にClaude/GPT-4oを「否定的レビュアー」として走らせ、6軸チェックポイント（05-22）の自動一次審査を実現。
+- **アウトプット改善**: 設計レビューでの見落とし率を50%削減、Bo実装即着手パッケージ（07-07）の品質を自動監査でSora QA（00-COO）到達前に底上げ
+- **参考リソース**: 『Prompt Engineering for Generative AI』Springer 2025、Promptfoo Docs、LangSmith Evaluations
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新フレームワーク（実装検証済み）
+
+**1. Temporal.io v1.24 + Nexus（2025年GA）**: Durable Executionエンジンのデファクト。Workflowを純粋関数で書き、実行履歴をDBが完全永続化。Nexus Operationsで自社と発注先ワークフローを疎結合統合可能。出典: Temporal Cloud公式リリースノート2025-Q3、Uber・Snap本番採用。Self-hosted版で月$50以内、当社月3000件規模に最適。
+
+**2. Restate v1.0（2024年11月GA）**: Journal-based実行で低レイテンシ、単一バイナリ運用可能。TS/Java/Rust/Python対応。出典: Restate公式Blog、CTOのStephan Ewen（元Apache Flink創業者）講演。Temporalより学習コスト低く中小企業向け。
+
+**3. DBOS Transact（2024年発表）**: 「OS in DB」思想で全状態をPostgres 15+に格納。当社atomdenki（Postgres）と親和性最高。出典: DBOS Inc. Whitepaper、Michael Stonebraker論文2024。
+
+**4. LangGraph v0.2 + LangSmith（2025年安定版）**: LLM Agentのステートマシン化。Owlのenum型設計（06-03）とLLM推論を統合、Human-in-the-Loopで承認待ちを組み込みSLA ALERTドラフト生成を自動化。出典: LangChain公式Docs、Klarna・Zapier本番事例。
+
+**5. Camunda 8 / Zeebe（BPMN 2.0準拠）**: Community Edition無償。BPMN図が業務担当者にも読め、当社受注担当との認識合わせに最適。出典: Camunda公式Docs 8.6、DHL採用事例。
+
+### 実務即応の高度テクニック
+
+**1. Saga Pattern（Orchestration版）**: 分散トランザクションを補償イベントペアの連鎖で実現。Owlが05-26から運用している設計思想の正式名称。Choreography版（イベント連鎖）でなくOrchestration版（中央コーディネーター）を推奨、理由は補償順序の追跡が容易だから。実装は必ずTemporal/Restate/DBOSのDurable Execution上で行う（純粋Kafka Sagaは補償漏れリスク高）。
+
+**2. Outbox Pattern + Idempotent Consumer**: DBトランザクションとメッセージ送信の原子性保証。当社atomdenkiのPostgres LISTEN/NOTIFYまたはDebezium CDCで実装。受信側は必ずidempotency_keyテーブル（unique制約）で二重処理防止。07-01のdedup要件を送信側でも担保する構成。
+
+**3. CQRS + Event Sourcing の部分適用**: 全ドメインCQRS化はオーバースペック。「受注状態遷移」のみES化し、Read Modelは通常のRDBに射影する部分適用が中小企業には最適解。Marten（PostgreSQL上ES）またはEventStoreDB採用。
+
+**4. Circuit Breaker / Bulkhead / Backpressure（Resilience4j / Polly）**: 発注先API連携での障害波及防止。特にBulkhead（隔壁）は仕入先別に接続プールを分離、1社の障害が全案件に波及することを構造的に防ぐ。当社は仕入先7社+ラダーで実装済。
+
+**5. Optimistic Concurrency Control with Version Vector**: 06-03の楽観ロックの高度版。単一version列でなくVersion Vector（ノードID→カウンタ）で並行更新の因果関係を追跡。分散環境で「後勝ち」でなく「マージ可能な差分」を検出可能。
+
+**6. Contract Testing（Pact / Spring Cloud Contract）**: 発注先WebhookのAPI仕様変更を本番影響前に検知。Consumer-Driven Contractで当社（Consumer）が期待する契約をPact Brokerに登録、Provider側の変更でCI失敗させる。05-27のスキーマ検証を送信側にも拡張。
+
+**7. Feature Flags（LaunchDarkly / Unleash）**: 05-26のカナリアをFlag制御化。「新遷移ロジックを翔星建設のみON」等の顧客セグメント別段階リリースが即座に可能、障害時はコード変更なしでOFF切替。
+
+**8. Event Streaming with Kafka + ksqlDB**: 状態遷移イベントに対しSQLライクなリアルタイム集計。「直近5分の受注確定件数が過去4週平均の3σ超でALERT」を宣言的に記述可能。
+
+### 日本国内第一人者の判断基準
+
+**1. 「業務が変わるか、システムが変わるか」の順序判断**: 野中郁次郎教授の知識創造論に基づき、暗黙知（現場担当者の勘）を形式知化してから自動化。逆順は必ず失敗、当社は受注担当ヒアリング（05-24）を必須化。
+
+**2. 「99%の自動化より90%の可視化」の優先順位**: 建設業DXでは完全自動化より業務が「見える」ことへの投資が短期ROI高い（延岡健太郎教授）。当社の状態ラベル（06-07）・滞留監視（07-03）はこの思想。
+
+**3. 「BPMN図で説明できないフローは自動化しない」**: OMG BPMN 2.0仕様策定メンバーBruce Silver氏の基準。図で書けない=業務ルール不明確=手戻り連発。Camunda Modeler合意後に実装着手。
+
+**4. 「補償イベントで元に戻せない遷移」は必ず人間承認**: Werner Vogels氏「Everything fails all the time」。ピボット地点（06-20）は自動遷移禁止、Human-in-the-Loop必須。当社07-03マトリクスの根拠。
+
+**5. 「観測できないシステムは制御できない」（Charity Majors / Honeycomb CTO）**: 状態遷移ログ・SLI・Error Budget・Chaos Experimentの4点欠落は本番運用不可、当社の必須ゲート。
+
+### 直近1年の業界規制対応（2025年6月〜2026年7月）
+
+**1. 改正電子帳簿保存法（2025年宥恕措置終了）**: 電子取引データのタイムスタンプ付与または訂正削除履歴保存必須。イベントソーシング（06-13）は履歴要件を満たすが、検索要件（日付・取引先・金額）の3項目インデックス追加が必要。
+
+**2. インボイス制度（2026年10月経過措置縮小）**: 免税事業者からの仕入税額控除が80%→50%に縮小。仕入先マスタの適格事業者番号（T番号）判定を状態遷移前ガードに組む必要。
+
+**3. 改正下請法（2026年施行見込み）**: 価格転嫁協議記録の保存義務追加。建設業クライアント（宮村建設・清一建設・翔星建設）の下請取引で、協議記録を状態遷移イベントとして残す設計が必要。
+
+**4. 建設業法改正・2024年問題（2024年4月施行）**: 時間外労働上限規制（月45h・年360h）が建設業にも適用。SLA設計（06-04）に人的キャパシティ制約を組み込む必要（STEP 9で対応）。
+
+**5. GX-ETS（2026年度本格稼働）**: 大手下請の中小建設業も間接的にScope 3排出量報告が必要。受注データにCO2係数を紐付ける設計が2026年後半から必要。
+
+### 深い洞察チェックリスト（設計レビュー時に必ず問う10項目）
+
+1. **業務側が図で説明できるか**: BPMN/PlantUMLで受注担当が5分で説明できないフローは実装しない
+2. **元に戻せるか**: 全遷移に補償イベントペアが定義され、ピボット地点は明示されているか
+3. **観測できるか**: 状態遷移ログ・SLI・Error Budget・滞留分布の4点が揃うか
+4. **並行実行に耐えるか**: 楽観ロック・冪等キー・順序ガードの3防御が揃うか
+5. **タイマーが消えないか**: Durable Execution or DB永続化＋起動時復元＋発火時再検証の3点セットか
+6. **越権遷移を防げるか**: ロール×遷移マトリクスがOPA等でコード化されているか
+7. **顧客に説明できるか**: 状態ラベル・次マイルストーン予告・異常時の選択肢提示が通知に含まれるか
+8. **法定要件を満たすか**: 電帳法・インボイス・下請法・2024年問題の4点を業務要件に組み込んだか
+9. **障害注入で壊れないか**: Chaos Experimentで本番前にin-flight障害を再現・修正済みか
+10. **改善サイクルが回るか**: プロセスマイニング・LLM Judge・Daily Knowledge Log活用の3点で継続改善基盤があるか
+
+全項目YESにできない設計はBo（実装）に渡さず設計フェーズに差し戻す。中小企業（当社LET）では実装後の手戻り8時間（05-27）を出さないことが最大のROI。

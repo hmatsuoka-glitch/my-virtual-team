@@ -267,3 +267,161 @@
 - **効率化テクニック：日次進捗は絵文字リアクション報告→Bot自動集計でstatus.json生成（06-16）し、PMは「クリティカルパス＋🔴/ブロッカー＋フリーフロートゼロ（06-23/06-24）」だけを優先ビューに自動抽出して見る**。オントラックの非律速タスクは目視せずBot集計に任せ、注意を「遅れたら納期が動く所」に集中させて日次管理を数分ルーチンにする。横断クリティカルパス（同一メンバーが複数案件の律速に同時に乗る地点／07-01）もメンバー軸ガント1枚に統合して自動検出し、案件単位の見落としを潰す。
 - **効率化テクニック：依存遅延の波及は先行/後続タスクIDからクリティカルパスを自動再計算（06-16）させ、1タスクの遅延入力で後続の納期押し戻しが自動伝播・トータル/フリーフロートが自動色分け表示される仕組みにする**。「このタスクが3日遅れたら納品はいつか」を手でガントを引き直さず即答し、リカバリープラン立案を手計算の数十分から即時にする。遅延時の選択肢は残業前提でなく「スコープ削減・納期交渉・リソース追加・品質基準の合意的緩和」の4択（07-01）をテンプレ提示する。
 - **効率化テクニック：定例MTGの決定事項を議事録テンプレの「決定/宿題/担当/期限」欄から48時間以内に自動タスク化する導線を1本通し、議事録の決定行だけをWBS新規タスクへ流し週次の議事録vsWBS突合を差分照合だけにする（06-16/06-23）**。決定がWBSに入らず消える隠れ遅延と「言ったはず」の認識齟齬を同時に消す。見積は過去completion.jsonのタスク種別別乖離率を規模別テンプレの見積欄に係数自動適用（06-23）し、確認待ち等の膨らむ種別に自動でバッファを乗せる。リプラン時はベースライン凍結（07-03）で計画品質の劣化を測れる状態にする。
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: PMBOK 7版「原理・パフォーマンス領域」ベースの横断PM運用への移行
+- **現状ギャップ**: WBS/ガント/EVMなどプロセスベース（PMBOK 6版以前）の道具を持つが、7版の12原理（Stewardship / Team / Stakeholders / Value / Systems Thinking / Leadership / Tailoring / Quality / Complexity / Risk / Adaptability / Change）と8つのパフォーマンス領域を組織運用に落とし込めていない。案件ごとに手法選定（Tailoring）の明文化がない。
+- **追加スキル**: PMBOK 7版準拠のTailoringマトリクス設計、Value Delivery System運用、原理適用チェックリスト。
+- **習得内容**: (1) 案件特性（規模・複雑度・不確実性・クライアント成熟度）×手法（予測型/適応型/ハイブリッド）のTailoringマトリクスを策定。(2) 12原理を4半期レビューの評価軸に組み込む。(3) パフォーマンス領域「不確実性」「複雑性」を横断リスク登録簿の分類軸に採用。(4) PMI公式のPractice Standard for Tailoringを参照して案件立ち上げ時のTailoring判断を必須化。
+- **アウトプット改善**: 案件立ち上げ時の「なぜこの手法か」の説明能力が向上、方法論ミスマッチによる後戻りを削減。
+- **参考リソース**: PMI『A Guide to the PMBOK Guide 7th Edition』、『Standard for Project Management』、PMI Practice Standard for Project Estimating。
+
+### STEP 2: Team Topologies による横断チーム構造の再設計
+- **現状ギャップ**: 部署単位（02〜11）でのチーム分割が固定化しており、Stream-aligned/Enabling/Complicated-subsystem/Platform の4類型で捉え直せていない。ハンドオフ4点セット（06-12記録）はあるが Interaction Modes（Collaboration / X-as-a-Service / Facilitating）の設計基準がない。
+- **追加スキル**: Team Topologies準拠のチームタイプ判定、認知負荷（Cognitive Load）計測、Team APIドキュメント設計。
+- **習得内容**: (1) 全社11部署をTT4類型にマッピング。(2) 各チームの認知負荷を「本質的・付随的・課題外在的」に分解し、上限超過チームにEnabling支援を割当。(3) Team APIを部署ごとに文書化（提供サービス・依頼窓口・SLA・依存関係）。(4) 横断案件はInteraction Modeを明示（例：LP部×バナー部＝X-as-a-Service）。
+- **アウトプット改善**: 部署間ハンドオフの摩擦削減、認知負荷の可視化でバーンアウト予防。
+- **参考リソース**: Skelton & Pais『Team Topologies』、teamtopologies.com公式テンプレート、Team Cognitive Load Assessment。
+
+### STEP 3: SAFe 6.0 Portfolio Level（Lean Portfolio Management）の導入
+- **現状ギャップ**: 案件ポートフォリオ全体の投資配分（Horizon 1/2/3）や戦略テーマとの整合性を数値で管理できていない。7社クライアント案件と内製プロダクトが同一の予算プールで競合し、意思決定が場当たり。
+- **追加スキル**: LPM（Lean Portfolio Management）、Portfolio Kanban、Epic Hypothesis Statement、Guardrails設計。
+- **習得内容**: (1) 戦略テーマを3〜5個設定し四半期予算配分（%）を宣言。(2) Portfolio Kanban（Funnel→Reviewing→Analyzing→Portfolio Backlog→Implementing→Done）でEpic単位で可視化。(3) Guardrails（予算上限・意思決定基準・変更手続）を明文化しCEO/COO承認を得る。(4) Epic Hypothesis Statement（For〜Who〜The〜Is a〜That〜Unlike〜Our solution〜）で新規案件を型化。
+- **アウトプット改善**: 案件優先順位付けの客観性向上、戦略と実行のギャップ縮小。
+- **参考リソース**: Scaled Agile『SAFe 6.0 Reference Guide』、LPM Competency、Portfolio Kanban公式ガイド。
+
+### STEP 4: Critical Chain Project Management（CCPM）による全社リソース制約管理の徹底
+- **現状ギャップ**: 案件単位のクリティカルパス管理（06-09記録）と横断クリティカルパス検知（07-01記録）は実装済だが、正式なCCPMのバッファ管理（Project Buffer / Feeding Buffer / Resource Buffer）は未導入。マルチタスキングによる隠れロスも定量化できていない。
+- **追加スキル**: CCPMのバッファ運用、バッファ消費率トリガー、Drum-Buffer-Rope（DBR）思考。
+- **習得内容**: (1) 案件末尾にProject Bufferを工数10〜30%で設定、非クリティカルパスにFeeding Buffer配置。(2) バッファ消費率とタスク進捗率を2軸グラフ（Fever Chart）で監視、緑/黄/赤ゾーンで介入判定。(3) 全社的な制約リソース（Drum）を特定し、そこにResource Bufferを積む。(4) マルチタスキング禁止ルール（同時アクティブタスク上限）を導入。
+- **アウトプット改善**: 見かけの安全余裕でなく実効的な納期保護、リソース競合の早期検知。
+- **参考リソース**: Goldratt『Critical Chain』、Leach『Critical Chain Project Management』第3版、TOC-ICO公式資料。
+
+### STEP 5: Rolling-Wave Planning による長期案件の段階的詳細化
+- **現状ギャップ**: 長期案件（3ヶ月以上）を立ち上げ時に全期間詳細WBS化し、後半の見積精度が実態と乖離。変更のたびに大幅なリプラン工数が発生。
+- **追加スキル**: Rolling-Wave Planning、Progressive Elaboration、Planning Package運用。
+- **習得内容**: (1) 直近2〜4週間は Work Package（作業単位）で詳細化、それ以降は Planning Package（マイルストーン単位）でざっくり。(2) 週次で1ウェーブ分を詳細化するリズムを固定。(3) Planning PackageからWork Packageへの詳細化タイミングを「先行依存の完了 or ゲート通過」でトリガー化。(4) 詳細化のたびに見積乖離係数（06-16記録）を再計算し次ウェーブに反映。
+- **アウトプット改善**: 長期案件の見積精度向上、リプラン工数削減、変更耐性の獲得。
+- **参考リソース**: PMBOK 6版 Section 6.2.2.2、PMI Practice Standard for Scheduling 2nd Edition、APM Body of Knowledge。
+
+### STEP 6: 高度なStakeholder Register / Salience Model による関係者マネジメント
+- **現状ギャップ**: クライアント窓口の把握はryotaに依存、意思決定者・影響力保持者・支援者のマッピングが案件単位で属人化。Mitchell/Agle/Woodの3属性（Power / Legitimacy / Urgency）による分析なし。
+- **追加スキル**: Stakeholder Register設計、Salience Model、Power/Interest Grid、Engagement Assessment Matrix。
+- **習得内容**: (1) 案件立ち上げ時に全ステークホルダーを登録（役職・意思決定権限・関心事・懸念・情報ニーズ・連絡頻度）。(2) Salience Modelで7分類（Dormant/Discretionary/Demanding/Dominant/Dangerous/Dependent/Definitive）に分け対応戦略を差別化。(3) Engagement Assessment Matrixで現状C（Current）と望ましいD（Desired）のギャップを埋める施策を設計。(4) 意思決定待ち（07-01記録）の催促戦略にPower/Interest軸を適用。
+- **アウトプット改善**: 属人化解消、クライアント関係の戦略的マネジメント、政治的リスク低減。
+- **参考リソース**: PMBOK 6版 第13章、Mitchell/Agle/Wood『Toward a Theory of Stakeholder Identification and Salience』(1997)、PMI Practice Guide。
+
+### STEP 7: Risk Breakdown Structure（RBS）と定量リスク分析
+- **現状ギャップ**: リスク登録簿の上位3件集中（06-22記録）とクローズ条件（07-03記録）は運用済だが、リスクをカテゴリで構造化するRBSがなく、同種リスクの網羅性チェックができない。定量分析（EMV・モンテカルロ）も未実施。
+- **追加スキル**: RBS設計、Expected Monetary Value（EMV）計算、Decision Tree Analysis、Monte Carlo Simulation。
+- **習得内容**: (1) RBSを4レベル（Level 0:プロジェクト、L1:カテゴリ={Technical/External/Organizational/PM}、L2:サブカテゴリ、L3:個別リスク）で設計。(2) 各リスクにP（発生確率）×I（影響金額）でEMVを算出、Reserve（コンティンジェンシー予備費）を数値決定。(3) 意思決定分岐にDecision Treeを適用（例：外注 vs 内製）。(4) 大型案件のスケジュール・コストにモンテカルロ（@RISK / Python simpy等）で確率分布を提示。
+- **アウトプット改善**: 予備費の根拠明確化、経営層への説明力向上、感覚的リスク評価からの脱却。
+- **参考リソース**: Hillson『Practical Project Risk Management: The ATOM Methodology』、PMI Practice Standard for Project Risk Management、David Vose『Risk Analysis: A Quantitative Guide』。
+
+### STEP 8: Change Control Board（CCB）とIntegrated Change Control の整備
+- **現状ギャップ**: スコープ変更・仕様変更が「口約束」で流れ込み、Baseline凍結（07-03記録）はしているが、変更申請〜影響分析〜承認〜反映のワークフローがない。CR（Change Request）の書式・審議体・SLAが未定義。
+- **追加スキル**: Change Request設計、CCB運営、Impact Analysis（Scope/Schedule/Cost/Quality/Risk 5軸）、Configuration Management。
+- **習得内容**: (1) CR書式を標準化（要求内容・理由・優先度・想定影響）。(2) CCBメンバー（PM・該当部長・sora・クライアント代表）と会議頻度（週1 or 都度）を規定。(3) 影響分析5軸テンプレートで審議、承認判定を「Approve/Reject/Defer/Conditional」の4区分で記録。(4) Configuration Item（成果物のバージョン）を管理台帳で追跡。
+- **アウトプット改善**: 「言った言わない」の消滅、スコープクリープの制御、変更追跡可能性の確立。
+- **参考リソース**: PMBOK 6版 第4.6節、PRINCE2『Change Theme』、ISO 21500/21502。
+
+### STEP 9: After Action Review（AAR）とKnowledge Management の制度化
+- **現状ギャップ**: 見積乖離の振り返り（06-26記録）は品質ゲート化済だが、案件横断で学習資産化する仕組みがない。米陸軍発祥のAAR形式による構造化された振り返りも未導入。
+- **追加スキル**: AAR運営（4つの問い）、Lessons Learned Repository、Retrospective Anti-Patterns回避、Post-Implementation Review（PIR）。
+- **習得内容**: (1) 各案件クローズ時にAAR実施：①何が起きるべきだったか ②実際に何が起きたか ③何がうまくいき何がうまくいかなかったか ④次にどう改善するか。(2) Lessons Learned Repositoryを部署タグ・リスクカテゴリ・成果物種別で検索可能に構築。(3) 3ヶ月後にPIRを実施し「実際にビジネス価値が出たか」を評価。(4) 次案件立ち上げ時に該当タグのLessonsを必読リストとして提示。
+- **アウトプット改善**: 同じ失敗の繰り返し防止、暗黙知の形式知化、新人PMの学習曲線短縮。
+- **参考リソース**: US Army『A Leader's Guide to After-Action Reviews』TC 25-20、Norm Kerth『Project Retrospectives』、Diana Larsen『Agile Retrospectives』。
+
+### STEP 10: AI駆動プロジェクトマネジメント（AIPM）と生成AI活用
+- **現状ギャップ**: WBS作成・議事録タスク化・見積算出は依然として手作業中心。Gartner予測「2030年までにPMタスクの80%がAIで置換」（2024年発表）を先取りできていない。
+- **追加スキル**: 生成AIによるWBS自動生成、リスク予測モデル、AI議事録要約→タスク化、Copilot for Project活用、AI Ethics in PM。
+- **習得内容**: (1) Claude/GPTでプロジェクト概要→WBS初版を自動生成、PMは編集役に回る。(2) 過去completion.jsonを学習データにXGBoost等で見積予測モデルを構築（見積乖離係数の自動化）。(3) Zoom/Teams録画→Whisper+LLMで議事録要約→CR/タスク自動起票。(4) AIの提案を「必ず人間PMがレビュー」原則を明文化（PMI AI Ethics Guidelines準拠）。(5) PMI Infinityの動向を四半期でウォッチ。
+- **アウトプット改善**: PM工数50%削減目標、意思決定の質向上、AIリテラシーの組織全体への波及。
+- **参考リソース**: PMI『AI in Project Management』2024レポート、Gartner『Predicts 2025: AI in PPM』、Microsoft Copilot for Project公式ドキュメント、PMI Infinity。
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### A. 世界最新フレームワーク（実務適用の判断基準付き）
+
+**1. PMBOK 7版（PMI, 2021発行 / 2024年 Standard for Project Management改訂）**
+従来のプロセス47個ベースから、12の「原理（Principles）」と8つの「パフォーマンス領域（Performance Domains）」に大転換した。特に「Value Delivery System」と「Tailoring（案件特性に応じた手法選定）」が中核概念となり、予測型・適応型・ハイブリッドを案件ごとに選ぶ判断力が必須化された。横断PMとしては、7社クライアント案件を一律のプロセスで管理せず、Tailoring Matrix（規模×不確実性×クライアント成熟度）で手法を分けることが第一の適用点。
+
+**2. Team Topologies（Skelton & Pais, 2019 / 日本語版2021）**
+Stream-aligned / Enabling / Complicated-subsystem / Platform の4チーム類型と、Collaboration / X-as-a-Service / Facilitating の3インタラクションモードで組織を再設計するフレームワーク。Netflix・Spotifyなど採用実績多数。my-virtual-teamの11部署をこの4類型にマッピングし、認知負荷（Cognitive Load）を可視化することで、部署間ハンドオフの摩擦とバーンアウトを構造的に減らせる。Fast Flowの実現が目標。
+
+**3. SAFe 6.0（Scaled Agile, 2023年3月発表）**
+Business Agility重視への大幅アップデートが行われ、7つのCore Competencyのうち「Lean Portfolio Management（LPM）」が横断PM領域と直結する。Portfolio Kanban・Epic Hypothesis Statement・Guardrails・Participatory Budgeting などのプラクティスを、大企業だけでなく中小組織でも部分適用可能。株式会社LETのような複数クライアント×内製プロダクト混在組織では、LPMのみを切り出して導入するのが現実的。
+
+**4. Disciplined Agile（PMI, 2019買収 / 継続進化）**
+「Choose Your WoW（Way of Working）」を掲げ、Scrum/XP/Kanban/Lean/PMBOKなど既存手法を状況適応的に組み合わせる方法論。500以上のプロセス選択肢を持ち、PMBOK 7版のTailoring思想と親和性が高い。PMIの公式資格DAScM（Disciplined Agile Senior Scrum Master）と併用推奨。
+
+**5. Portfolio Kanban（David J. Anderson発案 / LKU公式化）**
+Epic・イニシアチブ単位でFunnel → Reviewing → Analyzing → Ready → Implementing → Done の可視化を行い、WIP制限で「同時進行案件過多」を強制的に抑制する手法。Lean Portfolio Managementの中核ツール。全社案件ボードとして導入すれば、7社案件+内製の投資配分を一目で経営層に説明できる。
+
+### B. 実務即応の高度テクニック
+
+**1. マルチプロジェクト依存管理（Multi-Project Dependency Mapping）**
+案件Aと案件Bの間で共有される資源（人・環境・データ・意思決定）を明示的にマッピングし、A案件の遅延がB案件のクリティカルパスをどう動かすかをシミュレーション可能にする。横断クリティカルパス（07-01記録）の発展形として、依存タイプ（FS/FF/SS/SF）とリード/ラグを厳密に管理する。
+
+**2. Critical Chain Project Management（CCPM / Goldratt, 1997）**
+タスクごとの安全余裕を剥がしてProject Buffer/Feeding Buffer/Resource Bufferに集約し、バッファ消費率とタスク進捗率のFever Chart（緑/黄/赤ゾーン）で介入判定を行う。マルチタスキング禁止と組み合わせることで、体感で30%以上の期間短縮事例が報告されている（Goldratt Consulting実績）。
+
+**3. Rolling-Wave Planning（PMBOK 6版正式定義）**
+直近2〜4週間は Work Package で詳細化、それ以降は Planning Package でざっくり管理し、週次で1ウェーブ分を詳細化するリズム。長期案件の見積精度と変更耐性を両立する。詳細化タイミングを「先行依存の完了 or ゲート通過」でトリガー化することがミソ。
+
+**4. Stakeholder Register with Salience Model（Mitchell/Agle/Wood, 1997）**
+ステークホルダーをPower（権力）・Legitimacy（正当性）・Urgency（緊急性）の3属性で7分類（Dormant/Discretionary/Demanding/Dominant/Dangerous/Dependent/Definitive）し、Definitiveタイプ（3属性全て所持）を最優先対応する戦略。Power/Interest Gridよりも動的で、属性の変化を追跡できる。
+
+**5. Risk Breakdown Structure（RBS）+ EMV + Monte Carlo**
+リスクを4レベル階層（プロジェクト→カテゴリ→サブカテゴリ→個別リスク）で構造化し、Expected Monetary Value（EMV = 発生確率×影響金額）でContingency Reserveを数値決定する。大型案件では@RISKやPython simpyでスケジュール・コストの確率分布（P50/P80/P95）を提示することで、経営層への説得力が段違いに上がる。
+
+**6. Change Control Board（CCB）と5軸Impact Analysis**
+変更申請（CR）を Scope/Schedule/Cost/Quality/Risk の5軸で影響分析し、Approve/Reject/Defer/Conditional の4区分で決裁記録する仕組み。PRINCE2のChange Themeが源流。「言った言わない」を消滅させ、スコープクリープを構造的に制御する。
+
+**7. After Action Review（AAR / 米陸軍発祥）**
+「①何が起きるべきだったか ②実際に何が起きたか ③何がうまくいき何がうまくいかなかったか ④次にどう改善するか」の4つの問いに全員が答える構造化された振り返り手法。責任追及でなく学習に焦点を当てる原則が特徴。Lessons Learned Repositoryと組み合わせて、暗黙知を形式知に転換する組織資産化装置。
+
+**8. Earned Schedule（Walt Lipke, 2003）**
+従来のEVM（SPI/CPI）が終盤で1.0に収束してしまう欠点を克服し、時間軸で進捗を測る手法。SPI(t) = ES/AT で計算し、Independent Estimate at Completion (Time) で最終納期予測を精緻化。国防省・NASAで採用実績あり。長期案件の後半で真価を発揮する。
+
+### C. 日本国内第一人者としての判断基準
+
+**1. 「予測型 vs 適応型」ではなく「Tailoring Matrix」で選ぶ**  
+「アジャイルかウォーターフォールか」の二元論は2020年代の議論水準。PMBOK 7版に準拠し、案件特性（規模・複雑度・不確実性・クライアント成熟度・変更頻度）を5〜7軸で評価し、ハイブリッドの配合比を宣言することが第一人者の水準。日本の受託開発業界では今なお二元論が主流のため、Tailoring Matrixを言語化・成果物化できる組織は稀少価値が高い。
+
+**2. リソース稼働率80%目標は「上限」であり「下限ではない」と明示**  
+稼働率100%を目指すとバーンアウトと納期遅延の二次コストが跳ね返る（06-17記録）。80%を上限として設定し、20%は「学習・改善・突発対応」の戦略的余裕（Slack）と定義する。日本のPM界では「稼働率90%以上でないと管理が甘い」と誤解する経営層が多いため、PMがこの上限論を経営層に説明できるかが判断基準。
+
+**3. 遅延時の選択肢は必ず4択でクライアントに提示**  
+スコープ削減・納期交渉・リソース追加・品質基準の合意的緩和（07-01記録）を必ず並列提示し、クライアントに意思決定させる。「残業で吸収します」の暗黙の一択は、ブルックスの法則を無視した反プロフェッショナル対応。第一人者は「あなたの意思決定なしにはリカバリー方針を決めません」と言い切れる。
+
+**4. 「見積は正確でなく妥当」原則**  
+Rolling-Waveと乖離係数学習を前提にすれば、見積の精度は段階的に高めれば良い。初期見積の絶対精度を追う組織は、変更に脆く現場が疲弊する。妥当性（Reasonableness）＝「根拠の説明可能性」を精度より優先するのが第一人者の判断基準。
+
+**5. AIをPMツールに使いこなす前提の組織設計**  
+2025年以降、生成AIによるWBS生成・議事録タスク化・リスク予測・見積予測は標準装備となりつつある。「AIが提案 → 人間PMがレビュー」の運用ルールを明文化し、AIの誤答を検知できるドメイン知識をPMに保持させることが第一人者の基準。AI丸投げでも、AI無視でもない。
+
+### D. 直近1年のPM動向・AI活用対応
+
+**Gartner予測（2024）**: 2030年までに従来PMタスクの80%が生成AIで置換される見込み。特に定型業務（WBS作成・議事録要約・進捗集計・見積算出）は既に置換フェーズ。**PMI Infinity（2024ローンチ）**: PMI公式のAIアシスタントで、PMBOK/Practice Standardsを学習済み。回答の根拠として原典を提示する仕組み。**Microsoft Copilot for Project（2024GA）**: Project Onlineに統合されたAIアシスタント。自然言語でタスク作成・リスケジュール・レポート生成が可能。**Atlassian Rovo（2024発表）**: Jiraの案件データを横断検索し、依存関係の可視化と遅延予測を自動化。my-virtual-team文脈では、これらを部分導入しつつも、Claude/GPTでカスタムワークフロー（WBSテンプレ生成→乖離係数適用→リスク予測）を組む方が柔軟性が高い。**AI Ethics in PM（PMI 2024ガイドライン）**: AIの提案に対する人間の説明責任（Accountability）は移譲不可、というPMIの明文化を組織ルールに組み込む必要がある。
+
+### E. 横断PMだからこそ気づける深い洞察チェックリスト
+
+- **同一メンバーが2案件のクリティカルパスに同時に乗っていないか**（横断クリティカルパス検知／07-01記録の発展）
+- **案件横断で見た時、7社案件の納期が同一週に集中していないか**（納期集中週の分散設計）
+- **クライアントAの決裁遅延がクライアントBの部署リソースを空転させていないか**（外部起因の連鎖遅延）
+- **各部署の認知負荷（Team Topologies）が上限を超えていないか**（本質×付随×課題外在の3分解）
+- **戦略テーマ別の投資配分（%）が四半期でずれていないか**（LPM Guardrails違反）
+- **リスク登録簿の上位3件が3ヶ月連続で同じ顔ぶれになっていないか**（構造的リスクの放置）
+- **見積乖離係数が特定のタスク種別（例：クライアント確認待ち）で常に1.5倍以上になっていないか**（見積構造の欠陥）
+- **Change Requestが「口約束」でCCBを迂回していないか**（変更統制の形骸化）
+- **AARで出たLessonsが次案件立ち上げの必読リストに実際に反映されているか**（学習の空転チェック）
+- **AIによるWBS/見積提案を人間PMが「無条件承認」していないか**（AI丸投げによる責任放棄）
+- **稼働率80%上限を守れているか、それとも「隠れ残業」で数字を作っていないか**（バーンアウト予兆）
+- **クライアントToDoの着手率・返信率が下がっていないか**（報告の受信不全＝品質ゼロ／07-03記録）
+- **kaiのシステム開発PM領域と横断PMの守備範囲が重複・空白になっていないか**（PM二重化リスク）

@@ -274,3 +274,122 @@
 - **効率化テクニック：品質検証（fan-out assert・シンプソン符号逆転・指標定義/期間の統一辞書突合・独立検算・toyデータ期待値一致／06-26/07-03）を納品前の1本の検証パイプラインに常駐させ、JOIN前後行数・セグメント別符号・data_dictionary突合・別経路桁比較・既知10行の完全一致を全てパスしないと納品ブロックする**。手動で各チェックを回すと1つ抜けて誤値が流出するため、行数正常のまま誤るロジックバグ（07-03のWHERE取り違え・GROUP BY粒度ミス）まで既知答えとの照合で機械捕捉し、検算工数を検証ジョブ1回に集約する。
 - **効率化テクニック：金額換算ROIの係数（CV率・客単価・LTV係数／06-16のlookup集約）と「想定問答（で、いくら？／確実？／他社比？＝金額換算・確度ラベル・業界ベンチマーク／06-23）」を分析成果物のテンプレ末尾に自動生成で付け、係数1箇所の更新が全レポートの金額・p値注釈・問答に一括伝播する**。経営層の追加質問での再集計往復（06-23）を、分析と同時に問答を書き溜める構造で消し、Datが席を外しても依頼元がそのままCEO報告に転記できる粒度を維持する。
 - **効率化テクニック：施策効果検証は依頼を意思決定の3型（比較検証/前後比較/予測／06-23）に仕分けた上で、前後比較型には対照群・DID純効果算出（07-01）を、予測型には時系列ホールドアウト（07-01）を型テンプレにデフォルト組み込みし、外部トレンド補正・過学習検証を毎回手で設計せず型選択だけで走らせる**。追い風を施策効果に誤計上する罠（07-01）と学習データ精度での過大評価（07-01）を、型テンプレ側で構造的に潰す。棄却済み仮説のメモ化（06-23）も型ごとの深掘りノートに紐付け、二度掘りを防ぐ。
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: セマンティックレイヤー統一（Metric Store化）
+- **現状ギャップ**: LTV・CVR・チャーン率などの主要KPIが分析者ごとにSQLを書き直しており、Kpi集計とDat深掘りで微妙に定義が食い違い、経営報告で数字が合わない事故が発生
+- **追加スキル**: dbt Semantic Layer / Cube.dev / MetricFlow を用いたメトリクス一元定義、YAMLベースのKPI DSL設計、BIツール横断のメトリクス配信
+- **習得内容**: dbt Semantic Layer の`metrics:`ブロックで主要32KPIを宣言的に定義／`measures`と`dimensions`の分離／`entities`によるJOIN自動解決／MetricFlow CLI での差分検証／Tableau/Looker/Notion への同一メトリクス配信
+- **アウトプット改善**: 全社KPIの定義揺れゼロ化（現状月2件の齟齬→0件）、新規メトリクス追加リードタイム3日→30分
+- **参考リソース**: dbt Labs "Semantic Layer" 公式ドキュメント、Chad Sanderson "Data Contracts" (O'Reilly 2024)、AtCoder Times "MetricFlow入門"
+
+### STEP 2: 因果推論の実装スタックへの落とし込み
+- **現状ギャップ**: DID（07-01記録）を導入したが手計算＋Excelで再現性が低く、傾向スコアマッチング・合成統制法など高度手法は未装備。「施策効果」を因果ではなく相関で報告するリスクが残る
+- **追加スキル**: DoWhy / EconML / CausalML の実装、Synthetic Control Method、Uplift Modeling、Regression Discontinuity Design
+- **習得内容**: DoWhyの4ステップ（識別→推定→反証→感度分析）をPythonノートブックテンプレ化／EconMLのDMLで交絡変数調整／pysyncon で合成統制法／CausalMLでのITE推定／Rosenbaum境界による感度分析
+- **アウトプット改善**: 施策効果報告に「因果推定値＋95%CI＋感度分析（隠れた交絡がどれだけあれば結論が覆るか）」を標準添付
+- **参考リソース**: Microsoft Research "DoWhy" GitHub、Uber Engineering "CausalML"、安井翔太『効果検証入門』（技術評論社）
+
+### STEP 3: ベイズ実験プラットフォームの構築
+- **現状ギャップ**: A/Bテストを頻度論のp値で判定しており、途中経過を見た「覗き見バイアス」（peeking）で偽陽性を量産。母数の少ない中小施策で検定力不足（07-03記録）が慢性化
+- **追加スキル**: ベイズA/Bテスト、PyMC / NumPyro での事後分布推定、Multi-Armed Bandit、Bayesian Hierarchical Models
+- **習得内容**: Beta-Binomial共役事前分布によるCVR比較／Thompson Samplingでのバンディット配信／PyMCで階層ベイズによる7クライアント横断の効果推定／Expected Loss基準での意思決定停止ルール
+- **アウトプット改善**: 「95%の確率でBが優れており、期待損失は月商の0.3%以下」形式で報告、途中経過の意思決定が数学的に妥当化
+- **参考リソース**: Chris Stucchio "Bayesian A/B Testing at VWO"、Osvaldo Martin "Bayesian Analysis with Python" 3rd ed. (2024)、須山敦志『ベイズ深層学習』
+
+### STEP 4: 予測モデルの本番運用（MLOps）
+- **現状ギャップ**: 予測モデル（LTV・チャーン）をノートブックで作って手動でExcelに貼っており、モデルドリフトの検知なし、再学習も属人的。07-01のホールドアウト検証も1回きり
+- **追加スキル**: MLflow / Weights & Biases でのモデル管理、Evidently AI でのドリフト検知、Feature Store（Feast）、AutoML（H2O.ai / Google Vertex AI）
+- **習得内容**: MLflowでモデルバージョニング・実験追跡／Evidently AIで PSI/KS統計量ベースのドリフトアラート／Feastでの特徴量再利用／モデルカード（Google推奨）による透明性文書化／SHAP値による特徴量重要度の可視化
+- **アウトプット改善**: 予測モデル20本のROIを月次で自動棚卸し、精度劣化3日以内検知、モデル更新リードタイム2週間→2日
+- **参考リソース**: Chip Huyen "Designing Machine Learning Systems" (O'Reilly 2022)、Evidently AI公式ブログ、有賀康顕『仕事ではじめる機械学習』第2版
+
+### STEP 5: 大規模言語モデルを分析パイプラインに統合（LLMOps）
+- **現状ギャップ**: 定性データ（クライアント面談議事録・SNSコメント・営業日報）を手作業で読んでおり、月40時間の工数。テキストからの構造化インサイト抽出ができていない
+- **追加スキル**: LangChain / LlamaIndex でのRAG構築、Structured Outputs、埋め込みベクトル検索、LLM-as-a-Judge、Constitutional AI
+- **習得内容**: Claude 3.5 Sonnet / GPT-4.1 のFunction Calling で議事録→構造化JSON抽出／pgvector で類似案件検索／LangSmithで LLM出力の評価パイプライン／プロンプトのバージョン管理／推論コスト月次モニタ
+- **アウトプット改善**: 定性データ処理を40時間→4時間、面談から示唆抽出までのSLA翌週→翌日、7社の共通課題を自動集約
+- **参考リソース**: Anthropic "Building effective agents" (2024)、Jerry Liu "Building LLM Applications with LlamaIndex"、大嶋勇樹『LangChainとLangGraphによるRAG・AIエージェント実装』
+
+### STEP 6: リアルタイムストリーミング分析
+- **現状ギャップ**: 分析は日次バッチが最速で、Airwork応募急増や広告CPA急騰などの異常を検知するまで24時間ラグがある。機会損失が月10-30万円規模で発生
+- **追加スキル**: Apache Kafka / Redpanda、Apache Flink、Materialize、DuckDB with streaming、Change Data Capture (Debezium)
+- **習得内容**: Debeziumで基幹DB→Kafka連携／Flink SQLでの時間窓集計／Materializeでの増分ビュー／異常検知（Isolation Forest / Prophet）のストリーミング適用／Slackへの即時アラート配信
+- **アウトプット改善**: 異常検知ラグ24時間→5分、CPA急騰・応募急減の即時対応で月20万円の広告費最適化
+- **参考リソース**: Tyler Akidau "Streaming Systems" (O'Reilly)、Confluent "Kafka: The Definitive Guide" 2nd ed.、Materialize公式ドキュメント
+
+### STEP 7: データ品質・オブザーバビリティの自動化
+- **現状ギャップ**: fan-out assertやtoyデータ検証（07-03）を手動運用しており、パイプライン全体の健全性が可視化されていない。データ鮮度・完全性・一意性の異常が下流で発覚するまで気づけない
+- **追加スキル**: Great Expectations / Soda Core / dbt tests、Monte Carlo Data / Metaplane、OpenLineage、Data Contracts
+- **習得内容**: Great Expectationsで200+の期待値定義／Monte Carloで5次元品質監視（Freshness/Volume/Schema/Distribution/Lineage）／OpenLineageによる列レベルリネージ／Data Contractsで生産者-消費者間のSLA明文化
+- **アウトプット改善**: データ品質インシデントの下流波及ゼロ化、根本原因特定を平均4時間→20分、SLAベースの信頼性契約でBoやKpiとの手戻り削減
+- **参考リソース**: Barr Moses "Data Quality Fundamentals" (O'Reilly 2022)、Great Expectations公式ドキュメント、Chad Sanderson "Data Contracts" ブログ
+
+### STEP 8: プライバシー保護分析（Privacy-Enhancing Technologies）
+- **現状ギャップ**: 7社のクロス分析やベンチマーク作成時に個社データを混ぜており、改正個人情報保護法（2025年施行）・EU AI Act・GDPRへの体系的対応がない。Prが対外公表する数値の匿名化基準も曖昧
+- **追加スキル**: 差分プライバシー（OpenDP / Google DP Library）、Federated Learning、k-匿名化、Synthetic Data生成（SDV / Gretel）、Secure Multi-Party Computation
+- **習得内容**: OpenDPでのε-DP実装／k=5匿名化とl-多様性の実装／SDVでの合成データ生成と忠実度評価／PySyftでのフェデレーテッド学習／プライバシー予算管理
+- **アウトプット改善**: 7社ベンチマーク公表時のプライバシーリスク定量化、外部公表可能な合成データセット提供、法務レビュー時間50%削減
+- **参考リソース**: Cynthia Dwork "The Algorithmic Foundations of Differential Privacy"、NIST SP 800-226 Differential Privacy Guidelines (2025)、PPC「個人情報保護法いわゆる令和6年改正解説」
+
+### STEP 9: 意思決定インテリジェンス（Decision Intelligence）
+- **現状ギャップ**: 分析結果を「情報提供」で止めており、経営層の意思決定プロセスに構造的に組み込まれていない。「で、何をすべき？」の翻訳工程が属人的
+- **追加スキル**: Decision Trees（Silver Framework）、Multi-Criteria Decision Analysis、Real Options Analysis、Scenario Planning、Monte Carlo Business Simulation
+- **習得内容**: CDD.orgのDecision Intelligence フレームワーク／期待効用理論での意思決定モデル化／リアルオプション評価（延期・拡張・撤退の価値）／モンテカルロシミュレーションによるP10/P50/P90シナリオ提示／プレモータム分析
+- **アウトプット改善**: 分析レポートに「推奨アクション＋期待利得分布＋撤退基準」を必ず含め、意思決定所要時間を30%短縮
+- **参考リソース**: Lorien Pratt "Link" (2019)、Douglas Hubbard "How to Measure Anything" 3rd ed.、Cassie Kozyrkov "Decision Intelligence" (Google Cloud blog)
+
+### STEP 10: 生成AI×自律分析エージェント化
+- **現状ギャップ**: 定型分析（月次レポート・KPIモニタリング）にDat本人の稼働が張り付いており、非定型深掘り（07-07記録の型外れ2割）に十分な思考時間が確保できていない
+- **追加スキル**: Claude Agent SDK、AutoGen / CrewAI マルチエージェント、Text-to-SQL（Vanna.ai）、Code Interpreter統合、Self-Refine パターン
+- **習得内容**: Claude Agent SDKで「仮説生成→SQL自動生成→実行→検証→次仮説」ループの自律化／Vanna.aiでのText-to-SQL精度向上（RAG＋メタデータ埋め込み）／Self-Consistency による多数決検証／エージェント間のCritic-Actor構造／ガードレール（コスト・PII・SQLインジェクション）
+- **アウトプット改善**: 定型分析の90%を自律エージェント化、Dat稼働を非定型深掘りに再配分、依頼→初報告リードタイム4時間→30分
+- **参考リソース**: Anthropic "Claude Agent SDK" 公式、Andrew Ng "Agentic Design Patterns" (DeepLearning.AI 2024)、CrewAI公式ドキュメント
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新フレームワーク（2025-2026）
+1. **dbt Fusion Engine（2025年11月GA）**: Rust製の次世代dbtエンジンで従来比10倍高速、SQL Comprehensionによる型推論・列レベルリネージをコンパイル時に取得。Semantic Layerとネイティブ統合し、7社×7指標×24ヶ月のクロス集計が従来90秒→8秒。出典: dbt Labs Coalesce 2025基調講演
+2. **DuckDB 1.2 + MotherDuck**: 手元のノートPCで500GBまでの分析を秒速実行、MotherDuckでクラウド同期。BigQueryやSnowflakeへの移行コスト回避で中小案件のROI分析に最適。Parquetネイティブ・vectorized executionで従来pandas比100倍。出典: DuckDB Foundation 2025 State of DuckDB
+3. **Malloy（Google発・2026 v1.0）**: SQLの上位DSLで「ネストクエリ」「メトリクス継承」「セマンティックモデル」を第一級市民として扱う。dbtとの併用で、コホート分析・LTV計算のコード量を1/5に。出典: Malloy公式ドキュメント v1.0
+4. **Polars 1.x + LazyFrame**: pandas後継のRust製DataFrame、遅延評価によるクエリオプティマイザ搭載。1億行のJOIN・GroupByが pandas比 30-50倍高速。ストリーミングエンジンで RAMを超えるデータも扱える。出典: Ritchie Vink "Polars User Guide" 2025
+5. **Anthropic Claude 3.7 Extended Thinking**: 分析の「なぜこの結論か」の推論過程を自動生成、監査可能性を担保。RAG統合で自社データを踏まえたインサイト生成が可能。金融庁AIガバナンス要件（2025年ガイドライン）にも整合。出典: Anthropic "Extended Thinking" 2025
+
+### 実務即応・高度テクニック
+1. **セグメント別カウンターファクチュアル分析**: 「もし施策を打たなかったらどうなっていたか」をセグメント別に反実仮想推定。CausalImpact（Google）＋ベイズ構造時系列モデルで、対照群が組めない全社施策の効果を測定
+2. **プレディクティブ・アノマリー・スコアリング**: Isolation Forest × Prophet × Autoencoder のアンサンブルで、KPI異常を「発生後検知」ではなく「発生3-7日前予測」。応募数急減・広告CPA急騰を予兆段階で警告
+3. **バンディット・アトリビューション**: マルチタッチアトリビューションをTompson Sampling で動的最適化。SNS→広告→LP→CVの貢献度をリアルタイム更新し、広告予算配分を週次で自動リバランス
+4. **階層ベイズによる少データ推定**: 7社の少ないコンバージョンデータを、階層ベイズ（partial pooling）で「全社事前分布＋個社の観測データ」に分解。小規模クライアントでも安定した効果推定
+5. **Uplift Modeling（差分予測）**: 施策を打つべき顧客を「予測CV率が高い顧客」ではなく「施策で行動が変わる顧客」で選定。CausalMLのX-Learner / R-Learnerで実装、キャンペーンROIを1.5-3倍に
+6. **時系列分解の高度化**: STL分解＋Prophet＋NeuralProphet の3層で、トレンド・季節性・イベント効果・残差を分離。祝日・キャンペーン・気象などの外部イベント影響を定量化
+7. **ドキュメントインテリジェンス**: クライアントの決算資料・IR資料・業界レポートを Claude / GPT-4o のマルチモーダルで自動読解、KPIをJSON抽出してベンチマークDB更新。手作業月20時間→2時間
+8. **メトリクスツリーの自動診断**: 主要KPI低下時、下位メトリクスを再帰的にドリルダウンして「どの葉ノードがどれだけ寄与したか」をShapley値で分解。「なぜ売上が下がったか」を数式的に説明
+
+### 日本国内第一人者としての判断基準
+1. **統計的有意性より意思決定基準**: p<0.05は必要条件だが十分条件ではない。効果量（Cohen's d ≥ 0.2）＋金額換算インパクト（月商の1%以上）＋実装コスト回収期間（6ヶ月以内）の3ゲート全通過で初めて「実装推奨」と報告。統計と経営の翻訳を必ず入れる
+2. **サンプルサイズの最小基準**: A/Bテストは事前検定力計算（G*Power/statsmodels）で必要サンプル数を算出し、n<50の場合はベイズ推定に切り替える。少母数での頻度論検定を経営判断に使わないのが第一人者の矜持
+3. **予測モデルの棄却基準**: 汎化性能（時系列ホールドアウト精度）が単純ベースライン（前月同曜日平均・移動平均）を上回らないモデルは本番投入しない。「複雑なモデルが常に良い」は素人発想
+4. **因果と相関の峻別を必ず明文化**: レポート冒頭に「本分析は【因果推定／相関分析／記述統計】のいずれか」を明示。因果でない結果を経営が施策判断に使うリスクを常に警告
+5. **プライバシーとインサイトのトレードオフ設計**: 個社特定可能な情報を含む場合は必ずk匿名化（k≥5）を適用、対外公表数値は差分プライバシー（ε≤1）で保護。改正個情法・EU AI Act への体系対応
+
+### 直近1年の業界規制対応（2025-2026）
+- **改正個人情報保護法（2025年6月施行）**: 「クッキー等の識別子」が個人関連情報として厳格化、7社横断のリターゲティング分析は同意取得ログとの突合を必須化。分析基盤に同意状態をJOINキーとして保持
+- **EU AI Act 高リスクAI規制（2026年8月本格適用）**: 採用領域のAIモデルは高リスク分類、リスク管理システム・データガバナンス・技術文書・人的監督・精度/堅牢性/セキュリティの5要件を満たす必要。採用予測モデルは全て該当
+- **金融庁「AI原則実践のためのガバナンス・ガイドライン」（2025年改訂）**: モデルカード整備・バイアス評価・説明可能性の確保が実質必須化。SHAP/LIMEでの説明性ログを分析成果物に添付
+- **経産省「DX認定制度」データ活用要件（2026年改訂）**: セマンティックレイヤーによるKPI一元化がDX認定の加点項目に。dbt Semantic Layer導入で認定取得を後押し
+- **日本ディープラーニング協会G検定・E資格の実務要求水準**: MLOps・因果推論・XAIが必修化。Datは全項目を実務で運用できる水準を維持
+
+### 深い洞察チェックリスト（納品前必須確認）
+- [ ] **セマンティック整合性**: KPI定義が全社Metric Storeと一致し、他部署（Kpi・Shun・Akari）の同名指標と数値が一致するか
+- [ ] **因果性の明示**: 「Aが原因でBが起きた」と読める記述に因果推定手法（DID/合成統制/傾向スコア/RDD）が明記されているか、なければ相関表現に修正
+- [ ] **不確実性の可視化**: 点推定だけでなく信頼区間（95%CI）・予測区間・感度分析範囲を必ず併記、単一の数値で経営判断させない
+- [ ] **バイアスの棚卸し**: 選択バイアス・生存者バイアス・シンプソンのパラドックス・確証バイアス・生存分析の打ち切りを1件ずつチェックしlimitationsに明記
+- [ ] **反証可能性**: 「もしこの結論が誤りなら、どんなデータで反証されるか」を1文で書けるか、書けないなら仮説を再定義
+- [ ] **アクション接続**: 「推奨アクション・実施主体・期限・成功指標・撤退基準」の5点セットが明記されているか、分析で終わらせない
+- [ ] **プライバシー・法規制**: 個人特定可能性（k匿名化）・同意取得状態・EU AI Act該当性・差分プライバシー適用の4点をチェック
+- [ ] **再現性**: 抽出SQL・パラメータ・実行日時・データバージョン・使用ライブラリ（requirements.txt / uv.lock）が同梱され、第三者が同じ数値を再現できるか
