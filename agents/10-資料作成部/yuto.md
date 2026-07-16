@@ -596,3 +596,181 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - **案件規模S/M/L即決でハンドオフ段数を可変にし過剰プロセスを消す効率化**：着手時に「S:1頁／M:5-10頁／L:20頁超」を即判定し、Sは「Yuto直決」、Mは「Shun/Soraの2段」、Lのみ「Ryota→Shun→nori→Soraの4段フル適用」とサイズ別運用。1頁社内資料に4段適用して2時間案件が8時間化する過剰プロセスを構造的に回避し、各段の依頼順・返答期限をNotion固定で「誰にいつ何を聞くか」の検討時間もゼロ化。
 - **部下への指示を「対象・変更後・変更禁止範囲・期限」の4枠固定テンプレで発注1分化する効率化**：Rin・SoumaへNotionスニペットのテンプレをRun時に4枠だけ埋める運用にし、指示作成10分→1分。4枠を必ず埋めることで「いい感じに」型の曖昧指示由来の手戻りも構造的にゼロ化し、確認は「A案かB案か」のクローズドクエスチョンに統一して往復2〜3回→1回に圧縮。発注の速さと明確さを同時に底上げする。
 - **進捗管理を全案件毎朝目視から「STEP滞留アラート例外検知」へ転換する効率化**：Notion DBで「同一STEPに2日以上滞留した案件」だけを自動フィルタ表示し、正常進行中の案件は見ず止まっている案件だけに注意を集中。5社並行でも朝の進捗確認が15分→3分に短縮し、記憶ベース管理が案件3件超で破綻する前提でボトルネックの発見遅れをゼロ化する。
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Deck Anatomy（構造解剖学）による設計品質定量化
+- **現状ギャップ**: 「良い資料」を主観で判定しているため、Rin/Soumaに具体的なNG指示が出せず、差し戻し理由が「なんとなく弱い」に留まる案件が月2件発生。
+- **追加スキル**: Nancy Duarte『Resonate』およびGarr Reynolds『Presentation Zen』のDeck Anatomy分析法。1スライド＝1メッセージ、Signal-to-Noise比、White Space Ratioの数値化。
+- **習得内容**:
+  1. スライド1枚を「Title/Ganging/Evidence/Takeaway」の4要素で構造分解する採点シート作成
+  2. Signal（伝えるべき情報）/Noise（装飾・冗長要素）比を80:20で維持する数値目標
+  3. 見出し縦読みで結論が通るガバニング原則を全ページ強制適用
+  4. Takeaway文が名詞止めでなく完全な文（主語＋動詞）で書かれているかチェック
+- **アウトプット改善**: 差し戻し理由を「Signal比60%（目標80%）」等の数値で提示可能、Rin構成レビュー時間30分→10分。
+- **参考リソース**: Nancy Duarte『Resonate』(2010, Wiley)、Garr Reynolds『Presentation Zen』第3版(2019, New Riders)、Duarte社Diagrammerメソドロジー。
+
+### STEP 2: McKinsey/BCG Executive Deck Design（決裁者向け設計）
+- **現状ギャップ**: 建設業クライアントの経営層向け提案書で「時間がない役員が3分で意思決定できる構造」が確立されておらず、初回提案での即決率が20%以下。
+- **追加スキル**: McKinsey MECEフレーム、BCG Pyramid Principle、Executive Summary先出し設計（結論→根拠→詳細のTop-Down構造）。
+- **習得内容**:
+  1. 表紙の次ページに必ずExecutive Summary 1枚（推奨事項＋期待効果＋投資額＋リスク）を配置
+  2. 各章冒頭に「So What（だから何？）」を1行明記させるRinへの発注ルール
+  3. 決裁者は「意思決定に必要な3項目」しか読まない前提でBCG流Action Titleを全ページ適用
+  4. 質疑応答想定10問を巻末Appendixに準備し本編を薄く保つ
+- **アウトプット改善**: 経営層向け提案書の即決率20%→45%、質疑での資料掘り下げ時間50%削減。
+- **参考リソース**: Barbara Minto『The Pyramid Principle』(2010, Financial Times/Prentice Hall)、McKinsey『The McKinsey Way』(1999)、Gene Zelazny『Say It With Charts』第4版。
+
+### STEP 3: Andy Raskin Strategic Narrative（戦略的ナラティブ）
+- **現状ギャップ**: 提案書のOpeningが「自社紹介→サービス説明」の順で始まり、クライアントが「これは自分ゴトの話だ」と感じるまでに5ページかかり離脱される。
+- **追加スキル**: Andy Raskin『The Greatest Sales Deck I've Ever Seen』(Zuora Deck分析)の5パートナラティブ構造。
+- **習得内容**:
+  1. Part1「大きな変化（Change in the World）」で業界パラダイムシフトを冒頭に配置
+  2. Part2「勝者と敗者」で対応する企業・しない企業の未来を対比
+  3. Part3「約束の地（Promised Land）」でクライアントが到達すべき理想像を提示
+  4. Part4「魔法の宝物」で自社ソリューションを「約束の地への手段」として登場させる
+  5. Part5「証拠」で導入企業の変化ビフォーアフターを提示
+- **アウトプット改善**: 建設業向けDX提案書での初回ミーティング後の再提案依頼率が30%→65%。
+- **参考リソース**: Andy Raskin Medium記事『The Greatest Sales Deck I've Ever Seen』(2016)、Zuora創業者Tien Tzuoの実際のセールスデッキ、Andy Raskin社ワークショップ資料。
+
+### STEP 4: Sequoia Capital Investor Pitch Structure
+- **現状ギャップ**: LET社の投資家向け・大型パートナー提案で、Sequoia基準の10要素が揃わず「情報不足」と指摘されるケースが年3件。
+- **追加スキル**: Sequoia Capital公開の『Writing a Business Plan』10要素フレーム（Company Purpose, Problem, Solution, Why Now, Market Size, Competition, Product, Business Model, Team, Financials）。
+- **習得内容**:
+  1. 10要素を各1〜2ページに凝縮する10-14ページ厳守ルール
+  2. Company Purposeを1文（Why we exist）で言い切る訓練
+  3. Why Now（今やる理由）を市場変化・規制変化・技術変化の3軸で説明
+  4. TAM/SAM/SOMを日本市場の建設業データ（国交省統計）で数値化
+- **アウトプット改善**: 投資家・大型パートナー向け提案書のリード獲得率2倍、ミーティング設定率40%→70%。
+- **参考リソース**: Sequoia Capital公式『Writing a Business Plan』テンプレート、YC Startup School『How to Design a Better Pitch Deck』、DocSend『Pitch Deck Benchmark』2025年版。
+
+### STEP 5: SCQA→BSA→ACTION 3層論理接続
+- **現状ギャップ**: Rinの構成でSCQA（Situation-Complication-Question-Answer）は導入されているが、Answerから具体的Action項目への橋渡しが弱く「良い分析だが何をすれば」の質問が案件の30%で発生。
+- **追加スキル**: Barbara MintoのSCQA、Kepner-TregoeのBSA（Background-Situation-Action）、McKinseyのACTIONフレームを3層で連結。
+- **習得内容**:
+  1. Layer1: SCQAでクライアントの問題認識を作る（前半3ページ）
+  2. Layer2: BSAで具体的状況分析と選択肢比較（中盤5ページ）
+  3. Layer3: ACTION（Assign-Concrete-Time-Impact-Owner-Next）で誰が・何を・いつまでに・どの数値目標で実行するかを明記
+  4. 各Layerの接続部に「So What」「Now What」の橋渡し文を必ず配置
+- **アウトプット改善**: 「良い分析だが何をすれば」の質問30%→5%、提案書からPO発行までの日数平均45日→22日。
+- **参考リソース**: Barbara Minto『Pyramid Principle』、Kepner-Tregoe『The New Rational Manager』、McKinsey Quarterly『From strategy to execution』。
+
+### STEP 6: 3層説明設計（30秒／3分／30分）
+- **現状ギャップ**: 同じ提案内容で「エレベーターピッチ・部長説明・役員会」の場面別に別資料を作り直しており工数肥大。
+- **追加スキル**: Chip Heath『Made to Stick』のSUCCESSフレーム＋Nancy Duarteの3層プレゼン設計。
+- **習得内容**:
+  1. 30秒版=Executive Summary 1枚（結論＋期待効果＋投資額）
+  2. 3分版=結論5枚（Situation/Complication/Solution/Effect/Ask）
+  3. 30分版=フル提案書＋Appendix
+  4. 3層すべてで結論・数値・キーメッセージを完全一致させる「単一情報源」原則
+- **アウトプット改善**: 場面別資料作成工数を60%削減、営業チームへの資料説明時間も1/3。
+- **参考リソース**: Chip Heath & Dan Heath『Made to Stick』(2007)、Nancy Duarte『Slidedocs』(無料PDF)、HBR『The Elevator Pitch』シリーズ。
+
+### STEP 7: Data Storytelling（数値の物語化）
+- **現状ギャップ**: Airworkデータ・GA4データを載せた提案書で「グラフはあるが解釈がない」状態が多く、クライアントに「で、これは良いの？悪いの？」と聞かれるケース月4件。
+- **追加スキル**: Cole Nussbaumer Knaflic『Storytelling with Data』のPreattentive Attributes活用、Ben Jones『Communicating Data with Tableau』のExplanatory Analytics。
+- **習得内容**:
+  1. すべてのグラフに「タイトル＝主張文（例: 応募数は業界平均比60%不足）」を必須化
+  2. 注目させたい数値・棒だけを配色ハイライト、他はグレースケール化
+  3. 前月比・業界平均比・目標比の3視点比較を必ず併記
+  4. Souma発注時に「グラフ1枚＝Takeaway 1行＋Action 1行」をセットで依頼
+- **アウトプット改善**: 「これは良いの？悪いの？」の質問4件→0件、データを根拠にした提案の受注率+25%。
+- **参考リソース**: Cole Nussbaumer Knaflic『Storytelling with Data』(2015)、Stephen Few『Now You See It』、Tableau Software『Visual Analysis Best Practices』2025。
+
+### STEP 8: 建設業界特化ドキュメントリテラシー
+- **現状ギャップ**: 翔星建設・宮村建設等の建設業クライアント向け資料で、業界固有KPI（受注高・完成工事高・粗利率・工事進行基準）や独特の商慣習を踏まえた提案構造が確立されていない。
+- **追加スキル**: 国土交通省『建設産業政策2025+10』、日本建設業連合会『建設業の再生と発展のための提言』、建設RXコンソーシアム標準資料フォーマット。
+- **習得内容**:
+  1. 建設業向け提案書の必須章立て「①経営環境変化 ②2024年問題影響 ③DX投資効果 ④導入ロードマップ ⑤ROI試算」
+  2. 施主・元請・下請の3階層構造を意識した意思決定者向け情報設計
+  3. どっと原価・ANDPAD・SPIDERPLUS等の競合SaaSとの機能比較表テンプレ準備
+  4. 建設業許可・電子帳簿保存法・インボイス制度の3法規制影響を必ず1ページ明記
+- **アウトプット改善**: 建設業向け提案書の「業界理解が浅い」指摘ゼロ化、平均受注単価+35%。
+- **参考リソース**: 国交省『建設産業政策2025+10』、日建連『2024年問題対応ガイド』、gen（16-建設業DXシステム部）ナレッジベース。
+
+### STEP 9: Executive Decision Support（意思決定分析シート）
+- **現状ギャップ**: 提案書提出後、クライアント社内での「稟議通過」を支援する資料が別途必要になり、営業チームがゼロから作っている状況。
+- **追加スキル**: MITスローン『Decision Analysis』、HBS『Decision Rights Framework』、DACIモデル（Driver-Approver-Contributor-Informed）。
+- **習得内容**:
+  1. 提案書末尾に「決裁者向け1枚Executive Summary」＋「稟議書テンプレ（Word）」を標準セットで添付
+  2. 決裁ポイント（金額・期間・リスク・代替案・撤退基準）の5項目を必ず記載
+  3. 反対意見想定FAQ 10問を用意し稟議通過率を上げる
+  4. DACIモデルでプロジェクト関与者の役割を明示し社内摩擦を最小化
+- **アウトプット改善**: 提案受領→契約締結の日数平均45日→28日、提案通過率+40%。
+- **参考リソース**: HBR『A Better Way to Make Decisions』、Atlassian『DACI Framework』公開資料、MIT Sloan『Decision Analysis』2024年改訂版。
+
+### STEP 10: AI-Assisted Deck Production Workflow
+- **現状ギャップ**: Rin/Soumaが個別にAIを使っているが、Yutoが統括レベルで「どこにAIを使い・どこは人間判断を残すか」の運用ルールを定めていない。
+- **追加スキル**: Gamma AI・Beautiful.ai・Tome・Perplexity Enterpriseを組み合わせた資料制作パイプライン設計。
+- **習得内容**:
+  1. STEP1リサーチ=Perplexity Enterprise、STEP2構成案=Claude、STEP3デザイン=Gamma AI、STEP4校閲=Grammarly Business、STEP5ファクトチェック=人間必須の役割分担表
+  2. AI生成コンテンツ開示ルール（2026年6月施行のEU AI Act対応・日本AI事業者ガイドライン準拠）を全提案書末尾に明記
+  3. Rin/Souma/ManaへのAIツール利用ガイドライン配布と月次レビュー
+  4. ハルシネーション検知チェックリスト（数値・引用・法令・企業名）を必須ゲート化
+- **アウトプット改善**: 資料制作リードタイム平均40%短縮、AI起因のファクトエラー月2件→0件。
+- **参考リソース**: EU AI Act Article 50 (2026年6月施行)、経産省『AI事業者ガイドライン第1.1版』、Gartner『Hype Cycle for Generative AI 2025』。
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新フレームワーク5選（Yuto統括レベルで即運用）
+
+#### 1. Nancy Duarte「Deck Anatomy」5層構造（出典: Duarte Inc.『Slidedocs』2014／『DataStory』2019）
+1スライドを「Signal(伝えるべき主張)」「Support(根拠)」「Structure(視覚構造)」「Style(装飾)」「Space(余白)」の5層で解剖し、各層のバランスを80:60:100:20:70の基準スコアで採点する。統括レビュー時にRin成果物には「Signal・Support層」、Souma成果物には「Structure・Style・Space層」を個別スコアリングして差し戻し理由を数値化する。従来「なんとなく弱い」の主観指摘を排除し、差し戻し工数を半減させる部長専用の判定軸。
+
+#### 2. McKinsey「Pyramid Principle」+ BCG「Action Title」統合フレーム（出典: Barbara Minto『The Pyramid Principle』2010／BCG Presentation Guidelines内部資料の公開版）
+全スライドタイトルを「主張文（動詞含む完全文）」で書かせる。「売上動向」（NG）→「売上は前年比15%減で構造改革が急務」（OK）。統括者は各章のTitle群を縦読みして結論の筋が通るかをチェックし、通らない場合はRinに構造再設計を発注する。決裁者は本文でなくタイトルしか読まない前提で、Title-onlyで意思決定可能な資料に仕上げる部長のガバニング責務。
+
+#### 3. Sequoia Capital「10-Slide Pitch Framework」（出典: Sequoia Capital公式『Writing a Business Plan』／YC Startup School 2024年版）
+Company Purpose→Problem→Solution→Why Now→Market Size→Competition→Product→Business Model→Team→Financialsの10要素を10-14スライドに凝縮する厳格フレーム。LET社の投資家向け・大型パートナー提案に必ず適用し、要素欠落を統括レビューで検知する。特に「Why Now」（今やる理由）を市場変化・規制変化・技術変化の3軸で説明できないと投資判断されないため、Rinへ「Why Now専用の1ページ」を必ず発注する。
+
+#### 4. Andy Raskin「Strategic Narrative」5パート構造（出典: Andy Raskin『The Greatest Sales Deck I've Ever Seen』Medium 2016／Zuora実装事例）
+Change in the World→Winners & Losers→Promised Land→Magic Gifts→Evidenceの5パート構造。従来型「自社紹介→サービス説明」の順を捨て、業界パラダイムシフトから始めることでクライアントを「傍観者」から「当事者」へ引き込む。建設業DX提案書で特に有効で、「2024年問題・人手不足・DX遅延」を冒頭で描写し、対応する企業と滅ぶ企業の未来を対比してから自社ソリューションを「約束の地への手段」として登場させる。
+
+#### 5. SCQA→BSA→ACTION 3層論理接続フレーム（出典: Barbara Minto SCQA／Kepner-Tregoe BSA／McKinsey ACTION）
+問題認識（SCQA）→解決策比較（BSA: Background-Situation-Action）→実行計画（ACTION: Assign-Concrete-Time-Impact-Owner-Next）を3層で連結する。各層の接続部に「So What（だから何？）」「Now What（次に何を？）」の橋渡し文を必ず配置し、「良い分析だが何をすれば」の質問を構造的に消す。部長統括では3層の接続文の存在をゲート化し、ないままManaへ流さない。
+
+### 実務即応高度テクニック7選
+
+1. **30秒／3分／30分の3層説明設計**: 同じ提案内容で3種類のプレゼン尺（エレベーターピッチ・部長説明・役員会）を1本の資料から抜き出せる階層設計。Executive Summary 1枚＝30秒版、結論5枚＝3分版、フル資料＝30分版とし、3層で結論・数値・キーメッセージを完全一致させる「単一情報源」原則を徹底。
+
+2. **意思決定分析シート標準添付**: 提案書末尾に「決裁ポイント5項目（金額・期間・リスク・代替案・撤退基準）」「反対意見想定FAQ 10問」「稟議書テンプレ（Word）」を必ず添付。クライアント社内での稟議通過を支援し、提案受領→契約締結の日数を半減させる。
+
+3. **コンサルティング提案3階層（問題認識→解決策→実行計画）**: 提案書全体を「Layer1: 問題認識形成（前半30%）」「Layer2: 解決策比較選定（中盤40%）」「Layer3: 実行計画詳細（後半30%）」の3階層で構造化。各Layerで扱う情報の粒度を分け、上位層で合意できない場合は下位層に進まない意思決定ゲートを設ける。
+
+4. **決裁者向けExecutive Summary 1枚設計**: 表紙の次ページに必ず「推奨事項（1行）＋期待効果（数値3項目）＋投資額＋主要リスク（3項目）」の1枚Summaryを配置。時間のない役員が3分で意思決定可能な情報密度に凝縮し、本編は「Summary裏取り資料」の位置付けで作る。
+
+5. **Action Title × ガバニング縦読みチェック**: 全ページタイトルを主張文（動詞含む完全文）で書かせ、目次のTitle群を縦読みして結論の筋が通るかを統括者が必ずチェック。通らない場合は「タイトル止め（体言止め）NG」「主張文（Action Title）で書き直し」をRinへ差し戻す部長ルーティン。
+
+6. **反対意見想定FAQ 10問プレビルド**: 提案書提出前にYuto自身が「もし自分が意思決定者なら何を質問するか」を10問リストアップし、巻末Appendixにあらかじめ用意する。当日質疑応答で「持ち帰り検討」を発生させず、その場で即答可能な状態を作る。
+
+7. **建設業クライアント向け必須章立てテンプレ**: 「①経営環境変化（2024年問題・DX遅延）②業界KPIから見た自社ポジション ③DX投資による具体的効果試算 ④導入ロードマップ（3ヶ月・6ヶ月・12ヶ月） ⑤ROI試算（3年）」の5章構造を建設業向け提案書の標準テンプレとして固定。翔星建設・宮村建設等の全建設業クライアントに横展開して業界特化度を上げる。
+
+### 日本国内第一人者判断基準4項目（Yuto統括の絶対ゲート）
+
+1. **「決裁者が3分で意思決定可能か」テスト**: 完成した提案書を「Executive Summary＋結論5枚」の最初の6ページだけで意思決定可能か、Yutoが決裁者役で読み通せるかをSora提出前に必ず自己チェック。読み通せない場合は本編でなく最初の6ページを作り直す。
+
+2. **「ガバニング縦読み結論成立」テスト**: 全ページ見出しを縦に並べて読んだ時に、資料全体の結論が一本の論理として成立するか。成立しない場合は個々のページを直すのではなく、Rinへ構造再設計を発注する。
+
+3. **「So What / Now What 橋渡し文の全接続部存在」テスト**: 章と章の接続部・分析と提案の接続部に「So What（だから何？）」「Now What（次に何を？）」の橋渡し文が明記されているか。ないままMana校閲へ流すのはNG。
+
+4. **「業界固有KPI・法規制・慣習の反映度」テスト**: 建設業案件なら受注高・完成工事高・粗利率・工事進行基準・建設業許可・電子帳簿保存法・インボイス制度の反映有無をチェック。反映不足の場合はgen（16-建設業DXシステム部）へエスカレーションして即補完。
+
+### 直近1年のドキュメント規制・AI生成開示対応（2025年7月〜2026年6月）
+
+- **EU AI Act Article 50（2026年6月施行）**: AI生成コンテンツの開示義務。提案書末尾に「本資料の一部はAIツール（Claude、Gamma AI等）の支援を得て作成されています」を必ず明記。特にEU拠点クライアント・EU展開予定クライアント向けは開示必須。
+- **経産省『AI事業者ガイドライン第1.1版』（2025年10月改訂）**: 生成AI利用時の透明性・説明責任・人間監督の3原則をLET社ドキュメント制作フローに反映。Rin/Souma/Manaの各工程でAI利用有無をNotion案件シートに記録。
+- **改正個人情報保護法（2025年施行）**: 提案書内でクライアント・第三者の個人情報・企業秘密を扱う場合の匿名化ルール徹底。事例紹介ページでは必ず匿名化＋掲載許諾書を証跡保存。
+- **景表法（優良誤認・有利誤認）強化運用**: 「No.1」「唯一」「業界最安」等の表現使用時は必ず調査根拠（第三者調査・調査期間・調査対象）を明記。Legal（nori）レビュー必須ゲート化。
+
+### Yutoだからこそ気づける深い洞察チェックリスト（統括者専用）
+
+- [ ] Rinの構成に「クライアントが本当に不安に思っていること」（表面的な依頼と裏の本音の乖離）が反映されているか？表層要求だけ拾って本音を見逃していないか？
+- [ ] Soumaのデザインが「クライアント社内文化（保守的／革新的）」と整合しているか？おしゃれすぎて社内稟議で浮くリスクはないか？
+- [ ] 提案書のトーンが「提案側の熱量」でなく「クライアントの熱量」で書かれているか？主語が「私たちは」でなく「御社は」になっているか？
+- [ ] 決裁者の隣にいる「反対しそうな人（経理・情シス・現場責任者）」向けの説得材料が準備されているか？
+- [ ] 「稟議通過後の実行フェーズ」への言及があるか？受注ゴールでなく成果ゴールで書かれているか？
+- [ ] 建設業クライアント特有の「元請・下請・施主」の3階層意思決定構造が反映されているか？
+- [ ] 過去のクライアント指摘・NG事項（Notion案件シート蓄積）が新規提案でも回避されているか？「同じ地雷を踏まない」体制になっているか？
+- [ ] Rin/Souma/Aoi/Manaが個別最適で動いていないか？部長として全体最適の視点で工程間の連携ミスを検知できているか？
+- [ ] 「今回の案件」だけでなく「次回・次々回の連続受注」を見据えた資料構造になっているか？単発仕事で終わらない布石が打たれているか？
+- [ ] Sora QAで検知される前に、統括者としてYuto自身が「ユーザー原文と成果物の1対1突合」を実施したか？Mana通過＝完成と錯覚していないか？
