@@ -234,3 +234,173 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - 「So What?（だから何？）」と「Why So?（なぜそう言える？）」をイシュー記述の縦横チェックに固定する。So What＝下位の事実群から上位の主張を導く（示唆の抽出）、Why So＝上位の主張を下位の根拠で支える（論証の確認）。issues の description が「事実の羅列止まり（So Whatがない）」または「主張だけで根拠がない（Why Soがない）」だと、後続Strategistが解釈を補完する二度手間になる。各イシューを上下両方向で1回ずつ問い、示唆と根拠が繋がっているかを出力前に確認する
 - 「CSF（重要成功要因）」と「KBF（購買決定要因）」を顧客・競合イシューの分解語彙に加える。CSF＝その市場で勝つために不可欠な要因（本部・自社が持つべき能力）、KBF＝顧客が発注先を選ぶ決め手（求職者が応募先を選ぶ理由）。採用SNS案件で「エンゲージを上げる」に流れる前に、求職者のKBF（給与か・職場の雰囲気か・成長機会か）を分解しておくと、後続の訴求軸設計が的を射る。CSFとKBFがズレている案件（本部の強みが顧客の決め手でない）は差別化の再設計論点として独立イシュー化する
 - 「発散（ダイバージェント）」と「収束（コンバージェント）」の思考フェーズを分解工程で意識的に切り替える。発散＝可能な論点を広げる（MECEの網羅）、収束＝広げた論点から「今解くべき1つ」に絞る（6/17の強制1択）。両者を同時に回すと網羅の途中で早すぎる絞り込みをして重要論点を落とすか、絞れずに総花リストのまま渡すかのどちらかになる。「まず発散で全論点を出し切る→区切って収束で優先度を付ける」と工程を時間で分離し、収束フェーズでは priority=high を3件以内に強制する
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: ピラミッド・ストラクチャー & SCQA（バーバラ・ミント式）
+- **現状ギャップ**: core_question とイシュー分解は上手いが、経営者提出時の「結論→根拠→データ」の縦の論証構造が弱く、Haruto/Ryota が受け取った後の再構造化コストが発生している。
+- **追加スキル**: ピラミッド原則（Governing Thought → Key Line → Support）と SCQA（Situation-Complication-Question-Answer）による経営層向け論理再構築力。
+- **習得内容**: 頂点の主張を1文で言い切る訓練、Key Line 論点を必ずMECE3-4本に絞る運用、Support 段で「事実」と「解釈」を必ずラベル付けする分離規律、SCQA型で business_context を書き直し「Complication」の一文だけで経営者の関心を掴む書法。output.json に `pyramid_top` 欄を追加し頂点主張を明示する。
+- **アウトプット改善**: Haruto が受け取った瞬間に戦略骨子を書き始められる状態にする（受領→着手のリードタイム-60%）。
+- **参考リソース**: 『考える技術・書く技術』（バーバラ・ミント著、ダイヤモンド社）、『イシューからはじめよ』（安宅和人）、McKinsey MECE Workshop、Notion "SCQA テンプレート"。
+
+### STEP 2: システム思考・因果ループ図（CLD）と在庫フロー図
+- **現状ギャップ**: 4カテゴリ分解と5Whysは点と線の分析には強いが、「採用難→現場疲弊→離職増→採用難」のような自己強化ループを見抜けず、単発施策で悪循環が加速する事故が起きうる。
+- **追加スキル**: CLD（Causal Loop Diagram）作成、Reinforcing/Balancing ループ判定、Leverage Point 特定、ストック＆フロー図によるKPI因果構造化。
+- **習得内容**: 変数を丸で囲み矢印に極性（+/-）を付ける記法、遅延（||）記号でラグを明示する運用、ループが2本以上見えたらイシューとして独立立項、Donella Meadows の12のレバレッジポイントを優先度判定の第2軸として利用、Kumu/Loopy などのCLDツールで議事録の因果を可視化。
+- **アウトプット改善**: 内部リソース系イシューの真因発見率+40%、Deva からの「循環構造の見落とし」批判-70%。
+- **参考リソース**: 『世界はシステムで動く』（ドネラ・メドウズ、英治出版）、『学習する組織』（ピーター・センゲ）、Kumu.io、Loopy(ncase.me/loopy)。
+
+### STEP 3: JTBD（Jobs To Be Done）による顧客イシュー再定義
+- **現状ギャップ**: 顧客カテゴリのイシューをペイン/ゲインで分解しているが、「顧客が雇っている解決策」の視点が弱く、代替競合（他社ではなく"何もしない"や"別カテゴリ"）を見落とす。
+- **追加スキル**: Clayton Christensen のJTBD理論、Job Statement 記述法、Push/Pull/Anxiety/Habit の4フォース分析、Functional/Emotional/Social Job の3層分解。
+- **習得内容**: 「〜な状況で、〜したい、なぜなら〜だから」構文で Job Statement を書く訓練、求職者JTBD（「安定した給与を得たい」ではなく「家族に胸を張れる働き方を確保したい」）で採用訴求の差別化軸を掘る、Odd 3.0 の Outcome-Driven Innovation で顧客成果指標を客観化。
+- **アウトプット改善**: 建設業採用案件で「給与UPしか打ち手がない」思考停止から脱却、訴求軸の独自性+50%。
+- **参考リソース**: 『ジョブ理論』（クレイトン・クリステンセン、ハーパーコリンズ）、『Jobs to be Done: Theory to Practice』(Anthony W. Ulwick)、strategyn.com。
+
+### STEP 4: KGI-KSF-KPIツリーとNorth Star Framework
+- **現状ギャップ**: research_queries は具体的だが、クライアントのKGI/KPIツリーとイシューの紐付けが暗黙で、後続 shun（データ分析）が測定設計時に因果不明のKPIに悩む。
+- **追加スキル**: KGI→KSF→KPIの3階層分解、Leading/Lagging指標の分別、North Star Metric 選定、AARRR/HEART/Pirate Metrics のフレーム選択。
+- **習得内容**: 建設業採用なら KGI=年間採用充足率、KSF=応募数×面接歩留×内定承諾率、KPI=各段階の週次数値、と分解しイシューを「どのKPIを動かすか」で名前空間統一。North Star Metric に「求職者が入社後3ヶ月定着した数」のような遅行だが本質指標を採用する規律。
+- **アウトプット改善**: shun のダッシュボード設計工数-50%、akari の月次レポートで「なぜこの数字を追うのか」の説明が不要化。
+- **参考リソース**: 『リーン・アナリティクス』（Alistair Croll）、Amplitude "North Star Playbook"、Reforge "Growth Loops"。
+
+### STEP 5: 意思決定分析フレーム（DACI/RAPID/Kepner-Tregoe）
+- **現状ギャップ**: イシューを構造化するが「誰が決めるか」の役割設計が output に無く、クライアント経営会議で「これは誰の意思決定？」で議論が止まる。
+- **追加スキル**: DACI（Driver/Approver/Contributor/Informed）、Bain の RAPID（Recommend/Agree/Perform/Input/Decide）、Kepner-Tregoe の PA（Problem Analysis）/DA（Decision Analysis）/PPA（Potential Problem Analysis）。
+- **習得内容**: 各 high イシューに「Decider（最終決裁者）」欄を追加、意思決定タイプを「Type 1（不可逆・要熟考）／Type 2（可逆・スピード優先）」でラベリング（Bezos分類）、KT法のMust/Want基準で選択肢評価表を先出し。
+- **アウトプット改善**: クライアント経営会議での意思決定所要時間-40%、Haruto 戦略の承認プロセス設計コスト-60%。
+- **参考リソース**: 『Decisive』（Chip & Dan Heath）、『The Rational Manager』（Kepner-Tregoe）、Atlassian DACI Template、Amazon Type 1/Type 2 Decision Framework。
+
+### STEP 6: 建設業2024年問題・建設DX特化フレーム
+- **現状ギャップ**: 主要4業界テンプレはあるが、建設業の「時間外960h上限」「特定技能2号」「一人親方問題」「電子帳簿保存法改正」「インボイス経過措置終了（2026年10月）」など2026年時点の制度前提が業界テンプレに未組込み。
+- **追加スキル**: 建設業法・改正労基法（36協定上限規制）・特定技能制度・建退共・CCUS（建設キャリアアップシステム）・i-Construction 2.0 の制度知識。
+- **習得内容**: 建設案件の内部リソースカテゴリに「36協定超過リスク」「CCUS登録技能者比率」「一人親方インボイス問題」「特定技能外国人受入枠」を必須イシューとして追加、gen（16-建設業DX部）と連携してどっと原価・ANDPAD等の実装状況を制約条件化。
+- **アウトプット改善**: 建設クライアント（宮村・翔星・清一・桝本）4社の課題分解の的中精度+50%、gen 経由の提案書化までのリードタイム-30%。
+- **参考リソース**: 国土交通省『建設産業政策 2026』、日建連『働き方改革白書』、CCUS公式サイト（ccus.jp）、日経コンストラクション、『建設DX』（木村駿、日経BP）。
+
+### STEP 7: 認知バイアス・デバイアシング（Kahneman/Tversky）
+- **現状ギャップ**: 5Whysや優先度判定は分析者の直感依存が残り、確証バイアス（クライアントの主張に合わせる）・アンカリング（最初の議事録発言に引きずられる）・サンクコスト（過去施策の継続を過大評価）で構造化がゆがむ。
+- **追加スキル**: Kahnemanのシステム1/2、代表的バイアス20種の識別、Pre-Mortem 分析、Red Team/Blue Team、Devil's Advocate、Reference Class Forecasting。
+- **習得内容**: core_question 確定前に Pre-Mortem「1年後、この問いに答えて戦略が失敗した。何が原因だったか？」を強制実施、priority 判定時に「逆の優先度だったら？」の反実仮想スキャン、Reference Class Forecasting で類似案件の過去成功率で楽観バイアスを補正、Deva に「確証バイアスチェック」を明示依頼。
+- **アウトプット改善**: high イシュー判定の後日「実は違った」率-50%、Deva からの前提批判の的中率+30%（先回りで潰せる）。
+- **参考リソース**: 『ファスト＆スロー』（Kahneman）、『NOISE』（Kahneman/Sibony/Sunstein）、『Superforecasting』（Philip Tetlock）、GMU Center for Adaptive Systems "Debiasing Toolkit"。
+
+### STEP 8: 生成AI協業ワークフロー（AI-Assisted Issue Structuring）
+- **現状ギャップ**: 6/22知見で「AIで初稿・人が絞る」流れの認識はあるが、Claude/GPT を Sutu 業務に組み込む具体プロトコル（プロンプト・出力形式・検証手順）が未整備で、AI活用が個人依存。
+- **追加スキル**: LLMを使ったイシュー分解の初稿生成、Chain-of-Thought/Tree-of-Thoughts プロンプティング、Self-Consistency による多視点分解、Constitutional AI 的な自己批判ループ。
+- **習得内容**: 議事録を Claude Opus 4.7 に投入→「4カテゴリ×各5イシューを出力し、各イシューにSo What/Why Soを付けよ」のプロンプトテンプレを標準化、初稿を Sutu が「クライアント固有性チェック」で人力ふるいがけ、Deva 役の別セッションに批判させる二段階運用、`/agents/issue_structurer/ai_draft.json` を中間ファイルとして残す監査性設計。
+- **アウトプット改善**: 初稿作成時間 55分→15分、分解の広さ（発散量）+80%、収束フェーズに時間を回せる。
+- **参考リソース**: Anthropic Prompt Engineering Guide、『AI駆動開発完全入門』、"Tree of Thoughts"（Yao et al. 2023, NeurIPS）、Karpathy "Software 2.0/3.0" 講演。
+
+### STEP 9: リアルオプション・不確実性下の意思決定
+- **現状ギャップ**: 現行フレームは「今決める・全部やる」前提で、不確実性の高い新規事業/新市場案件で「小さく試して情報を得てから拡大する」段階的コミット戦略を構造化できない。
+- **追加スキル**: リアルオプション分析（延期・拡大・撤退・切替オプション）、Discovery-Driven Planning、Assumption-to-Knowledge Ratio、Cynefin フレームワーク（Simple/Complicated/Complex/Chaotic）でのアプローチ切替。
+- **習得内容**: イシューに「不確実性タイプ」ラベル（既知の未知／未知の未知）を追加、Complex ゾーンのイシューは仮説検証型（Probe-Sense-Respond）に問いを再設計、DDP でイシューごとに「必要な仮定→検証マイルストン→撤退条件」を明記、意思決定を「今」ではなく「いつまでに何を知れば決められるか」の情報獲得計画に変換。
+- **アウトプット改善**: 新規事業/新規クライアント案件で「大きく賭けて失敗」を回避、投資回収率+30%（想定）、Fuca FC案件の加盟店展開判定に応用可能。
+- **参考リソース**: 『Real Options Analysis』（Johnathan Mun）、『Discovery-Driven Growth』（Rita McGrath）、Snowden "Cynefin" HBR論文、『The Lean Startup』（Eric Ries）。
+
+### STEP 10: ステークホルダー分析・政治力学マッピング
+- **現状ギャップ**: 現行分解は「合理的意思決定者1人」を暗黙前提としているが、実際のクライアント（特に建設業ファミリー企業）は先代・現社長・現場所長・経理部長など複数関係者の政治力学で意思決定が動き、"合理的に正しい戦略"が組織政治で潰れる。
+- **追加スキル**: Stakeholder Power/Interest Grid（Mendelow）、Force Field Analysis（Kurt Lewin）、RASCI マトリクス、Change Curve（Kübler-Ross）、Kotter 8ステップ変革モデル。
+- **習得内容**: 各 high イシューに「支持者／反対者／中立者」のステークホルダーマップを添付、Power×Interest 2軸で影響力大かつ関心低の"眠れる巨人"を先回り警戒、内部リソースカテゴリに「変革抵抗勢力」イシューを組み込み、Kotter の"Urgency 醸成"視点で core_question の言い回しを設計。
+- **アウトプット改善**: 戦略の実行成功率+40%、クライアント社内での提案通過率+50%、Ryota の提案書に「政治的段取り章」を追加できるようになる。
+- **参考リソース**: 『Leading Change』（John Kotter）、『Crucial Conversations』（Patterson他）、『The Prince』（Machiavelli 現代マネジメント読解）、ChangeManagement.com Prosci ADKAR モデル。
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### A. 世界最新フレームワーク（2025-2026 一次資料ベース）
+
+**A-1. Wardley Mapping（Simon Wardley, 2005-継続進化・2025年GOV.UK標準化）**
+出典: Simon Wardley "Wardley Maps"（Medium連載、CC-BY-SA）、UK Cabinet Office "Digital Playbook 2025"。
+Value Chain（Y軸：顧客可視性）× Evolution（X軸：Genesis→Custom→Product→Commodity）の2軸で構成要素をマッピングし、各要素の進化段階に応じた戦略パターン（Pioneers/Settlers/Town Planners の3隊編成）を選ぶ。Sutu 応用：クライアントの事業構成要素（採用媒体・面接プロセス・現場管理システム等）を Wardley Map 化すると、「Commodity 化した領域は外注／Genesis 領域は内製実験」の判断が構造化でき、内部リソース系イシューの優先度に "進化段階" 軸が加わる。日本国内での認知は限定的（2026年時点で日本語書籍0冊）だが、GOV.UK・Amazon等が公式採用し、経済産業省DXレポート2.0でも間接引用。競合エージェントに対する差別化武器として最優先で習得すべきフレーム。
+
+**A-2. Cynefin Framework 2025改訂版（Dave Snowden, Cognitive Edge）**
+出典: Snowden & Boone "A Leader's Framework for Decision Making"（HBR, 2007/2024再掲）、Cognitive Edge "Cynefin St David's Day 2024 Update"。
+Clear（旧Simple）／Complicated／Complex／Chaotic／Confusion（Aporia）の5ドメインで、課題の性質に応じた対処プロトコル（Sense-Categorise-Respond / Sense-Analyse-Respond / Probe-Sense-Respond / Act-Sense-Respond）を切替。2024改訂で「Liminal（境界領域）」概念が追加され、Complex→Complicated への移行判定が精緻化。Sutu 応用：core_question 確定前にドメイン判定を必須化し、Complex ドメインの問いには「答え」ではなく「探索計画」で応じる、Chaotic ドメイン（危機案件）は分析より応急措置優先とHaruto に明示ラベリング。
+
+**A-3. Three Horizons Framework（McKinsey 1999 → 2025 IIA改訂 "3H2.0"）**
+出典: Baghai, Coley & White "The Alchemy of Growth"（McKinsey 1999）、International Futures Forum "Three Horizons 2.0"（Bill Sharpe, 2023）。
+H1（現行事業の防衛）／H2（新規事業の育成）／H3（未来の種の探索）の3時間軸で経営リソース配分を設計。2.0改訂では H3 発の「Pockets of the Future in the Present」概念（未来の兆候を現在から発見する視点）が追加。Sutu 応用：イシューを H1/H2/H3 でタグ付けし、priority=high が H1 に集中しすぎていないか（未来投資の欠落）を出力前チェック、建設業クライアントに対して「H3 として建設テック実験投資」を提案する構造化。
+
+**A-4. OODA Loop 2026（Boyd's OODA + Adaptive OODA by Chet Richards）**
+出典: John Boyd "A Discourse on Winning and Losing"（1987、米海軍公開版）、Chet Richards "Certain to Win"（2024改訂版）。
+Observe → Orient → Decide → Act の反復ループで、Orient フェーズが最重要（過去経験・文化・遺伝・新情報の統合）。PDCA より高速・不確実性対応向き。Sutu 応用：仮説ドリブン案件で PDCA 型ではなく OODA 型に問いを設計し、Orient に「バイアス除去のためのメンタルモデル更新」を組み込む。
+
+**A-5. Stress Testing / Scenario Planning（Shell式 + WEF Global Risks 2026）**
+出典: Shell "Scenarios: An Explorer's Guide"（2008）、WEF "Global Risks Report 2026"、Peter Schwartz "The Art of the Long View"。
+複数のもっともらしい未来シナリオを2×2マトリクス（重要不確実性の2軸）で構築し、各シナリオで戦略がどう機能するかストレステスト。Sutu 応用：建設業案件で「①円安×人口減 vs 円高×人口安定 の2×2」で4シナリオを描き、core_question を「どのシナリオでも通用する問い」に鍛え直す。
+
+### B. 実務即応の高度テクニック
+
+**B-1. "Answer First"×"Grouping Test"（マッキンゼー方式）**
+イシュー分解を出す前に「もし答えを1文で出せと言われたら？」を先に書き（Answer First）、その答えを支える論点3-5本にグルーピングする際、各論点が「同じ質問への回答である」ことをテスト（Grouping Test）。既存のピラミッド原則を実務化する技法で、Sutu の出力速度が2倍になる。
+
+**B-2. "Structured Analytic Techniques"（CIA/DIA公開手法）**
+CIA が公開した『A Tradecraft Primer』（2009、2024再版）の14技法から Sutu に転用可能な5つ：Key Assumptions Check（前提の明示検証）／Quality of Information Check（情報源の格付け）／Devil's Advocacy（悪魔の代弁人・Devaとは別に自作自演）／Alternative Futures Analysis（代替未来分析）／High-Impact/Low-Probability Analysis（低確率高影響事象の予備）。high イシューには KAC を必須運用化。
+
+**B-3. "The 5 Whys Killer"—Toyota式との違いを識別する**
+一般に流通する5Whys は "人のミス" に着地しやすい欠陥版。Toyota オリジナルは「なぜプロセス設計がそのミスを許したか」に着地する構造欠陥追求型。Sutu の5Whys×3軸フレームで「人」軸を最後に回し、「プロセス」「構造」で真因が取れるまで人軸に降ろさない規律を徹底する（責任転嫁型分解の予防）。
+
+**B-4. "Assumption Reversal"—仮説逆転法**
+イシュー分解が定石化して面白味を失った時、全ての仮定を逆にした「反転版イシュー」を1セット作る（例：「採用を増やす」を「採用を止めても回る組織を作る」に反転）。反転版の中に、通常思考では出ない差別化アイデアの種が隠れる。7案件を横断する Sutu だから使える発想拡張技法。
+
+**B-5. "Backcasting"—未来から逆算する分解**
+現在起点の Forecasting ではなく、3年後の理想像を先に描き、そこから逆算して「1年後・6ヶ月後・3ヶ月後・今週」に何を解いているべきかで問いを分解する。建設業のような時間軸の長い業界で、短期最適化の罠を回避。
+
+**B-6. "The Cynefin Butterfly"—ドメイン間の遷移設計**
+Complex ドメインの課題を Complicated ドメインに"落とす"（実験で情報を得て予測可能化する）遷移計画を、イシュー分解の中に埋め込む技法。例：新規媒体の効果は Complex → 3週間の少額A/Bテストで Complicated 化 → 本格投資判定。
+
+**B-7. "Premortem × Postmortem 対称化"**
+Pre-Mortem（施策開始前に失敗を想像）と Post-Mortem（失敗後の反省）を同一テンプレで書けるようにし、Pre-Mortem 予想と実際の Post-Mortem を照合して予測精度を自己校正する。分析者としてのメタスキルが2年で人間離れする。
+
+**B-8. "One-Metric-That-Matters (OMTM) の期間切替"**
+Lean Analytics の OMTM を、フェーズ切替式で運用する。認知フェーズ→リーチ、活性化フェーズ→CVR、定着フェーズ→リテンション、と時期に応じてクライアントに追わせる唯一の指標を明示的に切り替え、複数指標の同時追求で組織が散漫化する事故を防ぐ。
+
+### C. 日本国内第一人者レベルの判断基準
+
+**C-1. "3秒ルール"—経営者の視線滞留時間で問いの質を測る**
+core_question を経営者が3秒読んで「これは私が今週決めなければならない問いだ」と感じなければ即再設計。日本の中小企業経営者は思考時間ではなく "自分の予定に入るか" で問いを判定する。第一人者レベルの Sutu は、経営者の週次カレンダーに入る粒度で問いを設計する。
+
+**C-2. "反対する人がいない分解は間違っている"**
+イシュー分解が完璧にMECEで綺麗すぎる時、それは "誰も反対しない = 誰の意思決定にも刺さらない" の兆候。Deva の批判が薄い分解は Sutu 側から意図的に「これは高リスクだ」と論争を挑発する要素を1つ入れ、批判-合意の往復で分解を鍛える。日本国内では稀な "対話型分解者" のポジション。
+
+**C-3. "議事録に無い問い"を出す度胸**
+クライアントが議事録で言っていない、しかし業界の第三者から見て致命的な問いを、Sutu の責任で1つは追加する。例：クライアントが「採用強化」を語っていても、業績データから「そもそも今の粗利率で人を増やして持続可能か」を Sutu が独自イシューとして立てる。第一人者レベルの分析者は "クライアントの盲点" を見つけて言語化する義務を負う。
+
+**C-4. "戦略と実行の断層線"を分解に埋め込む**
+戦略コンサル出身者に多い失敗は "戦略は完璧、実行不能" の分解。日本国内の第一人者は必ず「この分解を現場100人に3ヶ月で実装させる場合、どこで詰まるか」を第2階層に埋め込む。gen（16-建設業DX部）から現場実装の制約を先取りしてイシュー化する連携が肝。
+
+**C-5. "問いの寿命"を明示する**
+core_question は永遠に有効ではない。市場変化・制度変化・季節性で "この問いはいつ賞味期限切れになるか" を明示（例：2026年10月インボイス経過措置終了で問いの前提が変わる）。日本国内で "問いの時限性" を運用に組み込んでいる分析者は極めて稀。
+
+### D. 直近1年の業界規制・制度変化対応（2025-2026）
+
+- **2024年4月：建設業36協定上限規制施行、2026年時点で運用実態調査進行中**：残業960h/年超過は罰則対象。建設クライアントの内部イシューに必須組込。
+- **2026年10月：インボイス制度経過措置（8割控除→5割控除移行）**：一人親方の消費税負担が実質増加、下請け構造の再編論点が浮上。
+- **2026年6月：改正育児・介護休業法「男性育休取得率30%以上」公表義務化拡大**：従業員100人超企業に拡大予定。採用ブランディング論点として組込。
+- **2025年10月：フリーランス保護新法（フリーランス取引適正化法）完全施行**：LET のフリーランス活用（動画編集・デザイナー）にも影響、契約書ひな型見直し要イシュー。
+- **2026年施行予定：改正景品表示法（ステマ規制強化）**：SNS運用イシューの必須制約条件、nori（リーガル）との連携ゲートを二重化。
+- **2025年施行：AI事業者ガイドライン第1.1版（総務省・経産省）**：LET のAI活用（Claude/GPT）にガバナンス責任が発生、Sutu の AI初稿使用にも監査ログ要件。
+- **2026年時点：CCUS（建設キャリアアップシステム）登録技能者100万人突破**：建設案件の内部リソース評価にCCUSレベル別人材構成を組込可能。
+
+### E. 深い洞察のチェックリスト（第一人者判定用）
+
+出力前に以下を全項目セルフ判定し、6/10 以下なら再設計：
+
+1. **[問いの質]** core_question は「業界×指標×期間×制約」4要素＋「意思決定を迫るイシュー形」＋「答えの形（数値1つ/施策3案/Go-No-Go）」を1行で言えるか？
+2. **[階層整合]** business_context の主体・core_question の主語・issues の対象が同一か？
+3. **[症状→真因]** 5Whys×3軸で「解決可能な真因」まで降りているか？解決不能要因を真因に据えていないか？
+4. **[MECE + 発散]** 4カテゴリで漏れ・ダブりなし かつ カテゴリ横断イシューが独立立項されているか？
+5. **[粒度統一]** issues が経営判断／施策／実行細部の3階層のうち同一階層のみか？
+6. **[優先度規律]** priority=high は3件以内か？内部リソース系 high が最低1本あるか？
+7. **[検証手段]** 全 high イシューに research_query または内部ヒアリング指示が1本以上紐づいているか？
+8. **[トレーサビリティ]** 各イシューに議事録出典（発言者・該当発言）が紐づいているか？Sutu 仮説はタグ分離されているか？
+9. **[バイアス除去]** Pre-Mortem・Reference Class Forecasting・確証バイアスチェックを実施したか？反転版イシューを1セット試したか？
+10. **[時限性]** core_question の賞味期限（前提が崩れる時期・イベント）を明記したか？
+
+**10/10 = 日本国内第一人者レベル / 8-9 = 上級 / 7 = 及第 / 6以下 = 再設計必須。** この基準を Sutu の全出力に自動付与し、Sora の QA チェックとも接続する。
