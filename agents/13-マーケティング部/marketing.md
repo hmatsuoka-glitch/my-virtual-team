@@ -256,3 +256,145 @@
 - **効率化：新規採用LPの配信前品質ゲート（CVタグ発火・モバイルLCP2.5秒・審査・UTM5階層／06-26）を案件ごとに手順書から手動実行せず、LP URLを1つ投げると PageSpeed Insights API・Metaテストイベント・UTMパーサを直列実行して結果を1メッセージで返すSlackワークフロー1本に束ねる**。クライアントが増えるほど手チェックの母数が線形に膨らむのを、入力=URL・出力=✅/❌レポートの定型ジョブ化で頭打ちにし、未✅時は配信ボタンをブロックする。
 - **効率化：クライアント別の月次レポートを毎月ゼロから組まず、定義3点セット（期間・母数・前月比/前年同月比／06-12）を固定フッターにしたGoogleスライドテンプレ×7社を1コマンドで一括更新する（Slides API＋Insights API差し込み）**。06-23の単社自動差し込みを7社バッチに拡張し、Datの集計定義（06-12連携）と同一マスタを参照させて「数字が合わない」不信源を全社一括で消す。レポート作成が社数に比例して膨らむ工数を、データ更新1回で全社分生成する構造に置き換える。
 - **効率化：UGC風縦動画の発注（06-04/06-11/06-23連携）は、訴求軸・NG表現辞書・参考競合3本・媒体別サイズ・Shunの離脱秒数を毎回Notionカードに手入力せず、前回発注カードを複製→変更点（訴求軸と数値）だけ差し替えるテンプレ運用にし、景表法チェック済みコピー案も前回分を継承する**。発注のたびに固定情報を打ち直す工数を消し、Itsukiの媒体サイズ確認往復（06-11）とPr/noriの後工程差し戻し（06-02）を継承カードで同時に予防する。
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: ABM（Account-Based Marketing）2.0導入
+- **現状ギャップ**: 現状はリード数（月20件）を追う量的マーケに寄り、建設業の高単価案件（LTV 500万〜）に対して受注確度の高い企業へ集中投下する仕組みが未整備。7社クライアント案件の横展開も「たまたま拾える」状態。
+- **追加スキル**: Terminus/Demandbase型のTier1〜3アカウント設計、Intent Signal（Bombora/G2）、Sales-Marketing Bowtie設計
+- **習得内容**: (1) ICP精緻化（従業員50-300名の中堅ゼネコン・工務店を Tier1、10-50名を Tier2）(2) 対象100社リストのIntent Signal監視（採用増加・拠点開設・IPO準備等の兆候）(3) 対象企業ごとのパーソナライズLP・広告出し分け(4) Sales側リード引き渡し基準（MQL→SAL→SQL）の同期
+- **アウトプット改善**: 「量」から「質×深さ」の指標へ。ABM対象100社中の商談化率20%（月20商談）、平均受注単価を80万→150万に引き上げ
+- **参考リソース**: ITSMA『Account-Based Marketing』、庭山一郎『究極のBtoBマーケティングABM』、Terminus『ABM Playbook』
+
+### STEP 2: Jobs-to-be-Done（JTBD）×ペルソナ再設計
+- **現状ギャップ**: ペルソナが「40代男性・建設業社長」等の属性止まりで、なぜ採用支援ツールを買うのか（Job）が浅い。訴求が「安い・早い」に流れやすい。
+- **追加スキル**: Clayton Christensen JTBDフレームワーク、Bob Moesta『Demand-Side Sales』のSwitch Interview、5 Forces of Progress
+- **習得内容**: (1) 「新しい解決策を採用する瞬間（Push/Pull/Anxiety/Habit）」の顧客インタビュー手法(2) 建設業社長の「Job Story」テンプレ化（When_____, I want to_____, so I can_____）(3) 機能訴求→Progress訴求への広告文の書き換え(4) 競合が「Hire」される瞬間の分析
+- **アウトプット改善**: 広告CTR 1.2%→2.5%、LP滞在時間30秒→90秒、商談時の「何が刺さったか」ヒアリング精度向上
+- **参考リソース**: Bob Moesta『Demand-Side Sales』、Alan Klement『When Coffee and Kale Compete』、JTBD.info
+
+### STEP 3: Product-Led Growth（PLG）×コンテンツ組み込み
+- **現状ギャップ**: サクバズ（採用支援サービス）の体験前ハードルが高く、営業接触前に価値実感できる仕組みがない。
+- **追加スキル**: OpenView PLG Playbook、Reforge Growth Series、Aha Moment設計、Time to Value短縮
+- **習得内容**: (1) 「求人票診断ツール」「採用データ簡易分析」等の無料マイクロプロダクト設計(2) Freemium/Free Trial/Interactive Demoの選択基準(3) PQL（Product Qualified Lead）定義とMQLとの分離(4) In-Product CTAでの営業誘導設計
+- **アウトプット改善**: 初回接触→商談までのリードタイム14日→3日、営業効率2.5倍、CAC 20%削減
+- **参考リソース**: Wes Bush『Product-Led Growth』、OpenView『PLG Index』、Reforge『Growth Series』
+
+### STEP 4: Growth Loops設計（Funnel卒業）
+- **現状ギャップ**: AARRR/ファネル型で「上から下へ」流す線形設計に留まり、既存顧客・応募者・コンテンツ資産が新規獲得を再生産する自己増殖ループがない。
+- **追加スキル**: Reforge Growth Loops、Content Loops、Viral Loops、Paid Loops、Sales Loops
+- **習得内容**: (1) Content Loop（クライアント成功事例→SEO→リード→事例化）の設計(2) Referral Loop（既存クライアントからの紹介インセンティブ）(3) UGC Loop（応募者体験談→TikTok→採用ブランディング）(4) 各ループのInput/Action/Output/Reinvestmentの分解
+- **アウトプット改善**: 有料広告依存度70%→40%、オーガニック流入前年比+180%、獲得コスト逓減曲線への転換
+- **参考リソース**: Reforge『Growth Loops』（Brian Balfour）、Andrew Chen『The Cold Start Problem』
+
+### STEP 5: AARRR/Pirate Metrics 3.0＋North Star Metric
+- **現状ギャップ**: KPIがCPA/CVR等の中間指標に散らばり、事業成長を1本で表すNorth Star Metricがない。部署間で「何を最大化すべきか」の共通言語が弱い。
+- **追加スキル**: Sean Ellis『Hacking Growth』、Amplitude North Star Playbook、Input Metrics分解
+- **習得内容**: (1) LETのNorth Star Metric候補（月間「採用決定数×継続月数」＝Retained Placement Value）の定義(2) 3-5個のInput Metricsへの分解(3) AARRR 3.0（Retention中心の再定義：Activation→Retention→Referralを最優先）(4) 週次成長会議のフォーマット化
+- **アウトプット改善**: 部署横断KPIの整流、経営会議の意思決定速度2倍、Retention重視での解約率半減
+- **参考リソース**: Sean Ellis『Hacking Growth』、John Cutler『North Star Framework』、Amplitude Blog
+
+### STEP 6: Content-Market Fit×SEO+GEO（Generative Engine Optimization）
+- **現状ギャップ**: SEOは従来型キーワード対応のみ。ChatGPT/Perplexity/Google AI Overviewsで引用される「AI検索対応」が未着手で、2025-2026の検索流入の構造変化に対応できていない。
+- **追加スキル**: GEO（Generative Engine Optimization）、E-E-A-T強化、Answer Engine Optimization、Structured Data実装
+- **習得内容**: (1) AI検索で引用されやすい記事構造（結論先出し・Q&A形式・データ数値の明示）(2) Schema.org（FAQ/HowTo/Article）実装(3) 一次情報化（自社調査データ・独自インタビュー）(4) llms.txt / robots.txt でのAIクローラ制御(5) Bing IndexNow・Perplexity Pages対策
+- **アウトプット改善**: AI検索経由の流入0→月500セッション、ブランド指名検索前年比+80%、コンテンツ寿命2倍
+- **参考リソース**: Search Engine Land『GEO Guide』、Neil Patel『GEO 2026』、Google Search Central Blog、Anthropic『Claude Web Search』
+
+### STEP 7: Attribution Modeling×CDPデータ活用（Cookie廃止対応）
+- **現状ギャップ**: Last-Click Attributionに依存し、3rd Party Cookie廃止後の計測断絶に無防備。認知〜比較〜決定の複数タッチポイント貢献が可視化されていない。
+- **追加スキル**: Data-Driven Attribution（DDA）、Marketing Mix Modeling（MMM）、Server-Side Tagging、CDP（Segment/Treasure Data/BizteX）、Enhanced Conversions
+- **習得内容**: (1) GA4のDDA運用と限界の理解(2) Meta CAPI・Google Enhanced Conversions・TikTok Events APIによるサーバーサイド計測実装(3) MMMでのオフライン施策（展示会・PR）貢献度可視化(4) CDPでの顧客ID統合（Email/電話/IDFA）(5) Consent Mode v2運用
+- **アウトプット改善**: 計測ロス30%→5%、予算配分の精度2倍、上位ファネル施策（PR/コンテンツ）の予算獲得の説明力向上
+- **参考リソース**: Google『Measurement Playbook』、Meta『Conversions API Guide』、株式会社DIGITALIO『CDP実践ガイド』、Analytics Mania
+
+### STEP 8: コミュニティマーケティング×応募者・顧客コミュニティ設計
+- **現状ギャップ**: 顧客・応募者との関係が「単発取引」で終わり、ブランドを共に育てるコミュニティ資産がゼロ。競合参入時の差別化が価格に流れやすい。
+- **追加スキル**: CMX Hub『Community-Led Growth』、Discord/Slack Community運営、Ambassador Program、Community-Led Sales
+- **習得内容**: (1) 建設業経営者向け限定Slack/Facebook Groupの立ち上げ（テーマ：採用・2024年問題・DX）(2) 月次オンラインイベント（採用事例共有会）(3) Ambassador選定基準（発信力×紹介実績）(4) SPACES（Support/Product/Acquisition/Contribution/Engagement/Success）モデルでのコミュニティKPI設計(5) LTV/Retentionへの寄与測定
+- **アウトプット改善**: コミュニティ経由紹介率30%、NPS+15、解約率50%減、コンテンツ制作の共創化
+- **参考リソース**: David Spinks『The Business of Community』、CMX Hub、小島英揮『コミュニティ・マーケティング』
+
+### STEP 9: 生成AI活用×マーケティングオペレーション自動化
+- **現状ギャップ**: 生成AIをコンテンツ執筆補助レベルでしか使えていない。企画〜配信〜分析までのMarketing Opsに組み込めていない。
+- **追加スキル**: Claude/GPT APIによるMarketing Agent構築、n8n/Zapier×LLM、Perplexity API、HeyGen/Runway動画生成、AI SDR
+- **習得内容**: (1) クライアント別月次レポート自動生成（Insights API→Claude→Slides）(2) 競合広告クロール→AI要約Slack配信の自動化(3) LPコピーABテスト自動生成×自動配信(4) 応募後の自動パーソナライズフォロー(5) MRR/CAC等の異常検知アラート(6) プロンプトのバージョン管理と評価（Braintrust/LangSmith）
+- **アウトプット改善**: レポート作成工数80%削減、コンテンツ生産量3倍、施策サイクル週次→日次
+- **参考リソース**: Anthropic『Building with Claude』、a16z『AI Marketing Stack』、SaaStr『AI SDR Playbook』
+
+### STEP 10: 広告規制強化・プライバシー法対応（2026最新）
+- **現状ギャップ**: 景表法改正（2024確約手続き）、ステマ規制（2023.10施行）、改正個人情報保護法（3年ごと見直し）、Google Consent Mode v2への対応が個別対症療法で、体系的なコンプラ運用フレームがない。
+- **追加スキル**: 景表法運用指針、ステマ規制ガイドライン、GDPR/CCPA/APPI、Consent Management Platform（OneTrust/Cookiebot）、業界自主規制（人材協会）
+- **習得内容**: (1) 景表法「No.1表示」等の合理的根拠資料の整備義務(2) ステマ規制の「広告表記」ルール（PR/広告/タイアップ/Sponsored の使い分け）(3) 個情法の第三者提供・国外移転・要配慮個人情報(4) Consent Mode v2実装とタグマネ運用(5) 職業安定法（求人広告の必須明示事項）(6) 医療・美容・金融広告の追加規制
+- **アウトプット改善**: 行政指導・措置命令リスク0件、審査差し戻し月10件→2件、クライアント法務レビュー通過率95%
+- **参考リソース**: 消費者庁『景品表示法運用基準』、消費者庁『ステマ規制運用基準』、個人情報保護委員会ガイドライン、日本人材協会『求人広告掲載基準』、Google『Consent Mode v2 Guide』
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 1. 世界最新フレームワーク（マーケ統括視点で厳選5個）
+
+**① ABM 2.0（Account-Based Marketing 2.0）** — 出典: ITSMA/Terminus『State of ABM 2025』、庭山一郎『究極のBtoBマーケティングABM』
+従来のリード数追求から、Tier1-3の対象アカウントごとにMarketing/Sales/CSが同期して深く攻める運用へ。Intent Data（Bombora/G2）で「今検討している企業」を検知し、パーソナライズ広告・LP・営業アプローチを同期。建設業のように「同業内で情報が回る狭い市場」ではABM効果が特に高い。KPIは「対象アカウント内の商談化率」「アカウント浸透度（決裁関与者数）」「Deal Velocity」。
+
+**② Jobs-to-be-Done（JTBD）** — 出典: Clayton Christensen『Competing Against Luck』、Bob Moesta『Demand-Side Sales』
+「顧客は製品を買うのではなく、Progress（進歩）を雇う」の視点。建設業社長が採用支援ツールを買う本当のJob（例：「若手が入らないと事業承継ができない不安を解消したい」）を Switch Interview（購入直前・直後の詳細ヒアリング）で抽出。Push（現状不満）×Pull（新解決策への期待）> Anxiety（不安）＋Habit（既存習慣）の式が成立した瞬間に購入が起こる「5 Forces of Progress」で訴求設計を再構築。
+
+**③ Product-Led Growth（PLG）** — 出典: Wes Bush『Product-Led Growth』、OpenView『PLG Index 2025』
+Sales-Led/Marketing-Led に対する第3の道。プロダクト自体を主要な獲得・活性化・維持・拡張チャネルにする。「求人票AI診断」「採用データ簡易分析」のようなマイクロプロダクトを無料公開しPQL（Product Qualified Lead）として営業に引き渡す。日本のBtoBは営業依存が強いが、PLGを部分導入するだけでCAC 20-40%削減事例多数。
+
+**④ Growth Loops** — 出典: Reforge『Growth Series』（Brian Balfour, Casey Winters）
+Funnel（線形）→Loop（自己増殖）へのパラダイム転換。Input→Action→Output→Reinvestment の4段で自己再生産する仕組みを設計。例：Content Loop（クライアント成功事例→SEO記事→リード獲得→新規事例）、UGC Loop（応募者インタビュー→TikTok→採用ブランド強化→応募増）、Referral Loop（紹介特典→新規顧客→次の紹介元）。有料広告依存を下げ、限界CACを逓減させる。
+
+**⑤ AARRR/Pirate Metrics 3.0＋North Star Metric** — 出典: Sean Ellis『Hacking Growth』、Amplitude『North Star Playbook』
+Dave McClure 原型のAARRR（Acquisition/Activation/Retention/Referral/Revenue）を Retention中心に再定義。North Star Metric（事業成長を1本で表す指標）とその Input Metrics（3-5個のドライバー）に分解し、全部署の意思決定を統一。LET なら「Retained Placement Value（採用決定数×継続月数）」が North Star 候補。
+
+### 2. 実務即応の高度テクニック7個
+
+**① JTBD統合ペルソナ設計**: 属性ペルソナ（40代男性・建設業社長）に「Job Story」を重ねる。When[事業承継が5年後に迫った時], I want to[若手が定着する採用の型を持ちたい], so I can[事業を息子に安心して渡せる]。広告文・LPコピー・営業トークを全てこのJob Storyから逆算し、機能訴求（「安い」「早い」）から Progress訴求（「事業承継の不安を解消」）へ書き換え、CTRとCVR同時改善を狙う。
+
+**② Content-Market Fit**: Product-Market Fit の前段としてコンテンツと市場の適合を測る。指標は「自発シェア率」「指名検索の増加率」「コメント質」の3点。建設業向けなら「2024年問題×採用」「一人親方インボイス対応」等の一次情報を持てるテーマに集中投下し、他社が真似できない情報優位を作る。
+
+**③ Marketing Funnel再定義（Bowtie Funnel）**: 従来ファネル（獲得→受注で終わる）を、受注後の Onboarding→Impact→Expansion→Advocacy に延長する Bowtie 型に。LTV/CAC 比を3倍以上に持続させるには獲得後のRetention/Expansionへの投資が必須。CS/採用担当と Marketing が同一 KPI（Retention & Advocacy）を追う体制へ。
+
+**④ Attribution Modeling（Data-Driven Attribution）**: Last-Click 依存を脱却し、GA4のDDA・Meta CAPI・MMM（Marketing Mix Modeling）の3層で計測。3rd Party Cookie廃止後は Server-Side Tagging（GTM Server Container）＋Enhanced Conversions＋Consent Mode v2 が必須3点セット。オフライン施策（展示会・PR・紹介）の貢献度をMMMで数値化し、上位ファネル予算獲得の説明力を持つ。
+
+**⑤ CDPデータ活用**: Segment/Treasure Data/BizteXなどでファーストパーティデータ（フォーム/採用データ/イベント参加）を統合し、単一顧客ビュー（Golden Record）を構築。CRM→広告オーディエンスへの同期でLookalike精度を向上させ、応募済み・入社決定者を除外する運用（06-07品質ゲート統合）を自動化。プライバシー規制下でのターゲティング精度維持の中核。
+
+**⑥ SEO+GEO（Generative Engine Optimization）**: 2025年からGoogle AI Overviews/ChatGPT/Perplexityが検索行動を代替し始めた。従来SEO（キーワード最適化）に加え、AI引用されやすい記事構造（結論先出し・Q&A形式・数値と一次情報）、Schema.org（FAQ/HowTo）、llms.txt、E-E-A-T強化（著者情報・所属団体・実績数値）が必須。「AI検索経由の指名流入」を新KPIに追加。
+
+**⑦ コミュニティマーケティング**: 顧客・応募者・見込客を包摂する非取引空間（Slack/Discord/Facebook Group）を構築し、「Community-Led Growth」を実践。SPACES モデル（Support/Product/Acquisition/Contribution/Engagement/Success）で貢献領域を可視化。建設業向けなら「経営者限定・採用と2024年問題」テーマのオンラインコミュニティで、Ambassador化した経営者を通じた紹介経済圏を構築し、CACの構造的低下と解約率半減を狙う。
+
+### 3. 日本国内第一人者と判断される基準（4個）
+
+**① ABM×BtoB建設業ドメイン深耕**: 庭山一郎（シンフォニーマーケティング）氏レベルのABMフレームを、建設業（Tier1 準大手ゼネコン/Tier2 中堅ゼネコン/Tier3 工務店・専門工事）の商流・意思決定構造・業界誌・展示会マップに完全接続して運用できる。国交省統計・建設業許可データ・帝国データバンクを組み合わせた Intent Signal 検知が独自にできる。
+
+**② 生成AI時代のMarketing Ops設計力**: Claude/GPT APIを Marketing Agent として業務に組み込み、企画（トレンド分析）→制作（コピー/バナー/動画）→配信（媒体API連携）→分析（自動レポート）→改善（ABテスト自動生成）まで人手工数80%削減の運用設計ができる。プロンプト評価（Braintrust/LangSmith）・LLMOps・AI SDR実装まで一気通貫で回せる国内数十人レベル。
+
+**③ プライバシー×計測技術の橋渡し**: 個人情報保護法・景表法・ステマ規制・GDPR/CCPAを法務目線で正確に理解し、同時にServer-Side Tagging・Consent Mode v2・CDP実装まで技術者と対等に会話できる。「規制準拠×計測精度維持」の両立設計を、法務・エンジニア・広告代理店を巻き込んで指揮できる希少人材。
+
+**④ Growth Loops×日本市場適合設計**: Reforge型 Growth Loops を英語圏B2B SaaS事例から日本の中堅BtoB（特に建設・製造・地方産業）に翻訳・適用できる。「日本の口コミ経済（紹介・地縁）」を Referral Loop として設計に組み込み、Ambassador Programを地縁ベースで機能させられる。国内で体系化された事例発表者は片手で数えるほど。
+
+### 4. 直近1年の環境変化への対応（2025-2026）
+
+**広告規制強化**: 2024年10月景表法の確約手続き制度開始（違反時に自主的改善計画で行政処分回避可能）。2023年10月ステマ規制施行後、2025年に消費者庁が本格摘発フェーズへ移行し、インフルエンサー起用時の「広告」表記漏れが月次で摘発される状況。2026年施行予定の「デジタル広告透明化法（仮）」対応も準備が必要。
+
+**Cookie廃止・プライバシー強化**: Googleは2024年に3rd Party Cookie廃止方針を「ユーザー選択制」に転換したが、SafariとFirefoxは既に完全ブロック。Meta CAPI・Google Enhanced Conversions・TikTok Events APIによるサーバーサイド計測は必須。iOS17のリンクトラッキング保護でUTMパラメータの一部が削除される事象への対応（First-Party Domain経由のリダイレクト）も必要。
+
+**生成AI検索対応（GEO）**: Google AI Overviewsが日本語検索でも本格展開（2024-2025）。ChatGPT Search、Perplexity、Claude Web Searchなど検索エンジンの多極化が進み、「AI検索経由の指名流入」を新KPIに追加すべき局面。llms.txt標準化議論、Anthropic/OpenAIのクローラ制御、AI Overviews引用率の測定ツール（Ahrefs Brand Radar/SEMrush AI Search Toolkit）活用が2026の必須ケイパビリティ。
+
+**改正個人情報保護法（3年ごと見直し）**: 2025年見直しで「不適正利用の禁止」の類型拡大、「本人関与のあり方」見直しが議論。Cookie/端末IDの取扱いが厳格化される可能性が高く、Consent Management Platform（OneTrust/Cookiebot/Trustarc）の導入と、CMP×GTM×Consent Mode v2の三位一体運用が2026上半期に前倒し必須。
+
+### 5. Marketingだからこそ気づける深い洞察チェックリスト
+
+- [ ] **配信ROI vs 事業ROI**: CPA/CVRだけで判断せず、LTV/CAC・Payback Period・Net Revenue Retentionまで含めた事業ROIで意思決定しているか（Marketingの中間指標最適化が事業を毀損する典型リスク）
+- [ ] **獲得と解約の分離思考**: 獲得コストと解約率のトレードオフを見ているか。CPAが良くても解約率が高い流入源は事業破壊要因。Cohort分析でチャネル別Retentionを月次確認しているか
+- [ ] **上位ファネル投資の説明力**: PR・コンテンツ・ブランド広告の貢献をMMM/Brand Liftで数値化し、経営に「なぜ今この投資が必要か」を説明できるか（Marketingが評価されない典型は上位施策の可視化失敗）
+- [ ] **属人化資産のリスク**: ピクセル・カスタムオーディエンス・広告アカウント・ドメイン認証がクライアント資産として分離管理されているか（07-01記録の資産保全）
+- [ ] **競合の広告露出変化の定点観測**: Meta広告ライブラリ・Google広告透明性センターで競合の広告本数・訴求変化を週次でウォッチし、業界の風向き変化を先んじて察知しているか
+- [ ] **一次情報の資産化**: 自社調査・クライアント成功事例データ・応募者インタビューを構造化データ化し、GEO時代の引用資産として蓄積しているか（他社が真似できない情報優位）
+- [ ] **法令リスクの発見感度**: 景表法「No.1表示」の合理的根拠、ステマの「広告」表記、職業安定法の必須明示事項、医療/美容/金融の追加規制について、配信前セルフチェックリストを持ち月次で更新しているか
+- [ ] **計測破綻の早期発見**: iOS/ブラウザ更新・タグ変更・CMP導入で計測が静かに壊れる。GA4/媒体/CRM/フォームの4層で日次のCV数不整合をアラート化しているか
+- [ ] **チャネル依存の単一障害点**: 最良CPAチャネルへの依存度・審査ポリシー変更・アカウントBANリスクを分散設計しているか（07-01記録）
+- [ ] **社内他部署への波及**: Marketing の訴求が現場（採用担当・面接官・カスタマーサクセス）と一致しているか。広告と現場体験の乖離は歩留まりを毀損する最大要因（06-07記録）
+- [ ] **Ambassador候補の発掘**: 顧客・応募者・退職者・パートナー企業から「自発的に語ってくれる人」を特定し、Community-Led Growthの中核に組み込めているか
+- [ ] **AI検索での自社露出**: ChatGPT/Perplexity/Google AI Overviewsで自社ブランド・自社サービス関連クエリを月次で検索し、引用有無・引用文脈を確認しているか

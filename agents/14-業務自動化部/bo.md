@@ -194,3 +194,131 @@
 - **効率化：新規クライアント立ち上げの3点セット（16h→2h／05-26）に、マスタCSV差し替え・ゴールデンテストCSVでのdry-run（06-23）・社別期待値レンジの台帳登録（07-01）を1本の立ち上げウィザードに束ね、社名を入れると検証3工程（06-16の再利用ワークフロー）＋件数突合ラッパー＋金額レンジ検証（06-16/06-17）がデフォルトで付く**。社数が増えるほど立ち上げ手順の手作業が線形に膨らむのを、ウィザード1回実行で社別検証込みの稼働状態にする構造に置き換える。
 - **効率化：DLQ退避レコードの再処理（06-23）とOAuthトークン失効リマインド（07-01）を、毎朝の`/automation status`（05-26）に「DLQ件数＋サンプル・失効30日前トークン一覧」を自動列挙し、ワンクリックでバックフィル起動・トークン更新導線へ飛ぶ運用に統合する**。件数突合の恒等式「入力＝成功＋スキップ＋エラー＋DLQ」（06-26）とトークン期限を同一の朝ジョブに集約し、サイレント欠落（06-12）・取りこぼし期間（06-17）・認証切れサイレント停止（07-01）の3系統の見落としを1画面の日次確認で潰す。
 - **効率化：削減実績の金額換算（年144万円相当・0.1人月解放／06-07）は、Datのベーストレンド補正（DID／07-02連携）済みの純効果を候補スコアと同じスプレッドシートに自動反映し、KPI定義書のSSOT期間関数（07-02連携）で期間境界を揃えた上で現場提案（05-24）と経営報告（06-07）の両方に同一セルから出力する**。素の前後差での過大計上（07-02）を入口で防ぎ、時間→金額の換算式を1箇所に集約して横断ダッシュボード（06-04）との食い違いを構造的に消す。
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: AI Agent Orchestration（LangGraph / CrewAI）
+- **現状ギャップ**: Zapier / Make中心の逐次ワークフローに留まり、複数エージェントで判断分岐する業務（例：見積判定→上長承認→受注入力）を人手で仲介している。
+- **追加スキル**: LangGraph（状態機械型エージェント）／CrewAI（役割別マルチエージェント）／AutoGen（対話型自律実行）の設計と、Human-in-the-Loop（HITL）チェックポイント配置。
+- **習得内容**: 状態遷移図をコードにマップする方法、エージェント間の共有メモリ（Redis / Postgres pgvector）設計、HITL介入点の粒度基準（金額10万円超・新規取引先・不整合検知）、失敗時のロールバックパターン。
+- **アウトプット改善**: automation_proposalsに「AIエージェント化候補（判断×分岐が含まれるフロー）」枠を新設、削減時間の見積精度±30%→±10%。
+- **参考リソース**: LangGraph公式Docs（v0.2）、CrewAI Enterprise ガイド、Anthropic『Building Effective Agents』（2024-12）、松尾研『AI Agent実装講座』2026版。
+
+### STEP 2: Robotic Process Mining（Celonis / UiPath Process Mining）
+- **現状ギャップ**: 自動化候補を担当者ヒアリングと感覚で選定しており、Dat実測（06-16）でも実行ログ由来の客観データが弱い。真のボトルネックが可視化されない。
+- **追加スキル**: Celonis EMS／UiPath Process Mining／Microsoft Process Advisor でのイベントログ収集・変異分析（Variant Analysis）・自動化ROI試算。
+- **習得内容**: イベントログのXES形式変換、Conformance Checking（想定フロー vs 実フロー乖離検出）、ボトルネック検出（待ち時間×頻度）、Task Mining（画面操作ログ）との併用設計。
+- **アウトプット改善**: 候補スコア（工数×頻度×単純度／05-26）に「実測乖離度」を第4軸として追加し、机上推測空振り（05-27）をゼロ化。
+- **参考リソース**: Celonis Academy無料コース、Gartner Magic Quadrant for Process Mining 2025、IPA『DX白書2025』プロセスマイニング章。
+
+### STEP 3: エンタープライズRPA（UiPath / Power Automate Desktop）
+- **現状ギャップ**: Web APIが無いレガシー会計ソフト（弥生・勘定奉行・PCA）・建設業原価管理システムに対して、CSVエクスポート依存で工数が残る。
+- **追加スキル**: UiPath Studio（属性ベースセレクタ）／Power Automate Desktop／Automation Anywhere A360の画面自動化、Unattended Bot運用、Orchestrator/Cloud上でのジョブスケジューリング。
+- **習得内容**: 画面要素の耐障害セレクタ（Anchor Base）、例外ハンドリング（Try-Catch-Retry）、Credential Vault、Attended/Unattendedの分離設計、UiPath AI Center連携。
+- **アウトプット改善**: 建設業クライアント（宮村建設・翔星建設等）の原価管理入力業務（Zapier対応不可）を自動化対象に組み込み、対象業務カバー率50%→85%。
+- **参考リソース**: UiPath Academy（RPA Developer Foundation認定）、Microsoft Learn Power Automate、EY『Global RPA Survey 2025』。
+
+### STEP 4: イベント駆動オーケストレーション（Temporal / Kestra / n8n）
+- **現状ギャップ**: Zapierは長時間実行・複雑リトライ・分散トランザクションに弱く、月次バッチ・非同期Webhook連携で失敗リカバリが手作業化している。
+- **追加スキル**: Temporal（Durable Execution）／Kestra（YAMLベースOrchestrator）／n8nセルフホスト版で、Sagaパターン・Idempotency Key・Backfill運用を実装。
+- **習得内容**: Workflow as Code、State Persistence、Compensating Transaction設計、DLQ再処理の自動化（06-23記録の運用強化）、Cron→Event Driven移行判断。
+- **アウトプット改善**: 月次バッチのMTTR（平均復旧時間）1時間→5分、Webhook順序逆転（Owl連携07-02）耐性が構造的に確保。
+- **参考リソース**: Temporal公式『Application Design Patterns』、Kestra Docs、n8n Community Edition運用ガイド、AWS『Step Functions vs Temporal』比較記事。
+
+### STEP 5: 生成AI×業務自動化（Structured Output / Function Calling）
+- **現状ギャップ**: 請求書PDF・見積書・議事録などの非構造データを担当者が転記しており、OCR＋ルールベースでは精度が頭打ち。
+- **追加スキル**: Claude / GPT-4o のStructured Output（JSON Schema厳守）、Function Calling、Vision API（PDF/画像→構造化）、LLMOps（Langfuse / LangSmith）。
+- **習得内容**: プロンプトのJSON制約、幻覚検出（Confidence Score）、コスト最適化（Prompt Caching・バッチAPI・小型モデル分離）、業務データを含むプロンプトの機密保護（VPC/オンプレLLM）。
+- **アウトプット改善**: 非構造ドキュメント処理コストを1件80円→8円、7社共通の請求書取り込み精度92%→98.5%。
+- **参考リソース**: Anthropic『Prompt Engineering Guide』2026版、OpenAI『Structured Outputs』、Langfuse Docs、経産省『AI事業者ガイドライン Ver1.1』。
+
+### STEP 6: 自動化ガバナンス（Version Control / CI/CD for Automation）
+- **現状ギャップ**: Zapier / Makeのワークフロー変更が個人アカウントで直接編集され、履歴・レビュー・ロールバックが困難。台帳と実装の乖離（07-03記録）の根本原因。
+- **追加スキル**: n8nの`workflows.json` Git管理、Zapier CLI（Version Control）、GitHub Actionsでのdry-run自動実行、Terraform for SaaS（Zapier Provider）。
+- **習得内容**: ワークフローのYAML/JSON化、Pull Request必須化、CI上でのゴールデンテストCSV検証（06-23）、Blue-Green Deploy、監査ログ保全（07-03④）。
+- **アウトプット改善**: 変更起因の本番事故を四半期3件→0件、四半期棚卸し監査（07-03③）の工数8時間→1時間。
+- **参考リソース**: n8n『Source Control』Docs、Zapier Platform CLI、DevOps Research『State of DevOps Report 2025』、経産省『DX推進指標』。
+
+### STEP 7: SLA・可観測性（Observability for Automation）
+- **現状ギャップ**: `/automation status`（05-26）で稼働可視化はできても、レイテンシ分布・エラー率SLO・上流依存の障害伝播が定量把握できていない。
+- **追加スキル**: OpenTelemetry（自動化ジョブへの分散トレーシング挿入）、Datadog / Grafana Cloud での SLO ダッシュボード、PagerDuty連携、Error Budget運用。
+- **習得内容**: SLI / SLO / エラーバジェット設計、Alert Fatigue回避（症状ベース通知）、依存関係マップ（Service Map）、Postmortem文化。
+- **アウトプット改善**: k4_sla_violation_countを月8件→2件、深夜障害通知（05-24）の誤報率30%→3%。
+- **参考リソース**: Google SRE Book『Implementing SLOs』、OpenTelemetry公式Docs、Datadog『2025 State of DevOps』、PagerDuty『Incident Response Guide』。
+
+### STEP 8: セキュリティ・コンプライアンス自動化（電帳法 / インボイス / SOX）
+- **現状ギャップ**: 会計連携ジョブの実行証跡保全（07-03④）は着手済みだが、電帳法検索要件・インボイス制度の適格請求書判定・アクセス権最小化の自動監査が不足。
+- **追加スキル**: 電子帳簿保存法対応（訂正削除履歴・検索要件）、インボイス制度自動判定（登録番号照合API）、AWS/GCP IAM Access Analyzer、Vanta / Drata（コンプライアンス自動化SaaS）。
+- **習得内容**: JIIMA認証取得プロセス、適格請求書発行事業者公表サイトAPI、Secret Rotation自動化（06-12権限台帳の高度化）、最小権限の四半期証明。
+- **アウトプット改善**: 建設業クライアント（一人親方多数）のインボイス判定を100%自動化、税務調査・電帳法監査対応時間を10人日→1人日。
+- **参考リソース**: 国税庁『電子帳簿保存法一問一答』2026版、日本商工会議所『インボイス対応チェックリスト』、JIIMA公式サイト、Vanta『SOC2 Automation Guide』。
+
+### STEP 9: 建設業DX特化自動化（どっと原価 / MCデータプラス / 建設キャリアアップシステム）
+- **現状ギャップ**: 建設業クライアント（7社中5社）の業界特化SaaS（どっと原価NEO・グリーンサイト・CCUS）が汎用RPA/APIで扱いづらく、業界特化ノウハウが弱い。
+- **追加スキル**: どっと原価API仕様、MCデータプラス（グリーンサイト）Webスクレイピング設計、CCUS就業履歴登録の自動化、建設業許可・経営事項審査データ連携。
+- **習得内容**: 建設業特有の帳票（実行予算書・出来高・原価対比）自動生成、労務費計算（法定福利費・法定外福利費）、外国人技能実習生の就業管理連携、電子契約（クラウドサイン建設業版）。
+- **アウトプット改善**: 建設業クライアント向けの業界特化テンプレを7社中5社に展開、新規建設業クライアント立ち上げ2h→30分（05-26の3点セットの建設業版）。
+- **参考リソース**: 建設ドットウェブ『どっと原価NEO API仕様書』、国交省『建設業DXロードマップ2025』、CCUS運営協議会公式Docs、gen（16-建設業DXシステム部）連携。
+
+### STEP 10: 自動化ROI経営レポーティング（削減金額の役員説明力）
+- **現状ギャップ**: DID補正済み削減金額（07-07効率化④）は算出済みだが、経営会議で「投資対効果・回収期間・機会損失削減」の3視点で語れる経営レポート化が未整備。
+- **追加スキル**: NPV / IRR / Payback Period計算、Fermi推定での機会損失定量化、Kanban WIP削減効果の可視化、Balanced Scorecard視点での自動化寄与マッピング。
+- **習得内容**: 自動化1件あたりの初期投資（工数×時間単価＋SaaS費用）算出、3年NPVでの優先順位判定、Kpi横断連携（07-02）でのSSOT数値、投資家・銀行向けピッチでの活用（10-資料作成部連携）。
+- **アウトプット改善**: 経営会議での自動化予算承認率60%→95%、削減実績の対外PR素材化（採用広告・LP事例）にも二次利用。
+- **参考リソース**: 中小企業庁『IT導入補助金2026』ROI算定基準、経済産業省『DX銘柄2025選定基準』、Deloitte『Automation ROI Playbook』、Kpi連携ガイド。
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+Bo（業務自動化）第一人者として、2026年フロンティアで実務投入可能な最新スキル。中小企業LET自社BPO＋建設業7社BPOに直接接続する。
+
+### 1. 世界最新フレームワーク（2025-2026）
+
+- **n8n v1.60（2025-12・セルフホスト＋AI Nodes）**: OSS版がAI Agent Node（LangChain統合）正式リリース。Zapier比コスト1/10、機密データを国内VPCに閉じ込め可、建設業の原価データ処理で採用可能。出典：n8n GitHub Release v1.60。
+- **LangGraph 0.2＋Anthropic MCP（2025-Q3）**: 状態機械型AIエージェント設計の事実上標準。Claude / GPT-4o / Gemini横断ツール実行を1コードで実装、判断×分岐業務（見積承認・与信判定）で威力発揮。出典：LangChain公式Blog、Anthropic『Building Effective Agents』。
+- **UiPath Autopilot for Everyone（2025-10 GA）**: 自然言語→RPA自動生成。「請求書PDFをOutlookから取得して奉行に入力」で下書き生成、建設業BO担当にも展開可能。出典：UiPath公式Blog、Gartner『Magic Quadrant for RPA 2025』。
+- **Power Automate＋Copilot Studio（2026-01）**: Copilot StudioエージェントがPower Automate・Dataverse・Teamsと統合、M365利用の建設業クライアントで既存ライセンス内導入可能。出典：Microsoft Ignite 2025。
+- **Kestra v0.19（2025-11・YAMLベースOrchestrator）**: Airflow比学習コスト1/3、Terraform風YAMLでフロー定義、GitOps標準対応。出典：Kestra公式Docs、CNCF Landscape 2025。
+
+### 2. 実務即応の高度テクニック（数値目標付き）
+
+- **プロセスマイニング前置き（Celonis Free / UiPath Task Mining）**: 候補選定前に1週間イベントログ収集、乖離30%以上工程を最優先化、机上推測空振り（05-27）を構造的ゼロ化・候補精度90%以上。
+- **ROI計算標準化**: 「（削減時間×時間単価×12）−（初期構築工数×時間単価＋SaaS年額）÷初期投資＝Payback月数」を全案件必須、Payback 6ヶ月以内GO・24ヶ月超却下。
+- **Circuit Breaker＋Exponential Backoff（Temporal / n8n）**: リトライ3回→30秒→5分→1時間の段階再試行、失敗率50%超で自動遮断＋Slack通知、k4_sla_violation_count月8件→2件。
+- **HITL介入点設計**: 金額10万円超・新規取引先・OCR信頼度85%未満の3条件で人間承認を強制、暴走リスク封じ込め・心理安全性（05-24）確保。
+- **SLA監視のGolden Signals適用**: Google SRE『4 Golden Signals』を全自動化ジョブに適用（Grafana Cloud無料枠）、SLO 99.5%必達、エラーバジェット50%超で新規リリース凍結。
+- **Version Control自動化（n8n Git＋GitHub Actions）**: 全ワークフローJSON/YAML化＋Git管理＋PR必須＋dry-run自動実行、台帳乖離（07-03③）ゼロ化・ロールバック30分→30秒。
+- **Error Handling三層**: ①ワークフロー内リトライ／②DLQ退避＋警告通知／③翌朝`/automation status`で自動リマインド、サイレント失敗（06-12）・OAuth失効（07-01）を1画面で潰す。
+- **Notification設計テンプレ（4項目）**: 05-24策定「①失敗内容／②影響範囲／③推奨対応／④緊急度」を全通知強制、個人情報マスキング（07-03①）＋共有チャンネル配信（06-17）で心理負荷最小化。
+
+### 3. 国内第一人者としての判断基準
+
+- **ツール使い分け4象限**: ①月間10万件未満＋標準SaaS＝Zapier／②複雑分岐＋機密＝n8nセルフホスト／③レガシー画面＝UiPath／④長期運用＋独自＝Temporal自作、で即決判定。
+- **RPA vs API vs AIエージェント選定順序**: 必ず「API＞AIエージェント＞RPA」の順で検討、RPAは画面変更で壊れる負債になりやすく最終手段。
+- **中小企業のIT投資額基準**: 年商1-10億円建設業では自動化SaaS月額3万円以内・初期構築30万円以内・Payback 6ヶ月以内を必達、超える案件はIT導入補助金活用前提化。
+- **自動化する/しない閾値**: 月間工数2h未満＝しない（保守コストが上回る）／10h超＝必ずする／その間はROI計算で判断、「自動化のための自動化」を戒める。
+- **HITL維持 vs 完全自動化**: 金額100万円未満＋標準取引先＋データ品質90%以上の3条件全てで完全自動化、1条件欠けたらHITL維持。建設業の請求書は元請け承認必須で原則HITL維持。
+
+### 4. 直近1年の動向・ガイドライン
+
+- **経産省『DX白書2025』（2025-08）**: 中小企業DX成熟度2年で12%→28%、業務自動化がROIランキング1位、建設業は依然遅れBo介入余地大。
+- **国交省『建設業DXロードマップ2025』（2025-03）**: 2027年までにCCUS・電子契約・BIM/CIM推奨、Bo活動の追い風。
+- **Gartner『Hyperautomation Trends 2026』**: 「AI Agent＋RPA＋Process Mining」三位一体が主流化、単独スキルからDat＋gen＋Kai連携拡張が必須。
+- **AI事業者ガイドライン Ver1.1（2025-11 経産省・総務省）**: LLM業務利用のリスク管理指針明文化、BO自動化で顧客データ渡す際の同意取得プロセスをテンプレ化必須。
+- **IT導入補助金2026**: 自動化導入で最大450万円補助（デジタル化基盤導入類型）、補助金活用込みROI試算で採用率2倍以上に。
+
+### 5. Boだからこそ気づける深い洞察チェックリスト
+
+- ☑ 「自動化された後の担当者の再配置先」を先に決めたか？（05-24／06-07）：hr_redeployment_suggestions空欄は仕事を奪う恐怖を生む
+- ☑ 本番と同一データ量・同一時間帯でdry-run実施したか？（07-01）：本番10倍データ量・ピーク時間帯で必ず落ちる
+- ☑ 社別運用ルール差分を台帳化したか？（07-01）：7社共通ロジックで1社だけ締め日違い誤集計が最頻事故
+- ☑ 通知に顧客氏名・請求金額の生データが載っていないか？（07-03①）：Slack共有チャンネルは参加者全員可視
+- ☑ 初回本番実行は担当が有人監視するスケジュールか？（07-03②）：月次バッチは対象期間絞った手動実行で初回検証前倒し
+- ☑ OAuth有効期限・APIキー権限・SaaS利用料が台帳登録済みか？（06-12／07-01）：失効・過剰権限・料金増でサイレント停止
+- ☑ 削減時間の金額換算はDIDでベーストレンド補正済みか？（07-02連携）：素の前後差では過大計上、経営信用失う
+- ☑ ロールバック手順書は他BO担当が実行できるレベルか？（05-22）：属人化手順書は障害時に機能しない、新人再現テストで判定
+- ☑ 電帳法検索要件・インボイス適格判定・実行証跡保全を満たしているか？（07-03④／STEP 8）：会計連携は税務調査対応で「証明できない」を不合格化
+- ☑ 「自動化を止められるボタン」がBO担当者の手元にあるか？（05-24）：Notionから1クリック中断UIが定着率30%→95%の差を生む
