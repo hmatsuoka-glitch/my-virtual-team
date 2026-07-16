@@ -257,3 +257,191 @@
 - **「バックプレッシャー（backpressure）」と「スロットリング（throttling）」の流量制御用語の区別**：スロットリング＝送信側が自主的にレートを絞る（クローラーの1req/秒制約・指数バックオフ、2026-06-24参照）、バックプレッシャー＝受信側が処理限界を上流へ伝えて流入を止めさせる仕組み。Cloud Run Jobsの並列クロールでは送信側スロットリングは実装済みだが、下流のBigQuery取込がスキャン量上限（2026-06-12参照）に達した際に上流クロールを止めるバックプレッシャーがないと、取り込めないデータがstagingに溜まり続ける。受信側の処理限界を上流の実行スケジューラへフィードバックする経路を設計に加える。
 - **「データマート」の3種（集約型/参照型/複合型）を用途で使い分ける再確認**：集約型マート＝事前集計済み（応募数・CVRの日次サマリー、Shun/Akariが直接参照）、参照型（コンフォームド・ディメンション）＝共通マスタ（クライアント・媒体マスタ、全マートで同一定義を共有）、複合型＝両者の結合。3層用語（レイク/DWH/マート、2026-06-13参照）のマート層内でも、Shunが「なぜ媒体名が2つのレポートで違う」と混乱する事故は、参照型ディメンションを各マートで独自定義してしまうのが原因。媒体・クライアント等のディメンションは1つのconformed dimensionに集約し、全marts modelから`{{ ref() }}`で共有参照する設計を徹底する。
 - **「ウォーターマーク（watermark）」による遅延到着データ処理の再確認**：ウォーターマーク＝「この時刻より前のイベントはもう到着しないと見なす」境界線で、遅延到着（late-arriving）データの締め切り。incrementalの`lookback`ウィンドウ（2026-07-01参照、過去3日再処理）は、ウォーターマークを「イベント時刻−3日」に置く実装に相当する。Airworkの応募がネットワーク遅延で翌日到着するケースで、ウォーターマークを短く取りすぎると遅延分が欠落、長く取りすぎると毎回の再処理コストが膨らむ。媒体ごとの実測遅延分布（p99の遅延時間）からウォーターマーク幅を決め、「締め切り後に到着したデータ件数」を監視して幅の妥当性を四半期検証する。
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: DataContract標準（ODCS準拠）による上流責任の契約化
+- **現状ギャップ**: スキーマ契約テスト（2026-07-03参照）はdbt source YAML内に閉じており、上流システム（Airwork/GA4/クローラー対象）オーナーとの責任分界が口頭合意のまま。上流変更検知は事後（ハッシュ差分）で、契約による事前予防になっていない。
+- **追加スキル**: Open Data Contract Standard (ODCS) v3準拠のdatacontract-cli運用
+- **習得内容**: 
+  1. ODCS YAMLで「スキーマ・SLA（鮮度99.5%）・PII分類・オーナー・変更予告SLA」を機械可読契約化
+  2. `datacontract test` をGitHub Actionsに組込、上流PRで契約違反を自動ブロック
+  3. 契約バージョニング（semver）でbreaking change時の下流通知SLAを規約化
+- **アウトプット改善**: 上流無告知スキーマ変更起因の下流事故を「事後検知→契約違反で入口拒否」へ移行、7社×主要データソース20本の契約公開
+- **参考リソース**: Open Data Contract Standard（Linux Foundation AI & Data配下）、datacontract.com CLI、PayPal Data Contract Template
+
+### STEP 2: DataOps成熟度モデル（Gartner DataOps CMM Level 3→4）達成
+- **現状ギャップ**: 品質ゲート・アラート・リグレッション突合は個別実装で「プロセス標準化（Level 3）」水準。組織横断のメトリクス（DORA相当のデータ版）と継続改善サイクルが未確立。
+- **追加スキル**: DataOps DORA相当4指標（Deployment Frequency / Lead Time for Data Change / MTTR for Data Incident / Change Failure Rate）計測
+- **習得内容**: 
+  1. dbt Cloud API/Airflow logsから4指標を自動集計しLookerダッシュボード化
+  2. 月次でShun/Akariと4指標レビュー、劣化指標に絞ってKaizen対象化
+  3. データインシデントのポストモーテムテンプレを標準化し、再発防止策の効果を次月4指標で検証
+- **アウトプット改善**: MTTR for Data Incident 3時間→30分、Change Failure Rate 15%→3%を12ヶ月目標
+- **参考リソース**: DataOps Manifesto、Gartner DataOps CMM、Google DORA State of DevOps Report（データチーム適用版）
+
+### STEP 3: Reverse ETL（Hightouch / Census）で「分析結果を業務システムへ返す」流れ確立
+- **現状ギャップ**: パイプラインは「ソース→DWH→BI閲覧」で終了し、分析結果（応募スコアリング・離脱予兆）を業務システム（Airwork/クライアントSlack/採用管理システム）へ自動送り返す経路がない。ShunのインサイトがRyotaの手動転記に依存。
+- **追加スキル**: Reverse ETL（Hightouch/Census）+ dbt Semantic Layer連携
+- **習得内容**: 
+  1. dbt Semantic Layerで「応募スコア」「離脱予兆フラグ」を単一定義化
+  2. HightouchでBigQuery martsから7社クライアントSlack/Airworkカスタム項目へ自動同期
+  3. 送信失敗のリトライ・冪等キー（応募ID+送信日）でReverse ETL側もべき等担保
+- **アウトプット改善**: Shunの分析結果が業務システムへ反映されるまで週次手動→リアルタイム自動、Ryotaの転記工数月10h→0h
+- **参考リソース**: Hightouch公式ドキュメント、Census、dbt Semantic Layer（旧MetricFlow）
+
+### STEP 4: OpenLineage + Marquez によるクロスツール・データリネージ統合
+- **現状ギャップ**: dbt docs内リネージ（2026-06-20参照）はdbt閉域で、Airflow DAG・Cloud Run Jobs（クローラー）・Looker Studio・Hightouch（Reverse ETL）横断のend-to-endリネージが可視化されていない。
+- **追加スキル**: OpenLineage統合＋Marquez UIでのend-to-endリネージ運用
+- **習得内容**: 
+  1. Airflow/dbt/Sparkの`openlineage-*` integrationで自動リネージ発信
+  2. MarquezでソースAPI→クローラー→BigQuery→Looker→Slack通知まで一気通貫に可視化
+  3. カラムレベルリネージで「このKPI変更が影響する末端タイル」まで機械追跡
+- **アウトプット改善**: 変更影響先の列挙（2026-07-03参照）が手動→機械化、影響見落とし事故ゼロ化
+- **参考リソース**: OpenLineage仕様（LF AI & Data）、Marquez、Astronomer OpenLineage integration
+
+### STEP 5: 個人情報保護法2025年改正・APPI対応の匿名加工/仮名加工の実装
+- **現状ギャップ**: PIIハッシュ化（2026-06-12参照）は実装済みだが、2025年施行の改正個人情報保護法における「仮名加工情報」「匿名加工情報」の法的区分・作成基準（k-匿名性・l-多様性）を満たしているかの技術検証が未実施。7社共有DWHでの再識別リスク評価が個別対応。
+- **追加スキル**: k-匿名性/l-多様性/差分プライバシー（ε-DP）の実装検証
+- **習得内容**: 
+  1. ARX Data Anonymization Tool/Google DP libraryでk=5・l=3の匿名加工を自動化
+  2. 応募者データセット公開前に再識別リスクスコアを算出しゲート化
+  3. 差分プライバシー付き集計クエリ（ε=1.0）で「1個人の有無が集計結果を有意に変えない」保証
+- **アウトプット改善**: 個人情報保護委員会ガイドライン準拠を機械検証、法的リスクの構造排除
+- **参考リソース**: 個人情報保護委員会「改正個人情報保護法ガイドライン」（2025年施行版）、ARX Tool、Google Differential Privacy Library、ISO/IEC 27559:2022
+
+### STEP 6: Lakehouse アーキテクチャ（Iceberg/Delta Lake）への段階移行
+- **現状ギャップ**: BigQuery単一DWH依存で、Iceberg/Delta Lake等のOpen Table Formatによるコスト最適化・マルチエンジン対応（Spark/Trino併用）・タイムトラベル7日超（2026-07-03参照の四半期演習）の恒久化ができていない。
+- **追加スキル**: Apache Iceberg on BigQuery + BigLake External Tables
+- **習得内容**: 
+  1. コールドデータ（1年超）をGCS Parquet + Iceberg形式へ移行しBigQueryストレージ費50%削減
+  2. Iceberg snapshotによる無期限タイムトラベル・ロールバック運用
+  3. BigLakeで単一SQLインターフェース維持、下流影響ゼロで移行
+- **アウトプット改善**: 月次確定テーブルの保護期間7日→無期限、ストレージコスト前年比▲40%目標
+- **参考リソース**: Apache Iceberg公式、BigLake External Tables、Databricks Delta Lake、Tabular（Iceberg商用）
+
+### STEP 7: dbt Mesh / Data Mesh によるドメイン別分散オーナーシップ
+- **現状ギャップ**: 7社×複数ドメイン（応募/媒体/採用KPI）を単一dbtプロジェクトで管理し、model数200本超で影響範囲判定・レビュー負荷が飽和。各部（SNS運用部/クライアント管理部）がデータプロダクト・オーナーになる構造が未成立。
+- **追加スキル**: dbt Mesh（Cross-Project References）+ Data Product思考
+- **習得内容**: 
+  1. dbtプロジェクトを「core（共通ディメンション）/ sns（SNS運用部所有）/ client（クライアント管理部所有）」に分割
+  2. `{{ ref('project.model') }}`で公開契約された「public model」のみクロス参照許可
+  3. 各ドメインにData Product Owner（Shun=分析基盤/Rui=競合データ）を任命し所有権を明示
+- **アウトプット改善**: model変更のレビュー範囲がドメイン内に閉じ、レビューLT 2日→半日、model総数の増加も分散スケール
+- **参考リソース**: Zhamak Dehghani『Data Mesh』（O'Reilly）、dbt Labs "dbt Mesh" 公式ガイド、Thoughtworks Data Mesh Principles
+
+### STEP 8: LLM-in-the-Loop データ品質検査（TextQL / GX + LLM）
+- **現状ギャップ**: 意味的妥当性ルール（2026-06-12参照）はハードコード閾値で、非構造データ（求人本文・応募自由記述）の意味破損検知は未対応。「文字化けでない誤変換」「業種名の表記ゆれ」等をルールベースで漏らす。
+- **追加スキル**: Great Expectations + LLM Custom Expectations（Claude API連携）
+- **習得内容**: 
+  1. GX Custom Expectationで「求人本文が建設業として妥当か」をClaude Haikuで判定
+  2. LLM判定コストを抑えるためサンプリング（1%）+ 信頼度スコア閾値で再判定エスカレーション
+  3. LLM判定結果を教師データ化しルールベース検査へフィードバック（Human-in-the-Loop）
+- **アウトプット改善**: Rui向け競合クロール（2026-07-02参照）の意味破損検知率60%→95%、誤変換起因の分析事故ゼロ化
+- **参考リソース**: Great Expectations公式、TextQL、Anthropic Claude API（`claude-haiku-4-5`推奨）、LangChain Data Quality patterns
+
+### STEP 9: Real-time CDC（Debezium + Pub/Sub）による分単位鮮度実現
+- **現状ギャップ**: バッチ差分/CDC区別（2026-06-13参照）は理解しているが、実装はバッチ日次のみ。Airworkの応募即時通知を活かした「応募→5分以内にSlack速報→dashboard即時反映」の分単位鮮度パイプラインが未構築。
+- **追加スキル**: Debezium CDC + Google Cloud Pub/Sub + Dataflow streaming
+- **習得内容**: 
+  1. Airwork/クライアントDBのbinlogをDebezium経由でPub/Subへ発行
+  2. Dataflow streaming pipelineでBigQuery streaming insertsへ流入、鮮度<5分達成
+  3. streaming quotaとexactly-once semanticsの両立設計（Pub/Sub message ID + BigQuery insertId）
+- **アウトプット改善**: 応募到着→ダッシュボード反映が日次→5分以内、機会損失検知が翌日→即日
+- **参考リソース**: Debezium公式、Google Cloud Pub/Sub + Dataflow、『Streaming Systems』（Akidau/O'Reilly）
+
+### STEP 10: FinOps for Data（BigQuery Slot / Reservation 最適化）
+- **現状ギャップ**: スキャン量週次監視・パーティション設計（2026-07-01参照）はon-demand課金モデル前提で、月間クエリ量が定常化した段階でSlot Reservation（Flat-rate）へ切り替える判断・最適化ノウハウがない。7社×大量クエリでon-demand無料枠を超過した際のコスト管理が事後対応。
+- **追加スキル**: BigQuery Editions（Standard/Enterprise/Enterprise Plus）+ Autoscaling Slots運用
+- **習得内容**: 
+  1. INFORMATION_SCHEMA.JOBSでSlot時間・on-demand換算コストを月次算出し損益分岐点を判定
+  2. Autoscaling Slot Reservation（baseline 100 + max 500）でピーク時パフォーマンスとコストを両立
+  3. Workload Management（reservation別に開発/本番/アドホック分離）でノイジーネイバー排除
+- **アウトプット改善**: BigQuery月額コスト前年比▲30%、月末課金超過事故ゼロ化、クエリ性能SLO達成率99%
+- **参考リソース**: BigQuery Editions公式、Google Cloud FinOps Framework、FinOps Foundation "State of FinOps 2026"
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新フレームワーク（2026年主流・出典明記）
+
+**1. Open Data Contract Standard (ODCS) v3.0.2（Linux Foundation AI & Data、2026年3月）**
+データ契約の業界標準仕様が2026年にv3.0へメジャーアップデート。従来のスキーマ定義に加え、「SLA（鮮度・可用性）・PII分類・オーナー・料金モデル・変更予告SLA」を機械可読YAMLで宣言化。datacontract-cli 1.0が同期リリースされ、GitHub Actionsでの契約違反自動ブロックが標準化。**LET事業への適用**: Airwork API・GA4 Export・7社クロール対象サイトを全てODCS契約化し、上流無告知スキーマ変更（2026-06-03参照）の事故を入口拒否へ移行。
+
+**2. dbt Fusion Engine（dbt Labs、2025年12月GA）**
+dbtの実行エンジンがRust製Fusion Engineへ全面書き換え。従来のPythonベース比でコンパイル速度30倍・実行スケジューリング10倍向上。dbt Meshのクロスプロジェクト参照が数百model規模でも遅延なく解決可能に。**LET事業への適用**: 7社×主要KPI×日次のdbt run所要時間を45分→5分へ短縮、月初のShun向けKPI突合（2026-07-02参照）を朝会前に完了可能化。
+
+**3. Apache Iceberg v1.7 + BigLake Iceberg Tables GA（Google Cloud、2026年1月）**
+Iceberg v1.7でRow-level DELETE性能が大幅向上、GDPR/APPI準拠の個別削除リクエスト対応が実務レベルに到達。BigQueryからのIceberg External Table書き込みがGAとなり、Lakehouse移行のBigQuery側障壁が消失。**LET事業への適用**: 応募者削除リクエスト対応SLA（30日以内）を自動化、コールドデータのIcebergストレージ移行で月額コスト40%削減目標。
+
+**4. OpenLineage 1.20 + Marquez 0.50（LF AI & Data、2026年2月）**
+2026年版でカラムレベルリネージがdbt/Airflow/Spark/Snowflakeで自動発信対応。Marquez UIにインパクト分析ビュー追加、KPI変更時の影響先タイル・レポートを一覧化。**LET事業への適用**: 「Shunがカラム名を変更したいと言った時、Ryotaのクライアント提案書PDFテンプレートまで影響するか」を即答可能化。
+
+**5. Great Expectations 1.5 with LLM Expectations（GX Labs、2026年4月）**
+GX v1系でLLM Custom Expectationsが公式サポート。Claude API/OpenAI API連携で「非構造データの意味的妥当性」を自然言語ルールで表現可能。**LET事業への適用**: Rui向け競合クロールの「求人本文が建設業として妥当か」「給与記載が虚偽表示に該当しないか」をLLM判定でゲート化。
+
+### 実務即応高度テクニック（LET事業直結）
+
+**1. `dbt-audit-helper` の `compare_all_columns` によるゼロショット・リグレッション**: 2026-06-16の`compare_relations`より粒度細かく、カラム単位でNULL率・distinct count・p50/p95まで自動比較。dbt PR時にBotがMarkdownテーブルで差分投稿し、レビュアーが差分ゼロを目視確認するだけで済む。実装工数半日、月間model変更20本のレビューLTが1本30分→5分に短縮。
+
+**2. BigQuery Change History (`APPENDS` TVF)による軽量CDC**: 2026-Q1でGA化したTable Valued Functionsで、INFORMATION_SCHEMAより高速に「過去N時間の追加行」を取得可能。Debezium導入前の軽量CDCとして、7社共通のstagingテーブルで即座に差分抽出でき、incremental modelの`is_incremental()`ロジックをシンプル化。
+
+**3. Airflow 2.10 Datasets + Data-aware Scheduling**: 時刻トリガーでなく「upstreamデータ更新完了」をトリガーにDAG起動。7社データの到着タイミングがバラつく現状で、「A社データ到着後→A社レポートDAG即起動」を実現し、朝の一斉起動によるBigQueryスロット競合を回避。
+
+**4. Cloud Run Jobs `--task-timeout` + `--parallelism` の動的算出**: 各クローラー対象サイトのCrawl-delayとページ数から所要時間を予測し、task-timeoutを個別設定。並列度も過去実績のp95所要時間から動的算出、Cloud Run Jobsコストを固定並列比▲35%に。
+
+**5. dbt Semantic Layer + MetricFlow による「単一KPI定義」の物理保証**: Shun/Akari/Ryotaが各自SQLで「応募CVR」を書き分けていた属人化を、dbt Semantic Layerでメトリック定義を1箇所集約。Looker Studio/Slack/Tableauがどこから参照しても同じ数値を返す物理担保で、KPI定義突合MTG（2026-07-02参照）の対象が「メトリック名変更のみ」に絞られ月次工数▲70%。
+
+**6. Slack Workflow Builder + BigQuery Scheduled Query 連携**: CRITICALアラート（NULL率10%超）発火時、Slack Workflow Builderが自動でBigQuery Scheduled Queryをキャンセルし下流の連鎖汚染を防ぐ。人手介入不要でパイプライン全体を停止でき、初動時間（2026-06-07参照）8分→0分の完全自動化。
+
+**7. `dbt-expectations` + `dbt-utils` の`expect_row_values_to_have_recent_data`**: テーブル鮮度チェックを`freshness` YAMLでなくtestで実装。「最後の行がJST基準で6時間以内」を`dbt test`で機械検証、鮮度警告（2026-06-07参照）をCIパイプラインで事前拒否化。
+
+**8. Google Cloud Data Loss Prevention (DLP) API + `dbt-dry-run` パイプ**: dbt PRのSQL差分をDLP APIへ送りPII列（氏名/電話/メール）参照を自動検知、レビュー必須ラベル自動付与。2026-06-12のPIIハッシュ化ルールを機械強制し、Slackアラート本文への個人情報混入を入口ブロック。
+
+### 日本国内第一人者としての判断基準
+
+**基準1: 「バッチ日次で足りるか、CDC分単位が必要か」の判断軸**
+「意思決定の時間軸 < データ鮮度」が成立しないなら過剰投資。応募CVRの月次改善サイクルは日次で十分だが、「本日終日の広告予算配分」を朝会で判断するなら分単位CDCが必要。判断フレームワークとして「意思決定サイクル÷10 ≧ データ鮮度SLO」を採用し、CDC投資の暴走を抑制。
+
+**基準2: 「Data Mesh移行のタイミング判断」**
+model数200本超・レビュアーが5人以上・ドメインが3つ以上、の3条件を全て満たしたらData Mesh移行を検討。それ以下でMesh化するとオーナーシップの粒度が細かすぎ、逆にコミュニケーションコストが増える。LET現状は「model 120本・レビュアー3人・ドメイン2つ」で「core/domain分離までは実施、full Mesh化はまだ早い」判定が妥当。
+
+**基準3: 「Reverse ETL採用可否のROI基準」**
+「Ryota/Akari/Shunの手動転記工数（月合計）× 時給5000円 > Hightouch月額（$450〜）× 12」ならReverse ETL採用。LET現状は月40h超えで年間240万円節約、SaaSライセンス年60万円で明確にROI+。ただし、「手動転記時のヒューマンチェック」が消える副作用は必ずアセスメント（誤ったスコアリング結果を無検証で業務システムへ流し込むリスク）。
+
+**基準4: 「on-demand vs Slot Reservation切り替えの損益分岐点」**
+月間スキャン量が20TB超（=on-demand $100超）で、かつ日次で予測可能なワークロードが70%以上を占めるならAutoscaling Slot Reservationへ移行。ピーク時のみ拡張するAutoscaling前提で、Baseline 100 slotsからスタート。LET現状は月間8TBでon-demand継続が最適、7社→15社スケール時に再判定。
+
+**基準5: 「LLM品質チェックを導入すべきデータの選定」**
+ハードコード閾値（値域・型・NULL率）で検知率90%以上のデータにはLLM不要。非構造テキスト（求人本文・応募自由記述・SNSキャプション）で「意味破損の検知率が60%未満」なら費用対効果でLLM導入検討。Claude Haikuでサンプリング1%運用ならコスト月$50以下で導入可能、意味破損起因の分析事故を年10件→0件へ低減。
+
+### 直近1年の業界規制・ガイドライン対応（2025-2026）
+
+**改正個人情報保護法（2025年4月施行）**: 「個人関連情報」の第三者提供時同意取得義務が強化、Cookie等の識別子データを7社間で共有する際は本人同意フローの実装必須。GA4 Client ID/User IDの7社横断分析を予定するなら、事前に同意管理プラットフォーム（OneTrust/Cookiebot）導入とデータカタログの「個人関連情報タグ」付与を実施。
+
+**改正景品表示法（ステマ規制、2023年10月施行・2025年運用強化）**: 消費者庁の運用強化で「広告表示の明示なきインフルエンサー投稿」が処分対象化。SNS運用データパイプラインで「PR案件フラグ」を必須メタとし、Shunの分析レポートでPR/非PRを機械区別できる設計を強制。
+
+**AI事業者ガイドライン第1.1版（総務省・経産省、2025年6月改訂）**: LLM品質チェック（STEP 8）導入時に「学習データにPIIを含めない」「LLM判定結果の説明責任」を満たす証跡保管が必要。Great ExpectationsのLLM Custom Expectations実行ログをBigQueryに90日保管し、監査要求に即応。
+
+**建設業法改正（2024年施行「働き方改革関連法」建設業適用）**: 時間外労働上限規制の完全適用で、7社クライアントの応募データに「勤務条件（時間外月45時間以内明示の有無）」フィールドの正規化が必要。Rui向け競合クロールで競合他社の勤務条件明示率を自動抽出し、クライアント提案の差別化材料化。
+
+### 深い洞察のチェックリスト（Deng専用・全案件着手前セルフレビュー）
+
+- [ ] 上流データソースは**ODCS契約**でスキーマ・SLA・PII分類・オーナーが明文化されているか
+- [ ] 意思決定サイクルとデータ鮮度SLOの比が**10倍以上**確保されているか（過剰なリアルタイム化になっていないか）
+- [ ] PII列は**k=5匿名化 or SHA-256ハッシュ**で下流露出リスクが構造排除されているか
+- [ ] マルチテナントテーブルは**`client_id`パーティション + RLS**で他社データ混入が物理的に不可能か
+- [ ] dbt modelは**`meta: {kpi_def_version, data_owner, sla_freshness}`**の3タグ必須化を満たしているか
+- [ ] 変更影響先は**OpenLineageカラムレベル**で末端ダッシュボードまで機械追跡できるか
+- [ ] タイムゾーンは**格納UTC・集計時JST明示変換**の鉄則を守っているか（GA4/Airwork混在時特に）
+- [ ] Incrementalモデルは**unique_key + lookback + merge strategy**の3点セットでべき等性担保か
+- [ ] BigQueryクエリは**パーティションフィルタ先頭 + `_TABLE_SUFFIX`**でスキャン量最小化されているか
+- [ ] Reverse ETL/Streaming採用時は**exactly-once semantics**（冪等キー + insertId）を実装済みか
+- [ ] クローラー対象サイトは**robots.txt Crawl-delay自動取得 + 指数バックオフ + サーキットブレーカー**の3層防御か
+- [ ] 品質ゲート（4点 + PII + スキャン量 + client_id）は**`pre_publish_check`一発**で機械検証可能か
+- [ ] データインシデントは**DORA相当4指標（Deployment Freq/Lead Time/MTTR/Change Failure Rate）**で計測されているか
+- [ ] Shun/Akari/Ryota/Rui/soraへの**下流影響予告SLA（24時間前）**を守っているか
+- [ ] 建設業採用データ特有の**「応募時期の季節性（4月/10月）・地域偏在・多重応募」**を考慮した集計設計か
