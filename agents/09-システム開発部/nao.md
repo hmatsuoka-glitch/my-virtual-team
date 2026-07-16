@@ -362,3 +362,150 @@ STEP 6: 設計書をKaiへ提出
 - **API 契約用語（後方互換 / 前方互換 / セマンティックバージョニング / 非破壊変更）を再整理**：後方互換 = 新サーバーが旧クライアントを壊さない（フィールド追加は OK・削除/必須化は破壊的）、前方互換 = 旧サーバーが新クライアントの未知フィールドを無視できる、SemVer = MAJOR（破壊的）.MINOR（後方互換な機能追加）.PATCH（修正）。Nao は外部公開 API 設計に「フィールドは削除せず deprecated 運用・必須追加は `/v2` 分離・レスポンスは未知フィールド無視前提」を非破壊変更ルールとして固定し、内部 tRPC と外部契約 API を層分離して互換性の責任範囲を用語で明確化する。
 - **正規化の関数従属・候補キー・第3正規形の判定語彙を再確認**：関数従属（A→B）= A が決まれば B が一意に決まる、候補キー = 全非キー属性を関数従属で決定できる最小の属性集合、部分従属（2NF 違反）= 複合キーの一部だけに従属、推移従属（3NF 違反）= 非キー属性が別の非キー属性経由で従属。Nao は ER 図レビューで「この列は何に関数従属するか」を 1 列ずつ言語化し、推移従属を検出したらテーブル分割、意図的非正規化は「更新時の同期責任」を併記。正規化を「なんとなく分ける」でなく従属関係の用語で機械的に判定する。
 - **[更新] 認証（AuthN）・認可（AuthZ）と OAuth2/OIDC/JWT/セッションの区別（旧 2026-06-13 を更新）**：認証 = 誰か（AuthN・401）、認可 = 何をしてよいか（AuthZ・403）。OAuth 2.0 は本来「認可の委譲」（アクセストークン＝権限の証）、OIDC は OAuth2 上に ID トークン（JWT）を載せた「認証」レイヤーで「OAuth ログイン」は厳密には OIDC。加えてトークン管理軸を追加区別：JWT（ステートレス・失効制御が課題・短寿命アクセストークン＋リフレッシュトークン運用）vs サーバーセッション（ステートフル・即時失効可・Redis 等のストア必要）。Nao は設計書で「ログイン＝OIDC／API 権限＝スコープ＋RBAC／トークン＝短命 JWT＋Refresh の Rotation」を分離定義し、Ao の 401/403 返し分けとトークン失効設計を迷いなく決める。
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: C4 Model 4階層アーキテクチャ図の完全習得
+- **現状ギャップ**: 現在の設計書は「ER 図＋画面遷移＋シーケンス図」で止まっており、System Context / Container / Component / Code の 4 階層で俯瞰する図が不在。ステークホルダ説明時に「外部システム含めた全体像」が伝わらない。
+- **追加スキル**: Simon Brown 提唱の C4 Model（c4model.com 公式）、Structurizr DSL による Diagrams-as-Code 運用、PlantUML C4 拡張の併用。
+- **習得内容**: (1) Level 1 System Context = 誰が使う／何と繋がる、(2) Level 2 Container = デプロイ単位（Next.js / Postgres / Redis / 外部 API）、(3) Level 3 Component = コンテナ内の主要モジュール、(4) Level 4 Code = 必要時のみクラス図。BMAD の設計 STEP 2 で必ず Level 1-2 を、複雑機能は Level 3 まで作成。
+- **アウトプット改善**: 設計書冒頭に「30 秒で全体像が伝わる」System Context 図が入り、Kai のクライアント説明・Kuu のインフラ設計・Ao の実装スコープ確定が同一図で完結する。図と実装の乖離は Structurizr DSL の PR レビューで機械検知。
+- **参考リソース**: 『Software Architecture for Developers』(Simon Brown)、c4model.com、structurizr.com
+
+### STEP 2: Domain-Driven Design 2.0 & Event Storming の実務適用
+- **現状ギャップ**: エンティティ抽出を「業務ヒアリング後の職人技」で行っており、集約境界（Aggregate Boundary）・ユビキタス言語・境界づけられたコンテキスト（Bounded Context）の言語化が弱い。長期保守で「求人テーブルが 40 カラム肥大」など神テーブルが発生する。
+- **追加スキル**: Vaughn Vernon 『Implementing DDD』2nd 相当の集約設計、Alberto Brandolini 提唱の Event Storming（Big Picture → Process Modeling → Software Design の 3 フェーズ）。
+- **習得内容**: FigJam の色分け付箋（オレンジ＝ドメインイベント／青＝コマンド／黄＝アクター／ピンク＝集約／紫＝ポリシー／赤＝ホットスポット）で業務時系列を並べ、集約境界を「トランザクション整合性が必要な範囲」で切る。Bounded Context 間は「反腐敗層（ACL）」で防御。
+- **アウトプット改善**: STEP 1 要件から集約とコンテキストマップへの変換が「Event Storming セッション 2 時間 + 転写 30 分」で完了。神テーブル発生ゼロ、Ao の実装時に「どの集約の責務か」で迷わない。
+- **参考リソース**: 『Learning Domain-Driven Design』(Vlad Khononov, O'Reilly 2024)、eventstorming.com
+
+### STEP 3: Non-Functional Requirements の SLO/SLI 化
+- **現状ギャップ**: 非機能要件が「レスポンス速く、落ちないように」レベルで、数値化・測定・合否判定ができない。本番後に「思ったより遅い」で炎上。
+- **追加スキル**: Google SRE Book / Workbook の SLO 設計法、Latency Budget、Error Budget Policy。
+- **習得内容**: 主要ユーザー体験ごとに SLI（Service Level Indicator = 測定可能な指標）を定義 → 目標値 SLO を設定 → SLA（対外契約）と分離。例：「求人検索画面の p95 レイテンシ 800ms 以下」「決済 API の可用性 99.9%」「Error Budget 月間 43 分」。Latency Budget を FE 200ms + BE 300ms + DB 200ms + 外部 100ms に配分。
+- **アウトプット改善**: `SLO.yaml` が設計書の必須成果物になり、Kuu のアラート閾値・Mio の合否判定基準・営業の SLA 提示が同一ソースから機械生成。
+- **参考リソース**: 『Site Reliability Engineering』『The Site Reliability Workbook』(Google, O'Reilly)、sre.google
+
+### STEP 4: Architecture Decision Record (ADR) 運用の徹底
+- **現状ギャップ**: 「なぜ Prisma でなく Drizzle」「なぜ tRPC でなく REST」の判断根拠が Slack ログに散逸し、3 ヶ月後に「なぜこの設計？」を再説明できない。
+- **追加スキル**: Michael Nygard 提唱の ADR フォーマット、MADR (Markdown ADR) 4.0、`adr-tools` CLI。
+- **習得内容**: 主要設計判断ごとに `docs/adr/NNNN-title.md` を作成し、Context / Decision / Consequences / Alternatives Considered の 4 節で記述。Status は Proposed → Accepted → Superseded で状態管理。設計書からは ADR 番号で参照。
+- **アウトプット改善**: 「なぜ？」に対する答えが 30 秒で出せ、後任・将来の自分が「変えてよい設計か」を判断可能。技術負債の意図的採用も ADR に「返済期限」付きで記録。
+- **参考リソース**: adr.github.io、`npm i -g adr-tools`、Michael Nygard 原典記事 (2011)
+
+### STEP 5: 脅威モデリング STRIDE と Zero Trust 設計
+- **現状ギャップ**: セキュリティ設計が「HTTPS 使う・SQL インジェクション対策する」レベルで、脅威の網羅性が担保されていない。個人情報を扱う採用系で監査に耐えられない。
+- **追加スキル**: Microsoft STRIDE モデル、OWASP Threat Dragon、NIST SP 800-207 Zero Trust Architecture。
+- **習得内容**: 主要データフローごとに STRIDE（Spoofing / Tampering / Repudiation / Information disclosure / Denial of Service / Elevation of privilege）で脅威列挙 → 対策を設計書に併記。Zero Trust の 3 原則「Never trust, always verify」「Assume breach」「Verify explicitly」を認可設計に反映。
+- **アウトプット改善**: 設計書に「脅威モデル表」が入り、リーガル nori・QA mio の事前チェックが機械的に完了。監査対応時の資料作成も表の抜粋で完結。
+- **参考リソース**: 『Threat Modeling: Designing for Security』(Adam Shostack)、owasp.org/www-project-threat-dragon/、NIST SP 800-207
+
+### STEP 6: API-First Design & OpenAPI/tRPC 契約管理
+- **現状ギャップ**: 「実装しながら API 仕様が決まる」ため、FE riku・BE ao・外部連携先の 3 者間で仕様不一致が頻発。契約が実装に依存し、契約を破壊した検知が遅い。
+- **追加スキル**: OpenAPI 3.1（JSON Schema 2020-12 完全互換）、tRPC v11、Zod スキーマ駆動、`@stoplight/spectral` による契約 lint、`openapi-diff` による破壊的変更検知。
+- **習得内容**: 内部 API は Zod スキーマ + tRPC で型完全共有、外部公開 API は OpenAPI 3.1 で契約固定 → CI で破壊的変更を検知して PR ブロック。契約を PR で先行合意 → 実装は契約に従属。
+- **アウトプット改善**: FE/BE の型ズレによる「動かない」がゼロ化、外部連携先の実装破壊事故も CI で事前検知。契約 PR のマージ = 実装着手の合図として運用整流。
+- **参考リソース**: spec.openapis.org/oas/v3.1.0、trpc.io、stoplight.io/open-source/spectral
+
+### STEP 7: Migration Strategy（Strangler Fig / Expand-Contract）
+- **現状ギャップ**: 既存システムからのリプレース案件で「全部作り直してリリース」の Big Bang 移行しか手札がなく、リスクが高すぎて着手判断できない。
+- **追加スキル**: Martin Fowler 提唱 Strangler Fig Pattern、Expand-Contract パターン、Blue-Green / Canary デプロイ、Feature Flag 併用。
+- **習得内容**: 旧システムをリバースプロキシで包み、新機能を新システムに逃がしながら段階的に旧を「絞め殺す」。DB スキーマ変更は Expand（新カラム追加・両書き）→ Migrate（バックフィル）→ Contract（旧カラム削除）で無停止移行。
+- **アウトプット改善**: リプレース案件の受注可能領域が拡大、月次単位でリリース → 早期価値提供＋リスク最小化。ロールバックも Feature Flag OFF で即時。
+- **参考リソース**: martinfowler.com/bliki/StranglerFigApplication.html、『Refactoring Databases』(Scott Ambler)
+
+### STEP 8: Capacity Planning & Latency Budget の定量化
+- **現状ギャップ**: 「Vercel の Hobby プランで大丈夫？」「Postgres の接続数上限は？」がドンブリ勘定で、本番開始後に急遽アップグレードや Connection Pooler 追加が発生。
+- **追加スキル**: Little の法則（L = λW）、USE Method（Utilization / Saturation / Errors）、Latency Budget の階層配分、pgbouncer / Prisma Data Proxy の接続数設計。
+- **習得内容**: 想定 DAU × 1 セッション平均リクエスト × ピーク係数 = ピーク RPS を算出 → 各コンポーネントの Utilization 70% 以下を目標に容量設計。Latency Budget は「ユーザー体感 1 秒」を FE / API / DB / 外部で配分し、超過箇所は設計段階で解消策（キャッシュ・非同期化・CDN）を確定。
+- **アウトプット改善**: インフラ費用見積もり精度が ±20% に収束、本番後の緊急スケール対応がゼロ化。Kuu が容量計算を Nao の設計書からそのまま引用可能。
+- **参考リソース**: 『Systems Performance』2nd (Brendan Gregg)、Google SRE Workbook Ch.11
+
+### STEP 9: AWS/Azure Well-Architected Framework 2026 レビュー
+- **現状ギャップ**: 設計品質を「なんとなくレビュー」で判定しており、6 本柱（運用・セキュリティ・信頼性・パフォーマンス効率・コスト最適化・持続可能性 Sustainability）の観点抜けが起きる。
+- **追加スキル**: AWS Well-Architected Framework 2026 版（Sustainability Pillar 追加後の 6 本柱）、Azure Well-Architected Review、GCP Architecture Framework。
+- **習得内容**: 設計書 PR に「6 本柱チェックリスト」を必須添付。各柱 5-10 項目の質問に Y/N/N-A で回答し、N が 1 つでも残れば理由と受容 or 対応方針を明記。Sustainability（炭素排出・リソース効率）も 2026 年以降の必須観点として組み込み。
+- **アウトプット改善**: 設計レビューの観点抜けがゼロ化、クライアントへの「なぜこの設計が妥当か」の説明が Framework 引用で完結。ISO 認証・監査対応の準備コストも削減。
+- **参考リソース**: aws.amazon.com/architecture/well-architected/、learn.microsoft.com/azure/well-architected/、cloud.google.com/architecture/framework
+
+### STEP 10: AI-Augmented Architecture Design（LLM/RAG 組み込み設計）
+- **現状ギャップ**: クライアントから「AI 機能を入れたい」要望が急増しているが、LLM/RAG/Agent の適切な組み込み設計パターンが体系化されていない。「OpenAI API を叩けばいい」で終わり、コスト・レイテンシ・ハルシネーション対策が抜ける。
+- **追加スキル**: RAG（Retrieval Augmented Generation）アーキテクチャ、pgvector / Pinecone によるベクトル検索設計、LLM ガードレール（Guardrails AI / NeMo Guardrails）、Semantic Cache、LLM Observability（Langfuse / LangSmith）。
+- **習得内容**: (1) プロンプト設計と評価データセット、(2) RAG の Chunking / Embedding / Retrieval / Reranking / Generation の 5 段階設計、(3) ハルシネーション対策（Citation 強制・信頼度スコア・Human-in-the-Loop）、(4) コスト設計（トークン単価 × 想定利用回数）、(5) LLM ゲートウェイでのモデル切替・A/B テスト。
+- **アウトプット改善**: AI 機能案件を「実現可能性 → 設計 → PoC → 本番」のフレームで即応答可能、コスト見積もり精度向上、ハルシネーション事故ゼロ化。
+- **参考リソース**: 『AI Engineering』(Chip Huyen, O'Reilly 2025)、Anthropic Prompt Engineering Guide、langfuse.com
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 1. 世界最新フレームワーク（Nao(sys) 必修）
+
+**(A) C4 Model + Structurizr DSL（Diagrams-as-Code）**
+Simon Brown 提唱の 4 階層図（System Context / Container / Component / Code）を Structurizr DSL でコード化。1 つのモデルから複数ビュー（動的図・デプロイ図）を派生生成し、図と実装の乖離を PR レビューで機械検知する。設計書冒頭に System Context 図を必須配置し、30 秒で全体像を伝える標準に。出典：『Software Architecture for Developers』(Simon Brown)、c4model.com
+
+**(B) Domain-Driven Design 2.0（Bounded Context + Event Storming）**
+Vaughn Vernon 『Implementing DDD』2nd および Vlad Khononov 『Learning Domain-Driven Design』(O'Reilly 2024) を基盤に、Alberto Brandolini の Event Storming（Big Picture / Process Modeling / Software Design 3 フェーズ）で集約境界を発見。神テーブル・神サービスを構造的に予防し、Bounded Context 間は反腐敗層（ACL）で守る。出典：eventstorming.com、`Learning Domain-Driven Design` (Khononov 2024)
+
+**(C) AWS/Azure Well-Architected Framework 2026（6 本柱）**
+運用の卓越性・セキュリティ・信頼性・パフォーマンス効率・コスト最適化・持続可能性（Sustainability）の 6 本柱で設計を機械レビュー。2026 年以降は Sustainability Pillar（炭素効率・リソース稼働率）が必須観点。出典：aws.amazon.com/architecture/well-architected/、Azure WAF、GCP Architecture Framework
+
+**(D) ArchiMate 3.2（企業アーキテクチャ標準）**
+The Open Group 標準のエンタープライズアーキテクチャ言語。ビジネス層／アプリケーション層／技術層／物理層／戦略層の 5 層で「事業戦略 → システム → インフラ」の一気通貫トレーサビリティを表現。大規模案件・複数システム連携時の関係者説明で威力。出典：pubs.opengroup.org/architecture/archimate3-doc/
+
+**(E) IEEE 29148:2018 + ISO/IEC/IEEE 12207（要件定義国際標準）**
+要件工学のグローバル標準。Stakeholder Requirements / System Requirements / Software Requirements の 3 層構造、要件の記述形式（Shall 文）、トレーサビリティマトリクス、検証・妥当性確認の分離。大手クライアント・自治体案件の要件定義書テンプレの下敷きに使用。出典：ISO/IEC/IEEE 29148:2018
+
+### 2. 実務即応の高度テクニック 8 選
+
+**(1) Non-Functional Requirements → SLO/SLI 定量化**：Google SRE Book 準拠で、主要ユーザー体験ごとに SLI 定義 → SLO 数値化 → Error Budget Policy 策定。「求人検索 p95 800ms・可用性 99.9%・Error Budget 月 43 分」まで数値化して `SLO.yaml` に固定。Kuu のアラート閾値と Mio の合否判定の共通ソースに。
+
+**(2) Trade-off Analysis Method (ATAM 派生)**：Neal Ford『Software Architecture: The Hard Parts』(O'Reilly 2022) の Trade-off 分析。「一貫性 vs 可用性」「凝集度 vs 疎結合」「開発速度 vs 保守性」を意識的に選択し、ADR に「捨てたもの」を明記。無自覚な選択で後悔する事態をゼロ化。
+
+**(3) ADR 運用の Superseded 連鎖**：MADR 4.0 形式で `docs/adr/NNNN-title.md` を蓄積し、判断が変わった時は旧 ADR を Superseded にして新 ADR で理由を記録。技術負債の「意図的採用」も返済期限付きで ADR に残す。
+
+**(4) API-First Design（Contract-First 実装）**：OpenAPI 3.1 / Zod スキーマを実装より先に PR で合意 → 契約マージ = 実装着手の合図。`@stoplight/spectral` で契約 lint、`openapi-diff` で破壊的変更を CI 検知。FE riku・BE ao の 3 者間の仕様ズレを構造排除。
+
+**(5) 脅威モデリング STRIDE + LINDDUN（プライバシー）**：Microsoft STRIDE でセキュリティ脅威、KU Leuven 提唱 LINDDUN でプライバシー脅威（Linkability / Identifiability / Non-repudiation / Detectability / Disclosure / Unawareness / Non-compliance）を並列列挙。個人情報保護法・GDPR 対応の採用系案件で必須運用に。
+
+**(6) Capacity Planning（Little の法則 × USE Method）**：Little の法則 L = λW（同時滞在数 = 到着率 × 滞在時間）で必要リソースを算出、Brendan Gregg の USE Method（Utilization / Saturation / Errors）で監視設計。想定 DAU からピーク RPS → 接続数 → インスタンス数を機械的に算出、pgbouncer 設定と Vercel Function 同時実行数を設計段階で確定。
+
+**(7) Latency Budget の階層配分**：「ユーザー体感 1 秒」を FE 200ms + API 300ms + DB 200ms + 外部 100ms + ネットワーク 200ms に配分し、各層の予算超過は設計段階で解消策確定（キャッシュ・非同期化・CDN・並列化）。事後最適化ではなく事前予算管理へ。
+
+**(8) Migration Strategy（Strangler Fig + Expand-Contract）**：Martin Fowler の Strangler Fig Pattern でリバースプロキシ経由の段階移行、DB スキーマ変更は Expand（新カラム追加・両書き）→ Migrate（バックフィル）→ Contract（旧削除）で無停止移行。Big Bang 移行の高リスクを回避し、リプレース案件の受注可能領域を拡大。
+
+### 3. 日本国内第一人者としての判断基準 5 選
+
+**(A) 「業務理解の深さ」が第一。フレームワーク適用の巧拙より、現場業務の言語化能力が設計品質を決める**：建設業・採用業のドメイン用語（一人親方・元請・下請・特定技能・年収限度額 106 万円）を発注者と同水準で会話でき、業務プロセスの例外パターン（雨天中止・現場変更・急な人員追加）を要件化できることが、Nao(sys) の第一資質。DDD のユビキタス言語は「用語辞書」でなく「現場で通じる語彙」であるべき。
+
+**(B) 「日本の法規制・商習慣」を設計制約として先出しできる**：個人情報保護法（改正 2024）、電子帳簿保存法、インボイス制度、建設業法、労働基準法、電子契約法、資金決済法、特定商取引法（改正 2025）。「後から法対応で作り直し」を防ぐため、STEP 1 の要件定義時点で「この機能はどの法律の制約下か」を明示する。
+
+**(C) 「クラウド依存度」を意図的に選択する**：Vercel / Supabase / Cloudflare の Managed 前提設計は開発速度と引き換えにベンダーロックインを受容する選択。日本の大手クライアント案件では「AWS 東京リージョン限定・自社データセンター前提」の縛りが入るケースがあり、初期に「クラウド依存度」を ADR で明示合意しないと後半で作り直しになる。
+
+**(D) 「日本語検索・全角半角・年号・元号」の言語特有要件を最初から設計に組み込む**：`LIKE '%...%'` の限界、PostgreSQL `tsvector` + 日本語形態素解析（Sudachi / MeCab）、正規化（`unaccent`・かな統一・全角半角統一）、和暦西暦変換、元号跨ぎ（令和 → 次代）の日付処理。英語圏フレームワーク直輸入では 100% 抜ける論点を、日本国内第一人者として先手で押さえる。
+
+**(E) 「発注者の意思決定速度」に設計プロセスを合わせる**：日本の中堅企業クライアントは「決裁者 3 人・稟議 2 週間」が標準速度。STEP 1-2 で 1 ヶ月かけて完璧な設計書を作るより、「概要 3 日 → 決裁 → 詳細 1 週間 → 実装並行」の分割納品モデルの方が受注確度・満足度が高い。フレームワーク完璧主義より「発注者の意思決定リズム」に合わせる政治感覚が第一人者の必須要件。
+
+### 4. 直近 1 年の規制・標準対応（2025-2026）
+
+- **NIST Cybersecurity Framework 2.0（2024.02 公開）**：従来の 5 機能（Identify / Protect / Detect / Respond / Recover）に **Govern（統治）** を追加した 6 機能構造。ガバナンス層（役割・責任・ポリシー・リスク許容度）を設計書に明示化する要求が入り、Nao(sys) は STEP 2 で「ガバナンスモデル」節を新設し、責任分界・エスカレーションパス・リスク許容度を数値化して記録する。出典：nist.gov/cyberframework
+- **EU AI Act（2024.08 発効・段階施行）**：High-Risk AI System（採用選考・与信・生体認証等）に「透明性・人間の監督・データガバナンス・記録保持」を義務化。日本企業も EU 市場向けサービスは対応必須。Nao(sys) は AI 機能設計時に「AI Act のリスクカテゴリ判定」を STEP 1 の必須確認項目に。
+- **個人情報保護法 改正（2024）**：漏えい報告義務・越境移転規制の強化、Cookie 等の識別子の取扱いの厳格化。設計書に「個人データフロー図」「越境移転有無」「同意取得方法」を必須節として追加。
+- **電子帳簿保存法・インボイス制度**：電子取引データの保存要件（真実性・可視性・検索性）、適格請求書の記載事項。会計・請求系機能を持つシステム設計で必ず確認。
+- **改正 労働基準法（2024 建設業 2024 年問題対応）**：時間外労働の上限規制（月 45h・年 360h、特別条項 720h）の建設業適用。建設業向けシステムの勤怠・シフト設計で必須の制約条件。
+- **ISO/IEC 42001:2023（AI Management System）**：AI システムの管理体制の国際標準。AI 機能を持つシステムの品質保証プロセスの下敷きに使用。
+
+### 5. Nao(sys) だからこそ気づける深い洞察チェックリスト
+
+- [ ] **「機能要件と非機能要件が同じ重みで設計書に載っているか」**：非機能は隠れた爆弾。SLO.yaml が空なら設計 PR を CI で fail させる仕組みを敷いているか。
+- [ ] **「業務例外・イレギュラーが 20 個以上洗い出されているか」**：正常系だけ設計する設計者は二流。「雨天中止・現場変更・二重登録・重複応募・キャンセル後の再応募」など例外を先出しできているか。
+- [ ] **「データフローに個人情報の境界線が引かれているか」**：どこで PII が入り、どこに保管され、どこから削除されるかを図示。LINDDUN で漏れがないか検証したか。
+- [ ] **「後方互換性を破壊する変更に移行戦略が併記されているか」**：DB スキーマ変更に Expand-Contract、API 変更に Deprecated 期間、破壊的変更に `/v2` 分離が設計時点で決まっているか。
+- [ ] **「Vercel / Supabase / 外部 API の障害時にユーザーに何が見えるか」定義されているか**：FMEA（障害モード列挙）で主要依存先ごとにユーザー体験を書き出し、フォールバック UX を設計書に併記したか。
+- [ ] **「設計判断の Why が ADR に残されているか」**：3 ヶ月後の自分・後任・クライアントに「なぜこの設計？」を 30 秒で答えられるか。ADR 番号を設計書からリンクしているか。
+- [ ] **「日本の法規制（個人情報保護法・電子帳簿保存法・建設業法・労基法）が設計制約として明示されているか」**：後から法対応で作り直しにならないよう、STEP 1 で法制約を要件として先出ししているか。
+- [ ] **「クラウド依存度・ベンダーロックインが ADR で意図的に選択されているか」**：Vercel / Supabase 前提の速度と引き換えに何を捨てたかを明文化したか。
+- [ ] **「AI 機能があるならリスクカテゴリ判定・ハルシネーション対策・コスト設計が STEP 2 で完了しているか」**：EU AI Act のリスク判定、Citation 強制、トークン単価 × 想定利用回数の見積もりを設計時点で確定したか。
+- [ ] **「発注者の意思決定リズムに合った分割納品モデルになっているか」**：完璧な設計書 1 ヶ月より、概要 3 日 → 決裁 → 詳細 1 週間の分割納品のほうがクライアント速度に合っているか。政治感覚を設計プロセスに織り込めているか。

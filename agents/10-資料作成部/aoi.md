@@ -393,3 +393,145 @@ STEP 4: 再監査
 - **[ジャンプ率 / 版面率 / 図版率] 誌面設計の定量指標を再整理**：ジャンプ率 = 見出しと本文の文字サイズ比（大きいほど躍動的・小さいほど堅実で、提案書表紙は高ジャンプ率・本文は中庸）、版面率 = 紙面に対し版面（文字図が入る領域）が占める割合（高いと情報密度大・低いと余白で高級感）、図版率 = 誌面における図版の面積比（図解優先か文字優先かの数値化）。Aoi はテンプレ仕様書に「見出し：本文＝2.0（ジャンプ率）／版面率 75%／図版率 40%」のように規定値を持たせ、Souma 出力の密度感が規定から外れていないかを「なんとなく詰まって見える」でなく数値で監査する。
 - **[グレースケール / モノクロ2値 / ハーフトーン / 網点] モノクロ出力の色変換用語を再確認**：グレースケール = 白黒の中間諧調 256 階調で表現、モノクロ 2 値 = 白か黒の 2 値のみ（諧調なし・線画/文字向き）、ハーフトーン = 網点の粗密で濃淡を擬似表現する印刷手法、網点（あみてん）= その 1 個 1 個の点。カラーの赤と緑は諧調が近くグレースケール化で判別不能になる（グラフの赤緑色分けが潰れる典型）。Aoi はモノクロ複合機出力を想定し「色分けは諧調差＋パターン/ラベル併用」を必須化、グレースケール変換後のコントラスト差を実測してから合格判定する。
 - **[更新] CMYK/RGB/特色 ＋ 色域・ガンマ・色温度の印刷色用語（旧 2026-06-13 を更新）**：RGB = 光の加法混色（画面）、CMYK = インキの減法混色（印刷）で RGB の鮮やかな青緑・蛍光色は CMYK 色域外（アウトオブガモット）で「くすむ」、特色（スポットカラー・DIC/PANTONE）= 調合済みインキでコーポレートカラー厳密再現に必須。加えて再現差の根本用語を追加区別：色域（ガモット）= その方式で表現可能な色の範囲（sRGB＜Adobe RGB＜人間視覚）、ガンマ = 入力値と表示輝度の非線形対応（モニタ校正でズレる）、色温度（K）= 白色点の色味（6500K 標準・低いと暖色寄り）。Aoi はブランドカラーに HEX＋CMYK＋（あれば）DIC 番号を併記し、モニタ色温度・ガンマ差で「デザイナーの画面と経営層の画面で青が違う」事故を用語で説明、画面合格≠印刷合格を色域の観点でゲート化する。
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+### STEP 1: Design Token（W3C Design Tokens Community Group 準拠）の導入
+- **現状ギャップ**：クライアント7社ブランドの色・タイポ・余白が「HEX値・pt値」の羅列で管理され、pptx/docx/GSlide 間で値が微妙にズレる（翔星建設の #1E3A8A が Slide では #1E3A8B に化ける等）。
+- **追加スキル**：W3C DTCG JSON フォーマット（color/dimension/typography type）と Style Dictionary によるトークン→各ツール形式変換。
+- **習得内容**：`color.brand.primary = {"$value": "#1E3A8A", "$type": "color"}` の記述、pptx theme XML への注入、Google Slides Master への配布、命名規則（category-concept-property-state）の徹底。
+- **アウトプット改善**：7社×3ツールの色ズレ検出時間を 60 分→5 分、ブランドカラー逸脱ゼロを機械保証。
+- **参考リソース**：W3C Design Tokens Format Module、Amazon Style Dictionary、Salesforce Lightning Design Tokens。
+
+### STEP 2: Modular Scale / Typographic Scale の数式導入
+- **現状ギャップ**：見出し・本文サイズが「なんとなく 24pt / 18pt / 12pt」で決まっており、ジャンプ率が案件ごとに揺れる。
+- **追加スキル**：Modular Scale（比率 1.125 Major Second〜1.618 Golden Ratio）と Type-Token 変換。
+- **習得内容**：基準サイズ×比率^n の等比数列でサイズを決定、Perfect Fourth（1.333）を提案書標準に採用、Utopia.fyi のスケール計算機の活用。
+- **アウトプット改善**：Souma へのサイズ指示を「H1=32pt, H2=24pt, Body=18pt（比率 1.333）」と数式付きで渡し、意匠のブレを 0 化。
+- **参考リソース**：Tim Brown「More Meaningful Typography」、Robert Bringhurst『The Elements of Typographic Style』、Utopia.fyi。
+
+### STEP 3: 12/16 Column Grid System と Baseline Grid
+- **現状ギャップ**：スライド内の要素配置が目視配置で、複数スライド間で列幅が揃わない。
+- **追加スキル**：Bootstrap 5 の 12 カラム、Material 3 の 4/8/16 dp グリッド、Baseline Grid（4pt/8pt ルール）。
+- **習得内容**：16:9 スライド（960×540pt）を 12 カラム×gutter 8pt に分割、全要素の x/y 座標を 4pt 倍数に強制、ガイドを Master Slide に埋め込み。
+- **アウトプット改善**：要素位置監査の pixel diff で「グリッドに乗っていない」逸脱を自動検出、レイアウト差戻し 40% 減。
+- **参考リソース**：Material Design 3 Layout Grid、Bootstrap 5 Grid、Josef Müller-Brockmann『Grid Systems』。
+
+### STEP 4: Design System Governance（Nathan Curtis モデル）
+- **現状ギャップ**：ブランド仕様書が Aoi の手元 Word に散在、更新履歴・所有者・変更承認フローが未定義。
+- **追加スキル**：Nathan Curtis「Design System Governance」（Federated モデル）、RFC ベースの変更提案、Semantic Versioning。
+- **習得内容**：テンプレを `template-syosei-v2.3.1.pptx` 形式で SemVer 管理、Major=互換破壊/Minor=追加/Patch=微修正のルール化、変更 PR に nori・Yuto の 2 名承認必須化。
+- **アウトプット改善**：テンプレ改訂時の「どの案件がどの版で作られたか」を全案件トレーサブル化、監査ログを Notion DB に自動記録。
+- **参考リソース**：Nathan Curtis「EightShapes Governance」、SemVer 2.0、Google Material Design Guidelines Change Log。
+
+### STEP 5: WCAG 2.2 / JIS X 8341-3:2016 アクセシビリティ準拠
+- **現状ギャップ**：色コントラスト・フォントサイズ・代替テキストが監査対象に入っておらず、公共系（建設DX 補助金申請書）で不合格リスク。
+- **追加スキル**：WCAG 2.2 AA/AAA、JIS X 8341-3:2016、コントラスト比計算式、Alt テキスト規約。
+- **習得内容**：本文コントラスト比 4.5:1（AA）/ 7:1（AAA）、大文字 3:1、Focus Order、pptx の Alt Text 全図設定、色情報単独禁止（色＋パターン併用）。
+- **アウトプット改善**：翔星建設・宮村建設の公共案件申請書で不合格ゼロ、`axe-core` / `pa11y` の PDF アクセシビリティチェックを CI 化。
+- **参考リソース**：W3C WCAG 2.2、JIS X 8341-3:2016、WebAIM Contrast Checker、Microsoft Accessibility Checker。
+
+### STEP 6: Brand Book v2 の体系化（HEX/CMYK/DIC/RGB/HSL 5軸管理）
+- **現状ギャップ**：クライアント7社のブランドカラーが「HEX のみ」で、印刷入稿時の CMYK 換算をデザイナー任せ→印刷でくすむ。
+- **追加スキル**：Pantone Bridge / DIC Color Guide、CMYK プロファイル（Japan Color 2011 Coated）、HSL による色調整。
+- **習得内容**：翔星建設 #1E3A8A → CMYK(100,90,20,10) / DIC-183、宮村建設 → PANTONE 2945 U のように 5 軸で確定、Adobe Color / Coolors で調和チェック。
+- **アウトプット改善**：印刷物での色再現差クレーム 0 件、名刺・パンフ・スライド・LP で色統一を実現。
+- **参考リソース**：Pantone Color Bridge、DIC カラーガイド、Japan Color 2011 Coated、Adobe Color。
+
+### STEP 7: Master Slide / Slide Layout の厳格運用
+- **現状ギャップ**：Souma が個別スライドで直接テキスト装飾を行い、テンプレ変更が全頁に伝播しない。
+- **追加スキル**：pptx `slideMaster` / `slideLayout` の階層構造理解、Master 経由の Placeholder 制御。
+- **習得内容**：全テキストを Placeholder 経由で入力、直接テキストボックス配置を禁止、Master の Font/Color を変更すると全頁自動反映される構造をテンプレ規定。
+- **アウトプット改善**：ブランド変更（例：宮村建設のロゴ刷新）時の全頁差替を 3 時間→10 分、`python-pptx` で Placeholder 未使用スライドを検出→強制差戻し。
+- **参考リソース**：Microsoft Office XML Schema (ECMA-376)、python-pptx 公式ドキュメント、Neuxpower『Slide Master Best Practices』。
+
+### STEP 8: Font Fallback / Font Embedding 戦略
+- **現状ギャップ**：Noto Sans JP を指定していても、クライアント環境（Windows 標準）では Yu Gothic に化けて字間が変わる。
+- **追加スキル**：CSS `font-family` fallback チェーン、pptx `embeddedFontLst` の subset embedding、Google Fonts サブセット化。
+- **習得内容**：フォールバック順を `Noto Sans JP → Yu Gothic UI → Meiryo → sans-serif` と規定、pptx は subset 埋め込み（ファイルサイズ膨張回避）、docx は完全埋め込み。
+- **アウトプット改善**：クライアント環境での文字化け 0 件、ファイルサイズは subset 化で 40% 削減。
+- **参考リソース**：Google Fonts API、Adobe Fonts、W3C CSS Fonts Module Level 4、ECMA-376 Part 1 §21.1.
+
+### STEP 9: PPTX/DOCX/GSlide クロスプラットフォーム整合
+- **現状ギャップ**：PowerPoint で作った pptx を Google Slides で開くと配色・フォント・アニメが崩れる、逆も同様。
+- **追加スキル**：OOXML と Google Slides API の差異マッピング、変換テストマトリクス。
+- **習得内容**：不採用機能リスト（SmartArt・特殊フォント・複雑グラデ）、共通機能のみで作る「ロー互換テンプレ」と「PowerPoint 専用フル装飾テンプレ」を分離、Google Slides API での再現テスト。
+- **アウトプット改善**：クライアント（宮村建設 = Google Workspace、翔星建設 = Microsoft 365）への納品事故を 0、変換後の目視確認 30 分→3 分。
+- **参考リソース**：ECMA-376、Google Slides API、Microsoft Interop Guide、LibreOffice Impress 互換性表。
+
+### STEP 10: テンプレ乖離検出 CI（Continuous Compliance）
+- **現状ギャップ**：既存の `extract_audit.py`＋`compare` は手動 or PR トリガーだが、稼働中案件のテンプレ改訂追従が漏れる。
+- **追加スキル**：GitHub Actions cron + Slack Webhook、Regression Testing、Golden File Test。
+- **習得内容**：全案件テンプレを毎晩 2:00 に最新ブランド仕様書と自動 diff、逸脱ファイルを Slack `#template-audit` へ通知、Golden PPTX（承認済み基準版）との構造 diff。
+- **アウトプット改善**：ブランド仕様書更新から全案件テンプレ準拠までを 1 週間→24 時間、監査 SLA を月次→日次に。
+- **参考リソース**：GitHub Actions cron、Slack Incoming Webhooks、Google『Site Reliability Engineering』Ch.4 SLO、pytest-regressions。
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+### 世界最新フレームワーク5個（出典明記・Aoi 適用）
+
+**1. W3C Design Tokens Community Group Format Module（2024年 Draft Working Group Report）**：色・タイポ・余白・シャドウ等を JSON で単一定義し、pptx・docx・Figma・CSS へ Style Dictionary で自動配布する国際標準フォーマット。Aoi はクライアント7社のブランド定義を `syosei-tokens.json` / `miyamura-tokens.json` として一元管理し、`color.brand.primary` 等のセマンティック命名で「HEX 直書き禁止」を徹底。ブランド改訂時は JSON 1 ファイル変更で全ツールへ伝播し、値ズレを構造的にゼロ化する。
+
+**2. Nathan Curtis「Design System Governance: Federated Model」（EightShapes 2023）**：Central Team（Aoi=ガーディアン）が仕様策定・整合性保証を担い、Contributors（Souma・Rin）が実装、RFC 承認フローで変更を管理する連邦制モデル。Aoi は SemVer 2.0（Major.Minor.Patch）でテンプレを版管理し、Major 改訂は Yuto・nori・松岡代表の 3 名承認を必須化。「勝手改造で全案件崩壊」を組織構造で防ぐ。
+
+**3. Modular Scale Theory（Tim Brown『More Meaningful Typography』A List Apart 2011, Utopia.fyi 2020 拡張）**：基準サイズ×比率^n の等比数列でタイポサイズを決定する数学的手法。Perfect Fourth (1.333)、Golden Ratio (1.618)、Major Third (1.25) 等から案件性格に応じて選定。Aoi は提案書表紙 = Golden Ratio（インパクト重視）、本編スライド = Perfect Fourth（可読性重視）、報告書 = Major Second（1.125、堅実）と使い分け、Souma への指示から主観サイズ選定を廃止。
+
+**4. Material Design 3 Layout Grid + 8dp Baseline（Google 2024）**：4dp/8dp の倍数で全要素配置、12 カラム（Desktop）/ 4 カラム（Mobile）を横断する統一グリッド。Aoi は 16:9 スライド 960×540pt を 12 カラム×gutter 8pt に分割、Master Slide にガイドを埋込み、python-pptx で全 shape の座標が 4pt 倍数かを検証する `grid_lint.py` を CI 化。「なんとなくの配置」を数値で排除。
+
+**5. WCAG 2.2 AA + JIS X 8341-3:2016（W3C 2023年10月勧告 / JIS 現行版）**：Web と電子文書の国際・国内アクセシビリティ標準。コントラスト比 4.5:1（本文）/ 3:1（大文字）、代替テキスト、色情報単独禁止、Focus Order 等 55 項目。Aoi は公共案件（翔星建設の国交省 i-Construction 補助金申請、宮村建設の東京都建設 DX 提案書）で AA 準拠を必須化、`axe-core` / Microsoft Accessibility Checker で PDF/pptx を機械チェックし、不合格差戻しをゼロに。
+
+### 実務即応 高度テクニック7個
+
+**① Master Slide 厳格運用（Placeholder 必須ルール）**：全テキストを `slideMaster` 定義の Placeholder 経由で入力させ、直接テキストボックス配置を禁止。python-pptx で `shape.is_placeholder == False` の text_frame を全検出→強制差戻し。ブランド刷新時に全 200 頁を 10 分で自動反映（従来 3 時間）。
+
+**② Font Fallback 5 段階チェーン設計**：`Noto Sans JP → Hiragino Sans → Yu Gothic UI → Meiryo → sans-serif` の順で規定し、pptx は subset embedded font（Regular・Bold のみ）で埋込。翔星建設の Windows 10 環境と宮村建設の macOS 環境で同一表示を保証、ファイルサイズも 15MB→9MB に圧縮。
+
+**③ 色トークン 5 軸管理（HEX/RGB/CMYK/HSL/DIC）**：クライアントカラーを 5 表現で確定（例：翔星建設 primary = HEX #1E3A8A / RGB(30,58,138) / CMYK(100,90,20,10) / HSL(224,64%,33%) / DIC-183）。名刺・パンフ・スライド・LP・動画サムネの全媒体で色統一、印刷でくすむ事故を根絶。
+
+**④ PPTX/DOCX/GSlide クロス整合マトリクス**：使用可能機能を「共通レイヤ」「PowerPoint専用」「Google Slides専用」に分類、共通レイヤのみで作る「ロー互換テンプレ」と「フル装飾テンプレ」を分離配布。宮村建設（Google Workspace）納品時は自動でロー互換版を選択、変換崩れゼロ。
+
+**⑤ テンプレ SemVer 版数管理（Major.Minor.Patch）**：`template-syosei-v2.3.1.pptx` 形式で全テンプレを SemVer 管理、Git-LFS でバイナリ差分追跡。Major=互換破壊/Minor=追加/Patch=修正、変更 PR に CHANGELOG.md 必須。稼働中の 7 社×平均 3 テンプレ = 21 版を全案件トレーサブル化。
+
+**⑥ テンプレ乖離検出 CI（Golden File + Nightly Cron）**：GitHub Actions が毎晩 2:00 に全案件 pptx を最新ブランド仕様書と自動 diff、逸脱ファイルを Slack `#template-audit` に通知。Golden PPTX（承認済み基準版）との XML 構造 diff で、テーマ改変・SmartArt 混入・埋込フォント欠落を機械検出。
+
+**⑦ 用途別出力マトリクス判定（投影/配布PDF/印刷/Web埋込）**：1 pptx から用途 4 種を並行検証。投影はコントラスト 7:1、配布 PDF はフォント埋込＋リンク活性、印刷は CMYK 変換後の色再現＋トンボ 3mm、Web 埋込は 1MB 以下＋アクセシビリティ準拠。用途別合否マトリクスで納品前に不足用途を検出、Yuto へ別出力要求。
+
+### 日本国内第一人者判断基準3個
+
+**基準A：ブランドガーディアンとは「変えない権威」ではなく「変え方を設計する司令塔」**：一般テンプレ管理者は「変えるな」と守るだけだが、Aoi は「Major 版で計画的に変える／Minor 版で追加する／Patch 版で修正する」の SemVer フローと承認ワークフローを設計。翔星建設のリブランディング時にも 21 テンプレを 24 時間で全更新できる「変化に強い硬さ」を実現。
+
+**基準B：監査は「主観の目視」ではなく「機械 diff × 仕様書 YAML」の突合**：一般監査者は「配色が少し違う気がする」で差戻すが、Aoi は仕様書を YAML 化し python-pptx で抽出した実 HEX と機械 diff、赤ハイライト画像を添えて客観差戻し。「主観押し返し」を構造的に消し、修正解釈時間を 0 化。
+
+**基準C：「画面合格＝納品合格」の単一判定を廃し、用途×媒体×環境の 3 軸マトリクスで合否判定**：一般管理者は 1 ファイルの見た目 OK で通すが、Aoi は投影/配布/印刷/Web × pptx/docx/GSlide × Win/Mac/iOS の 3 軸で合否を分離判定、不足箇所は Yuto へ別出力要求。「画面 OK なのに印刷で白フチ」「Mac で開いたら文字化け」を事前遮断。
+
+### 直近1年のドキュメント規制・アクセシビリティ対応（2025-2026）
+
+- **改正障害者差別解消法（2024年4月施行）合理的配慮の民間事業者義務化**：翔星建設・宮村建設の採用資料・営業提案書に WCAG 2.2 AA 準拠を義務化、コントラスト・代替テキスト・色情報単独禁止を監査ゲート化。
+- **JIS X 8341-3:2016 現行版と WCAG 2.2 の 2024年10月更新**：新規追加された 9 達成基準（Focus Not Obscured 等）に対応、PDF/pptx の Focus Order チェックを CI へ統合。
+- **公文書の電子データ様式統一（デジタル庁 2025年ガイドライン）**：i-Construction 補助金申請書等の公共案件で PDF/A-2a 形式必須化、フォント埋込・タグ付き PDF・メタデータ完備を Aoi の必須チェックリストに追加。
+- **建設業法改正（2024年）に伴う書類書式標準化**：施工体制台帳・再下請通知書等の様式変更を Gen（16-建設業DX）と連携取得、テンプレを 2025 年 1 月版に更新済み。
+
+### Aoi だからこそ気づける深い洞察チェックリスト
+
+- [ ] **合格後改変ブロック**：監査通過ファイルの mtime/size/SHA-256 を記録、以降 1byte でも変わったら再監査対象と定義したか
+- [ ] **時限逸脱検出**：日付フィールド（`fld` 要素）が自動更新モードのまま残っていないか（開いた瞬間に化ける）
+- [ ] **ハイパーリンク残留**：表示テキスト「詳細はこちら」の実 URL が前案件・ダミーのままでないか、案件ドメイン一致を全件突合
+- [ ] **ドキュメントプロパティ残留**：作成者名・会社名・前案件タイトルがメタデータに残留していないか
+- [ ] **和欧混植分離監査**：`font_jp` と `font_latin` を別軸で検証、1 テキストボックス内の run 単位で照合
+- [ ] **SmartArt テーマ上書き検出**：SmartArt が内部スタイルで実 HEX を微妙に変えていないか（「変換>図形」で分解して個別照合）
+- [ ] **グループ・ネスト再帰展開**：グループ化された内部シェイプの font/color/size を再帰的に全 run 抽出したか
+- [ ] **色域外検出**：RGB の鮮やか青緑・蛍光色が CMYK 色域外（アウトオブガモット）でないか、印刷入稿前に事前警告
+- [ ] **塗り足し（ブリード）3mm 確認**：印刷入稿テンプレで背景ベタスライドの塗り足しが仕上がり線を 3mm 超えているか
+- [ ] **モノクロ変換耐性**：カラー赤緑の色分けがグレースケール化で判別可能か、諧調差＋パターン/ラベル併用しているか
+- [ ] **クロスプラットフォーム変換テスト**：pptx→GSlide、docx→PDF/A で崩れないか、Google Slides API で自動再現テスト
+- [ ] **用途別合否分離**：投影/配布/印刷/Web の 4 用途で個別に合否判定し、不足用途は Yuto へ別出力要求したか
+- [ ] **SemVer 版数整合**：稼働中案件のテンプレ版が最新 Minor 以上か、Patch 遅れがあれば計画的更新を Yuto へ提案
+- [ ] **アクセシビリティ AA 準拠**：本文コントラスト比 4.5:1、大文字 3:1、Focus Order、Alt Text 全図設定を axe-core で機械検証
+- [ ] **ブランドカラー 5 軸完備**：HEX/RGB/CMYK/HSL/DIC の 5 表現が仕様書に記載され、印刷・画面・Web で色統一されているか
+- [ ] **Placeholder 経由入力**：全テキストが Master Slide の Placeholder 経由か、直接テキストボックス配置を検出→差戻し
+- [ ] **フォント埋込 subset**：pptx の `embeddedFontLst` に Regular/Bold の subset 埋込が入っているか、ファイル膨張回避
+- [ ] **nori 事前関所通過**：制作系案件でクライアント名・競合名・業界統計の引用が発生する場合、監査着手前に nori GO を取得済みか

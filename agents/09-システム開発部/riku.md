@@ -433,3 +433,155 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **メモ化 API（memo / useMemo / useCallback）と React 19 Compiler の関係を再整理**：`React.memo` = props 不変なら再レンダリングをスキップ（コンポーネント単位）、`useMemo` = 計算結果のメモ化（値）、`useCallback` = 関数参照の固定（`useMemo(()=>fn)` の糖衣）。参照的等価性（referential equality）を保つことで子の不要再描画を防ぐのが本質。React 19 Compiler はこれらを自動挿入するため手動メモ化は原則不要になるが、Compiler 未導入プロジェクトでは「依存に渡す関数/オブジェクトの参照固定」を用語で理解して使う。Riku は「まず計測、メモ化は再描画が実測ボトルネックの箇所だけ」を原則にし、過剰メモ化の可読性低下を避ける。
 - **レンダリング用語（ハイドレーション / ストリーミング / Suspense / RSC ペイロード）を再確認**：ハイドレーション = SSR 済み HTML に JS のイベントを後付けする工程（サーバーとクライアントの初回 DOM が不一致だとミスマッチ）、ストリーミング SSR = `<Suspense>` 境界で骨組みを先送り・データを後追いフラッシュ、RSC ペイロード = Server Components がクライアントへ渡す直列化データ（Date/Map/関数は不可・プレーン値のみ）。Riku は「Server Components ファースト＋葉だけ `'use client'`」の設計をこの語彙で説明し、境界を越える props はプレーン化、日付は ISO 文字列で渡してミスマッチを構造回避する。
 - **[更新] CSS 単位 px/em/rem/vw/dvh/svh/lvh の基準とモバイル選択（旧 2026-06-13 を更新）**：em = 親フォント基準（入れ子で複利増減）、rem = ルート基準で予測可能（余白・文字は rem 優先）、vw/vh = ビューポート比だが `vh` はモバイルのアドレスバー伸縮で「100vh がはみ出す」古典バグ。動的ビューポート単位を用途で使い分け：`dvh`（動的・アドレスバー追従で全画面モーダル/ヒーロー向き）／`svh`（最小・固定フッターの逃げ計算で安全側）／`lvh`（最大・常時最大高さ前提）。加えて `cqw/cqh`（コンテナクエリ単位・親要素幅基準でコンポーネント単位のレスポンシブが可能）を新たに区別し、`px` 固定はブラウザ文字サイズ設定（a11y）を殺すためメディアクエリも rem で書く。Riku は全画面系＝`100dvh`・固定フッター逃げ＝`svh`・再利用コンポーネント内の折返し＝`cqw` と機械選択する。
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+Riku（フロントエンド・Next.js・TDD準拠）の次半期スキル拡張計画。BMAD-METHOD の Dev ロール（実装専任）を軸に、React 19／Next.js 15 世代の Web 標準・A11y・パフォーマンスを実務レベルで内製化する。
+
+### STEP 1: React 19 Compiler の運用ノウハウ完全習得
+- **現状ギャップ**: `useMemo/useCallback` の手動メモ化に頼っており、Compiler 導入時の「メモ化除去 PR」「未対応 lint ルール」の運用手順が未整備。
+- **追加スキル**: `babel-plugin-react-compiler` の `eslint-plugin-react-compiler` 併用、`"use no memo"` エスケープハッチ運用、Compiler 適用可否の PR チェックリスト化。
+- **習得内容**: (1) Compiler 前提での状態設計原則（参照的等価性を Compiler に委ねる）、(2) 非対応パターン（React ルール違反の mutable ref 更新等）の検出方法、(3) Storybook/Vitest 環境での Compiler 有効化、(4) 段階的ロールアウト戦略（新規 route から適用）。
+- **アウトプット改善**: 手動メモ化コード削減率 40%、レビュー時のメモ化議論時間ゼロ化。
+- **参考リソース**: React 公式 "React Compiler" ドキュメント、React Conf 2024 セッション、`react-compiler-runtime`。
+
+### STEP 2: Next.js 15 App Router + PPR（Partial Prerendering）本番運用
+- **現状ギャップ**: PPR は experimental 触った程度で、静的シェル＋動的穴の設計判断が属人的。
+- **追加スキル**: `experimental_ppr = true` の route 単位判定、`<Suspense>` 境界による Dynamic Hole 設計、`unstable_cache` と `revalidateTag` の使い分け。
+- **習得内容**: (1) PPR が効くページ／効かないページの見分け方、(2) `Dynamic API`（cookies/headers/searchParams）の露出制御、(3) キャッシュタグ設計（クライアント別・機能別）、(4) Vercel の PPR メトリクス確認手順。
+- **アウトプット改善**: 採用サイト系 LP の TTFB 200ms 以内、LCP 1.5s 以内。
+- **参考リソース**: Next.js 15 公式 "Partial Prerendering"、Vercel Blog "PPR GA"。
+
+### STEP 3: Server Actions × Zod × 型安全フォーム統一
+- **現状ギャップ**: `useActionState` と RHF＋Zod の役割分担が定まらず、フォームごとに実装スタイルがブレる。
+- **追加スキル**: Server Actions のスキーマ駆動化（`zod` の `safeParse` を Server Action 冒頭で必須）、`useActionState`＋`useFormStatus` の Progressive Enhancement 実装、`next-safe-action` ライブラリ評価。
+- **習得内容**: (1) Ao の Result 型と Server Actions の返り値契約、(2) JS 無効環境でも動く nofallback フォーム、(3) 楽観的 UI（`useOptimistic`）とサーバー確定のロールバック、(4) FormData ↔ 型の変換パターン。
+- **アウトプット改善**: フォーム実装工数 30% 減、送信失敗時のフィールドエラー整合率 100%。
+- **参考リソース**: React 公式 `useActionState`／`useOptimistic`、`next-safe-action` v7 docs。
+
+### STEP 4: TanStack Query v5 × Suspense 完全移行
+- **現状ギャップ**: `useQuery` の isLoading 分岐 UI が散在し、Suspense/ErrorBoundary の設計が浅い。
+- **追加スキル**: `useSuspenseQuery`／`useSuspenseInfiniteQuery` への統一、`HydrationBoundary` による RSC→Client のデータ受け渡し、`queryOptions` ファクトリの徹底。
+- **習得内容**: (1) Suspense 境界の粒度設計（画面全体 vs パネル単位）、(2) `throwOnError` によるエラー伝搬、(3) Optimistic Update と onMutate/onError のロールバック、(4) `experimental_streamedQuery` の SSE 統合。
+- **アウトプット改善**: isLoading 三項演算子コード 80% 削減、ローディング体験の統一化。
+- **参考リソース**: TanStack Query v5 公式、"Suspense in React 19"。
+
+### STEP 5: Tailwind CSS 4.0 の CSS-First 設定移行
+- **現状ギャップ**: `tailwind.config.js` の JS 設定が残っており、v4 の `@theme` CSS 変数駆動に未対応。
+- **追加スキル**: `@import "tailwindcss"`＋`@theme` ブロック、`@layer utilities` のカスタムユーティリティ、`@variant` によるダークモード制御。
+- **習得内容**: (1) デザイントークン（色・タイポ・スペーシング）の CSS 変数化、(2) Kana（バナー）との `tokens.css` 共通化、(3) Lightning CSS ベースの高速ビルド、(4) container queries `@container` の実運用。
+- **アウトプット改善**: ビルド時間 5 倍高速化、ブランド変更時の 1 ファイル反映。
+- **参考リソース**: Tailwind CSS v4 公式リリースノート、"Upgrade Guide v3→v4"。
+
+### STEP 6: Web Vitals（INP・LCP）実測ダッシュボード内製化
+- **現状ギャップ**: Lighthouse スコアしか見ておらず、実ユーザー計測（RUM）データを実装判断に活かせていない。
+- **追加スキル**: `web-vitals` v4 の `onINP`／`onLCP`／`onCLS` を GA4/Sentry 送信、`INP` 200ms 超のインタラクション特定、`next/font` の subset 最適化。
+- **習得内容**: (1) INP を悪化させる典型パターン（重い onClick、同期 setState 連発、大 DOM 更新）、(2) `startTransition`／`useDeferredValue` による優先度制御、(3) Long Animation Frames API での原因特定、(4) 属性値による切り分け（デバイス・回線・route）。
+- **アウトプット改善**: INP p75 200ms 以内、Core Web Vitals "Good" 率 90% 超。
+- **参考リソース**: web.dev "INP"、Chrome DevTools "Performance panel v130"。
+
+### STEP 7: A11y（WCAG 2.2）自動テスト × 手動監査ハイブリッド
+- **現状ギャップ**: 目視確認頼みで、コンポーネント単位の A11y リグレッションが起きても気づけない。
+- **追加スキル**: `@axe-core/playwright`／`vitest-axe` の CI ゲート化、Storybook `@storybook/addon-a11y` v9 のシナリオ横断検査、`aria-live` リージョン運用パターン。
+- **習得内容**: (1) WCAG 2.2 新規追加基準（2.4.11 Focus Not Obscured、2.4.13 Focus Appearance）、(2) VoiceOver／NVDA での手動監査手順、(3) キーボードトラップ検出、(4) 改正障害者差別解消法（合理的配慮の民間義務化）を踏まえた採用サイト対応。
+- **アウトプット改善**: A11y 違反ゼロで PR マージ、コントラスト比 4.5:1 遵守率 100%。
+- **参考リソース**: WCAG 2.2 公式、Deque `axe-core` v4.10、内閣府「合理的配慮の提供」ガイドライン。
+
+### STEP 8: MSW v2 × Playwright Component Testing で E2E→CT シフト
+- **現状ギャップ**: Mio の E2E に依存し、フロント単体の視覚回帰テストが手薄。
+- **追加スキル**: MSW v2 の Service Worker モック＋Playwright Component Testing、`@playwright/experimental-ct-react` の CT ランナー、Chromatic 代替の視覚回帰。
+- **習得内容**: (1) API モック定義を Storybook・Vitest・Playwright で共有する `handlers.ts` 単一ソース化、(2) CT で state ごとの Screenshot Diff、(3) MSW の `passthrough` によるハイブリッドテスト、(4) Playwright `trace viewer` での失敗解析。
+- **アウトプット改善**: FE 単体テスト実行時間 60% 短縮、リグレッション検出率 3 倍。
+- **参考リソース**: MSW v2 公式、Playwright CT v1.50。
+
+### STEP 9: Edge Runtime × Streaming SSR × React Server Components 深掘り
+- **現状ギャップ**: RSC の serialization 制約や Edge Runtime の Node API 非対応で詰まる場面が多い。
+- **追加スキル**: `runtime = 'edge'` の使い所判断、`renderToReadableStream` の理解、`react-server` condition の import 分離、`server-only`／`client-only` パッケージ運用。
+- **習得内容**: (1) Edge で使える／使えない Node API 一覧、(2) RSC ペイロードのプレーン化ルール（Date→ISO、Map→Object）、(3) `next/dynamic` の SSR 制御、(4) Suspense のネスト設計とストリーミング体験。
+- **アウトプット改善**: 世界配信 CDN 経由で TTFB 100ms 以内、東京リージョン以外からのアクセス改善。
+- **参考リソース**: Next.js "Edge Runtime"、React "Server Components RFC"。
+
+### STEP 10: BMAD-METHOD Dev エージェント運用の型化
+- **現状ギャップ**: 実装依頼が来るたびに Nao の設計書解釈がブレる。BMAD の Dev ロールとしての標準手順が未確立。
+- **追加スキル**: `story.md`（1 ストーリー＝1 PR）の粒度設計、Definition of Done（DoD）チェックリスト、Nao/Ao/Kuu/Mio との連携契約書テンプレ化。
+- **習得内容**: (1) BMAD の spec-driven の各成果物（Requirements/Design/Tasks/Implementation）を Riku 視点で読む観点、(2) TDD Guard で赤→緑→リファクタを強制、(3) `qa-gate.md` の Dev 側事前セルフチェック、(4) 実装ログ（`what/why/how`）の残し方。
+- **アウトプット改善**: 手戻り率 50% 減、Mio ゲート初回通過率 80% 超。
+- **参考リソース**: BMAD-METHOD 公式リポジトリ、`workflows/spec-driven/`、`workflows/tdd/tdd-rules.md`。
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+Riku がフロントエンド実装の日本国内第一人者として、2026年時点で即戦力となる最新技術・実務テクニック・判断基準を体系化する。BE は Ao、インフラは Kuu、テストは Mio に委譲する境界を守りつつ、FE 単独で完結すべき領域を深掘りする。
+
+### 世界最新フレームワーク・ライブラリ（2025-2026 実装済ベース）
+
+1. **Next.js 15.x App Router + Partial Prerendering (PPR)**（出典: Next.js 公式リリースノート 15.0/15.1、Vercel Blog "PPR is now stable"）。従来の SSR/SSG の二択を超え、1 ページ内で「静的シェル＋動的穴」を混在できる。`export const experimental_ppr = true` を route に付与し、動的部分を `<Suspense fallback>` で囲むだけで CDN 配信＋動的コンテンツを両立。採用サイトの「共通ヘッダー静的／応募状況動的」ケースで TTFB 200ms を安定達成。Riku は route ごとに PPR 適用判定表（動的 API の露出頻度・キャッシュ有効期間）を作成し、Kuu の Vercel 設定と一致させる。
+
+2. **React 19 Server Components / Server Actions / useOptimistic**（出典: React 公式 "React 19" 発表、react.dev "use client / use server"）。Server Components 標準化により、`fetch` を Server Component で await するだけでデータ取得・ウォーターフォール回避が完結。Server Actions は `'use server'` ディレクティブでフォーム送信をサーバー関数に直結でき、Progressive Enhancement（JS 無効でも動く）を実現。`useOptimistic` はサーバー応答前に楽観 UI 更新→失敗時ロールバックを 5 行で実装可能。Riku は「Server ファースト、葉だけ Client」を原則にし、`'use client'` を書く際は理由をコメント必須化する。
+
+3. **TanStack Query v5 + TanStack Router v1**（出典: TanStack 公式 v5 リリース、tanstack.com Router docs）。Query v5 は `useSuspenseQuery` で Suspense 統合が第一級サポート、`queryOptions` ファクトリで queryKey・型・staleTime を単一ソース化。Router v1 は 100% 型安全ルーティング（route params/searchParams が型推論）＋ローダー統合で、Next.js App Router を採用しない SPA では第一選択肢。Riku は Next.js プロジェクトでは Query のみ採用、Vite ベース SPA では両方採用と使い分け、`queryOptions` を機能単位（`features/jobs/queries.ts`）で集約する。
+
+4. **Zustand v5 + Immer + persist middleware**（出典: Zustand 公式 v5、pmndrs blog）。Redux Toolkit より 90% 少ないボイラープレートで、`create<State>()(persist(immer((set) => ...)))` の 1 行構成で「イミュータブル更新＋localStorage 永続化」が完結。Context API より再レンダリング範囲を最小化でき、`useShallow` で selector 最適化。Riku は「UI 状態＝useState、機能横断＝Zustand、サーバー状態＝TanStack Query」の 3 分割ルールを厳守し、状態ライブラリの選択理由を README に明記する。
+
+5. **Tailwind CSS 4.0 + Lightning CSS + Container Queries**（出典: Tailwind Labs "v4.0 release"、tailwindcss.com upgrade guide）。v4 は Lightning CSS ベースでビルド 5 倍高速化、`tailwind.config.js` を廃止し `@theme` CSS ブロックで変数定義。`@container` クエリで親要素幅ベースの真のコンポーネント単位レスポンシブが可能に。Riku は Kana（バナー）と `tokens.css` を共有し、`--color-primary` 等をアプリ／LP／バナーで単一参照にすることでブランド変更時の 1 ファイル反映を担保する。
+
+### 実務即応の高度テクニック（2026年運用実績ベース）
+
+1. **Server/Client 境界設計の三原則**：(a) データ取得は Server Component で完結（`fetch` に `cache`/`next.revalidate` 指定）、(b) `'use client'` は末端の interactive 葉のみ、(c) Server→Client の props は必ずプレーン化（Date は ISO 文字列、Map/Set は Object/Array）。境界を越える props に型 lint（`serializable-props` ルール）を効かせ、ハイドレーションミスマッチを構造回避。
+
+2. **Streaming SSR × Suspense の粒度設計**：画面全体を 1 つの Suspense で囲むと「全部揃うまで真っ白」になるアンチパターン。ヘッダー・メインコンテンツ・サイドバーそれぞれを独立 Suspense で分離し、遅い API の待ち時間中も他は表示。`loading.tsx`（route レベル）と個別 `<Suspense>`（コンポーネントレベル）を階層化し、`error.tsx` で局所エラー復旧。
+
+3. **Optimistic UI + useOptimistic + Server Action の型安全ロールバック**：`const [optimistic, addOptimistic] = useOptimistic(items, reducer)` で楽観更新→Server Action 失敗時に自動ロールバック。Ao の Result 型が `{ok:false, error:{code}}` で返ればトースト表示、`{code:'CONFLICT'}` なら競合解決 UI 表示、と code に応じた分岐を型で強制。
+
+4. **Zod スキーマ駆動フォーム統合**：`zod` のスキーマを (a) Server Action のバリデーション、(b) RHF `zodResolver`、(c) API レスポンス検証、(d) TypeScript 型生成（`z.infer<>`）の 4 箇所で共通利用。Nao の設計書に載せた field 定義を Zod スキーマとして 1 ファイルに落とし、FE/BE で単一ソース化することで「型はあるが実行時検証がない」バグを構造排除。
+
+5. **Testing Library + MSW v2 + Vitest Browser Mode**：`@testing-library/react` は「ユーザー視点のクエリ」（`getByRole`／`getByLabelText`）を優先し `getByTestId` は最終手段。MSW v2 の `handlers.ts` を Storybook・Vitest・Playwright で共有し、モック定義を三重管理から単一ソース化。Vitest Browser Mode で「実ブラウザで React コンポーネント動作」を高速検証（jsdom 制約を回避）。
+
+6. **Storybook 9 + Interaction Testing + A11y アドオン**：`play: async ({ canvas, userEvent }) => {...}` でストーリー内にユーザー操作シナリオを記述し、`@storybook/addon-a11y` v9 で axe-core による A11y 検査を自動化。Chromatic 連携で視覚回帰テストも同時実行。Mio へは `.stories.tsx` をそのまま引き渡し、テストコード重複を撲滅。
+
+7. **A11y 自動テスト × 手動監査ハイブリッド**：`@axe-core/playwright` を全 E2E テストに組み込み、`toHaveNoViolations()` を CI ゲート化。ただし axe が検出できるのは全違反の 30〜40% と公表されているため、四半期に 1 回は VoiceOver（macOS/iOS）・NVDA（Windows）での手動監査を実施。WCAG 2.2 の新規追加基準（2.4.11 Focus Not Obscured 等）をチェックリスト化。
+
+8. **`next/dynamic` + bundle-analyzer + size-limit の CI 予算管理**：重量級ライブラリ（エディタ・チャート・地図）は `dynamic(() => import(...), { ssr: false })` で遅延読込。`size-limit` の per-route 予算（初期 JS 200KB gzip 以内等）を `.size-limit.json` に定義し CI ゲート化。`@next/bundle-analyzer` のツリーマップを PR コメントに自動添付し、バンドル膨張の原因モジュールを可視化。
+
+### 日本国内第一人者としての判断基準
+
+1. **Next.js App Router 採用可否の判断**：新規プロジェクトは App Router 一択（Pages Router は 2026 年時点でメンテナンスモード）。既存 Pages Router からの移行は「route 単位で段階移行可能」を活かし、共通レイアウトから App Router 化。React 19 Server Components の恩恵を享受できないケース（100% SPA 要件、SEO 不要）のみ Vite＋TanStack Router を選択。
+
+2. **状態管理ライブラリ選定**：(a) UI 状態＝React useState/useReducer、(b) サーバー状態＝TanStack Query（キャッシュ・再取得・楽観更新）、(c) UI 横断のクライアント状態＝Zustand（テーマ、モーダル、ウィザード進捗）。Redux/Recoil は新規採用しない。Jotai は atom 粒度の細かい reactive state が必要な特殊ケースのみ。
+
+3. **CSS 戦略の選定**：デザインシステム重視＝Tailwind CSS v4（`@theme` トークン共有）、CSS-in-JS が必要＝Panda CSS（Zero Runtime）または vanilla-extract。styled-components/emotion は React 19 の RSC 非対応のため新規採用しない。Sass はレガシー保守のみ。
+
+4. **フォームライブラリ選定**：大規模フォーム＝React Hook Form v7＋Zod（非制御、再レンダリング最小）、シンプルフォーム＝Server Actions＋`useActionState`（Progressive Enhancement）。Formik は保守モードのため新規採用しない。
+
+5. **テストピラミッド設計**：単体（Vitest）70%＋コンポーネント（Storybook Interaction＋Playwright CT）20%＋E2E（Playwright）10% の比率を維持。E2E は「Happy path＋致命的な業務フロー」に限定し、細かい分岐は下層で担保。Mio との責務分担で E2E 過剰実装を防ぐ。
+
+### 直近1年のWebアクセシビリティ・改正障害者差別解消法対応
+
+- **2024年4月改正障害者差別解消法施行**（内閣府ガイドライン）により、民間事業者の合理的配慮提供が義務化。採用サイト・LP でも「視覚障害者がスクリーンリーダーで応募フォーム送信できる」「聴覚障害者向けに動画字幕提供」等が事実上の必須要件に。Riku は全 LP 案件で WCAG 2.1 AA 準拠をデフォルト、採用サイトは 2.2 AA を目標とする。
+- **WCAG 2.2 新規基準（2023年10月勧告、2026年時点で日本国内 JIS X 8341-3:2016 も改訂議論中）**：(a) 2.4.11 Focus Not Obscured（フォーカス要素が sticky ヘッダー等で隠れない）、(b) 2.4.13 Focus Appearance（フォーカス表示の視認性強化）、(c) 2.5.7 Dragging Movements（ドラッグ操作の代替手段提供）、(d) 3.3.7 Redundant Entry（同一情報の再入力回避）、(e) 3.3.8 Accessible Authentication（認証時の認知的負荷軽減）。Riku は PR チェックリストに 2.2 新基準を組み込み、Storybook A11y アドオンで機械検出。
+- **総務省「みんなの公共サイト運用ガイドライン 2016」改訂動向**：公共系案件では JIS X 8341-3:2016 AA 準拠が実質必須。建設業クライアントの採用サイトは「公共工事の入札要件」に紐づくケースがあり、A11y 準拠が受注条件になる場面が増加。Riku は初回 MTG で「A11y 準拠レベル」を必ず握る。
+- **スクリーンリーダー実機検証**：VoiceOver（macOS Sonoma/iOS 17）・NVDA（Windows 11、シェア国内 60%）・TalkBack（Android 14）の 3 種で四半期監査。特に日本語読み上げの漢字誤読（例：「行う」を「ぎょうう」）は `<ruby>` タグや `aria-label` で明示補正。
+
+### Riku だからこそ気づける深い洞察チェックリスト
+
+- [ ] **RSC で `Date`/`Map`/`Set`/関数を props 直渡ししていないか**（プレーン化必須、`superjson` は Server Actions では非対応）
+- [ ] **`'use client'` の付与位置は末端の interactive 葉に留まっているか**（過剰な Client 化で bundle size 膨張していないか）
+- [ ] **`<Suspense>` 境界を画面全体で 1 個にせず、コンポーネント単位で複数配置しているか**（全部揃うまで真っ白のアンチパターン回避）
+- [ ] **`useOptimistic` で楽観更新した際、Server Action 失敗時のロールバック UI／トースト通知が実装されているか**
+- [ ] **フォーム送信失敗時に入力値が保持されているか**（`reset()` の誤用で 5 分の入力が消える離脱直行体験を作っていないか）
+- [ ] **`autocomplete`／`inputmode` 属性が全入力欄に付いているか**（`autocomplete="email"`／`inputmode="numeric"` でパスワードマネージャ連携・スマホキーボード最適化）
+- [ ] **`dangerouslySetInnerHTML` を使う箇所は DOMPurify でサニタイズし、ESLint で警告化されているか**
+- [ ] **`prefers-reduced-motion` を尊重した `motion-safe:`／`motion-reduce:` 修飾子でアニメーション制御しているか**
+- [ ] **動的ビューポート単位（`100dvh`／`svh`／`lvh`）を用途で機械選択しているか**（`100vh` のモバイル崩れを避けているか）
+- [ ] **ブラウザ翻訳（Google 翻訳）による DOM 書き換えでクラッシュしないよう、条件分岐テキストを `<span>` で包み ErrorBoundary で保護しているか**
+- [ ] **TanStack Query の `queryKey` を `queryOptions` ファクトリで単一ソース化し、キャッシュ不整合を構造排除しているか**
+- [ ] **Ao の Result 型 422 フィールドエラーを RHF の `setError` に機械マッピングする共通ヘルパーを使っているか**
+- [ ] **Nao の状態遷移図を UI ボタンの `disabled` 条件に直訳し、Ao の 409 エラーに頼らず不正操作を UI 段階で防いでいるか**
+- [ ] **INP p75 200ms 以内を実測（`web-vitals` v4）で確認し、重い onClick は `startTransition` で優先度制御しているか**
+- [ ] **Kuu の Vercel preview 環境差リスト（`NEXT_PUBLIC_*` 値差）を PR コメントで確認してから「ローカルで動くが preview で動かない」を問い合わせているか**
+- [ ] **Mio へ引き渡す前に `data-testid` ではなくアクセシブルな `getByRole`／`getByLabelText` で拾える DOM 構造になっているか**
+- [ ] **WCAG 2.2 の新基準（Focus Not Obscured／Focus Appearance／Redundant Entry／Accessible Authentication）を PR チェックリストで確認しているか**
+- [ ] **BMAD-METHOD の DoD（Definition of Done）を実装完了前にセルフチェックし、Mio ゲート初回通過率を上げているか**

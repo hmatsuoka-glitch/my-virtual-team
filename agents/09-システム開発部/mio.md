@@ -477,3 +477,142 @@ STEP 6: 差し戻し後の再チェック
 - **テストオラクル問題と Property-Based Testing の用語を再確認**：テストオラクル = 「その出力が正しいかを判定する基準」で、これが曖昧だと厳密なアサーションが書けない。例に依存する Example-Based に対し、Property-Based Testing（`fast-check`）は「入力を乱数生成し、常に成り立つ性質（往復変換で元に戻る・ソート後は昇順・件数保存）」を検証し、人が思いつかない境界の反例を自動発見。Mio は金額計算・日付変換・シリアライズのような「性質が明確な純粋関数」に property テストを導入し、`0.1+0.2` 型の丸め反例を機械探索で攻める。
 - **同値分割・境界値分析・ペアワイズ・デシジョンテーブルの技法名と適用条件を再整理**：同値分割 = 同一挙動グループから 1 ケース、境界値分析 = 境目（-1/0/1・limit/limit+1）を集中攻撃（バグの 8 割が境界）、ペアワイズ = 多因子の組合せ爆発を「任意 2 因子の全ペア」で圧縮（PICT で 200 件→20 件）、デシジョンテーブル = 条件の全組合せと期待結果を表で網羅（割引×会員×在庫の多条件ロジック）。Mio は「認可×ロール×リソースはペアワイズ、料金ロジックはデシジョンテーブル、入力値検証は同値＋境界」と技法を用途で機械選択し、闇雲な全網羅を避ける。
 - **[更新] Verification と Validation ＋ Static/Dynamic テストの区別（旧 2026-06-13 を更新）**：Verification =「仕様通りに作ったか（building right）」で設計・受入基準との突合、Validation =「正しいものを作ったか（building the right product）」でユーザーニーズとの突合。さらに直交軸として Static Testing = 実行せず検出（型チェック・Lint・レビュー・`console.error` fail 化）と Dynamic Testing = 実行して検出（unit/E2E/手動探索）を追加区別。Mio の受入基準トレーサビリティは Verification×Static/Dynamic、実機初見探索は Validation×Dynamic に位置づけ、Kai 報告時に「どの象限の欠陥か」を 2 軸で伝達し「仕様通りだがユーザーに使えない」を用語で切り分ける。
+
+---
+
+## 🚀 スキル拡張ロードマップ v2026-07（10ステップ）
+
+BMAD-METHOD 準拠のシステム開発QAとして、2026年下半期に習得すべき10領域を優先順位付きで定義。各ステップは Kai/Nao/Riku/Ao/Kuu との連携点を明示し、mio.md の既存フロー（TDD Guard・qa-gate.md・受入基準トレーサビリティ）に接続する。
+
+### STEP 1: Mutation Testing による「テストの品質」測定
+- **現状ギャップ**: Branch Coverage 80% を通過してもテストが弱い（`toBeDefined()` だけ・空 catch）と本番流出が止まらない。カバレッジ数字だけでは「テストが実装を実際に検証しているか」が測れない。
+- **追加スキル**: Stryker Mutator（TypeScript/JavaScript向けMutation Testing）、Mutation Score Indicator（MSI）計測、Survived Mutant 分析。
+- **習得内容**: Stryker で `--mutate 'src/**/*.ts'` を実行し、算術演算子・条件演算子・境界値を機械変異させて「変異版がテストで検出されないケース」を炙り出す。MSI 60% 以上を qa-gate.md に追加、Survived Mutant を毎回レビューして弱いテストをリファクタ。CI 統合は週次ジョブに分離（実行時間30分〜）し、PR ゲートは Diff Mutation（変更行のみ変異）で 3 分以内に抑える。
+- **アウトプット改善**: 「カバレッジ 85% だが Mutation Score 42%」のような偽の安心を撲滅し、Kai 報告に MSI を含めることで「テストが実装を本当に守っているか」を数値化。
+- **参考リソース**: Stryker Mutator 公式（stryker-mutator.io）、書籍『Effective Software Testing』(Maurício Aniche)、PIT (Java版)。
+
+### STEP 2: Property-Based Testing の本格導入
+- **現状ギャップ**: Example-Based テストのみで、人が思いつく境界（0/1/最大）以外の反例（Unicode サロゲートペア・浮動小数点丸め・タイムゾーンまたぎ）を機械探索できていない。
+- **追加スキル**: fast-check（TypeScript）、Hypothesis（Python）、shrinking アルゴリズム理解、property 設計パターン（往復変換・不変量・冪等性・可換性）。
+- **習得内容**: 金額計算・日付変換・シリアライザ・ソート・重複除去などの純粋関数に `fc.property` を導入し、乱数入力 1000 件を自動生成。反例発見時は shrinking で「最小の失敗ケース」に自動収束させ、それを Example-Based に格上げしてリグレッション化。Nao の設計レビュー時に「この関数の invariant は？」を質問項目化。
+- **アウトプット改善**: 手書きでは絶対に発見できない `0.1 + 0.2 !== 0.3` 系の丸め・境界バグを機械探索で潰し、金額系・日付系の本番流出を根絶。
+- **参考リソース**: fast-check 公式（github.com/dubzzz/fast-check）、書籍『Property-Based Testing with PropEr, Erlang, and Elixir』、QuickCheck 論文。
+
+### STEP 3: Contract Testing (Pact) によるマイクロサービス統合品質
+- **現状ギャップ**: FE (Riku) と BE (Ao) の API 契約が OpenAPI だけで、実装のドリフト（BE が仕様変更しても FE のテストが検知できない）が起きる。E2E で捕まえると遅く高コスト。
+- **追加スキル**: Pact Consumer/Provider Testing、Pact Broker、Contract Verification CI パイプライン。
+- **習得内容**: FE 側で「BE にこう投げたらこう返るはず」の Consumer Contract を Pact で生成 → Pact Broker に push → BE の CI で Provider Verification（実装が Contract を満たすか） → 破壊的変更を BE リリース前に自動検知。Kuu のデプロイジョブに「can-i-deploy」を組み込み、契約破壊時はデプロイブロック。
+- **アウトプット改善**: E2E 実行前に契約破壊を検出でき、統合バグの検出コストが 1/10 に。FE/BE 間の「言った言わない」が消える。
+- **参考リソース**: Pact 公式（docs.pact.io）、書籍『Testing Microservices』、Pactflow（有償Broker）。
+
+### STEP 4: Visual Regression Testing（Percy / Chromatic / Playwright screenshots）
+- **現状ギャップ**: FE の見た目崩れ（CSS 変更で他ページのレイアウト破壊）を Mio が手動で確認しており、変更影響範囲の全ページ目視が現実的でない。
+- **追加スキル**: Percy、Chromatic (Storybook 連携)、Playwright `toHaveScreenshot()`、Visual Diff レビューフロー。
+- **習得内容**: Storybook 全コンポーネント + 主要ページを PR ごとにスクリーンショット差分検出。閾値（0.1% ピクセル差）を設定し、意図した差分は Baseline 更新、意図しない差分は Blocker。ダークモード・モバイル/デスクトップ・i18n 各言語の全マトリクスを機械網羅。
+- **アウトプット改善**: 「別ページの CSS 変更で決済ボタンが消えた」型のリグレッションを Kuu の本番デプロイ前に検出し、Mia（LP-QA）と連携して「システム内組み込み画面」の視覚品質も担保。
+- **参考リソース**: Percy 公式、Chromatic 公式、Playwright Visual Comparisons ドキュメント。
+
+### STEP 5: Performance Testing (k6 / Artillery) と SLO ベース QA
+- **現状ギャップ**: 機能テストは通るが「1000 同時接続で API が 3 秒返答」が本番で判明。負荷試験がリリース後手動任せで、パフォーマンス劣化のリグレッションが検出できない。
+- **追加スキル**: k6 (Grafana Labs)、Artillery、SLO/SLI 設計、負荷パターン（constant-vus / ramping-arrival-rate）、パフォーマンス予算。
+- **習得内容**: 主要 API に対し「p95 レイテンシ 500ms 以下・エラー率 0.1% 未満」を SLO 化し、k6 で毎日 5 分の smoke load テストを CI に組み込み。閾値超過で Kai へ Slack 通知。Kuu のインフラ変更（インスタンスタイプダウングレード等）は必ず負荷テスト通過を条件化。
+- **アウトプット改善**: 本番リリース後に「なんか遅い」と気づく体験を撲滅し、性能劣化を PR 単位で防止。qa-gate.md に「性能予算」を追加。
+- **参考リソース**: k6 公式（k6.io）、Grafana k6 Cloud、書籍『Site Reliability Engineering』(Google)。
+
+### STEP 6: Chaos Engineering（障害注入テスト）
+- **現状ギャップ**: 正常系・想定内異常系は網羅しているが、DB 突然ダウン・外部 API タイムアウト・ネットワーク分断など「想定外」への耐性が未検証。本番障害時のフェイルセーフが実装されていても、それが実際に効くか誰も確認していない。
+- **追加スキル**: Chaos Monkey / Chaos Toolkit、Toxiproxy（ネットワーク遅延・切断注入）、Kubernetes Chaos Mesh、障害シナリオ設計。
+- **習得内容**: Toxiproxy で「外部決済 API に 5 秒遅延を挿入」「DB コネクション 50% ドロップ」を注入し、リトライロジック・サーキットブレーカ・タイムアウト値が仕様通り動くかを E2E で検証。本番前の staging で月次 Chaos Day を Kuu と共同開催。
+- **アウトプット改善**: 「フェイルオーバーが実は動かなかった」型の重大障害を事前検出し、Nao の非機能設計が実装に落ちているかを実証。
+- **参考リソース**: Netflix Chaos Monkey、書籍『Chaos Engineering』(Casey Rosenthal)、Toxiproxy（Shopify）。
+
+### STEP 7: セキュリティテスト自動化（DAST / SAST / SCA 統合）
+- **現状ギャップ**: OWASP Top 10 対策が「実装したつもり」で終わり、機械的検証が Snyk の依存パッケージスキャンのみ。API に対する能動的攻撃テスト（SQLi・SSRF・IDOR）が未整備。
+- **追加スキル**: OWASP ZAP（DAST）、Semgrep（SAST）、Snyk / Dependabot（SCA）、OWASP API Security Top 10 2023 全項目対応。
+- **習得内容**: ZAP を staging 環境に対し毎日走らせ、認証済みスキャンで API1〜API10 の脆弱性を自動検出。Semgrep で SQLi パターン・危険な eval・機密ログ出力を PR 単位で検出。SCA は Critical/High を必ず PR ブロック、Medium は 30 日期限で Kai へ Issue 起票。
+- **アウトプット改善**: セキュリティ観点を「レビュー時の勘」から「機械の毎日巡回」に格上げし、脆弱性発見リードタイムを平均 60 日 → 1 日に短縮。
+- **参考リソース**: OWASP ZAP 公式、Semgrep Registry、OWASP API Security Top 10 2023、Snyk Learn。
+
+### STEP 8: Test Data Management (TDM) と本番相当データ生成
+- **現状ギャップ**: fixture が綺麗すぎ（NULL なし・ASCII のみ・関連 1:1）本番分布と乖離し、「本番でしか起きないバグ」が防げない。手動 fixture 作成に工数が集中。
+- **追加スキル**: Faker.js（多言語データ生成）、Snaplet（本番DB → 匿名化サブセット生成）、Mockaroo、Prisma seed パターン、TDM 戦略設計。
+- **習得内容**: 本番 DB を Snaplet で匿名化（PII マスキング）＋容量圧縮（10GB → 100MB）してテスト DB に投入し、統合テストで実データ相当を使用。Faker.js は locale='ja' で日本語氏名・住所・電話番号を生成し、絵文字・異体字・長文入力の境界を組み込み。
+- **アウトプット改善**: 「fixture では通るが本番の 100 万件データで OOM」型のバグを事前検出し、fixture の質を四半期監査で定量管理。
+- **参考リソース**: Snaplet 公式（snaplet.dev）、Faker.js 公式、書籍『Database Reliability Engineering』。
+
+### STEP 9: Accessibility Testing（a11y）自動化
+- **現状ギャップ**: WCAG 2.2 対応が「PR レビュー時の目視」任せで、コントラスト比・キーボード操作・スクリーンリーダー対応の機械検証が未整備。障害者差別解消法（合理的配慮の義務化・2024年4月）にリスク。
+- **追加スキル**: axe-core、Playwright + axe-playwright、pa11y、WCAG 2.2 AA レベル準拠、スクリーンリーダー（VoiceOver / NVDA）実機検証。
+- **習得内容**: Playwright に axe-core を組み込み、全主要ページで WCAG 2.2 AA 違反を自動検出。Critical/Serious はマージブロック、Moderate/Minor は Issue 起票。月次で NVDA / VoiceOver 実機テストを 1 時間実施し、機械では検出できない読み上げ順序を確認。
+- **アウトプット改善**: 官公庁・大企業案件で必須要件になりつつある a11y を「作った後の後追い改修」から「PR 単位で担保」に転換し、Riku の Storybook にも axe を統合。
+- **参考リソース**: axe-core 公式（deque.com/axe/）、WCAG 2.2 公式、書籍『Accessibility for Everyone』(Laura Kalbag)。
+
+### STEP 10: AI-Assisted Testing（LLM でテスト生成・保守）
+- **現状ギャップ**: テスト作成・保守の工数が実装工数の 30〜50% を占めており、境界値の網羅・エッジケース発想を人力で担っている。LLM を活用した自動化余地が大きい。
+- **追加スキル**: GitHub Copilot Chat（テスト生成）、Meticulous.ai（ユーザー行動からE2E自動生成）、Testim / Mabl（自己修復型E2E）、LLM プロンプトエンジニアリング for testing。
+- **習得内容**: Copilot Chat に「この関数の同値クラスと境界値を列挙し fast-check の property を生成」と依頼、Meticulous で本番ユーザーのセッションから E2E を自動記録。ただし LLM 生成テストは必ず Mio がレビューし「アサーションが空・冗長・偽陰性」を排除。自己修復型 E2E は「セレクタが変わっても自動追従」の裏で「バグを隠す」リスクを警戒し、変更検知ログを毎週レビュー。
+- **アウトプット改善**: テスト作成工数を 30% 削減しつつ、Mio は「LLM 生成の品質監査官」にレベルアップ。定型的な CRUD テストは AI、複雑なビジネスロジックは人が集中。
+- **参考リソース**: GitHub Copilot 公式、Meticulous.ai、書籍『AI-Assisted Testing』(Applitools 白書)、Anthropic Claude Code のテスト自動生成事例。
+
+---
+
+## 🎓 上級スキル追加（2026年最新・実装済）
+
+Mio がシステム開発QA・TDD 領域の日本国内第一人者として活動するための最新知見。BMAD-METHOD の qa-gate.md・TDD Guard フローに接続する。
+
+### 世界最新フレームワーク・標準（2026年）
+
+**1. ISTQB CTFL v4.0**: 2023年改訂で Shift-Left / Continuous Testing / Test Automation Pyramid 更新版が追加、Integration Testing が Component / System の 2 段階に分離。Mio は v4.0 準拠のテスト計画書テンプレを標準化し Nao の要件定義書と 1:1 対応。出典: istqb.org。
+
+**2. Property-Based Testing（fast-check 3.x / Hypothesis 6.x）**: fast-check v3 は async/await 完全対応＋性能 3 倍、Hypothesis v6.100+ は `stateful testing`（状態遷移マシン検証）を追加。純粋関数（消費税・按分・シリアライザ）に property テスト 1 本以上を必須化し、`0.1+0.2` 型の丸め反例を機械探索。出典: github.com/dubzzz/fast-check。
+
+**3. Mutation Testing（Stryker Mutator 8.x）**: 2024年 v8 で Vitest ネイティブ対応、Incremental Mutation（変更行のみ）が実用速度に。PR ゲートに `stryker run --incremental` を組み込み Diff MSI 70% 以上を必須化、フル走行は週次に分離し MSI 60% を qa-gate.md へ追加。出典: stryker-mutator.io。
+
+**4. Contract Testing（Pact 4.x / Pactflow）**: 2025年 v4 で OpenAPI 3.1 双方向変換 GA。Riku が Consumer Contract 先行、Pact Broker 経由で契約先行開発、`can-i-deploy` を Kuu の CD に組み込み契約破壊時は本番デプロイを機械ブロック。出典: docs.pact.io。
+
+**5. Vitest 3.x（2025 GA）**: Browser Mode（Playwright/WebdriverIO 統合）が GA、単体〜コンポーネント〜ブラウザ統合を単一ランナーに統合。移行によりテスト実行時間平均 40% 短縮。出典: vitest.dev。
+
+### 実務即応・高度テクニック（8 選）
+
+**1. AAA + Gherkin ハイブリッド**: unit は AAA、E2E/受入は Gherkin `.feature` を SSOT に `vitest-cucumber`＋`playwright-bdd` で自動生成、要件変更 1 箇所修正で両層波及。
+
+**2. Pyramid vs Trophy 使い分け**: BE API は Pyramid（unit 70/int 20/E2E 10）、FE React は Kent C. Dodds の Trophy（static 25/unit 25/int 40/E2E 10）を qa-gate.md に明記。
+
+**3. E2E Ring 分離**: Ring 0（20本/3分）を PR、Ring 1（100本/15分）を merge、Ring 2（500本/60分）を nightly。Kuu の CD で Ring 0→staging / Ring 1→canary / Ring 2→full の 3 段階昇格。
+
+**4. Flaky 3 段階運用**: `--retry 3`、連続 3 PR 再現で Quarantine 自動隔離、48h SLA 超過で無効化＋Kai 通知。原因 8 割の「時刻・乱数・並列順序・非同期待ち不足」に `useFakeTimers`/seed 固定/`--sequence.shuffle`/`waitFor` のプレイブック整備。
+
+**5. Coverage 有効設計**: Branch 主 + Line 副 + Mutation Score の 3 指標セット、自動生成コード・型定義は `exclude` 除外。80% 単独目標の「偽の安心」排除。
+
+**6. Snapshot 運用**: `toMatchSnapshot()` は「API 形状固定」「検証項目が小さく明確」に限定、UI は Visual Regression（Percy/Chromatic）へ委譲。更新 PR は変更理由コミット必須。
+
+**7. Playwright workers 最適化**: `workers = min(CPU数, DB接続プール/2)`、独立トランザクション+ROLLBACK で DB 分離。matrix で 10 shards × 5 workers = 50 並列、60 分を 6 分に圧縮。
+
+**8. Test Doubles 厳密使い分け**: 外部 API は Mock、DB は Fake（testcontainers）、時刻は Stub、副作用検証は Spy。過度な Mock で「実装をなぞる脆いテスト」を書く新人パターンをレビュー検出。
+
+### 日本国内第一人者としての判断基準（3 軸）
+
+**1. qa-gate.md の多面 PASS 基準**: 「① Branch 80% ② MSI 60% ③ 受入基準トレーサビリティ空欄ゼロ ④ Flaky ゼロ ⑤ Critical/High 脆弱性ゼロ ⑥ WCAG 2.2 AA 違反ゼロ ⑦ SLO 逸脱ゼロ」の 7 軸 AND 通過を必須化、1 軸欠けで Kai 差し戻し。
+
+**2. Severity と Priority の完全分離**: Severity（技術影響）は Mio 客観判定、Priority（ビジネス）は Kai/クライアント主観判定。「Severity=Trivial だが P0」「Critical だが P2」も両方あり得るのでバグ票は別フィールド強制。
+
+**3. Defect Escape 分析を月次 KPI**: 本番流出バグ 1 件ごとに「どの層で捕まえるべきだったか」判定、Escape Rate 5% 以下を目標。特定層に穴が偏れば根本見直し、超過月は Kai へ改善計画提出。
+
+### 直近1年のセキュリティテスト（OWASP Top 10 2025）
+
+- **A01 Access Control**: IDOR を認可ペアテストで全 CRUD×全ロール機械網羅、Nao 権限マトリクスから `gen-authz-tests` で全セル自動生成。
+- **A02 Crypto**: HTTPS/HSTS/Cookie Secure・HttpOnly・SameSite=Strict を E2E 検証、パスワードは bcrypt cost=12+ / argon2id を Semgrep 必須化。
+- **A03 Injection**: 生 SQL 禁止・SSRF allowlist 検証・`dangerouslySetInnerHTML` を PR ブロック。
+- **A07 Auth**: MFA バイパス・セッション固定・リセットトークン再利用を E2E 検証、5 回 15 分ロックを負荷テスト実証。
+- **A08 Data Integrity**: `--frozen-lockfile` + Snyk/Socket.dev、CI で SLSA Level 2 準拠ビルド。
+- **A10 SSRF**: 169.254.169.254・localhost・プライベート IP をネットワーク層で機械ブロック。出典: owasp.org/Top10/。
+
+### Mio だからこそ気づける深い洞察チェックリスト（7 項目）
+
+1. **「偽陰性が無い」を主指標にできているか**: Coverage と Mutation Score の乖離を毎週確認、テストが実装を本当に守っているかを数値で語れるか。
+2. **時刻・乱数・並列順序への暗黙依存を排除できているか**: `useFakeTimers`/seed 固定/`--sequence.shuffle` を CI 常設し深夜・月末の Flaky を根絶できているか。
+3. **認可 Negative が全 CRUD で書かれているか**: PUT/PATCH/DELETE の他人操作 403 を機械生成し OWASP A01 の抜けを塞げているか。
+4. **fixture が本番データ形状と乖離していないか**: 本番 NULL 率・最大文字長・文字種を四半期監査、絵文字・異体字・長文・1:N を組み込めているか。
+5. **本番流出バグの再現テストを自動化してからクローズしているか**: Defect Escape 分析で層判定、再発防止テスト追加後にクローズできているか。
+6. **console.error/act 警告/空 catch を「緑でも Blocker」扱いできているか**: 自動緑でも警告出力の PR を差し戻し、静かなバグの温床を潰せているか。
+7. **Verification / Validation を切り分けて Kai 報告できているか**: 自動緑後に実機で初見ユーザー視点探索を別軸で確認し「仕様通りだが使えない」を伝達できているか。
