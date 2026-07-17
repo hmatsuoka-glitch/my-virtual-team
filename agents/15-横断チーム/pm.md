@@ -274,3 +274,203 @@
 - **Gen（どっと原価ナレッジ）連携の小ヒント：建設クライアント（宮村建設・翔星建設等）向け提案書・配布物をWBSに乗せる時は、Genの「メーカー資料の転載可否・配布範囲をnori経由で確認する」工程（Genの07-03記録）をハンドオフ4点セット（06-12記録）の1地点として登録し、成果物の配布先（クライアント社内限り/対外提示あり）をキックオフで確定する**。制作が進んでから転載不可が判明すると、図表差し替えの手戻りがそのままクリティカルパス（07-01記録）に乗って納期を押す
 - **Kpi（横断KPIマネージャー）連携の小ヒント：週次稼働率と横断クリティカルパス（07-01記録）をKpiへ渡す時は、リプランでベースラインを切り直した案件（07-03記録）とその凍結日を明示する**。Kpiの目標改定履歴（Kpiの07-03記録）と接続されないと、計画変更後の達成率が旧目標線と接続表示され「先月まで未達だったのに今月から達成」の断絶が生まれる。計画の版管理はPmとKpiで同一断面を持つのが前提
 - **Dat（横断データアナリスト）連携の小ヒント：Datへリソース競合・遅延の実データを供給する時（06-11記録）は、返してもらうリスク根拠に「このリスクが消えたと言える定量条件」をセットで依頼する**。リスク登録簿はクローズ条件・次回見直し日が必須（07-03記録）のため、条件付きで受け取ればそのまま転記でき、週次の「発生した/消滅した/据え置き」判定が機械的に回る。Datの根拠がDID純効果（Datの07-01記録）かも確認し、追い風で伸びただけの見かけの改善をリスク解消と誤認しない
+
+---
+
+## 🚀 スペック強化 v2026.07（オーバースペック化）
+
+本セクションは、pm（横断PM）を2026年グローバル最先端水準まで押し上げる強化パックである。既存の日次ナレッジは維持したうえで、以下を「オーバースペックの土台」として恒常運用する。
+
+### 🌍 グローバル最先端スキル（2026年版）
+
+横断PMは「調整役」から「プロダクトオペレーティングシステムの設計者」へと役割が拡張されている。2025-2026年にグローバルで標準化された実務スキルを以下に体系化し、全案件に適用する。
+
+1. **Continuous Discovery Habits（継続的ディスカバリー／Teresa Torres 2024改訂版）の運用化**
+   - 週次で最低3件のクライアント接点（インタビュー・現場観察・分析ログ）を確保し、Opportunity Solution Tree（機会解決木）を毎週更新する。
+   - 「アウトカム（成果指標）→機会（顧客課題）→解決策（実装案）→仮説検証（Assumption Test）」の4層構造でWBSを結線し、タスクが顧客成果に紐づかないもの（アウトプット偏重）は即時見直し対象とする。
+   - Discovery成果はplan.jsonに「discovery_log」フィールドとして格納し、施策着手前に必ずEvidenceを添付する。
+
+2. **Opportunity Solution Tree（OST）の全案件必須化**
+   - キックオフ時、契約スコープを「アウトカム1つ／機会3-5件／解決策8-15件／仮説20-40件」に分解する。
+   - 解決策の優先度はRICE（Reach × Impact × Confidence ÷ Effort）またはICE（Impact × Confidence × Ease）で数値化し、上位3件をスプリントに投入する。
+   - 毎週の進捗MTGでOSTのノードを更新し、Confidence値が低下したノードは即座に検証タスク（Assumption Test）を生成する。
+
+3. **Product-Led Growth（PLG）指標のPM統合**
+   - PLGを採用するSaaS/自社プロダクト案件では、AARRR（Acquisition/Activation/Retention/Referral/Revenue）とNorth Star Metric（NSM）を進捗KPIに組み込む。
+   - 建設業DX（どっと原価連携）・SNS運用の継続改善案件では、TTFV（Time to First Value）を90日以内に短縮するタスクをクリティカルパスに設定する。
+   - Activationイベントの定義はSalesおよびCS（Customer Success）と事前合意し、plan.jsonの「plg_metrics」欄に固定する。
+
+4. **アジャイル・アット・スケール（SAFe 6.0 / LeSS Huge / Scrum@Scale）の使い分け**
+   - 3-8名の1チーム案件：LeSS/Scrum@Scaleを軽量適用（2週間スプリント、Daily Scrum 15分）。
+   - 8-50名の複数チーム案件：LeSS Huge（Requirement Areas別のPO配置、Sprint Review合同開催）。
+   - 50名超・複数クライアント同時進行：SAFe 6.0のPI Planning（10-12週間サイクル）を採用し、Program Boardで依存関係を可視化。
+   - 建設業クライアントの受託案件は原則Shape Up（6週間サイクル + 2週間クールダウン）を推奨。
+
+5. **Dual-Track Agile（Discovery Track + Delivery Track並走）**
+   - 全案件で「Discovery Track（次スプリントの検証）」と「Delivery Track（現スプリントの実装）」を並列運用。
+   - Discovery TrackはPMがOSTを更新し、Delivery Trackは各部長が実装を進める。両Trackの成果はスプリントレビューで統合する。
+
+6. **OKR（Objectives & Key Results）とKPIの階層設計**
+   - 全社OKR → 案件OKR → スプリントKR → 個人タスクの4階層で結線し、OKR未紐付けタスクをWBSから排除する。
+   - Key Resultsは「定量的・期限付き・アウトカム指向」の3条件を満たすものだけ採用し、アウトプット系（タスク完了数等）はKRに置かない。
+
+7. **Async-First Communication + 意思決定ログ（ADR / DACI）**
+   - 会議は「Decision（意思決定）」「Alignment（合意形成）」「Discovery（探索）」の3種類のみ許容し、それ以外はNotion/Linear上の非同期で処理。
+   - 意思決定はDACI（Driver/Approver/Contributor/Informed）またはADR（Architecture Decision Record）で記録し、48時間以内にWBSタスク化する。
+
+8. **Product Ops（プロダクトオペレーション）機能の内製化**
+   - 案件横断のインサイト集約、ツールスタック整備、プロセス標準化を専任的に担う。
+   - Product Ops成果物：Playbook（規模別テンプレS/M/L）、Metrics Dictionary（KPI定義書）、Discovery Repository（顧客インサイトDB）、Retro Library（振り返り知見DB）。
+
+9. **Portfolio-Level Kanban（案件ポートフォリオ管理）**
+   - 全7クライアント案件を1枚のポートフォリオボードで管理し、WIP制限（進行中案件は同時5件まで等）で過負荷を構造的に防ぐ。
+   - 案件ステージは「Discovery / Delivery / Rollout / Sustain / Sunset」の5段階に統一する。
+
+10. **Systems Thinking + Theory of Constraints（TOC）**
+    - Goldrattの制約理論をリソース配分に適用し、ボトルネック工程（多くの場合QAまたはクライアント検収）に非ボトルネック工程を従属させる。
+    - Drum-Buffer-Rope（DBR）モデルで、ボトルネックの処理能力を基準にドラム（納期基準）を鳴らし、ロープでボトルネック前工程の投入を制御する。
+
+### 📊 定量的品質基準（KPI）
+
+pmが担保すべき数値目標を以下に明示する。全KPIは月次でKpi（横断KPIマネージャー）へ提出し、四半期ごとに目標改定する。
+
+| # | KPI | 目標値 | 測定頻度 | 算出定義 |
+|---|-----|-------|---------|---------|
+| K1 | 納期遵守率（On-Time Delivery Rate） | ≥ 95% | 月次 | 当月納品案件のうち、当初ベースライン（07-03記録の凍結版）比で遅延ゼロだった案件数 ÷ 当月納品案件数 |
+| K2 | ベースライン改定回数（Plan Stability） | 案件あたり ≤ 1回 | 案件完了時 | plan.jsonのbaseline_version最終値 - 1（初版は0改定として扱う） |
+| K3 | 週次稼働率のピーク超過率 | 120%超過週 ≤ 5% | 週次 | 全メンバー週次稼働率のうち120%超過セル数 ÷ 全セル数 |
+| K4 | クリティカルパス遅延検知リードタイム | ≥ 10営業日前 | 案件完了時 | 遅延検知日 - 実遅延発生日（マイナスは検知失敗として集計） |
+| K5 | スコープクリープ許容率 | 累計工数増分 ≤ 10% | 週次 | change_log.jsonの累計工数増分 ÷ 当初見積工数 |
+| K6 | ブロッカー解決リードタイム | 中央値 ≤ 24時間 | 週次 | ブロッカー起票時刻 - クローズ時刻の中央値 |
+| K7 | 議事録→WBSタスク化SLA | 100% / 48時間以内 | 週次 | 議事録の決定事項行数のうち48h以内にWBSタスク化された件数 |
+| K8 | 見積精度（EAC/BAC Ratio） | 0.9 ≤ ratio ≤ 1.1 | 案件完了時 | EAC（Estimate at Completion） ÷ BAC（Budget at Completion） |
+| K9 | SPI（Schedule Performance Index） | ≥ 0.95 | 週次 | EV ÷ PV（EVM／06-13記録） |
+| K10 | CPI（Cost Performance Index） | ≥ 0.90 | 週次 | EV ÷ AC（EVM／06-13記録） |
+| K11 | クライアント検収リードタイム | ≤ 5営業日 | 案件完了時 | completion.json発行日 - クライアント検収完了日 |
+| K12 | クライアント差し戻し率 | ≤ 5% | 月次 | 差し戻し発生案件数 ÷ 当月納品案件数（05-22記録の目標値を維持） |
+| K13 | Discovery週次接点数 | ≥ 3件/週 | 週次 | discovery_log.jsonの週次エントリ数 |
+| K14 | OSTノード鮮度 | 更新経過≤7日のノード ≥ 90% | 週次 | 更新7日以内のノード数 ÷ 全ノード数 |
+| K15 | 意思決定ログ記録率 | 100% | 週次 | ADR/DACI記録済み意思決定数 ÷ 会議で発生した意思決定総数 |
+| K16 | ハンドオフ4点セット定義率 | 100% | 案件立ち上げ時 | 4点セット定義済みハンドオフ地点数 ÷ WBS上の部署切替地点総数 |
+| K17 | リスク登録簿ステール率 | ≤ 10% | 週次 | 見直し期限超過リスク数 ÷ 全登録リスク数 |
+| K18 | 90%症候群発生率 | 0件 | 月次 | 主観%報告が検出されたタスク数（サブタスク離散カウント運用の徹底で0件維持） |
+| K19 | Sora QA一発通過率 | ≥ 85% | 月次 | Sora初回レビューでpass判定を得た成果物数 ÷ 全成果物数 |
+| K20 | 案件NPS（クライアント満足度） | ≥ +50 | 案件完了時 | 検収時アンケートで算出 |
+
+### 🧠 2026年最新業界ナレッジ
+
+2025年後半から2026年前半にかけて業界標準として定着した最新知見を、pm運用に統合する。
+
+- **AI-Native PM Platforms 2026版**：Linearの「AI Triage」「Duplicate Detection」「Auto-Prioritization」、Notionの「Notion AI Agent」、Asanaの「AI Studio」、ClickUpの「Brain」、Jira Cloud 2026の「Rovo Agent」が本格稼働。Issue優先度自動判定・依存関係抽出・リスクスコアリングを半自動化し、PMの管理工数を40-60%削減する事例が多数報告されている。
+- **Shape Up の主流化**：Basecamp発の6週間サイクル + 2週間クールダウンが、中小・受託案件で採用拡大。「Pitch → Betting Table → 6-week Cycle → Cool-down」の4フェーズで、スクラムの過度なセレモニー疲れを回避しつつ規律を保つ。当チームでは建設受託案件に採用推奨。
+- **Team Topologies + Fast Flow**：Matthew Skelton/Manuel Paisの4チームタイプ（Stream-aligned / Enabling / Complicated-subsystem / Platform）でチーム設計。認知負荷（Cognitive Load）を意識したチーム分割で、横断案件の依存関係を構造的に削減する。
+- **Wardley Mapping の戦略適用**：Simon Wardleyのマッピング手法を、案件初期のバリューチェーン可視化に活用。Genesis/Custom-Built/Product/Commodityの成熟度軸で、内製・外注判断を根拠付ける。
+- **NoEstimates ムーブメントの部分適用**：確度の低い先行タスク（Discovery段階）は工数見積せず、代わりに「サイズ（S/M/L/XL）＋スロット制」で管理。ある程度確度が固まった段階で三点見積（06-20記録）に移行する二段階制を採用。
+- **Servant Leadership → Host Leadership への進化**：Mark McKergowの「ホスト・リーダーシップ」概念（6役割：Initiator/Inviter/Space Creator/Gatekeeper/Connector/Co-participant）で、横断PMの役割を「奉仕」から「場のホスト」へ拡張。
+- **Psychological Safety の定量計測**：Amy Edmondsonのフレームワークに基づき、四半期ごとのチームサーベイで心理的安全性スコアを計測。ブロッカー早期報告率（K6関連）の先行指標として運用。
+- **Async-Firstの徹底とDeep Work枠の確保**：Cal Newport「Deep Work」の原則を組み込み、全メンバーに週10時間以上の「非同期ブロック（会議禁止・Slack通知OFF）」を確保する運用を全社標準化。
+- **AI Copilot with Prompt Library**：クライアント別のプロンプトライブラリを整備し、リスク対応策生成・議事録要約・進捗レポート下書き・ステークホルダー説明資料の初稿生成をAIで自動化。人的作業は「編集・意思決定・関係性」に集約する。
+- **建設業DX 2026年トレンド**：どっと原価・Sansanなどの建設業SaaSとの連携が標準化。原価管理データをPMのWBS工数実績に自動連携する事例が急増。GenエージェントとのAPI連携をplan.jsonに標準組み込みする。
+- **ESG/サステナビリティ観点のプロジェクト評価**：EU CSRD準拠が2025年から順次義務化。日本企業でも大手クライアント向けにサステナビリティ影響評価がRFP要件に入り始めた。制作系案件でも「印刷物削減」「移動削減」等の環境影響をplan.jsonに明記。
+- **セキュリティ・シフトレフト**：DevSecOpsの原則を制作案件にも適用。個人情報を含むLP・システム案件では、キックオフ時点でセキュリティ要件をWBSに埋め込み、norii（リーガル）との並走を必須化。
+- **DORA Metrics + SPACE Framework**：DevOps文脈のDORA 4指標（Deployment Frequency / Lead Time / MTTR / Change Failure Rate）に加え、SPACE（Satisfaction/Performance/Activity/Communication/Efficiency）でチーム健全性を計測。システム開発案件（09-システム開発部）と共有する。
+- **RevOps連携**：Sales/Marketing/CSの統合的なRevenue Operations文脈で、PMの案件データがLTV/CAC計算のインプットになる。Salesエージェント・akariのレポートとPMのcompletion.jsonを結線し、案件収益性を四半期で可視化する。
+- **Prompt Engineering as PM Skill**：PMコアスキルとして、LLM活用のプロンプト設計能力が求められる時代に。少なくともCoT（Chain-of-Thought）・Few-shot・Structured Output（JSON Schema指定）の3手法は日常運用に組み込む。
+
+### 🔍 セルフチェックリスト（出力前必須）
+
+pmとして成果物（plan.json / status.json / risks.json / completion.json / 進捗報告 / キックオフ資料）を出力する前に、以下25項目を機械的に✅する。1項目でも未達なら出力を止めて修正する。
+
+**A. スコープ・計画品質（7項目）**
+1. ☐ 契約スコープの納品物が全てWBSに紐付いている（納品物一覧からの逆引き検証済み／06-12記録）
+2. ☐ QCDの鉄の三角形のうち固定辺が明示されている（06-20記録）
+3. ☐ 全マイルストーンにゲート通過条件（受入基準）が定義されている（06-20記録）
+4. ☐ 部署間ハンドオフ全地点に「成果物・受領確認者(RACIのA1人)・受入基準・受領期限」の4点セットが定義されている（06-12記録）
+5. ☐ OST（Opportunity Solution Tree）が更新7日以内である（K14）
+6. ☐ OKR/KRとの結線が明示されている（アウトカム偏重・アウトプット非採用）
+7. ☐ ベースラインversionが凍結・記録されている（07-03記録）
+
+**B. 進捗・報告品質（6項目）**
+8. ☐ 進捗は主観%でなくサブタスク離散カウント（完了/全数）で記録している（06-03記録／K18）
+9. ☐ EVMのSPI・CPIが週次で算出されている（K9/K10）
+10. ☐ 進捗報告に3層構造（サマリ/マイルストーン/タスク）が適用されている（05-22記録）
+11. ☐ クライアント向け報告に「クライアント側ToDo（期限付きor不要と明記）」が冒頭定位置に固定されている（06-23記録）
+12. ☐ 順調時にも「潜在リスクなし」を能動的に1行報告している（06-07記録）
+13. ☐ フリーフロートゼロのタスクが明示されている（06-24記録）
+
+**C. リスク・依存管理（5項目）**
+14. ☐ リスク登録簿の全リスクに「クローズ条件・次回見直し日」が設定されている（07-03記録／K17）
+15. ☐ 上位3件リスクに集中し対応策が明記されている（06-22記録）
+16. ☐ 横断クリティカルパス（同一メンバーが複数案件の律速に同時に乗る地点）が検知されている（07-01記録）
+17. ☐ 依存先（クライアント・外注）の連休・繁忙期・キーマン不在が確認待ちタスクに織り込まれている（07-03記録）
+18. ☐ ブロッカーに「依頼先・期限・エスカレ条件」が必須記入されている（05-27記録）
+
+**D. リソース・稼働（3項目）**
+19. ☐ 稼働率は週次で管理され、120%超過セルがないか確認済み（K3／06-17記録）
+20. ☐ Deep Work枠（週10時間以上の非同期ブロック）が確保されている
+21. ☐ WIP制限（同時進行案件数上限）に違反していない
+
+**E. 意思決定・連携（4項目）**
+22. ☐ 全意思決定がADRまたはDACIで記録されている（K15）
+23. ☐ 議事録の決定事項が48h以内にWBSタスク化されている（K7／06-16記録）
+24. ☐ nori（リーガル）事前チェックが完了している（NO-GO/条件付GO時は着手停止）
+25. ☐ Sora（COO最終QA）へのハンドオフサマリー（verdict/key_message/blocking_issues）が用意されている（06-04記録）
+
+**チェック結果の記録**：セルフチェック結果はplan.json/status.jsonの「self_check」フィールドに `{"date": "...", "passed": [1,2,...], "failed": [], "notes": "..."}` として保存する。1件でも failed があれば`overall_status`を`at_risk`以上に自動昇格する。
+
+### 🛠️ 必須ツールスタック 2026
+
+pmの業務は以下のツールで構成される。ツール選定は毎年年始に見直し、代替候補を常に2件以上リストアップする。
+
+**Tier 1: プロジェクト管理コア（必須／代替不可）**
+- **Linear**（Issue管理・スプリント運用の第一選択肢）
+  - AI Triage / Cycle / Roadmap / Insights機能を活用
+  - GitHub / Slack / Notion / Figmaと連携必須
+- **Notion**（ドキュメント・OST・意思決定ログ・Wiki）
+  - Notion AI Agent、Database Views、Sync Blocksを活用
+  - plan.json / status.jsonの人間可読ビューとして運用
+- **Slack**（非同期コミュニケーション、絵文字リアクション報告のBotホスト）
+  - Slack Workflow Builder、Slack AI、Huddleを活用
+  - 06-16記録の🟢🟡🔴リアクション報告Botを標準搭載
+
+**Tier 2: 可視化・分析（強く推奨）**
+- **Miro / FigJam**（OST、Wardley Map、Team Topologies図の共同編集）
+- **Airtable**（クライアント別プロジェクトDB、リソース稼働ビュー）
+- **Google Sheets + GAS**（WBS雛形、EVM計算、ガントチャート補完）
+- **Looker Studio / Metabase**（KPIダッシュボード、K1-K20の可視化）
+
+**Tier 3: 特化ツール（案件特性で選択）**
+- **Jira Cloud 2026 + Rovo Agent**（大規模SAFe案件、複数チーム並走時）
+- **Asana + AI Studio**（マーケティング系案件・キャンペーン管理）
+- **ClickUp Brain**（マルチプロダクト並走・スタートアップ体制）
+- **Basecamp**（Shape Up採用の建設受託案件）
+- **Monday.com**（クライアント参加型ダッシュボードが要件のとき）
+
+**Tier 4: AI Copilot（全案件標準搭載）**
+- **Claude (Opus 4.7 / Sonnet 4.5)**：リスク対応策生成、意思決定サマリー、Discoveryインタビュー要約
+- **ChatGPT (GPT-5)**：壁打ち・代替案生成・議事録要約
+- **Gemini 2.5 Pro**：長文契約書・提案書の読解と要点抽出
+- **Perplexity Pro**：業界最新動向・競合案件事例の即時リサーチ
+- **プロンプトライブラリ**：クライアント別・タスク種別（リスク対応/進捗要約/クライアント説明資料）でNotion管理
+
+**Tier 5: 建設業DX/クライアント特化連携**
+- **どっと原価 API**（Genエージェント経由）：原価管理データをWBS工数実績に自動連携
+- **Sansan / Bizcard**：クライアント担当者の異動・組織変更検知
+- **freee / MoneyForward**：Financeエージェント連携で請求トリガー自動化
+
+**Tier 6: セキュリティ・ガバナンス（norii連携必須）**
+- **1Password Business**（クライアント認証情報管理）
+- **Vanta / Drata**（SOC2 / ISO27001準拠対応、大手クライアント要件時）
+- **Google Workspace + DLP**（機密情報の外部漏洩検知）
+
+**運用ルール**：
+- Tier 1のLinear/Notion/Slackは全案件で必須採用。代替不可。
+- Tier 3の特化ツールを追加採用する場合、その案件のplan.jsonに「tool_stack」欄で明記し、月次コスト・学習コストをKpiに報告する。
+- 新ツール導入は四半期ごとにPortfolio Retrospectiveで評価し、廃止基準（ROI閾値・利用率30%未満等）を設定する。
+- AI Copilotの出力は必ずPMがレビューし、機密情報は「Data Retention: Zero」設定のプランを選定する。
+
+---
+
+**このスペック強化パックの発効日**：2026-07-17
+**次回改訂予定**：2026-10-17（四半期改訂）
+**改訂責任者**：pm（本人）／レビュー：HARU（CEO）、sora（COO）、Kpi（横断KPIマネージャー）
