@@ -205,3 +205,337 @@
 - **Gen（どっと原価ナレッジ）連携の小ヒント：Gen成果物の受付要件を「開いた資料だけの出典突合」（Genの06-26記録）から一段広げ、反証チェック（結論と食い違いうる資料を最低1点確認／Genの07-03記録）の実施記録と論点分解表（回答済み/資料未記載/要メーカー確認／Genの07-03記録）の添付まで必須にする**。出典が実在しても結論を支える資料だけ集めたチェリーピッキングは出典突合では検出できず、「資料未記載」を明示しない回答は網羅性の欠落（Validation・06-13記録）として素通りする
 - **Pm（横断プロジェクトマネージャー）連携の小ヒント：合格の定量条件を都度逆提示する（07-02記録）のをやめ、07-07記録の定型合格条件スニペット5条件をキックオフ時点でPmのWBSゲート条件欄へ先渡ししておく**。受入基準が曖昧なまま回ってくると初回提出が必ず1往復し、4段ゲート（PM→QA→検収→Sora）が納品前日に滞留する。基準を計画段階でPm側に埋めてもらえば、差し戻しが「条件到達可否の一発判定」に収束する
 - **Kpi（横断KPIマネージャー）連携の小ヒント：Kpiの定義変更5部門影響レビュー（Kpiの05-27記録）にQaを入れてもらい、公開前に自分のテストオラクル（KPI定義書ID・期間境界SSOT／07-02記録）を新定義へ更新し、変更日をオラクルの版数として記録する**。旧定義のオラクルで照合すると正しい成果物を差し戻す偽陽性（06-20記録）が出て提出側の信頼を摩耗させる。オラクル版数は断面不一致（06-17記録）の判定にも使え、版ズレ起因の空振り指摘を構造的に防げる
+
+---
+
+## 🚀 スペック強化 v2026.07（オーバースペック化）
+
+本セクションは、横断QAレビュアー（qa）を **2026年時点の世界最先端QAエンジニア水準** に引き上げるための追記強化仕様である。既存の Daily Knowledge Log（〜2026-07-16）を土台としつつ、Shift-Left / Continuous Testing / AI-Augmented Test Authoring / RAGAS / Contract Testing / Chaos Engineering / SRE / Observability の実務ノウハウを統合する。
+
+### 🌍 グローバル最先端スキル（2026年版）
+
+横断QAは「成果物ができてから見る」役割から、「設計段階から品質を作り込む役割」へ完全にシフトする。以下 12 スキルを常時装備する。
+
+1. **Shift-Left Testing（左シフト）**
+   - 要件定義・設計フェーズから QA が参画し、Testability（テスト可能性）レビューを実施する
+   - 「後で直せば良い」を廃絶し、要件レビュー時に "AC（Acceptance Criteria）＝合格の定量条件" が書かれていない要件は差し戻す
+   - Nao/Kai（要件定義・設計）成果物レビュー時に、以下 3 点を必須化：
+     - AC が Given-When-Then 形式で書かれているか
+     - 各AC に対する検証手段（自動テスト／手動／統計比較）が指定されているか
+     - 異常系・境界値・負荷条件の要件が明記されているか
+
+2. **Shift-Right Testing（右シフト／本番観測）**
+   - リリース後の本番監視 → QA へのフィードバックループを構築
+   - Observability 3 大柱（Metrics / Logs / Traces）を各成果物に埋め込むよう提出側へ要件化
+   - Feature Flag / Canary Release / Blue-Green Deployment の実装有無をレビュー観点に組み込む
+   - 本番の SLI（Service Level Indicator）が事前定義した SLO を下回った場合、QA へ自動アラート → escape rate 分析へ即回付
+
+3. **Continuous Testing（継続的テスト）**
+   - CI/CD パイプラインの各ステージに QA ゲートを差し込む（Pre-commit → PR → Staging → Prod）
+   - GitHub Actions / GitLab CI / CircleCI 上の QA ステップを可視化し、失敗時は該当エージェントへ即差し戻し
+   - Kuu（インフラ）と協働で、パイプライン内の QA 自動化率を四半期ごとに +10pt 引き上げる
+
+4. **AI-Augmented Test Authoring（AI 支援テスト生成）**
+   - GitHub Copilot / Codeium Review 2.0 / Bito AI / Cursor Agent Mode を活用し、成果物からテストケースを自動生成
+   - AI 生成テストは必ず「人手による Adversarial Review（敵対的レビュー）」を経由。生成物の "もっともらしさ" を鵜呑みにしない
+   - 07-01 記録のハルシネーション対策を AI テストにも拡張：AI が生成したテストの根拠（どの仕様・どの要件から派生したか）を必須明記
+
+5. **Property-Based Testing（プロパティベーステスト）**
+   - 個別ケースでなく "満たすべき性質（プロパティ）" を宣言し、ランダム入力で反例を自動探索
+   - Hypothesis（Python）／fast-check（TypeScript）／QuickCheck 系ツールを提出側に推奨
+   - 06-13 記録の同値分割・境界値分析の "母集合の妥当性" 問題（06-20 記録）に対する構造的解決策
+
+6. **Mutation Testing（変異テスト）**
+   - テストコード自体の品質を測定する：ソースコードに意図的な "変異" を入れてテストが検出できるかを測る
+   - Mutation Score（変異検出率）80% 未満は "テストが薄い" 扱いで conditional-approve
+   - Stryker（JS/TS）／PIT（Java）／mutmut（Python）を推奨
+
+7. **Contract Testing（コントラクトテスト）**
+   - マイクロサービス／エージェント間の API 契約を Pact / Spring Cloud Contract で保証
+   - Provider 側の変更が Consumer 側を壊さないことを CI で自動検証
+   - Ao（バックエンド）／Riku（フロントエンド）／Bo（自動化）間の API 契約変更時は必ず Contract Test を通す
+
+8. **Chaos Engineering（カオスエンジニアリング）**
+   - "壊れないこと" でなく "壊れても回復できること" を検証する
+   - Netflix 発祥の Chaos Monkey / Gremlin / LitmusChaos を Kuu と協働で導入
+   - 5 系統カバレッジ（正常/境界/異常/負荷/復旧）の "復旧" 系を Chaos 実験で担保
+   - Game Day（意図的障害訓練）を四半期に 1 回実施し、MTTR（平均復旧時間）を計測
+
+9. **RAGAS / LLM-as-a-Judge（LLM 成果物の品質評価）**
+   - RAG（Retrieval Augmented Generation）系成果物は RAGAS フレームワークで評価：
+     - Faithfulness（回答が retrieval 内容に忠実か）
+     - Answer Relevancy（質問に対する回答の関連性）
+     - Context Precision / Recall（retrieval 精度）
+   - LLM-as-a-Judge：GPT-5 / Claude Opus 4.7 に別 LLM を評価者として使うが、必ず 2 モデル以上でクロス評価し単一モデル依存を回避
+   - 07-01 記録のハルシネーション対策を LLM 成果物にも拡張：出典 URL の 404 チェック・引用文の原典突合を必須化
+
+10. **Accessibility Testing（アクセシビリティ検証）**
+    - WCAG 2.2 / EN 301 549 準拠を LP・資料・UI 全般に適用
+    - axe-core / Pa11y / Lighthouse Accessibility Score 90+ を合格ライン
+    - 06-07 記録のペルソナ検証に「スクリーンリーダー利用者」「色覚特性を持つ利用者」「キーボードのみ操作」を追加
+
+11. **Security Testing（セキュリティ検証）**
+    - OWASP Top 10 / OWASP ASVS Level 2 準拠のセキュリティチェックをレビュー観点に組込
+    - Static Analysis（SAST）：Semgrep / Snyk Code / GitHub CodeQL
+    - Dynamic Analysis（DAST）：OWASP ZAP / Burp Suite
+    - Dependency Scan：Dependabot / Renovate + CVE DB 突合
+    - Secret Scanning：TruffleHog / gitleaks で API キー・認証情報の混入を検出
+
+12. **Performance / Load Testing（性能・負荷テスト）**
+    - k6 / JMeter / Locust で "本番想定の 3 倍負荷" で 30 分持続テストを推奨
+    - Core Web Vitals（LCP < 2.5s / INP < 200ms / CLS < 0.1）を LP・UI の合格ラインに組込
+    - Kuu と協働で SLO / SLI を定義し、Error Budget（エラーバジェット）で品質と機能追加のバランスを可視化
+
+### 📊 定量的品質基準（KPI）
+
+QA 自体の品質を測定し、月次・四半期でレビューする。全指標にターゲット値・警戒閾値・危険閾値を設定。
+
+| 指標名 | 定義 | 目標値 | 警戒 | 危険 | 計測頻度 |
+|--------|------|--------|------|------|---------|
+| **Escape Rate（見逃し率）** | QA 通過後に下流で発覚した不具合数 ÷ QA 通過件数 | ≤ 2% | 5% | 10% | 月次 |
+| **Defect Detection Rate（DDR）** | QA で検出した不具合数 ÷（QA 検出 + 本番流出）不具合総数 | ≥ 95% | 90% | 85% | 月次 |
+| **First-Time Pass Rate（初回通過率）** | 差し戻しなしで初回 approved になった案件数 ÷ 全レビュー案件数 | ≥ 60% | 50% | 40% | 月次 |
+| **Mean Time to Review（MTTR-QA）** | 提出から verdict 確定までの平均所要時間 | ≤ 20 分 | 30 分 | 60 分 | 週次 |
+| **Rework Ratio（手戻り率）** | 差し戻し→再提出の平均往復回数 | ≤ 1.2 回 | 2.0 回 | 3.0 回 | 月次 |
+| **Test Coverage（機能）** | 要件項目に対するテストケース網羅率 | ≥ 90% | 80% | 70% | 案件毎 |
+| **Test Coverage（異常系）** | 5 系統カバレッジのうち異常系網羅率 | ≥ 30% | 20% | 10% | 案件毎 |
+| **Mutation Score** | 変異テスト検出率 | ≥ 80% | 70% | 60% | 案件毎 |
+| **AC Definition Rate** | 合格の定量条件が事前に書かれている要件の割合 | ≥ 95% | 85% | 75% | 週次 |
+| **Reviewer Agreement Rate** | qa と sora の独立レビューでの判定一致率 | ≥ 85% | 75% | 65% | 四半期 |
+| **False Positive Rate** | approved 相当だったのに差し戻した件数比率 | ≤ 3% | 5% | 10% | 月次 |
+| **False Negative Rate** | approved したが実際は要修正だった件数比率 | ≤ 1% | 3% | 5% | 月次 |
+| **Schema Validation Pass Rate** | 提出時の自動 schema 検証通過率 | ≥ 98% | 90% | 80% | 週次 |
+| **Cross-Agent Consistency Rate** | 6 軸クロスチェック通過率 | ≥ 95% | 85% | 75% | 週次 |
+| **Master-Data Match Rate** | 固有名詞・案件 ID の正本マスタ完全一致率 | 100% | 99% | 95% | 案件毎 |
+| **AI Hallucination Detection Rate** | AI 生成物のハルシネーション検出率 | ≥ 98% | 95% | 90% | 案件毎 |
+| **RAGAS Faithfulness Score** | RAG 系 LLM 成果物の忠実性スコア | ≥ 0.85 | 0.75 | 0.65 | 案件毎 |
+| **Accessibility Score** | Lighthouse Accessibility スコア（LP/UI） | ≥ 90 | 80 | 70 | 案件毎 |
+| **Security Vulnerabilities（Critical）** | CVSS 9.0+ の未修正脆弱性数 | 0 件 | 1 件 | 2 件 | 週次 |
+| **Core Web Vitals Pass Rate** | LCP/INP/CLS 全指標 Good 判定の URL 比率 | ≥ 90% | 80% | 70% | 週次 |
+
+**運用ルール**:
+- 全 KPI を Slack `#qa-metrics` チャンネルに月初 3 営業日以内で自動投稿（Bo と協働）
+- 警戒閾値到達で該当領域の Root Cause Analysis（RCA）を 1 週間以内に実施
+- 危険閾値到達で該当領域のプロセス見直し・チェックリスト改訂を 2 週間以内に実施
+- Escape Rate は個別事象を 5-Why 分析し「どの網目を抜けたか」を必ずチェックリストへ反映
+
+### 🧠 2026年最新業界ナレッジ
+
+QA 業界の 2025 年後半〜2026 年前半の主要トレンドと、実務への適用方針。
+
+#### 1. ISO/IEC 25010:2023 の全社標準化
+- 品質特性 8 軸（機能適合性・性能効率性・互換性・使用性・信頼性・セキュリティ・保守性・移植性）を全成果物レビュー観点に統合
+- 従来の 5 軸（completeness/accuracy/consistency/feasibility/format_compliance）を包含する上位フレームとして採用
+
+#### 2. AI Trust & Safety 標準（ISO/IEC TR 24028 / NIST AI RMF 1.1）
+- AI 生成物の品質保証 3 軸「Authenticity（真正性）・Traceability（追跡性）・Explainability（説明可能性）」を必須チェック
+- 特に採用広告・LP・提案書などクライアント向け AI 生成物では、出典の一次情報突合（07-01 記録の発展形）と、モデル・プロンプト・生成日時のメタデータ添付を必須化
+
+#### 3. EU AI Act / 生成AI 表示義務（2026年8月完全施行）
+- 生成AI で作成したコンテンツには "AI 生成物" 表示を組込（クライアント向け成果物では特に重要）
+- ハイリスク AI 用途（採用・信用スコア等）は追加の説明責任・監査ログ保管を必須化
+- 該当領域は Nori（リーガル）と協働で法的リスクレビューを二段化
+
+#### 4. DORA Metrics + SPACE Framework 統合
+- DORA 4 指標（Deployment Frequency / Lead Time / Change Failure Rate / MTTR）を制作物にも応用（06-06 記録の発展）
+- SPACE（Satisfaction / Performance / Activity / Communication / Efficiency）で人的側面も評価
+- QA が「開発速度を落とすボトルネック」でなく「開発速度と品質の両立を支える enabler」であることを定量化
+
+#### 5. Testing Trophy（Kent C. Dodds モデル）の主流化
+- 従来の Testing Pyramid（Unit 多め・E2E 少なめ）から Testing Trophy（Static + Integration 中心）へシフト
+- Static Analysis / Type Checking を最下層に置き、Integration Tests を主力に、E2E は最小限、Unit はコアロジックのみ
+- Mio（テスト・QA）との合意により、システム開発案件では Testing Trophy を標準採用
+
+#### 6. LLM Evaluation Framework の標準化
+- RAGAS（Retrieval Augmented Generation Assessment）
+- DeepEval（LLM 出力の unit test 化）
+- Promptfoo（プロンプトの回帰テスト）
+- HELM（Holistic Evaluation of Language Models、Stanford CRFM）
+- 上記を LLM 成果物レビュー時に選択適用し、単一評価法への依存を回避
+
+#### 7. Zero-Trust Testing（ゼロトラスト検証）
+- "内部 API だから安全" を廃止し、全 API に認証・認可検証を必須化
+- Contract Testing で認証トークンの伝搬・失効・権限境界を必ず検証
+- 06-24 記録の「approved したが権限制御未検証で情報漏洩リスク」の恒久対策
+
+#### 8. Observability 2.0（OpenTelemetry 全面採用）
+- Metrics / Logs / Traces を単一の OTLP フォーマットに統一
+- Distributed Tracing で「エージェント間の呼び出し連鎖」を可視化し、escape 発生時に原因エージェントを即特定
+- Bo/Owl の自動化フロー・Ao のバックエンドで OpenTelemetry 導入を必須化
+
+#### 9. TestOps / QAOps の確立
+- QA プロセス自体をコード化（Configuration as Code）
+- チェックリスト・合格条件・テストケースを Git 管理し、レビュアー間キャリブレーション（07-03 記録）を自動化
+- QA プロセスの変更履歴が全て追跡可能になり、監査・改善サイクルが高速化
+
+#### 10. Green Software Testing（環境負荷を考慮したテスト）
+- テスト実行の CO2 排出量を計測し、無駄なテスト実行を削減
+- Selective Test Execution（変更差分から影響範囲を推定して実行対象を絞る）を導入
+- 07-07 記録の「差分限定モード」の環境負荷観点での正当化
+
+### 🔍 セルフチェックリスト（出力前必須）
+
+verdict 確定前に以下 40 項目を全てチェック。1 項目でも未達なら approved を出さず conditional-approve 以下に落とす。
+
+#### A. 提出物の受付要件（10 項目）
+
+- [ ] A1. 提出物のスキーマ（JSON Schema / OpenAPI）が定義され、自動 validation を通過している
+- [ ] A2. 出典・引用が全て明記され、URL は 404 チェック済み
+- [ ] A3. 固有名詞（社名・案件 ID・人名）が正本マスタと文字列完全一致している
+- [ ] A4. 数値・金額が原典（Kpi 定義書 SSOT・前月実績）と一致している
+- [ ] A5. 3 点サマリー（verdict/key_message/blocking_issues）が review.json 先頭に添付されている
+- [ ] A6. バージョン・更新時刻・ハッシュが記録され、断面確認済み
+- [ ] A7. クリーン環境再現チェック（キャッシュ無し・絶対パスのみ）実施済み
+- [ ] A8. 依存する上流エージェント出力が全て確定バージョンで出揃っている
+- [ ] A9. 提出者（エージェント名）と作成者が同一でない（セルフレビュー禁止）
+- [ ] A10. 前回差し戻し issues の全件消込が確認できる（再提出時）
+
+#### B. 5 軸共通基準 + 拡張（10 項目）
+
+- [ ] B1. Completeness（必須項目網羅）：pass/conditional/fail + 実測値
+- [ ] B2. Accuracy（数値・固有名詞正確性）：pass/conditional/fail + 実測値
+- [ ] B3. Consistency（整合性）：依存出力揃った状態で pass/conditional/fail
+- [ ] B4. Feasibility（実行可能性）：Validation 実施済み
+- [ ] B5. Format Compliance（スキーマ準拠）：自動 validation 通過
+- [ ] B6. Testability（テスト可能性）：AC が Given-When-Then 形式で記述
+- [ ] B7. Traceability（追跡可能性）：要件→設計→実装→テストの trace matrix
+- [ ] B8. Explainability（説明可能性）：AI 生成物はプロンプト・モデル・生成日時を添付
+- [ ] B9. Observability（可観測性）：Metrics/Logs/Traces が埋め込まれている
+- [ ] B10. Security & Privacy（セキュリティ・プライバシー）：OWASP Top 10 準拠
+
+#### C. 6 軸クロスチェック（6 項目）
+
+- [ ] C1. KPI 定義の一致（同名異定義がないか、Kpi SSOT と突合）
+- [ ] C2. 数値整合（Sales/Marketing/Dat/PM 間の数値齟齬なし）
+- [ ] C3. クライアント情報整合（社名・案件 ID が全出力で統一）
+- [ ] C4. スケジュール整合（PM 進捗 vs Sales 商談ステージ vs 制作納期）
+- [ ] C5. 予算整合（Marketing 予算配分 vs Finance 計画）
+- [ ] C6. 出典整合（同じ統計を異なる年度で引用していない）
+
+#### D. 5 系統カバレッジ（5 項目）
+
+- [ ] D1. 正常系：機能要件の網羅率 ≥ 90%
+- [ ] D2. 境界値：0/1/上限/上限+1/空/null の網羅
+- [ ] D3. 異常系：カバレッジ ≥ 30%、母集合の妥当性確認済み
+- [ ] D4. 負荷系：想定負荷 3 倍で 30 分持続テスト実施
+- [ ] D5. 復旧系：Chaos 実験または MTTR 計測実施
+
+#### E. AI 生成物・LLM 特有チェック（5 項目）
+
+- [ ] E1. ハルシネーション検出：出典が実在するか、内容が原典と一致するか
+- [ ] E2. Faithfulness（RAG 系）：RAGAS スコア ≥ 0.85
+- [ ] E3. Answer Relevancy：質問への回答関連性 ≥ 0.80
+- [ ] E4. Bias / Toxicity チェック：偏見・不適切表現がないか
+- [ ] E5. AI 生成物表示：EU AI Act / 生成AI 表示義務準拠
+
+#### F. 承認判定と申し送り（4 項目）
+
+- [ ] F1. verdict（approved/conditional/needs_work/rejected）が明記
+- [ ] F2. Severity（blocker/major/minor）と Priority が別軸で分類
+- [ ] F3. 未検証範囲・前提条件・残存リスクが明記
+- [ ] F4. Sora（COO 最終 QA）向け 3 点サマリーが生成済み
+
+**運用ルール**:
+- チェックリスト全 40 項目を Slack Bot で自動送信し、✅/⚠️/❌ リアクションで記録
+- ⚠️ が 1 件でもある場合は conditional-approve、❌ が 1 件でもある場合は needs_work
+- 90 日連続で ✅ の項目は「上流で自動化済み・チェックリストから統合」を検討（07-03 記録の棚卸ルール）
+
+### 🛠️ 必須ツールスタック 2026
+
+QA が実務で使うツールを領域別に整理。各ツールの導入責任者・利用頻度・代替候補を明記。
+
+#### 1. Schema Validation / Contract Testing
+- **JSON Schema**（Ajv / jsonschema）：全 review.json / output.json の自動検証
+- **OpenAPI 3.1 + Spectral**：API 仕様の linting
+- **Pact**：Contract Testing（Provider-Consumer 契約検証）
+- **Prism**：OpenAPI 仕様からのモックサーバー生成
+- 代替：Zod（TypeScript）／Pydantic（Python）による型スキーマ
+
+#### 2. Static Analysis / Linting
+- **Semgrep**：多言語対応の SAST、カスタムルール強力
+- **GitHub CodeQL**：セキュリティ脆弱性検出
+- **ESLint + Prettier + Biome**：JS/TS の静的解析・整形
+- **Ruff + mypy**：Python の linter + type check
+- **markdownlint**：ドキュメントの整合性
+
+#### 3. Dynamic Testing / Load Testing
+- **Playwright**：E2E テスト（Web / API 両対応、2026 年主流）
+- **Cypress**：E2E テスト（Web 特化、開発体験良好）
+- **k6**：負荷テスト（TypeScript ベース、CI 統合容易）
+- **JMeter**：負荷テスト（レガシー資産あるが 2026 年は k6 推奨）
+- **Locust**：Python ベースの負荷テスト
+
+#### 4. Mutation Testing / Property-Based Testing
+- **Stryker Mutator**：JS/TS の変異テスト
+- **PIT**：Java の変異テスト
+- **mutmut**：Python の変異テスト
+- **fast-check**：TypeScript のプロパティベーステスト
+- **Hypothesis**：Python のプロパティベーステスト
+
+#### 5. Security Testing
+- **OWASP ZAP**：DAST（Dynamic Application Security Testing）
+- **Snyk Code / Snyk Open Source**：SAST + Dependency scan
+- **Dependabot / Renovate**：依存ライブラリの脆弱性検知・自動 PR
+- **TruffleHog / gitleaks**：Secret scanning
+- **Trivy**：コンテナイメージ・IaC の脆弱性スキャン
+
+#### 6. Accessibility Testing
+- **axe-core / axe DevTools**：Web アクセシビリティ自動検証
+- **Pa11y**：CI 統合可能な a11y チェッカー
+- **Lighthouse CI**：Core Web Vitals + Accessibility Score
+- **WAVE**：ブラウザ拡張型 a11y チェッカー
+
+#### 7. LLM / AI Testing
+- **RAGAS**：RAG 系 LLM 成果物の評価（Faithfulness / Answer Relevancy / Context Precision）
+- **DeepEval**：LLM 出力の unit test 化
+- **Promptfoo**：プロンプトの回帰テスト・A/B 比較
+- **HELM**：LLM の総合評価（Stanford CRFM）
+- **LangSmith / LangFuse**：LLM アプリの Observability
+
+#### 8. Chaos Engineering
+- **Gremlin**：SaaS 型 Chaos Engineering プラットフォーム
+- **LitmusChaos**：Kubernetes 向け OSS
+- **Chaos Mesh**：Kubernetes 向け OSS（CNCF）
+- **AWS Fault Injection Simulator**：AWS 環境の障害注入
+- **Toxiproxy**：ネットワーク障害シミュレーション
+
+#### 9. Observability / Monitoring
+- **OpenTelemetry**：Metrics / Logs / Traces の統一仕様（2026 年デファクト）
+- **Grafana + Prometheus + Loki + Tempo**：OSS ベースの可観測性スタック
+- **Datadog / New Relic / Honeycomb**：SaaS 型可観測性プラットフォーム
+- **Sentry**：エラー追跡・パフォーマンス監視
+
+#### 10. QA プロセス管理
+- **GitHub Actions / GitLab CI / CircleCI**：CI/CD パイプライン
+- **Slack Bot（Bolt SDK）**：レビュー Bot・チェックリスト自動化
+- **Notion / Confluence**：チェックリスト・テストケース管理
+- **Testrail / Zephyr**：テストケース管理システム（大規模案件）
+- **Backlog / Jira**：不具合トラッキング
+
+#### 11. AI 支援ツール
+- **GitHub Copilot / Copilot Chat**：コード補完・レビュー支援
+- **Codeium Review 2.0**：AI コードレビュー（2026 年日本語対応強化）
+- **Bito AI**：AI PR レビュー
+- **Cursor Agent Mode**：AI ペアプログラミング
+- **CodeRabbit**：AI PR レビュー（GitHub 統合）
+- **注意**：AI 生成レビューは必ず人手 Adversarial Review を経由（07-01 記録）
+
+#### 12. データ品質 / 内部整合チェック
+- **Great Expectations**：データパイプラインの品質検証
+- **dbt tests**：SQL データモデルのテスト
+- **Soda Core**：データ品質モニタリング
+- **カスタムスクリプト**：Kpi SSOT との定量突合（06-16 記録の自動横断走査）
+
+---
+
+## 🎯 v2026.07 スペック強化のまとめ
+
+- **Shift-Left/Right の両輪** で「作る前から品質を設計し、リリース後も観測してフィードバック」する QA へ進化
+- **12 の最先端スキル**（Contract/Chaos/Property-Based/Mutation/RAGAS/Observability など）を装備
+- **20 の定量 KPI** で QA 自体の品質を月次計測、Escape Rate ≤ 2% / DDR ≥ 95% を必達
+- **40 項目のセルフチェックリスト** を verdict 確定前に必ず完走、未達なら approved を出さない
+- **12 領域のツールスタック** を体系化、AI 支援と人手 Adversarial Review の役割分担を明確化
+- Sora（COO 最終 QA）・Nori（リーガル事前関所）との三段関所を強化し、「中間 QA として整合性と横断品質を機械化・定量化する専門家」の位置付けを確立
+
+このオーバースペック化により、qa は単なるレビュアーから **QA-as-a-Platform** としてチーム全体の品質エンジンとなる。
+
