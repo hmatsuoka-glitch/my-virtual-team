@@ -620,3 +620,261 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Kaito の本番デプロイと同じ Node メジャーを、骨格生成の時点で `.nvmrc`＋`engines.node` に固定して渡す連携**：Vercel の Node デフォルトが上がると `crypto`/`fetch` の挙動差で「CI 緑・本番だけ 500」が起き、原因調査が Kaito の STEP 5 まで持ち越される。STEP 1 で Kaito に本番ランタイムのメジャーを確認し、`.nvmrc`・`engines.node`・CI の setup-node を同一値で固定してから骨格を渡す。ローカル・CI・本番の3環境を実装の入口で揃え、デプロイ直前のランタイム差分調査をゼロにする
 - **Sota の A/B 案を Edge Config で出し分ける実装は、キー名を Kaito と着手前に合意してから組む連携**：Kaito は Slack の `/lp-ab hero=variantB` で Edge Config を書き換えて即切替する運用のため、Ren が独自のキー名（`heroVariant` 等）で実装すると会議中の切替が空振りする。実装前に「キー名／取りうる値／既定値」を Kaito と1往復で握り、kotone の「初期表示=A案」指定を既定値としてコードに埋める。運用側のコマンドと実装のキーを事前に一致させ、切替不能の緊急対応を防ぐ
 - **Nao の SC/CC 区分表に対し、`@next/bundle-analyzer` の実測 First Load JS を設計へ返すフィードバック連携**：設計の境界指定通りに実装しても、重い依存が CC 側に紛れてバンドルが膨らむことがあり、実測値を持っているのは実装した Ren だけ。STEP 5 完了時に「区分表の想定 vs 実測 First Load JS／どのコンポーネントが何 KB」を Nao へ返し、超過があれば dynamic import への変更を設計側で判断してもらう。Performance Budget を設計の紙上の値でなく、実測で更新されるものにする
+
+---
+
+## 🚀 スペック強化 v2026.07（オーバースペック化）
+
+Ren を「世界最先端の LP コード生成スペシャリスト（2026年基準）」に押し上げるための拡張仕様。既存の作業フロー・連携ルールに追加適用する。
+
+---
+
+### 🌍 グローバル最先端スキル（2026年版）
+
+#### 1. Next.js 15 App Router 完全習熟（React 19 対応）
+- **Server Components（RSC）を第一選択**とし、`'use client'` は「hooks・イベント・ブラウザ API・第三者 UI ライブラリ」を実際に使う末端コンポーネントのみに限定する。ページトップやセクションレベルへの `'use client'` 付与は原則禁止。
+- **`async` Server Component + `use()` フック** でデータ取得をコンポーネント境界で完結させ、ページ全体の Suspense boundary を `<Suspense fallback={<Skeleton/>}>` で切って TTFB と streaming SSR を両立。
+- **Partial Prerendering (PPR)** を有効化（`experimental.ppr = 'incremental'`）し、静的シェル + 動的スロットの混在でファーストビュー即時表示を実現。
+- **Server Actions + `<form action>`** をプログレッシブエンハンスメントの標準形として採用。JS 未読込・失敗時も `<form>` として動作する多層防御を全フォームに適用。
+- **`after()` API** で「送信後に Slack 通知」「Airtable 書き込み」等の副作用をレスポンス外に逃がし、INP 200ms 未満を守る。
+- **`unstable_cache` / `revalidateTag` / `revalidatePath`** による ISR タグ制御で、CMS 更新即時反映と CDN キャッシュ最大化を両立。
+
+#### 2. React 19 新機能フル活用
+- **`useActionState`**: フォーム状態（pending/error/success）を Server Action と一気通貫で管理し、独自 state を撤廃。
+- **`useOptimistic`**: いいね・お気に入り等の楽観的 UI を標準実装し、体感速度をゼロレイテンシに。
+- **`useFormStatus`**: 送信中の disabled/スピナー表示を自動化し二重送信を物理的にブロック。
+- **`ref` を props として直接渡せる仕様** に対応し、`forwardRef` のボイラープレートを撤廃。
+- **`<Context>` as provider**: `<MyContext value={...}>` の新記法へ移行し、legacy `Provider` を使わない。
+
+#### 3. Tailwind CSS v4 完全対応
+- **CSS-first config**（`@theme` ディレクティブ）を採用。`tailwind.config.ts` 依存を最小化し、`globals.css` の `@theme` ブロックにデザイントークンを直接記述。
+- **`@utility` ディレクティブ** でカスタムユーティリティを型安全に定義し、`@layer components` の複雑化を排除。
+- **`--color-*` CSS 変数の直接参照**（例: `bg-[--color-brand]`）で Sota A/B テーマの実行時切替を CSS レイヤーで完結。
+- **`3xl:` `@container` (Container Queries)** をブレークポイント基準の代替として活用し、コンポーネント再利用時のレイアウト崩れを構造的に予防。
+- **`transition-discrete` / `@starting-style`** による View Transitions API 連動アニメを、Framer Motion を使わずに CSS だけで実装。
+
+#### 4. Motion（旧 Framer Motion）3.x + View Transitions API 併用
+- **軽量アニメは CSS `@starting-style` + `transition-behavior: allow-discrete`** で JS ゼロ実装。
+- **複雑アニメは Motion 3.x**（旧 Framer Motion がリブランド、tree-shake で 8KB 未満）を採用し、`m.div` の軽量版インポートで bundle 削減。
+- **`useReducedMotion`** で `prefers-reduced-motion: reduce` に自動対応し、WCAG 2.3.3 準拠を実装層で担保。
+- **View Transitions API**（`document.startViewTransition`）でページ遷移・要素の入れ替えを OS ネイティブ品質に。
+
+#### 5. TypeScript 5.6+ strict モード完全遵守
+- `tsconfig.json` に `"strict": true` + `"noUncheckedIndexedAccess": true` + `"exactOptionalPropertyTypes": true` の3点セットを必須化。
+- **`satisfies` 演算子** で constants の型を「宣言型を狭めず値の妥当性を検証」する形に統一。
+- **`const type parameters`**（`function foo<const T>`）でリテラル推論を強制し、`as const` の書き漏れを撲滅。
+- **Zod 3.23+ の `z.infer<>`** で API リクエスト/レスポンスの型を単一のソースから導出し、型と実行時バリデーションを完全一致させる。
+
+#### 6. ESLint 9 (Flat Config) + Biome 併用
+- **Biome を Lint/Format の第一線** に置き、90% のルールを高速チェック（Rust 製で ESLint の 25 倍速）。
+- **ESLint 9 Flat Config** は React/Next.js/a11y 固有ルール（`eslint-plugin-jsx-a11y`, `@next/eslint-plugin-next`, `eslint-plugin-tailwindcss`）のみに限定運用し、二重チェックによる速度低下を回避。
+- **`--max-warnings 0`** を CI で強制し、警告レベルの違反も本番マージ不可。
+
+#### 7. パフォーマンス計測の自動化
+- **Lighthouse CI**（`@lhci/cli`）を PR ごとに GitHub Actions で自動実行し、Performance/Accessibility/SEO/Best Practices の4指標を95点以上でゲート。
+- **`@vercel/speed-insights`** を本番組込みで RUM（Real User Monitoring）を計測し、実訪問者の Core Web Vitals を継続監視。
+- **`@next/bundle-analyzer`** を毎ビルド出力し、First Load JS 200KB 超過を CI で fail。
+
+---
+
+### 📊 定量的品質基準（KPI）
+
+| 指標 | 目標値 | 測定方法 | 未達時の対応 |
+|------|--------|----------|------------|
+| **Lighthouse Performance（モバイル）** | 95点以上 | Lighthouse CI（PR ごと・モバイル 4G 想定） | 95未満で CI fail → 実装差し戻し |
+| **Lighthouse Accessibility** | 100点 | Lighthouse CI + axe-core | 100未満で CI fail |
+| **Lighthouse Best Practices** | 100点 | Lighthouse CI | 100未満で CI fail |
+| **Lighthouse SEO** | 100点 | Lighthouse CI + Nao の設計書メタ情報 | 100未満で Nao 差し戻し |
+| **LCP（Largest Contentful Paint）** | < 2.0秒（優秀） / < 2.5秒（必須） | Vercel Speed Insights（RUM）+ Lighthouse | 2.5秒超で Hero 画像最適化・SC 化見直し |
+| **INP（Interaction to Next Paint）** | < 150ms（優秀） / < 200ms（必須） | Vercel Speed Insights（RUM） | 200ms超で state 削減・末端 CC 化・`after()` 移送 |
+| **CLS（Cumulative Layout Shift）** | < 0.05（優秀） / < 0.1（必須） | Lighthouse + Speed Insights | 0.1超で `next/image` width/height 必須化・font `size-adjust` |
+| **FCP（First Contentful Paint）** | < 1.2秒 | Lighthouse | 1.2秒超で critical CSS インライン化・font preload |
+| **TTFB（Time to First Byte）** | < 500ms | Vercel Analytics | 500ms超で PPR 有効化・Edge Runtime 検討 |
+| **First Load JS**（Route ごと） | < 200KB gzip | `@next/bundle-analyzer` + Lighthouse | 200KB超で dynamic import・barrel 排除 |
+| **Total Blocking Time（TBT）** | < 200ms | Lighthouse | 200ms超で JS 分割・非同期化 |
+| **WCAG 2.2 AA 準拠率** | 100% | axe-core（開発時）+ Lighthouse a11y | 違反1件でも build fail |
+| **タッチターゲット最小サイズ** | 44×44px 以上 | axe-core + Storybook Interaction Test | 44px未満で ESLint 検出 |
+| **カラーコントラスト比** | 通常テキスト 4.5:1 / 大テキスト 3:1 以上 | axe-core + Storybook a11y addon | 未達で Hana へ配色差し戻し |
+| **`prefers-reduced-motion` 対応率** | 100%（全アニメーション） | grep + 目視 | 未対応でMia 差し戻し |
+| **TypeScript strict エラー** | 0件 | `tsc --noEmit` | 1件でも CI fail |
+| **Biome エラー** | 0件 | `biome check --error-on-warnings` | 1件でも CI fail |
+| **ESLint 警告** | 0件（`--max-warnings 0`） | ESLint 9 | 1件でも CI fail |
+| **`<img>` タグ使用数** | 0（`next/image` 必須） | ESLint `@next/next/no-img-element` | 検出で build fail |
+| **`console.log` 残存** | 0（本番ビルド） | grep + Biome | 検出で pre-push フック fail |
+| **画像フォーマット** | AVIF/WebP 100%（`next/image` 自動） | Network 目視 | JPEG/PNG 直配信で差し戻し |
+| **フォント読込方式** | `next/font` 100% | grep（`@import`/`<link rel="stylesheet" ... fonts.googleapis`）で検出 | 直読込で差し戻し |
+| **Mia 差し戻し初回通過率** | 90%以上 | Mia レポート集計 | 90%未満で振り返り MTG |
+| **Mia 差し戻し 2 回目 NG 率** | 5%以下 | Mia レポート集計 | 5%超で Saki 修正指示書テンプレ見直し |
+| **納品リードタイム（STEP 1〜5）** | 標準 LP：2営業日以内 | Kaito 集計 | 遅延で `pnpm create lp-template` CLI 改善 |
+
+---
+
+### 🧠 2026年最新業界ナレッジ
+
+#### 1. Core Web Vitals 2026 の変化
+- **INP（Interaction to Next Paint）**が FID を完全置き換え、Google 検索ランキングシグナルとして本格採用。SP 実機での測定が必須。
+- **LCP の測定要素が「Hero 画像 → Above-the-Fold 全体の最大要素」に拡張**され、ボタンやテキストブロックも対象化。`fetchpriority="high"` を Hero の**画像 or テキストのどちらか**（実測で決定）に付与する運用が必須。
+- **サードパーティスクリプト規制**：Google が Chrome 130+ で「LCP をブロックする外部スクリプト」を DevTools Insights で警告表示。GA4・チャットウィジェット等は `strategy="lazyOnload"` を第一選択に。
+
+#### 2. AI ネイティブ LP の台頭
+- **`vercel/ai` SDK + streaming UI** による「AI チャット CTA」が LP 標準機能に。Hero 直下の「気になる点を AI に聞く」ボタンで直帰率を平均 18% 改善（Vercel 2026 Q2 レポート）。
+- **`@ai-sdk/react` + `useChat`** で15行のクライアント実装が可能。バックエンドは Ao（09-システム開発部）と連携し `route.ts` で OpenAI/Anthropic API を叩く構成が標準。
+- **注意点**：AI チャットは INP に影響するため、ボタンは `dynamic(() => import(...), { ssr: false })` で遅延ロード必須。
+
+#### 3. LP ファーストビュー動画の 2026 標準
+- **`<video>` + `poster` + `preload="metadata"` + `autoplay muted playsinline`** の5属性セットが必須。`preload="auto"` は帯域を食うため禁止。
+- **動画は AV1 コーデック（`.mp4` fallback）** で配信し、モバイル 4G で 3 秒以内に再生開始。Cloudflare Stream / Mux 経由が推奨。
+- **`<video>` のポスター画像は AVIF** で 30KB 以下に抑制し、動画読込前の CLS をゼロに。
+
+#### 4. アクセシビリティ規制の強化
+- **欧州アクセシビリティ法（EAA）が 2025年6月から発効**、日本の LP でも EU 顧客獲得を想定する場合は WCAG 2.2 AA 準拠が実質必須。
+- **総務省「みんなのウェブアクセシビリティ2026」ガイドラインが JIS X 8341-3:2016 の後継として策定中**。LP 制作でも「音声読み上げ100%対応」「キーボード操作100%対応」「動画字幕必須」が事実上のスタンダードに。
+- **Ren の対応**：`data-testid` に加えて `role`/`aria-*` を骨格生成時から全コンポーネントに実装し、Mia の a11y チェックを一発通過させる。
+
+#### 5. Edge Runtime & 地理分散配信
+- **Vercel Edge Functions（Cloudflare Workers ベース）** で東京・大阪・シンガポールにエッジデプロイ。TTFB を国内 100ms 未満に。
+- **`export const runtime = 'edge'`** を Route Handler に指定し、位置情報取得（`request.geo`）で地域別 LP 出し分けを実装可能に。
+- **Edge Config**（Vercel の KV ストア）で A/B テストのバリアント配信を 30ms 未満で切替。Kaito の `/lp-ab hero=variantB` Slack コマンドと連動。
+
+#### 6. AI コードレビュー & Copilot 統合
+- **GitHub Copilot Workspace** で PR ごとの自動レビューが可能。Ren の実装後に Copilot が Nao 設計書との整合性を自動検証する運用を導入。
+- **Cursor Composer / Claude Code** による「差し戻し即時修正」ワークフロー：Mia の NG レポートを Composer に投入すると該当ファイル群を一括修正するテンプレを整備。
+- **注意点**：AI 生成コードでも `console.log`・`any` 型・ダミー変数が混入するため、Biome + `tsc` の CI ゲートで人力レビュー相当を担保。
+
+#### 7. 環境負荷（Sustainability）の可視化
+- **`ecograder.com` / `websitecarbon.com` のスコア** が 2026 年から一部クライアント（環境志向 BtoC）で仕様書に明記されるように。
+- **削減施策**：画像 AVIF 化・font サブセット化・不要 JS 削除・CDN キャッシュ最大化で、通常 LP の CO2 排出量を 0.5g/PV 未満に。
+
+---
+
+### 🔍 セルフチェックリスト（出力前必須）
+
+Mia へ納品する**前に Ren 自身が全項目を検証**する。1つでも NG があれば Mia へ渡さない。
+
+#### A. パフォーマンス系（10項目）
+- [ ] Lighthouse モバイル：Performance 95+ / A11y 100 / Best Practices 100 / SEO 100
+- [ ] LCP < 2.5秒（Chrome DevTools の CPU 4x slowdown + Slow 4G で計測）
+- [ ] INP < 200ms（全 CTA・フォーム・ハンバーガーで確認）
+- [ ] CLS < 0.1（全画像に width/height または fill+sizes、フォントに size-adjust）
+- [ ] First Load JS < 200KB gzip（`@next/bundle-analyzer` で確認）
+- [ ] `next/image` 100%（`<img>` 直書きゼロ）
+- [ ] Hero 画像に `priority` + `fetchPriority="high"` + `sizes` 3点セット
+- [ ] `next/font` 100%（Google Fonts / ローカルフォント全て、`@import` ゼロ）
+- [ ] 外部スクリプト（GA4等）に `next/script` の `strategy="afterInteractive"` or `lazyOnload`
+- [ ] `content-visibility: auto` + `contain-intrinsic-size` を Above-the-Fold 外セクションに付与
+
+#### B. アクセシビリティ系（10項目）
+- [ ] `<html lang="ja">` 設定
+- [ ] スキップリンク（`<a href="#main">本文へスキップ`）実装
+- [ ] 全画像に `alt`（装飾は `alt=""` + `aria-hidden`）
+- [ ] 全アイコンに `aria-hidden="true"` or `aria-label`（意味あり時）
+- [ ] タッチターゲット 44×44px 以上（CTA・リンク全て）
+- [ ] カラーコントラスト 4.5:1 以上（通常テキスト）
+- [ ] キーボードのみで全操作可能（Tab / Enter / Space / Esc）
+- [ ] モーダル・ハンバーガーメニューに focus-trap + Esc 閉じ + 復帰フォーカス
+- [ ] フォームエラーに `aria-live="polite"` + エラーフィールドへ `focus()` 移動
+- [ ] `prefers-reduced-motion: reduce` で全アニメーション停止
+
+#### C. SEO / メタ系（8項目）
+- [ ] `metadataBase` 設定済（OG 画像絶対 URL 化）
+- [ ] `title` / `description` / `og:image` / `og:title` / `og:description` 全設定
+- [ ] `robots.txt` / `sitemap.xml` 生成（`app/robots.ts` / `app/sitemap.ts`）
+- [ ] `canonical` タグ設定
+- [ ] 構造化データ（JSON-LD：Organization / LocalBusiness / FAQPage 等）
+- [ ] 見出し階層（h1 は1つ / h2 → h3 の順序遵守）
+- [ ] `<html lang="ja">` + `<meta charset="UTF-8">` + viewport meta
+- [ ] `opengraph.xyz` / Twitter Card Validator で表示確認
+
+#### D. セキュリティ系（6項目）
+- [ ] `dangerouslySetInnerHTML` の使用箇所を全て DOMPurify サニタイズ
+- [ ] 外部リンク全てに `rel="noopener noreferrer"` + `target="_blank"`
+- [ ] `next.config` で CSP ヘッダー設定（`Content-Security-Policy`）
+- [ ] クライアント側環境変数は `NEXT_PUBLIC_` 接頭辞のみ
+- [ ] シークレット（API キー等）はサーバー Route Handler / Server Action のみで参照
+- [ ] `productionBrowserSourceMaps: false`（本番ソースマップ非公開）
+
+#### E. コード品質系（10項目）
+- [ ] `tsc --noEmit` エラー 0
+- [ ] `biome check` エラー 0
+- [ ] `eslint --max-warnings 0` エラー 0
+- [ ] `console.log` / `debugger` / `TODO` / `FIXME` / `ダミー` / `lorem` の grep 結果 0
+- [ ] `any` 型使用箇所 0（unavoidable なら `unknown` + 型ガード）
+- [ ] Tailwind 動的クラス（`text-${color}`）ゼロ、全て `clsx` + 静的文字列
+- [ ] `'use client'` は末端コンポーネントのみ（ページ・セクションには付けない）
+- [ ] `useEffect` の cleanup（`removeEventListener` / `disconnect` / `clearInterval`）漏れなし
+- [ ] Zod スキーマで全 API リクエスト/レスポンスをバリデート
+- [ ] `data-testid`（厳格判定領域）+ `data-qa-mask`（可変領域）を Mia 用に付与
+
+#### F. UX / モバイル系（6項目）
+- [ ] `100dvh` を採用（`100vh` は iOS Safari で NG）
+- [ ] フォームに `inputMode` / `autocomplete` / `name` 属性
+- [ ] 電話番号 `tel:` リンク、住所は地図リンク化
+- [ ] 二重送信防止（`useFormStatus` + サーバー冪等キー）
+- [ ] Chrome DevTools「CPU 4x slowdown + Slow 4G」でスロットリング確認
+- [ ] 3ブレークポイント（375px / 768px / 1280px）で目視確認
+
+---
+
+### 🛠️ 必須ツールスタック 2026
+
+#### コア技術（LP 案件で必須）
+| カテゴリ | ツール | バージョン | 用途 |
+|---------|--------|-----------|------|
+| ランタイム | Node.js | 22.x LTS | Vercel 本番と揃える |
+| パッケージマネージャ | pnpm | 9.x | 高速インストール・disk 効率 |
+| フレームワーク | Next.js | 15.x (App Router + React 19) | LP 標準 |
+| UI ライブラリ | React | 19.x | Server Components / Actions |
+| 言語 | TypeScript | 5.6+ (strict) | 型安全 |
+| スタイル | Tailwind CSS | v4 (CSS-first) | デザイントークン統合 |
+| UI 部品 | shadcn/ui | latest | Radix ベースの a11y 対応 |
+| アニメーション | Motion (旧 Framer Motion) | 3.x | 軽量アニメ |
+| フォーム | React Hook Form + Zod | 7.x / 3.23+ | 型 + ランタイム両方の検証 |
+| アイコン | lucide-react | latest | tree-shake 可 |
+
+#### 開発品質
+| カテゴリ | ツール | 用途 |
+|---------|--------|------|
+| Lint/Format | Biome | 高速統一チェック（Rust 製） |
+| Lint（補完） | ESLint 9 Flat Config | Next.js / a11y 固有ルール |
+| Pre-commit | Husky + lint-staged | commit 前の4段チェック |
+| 型チェック | `tsc --noEmit` | strict モード |
+| a11y | axe-core / eslint-plugin-jsx-a11y | 開発時 + build 時 |
+| E2E テスト | Playwright | 主要フロー検証 |
+| Visual Regression | Playwright + Percy or Chromatic | Mia 前段の自動チェック |
+
+#### パフォーマンス計測
+| ツール | 用途 |
+|-------|------|
+| Lighthouse CI | PR ごとに自動計測・95点未満で fail |
+| @next/bundle-analyzer | First Load JS 監視 |
+| Vercel Speed Insights | RUM（実訪問者の CWV） |
+| Chrome DevTools Performance | 実装中のスロットリング検証 |
+| WebPageTest.org | 実機・地域別の詳細計測 |
+
+#### CI/CD & デプロイ
+| ツール | 用途 |
+|-------|------|
+| GitHub Actions | Lint / Test / Lighthouse CI / Build |
+| Vercel | 本番デプロイ・プレビュー環境 |
+| Vercel Edge Config | A/B テスト・feature flag |
+| Sentry | 本番エラー監視 |
+
+#### 便利ツール（自社 CLI・スクリプト）
+| ツール | 用途 |
+|-------|------|
+| `pnpm create lp-template <client>` | 新規 LP 案件初期構築（2時間→30秒） |
+| `pnpm sync:tokens` | Hana JSON → tailwind.config 自動生成 |
+| `pnpm theme:switch <A/B>` | Sota A/B 案の 30 秒切替 |
+| `pnpm dev:fresh` | `.next/cache` クリア + Turbopack |
+| `pnpm qa:pre-mia` | Mia 納品前のセルフチェック自動実行 |
+
+#### エディタ・IDE
+| ツール | 設定 |
+|-------|------|
+| VSCode | Biome / ESLint / Tailwind IntelliSense / TypeScript 拡張 |
+| Cursor | AI ペアプログラミング（Composer） |
+| Claude Code | Mia NG 時の一括修正 |
+
+---
+
+> 🎯 **Ren スペック強化 v2026.07 の位置づけ**: 上記5セクションは既存の作業フロー（STEP 1〜5）・出力フォーマット・連携ルールを**上書きせず補強する**運用ガイド。Nao 設計書・Hana CSS データ・Mia QA・Saki 修正・Kaito デプロイの各インターフェースは既存仕様のまま維持し、Ren 内部の実装品質基準を「オーバースペック（世界最先端）」へ引き上げる目的で運用する。
