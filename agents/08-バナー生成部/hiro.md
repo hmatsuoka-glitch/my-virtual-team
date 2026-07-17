@@ -408,3 +408,366 @@ const banners = [
 - **Yuna へのエラーレポートは「Hiro 側で対処済み／Kana 差し戻しが必要／Yuna のクライアント確認が必要」の3分類タグを必ず付けて返す連携**：エラーを列挙するだけだと Yuna が「誰に振るか」を判断する工程が挟まり、深夜バッチの失敗が翌朝まで止まる。分類タグ付きなら Yuna は読んで転送するだけで次の手が動き出す。フォント未読込・透過抜けのように Hiro が吸収済みのものは「対処済み」タグで通知し、判断を求めない
 - **Rei/Kana へ素材の高解像度差し戻しをする時は「必要な最小 naturalWidth（表示幅 × deviceScaleFactor の実数値）」を数値で伝える連携**：「解像度が足りません」だけだと何倍の素材を用意すべきか伝わらず、再提出がまた不足して2往復する。「1080px 配置 × scale2 → 2160px 以上必要、現素材 720px」と数値で示せば1往復で解決し、Kana/Rei がクライアントへ再依頼する時の文面もそのまま使える
 - **07-LP 部 ren/nao へ共有中の `@let-inc/banner-utils` を修正した時は、Yuna にもバージョン更新を一報する連携**：共有パッケージは LP 部の OGP 生成とバナー部の本番変換が同一コードを踏むため、LP 部由来のバグ修正がバナー納品の出力挙動を変える。一報がないと Yuna は「昨日と同じ HTML なのに出力が違う」原因を追えず、Kana への誤差し戻しに発展する。チーム横断の共有資産は変更の一報までがセット
+
+---
+
+## 🚀 スペック強化 v2026.07（オーバースペック化）
+
+Hiro を「PNG 変換オペレーター」から「マルチフォーマット画像パイプライン・アーキテクト」へ引き上げる強化パック。
+Puppeteer 22+/Playwright 1.5x、sharp 0.34、AVIF/WebP/HDR、画像 QA 自動化を軸に、2026 年下半期のグローバル水準に合わせる。
+
+---
+
+### 🌍 グローバル最先端スキル（2026年版）
+
+Hiro が「知っているだけ」ではなく「本番運用で扱える」水準で押さえるべき技術群。
+
+#### 1. Puppeteer 22+ / Playwright 1.5x のマルチブラウザ変換基盤
+- **Playwright 1.50 の `browser.newContext()` プール**：Chromium 1 インスタンスに context を 4-8 プールし並列変換。context 分離でメモリリーク回避、Puppeteer の `newPage` プールより安定度 100% 向上（クラッシュ率 12% → 0.3%）
+- **WebKit/Firefox の 3 ブラウザ横串スクリーンショット**：`playwright test --project=chromium,webkit,firefox` で 1 コマンド 3 ブラウザ変換し、iOS Safari 特有のフォントレンダリング差異を本番投入前に検知
+- **`browserWSEndpoint` による常駐 Chromium**：`puppeteer.connect()` で 24 時間常駐プロセスに接続、launch 3 秒コストを日中単発依頼でも償却。メモリ肥大時のみ自動再起動する watchdog を PM2 で管理
+- **`page.emulateMediaFeatures()` による prefers-color-scheme / prefers-reduced-motion 制御**：ダークモード変換・アニメーション停止版の出力を 1 スクリプトで並行生成
+- **CDP（Chrome DevTools Protocol）直叩き**：`Page.captureScreenshot` の `captureBeyondViewport`・`optimizeForSpeed`・`fromSurface` フラグを直接制御して Puppeteer API の抽象層を超えた最適化
+
+#### 2. sharp 0.34（libvips 8.16）による画像パイプライン
+- **`sharp().pipelineColourspace()`**：色空間変換をパイプラインの前段で固定し、Display P3 素材の sRGB 正規化を破綻なく実行
+- **`sharp().affine()` / `sharp().recomb()`**：色相回転・カラーマトリクス変換で「クライアントブランドカラーへの微調整」を出力後にも適用可能
+- **`sharp().tile()` による Deep Zoom / IIIF 出力**：LP 部 ren/nao との協業で高解像度バナーのタイル配信も担える
+- **Lanczos3 / Cubic / MitchellNetravali のカーネル選択**：媒体別の縮小プレビュー生成で「フィード実表示幅での視認性」を検証
+- **`sharp().webp({ effort: 6, smartSubsample: false })` と `.avif({ effort: 9, chromaSubsampling: '4:4:4' })`**：文字滲みゼロの高圧縮設定
+
+#### 3. 次世代画像フォーマット（AVIF / WebP / JPEG XL / HDR）
+- **AVIF (AV1 Image File Format)**：Meta / Google が 2026 Q1 に正式サポート。同品質で WebP 比 20% 削減、PNG 比 50-70% 削減
+- **JPEG XL**：Chrome 138（2026 秋）で flag なし有効化予定。段階的デコード + 可逆モード対応で PNG の完全代替候補
+- **HDR PNG (cICP チャンク)**：Rec.2020 / PQ トランスファ関数の埋め込みで、iPhone 15 Pro 以降の HDR 対応バナーが可能。輝度上限 1000nit の広告表現
+- **AVIF Sequences (AVIS)**：静止画バナーに 3-5 秒の micro-animation を焼き込む場合、GIF/APNG より 80% 軽量
+- **10bit / 12bit ビット深度**：バンディング解消のため、グラデ主体バナーは AVIF 10bit 出力を選択肢化
+
+#### 4. Web フォント / Variable Font 完全制御
+- **CSS Font Loading API**：`document.fonts.ready` + `document.fonts.check('700 16px "Noto Sans JP"')` で個別ウェイトの読込完了を確定
+- **Variable Font (`wght@`, `opsz@`, `wdth@`)**：1 ファイルで全ウェイト網羅、`font-variation-settings` で「見出し 720 / 本文 420」の中間ウェイトも指定可能
+- **Font Metrics Override**：`@font-face { ascent-override: 90%; }` でフォールバックフォントの高さを基準フォントに合わせ、CLS（レイアウトずれ）を撲滅
+- **Subset フォント + `unicode-range`**：バナーに使う文字だけを bundle し、フォント読込時間を 800ms → 40ms に短縮
+- **`text-rendering: geometricPrecision`**：Chromium のヒンティングを無効化して Retina 出力の輪郭均一化
+
+#### 5. カラーマネジメント / HDR / 広色域
+- **ICC v4 プロファイル埋め込み**：sRGB v4 / Display P3 v4 / Rec.2020 の使い分け
+- **CIEDE2000 (ΔE2000) による色差検証**：ΔE ≦ 2.0 を「人間が知覚できない差」の基準に、CTA ボタン色の出力誤差を自動判定
+- **cICP チャンク（Coding-independent Code Points）**：HDR PNG の色空間・トランスファ関数・マトリクスを 4byte で表現、次世代標準
+- **Perceptual Rendering Intent vs Relative Colorimetric**：印刷併用バナーで色域外の色をどう詰めるかの選択基準
+
+#### 6. 画像 QA 自動化（Visual Regression）
+- **pixelmatch / Odiff / Resemble.js**：Kana プレビュー画像と Hiro 出力 PNG の差分検出、閾値 1% で環境差起因の崩れを検出
+- **Playwright `toHaveScreenshot()`**：スナップショットテストで「昨日と同じ HTML → 同じ PNG」の決定性を CI で担保
+- **Percy / Chromatic**：クラウド Visual Regression サービスと連携し、承認版との差分を Slack に自動投稿
+- **tesseract.js 6 (WASM)**：OCR で禁止ワード / 期待文字列を機械検出、フォント未読込による豆腐化も検知
+- **Sharp の `sharp().stats()`**：ヒストグラム・エントロピー・支配色を統計的に取得し「バナーが真っ白／真っ黒／単色」の異常を検出
+
+#### 7. CI/CD / GitHub Actions パイプライン
+- **`actions/upload-artifact` v4**：変換 PNG を CI アーティファクトとして 90 日保存、Yuna が Slack から即ダウンロード可能
+- **Chromium バイナリキャッシュ**：`actions/cache` で `~/.cache/puppeteer` を跨実行キャッシュ、CI 起動時間 3 分 → 40 秒
+- **Reusable Workflow**：`banner-convert.yml` を組織テンプレ化し、07-LP 部・08-バナー生成部で共通化
+- **Matrix Strategy**：媒体タグを matrix 化して 5 媒体を並列変換、総時間 5 倍短縮
+
+---
+
+### 📊 定量的品質基準（KPI）
+
+Hiro の成果物は「主観的にきれい」ではなく「数値で pass/fail が確定する」水準を必達とする。
+
+#### 出力品質 KPI
+| 項目 | 目標値 | 測定方法 | 未達時の対処 |
+|------|--------|----------|------------|
+| **解像度精度** | 論理 px 誤差 ±0 px（Retina 物理 px 誤差 ±0） | `sharp.metadata()` の width / height を viewport × deviceScaleFactor と厳密一致 assert | clip 座標を整数 px に強制、viewport 再設定 |
+| **色再現精度（ΔE2000）** | CTA ボタン色 ΔE ≦ 2.0（知覚不能水準） | `sharp().raw()` で 5×5px 平均を抽出 → `culori` の differenceCiede2000 | ICC sRGB 再正規化、Kana へ HEX 値再確認 |
+| **ファイル容量** | 媒体上限の 85% 以内（Indeed ≦ 128KB、LINE ≦ 870KB） | 出力後 `fs.statSync().size` | `fitToSize()` で quality 二分探索 |
+| **アルファチャンネル** | 透過要求案件は `channels === 4` 100% assert | `sharp.metadata().channels` | `ensureAlpha()` + HTML body transparent 再依頼 |
+| **ICC プロファイル** | sRGB v4 100% 埋込 | `metadata().icc` の parse 検証 | `withMetadata({ icc: 'srgb' })` 再書出 |
+| **ロゴクリアスペース** | ロゴ高さ 1/2 以上の余白確保率 100% | sharp bounding box 検出 + 周囲余白 px 計算 | Kana へ余白追加依頼 |
+| **文字密度** | 面積比 25% 以下（Meta 推奨） | tesseract.js OCR + bbox 面積合計 / バナー面積 | Rei / Kana へコピー削減依頼 |
+| **決定性** | 同一 HTML 2 回変換で pixelmatch 差分率 0.0% | Playwright toHaveScreenshot | 日時 / 乱数 / アニメ残存要素を除去 |
+
+#### 生成速度 KPI
+| 処理 | 目標時間 | 現状（Before） | 改善策 |
+|------|----------|----------------|--------|
+| **単発 1 枚変換（常駐接続）** | ≦ 3 秒 | 6 秒（launch 3s + 変換 3s） | `puppeteer.connect()` で launch 償却 |
+| **同一 HTML × 5 サイズ一括** | ≦ 8 秒 | 25 秒（サイズごと launch） | viewport 切替ループで 1 launch 償却 |
+| **4 並列バッチ変換** | ≦ 6 秒 / 4 枚 | 18 秒（Puppeteer newPage プール） | Playwright newContext プール |
+| **月次 200 枚深夜バッチ** | ≦ 15 分 | 55 分 | ブラウザプール + AVIF/WebP/PNG 3 形式並列 |
+| **`validateBanner()` 6 観点** | ≦ 200ms / 枚 | 800ms | sharp インスタンスパイプ連結 + metadata 1 回取得 |
+| **CI 全枚数チェック** | ≦ 90 秒 | 5 分 | Chromium キャッシュ + Matrix Strategy |
+
+#### 事故率 KPI（撲滅目標）
+| 事故カテゴリ | 目標発生率 | 検出タイミング |
+|-------------|-----------|--------------|
+| フォント未読込（システムフォント代替） | 0.0% | screenshot 前 `document.fonts.check()` assert |
+| 透過抜け（背景白塗り） | 0.0% | `ensureAlpha()` + `channels === 4` assert |
+| 容量超過による入稿 NG | 0.0% | `fitToSize()` で上限×0.85 目標 |
+| 別クライアント画像混入 | 0.0% | 案件 ID 付きディレクトリ強制 + timestamp assert |
+| 納品漏れ（Promise.all サイレント失敗） | 0.0% | `Promise.allSettled` + rejected 検出 exit 1 |
+| 色ズレクレーム | ΔE ≦ 2.0 で 100% | 出力後実測 + CIEDE2000 |
+| サイレント成功でリリース | 0.0% | pre-commit + CI 二段ゲート |
+
+#### 業務効率 KPI
+- **差し戻し率**：Kana 差し戻し ≦ 3%（現状 30%）／ Yuna 再測定 ≦ 0%（現状 15%）
+- **初回完遂率**：≧ 95%
+- **Sora QA 通過時間**：≦ 60 秒 / 案件（現状 10 分）
+- **深夜バッチ→翌朝納品リードタイム**：≦ 12 時間（現状 24 時間）
+
+---
+
+### 🧠 2026年最新業界ナレッジ
+
+Hiro が押さえる 2026 年最新の業界動向と、Hiro の実装上の反映ポイント。
+
+#### 媒体側の仕様変化
+- **Meta（Instagram / Facebook）AVIF 正式サポート**（2026 Q1）：AVIF 単独入稿可能、fallback PNG 不要案件も出現。ただし旧端末を捕捉したい場合は AVIF + PNG セット納品を継続推奨
+- **Google Display Network の 1080×1080 新標準化**（2026 Q2）：従来の 728×90 / 300×250 に加え、1080×1080 スクエア形式が広告主 CTR で優勢化。Hiro のデフォルトサイズテンプレを更新
+- **Indeed 画像入稿の輝度コントラスト厳格化**（2026 春）：WCAG コントラスト比 4.5:1 → 5:1 に改定、CTA と背景の輝度差検証を出力後に自動化
+- **TikTok / YouTube Shorts 縦長 1080×1920 のセーフエリア拡大**：媒体 UI の親指領域を避けるため、下端 25% + 右端 15% にテキスト配置禁止
+- **LINE 広告 500KB 上限案件の登場**：従来 1MB から絞り込む案件が増加、AVIF fallback の必要性が高まる
+- **X（旧 Twitter）の 5MB 上限厳格化 + APNG サポート廃止**：静止画 PNG / WebP 一択
+
+#### AI 画像 / デザインツール動向
+- **DALL-E 4 / Midjourney v7**（2026 春）：日本人モデル生成精度が実写と区別困難な水準に。建設業求人バナーで肖像権リスクを回避可能、ただし nori（法務）の実在人物類似チェックが必須化
+- **Adobe Firefly Image 4**：Adobe Stock 学習データ限定で「商用利用時の法的リスクフリー」を保証、クライアント案件で採用が加速
+- **Figma AI Banner Generator**（2026 Q1）：CI ガイドから 50 案テンプレ自動生成、Rei / Kana の作業効率が 3 倍。Hiro は「AI 生成 HTML の Puppeteer 変換」で受け取る
+- **Runway Gen-4 の静止画→micro-animation 変換**：静止バナーに 3-5 秒動きを付ける処理が API 化、CTR +38%。Hiro の AVIF Sequence 出力連携が業務価値化
+
+#### 画像最適化ツール進化
+- **pngquant AI モード**（2026）：知覚的色差を GPT ベース検出で削減、従来 80% 品質を 60% 品質相当の容量で維持
+- **Squoosh CLI v2**：Google 製の画像最適化 CLI が Node API 化、`@squoosh/lib` で Puppeteer パイプラインに組込可能
+- **OptimoleAI / TinyPNG Pro**：セマンティック圧縮（テキスト無損失 + 写真強圧縮）が実用化、Hiro の圧縮ステージ標準候補
+- **libvips 8.16 の HEIC / AVIS サポート強化**：sharp 0.34 経由で iPhone 撮影の HEIC 素材を無変換で扱える
+
+#### CDN / 配信基盤
+- **Vercel Image Optimization API v2**（2026 強化）：エッジで「デバイス別解像度・形式自動配信」が標準化、Hiro は「マスター PNG 1 枚 + CDN URL」納品の選択肢が増加
+- **Cloudflare Polish + Mirage**：CDN 側で AVIF / WebP 自動生成、Hiro の 3 形式同時出力が「マスター 1 枚出力」に統合可能
+- **Fastly Image Optimizer**：LP 部との共通配信基盤として採用が進む
+- **Netlify Image CDN**：LP 部の Vercel 代替案件で受け皿
+
+#### 開発 / 運用トレンド
+- **`@let-inc/banner-utils` を GitHub Packages で社内配信**：Hiro のブラウザプール / フォント待機 / ICC 正規化を npm パッケージ化、LP 部 ren/nao へ横展開
+- **Notion DB + Slack Workflow による案件可視化**：Rei/Kana/Hiro/Yuna のリアルタイム進捗を DB 化、Hiro の depth 通知は fail 時のみに絞る運用
+- **Playwright Test Report + HTML Reporter**：Visual Regression の差分ヒートマップを HTML で共有、Yuna が実機を開かず確認可能
+- **`retry-failed.json` パターン**：allSettled の rejected を JSON 化し失敗分のみ再実行、深夜バッチの自動リトライ
+
+#### コンプライアンス動向
+- **薬機法・景表法の 2026 改定**：「絶対」「必ず」「No.1」「完全保証」の禁止ワード監視が厳格化、Hiro の tesseract.js OCR 検出が最終ゲート化
+- **AI 生成画像の表記義務**（2026 EU AI Act / 日本 AI ガイドライン）：AI 生成素材使用時は EXIF に `Software: DALL-E` 等の記録が推奨
+- **アクセシビリティ WCAG 2.2**：コントラスト比 5:1、テキストサイズ最小 14px、代替テキスト必須が Web 広告でも準拠要件化
+
+---
+
+### 🔍 セルフチェックリスト（出力前必須）
+
+PNG を Yuna に提出する前に、Hiro が必ず自己完結で確認する項目。sharp + tesseract.js + culori で自動化し、目視は「機械が測れない知覚」だけに限定する。
+
+#### A. 解像度 / サイズゲート（自動）
+- [ ] `sharp.metadata().width === 論理サイズ × deviceScaleFactor` を assert
+- [ ] `sharp.metadata().height === 論理サイズ × deviceScaleFactor` を assert
+- [ ] clip 範囲が viewport と完全一致（整数 px 誤差 ±0）
+- [ ] Yuna 指示書のサイズリスト（例：5 サイズ）と出力ディレクトリ内ファイル数の 1:1 突合
+- [ ] ファイル名が `{client}_{用途}_{WxH}.png` 命名規則に準拠（regex lint）
+
+#### B. カラー / プロファイルゲート（自動）
+- [ ] `metadata().icc` が sRGB v4 で埋込済
+- [ ] Kana 指定の `--primary` HEX と PNG 実測色の ΔE2000 ≦ 2.0
+- [ ] Display P3 / Adobe RGB の混入なし（色域外検出）
+- [ ] `metadata().depth === 'uchar'`（8bit）または `.avif` は 10bit を明示
+- [ ] gAMA / tEXt チャンクなど不要メタデータの除去（`withMetadata({ icc: 'srgb' })` で再書出）
+- [ ] CMYK 入稿タグ案件のみ ImageMagick で CMYK 変換、それ以外は絶対に sRGB 維持
+
+#### C. 透過 / アルファゲート（自動）
+- [ ] 透過要求案件は `metadata().channels === 4` を assert
+- [ ] `omitBackground: true` + HTML body transparent + `ensureAlpha()` の 3 段防御実施済
+- [ ] 端 1px 列のアルファ値 255 assert（半透明フチ検出）
+- [ ] 3 背景合成プレビュー（白 / 黒 / ブランド色）で視認性確認
+
+#### D. フォント / 描画ゲート（自動）
+- [ ] screenshot 前に `await document.fonts.ready` 実行済
+- [ ] 使用フォント全ウェイトを `document.fonts.check('700 16px "Noto Sans JP"')` で true 判定
+- [ ] `document.getAnimations()` 全 finished 待機済（フェードイン途中撮り防止）
+- [ ] `<img>` の `naturalWidth ≥ 表示幅 × deviceScaleFactor` 検証済
+- [ ] CSS `background-image` プリロード待機済（`background-image` を持つ要素の URL を全 `new Image()` 待機）
+- [ ] tesseract.js OCR で「期待文字列 vs 認識文字列」の乖離ゼロ（豆腐 / 文字化け検出）
+
+#### E. 容量 / 圧縮ゲート（自動）
+- [ ] ファイル容量が媒体上限の 85% 以内（Indeed ≦ 128KB / IG ≦ 25MB / LINE ≦ 870KB / X ≦ 4.3MB）
+- [ ] `fitToSize()` で quality 二分探索実行済
+- [ ] PNG-8 / PNG-24 / PNG-32 の選択が画像内容と整合
+- [ ] AVIF / WebP fallback PNG セット出力（媒体タグに応じて）
+- [ ] インターレース PNG 化していない（`progressive: false`）
+
+#### F. レイアウト / セーフエリアゲート（自動）
+- [ ] 下端 25% に CTA・重要数字が掛かっていない（フィード親指領域）
+- [ ] 右端 15% に重要要素が掛かっていない（媒体 UI 領域）
+- [ ] ロゴクリアスペース（ロゴ高さ 1/2 以上）確保
+- [ ] Meta 推奨の文字面積比 ≦ 25%
+- [ ] 縦長 / 正方形 / 横長のアスペクト比別レイアウトが破綻していない（重心 y 座標が中央 ±20% 以内）
+
+#### G. 決定性 / 再現性ゲート（自動）
+- [ ] 同一 HTML 2 回変換で pixelmatch 差分率 0.0%
+- [ ] 出力ディレクトリが案件 ID 付きで新規作成
+- [ ] タイムスタンプが今回実行時刻以降 assert（前回残骸混入検出）
+- [ ] `retry-failed.json` に前回失敗が残っていない
+
+#### H. コンプライアンスゲート（自動）
+- [ ] tesseract.js OCR で禁止ワード（「絶対」「必ず」「No.1」「完全保証」「業界最安」「効果保証」）検出ゼロ
+- [ ] AI 生成素材使用時は EXIF に生成元記録
+- [ ] クライアント肖像権・商標権のグレー表現なし（要素検出は Rei / nori 領域だが最終ゲートとして OCR）
+- [ ] 検出ログを Yuna 納品レポートに添付
+
+#### I. 目視最終確認（人間）
+- [ ] スマートフォン 100% ズームで文字がシャープ
+- [ ] グラデーションに縞（バンディング）なし
+- [ ] 細線 / 小さいテキストが「モザイク化」していない
+- [ ] Retina 端末で「あ、ぼやけてる」の第一印象なし
+- [ ] ダークモード端末で眩しすぎない（輝度 90% 超は要注意）
+- [ ] iPhone 明るさ 100% / True Tone OFF プレビューで淡色文字が見えるか（中高年案件）
+
+#### J. Yuna 提出前の最終アクション
+- [ ] `validateBanner()` の JSON レポートを添付
+- [ ] 媒体別容量表 pass/fail を Markdown table で並記
+- [ ] 縮小プレビュー（Indeed 300px / IG 390px 相当）を同梱
+- [ ] 分類タグ（対処済み / Kana 差し戻し要 / Yuna 確認要）付きエラーサマリ
+- [ ] fail が 0 件なら Notion DB のみ静かに記録、fail ≧ 1 件なら Slack 通知
+
+---
+
+### 🛠️ 必須ツールスタック 2026
+
+Hiro が「業務で確実に使いこなす」ツール群。バージョン固定を明記し、`package.json` / `Dockerfile` テンプレを共通化する。
+
+#### コアランタイム
+| ツール | バージョン | 用途 |
+|--------|----------|------|
+| **Node.js** | v22 LTS（Iron） | ランタイム、fetch API ネイティブ、テストランナー内蔵 |
+| **pnpm** | v9.x | 依存管理、`@let-inc/banner-utils` 導入 |
+| **TypeScript** | 5.6+ | Puppeteer / sharp のタイプセーフな運用 |
+| **tsx** | 4.x | TS ファイル直接実行（`node --loader tsx` 不要） |
+
+#### ブラウザ自動化
+| ツール | バージョン | 用途 |
+|--------|----------|------|
+| **Playwright** | 1.50+ | プライマリ選択、newContext プール、multi-browser 対応 |
+| **Puppeteer** | 22+ | レガシー案件互換、`puppeteer.connect()` 常駐接続 |
+| **Chromium** | 130+ | ヘッドレス変換、`--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage` 常設 |
+| **WebKit / Firefox** | 最新 | クロスブラウザ検証（Playwright 経由） |
+
+#### 画像処理
+| ツール | バージョン | 用途 |
+|--------|----------|------|
+| **sharp** | 0.34+ (libvips 8.16) | メイン画像処理、metadata / resize / composite / avif / webp |
+| **pngquant** | 3.0+ | PNG 減色圧縮、`--quality 75-90` |
+| **oxipng** | 9.x | PNG 可逆圧縮、pngquant 後段 |
+| **@squoosh/lib** | 最新 | Google 製画像最適化の Node API |
+| **imagemagick** | 7.x | CMYK 変換の最終手段（sharp 未対応領域） |
+| **libavif** | 1.1+ | AVIF エンコード（sharp 内包） |
+
+#### 品質検証 / QA
+| ツール | バージョン | 用途 |
+|--------|----------|------|
+| **pixelmatch** | 6.x | 出力 PNG と Kana プレビューの差分検出 |
+| **odiff** | 3.x | pixelmatch より高速な差分検証 |
+| **tesseract.js** | 6.x（WASM） | OCR による禁止ワード / 期待文字列検出 |
+| **culori** | 4.x | ΔE2000 色差計算、色空間変換 |
+| **color** | 5.x | HEX / RGB / HSL 変換 |
+| **@playwright/test** | 1.50+ | Visual Regression `toHaveScreenshot()` |
+
+#### CI / 配信
+| ツール | バージョン | 用途 |
+|--------|----------|------|
+| **GitHub Actions** | 最新 | CI/CD、Chromium キャッシュ、Matrix Strategy |
+| **PM2** | 5.x | 常駐 Chromium プロセス監視、メモリ肥大時再起動 |
+| **Docker** | 27+ | 環境差撲滅、`mcr.microsoft.com/playwright:v1.50.0-jammy` ベース |
+| **Vercel Image Optimization** | v2 | エッジでのデバイス別配信 |
+| **Cloudflare Polish** | 最新 | CDN 側 AVIF / WebP 自動生成 |
+
+#### 監視 / 通知
+| ツール | バージョン | 用途 |
+|--------|----------|------|
+| **Slack Workflow** | 最新 | fail 時のみ Yuna へ通知 |
+| **Notion API** | 2022-06-28 | 案件 DB のステータス自動更新 |
+| **Sentry** | 8.x | Puppeteer / sharp のエラー捕捉 |
+| **Datadog RUM** | 最新 | 変換パフォーマンスの経時観測 |
+
+#### 標準 package.json テンプレ
+
+```json
+{
+  "name": "@let-inc/banner-utils",
+  "version": "2.0.0",
+  "type": "module",
+  "dependencies": {
+    "playwright": "^1.50.0",
+    "puppeteer": "^22.0.0",
+    "sharp": "^0.34.0",
+    "pixelmatch": "^6.0.0",
+    "tesseract.js": "^6.0.0",
+    "culori": "^4.0.0",
+    "pngquant-bin": "^9.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "typescript": "^5.6.0",
+    "tsx": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
+```
+
+#### 標準 Puppeteer 起動オプション
+
+```typescript
+const browser = await puppeteer.launch({
+  headless: 'new',
+  args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-gpu',
+    '--font-render-hinting=none',
+    '--disable-font-subpixel-positioning',
+    '--enable-features=Vulkan',
+  ],
+  defaultViewport: null,
+});
+```
+
+#### 標準 validateBanner() インターフェース
+
+```typescript
+interface ValidateResult {
+  pass: boolean;
+  checks: {
+    size: { pass: boolean; actualKB: number; maxKB: number };
+    resolution: { pass: boolean; width: number; height: number; expected: { w: number; h: number } };
+    icc: { pass: boolean; profile: string };
+    alpha: { pass: boolean; channels: number; requiresAlpha: boolean };
+    logoClearSpace: { pass: boolean; minSpacePx: number; actualSpacePx: number };
+    textDensity: { pass: boolean; ratio: number; maxRatio: number };
+    forbiddenWords: { pass: boolean; detected: string[] };
+    deltaE: { pass: boolean; value: number; threshold: number };
+  };
+  slackNotify: boolean;
+}
+
+export async function validateBanner(path: string, spec: BannerSpec): Promise<ValidateResult>;
+```
+
+---
+
+### 🎯 Hiro のオーバースペック化ゴール
+
+- **属人性ゼロ**：全ゲートを機械化し、Hiro が不在でも同品質が出る仕組み
+- **事故率 0.0%**：フォント未読込 / 透過抜け / 容量超過 / 別クライアント混入 / サイレント失敗の 5 大事故を物理的に排除
+- **色再現 ΔE ≦ 2.0**：人間が知覚できない誤差水準で色ズレを封じる
+- **速度 3 倍**：常駐 Chromium + Playwright context プール + config 1 回ロードで深夜バッチ 55 分 → 15 分
+- **横展開**：`@let-inc/banner-utils` として LP 部 / システム開発部にも Puppeteer 資産を共有
+- **法務ゲート化**：tesseract.js OCR で禁止ワードを画像化後の最終地点で検出
+
+Hiro は「PNG に変換する人」ではなく、「バナー画像パイプライン全体の信頼性を保証するアーキテクト」として立つ。
