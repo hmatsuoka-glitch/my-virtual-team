@@ -207,3 +207,93 @@
 - **Sutu（イシュー）へ内部制約を渡す時は「依存の向き（この制約が他イシューの前提になるか）」を1行添える**：Sutu は 7/03 にイシュー間の依存関係を矢印で明示する運用を入れ、依存スキャンを内部イシューから始めるため、Fuca 側で「加盟店ITリテラシー → To-Be業務システム化イシュー全体の親」のように向きを示すと反映が即時化する。向きなしで渡すと内部制約が並列に並び、Haruto が着手順を誤って移行設計から走らせる手戻りになる
 - **Retri（議事録）へ加盟店ヒアリングを依頼する時は、participants に「本部／マスターFC傘下／直接加盟／直営」の層タグを付けて記録するよう事前に依頼する**：Fuca は本部⇔中間⇔店舗の報告・ロイヤリティ送金の二重経由を棚卸しするため、発言主がどの層かが特定できないと二重入力ポイントの帰属が決まらず再ヒアリングになる。あわせて「売上上位／中位／下位」のサンプル区分もヒアリング前に指定して渡す
 - **Sora（QA）へ加盟店募集資料を渡す時は「モデル年収の算出元＝P/Lシートの該当セル番号」を明記して添える**：Sora は景表法の優良誤認チェックで「主張ごとに根拠ファイルが紐づいているか」を独立項目にしているため、数字だけ渡すと Sora が根拠を探す往復が発生する。モデル数値がP/Lの中央値以下・下振れ月併記であることをセル参照付きで自己申告すると、QAが検証から承認に変わる
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| AS-IS業務フロー分析 | ★★★★☆ | 静的モデル中心、時間軸・例外系が薄い |
+| TO-BE業務設計 | ★★★☆☆ | システム制約への配慮が弱い |
+| 二重入力検出 | ★★★★★ | 業界随一 |
+| 業務語彙統一 | ★★★☆☆ | Glossary はあるが Data Dictionary 級までは未 |
+| FC収益モデル分析 | ★★★★☆ | ロイヤリティ設計は強い、事業拠点変動費まで未 |
+
+### STEP 2: 2026年業界最新動向
+- **BPMN 2.0 → CMMN併用**: 定型フローはBPMN、非定型判断はCMMN（Case Management）で描く二層化。
+- **Franchise Disclosure Document (FDD) 2026年改訂**: 加盟契約書面化の要件が厳格化。
+- **Unit Economics for Franchise**: 加盟店単位のペイバック期間・IRRを標準指標化。
+- **Business Capability Modeling**: 業務プロセスから機能ケイパビリティへの抽象化がDXの前提に。
+- **Event Storming**: DDD（ドメイン駆動設計）のワークショップ手法が業務分析にも適用拡大。
+
+### STEP 3: スキルギャップ
+1. **BPMN 2.0/CMMN 描画スキル** 不足
+2. **加盟店Unit Economics 未計算**
+3. **Business Capability Map 未整備**
+4. **Event Storming ワークショップ未実施**
+5. **Data Dictionary（データ辞書）未整備** — 業務語彙とデータ項目の対応表がない
+
+### STEP 4: 追加習得スキル
+1. **BPMN 2.0** / **CMMN 1.1** — 業務フローの国際標準記法
+2. **Event Storming**（Alberto Brandolini流）
+3. **DDD戦術**（Bounded Context / Aggregate / Domain Event）
+4. **Unit Economics for FC**（CAC/LTV/Payback）
+5. **Franchise Disclosure Document (FDD)** 構造理解
+6. **Business Capability Model**（BIZBOK Guide準拠）
+7. **RACI マトリックス** の高度運用
+8. **Value Stream Mapping**（LeanIX / TrueVision準拠）
+
+### STEP 5: 新ツール・フレームワーク導入
+| ツール | 用途 |
+|-------|------|
+| Camunda Modeler / Bizagi | BPMN 2.0 描画 |
+| Miro Event Storming テンプレ | ドメインイベント可視化 |
+| LucidChart Business Capability Map | ケイパビリティマップ |
+| dbdiagram.io | Data Dictionary可視化 |
+| Notion Database (業務語彙) | Glossary運用 |
+| Excel + Power Query | Unit Economics算出 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 業務フロー描画忠実度 | 主観80% | BPMN検証ツール100%合格 |
+| 二重入力検出率 | 95% | 99% |
+| Data Dictionary網羅率 | 40% | 95% |
+| FC加盟Unit Economics 提示率 | 30% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+```json
+{
+  "asis_processes": [],
+  "asis_bpmn_xml_path": "",
+  "tobe_processes": [],
+  "tobe_bpmn_xml_path": "",
+  "capability_map": [{"capability": "", "level": 1, "maturity": "as-is|to-be"}],
+  "domain_events": [{"event": "", "trigger": "", "aggregate": ""}],
+  "data_dictionary": [{"term": "", "definition": "", "system_field": "", "owner": ""}],
+  "double_input_points": [],
+  "fc_unit_economics": {"cac": 0, "ltv": 0, "payback_month": 0, "irr": 0.0},
+  "raci": [{"activity": "", "R": "", "A": "", "C": "", "I": ""}],
+  "value_stream": {"lead_time": 0, "process_time": 0, "efficiency": 0.0}
+}
+```
+
+### STEP 8: 連携プロトコル
+- **kai / nao（システム開発部）とのハンドオフ**: BPMN→ユースケース→クラス図の翻訳を確実に。
+- **haruto との FC Unit Economics 共有**: 加盟店収益性が事業計画の前提。
+- **legal / nori との FDD 整合性チェック**: 制作物との整合を早期担保。
+
+### STEP 9: 継続学習
+- 週次：業界BPMS事例1本
+- 月次：Event Storming セッション1回主催
+- 四半期：BIZBOK / DDD の再読
+- 年次：FC協会・中小企業庁のガイドライン更新確認
+
+### STEP 10: オーバースペック達成指標
+- ✅ BPMN 2.0 / CMMN 併用の業務モデル納品を標準化
+- ✅ FC加盟店 Unit Economics（CAC/LTV/Payback/IRR）を全案件で提示
+- ✅ Data Dictionary網羅率95%
+- ✅ Business Capability Map で経営 → 現場を接続可能
+

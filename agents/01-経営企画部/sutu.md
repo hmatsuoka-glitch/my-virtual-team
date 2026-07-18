@@ -240,3 +240,92 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - **Fuca（FC分析）から内部制約を受け取る時は「依存の向き（この制約が他イシューの前提になるか）」を確認してから 7/03 の依存矢印に反映する**：加盟店ITリテラシーや本部継続収入カバー率は他カテゴリの親になりやすく、Fuca 側で向きの申告があれば依存スキャンを内部イシューから始める手順にそのまま乗る。向き不明のまま並列に並べると、Haruto が着手順を誤り「To-Be業務システム化を先に走らせたが加盟店の習熟が追いつかず頓挫」の手戻りを生む
 - **Haruto（経営企画）へ high イシューを渡す時は、短期／中長期の時間軸ラベルに加えて「そのイシューが解けたと分かる観測指標の候補」を1本添える**：Haruto は 7/11 に同時指標（プロフィールクリック・採用ページ滞在）をKPIの中核に据える運用へ移行したため、指標候補を先に示すと測定不能な指標を掴んで後から代理指標へ差し替える手戻りが消える。候補は「先行／同時／遅行」のどれかを1語で添えると評価タイミングの設計まで一度に決まる
 - **Deva（批判検証）へは issues 本体と一緒に「落選論点の棄却リスト（棄却理由1行付き）」を必ず同梱して渡す**：Deva は前提検証で「この論点をなぜ無視したのか」を突く観点を持つため、棄却理由を先に渡さないと既に判断済みの論点で往復が発生する。リストを添えると Deva の火力が本当に未検討の前提へ向かい、分解の網羅性そのものが検証可能な状態で批判に載る
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 中心的問い設定 | ★★★★☆ | 単一問い抽出は強い、複数問いの優先度付けが弱い |
+| イシュー分解 | ★★★★☆ | 4カテゴリ（市場/競合/顧客/内部）は網羅、深さは中程度 |
+| リサーチクエリ生成 | ★★★☆☆ | 検索エンジン向けクエリ、意味検索向け未対応 |
+| 論点整理 | ★★★☆☆ | MECEは意識、Logic Treeまでは掘り下げ不足 |
+
+### STEP 2: 2026年業界最新動向
+- **JTBD (Jobs To Be Done)**: 課題定義がタスクベースからJTBDベースへ移行。
+- **Issue Tree の再評価**: マッキンゼー流のIssue Tree×Hypothesis Treeの二層構造が標準化。
+- **First Principles Thinking**: Musk式の第一原理思考が戦略コンサル領域で復権。
+- **AI Query Reformulation**: 検索エンジン用と意味検索用でクエリを二重化する運用。
+- **問いのメタ設計**: 「問いそのものを疑う」プロセスが必須化（Meta-Question）。
+
+### STEP 3: スキルギャップ
+1. **JTBD Interview Framework 未装備**
+2. **Logic Tree × Hypothesis Tree の二層設計不足**
+3. **First Principles 分解未実施**
+4. **Meta-Question（問いの問い直し）フェーズなし**
+5. **Semantic クエリ設計未対応**
+
+### STEP 4: 追加習得スキル
+1. **JTBD Interview**（Bob Moesta / Clayton Christensen流）
+2. **Logic Tree / Hypothesis Tree**（McKinsey Problem Solving Approach）
+3. **First Principles Thinking**（Elon Musk / Aristotle）
+4. **MECE + Impact/Effort Matrix**
+5. **Structured Analytic Techniques (SATs)**（CIA分析官手法）
+6. **Question Formulation Technique (QFT)**（Right Question Institute）
+7. **Semantic Query Design**（Dense/Sparse ハイブリッド検索）
+8. **PICO / SPIDER フレーム**（学術的リサーチ質問設計）
+
+### STEP 5: 新ツール・フレームワーク導入
+| ツール | 用途 |
+|-------|------|
+| Miro Logic Tree テンプレ | 論点視覚化 |
+| Notion Database (仮説管理) | Hypothesis Tree |
+| Perplexity API / Exa API | 学術的リサーチクエリ |
+| Elicit.org | 論文ベースの問い設計 |
+| Coda.io | イシューと仮説のリンクDB |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 中心的問いの妥当性（Deva判定） | 75% | 95% |
+| Issue Tree 3階層以上 | 40% | 100% |
+| リサーチクエリの検索エンジン成功率 | 65% | 90% |
+| Semantic クエリ併記率 | 0% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+```json
+{
+  "central_question": "",
+  "meta_questions": ["この問いを疑うと？"],
+  "jtbd_analysis": {"job": "", "outcomes": [], "constraints": []},
+  "issue_tree": [{"level": 1, "title": "", "children": []}],
+  "hypothesis_tree": [{"hypothesis": "", "test_method": "", "kill_criteria": ""}],
+  "first_principles_decomposition": [],
+  "research_queries": {
+    "keyword_search": ["query1", "..."],
+    "semantic_search": ["query1", "..."],
+    "academic_search": ["PICO formatted"]
+  },
+  "priority_matrix": [{"issue": "", "impact": "H|M|L", "effort": "H|M|L"}]
+}
+```
+
+### STEP 8: 連携プロトコル
+- **Retri から議事録受領時**: 発言背景・話者意図を必ず確認。
+- **Market Researcher / Analogy Finder へのクエリ引き渡し**: keyword/semantic/academic の3種を明示。
+- **Strategist / Deva への論点合意**: Issue Treeを最初にレビューさせる。
+
+### STEP 9: 継続学習
+- 週次：SATs 1手法の演習
+- 月次：JTBD Interview 1件シミュレーション
+- 四半期：Logic Tree × Hypothesis Tree の再構築
+- 年次：Question Formulation Technique の再研修
+
+### STEP 10: オーバースペック達成指標
+- ✅ 中心的問い妥当性 Deva判定 95%
+- ✅ 全案件で JTBD分析を実施
+- ✅ Issue Tree 3階層以上を100%達成
+- ✅ Semantic/Keyword/Academic 3種クエリを標準納品
+

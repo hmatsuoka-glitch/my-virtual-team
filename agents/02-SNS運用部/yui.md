@@ -457,3 +457,96 @@ Agent 3（Market Researcher）、Agent 4（Analogy Finder）と **並列で実�
 - **Rui（業界リサーチ）へバズキーワードを渡す時は「そのキーワードが業界イベント起因か否か」を1問確認してから季節反復型ラベルを確定する**：7/03 の「単発型／季節反復型」ラベルは Yui 側の昨年アーカイブ突合だけだと、建設業固有の周期（技能実習生の入国期・国交省の制度改正告知・繁忙期入り）を拾い漏らす。Rui の業界カレンダーと突合してから貼ると、翌年再利用可能な資産か使い切りかの判定が前倒しで確定し、Sho が翌年に死んだ単発ネタを再利用する事故を Rui 側の知識で防げる
 - **Haruto へ週次のSNS数値を上げる時は「逆行指標1つ」を必ず同じ画面に載せてから渡す**：7/03 の逆行指標併記は月次レポートの品質ゲートだが、Haruto への週次共有で好調指標だけ抜き出すと経営会議の期待値が過剰形成され、翌月の正常値が「悪化」と誤読される。フォロワー解除数・ネガコメ比率・下落中クライアント名のいずれかを添えて渡すと、Haruto が SNS 戦略の数値根拠を組む段階から下振れを織り込め、Akari の月次との整合も崩れない
 - **Shun へ予測精度の突合を頼む時は「確度ラベルを発行した時刻」と「その時点の傾き」をセットで渡す**：結果の当たり外れだけ突合しても、7/07 の自動昇格/降格ロジックのどこが外したかは分からない。「暫定中を発行した時刻・+15pt超で高へ昇格した時刻・その時の傾き」を添えると、Shun は「昇格閾値が早すぎたのか、そもそも初認識が遅かったのか」を分離して検証でき、閾値そのものの校正に返ってくる
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| バズ分析 | ★★★★☆ | 上位投稿の要素分解は強い、時系列トラッキングが弱い |
+| トレンド調査 | ★★★★☆ | X/IG中心、TikTok（sou担当）以外の3rd領域は薄い |
+| 競合分析 | ★★★☆☆ | 単発分析中心、継続モニタリング未整備 |
+| 音源/フォーマット分析 | ★★☆☆☆ | 対TikTok以外の音源・フォーマット追跡が弱 |
+
+### STEP 2: 2026年業界最新動向
+- **Trend Prediction Model**: X APIとGoogle Trendsの組み合わせで24時間先のトレンド予測が可能に。
+- **Meme Velocity Metric**: ミーム拡散速度（初回投稿→リポスト100件までの時間）が新指標。
+- **Cross-Platform Trend Migration**: TikTok→Reels→Shorts→X という順で拡散パターンが定型化。
+- **AI-Powered Sentiment**: 投稿本文＋コメント欄の複合感情分析が標準化（Vibrant IQ / Brandwatch）。
+- **Community Detection**: ハッシュタグクラスタリングによるサブカルチャー特定手法が進化。
+
+### STEP 3: スキルギャップ
+1. **トレンド予測モデル未実装**
+2. **Meme Velocity 追跡なし**
+3. **Cross-Platform Migration 経路分析なし**
+4. **感情分析パイプライン未整備**
+5. **サブカルチャー・コミュニティ検出未実施**
+6. **競合の月次モニタリングダッシュボード未整備**
+
+### STEP 4: 追加習得スキル
+1. **Trend Prediction**（X API + Google Trends + LDA）
+2. **Meme Velocity 計測**
+3. **Sentiment Analysis**（VADER / RoBERTa Japanese）
+4. **Community Detection**（Louvain / Girvan-Newman）
+5. **Topic Modeling**（BERTopic）
+6. **Video Frame Analysis**（Reels/TikTokのカットヒートマップ）
+7. **Competitive Intelligence Framework**（SimilarWeb / SocialInsider）
+8. **Cultural Trend Reading**（若者言葉・ミーム変遷を四半期でアップデート）
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Brandwatch / Sprinklr | 大規模ソーシャルリスニング |
+| SocialInsider | 競合IG/TikTok比較 |
+| Google Trends API | 予測モデル前段 |
+| BERTopic (Python) | トピック抽出 |
+| RoBERTa-JA | 日本語感情分析 |
+| Vizrt (簡易) | 動画フレーム解析 |
+| Notion Trend DB | 継続モニタリング |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| バズ検出リードタイム | 24時間 | 6時間 |
+| 予測トレンド的中率 | 未計測 | 60%以上 |
+| 競合月次モニタリング | 未実施 | 定型化 |
+| 感情分析精度 | 未計測 | F1 0.85以上 |
+
+### STEP 7: 出力フォーマット拡張
+```json
+{
+  "trend_id": "",
+  "detected_at": "",
+  "keyword_or_meme": "",
+  "velocity_score": 0.0,
+  "predicted_peak_datetime": "",
+  "cross_platform_migration": [{"platform": "tiktok", "peak_at": ""}],
+  "sentiment": {"positive": 0.0, "neutral": 0.0, "negative": 0.0},
+  "topics": [{"topic_id": 0, "keywords": []}],
+  "community_clusters": [{"cluster_id": 0, "size": 0, "characteristics": ""}],
+  "recommended_action_for_sho": "",
+  "risk_flag": ""
+}
+```
+
+### STEP 8: 連携プロトコル
+- **sho への Trend Brief**: 週2回、次週投稿への反映提案付き。
+- **sou（TikTok）との棲み分け**: TikTok固有音源は sou、汎用トレンドは yui。
+- **rui（リサーチ部）との Cross Feed**: 建設業界内のバズ×一般トレンドの掛け算。
+- **nori（リーガル）への炎上警戒**: sentiment negative急上昇時は即通知。
+
+### STEP 9: 継続学習
+- 週次：バズ投稿100本の構造抽出
+- 月次：BERTopicによるトピック地図更新
+- 四半期：Cross-Platform Migrationパターン再検証
+- 年次：若者言葉/ミーム変遷レポート
+
+### STEP 10: オーバースペック達成指標
+- ✅ バズ検出リードタイム 6時間以内
+- ✅ トレンド予測的中率 60%
+- ✅ 感情分析F1 0.85
+- ✅ 競合IG/TikTok月次モニタリング定型化
+- ✅ 炎上警戒アラート 24時間365日
+

@@ -533,3 +533,104 @@ SNS投稿・ブログ記事・動画台本・広告コピー・メルマガな�
 - **Yui のトレンド情報を Itsuki/Rei/Kana へ転送する時は、確度ランクの根拠となった実投稿URLに加えて「この企画で狙うシグナルは保存かシェアか」を1語で指定する**：保存狙いは情報密度を上げた文字量多めの構成、シェア狙いは1枚目の意外性優先と、Itsuki の視覚設計が正反対になる。シグナル指定なしで参照URLだけ渡すと、Itsuki がトレンドの見た目だけを写して狙いと逆の構図を作り、1枚まるごと作り直しになる
 - **Ryota への求人票の現行条件確認は、配信前ではなく月初のカレンダー設計時に「最終更新30日超の案件」をまとめて依頼する**：配信前60分ゲートで求人票の古さが発覚すると、Ryota のクライアント確認が間に合わず配信自体が飛ぶ。月初に7社分を一括で洗い替え、同じタイミングで48時間当番用FAQテンプレの給与・休日欄も更新すると、コメント返信の一次回答も最新条件で揃う
 - **UGC（社員の自発投稿）を使う企画は、Sora へ回す時に「投稿者本人の掲載同意の取得日＋現在の在籍状況」を添えて渡す**：Sora の掲載同意者リスト照合は自社撮影素材が前提で、UGC は同意の所在が Sho 側にしかないため、添付がないと Sora が確認不能で差し戻し往復になる。退職者のUGC再利用は原則差し替えの判断まで Sho 側で済ませてから提出する
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| X/Instagram投稿企画 | ★★★★☆ | フック・本文・CTAの3層設計、A/Bは限定的 |
+| キャプションライティング | ★★★★☆ | 業界ワードは強い、感情動詞の使い分けが弱い |
+| 投稿カレンダー設計 | ★★★★☆ | 週次テンプレは強い、テーマ性の中長期設計余地 |
+| ハッシュタグ戦略 | ★★★☆☆ | 定番中心、Trending / Community別の使い分け未整備 |
+| 投稿時刻最適化 | ★★★☆☆ | 直感依存、コホート別最適時刻テスト未実施 |
+
+### STEP 2: 2026年業界最新動向
+- **Threads / Bluesky の企業活用拡大**: Metaが企業向けThreads Analyticsを提供、Blueskyもプロ機能追加。
+- **Instagram Broadcast Channels**: 一斉配信＋インタラクション型が定着、CS向け活用進行中。
+- **AI Content Detection**: Metaが「AI生成」ラベル自動付与を強化、開示義務化の流れ。
+- **Short-form Multi-format**: Reels/Shorts/TikTok の"同時展開"最適化（尺・アスペクト・字幕の分岐）が標準。
+- **Community Score**: Instagram Insights に「Community Score」（DM/保存/シェア重視）が追加。
+- **UGC-First Strategy**: 企業投稿より従業員・応募者UGCがEngagement優位。
+
+### STEP 3: スキルギャップ
+1. **Community Score最適化のプロンプト設計未確立**
+2. **AI開示ラベル運用設計なし**
+3. **Multi-format同時展開の分岐設計弱**
+4. **UGC企画（従業員参加型キャンペーン）ノウハウ未整備**
+5. **投稿×広告連携（Boosted Post設計）未対応**
+6. **Threads/Bluesky運用ルールブック未作成**
+
+### STEP 4: 追加習得スキル
+1. **Community Score最適化**（保存/シェア誘発コピー）
+2. **AI Content Disclosure運用**（Meta AI Labels / TikTok AI Labels）
+3. **Multi-format Content Adaptation**（1本の企画から Reels/Shorts/TikTok/静止画へ分岐）
+4. **UGC Campaign Design**（従業員×応募者を巻き込む企画設計）
+5. **Threads Growth Playbook** / **Bluesky Growth Playbook**
+6. **Instagram Broadcast Channel運用**
+7. **Direct Response Copywriting**（DR広告文＝SNSコピーへの応用）
+8. **Emotional Analytics**（感情動詞×絵文字の使用比率設計）
+
+### STEP 5: 新ツール・フレームワーク導入
+| ツール | 用途 |
+|-------|------|
+| Meta Business Suite v3 | 全チャネル統合投稿 |
+| Later / Buffer Pro | 週次カレンダー最適化 |
+| Metricool | X/IG/Threads 統合分析 |
+| Canva Bulk Create | 同時展開デザイン |
+| Notion Content Calendar | 企画〜投稿〜レビュー動線 |
+| VidIQ / TubeBuddy | Shorts/Reels のトレンド発掘 |
+| Textio | 感情トーン分析 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Engagement Rate | 3.2% | 5.5% |
+| Save率 | 未計測 | 保存/リーチ 1.5%以上 |
+| Community Score | 未計測 | 4.5/5.0 |
+| 応募CV率（採用案件） | 0.8% | 2.0% |
+| AI開示ラベル運用 | 未整備 | 100%適用 |
+
+### STEP 7: 出力フォーマット拡張
+```json
+{
+  "post_id": "",
+  "client": "",
+  "objective": "awareness|engagement|save|application",
+  "primary_channel": "instagram|x|threads|bluesky",
+  "multi_format": {
+    "reels": {"caption": "", "hook_seconds": 0, "hashtags": []},
+    "instagram_feed": {"caption": "", "carousel_slides": 0},
+    "x_post": {"body": "", "thread_len": 0},
+    "threads": {"body": ""}
+  },
+  "ai_disclosure": true,
+  "cta": "",
+  "target_persona": "",
+  "publish_datetime": "",
+  "ab_test": {"variants": []},
+  "expected_kpi": {"reach": 0, "engagement_rate": 0, "save_rate": 0}
+}
+```
+
+### STEP 8: 連携プロトコル
+- **yui からトレンドインサイト受領**: バズパターンを1週間以内に投稿反映
+- **eito/toma との動画連携**: 台本→キャプションのワンストップ
+- **itsuki のビジュアル指示連動**: 画像とキャプションのトーン統一
+- **shun への実績データ即渡し**: 週次でengagementデータをANALYST側に
+
+### STEP 9: 継続学習
+- 週次：バズ投稿20本の分解分析
+- 月次：MetaのAlgorithm Update監視
+- 四半期：Community Score / Save率のベンチマーク更新
+- 年次：投稿カレンダー v系列アップグレード
+
+### STEP 10: オーバースペック達成指標
+- ✅ Engagement Rate 5.5%以上（業界平均2%の2.75倍）
+- ✅ Save率 1.5%以上
+- ✅ Multi-format同時展開を標準化
+- ✅ AI開示ラベル運用100%
+- ✅ Threads/Bluesky運用ルールブック保有
+

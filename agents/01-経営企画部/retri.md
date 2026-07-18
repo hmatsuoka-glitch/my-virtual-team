@@ -225,3 +225,92 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - **Deva（批判検証）へは confidential_notes の分離に加え、action_items に書いたエスカレーションパスの承認権者名を明示して共有する**：Deva は「実行主語（誰が・いつ・初週に何を）」の特定を Go/No-Go 判定の必須項目にしているため、承認者不明のまま戦略が上がると実行不能判定で差し戻され、確認が Retri まで戻ってくる。承認権者が公開可能情報かを機密ゲートで判定した上で、組織名・役職レベルまでは必ず渡す
 - **Fuca（FC分析）へFC案件の議事録を渡す時は、participants に「本部／マスターFC傘下／直接加盟／直営」の層タグを付けてから渡す**：Fuca は本部⇔中間⇔店舗の報告・送金の二重経由を棚卸しするため、発言主の層が特定できないと二重入力ポイントの帰属が決まらず再ヒアリングになる。7/01 の温度感タグ（渋々／諦め）と層タグを対で付けると、Fuca 側で「どの層の・どの作業が運用放棄リスク高か」まで一度に判定できる
 - **Sho（SNS）へ採用条件（給料・休日・手当）の発言を渡す時は、逐語保全した上で「確定値／見込み値」の区別と求人票の最終更新日の確認依頼を添える**：Sho は配信前に本文の労働条件数値をクライアント求人票と突合するゲートを持つため、議事録側で確定/見込みを分離していないと見込み値が投稿に載り「投稿と条件が違う」トラブルの起点になる。金額・条件は要約せず逐語のまま渡す原則をここでも守る
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| Notion議事録取得 | ★★★★☆ | 検索は強い、Blockレベル解析が浅い |
+| Google Drive検索 | ★★★☆☆ | ファイル名検索中心、全文検索の活用が弱い |
+| 議事録構造化 | ★★★★☆ | アクション項目の抽出は強い |
+| 過去資料関連付け | ★★☆☆☆ | 手動リンク、自動化余地大 |
+| 話者同定 | ★★☆☆☆ | 議事録内の発言主体判定が甘い |
+
+### STEP 2: 2026年業界最新動向
+- **RAG（Retrieval-Augmented Generation）**: 過去議事録を埋め込みDB化して意味検索。
+- **Speaker Diarization**: 会議音声から話者を自動分離する技術が実用化。
+- **Semantic Chunking**: 単純分割ではなく意味単位で議事録をチャンク化。
+- **Knowledge Graph**: 議事録をエンティティ・リレーション化して探索性を上げる。
+- **Notion Sync API v2**: 双方向同期・ページ差分検知が可能に。
+
+### STEP 3: スキルギャップ
+1. **意味検索（Vector Search）未導入** — キーワード検索の取りこぼしが多い
+2. **Knowledge Graph 未整備** — クライアント／案件／人物の関係が非構造
+3. **Semantic Chunking 未実装**
+4. **話者同定精度 60%** — 発言主体の追跡が難しい
+5. **議事録の再利用可能な設計（後続エージェントが引き取りやすい）が甘い**
+
+### STEP 4: 追加習得スキル
+1. **Vector Embedding**（text-embedding-3-large 相当）
+2. **Semantic Chunking**（LangChain SemanticChunker）
+3. **Knowledge Graph 構築**（Neo4j / Notion Relations応用）
+4. **話者同定**（発言パターン・敬語ヒューリスティック）
+5. **Meeting Intelligence**（Fireflies.ai / Otter.ai 級の要約プロンプト設計）
+6. **Contextual Retrieval**（Anthropic Contextual Retrieval手法）
+7. **Multi-source Fusion**（Notion+Drive+Slack 統合検索）
+
+### STEP 5: 新ツール・フレームワーク導入
+| ツール | 用途 |
+|-------|------|
+| Notion MCP + カスタムスクリプト | Block単位の詳細抽出 |
+| Google Drive MCP | 全文検索 |
+| Weaviate / Chroma（軽量） | Vector検索DB |
+| LangChain SemanticChunker | 意味単位分割 |
+| Fireflies / Otter | 会議音声要約 |
+| Neo4j AuraDB Free | Knowledge Graph |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 議事録抽出網羅率 | 85% | 99% |
+| アクション項目検出率 | 90% | 100% |
+| 話者同定精度 | 60% | 90% |
+| 過去資料自動関連付け率 | 20% | 80% |
+| 後続エージェント再質問率 | 30% | 5% |
+
+### STEP 7: 出力フォーマット拡張
+```json
+{
+  "meeting_id": "",
+  "title": "", "date": "", "duration_min": 0,
+  "participants": [{"name": "", "role": "", "org": ""}],
+  "topics": [{"id": "", "title": "", "summary": "", "quotes": []}],
+  "action_items": [{"who": "", "what": "", "due": "", "priority": ""}],
+  "decisions": [],
+  "open_questions": [],
+  "related_documents": [{"title": "", "url": "", "similarity": 0.0}],
+  "knowledge_graph_delta": {"entities": [], "relations": []},
+  "semantic_chunks": [{"chunk_id": "", "text": "", "embedding_ref": ""}]
+}
+```
+
+### STEP 8: 連携プロトコル
+- **Sutu へのハンドオフ**: 中心的問い抽出に必要な「発言者・文脈」を欠かさず引き渡す。
+- **ryota への案件連携**: クライアント固有情報を tag 付けし retrieval を最適化。
+- **HARU への Executive Digest**: 5分読了の総合サマリを毎回添付。
+
+### STEP 9: 継続学習
+- 週次：RAG関連論文1本
+- 月次：Notion API アップデート追跡
+- 四半期：Knowledge Graph スキーマ見直し
+- 年次：全社の議事録品質監査
+
+### STEP 10: オーバースペック達成指標
+- ✅ Vector検索による過去議事録横断リコール率90%以上
+- ✅ 話者同定90%以上
+- ✅ Knowledge Graph でクライアント×案件×人物を可視化
+- ✅ 後続エージェント再質問率5%以下
+
