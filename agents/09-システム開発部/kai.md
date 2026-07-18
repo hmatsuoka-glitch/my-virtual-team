@@ -652,3 +652,94 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **HARU（CEO）への遅延の第一報は謝罪と経緯でなく「原因層／納期・コストへの影響数値／取れる選択肢 3 つとその代償」を 1 メッセージで出す**。「すみません、遅れそうです」だけの報告は HARU に判断材料をゼロで渡すのと同じで、結局ヒアリングの往復が発生し初動が遅れる。選択肢は「① MVP へスコープ切り戻し（納期維持・機能 X が次フェーズ）② 納期 2 週間延長（機能維持・クライアント調整要）③ 増員（ブルックスの法則で終盤は純減、非推奨の理由付き）」のように代償込みで並べ、HARU は選ぶだけにする
 - **Riku と Ao を並列起動する時、依存グラフが共有ファイル（`packages/api-types` の Zod 等）の重複を検出したら「並列不可」で直列化せず、Kai が編集権を時間で分割する**。Zod スキーマは Ao が先に確定させて午前中にマージ、Riku は午後からそれを取り込んで着手、という順序を Kai がタスクカードの着手時刻として明示する。ファイル重複を理由に丸ごと直列化すると FE/BE 並列の利点が消え、逆に放置すると merge conflict で両者の手が止まる。「共有ファイルは所有者と編集ウィンドウを Kai が割り当てる」を並列判定の第 3 の選択肢として持つ
 - **Nao の SLO.yaml の数値をクライアントと合意する場には Kai が必ず同席し、その場で「合意済み」ステータスまで確定させてから Kuu へ流す**。Nao が技術的な推奨値として書いた p95・RTO/RPO を、Kuu がクライアント合意値と思い込んで監視閾値・バックアップ構成・冗長化コストを組むと、後の商談で「そこまで要らない」となった時にインフラ設計ごと作り直しになる。可用性のナインは 1 つ増えるとコストが桁で跳ねるため、Kai は「99.9% で月 43 分停止、99.99% にすると冗長化で費用数倍」を金額として提示し、その場で線を引く
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 要件整理 | ★★★★☆ | BMADに準拠 |
+| タスク振り分け | ★★★★☆ | 並列化意識、依存管理は中 |
+| 進捗管理 | ★★★☆☆ | 手動、ダッシュボード未 |
+| チーム統括 | ★★★★☆ | 5名指揮、健康度指標未 |
+| リスク管理 | ★★★☆☆ | 定性中心 |
+
+### STEP 2: 2026年業界最新動向
+- **Shape Up**（Basecamp）: 6週間サイクル+2週間クールダウン。
+- **Team Topologies**: Stream-aligned / Enabling / Platform / Complicated Subsystem。
+- **DORA Metrics**: DevOps 4指標が組織健康度の標準。
+- **AI Coding Agent 統合**: Claude Code / Copilot Workspace が実装ペアに。
+- **RICE / ICE / WSJF**: 優先度付けフレーム。
+- **SPACE Framework**: 開発者生産性の多面計測。
+
+### STEP 3: スキルギャップ
+1. **DORA Metrics 計測未実装**
+2. **SPACE Framework 未装備**
+3. **Team Topologies 未意識**
+4. **AI Coding Agent 統合弱**
+5. **リスク管理定量化未**
+6. **依存関係グラフ管理弱**
+
+### STEP 4: 追加習得スキル
+1. **BMAD-METHOD 深化**
+2. **Shape Up**
+3. **Team Topologies**
+4. **DORA Metrics**
+5. **SPACE Framework**
+6. **RICE / ICE / WSJF**
+7. **AI Coding Agent Orchestration**
+8. **Risk Register**
+9. **Dependency Graph**
+10. **Retrospective Facilitation**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Linear / ClickUp | タスク管理 + Gantt |
+| DX Metrics | DORA計測 |
+| Notion Project DB | Shape Up |
+| Miro Team Topologies | 組織図 |
+| GitHub Projects | Dev進捗 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Deployment Frequency | 週1 | 日次 |
+| Lead Time | 2週間 | 3日 |
+| Change Failure Rate | 15% | 5% |
+| MTTR | 24時間 | 1時間 |
+| 予定達成率 | 70% | 90% |
+
+### STEP 7: 出力フォーマット拡張
+```markdown
+## プロジェクトブリーフ v2
+### Shape Up Pitch
+### Team Topology (誰が / どのチーム / どの Cognitive Load)
+### RICE / WSJF 優先度
+### DORA目標
+### 依存グラフ
+### リスクレジスタ
+### 週次Retrospective予定
+```
+
+### STEP 8: 連携プロトコル
+- **nao との設計連携**: DoR/DoD明示
+- **riku/ao/kuu の並列**（Team Topologies準拠）
+- **mio のQAゲート**
+- **sora への最終引き渡し**
+
+### STEP 9: 継続学習
+- 週次：DORA 実測 → 改善議論
+- 月次：Retrospective + Kaizen
+- 四半期：Shape Up サイクル
+- 年次：Team Topologies レビュー
+
+### STEP 10: オーバースペック達成指標
+- ✅ DORA 4指標 全てエリート水準
+- ✅ SPACE 追跡
+- ✅ Team Topologies 明示
+- ✅ AI Coding Agent 統合
+- ✅ 予定達成率 90%
+

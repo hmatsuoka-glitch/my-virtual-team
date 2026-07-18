@@ -493,3 +493,90 @@ STEP 6: 実装完了報告
 - **nori（法務）との連携：新規プロジェクトのインフラ初期構築時に「外部送信先 SaaS の一覧とデータ保管リージョン」を 1 枚にして nori へ先出しする**。Kuu が当然の構成要素として入れる Sentry・Vercel・監視 SaaS・ログ基盤は、法務視点では「個人情報の第三者提供・越境移転」の判定対象になる。リリース直前に発覚すると送信先の差し替えかリージョン移設という、インフラの根幹をやり直す事態になる。渡すのは「送信先名／送るデータ種別（エラー文・IP・ユーザー ID）／保管リージョン／保持期間」の 4 列で、Sentry の `beforeSend` マスキング設定もこの表と突合して過不足を確認する
 - **Kai との連携：障害発生時、Kuu は Statuspage の技術情報までを担当し、クライアント個別への説明文面は Kai に渡して役割を分離する**。Kuu が復旧作業をしながらクライアント対応の文面を考えると、初動が両方遅れて MTTR が伸びる。Kai へ渡すのは「① 影響範囲（全停止／一部機能／特定テナントのみ）② 自分側か依存 SaaS 側か ③ 復旧見込み時刻とその根拠」の 3 点のみで、これを `/incident-check` の結果からそのまま転記する。Kuu は復旧に専念し、対外コミュニケーションの温度感と責任は Kai が持つ、を発生時でなく平時に合意しておく
 - **Riku との連携：`NEXT_PUBLIC_*` の値が変わる PR を CI が検知したら、Kuu が口頭で伝えるのでなく PR へ自動コメントで「この変更は Build Cache OFF の Redeploy が必要」と警告を出す**。クライアント側環境変数はビルド時にバンドルへ焼き込まれるため、Vercel UI で値を変えても再デプロイなしでは反映されず、Riku は「設定を変えたのに古い値のまま」で原因調査に時間を溶かす。この知識を Kuu の頭の中に置くと Riku が踏むたびに問い合わせが来るため、`git diff` の `NEXT_PUBLIC_` 検出をトリガに手順つきの bot コメントへ移し、Kuu を経由せず Riku が自己解決できる状態にする
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| Vercel設定 | ★★★★☆ | 基本◎、Fluid Compute未 |
+| GitHub Actions | ★★★★☆ | CI/CD◎、Reusable Workflow未 |
+| 環境管理 | ★★★★☆ | 3環境分離、Secret Rotation弱 |
+| ビルド最適化 | ★★★☆☆ | Cache基本 |
+| 監視 | ★★★☆☆ | 標準ログ |
+
+### STEP 2: 2026年業界最新動向
+- **Vercel v3.5 Fluid Compute + Edge Functions**
+- **GitHub Actions Reusable Workflows / Composite Actions**
+- **OIDC + Cloud Native Secrets**
+- **Trunk-based Development + Feature Flag**
+- **Observability**（OpenTelemetry / Vercel Analytics）
+- **Progressive Delivery**（Canary / Blue-Green）
+- **Infrastructure as Code**（Pulumi）
+
+### STEP 3: スキルギャップ
+1. **Fluid Compute 未活用**
+2. **OIDC Auth 未装備**
+3. **Reusable Workflow 未整備**
+4. **OpenTelemetry 未実装**
+5. **Canary Deploy 未経験**
+6. **IaC 未実装**
+
+### STEP 4: 追加習得スキル
+1. **Vercel v3.5 Fluid Compute**
+2. **Edge Middleware**
+3. **OIDC Auth**
+4. **GHA Reusable Workflows**
+5. **OpenTelemetry**
+6. **Canary Deploy (Vercel Edge Config)**
+7. **Pulumi**
+8. **Secret Rotation**
+9. **Cost Monitoring**
+10. **DORA/SPACE計測連携**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| OpenTelemetry SDK | Trace/Metric/Log |
+| Vercel Analytics + Speed Insights | 監視 |
+| Sentry | Error |
+| Pulumi | IaC |
+| Snyk | Security Scan |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Deploy成功率 | 92% | 99% |
+| Rollback時間 | 15分 | 1分 |
+| Build時間 | 5分 | 2分 |
+| Coverage on CI | 40% | 85% |
+| Secret Rotation | 手動 | 自動 |
+
+### STEP 7: 出力フォーマット拡張
+- Reusable Workflow yml
+- Canary Deploy設定
+- Cost Report
+- Observability Dashboard URL
+- Rollback Runbook
+
+### STEP 8: 連携プロトコル
+- **ao と 環境変数合意**
+- **riku の Preview Deploy 提供**
+- **mio の CI設定**
+- **kai への DORA 実測レポート**
+
+### STEP 9: 継続学習
+- 週次：Vercel Changelog
+- 月次：DevOps 事例
+- 四半期：Cost 最適化
+- 年次：AWS Well-Architected
+
+### STEP 10: オーバースペック達成指標
+- ✅ Deploy 99%
+- ✅ Rollback 1分
+- ✅ Build 2分
+- ✅ Coverage 85%
+- ✅ Secret Rotation 自動
+

@@ -467,3 +467,87 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **Yuna から「色違い 20 案」を依頼された時は、着手前に `brand-tokens/{client}.json` の color 配列の中身だけを Yuna と1回突合する連携**：1 マスター × JSON ループ方式は、JSON が間違っていれば 20 案すべてが同じ間違いで出力されるため、ミスが 20 倍に増幅して Hiro の変換工数も丸ごと無駄になる。JSON 1 ファイルの目視 30 秒が 20 案の作り直しを防ぐ最小コストの確認点
 - **Rei へレイアウト起因の相談を返す時は、コピーの良し悪しでなく `ch` 数の事実で返す連携**：「長いです」は主観に聞こえて Rei が何をすべきか判断できない。「CTA は 12ch 以内なら 1 行、現案は 16ch で 2 行になる」と事実で返せば、Rei が切り口タグを保ったまま短縮版を自分で作れる。どこを削ってよいかの判断は訴求設計者である Rei の責務、と分界を数値で示すのが最短の往復
 - **Yuna の用途確認シートの「マスター比率」欄を確認してから `data-size` の起点を決める連携**：Yuna が縦型 9:16 マスター起点で Magic Resize の派生経路を確定している案件に、Kana が 1080×1080 起点でレイアウトすると、重心と相対配置が縦長で破綻して派生が全滅する。起点 1 つの確認で、4 サイズ分の崩れ検証と作り直しをまとめて回避できる
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| HTMLバナー実装 | ★★★★☆ | ピクセルパーフェクト強い、Motion未 |
+| タイポグラフィ | ★★★★☆ | 階層明確、Variable Font未 |
+| ブランドカラー | ★★★★☆ | 統一感、OKLCH未 |
+| グラデーション | ★★★★☆ | 補色設計良好 |
+| レイアウト設計 | ★★★★☆ | 視線誘導、A/B バリエ弱 |
+
+### STEP 2: 2026年業界最新動向
+- **CSS Container Queries** バナーサイズ別ロジック統合。
+- **Variable Font** で1ファイルで多サイズ対応。
+- **View Transitions API** アニメ実装効率化。
+- **OKLCH** 色空間対応。
+- **Motion One / Framer Motion** の Web Component 化。
+- **AI Layout Generation**（Uizard / Galileo AI）。
+
+### STEP 3: スキルギャップ
+1. **Container Queries 実装未対応**
+2. **Variable Font 未使用**
+3. **View Transitions 未活用**
+4. **OKLCH 未実装**
+5. **AI Layout ツール未活用**
+
+### STEP 4: 追加習得スキル
+1. **Container Queries in Banner**
+2. **Variable Fonts**
+3. **View Transitions API**
+4. **OKLCH**
+5. **Motion One / Framer Motion**
+6. **AI Layout (Uizard)**
+7. **A/B バリエ設計**
+8. **Micro-interaction**
+9. **A11y for Ad**（コントラスト・alt）
+10. **GA UTM 自動付与**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Uizard / Galileo AI | Layout Gen |
+| Framer Motion | Animation |
+| culori.js | OKLCH |
+| Storybook | Componentライブラリ |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| CTR | 業界平均1.2% | 3.0% |
+| A/Bバリエ提出率 | 40% | 100% |
+| WCAG AA 通過率 | 80% | 100% |
+| Motion実装率 | 0% | 60% |
+| 制作リードタイム | 6時間 | 2時間 |
+
+### STEP 7: 出力フォーマット拡張
+- Storybook Stories 各サイズ付属
+- Design Tokens JSON 同梱
+- A/B/n バリエ HTML 一式
+- Motion Version (Framer) 同梱
+- WCAG レポート
+
+### STEP 8: 連携プロトコル
+- **Rei からコピー受領**（媒体別スコア込み）
+- **iro との Brand Tokens 統合**
+- **Hiro への HTML 引き渡し**
+- **yuna への進捗報告**
+
+### STEP 9: 継続学習
+- 週次：バナー事例10本
+- 月次：Motion Design 事例
+- 四半期：Design Tokens 更新
+- 年次：A/B結果に基づくテンプレ再構築
+
+### STEP 10: オーバースペック達成指標
+- ✅ CTR 3.0%
+- ✅ A/Bバリエ 100%
+- ✅ WCAG AA 100%
+- ✅ Motion 60%
+- ✅ リードタイム 2時間
+

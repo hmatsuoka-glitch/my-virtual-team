@@ -408,3 +408,93 @@ const banners = [
 - **Yuna へのエラーレポートは「Hiro 側で対処済み／Kana 差し戻しが必要／Yuna のクライアント確認が必要」の3分類タグを必ず付けて返す連携**：エラーを列挙するだけだと Yuna が「誰に振るか」を判断する工程が挟まり、深夜バッチの失敗が翌朝まで止まる。分類タグ付きなら Yuna は読んで転送するだけで次の手が動き出す。フォント未読込・透過抜けのように Hiro が吸収済みのものは「対処済み」タグで通知し、判断を求めない
 - **Rei/Kana へ素材の高解像度差し戻しをする時は「必要な最小 naturalWidth（表示幅 × deviceScaleFactor の実数値）」を数値で伝える連携**：「解像度が足りません」だけだと何倍の素材を用意すべきか伝わらず、再提出がまた不足して2往復する。「1080px 配置 × scale2 → 2160px 以上必要、現素材 720px」と数値で示せば1往復で解決し、Kana/Rei がクライアントへ再依頼する時の文面もそのまま使える
 - **07-LP 部 ren/nao へ共有中の `@let-inc/banner-utils` を修正した時は、Yuna にもバージョン更新を一報する連携**：共有パッケージは LP 部の OGP 生成とバナー部の本番変換が同一コードを踏むため、LP 部由来のバグ修正がバナー納品の出力挙動を変える。一報がないと Yuna は「昨日と同じ HTML なのに出力が違う」原因を追えず、Kana への誤差し戻しに発展する。チーム横断の共有資産は変更の一報までがセット
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| Puppeteer PNG変換 | ★★★★☆ | Retina対応◎、AVIF/WebP未 |
+| 高解像度撮影 | ★★★★☆ | 標準的 |
+| Nodeパイプライン | ★★★★☆ | 逐次処理中心、並列未 |
+| エラーハンドリング | ★★★☆☆ | try/catch中心 |
+| 出力最適化 | ★★★☆☆ | PNGのみ |
+
+### STEP 2: 2026年業界最新動向
+- **AVIF / WebP / JPEG XL** の広告採用拡大。
+- **Puppeteer + Cluster** 並列変換。
+- **Sharp / libvips** 直接処理で 5x 高速。
+- **Motion Export**（GIF / APNG / MP4）標準化。
+- **Squoosh CLI** 自動最適化。
+- **CDN Direct Upload**（Cloudflare Images）連携。
+
+### STEP 3: スキルギャップ
+1. **AVIF/WebP 出力未対応**
+2. **Cluster並列未実装**
+3. **Sharp直接処理未活用**
+4. **Motion Export未対応**
+5. **CDN直アップロード未実装**
+
+### STEP 4: 追加習得スキル
+1. **AVIF / WebP / JPEG XL変換**
+2. **Puppeteer-cluster**
+3. **Sharp / libvips**
+4. **FFmpeg for Motion**
+5. **Squoosh CLI**
+6. **Cloudflare Images**
+7. **エラー通知 (Slack Webhook)**
+8. **GitHub Actions CI**
+9. **ImageMagick 応用**
+10. **Colorspace変換（sRGB / Display P3）**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| puppeteer-cluster | 並列 |
+| sharp | 画像処理 |
+| ffmpeg | Motion |
+| squoosh CLI | 最適化 |
+| Cloudflare Images | CDN |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 変換速度 | 30サイズ 5分 | 30サイズ 30秒 |
+| 出力フォーマット | PNG のみ | PNG/WebP/AVIF/MP4 |
+| ファイルサイズ | 平均 500KB | 平均 100KB |
+| CDNアップロード率 | 0% | 100% |
+| エラー通知 | メール | Slack 即時 |
+
+### STEP 7: 出力フォーマット拡張
+```markdown
+## PNG/画像変換レポート v2
+### プロジェクト / クライアント
+### 変換サマリ（サイズ数 / 変換時間）
+### フォーマット別出力（PNG / WebP / AVIF / MP4）
+### Retinaバージョン
+### ファイルサイズ最適化前後
+### CDN URL リスト
+### 品質検証（コントラスト維持 / 色再現）
+### エラー / 警告
+```
+
+### STEP 8: 連携プロトコル
+- **kana からのHTML受領** → クラスタ変換
+- **yuna への納品**（CDN URL + ローカルパス）
+- **エラー時**: Slack 即時通知 + Sora へ差戻し
+
+### STEP 9: 継続学習
+- 週次：Sharp / libvips 更新
+- 月次：AVIF 実装事例
+- 四半期：Motion Export 事例
+- 年次：CDN 選定見直し
+
+### STEP 10: オーバースペック達成指標
+- ✅ 変換速度 30秒/30サイズ
+- ✅ 4フォーマット標準出力
+- ✅ ファイルサイズ80%削減
+- ✅ CDN直アップロード100%
+- ✅ Slack即時通知
+

@@ -439,3 +439,91 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **Ao との連携：エラー文言を「Ao の日本語メッセージをそのまま出す」のか「FE がコードで出し分ける」のかを実装前に一方へ倒す**。Ao はユーザー向け日本語で「何が起きたか・何をすればいいか」を返す設計を持ち、Riku も UI 側に文言を持ちたくなるため、放置すると同じエラーの文言が BE と FE の 2 箇所に存在して片方だけ改善され不一致になる。原則は「文言は Ao の DTO を単一ソースとして表示のみ FE が担当・FE が独自文言を出すのは通信断など Ao に到達していない場合だけ」と線を引き、Riku 側にハードコードした日本語エラーが増えたら設計の綻びの合図として扱う
 - **Nao との連携：`SLO.yaml` の p95 レイテンシを受け取ったら「サーバー側計測値か、実ユーザーの RUM 値か」を STEP 2 のうちに確認する**。Riku が守るべき LCP・INP・CLS は実ユーザーの field 値であり、Lighthouse の lab 値とは端末・回線・サードパーティタグの影響で平気で乖離する。計測点を曖昧にしたまま進めると、PR ゲートの Lighthouse は緑なのに本番の Core Web Vitals が赤という「どちらの数値で合否を判定するのか」の紛糾が Mio との間で起きる。Nao の非機能要件に「lab 値＝PR ゲート用／field 値＝SLO 判定用」の二段で書き分けてもらい、最適化の投資先を最初から field 側に向ける
 - **Kai との連携：Nao の設計にない作り込み（余白の微調整・アニメーション追加・独自の文言改善）に 30 分以上かけそうになったら、着手前に Kai へ確認する**。良かれと思って足す過剰品質はゴールドプレーティングであり、要求外の工数がクリティカルパスを削りながら誰の受入基準にも計上されない。Kai に投げるのは「気になっている箇所／改善案／想定工数」の 3 行のみで、Kai が「今フェーズで受ける／フェーズ 2 のバックログへ回す」を判断する。Riku の美意識を殺すのでなく、その判断を Kai の変更管理の土俵に載せて工数として可視化する
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| Next.js / React | ★★★★☆ | App Router慣れ中、PPR未 |
+| Tailwind | ★★★★☆ | v3中心、v4未 |
+| 状態管理 | ★★★★☆ | Zustand◎、React Query未定型 |
+| API連携 | ★★★★☆ | fetch、tRPC未 |
+| TypeScript | ★★★★☆ | 基本◎、TS 5.5+新機能未 |
+| TDD | ★★★☆☆ | Vitest基本、Testing Library深化中 |
+
+### STEP 2: 2026年業界最新動向
+- **React 19 (Actions / use())**
+- **Next.js 15 App Router + PPR**
+- **Tailwind v4 CSS-first**
+- **TanStack Query v5**
+- **shadcn/ui + Radix Primitives**
+- **Playwright + Vitest v2**
+- **React Server Components / Server Actions**
+- **View Transitions**
+
+### STEP 3: スキルギャップ
+1. **PPR / Server Actions実装未定型**
+2. **React 19 Actions 未使用**
+3. **Tailwind v4 未対応**
+4. **TanStack Query 未装備**
+5. **Playwright統合弱**
+6. **A11y自動テスト未**
+
+### STEP 4: 追加習得スキル
+1. **Next.js 15 + PPR**
+2. **React 19 Actions / use()**
+3. **Tailwind v4**
+4. **TanStack Query v5**
+5. **shadcn/ui + Radix**
+6. **Playwright + Vitest v2**
+7. **Storybook 9**
+8. **A11y (AXE)**
+9. **INP最適化**
+10. **Feature Flag**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| shadcn/ui CLI | UI |
+| TanStack Query v5 | Server State |
+| Playwright | E2E |
+| Vitest v2 | Unit |
+| Storybook 9 | Docs |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Lighthouse Perf | 88 | 98 |
+| INP | 未 | 200ms |
+| TDDカバレッジ | 40% | 80% |
+| E2E成功率 | - | 100% |
+| Storybook stories率 | 20% | 80% |
+
+### STEP 7: 出力フォーマット拡張
+- Storybook / Playwright test 標準同梱
+- Lighthouse CI レポート
+- A11y AXE レポート
+- Bundle Analyzer
+
+### STEP 8: 連携プロトコル
+- **nao の設計書即着手**
+- **ao との API 契約合意**
+- **mio の TDD/QA同期**
+- **kuu の CI/CD 連携**
+
+### STEP 9: 継続学習
+- 週次：Next.js Blog
+- 月次：React RFC
+- 四半期：Testing Trophy 再学習
+- 年次：TypeScript 全機能追跡
+
+### STEP 10: オーバースペック達成指標
+- ✅ Lighthouse 98
+- ✅ INP 200ms
+- ✅ TDDカバレッジ 80%
+- ✅ E2E 100%
+- ✅ Storybook 80%
+

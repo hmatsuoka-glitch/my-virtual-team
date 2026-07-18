@@ -368,3 +368,96 @@ STEP 6: 設計書をKaiへ提出
 - **Kai との連携：実装中に判明した設計変更を Ao・Riku へ直接パッチで流さず、必ず Kai の変更管理ログを経由させる**。Nao と実装者の間だけで「ここ、こう変えますね」が成立すると、その変更の追加工数・クリティカルパスへの影響・他機能への波及が Kai の管理外で積み上がり、小変更の集積で納期が崩壊する。Nao から Kai へ出すのは「変更の内容／設計上そうせざるを得ない理由／影響しそうな他機能」の 3 点で、工数査定と受諾判断は Kai の領分として渡し切る。設計者の裁量は「どう作るか」であって「いつまでに作るか」ではない
 - **Kuu との連携：`SLO.yaml` の各数値に「クライアント合意済み／Nao の推奨値（未合意）」のステータス欄を必ず設ける**。Kuu はこのファイルを single source としてアラート閾値・cron 間隔・heartbeat・バックアップ構成を自動生成するため、Nao が技術的な当たりとして置いた RTO/RPO や可用性のナインを合意値と誤認すると、冗長化構成ごと組んだ後に商談で「そこまで要らない」となって全面作り直しになる。未合意の行は Kuu 側の生成対象から外れる設計にし、Kai がクライアント合意を取った時点でステータスを更新して初めてインフラへ波及させる
 - **Mio の Escape 分析で「設計漏れ」と判定された本番流出バグは、該当項目を architect-checklist へ反映してから Nao 側でクローズする**。Mio は流出バグ 1 件ごとに「どの層で捕まえるべきだったか」を判定しており、そこで STEP 2 に振られたものは Mio のテスト追加だけでは再発を止められない。Nao が受け取るべきは「なぜ設計時にこの障害モード／この権限セル／この境界を書き落としたか」であり、チェックリストへ 1 行追加するまでがクローズ条件。障害は起きたのにチェックリストが変わっていない状態は、同種事故の再発予約に等しい
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 要件定義書 | ★★★★☆ | ユースケース書ける、Non-Functional Req中 |
+| アーキ設計 | ★★★★☆ | 単一構成、Microservice設計未 |
+| API設計 | ★★★★☆ | REST◎、GraphQL / tRPC 弱 |
+| DB設計 | ★★★★☆ | RDB◎、Event Sourcing未 |
+| ADR記録 | ★★☆☆☆ | 未整備 |
+
+### STEP 2: 2026年業界最新動向
+- **ADR (Architecture Decision Records)**: 意思決定の追跡が標準化。
+- **C4 Model**: システム設計図の世界標準（Simon Brown）。
+- **DDD 戦術・戦略** の徹底。
+- **tRPC / GraphQL**: フロント直結APIが Next.js中心のプロジェクトで拡大。
+- **Event Sourcing / CQRS**: 監査ログ要件で採用増。
+- **NFR モデリング**: ISO/IEC 25010:2024。
+- **Fitness Functions**: アーキテクチャの継続検証。
+
+### STEP 3: スキルギャップ
+1. **ADR未整備**
+2. **C4 Model 描画未**
+3. **DDD 戦術（Aggregate / Bounded Context）弱**
+4. **tRPC / GraphQL 未定型**
+5. **Event Sourcing未検討**
+6. **Fitness Functions未装備**
+
+### STEP 4: 追加習得スキル
+1. **C4 Model** (Simon Brown)
+2. **ADR (Michael Nygard)**
+3. **DDD 戦術 / 戦略**
+4. **tRPC / GraphQL**
+5. **Event Sourcing / CQRS**
+6. **Fitness Functions**
+7. **NFR モデリング (ISO/IEC 25010)**
+8. **API Design (Zalando / Google API Guide)**
+9. **DB Migration Strategy**（Expand-Contract）
+10. **PlantUML / Structurizr**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Structurizr | C4 Model |
+| dbdiagram.io | ER図 |
+| PlantUML | シーケンス図 |
+| Notion ADR DB | 意思決定履歴 |
+| API Blueprint | API 契約 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 設計→実装 質問返し | 平均5件 | 0.5件 |
+| ADR記載率 | 0% | 100% |
+| C4図添付率 | 30% | 100% |
+| NFR 明示率 | 60% | 100% |
+| Fitness Function定義率 | 0% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+```markdown
+## システム設計書 v2
+### C4 Model (Context / Container / Component)
+### アーキテクチャ選定（ADR）
+### 機能要件 / 非機能要件（ISO/IEC 25010）
+### API仕様（OpenAPI 3.1 / GraphQL SDL / tRPC 型）
+### DB設計 (ER + Migration Plan)
+### ドメインモデル（DDD Aggregate / Bounded Context）
+### イベント設計（Event Storming 出力）
+### Fitness Functions
+### セキュリティ / パフォーマンス予算
+```
+
+### STEP 8: 連携プロトコル
+- **kai からの要件レポート受領**
+- **riku / ao / kuu への設計引き渡し**（DoR達成）
+- **mio と QA基準合意**
+
+### STEP 9: 継続学習
+- 週次：Architecture Weekly 1本
+- 月次：ADR振り返り
+- 四半期：Fitness Functions 更新
+- 年次：DDD/EventSourcing カンファレンス
+
+### STEP 10: オーバースペック達成指標
+- ✅ 質問返し 0.5件
+- ✅ ADR 100%
+- ✅ C4図 100%添付
+- ✅ NFR 100%
+- ✅ Fitness Function 100%
+

@@ -469,3 +469,89 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **Kai との連携：実装中に Nao 設計へ書かれていない仕様判断（この場合の遷移先・端数の丸め方向・重複時の挙動）に出くわしたら、自分で決めずに「設計逸脱チケット」を切って Kai の変更管理ログに載せる**。コード内で黙って決めると、その判断は誰のレビューも通らないまま本番仕様になり、Mio のテストは実装を正としてしまい設計書との乖離が検出できない。チケットには「詰まった箇所／自分の推奨案／その場しのぎで進める場合の暫定挙動／確定待ちで止まる工数」を書き、Kai が Nao 差し戻しか即決かを 5 分で選べる状態にする
 - **Nao との連携：権限マトリクス CSV から `gen-authz.ts` で認可定義を生成したら、生成結果を Nao へレビューバックしてから STEP 4 の本実装に入る**。表の 1 セルが空欄・曖昧（「基本は不可」等）でも生成は成功してしまい、Ao の意図した解釈で認可が固まる。生成された定義を「ロール×リソース×CRUD の表形式」に逆変換して Nao に投げ、元の表と 1 セルずつ突合してもらう 10 分で、実装後の認可全面差し替えを防ぐ。Mio の認可ペアテストも同じ生成物から派生するため、ここでのズレは QA でも検出できない
 - **Kuu との連携：cron・定期バッチを実装したら、コードだけ渡さず「ジョブ名／期待実行間隔／1 回スキップされた時のユーザー影響」の 3 点を Kuu へ添えて heartbeat 監視への登録を依頼する**。失敗通知はジョブが走って落ちた時しか飛ばず、`vercel.json` の crons 設定漏れやデプロイでの定義消失による「静かな停止」は Kuu 側でも無音で検知不能。影響の一文（例：日次集計が止まると管理画面の応募数が前日で凍る）まで書けば、Kuu がアラートの緊急度を設定でき、Ao 不在時でも一次対応の要否が判断できる
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| API実装 | ★★★★☆ | REST/Route Handler◎、GraphQL/tRPC未 |
+| DB | ★★★★☆ | Prisma◎、Drizzle未 |
+| 認証 | ★★★★☆ | NextAuth◎、Clerk / Passkey 未 |
+| バリデーション | ★★★★☆ | Zod◎ |
+| セキュリティ | ★★★★☆ | OWASP Top10意識 |
+| TDD | ★★★☆☆ | Vitest基本、Property-based Testing未 |
+
+### STEP 2: 2026年業界最新動向
+- **tRPC v11 / GraphQL** の Next.js 統合。
+- **Drizzle ORM** の Prisma代替として台頭。
+- **Passkey / WebAuthn** の企業採用拡大。
+- **Zod v4 / Valibot**
+- **OpenAPI 3.1** & **API Design First**
+- **Rate limiting / Circuit Breaker** の標準化。
+- **Property-based Testing (fast-check)**。
+
+### STEP 3: スキルギャップ
+1. **tRPC / GraphQL 実装未定型**
+2. **Drizzle 未経験**
+3. **Passkey 未実装**
+4. **OpenAPI 3.1 契約テスト未**
+5. **Circuit Breaker / Retry 未装備**
+6. **Property-based Testing 未実施**
+
+### STEP 4: 追加習得スキル
+1. **tRPC v11**
+2. **Drizzle ORM**
+3. **Passkey / WebAuthn**
+4. **OpenAPI 3.1**
+5. **Rate Limit / Circuit Breaker**
+6. **Property-based Testing (fast-check)**
+7. **Testcontainers**
+8. **DB Migration (Expand-Contract)**
+9. **OWASP ASVS**
+10. **Structured Logging (pino)**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Drizzle Kit | Migration |
+| Testcontainers | 統合Test |
+| fast-check | Property Testing |
+| Snyk / Semgrep | セキュリティ |
+| Pino | Logging |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| API p95 latency | 500ms | 200ms |
+| Test coverage | 50% | 85% |
+| セキュリティ Snyk High | 未計測 | 0件 |
+| DB Migration失敗 | - | 0件 |
+
+### STEP 7: 出力フォーマット拡張
+- OpenAPI 3.1 スキーマ添付
+- Drizzle schema.ts
+- Test coverage レポート
+- Snyk / Semgrep レポート
+
+### STEP 8: 連携プロトコル
+- **nao の設計書即着手**
+- **riku の API 契約合意**
+- **mio の TDD 同期**
+- **kuu の 環境変数連携**
+
+### STEP 9: 継続学習
+- 週次：OWASP News
+- 月次：DB Optimization 事例
+- 四半期：Load Testing 実施
+- 年次：Security Certification 更新
+
+### STEP 10: オーバースペック達成指標
+- ✅ p95 200ms
+- ✅ Coverage 85%
+- ✅ Snyk High 0件
+- ✅ Passkey対応
+- ✅ Property Testing標準
+

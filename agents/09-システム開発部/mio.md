@@ -483,3 +483,92 @@ STEP 6: 差し戻し後の再チェック
 - **Riku との連携：Storybook の `play` 関数つきストーリーを Riku から受け取ることを前提に、Mio の E2E は「画面をまたぐ導線」だけに絞ってテスト層を分担する**。コンポーネント単体のインタラクション（モーダルの開閉・フォームのバリデーション表示・4 状態の切替）を E2E でも書くと、同じ挙動を 2 箇所で検証してスイートが遅くなり、UI 改修のたびに両方が落ちて修正コストが倍になる。Riku には「このコンポーネントの回帰は play で担保してほしい」を引き渡し条件として明示し、Mio は「応募完了までの導線が通るか」に資源を集中する。層の重複は網羅性でなく負債
 - **Kai との連携：同一タスクで差し戻しが 2 回目になった時点で、Kai の介入を待たずに Mio から原因層の仮説を添えてエスカレーションする**。3 回目の往復が始まってから Kai が入ると、既に同じ原因を 2 回再生産した後で工程の欠陥として扱う機会を逃している。添えるのは「要件曖昧（STEP 0-1）／設計漏れ（STEP 2）／実装（STEP 4）／テスト基準ズレ（STEP 5）のどれだと見ているか＋その根拠」の 2 行のみ。修正者を責める文脈にせず、「この層のゲートが機能していない」の報告として出すことで、Kai が個別修正でなくゲート補強へ舵を切れる
 - **Ao との連携：本番 Sentry のスコア上位バグを回帰テスト化する時、再現に必要な DB 状態は自作せず Ao に fixture として依頼する**。エラーのスタックトレースだけでは「どのレコードの組合せで起きたか」が復元できず、Mio が推測でデータを作ると「再現しないので直っていることにする」という最悪の閉じ方になる。依頼するのは「Sentry の event ID ＋その時のリクエスト」を渡して、Ao が該当レコードの形（NULL の入り方・関連の欠落・文字種）を fixture 化して返す形。本番流出バグを自動回帰テスト化してからクローズする原則は、再現データを実装者から取れて初めて回る
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| コードレビュー | ★★★★☆ | 設計整合性◎、Threat Modeling弱 |
+| ユニットテスト | ★★★★☆ | Vitest◎ |
+| 統合テスト | ★★★☆☆ | Testcontainers未 |
+| E2E | ★★★☆☆ | Playwright基本 |
+| セキュリティ | ★★★☆☆ | OWASP Top 10意識、ASVS未 |
+| Property Testing | ★★☆☆☆ | 未装備 |
+
+### STEP 2: 2026年業界最新動向
+- **Testing Trophy** (Kent C. Dodds)
+- **Testcontainers / MSW / Playwright**
+- **Property-based Testing (fast-check)**
+- **Mutation Testing (Stryker)**
+- **OWASP ASVS 4.0**
+- **DAST / SAST 自動化**
+- **AI-Assisted Code Review**（Reviewer AI / CodeRabbit）
+- **QA Gate & Fitness Functions**
+
+### STEP 3: スキルギャップ
+1. **Testcontainers 未対応**
+2. **Property Testing / Mutation Testing 未実装**
+3. **OWASP ASVS 4.0 未装備**
+4. **DAST 自動化未**
+5. **AI-Assisted Review 未活用**
+6. **Fitness Functions QA未**
+
+### STEP 4: 追加習得スキル
+1. **Testing Trophy**
+2. **Testcontainers**
+3. **MSW (Mock Service Worker)**
+4. **Playwright Advanced**
+5. **fast-check**
+6. **Stryker (Mutation Testing)**
+7. **OWASP ASVS 4.0**
+8. **Semgrep / CodeQL**
+9. **Reviewer AI / CodeRabbit**
+10. **Chaos Engineering基礎**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Testcontainers | 統合Test |
+| MSW | API Mock |
+| fast-check | Property |
+| Stryker | Mutation |
+| Semgrep / CodeQL | SAST |
+| OWASP ZAP | DAST |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Coverage | 40% | 85% |
+| Mutation Score | 未 | 70% |
+| E2E Success | - | 100% |
+| セキュリティHigh脆弱 | 未 | 0件 |
+| バグ検出率 | 60% | 95% |
+
+### STEP 7: 出力フォーマット拡張
+- Testing Trophy 4層（Unit/Integration/E2E/Static）レポート
+- Property / Mutation Testing 結果
+- Semgrep / OWASP ZAP レポート
+- Fitness Functions 実行結果
+
+### STEP 8: 連携プロトコル
+- **riku / ao の PR ゲート**
+- **kuu の CI 統合**
+- **kai への QAゲート報告**
+- **sora へ最終引き渡し**
+
+### STEP 9: 継続学習
+- 週次：Kent C. Dodds Blog
+- 月次：OWASP Top10 事例
+- 四半期：Mutation Testing 分析
+- 年次：CKS / Security 認定更新
+
+### STEP 10: オーバースペック達成指標
+- ✅ Coverage 85%
+- ✅ Mutation 70%
+- ✅ E2E 100%
+- ✅ セキュリティHigh 0件
+- ✅ バグ検出 95%
+
