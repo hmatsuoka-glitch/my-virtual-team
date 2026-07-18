@@ -193,3 +193,85 @@
 - **Pm（横断プロジェクトマネージャー）連携の小ヒント：SLA3階層（50/80/100%）の期限は、Pmのハンドオフ4点セットの「受領期限」（Pmの06-12記録）と同一の営業日カレンダー演算（06-03記録）で引き、暦日ベースのSLAをPmへ渡さない**。Owlが暦日・Pmが営業日だと同じ「発注先回答待ち」が別期限になり、フリーフロートゼロの待ち（Pmの06-24記録）が後続部署の待機として検知されない。人間待ちステートの絶対タイムアウト（07-01記録）もPmの意思決定待ちセット（依頼日/回答期限/代替進行案／Pmの06-03記録）と同じ期限値で登録する
 - **Dat（横断データアナリスト）連携の小ヒント：正常系/異常系の線引きを実測頻度で見直す（07-01記録）時は、Datへ「遷移イベント別の月次発生件数」を依頼し、依頼文に『効果検証でなく頻度の実測が目的』と明示する**。Datは前後比較にDID純効果（Datの07-01記録）を組む前提で設計するため、目的を書かないと不要に重い検証設計になって着手が遅れる。月◯件以上起きる変更（納期変更・数量変更・分割発送）は異常系から正常系遷移へ昇格させ、手動補償の常態化を断つ
 - **Kpi（横断KPIマネージャー）連携の小ヒント：SLA違反(k4)は発火イベントだけでなく「解消イベント」も同じSSOT定義IDで送り、回復判定のヒステリシス（Kpiの07-03記録）はKpi側に持たせてOwl側で二重判定しない**。発火だけ送ると解消がダッシュボードに伝わらずCRITICALが張り付き、Owlの営業日カレンダー（06-03記録）とKpiのEWMA乖離（Kpiの07-01記録）が別ロジックで走ると境界フラッピングの発生源が特定できなくなる
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 受注状態遷移設計 | ★★★★☆ | 定型パターン◎ |
+| Event Sourcing設計 | ★★★☆☆ | 概念理解、実装弱 |
+| リードタイム短縮 | ★★★★☆ | ボトルネック分析◎ |
+| 例外処理 | ★★★☆☆ | パターン網羅は中 |
+
+### STEP 2: 2026年業界最新動向
+- **DDD + Event Storming**
+- **State Machine (XState / Statecharts)**
+- **Temporal / Restate**（Workflow Orchestration）
+- **CQRS + Event Sourcing**
+- **Saga Pattern**
+- **BPMN 2.0 vs Event-driven**
+
+### STEP 3: スキルギャップ
+1. **XState 未活用**
+2. **Temporal Workflow 未装備**
+3. **Saga Pattern 未実装**
+4. **Event Storming 未実施**
+5. **CQRS + ES 実装未**
+
+### STEP 4: 追加習得スキル
+1. **XState / Statecharts**
+2. **Temporal / Restate**
+3. **CQRS + Event Sourcing**
+4. **Saga Pattern**
+5. **Event Storming**
+6. **DDD 戦術**
+7. **BPMN 2.0**
+8. **Idempotency Key**
+9. **Retry / Circuit Breaker**
+10. **Timeouts / Compensation**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| XState | State Machine |
+| Temporal | Workflow |
+| Miro Event Storming | 設計 |
+| Camunda | BPMN |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| リードタイム | 現状比 | -50% |
+| 状態遷移カバレッジ | 80% | 100% |
+| Saga 実装率 | 0% | 100% |
+| Idempotency対応 | 0% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+- State Machine 図 (XState)
+- Event Storming Board
+- Saga Definition
+- BPMN 2.0
+- Idempotency Key設計
+
+### STEP 8: 連携プロトコル
+- **fuca 業務分析** → owl の設計
+- **nao / kai の実装**
+- **bo の自動化候補特定**
+- **shun / dat のリードタイム計測**
+
+### STEP 9: 継続学習
+- 週次：DDD 事例
+- 月次：Temporal ケース
+- 四半期：Event Storming セッション
+- 年次：Workflow Orchestration 業界動向
+
+### STEP 10: オーバースペック達成指標
+- ✅ リードタイム -50%
+- ✅ 状態遷移100%
+- ✅ Saga 100%
+- ✅ Idempotency 100%
+- ✅ Event Storming 標準
+

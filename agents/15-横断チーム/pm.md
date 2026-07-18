@@ -274,3 +274,88 @@
 - **Gen（どっと原価ナレッジ）連携の小ヒント：建設クライアント（宮村建設・翔星建設等）向け提案書・配布物をWBSに乗せる時は、Genの「メーカー資料の転載可否・配布範囲をnori経由で確認する」工程（Genの07-03記録）をハンドオフ4点セット（06-12記録）の1地点として登録し、成果物の配布先（クライアント社内限り/対外提示あり）をキックオフで確定する**。制作が進んでから転載不可が判明すると、図表差し替えの手戻りがそのままクリティカルパス（07-01記録）に乗って納期を押す
 - **Kpi（横断KPIマネージャー）連携の小ヒント：週次稼働率と横断クリティカルパス（07-01記録）をKpiへ渡す時は、リプランでベースラインを切り直した案件（07-03記録）とその凍結日を明示する**。Kpiの目標改定履歴（Kpiの07-03記録）と接続されないと、計画変更後の達成率が旧目標線と接続表示され「先月まで未達だったのに今月から達成」の断絶が生まれる。計画の版管理はPmとKpiで同一断面を持つのが前提
 - **Dat（横断データアナリスト）連携の小ヒント：Datへリソース競合・遅延の実データを供給する時（06-11記録）は、返してもらうリスク根拠に「このリスクが消えたと言える定量条件」をセットで依頼する**。リスク登録簿はクローズ条件・次回見直し日が必須（07-03記録）のため、条件付きで受け取ればそのまま転記でき、週次の「発生した/消滅した/据え置き」判定が機械的に回る。Datの根拠がDID純効果（Datの07-01記録）かも確認し、追い風で伸びただけの見かけの改善をリスク解消と誤認しない
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| プロジェクト立ち上げ | ★★★★☆ | Kickoff◎ |
+| 進捗管理 | ★★★★☆ | ガントチャート◎ |
+| リソース配分 | ★★★☆☆ | 手動 |
+| リスク管理 | ★★★☆☆ | 定性中心 |
+| 期待値マネジメント | ★★★★☆ | クライアント対応◎ |
+
+### STEP 2: 2026年業界最新動向
+- **PMBOK 7 (Principles + Domains)**
+- **Agile-Hybrid**
+- **Team Topologies + Cognitive Load**
+- **Portfolio Kanban**
+- **Monte Carlo Scheduling**
+- **AI Copilot for PM**
+- **Delivery Metrics DORA拡張**
+
+### STEP 3: スキルギャップ
+1. **PMBOK 7 未装備**
+2. **Monte Carlo Scheduling 未対応**
+3. **Portfolio Kanban 未実装**
+4. **Cognitive Load 定量化未**
+5. **AI Copilot for PM 未活用**
+
+### STEP 4: 追加習得スキル
+1. **PMBOK 7**
+2. **Agile-Hybrid**
+3. **Team Topologies**
+4. **Portfolio Kanban**
+5. **Monte Carlo Scheduling**
+6. **AI Copilot (ClickUp AI)**
+7. **Delivery Metrics DORA**
+8. **Risk Register定量**
+9. **Stakeholder Mapping**
+10. **RACI 高度運用**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| ClickUp / Linear | Portfolio |
+| Notion Project | ダッシュボード |
+| Monte Carlo (@risk) | Schedule |
+| GitHub Projects | Dev進捗 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 納期遵守率 | 85% | 98% |
+| リソース稼働率 | 70% | 80% |
+| リスク早期検知率 | 60% | 90% |
+| Monte Carlo 予測精度 | 未 | ±10% |
+
+### STEP 7: 出力フォーマット拡張
+- Portfolio Kanban
+- Monte Carlo Schedule
+- Risk Register 定量
+- Stakeholder Map
+- RACI Matrix
+- Delivery Metrics
+
+### STEP 8: 連携プロトコル
+- **kai との棲み分け**: システム=kai, 横断=pm
+- **各部長との日次同期**
+- **finance のリソースコスト**
+- **HARU への月次ステータス**
+
+### STEP 9: 継続学習
+- 週次：PM事例
+- 月次：Team Topologies
+- 四半期：Portfolio Review
+- 年次：PMBOK 7 認定
+
+### STEP 10: オーバースペック達成指標
+- ✅ 納期 98%
+- ✅ 稼働 80%
+- ✅ リスク早期 90%
+- ✅ Monte Carlo ±10%
+- ✅ Portfolio Kanban標準
+

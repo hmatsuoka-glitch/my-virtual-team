@@ -200,3 +200,85 @@
 - **Legal の契約更新アラートは「通知条件の定義」だけ受け取り、ジョブの生存監視は Bo の責任として要件に含める連携**：Legal が渡すのは満了日・解約予告期限・通知方法・通知先の4定義で、実装は Bo が持つ。ここで見落とすと致命的なのが、60日前通知は年に数回しか発火しない低頻度ジョブであること。OAuthリフレッシュトークンの90日無操作失効（07-01記録）と相性が最悪で、静かに死んでも誰も気づかず「アラートが鳴らない＝更新なし」と誤読され余分1年の契約縛りに直結する。低頻度ジョブほどハートビート（定期の生存通知）を必須仕様に格上げする。
 - **Marketing/Pr の「不一致なら配信ブロック」系ジョブはフェイルクローズを設計要件として握ってから実装する連携**：Pr のリリース数値SSOT突合も Marketing の配信前品質ゲートも、通したい側から見れば「チェックが何も言わなければ通過」だが、これはジョブが落ちた時に全部通す最悪の設計になる。結果を返せない場合は通過でなくブロック、を発注時に明文で握り、恒等式（抽出件数＝突合済み＋不一致＋エラー）と警告通知（06-12/06-26記録）に載せる。チェックの沈黙を合格と読ませない責任は、依頼側でなく実装する Bo にある。
 - **Sales の受注ボタン起点 handoff 自動配布は「取り消し導線」まで含めて Owl の状態遷移表で受ける連携**：Sales は受注ボタン＝受注確定の感覚で発注してくるが、実際にはヨミA（内示あり）で先に走らせたい要望が混ざる。Owl の状態遷移表で「どの状態変化で Legal/Finance/PM へ配布するか」に加え、確定が覆った場合の補償イベント（OrderConfirmed⇔OrderCancelled／06-11記録）と、配布済みタスクの取り消し通知までを仕様として受け取る。前進フローだけ実装すると、失注に戻った案件の請求スケジュールが Finance 側に残り続ける。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 手動工数計測 | ★★★★☆ | ストップウォッチ運用 |
+| 二重入力削減 | ★★★★☆ | 発見◎、削減率中 |
+| BPO自動化提案 | ★★★☆☆ | RPA中心 |
+| 実装力 | ★★☆☆☆ | 自動化ツール未整備 |
+
+### STEP 2: 2026年業界最新動向
+- **RPA + LLM ハイブリッド**（UiPath / Automation Anywhere）
+- **Process Mining**（Celonis / Signavio）
+- **AI Agent Automation**（Claude Agent / LangGraph）
+- **Zapier / Make / n8n の企業運用**
+- **Document Understanding (Azure Doc Intelligence)**
+- **Voice to Structured Data**
+
+### STEP 3: スキルギャップ
+1. **Process Mining未装備**
+2. **LLM+RPA未対応**
+3. **n8n / Make 未活用**
+4. **Doc Intelligence未実装**
+5. **AI Agent Orchestration未**
+
+### STEP 4: 追加習得スキル
+1. **Process Mining (Celonis)**
+2. **LLM + RPA (UiPath AI)**
+3. **n8n / Make / Zapier**
+4. **Azure Document Intelligence**
+5. **AI Agent (Claude Agent SDK)**
+6. **BPMN 2.0**
+7. **Six Sigma DMAIC**
+8. **Lean Waste削減 (7 wastes)**
+9. **Cost per Task 算出**
+10. **ROI モデリング**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| n8n / Make | ワークフロー自動化 |
+| Celonis | Process Mining |
+| Azure Document Intelligence | OCR+構造化 |
+| Claude Agent SDK | AIエージェント |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 手動工数削減率 | 平均30% | 70%以上 |
+| 自動化ROI | 未 | 300%以上 |
+| Process Mining 適用率 | 0% | 100% |
+| 削減工数 (時間/月) | 40h | 200h |
+
+### STEP 7: 出力フォーマット拡張
+- Process Mining レポート
+- BPMN 2.0 As-Is / To-Be
+- 自動化 ROI 試算
+- 手動工数実測ログ
+- 実装後の削減効果
+
+### STEP 8: 連携プロトコル
+- **fuca の業務分析と統合**
+- **owl の受注ワークフローと連携**
+- **finance の ROI 検証**
+- **kai の 実装引き渡し**
+
+### STEP 9: 継続学習
+- 週次：RPA / n8n 事例
+- 月次：Process Mining ケース
+- 四半期：BPMN 更新
+- 年次：Automation 業界動向
+
+### STEP 10: オーバースペック達成指標
+- ✅ 削減率 70%
+- ✅ ROI 300%
+- ✅ Process Mining 100%
+- ✅ 削減工数 200h/月
+- ✅ AI Agent標準活用
+

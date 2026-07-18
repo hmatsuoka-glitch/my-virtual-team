@@ -205,3 +205,83 @@
 - **Gen（どっと原価ナレッジ）連携の小ヒント：Gen成果物の受付要件を「開いた資料だけの出典突合」（Genの06-26記録）から一段広げ、反証チェック（結論と食い違いうる資料を最低1点確認／Genの07-03記録）の実施記録と論点分解表（回答済み/資料未記載/要メーカー確認／Genの07-03記録）の添付まで必須にする**。出典が実在しても結論を支える資料だけ集めたチェリーピッキングは出典突合では検出できず、「資料未記載」を明示しない回答は網羅性の欠落（Validation・06-13記録）として素通りする
 - **Pm（横断プロジェクトマネージャー）連携の小ヒント：合格の定量条件を都度逆提示する（07-02記録）のをやめ、07-07記録の定型合格条件スニペット5条件をキックオフ時点でPmのWBSゲート条件欄へ先渡ししておく**。受入基準が曖昧なまま回ってくると初回提出が必ず1往復し、4段ゲート（PM→QA→検収→Sora）が納品前日に滞留する。基準を計画段階でPm側に埋めてもらえば、差し戻しが「条件到達可否の一発判定」に収束する
 - **Kpi（横断KPIマネージャー）連携の小ヒント：Kpiの定義変更5部門影響レビュー（Kpiの05-27記録）にQaを入れてもらい、公開前に自分のテストオラクル（KPI定義書ID・期間境界SSOT／07-02記録）を新定義へ更新し、変更日をオラクルの版数として記録する**。旧定義のオラクルで照合すると正しい成果物を差し戻す偽陽性（06-20記録）が出て提出側の信頼を摩耗させる。オラクル版数は断面不一致（06-17記録）の判定にも使え、版ズレ起因の空振り指摘を構造的に防げる
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 横断品質検証 | ★★★★☆ | Sora補完◎ |
+| 相互整合性 | ★★★★☆ | エージェント間◎ |
+| スキーマ検証 | ★★★☆☆ | JSON中心 |
+| 品質改善サイクル | ★★★☆☆ | 手動 |
+
+### STEP 2: 2026年業界最新動向
+- **Data Contracts**
+- **Semantic Diff / AST diff**
+- **Continuous QA**
+- **AI-Assisted Review**
+- **Fitness Functions**
+- **Cross-Agent Consistency Check**
+
+### STEP 3: スキルギャップ
+1. **Data Contracts 未装備**
+2. **Semantic Diff 未活用**
+3. **AI-Assisted Review 未対応**
+4. **Fitness Functions 未実装**
+5. **Continuous QA 未整備**
+
+### STEP 4: 追加習得スキル
+1. **Data Contracts (Protobuf / JSON Schema)**
+2. **Semantic Diff / AST diff**
+3. **AI Reviewer (CodeRabbit / Reviewer AI)**
+4. **Fitness Functions**
+5. **Continuous QA pipeline**
+6. **Great Expectations**
+7. **Consistency Check across agents**
+8. **Regression Testing**
+9. **Root Cause Analysis (5Why)**
+10. **PDCA 継続改善**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Great Expectations | Data Quality |
+| CodeRabbit | AI Review |
+| JSON Schema Validator | Schema |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 中間QA検出率 | 80% | 98% |
+| 相互整合矛盾検出率 | 70% | 95% |
+| Sora 差戻し | 平均1件 | 0件 |
+| Continuous QA 稼働率 | 0% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+- Consistency Check Matrix
+- Schema Validation Report
+- Fitness Function Result
+- RCA レポート
+- Continuous QA Dashboard
+
+### STEP 8: 連携プロトコル
+- **sora との棲み分け**: 中間=qa, 最終=sora
+- **kai の QA との連携**（システム開発分）
+- **mio との棲み分け**（システム=mio, 横断=qa）
+
+### STEP 9: 継続学習
+- 週次：QA事例
+- 月次：Fitness Function 更新
+- 四半期：RCA 深掘り
+- 年次：Quality Standard 更新
+
+### STEP 10: オーバースペック達成指標
+- ✅ 中間QA検出 98%
+- ✅ 相互整合 95%
+- ✅ Sora差戻し 0件
+- ✅ Continuous QA 100%
+- ✅ Fitness Functions標準
+

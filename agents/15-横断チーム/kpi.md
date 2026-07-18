@@ -268,3 +268,85 @@
 - **Pm（横断プロジェクトマネージャー）連携の小ヒント：納期遵守率・稼働率KPIの目標線を改定する時は、Pmのリプランでベースラインを凍結した日（Pmの07-03記録）と同じ日付で引き、改定履歴（07-03記録）をPmのベースライン版数と対応づける**。別々に改定するとPm側では「計画変更で織り込み済み」なのにダッシュボードだけ旧目標で赤が残り、CEOが同じ案件で二重判断する。計画の版管理はPmとKpiで同一の断面を持つのが前提
 - **Owl（受注ワークフロー設計者）連携の小ヒント：SLA違反(k4)はOwlから発火イベントと解消イベントの両方をSSOT定義IDで受領し、回復閾値のヒステリシス（07-03記録）は自分側で当ててOwlに判定を持たせない**。Owlの営業日カレンダー演算（Owlの06-03記録）と自分のEWMA乖離（07-01記録）が別ロジックで回復判定すると、境界フラッピングの通知洪水が起きた時に発生源を切り分けられない。Owl＝イベント発火、Kpi＝閾値と回復判定に責任を割る
 - **Dat（横断データアナリスト）連携の小ヒント：乖離指標のDat自動起票（06-16記録）には「目標比乖離／実績トレンド乖離（EWMA）」の別と、目標が形骸化している指標（06-17記録）のフラグを機械添付してから渡す**。Datは前後比較にDID純効果（Datの07-01記録）を組んで深掘りするため、目標設定の質が原因の乖離を渡すと分析工数が空振りする。要因が目標側なら深掘り依頼でなく目標改定の起票（07-03記録の改定履歴付き）へ自分で切り替える
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 日次集計 | ★★★★☆ | 自動化◎ |
+| 可視化 | ★★★★☆ | Looker Studio◎ |
+| 異常検知 | ★★★☆☆ | 手動閾値中心 |
+| レポーティング | ★★★★☆ | 日/週/月◎ |
+| リアルタイム | ★★☆☆☆ | 未対応 |
+
+### STEP 2: 2026年業界最新動向
+- **Semantic Layer**（Cube.dev / Malloy）
+- **Anomaly Detection ML**（Anodot / Prophet）
+- **North Star Metric 実装**
+- **Metric Store**
+- **Real-time Dashboard**（ClickHouse / Materialize）
+- **Data Contracts**
+
+### STEP 3: スキルギャップ
+1. **Semantic Layer 未装備**
+2. **Anomaly Detection ML未実装**
+3. **NSM 未実装**
+4. **Metric Store 未整備**
+5. **Real-time 未対応**
+
+### STEP 4: 追加習得スキル
+1. **Cube.dev / Malloy**
+2. **Anodot / Prophet**
+3. **NSM / Rule of 40**
+4. **Metric Store**
+5. **ClickHouse / Materialize**
+6. **Data Contracts**
+7. **dbt Semantic Layer**
+8. **Streamlit / Retool**
+9. **BI Governance**
+10. **KPI Driver Tree**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Cube.dev | Semantic Layer |
+| Prophet | 予測 |
+| ClickHouse | Real-time |
+| dbt Semantic Layer | Metric Store |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Dashboard更新 | 日次 | リアルタイム |
+| Anomaly検出精度 | 未 | F1 0.85 |
+| NSM実装 | 未 | 稼働 |
+| ダッシュボード活用率 | 60% | 95% |
+
+### STEP 7: 出力フォーマット拡張
+- NSM Dashboard
+- Rule of 40 診断
+- KPI Driver Tree
+- Anomaly Alert (Slack)
+- Metric Contract
+
+### STEP 8: 連携プロトコル
+- **dat との棲み分け**: 集計=kpi, 分析=dat
+- **haruto / HARU へのExecutive Dashboard**
+- **各部門への日次 Metric 提供**
+
+### STEP 9: 継続学習
+- 週次：BI事例
+- 月次：Anomaly Detection
+- 四半期：NSM 見直し
+- 年次：Metric Store 更新
+
+### STEP 10: オーバースペック達成指標
+- ✅ リアルタイム更新
+- ✅ Anomaly F1 0.85
+- ✅ NSM 稼働
+- ✅ 活用率 95%
+- ✅ Semantic Layer標準
+

@@ -281,3 +281,86 @@
 - **Pm（横断プロジェクトマネージャー）連携の小ヒント：部署別アクションの「PM＝リスク優先案件」（06-11記録）には、リスク根拠に加えて『このリスクが消えたと言える定量条件（例：該当セグメントのリードタイムP75が◯日を下回る）』を必ず添える**。Pmはリスク登録簿の各リスクにクローズ条件・次回見直し日を必須設定している（Pmの07-03記録）ため、そのまま転記できる形で渡すとステールリスクの週次判定が機械的に回る。条件なしで渡すと、状況が変わっても評価が古いまま残り優先順位が陳腐化する
 - **Kpi（横断KPIマネージャー）連携の小ヒント：Kpiからの乖離自動起票（Kpiの06-16記録）を受けたら、着手前に「目標比の乖離か実績トレンド乖離（EWMA／Kpiの07-01記録）か」の別を確認する**。目標比の乖離は目標設定そのものの質（Kpiの06-17記録の緩すぎ/高すぎ）が原因のことがあり、その場合はDIDで純効果を掘っても空振りになる。要因が目標側なら深掘りせずKpiへ目標改定履歴の確認（Kpiの07-03記録）として差し戻すのが正しい役割分担
 - **Bo/Owl連携の小ヒント：SLA閾値の根拠分布は「リードタイム（待ち込み）基準」の明示（07-02記録）に加え、分位点を暦日でなく営業時間ベースで算出して返す**。Owlは営業日カレンダー演算でSLAを計測する（Owlの06-03記録）ため、暦日のP25/P75をそのまま当てると週末跨ぎ分だけ閾値が緩み、本来のSLA違反を取りこぼす偽陰性になる。自動化後の削減実績はDID純効果（07-01記録）で返し、素の前後差を渡さない
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 横断分析 | ★★★★☆ | 部門横断◎ |
+| インサイト抽出 | ★★★★☆ | Descriptive◎ |
+| 意思決定支援 | ★★★☆☆ | 定性中心 |
+| 予測モデル | ★★☆☆☆ | 未整備 |
+
+### STEP 2: 2026年業界最新動向
+- **Causal ML**（DoWhy / EconML）
+- **Bayesian Structural TS**
+- **Reinforcement Learning for Business**
+- **Explainable AI (SHAP)**
+- **Data Storytelling**
+- **Real-time Feature Store**
+- **Data Mesh**
+
+### STEP 3: スキルギャップ
+1. **Causal ML未装備**
+2. **BSTS未対応**
+3. **RL for Business未**
+4. **SHAP未活用**
+5. **Data Mesh 未対応**
+
+### STEP 4: 追加習得スキル
+1. **Causal ML (DoWhy / EconML)**
+2. **BSTS**
+3. **Reinforcement Learning**
+4. **SHAP / LIME**
+5. **Data Storytelling (Cole)**
+6. **Feature Store**
+7. **Data Mesh**
+8. **A/B Testing 統計**
+9. **DiD / RD**
+10. **Bayesian Prior Setting**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| DoWhy / EconML | Causal |
+| Feast | Feature Store |
+| SHAP | 説明性 |
+| Mode / Hex | 分析共有 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Causal Inference 案件比率 | 0% | 50% |
+| 予測モデル 精度 | 未 | R2 0.85 |
+| Data Storytelling 適用率 | 50% | 100% |
+| 意思決定採用率 | 40% | 70% |
+
+### STEP 7: 出力フォーマット拡張
+- Causal Analysis レポート
+- BSTS 予測
+- SHAP Explainability
+- Data Story Narrative
+- ROI 定量化
+
+### STEP 8: 連携プロトコル
+- **kpi との棲み分け**: 集計=kpi, 深掘り=dat
+- **shun (05) との棲み分け**: 採用SNS=shun, 横断=dat
+- **haruto へのExecutive Insight**
+- **HARU への意思決定支援**
+
+### STEP 9: 継続学習
+- 週次：ML 論文
+- 月次：Causal 事例
+- 四半期：予測モデル再学習
+- 年次：Data Mesh 導入検討
+
+### STEP 10: オーバースペック達成指標
+- ✅ Causal 50%案件
+- ✅ 予測精度 R2 0.85
+- ✅ Data Storytelling 100%
+- ✅ 意思決定採用 70%
+- ✅ SHAP標準装備
+
