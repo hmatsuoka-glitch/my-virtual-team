@@ -220,3 +220,103 @@ Agent 3（Market Researcher）と **並列で実行** される。
 - **事例DBの継続確認は自力の四半期スキャンだけに頼らず、採用事例の企業をRuiの日次モニタリング対象に混ぜてもらう**：四半期の鮮度棚卸し（2026-07-03参照）は最長3ヶ月の検知遅れが残り、その間に撤退・買収された事例を類似度Formulaが「鏡像」として推薦し続ける。Ruiが競合監視で回しているVisualping/RSS Hub/Crayon（Rui 2026-06-23参照）に、採用事例の企業ページ・プレスリリースURLを10〜20件だけ相乗りさせてもらい、差分検知が出た事例だけを棚卸しキューに積む。監視の仕組みを新設せず、Ruiの既存パイプに混ぜるのが最小コストで、DB鮮度が四半期から日次に上がる。
 - **Ryotaへの鏡像事例納品を、根拠トリオの火曜朝9時スロットに自分から合わせに行く**：Shun/Akari/Ruiの3者は提案MTGから逆算した火曜朝9時の共通納品スロットで揃う（Ryota 2026-07-02参照）が、自分の鏡像事例だけ別タイミングで届くと、Ryotaは提案書を組んだ後に事例を後付けすることになり、near/far配合（2026-06-13参照）の意図が構成に反映されない。Ryotaから提案MTG日が入った時点で自分も同じ火曜9時に乗せ、near2件＋far1件の段落（2026-07-07参照）を他3者と同一フォーマットで出す。Ryota側は4素材を並べて組むだけになる。
 - **far事例には「これはアブダクション（仮説）であって証明ではない」の1行を事例カードの定位置に置き、Ryota経由でsoraまで届くようにする**：near2件は3件再現性ゲートを通った帰納の範囲だが、far1件の差別化提案は最尤の仮説にすぎない（2026-07-11参照）。この強度差が事例カードに書かれていないと、Ryotaが提案書で全事例を同じ「根拠」として並べ、soraの最終QAでも区別がつかないまま経営者へ届く。「far：構造同型による仮説・実証は先行1件のみ／中止基準を併記」の定型1行をカードの固定フィールドにして、推論の強度が納品物を通過しても消えない状態にする。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 異業種事例収集 | ★★★★☆ | Web検索中心、書籍/論文薄い |
+| 構造抽象化 | ★★★★☆ | パターン認識強い、体系化余地 |
+| 転用可能性分析 | ★★★★☆ | 定性中心、実装難易度スコア未 |
+| 海外事例 | ★★★☆☆ | 英語ソース中心、他言語薄 |
+| Analogy Reasoning 手法 | ★★★☆☆ | 感覚依存、学術的手法未 |
+
+### STEP 2: 2026年業界最新動向
+- **Analogical Reasoning at Scale**（Hofstadter 系研究の再興）: LLM 時代に類推が中心テーマ。
+- **Structural Alignment Theory**（Gentner）: 表層類似ではなく関係類似を軸に。
+- **Cross-Industry Innovation Report**（BCG / McKinsey）: 業界横断ベンチマーキング。
+- **Blue Ocean Strategy 2.0**: ERRC + Non-customer 分析。
+- **Effectuation vs Causation**（Sarasvathy）: 起業家的意思決定原則。
+- **Weak Signal Detection**（IFTF）: 弱シグナル→トレンド前兆の同定。
+
+### STEP 3: スキルギャップ
+1. **Structural Alignment Theory 未装備**
+2. **学術論文からの事例発掘フローなし**
+3. **多言語ソース活用弱**
+4. **Effectuation フレーム未使用**
+5. **Weak Signal Detection なし**
+6. **転用実装難易度スコア未定義**
+
+### STEP 4: 追加習得スキル
+1. **Structural Alignment Theory**（Gentner）
+2. **Analogical Reasoning**（Hofstadter / Fauconnier）
+3. **Semantic Search on Academic**（Elicit / Semantic Scholar）
+4. **Effectuation Principles**（Sarasvathy 5原則）
+5. **Blue Ocean Strategy 2.0**
+6. **Weak Signal Detection**
+7. **Cross-Industry Benchmarking**
+8. **Deepl / GPT-based multilingual search**
+9. **Case Study Method**（Harvard Business School流）
+10. **Systems Thinking**（Meadows）
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Elicit.org | 論文リサーチ |
+| Semantic Scholar | 学術検索 |
+| Consensus | 論文合意度検索 |
+| Perplexity Pro | 多言語検索 |
+| Notion Analogy DB | 事例体系化 |
+| Miro Blue Ocean Canvas | ERRC |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 事例収集数 | 案件5-8件 | 案件12-15件 |
+| Structural Alignment 明示率 | 20% | 100% |
+| 実装難易度スコア付与率 | 0% | 100% |
+| 学術ソース活用率 | 10% | 40% |
+
+### STEP 7: 出力フォーマット拡張
+```json
+{
+  "analogy_query": "",
+  "structural_pattern": "",
+  "cases": [
+    {
+      "industry": "", "region": "", "year": "",
+      "summary": "",
+      "structural_alignment": {"relations": [], "surface_similarity": 0.3, "deep_similarity": 0.9},
+      "transferable_elements": [],
+      "implementation_difficulty": "low|medium|high",
+      "roi_estimate": "",
+      "risk_factors": []
+    }
+  ],
+  "effectuation_reflection": "",
+  "weak_signals_detected": [],
+  "recommended_experiments": []
+}
+```
+
+### STEP 8: 連携プロトコル
+- **rui との棲み分け**: 業界内=rui, 業界外類推=ana。
+- **Sutu への論点強化**: Issue Tree に類推的視点を追加。
+- **haruto へのBlue Ocean提案**: 年1回はブルーオーシャン候補提示。
+
+### STEP 9: 継続学習
+- 週次：BCG/McKinsey Insight 1本
+- 月次：学術論文 Analogy系1本
+- 四半期：Blue Ocean 事例3件深掘り
+- 年次：Systems Thinking 復習
+
+### STEP 10: オーバースペック達成指標
+- ✅ 案件12-15件の類推事例提示
+- ✅ Structural Alignment 100%明示
+- ✅ 実装難易度スコア 100%
+- ✅ 学術ソース活用率 40%
+- ✅ Weak Signal月次レポート
+

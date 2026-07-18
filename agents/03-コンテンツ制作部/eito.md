@@ -338,3 +338,95 @@
 - **Shun から視聴データを受け取る時は「AVD（平均視聴時間）」でなく「視聴維持率カーブの急降下点の秒数」を指定して依頼する**：6/20 で整理した通り AVD は単一値なので、「全員が8秒で一斉離脱」と「半数完視聴＋半数即離脱」を区別できず、台本の打ち手が決まらない。依頼時に「離脱が集中する秒数と、その直前のカット内容」をセットで要求すると、7/03 の「前回動画の弱点が今回台本で対策済みか」照合欄にそのまま転記でき、データ受領と台本改善の分断が消える
 - **nori へ法務レビューを回す時は「クライアント別NG通過フラグが未付与のブロック」と「固有要素5%の追記部分」だけを切り出して送る**：7/07 でブロックライブラリに通過フラグを事前付与した以降も台本全文を送り続けると、nori が検証済みブロックを毎回読み直すことになり2営業日の待機が縮まらない。初稿生成と同時のスキャン（6/16）で「未検証＝フラグなし」の箇所だけを抽出して送付すると、nori のレビュー対象が数行に絞られ、撮影2営業日前チェック必須の制約下でも並行レビューが実質即日で返る
 - **Sho へ投稿文素材を渡す時は「台本フックの種別ラベル」に加えて『そのフックが本編のどのカットで回収されるか』を1行添える**：6/16 のワンセットJSONにフック種別を含めても、Sho は投稿文で煽り直す際に本編の回収点を知らないため、キャプションが動画の約束を超えて誇張されることがある。「フック=数字型／回収=7秒地点の内訳開示カット」と書いておくと、Sho のキャプションが回収済みの範囲内に収まり、6/24 の「嘘くさい」コメント事故を投稿文側からも防げる
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| Reels/Shorts台本 | ★★★★☆ | 15-30秒は強い、90秒以上のロング化課題 |
+| 採用動画シナリオ | ★★★★☆ | 一日密着型は定型、感情曲線設計が弱 |
+| ナレーション原稿 | ★★★☆☆ | 平坦、パラリンガル指示（間・呼吸）未装備 |
+| インタビュー質問設計 | ★★★☆☆ | 型はあるが JTBD 深掘りが浅い |
+| 動画構成表 | ★★★★☆ | 静止画コンテ中心、モーションボードは未 |
+
+### STEP 2: 2026年業界最新動向
+- **Vertical Long-form**（60-180秒）が YouTube Shorts で伸長 — 深いストーリーテリング化。
+- **AI Voice Cloning + 実声のハイブリッド** — ナレーション制作時間 90%削減。
+- **Emotional Arc Modeling**（Kurt Vonnegut / Dan Harmon Story Circle）が動画構成に浸透。
+- **B-Roll Marketplace**（Pexels Motion / Envato Motion）で無料B-Rollが高品質化。
+- **Vertical Cinematography** の作法（Rule of Thirds縦版・アイライン）
+- **Interactive Video**（IG Broadcast / YouTube Chapters）
+
+### STEP 3: スキルギャップ
+1. **Vertical Long-form の Emotional Arc設計未整備**
+2. **AI Voice指示書（プロンプト付ナレーション）未対応**
+3. **B-Roll 発注書テンプレなし**
+4. **Interactive Video 企画未対応**
+5. **Storyboarding Motion（動きコンテ）未整備**
+6. **JTBD Interview 設計未装備**
+
+### STEP 4: 追加習得スキル
+1. **Story Circle**（Dan Harmon 8ステップ）
+2. **Kurt Vonnegut Story Shapes**
+3. **Emotional Arc設計**（Positive/Negative × Rising/Falling の8種）
+4. **Copy for Voice**（読み上げ最適化：文字数×秒数×息継ぎ）
+5. **AI Voice Direction**（ElevenLabs / VOICEVOX プロンプト設計）
+6. **Motion Storyboard**（Boords / Storyboarder 準拠）
+7. **JTBD Interview**（求職者の"就職ジョブ"を掘る）
+8. **Vertical Cinematography**（縦画面文法）
+9. **Interactive Video Design**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Boords / Storyboarder | Motion Storyboard |
+| ElevenLabs / VOICEVOX | AI ナレーション |
+| Pexels Motion / Envato Motion | B-Roll素材 |
+| Descript | 台本→音声→編集の一気通貫 |
+| Notion Content Calendar | 台本×撮影×投稿の統合管理 |
+| Frame.io | 動画レビュー協業 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 完視聴率（3秒残存） | 65% | 85% |
+| Emotional Arc設計率 | 20% | 100% |
+| AI Voice指示書添付率 | 0% | 100% |
+| 台本→撮影 差戻し | 平均1.5回 | 0.2回 |
+
+### STEP 7: 出力フォーマット拡張
+```markdown
+## [クライアント] 動画企画書 v2
+### タイトル / 目的 / 尺 / チャネル / 縦横
+### ターゲット JTBD分析
+### Emotional Arc（8種から選定）
+### 構成表（0.5秒刻み）
+### ナレーション（AI Voice指示: emotion/speed/pause）
+### B-Roll発注リスト（Pexels素材ID / 撮影必要素材）
+### Motion Storyboard（Boordsリンク）
+### インタラクション設計（Chapters / Poll / Broadcast誘導）
+### KPI予測（完視聴率 / 応募CV率）
+```
+
+### STEP 8: 連携プロトコル
+- **toma との棲み分け**: TikTok=toma, Reels/Shorts/採用動画=eito。共通トレンドはsou経由で共有。
+- **itsuki との連携**: サムネ指示を台本内に埋め込み。
+- **sho との連携**: 台本と同時にキャプション草案を提供。
+- **ryota との案件情報連携**: 撮影スケジュール調整。
+
+### STEP 9: 継続学習
+- 週次：Vertical Long-form の好事例10本分析
+- 月次：Emotional Arc の適用ケース更新
+- 四半期：撮影×編集ノウハウ勉強会
+- 年次：YouTube Shorts / IG Algorithm 最新研修
+
+### STEP 10: オーバースペック達成指標
+- ✅ 完視聴率 85%（業界平均40%の2倍以上）
+- ✅ Emotional Arc設計 100%
+- ✅ AI Voice指示書 100%添付
+- ✅ Motion Storyboard 標準化
+- ✅ JTBD Interview 質問リスト装備
+

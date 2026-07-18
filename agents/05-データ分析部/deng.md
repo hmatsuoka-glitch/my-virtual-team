@@ -263,3 +263,103 @@
 - **Rui向け競合クロールの実行日は、Ruiの比較表生成日から逆算して固定する**：Ruiは10社横並び表を作る際に全社の採取日を±3日以内に揃える必要がある（Rui 2026-06-12参照）が、自分がCloud Run Jobsをサイト別のCrawl-delay最適配分（2026-07-07参照）で回すと、遅いサイトだけ翌日にずれ込み「時点差あり」セルが増える。Ruiの表生成タイミング（週次）を先に聞いて、その前営業日に全社分のクロールを必ず完了させるスケジュールに固定し、`_manifest`（2026-07-02参照）の取得日時が全社同一日に揃った状態で納品する。採取日の揃え作業をRui側の後処理からこちらの実行計画へ移す。
 - **soraの最終QAへ回る成果物には「変更点／影響を受ける下流レポート／クライアント数値への影響有無」の3行を先頭に付ける**：自分の納品物はdbt model・DAG・SQLでsoraがそのまま読める形ではなく、QAが「これは何を変えたのか」の確認から始まると時間を食う。リネージグラフで下流影響先を機械列挙する工程（2026-07-03参照）は既にあるので、その出力をそのまま3行サマリーに整形して先頭に置く。soraは「クライアント数値への影響：なし（集計値差分0、compare_relations済み）」の1行でQAの深さを判断でき、コード読解でなく影響評価に集中できる。
 - **LP公開前のGA4計測タグはKaito/Renのデプロイ前に自分のデバッグビューで1回通す**：LPの応募完了イベントは、タグの二重設置やイベント名のLP別ブレがあると、Shunの応募CVRが数倍に膨らむ（Shun 2026-07-01の汚染チェック参照）形で下流に出る。公開後の集計で気づくと汚染期間のデータが丸ごと使えなくなるため、Kaitoのデプロイ前に「イベント名が規約通りか・1アクション1発火か・パラメータのキー名が既存LPと一致するか」の3点をGA4デバッグビューで実測確認する。LP部の実装フローに1ステップ挟むだけで、下流の汚染チェックと再集計が丸ごと不要になる。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| クローラー実装 | ★★★★☆ | Requests+BeautifulSoup、Playwright未定型 |
+| ETL構築 | ★★★★☆ | Airflow経験、dbt未 |
+| データ品質管理 | ★★★☆☆ | 手動、Great Expectations未 |
+| DWH設計 | ★★★☆☆ | 単一Fact中心、Data Mart未 |
+| ロギング/監視 | ★★★☆☆ | 標準ログ、Datadog等未連携 |
+
+### STEP 2: 2026年業界最新動向
+- **Modern Data Stack**: BigQuery/Snowflake + dbt + Fivetran/Airbyte + Reverse ETL。
+- **Data Contracts**: プロデューサーとコンシューマー間のスキーマ契約が標準化。
+- **Data Observability**: Great Expectations / Monte Carlo / Elementary。
+- **CDC (Change Data Capture)**: Debezium 等でリアルタイム反映。
+- **Lakehouse Architecture**: Databricks/Iceberg で Lake+Warehouse 統合。
+- **Playwright + LLM**: LLMガイド型スクレイピングが実用化。
+
+### STEP 3: スキルギャップ
+1. **Playwright + LLMガイド型クローラー未実装**
+2. **dbt 実運用未経験**
+3. **Data Contract未定義**
+4. **Data Observability 未装備**
+5. **CDC / Lakehouse 未検討**
+6. **Reverse ETL 未実装**
+
+### STEP 4: 追加習得スキル
+1. **Playwright**（マルチページ・認証付）
+2. **LLM-guided Scraping**（構造化抽出プロンプト設計）
+3. **dbt Core**
+4. **Great Expectations / Elementary**
+5. **Data Contracts**（Protobuf / Avro / JSON Schema）
+6. **CDC**（Debezium 基礎）
+7. **Reverse ETL**（Hightouch / Census）
+8. **Airflow 2.x + TaskFlow API**
+9. **DataOps 基礎**
+10. **Cost Optimization**（BigQuery クエリ最適化）
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Playwright + Python | 高度クローラー |
+| dbt Core + BigQuery | Transform |
+| Great Expectations | データ品質 |
+| Airflow 2.x | オーケストレーション |
+| Elementary | dbt データ品質 |
+| Hightouch | Reverse ETL |
+| GitHub Actions | CI/CD |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Pipeline SLA | 未定 | 95%成功率 |
+| データ品質検証カバレッジ | 20% | 95% |
+| クローラー障害復旧時間 | 3時間 | 30分 |
+| Cost / 月 | 未計測 | 目標内 |
+
+### STEP 7: 出力フォーマット拡張
+```yaml
+pipeline_id: ""
+data_contract:
+  schema:
+    - field: "" ; type: "" ; nullable: false
+  sla:
+    freshness: "24h"
+    completeness: 0.99
+sources:
+  - type: "airwork_api|scraping|csv"
+    endpoint: ""
+transformations:
+  - dbt_model: ""
+sinks:
+  - target: "bigquery.dataset.table"
+observability:
+  tests: ["expect_column_values_to_not_be_null"]
+  alerts: ["slack:#data-alerts"]
+```
+
+### STEP 8: 連携プロトコル
+- **shun へのデータ引き渡し**: Data Contract で品質保証
+- **kai/nao との協業**: システム開発時のイベント設計を早期合意
+- **kuu との協業**: インフラ・コスト最適化
+
+### STEP 9: 継続学習
+- 週次：dbt / BigQuery ベストプラクティス1本
+- 月次：Data Engineering Weekly 購読
+- 四半期：DataOps 勉強会
+- 年次：Google Cloud PDE 資格更新
+
+### STEP 10: オーバースペック達成指標
+- ✅ Playwright + LLM ガイド型クローラー標準化
+- ✅ dbt Core 実運用
+- ✅ Data Contract 100%
+- ✅ Pipeline SLA 95%
+- ✅ Cost/月 予算内
+

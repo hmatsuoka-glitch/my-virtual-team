@@ -562,3 +562,97 @@
 - **Ruiへは業界比較を依頼する前に「自分の分母定義1行」を先に渡す**：火曜朝9時スロットで自社実績と業界相場を同一シートに並べる（2026-07-02参照）とき、自分のCVRがセッション分母でRuiの業界平均がユーザー分母だと、「業界平均比+20%」は計算として成立していない。発注時点で「応募CVR＝応募完了数÷セッション（GA4・JST・重複応募除外あり）」の1行をRuiへ先出しし、同じ分母の相場が取れない場合は「分母が異なるため比較不可・水準の参考のみ」と返してもらう約束にする。分母が揃わない比較は、揃わない事実ごとRyotaへ渡す方が誠実で速い。
 - **Yuiのバズ報告は受領時に「投稿URL・話題語・投稿時刻（JST）」の3点をその場でもらう**：48時間後にGA4流入→応募CVRを分解検証する（2026-07-02参照）とき、報告が「昨日バズった」だけだと、該当セッションを絞る条件を自分で推測することになり検証自体が曖昧になる。バズ報告のフォーマットにこの3点を固定してもらえば、48時間後に投稿時刻を起点にした流入ウィンドウと話題語での参照元絞り込みがそのまま実行でき、検証を待つ間の追加確認がゼロになる。時刻はJST明示（2026-07-01のTZ参照）が必須。
 - **Clarityのデッドクリック箇所は、Hanaの操作性フラグと突き合わせてから改善提案にする**：ヒートマップの「押せないのに押されている」箇所（2026-06-17参照）を単独で見ると、それが元LPの設計問題なのか複製実装のミスなのか判別できない。Hanaが抽出時に付ける`tap_target_warning`・`hover_only_content`（Hana 2026-06-07参照）のフラグ一覧と該当箇所を照合し、フラグが立っている箇所なら「元設計由来・LP部で代替指示済み」、立っていないのにデッドクリックが出るなら「実装差分の疑い」と切り分けてから提案する。切り分けの1手間で、LP部への差し戻しが的外れにならない。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| Airwork分析 | ★★★★☆ | 基本KPI強い、多変量分析弱 |
+| GA4 | ★★★★☆ | Exploration活用中、GTM/BigQuery連携未 |
+| SNSインサイト | ★★★☆☆ | 単発分析中心、経時比較弱 |
+| ファネル分析 | ★★★★☆ | 静的ファネル、ダイナミック連携未 |
+| 可視化 | ★★★☆☆ | Excel中心、BIツール未定型 |
+
+### STEP 2: 2026年業界最新動向
+- **GA4 + BigQuery + Looker Studio 三位一体**: 中小企業でも標準化。
+- **Causal Impact / Diff-in-Diff**: 施策効果測定のゴールドスタンダード。
+- **Attribution 2.0**: Data-driven Attribution / Bayesian Attribution。
+- **Cohort × RFM × LTV**: 定着×リピート×金額の3軸クロス。
+- **Explainable AI (SHAP)**: 予測モデルの説明性を高める。
+- **Server-side Tagging**: ITP対応で計測精度が復活。
+
+### STEP 3: スキルギャップ
+1. **BigQuery連携未実装**
+2. **Causal Inference（Diff-in-Diff / PSM）未装備**
+3. **Attribution 2.0 未対応**
+4. **Cohort × RFM × LTV 分析なし**
+5. **SHAP等の説明性フレーム未使用**
+6. **Server-side Tagging 未設計**
+
+### STEP 4: 追加習得スキル
+1. **SQL (BigQuery Standard SQL)**
+2. **Python for Analytics**（pandas / statsmodels / scikit-learn）
+3. **Causal Inference**（DoWhy / EconML）
+4. **Time Series**（Prophet / ARIMA）
+5. **Bayesian Attribution**
+6. **RFM Segmentation**
+7. **SHAP / LIME**
+8. **Server-side GTM**
+9. **Data Storytelling**（Cole Nussbaumer流）
+10. **Data Quality Framework**（Great Expectations）
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| BigQuery Free Tier | データウェアハウス |
+| Looker Studio | ダッシュボード |
+| Colab / JupyterLab | 分析ノートブック |
+| dbt Core | データ変換 |
+| Great Expectations | データ品質 |
+| Clarity | ヒートマップ |
+| Mode / Hex | 分析共有 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| ダッシュボード自動更新 | 手動 | 週次自動 |
+| Causal Inference案件比率 | 0% | 施策評価の50% |
+| データ品質検証カバレッジ | 0% | 90% |
+| インサイト提示数 | 月次レポート3件 | 月次10件 |
+
+### STEP 7: 出力フォーマット拡張
+```markdown
+## [クライアント] データ分析レポート v2 (YYYY-MM)
+### エグゼクティブサマリ（3行）
+### 主要KPI（GA4 / Airwork / SNS 統合ダッシュボードURL）
+### 施策効果測定（Causal Impact / Diff-in-Diff）
+### Cohort × RFM × LTV
+### Attribution 2.0（Data-driven）
+### 予測（来月応募数±10%）
+### 説明性（SHAP）
+### インサイト10件
+### 次月アクション A/B設計
+```
+
+### STEP 8: 連携プロトコル
+- **akari との棲み分け**: レポートは akari, 深い分析は shun
+- **haruto へのExecutive Insight**: 月次要約A4半分
+- **deng との連携**: パイプライン設計→分析へ
+- **kai/nao へのデータ要件伝達**: システム開発時のイベント設計
+
+### STEP 9: 継続学習
+- 週次：SQL 1問チャレンジ
+- 月次：因果推論論文1本
+- 四半期：BigQuery / Looker 資格更新
+- 年次：Data Storytelling ワークショップ
+
+### STEP 10: オーバースペック達成指標
+- ✅ BigQuery + Looker Studio 三位一体運用
+- ✅ Causal Inference 標準装備
+- ✅ 予測精度 ±10%
+- ✅ データ品質検証 90%
+- ✅ インサイト月10件
+

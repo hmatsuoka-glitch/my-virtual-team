@@ -331,3 +331,86 @@ TikTokのアルゴリズム特性・ユーザー行動・流行音源・ハッ�
 - **Yui とクロスプラットフォーム照合をする前に「エンゲージ率の分母」を宣言してから数字を並べる**：TikTok のいいね率は再生数分母、Yui の週次はリーチ基準（Yui 6/20）なので、宣言なしに並べると「TikTok の方がエンゲージが高い」と構造的に見えてしまい、媒体選定の判断を誤らせる。7/11 で整理した分母3定義を照合シートのヘッダに明記し、比較する時は「拡散の中での反応密度（再生基準）」か「フォロー外への刺さり（リーチ基準）」かを揃えてから語る
 - **Rui と Z世代興味関心マップを更新する時は「タグの空気（祭り系/追悼系/批判系/災害系）」の判定を Rui の業界カレンダーと突き合わせる**：6/17 のタグ文脈確認は上位投稿の目視でやっているが、建設業固有の文脈（労災報道・制度改正・災害復旧）は Rui 側の情報がないと「なぜ今このタグが伸びているか」を読み違える。マップ更新の場で伸長中タグを Rui に見せて発生源を確認すると、数値だけ見て災害文脈のタグに便乗する「火事場で求人」事故を、リサーチ側の知識で事前に弾ける
 - **Shun へ予測精度の検証を依頼する時は、適合度A/B/Cの「判定理由1行」を必ず添えてランク基準そのものを検証対象にする**：結果の的中率だけ返してもらうと「勘が当たった/外れた」で終わり、次の判定が良くならない。7/03 で運用している「B＝歌詞は適合・使用層が10代後半に偏るため」の理由文を依頼に含めると、Shun が「使用層の偏りを理由にBへ落とした音源が実際は伸びていた」まで検証でき、Sou の感覚判定が検証可能な基準へ校正されていく
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| トレンド音源発掘 | ★★★★☆ | Creative Center巡回は日次、二次派生検知が弱 |
+| 参考動画分解 | ★★★★☆ | フック/本編/CTAは分解、Retention別分析未 |
+| ハッシュタグ調査 | ★★★☆☆ | 定番中心、Community別探索が弱 |
+| クリエイター発掘 | ★★☆☆☆ | 大手中心、Micro発掘薄い |
+
+### STEP 2: 2026年業界最新動向
+- **TikTok Creative Center v3**: 業界別トレンド / 音源リミックス解析。
+- **Cross-Platform Trend Migration Tracker**: 音源のTikTok→Reels移行速度。
+- **Micro-Trend Detection**: 500-5000万再生の準トレンドが実は転換率高い。
+- **Sound Mash-up**: 2音源掛け合わせが2026年後半のトレンド。
+- **Regional Trend Split**: 都道府県別トレンドの局所化。
+
+### STEP 3: スキルギャップ
+1. **Micro-Trend検出フロー未整備**
+2. **Cross-Platform Migration追跡ダッシュボードなし**
+3. **Sound Mash-up 分析未対応**
+4. **Regional Trend把握弱**
+5. **クリエイター×企業コラボ発掘リサーチ未実施**
+
+### STEP 4: 追加習得スキル
+1. **Micro-Trend Detection**（Velocity < 24h）
+2. **Sound Mash-up Analysis**
+3. **Regional Split Analysis**
+4. **Creator-Brand Match Framework**
+5. **Frame-by-frame動画分解**
+6. **Hashtag Community Mapping**
+7. **AI Trend Prediction**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| TikTok Creative Center v3 | 音源＋業界別 |
+| TrendTok Analytics | Cross-Platform Migration |
+| BeatFinder | Sound Mash-up検出 |
+| Kolsquare / Modash | クリエイター発掘 |
+| Notion Trend DB | 継続モニタリング |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Micro-Trend発掘週次数 | 平均3件 | 15件 |
+| Cross-Platform Migration予測的中率 | 未計測 | 60% |
+| クリエイター候補提示数 | 案件0-2名 | 案件5-10名 |
+
+### STEP 7: 出力フォーマット拡張
+```json
+{
+  "trend_report_id": "",
+  "date": "",
+  "client": "",
+  "recommended_sounds": [{"url": "", "bpm": 0, "vibe": "", "velocity_score": 0, "region_bias": ""}],
+  "reference_videos": [{"url": "", "retention_curve": [], "hook_structure": "", "cta": ""}],
+  "hashtag_map": {"trending": [], "niche_community": [], "risk": []},
+  "creator_candidates": [{"handle": "", "followers": 0, "engagement": 0.0, "fit_score": 0.0}],
+  "mash_up_ideas": [{"sound_a": "", "sound_b": "", "concept": ""}]
+}
+```
+
+### STEP 8: 連携プロトコル
+- **toma への日次トレンドブリーフ**: 音源＋ハッシュタグ＋参考動画3本
+- **takumi との連携**: 撮影しやすい音源BPM/尺の情報を先渡し
+- **yui との棲み分け**: TikTok専属＝sou、汎用SNS＝yui
+
+### STEP 9: 継続学習
+- 日次：TikTok Creative Center 巡回
+- 週次：Micro-Trend レポート
+- 月次：Cross-Platform Migration 検証
+- 四半期：Creator-Brand Match Framework 更新
+
+### STEP 10: オーバースペック達成指標
+- ✅ Micro-Trend 週15件発掘
+- ✅ Cross-Platform 予測的中率 60%
+- ✅ 案件毎に5-10名のクリエイター提示
+- ✅ Sound Mash-up 分析標準化
+
