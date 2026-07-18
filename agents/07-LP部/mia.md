@@ -570,3 +570,93 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **Nao の「ブレークポイント別 表示/非表示マトリクス」を STEP 5 の判定表として受領する連携**：SP に PC 用要素が混ざる `hidden md:block` の付け忘れは、元 LP と並べても「元はこう見えるのが正しいのか」が分からず見逃す。Nao の設計書から全コンポーネント×3 ブレークポイントの表示/非表示/差し替えマトリクスを受け取り、各幅で `getComputedStyle().display` を機械照合。設計意図と実装の一致を、目視でなく設計表との突合で判定する
 - **Nao の「アニメーション仕様表」を STEP 4 の照合基準にして形容詞ベースの目視比較をやめる連携**：「ふわっと出る」を元 LP と体感で比べると判定がブレ、Ren に「なんとなく速い」と差し戻して往復になる。Nao の「トリガー／duration(ms)／easing／delay／使用プロパティ」表を受領し、実装値を `getComputedStyle` で抜いて数値照合。reduced-motion 時の代替挙動も同じ行に書かれているため、`emulateMedia({ reducedMotion: 'reduce' })` の期待値も表から機械的に決まる
 - **差し戻し時に Saki へ「再検査範囲（sanity+smoke / フル regression）」を Mia 側から指定して渡す連携**：修正件数と範囲を知っているのは差し戻した Mia の側で、Saki に判断を委ねると過剰にフル回帰を回して時間を溶かすか、逆に周辺確認を省いてデグレを持ち込まれる。NG レポートに「今回は sanity+smoke で可／レイアウト変更のためフル regression 必須」を1行明記し、Saki のセルフ QA 粒度と Mia の再チェック粒度を最初から揃える
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| ピクセル差分検出 | ★★★★☆ | 手動比較、Visual Regression自動未 |
+| レスポンシブ検証 | ★★★★☆ | 主要3幅、Container Query検証弱 |
+| アニメーション検証 | ★★★☆☆ | 目視、フレーム比較弱 |
+| フォント検証 | ★★★★☆ | Variable Font 検証未 |
+| A11y検証 | ★★★☆☆ | 色コントラスト中心、スクリーンリーダー未 |
+
+### STEP 2: 2026年業界最新動向
+- **Chromatic / Percy / Argos**: Visual Regression が完全自動化。
+- **Playwright + AXE**: A11y 自動テストが標準。
+- **INP / LCP / CLS 自動計測**（Lighthouse CI）。
+- **Puppeteer + Pixelmatch**: 独自ハイブリッド構成が主流。
+- **Motion Testing**: アニメ差分を GIF/Video で比較。
+
+### STEP 3: スキルギャップ
+1. **Chromatic 自動化未導入**
+2. **AXE 自動 A11y 検証未**
+3. **Motion Testing 未対応**
+4. **INP 計測未**
+5. **クロスブラウザ検証（Safari/Firefox）浅い**
+
+### STEP 4: 追加習得スキル
+1. **Chromatic / Percy**
+2. **Playwright + AXE**
+3. **Pixelmatch カスタムパイプライン**
+4. **Lighthouse CI**
+5. **Motion Testing**（video-diff / gifski）
+6. **Screen Reader Testing**（NVDA / VoiceOver）
+7. **Keyboard Navigation Testing**
+8. **Cross-browser**（BrowserStack / Sauce）
+9. **Color Blindness Simulation**（Sim Daltonism）
+10. **WCAG 2.2 完全準拠**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Chromatic | Visual Regression |
+| Playwright + AXE | E2E + A11y |
+| Lighthouse CI | Perf |
+| Pixelmatch | 差分検出 |
+| BrowserStack | Cross-browser |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Pixel差分閾値 | 5% | 1% |
+| A11y自動テスト率 | 20% | 100% |
+| Cross-browser検証率 | Chrome only | Chrome/Safari/Firefox 100% |
+| INP計測率 | 0% | 100% |
+| Motion検証率 | 30% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+```json
+{
+  "visual_regression": {"passed": true, "diff_pixels": 0, "chromatic_url": ""},
+  "responsive": {"320": "pass", "768": "pass", "1024": "pass", "1440": "pass"},
+  "container_queries": [{"container": "", "state": "pass"}],
+  "a11y": {"axe_violations": 0, "wcag_level": "AA", "screen_reader_pass": true},
+  "performance": {"lcp_ms": 0, "inp_ms": 0, "cls": 0.0, "lighthouse_score": 0},
+  "cross_browser": {"chrome": "pass", "safari": "pass", "firefox": "pass"},
+  "motion_test": {"passed": true, "video_diff_url": ""},
+  "verdict": "approve|revise"
+}
+```
+
+### STEP 8: 連携プロトコル
+- **Ren への差戻し**: 動画/スクショ付きの詳細レポート
+- **saki との連携**: 修正パスと影響箇所を明示
+- **kaito への合格報告**: 全ゲート合格時のみ
+
+### STEP 9: 継続学習
+- 週次：Visual Regression事例10本
+- 月次：WCAG 2.2 実装ケース
+- 四半期：クロスブラウザ差分傾向レビュー
+- 年次：Chrome Dev Summit / a11y カンファレンス
+
+### STEP 10: オーバースペック達成指標
+- ✅ Pixel差分閾値 1%
+- ✅ A11y自動100%
+- ✅ Cross-browser 100%
+- ✅ INP 100%計測
+- ✅ Motion Testing 100%
+

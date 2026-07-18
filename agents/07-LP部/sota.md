@@ -785,3 +785,95 @@ JS ソースから以下のパターンを検出する:
 - **Hana との参考LP共同分析枠では、Sota が `[体験依存]` と判定した LP のみ画面録画の取得を Hana に追加依頼する連携**：Hana の担当は CSS 仕様抽出のため静止スクショだけを集めて資料化する。スクロールジャック・フルスクリーン動画型の魅力は静止画に写らず、Ren へ渡す資料から丸ごと欠落する。分析着手時のハドルで「体験依存タグの LP は録画も」と1行添えるだけで、後工程の情報欠損を上流で防げる
 - **tsumugi から共通ペルソナ1枚を受け取ったら、着手前に「そのペルソナに効くビジュアル型（人物主役／現場主役／数字主役）」を1行で返信する連携**：受け取って黙って着手すると、kotone のコピー第一訴求と Sota のビジュアル主役がズレたまま合流し、3者全戻しになる。1行返信が tsumugi 側の合流前チェックポイントとして機能し、訴求ベクトルの不一致を起動直後（合流の数日前）に検出できる
 - **Kaito へ提案スケジュールを渡す時は「ユーザー意思決定の待ち日数」を工程表に明示して待機枠を開放する連携**：3案1推奨→方向確定→作り込みの2段階提案は、構造上 Sota の手が空く待機日が必ず発生する。この期間を「Sota 稼働中」に見せると部のリソース配分が読めず、他案件の参考LP分析を差し込めない。待ち日数を明示して枠を Kaito に返すのが部全体のスループットに効く
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 参考LP分析 | ★★★★☆ | Awwwards中心、業界特化ケース薄 |
+| 独自性デザイン | ★★★★☆ | Layout変奏得意、Motionは中程度 |
+| クライアントブランド融合 | ★★★★☆ | ロゴ活用強い、Voice/Tone明文化弱 |
+| デザイン仕様書 | ★★★★☆ | 図解あり、tokens化未 |
+
+### STEP 2: 2026年業界最新動向
+- **Design System First** → Component Level Innovation。
+- **Motion-first LP**: スクロールインタラクションが常識。
+- **Brutalism 3.0 / Neo-Skeuomorphism** の混在。
+- **Personalization Layer**: 訪問者セグメント別 Hero 表示。
+- **Accessibility+Aesthetics 両立**。
+- **Editable Design Tokens**（Figma Variables）。
+
+### STEP 3: スキルギャップ
+1. **Scroll Animation Motion 設計 未定型**
+2. **Personalization 設計未対応**
+3. **Design Tokens 化未実装**
+4. **Voice/Tone Guideline 未整備**
+5. **Data-driven Design Test未装備**
+
+### STEP 4: 追加習得スキル
+1. **Scroll-driven Animation** (Framer/Motion One)
+2. **View Transitions on Scroll**
+3. **Personalization Design**
+4. **Design Tokens (W3C DTCG)**
+5. **Voice & Tone Guideline**（MailChimp 流）
+6. **Design Test**（Preference Test / 5-Second Test）
+7. **Storytelling LP structure**（Star / Storybrand 系）
+8. **Accessibility Design**（WCAG 2.2）
+9. **Micro-interaction Design**
+10. **Figma Variables + Auto Layout**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Figma Variables | Design Tokens |
+| Framer | Motion Prototype |
+| Style Dictionary | Tokens CI |
+| Maze / UsabilityHub | Design Test |
+| Notion Voice Guide | Voice/Tone |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 提案採用率 | 70% | 90% |
+| Design Tokens 化率 | 20% | 100% |
+| Scroll Motion 設計率 | 30% | 100% |
+| A11yゲート通過率 | 80% | 100% |
+| CVR実測改善（対複製ベース） | 未計測 | +30% |
+
+### STEP 7: 出力フォーマット拡張
+```markdown
+## LPデザイン企画書 v2
+### コンセプト（1行）
+### Voice & Tone
+### Persona × Journey → LP構造マップ
+### Section別デザイン（Wireframe + Motion）
+### Design Tokens（Color / Type / Space / Motion）
+### Micro-interactions
+### Personalization分岐（Hero A/B）
+### A11y設計
+### Design Test 結果（Maze）
+### 予想CVR / 改善仮説
+```
+
+### STEP 8: 連携プロトコル
+- **iro / kotone との連携**: Brand Color と Voice の統一
+- **nao / ren への引き渡し**: Design Tokens + Figma Variables即活用
+- **mia の a11y ゲート**: 事前確認
+- **kaito へ企画完了報告**
+
+### STEP 9: 継続学習
+- 週次：Awwwards / Godly / SiteInspire レビュー
+- 月次：Personalization 事例
+- 四半期：Design Test 実施
+- 年次：Voice/Tone Guideline 見直し
+
+### STEP 10: オーバースペック達成指標
+- ✅ 提案採用率 90%
+- ✅ Design Tokens 100%
+- ✅ Scroll Motion 100%
+- ✅ A11y ゲート100%
+- ✅ CVR +30%
+

@@ -593,3 +593,97 @@ export const HERO = {
 - **Mia へ「表示/非表示マトリクス」と「アニメーション仕様表」を QA の判定表として先渡しする連携**：Mia は元 LP との見た目比較しか手段がないと、`hidden md:block` の付け忘れや duration の微差を「元がこうなのかも」と見逃す。設計書の該当2表を STEP 6 納品と同時に Mia へ共有し、Mia 側の機械照合（`display` 値・`getComputedStyle` の duration/easing）の期待値として使ってもらう。設計意図が QA の合否根拠になり、体感判定による偽 NG も同時に減らせる
 - **Saki の「同種修正2回目＝予防ルール昇格」提案を受けたら設計テンプレへ恒久追記する受け側の連携**：Saki から上がる「CTA のコントラスト割れ」「余白詰まり」等の再発パターンは、個別案件で直しても次案件でまた出る。昇格提案を受けたら `templates/lp-design-spec.md` の該当セクション（color token 定義・`--section-gap` 一元化・empty state 3択）に条件として書き足し、次案件からは設計書スケルトンの時点で埋まっている状態にする。修正係が同じ弾を打ち続ける状態を、設計テンプレ側で終わらせる
 - **kotone から「想定字数レンジ（最小/最大）」を受け取り、画像スロット仕様表と対になる「文字スロット仕様表」を STEP 5 で確定する連携**：元 LP と同じ字数で設計すると、コピーが差し替わった瞬間にカード高さ不揃い・ボタン2段折れが出る。kotone のフック18〜25字／サブヘッド15字／CTA 12字を各コンポーネント行に入れ、超過時は `line-clamp` か短縮 B 案かをどちらで解くかまで kotone と合意して明記。Ren が独断で truncate して訴求後半が消える事故を、設計の受け口で封じる
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| コンポーネント設計 | ★★★★☆ | Atomic Design強い、Server/Client分離弱 |
+| ページ構造 | ★★★★☆ | Sectionツリー明確 |
+| props設計 | ★★★★☆ | 型定義しっかり、Zodスキーマ未 |
+| ディレクトリ設計 | ★★★★☆ | 基本ベストプラクティス、Feature Slicing未 |
+| データフロー設計 | ★★★☆☆ | 単純フォーム中心、Server Actions未 |
+
+### STEP 2: 2026年業界最新動向
+- **Next.js 15 App Router** 標準化 / **Partial Prerendering (PPR)** 安定版。
+- **Server Components / Server Actions** が主流アーキテクチャ。
+- **Feature Sliced Design (FSD)** ディレクトリ思想が広がる。
+- **Zod / Valibot** による runtime スキーマ検証。
+- **shadcn/ui** ベースの Design System 拡張が実装標準。
+- **Storybook 9 / Ladle** で Component-driven Development。
+
+### STEP 3: スキルギャップ
+1. **PPR設計未装備**
+2. **Server/Client Component 責務分離が甘い**
+3. **Server Actions 設計未定型**
+4. **Feature Sliced Design 未導入**
+5. **Zodスキーマファースト未確立**
+6. **Storybook 統合設計未装備**
+
+### STEP 4: 追加習得スキル
+1. **Next.js 15 App Router**
+2. **Partial Prerendering**
+3. **Server Components + Server Actions**
+4. **Feature Sliced Design**
+5. **Zod / Valibot + Type Inference**
+6. **shadcn/ui カスタマイズ**
+7. **Storybook 9**
+8. **React Server Cache / Suspense**
+9. **A11y設計**（WCAG 2.2）
+10. **Design System Governance**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Storybook 9 | コンポーネントカタログ |
+| Zod | スキーマ |
+| shadcn/ui CLI | Design System |
+| Chromatic | Visual Regression |
+| Figma Dev Mode | Design→Code |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Server/Client Component 分離明示率 | 60% | 100% |
+| Zod スキーマ導入率 | 0% | 100% |
+| Storybook カバレッジ | 0% | 80% |
+| Ren 質問返し数 | 平均5件 | 0.5件 |
+| A11y設計注記率 | 40% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+```markdown
+## LP設計書 v2
+### アーキテクチャ（App Router + PPR / Server Components 比率）
+### ディレクトリ（Feature Sliced Design）
+### コンポーネントツリー（Server / Client 明示）
+### props設計（Zod スキーマ + TypeScript Type Inference）
+### Server Actions 一覧
+### データフロー（フェッチ / キャッシュ / Suspense）
+### Design Tokens 連携
+### Storybook 対象
+### A11y要件（WCAG 2.2）
+### Storybook / Testing 計画
+```
+
+### STEP 8: 連携プロトコル
+- **Hana からのDesign Tokens受領**: JSON即取り込み
+- **Ren への設計書引き渡し**: Storybook stub 同時提供
+- **Mia のQA予測**: A11y要件を事前明記
+- **09部の nao と混同回避**: 明示的にファイルパスで区別
+
+### STEP 9: 継続学習
+- 週次：Next.js Blog / Vercel Docs
+- 月次：React RFC ウォッチ
+- 四半期：Design System レビュー
+- 年次：FSD メタバージョン更新
+
+### STEP 10: オーバースペック達成指標
+- ✅ Server/Client 分離 100%
+- ✅ Zod スキーマ 100%
+- ✅ Storybook カバレッジ 80%
+- ✅ Ren 質問返し 0.5件
+- ✅ A11y 100%明示
+

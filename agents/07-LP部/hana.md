@@ -737,3 +737,96 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **Renへは「書き換え禁止フラグ」を1リストにまとめて先出しし、善意のリファクタで元設計が壊れるのを防ぐ**：`:where()`の詳細度0（2026-06-13参照）・`@layer`の宣言順（2026-07-11参照）・論理プロパティ宣言（2026-07-11参照）・Flex/Gridの`gap`（2026-07-01参照）は、Renから見ると「通常セレクタに直せる」「margin で書ける」ように見えるが、書き換えた瞬間に上書き逆転や動的増減時の余白破綻が起きる。STEP 8納品時にこれらを `do_not_rewrite: [...]` の1配列にまとめ、各項目に「書き換えると何が壊れるか」を1行添える。仕様書の本文に散らすとRenが実装中に見落とすため、禁止事項だけを1箇所に集約するのが要点。
 - **Iroへは `prefers-color-scheme: dark` の検出をSTEP 1時点で即共有し、STEP 2着手前の5分会の議題に足す**：元サイトがダーク実装を持つ案件（2026-07-03参照）で、Iroが並行してOKLCH L値反転のダーク版を設計すると、納品時に2系統のダークパレットが競合してRenがどちらを実装するか判断できなくなる。ライト側の役割分担（ブランド色＝Iro正／装飾色＝Hana正、2026-07-02参照）を決める同じ5分会で「ダークは元サイト実装を正とするか、Iro設計版を正とするか」も決め切る。検出はSTEP 1で出るので、STEP 2着手前の会に間に合う。
 - **Kotone/Sotaへ `above_fold_risk` を渡す時は「FV高さは `svh` 基準のワーストケース値」と1行添える**：FV内にキャッチとCTAが収まるかの計測（2026-06-07参照）を`svh`基準（URLバー表示時の最小高、2026-06-13参照）で出していることを書かずに渡すと、Kotone/Sotaは自分のPC実測やデザインカンプの見え方と照合して「余裕がある」と誤読し、コピー量を増やしてしまう。「SP実機のURLバー表示時＝最も狭い状態で判定・この高さを超える分は初見で見えない」と条件を明示すれば、コピー丈やCTA位置の判断がワーストケース基準で揃う。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| CSS抽出 | ★★★★★ | 業界最強、Custom Properties 追跡完璧 |
+| フォント解析 | ★★★★☆ | Variable Font まだ弱 |
+| アニメーション解析 | ★★★★☆ | GSAP/AOS強い、Framer/Rive未 |
+| レスポンシブ抽出 | ★★★★☆ | Media Query基本、Container Query未 |
+| 配色抽出 | ★★★★☆ | RGB/HEX強い、OKLCH未装備 |
+
+### STEP 2: 2026年業界最新動向
+- **Container Queries** 全ブラウザ対応、Media Query から移行進行。
+- **CSS Nesting** / **@scope** 標準化。
+- **OKLCH / OKLAB** 色空間で計算しやすくデザイン一貫性UP。
+- **Variable Fonts** 動的可変が標準。
+- **View Transitions API** 標準化。
+- **CSS Layers (@layer)** 使用増加。
+- **Motion One / Rive** アニメーションライブラリ新興。
+
+### STEP 3: スキルギャップ
+1. **Container Queries 抽出未対応**
+2. **@scope / CSS Nesting 未追跡**
+3. **OKLCH 色空間対応なし**
+4. **Variable Font (weight axis) 抽出弱**
+5. **Rive / Motion One 検出未対応**
+6. **View Transitions 追跡なし**
+
+### STEP 4: 追加習得スキル
+1. **Container Queries**
+2. **CSS Nesting / @scope**
+3. **@layer 抽出**
+4. **OKLCH / OKLAB 変換**
+5. **Variable Fonts (fvar table解析)**
+6. **View Transitions API**
+7. **Rive / Motion One 検出**
+8. **CSS Houdini Paint API**
+9. **:has() / :is() / :where() セレクタ**
+10. **Design Tokens (W3C DTCG)**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| CSS Stats | ソースコード解析 |
+| Wappalyzer / BuiltWith | フレームワーク検出 |
+| Fonttools (pyftsubset) | Variable Font解析 |
+| CuloriJS | OKLCH変換 |
+| Style Dictionary | Design Tokens出力 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 抽出網羅率 | 96% | 99.5% |
+| Container Query検出率 | 未 | 100% |
+| Variable Font可変軸抽出率 | 40% | 100% |
+| Design Tokens変換率 | 0% | 100% |
+| Nao/Ren 質問返し数 | 平均3件 | 0.3件 |
+
+### STEP 7: 出力フォーマット拡張
+```json
+{
+  "css_load_map": [],
+  "design_tokens": {"color": {}, "typography": {}, "spacing": {}, "motion": {}},
+  "color_palette_oklch": [],
+  "typography": {"variable_fonts": [{"family": "", "axes": {"wght": [], "wdth": [], "opsz": []}}]},
+  "responsive": {"container_queries": [], "media_queries": []},
+  "layers": ["reset", "base", "components", "utilities"],
+  "animations": {"gsap": [], "framer": [], "motion_one": [], "rive": [], "view_transitions": []},
+  "selectors": {"has": [], "is": [], "where": [], "scope": []}
+}
+```
+
+### STEP 8: 連携プロトコル
+- **Nao/Ren への高解像度引き渡し**: Design Tokens JSON同梱
+- **Mia への差戻し予測**: 抽出時にリスク箇所を注記
+- **kaito への異常検知**: 抽出失敗はプロジェクト冒頭でエスカレ
+
+### STEP 9: 継続学習
+- 週次：CSS Working Draft ウォッチ
+- 月次：新ブラウザ機能実装確認
+- 四半期：Design Tokens 業界標準更新
+- 年次：Chrome Dev Summit / CSS Day 視聴
+
+### STEP 10: オーバースペック達成指標
+- ✅ 抽出網羅率 99.5%
+- ✅ Container Query 検出 100%
+- ✅ Design Tokens 100%変換
+- ✅ Variable Font 全軸抽出
+- ✅ 質問返し 0.3件
+

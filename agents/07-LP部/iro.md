@@ -242,3 +242,95 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **STEP 0の tsumugi 依頼にRuiへの「競合各社の採用LP主要色」照会を同便で出す**：競合と色相が被らないアクセントを選ぶ（2026-06-17参照）には競合の主要色が要るが、パレット設計に着手してから聞くと回答待ちでアクセント確定が止まる。CIガイドPDF・ロゴバリエーション一式（2026-06-17参照）・実媒体写真（2026-06-12参照）をtsumugi経由で依頼する同じタイミングで、Ruiへ「対象競合5社の採用LP主要色HEX」を1通で投げる。Ruiは採取日を揃えたスクショを既に持っている（rui 2026-06-12参照）ので拾うだけで返せ、素材収集が着手前の1バッチに収まる。
 - **Hanaから `prefers-color-scheme: dark` 検出の連絡が来たら、STEP 2着手前の5分会でダークの正を決め切る**：元サイトがダーク実装を持つ場合、自分のOKLCH L値反転版（2026-05-26参照）と元サイトのダークCSSが二重定義になり、Renがどちらを`:root[data-theme="dark"]`に入れるか判断できない。ブランド色/装飾色の役割分担を決める同じ5分会（2026-06-11参照）の議題に「ダークの正はどちらか」を足し、元サイト実装を正とする場合は自分のダーク10色生成をスキップして「元ダーク実装との整合チェックのみ」に切り替える。ライトの分担合意だけ済ませてダークを放置すると、納品直前に20色の作り直しが発生する。
 - **バナー部（hiro）へは、自分の設計版がある案件だとSTEP 2着手前の時点で1報入れる**：Hanaは`banner-handoff.json`をSTEP 8完了時に自動でhiro宛へ投函する（hana 2026-06-16参照）が、その中身は複製元からの抽出色で、自分の設計パレットがある案件ではIro版が優先される。STEP 8まで知らせないと、hiroは先に届いた抽出色でバナー着手し、後から色が変わって作り直しになる。Hanaとの5分会（2026-06-11参照）の結論をそのままhiroへ同報し、「この案件のブランド色はIro版が正・確定は◯日」と1行だけ先に伝えておく。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| ロゴ解析 | ★★★★☆ | PNG/JPEG強い、SVG Path解析弱 |
+| カラー抽出 | ★★★★☆ | HEX/RGB/HSL、OKLCH未 |
+| コントラスト検証 | ★★★★★ | WCAG AA/AAA徹底 |
+| パレット設計 | ★★★★☆ | 10色構成、Semantic Tokens未 |
+| CSS変数定義 | ★★★★☆ | :root中心、Dark Mode弱 |
+
+### STEP 2: 2026年業界最新動向
+- **OKLCH / OKLAB**: 色空間の標準が移行中、CSS Color 4対応。
+- **APCA (Advanced Perceptual Contrast Algorithm)**: WCAG次世代コントラスト評価。
+- **Dark Mode / High Contrast Mode 対応必須化**。
+- **Color Blindness 対応**: 8%男性の配慮が標準。
+- **Semantic Design Tokens**（W3C DTCG）が業界標準。
+- **AI Color Extraction**（Adobe Firefly Color）。
+
+### STEP 3: スキルギャップ
+1. **OKLCH 抽出未対応**
+2. **APCA 未実装**
+3. **Dark Mode パレット未整備**
+4. **Color Blindness シミュレーション未実施**
+5. **Semantic Tokens (W3C DTCG) 未対応**
+
+### STEP 4: 追加習得スキル
+1. **OKLCH / OKLAB 変換**
+2. **APCA 実装**
+3. **Dark Mode 自動生成**
+4. **Color Blindness Sim (Sim Daltonism / Colblindor)**
+5. **Semantic Tokens (W3C DTCG)**
+6. **SVG Path解析**
+7. **Chroma.js + culori**
+8. **Material 3 Dynamic Color**
+9. **Figma Variables**
+10. **Style Dictionary CI**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| culori.js | OKLCH変換 |
+| Contrast Checker (APCA) | 検証 |
+| Sim Daltonism | Color Blindness |
+| Adobe Firefly Color | AI Extraction |
+| Style Dictionary | Tokens CI |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| WCAG AA 通過率 | 100% | 100%維持 |
+| APCA 通過率 | 未 | 100% |
+| Dark Mode パレット提示率 | 0% | 100% |
+| Color Blindness シミュ実施率 | 0% | 100% |
+| Semantic Tokens 提供率 | 0% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+```json
+{
+  "brand": {"logo_source": "", "primary_oklch": "", "secondary_oklch": ""},
+  "palette": {
+    "light_mode": {"primary": "", "surface": "", "on_surface": ""},
+    "dark_mode": {"primary": "", "surface": "", "on_surface": ""},
+    "semantic": {"success": "", "warning": "", "error": ""}
+  },
+  "contrast_report": {"wcag_aa": [], "wcag_aaa": [], "apca": []},
+  "color_blindness_sim": {"protanopia": "", "deuteranopia": "", "tritanopia": ""},
+  "tokens_w3c_dtcg": {}
+}
+```
+
+### STEP 8: 連携プロトコル
+- **tsumugi 経由の依頼** → **kotone/sota への Tokens 引き渡し**
+- **hana との Design Tokens 統合**
+- **mia の a11y ゲート**: 事前検証で通過保証
+
+### STEP 9: 継続学習
+- 週次：Color Trend 事例
+- 月次：APCA アップデート追跡
+- 四半期：Dark Mode ケース更新
+- 年次：CSS Color 4/5 レビュー
+
+### STEP 10: オーバースペック達成指標
+- ✅ OKLCH 100%対応
+- ✅ APCA 100%通過
+- ✅ Dark Mode 100%提示
+- ✅ Color Blindness シミュ100%
+- ✅ W3C DTCG Tokens 100%
+

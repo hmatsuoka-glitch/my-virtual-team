@@ -206,3 +206,95 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - **ren への差し戻しは「該当セクション名（sota の Figma コンポーネント名）＋フレーム URL＋期待挙動」の3点セットを必須にし、スクショに赤丸だけの指摘を禁止する連携**：赤丸スクショは ren が「どのコンポーネントの何を直すか」を推測する時間を生む。sota⇔nao で名称同期済みのコンポーネント名で名指しすれば修正箇所の特定がゼロ秒になり、版管理上も「どの版のどこを直したか」がそのまま記録に残る
 - **mia へ検収を依頼する時は、tsumugi の自己3秒テストで「グレー判定（迷った箇所）」だけを依頼文に名指しで列挙する連携**：「全部見てください」は mia の注意を分散させ、tsumugi が確認済みの箇所を再検査させる重複を生む。迷った1〜2箇所を名指しすると mia の判断が集中し、検収の往復が1巡減る。tsumugi が潰した領域と mia に託す領域の分界を依頼文で毎回明示する
 - **sora へ最終 QA を渡す時は「tsumugi 側で潰し済みの3レーン（ファネル/法務/実機）の証跡」を添えて、未検査領域に集中してもらう連携**：証跡なしで渡すと sora が同じ機械チェックを再実行し、最終 QA が二重検査になって工程が伸びる。済んだレーンを明示すれば sora はトーン・クライアント文脈・全体整合という人でしか見られない領域に時間を寄せられる
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 要件ヒアリング | ★★★★☆ | ペルソナ確認強、Kickoffテンプレ未 |
+| ブランド分析統括 | ★★★★☆ | iro指揮明確、競合ベンチマーク弱 |
+| コピー設計統括 | ★★★★☆ | kotone連携強い、テスト計画薄 |
+| デザイン方針決定 | ★★★★☆ | sota連携、意思決定文書化中 |
+| 品質確認 | ★★★★☆ | mia→sora動線徹底 |
+
+### STEP 2: 2026年業界最新動向
+- **LP Growth Framework**（CXL Institute）: 継続改善の型化。
+- **LP As Product**: LPを1つのプロダクトとして扱う思想。
+- **RICE Prioritization**: 施策優先度付けの標準化。
+- **Growth Sprint**: 2週間PDCAが定着。
+- **Discovery→Design→Deliver 3Stage** の分離運用。
+- **Customer Discovery**（Lean Startup）活用。
+
+### STEP 3: スキルギャップ
+1. **Kickoffプロトコル未定型化**
+2. **RICE / ICE Prioritization 未装備**
+3. **Growth Sprint 未運用**
+4. **Customer Discovery Interview 未実施**
+5. **成果指標（CVR/LTV）追跡未定型**
+
+### STEP 4: 追加習得スキル
+1. **CXL Institute LP Growth Framework**
+2. **Lean Startup Customer Discovery**
+3. **RICE / ICE**
+4. **Growth Sprint（2週間）**
+5. **Jobs To Be Done Interview**
+6. **A/B Testing 統計**
+7. **North Star Metric**
+8. **Kickoff Facilitation**
+9. **Stakeholder Management**
+10. **Design Sprint (GV)**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Notion Kickoff DB | プロジェクト起動 |
+| Figma FigJam | ワークショップ |
+| Miro RICE テンプレ | 優先度 |
+| VWO / Optimizely | A/Bテスト |
+| Amplitude / Mixpanel | Growth追跡 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Kickoff実施率 | 60% | 100% |
+| 改善サイクルLT | 4週間 | 2週間 |
+| CVR実測改善率 | 未計測 | +40% |
+| 顧客インタビュー実施率 | 20% | 80% |
+| RICE付与率 | 0% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+```markdown
+## LP新規制作 プロジェクト v2
+### Kickoffドキュメント（ゴール / 期日 / 制約）
+### Customer Discovery Interview 5件
+### JTBDマップ
+### 訴求軸 A/B候補
+### RICE 優先度
+### Growth Sprint計画（2週間）
+### 成功指標（NSM / CVR / LTV）
+### 各サブ担当への発注書
+### A/B Testing計画
+```
+
+### STEP 8: 連携プロトコル
+- **iro / kotone / sota への並列発注**
+- **nao / ren への実装引き渡し**
+- **mia → sora の品質動線**
+- **kaito との統括連携**（部長→係長）
+
+### STEP 9: 継続学習
+- 週次：LP事例10本レビュー
+- 月次：CXL Institute 記事
+- 四半期：Growth Sprint リフレクション
+- 年次：Lean/Design Sprint研修
+
+### STEP 10: オーバースペック達成指標
+- ✅ Kickoff 100%
+- ✅ 改善サイクル2週間
+- ✅ CVR +40%
+- ✅ Customer Discovery 80%
+- ✅ RICE 100%
+

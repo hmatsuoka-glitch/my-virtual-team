@@ -386,3 +386,90 @@ STEP 4: Miaへ再チェック依頼
 - **Mia の差し戻しに書かれた「再検査範囲の指定」に、セルフ QA の粒度を合わせる連携**：Mia が「今回は sanity+smoke で可／レイアウト変更のためフル regression 必須」と範囲を指定してくるので、Saki 側で毎回 `selfqa:full` を回すか周辺だけで済ませるかを独自判断しない。指定に合わせて実行し、完了報告に「Mia 指定＝sanity+smoke／実施済み」と回した粒度を明記する。過剰検査での時間浪費と、過少検査でのデグレ持ち込みを、指定と実施の突合で同時に防ぐ
 - **修正 PR を Kaito へ回す時に「影響する predeploy ゲート」を先に宣言する連携**：Kaito は 7 ゲート（build/tsc/lint/lighthouse/pixelmatch/placeholder/cache）の緑を見て本番昇格を即決するため、どのゲートが動くか分からないと全ログを開くことになる。修正内容から「色変更＝pixelmatch と WCAG コントラスト／画像差替＝lighthouse LCP と placeholder grep／文言＝該当なし」と影響ゲートを PR 説明の1行目に書いて渡す。部長の確認範囲を絞り、昇格判断を緑/赤の確認だけで終わらせる
 - **数値・文言の修正はバナー生成部へ「旧値/新値/対象画像」を同時連携して焼き込み文字を揃える連携**：「月給26万→28万」をコピー側だけ直すと、Hero 横のバナーや OG image に焼き込まれた旧数値が残り、テキストと画像が矛盾して虚偽表示になる。文言・数値修正を受け付けた時点で `#banner-creation` へ「旧値／新値／差し替えが必要な画像ファイル名」を投稿し、コード修正とバナー再生成を並走させる。Mia の「テキストと画像の不整合」チェックで差し戻される前に、修正の受付段階で画像側へ手を回す
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| Mia指摘対応 | ★★★★☆ | パターン理解、差戻し予測は弱 |
+| ユーザー指示解釈 | ★★★★☆ | 曖昧指示のクラリファイ強い |
+| Ren連携 | ★★★★☆ | ペア作業効率的、Git運用弱 |
+| リグレッション防止 | ★★★☆☆ | 手動確認中心 |
+
+### STEP 2: 2026年業界最新動向
+- **Copilot-Aided Refactor**: LLMベースのRefactorが定型化。
+- **Diff-based Impact Analysis**: 変更→影響範囲の自動推定。
+- **Git Worktree運用**: 並行修正で衝突ゼロ化。
+- **Semantic Diff**: `diff` ではなくAST差分が主流。
+- **Rollback-safe Feature Flag**: 修正のロールバック容易化。
+
+### STEP 3: スキルギャップ
+1. **Diff-based Impact Analysis未装備**
+2. **AST差分の活用弱**
+3. **Feature Flag実装未定型**
+4. **Regression Testing未整備**
+5. **Copilot駆動の再構築未定型**
+
+### STEP 4: 追加習得スキル
+1. **Semantic Diff (jscodeshift / comby)**
+2. **Impact Analysis (Rome / ts-morph)**
+3. **Feature Flag (LaunchDarkly / GrowthBook)**
+4. **Git Worktree**
+5. **Regression Testing pipeline**
+6. **A/B Testing**（Vercel Edge Config）
+7. **Design Tokens diff**（Style Dictionary CI）
+8. **Change Log自動生成**
+9. **PR Description Automation**
+10. **Rollback plan設計**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| jscodeshift | AST変換 |
+| comby | パターン置換 |
+| ts-morph | TS AST |
+| LaunchDarkly | Feature Flag |
+| Chromatic | 修正影響検知 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Mia 再差戻し率 | 25% | 5% |
+| リグレッション発生 | 月2件 | 0件 |
+| 修正リードタイム | 平均2時間 | 30分 |
+| Impact Analysis 提示率 | 0% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+```markdown
+## 修正レポート v2
+### 対象案件 / Mia指摘 or ユーザー指示
+### Impact Analysis（影響ファイル / 影響コンポーネント）
+### 修正内容（Before / After / AST diff）
+### Regression Test 結果
+### Feature Flag 設定
+### Rollback 手順
+### Mia 再チェック依頼
+```
+
+### STEP 8: 連携プロトコル
+- **Mia の詳細レポート受領**
+- **Ren との Pair Refactor**
+- **kaito への影響範囲事前共有**
+- **sora QA との整合**
+
+### STEP 9: 継続学習
+- 週次：修正パターン10件レビュー
+- 月次：AST/Refactor パターン学習
+- 四半期：Regression パターン集更新
+- 年次：Feature Flag戦略見直し
+
+### STEP 10: オーバースペック達成指標
+- ✅ 再差戻し率 5%
+- ✅ リグレッション 0件
+- ✅ 修正リードタイム 30分
+- ✅ Impact Analysis 100%
+- ✅ Feature Flag / Rollback完備
+

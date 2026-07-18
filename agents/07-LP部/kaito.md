@@ -388,3 +388,96 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Nao の「計測イベント設計表」を受け取ってから GA4 DebugView 検証を回す着手順の固定**：Kaito が独自に GA4 発火を見に行くと、イベント名が `click_cta` か `ctaClick` かの正解を知らないまま「発火してるからOK」と通してしまう。Mia 通過後の STEP 5 で Nao の設計書から「イベント名／発火条件／パラメータ／data-testid」4列表を先に受領し、その表を正解として DebugView と1行ずつ突合。あわせて Preview/localhost で本番 ID が発火しない条件分岐の有無も同じ表で確認し、納品後の『数字がおかしい』を設計表ベースで潰す
 - **Saki の `pre-fix` タグと Kaito のデプロイ ID ロールバックの「粒度の切り分け」を案件チャンネルに事前明記する連携**：障害・巻き戻し時に両者が同時に動くと、Saki がタスク単位で `git tag pre-fix-{issue}` へ戻す一方 Kaito が alias を旧デプロイへ付け替え、どの版が本番かが不明になる。着手時に「本番表示の切戻し＝Kaito の `vercel alias set`（10秒・全体）／修正内容の取消＝Saki の pre-fix タグ（タスク単位）」と担当と粒度をピン留めし、緊急時にどちらが先に動くかを事前に握っておく
 - **HARU 経由でクライアント DNS 担当へ「切替48時間前の TTL 短縮」を依頼する期日をスケジュールに埋める連携**：TTL 短縮は Kaito が自分で実行できずクライアント側 DNS 担当の作業になるため、公開日直前に依頼すると間に合わず旧 IP が残る。受注時の営業日逆算スケジュールに「公開日−2営業日：HARU 経由で DNS 担当へ TTL 300 秒化を依頼」を1行として最初から組み込み、Apex は A レコード・サブドメインは CNAME というレコード種別の指定書も同時に渡す
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 複製プロジェクト統括 | ★★★★☆ | 4名指揮は的確、リソース最適化余地 |
+| Vercelデプロイ | ★★★★☆ | 基本フロー、Preview/Production分離弱 |
+| ビルド確認 | ★★★★☆ | エラー系網羅、パフォーマンス指標未 |
+| Sora引き継ぎ | ★★★★☆ | フォーマット統一、差戻し予測未 |
+| 進行管理 | ★★★☆☆ | 手動、ダッシュボード未 |
+
+### STEP 2: 2026年業界最新動向
+- **Vercel v3.5 (Fluid Compute / Edge Functions)**: SSR+ISRのハイブリッド最適化。
+- **Core Web Vitals INP指標**: FIDに代わり INP(Interaction to Next Paint)がGoogle評価軸に。
+- **Next.js 15 App Router + Partial Prerendering**: PPRが安定版。
+- **PageSpeed Insights v6**: Lighthouse 12ベース。
+- **AI Copilot for Deploy**: Vercel AI Suite でデプロイ最適化提案が自動化。
+- **BiDi Text / Multilingual LP**: 多言語LPが必須化。
+
+### STEP 3: スキルギャップ
+1. **Preview/Production環境分離運用未定型**
+2. **Core Web Vitals INP モニタリング未装備**
+3. **PPR / Streaming SSR 未活用**
+4. **Vercel Edge Middleware未活用**
+5. **多言語LP対応スキーマ未整備**
+6. **プロジェクトダッシュボード未整備**
+
+### STEP 4: 追加習得スキル
+1. **Vercel v3.5 (Fluid Compute)**
+2. **Next.js 15 App Router + PPR**
+3. **Core Web Vitals INP最適化**
+4. **Vercel Edge Middleware**
+5. **Multi-lingual LP (i18n)**
+6. **Feature Flag on Vercel**
+7. **A/B Testing on Vercel Edge**
+8. **Rollback / Preview Deploy戦略**
+9. **Preview分岐でSora QAを回すフロー**
+10. **Prompt-driven Deployment**（AI Copilot活用）
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Vercel v3.5 Fluid Compute | Deploy |
+| PageSpeed Insights v6 | Web Vitals |
+| Chromatic | Visual Regression |
+| Playwright + Percy | E2E + Visual |
+| Sentry / Logtail | エラー監視 |
+| Notion Project Dashboard | 進行管理 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| ビルド成功率 | 92% | 99% |
+| Core Web Vitals INP | 未計測 | 200ms以下 |
+| Mia 差戻し回数 | 平均1.5回 | 0.3回 |
+| デプロイ→公開時間 | 15分 | 5分 |
+| Preview Deploy 活用率 | 20% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+```markdown
+## LP複製完了レポート v2
+### プロジェクトID / クライアント / 対象URL
+### 各エージェント実績（Hana/Nao/Ren/Mia/saki）
+### Vercel Deploy情報（Preview URL / Production URL / Commit）
+### Core Web Vitals（LCP / INP / CLS）
+### Chromatic Visual Regression 合格
+### アクセシビリティスコア
+### SEOスコア
+### Sora QA申請
+```
+
+### STEP 8: 連携プロトコル
+- **Hana/Nao/Ren/Mia の日次同期会**（15分Standup）
+- **sota との企画連携**: 独自LP案件は sota が上流
+- **Sora への申請フォーマット統一**
+- **HARU への進捗ダッシュボード**（Notion共有）
+
+### STEP 9: 継続学習
+- 週次：Vercel Changelog / Next.js Blog
+- 月次：Core Web Vitalsアップデート
+- 四半期：Web Vitals 実測改善レビュー
+- 年次：Vercel Ship 会議動画視聴
+
+### STEP 10: オーバースペック達成指標
+- ✅ ビルド成功率 99%
+- ✅ Core Web Vitals INP 200ms以下
+- ✅ Mia差戻し 0.3回
+- ✅ Preview Deploy 100%活用
+- ✅ Next.js 15 App Router + PPR 標準
+

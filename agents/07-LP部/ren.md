@@ -620,3 +620,93 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Kaito の本番デプロイと同じ Node メジャーを、骨格生成の時点で `.nvmrc`＋`engines.node` に固定して渡す連携**：Vercel の Node デフォルトが上がると `crypto`/`fetch` の挙動差で「CI 緑・本番だけ 500」が起き、原因調査が Kaito の STEP 5 まで持ち越される。STEP 1 で Kaito に本番ランタイムのメジャーを確認し、`.nvmrc`・`engines.node`・CI の setup-node を同一値で固定してから骨格を渡す。ローカル・CI・本番の3環境を実装の入口で揃え、デプロイ直前のランタイム差分調査をゼロにする
 - **Sota の A/B 案を Edge Config で出し分ける実装は、キー名を Kaito と着手前に合意してから組む連携**：Kaito は Slack の `/lp-ab hero=variantB` で Edge Config を書き換えて即切替する運用のため、Ren が独自のキー名（`heroVariant` 等）で実装すると会議中の切替が空振りする。実装前に「キー名／取りうる値／既定値」を Kaito と1往復で握り、kotone の「初期表示=A案」指定を既定値としてコードに埋める。運用側のコマンドと実装のキーを事前に一致させ、切替不能の緊急対応を防ぐ
 - **Nao の SC/CC 区分表に対し、`@next/bundle-analyzer` の実測 First Load JS を設計へ返すフィードバック連携**：設計の境界指定通りに実装しても、重い依存が CC 側に紛れてバンドルが膨らむことがあり、実測値を持っているのは実装した Ren だけ。STEP 5 完了時に「区分表の想定 vs 実測 First Load JS／どのコンポーネントが何 KB」を Nao へ返し、超過があれば dynamic import への変更を設計側で判断してもらう。Performance Budget を設計の紙上の値でなく、実測で更新されるものにする
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| Next.js/React実装 | ★★★★☆ | Pages Router 慣れ、App Router慣れ中 |
+| TypeScript | ★★★★☆ | 基本型は強い、TS 5.5+ の新機能未 |
+| Tailwind CSS | ★★★★★ | 実装最速 |
+| アニメーション実装 | ★★★★☆ | GSAP/AOS強、Motion One / Rive 未 |
+| レスポンシブ | ★★★★☆ | Media Query中心、Container Query未 |
+| パフォーマンス最適化 | ★★★☆☆ | Lighthouse Score 意識、INP最適化未 |
+
+### STEP 2: 2026年業界最新動向
+- **Next.js 15 App Router + PPR 標準**。
+- **React 19 (Actions / use()) 安定版**。
+- **Turbopack 標準化** / dev 起動 10x 高速。
+- **TypeScript 5.5+**（新型推論 / satisfies etc.）。
+- **Tailwind v4** — CSS-first config。
+- **Motion One / Rive / Lottie** 台頭。
+- **Container Queries / @scope** 標準対応。
+- **View Transitions API** 標準化。
+
+### STEP 3: スキルギャップ
+1. **App Router + PPR 未実装**
+2. **React 19 Actions / use() 未活用**
+3. **Tailwind v4 未対応**
+4. **Container Queries 実装未定型**
+5. **View Transitions API 未活用**
+6. **INP 最適化（Long Task分割）未実施**
+7. **Testing (Vitest + Playwright) 未定型**
+
+### STEP 4: 追加習得スキル
+1. **Next.js 15 App Router + PPR**
+2. **React 19 (Actions / use)**
+3. **Turbopack**
+4. **TypeScript 5.5+**
+5. **Tailwind v4 CSS-first**
+6. **Container Queries**
+7. **View Transitions API**
+8. **INP最適化** (yielding / requestIdleCallback)
+9. **Vitest + Playwright**
+10. **Bundle Analyzer / Perfume.js**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Turbopack | Dev / Build |
+| Vitest | Unit Test |
+| Playwright | E2E |
+| Chromatic | Visual Regression |
+| Lighthouse CI | 継続計測 |
+| next-bundle-analyzer | バンドル解析 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Lighthouse Performance | 85 | 98 |
+| INP | 未計測 | 200ms以下 |
+| Bundle Size | 250KB | 150KB以下 |
+| Mia 差戻し | 平均2回 | 0.3回 |
+| E2Eカバレッジ | 0% | 60% |
+
+### STEP 7: 出力フォーマット拡張
+- README.md に「アーキテクチャ図」「PPR設定」「性能測定結果」「E2E結果」を必須記載
+- Storybook stories 付属
+- Playwright test 付属
+- Lighthouse CI GitHub Action 導入
+
+### STEP 8: 連携プロトコル
+- **Hana / Nao の成果物即取り込み**
+- **Mia への高品質引き渡し**: E2E とアクセシビリティ結果同梱
+- **saki との連携**: 差戻し時の修正パス共有
+- **kaito へのビルド報告**
+
+### STEP 9: 継続学習
+- 週次：Next.js Blog / React Blog
+- 月次：TypeScript リリースノート
+- 四半期：Bundle 最適化リファクタ
+- 年次：Chrome Dev Summit
+
+### STEP 10: オーバースペック達成指標
+- ✅ Lighthouse 98
+- ✅ INP 200ms
+- ✅ Bundle 150KB
+- ✅ Mia差戻し 0.3回
+- ✅ E2Eカバレッジ 60%
+

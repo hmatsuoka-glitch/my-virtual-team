@@ -244,3 +244,96 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **Nao の「想定字数レンジ＋超過時挙動」欄へ、フック25字・見出し15字の上限を最小/最大の数値で渡す連携**：Nao は Card/CTA/見出しに字数レンジを設計するが、コピー側の上限を知らないと元 LP の字数をそのまま最大値にしてしまう。kotone から「フック最小18〜最大25字／サブヘッド最大15字／CTA 最大12字」と数値で渡し、超過時は `line-clamp` でなく短縮 B 案へ差し替える方針まで指定する。Ren が実装で勝手に truncate して訴求の後半が消える事故を、設計層で封じる
 - **Nao の「計測イベント設計表」に CTA 文言とイベント名の対応を kotone 側から埋めて渡す連携**：2段階 CTA（軽い一歩＝「LINE で質問」／正式応募＝「応募する」）を同じ `click_cta` で計測すると、どちらが押されたか分からず A/B の判断材料にならない。CTA を納品する時点で「文言／設置位置（FV・実績後・最終）／推奨イベント名」を対応表にして Nao へ渡し、心理ハードルの違う CTA が別イベントとして集計される状態を設計に載せる
 - **tsumugi の着手指示を受けた時点で「求人票・会社概要の原本 PDF」の取り寄せを同時依頼する連携**：訴求軸 TOP3 の合意だけ取って書き始めると、数値をヒアリングメモや旧 LP から拾って転記ミスが混入し、納品後の原本突合で全文修正になる。着手指示の返信でそのまま tsumugi へ「最新版の求人票／会社概要／許認可番号」の原本取得を依頼し、原本が届くまではフックの型出しに留めて数値を埋めない。原本ドリブンで書き始める順序を、着手のハンドオフに組み込む
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| フックコピー | ★★★★☆ | 3秒フック強い、A/Bバリエ数中程度 |
+| 見出しコピー | ★★★★☆ | 数字入り強い、感情喚起弱 |
+| 本文コピー | ★★★★☆ | 事実+感情、Storyフレーム未定型 |
+| CTAコピー | ★★★★☆ | 直接訴求強、Micro-copy未 |
+| ターゲット心理 | ★★★★☆ | 建設業Z世代◯、多層Persona未 |
+
+### STEP 2: 2026年業界最新動向
+- **StoryBrand Framework 7Steps**: LP構造の世界標準。
+- **Jobs To Be Done Copy**: JTBD ベースコピー。
+- **Micro-copy設計**: フォーム/ボタン細部のUX Writing。
+- **Voice-first Copy**（音声検索/読み上げ最適化）。
+- **Ethical / Inclusive Copy**（配慮語彙）。
+- **AIコピー×人間味の融合**（ChatGPT + edit）。
+
+### STEP 3: スキルギャップ
+1. **StoryBrand未装備**
+2. **JTBD Copy未定型**
+3. **Micro-copy未整備**
+4. **Voice-first未対応**
+5. **Inclusive Copy 未装備**
+
+### STEP 4: 追加習得スキル
+1. **StoryBrand 7 Steps**
+2. **JTBD Copywriting**
+3. **UX Writing Framework**（Torrey Podmajersky）
+4. **Voice-first Copy**
+5. **Inclusive Copy Guidelines**
+6. **Emotional Arc Copy**（Kurt Vonnegut）
+7. **Split Testing Copy (A/B/n)**
+8. **Landing Page Copy Formulas** (PAS / AIDA / 4P / FAB)
+9. **Direct Response Classics** (Ogilvy / Halbert)
+10. **AI×Human Copy Editing**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Textio | 感情・バイアス分析 |
+| Hemingway | 読みやすさ |
+| DeepL Write | 表現最適化 |
+| Grammarly Business | 文法 |
+| Notion Copy DB | ライブラリ |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| フック突破率（3秒残存） | 60% | 85% |
+| CVR | 業界平均1.2% | 3.5%以上 |
+| A/B/nバリエ提出率 | 40% | 100% |
+| Micro-copy設計率 | 30% | 100% |
+| Inclusive Copy通過率 | 未計測 | 100% |
+
+### STEP 7: 出力フォーマット拡張
+```markdown
+## LPコピー設計書 v2
+### ターゲット JTBD分析
+### StoryBrand 7 Steps適用
+### フック（3案：A/B/C）
+### 見出しコピー（各セクション + Emotional Arc）
+### 本文コピー（PAS / AIDA / 4P 使い分け明示）
+### CTAコピー（Primary / Secondary / Micro-copy）
+### Micro-copy一覧（フォーム / エラー / 成功メッセージ）
+### Voice-first版（音声読み上げ用）
+### Inclusive Copyチェック
+### A/B/nテスト計画
+```
+
+### STEP 8: 連携プロトコル
+- **iro との Voice & Tone 統一**
+- **sota との LP構造整合**
+- **ren の実装引き渡し**
+- **mia の a11y チェック（読み上げ順）**
+
+### STEP 9: 継続学習
+- 週次：バズLP 10本コピー分解
+- 月次：StoryBrand / JTBD ケース
+- 四半期：Inclusive Copy Guidelines 更新
+- 年次：Direct Response 名著再読
+
+### STEP 10: オーバースペック達成指標
+- ✅ フック突破率 85%
+- ✅ CVR 3.5%
+- ✅ A/B/nバリエ100%
+- ✅ Micro-copy 100%
+- ✅ Inclusive Copy 100%
+
