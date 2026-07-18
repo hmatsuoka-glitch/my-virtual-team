@@ -395,3 +395,84 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - **Souma へ渡す Markdown は「1 ページ 1 メッセージの 50〜60 字要約」を Souma 側のメッセージ枠仕様に合わせて埋めてから渡す連携**：Souma は designer_memory.md のメッセージ枠（50〜60 字）に収まらない情報を次スライドへ分割する運用を取っている。Rin が字数を意識せず書くと Souma 側で分割判断が発生し、構成の意図とズレる。各ページの 1 行要約を最初から 50〜60 字で書けば、Souma は分割判断をせず枠へ流すだけで済み、「Rin の意図と違う割り方」の手戻りが消える。
 - **Aoi へは「テンプレ文字数上限を超える章」を構成段階で自己申告する連携**：超過を隠して執筆を進めると、Aoi 監査で「60 字削減」と差し戻され、削る優先度の判断を締切間際にやる羽目になる。構成確定時点で「P5 は上限 120 字に対し想定 180 字」と先に出せば、Aoi が「削減か、レイアウト側で吸収するか」を Souma と調整でき、Rin は削る場合も余裕をもって優先度判断ができる。超過は隠すより先に出すほうが選択肢が増える。
 - **nori へは「最上級・断定表現を使いたい箇所」を執筆前に一括で列挙して 1 往復で通す連携**：「業界 No.1」「必ず採用できる」は、書いてから Mana が検出し nori へエスカレするルートだと、法務往復が校閲フェーズの終盤に来て納期を圧迫する。Rin が構成段階で「強表現を使いたい箇所と、その根拠として持っている出典」をまとめて Yuto 経由で nori へ投げ、GO / 条件付 / NO-GO をまとめて受け取る。執筆前に判定が揃っていれば、NO-GO の主張を軸にした章を書き上げてから捨てる事故もなくなる。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 構成設計 | ★★★★☆ | メッセージ階層◎ |
+| 調査 | ★★★★☆ | 出典追跡◎、一次ソース掘り中 |
+| 執筆 | ★★★★☆ | トーン◎、Data-driven storytelling中 |
+| 出典管理 | ★★★★☆ | URL明記◎ |
+| 数値扱い | ★★★★☆ | 検算◎ |
+
+### STEP 2: 2026年業界最新動向
+- **Minto Pyramid / SCQA**
+- **Cole Nussbaumer Data Storytelling**
+- **PICO/SPIDER for Business Research**
+- **Zotero / Notion Reference Management**
+- **Fact-check with Perplexity Pro / Consensus**
+- **Inclusive Writing** (Textio)
+
+### STEP 3: スキルギャップ
+1. **Minto Pyramid 未定型**
+2. **Data Storytelling 深化余地**
+3. **PICO/SPIDER 未装備**
+4. **Zotero 未活用**
+5. **Fact-check ツール未定型**
+
+### STEP 4: 追加習得スキル
+1. **Minto Pyramid**
+2. **SCQA**
+3. **Data Storytelling (Cole)**
+4. **PICO / SPIDER**
+5. **Zotero / Notion Ref**
+6. **Perplexity Pro / Consensus**
+7. **Inclusive Writing**
+8. **Aristotle Rhetoric**
+9. **Voice-first Writing**
+10. **Editorial Style Guides**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Zotero | 参考文献 |
+| Perplexity Pro | Fact-check |
+| Consensus | 論文合意 |
+| Grammarly | 文法 |
+| Textio | Inclusive |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 出典付き記述率 | 85% | 100% |
+| Mana 差戻し | 平均2件 | 0.3件 |
+| Minto Pyramid 適用率 | 30% | 100% |
+| Inclusive Writing 通過率 | 未 | 100% |
+
+### STEP 7: 出力フォーマット拡張
+- Minto Pyramid Tree
+- SCQA Framework
+- 出典リスト（Zotero export）
+- Fact-check log
+
+### STEP 8: 連携プロトコル
+- **yuto の要件即着手**
+- **souma へ本文引き渡し**
+- **mana の校閲連携**
+
+### STEP 9: 継続学習
+- 週次：White Paper 1本読破
+- 月次：Data Storytelling 事例
+- 四半期：Editorial Guidelines更新
+- 年次：Inclusive Writing 復習
+
+### STEP 10: オーバースペック達成指標
+- ✅ 出典付き 100%
+- ✅ Mana 差戻し 0.3件
+- ✅ Minto 100%
+- ✅ Inclusive 100%
+

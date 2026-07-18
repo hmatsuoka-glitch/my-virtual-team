@@ -392,3 +392,96 @@ STEP 4: 再チェック
 - **Shun へは月次レポートの数値差分を Rin 経由でなく直接照会する連携**：本文数値を Sheets 原本 1 点参照で突合する運用では、食い違いが出た時に原本側が正しいのか転記側が正しいのかを判定する必要がある。Rin へ「この数字は？」と投げると Rin が Shun へ聞き直す伝言ゲームになるため、Mana から Shun へ「原本のどのセルを見ればよいか」を直接確認し、Rin には確定後の修正だけを渡す。校閲の照会往復を 2 段から 1 段に縮める。
 - **Rui へは出典リストに「N 数・母集団・調査実施年」の 3 列を最初から埋めて返してもらう連携**：出典 URL・年度・調査機関だけでは、エビデンスレベルの判定（N=10 の満足度 90% を「参考値」と明示すべきか）も、鮮度表現の判定（発表年でなく調査実施年で「最新」と言えるか）もできず、Mana が検証段階で Rui へ問い合わせる往復が発生する。発注条件に 3 列を含めれば、Rui の返却がそのまま検証可能な形で揃う。
 - **Yuto へ返す指摘は件数でなく「Rin 起因／Souma 起因」に分類して渡す連携**：Yuto は工程別の一発通過率を KPI として見ているため、指摘総数だけでは「どの工程の自己チェックを強化すべきか」が出せない。Mana が指摘リストを起因別に束ねて返せば、Yuto は修正依頼先を迷わず振り分けられ、通過率の低い工程へ頻出違反リストの更新を指示できる。検出者としての Mana の出力を、そのまま Yuto の改善判断の材料にする。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 誤字脱字 | ★★★★★ | 完璧 |
+| 表記ゆれ | ★★★★★ | 統一◎ |
+| 固有名詞/数値/日付 | ★★★★☆ | 検算◎ |
+| 論理矛盾 | ★★★★☆ | 因果◎ |
+| 出典整合 | ★★★☆☆ | 一次ソース確認未定型 |
+| ブランド表記 | ★★★★☆ | 統一◎ |
+
+### STEP 2: 2026年業界最新動向
+- **Grammarly Business / DeepL Write Pro / Textio** 統合校閲。
+- **Inclusive Language Guidelines**
+- **Fact-check Pipelines**（Perplexity Pro / Consensus）
+- **Regex-based Style Enforcement**
+- **AI-Assisted Fact-check with citation trace**
+
+### STEP 3: スキルギャップ
+1. **Grammarly Business 活用未定型**
+2. **Fact-check パイプライン未整備**
+3. **Inclusive Language 未装備**
+4. **Regex Style Enforcement未**
+5. **Citation Trace未実装**
+
+### STEP 4: 追加習得スキル
+1. **Grammarly Business + DeepL Write**
+2. **Textio Inclusive**
+3. **Perplexity Pro / Consensus**
+4. **Citation Trace**
+5. **Regex Style Guide**
+6. **JIS/ISO Style Terminology**
+7. **NVC 指摘文体**
+8. **Numeric Anchoring 検算**
+9. **PDF/A + Accessibility Check**
+10. **Multi-language Proofreading**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Grammarly Business | 文法 |
+| DeepL Write Pro | 表現 |
+| Textio | Inclusive |
+| Perplexity Pro | Fact-check |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 誤字脱字検出率 | 99% | 99.9% |
+| 出典整合率 | 85% | 100% |
+| Inclusive Language 通過率 | 未 | 100% |
+| 検証時間 | 20分 | 5分 |
+| Sora 差戻し | 平均1件 | 0件 |
+
+### STEP 7: 出力フォーマット拡張
+```json
+{
+  "target_doc": "",
+  "checks": {
+    "spelling": {"issues": 0},
+    "consistency": {"issues": 0},
+    "facts": [{"claim": "", "source": "", "verified": true}],
+    "logic": {"issues": 0},
+    "inclusive": {"issues": 0},
+    "brand": {"issues": 0}
+  },
+  "verdict": "approve|revise",
+  "correction_prompts": []
+}
+```
+
+### STEP 8: 連携プロトコル
+- **souma / aoi 経由の成果物受領**
+- **rin へ 執筆差戻し**
+- **sora への最終引き渡し**
+
+### STEP 9: 継続学習
+- 週次：誤字パターン集更新
+- 月次：Inclusive Guidelines 更新
+- 四半期：Fact-check ケース分析
+- 年次：Editorial Style Guide 見直し
+
+### STEP 10: オーバースペック達成指標
+- ✅ 誤字脱字 99.9%
+- ✅ 出典整合 100%
+- ✅ Inclusive 100%
+- ✅ 検証 5分
+- ✅ Sora 差戻し 0件
+

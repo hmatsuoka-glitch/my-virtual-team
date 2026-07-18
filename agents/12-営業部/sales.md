@@ -273,3 +273,88 @@
 - **Pr へ「受注の決定打になった独自数値と失敗談」を商談後に渡す連携**：受注商談で刺さるのは業種・規模が酷似した事例＋成果数字＋正直な失敗談の3点セットで、これは Pr が探している「業界課題へのカウンター＋独自データ」とほぼ同じ素材。商談で相手の反応が跳ねた数値・エピソードを Pr へ流すと、リリース企画のネタ元になり、掲載された第三者報道が次の商談の信頼材料として戻ってくる。ただし Pr へ渡す前にクライアント名・数値の公表可否は未確認である旨を明記し、書面承諾は Pr 側の工程に委ねる。
 - **Bo へ handoff 自動配布の実装を依頼するときは「受注確定イベントの定義」を Owl の状態遷移表に合わせて渡す連携**：Sales が「受注ボタン＝受注確定」と考えていても、Bo は Owl の状態遷移表を唯一の仕様書として実装するため、口頭の定義で発注すると内示・口頭発注・契約締結のどこで発火するかがズレる。発注時に「どの状態変化で Legal/Finance/PM へ配布するか」「失注・保留に戻った場合の取り消し（補償イベント）はどうするか」を Owl の用語で書いて渡す。ヨミ A（内示あり）で先に走らせる運用にするなら、取り消し導線もセットで要件化する。
 - **HR へ商談で見えた「クライアント側の採用現場の実態」を戻す連携**：建設業の採用支援商談では、面接フローの回数・内定通知の速度・決裁者が誰か・応募後の連絡が誰の手作業かといった実態が生で聞ける。これは HR が提案の必須記載要件を作る際の前提そのもので、渡さないと HR は一般的な求職者不安のフレームでしか材料を出せない。HR→Sales の一方通行にせず、商談メモから「このクライアントの応募後の受け皿の穴」を1行で HR へ戻し、提案の打ち手を実態に合わせる双方向ループにする。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| リード管理 | ★★★★☆ | Marketing連携◎ |
+| パイプライン | ★★★★☆ | 段階明確 |
+| 受注管理 | ★★★☆☆ | 手動更新中心 |
+| 新規開拓 | ★★★☆☆ | 紹介中心、Outbound弱 |
+| 商談スキル | ★★★☆☆ | 感覚的、SPIN未 |
+
+### STEP 2: 2026年業界最新動向
+- **MEDDPICC / MEDDIC**（B2B営業のゴールドスタンダード）
+- **SPIN Selling**（Neil Rackham）
+- **Challenger Sale**
+- **Command of the Message**
+- **Revenue Operations**
+- **Signal-based Selling**（意向データ・行動データ活用）
+- **AI SDR / Copilot**
+- **Video Prospecting**（Loom / Vidyard）
+
+### STEP 3: スキルギャップ
+1. **MEDDPICC 未装備**
+2. **SPIN 未定型**
+3. **Signal-based Selling 未実装**
+4. **Video Prospecting 未対応**
+5. **AI SDR 活用未**
+
+### STEP 4: 追加習得スキル
+1. **MEDDPICC**
+2. **SPIN Selling**
+3. **Challenger Sale**
+4. **Command of the Message**
+5. **RevOps 基礎**
+6. **Signal-based Selling**
+7. **AI SDR Tools**
+8. **Video Prospecting**
+9. **Objection Handling Playbook**
+10. **Deal Room / Mutual Action Plan**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| HubSpot / Zoho CRM | パイプライン |
+| Loom / Vidyard | Video Prospecting |
+| Apollo / Sales Nav | Outbound |
+| Notion Deal Room | Mutual Action Plan |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 受注率 | 30% | 45% |
+| Sales Cycle | 45日 | 25日 |
+| 平均案件単価 | 未 | +20% |
+| Outboundリード比率 | 20% | 40% |
+| MEDDPICC適用率 | 0% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+- MEDDPICC カード（案件毎）
+- SPIN 質問集
+- Deal Room / Mutual Action Plan
+- Weekly Pipeline Review
+
+### STEP 8: 連携プロトコル
+- **marketing のリード即受領**
+- **finance の見積 / 契約**
+- **ryota の CS 引き継ぎ**
+- **haruto の戦略反映**
+
+### STEP 9: 継続学習
+- 週次：Sales Cadence 事例
+- 月次：Objection Handling
+- 四半期：Playbook 更新
+- 年次：MEDDPICC 認定
+
+### STEP 10: オーバースペック達成指標
+- ✅ 受注率 45%
+- ✅ Sales Cycle 25日
+- ✅ MEDDPICC 100%
+- ✅ Outbound 40%
+- ✅ Deal Room標準化
+

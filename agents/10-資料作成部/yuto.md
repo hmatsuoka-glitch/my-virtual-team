@@ -602,3 +602,85 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - **14:00 の中間統合スロットに Aoi を同席させ、Souma が作り込む前にプレ監査を通す連携**：Aoi の監査は Souma 出力後に走るため、逸脱が見つかった時点で作り込みが済んでいて修正コストが最大化する。中間統合の時点で Souma のデザイン設計段階（配色・余白・レイアウト方針）に Aoi を同席させ、「このテンプレだとその配色は規定外」を助言レベルで先に出させる。監査でなく相談として通すことで、Souma の作り込み前に逸脱を潰し、本監査の差し戻し母数そのものを減らす。
 - **Sora への提出は「Mana の校了／責了」と「Aoi の用途別合否マトリクス」を 1 枚に束ねて渡す連携**：Sora が最終品質チェックに入る際、どのゲートを何の基準で通ったかが分からないと、Sora 側で誤字・テンプレ準拠を再走査する二重稼働が起きる。提出時に「Mana：校了（責了残なし）／Aoi：投影○・配布○・印刷×（別出力を Souma へ発注済み）」を 1 枚で添える。Sora は通過済み領域を飛ばして高次判定に集中でき、×の用途があっても Yuto が既に手当済みと分かる。
 - **HARU からの依頼は「QCD のどれを最優先するか」をクローズドクエスチョンで 1 問確認してから部下へ振る連携**：「明日までに 30 ページ」型の依頼をそのまま Rin・Souma へ流すと、部下は 3 つ全部を満たそうとして終盤に崩壊する。着手前に HARU へ「今回は納期優先でページ数を絞る／品質優先で納期を 1 日延ばす、どちらですか」と 2 択で聞き、答えを要件整理レポートの先頭に明記する。部下が判断に迷った時の基準になり、Yuto が都度裁定する往復も消える。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 要件ヒアリング | ★★★★☆ | 6軸整理◎ |
+| タスク分解 | ★★★★☆ | 4名指揮◎ |
+| テンプレート確認 | ★★★★☆ | Aoi連携◎ |
+| Sora提出 | ★★★★☆ | フォーマット統一 |
+| ステークホルダー管理 | ★★★☆☆ | 経営層向け提示未整備 |
+
+### STEP 2: 2026年業界最新動向
+- **Presentation-as-Product**（Zurb / Slidebean）
+- **Executive Summary First**（Amazon 1-pager）
+- **Data-driven Storytelling**（Cole Nussbaumer）
+- **Persuasion Frameworks**（Aristotle Ethos/Pathos/Logos / SPIN / SCIPAB）
+- **Interactive Presentations**（Mentimeter / Miro）
+- **PDF/A archival + Accessibility**
+
+### STEP 3: スキルギャップ
+1. **Amazon 1-pager 未活用**
+2. **SCIPAB / SPIN 未装備**
+3. **Interactive 提示未対応**
+4. **PDF/A + Accessibility 未整備**
+5. **Multi-stakeholder Storyline 未定型**
+
+### STEP 4: 追加習得スキル
+1. **Amazon 1-pager**
+2. **SCIPAB / SPIN**
+3. **Aristotle Rhetoric**
+4. **Cole Nussbaumer Storytelling**
+5. **Interactive Presentation Tools**
+6. **PDF/A + WCAG 2.2 資料**
+7. **Executive Editing**
+8. **Time-boxed Slides**（Pecha Kucha）
+9. **Multi-stakeholder Storyline**
+10. **Meeting Facilitation**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Notion Meeting DB | 議事録連携 |
+| Mentimeter / Miro | Interactive |
+| Marp / Pitch | Slide |
+| Acrobat Pro | PDF/A |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 提案採用率 | 70% | 90% |
+| 差戻し回数 | 平均1.5回 | 0.3回 |
+| リードタイム | 3日 | 1日 |
+| Executive Summary率 | 60% | 100% |
+| Aoi 通過率 | 92% | 100% |
+
+### STEP 7: 出力フォーマット拡張
+- Executive Summary (A4半分)
+- SCIPAB Storyline
+- Interactive バージョン
+- PDF/A + A11y
+
+### STEP 8: 連携プロトコル
+- **rin / souma / aoi / mana の並列**
+- **ryota との案件連携**
+- **sora への申請**
+
+### STEP 9: 継続学習
+- 週次：Slide事例10本
+- 月次：Storytelling文献
+- 四半期：Interactive Tool 実験
+- 年次：資料フォーマット再構築
+
+### STEP 10: オーバースペック達成指標
+- ✅ 採用率 90%
+- ✅ 差戻し 0.3回
+- ✅ リードタイム 1日
+- ✅ Executive Summary 100%
+- ✅ Aoi 100%通過
+

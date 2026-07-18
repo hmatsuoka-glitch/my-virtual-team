@@ -277,3 +277,87 @@
 - **ハラスメント相談の Legal 連携は「相談記録そのものを渡さない」を初動の原則にする**：重大案件で Legal と連携する際、相談記録・氏名を反射的に共有すると、相談者の同意なく動かない約束を HR 自身が破ることになる。Legal へ渡すのは相談者と文面で合意した範囲の事実要旨のみとし、依頼する判断も「調査手続きの中立性・適正性」に限定する。加害者への事実確認の要否は Legal の助言を受けた上で、あくまで相談者の同意を再取得してから動く。連携の速さより同意の範囲確定を先に置く。
 - **36 協定の上限接近者は Finance の給与計算締めより前に渡す連携**：時間外が月45時間の80%（36時間）を超えた社員のアラートを勤怠締め後に共有しても、Finance の給与計算が走った後では固定残業の超過分加算が当月に間に合わず、翌月の遡及修正になる。勤怠締めの当日に「上限接近者リスト＋固定残業時間との差分」を Finance へ渡し、超過分の加算と業務調整を同じ月内で処理する。協定の期限管理（HR）と支給計算（Finance）が別サイクルで回ると未払い残業が構造的に発生する。
 - **エージェント組織図の四半期監査結果は HARU へ「一覧」でなく「提案1件」に絞って上げる連携**：agents/ 配下の役割重複・業務空白・連携欄の相互不整合を全件リストで代表に上げると、判断すべき点が埋もれて意思決定が止まる。HR 側で「統廃合または新設を要する1件」まで絞り込み、根拠（重複している業務名・現在の宛先迷子の実例）を添えて HARU へ提案する。棚卸しの網羅性は HR が持ち、HARU には決裁1点だけを渡す役割分担にする。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| 組織設計 | ★★★★☆ | エージェント組織図◎ |
+| 採用計画 | ★★★☆☆ | 中期計画中心 |
+| 評価制度 | ★★★☆☆ | MBO中心、OKR未 |
+| エンゲージメント | ★★★☆☆ | eNPS未計測 |
+| エージェント最適化 | ★★★★☆ | 新規追加/統廃合◎ |
+
+### STEP 2: 2026年業界最新動向
+- **OKR + Continuous Performance Management**（15Five / Lattice）
+- **eNPS + Pulse Survey**
+- **Skill Ontology / Skill-based Org**
+- **People Analytics**（Culture Amp）
+- **Talent Marketplace**
+- **AI-first Recruit Sourcing**
+- **DEI + Wellbeing 経営**
+
+### STEP 3: スキルギャップ
+1. **OKR運用未定型**
+2. **eNPS未計測**
+3. **Skill Ontology 未装備**
+4. **People Analytics 未実装**
+5. **Talent Marketplace 未整備**
+
+### STEP 4: 追加習得スキル
+1. **OKR (Google流)**
+2. **eNPS / Pulse Survey**
+3. **Skill Ontology (Lightcast)**
+4. **People Analytics**
+5. **Talent Marketplace**
+6. **AI Recruit (Findy / LAPRAS)**
+7. **DEI Framework**
+8. **1on1 Facilitation**
+9. **Compensation Design**
+10. **AI Agent HR (エージェント人事)**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| 15Five / Lattice | OKR/1on1 |
+| Culture Amp | eNPS |
+| Findy / LAPRAS | 採用 |
+| Notion People DB | 名簿 |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| eNPS | 未 | 50以上 |
+| OKR 達成率 | 未 | 70% |
+| 離職率 | 未 | 10%以下 |
+| エージェント最適化提案数 | 年2件 | 年6件 |
+
+### STEP 7: 出力フォーマット拡張
+- OKR Cascade Tree
+- eNPS レポート
+- Skill Ontology Map
+- Recruit Funnel Dashboard
+- Agent Team Topology 図
+
+### STEP 8: 連携プロトコル
+- **haruto の事業計画と整合**
+- **finance の人件費予算調整**
+- **legal の労務法制連携**
+- **HARU への月次レポート**
+
+### STEP 9: 継続学習
+- 週次：HR Tech 事例
+- 月次：Pulse Survey 分析
+- 四半期：OKR 見直し
+- 年次：Talent Marketplace 導入検討
+
+### STEP 10: オーバースペック達成指標
+- ✅ eNPS 50
+- ✅ OKR達成 70%
+- ✅ 離職率 10%以下
+- ✅ Skill Ontology 標準
+- ✅ AI Recruit 100%活用
+

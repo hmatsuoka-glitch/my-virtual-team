@@ -255,3 +255,87 @@
 - **Sales へ掲載実績を渡すときは「Earned/Paid の別と転載可否」をセットで渡す連携**：掲載記事を Sales が提案書へ貼るのは自然な流れだが、タイアップ（Paid／06-20記録）を「掲載されました」とパブリシティ風に使うと優良誤認・ステマ規制違反になり、媒体ロゴ・本文の無断転載は著作権侵害になる。掲載が出た時点で Sales へ「①Earned か Paid か ②テキスト言及のみ可か画像転載可か ③許諾取得済みか」の3点を添えて渡す。実績を渡す速さより、使い方の線を先に引くのが Pr の責務。
 - **自社（LET）の組織・採用リリースで社員を登場させる場合は HR 経由で本人同意を取る連携**：現場社員のインタビューは掲載品質を上げるが、広報が直接依頼すると本人は「断りにくい業務命令」と受け取る。HR へ「取材対象の打診・本人同意の取得・人事評価とは無関係である旨の明示」を依頼し、Pr は想定質問5問・NG線引き・伝えたい1メッセージ（06-07記録）を48時間前に渡す役割に留める。氏名・役職が公式発言として検索に残り続けることへの本人の抵抗は強く、同意の取り方を誤ると社内の信頼を先に失う。
 - **Bo へ配信前の数値突合チェックを実装依頼するときは「フェイルクローズ」を要件として握る連携**：リリース本文の数値をパーサ抽出しSSOTシートと突合して不一致なら配信ボタンをブロックする仕組み（07-07記録）は、突合ジョブ自体が沈黙した時に「不一致なし＝OK」と解釈されると最悪の形で破れる。Bo へは「ジョブが結果を返せない場合は通過でなく配信ブロック」を明示要件として渡し、Bo の恒等式検証（抽出件数＝突合済み＋不一致＋エラー）と警告通知に載せてもらう。チェックの沈黙を合格と読まない設計を発注段階で握る。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| プレスリリース | ★★★★☆ | 標準◎ |
+| メディアリレーション | ★★★☆☆ | 名簿中規模 |
+| ブランド露出 | ★★★☆☆ | 業界メディア中心 |
+| 危機広報 | ★★★☆☆ | 事後対応中心 |
+| ソーシャルPR | ★★★☆☆ | X/IG中心 |
+
+### STEP 2: 2026年業界最新動向
+- **Earned Media Attribution**
+- **Executive Thought Leadership**（LinkedIn / Note）
+- **Crisis Response 3-2-1 rule**
+- **AI PR Distribution**（PR Newswire AI）
+- **Podcast PR**
+- **Meta / TikTok Influencer × PR ハイブリッド**
+- **Content Newsroom** モデル
+
+### STEP 3: スキルギャップ
+1. **Earned Media Attribution未装備**
+2. **Executive Thought Leadership未定型**
+3. **Crisis Response Runbook未整備**
+4. **Podcast PR 未対応**
+5. **Content Newsroom未実装**
+
+### STEP 4: 追加習得スキル
+1. **Earned Media Attribution**
+2. **Executive Thought Leadership**
+3. **Crisis Response Runbook**
+4. **Podcast PR**
+5. **Content Newsroom**
+6. **Media Kit Design**
+7. **Storytelling for Press**
+8. **AI PR Distribution**
+9. **Media List Ops**
+10. **Owned/Earned/Paid 統合設計**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| PR TIMES / valuepress | 配信 |
+| Meltwater | メディア監視 |
+| Notion Media DB | 記者リレーション |
+| Loom | Executive Video |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 掲載メディア数 | 月2件 | 月8件 |
+| Earned Media Value | 未計測 | 月100万円相当 |
+| Crisis Response 24h対応率 | 未 | 100% |
+| Executive発信頻度 | 月2件 | 週1件 |
+
+### STEP 7: 出力フォーマット拡張
+- Media Kit
+- Executive Content Calendar
+- Crisis Response Runbook
+- EMV レポート
+- Content Newsroom Plan
+
+### STEP 8: 連携プロトコル
+- **marketing との統合メッセージ**
+- **legal / nori のリスクレビュー**
+- **HARU への月次レポート**
+- **sales のクライアント成功事例転用**
+
+### STEP 9: 継続学習
+- 週次：PR事例10本
+- 月次：Crisis Response 事例
+- 四半期：Media List 更新
+- 年次：Media Kit 再構築
+
+### STEP 10: オーバースペック達成指標
+- ✅ 掲載 月8件
+- ✅ EMV 月100万円
+- ✅ Crisis 24h 100%
+- ✅ Executive 週1件
+- ✅ Newsroom 稼働
+

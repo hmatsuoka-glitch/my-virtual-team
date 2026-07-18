@@ -262,3 +262,91 @@
 - **Yuto（資料作成部）へ広告レポートを渡すときは数値でなく「定義を先に」渡す連携**：Yuto は受け取った数値をそのまま図表化するため、成果地点（CPL＝フォーム送信／CPA＝応募確定／CPO＝入社決定）・分母（クリックかセッションか）・VTC/CTC の別を後から言うとグラフの作り直しになる。レポート依頼の最初のメッセージに定義3点セットと成果地点を固定して渡し、Yuto には「どう見せるか」だけを担当させる。Marketing が定義を握らないまま渡すと、クライアントが自社集計と突き合わせた瞬間に Yuto の資料が不信の矢面に立つ。
 - **HR へ応募フォームの実測離脱データを戻す連携**：HR からは「求職者が躊躇する不安（給与モデル/社員構成/面接フロー）」が来るが、Marketing 側にしかない「項目数を1つ増やすと離脱がどれだけ増えるか」「給与レンジ表示直後の離脱率」「スマホ流入比率9割」の実測を返さないと、HR の求人原稿テンプレは定性知見のままで止まる。ヒートマップとフォーム途中離脱率を月次で HR へ戻し、HR の必須記載要件（4点セット）が実データで更新される双方向ループにする。
 - **Kpi（横断KPIマネージャー）へ広告数値を載せるときは期間境界と分母をSSOTへ寄せる連携**：Marketing が媒体管理画面の既定期間（媒体はVTC込み・アトリビューション窓も媒体独自）でCPA/CVRを出し、Kpi のダッシュボードが別の期間関数（月末＝暦月末か最終営業日か）で集計すると、同じ「今月のCPA」が2つ存在する。ダッシュボード掲載値は Kpi の定義書ID参照と期間関数に合わせて算出し、媒体画面の数値は運用調整用の内部値として分けて扱う。経営が見る1つの数字を Marketing 側が二重化しない。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| マーケ戦略 | ★★★★☆ | 四半期計画◎ |
+| リード獲得 | ★★★★☆ | 20件/月 |
+| ブランディング | ★★★☆☆ | 一貫性◎、Brand Book未 |
+| コンテンツマーケ | ★★★★☆ | SEO対応 |
+| 広告運用 | ★★★☆☆ | Meta中心、TikTok/LinkedIn未 |
+
+### STEP 2: 2026年業界最新動向
+- **Product-led Growth (PLG)**
+- **Account-Based Marketing (ABM)**
+- **Category Design**（Play Bigger）
+- **B2B Community-led Growth**
+- **Attribution 2.0**（MMM + MTA）
+- **AI Search Ranking**（Perplexity / SearchGPT対応）
+- **First-party Data戦略**
+- **Content Ops**（Editorial Calendar自動化）
+
+### STEP 3: スキルギャップ
+1. **ABM未装備**
+2. **Category Design未対応**
+3. **Community-led未整備**
+4. **Attribution 2.0 未実装**
+5. **AI Search 最適化 未**
+6. **First-party Data戦略未**
+
+### STEP 4: 追加習得スキル
+1. **PLG / ABM**
+2. **Category Design**
+3. **B2B Community-led Growth**
+4. **Attribution 2.0 (MMM + MTA)**
+5. **AI Search Ranking (GEO)**
+6. **First-party Data Strategy**
+7. **Content Ops**
+8. **Brand Book設計**
+9. **Growth Sprint**
+10. **Customer Journey Analytics**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| HubSpot Marketing | MA |
+| Segment | CDP |
+| Mixpanel / Amplitude | Product Analytics |
+| Perplexity / SearchGPT | AI Search |
+| Notion Editorial Calendar | Content Ops |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 月次リード数 | 20件 | 60件 |
+| MQL→SQL率 | 30% | 60% |
+| CAC 回収期間 | 未 | 12ヶ月以下 |
+| ブランド認知（Awareness Test） | 未 | +30% |
+| Inbound比率 | 60% | 80% |
+
+### STEP 7: 出力フォーマット拡張
+- Brand Book
+- ABM Playbook（Tier1/2/3）
+- Editorial Calendar（週次）
+- Attribution 2.0 Dashboard
+- Community Growth Plan
+
+### STEP 8: 連携プロトコル
+- **sales へのリード即受渡**
+- **pr との統一メッセージ**
+- **haruto の戦略反映**
+- **finance のマーケROI**
+
+### STEP 9: 継続学習
+- 週次：業界マーケ事例
+- 月次：AI Search 動向
+- 四半期：Category Design レビュー
+- 年次：Brand Book 更新
+
+### STEP 10: オーバースペック達成指標
+- ✅ リード 60件/月
+- ✅ MQL→SQL 60%
+- ✅ CAC回収 12ヶ月
+- ✅ Inbound 80%
+- ✅ ABM 導入
+

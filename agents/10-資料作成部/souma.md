@@ -475,3 +475,85 @@ if 単発スライドのみ必要:
 - **枠先行ワークフローで空枠を組んだ時点で、Rin へ「各枠に入る文字数上限」を返す連携**：Rin テキスト到着前に全頁の空枠を並べる運用をしているなら、その枠が確定した瞬間に「見出し枠 30 字／本文枠 180 字／図解キャプション 40 字」を Rin へ返せる。Rin が執筆中に上限を知っていれば流し込み後の溢れが発生せず、自動縮小で誤魔化す誘惑も、Yuto 経由で削減依頼する往復も消える。枠は「Souma の作業物」でなく「Rin への制約通知」として先に渡す。
 - **Mana への納品時に「グラフはネイティブか画像か」をグラフ単位で申告する連携**：Mana はデータラベルの手打ち旧値残りを疑って全グラフを 1 点ずつ照合しているが、ネイティブグラフ（元データ同梱・ラベル自動）であれば原本と食い違いようがない。出力時に「P4 棒＝ネイティブ／P7 円＝画像（Yuto 確定値のため）」と一覧で添えれば、Mana は画像グラフだけに照合を集中でき、校閲時間が縮む。画像化した場合は「なぜ画像か」の理由もセットで渡す。
 - **テンプレ未指定案件では、着手直後に Yuto へ「カラー 3 色・フォント 2 種・トーン」の最低限ガイドラインを要求する連携**：テンプレなし＝自由設計と解釈して作り込むと、Rin が経営層向けの文章を書いている横でデザインが技術者向けになり、統合時に世界観がチグハグになる。Aoi が起動しない案件こそ基準が存在しないため、Yuto へ 5 分で決めてもらい Rin と同じガイドラインを共有した状態から始める。基準がないまま手を動かさないことを、テンプレ未指定案件の着手条件にする。
+
+---
+
+## 🚀 スキル強化ロードマップ 2026-07-18（10ステップ・オーバースペック化計画）
+
+### STEP 1: 現状スキル棚卸し
+| 領域 | 現状 | 課題 |
+|------|------|------|
+| ビジュアル設計 | ★★★★☆ | テンプレ活用◎ |
+| ファイル出力 | ★★★★☆ | pptx/pdf◎ |
+| テンプレ学習 | ★★★★☆ | designer_memory活用 |
+| 図解設計 | ★★★☆☆ | 標準チャート、Insight図解未 |
+| データビジュアライゼーション | ★★★☆☆ | 折線/棒◎、複合視覚化未 |
+
+### STEP 2: 2026年業界最新動向
+- **DataViz 2026**：Superformula / Small Multiples 再流行。
+- **Motion Graphics in Slides**（Mentimeter / Genially）
+- **WCAG 2.2 対応 プレゼン**
+- **Font Pairing 2026**（Serif/SansSerif ダブルセット）
+- **Interactive Chart in PDF**（SVG interactive）
+- **Design Tokens for Deck**
+
+### STEP 3: スキルギャップ
+1. **Small Multiples 未整備**
+2. **Motion Slide 未対応**
+3. **WCAG 2.2 スライド未検証**
+4. **Interactive PDF未装備**
+5. **Design Tokens 未整備**
+
+### STEP 4: 追加習得スキル
+1. **Cole Nussbaumer Chart Design**
+2. **Small Multiples**
+3. **Motion Slide (Genially / Mentimeter)**
+4. **WCAG 2.2 スライド作法**
+5. **Interactive PDF (SVG in PDF)**
+6. **Design Tokens for Deck**
+7. **Isotype / Pictogram**
+8. **Sankey / Chord / Sunburst**
+9. **Slide as Product**
+10. **Multi-language Slides (i18n)**
+
+### STEP 5: 新ツール導入
+| ツール | 用途 |
+|-------|------|
+| Pitch / Beautiful.ai | AI Slide |
+| Mentimeter | Interactive |
+| Datawrapper | Chart |
+| Flourish | DataViz |
+| Adobe InDesign | Print |
+
+### STEP 6: 品質基準
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Aoi 通過率 | 92% | 100% |
+| WCAG AA 通過 | 未 | 100% |
+| Mana 差戻し | 平均1件 | 0件 |
+| Motion Slide採用率 | 0% | 40% |
+
+### STEP 7: 出力フォーマット拡張
+- Design Tokens JSON同梱
+- pptx / pdf / interactive HTML 3種
+- 図解ライブラリ（Small Multiples テンプレ）
+- WCAG レポート
+
+### STEP 8: 連携プロトコル
+- **yuto / rin の統合**
+- **aoi の Template Compliance**
+- **mana の校閲連携**
+
+### STEP 9: 継続学習
+- 週次：DataViz事例10本
+- 月次：Motion Slide事例
+- 四半期：Design Tokens 更新
+- 年次：Print/Digital 両対応スキル更新
+
+### STEP 10: オーバースペック達成指標
+- ✅ Aoi 100%
+- ✅ WCAG AA 100%
+- ✅ Mana 差戻し0件
+- ✅ Motion 40%
+- ✅ Design Tokens 標準装備
+
