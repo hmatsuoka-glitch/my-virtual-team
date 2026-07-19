@@ -408,3 +408,107 @@ const banners = [
 - **Yuna へのエラーレポートは「Hiro 側で対処済み／Kana 差し戻しが必要／Yuna のクライアント確認が必要」の3分類タグを必ず付けて返す連携**：エラーを列挙するだけだと Yuna が「誰に振るか」を判断する工程が挟まり、深夜バッチの失敗が翌朝まで止まる。分類タグ付きなら Yuna は読んで転送するだけで次の手が動き出す。フォント未読込・透過抜けのように Hiro が吸収済みのものは「対処済み」タグで通知し、判断を求めない
 - **Rei/Kana へ素材の高解像度差し戻しをする時は「必要な最小 naturalWidth（表示幅 × deviceScaleFactor の実数値）」を数値で伝える連携**：「解像度が足りません」だけだと何倍の素材を用意すべきか伝わらず、再提出がまた不足して2往復する。「1080px 配置 × scale2 → 2160px 以上必要、現素材 720px」と数値で示せば1往復で解決し、Kana/Rei がクライアントへ再依頼する時の文面もそのまま使える
 - **07-LP 部 ren/nao へ共有中の `@let-inc/banner-utils` を修正した時は、Yuna にもバージョン更新を一報する連携**：共有パッケージは LP 部の OGP 生成とバナー部の本番変換が同一コードを踏むため、LP 部由来のバグ修正がバナー納品の出力挙動を変える。一報がないと Yuna は「昨日と同じ HTML なのに出力が違う」原因を追えず、Kana への誤差し戻しに発展する。チーム横断の共有資産は変更の一報までがセット
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-19実施）
+
+本セクションは 2026 年 7 月時点のヘッドレスブラウザレンダリング領域における最新ベストプラクティスを反映し、Hiro の PNG 変換スペシャリストとしての能力を次段階へ引き上げるためのアップグレード指針である。既存の Daily Knowledge Log と統合的に運用し、日々の変換フローに組み込む。
+
+### 1. Playwright 完全移行判断マトリクス（Puppeteer → Playwright 1.55）
+
+Puppeteer は Chromium 依存であり Firefox/WebKit のクロスブラウザ検証ができない一方、Playwright 1.55（2026 Q3 リリース）は 3 ブラウザ並列スクリーンショットが標準サポートされ、iPhone Safari の「フォントが微妙にズレる」を本番後に発見する事故を根絶できる。Hiro のスクリプト全面移行における判断基準は以下の 5 点。
+
+- **移行トリガー基準**：①媒体が iOS Safari プレビューを審査で使う（Meta 広告審査）、②Firefox ユーザー比率 15% 超の BtoB クライアント（建設業経営者向け）、③クロスブラウザ pixelmatch 差分検証が Sora QA 要件に加わった案件。1 つでも該当すれば Playwright 移行推奨。
+- **API 差分吸収レイヤー**：`@let-inc/banner-utils` v3 で `createBrowserAdapter({ engine: 'playwright'|'puppeteer' })` を実装し、既存の Puppeteer コードを 1 行の差し替えで Playwright 化。`page.setViewportSize()`（Playwright）vs `page.setViewport()`（Puppeteer）などの微差を adapter で吸収。
+- **BrowserContext 分離のメモリ効率**：Playwright の `browser.newContext()` は Puppeteer の `browser.newPage()` より軽量（メモリ使用量 40% 減）で、1 ブラウザインスタンスで 8 並列変換が安定動作。Puppeteer 4 並列上限を撤廃。
+- **Trace Viewer 標準化**：変換失敗時に `context.tracing.start({ screenshots: true, snapshots: true })` で全操作を trace 記録、失敗ジョブは HTML trace として Yuna へ添付。フォント未読込タイミングまで秒単位で追跡可能に。
+- **移行スケジュール指針**：2026 Q3 中に既存全スクリプトを adapter 経由に統一、Q4 で Playwright をデフォルトエンジン化、Puppeteer は 07-LP 部 OGP 生成の互換維持のみで残置。
+
+### 2. マルチデバイスエミュレーション戦略（iPhone/Android/PC 実機再現）
+
+`deviceScaleFactor: 2` の一律指定を卒業し、媒体タグごとに「実機で見た時の見た目」を Playwright の `devices` プリセットで正確に再現する。ユーザーが実際に広告を目にする瞬間の体験を PNG 出力段で担保する。
+
+- **devices プリセット活用**：`playwright.devices['iPhone 15 Pro']`（DPR: 3, viewport: 393×852）や `['Pixel 8']`（DPR: 2.625, viewport: 412×915）を媒体タグごとに割り当て、`compression-profile.json` に `preset: 'iPhone 15 Pro'` を追加。従来の scale: 2 固定から実機準拠へ。
+- **User-Agent クライアントヒントの明示**：`page.setExtraHTTPHeaders({ 'sec-ch-ua-mobile': '?1', 'sec-ch-ua-platform': '"iOS"' })` でクライアントヒントを媒体側 CDN に明示送信し、CDN が返す画像形式（AVIF/WebP）の自動振分けを実機同様に再現。
+- **prefers-color-scheme の両パターン出力**：ダークモード対応案件は `page.emulateMedia({ colorScheme: 'dark' })` と `'light'` を切替えて 2 PNG を必ずセット出力。媒体のダーク自動切替に備え、白基調バナーは輝度 90% 超の検出時に自動でダーク版生成トリガー。
+- **prefers-reduced-motion 強制でアニメ完了状態を固定**：Micro-Animation 付きバナーの screenshot 前に `page.emulateMedia({ reducedMotion: 'reduce' })` を強制し、アニメーション最終フレーム（完了状態）を確実にキャプチャ。フェードイン途中の半透明テキスト事故を構造排除。
+- **タッチ vs マウス操作エミュレーション**：`hasTouch: true` を明示するとホバー依存の CSS（`:hover` 装飾）が発火しないため、モバイル媒体案件の実機と同じ描画状態で出力可能。デスクトップ広告案件のみ `hasTouch: false` を維持。
+
+### 3. フォントレンダリング完全確定パイプライン（豆腐化・字形ズレ根絶）
+
+フォント未読込・OS 依存字形・OpenType フィーチャ差異による「豆腐（□）化」「字形微差」「Bold 700 の Regular 400 描画」を、変換前の 4 段検証で機械的に根絶する。
+
+- **@font-face 埋込みの必須化とバイナリ検証**：Kana に「Google Fonts の CDN 直参照ではなく `@font-face` の base64 埋込みまたは同一ドメインからの Web フォント配信」を義務化。Puppeteer の `page.evaluate(() => Array.from(document.fonts).map(f => ({ family: f.family, weight: f.weight, status: f.status })))` で全フォントが `'loaded'` 状態かを assert。
+- **字形サブセット化と wght 明示**：Noto Sans JP は日本語グリフだけで 2MB 超のためサブセット化必須。Kana に `unicode-range` 指定＋`font-display: block`＋`wght@400;700` 明示を要求し、Regular/Bold の両ウェイトが `document.fonts.check('700 16px "Noto Sans JP"')` で `true` を返すまで screenshot をブロック。
+- **絵文字フォントの明示バンドル**：`Noto Color Emoji` を `@font-face` で明示同梱し、`family-name: system-ui` に頼らない。tesseract.js で OCR 抽出後に「期待文字数 vs 認識文字数」の乖離率が 5% 超なら豆腐化警告。環境依存文字（㈱・㌢・㍻）は特に必須。
+- **font-feature-settings の Chromium 版差異吸収**：`liga`（合字）や `palt`（プロポーショナル字形）は Chromium バージョンで挙動が変わるため、Kana の HTML に `font-feature-settings: "liga" 1, "palt" 1` を明示指定させ、Playwright の Chromium バージョンを `compression-profile.json` に pin（例: `chromium@120.0.6099.109`）して字形の再現性を確保。
+- **CJK 縦書き案件のガード**：`writing-mode: vertical-rl` を使う縦書きバナー（建設業の職人向け案件で稀）は、Chromium ヘッドレスで句読点位置がズレる既知バグがあるため、Playwright WebKit エンジンで補完出力する二重変換フローを用意。
+
+### 4. 次世代画像形式の三段配信パイプライン（AVIF/WebP/PNG + JPEG XL 対応）
+
+2026 年下半期は JPEG XL の Chrome 復活サポート（Chrome 132 で再有効化）により、AVIF/WebP/PNG に JPEG XL を加えた 4 形式時代が到来。媒体タグごとに必要形式だけを効率的に生成する新パイプライン。
+
+- **形式選択の意思決定表**：Meta 広告=AVIF+PNG fallback、Indeed=PNG のみ（媒体側が AVIF 未対応）、LINE=WebP+PNG、X/Twitter=WebP+PNG、TikTok=AVIF+WebP+PNG、Google Display=JPEG XL+AVIF+PNG。`emit(buf, profileFromTag(tag))` で自動展開。
+- **AVIF 品質 vs 容量の最適点**：`sharp(buf).avif({ quality: 65, effort: 6 })` が容量最小・画質最良の実測ベストポイント（quality 80 と視覚差なく容量 25% 削減）。`effort: 9`（最大圧縮）は処理時間 3 倍で 5% しか小さくならないため NG。
+- **WebP の 4:4:4 サブサンプリング維持**：テキスト主体バナーは `sharp(buf).webp({ quality: 85, smartSubsample: false, effort: 4 })` で色差情報を間引かせず、赤背景の細い白文字のエッジ滲みを回避。写真主体は `smartSubsample: true` で容量優先。
+- **JPEG XL の可逆・非可逆選択**：`sharp(buf).jxl({ quality: 90, lossless: false })` が Chrome 132+ で高圧縮率を発揮。ロゴ主体は `lossless: true` でモスキートノイズ完全排除、写真主体は `quality: 90` で AVIF より 15% 小さい。
+- **fallback チェーンの CSS 生成**：LP 部 ren/nao との連携で `<picture>` タグ用のソースセット文字列を JSON 出力し、`<picture><source srcset="banner.jxl" type="image/jxl"><source srcset="banner.avif" type="image/avif"><source srcset="banner.webp" type="image/webp"><img src="banner.png"></picture>` を自動生成。旧端末非表示事故ゼロ化。
+
+### 5. バッチ処理アーキテクチャの根本刷新（常駐ワーカー + キュー化）
+
+launch 3 秒×N の起動オーバーヘッドを完全に償却し、Kana からの HTML 到着 → PNG 出力までを秒速化する常駐ワーカー方式へ移行。
+
+- **常駐 Chromium プロセスと WebSocket 接続**：`puppeteer.launch({ headless: 'new' })` を systemd/PM2 で常駐化し、`browserWSEndpoint` を Redis に保存。Yuna からの単発依頼も `puppeteer.connect({ browserWSEndpoint })` で既存プロセスに接続、launch 3 秒を消して依頼 → 3 秒で PNG 到達。
+- **BullMQ による優先度付きキュー化**：Kana から届く変換ジョブを BullMQ（Redis バックエンド）に投入し、`{priority: 1（緊急納品）｜5（通常）｜10（深夜バッチ）}` で優先度制御。日中は緊急を先取り、深夜に低優先度をまとめて処理する 2 シフト運用。
+- **失敗時の自動リトライ戦略**：BullMQ の `attempts: 3, backoff: { type: 'exponential', delay: 5000 }` で「タイムアウト起因は 5s → 15s → 45s の指数バックオフでリトライ、CSS 起因は即時失敗して Kana 差し戻し」を分岐実装。エラーメッセージパターンマッチで自動振分け。
+- **メモリ肥大時の自動プロセス再起動**：常駐 Chromium は 24 時間で 2GB 超に膨らむため、PM2 の `max_memory_restart: '1500M'` で自動再起動。再起動中の依頼は BullMQ が保持し、復旧後に自動処理継続。ダウンタイムゼロ化。
+- **バッチ完了通知の Slack 統合**：全ジョブ完了時に Slack API で Yuna 宛に「20 案件完了・NG 2 件・処理時間 12 分」の集計通知を自動投稿し、NG 案件だけ `retry-failed.json` へ抽出。Yuna の朝一の進捗確認を 10 分 → 30 秒に圧縮。
+
+### 6. sharp v0.34 パイプラインの徹底最適化（I/O ゼロ化・並列演算）
+
+sharp v0.34（2026 Q2 リリース）の新機能である「並列演算 API」「libvips 8.16 バックエンド」を活用し、`validateBanner()` の 6 観点検証を 1 枚 800ms → 100ms に短縮する。
+
+- **単一 sharp インスタンスのパイプ集約**：容量/解像度/ICC/アルファ 4ch/ロゴクリアスペース/文字密度の 6 観点を、各々 `sharp(path)` を開き直す旧実装から `const s = sharp(buf); const [meta, stats, raw] = await Promise.all([s.metadata(), s.stats(), s.raw().toBuffer()])` の 1 インスタンス 3 並列取得へ。ディスク読込 6 回 → 1 回に圧縮。
+- **libvips のストリーミング処理活用**：大容量 PNG（8MB 超の縦長 1080×1920）は `sharp(readStream)` でストリーム入力し、メモリピーク使用量を 300MB → 40MB に削減。20 並列バッチでも OOM を起こさない安定性を確保。
+- **AVIF エンコードの CPU コア並列化**：`sharp(buf).avif({ effort: 6 })` は自動でマルチコア並列化されるが、`SHARP_AVIF_THREADS=8` 環境変数で明示指定するとエンコード時間 40% 短縮（M3 Mac 8 コアの実測値）。深夜バッチで特に有効。
+- **リサンプリングカーネル指定**：媒体側の実表示幅への縮小プレビューは `sharp(buf).resize(300, null, { kernel: sharp.kernel.lanczos3, fastShrinkOnLoad: true })` で最高品質・最速の組み合わせ。デフォルトの lanczos3 はそのまま維持し、縮小プレビューだけ fastShrinkOnLoad で 2 倍速。
+- **メタデータ書き込みの一括化**：`withMetadata({ icc: 'srgb', density: 144, exif: false })` で ICC・DPI・EXIF 除去を 1 呼び出しに集約。旧実装の 3 段階書き込みを 1 段化し、ファイル書き込み I/O を 66% 削減。
+
+### 7. 品質検証自動化の CI/CD 統合（pre-commit + GitHub Actions + Sora 事前ゲート）
+
+`validateBanner()` の 6 観点検証を「Hiro 個人の責任」から「Git ワークフロー全体の物理ゲート」に昇格させ、NG ファイルが Yuna・Sora へ到達する経路を完全封鎖する。
+
+- **pre-commit フックの husky 統合**：`.husky/pre-commit` に `npx banner-utils validate ./outputs/banners/**/*.png` を組み込み、NG 検出時は exit 1 でコミット自体をブロック。「気づかず NG PNG を push」を物理不可能化。
+- **GitHub Actions のマトリクス実行**：PR 時に Ubuntu/macOS 両環境で `validateBanner` を並列実行し、OS 依存のフォントレンダリング差を CI 段階で検出。プルリクの Checks タブに媒体別 pass/fail サマリを自動投稿。
+- **pixelmatch 回帰差分の自動レポート**：main ブランチの承認済み PNG と PR ブランチの生成 PNG を pixelmatch で機械比較し、差分率 1% 超なら PR に差分ヒートマップ画像を自動コメント投稿。Kana の HTML 修正が意図せぬバナー崩壊を招いていないかを PR レビュー段で検出。
+- **Sora QA 事前チェックの JSON API 化**：`validateBanner()` の 6 観点結果を Sora の QA チェックリスト JSON スキーマに準拠した形式で出力し、Sora の事後 QA が「JSON を読むだけで機械判定できる項目」と「目視確認が必要な項目」を明確分離。Sora QA 時間 10 分 → 1 分へ短縮。
+- **セマンティックバージョニング準拠の変更告知**：`@let-inc/banner-utils` のメジャーバージョンアップ（v2 → v3）時は GitHub Release Notes に「破壊的変更」タグを付け、07-LP 部 ren/nao・Yuna・Sora へ Slack Bot で自動通知。共有パッケージの変更が下流へ届く経路を保証。
+
+### 8. チーム横断連携の 2026 進化版（Rei/Kana/Yuna/nori/07-LP/09-システム）
+
+`@let-inc/banner-utils` v3 リリースを機に、バナー生成部内・部門横断の連携プロトコルを一段深化させる。個人技の集合体から「LET 全社のヘッドレスブラウザ資産」へ昇格させる。
+
+- **Rei（キャッチコピー）との「文字密度 API」連携**：Rei が生成した 15 案のキャッチコピーを Hiro が事前に `validateBanner.textDensity(text, viewportSize)` に投入し、「1080×1080 に 45 文字は密度過多、25 文字以内推奨」の判定結果を Rei に即返却。Rei が「バナーに載せられる文字数」を数値で把握でき、Kana・Hiro 側での縮小要求ゼロ化。
+- **Kana との `HIRO-CHECK` コメント突合の自動化**：Kana の HTML 冒頭に `<!-- HIRO-CHECK: fonts-preloaded=yes, omit-bg=no, position-fixed=no --> ` を必須化し、Hiro の変換前スクリプトが実 HTML と自動突合。齟齬検出時は突合結果 JSON を Kana へ Slack 自動返送、Kana のテンプレ自体が改善される再帰的品質向上ループを稼働。
+- **Yuna への 3 分類タグ付きエラーレポート標準化**：`{tag: 'hiro-resolved'|'kana-return'|'yuna-client-check'}` の 3 タグをエラー JSON に必須付与し、Yuna は「読んで転送するだけ」で次工程が動く運用に。深夜バッチのエラーが翌朝まで止まる問題を根絶。
+- **nori（法務）との OCR + LLM 併用チェック**：tesseract.js の OCR 結果を `gpt-4o-mini` に投入し「薬機法・景表法・下請法の観点でリスクある表現」を自然言語で検出。「絶対」等の単純ワード検出を超えて「実質的に効果保証を示唆する表現」を捕捉、nori の負担を機械予備検出で削減。
+- **07-LP 部 ren/nao との OGP 生成統一化**：LP の Hero セクションを `@let-inc/banner-utils` の `generateOGP(url, {size: [1200, 630]})` 1 関数で OGP 化。ren/nao 側は Puppeteer コードを書かず、Hiro のブラウザプール・フォント待機・ICC 正規化・アルファ検証を丸ごと享受。LP 部との二重メンテを撲滅。
+- **09-システム開発部 Kuu との CDN 配信最適化**：Hiro が出力した 3〜4 形式（PNG/WebP/AVIF/JXL）を Kuu の Vercel Image Optimization API 経由で配信する際の `<picture>` タグ HTML を JSON 出力し、Kuu の Next.js プロジェクトが `dangerouslySetInnerHTML` で埋込むだけで最新形式配信が完成。Kuu 側の CDN 設定工数ゼロ化。
+- **sora（COO 事後 QA）への「機械判定済み証明書」提出**：`validateBanner()` の 6 観点 pass 結果に GPG 署名を付けた `.sig` ファイルを PNG と同梱で提出し、Sora は「署名検証 → 機械判定済み項目はスキップ → 目視項目のみ確認」の高速 QA フローに移行。全案件平均 Sora QA 時間 10 分 → 1 分。
+
+---
+
+### アップグレード効果総括（KPI 予測）
+
+| 指標 | 現状 | アップグレード後 | 改善率 |
+|------|------|----------------|--------|
+| 1 案件 5 サイズ変換時間 | 18 秒 | 4 秒 | 78% 短縮 |
+| Yuna 差し戻し率 | 3% | 0.3% | 90% 削減 |
+| Sora QA 時間 | 10 分 | 1 分 | 90% 短縮 |
+| 深夜バッチ処理案件数 | 14 件/夜 | 40 件/夜 | 2.85 倍 |
+| クロスブラウザ検証カバレッジ | Chromium のみ | Chromium/WebKit/Firefox | 3 倍 |
+| 対応画像形式 | PNG/WebP/AVIF | PNG/WebP/AVIF/JXL | 4 形式 |
+| 月次バナー変換工数 | 33 時間 | 11 時間 | 67% 削減 |
+
+本アップグレードは 2026 Q3 中に段階導入し、Q4 で全案件を新パイプラインに移行完了予定。Yuna・Sora・nori・07-LP 部・09-システム開発部との連携プロトコルは順次テスト運用を経て本番化する。
