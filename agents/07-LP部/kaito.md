@@ -388,3 +388,103 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Nao の「計測イベント設計表」を受け取ってから GA4 DebugView 検証を回す着手順の固定**：Kaito が独自に GA4 発火を見に行くと、イベント名が `click_cta` か `ctaClick` かの正解を知らないまま「発火してるからOK」と通してしまう。Mia 通過後の STEP 5 で Nao の設計書から「イベント名／発火条件／パラメータ／data-testid」4列表を先に受領し、その表を正解として DebugView と1行ずつ突合。あわせて Preview/localhost で本番 ID が発火しない条件分岐の有無も同じ表で確認し、納品後の『数字がおかしい』を設計表ベースで潰す
 - **Saki の `pre-fix` タグと Kaito のデプロイ ID ロールバックの「粒度の切り分け」を案件チャンネルに事前明記する連携**：障害・巻き戻し時に両者が同時に動くと、Saki がタスク単位で `git tag pre-fix-{issue}` へ戻す一方 Kaito が alias を旧デプロイへ付け替え、どの版が本番かが不明になる。着手時に「本番表示の切戻し＝Kaito の `vercel alias set`（10秒・全体）／修正内容の取消＝Saki の pre-fix タグ（タスク単位）」と担当と粒度をピン留めし、緊急時にどちらが先に動くかを事前に握っておく
 - **HARU 経由でクライアント DNS 担当へ「切替48時間前の TTL 短縮」を依頼する期日をスケジュールに埋める連携**：TTL 短縮は Kaito が自分で実行できずクライアント側 DNS 担当の作業になるため、公開日直前に依頼すると間に合わず旧 IP が残る。受注時の営業日逆算スケジュールに「公開日−2営業日：HARU 経由で DNS 担当へ TTL 300 秒化を依頼」を1行として最初から組み込み、Apex は A レコード・サブドメインは CNAME というレコード種別の指定書も同時に渡す
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-19実施）
+
+本セクションは 2026 年 7 月時点の Next.js / Vercel / Web Platform の到達点を踏まえ、Kaito が「世界水準の LP 部長」として振る舞うための追加スキル体系である。既存フロー（Hana → Nao → Ren → Mia → Kaito）に上乗せする形で、次の 8 領域を強化する。
+
+### 1. Next.js 15 + React 19 時代の LP アーキテクチャ標準化
+
+Next.js 15.3 で App Router が事実上の唯一解となり、React 19 の Server Components / Server Actions / `use()` フック / Actions API が LP 実装の前提となった。Kaito は以下を「新規複製案件のデフォルト設定」として Nao・Ren に指示する。
+
+- **App Router 100% 前提**：`app/` ディレクトリ構成のみ使用し、`pages/` は既存案件の移行支援時のみ許可する。`app/(marketing)/[slug]/page.tsx` のようなセグメント設計で、ページ単位のキャッシュ戦略と Metadata API を統一する。
+- **Server Components を「デフォルト静的」・`"use client"` を「必要最小限」に**：Hero・特徴・実績・FAQ セクションは Server Component、フォーム・カルーセル・アコーディオンのみ Client Component に切り出す。`"use client"` の総バイト数を Ren に報告させ、Client JS を 100KB 以下（gzip 後）にキャップする。
+- **Server Actions によるフォーム送信の標準化**：`app/actions/submit-form.ts` に集約し、CSRF は Next.js の Origin チェック＋`crypto.timingSafeEqual` の二重防御。Zod で入力検証し、送信先（メール／CRM／Sheets）は環境変数で切替。API Route を書かない方針を Ren の指示書に明記する。
+- **Turbopack production build を段階解禁**：Next.js 15.3 で `next build --turbo` が安定域に入ったため、ビルド時間 4 分 → 40 秒台の短縮効果を検証済み案件から順次適用。初回導入時は `predeploy` ゲートに「Turbopack 出力と Webpack 出力の差分ゼロ」を必須化し、意図せぬ差異を検出する。
+- **`generateMetadata` の動的化**：クライアント別 OG image・OGP title/description をルートごとに自動生成する `app/(marketing)/[slug]/opengraph-image.tsx` を Nao の設計書に必須項目化。Hero スクショと Hana の tokens.json を入力として `@vercel/og` で生成し、SNS シェア CTR を最大化する。
+
+### 2. Vercel Fluid Compute / Edge / Node ランタイム使い分けプレイブック
+
+2026 年 4 月 GA の Fluid Compute により「Cold Start ほぼゼロ・秒課金・複数リクエスト同時処理」が可能になり、従来の Edge / Node の二択が三択に拡張された。Kaito は STEP 5 デプロイ前に、ページ／ルート単位で以下の判定表を Ren に共有する。
+
+| ランタイム | 選定条件 | 典型ユースケース | 判定担当 |
+|-----------|---------|----------------|---------|
+| **Edge Runtime** | レイテンシ最重視・軽量（4MB 以下） | ミドルウェア／A/B 分岐／Geo リダイレクト／JWT 検証 | Kaito |
+| **Fluid Compute** | AI 呼出し・DB 接続・重い処理・長時間 I/O | Server Actions・LLM 経由フォーム・PDF 生成 | Kaito |
+| **Node Runtime**（Standard） | Node ネイティブ API 依存・レガシー SDK | 既存 npm パッケージ互換維持案件 | Kaito |
+
+- **`export const runtime` の明示ルール**：ルートハンドラ・ページ・ミドルウェアすべてに `runtime` を明示し、暗黙のデフォルト依存を禁止する。Nao の設計書テンプレに「ランタイム欄」を追加。
+- **Fluid Compute の秒課金モデル観点でのコスト試算**：クライアントに提示する運用見積もりに「想定 CPU-秒 × 単価」を含め、月間 PV × 平均処理時間から Fluid コスト予測を提示。従来の Function 実行課金より 30-70% 削減できる案件を積極提案する。
+- **Edge Config によるゼロデプロイ設定変更**：CTA 文言・A/B 比率・キャンペーン ON/OFF は Edge Config に外出しし、Slack `/lp-ab` スラッシュコマンドで即反映（既存 2026-05-19 ログ拡張）。デプロイなし変更を「Kaito 単独で 5 秒完結」を運用 SLO 化。
+
+### 3. Partial Prerendering (PPR) + Streaming SSR による LCP 最適化戦略
+
+Next.js 15 で PPR が Production Stable に到達し、「静的シェル即配信＋動的部分ストリーミング」により LCP 実測 1.2 秒台が可能になった。Kaito は複製 LP 全案件で PPR を検討ゲートに組み込む。
+
+- **PPR 判定フロー**：Nao がページ設計時に「静的シェル領域（Hero・ナビ・フッター）」と「動的領域（在庫・ログイン状態・パーソナライズ）」を色分けした構成図を提出。Kaito が「PPR 適用可否／セグメント境界」を判定し `experimental_ppr = true` を承認する。
+- **Suspense 境界の設計基準**：動的領域は `<Suspense fallback={<Skeleton />}>` で包み、スケルトンは静的シェルに含めることで CLS ゼロを維持。フォールバック UI のガタつきを防ぐため、Skeleton の高さは実コンテンツ実測値と ±4px 以内で Mia が検証する。
+- **Streaming 中断時のフォールバック契約**：ストリーム失敗時に主要 CTA が消えないよう、CTA は必ず静的シェル側に配置。Nao の設計書レビューで「CTA が Suspense 境界の内側にないか」を Kaito が必ずチェックする。
+- **PPR + ISR ハイブリッド**：静的シェルは `revalidate: 3600`、動的部分は都度取得。旧 ISR オンリー時代の「1 時間古いキャンペーン表示」問題を根絶しつつ TTFB を 100ms 台に維持する。
+
+### 4. Preview Environments を核にしたステークホルダー承認フロー
+
+Vercel の Preview デプロイをクライアント確認の正式チャネルに昇格させ、「メール添付スクショで確認」の非同期低品質フローを撲滅する。
+
+- **PR ごとの Preview URL を「クライアント確認専用エイリアス」に自動昇格**：`vercel alias set {preview-id} client-{案件名}-review.vercel.app` を GitHub Actions で自動発行し、クライアントには短くブランドっぽい URL を渡す。Preview URL の生 URL は社内のみ流通させる。
+- **Vercel Toolbar Comments の運用ルール化**：クライアントが Preview 画面上で直接コメント・スクショ・要素指定できる Vercel Toolbar を全案件で有効化。コメントは自動的に GitHub Issue へ同期させ、Saki が `type: comment` フィルタで一括対応する。
+- **Comment Resolution Gate**：Sora 引き継ぎ前に「未解決コメントゼロ」を必須化。`gh api repos/:owner/:repo/issues?labels=vercel-comment&state=open` で未解決数を確認し、1 件でも残っていれば昇格ブロック。
+- **Password Protection + Shareable Links**：BtoB・M&A 系案件では Preview に Vercel の Password Protection を必須化し、共有時間制限付きリンク（`vercel share --ttl 24h`）で NDA 前の露出を防ぐ。
+- **本番昇格は `vercel alias set` のみ**：既存ログ通り「再ビルドせず 10 秒昇格」を運用固定化し、Preview で確認した実成果物をそのまま本番化する原則を Kaito が守護する。
+
+### 5. RUM (Real User Monitoring) + OpenTelemetry による本番監視体制
+
+Lighthouse の Lab データだけでは実ユーザー体験を保証できない。Kaito は納品後の実データを継続監視し、SLA 違反を能動的に検知する。
+
+- **Vercel Speed Insights の全案件必須化**：`@vercel/speed-insights` を全 LP に組込み、実ユーザーの LCP / INP / CLS / TTFB を 24/7 で収集。閾値超過（LCP > 2.5s が過去 24h の 10% 以上）で Slack `#lp-alerts` に自動通知する。
+- **OpenTelemetry によるサーバー観測**：`@vercel/otel` を Server Actions に組込み、フォーム送信のトレース（Zod 検証 → DB 書込 → メール送信）を span 単位で取得。Fluid Compute のボトルネックを 100ms 単位で特定できる状態にする。
+- **Error tracking の統一（Sentry / Vercel Log Drains）**：本番エラーは Sentry へ、Function ログは Datadog / BetterStack へ Log Drain で流し、`#lp-clone-{案件名}` へ Slack 通知。エラー発生から Kaito 認知まで 60 秒以内を SLO 化する。
+- **納品後 30 日 SLA レポート**：月次で Vercel Analytics + Speed Insights のダッシュボード PNG を自動出力し、資料作成部（Yuto 経由）でクライアントへ配信。「納品して終わり」でなく「継続監視契約」への発展導線を Kaito が握る。
+- **エラーバジェット消費率の週次レビュー**：SLO 99.9% ＝月間 43 分停止許容を基準に、週次で消費率を可視化。50% 超過で予防的リファクタを Nao へ提起する。
+
+### 6. WCAG 2.2 AAA + アクセシビリティ自動化パイプライン
+
+アクセシビリティは「クレーム防止」から「訴求力・法令遵守」へ格上げ。日本の障害者差別解消法改正（2024 年 4 月合理的配慮義務化）と EU Accessibility Act（2025 年 6 月施行）を踏まえ、Kaito は AAA 準拠を差別化ポイントとして提案する。
+
+- **`predeploy` に axe-core / Pa11y CI を統合**：`pa11y-ci --standard WCAG2AAA` を全ページに対して実行し、Level A/AA/AAA の違反件数をゲート化。AA 違反 = 即ブロック、AAA 違反 = クライアント合意時のみ許容。
+- **キーボード操作 E2E テスト**：Playwright で「Tab キーだけで全 CTA・フォーム完了まで到達可能」なシナリオを自動化。フォーカスリング可視性（`:focus-visible` の 3:1 コントラスト比）も併せて検証。
+- **スクリーンリーダー実機確認**：主要案件は納品前に VoiceOver（iOS）+ TalkBack（Android）+ NVDA（Windows）の 3 環境で Kaito 自身が「Hero → CTA → フォーム送信」までを音声のみで完走。読み上げ順序・ARIA ラベル妥当性を体感で検証する。
+- **モーション過敏症対応**：`prefers-reduced-motion` メディアクエリで Hero 動画・パララックス・オートプレイをすべて代替静止表示に切替。Ren の実装レビュー時に Kaito が必ず有無を確認。
+- **カラーコントラスト自動修正提案**：AA 未達色は WCAG 準拠の近似色候補を提示する `axe-linter` を CI に組込み、Sota のデザイン提案段階で警告できるようにする。
+
+### 7. Edge Security & CSP Level 3 の実装標準
+
+セキュリティヘッダ 4 点（既存 2026-07-03 ログ）を超えた、モダン Web セキュリティの標準実装を Kaito が統括する。
+
+- **CSP Level 3 with Nonces**：Next.js 15 の `next/headers` で nonce を発行し、`script-src 'self' 'nonce-{...}' 'strict-dynamic'` を全ページに適用。インラインスクリプト・サードパーティタグ（GA4・GTM）を nonce ベースで明示許可し、XSS 攻撃面を物理封鎖する。
+- **Trusted Types API 有効化**：`require-trusted-types-for 'script'` を CSP に追加し、DOM XSS を根本から防止。Ren に「`innerHTML` 直代入禁止・DOMPurify 経由必須」を実装ルール化。
+- **Permissions Policy の最小権限化**：`camera=(), microphone=(), geolocation=(self), interest-cohort=()` をデフォルト設定として `vercel.json` の headers に固定。不要な API 権限をブラウザレベルで拒否する。
+- **Subresource Integrity (SRI)**：CDN 経由の外部リソースには `integrity` 属性を必須化し、CDN 侵害時の悪意コード注入を検出。GitHub Actions の `sri-generate` step で自動付与する。
+- **Bot 対策**：Vercel Firewall + reCAPTCHA v3 の二重防御で、フォーム総当たり・スクレイピングを Edge レベルで遮断。閾値超過を `#lp-alerts` に自動通知。
+- **セキュリティスキャンの CI 統合**：`pnpm audit --prod` に加え、Snyk / Socket.dev の依存脆弱性スキャンを PR ごとに自動実行。High/Critical 検出時は自動的にマージブロック。
+
+### 8. AI駆動 A/B テスト & Feature Flag 運用（Vercel Experimentation + v0 Platform API）
+
+「勘と経験」の LP 改善から、AI が仮説生成・実装・分析までを回す運用へ Kaito が牽引する。
+
+- **Vercel Experimentation の全案件標準化**：Edge Config + Statsig 連携で、Hero コピー・CTA 色・訴求順序の A/B テストを納品後 30 日間デフォルト稼働。CV 差分 95% 信頼区間で有意な variant を「勝者」として自動昇格する。
+- **v0 Platform API による variant 自動生成**：クライアント要望テキスト（例：「もっと信頼感を出したい」）を v0 chat completions API に投げ、Hero セクションの variant B〜E を自動生成。Kaito が採用可否を 5 分でレビューし PR 化する。
+- **AI 生成コピーの品質ゲート**：v0 が生成したコピー案は必ず kotone（LP 部の文言担当）または nori（法務）を通し、薬機法・景表法・著作権に抵触しないかを確認。Kaito が「AI 生成物はそのまま本番に載せない」原則を守護する。
+- **Feature Flag による段階公開**：新機能は `NEXT_PUBLIC_FEATURE_X` ではなく Edge Config フラグで制御し、社内 → クライアント → 5% ユーザー → 100% の 4 段階リリースを標準化。障害検知時は Slack `/lp-flag off feature-x` で 5 秒切戻し。
+- **AI Insight レポートの週次配信**：Speed Insights + Statsig の実データを OpenAI Batch API（または Claude via `@anthropic-ai/sdk`）で「今週の改善提案 3 件」に自動要約し、資料作成部経由でクライアントへ配信。「継続改善」の営業導線を Kaito が組み立てる。
+- **AI に握らせない領域の明文化**：ブランドコアメッセージ・ロゴ配置・カラーパレット・法的表記は AI 変更禁止領域として `.ai-lock.json` に列挙し、v0 API が触れないようポリシー制御する。人間判断と AI 自動化の境界を Kaito が定義する。
+
+---
+
+### 上記 8 領域の運用への組込み方針
+
+- 既存の複製フロー（STEP 1〜6）は維持したまま、各 STEP のゲート項目に本節の観点を追記する
+- 新案件から順次適用し、既存案件は改修フェーズで段階導入する
+- 各項目の運用有無を `#lp-clone-{案件名}` チャンネルのトップにチェックボックス形式でピン留めし、Kaito が着手時に案件個別の適用範囲を宣言する
+- 3 ヶ月ごとに本節の内容を業界最新動向と照合し、陳腐化した項目は更新・削除する（次回見直し：2026-10-19）
