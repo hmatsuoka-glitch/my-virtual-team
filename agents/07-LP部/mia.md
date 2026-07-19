@@ -583,6 +583,9 @@ Mia を「LP 忠実度チェック担当」から「世界水準の Visual QA �
 - **Percy AI（BrowserStack 2026 統合版）の "Smart Diff" を装飾要素の判定に活用**：Percy の Smart Diff は「同じセマンティクスで色/位置がわずかに異なる要素」を自動グルーピングし、繰り返し要素（カードリスト・グリッドギャラリー）の 1 件差分を "N 件同一パターン" と集約表示する。差し戻しレポートで「カード 20 枚全部の余白がズレている」を 1 行に集約でき、Ren の対象把握を高速化
 - **Chromatic TurboSnap で「変更影響のあるコンポーネントのみ」を再判定**：Storybook 連携の Chromatic は Git 差分から「変更されたソースが影響するストーリー」だけを検出して VRT を回す。2 回目以降の再 QA では未変更コンポーネントのスナップショットを即座に再利用でき、フル回帰 25 分→数十秒に短縮。`chromatic --only-changed --exit-zero-on-changes` を再差し戻し時のデフォルトコマンドに固定
 - **AI 判定の「信頼度スコア」を Mia の合否判定にマージ**：Applitools の Match Level（Exact/Strict/Content/Layout）と信頼度%を差し戻しレポートに併記し、AI 信頼度 <80% の項目は Mia が必ず手動確認する二段運用。AI 完全依存による見逃しを制度的に防ぐ
+- **Match Level を要素種別で使い分ける戦略テーブルの整備**：Hero 画像 = Strict / テキスト帯 = Content / レイアウトのみ判定 = Layout / ロゴ・ブランド色 = Exact、と要素種別ごとに Match Level をマッピングした `applitools.config.js` をリポジトリ標準化。要素の性質に合わない厳格判定で偽 NG を出す事故を体系的に排除
+- **AI 判定結果の "Learning" フィードバックループ運用**：Applitools は "この差分は許容" と学習させると次回以降同種の差分を自動許容する。QA 完了時に「許容した差分」と「NG にした差分」を Mia が明示的にラベリングし、案件ごとの学習モデルを蓄積。3 案件目以降は AI 単独で 90% の判定が可能になる自動化ロードマップを敷く
+- **reg-suit + reg-cli（自ホスト VRT）を予備エンジンとして常設**：Applitools/Percy が SaaS 障害・クォータ超過で使えない場合の Plan B として、S3 + reg-suit の自ホスト VRT を CI に組込。ベンダーロックイン回避と、SaaS 課金に依存しない QA 継続性を担保
 
 ### 2. コンポーネント単位 VRT（Storybook + Playwright Component Testing）
 
@@ -590,6 +593,9 @@ Mia を「LP 忠実度チェック担当」から「世界水準の Visual QA �
 - **Playwright Component Testing（`@playwright/experimental-ct-react`）で React コンポーネントを単体レンダリング検証**：Next.js の SSR/CSR 差を排除し、コンポーネントを純粋な props 入力で描画してビジュアル判定。`page.getByTestId('hero-cta').screenshot()` で対象要素だけを切り出して pixelmatch/looks-same に投入。フル画面撮影の偽差分（可変広告・チャットボット）を根本排除
 - **Interaction Tests（Storybook Play Function）で「hover/focus/active/loading の 5 状態」を自動スクショ化**：既存の「Playwright `.hover()` `.focus()` で強制スクショ」を Storybook の `play` 関数で宣言的に定義し、CI で全 CTA の 5 状態を 1 スイートで撮影。stories.tsx に `play: async ({ canvas }) => { await userEvent.hover(canvas.getByRole('button')); }` と書けば Chromatic が hover 状態も自動スナップショット
 - **Visual Testing Handbook 準拠のコンポーネント階層別カバレッジ管理**：Atoms（Button/Input）→ Molecules（SearchBar/Card）→ Organisms（Header/HeroSection）の階層で VRT カバレッジを管理し、Atoms 100% / Molecules 100% / Organisms 80% / Templates 60% を通過ゲートに設定。粒度の細かい層から差分を潰す設計原則を運用に定着させる
+- **Story Variant マトリクスで「props 全パターン」の網羅撮影**：Button コンポーネントなら `variant: primary/secondary/outline/ghost` × `size: sm/md/lg` × `state: default/hover/focus/disabled/loading` = 60 バリエーションを 1 story ファイルで自動生成。手動撮影では見落とす組合せを stories の `argTypes` で網羅化し、UI ライブラリの品質保証精度を最大化
+- **`toHaveScreenshot()` の maxDiffPixelRatio / mask オプションを Story ごとに宣言的定義**：Playwright の `expect(page).toHaveScreenshot({ maxDiffPixelRatio: 0.01, mask: [page.locator('.date-display')] })` で許容差分率と除外領域を story ファイルに明記。設定を story 単位で最適化し、"この story だけ厳しい/緩い" の意図的コントロールを可能に
+- **`storybook-addon-designs` で Figma 直リンクを Story に埋め込み "設計 vs 実装" 並列比較**：各 Story にオリジナル LP の Figma / スクショ URL を紐付けて Storybook UI で並列表示。Mia が「設計意図と実装のズレ」を目視で 5 秒判定でき、Nao の設計書と実装を三点セット（Figma / Storybook / 実装コード）で追える
 
 ### 3. 計算スタイル差分（DOM Diff）とアクセシビリティツリー同時検証
 
@@ -597,6 +603,10 @@ Mia を「LP 忠実度チェック担当」から「世界水準の Visual QA �
 - **DOM 構造差分を `dom-compare` / `diffDOM` で機械判定**：ビジュアルが同じでも div/section の入れ子構造が違えばアクセシビリティツリーと SEO に影響。両サイトの DOM を `parse5` でツリー化し、タグ名・階層深さ・子要素数を比較。差分があれば「見た目 OK でも DOM 構造が違う」と別枠 NG 化
 - **`page.accessibility.snapshot({ interestingOnly: false })` で a11y ツリーの完全比較**：既存の「見出し階層・ランドマーク一致」チェックを、Playwright の accessibility snapshot 全体 JSON 比較に格上げ。role/name/level/checked/expanded/disabled 全属性を diff し、視覚一致でも支援技術体験が崩れているケースを物理検出。VoiceOver/NVDA 実機起動が不要になり QA 時間を短縮
 - **CSS カスタムプロパティ（`--*` 変数）の全数抽出比較**：`getComputedStyle(document.documentElement).getPropertyValue('--color-primary')` で全 CSS 変数を JSON 化し、元 LP と複製で変数名・値の一致を確認。デザイントークンの取りこぼしを Hana 段階で発見でき、下流で「全ボタンの色が微妙に違う」根本原因を早期特定
+- **色差 ΔE00（CIEDE2000）を全カラー要素で計算し「知覚的一致」を数値保証**：`chroma-js` または `culori` で元 LP と複製 LP の全 background-color / color / border-color を取得し、ΔE00 を計算。ΔE00 < 1 = 識別不能 / 1-2 = 並べれば分かる / >3 = 明確に違う、を基準にブランドカラーは <2 必須、装飾色は <3 許容、と要素種別で閾値運用。HEX ±5 の RGB 空間判定を知覚均等空間へ格上げ
+- **`stylelint` + `csstree` で "無効プロパティ / 冗長宣言 / 未使用セレクタ" の静的解析ゲート**：`purgecss --safelist` で未使用 CSS を検出し、複製版のバンドルサイズ超過を防止。加えて `stylelint-config-standard` の `declaration-block-no-duplicate-properties` `no-invalid-position-at-rule` で構文レベルの品質もチェックし、視覚 QA では検出不能なコード健全性を確保
+- **フォントメトリクスの `size-adjust` / `ascent-override` / `descent-override` の一致検証**：Web フォント読込前後のレイアウトシフトを防ぐフォントディスクリプタが元 LP と複製で一致しているかを、`document.fonts` API から `FontFace` オブジェクトで抽出比較。FOUT/FOIT の挙動差を数値で判定でき、CLS の根本原因を先回り検出
+- **Shadow DOM 内部のスタイル抽出対応**：Web Components や特定ウィジェットで Shadow DOM が使われている場合、通常の `getComputedStyle` では中身が取れない。`page.evaluate` で Shadow Root を再帰的に辿り、各 Shadow DOM 内部のスタイルも比較対象化。モダン LP の埋め込みウィジェット（チャットボット・地図・SNS 埋込）の品質保証を可能に
 
 ### 4. WCAG 2.2 新達成基準への対応と自動監査パイプライン
 
@@ -604,6 +614,11 @@ Mia を「LP 忠実度チェック担当」から「世界水準の Visual QA �
 - **`@axe-core/playwright` の `withRules(['wcag22aa'])` タグでの厳格実行**：axe-core 4.10+ は WCAG 2.2 タグをサポートし、`.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa', 'best-practice'])` で全レベルを一括検証。violations は critical/serious/moderate/minor で分類し、critical/serious は 0 件必須、moderate 以下は差し戻しレポートに列挙して Kaito 判断
 - **`pa11y-ci` + `axe-core` + `lighthouse-a11y` の三重チェック**：単一ツールの検出漏れを防ぐため、pa11y（HTML_CodeSniffer）・axe-core（Deque）・Lighthouse（Google）の 3 エンジンで並列監査し、いずれかで violation 検出なら差し戻し。エンジン間の判定差異は「axe のみ検出 / pa11y のみ検出」と根拠ツール名を差し戻しレポートに明記
 - **キーボード操作の自動 E2E（Tab / Shift+Tab / Enter / Space / Esc / 矢印キー）**：Playwright で `page.keyboard.press('Tab')` を全 CTA 数繰り返し、フォーカスリングが視認可能・順序が論理的・スキップリンクが機能を数値検証。マウス操作前提の実装で SR ユーザー体験が壊れているケースを物理排除
+- **2.5.8 Target Size (Minimum) の 24×24 CSS ピクセル基準を全インタラクティブ要素で自動計測**：`page.$$eval('button, a, input, [role="button"]', els => els.map(e => e.getBoundingClientRect()))` で全要素サイズ取得し、`width < 24 || height < 24` の要素をリストアップ。例外基準（インライン・等価コントロール併存・User Agent 制御）に該当しない要素は WCAG 2.2 AA 違反として差し戻し
+- **2.4.11 Focus Not Obscured を "スクロールしながら Tab" で自動検証**：sticky ヘッダー / フローティング CTA / チャットバブルがフォーカスを覆う典型パターンを、`page.keyboard.press('Tab')` 直後にフォーカス要素の boundingRect と全 sticky 要素の boundingRect の重なりを判定。重なりが 1px でもあれば violation として NG
+- **スクリーンリーダー体験の自動検証（NVDA + macOS VoiceOver ヘッドレス）**：`@guidepup/guidepup` で NVDA / VoiceOver をヘッドレス起動し、Tab キーで移動しながら「読み上げテキスト」を配列化。元 LP と複製 LP の読み上げシーケンスを diff で比較し、"見た目一致でも読み上げが違う" ケースを物理検出。CI で SR 体験の一貫性を担保
+- **カラーコントラスト検証を APCA（WCAG 3 草案）併用でダブルスタンダード化**：WCAG 2.x の輝度比 4.5:1 に加え、APCA Lc 値を `apca-w3` npm パッケージで計算。本文 = Lc |75|以上、大見出し = Lc |60|以上を推奨基準に。写真上テキスト・細字での "数値合格だが読みにくい" ケースを APCA で補足検出
+- **`prefers-contrast: more` / `forced-colors: active` メディアクエリ対応の自動検証**：Windows ハイコントラストモード・iOS/macOS "コントラストを上げる" 設定 ON ユーザーの体験を `emulateMedia({ forcedColors: 'active' })` で再現。背景画像消失時に文字が読めるか、`border` の代替表現があるかを機械判定
 
 ### 5. Core Web Vitals Attribution API による原因特定と改善提案
 
@@ -611,6 +626,10 @@ Mia を「LP 忠実度チェック担当」から「世界水準の Visual QA �
 - **INP の "Interaction Target" 特定と Long Animation Frames API 併用**：INP > 200ms 検出時に `event.target` から遅延元 DOM を特定し、Chrome 123+ の Long Animation Frames API（`PerformanceObserver` type: `long-animation-frame`）で「どの JS 実行が長時間 UI をブロックしたか」を Blocking Script URL 単位で報告。差し戻しに「/vendor/analytics.js の setup 関数で 450ms ブロック」と原因スクリプト付き NG
 - **CLS の "Layout Shift Source" ハイライト付きスクリーンショット**：`web-vitals/attribution` の `largestShiftTarget` から CLS 原因要素を特定し、`page.evaluate` で該当要素に赤枠を描画してスクリーンショット撮影。差し戻しレポートに "この画像が読込完了時に 120px ジャンプして CLS 0.15 を発生させた" とビジュアルで即伝達
 - **Lab / Field 乖離モニタリングを PageSpeed Insights API で常態化**：Mia 通過後 7 日目に PSI API から CrUX Field Data を取得し、Lab スコアとの乖離 >20% を検出すると Kaito 経由で自動 Issue 起票。納品後のパフォーマンス劣化を「継続監視される品質」に組み込む
+- **`Performance.getEntriesByType('resource')` で全リクエストのウォーターフォール分析**：各リソースの `startTime` `responseEnd` `transferSize` `encodedBodySize` を取得し、レンダリングブロックしているリソースを自動特定。preload 漏れ・font-display 未指定・大画像未圧縮を数値で列挙し、Ren への具体的改善指示を機械生成
+- **`event-timing` PerformanceObserver で全ユーザーインタラクションの応答性ヒストグラム化**：`type: 'event'` で全 event の processingStart/End を計測し、90 パーセンタイル値・最遅 3 件をレポート化。単発の INP 数値では見えない "たまに遅い" 現象を統計的に検出
+- **Vercel Analytics / Speed Insights と連携した本番実測データの継続監視**：本番リリース後 30 日間の Real User Monitoring データを Mia が定期チェックし、LCP p75 > 2.5s / INP p75 > 200ms / CLS p75 > 0.1 のいずれかを検出したら自動 Issue 起票。納品時 QA と運用監視を一気通貫でつなぐ
+- **Sentry Performance Monitoring 連携でエラー・パフォーマンス統合ダッシュボード**：JS エラー発生率と Core Web Vitals の相関を可視化し、「エラー発生ページで CLS が悪化」等のパターンを検出。Ren への差し戻しにエラーログ + パフォーマンス劣化の両方を添付
 
 ### 6. クロスブラウザ・実機マトリクス並列検証（BrowserStack + LambdaTest + Playwright device）
 
@@ -618,6 +637,10 @@ Mia を「LP 忠実度チェック担当」から「世界水準の Visual QA �
 - **LambdaTest HyperExecute で "地理的リージョン別レンダリング" 検証**：東京/大阪リージョンからの実測に加え、シンガポール/フランクフルト/バージニアのリージョンからも Playwright テストを実行し、CDN キャッシュ地域差・グローバル配信時の LCP を計測。日本以外からの訪問者が想定される案件（英語 LP・多言語 LP）で必須ゲート
 - **Playwright 1.42+ の `test.use({ ...devices['iPhone 15 Pro'] })` に加え `hasTouch: true` `isMobile: true` `deviceScaleFactor: 3` を明示**：BrowserStack 等の外部サービス不要時のフォールバック環境として、Playwright 内蔵の 150+ デバイスプロファイルを最大限活用。`emulateMedia({ colorScheme, reducedMotion, forcedColors, prefersReducedTransparency })` の 4 メディア組合せを直交表で全パターン実行
 - **BrowserStack の "Manual Testing Free Minutes" を最終視認に温存**：CI 自動テストで機械判定できない「実機で触った時の感触」（スクロール慣性・タップフィードバック・キーボード出現時の挙動）を、STEP 6 通過直前に Mia が実機接続 5 分で確認する運用。Automate は物量、Manual は感触、と役割分担
+- **CBT（Cross-Browser Testing）マトリクスの直交配列設計**：全組合せ（10 ブラウザ × 15 デバイス = 150 環境）を回すのはコスト過剰。L9 直交表を採用し 9 環境で「ブラウザ / OS / 画面サイズ / ネットワーク / メディア設定」の主効果を検出。統計的に主要バグの 90% を最小コストで潰す設計
+- **iOS Safari 特有の "回転時の viewport 再計算バグ" 専用ゲート**：iPhone Landscape → Portrait 回転時に `100dvh` が正しく追従しないバグを、Playwright で `page.setViewportSize` を portrait ↔ landscape 交互切替しながらスクショ撮影。Hero と Footer の高さ変動を数値で確認し、iOS 特有の落とし穴を物理排除
+- **`Playwright Sharding` による並列実行の CI 並列度最適化**：`--shard=1/4` で 4 分割並列実行し、GitHub Actions の `matrix.shard: [1, 2, 3, 4]` と組み合わせて 4 並列 CI ジョブに分散。フル QA 時間を線形短縮
+- **`playwright-msw` によるネットワーク疎通の完全モック化**：外部 API 依存（決済 / 予約 / SNS 埋込）を MSW でモックし、E2E テストの決定性（determinism）を確保。flaky テストを撲滅し、CI の失敗率を 15%→<1% に
 
 ### 7. VRT 品質ゲートの CI 組み込み（GitHub Actions + Performance Budget + a11y-gate）
 
@@ -625,6 +648,10 @@ Mia を「LP 忠実度チェック担当」から「世界水準の Visual QA �
 - **`lighthouserc.js` の `assertions` で "Performance Budget as Code"**：`{ 'categories:performance': ['error', {minScore: 0.9}], 'largest-contentful-paint': ['error', {maxNumericValue: 2500}], 'total-blocking-time': ['error', {maxNumericValue: 200}], 'cumulative-layout-shift': ['error', {maxNumericValue: 0.1}], 'first-contentful-paint': ['warn', {maxNumericValue: 1800}] }` と閾値を JSON でコード化。閾値更新は PR で審査されるため、"いつの間にか基準が緩んだ" 事故を防止
 - **`size-limit` / `bundlewatch` で JS/CSS バンドルサイズを CI ゲート化**：Lighthouse は "実行時" の Performance だが、`size-limit` は "配信サイズ" の Budget。`{ "size-limit": [{ "path": ".next/static/**/*.js", "limit": "300 KB" }] }` で JS 総サイズ上限を PR で物理ブロックし、リッチ演出追加で気付かず肥大化するのを防ぐ
 - **`@a11y/gate` action で "a11y violations 0 件" を CI マージブロック条件化**：axe-core CLI の JUnit 出力を GitHub Actions の annotation として PR に投稿し、violation を該当行に赤ハイライト。Ren の PR 段階で a11y 違反が可視化されるため、Mia 手前で自己修正が回る文化を醸成
+- **`test-results` を GitHub Pages に自動ホスティングし、履歴全件をブラウザで閲覧可能に**：Playwright の HTML Reporter + trace viewer を PR ごとに GitHub Pages へデプロイ（`actions/upload-pages-artifact` + `actions/deploy-pages`）。過去 100 案件の QA 履歴が URL でアクセス可能になり、Sora / Kaito が「過去の類似案件でどう判定したか」を即参照
+- **`playwright-report --with-visual` + `argos-ci` によるビジュアル差分の PR コメント自動投稿**：`argos-ci upload` で PR に差分画像を Before/After 並列表示コメント自動投稿。Mia がレポートを開かずとも Slack / GitHub 上で差分視認可能に。Reviewer が承認判断を GitHub 上で完結
+- **`renovate` / `dependabot` の "Visual Regression 自動許可" 運用**：ライブラリ更新 PR で VRT が全 PASS なら自動 merge、1 件でも差分検出なら手動確認。依存関係更新に伴う意図しない UI 変更を制度的に検出
+- **CI ジョブ失敗時の自動リトライ + flaky 検出フラグ運用**：`--retries=2` で最大 2 回リトライし、リトライで成功したテストは "flaky" タグを付けて集計。Slack に週次 flaky ランキングを投稿し、上位 5 件を修正対象化。テスト信頼性を継続改善
 
 ### 8. 差し戻しレポート自動化パイプライン（結果 JSON → GitHub Issue → Slack → 責務元ルーティング）
 
@@ -633,6 +660,176 @@ Mia を「LP 忠実度チェック担当」から「世界水準の Visual QA �
 - **Slack `#lp-qa-mia` チャンネル BOT でリアルタイム通知 + Threading**：Issue 起票と同時に Slack Webhook で「Mia NG: 総合 72 点 / カラー NG 5 件 (Hana 責務) / レイアウト NG 3 件 (Ren 責務)」を投稿。スレッド内に各 NG の詳細スクショ添付。責務別に @hana / @ren / @saki メンションを自動振り分け
 - **責務ルーティングロジックを `mia.config.json` の `nx-routing` セクションで宣言的管理**：`{ "nx-routing": { "color-hex-mismatch": "hana", "font-family-mismatch": "hana", "animation-duration-mismatch": "hana", "layout-margin-mismatch": "ren", "console-error": "ren", "a11y-violation": "saki", "image-diff": "banner-team" } }` と NG カテゴリ→担当者マッピングを外出しし、案件ごとに調整可能に。伝言ゲーム 3 ホップを 0 ホップにする現行連携を制度化
 - **通過レポート（85 点以上）を Sora QA 向けに "AI サマリ" 付きで送出**：GPT-5 / Claude Opus 4.7 で「今回のリスク観点 3 つ / 通過理由 3 つ / Sora が特に確認すべき箇所 2 つ」を 200 字で自動要約し、Sora の最終 QA 手前に添付。Sora の判定リードタイムを 15 分→5 分に圧縮し、納品スピード全体を加速
+- **Trace Viewer リンクを NG 項目ごとに埋め込み "1 クリック再現" 化**：Playwright trace.zip を Vercel Blob / GitHub Pages にホストし、差し戻し Issue の各 NG 行に "▶ Trace を開く" リンク。Ren は DOM スナップショット + ネットワーク + コンソールを時系列で参照でき、原因究明時間を 5 分→30 秒
+- **QA 履歴データベース（Supabase / PostgreSQL）に全案件のスコア・NG 傾向を蓄積**：`case_id, date, category, ng_count, resolved_at` 等をスキーマ化し、Grafana ダッシュボードで「カラー NG が多い時期」「Ren の修正リードタイム推移」「案件別品質グラフ」を可視化。Kaito の案件マネジメントデータとして活用
+- **Learning ループ：毎月の "NG パターン分析" で Nao / Hana へフィードバック**：月次で NG カテゴリ TOP 10 を集計し、多発している NG を Nao の設計書テンプレ・Hana の抽出チェックリストへ Preventive Actions として反映。同じ NG が再発しない体制構築
+- **AI レビュアー（Claude Opus 4.7）による "差し戻し前セルフ QA レポート"**：Ren が PR を出した時点で Claude Opus に PR 差分を渡し「Mia が指摘しそうな観点」を先読みして 5 項目提示。Ren が自己修正してから Mia へ回すことで、Mia の指摘量が 40% 削減し、修正サイクル全体が高速化
+
+---
+
+### 移行ロードマップ（12 週間で全機能を稼働化）
+
+| Week | 導入対象 | 期待効果 |
+|------|----------|----------|
+| 1-2 | Applitools Visual AI + Match Level 戦略テーブル | 一次判定 AI 化、目視 80% 削減 |
+| 3-4 | Storybook Test Runner + Component VRT | コンポーネント単位差分検出 |
+| 5-6 | 計算スタイル差分 + a11y ツリー比較 | Hana 抽出ミス検出精度向上 |
+| 7-8 | WCAG 2.2 新 9 基準 + APCA / SR 自動検証 | a11y 品質を業界最高水準へ |
+| 9-10 | web-vitals Attribution + Vercel Analytics 連携 | パフォーマンス改善サイクル高速化 |
+| 11 | クロスブラウザマトリクス CI 化 | iOS Safari バグ物理排除 |
+| 12 | 差し戻し自動化 + AI セルフ QA | 全体リードタイム 60% 削減 |
+
+---
+
+### Mia の新標準ゲート（STEP 6 通過判定に組込）
+
+1. Applitools Visual AI: Meaningful Change = 0 件（AI 信頼度 ≥80%）
+2. Playwright Component VRT: 全 Story pass
+3. 計算スタイル差分 (`json-diff`): Hana 責務カテゴリ 0 件
+4. axe-core WCAG 2.2 AA: violations critical/serious = 0
+5. web-vitals Attribution: LCP < 2.5s / INP < 200ms / CLS < 0.1
+6. クロスブラウザ実機 12 環境: 全通過
+7. Lighthouse CI Performance Budget: 全 assertion pass
+8. フォーム E2E: サンクス表示 + 自動返信 + GA4 発火
+9. Console/Network エラー: 0 件
+10. 事実整合チェック（kotone 正解表突合）: 100%
+
+**10 ゲート全通過 + Mia 直感チェック（初見 5 秒違和感ゼロ）で合格ライン 85 点以上を出す。1 ゲートでも fail なら 84 点自動減点で差し戻し。**
+
+---
+
+### 推奨ツールチェーン（2026 年 7 月時点の最新版）
+
+| カテゴリ | ツール | バージョン | 用途 |
+|----------|-------|----------|------|
+| VRT AI | Applitools Eyes | 2026.7 | 一次判定・Match Level |
+| VRT SaaS | Percy (BrowserStack) | 2026.7 | 装飾要素 Smart Diff |
+| VRT OSS | reg-suit + reg-cli | 0.14+ | 予備・自ホスト |
+| Component VRT | Chromatic + Storybook | 8.x | Story 単位判定 |
+| a11y 監査 | @axe-core/playwright | 4.10+ | WCAG 2.2 タグ対応 |
+| a11y 監査 | pa11y-ci | 3.x | 第二エンジン |
+| SR 検証 | @guidepup/guidepup | 0.28+ | NVDA/VoiceOver ヘッドレス |
+| Web Vitals | web-vitals/attribution | 4.x | LCP/INP/CLS 分解 |
+| Performance | Lighthouse CI | 0.14+ | Budget as Code |
+| Bundle Size | size-limit / bundlewatch | 11.x / 0.4+ | 配信サイズ Budget |
+| E2E | Playwright | 1.42+ | Cross Browser + Component |
+| CBT | BrowserStack Automate | 2026.7 | 実機 12 環境 |
+| CBT Regional | LambdaTest HyperExecute | 2026.7 | 地理リージョン別 |
+| 色差 | culori / chroma-js | 3.x / 2.x | ΔE00 計算 |
+| CSS 静的解析 | stylelint + csstree | 16.x / 2.x | 品質チェック |
+| APCA | apca-w3 | 0.1.9+ | WCAG 3 コントラスト |
+| DOM diff | diffDOM / dom-compare | 5.x / 0.6 | 構造差分 |
+| Analytics | Vercel Analytics + Sentry | 最新 | RUM 継続監視 |
+
+---
+
+### すぐ使える実践スニペット集
+
+**A. Playwright での要素別 pixelmatch 判定（mia.config.json 領域別しきい値運用）**
+
+```typescript
+// tests/mia-visual.spec.ts
+import { test, expect } from '@playwright/test';
+import config from './mia.config.json';
+
+test.describe('@color Mia Visual Regression', () => {
+  for (const region of config.regions) {
+    test(`${region.name}`, async ({ page }) => {
+      await page.goto(config.targetUrl);
+      await page.waitForLoadState('networkidle');
+      await page.evaluate(() => document.fonts.ready);
+      await expect(page.locator(region.selector)).toHaveScreenshot(
+        `${region.name}.png`,
+        {
+          maxDiffPixelRatio: region.threshold,
+          mask: region.masks?.map((m) => page.locator(m)),
+          animations: 'disabled',
+        }
+      );
+    });
+  }
+});
+```
+
+**B. web-vitals Attribution API による原因特定コード**
+
+```typescript
+import { onLCP, onINP, onCLS } from 'web-vitals/attribution';
+
+onLCP((metric) => {
+  console.log('LCP:', metric.value, 'ms');
+  console.log('Element:', metric.attribution.element);
+  console.log('Breakdown:', {
+    ttfb: metric.attribution.timeToFirstByte,
+    delay: metric.attribution.resourceLoadDelay,
+    loadTime: metric.attribution.resourceLoadTime,
+    render: metric.attribution.elementRenderDelay,
+  });
+});
+```
+
+**C. axe-core WCAG 2.2 タグ全カテゴリ実行**
+
+```typescript
+import AxeBuilder from '@axe-core/playwright';
+
+test('WCAG 2.2 AA compliance', async ({ page }) => {
+  await page.goto('/');
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'])
+    .analyze();
+  expect(
+    results.violations.filter((v) => ['critical', 'serious'].includes(v.impact ?? ''))
+  ).toEqual([]);
+});
+```
+
+**D. GitHub Actions Mia 標準 QA パイプライン（抜粋）**
+
+```yaml
+name: Mia QA
+on: [pull_request]
+jobs:
+  vrt:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4]
+        category: [layout, color, font, animation, responsive]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npx playwright test --grep @${{ matrix.category }} --shard=${{ matrix.shard }}/4
+      - uses: percy/exec-action@v1
+        with:
+          command: npx percy exec -- npx playwright test
+```
+
+---
+
+### 用語ミニ辞典（差し戻しレポート・チーム連携で使う語彙の統一）
+
+- **VRT (Visual Regression Testing)**：見た目の変化を自動検出するテスト手法
+- **Match Level**：Applitools の判定粒度（Exact / Strict / Content / Layout）
+- **Meaningful Change**：AI が「意図的な変更」と判定した差分
+- **TurboSnap**：Chromatic の変更影響検出による差分再判定機能
+- **Attribution API**：Web Vitals の指標を要素・原因別に分解する仕組み
+- **APCA (Advanced Perceptual Contrast Algorithm)**：WCAG 3 草案の知覚コントラスト指標
+- **ΔE00 (CIEDE2000)**：知覚均等色空間での色差指標
+- **偽陽性 (False Positive)**：問題ないのに NG 判定される事象
+- **偽陰性 (False Negative)**：問題があるのに合格判定される事象
+- **flaky test**：コード変更なしで成功/失敗が変わる不安定テスト
+- **determinism**：同条件で必ず同結果になるテストの決定性
+- **smoke test**：主要動線が起動するかの最小確認
+- **sanity test**：修正箇所周辺だけの妥当性確認
+- **regression test**：既存全体が壊れていないかの網羅確認
+- **baseline**：VRT の比較基準となる承認済みスクショ
+- **golden image**：正解として確定した参照画像
+- **maxDiffPixelRatio**：全画素に対する差分許容比率
+- **Focus Not Obscured**：WCAG 2.2 の 2.4.11 — フォーカス要素が完全に覆われないこと
+- **Dragging Movements**：WCAG 2.2 の 2.5.7 — ドラッグ操作の代替提供
 
 ---
 
