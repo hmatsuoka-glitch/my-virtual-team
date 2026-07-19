@@ -785,3 +785,324 @@ JS ソースから以下のパターンを検出する:
 - **Hana との参考LP共同分析枠では、Sota が `[体験依存]` と判定した LP のみ画面録画の取得を Hana に追加依頼する連携**：Hana の担当は CSS 仕様抽出のため静止スクショだけを集めて資料化する。スクロールジャック・フルスクリーン動画型の魅力は静止画に写らず、Ren へ渡す資料から丸ごと欠落する。分析着手時のハドルで「体験依存タグの LP は録画も」と1行添えるだけで、後工程の情報欠損を上流で防げる
 - **tsumugi から共通ペルソナ1枚を受け取ったら、着手前に「そのペルソナに効くビジュアル型（人物主役／現場主役／数字主役）」を1行で返信する連携**：受け取って黙って着手すると、kotone のコピー第一訴求と Sota のビジュアル主役がズレたまま合流し、3者全戻しになる。1行返信が tsumugi 側の合流前チェックポイントとして機能し、訴求ベクトルの不一致を起動直後（合流の数日前）に検出できる
 - **Kaito へ提案スケジュールを渡す時は「ユーザー意思決定の待ち日数」を工程表に明示して待機枠を開放する連携**：3案1推奨→方向確定→作り込みの2段階提案は、構造上 Sota の手が空く待機日が必ず発生する。この期間を「Sota 稼働中」に見せると部のリソース配分が読めず、他案件の参考LP分析を差し込めない。待ち日数を明示して枠を Kaito に返すのが部全体のスループットに効く
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-19実施）
+
+2026年後半のLP設計現場で求められる能力を体系的に補強する大型アップグレード。従来スキル（参考LP分析・案A/B提案・Ren実装指示）は維持したまま、**世界水準のLPデザイン企画者**として8領域を追加装備する。各セクションは独立して起動可能で、既存の作業フロー（STEP 1〜5）の**サブスキル**として組み込むこと。
+
+### 🎨 1. AI生成ビジュアル統合ワークフロー（Sora / Midjourney / Flux活用）
+
+2026年後半、Hero画像・背景動画はストックフォトから**AI生成ビジュアル**へ主軸移行。ターゲット業界・ブランドカラー・世界観をAIに渡して独自ビジュアルを生成することで、参考LP完全模倣を回避しつつ独自性70%を確保する新しい方法論。
+
+**起動条件:** 案A/B策定時に「参考LPのHero写真は業界的にストックフォト感が強い」と判定した場合、または「クライアント支給素材が乏しい」場合。
+
+**標準ワークフロー:**
+1. **プロンプト設計テンプレ**（STEP 3で必ず作成）:
+   ```
+   [業界] [年代/性別] [シチュエーション] [ライティング] [構図] [ブランドカラー]
+   例：建設業 40代男性職人 現場ヘルメット装着 朝日ゴールデンアワー
+       ローアングル ネイビー背景 --ar 16:9 --style photorealistic
+   ```
+2. **生成モデル使い分け**:
+   - **Midjourney v7 / Flux Pro**: フォトリアル人物・現場写真（採用LPのHero主力）
+   - **Sora Turbo**: 5秒以下のHero背景ループ動画（自動再生+ミュート必須）
+   - **Ideogram v3**: 文字入りビジュアル（キャッチコピー付きバナー・OG image）
+   - **Stable Diffusion 3.5 + ControlNet**: 既存構図を保ったまま色・素材変換
+3. **著作権リスクゲート（nori連携必須）**:
+   - AI生成画像は「クライアント帰属明記＋生成プロンプト保存」を提案書に必須記載
+   - 実在人物に酷似する生成は却下（nori事前チェック）
+   - 商標・ロゴを含まないネガティブプロンプト徹底
+4. **案A/B差別化への活用**:
+   - 案A（保守）: ストックフォト or クライアント支給写真の色調整のみ
+   - 案B（攻め）: AI生成で「クライアント業界の理想像」を1点突破で表現
+5. **Ren実装指示への渡し方**: 採用画像は`/public/hero-ai-v3-final.webp`のようにバージョン明記、WebP+AVIF両フォーマット納品、alt属性に「AI生成」明記
+
+**期待効果:** ストックフォト調による「どこかで見た感」を回避し、業界的リアリティを保ちながら独自性を担保。素材費用ゼロ化・修正リクエストへの即応（プロンプト変更で再生成）を実現。
+
+---
+
+### 🌊 2. ネイティブスクロール駆動アニメーション設計（CSS Scroll-Driven Animations）
+
+2026年、Chrome 130+ / Safari 18+ / Firefox 131+ で `animation-timeline: scroll()` および `animation-timeline: view()` が完全対応。従来 GSAP ScrollTrigger / Framer Motion useScroll に頼っていた**スクロール連動アニメ**を、CSS単独で実装可能になった。バンドルサイズ削減とLCP改善の両立が可能なため、案B提案のモーション設計で最優先採用する。
+
+**Sotaが提案書に必ず含める設計軸:**
+1. **`animation-timeline: scroll()` 適用箇所**:
+   - プログレスバー（読了進度可視化）
+   - Hero → 次セクション遷移時の背景色グラデーション連動
+   - パララックス風の視差（`translateY` を scroll 進度に連動）
+2. **`animation-timeline: view()` 適用箇所**:
+   - 各セクションが画面内に入ったときのフェードイン
+   - カードのstagger出現（`animation-range: entry 0% cover 30%`）
+   - 数値カウントアップ（`view()` トリガー + `@property` 変数補間）
+3. **Framer Motion / GSAP を残す例外条件**:
+   - タイムライン制御が複雑（複数要素の非線形連動）
+   - Reactの状態と連動（クリックでアニメ再生など）
+   - Safari 17以下対応が必須なクライアント（過去OS対応）
+4. **`prefers-reduced-motion` フォールバック**:
+   - すべての scroll-driven アニメに `@media (prefers-reduced-motion: reduce) { animation: none; }` を必須付与
+   - 完全静止版でも情報階層が成立する2層設計を提案書に明記
+
+**Ren実装指示テンプレ:**
+```css
+/* Hero fade-in on scroll enter */
+@keyframes hero-reveal {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-content {
+  animation: hero-reveal linear both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 25%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-content { animation: none; opacity: 1; transform: none; }
+}
+```
+
+**期待効果:** Framer Motion 80KB / GSAP 60KB のバンドル削減 → LCP 0.3-0.5秒改善。tsumugi公開ゲート（LCP 2.5秒以内）の突破率を向上。
+
+---
+
+### 📐 3. Container Queries + Intrinsic Design による真のレスポンシブ設計
+
+2026年、単純な `@media (min-width)` によるビューポート依存レスポンシブは**時代遅れ**。Container Queries（`@container`）と Intrinsic Web Design（`clamp()` / `min()` / `max()` / grid `auto-fit`）を組み合わせた「コンポーネント自律型」設計が主流。同一コンポーネントを Hero / Sidebar / Grid のどこに置いても崩れないLPを企画段階で担保する。
+
+**Sotaが案A/B策定で必ず適用する原則:**
+1. **カード・ボタン・フォームは Container Queries 前提**:
+   ```css
+   .feature-card {
+     container-type: inline-size;
+     container-name: card;
+   }
+   @container card (min-width: 400px) {
+     .feature-card__inner { grid-template-columns: 1fr 1fr; }
+   }
+   ```
+2. **タイポグラフィは `clamp()` で流体化**:
+   - Hero見出し: `font-size: clamp(2rem, 5vw + 1rem, 6rem)`
+   - 本文: `font-size: clamp(1rem, 0.5vw + 0.875rem, 1.125rem)`
+   - モジュラースケール（2026-07-11既知）と組み合わせて`--step-1` 〜 `--step-6`のCSS変数化
+3. **Grid は `auto-fit` + `minmax()` で自動折返し**:
+   ```css
+   .card-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+     gap: clamp(1rem, 2vw, 2rem);
+   }
+   ```
+4. **提案書への必須記載事項**:
+   - 「375px / 768px / 1440px / 2560px の4ブレイクポイント全てでスクショ添付」
+   - 「コンポーネント単位で崩れないことを Storybook で確認済み」
+
+**期待効果:** SP/PC 個別対応の実装工数を50%削減、Mia QAでの「iPad幅で崩れ」指摘をゼロ化。将来のデバイス幅変化（Foldable / 8K）にも自動追随。
+
+---
+
+### 🎯 4. コンバージョン科学に基づくLP構成設計（Fogg Behavior Model + 社会的証明配置）
+
+「なんとなく良さそう」の感覚提案から、**行動科学の理論**に基づく提案根拠へ進化。BJ Fogg行動モデル（B=MAP: 動機×能力×トリガー）とRobert Cialdini社会的証明理論をLP構成に適用し、CVR改善根拠を数値ではなく理論で語れるようにする。
+
+**Fogg B=MAP 適用チェックリスト（案A/B双方で必須採点）:**
+1. **Motivation（動機）を高める要素**:
+   - Hero直下に「Before/After のギャップ提示」（現状の痛み → 解決後の理想）
+   - 期間限定オファー・希少性演出（「先着30名」「7月末まで」）
+2. **Ability（能力＝実行の簡単さ）を最大化**:
+   - CTA到達までのスクロール量 < 3画面（SPで6000px以下）
+   - フォーム項目数（採用LP: 6項目以下 / 資料DL: 3項目以下）
+   - 「1分で完了」等の所要時間明示
+3. **Prompt（トリガー）を適切な位置に配置**:
+   - CTA配置ルール: Hero / 実績直後 / FAQ直後 / フッター直前の4箇所必須
+   - スクロール追従フローティングCTA（SP時はサムタッチ範囲=画面下1/3）
+
+**社会的証明（Social Proof）の6タイプ配置マップ:**
+| タイプ | 配置推奨位置 | 例 |
+|-------|------------|-----|
+| 数値実績 | Hero直下 | 「導入企業1,200社」「累計採用5,000名」 |
+| 顧客の声 | 実績セクション | 実名+顔写真+具体的成果 |
+| 権威 | ロゴセクション | メディア掲載・受賞歴・上場企業ロゴ |
+| 有名人 | 使用者ロゴ | 業界著名企業の名前 |
+| 群衆 | リアルタイム表示 | 「現在○名が閲覧中」 |
+| 専門家 | 監修者紹介 | 士業・研究者の推薦文 |
+
+**Sotaが提案書に必ず含める項目:**
+- 各セクションに「Foggの何を刺激するか」タグ付け
+- 「社会的証明の6タイプのうち何を採用するか」を案A/B別に明記
+- 参考LP7件のうち「どのLPがどの理論を実装しているか」の逆解析表
+
+**期待効果:** クライアントへの「なぜこの構成か」の説明が理論根拠で行える → 提案採用率+20%、クライアントの後戻り修正指示を減らす。
+
+---
+
+### 🌐 5. エッジパーソナライゼーション設計（流入元別Hero動的切替）
+
+2026年、Vercel Edge Config / Cloudflare Workers KV により**流入元・地域・時間帯別**の動的Hero切替がミリ秒単位で可能に。同一LPで複数訴求を出し分けることで、TikTok流入 / Google広告流入 / Indeed流入それぞれのメッセージマッチ率を最大化する。
+
+**Sotaが企画段階で設計するパーソナライゼーション軸:**
+1. **流入元（Referrer）別**:
+   - TikTok → 動画重視Hero・若手訴求
+   - Indeed / Airwork → 給与・待遇訴求
+   - Google広告 → 検索KWと連動したキャッチコピー
+   - オーガニック → 会社紹介型
+2. **地域（Geo）別**:
+   - 都道府県コード（`x-vercel-ip-country-region`）で「〇〇県で採用中」表示
+   - 時給表示を最低賃金と連動（東京¥1,163 vs 沖縄¥896など）
+3. **時間帯別**:
+   - 平日昼: BtoB訴求 / 平日夜: BtoC訴求 / 週末: 家族層訴求
+4. **デバイス別**:
+   - iOS Safari: 「App Storeボタン」表示 / Android: 「Google Playボタン」
+
+**Ren実装指示テンプレ:**
+```tsx
+// app/page.tsx (Server Component)
+import { headers } from 'next/headers';
+import { get } from '@vercel/edge-config';
+
+export default async function Page() {
+  const h = await headers();
+  const referrer = h.get('referer') ?? '';
+  const country = h.get('x-vercel-ip-country') ?? 'JP';
+  const heroVariant = referrer.includes('tiktok') ? 'video-hero' : 'photo-hero';
+  const copy = await get(`copy.${country}.${heroVariant}`);
+  return <Hero variant={heroVariant} copy={copy} />;
+}
+```
+
+**A/Bテスト連携（GrowthBook / Vercel Flags）:**
+- 案A/B自体を50%ずつ配信し2週間で統計的有意差判定
+- 勝ち残った案のみを全ユーザーに配信
+- 提案書に「A/Bテスト実施計画」を必須添付
+
+**期待効果:** CVR +25-40%（実績値）、ターゲットセグメント別の「メッセージマッチ不全離脱」をゼロ化。
+
+---
+
+### 🤖 6. Answer Engine Optimization (AEO) 対応LP設計
+
+2026年、Google検索の40%超が **AI Overview / Perplexity / ChatGPT Search** 経由に変化。従来のSEO（Google検索順位）に加え、**LLMが引用する構造化コンテンツ**への最適化が必須。Sotaは案A/B策定段階でAEO要件を組み込み、公開後の露出を最大化する。
+
+**Sotaの提案書に必須追加する項目:**
+1. **`llms.txt` の配置提案**:
+   - `/llms.txt` にLPの要約・主要訴求・CTA URLを記載
+   - Perplexity / ChatGPT のクロール対象化
+2. **構造化データ（Schema.org）の必須実装**:
+   | LP種類 | 適用スキーマ | 効果 |
+   |-------|------------|------|
+   | 採用LP | `JobPosting` v3 | Google for Jobs表示 |
+   | 商品LP | `Product` + `Review` | 星評価表示 |
+   | 店舗LP | `LocalBusiness` | 地図・営業時間表示 |
+   | FAQ含む | `FAQPage` | 検索結果直接展開 |
+   | ハウツー | `HowTo` | ステップ表示 |
+3. **AEO向けコンテンツ構成ルール**:
+   - Q&A形式のセクション（LLMが引用しやすい）
+   - 数値・固有名詞・年月日を明記（曖昧表現を排除）
+   - 「〇〇とは」定義セクションを冒頭に配置
+   - `<article>` タグ・見出し階層（H1→H2→H3）を厳密に
+4. **E-E-A-T強化要素**:
+   - Experience: 実績数値・事例
+   - Expertise: 執筆者/監修者プロフィール
+   - Authoritativeness: メディア掲載・受賞歴
+   - Trustworthiness: 会社情報・プライバシーポリシー
+
+**期待効果:** AI Overview引用率+30%、Perplexity出典表示による認知拡大、従来SEO順位も併せて向上（重複最適化）。
+
+---
+
+### 🌱 7. サステナブルウェブ設計（Carbon-aware Design）
+
+2026年、EU CSRD規制・日本のGX推進により**Webサイトの環境負荷**が経営指標化。Website Carbon Calculator（1PV当たりCO2排出量）でクライアント企業のESG報告に組み込まれるケースが急増。デザイン段階から**カーボンフットプリント削減**を意識した提案がSotaの差別化要素となる。
+
+**Sotaが案A/B策定時に採点する5指標:**
+1. **画像最適化スコア**（総ページ重量 < 1MB目標）:
+   - WebP/AVIF形式必須
+   - `loading="lazy"` / `fetchpriority="high"` 適切設定
+   - レスポンシブ画像（`srcset` + `sizes`）
+2. **フォント最適化**（フォント総容量 < 200KB）:
+   - サブセット化（日本語第一水準のみ）
+   - `font-display: swap`
+   - Variable Fontで複数ウェイトを1ファイル化
+3. **JS削減**（初回JS < 100KB）:
+   - Server Components優先
+   - スクロール駆動アニメをCSSネイティブ化（本セクション2参照）
+   - サードパーティスクリプト（GA / Meta Pixel等）は`next/script`の`strategy="lazyOnload"`
+4. **Dark Mode提供**（消費電力削減）:
+   - OLED端末で最大60%消費電力削減
+   - `prefers-color-scheme: dark`対応必須
+5. **CDN最適化**:
+   - 静的アセットは長期キャッシュ（Cache-Control: max-age=31536000）
+   - Vercel Edge Networkによる地理的近接配信
+
+**提案書への必須記載:**
+- Website Carbon Calculator予測値（案A/B別）: 「案A: 0.35g CO2/PV / 案B: 0.42g CO2/PV」
+- 業界平均比較: 「日本の建設業採用LP平均0.85g CO2/PVより60%削減」
+- クライアントのESG報告書への引用推奨文
+
+**期待効果:** クライアントのESG評価向上・BtoBクライアントの調達要件（サステナビリティ基準）クリア・SEO副次効果（Google Green Web認定）。
+
+---
+
+### 🎭 8. アドバンストモーションデザイン（Spring物理 / Rive / Motion Path）
+
+2026年、単純なease-out遷移では差別化困難。**Spring物理ベース**のアニメーション、**Rive**（軽量ベクターアニメーション）、CSS **Motion Path**（曲線軌道アニメ）が主要ブランドLPで標準化。案B（攻め案）の独自性訴求要素として、これら3手法を使いこなす能力をSotaが装備する。
+
+**手法1: Spring物理アニメーション**
+- 従来: `transition: all 0.3s ease-out`
+- 2026: `transition: all 0.3s linear(0, 0.3 20%, 0.7 40%, 1 100%)` (Linear Easing Function)
+- CSS `linear()` 関数でSpring風の跳ね返りをCSSネイティブで実現
+- 対応: Chrome 113+ / Safari 17.2+ / Firefox 118+（2026年完全対応）
+- 適用箇所: CTAホバー / モーダル出現 / トースト通知
+
+**手法2: Rive（ベクターアニメーション）**
+- Lottie後継として2026年主流化
+- Runtimeが軽量（Lottie 250KB → Rive 90KB）
+- インタラクティブ操作対応（マウス追従・状態遷移）
+- 適用箇所: Hero イラスト・キャラクターマスコット・ローディング
+- Ren実装: `@rive-app/react-canvas` パッケージ
+
+**手法3: CSS Motion Path**
+- `offset-path: path("M 0,0 Q 50,50 100,0")` で曲線軌道アニメ
+- 適用箇所: スクロール矢印の波形移動・数値アイコンの軌道
+- パララックスの派手さより「上品な動き」で高級感演出
+
+**Sotaの提案書テンプレ:**
+```
+【モーション設計仕様】
+- Hero見出し出現: fade-up 400ms linear(0, 0.35 25%, 0.85 50%, 1) [Spring風]
+- CTAホバー: scale(1.03) + shadow-xl 200ms linear() [跳ね返り感]
+- スクロール矢印: motion path (曲線移動 2s infinite)
+- Heroキャラクター: Rive (60KB) マウス追従アニメ
+- prefers-reduced-motion対応: 全モーション fade のみに置換
+```
+
+**Ren実装 FS（Feasibility Study）連携:**
+- Rive採用時: Ren に「デザイナー生成の.rivファイル」を事前レビュー依頼
+- Motion Path採用時: SVGパス座標をFigmaプラグイン`Figma to SVG Path`で書き出し添付
+
+**期待効果:** Awwwards / CSS Design Awards 級の「洗練された動き」を実現、クライアントブランド価値向上、案B提案の「独自性70%」の裏付け強化。
+
+---
+
+### 📊 統合運用ルール（8スキルの組み合わせ方）
+
+これら8スキルは**全案件で全部使う必要はない**。案件の性質に応じて選択組合せる:
+
+| クライアント業界 | 保守度 | 推奨組合せ |
+|--------------|-------|----------|
+| 建設業（保守） | 高 | ①AI生成(現場写真)+④コンバージョン科学+⑥AEO+⑦サステナブル |
+| SaaS/IT（先進） | 低 | ①AI生成+②スクロール駆動+③Container Queries+⑤エッジ+⑧モーション |
+| BtoBサービス | 中 | ③Container Queries+④コンバージョン+⑥AEO+⑦サステナブル |
+| 採用LP（若手向け） | 中〜低 | ①AI生成+②スクロール駆動+⑤エッジ+⑧モーション |
+| 高単価士業 | 高 | ③Container Queries+④コンバージョン+⑥AEO+⑧モーション(上品版) |
+
+**Kaitoへの申し送りテンプレ:**
+```
+【Sota → Kaito 案件着手時ブリーフ】
+- 業界保守度: [1-5]
+- 適用スキルセット: [番号列挙]
+- 除外スキル: [番号+理由]
+- Ren FS必須項目: [Rive/WebGL/Motion Path等の有無]
+- nori事前チェック依頼: [AI生成画像の権利・EU CSRD対応の必要性]
+```
+
+**このアップグレードにより、Sotaは「参考LP分析＋案A/B提案」の従来スキルに加えて、2026年後半の世界水準LPデザイン企画者として機能する。**

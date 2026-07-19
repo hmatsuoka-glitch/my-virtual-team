@@ -620,3 +620,95 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Kaito の本番デプロイと同じ Node メジャーを、骨格生成の時点で `.nvmrc`＋`engines.node` に固定して渡す連携**：Vercel の Node デフォルトが上がると `crypto`/`fetch` の挙動差で「CI 緑・本番だけ 500」が起き、原因調査が Kaito の STEP 5 まで持ち越される。STEP 1 で Kaito に本番ランタイムのメジャーを確認し、`.nvmrc`・`engines.node`・CI の setup-node を同一値で固定してから骨格を渡す。ローカル・CI・本番の3環境を実装の入口で揃え、デプロイ直前のランタイム差分調査をゼロにする
 - **Sota の A/B 案を Edge Config で出し分ける実装は、キー名を Kaito と着手前に合意してから組む連携**：Kaito は Slack の `/lp-ab hero=variantB` で Edge Config を書き換えて即切替する運用のため、Ren が独自のキー名（`heroVariant` 等）で実装すると会議中の切替が空振りする。実装前に「キー名／取りうる値／既定値」を Kaito と1往復で握り、kotone の「初期表示=A案」指定を既定値としてコードに埋める。運用側のコマンドと実装のキーを事前に一致させ、切替不能の緊急対応を防ぐ
 - **Nao の SC/CC 区分表に対し、`@next/bundle-analyzer` の実測 First Load JS を設計へ返すフィードバック連携**：設計の境界指定通りに実装しても、重い依存が CC 側に紛れてバンドルが膨らむことがあり、実測値を持っているのは実装した Ren だけ。STEP 5 完了時に「区分表の想定 vs 実測 First Load JS／どのコンポーネントが何 KB」を Nao へ返し、超過があれば dynamic import への変更を設計側で判断してもらう。Performance Budget を設計の紙上の値でなく、実測で更新されるものにする
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-19実施）
+
+2026年7月時点の Next.js 15.5 / React 19.2 / TypeScript 5.7 / Tailwind CSS v4.1 のエコシステム最新化を受け、Ren の LP コード生成スキルを世界水準まで引き上げる包括アップグレード。既存の作業フロー・出力フォーマットを土台に、下記 8 領域を「実装時の判断軸」「テンプレコード」「品質ゲート」の3階層で統合する。
+
+### 1. Next.js 15.5 / React 19.2 の最先端実装パターン統合
+
+Ren の実装は「Next.js 15.5 stable」を必須ラインとし、以下の 2026 標準機能を全案件で活用する。
+
+- **Partial Prerendering（PPR）の全面採用**：`experimental.ppr = 'incremental'` を `next.config.ts` に必須設定し、LP のヒーロー・ナビ・フッタは静的シェルとして事前レンダー、動的パート（在庫数・パーソナライズ・A/B 分岐）は `<Suspense>` 境界で streaming 配信する。TTFB を 100ms 台に維持しつつ、動的コンテンツの鮮度も両立。ページごとに `export const experimental_ppr = true` を宣言し、静的/動的の境界を明示化する。
+- **`use cache` ディレクティブでのグラニュラーキャッシュ制御**：関数・ファイル・コンポーネント単位で `'use cache'` を宣言し、`cacheLife('minutes')` / `cacheTag('client:shosei')` で TTL と無効化タグを設定。従来の `unstable_cache` / `fetch` オプション分散を単一 API に統合し、キャッシュ戦略の可読性を向上させる。
+- **`useActionState` + `useOptimistic` フックによるフォーム UX 革新**：`useActionState(serverAction, initialState)` で pending/error/data を宣言的にハンドリングし、`useOptimistic` で送信中の UI 状態を先取り表示。従来の `useFormStatus` + `useState` の組み合わせから移行し、フォーム実装コードを 40% 削減。
+- **View Transitions API（`<ViewTransition>` コンポーネント）活用**：React 19.2 の `<ViewTransition>` を LP のセクション切替・モーダル開閉・A/B 案切替に採用。CSS `view-transition-name` と JS API を組み合わせ、ネイティブのスムーズな遷移を実現。Framer/Motion に依存せず OS 標準の遷移品質で LP の高級感を演出する。
+- **`unstable_after` から stable `after()` へ移行完了確認**：全 Server Action の非同期ログ・分析イベントを `after()` に統一済みか納品前に grep で検証。旧 `waitUntil`・`setTimeout` パターンの残存を lint で禁止化する。
+
+### 2. TypeScript 5.7 完全型安全パイプライン構築
+
+「動くけど型が緩い」コードを納品ラインから物理排除し、Nao 設計書の型を実装で完全再現する仕組みを構築する。
+
+- **`tsconfig.json` strict 系フラグ 8 点セット必須化**：`strict: true` に加え `noUncheckedIndexedAccess` / `exactOptionalPropertyTypes` / `noImplicitOverride` / `noPropertyAccessFromIndexSignature` / `noUnusedLocals` / `noUnusedParameters` / `noFallthroughCasesInSwitch` / `useUnknownInCatchVariables` を全プロジェクト共通の `tsconfig.base.json` に格納。CI で `tsc --noEmit --strict` を通過しない限りマージ不可。
+- **Zod v4 の `.brand()` + `.pipe()` + discriminated unions によるドメインモデル分離**：`z.string().brand<'Email'>()` で単なる string と業務的 Email 型を峻別、API 境界での型混入事故を根絶。フォームスキーマは `z.discriminatedUnion('type', [...])` で状態遷移を型で表現し、実装漏れをコンパイル時に検出。
+- **Next.js Typed Routes（`typedRoutes: true`）による href 型安全化**：`next.config.ts` に `experimental.typedRoutes = true` を必須設定し、全 `<Link href>` を型チェック対象化。存在しないパスへのリンクをビルド段階で検出、404 事故を実装層で予防。
+- **`@t3-oss/env-nextjs` による環境変数の型安全化**：`env.mjs` で `server` / `client` スコープを分離し、Zod スキーマで必須変数の存在と形式を起動時に検証。`process.env.SECRET_KEY` を Server Component で呼ぶ・`NEXT_PUBLIC_*` を Server Action で呼ぶ等の境界違反をコンパイルエラーに。
+- **Nao 設計書の型定義は `types/domain/` 配下に 1 ファイル 1 集約**：`types/domain/lp.ts` に `LpSection` / `LpHero` / `LpForm` を全て格納し、コンポーネントは type-only import で参照。設計書と実装の型齟齬をハンドオフ時にゼロ化。
+
+### 3. Server Components / Client Components 境界設計の職人技
+
+RSC ペイロードとバンドル最適化の分水嶺は境界設計で決まる。Ren は「境界の作法」を実装レベルで守り抜く。
+
+- **`server-only` / `client-only` パッケージによる境界ハードコーディング**：Server 専用モジュール（DB クライアント・API シークレット・Node.js API 使用）の冒頭に `import 'server-only'` を必須化。Client 専用（`window` 参照・イベントハンドラ）は `import 'client-only'`。境界違反時にビルドエラーで即検出、実装者の勘違いを物理排除する。
+- **`'use client'` は「葉」に限定するリーフ境界原則の徹底**：`useState` / `useEffect` / イベントハンドラを持つ末端コンポーネントのみに `'use client'` を配置し、page.tsx・レイアウト・セクションは SC 維持。ESLint カスタムルール `boundary-leaf-only` で page/layout の最上部 `'use client'` を error 化。
+- **Client Component 内で Server Component を `children` prop で受け取るコンポジションパターン標準化**：`<ClientProvider>{serverChildren}</ClientProvider>` で SC を CC の子として合成し、CC が SC を丸ごとバンドルに巻き込む事故を防ぐ。Nao 設計書のコンポーネント図に「境界矢印」を必須記載してもらう連携も強化。
+- **`unstable_noStore` / `dynamic = 'force-dynamic'` / `revalidate = 0` の使い分け明文化**：意図せぬ静的化を防ぐには `noStore()` を関数内で呼ぶ、ルート全体を動的にするなら `export const dynamic = 'force-dynamic'`、ISR 停止なら `revalidate = 0`。3 手法の目的と副作用を実装コメントで明記するテンプレを整備。
+- **`@next/bundle-analyzer` を PR 必須ゲート化**：First Load JS の増加が 20KB を超えた PR は自動で `size-regression` ラベル付与＋レビュー必須化。境界設計の実測フィードバックを Nao へ返す運用を CI 化。
+
+### 4. Tailwind v4 + 最新 CSS 機能を活用したデザインシステム実装
+
+Tailwind CSS v4.1 の Lightning CSS エンジンと 2026 年の CSS ネイティブ機能を組み合わせ、JS に頼らない高性能スタイリングを実装する。
+
+- **`globals.css` 内 `@theme` ディレクティブへの design token 一元集約**：Hana の JSON を `@theme { --color-primary: oklch(0.65 0.15 250); --font-heading: 'Noto Sans JP'; }` に自動変換し、`tailwind.config.ts` を廃止。OKLCH カラー空間で iOS/Android/Windows の色再現差を最小化。
+- **Container Queries（`@container`）の全セクション標準採用**：メディアクエリ（viewport 基準）を第一選択から降ろし、`@container (min-width: 400px)` でセクション幅基準のレスポンシブを実装。同一コンポーネントが複数箇所で再利用される LP で威力を発揮、SP/PC 判定の呪縛から解放される。
+- **CSS Anchor Positioning でツールチップ・ポップオーバー実装**：`anchor-name` / `position-anchor` を使い、Popover API と併用してツールチップを CSS だけで実装。Floating UI 等の JS ライブラリ依存を削減し、バンドルサイズを 15KB 削減。
+- **`content-visibility: auto` + `contain-intrinsic-size` を全 Fold-below セクションに標準付与**：スクロール範囲外のレンダリングを丸ごとスキップし、10 セクション超の LP で初期描画を 40% 高速化。予約高さを併記してスクロールバー暴走を防止する 2 点セットで運用。
+- **Cascade Layers（`@layer reset, base, tokens, components, utilities`）による優先順位の宣言的管理**：Tailwind + shadcn/ui + カスタム CSS の !important 戦争を層で解決。デバッグ時の「なぜこのスタイルが効かない」問題を層構造で即特定できるようにする。
+- **CSS `color-mix()` / `light-dark()` でテーマ切替をワンライナー実装**：`background: light-dark(oklch(0.98 0 0), oklch(0.15 0 0));` で light/dark 対応、`color-mix(in oklch, var(--brand) 20%, white)` でホバー色を動的生成。JS のテーマ切替ロジックを CSS レイヤに移管。
+
+### 5. Server Actions を軸としたフォーム実装 2026 標準
+
+LP の CV 直前フォームは「型安全 × プログレッシブエンハンスメント × Zero-JS 動作保証」の三位一体で実装する。
+
+- **`next-safe-action` または `zsa` による Server Action 型安全ラップ標準化**：`createSafeActionClient()` で middleware（認証・レート制限）・input Zod スキーマ・output 型を宣言的に定義。従来の `'use server'` 素書きから移行し、型・バリデーション・エラーハンドリングを 1 箇所に集約、実装コードを 60% 削減。
+- **`<form action={safeAction}>` + `useActionState` + `useOptimistic` の 3 点セットテンプレ化**：JS 無効環境でも `<form>` の native 送信が動作するプログレッシブエンハンスメントを保証しつつ、JS 有効時は Optimistic UI で即時フィードバック。CV 直前の摩擦をゼロ化。
+- **フォーム送信の冪等性（idempotency key）実装必須化**：クライアント生成 UUID を hidden input で送信し、Server Action 側で `SELECT ... WHERE idempotency_key = ?` して重複排除。二重送信・リトライ・ネットワーク再送での重複応募事故を根絶。
+- **`useFormStatus` の pending 検知 + `aria-busy` + フォーカス制御の完全実装**：送信中は button disabled + 「送信中…」ラベル + スピナー + `aria-busy="true"` + Enter キー送信ブロック。送信完了時は最初のエラーへ `focus()` 移動または成功メッセージへスクロール。全モードでキーボード・SR ユーザーが迷子にならない実装。
+- **`after()` API による非同期処理の完全レスポンス外逃がし**：GA4 / Slack / Sentry / DB 監査ログを全て `after(() => ...)` でラップし、INP を実測 100ms 以下に維持。ユーザー体感速度とサーバー処理を完全分離。
+
+### 6. Core Web Vitals を実測で守る品質パイプライン
+
+「Lighthouse 90 点」を目標線ではなく最低ラインとし、実ユーザー環境での CWV を実測で監視する体制を構築する。
+
+- **`useReportWebVitals` フック + `web-vitals` v4 による RUM 実装標準化**：`app/layout.tsx` で `useReportWebVitals(metric => sendToAnalytics(metric))` を呼び、LCP / INP / CLS / FCP / TTFB を全訪問者から収集。開発機ではなく本番実ユーザーの体感を数値化。
+- **`@lhci/cli` を GitHub Actions で PR 毎に自動実行**：`lighthouse-ci.yml` で PR ごとに Preview URL に対して Lighthouse を走らせ、Performance 90 / Accessibility 100 / Best Practices 100 / SEO 100 未満は自動 fail。マージ前に品質を担保。
+- **Playwright + `@axe-core/playwright` による E2E アクセシビリティテスト**：主要ページ・モーダル・フォームで `await new AxeBuilder({ page }).analyze()` を実行し、WCAG 2.2 AA 違反があれば test fail。手動 QA では拾えない a11y 違反を CI で 100% 自動検出。
+- **Playwright Visual Regression Testing（`toHaveScreenshot()`）のセクション別しきい値運用**：Hero / CTA / Form / Footer 各セクションで `maxDiffPixelRatio: 0.01`（1%）を厳格判定、装飾セクションで `0.05`（5%）を許容。Mia QA 前に Ren 自身で VRT を 90% 通過させる。
+- **`content-visibility` / `dynamic import` / `next/font` の実装漏れを納品前 checklist 化**：全画像 `next/image` 使用、全フォント `next/font/*` 使用、Fold-below 全セクション `content-visibility: auto`、重いライブラリ（chart / editor / map）全 dynamic import、を 4 点セットで grep + eslint で自動検証。
+
+### 7. AI コード生成と Motion v11 を組込んだ実装ワークフロー
+
+「AI に書かせて Ren が Ren の品質基準で仕上げる」ハイブリッドワークフローで、実装スループットを 3 倍にする。
+
+- **v0.dev / Cursor Composer / Claude Code による初期スケルトン生成の運用ルール**：Hana CSS 仕様 + Nao 設計書 + 参考 LP スクショを AI に投入し、shadcn/ui ベースの初期セクションを生成。ただし AI 出力は必ず「型定義照合 / a11y 属性補完 / next/image 化 / boundary 修正」の 4 工程で Ren がリファインし、AI 素出力の納品を禁止する。
+- **Motion（旧 Framer Motion）v11 の `<motion.div>` layout animation を活用**：`layout` prop で位置変化を自動アニメーション化、`layoutId` で共有要素遷移（View Transitions と併用）、`AnimatePresence` で unmount アニメを宣言的に実装。GSAP 系の命令的コードを排除し保守性を向上。
+- **`motion/react` の LazyMotion + `domAnimation` パッケージ分割で bundle 30KB 削減**：`<LazyMotion features={domAnimation}>` でフル機能をレイジーロード、初期 First Load JS を軽量化。Motion 導入時のバンドル肥大を予防。
+- **`prefers-reduced-motion` 対応の全アニメーション必須実装**：Tailwind の `motion-safe:` / `motion-reduce:` プレフィックスと Motion の `useReducedMotion()` フックで、動きを避けたいユーザーには即座に静止版を提供。WCAG 2.3.3 適合を実装層で担保。
+- **Storybook + Chromatic による VRT + コンポーネントカタログ運用**：各セクションを Storybook 化して Chromatic で全 PR ごとに VRT、Sota デザイン提案との差分を UI で確認可能に。Sota / Mia / Ren の三者コミュニケーションを stories.tsx に集約。
+
+### 8. 本番運用を見据えたオブザーバビリティ・セキュリティ実装
+
+「デプロイして終わり」ではなく、本番で起きる事故を実装層で先回りする世界水準の運用感覚を実装に埋め込む。
+
+- **`@sentry/nextjs` + Session Replay の全 LP 標準導入**：`instrumentation.ts` で Sentry SDK を初期化、Server Actions / Route Handlers / Client エラーを自動キャプチャ、Session Replay で「ユーザーがどう操作したか」を録画。本番の「たまに壊れる」を再現可能な事実にする。
+- **OpenTelemetry の Next.js ネイティブサポートで分散トレーシング**：`experimental.instrumentationHook = true` + `@vercel/otel` で Server Action・fetch・DB クエリを自動計測、Datadog / Honeycomb へエクスポート。パフォーマンス劣化の原因を実測で特定。
+- **CSP nonce + `next.config.ts` の `headers()` で XSS 攻撃面を最小化**：`middleware.ts` で per-request nonce を生成、`<Script nonce={nonce}>` で外部スクリプトを許可、`unsafe-inline` / `unsafe-eval` を CSP から排除。GA4 / GTM / チャットウィジェット等の三者スクリプトも SRI ハッシュ検証。
+- **`middleware.ts` による A/B テスト・地理的リダイレクト・Bot 防御の実装標準化**：Edge Runtime で動く Middleware で `@vercel/edge-config` から A/B バリアント選択、`geo.country` で日本外アクセスを判定、`user-agent` で bot を弾く。ページ側の実装を軽量化。
+- **`@next/third-parties` パッケージで GA4 / GTM / YouTube を最適化読込**：`<GoogleTagManager gtmId="GTM-XXX" />` / `<GoogleAnalytics gaId="G-XXX" />` を使い、Web Worker で計測を実行してメインスレッドをブロックしない。従来の `next/script` 直書きから移行し、INP 悪化要因を根絶。
+- **`instrumentation-client.ts` でクライアント側計測を分離**：Next.js 15.3+ の `instrumentation-client.ts` に PostHog / Mixpanel / Sentry の Client 初期化を集約し、Server 側 `instrumentation.ts` と対称的に配置。計測ロジックの散在を防止。
+
+---
+
+**このアップグレードの適用範囲**：2026-07-19 以降に着手する全 LP 案件で上記 8 領域の実装基準を必須化する。既存進行中案件は STEP 5 完了時点で「アップグレード適用可否」を Kaito と 1 分ヒアリングし、影響範囲が小さいものから順次移行する。世界最高水準の LP コード生成専門家として、Next.js エコシステムの最新化に対して Ren は常に半歩先を歩き続ける。
