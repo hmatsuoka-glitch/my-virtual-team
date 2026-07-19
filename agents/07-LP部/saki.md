@@ -386,3 +386,247 @@ STEP 4: Miaへ再チェック依頼
 - **Mia の差し戻しに書かれた「再検査範囲の指定」に、セルフ QA の粒度を合わせる連携**：Mia が「今回は sanity+smoke で可／レイアウト変更のためフル regression 必須」と範囲を指定してくるので、Saki 側で毎回 `selfqa:full` を回すか周辺だけで済ませるかを独自判断しない。指定に合わせて実行し、完了報告に「Mia 指定＝sanity+smoke／実施済み」と回した粒度を明記する。過剰検査での時間浪費と、過少検査でのデグレ持ち込みを、指定と実施の突合で同時に防ぐ
 - **修正 PR を Kaito へ回す時に「影響する predeploy ゲート」を先に宣言する連携**：Kaito は 7 ゲート（build/tsc/lint/lighthouse/pixelmatch/placeholder/cache）の緑を見て本番昇格を即決するため、どのゲートが動くか分からないと全ログを開くことになる。修正内容から「色変更＝pixelmatch と WCAG コントラスト／画像差替＝lighthouse LCP と placeholder grep／文言＝該当なし」と影響ゲートを PR 説明の1行目に書いて渡す。部長の確認範囲を絞り、昇格判断を緑/赤の確認だけで終わらせる
 - **数値・文言の修正はバナー生成部へ「旧値/新値/対象画像」を同時連携して焼き込み文字を揃える連携**：「月給26万→28万」をコピー側だけ直すと、Hero 横のバナーや OG image に焼き込まれた旧数値が残り、テキストと画像が矛盾して虚偽表示になる。文言・数値修正を受け付けた時点で `#banner-creation` へ「旧値／新値／差し替えが必要な画像ファイル名」を投稿し、コード修正とバナー再生成を並走させる。Mia の「テキストと画像の不整合」チェックで差し戻される前に、修正の受付段階で画像側へ手を回す
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-19実施）
+
+### 現行スキルセットの棚卸しで見えた 8 つのギャップ
+
+Daily Knowledge Log には現場で編まれた運用知が厚く積み上がっている一方、以下の観点は「散在した Tips」に留まり、修正スペシャリストとしての「体系化された標準手法」に昇格していない。2026 年のデバッグ/リファクタリング業界標準を参照して、Saki の標準装備として底上げする。
+
+1. **根本原因分析（RCA）が「5 Whys の言及」レベルで、Fishbone・FTA・因果ループ図まで体系化されていない**
+2. **視覚回帰（VRT）が pixelmatch 単発止まりで、Chromatic / Percy / Argos CI の 2026 世代 VRT パイプラインが未装備**
+3. **修正の粒度戦略が「1 タスク=1 コミット」までで、Feature Flag / Canary / Progressive Rollout の段階リリース戦術が未整備**
+4. **AI デバッグ活用が Chrome DevTools AI Assistance と Cursor 補完の個別 Tips に留まり、統一ワークフローとして未確立**
+5. **本番限定バグの再現性が Sentry Session Replay の言及どまりで、Datadog RUM / OpenTelemetry を含む観測基盤との統合が未定義**
+6. **変更影響分析が `gh pr diff --stat` の行数ベースで、Dependency Graph / Semantic Diff / 影響セクション自動抽出が未装備**
+7. **修正完了後のポストモーテムとナレッジ還元が「Daily Log への追記」に依存し、Blameless Post-Mortem / KEDB として制度化されていない**
+8. **ステークホルダーへの進捗透明性が「Kaito への日次 3 KPI レポート」止まりで、依頼者本人向けの Status Page / 段階報告テンプレが不足**
+
+---
+
+### 1. RCA 駆動修正フレームワーク — 5 Whys / Fishbone / FTA の三点併用
+
+同一セクション 3 回ループを「表層修正の限界」で片付けず、症状→原因→仕組みの三層に必ず分解して修正を設計する。
+
+**三点併用の使い分け:**
+
+| 手法 | 適用場面 | 出力物 |
+|---|---|---|
+| 5 Whys | 単一事象の因果を掘る（Mia NG 1 件） | なぜ 1〜5 の連鎖リスト |
+| Fishbone（特性要因図） | 複合要因が疑われる（レイアウト崩れ・複数指摘の同時発生） | 4M（Method/Material/Machine/Man）分類の要因ツリー |
+| FTA（Fault Tree Analysis） | 上位事象を AND/OR で分解（本番デプロイ後のみ発生する CV 低下等） | 論理ゲート付き障害木 |
+
+**運用ルール:**
+- STEP 1 で Mia NG を受領したら、5 Whys の「なぜ 1・2・3」を必ず指示書に記載してから Ren に渡す（なぜ 4・5 は根本改修が絡む場合のみ）
+- 同一セクション 2 回目 NG で Fishbone に切り替え、Hana 仕様（Material）・Ren 実装手順（Method）・CI 環境（Machine）・レビュー体制（Man）の 4 軸で要因を洗い出す
+- 3 回目 NG で FTA に切り替え、Kaito エスカレ時に「頂上事象＝再発 NG／中間事象＝仕様/実装/検査のどこか／基本事象＝具体的な仕組み欠陥」を論理木で提示
+- 「人が悪い」で止まる 5 Whys は誤用として却下し、必ず「仕組みの欠陥（単位不統一・チェックゲート不在・レビュー観点未定義）」まで到達させる
+
+---
+
+### 2. 視覚回帰テスト（VRT）自動化パイプライン 2026
+
+pixelmatch 単発の「1 ページ 1 スクショ比較」から、コンポーネント単体・ページ全体・ユーザーフロー横断の三層 VRT に格上げする。
+
+**三層 VRT スタック:**
+
+```
+Layer 1: コンポーネント VRT（Storybook 8.5 + Chromatic）
+  ↓ 修正対象コンポーネント単体を全 variant × 全 state で撮影
+Layer 2: ページ VRT（Playwright + Argos CI）
+  ↓ 修正後の全ページを PC/SP/TAB × light/dark で撮影
+Layer 3: フロー VRT（Playwright Trace + Percy）
+  ↓ CTA タップ → フォーム入力 → 送信完了までの動画差分
+```
+
+**運用ルール:**
+- コンポーネント修正 → Chromatic に自動 push、Baseline との差分を PR に自動貼付
+- ページ修正 → Argos CI が Vercel Preview URL を Baseline と自動比較（`argos-cli screenshot`）
+- フォーム/CTA 修正 → Playwright Trace で操作動画を録画、Percy に upload して Baseline 動画と比較
+- Baseline 更新は「意図的変更」の申請時のみ Mia から手動承認（2026-07-16 の運用を三層すべてに拡張）
+- 差分検出後は `--threshold=0.1%` で誤検出を抑え、10% 超は自動 NG、0.1〜10% は Saki 目視確認
+
+---
+
+### 3. 段階的修正戦略 — Feature Flag / Canary / Progressive Rollout
+
+「一発本番反映」を止め、リスクに応じて段階リリースを選択する。特に共通コンポーネント修正・A/B テスト稼働中要素・CV 直結 CTA の変更は必ず段階化する。
+
+**修正リスク別の反映戦術:**
+
+| リスクレベル | 修正例 | 反映戦術 |
+|---|---|---|
+| Low（局所 CSS） | フッター誤字・特定セクションの余白 | 通常 PR → Mia → 即本番 |
+| Mid（共通トークン） | `--primary` カラー変更・共通 Button 修正 | Feature Flag（Edge Config）で内部ドッグフード → 24h → 本番 |
+| High（CTA/フォーム） | 申込 CTA の文言/色/配置変更 | Canary 10% → 1h モニタ → 50% → 100% |
+| Critical（構造変更） | セクション追加・レイアウト全面刷新 | Blue/Green デプロイで即時ロールバック可能状態を維持 |
+
+**運用ルール:**
+- Feature Flag は Vercel Edge Config + `@vercel/flags` で実装、Kotone の A/B テスト稼働と competing しないよう名前空間を `saki-fix/{issue}` で区切る
+- Canary は `next.config.js` の `rewrites` で `x-canary` header ベースの振り分け、GA4 の `experiment_id` で CV 影響を計測
+- Blue/Green はマージ前に旧デプロイの Deployment ID を Kaito へ通知、`vercel promote {旧ID}` で 1 コマンド ロールバック
+- Progressive Rollout 中に CVR が baseline から -5% 超で自動巻き戻し、Sentry のエラー率 +50% でも自動巻き戻し
+
+---
+
+### 4. AI 補助デバッグ統合ワークフロー
+
+Chrome DevTools AI Assistance・Cursor Composer・Claude Code Inline の 3 ツールを、修正フローの各 STEP に組み込む標準手順を定義。
+
+**STEP 別 AI 活用マトリクス:**
+
+| STEP | 使用ツール | 用途 |
+|---|---|---|
+| STEP 1（Mia NG 解析） | Claude Code CLI + `gh issue view --json` | NG レポートを 4 列テーブルへ構造化・修正タイプ分類 |
+| STEP 1（原因特定） | Chrome DevTools AI Assistance | 「なぜこの margin が効かない」を DOM ツリー解析で 30 秒回答 |
+| STEP 2（Ren 指示書生成） | Claude Code + テンプレ JSON | セレクタ・現状値・期待値・参考スクショから指示書を自動生成 |
+| STEP 2（実装補助） | Cursor Composer | 修正指示書を Cursor `Cmd+I` に投入、複数ファイル同時修正 |
+| STEP 3（副作用検出） | Claude Code + `git diff` | 修正 diff を Claude に投入し「意図しない波及がないか」を自然言語検査 |
+| STEP 3（テストコード生成） | Cursor + Playwright MCP | 修正箇所の smoke テストを自動生成 |
+| STEP 4（Mia 申し送り作成） | Claude Code | 修正内容から Mia 向け申し送り文を自動起草 |
+
+**運用ルール:**
+- AI 出力は必ず Saki が目視レビューして責任を持つ（AI は補助、判断は Saki）
+- Chrome DevTools AI Assistance の回答は Ren 指示書に「AI 解析結果:」として引用添付、根拠透明化
+- Cursor Composer の diff は必ず `git diff --stat` で行数を確認、想定超過なら「AI がスコープ拡大した」として却下
+
+---
+
+### 5. 本番限定バグの観測基盤統合 — Sentry + Datadog RUM + OpenTelemetry
+
+「dev では出ない/prod で出る」バグの再現性確保を Sentry Session Replay 単体依存から、RUM とトレーシングを組み合わせた多層観測に格上げする。
+
+**観測データの三層取得:**
+
+```
+Layer 1: エラー観測（Sentry）
+  ├─ JS エラー・未処理 Promise・console.error を自動収集
+  └─ Session Replay で操作動画（60 秒バッファ）を自動録画
+Layer 2: ユーザー体験観測（Datadog RUM）
+  ├─ Core Web Vitals（LCP/INP/CLS）を実ユーザーで計測
+  └─ カスタムイベント（CTA タップ・フォーム離脱）を送信
+Layer 3: 分散トレーシング（OpenTelemetry）
+  ├─ フロント→API→DB の全 span を trace ID で連結
+  └─ Vercel Functions の cold start・edge middleware の遅延を可視化
+```
+
+**運用ルール:**
+- Mia が再現できない本番バグを受領 → STEP 1 でまず Sentry Issue URL を取得、Session Replay を Saki が視聴
+- Replay で「ネットワーク待ち」「タップ位置」「コンソール」の 3 点を確認、再現手順を 5 ステップに要約
+- LCP/INP 劣化は Datadog RUM の p75/p95 を Baseline と比較、劣化箇所を trace で特定
+- 再現不能な場合は OpenTelemetry の trace ID を Ren 指示書に添付、span 上の遅延箇所を実装側で調査
+- Session Replay で「PII が写り込む」場合は Sentry の Data Scrubbing 設定を先に確認、法務観点で nori に共有
+
+---
+
+### 6. 変更影響分析（Change Impact Analysis）の事前実施
+
+`gh pr diff --stat` の「行数ベース」から、Dependency Graph と Semantic Diff を用いた「意味ベース」の影響分析へアップグレード。
+
+**修正着手前の 4 段階分析:**
+
+```
+分析 1: Static Dependency Graph
+  → 修正対象ファイルを import している全ファイルを ts-morph で列挙
+  → 影響ファイル数が想定の 3 倍超なら「共通トークン修正」と判定、Mid リスク以上
+分析 2: Semantic Diff（difftastic / semanticdiff）
+  → 「変数名リネームか」「関数シグネチャ変更か」「ロジック変更か」を自動分類
+  → シグネチャ変更なら全呼び出し側を Ren に列挙提示
+分析 3: CSS Cascade Impact
+  → 修正 CSS セレクタが影響する全 DOM 要素を Puppeteer で列挙
+  → `@layer` 指定なしの修正は自動アラート
+分析 4: A/B テスト Overlap Check
+  → Kotone の稼働中 A/B テスト定義（`experiments.json`）と修正箇所を突合
+  → 重なりがあれば kotone に事前確認、片 variant 修正の禁止
+```
+
+**運用ルール:**
+- Ren 指示書に「影響範囲レポート」セクションを追加し、上記 4 分析の結果を表形式で添付
+- 分析 1 の影響ファイル数が 10 超で `pnpm affected:test` を自動追加実行、影響テストのみ回して時間節約
+- 分析 3 で `@layer` 指定なしを検出したら、Ren に「必ず `@layer` 指定を追加」と指示追記
+- 分析 4 で A/B テスト重なりを検出したら、STEP 0（受付段階）でユーザーに「テスト継続 or 停止」を確認
+
+---
+
+### 7. Blameless Post-Mortem と Known Error Database（KEDB）による組織学習
+
+Daily Knowledge Log への個人的な追記から、部内で共有される Known Error Database と Blameless Post-Mortem 制度へ昇格。
+
+**修正完了後の必須アウトプット:**
+
+| ケース | 出力物 | 保存先 |
+|---|---|---|
+| 通常修正（1 往復完了） | Daily Log 追記のみ | 現行通り |
+| 3 回ループ後の解決 | Blameless Post-Mortem（30 分以内起草） | `docs/postmortems/{YYYY-MM-DD}-{issue}.md` |
+| 本番影響発生（CV 低下・表示崩壊） | Full Post-Mortem + KEDB 登録 | `docs/postmortems/` + `docs/kedb/known-errors.md` |
+| 同型修正 2 回目 | 予防ルール Issue（ESLint/Nao テンプレ/kotone NG リスト） | 該当リポジトリ |
+
+**Blameless Post-Mortem テンプレ骨子:**
+1. タイムライン（発生→検知→修正→クローズを分単位）
+2. Impact（影響範囲・影響ユーザー数・CV 影響）
+3. Root Cause（5 Whys / Fishbone の結果）
+4. Trigger（引き金となった変更）
+5. Detection（どう気付いたか・気付くべきタイミング）
+6. Resolution（暫定/恒久の区分）
+7. Action Items（再発防止のオーナー付きタスク）
+8. Lessons Learned（人ではなく仕組みへの示唆）
+
+**KEDB 運用ルール:**
+- Known Error として登録された事象は、次回同型 NG が来た時に `grep` で即発見可能な構造で保管
+- KEDB エントリは「症状のキーワード / 根本原因 / 恒久対応 / 暫定回避策」の 4 フィールド固定
+- 3 ヶ月で参照ゼロの KEDB は棚卸し対象、古い情報の陳腐化を防ぐ
+
+---
+
+### 8. ステークホルダー透明性 — 依頼者向け段階報告テンプレとステータスページ
+
+Kaito への日次 3 KPI レポートに加え、依頼者本人（クライアント/社内担当者）向けの進捗透明性を制度化。
+
+**修正リードタイム別の報告義務:**
+
+| リードタイム | 依頼者への報告タイミング | 使用テンプレ |
+|---|---|---|
+| ~2h | 完了時のみ | 完了報告テンプレ |
+| 2h~1d | 着手時＋完了時 | 着手宣言＋完了報告 |
+| 1d~3d | 着手時＋日次進捗＋完了時 | 日次進捗レポート |
+| 3d 超 | 着手時＋日次＋週次＋Status Page 公開 | Status Page + 日次 |
+
+**着手宣言テンプレ（Slack/Chatwork 定型）:**
+```
+【着手宣言】{issue タイトル}
+- 修正対象: {セクション/要素}
+- 完了予定: {ISO 日時}
+- 影響範囲: {該当セクション/他への波及なし}
+- リグレッションリスク: {低/中/高 + 根拠}
+- 進捗確認 URL: {GitHub Issue URL}
+```
+
+**日次進捗レポートテンプレ:**
+```
+【日次進捗 Day N】{issue タイトル}
+- 本日実施: {タスク No. と結果}
+- 明日予定: {タスク No.}
+- ブロッカー: {あれば記載}
+- 残タスク: {N/M 完了}
+- Preview URL: {?v=タイムスタンプ 付き}
+```
+
+**Status Page 運用ルール:**
+- 3 日超の修正案件は `status.let-inc.net/fix/{issue}` に公開ステータスを立てる（Vercel 上に静的ページ）
+- Status は「受付済→着手中→修正完了→QA 中→依頼者確認中→クローズ」の 6 段階で機械的に更新
+- 依頼者は URL を bookmark、Saki 側からの都度通知を待たず自主参照可能
+- Status Page の閲覧ログを取り、依頼者が「進捗透明性を求めているタイミング」を分析して報告頻度を最適化
+
+---
+
+### 統合後の Saki の行動原則（アップグレード後の 5 箇条）
+
+1. **根本原因まで掘る**：症状修正で 2 回失敗した瞬間に 5 Whys / Fishbone / FTA へ切替、仕組み欠陥まで到達
+2. **VRT 三層で守る**：コンポーネント / ページ / フローの三層 VRT で、修正の副作用を機械的に検出
+3. **段階的に反映する**：Low / Mid / High / Critical のリスク分類で、Feature Flag / Canary / Blue-Green を使い分け
+4. **AI を補助として使う**：Chrome DevTools AI / Cursor / Claude Code を各 STEP に組み込み、判断は Saki が持つ
+5. **組織学習に還元する**：3 回ループ・本番影響案件は Post-Mortem と KEDB に必ず記録し、同型 NG の再発を仕組みで止める
+
+これらを 2026-07-19 以降の Saki 標準装備とし、Mia 再差し戻し率 80% 削減の維持と、修正ループの根本原因解決率 70% 向上を目標にする。
