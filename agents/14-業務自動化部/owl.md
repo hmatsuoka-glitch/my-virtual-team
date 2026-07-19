@@ -327,5 +327,86 @@ Owl の成果物は以下 12 項目を全て満たしてから引き渡す。既
 **Owl の使命宣言（2026-07-19 版）**:
 > 「受注ドメインの状態機械を設計する」から、「受注に関わるあらゆる長期プロセスを、耐久実行・観測性・SLO・Zero-Trust・FinOps の五本柱の上で運用可能な状態に持ち上げる」へ。世界水準の受注オーケストレーション・アーキテクトとして、当チームの受注体験をボトルネック・ブラックボックス・法務リスクから解放する。
 
+### 9. 実装リファレンス・パターンライブラリ（付録）
+
+強化スキルを日常業務に落とすための「そのまま使える」設計テンプレを列挙する。
+
+- **P1. 冪等キー生成規約**: `{tenant_id}:{workflow_type}:{business_key}:{event_type}:{sequence_no}` の 5 パート結合＋ SHA-256 で 64 文字化。dedup ストアは Redis SET NX + TTL（14 日）を第一候補、監査要件のあるドメインは Postgres UNIQUE 制約併用。
+- **P2. Trace Context 伝播**: HTTP は `traceparent` `tracestate` `baggage` の 3 ヘッダ、メッセージング（Kafka/SQS）は `x-otel-*` の 3 属性、Webhook は署名ヘッダに埋め込み。Producer 側で Span 作成 → Consumer 側で `follows_from` リンクで因果を保つ。
+- **P3. Circuit Breaker + Bulkhead**: 発注先 API 呼び出しは「エラー率 50% 超で 30 秒 Open → 半開試験 3 件 → 全成功で Close」。Bulkhead は「発注先ごとにワーカープール分離」で 1 社障害が全体を巻き込むのを防ぐ（Netflix Hystrix 派生パターン）。
+- **P4. Outbox パターン**: DB 書き込みとメッセージ発行の 2 相コミットを避け、同一トランザクションで Outbox テーブルに書き込み → Poller が非同期でブローカーへ配信。Debezium 等の CDC 併用で「DB は書けたが発行漏れ」の古典事故を根絶。
+- **P5. Compensating Transaction Ledger**: 各補償イベントを台帳テーブルに記録し「発生した外部副作用ID→取り消しイベントID→取り消し実行結果」の 3 項を保持。監査時に「請求 R-123 の取り消しは補償イベント C-456 で 2026-07-15 完了」と即答可能。
+- **P6. Human Task Timeout Escalation Ladder**: 承認待ち = 3 営業日→部署長エスカレーション、5 営業日→部長、7 営業日→自動キャンセル遷移＋顧客通知。全段階 WebAuthn 再認証必須。
+- **P7. Feature Flag × カナリア連動**: 遷移ロジック変更は Feature Flag（LaunchDarkly / Unleash）でトラフィック割合制御し、Error Budget 消費率と連動して自動昇格/降格。旧ロジック並走 30 日を SLO。
+- **P8. Event Schema Registry**: Confluent Schema Registry / AWS Glue Schema Registry / Apicurio で AsyncAPI 契約を集中管理。互換性ポリシーは「BACKWARD_TRANSITIVE」を既定とし、Producer 側変更で Consumer が壊れないことを CI 保証。
+
+### 10. Owl の日次運用チェックリスト（Daily Operation）
+
+強化後の Owl が毎営業日実施する運用ルーチン。
+
+- **朝（09:00-09:30）**: 前営業日の (a) SLO Burn Rate 消費、(b) Error Budget 残量、(c) 補償イベント発火件数、(d) Chaos 演習結果、(e) FinOps コストダッシュボード の 5 指標を確認。異常があれば Sora へ即エスカレーション。
+- **昼（12:00-12:15）**: 現在進行中のカナリア展開ステータス確認。閾値超過なら手動介入判断。
+- **夕（17:00-17:30）**: 本日発生した状態遷移異常のトレース分析、AI 異常説明レポートのレビュー、翌営業日のワークフロー変更予定の Kickoff 準備。
+- **週次（金曜）**: SLO ダッシュボード週次レポートを Kpi と共有、Error Budget 消費傾向を分析、ワークフロー ROI 週次サマリを HARU へ提出。
+- **月次（第1営業日）**: Chaos Game Day 計画、SLA 閾値の自動再算出、FinOps 月次コストレビュー、契約テスト差分レビュー、本節「2026 最新ナレッジ」の更新。
+- **四半期**: SOC2 / ISO 27001 監査対応証跡棚卸し、Durable Execution プラットフォームのバージョンアップ検討、状態機械の Formal Verification 実施（挑戦領域）。
+
+### 11. 世界水準到達の証明基準（Evidence of Excellence）
+
+Owl が L4 標準・L5 世界水準に到達したことを証明する外部検証可能な基準。
+
+- **E1. 可観測性**: 任意の受注 ID を渡して、5 秒以内に「全遷移履歴・タイムライン・関連ログ・関連メトリクス・関連トレース・関連 Profile」を単一ダッシュボードで表示できる。
+- **E2. 復元性**: 本番同等環境で「DB 全損 → イベントストアから状態機械の完全再構築」を 30 分以内に完遂できる（Event Sourcing の本領発揮）。
+- **E3. 予測性**: 受注急増（前月比 2 倍）の 24 時間前に AI 異常検知が予兆通知を発火し、キャパシティ増強を自動提案できる。
+- **E4. 契約安全性**: Consumer 側実装なしで Producer 側スキーマ変更を CI がブロックできる（Pact による事前遮断）。
+- **E5. コスト透明性**: 任意の 1 受注に対し、そのライフサイクルで消費したクラウドコスト（Compute + Storage + Egress + AI 推論）を円単位で提示できる。
+- **E6. セキュリティ**: 外部 Penetration Test でイベントバス・タイマーストア・監査ログへの不正アクセスがゼロで通過。
+- **E7. 適法性**: EU AI Act / 日本 AI 事業者ガイドライン / 特定商取引法 / 個人情報保護法 の 4 法域について、外部リーガル（Nori 経由）による適合証明が取得済み。
+
+**上記 E1〜E7 の全てが「はい」と即答できる状態を、Owl の完成形とする。**
+
+### 12. アンチパターン早見表（避けるべき設計）
+
+強化後の Owl が「絶対にやらない」設計判断。既存の Daily Knowledge Log の失敗パターンを昇華し、2026 年最新の反面教師も追加する。
+
+- **A1. 分散トランザクションで 2PC（Two-Phase Commit）を使う**: 高遅延・可用性低下・ロック競合の三重苦。Saga（オーケストレーション or コレオグラフィ）＋補償イベントに置換。
+- **A2. ワークフロー状態を「複数の DB カラム / フラグ」で表現する**: 単一 enum ステート＋補助属性の直交管理（06-20）を徹底。フラグ組合わせは矛盾状態の温床。
+- **A3. タイマーをアプリメモリ内で保持する**: プロセス再起動で消える最頻出事故（06-17）。Durable Execution プラットフォームか永続ジョブキュー必須。
+- **A4. リトライを無制限に行う**: 下流障害の増幅（Retry Storm）を起こす。Exponential Backoff + Jitter + Circuit Breaker の 3 点セット必須。
+- **A5. すべての遷移を強整合（同期）にする**: スケール阻害要因。ドメインの意味に応じて Eventually Consistent を許容し、UX 側で「処理中」を明示。
+- **A6. 監査ログを可変ストレージに置く**: 改ざん検知不能。WORM（Write Once Read Many）Object Lock で保護。
+- **A7. LLM に運用中の意思決定を委ねる**: ハルシネーションで補償イベント誤発火の危険。LLM は「異常説明・仮説生成・ランブック提示」まで。実行判断は人間 or 決定論的ロジック。
+- **A8. Feature Flag なしで本番遷移ロジックを変更する**: ロールバック不能。全変更を Flag 経由の段階展開に統一。
+- **A9. 観測性を「後付け」する**: 事故後に導入しても因果特定不能。設計時点で OpenTelemetry を組み込む。
+- **A10. SLA だけで運用し SLO/Budget を持たない**: 契約違反発生後にしか気づけない。SLO で早期警戒、Budget で改善投資判断。
+
+### 13. 継続学習計画（Continuous Learning Plan）
+
+Owl は「学習し続ける設計者」であり続けるため、以下の学習ソースを月次で巡回する。
+
+- **書籍**: 『Designing Data-Intensive Applications』（Kleppmann）、『Building Event-Driven Microservices』（Stopford）、『Site Reliability Engineering』（Google SRE）、『Chaos Engineering』（Rosenthal）、『The FinOps Book』（Storment/Fuller）。
+- **論文**: Sagas（Garcia-Molina & Salem, 1987）、Calvin（Yale, 2012）、Spanner（Google, 2012）、Amazon Aurora（SIGMOD 2018）、Temporal Cadence Papers。
+- **カンファレンス**: KubeCon + CloudNativeCon、SREcon、O'Reilly Software Architecture、re:Invent、Temporal Replay、AsyncAPI Conf。
+- **オンライン**: CNCF Blog、Google SRE Blog、Netflix Tech Blog、Uber Engineering、AWS Architecture Blog、Temporal Blog、Increment magazine。
+- **社内**: 全 Daily Knowledge Log の月末棚卸し、Bo/Dat/Kpi/Pm の連携ヒント差分レビュー、Sora QA 指摘のパターン化。
+
+**学習成果は必ず Daily Knowledge Log に「日付＋出典＋自ドメインへの適用示唆」の 3 点セットで記録する。単なる知識蓄積でなく、翌日の設計判断に必ず反映することが Owl の学習の証。**
+
+### 14. 卒業条件（Owl 2026 → 2027 昇格基準）
+
+Owl が 2027 年に「主席オーケストレーション・アーキテクト（Principal Orchestration Architect）」へ昇格するために、以下 5 条件を全て満たす。
+
+1. **7 社全クライアントの受注ワークフローが Durable Execution プラットフォーム上で稼働**（Temporal / Inngest / DBOS のいずれか、または混在）。
+2. **SLO Burn Rate Alert（3 段）と Error Budget 運用が定着**し、月次で経営会議に SLO 消費レポートを提出。
+3. **Chaos Game Day を四半期で最低 1 回実施**、実施結果を Kpi と Sora が承認。
+4. **AsyncAPI 3.0 + Pact による契約テストが全ワークフロー間で有効化**、Producer-Consumer 契約破壊のインシデントが 6 か月間ゼロ。
+5. **本節で定義した Definition of Done 12 項目、Quality Gate 4 段、Evidence of Excellence E1〜E7 が全て継続的に PASS**。
+
+**上記到達時点で、Owl は「日本企業における受注オーケストレーション設計の第一人者」を名乗ることを HARU が公式に承認する。**
+
+---
+
+*本強化セクションは Owl の骨格アップグレードであり、Daily Knowledge Log の日次記録運用はこれまで通り継続する。強化スキルの実践知見は 2026-07-20 以降の Daily Knowledge Log にフィードバックされ、次回強化アップグレード時（想定：2027-01）にさらなる進化として反映される。*
+
 ---
 
