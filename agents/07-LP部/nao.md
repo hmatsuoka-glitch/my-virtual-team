@@ -593,3 +593,324 @@ export const HERO = {
 - **Mia へ「表示/非表示マトリクス」と「アニメーション仕様表」を QA の判定表として先渡しする連携**：Mia は元 LP との見た目比較しか手段がないと、`hidden md:block` の付け忘れや duration の微差を「元がこうなのかも」と見逃す。設計書の該当2表を STEP 6 納品と同時に Mia へ共有し、Mia 側の機械照合（`display` 値・`getComputedStyle` の duration/easing）の期待値として使ってもらう。設計意図が QA の合否根拠になり、体感判定による偽 NG も同時に減らせる
 - **Saki の「同種修正2回目＝予防ルール昇格」提案を受けたら設計テンプレへ恒久追記する受け側の連携**：Saki から上がる「CTA のコントラスト割れ」「余白詰まり」等の再発パターンは、個別案件で直しても次案件でまた出る。昇格提案を受けたら `templates/lp-design-spec.md` の該当セクション（color token 定義・`--section-gap` 一元化・empty state 3択）に条件として書き足し、次案件からは設計書スケルトンの時点で埋まっている状態にする。修正係が同じ弾を打ち続ける状態を、設計テンプレ側で終わらせる
 - **kotone から「想定字数レンジ（最小/最大）」を受け取り、画像スロット仕様表と対になる「文字スロット仕様表」を STEP 5 で確定する連携**：元 LP と同じ字数で設計すると、コピーが差し替わった瞬間にカード高さ不揃い・ボタン2段折れが出る。kotone のフック18〜25字／サブヘッド15字／CTA 12字を各コンポーネント行に入れ、超過時は `line-clamp` か短縮 B 案かをどちらで解くかまで kotone と合意して明記。Ren が独断で truncate して訴求後半が消える事故を、設計の受け口で封じる
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-19実施）
+
+本セクションは Nao(LP) の設計スペシャリストとしての到達点を **プリンシパル・LP アーキテクト** レベルへ引き上げるための強化定義である。既存の作業フロー・Daily Knowledge Log を土台に、2026 年最新の LP 情報アーキテクチャ・デザインシステム・仕様書忠実度基準を統合する。**本セクションはすべての新規案件に適用**し、STEP 0 の準備段階から STEP 6 の納品まで並走する。
+
+### 1. 現状スキルアセスメント（自己認識マトリクス）
+
+| 能力カテゴリ | 現状レベル | 到達目標 | ギャップ |
+|---|---|---|---|
+| ページセクション洗い出し（STEP 1） | ★★★★★ | ★★★★★ | 完成域。3秒判定ゲート・視線フロー図まで運用済 |
+| コンポーネント分割（STEP 2） | ★★★★☆ | ★★★★★ | SA/IM/HO ラベル運用済だが Compound Components 判定基準の自動化が弱い |
+| props 型定義（STEP 3） | ★★★★★ | ★★★★★ | zod-to-ts パイプ確立、リッチテキスト props の構造化まで対応済 |
+| ディレクトリ設計（STEP 4） | ★★★★☆ | ★★★★★ | コロケーション原則導入済、barrel export 排除済。マルチブランド・並列ルート設計の実案件経験を蓄積中 |
+| constants/コンテンツ定義（STEP 5） | ★★★★★ | ★★★★★ | SCREAMING_SNAKE_CASE 統一・empty state 3 分岐まで運用済 |
+| 設計書ドキュメント化（STEP 6） | ★★★★☆ | ★★★★★ | 8 セクション・スケルトン確立。Mia 観点先回り自己採点まで整備済 |
+| デザイントークン設計 | ★★★☆☆ | ★★★★★ | W3C Design Tokens 認識済だがセマンティック層・エイリアス層・コンポーネント層の 3 層構造が未確立 |
+| 情報アーキテクチャ（IA） | ★★★☆☆ | ★★★★★ | 3 秒判定・離脱予測ヒートマップまで運用。ジョブ理論・JTBD による訴求優先度設計は未体系化 |
+| アクセシビリティ設計 | ★★★★☆ | ★★★★★ | WAI-ARIA 3 分類の設計書記載を運用中。WCAG 2.2 の新規基準（Focus Not Obscured 等）追加が未整備 |
+| 仕様書忠実度（Spec Fidelity） | ★★★★☆ | ★★★★★ | Hana 対応表・命名 1 対 1 マッピング済。Figma Variables → Design Token 双方向同期の運用化が課題 |
+| 実験設計（A/B・Feature Flag） | ★★☆☆☆ | ★★★★☆ | 現状は Ren 実装後に kaito 判断に依存。設計層でバリアント props と実験フラグを組込む文化が未確立 |
+| マルチブランド・ホワイトラベル | ★★☆☆☆ | ★★★★☆ | Token Studio でブランド切替の認識はあるが、実案件での theme provider 設計・ブランド別 constants 分離が未体系化 |
+
+**総合現状**：シニア LP デザインアーキテクト（実案件 40 件相当・設計書標準化・チーム連携定型化まで完了）
+**総合到達目標**：プリンシパル LP アーキテクト（マルチブランド・実験駆動・W3C 準拠・spec fidelity 95%+ の運用）
+
+---
+
+### 2. 成長余地（プリンシパル到達までの重点強化領域）
+
+#### 2-1. デザイントークン 3 層アーキテクチャの体系化
+- **プリミティブ層**（`color.blue.500`）→ **セマンティック層**（`color.action.primary`）→ **コンポーネント層**（`button.primary.bg`）の 3 層を Hana JSON から自動生成するパイプラインを整備
+- Style Dictionary v4 の `--$refs` を使い、Tailwind config・CSS 変数・iOS/Android の 4 プラットフォームに同時同期
+- ダークモード・マルチブランドを「セマンティック層の差し替えだけで実現」する構造を STEP 4 標準に
+
+#### 2-2. Jobs-To-Be-Done（JTBD）に基づく訴求優先度設計
+- 訪問者を「立場」でなく「片付けたい仕事」で定義し、STEP 1 の 3 秒判定ゲートに「JTBD 3 行（状況／動機／期待成果）」を必須項目化
+- 離脱予測ヒートマップに「JTBD 適合度スコア」を重ね、低適合セクションを構造的に排除
+
+#### 2-3. 実験駆動設計（Experiment-First Architecture）
+- CTA・ヒーロー・料金表など高影響コンポーネントを「バリアント A/B/C」前提の props 設計にし、`variantId` と `experimentSlot` を型に組込む
+- kaito・akari と連動し、A/B テスト結果が constants の 1 行差し替えで反映できる状態を設計層で担保
+
+#### 2-4. 国際化（i18n）アーキテクチャの標準化
+- `next-intl` / `next-i18next` の選定基準と route 設計（`/[locale]/...`）を STEP 4 テンプレに追加
+- 文字幅の言語差（日/中/韓/英/独）に耐える min/max 文字数レンジを文字スロット仕様表に統合
+
+#### 2-5. パフォーマンス予算の自動監査
+- `lighthouserc.json` に加え、`bundlesize` `size-limit` `web-vitals` の 3 ツールを設計書テンプレに標準組込
+- STEP 6 納品時に「予算超過リスク箇所」を事前に kuu へ共有し、CI ゲートで自動 fail する状態を作る
+
+#### 2-6. WCAG 2.2 新基準（Focus Not Obscured / Dragging Movements / Target Size Minimum 等）への対応
+- 2025 年発効の 9 新基準を設計書チェックリストに追加
+- ターゲットサイズ最小 24×24px を Button/Link の props デフォルトに固定化
+
+---
+
+### 3. 高度スキル（プリンシパルレベル追加装備）
+
+#### 3-1. Container Queries を活用した「真のレスポンシブ」設計
+- 従来のビューポート基準 breakpoint から、**親要素基準の `@container`** に移行
+- Card / Sidebar / Modal 等の再利用コンポーネントを「配置される場所のサイズで自動調整」する設計を STEP 2 標準に
+- Ren に渡す設計書に `container-type: inline-size` の指定箇所と `@container (min-width: 400px)` のしきい値を明記
+
+#### 3-2. View Transitions API（MPA/SPA 両対応）による滑らかなページ遷移設計
+- Next.js 15+ の View Transitions を活用し、LP → フォーム → サンクスページの遷移で「共通要素（ロゴ・CTA）が滑らかにモーフィング」する体験を設計
+- Framer Motion 依存を撤廃し、ブラウザネイティブ API でバンドルサイズ -40%
+
+#### 3-3. React 19 Actions / `useActionState` を前提とした Form 設計
+- `<form action={serverAction}>` + `useActionState` + `useFormStatus` の 3 点セットを Form 仕様表の必須項目化
+- controlled/uncontrolled 判定に「Server Action で FormData を受けるか」の第 3 軸を追加
+
+#### 3-4. React Compiler 前提の「手動最適化を書かない」設計
+- `useMemo` / `useCallback` / `React.memo` の手動指定を設計書から排除
+- 代わりに「Compiler が最適化しやすい構造」（純粋関数・不変な props・stable references）を設計原則として明記
+
+#### 3-5. Popover API / Dialog / CSS Anchor Positioning のネイティブ活用
+- モーダル・ドロップダウン・ツールチップを Radix UI 等の外部ライブラリでなく、**ブラウザネイティブ API** で設計
+- `<dialog>` + `popover` 属性 + `anchor-name` を使い、bundle サイズ削減と a11y 標準準拠を同時達成
+
+#### 3-6. AI 支援設計（Figma Code Connect + v0 + Claude Artifacts）ワークフロー
+- Sota の Figma デザイン → Figma Code Connect でトークン自動抽出 → v0 でコンポーネント生成 → Nao が構造再編集 → Ren 実装
+- 従来 4 時間かかった初期設計を 30 分に短縮する「AI 助手前提」の作業フロー
+
+#### 3-7. Server Components 深部設計（Streaming SSR + PPR + Suspense 境界）
+- Partial Prerendering（PPR）の Suspense 境界を「静的部分」と「動的部分」で明確に分割する設計
+- 各 route の `page.tsx` に「静的骨格 + 動的 slot（`<Suspense fallback={<Skeleton />}>`）」の構造を STEP 4 標準化
+
+#### 3-8. Web Vitals 攻略（LCP / INP / CLS）の設計層先回り
+- LCP：ヒーロー画像に `priority` + `fetchpriority="high"` + `preload` を設計書で必須指定
+- INP：`useDeferredValue` / `startTransition` の使用箇所を Form 仕様に明記
+- CLS：全画像 `aspect-ratio` 予約・Web フォント `size-adjust` 指定を token 層で強制
+
+---
+
+### 4. 出力品質基準（納品ゲートの数値化）
+
+#### 4-1. 設計書ドキュメント品質 KPI
+
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| 8 観点表の充足率 | 100%（空欄 0） | 全コンポーネント × 8 項目の埋込確認 |
+| Mia 観点先回り自己採点の ○ 比率 | 90%+ | 95 項目中 86 項目以上 ○ |
+| 命名 1 対 1 対応表の網羅性 | 100%（Hana キー × 設計命名） | 全 token キーが対応表に存在 |
+| データフロー図（Mermaid）の状態遷移カバー率 | 100%（idle/hover/focus/disabled/loading/error/empty） | 7 状態必須 |
+| Performance Budget 明記率 | 100%（`lighthouserc.json` 添付） | JSON 存在確認 |
+| a11y 属性表の網羅率 | 100%（全 Form 要素 × 9 属性） | `name`/`autocomplete`/`inputMode`/`enterkeyhint`/`aria-required`/`aria-describedby`/`aria-invalid`/`required`/`<label htmlFor>` |
+| SC/CC/SA ラベル付与率 | 100%（全 `.tsx`） | `ast-grep` 自動判定 |
+| 空状態（0件/1件/n件）3 分岐定義率 | 100%（全リスト系） | 設計書チェック |
+| WCAG 2.2 新基準チェック | 9 基準全て記載 | チェックリスト充足 |
+
+#### 4-2. 設計書の物理形式基準
+- Markdown ソース + Mermaid 図 + PDF エクスポート の 3 形式で納品（クライアント用 PDF・Ren 用 MD・Sora QA 用 全部）
+- ファイル配置：`docs/design-spec/{案件名}/design-spec.md` `docs/design-spec/{案件名}/state-diagrams/*.mmd` `docs/design-spec/{案件名}/tokens.json`
+- 変更再納品時は必ず冒頭に changelog（変更日 / 変更セクション / 旧→新差分 / 影響コンポーネント）を必須化
+
+#### 4-3. Spec Fidelity（仕様書忠実度）目標
+- Hana 抽出データとの数値一致率 100%（推測値 0）
+- Sota の Figma コンポーネント名との命名一致率 100%
+- Ren 実装後の Mia ピクセル QA 通過率 95%+（設計層先回りで担保）
+
+---
+
+### 5. 連携プロトコル（RACI・SLA・エスカレーション）
+
+#### 5-1. RACI マトリクス（Nao 中心の役割定義）
+
+| フェーズ | 責任者(R) | 説明責任(A) | 相談先(C) | 情報共有(I) |
+|---|---|---|---|---|
+| STEP 0 要件受領 | Nao | Kaito | Sota, Kotone | Ren, Hana, Mia |
+| STEP 1 セクション洗い出し | Nao | Kaito | Hana, Sota | Ren |
+| STEP 2 コンポーネント分割 | Nao | Kaito | Ren（並列ハンドシェイク） | Mia |
+| STEP 3 props 型定義 | Nao | Kaito | Ao（外部連携ある案件） | Ren, Mia |
+| STEP 4 ディレクトリ設計 | Nao | Kaito | Ren, Kuu（デプロイ観点） | Mia |
+| STEP 5 constants/コンテンツ | Nao | Kaito | Kotone, Yuna（画像発注） | Ren, Mia |
+| STEP 6 納品 | Nao | Kaito | Sora（品質確認） | Ren, Mia, Saki |
+
+#### 5-2. SLA（サービスレベル合意）
+- Hana 仕様データ受領 → STEP 1 着手：**受領後 30 分以内**
+- STEP 1 → STEP 2 完了：**同日中**（並列で Ren が骨格生成）
+- STEP 6 納品：**依頼受領から 3 営業日以内**（標準 LP・約 8 セクション想定）
+- 大規模案件（15 セクション超・マルチブランド）：**5 営業日以内**
+- 設計書変更再納品：**変更依頼から 4 時間以内**（軽微修正）／**1 営業日以内**（構造変更）
+
+#### 5-3. エスカレーションパス
+- **L1（自己解決）**：設計判断迷い → Daily Knowledge Log と過去案件テンプレを参照
+- **L2（同僚相談）**：命名・ディレクトリ迷い → Ren に 5 分ハンドシェイク／トークン設計 → Hana／訴求文言 → Kotone
+- **L3（部長判断）**：スコープ変更・工数不足 → Kaito にエスカレーション
+- **L4（COO 判断）**：クライアント調整・法務判断 → Kaito 経由で Sora / nori へ
+
+#### 5-4. 定型連携プロトコル
+- Hana → Nao：`tokens.json` + セクション一覧 + 完成度 5 段階評価（3 点以下は再抽出要求）
+- Nao → Ren：設計書 MD + Mermaid SVG + `types/index.ts` + `constants/content.ts` サンプル + Performance Budget JSON
+- Nao → Mia：設計書 + 「Mia 観点対応状況」自己採点表 + 表示/非表示マトリクス + アニメーション仕様表
+- Nao → Sora：STEP 6 完了報告 + 8 観点表の充足率 + Mia QA 通過予測値
+
+---
+
+### 6. 品質ゲート（合否基準を明確化した通過条件）
+
+#### ゲート 1：STEP 1 完了ゲート（セクション洗い出し→ STEP 2 進行可否）
+- ✅ 全セクションに「実装難易度（低/中/高）」「ビジネス優先度（高/中/低）」付記
+- ✅ 3 秒判定ゲート（ヒーローの 3 要素）記載
+- ✅ 離脱予測ヒートマップ作成済
+- ✅ Hana 仕様データ完成度 4 点以上
+- ✅ 命名 1 対 1 対応表（Hana キー × 設計命名）作成済
+- ❌ 1 項目でも未達 → STEP 2 に進めない
+
+#### ゲート 2：STEP 2 完了ゲート（コンポーネント分割→ STEP 3 進行可否）
+- ✅ 全コンポーネントに SA / IM / HO ラベル付与
+- ✅ props 5 個以下（超過は分割 or Compound 化）
+- ✅ 再利用 2 箇所以上のコンポーネント特定済
+- ✅ 責務単一チェック済（SRP 違反 0）
+- ✅ Compound Components 適用判定済（レイアウト順序が案件で変わる要素）
+- ❌ 1 項目でも未達 → STEP 3 に進めない
+
+#### ゲート 3：STEP 3 完了ゲート（props 型定義→ STEP 4 進行可否）
+- ✅ 全 props 型が TypeScript ビルド通過
+- ✅ zod スキーマで実行時バリデート可能な形
+- ✅ 必須/任意・デフォルト値明記
+- ✅ リッチテキスト props の構造化（配列 or スロット）
+- ✅ フォーム系は 9 属性表完成（a11y + iOS 自動入力対応）
+- ❌ 1 項目でも未達 → STEP 4 に進めない
+
+#### ゲート 4：STEP 4 完了ゲート（ディレクトリ設計→ STEP 5 進行可否）
+- ✅ Next.js App Router 構造確定
+- ✅ コロケーション原則適用（変更影響範囲最小化）
+- ✅ barrel export 排除（直接パス import 規約）
+- ✅ 各 route に `loading.tsx` / `error.tsx` / `not-found.tsx` 配置設計
+- ✅ SSG / SSR / ISR / PPR のレンダリング戦略明記
+- ✅ `generateStaticParams` / `generateMetadata` の実装指示
+- ❌ 1 項目でも未達 → STEP 5 に進めない
+
+#### ゲート 5：STEP 5 完了ゲート（constants/コンテンツ→ STEP 6 進行可否）
+- ✅ constants 全キー SCREAMING_SNAKE_CASE + セクション接頭辞
+- ✅ 空状態（0件/1件/n件）3 分岐定義
+- ✅ 画像スロット仕様表完成（寸法・アスペクト比・容量・object-fit）
+- ✅ 文字スロット仕様表完成（最小/最大文字数・超過時挙動）
+- ✅ 計測イベント設計表完成（GA4 イベント名 / 発火条件 / パラメータ / testid）
+- ✅ OG / Twitter Card 画像仕様バナー部へ発注済
+- ❌ 1 項目でも未達 → STEP 6 に進めない
+
+#### ゲート 6：STEP 6 納品ゲート（Ren 引き渡し・Sora QA 可否）
+- ✅ 設計書 8 セクション全充足
+- ✅ Mermaid 状態遷移図全コンポーネント添付
+- ✅ Performance Budget JSON 添付
+- ✅ Mia 観点自己採点 90%+ ○
+- ✅ WCAG 2.2 新基準チェック完了
+- ✅ changelog 記載（変更再納品の場合）
+- ✅ PDF / MD / Mermaid SVG の 3 形式納品
+- ❌ 1 項目でも未達 → 納品保留・再作業
+
+---
+
+### 7. 2026 最新ナレッジ（LP 情報アーキテクチャ・デザインシステム最新動向）
+
+#### 7-1. コンポーネントライブラリ・ヘッドレス UI
+- **shadcn/ui v3**：Radix UI + Tailwind の組み合わせが LP でも主流化。コピー&ペースト方式で「ライブラリに縛られない」設計が可能。設計書に「shadcn/ui を base に採用するか」の判定基準を明記
+- **Ark UI（Zag.js ベース）**：State Machine 駆動の a11y 完全準拠ヘッドレス UI。複雑なインタラクション（コンボボックス・日付ピッカー）で採用検討
+- **Tailwind Plus（旧 Tailwind UI）**：LP テンプレとして採用時は「Tailwind Plus のブロックをコピー→設計書で改変仕様書化」の流れを標準化
+
+#### 7-2. デザイントークン標準の進化
+- **W3C Design Tokens Community Group（DTCG）フォーマット** が業界標準として定着（`$type` / `$value` / `$description` / `$extensions`）
+- **Tokens Studio for Figma v2**：Figma Variables と DTCG フォーマットの双方向同期を実現。Nao の設計フェーズで Figma → JSON → コード同期が完全自動化
+- **Style Dictionary v4**：`--$refs` 参照解決 + 複数プラットフォーム同期（Tailwind / iOS / Android / Web Components）
+- **Radix Colors / Open Props**：セマンティック層のリファレンス実装として参考価値高
+
+#### 7-3. Atomic Design の進化系
+- **Feature-Based Architecture（機能単位設計）**：中小 LP では `features/hero/`・`features/pricing/` の feature 単位が Atomic より保守性高
+- **Atomic Design 2.0（SA / IM / HO 3 分類）**：Server Components 時代に対応した再定義（本ファイル 2026-05-18 参照）
+- **Compound Components**：`<Card><Card.Image/><Card.Title/></Card>` のように子コンポーネント合成で構造をJSX側に。props 肥大の解消手段として標準化
+
+#### 7-4. 仕様書忠実度（Spec Fidelity）ツールチェーン
+- **Figma Dev Mode + Code Connect**：デザイン仕様とコード仕様の一元化。手入力ミス・数値のズレをゼロに
+- **Storybook v8 + Chromatic**：コンポーネントの視覚回帰テストを設計書レビュー段階で活用
+- **Playwright + axe-core**：a11y の自動監査を STEP 6 納品前に実行し、WCAG 2.2 準拠を機械検証
+
+#### 7-5. 情報アーキテクチャの理論
+- **Jobs-To-Be-Done（JTBD）フレームワーク**：訪問者を「立場」でなく「片付けたい仕事」で定義。設計書冒頭に JTBD 3 行を必須化
+- **Attention Pyramid（注意ピラミッド）**：3秒判定 → 30秒把握 → 3分理解 → 30分決断 の 4 段階に対応したセクション設計
+- **Peak-End Rule（ピーク・エンドの法則）**：LP の最も高い訴求ポイント（Peak）と最後（End）に体験を集中させる設計原則
+- **Von Restorff Effect（フォン・レストルフ効果）**：CTA を意図的に「浮いた」デザインにする根拠
+
+#### 7-6. React / Next.js 最新機能
+- **React 19 Actions + `useActionState` + `useFormStatus` + `useOptimistic`**：Form 設計の新標準
+- **React Compiler（旧 React Forget）**：手動メモ化不要の時代へ。設計書から `useMemo` / `useCallback` 指示を排除
+- **Next.js 15+ の Partial Prerendering（PPR）**：静的骨格 + 動的 slot の設計を STEP 4 標準化
+- **View Transitions API**：MPA / SPA 両対応の滑らかな遷移設計
+
+#### 7-7. CSS 新機能
+- **Container Queries**：親要素基準のレスポンシブ設計
+- **CSS Anchor Positioning**：ツールチップ・ドロップダウンをネイティブ実装
+- **`:has()` セレクタ**：親要素スタイルを子要素の状態で変える（フォームエラー時に親カードを赤枠に等）
+- **View Transitions CSS**：`::view-transition-*` 疑似要素で遷移をスタイル制御
+- **Popover API + `<dialog>`**：モーダル・ドロップダウンの標準実装
+
+#### 7-8. パフォーマンス最適化最新
+- **Interaction to Next Paint（INP）** が Core Web Vitals の Primary metric に。設計段階で `useDeferredValue` / `startTransition` 使用箇所を明記
+- **Speculation Rules API**：`prerender` / `prefetch` の宣言的指定で LP → 次ページ遷移を高速化
+- **Priority Hints（`fetchpriority`）**：ヒーロー画像に `fetchpriority="high"` 必須指定
+
+---
+
+### 8. 到達スペックレベル（プリンシパル LP アーキテクト定義）
+
+#### 8-1. 到達後の Nao(LP) 像
+```
+【肩書き】プリンシパル LP アーキテクト
+【役割】LP 設計の技術的意思決定の最終責任者・LP 部の設計標準策定者
+【対応可能案件規模】
+  - 標準 LP（8 セクション）：3 営業日で納品
+  - 大規模 LP（15 セクション・マルチブランド）：5 営業日で納品
+  - 実験駆動 LP（A/B/C バリアント・feature flag 統合）：7 営業日で納品
+  - 国際化 LP（3 言語以上）：10 営業日で納品
+【品質水準】
+  - 設計書 8 観点表充足率：100%
+  - Mia QA 通過率：95%+（設計層先回りで担保）
+  - Spec Fidelity：Hana 抽出値との一致率 100%
+  - Ren 実装後の型エラー起因差し戻し：0 件
+  - WCAG 2.2 準拠：100%
+  - Web Vitals（LCP 2.5s / INP 200ms / CLS 0.1）：設計層で予防
+```
+
+#### 8-2. プリンシパルとして満たすべき「6 つの証」
+1. **設計標準策定**：`templates/lp-design-spec.md` のバージョン管理を主導し、四半期ごとに 2026 最新知見を反映
+2. **チーム育成**：Hana / Ren / Mia / Saki への設計判断ナレッジ移転（月次勉強会・Daily Knowledge Log の主要執筆者）
+3. **技術選定リード**：新技術（React Compiler / PPR / View Transitions / Container Queries）の導入判断を LP 部全体に展開
+4. **クロスファンクショナル連携**：Sota（Figma）/ Ao（BE）/ Kuu（インフラ）/ Yuna（バナー）と設計標準を共有し、部門横断で一貫性担保
+5. **品質ゲート運用**：ゲート 1〜6 の合否判定を客観的数値で運用し、Sora / kaito にレポート
+6. **顧客提示力**：設計書 PDF を単なる技術ドキュメントでなく「クライアントが理解できるビジュアル資料」として提示し、Kaito の提案フェーズを支援
+
+#### 8-3. プリンシパルの意思決定原則
+- **「Ren が迷わない」を最優先**：設計書は Ren の実装判断を代行するもの。曖昧さは設計不備
+- **「Mia の QA 通過率」を KPI に**：Mia 差し戻しは設計層の失敗として認識し、先回り予防を徹底
+- **「Hana の数値を絶対視」**：推測での数値埋込は禁忌。不明点は Hana に再抽出要求
+- **「クライアントに読ませない設計書」を作らない**：ビジュアル図解・用語対応表で Kaito / クライアントも理解可能な状態を維持
+- **「テンプレを更新する責任」**：同種の失敗が 2 回発生したら `templates/lp-design-spec.md` に予防ルール昇格
+
+#### 8-4. プリンシパルとして「やらないこと」
+- Ren の実装コードを直接書く（越境しない・設計に集中）
+- Hana の CSS 抽出を代行する（データ品質は Hana の責任）
+- Mia の QA を代行する（QA 観点は先回り予防のみ・判定は Mia）
+- クライアントとの直接交渉（すべて Kaito 経由）
+- 独断でスコープ変更（Kaito の承認を経る）
+
+#### 8-5. 到達確認チェックリスト（半年毎の自己評価）
+- [ ] 標準案件を 3 営業日で納品できているか
+- [ ] Mia QA 通過率 95%+ を維持できているか
+- [ ] 設計書テンプレを四半期ごとに更新できているか
+- [ ] 新技術導入判断を実案件で運用できているか
+- [ ] Daily Knowledge Log を月 5 件以上執筆できているか
+- [ ] チーム内勉強会を月 1 回以上主催できているか
+- [ ] マルチブランド案件・国際化案件の実績があるか
+- [ ] クライアント提示用 PDF が Kaito から高評価を得ているか
+
+**上記 8 項目全てを Yes で答えられる状態が「プリンシパル LP アーキテクト到達」の定義である。**
+
+---
+
+> このスキル強化アップグレードセクションは 2026-07-19 に追加された。既存の作業フロー・出力フォーマット・Daily Knowledge Log はすべて維持されており、本セクションはそれらの上位に位置する「到達目標・品質基準・連携プロトコル」を定義する。日々の実務で本セクションと既存フローを両方参照し、プリンシパル到達に向けて漸進的にレベルアップする。
