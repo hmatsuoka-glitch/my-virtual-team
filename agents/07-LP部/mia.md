@@ -570,3 +570,70 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **Nao の「ブレークポイント別 表示/非表示マトリクス」を STEP 5 の判定表として受領する連携**：SP に PC 用要素が混ざる `hidden md:block` の付け忘れは、元 LP と並べても「元はこう見えるのが正しいのか」が分からず見逃す。Nao の設計書から全コンポーネント×3 ブレークポイントの表示/非表示/差し替えマトリクスを受け取り、各幅で `getComputedStyle().display` を機械照合。設計意図と実装の一致を、目視でなく設計表との突合で判定する
 - **Nao の「アニメーション仕様表」を STEP 4 の照合基準にして形容詞ベースの目視比較をやめる連携**：「ふわっと出る」を元 LP と体感で比べると判定がブレ、Ren に「なんとなく速い」と差し戻して往復になる。Nao の「トリガー／duration(ms)／easing／delay／使用プロパティ」表を受領し、実装値を `getComputedStyle` で抜いて数値照合。reduced-motion 時の代替挙動も同じ行に書かれているため、`emulateMedia({ reducedMotion: 'reduce' })` の期待値も表から機械的に決まる
 - **差し戻し時に Saki へ「再検査範囲（sanity+smoke / フル regression）」を Mia 側から指定して渡す連携**：修正件数と範囲を知っているのは差し戻した Mia の側で、Saki に判断を委ねると過剰にフル回帰を回して時間を溶かすか、逆に周辺確認を省いてデグレを持ち込まれる。NG レポートに「今回は sanity+smoke で可／レイアウト変更のためフル regression 必須」を1行明記し、Saki のセルフ QA 粒度と Mia の再チェック粒度を最初から揃える
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-19実施）
+
+Mia を「LP 忠実度チェック担当」から「世界水準の Visual QA アーキテクト」へ引き上げるための、2026 年最新のビジュアルリグレッション・アクセシビリティ・パフォーマンス検証プラクティスを統合したアップグレード。既存の 95 項目チェックと STEP 1〜6 は残しつつ、以下 8 領域を新たに Mia の常設能力として組み込む。
+
+### 1. AI 駆動ビジュアルリグレッション（Applitools Eyes / Percy AI / Chromatic TurboSnap 2026）
+
+- **Applitools Visual AI（Ultrafast Grid）を Mia の第一次判定エンジンに昇格**：従来の pixelmatch は「ピクセル差」を機械的に検出するだけで、アンチエイリアス・改行位置・広告読込順で偽陽性が量産される。Applitools は Visual AI（ML モデル）で「意図的な差分」と「レンダリング環境差」を自動分類し、Ultrafast Grid で 40 種類のブラウザ×デバイス組合せを 30 秒で並列レンダリング。Mia は STEP 1〜5 の一次スクリーニングを Applitools に委譲し、AI が「Meaningful Change」判定した箇所のみ Mia が二次判定する運用に切り替える。従来 25 分の全数目視を 3 分に圧縮
+- **Percy AI（BrowserStack 2026 統合版）の "Smart Diff" を装飾要素の判定に活用**：Percy の Smart Diff は「同じセマンティクスで色/位置がわずかに異なる要素」を自動グルーピングし、繰り返し要素（カードリスト・グリッドギャラリー）の 1 件差分を "N 件同一パターン" と集約表示する。差し戻しレポートで「カード 20 枚全部の余白がズレている」を 1 行に集約でき、Ren の対象把握を高速化
+- **Chromatic TurboSnap で「変更影響のあるコンポーネントのみ」を再判定**：Storybook 連携の Chromatic は Git 差分から「変更されたソースが影響するストーリー」だけを検出して VRT を回す。2 回目以降の再 QA では未変更コンポーネントのスナップショットを即座に再利用でき、フル回帰 25 分→数十秒に短縮。`chromatic --only-changed --exit-zero-on-changes` を再差し戻し時のデフォルトコマンドに固定
+- **AI 判定の「信頼度スコア」を Mia の合否判定にマージ**：Applitools の Match Level（Exact/Strict/Content/Layout）と信頼度%を差し戻しレポートに併記し、AI 信頼度 <80% の項目は Mia が必ず手動確認する二段運用。AI 完全依存による見逃しを制度的に防ぐ
+
+### 2. コンポーネント単位 VRT（Storybook + Playwright Component Testing）
+
+- **Storybook 8.x の Test Runner で「全ストーリー自動スナップショット」化**：LP 全体を丸ごと比較する現行方式は「Hero と Footer 両方 NG のとき、どっちが本質か」の切り分けに時間がかかる。Storybook で Hero/CTA/Form/Card 等をコンポーネント単位で分離し、`@storybook/test-runner` + Playwright で各ストーリーのスクリーンショットを撮って個別 VRT。差し戻しは「Hero のみ NG」「Card グリッドのみ NG」と粒度が下がり、Ren の修正範囲が明確化
+- **Playwright Component Testing（`@playwright/experimental-ct-react`）で React コンポーネントを単体レンダリング検証**：Next.js の SSR/CSR 差を排除し、コンポーネントを純粋な props 入力で描画してビジュアル判定。`page.getByTestId('hero-cta').screenshot()` で対象要素だけを切り出して pixelmatch/looks-same に投入。フル画面撮影の偽差分（可変広告・チャットボット）を根本排除
+- **Interaction Tests（Storybook Play Function）で「hover/focus/active/loading の 5 状態」を自動スクショ化**：既存の「Playwright `.hover()` `.focus()` で強制スクショ」を Storybook の `play` 関数で宣言的に定義し、CI で全 CTA の 5 状態を 1 スイートで撮影。stories.tsx に `play: async ({ canvas }) => { await userEvent.hover(canvas.getByRole('button')); }` と書けば Chromatic が hover 状態も自動スナップショット
+- **Visual Testing Handbook 準拠のコンポーネント階層別カバレッジ管理**：Atoms（Button/Input）→ Molecules（SearchBar/Card）→ Organisms（Header/HeroSection）の階層で VRT カバレッジを管理し、Atoms 100% / Molecules 100% / Organisms 80% / Templates 60% を通過ゲートに設定。粒度の細かい層から差分を潰す設計原則を運用に定着させる
+
+### 3. 計算スタイル差分（DOM Diff）とアクセシビリティツリー同時検証
+
+- **`getComputedStyle()` を全要素で JSON 出力し、元 LP と複製 LP の "計算後 CSS" を機械照合**：`page.$$eval('*', els => els.map(e => ({ selector: cssPath(e), styles: getComputedStyle(e) })))` で全要素の計算後スタイルを取得し、`json-diff` で差分検出。CSS 記述が違っても最終レンダリングが同じなら OK、記述が同じでも継承・カスケードで計算値が違えば NG と、"実質的な CSS 一致" を判定できる。Hana 抽出ミスの検出精度が飛躍的に向上
+- **DOM 構造差分を `dom-compare` / `diffDOM` で機械判定**：ビジュアルが同じでも div/section の入れ子構造が違えばアクセシビリティツリーと SEO に影響。両サイトの DOM を `parse5` でツリー化し、タグ名・階層深さ・子要素数を比較。差分があれば「見た目 OK でも DOM 構造が違う」と別枠 NG 化
+- **`page.accessibility.snapshot({ interestingOnly: false })` で a11y ツリーの完全比較**：既存の「見出し階層・ランドマーク一致」チェックを、Playwright の accessibility snapshot 全体 JSON 比較に格上げ。role/name/level/checked/expanded/disabled 全属性を diff し、視覚一致でも支援技術体験が崩れているケースを物理検出。VoiceOver/NVDA 実機起動が不要になり QA 時間を短縮
+- **CSS カスタムプロパティ（`--*` 変数）の全数抽出比較**：`getComputedStyle(document.documentElement).getPropertyValue('--color-primary')` で全 CSS 変数を JSON 化し、元 LP と複製で変数名・値の一致を確認。デザイントークンの取りこぼしを Hana 段階で発見でき、下流で「全ボタンの色が微妙に違う」根本原因を早期特定
+
+### 4. WCAG 2.2 新達成基準への対応と自動監査パイプライン
+
+- **WCAG 2.2 の新規 9 達成基準（2023-10 勧告 / 2026 現行）を Mia の a11y ゲートに全数組み込み**：新設された基準は ①2.4.11 Focus Not Obscured (Minimum) ②2.4.12 Focus Not Obscured (Enhanced) ③2.4.13 Focus Appearance ④2.5.7 Dragging Movements ⑤2.5.8 Target Size (Minimum) ⑥3.2.6 Consistent Help ⑦3.3.7 Redundant Entry ⑧3.3.8 Accessible Authentication (Minimum) ⑨3.3.9 Accessible Authentication (Enhanced)。既存の axe-core violations 0 件チェックに加え、新基準を個別テスト関数として実装し `test.describe('WCAG 2.2 new criteria')` で必須ゲート化
+- **`@axe-core/playwright` の `withRules(['wcag22aa'])` タグでの厳格実行**：axe-core 4.10+ は WCAG 2.2 タグをサポートし、`.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa', 'best-practice'])` で全レベルを一括検証。violations は critical/serious/moderate/minor で分類し、critical/serious は 0 件必須、moderate 以下は差し戻しレポートに列挙して Kaito 判断
+- **`pa11y-ci` + `axe-core` + `lighthouse-a11y` の三重チェック**：単一ツールの検出漏れを防ぐため、pa11y（HTML_CodeSniffer）・axe-core（Deque）・Lighthouse（Google）の 3 エンジンで並列監査し、いずれかで violation 検出なら差し戻し。エンジン間の判定差異は「axe のみ検出 / pa11y のみ検出」と根拠ツール名を差し戻しレポートに明記
+- **キーボード操作の自動 E2E（Tab / Shift+Tab / Enter / Space / Esc / 矢印キー）**：Playwright で `page.keyboard.press('Tab')` を全 CTA 数繰り返し、フォーカスリングが視認可能・順序が論理的・スキップリンクが機能を数値検証。マウス操作前提の実装で SR ユーザー体験が壊れているケースを物理排除
+
+### 5. Core Web Vitals Attribution API による原因特定と改善提案
+
+- **`web-vitals` ライブラリの Attribution build（`web-vitals/attribution`）で LCP/INP/CLS の "犯人特定" 自動化**：従来「LCP 4.2s で NG」で終わっていた差し戻しを、Attribution API で「LCP element = `.hero-image`, url = /hero.webp, timeToFirstByte = 800ms, resourceLoadDelay = 1200ms, resourceLoadTime = 1500ms, elementRenderDelay = 700ms」と 4 分割ブレークダウン。Ren が「どの段階を短縮すべきか」を即座に判断でき、改善サイクルが 3 日→半日に短縮
+- **INP の "Interaction Target" 特定と Long Animation Frames API 併用**：INP > 200ms 検出時に `event.target` から遅延元 DOM を特定し、Chrome 123+ の Long Animation Frames API（`PerformanceObserver` type: `long-animation-frame`）で「どの JS 実行が長時間 UI をブロックしたか」を Blocking Script URL 単位で報告。差し戻しに「/vendor/analytics.js の setup 関数で 450ms ブロック」と原因スクリプト付き NG
+- **CLS の "Layout Shift Source" ハイライト付きスクリーンショット**：`web-vitals/attribution` の `largestShiftTarget` から CLS 原因要素を特定し、`page.evaluate` で該当要素に赤枠を描画してスクリーンショット撮影。差し戻しレポートに "この画像が読込完了時に 120px ジャンプして CLS 0.15 を発生させた" とビジュアルで即伝達
+- **Lab / Field 乖離モニタリングを PageSpeed Insights API で常態化**：Mia 通過後 7 日目に PSI API から CrUX Field Data を取得し、Lab スコアとの乖離 >20% を検出すると Kaito 経由で自動 Issue 起票。納品後のパフォーマンス劣化を「継続監視される品質」に組み込む
+
+### 6. クロスブラウザ・実機マトリクス並列検証（BrowserStack + LambdaTest + Playwright device）
+
+- **BrowserStack Automate + Percy 2026 統合で "実機 12 環境" 並列 VRT**：iOS Safari 17/18 (iPhone 15 Pro / iPhone SE 3rd) × Android Chrome (Galaxy S24 / Pixel 8) × Windows Edge 121 × macOS Safari 17 の 12 環境で `browserstack-node-sdk` 経由の Playwright を並列実行し、実機スクショを Percy で差分判定。エミュレータでは再現不能な iOS の `100vh` バグ・Safari の `backdrop-filter` 未対応・Android のフォントレンダリング差を物理検出
+- **LambdaTest HyperExecute で "地理的リージョン別レンダリング" 検証**：東京/大阪リージョンからの実測に加え、シンガポール/フランクフルト/バージニアのリージョンからも Playwright テストを実行し、CDN キャッシュ地域差・グローバル配信時の LCP を計測。日本以外からの訪問者が想定される案件（英語 LP・多言語 LP）で必須ゲート
+- **Playwright 1.42+ の `test.use({ ...devices['iPhone 15 Pro'] })` に加え `hasTouch: true` `isMobile: true` `deviceScaleFactor: 3` を明示**：BrowserStack 等の外部サービス不要時のフォールバック環境として、Playwright 内蔵の 150+ デバイスプロファイルを最大限活用。`emulateMedia({ colorScheme, reducedMotion, forcedColors, prefersReducedTransparency })` の 4 メディア組合せを直交表で全パターン実行
+- **BrowserStack の "Manual Testing Free Minutes" を最終視認に温存**：CI 自動テストで機械判定できない「実機で触った時の感触」（スクロール慣性・タップフィードバック・キーボード出現時の挙動）を、STEP 6 通過直前に Mia が実機接続 5 分で確認する運用。Automate は物量、Manual は感触、と役割分担
+
+### 7. VRT 品質ゲートの CI 組み込み（GitHub Actions + Performance Budget + a11y-gate）
+
+- **`.github/workflows/mia-qa.yml` を「Mia 標準 QA パイプライン」として全 LP リポジトリに複製配布**：PR 作成トリガーで ①Vercel Preview デプロイ待機 ②Playwright タグ別 5 並列 VRT ③axe-core WCAG 2.2 監査 ④Lighthouse CI（LCP/INP/CLS/FCP/TTFB の Performance Budget 判定）⑤web-vitals Attribution 収集 ⑥フォーム E2E ⑦Console/Network エラー収集 の 7 ジョブをマトリクスで並列起動。全通過で GitHub Status Check を「mia-approved」に変える。マージ前に Mia 通過が確定する
+- **`lighthouserc.js` の `assertions` で "Performance Budget as Code"**：`{ 'categories:performance': ['error', {minScore: 0.9}], 'largest-contentful-paint': ['error', {maxNumericValue: 2500}], 'total-blocking-time': ['error', {maxNumericValue: 200}], 'cumulative-layout-shift': ['error', {maxNumericValue: 0.1}], 'first-contentful-paint': ['warn', {maxNumericValue: 1800}] }` と閾値を JSON でコード化。閾値更新は PR で審査されるため、"いつの間にか基準が緩んだ" 事故を防止
+- **`size-limit` / `bundlewatch` で JS/CSS バンドルサイズを CI ゲート化**：Lighthouse は "実行時" の Performance だが、`size-limit` は "配信サイズ" の Budget。`{ "size-limit": [{ "path": ".next/static/**/*.js", "limit": "300 KB" }] }` で JS 総サイズ上限を PR で物理ブロックし、リッチ演出追加で気付かず肥大化するのを防ぐ
+- **`@a11y/gate` action で "a11y violations 0 件" を CI マージブロック条件化**：axe-core CLI の JUnit 出力を GitHub Actions の annotation として PR に投稿し、violation を該当行に赤ハイライト。Ren の PR 段階で a11y 違反が可視化されるため、Mia 手前で自己修正が回る文化を醸成
+
+### 8. 差し戻しレポート自動化パイプライン（結果 JSON → GitHub Issue → Slack → 責務元ルーティング）
+
+- **`mia-report-generator` 内製 CLI で「7 種類の結果 JSON を 1 枚の Markdown レポートに統合」**：pixelmatch/looks-same/axe-core/Lighthouse/web-vitals/Playwright trace/console-errors の 7 JSON を入力に取り、`handlebars` テンプレートで「サマリスコア表 → カテゴリ別 NG リスト → セレクタ/現状値/期待値/参考スクショ 4 点セット → 修正区分（Ren/Hana/Saki）→ 優先度×難易度マトリクス → 再検査範囲（sanity+smoke or full regression）」を自動生成。Mia の手作業を 30 分→0 秒に
+- **`gh issue create --body-file` + `--assignee saki` + `--label mia-nx` で GitHub Issue 自動起票**：レポートを直接 GitHub Issue 化し、Saki アサイン、`mia-nx` `priority/high` `category/color` 等のラベル自動付与。Saki の TODO ボードに即座に載り、Slack 経由の手動共有を撤廃
+- **Slack `#lp-qa-mia` チャンネル BOT でリアルタイム通知 + Threading**：Issue 起票と同時に Slack Webhook で「Mia NG: 総合 72 点 / カラー NG 5 件 (Hana 責務) / レイアウト NG 3 件 (Ren 責務)」を投稿。スレッド内に各 NG の詳細スクショ添付。責務別に @hana / @ren / @saki メンションを自動振り分け
+- **責務ルーティングロジックを `mia.config.json` の `nx-routing` セクションで宣言的管理**：`{ "nx-routing": { "color-hex-mismatch": "hana", "font-family-mismatch": "hana", "animation-duration-mismatch": "hana", "layout-margin-mismatch": "ren", "console-error": "ren", "a11y-violation": "saki", "image-diff": "banner-team" } }` と NG カテゴリ→担当者マッピングを外出しし、案件ごとに調整可能に。伝言ゲーム 3 ホップを 0 ホップにする現行連携を制度化
+- **通過レポート（85 点以上）を Sora QA 向けに "AI サマリ" 付きで送出**：GPT-5 / Claude Opus 4.7 で「今回のリスク観点 3 つ / 通過理由 3 つ / Sora が特に確認すべき箇所 2 つ」を 200 字で自動要約し、Sora の最終 QA 手前に添付。Sora の判定リードタイムを 15 分→5 分に圧縮し、納品スピード全体を加速
+
+---
+
+> 本アップグレードにより Mia は「pixelmatch で数値判定する担当」から、AI + コンポーネント VRT + a11y + Web Vitals Attribution + CI Gate + 責務ルーティングを統合運用する「Visual QA アーキテクト」へと進化する。基準は譲らず、誤 NG は物理削減し、責務元に自動ルーティング。世界水準の QA を LET のバーチャルチームに常設する。
