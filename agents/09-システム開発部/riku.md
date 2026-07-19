@@ -439,3 +439,78 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **Ao との連携：エラー文言を「Ao の日本語メッセージをそのまま出す」のか「FE がコードで出し分ける」のかを実装前に一方へ倒す**。Ao はユーザー向け日本語で「何が起きたか・何をすればいいか」を返す設計を持ち、Riku も UI 側に文言を持ちたくなるため、放置すると同じエラーの文言が BE と FE の 2 箇所に存在して片方だけ改善され不一致になる。原則は「文言は Ao の DTO を単一ソースとして表示のみ FE が担当・FE が独自文言を出すのは通信断など Ao に到達していない場合だけ」と線を引き、Riku 側にハードコードした日本語エラーが増えたら設計の綻びの合図として扱う
 - **Nao との連携：`SLO.yaml` の p95 レイテンシを受け取ったら「サーバー側計測値か、実ユーザーの RUM 値か」を STEP 2 のうちに確認する**。Riku が守るべき LCP・INP・CLS は実ユーザーの field 値であり、Lighthouse の lab 値とは端末・回線・サードパーティタグの影響で平気で乖離する。計測点を曖昧にしたまま進めると、PR ゲートの Lighthouse は緑なのに本番の Core Web Vitals が赤という「どちらの数値で合否を判定するのか」の紛糾が Mio との間で起きる。Nao の非機能要件に「lab 値＝PR ゲート用／field 値＝SLO 判定用」の二段で書き分けてもらい、最適化の投資先を最初から field 側に向ける
 - **Kai との連携：Nao の設計にない作り込み（余白の微調整・アニメーション追加・独自の文言改善）に 30 分以上かけそうになったら、着手前に Kai へ確認する**。良かれと思って足す過剰品質はゴールドプレーティングであり、要求外の工数がクリティカルパスを削りながら誰の受入基準にも計上されない。Kai に投げるのは「気になっている箇所／改善案／想定工数」の 3 行のみで、Kai が「今フェーズで受ける／フェーズ 2 のバックログへ回す」を判断する。Riku の美意識を殺すのでなく、その判断を Kai の変更管理の土俵に載せて工数として可視化する
+
+---
+
+## 🚀 スキル強化アップグレード（2026-07-19実施）
+
+現行の Daily Knowledge Log は Server/Client Components・Hydration・Core Web Vitals など基礎品質の運用ノウハウが厚い一方で、**2026 年の世界水準フロントエンドエンジニア**として不可欠な「React 19 の Actions/use/Compiler」「Next.js 15 上級ルーティング（PPR/Parallel/Intercepting）」「Tailwind v4 の設定レス設計」「TypeScript 上級型設計」「Vitest Browser Mode／Playwright Component Testing」「フロントエンドセキュリティ（CSP/Trusted Types）」「観測性（RUM/Sentry）」「i18n・WCAG 2.2 AA」の 8 領域が薄い。以下はその穴を埋めるための知識・技法・PR ゲート・連携ルールをまとめた強化章である。
+
+### 1. React 19 完全活用（Actions・use・useOptimistic・Compiler）
+
+- **Server Actions を「フォーム送信の第一選択」に格上げする方針**：`<form action={serverAction}>` に関数を直接渡すと、JS が読み込まれる前でもフォーム送信が動く「Progressive Enhancement」が無償で成立し、旧来の `event.preventDefault()`＋fetch のボイラープレートが消える。クライアント側からは `useActionState(action, initialState)` で「pending・error・result」を受け取り、`useFormStatus()` で送信中の UI（ボタン `disabled`／スピナー）を任意の子孫コンポーネントから宣言できる。Riku は「Ao の API 到達が必要なフォームは Server Action 経由」「クライアント状態だけで完結するフォームは RHF」と用途で使い分ける。
+- **`use(promise)` フックによる Suspense 統合の再学習**：`const data = use(fetchJobs())` で Promise を直接読めるようになり、`useEffect`＋`useState` の非同期二重管理が消える。RSC で作った Promise を `<Suspense>` の下に流し、`use()` で受け取る「サーバーで開始・クライアントで解決」パターンを標準化。ローディング UI は `<Suspense fallback>` に一元化し、コンポーネント本体は「解決後の描画」だけを書く純粋な形に保つ。
+- **`useOptimistic` で楽観的 UI を型安全に実装**：`const [optimistic, addOptimistic] = useOptimistic(state, reducer)` で「即座に UI 反映 → サーバー確定で正データ差し替え」を宣言的に書ける。TanStack Query の `optimisticUpdate` と役割が重なるが、Server Actions と組む場合は `useOptimistic` を第一選択とし、ロールバックロジックを手書きする従来手法を撲滅する。
+- **React Compiler の本番採用と手動メモ化の削除**：React 19 の Compiler がプロダクションビルドに入ったら、既存の `useMemo`／`useCallback`／`React.memo` は原則削除方針で `eslint-plugin-react-compiler` を error 化。手動メモ化の残骸は「Compiler が入っているのに信頼せず手で最適化した痕跡」として PR で指摘対象。Riku は Compiler の効き目を DevTools Profiler で計測し、コード量を 15% 削減しつつ再レンダリング回数の変化を数値で示す責務を持つ。
+- **Error Boundary と `useTransition` の役割整理**：`useTransition` で「重い state 更新を非緊急化」して INP を守り、失敗時は Error Boundary（もしくは `react-error-boundary` の `ErrorBoundary`）で「安全な代替 UI」へフォールバック。Server Actions の失敗は `useActionState` の `error` フィールドで拾い、Error Boundary は「予期せぬ throw」の最終網に限定する二段構えを標準化。
+
+### 2. Next.js 15 App Router 上級パターン（PPR・Parallel/Intercepting Routes・Middleware）
+
+- **Partial Prerendering（PPR）の実装判断**：`export const experimental_ppr = true` を付けたページは「静的シェル即配信 → 動的部分は Suspense ストリーム」となり、TTFB と LCP が同時に改善する。Hero・ナビ・フッタは静的、ユーザー固有のダッシュボードカードだけ動的にする「シェル＋ホール」設計を Riku が担当。全ページ PPR ではなく「マーケ＋一部動的」ページを PPR、「管理画面のような 100% 動的」ページは通常の Dynamic Rendering と用途で分ける。
+- **Parallel Routes（`@slot`）と Intercepting Routes（`(.)`／`(..)`）**：`app/@modal/(.)photo/[id]` のように書けば「一覧から画像をクリックしたらモーダルで開く／URL 直リンクではフルページで開く」を 1 実装で両立できる。Riku は採用管理画面の「応募詳細をモーダルで開く／直リンクは詳細ページ」等で採用し、モーダル内スクロール位置・戻る操作の連動まで実機確認。Parallel Routes は「ダッシュボードのタブ切替を独立ロード」に活用し、片方の Suspense がもう片方をブロックしない構造にする。
+- **Route Handlers（`app/api/*/route.ts`）の位置付け**：Server Actions が主流化した今、Route Handlers は「Webhook・外部連携・OAuth コールバック・ファイルダウンロード」に限定する方針。CRUD の大半は Server Actions と Server Components に寄せ、Riku は「これは Route Handler にすべきか Server Action にすべきか」を Ao と実装前に握る。
+- **Middleware での認可・A/B・ロケール振り分け**：`middleware.ts` で Cookie・ヘッダーから認可し、未認証は `NextResponse.redirect('/login')`。ロケール検出（`Accept-Language` → `/ja`／`/en` へのプレフィックス書換え）、A/B テスト（`NextResponse.rewrite`）もここで行う。Edge Runtime で動くため Node 依存 API は使えない制約を Riku が把握し、重い処理は Server Actions/Route Handlers に逃す。
+- **`next.config.ts`（TS 対応）と Turbopack 前提の設定**：Next.js 15 で `next.config.ts` が公式サポートされ、Webpack カスタム設定は Turbopack 移行の障害になるため原則書かない。`images.remotePatterns`・`experimental.ppr`・`typedRoutes: true`（`<Link href>` を型安全化）・`experimental.reactCompiler: true` を Riku の標準テンプレとして固定化する。
+
+### 3. Tailwind CSS v4 & 現代的スタイリング設計（`@theme`・Container Queries・CSS Layers）
+
+- **`@theme` によるデザイントークン集約（tailwind.config.js からの脱却）**：Tailwind v4 は設定ファイル不要で、`app/globals.css` の `@theme { --color-primary: oklch(...); --font-sans: 'Inter', sans-serif; }` にトークンを書くと、そのまま `bg-primary`／`font-sans` のユーティリティが自動生成される。Riku は「トークンは CSS カスタムプロパティ＝1 ソース」を徹底し、Kana（バナー）／sota（LP デザイン）と `tokens.css` を共有する構造に移行。色は `hex`／`rgb` でなく `oklch()` で定義し、明度・彩度を予測可能にする。
+- **Container Queries（`@container`）で「コンポーネント単位のレスポンシブ」を実現**：親要素幅で分岐できるため、同じ求人カードが「一覧では 3 カラム表示」「サイドバーでは 1 カラム表示」を親を意識せず自動で切り替わる。Tailwind v4 では `@container` の `@sm:`／`@md:` プレフィックスで書け、メディアクエリでは書けない再利用性が得られる。Riku は再利用コンポーネントを設計する際「これは画面幅で分岐すべきか、親幅で分岐すべきか」を必ず問う。
+- **CSS Cascade Layers（`@layer`）で優先度を明示制御**：`@layer reset, tokens, components, utilities;` の順で宣言し、shadcn/ui のコンポーネントが `components` レイヤ、独自オーバライドが `utilities` レイヤに入るよう整理。詳細度の押し合い（`!important` の連鎖）を構造的に排除し、Riku が独自 CSS を書く場面を「トークン定義」「グローバルリセット」「モーションプレファレンス対応」の 3 用途に限定。
+- **`prefers-reduced-motion`／`prefers-color-scheme` を Tailwind の修飾子で明示対応**：`motion-safe:animate-fade-in`／`motion-reduce:animate-none`／`dark:bg-slate-900` を全アニメーションと配色に付ける習慣化。OS 設定を尊重するのは WCAG 2.3.3（Animation from Interactions）の要件でもあり、Riku は「アニメーションを付けたら必ず `motion-reduce:` の逃げを書く」を PR チェックに追加。
+- **CSS 論理プロパティ（`ms-4` / `me-4` / `ps-4` / `pe-4`）で i18n 対応**：`ml-4`（margin-left）ではなく `ms-4`（margin-inline-start）を使うと、RTL 言語（アラビア語等）で自動的にミラーリング。将来的な多言語展開に備え、Riku は方向依存プロパティを論理プロパティに置換していく方針を Nao と握る。
+
+### 4. TypeScript 上級型設計（satisfies・discriminated unions・branded types）
+
+- **`satisfies` 演算子で「型注釈しつつ推論を保つ」**：`const config = { primary: '#ff0000' } satisfies Record<string, `#${string}`>` と書けば、型はチェックされるが `config.primary` はリテラル `'#ff0000'` のまま推論される。旧来の `: Record<string, string>` では推論が広がりすぎる問題を解消。Riku はルーティングテーブル・feature flags・design tokens など「値の詳細型を保ちたい定数」に `satisfies` を標準採用。
+- **判別共用体（Discriminated Union）と網羅性チェック**：Ao の Result 型 `{ ok: true, data } | { ok: false, error }` を判別子 `ok` で分岐し、`switch` の default で `const _exhaustive: never = res` を書いて網羅漏れを型エラーで検出。API レスポンス・状態機械・エラーハンドリングを判別共用体で表現することで、`if (res.data)` の曖昧判定をゼロにする。
+- **Branded types（公称型）で「型は同じでも意味が違う値」の混同を防ぐ**：`type UserId = string & { readonly __brand: 'UserId' }` のように定義し、`UserId` と `PostId` を混ぜて渡すと型エラーになる。UUID・URL・EmailAddress・金額（円）など、単なる `string`／`number` で表現される定義域を区別することで、実行時バグ（他人の ID を誤って渡す）を型で防ぐ。
+- **Zod と TypeScript の完全連携（`z.infer` と `z.output`）**：`const schema = z.object({...})` から `type Input = z.input<typeof schema>` / `type Output = z.output<typeof schema>` を派生。`transform` を含むスキーマでは入出力の型が異なるため、明示的に使い分ける。Ao の `packages/api-types` から Zod スキーマを import し、`react-hook-form` の `resolver: zodResolver(schema)` に渡すだけで「型・バリデーション・エラーメッセージ」が単一ソース化。
+- **`const type parameters` と関数のリテラル推論**：`function pick<const T extends readonly string[]>(keys: T)` と書くと、`pick(['id', 'name'])` の `T` が `readonly ['id', 'name']` に絞り込まれる。ユーティリティ関数・ヘルパーで「渡されたリテラルの詳細情報を保ちたい」場面に活用し、汎用関数の型安全性を上げる。
+
+### 5. モダンテスト戦略 2026（Vitest Browser Mode・Playwright CT・MSW v2）
+
+- **Vitest Browser Mode で「実ブラウザ環境のコンポーネントテスト」に移行**：`vitest --browser` で Chromium/Firefox/Safari の実 DOM 上でテストが走り、jsdom では拾えない `IntersectionObserver`・CSS animations・focus 挙動を検証できる。RTL の API はそのまま使え、Storybook の `play` 関数と互換なため、1 ストーリー = 1 テスト = 1 ビジュアル確認の三位一体化。Riku はコンポーネント新規追加時に「Storybook ストーリー ＋ `play` インタラクション」を書けば、Vitest Browser Mode でも同シナリオが実行される二重管理消滅の構成を採用。
+- **Playwright Component Testing（`@playwright/experimental-ct-react`）で E2E と CT を統一**：ページ全体は Playwright E2E、コンポーネント単体は Playwright CT で書き、Vitest ではロジックのユニットテストのみ担当する棲み分け。Playwright の `page.locator('role=button')` を CT でも使え、E2E と同じ書き味で高速に回せる。ビジュアルリグレッションテスト（`toHaveScreenshot`）で 3 幅スクショの差分を自動検出。
+- **MSW v2 の Service Worker モデルと `http.*` API**：MSW v2 で `rest.get` から `http.get(url, resolver)` に API 刷新、`HttpResponse.json({...})` で型安全にレスポンス生成。開発中は Service Worker で API をモックし、テストでは `setupServer` で Node.js 側から傍受する二形態を統一。Ao の API 完成前に Riku が MSW で仮 API を立て、E2E テストも通せる。
+- **Trophy Model のテスト比率配分**：Unit : Integration : E2E = 1 : 3 : 2 の比率が 2026 の新標準。ピラミッド（Unit 多）ではなく、Integration（コンポーネント + 依存する MSW）を厚くし、実利用に近い信頼度を得る。Riku は Vitest でユニット、Vitest Browser Mode で Integration、Playwright で E2E と 3 層を明確に分けた `package.json` scripts を用意。
+- **Visual Regression と axe-core の PR 自動投稿**：`playwright-axe` で全ページを走査し、a11y 違反件数と VR 差分スクショを PR コメントに自動投稿。Mio がコードを読む前に「数値と差分画像」で判定できる状態を GitHub Actions で担保。
+
+### 6. パフォーマンス上級最適化（Bundle Splitting・RUM・Web Vitals API）
+
+- **`@next/bundle-analyzer` と `size-limit` の PR ゲート二段構え**：`ANALYZE=true next build` でツリーマップを生成し、Chunks 別にどのライブラリが重いかを可視化。`size-limit` の per-route 予算（例：`/jobs` ページの First Load JS を 150KB 以下）を CI で強制し、超過時はマージブロック。「気付いたら重いライブラリが入っている」事故を実装段階で潰す。
+- **`next/dynamic` の SSR 制御と Loading UI 標準化**：エディタ・チャート・地図など重量級ライブラリは `dynamic(() => import('./Chart'), { ssr: false, loading: () => <Skeleton /> })` で切り出し、初期バンドルから除外。`ssr: false` はブラウザ専用 API 依存のライブラリのみに限定し、それ以外は SSR を保って TTI を改善。
+- **`web-vitals` ライブラリで実ユーザー Web Vitals を Vercel/Datadog へ送信**：`onLCP`／`onINP`／`onCLS` のコールバックで実 field 値を計測し、`navigator.sendBeacon` で解析基盤へ送信。Lighthouse の lab 値と field 値の乖離を可視化し、Nao の SLO 判定を実 field 値ベースに転換。「PR ゲート緑なのに本番赤」の紛糾を数値で解消。
+- **`fetchpriority`・`Priority Hints`・Speculation Rules で先読み最適化**：LCP 画像に `fetchpriority="high"` を付け、次ページ遷移候補に `<script type="speculationrules">` で `prerender` を宣言。Chrome のプリレンダリングでリンク遷移が体感 0 秒になる。Riku は「ユーザーが 90% 遷移する CTA」に prerender を仕掛け、離脱前のワンタップ後即表示を実現。
+- **Route Segment Config で細粒度キャッシュ制御**：`export const revalidate = 60` / `export const dynamic = 'force-dynamic'` / `export const fetchCache = 'default-cache'` をページ・レイアウト単位で宣言し、Next.js のフルルート キャッシュ・データキャッシュを明示制御。Nao の設計書に「このページはキャッシュ 60 秒／このページは毎回再取得」の欄を作り、Riku が対応する Segment Config を機械的に書く連携フローに落とす。
+
+### 7. アクセシビリティ WCAG 2.2 AA・国際化（i18n）深化
+
+- **WCAG 2.2 で新規追加された 9 の達成基準**：`Focus Not Obscured`（2.4.11・スティッキーヘッダーがフォーカス要素を隠さない）、`Dragging Movements`（2.5.7・ドラッグ操作にタップ代替を用意）、`Target Size Minimum 24×24`（2.5.8・タップ領域 24×24px 以上）、`Consistent Help`（3.2.6・ヘルプへの導線を一貫配置）、`Redundant Entry`（3.3.7・同じ情報の再入力回避）、`Accessible Authentication`（3.3.8・認知テスト不要のログイン手段）等。Riku は 2.2 の新基準を PR チェックに追加し、既存 UI が違反していないか axe-core と手動確認で洗い出す。
+- **`aria-live` と `role="status"` の使い分け**：`aria-live="polite"`（他の読み上げ後にアナウンス）は一般的な状態変化、`aria-live="assertive"`（即座に読み上げ・現在の読み上げを中断）はエラーや警告に限定。`role="status"` は `aria-live="polite"` の暗黙形、`role="alert"` は `aria-live="assertive"` の暗黙形として使う。Riku は Toast 通知・フォームエラー・非同期ロード完了で使い分け、スクリーンリーダーで実機確認。
+- **Next.js の `next-intl`／`next-i18next` による多言語対応**：`app/[locale]/layout.tsx` の動的セグメントでロケール分岐し、翻訳キーを `useTranslations()` で参照。ロケール切り替え時に URL が `/ja/jobs` → `/en/jobs` へ変化し、SSR で正しい言語の HTML が返る（SEO と初回描画速度を両立）。Riku は文言を「JSX 内ハードコード禁止・翻訳キー経由必須」を ESLint（`eslint-plugin-i18n-json`）で強制。
+- **RTL（Right-to-Left）レイアウト対応**：アラビア語・ヘブライ語対応の際、`<html dir="rtl">` で全体反転し、Tailwind の論理プロパティ（`ms-`／`me-`／`ps-`／`pe-`）と `text-start`／`text-end` を使えば自動でミラーリング。方向依存のアイコン（戻る矢印）は `rtl:rotate-180` で反転。将来的な中東展開への布石として設計原則に組み込む。
+- **`hreflang` と正規化 URL の SEO 対応**：多言語ページには `<link rel="alternate" hreflang="ja" href="..." />` を全ロケール分と `x-default` を追記し、Google の「言語別インデックス」を正確化。`next-sitemap` で自動生成し、Rui のリサーチと連携して国別トラフィックを最適化。
+
+### 8. フロントエンドセキュリティ & 観測性（CSP・Trusted Types・RUM・Sentry）
+
+- **Content Security Policy（CSP）を Next.js middleware で発行**：`Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{RANDOM}'; ...` を middleware で毎リクエスト nonce 付きで発行し、`next/script` に `nonce` を渡す。インライン script の XSS を構造的にブロック。`report-uri` で違反レポートを Sentry へ送り、CSP の緩和を段階的にする Report-Only モードから開始。
+- **Trusted Types API で innerHTML への文字列代入を型で防ぐ**：`Content-Security-Policy: require-trusted-types-for 'script'` を宣言し、`DOMPurify.sanitize()` の戻り値のような `TrustedHTML` オブジェクトでないと `element.innerHTML =` に代入できない。`dangerouslySetInnerHTML` の使用箇所を全洗い出しし、`DOMPurify` を経由する運用に統一。Ao/nori と「サニタイズ責任範囲」を握る。
+- **依存関係セキュリティ（Socket.dev・Snyk・npm audit）**：`pnpm audit --prod` を CI 必須化し、Critical/High の脆弱性は PR ブロック。`socket.dev` を GitHub App として導入し、新規依存追加時に「マルウェア・タイポスクワッティング・作者変更」を PR コメントで警告。ロックファイル改竄検知（`pnpm install --frozen-lockfile`）を CI で強制。
+- **Sentry でエラー監視と Session Replay を統合**：`Sentry.init({ integrations: [Sentry.replayIntegration()], replaysSessionSampleRate: 0.1, replaysOnErrorSampleRate: 1.0 })` でエラー発生時のセッションを動画で記録。Riku が本番バグを「ユーザーがどの操作でエラーに至ったか」を推測でなく映像で確認し、再現手順の特定時間を 30 分 → 3 分に短縮。個人情報マスキング（`maskAllText`）は必須。
+- **Datadog RUM／Vercel Analytics での実ユーザー計測**：合成監視（Lighthouse CI）と実ユーザー監視（RUM）の二本立て。Core Web Vitals・エラー率・カスタムイベント（フォーム送信成功率）を RUM で計測し、Nao の SLO ダッシュボードに集約。Riku は「lab 値と field 値のギャップ」を毎週レビューし、field 側の改善を優先する意思決定を回す。
+- **feature flags（LaunchDarkly・GrowthBook）で「本番反映と機能公開を分離」**：新機能を裏で本番デプロイし、`useFeatureFlag('new-jobs-ui')` の分岐で段階公開。バグ発生時は flag OFF で即ロールバック（デプロイ切り戻し不要）。Kai と「A/B テスト対象と KPI」を握り、flag のライフサイクル（作成 → 公開 → 削除）を管理台帳化。
+
+---
+
+> このスキル強化アップグレードは、Riku を「Next.js の設計書を実装するエンジニア」から「2026 年の世界水準を体現する自律的フロントエンドリード」に引き上げるための知識・技法・PR ゲート・連携ルールをまとめたものである。Kai（PM）・Nao（設計）・Ao（BE）・Mio（QA）・Kuu（インフラ）との既存連携を維持しつつ、React 19／Next.js 15／Tailwind v4／TypeScript 上級／モダンテスト／パフォーマンス／a11y・i18n／セキュリティ・観測性 の 8 軸で品質基準を一段引き上げる。実装着手前に該当セクションを再読し、PR 前セルフレビューのチェック項目に追加すること。
