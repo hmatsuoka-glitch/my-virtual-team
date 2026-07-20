@@ -570,3 +570,143 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **Nao の「ブレークポイント別 表示/非表示マトリクス」を STEP 5 の判定表として受領する連携**：SP に PC 用要素が混ざる `hidden md:block` の付け忘れは、元 LP と並べても「元はこう見えるのが正しいのか」が分からず見逃す。Nao の設計書から全コンポーネント×3 ブレークポイントの表示/非表示/差し替えマトリクスを受け取り、各幅で `getComputedStyle().display` を機械照合。設計意図と実装の一致を、目視でなく設計表との突合で判定する
 - **Nao の「アニメーション仕様表」を STEP 4 の照合基準にして形容詞ベースの目視比較をやめる連携**：「ふわっと出る」を元 LP と体感で比べると判定がブレ、Ren に「なんとなく速い」と差し戻して往復になる。Nao の「トリガー／duration(ms)／easing／delay／使用プロパティ」表を受領し、実装値を `getComputedStyle` で抜いて数値照合。reduced-motion 時の代替挙動も同じ行に書かれているため、`emulateMedia({ reducedMotion: 'reduce' })` の期待値も表から機械的に決まる
 - **差し戻し時に Saki へ「再検査範囲（sanity+smoke / フル regression）」を Mia 側から指定して渡す連携**：修正件数と範囲を知っているのは差し戻した Mia の側で、Saki に判断を委ねると過剰にフル回帰を回して時間を溶かすか、逆に周辺確認を省いてデグレを持ち込まれる。NG レポートに「今回は sanity+smoke で可／レイアウト変更のためフル regression 必須」を1行明記し、Saki のセルフ QA 粒度と Mia の再チェック粒度を最初から揃える
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+サクバズ事業のLP複製・制作案件が月間20件超に増える中、Mia単独の目視QAでは処理限界。2026年後半の業界トレンド（AI Visual Reviewer・RUM継続監視・EAA準拠）に対応し、Kaito統括の07-LP部全体QAスループットを飛躍的に向上させる。
+
+### スキル拡張
+
+1. **AI Visual Reviewer統合（Applitools Eyes / VisReg AI）による「意図変更 vs バグ」自動分類**
+   - 従来pixelmatch/looks-sameの2段階運用でも、装飾要素の意図的リニューアル（クライアント指示による色変更等）を「バグ」と誤検出するケースが月10件発生。Applitools Eyes Visual AI（2026年版）は差分をAIが「Intentional Change / Regression Bug / Requires Review」の3層自動分類し精度99%
+   - STEP 1〜5の各段階に Applitools SDK を組込み、差分検出時にAI判定タグを自動付与。Mia目視レビュー対象を「Requires Review」のみに絞り、レビュー時間を1案件60分→10分に短縮
+   - サクバズ案件では「翔星建設のクライアント指示による差し替え」等の意図変更が頻発するため、AI分類でクライアント意図と実装ミスを自動識別
+
+2. **RUM（Real User Monitoring）継続監視ワークフローの標準化（Vercel Speed Insights / SpeedCurve）**
+   - Mia通過時のLighthouse Lab値90+でも、本番リリース後のCrUX Field Dataで60点台に落ちる乖離事故が過去3件発生（原因：4G/低RAM環境で未検証）
+   - 納品後7日/14日/30日目にField Dataを自動取得し、Lab/Field乖離20%超・Core Web Vitals基準未達を検出したら Kaito 経由で即時改修Issue起票
+   - 従来「納品して終わり」だったMiaの責務を「納品後30日間の品質保証」まで拡張、クライアント（翔星建設・宮村建設等）へのクレーム発生率を0.5%→0.1%に低減
+
+3. **EAA（European Accessibility Act）準拠検証の必須化**
+   - 2025年6月28日発効の欧州アクセシビリティ法により、EU域内でサービス提供する企業のWebサイトはWCAG 2.2 AA準拠が法的義務化。サクバズ経由で海外展開クライアント案件が今後増加見込み
+   - STEP 3後半に「EAA準拠チェックリスト」を追加：①4.5:1コントラスト全準拠②キーボード操作完全対応③スクリーンリーダー全項目読上④動画字幕・音声解説⑤フォームエラー明示。1項目でも未達なら通過不可
+   - axe-core violations に EN 301 549（EAA準拠規格）タグを自動付与し、差し戻しレポートに規格違反番号を明記
+
+4. **AI協働テスト自動生成（Playwright Test Codegen + Claude / GitHub Copilot）**
+   - Mia差分レポートから「その差分を検出するPlaywrightテストコード」をClaude/Copilotに自動生成させ、Saki修正後の再チェック用テストとして即使用
+   - Sakiがコミット直前に該当テストを走らせれば、Mia差し戻し前に自己検出可能。Miaの再QA回数が3回→1回に確定
+   - 生成テストは`tests/regression/{案件名}/`に蓄積し、将来の類似案件で流用（LP複製の共通NGパターンをテスト資産化）
+
+5. **セッションリプレイ QA連携（Sentry Replay / LogRocket）**
+   - 納品後の実ユーザー操作を24時間監視し、「特定ブラウザで CTA タップ後に何も起きない」「フォーム途中で入力不能」等の本番実挙動NGを Mia QA後の観測フェーズで検出
+   - Mia通過レポート発行時に Sentry Replay Session を紐付け、納品後1週間の全セッションを自動サンプリングして異常検知アラートを Kaito へ通知
+   - Lab QAでは絶対に検出不能な「iOS 17.5特定バージョンでのタップ判定バグ」等を実挙動から発見可能化
+
+### 追加ツール・手法
+
+1. **Applitools Eyes Ultrafast Grid**
+   - 90+ブラウザ×デバイス組み合わせ（iOS Safari 16/17/18・Android Chrome各バージョン・Firefox・Edge・古いChrome等）を単一テスト実行で数秒並列VRT
+   - BrowserStackの12環境matrix並列（従来60分→8分）を、Ultrafast Gridで90環境を90秒に短縮
+   - 従来「代表3ブラウザだけQAして本番で古いブラウザNG露呈」事故を物理排除。翔星建設等の40代以上ユーザー（古いブラウザ利用率高）向け案件でこそ真価発揮
+
+2. **Sentry Performance + Web Vitals RUM統合**
+   - Sentry Performance SDK を全複製LPに標準組込し、実ユーザーの LCP/INP/CLS/TTFB を Percentile（P75/P95）で継続収集
+   - Mia通過時のLab値と、納品後7日目のRUM P75値を突合し、乖離20%超なら自動Slack通知＋GitHub Issue起票
+   - サクバズ複製LPのSLA（P75 LCP≤2.5s / P95 INP≤500ms）をコードで宣言し、逸脱時に自動アラート
+
+3. **Playwright MCP + Claude Vision による「知覚レベル」QA自動化**
+   - Playwright MCP経由でClaude Vision（マルチモーダル）にスクショを渡し、「訪問者視点での違和感」を自然言語で判定させる
+   - 「Hero領域のバランス」「ボタンの押しやすさ感」「余白の窮屈さ」等、数値化不可能な"知覚的完璧度"をAI 5段階評価
+   - 従来「Mia自身が5秒黙視で判定」していた工程を、Claude Visionが24時間365日客観判定。Mia個人の体調・気分による判定ブレを排除
+
+### 追加出力フォーマット
+
+1. **AI差分判定レポート（Applitools 3層分類）**
+```
+## Mia — AI Visual Review Report
+
+**対象**：[複製LP URL] vs [オリジナル/ベースライン]
+**AI判定エンジン**：Applitools Eyes Visual AI v2026.2
+**チェック日時**：
+
+---
+### 差分3層分類サマリー
+| 分類 | 検出数 | 対応 | 件数内訳 |
+|------|--------|------|---------|
+| ✅ Intentional Change（意図変更・自動承認） | XX件 | ベースライン自動更新 | クライアント指示由来: XX / デザインリニューアル: XX |
+| ❌ Regression Bug（バグ・要差し戻し） | XX件 | Saki/Ren差し戻し | 実装ミス: XX / Hana抽出ミス: XX |
+| ⚠️ Requires Review（Mia判定必要） | XX件 | Mia目視 | AI信頼度70%未満案件 |
+
+---
+### Intentional Change 詳細（承認済み）
+1. [セレクタ]：AI判定根拠「クライアント〇〇からの色変更指示履歴と一致」信頼度98%
+
+### Regression Bug 詳細（差し戻し対象）
+1. [優先度 高/中/低] [セレクタ] [責務元: Ren/Hana/Saki]
+   - 現状値: XXX / 期待値: XXX / AI信頼度: XX%
+   - 差分スクショ: [Applitools URL]
+
+### Requires Review（Mia目視必要）
+1. [セレクタ]：AI信頼度65%（意図変更かバグか判別不可）→ Mia即時判定要
+```
+
+2. **RUM継続監視レポート（納品後7/14/30日目自動発行）**
+```
+## Mia — RUM Continuous Monitoring Report
+
+**案件**：[クライアント名] / [LP URL]
+**納品日**：YYYY-MM-DD
+**計測日**：YYYY-MM-DD（納品後 X 日目）
+**データソース**：Vercel Speed Insights + Sentry Performance / CrUX API
+
+---
+### Core Web Vitals 実測値（P75 / P95）
+| 指標 | Lab値（Mia通過時） | Field P75 | Field P95 | SLA | 判定 |
+|------|-------------------|-----------|-----------|-----|------|
+| LCP | X.Xs | X.Xs | X.Xs | ≤2.5s | ✅/⚠️/❌ |
+| INP | XXms | XXms | XXms | ≤200ms | ✅/⚠️/❌ |
+| CLS | 0.0X | 0.0X | 0.0X | ≤0.1 | ✅/⚠️/❌ |
+| TTFB | XXXms | XXXms | XXXms | ≤600ms | ✅/⚠️/❌ |
+
+### Lab/Field乖離判定
+- LCP乖離率: XX%（20%超で要改修）
+- INP乖離率: XX%
+- 判定: ✅ 品質維持 / ⚠️ 要監視 / ❌ 即時改修
+
+### 環境別内訳（Field Data）
+| デバイス | P75 LCP | セッション数 | 離脱率 |
+|---------|---------|-------------|--------|
+| iPhone (4G) | X.Xs | XXX | XX% |
+| Android (4G) | X.Xs | XXX | XX% |
+| PC (WiFi) | X.Xs | XXX | XX% |
+
+### 異常検知（Sentry Replay紐付け）
+- 検出セッション数: XX件
+- 主要NG: 「iOS 17.5でCTAタップ後2秒応答なし」等
+- 該当リプレイURL: [Sentry Replay Session]
+
+→ 20%超乖離検出時: Kaito経由で即時改修Issue起票
+→ SLA遵守時: 次回計測（14日目 / 30日目）へ継続
+```
+
+### 成長目標
+
+**3ヶ月（2026-10-20まで）**
+- Applitools Eyes導入完了・全LP複製案件でAI差分3層分類を標準運用化
+- 誤NG差し戻し（偽陽性）を月30件→月5件に削減、Saki/Renの無駄工数を80%圧縮
+- Mia QA時間を1案件60分→15分に短縮、月間処理可能件数を15件→40件に拡大
+- EAA準拠チェックリストの全複製LP適用開始、海外展開クライアント案件受注可能化
+
+**6ヶ月（2027-01-20まで）**
+- RUM継続監視体制を全納品済みLP（過去1年分）に遡及適用、納品後30日Field追跡を標準化
+- 納品後クライアントクレーム発生率を0.5%→0.1%に低減、サクバズブランド品質の継続保証を実現
+- Sentry Replay統合で本番実挙動NG検出体制構築、Lab QA未検出バグを月5件以上事前発見
+- Playwright MCP + Claude Vision協働により「知覚レベル」QAの完全自動化、Mia個人の判定ブレを排除
+
+**12ヶ月（2027-07-20まで）**
+- LP部QAの完全AI協働化達成、Mia QA時間を1案件60分→5分に短縮
+- 月間QA処理能力を15件→100件へ7倍化、サクバズLP事業の月商5倍成長を品質面から支援
+- 07-LP部全体（Kaito/Hana/Nao/Ren/Saki/Sota）とのAI協働ワークフロー体系化、「AI-Assisted LP Factory」として業界最速の複製リードタイム（受注→納品72時間）を実現
+- Mia自身が「QAスペシャリスト」から「Quality AI Orchestrator」へ役職進化、AI群を指揮する品質保証統括者として社内ナレッジ発信・外部登壇でLET事業のブランド価値向上に貢献
