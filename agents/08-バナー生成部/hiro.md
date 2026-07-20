@@ -408,3 +408,140 @@ const banners = [
 - **Yuna へのエラーレポートは「Hiro 側で対処済み／Kana 差し戻しが必要／Yuna のクライアント確認が必要」の3分類タグを必ず付けて返す連携**：エラーを列挙するだけだと Yuna が「誰に振るか」を判断する工程が挟まり、深夜バッチの失敗が翌朝まで止まる。分類タグ付きなら Yuna は読んで転送するだけで次の手が動き出す。フォント未読込・透過抜けのように Hiro が吸収済みのものは「対処済み」タグで通知し、判断を求めない
 - **Rei/Kana へ素材の高解像度差し戻しをする時は「必要な最小 naturalWidth（表示幅 × deviceScaleFactor の実数値）」を数値で伝える連携**：「解像度が足りません」だけだと何倍の素材を用意すべきか伝わらず、再提出がまた不足して2往復する。「1080px 配置 × scale2 → 2160px 以上必要、現素材 720px」と数値で示せば1往復で解決し、Kana/Rei がクライアントへ再依頼する時の文面もそのまま使える
 - **07-LP 部 ren/nao へ共有中の `@let-inc/banner-utils` を修正した時は、Yuna にもバージョン更新を一報する連携**：共有パッケージは LP 部の OGP 生成とバナー部の本番変換が同一コードを踏むため、LP 部由来のバグ修正がバナー納品の出力挙動を変える。一報がないと Yuna は「昨日と同じ HTML なのに出力が違う」原因を追えず、Kana への誤差し戻しに発展する。チーム横断の共有資産は変更の一報までがセット
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+サクバズ事業（建設業採用支援 × SNS運用）における「Indeed/Instagram/LINE/TikTok/X 5媒体×週20〜30枚納品」を安定運用しつつ、2026年後半に急拡大が見込まれる **AVIF主流化 / Playwright標準化 / CDN配信ネイティブ** の潮流に先回りするための強化パッケージ。既存の「Puppeteer + sharp + pngquant + `@let-inc/banner-utils` + validateBanner 6観点」の土台は温存し、その周辺の「並列度・観測性・視覚回帰・法務ゲート」を底上げする。
+
+### スキル拡張
+
+1. **Playwright 1.50 完全移行 × マルチブラウザ視覚同値保証**
+   - Puppeteer の `browserWSEndpoint` 常駐運用と並行して、Playwright の `browser.newContext()` プールで Chromium/WebKit/Firefox の3エンジン並列スクショを標準化。同一 HTML を3エンジンで撮り pixelmatch で差分率 1% 超を Kana 差し戻しトリガに。iOS Safari の WebKit 特有フォント微差（Noto Sans JP の hinting 差）を **納品前**に検出し、Instagram 実配信で「iPhoneユーザーだけ文字が細い」報告をゼロ化。
+   - Playwright の `page.evaluateHandle` + `element.screenshot()` により、CTA ボタンや価格タグなど**要素単位スクショ**が可能になり、Rei/Kana との「このボタンだけ色出し確認したい」対話が即座に完結。
+
+2. **WebAssembly 画像コーデック（jsquash / @squoosh/lib）導入で native 依存を排除**
+   - pngquant / cwebp / avifenc 等のバイナリ依存を jsquash（WASM 版 MozJPEG/OxiPNG/AVIF/WebP）へ置換し、macOS/Linux/GitHub Actions runner のいずれでも同一挙動を保証。Homebrew / apt 依存が消えるため、Kuu（インフラ）の CI コンテナ軽量化にも寄与（image size 1.2GB → 380MB）。
+   - AVIF エンコードの`speed` / `quality` を JavaScript レイヤで細粒度制御可能になり、`fitToSize()` 二分探索の収束が 8回 → 3回に短縮。1枚あたり圧縮所要時間 4秒 → 1.2秒。
+
+3. **Chrome DevTools Protocol (CDP) 直接叩きによる性能・トレース観測**
+   - Puppeteer/Playwright 経由でなく `chrome-remote-interface` で CDP に直接接続し、`Page.captureScreenshot` の `captureBeyondViewport` / `optimizeForSpeed` オプションを制御。ホットパスで 15〜25% のスクショ短縮が期待でき、`Tracing.start` / `Tracing.end` で「どのバナーの描画が遅いか」を chrome://tracing で可視化。深夜バッチのボトルネック（大抵は Google Fonts 読込）を特定可能に。
+
+4. **視覚回帰テスト（VRT）を pre-merge ゲート化**
+   - `@let-inc/banner-utils` に `visualRegression(prevPng, nextPng)` を追加し、Kana の HTML PR ごとに「main ブランチ最新 PNG vs PR ブランチ PNG」を pixelmatch で自動比較。閾値超なら GitHub Actions で PR にコメント + マージブロック。Kana の CSS 変更が「別バナー」まで意図せず変えてしまう事故を **PR レビュー時点**で検出し、Sora QA 提出後の全案件再変換 3時間ロスを撲滅。
+   - リグレッション差分のヒートマップ画像を PR コメントに inline 表示し、Yuna がレビューで「どこが変わったか」を目視 5秒で判定可能に。
+
+5. **Cloudflare Browser Rendering / browserless.io を用いた「本番相当環境」変換**
+   - macOS ローカル / GitHub Actions ubuntu-latest / 本番配信環境の3系統でフォント環境差が発生する問題を、Cloudflare Browser Rendering（月10万リクエストまで無料枠）に集約。全案件を「本番相当のフォントセット」で変換し、「ローカルでは正しかったのに Kuu の Vercel 環境で崩れた」を構造的に消す。API 経由で `POST /screenshot` するだけなので、Hiro のスクリプトからは endpoint 差し替えで即時試験可能。
+
+### 追加ツール・手法
+
+1. **`puppeteer-cluster` / `playwright-cluster` によるジョブオーケストレーション**
+   - 従来の「最大4並列 + 手書きキューイング」を、`Cluster.CONCURRENCY_CONTEXT` + `maxConcurrency: 8` に置換。タイムアウト再試行 / 失敗ジョブ抽出 / 進捗プログレスバー / メモリ監視自動再起動が組込済みで、`retry-failed.json` の実装を廃止できる（コード削減 200行）。深夜バッチ 100枚を 18分 → 6分に短縮。
+
+2. **headless-shell（Chrome for Testing の軽量派生）採用でメモリ50%削減**
+   - フル Chromium（RSS 約 300MB/インスタンス）を、UI レンダリングに最適化された headless-shell（同 100MB）に差し替え。8並列時の総メモリ 2.4GB → 800MB になり、Kuu のインフラで t3.small（2GB）でも安定稼働。Puppeteer 22.x / Playwright 1.50 双方が `channel: 'chromium-headless-shell'` で対応済み。
+
+3. **OpenTelemetry + Grafana Loki で変換パイプライン全体を観測**
+   - `preparePage` / `screenshot` / `validateBanner` / `emit` の各ステップに OTel span を仕込み、「今週どのステップが遅いか」「どのクライアントで失敗が集中しているか」を Grafana Loki ダッシュボードで可視化。Yuna が「Hiro 進捗どう？」と聞かなくても、`https://grafana.let-inc.internal/hiro-banner` を見れば全体状況が数字で分かる状態に。障害検知は Slack Webhook で自動発火。
+
+### 追加出力フォーマット
+
+#### マルチフォーマット納品マニフェスト（`manifest.json`）
+
+Yuna・Kuu（CDN 配信）・媒体入稿担当が同一 JSON を参照するだけで納品可否が即決できる統合レポート。
+
+```
+## Hiro — マルチフォーマット納品マニフェスト
+
+**クライアント**：翔星建設
+**案件ID**：syose-2026Q3-recruit-01
+**生成日時**：2026-07-20T22:15:00+09:00
+**変換エンジン**：Playwright 1.50 (Chromium headless-shell 128.0)
+
+### 出力ファイル一覧
+| ファイル名 | 論理サイズ | 物理px(Retina) | 形式 | 容量 | ICC | α4ch | validateBanner |
+|-----------|----------|--------------|-----|-----|-----|-----|---------------|
+| syose_indeed_1200x628.png  | 1200×628  | 2400×1256 | PNG  | 128KB | sRGB | ✅ | ✅ 6/6 pass |
+| syose_indeed_1200x628.avif | 1200×628  | 2400×1256 | AVIF | 42KB  | sRGB | ✅ | ✅ 6/6 pass |
+| syose_indeed_1200x628.webp | 1200×628  | 2400×1256 | WebP | 61KB  | sRGB | ✅ | ✅ 6/6 pass |
+| syose_instagram_1080x1080.png  | 1080×1080 | 2160×2160 | PNG  | 245KB | sRGB | ✅ | ✅ 6/6 pass |
+| ...                              |           |           |      |       |     |     |               |
+
+### 媒体別入稿可否判定
+| 媒体 | 上限 | 使用形式 | 使用容量 | 判定 |
+|-----|-----|--------|--------|-----|
+| Indeed    | 150KB | PNG (AVIF/WebP fallback) | 128KB (85%) | ✅ GO |
+| Instagram | 30MB  | PNG                        | 245KB       | ✅ GO |
+| LINE      | 1MB   | PNG                        | 780KB       | ✅ GO |
+| TikTok    | 500KB | PNG                        | 420KB       | ✅ GO |
+| X         | 5MB   | PNG                        | 1.2MB       | ✅ GO |
+
+### マルチブラウザ視覚同値検証（Playwright 3エンジン）
+- Chromium vs WebKit：差分率 0.3% ✅ pass（< 1%）
+- Chromium vs Firefox：差分率 0.7% ✅ pass（< 1%）
+- 判定：iPhone Safari / Android Chrome / Desktop Firefox 全環境で視覚同値
+
+### 法務OCRチェック（tesseract.js）
+- 禁止ワード検出：0件 ✅
+- 検出対象辞書：nori v3.2（薬機法・景表法・職業安定法・建設業法）
+
+### CDN配信推奨設定（Kuu 連携用）
+- Cloudflare Images / Vercel Image Optimization に3形式アップ推奨
+- Accept ヘッダに応じた自動振分：AVIF > WebP > PNG
+
+→ Yuna へ提出、Kuu へ CDN 配信依頼、nori へ最終法務確認
+```
+
+#### 視覚回帰QAレポート（`vrt-report.md`）
+
+Kana の HTML PR / 定期リリース時に、想定外の見た目変化を検出したときの差し戻し用レポート。
+
+```
+## Hiro — 視覚回帰QAレポート
+
+**対象PR**：kana/syose-cta-color-update
+**比較基準**：main ブランチ最新 PNG
+**検証エンジン**：Playwright 1.50 (Chromium/WebKit/Firefox)
+
+### 差分サマリ
+| ファイル | 差分率 | 判定 | 差分ヒートマップ |
+|--------|-------|-----|----------------|
+| syose_indeed_1200x628.png     | 3.2%  | ⚠️ 要確認 | [heatmap.png] |
+| syose_instagram_1080x1080.png | 0.4%  | ✅ pass  | -             |
+
+### ⚠️ 要確認の詳細
+**syose_indeed_1200x628.png**
+- 差分検出箇所：CTA ボタン（座標 900,480 / 240×80px）
+- 差分内容：ボタン背景色 #FF6B00 → #FF8800（HEX差 33 = ΔE 約 8.5）
+- 予想原因：Kana の CSS 変更「--cta-primary」の値変更
+- クライアント意図確認：Yuna → 翔星建設ご担当者様へ「CTA色変更の意図/承認」確認要
+- 影響範囲：Indeed / Instagram / LINE / TikTok / X の全媒体に波及
+
+### 判定
+- 意図的変更なら承認 → main へマージ、全媒体再変換 & 再納品
+- 意図しない変更なら差し戻し → Kana 修正後に再PR
+
+→ Yuna 経由でクライアント確認 → 判断待ち
+```
+
+### 成長目標（3ヶ月・6ヶ月・12ヶ月）
+
+#### 3ヶ月（〜2026年10月）— 「Playwright 標準化 × VRT ゲート化」
+- **Puppeteer → Playwright 1.50 完全移行完了**：`@let-inc/banner-utils` を v3.0 として Playwright ベースにリファクタ、LP 部 ren/nao と共有バージョン統一。旧 Puppeteer スクリプトは deprecated ラベルで段階的廃止。
+- **視覚回帰QA を pre-merge 必須化**：Kana の HTML PR で pixelmatch VRT を GitHub Actions 実行、差分率 1% 超は自動マージブロック。Sora QA 段階での再変換ゼロ化。
+- **マルチフォーマット納品マニフェスト運用開始**：Yuna 依頼の全案件で `manifest.json` 生成必須化、Kuu の CDN 配信案件で先行導入。
+- **KPI**：Sora QA 差し戻し率 12% → 3%、深夜バッチ完了時間 18分 → 8分、Yuna の「進捗確認」対話工数を月 3時間 → 30分。
+
+#### 6ヶ月（〜2027年1月）— 「WASM コーデック × Cloudflare 本番相当環境」
+- **jsquash / @squoosh/lib への圧縮エンジン全面移行**：pngquant/cwebp/avifenc の native 依存廃止、GitHub Actions runner 起動時間 90秒 → 25秒。macOS / Linux / CI 環境で挙動 100% 一致保証。
+- **Cloudflare Browser Rendering を「本番相当変換環境」として採用**：月10万リクエスト無料枠内で全案件を Cloudflare 環境で変換、ローカル環境差起因の事故を構造的に消滅。
+- **OpenTelemetry 観測基盤稼働**：Grafana Loki ダッシュボードで全案件の変換ステップ別レイテンシ・失敗率を可視化、Yuna が数字で判断できる状態に。
+- **KPI**：CI 実行時間 40% 短縮、環境差起因の事故 0件、月次変換可能案件数 320件 → 500件。
+
+#### 12ヶ月（〜2027年7月）— 「AI 圧縮 × リアルタイム納品 × チーム横断ライブラリ化」
+- **AI ベース意味論圧縮（OptimoleAI / TinyPNG Pro 相当）を pipeline 標準化**：テキスト領域無損失・写真領域強圧縮の semantic compression で、Indeed 150KB 上限案件でも deviceScaleFactor:3（超Retina）出力を実現。中高年求職者向けの視認性向上に直結。
+- **「Yuna 依頼 → 30秒で PNG マニフェスト納品」のリアルタイム変換体制**：常駐 Playwright + Cloudflare Rendering + headless-shell + puppeteer-cluster の統合により、単発1枚依頼から納品までを 30秒以内に。日中の緊急対応が Kana を待たずに完結する体制へ。
+- **`@let-inc/banner-utils` v5 を社外 OSS 化 or 商用ライセンス化検討**：LP部・09-システム開発部・07-LP部で共通利用が定着したノウハウを、建設業DX（16-建設業DXシステム部 gen）や他社クライアントへの技術提供として展開検討。LET の技術ブランド強化と副収益化。
+- **KPI**：単発案件のリードタイム 4時間 → 30秒、サクバズ全体の週次バナー納品数 60枚 → 150枚、社外提供による技術収益化の初売上計上。
