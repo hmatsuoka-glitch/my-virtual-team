@@ -426,3 +426,109 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **Takumi から3パターン静止画を受け取った時に「グレーディング前/後」「使用LUT名」の注記が無ければ、サムネ着手前に必ず1問返す**：注記なしで受け取ると自分の判断で色を作り込み、完成動画とフィード上で別物に見える。Takumi 側も 7/02 で注記を運用にしているが、抜けた時に黙って進めるのが事故の入口。Eito の台本演出欄にある色調方針（ナチュラル寄り・強いLUT不使用）と突合し、静止画がグレーディング前なら本編の最終色に合わせてからサムネの彩度を決める
 - **Sho へ投稿画像を渡す時は「画像内の数値の表記形式」をキャプション側と突合してから納品する**：7/03 の表記ゆれチェックはバナー・LP・キャプションの三点照合だが、Sho は投稿直前にキャプションを書き換えることがあり、納品後にバナーだけ旧表記で取り残される。納品時に「この画像は『月収35万円〜』表記・クライアント公式準拠」と1行添えると、Sho がキャプションを合わせにいけて、視聴者の「どれが本当？」の疑念を投稿単位で潰せる
 - **Yui からトレンド起点の発注を受けた時は「賞味期限」に加えて『そのトレンドが単発型か季節反復型か』のラベルを確認し、反復型ならテンプレ化して資産に回す**：7/02 の残存日数確認は「今どこまで作り込むか」を決めるが、Yui が 7/03 で付けている反復型ラベルまで見ると「来年も使うか」が分かる。反復型なら短命扱いで装飾を削るのでなく、Figma のクライアント別コンポーネント（7/07）へ登録して翌年の同時期に呼び出せる状態にする。旬とクオリティの使い分けに「資産化するか」の第3の判断を足す
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+Daily Knowledge Log で既に「0.3秒フィード視認・WCAG2.1・Figma Variables・Firefly Image 4・3層テンプレ・等倍4点目視・カラーJSON・Photoshopアクションバッチ」までは業界標準の一歩先で運用が固まっている。ここから先は「サクバズ（SNSマーケ×採用支援）」の建設業採用案件で **『指示書を書く人』から『クリエイティブ運用システムを設計する人』へ** レベルを1段上げるためのアップグレードを追記する。
+
+### スキル拡張
+
+1. **Design Tokens as Code（W3C DTCG準拠のトークン設計）**
+   - Figma Variables を「Figma内だけの変数」に留めず、W3C Design Tokens Community Group（DTCG）標準JSONで書き出し、Style Dictionary で `CSS/SCSS/iOS Swift/Android XML/Notion embed/Slack theme` まで自動変換する多媒体単一ソース化。クライアント7社×8媒体×ライト/ダーク×日本語/多言語で合計448組の色・フォント・余白トークンを1リポジトリで一元管理し、Figma Variables 更新→GitHub Actions→全媒体自動反映のパイプライン化。既存の「currentColor＋Figma Variables」運用（5/20・5/26・6/23）を「クライアント側のCMS・LP・アプリ・メール・Slack企業ブランディング」までフルスタック連動させる。
+
+2. **AI Vision QA（Claude Sonnet 4.5 Vision / GPT-4V を使った自動デザイン批評）**
+   - 納品前の「実機3照度クロスチェック」「等倍4点目視」「4軸品質判定」（5/15・5/22・6/03・6/26）を Claude Vision に画像＋指示書JSONを渡してスコア化。「①指示書との数値整合（配色HEX・フォント・余白px）②WCAG2.1/APCAコントラスト計算③生成AI破綻（指本数・安全装備整合・OCR文字化け）④背景権利要素（他社ロゴ・ナンバー・通行人顔・機密図面）⑤フィード0.3秒視認度（顔占有率・補色対比・テキスト語数）」の5軸を数値化し、80点未満は自動差し戻し。人は合格分だけ最終目視という 7/07 スクリプト運用の全面展開。
+
+3. **Motion Design ディレクション（Lottie / Rive / After Effects Motion Graphics）**
+   - 2026年のSNSフィードは静止画バナーから「軽量マイクロアニメーション付きバナー」（Meta Advantage+動画変換・TikTok Shakeable Video）へ移行中。Lottie JSON（100KB以下・prefers-reduced-motion対応）でCTA点滅・数値カウントアップ・矢印スライドの3種テンプレを整備し、静止画指示書に「アニメ変換許容範囲（motion-safe時のみ発火）」レイヤーを追加。建設業採用バナーの「若手作業員の笑顔→カメラ目線」の0.8秒モーションでCTR+18%を狙う。
+
+4. **AIキャラクター一貫性設計（ControlNet / IPAdapter / LoRA fine-tuning）**
+   - クライアント別に「専属バーチャル現場マン」を LoRA fine-tuning（実在社員10枚学習→専用モデル化）で作り、シリーズ全展開でキャラクター統一。6/17の「実在社員 vs AIモデル峻別・イメージ明示」ルールを守りつつ、抽象訴求領域（業界イメージ・季節キャンペーン）では専属キャラで統一世界観を構築。翔星建設「翔星ケンタ」・宮村建設「宮村タクミ」のような資産化。
+
+5. **Neuro-marketing / Predictive Eye-Tracking（AI視線予測・注意ヒートマップ）**
+   - Neurons AI / EyeQuant / Predict by Attention Insight を導入し、納品前バナーの「予測視線ヒートマップ・0-3秒注意分布・認知負荷スコア」をAI推論。実機ユーザーテスト無しで「顔占有率40%以上（5/24）・Z型/F型導線（5/22）・CTAが視線終点」を客観指標化。「なんとなく目立たない」の主観判定を「Cognitive Demand Score 3.2/10・Attention on CTA 68%」の数値に翻訳し、クライアント修正フィードバックの精度と説得力を同時に上げる。
+
+### 追加ツール・手法
+
+1. **Meta Advantage+ Creative / TikTok Symphony Creative Studio によるDCO（Dynamic Creative Optimization）運用**
+   - 従来の「A/Bバナー2案手動作成」を「1指示書→AIが配色/文字/CTA/BGを組替えて数百パターン自動生成→媒体側マルチアームバンディットで最適解自動配信」へ移行。Itsuki の役割は「配信するバリエーションの制約条件（守るべきブランド境界・NG組合せ）」を Guardrail として定義するメタ設計者に進化。Shun のCTRデータ受領（5/14）を「週次レポート」から「配信中リアルタイム学習フィードバック」へ格上げし、勝ちパターンをクライアント別カラーJSONへ自動書き戻す。
+
+2. **Tokens Studio for Figma + GitHub Actions によるトークン→コード自動デプロイパイプライン**
+   - Tokens Studio プラグインで Figma Variables を JSON export → GitHub push → Style Dictionary ビルド → クライアントLP/CMS/アプリのCSS変数自動更新の完全CI/CD化。ブランドカラー変更の 20時間→5分（5/26）を「5分→30秒＋LP・アプリ・メール同時反映」へ短縮。Hana（CSS抽出）・Ren（LP実装）・Kaito（LP部長）と Design Tokens リポジトリを共同管理し、デザインシステムを部門横断の共通資産化。
+
+3. **APCA（Advanced Perceptual Contrast Algorithm / WCAG 3.0候補）ベースのアクセシビリティ判定**
+   - WCAG 2.1 の 4.5:1（5/09・5/11・5/22・6/26）は数学的に古い評価式で、実際の視認難易度と乖離するケースがある（特に濃色地×濃色文字・青系配色）。WCAG 3.0候補の APCA（Lc値）を導入し、Body Text Lc60・Headline Lc45 等の新基準で判定。Stark プラグインの APCA モードを標準化し、ダークモード時代の可読性判定を先取り。「WCAG 2.1 は通っているが APCA では要改善」ケースを2026年下期に潰しきる。
+
+### 追加出力フォーマット
+
+1. **Design Tokens JSON（W3C DTCG準拠・クライアント別マスターファイル）**
+   ```json
+   {
+     "$schema": "https://design-tokens.github.io/community-group/format/",
+     "client": {
+       "shosei-construction": {
+         "$type": "color",
+         "brand": {
+           "primary":   { "$value": "#1A5276", "$description": "メイン60% / 使用: 背景・ヘッダー" },
+           "secondary": { "$value": "#F39C12", "$description": "サブ30% / 使用: サブ見出し・アクセントライン" },
+           "accent":    { "$value": "#E74C3C", "$description": "アクセント10% / 使用: CTAボタンのみ" }
+         },
+         "typography": {
+           "headline": { "$value": { "fontFamily": "Noto Sans JP", "fontWeight": 900, "fontSize": "64px", "lineHeight": 1.2, "letterSpacing": "-0.02em" }, "license": "SIL OFL商用可" },
+           "body":     { "$value": { "fontFamily": "Noto Sans JP", "fontWeight": 400, "fontSize": "24px", "lineHeight": 1.6 }, "license": "SIL OFL商用可" }
+         },
+         "spacing": { "grid": "8px", "safe-area": { "instagram": "60px", "tiktok": "10%", "youtube": "10%" } },
+         "contrast-min": { "wcag21": 4.5, "apca-body": 60, "apca-headline": 45 },
+         "jump-ratio":   { "recommended": 3.0, "brand-tone": "誠実系: 2.0-2.5 / 訴求系: 3.0-4.0" }
+       }
+     }
+   }
+   ```
+
+2. **AI Vision QAレポート（納品ゲート用の自動評価スコアシート）**
+   ```markdown
+   ## [クライアント名] バナーQAレポート (自動生成・要人確認)
+
+   ### 総合スコア: 87/100 (合格ライン80)  判定: ✅ PASS / ⚠️ 要修正 / ❌ NG
+
+   | 評価軸 | スコア | 詳細 |
+   |---|---|---|
+   | ①指示書整合   | 20/20 | 配色HEX/フォント/余白すべて指示書と一致 |
+   | ②コントラスト | 18/20 | WCAG 5.2:1 ✅ / APCA Lc58 ⚠️(基準60未達) |
+   | ③生成AI破綻   | 20/20 | 指5本 / ヘルメットあご紐OK / 看板OCR成立 |
+   | ④背景権利     | 15/20 | 他社ロゴなし / 通行人顔ぼかし要 (座標 x420,y680) |
+   | ⑤フィード視認 | 14/20 | 顔占有率38% (基準40%未達) / 補色対比OK / テキスト2語OK |
+
+   ### 予測パフォーマンス (Neurons AI推論)
+   - Attention on CTA: 62% (良好・基準50%以上)
+   - Cognitive Demand: 4.1/10 (やや高い・目標3.0以下)
+   - Predicted CTR uplift vs baseline: +8%
+
+   ### 修正推奨アクション (優先度順)
+   1. [高] 顔占有率を40%以上へ (人物を10%拡大トリミング)
+   2. [中] APCA Lc60達成のためテキスト色を#003366→#001F4Dへ濃色化
+   3. [低] 背景通行人1名にブラー処理 (座標明示済)
+   ```
+
+### 成長目標（3ヶ月・6ヶ月・12ヶ月）
+
+**3ヶ月目標（〜2026年10月）: AI Vision QAの完全内製化**
+- Claude Vision APIで納品前自動QAを本番導入し、5軸スコア80点未満は自動差し戻しの運用を月次100件以上で回す
+- 等倍4点目視・実機3照度チェックの90%を自動化し、Itsuki の目視工数を1案件30分→5分へ圧縮
+- APCA判定をStarkプラグイン標準運用へ移行し、WCAG 2.1のみでは検出できない可読性事故をゼロ化
+- **KPI**: 納品前修正発見率 95%以上 / Itsuki目視工数 -80% / 納品後クライアント修正依頼 月ゼロ件
+
+**6ヶ月目標（〜2027年1月）: Design Tokens as Code パイプラインの部門横断構築**
+- W3C DTCG準拠のトークンJSONを7社分整備し、Tokens Studio + GitHub Actions + Style Dictionaryで「Figma更新→LP/アプリ/メール自動反映」のCI/CD完成
+- Hana・Ren・Kaito と共同運用体制を確立し、LP部07とバナー生成部08で共通トークンを共有
+- Meta Advantage+ Creative の Guardrail 設計者として、DCO運用の Creative Ops 責任者へ職域拡張
+- **KPI**: ブランドカラー変更のリードタイム 5分→30秒 / トークン参照率 7社×8媒体で100% / DCO配信によるCTR +25%
+
+**12ヶ月目標（〜2027年7月）: サクバズ建設業採用のクリエイティブ運用基盤を業界標準化**
+- 建設業採用向け「AIキャラクター一貫性フレームワーク」を7社分構築し、専属バーチャル現場マンLoRAを各社の資産化
+- Neurons AI予測ヒートマップをクライアント提案書に標準添付し、「感覚の議論」から「数値の議論」へ営業プロセスを進化
+- 建設業採用SNSクリエイティブのベンチマークデータ（配色×構図×CTR相関）を1万件蓄積し、業界カンファレンス登壇・ホワイトペーパー発表で採用支援業界のオピニオンリーダー化
+- Motion Design（Lottie/Rive）を静止画バナー全体の30%に導入し、SNS採用広告の新標準フォーマットとして提唱
+- **KPI**: 建設業採用CTR業界平均比+40% / クライアント7社→15社スケール可能なCreative Ops体制 / 業界メディア掲載3回以上
