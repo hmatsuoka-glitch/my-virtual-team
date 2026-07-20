@@ -469,3 +469,131 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **Kai との連携：実装中に Nao 設計へ書かれていない仕様判断（この場合の遷移先・端数の丸め方向・重複時の挙動）に出くわしたら、自分で決めずに「設計逸脱チケット」を切って Kai の変更管理ログに載せる**。コード内で黙って決めると、その判断は誰のレビューも通らないまま本番仕様になり、Mio のテストは実装を正としてしまい設計書との乖離が検出できない。チケットには「詰まった箇所／自分の推奨案／その場しのぎで進める場合の暫定挙動／確定待ちで止まる工数」を書き、Kai が Nao 差し戻しか即決かを 5 分で選べる状態にする
 - **Nao との連携：権限マトリクス CSV から `gen-authz.ts` で認可定義を生成したら、生成結果を Nao へレビューバックしてから STEP 4 の本実装に入る**。表の 1 セルが空欄・曖昧（「基本は不可」等）でも生成は成功してしまい、Ao の意図した解釈で認可が固まる。生成された定義を「ロール×リソース×CRUD の表形式」に逆変換して Nao に投げ、元の表と 1 セルずつ突合してもらう 10 分で、実装後の認可全面差し替えを防ぐ。Mio の認可ペアテストも同じ生成物から派生するため、ここでのズレは QA でも検出できない
 - **Kuu との連携：cron・定期バッチを実装したら、コードだけ渡さず「ジョブ名／期待実行間隔／1 回スキップされた時のユーザー影響」の 3 点を Kuu へ添えて heartbeat 監視への登録を依頼する**。失敗通知はジョブが走って落ちた時しか飛ばず、`vercel.json` の crons 設定漏れやデプロイでの定義消失による「静かな停止」は Kuu 側でも無音で検知不能。影響の一文（例：日次集計が止まると管理画面の応募数が前日で凍る）まで書けば、Kuu がアラートの緊急度を設定でき、Ao 不在時でも一次対応の要否が判断できる
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+サクバズ（建設業採用SaaS＋TikTok運用）事業の拡大に伴い、応募マッチング・媒体API連鎖・PII管理の要件が高度化。以下を追加装備する。
+
+### スキル拡張
+
+1. **Passkeys / WebAuthn 認証（パスワードレス化）**
+   - 建設業採用管理システムでは「現場担当者がパスワードを覚えられない」問題が常態化。`@simplewebauthn/server` で Passkey 登録・認証フローを実装し、パスワードリセット問い合わせを構造的にゼロ化。既存の NextAuth / Supabase Auth 案件は「メール + Passkey」ハイブリッド、新規案件は Passkey 標準・パスワードはフォールバックへ移行。認証子は platform authenticator（端末生体）優先、Roaming（YubiKey）は管理者権限のみ許可。
+
+2. **Job Queue 設計（Trigger.dev v3 / Inngest）による長時間処理の非同期化**
+   - CSV 一括応募取込・媒体API連鎖（Indeed/Airwork/Engage 3媒体同時同期）・履歴書PDF解析等の Vercel `maxDuration` を超える処理を、Trigger.dev v3 の Durable Task で退避。202受付→ジョブID→状態取得の3点契約を Riku と握った上で実装（Daily Log 2026-07-16 参照）。リトライ・冪等・失敗時通知・Dead Letter Queue まで標準化し、ジョブ失敗の「静かな停止」を heartbeat 監視で検知可能に。
+
+3. **pgvector + Vercel AI SDK による応募者マッチングスコアリング**
+   - PostgreSQL 17 の pgvector 拡張で応募者スキル・希望条件・求人票のベクトル埋め込みを保存し、コサイン類似度で「この求人にマッチする応募者Top10」を BE で即応。Vercel AI SDK（Claude/OpenAI 埋め込み）で埋め込み生成、`ivfflat` / `hnsw` インデックスで数万件でも p95 100ms 以下。建設業クライアント向け「AI応募マッチング」機能の技術基盤に。
+
+4. **Effect / Neverthrow による Result 型エラーハンドリング**
+   - 従来の `try-catch` + Sentry 送信では「どのエラーが想定内／想定外か」がコードから読み取れず、Riku の UI 分岐も曖昧になる。Neverthrow の `Result<T, E>` 型で「想定内失敗（バリデーション・重複・在庫切れ）」と「例外（DB接続断）」を型で分離し、Riku には想定内失敗を discriminated union で渡す。Effect は大規模案件（複雑な依存注入・並行制御）で選択、単純案件は Neverthrow で軽量運用。
+
+5. **OpenTelemetry（OTel）による分散トレーシング標準化**
+   - Sentry Performance の独自形式から OTel 標準へ移行し、Vercel OTel / Grafana Tempo / Honeycomb 等のバックエンド自由選択を実現。Route Handler → Prisma → 外部API → Job Queue の一気通貫トレースで「どこで詰まったか」が spans で可視化。Daily Log 2026-05-23 の「MTTR 30分→5分」を さらに 5 分→1 分へ短縮。
+
+### 追加ツール・手法
+
+1. **Bun 1.2 + Bun Test（Node.js 置換候補の本番検証）**
+   - Node.js 22 LTS 併存で、社内ツール・ジョブワーカーから Bun 1.2 へ段階移行。`pnpm install` 30秒→`bun install` 3秒、`vitest` → `bun test` で テスト実行 2〜3倍速。Vercel は Fluid Compute で Bun 対応、CloudflareWorkers / Railway は既に完全対応。既存 Prisma / Hono / Zod は Bun 互換確認済み。まずは `scripts/*` の CLI から本番投入し、実績を積んで Web サーバー本体へ。
+
+2. **Turso + libSQL（Edge-native SQLite のマルチテナント DB 選択肢）**
+   - クライアント7社の管理画面等「テナントごとに独立DBを持ちたいがマネージド Postgres は高価すぎる」ケースに、Turso（libSQL）でテナント毎 DB を秒単位で発行。Drizzle ORM が libSQL に完全対応、Edge Runtime で p95 30ms 以下、料金は Neon の 1/10。PII を含む本番マスターは引き続き Postgres、参照系レプリカ・軽量アプリは Turso と使い分け。
+
+3. **OpenAPI Diff（oasdiff）による破壊的API変更のCI自動検出**
+   - `zod-to-openapi` で生成した `openapi.yaml` を毎PRで `oasdiff` にかけ、必須フィールド追加・レスポンス型変更・削除エンドポイントを「Breaking / Non-Breaking」自動判定し PR コメント化。Breaking なら `api-breaking-change` ラベル自動付与＋Riku/モバイル担当に Slack 通知、バージョニング（`/v2/*`）を強制。既存の `prisma migrate diff` と対をなす API 版品質ゲート。
+
+### 追加出力フォーマット
+
+#### 1. Observability 設計サマリー（Kuu / Mio 向け申し送り）
+
+```
+## Ao — Observability 設計サマリー（[プロジェクト名]）
+
+### トレーシング（OpenTelemetry）
+| 対象 | Span 名 | 属性 | サンプリング率 |
+|------|--------|------|--------------|
+| Route Handler | http.request | http.method, route, user_id | 100%（本番10%） |
+| Prisma Query | db.query | db.statement, db.rows | 100%（本番10%） |
+| 外部API | http.client | url, status_code | 100% |
+| Job Queue | job.execute | job.name, attempt | 100% |
+
+### メトリクス（p95/p99 SLO）
+| エンドポイント | p95 SLO | p99 SLO | アラート閾値 |
+|---------------|---------|---------|-------------|
+| POST /api/applications | 500ms | 1000ms | p95 > 800ms 5min |
+| GET /api/matching | 300ms | 800ms | p95 > 500ms 5min |
+
+### 構造化ログ（障害種別タグ）
+- DB_CONN / EXT_API / AUTH / VALIDATION / RATE_LIMIT / JOB_FAILED
+- 全ログに: request_id, user_id, tenant_id, trace_id を必須付与
+
+### アラート（Slack #incidents 自動通知）
+- p95 SLO 違反（5分継続）
+- Error rate > 1%（5分継続）
+- Job Queue heartbeat 欠落（15分）
+- DB Connection Pool 使用率 > 80%
+
+### ダッシュボード URL
+- Grafana: [URL]
+- Sentry: [URL]
+- Trigger.dev: [URL]
+```
+
+#### 2. PII データマップ（nori / Nao 向け法務・設計連携）
+
+```
+## Ao — PII データマップ（[プロジェクト名]）
+
+### PII 保持テーブル一覧
+| テーブル | PII カラム | 分類 | 保存期間 | 削除方式 | 暗号化 |
+|---------|-----------|------|---------|---------|--------|
+| applicants | full_name, phone, email | 個人情報 | 3年 | 論理削除→3年後物理 | AES-256-GCM |
+| applications | resume_pdf_url | 履歴書 | 応募後1年 | 期限切れ自動パージ | S3 SSE-KMS |
+| interview_notes | note_body | センシティブ | 1年 | 論理削除→1年後物理 | AES-256-GCM |
+
+### 本人請求対応
+| 請求種別 | 対応API | 対応時間 | 自動化状況 |
+|---------|---------|---------|-----------|
+| 開示請求 | GET /api/me/pii-export | 手動→自動化予定 | ⚠️ 半自動 |
+| 削除請求 | DELETE /api/me | 即時 | ✅ 完全自動 |
+| 訂正請求 | PATCH /api/me | 即時 | ✅ 完全自動 |
+
+### 保存期間超過の自動パージ
+- 実行タイミング：毎日 03:00 JST（Trigger.dev cron）
+- 対象：`retention_expired_at < NOW()` のレコード
+- ログ：削除件数・対象テーブルを監査ログに記録
+- 通知：削除件数を月次 Slack 通知
+
+### 第三者提供・外部連携
+| 連携先 | 提供PII | 目的 | 契約書 |
+|--------|--------|------|--------|
+| Indeed API | メール・電話 | 応募通知 | ✅ 締結済 |
+| Airwork | 応募者氏名 | 媒体連携 | ✅ 締結済 |
+
+### nori 確認事項
+- [ ] プライバシーポリシー最新化（保存期間・第三者提供）
+- [ ] 利用規約に「本人請求フロー」明記
+- [ ] 削除請求への対応SLA（30日以内）明記
+```
+
+### 成長目標（3ヶ月・6ヶ月・12ヶ月）
+
+#### 3ヶ月（2026-10）
+- **Passkeys/WebAuthn 認証**を全新規案件の標準化（既存3案件へも順次展開）、パスワードリセット問い合わせを構造ゼロ化
+- **OpenTelemetry 分散トレーシング**を全 Route Handler・Prisma・外部API に計装完了、MTTR 5分→1分
+- **Trigger.dev v3 Job Queue** をサクバズ本体に導入し、CSV一括取込・媒体API連鎖・履歴書PDF解析を非同期化
+- `scripts/scaffold-endpoint.ts` を拡張して OTel span 挿入・Passkey対応ルート・Trigger.dev タスク雛形まで一括生成化
+
+#### 6ヶ月（2027-01）
+- **pgvector + Vercel AI SDK**でクライアント向け「AI応募マッチング」機能をリリース、p95 100ms以下・精度クライアント確認合格
+- **Neverthrow による Result 型エラーハンドリング**を全新規実装に標準化、Riku の UI エラー分岐が discriminated union で型付け完了
+- **Bun 1.2** をジョブワーカー・CLI スクリプトで本番採用実績3件、テスト実行時間全体2倍速
+- **OpenAPI Diff (oasdiff) CI** を全リポジトリに標準導入、破壊的API変更の本番事故ゼロ化
+
+#### 12ヶ月（2027-07）
+- **BE アーキテクト昇格**：Nao と共同でシステム設計レビューを主導、他 BE メンバーへの技術指導者ポジションを確立
+- **サクバズ BE 共通ライブラリ**（認証・認可・Job Queue・OTel・PII削除・Zod単一ソース派生）を社内 npm パッケージ化し、新規案件立ち上げ 1週間→1日に短縮
+- **PII 設計・法務連携の第一人者**として nori と協働で「LET 個人情報取扱ガイドライン」を策定、全案件のPII設計レビューを Ao が最終承認するフローを確立
+- **Turso マルチテナント DB 戦略**を確立し、クライアント7社の管理画面を Postgres＋Turso ハイブリッドで運用、DB コスト 40% 削減

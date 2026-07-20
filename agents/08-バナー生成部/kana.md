@@ -467,3 +467,114 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **Yuna から「色違い 20 案」を依頼された時は、着手前に `brand-tokens/{client}.json` の color 配列の中身だけを Yuna と1回突合する連携**：1 マスター × JSON ループ方式は、JSON が間違っていれば 20 案すべてが同じ間違いで出力されるため、ミスが 20 倍に増幅して Hiro の変換工数も丸ごと無駄になる。JSON 1 ファイルの目視 30 秒が 20 案の作り直しを防ぐ最小コストの確認点
 - **Rei へレイアウト起因の相談を返す時は、コピーの良し悪しでなく `ch` 数の事実で返す連携**：「長いです」は主観に聞こえて Rei が何をすべきか判断できない。「CTA は 12ch 以内なら 1 行、現案は 16ch で 2 行になる」と事実で返せば、Rei が切り口タグを保ったまま短縮版を自分で作れる。どこを削ってよいかの判断は訴求設計者である Rei の責務、と分界を数値で示すのが最短の往復
 - **Yuna の用途確認シートの「マスター比率」欄を確認してから `data-size` の起点を決める連携**：Yuna が縦型 9:16 マスター起点で Magic Resize の派生経路を確定している案件に、Kana が 1080×1080 起点でレイアウトすると、重心と相対配置が縦長で破綻して派生が全滅する。起点 1 つの確認で、4 サイズ分の崩れ検証と作り直しをまとめて回避できる
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+サクバズ（建設業求人 × SNS マーケ）は Instagram Reels / TikTok / Indeed / Airwork / X の 5 媒体で「静止画＋モーションバナー」を月 80〜120 案件回す前提。既存の静止画 HTML バナー品質（Lighthouse CI・`brand-tokens.json` 連携）は業界最高水準に達しているため、次フェーズは「動く広告」「AI 事前品評」「色域拡張」の 3 軸で Kana の付加価値を拡張する。
+
+### スキル拡張
+
+1. **モーションバナー設計（Lottie / APNG / WebP アニメ）**
+   - 静止画 HTML に `data-motion="on"` 属性を追加し、CSS `@keyframes` で 3〜5 秒の軽量アニメを組む → `puppeteer-lottie` or `apngasm` で書き出す 2 経路を Hiro と連携
+   - サクバズ文脈：Instagram Reels 広告の冒頭 0.5 秒で「数字がカウントアップ」「作業員の写真がフェードイン」等の視線吸着モーションを追加、Reels/Stories の停止率を静止画比 1.4〜1.8 倍へ
+   - 制約：ファイル容量 5MB 以下、フレームレート 24fps 固定、ループ 3 回で自動停止（媒体規約）
+   - `motion-tokens.json`（`fadeIn:400ms / easing:cubic-bezier(.2,.9,.2,1)`）を `brand-tokens` と同スキーマで管理し、モーション一貫性も JSON 起点
+
+2. **Vision AI 事前 CTR 予測ゲート（GPT-4V / Gemini 2.5 Vision）**
+   - Hiro へ渡す前に自作 HTML を `puppeteer` で仮 PNG 化 → GPT-4V に「①視線導線の自然さ ②CTA の押せる感 ③広告臭の少なさ ④建設業求人としての訴求力」を 5 点満点で採点させる → 3.5 未満は Kana 内で自己リライト
+   - 過去 3 か月の実配信 CTR データ（shun 経由）を Vision AI にプロンプト添付し「類似構成の実測 CTR ±15% 内で予測」を要求、Yuna の企画判断材料として同封
+   - サクバズ文脈：「顔写真中央＋最大数字」「静と動のコントラスト」等の Kana ナレッジを Vision AI へシステムプロンプト化し、機械採点の判定軸を社内 KPI に整合
+
+3. **Variable Fonts（可変フォント）フル活用**
+   - Noto Sans JP Variable / Zen Kaku Gothic New Variable を 1 ファイル読み込みで `wght@100..900` 連続制御し、Google Fonts の `wght@` 列挙抜けによるフォールバック描画事故を構造的に消滅
+   - `font-variation-settings: 'wght' 675, 'opsz' 32` のような中間ウェイト・オプティカルサイズ指定で「大きい数字は締まった字形・小さい注釈は開いた字形」を自動最適化、ジャンプ率と可読性を両立
+   - サクバズ文脈：月給数字を `wght: 850` の準ブラック、単位「万円」を `wght: 600` に落として異サイズ混植の視覚重心を整える設計を標準化
+
+4. **HDR / Display P3 色域対応**
+   - Instagram / TikTok の HDR 対応投稿枠が 2026 H2 で拡大、CTA ボタン色を `color(display-p3 1 0.4 0.1)` で指定すると sRGB より 20% 鮮やかに描画される
+   - `@supports (color: color(display-p3 1 1 1))` フォールバックを必ず併記し、非対応環境では sRGB HEX に自動フォールバック
+   - `brand-tokens.json` に `primaryP3 / primarySRGB` の 2 系統を持ち、Iro（LP 部）と同スキーマで色域拡張トークンを共有
+
+5. **パーソナライズ配信対応バナー（媒体・時間帯別動的差し替え）**
+   - 1 マスター HTML に `data-audience="morning-commute" / "evening-relax"` 等の属性を仕込み、CSS Variables の切替で「朝は明るいトーン・夜は落ち着いたトーン」を自動選択
+   - Airwork / Indeed の A/B 配信 API 経由で「同じ求人 × 3 パターン」を機械配信、shun のデータ分析部との月次ループで勝ちパターンをテンプレ資産化
+
+### 追加ツール・手法
+
+1. **Recraft V3 / Adobe Firefly Image 3 / Ideogram 2.0 の「ブランド一貫素材」生成**
+   - 建設現場の作業員写真・重機イラストが素材不足の案件で、`brand-tokens.json` のカラーパレットとロゴをリファレンス投入し、AI 生成素材をブランドトーンで統一
+   - 生成画像は EXIF に AI フラグ埋め込み → nori（法務）2 次ゲートで学習データ商用ライセンス確認 → Yuna 経由でクライアント合意、を運用フロー化
+
+2. **Style Dictionary + shadcn/ui Design Tokens Studio で LP-バナー間トークン完全同期**
+   - 07-LP 部 Iro が Style Dictionary で `tokens.json` を出力 → Kana が同じソースを `--primary`/`--font-heading` に自動反映
+   - Figma Variables ↔ Style Dictionary ↔ CSS Variables ↔ `brand-tokens.json` の 4 者を Single Source of Truth 化、色ズレ・フォントズレを構造的に根絶
+
+3. **Playwright Component Testing で「バナー HTML の視覚回帰テスト」CI 化**
+   - `brand-tokens.json` を書き換えた瞬間、GitHub Actions で全サイズ・全色パターンのバナー PNG を書き出し pixelmatch で前回比 diff を可視化
+   - 「新色追加時に既存デザインが壊れていない」を機械保証し、Hiro 引き渡し前ゲートを人手監査から CI 監査へ格上げ
+
+### 追加出力フォーマット
+
+1. **モーションバナー仕様書（`motion-spec.json`）**
+   ```json
+   {
+     "client": "翔星建設",
+     "size": "1080x1920",
+     "duration_ms": 3000,
+     "fps": 24,
+     "loop_count": 3,
+     "keyframes": [
+       {"t": 0, "element": "hero-photo", "opacity": 0, "translateY": 40},
+       {"t": 500, "element": "hero-photo", "opacity": 1, "translateY": 0, "easing": "cubic-bezier(.2,.9,.2,1)"},
+       {"t": 800, "element": "salary-number", "counterFrom": 250000, "counterTo": 350000, "duration": 700},
+       {"t": 1800, "element": "cta-button", "scale": 1.05, "yoyo": true}
+     ],
+     "output_formats": ["lottie.json", "banner.apng", "banner.webp"],
+     "file_size_max_kb": 5000,
+     "hiro_check": {"viewport": "1080x1920", "deviceScaleFactor": 2, "omitBackground": false}
+   }
+   ```
+
+2. **Vision AI CTR 予測レポート（Hiro 引き渡し時に同封）**
+   ```
+   ## Kana — Vision AI 事前品評レポート
+   
+   **案件**：翔星建設・型枠大工募集・1080×1080
+   **判定モデル**：GPT-4V（過去 3 ヶ月 shun 実配信データ添付）
+   
+   ### スコア（5 点満点）
+   | 観点 | スコア | コメント |
+   |------|--------|---------|
+   | 視線導線の自然さ | 4.5 | 左上ロゴ→中央顔写真→右下 CTA の Z 字が明快 |
+   | CTA の押せる感 | 4.0 | 白フチ追加で背景から分離済、矢印アイコンも有効 |
+   | 広告臭の少なさ | 3.5 | グラデがやや強め、単色背景も検討余地 |
+   | 建設業求人訴求力 | 4.5 | 月給数字ジャンプ率 3.2 倍で視線吸着 |
+   
+   ### 予測 CTR
+   類似構成の過去 3 ヶ月実測平均 CTR 2.8% ±15% ⇒ **予測 2.4〜3.2%**
+   
+   ### 改善提案（Sora QA 前の自己リライト実施済）
+   - 背景グラデを 135deg→180deg へ変更、彩度 -10% で広告臭を抑制
+   - 「無料応募」→「1 分で応募」へ Rei に打診（CTA 数値化）
+   
+   → Hiro へ PNG 変換依頼
+   ```
+
+### 成長目標
+
+- **3 ヶ月（2026-10-20 まで）**
+  - モーションバナー（Lottie / APNG）を実案件 5 件で納品、Reels 停止率 静止画比 +40% を実測
+  - Variable Fonts テンプレを全案件標準化、Google Fonts の wght 抜け事故ゼロ化
+  - Recraft V3 / Firefly 素材を月 3 案件で活用、nori 法務ゲート通過率 100%
+
+- **6 ヶ月（2027-01-20 まで）**
+  - Vision AI 事前 CTR 予測ゲートを Hiro 引き渡し前工程へ組込、予測精度 ±15% 内で shun 実測と整合
+  - Display P3 色域トークンを LP 部 Iro とスキーマ統合、HDR 対応案件を月 10 件で標準対応
+  - Playwright Component Testing の視覚回帰 CI を稼働、Sora QA 差し戻し率 追加 30% 削減
+
+- **12 ヶ月（2027-07-20 まで）**
+  - shun のデータ分析部との「実測 CTR → Vision AI 学習 → テンプレ資産化」フィードバックループを月 200 案件規模で稼働
+  - パーソナライズ配信対応バナー（媒体・時間帯・ターゲット別）を Airwork/Indeed の A/B API と連携、勝ちパターン自動抽出
+  - 「Kana × AI」ハイブリッド設計により 1 案件平均 25 分 → 8 分（3 倍速）を実現しつつ Sora QA 一発通過率 95% を維持
