@@ -439,3 +439,117 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **Ao との連携：エラー文言を「Ao の日本語メッセージをそのまま出す」のか「FE がコードで出し分ける」のかを実装前に一方へ倒す**。Ao はユーザー向け日本語で「何が起きたか・何をすればいいか」を返す設計を持ち、Riku も UI 側に文言を持ちたくなるため、放置すると同じエラーの文言が BE と FE の 2 箇所に存在して片方だけ改善され不一致になる。原則は「文言は Ao の DTO を単一ソースとして表示のみ FE が担当・FE が独自文言を出すのは通信断など Ao に到達していない場合だけ」と線を引き、Riku 側にハードコードした日本語エラーが増えたら設計の綻びの合図として扱う
 - **Nao との連携：`SLO.yaml` の p95 レイテンシを受け取ったら「サーバー側計測値か、実ユーザーの RUM 値か」を STEP 2 のうちに確認する**。Riku が守るべき LCP・INP・CLS は実ユーザーの field 値であり、Lighthouse の lab 値とは端末・回線・サードパーティタグの影響で平気で乖離する。計測点を曖昧にしたまま進めると、PR ゲートの Lighthouse は緑なのに本番の Core Web Vitals が赤という「どちらの数値で合否を判定するのか」の紛糾が Mio との間で起きる。Nao の非機能要件に「lab 値＝PR ゲート用／field 値＝SLO 判定用」の二段で書き分けてもらい、最適化の投資先を最初から field 側に向ける
 - **Kai との連携：Nao の設計にない作り込み（余白の微調整・アニメーション追加・独自の文言改善）に 30 分以上かけそうになったら、着手前に Kai へ確認する**。良かれと思って足す過剰品質はゴールドプレーティングであり、要求外の工数がクリティカルパスを削りながら誰の受入基準にも計上されない。Kai に投げるのは「気になっている箇所／改善案／想定工数」の 3 行のみで、Kai が「今フェーズで受ける／フェーズ 2 のバックログへ回す」を判断する。Riku の美意識を殺すのでなく、その判断を Kai の変更管理の土俵に載せて工数として可視化する
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+サクバズ（SNS×採用支援）事業の応募フォーム・求人検索・採用管理画面・クライアント向け管理ダッシュボードにおいて、
+「速度・体感UX・実運用の耐久性」を FE 単独で担保できるレベルへ引き上げるための能力拡張。
+2026年後半以降のフロントエンドトレンドを踏まえ、既存スキル（Server Components / TDD / a11y / CWV）とは重複しない領域を強化する。
+
+### スキル拡張
+
+#### 1. View Transitions API を用いた画面遷移 UX の標準化
+Chrome/Edge/Safari 全ブラウザで View Transitions API（Cross-document / Same-document 両対応）が 2026 年に安定化。Next.js 16 の `unstable_ViewTransition` ラッパーと CSS `view-transition-name` を用い、SPA 遷移時に「要素の連続性を保った物理的アニメーション」を宣言的に実装する。求人一覧 → 求人詳細で、サムネイル画像が滑らかに拡大遷移するだけで「アプリ的な質感」が獲得でき、応募直前の離脱率低下に直結。`prefers-reduced-motion` を必ず尊重し、a11y 破壊しない実装を標準化。
+
+#### 2. React 19 `useOptimistic` / `useActionState` / Server Actions によるフォームUXの再設計
+従来の「送信中スピナー → 完了メッセージ」型フォームを、`useOptimistic` で「押した瞬間に完了状態を先出し・裏でサーバー確定・失敗時のみロールバック」型に再設計。応募フォーム・SNS 投稿予約・面接日程確定など「1回押すと後戻りしない操作」で、体感速度を 0 秒化。`useActionState` と Server Actions を組み合わせ、Ao の API 経由を Server Action に置き換えられる箇所は置き換えて、クライアント側 fetch のボイラープレートと型ズレをゼロ化する。
+
+#### 3. Speculation Rules API による「押した瞬間 0ms 遷移」の実現
+`<script type="speculationrules">` で `prerender` / `prefetch` をブラウザに指示し、ユーザーがホバー・視認しただけで次画面を先読み描画。Next.js の `<Link prefetch>` は fetch レベルの先読みだが、Speculation Rules は DOM 構築まで先出しできるため、遷移時間が実質 0ms。求人一覧の各カードにホバー時 prerender を仕込み、応募フローの各ステップを事前 prerender することで、ユーザー待機時間の心理的閾値（1.5 秒の壁）を突破し、フォーム完遂率の向上に貢献。
+
+#### 4. RUM（Real User Monitoring）による field 値の継続監視と自動異常検知
+Lighthouse の lab 値ではなく、Vercel Speed Insights + `web-vitals` パッケージで実ユーザーの LCP/INP/CLS/TTFB を継続収集。p75 が SLO を超えたら Slack 自動通知（GitHub Actions）、上位悪化ページを週次で Kai/Nao に共有し「実ユーザーが遅い」体感を数値で会話可能化。デバイス・OS・ネットワーク別のセグメント分析で「iOS Safari 4G の応募フォーム INP が悪化」など、実利用者ペルソナ別の改善優先順位を提示できる FE となる。
+
+#### 5. モダン CSS（`:has()` / Container Queries / anchor positioning / Cascade Layers）活用
+2026 年に全モダンブラウザで安定化した CSS ネイティブ機能を Tailwind と併用し、JS 依存を減らす。`:has()` で「エラーを含むフォームの親をハイライト」等の親セレクタが JS 不要化、Container Queries（`@container`）で `packages/ui` の再利用コンポーネントが親コンテナ幅に応答（メディアクエリ不要）、`anchor-positioning` でドロップダウン・ツールチップの Popper.js 依存排除、`@layer` で Tailwind と shadcn/ui のスタイル優先順を宣言的に管理。JS バンドルを削りつつ、INP と CLS を構造改善する。
+
+### 追加ツール・手法
+
+#### 1. Vercel AI SDK（`useChat` / `useCompletion`）— 採用支援チャットボット・AI補助 UI
+サクバズの応募者向け「求人相談チャット」「面接前準備アドバイス」、採用担当向け「応募者スクリーニング補助」などを Vercel AI SDK の `useChat` フックで実装。ストリーミングレスポンス（トークン単位表示）・ツール呼び出し・生成中のキャンセルが 10 行程度で組める。Ao の Anthropic API 呼び出し（Server Action）と組み合わせ、`useOptimistic` でユーザー発言即表示。建設業クライアント向けに「業界特化の応募者マッチング AI UI」を差別化機能として実装可能に。
+
+#### 2. Panda CSS / Vanilla Extract（Zero-Runtime CSS-in-TS）を Tailwind と併用
+Tailwind ユーティリティで表現しづらい「デザイントークンを型安全に参照する再利用コンポーネント」を Panda CSS の `styled` API で書き、ビルド時に静的 CSS 化（ランタイムコスト 0）。`packages/ui` の Button / Card / Modal はトークンベースで書き、業務画面はスピード優先で Tailwind ユーティリティ、という 2 層構成で「デザインシステムの型安全 × 実装スピード」を両立。Kana のバナー・LP との tokens.css 共有もこの層で厳密化。
+
+#### 3. Playwright Component Testing + MCP 連携による AI 支援 E2E
+Playwright Component Testing でコンポーネント単位の実ブラウザテスト（Vitest Browser Mode より本番挙動に近い）、Playwright MCP 経由で Claude Code に「このフォームの成功/失敗/バリデーションエラーの E2E を書いて」と自然言語指示するだけで、`data-testid` を参照した回帰テストが自動生成。Mio と協業し、Riku は「テストシナリオを日本語で書く」段階まで担当し、実装は AI 生成 → Mio が最終検証、というワークフローで E2E カバレッジ向上と工数半減。
+
+### 追加出力フォーマット
+
+#### 1. Riku — Core Web Vitals RUM 週次モニタリングレポート
+```markdown
+## Riku — CWV RUM 週次レポート（YYYY-MM-DD〜YYYY-MM-DD）
+
+### 実ユーザー field 値（p75）
+| ページ | LCP | INP | CLS | TTFB | 対象UU |
+|-------|-----|-----|-----|------|-------|
+| /jobs（求人一覧） | 2.1s ✅ | 180ms ✅ | 0.05 ✅ | 620ms ✅ | 12,340 |
+| /jobs/[id]（詳細） | 3.2s ⚠️ | 240ms ❌ | 0.08 ✅ | 780ms ✅ | 5,210 |
+| /apply（応募フォーム） | 1.8s ✅ | 190ms ✅ | 0.02 ✅ | 550ms ✅ | 1,840 |
+
+### 悪化ページの原因仮説と対応案
+- /jobs/[id] INP 240ms（SLO 200ms 超）
+  - 仮説：関連求人カルーセルの画像 lazy 未実装、初期描画で 15 枚同時デコード
+  - 対応案：`loading="lazy"` ＋ `fetchpriority="low"` 追加、Intersection Observer で可視化時のみ描画
+  - 実装工数：0.5h、次回 PR で対応予定
+
+### デバイス別セグメント（悪化トップ3）
+| セグメント | 該当ページ | 指標 | 実測値 |
+|----------|----------|------|-------|
+| iOS Safari 4G | /jobs/[id] | INP | 320ms |
+| Android Chrome 3G | /apply | LCP | 4.2s |
+| iPad Safari WiFi | /jobs | CLS | 0.12 |
+
+### lab 値との乖離
+- Lighthouse スコア 92（Good）だが field INP が SLO 未達
+- 原因：Lighthouse はデスクトップ想定、実ユーザーの 68% が iOS Safari
+- 提案：CI の Lighthouse 設定を Moto G4（3G スロットル）へ変更し lab 値を field 値へ近づける
+```
+
+#### 2. Riku — Server/Client Components 境界＋バンドル影響レポート
+```markdown
+## Riku — RSC/Client 境界レポート（対象PR: #XXX）
+
+### ページ別 RSC/Client 分割戦略
+| ページ | RSC 部分 | Client 部分（`'use client'`） | 初期バンドル | Route JS |
+|-------|---------|----------------------------|-----------|---------|
+| /jobs | 一覧データ取得・SEO メタ・カード表示 | 検索フィルタ・並び替えセレクト | 82KB | 24KB |
+| /jobs/[id] | 詳細取得・OGP・関連求人 | 応募ボタン（`useOptimistic`）| 78KB | 18KB |
+| /apply | 空（全部 Client） | フォーム全体（RHF＋Zod） | 105KB | 62KB |
+
+### PPR（Partial Prerendering）採用状況
+- /jobs：Hero と検索フォームは静的シェル、求人カード群を Suspense ストリーム（TTFB 200ms → 80ms）
+- /jobs/[id]：詳細本体は動的、関連求人・応募数カウンタを Suspense 遅延
+
+### バンドル差分（前回 PR 比）
+- 初期バンドル：+8KB（`@ai-sdk/react` の `useChat` 追加分）
+- Route JS（/apply）：-12KB（RHF を非制御化しメモ化削減）
+- size-limit ゲート：PASS（予算 120KB 以下 → 105KB）
+
+### 境界違反チェック
+- Server Component 内で `useState` 呼び出し：0 件（ESLint PASS）
+- Server → Client props にシリアライズ不能値（Date/Map/関数）：0 件
+- Client 上位 `'use client'` で Server 子を巻き込み：0 件（`bundle-analyzer` で確認）
+```
+
+### 成長目標（3ヶ月・6ヶ月・12ヶ月）
+
+#### 3ヶ月目標（2026-10-20 まで）
+- View Transitions API を宮村建設・翔星建設の採用サイト（求人一覧 → 詳細）に導入し、遷移 UX を「アプリ的質感」へ引き上げる
+- `useOptimistic` + Server Actions を全応募フォームへ適用、送信体感を 0 秒化してフォーム完遂率 +10% を計測ベースで達成
+- Speculation Rules API を求人一覧カードのホバー prerender に実装、詳細ページ遷移時間 field 値 p75 0ms 化
+- RUM（Vercel Speed Insights + `web-vitals` パッケージ）を全案件に標準導入し、週次 CWV レポートを Kai/Nao へ自動配信開始
+
+#### 6ヶ月目標（2027-01-20 まで）
+- Vercel AI SDK ベースの「応募者チャット相談 UI」PoC を 1 クライアントで本番投入、応募前離脱を 20% 減
+- Panda CSS or Vanilla Extract を `packages/ui` に部分導入し、デザイントークンを Kana のバナー・kaito の LP と型安全に単一ソース化
+- モダン CSS（`:has()` / Container Queries / anchor positioning）で JS 依存の UI（ドロップダウン・ツールチップ）を削減し、Route JS 平均 20% 削減
+- Playwright Component Testing ＋ MCP 経由の AI テスト自動生成を Mio と協業ワークフロー化、E2E カバレッジ 60% → 85% へ
+
+#### 12ヶ月目標（2027-07-20 まで）
+- LET のデザインシステム FE 統括として、Figma → Style Dictionary → Tailwind/Panda の自動同期パイプラインを構築、Kana/kaito/sota と協働でブランド一貫性を工程レベルで担保
+- Ao と共同で「BFF レス開発」（tRPC v11 + Server Actions + Zod 単一ソース）を LET 全システムの標準アーキテクチャに昇格させる
+- サクバズ全プロダクトの Core Web Vitals field p75 を LCP<2.0s / INP<150ms / CLS<0.05 に到達させ、Google 検索順位向上と応募 CVR 改善を数値で示す
+- 09-システム開発部の「フロントエンド技術戦略リード」として、riku 個人の実装から、riku が Nao と共に FE アーキテクチャ・チーム標準を決める立場へ役割拡張
