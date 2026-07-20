@@ -206,3 +206,82 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - **ren への差し戻しは「該当セクション名（sota の Figma コンポーネント名）＋フレーム URL＋期待挙動」の3点セットを必須にし、スクショに赤丸だけの指摘を禁止する連携**：赤丸スクショは ren が「どのコンポーネントの何を直すか」を推測する時間を生む。sota⇔nao で名称同期済みのコンポーネント名で名指しすれば修正箇所の特定がゼロ秒になり、版管理上も「どの版のどこを直したか」がそのまま記録に残る
 - **mia へ検収を依頼する時は、tsumugi の自己3秒テストで「グレー判定（迷った箇所）」だけを依頼文に名指しで列挙する連携**：「全部見てください」は mia の注意を分散させ、tsumugi が確認済みの箇所を再検査させる重複を生む。迷った1〜2箇所を名指しすると mia の判断が集中し、検収の往復が1巡減る。tsumugi が潰した領域と mia に託す領域の分界を依頼文で毎回明示する
 - **sora へ最終 QA を渡す時は「tsumugi 側で潰し済みの3レーン（ファネル/法務/実機）の証跡」を添えて、未検査領域に集中してもらう連携**：証跡なしで渡すと sora が同じ機械チェックを再実行し、最終 QA が二重検査になって工程が伸びる。済んだレーンを明示すれば sora はトーン・クライアント文脈・全体整合という人でしか見られない領域に時間を寄せられる
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+### スキル拡張
+
+1. **AI パーソナライゼーションディレクション（visitor segment 別動的コピー / Hero 差替）**
+   - 流入経路（Meta広告 / Google検索 / 自然流入 / リターゲ）とデバイス・時間帯を組み合わせた最大 6 セグメントに対し、Hero キャッチ／CTA ラベル／マイクロコピー／メインビジュアルを条件分岐で出し分ける設計を tsumugi が仕様定義する。kotone にはセグメント別コピー、iro にはセグメント別アクセント色、ren には Edge Middleware（Vercel）でのセグメント判定ロジック仕様を並列発注する統括役に踏み込む。サクバズ建設業クライアントで「20 代未経験×スマホ×夜」と「30 代経験者×PC×昼」の 2 セグメント最小構成から着手し、CVR +15% を初回検証ゴールに置く。
+2. **Web Vitals 2026（INP / LCP / CLS）統括ゲート**
+   - 2024 年に FID から置き換わった INP（Interaction to Next Paint）200ms 以内を公開ゲートに追加し、既存の LCP 2.5s / CLS 0.1 と合わせた 3 指標セットで納品判定する。ren には INP 悪化要因（重い onClick ハンドラ／メインスレッド長 task）の事前排除を発注し、tsumugi は PageSpeed Insights + Chrome UX Report で「実ユーザーの 75 パーセンタイル値」を必ず確認して報告書に添付する。速度未達なら公開不可の物理ゲートとして運用。
+3. **Cookieless / Consent Mode v2 計測設計統括**
+   - iOS 17+ / Safari ITP / EU GDPR / 改正個人情報保護法に対応するため、Server-side GTM（Stape.io など）＋ Google Consent Mode v2 の実装仕様を kai/ao と接続し、tsumugi が「同意取得 UI（クッキーバナー）→ Consent Mode 動的更新 → SS-GTM 経由でのイベント送信」の全体シーケンスを要件段階で確定させる。同意率・計測欠損率をクライアント報告 KPI に加える。
+4. **Multi-Armed Bandit / 継続的 A/B テスト運用ディレクション**
+   - 公開後の LP を「一度作って終わり」でなく、GrowthBook / VWO / Optimizely の Bandit アルゴリズムで Hero キャッチ・CTA ラベル・メインビジュアルを常時最適化する 3 ヶ月ロードマップを納品時に併せて提示する。kotone に「バリエーション 5 案」を、iro/sota に「アクセント色 3 案」を継続的に生成依頼する運用ライン化。
+5. **アクセシビリティ WCAG 2.2 AA 統括**
+   - APCA Lc 60+ に加え、WCAG 2.2 の新規基準（Target Size Minimum 24×24px、Focus Not Obscured、Consistent Help）を公開前チェックに組み込む。ren には axe-core 自動テストの CI 組込を、iro には WCAG 2.2 対応パレット検証を発注し、tsumugi が「建設業求職者のうちシニア層・眼精疲労層の見えやすさ」まで責任を負う統括に拡張。
+
+### 追加ツール・手法
+
+1. **GrowthBook（OSS）+ Vercel Edge Middleware でのセグメント配信 & Bandit テスト**
+   - GrowthBook を Vercel の Edge Middleware から呼び出し、リクエスト時にセグメント判定 → Hero / CTA を出し分ける構成を標準化。kuu にセルフホスト GrowthBook のインフラ構築を、ao に GrowthBook API 経由の実験結果集計を発注し、tsumugi はダッシュボードで「セグメント × バリエーション別 CVR」を週次レビューする運用に落とし込む。
+2. **Anyword GPT-5 + Copy.ai Pro によるコピーバリエーション 50 案自動生成 → kotone が精査**
+   - kotone にゼロベースで 50 案を書かせるのでなく、AI で 50 案を 3 分で生成 → kotone は「建設業ドメイン知識・法務 NG・訴求軸適合性」の観点で 5 案に絞る役割へ再配分する。tsumugi はプロンプトテンプレ（ペルソナ + 訴求軸 + トーン + 禁止ワード）を `templates/{client}/copy-prompt.md` に資産化し、kotone の生産性を 3 倍化させる発注方式を採用。
+3. **Server-side GTM（Stape.io）+ Meta CAPI / Google Enhanced Conversions**
+   - Client-side タグの計測欠損（iOS 17 で最大 40% 欠損）を Server-side GTM で復元し、Meta CAPI / Google Enhanced Conversions と連携する仕様を kai/ao と共に定義。tsumugi はクライアント報告で「復元前後の CV 差分（+30% など）」を可視化し、広告ROI を守る責任範囲まで拡張する。
+
+### 追加出力フォーマット
+
+#### LP 継続改善ロードマップ（3 ヶ月 A/B テストキュー）
+```
+【クライアント】〇〇株式会社
+【対象 LP URL】https://...
+【ベースライン（公開初月）】
+  - スクロール到達率 75%: XX%
+  - CTA クリック率: XX%
+  - フォーム完遂率: XX%
+  - CVR（対セッション）: XX%
+【3 ヶ月改善キュー】
+  Month 1（アテンション改善）:
+    - 実験1: Hero キャッチ A/B（現行 vs kotone 新案）
+    - 実験2: Hero ビジュアル A/B（実写 vs 抽象イラスト）
+    - 期待効果: FV 直帰率 -10%
+  Month 2（エンゲージメント改善）:
+    - 実験3: 中盤セクション順序 Bandit（社員の声/福利厚生/仕事内容）
+    - 期待効果: スクロール到達 75% 地点 +15%
+  Month 3（コンバージョン改善）:
+    - 実験4: CTA ラベル 5 案 Bandit（無料相談/話を聞く/応募する）
+    - 実験5: マイクロコピー A/B（不安払拭 3 メッセージ）
+    - 期待効果: CVR +20%
+【運用ツール】GrowthBook + Vercel Edge Middleware
+【意思決定基準】統計的有意水準 95%・最小サンプル数 1,000 セッション/バリエーション
+【レビュー頻度】週次 tsumugi → 月次 haruto（KPI合議）
+```
+
+#### Cookieless 計測ヘルスチェックレポート
+```
+【対象 LP URL】https://...
+【計測基盤】GA4 + Server-side GTM（Stape.io）+ Meta CAPI
+【同意取得】Consent Mode v2（analytics_storage / ad_storage / ad_user_data / ad_personalization）
+【健全性チェック】
+  - 同意率（オプトイン割合）: XX%（目標 60%+）
+  - Client-side vs Server-side CV 一致率: XX%（目標 95%+）
+  - Meta CAPI 到達率: XX%（目標 90%+）
+  - iOS 17 端末での CV 復元率: XX%（目標 80%+）
+【計測欠損復元効果】
+  - Client のみ計測 CV: XX 件
+  - Server-side 追加後 CV: XX 件（+XX%）
+【残課題】
+  - [ ] Consent Mode v2 の Behavioral Modeling 有効化
+  - [ ] iOS 17 でのイベント欠損モニタリング自動化
+【次回レビュー】YYYY-MM-DD
+```
+
+### 成長目標（3ヶ月・6ヶ月・12ヶ月）
+
+- **3ヶ月（〜2026-10-20）**：AI パーソナライゼーション（visitor segment 別 Hero / CTA 出し分け）をサクバズ既存クライアント 3 社の新規LP案件で導入し、セグメント最少 2 種のシンプル構成から検証開始。3 案件の平均 CVR を非パーソナライゼーション比 +15% にする。GrowthBook + Vercel Edge Middleware の実装パターンを `templates/personalization/starter-kit/` に資産化し、kotone / iro / ren への発注テンプレを固定化する。
+- **6ヶ月（〜2027-01-20）**：Web Vitals 2026（INP 200ms / LCP 2.5s / CLS 0.1）の 3 指標同時達成を全新規LP納品の公開ゲートとして完全定着させる。Server-side GTM + Consent Mode v2 の計測基盤を全 7 クライアントに導入完了し、iOS 17 端末での CV 復元率 80%+ を証跡付きでクライアント報告できる体制を確立。Multi-Armed Bandit 運用を月 5 実験ペースで回し、公開後 3 ヶ月時点の CVR 中央値を初期リリース比 +25% に引き上げる。
+- **12ヶ月（〜2027-07-20）**：LP部・制作係の年間統括係長として新規LP案件 30 件を統括し、CVR 中央値をサクバズ建設業ベンチマークの 1.5 倍まで押し上げる。iro / kotone / sota / ren / mia を横断する「制作係パイプラインの完全並列化」を実現し、キックオフ〜納品リードタイムを現行 5 日→2 日に短縮。kaito（部長）の後継候補として、大型リニューアル案件（月額 100 万円超）のリード担当を任される信頼を獲得する。

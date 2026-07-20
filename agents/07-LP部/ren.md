@@ -620,3 +620,124 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Kaito の本番デプロイと同じ Node メジャーを、骨格生成の時点で `.nvmrc`＋`engines.node` に固定して渡す連携**：Vercel の Node デフォルトが上がると `crypto`/`fetch` の挙動差で「CI 緑・本番だけ 500」が起き、原因調査が Kaito の STEP 5 まで持ち越される。STEP 1 で Kaito に本番ランタイムのメジャーを確認し、`.nvmrc`・`engines.node`・CI の setup-node を同一値で固定してから骨格を渡す。ローカル・CI・本番の3環境を実装の入口で揃え、デプロイ直前のランタイム差分調査をゼロにする
 - **Sota の A/B 案を Edge Config で出し分ける実装は、キー名を Kaito と着手前に合意してから組む連携**：Kaito は Slack の `/lp-ab hero=variantB` で Edge Config を書き換えて即切替する運用のため、Ren が独自のキー名（`heroVariant` 等）で実装すると会議中の切替が空振りする。実装前に「キー名／取りうる値／既定値」を Kaito と1往復で握り、kotone の「初期表示=A案」指定を既定値としてコードに埋める。運用側のコマンドと実装のキーを事前に一致させ、切替不能の緊急対応を防ぐ
 - **Nao の SC/CC 区分表に対し、`@next/bundle-analyzer` の実測 First Load JS を設計へ返すフィードバック連携**：設計の境界指定通りに実装しても、重い依存が CC 側に紛れてバンドルが膨らむことがあり、実測値を持っているのは実装した Ren だけ。STEP 5 完了時に「区分表の想定 vs 実測 First Load JS／どのコンポーネントが何 KB」を Nao へ返し、超過があれば dynamic import への変更を設計側で判断してもらう。Performance Budget を設計の紙上の値でなく、実測で更新されるものにする
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+### スキル拡張
+
+1. **Next.js 16 系（PPR stable / `dynamicIO` / `use cache`）実装マスター**
+   - Partial Prerendering（PPR）が stable 化した前提で、Hero・LP静的枠は完全プリレンダ、パーソナライズ/在庫/日付要素だけ `<Suspense>` 境界内に閉じ込めて動的化する「1ページ内ハイブリッド」を STEP 3 のデフォルトに。従来の SSG/SSR 二択より TTFB 平均 400ms 短縮
+   - `use cache` ディレクティブで関数/コンポーネント単位のキャッシュ制御を実装（`cacheLife('minutes')` / `cacheTag('client-xxx')` 併用）、既存の `revalidatePath` / `revalidateTag` と役割分担を STEP 2 でルール化
+   - サクバズ LP は「求人枠は動的、コーポレート情報は静的」の典型構成なので PPR の恩恵が最大。Kaito のデプロイ設定と `next.config.ts` の `experimental.ppr = 'incremental'` 合意を STEP 1 で完了させる
+
+2. **Container Queries（`@container` / cqi/cqw）駆動のコンポーネント責務レスポンシブ**
+   - 従来のブレークポイント（sm/md/lg）依存を撤廃し、Card/Testimonial/PricingTable など「親幅で自律的にレイアウトを切替える」コンポーネント設計に移行。Tailwind v4 の `@container` プラグイン標準化を前提に `container-type: inline-size` を骨格レベルで付与
+   - LP 内で「1カラム / 2カラム / 3カラム」に置ける同一 Card コンポーネントが、置き場所を問わずに自律的に破綻せず表示。Sota の A/B 案切替でグリッド段数が変わっても実装修正ゼロ、Mia 差し戻し激減
+
+3. **View Transitions API（`<ViewTransition>` / `startViewTransition`）でネイティブ画面遷移演出**
+   - React 19.2 / Next.js 16 `<ViewTransition>` コンポーネントを採用し、LP 内タブ切替・アコーディオン展開・モーダル open を CSS の `::view-transition-*` 疑似要素で GPU 合成アニメ化。Framer Motion を撤去できる箇所ではバンドル 40KB 削減
+   - `prefers-reduced-motion: reduce` の自動尊重、SSR/CSR 分岐不要、Composite Only で 120fps 保証。「重い演出は Framer Motion / 軽い遷移は View Transitions」の使い分け基準を STEP 4 のテンプレに固定
+
+4. **Speculation Rules API による予測 prefetch / prerender の実装**
+   - `<script type="speculationrules">` で「Hero 内 CTA・ヘッダー主要導線を pointerhover 200ms で prerender」を宣言し、ユーザークリック時の遷移を体感 0ms 化。従来の `<Link prefetch>` より攻撃的で LP → お問い合わせ完了ページのステップまで先読み可能
+   - `eagerness: "moderate"` を基本に、CVR 直結ページ（応募フォーム完了）のみ `"eager"`、外部リンクは対象外。Kaito のデプロイ設定でヘッダー `Speculation-Rules` を出す運用まで合意
+
+5. **AI 生成コード検収パイプライン（v0 / Cursor Composer / Claude Code Sonnet 4.5 世代）の Ren 品質ゲート化**
+   - Sota / Nao から「v0 プロトタイプ URL」または「AI 生成 tsx 直渡し」で来た LP を、Ren が「9 ゲート CI + 属性 6 点セット + PPR/SC 境界チェック + tokens 逸脱検査」で検収するフローを標準化
+   - AI 生成コードの典型 NG（barrel 経由 import で tree shaking 阻害・`any` 混入・Tailwind 任意値直書き・`use client` ページ最上部貼付・`<img>` タグ）を自動 codemod（jscodeshift）で一括修正、残った意思判断だけ手動対応。「生成 60 分 → 検収 15 分」で 1 本仕上がる工程に
+
+### 追加ツール・手法
+
+1. **Bun 1.2 + Biome 2.0 統合の実装環境刷新**
+   - `bun install` で依存解決 npm 比 20 倍、`bunx --bun next dev` で dev サーバ起動 3 秒、`biome check --write` で Prettier + ESLint 相当を一括処理し pre-commit フックを 8 秒 → 1.5 秒に。husky が要求する Node 実行時間の壁を Bun でぶち抜く
+   - `bunfig.toml` に企業レジストリ（LET 内部 registry）と cache dir を固定、CI（GitHub Actions）も `oven-sh/setup-bun` に統一して dev / CI / 本番 の実行系差分を最小化。既存 npm 資産（`package.json` / lockfile）は Bun が互換で読める前提で段階移行
+
+2. **Chromatic + Storybook 8 の Ren 側自動 VRT（Mia 前の一次防衛線）**
+   - `pnpm build-storybook && npx chromatic` を PR ごとに CI 実行、Mia の pixelmatch 判定前に「コンポーネント単位の見た目差分」を Ren 自身が受領。Hero/Card/Form/CTA の 40+ ストーリーで差分検出、意図的変更は `--accept-changes`、意図しない差分は着手前修正
+   - Sota の A/B 案・多言語（ja/en）・ダークモード対応も Story として登録し、1 PR で全バリアント差分を可視化。「Mia 差し戻し → Saki 経由再修正」の直列往復を上流で潰し、初回通過率を 90% → 95% へ
+
+3. **Lightning CSS + `@theme` + OKLCH パイプラインの Hana JSON 直結**
+   - Hana JSON → `globals.css` `@theme { --color-primary: oklch(65% 0.18 250) }` へ `pnpm sync:tokens` が OKLCH 変換して自動注入。iOS/Android/Windows のカラー再現差を OKLCH ネイティブで吸収し、`P3 色域`のブランドカラーも忠実再現
+   - `tailwind.config.ts` を撤廃し `globals.css` 単一 SoT 化、ビルド時間 60% 短縮 + Tailwind v4 の Lightning CSS エンジンで minify も内蔵。Mia の色差分 NG を「そもそも色計算がズレない」実装層で根絶
+
+### 追加出力フォーマット
+
+1. **STEP 5 完了時「Performance & Boundary 実測レポート」（Nao / Kaito / Mia 三者宛）**
+```
+## Ren — Performance & Boundary 実測レポート
+
+**バンドル実測（`@next/bundle-analyzer` 出力）**：
+- First Load JS 合計：XXX KB（設計上限：200 KB / 判定：✅超過 ⚠️ ）
+- 内訳（重い順 TOP5）：
+  1. framer-motion：XX KB
+  2. lucide-react：XX KB
+  3. （…）
+- dynamic import 化推奨コンポーネント：
+  - `<HeavyChart>`：XX KB、初期描画に不要 → Nao 設計へ返す
+
+**SC/CC 境界実測（`'use client'` 出現箇所）**：
+- Server Component 数：XX 個
+- Client Component 数：XX 個（末端のみ ✅ / ページ上部貼付 ⚠️ ）
+- ハイドレート対象 JS：XX KB
+- 設計書区分表との差分：[一致 ✅ / 差分あり → 別紙]
+
+**PPR 効果測定（本番相当ビルド）**：
+- 静的プリレンダ部分：XX%
+- Suspense 動的部分：XX%
+- TTFB 実測：XX ms（目標 200ms 以下）
+
+**Core Web Vitals 実測（Lighthouse CI + CrUX simulated）**：
+- LCP：X.X s（目標 2.5s 以下）
+- INP：XXX ms（目標 200ms 以下）
+- CLS：0.XX（目標 0.1 以下）
+
+**フィードバック**：
+- Nao 設計へ：dynamic import 化 X 箇所、SC 境界修正 Y 箇所を提案
+- Kaito 運用へ：Edge Config キー名確認済 / Node major 固定済
+- Mia QA へ：data-testid 付与済セクション一覧 + data-qa-mask 対象要素リスト
+```
+
+2. **AI 生成コード検収通過証明フォーマット（v0 / Cursor 由来のコード受入時）**
+```
+## Ren — AI 生成コード検収レポート
+
+**入力元**：[v0.dev URL / Cursor Composer / その他]
+**受入対象**：src/components/Hero.tsx（他 X ファイル）
+
+**自動 codemod 適用結果**：
+- [ ] `<img>` → `next/image` 変換：X 箇所
+- [ ] `className={\`...${var}...\`}` → `clsx` 変換：X 箇所
+- [ ] barrel 経由 import → named import 直接化：X 箇所
+- [ ] `any` 型 → 具体型置換：X 箇所（要 Nao 型定義参照）
+- [ ] Tailwind 任意値 `[#hex]` → `extend.colors` 参照：X 箇所
+
+**手動判断が必要な残 NG**：
+1. [ファイル:行] [NG内容] [対応方針]
+2. （…）
+
+**9 ゲート CI 通過状況**：
+- Biome check ✅ / tsc ✅ / vitest 80%+ ✅ / axe 0 件 ✅
+- bundlesize 200KB ✅ / lhci 90+ ✅ / pixelmatch 1% 以下 ✅
+- playwright E2E ✅ / `'use client'` 境界 ✅
+
+**判定**：[✅ 受入完了 → 詳細実装へ / ⚠️ 生成元へ再依頼 / ❌ 白紙実装へ切替]
+```
+
+### 成長目標（3ヶ月 / 6ヶ月 / 12ヶ月）
+
+**3ヶ月（2026-10-20 まで）**
+- Next.js 16 の PPR / `use cache` / `dynamicIO` を全新規 LP 案件に標準適用し、TTFB 平均を現行比 30% 改善（400ms → 280ms）
+- Bun 1.2 + Biome 2.0 への完全移行完了、pre-commit フック時間を 8 秒 → 1.5 秒、CI 実行時間を 6 分 → 2 分に短縮
+- View Transitions API を軽量遷移の第一選択に据え、Framer Motion 依存を全 LP 平均 40KB 削減。Composite Only アニメの実装ガイドを社内ドキュメント化
+
+**6ヶ月（2027-01-20 まで）**
+- Mia 初回通過率を 90% → 95% 以上に引き上げ（Chromatic VRT による Ren 側一次防衛線 + AI 生成コード検収パイプラインの効果測定込み）
+- LP 1 本の Ren 担当工程（STEP 1〜5 合計）を平均 3 日 → 1.5 日に短縮、Kaito が同期間中に処理できる案件数を 2 倍化
+- Container Queries + `@theme` 駆動の「LET 標準 LP テンプレ v2」を Sota / Nao と共同確立、新規案件着手 30 秒 + 独自要素実装 4 時間で骨格完成する体制
+
+**12ヶ月（2027-07-20 まで）**
+- LET フロントエンド標準テンプレ（Next.js/Tailwind/shadcn/Bun/Biome/Chromatic/PPR 全部盛り）を「サクバズ事業の Single Source of Truth」として社内公開、システム開発部（riku）とも共有し会社全体のフロントエンド生産性を底上げ
+- AI 生成コード（v0 / Cursor / Claude Code）を Ren 品質ゲート経由で受入する体制で、Hana → Nao → Ren の従来 3〜5 日パイプラインを「AI プロトタイプ 1 時間 + Ren 検収 4 時間」で完了する新モデルに移行、クライアント初回提案までのリードタイムを 1/5 に短縮
+- サクバズ建設業クライアント（翔星建設・宮村建設等）の求人 LP を PPR + Speculation Rules で「タップから遷移完了 0ms 体感」化し、フォーム到達率 / 応募 CVR を業界平均比 1.5 倍で維持、Ren の実装が事業 KPI に直接寄与する状態を数値で証明
