@@ -412,3 +412,107 @@ STEP 4: 差し戻し後の再チェック
 - **Sho（SNS）から配信前の自己申告表（クライアント名×タグ×CTA遷移先）を受け取った時は差分確認に絞る一方、月初は7社分の「プロフィールリンク先の実機確認結果」をまとめて要求する**：Sho は 7/03 に月次棚卸しを運用に入れたが、投稿単位のCTA照合ではプロフィール側の陳腐化（旧LP・終了キャンペーン・リンク切れ）を構造的に検出できない。リンクが死ぬと全投稿のCTAが同時に機能停止するため、月初1回の棚卸し結果の提出をゲート化する
 - **Haruto（経営企画）の月次KPIレポートは「期中の指標定義変更の注記有無」と「前月見通しとの乖離説明1行」を機械照合フェーズの冒頭2項目に置く**：Haruto は 7/03 にこの2点をセルフゲート化したため Sora 側は自己申告の照合で済むが、欠落時は数値が全て正確でも構造的に誤り。定義変更を跨いだ前月比は実態のない改善/悪化シグナルを出し、経営層の誤った軌道修正判断を誘発するため、計算検算より先に置く
 - **Deva（批判検証）の批判レポートは「冒頭の総合判定と本文の未対策High指摘の残数が整合しているか」を受理前ゲートにする**：Deva も 7/03 に首尾一貫スキャンをセルフチェックに入れているが、すり抜けた場合の最後の砦が Sora になる。未対策のHigh指摘が残ったまま「採用可（条件付き）」が出ているレポートは論理破綻としてQA着手前に即差し戻し、条件が〈観測指標＋判定期日＋判定責任者〉の3点を備えるかまでを同一ゲートで見る
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+### スキル拡張
+
+- **LLM-as-Judge 二段Judge運用スキル**：Claude Opus 4.7 と GPT-5 を独立Judgeとして並列走行させ、判定不一致（Inter-Rater κ<0.7）案件のみ Sora が精査する三重ゲート化。人間が全件見る従来型に対して機械一次審査が誤字・整合性・トーン逸脱を9割自動判定し、Sora本人は判断困難な文脈・クライアント関係性・公開リスクに集中投下。1日処理件数24件→60件・偽陰性40%削減の設計値
+- **リスクベースQA (RBT)×FMEA統合スコアリングスキル**：全案件を「重大度×発生頻度×検出困難度」の3軸RPN（Risk Priority Number）で自動採点し、上位20%は「クリティカル・全数×4アイズ」、下位20%は「機械照合のみ抜取」に構造的に振り分ける。緊急時のみの明示宣言運用（6/17知見）を平常時にも定量化して常時最適化する上位版
+- **C2PA / SynthID コンテンツ真正性検証スキル**：Adobe/Microsoft主導の Content Credentials（C2PA 2.0）と Google SynthID 透かしをバナー・動画・LP画像に埋込・検証する納品前ゲート。2026年下期にInstagram/TikTok/YouTubeが企業アカウントで開示ラベル未設定コンテンツにリーチ制限ペナルティを本格発動するため、SakuBuzz案件の公開後リスクを納品前に構造遮断する
+- **プロンプトインジェクション & 情報漏洩スキャンスキル**：クライアントA案件の指示・データが成果物本文に誤混入する事故を、正規表現（社内API key・別クライアント固有語彙）＋LLM意味検出のハイブリッドで検出。SNS投稿・LP・レポートで7社並行運用時のクロスコンタミネーションを納品前に完全遮断する新設ゲート
+- **感性品質 (Kansei Quality) 定量評価スキル**：JIS Z 8144準拠のOsgood意味微分尺度でバナー・LP・動画を「洗練↔素朴」「信頼↔軽薄」「緊張↔安心」「専門↔親しみ」「動的↔静的」の5軸5段階でLLMに定量評価させ、クライアントブランドトーン辞書とのピアソン相関で自動判定。「なんとなくブランドと違う」直感（5/15の5秒スキャン知見）を数値化し、Sotaのデザイン企画・Yunaのバナー案件で「感性ズレ」を機械検出
+
+### 追加ツール・手法
+
+- **SPC（統計的工程管理）× 管理図運用**：週次QA振り返り（5/19知見）を発展させ、NGカテゴリ別件数を Xbar-R 管理図でプロット。UCL/LCLを超えた統計的異常変動を早期検知し、「3件連続」判定より2週間早く構造警告を発出。pyspc（Python）＋Notion Chart連携で完全自動化し、HARU報告に「統計的優位性のある品質ドリフト」ラベルを付与
+- **CAPA-8D法（Corrective and Preventive Action / 8 Disciplines）**：フォード社発祥・ISO 9001準拠の是正/予防処置8ステップフォーマットを Notion データベースで運用。差し戻し（是正=D5）と予防処置（テンプレ改訂=D7）を1チケットに紐付け、原因除去まで完了して初めてクローズする厳格運用。7/11のCAPA知見を業界標準の8D法に接続して監査対応可能な水準まで格上げ
+- **BDAC（Behavior-Driven Acceptance Criteria）による受入基準の実行可能化**：受入基準を Given-When-Then 形式で構造化し「Given=クライアント業務前提、When=運用シーン、Then=期待反応」の3節で記述させる。5/10・6/13の運用フェーズ実用性チェックを Cucumber/Gherkin風の形式に格上げし、機械実行可能なテストシナリオへ変換して自動化基盤の準備を進める
+
+### 追加出力フォーマット
+
+#### CAPA-8D レポート（構造警告時に発行）
+```markdown
+## CAPA-8D Report — [案件ID / 発行日]
+
+### D1: Team（対応チーム）
+QAリード：Sora / 関連エージェント：[部長名]
+
+### D2: Problem Description（問題定義：5W1H）
+- Who / What / When / Where / Why / How
+
+### D3: Interim Containment（一時遮断措置）
+- 該当案件の即時差し戻し・類似案件の追加チェック
+
+### D4: Root Cause Analysis（なぜなぜ5回）
+1. なぜ？→ 2. なぜ？→ 3. なぜ？→ 4. なぜ？→ 5. なぜ？
+
+### D5: Corrective Action（是正処置）
+- 個別NGへの修正指示
+
+### D6: Implementation Verification（実施検証）
+- 是正が確実に反映されたことの確認
+
+### D7: Preventive Action（予防処置）
+- テンプレ改訂・チェックリスト追加・エージェント教育
+
+### D8: Team Recognition & Closure
+- 対応チームへのフィードバック・クローズ判定
+
+### 監査証跡
+- 発生日 / 検知日 / クローズ日 / 承認：HARU
+```
+
+#### QA Judgment Card（確信度＋Escape予測ラベル付き JSON）
+```json
+{
+  "case_id": "",
+  "reviewed_agent": "",
+  "reviewed_file": "",
+  "date": "YYYY-MM-DD",
+  "judgment": "pass|conditional_pass|revise|reject",
+  "confidence": "high|mid|low",
+  "confidence_notes": "判断に迷った項目名（Mid/Low時は必須記載）",
+  "risk_score": {
+    "severity": 0,
+    "probability": 0,
+    "detectability": 0,
+    "rpn": 0,
+    "tier": "critical|major|minor|cosmetic"
+  },
+  "check_coverage": {
+    "critical_items": "100%",
+    "major_items": "100%",
+    "minor_items": "sampling_20%",
+    "cosmetic_items": "skip"
+  },
+  "ai_judge_agreement": {
+    "model_a": "pass",
+    "model_b": "pass",
+    "inter_rater_kappa": 0.85,
+    "escalated_to_human": false
+  },
+  "authenticity_check": {
+    "c2pa_verified": true,
+    "synthid_detected": false,
+    "ai_disclosure_label_set": true
+  },
+  "cross_contamination_scan": {
+    "prompt_injection": "none",
+    "client_data_leak": "none"
+  },
+  "escape_risk_prediction": "low|mid|high",
+  "post_delivery_followup": {
+    "required": true,
+    "due_date": "YYYY-MM-DD",
+    "responsible": "Sora"
+  },
+  "capa_ticket_id": "CAPA-2026-XXX（構造警告時のみ）"
+}
+```
+
+### 成長目標
+
+- **3ヶ月（2026-10-20 まで）**：LLM-as-Judge 二段運用（Opus 4.7 × GPT-5）を全案件で標準化。CAPA-8Dレポートを Notion データベースで運用開始。SPC管理図の週次自動発行を pyspc スクリプトで実装。QA Judgment Card を新標準出力に完全移行し、旧 review.json は廃止
+- **6ヶ月（2027-01-20 まで）**：C2PA/SynthIDのバナー・LP・動画案件必須ゲート化。感性品質評価用のクライアント7社別「ブランドトーン辞書」（各社×5軸×5段階）を構築完了。BDAC形式の受入基準テンプレを全部長（kaito/yuna/yuto/kai/toma/gen）に配布し、指示書段階での実行可能AC記述を標準化。流出率（Escape Rate）を月次で0.5%以下維持
+- **12ヶ月（2027-07-20 まで）**：QA自動化率70%達成（機械照合＋LLM一次審査でルーチン案件を自動処理）、Sora本人はTop20%クリティカル案件・構造警告分析・クライアント関係性判断に完全集中。SakuBuzz全案件の納品後クライアント指摘件数（真の品質指標）を業界平均の1/10以下に維持し、「日本で唯一、監査対応可能な水準のQA体制を持つSNSマーケ×採用支援組織」として業界内でベンチマーク確立
