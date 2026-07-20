@@ -737,3 +737,125 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **Renへは「書き換え禁止フラグ」を1リストにまとめて先出しし、善意のリファクタで元設計が壊れるのを防ぐ**：`:where()`の詳細度0（2026-06-13参照）・`@layer`の宣言順（2026-07-11参照）・論理プロパティ宣言（2026-07-11参照）・Flex/Gridの`gap`（2026-07-01参照）は、Renから見ると「通常セレクタに直せる」「margin で書ける」ように見えるが、書き換えた瞬間に上書き逆転や動的増減時の余白破綻が起きる。STEP 8納品時にこれらを `do_not_rewrite: [...]` の1配列にまとめ、各項目に「書き換えると何が壊れるか」を1行添える。仕様書の本文に散らすとRenが実装中に見落とすため、禁止事項だけを1箇所に集約するのが要点。
 - **Iroへは `prefers-color-scheme: dark` の検出をSTEP 1時点で即共有し、STEP 2着手前の5分会の議題に足す**：元サイトがダーク実装を持つ案件（2026-07-03参照）で、Iroが並行してOKLCH L値反転のダーク版を設計すると、納品時に2系統のダークパレットが競合してRenがどちらを実装するか判断できなくなる。ライト側の役割分担（ブランド色＝Iro正／装飾色＝Hana正、2026-07-02参照）を決める同じ5分会で「ダークは元サイト実装を正とするか、Iro設計版を正とするか」も決め切る。検出はSTEP 1で出るので、STEP 2着手前の会に間に合う。
 - **Kotone/Sotaへ `above_fold_risk` を渡す時は「FV高さは `svh` 基準のワーストケース値」と1行添える**：FV内にキャッチとCTAが収まるかの計測（2026-06-07参照）を`svh`基準（URLバー表示時の最小高、2026-06-13参照）で出していることを書かずに渡すと、Kotone/Sotaは自分のPC実測やデザインカンプの見え方と照合して「余裕がある」と誤読し、コピー量を増やしてしまう。「SP実機のURLバー表示時＝最も狭い状態で判定・この高さを超える分は初見で見えない」と条件を明示すれば、コピー丈やCTA位置の判断がワーストケース基準で揃う。
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+サクバズ事業（SNSマーケ×採用支援）のLP複製案件は 2026 年下半期にかけて、SPA遷移風の View Transitions を使う採用サイト、ダークモード＋動的テーマ（`color-mix()` / relative color syntax）を持つブランドLP、Popover API + Anchor Positioning でメニュー/ツールチップを構築するモダンLPが急増している。既存の抽出フロー（Computed Styles API 一括取得＋pre-handoff 10点検証＋stacking_map）は非常に堅牢だが、下記は現状の Daily Knowledge Log では未カバーの領域として一段上に拡張する。
+
+### スキル拡張
+
+#### 1. View Transitions API 抽出（`::view-transition-*` 疑似要素・`view-transition-name` の全走査）
+2026 年に Chrome/Edge/Safari で正式サポートされた View Transitions API を使うLPを検出したら、通常の疑似要素抽出（`::before/::after`）とは別系統で扱う。生CSSで `::view-transition-group(*)` / `::view-transition-image-pair(*)` / `::view-transition-old(*)` / `::view-transition-new(*)` を正規表現走査し、各要素に付与された `view-transition-name` を DOM 走査で `getComputedStyle().viewTransitionName` から抽出。SPA 内のセクション遷移で「同一要素が形状補間されるか」「クロスフェードか」を判別し、納品 JSON に `view_transitions: [{name, elements, animation-type, duration}]` を追加。Ren が Next.js App Router で `document.startViewTransition()` を実装する際の遷移仕様をそのまま渡す。
+
+#### 2. `@starting-style` / `interpolate-size` / `display:none↔flex` transition の抽出
+2026 年に Baseline 入りした `@starting-style`（要素マウント直後の初期スタイル指定）と `interpolate-size: allow-keywords`（`height:auto` への transition を可能化）は、従来の「スクロールアニメの初期/完了状態」（2026-06-17参照）とは別軸で「マウント/アンマウント時のアニメ」を実現する。生CSSで `@starting-style { ... }` ブロックと `interpolate-size` プロパティを走査し、対象セレクタと開始CSS・終端CSS・`transition-behavior: allow-discrete` の有無をセット記録。ハンバーガーメニュー展開・モーダル出現・アコーディオン開閉が旧JS実装かCSSネイティブ実装かを判別し、Ren への納品書に「CSSネイティブ実装可・JS 不要」フラグを明記。
+
+#### 3. `@scope` / スコープ隔離 CSS の抽出
+2026 年に Chrome 118+ / Safari で使える `@scope (.card) to (.card-body) { ... }` は、詳細度を上げずに BEM 的な命名分離を実現する。カスケードレイヤー（2026-06-13/2026-07-11参照）と併用され、`@layer components { @scope (.card) { ... } }` のような二重スコープが増えている。生CSSで `@scope (` を走査し、上位ルート要素・下端要素・スコープ内ルールセットを記録して納品 JSON の `cascade_layers` を `scope_and_layer_map` に拡張。Ren が Tailwind v4 の `@scope` サポート下で実装する際、外側の詳細度戦争なく再現できる。
+
+#### 4. `color-mix()` / relative color syntax / P3 wide gamut の 3 系統色抽出
+2026 年のブランドLPは色を「HEX 直値」ではなく `color-mix(in oklch, var(--brand-primary) 80%, white)` や `rgb(from var(--brand-primary) r g b / .5)` で動的計算する設計が主流。従来の HEX+OKLCH 併記（2026-05-26参照）に加え、生CSSで `color-mix(` / `rgb(from` / `hsl(from` / `oklch(from` を走査し、参照元変数と混合率・チャネル操作を「色式」として記録。さらに P3 ガマット指定（`color(display-p3 1 0 0)` / `oklch(70% 0.4 30)` で sRGB 域外）を検出したら、sRGB フォールバックの `@supports (color: color(display-p3 1 0 0))` の有無も併記。iPhone Pro / M-series Mac の P3 ディスプレイで元LP の鮮やかさを忠実再現しつつ、非対応環境の劣化パターンも仕様書に含める。
+
+#### 5. Baseline (web-features) 準拠性の自動判定と INP を意識したイベント抽出
+`web-features` npm パッケージが提供する Baseline データセット（Widely Available / Newly Available / Limited）を STEP 7 の外部ライブラリ判定と並列実行し、抽出した全 CSS プロパティ・API の Baseline ステータスを自動判定。`Limited` の機能を検出したら「非対応ブラウザ割合＋`@supports` フォールバックの要否」を納品 JSON に明記。加えて 2024 年に Core Web Vitals 入りした INP (Interaction to Next Paint) を意識し、STEP 5 で `:hover` / `:active` transition の `will-change` 有無・重い `backdrop-filter` の使用箇所を「INP リスク要素」として `inp_risk_elements` フラグ付きで記録。Ren の実装後に Lighthouse INP 200ms 超過で差し戻される事故を抽出段階で予防。
+
+### 追加ツール・手法
+
+#### 1. `web-features` + `browserslist` + Lightning CSS 統合パイプライン
+`npm install web-features browserslist lightningcss` を STEP 7 標準ツールに追加し、`node scripts/baseline-check.js < extract.json` で全プロパティを Baseline 判定＋Lightning CSS で `browserslist` に基づく自動フォールバック CSS を生成。Ren は「そのまま貼れる互換 CSS」を受け取れる。GSAP/AOS 等の重量級ライブラリ判定（2026-05-19参照）と並列実行することで、外部ライブラリ削減＋Baseline 準拠を1パスで完結。
+
+#### 2. PageSpeed Insights API + CrUX (Chrome UX Report) 実ユーザーデータ照合
+`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={URL}&category=performance` で Lighthouse ラボデータ、`https://chromeuxreport.googleapis.com/v1/records:queryRecord` で実ユーザーの LCP/INP/CLS フィールドデータを STEP 0 プリフライトに追加。「元LPが実ユーザーで LCP 2.1s / INP 180ms なら、複製版はそれを超えない」を抽出段階の目標値として `performance_baseline` フィールドに固定。Mia QA の Performance NG を「元LPとの相対比較」で判定可能化。
+
+#### 3. `web-vitals` ライブラリ組込プレビュー + Puppeteer ラボ測定の 2 系統検証
+STEP 6 の CLS 計測（2026-05-17参照）を発展させ、`web-vitals` ライブラリを対象 LP に注入し LCP/INP/CLS/TTFB/FCP を 3 回連続測定＋Puppeteer の `page.metrics()` でメインスレッド占有時間・DOMContentLoaded を測定。ラボ（Puppeteer）とフィールド（CrUX）の乖離が 30% 超えていたら「JS 実行環境依存の変動大」フラグを付け、Ren に「実装時に JS バンドル分割の余地あり」と提言。
+
+### 追加出力フォーマット
+
+#### 1. `stacking-and-scope-map.json`（重なり順＋スコープ地図の統合）
+既存 `stacking_map`（2026-06-16参照）を拡張し、stacking context（`transform`/`opacity`/`filter`/`will-change`/`isolation` 由来）＋`@layer` 宣言順＋`@scope` スコープ境界＋`@container` コンテキストを1本のツリー JSON に統合。Ren は「どのコンテキスト・どのレイヤー・どのスコープ・どのコンテナ内の値か」を1枚で把握でき、詳細度・カスケード・スコープの3軸を横断診断可能に。
+
+```json
+{
+  "root": {
+    "layer": "base",
+    "scope": null,
+    "container": null,
+    "stacking_context": false,
+    "children": [
+      {
+        "selector": ".hero",
+        "layer": "components",
+        "scope": null,
+        "container": {"name": "hero-container", "type": "inline-size"},
+        "stacking_context": true,
+        "stacking_reason": "transform: translateZ(0)",
+        "z_index": null,
+        "children": [
+          {
+            "selector": ".cta-button",
+            "layer": "components",
+            "scope": ".hero",
+            "z_index": 10,
+            "view_transition_name": "cta-primary",
+            "inp_risk": false
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+#### 2. `compat-baseline-report.md`（Baseline 準拠性レポート）
+STEP 7 で抽出した全 CSS プロパティ・JS API の Baseline ステータス表を Markdown で自動生成し、Ren と nori（法務・IE11 未対応クライアント要件確認）へ同時投函。
+
+```markdown
+# Compat Baseline Report
+**対象URL**: https://example.com
+**抽出日時**: 2026-07-20 14:32 JST
+**Browserslist**: > 0.5%, last 2 versions, not dead, iOS 16+
+
+## Widely Available (安心して使用可)
+| Property/API | Baseline since | 使用箇所 |
+|---|---|---|
+| `container-type: inline-size` | 2023-02 | .card, .sidebar |
+| `oklch()` | 2023-05 | --brand-primary 他 12 変数 |
+| `:has()` | 2023-12 | .form:has(:invalid) |
+
+## Newly Available (Baseline 入り 30 ヶ月未満・要確認)
+| Property/API | Baseline since | 使用箇所 | 非対応環境 |
+|---|---|---|---|
+| `@starting-style` | 2024-07 | .modal, .dropdown | ~1.2% |
+| `interpolate-size: allow-keywords` | 2024-09 | .accordion | ~1.5% |
+| `field-sizing: content` | 2024-10 | .contact-textarea | ~2.1% |
+
+## Limited Availability (要フォールバック)
+| Property/API | 対応状況 | 使用箇所 | 必須フォールバック |
+|---|---|---|---|
+| `anchor-name` / `position-anchor` | Chrome 125+ のみ | .tooltip | JS ポジショニング |
+| `color(display-p3 ...)` | Safari/Chrome 対応・Firefox 部分 | .hero-accent | sRGB `@supports` 分岐 |
+
+## 推奨アクション
+- Newly Available 群は `@supports` 併記で全環境安全化
+- Limited 群は Ren に代替実装（JS/sRGB 版）を仕様書で明示済み
+```
+
+### 成長目標
+
+#### 3ヶ月（〜2026-10-20）
+- View Transitions API / `@starting-style` / `interpolate-size` / `@scope` / `color-mix()` / relative color syntax / P3 の 7 機能を STEP 1〜STEP 5 の標準抽出項目に組込
+- `web-features` Baseline 自動判定を STEP 7 パイプラインに統合し、抽出完了と同時に `compat-baseline-report.md` を自動生成
+- サクバズ採用支援クライアント LP（翔星建設・宮村建設等）で View Transitions を使った SPA 風採用ページ複製を 3 件納品し、離脱率▲20% を実測
+
+#### 6ヶ月（〜2027-01-20）
+- INP リスク検出＋PageSpeed Insights API＋CrUX フィールドデータ照合を pre-handoff スクリプトに統合し、「元LP の実ユーザー体感を超える」抽出品質を数値保証
+- `stacking-and-scope-map.json` を Ren・Sota（システム開発部）・Mia の三者標準フォーマットとして社内浸透。詳細度＋レイヤー＋スコープ＋コンテナの4軸診断で Mia 差し戻しの重なり系NGをゼロ化
+- Lightning CSS + `browserslist` 統合パイプラインで、Ren が「Baseline 判定済み・互換フォールバック済み」の CSS をワンショットで受け取れる状態を実現し、実装工数を 30% 削減
+
+#### 12ヶ月（〜2027-07-20）
+- 抽出JSON→Tailwind v4 `@theme` / W3C Design Tokens / Lightning CSS 互換版の 3 系統を同時納品可能化し、社内 LP 部・システム開発部・バナー生成部・Iro（ブランドカラー）の 4 部門でデザイントークンを完全一元化
+- CrUX 連動で「元LP より実ユーザー体感が速い」ことを抽出段階で保証する新プロトコル `perf-supremacy-check` を確立。サクバズ「LP を複製するだけでなく性能で超える」を営業訴求ポイント化
+- Hana の 8 ステップ全工程を単一 CLI コマンド（2026-07-07参照）に完全統合し、URL 受領〜納品 JSON〜Baseline レポート〜banner-handoff.json 同時投函までを 15 分以内で完結。複製単価あたりの工数を現在比で 60% 削減し、月間案件処理数を 3 倍化
