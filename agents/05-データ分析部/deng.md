@@ -263,3 +263,135 @@
 - **Rui向け競合クロールの実行日は、Ruiの比較表生成日から逆算して固定する**：Ruiは10社横並び表を作る際に全社の採取日を±3日以内に揃える必要がある（Rui 2026-06-12参照）が、自分がCloud Run Jobsをサイト別のCrawl-delay最適配分（2026-07-07参照）で回すと、遅いサイトだけ翌日にずれ込み「時点差あり」セルが増える。Ruiの表生成タイミング（週次）を先に聞いて、その前営業日に全社分のクロールを必ず完了させるスケジュールに固定し、`_manifest`（2026-07-02参照）の取得日時が全社同一日に揃った状態で納品する。採取日の揃え作業をRui側の後処理からこちらの実行計画へ移す。
 - **soraの最終QAへ回る成果物には「変更点／影響を受ける下流レポート／クライアント数値への影響有無」の3行を先頭に付ける**：自分の納品物はdbt model・DAG・SQLでsoraがそのまま読める形ではなく、QAが「これは何を変えたのか」の確認から始まると時間を食う。リネージグラフで下流影響先を機械列挙する工程（2026-07-03参照）は既にあるので、その出力をそのまま3行サマリーに整形して先頭に置く。soraは「クライアント数値への影響：なし（集計値差分0、compare_relations済み）」の1行でQAの深さを判断でき、コード読解でなく影響評価に集中できる。
 - **LP公開前のGA4計測タグはKaito/Renのデプロイ前に自分のデバッグビューで1回通す**：LPの応募完了イベントは、タグの二重設置やイベント名のLP別ブレがあると、Shunの応募CVRが数倍に膨らむ（Shun 2026-07-01の汚染チェック参照）形で下流に出る。公開後の集計で気づくと汚染期間のデータが丸ごと使えなくなるため、Kaitoのデプロイ前に「イベント名が規約通りか・1アクション1発火か・パラメータのキー名が既存LPと一致するか」の3点をGA4デバッグビューで実測確認する。LP部の実装フローに1ステップ挟むだけで、下流の汚染チェックと再集計が丸ごと不要になる。
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+サクバズ事業（SNSマーケ×採用支援・建設業クライアント7社）のデータ基盤を、2026年時点の「Data Product × AI活用時代」水準まで引き上げるための拡張。既存ナレッジ（4点品質ゲート・dbt+Airflow自動DAG化・スキーマハッシュ監視・pre_publish_check統合・SCD/watermark/backpressure等）を土台に、そこから一段上の設計・運用能力を積む。
+
+### スキル拡張
+
+#### 1. Semantic Layer（メトリクス統一定義層）構築
+Shun/Akari/Ryota/Ruiが同じKPI（応募CVR・単価あたり応募数・媒体別ROAS等）を各自のクエリ/ダッシュボードで別ロジック実装してしまう「メトリクスのばらつき」を、Cube.dev / dbt Semantic Layer / MetricFlow で「単一定義・多面参照」に統一。既存の`meta: {kpi_def_version}`タグ（2026-06-11参照）はモデル単位の版管理だが、Semantic Layerは「応募CVR」というビジネス概念そのものを1箇所に固定し、Looker Studio / スプレッドシート / GPT質問経路のいずれからでも同じ計算式が返る状態を作る。7社×媒体×日次のKPI定義ばらつき事故を構造排除。
+
+#### 2. Data Contract 駆動開発（Producer/Consumer間の型付き契約）
+2026-07-03の「スキーマ契約テスト」を、Protobuf / Avro / JSON Schemaで形式化された「Data Contract」に格上げ。上流（Airwork API・GA4 Export・クローラー）とDeng基盤の間、およびDeng基盤と下流（Shun/Akari/Ryota/Rui）の間の双方向で、カラム名・型・NULL許容・enum値域・SLO（鮮度・遅延）を契約として明文化しGitで版管理。契約違反PRはCIで自動ブロック。「上流の無告知変更」だけでなく「下流の暗黙依存」も可視化され、影響範囲が契約読むだけで判明。
+
+#### 3. Data Observability（プロアクティブ異常検知の機械学習化）
+現状の閾値ベースアラート（NULL率10%超・前日比±30%・±50%）を、時系列異常検知モデル（Prophet / Isolation Forest / Monte Carlo型のPipeline Traces）で「学習された正常帯からの逸脱」で検知する方式へ拡張。曜日効果・祝日・キャンペーン開始日を織り込んだ動的閾値により、2026-06-17の「祝日誤発火」を根本解消しつつ、閾値では拾えない「傾向のねじれ」（例：応募数は正常だが特定媒体だけ静かに劣化）を早期発見。Freshness / Volume / Schema / Lineage / Distribution の5指標を全modelに自動適用。
+
+#### 4. RAG/AI 活用向けデータエンジニアリング
+社内・クライアント向けの「建設業採用ナレッジチャットBot」や「求人原稿AI生成」の基盤として、ベクトルDB（BigQuery Vector Search / pgvector）でのエンベディング管理・チャンク設計・retrieval評価パイプラインを標準化。Rui のリサーチ知見・Gen のどっと原価ナレッジ・過去の応募データを検索可能な埋め込みに変換し、retrieval precision/recall/MRRを品質ゲートで継続監視。単なる「LLMに全部食わせる」ではなく、埋め込みの再計算スケジュール・古い埋め込みの陳腐化検知まで含めたライフサイクル管理を担う。
+
+#### 5. FinOps for Data（データコスト観測と最適化）
+BigQueryスキャン量週次監視（2026-06-12参照）を、「コスト予算×消費速度×原因クエリ×担当者」の4次元で常時可視化するFinOpsダッシュボードに発展。月中で予算消化ペースが超過見込みの場合、原因クエリのTop 5を自動特定してオーナー（Shun/Akari/Deng）へ具体的な最適化提案（パーティションフィルタ追加・マテリアライズドビュー化・スケジュール頻度緩和）を配信。7社分の課金を「案件別コスト按分」までブレークダウンし、Ryotaの見積・請求根拠にも使える形式で提供。
+
+### 追加ツール・手法
+
+#### 1. Iceberg / Delta Lake（オープンテーブル形式）
+BigQueryネイティブテーブル一辺倒から、Apache Iceberg / Delta Lake / BigLake tablesを併用する構成へ。ACIDトランザクション・タイムトラベル・スキーマ進化・パーティション進化をエンジン非依存で確保でき、将来的にSpark / Trino / Snowflakeなど別エンジンからも同一データを読める。7日制限のBigQueryタイムトラベル（2026-07-03参照）を超える長期の履歴保護と、月次確定テーブルのスナップショット運用が構造的に簡潔化。特にRui向け競合クロールの長期時系列（1年超）はIceberg化で低コスト保管。
+
+#### 2. Debezium + Kafka / Pub/Sub（CDCストリーミング）
+バッチ差分取得（2026-06-13参照）の限界（削除検出漏れ・遅延到着）を、Change Data Capture（CDC）ストリーミングで補完。Airworkの応募ステータス変化（応募→保留→面接→内定）をトランザクションログレベルで捕捉し、リアルタイム反映が必要な部分（応募通知・当日ダッシュボード）だけをストリーム、集計はバッチという「Lambda Architecture」型のハイブリッド運用。バッチ処理を捨てるのではなく、鮮度SLOに応じて手法を選び分ける設計判断力を持つ。
+
+#### 3. dbt Semantic Layer + MCP Server 連携
+dbt Semantic Layerで統一定義したメトリクスを、MCP（Model Context Protocol）サーバー経由でHARU / Shun / Akari の会話AIから直接照会可能に。「翔星建設の6月応募CVRは？」というHARU への自然言語質問が、Semantic Layer→dbt→BigQueryに正確なSQLで届き、Shun/Akariが手作業でクエリを書かなくてもクライアント数値が即時取得できる。従来のBIツール操作を「対話→回答」に短縮しつつ、定義の一貫性はSemantic Layerで担保。
+
+### 追加出力フォーマット
+
+#### 1. Data Contract 定義書（YAML）
+```yaml
+contract_name: airwork_applications_v2
+version: "2.1.0"
+producer: airwork_api_ingestion
+consumers: [shun_monthly_report, akari_client_dashboard, ryota_proposal_kpi]
+schema:
+  columns:
+    - name: application_id
+      type: STRING
+      nullable: false
+      pii: false
+      description: "応募固有ID（Airwork採番）"
+    - name: applicant_name_hash
+      type: STRING
+      nullable: false
+      pii: true
+      transformation: "SHA-256"
+    - name: applied_at
+      type: TIMESTAMP
+      nullable: false
+      timezone: "UTC (JSTへ集計時変換)"
+    - name: client_id
+      type: STRING
+      nullable: false
+      enum: [escopromotion, cantera, nawasho, miyamura, seiichi, masumoto, syosei]
+slo:
+  freshness: "6 hours"
+  volume_min_per_day: 50
+  schema_stability: "no breaking change without 14-day notice"
+quality_gates:
+  - null_rate_max: 0.05
+  - duplicate_rate_max: 0.001
+  - client_id_filter_required: true
+change_management:
+  breaking_change_notice: "14 days via #data-contract channel"
+  deprecation_window: "60 days"
+approved_by: [deng, shun, akari]
+last_reviewed: 2026-07-20
+```
+
+#### 2. Data Product 仕様書（Data Mesh準拠・データ製品カード）
+```markdown
+# Data Product: 建設業採用CVRメトリクス
+- **Owner**: Deng (05-データ分析部)
+- **Stewards**: Shun (分析側), Akari (レポート側)
+- **Domain**: 採用・応募トラッキング
+- **Bounded Context**: 建設業クライアント7社
+
+## Interface
+- Semantic Layer: `metrics.recruitment.application_cvr`
+- Physical: `marts.recruitment.fct_application_daily` (BigQuery)
+- MCP Endpoint: `mcp://data.let/metrics/application_cvr`
+
+## SLO
+| 指標 | 目標 | 現状(30日) |
+|---|---|---|
+| Freshness | 6h以内 | 4.2h (p95) |
+| Availability | 99.5% | 99.8% |
+| Data Quality Score | 95点 | 97点 |
+| Query Latency (p95) | 3s以内 | 2.1s |
+
+## Discoverability
+- Data Catalog: dbt docs `metrics.recruitment.application_cvr`
+- Sample Queries: 3本テンプレ添付
+- Related Products: `marts.recruitment.fct_click_daily`, `marts.recruitment.dim_media`
+
+## Cost
+- 月次スキャン量目安: 45 GB / 月
+- ストレージ: 2.1 GB (Iceberg, 12ヶ月保持)
+- 案件別按分ロジック: `client_id` 均等配分
+
+## Change Log
+- 2026-07-20: v2.1 リリース（媒体マスタconformed dimension化）
+- 2026-06-15: v2.0 リリース（Semantic Layer統合）
+```
+
+### 成長目標（3ヶ月・6ヶ月・12ヶ月）
+
+#### 3ヶ月（2026-10-20 まで）
+- **Semantic Layer PoC完走**: 応募CVR・単価あたり応募数の2メトリクスをdbt Semantic Layerで統一定義し、Shun/AkariのLooker Studio・スプレッドシート・HARU会話経路の3面で「同一値が返る」ことを実証
+- **Data Contract v1.0策定**: 上流3ソース（Airwork/GA4/クローラー）と下流5利用者（Shun/Akari/Ryota/Rui/Sora）の間のData Contractを全てYAMLで版管理し、CI組込
+- **異常検知の学習化第一弾**: 応募数の変化率アラートをProphet時系列モデルへ置換し、祝日誤発火をゼロ化しつつ検知精度（precision/recall）を測定開始
+
+#### 6ヶ月（2027-01-20 まで）
+- **Data Observability全model展開**: Freshness/Volume/Schema/Lineage/Distributionの5指標監視を全dbt marts modelに自動適用し、閾値ベース→機械学習ベースの完全移行
+- **RAG基盤MVP稼働**: Ruiの建設業リサーチナレッジをベクトル化した「建設業採用ナレッジBot」をSlack投入し、retrieval precision 0.75以上を維持しながら社内利用開始
+- **FinOpsダッシュボード稼働**: 7社×案件別のBigQueryコスト按分を月次自動配信し、Ryotaの見積・請求根拠として実運用化
+- **Iceberg併用構成へ移行**: Rui向け競合クロールの長期時系列（12ヶ月分）をIcebergテーブル化し、BigQuery直保管比でストレージコストを50%削減
+
+#### 12ヶ月（2027-07-20 まで）
+- **Data Product 10製品化 × Data Meshドメイン運用**: 採用・応募・広告・LP・SNS・競合・顧客・原価の8ドメインに跨る10のData Productを、Owner/Stewards/SLO/仕様書付きで正式運用
+- **CDCストリーミング本番投入**: Airwork応募ステータスの変化をDebezium+Pub/Subで捕捉し、当日ダッシュボードとバッチ集計のハイブリッド構成を本番化
+- **MCP経由の対話型データアクセス標準化**: HARU/Shun/Akari/Ryotaが日常業務の8割を自然言語でSemantic Layer照会でき、手動SQLを書く場面を「例外的な深堀り分析」のみに限定
+- **サクバズ事業のデータ基盤を「AI-Ready Data Platform」として対外訴求可能な水準に到達**: クライアント提案時に「弊社は建設業採用のデータをこう管理しています」を1枚で語れる状態（Data Product Catalog + SLOダッシュボード + Data Contract公開）を整備し、Ryotaの提案武器化と新規獲得にも寄与
