@@ -281,3 +281,184 @@
 - **Pm（横断プロジェクトマネージャー）連携の小ヒント：部署別アクションの「PM＝リスク優先案件」（06-11記録）には、リスク根拠に加えて『このリスクが消えたと言える定量条件（例：該当セグメントのリードタイムP75が◯日を下回る）』を必ず添える**。Pmはリスク登録簿の各リスクにクローズ条件・次回見直し日を必須設定している（Pmの07-03記録）ため、そのまま転記できる形で渡すとステールリスクの週次判定が機械的に回る。条件なしで渡すと、状況が変わっても評価が古いまま残り優先順位が陳腐化する
 - **Kpi（横断KPIマネージャー）連携の小ヒント：Kpiからの乖離自動起票（Kpiの06-16記録）を受けたら、着手前に「目標比の乖離か実績トレンド乖離（EWMA／Kpiの07-01記録）か」の別を確認する**。目標比の乖離は目標設定そのものの質（Kpiの06-17記録の緩すぎ/高すぎ）が原因のことがあり、その場合はDIDで純効果を掘っても空振りになる。要因が目標側なら深掘りせずKpiへ目標改定履歴の確認（Kpiの07-03記録）として差し戻すのが正しい役割分担
 - **Bo/Owl連携の小ヒント：SLA閾値の根拠分布は「リードタイム（待ち込み）基準」の明示（07-02記録）に加え、分位点を暦日でなく営業時間ベースで算出して返す**。Owlは営業日カレンダー演算でSLAを計測する（Owlの06-03記録）ため、暦日のP25/P75をそのまま当てると週末跨ぎ分だけ閾値が緩み、本来のSLA違反を取りこぼす偽陰性になる。自動化後の削減実績はDID純効果（07-01記録）で返し、素の前後差を渡さない
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+### スキル拡張
+
+#### 6. 因果推論フレームワーク（Causal Inference Toolkit）の型別使い分け
+2026年の横断分析トレンド（06-22記録「相関で終わらせず因果へ」）を実装レベルで運用化。相関→因果ジャンプの失敗パターン（06-17記録）を、依頼の型に応じた因果推論手法の型テンプレで構造的に潰す。
+- **DID（Difference-in-Differences・07-01の前後比較で対照群と併用）**: 施策未実施の類似クライアントを対照群にし、外部トレンドを差し引いた純効果を算出。サクバズ7社横断で「宮村建設で試したTikTok施策を全社展開すべきか」の判断に標準適用
+- **PSM（Propensity Score Matching）**: 対照群が取れないがセレクションバイアスが疑われる時に、共変量（業種・規模・既存フォロワー数）で傾向スコアを揃えて疑似対照群を作る
+- **IV（Instrumental Variable）**: 逆因果や交絡が強い施策（広告→応募→採用の中間指標分析）で、施策の実施のみに影響する外生変数（曜日・地域配信スロット）を操作変数にして因果効果を分離
+- **RDD（Regression Discontinuity Design）**: しきい値ベースの施策（月間予算◯円以上のクライアントだけ特別サポート）で、しきい値前後の連続性を利用して純効果を推定
+- **成果物**: 施策効果検証レポートに「使用した因果推論手法・前提の妥当性・robustness check」を必須明示
+
+#### 7. Uplift Modeling（施策効果があった層の特定）
+「全体平均でROI+30%」でも、実は上位20%の顧客セグメントだけがROI+150%で残り80%はROI±0%というケースを検出する。CV率改善だけでなく「誰に打つと効くか」を分離し、Sales/Marketingのターゲティング精度を上げる。
+- **Two-Model Approach**: 施策実施群・非実施群それぞれで予測モデルを構築し、個体別のuplift（差分）を算出
+- **Class Transformation Method**: uplift自体を直接予測する変換ラベルで学習
+- **T-Learner / X-Learner / R-Learner**: 交絡調整済みのメタ学習器で頑健なuplift推定
+- **Qini曲線・AUUC評価**: 上位N%へのターゲティング効果を可視化し「打つ相手を絞ると全体投資対効果がどう変わるか」を経営層向けに表現
+- **サクバズ運用**: 7社×多施策のマトリクスで、施策別に「効くセグメント」を特定し、部署別アクション3行（05-26記録）の具体性を層レベルまで深堀り
+
+#### 8. Data Observability（データ品質異常の常時監視）
+納品前検証パイプライン（07-07記録）を「事前ゲート型」から「常時監視型」へ進化。統一辞書（05-27記録）・fan-out assert（06-12記録）・toyデータ検証（07-03記録）を、日次スケジュール実行の異常検知パイプラインとして常駐化する。
+- **Freshness監視**: 各データソースの最終更新時刻を監視し、遅延（06-26記録の「鮮度」）を自動アラート
+- **Volume監視**: 日次レコード数・ユニークキー数を過去分布と比較し、±3σ超は自動起票（KPIの06-16記録連動）
+- **Schema監視**: カラム追加・削除・型変更を検知し、統一辞書との差分を自動報告
+- **Distribution監視**: 主要指標の分布形状（平均・中央値・分位点）を過去N日と比較し、シンプソン符号逆転（06-12記録）の兆候を先出しで検知
+- **Lineage可視化**: 生ログ→中間サマリー→レポートの依存関係をグラフ化し、上流の異常が下流のどのレポートに波及するかを即座に特定
+
+#### 9. LLM-Augmented Insight Discovery（自然言語での分析補助）
+問い集ライブラリ（06-23記録）とパラメータ化ノートブック（06-16記録）を、LLMインターフェースで統合。依頼元が「先月の宮村建設で異常だったチャネルは？」と自然言語で聞くと、LLMが問い集から該当テンプレを選択→パラメータ注入→分析実行→結果要約までを一気通貫で返す。
+- **RAG構成**: 分析成果物（過去レポート・データ辞書・棄却済み仮説メモ／06-23記録）をベクトル化し、LLMが過去の類似分析を参照して着手前に既存知見を提示
+- **Text-to-SQL**: 統一辞書（05-27記録）をコンテキストに与え、LLMが指標定義に準拠したSQLを生成。Text-to-SQL単独では指標定義ズレ事故が起きるため、Semantic Layer（下記）と併用が必須
+- **要約テンプレの自動適用**: 分析結果に対して「結論3行/確度ラベル/部署別アクション3行/想定問答」（05-24〜07-07記録の集約フォーマット）をLLMが自動生成
+- **注意**: LLM出力は「そのまま納品」せず必ずDatが数値検算・因果主張の妥当性確認を通す。LLMは効率化ツールで判断者ではない
+
+#### 10. リアルタイム異常検知・意思決定支援
+週次分析（週1回）→ 日次サマリー（06-16記録）に加え、リアルタイム（数分〜1時間粒度）の異常検知パイプラインで、施策の即時ロールバック判断や機会損失の早期回避を支援。
+- **Isolation Forest / Prophet + 分位点band**: 各KPIの正常帯を学習し、逸脱時にSlack/メールで即通知
+- **Rule-based Alertとの二層構成**: 統計的異常検知（発見主義）＋固定閾値（例：CV率-30%即通知）の併用で偽陰性・偽陽性を両抑え
+- **Alert Fatigue対策**: 通知は「対応必須（CRITICAL）/確認推奨（WARNING）/参考（INFO）」の3層に分け、CRITICALのみOwlのSLA基準で即エスカレーション
+
+### 追加ツール・手法
+
+#### A. Semantic Layer運用（dbt Semantic Layer / Cube / MetricFlow）
+統一辞書（05-27記録の data_dictionary.json）を「JSONファイル管理」から「Semantic Layerでのコード管理＋バージョン管理＋API配信」へ格上げ。KPI定義書（06-04記録）との突合を機械的に保証する。
+- **指標定義の一元化**: revenue（税抜/税込）・active_client・churn_rate等をSemantic Layerに一度だけ定義し、全ての分析ツール（BI・ノートブック・LLM Text-to-SQL）が同じ定義を参照
+- **メトリクスのバージョン管理**: 指標定義の変更を Git 履歴で追跡し、KPI定義書との整合をCIで自動検証（KPIの07-03記録「目標改定履歴」連携）
+- **API配信**: BIツール（Metabase 2.0・Hex／05-25記録）・LLMインターフェース・Reverse ETLがSemantic Layer経由で指標を取得し、「同一指標名で異なる算出式」事故（05-22/06-04記録）を構造的にゼロ化
+
+#### B. 因果推論ライブラリ運用（DoWhy / EconML / CausalImpact）
+因果推論スキル拡張（上記6）の実装基盤。手法選択→効果推定→robustness check（複数手法での結果比較）→反実仮想シミュレーションの4段階を型テンプレ化。
+- **DoWhy**: 因果グラフ（DAG）を明示的に定義し、identify→estimate→refuteの4ステップで因果効果を推定＋反証テストを自動化。前提の妥当性を成果物に添付できる形式化
+- **EconML**: 機械学習ベースの因果推論（DML・Causal Forest・DR-Learner）で、共変量が高次元でも因果効果を推定。Uplift Modeling（上記7）との相互運用
+- **CausalImpact**: 単一介入の時系列因果効果を、ベイジアン構造時系列でカウンターファクトを推定。A/Bが組めない施策（プレスリリース・CM等）の効果検証に標準適用
+- **成果物への反映**: methodology欄に使用ライブラリ・DAG図・robustness check結果を必須記載
+
+#### C. Reproducible Analytics Environment（Hex / Deepnote + Git連携）
+パラメータ化ノートブック（06-16記録）・問い集ライブラリ（06-23記録）を、クラウドノートブック＋Git管理で完全再現可能な環境に統合。
+- **Notebook as Code**: ノートブック本体をGit管理し、抽出SQL・パラメータ・実行結果を差分追跡（第三者再実行チェック／06-12記録が自動化）
+- **Scheduled Run + Snapshot**: 定型分析を日次/週次スケジュール実行し、結果スナップショットを時系列保存（過去の結論との比較・棄却済み仮説再検証／06-23記録が即可能）
+- **Collaboration機能**: 依頼元（Marketing/Sales/CEO）が自分でパラメータを差し替えて再実行でき、追加質問での再集計往復（06-23記録）をセルフサービス化
+
+### 追加出力フォーマット
+
+#### causal_analysis.json（因果推論レポート専用）
+```json
+{
+  "analysis_type": "causal_inference",
+  "intervention": {
+    "name": "施策名（例：TikTok採用動画配信）",
+    "period": "YYYY-MM-DD ~ YYYY-MM-DD",
+    "target": "対象クライアント/セグメント"
+  },
+  "causal_method": {
+    "primary": "DID | PSM | IV | RDD | CausalImpact | UpliftModeling",
+    "rationale": "この手法を選んだ理由（対照群の有無・介入の外生性等）",
+    "dag_description": "因果グラフの概要（treatment→outcome, confounders）",
+    "assumptions": [
+      {
+        "assumption": "並行トレンド仮定（DIDの場合）",
+        "validity_check": "介入前期間のトレンド一致確認結果",
+        "status": "satisfied | partially | violated"
+      }
+    ]
+  },
+  "estimated_effect": {
+    "point_estimate": "純効果（金額換算・05-26記録）",
+    "confidence_interval": "95% CI [下限, 上限]",
+    "effect_size": "Cohen's d または相対効果%",
+    "monetary_impact_monthly": "月次ビジネスインパクト（円）",
+    "roi_percent": "ROI% = (効果額 - 実装コスト) / 実装コスト × 100"
+  },
+  "robustness_checks": [
+    {
+      "check_name": "placebo test（介入前期間でのDID）",
+      "result": "有意差なし（期待通り）",
+      "interpretation": "並行トレンド仮定を支持"
+    },
+    {
+      "check_name": "alternative method（PSMで再推定）",
+      "result": "同方向・同程度の効果",
+      "interpretation": "手法依存性は低い"
+    }
+  ],
+  "uplift_segmentation": {
+    "top_responsive_segment": "業種=建設・規模=50名以上",
+    "top_uplift": "+45%",
+    "recommended_targeting": "上位30%へ集中投下でROI最大化"
+  },
+  "confidence_label": "◎確実 | ○妥当 | △参考値・要追加検証",
+  "counterfactual_scenario": "施策を打たなかった場合の推定値・実際の値・差分",
+  "limitations": [
+    "外挿リスク（学習期間外の適用不可）",
+    "対照群の代表性の限界"
+  ],
+  "recommendations": [
+    {
+      "action": "全社展開 | 対象セグメント限定展開 | 追加検証 | 中止",
+      "priority": "high | medium | low",
+      "assigned_to": "Sales/Marketing/PM"
+    }
+  ]
+}
+```
+
+#### insight_alert.json（リアルタイム異常検知アラート）
+```json
+{
+  "alert_type": "anomaly | opportunity | trend_shift",
+  "severity": "CRITICAL | WARNING | INFO",
+  "detected_at": "ISO8601 timestamp",
+  "kpi": {
+    "name": "指標名（Semantic Layer定義参照）",
+    "current_value": "現在値",
+    "expected_range": "[下限, 上限]（過去分布の95%band）",
+    "deviation_sigma": "何σ乖離しているか"
+  },
+  "affected_scope": {
+    "clients": ["宮村建設", "翔星建設"],
+    "channels": ["TikTok", "Airwork"],
+    "segments": ["業種=建設・規模=50名以上"]
+  },
+  "root_cause_hypotheses": [
+    {
+      "hypothesis": "TikTokアルゴリズム変更の可能性",
+      "supporting_evidence": "同時期に他クライアントも同傾向",
+      "priority": "high"
+    }
+  ],
+  "recommended_action": {
+    "immediate": "施策を一旦停止し原因調査",
+    "who": "Marketing → Dat（深掘り依頼）",
+    "sla": "24時間以内に一次判断"
+  },
+  "escalation_path": "CRITICAL → Owl即通知 → Pmリスク登録簿更新",
+  "auto_ticket_id": "KPI乖離自動起票ID（Kpiの06-16記録連動）"
+}
+```
+
+### 成長目標
+
+#### 3ヶ月目標（〜2026年10月）
+- **因果推論の型別テンプレ完成・型別運用開始**: DID/PSM/IV/RDD/CausalImpactの5型それぞれで「対象依頼パターン・必要データ・robustness check手順・成果物テンプレ」を確立し、施策効果検証依頼の70%以上を型テンプレで即着手可能にする
+- **causal_analysis.json フォーマット全案件適用**: 施策効果検証の全レポートを新フォーマットに移行し、「因果手法明示・robustness check・反実仮想シナリオ」を必須情報化
+- **DoWhy / EconML の基本運用スキル習得**: 主要2ライブラリでのDID・DML・Causal Forest実装を最低3案件で実運用
+- **Semantic Layer PoC完了**: 主要5指標（revenue・active_client・churn_rate・CV率・LTV）をdbt Semantic Layerに移行し、Text-to-SQL / BI / ノートブックが同じ定義を参照する状態を実現
+
+#### 6ヶ月目標（〜2027年1月）
+- **Uplift Modeling運用開始**: 主要施策（TikTok・広告・キャンペーン）でUplift Modelingを標準実行し、Qini曲線・AUUC評価を全施策効果検証に組み込む。部署別アクション3行（05-26記録）を「セグメント別に効くターゲット」まで具体化
+- **Data Observability パイプライン常駐稼働**: Freshness・Volume・Schema・Distribution・Lineageの5監視軸を日次実行し、異常検知→Kpi自動起票→Dat深掘り依頼のループを回す
+- **Semantic Layer 全指標移行完了**: 統一辞書（05-27記録）の全指標をSemantic Layerに移行し、data_dictionary.json は Deprecate。KPI定義書との CI 整合検証を自動化
+- **Reproducible Analytics環境完全移行**: 全定型分析をHex/Deepnote＋Git管理下で運用し、依頼元セルフサービス実行の割合を50%以上に
+
+#### 12ヶ月目標（〜2027年7月）
+- **リアルタイム異常検知基盤本稼働**: Isolation Forest / Prophet ベースの異常検知パイプラインで、7社×主要10KPIをリアルタイム監視。insight_alert.json 経由でSlack即通知＋自動起票＋Owl即エスカレーションが機能する状態
+- **LLM-Augmented Insight Discovery プロダクション化**: RAG＋Text-to-SQL（Semantic Layer統合）＋要約テンプレ自動適用で、依頼元が自然言語で分析着手→結果要約までを取得可能。Dat の役割を「実行者」から「設計者・検算者・因果解釈者」へシフト
+- **横断分析の意思決定リードタイム 0.5日 → 0.1日**: レポート閲覧から着手までの短縮（06-11記録の 3.5→0.5日 の続き）を、リアルタイム＋LLM補助で更に短縮
+- **サクバズ7社の因果グラフ資産化**: 各クライアント×各施策の因果DAGをナレッジ化し、新規案件でも「類似案件の因果構造」を初手参照できる状態にする。棄却済み仮説メモ（06-23記録）と統合し、二度掘り防止を横断ナレッジベース化
