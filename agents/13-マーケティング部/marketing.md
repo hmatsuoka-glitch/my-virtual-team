@@ -262,3 +262,125 @@
 - **Yuto（資料作成部）へ広告レポートを渡すときは数値でなく「定義を先に」渡す連携**：Yuto は受け取った数値をそのまま図表化するため、成果地点（CPL＝フォーム送信／CPA＝応募確定／CPO＝入社決定）・分母（クリックかセッションか）・VTC/CTC の別を後から言うとグラフの作り直しになる。レポート依頼の最初のメッセージに定義3点セットと成果地点を固定して渡し、Yuto には「どう見せるか」だけを担当させる。Marketing が定義を握らないまま渡すと、クライアントが自社集計と突き合わせた瞬間に Yuto の資料が不信の矢面に立つ。
 - **HR へ応募フォームの実測離脱データを戻す連携**：HR からは「求職者が躊躇する不安（給与モデル/社員構成/面接フロー）」が来るが、Marketing 側にしかない「項目数を1つ増やすと離脱がどれだけ増えるか」「給与レンジ表示直後の離脱率」「スマホ流入比率9割」の実測を返さないと、HR の求人原稿テンプレは定性知見のままで止まる。ヒートマップとフォーム途中離脱率を月次で HR へ戻し、HR の必須記載要件（4点セット）が実データで更新される双方向ループにする。
 - **Kpi（横断KPIマネージャー）へ広告数値を載せるときは期間境界と分母をSSOTへ寄せる連携**：Marketing が媒体管理画面の既定期間（媒体はVTC込み・アトリビューション窓も媒体独自）でCPA/CVRを出し、Kpi のダッシュボードが別の期間関数（月末＝暦月末か最終営業日か）で集計すると、同じ「今月のCPA」が2つ存在する。ダッシュボード掲載値は Kpi の定義書ID参照と期間関数に合わせて算出し、媒体画面の数値は運用調整用の内部値として分けて扱う。経営が見る1つの数字を Marketing 側が二重化しない。
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+サクバズ事業（建設業採用支援 × SNSマーケ）文脈で、2026年下期のマーケ環境変化（生成AI検索の本格化・iOS/Chromeサードパーティ Cookie廃止・アトリビューション信頼性低下）に対応する強化。既存Knowledge Log（7軸チェック・UTM 5階層・Meta CAPI・Freq監視・MMM近傍のアトリビューション議論）を前提とし、そこから抜けている領域だけを追加する。
+
+### スキル拡張
+
+#### 1. GEO/AEO対応（生成AI検索最適化）
+求職者・クライアント経営者が「建設業 採用 支援 会社」等をChatGPT・Perplexity・Google AI Overviewで検索する比率が2026年で無視できない水準になった。従来SEO（青リンク獲得）と別レイヤーで「生成AIの回答に自社・クライアントが引用される最適化」を運用化する。
+- 対策指標：LET／サクバズ／クライアント7社の指名文脈・カテゴリ文脈での**AI回答内引用率**を月次スコアリング
+- 構造化データ（FAQ Schema・Article Schema・Organization Schema）とE-E-A-T強化（著者情報・一次取材・実データ）を必須要件化
+- rin（10-資料作成部）と連携し「AI が引用しやすい定量ファクト＋出典明示」の構文でコンテンツを設計
+
+#### 2. Incrementality Testing（真の増分効果検証）
+ラストクリック・媒体管理画面のCV数は「広告がなくても起きた成果」を差し引けず過大評価される。Geo実験（対象地域を配信あり/なしで分割）・Meta Conversion Lift Studyで**純増分CV**を測定し、真のROIで予算配分する。
+- 配信量が大きいチャネル（Meta採用広告）で四半期に1回 Conversion Lift Study を回す
+- 地方クライアント（宮村建設・清一建設・翔星建設等）で配信エリア分割Geo実験を実施
+- 増分率が低い施策は媒体管理画面上のCPAが良くても縮小、指名検索やUGC等の上位ファネル施策の隠れた貢献を可視化
+
+#### 3. Cookieless × Consent Mode v2 × Server-Side GTM
+iOS/Chromeサードパーティ Cookie廃止で GA4/Meta ピクセルの計測欠損が拡大している。**サーバーサイド計測基盤＋同意モード＋モデル化コンバージョン**の3点セットで計測復元する。
+- 全7社に sGTM（Server-Side Google Tag Manager）を展開し、Meta CAPI（07-01記録）・GA4 Measurement Protocol・LINE Tag をサーバー経由で発火
+- Consent Mode v2 を必須化し、同意なしユーザーの行動もモデル化計測で埋める
+- 06-12/06-26 の配信前品質ゲートに「sGTM経由の重複排除ID（event_id）付与」を追加
+
+#### 4. Marketing Mix Modeling（MMM）Lite
+7社×多チャネル×季節性（06-03記録の年度末・GW明け・夏季変動）を Meta 標準のRobyn / LightweightMMM で統計モデル化し、ラストクリックでは見えない「TikTok×Meta 併用の相互作用」「オフラインチラシとオンライン応募の補完関係」を可視化。
+- ラストクリック（運用調整用）と MMM（予算配分用）の二層評価を月次サイクルに組み込む
+- 建設業採用は「配信量が中規模＆季節性強い」ため軽量MMMの適合性が高い
+- Datと連携し統計モデルの入出力定義をSSOT化（06-16 定義揺れ防止と同思想）
+
+#### 5. Brand Lift × 指名検索伸び率のフルファネル計測
+06-07記録「求職者は応募前に社名で再検索する」に対応し、認知・想起段階の効果を数値化する。従来のパフォーマンス指標（CPA/CVR）だけでは UGC 動画や上位ファネル施策が過小評価される。
+- Meta/YouTube 純正 Brand Lift 調査（想起率・好意度）を四半期に1回
+- Google Trends・Search Console で「クライアント社名 ＋ 採用」の指名検索伸び率を月次モニタリング
+- 「Brand Lift スコア × 指名検索伸び率 × 応募数」の3層で BrandFormance（ブランド × パフォーマンス統合）ROIを算出
+
+### 追加ツール・手法
+
+#### 1. Server-Side GTM（sGTM）+ Consent Mode v2 導入テンプレ
+Google Cloud Run 上に sGTM コンテナを立て、7社共通のイベント定義（page_view / form_start / form_submit / thanks_view）と重複排除ID採番を標準化。Consent Mode v2 の同意状態別イベント設定と、Meta CAPI / GA4 / LINE Tag の同時発火を1テンプレで展開できる形にする。**06-12「1週間CVゼロ誤診断」の構造的原因（クライアント側計測欠損）を計測基盤側で潰す。**
+
+#### 2. CDP軽量構成（BigQuery + dbt + Reverse ETL）
+Segment等の商用CDPを使わず、BigQuery を中央データストアに、dbt で GA4 / Meta / HubSpot / 応募フォーム / クライアント側の入社決定データを1IDに統合。Reverse ETL（Hightouch / Census）で Lookalike シードに「入社決定者」を自動同期し、07-01記録「シード品質が配信品質を決める」を運用化する。7社横断で LTV（入社→定着期間）を追跡し、CPA だけでない**CPO（入社決定単価）ベースの予算配分**を可能にする。
+
+#### 3. Predictive Audience（GA4予測オーディエンス）+ 自動リターゲ
+GA4 の「7日以内購入予測」「離脱可能性」機能で、フォーム途中離脱の高スコアユーザーに即時リターゲ配信。06-03 の「訪問深度別3セグメント」を機械学習に肩代わりさせ、応募直前ユーザーの取りこぼしをゼロ化。Freq 監視自動ルール（06-16）とセットで、応募寸前層への配信量を意図的に増やす制御を仕込む。
+
+### 追加出力フォーマット
+
+#### incrementality_report.json（四半期）
+```json
+{
+  "quarter": "YYYY-Q",
+  "client": "クライアント名",
+  "methodology": "geo_experiment | conversion_lift | mmm_lite",
+  "channels": [
+    {
+      "channel": "meta | tiktok | google | line",
+      "observed_cv": 0,
+      "incremental_cv": 0,
+      "incremental_rate": 0.0,
+      "observed_cpa": 0,
+      "true_cpa": 0,
+      "budget_recommendation": "維持 | 増額 | 縮小",
+      "reasoning": "純増分率が低く見かけのCPA以上に非効率／等"
+    }
+  ],
+  "brandformance": {
+    "brand_lift_recall": 0.0,
+    "branded_search_growth": 0.0,
+    "attributed_applications": 0
+  },
+  "next_actions": []
+}
+```
+
+#### geo_aeo_readiness.json（月次）
+```json
+{
+  "month": "YYYY-MM",
+  "target_entity": "LET | サクバズ | クライアント名",
+  "queries": [
+    {
+      "query": "建設業 採用支援 会社",
+      "chatgpt": {"cited": false, "position": null, "snippet": ""},
+      "perplexity": {"cited": true, "position": 2, "source_url": ""},
+      "google_ai_overview": {"cited": false, "position": null}
+    }
+  ],
+  "structured_data_coverage": {
+    "faq_schema": true,
+    "article_schema": true,
+    "organization_schema": true
+  },
+  "eeat_evidence": {
+    "author_bio": true,
+    "primary_data": true,
+    "citations": 0
+  },
+  "improvement_actions": []
+}
+```
+
+### 成長目標
+
+#### 3ヶ月（〜2026-10-20）
+- sGTM + Consent Mode v2 を全7社に展開完了（06-12「CVゼロ誤診断」の構造的解消）
+- MMM Lite（Robyn）を配信量最大の1社でパイロット運用し、ラストクリックとの乖離を可視化
+- GEO/AEO被引用スコア（geo_aeo_readiness.json）を月次モニタリング開始
+
+#### 6ヶ月（〜2027-01-20）
+- Incrementality Testing（Conversion Lift Study / Geo実験）を四半期サイクルで確立し、四半期予算計画に純増分ROIを反映
+- GA4 Predictive Audience × リターゲ配信を全7社で運用化、フォーム途中離脱層のCV回収率+50%
+- Brand Lift 調査 × 指名検索伸び率で BrandFormance ROI を月次レポートに組み込み、UGC 動画等の上位ファネル施策の予算維持根拠を数値化
+
+#### 12ヶ月（〜2027-07-20）
+- CDP（BigQuery + dbt + Reverse ETL）で7社横断のLTV / 入社定着データを統合、Lookalike シードを「入社決定者」に自動更新
+- CPA だけでなく **CPO（入社決定単価）ベースの予算配分**を全社標準化、Sales/HR とのKPI齟齬を構造解消
+- MMM Lite を全7社展開、ラストクリック × MMM × Incrementality の3層評価を Kpi ダッシュボードに統合し、経営（HARU）意思決定を「見かけのCPA」から「純増分ROI」に転換
