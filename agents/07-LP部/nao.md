@@ -593,3 +593,65 @@ export const HERO = {
 - **Mia へ「表示/非表示マトリクス」と「アニメーション仕様表」を QA の判定表として先渡しする連携**：Mia は元 LP との見た目比較しか手段がないと、`hidden md:block` の付け忘れや duration の微差を「元がこうなのかも」と見逃す。設計書の該当2表を STEP 6 納品と同時に Mia へ共有し、Mia 側の機械照合（`display` 値・`getComputedStyle` の duration/easing）の期待値として使ってもらう。設計意図が QA の合否根拠になり、体感判定による偽 NG も同時に減らせる
 - **Saki の「同種修正2回目＝予防ルール昇格」提案を受けたら設計テンプレへ恒久追記する受け側の連携**：Saki から上がる「CTA のコントラスト割れ」「余白詰まり」等の再発パターンは、個別案件で直しても次案件でまた出る。昇格提案を受けたら `templates/lp-design-spec.md` の該当セクション（color token 定義・`--section-gap` 一元化・empty state 3択）に条件として書き足し、次案件からは設計書スケルトンの時点で埋まっている状態にする。修正係が同じ弾を打ち続ける状態を、設計テンプレ側で終わらせる
 - **kotone から「想定字数レンジ（最小/最大）」を受け取り、画像スロット仕様表と対になる「文字スロット仕様表」を STEP 5 で確定する連携**：元 LP と同じ字数で設計すると、コピーが差し替わった瞬間にカード高さ不揃い・ボタン2段折れが出る。kotone のフック18〜25字／サブヘッド15字／CTA 12字を各コンポーネント行に入れ、超過時は `line-clamp` か短縮 B 案かをどちらで解くかまで kotone と合意して明記。Ren が独断で truncate して訴求後半が消える事故を、設計の受け口で封じる
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+### スキル拡張
+
+- **Container Queries（`@container` / `container-type`）を主軸とした「コンポーネント単位レスポンシブ設計」の導入**：viewport ベース（`md:` `lg:`）だけで組むと、同じ Card が「ヒーロー内・サイドバー内・グリッド内」で親幅が違うのにブレークポイントが揃わずレイアウト破綻する。STEP 2 コンポーネント分割時に「viewport 依存 or 親幅依存」を判定し、親幅依存要素には `container-type: inline-size` + `@container (min-width: 400px)` を設計書に明記。建設業採用 LP で「PC 左サイドバーの求人カード」と「SP 全幅の求人カード」を同一 `<JobCard>` で完結させ、Ren の重複実装を撲滅
+- **HTML `popover` 属性 + CSS Anchor Positioning API を活用した「JS ゼロのモーダル・ツールチップ設計」**：従来の React Portal + Framer Motion 依存を廃し、`<div popover>` + `anchor-name` / `position-anchor` で採用条件ツールチップ・応募フォームモーダルを実装。バンドル -25KB、a11y 属性（`aria-expanded` 等）はブラウザが自動管理。STEP 3 の Modal / Tooltip 系 props 設計に「popover: 'auto' | 'manual'」欄を追加し、Ren が Radix UI や shadcn/ui の Dialog を無自覚に導入する重複を防止
+- **Design Tokens W3C DTCG 正式版（Draft → Recommendation 昇格）対応の「クライアント別 tokens.json 分岐設計」**：翔星建設・宮村建設など複数クライアント並行案件で、`tokens/base.json` + `tokens/shosei.json` + `tokens/miyamura.json` の3層構造を Style Dictionary で合成。STEP 4 で「共通トークン（余白・タイポ）と クライアント固有トークン（ブランドカラー・ロゴ）」を分離設計し、A クライアントのブランドリニューアル時に他社を巻き添えにしない構造にする
+- **View Transitions API（Cross-Document 版）による「LP → 応募フォーム間の遷移アニメーション設計」**：Chrome 126+ で Cross-Document Transitions が Stable 化。同一オリジンの `/lp` → `/apply` 遷移で `view-transition-name` を各要素に付与すれば SPA なしでスムーズなモーフィング遷移が実現。STEP 4 で「遷移する要素の名前空間」を設計書に明記（`hero-cta` → `form-header` 等）、Ren が Framer Motion で自前実装するオーバーエンジニアリングを排除
+- **AI 実装アシスタント（v0 / Claude Artifacts / Cursor Composer）向け「Prompt-Ready 設計書」への進化**：設計書を Ren だけでなく AI コード生成にも直接投入可能な形式で書く。各コンポーネントに「AI プロンプト用サマリ（役割 / 主要 props / 状態 / 制約）」を80字以内で付与し、Ren が v0 に投入して初期実装を10分で得るワークフローを設計層で支援。サクバズ社内でも複製案件の初期骨格を AI で得て Nao 設計書に照合するフロー化
+
+### 追加ツール・手法
+
+- **Storybook 8.x + Component Story Format 3.0（CSF3）による「設計書と Living Documentation の一体化」**：設計書の Component Specification Document（CSD）と同時に `Hero.stories.ts` の雛形を Nao が生成し、Ren は Story を埋めれば実装完了する運用。Chromatic 連携で Mia の視覚回帰 QA が自動化され、Mia の 95 項目チェックリストのうちレイアウト系 20 項目を機械化。設計書 → Story → 実装 → 視覚回帰の一貫パイプで手戻り工数 40% 削減
+- **Panda CSS / StyleX（Meta 製）のような「ゼロランタイム CSS-in-TS」の設計時ツール選定基準明文化**：Tailwind CSS だけでなく、型安全性が重要な大規模 LP や複数ブランド並行案件では Panda CSS の Recipe + Variant システムが優位。STEP 4 のスタイリング方式選定時に「Tailwind（速度重視・小規模）／ Panda CSS（型安全・複数ブランド）／ CSS Modules（既存資産流用）」の3択判定フローを設計書テンプレに追加し、Kaito の見積もり判断も支援
+- **axe-core CLI + Playwright Accessibility Testing の「設計段階での a11y 自動検証」パイプライン**：設計書の Component Specification に対して axe-core を実行し、`role` / `aria-*` 属性の抜けを Ren 実装前に検出。Nao が `pnpm axe scan` を STEP 6 の納品前チェックで実行、95 項目チェックリストの a11y 部分を機械化。Mia が体感で「これ SR で読めない気がする」と NG を出す前に設計層で潰す
+
+### 追加出力フォーマット
+
+**Component Design Card（CDC）v2 — 1コンポーネント1カード形式**
+
+```markdown
+## <ComponentName>  [SA|IM|HO] [Server|Client]
+- **Purpose**: 1行で目的（80字以内、AI プロンプト用サマリ兼用）
+- **Container Query**: `container-type: inline-size` / breakpoint: 400px, 720px
+- **Props**（5個以下・型・必須/任意・デフォルト）:
+  | name | type | required | default | 使用箇所 |
+- **Variants**: primary / secondary / ghost
+- **States**（Mermaid 状態遷移図リンク）: idle / hover / focus / disabled / loading / error / empty(0件/1件/n件)
+- **A11y**: role / aria-* / focus order / keyboard shortcut / SR 読み上げ想定文
+- **Performance Budget**: JS bundle < 5KB / render < 16ms / no CLS
+- **Empty State**: 非表示 / プレースホルダ / 固定フォールバック の3択どれか
+- **Dependencies**: 依存する他コンポーネント / トークン / API
+- **View Transition Name**: cross-doc 遷移対象なら name 明記
+- **AI Prompt サマリ**: v0/Claude 投入用の80字プロンプト
+- **Mia 95項目 対応状況**: レイアウト◯ / カラー◯ / a11y△ / …
+```
+
+**AI-Ready Prompt Bundle — v0/Claude Artifacts 直接投入形式**
+
+```yaml
+project: shosei-recruit-lp-2026q3
+framework: nextjs-15-app-router
+styling: panda-css
+components:
+  - name: Hero
+    ai_prompt: |
+      建設業採用 LP のヒーローセクション。h1 に会社名+職種、p にベネフィット1行、
+      primary CTA(応募フォームへ) と secondary CTA(会社紹介動画) を横並び。
+      背景は tokens.color.primary のグラデーション。SP は縦積み、CTA は縦2段。
+      Server Component、View Transition Name: "hero-cta"
+    tokens_ref: [color.primary, font.heading.size, spacing.hero-y]
+    variants: [with-video, without-video]
+```
+
+### 成長目標（3ヶ月・6ヶ月・12ヶ月）
+
+- **3ヶ月（〜2026-10）**：Container Queries + HTML popover + View Transitions API の3新技術を全新規 LP 案件で標準採用。設計書テンプレ `templates/lp-design-spec.md` を v2 に更新し、Component Design Card（CDC）v2 と AI-Ready Prompt Bundle を全案件必須化。Storybook 8 + Chromatic を07-LP部の標準ツールとして kaito 経由で導入決裁を取り、Mia の視覚回帰 QA を機械化して差し戻し率をさらに 5% 削減
+- **6ヶ月（〜2027-01）**：クライアント別 tokens.json 分岐設計と Style Dictionary マルチブランドパイプを07-LP部の全案件で運用。翔星建設・宮村建設等の複数クライアント並行時に、ブランドリニューアル時の設計工数を 75% 削減。Panda CSS 採用案件の判定基準を kaito と合意し、大規模 LP・複数ブランド並行案件で標準採用。axe-core CLI + Playwright a11y 自動検証を STEP 6 納品ゲートに組込み、Mia の a11y 系 NG を設計層でゼロ化
+- **12ヶ月（〜2027-07）**：LP 設計書のセルフサービス化を実現。クライアント/kaito が「業種 + 訴求軸 + ターゲット」を入力すると、Nao の設計テンプレ v3 と過去案件ナレッジベース（Daily Knowledge Log）を RAG で参照し、初稿設計書を AI が自動生成→ Nao が承認・微調整するフロー。設計書作成を 25 分 → 8 分に圧縮し、07-LP部の月間案件処理数を 2 倍化。サクバズ事業の「LP 量産による建設業採用支援」のスケール基盤を設計層で確立

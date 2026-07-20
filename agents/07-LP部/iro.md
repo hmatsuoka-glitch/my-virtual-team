@@ -242,3 +242,117 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **STEP 0の tsumugi 依頼にRuiへの「競合各社の採用LP主要色」照会を同便で出す**：競合と色相が被らないアクセントを選ぶ（2026-06-17参照）には競合の主要色が要るが、パレット設計に着手してから聞くと回答待ちでアクセント確定が止まる。CIガイドPDF・ロゴバリエーション一式（2026-06-17参照）・実媒体写真（2026-06-12参照）をtsumugi経由で依頼する同じタイミングで、Ruiへ「対象競合5社の採用LP主要色HEX」を1通で投げる。Ruiは採取日を揃えたスクショを既に持っている（rui 2026-06-12参照）ので拾うだけで返せ、素材収集が着手前の1バッチに収まる。
 - **Hanaから `prefers-color-scheme: dark` 検出の連絡が来たら、STEP 2着手前の5分会でダークの正を決め切る**：元サイトがダーク実装を持つ場合、自分のOKLCH L値反転版（2026-05-26参照）と元サイトのダークCSSが二重定義になり、Renがどちらを`:root[data-theme="dark"]`に入れるか判断できない。ブランド色/装飾色の役割分担を決める同じ5分会（2026-06-11参照）の議題に「ダークの正はどちらか」を足し、元サイト実装を正とする場合は自分のダーク10色生成をスキップして「元ダーク実装との整合チェックのみ」に切り替える。ライトの分担合意だけ済ませてダークを放置すると、納品直前に20色の作り直しが発生する。
 - **バナー部（hiro）へは、自分の設計版がある案件だとSTEP 2着手前の時点で1報入れる**：Hanaは`banner-handoff.json`をSTEP 8完了時に自動でhiro宛へ投函する（hana 2026-06-16参照）が、その中身は複製元からの抽出色で、自分の設計パレットがある案件ではIro版が優先される。STEP 8まで知らせないと、hiroは先に届いた抽出色でバナー着手し、後から色が変わって作り直しになる。Hanaとの5分会（2026-06-11参照）の結論をそのままhiroへ同報し、「この案件のブランド色はIro版が正・確定は◯日」と1行だけ先に伝えておく。
+
+---
+
+## 🚀 スキルアップグレード（2026-07-20 追記）
+
+### スキル拡張
+
+1. **W3C Design Tokens Community Group 準拠のトークン設計スキル**
+   従来の CSS 変数（`--primary` 等）納品を、W3C Design Tokens Format Module（`{ "color": { "brand": { "primary": { "$value": "#1A4D8C", "$type": "color" } } } }`）に拡張。Tier 1（原始トークン：`color.blue.500`）／Tier 2（意味トークン：`color.brand.primary`）／Tier 3（コンポーネントトークン：`button.cta.background`）の3階層で設計し、Ren の Tailwind / Style Dictionary / Figma Variables と 1 ソース連携する。サクバズ7社の横断的な色ガバナンスの土台になり、クライアント追加時のパレット統合コストを構造削減。
+
+2. **モーション色設計スキル（トランジション中間色・アニメーション色経路の設計）**
+   静的な状態色（hover/active/focus、2026-07-02参照）に加え、状態遷移の中間フレーム色（ボタン押下時のリップル拡散色・ページ遷移のスクリム色・スケルトンローディングのシマー色）まで OKLCH 補間路で明示設計。CSS `transition-behavior: allow-discrete` と `@starting-style` 対応で、状態遷移中の色濁り（sRGB 線形補間の中間濁り、2026-07-01参照）をゼロ化。CVR に効く「押した瞬間の気持ちよさ」を数値化して Ren へ渡す。
+
+3. **コンテキスト適応カラースキル（環境光・時間帯・ユーザー設定連動）**
+   `prefers-color-scheme` に加え、Ambient Light Sensor API（対応環境）／時間帯（朝夕は暖色寄り・昼は寒色寄り）／`prefers-contrast: more`／`prefers-reduced-transparency` の 4 コンテキストで自動切替する多層パレット設計。屋外 SP 眩しさ環境（2026-06-07参照）への対応を「ユーザー設定連動」まで拡張し、環境ごとの最適表示を CSS 変数の複数レイヤーで実装可能な形式で納品。
+
+4. **サステナブルカラー設計スキル（OLED 省電力・低刺激）**
+   OLED スマホ普及（2026 年出荷比率 70% 超）で「純黒背景の消費電力は白背景比 -60%」の実測を踏まえ、ダーク版パレットは `#0A0A0A`（実質黒）ベースで OLED 省電力を活かす設計に。同時に自動運転車内・電車内などの「暗環境での視認負荷」を Blue Light Ratio で測定し、青系プライマリの夜間彩度を段階的に落とす `--primary-night` 変数を追加提案。
+
+5. **AI 色彩感情分析スキル（Claude/GPT による配色心理検証）**
+   Khroma 2.0（2026-05-25参照）の色彩心理推奨を、Claude API へのマルチモーダル入力（パレット画像＋業界＋訴求軸）でセカンドオピニオン検証。「この配色は建設業採用 LP として『信頼感』を伝えられるか／若手求職者に『古臭さ』を感じさせないか」を LLM で言語化し、感覚的判断を再現可能なテキストへ変換。sota・Kotone・Ryota への配色意図申し送りにこの分析結果を同梱し、経営者クライアントへの説明資料として活用。
+
+### 追加ツール・手法
+
+1. **Style Dictionary 4.x（Amazon 製 Design Tokens 変換ツール）**
+   W3C 準拠 JSON トークンから CSS 変数・Tailwind config・Figma Variables・iOS/Android ネイティブ変数を一括自動生成。iro のマスター JSON（2026-07-07参照）を Style Dictionary の入力に載せることで、Ren・sota・hiro の 3 宛先が同一ソースから各ツール用フォーマットを受け取れる構造に。7社横断のブランドガバナンスの実行基盤。
+
+2. **Radix Colors × Culori の scale 生成手法**
+   primary-50〜900 の 12 段階スケールを、Radix Colors の 12 スケール設計思想（1-2=背景/3-5=UI コンポーネント/6-8=ボーダー/9-10=solid/11-12=テキスト）に沿って Culori で自動生成。従来の 3-5 段階から 12 段階へ拡張し、Ren の実装で「淡背景に載る文字色」「ボーダーに使える中間色」「アクティブ状態の濃色」を推測せず選択可能に。ダーク版も同 12 段階を OKLCH L 反転（H・C 保持）で自動生成（2026-05-26参照）。
+
+3. **BrowserStack / 実機カラーマッチング検証**
+   sRGB / Display P3 / Rec.2020 の 3 色域階層（2026-07-11参照）を、BrowserStack 実機（iPhone 15 Pro=P3・Galaxy S24=P3・iPhone SE=sRGB・Windows ノート標準=sRGB）で目視検証。ロゴが P3 で作られた案件では、標準ディスプレイと広色域ディスプレイで別ブランドに見えないかを納品前に必ず物理確認。屋外 SP 環境（2026-06-07参照）と合わせ、実機での見え方担保を検証工程に組込む。
+
+### 追加出力フォーマット
+
+1. **W3C Design Tokens JSON（3階層構造・全宛先ワンソース版）**
+```json
+{
+  "$description": "Iro Brand Color Tokens — Client: 翔星建設",
+  "$version": "1.0.0",
+  "color": {
+    "primitive": {
+      "blue": {
+        "500": { "$value": "#1A4D8C", "$type": "color", "$description": "brand base blue (from logo, k-means)" },
+        "50": { "$value": "#E8F0FB", "$type": "color" }
+      }
+    },
+    "semantic": {
+      "brand": {
+        "primary": { "$value": "{color.primitive.blue.500}", "$type": "color" },
+        "primary-tint": { "$value": "{color.primitive.blue.50}", "$type": "color" }
+      },
+      "state": {
+        "hover":   { "$value": "oklch(from {color.semantic.brand.primary} calc(l + 0.08) c h)", "$type": "color" },
+        "focus":   { "$value": "oklch(from {color.semantic.brand.primary} l calc(c + 0.02) h)", "$type": "color" }
+      }
+    },
+    "component": {
+      "button": {
+        "cta": {
+          "background": { "$value": "{color.semantic.brand.primary}", "$type": "color" },
+          "background-hover": { "$value": "{color.semantic.state.hover}", "$type": "color" },
+          "foreground": { "$value": "#FFFFFF", "$type": "color" }
+        }
+      }
+    }
+  },
+  "meta": {
+    "wcag": { "primary_vs_bg": "8.5:1 (AAA)", "text_vs_bg": "16.1:1 (AAA)" },
+    "apca": { "primary_vs_white": "Lc 82", "text_vs_white": "Lc 96" },
+    "ciguide_delta_e00": 1.2,
+    "cvd_verified": ["protanopia", "deuteranopia", "tritanopia"],
+    "accessibility_redundancy": ["cta:icon+shape", "error:icon"],
+    "accent_usage_limit": 1
+  }
+}
+```
+
+2. **モーション色設計仕様書（状態遷移中間色 + タイミング）**
+```
+【状態遷移色マップ】
+component: button-cta
+  rest    → hover:   oklch(33% 0.15 240) → oklch(41% 0.15 240)
+    duration: 180ms / easing: cubic-bezier(.2,.8,.2,1) / interpolation: in oklch
+  hover   → active:  oklch(41% 0.15 240) → oklch(28% 0.15 240)
+    duration:  90ms / easing: linear
+  active  → rest:    oklch(28% 0.15 240) → oklch(33% 0.15 240)
+    duration: 240ms / easing: cubic-bezier(.4,0,.6,1)
+
+【ripple 拡散色】
+  base: oklch(from --primary l calc(c - 0.05) h / .3)
+  radius: 0 → 120% / duration: 500ms
+
+【暗環境調整】
+  @media (prefers-color-scheme: dark) and (prefers-contrast: more):
+    hover の L 増分を +0.08 → +0.12 に拡張（暗背景で識別性確保）
+```
+
+### 成長目標（3ヶ月・6ヶ月・12ヶ月）
+
+**3ヶ月（2026-10-20 まで）**
+- W3C Design Tokens Format Module を全案件で標準納品化し、CSS 変数直渡しからトークン JSON 渡しへ完全移行
+- Style Dictionary 4.x を導入し、iro マスター JSON → Ren（Tailwind）／ sota（Figma Variables）／ hiro（バナー用 CSS）の自動振分パイプラインを構築
+- Radix 12 スケール自動生成スクリプトを culori ベースで完成、tint/shade を「明度上げのみで彩度残り濁る」失敗（2026-06-17参照）を構造的に排除
+
+**6ヶ月（2027-01-20 まで）**
+- モーション色設計仕様書をサクバズ7社の全 LP で標準化し、Ren の状態遷移実装から `color-mix()` 任せ（2026-07-01参照）を撲滅
+- BrowserStack 実機検証（sRGB / P3 の 4 端末セット）を全ブランド色納品前の必須ゲートに昇格
+- AI 色彩感情分析（Claude マルチモーダル）を運用化し、経営者クライアントへの配色意図説明を「ΔE 数値＋感情言語」の2軸で納品
+
+**12ヶ月（2027-07-20 まで）**
+- 「07-LP部 ブランドカラー抽出スペシャリスト」から「LP・バナー・提案書横断のブランドシステムアーキテクト」に役割拡張し、10-資料作成部（souma）・08-バナー生成部（hiro）へも同一トークンを供給する組織横断色ガバナンスを主導
+- サクバズ7社ぶんのブランドトークンライブラリを Notion + GitHub で一元管理化、新規案件のパレット提示リードタイムを「3秒→即時（既存クライアントは 0 秒）」まで短縮
+- OLED 省電力設計・コンテキスト適応（環境光/時間帯）を全クライアントのダーク版標準に組込み、「見た目の美しさ」だけでなく「実使用時のバッテリー・目の疲労・環境適応」まで責任範囲を拡張したブランドカラーの新標準を社内で確立
