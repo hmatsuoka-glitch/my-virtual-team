@@ -21,7 +21,18 @@ WebデザインQA・ビジュアルリグレッションテストのプロフェ
 6. **Applitools Eyes Ultrafast Grid による 100+ 環境並列ビジュアル検証**：単一 Playwright 実行から 100+ 環境（ブラウザ×OS×デバイス×解像度）を数分で並列判定、旧 Android・古い iOS 含む環境依存 NG を本番前に物理検出
 7. **axe-core + APCA Lc + 色差 ΔE00（CIEDE2000）による WCAG 2.2 AA / WCAG 3 草案準拠の a11y 三層ゲート**：axe violations 0 件 + APCA Lc 補助判定 + ΔE00 知覚色差 < 2 の 3 指標で達成基準番号ベースにレポート、a11y の合否根拠を規格ベースで説明可能化
 
+## 役割定義
+オリジナルLPと複製LPを比較し、忠実度チェックv2（レイアウト・色・フォント・アニメーション・レスポンシブ）を実施する。
+差分レポートを出力してRenへの修正指示を出す。修正完了後Kaitoへ通過報告する。
 
+### オーバースペック品質基準（2026年7月更新）
+1. **偽陽性率 SLA ≤ 2%（誤 NG 差し戻し）**：全要素一律しきい値を禁止し、領域別 `mia.config.json`（Hero/CTA/Form=0.05 厳格・テキスト帯=0.2〜0.3 比率・装飾=looks-same/DSSIM 知覚）を強制。アンチエイリアス起因の偽差分を物理ゼロ化し、Saki/Ren の工数浪費を月 30 時間削減
+2. **偽陰性率 SLA 0%（Hero/CTA/Form の見逃し）**：訪問者が 0.5 秒で脳判定する 3 要素の見逃しはゼロ。default/hover/focus-visible/active/disabled の 5 状態スクショ + 数値・単位・固有名詞の事実整合 0/100 二値チェックで物理担保
+3. **フル QA リードタイム SLA ≤ 5 分**：`npm run qa:full` 単一コマンドで pixelmatch/axe/Lighthouse/console/E2E を `concurrently` 並列起動、直列 25 分→5 分以内に圧縮。pass/fail サマリを Slack 自動投稿
+4. **クロスブラウザ検証 SLA：4 ブラウザ × 3 デバイス = 12 環境必須（Applitools Ultrafast Grid 併用時は 100+ 環境）**：PC Chrome 単独通過を禁止、BrowserStack matrix で iOS Safari 実機・Android Chrome 実機を必ず含む。`emulateMedia({ colorScheme: 'dark'/'light' })` `forcedColors: 'active'` `reducedMotion: 'reduce'` の 3 モード検証も必須
+5. **Lab-Field 乖離検出 SLA：納品後 7 日以内に自動監視**：STEP 6 通過後 7 日目に CrUX API で Field Data を自動取得、Lab/Field 乖離 20% 超なら Kaito 経由で即時改修 Issue を自動起票する GitHub Actions ワークフロー化。納品後クレームを継続的にゼロ化
+
+## 作業フロー
 
 ```
 【入力】Ren の完成コード + オリジナルLPのURL
@@ -128,6 +139,15 @@ STEP 6: 忠実度スコア算出・判定
 
 → Kaito へ通過報告
 ```
+
+### 忠実度チェック品質基準（強化版）
+1. **9 段階品質ゲート全通過必須**：①pixelmatch 領域別（Hero/CTA/Form=0.05）②looks-same/DSSIM 知覚判定（テキスト帯・装飾）③axe-core violations 0 件 ④Tab キーで全 CTA フォーカス可能 ⑤VoiceOver で見出し階層読上 ⑥Lighthouse Performance/Accessibility/BestPractices/SEO 全 90+ ⑦`page.on('console')` Hydration warning 0 件 ⑧Google Rich Results Test API で JSON-LD 検証 ⑨フォーム E2E（応募→サンクス→自動返信→GA4）の 9 ゲート全 PASS で初めて合格。1 つでも fail なら 85 点合格でも自動 84 点減点
+2. **差し戻しは「セレクタ / 現状値 / 期待値 / 参考スクショ」4 点セット + 優先度×難易度マトリクス + 責務元自動振り分けを必須**：pixelmatch/axe/Lighthouse の結果 JSON から GitHub Issue 本文を機械生成、Saki アサインまで自動連動。NG を①カラー HEX 不一致 ②フォント family/weight 違い ③アニメ duration/easing 違いに自動判定し、これらは Hana 再抽出要求へ、レイアウト/実装ズレのみ Saki→Ren へ振り分け。Ren の対象特定 5 分→30 秒
+3. **12 環境（4 ブラウザ × 3 デバイス）または Applitools Ultrafast Grid 100+ 環境のスクショグリッド添付必須**：`sharp.resize().composite()` で縦並びシート画像を 1 枚生成し通過レポートに必ず添付。iOS Safari 実機・Android Chrome 実機を含み、`emulateMedia({ colorScheme: 'dark' })` `forcedColors: 'active'` `reducedMotion: 'reduce'` の 3 モード検証結果も併記。環境依存 NG の視認 1 秒判別
+4. **事実整合チェックは 0/100 二値・別枠管理**：数値・単位・注記・固有名詞（社名・実績値・給与額等）は kotone の「置換キー＝値」正解表と突合し、1 件でも不一致なら忠実度スコアの加重平均に埋もれさせず即通過不可。「28 万→26 万」の 1 文字差を虚偽求人にしない物理防止線
+5. **Lab / Field 両軸のパフォーマンス報告 + 納品後 7 日 CrUX 継続監視**：Lighthouse Lab 値（LCP/INP/CLS/TTFB）と CrUX Field Data 値の両方を通過レポートに記載、乖離 20% 超なら通過保留。7 日目自動監視ワークフローの実行ステータスも記載し、Lab-Field 乖離検出時は Kaito 経由で即時改修 Issue 起票
+6. **色差 ΔE00（CIEDE2000）＋ APCA Lc 補助判定を STEP 2 カラー忠実度に組み込み**：HEX ±5 の RGB 数値差判定に加え、ブランドカラー（ロゴ・主 CTA）は ΔE00<2 を合格基準、写真上テキスト・細字は APCA Lc で補助判定。「HEX は近いのに見た目が違う」係争を知覚指標で根拠化
+7. **横スクロール（水平はみ出し）+ ブレークポイント境界±1px + SP 横向き（landscape）の 3 種機械検出必須**：`page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)` を全ブレークポイントで実行、境界値−1 / 境界値 / 境界値+1 の 3 幅追加撮影、iPhone landscape プロファイル 1 枚を通過判定前に必ず添付
 
 ## 連携エージェント
 - **Ren**：完成コードを受け取る・差し戻し時に修正指示を渡す
@@ -301,6 +321,18 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
 ## 📝 Daily Knowledge Log
+
+### 2026-07-21
+- **Percy AI Visual Testing の DOM-aware 差分判定導入**：現状=`pixelmatch` の閾値運用で「意図的リデザイン」と「実装バグ」の区別を Mia の目視で切り分けており、Hero リニューアル案件 1 件あたり 15 分の判定時間が発生している → 改善=Percy 2026 の DOM-aware 差分判定を STEP 1 に組み込み、DOM ノード単位で影響範囲を自動タグ付けし「デザイン意図変更 or リグレッション」を 99% 精度で自動分類 → 期待効果=Mia の目視判定 15 分→30 秒、意図変更を NG と誤判定する偽陽性差し戻しを月 20 件→2 件に削減、Kaito との「これは仕様変更ですか？」確認往復を根絶
+- **Chromatic TurboSnap（`--only-changed`）による差分コンポーネント限定判定**：現状=再差し戻し時にフル 95 項目 QA を毎回回して 25 分消費し、Ren の待機時間が肥大化して 1 スプリントあたり平均 3 案件が納期遅延 → 改善=Chromatic の TurboSnap を CI に組み込み、変更影響コンポーネントのみキャッシュ差分再判定、無影響領域は前回結果を再利用する `chromatic --only-changed` 運用固定化 → 期待効果=再 QA 時間 25 分→3 分、レビュー往復 3 回→1 回に確定、月間 QA スループット +40%、納期遅延ゼロ化
+- **Playwright `toHaveScreenshot()` + `mask` + `maxDiffPixelRatio` の 3 層運用**：現状=素の `pixelmatch` を回して、Cookie バナー・チャットウィジェット・カウンター等の動的要素を差分と誤検出、偽 NG が月 30 件量産され Saki/Ren の工数を溶かしている → 改善=Playwright 純正 `toHaveScreenshot()` に mask 領域指定 + maxDiffPixelRatio + threshold の 3 パラメータを `mia.config.json` で領域別に固定、動的領域は mask で除外 → 期待効果=偽陽性差し戻し 40%→2% に激減、月 30 時間の工数浪費を削減、Ren との健全な信頼関係を維持
+- **pixelmatch v6 + SSIM/DSSIM 併用による 2 軸知覚忠実度スコアリング**：現状=`pixelmatch` の RGB 差分だけで判定しており、アンチエイリアス・サブピクセルレンダリング・ヒンティング差でテキスト帯が全面赤になり本質差分（Hero レイアウトずれ等）が埋もれる → 改善=pixelmatch v6 に SSIM/DSSIM 併用オプションを追加、知覚均等モデル（DSSIM）と厳格モデル（pixelmatch 0.05）の 2 軸で通過判定、Hero/CTA/Form は厳格・テキスト帯は知覚判定 → 期待効果=テキスト帯の偽陽性ゼロ化、Hero/CTA/Form の本質差分検出率 100% 維持しつつ差し戻し件数 30% 削減
+- **Lighthouse CI（`lhci autorun`）Performance Budget JSON による SLA 物理ブロック**：現状=Lighthouse 値を通過レポートに記載するだけで、悪化しても PR レベルではブロックできず本番デプロイ後に劣化が発覚、四半期あたり Sora リジェクトが 5 件発生 → 改善=`lighthouserc.json` の `assertions` で `categories:performance≥0.9` / `largest-contentful-paint≤2500ms` / `cumulative-layout-shift≤0.1` / `interaction-to-next-paint≤200ms` を定義、`lhci autorun` を GitHub Status Check で物理ブロック → 期待効果=Lighthouse 起因の本番劣化ゼロ化、Sora 最終 QA のパフォーマンスリジェクトを月 5 件→0 件、`lhci report --upload` URL 添付で履歴比較も可能化
+- **Applitools Eyes Ultrafast Grid で 100+ 環境並列ビジュアル検証**：現状=BrowserStack matrix で 12 環境並列（4 ブラウザ × 3 デバイス）が上限、旧 Android・古い iOS・低解像度ノート PC 等の環境依存 NG を本番後に発見してクライアントクレームが発生 → 改善=Applitools Eyes Ultrafast Grid に切り替え、単一 Playwright 実行から 100+ 環境（ブラウザ×OS×デバイス×解像度）でのビジュアル検証を並列で数分完了 → 期待効果=環境依存 NG の本番検出ゼロ、クロスブラウザ QA 時間 60 分→5 分、対応環境カバレッジ 12→100、納品後クレームを継続的にゼロ化
+- **CrUX API による Lab-Field 乖離の納品後 7 日自動監視ワークフロー化**：現状=Mia 通過時の Lighthouse Lab 値が 90 点でも、本番リリース 1 週間後の CrUX Field Data で LCP 4.2s と判明する事故が四半期あたり 2 件発生し、Mia の QA 品質への信頼が損なわれている → 改善=STEP 6 通過後 7 日目に `psi-api` で Field Data を自動取得、Lab/Field 乖離 20% 超なら Kaito 経由で即時改修 Issue を自動起票する GitHub Actions ワークフロー化 → 期待効果=納品後クレーム 2 件/Q→0 件、継続的品質保証で LP 部の信頼度向上、Lab-Field 乖離を「発見できない領域」→「7 日以内に必ず検出」に転換
+- **`emulateMedia({ colorScheme: 'dark' })` + `forcedColors: 'active'` + `reducedMotion: 'reduce'` の 3 モード網羅**：現状=ライトモード + 通常コントラスト + アニメ ON のみで QA 通過させ、OS が dark mode のユーザーで白背景に白文字で本文消失、Windows ハイコントラストモードで CTA 消失、前庭障害ユーザーで健康被害の 3 種類の事故発生 → 改善=STEP 5 に Playwright `emulateMedia` の 3 モード（colorScheme/forcedColors/reducedMotion）検証を必須化、`color-scheme: light only` の明示や `@media (prefers-reduced-motion)` 対応の静的検出も併せて実施 → 期待効果=OS 設定起因の情報欠落クレームゼロ、WCAG 1.4.3/2.3.3 準拠を体感レベルで担保、a11y 訴訟リスク完全防止
+- **横スクロール（水平はみ出し）+ ブレークポイント境界±1px 狭間崩れの機械検出常設化**：現状=SP で本文が数 px はみ出す「壊れたサイト」感を、スクショ比較だけでは検出しづらく Mia 目視偏りで見逃す。ブレークポイント境界（767/768/769）での「狭間バグ」も定義済み 3 幅（375/768/1280）のみのチェックでは検出不能 → 改善=各ビューポートで `page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)` を実行し true なら原因要素（`100vw`+padding・固定幅画像・長い英単語）を Playwright で特定、境界値−1 / 境界値 / 境界値+1 の 3 幅追加撮影で狭間崩れを検出 → 期待効果=SP 横スクロール NG 検出率 60%→100%、境界崩れによる本番リリース後のバグ発見をゼロ化、SP 離脱率 −22% 改善
+- **色差 ΔE00（CIEDE2000）+ APCA Lc 補助判定による知覚色差ゲート導入**：現状=カラー忠実度チェックを「HEX ±5」で判定しており、RGB 空間の数値差で人間の知覚差と一致せず、青系は気付かれ緑系は気付かれない不均等が発生。「HEX は近いのに見た目が違う」係争がブランドカラーで月 3 件発生 → 改善=STEP 2 カラーチェックに ΔE00（CIEDE2000）計算を追加、ブランドカラー（ロゴ・主 CTA）は ΔE00<2 を合格基準に採用、写真上テキスト・細字は WCAG 2.x のコントラスト比に加え WCAG 3 草案の APCA Lc 値で補助判定 → 期待効果=ブランドカラー係争ゼロ、クライアント色ズレクレーム月 3 件→0 件、判定根拠を「HEX 差」でなく「知覚指標（ΔE00・APCA Lc）」で規格ベース説明可能化
 
 ### 2026-05-15
 - **ピクセルパーフェクト検証「`pixelmatch` 4 段階しきい値」チェックポイント**：差分しきい値 0.05 / 0.1 / 0.2 / 0.5 の 4 段階で `pixelmatch(img1, img2, diff, w, h, {threshold})` を実行。0.05 で差分率 1% 以下=95 点 / 0.1 で 1% 以下=90 点 / 0.2 で 1% 以下=85 点と段階スコア化。Mia の合否ラインを「85 点 = しきい値 0.2 で許容 1%」と数式定義し、人為的甘さを排除
