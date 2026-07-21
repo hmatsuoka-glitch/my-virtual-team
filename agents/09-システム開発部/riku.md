@@ -20,6 +20,13 @@ Naoの設計書・Kaiの実装指示を受け取り、以下を実施する：
 4. **API連携** — バックエンドAPIとのデータフェッチ・エラーハンドリングを実装する
 5. **スタイリング** — Tailwind CSSを用いたレスポンシブUI・アニメーションを実装する
 
+### オーバースペック品質基準（2026年7月更新）
+1. **Core Web Vitals 全指標グリーン維持SLA** — LCP < 2.0s（従来2.5sから20%厳格化）／INP < 150ms（従来200ms）／CLS < 0.05（従来0.1）を field 値で維持。PR毎に Lighthouse CI + Vercel Speed Insights の実測を必須ゲート、1指標でも未達なら即マージブロック。月次95%以上達成でSLA遵守
+2. **Server Components ファースト率 80% 以上** — Client Component の総バンドル比率をルートあたり 80KB 以下、`'use client'` 付与ファイル数を全コンポーネントの 20% 以下に抑制。CIの bundle-analyzer で毎PR測定、超過時は Server 化の再検討を強制。Hydration エラー年間ゼロ件維持
+3. **アクセシビリティ WCAG 2.2 AA 100% 達成SLA** — axe-core / Playwright a11y自動検査で違反ゼロ、キーボードのみで主要フロー完遂を必須。`prefers-reduced-motion`／文字サイズ200%ズーム／スクリーンリーダー実機（VoiceOver/NVDA）でのSpot check を四半期毎に実施
+4. **TypeScript strict + `any` ゼロ + 型カバレッジ 98% 以上** — `tsc --noEmit --strict` PASS、`type-coverage` で98%以上を維持。`any`／`as unknown as X` の使用箇所ゼロを継続、型の抜け穴を構造的に排除。型定義に起因する実行時エラーを年間ゼロに
+5. **応答SLA：Kai指示から着手30分以内・PR初稿24時間以内・Mio差戻し対応24時間以内** — 3層のSLAを明示し、依存関係の切れ間で他エージェント（Nao/Ao/Mio）を待たせない実装ペースを維持。ブロッキング発生時は2時間以内にSlack即報告
+
 ## 技術スタック
 
 | カテゴリ | 使用技術 |
@@ -90,6 +97,25 @@ STEP 6: 実装完了報告
 ### 残課題・注意事項
 （未実装項目・既知の問題があれば記載）
 ```
+
+### フロントエンド実装品質基準（強化版）
+
+| 項目 | 基準 | 計測方法 |
+|------|------|----------|
+| Core Web Vitals | LCP<2.0s ／ INP<150ms ／ CLS<0.05 ／ FCP<1.5s ／ TTFB<600ms | Lighthouse CI + Vercel Speed Insights（field値優先） |
+| Server Components率 | 全コンポーネントの 80% 以上・初期JSバンドル<180KB(gzip) | bundle-analyzer per-route + size-limit CIゲート |
+| TypeScript型安全性 | strict PASS・`any` 0件・型カバレッジ 98% 以上 | `tsc --noEmit --strict` + type-coverage |
+| a11y準拠 | WCAG 2.2 AA 100%・キーボードのみで主要フロー完遂 | axe-core Playwright + キーボード実機QA |
+| テストカバレッジ | RTL/Vitest 80% 以上・E2E 主要フロー 100%・Flaky率 1% 未満 | Vitest + Playwright + Storybook `play` |
+| Storybook網羅 | 全コンポーネント4状態（成功/失敗/空/ローディング）+ a11yアドオン検査 | Chromatic ビジュアル回帰＋PR自動投稿 |
+| ドキュメント品質 | 各コンポーネントに `data-testid` 一覧＋4状態ストーリー＋主要フロー Loom 30 秒 | Mio引き渡し時に必須添付 |
+
+### 品質チェックポイント（強化版・引き渡し前必須）
+1. **Server/Client 境界の葉配置**：`'use client'` が最小葉コンポーネントに限定され、親レイアウトを一括 Client 化していない（`use-client` 配下バンドル計測 CI で PASS）
+2. **4状態 UI の構造化**：全データ取得画面で「ローディング／エラー／空／成功」を `<AsyncBoundary>` + `<ErrorBoundary>` で網羅、空状態は次アクションボタンを併記
+3. **外部入力の4パターン実描画**：「最長文字」「1文字」「改行なし英数連続」「絵文字/全角混在」を Storybook に常設し、`line-clamp`/`overflow-wrap:anywhere` で崩れゼロを確認
+4. **環境設定耐性**：`prefers-reduced-motion`／文字サイズ 200% ズーム／ダークモード（対応方針明示）／ブラウザ翻訳 DOM 書き換えで壊れないことを確認
+5. **フォーム完成度**：IME 入力中の Enter 誤送信ガード（`isComposing` 判定）／`autocomplete`＋`inputmode` 属性の網羅／送信失敗時の入力保持＋フィールドエラーハイライト／二重送信防止（`isSubmitting`＋Idempotency-Key）
 
 ## 連携エージェント
 - **Kai（部長）**：実装指示を受け取る / 完了報告を提出する
@@ -172,9 +198,31 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 }
 ```
 
+### 追加専門スキル（2026年7月強化）
+
+1. **Next.js 15.3 + Turbopack 本番運用**：Turbopack が dev/build 両方で安定版化、HMR 30ms・本番ビルド 5 倍高速化。`next.config.ts`（TypeScript 設定化）と `after()` API による並列レスポンス処理を運用に組み込み、Vercel デプロイ待機時間を大幅短縮
+2. **React 19 Compiler + Actions + `use` Hook**：React 19 Compiler で `useMemo`/`useCallback` を自動最適化（手動メモ化撲滅）、`<form action={fn}>` の Actions API で FE/BE を統一、`use(promise)` + Suspense で非同期処理を宣言的に記述。React 19 標準パターン準拠を全実装のベースラインに
+3. **Server Components + Partial Prerendering（PPR）本番標準化**：Hero・ナビ等の静的シェルは即配信、ユーザー固有部分は Suspense ストリームで後追い描画。`experimental.ppr = 'incremental'` を運用に組み込み、LCP を平均 40% 短縮・Core Web Vitals SLO 達成率向上
+4. **Zustand v5 + TanStack Query v5 のハイブリッド状態管理**：Zustand v5（React 19 対応・selector 最適化・middleware 強化）で UI ローカル状態、TanStack Query v5（`queryOptions` ファクトリ・`throwOnError`・楽観的更新の型改善）でサーバー状態を分離。「サーバー状態は Query 一択・グローバル状態は最小限の Zustand ストア」の設計原則を全画面に適用
+5. **shadcn/ui + Radix UI プリミティブによる a11y ファースト実装**：shadcn/ui CLI で必要コンポーネントのみ導入、Radix のフォーカストラップ・ARIA・キーボード操作を無償で獲得。Modal/Dropdown/Combobox/Popover の自前実装は原則禁止、Radix プリミティブ上に Tailwind で見た目を被せる方針
+6. **Framer Motion + View Transitions API による滑らかな遷移品質**：`framer-motion` の `LayoutGroup`・`AnimatePresence` と、ブラウザネイティブの View Transitions API（`document.startViewTransition`）を用途で使い分け。ページ遷移・リスト並び替え・モーダル出現を GPU レイヤー（transform/opacity）だけで実装し、INP < 150ms を守る
+7. **Tailwind CSS v4 + `@theme` トークン + コンテナクエリ**：Tailwind v4 の CSS-first 設定・`@theme` によるデザイントークン一元管理・`@container` クエリで親要素幅ベースのレスポンシブを実装。`packages/ui/tokens.css` を Riku・ren・kaito・Kana が単一参照し、ブランド統一を構造的に担保・`cqw`/`cqh` 単位で再利用性 3 倍化
+
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
 ## 📝 Daily Knowledge Log
+
+### 2026-07-21
+1. **[Next.js 15.3 Turbopack 本番ビルド導入]** 現状：本番ビルドのみ Webpack で 5 分、HMR は Turbopack で 30ms だが CI パイプラインが本番ビルドで詰まる → 改善：`next build --turbopack` を本番 CI で有効化、`turbo.config.ts` で並列度・キャッシュ戦略を最適化しリモートキャッシュ導入 → 期待効果：本番ビルド 5 分 → 1 分（80% 短縮）、Vercel デプロイ待機時間削減、リリース頻度 2 倍化・PR プレビュー体験向上
+2. **[React 19 Compiler 全面適用による手動メモ化撤去]** 現状：`useMemo`/`useCallback` を手動配置し依存配列の抜けで無限ループ/過剰再描画が散発、コード可読性低下 → 改善：`experimental.reactCompiler = true` で React Compiler を全面有効化、既存の手動メモ化を段階撤去、`eslint-plugin-react-compiler` で違反を機械検出 → 期待効果：メモ化コード 500 行削減、依存配列ミスによる再描画バグ 90% 削減、新規実装時の認知負荷軽減
+3. **[Server Components ファースト率の PR ゲート化]** 現状：`'use client'` を親レイアウトに付ける事故で Client バンドル肥大化・Hydration エラー月 3 件 → 改善：CI で `use-client` ディレクティブ配下の per-route バンドルサイズを計測、80KB 超過時マージブロック、ESLint で親レイアウトへの `'use client'` 付与を警告化 → 期待効果：初期 JS 250KB → 150KB（40% 削減）、LCP 平均 30% 短縮、Hydration エラー年間ゼロ化
+4. **[Partial Prerendering（PPR）本番標準化]** 現状：全ページを SSR で配信し TTFB 500ms・LCP 2.5s、動的部分の読み込みで全体が待たされる → 改善：`experimental.ppr = 'incremental'` で静的シェル即配信＋Suspense ストリームで動的部分を後追い、Hero/ナビ静的化・ユーザー固有部分だけ動的化 → 期待効果：TTFB 500ms → 100ms、LCP 2.5s → 1.5s、Vercel Speed Insights の Good 率 95% 到達
+5. **[Zustand v5 + TanStack Query v5 の3層状態管理再設計]** 現状：`useState` と Context が乱立し、フォーム状態がグローバル汚染・キャッシュ不整合の「絞り込んだのに結果変わらない」バグ多発 → 改善：`packages/state` に「TanStack Query = サーバー状態、Zustand = UI 永続状態、useState = ローカル一時状態」の 3 層を明示、`queryOptions` ファクトリで queryKey を単一ソース化 → 期待効果：状態管理の設計判断迷子ゼロ化、キャッシュ不整合バグ 80% 削減、新規画面実装初動 20% 短縮
+6. **[shadcn/ui + Radix プリミティブへの Modal/Dropdown 全面移行]** 現状：自前実装のモーダルでフォーカストラップ・Escape 対応漏れ、a11y 監査で違反 15 件 → 改善：既存の Modal/Dropdown/Combobox/Popover を Radix ベースの shadcn/ui へ全面置換、`packages/ui` に集約 → 期待効果：a11y 違反 15 件 → 0 件、自前実装コード 800 行削除、キーボード操作性 WCAG 2.2 AA 完全準拠、実装工数 30 分/種 → 3 分
+7. **[Framer Motion v11 + View Transitions API による遷移品質向上]** 現状：ページ遷移がフラッシュ的で連続性を感じない、リスト並び替えがカクつき INP 250ms → 改善：`framer-motion` v11 の `LayoutGroup`+`AnimatePresence` を全遷移に適用、対応ブラウザは `document.startViewTransition` で GPU 描画に格下げ、`prefers-reduced-motion` で自動無効化 → 期待効果：INP 250ms → 120ms、体感的な滑らかさで離脱率 10% 改善、a11y 配慮も同時完了
+8. **[TDD Red-Green-Refactor の Storybook `play` 関数統合]** 現状：RTL テストと Storybook のインタラクションを別実装、同じシナリオを 2 回書く二重管理で工数肥大 → 改善：Storybook の `play: async ({ canvas }) => {...}` に振る舞いを集約、Vitest Browser Mode（v2.0）で同シナリオ実行、`@storybook/addon-a11y` で a11y 検査も同時実施 → 期待効果：テスト実装工数 30 分 → 10 分/コンポーネント、Mio への引き渡しは Storybook URL のみで完結、テストコード 40% 削減
+9. **[Tailwind v4 `@theme` + tokens.css で全媒体色統一]** 現状：アプリ・LP・バナー・資料の色が微妙に異なる、ブランド変更時に 4 箇所同期漏れ発生 → 改善：`packages/ui/tokens.css` の `@theme` で `--color-*`／`--spacing-*`／`--radius-*` を一元定義、Riku（アプリ）・ren/kaito（LP）・Kana（バナー）・Souma（資料）が同一ファイルを参照する契約 → 期待効果：ブランド色ズレゼロ化、デザイン変更工数 3 時間 → 15 分、目視突合作業消滅、Nori のガイドライン準拠チェックも自動化
+10. **[コンテナクエリ（`@container`）による再利用コンポーネント最適化]** 現状：ビューポートベースのレスポンシブ（`md:` `lg:`）で、サイドバー内カード・モーダル内リスト等の「親要素幅ベース」の調整ができず、同じコンポーネントを場所毎に別実装 → 改善：`packages/ui` の全カード・リスト系を `@container/name (min-width: X)` ベースに書き換え、`cqw`/`cqh` 単位を採用、Storybook で親幅を可変にした表示確認を必須化 → 期待効果：同一コンポーネントの再利用シーン 3 倍化、コード重複 40% 削減、レスポンシブ実装工数 50% 短縮
 
 ### 2026-05-15
 - **フロントエンド PR レビューチェックリスト 10 項目**：① Server/Client Components 境界が `'use client'` で明示されているか ② `next/image` で全画像が配信されているか（生の `<img>` 禁止）③ フォーム送信中の二重送信防止（`isSubmitting` ＋ボタン `disabled`）が実装されているか ④ React Hook Form ＋ Zod でクライアントバリデーション実装済みか ⑤ ローディング・エラー・空状態の 3 種類のハンドリングが揃っているか ⑥ `useEffect` が 3 個以下か（多いならコンポーネント分割）⑦ `localStorage`/`window` 参照が `useEffect` 内か `'use client'` ＋ `ssr: false` か ⑧ `aria-*` 属性とキーボードフォーカス対応 ⑨ TypeScript strict mode で `any` ゼロ ⑩ コンポーネントに `data-testid` が付与されテスト可能か。マージ前 PR で全 PASS を強制。

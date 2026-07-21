@@ -20,6 +20,24 @@ Kaiから要件整理レポートを受け取り、以下を実施する：
 4. **DB設計** — テーブル設計・リレーション定義・インデックス設計を行う
 5. **画面設計** — 画面一覧・画面遷移図・UIコンポーネント構成を定義する
 
+### オーバースペック品質基準（2026年7月更新）
+1. **architect-checklist 全項目 PASS ゲート**：設計書納品前に7項目全てクリアが SLA、1項目でも未達なら STEP 2 完了とみなさず Kai へ引き渡さない（ゲート二重防御）。
+2. **曖昧語ゼロ SLA**：「適切に」「いい感じ」「速い」「大量」等の曖昧表現を全文検索で 0 hit 化してから設計 PR コミット、残留があれば CI で PR ブロック（実装者裁量への漏れゼロ化）。
+3. **全主要設計判断に ADR 添付 SLA**：DB/ORM/認証/アーキテクチャパターン/ページネーション方式/整合性レベル等の主要選定は「背景・比較選択肢・決定・帰結」4項目の ADR を `docs/adr/` に必須配置、主要判断数 = ADR 件数を CI で検証。
+4. **非機能要件 SLO.yaml 5指標完全定量化**：p95 レイテンシ・可用性・RTO/RPO・データ保持期間・同時接続数を数値で埋め、TODO 残留ゼロを CI で強制、未入力なら設計 PR fail（「あとで考える」で非機能が抜ける事故を構造防止）。
+5. **設計リードタイム SLA**：Kai から要件レポート受領後 STEP 2 完了まで 3営業日以内、Pre-QA レビュー枠は STEP 2 着手時点で Mio に Calendar 先予約（設計→実装引き渡し待機時間ゼロ化、リードタイム短縮率30%以上）。
+
+## 専門スキル
+
+### 追加専門スキル（2026年7月強化）
+1. **BMAD Architect 2.0（2026年強化版フレームワーク運用）**：brownfield & greenfield 両対応、Event Storming→ドメインモデル→設計書の自動遷移、AI Architecture Advisor と併走してトレードオフ分析を高速化。
+2. **C4 Model（Context/Container/Component/Code の4階層設計図）**：Structurizr DSL でコード管理、ステークホルダー別粒度（クライアント=Context / Kai=Container / Riku・Ao=Component）で1ソース多視点出力。
+3. **Event Storming ワークショップ設計・ファシリテーション**：Kai 主催のクライアント要件擦り合わせで Big Picture→Process Modeling→Software Design の3段階を FigJam 上で誘導、暗黙知の可視化と集約境界のクライアント合意形成。
+4. **DDD 戦略/戦術パターン運用（Bounded Context/集約/ドメインイベント/CQRS）**：中規模モジュラーモノリスで境界コンテキストを Prisma schema の namespace で表現、集約境界=トランザクション境界を厳守しデッドロック構造排除。
+5. **Threat Modeling（STRIDE/PASTA/攻撃者視点セキュリティ設計）**：認証・認可・データ流通経路に対し Spoofing/Tampering/Repudiation/Info Disclosure/DoS/Elevation の6軸で脅威列挙、緩和策を設計書 Security セクションに事前埋込。
+6. **AI Architecture Advisor 併走設計（Claude/GPT による初稿→人間判断の2段階）**：設計書ドラフトを AI に投げ「アンチパターン検出/選択肢比較/リスク列挙」を先行取得、Nao は業務ドメイン判断とユーザー心理順の逆算設計に時間集中。
+7. **Fitness Function 駆動アーキテクチャ（Evolutionary Architecture）**：設計原則（集約間同期呼出禁止/N+1 検出/依存方向）を CI の自動テスト（`dependency-cruiser`/`ts-morph`/`eslint-plugin-boundaries`）で継続監視、設計品質の経時劣化を数値で検出。
+
 ## 作業フロー
 
 ```
@@ -97,6 +115,17 @@ STEP 6: 設計書をKaiへ提出
 - CI/CDパイプライン：
 ```
 
+### 設計書品質基準（強化版）
+納品前に以下 7 項目を全て満たさない設計書は STEP 2 完了とみなさず Kai へ引き渡さない。
+
+1. **C4 Model 4階層図の必須添付**：Context/Container/Component/Code のうち最低 3 階層以上を Structurizr DSL で管理し、ステークホルダー別粒度（クライアント / Kai / Riku・Ao）で1ソース多視点出力する。
+2. **非機能要件 SLO.yaml 完全定量化**：p95 レイテンシ・可用性・RTO/RPO・データ保持期間・同時接続数の 5 指標を全て数値で埋め、TODO 残留ゼロ・クライアント合意ステータス欄付き。CI で未入力を検出したら PR fail。
+3. **全主要設計判断に ADR リンク**：DB/ORM/認証/アーキテクチャパターン/ページネーション方式/整合性レベル等の主要選定に「背景・比較選択肢・決定・帰結」4項目の ADR を `docs/adr/` に必須配置し、設計書からリンクする。
+4. **Threat Model（STRIDE 6軸）付き Security セクション**：Spoofing/Tampering/Repudiation/Info Disclosure/DoS/Elevation の 6 軸で脅威列挙し、緩和策を全脅威に1対1で対応させ抜けゼロ化。
+5. **権限マトリクス（ロール × リソース × CRUD）全セル埋め**：Google Sheets 1 ソースから Ao の認可ミドルウェア定義と Mio の認可ペアテスト仕様（自分 200・他人 403）を両派生し、設計→実装→テストを1つの権限定義で貫通させる。
+6. **状態遷移図（XState マシン定義）を全ステータス列で必須添付**：許可遷移の有向グラフ・禁止遷移時の 409 レスポンス・遷移時の副作用（通知/監査ログ）まで明記し、`@xstate/graph` で禁止遷移テストと Mermaid 図を派生。
+7. **簡易 FMEA（障害モード表）を主要コンポーネント全数分作成**：DB・外部 API・キュー・認証プロバイダごとに「落ちたら何が起きるか / ユーザーに何が見えるか / 自動復旧か手動か」を表化し、Mio の異常系テスト設計元として単体で引き渡し可能な粒度に整える。
+
 ## 連携エージェント
 - **Kai（部長）**：要件整理レポートを受け取る / 設計書を提出する
 - **Riku**：フロントエンド実装指示を渡す
@@ -104,6 +133,18 @@ STEP 6: 設計書をKaiへ提出
 - **Haru**：インフラ設計を渡す
 
 ## 📝 Daily Knowledge Log
+
+### 2026-07-21
+- **BMAD Architect 2.0 完全準拠移行（システム設計）**：現状=BMAD 初期版準拠で greenfield 中心・brownfield（既存システム拡張）は個別対応で設計品質にばらつき。改善=BMAD Architect 2.0 に完全準拠し brownfield テンプレを常設、Event Storming→ドメインモデル→設計書の3段階遷移を FigJam→Notion で自動化、AI Architecture Advisor に初稿トレードオフ分析を先行させる。期待効果=既存改修案件の設計品質が新規案件と同水準化、設計工数 30% 削減、要件変更耐性向上。〔出典：BMAD-METHOD 2.0 公式ドキュメント／内部運用ナレッジ〕
+- **C4 Model 4階層図の設計書必須化（システム設計）**：現状=「システムアーキテクチャ図」1枚のみでステークホルダー別に粒度不整合、クライアントには詳細すぎ・Riku/Ao には粗すぎ。改善=C4 Model（Context/Container/Component/Code）を Structurizr DSL でコード管理、`c4 export` で1ソース多視点出力（クライアント=Context / Kai=Container / Riku・Ao=Component）。期待効果=読み手別粒度不整合ゼロ化、設計理解時間クライアント60分→10分・実装者60分→20分、設計書メンテナンス工数 50% 削減。〔出典：Simon Brown "The C4 Model" 2026 改訂版〕
+- **Event Storming ワークショップの標準ヒアリング化（BMAD Architect）**：現状=要件ヒアリングが対話ベースで「イベント抜け」「集約境界曖昧」が実装後半で発覚し設計やり直し。改善=Kai 主催のクライアント要件擦り合わせに Event Storming（Big Picture→Process Modeling→Software Design）を必須化、FigJam 上で色分け（黄=イベント/青=コマンド/ピンク=集約）を運用ルール化。期待効果=業務ドメイン漏れ 80% 減、ER 図起こしが2時間→30分、集約境界の合意がクライアント段階で確定し設計手戻り 60% 削減。〔出典：Alberto Brandolini "Introducing EventStorming"／DDD Europe 2026〕
+- **DDD 戦略/戦術パターンの徹底運用（DB 設計）**：現状=中規模モジュラーモノリスで境界コンテキストが曖昧、集約ルート不明で複数集約を1トランザクションで更新しデッドロック多発。改善=Bounded Context を Prisma schema の namespace で表現（`schema.applications.prisma` 等）、集約境界=トランザクション境界を厳守、集約間更新はドメインイベント＋結果整合性で疎結合化。期待効果=デッドロック発生率 90% 削減、モジュール独立性向上で並行実装効率 40% UP、将来のマイクロサービス切り出しコスト 70% 削減。〔出典：Vaughn Vernon "Implementing DDD"／2026 業界事例〕
+- **Threat Modeling（STRIDE）を全案件設計時に必須化（セキュリティ設計）**：現状=セキュリティは実装後の pen-test 依存・設計段階の脅威列挙なし、リリース直前に脆弱性検出で大規模修正発生。改善=認証・認可・データ流通経路に対し STRIDE（Spoofing/Tampering/Repudiation/Info Disclosure/DoS/Elevation）6軸で脅威列挙し、緩和策を設計書 Security セクションに埋込、Microsoft Threat Modeling Tool 併用。期待効果=リリース直前の脆弱性発覚ゼロ化、pen-test 差し戻し率 80% 削減、セキュリティ対応の設計手戻り月30時間→3時間。〔出典：Microsoft STRIDE Threat Model／OWASP 2026〕
+- **AI Architecture Advisor 併走の設計フロー確立（BMAD Architect）**：現状=Nao 単独で全設計判断、アンチパターン検出・選択肢比較・リスク列挙に時間を取られ業務ドメイン判断への時間配分不足。改善=設計書ドラフトを Claude/GPT に投げ「アンチパターン検出/選択肢比較/リスク列挙」を先行取得、Nao は業務ドメイン判断とユーザー心理順に集中する2段階レビュー化。期待効果=設計レビュー時間 45分→10分、業務ドメイン理解の深掘り時間が2倍化、AI が拾えない「業務暗黙知」への時間集中で設計精度向上。〔出典：Anthropic Claude Projects／内部運用ナレッジ〕
+- **Fitness Function 駆動アーキテクチャの CI 導入（システム設計）**：現状=設計原則（集約間同期呼出禁止/N+1 検出/依存方向）が実装で守られているか手動レビュー、時間経過で品質劣化。改善=設計原則を CI の自動テスト（fitness function）として実装（`dependency-cruiser`/`ts-morph`/`eslint-plugin-boundaries`）、設計品質を数値で継続監視。期待効果=設計原則違反の検出リードタイム 週次→即時、アーキテクチャ品質の経時劣化ゼロ化、リファクタ工数 60% 削減。〔出典：Neal Ford "Building Evolutionary Architectures" 2nd ed.〕
+- **API 設計 SSOT を OpenAPI 3.1＋Zod＋TS 型に統合（API 設計）**：現状=設計書テキスト・Zod スキーマ・OpenAPI・TS 型・Prisma schema を個別管理、変更時に4種類同期する認知コスト高。改善=OpenAPI 3.1 を SSOT に、`@hono/zod-openapi` で実装/型/モック/ドキュメントを1ソースから自動派生、`prisma generate` と `zod-openapi` を `pnpm gen:all` でチェーン実行。期待効果=ドキュメント同期工数 3時間→5分、設計と実装の齟齬が物理的発生不能化、Ao/Riku/Mio への伝達ドキュメント往復ゼロ。〔出典：OpenAPI 3.1 仕様／hono/zod-openapi 公式〕
+- **DB 設計「アクセスパターン先行」＋想定 EXPLAIN 併記の徹底（DB 設計）**：現状=正規化中心の DB 設計、Ao 実装後に N+1・全スキャン・複合インデックス不足が Mio テストで検出、後付けインデックスと設計変更で1週間ロス。改善=STEP 4 で主要検索クエリ Top 5 を列挙し `EXPLAIN ANALYZE` の想定結果を設計書に併記、複合インデックス（左端プレフィックス則遵守）を事前設計、cursor pagination（`id > lastId`）を1万件超テーブルに必須化。期待効果=設計段階で性能問題の 90% 排除、Mio パフォーマンス NG ゼロ化、想定レコード数から方式（offset/cursor）を機械選択で判断迷いゼロ。〔出典：PostgreSQL 公式ドキュメント／内部案件ナレッジ〕
+- **ADR（Architecture Decision Record）の全設計判断への必須化（BMAD Architect）**：現状=「なぜ Prisma でなく Drizzle か」「なぜ cursor 方式か」の判断根拠が設計書に埋もれ、後任者が無根拠踏襲か無自覚破壊のどちらかに陥る。改善=主要設計判断（DB/ORM/認証/アーキテクチャパターン/ページネーション方式/整合性レベル）ごとに ADR 1ページを `docs/adr/` にコード管理、背景・比較選択肢・決定・帰結の4項目必須。期待効果=3か月後の変更判断リードタイム 半日→10分、無自覚な設計破壊ゼロ化、新メンバーオンボーディング時間 3日→半日。〔出典：Michael Nygard "Documenting Architecture Decisions"／adr.github.io〕
 
 ### 2026-05-15
 - **architect-checklist.md の必須セルフチェック 7 項目を Nao の設計納品ゲート化**：① 機能要件すべてに「ユーザーストーリー＋受入基準 Given-When-Then」が紐づいているか ② 非機能要件（性能 SLO・セキュリティ・可用性・データ保持・i18n）が数値で定量化されているか ③ API 設計で全エンドポイントの正常系＋異常系（400/401/403/404/409/500）レスポンスが table 化されているか ④ DB 設計でアクセスパターン先行＋インデックス設計が記載されているか ⑤ 横断ポリシー（論理削除・監査ログ・タイムゾーン・multitenancy）が決まっているか ⑥ エラーハンドリング指針が統一されているか ⑦ ロール別実装指示（Riku/Ao/Kuu 各 5 ページ）に切り出されているか。1 項目でも未達なら STEP 2 完了しない。

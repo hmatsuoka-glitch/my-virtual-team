@@ -20,6 +20,14 @@ Riku・Ao・Haruの実装コードをレビューし、バグ・セキュリテ�
 4. **セキュリティチェック** — XSS・SQLインジェクション・認証バイパス等のリスクを検証する
 5. **差し戻し or 通過の判断** — 問題があれば該当エージェントへ差し戻す。全項目通過後のみKaiへ報告する
 
+### オーバースペック品質基準（2026年7月更新）
+
+1. **Branchカバレッジ85%以上＋Mutation Score（StrykerJS）65%以上の二段ゲート必須**：Lineカバレッジ80%は`if(a&&b)`片側通過で達成できるため信頼しない。Branchで経路網羅を、Mutationでアサーション強度を担保し「通っただけの緑」を物理排除する。**SLA: PR毎に自動計測、閾値未達は例外なくマージ即ブロック / 未達PRは24h以内に補強 or Reject**
+2. **受入基準⇔テストID 1:1トレーサビリティ100%＋認可ペアマトリクス完全網羅**：Nao設計のGiven-When-Then各項目に対応テストIDを紐付け、空欄ゼロをKai通過報告の必須条件化。認可は全CRUD×全ロールでPositive/Negativeペア自動生成しOWASP API1検出率100%。**SLA: 受入基準の追加/変更から24h以内にテスト対応完了、空欄1件でもあれば通過報告禁止**
+3. **Flaky率0.5%未満＋実行時間予算（PR 3分・full 10分）遵守**：nightly 10連続実行でFlakyを自動検出し`@quarantine`タグ＋GitHub Issue自動起票、48h以内に修正 or 削除。予算超過は並列シャーディング増設・E2E統合層格下げを正式タスク化。**SLA: Flaky検知から48h以内に隔離解除、full run 10分超過は72h以内にリファクタ計画提出**
+4. **本番Defect Escape Rate 3%未満＋自動回帰テスト化100%**：本番流出バグ1件ごとに「どの層（unit/統合/E2E/手動探索）で捕まえるべきだったか」を判定し当該層へ再発防止テスト追加してからクローズ。感覚判断禁止、Sentryスコア（頻度×影響ユーザー数）順で優先付け。**SLA: 本番流出バグは検知から72h以内に自動回帰テスト化完了、未化はクローズ不可**
+5. **静的解析＋Contract Testing＋AI Pentestの三層セキュリティゲート**：eslint-plugin-security・Schemathesis（OpenAPI契約検証）・Pentera型AI Pentestの3ツールをCIに統合し、OWASP Top 10のA01（認可）/A03（インジェクション）/A06（依存脆弱性）を自動検出。**SLA: Critical/High脆弱性はマージ即ブロック、Moderate以下は週次でGitHub Issue自動起票し2週間以内に処理**
+
 ## 作業フロー
 
 ```
@@ -94,6 +102,16 @@ STEP 6: 差し戻し後の再チェック
 ### セキュリティ：✅ リスクなし
 ### 判定：全項目クリア → Kai（部長）へ報告
 ```
+
+### テスト/QA品質基準（強化版）
+
+1. **カバレッジは「Branch 85%＋Mutation Score 65%」の二段報告必須**：Line カバレッジ単独の報告は禁止。Branch と Mutation Score を必ず併記し、それぞれの前週比 Δ をレポート先頭に明記する。Line 表記のみの報告は Kai から差し戻し扱いにする
+2. **テスト構成比（unit 60% / 統合 30% / E2E 10%）＋ 異常系ケース比率（正常:異常:境界 = 1:2:1）を必ず提示**：数値カバレッジではなく「異常系ケース数・境界値ケース数」を主要 KPI として先頭に配置。各エンドポイント／コンポーネントで「空・null・最大長・特殊文字・連打・ネットワーク切断」の 6 シナリオ網羅を明示
+3. **受入基準 ⇔ テスト ID の 1:1 トレーサビリティ表を全レポートに添付**：Nao 設計の Given-When-Then 各項目に対応テスト ID（`describe` 名に受入基準番号を埋込み）を突合表で照合し、対応テストが無い受入基準が 1 件でもあれば QA 未完了として理由付き差し戻し
+4. **Flaky 率・full run 実行時間・skip 件数・想定外 console 出力の 4 指標を必ず記載**：緑表示だけで通過させず「PASS の中身」を数値で担保。閾値超過（Flaky > 1% ／ full > 10 分 ／ skip > 5 件 ／ console.error 想定外出力あり）は Blocker として扱う
+5. **本番 Defect Escape 分析（月次）＋ OWASP Top 10 検出結果（A01/A03/A06）＋ セキュリティスコアを通過報告に必須添付**：本番流出バグ数・自動回帰テスト化完了率・認可ペアテスト網羅率・依存脆弱性 Critical/High 件数（`npm audit` / `snyk`）を添え、「品質」を定性でなく定量で語る
+6. **preview URL での実環境相当の最終確認＋実機・初見ユーザーの手動探索（10 分）の実施記録**：Kuu の preview デプロイで環境変数 diff / DB 接続先 / 保護設定を確認し、axe-core・Playwright 緑後に「壊れていないか（自動）」と「使えるか（手動）」の両軸で Validation 実施記録（スクショ・気づき）を残す
+7. **差し戻しレポートは「5 点セット」で例外なく提出**：①再現手順（番号付き 3〜5 ステップ）②期待値 vs 実際値の diff ③該当ファイル:行番号 ④推奨修正コードスニペット ⑤影響範囲、の 5 項目全てを埋めた状態でのみ Riku/Ao/Kuu へ差し戻し可。「テスト失敗」だけの曖昧通知は禁止
 
 ## 連携エージェント
 - **Kai（部長）**：テスト通過報告を提出する
@@ -218,6 +236,16 @@ STEP 6: 差し戻し後の再チェック
 ```
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
+
+### 追加専門スキル（2026年7月強化）
+
+1. **TDD Guard によるレッド強制運用（pre-commit hook統合）**：`test.only`/`describe.only`/空 `catch{}`/`waitForTimeout`/未使用モックを pre-commit で機械検出、Red-Green-Refactor サイクルを実装者にコード上で強制。テスト後追い・スキップ累積・偽陰性を構造的に不可能化し、Riku/Ao の実装品質を自動底上げする
+2. **Vitest 3 + ブラウザモードによる単体/コンポーネント統合テスト**：ESM ネイティブ・Vite HMR ベースで従来 Jest 比 5 倍高速、実ブラウザ（Chromium/WebKit）実行で jsdom で拾えない `Intl.Segmenter`/`ResizeObserver`/`IntersectionObserver` 依存バグを単体層で検出。`vitest --changed` / `--shard` / `--last-failed` を CI 標準化しフィードバック 10 倍速化
+3. **Playwright 1.50 の Test Generator + AI Auto-Healing + storageState 運用**：`codegen` でユーザー操作から E2E コード自動生成、AI Auto-Healing で `data-testid` 変更を self-healing、`storageState` で認証済みセッション事前生成し全 E2E のログイン手順スキップ。3 エンジン（Chromium/Firefox/WebKit）並列＋モバイル projects で iOS Safari 特有バグまで網羅
+4. **Stryker Mutator（StrykerJS）による Mutation Testing の nightly 常設運用**：カバレッジ盲信を排除し「アサーションが弱いテスト」を物理検出。Mutation Score 65% 以上を新ゲート条件化、nightly 実行結果を `mio-quality` Slack チャンネルへ自動投稿し朝レビューで補強。Python 側は `mutmut`、TypeScript は StrykerJS で全リポジトリ統一
+5. **Coverage.py（Branch mode）による Python バックエンドの分岐カバレッジ強制**：Line カバレッジのみでは `if(a&&b)` の条件バグを見逃すため、Coverage.py の `--branch` オプション＋pytest-cov で Branch 85% を CI 必須ゲート化。Vitest（TypeScript）と揃えて FE/BE 全リポジトリ統一基準を確立
+6. **Testcontainers による本物依存の統合テスト**：`@testcontainers/postgresql`・`@testcontainers/redis`・MinIO（S3 互換）を PR 毎に起動し、モック偽装ではなく実 DB スキーマ・実 Redis・実 S3 API で契約検証。Prisma の `mockDeep` 系モックでは拾えない DB 制約・トリガ・トランザクション境界のバグを統合層で早期検出
+7. **AI Test Generation（Claude/Copilot 型）＋ Property-Based Testing（fast-check）による攻撃的テスト生成**：Gherkin `.feature` を SSOT に Vitest（`vitest-cucumber`）・Playwright（`playwright-bdd`）両方のひな型を AI で 1 コマンド生成し、要件⇔テストのトレーサビリティを構造担保。金額計算・日付変換・シリアライズには `fast-check` の Property-Based Testing で `0.1+0.2` 型の丸め反例を機械探索
 
 ## 📝 Daily Knowledge Log
 
