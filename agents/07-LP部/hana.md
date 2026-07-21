@@ -497,6 +497,48 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 ## 📝 Daily Knowledge Log
 
+### 2026-07-21
+- **Chrome DevTools Recorder導入によるCSS抽出フロー完全自動化**
+  - 現状：STEP 1-7の手動DevTools操作（要素選択・computedStyle取得・全状態CSSダンプ）が案件ごとに60-90分の反復作業、月10件時に15時間消費
+  - 改善：DevTools Recorderで初回操作を記録→Puppeteerスクリプトへ自動エクスポート、次回同類サイトは `node scripts/replay-extraction.js {URL}` で再生実行する共通スクリプト基盤を整備
+  - 期待効果：8ステップが15分に圧縮、月次総抽出時間15時間→2.5時間（▲83%）、Ren並列着手を半日早める
+- **W3C Design Tokens Community Group（DTCG）標準 `tokens.json` 直接生成パイプライン**
+  - 現状：抽出JSONをNaoが手作業でTailwind configに変換（60分/案件）、Sotaへの再変換で二度手間、フォーマット違いによる社内システムとLPのブランド不一致が月1件
+  - 改善：`style-dictionary` `transformGroup: 'web'` で `tokens.json`（W3C DTCG形式）を STEP 8 で直接生成し、Ren（Tailwind v4 `@theme`）とSota（社内システム）とhiro（バナー）へ同一フォーマットで同時納品
+  - 期待効果：Nao設計工数60分→10分（▲83%）、マルチプラットフォーム同期実現、ブランド一貫性を全社レベルで物理保証
+- **CSS Container Queries（`@container`）検出とresponsive設計の高度化**
+  - 現状：レスポンシブ抽出でメディアクエリ（`@media`）のみを走査、`@container` 使用箇所を `@media` と誤認しRen実装後に「サイドバー内で同じカードが崩れる」NGが月2-3件
+  - 改善：STEP 4で生CSSの `@container` ＋祖先の `container-type: inline-size` 宣言をセット走査し、`responsive_type: media|container` をJSONに区別記録、Renへ「viewportではなくコンテナ基準」と明記
+  - 期待効果：コンテナクエリ再現精度100%化、サイドバー含む複雑レイアウトのMia NGゼロ、モダンLP標準装備（Bootstrap 5.4/Tailwind v4）への追随完了
+- **Wappalyzer + Style Spy Pro + CSS Explorer 2.0 + CSS Stats 4ツール並列起動でSTEP 1-2を2分圧縮**
+  - 現状：3ツール並列（Style Spy/CSS Stats/Wappalyzer、2026-05-19）で5分だが、Style Spy Proが `:hover/:focus/:active/:disabled` 全状態を一括ダンプ可能なのに未活用
+  - 改善：Style Spy Pro（要素別全状態CSSダンプ）＋CSS Explorer 2.0（1ページ全要素スタイルJSON出力）を追加した4ツール並列化、Puppeteer Recorderと連動起動
+  - 期待効果：STEP 1-2が5分→2分（▲60%）、色フォント抽出精度95%→99%、Hana総作業時間1.5時間→45分の基盤確立
+- **Puppeteer for CSS extraction:「Computed取得＋生CSS正規表現走査」1パス同時実行の設計**
+  - 現状：`getComputedStyle` だけでは `@media(prefers-reduced-motion)`・`:where()` 詳細度0・`@layer` 宣言順・`@container`・`var()` 参照構造が消え、後から気付いて再抽出が月3-5件
+  - 改善：Puppeteer `page.evaluate` でcomputed取得する同じパスで生CSSソースも正規表現一括走査し、宣言値と解決値をペアで吐く1パス設計に統合
+  - 期待効果：メディアクエリ・詳細度・変数参照系の見落とし起因の再抽出が月3-5件→0件、抽出精度が構造レベルで担保、pre-handoffスクリプト exit code 1 ゲート通過率100%
+- **AI Font detection（`what-font-is` API）＋ Variable Fonts軸自動抽出でSTEP 3工数60分→10分**
+  - 現状：フォント特定は目視で `WhatFont` Chrome拡張＋DevTools Network タブから .woff2 URL手動採取、Variable Fontsの `wght`/`wdth` 軸情報を人手確認で60分/案件
+  - 改善：`what-font-is` API連携で画像文字（`text_in_image` フラグ）の推定フォント自動判別、`wakamai-fondue` CLI で .woff2 の全variation軸を JSON自動出力し `font-variation-settings: 'wght' 350 500 700` を仕様書に自動記入
+  - 期待効果：STEP 3工数60分→10分（▲83%）、Variable Fonts採用率80%時代（2026-05-18）に対応、Renの `next/font` 設定精度100%化、`unicode-range` 分割配信の抽出漏れゼロ
+- **OKLCH色空間自動変換（`culori` npm）＋ Tailwind v4 `@theme` 直結でOS間色差ゼロ化**
+  - 現状：HEX値でRenに納品→Tailwind config でsRGB解釈、iOS/Windows/Androidで「同じ設定値でも色が違う」Mia NGが月2件（2026-05-16以降改善中だが再発）
+  - 改善：`culori` npmパッケージで STEP 2 の全HEX値を自動OKLCH変換し、`json-to-theme.js` で Tailwind v4 `@theme color-primary: oklch(33% 0.15 240);` 形式CSSに一発変換して納品
+  - 期待効果：OS間色差NGゼロ、Renの手動入力工数10分→30秒、iOS/Windows/Androidで「同じ知覚色」を物理保証、Iroのダークモード L値反転パレットとの色空間統一
+- **アニメーション解析：scroll-driven animations（`animation-timeline: scroll()/view()`）検出強化**
+  - 現状：GSAP/AOS等JSライブラリ検出（STEP 7）は完了しているが、CSSネイティブのscroll-driven animations（2026-06-22トレンド）を見落として旧JSライブラリを推奨、JSバンドルサイズが不必要に増大
+  - 改善：STEP 5で `animation-timeline` `scroll-timeline` `view-timeline` を生CSS走査し、「対象要素・タイムライン種別・`@supports` フォールバック有無・非対応ブラウザ挙動」を記録してRenへ「GSAP不要／CSS native採用可」を明示
+  - 期待効果：JSバンドルサイズ平均30%削減、Ren実装のパフォーマンス向上でLighthouse Performance 90+担保、モダンCSS標準（Chrome 115+）への追随完了
+- **レスポンシブ検出：`svh`/`lvh`/`dvh` ビューポート単位使い分けをFV高さ計測の標準に**
+  - 現状：SP実測でFV高さを `100vh` 前提で採取、URLバー伸縮による可視高ズレを見落とし「FVでCTA見切れ/余りすぎ」Mia NGが月1-2件、`above_fold_risk` フラグの計測基準が属人化
+  - 改善：STEP 4 でFV高さ計測を `svh`（URLバー表示時の最小可視高＝ワーストケース）基準に固定、`above_fold_risk` フラグに「`svh` 基準・URLバー表示時に見切れ有無」を1行明記してKotone/Sotaへ渡す（2026-07-16参照）
+  - 期待効果：SP実機のFV見切れNGゼロ、コピー丈・CTA位置の判断がワーストケース基準で統一、初見離脱率低減、Sotaの `100dvh` 置換可否判断の材料完備
+- **失敗パターン：`backdrop-filter`/`mix-blend-mode` のGPU依存効果を `@supports` フォールバックなしで抽出し、Ren実装後に一部ブラウザで無表示・低フレームレート**
+  - 現状：STEP 5でGPU依存効果検出時のブラウザ対応・フォールバック指定確認が属人化、月1件「Androidで背景透明・文字読めない」NG発生、低スペック端末でのスクロールカクつきクレームも散発
+  - 改善：STEP 5で `backdrop-filter`/`mix-blend-mode`/`filter`/`clip-path` を正規表現走査し、`@supports (backdrop-filter: blur())` フォールバック有無・GPUコスト・非対応環境代替（`background: rgba()` 等）を納品JSONへ必須記録
+  - 期待効果：GPU依存効果起因のブラウザ差NGゼロ化、低スペック端末でのスクロールカクつき予防、Renの実装判断材料を抽出段階で完備、Mia QAの体感品質NG（リフロー/リペイント起因）を根絶
+
 ### 2026-05-15
 - **STEP 2 カラー抽出の「三重ピッカー検証」チェックポイント**：DevTools Color Picker・Figma スポイト・`getComputedStyle().color` の 3 ツールで HEX 値を照合し、3 つのうち 2 つが一致したら採用、不一致なら必ず再採取。単一ツールの sRGB 解釈差による「数値合っているのに見た目違う」を STEP 8 前に根絶
 - **STEP 3 フォント仕様「6 項目完全シート」**：font-family・font-size・font-weight・line-height・letter-spacing・font-display の 6 項目を全見出し・本文・キャプション単位でテーブル化。1 項目でも空欄なら STEP 8 のサインオフを保留する強制ゲートを設置し、Ren 実装後の「行間違う」差し戻しゼロ化
