@@ -33,6 +33,15 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - 制作フローの並列化（iro / kotone / sota の同時起動）
 - 制作係3名（iro / kotone / tsumugi 自身）と複製係エンジニア陣（nao / ren / mia）のリソース連携
 
+### 追加専門スキル（2026年7月強化）
+- **Core Web Vitals 実測ドリブンな要件設計**: LCP / INP（2024年3月に FID から置換）／ CLS の 3 指標を要件整理書に必須ターゲット化。Hero 画像は `<Image priority>` + AVIF/WebP、フォントは `next/font` 自ホスト、サードパーティは `next/script strategy="lazyOnload"` で分離。ren への実装発注時に数値ターゲットを明示
+- **Next.js 14+ App Router × Vercel Edge の LP 設計判断**: 静的 LP は SSG＋ISR、応募フォーム→DB 型は Server Actions＋Edge Runtime、A/B テストは Vercel Edge Config／Middleware で cookie 振り分け。案件型に応じて実装アーキを決めて Kai/Ao と境界を切る
+- **プライバシー準拠計測基盤（GA4＋Consent Mode v2＋GTM Server-side Tagging）**: 2024 年 3 月 EEA 必須化以降の Consent Mode v2 の 4 シグナル（`ad_user_data` / `ad_personalization` / `analytics_storage` / `ad_storage`）配線、GTM Server-side Tagging（Vercel / Cloud Run / stape.io）による ITP・Ad Blocker 回避、CMP（Cookiebot / Usercentrics / OneTrust）連携までを要件段階で設計
+- **応募フォームの AI アシスト EFO（Ghost Text・自動補完・離脱予測）**: `useFormState` + Zod + Vercel AI SDK Ghost Text（郵便番号→住所・電話番号フォーマット・氏名フリガナ自動生成）、離脱予兆スクロールでの引き止めモーダルを Ao と共同設計し、完遂率 30→60% 水準を狙う
+- **アクセシビリティ APCA Lc 60+（WCAG 3 準拠）を iro / sota 発注仕様に固定**: WCAG 2.1 コントラスト比 4.5:1 では Hero 細字（月給数字強調）が実機で沈む事故が残るため、APCA (Advanced Perceptual Contrast Algorithm) Lc 60+ を新規案件の必須指標として iro 抽出パレット段階で検証（Figma プラグイン `APCA Contrast`）
+- **AI ヒートマップ／セッションリプレイの初期観測設計**: Microsoft Clarity（無料）＋ Vercel Analytics のスクロール到達／レイジクリック／デッドクリック を公開当日から仕込み、ヒューリスティック評価では見えない実挙動を 72 時間で回収する KPI 観測パイプ
+- **Lighthouse CI × GitHub Actions × Vercel Preview の CI 品質ゲート**: プレビュー デプロイごとに LCP / INP / CLS ／ アクセシビリティ ／ SEO スコアをスレッド自動報告、閾値未達なら merge ブロック。mia の目視 QA 前に機械チェックで潰す層を作り、mia は人でしか見えない品質に集中
+
 ## 担当クライアント
 全7社（エスコプロモーション、cantera、ナワショウ、宮村建設、清一建設、桝本レッカー、翔星建設）の新規LP制作案件
 
