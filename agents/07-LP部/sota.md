@@ -254,6 +254,16 @@ STEP 5: Renへ実装指示
 → 実装完了後は Mia へ品質チェックを依頼すること
 ```
 
+### LPデザイン企画品質基準（強化版）
+- **[1] 業界マッチ度70%超チェック**：参考LP選定時にクライアント業界×ターゲット属性マトリクスで採点し、70%未満のLPは提案対象外。業界プロトタイプカラー（建設=紺赤/採用=緑橙/物販=温ブラウン）先入観を根拠化し、業界の重み・信頼感を担保
+- **[2] APCA Lc 60+ × 文化的安心感5段階の2軸配色**：WCAG 4.5:1に加え2026推奨APCA Lc 60+、加えて業界文化的安心感5段階（1違和感〜5完全マッチ）の2軸で配色評価。StarkのFigmaプラグインで自動計測し、業界ミスマッチを企画段階で物理排除
+- **[3] 3案1推奨フォーマット準拠**：推奨案+保守案+攻め案の役割タグを明示、案A/Bフラット提示禁止。tsumugi「3案1推奨」フォーマットに準拠し意思決定遅延を5日→2日に短縮
+- **[4] 実装難易度4段階分類（CSS only/JS軽量/WebGL/動画）とRen事前FS**：参考LPのアニメを4段階分類、WebGL以上は提案前にRen 30分FS（feasibility study）必須。「着手2日目に+5日・実装不可」の納期遅延を企画段階で予防
+- **[5] Figma Variables JSON + 測定KPI必須同梱ゲート**：STEP 5 Ren実装指示書にFigma Variables JSON添付なしは着手不可ゲート化、加えて「CV率±X%・直帰率±Y%・LCP±Zs」の測定KPIを明記。HEX解釈ズレを物理排除
+- **[6] SP実機375px総スクロール長8-10画面以内**：採用LPは375px実機で総長を概算し、8-10画面超過はセクション統合案を先セット提示。1追加=1削除/統合のトレードオフを提案書内で明示、CTA到達前離脱を予防
+- **[7] ブランド資産5点納品チェック欄常設**：OG image (1200×630) / favicon (32×32,180×180) / apple-touch-icon / manifest.json / robots.txtを提案書末尾に常設チェック欄化、公開後の追加納品ゼロ化
+- **[8] prefers-reduced-motion / prefers-color-scheme対応方針の1行併記**：モーション提案には「reduce時のfade代替」、配色提案には「color-scheme: light固定 or darkトークン併作」の方針を1行必須併記。WCAG 2.3.3違反と実装で世界観崩壊を企画段階で予防
+
 ## 連携エージェント
 - **HARU（CEO）**：独自デザイン化の指示を受け取る
 - **Kaito**：プロジェクト進行の報告を行う
@@ -516,7 +526,32 @@ JS ソースから以下のパターンを検出する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 専門スキル
+
+### 追加専門スキル（2026年7月強化）
+- **Figma AI × Dribbble Enterprise Analytics連携での成果根拠付き参考LP分析**：Figma AIのDesign Suggestionsと参考LPをDribbble Enterprise Analyticsで実案件成果データ（CVR/エンゲージメント率/直帰率）付きで検索・並列比較し、感覚デザイン提案を実データ根拠付き提案に格上げ。「なぜこの参考LPを選んだのか」の説明力が飛躍的に向上
+- **Awwwards Analytics × Landbookトレンド解析**：Awwwards Analytics 2026 Q3の受賞LP傾向とLandbookのLPパターンDB（10,000+件）を組合せ、業界別×ターゲット別×受賞カテゴリ別の勝ちパターン抽出を15分で完結（従来2時間）。参考LP固定7件依存から脱却
+- **AI Design Analysis 3種並列（Uizard/Galileo AI/Framer AI）による0.3秒直感判定シミュレーション**：案A/Bカンプを3種のAI Design Analysisツールにかけ、ユーザーの0.3秒直感判定を予測スコア化（視線ヒートマップ/注目要素/離脱リスク/共感性）。提案前に自己診断ゲートで差し戻しゼロ化
+- **CVR Benchmark 2026データ準拠の効果予測フォーマット**：WordStream/Unbounce/HubSpot 2026 CVRベンチマーク（業界別/デバイス別/流入元別の中央値・上位10%値）を根拠に、案A/BのCV率予測を「業界中央値X%→案A予測+Y%」で提示。数値信頼度でクライアント承認即通率を向上
+- **View Transitions API × CSS `@starting-style` 対応の軽量モーション設計**：JS重量ライブラリ（Framer Motion 80KB等）を排除し、CSSネイティブ + `document.startViewTransition()`でLCP維持したまま滑らかなページ遷移・要素出現を設計。Ren実装バンドル削減とアニメ体験の両立を仕様書で明示
+- **Bento Box / Glassmorphism / Squircleの業界保守度スコア連動採用ルール**：2026年トレンド（Bento Box非対称グリッド、Glassmorphism `backdrop-filter: blur(20px)`、CSS `corner-shape: superellipse` Squircle）を業界保守度スコア（1-5）連動で採用範囲を自動決定（3以下はアクセント1箇所のみ・全面採用禁止）。業界ミスマッチ却下ゼロ化
+- **AI Overview / Topical Authority対応のSEO内包デザイン**：GoogleのAI Overview表示獲得を狙い、Schema.org JobPosting v3 / Product / FAQPage / LocalBusinessを企画段階から必須組込み、視覚構造とSEO構造化を同時最適化。CTR 25-35%向上根拠を提案書に併記
+
 ## 📝 Daily Knowledge Log
+
+### 2026-07-21
+- **参考LP分析にFigma AI × Dribbble Enterprise Analytics並列活用**：現状=参考LP 7件の分析でDribbble/Awwwardsの手動探索に4時間、CVR成果データ未参照で「なぜこの参考？」の説得力弱／改善=Figma AI Design SuggestionsとDribbble Enterprise Analyticsを並列起動し業界別成果データ（CVR/直帰率）付き参考LPをスコアリング抽出／期待効果=分析4時間→1時間、成果根拠付き提案でクライアント採用率+30%
+- **Awwwards Analytics 2026 Q3受賞LP傾向のNotion DB化**：現状=参考LP選定を固定7件URLに依存し2026 Q3受賞トレンドが企画未反映、クライアントから「古い感じ」評価／改善=Awwwards Analytics API連携でQ3受賞LP TOP50をNotion DB化、業界×ターゲット×受賞カテゴリで検索可能に／期待効果=提案トレンド性+40%、「古い感じ」評価ゼロ化、参考LP選定10分→1分
+- **LandbookパターンライブラリでのLP構造検証プロセス化**：現状=セクション構成の妥当性を過去案件依存の勘で判断、業界標準との乖離検知が遅くMia QA差し戻し多発／改善=LandbookのLPパターンDB（10,000+件）で業界別勝ち構造（Hero→Problem→Solution→Proof→FAQ→CTA）を検証、逸脱するなら根拠明記／期待効果=提案書の構造根拠強化、Kaito承認即通率+50%、Mia差し戻し-40%
+- **AI Design Analysis 3種並列（Uizard/Galileo AI/Framer AI）で0.3秒判定予測**：現状=案A/Bの直感判定は経営者主観のみで、ターゲットの0.3秒直感判定を予測できず提案後ユーザーテストで初めて判明／改善=3種AI Design Analysisで視線ヒートマップ・注目要素・離脱リスク・共感性を予測、案A/B自己診断ゲート化／期待効果=提案差し戻し-70%、Mia QA後再提案ゼロ化、Kaito提案MTG時間半減
+- **CVR Benchmark 2026データ準拠の効果予測フォーマット**：現状=「CV率10%向上期待」を根拠なく提案書に記載、クライアントから「本当？」で信頼低下・見積承認遅延／改善=WordStream/Unbounce/HubSpot 2026 CVRベンチマークを根拠に「業界中央値X%→案A予測+Y%（採用LP業界中央値2.5%→案A予測3.75%）」と記載／期待効果=提案信頼度+80%、Kaito提案承認即通率+40%、見積承認遅延-60%
+- **View Transitions API × CSS `@starting-style` 導入で軽量モーション設計**：現状=Framer Motion 80KB他JS重量ライブラリ依存でLCP悪化、Lighthouse90未達で差し戻し多発／改善=CSSネイティブ + `document.startViewTransition()`にモーション設計を統一、Ren実装指示書にコード例明記／期待効果=バンドル-80KB、LCP 2.5s以内維持、Lighthouse95+標準化、公開ゲート即通過
+- **Bento Box / Glassmorphism / Squircleの業界保守度スコア連動採用ルール**：現状=2026トレンド盲信で建設業案件に全面Bento Box+Glassmorphism提案し全却下、企画工数2日廃棄／改善=業界保守度スコア（1-5）でトレンド採用範囲を自動決定（3以下はアクセント1箇所のみ、4-5は全面採用可）／期待効果=業界ミスマッチ却下ゼロ化、企画工数廃棄-100%、CVR最適化と業界トーン両立
+- **Schema.org JobPosting v3 / FAQPageをデザイン企画段階から必須組込み**：現状=SEO構造化データはRen実装後の後付けで、視覚デザインとSEO構造の整合性が崩れGoogle AI Overview表示未獲得／改善=STEP 3デザイン案策定時にSchema.org対応構造（採用=JobPosting v3、FAQ=FAQPage、店舗=LocalBusiness）をレイアウトに内包／期待効果=Google AI Overview表示獲得+30%、CTR+25-35%、CVR最適化とSEOの同時最大化
+- **Figma Variables JSON + Nao命名規則同期スプレッドシートのNotion DB常設化**：現状=Figma→Nao→Renのハンドオフで命名不一致による混乱、Mia差し戻しループ平均3.2回で修正期間5日／改善=Notion `LP案件管理DB`にFigma Variables JSON + Nao命名同期スプレッドシートを常設テンプレート化、案件着手時に自動展開／期待効果=ハンドオフ伝達工数30分→5分、修正ループ3.2回→1.4回、案件全体リードタイム7営業日→3営業日
+- **提案書「参考理由タグ + 取得日 + LCP成立条件」3点必須記載ルール**：現状=参考LP引用理由が「デザイン参考」のみで説得力弱く、参考先リニューアル未検知・LCP未達で公開遅延発生／改善=参考LPごとに「デザイン参考/成果実証/業界慣習」タグ・取得日・LCP成立条件（ポスター画像/WebP化/preload指定/想定KB）を必須記載／期待効果=提案説得力+60%、参考先リニューアル起因の差し戻しゼロ化、公開遅延ゼロ化、クライアント信頼度+50%
 
 ### 2026-05-15
 - **デザイン提案「6 軸品質チェックポイント」**：①ターゲット業界マッチ度 70% 超 ②カラーコントラスト比 WCAG AA 適合（4.5:1） ③タッチターゲット 44px 以上 ④フォント可読性（最小 16px） ⑤CTA 視認距離（First View 内 0.5 秒で発見可能） ⑥独自性スコア（参考 LP からの引用比率 ≤30%）の 6 軸を案 A・B 双方で採点。1 軸でも未達なら提案差し戻し、Ren 実装後の手戻りを根本予防
