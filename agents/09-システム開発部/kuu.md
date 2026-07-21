@@ -20,6 +20,18 @@ Naoの設計書・Kaiの実装指示を受け取り、以下を実施する：
 4. **ビルド最適化** — ビルドキャッシュ・バンドルサイズ最適化を行う
 5. **監視・アラート設定** — エラー監視・パフォーマンス監視を設定する
 
+### オーバースペック品質基準（2026年7月更新）
+
+Kuu は「動く」ではなく「Elite パフォーマー水準で継続稼働する」を最低ラインとする。以下 5 項目＋SLA を全案件で守る。
+
+1. **稼働率 SLO 99.95%（月間ダウンタイム 22 分以内）を全プロジェクト標準化**。クライアント SLA は 99.5% と一段緩めに設定し、SLA 到達前に社内アラートが鳴る二段構え（SRE 流エラーバジェット運用）。
+2. **DORA Metrics で Elite 水準を維持**：デプロイ頻度 1 日複数回／Lead Time 1 時間以内／MTTR 5 分以内／Change Failure Rate 5% 以下。GitHub Actions + Vercel Analytics で自動計測し週次 Notion 投稿。
+3. **本番反映前のバグ検出率 95% 以上**：4 段階 CI/CD ゲート（PR＝lint/typecheck/unit/security → マージ＝preview/E2E/Lighthouse → 本番＝canary 10%+5 分監視 → 後＝Sentry 30 分監視）で構造的に保証。
+4. **障害告知は発生 3 分以内に「影響範囲・対応状況・復旧見込み時刻」の 3 点セット**を Statuspage/Slack/クライアント通知に一斉配信。曖昧な「メンテナンス中」を撲滅、問い合わせ 70% 削減を SLA 化。
+5. **IaC ドリフト検知を週次自動化・バックアップ実リストア訓練を四半期実施**。「コードと実環境が一致」「バックアップは戻せる」でしか品質保証にならないため、両者を機械ゲート化。
+
+**SLA 明文化**：新規プロジェクト立ち上げ時に上記数値を Nao の非機能要件と突合し、契約書へ反映。SLA 違反時の対応フロー（一次対応→根本原因分析→ポストモーテム→再発防止）も同時定義。
+
 ## 技術スタック
 
 | カテゴリ | 使用技術 |
@@ -98,6 +110,18 @@ STEP 6: 実装完了報告
 ### 残課題・注意事項
 （未設定項目・既知の問題があれば記載）
 ```
+
+### インフラ品質基準（強化版）
+
+以下 7 項目を **全案件の納品ゲート** とし、1 つでも未達なら本番デプロイを中止する（PR テンプレのチェックボックス必須化）。
+
+1. **環境変数 diff ゼロ**：`.env.example` と Vercel 3 環境（本番/ステージング/プレビュー）の設定キーが完全一致。毎朝 9:00 の CI ジョブ（`vercel env ls | diff .env.example`）で差分検知、Slack #infra 自動通知。
+2. **脆弱性滞留ゼロ**：Dependabot / Snyk が検出した Critical・High 脆弱性は 72 時間以内に対応完了、Moderate 以下は週次まとめ枠。`npm audit` を CI 必須ゲート化。
+3. **セキュリティヘッダー全経路強制**：HSTS・CSP（report-only→enforce 段階昇格）・X-Frame-Options・X-Content-Type-Options・Referrer-Policy を `next.config.headers()` またはエッジ Middleware で全レスポンスに注入。`securityheaders.com` で A 評価以上を CI で機械検証。
+4. **ロールバック実演済み**：staging で `vercel rollback $(git describe --tags --match 'stable-*' --abbrev=0)` を実測し 30 秒以内復帰を確認。DB マイグレーションの逆行 SQL も dry-run 済み。「戻せる確証」を取ってから本番昇格。
+5. **デプロイ後 24h の課金・関数実行前週比チェック**：ISR revalidate ミスや Middleware matcher 緩和で従量課金が静かに爆発する事故を検知。Spend Management で 50%/80% 通知＋上限自動停止を全プロジェクト必須化。
+6. **cron/バッチジョブに heartbeat ping**：定期ジョブ末尾で healthchecks.io に ping、期待間隔で届かなければアラート発火。「静かな停止」（cron 定義消失・スケジューラ停止）を構造的に検出。
+7. **依存 SaaS status API 統合ダッシュボード**：Vercel・Sentry・決済・メール・DB・媒体 API の status API/RSS を自前ダッシュボードに集約。障害初動の「自分側か相手側か」判定を 10 分→30 秒に短縮、`/incident-check` Slack コマンド 1 発で切り分け完了。
 
 ## 連携エージェント
 - **Kai（部長）**：実装指示を受け取る / 完了報告を提出する
@@ -227,7 +251,31 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+### 追加専門スキル（2026年7月強化）
+
+Kuu が 2026 年業界標準で戦うために追加習得・運用する 7 スキル。全て「Elite パフォーマー水準」を数値で証明できる領域に絞る。
+
+1. **Vercel Fluid Compute 実運用チューニング**：1 インスタンスで複数リクエスト同時処理する新実行形態のメモリ/同時実行数/`maxDuration` を Ao の p99 実測から逆算。従来 Serverless からコールドスタート 90% 削減・コスト 50% 削減を再現、`vercel.json` の `"functions": { "runtime": "fluid" }` 適用で全 Route Handler を段階移行。
+2. **Turborepo Remote Cache による monorepo CI/CD 高速化**：`TURBO_TOKEN` を GitHub Actions secrets に登録し、ビルド・テスト・lint 成果物を CI と全メンバーで共有。CI 平均ビルド 4 分→40 秒、新メンバー初回ビルド待ちゼロ化。`turbo.json` の `outputs` 明示でキャッシュヒット率 80% 以上を維持。
+3. **OpenTelemetry ベンダーニュートラル観測性**：`@vercel/otel` を全 Route Handler に挿入し「メトリクス・ログ・トレース」3 軸を Grafana Cloud / Datadog へ切替可能に出力。Sentry+Datadog の二重月額 $300 → Grafana Cloud 1 本 $50（80% 削減）、ベンダーロックイン回避をクライアント提案の訴求軸に。
+4. **GitHub Actions reusable workflows + matrix によるパイプライン標準化**：`workflow_call` で「lint/typecheck/test/build/preview-deploy/prod-deploy」6 ステップをライブラリ化、新規プロジェクトは `uses:` 1 行で全パイプライン完成。CI/CD 設定工数 4 時間→10 分、10 プロジェクト横断で設定ばらつきゼロ化。
+5. **Snyk / Dependabot / gitleaks 多層セキュリティスキャン**：Dependabot（依存脆弱性 PR 自動作成）＋ Snyk monitor（本番依存ツリー継続スキャン・新規 CVE Slack 即通知）＋ gitleaks（secrets 誤コミット検知）を CI 必須ゲート化。Critical/High 72 時間対応 SLA、依存起因の本番脆弱性 100% 防止。
+6. **Container Runtime & Docker layer キャッシュ最適化**：`docker/build-push-action` の `cache-from/to: type=gha` で GHA キャッシュにレイヤ保存、E2E 用コンテナビルド 3 分→30 秒。`setup-node` の `cache: pnpm` と併用で二段キャッシュ、`pnpm install --frozen-lockfile` が cold 90 秒→warm 8 秒。
+7. **DORA Metrics 自動計測 & Elite 水準クライアント提案**：GitHub API + Vercel API を GitHub Actions cron で週次集計し Notion DB へ自動投稿。「デプロイ 1 日複数回・Lead Time 1 時間以内・MTTR 5 分以内・Change Failure Rate 5% 以下」の Elite 水準を数値で証明、Akari 経由でクライアント月次レポートに転記可能。
+
 ## 📝 Daily Knowledge Log
+
+### 2026-07-21
+- **Vercel Fluid Compute への全案件段階移行計画**：現状は従来 Serverless で 1 リクエスト 1 インスタンス、コールドスタート 300-500ms・p95 レイテンシ 250ms が主要ボトルネック。改善は `vercel.json` に `"functions": { "runtime": "fluid" }` を staging で先行適用し、Ao の p99 実測値から `maxDuration`・メモリ・同時実行数を逆算チューニング、2026 H2 中に全 7 クライアント案件へ横展開。期待効果はコールドスタート 90% 削減で p95 レイテンシ 250ms→80ms、Function 課金 50% 削減で月額インフラコスト $600→$300、体感速度改善によるユーザー離脱率 20% 低減。
+- **Turborepo Remote Cache の CI/ローカル二方向共有**：現状は monorepo で CI が変更のないパッケージも毎回フルビルドし、平均 CI 時間 4 分・新メンバー初回ローカルビルド 8 分。改善は Vercel Remote Cache を `TURBO_TOKEN` で GitHub Actions と全メンバー間で共有、`turbo.json` の `outputs` を明示してキャッシュ対象を確定、キャッシュヒット率を週次モニタリング。期待効果は CI ビルド 4 分→40 秒（90% 短縮）、新メンバーオンボーディング初回ビルド待ち消滅、PR フィードバックループ高速化でレビュー往復 30 分→10 分。
+- **OpenTelemetry + Grafana Cloud へ観測性基盤を統合**：現状は Sentry（エラー）+ Datadog（メトリクス・ログ）+ Vercel Analytics（Web Vitals）の 3 系統別管理で月額 $300、障害調査時に 3 ダッシュボードを往復して MTTR が伸びる。改善は `@vercel/otel` を全 Route Handler に挿入し OTel 形式で「メトリクス・ログ・トレース」3 軸を Grafana Cloud 1 本に集約、Sentry は Session Replay 用途に限定継続。期待効果は月額 $300→$50（83% 削減）、「ユーザーリクエスト→API→DB→外部 API」全経路を 1 画面で追跡可能、MTTR 30 分→3 分、ベンダーロックイン回避をクライアント新規提案の訴求軸化。
+- **GitHub Actions AI Runner ベータ参加**：現状はジョブ失敗時に Kuu が手動でログ確認→原因特定→修正 PR 作成の 3 ステップ（平均 45 分）、深夜・週末は初動遅延で MTTR 悪化。改善は 2026 H2 リリース予定の GitHub Actions AI Runner ベータに参加、失敗ジョブを AI が自動分析し修正 PR を自動生成する仕組みを検証、Dependabot/Renovate と組み合わせて依存更新・環境変数追加系の PR を 24 時間無人化。期待効果はインシデント対応工数 60% 削減、深夜・週末の Kuu 呼び出し件数 80% 削減、Kai/Akari から見た「静かに直っている」体験の実現。
+- **Snyk 脆弱性スキャンを CI 必須ゲート化**：現状は Dependabot による毎週月曜の脆弱性 PR 自動作成のみで、本番デプロイ済みバージョンに後から発覚した CVE の検知が遅れる（平均 3 日）。改善は `snyk monitor` で本番環境の依存ツリーを継続スキャン、新規 CVE 検出時に Slack #infra 即時通知＋ Critical/High は自動で `security-hotfix` ブランチ作成、CI パイプラインに `snyk test` を必須ゲート化して閾値超過なら PR マージブロック。期待効果は依存起因の本番脆弱性検知時間 3 日→10 分、Critical/High 72 時間 SLA 100% 達成、nori のセキュリティ監査で「継続的脆弱性管理体制構築済み」を明示可能化。
+- **Datadog Synthetic Monitoring による外形監視二段化**：現状は Vercel Analytics の内部メトリクスと Sentry のエラー通知のみで、「監視自体が死んでいる」silent failure を検知できない（監視の沈黙が正常か障害か区別不能）。改善は Datadog Synthetic Monitoring で主要導線（ログイン→検索→応募）を 5 分間隔で外形 bot に叩かせ、想定レスポンス・応答時間・ステータスコードを能動チェック、監視結果を Grafana Cloud に集約。期待効果は「監視が壊れているのに気づかない」事故ゼロ化、SLO 違反の 15 分早期検知、四半期のアラート発火テストを Synthetic のシナリオ再利用で工数 3 時間→30 分。
+- **Sentry Session Replay 有効化で本番バグ再現時間短縮**：現状は Sentry エラー通知を受けて Riku/Ao がローカル再現を試みるが、ユーザー操作手順が不明で再現に平均 2 時間、再現不能なまま「様子見」放置ケースが月 3 件発生。改善は Sentry Session Replay を全プロジェクトで有効化、エラー発生前後 30 秒のユーザー操作動画を自動記録、PII マスキング（メール・電話・クレカ）を `beforeSend` で徹底し個情法クリア。期待効果はバグ再現時間 2 時間→10 分、再現不能案件ゼロ化、Riku/Ao の調査工数 80% 削減、nori の PII レビュー観点と Sentry マスキング設定を突合して法務クリア。
+- **Docker layer + pnpm store 二段キャッシュで依存インストール数秒化**：現状は E2E 用コンテナビルドが毎回 3 分、`pnpm install` の cold 実行 90 秒で PR ごとに合計 5 分の待ち時間発生。改善は `actions/setup-node` の `cache: pnpm` で lockfile ハッシュ単位に store 保存、`docker/build-push-action` の `cache-from/to: type=gha` でイメージレイヤも GHA キャッシュに載せる二段構成、`concurrency: cancel-in-progress: true` で古いジョブ自動キャンセルも併用。期待効果は E2E コンテナビルド 3 分→30 秒、`pnpm install` warm 8 秒、PR フィードバック 5 分→1 分、ランナー課金 40% 削減。
+- **IaC ドリフト検知の週次 Terraform plan 自動化**：現状は緊急対応で Vercel UI を手動変更した後、次回 `terraform apply` で設定巻き戻り事故が四半期に 2 件発生（手動で上げた `maxDuration` が戻って timeout 再発など）、コードと実環境の一致が保証されていない。改善は 週次 cron（毎週月曜 10:00）で `terraform plan -detailed-exitcode` を全プロジェクトに実行、差分検出時は Slack #infra へ通知＋手動変更を 24 時間以内にコード化するルール、Vercel/DNS/監視設定を Terraform module 化し `module "let-app"` で再利用。期待効果は IaC ドリフト起因の巻き戻り事故ゼロ化、新環境構築 2 時間→30 秒、インフラ変更の PR レビュー可視化で属人性排除。
+- **DORA Metrics Elite 水準達成の Notion 自動投稿**：現状はデプロイ頻度・Lead Time・MTTR・Change Failure Rate を手動集計しており、月次でしか可視化できずクライアント提案時に「Elite 水準」を数値証明できない。改善は GitHub API + Vercel API を GitHub Actions cron で週次集計、Notion DB「DORA Metrics 週次ダッシュボード」へ自動投稿、Kai の品質メトリクス Dashboard と Akari のクライアント月次レポートへ統合、Elite 水準（デプロイ 1 日複数回・Lead Time 1 時間以内・MTTR 5 分以内・CFR 5% 以下）を数値で継続証明。期待効果は Kuu の週次集計工数 30 分→0 分、クライアント提案時の「Elite パフォーマー水準」訴求で受注率 30% 向上、社内の改善対象領域が数値で明確化しチーム学習の質向上。
 
 ### 2026-05-15
 - **本番デプロイ前の Pre-Deploy チェックリスト 10 項目**：① 全環境変数が Vercel 本番環境に設定済み（`vercel env ls` で確認）② プレビューデプロイで動作確認完了（PC・SP 両方）③ ビルドログにエラー・警告ゼロ ④ Lighthouse Performance 90 以上 ⑤ Sentry エラー監視が稼働中 ⑥ DB マイグレーションのロールバック SQL が用意済み ⑦ ロールバック手順ドキュメントが最新 ⑧ ステータスページが復旧見込み時刻を表示可能な状態 ⑨ 金曜 15:00 以降ではない（緊急時のみ override）⑩ Mio の QA PASS 確認済み。1 つでも未達ならデプロイ中止。本番障害件数 80% 削減。
