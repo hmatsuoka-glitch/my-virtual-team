@@ -59,6 +59,14 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 【納期】YYYY-MM-DD
 ```
 
+### 品質基準（強化版）
+- **要件整理書の充足度**: 7 項目ヒアリング＋共通ペルソナ 1 枚＋KGI/CSF/KPI 3 層＋Core Web Vitals 目標値（LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1）＋計測タグ棚卸し（GA4 測定 ID・Meta Pixel ID・GTM コンテナ ID・広告 CV タグ）＋素材納品チェックリスト＋Consent Mode v2 対応方針、が全て Notion ブリーフ DB で緑判定
+- **iro / kotone / sota 並列起動プロンプトの完全性**: `templates/{client}/kickoff-header.md`（共通ペルソナ・訴求 TOP3・ブランドトーン）＋各エージェント固有 3 行差分＋参考 LP の出所タグ（クライアント提示 vs tsumugi 選定）＋Hero 背景想定 1 行（濃色／淡色／写真）が全プロンプトに揃っている
+- **3 秒テスト＋差し戻し先マトリクス＋APCA Lc 60+ の企画層セルフチェック済み**: ren 実装完了報告に必須添付された 375px スクショで「何の会社／誰向け／何ができる／CTA タップ領域 44×44px／APCA コントラスト Lc 60+」を tsumugi が判定し、mia 検収前に「企画層 OK」サインを添付
+- **3 レーン公開ゲート通過証跡**: ①ファネル（GA4 リアルタイム／Meta Pixel Helper／Tag Assistant スクショで CTA クリック・フォーム送信イベント発火確認）②法務 2 系統（景表法 NG 語＋雇用関連法・年齢/性別限定表現 grep 結果 0 件・数字↔出典突合表）③実機（iPhone SE 375px / iPhone 15 Pro Max / iPad の 3 端末で CTA・月給・追従 CTA 検証）の証跡パッケージが sora QA へ添付されている
+- **Core Web Vitals ／ Lighthouse CI 数値証跡**: PageSpeed Insights モバイル LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1、Lighthouse CI パフォーマンス 90+ ／ アクセシビリティ 95+ ／ SEO 100 のスコア画面を納品レポートに添付。未達スコアがあれば公開不可
+- **公開後 24 時間モニタリング初日レポート**: 公開当日の GA4 リアルタイムでスクロール到達 50/75/100%・CTA クリック・フォーム完遂の実データ流入確認、noindex／Basic 認証／`robots.txt` 全拒否の残骸チェック、Search Console カバレッジ確認、Consent Mode v2 同意率確認、を初日中にクライアント報告
+
 ## 連携エージェント
 - kaito（LP部部長）: 大型案件で部全体のリソース配分を相談
 - iro（カラー抽出）: 制作着手時に必ず最初に起動
