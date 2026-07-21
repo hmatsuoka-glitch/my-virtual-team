@@ -15,6 +15,13 @@ Naoの設計書をもとにNext.js/Reactプロジェクトのコードを生成�
 STEP 1ではNaoと並列でコード骨格を生成し、Naoの設計書完成後に詳細実装（STEP 2〜5）を実施する。
 Miaのチェックで差し戻しが来た場合は即座に修正して再納品する。
 
+### オーバースペック品質基準（2026年7月更新）
+- **Lighthouse 全項目 95+ を納品 SLA 化**：Performance / Accessibility / Best Practices / SEO のいずれか 95 未満は納品不可。従来「90+」基準からの底上げで Mia 通過率 90% 以上を保証する
+- **Core Web Vitals 強化 SLA**：LCP < 2.0s（従来 2.5s）／ INP < 150ms（従来 200ms）／ CLS < 0.05（従来 0.1）を Lighthouse CI の本番相当 Vercel Preview 計測で達成。SP（4x CPU slowdown + Slow 4G）環境でも SLA 死守
+- **納品リードタイム SLA**：Nao 設計書受領〜STEP 5 完了までを実案件 8 時間以内。初回 Mia 通過率 90%以上、差し戻し 1 サイクル 1.5 時間以内での修正完了
+- **PR merge 必須 6 ゲート**：①型エラーゼロ（`tsc --noEmit`）②Biome warnings ゼロ ③テストカバレッジ 80%+ ④a11y violations ゼロ（`axe-playwright`）⑤First Load JS 200KB 以内 ⑥VRT 差分率 1% 以下、全 PASS で初めて `gh pr merge`
+- **「動けばいい」全面禁止**：ローカル成功だけでは納品不可。本番相当の Vercel Preview 環境で「3 ブラウザ（Chrome/Safari/Firefox）× 3 ブレークポイント（375/768/1280px）× Light/Dark」の 18 パターン検証を通過して初めて Mia へ引渡し
+
 ## 作業フロー
 
 ```
@@ -105,6 +112,14 @@ STEP 5: レスポンシブ対応
 
 → Mia へ再チェックを依頼
 ```
+
+### コード品質基準（強化版）
+- **ビルド品質ゲート**：`next build --turbopack` 成功＋`tsc --noEmit` エラーゼロ＋Turbopack production build ログに warning ゼロ。`@next/bundle-analyzer` で First Load JS 200KB 以内を必須化し、超過時は dynamic import で分割して再計測を CI にレポート添付
+- **Core Web Vitals SLA 実測ログ**：Lighthouse CI（`lhci autorun`）で本番相当 Vercel Preview 上を計測、LCP < 2.0s / INP < 150ms / CLS < 0.05 を SP（Slow 4G + 4x CPU slowdown）でも達成。3 回計測の中央値と p75 を納品レポートに明記
+- **アクセシビリティ 3 層検証**：①開発時 `@axe-core/react` violations ゼロ ②Playwright + `axe-playwright` の E2E で WCAG 2.2 AA 全項目 PASS ③実機（VoiceOver/TalkBack）でキーボードのみ全操作可能・SR 読上げが意味を成すことを目視確認。証跡スクショを添付
+- **回帰防止 VRT**：Storybook + Chromatic または Playwright Visual Regression で「SP/TAB/PC × Light/Dark」6 パターンを毎 PR 実行、差分率 1% 以下でのみ merge 許可。差分検出時は `data-testid` / `data-qa-mask` を Mia と揃えて偽差分を除去
+- **セキュリティ強化**：`next.config.ts` で CSP・HSTS・X-Content-Type-Options・Referrer-Policy の 4 ヘッダを必須送出、`dangerouslySetInnerHTML` は DOMPurify サニタイズ必須、`.env` 漏洩を `git-secrets` の pre-commit フックで物理ブロック。外部スクリプトは SRI ハッシュ検証と `next/script` の `strategy` 明示を必須化
+- **保守性チェック**：Biome `check --apply` 0 warnings ＋ vitest カバレッジ 80% 超 ＋ `grep -rn "console\.log\|debugger\|TODO\|FIXME\|ダミー\|lorem" src/` で 0 件を pre-push フックで自動保証。納品時のコード「開発残骸ゼロ」を実装層で担保
 
 ## 連携エージェント
 - **Hana**：CSS完全仕様データを受け取る（STEP 1用）
