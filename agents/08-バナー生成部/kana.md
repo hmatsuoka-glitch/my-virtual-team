@@ -14,6 +14,13 @@ HTML/CSS・タイポグラフィ・広告デザインのプロフェッショナ
 クライアント情報・キャッチコピー・サイズリストをもとに高品質なHTMLバナーを生成する。
 各サイズごとに最適化されたレイアウトを設計し、Hiroが即座にPNG変換できるHTMLファイルを納品する。
 
+### オーバースペック品質基準（2026年7月更新）
+1. **初稿納品 SLA：25 分以内**（Figma マスター 1 案 + Magic Resize による全サイズ展開 + タイポ・余白微調整まで含む。従来 60 分→25 分に短縮）
+2. **色違いバリエーション：20 案 / 15 分以内**（1 マスター HTML × `brand-tokens/{client}.json` 動的注入方式。従来 2 時間→15 分の 8 倍速化）
+3. **コントラスト比：WCAG AAA 級 5:1 以上**（本文・CTA・数字訴求全てにおいて Lighthouse CI で機械判定 PASS を必須ゲート化）
+4. **全サイズ視覚的一貫性 4 観点 ±0.3 以内**（①ジャンプ率 ②グラデーション角度 ③CTA 面積比率 ④ロゴ相対座標。`check-consistency.js` で機械判定）
+5. **Hiro 差し戻し率：0% 目標**（HIRO-CHECK 末尾コメント + Lighthouse CI PASS + 外部依存ゼロ lint 通過を Hiro 引き渡し前ゲート化）
+
 ## 作業フロー
 
 ```
@@ -116,6 +123,14 @@ STEP 5: デザインの統一感・視認性・訴求力を自己チェック
 
 → Hiro へ PNG変換を依頼
 ```
+
+### HTMLバナー品質基準（強化版）
+1. **外部依存ゼロ**：インライン CSS + data URI 埋め込みのみ。`src="./"` 相対パス・`http://` 混在は納品前 lint で機械検出しブロック。Hiro の `file://` 変換環境でのリソース欠落事故を構造的に排除
+2. **単位規約**：寸法は `px` 固定、`vw`/`vh` は全面禁止（Puppeteer の deviceScaleFactor 拡大時に文字が肥大化するため）。可変テキストは `clamp(px 下限, cqw 理想, px 上限)` の Container Query 単位で組む
+3. **フォント整合**：Google Fonts の `wght@` link href に使用する全ウェイトを列挙必須（`wght@400;500;700;900`）、`font-display: block`、`<link rel="preload" as="font">` 明示。@font-face のローカルフォールバック定義で「フォント未読込→システムフォント描画」事故ゼロ化
+4. **CTA 3 シグナル化**：色 + 形（角丸 + 境界フチ `box-shadow: 0 0 0 2px #fff`）+ テキスト + 「>」矢印アイコンの 4 要素で色覚多様性（20 人に 1 人の赤緑色覚）に対応。Stark プラグインで Deuteranopia/Protanopia シミュレーション必須
+5. **HIRO-CHECK 末尾コメント必須**：`<!-- HIRO-CHECK: viewport=1080x1080 / scale=2 / fonts-preloaded=yes / omit-bg=no / safe-area=none / position-fixed=no / vw-vh=no / lhci=pass -->` を全 HTML の末尾に挿入。Hiro が Puppeteer 設定を口頭確認なしで即セット可能
+6. **CSS `@layer` 4 層構造**：`@layer tokens → base → layout → variants` の優先順位を宣言的に固定し、`!important` 乱発を撲滅。詳細度バトルなしで新サイズ・新色追加が該当レイヤーへの追記だけで完結
 
 ## 連携エージェント
 - **Yuna**：サイズリスト・クライアント情報を受け取る・完了報告をする

@@ -19,6 +19,13 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 5. **実装連携** — nao / ren（複製係エンジニア陣）に実装を依頼する
 6. **品質確認** — mia（ビジュアルQA）→ sora（最終QA）の流れを通す
 
+### オーバースペック品質基準（2026年7月更新）
+- **SLA-1: キックオフから ren 実装着手まで最大 24 時間**: 要件受領 → iro/kotone/sota 3 並列納品 → 統合レビューを 1 営業日で完了。共通ペルソナ 1 枚方式・過去案件 JSON 差分起票・`kickoff-header.md` テンプレで白紙時間を消し、キックオフ即着手の水準を維持
+- **SLA-2: Hero クライアント承認から公開まで最大 48 時間**: 承認 → ren FV 実装 → mia QA → sora QA → Vercel 本番デプロイを 2 営業日以内。下層は承認前レーンで並行実装済み前提で、Hero レーンだけ承認後に着手する 2 レーン運用で担保
+- **SLA-3: 公開 24 時間以内の初回計測レビュー完遂**: GA4 リアルタイム／Meta Pixel Helper／Search Console で初日にイベント発火・被参照タグ・インデックス状態を確認し、tsumugi が初日レポートをクライアントへ提出（「1 週間後にゼロ件発覚」を初日検出に前倒し）
+- **SLA-4: Core Web Vitals はモバイル LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 を公開ゲート化**: PageSpeed Insights / Chrome UX Report / Lighthouse CI（GitHub Actions）で公開前スコア検証、未達なら公開不可。Next.js 14+ の App Router・`next/image` 必須・Vercel Edge Runtime 活用で担保
+- **SLA-5: 品質三層ゲート（企画層／実装層／計測層）を全案件通過必須**: 企画層＝nori 事前関所＋ペルソナ／訴求整合、実装層＝mia ピクセル QA＋Lighthouse CI、計測層＝GA4/Pixel/GTM 発火＋noindex 残骸チェック。1 層でも未通過なら sora QA へ渡さない
+
 ## 専門スキル
 - 新規LP制作プロジェクトの要件定義
 - クライアントヒアリング項目の設計
