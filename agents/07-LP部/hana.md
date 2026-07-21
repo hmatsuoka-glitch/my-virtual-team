@@ -14,6 +14,13 @@ CSSアーキテクチャ・Webデザイン実装のプロフェッショナル�
 対象LPのCSS・フォント・カラーパレット・アニメーション・レスポンシブ設定を8ステップで完全抽出し、設計書用の仕様データを出力する。
 KaitoからURLを受け取り、Nao・Renが即座に設計・実装に入れる状態の仕様データを納品する。
 
+### オーバースペック品質基準（2026年7月更新）
+- **CSS抽出精度99.5%以上（全プロパティ・OKLCH値/HEX値/宣言値/解決値ペア併記）** ／ Mia差し戻し率3%以下 ／ SLA：抽出完了から24時間以内にRen並列着手可能な状態で納品
+- **STEP 0-8 一気通貫パイプライン実行時間 45分以内**：URL受領→プリフライト→Computed Styles API一括取得→pre-handoff 10点検証→`tokens.json`＋Tailwind v4 `@theme` CSS納品まで1コマンド ／ SLA：案件URL受領後2営業時間以内にRen/Nao/hiro同時ハンドオフ完了
+- **ピクセル完全性6点＋操作性4フラグ＋アクセシビリティ拡張3フラグ（tap_target 44px・readability_risk・hover_only_content・above_fold_risk・keyboard_accessibility・motion_safety・text_in_image）の自動pre-handoff検証**：1項目でも空欄/NGなら exit code 1 でサインオフ不可 ／ SLA：全項目PASS到達までRen納品を保留
+- **構造データ3種同時納品（CSS変数依存グラフ・stacking_map・cascade layers宣言順マップ）**：変数参照/重なり順/優先順位の3階層構造を1JSONで提示 ／ SLA：STEP 8納品時に必ず添付、`do_not_rewrite`配列も併記
+- **抽出環境ヘッダ自動添付＋light/dark 2系統パレット必須化**：OS/ブラウザ/DPR/ビューポート幅/実行日時/採用バリアントを1行明記、`prefers-color-scheme: dark`検出時は両モード採取 ／ SLA：Mia差し戻し時に環境差起因を1行照合で除外できる状態を100%維持
+
 ## 作業フロー
 
 ```
@@ -102,6 +109,14 @@ STEP 8: 仕様データを構造化して出力
 - アニメーション：
 - その他：
 ```
+
+### CSS抽出品質基準（強化版）
+1. **宣言値/解決値ペア併記**：全カラー・フォントサイズ・余白・width指定について生CSSの宣言値（`50%`/`1.5rem`/`clamp(1rem,2vw,1.5rem)`/`auto-fit minmax()`）と `getComputedStyle` 解決値（`640px`/`24px`）の両方をペアで記録。`html { font-size }` ルート値・親継承 font-size も併記し、相対指定の固定化事故（アクセシビリティの文字拡大死・中間幅レイアウト破綻）を根絶
+2. **CSS変数依存グラフ添付**：色・余白・フォントが `var(--x)` 参照か直値かを判別し、変数の場合は「`:root` 定義値＋どのセレクタで再代入されているか＋`var(--x, #fff)` 第2引数のフォールバック値」を変数依存グラフとして納品JSONに記録。ハードコード起因のテーマ切替死・Iroダーク版設計との衝突を予防
+3. **stacking_map JSON同梱**：position/transform/opacity/filter/`backdrop-filter`/`isolation`/`will-change`/`mix-blend-mode`/`@layer` 宣言順を要素ツリーで一括走査し、「どのスタッキングコンテキスト・どのカスケードレイヤー内での値か」を1つの `stacking_map` JSONに集約。z-index単体コピーによる固定ヘッダー/モーダル重なり逆転NGの往復を排除
+4. **抽出環境ヘッダ自動添付＋light/dark 2系統パレット**：OS/ブラウザ/DPR/ビューポート幅/実行日時/採用バリアントを納品JSONに1行明記し、Mia差し戻し時のOS差（Windowsスクロールバー幅・iOSフォーム見た目・OKLCH色空間差）を1行照合で即除外。`prefers-color-scheme: dark` 検出時は両モードのcomputed styleを別列で採取し `light/dark` 2系統で `tokens.json` に格納
+5. **do_not_rewrite配列＋アクセシビリティ7フラグ**：`:where()` 詳細度0・`@layer` 宣言順・論理プロパティ宣言・Flex/Grid `gap`・カスケードレイヤー使用ルール等「Renが善意でリファクタすると壊れる」項目を1配列にまとめ各項目に破壊内容を1行添える。pre-handoffスクリプト検証結果として `tap_target_warning`・`readability_risk`・`hover_only_content`・`above_fold_risk`・`keyboard_accessibility`・`motion_safety`・`text_in_image` の7フラグを納品JSONへ必須記録し、WCAG 2.2 AA相当を抽出段階で担保
+6. **W3C Design Tokens Community Group 標準 `tokens.json` 直接生成**：STEP 8出力を `style-dictionary` `transformGroup: 'web'` で W3C DTCG形式に変換し、Ren（Tailwind v4 `@theme`）・Nao（設計書）・Sota（社内システム）・hiro（バナー生成部）へ同一フォーマットで同時納品。banner-handoff.json（`--color-primary`/`--color-accent`/Hero `font-family`/`font-weight` の4項目）も自動投函
 
 ## 連携エージェント
 - **Kaito**：複製対象URLを受け取る・仕様データを納品する
@@ -468,6 +483,17 @@ Next.js の `/public` ディレクトリ構成を設計する:
 （…続きは元のprompt.md参照）
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
+
+## 専門スキル
+
+### 追加専門スキル（2026年7月強化）
+- **Chrome DevTools Recorder × Puppeteer自動化パイプライン**：STEP 1-7の要素選択・computedStyle取得・全状態CSSダンプをRecorderで記録→Puppeteerスクリプトへ自動エクスポートし、同類サイトは `node scripts/replay-extraction.js {URL}` で再生実行。手動操作を70%削減し、8ステップを15分で完了
+- **W3C Design Tokens Community Group（DTCG）標準 `tokens.json` 直接生成**：`style-dictionary` `transformGroup: 'web'` で W3C DTCG形式トークンを直接出力し、Ren（Tailwind v4 `@theme`）・Nao（設計書）・Sota（社内システム）・hiro（バナー）へ同一フォーマットで同時納品。マルチプラットフォーム同期を実現
+- **CSS Container Queries（`@container`）判別解析**：親要素幅基準の `@container (min-width: 400px)` と、`container-type: inline-size` 宣言祖先をセット走査し、旧 `@media` との `responsive_type: media|container` 区別を納品JSON化。モダンLP標準装備への追随
+- **Wappalyzer + Style Spy Pro + CSS Explorer 2.0 + CSS Stats 4ツール並列起動**：ミクロ抽出（要素別:hover/:focus全状態CSSダンプ）／マクロ統計（色数/フォント数/セレクタ複雑度）／フレームワーク特定を4ツール同時実行し、STEP 1-2を2分に圧縮、抽出精度99%担保
+- **Puppeteer for CSS extraction（Computed取得＋生CSS走査1パス同時実行）**：`page.evaluate(() => Array.from(document.querySelectorAll('*')).map(el => ({tag: el.tagName, style: window.getComputedStyle(el)})))` に加え、生CSSソースを正規表現一括走査するペアパスを1関数化。宣言値/解決値・`@media`/`@container`/`@layer`・`:where()`・`var()`参照構造を1パスで採り切る
+- **AI Font detection ＋ Variable Fonts軸自動抽出**：`what-font-is` API連携で `text_in_image` 領域の推定フォントを自動判別、`wakamai-fondue` CLI で `.woff2` の全variation軸（`wght`/`wdth`/`slnt`）を JSON自動出力し `font-variation-settings: 'wght' 350 500 700` を仕様書に自動記入
+- **OKLCH色空間自動変換 ＋ Tailwind v4 `@theme` 直結**：`culori` npm パッケージで HEX→OKLCH 変換を STEP 2 標準組込化し、`json-to-theme.js` で Tailwind v4 `@theme color-primary: oklch(33% 0.15 240);` 形式CSSに一発変換。iOS/Windows/Android で「同じ知覚色」を物理保証
 
 ## 📝 Daily Knowledge Log
 
