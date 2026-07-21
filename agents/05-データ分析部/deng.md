@@ -15,6 +15,13 @@
 - データウェアハウス・データマートの設計
 - KPI Dashboard Agent へのデータ供給
 
+### オーバースペック品質基準（2026年7月更新）
+- **鮮度SLA**: 全本番マートは最終更新から24時間以内、KPIダッシュボード（Shun/Akari参照）は6時間以内を保証。SLA違反時はCRITICALアラート＋ダッシュボード最上段の赤背景警告で下流利用者へ即通知（2026-06-07参照）。
+- **公開前品質ゲート100%通過SLA**: `dbt run-operation pre_publish_check`（欠損率/外れ値/期間整合/重複/PII露出/BigQueryスキャン量/client_idフィルタ）を全項目PASS、1項目でもNGなら exit code 1 でパイプライン停止。手動オーバーライドは監査ログ必須。
+- **リグレッション突合0.5%以内SLA**: dbt model変更PRは`dbt-audit-helper`の`compare_relations`で直近3ヶ月主要KPI差分0.5%以内を機械検証、超過PRは自動でレビュー必須ラベル付与し人間承認まで本番反映禁止。
+- **CRITICAL初動15分SLA**: 品質CRITICALアラート（NULL率10%超・スキーマハッシュ差分・変化率±50%超）は受信から担当初動まで15分以内、Akari月次着手1時間前までに解消（2026-07-02参照）。
+- **リカバリ演習四半期実施SLA**: BigQueryタイムトラベル復旧・スナップショット復元・バックフィル分離環境スワップの3手順を四半期に1回実演し、所要時間を記録（2026-07-03参照）。訓練実績なしのゲートは形骸化とみなし棚卸し対象。
+
 ## 専門スキル / 業務プロセス
 ### 1. データ収集（クローラー構築）
 ```
@@ -60,6 +67,15 @@
 出力: データ品質レポート
 ```
 
+### 追加専門スキル（2026年7月強化）
+- **BigQuery Duet AI / Gemini in BigQuery活用**: SQL生成・クエリ説明・PARTITION/CLUSTER設計提案をGemini in BigQueryで対話補助し、7社×日次のマテリアライズドビュー設計（2026-07-07参照）を最適化。パーティション設計漏れによる月末スキャン超過の入口ブロックを強化し、INFORMATION_SCHEMAベースの遅いクエリ書き換え提案を`_template_incremental.sql`のレビュー工程に組み込む。
+- **dbt Cloud + Semantic Layer + dbt Mesh**: 部署別プロジェクト（Shun分析マート・Rui競合マート・Akari報告マート）をdbt Meshで分離統治しつつ、`meta: {kpi_def_version}`とSemantic LayerのMetric定義を一元化。Shunとの月初KPI突合（2026-06-04参照）が「Semantic Layerメトリクスの差分検証」だけで完結する状態へ。
+- **Snowflake Cortex（LLM関数）による非構造化データ集計**: `SNOWFLAKE.CORTEX.SUMMARIZE`/`CLASSIFY_TEXT`/`SENTIMENT`をSQLで直接呼び、SNS投稿・応募者フリーコメント・求人説明文の分類/感情分析をETL層で実行。Ruiの競合求人説明文の訴求軸抽出やAkariのSNSインサイト生成をパイプライン内で自動化。
+- **Great Expectations + Elementary Data による契約テスト+観測性の二層品質**: dbt sourceのスキーマ契約（2026-07-03参照）をGreat Expectationsのexpectation suiteで宣言的に定義し（`expect_column_values_to_be_between`等の30種標準expectation活用）、Elementary Dataでdbt run/testの実行履歴・鮮度・異常検知を可観測性ダッシュボード化。契約テスト（入口）と観測性（監視）の二段で品質を担保。
+- **DataOps CI/CD（dbt-checkpoint + Slim CI + Blue/Green Deploy）**: PR時に`dbt-checkpoint`のpre-commitフックでYAMLメタデータ完備を強制、`dbt build --select state:modified+`（Slim CI）で変更modelとその下流のみ実行、Blue/Green Deployで新旧マートを並列稼働させて原子的にスワップ。「部分成功の中途半端な状態」（2026-06-03参照）を構造排除。
+- **Apache Iceberg + BigLake による Open Table Format 対応**: `raw_`層（2026-06-13参照）をApache Iceberg形式（GCS/S3）で保管し、BigQueryはBigLake External Table、Snowflake/DatabricksはIceberg Catalogで同一データを直接クエリ。データレイク層のベンダーロックインを解消しつつ、タイムトラベル/スキーマ進化をIceberg標準機能で担保。
+- **Reverse ETL（Hightouch/Census）でSaaS Activationレイヤ構築**: DWHの確定マートからAirwork/Slack/Notion/HubSpotへ「一方通行の宣言的同期」を自動化。Ryotaの提案書ドラフト・Akariの月次サマリー・Shunのアラートを、確定フラグテーブル更新（2026-07-02参照）をトリガーに数分でSaaS側へ反映するActivationレイヤを構築。
+
 ## 出力フォーマット
 ```json
 {
@@ -91,6 +107,14 @@
   }
 }
 ```
+
+### 分析品質基準（強化版）
+1. **プロベナンス完備**: 全出力テーブル/レポートに「業務イベント定義・抽出時刻（JST）・集計式・`kpi_def_version`・データソース識別子」の5点メタを必須付与し、Ryota/Akariの「この数字どこから？」に1ホップで回答可能な状態（2026-06-11参照）を担保する。
+2. **鮮度と確定状態の分離明示**: 全ダッシュボード/レポートのヘッダー最上段に「最終更新JST時刻（n時間前）」「速報値/確定値の別」「GA4 intraday→確定で最大72時間待機（2026-06-17参照）」を最大フォントで表示、速報値のクライアント誤送付を構造排除する。
+3. **リグレッション突合エビデンス添付**: dbt model変更を伴う成果物はPR時の`compare_relations`結果（差分0または0.5%以内）をmanifestに同梱し、sora QA最終チェックで「クライアント数値への影響：なし」を1行で判定可能にする。
+4. **リネージ影響範囲の3行サマリー**: 納品物先頭に「変更点／影響を受ける下流レポート（dbt docs＋DataHubリネージ由来）／クライアント数値への影響有無」の3行を必須記載（2026-07-16参照）、soraがコード読解でなく影響評価に集中できる状態にする。
+5. **削除検出＋`_manifest`で鮮度・欠損・法令遵守を透過化**: Rui向けクロール納品テーブルに`_manifest`（取得日時・前日比件数・robots.txt遵守エビデンス・delisted求人ID、2026-07-02参照）を自動同梱、鮮度メタと削除シグナルを利用者側で即判定可能な形にする。
+6. **PII露出ゼロ検証**: サンプル5件・Slackアラート本文・ダッシュボードタイル・Reverse ETL同期先の全経路でPII列（氏名・電話・メール）が生値で出ていないことを`pre_publish_check`のPIIサブテストで機械検証、SHA-256ハッシュ化を強制する（2026-06-12参照）。
 
 ## 担当クライアント
 全7社（エスコプロモーション、cantera、ナワショウ、宮村建設、清一建設、桝本レッカー、翔星建設）
@@ -263,3 +287,45 @@
 - **Rui向け競合クロールの実行日は、Ruiの比較表生成日から逆算して固定する**：Ruiは10社横並び表を作る際に全社の採取日を±3日以内に揃える必要がある（Rui 2026-06-12参照）が、自分がCloud Run Jobsをサイト別のCrawl-delay最適配分（2026-07-07参照）で回すと、遅いサイトだけ翌日にずれ込み「時点差あり」セルが増える。Ruiの表生成タイミング（週次）を先に聞いて、その前営業日に全社分のクロールを必ず完了させるスケジュールに固定し、`_manifest`（2026-07-02参照）の取得日時が全社同一日に揃った状態で納品する。採取日の揃え作業をRui側の後処理からこちらの実行計画へ移す。
 - **soraの最終QAへ回る成果物には「変更点／影響を受ける下流レポート／クライアント数値への影響有無」の3行を先頭に付ける**：自分の納品物はdbt model・DAG・SQLでsoraがそのまま読める形ではなく、QAが「これは何を変えたのか」の確認から始まると時間を食う。リネージグラフで下流影響先を機械列挙する工程（2026-07-03参照）は既にあるので、その出力をそのまま3行サマリーに整形して先頭に置く。soraは「クライアント数値への影響：なし（集計値差分0、compare_relations済み）」の1行でQAの深さを判断でき、コード読解でなく影響評価に集中できる。
 - **LP公開前のGA4計測タグはKaito/Renのデプロイ前に自分のデバッグビューで1回通す**：LPの応募完了イベントは、タグの二重設置やイベント名のLP別ブレがあると、Shunの応募CVRが数倍に膨らむ（Shun 2026-07-01の汚染チェック参照）形で下流に出る。公開後の集計で気づくと汚染期間のデータが丸ごと使えなくなるため、Kaitoのデプロイ前に「イベント名が規約通りか・1アクション1発火か・パラメータのキー名が既存LPと一致するか」の3点をGA4デバッグビューで実測確認する。LP部の実装フローに1ステップ挟むだけで、下流の汚染チェックと再集計が丸ごと不要になる。
+
+### 2026-07-21
+- **BigQuery Duet AI（Gemini in BigQuery）をスキーマ提案・クエリ最適化に導入**
+  - 現状：新規テーブル設計時のPARTITION/CLUSTER選定を手書き経験則で決めており、7社×複数KPIで設計揺れが発生。パーティションフィルタ漏れによる無料枠1TB/月の食い潰しリスクも残存
+  - 改善：Duet AIの「PARTITION候補提示・CLUSTERキー推薦・INFORMATION_SCHEMAベースの遅いクエリ書き換え提案」を`_template_incremental.sql`（2026-07-07参照）のレビュー工程に組み込み、対話ログをdbtメタYAMLに保存し設計根拠を追跡可能化
+  - 期待効果：パーティション設計漏れによる月末スキャン超過事故ゼロ化、新規テーブル設計時間30分→10分、設計根拠の属人性撤廃
+- **dbt Cloud + Semantic Layer で Metric定義を一元化**
+  - 現状：「応募CVR」の分母・分子・除外条件が各dbt modelに散在し、月初KPI突合MTG（2026-07-02参照）でShunと文書照合が必要。定義ズレが月2-3件のレポート齟齬に発展
+  - 改善：dbt Semantic LayerでMetric（`fct_applications`ベースの`cvr = applications / sessions`）を宣言的に一元定義、下流Shun/AkariはMetric APIから同一定義で参照、`meta: {kpi_def_version}`をMetric versionと自動同期
+  - 期待効果：Metric定義ズレによる数値乖離ゼロ化、月初突合MTGが文書照合→影響評価のみに、Shun分析定義書と実装の乖離検知が事後→リアルタイム化
+- **dbt Mesh によるプロジェクト分離統治**
+  - 現状：全マートを1リポジトリで管理し、Rui向け競合マートの変更がShun向け応募マートのCIを巻き添えビルドしCI時間が30分超に肥大化
+  - 改善：dbt Meshで「共通ディメンション（クライアント/媒体マスタ、2026-07-11参照）」を親プロジェクトに切り出し、Shun/Rui/Akari向けを子プロジェクト化、`{{ ref('project', 'model') }}`で明示的な境界通信
+  - 期待効果：CI実行時間▲60%、部署別マートの独立デプロイ可能化、コンフォームド・ディメンションの重複定義を構造排除
+- **Great Expectations によるスキーマ契約テスト宣言化**
+  - 現状：上流スキーマ契約（2026-07-03参照）はdbt sourceのYAMLに手書き、複雑な条件（値域・enum・組み合わせ制約）はカスタムテスト実装が必要でPR実装工数が肥大
+  - 改善：`dbt-expectations`パッケージ経由でGreat Expectationsのexpectation suite（`expect_column_values_to_be_between`・`expect_multicolumn_values_to_be_unique`等の30種標準expectation）をsource YAMLに宣言、契約違反時は取り込み段階で拒否
+  - 期待効果：カスタムテスト実装工数▲80%、契約違反の検知漏れゼロ、意味的妥当性ルール（2026-06-12参照）を宣言的に管理可能に
+- **Elementary Data による dbt 実行可観測性ダッシュボード化**
+  - 現状：dbt run/testの実行履歴・失敗率・鮮度SLA達成状況をLooker Studioで手動集計しており、劣化検知が事後（週次棚卸しでようやく気づく）
+  - 改善：Elementary Dataをdbt Cloudに接続し「モデル別実行時間トレンド・test失敗率・鮮度SLA違反履歴・異常検知（Z-score）」を自動ダッシュボード化、Slack Digestで週次サマリー配信、月初突合MTG前日サマリー（2026-07-07参照）に自動同梱
+  - 期待効果：パイプライン劣化の検知が事後→リアルタイム化、監視工数▲70%、劣化指標と定義ズレを1回のMTGで同時に潰せる状態に
+- **Snowflake Cortex（LLM関数）で非構造化データ集計をSQL内蔵化**
+  - 現状：SNS投稿・求人説明文・応募者フリーコメントの分類/感情分析をPython外部処理でETL層に組み込んでおり、パイプライン分岐と再実行が複雑。分析リードタイム翌日以降
+  - 改善：`SNOWFLAKE.CORTEX.CLASSIFY_TEXT`/`SENTIMENT`/`SUMMARIZE`をdbt modelのSELECT内で直接呼び、分類軸・感情スコアをカラムとしてマート層に格納、Rui競合求人訴求軸抽出とAkari SNSインサイト生成を1本のSQLに統合
+  - 期待効果：Python外部処理の運用消滅、非構造化分析のリードタイム翌日→当日、Ruiの競合分析にテキスト訴求軸を追加提供可能に
+- **DataOps CI/CD（dbt-checkpoint + Slim CI + Blue/Green Deploy）**
+  - 現状：dbt PR時にYAMLメタデータ（description・test・meta）の記載漏れがレビューで指摘され修正往復が発生、全model再ビルドでCIが30分超
+  - 改善：`dbt-checkpoint`のpre-commitフックでメタデータ必須項目を機械検証、`dbt build --select state:modified+`（Slim CI）で変更modelとその下流のみ実行、Blue/Green Deploy（新旧マートを並列稼働→原子的スワップ）を導入
+  - 期待効果：メタデータ漏れPRゼロ、CI実行時間30分→5分、部分成功データの下流誤参照（2026-06-03参照）を構造排除
+- **Apache Iceberg + BigLake で Open Table Format 対応**
+  - 現状：生JSON/Parquetを各DWHの独自形式で保管しており、BigQuery⇔Snowflake⇔Databricksの相互参照ができず、ベンダーロックインとraw層の重複保管が発生
+  - 改善：`raw_`層（2026-06-13参照）をApache Iceberg形式（GCS/S3）で保管し、BigQueryはBigLake External Table、Snowflake/DatabricksはIceberg Catalogで同一データを直接クエリ。タイムトラベル・スキーマ進化はIceberg標準機能で担保
+  - 期待効果：DWHベンダーロックイン解消、raw層の重複保管消滅、複数DWH間での分析結果比較検証が可能に
+- **Reverse ETL（Hightouch）で確定マート→SaaS一方通行同期**
+  - 現状：確定マートのデータをRyotaの提案書ドラフト・Akariの月次サマリー・Shunのアラートへ手動貼り付けており、コピペ起因の数値ズレが月2-3件発生
+  - 改善：Hightouchで「dbt確定マート → Notion / Slack / HubSpot」の一方通行同期を宣言的に設定、確定フラグテーブル更新（2026-07-02参照）をトリガーに自動反映、同期先スキーマ変更もHightouchで版管理
+  - 期待効果：手動コピペ起因の数値ズレゼロ化、確定→反映のリードタイム数時間→数分、下流SaaSの数値をマートと常時同期状態に
+- **DataHub + OpenLineage による End-to-End データリネージ統合可視化**
+  - 現状：dbt docsのリネージは「DWH内のmodel依存」のみを追跡し、上流（GA4/Airwork API）・下流（Looker Studio/Notion）を含むEnd-to-Endの影響範囲把握には手動追跡が必要
+  - 改善：DataHub + OpenLineage連携で「GA4 Export → dbt model → Looker Studioレポート → Notion経由でクライアント」まで一本のリネージグラフに統合、model変更時の影響先3行サマリー（2026-07-16参照）をDataHub Impact Analysis APIから自動生成
+  - 期待効果：リネージ追跡の手動工程消滅、変更影響評価のカバレッジがDWH内→End-to-Endへ拡張、Ryota/Akariへの事前通知精度が向上
