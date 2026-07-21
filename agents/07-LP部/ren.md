@@ -354,7 +354,28 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+### 追加専門スキル（2026年7月強化）
+- **Next.js 15.3 + Turbopack production build 対応**：`next build --turbopack` を本番採用してビルド時間 60% 短縮、`unstable_cache` の第 2 引数タグ設計・`useOptimistic` フックによる楽観 UI 実装・`instrumentation.ts` での分散トレース組込までを標準装備。App Router 前提の RSC 実装極意
+- **Tailwind CSS v4 + Lightning CSS + `@theme` config-less 運用**：`postcss.config` 撤廃＋`@import "tailwindcss"`＋`@theme { --color-* }` の 3 点セットで config ファイル不要化。OKLCH ネイティブカラー空間で iOS/Android 色差ゼロ、CSS Cascade Layers（`@layer`）で shadcn オーバーライドの衝突を根絶
+- **v0 Platform API + Cursor Composer 連携で「設計書→初期骨格」自動生成**：Hana JSON＋Nao 設計書を v0 Platform API に投入して Section 単位のコード骨格を自動取得、Cursor Composer で複数ファイル一括編集して STEP 2〜3 実装時間を 70% 削減。生成コードは必ず Ren の「本番品質」基準で監査してから merge
+- **Container Queries（`@container`）による「コンポーネント基準のレスポンシブ」実装**：メディアクエリの画面幅基準から脱却し、`Card`／`Sidebar`／`Grid` 等を親コンテナ幅で分岐（`@container (min-width: 400px)`）。3 カラム→2 カラム→1 カラムの複雑レイアウトを再利用性を保ったまま実装
+- **View Transitions API（`document.startViewTransition` / Next.js `<ViewTransition>`）**：LP のマルチセクション遷移・ページ間モーフィングをネイティブ API で実装、Framer Motion の layout animation を代替してバンドル -30KB、CLS ゼロを維持しつつ 60fps の滑らかな遷移体験を提供
+- **Astro 5 選択肢の獲得（Islands Architecture 対応）**：完全静的な LP（キャンペーン・イベント LP）は Astro 5 + Astro Actions で構築、JS 出荷量を Next.js 比 90% 削減、部分的インタラクティブ領域のみ React Island 化して Lighthouse Performance 100 点を狙う技術判断力
+- **RSC + Server Actions + Streaming SSR の 3 点セット実装極意**：`loading.tsx`＋`<Suspense>`＋`after()` の組合せで「初期描画瞬間表示」「重い非同期はレスポンス後」「`revalidateTag` での即時反映」を同時実現。フォーム送信後の遅延・古いキャッシュ表示・White Screen を実装層で根絶
+
 ## 📝 Daily Knowledge Log
+
+### 2026-07-21
+- **現状→改善→期待効果①Next.js 15.3 本番ビルド Turbopack 対応**：現状は開発時のみ Turbopack で本番ビルドは Webpack のため CI 時間が案件平均 4 分／改善は `next build --turbopack` に切替＋`next.config.ts` の `experimental.turbopack` を本番前提に更新、CI キャッシュ戦略も見直し／期待効果は Vercel デプロイ時間 60% 短縮（4 分→1.5 分）で Kaito のリリースサイクル 2 倍高速化、Mia 差し戻し修正後の再デプロイも即応可能に
+- **現状→改善→期待効果②Tailwind CSS v4 `@theme` config-less 運用への完全移行**：現状は `tailwind.config.ts` に Hana JSON を展開し JIT でビルド／改善は `globals.css` 内 `@theme { --color-primary: oklch(...) }` に直接展開して config ファイル撤廃、`pnpm sync:tokens` を JSON→`@theme` パイプに書換／期待効果は STEP 1 スタイル設定 90 秒→30 秒、iOS/Android の OKLCH カラー再現精度 100% で Mia の色差 NG ゼロ化、Hana→Ren の Single Source of Truth を CSS 層に一本化
+- **現状→改善→期待効果③v0 Platform API 連携で「設計書→初期骨格」自動生成**：現状は Nao 設計書を Ren が手動で読み取り Section コンポーネントを 1 つずつ書き起こす（8 時間）／改善は v0 Platform API に Hana JSON+Nao 設計書を JSON payload で投げ、Section 単位のコード骨格を自動取得→Ren が本番品質基準で監査・改修／期待効果は STEP 2〜3 の実装時間 8 時間→2.5 時間、Ren は「監査＋高難易度実装＋パフォーマンスチューニング」に集中して品質向上
+- **現状→改善→期待効果④Cursor Composer 導入で複数ファイル一括編集を高速化**：現状はコンポーネント修正時に `Header.tsx`・`Footer.tsx`・`constants/content.ts` を個別に開いて編集（1 修正 15 分）／改善は Cursor Composer で「メインナビにお問い合わせ追加」等の意図から関連ファイル全てを AI が同時編集し Ren がレビュー・微修正／期待効果は 1 修正 15 分→4 分、Mia 差し戻し対応サイクルを 1.5 時間→30 分に圧縮、Ren の頭を「実装作業」から「設計判断」に振替
+- **現状→改善→期待効果⑤Container Queries（`@container`）でコンポーネント基準レスポンシブ実装**：現状はメディアクエリ（画面幅基準）で `Card`／`Sidebar` のサイズ分岐を行い、親コンテナが変わるとレイアウト崩れ／改善は Tailwind v4 の `@container` ユーティリティで親要素基準の分岐に切替、`Card` は親幅 400px 以下で縦積み、以上で横並びを自動判定／期待効果は 3 カラム→2 カラム→1 カラムの複雑レイアウトでコード量 40% 削減、複数箇所再利用時のレイアウト崩れ NG をゼロ化、Mia の SP レイアウト差し戻し撲滅
+- **現状→改善→期待効果⑥View Transitions API でページ遷移アニメを bundle サイズ削減**：現状は Framer Motion の layout animation でセクション間・ページ間遷移を実装し 30KB のライブラリコストを負担／改善は `document.startViewTransition` + Next.js `<ViewTransition>`（15.3 stable）で CSS ベースのネイティブ遷移に切替、`prefers-reduced-motion` 分岐も自動化／期待効果は Framer Motion 依存を削減して First Load JS -30KB、Lighthouse Performance +3 点（92→95）で SLA 95+ 達成率 100%
+- **現状→改善→期待効果⑦Astro 5 を「完全静的 LP」の選択肢として導入**：現状は全 LP を Next.js 15 で構築、キャンペーン LP のような静的中心の案件でも JS 300KB を配信して過剰／改善は Kaito と着手前に「動的機能の有無」を判定し、静的中心なら Astro 5 + Astro Actions（フォームのみ）で構築、部分的インタラクティブ領域のみ React Island 化／期待効果は静的 LP の JS 出荷量 300KB→30KB（90% 削減）、Lighthouse Performance 92→100 で「完璧納品」量産化、通信環境の悪い訪問者の離脱率 20% 改善
+- **現状→改善→期待効果⑧React Server Components 境界の最適化で TTI/INP 改善**：現状は `'use client'` をページ最上位に付けてしまう案件があり、SC のバンドル削減メリットを享受できず INP 350ms／改善は `boundary-leaf-only` ESLint カスタムルールで「`useState`/`useEffect`/イベントハンドラを持つ末端のみ `'use client'`」を error 化、`@next/bundle-analyzer` で境界の妥当性を PR 毎に可視化して Nao へフィードバック／期待効果は First Load JS 平均 40% 削減、INP 350ms→120ms で SLA 150ms 達成、SEO 初期描画も同時改善
+- **現状→改善→期待効果⑨`after()` + `revalidateTag` の非同期処理標準テンプレ化**：現状はフォーム送信 Server Action 内で GA4/Slack 通知を `await fetch()` して INP 350ms、`revalidatePath` の書き忘れで古いキャッシュがサンクスページに残る／改善は Server Action テンプレを「try { mutation } finally { after(() => fetch('/log')); revalidateTag(tag); revalidatePath(path) }」に固定し ESLint `server-action-must-revalidate` で欠落を build fail 化／期待効果はフォーム INP 350ms→90ms、送信後の古いキャッシュ表示 NG ゼロ化、Mia の「反映されない」E2E 一発通過
+- **現状→改善→期待効果⑩`next/image` の `sizes` 実測 vs 設定値の乖離を CI で自動検出**：現状は `sizes="(max-width: 768px) 100vw, 50vw"` と設定しても実際の表示幅と乖離すると SP に PC 用の巨大画像が配信され LCP 2.8s／改善は Playwright + DevTools Protocol で「実配信解像度 / 実表示幅」を計測して 20% 以上の乖離時に CI fail、`data-sizes-actual` 属性で意図した幅を明示し PR コメントに実測レポート自動投稿／期待効果は SP LCP 2.8s→1.4s、通信量 60% 削減で通信環境の悪い訪問者の離脱率 15% 改善、Vercel Image Optimization コスト 40% 削減
 
 ### 2026-05-15
 - **コミット前「pre-commit hook 4 段階」チェックポイント**：husky + lint-staged で ①Prettier フォーマット ②ESLint `--max-warnings 0` ③`tsc --noEmit` ④`vitest run --changed` を実行し、1 つでも fail なら commit ブロック。Mia QA へ低品質コードが流れる経路を物理遮断し、差し戻しを着手前に予防
