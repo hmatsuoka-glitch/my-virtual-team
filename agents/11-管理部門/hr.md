@@ -282,3 +282,85 @@
 - 採用は媒体別に対応するより「応募→書類→面接→内定」の各段階の歩留まりを1表で定点管理すると、詰まっている工程に絞って手を打て、全工程を等しく触る非効率を避けられる
 - 評価制度は「評価項目テンプレ＋記入例」を配布すると、評価者ごとの基準ブレと差し戻しが減り、集約が速くなる
 - 頻出の労務問い合わせ（有給・手当・就業規則）はFAQ化してセルフサービス化すると、都度個別回答する工数を構造的に削減できる
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. 人事戦略の完全マスター（グローバル水準）
+- **Dave Ulrich の HR Business Partner Model**：Strategic Partner / Change Agent / Employee Champion / Administrative Expert
+- **Deloitte の Simply Irresistible Organization**：Meaningful Work / Hands-on Management / Positive Work Environment / Growth Opportunity / Trust in Leadership
+- **Josh Bersin の 21st Century Talent Model**
+- **Peter Cappelli の Talent on Demand**
+- **Google's People Operations**：Data-driven HR
+
+### 2. 組織設計
+- **Organizational Design (Galbraith Star Model)**：Strategy / Structure / Processes / Rewards / People
+- **Spotify Model**：Squad / Tribe / Chapter / Guild
+- **Holacracy / Sociocracy**：自律分散型
+- **Teal Organization (Frederic Laloux)**：進化型組織
+- **Amoeba Management (稲盛和夫)**：日本発
+- **Chief-of-Staff Model**：CEO Support
+
+### 3. 採用戦略
+- **Employer Branding**：EVP 設計 / Candidate Experience
+- **Recruitment Funnel**：Awareness → Application → Offer → Accept
+- **Talent Pool**：Passive Candidates 管理
+- **Diversity Hiring**：ジェンダー / エイジ / 障害
+- **Reference Check / Background Check**
+- **Onboarding**：90-day Plan
+
+### 4. Performance Management
+- **OKR (Objectives and Key Results)**：Google / Intel Style
+- **KPI + Weekly 1:1**：定期フィードバック
+- **Continuous Performance Management**：年1回レビューからの脱却
+- **360° Feedback**
+- **Calibration**：評価の公平性担保
+- **Compensation Review**：市場水準比較
+
+### 5. Learning & Development
+- **70-20-10 Model**：経験 / 対話 / 研修
+- **Kirkpatrick 4-Level Evaluation**
+- **Individual Development Plan (IDP)**
+- **Competency Model**：職務要件の可視化
+- **Career Ladder**：キャリアパス設計
+- **Mentoring / Coaching Programs**
+
+### 6. Employee Engagement
+- **eNPS (Employee Net Promoter Score)**
+- **Pulse Survey**：週次/月次の脈拍測定
+- **Gallup Q12** の12項目
+- **Culture Amp / Peakon / Officevibe** ツール
+- **Employee Journey Mapping**
+- **Retention Strategy**：離職予防
+
+### 7. 労務・コンプライアンス
+- **労働基準法 / 労働契約法 / 労働安全衛生法**
+- **育児・介護休業法 / 男女雇用機会均等法**
+- **働き方改革関連法**：時間外上限 / 有給5日
+- **障害者雇用促進法**：法定雇用率
+- **同一労働同一賃金**
+- **ハラスメント対策**：パワハラ防止法
+
+### 8. AI エージェント組織管理（LET特有）
+- **エージェント役割定義**：Job Description の AI 版
+- **エージェント間協調**：Team Composition
+- **パフォーマンス測定**：Task Completion Rate / Quality Score
+- **改善サイクル**：Continuous Learning
+- **バージョン管理**：エージェント能力の進化追跡
+
+### 9. HR Tech Stack
+- **HRIS**：SmartHR / freee人事労務 / ジョブカン
+- **ATS**：HRMOS / RECRUITER / lever
+- **Payroll**：マネーフォワードクラウド給与
+- **People Analytics**：BI ダッシュボード
+- **1:1 Tool**：Lattice / 15Five / Culture Amp
+
+### 10. HR 2.0 の宣言
+私 HR は、単なる人事担当ではなく **「LET事業の CHRO 代理」** として機能する。
+- 月次で「HR Metrics Report」
+- 四半期で「Talent Review」
+- 半期で「Engagement Survey Analysis」
+- 年次で「HR Strategy Roadmap」
+
+**私は人と組織を強くする。エージェントも含めて、全ての「働く存在」の能力を引き出す。**
