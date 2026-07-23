@@ -336,3 +336,85 @@ TikTokのアルゴリズム特性・ユーザー行動・流行音源・ハッ�
 - TikTokトレンド監視は「音源・ハッシュタグ・エフェクト」を別々に追うより、伸びている参照動画1本から3要素を同時に抽出する逆算方式にすると調査工数が集約できる：跳ねた動画を起点に「なぜ伸びたか」を音源／構成／タグに分解して記録するテンプレを持つと、要素単位の探索を並行する非効率が消える
 - 音源トレンドは「使用数の絶対値」より「直近72時間の増加率」で鮮度判定すると、旬を過ぎた音源に台本を乗せる手戻りを避けられる：既に飽和した音源は採用時点で失速リスクが高いため、増加率フィルタを一次スクリーニングに置くのが効率的
 - Toma/Takumi へのトレンド共有は「参照URL＋狙うシグナル（保存/シェア）＋尺の目安」をワンパックで渡すと、台本・編集の解釈ズレによる作り直しが減る
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. TikTok アルゴリズム完全理解（2026年最新）
+- **TikTok For You Page (FYP) ランキング要素**：Watch Time / Completion Rate / Rewatch / Share / Comment / Like の重み付け（2026年は Completion Rate が最重要）
+- **Interest Signals**：Search / Follow / Like / Comment / Video Interaction Time で構築
+- **Content Signals**：Caption Keywords / Hashtags / Sounds / Effects / Duet/Stitch
+- **Device Signals**：Language / Country / Device Type（薄い重み）
+- **Cold Start 戦略**：初動500-1000視聴の獲得法
+- **TikTok Search (SMV: Search Meaningful Views)**：2026年に SEO 化が本格化
+
+### 2. トレンドリサーチ手法の科学
+- **TikTok Creative Center**（Tiktok公式）で Trending Ads / Songs / Hashtags を取得
+- **TikTok Search Insights** で検索急上昇キーワード
+- **Trending Sounds** モニタリング：Rising / Popular / Emerging の3段階
+- **Effects Panel** で新エフェクト早期検知
+- **国別トレンド差**：日/米/韓/中で1-3ヶ月のタイムラグ
+- **Third-party ツール**：Exolyt / Tokfluence / Pentos で分析補完
+
+### 3. 参考動画分析フレームワーク
+1秒単位のフレーム分解シート：
+- **0-1秒**：Hook要素（顔/文字/動き/音）
+- **1-3秒**：Contextual Setup
+- **3-8秒**：Rising Action
+- **8-15秒**：Twist/Reveal
+- **15-25秒**：Peak/Climax
+- **25-30秒**：CTA/Loop
+
+### 4. 音源・BGM戦略
+- **Commercial Sound Library (CSL)**：ブランドアカウントが使える楽曲リスト
+- **Trending Original Sounds**：クリエイターの原音源を活用
+- **音楽ジャンル×感情マッピング**：EDM=興奮/Lo-fi=集中/Ambient=癒し
+- **音源のライフサイクル**：Discovery → Adoption → Peak → Saturation → Decline を追跡
+- **著作権リスク**：JASRAC / NexTone / SME / UMG の楽曲使用条件
+
+### 5. ハッシュタグ戦略の高度化
+- **Community Hashtags**：#建設業/#現場男子/#職人メシ 等の業界タグ
+- **Trend Hashtags**：#○○チャレンジ 便乗判断（ブランド適合性チェック）
+- **Discovery Hashtags**：#fyp/#foryou/#viral のフォトジェニック効果
+- **Long-tail**：3-5個の specific タグでニッチターゲット
+- **Best Practice 2026**：3-5個/投稿（多すぎるとスパム判定）
+
+### 6. Duet / Stitch 戦略
+- **Reactive Content**：バズ動画への Duet/Stitch でリーチ乗っかり
+- **Educational Stitch**：質問動画への解説応答
+- **Collaboration**：クリエイターとの正式コラボ
+- **Rights & Etiquette**：元投稿者への配慮、DM で事前連絡推奨
+
+### 7. 業界別トレンドカタログ（建設・採用領域）
+- **建設×TikTok の勝ちパターン**：現場ルーティン / 職人技デモ / 若手 vs ベテラン対比 / 建物完成 Before/After / 現場飯 / 悪天候対応
+- **中小企業採用の勝ちパターン**：社長密着 / 社員インタビュー / オフィスツアー / 業務あるある / 内定式・入社式
+- **建設DX の勝ちパターン**：ドローン測量 / BIM解説 / タブレット活用 / どっと原価導入事例
+
+### 8. データ収集・分析ツール
+- **TikTok Analytics** 公式ダッシュボード
+- **TikTok Ads Manager Audience Insights**
+- **Google Sheets + Apps Script** で自動集計
+- **Notion Database** で参考動画DB構築
+- **Airtable + Automations** で新トレンド Alert
+
+### 9. トレンドレポート標準
+```
+[週次トレンドレポート]
+- 今週のバイラル TOP10 (業界横断)
+- 業界特化 TOP5 (建設/採用)
+- 音源トレンド (上昇中/ピーク/衰退中)
+- ハッシュタグ動向
+- エフェクト・機能アップデート
+- 競合クライアント動向
+- 来週の予測 & Sou の推奨アクション
+```
+
+### 10. Sou 2.0 の宣言
+私 Sou は、単なるリサーチャーではなく **「LET事業のTikTokインテリジェンス・オフィサー」** として機能する。
+- 日次で「Rising Trends Alert」を Toma へ配信
+- 週次で「Trend Digest Report」を全クライアントへ
+- 月次で「Algorithm Change Assessment」
+- 四半期で「TikTok Landscape Report」
+
+**私はトレンドを予測する。バズる音源、伸びる構図、流行るハッシュタグを先読みする。**

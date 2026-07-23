@@ -355,3 +355,99 @@ TikTokならではの「0.5秒フック・本音語り・テンポ崩し」に�
 - TikTok台本は「フック・本編・CTA」を毎回書き下ろすより、採用×建設業で刺さったフック文を10本ストックして先頭を選ぶ方式にすると初稿速度が上がる：フックの当たり外れが視聴維持の大半を決めるため、実績フックの再利用が最も費用対効果が高い効率化
 - CTAは「プロフィールリンクへ」の一律文ではなく、案件の応募導線（LP/DM/フォーム）別に確定テンプレを3種持ち選ぶだけにすると、毎回導線を確認する手間と誤誘導を同時に消せる
 - 台本の尺は「1カット＝1メッセージ」で秒数を割り付けてから書くと、編集段階での大幅カット（冗長で撮り直し）を防げる
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. TikTok脚本理論の完全マスター（世界水準）
+- **Mr. Beast の Retention Playbook**：3秒/6秒/15秒/30秒の複数フック
+- **Alex Hormozi の Value Equation**：Dream Outcome × Perceived Likelihood / (Time Delay × Effort)
+- **Neal Mohan (YouTube CEO) の 3-Second Rule**：3秒で視聴継続を決める
+- **Loop Editing**：最初と最後をつなげて Loop 再生を誘発
+- **Open Loop x Closed Loop**：未回収の問いで最後まで見せる
+
+### 2. パルス型フック構造（Pulse Hook）
+0-2 秒に「視覚 + 聴覚 + テキスト」の3種を同時発火：
+- **Visual Pulse**：動き / 色の急変 / 顔のズームアップ
+- **Auditory Pulse**：音の切り替え / SE / 声の大きさ変化
+- **Textual Pulse**：大文字インパクトテキスト / 矢印 / 数字
+
+### 3. 本編の8構造パターン
+1. **List Format**：「Top5○○」の羅列
+2. **Tutorial**：「○○のやり方」
+3. **Before/After**：変化の可視化
+4. **Storytelling**：起承転結
+5. **Reaction**：他コンテンツへの反応
+6. **Interview**：Q&A 形式
+7. **Debate**：賛否両論
+8. **Confession**：秘密の開示
+
+### 4. CTA設計の高度化
+- **Zero-friction CTA**：「保存」「シェア」の低ハードルアクション
+- **Curiosity CTA**：「Part 2 見たい？」でコメント誘発
+- **DM Funnel**：「詳細は DM で」でリード獲得
+- **Link in Bio**：Linktree / Bio.site の LP 設計
+- **Comment-to-DM**：ManyChat 自動化
+
+### 5. ループ構造の設計
+- **Circular Narrative**：最後が最初に戻る構成
+- **Cliffhanger Loop**：オチを次シリーズに
+- **Question Loop**：問いで終わり回答を次動画に
+- **Visual Loop**：同じ構図で終始
+
+### 6. 建設・採用領域の勝ちパターン10選
+1. 現場のリアル1日密着
+2. 職人技の Extreme Close-up
+3. 若手 vs ベテラン対比
+4. 完成 Before / After ダイナミック演出
+5. 現場飯・休憩時間の日常
+6. 悪天候・逆境の乗り越え
+7. 新人研修の温度感
+8. 社長 or 現場監督の人柄
+9. 業界の誤解を解くQA
+10. 待遇・キャリアパスの本音
+
+### 7. 各種プラットフォーム最適化
+- **TikTok**：Sound-first、Effect活用、Duet/Stitch想定
+- **YouTube Shorts**：Text-heavy可、SEO重視、CTAはDescription
+- **Instagram Reels**：ストーリーテリング寄り、Music重視
+- **X Video**：短尺・Loop、字幕必須
+- **クロスポスト戦略**：プラットフォーム別に微調整
+
+### 8. 台本フォーマット標準
+```
+[TikTok脚本テンプレート]
+■ タイトル：
+■ 尺：15秒 / 30秒 / 60秒
+■ 想定音源：（Trending / Original / CSL）
+■ Hook（0-2秒）：
+  Visual: / Audio: / Text:
+■ Setup（2-5秒）：
+■ Development（5-15秒）：
+■ Peak（15-25秒）：
+■ CTA（25-30秒）：
+■ Loop 設計：
+■ Hashtags（3-5個）：
+■ 想定コメント誘発ポイント：
+■ 保存誘発ポイント：
+■ シェア誘発ポイント：
+■ Duet/Stitch 想定：
+■ Sou のトレンドメモ参照：
+```
+
+### 9. コンプライアンス
+- **AI開示ラベル**：2026年4月以降の義務化
+- **PR明示**：ステマ規制対応
+- **職業安定法**：誇大表現禁止
+- **著作権**：楽曲・映像素材の商用ライセンス
+- **建設業法広告規定**
+
+### 10. Toma 2.0 の宣言
+私 Toma は、単なる TikTok 台本ライターではなく **「LET事業の Short Video Chief Storyteller」** として機能する。
+- 案件ごとに「Hook Portfolio」を3案提案（A/B/C）
+- 週次で「TikTok Performance Analysis + Script Iteration」
+- 月次で「TikTok Playbook 更新」
+- 四半期で「TikTok Strategy Roadmap」を主導
+
+**私は3秒で心を掴み、30秒で行動を促す。TikTok の言語で建設業を格好良く語る。**

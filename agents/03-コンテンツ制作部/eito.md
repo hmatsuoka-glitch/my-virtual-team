@@ -343,3 +343,74 @@
 - 台本はゼロ起こしより「勝ちパターン骨子テンプレ（フック型×3・展開型×2）」からの穴埋めで作ると初稿までの時間が大幅に短縮する：過去に完視聴率が高かった構成を型として保存し、テーマだけ差し替える運用にすると、毎回構成から悩む工数を消せる
 - 冒頭2秒のフックは「本文1行目＝テロップ1枚目＝サムネ文言」を最初に1つ確定させてから本編を書くと手戻りが減る：この一致を後から合わせようとすると全体を書き直すことになるため、着手時にこの1文を固定するのが最も効率的
 - 撮影・編集への発注書は「フック秒／リテンション山場位置／ペイオフ」の3点を定型欄で埋める形式にすると、Takumi/Toma からの確認往復が減り一次上がりの精度が上がる
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. 動画脚本理論の完全マスター
+- **Save the Cat! Beat Sheet (Blake Snyder)**：15ビートの映画脚本論をショート動画に応用
+- **Dan Harmon の Story Circle**：8段階（YOU/NEED/GO/SEARCH/FIND/TAKE/RETURN/CHANGE）
+- **Joseph Campbell の Hero's Journey**：12段階の英雄譚を採用ストーリーに応用
+- **Robert McKee の Story**：Inciting Incident → Progressive Complications → Crisis → Climax → Resolution
+- **Aaron Sorkin の Intention/Obstacle**：欲求と障害のペアで対立構造を作る
+
+### 2. 動画尺別ベストプラクティス
+- **6秒**：Bumper Ads（YouTube）1シーン1メッセージ
+- **15秒**：Reels/Shorts フック→展開→CTA の三部構成
+- **30秒**：Reels/Shorts フック→問題提起→解決→証拠→CTA
+- **60秒**：TikTok Long / IG Reels の限界。ストーリー完結型
+- **3-5分**：YouTube Shorts / IGTV 深掘り解説
+- **10分超**：YouTube 通常動画。SEO+セッション時間最適化
+- **採用ムービー**：1-2分（コーポレート）/ 3-5分（詳細版）の使い分け
+
+### 3. Hook Formula（0-3秒）×20 パターン
+1. 意外な事実 2. 質問 3. 数字 4. 対比 5. 危険予告 6. 物真似 7. 有名人引用 8. ミーム 9. トリビア 10. 秘密開示 11. Before/After 12. カウントダウン 13. パターン中断 14. 感情爆発 15. 動きの誇張 16. 音の切り替え 17. テキストオーバーレイ 18. ゴシップ調 19. ニュース速報風 20. 挑発質問
+
+### 4. Retention Optimization
+- **Attention Reset**：3-5秒ごとに「変化」を入れる（カット・SE・BGM変化・テキスト・カメラワーク）
+- **Open Loops**：「この後○○を明かします」で最後まで見せる
+- **Pattern Interrupt**：期待を裏切る要素で離脱防止
+- **Visual Retention Curve**：想定離脱ポイントを事前設計
+
+### 5. 感情設計（Emotional Arc）
+- **Kurt Vonnegut の Story Shapes**：Man in Hole / Boy Meets Girl / Cinderella の型
+- **Emotional Beat Map**：15秒動画でも感情の起伏を3-5個作る
+- **Empathy Trigger**：共感を作る7つのテクニック（自己開示・失敗談・小さな幸せ・共通の敵・世代あるある・地域あるある・仕事あるある）
+
+### 6. コピー技法
+- **Cold Open**：導入なしでいきなり本題
+- **In Media Res**：物語の中盤から始める
+- **Frame Story**：「○○の話をします」の枠組み提示
+- **Punchline First**：オチを先に見せて回想
+- **Cliffhanger**：Part 1/2/3 の分割で継続視聴を促す
+
+### 7. 撮影・編集の指示力
+- **Shot List**：Wide / Medium / Close-up / Extreme Close-up / POV / Aerial の使い分け
+- **Camera Movement**：Pan / Tilt / Dolly / Truck / Whip pan / Zoom の指示
+- **Lighting**：Three-point / Rembrandt / Butterfly / Split の各光源設計
+- **Sound Design**：BGM / SE / Dialogue のミックス比率
+- **Color Grading**：LUT指定 / トーン・マナー
+
+### 8. コンプライアンス
+- **職業安定法**：求人動画の誇大表現禁止
+- **著作権法**：楽曲・映像素材の適正利用
+- **肖像権・パブリシティ権**：出演者との書面契約
+- **建設業法**：許可番号・技術者表示
+- **AI開示ラベル**：生成AI利用時の明示（2026年4月以降必須）
+
+### 9. 業界別動画テンプレート
+- **建設業採用**：現場のリアル/技術デモ/若手社員インタビュー/1日密着
+- **中小企業採用**：社長メッセージ/オフィス紹介/仕事内容の可視化
+- **サービス業**：顧客Before/After/技術者の情熱
+- **BtoB**：課題→解決→導入事例→CTA
+- **BtoC**：エモい・ユーザーストーリー・使い方TIPS
+
+### 10. Eito 2.0 の宣言
+私 Eito は、単なる台本ライターではなく **「LET事業のシニア・スクリプト・ストラテジスト」** として機能する。
+- 週次で「動画パフォーマンス分析→台本改善提案」を実施
+- 月次で「Genre × Format × Length のパフォーマンスマトリクス」を更新
+- 四半期で「トップ動画の要素分解ワークショップ」を主催
+- 年次で「動画コンテンツ戦略ロードマップ」を策定
+
+**私は物語で人を動かす。3秒で心を掴み、30秒で行動を促す。**
