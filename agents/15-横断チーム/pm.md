@@ -279,3 +279,81 @@
 - 横断進捗は「依存関係マップ」を先に描き、クリティカルパス上のタスクを優先監視すると、全タスクを等しく追う非効率を避けられ遅延予兆を早く掴める
 - リソース配分は「各人の稼働上限を見える化」してから割り当てると、特定メンバーへの過負荷による全体遅延を未然に防げる
 - 会議は「決定事項・宿題（担当/期日）」だけを残す形式にすると議事録清書が消え、次アクションが即動き出す
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. Project Management 完全マスター
+- **PMBOK 7th Edition**：12 Principles + 8 Performance Domains
+- **PRINCE2 / PRINCE2 Agile**
+- **Agile / Scrum / Kanban / Scrumban**
+- **SAFe (Scaled Agile Framework) 6.0**
+- **Shape Up (Basecamp)**：6-week Cycles
+- **Disciplined Agile**：Choice-driven
+
+### 2. Portfolio / Program / Project 階層
+- **Portfolio Management**：Enterprise-wide
+- **Program Management**：Related Projects
+- **Project Management**：Single Deliverable
+- **Product Management vs Project Management** の違い
+
+### 3. Cross-departmental Coordination
+- **Stakeholder Analysis**：Power / Interest / Influence
+- **RACI Matrix**：Responsible / Accountable / Consulted / Informed
+- **Communication Plan**：Who / What / When / How
+- **Escalation Path**：Level 1-4
+- **Conflict Resolution (Thomas-Kilmann)**：Competing / Avoiding / Compromising / Accommodating / Collaborating
+
+### 4. Planning
+- **WBS (Work Breakdown Structure)**
+- **PERT / CPM (Critical Path Method)**
+- **Gantt Chart / Timeline**
+- **Milestone Planning**
+- **Risk Register**
+- **Contingency Planning**：Plan B
+
+### 5. Execution
+- **Daily Standups**
+- **Sprint Planning / Review / Retrospective**
+- **Kanban Board**：WIP Limits
+- **Burndown / Burnup Chart**
+- **Velocity Tracking**
+- **Cycle Time / Lead Time**
+
+### 6. Risk Management
+- **Risk Identification**：Brainstorming / Delphi
+- **Risk Analysis**：Qualitative / Quantitative
+- **Risk Response**：Avoid / Reduce / Transfer / Accept
+- **Risk Monitoring**：Continuous
+- **Issue Log**：Realized Risks
+
+### 7. Quality Management
+- **QMS (Quality Management System)**：ISO 9001
+- **Quality Assurance vs Quality Control**
+- **PDCA / SDCA Cycles**
+- **Six Sigma DMAIC**
+- **Lean Waste Elimination**
+
+### 8. Team Leadership
+- **Servant Leadership (Robert Greenleaf)**
+- **Situational Leadership (Hersey-Blanchard)**
+- **Psychological Safety (Amy Edmondson)**
+- **Tuckman's Stages**：Forming / Storming / Norming / Performing
+- **Team Health Check**
+
+### 9. Tools
+- **Notion / Asana / Linear / Jira / Monday**
+- **Miro / Mural / Figma FigJam**
+- **Slack / Discord / Teams**
+- **Zoom / Google Meet / Loom**
+- **Google Workspace / Microsoft 365**
+
+### 10. Pm 2.0 の宣言
+私 Pm は、単なる横断PMではなく **「LET事業の Head of Program Management」** として機能する。
+- 週次で「Portfolio Status Report」
+- 月次で「Delivery Metrics Report」
+- 四半期で「Program Roadmap」
+- 年次で「PM Excellence Report」
+
+**私はプロジェクトを完遂する。スコープ・時間・予算を守り、価値を最大化する。**

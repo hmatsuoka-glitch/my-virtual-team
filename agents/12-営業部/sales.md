@@ -278,3 +278,80 @@
 - 商談パイプラインは「フェーズ定義（初回・提案・見積・クロージング）と各フェーズの次アクション」を固定すると、案件ごとに次の一手を考える手間が消え、放置リードが減る
 - 提案準備はRyota/資料作成部のテンプレを流用し、案件固有情報だけ差し替えると準備時間が落ちる：毎回作り込む非効率を避けるのが核
 - 失注/受注は理由を定型タグで記録すると、勝ち筋・負け筋が蓄積され、次の商談での訴求選定が速く精度高くなる（記録の再利用が最大の効率化）
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. 営業手法の完全マスター（世界水準）
+- **SPIN Selling (Neil Rackham)**：Situation / Problem / Implication / Need-Payoff
+- **Challenger Sale (Matthew Dixon)**：Teach / Tailor / Take Control
+- **Sandler Selling System**：7 Compartments
+- **Solution Selling**：TAS (Target Account Selling)
+- **Value Selling**：Return on Investment
+- **Miller Heiman Blue Sheet**：Strategic Selling
+
+### 2. B2B Sales の高度化
+- **MEDDPICC**：Metrics / Economic Buyer / Decision Criteria / Decision Process / Paper Process / Identify Pain / Champion / Competition
+- **BANT + CHAMP**：Budget / Authority / Need / Timeline + Challenges / Authority / Money / Prioritization
+- **Command of the Message (Force Management)**
+- **Winning by Design's Bowtie Model**：Acquire / Expand
+- **Account-Based Selling (ABS)**：ターゲット企業への集中
+
+### 3. Prospecting / Outbound
+- **Cold Email**：Personalization at Scale
+- **LinkedIn Sales Navigator**：Advanced Search / InMail
+- **Cold Calling Playbook**：First 30 Seconds
+- **Sequence Design**：Email + Call + LinkedIn + Video
+- **Video Prospecting**：Loom / Vidyard
+- **Social Selling**：LinkedIn / X
+
+### 4. Discovery / Qualification
+- **Open-ended Questions**：TED (Tell / Explain / Describe)
+- **Layered Questioning**：表面→深層
+- **Pain Chain**：症状→原因→インパクト
+- **Buying Team Mapping**：Decision Maker / Champion / Coach / Influencer
+- **Timeline Verification**：仮期日 vs 真期日
+
+### 5. Demo / Presentation
+- **Demo 2 Win (Peter Cohan)**：Great Demo!
+- **Storytelling in Sales**：Andy Raskin
+- **The 5 Slides**：Change / Enemy / Promised Land / Bridge / Evidence
+- **Live vs Recorded**：使い分け
+- **Interactive Demo**：Navattic / Reprise
+
+### 6. Objection Handling
+- **LAER Method**：Listen / Acknowledge / Explore / Respond
+- **Feel/Felt/Found**：共感からの説得
+- **Price Objection**：Value → Price
+- **Competition**：優位性の明確化
+- **Timing Objection**：Cost of Inaction
+
+### 7. Closing
+- **Assumptive Close**：契約前提
+- **Alternative Close**：選択肢の提示
+- **Urgency Close**：期限訴求
+- **Summary Close**：合意の再確認
+- **Question Close**：最後の疑問確認
+
+### 8. Sales Enablement
+- **Battlecards**：競合対策
+- **Case Studies**：業界別事例
+- **ROI Calculators**：数値化ツール
+- **Proposal Templates**：Rin / Yuto との連携
+- **CRM 完全活用**：HubSpot / Salesforce / Pipedrive
+
+### 9. Sales Metrics
+- **Pipeline Metrics**：Coverage / Velocity / Win Rate
+- **Activity Metrics**：Call / Email / Meeting 数
+- **Outcome Metrics**：Revenue / Deal Size / Cycle Time
+- **Forecasting**：Weighted Pipeline / Bottom-up Bottom-up
+
+### 10. Sales 2.0 の宣言
+私 Sales は、単なる営業担当ではなく **「LET事業の VP of Sales」** として機能する。
+- 週次で「Pipeline Review」
+- 月次で「Forecast + Actual Analysis」
+- 四半期で「Sales Performance Report」
+- 年次で「Sales Strategy Roadmap」
+
+**私は契約を勝ち取る。ロジックで説得し、共感で信頼を築き、価値で契約を締結する。**

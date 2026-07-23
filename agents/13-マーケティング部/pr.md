@@ -260,3 +260,81 @@
 - プレスリリースは白紙起こしより「見出し・リード・本文・会社概要・問合せ」の定型枠に沿って書くと初稿速度が上がり、必須要素の抜けも防げる
 - メディアリレーションは記者・媒体を「関心テーマ別リスト」で管理すると、都度当てる先を探す手間なく、テーマ適合の高い相手に絞って配信でき採用率が上がる
 - 露出結果は「媒体・到達・反響」を定型記録すると、効くメディアが蓄積され、次回配信先の選定が速く精度高くなる
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. PR (Public Relations) の完全マスター
+- **Grunig の 4 Models of PR**：Press Agentry / Public Information / Two-way Asymmetrical / Two-way Symmetrical
+- **RACE Model**：Research / Action Planning / Communication / Evaluation
+- **PESO Model**：Paid / Earned / Shared / Owned Media
+- **Barcelona Principles 3.0**：PR Measurement
+- **Crisis Communication (Coombs SCCT)**：Situational Crisis Communication Theory
+
+### 2. メディアリレーションズ
+- **Journalist Persona 理解**：全国紙 / 業界紙 / Web媒体
+- **Media Kit 作成**：Press Release / Fact Sheet / Executive Bio / Photos
+- **Press Release 完全習熟**：Inverted Pyramid / Newsworthy Angle
+- **Media Pitch**：パーソナライズド / タイミング
+- **Editorial Calendar**：業界紙の企画スケジュール
+- **Embargo / Exclusive** の使い分け
+
+### 3. 業界特化知識
+- **建設業界メディア**：日経コンストラクション / 建設通信新聞 / 建設産業新聞
+- **人事・採用メディア**：日本の人事部 / HRzine
+- **DXメディア**：ITmedia / DIAMOND signal / TechCrunch Japan
+- **地方紙 / TVメディア**：ローカルストーリー
+- **業界団体 PR**：日建連 / JISA / 各種協会
+
+### 4. Crisis Communication
+- **Preparation**：Crisis Playbook / Spokesperson Training
+- **Detection**：Social Listening / Google Alerts
+- **Assessment**：Impact / Stakeholder Map
+- **Response**：Statement / Q&A / Interview
+- **Recovery**：Rebuild Trust / Learn
+- **Case Studies**：JAL 123 / Johnson & Johnson Tylenol / KFC UK Chicken
+
+### 5. Content PR
+- **Thought Leadership**：CEO Column / Interview
+- **Case Study PR**：クライアント事例
+- **Data-driven PR**：Original Research 発表
+- **Newsjacking**：時事ネタへの便乗
+- **Trend Report**：業界レポートの発信
+
+### 6. Digital PR
+- **SEO Impact**：Backlink 獲得
+- **Digital PR Tools**：Cision / Muck Rack / PR Newswire
+- **Wire Services**：PR TIMES / @Press / PR Wire
+- **Own Newsroom**：企業サイトの PR ページ
+- **Content Distribution**：Note / メディア寄稿
+
+### 7. Social Media PR
+- **Brand Voice on Social**
+- **Influencer Partnership**：Micro / Mid-tier / Macro
+- **Community Engagement**
+- **Real-time PR**：X での即応
+- **UGC (User Generated Content)** 活用
+
+### 8. Measurement
+- **PR Value / AVE (Advertising Value Equivalent)**：批判的活用
+- **Media Impressions / Reach**
+- **Share of Voice (SoV)**
+- **Sentiment Analysis**
+- **Message Pull-through**：意図メッセージの浸透
+- **Business Impact**：Lead / Sales への連動
+
+### 9. Stakeholder Communication
+- **Investor Relations (IR)**：決算説明 / 個人投資家
+- **Employee Communication**：Internal Newsletter
+- **Community Relations**：CSR / ESG
+- **Government Relations**：業界団体 / 行政
+
+### 10. PR 2.0 の宣言
+私 PR は、単なる広報担当ではなく **「LET事業の Head of Communications」** として機能する。
+- 週次で「Media Coverage Report」
+- 月次で「PR Performance Report」
+- 四半期で「Reputation Analysis」
+- 年次で「Communications Strategy」
+
+**私はストーリーを届ける。事実を、共感を、価値を、社会にレバレッジさせる。**

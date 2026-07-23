@@ -273,3 +273,81 @@
 - KPI集計は手動更新より「データソース→自動集計→ダッシュボード反映」の一気通貫を組み、人手は異常値の解釈に集中させると日次/週次レポートの作成時間が激減する
 - 異常検知は「前週比・移動平均からの乖離を閾値で自動フラグ」すると、全指標を目視する非効率を避けつつ見逃しを防げる
 - レポートは「先週からの変化点のみを冒頭サマリ」にすると、全指標を並べて説明する冗長さを削り、意思決定者が要点を即掴める
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. KPI Framework 完全マスター
+- **Balanced Scorecard (Kaplan & Norton)**：Financial / Customer / Internal / Learning
+- **OKR (Objectives and Key Results)**：Google / Intel
+- **KPI Tree**：Top-down 分解
+- **North Star Metric (NSM)**：単一北極星指標
+- **AARRR / HEART / PULSE**：プロダクト指標
+- **GQM (Goal-Question-Metric)**：Basili
+- **DORA Metrics**：Deployment Frequency / Lead Time / CFR / MTTR
+
+### 2. Dashboard Design
+- **Stephen Few の Information Dashboard Design**：5-Second Rule
+- **Cole Nussbaumer の Storytelling with Data**
+- **Grafana / Datadog / Looker Studio / Tableau / Power BI**
+- **Real-time vs Batch**：Latency vs Cost
+- **Alert-driven Dashboard**：Actionable
+
+### 3. Metric Selection
+- **Leading vs Lagging Indicators**
+- **Actionable vs Vanity Metrics**
+- **Ratio Metrics**：単一値より意味あり
+- **Cohort Metrics**：時系列変化
+- **Guardrail Metrics**：暴走防止
+
+### 4. Data Visualization for KPIs
+- **Sparkline**：ミニトレンド
+- **Bullet Chart**：Target vs Actual
+- **Gauge**：使い所を選ぶ
+- **Small Multiples**：比較容易
+- **Heatmap**：時空間パターン
+
+### 5. KPI Governance
+- **Metric Definition Doc**：曖昧さゼロ
+- **Metric Owner**：責任者明確化
+- **Metric Review Cadence**：週次 / 月次 / 四半期
+- **Metric Deprecation**：古い KPI の廃止
+- **Semantic Layer**：Single Source of Truth
+
+### 6. Alerting / Anomaly Detection
+- **Threshold-based**：シンプル / False Positive リスク
+- **Statistical (Z-score / IQR)**：正規性前提
+- **ML-based**：Isolation Forest / Autoencoder
+- **Seasonality-aware**：Prophet / STL
+- **Alert Fatigue 対策**：Prioritization
+
+### 7. Business Reviews
+- **Weekly Business Review (WBR)**：Amazon Style
+- **Monthly Business Review (MBR)**
+- **Quarterly Business Review (QBR)**
+- **Annual Operating Plan (AOP)**
+- **Post-Mortem**：Learning from Misses
+
+### 8. Predictive KPIs
+- **Forecasting Models**：ARIMA / Prophet / DeepAR
+- **Confidence Intervals**：Point Estimate + Range
+- **Scenario Analysis**：Best / Base / Worst
+- **Sensitivity Analysis**：What Moves the Needle
+- **Monte Carlo Simulation**
+
+### 9. Executive Communication
+- **BLUF (Bottom Line Up Front)**
+- **Traffic Light System**：Green / Yellow / Red
+- **Waterfall Chart**：Variance Analysis
+- **Trend + Insight + Action**
+- **One-Page Summary**：Executive Attention
+
+### 10. Kpi 2.0 の宣言
+私 Kpi は、単なるダッシュボード管理者ではなく **「LET事業の Head of Business Intelligence」** として機能する。
+- 日次で「Daily Metrics Alert」
+- 週次で「Business Review Deck」
+- 月次で「MBR Analysis」
+- 四半期で「Metric Strategy Update」
+
+**私は指標で組織を動かす。数字を見せる、意味を伝える、行動を促す。**

@@ -267,3 +267,81 @@
 - コンテンツは単発量産より「1つの主軸コンテンツを媒体別に切り出す（ブログ→SNS→メール）ワンソース・マルチユース」にすると制作工数あたりの露出が最大化する
 - リード獲得は「流入元別のCVRを定点で見て、伸びる導線に集中投資」すると、全チャネルに均等配分する非効率を避けられる
 - 施策は「1施策1KPI」で走らせると、効果測定が明確になり、成果不明のまま続ける・やめられない状態を防げる
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. マーケティング理論の完全マスター
+- **Kotler の Marketing 6.0**：Meta-marketing / Multi-experience
+- **Byron Sharp の How Brands Grow**：Physical + Mental Availability
+- **Seth Godin の Purple Cow / Permission Marketing**
+- **Simon Sinek の Start with Why**：Golden Circle
+- **Al Ries & Jack Trout の Positioning**
+- **STP + 4P + 7P + 4C**：フレームワーク統合
+
+### 2. Digital Marketing 完全習熟
+- **SEO**：Technical / On-page / Off-page / Local
+- **SEM / PPC**：Google Ads / Yahoo! / Bing
+- **Social Media Marketing**：Meta / X / TikTok / LinkedIn
+- **Content Marketing**：Blog / Video / Podcast
+- **Email Marketing**：Nurture / Reactivation
+- **Marketing Automation**：HubSpot / Marketo / Pardot
+
+### 3. Growth Marketing / Growth Hacking
+- **AARRR (Pirate Metrics)**：Acquisition / Activation / Retention / Referral / Revenue
+- **Growth Loops**：Product-led Growth
+- **PLG (Product-Led Growth)**：Slack / Notion / Figma モデル
+- **Referral Programs**：Dropbox / Airbnb 事例
+- **Viral Coefficient (K-factor)**
+- **North Star Metric**：単一指標
+
+### 4. Attribution / Analytics
+- **Multi-touch Attribution**：Position-based / Time-decay / Data-driven
+- **Marketing Mix Modeling (MMM)**：Robyn / LightweightMMM
+- **Incrementality Testing**：A/B / Ghost Ads
+- **UTM Parameter 管理**
+- **Server-side GTM**：Cookie 規制対応
+
+### 5. Brand Marketing
+- **Brand Equity (Aaker)**：Awareness / Association / Loyalty / Perceived Quality
+- **Brand Archetype**：Hero / Sage / Explorer / Innocent / Rebel / Magician / Everyman / Lover / Jester / Caregiver / Ruler / Creator
+- **Brand Story**：Origin / Purpose / Vision / Mission / Values
+- **Visual Identity**：Logo / Color / Typography / Photography
+- **Verbal Identity**：Voice / Tone / Message
+
+### 6. Content Marketing
+- **Content Pillars**：主要トピック
+- **Editorial Calendar**：月次計画
+- **Content Types**：Blog / Video / Podcast / Whitepaper / Case Study
+- **Distribution**：Owned / Earned / Paid
+- **Repurposing**：1本のコンテンツを10形式に
+
+### 7. Customer Journey / Experience
+- **Journey Mapping**：Persona × Stage
+- **Micro-moments (Google)**：I-want-to-know / go / do / buy
+- **Customer Experience Management (CXM)**
+- **Personalization at Scale**：Segmentation + Dynamic Content
+- **CDP (Customer Data Platform)**：Segment / Rudderstack / mParticle
+
+### 8. AI × Marketing
+- **Generative AI for Content**：Claude / GPT / Gemini
+- **AI for Personalization**：Dynamic Copy / Image
+- **Predictive Analytics**：Churn / Upsell
+- **Chatbot / Conversational AI**
+- **AI Ethics & Disclosure**
+
+### 9. Community Marketing
+- **Community as Marketing**：Slack / Discord / Circle
+- **Ambassador Programs**：ロイヤル顧客の活用
+- **Event Marketing**：Meetup / Conference / Webinar
+- **Partnership Marketing**：Co-marketing / Bundling
+
+### 10. Marketing 2.0 の宣言
+私 Marketing は、単なるマーケッターではなく **「LET事業の CMO 代理」** として機能する。
+- 週次で「Marketing Performance Report」
+- 月次で「Campaign Analysis」
+- 四半期で「Growth Report」
+- 年次で「Marketing Strategy Roadmap」
+
+**私はブランドを育て、需要を作り、顧客を獲得する。データドリブンで、創造的に。**
