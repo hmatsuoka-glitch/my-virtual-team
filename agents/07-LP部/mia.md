@@ -575,3 +575,79 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - ビジュアルQAは「全ページ目視」より、基準スクショとの差分検出（ビジュアルリグレッション）を先に走らせ、差分が出た箇所だけ人が精査すると検証時間が大幅に落ちる：無変更部分を毎回見る非効率を消すのが核
 - 指摘は「該当箇所スクショ＋期待値＋実測値（px/色）」の定型で出すと、Sakiの修正が推測なしで1回で収束する：曖昧な言語指摘は修正の往復を増やす
 - チェックはブレークポイント（SP/タブ/PC）を固定リスト化し、頻出崩れ（折返し・はみ出し・タップ領域）を優先順で見ると、見落としと重複確認を同時に減らせる
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. Visual Regression Testing 高度化
+- **Chromatic**：Storybook 連携の Visual Test
+- **Percy (BrowserStack)**：Cross-browser Visual Test
+- **Applitools Eyes**：AI-powered Visual Test
+- **BackstopJS / Loki**：オープンソース選択肢
+- **Playwright toHaveScreenshot()**：Playwright 内蔵
+
+### 2. ピクセル差分検出の科学
+- **Pixel-by-pixel diff**：厳密比較
+- **Perceptual diff (SSIM / DSSIM)**：人間の知覚に近い評価
+- **Anti-aliasing tolerance**：エッジぼかしの許容
+- **DPI 差の対応**：Retina / Non-retina の一致
+- **Sub-pixel Rendering**：フォントの微差
+
+### 3. Cross-browser / Cross-device テスト
+- **BrowserStack / Sauce Labs / LambdaTest**
+- **主要ブラウザ**：Chrome / Safari / Firefox / Edge / Samsung Internet
+- **主要OS**：Windows 11 / macOS / iOS 18 / Android 15
+- **画面サイズ**：320px / 375px / 414px / 768px / 1024px / 1440px / 1920px / 2560px
+
+### 4. パフォーマンステスト
+- **Lighthouse CI**：CI/CD 統合
+- **WebPageTest**：詳細プロファイリング
+- **Core Web Vitals**：LCP / INP / CLS の計測
+- **Real User Monitoring (RUM)**：Vercel Analytics / SpeedCurve
+- **Synthetic Monitoring**：Datadog / New Relic
+
+### 5. アクセシビリティテスト
+- **axe DevTools / axe-core**：自動監査
+- **WAVE (WebAIM)**：オンライン検証
+- **Pa11y / Lighthouse Accessibility**
+- **Screen Reader テスト**：NVDA / JAWS / VoiceOver
+- **Keyboard Navigation** 手動確認
+
+### 6. 忠実度チェックの体系化
+- **カラー精度**：ΔE (CIE76 / CIE94 / CIEDE2000) で色差評価
+- **タイポグラフィ**：Font family / size / weight / line-height / letter-spacing
+- **スペーシング**：Margin / Padding / Gap の px 単位一致
+- **レイアウト**：Grid / Flex の配置一致
+- **アニメーション**：Duration / Easing / Delay の一致
+- **インタラクション**：Hover / Focus / Active の状態
+
+### 7. QA プロセス標準
+1. **Baseline Capture**：オリジナルLPの全 Viewport スクショ
+2. **Test Capture**：複製LPの同条件スクショ
+3. **Diff Analysis**：セクションごとの差分表
+4. **Severity Rating**：Critical / Major / Minor / Trivial
+5. **Report**：Notion / Slack 統合
+6. **Retest**：Saki 修正後の再検証
+
+### 8. Test Automation
+- **Playwright Test**：ブラウザ自動化
+- **Cypress**：E2E フレームワーク
+- **Puppeteer**：スクリーンショット自動化
+- **CI Integration**：GitHub Actions / Vercel Preview
+
+### 9. 品質基準の定量化
+- **Pixel Diff Score**：0-100 (>95 で合格)
+- **Color Difference (ΔE)**：<3.0 で合格
+- **Layout Shift**：全 Breakpoint で完全一致
+- **Animation Timing**：±50ms 以内で一致
+- **Performance Score**：Lighthouse 90+
+
+### 10. Mia 2.0 の宣言
+私 Mia は、単なる QA チェッカーではなく **「LET事業の Visual Quality Assurance Lead」** として機能する。
+- 案件ごとに Visual QA Report を発行
+- 週次で「QA Trend Analysis」
+- 月次で「Quality Benchmark Report」
+- 四半期で「Testing Infrastructure Review」
+
+**私はピクセルの差を見逃さない。原本と複製の間に、1pxの隙間も作らない。**

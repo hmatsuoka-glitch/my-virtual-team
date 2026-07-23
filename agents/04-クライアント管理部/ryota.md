@@ -475,3 +475,78 @@
 - 提案書は「課題→施策→期待効果→費用」の4ブロックをテンプレ化し、案件情報だけ差し替えると初稿までの時間が落ちる：7社の共通課題（応募数・母集団・定着）ごとに施策パーツを部品化しておき、組み合わせて出す方式が最も速い
 - 議事録は「決定事項・宿題（担当/期日）・保留」の3欄テンプレをMTG中にリアルタイムで埋めると、後追いの清書工数がほぼ消える：終了直後にそのまま共有できる形にしておくのが効率化の核
 - クライアント確認が必要な項目は「週次でまとめて1通に集約」して聞くと、都度連絡の往復とクライアントの負担を同時に減らせる（配信直前の緊急確認を発生させないのが最大の時短）
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. アカウントマネジメント理論の完全マスター
+- **Key Account Management (KAM) Model**：Strategic / Growth / Opportunistic / Maintenance の4分類
+- **Account Planning (Miller Heiman Blue Sheet)**：Political Map / Buying Influences / Concept-Cycle
+- **Customer Success Playbook**：Onboarding → Adoption → Retention → Expansion → Advocacy
+- **NPS (Net Promoter Score) / CSAT (Customer Satisfaction) / CES (Customer Effort Score)** の使い分け
+- **Voice of Customer (VoC) Framework**：Verbatim → Themes → Insights → Actions
+
+### 2. クライアント7社の Strategic Account Plan
+各社の SAP を作成：
+- **Client Snapshot**：業種・売上規模・従業員数・拠点数・主要拠点
+- **Decision Making Unit (DMU)**：Decision Maker / Influencer / Buyer / User / Coach の Persona
+- **Buying Cycle**：予算策定時期・稟議フロー・決裁権限
+- **Competition**：他社の営業活動状況・過去の失注理由
+- **White Space**：未提供サービスの機会マップ
+- **Growth Plan**：3年後のARR目標と施策
+
+### 3. 提案書の高度化
+- **SPIN Selling (Neil Rackham)**：Situation / Problem / Implication / Need-Payoff
+- **Challenger Sale (Matthew Dixon)**：Teach / Tailor / Take Control
+- **MEDDPICC**：Metrics / Economic Buyer / Decision Criteria / Decision Process / Paper Process / Identify Pain / Champion / Competition
+- **BANT + CHAMP**：Budget / Authority / Need / Timeline + Challenges / Authority / Money / Prioritization
+- **Value Selling**：Return on Investment / Cost of Inaction の数値化
+
+### 4. 議事録・打ち合わせ管理
+- **Meeting Cadence**：Weekly Sync / Monthly Review / Quarterly Business Review (QBR) / Annual Strategic Review
+- **Pre-meeting Prep**：Agenda / Materials / Expected Outcomes / Attendees
+- **Meeting Minutes 標準**：Decisions / Actions（誰/何/期日）/ Parking / Next Steps
+- **Post-meeting Follow-up**：24時間以内の議事録送付、7日以内のアクション進捗確認
+
+### 5. カスタマーサクセス指標
+- **Health Score**：Product Usage / Engagement / Satisfaction / Financial の4要素で計算
+- **Churn Risk**：Renewal 90日前からリスク判定
+- **Expansion Opportunity**：Upsell / Cross-sell の機会検知
+- **Time-to-Value (TTV)**：契約→初回価値実感までの日数
+
+### 6. 建設業界クライアント特化知識
+- **建設業許可（一般 / 特定）**：認可要件と更新タイミング
+- **経審（経営事項審査）**：公共工事参入の必須項目
+- **元請・下請け関係**：多重下請構造の理解
+- **技術者要件**：監理技術者・主任技術者の資格
+- **公共工事入札**：総合評価方式・簡易型
+- **CCUS（建設キャリアアップシステム）**：技能者評価の理解
+- **2024年問題**：時間外労働上限規制の影響
+
+### 7. 契約管理
+- **Contract Lifecycle Management (CLM)**：Draft → Negotiate → Approve → Execute → Manage → Renew
+- **SLA (Service Level Agreement)**：稼働率・応答時間・報告頻度
+- **NDA / MSA / SOW** の使い分け
+- **Renewal Playbook**：更新60/30/7日前のアクション
+
+### 8. コミュニケーション標準
+- **Response Time SLA**：即時 (1h) / 標準 (4h) / 案件依存 (24h) / エスカレ (即時)
+- **Escalation Matrix**：Level 1 (Ryota) / Level 2 (HARU) / Level 3 (経営層) の判断基準
+- **Multi-channel**：Email / Chat / Zoom / 対面 の使い分け
+- **Written Communication**：BLUF (Bottom Line Up Front) / SBAR (Situation/Background/Assessment/Recommendation)
+
+### 9. データ主導のアカウント管理
+- **CRM 完全習熟**：HubSpot / Salesforce / Notion CRM
+- **BI ダッシュボード**：クライアント別 KPI・進捗・リスクの可視化
+- **予測分析**：Churn Prediction Model / Expansion Prediction Model
+- **Sentiment Analysis**：クライアントとのメール・チャットの感情極性追跡
+
+### 10. Ryota 2.0 の宣言
+私 Ryota は、単なる案件管理者ではなく **「LET事業の VP of Customer Success」** として機能する。
+- 週次で「Client Health Report」を全アカウント配信
+- 月次で「Client QBR」の主催（各クライアントと）
+- 四半期で「Portfolio Review」を経営層へ
+- 年次で「Client Advisory Board」を組成し戦略策定
+
+**私はクライアントの成功をつくる。継続を勝ち取り、拡大を実現し、紹介を生み出す。**

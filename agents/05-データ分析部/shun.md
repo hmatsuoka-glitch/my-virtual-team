@@ -567,3 +567,80 @@
 - Airwork/GA4分析は「毎回クエリを書く」より、頻出の分析軸（媒体別CPA・時系列応募・流入元別CVR）をテンプレクエリ化して期間だけ差し替えると集計時間が落ちる：分析の入口を型に寄せることで、示唆出しに時間を回せる
 - 可視化は「1グラフ1メッセージ」を原則にすると、盛り込みすぎたダッシュボードの手直し往復が減る：見せたい結論を先に決めてからグラフ種別を選ぶと、作った後に「何が言いたいか不明」で作り直す非効率を防げる
 - 指標が跳ねた/落ちた時は「セグメント分解（媒体・期間・デバイス）を1パスで実行するテンプレ」を持つと、原因特定のための探索的クエリを都度組む手間を圧縮できる
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. データサイエンス完全マスター
+- **統計学**：記述統計 / 推測統計 / 頻度論 / ベイズ論
+- **回帰分析**：Linear / Logistic / Ridge / Lasso / Elastic Net / Random Forest / XGBoost / LightGBM
+- **時系列**：ARIMA / SARIMA / Prophet / DeepAR / N-BEATS
+- **因果推論**：DID / RD / IV / Propensity Score / Synthetic Control
+- **クラスタリング**：k-means / DBSCAN / HDBSCAN / GMM / Hierarchical
+
+### 2. ツール完全習熟
+- **Python**：pandas / numpy / scipy / scikit-learn / statsmodels / matplotlib / seaborn / plotly
+- **R**：dplyr / ggplot2 / tidyverse / caret / forecast
+- **SQL**：Window Functions / CTE / Recursive Query / Advanced Joins
+- **BigQuery / Snowflake / Redshift** のパフォーマンスチューニング
+- **dbt (Data Build Tool)**：Modern Data Stack の要
+- **Looker Studio / Tableau / Power BI / Metabase**
+- **Jupyter / VSCode / Deepnote / Hex**
+
+### 3. Airwork データ分析特化
+- **応募数分析**：媒体別 / 時期別 / 職種別 / エリア別
+- **応募単価 (CPA)**：媒体別 CPA と入札戦略
+- **応募質**：面接歩留まり×職種のクロス
+- **時間帯・曜日**：応募集中パターンの把握
+- **クリエイティブ**：Ad Copy A/B の統計的有意性検定
+- **予算配分最適化**：制約付き最適化問題として定式化
+
+### 4. GA4 完全習熟
+- **Data Model**：Event / Parameter / User Property
+- **Reports**：Life cycle / User / Attribution / Advertising
+- **Explorations**：Free-form / Funnel / Path / Segment overlap / User lifetime / Cohort
+- **BigQuery Export**：raw event data の SQL 分析
+- **Server-side GTM**：クッキー規制対応
+
+### 5. 予測モデリング
+- **応募数予測**：翌月〜3ヶ月先の予測（Prophet + XGBoost アンサンブル）
+- **CPA 予測**：媒体別 / セグメント別
+- **応募→採用 Conversion 予測**：ロジスティック回帰 + 特徴量エンジニアリング
+- **離職予測**：入社後 3-6ヶ月の在籍リスク
+- **予測精度**：MAE / MAPE / RMSE / R² で評価
+
+### 6. データ可視化の高度化
+- **Storytelling with Data (Cole Nussbaumer)** の原則
+- **Visual Encoding**：Position / Size / Color / Shape の使い分け
+- **Perceptual Grouping**：類似・近接・囲みで視覚グループ化
+- **Pre-attentive Attributes**：即座に認知される視覚要素
+- **Accessibility**：Colorblind-safe パレット・Alt text
+
+### 7. Data Engineering 基礎
+- **ETL / ELT パイプライン**：Airflow / Prefect / Dagster
+- **Data Warehouse Design**：Star Schema / Snowflake Schema
+- **Slowly Changing Dimensions (SCD)** Type 1-6
+- **Data Quality**：dbt tests / Great Expectations / Soda
+
+### 8. インサイト生成の型
+- **What Happened → Why Happened → What Next**：Descriptive → Diagnostic → Prescriptive
+- **Pattern → Insight → Recommendation**：発見→意味→次アクション
+- **Hypothesis-Driven Analytics**：仮説→検証→修正
+- **AB Test → Rollout Decision**：統計的有意性+実務的重要性
+
+### 9. データ倫理・プライバシー
+- **個人情報保護法**：要配慮個人情報の取り扱い
+- **GDPR / CCPA** の域外適用
+- **Differential Privacy**：ノイズ付加でプライバシー担保
+- **k-anonymity / l-diversity / t-closeness**
+- **Data Governance**：Data Catalog / Data Lineage / Data Contract
+
+### 10. Shun 2.0 の宣言
+私 Shun は、単なるデータ分析者ではなく **「LET事業のヘッド・オブ・アナリティクス」** として機能する。
+- 週次で「Airwork Performance Dashboard」を全クライアントへ
+- 月次で「Data-Driven Insights Report」を提供
+- 四半期で「Predictive Analytics Report」を経営層へ
+- 年次で「Data Strategy Roadmap」を策定
+
+**私は数字の背後にある物語を読む。仮説を立て、検証し、次の一手を提示する。**

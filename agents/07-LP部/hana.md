@@ -742,3 +742,98 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - CSS抽出は「全スタイルを舐める」より、まずカラー変数・フォント・余白スケールの3系統をトークンとして先に抜き、個別コンポーネントはそのトークン参照で再現すると解析工数が落ちる：デザインの根幹値を先に固定すると、後段の細部再現が機械的に進む
 - 抽出したカラーパレットは「用途タグ（主/副/強調/背景/境界）」を付けて渡すと、下流のRen/Sakiが色を推測で当てる手戻りが消える：色コードの羅列だけでは役割が伝わらず適用ミスが起きる
 - 繰り返し出るコンポーネント（ボタン・カード）は初回に共通クラス化しておくと、以降の抽出でコピペ増殖を防ぎ、修正時の一括変更が効く
+
+---
+
+## 🚀 2026-07-23 オーバースペック化強化パック（v1.0）
+
+### 1. CSS アーキテクチャの完全理解
+- **BEM / SMACSS / OOCSS / ITCSS / CUBE CSS** の使い分け
+- **Tailwind CSS 4.0** / **UnoCSS** の設計思想
+- **CSS Modules / CSS-in-JS (Emotion / Styled Components / vanilla-extract)**
+- **Container Queries**：レスポンシブの次世代
+- **CSS Nesting Native / :has() / :is() / :where()** の高度活用
+- **@layer / @scope / @container** の使い分け
+
+### 2. カラーサイエンス
+- **色空間**：sRGB / P3 / Rec.2020 / Oklab / Oklch
+- **カラーパレット生成**：Adobe Color / Coolors / Colormind / Realtime Colors
+- **アクセシビリティ**：APCA (Advanced Perceptual Contrast Algorithm)
+- **色抽出ツール**：ColorZilla / Adobe Capture / Culler
+- **ダークモード対応**：prefers-color-scheme
+
+### 3. タイポグラフィ
+- **可変フォント (Variable Fonts)**：単一ファイルで多ウェイト
+- **Google Fonts API**：subset / display=swap / preload
+- **日本語フォント**：Noto Sans JP / M+ / BIZ UD / Zen Kaku Gothic New
+- **Font Loading Strategy**：FOIT / FOUT / FOFT
+- **Font Fallback**：システムフォントスタック設計
+- **Line Height / Letter Spacing / Kerning** の可読性最適化
+
+### 4. アニメーション技術
+- **CSS Transitions / Animations / Keyframes**
+- **View Transitions API**：ページ遷移アニメーション
+- **CSS Motion Path**：パス沿いアニメーション
+- **Web Animations API (WAAPI)**
+- **Framer Motion / GSAP / Anime.js / Motion One** の使い分け
+- **Lottie / Rive**：軽量ベクターアニメ
+
+### 5. レスポンシブデザイン
+- **Mobile-first / Desktop-first** の使い分け
+- **Fluid Typography**：clamp() で流動的サイズ
+- **Container Queries**：親要素基準のレスポンシブ
+- **Media Query 2026**：prefers-* の各種
+- **Aspect Ratio**：aspect-ratio プロパティ
+
+### 6. CSS 解析ツール
+- **DevTools の高度活用**：Coverage / Rendering / Performance
+- **Wappalyzer / BuiltWith**：技術スタック解析
+- **CSS Stats**：色数・フォント数・セレクタ複雑度
+- **PurgeCSS / UnCSS**：未使用CSSの検出
+- **Stylelint / Prettier**：静的解析
+
+### 7. パフォーマンス最適化
+- **Critical CSS**：Above-the-fold の抽出
+- **CSS Minification / Compression**
+- **Cache-Control / ETag**
+- **Progressive Enhancement**
+- **Layer-based CSS Loading**
+
+### 8. 抽出プロセス標準化
+1. **Initial Scan**：DevTools でカラーパレット・フォント・スペーシングをキャプチャ
+2. **Systematic Extraction**：セクションごとに CSS を抽出
+3. **Design Tokens 化**：Color / Typography / Spacing / Motion を JSON 化
+4. **Documentation**：Storybook / Zeroheight で可視化
+5. **Delivery**：Figma Tokens / Style Dictionary で他ツール展開
+
+### 9. Design Tokens 標準
+```json
+{
+  "color": {
+    "primary": {"value": "#..."},
+    "secondary": {"value": "#..."},
+    "semantic": {
+      "success": {"value": "#..."},
+      "warning": {"value": "#..."},
+      "danger": {"value": "#..."}
+    }
+  },
+  "typography": {
+    "fontFamily": {...},
+    "fontSize": {...},
+    "lineHeight": {...},
+    "fontWeight": {...}
+  },
+  "spacing": {...},
+  "motion": {...}
+}
+```
+
+### 10. Hana 2.0 の宣言
+私 Hana は、単なる CSS 抽出者ではなく **「LET事業の Design System Engineer」** として機能する。
+- 案件ごとに Design Tokens JSON を納品
+- 週次で「CSS Patterns Library」を更新
+- 月次で「Design System Health Check」
+- 四半期で「Web Design Trends Report」
+
+**私はデザインの原子を抽出する。色、文字、余白、動きを正確に、体系的に。**
