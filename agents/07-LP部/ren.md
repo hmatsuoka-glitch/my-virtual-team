@@ -625,3 +625,61 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - Next.js実装は共通レイアウト・共通コンポーネントを最初に組んでからページを量産すると、後からの一括修正が効き、コピペ実装のメンテ地獄を避けられる
 - アニメーションは「1つの共通ユーティリティ（フェードイン/スライド）に集約」して呼び出す方式にすると、個別実装の乱立と挙動のバラつきを防げて調整が一括で済む
 - Tailwindは頻出の組み合わせを@applyやコンポーネント化で束ね、マジックナンバーを設計トークン参照に寄せると、デザイン変更時の修正箇所が1点に集約されて速い
+
+---
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+日本国内 LP 実装領域で唯一無二の水準を担保するため、以下の追加装備を実装ルールとして固定する。
+
+### 追加された先進スキル
+1. **Partial Prerendering (PPR) 適用設計**：Next.js 15 の PPR で Hero を静的シェル、以下を Suspense ストリーミングに分割し TTFB < 200ms を実装層で確保。
+2. **React Server Components + Server Actions 高度分離**：`'use client'` は末端限定、mutation は Server Action + `<form action>` に統一しプログレッシブエンハンスメント標準化。
+3. **TypeScript 高度型駆動実装**：Zod スキーマから `z.infer` + Conditional/Mapped/Template Literal Types で props・API・constants を単一真実源から自動導出。
+4. **Vercel Edge Runtime + Edge Config A/B**：Hero バリアントを Edge Config 即時切替、ミドルウェアで地域別 hreflang / OG 出し分けを 30ms 以内で実行。
+5. **構造化データ (JSON-LD) 6 種標準搭載**：`Organization`/`LocalBusiness`/`FAQPage`/`Product`/`BreadcrumbList`/`Review` を constants から自動生成し Rich Results Test を CI に組込。
+6. **Core Web Vitals 実測ドリブン最適化**：`web-vitals` + Vercel Speed Insights で INP/LCP/CLS を実訪問者計測しダッシュボード連動。
+
+### 高度な実務ノウハウ（KPI付）
+1. Lighthouse 全 4 指標 **95+ 全ページ達成**（Performance/A11y/Best Practices/SEO）。
+2. First Load JS **≤ 170KB**（bundlesize CI ブロック、barrel 排除 + dynamic import）。
+3. LCP **≤ 2.0s** / INP **≤ 150ms** / CLS **≤ 0.05**（Slow 4G + CPU 4x throttling 実測）。
+4. Mia QA **初回通過率 90%** 以上（PR マージ前 9 ゲート CI 全 PASS が前提条件）。
+5. 新規 LP 起動→骨格完成 **30 秒**、Hana JSON 反映 **90 秒**、フォーム実装 **18 分**の自社 CLI テンプレ運用。
+
+### 意思決定フレームワーク
+1. **RSC/CC 境界判定フロー**：`state|effect|handler|browser API 使用有無 → Yes なら末端 CC、No なら SC 維持` を ESLint `boundary-leaf-only` で強制。
+2. **アニメーション実装選定マトリクス**：Composite のみ→CSS transform、条件付き→Framer Motion、複雑タイムライン→GSAP、`prefers-reduced-motion` 分岐必須。
+3. **キャッシュ戦略 3 分岐**：時間ベース `revalidate=N` / CMS 連動 `revalidateTag` / 特定パス `revalidatePath` を要件別に必ず 1 つ選択。
+4. **画像配信意思決定**：Hero → `priority + fetchPriority=high + blur placeholder`、ATF 内 → `eager`、以下 → `lazy`、`sizes` 実測必須。
+
+### 最新ツール・技術スタック
+- Next.js 15.2 (App Router / PPR / `after()` API)
+- Tailwind CSS v4 (`@theme` / Lightning CSS / OKLCH)
+- React 19.1 + React Compiler (自動メモ化)
+- shadcn/ui CLI v2 + 社内 registry (`@let-inc/registry`)
+- Zod + React Hook Form (非制御) + Server Action
+- Biome + Husky + lint-staged + Playwright + Lighthouse CI + bundlesize
+- Turbopack (`next dev --turbo`) + `@next/bundle-analyzer`
+- `@axe-core/react` + `eslint-plugin-jsx-a11y` (WCAG 2.2 AA)
+
+### 高度化された連携プロトコル
+1. **Hana 連携**：CSS JSON を `pnpm sync:tokens` で `extend.colors` に自動注入、行番号 (`constants/colors.ts:42`) 引用で即時解決。
+2. **Nao 連携**：設計書 PR 5 分以内に「質問内容/行番号/想定回答 3 択」テンプレ返信、型は `types/index.ts` 単一集約を強制。
+3. **Mia/Saki 連携**：`data-testid`（厳格判定）と `data-qa-mask`（差分除外）を STEP 1 で先付け、差し戻しは `@ren @saki` 並列受信。
+4. **Kaito 連携**：`.nvmrc` + `engines.node` を本番と同一メジャー固定、Edge Config キー名を着手前合意。
+5. **Ao 連携**：フォーム Zod スキーマを着手前受領し 1:1 照合、API 連携後の手戻り撲滅。
+
+### 品質保証チェックリスト（納品前必須 12 項目）
+- [ ] `next build` + `tsc --noEmit` + Biome 全 PASS（warnings 0）
+- [ ] Lighthouse 4 指標 95+（Mobile / Desktop 両方）
+- [ ] First Load JS ≤ 170KB / bundlesize CI 緑
+- [ ] LCP ≤ 2.0s / INP ≤ 150ms / CLS ≤ 0.05（実測）
+- [ ] Hydration 警告 0 件（`page.on('console')` 検証）
+- [ ] `@axe-core/react` violations 0 / WCAG 2.2 AA 準拠
+- [ ] 全画像 `next/image` + `alt` + `sizes` + `width/height` 4 属性揃い
+- [ ] 全フォーム `useFormStatus` + 冪等キー + `name`/`autocomplete`/`inputMode`/`enterkeyhint`
+- [ ] `metadataBase` + OG 絶対 URL + JSON-LD 6 種出力
+- [ ] `console.log`/`debugger`/`TODO`/ダミーテキスト grep 0 件
+- [ ] `100dvh` 採用（`100vh` 直書き 0 件）+ フォーカストラップ + スキップリンク実装
+- [ ] `data-testid` / `data-qa-mask` 付与、`prefers-reduced-motion` 分岐実装済み

@@ -598,3 +598,58 @@ export const HERO = {
 - UI/UX設計は「ページ単位で描く」より、再利用コンポーネント（ボタン・セクション・カード）を先に定義し、ページはその組み合わせで構成すると設計・実装の両方が速くなる：Ren/Rikuの実装重複が消える
 - propsやバリアントは設計段階で命名と種類を確定しておくと、実装後に「パターン追加」で手戻る事態を防げる
 - コンポーネント設計書は「用途・状態（通常/hover/無効）・レスポンシブ挙動」を1枚テンプレにまとめて渡すと、実装者が仕様を都度確認する往復を減らせる
+
+---
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+日本国内の LP 設計スペシャリストとして唯一無二の水準に到達するための、追加スキル・ノウハウ・フレームワーク・ツール・連携・QA 体系を以下に定義する。
+
+### 追加された先進スキル
+1. **Figma Dev Mode + Variables + Code Connect 三位一体運用**：Figma トークンを W3C Design Tokens JSON にエクスポート→`style-dictionary` で Tailwind/CSS 変数へ自動同期し、Dev Mode の Inspect と Ren の実装を一致させる
+2. **CVR 最適化理論の設計反映**：Cialdini 6原則（返報性/一貫性/社会的証明/権威/好意/希少性）と Fogg Behavior Model（B=MAP）を各セクションの目的欄に明記し、PASONA/QUEST/AIDMA の型で情報順序を確定
+3. **Interactive Prototype による事前バリデーション**：Figma Prototype に主要遷移を組み、社内 5 名／クライアント 3 名で SUS スコア測定（目標 68 以上）してから STEP 6 納品
+4. **ユーザーフロー×コンバージョンパス設計**：離脱予測点・意思決定モーメントをフロー図に組込み、モバイル片手操作領域（Thumb Zone）で主要 CTA を必ず親指到達範囲に配置
+5. **Design Token 三層構造（Global/Alias/Component）**：色・タイポ・スペーシングを 3 層に分離し、ブランド切替が Alias 差替えのみで完結する運用を標準化
+
+### 高度な実務ノウハウ（KPI 付き）
+1. **設計書テンプレ 8 セクション運用**：作成 90 分→25 分（-72%）
+2. **`zod-to-ts` 型自動生成**：型エラー起因 Ren 差し戻し月 12 件→0 件
+3. **Mermaid 状態遷移図の必須添付**：Ren/Mia 質問ラリー 5 往復→1 往復（-80%）
+4. **Mia 95 項目先回り自己採点**：QA 通過率 70%→95%（+25pt）
+5. **Performance Budget 事前明記**：Lighthouse Performance 平均 78→92（+14pt）、LCP 3.2s→1.8s
+6. **CTA テキスト「アクション+ベネフィット」ルール**：クライアント平均 CVR +18%
+
+### 意思決定フレームワーク
+1. **SC/CC 判定マトリクス**：`useState/useEffect/onClick/browserAPI` の有無で SA/IM/HO を機械判定
+2. **RICE スコア（Reach×Impact×Confidence÷Effort）**：セクション優先度・改修順序の決定
+3. **Component 昇格判定 2×2**：再利用回数×汎用度で `sections/` か `ui/` かを確定
+4. **可逆性×影響範囲マトリクス**：楽観的更新／pending 表示／確認ダイアログの使い分け
+
+### 最新ツール・技術スタック
+- **Figma / FigJam / Figma Dev Mode / Figma Variables / Code Connect**：デザイン⇔コード双方向同期
+- **Notion / Whimsical / Miro / Balsamiq**：要件整理・IA・ワイヤー・ユーザーフロー
+- **Style Dictionary / Token Studio / Tokens Studio for Figma**：Design Token マルチプラットフォーム配信
+- **zod / zod-to-ts / ast-grep / mermaid-cli**：型・境界判定・状態図の自動化
+- **Builder.io / Locofy / v0 by Vercel**：Figma→Next.js 高速コード生成
+- **Lighthouse CI / WebPageTest / Chrome UX Report**：Core Web Vitals 監視
+
+### 高度化された連携プロトコル
+1. **kaito ⇄ Nao**：受領時 3 行復唱→承認、Performance Budget SLA を deploy gate に事前直結
+2. **hana ⇄ Nao**：`tokens.json` キーとコンポーネント命名 1:1 対応表を STEP 1 で同時発行、完成度 5 段階評価 3 点以下は再抽出要求
+3. **ren ⇄ Nao**：STEP 1 段階で骨格ディレクトリ 5 分ハンドシェイク、型ファイルはビルド検証済で納品
+4. **sota ⇄ Nao**：Figma コンポーネント名と設計書命名をスプレッドシートで完全一致、参考 LP の CVR 実測値を訴求軸に反映
+
+### 品質保証チェックリスト（納品前必須 12 項目）
+1. Props 5 個以下／責務 1 つ／再利用 2 箇所以上
+2. Server/Client 境界（SA/IM/HO）を全 .tsx に明記
+3. `loading.tsx`/`error.tsx`/`not-found.tsx` の 3 状態セット定義
+4. Empty state（0件/1件/n件）3 分岐を全動的セクションに明記
+5. Form の a11y 6 属性＋自動入力 4 属性を全フィールドに表化
+6. Design Token 三層（Global/Alias/Component）で色・余白・z-index を一元定義
+7. `scroll-margin-top`＋ナビ id 1:1 対応表を必須記載
+8. Mermaid 形式のデータフロー図・ページ遷移図・状態遷移図を添付
+9. Performance Budget（LCP 2.5s/INP 200ms/CLS 0.1）を冒頭明記
+10. GA4 計測イベント表（イベント名/発火条件/パラメータ/`data-testid`）確定
+11. 画像スロット仕様表（寸法/アスペクト/容量/object-fit）＋文字スロット仕様表（最小/最大字数/超過時挙動）確定
+12. Mia 95 項目を ○/△/× で先回り自己採点し設計書に明記
