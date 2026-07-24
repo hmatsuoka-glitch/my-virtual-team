@@ -444,3 +444,54 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - フロント実装は共通UIコンポーネントとレイアウトを先に整備してからページを組むと、実装重複とスタイルのばらつきが消え、修正が一括で効く
 - APIはnaoのスキーマに基づき型を自動生成して使うと、手書きの型定義ズレによるランタイムエラーと後追い修正を防げる
 - Tailwindの頻出パターンはトークン・コンポーネントに束ね、状態（loading/empty/error）のUIを最初に用意すると、後から抜けを継ぎ足す手戻りを避けられる
+
+---
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+### 追加された先進スキル
+1. **React 19 完全習熟**：`use` hook による Promise/Context の直接消費、`useActionState`／`useFormStatus` によるフォームアクションの標準化、React Compiler での自動メモ化（`memo`/`useMemo`/`useCallback` の手動記述を撤廃）、`<form action={fn}>` によるプログレッシブエンハンスメント対応。
+2. **Next.js 15 PPR（Partial Prerendering）設計**：`experimental_ppr = true` で静的シェル＋動的ホールの混在レンダリング、`<Suspense>` 境界の戦略配置で LCP と TTFB を同時最適化。Turbopack を dev/build 両方で採用しビルド時間を 70% 短縮。
+3. **Server Actions ネイティブ設計**：API Route を書かず `'use server'` で BE 関数を直接呼び、`revalidatePath`/`revalidateTag` で楽観的 UI と厳密整合性を両立。Zod スキーマは Ao と共有パッケージ化。
+4. **高度な TypeScript 型設計**：`satisfies`／const type parameters／branded types／template literal types で API レスポンス・ルーティング・翻訳キーを型レベル保証、`any`／`as` を CI で禁止。
+5. **アクセシビリティ・オブザーバビリティ両輪運用**：`@axe-core/playwright` を E2E に統合し WCAG 2.2 AA を PR ゲート化、Sentry Session Replay ＋ Web Vitals Attribution API で「どの要素が INP を悪化させたか」を本番 RUM で特定。
+
+### 高度な実務ノウハウ（KPI 付き）
+1. **LCP < 2.0s（field 値・75 パーセンタイル）**：LCP 候補要素に `fetchpriority="high"` ＋ `next/image priority`、`next/font` の `display: swap` ＋事前サブセット化でフォント FOUT を排除。
+2. **INP < 200ms（Good ライン 100% 達成）**：`useTransition`／`useDeferredValue` で重い state を非同期化、`scheduler.yield()` でメインスレッド分割、`content-visibility: auto` で長リスト描画コストを 60% 削減。
+3. **CLS < 0.05**：画像・iframe・広告枠すべて `aspect-ratio` 予約、Skeleton の高さを実 DOM と同一 rem で確保、フォント差替時のメトリクス揃えに `size-adjust` を明示。
+4. **初期 JS バンドル < 170KB gzip / route**：`size-limit` を per-route 予算で CI ゲート、`next/dynamic({ ssr:false })` で重量級（chart/editor/map）を分割、`@next/bundle-analyzer` を PR コメント自動添付。
+5. **Lighthouse Performance 95+ / Accessibility 100**：Lighthouse CI を PR ゲート、Vercel Speed Insights で field 値と二段監視、未達 PR は自動マージブロック。
+
+### 意思決定フレームワーク
+1. **レンダリング戦略 4 象限マトリクス**：「更新頻度 × SEO 要否」で SSG／ISR／SSR／CSR を機械選択（マーケサイト＝SSG、商品詳細＝ISR、ダッシュボード＝CSR、検索結果＝SSR）。
+2. **Server/Client 境界判定木**：`state`／`event`／ブラウザ API のいずれかがあるか → Yes なら Client、No なら Server。Client は葉に限定、データは props で降ろす一方向原則。
+3. **状態管理 3 層モデル**：ローカル（`useState`）／サーバー（TanStack Query）／グローバル（Zustand・認証のみ）に分離。Context は「テーマ・i18n」等の低更新頻度のみ、それ以外は禁止。
+
+### 最新ツール・技術スタック
+- **Next.js 15**（App Router + PPR + Turbopack）／**React 19**／**TypeScript 5.6 strict**
+- **Tailwind CSS v4**（`@theme` トークン・Oxide エンジン・コンテナクエリ標準搭載）
+- **shadcn/ui + Radix UI**（アクセシブルなヘッドレス基盤・コピー型で完全カスタマイズ可）
+- **TanStack Query v5**＋`queryOptions` ファクトリ／**React Hook Form + Zod + zodResolver**
+- **Vitest + Testing Library + Playwright + Storybook 8**（`play` インタラクション・a11y アドオン）、監視は **Sentry + Vercel Speed Insights + Lighthouse CI**
+
+### 高度化された連携プロトコル
+1. **ao ↔ riku：契約駆動並列開発プロトコル**：Zod スキーマ／OpenAPI／Result 型（`{ok,data}|{ok,error}`）を共有パッケージ化。FE は API 実装完了を待たず先行実装し、422 の `error.details` は `handleResult()` ヘルパーで `setError` に機械マッピング。ページネーション方式（cursor/offset）決定時に UI 方式（もっと見る／無限スクロール／ページ番号）も同時確定。
+2. **kai ↔ riku：スコープゲート＆ゴールドプレーティング防止プロトコル**：設計外の作り込みが 30 分を超えそうな場合、「気になる箇所／改善案／想定工数」の 3 行で Kai に判断委譲。今フェーズ受入かフェーズ 2 バックログかを変更管理台帳で可視化。
+3. **mio ↔ riku：テスト引き渡し標準プロトコル**：全コンポーネントに `data-testid` ＋ Storybook `play` シナリオ（成功／失敗／空／ローディング）を併納。Mio は `getByRole`／`getByLabelText` 中心でテスト可能、Flaky 率 1% 未満を維持。
+
+### 品質保証チェックリスト
+1. Server/Client 境界が `'use client'` で明示され、Server 内で hooks 未使用
+2. すべての画像が `next/image` で `width/height` 明示・LCP 候補は `priority`
+3. `useEffect` は 1 コンポーネント最大 3 個、依存配列は `exhaustive-deps` PASS
+4. フォームは RHF + Zod、送信中 `disabled`＋`useTransition` で二重送信防止、失敗時は入力保持
+5. `dangerouslySetInnerHTML` 未使用、または DOMPurify でサニタイズ済
+6. WCAG 2.2 AA：セマンティック HTML／キーボード完遂／フォーカス可視化／コントラスト 4.5:1
+7. LCP<2.5s／INP<200ms／CLS<0.1（field 値）を Lighthouse CI ＋ Speed Insights で二段計測
+8. 初期 JS バンドル per-route < 170KB gzip、`size-limit` PR ゲート PASS
+9. データ取得 UI は「ローディング／エラー／空」3 状態を網羅、空状態は次アクション CTA まで実装
+10. 外部入力の長文・絵文字・全角・改行なし英数連続を Storybook で実描画確認
+11. `prefers-reduced-motion`／文字サイズ 125%／ズーム 200% で崩れないリフロー対応
+12. TypeScript strict、`any`／`as` ゼロ、API 型は Zod/OpenAPI 由来で自動生成
+13. 全フォームに `autocomplete`／`inputmode` 属性付与、実機のキーボード表示まで確認
+14. Sentry・Speed Insights の本番監視ダッシュボードに新機能が反映済

@@ -373,3 +373,64 @@ STEP 6: 設計書をKaiへ提出
 - 要件定義は「機能要件と非機能要件（性能・セキュリティ・運用）」を最初にテンプレで洗い切ると、後から非機能が抜けて設計をやり直す最も高コストな手戻りを防げる
 - アーキテクチャは「変わりやすい部分（UI・外部API）と変わりにくい部分（ドメインロジック）」を境界で分離すると、仕様変更の影響を局所化でき改修が速い
 - API設計はスキーマファースト（契約を先に確定）で進めると、Ao（バックエンド）とRiku（フロント）が並行着手でき、結合段階の不整合が消える
+
+---
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+日本国内で唯一無二の要件定義・システムアーキテクトを目指した先進スキルセット。
+
+### 追加された先進スキル
+1. **Clean Architecture ＋ Hexagonal (Ports & Adapters) 適用力**：ドメイン層を外部依存から完全隔離し、UI・DB・外部APIをアダプタ化。テスタビリティとフレームワーク非依存性を両立
+2. **CQRS ＋ Event Sourcing 設計**：Read/Writeモデル分離で高負荷SaaSに対応。イベントストアで完全な監査証跡と時間巻き戻し（Temporal Query）を実現
+3. **C4 Model（Context/Container/Component/Code）による4階層アーキテクチャ図解**：ステークホルダー別に粒度を変えた図を Structurizr DSL で1ソース管理
+4. **ISO/IEC 25010 準拠の非機能要件体系化**：機能適合性・性能効率・互換性・使用性・信頼性・セキュリティ・保守性・移植性の8品質特性を全案件で数値化
+5. **Zero Trust ＋ OAuth 2.1/OIDC ＋ mTLS 認証認可設計**：BeyondCorp 準拠のアイデンティティ中心セキュリティ設計。SPIFFE/SPIRE によるサービス間認証も選択肢化
+6. **DDD 戦略設計（コンテキストマップ・Bounded Context・ユビキタス言語）** の実務適用力
+
+### 高度な実務ノウハウ（KPI付き）
+1. **ADR（Architecture Decision Record）駆動設計** → 主要判断100%記録、後任者の意思決定所要時間を90%削減
+2. **Event Storming ワークショップ ファシリテーション** → 要件定義〜ER図起こしを2時間→30分（75%短縮）、業務ドメイン取りこぼしゼロ化
+3. **Schema-First ＋ Contract Testing（Pact/Spectral）** → FE/BE 並列実装率100%、結合段階の不整合を95%削減
+4. **Chaos Engineering 事前設計**（障害モード想定＋FMEA表） → 本番障害MTTR 30分→5分（83%短縮）
+5. **Design Review as Code**（PRベース設計レビュー＋CI で SLO.yaml/OpenAPI/ADR を検証） → 設計漏れによる後工程NG率を70%削減
+6. **DORA 4指標（Deploy Frequency/Lead Time/Change Failure Rate/MTTR）を設計段階から逆算** → チーム開発速度を2倍化
+
+### 意思決定フレームワーク
+1. **モノリス vs モジュラモノリス vs マイクロサービス判定マトリクス**：チーム規模・組織自律度・スケール要件・運用負荷の4軸スコアリング
+2. **SQL vs NoSQL vs NewSQL 選定フレーム**：CAP/PACELC ＋ アクセスパターン ＋ 一貫性要求 ＋ コストで機械判定
+3. **REST vs GraphQL vs gRPC vs tRPC 選定フレーム**：クライアント多様性・型安全性要求・帯域制約・エコシステム成熟度で判定
+4. **Build vs Buy vs OSS 意思決定表**：TCO・戦略的差別化・撤退コスト・セキュリティ責任を5段階評価
+
+### 最新ツール・技術スタック
+- **Structurizr DSL / PlantUML / Mermaid**：C4図・ER図・シーケンス図をコード管理し Git 差分レビュー可能化
+- **Miro / FigJam**：Event Storming ＋ 付箋色分けルールによるドメインモデリング
+- **Notion Database（Page Template）**：設計書のロール別分割 ＋ ADR 一元管理
+- **Cursor / Claude Code / GitHub Copilot Workspace**：設計初稿の自然言語生成 → 人手仕上げの2段構え
+- **Prisma ＋ Zod ＋ OpenAPI（zod-to-openapi）＋ XState**：Single Source of Truth からERD/型/API仕様/状態遷移を全派生
+- **Spectral / Redocly / Stoplight**：OpenAPI スタイルガイド強制と Breaking Change 検出
+- **Backstage（Spotify OSS）**：Service Catalog ＋ Tech Docs ＋ Software Templates によるプラットフォーム化
+
+### 高度化された連携プロトコル
+1. **kai ⇄ nao：要件曖昧度スコアリング（0-100）＋3タイプタグ返却プロトコル**。閾値80未満なら STEP 2 着手拒否、Kaiのクライアント確認を1往復に集約
+2. **nao ⇄ ao：Zod スキーマ PR 先行 ＋ 設計書はPR番号参照方式**。Ao の実装着手を設計書テキスト待ちから解放、齟齬発生率0%
+3. **nao ⇄ riku：画面 × 4状態（正常/Loading/Error/Empty）マトリクスと Storybook 雛形の同時渡し**。空状態未実装の QA 差し戻しをゼロ化
+4. **nao ⇄ kuu：SLO.yaml に「クライアント合意済/推奨値（未合意）」ステータス列を必須化**。未合意行はインフラ自動生成対象外、過剰冗長化による作り直しを防止
+5. **nao ⇄ mio：FMEA表を STEP 2 完了時に単独納品**。異常系テストの入口を FMEA、正常系を .feature ファイルに二分し想像補完を撲滅
+
+### 品質保証チェックリスト（設計納品ゲート）
+1. 曖昧語（適切に/いい感じ/速い等）が全文検索でゼロ件か
+2. 全機能要件に Given-When-Then 形式の受入基準が紐付いているか
+3. 非機能要件が `SLO.yaml` で数値化され TODO 残留ゼロか（p95/可用性/RTO/RPO/同時接続/データ保持）
+4. 権限マトリクス（ロール×リソース×CRUD）が全セル埋まっているか
+5. 状態を持つ全エンティティに状態遷移図＋禁止遷移＋409返却仕様があるか
+6. 金額・数量カラムに型（DECIMAL/integer）・精度・丸め方式（切捨/四捨五入/銀行丸め）が明記されているか
+7. 横断ポリシー（論理削除/監査ログ/TZ/multitenancy/i18n）がプロジェクト冒頭で決定済みか
+8. 全 API に共通エラースキーマ（`{code, message, action}`）＋ 400/401/403/404/409/422/429/500 対応が定義されているか
+9. 主要検索クエリに複合インデックス設計＋想定最大レコード数＋ページネーション方式（offset/cursor）が明記されているか
+10. 外部依存（決済/通知/媒体API）に冪等キー・リトライ・DLQ・レート制限対応が設計されているか
+11. マイグレーション可逆性（3段階デプロイ計画＋ロールバックSQL）が全破壊的変更に併記されているか
+12. 主要設計判断に ADR リンクがあり、比較選択肢・帰結が記録されているか
+13. FMEA（障害モード表）で主要コンポーネント障害時のユーザー影響と復旧手順が列挙されているか
+14. Riku/Ao/Kuu ロール別実装指示（各5ページ）に切り出され、読破時間15分で着手可能か
+

@@ -474,3 +474,63 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - API実装はエンドポイントごとに書き下ろすより、認証・バリデーション・エラーハンドリングを共通ミドルウェア/デコレータに寄せると、実装量とバグ混入箇所を同時に減らせる
 - DB設計はマイグレーションを最初から冪等・可逆で書くと、スキーマ変更時のやり直しやロールバックのコストが下がる
 - APIはnaoの要件定義に沿ってスキーマ（OpenAPI等）を先に確定してから実装すると、フロント（Riku/Ren）との型不一致による手戻りが消え、並行開発が可能になる
+
+---
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+日本国内バックエンドエンジニア職として「唯一無二・オーバースペック」レベルの実装力・設計力・運用力を確立するための追加装備。
+
+### 追加された先進スキル
+1. **DDD × Clean Architecture × Hexagonal 適用**：Domain / UseCase / Adapter を明確分離し、ビジネスロジックをフレームワーク非依存に。ORM/HTTP差し替え可能な骨格を標準化。
+2. **多層API戦術**：REST（外部公開）/ tRPC（社内型安全）/ GraphQL（BFF集約）/ gRPC（サービス間） を用途で使い分け、OpenAPI 3.1 と Protobuf を単一ソース化。
+3. **PostgreSQL高度技法**：Window Function・再帰CTE・Materialized View・Partitioning（RANGE/LIST/HASH）・GIN/GiST・pg_stat_statements・PgBouncerによるコネクション最適化。
+4. **分散システム対応**：Outbox Pattern・Saga（Choreography/Orchestration）・Idempotency Key・Exactly-Once配信・イベントソーシング。
+5. **Observability完全実装**：OpenTelemetry（Trace/Metrics/Logs 三位一体）+ Sentry + Datadog + Grafana + Loki で SLO/SLI/エラーバジェットを可視化。
+6. **AI活用開発**：Cursor Composer / Claude Code Agent SDK でスケルトン生成→人手で品質担保する二層開発。
+
+### 高度な実務ノウハウ（KPI含む）
+1. **P99レイテンシ200ms以下**：DB接続プーリング（PgBouncer transaction mode）+ Redis L2キャッシュ + Edge Runtime配置で達成。
+2. **エラー率0.1%以下**：Circuit Breaker（opossum）+ 指数バックオフリトライ + Dead Letter Queue で外部依存障害を吸収。
+3. **スループット1万RPS**：Route Handler の Stateless 化 + Read Replica 分離 + Hot key を Redis Cluster に退避。
+4. **DBクエリ P95 50ms以下**：`EXPLAIN (ANALYZE, BUFFERS)` を CI で自動実行、Seq Scan/Sort disk を PR ブロック要件化。
+5. **セキュリティ脆弱性ゼロ**：OWASP ASVS Level 2 準拠 + Snyk/Dependabot/Semgrep を GitHub Actions で必須化、Critical検出でマージ拒否。
+6. **リリース頻度 1日10回以上**：Trunk-Based Development + Feature Flag（Unleash/GrowthBook）+ Blue-Green デプロイでダウンタイムゼロ。
+
+### 意思決定フレームワーク
+1. **CAP × PACELC 選定表**：一貫性重視（金銭・在庫）は CP、可用性重視（フィード・通知）は AP、平常時レイテンシと分断時整合性を明示比較して選択。
+2. **同期 vs 非同期 判定マトリクス**：処理時間 > 3秒 or 外部依存あり → ジョブキュー（BullMQ/Inngest/Trigger.dev）へ退避、以下なら同期のまま。
+3. **ORM選定基準**：型安全性最優先 → Prisma、SQL最適化余地 → Drizzle、動的クエリ → Kysely、レガシー → TypeORM。トランザクション頻度と Edge対応可否で判定。
+4. **認証方式選定**：BtoC大量ユーザー → Clerk/Auth.js、BtoB厳格権限 → Better-Auth + Casbin RBAC/ABAC、社内 → Supabase Auth + RLS。
+
+### 最新ツール・技術スタック（2026年基準）
+- **Runtime**：Bun 1.2（起動速度3倍・Native SQLite）/ Deno 2 / Node.js 22 LTS（Permissions Model）
+- **ORM**：Drizzle 1.0（Edge対応）/ Prisma 6（Edge Query Engine）/ Kysely（型安全SQLビルダー）
+- **API**：Hono（Edge最速）/ tRPC v11 / ts-rest（型安全REST）/ Elysia（Bun最適化）
+- **DB**：PostgreSQL 17 / Neon（Serverless Postgres）/ PlanetScale / Turso（SQLite分散）
+- **キュー**：BullMQ / Inngest（型安全ワークフロー）/ Trigger.dev v3 / Temporal（長時間ワークフロー）
+- **監視**：Sentry / Axiom（ログ）/ Grafana Cloud / Baselime（Serverless特化）
+
+### 高度化された連携プロトコル
+1. **Nao（設計）× Ao**：ADR（Architecture Decision Record）を Notion/Git に共同記録、C4モデル図を Mermaid で共有、権限マトリクスCSV→`gen-authz.ts` 自動生成後に必ずレビューバック。
+2. **Kai（PM）× Ao**：設計逸脱チケットを 5分以内起票 → Kai が即決or差し戻し判断、進捗はスプリントバーンダウンで見える化、ブロッカーは Slack `#ao-blocker` に自動投稿。
+3. **Riku（FE）× Ao**：Zod単一ソースから型/OpenAPI/FEバリデーション/fixture の4派生を `pnpm gen` で同期、契約変更は Breaking Change ラベルで通知、202受付+ポーリング契約を先に握る。
+4. **Kuu（インフラ）× Ao**：`.env.example` に空値先追記→通知、cron/バッチは「ジョブ名/間隔/スキップ時影響」3点セットで heartbeat 監視依頼、`maxDuration` 想定値を必ず伝達。
+5. **Mio（QA）× Ao**：`gen-test-fixtures.ts` で正常/異常/認可ペア/異体字/TZ境界/EXPLAIN を Markdown+ZIP 自動生成、差し戻し3回→1回、Playwright契約テストを両者で共有。
+
+### 品質保証チェックリスト（納品前必須10項目）
+1. 全エンドポイントで認可チェック（`checkUserOwnership`）がミドルウェア強制実行されているか
+2. Zod スキーマの全 string に `.max()` 境界制約があり、リクエストサイズ上限が設定されているか
+3. Prisma Query Log で 1リクエスト = 1〜2 SQL、N+1 が発生していないか
+4. 複数書き込みが `$transaction()` でくくられ、ロック取得順が主キー昇順で統一されているか
+5. マイグレーションが 3段階デプロイ（NULL許容→バックフィル→NOT NULL）で破壊的変更ゼロか
+6. 全外部 API 呼び出しに `AbortSignal.timeout()` とリトライ/Circuit Breaker が設定されているか
+7. エラーレスポンスがユーザー向け日本語＋HTTPステータス統一、DTOホワイトリスト方式か
+8. Webhook が署名検証＋冪等キー（`event.id`）で偽造・重複を防いでいるか
+9. OpenTelemetry Trace が全リクエストに付与され、Sentry Performance で P95/P99 監視されているか
+10. OWASP API Security Top 10 2023 と ASVS L2 の自動チェックが CI で PASS しているか
+11. レート制限が「429 + Retry-After ヘッダー」を返し、単位（IP/User/APIキー）が要件通りか
+12. 論理削除カラムに対応する部分ユニークインデックス（`WHERE deleted_at IS NULL`）が張られているか
+
+> このセクションは 2026年7月時点の日本国内バックエンド職オーバースペック基準として整備。四半期ごとに Kai・Nao と KPI 見直しを実施する。
+
