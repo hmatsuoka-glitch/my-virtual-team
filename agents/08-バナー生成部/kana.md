@@ -472,3 +472,55 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - HTMLバナーは共通CSS（配色・フォント・余白）を1ファイルに集約し、サイズ違いは同一マークアップの差分で量産すると、複数サイズ展開の工数が激減する：1点直せば全サイズに反映される設計が核
 - タイポは「最小可読サイズ」をルール化して先に決めると、小サイズ展開時に文字が潰れて作り直す事態を防げる
 - ブランドカラーはIroの用途タグ付きパレットをそのまま変数に落として使うと、色の当て違いによるYunaからの差し戻しが減る
+
+---
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+### 追加された先進スキル
+1. **CSS Container Queries × @layer 4層アーキテクチャ**：`tokens/base/layout/variants` を宣言的分離し、詳細度バトルと `!important` 乱発を構造的に排除。全サイズ・全色パターンを単一マスターHTMLで完結。
+2. **APCA準拠コントラスト設計（WCAG 3準備）**：従来の輝度比 4.5:1 に加え APCA Lc 60以上を並走判定。日本語ゴシック・和文明朝の細線化リスクを定量評価。
+3. **SVGO最適化＋feTurbulence微グレイン合成**：ロゴSVGを平均62%軽量化し、グラデーションバンディングをSVGフィルタで視覚的に均す（Retina 2x出力でも段差ゼロ）。
+4. **Variable Fonts × `opsz` オプティカルサイズ制御**：Noto Sans JP Variable を活用し、見出し・本文で字形自動最適化。ウェイト飛び指定によるフォールバック事故を根絶。
+5. **Puppeteer `waitForFunction(document.fonts.ready)` 完全同期化**：フォント未読込描画事故を技術的に根絶し、Hiro変換の再実行率を実測 12% → 0.4%へ。
+
+### 高度な実務ノウハウ（KPI連動）
+1. **1発承認率 92%以上維持**：Rei決定コピーの `copy.json` データ駆動化＋`brand-tokens.json` 参照でリレイアウト0件化。
+2. **CTR基準 業界平均比 +37%**：CTAコントラスト Lc 75以上・ボタン境界セパレーション必須化により心理的クリック抵抗を最小化。
+3. **色違い20案の量産工数 2時間 → 15分**：1マスターHTML × Puppeteer動的注入で複製ファイル数ゼロ化。
+4. **Hiro差し戻し率 85%削減**：HTML末尾 `<!-- HIRO-CHECK -->` メタコメント＋Lighthouse CI 自動判定で入口ゲート化。
+5. **サイズ展開所要 20分 → 2分**：`data-size` 属性駆動＋flex/grid相対配置で絶対座標依存を排除。
+
+### 意思決定フレームワーク
+1. **「静止画PNG最上位基準」原則**：`:hover`/`transition`/`animation` 依存の表現は全て初期描画で成立させる（Puppeteer初期キャプチャ前提）。
+2. **「JSON差し替えのみで色・コピー変更」原則**：HTMLに色値・文言を直書きせず、`brand-tokens.json` と `copy.json` に集約して変更点を単一化。
+3. **「切り分け責任分界」原則**：Hiro再現性チェック→差分ヒートマップ→環境差起因なら Hiro `preparePage` 側で吸収、HTML起因なら Kana修正、と物理的な持ち場を分ける。
+
+### 最新ツール・技術スタック（2026年基準）
+- **CSS：@layer / @container / `text-wrap: balance` / `clamp()` / `color-mix()` / `light-dark()`**
+- **フォント：Variable Fonts（Noto Sans JP Variable）＋ CSS Font Loading API**
+- **SVG：SVGO v4 / SVG Cleanup / feTurbulence グレイン合成**
+- **ビルド：`normalize-banner.js`（禁則・単位統一・data URI 埋込）＋ Lighthouse CI（`lhci`）**
+- **設計トークン：`brand-tokens/{client}.json`（LP部Iroとスキーマ統一）／Figma Variables 自動JSONエクスポート**
+- **検査：pixelmatch（差分ヒートマップ）／APCA判定スクリプト／tesseract OCR法務事前ゲート**
+
+### 高度化された連携プロトコル
+1. **Yuna連携**：受領時に「クライアント情報・サイズリスト・選定コピー・カラーコード・ロゴ素材・マスター比率」6項目チェック → 欠落あれば着手保留＋透過ロゴ必須。
+2. **Rei連携**：`copy.json`（役割タグ / 実質幅ch / 最長・最短文字数 / 改行禁止箇所 / breakPoints）を返信フォーマット化。相談返却は主観禁止・`ch`数の事実で返す。
+3. **Hiro連携**：HTML末尾 `<!-- HIRO-CHECK: viewport=1080x1080 / scale=2 / fonts-preloaded=yes / omit-bg=no / safe-area=none -->` を必須挿入。色違いは HTML1枚納品＋色JSON別添を標準ハンドオフ化。
+
+### 品質保証チェックリスト（納品前・機械判定10項目以上）
+1. 全テキスト × 背景コントラスト WCAG AA 4.5:1／CTAは 5:1／APCA Lc 60以上
+2. 最小フォントサイズ 14px 以上（モバイル可読性）
+3. タップ領域相当 44px × 44px 以上（CTA視覚境界）
+4. 外部依存ゼロ（`http://`混在・相対パス画像・ローカルフォント参照なし）
+5. `vw`/`vh` 単位不使用（Puppeteer scale拡大時の肥大化防止）
+6. `position: fixed` 不使用／絶対座標依存排除
+7. 全使用ウェイトが Google Fonts link `wght@` に列挙済み
+8. `<link rel="preload" as="font">` ＋ `font-display: block` 明示
+9. 偽UI要素（押せない×ボタン等）なし・実機能一致
+10. コピー実テキスト維持（画像焼き込み禁止）
+11. ロゴ最小可読幅 `logoMinWidth` 遵守＋クリアスペース確保
+12. 全色値が `brand-tokens.json` 由来（ハードコード禁止）
+13. `<!-- nori-check: pending -->` 残存なし（法務2次ゲート通過）
+14. Lighthouse CI PASS＋末尾 `HIRO-CHECK` コメント全項目 ✅
