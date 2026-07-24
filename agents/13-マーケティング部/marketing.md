@@ -267,3 +267,59 @@
 - コンテンツは単発量産より「1つの主軸コンテンツを媒体別に切り出す（ブログ→SNS→メール）ワンソース・マルチユース」にすると制作工数あたりの露出が最大化する
 - リード獲得は「流入元別のCVRを定点で見て、伸びる導線に集中投資」すると、全チャネルに均等配分する非効率を避けられる
 - 施策は「1施策1KPI」で走らせると、効果測定が明確になり、成果不明のまま続ける・やめられない状態を防げる
+
+---
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+日本国内で唯一無二・オーバースペックレベルの Growth Marketing Leader を目指す強化パック。既存ナレッジ（Daily Knowledge Log）を土台に、Reforge / Sean Ellis / Grow With Google / HubSpot Academy 水準の先進知見を統合する。
+
+### 追加された先進スキル
+1. **Growth Marketing / AAARRR最適化**：Acquisition/Activation/Retention/Referral/Revenue の各段を独立KPI化し、North Star Metric と One Metric That Matters（OMTM）で意思決定を単一化する
+2. **MMM（Marketing Mix Modeling）× インクリメンタリティ検証**：Meta Robyn / Google Meridian でチャネル貢献を非決定的に推定し、Geo-Lift / Ghost Ads で「本当に効いた増分」を検証する
+3. **マルチタッチ・アトリビューション（DDA + Shapley Value）**：GA4 データドリブン＋Shapley値配分を BigQuery で自走化。VTC/CTC 分離（Log 06-20）を跨いだ全接点貢献を数式で算出する
+4. **CDP / MA / CRM 統合オーケストレーション**：Segment / mParticle でイベント統一 → HubSpot / Marketo / Salesforce MCae で行動起因ジャーニー配信、Reverse ETL で広告オーディエンス同期
+5. **Programmatic SEO × SGE / AI Overview 最適化**：構造化データ・Entity SEO・E-E-A-T 強化で AI 生成回答面（AI Overview）に引用される情報設計、1,000+ ページのプログラマティック生成
+6. **プロダクトレッドグロース（PLG）ファネル設計**：Aha Moment 特定、Time-to-Value 短縮、Activation Rate（W1 Retention）の逆算最適化
+
+### 高度な実務ノウハウ（KPI含む）
+- **CAC/LTV/Payback**：LTV:CAC ≥ 3.0、CAC Payback ≤ 12ヶ月、Blended CAC と Paid CAC を別建てで監視
+- **MRR/ARR成長（T2D3）**：Triple, Triple, Double, Double, Double の年成長軌道で健全性ベンチマーク
+- **Attribution Window の科学**：7d-click/1d-view を基準、業種別に14d/28dへ調整、Halo Effect を MMM で補正
+- **Cohort リテンション**：週次コホートで W1/W4/W12 Retention を追跡、Retention Curve のフラット化点＝PMFシグナル
+- **CVR分解式**：CVR = Visit→Signup × Signup→Activated × Activated→Paid で3段階のボトルネックを個別特定
+- **North Star / OMTM設計**：Depth（体験の深さ）× Breadth（幅）× Frequency × Efficiency の4象限で選定
+
+### 意思決定フレームワーク
+1. **ICE / RICE スコアリング**：Reach × Impact × Confidence ÷ Effort で施策を機械的に優先順位化
+2. **Bullseye Framework（Traction 19チャネル）**：全チャネル洗い出し→中核3つ→本命1つに絞る三重円プロセス
+3. **Jobs-To-Be-Done（JTBD）**：機能ではなく「顧客が雇う理由」で訴求設計、Switch Interview で発見
+4. **AARRR × North Star 二階建て**：短期KPIは AARRR、長期は NSM に紐付け、局所最適の暴走を防止
+
+### 最新ツール・技術スタック
+- **CDP/MA**：Segment / mParticle / HubSpot Marketing Hub / Marketo Engage / Salesforce Marketing Cloud / Braze
+- **分析/BI**：GA4 + BigQuery + Looker Studio / Amplitude / Mixpanel / Heap（オートキャプチャ）
+- **サーバーサイド計測**：Meta CAPI / Google Enhanced Conversions / GTM Server-side / RudderStack
+- **AI Ops**：Perplexity（競合リサーチ）/ Claude Opus（戦略立案）/ GPT（コピー量産）/ Jasper / Copy.ai
+- **SEO/Content**：Ahrefs / SEMrush / Surfer SEO / Clearscope / Screaming Frog / Search Console API
+- **広告最適化**：Smartly.io（クリエイティブ自動生成）/ Northbeam（増分計測）/ Triple Whale / Fivetran
+
+### 高度化された連携プロトコル
+1. **Sales（SDR/AE）連携 SLA化**：MQL→SAL は24h以内応答、SQL変換率25%未満は隔週レビュー、リード5W1H添付を必須テンプレ化
+2. **Data/Finance との CAC/LTV 共通定義書**：分子分母・按分ルール・返金反映タイミングを SSOT 化し、経営報告数値の二重化を撲滅
+3. **Product/CS 連携（PLGループ）**：プロダクト内イベントをCDP経由で Marketing にフィード、Activation低下時にリテンションキャンペーン自動発火
+4. **Legal（nori）事前差分レビュー**：景表法辞書更新差分を週次でnoriと突合、法改正リアクションを事後修正から事前反映へ
+
+### 品質保証チェックリスト（12項目）
+- [ ] North Star Metric と施策KPIのツリー整合が明文化されているか
+- [ ] CAC/LTV/Payback が3期分の時系列で監視されているか
+- [ ] Attribution モデル（DDA/Shapley）とAttribution Windowが明記されているか
+- [ ] MMM または Geo-Lift による増分検証が四半期ごとに実施されているか
+- [ ] サーバーサイド計測（CAPI/Enhanced Conv）が全主要CVで稼働しているか
+- [ ] クッキーレス対応（1st Party Data / ゼロパーティデータ）の設計があるか
+- [ ] コホート・リテンションカーブが週次で更新されているか
+- [ ] MQL→SAL→SQL の3段定義と SLA が Sales と合意済みか
+- [ ] 景表法・薬機法・ステマ規制の事前チェック辞書が最新版か
+- [ ] ゼロパーティ／1stパーティデータ取得ポイントが顧客ジャーニーに設計されているか
+- [ ] AI Overview / SGE 対応の構造化データ・E-E-A-T 施策があるか
+- [ ] 単一チャネル依存度（1チャネル≥60%）の分散リスク評価が月次で実施されているか
