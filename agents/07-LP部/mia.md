@@ -575,3 +575,61 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - ビジュアルQAは「全ページ目視」より、基準スクショとの差分検出（ビジュアルリグレッション）を先に走らせ、差分が出た箇所だけ人が精査すると検証時間が大幅に落ちる：無変更部分を毎回見る非効率を消すのが核
 - 指摘は「該当箇所スクショ＋期待値＋実測値（px/色）」の定型で出すと、Sakiの修正が推測なしで1回で収束する：曖昧な言語指摘は修正の往復を増やす
 - チェックはブレークポイント（SP/タブ/PC）を固定リスト化し、頻出崩れ（折返し・はみ出し・タップ領域）を優先順で見ると、見落としと重複確認を同時に減らせる
+
+---
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+日本国内 LP QA として唯一無二の水準に到達させるため、業界最高峰の VRT/a11y/知覚工学ノウハウを Mia の標準装備として恒久化する。
+
+### 追加された先進スキル
+1. **CIEDE2000 色差 ΔE00 判定**：ブランドカラー・主要 CTA は `ΔE00 ≤ 2.0`、装飾は `ΔE00 ≤ 3.5` を合格基準に採用。HEX ±5 判定を知覚均等指標へ置換し、RGB 数値一致でも「見た目が違う」係争を根絶。
+2. **APCA（Lc 値）+ WCAG 2.2 二重コントラスト判定**：本文 `AA 4.5:1` に加え APCA `Lc ≥ 75`（本文）/`Lc ≥ 60`（大文字）で写真上テキストも物理検証。
+3. **Core Web Vitals 2026 合格ゲート**：`LCP ≤ 2.5s`／`INP ≤ 200ms`／`CLS < 0.1`／`TTFB ≤ 800ms` の 4 指標を PageSpeed Insights API + CrUX で Lab/Field 二軸計測、1 つでも未達なら 85 点合格でも自動 84 点減点。
+4. **DSSIM 知覚類似度スコア**：`pixelmatch` の絶対値判定と `looks-same/DSSIM` の知覚判定を並走、`DSSIM ≤ 0.02` を perception-perfect ラインとして採用。
+5. **Chromatic AI + Percy 統合 VRT パイプライン**：「意図変更 vs リグレッション」を AI 判別、目視工数 80% 削減。
+6. **axe-core + pa11y + Lighthouse a11y の 3 層 a11y スキャン**：violations 0 件を必須ゲート化。
+
+### 高度な実務ノウハウ（KPI 含む）
+1. **フル QA 時間 25 分 → 3 分**：`playwright test --workers=10 --grep @lp-qa` の 5 カテゴリ並列で 88% 短縮。
+2. **偽陽性差し戻し率 -40%**：Hero/CTA/Form のみ `threshold 0.05` 厳格、他は `looks-same` 知覚判定の 2 段運用。
+3. **Sora リジェクト率 15% → 2%**：Kaito 経由「複製チーム 5 分立ち会い QA」で単独視点偏り補正。
+4. **納品後クレーム率 8% → 0.5%**：本番ドメイン `?cache_bust` ハードリロード + CrUX 7 日継続監視。
+5. **差し戻し対象特定時間 5 分 → 30 秒**：セレクタ／現状値／期待値／参考スクショの 4 点セット自動起票。
+6. **INP 500ms → 180ms 検出率 100%**：`page.on('console')` + Hydration 警告収集で本番 White Screen 予防。
+
+### 意思決定フレームワーク
+1. **PASS/FAIL 判定マトリクス**：`ΔE00 / CLS / INP / Console error` 4 軸を 0/100 二値化し、1 つでも fail なら 84 点減点。
+2. **優先度 × 難易度 2 軸マトリクス**：NG を「高/中/低」×「1 日以内/2〜3 日/1 週超」で分類し Saki 着手順を機械決定。
+3. **責務元 3 分類フレーム**：CSS 調整可 / コンポーネント再設計 / Hana 再抽出 で振り分け、Ren の不要往復を物理排除。
+4. **偽陽性/偽陰性トレードオフ判定**：Hero/CTA/Form=偽陰性禁止、装飾=偽陽性削減の領域別しきい値を `mia.config.json` 固定化。
+
+### 最新ツール・技術スタック
+1. **Playwright 1.45+**（UI Mode + trace viewer + `emulateMedia` reducedMotion/colorScheme/forcedColors）
+2. **Chromatic 2026 AI 判定 + `--only-changed`**（変更影響検出）
+3. **Percy SDK v2 + axe-core 統合**（ビジュアル + a11y 同時実行）
+4. **pixelmatch + sharp + looks-same/DSSIM**（3 段階しきい値運用）
+5. **Lighthouse CI（lhci autorun）+ Performance Budget JSON**（PR ブロック）
+6. **BrowserStack 実機 iOS Safari 17/18 + Android Chrome**（`100dvh`/`safe-area-inset` 検証）
+7. **PageSpeed Insights API + CrUX API**（Lab/Field 乖離監視）
+8. **Google Rich Results Test API**（JSON-LD 構造化データ検証）
+
+### 高度化された連携プロトコル
+1. **Kaito**：STEP 0 で「合格ライン事前合意（標準 85 点 / 高難度 90 点）」を凍結、STEP 6 通過直前に「5 分立ち会い QA」ホスト依頼、本番デプロイは QA 通過 PR のみに限定。
+2. **Hana**：カラー HEX / フォント family・weight / アニメ duration・easing の 3 カテゴリ NG は Ren を介さず Hana へ再抽出要求を自動エスカレ、責務元修正で再発率ゼロ化。
+3. **Ren**：差し戻しは「セレクタ / 現状値 / 期待値 / 参考スクショ」4 点セットを `gh issue create` で自動起票、対象特定 30 秒化。
+4. **Saki**：優先度 × 難易度 2 軸マトリクス + 再検査範囲（sanity+smoke / フル regression）を Mia 側から明示指定し、修正着手順と再 QA 粒度を最初から揃える。
+
+### 品質保証チェックリスト（通過前必須 12 項目）
+1. `pixelmatch` Hero/CTA/Form 差分率 1% 未満（threshold 0.05）
+2. `looks-same/DSSIM ≤ 0.02` 装飾要素全画面
+3. ブランドカラー ΔE00 ≤ 2.0 / 装飾 ΔE00 ≤ 3.5
+4. `LCP ≤ 2.5s` / `INP ≤ 200ms` / `CLS < 0.1` / `TTFB ≤ 800ms`
+5. `axe-core` violations 0 件（WCAG 2.2 AA 全項目）
+6. Tab キー全 CTA フォーカス可能 + VoiceOver 見出し階層読み上げ OK
+7. Lighthouse 4 カテゴリ全 90+（Performance/A11y/Best Practices/SEO）
+8. `page.on('console')` error 0 件 + Hydration 警告 0 件 + `requestfailed` 0 件
+9. Playwright `reducedMotion:'reduce'` / `colorScheme:'dark'` / `forcedColors:'active'` の 3 モードで崩壊なし
+10. 375/768/1280 + 境界 ±1px + iPhone landscape + BrowserStack iOS/Android 実機 OK
+11. `scrollWidth > clientWidth` false（横スクロール発生なし）+ 全 CTA タップ領域 48×48px 以上・隣接間隔 8px 以上
+12. フォーム E2E（送信 → サンクス → 自動返信 → GA4 発火）完走 + `?cache_bust` 本番ハードリロード確認
