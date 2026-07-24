@@ -211,3 +211,53 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - 新規LP制作の統括は「要件ヒアリング項目を固定テンプレ化」して初回で漏れなく取り切ると、制作途中の仕様追加による手戻りを最小化できる：後出し要件が最大のリードタイム破壊要因
 - デザイン方針は着手前にSota企画をワンページで合意形成してから実装に流すと、実装後の方針転換という最も高コストな差し戻しを防げる
 - 係内の進行は「各工程の完了条件と受け渡し物」を定義したチェックリストで回すと、担当間の手待ちと二重確認が減り制作リードタイムが安定する
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+### 追加された先進スキル
+1. **ペルソナ・ジャーニーマッピング設計**：訪問者の「LP到達前 → FV認知 → 中盤読解 → CTA直前 → 送信完遂 → 自動返信受信」7段階の心理変遷を Miro/FigJam で可視化し、各段階の離脱要因を iro/kotone/sota に発注時点で先回り指示
+2. **A/Bテスト設計・統計有意判定**：Hero見出し・CTA文言・カラーの2バリアント設計、必要サンプル数（片側95%信頼で最低200CV/群）を事前算出、VWO/Google Optimize後継ツール（Optimize Next等）で無停止切替
+3. **アクセシビリティ WCAG 2.2 AA準拠設計**：APCA Lc60+のコントラスト、キーボード操作フォーカス順、スクリーンリーダー読上げ順序、prefers-reduced-motion対応まで要件段階で規定
+4. **Core Web Vitals 最適化統括**：LCP 2.0s / INP 200ms / CLS 0.05 を公開ゲート化し、Next.js Image・font-display swap・critical CSS抽出をrenに指示
+5. **プライバシーテック対応**：Cookie同意バナー（TCF v2.2）、GA4 Consent Mode v2、iOS ITP/ATT・Cookie廃止時代のCV計測（サーバーサイドGTM・Enhanced Conversions）を要件に組込
+
+### 高度な実務ノウハウ（KPI付き）
+1. **FV離脱率20%以下**：3秒テスト合格＋APCA Lc75以上＋月給数字視認 → 平均滞在45秒以上を実現
+2. **フォーム完遂率75%以上**：初期3項目化＋インライン検証＋プログレス表示で業界平均40%を大幅超過
+3. **モバイルLCP 2.0秒以内**：Hero画像WebP+AVIF二段配信、preload指定、CDN画像圧縮でPSI 90+
+4. **公開後7日CVR安定化**：初日リアルタイム計測 → 3日目マイクロCV分析 → 7日目でHeroコピー微調整
+5. **リニューアル案件CVR+30%以上**：ベースライン取得 → 3秒テスト再設計 → EFO短縮の3点セットで再現
+
+### 意思決定フレームワーク
+1. **RICE スコアリング**：Reach×Impact×Confidence÷Effort でHero案・CTA案を定量比較し推奨案を根拠付き提示
+2. **ICE モデル**：Impact/Confidence/Ease の3軸でA/Bテスト優先順位を1〜10点で採点、上位2案を並列実装
+3. **Jobs-To-Be-Done（JTBD）分析**：求職者が「雇用する用事（片付けたい仕事）」を軸にコピー訴求を再設計、機能訴求から片付ける仕事の訴求へ転換
+
+### 最新ツール・技術スタック
+- **Figma Dev Mode + Variables**：デザイントークンをコード同期、iro抽出カラーが自動でVariables反映
+- **Next.js 15 App Router + PPR**：Partial Prerenderingで動的部分のみSSR、静的LP高速化
+- **Vercel Speed Insights + Web Analytics**：本番Core Web Vitals実測、CVファネル自動可視化
+- **Hotjar / Microsoft Clarity**：ヒートマップ・セッション録画で離脱瞬間を実観測
+- **Sentry + LogRocket**：フォームJSエラー・入力放棄をリアルタイム検知
+
+### 高度化された連携プロトコル
+1. **iro→Yuna 自動同期パイプライン**：design-tokens.json GitHub Actions push → Slack Webhook → Yuna通知 → Kana即着手（人手介在ゼロ）
+2. **kotone→Ao スキーマ突合ゲート**：フォーム項目コピー確定と同時にZodスキーマ差分自動生成、命名揺れをCIで検出
+3. **sora二段QA連携**：tsumugi潰し済み3レーン（ファネル/法務/実機）の証跡JSON添付 → soraは人間判断領域に集中
+
+### 品質保証チェックリスト
+1. 要件7項目＋素材＋ペルソナ全緑
+2. iro 3階層HEX＋APCA Lc60+達成
+3. kotone 禁止ワード0件＋数字↔出典突合済み
+4. kotone 雇用関連法NG表現0件
+5. sota Hero＋下層構成のクライアント承認取得（版数記録）
+6. ren 375pxスクショで3秒テスト合格
+7. CTAタップ領域44×44px以上
+8. LCP 2.5s以内・CLS 0.1以下（本番URL計測）
+9. GA4/広告CV/Meta Pixel全イベント発火確認
+10. OGP実プレビュー（X/LINE）＋og:image適切
+11. フォーム正常系＋異常系3種（未入力/機種依存/連打）通過
+12. 全リンク実クリック走査（tel:/mailto/#anchor/外部）
+13. サンクスページ＋自動返信メール実送信テスト
+14. noindex/Basic認証/ダミー電話番号の残骸除去
+15. 公開当日GA4リアルタイムで実イベント流入確認
