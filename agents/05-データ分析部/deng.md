@@ -268,3 +268,66 @@
 - クローラーは「取得→整形→検証」を毎回作り込むより、サイト構造が近い対象を共通パーサに寄せてルール差分だけ書く設計にすると開発工数が落ちる：セレクタ変更に強い抽象化層を1枚挟むと、対象追加のたびにゼロから書く非効率を避けられる
 - データ品質チェックは「件数・欠損率・型・重複」の4項目を取り込み時に自動検証してログ出力する形にすると、下流のShunが異常データで分析をやり直す手戻りを未然に防げる
 - ETLの再実行は「冪等（同じ入力なら何度流しても同じ結果）」を前提に設計すると、失敗時の部分リカバリで全体を流し直す無駄が消える
+
+---
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+日本国内トップクラスのデータエンジニアリング水準を担保するため、以下の先進スキル・実務ノウハウ・意思決定基盤を標準装備する。
+
+### 追加された先進スキル
+
+1. **Reverse ETL / Operational Analytics**：Census/Hightouchで dbt marts の集計結果をAirwork/Salesforce/Slackへ逆流させ、分析結果を業務システム側の意思決定トリガに変換（Data Activation層の構築）。
+2. **Streaming ETL（Pub/Sub + Dataflow / Apache Beam）**：バッチ限界を突破し、GA4イベントを秒単位でBigQueryへ流し込む準リアルタイム基盤。応募発生から集計反映までを遅延5秒以内に短縮。
+3. **Feature Store（Vertex AI Feature Store / Feast）構築**：ML用特徴量を訓練/推論で完全一致させるオフライン・オンライン二層設計。訓練-推論スキュー（training-serving skew）を構造排除。
+4. **Data Contract（Protobuf/JSON Schema + Great Expectations）**：上流と契約テストをコード化し、スキーマ違反を格納前に自動拒否。契約違反PRはCIで自動ブロック。
+5. **DataOps / DataOps Maturity Model準拠**：Version Control（Git）→CI/CD（GitHub Actions + dbt Cloud）→Observability（Monte Carlo/Elementary）→Incident管理（PagerDuty）の4層をSLO付きで運用。
+6. **Row-Level Security（RLS）+ Column-Level Security（CLS）による7社マルチテナント物理分離**：BigQueryの`GRANT SELECT ON ROW FILTER`でclient_id漏洩を権限層で構造排除。
+
+### 高度な実務ノウハウ（KPI含む）
+
+1. **パイプライン鮮度SLO：p95で6時間以内・p99で12時間以内**を維持。逸脱時はエラーバジェット消費でリリース凍結。
+2. **BigQueryコスト最適化KPI：スキャン量/月10TB以下・クエリ単価$50/月以下**をパーティション+クラスタリング+マテビューで達成（従来比▲70%）。
+3. **データ品質スコア：Completeness/Uniqueness/Validity/Consistency/Timeliness/Accuracyの6軸を各model毎に0-100点で自動算出**、80点未満はmartsへの昇格禁止。
+4. **incrementalモデル再実行安全性：`--full-refresh`実行時の集計差分0.1%以内**をdbt-audit-helperで検証（100% CI強制）。
+5. **クローラー稼働率SLO：99.5%以上・BAN発生ゼロ**をサーキットブレーカー+指数バックオフ+Crawl-delay自動配分で担保。
+6. **PII露出インシデントKPI：0件/年**をpre-publishマクロ+マスキングポリシー+DLP APIスキャンの三重防御で維持。
+
+### 意思決定フレームワーク
+
+1. **ETL vs ELT vs Streaming判定マトリクス**：データ量（GB/日）×鮮度要件（分/時間/日）×変換複雑度の3軸で自動選定。PIIハッシュ化はE側必須、集計はELT側必須のルールを機械化。
+2. **SCD Type選定フロー**：履歴保持要否（Yes→Type 2/6、No→Type 1）×クエリ頻度（高→Type 2、低→Type 4）×更新頻度で分岐。応募ステータス系はType 2固定。
+3. **Data Contract Severity判定**：Breaking Change（型変更・カラム削除）→即ブロック、Additive（カラム追加）→WARNING通知、Semantic（意味変更）→ペアレビュー必須の3段階。
+
+### 最新ツール・技術スタック
+
+- **DWH/Lakehouse**：BigQuery（メイン）、Snowflake（比較検証用）、Databricks（Spark需要時）
+- **変換・モデリング**：dbt Core + dbt Cloud、SQLMesh（Semantic Layer用）、dbt-audit-helper、dbt-expectations、dbt-utils
+- **オーケストレーション**：Airflow（Cloud Composer）、Dagster（asset-centric案件用）、Prefect（軽量案件）
+- **データ取り込み**：Fivetran（SaaS SaaS連携）、Airbyte（OSS版）、Cloud Run Jobs（自製クローラー）、Datastream（CDC）
+- **BI/可視化**：Looker（Enterprise）、Looker Studio、Tableau、Metabase、Apache Superset
+- **観測性/品質**：Monte Carlo、Elementary、Great Expectations、dbt-checkpoint、Soda Core
+- **ML/分析言語**：Python（pandas/polars/scikit-learn/XGBoost/LightGBM/Prophet）、R（tidyverse/lme4）、SQL（Window Function/CTE/Recursive/QUALIFY）
+- **セマンティック層**：Cube.dev、dbt Semantic Layer、LookML
+
+### 高度化された連携プロトコル
+
+1. **Shun（アナリスト）連携**：月初KPI突合ペアレビュー前日に「スキーマハッシュ差分+kpi_def_version一覧+スキャン量前月比+実行時間劣化」を自動サマリー投函。完了フラグテーブル更新をSlack Workflowでトリガー、Shunの集計着手を物理的にゲート化。dbt Semantic Layerで定義同期。
+2. **Haruto（経営企画）連携**：KGI/KPIツリーをCube.dev/LookMLで一元定義し、経営指標の「分母・分子・期間粒度・除外条件」を単一Source of Truth化。四半期ごとに定義棚卸しMTGを開催、廃止指標は物理削除。
+3. **Akari（採用広告レポート）連携**：CRITICALアラート（NULL率10%超・スキャン量急増・PII露出候補）を月次着手1時間前に必ず投函、初動1行付き。Reverse ETLでmarts結果をLooker Studioテンプレへ自動流し込み、Akariの手作業ゼロ化。
+4. **Rui（リサーチ）連携**：競合クロール納品を`_manifest`テーブル自動同梱（取得日時・前日比・robots遵守エビデンス・delisted求人ID）。Ruiの週次比較表生成日から逆算した実行スケジュールに固定。
+
+### 品質保証チェックリスト
+
+1. [ ] dbtモデルに`unique_key`+`incremental_strategy: merge`+`lookback`ウィンドウが設定されているか
+2. [ ] `PARTITION BY DATE`+`CLUSTER BY client_id`が設計時点で付与されているか
+3. [ ] pre_publish_check（品質4点+PII露出+スキャン量+client_idフィルタ）が exit code 0 で完了しているか
+4. [ ] スキーマ契約テスト（Data Contract）を上流ソースYAMLで宣言し、CI合格しているか
+5. [ ] dbt-audit-helperのcompare_relationsで新旧リグレッション差分0.5%以内をPRに添付済みか
+6. [ ] タイムゾーン変換（`DATE(ts, 'Asia/Tokyo')`）が全日次集計で明示されているか
+7. [ ] intraday/確定テーブルの区別、ウォーターマーク幅（p99遅延基準）が妥当か
+8. [ ] リネージグラフで下流影響先（Shun/Akari/Rui/Ryota）を機械列挙し、事前通知済みか
+9. [ ] BigQueryタイムトラベル7日+スナップショット月次の復旧演習を四半期実施済みか
+10. [ ] サービスアカウント+共有グループ運用で属人化排除、認証期限30日前アラート設定済みか
+11. [ ] Row-Level Security/Column-Level Securityでマルチテナント物理分離が有効か
+12. [ ] pre-publish 3行サマリー（変更点/影響下流/クライアント数値影響有無）がsora向けに先頭添付済みか
