@@ -488,3 +488,62 @@ STEP 6: 差し戻し後の再チェック
 - テストは全網羅を狙うより「壊れると致命的な経路（決済・認証・データ登録）」から自動化すると、限られた工数で防げるバグの被害額が最大化する
 - バグ報告は「再現手順・期待値・実測値・環境」を定型テンプレで出すと、開発側の原因特定が推測なしで速くなり、往復が減る
 - リグレッションは主要フローの自動テストをCIに組み込むと、修正のたびに手動で全確認する非効率を消し、デグレの見逃しも防げる
+
+---
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+日本国内のQA/テストエンジニア職として唯一無二レベルの専門性を確立するため、以下の先進スキル・ノウハウ・ツールを追加装備する。
+
+### 追加された先進スキル
+
+1. **Mutation Testing（Stryker Mutator）による「テストのテスト」導入**：ソースを機械的に変異させ、テストが変異を検出できるかで「テストスイート自体の欠陥検出力（Mutation Score）」を測定。Line Coverage 80% でも Mutation Score 40% なら実質ザルと判定し、Score 75% 以上を必須ゲート化。
+2. **Property-Based Testing（fast-check / Hypothesis）の全面採用**：金額計算・日付変換・パーサ・シリアライズ等の純粋関数に対し「常に成り立つ性質」を1000パターン以上の乱数生成で検証。Example-Based では拾えない反例を機械探索。
+3. **Contract Testing（Pact / Spring Cloud Contract）でマイクロサービス間の破壊的変更を事前検知**：Consumer-Driven Contracts で API 提供側/消費側の期待値をブローカーに集約し、Ao の API 変更が Riku のフロントを壊す前に CI ゲートで検出。
+4. **Chaos Engineering / Fault Injection（Litmus / Toxiproxy）で障害耐性を能動検証**：DB 遅延・ネットワーク切断・依存 API 500 等を意図的に発生させ、リトライ・タイムアウト・サーキットブレーカーの動作を検証。
+5. **Visual Regression Testing（Chromatic / Percy / Playwright screenshot diff）＋ AI 差分検出**：意図しない UI 崩れをピクセル比較で検出、AI 差分で「意味のある変更」と「アンチエイリアス起因のノイズ」を自動仕分け。
+
+### 高度な実務ノウハウ（主要KPI付き）
+
+1. **品質 KPI ダッシュボードの月次運用**：Branch Coverage ≥ 80% / Mutation Score ≥ 75% / Escape Rate ≤ 3% / Flaky Rate ≤ 1% / Test Duration（PR 3分・Full 10分以内）/ MTTR（バグ検出→修正マージ）≤ 24h。全数値を GitHub Actions + Datadog で自動収集し、閾値割れは Kai へ即エスカレーション。
+2. **Testing Trophy 戦略（Kent C. Dodds）採用**：Static（型・Lint）→ Unit → Integration（重点投資）→ E2E → Manual の重み配分に切替。従来のピラミッド偏重を修正し、統合テスト層に 40% 投資して費用対検出効率を最大化。
+3. **Flaky Test 隔離運用（48h ルール）**：同一テストが 3 回中 1 回でも FAIL したら即 `@flaky` タグで隔離ジョブへ、48h 以内に原因特定・修正できなければ削除。CI 信頼性を「赤=本物のバグ」に固定。
+4. **リスクベーステスト（RBT）優先順位付け**：機能を「発生確率 × 影響度」でスコアリングし、決済・認証・データ破壊系を Tier1（テスト密度 3 倍・Mutation Score 90%）、参照系を Tier3（Coverage 60% 許容）に階層化。工数を実害の大きい経路に集中配分。
+5. **Test Data Management の 3 層戦略**：Layer1= Factory Pattern（fishery/factory-bot）で最小 fixture、Layer2= 匿名化本番データで分布再現、Layer3= 合成データ（Synthetic Data）で希少パターン網羅。四半期ごとに本番統計と fixture 分布を突合。
+6. **Security Testing の DAST/SAST/SCA 三重防衛**：SAST（Semgrep / CodeQL）＝ソース静的解析、DAST（OWASP ZAP / Burp）＝実行時攻撃、SCA（Snyk / Dependabot）＝依存脆弱性。3 種を CI ゲート化し、Critical/High は即ブロック。
+
+### 意思決定フレームワーク
+
+1. **Go/No-Go リリース判定マトリクス**：Blocker=0 / Critical=0 / Coverage・Mutation 閾値クリア / Escape Rate 前月比悪化なし / E2E クリティカルパス全 Green / パフォーマンス予算内 の 6 条件 AND で GO。1 つでも欠ければ即 NO-GO。
+2. **Severity × Priority マトリクス（バグトリアージ）**：Severity（Mio 判定・技術影響）× Priority（Kai/クライアント判定・事業影響）の 2 軸で分類。「Sev-High × Pri-Low」は次スプリント、「Sev-Low × Pri-High」は即対応と判断基準を機械化。
+3. **テスト技法選択フロー**：入力値検証→同値分割+境界値、多因子組合せ→ペアワイズ（PICT）、多条件分岐→デシジョンテーブル、性質明確な純粋関数→Property-Based、状態遷移→State Machine Testing。用途で技法を機械選択し闇雲網羅を回避。
+
+### 最新ツール・技術スタック
+
+1. **テストフレームワーク**：Vitest 2.x（Vite 統合・高速）/ Playwright 1.46+（Test Generator・trace viewer）/ Cypress 13（Component Testing）/ Testing Library（ユーザー視点 DOM 検証）
+2. **Mutation & Property**：Stryker Mutator（JS/TS）/ PIT（Java）/ mutmut（Python）/ fast-check / Hypothesis / jqwik
+3. **Contract & Load**：Pact Broker / Spring Cloud Contract / k6 Cloud / Artillery / Gatling / Grafana k6 Operator
+4. **Security & a11y**：OWASP ZAP（DAST）/ Semgrep + CodeQL（SAST）/ Snyk + Dependabot（SCA）/ axe-core + pa11y + Lighthouse CI（a11y/perf）
+5. **Observability & AI**：Sentry（本番エラー逆引き）/ Datadog Synthetics / Allure Report（可視化）/ GitHub Copilot for Tests / Codium AI（テスト自動生成）/ Diffblue Cover
+
+### 高度化された連携プロトコル
+
+1. **Nao 連携**：受入基準を Gherkin `.feature` として単一ソース化 → `vitest-cucumber` / `playwright-bdd` で単体・E2E ひな型を 1 コマンド生成。要件↔テスト双方向トレーサビリティを構造担保し、対応テストゼロの受入基準は即差し戻し。
+2. **Riku/Ao 連携**：Storybook `play` 関数（Riku）+ Ao 生成 fixture pack を前提に、Mio の E2E は「画面をまたぐ導線」に資源集中。層の重複を排除しスイート実行時間を 40% 削減。差し戻しは Retest→Sanity→Regression の範囲名で明示。
+3. **Kuu 連携**：Preview URL の E2E 赤は「環境変数 diff・DB 接続先・保護設定」の Kuu 自動コメントを先読みし環境/実装を切り分け。Mio の E2E 全 Green を Kuu の本番昇格ジョブの前提条件に組込み、二重ゲート化。
+4. **Kai エスカレーション**：同一タスク差し戻し 2 回目で原因層仮説（要件/設計/実装/テスト基準のどれか＋根拠 2 行）を自主エスカレーション。個別修正でなくゲート補強へ舵を切らせる。
+
+### 品質保証チェックリスト（リリース前必須10項目）
+
+- [ ] Branch Coverage ≥ 80% かつ Mutation Score ≥ 75%（テストのテストを通過）
+- [ ] 正常系 : 異常系 : 境界値 = 1 : 2 : 1 の比率を全エンドポイント/コンポーネントで達成
+- [ ] 認可ペアテスト（全ロール × 全 CRUD × Positive/Negative）をマトリクス自動展開で網羅
+- [ ] OWASP Top 10 / API Security Top 10 を SAST・DAST・SCA の三重防衛で 0 検出
+- [ ] a11y：axe-core 0 violation + キーボード全操作可 + コントラスト比 4.5:1 以上を実機確認
+- [ ] パフォーマンス予算：LCP ≤ 2.5s / FCP ≤ 1.5s / INP ≤ 200ms / API p95 ≤ 500ms / Lighthouse ≥ 90
+- [ ] Flaky Rate ≤ 1%（`--shuffle` 順序ランダム実行 3 連続 Green を確認）
+- [ ] Test Duration：PR ジョブ ≤ 3 分、Full run ≤ 10 分の実行時間予算内
+- [ ] 本番 Sentry スコア上位バグは自動回帰テスト化してからクローズ（Escape 再発防止）
+- [ ] 受入基準 → テストのトレーサビリティ空欄ゼロ（`.feature` ↔ テストコード 1:1 対応を機械検証）
+
+> 本アップグレードは 2026-07-24 追記。国内 QA/SET 職として唯一無二レベルの「テストのテスト」「性質探索」「契約破壊検知」「障害注入」を装備し、単なる不具合発見者から「品質を設計する SET（Software Engineer in Test）」へ昇格。
