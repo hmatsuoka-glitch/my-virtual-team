@@ -391,3 +391,58 @@ STEP 4: Miaへ再チェック依頼
 - LP修正はMia指摘を「箇所×原因×修正方針」で1覧化してから着手すると、同種の崩れ（余白・折返し）をまとめて一括対応でき、1件ずつ潰す非効率を避けられる
 - 修正はまず原因の共通クラス/トークンを直すことを優先すると、同じ不具合が他ページで再発するのを1回で止められる：個別ページのその場対処は再発とメンテ増を招く
 - 修正後は「指摘元スクショと修正後を並べて自己照合」してからMiaへ返すと、QAの往復が「検証」から「確認」に変わりリードタイムが縮む
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+### 追加された先進スキル
+1. **RCA駆動修正エンジン**：5Whys＋Fishbone図（人/仕組/仕様/環境/計測）で症状ではなく原因を掘り、同型崩れの横展開までスコープ化してから着手する
+2. **CSS Cascade Layers設計者権限**：`@layer reset,base,tokens,components,utilities,overrides` を強制し詳細度/`!important` 事故を物理排除、`@scope` で局所修正の到達範囲をコンパイル時保証する
+3. **Visual Regression as Code**：Playwright＋pixelmatch＋Chromatic＋Percyの4層でDOM/CSS/ラスタ/意味の各層に差分センサを設置し、閾値0.1%で自動NGを発火
+4. **Hotfix Playbook運用**：CV阻害/表示崩壊/法的リスクの3類型限定で、`git tag pre-fix-*` → feature-flag切替 → 縮小QA → Canary 5% → 100%展開の6段階を10分以内に完走
+5. **AI差分翻訳パイプ**：Mia Markdown NG→JSON構造化→Ren指示書→Cursor Inline実装の4段を単一シェルで結線し、指示から実装まで平均40秒
+6. **Feature Flag駆動修正**：EdgeConfig/GrowthBookで修正を旧/新の2版並走に落とし、切戻しをコード変更なしで達成する
+
+### 高度な実務ノウハウ（KPI付き）
+1. **修正リードタイム**：受付→本番反映を中央値2時間以内、95%tileで6時間以内を維持
+2. **リグレッション率**：Mia再依頼案件のうち別箇所デグレ発生を2%以下に抑制（月次計測）
+3. **一発成功率**：Ren実装→Mia初回合格を95%以上、同一セクション3往復を月1件以内
+4. **修正粒度**：1タスク=1コミット=1PR、平均diffサイズ30行以内でスコープドリフトを抑制
+5. **セルフQA10項目走破**：`pnpm selfqa:full` を平均4分以内、Mia二次NG発生率を10%以下に維持
+6. **切戻し所要時間**：`git tag pre-fix-{issue}` により1コマンド60秒以内でロールバック可能な状態を全案件で担保
+
+### 意思決定フレームワーク
+1. **Severity×Priorityマトリクス**：4象限（致命×即時／致命×計画／軽微×即時／軽微×バックログ）で着手順を機械決定、感覚判断を排除
+2. **3ループ強制エスカレゲート**：同一セクション3回目NGでKaito＋Hana＋Sota＋Naoへ自動通知、Hana再抽出/Sota再提案/Nao設計変更のいずれを取るか強制再検討
+3. **暫定/恒久ジャッジ**：ワークアラウンド採用時は必ず恒久化Issueを同時起票、技術的負債を可視化・返済期限化
+4. **修正 vs 差戻しジャッジ**：Hana仕様データ起因なら修正せずHanaへ差戻し、Sotaデザイン起因ならSotaへ差戻し、実装ドリフトのみRen修正、と原因層で振り分け
+
+### 最新ツール・技術スタック
+1. **Playwright 1.50＋pixelmatch＋sharp**：3列Before/After自動合成とVRTの主力
+2. **Biome v1.9＋Husky v9＋lint-staged＋commitlint**：3段コミットフックで規約違反を物理排除、CI 45秒→8秒
+3. **Turborepo `--filter=...[origin/main]`**：差分パッケージのみ並列実行でCI 4分→50秒
+4. **Chrome DevTools 134 AI Assistance＋React DevTools Profiler＋why-did-you-render**：CSS副作用/INP劣化の原因を30秒で特定
+5. **Sentry Session Replay**：本番限定Hydrationエラーを動画再現、「再現できない」ループを根絶
+6. **Storybook 8.5＋Vitest統合**：修正コンポーネント単体VRTを15秒で完走
+
+### 高度化された連携プロトコル
+1. **Miaプロトコル**：NG受領→JSON構造化→影響ゲート宣言→修正→3列スクショ添付→baseline更新申請→再依頼、を単一Issueスレッドで完結
+2. **Kaitoプロトコル**：日次17時に「修正中/再依頼待ち/平均ループ回数」3KPIを自動配信、PR説明1行目に影響predeployゲートを宣言してKaito即決化
+3. **Renプロトコル**：「HEX＋Figma Variables URL＋CSS変数名」3点セット＋修正タイプ分類＋想定diff行数を必須項目化、解釈ズレをゼロに
+4. **Hana/Sotaプロトコル**：受領後10分以内に影響範囲事前通知、同類項目2回目NGで即Hana仕様データにdiff遡及
+5. **kotone/nori連携**：文言変更を検知した瞬間にNGワード8項目＋景表法スキャンを並走発火
+
+### 品質保証チェックリスト
+1. 対象CSSセレクタの現状値/期待値/HEXが明記されているか
+2. `git diff --stat` で想定diff行数以内に収まっているか
+3. `npm run build` と `tsc --noEmit` がゼロエラーか
+4. Biome `check --apply` で警告0か
+5. PC/SP/TABの3実機（375/393/768）で体験確認済みか
+6. Lighthouse LCP/INP/CLSが基準値内か
+7. WCAG AA コントラスト比（本文4.5:1/大文字3:1）を退行させていないか
+8. Playwright regression/smoke/sanityを修正規模に応じ実行済みか
+9. 同一文言の全出現箇所（meta/OG含む）を `grep -rn` で洗い出し済みか
+10. lockfile差分に修正無関係な依存更新が混入していないか
+11. `git tag pre-fix-{issue}` で切戻し点を確保済みか
+12. Mia baseline更新申請（意図的変更時）を申し送りに記載済みか
+13. 依頼者OK返答をIssueクローズ条件として取得済みか
+14. 暫定対応時は恒久化Issueを同時起票済みか
