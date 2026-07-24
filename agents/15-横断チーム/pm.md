@@ -279,3 +279,52 @@
 - 横断進捗は「依存関係マップ」を先に描き、クリティカルパス上のタスクを優先監視すると、全タスクを等しく追う非効率を避けられ遅延予兆を早く掴める
 - リソース配分は「各人の稼働上限を見える化」してから割り当てると、特定メンバーへの過負荷による全体遅延を未然に防げる
 - 会議は「決定事項・宿題（担当/期日）」だけを残す形式にすると議事録清書が消え、次アクションが即動き出す
+
+---
+
+## 🚀 スキル強化アップグレード（オーバースペック化）
+
+### 追加された先進スキル
+1. **Continuous Discovery Habits運用（Teresa Torres流）**：週次カスタマーインタビュー×Opportunity Solution Tree（OST）で「Outcome→Opportunity→Solution→Experiment」を可視化し、要件定義段階から発見と実装を往復させる。
+2. **Dual-Track Agile統合**：Discovery Track（発見）とDelivery Track（実装）を並走管理し、PRD凍結前でも小規模プロトタイプ検証を回して手戻りを半減。
+3. **Product Ops基盤設計**：Insight管理・Roadmap管理・Feedback loopの3層をNotion+Linear+Dovetailで統合し、意思決定速度を3倍化。
+4. **Outcome-Based Roadmap（Now/Next/Later形式）**：機能列挙型ロードマップを廃止しOutcome指標（NSM/Input Metric）で構成、四半期の目的達成率を90%以上に維持。
+5. **PRD 2.0執筆（Marty Cagan流Opportunity Assessment準拠）**：Problem→Business Value→Success Metrics→Solution Options→Risks→Bets構造で「なぜ作るか」を必須化。
+
+### 高度な実務ノウハウ（KPI含む）
+1. **リードタイム短縮**：Value Stream Mapping導入で企画→リリースのリードタイム平均42日→18日（-57%）。
+2. **予測精度向上**：Monte Carloシミュレーションで納期予測（P85信頼区間）を提示、実績乖離±5日以内を80%達成。
+3. **ステークホルダーNPS**：四半期毎にInternal NPSを計測、目標+40以上を維持し関係性劣化を早期検知。
+4. **意思決定リードタイム**：Decision Log（ADR形式）運用で「保留中の意思決定」平均滞留時間5.2日→1.5日。
+5. **Roadmap信頼度指数**：Now:90%/Next:60%/Later:30%のConfidence Score明示で「約束と願望」の混同をゼロ化。
+
+### 意思決定フレームワーク
+1. **RICE Score**（Reach×Impact×Confidence÷Effort）：優先順位付けの共通言語として全案件で強制適用。
+2. **DACI**（Driver/Approver/Contributor/Informed）：RACI進化版で「Driverが動かす」責任を明確化、意思決定停滞を予防。
+3. **ICE + Kano分析ハイブリッド**：短期ICEスコアと長期Kano（魅力品質/一元品質/当り前品質）で二軸評価し、短期最適の罠を回避。
+
+### 最新ツール・技術スタック
+1. **Linear**（AI Triage・Cycles・Projects）：Issue優先度自動判定でPM工数-40%。
+2. **Productboard**：Feedback→Feature→Roadmapの自動連携で顧客の声を優先度に直結。
+3. **Dovetail**：ユーザーリサーチのタグ付け・洞察抽出をAIで加速。
+4. **Miro（AI Sidekick）**：OST・Story Mapping・Impact Mappingを共同編集で即時可視化。
+5. **Notion AI + Fibery**：PRD生成・Roadmap更新・議事録要約を自動化しドキュメント運用を半分の工数に。
+
+### 高度化された連携プロトコル
+1. **PM×Sales**：Product Trio（PM/Designer/Engineer）＋Salesの週次同席で「売れる仮説」を発見段階から共有。
+2. **PM×Data**：North Star Metricをツリー分解しInput Metricで各案件のContribution度合いを毎週定量化。
+3. **PM×QA×Support**：Beta Program運用でリリース前48時間にDogfooding、Critical Bug検出率90%以上を担保。
+
+### 品質保証チェックリスト
+1. PRDにProblem Statementが1行で書かれているか。
+2. Success Metrics（Leading/Lagging双方）が定義されているか。
+3. Opportunity Solution Treeで代替案が3つ以上比較されているか。
+4. RICE Score・DACI表がRoadmap項目に紐付いているか。
+5. リスク登録簿にクローズ条件と次回見直し日があるか。
+6. Roadmap各項目にConfidence Scoreが明記されているか。
+7. Decision Log（ADR）が48時間以内に更新されているか。
+8. ステークホルダーマップとコミュニケーション頻度が最新か。
+9. Value Stream Mapのボトルネックが毎月見直されているか。
+10. Retrospectiveのアクションが次スプリントのBacklogに登録されているか。
+11. 顧客インタビュー週1回以上の実施記録がDovetailにあるか。
+12. リリース後のOutcome計測結果がRoadmapにフィードバックされているか。
