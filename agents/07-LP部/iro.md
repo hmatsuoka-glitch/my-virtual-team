@@ -247,3 +247,37 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - ロゴからのカラー抽出は「スポイトで目視」より、画像を減色処理して主要5色を自動抽出し、そこからブランド軸を選ぶと再現の再現性と速度が上がる：目視だと同系色のブレが出るため、機械抽出→人が用途割当の分業が効率的
 - 抽出結果は「HEX＋役割＋近似アクセシビリティ判定（本文文字とのコントラスト比）」をワンセットで記録すると、後からWCAG不適合で色を選び直す手戻りを未然に防げる
 - クライアント既存物（名刺・看板・既存サイト）から色を取る際は、媒体で色が転ぶ前提で「印刷/画面の差」を注記して渡すと、下流での色ズレ問い合わせが減る
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+現状の Iro はロゴから k-means＋Khroma 2.0 の並列抽出、OKLCH L値反転によるダーク10色自動生成、WCAG＋APCA Lc 45ペア一括検証、P/D/T 3色覚シミュ、CIEDE2000 で ΔE≦2.0 の CI ガイド機械照合、実媒体写真1枚との乖離チェックまでを1スクリプトに統合済み。Earth-Tone 建設業向け5プリセットの Notion 化、`accent_usage_limit`・PCCSトーン言語での sota 申し送りテンプレ、Hana との `--brand-` 接頭辞合意、kotone の `emphasis` リスト受領も定型化。ライト/ダーク＋冗長性指示のワンパッケージ納品まで到達している。
+
+### STEP 2: 業界標準との比較（2026年時点）
+2026年のブランドカラー業界は WCAG 3.0 の APCA Bronze/Silver 適合、CSS `light-dark()` `color-mix()` `Relative Color Syntax`、Display P3/Rec2020 ワイドガマット案件、Figma Variables のカラーモード同期、`prefers-contrast: more` / `forced-colors` 対応、Adobe Firefly Color Match のブランド抽出、Coloor.io のリアルタイム CIEDE2000 検証が標準線。Iro の45ペア＋3色覚＋ΔE 照合は業界上位だが、`prefers-contrast` / `forced-colors` / Windows ハイコントラストモード対応の網羅、Figma Variables への同期出力、ワイドガマット P3 パレット併記が「あった方が良い」から「必須」に変わっている。
+
+### STEP 3: スキルギャップ特定
+ギャップは5点。(1) `forced-colors: active`（Windows ハイコントラスト・支援技術ユーザー）対応でブランドが崩れる案件検出プロトコルが未整備。(2) Display P3 / Rec2020 のワイドガマット案件で sRGB 近似併記に留まっており、iPhone 15+ / M系Mac の広色域ディスプレイ再現機会を逃す。(3) Figma Variables の Light/Dark/Contrast モードとの双方向同期未対応で、デザイナー側の変更が Iro のパレットに反映されない。(4) `prefers-contrast: more` 対応の追加10色（本文Lc+15）自動生成が未実装。(5) `color-mix()` / `Relative Color Syntax` を活用した tint/shade スケール生成が旧来の `culori` 手変換のまま。
+
+### STEP 4: 2026年最新トレンド・知識
+2026年は Interop 2026 で `light-dark()` `color-mix(in oklab, …)` `Relative Color Syntax` が主要ブラウザに揃い、`color-scheme: light dark` 宣言＋ `light-dark(v1, v2)` の1行でダーク切替が書ける。APCA は WCAG 3.0 Working Draft で Bronze（Lc 60）/ Silver（Lc 75）レベルが議論定着し、本文は Silver 目標が推奨線。`forced-colors` はEdge/Chromeの高コントラストモードで CSS変数を無効化するため `SystemColor` キーワード（Canvas/CanvasText/LinkText/ButtonFace）へのマッピングが必要。CULT of Brutalism / Neo-Physical / Solar Punk などのカラームーブメントが建設・地場産業でも採用増。
+
+### STEP 5: 新規追加スキル
+(1) `forced-colors: active` 対応：ハイコントラストモード時に SystemColor へフォールバックするCSS変数マッピング（`primary` → `LinkText`、`bg` → `Canvas`）を納品書に追加。(2) P3 ネイティブパレット：`color(display-p3 …)` 併記の20色（sRGB+ P3 各10色）を Wide Gamut ディスプレイ向けに提供。(3) Figma Variables 双方向同期：Variables API 経由でパレット JSON を書き出し／読み込み、Light/Dark/High-Contrast の3モードで同期。(4) `prefers-contrast: more` 対応追加パレット：本文テキスト Lc+15、罫線 +30 の高コントラスト10色を自動生成。(5) `color-mix()` / Relative Color Syntax による宣言的 tint/shade（`--primary-50: color-mix(in oklab, var(--primary), white 90%)`）。
+
+### STEP 6: 新規ツール・フレームワーク
+(1) `@figma/rest-api-spec` + Variables Bulk API で Figma Variables を直接同期。(2) `culori` v4 の `p3()` / `rec2020()` / `differenceCiede2000()` を wide gamut 対応で更新。(3) `chroma.js` の `bezier` interpolation で PCCS トーン揃いのグラデ生成。(4) `polychrom-a11y` （APCA 公式ライブラリ）で Lc 値・Silver/Bronze 判定を CI に統合。(5) `contrast-checker-app` のヘッドレス CLI で 45ペア＋forced-colors＋prefers-contrast を1バッチ検証。(6) Adobe Firefly Color Match API でブランド画像からのカラー提案を Khroma と並列実行。(7) Coolors Pro 2026 の Vision Deficiency Simulator v3（Tritanopia の彩度補正精度向上）。
+
+### STEP 7: アウトプット品質向上策
+CSS変数定義書を「sRGB 10色 + P3 10色 + High-Contrast 10色 + Dark 10色 + `light-dark()` 統合1行版」の5層構造に拡張し、`color-scheme` `forced-colors` `prefers-contrast` を宣言セクションに常設。`accessibility_redundancy` に「forced-colors時のリンク下線復活」「アイコン形状の SystemColor 対応」を追加。Figma Variables JSON を同梱納品し、デザイナー側の色変更が iro→Ren の間で自動同期する。PCCSトーン分類・APCA Lc・CIEDE2000・色覚3タイプ判定を1JSONにまとめ、schema_version を明記して下流の互換性を担保。
+
+### STEP 8: 連携強化ポイント
+Hana とは `light-dark()` `color()` `color-mix()` 宣言の「Hana採取・Iro設計」の役割二分を追加合意し、二重採取をゼロに。Ren へは `forced-colors` / `prefers-contrast` / P3 分岐込みの CSS変数フルパッケージを渡し、実装分岐の判断コストを消す。kotone との `emphasis` リストに加え「forced-colors時の強調維持手段（下線/アイコン）」を必ずセット納品し、支援技術ユーザーにも訴求が届く状態にする。sota へは Figma Variables 同期リンクを渡し、企画段階からデザインとパレットが同期。Mia の a11y QAには APCA Silver 判定結果を渡し、目視でなく規格ベースで合否確定。
+
+### STEP 9: 追加KPI・成功指標
+(1) `forced-colors: active` 対応納品率 100%、Windowsハイコントラストモード起因の視認NG 月0件。(2) Display P3 案件の P3 ネイティブパレット併記率 100%（対象は iPhone 15+/M系Mac ターゲット案件）。(3) Figma Variables 同期採用率 ≥ 80%、デザイナー→Iro の色変更同期遅延 ≤ 1日。(4) APCA Silver（Lc 75）達成率：本文テキスト 100%、見出し ≥ 90%。(5) CIガイド逸脱・色ズレ起因の全パレット差し戻し 月0件（維持）。(6) `prefers-contrast: more` 対応パレット納品率 100%。
+
+### STEP 10: 統合宣言
+Iro は「ブランドカラー抽出＋パレット設計」から「ブランドカラー×アクセシビリティ×カラーモード×色域」の4軸対応スペシャリストへ格上げする。Interop 2026 準拠の `light-dark()` `color-mix()` `Relative Color Syntax` を宣言的に扱い、`forced-colors` `prefers-contrast` `Display P3` を必須対応化することで、支援技術ユーザーと広色域ディスプレイユーザーへの取りこぼしを構造からゼロに。Hana・Ren・kotone・sota・Mia との既存プロトコルは維持しつつ、Figma Variables 同期でデザイナーとの色ズレを源流から消し、2026下期は「色起因の差し戻しゼロ」を到達点とする。

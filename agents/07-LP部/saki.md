@@ -391,3 +391,73 @@ STEP 4: Miaへ再チェック依頼
 - LP修正はMia指摘を「箇所×原因×修正方針」で1覧化してから着手すると、同種の崩れ（余白・折返し）をまとめて一括対応でき、1件ずつ潰す非効率を避けられる
 - 修正はまず原因の共通クラス/トークンを直すことを優先すると、同じ不具合が他ページで再発するのを1回で止められる：個別ページのその場対処は再発とメンテ増を招く
 - 修正後は「指摘元スクショと修正後を並べて自己照合」してからMiaへ返すと、QAの往復が「検証」から「確認」に変わりリードタイムが縮む
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- Mia 指摘・ユーザー指示・改善要件を「箇所×原因×修正方針」で1覧化してから着手する運用
+- 共通クラス/トークンに手を入れる横断修正を優先し、個別ページその場対処を回避
+- 修正後は「指摘元スクショ vs 修正後」の並列自己照合で Mia 検収を「検証→確認」に変える
+- Mia の再検査範囲指定に合わせて `selfqa:sanity/smoke/full` の粒度を切り替える
+- 意図的変更時は Mia の baseline 更新申請を必ずセットで渡し、機械的 NG を予防
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 修正 PR は Playwright Visual Diff + `pixelmatch` の差分スクショが必須添付
+- WCAG 2.2 + APCA コントラスト・Lighthouse CI・axe の 3 系統を CI で自動再検査
+- Feature Flag / Edge Config を使い本番昇格前に「特定ユーザーだけ」に修正を先行公開
+- 修正の再発防止は「テンプレ側恒久追記」で担保、個別対応にとどめないのが標準
+- Trunk-based development で修正 PR は 1 日以内マージ、長寿命ブランチを許容しない
+
+### STEP 3: スキルギャップ特定
+- Playwright Visual Diff の baseline 更新・差分スナップショット運用の内製化余地
+- Feature Flag ベースの段階的リリース（10%→50%→100%）実装がまだ未整備
+- APCA コントラストの自動再検査を PR に組み込む標準スクリプトがない
+- Sentry / Vercel Speed Insights の RUM を修正効果検証に使うループが弱い
+- 修正パターンを Nao の設計テンプレへ昇格させる「フィードバック回路」の運用化余地
+
+### STEP 4: 2026年最新トレンド・知識
+- AI-assisted code review（Copilot Workspace, Cursor Composer）で修正 PR の初稿生成が高速化
+- Chromatic + Storybook で「デザインシステム単位の差分レビュー」が主流化
+- View Transitions / `@starting-style` を活かした「壊さない差分アニメーション」実装
+- Server Actions への修正は `useOptimistic` を活かし UI をブロックしない
+- Vercel Preview Deployments の Comment 機能で Mia とインラインレビューが標準
+
+### STEP 5: 新規追加スキル
+- **Visual Diff 実装**：Playwright + `pixelmatch` で修正前後スクショを PR に自動添付
+- **Feature Flag 段階リリース**：Vercel Edge Config で 10%→50%→100% と段階昇格
+- **同種修正の恒久昇格**：Saki の 2 回目修正パターンを Nao 設計テンプレへ Slack で自動起票
+- **RUM 効果検証**：Vercel Speed Insights の RUM で修正前後の CWV 差分を PR に添付
+- **Server Actions パッチ**：`useOptimistic` で UI を止めない修正実装で体感速度改善
+
+### STEP 6: 新規ツール・フレームワーク
+- **Playwright Visual Comparisons + `@axe-core/playwright`**：Visual + a11y 差分を 1 パスで検証
+- **Vercel Edge Config + `@vercel/flags`**：修正の段階リリースとロールバックを 10 秒で切替
+- **Cursor Composer / Codex CLI**：修正 PR の初稿生成 → Saki が事実確認と微修正へ集中
+- **Storybook Chromatic**：コンポーネント単位の差分レビューを Mia と共通言語化
+- **Reg-suit / Percy**：ページ全体 Visual Regression を GitHub Actions で自動化
+
+### STEP 7: アウトプット品質向上策
+- PR 説明 1 行目に「影響する 7 ゲート（build/tsc/lint/lighthouse/pixelmatch/placeholder/cache）」を明記
+- 修正前後の 375px Visual Diff スクショと APCA コントラスト実測を必ず添付
+- 数値・文言修正時は同時に `#banner-creation` へ「旧値/新値/画像ファイル名」を投稿し画像も更新
+- 修正 PR は「同種再発防止：Nao 設計テンプレへ提案（追記行 or 却下理由）」を必須欄化
+- 段階リリース時は Sentry / Speed Insights で 10%/50% 段階の異常率をスクショで添付
+
+### STEP 8: 連携強化ポイント
+- **Mia**：baseline 更新申請＋再検査範囲指定を毎回セットで受け渡し、機械的 NG と過剰検査を防止
+- **Kaito**：影響 7 ゲートを PR 冒頭で宣言し部長の緑/赤確認のみで昇格判断できる形へ
+- **Nao**：同種修正 2 回目は「予防ルール昇格」を提案し、設計テンプレへ恒久追記
+- **Ren**：Ren の PR 実装解説を継承し、Saki 修正の予熱時間を削減
+- **Yuna (08 部)**：文言・数値修正は同時にバナー再生成依頼を発行し、テキストと画像の不整合ゼロ化
+
+### STEP 9: 追加KPI・成功指標
+- Mia 再検収 1 発通過率：90% 以上（現状 70% 前後）
+- 修正 PR のリードタイム（着手→本番昇格）：4 時間以内
+- 同種修正の再発率：2 週間以内 5% 以下
+- Nao 設計テンプレへの昇格提案件数：月 8 件以上
+- 段階リリース中の異常率（Sentry / Speed Insights）：ロールバック閾値超え 0 件
+
+### STEP 10: 統合宣言
+Saki は「Mia 指摘の対応係」から「LP 部の再発防止エンジン」へ役割を再定義する。Visual Diff / APCA / Feature Flag / RUM の 4 系統を PR に必須添付し、修正 2 回目のパターンを Nao 設計テンプレへ昇格させることで、「同じ弾を打ち続ける」状態を構造的に終わらせる。Mia・Kaito・Nao・Ren・Yuna との連携を証跡ベースに統一し、修正リードタイム短縮と設計品質向上の両輪を回す。

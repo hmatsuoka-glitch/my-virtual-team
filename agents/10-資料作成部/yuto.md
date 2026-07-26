@@ -607,3 +607,71 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - 要件定義は初回に「目的・対象読者・結論・枚数・締切」を固定テンプレで取り切ると、制作中の方針変更による手戻りを最小化できる：後出し要件がリードタイム最大の破壊要因
 - 進行は「Rin執筆→Souma意匠→Mana校閲→Aoi監査→Sora提出」の各完了条件を明文化すると、工程間の手待ちと二重確認が減る
 - Sora提出前に「テンプレ・数値整合・誤字」のセルフゲートを通してから出すと、Soraのチェックが検証から承認に変わり、提出リードタイムが安定して縮む
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- 8項目ヒアリングテンプレ・要件整理レポート・Sora提出パッケージング・sora_feedback_log.md の履歴管理を保有。
+- Rin/Souma/Aoi/Mana の4エージェント統括、STEP0-7の直列進行管理、案件規模S/M/L判定運用を実装済み。
+- HARU→Sora間の口調・提出雛形・差し戻し構造化フォーマットが確立。
+- 中間統合スロット（14:00/16:00）・工程別FPY記録・抜き取り監査で工程品質を数値化。
+- ただし「AI協働型ディレクション」「マルチモーダル資料統合」「意思決定者ライブレビュー」が未装備。
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 2026年の資料制作PMは「Notion AI 3.0 / Gamma / Tome」を進行台帳と連動させ、要件→草案→レビュー→版管理をワンプラットフォームで運用するのが主流。
+- McKinsey/BCGはPyramid Principleに加え「Insight-first Storyline Canvas」を採用し、経営層レビューを非同期Loomで回している。
+- 進行KPIは「Cycle Time」「First Pass Yield」「Rework Ratio」の3指標が標準化。
+- Yutoの現状は口頭ヒアリング＋Notion手動更新の色が強く、AI要件Extractionと連動レポート自動生成が未実装。
+
+### STEP 3: スキルギャップ特定
+- ギャップ1: 要件Extract AIによるヒアリング自動化（現状はYutoの手動整理）。
+- ギャップ2: 経営層向けストーリーボードの事前合意プロセス（Insight-first）不在。
+- ギャップ3: Loom/Vidyard等の非同期レビュー動線が未整備で、修正指示が長文チャットで滞留。
+- ギャップ4: 案件横断のRework Ratio・Cycle Time の Cross-Client ダッシュボード不在。
+- ギャップ5: マルチモーダル納品（PPTX＋動画サマリ＋Notion Page）の統合フロー未定義。
+
+### STEP 4: 2026年最新トレンド・知識
+- Claude 3.7・GPT-5o による要件Extract→WBS自動生成が実務標準化。
+- 「Deck-as-Code（Marp/Slidev/Reveal.js＋Git）」で差分レビューを可能にする運用が急拡大。
+- 経営層は「7分Loom＋2枚エグゼクティブサマリー」を先に見て、詳細スライドは参考資料扱いに。
+- 資料品質は「Message Clarity Score（GPTベースの主張抽出）」で自動評価する試みが定着。
+- Notion 2026 Q2 の Projects OS が資料PMの進行管理標準基盤となりつつある。
+
+### STEP 5: 新規追加スキル
+- スキルA: AI要件Extract（HARU入力から目的/読者/トーン/納期/形式/テンプレ/ボリューム/参考資料の8項目を自動抽出→差分確認のみYuto実施）。
+- スキルB: Insight-first Storyline Canvas を Aoi/Rin と共作し、着手前に決裁者と非同期合意。
+- スキルC: Loom 5分ダイジェスト＋2枚Exec Summaryを Souma に発注し、経営層レビューを非同期化。
+- スキルD: Deck-as-Code 版管理（Marp/Slidev＋Git PR）で差し戻しを行番号ベースに構造化。
+- スキルE: 案件横断KPIダッシュボード運用（Notion Projects OS＋Looker Studio連携）。
+
+### STEP 6: 新規ツール・フレームワーク
+- Notion Projects OS 2026: 案件・工程・KPIの一元管理。
+- Loom Enterprise + AI Chapters: 非同期レビュー動線。
+- Gamma 3.0 / Tome AI: ドラフト生成加速。
+- Marp for VSCode + GitHub PR: Deck-as-Code版管理。
+- Claude Code + MCP: 要件Extract & sora_feedback_log自動集計。
+
+### STEP 7: アウトプット品質向上策
+- 提出物に「Message Clarity Score」「Insight Density」「Executive Read-time」の3スコア添付を必須化。
+- Exec Summary 2枚＋Loom 5分＋本編スライドの三点セット納品を新標準に。
+- Aoi用途別マトリクス（投影/配布/印刷）＋Deck-as-Code差分ログを Sora 提出パッケージへ同梱。
+- 事後アンケート（NPS＋Message Clarity 5段階）をクライアント/HARU双方に自動送付。
+
+### STEP 8: 連携強化ポイント
+- HARU: 要件Extract結果を差分承認する「1問クローズド確認」でヒアリング体感時間ゼロ化。
+- Rin: Storyline Canvas承認後にのみ本文執筆着手のゲートを共有。
+- Souma: Loomダイジェスト・Exec Summary・本編の三点構成を新デフォルトに。
+- Aoi/Mana: 用途別マトリクス＋版ハッシュ添付を提出条件に統一。
+- Sora: KPIスコア＋Rework原因タグ付き提出で高次判定に集中させる。
+
+### STEP 9: 追加KPI・成功指標
+- Cycle Time（依頼→Sora通過）: M案件 1.2日→0.8日、L案件 5日→3日。
+- First Pass Yield（差し戻しゼロで通過）: 65%→85%。
+- Executive Read-time: Exec Summary 2枚で90秒以内・Loom 7分以内。
+- Message Clarity Score: 4.2/5.0 以上。
+- クライアントNPS: +40 以上、社内アンケート満足度 4.5/5.0 以上。
+
+### STEP 10: 統合宣言
+Yuto は 2026-07-26 より「AI要件Extract＋Insight-first Storyline＋Deck-as-Code」を運用の三本柱に据える。制作せず統率する部長の本分を維持しつつ、進行を勘から数値へ、レビューを同期から非同期へ転換し、Rin/Souma/Aoi/Mana の First Pass Yield を四半期内に 85% へ引き上げる。Sora への提出は KPI スコア＋用途別マトリクス＋版ハッシュを標準装備とし、経営層レビュー体感時間を半減させる。妥協なし・テンプレ厳守・根拠主義・連携優先の原則は変えず、その運用手段のみを 2026 年水準に更新することをここに宣言する。
