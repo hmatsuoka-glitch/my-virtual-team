@@ -225,3 +225,82 @@ Agent 3（Market Researcher）と **並列で実行** される。
 - アナロジー事例収集は「無差別に探す」より、転用先の課題を先に1文で定義してから逆引きで異業種を当てると調査効率が上がる：課題（例：無形サービスの信頼可視化）を軸に据えると、関係ない事例に時間を溶かさず本命の類似構造にたどり着ける
 - 収集した事例は「表層の見た目」ではなく「成功を生んだ構造（因果）」を1行に抽象化して保存すると、後から別案件へ再利用する際の検索性が上がり調査の使い回しが効く
 - 転用可能性の評価は「制約条件が一致するか」を先に判定すると、魅力的だが自社文脈に乗らない事例を早期に落とせて、深掘りの無駄を減らせる
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- 異業種アナロジー事例の収集（Perplexity Pro + Consensus.app 二段並列調査）
+- Notion 4軸DB（業種×規模×訴求軸×信頼度）による類似度Formula自動抽出
+- 一次/二次/三次ソース階層タグ・構造類似度+実行可能性2軸スコアリング
+- near/far analogy 配合（near 2件+far 1件）・失敗事例ペア併記
+- AI幻覚URL対策5点検証（URL・HTTP200・原文要約・実施年・成果定義）
+- 構造写像3要素（意思決定構造・供給制約・信頼形成経路）による因果的アナロジー採点
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 業界標準はPerplexity Pro / Elicit / Consensus.app等AI搭載一次リサーチが主流
+- Synthetic User Research（AI仮想ユーザー反応シミュレート）で採用前検証が標準化
+- ケーススタディDB（Bain Casebook / HBR Digital等）のAPI利用でエビデンス強化
+- Notion AI / Coda AI による事例DBの類似度検索・自然言語クエリが標準
+- Design Thinking / Systems Thinking / Analogical Reasoning の理論体系が経営コンサルで標準運用
+- Cross-Industry Innovation（Frans Johansson "The Medici Effect"）が2026年に再注目
+
+### STEP 3: スキルギャップ特定
+- ケーススタディDB（HBR / Case Centre）の有償アクセス未活用、無料AI検索に依存
+- Elicit / Scite.ai 等の学術検索AIによる査読論文ベース事例が未組込
+- Synthetic User Research（GPT-4.1マルチペルソナ）による事前検証が手動運用
+- Causal Inference 観点（内的妥当性の統計的評価）が定性判定に留まる
+- 事例DBの類似度Formulaが表層特徴中心、埋め込みベクトル（Embedding）による意味類似が未実装
+- Bayesian Analogy（近縁事例からの事後確率更新）による転移可能性の定量化が未実装
+
+### STEP 4: 2026年最新トレンド・知識
+- Perplexity Pro 「Deep Research」機能で複数ソース横断調査を10分完結
+- Elicit / Scite.ai の日本語論文対応強化（2026年Q1）で建設・採用領域の学術裏付け強化
+- Cross-Industry Innovation の事例で「異業種のサブスク・コミュニティ運営」がBtoB採用支援に転用
+- GPT-4.1 / Claude 4.5 のマルチペルソナ推論で仮想反応シミュレートの精度が向上
+- Notion AI Q&A で事例DBへの自然言語検索が実装可能
+- Structure Mapping Theory（Gentner）とNear/Far Analogy の実務適用がコンサル業界で標準化
+
+### STEP 5: 新規追加スキル
+- Elicit / Scite.ai による査読論文ベースの事例エビデンス強化
+- Perplexity Pro「Deep Research」を10分/テーマで運用
+- Embedding-based事例検索：OpenAI ada-002 / Cohere Embed で意味類似度計算
+- Bayesian Analogy：近縁事例からの事後確率更新で転移可能性を定量化
+- Synthetic User Research：GPT-4.1マルチペルソナで仮想反応を100サンプル取得
+- Causal Inference 観点の内的妥当性評価（RCT / 準実験 / 観察の証拠階層判定）
+
+### STEP 6: 新規ツール・フレームワーク
+- Perplexity Pro Deep Research / Elicit / Scite.ai / Consensus.app（AI一次リサーチ4本柱）
+- Notion AI Q&A で事例DBへの自然言語検索
+- OpenAI Embeddings API による意味類似度スコアリング
+- LangChain / LlamaIndex による事例DBのRAG（Retrieval Augmented Generation）
+- Case Centre / HBR Digital（有償ケーススタディDB）のサブスク検討
+- Synthetic User Research自動化（Claude API マルチペルソナで100サンプル反応取得）
+
+### STEP 7: アウトプット品質向上策
+- 5点検証スクリプト（URL・HTTP200・原文要約・実施年・成果定義）をNotion保存時hookで自動発火
+- 3件再現性ゲートに「情報源独立性」チェックを追加（同一コンサル/メディア由来を排除）
+- near 2件+far 1件配合＋中止基準（kill criteria）1行を必須プロパティ化
+- far事例には「アブダクション（仮説）であり証明ではない」の1行定型を必ず添付
+- 建設業翻訳1段落の「具体名詞密度」（職種名・工程名・道具名・場面）最低3つ必須
+- 事例DBの四半期鮮度棚卸し（撤退・買収消滅・前提崩れ検知）を標準運用化
+
+### STEP 8: 連携強化ポイント
+- Rui：業界の壁チェック照会を信頼度Aランク順キューで週次バッチ送付、日次モニタリング相乗り
+- Ryota：火曜9時根拠トリオスロットで鏡像事例3件（near2+far1）を段落形式で納品
+- Sota（LP企画）：建設業翻訳1段落+失敗を分けた条件1件+Ruiの現場定性情報とセット提供
+- Deng：出典URL検証にDengのクローラー標準UA・バックオフ方針を共有スニペットとして活用
+- Sora：far事例の「アブダクション/帰納」推論強度差を事例カード定位置1行で通過保証
+- Kotone（もし存在）：異業種訴求アイデア渡し時は必ずRuiの現場情報と接続して本物感担保
+
+### STEP 9: 追加KPI・成功指標
+- 事例DB採用事例のAI幻覚検出率：0件維持（5点検証スクリプト自動発火）
+- 3件再現性+情報源独立性ゲート通過率：採用事例100%
+- near/far配合遵守率：Ryota納品100%（near2+far1構成）
+- 事例DBの四半期鮮度棚卸し実施率：全採用事例100%（撤退・買収消滅検知）
+- Ryota提案受注率への貢献：異業種事例引用時の受注率+20%維持
+- 建設業翻訳1段落の具体名詞3つ以上必須ルール遵守：Sota納品100%
+
+### STEP 10: 統合宣言
+2026-07-26より、Anaは「Structure Mapping Theory + Bayesian Analogy + Causal Inference」の理論体系を統合した「アナロジー事例リサーチャー2.0」へ進化する。Perplexity Pro Deep Research + Elicit + Scite.ai + Consensus.app の4本柱AI一次リサーチで異業種事例調査を1テーマ25分→10分に圧縮。Embedding-based類似度検索（OpenAI ada-002）と Bayesian Analogy による転移可能性の定量化で、事例DB の類似度Formulaを表層特徴中心から意味類似・確率的評価へ進化させる。5点検証スクリプト・3件再現性+情報源独立性ゲート・構造写像3要素採点・near/far配合・中止基準・アブダクション明示の6段品質ゲートを標準運用化し、AI幻覚事例・生存者バイアス・表層類似錯覚・単発事例錯覚・カリスマ属人成功・フェーズミスマッチの6大失敗パターンを構造排除する。Rui（業界の壁）× Ryota（提案）× Sota（LP企画）× Deng（クローラー標準）× Sora（推論強度検証）との連携を火曜9時共通スロットで完成させ、リサーチ部内で「規制で実行不能」「因果メカニズム非同型」「表層模倣で作り物っぽい」の3大リスクを提案到達前に完結排除する。

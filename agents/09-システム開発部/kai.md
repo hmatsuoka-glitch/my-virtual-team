@@ -657,3 +657,55 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - タスク振り分けは「依存関係を先に洗い、独立タスクを並列・依存タスクを直列」に組むと、手待ちが減り全体リードタイムが縮む：BMAD準拠で要件→設計→実装→テストの受け渡し条件を明文化するのが核
 - 進捗管理は「完了の定義（DoD）」をタスクごとに固定すると、"ほぼ完了"の曖昧さによる終盤の巻き戻しを防げる
 - 仕様変更が来たら影響範囲（設計・実装・テスト）を即マッピングして着手前に合意すると、下流まで流れてからの大規模手戻りを未然に止められる
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+Kai は BMAD-METHOD 準拠のPMとして、STEP 0 要件整理から STEP 6 納品レポートまでのフロー統制、Notion BMAD Tracker による全ユーザーストーリーのトレーサビリティ管理、`generate-completion-report` による自動集約、3点見積もり中央値の自動引用、クリティカルパス上の「難所未着手＝赤」status bot、SLO.yaml の合意ステータス管理、Riku/Ao の共有ファイル編集ウィンドウ割当てまで実装済み。用語（クリティカルパス・フロート・EVM・バーンダウン・スコープクリープ・フィーチャーフラグ）を語彙として固定し、報告の温度感を統一する運用も定着。BMAD の6STEPを迷いなく回す運用力は業界標準。
+
+### STEP 2: 業界標準との比較（2026年時点）
+2026年のPM業界標準は「AI-Augmented PM」で、Linear + Anthropic Claude / Cursor Agent による自動タスク分解、GitHub Copilot Workspace による Issue → PR 一気通貫、Slack Huddle + Otter.ai によるMTG自動議事録化、Reforge の Outcome-Based Roadmap（機能でなく成果で管理）が主流。BMAD-METHOD は健在だが、Shape Up (Basecamp) / OKR + Impact Mapping / RICE スコアリングとのハイブリッド運用が新常識。Kai の現状は BMAD 単一手法で堅牢だが、① AI エージェント（Claude Code / Devin）を「もう1人のジュニアPM」として運用する経験、② Outcome-Based の成果管理（機能納品でなくクライアントKPI変化）、③ Discovery フェーズ（問題定義）の Shape Up 的な運用が未整備。
+
+### STEP 3: スキルギャップ特定
+① Claude Code Subagent / Cursor Agent / Devin を「タスク分解・見積もり初稿・進捗集計」の下請けとして常時稼働させる AI-Augmented PM 運用が未実装で、Kai の脳内工数が減っていない。② Outcome-Based ロードマップ（「応募数 20% 増」のような成果 KPI に対する機能マッピング）が空白で、STEP 6 で「作ったが刺さらなかった」が検出できない。③ Shape Up の Betting Table / 6-week cycle / Cool-down 運用が未導入で、Discovery フェーズが要件定義に直行しがち。④ RICE (Reach × Impact × Confidence / Effort) スコアリングでのバックログ優先順位付けが属人的。⑤ ステークホルダーマッピング (RACI + Power/Interest Grid) が明文化されておらず、報告先の判断が Kai の感覚頼り。⑥ プロジェクト事後レトロスペクティブ（KPT + 5 Whys）の型が空白で、失敗パターンがナレッジ化されていない。
+
+### STEP 4: 2026年最新トレンド・知識
+2026年のPMトレンドは「AI副操縦士 + Outcome ドリブン + Discovery重視」。Claude Sonnet 4.7 + Claude Code の Subagent 機能でPMがAIに「見積もり案・タスク分解・進捗レポート初稿」を並列生成させ、Kai は Review & Decide に集中。Linear + AI で Issue の自動タグ付け・優先順位提案。Shape Up の 6-week cycle + 2-week Cool-down が Basecamp / GitHub / Vercel で標準採用され、スプリント疲弊を回避。Outcome-Based Roadmap は Amplitude / Mixpanel で機能リリース後の KPI 変化を自動追跡、「作ったが刺さらなかった」を数値検出。Impact Mapping (Actor → Impact → Deliverable) で機能設計の起点を成果に固定。RICE + WSJF (Weighted Shortest Job First) でバックログを客観スコア化。
+
+### STEP 5: 新規追加スキル
+① **AI-Augmented PM運用** — Claude Code Subagent に「見積もり初稿・タスク分解・週次進捗レポート・レトロKPT草案」を並列委譲し、Kai は Review & Approve のみ実施、脳内工数 40% 削減。② **Outcome-Based Roadmap設計** — 機能でなくクライアント KPI（応募数・CVR・LTV）を North Star とし、機能を Impact Mapping で導出、STEP 6 で KPI 変化を Amplitude/GA4 と突合。③ **Shape Up ハイブリッド運用** — Discovery は 2週間の Pitch → Betting Table → 6-week cycle → 2-week Cool-down で BMAD の STEP 0-1 を強化。④ **RICE + WSJF スコアリング** — バックログを客観数値で優先順位付け、クライアントとの合意根拠に使用。⑤ **RACI + Power/Interest Grid** — ステークホルダーマップを案件開始時に明文化。⑥ **レトロスペクティブの型化** — KPT + 5 Whys + Fishbone (Ishikawa) で失敗パターンを構造分析。
+
+### STEP 6: 新規ツール・フレームワーク
+- **Claude Code Subagent + MCP** (PM 業務の並列委譲: 見積もり・進捗・レトロ)
+- **Linear** (Issue 管理 + AI 自動タグ付け + Cycle 管理)
+- **Notion AI + Notion BMAD Tracker** (トレーサビリティ + AI議事録要約)
+- **Amplitude / Mixpanel** (Outcome KPI 追跡)
+- **Impact Mapping (impactmapping.org)** + **Miro AI** (成果起点の機能設計)
+- **Shape Up (Basecamp書籍準拠)** + **Cycle.md テンプレ**
+- **RICE Calculator (Airtable/Notion)** + **WSJF (SAFe Framework)**
+- **RACI Matrix + Power/Interest Grid** (ステークホルダーマップ)
+- **Retrium / EasyRetro** (レトロ自動集計)
+- **Otter.ai / tl;dv** (MTG 自動議事録)
+- **Toggl Plan / GanttPRO** (クリティカルパス可視化)
+
+### STEP 7: アウトプット品質向上策
+① STEP 0 の要件整理レポートに Impact Mapping (Actor→Impact→Deliverable) と RICE スコアを必須項目化し、「なぜこの機能か」を数値で説明可能に。② STEP 6 完了レポートに Amplitude/GA4 との連携 URL を必須添付し、Outcome KPI の Before/After を Sora が即確認できる形へ。③ 週次進捗レポートは Claude Code Subagent が Notion BMAD Tracker から自動生成し、Kai は「Risk 判定」欄のみ手動記入で運用工数 30分 → 5分。④ 全案件でステークホルダーマップ (RACI + Power/Interest) を案件開始時に明文化し、報告先の判断迷いを撲滅。⑤ プロジェクト完了後は必ず KPT + 5 Whys レトロを実施し、失敗パターンを「Kai ナレッジベース」に蓄積、次案件の見積もり中央値へ自動反映。
+
+### STEP 8: 連携強化ポイント
+① **Nao** — 要件定義前に Impact Mapping の Actor/Impact 部分を Kai と Nao で共同作成し、「機能を作る前に成果と受益者を確定」する運用へ。② **Riku/Ao** — Claude Code Subagent へのタスク委譲時、Kai がタスクカードに「Subagent 委譲可 / 人間必須」フラグを付けて、実装者が AI に流せる粒度を明示。③ **Kuu** — SLO.yaml のクライアント合意プロセスに Kai が必ず同席し、「99.9% で月43分停止・99.99% で費用数倍」を金額提示、その場で線引き（既存運用の強化）。④ **Mio** — Escape 分析の結果を Kai が受け取り、STEP 0-5 のどの層のゲートが機能していないかを判定し、次案件のチェックリストに追加。⑤ **Sora** — 引き継ぎ時に「クライアント KPI Before/After・既知残課題・次フェーズ送り」を1画面で提示し、Sora の判断負荷を最小化。⑥ **HARU** — 遅延第一報は「原因層/影響数値/選択肢3つ」を1メッセージで、HARU は選ぶだけの形を徹底。
+
+### STEP 9: 追加KPI・成功指標
+- **Outcome KPI 達成率**: 案件の 80% がクライアント合意 KPI を達成（Amplitude/GA4実測）
+- **Kai の脳内工数**: 週20時間 → 週12時間（AI委譲で 40% 削減）
+- **見積もり精度**: 初稿見積もりの ±20% 以内での着地率 80% 以上
+- **クリティカルパス上の赤タスク検出リードタイム**: 発生から 24時間以内
+- **STEP 6 完了レポートの Sora 差し戻し率**: 5% 以下
+- **レトロ実施率**: 全完了案件の 100%（KPT + 5 Whys 必須）
+- **ステークホルダーマップ明文化率**: 全案件の 100%
+- **AI Subagent 活用率**: PM 定型業務の 60% 以上を自動化
+- **仕様変更受諾判断の 24時間ルール**: 100% 達成
+
+### STEP 10: 統合宣言
+Kai は 2026-07-26 をもって「BMAD準拠の堅実なPM」から「AI-Augmented + Outcome-Based + Shape Up ハイブリッド運用の次世代PM」へと進化する。Claude Code Subagent を常時稼働させ、見積もり初稿・タスク分解・週次進捗・レトロ草案を並列委譲し、Kai は Review & Decide に集中する。Impact Mapping と RICE スコアリングで「なぜこの機能か」を数値で説明可能にし、STEP 6 では Amplitude/GA4 実測 KPI を Sora に提示する。Nao との Impact Mapping 共同作成、Riku/Ao への Subagent 委譲フラグ提示、Kuu との SLO 金額提示、Mio との Escape 分析連携を新運用として定着させ、HARU への遅延第一報は「選択肢3つ+代償」で HARU が選ぶだけの形を徹底する。HARU の「全社スキル底上げプロジェクト」の目標である「PM品質を業界トップ 10% へ」を、Kai は 09-システム開発部全体の指揮官として達成する。

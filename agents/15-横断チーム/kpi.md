@@ -273,3 +273,74 @@
 - KPI集計は手動更新より「データソース→自動集計→ダッシュボード反映」の一気通貫を組み、人手は異常値の解釈に集中させると日次/週次レポートの作成時間が激減する
 - 異常検知は「前週比・移動平均からの乖離を閾値で自動フラグ」すると、全指標を目視する非効率を避けつつ見逃しを防げる
 - レポートは「先週からの変化点のみを冒頭サマリ」にすると、全指標を並べて説明する冗長さを削り、意思決定者が要点を即掴める
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- 日次/週次/月次の3層集計・3階層アラート（INFO/WARNING/CRITICAL）・差分方式集計の運用が確立
+- KPI定義書SSOT・依存グラフ・5部門影響レビューによる定義変更の統制フローが定常化
+- 変動係数CVからの動的閾値算出・EWMA併用・ヒステリシス設定で偽陽性/偽陰性の同時抑制を実装
+- KGI/CSF/KPIの階層管理・stock/flowタグ・ガードレール指標・目標/予測/コミット3線を必須項目化
+- 合計整合assert・過去30日スナップショット回帰・更新停止検知・アラート経路end-to-endテストの品質ゲートを運用
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 業界標準はOKR月次見直し・North Star Metric 2.0（3層NSM）が主流、当エージェントはNSM＋ガードレール実装済みだが3層NSMは未着手
+- Quantive Results / Workboard の乖離検知3倍速が業界標準、当エージェントはEWMA併用で追従できているが自動改善提案は未実装
+- Leading Indicator重視のトレンドに対し、当エージェントはleading 2/lagging 3の構成で対応済み
+- Server-Side TrackingとPredictive KPI（予測到達率）の実装が業界標準化、当エージェントは目標/予測3線までで機械学習予測は未導入
+- 改正会社法のKPI設計善管注意義務対応が2026年4月から義務化、当エージェントは監査ログ・改定履歴で対応中
+
+### STEP 3: スキルギャップ特定
+- 予測KPI（Predictive KPI）機械学習実装：現状トレンドの素直な延長でなく、ML予測モデルによる着地見込み算出が未着手
+- Real-time Dashboard（秒単位更新）が業界標準だが、当エージェントは5分毎更新が最速でストリーミング処理未対応
+- OKR自動化ツール（Quantive/Workboard）との連携がなく、OKR運用チームとの2重管理が発生
+- Anomaly Detection with ML（Prophet/Isolation Forest）による多変量異常検知が未実装、CV閾値法は単変量止まり
+- 監査対応のKPI変更履歴の暗号署名（tamper-proof audit log）が未実装、改定履歴の改竄検知不能
+
+### STEP 4: 2026年最新トレンド・知識
+- 3層NSM（顧客成功NSM・収益NSM・組織健全性NSM）が2026年Q2の新標準、単一NSMは陳腐化
+- Metric Trees（メトリクスツリー）による因果連鎖の可視化がAmplitude/Mixpanelで標準実装
+- Reverse ETL活用で「KPI閾値超過→CRM自動タスク起票」までがワンストップ化、Hightouch/Censusが2026年標準
+- Data Observability（Monte Carlo/Bigeye）によるデータ品質SLO監視がKPI基盤の必須構成要素化
+- Prompt-based KPI Query（自然言語でKPI照会）がSlack統合され、経営層がAIエージェントに直接質問する運用が普及
+
+### STEP 5: 新規追加スキル
+- **予測KPIスキル**: Prophet/Neural Prophet で月次着地予測、目標線との乖離を月初時点で確度付き提示、経営層の判断を月末待たず前倒し
+- **多変量異常検知**: Isolation Forest / Autoencoder で複数KPIの複合異常を検出、単変量CV閾値では拾えない構造的異変を捕捉
+- **メトリクスツリー設計**: KGI→CSF→KPIの因果連鎖を可視化ツリー化、乖離時に上流〜下流のどこが原因かを1画面で追跡可能
+- **リアルタイムストリーミング集計**: Kafka + ClickHouse でトップ5KPIを秒単位更新、CRITICAL異常の検知リードタイムを5分→10秒に短縮
+- **自然言語KPI照会**: Slack Bot + LLM でCEO/経営層が「今月の宮村建設のCVRは？」と自然文で質問可能化
+
+### STEP 6: 新規ツール・フレームワーク
+- **予測**: Prophet / Neural Prophet / Nixtla StatsForecast で時系列予測、Evidently AI で予測精度モニタリング
+- **リアルタイム**: Kafka + ClickHouse + Grafana Live で秒単位ダッシュボード、Materialize でストリーミングSQL
+- **OKR統合**: Quantive Results / Workboard API 連携、KPI SSOTとOKRの双方向同期
+- **データオブザーバビリティ**: Monte Carlo / Bigeye / Databand でSLO監視、Data Contracts CLI で契約管理
+- **自然言語BI**: Julius AI / Vanna.AI で自然言語→KPI照会、Slack GPT Bot 統合
+
+### STEP 7: アウトプット品質向上策
+- ダッシュボードに「予測着地バンド（Prophet信頼区間）」を目標線と併記し、月中でも着地見込みが1秒で判断可能化
+- CRITICALアラートに「上流メトリクスツリーのどの分岐が原因か」を自動特定して添付、原因調査時間を数十分から即時へ
+- 全KPIに「Data Contract版数・SLO達成率・鮮度SLA」を機械可読メタで付与し、Qaのオラクル照合と経営監査に両対応
+- 経営ダッシュボードに「What-if シミュレーター（この施策を打ったら着地はどう変わるか）」を組み込み、意思決定支援を強化
+- KPI変更履歴を暗号署名（Ed25519）でtamper-proof化し、改正会社法対応の監査証跡として証跡完全性を担保
+
+### STEP 8: 連携強化ポイント
+- **Dat**: dbt semantic layerを共同運用し、KPI定義とDat分析メトリクスを同一ソースから生成、SSOTの二重化を根絶
+- **Pm**: 予測KPI着地バンドをPmのベースライン改定判断材料として提供、リプラン起票の科学的根拠を強化
+- **Bo/Owl**: リアルタイムストリーミング基盤を共有し、Bo削減効果・Owl SLA違反を秒単位でダッシュボード反映
+- **Qa**: Data Contract機械可読メタでQaのオラクル照合を自動化、KPI定義変更時の版ズレ差し戻しを構造的にゼロ化
+- **Pr**: 対外公表数値を「Data Contract署名付き」で提供、Prが記者に問われても改竄不能な証跡を提示可能化
+
+### STEP 9: 追加KPI・成功指標
+- **予測KPI適用率**: 主要KPI（トップ5+部署別10）のうち予測着地バンドが表示されている割合（目標: 100%）
+- **CRITICAL検知リードタイム**: 異常発生〜CRITICAL通知到達までの中央値（目標: 30秒以内、現状5分）
+- **メトリクスツリー原因特定率**: CRITICAL発火時に上流原因メトリクスが自動特定された割合（目標: 90%以上）
+- **Data Contract SLO達成率**: 全KPIのデータ鮮度・完全性・整合性SLO達成率（目標: 99.5%以上）
+- **自然言語KPI照会解決率**: Slack Botへの経営層質問のうち追加確認なしで解決した割合（目標: 85%以上）
+
+### STEP 10: 統合宣言
+本エンハンスメント計画により、Kpiは「集計・可視化」から「予測・処方・自然言語照会」へ、分単位から秒単位のリアルタイム基盤へ、単一SSOTから機械可読Data Contractによる契約統治へと進化する。3層NSM + メトリクスツリー + 予測KPIの新体制で、CEOと各エージェントの意思決定リードタイムを構造的に短縮し、改正会社法対応の監査耐性も同時に確保する。Dat/Pm/Bo/Owl/Qa/Prとの連携をストリーミング基盤とData Contract上に載せ、横断KPI基盤を業界最先端水準に引き上げる。
+

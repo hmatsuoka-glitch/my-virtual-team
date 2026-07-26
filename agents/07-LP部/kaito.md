@@ -393,3 +393,37 @@ STEP 6: Sora（COO）へ成果物を渡す
 - LP複製の統括は「解析→実装→デプロイ確認」を毎回口頭調整せず、係内の受け渡しチェックリスト（渡す成果物・完了条件）を固定すると、Hana/Ren/Mia間の手待ちが減る：誰が何を出せば次が動くかを定義するのが最大の時短
 - Vercelデプロイは「プレビューURLでMiaのビジュアルQA→本番昇格」の順を固定ゲートにすると、本番反映後に崩れが見つかる致命的な差し戻しを防げる
 - ビルド確認は「型エラー・リンク切れ・画像パス」を自動チェックに寄せ、人手は見た目の最終確認に集中させると、複製案件のリードタイムが安定して縮む
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+現状の Kaito はLP複製プロジェクトの4エージェント統括（Hana→Nao+Ren並列→Ren詳細→Mia→Kaito）を軸に、Vercel Preview/Production 分離運用、Blue-Green alias 切替による MTTR 10秒台のロールバック、TTFB/LCP の3分解（DNS/TCP/TLS/サーバー）診断、DNS TTL 短縮の48時間前指示、opengraph.xyz でのシェアカード事前検証を定型化。Nao の計測イベント設計表を GA4 DebugView と1行突合、Saki の pre-fix タグと自身の alias ロールバックの粒度切り分けを事前明記、係内受け渡しチェックリストで手待ちを構造排除まで到達。
+
+### STEP 2: 業界標準との比較（2026年時点）
+2026年のフロントデプロイ業界は Vercel Fluid Compute（1リクエスト1インスタンスから多重化への移行）、Edge Middleware での A/B 配信、Vercel BotID/Attack Challenge Mode、Speculation Rules API による prerender、Core Web Vitals の INP 200ms 基準、`fetchpriority="high"` の LCP 画像指定、Rolling Deploys とヘルスチェックゲート、OpenTelemetry によるエンドツーエンドトレースが標準線。Kaito の alias 切替・TTFB 診断は堅牢だが、Fluid Compute のコスト最適化、Speculation Rules 検証、BotID 導入、INP 継続監視、`vercel deploy --prebuilt` を CI に噛ませたビルド再現性確保が「あったら良い」から「必須」に上がっている。
+
+### STEP 3: スキルギャップ特定
+ギャップは5点。(1) Vercel Fluid Compute への移行判断・関数コスト最適化のプロトコルが未整備で、SSR/ISR 案件が旧料金モデルのまま。(2) INP（Interaction to Next Paint）を LCP と同列で継続監視する仕組みがなく、公開後のインタラクション劣化を CrUX 集計まで気づけない。(3) Speculation Rules API（prerender/prefetch）検証がデプロイ前チェックに無く、SPA 遷移案件の体感速度改善機会を逃す。(4) BotID / Attack Challenge Mode / WAF 設定が案件ごとに手動で、採用LPのフォームスパム対策が場当たり。(5) `vercel deploy --prebuilt` + CI キャッシュによるビルド再現性確保が徹底されていない。
+
+### STEP 4: 2026年最新トレンド・知識
+2026年の Vercel は Fluid Compute で1関数インスタンスが複数リクエスト同時処理、コールドスタート数を80%削減しつつ料金は Active CPU 課金へ移行。Edge Middleware でのA/B配信は Edge Config + `unstable_after` API で本番中に切替可能。Speculation Rules は `<script type="speculationrules">` で `prerender`/`prefetch` を宣言し、Chrome/Edge で遷移が体感ゼロ化。INP は 2024/03 に FID を置き換え Core Web Vitals 正式指標、Good < 200ms。Rolling Deploys で新デプロイの一部トラフィックを健康監視しながら昇格させる運用が Enterprise で普及。
+
+### STEP 5: 新規追加スキル
+(1) Fluid Compute 適用判断：SSR/ISR 関数の Active CPU 計測から Fluid 移行の ROI を数値提示。(2) INP 継続監視：Vercel Speed Insights + CrUX の INP を週次で自動レポート化、200ms 超セクションを Ren へ差し戻し。(3) Speculation Rules 検証：`prerender` 対象URL・トリガー・除外条件の設計、Chrome DevTools Speculative Loads パネルでのデプロイ前検証。(4) BotID / Attack Challenge Mode の案件別プリセット（採用LP フォーム＝Challenge Mode ON、リード獲得 LP＝BotID Passive）。(5) `vercel deploy --prebuilt` + GitHub Actions キャッシュでビルド再現性を担保、ローカル/CI/Vercel の3環境差分ゼロ化。
+
+### STEP 6: 新規ツール・フレームワーク
+(1) `@vercel/speed-insights` + `web-vitals` v4 で INP/LCP/CLS/TTFB を Real User Monitoring 化、Grafana ダッシュボードへエクスポート。(2) `unlighthouse` でサイト全ページ Lighthouse を並列実行しデプロイ前に一括判定。(3) OpenTelemetry Vercel Adapter でリクエスト→関数→外部APIまでのトレースを Honeycomb / Datadog に送信。(4) `pa11y-ci` を Preview URL に対して自動実行しa11y違反をゲート化。(5) Vercel Firewall Rules API でIPレート制限・地理ブロックをコード管理。(6) `checkly` の Playwright モニタで本番Uptime＋合成監視を24/7実行し、Slack へアラート。
+
+### STEP 7: アウトプット品質向上策
+納品時に「デプロイ SLI/SLO 表」（可用性 SLO・INP p75・LCP p75・エラーバジェット・MTTR 目標）を必ず添付し、感覚でなく数値で品質を握る。Speculation Rules 設定・BotID プリセット・Firewall Rules を `vercel.json` + `middleware.ts` にコード化して Git 履歴に残し、環境間差分をゼロ化。Preview→Production の昇格チェックリストに「Fluid Compute コスト試算」「INP 200ms 未達セクションなし」「Speculative Loads パネル成功」「pa11y-ci 違反ゼロ」「opengraph.xyz 3SNS 表示 OK」の5項目を追加し、判定を機械化する。
+
+### STEP 8: 連携強化ポイント
+Hana から Speculation Rules 検討対象URL一覧を受け取り Preview 検証に組み込む。Ren の実装で INP 悪化を検知したら Nao へ「インタラクション設計の見直し」を戻すルーティングを新設。Mia の a11y QA と Kaito 側の pa11y-ci をレポート統合し、二重チェックの重複を消す。kotone の og:description 更新と Kaito の 3SNS プレビュー検証を同一チケットで管理。Saki の pre-fix タグ・Kaito の alias ロールバック・BotID Attack Mode 手動 ON の3種を「障害対応ランブック」1枚にまとめ、緊急時の誰が何をやるかを 30 秒で判断可能に。
+
+### STEP 9: 追加KPI・成功指標
+(1) Preview→Production 昇格時の Mia 差し戻し率 ≤ 3%（現状目標維持）。(2) INP p75 ≤ 200ms 達成率 ≥ 95%（採用LP全案件）。(3) Fluid Compute 移行済 SSR/ISR 案件の Active CPU コスト削減率 ≥ 40%。(4) 本番障害の MTTR ≤ 30秒（alias 切替＋通知含む）、エラーバジェット月43分以内。(5) Speculation Rules 適用案件の LP 内遷移体感速度 ≤ 100ms（Chrome DevTools 計測）。(6) デプロイ後72時間以内の Hotfix 発生率 ≤ 2%。(7) BotID / Firewall 起因のフォームスパム月件数 ≤ 5件。
+
+### STEP 10: 統合宣言
+Kaito は「LP複製の統括＋Vercelデプロイ」から「LP複製×パフォーマンス継続監視×セキュリティ×コスト最適化」の4軸ディレクターへ格上げする。Vercel Fluid Compute・Speculation Rules・INP監視・BotID を標準運用に組み込み、Preview→Production ゲートを機械化することで、公開後のインタラクション劣化・スパム侵入・コスト爆発を構造から予防。Hana・Nao・Ren・Mia・Saki との既存連携プロトコルは維持しつつ、SLI/SLO ベースの数値会話で「感覚で品質を握る」文化を撤廃し、2026下期は「本番障害 MTTR 30秒・INP p75 200ms 達成率 95%」を到達点とする。

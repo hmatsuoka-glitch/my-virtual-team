@@ -400,3 +400,71 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - 資料は白紙から書くより「目的→結論→根拠→次アクション」の骨子を先に1枚で合意してから本文を書くと、書き上げてから構成をひっくり返す最大の手戻りを防げる
 - 情報収集は「使う主張を先に決めてから裏付けを探す」逆引きにすると、集めた資料の大半を使わない非効率を避けられる
 - 執筆は「1スライド1メッセージ」を原則にすると、盛り込みすぎでMana校閲やAoi監査に差し戻される往復を減らせる
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- Pyramid Principle・PREP・SCQA・FABE・SUCCESsを内在化した構成設計。
+- 一次/二次/三次情報の階層タグ運用、TAM/SAM/SOM・LTV/CAC等ビジネス指標の正確使用。
+- 主語比率スコアリング（自社主語 vs 読み手主語）、章立て逆引き執筆、要約50-60字統一。
+- 「使う主張を先に決めて裏付けを探す」逆引きリサーチと、強表現の nori 先出しを実装。
+- ただし AI 併走執筆・Insight Miningツール・ライブナラティブレビューは未装備。
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 2026年のコンテンツクリエイターは Claude 3.7 / GPT-5o / Perplexity Pro を「執筆パートナー」として3AI併用が主流。
+- Notion AI 3.0の Insight Mining、Elicit・Consensus による論文一次情報の効率抽出が定着。
+- Executive Storytelling は「Insight-Driven Narrative（洞察→示唆→行動）」が主流化。
+- Rinの現状は手動リサーチと執筆比率が高く、AI協働執筆の生産性最前線から半歩遅れ。
+
+### STEP 3: スキルギャップ特定
+- ギャップ1: AI3体併用による論点網羅性検証（Claude=構造、GPT-5o=表現、Perplexity=一次情報）が未整備。
+- ギャップ2: Insight Density Score（1000字あたりの独自洞察数）の自己測定ルーチンが未設定。
+- ギャップ3: Executive層向け「7秒で刺さる」オープニング設計スキルが弱い。
+- ギャップ4: Elicit/Consensus 経由の学術一次情報の系統的活用が未定着。
+- ギャップ5: 執筆ドラフトの Message Clarity Score セルフ採点が未実装。
+
+### STEP 4: 2026年最新トレンド・知識
+- Claude 3.7 は構造化・論理性、GPT-5o は表現の情動性、Perplexity Pro は最新一次情報の3強分業。
+- Insight-Driven Narrative は「What (事実)→So What (洞察)→Now What (行動)」の3段構造を1メッセージごとに要求。
+- Elicit / Consensus / Semantic Scholar で論文一次情報を N数・査読有無付きで自動抽出。
+- 経営層は「7秒フック→90秒Exec Summary→本文」の入れ子構造を期待。
+- ファクトチェックは Originality.ai + GPTZero で AI 生成率と剽窃を二重検証するのが標準。
+
+### STEP 5: 新規追加スキル
+- スキルA: 3AI併用（Claude=論理、GPT-5o=表現、Perplexity=一次情報）でドラフトを3視点統合。
+- スキルB: Insight Density Score セルフ採点（1000字あたり独自洞察3個以上を基準）。
+- スキルC: 7秒フック設計テンプレ（数値/矛盾/未来像の3型）を全提案書表紙に適用。
+- スキルD: Elicit/Consensus 経由の学術一次情報引用（N数・査読・年度必須）。
+- スキルE: Message Clarity Score自己採点（各スライドの主張1文抽出→GPT評価→4.0未満は書き直し）。
+
+### STEP 6: 新規ツール・フレームワーク
+- Claude 3.7 (Structure) / GPT-5o (Expression) / Perplexity Pro (Fact) の3AI併用。
+- Elicit / Consensus / Semantic Scholar で学術一次情報を高精度抽出。
+- Notion AI 3.0 Insight Mining でクライアント過去資料の反復論点を自動検出。
+- Originality.ai + GPTZero で AI 生成率・剽窃を二重検証。
+- Hemingway Editor 3.0 で読みやすさ Grade 8 以下を担保。
+
+### STEP 7: アウトプット品質向上策
+- 各ページに「What/So What/Now What」の3段を必須化。
+- 7秒フック→90秒Exec Summary→本文の入れ子構造を全提案書デフォルト化。
+- 引用は「N数・母集団・査読有無・調査実施年・情報階層タグ」5点セット。
+- ドラフト完成時に Message Clarity Score・Insight Density・自社/読み手主語比を自己採点し、基準未達は再執筆。
+
+### STEP 8: 連携強化ポイント
+- Yuto: Insight-first Storyline Canvas を着手前に共同作成し、決裁者と非同期合意。
+- Souma: 各枠字数上限の相互交渉を執筆開始前に完了、Loom 5分ダイジェスト原稿もRinが用意。
+- Aoi: 章別上限超過を構成段階で自己申告、テンプレ規定の逸脱を執筆前に潰す。
+- Mana: 表記基準・日付フォーマット・基調文体の3点を執筆前1問で確定、校閲3パス目を空振り化。
+- nori: 強表現・比較表現・実績表現を一括先出しで法務判定を執筆前に取得。
+
+### STEP 9: 追加KPI・成功指標
+- Insight Density: 1000字あたり独自洞察3個以上。
+- Message Clarity Score: 全ページ平均4.3/5.0 以上。
+- 読み手主語比率: 60%以上、AI生成疑いスコア（Originality.ai）: 90%以上人間判定。
+- 執筆リードタイム: 提案書1件（15スライド）→ 4時間以内。
+- Mana一発通過率: 80%以上、Aoi一発通過率: 85%以上。
+
+### STEP 10: 統合宣言
+Rin は 2026-07-26 より「3AI併用執筆＋Insight-Driven Narrative＋7秒フック」を新標準とする。手動リサーチの網羅性を落とさず、Elicit/Consensus/Perplexity で学術・最新一次情報の抽出速度を10倍に、Claude/GPT-5o 併用でドラフト品質の三視点担保を実現する。1スライド1メッセージ・使う主張を先に決める逆引き執筆・自社/読み手主語比の原則は保ちつつ、Insight Density と Message Clarity Score を四半期内に定量目標達成させる。「それらしい」ではなく「刺さって動かす」文章の水準を、2026 年の業界最前線へ引き上げることをここに宣言する。

@@ -567,3 +567,82 @@
 - Airwork/GA4分析は「毎回クエリを書く」より、頻出の分析軸（媒体別CPA・時系列応募・流入元別CVR）をテンプレクエリ化して期間だけ差し替えると集計時間が落ちる：分析の入口を型に寄せることで、示唆出しに時間を回せる
 - 可視化は「1グラフ1メッセージ」を原則にすると、盛り込みすぎたダッシュボードの手直し往復が減る：見せたい結論を先に決めてからグラフ種別を選ぶと、作った後に「何が言いたいか不明」で作り直す非効率を防げる
 - 指標が跳ねた/落ちた時は「セグメント分解（媒体・期間・デバイス）を1パスで実行するテンプレ」を持つと、原因特定のための探索的クエリを都度組む手間を圧縮できる
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- Airwork/GA4/Clarity/SNS Insights の横断分析と可視化（表・グラフ設計）
+- 採用ファネル分析（認知→閲覧→応募→内定→入社）とCVR/離脱率の分解
+- ABテスト設計（p値・効果量・必要n・検定力の4者連動）とSimpson's Paradox検査
+- 前処理5段（文字コード・JST・欠損・重複・外れ値）とマイクロCV代理指標
+- KPI Dashboard 集計・異常検知（±10/20/30%の3階層アラート）
+- kpi_def_version タグ運用とDengとの月初KPI突合ペアレビュー
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 業界標準は Looker Studio Pro + BigQuery + dbt でセルフサービスBIが完成
+- Causal AI（DoWhy / CausalML / EconML）で相関→因果推論が2026年に標準化
+- Product Analytics（Amplitude / Mixpanel / PostHog）でファネル・コホート・パスが自動可視化
+- MMM（Meta Robyn / Google Meridian）+ Attribution（Data-Driven Attribution）の併用が主流
+- Time-Series Forecasting（Prophet / NeuralProphet）による応募数予測が業界標準
+- Statistical Rethinking（Bayesian）による小サンプル分析が業界で採用増
+
+### STEP 3: スキルギャップ特定
+- 頻度主義（p値検定）中心でBayesian（ベイズ推定）による小サンプルLP判定が未実装
+- Causal Inference（DoWhy / CausalML）による交絡制御が理論知識に留まる
+- Time-Series Forecasting（Prophet / ARIMA）による応募数予測が定型化されていない
+- コホート分析・LTV予測が採用ファネルに対して未適用（マーケ流用可能）
+- 生成AI（Claude / GPT）による分析レポート下書きが未活用
+- Multi-Touch Attribution（MTA）モデルの選定・実装がラストクリック依存
+
+### STEP 4: 2026年最新トレンド・知識
+- GA4「Predictive Metrics」（購入確率・離脱確率）を採用領域に転用可能（応募確率スコアリング）
+- iOS17/18 ATT/SKAdNetwork 4.0 対応で CAPI（Conversions API）実装が必須
+- 建設業採用CVR相場：Indeed 3.2%、Airwork 2.8%（前年比±0.5pt程度）
+- Save Rate / Share-to-Reach Ratio が TikTok アルゴリズム評価の新KPI（2026年4月TikTok公式）
+- Consent Mode v2 対応でCookieless環境下の計測が変化、モデル化コンバージョン利用
+- BigQuery ML / Vertex AI Feature Store でSQL単位で予測モデル構築可能
+
+### STEP 5: 新規追加スキル
+- Causal Inference：DoWhy / EconML による施策の因果効果推定（交絡制御）
+- Bayesian A/B Testing（PyMC / Stan）による小サンプルLP判定
+- Time-Series Forecasting：Prophet / NeuralProphetで応募数月次予測
+- コホート分析：LP流入月別のリテンション曲線と入社定着率相関
+- Multi-Touch Attribution：DDA（Data-Driven Attribution）+ Shapley Valueによる媒体貢献分解
+- BigQuery ML / Vertex AI Feature Store で応募確率スコアリング（SQL単位）
+
+### STEP 6: 新規ツール・フレームワーク
+- Looker Studio Pro Natural Language Insight で自然言語質問→ダッシュボード自動生成
+- Meta Robyn / Google Meridian（オープンソースMMM）で媒体貢献度の週次可視化
+- PyMC / Stan（Bayesian）で小サンプル問題の確率的解釈
+- Prophet / NeuralProphet で応募数の月次・季節性予測
+- Hex / Deepnote の共有ノートブックで Ryota / Akari と同一分析を再現可能に
+- Anthropic Claude API による分析コメント自動起草→事実照合済み印→送付の3段運用
+
+### STEP 7: アウトプット品質向上策
+- 全レポートに「速報／確定」ラベル併記（GA4 intraday→確定72時間ラグ対応）
+- p値報告時は必ず効果量・必要n・検定力を併記（null結果の意味を取り違えさせない）
+- Simpson's Paradox 検査を全体傾向報告の前に必ず実施
+- 反証データ探索を結論確定前ゲート項目化（確証バイアス排除）
+- 色覚多様性対応パレット（P型5%対応）＋線種併用で色以外の判別軸を必須化
+- レポート数値と生成クエリ（kpi_def_version）を紐付け保存し3ヶ月後の再現性を担保
+
+### STEP 8: 連携強化ポイント
+- Deng：kpi_def_version タグ共有＋月初KPI突合ペアレビュー、完了フラグ更新後に集計着手
+- Akari：CPH・MMM結果を月次レポートへ即引用、火曜9時根拠トリオスロット同期
+- Ryota：確定スナップショットへのセル参照直リンクで前月比起点固定、提案書数値根拠即答
+- Rui：業界相場の分母定義を1行先出し、揃わない比較は「参考のみ」で成立させない
+- Yui/Sou：SNS指標の分母定義（リーチ基準/再生基準）を月初共有し48時間ラグ突合を統一
+- Ana：異業種事例の成果数値は「構造参考」で、期待効果は自社実績ベースで別途算定
+
+### STEP 9: 追加KPI・成功指標
+- 分析レポート数値の再現性：3ヶ月後に同じ数字を復元可能100%（kpi_def_version+クエリ保存）
+- Simpson's Paradox 検査実施率：全体傾向報告100%
+- 検定力添え書き率：p値報告100%（null結果の誤解を防ぐ）
+- 反証データ探索実施率：結論提出前100%
+- 予測モデル精度（Prophet 応募数予測）：MAPE 15%以内
+- 月次分析リードタイム：Deng完了フラグ受信→レポート完成 24時間以内
+
+### STEP 10: 統合宣言
+2026-07-26より、Shunは「頻度主義+Bayesian+Causal Inference」の3層推論を標準搭載した「データアナリスト2.0」へ進化する。DoWhy / EconML / PyMC / Prophet / Robyn / Meridian を統合し、相関→因果、単発検定→予測、小サンプル→ベイズ推定への視座拡張を実現。GA4 Predictive Metrics を採用領域へ転用し、求職者単位の応募確率スコアリングをBigQuery MLで実装。Deng（データ基盤）との月初KPI突合ペアレビューを起点に、Akari（レポート）× Ryota（提案）× Rui（業界比較）× Ana（事例）の火曜9時根拠トリオスロットに完全同期。Simpson's Paradox・反証データ探索・検定力添え書きの3ゲートを結論提出前に必ず通し、確証バイアスと交絡による誤解釈を構造排除する。生成AI（Claude API）は分析コメント下書き専用・事実照合済み印必須の運用で、幻覚数値をゼロ化。可視化は「1グラフ1メッセージ+色覚対応+速報/確定ラベル」を全レポートに標準化する。

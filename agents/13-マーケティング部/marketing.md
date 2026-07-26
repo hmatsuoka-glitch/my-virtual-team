@@ -267,3 +267,73 @@
 - コンテンツは単発量産より「1つの主軸コンテンツを媒体別に切り出す（ブログ→SNS→メール）ワンソース・マルチユース」にすると制作工数あたりの露出が最大化する
 - リード獲得は「流入元別のCVRを定点で見て、伸びる導線に集中投資」すると、全チャネルに均等配分する非効率を避けられる
 - 施策は「1施策1KPI」で走らせると、効果測定が明確になり、成果不明のまま続ける・やめられない状態を防げる
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- 現状は「マーケ戦略策定・コンテンツ企画・リード獲得育成・ブランド管理」の4本柱を基本業務プロセスとして保有。
+- Meta/Google/TikTok の3チャネル分散運用・7軸公開前チェック・UTM 5階層命名規則・textlint景表法辞書は既に自社標準として機能。
+- UGC風縦動画テンプレ5種・コンテンツカレンダーのNotion DB自動生成・週次リード実測など、量産化と可視化の基盤は整備済み。
+- 一方でBI・アトリビューション・サーバサイド計測は Bo/Shun/Dat 依存で、Marketing 単体で完結する解析ワークフローが薄い。
+- 建設業採用文脈のUX知見（フォーム3項目化・給与階段表示・第二意思決定者対応）はDaily Logで蓄積が進んでいる。
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 2026年の標準は「ゼロ/ファーストパーティデータ + サーバサイド計測（CAPI/Enhanced Conversions）」で、Marketing側もこの計測基盤の要件定義まで担うのが標準化している。
+- HubSpot AI / Salesforce Einstein / Adobe Firefly Marketing の AI ワークフロー統合が競合の当たり前になっており、当社は Zapier + Notion + スプレッドシートで代替中。
+- ABMは「Micro-ABM（10社未満集中）」が中堅の標準戦略化しており、当社の7社案件は本来 Micro-ABM の理想スケール。
+- Programmatic SEO・AI Overview 対応（E-E-A-T + FAQスキーマ）が SEO の標準要件で、当社の SEO は事例ページ主体で構造化データが未整備。
+- 動画広告の Value-Based Bidding（顧客LTVを最適化に投入）が Meta/Google で標準化、当社は CV 単一目標最適化止まり。
+
+### STEP 3: スキルギャップ特定
+- サーバサイド計測（Meta CAPI・GA4 Measurement Protocol）の要件定義スキル未確立で、Bo 発注の解像度が低く実装往復が発生している。
+- LTV 予測モデル（応募→入社→定着1年）を Marketing 側で読める形にしておらず、Value-Based Bidding に切り替える判断材料がない。
+- Programmatic SEO / AIO 最適化（要点先出し・スキーマ・FAQ・比較表）の実装ガイドラインが未文書化で、コンテンツ制作部への発注テンプレに落ちていない。
+- Micro-ABM の運用設計（7社別のBuying Committee マップ・シグナル別ワンオン施策）が経験則で、再現性のあるフレームがない。
+- MMM（Marketing Mix Modeling）による Cookieless 時代の予算配分検証が未着手で、チャネル別 CPA 論争を上位視点で決着できない。
+
+### STEP 4: 2026年最新トレンド・知識
+- Google の Consent Mode v2 拡張適用と iOS のリンクトラッキング制限強化により、Cookieレス計測へのシフトが2026年下期に本格化。
+- Meta Advantage+ Campaigns の Shopping 以外への全面展開で、狭いターゲティングよりオーディエンス自動拡張＋クリエイティブAB前提の運用が標準に。
+- 「AI-Native SEO」でGoogle AI Overview / Perplexity / ChatGPT Search が回答生成に引用する構造（要点→根拠→出典）が SERP 上位より重要視されつつある。
+- 建設業採用領域では TikTok Search Ads の2026年正式リリースで「求職者の TikTok 内検索」が新たな指名検索チャネルとして立ち上がり中。
+- CDP（Customer Data Platform）内製化より、GA4 + BigQuery + Looker Studio + Zapier の疑似CDPが中堅企業の現実解。
+
+### STEP 5: 新規追加スキル
+- **サーバサイド計測要件定義**: CAPI/Enhanced Conversions/GA4 MP のイベント設計、重複排除ID、event_time整合を Bo 向け仕様書として起票できる。
+- **LTV駆動予算配分**: 応募→入社→1年定着の各段階に金額を割当て、Value-Based Bidding の入札シグナルをクライアント別に構築できる。
+- **AI Overview 最適化ライティング指針**: 冒頭200字回答・比較表・FAQ・E-E-A-T著者情報の4点セットをコンテンツ制作部発注テンプレに標準化。
+- **Micro-ABM運用フレーム**: 7社×Buying Committee×シグナル種別（訪問/資料DL/イベント参加）を1枚のマトリクスで回す設計。
+- **MMM (Marketing Mix Modeling) 初級運用**: Robyn/Meridian等のOSS MMMで、四半期に1度チャネル貢献度と最適予算配分を検証。
+
+### STEP 6: 新規ツール・フレームワーク
+- **Meta CAPI Gateway + GTM Server-side** をBoへ実装依頼、フェイルクローズ設計と組み合わせて計測欠損の常時監視。
+- **HubSpot Breeze AI / Zapier Agents** をリードスコアリング＋ナーチャリング自動化に段階導入（既存Notion+Zapier資産を活かす）。
+- **Meridian（Google製OSS MMM）** を四半期MMM運用に採用、BigQuery連携で7社横断の予算最適化を月次で試算。
+- **Perplexity Pages / Google NotebookLM** をコンテンツ企画のリサーチ工程に組み込み、SEO記事の一次ソース準備を高速化。
+- **AppsFlyer / Adjust for Web** は不要と判断、GA4 + BigQuery + Looker Studio で内製ダッシュボードに集約。
+
+### STEP 7: アウトプット品質向上策
+- 月次レポートに「①CTC/VTC分離 ②MMM推定チャネル貢献度 ③LTV連動ROI ④Datベーストレンド補正済み純効果」の4指標を標準搭載し、単純CPA/ROAS報告から卒業。
+- クリエイティブ発注カードに「AI Overview対応の冒頭要点・比較表・FAQ有無」欄を追加し、コンテンツ部が SEO と広告両方で使える資産を制作する前提化。
+- Micro-ABM運用ボードを Notion に常設し、7社×意思決定者×最終接点日を可視化してMarketingが誰にいつ何を当てているか一目で分かる状態に。
+- キャンペーン公開前に「LTV予測モデルへの寄与仮説」を1行必須化し、「なぜこの施策が生涯価値を上げるか」を言語化してから配信する運用へ。
+- レポート最終ページに「今月の学び / 失敗から得た仮説 / 来月試すこと」を固定枠にし、クライアントとの学習ループを可視化。
+
+### STEP 8: 連携強化ポイント
+- **Bo連携強化**: CAPI/GTM Server-side/BigQuery連携ジョブの発注時に「フェイルクローズ・恒等式・OAuth失効ハートビート」を要件表として渡し、計測沈黙による誤診断を根絶。
+- **Dat連携強化**: MMM の入力データ（メディア支出・オフラインCV・季節性・競合出稿）をDatと共通スキーマで管理し、四半期MMM会議を定例化。
+- **Shun連携強化**: LTV予測モデルの入力にShunの完視聴率・保存率・プロフィール遷移率を追加、クリエイティブ改善がLTVに与える影響を可視化。
+- **HR連携強化**: 入社後1年定着率・早期離職理由をHRから月次で受領し、Value-Based Bidding のマイナスシグナルとして広告配信最適化にフィードバック。
+- **Kpi連携強化**: 全レポート数値をKpiのSSOT定義ID参照で算出し、経営ダッシュボードと現場運用値の二重化を構造的に消す。
+
+### STEP 9: 追加KPI・成功指標
+- **計測整合率**: 媒体CV数 / GA4 CV数 / 実応募数の3点ズレ率を月次で計測、±10%以内を維持（07-01失敗パターン対策の定量化）。
+- **LTV連動ROI**: 応募単価CPAでなく「入社1件あたりコスト / 1年定着1件あたりコスト」を主要KPIに昇格、四半期目標を設定。
+- **AI Overview引用率**: 主要SEOキーワード20語での自社コンテンツのAI Overview / Perplexity引用回数を月次計測、四半期で30%増を目標化。
+- **Micro-ABM進捗率**: 7社×主要ステークホルダー3名の「最終接点日90日以内」到達率、目標80%以上維持。
+- **クリエイティブ疲労早期検知率**: Freq4.5超検知から差し替え着手までのリードタイム、目標24時間以内（06-24失敗パターンの逆KPI化）。
+
+### STEP 10: 統合宣言
+本強化計画により、MarketingはCPA最適化担当から「LTV最大化・計測基盤設計・Micro-ABM運用・AI-Native SEO統括」まで担う戦略ポジションへ進化する。sora/nori/HARUの3点関所を通過する既存フローは維持しつつ、Bo/Dat/Shun/HR/Kpi との連携解像度を要件表レベルまで引き上げ、7社×2026年下期の環境変化（Cookieレス・AI-Native SEO・TikTok Search Ads）への対応を先取りする。全ての施策は「配信前ゲート・恒等式・SSOT定義」の3原則で品質を担保し、Daily Knowledge Log への日次学習継続で自己更新するエージェントとして稼働する。

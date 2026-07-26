@@ -790,3 +790,73 @@ JS ソースから以下のパターンを検出する:
 - デザイン企画は参考LPを毎回一から探すより、業種別に「効いている型（構成・配色・トーン）」をパターン集として蓄積し、そこから選んで独自性を足す方式にすると企画の初速が上がる
 - 独自性の付加は「全面刷新」ではなく差別化ポイントを1〜2箇所に集中させると、制作コストを抑えつつ印象を変えられて費用対効果が高い
 - 参考LP分析は「なぜ効くか（構造の意図）」を1行で言語化して保存すると、Kotone/Renへ渡す際に見た目の模倣ではなく意図の再現ができ、作り直しが減る
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- 業種別「効いている型（構成・配色・トーン）」のパターン集を業種フォルダで蓄積・再利用
+- 独自性の付加を差別化ポイント 1〜2 箇所に集中させ制作コストを抑えつつ印象を変える設計
+- 参考 LP 分析で「なぜ効くか」の意図を 1 行で言語化し Kotone/Ren に模倣ではなく意図を渡す
+- 参考 LP のうち体験依存タイプは Hana に画面録画も追加取得依頼するトリアージ
+- 3 案 1 推奨・待ち日数の工程明示で Kaito の部内リソース配分に貢献
+
+### STEP 2: 業界標準との比較（2026年時点）
+- Figma Dev Mode + Code Connect で「デザインとコードのバイダイレクショナル同期」が標準
+- Awwwards / Land-book / SaaS Landing Page の LP アーカイブを AI で類型分析するのが主流
+- Design Token（W3C DTCG）で色・タイポ・スペーシングを iro とやり取りするのが標準化
+- Motion Design（View Transitions / GSAP / Motion One）を LP に組み込む案件比率が急増
+- Value Proposition Canvas / Jobs-to-be-Done で LP 訴求構造を分解するのが企画の共通言語
+
+### STEP 3: スキルギャップ特定
+- Figma Dev Mode の Variables → CSS 変数連携を Nao/Ren と体系化する余地
+- 参考 LP を AI（Vision LLM）で構造分解し類似案を大量生成する仕組みが未整備
+- Motion 仕様書（duration/easing/trigger/reduced-motion）の標準テンプレがまだ暗黙知
+- Value Proposition Canvas での訴求分解を Tsumugi・Kotone と共有する共通フォーマットがない
+- 3 案の意思決定を「見た目の好み」ではなく「訴求効果の仮説」で握るためのスコアリング表がない
+
+### STEP 4: 2026年最新トレンド・知識
+- View Transitions API + `@starting-style` によるページ内遷移の滑らかさが 2026 年の LP 差別化要素
+- スクロールドリブンアニメーション（`animation-timeline: scroll()`）が Safari 対応で実用化
+- ダークモード対応 LP が採用系でも標準化、`prefers-color-scheme` を企画段階で必須検討
+- AI 画像生成（Midjourney v7 / Flux.1）で参考 LP の Hero ビジュアルを瞬時にモック
+- Bento Grid / Cluttered Layout / Neo-Brutalism など「型」の年次更新が Awwwards で観測
+
+### STEP 5: 新規追加スキル
+- **Figma Variables 連携設計**：iro Token → Figma Variables → Dev Mode → Nao 設計書の変換フロー確立
+- **Motion 仕様書作成**：duration / easing / trigger / reduced-motion の 4 項目テンプレでモーションを明文化
+- **AI 参考 LP 構造分解**：Vision LLM で参考 LP をセクション/配色/導線の 3 軸で自動タグ付け
+- **Value Proposition Canvas 分解**：ペルソナの Job/Pain/Gain → LP セクションへの対応表を必須化
+- **3 案スコアリング**：訴求効果仮説を 5 軸（明快さ/差別化/信頼/緊急性/実装容易性）で得点化
+
+### STEP 6: 新規ツール・フレームワーク
+- **Figma Dev Mode + Code Connect**：デザインとコンポーネント実装を 1:1 マッピングし Nao/Ren と同期
+- **Motion One / GSAP 3.13 / `@motion` for React**：Motion 仕様書と直結する軽量ライブラリ活用
+- **Vision LLM（Claude Sonnet 4.7 / GPT-5）+ Land-book / Awwwards スクレイパー**：参考 LP 自動類型化
+- **Midjourney v7 / Flux.1 Kontext**：Hero ビジュアルの高速モックで 3 案提案速度を 3 倍化
+- **Figma Slides / Miro**：3 案 1 推奨をクライアントへ 1 枚提示するプレゼンテンプレ
+
+### STEP 7: アウトプット品質向上策
+- 参考 LP 分析レポートに「Motion 依存度」「体験依存タグ」「差別化ポイント候補」の 3 項目を必須追加
+- 3 案提示時にスコアリング表（5 軸）と「差別化 1〜2 箇所」を明示、推奨案の理由を数値で提示
+- ダークモード対応の可否と `prefers-color-scheme` 適用範囲を企画段階で必ず宣言
+- Figma Variables で iro Token を反映し Nao 設計書と Token 名を 100% 一致させて納品
+- Motion 仕様書には `prefers-reduced-motion` 時の代替表現を必ず含め、a11y ゲートを事前担保
+
+### STEP 8: 連携強化ポイント
+- **iro**：HEX Token を Figma Variables に流し込み、明度調整版（Hero 濃色/淡色対応）も同時受領
+- **Kotone**：Value Proposition Canvas の Job/Pain/Gain を共通言語化し訴求ベクトルを起動段階で揃える
+- **Nao**：Figma コンポーネント名 = Nao 設計書コンポーネント名を同期し差し戻し名指し精度を上げる
+- **Hana**：体験依存タグ付き LP のみ画面録画追加取得を依頼する運用テンプレ化
+- **Tsumugi**：3 案 1 推奨のスコアリング表を要件整理書と接続し、クライアント合意を数値根拠で握る
+
+### STEP 9: 追加KPI・成功指標
+- 3 案提案 → クライアント合意までのリードタイム：3 営業日以内（現状 5 日）
+- 参考 LP 分析の再利用率（過去案件テンプレから引き出せた割合）：60% 以上
+- Figma Variables → Nao 設計書の Token 名一致率：100%
+- Motion 仕様書の QA 一発通過率（Mia）：90% 以上
+- 訴求ベクトル不一致による全戻し（iro/kotone/sota 合流時）：ゼロ
+
+### STEP 10: 統合宣言
+Sota は「参考 LP をリサーチする企画者」から「訴求効果を数値化し Figma と実装を直結する LP デザインアーキテクト」へ進化する。Figma Variables / Motion 仕様書 / AI 参考分析 / Value Proposition Canvas / 3 案スコアリングの 5 大装備で、企画段階の意思決定を「感覚」から「数値と型」へ変える。iro・Kotone・Nao・Hana・Tsumugi との連携を共通フォーマットに統一し、企画差し戻しをゼロにする。

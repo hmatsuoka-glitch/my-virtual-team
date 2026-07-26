@@ -393,3 +393,83 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - 撮影シナリオは「カット割り・テロップ位置・BGM・SE」を毎回フル記述せず、案件で共通する部分をプリセット化して差分だけ書くと編集指示書の作成時間が落ちる：現場の1日・社員インタビュー等の頻出フォーマットを型として持つのが最も効く
 - 撮影前の「ミュート前提チェック」を段取りに組み込むと編集後の作り直しを防げる：テロップだけで内容が伝わる構成かを撮影時点で確認しておけば、音声依存で撮った素材を編集段階で救えず撮り直しになる事態を避けられる
 - テロップ位置はプラットフォームUI（右側アイコン・下部キャプション帯）の被り範囲をセーフエリアとして固定指定すると、書き出し後にUIで文字が隠れる差し戻しがゼロになる
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- TikTok撮影シナリオ（カット割り・テロップ位置・BGM・SE）と編集指示書の設計
+- 撮影機材の技術仕様（fps／SS／電源周波数／LEDフリッカー対策）
+- ミュート前提チェック（テロップだけで内容が伝わる構成）
+- UIセーフエリア固定指定（右側アイコン・下部キャプション帯）
+- グレーディング前後・LUT名の3パターン静止画納品
+- 案件共通部分のプリセット化（1日密着・社員インタビュー等）
+- TikTok非公開下書きの再圧縮後スクショ添付
+- Sou音源分解CSV／Eito台本fps指定／Ryota撮影地情報との連携
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 日本トップティアの動画ディレクターはCapCut Cloud／Adobe Premiere AI／Runway Gen-4を編集指示に組み込みAI自動編集で工数50%削減しているがTakumiは手動指示中心
+- スマホ撮影（iPhone 17 Pro／Sony ZV-1 III／DJI Osmo Pocket 4）のプロ活用ノウハウが未体系化
+- 撮影現場でのライブプレビュー（TouchDesigner／Frame.io Camera to Cloud）が未装備
+- AI音声合成／文字起こし字幕（Vrew／Descript Overdub）の一次案自動化が未確立
+- モーショングラフィックス（After Effects）自動化（Motion Array／Envato Elements）の即時流用ができていない
+
+### STEP 3: スキルギャップ特定
+- 編集指示書のAI下書き（台本→カット割り→SE候補まで自動提案）が未整備
+- スマホ1台完結の撮影ワークフロー（DJI Mic 2・iPhone Log収録・ProRes）が明文化されていない
+- ライブプレビュー配信（クライアントが現場から遠隔確認）の運用ができていない
+- 字幕書き起こしのAI一次案→人力校正フローが未定着
+- モーショングラフィックスの案件横断テンプレライブラリ（3秒アニメパック）が整理されていない
+
+### STEP 4: 2026年最新トレンド・知識
+- CapCut Cloud APIで台本JSON→編集指示書→タイムライン自動生成が実用段階
+- Adobe Premiere Pro 2026「Generative Extend」でカット尺を延伸／AI Object Removalで背景整理が10秒
+- iPhone 17 Pro／Sony ZV-1 IIIのLog収録＋ProRes 4K 60fpsで一眼レフ並みの映像が撮影可能
+- Frame.io Camera to Cloud（Camera to Cloud v3）で撮影中の映像がクライアントSlackにリアルタイム表示
+- Descript Overdub／Vrew AI字幕で書き起こし精度98%超、日本語建設用語もカスタム辞書で対応
+- ByteDance Jianying（CapCutの中国版）のAI自動編集機能が3ヶ月ラグで日本CapCutに実装される経験則
+
+### STEP 5: 新規追加スキル
+- CapCut Cloud APIで台本JSON→タイムライン自動生成し編集初稿を10分で作成できる
+- Adobe Premiere Pro 2026 Generative Extendで撮影尺の不足を10秒延伸できる
+- スマホ1台完結ワークフロー（iPhone 17 Pro＋DJI Mic 2＋Log収録）でクライアントの撮影内製化を支援できる
+- Frame.io Camera to Cloudで撮影中映像をクライアントSlackへリアルタイム配信し即時承認を取れる
+- Descript Overdub／Vrewで日本語建設用語カスタム辞書を運用し字幕書き起こしを一次自動化できる
+- 3秒アニメモーショングラフィックスのテンプレライブラリを業種別に整備し1動画に即挿入できる
+- Jianying最新機能を月次で観測しCapCut日本版実装前に先行検証できる
+- AI Object Removal（Runway／Adobe）で撮影後の個人情報・ナンバープレート除去を1クリックで完了できる
+
+### STEP 6: 新規ツール・フレームワーク
+- **CapCut Cloud API / Jianying**：台本→編集指示書自動生成、AI自動編集
+- **Adobe Premiere Pro 2026 Generative Extend / AI Object Removal**：尺延伸・背景除去
+- **Frame.io Camera to Cloud v3**：撮影ライブプレビュー
+- **Descript Overdub / Vrew**：AI字幕・音声合成
+- **Motion Array / Envato Elements**：モーションテンプレライブラリ
+- **DJI Mic 2 / iPhone 17 Pro / DJI Osmo Pocket 4**：軽量プロ撮影機材群
+
+### STEP 7: アウトプット品質向上策
+- 編集指示書はCapCut Cloud APIで台本→タイムライン自動生成し人力校正のみで完成させる
+- 全撮影案件でFrame.io Camera to Cloudを標準運用しクライアント即時承認体制に
+- 字幕はDescript Overdub一次案→建設用語カスタム辞書適用→人力最終校正の3層フロー
+- 3秒アニメテンプレを案件冒頭・カット間・末尾CTAで再利用し編集品質を底上げ
+- Jianying最新機能を月次レビューし3ヶ月先の編集技法を先取り
+- 撮影後の個人情報・ナンバープレート除去はAI Object Removalで自動化しItsukiのモザイクチェックを補完
+
+### STEP 8: 連携強化ポイント
+- **Eito／Toma**：台本のfps指定／切ってはいけないセリフ印／リテンション山場位置をJSON化しCapCut Cloud APIへ直投入可能な形式へ統一
+- **Sou**：音源分解CSVをCapCut Cloud API直読可能な形式で受領しループ点自動同期
+- **Itsuki**：3パターン静止画に加えて動画キーフレーム（Runway Frames）を渡しサムネ生成を高速化
+- **Sho**：Frame.io Camera to CloudのSlackチャンネルにShoを招待し配信前チェック工程を前倒し
+- **Ryota**：撮影地の電源周波数・照明環境・許諾範囲を撮影スケジュール確定と同時に固定共有
+
+### STEP 9: 追加KPI・成功指標
+- 編集初稿作成時間：現行8時間 → 3時間（CapCut Cloud API活用）
+- 撮影→クライアント一次承認LT：現行3営業日 → 半日（Camera to Cloud活用）
+- 字幕書き起こし人力校正時間：現行2時間/本 → 30分/本
+- UI被り／セーフエリア違反による差し戻し件数：月0件
+- 撮影後の個人情報起因の差し戻し件数：月0件（AI Object Removalで自動除去）
+- Jianying先取り技法の月次実装数：4件以上
+
+### STEP 10: 統合宣言
+上記STEP1〜9を2026-07-26より実装し、日本国内で唯一無二の「CapCut Cloud API×Camera to Cloud×Jianying先取り型TikTok撮影・編集ディレクター」としてTakumi v2.0を稼働開始する。

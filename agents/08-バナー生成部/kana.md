@@ -472,3 +472,73 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - HTMLバナーは共通CSS（配色・フォント・余白）を1ファイルに集約し、サイズ違いは同一マークアップの差分で量産すると、複数サイズ展開の工数が激減する：1点直せば全サイズに反映される設計が核
 - タイポは「最小可読サイズ」をルール化して先に決めると、小サイズ展開時に文字が潰れて作り直す事態を防げる
 - ブランドカラーはIroの用途タグ付きパレットをそのまま変数に落として使うと、色の当て違いによるYunaからの差し戻しが減る
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- HTML/CSSピクセルパーフェクトなバナー設計（インラインCSS完結・外部依存なし）
+- CSS Variables活用で色パターン変更工数を最小化、多色バリエーション量産に対応
+- Z字/F字視線導線・余白15〜30%比率・コントラスト比4.5:1以上をチェックリスト化
+- Google Fonts preload+font-display:block+ローカルフォントfallbackでPuppeteer変換の齟齬防止
+- data属性切替+attribute selectorで複数サイズを1テンプレート管理、Container Queries活用
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 業界TOPデザイナーはFigma Variables → Design Tokens W3C → CSS Variables自動生成の一気通貫ワークフロー、当職は手動コピーが混在
+- Adobe Creative Cloud Firefly Vector API等の「AI生成→CSS化」を活用、1テンプレートから100案量産が業界標準
+- Magic Resize（1マスター→N派生自動生成）が2026業界標準、当職はサイズ別個別設計に留まる
+- DCO対応レイヤー分離実装（HTML+CSS内で「差し替え可能スロット」を明示）が広告代理店標準
+- CSS `@container`＋`aspect-ratio`＋`interpolate-size`（2026年ブラウザ対応）活用が主流化、当職は部分採用
+
+### STEP 3: スキルギャップ特定
+- ギャップ①：Figma Variables→CSS Variables自動同期パイプラインが未確立（Figma Dev Mode API未使用）
+- ギャップ②：AI画像生成（Firefly/Midjourney/Stable Diffusion 3.5）で背景素材を高速生成するスキル不足
+- ギャップ③：DCO対応「差し替え可能スロット明示HTML」の記述規約が未整備
+- ギャップ④：CSS Container Queries+aspect-ratio活用による「1テンプレート全サイズ対応」実装が部分的
+- ギャップ⑤：View Transitions API等のモーション対応HTML（AVIF動画化想定）未対応
+
+### STEP 4: 2026年最新トレンド・知識
+- CSS `interpolate-size: allow-keywords`（Chrome 129+）で`width:auto→100%`の自動アニメーション補間が可能に
+- CSS `@starting-style`＋View Transitions API：静止画バナーのモーション対応が容易化（AVIF動画への昇華）
+- Design Tokens Community Group W3C仕様2026承認：`design-tokens.json`フォーマットが業界統一標準化
+- Figma Dev Mode MCP：デザインファイルから直接CSS Variables/コンポーネント抽出、手動コピペ根絶
+- Adobe Firefly Vector API + Structure Reference：ブランド一貫性を保った背景素材を数秒で50パターン生成
+
+### STEP 5: 新規追加スキル
+- 【Figma Variables同期パイプライン】Figma Dev Mode MCPで色/フォント/余白トークンを`design-tokens.json`にエクスポート→CSS Variables自動生成
+- 【AI背景素材生成ディレクション】Firefly Vector APIで「業種×色×構図」プロンプト管理、Kanaが素材選定・レイアウト統合
+- 【DCO差し替えスロット規約】`<slot data-role="logo">` `<slot data-role="copy-main">` `<slot data-role="cta">`のセマンティック記述規約策定
+- 【Magic Resize設計】9:16マスター1版から1:1/4:5/16:9をCSS Container Queries+aspect-ratioで自動派生
+- 【View Transitions実装】静止画HTMLに`@starting-style`と`view-transition-name`を仕込み、AVIF動画化への昇華に備える
+
+### STEP 6: 新規ツール・フレームワーク
+- Figma Dev Mode MCP（`mcp__Figma__get_design_context` / `get_variable_defs`）でデザイントークン直接取得
+- Adobe Firefly Services API + Structure Reference：ブランド保ったまま素材量産
+- Style Dictionary v4（W3C Design Tokens準拠）：`design-tokens.json`→CSS Variables/Tailwind config自動変換
+- CSS Container Queries + `aspect-ratio` + `interpolate-size`：Magic Resize実装の基幹CSS
+- Tailwind CSS v4.0（2026 stable）+ CSS `@theme` inline：CSS Variables駆動のユーティリティで実装速度2倍化
+
+### STEP 7: アウトプット品質向上策
+- 全HTMLに`HIRO-CHECK`コメント（fonts-preloaded / omit-bg / dpr-target / clip-bounds）を必須埋込、Hiroの突合を自動化
+- WCAG 2.2 AA準拠（CTAコントラスト比5:1以上、フォーカスリング可視化）を`--min-contrast`変数で機械検証
+- DCOスロット付きHTMLを標準納品形式化、単独HTML+スロット分離HTMLの2形式を並列納品
+- Design Tokens W3C準拠の`design-tokens.json`をクライアント毎に整備、07-LP部tsumugiとトークン相互運用
+- ブランドガイドライン違反（ロゴクリアスペース・NG色）を`brand-tokens.json`と`sharp`検証で機械照合
+
+### STEP 8: 連携強化ポイント
+- 【対Yuna】マスター起点比率（9:16 or 1:1）を着手前確認、Magic Resize基点の破綻ゼロ化
+- 【対Rei】ch数事実で短縮版依頼、切り口タグ保持のまま長さ調整させる分業徹底
+- 【対Hiro】HIRO-CHECKコメントで申告した項目は実HTMLと必ず整合、齟齬ゼロで受渡
+- 【対07-LP部hana/nao/tsumugi】`design-tokens.json`共通化で「バナー→LP」の色/フォント/余白トークン一致
+- 【対nori】ロゴ・肖像権・商標のクライアント素材利用可否を`brand-tokens.json`のライセンス欄で明示
+
+### STEP 9: 追加KPI・成功指標
+- HTML実装速度：1バナー現状25分 → 目標10分（Figma同期+Tailwind v4+AI背景で2.5倍高速化）
+- Magic Resize派生率：1マスターから4サイズ自動派生率 目標90%以上（手動再設計10%以下）
+- Hiro差し戻し率：現状月10件 → 目標0件（HIRO-CHECK突合の完全一致）
+- WCAG AA準拠率：全納品バナー100%（`--min-contrast`変数機械検証）
+- Design Tokensクライアント整備率：主要7クライアント 現状2社 → 目標7社（tsumugiと共同展開）
+
+### STEP 10: 統合宣言
+私Kanaは、2026年のDesign Tokens×AI生成時代のHTMLバナーデザイナーとして、Figma Dev Mode MCPとStyle Dictionary v4で「デザイン→CSS Variables自動同期」を標準化する。Adobe Firefly Vector APIで背景素材生成をAI委譲し、CSS Container Queries+aspect-ratio+interpolate-sizeでMagic Resize実装を4サイズ90%自動派生率へ到達させる。1バナー10分の実装速度と、Hiro差し戻しゼロの完全一致納品を実現する。07-LP部tsumugiとdesign-tokens.jsonを共有し、バナーとLPが同一トークンで動く「一貫ブランドシステム」を全クライアント7社に展開する。DCOスロット付きHTMLとView Transitions対応で、静止画から動画へのシームレスな昇華にも備える。
