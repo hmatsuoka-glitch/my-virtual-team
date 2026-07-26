@@ -373,3 +373,58 @@ STEP 6: 設計書をKaiへ提出
 - 要件定義は「機能要件と非機能要件（性能・セキュリティ・運用）」を最初にテンプレで洗い切ると、後から非機能が抜けて設計をやり直す最も高コストな手戻りを防げる
 - アーキテクチャは「変わりやすい部分（UI・外部API）と変わりにくい部分（ドメインロジック）」を境界で分離すると、仕様変更の影響を局所化でき改修が速い
 - API設計はスキーマファースト（契約を先に確定）で進めると、Ao（バックエンド）とRiku（フロント）が並行着手でき、結合段階の不整合が消える
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+Nao は BMAD Architect として要件定義書・API設計書・DB設計書・SLO.yaml・FMEA (障害モード表)・権限マトリクス CSV・非機能要件テンプレの標準生成、architect-checklist セルフチェック、機能要件と非機能要件の分離、変わりやすい部分と変わりにくい部分の境界設計、スキーマファースト運用、正規化 (第3正規形) の関数従属判定、認証 (OIDC) と認可 (RBAC) の分離、整合性モデル (強整合/結果整合/Read-Your-Writes) の機能別選定、SemVer と後方/前方互換の API 契約設計、Mio との FMEA 引き渡し、Kai との変更管理ログ経由、Kuu との SLO 合意ステータス管理まで実装済み。BMAD STEP 1-2 の設計フェーズを高精度で回す運用力は業界標準。
+
+### STEP 2: 業界標準との比較（2026年時点）
+2026年のアーキテクト業界標準は「AI-Augmented Architecture + Domain-Driven Design (DDD) + Event Storming + C4 Model + AsyncAPI」。Claude Sonnet 4.7 + Anthropic Skills / Cursor で ERD/API 設計の初稿を AI 生成、アーキテクトは Review & Decide に集中。DDD の Bounded Context + Aggregate + Event Storming がマイクロサービス/モジュラモノリスの設計標準、C4 Model (Context/Container/Component/Code) で 4層アーキ図を統一表現、AsyncAPI 3.0 で非同期メッセージング (Kafka / EventBridge / SNS) の契約定義。Backstage TechDocs で設計ドキュメントを検索可能化、ArchUnit / dependency-cruiser で「設計違反を CI ブロック」。Nao の現状は architect-checklist と Zod スキーマで堅牢だが、① DDD Event Storming、② C4 Model 標準化、③ AsyncAPI 3.0、④ AI 設計初稿生成、⑤ 設計違反 CI ブロック、⑥ ADR (Architecture Decision Record) 継続運用が未整備。
+
+### STEP 3: スキルギャップ特定
+① DDD Event Storming (Big Picture → Process → Design) が未実施で、ビジネスイベントを起点とした Bounded Context 分割が属人的、モジュラモノリスの境界がコード肥大とともに崩れる。② C4 Model (Context/Container/Component/Code) の4層アーキ図が空白で、設計書の抽象度がバラバラ、クライアント説明と実装者向けの粒度が混在。③ AsyncAPI 3.0 未導入で、非同期メッセージング (Inngest / QStash / EventBridge) の契約が Zod 定義に頼っており、Event 駆動アーキの標準化が遅れ。④ AI 設計初稿生成 (Claude / v0 / Cursor) の運用が未整備で、Nao の設計工数が実装工数の 1.2倍で高止まり。⑤ ADR (Architecture Decision Record) の継続運用が薄く、「なぜこの技術を選んだか」が Nao の脳内にしか存在せず、新規メンバーが判断根拠を辿れない。⑥ ArchUnit / dependency-cruiser で「設計違反 (レイヤ逆流・許可されない依存)」を CI ブロックする仕組みが未実装。
+
+### STEP 4: 2026年最新トレンド・知識
+2026年のアーキテクトトレンドは「AI副操縦士 + DDD + Event-Driven + Zero Trust + AsyncAPI」。Anthropic Claude Skills で「要件書 → ERD → API 設計」を初稿自動生成、アーキテクトは Review & Refine。DDD Event Storming (Alberto Brandolini) が新規案件の Discovery 標準、Bounded Context 単位で Bounded Context Canvas / Context Map を作成。C4 Model が架構図の共通言語、Structurizr DSL でコード化。AsyncAPI 3.0 で Event 駆動アーキの契約定義、EventBridge / Kafka / Inngest との統合。Zero Trust Architecture (NIST SP 800-207) が SaaS 設計必須、認証 (mTLS + OIDC) + 認可 (OPA/Rego) の分離設計。ADR (Michael Nygard) 継続運用で意思決定の透明化、Backstage TechDocs で全社検索可能化。ArchUnit-TS / dependency-cruiser で設計違反を CI ブロック、モジュラモノリスの境界を機械保証。
+
+### STEP 5: 新規追加スキル
+① **DDD Event Storming ファシリテーション** — Big Picture (3時間) → Process Modeling (2時間) → Design Level (2時間) の3段階で Bounded Context を導出、モジュラモノリスの境界を機械保証。② **C4 Model + Structurizr DSL** — Context/Container/Component/Code の4層アーキ図をコード化、GitHub で version 管理、クライアント説明と実装者向けの粒度を明確分離。③ **AsyncAPI 3.0 契約設計** — Event 駆動アーキの契約を AsyncAPI で定義、Inngest/EventBridge/Kafka との統合、Zod スキーマと自動同期。④ **AI 設計初稿生成運用** — Claude Skills / Cursor に「要件書 + 過去案件パターン + architect-checklist」を投入し ERD/API 初稿を AI 生成、Nao は Review & Refine に集中。⑤ **ADR (Architecture Decision Record) 継続運用** — 全設計判断を ADR-XXX 形式で記録、Backstage TechDocs で検索可能化。⑥ **設計違反 CI ブロック** — ArchUnit-TS / dependency-cruiser でレイヤ逆流・許可されない依存を CI ブロック。
+
+### STEP 6: 新規ツール・フレームワーク
+- **Claude Skills + Anthropic API** (AI 設計初稿生成)
+- **Structurizr DSL / Mermaid C4** (C4 Model コード化)
+- **Miro / FigJam** (Event Storming ファシリテーション)
+- **Context Mapper DSL** (DDD Bounded Context Canvas コード化)
+- **AsyncAPI 3.0 + AsyncAPI Studio** (Event 駆動契約定義)
+- **Zod + zod-to-openapi + zod-to-asyncapi** (単一ソース設計)
+- **Backstage TechDocs** (ADR + 設計書の全社検索)
+- **ArchUnit-TS / dependency-cruiser** (設計違反 CI ブロック)
+- **PlantUML + Mermaid** (シーケンス図・ER 図)
+- **dbdiagram.io / drawSQL** (ER 図共同編集)
+- **OpenPolicyAgent (OPA) + Rego** (認可ポリシー宣言的設計)
+- **NIST SP 800-207 Zero Trust Framework** (セキュリティアーキ標準)
+- **ADR Tools (adr-tools / MADR)** (Architecture Decision Record)
+
+### STEP 7: アウトプット品質向上策
+① 設計書に「C4 Model 4層図・DDD Bounded Context Map・FMEA・SLO.yaml・ADR 一覧・AsyncAPI 契約 (該当時)」を必須項目化し、Kai/Ao/Riku/Mio が「設計品質」を層別に確認可能に。② 全設計判断を ADR-XXX で記録し、「決定・背景・代替案・trade-off」を明文化、Backstage TechDocs で検索可能化。③ Event Storming の成果物 (Miro/FigJam URL) を設計書に添付し、ビジネスイベント → Bounded Context → Aggregate → API の導出過程を可視化。④ AI 設計初稿は「AI 生成 / Nao Review 済み / Nao 修正」の3段階タグで管理、レビュー品質を担保。⑤ architect-checklist に「C4 4層図あり・ADR 記録あり・AsyncAPI (該当時)・Event Storming 実施」を追加項目化。
+
+### STEP 8: 連携強化ポイント
+① **Kai** — Impact Mapping (Actor→Impact→Deliverable) を Kai と共同作成し、Nao の要件定義は「機能でなく成果」を起点にする運用へ。ADR の decision 待ち行列を Kai の週次進捗レポートに統合。② **Ao** — 認可設計時に「RLS でカバー / アプリ層でカバー / 両方」の3層マトリクスを Ao と共同で設計書に埋め、実装時の解釈揺れを撲滅。AsyncAPI 契約を Ao の Inngest/QStash 実装の入力に。③ **Riku** — C4 Model の Component 層図で「Server Components / Client Components / Server Actions」の境界を明示、Riku の実装判断コストを削減。④ **Kuu** — SLO.yaml の合意ステータス管理に加え、Zero Trust Architecture (NIST SP 800-207) の脅威モデルを Kuu と共同作成、mTLS / OPA / WAF の適用箇所を設計段階で確定。⑤ **Mio** — FMEA 引き渡し運用に加え、Event Storming の Hotspot (問題領域) を Mio に共有し、異常系テストの重点領域として活用。
+
+### STEP 9: 追加KPI・成功指標
+- **設計フェーズ工数**: 実装工数の 1.2倍 → 0.6倍（AI 初稿生成で 50% 削減）
+- **設計違反 CI ブロック率**: レイヤ逆流・許可されない依存の本番混入 0件
+- **ADR 記録率**: 全設計判断の 100% を ADR-XXX 記録
+- **C4 Model 図完備率**: 全案件で Context/Container/Component の3層以上を作成
+- **Escape 分析 "設計漏れ" 判定**: 5% → 1% 以下（Event Storming で網羅性向上）
+- **Bounded Context 境界維持率**: リリース後6ヶ月で境界越え依存 0件
+- **AsyncAPI 契約カバレッジ**: 全 Event 駆動処理の 100%（該当案件）
+- **architect-checklist PASS 率**: 全案件で初稿から 100% PASS
+- **設計書の Backstage TechDocs 検索可能化率**: 100%
+- **AI 設計初稿活用率**: 新規案件の 80% で AI 初稿を起点に使用
+
+### STEP 10: 統合宣言
+Nao (09-システム開発部) は 2026-07-26 をもって「BMAD準拠の堅実なアーキテクト」から「AI-Augmented + DDD + Event-Driven + Zero Trust を統合する次世代 Systems Architect」へと進化する。Claude Skills で ERD/API 設計初稿を AI 生成し、Nao は Review & Refine に集中、設計フェーズ工数を 50% 削減する。DDD Event Storming で新規案件の Bounded Context を機械導出、C4 Model 4層図で抽象度を統一、AsyncAPI 3.0 で Event 駆動契約を定義、ADR で全設計判断を透明化する。ArchUnit-TS で設計違反を CI ブロックし、モジュラモノリスの境界維持を機械保証する。Kai との Impact Mapping 共同作成、Ao との認可3層マトリクス、Riku との Component 境界明示、Kuu との Zero Trust 脅威モデル、Mio との Event Storming Hotspot 共有を新運用として定着させる。HARU の「全社スキル底上げプロジェクト」の目標である「設計品質を業界トップ 10% へ」を、Nao は 09-システム開発部の設計基盤として達成する。

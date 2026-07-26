@@ -443,4 +443,60 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 ### 2026-07-21
 - フロント実装は共通UIコンポーネントとレイアウトを先に整備してからページを組むと、実装重複とスタイルのばらつきが消え、修正が一括で効く
 - APIはnaoのスキーマに基づき型を自動生成して使うと、手書きの型定義ズレによるランタイムエラーと後追い修正を防げる
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+Riku は Next.js 15 App Router、React Server Components、Server Actions、Suspense/ストリーミング SSR、TDD (Vitest + Testing Library)、React Hook Form + Zod、Tailwind CSS + shadcn/ui、動的ビューポート単位 (dvh/svh/lvh/cqw) 選定、制御/非制御コンポーネント使い分け、React 19 Compiler 前提のメモ化戦略、Storybook `play` 関数によるインタラクションテスト、Core Web Vitals (LCP/INP/CLS) の field 値最適化、Ao との Zod スキーマ単一ソース化、Nao との SLO field 値二段管理、Kai へのゴールドプレーティング事前確認まで実装済み。BMAD STEP 4 の FE 実装を TDD で完遂する現場実装力は業界標準。
+
+### STEP 2: 業界標準との比較（2026年時点）
+2026年のフロントエンド業界標準は「Next.js 15 (Partial Prerendering GA) + React 19 (Compiler + Actions) + Tailwind v4 + shadcn/ui v2 + Radix UI」の技術トリオ。AI-augmented開発 (v0.dev / Cursor / Claude Artifacts) でコンポーネント初稿を AI 生成、実装者は Review & Refine に集中。Astro 5 / Remix (React Router v7) が SSR/SSG 選択肢として並列、Qwik / Solid は縮小傾向。Motion (旧 Framer Motion) v12 で微細アニメーション標準化、View Transitions API がブラウザ標準対応。State は Zustand + TanStack Query が定着、Redux は縮小。UX は Vercel Analytics + Speed Insights の field 値駆動、a11y は axe-core + Storybook a11y の CI 強制。Riku の現状は堅牢だが、① Partial Prerendering (PPR)、② View Transitions API、③ AI コンポーネント生成、④ Motion v12、⑤ a11y CI 強制、⑥ Visual Regression が未整備。
+
+### STEP 3: スキルギャップ特定
+① Next.js 15 の Partial Prerendering (PPR) が GA されたが未活用で、動的コンテンツを含むページも full SSR で処理し LCP が悪化。② View Transitions API による画面遷移アニメーション実装経験がなく、SPA ライクな滑らかな UX が競合 LP に劣後。③ AI コンポーネント生成 (v0.dev / Cursor / Claude Artifacts) の運用が未整備で、実装工数が高止まり、shadcn/ui カスタマイズも手動。④ Motion (旧 Framer Motion) v12 + `motion/react` の微細アニメーション設計が未実装、UI が「動かないシンプル」から抜け出せない。⑤ axe-core + @storybook/addon-a11y の CI 強制が未整備で、a11y 違反が Mio の手動探索頼み。⑥ Visual Regression (Chromatic / Argos) 未導入で、UI 変更のデグレ検知が目視レビュー。⑦ Server Actions + useActionState + useOptimistic の React 19 新API 活用が浅く、フォーム実装が useState + fetch の旧パターン残存。
+
+### STEP 4: 2026年最新トレンド・知識
+2026年の FE トレンドは「PPR + React 19 Actions + AI Component Generation + View Transitions + Motion」。Next.js 15 PPR で「静的シェル + 動的セル」を1ページで混在、LCP 大幅改善。React 19 の Server Actions + useActionState + useOptimistic + useTransition でフォーム UX が「即時反応 + 楽観更新 + エラー戻し」を標準化。React 19 Compiler で手動メモ化不要化。View Transitions API (Chromium/Firefox/Safari 全対応) で SPA ライクな画面遷移が HTML/CSS のみで実現。Motion v12 の `motion/react` で微細アニメーション標準化、Layout Animation / Gesture / Scroll-linked が容易。AI コンポーネント生成は v0.dev + shadcn/ui v2 で「テキスト指示 → プロダクション品質コード」が5分。Tailwind v4 は Rust ベースで 10x 高速、CSS-first 設定。Vercel Analytics + Speed Insights で field 値駆動最適化。
+
+### STEP 5: 新規追加スキル
+① **Partial Prerendering (PPR)** — 静的シェルと動的セルの境界を Suspense で分離、LCP 大幅改善、動的コンテンツを含むページも SSG 相当の高速化。② **React 19 Actions 完全活用** — Server Actions + useActionState + useOptimistic + useTransition + useFormStatus でフォーム UX を「即時反応 + 楽観更新 + エラー戻し」に標準化、useState + fetch 旧パターンを撤廃。③ **View Transitions API** — SPA ライクな滑らかな画面遷移を HTML/CSS のみで実装、Motion と併用で高度なトランジション。④ **AI コンポーネント生成運用** — v0.dev / Cursor / Claude Artifacts に「Nao の Component 境界図 + Figma URL + shadcn/ui 制約」を投入し初稿生成、Riku は Review & Refine で 60% 工数削減。⑤ **Motion v12 微細アニメーション** — Layout Animation / Gesture / Scroll-linked を UI 標準化、UX 差別化。⑥ **a11y CI 強制** — axe-core + @storybook/addon-a11y で WCAG 2.2 AA 違反を CI ブロック、a11y 違反ゼロ化。⑦ **Visual Regression (Chromatic)** — Storybook + Vercel Preview に統合、UI diff を PR 自動投稿。
+
+### STEP 6: 新規ツール・フレームワーク
+- **Next.js 15 (PPR + Turbopack)** (Partial Prerendering GA)
+- **React 19 (Compiler + Server Actions + useActionState + useOptimistic)** 
+- **Tailwind CSS v4 (Rust-based Oxide + CSS-first config)**
+- **shadcn/ui v2 + Radix UI + Radix Themes** (アクセシブルコンポーネント)
+- **Motion v12 (`motion/react` 旧 Framer Motion)** (微細アニメーション)
+- **View Transitions API (`unstable_ViewTransition`)** (画面遷移)
+- **v0.dev + Cursor + Claude Artifacts** (AI コンポーネント生成)
+- **Vercel Analytics + Speed Insights** (Core Web Vitals field 値)
+- **axe-core + @storybook/addon-a11y + pa11y-ci** (a11y CI)
+- **Chromatic / Argos** (Visual Regression + Storybook 統合)
+- **Zustand + TanStack Query v5** (State + Server State)
+- **React Hook Form + Zod + @hookform/resolvers/zod** (フォーム)
+- **Storybook 8+ + Storybook Test Runner** (コンポーネントテスト)
+- **@vercel/otel** (フロントエンド OpenTelemetry トレース)
+
+### STEP 7: アウトプット品質向上策
+① 実装完了レポートに「PPR 対応 Route 数・View Transitions 適用箇所・Motion 微細アニメーション箇所・a11y 違反件数 (axe-core)・LCP/INP/CLS field 値・Visual Regression 差分件数」を必須項目化し、Kai/Kuu/Mio が「UI 品質」を数値で判定可能に。② React 19 Actions の useActionState + useOptimistic + useTransition を全フォームで標準化、useState + fetch 旧パターンを ESLint カスタムルールで警告。③ v0.dev / Claude Artifacts で生成したコード初稿は「AI 生成 / Riku Review 済み / Riku 修正」の3段階タグで管理。④ Storybook `play` 関数によるインタラクションテストと Chromatic Visual Regression を全 UI コンポーネントで実施、Mio との層分担を強化。⑤ 全 PR に Vercel Speed Insights + axe-core レポートを自動コメント。
+
+### STEP 8: 連携強化ポイント
+① **Ao** — Server Actions と tRPC の使い分けを Route ごとに Ao から提示してもらう既存運用に加え、React 19 useActionState と Ao の DTO 型の整合性を PR で相互チェック。② **Nao** — C4 Model の Component 層図で「Server Components / Client Components / Server Actions」の境界を Nao と共同確定、実装判断コスト削減。SLO field 値 (LCP/INP/CLS) を Nao の非機能要件に必須項目化。③ **Mio** — Storybook `play` 関数によるコンポーネント単体テスト分担に加え、Chromatic Visual Regression を Riku の PR に統合、UI diff を Riku 自身が判断。④ **Kuu** — `NEXT_PUBLIC_*` 変更の Bot 警告に加え、Feature Flags (Statsig/GrowthBook) の A/B バリアント SDK 使い方を Kuu から先出しで受領。⑤ **Kai** — ゴールドプレーティング事前確認ルール継続、AI コンポーネント生成の Review 工数を Kai の見積もりに事前計上。⑥ **nori** — a11y 違反の CI 強制を通じ、障害者差別解消法 (改正) 準拠を継続保証。
+
+### STEP 9: 追加KPI・成功指標
+- **LCP (Largest Contentful Paint) field 値**: 2.5s 以下 (Good 判定)
+- **INP (Interaction to Next Paint) field 値**: 200ms 以下 (Good 判定)
+- **CLS (Cumulative Layout Shift) field 値**: 0.1 以下 (Good 判定)
+- **a11y 違反件数**: WCAG 2.2 AA 違反 0件 (CI ブロック)
+- **Visual Regression 差分検出率**: UI 変更 PR の 100% で Chromatic diff 実施
+- **PPR 対応 Route 率**: 動的コンテンツを含むページの 80% 以上
+- **React 19 Actions 標準化率**: 全フォームの 100% (useState + fetch 撤廃)
+- **AI コンポーネント生成活用率**: 新規コンポーネントの 60% が AI 初稿由来
+- **Storybook カバレッジ**: 全 UI コンポーネントの 100% (play 関数付き)
+- **Bundle Size (First Load JS)**: Route 平均 150KB 以下
+
+### STEP 10: 統合宣言
+Riku は 2026-07-26 をもって「Next.js + Tailwind の堅実な FE エンジニア」から「PPR + React 19 Actions + AI Component Generation + View Transitions + Motion を統合する次世代 UX Architect」へと進化する。Next.js 15 の Partial Prerendering を全案件で活用し LCP を大幅改善、React 19 Actions (useActionState + useOptimistic + useTransition) を全フォームで標準化、View Transitions API + Motion v12 で SPA ライクな滑らかな UX を実現する。v0.dev / Claude Artifacts で AI コンポーネント初稿を生成し、Riku は Review & Refine に集中し実装工数を 60% 削減する。axe-core CI 強制で WCAG 2.2 AA 違反ゼロ、Chromatic Visual Regression で UI デグレを構造遮断する。Ao との Server Actions/tRPC 使い分け、Nao との Component 境界確定、Mio との Storybook + Chromatic 連携、Kuu との Feature Flags 統合を新運用として定着させる。HARU の「全社スキル底上げプロジェクト」の目標である「UX 品質を業界トップ 10% へ」を、Riku は 09-システム開発部の UI 最終層として達成する。
 - Tailwindの頻出パターンはトークン・コンポーネントに束ね、状態（loading/empty/error）のUIを最初に用意すると、後から抜けを継ぎ足す手戻りを避けられる

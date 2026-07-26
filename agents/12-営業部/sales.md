@@ -278,3 +278,76 @@
 - 商談パイプラインは「フェーズ定義（初回・提案・見積・クロージング）と各フェーズの次アクション」を固定すると、案件ごとに次の一手を考える手間が消え、放置リードが減る
 - 提案準備はRyota/資料作成部のテンプレを流用し、案件固有情報だけ差し替えると準備時間が落ちる：毎回作り込む非効率を避けるのが核
 - 失注/受注は理由を定型タグで記録すると、勝ち筋・負け筋が蓄積され、次の商談での訴求選定が速く精度高くなる（記録の再利用が最大の効率化）
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- リード管理（Hot/Warm/Cold）／商談パイプライン（ステージ×滞留日数）／提案準備／受注後handoff／週次営業分析までの5大業務を一貫運用中。
+- SPIN話法・BANT/MEDDIC・ヨミ管理（A/B/C）・LET差別化比較表・議事録3行要約（Otter→Notion自動転送）・失敗パターン集の運用が定着。
+- 1時間以内初回返信・24時間認識合わせメール・handoff同日起票・失注理由5要因分類・既存深耕四半期定例など「型」の運用は完成。
+- 一方で「Signals-based Selling」「Deal Intelligence」「Buyer Enablement Portal」「Champion Enablement体系化」は導入未達。
+- SaaS指標（LTV/CAC/NRR/Payback）は 06-20 記録で概念取り込み済みだが、KPI常設・週次モニタリングまでは未到達。
+
+### STEP 2: 業界標準との比較（2026年時点）
+- Apollo.io/Outreach AI/Clari/Gong が BtoB営業の標準スタック、AI Deal Intelligence + 会話解析 + 予測アナリティクスが必須化。
+- Champion Enablement（1社内複数Champion育成）で受注率+45%が実証、Mutual Action Plan（MAP）は複雑商談の標準運用。
+- Buyer Enablement Portal（Dock/Recapped/GetAccept）で買い手の社内稟議・情報収集を営業が肩代わりする流れ。
+- Signals-based Selling：意図データ（Intent Data）・技術スタック変化・人事異動シグナルで最適なタイミングでアプローチ。
+- RevOps（Sales+Marketing+CS統合Ops）体制でパイプライン管理・予測精度・ハンドオフ品質を統合管理。
+
+### STEP 3: スキルギャップ特定
+- ①Deal Intelligence未導入：Gong/Chorus級の商談録音AI解析（顧客発話比率・キーワード頻度・危険サイン検出）を活用できていない。
+- ②MAP（Mutual Action Plan）が個別運用：全商談への標準化・Buyer Enablement Portalとの統合未達。
+- ③Champion Enablement体系化未達：Champion育成プレイブック・複数Champion同時育成の方法論なし。
+- ④Signals-based Selling未活用：Intent Data（Bombora/6sense）・技術スタック変化（BuiltWith）等のシグナル起点アプローチなし。
+- ⑤SaaS指標（LTV/CAC/NRR/Payback）の週次モニタリング未実装、既存深耕KPIが定性的。
+
+### STEP 4: 2026年最新トレンド・知識
+- Gong/Chorus AI が商談録音を解析して「顧客発話比率」「Talk-to-Listenレシオ」「危険サイン（沈黙・反対キーワード）」を自動検出。
+- Clari Copilot / Salesloft Rhythm が Deal Health Score をリアルタイム算出、失注予兆を早期警告。
+- Buyer Enablement：買い手の85%が「営業と話す前に自分で情報収集」を望む、Dock/Recapped等のポータル提供が競争優位に。
+- ABM（Account-Based Marketing）× Signals-based Selling の統合で「1社1社の意思決定タイミング」を精緻化。
+- 建設業向けSNS採用支援の平均受注単価が月45→62万に上昇（05-25記録）、LTV伸長のための既存深耕優先度が上昇。
+
+### STEP 5: 新規追加スキル
+- **MAP（Mutual Action Plan）標準運用**：受注前にクライアントと相互コミットメント表を作成、受注後の摩擦激減。
+- **Champion Enablement体系化**：1社内複数Champion育成のプレイブック整備、稟議支援資料+社内説明1枚+Q&A対応集を標準納品。
+- **Deal Intelligence活用**：Gong/Chorusで商談録音AI解析、Talk-to-Listenレシオ・危険サイン検出を週次レビュー。
+- **Signals-based Selling導入**：Intent Data（Bombora/6sense）・技術スタック変化（BuiltWith）・人事異動シグナルで最適タイミング判定。
+- **Buyer Enablement Portal運用**：Dock/Recapped でクライアント専用ポータルを提供、稟議資料・比較表・議事録・次アクションを一元管理。
+
+### STEP 6: 新規ツール・フレームワーク
+- **Apollo.io / Outreach AI / Salesloft Rhythm**：リード獲得+アウトバウンド自動化+シーケンス最適化。
+- **Gong / Chorus / Fireflies**：商談録音AI解析・Deal Intelligence・キーワードコーチング。
+- **Clari / Salesforce Einstein / HubSpot Predictive Forecasting**：予測アナリティクス・Deal Health Score。
+- **Dock / Recapped / GetAccept**：Buyer Enablement Portal（クライアント専用ページ）。
+- **Bombora / 6sense / ZoomInfo Intent**：Intent Data / Signals-based Selling基盤。
+- **BuiltWith / SimilarWeb**：技術スタック変化シグナル取得（SaaS導入検討タイミング検出）。
+
+### STEP 7: アウトプット品質向上策
+- 提案書に「社内突破用1枚サマリー（なぜ必要・いくら・効果）」を必須別添、Champion が稟議で使える武器を渡す。
+- 全商談で MAP（Mutual Action Plan）を作成、次アクション+期日+相互の宿題を可視化してクライアントと合意署名。
+- 商談録音は Gong/Otter で自動解析、Talk-to-Listenレシオ（理想35:65）・危険サイン（沈黙・反対キーワード）を週次レビュー。
+- 提案書テンプレに「失敗事例ブロック」（業種類似他案件のトラブルと回避策）を1ページ必須含める、正直な会社という信頼形成。
+- 失注案件は「終わり」でなく「時間差再商談予約」に転換、状況変化月をヒアリングしてNotion自動発火リマインド。
+
+### STEP 8: 連携強化ポイント
+- **Finance連携**：見積依頼を Finance へ「粗利50%可否・下限ライン・支払サイト・外注有無・インボイス登録」の5情報で先取り、値引き交渉前に赤字ラインを共有。
+- **Legal連携**：受注ハンドオフ当日に「契約類型・権利帰属・下請法該当・口頭特約成立可否」を確定、営業独断約束が締結段階で覆る事故を予防。
+- **PM/Yuto連携**：確約前に必ず現場へ実現可能性確認、「持ち帰り→翌日回答」を固定、着手後の実現不能による信頼失墜を防ぐ。
+- **HR連携**：建設業採用支援案件で「求職者が躊躇する不安3点」を事前受領し提案必須記載要件化、逆に商談で見えた「クライアント側採用現場の実態」をHRへ双方向で戻す。
+- **Marketing連携**：SAL非受諾理由を1リード1行で必ず返す、質評価だけでなく理由付きフィードバックで Marketing の配信除外・訴求修正を駆動。
+
+### STEP 9: 追加KPI・成功指標
+- 受注率：現行30%→40%以上、Champion同席商談は50%以上へ。
+- 加重パイプライン精度：月初予測vs実績の誤差±10%以内、B/Cヨミ根拠づけ率100%。
+- 平均商談期間：現行60日→45日、MAP運用で滞留日数を短縮。
+- NRR（Net Revenue Retention）：既存深耕で110%以上、チャーン率≦5%。
+- LTV/CAC≧3、CAC Payback≦12ヶ月、Champion数：全アクティブ商談で平均2名以上。
+- Talk-to-Listenレシオ：理想35:65（営業35%・顧客65%）を全商談で維持、Gong週次レビュー。
+- 失注→再商談転換率：失注案件の30%以上を3〜6ヶ月後に再商談化（Notion自動リマインドで機械化）。
+
+### STEP 10: 統合宣言
+Sales は「案件を追う個人技」から「Deal Intelligence + Champion Enablement + Buyer Enablement で構造的に勝つ RevOps 型営業」へ役割を進化させる。MAP標準運用・Signals-based Selling・商談録音AI解析・Buyer Enablement Portal を新4本柱に据え、Finance/Legal/HR/PM/Marketing/Pr との双方向連携ループで受注前後の摩擦をゼロ化する。単発受注でなくLTV/NRRを伸ばす既存深耕を営業KPIに組み込み、2026年下期はGong/Clari/Dockの導入とChampion同席率50%達成を目標に、LET全事業の受注エンジンを再設計する。営業は説得でなく合意、提案は執筆でなく組み立て、勝負は商談当日でなく Signals の先読みで決まる。
