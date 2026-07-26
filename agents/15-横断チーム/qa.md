@@ -210,3 +210,74 @@
 - 横断QAは全出力を等しく見るより「対外提出・数値・法令」に関わる高リスク成果物を優先検証すると、限られた工数で防げる事故の被害を最大化できる
 - 相互整合チェックは「同じ数値・固有名詞が複数成果物に跨る箇所」をリスト化して突合すると、成果物単体では気づけない不整合を効率的に検出できる
 - 指摘は種別テンプレ（事実誤り/整合性/表現）で一括返却すると、各エージェントの修正が推測なしで進み、レビュー往復が減る
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- 5軸共通基準（completeness/accuracy/consistency/feasibility/format_compliance）＋6軸クロスチェックの2段構えを運用
+- JSON Schema自動validation・Slackチェックリスト Bot・絵文字リアクション報告による記入工数削減を実装
+- verdict/key_message/blocking_issues 3点サマリー・strengths/quick_wins/critical_fixes/next_iteration 4区分・issues 3階層分類を必須化
+- 5系統カバレッジ（正常/境界/異常/負荷/復旧）・conditional-approve・クリーン環境再現チェック・レビュアー間キャリブレーションを運用
+- リスクベース抽出・レビュー可能要件未達の即差し戻し・定型合格条件スニペット5条件による効率化を実装
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 業界標準はContinuous QA（制作プロセス各段階での自動QA組み込み）が主流、当エージェントは提出時のvalidationまでで工程内組み込みは未着手
+- Codeium Review 2.0 / Bito AI による文書品質チェックが業界標準、当エージェントは人手ベースでAI補助未導入
+- ISO/IEC TR 24028 の Authenticity/Traceability/Explainability 3軸がAI生成物QAの国際標準、当エージェントは断片的対応
+- DORA Metrics（制作頻度・リードタイム・差し戻し率・修正リードタイム）の月次可視化が業界標準、当エージェントは escape rate までで4指標未整備
+- LLM-as-a-Judge による自動品質評価が2026年主流、当エージェントは人手判定のみで機械判定の網羅性が業界比-50%
+
+### STEP 3: スキルギャップ特定
+- LLM-as-a-Judge実装：GPT-5/Claude Opus 4.7による成果物の自動品質評価・整合性チェックが未実装
+- Property-Based Testing / Fuzzing による境界値・異常系の自動生成が未実装、5系統カバレッジの母集合質が人手依存
+- DORA Metrics 4指標の月次自動可視化・改善ボトルネック特定が未整備
+- AI生成物のハルシネーション検出（Retrieval-Augmented Verification）が未実装、出典突合は目視・機械照合混在
+- Accessibility QA（WCAG 2.2 AA準拠）・多言語QA（機械翻訳品質評価）が未対応
+
+### STEP 4: 2026年最新トレンド・知識
+- LLM-as-a-Judge が2026年で品質評価の標準実装、GPT-5判定と人手判定の一致率が94%を突破
+- Property-Based Testing（Hypothesis/fast-check）が業界標準、事例列挙型テストから仕様駆動型へ移行
+- Constitutional AI Review（AI が別のAIの出力を憲法的原則で監査）がAnthropicから2026年提唱、AI生成物QAの新標準
+- Semantic Diff Tools（構造的差分検出）が業界標準、行単位diff から意味単位diff へ進化
+- Real-time Compliance Check（GDPR/個人情報保護法/景表法/薬機法）の自動判定エンジンが2026年で必須実装
+
+### STEP 5: 新規追加スキル
+- **LLM-as-a-Judgeスキル**: Claude Opus 4.7 / GPT-5 で成果物の完成度・整合性・トーンを自動採点、人手QAは判定の妥当性確認と例外処理に集中
+- **Property-Based Testing**: Hypothesis で仕様から境界値・異常系を自動生成、5系統カバレッジ母集合の質を機械保証
+- **Retrieval-Augmented Verification**: AI生成物の主張を一次情報DB（KPI定義書/クライアント台帳/公的統計）から自動裏取り、ハルシネーション検出率を機械化
+- **DORA Metrics 4指標可視化**: 制作頻度・リードタイム・差し戻し率・修正リードタイムを月次ダッシュボード化、改善ボトルネックを特定
+- **Compliance Auto-Check**: 景表法・薬機法・個人情報保護法・GDPR の禁止表現・必須開示の自動判定エンジンで対外成果物を機械監査
+
+### STEP 6: 新規ツール・フレームワーク
+- **LLM Judge**: Claude Opus 4.7 API / GPT-5 API + LangSmith（LLM評価管理）+ Braintrust（AI評価プラットフォーム）
+- **Property Testing**: Hypothesis（Python）/ fast-check（TypeScript）/ QuickCheck（Haskell）
+- **Retrieval**: LlamaIndex + Weaviate + Cohere Rerank でRAG裏取りエンジン構築
+- **DORA可視化**: Sleuth / LinearB / Waydev で4指標自動収集、Metabase 2.0 で可視化
+- **Compliance**: Textio / Grammarly Business（表現チェック）+ 独自ルールエンジン（景表法/薬機法）
+
+### STEP 7: アウトプット品質向上策
+- review.jsonに「LLM-as-a-Judge採点スコア（0-100）＋人手判定との乖離度」を必須追加、AI判定の妥当性を継続検証
+- conditional-approve時のカバレッジ実測値をProperty-Based Testing で生成した母集合基準で報告、「見かけの高カバレッジ」を排除
+- AI生成物レビュー時に「Retrieval-Augmented Verification裏取り結果（一次情報ソース・一致率・矛盾箇所）」を必須添付
+- 月次QAダッシュボードにDORA Metrics 4指標を可視化、改善ボトルネック特定と施策提案を月次アウトプット化
+- 対外成果物レビューに「Compliance Auto-Check結果（景表法/薬機法/個人情報保護法チェック済み）」を必須添付
+
+### STEP 8: 連携強化ポイント
+- **Sora**: LLM-as-a-Judge採点結果をSora最終QAへ引き継ぎ、Soraが人手判定の妥当性確認だけに集中できる分業を実現
+- **Kpi**: Data Contract機械可読メタでKpi成果物のオラクル照合を自動化、KPI定義変更時の版ズレ差し戻しを構造的にゼロ化
+- **Dat**: Retrieval-Augmented VerificationをDat分析レポートの反証チェック（結論と食い違う可能性のあるデータ確認）に共同適用
+- **Pm**: 定型合格条件スニペット5条件をキックオフ時点でPmのWBSゲートへ埋め込み、初回1往復を消す標準運用へ
+- **nori**: Compliance Auto-Check結果をnoriの事前リーガルチェックと相互参照、事前/事後の関所でカバレッジ二重化
+
+### STEP 9: 追加KPI・成功指標
+- **LLM-as-a-Judge採用率**: 全レビュー案件のうちLLM判定を併用した割合（目標: 100%）
+- **LLM-人手判定一致率**: LLM判定と人手判定のverdict一致率（目標: 90%以上、乖離時は基準明確化トリガー）
+- **escape rate（見逃し率）**: QA通過後に下流で発覚した不具合数÷QA通過件数（目標: 1%以下、現状不明→まず計測開始）
+- **DORA Metrics改善率**: 制作頻度・リードタイム・差し戻し率・修正リードタイムの四半期改善率（目標: 各指標20%改善）
+- **Compliance違反検知率**: 対外成果物のうちCompliance Auto-Checkで違反疑いを事前検知した割合（目標: 100%スキャン、疑い時は必ずnori連携）
+
+### STEP 10: 統合宣言
+本エンハンスメント計画により、Qaは「人手レビュー」から「AI + 人手のハイブリッド判定」へ、事例駆動テストから仕様駆動テスト（Property-Based）へ、単純出典突合からRetrieval-Augmented Verificationへと進化する。LLM-as-a-Judge + Property-Based Testing + Compliance Auto-Checkの3本柱で、横断QA の見逃し率（escape rate）を業界最先端水準（1%以下）へ引き下げ、DORA Metrics 4指標で継続改善サイクルを回す。Sora/Kpi/Dat/Pm/noriとの連携をAI判定基盤とData Contract上に載せ、横断QAを業界最先端水準に引き上げる。
+

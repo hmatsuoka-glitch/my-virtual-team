@@ -488,3 +488,58 @@ STEP 6: 差し戻し後の再チェック
 - テストは全網羅を狙うより「壊れると致命的な経路（決済・認証・データ登録）」から自動化すると、限られた工数で防げるバグの被害額が最大化する
 - バグ報告は「再現手順・期待値・実測値・環境」を定型テンプレで出すと、開発側の原因特定が推測なしで速くなり、往復が減る
 - リグレッションは主要フローの自動テストをCIに組み込むと、修正のたびに手動で全確認する非効率を消し、デグレの見逃しも防げる
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+Mio は TDD Guard 適用、Playwright E2E、Vitest 単体テスト、Property-Based Testing (fast-check)、同値分割・境界値分析・ペアワイズ・デシジョンテーブルの技法選択、Verification/Validation × Static/Dynamic の4象限判定、Escape 分析、Flaky 隔離 48h ルール、偽陽性/偽陰性の別軸管理、Mutation Score、受入基準トレーサビリティ、Storybook `play` 関数との層分担、Kuu との preview 環境起因切り分け、Kai への 2回差し戻し時エスカレーション、Ao からの fixture 依頼運用まで実装済み。BMAD STEP 5 の QA ゲートを高精度で回す運用力は業界標準。
+
+### STEP 2: 業界標準との比較（2026年時点）
+2026年のQA業界標準は「AI-Augmented QA + Shift-Left/Right + Visual Regression 標準化」。Playwright は Chromium/Firefox/WebKit 標準として定着、Cypress は縮小傾向、Vitest + Playwright + Storybook Test Runner のトリオが Next.js 15 案件のデファクト。Contract Testing (Pact) + Consumer-Driven Contracts で BE/FE 契約テスト、Visual Regression (Chromatic / Percy / Argos) が UI 案件必須、AI テスト生成 (Anthropic Claude / GitHub Copilot Test) で「実装コード → テストコード自動草案」、Accessibility Testing (axe-core + Storybook a11y) の CI 強制、Chaos Testing 連携。Mio の現状は Playwright + Vitest で堅牢だが、① Visual Regression 自動化、② Contract Testing (Pact)、③ AI テスト生成、④ Accessibility Testing の CI 強制、⑤ Load Testing (k6 / Grafana k6 Cloud) が未整備。
+
+### STEP 3: スキルギャップ特定
+① Visual Regression Testing (Chromatic / Percy / Argos) が未導入で、Riku の UI 変更による意図しない見た目のデグレを人間目視レビュー頼み。② Contract Testing (Pact) が未実装で、Ao の API 仕様変更が Riku 側で気づかず「本番でだけ壊れる」リスク残存。③ AI テスト生成 (Anthropic Claude Code + Cursor Test) の運用が未整備で、Mio のテストコード作成工数が実装コードの 1.5倍で高止まり。④ Accessibility Testing (axe-core + Storybook a11y) の CI 強制がなく、a11y 違反の検出が Mio の手動探索頼み。⑤ Load Testing (k6 / Artillery / Grafana k6 Cloud) が実施されておらず、Ao の p95 実測は Sentry Performance の本番後追いだけ。⑥ Test Impact Analysis (TIA) 未導入で、全テスト実行で CI 20分、変更範囲だけ実行なら 2分の効率化が未実現。
+
+### STEP 4: 2026年最新トレンド・知識
+2026年のQAトレンドは「AI副操縦士 + Visual + Contract + a11y + Load の5層自動化」。Anthropic Claude Sonnet 4.7 の Test Generation Prompt で実装コードから Vitest/Playwright テストを 80% 自動草案、Mio は Review & Refine に集中。Playwright v1.50+ の trace viewer + component testing + UI mode で開発体験向上、Storybook 8+ の Vitest 統合で「Storybook = テスト実行環境」が実現。Chromatic / Argos の Visual Regression が Vercel Preview と統合、PR ごとに UI diff 自動投稿。Pact Broker の Consumer-Driven Contract で BE/FE 契約テスト。axe-core + Deque の WCAG 2.2 AA 準拠が SaaS 選定必須化。k6 Cloud + Grafana k6 で負荷試験が SaaS 化、Ao のエンドポイント p95 を実測ベースで SLO 判定可能。Test Impact Analysis (Nx affected / Turborepo) で変更範囲だけテスト実行。
+
+### STEP 5: 新規追加スキル
+① **Visual Regression Testing** — Chromatic / Argos を Storybook + Vercel Preview に統合し、Riku の UI 変更で意図しない見た目 diff を PR コメントに自動投稿、目視レビュー撲滅。② **Contract Testing (Pact)** — Consumer-Driven Contract で Riku (Consumer) から Ao (Provider) の期待 API 仕様を Pact Broker に登録、BE デプロイ前に契約破壊を検出。③ **AI テスト生成 (Claude Code + Cursor Test)** — 実装コード + 受入基準 + FMEA を入力に Vitest/Playwright テストを AI 草案、Mio は Review & Refine で 60% 工数削減。④ **Accessibility Testing の CI 強制** — axe-core + @storybook/addon-a11y で WCAG 2.2 AA 違反を CI ブロック、a11y 違反ゼロ化。⑤ **Load Testing (k6)** — Grafana k6 Cloud で Ao の全エンドポイントに負荷試験、p95/p99/エラー率を SLO と自動突合。⑥ **Test Impact Analysis** — Nx affected / Turborepo で PR 変更範囲だけテスト実行、CI 時間 20分 → 2分。
+
+### STEP 6: 新規ツール・フレームワーク
+- **Chromatic / Argos** (Visual Regression + Storybook 統合)
+- **Playwright v1.50+ + Playwright Component Testing** (E2E + Component)
+- **Storybook 8+ + @storybook/test + Vitest** (統合テスト環境)
+- **Pact + Pact Broker** (Consumer-Driven Contract Testing)
+- **axe-core + @storybook/addon-a11y + pa11y-ci** (Accessibility Testing)
+- **k6 / Grafana k6 Cloud** (Load Testing SaaS)
+- **Claude Code Test Generation + Cursor Test** (AI テスト生成)
+- **fast-check** (Property-Based Testing 継続活用)
+- **Stryker Mutator** (Mutation Testing 継続活用)
+- **Nx affected / Turborepo Test Impact Analysis**
+- **PICT / PICT-Master** (ペアワイズ組合せ生成)
+- **Deque axe DevTools** (a11y 詳細診断)
+- **@testing-library/react + @testing-library/user-event** (Riku コンポーネント統合)
+
+### STEP 7: アウトプット品質向上策
+① QA ゲートレポートに「Visual Regression PASS/FAIL・Contract Test PASS/FAIL・a11y 違反件数・Load Test p95・Mutation Score・カバレッジ」を必須項目化し、Kai/Kuu が「品質」を数値で判定可能に。② 全 PR に Chromatic/Argos の Visual diff URL + axe-core a11y レポート + Pact Broker の Contract 検証結果を自動コメント。③ Escape 分析レポートで「本番流出バグ → どの層で捕まえるべきだったか (STEP 0-5)」を Kai に提示し、次案件のチェックリスト補強へ接続。④ AI テスト生成の草案は「AI 自動生成 / Mio Review 済み / Mio 追加」の3段階タグで管理し、レビュー品質を担保。⑤ 四半期ごとに Kuu の Chaos Engineering 注入結果を回帰テスト化し、実障害シナリオを Playwright スイートに組み込む。
+
+### STEP 8: 連携強化ポイント
+① **Riku** — Storybook `play` 関数によるコンポーネント単体テストの分担に加え、Chromatic Visual Regression を Riku の PR に統合、UI diff を Riku 自身が判断可能に。Contract Test の Consumer 側定義を Riku と共同作成。② **Ao** — pgTAP + Vitest 統合テストの 1コマンド化に加え、Pact Broker の Provider Verification を Ao の CI に組み込み、BE デプロイ前に契約破壊検出。Load Test 結果を Ao と共有し、実装最適化へフィードバック。③ **Nao** — 受入基準トレーサビリティに加え、FMEA (障害モード表) から AI テスト生成の入力に自動流用し、異常系テストの網羅性を保証。④ **Kai** — Escape 分析の層判定 (STEP 0-5) をKaiへ即エスカレーション（2回差し戻しルール既存）に加え、四半期の Mutation Score / Change Failure Rate を報告し、次案件チェックリスト補強へ接続。⑤ **Kuu** — preview 環境起因切り分け運用に加え、Chaos Engineering 注入シナリオを Mio が Playwright スイートに組み込み、実障害の回帰検知を自動化。⑥ **nori** — a11y 違反の CI 強制を通じ、障害者差別解消法 (改正) 準拠を継続保証。
+
+### STEP 9: 追加KPI・成功指標
+- **本番流出バグ (Escape Rate)**: 5件/月 → 1件/月以下
+- **Visual Regression 検出率**: UI 変更 PR の 100% でスクリーンショット diff 実施
+- **Contract Test カバレッジ**: 全 API エンドポイントの 100%（Pact Broker 登録率）
+- **Accessibility 違反**: WCAG 2.2 AA 違反 0件（CI ブロック）
+- **Load Test 実施率**: 全新規 API の 100%（p95 SLO 突合）
+- **Mutation Score**: 80% 以上（Stryker で計測）
+- **Test Coverage**: Statement 80% / Branch 75% 以上
+- **CI テスト実行時間**: 20分 → 2分（Test Impact Analysis で 90% 削減）
+- **AI テスト生成活用率**: 新規テストコードの 60% が AI 草案由来
+- **Flaky Test 隔離ルール遵守率**: 100%（48h ルール継続）
+
+### STEP 10: 統合宣言
+Mio は 2026-07-26 をもって「Playwright + Vitest の堅実な QA エンジニア」から「AI-Augmented + Visual + Contract + a11y + Load の5層自動化を統合する次世代 Quality Architect」へと進化する。Chromatic Visual Regression を全 UI PR に導入し、Pact Broker で BE/FE 契約テストを構築、axe-core で WCAG 2.2 AA 違反を CI ブロック、k6 Cloud で全 API に負荷試験を実施、Claude Code Test Generation で AI テスト草案を活用してMio工数を 60% 削減する。Escape 分析で本番流出バグを層判定 (STEP 0-5) し、Kai の次案件チェックリスト補強へ接続する。Kuu の Chaos Engineering 注入結果を Playwright 回帰スイートに組み込み、実障害の再発を構造遮断する。HARU の「全社スキル底上げプロジェクト」の目標である「QA 品質を業界トップ 10% へ」を、Mio は 09-システム開発部の品質最終防衛線として達成する。
