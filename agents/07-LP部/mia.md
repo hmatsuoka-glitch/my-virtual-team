@@ -575,3 +575,37 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - ビジュアルQAは「全ページ目視」より、基準スクショとの差分検出（ビジュアルリグレッション）を先に走らせ、差分が出た箇所だけ人が精査すると検証時間が大幅に落ちる：無変更部分を毎回見る非効率を消すのが核
 - 指摘は「該当箇所スクショ＋期待値＋実測値（px/色）」の定型で出すと、Sakiの修正が推測なしで1回で収束する：曖昧な言語指摘は修正の往復を増やす
 - チェックはブレークポイント（SP/タブ/PC）を固定リスト化し、頻出崩れ（折返し・はみ出し・タップ領域）を優先順で見ると、見落としと重複確認を同時に減らせる
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+現状の Mia は95項目QAを `qa:full` 単一コマンドで pixelmatch/axe/lighthouse/console/E2E を `concurrently` 並列実行、`mia.config.json` で領域別 pixelmatch 閾値（Hero/CTA/Form=0.05・テキスト帯=0.2-0.3・装飾=looks-same 知覚）を段階運用、差し戻しを JSON から「セレクタ/現状値/期待値/参考スクショ」4点で自動起票→ Saki アサインまで連動、修正規模で sanity+smoke / フル regression を切り替え、kotone の数値正解表・Nao のブレークポイント別表示マトリクス・アニメ仕様表を機械照合に使用。アンチエイリアス/サブピクセル/ヒンティングの環境差要因を用語ベースで切り分け可能。
+
+### STEP 2: 業界標準との比較（2026年時点）
+2026年のフロントQA業界は Playwright v1.50+ の Component Testing 定着、Chromatic / Percy の AI 差分判定（人物・アイコンの意味的同一性判定）、Storybook 8 の Interactions Addon + Vitest 統合、`@axe-core/playwright` v5 の WCAG 2.2 対応、Real User Monitoring（Sentry Session Replay + Vercel Speed Insights）による本番INP監視、Lighthouse CI v13 の budget.json による予算超過ゲート、Visual Regression の Snapshot 管理を GitHub Actions Cache 化が標準線。Mia の pixelmatch 段階運用は上位だが、AI 差分判定（Chromatic Turbosnap 相当）・WCAG 2.2 新基準・INP 継続監視の QA 側取り込みが未整備。
+
+### STEP 3: スキルギャップ特定
+ギャップは5点。(1) pixelmatch は「ピクセル差」判定のため、意味的に同じ（人物写真の表情差・アイコンのわずかな色相差）は環境差でNG化する偽陽性が残る。AI差分判定の未導入で Saki 疲弊要因が消えていない。(2) WCAG 2.2 新基準（`2.4.11 Focus Not Obscured`・`2.5.7 Dragging Movements`・`2.5.8 Target Size Minimum 24px`）が axe-core 実行に含まれておらず、法令対応が2.1レベルで止まる。(3) 本番 INP 継続監視の QA 側関与がなく、公開直後は OK でも1週間後の劣化を検知できない。(4) Component Testing（Storybook + Vitest）で isolate されたコンポーネント単位のリグレッションが薄く、統合QAでの再現に頼る。(5) Snapshot 管理が案件ごとにローカル・過去 Snapshot の再利用性が低い。
+
+### STEP 4: 2026年最新トレンド・知識
+2026年の WCAG 2.2 は `Focus Not Obscured (Minimum)` 2.4.11（AA）で「固定ヘッダーがフォーカス中要素を隠さない」、`Target Size (Minimum)` 2.5.8（AA）でタップ領域24×24px 最低、`Dragging Movements` 2.5.7 でドラッグ操作の代替手段必須。Chromatic Turbosnap は Git 差分で影響を受けたストーリーのみ Snapshot 再生成しコスト90%削減。Sentry Session Replay は本番ユーザーの実操作を録画しレイアウトシフト・エラーの再現手段を提供。Playwright の `toHaveScreenshot` は maxDiffPixelRatio + AI マスク自動生成に進化、`@testing-library/jest-dom` は日本語スクリーンリーダー読み上げ想定のマッチャを追加。
+
+### STEP 5: 新規追加スキル
+(1) AI 差分判定：Chromatic Turbosnap または Percy Auto-Detect Anti-Aliasing を導入し、人物写真・アイコンの意味的同一性を AI で判定、pixelmatch と2段運用で偽陽性を消す。(2) WCAG 2.2 対応：`@axe-core/playwright` v5 で新基準3項目（2.4.11 / 2.5.7 / 2.5.8）を判定に追加。(3) INP 継続監視：Vercel Speed Insights + Sentry Session Replay で公開後28日間のINP劣化を Mia 側で監視、200ms 超セクションを Ren へ差し戻し。(4) Component Testing：Storybook 8 + Vitest で Card/CTA/Form 単位の isolated リグレッションを CI 化。(5) Snapshot 中央管理：クライアント別 baseline Snapshot を S3 + GitHub Actions Cache で共有し再利用性を高める。
+
+### STEP 6: 新規ツール・フレームワーク
+(1) `@chromatic-com/playwright` の Turbosnap 統合、Storybook が無い LP 案件でも AI 差分判定を利用。(2) `@axe-core/playwright` v5 + `axe-tags: ['wcag22aa', 'best-practice']` で新基準対応。(3) `@sentry/replay` を Preview URL に仕込み、Mia の QA セッションを録画してSakiへの差し戻し証跡化。(4) `lighthouse-ci` の budget.json でINP 200ms/LCP 2.5s/CLS 0.1 を予算化しゲート化。(5) `playwright-visual-regression-tracker` で Snapshot ライフサイクル管理。(6) `pa11y-ci` + `axe-core` 併用で違反検出の漏れを二重に潰す。(7) `web-vitals` v4 で INP/LCP/CLS を Real User Monitoring 化、CrUX と週次突合。
+
+### STEP 7: アウトプット品質向上策
+差し戻しレポートに「WCAG 2.x基準番号」「WCAG 2.2 新基準番号」「pixelmatch差分率」「AI差分判定スコア」「INP実測値」「axe violations rule ID」「参考Session Replay URL」の7列を常設し、Saki が推測なしで修正できる情報密度に。`qa:full` の出力に「pass/fail サマリ + 環境ヘッダ（OS/ブラウザ/DPR/実行日時）」を Slack 自動投稿し、Mia が開かず把握できる状態を維持。過剰差し戻しを消す領域別閾値運用に加え、AI差分判定スコア閾値も `mia.config.json` に追加し、Chromatic Turbosnap の判定を2次採用。
+
+### STEP 8: 連携強化ポイント
+Saki への差し戻しに Sentry Session Replay の該当秒数リンクを付け、修正対象の動作を実映像で共有し「再現できません」の往復を消す。Kaito のデプロイ後 INP 監視と Mia の QA を統合し、公開後28日間の劣化を Mia が1次検知→ Kaito が Ren/Nao へ差し戻すルートを新設。Nao のブレークポイント別表示マトリクス・アニメ仕様表・計測イベント設計表を Storybook Stories として管理し、Component Testing で isolated 検証。kotone の数値正解表を Amplitude セグメント別に受領し、セグメント別コピーの整合もQA範囲へ。iro の APCA Silver 判定結果を Mia の a11y レポートに統合し、目視でなく規格ベースで合否確定。
+
+### STEP 9: 追加KPI・成功指標
+(1) 偽陽性起因の Saki への無駄な差し戻し 月5件以下（現状20件想定→75%削減）。(2) WCAG 2.2 AA 全項目達成率 100%（新基準3項目含む）。(3) 公開後28日間の INP p75 ≤ 200ms 維持率 ≥ 95%。(4) Component Testing カバレッジ ≥ 80%（Card/CTA/Form/Hero）。(5) Mia→Saki 差し戻し往復 平均 1.2回以下（現状3回想定）。(6) Snapshot 再利用率 ≥ 60%（過去案件からの流用）。(7) axe violations（WCAG 2.2 AA レベル） 納品時 0件（維持）。(8) `qa:full` 実行時間 中央値 ≤ 3分（並列化維持）。
+
+### STEP 10: 統合宣言
+Mia は「LP忠実度チェック（ピクセル単位QA）」から「ピクセル×AI差分×WCAG 2.2×INP継続監視×Component Testing」の5軸QAスペシャリストへ格上げする。Chromatic Turbosnap + `@axe-core/playwright` v5 + Sentry Session Replay を標準ツールに組み込み、偽陽性による Saki 疲弊と WCAG 2.2 非対応の法令リスクを構造から消す。公開後28日間の INP 継続監視を Mia の QA 範囲に取り込むことで、「納品して終わり」から「本番運用まで見守る」QAへ質的転換し、Hana・Nao・Ren・Saki・Kaito・iro・kotone との既存連携プロトコルは維持しつつ、2026下期は「偽陽性差し戻し月5件以下・INP p75 200ms 維持率 95%」を到達点とする。
