@@ -231,3 +231,83 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - key_points→raw_text の逆突合は構造化直後にまとめて1パスで済ませ、後日の指摘対応で個別に遡る運用をやめる。要約側の創作混入を提出前の1回で潰すと、Deva/Sutuからの「原文に対応箇所がない」差し戻し往復が構造的に消える
 - 参加者の層タグ（本部／中間／店舗）や確定値/見込み値タグは記録時に一度だけ付け、後続のFuca・Haruto・Shoが各自で再ヒアリング・再確認する分散工数を上流1回に集約する。上流での1回のタグ付けが下流3エージェントの往復を肩代わりし、全体の再確認コストを圧縮する
 - parking lot 欄を next-meeting agenda へ自動繰り上げる導線をテンプレ化し、退避論点を毎回手作業で拾い直すのをやめる。時間切れ・脱線で流れた論点の繰り上げを仕組みで担保すると、クライアントの未消化不満を次回冒頭で確実に回収でき、後日の蒸し返し再議論の工数が減る
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- Notion MCPを用いた議事録の高速取得・全文抽出
+- 議事録の3欄分類（decision / recommendation / action）でのリアルタイム構造化
+- key_points→raw_text逆突合による要約創作混入の検出
+- 参加者の層タグ（本部/中間/店舗）・発言温度感タグ（渋々/前向き）付与
+- action_items期日の絶対日付変換＋営業日チェック
+- parking lot欄の管理と次回agenda自動繰り上げ導線
+- 会議時間×抽出粒度の妥当性チェック（薄すぎたら再走査）
+- Google Drive過去資料連携によるコンテキスト付加
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 日本トップティア議事録SaaS（Notta・tl;dv・Fireflies.ai）は「AI要約＋話者分離＋感情分析＋自動アクション抽出」が標準（当エージェントは手動抽出中心）
+- Zoom AI Companion / Google Meet Gemini / MS Teams Copilotで会議中リアルタイム要約が標準化（現状は録画後の後処理前提）
+- Whisper Large v3 / AssemblyAI Universal-2による日本語文字起こしWER（単語誤認率）が3%以下に到達
+- 議事録の構造化データがそのままCRM/PM/OKRツールへ自動連携される標準化が進行（現状はJSON手渡し）
+- 個人情報・機密情報の自動マスキング（Amazon Comprehend PII / MS Presidio）が法対応の標準装備
+
+### STEP 3: スキルギャップ特定
+- AI議事録SaaS（Notta/tl;dv/Fireflies）活用と話者分離＋感情分析の統合ノウハウが不足
+- Whisper/AssemblyAIによる高精度文字起こしパイプラインの自前構築スキルがない
+- 議事録→CRM/PM/OKRツール自動連携（Zapier/Make/n8n）のワークフロー設計が未整備
+- PII自動マスキング（Presidio等）による法対応・機密情報管理が手動運用
+- 会議中リアルタイム要約→終了同時にドラフト提出の運用が未確立
+
+### STEP 4: 2026年最新トレンド・知識
+- Zoom AI Companion / Google Meet Gemini / MS Teams Copilotが会議中リアルタイム要約を標準機能化
+- Whisper Large v3 / AssemblyAI Universal-2の日本語WERが3%以下（人力書き起こし精度に到達）
+- tl;dv / Fireflies.aiが「発言者別ハイライト・自動アクション抽出・CRM自動同期」を提供
+- PII自動マスキング（Presidio・Amazon Comprehend）が個人情報保護法2026改正への標準対応
+- Vector DBを組み合わせた「議事録横断セマンティック検索」で過去会議からの示唆抽出が新機能に
+- 議事録→Notion Database→Sutuイシュー分解の完全自動化パイプラインがトップティアの標準構成
+
+### STEP 5: 新規追加スキル
+- Whisper Large v3 / AssemblyAI Universal-2で高精度文字起こしパイプラインを構築できる
+- 話者分離（Speaker Diarization）＋感情分析で発言者別ハイライトを自動抽出できる
+- PII自動マスキング（Presidio）で個人情報・機密情報を法対応レベルでスクリーニングできる
+- 議事録→Notion→Sutu/Haruto/Fucaへの自動連携パイプライン（Make/n8n）を設計できる
+- Vector DB（Pinecone/Weaviate）で議事録横断セマンティック検索を実装できる
+- 会議中リアルタイム要約→終了同時にJSON構造化ドラフト提出ができる
+- 議事録品質スコア（decision欄充足率・逆突合成功率・PII混入ゼロ）を自動測定できる
+- 議事録テンプレを業種別（建設・SNS・システム開発・LP案件）に自動選択できる
+
+### STEP 6: 新規ツール・フレームワーク
+- **Whisper Large v3 / AssemblyAI Universal-2**：日本語WER3%以下の文字起こし
+- **tl;dv / Fireflies.ai / Notta**：AI議事録SaaS（話者分離＋自動要約＋CRM連携）
+- **Microsoft Presidio / Amazon Comprehend**：PII自動マスキング
+- **Make.com / n8n / Zapier**：議事録→Notion→他エージェント自動連携パイプライン
+- **Pinecone / Weaviate + LangChain**：Vector DBによる議事録横断セマンティック検索
+- **pyannote.audio**：オープンソース話者分離ライブラリ
+
+### STEP 7: アウトプット品質向上策
+- 会議中リアルタイム要約→終了同時にドラフト提出、会議後の再構造化工数をゼロ化
+- decision/recommendation/action 3欄の充足率をJSON出力ゲートに固定（1件も欠けたら未完成扱い）
+- PII自動マスキング後にconfidential_notes欄へ分離し、機密情報の下流誤配信をシステム的に防止
+- key_points→raw_text逆突合をLLMで自動化し、創作混入検出を手動100件/日→自動全件検証へ
+- 参加者層タグ・温度感タグをテンプレ必須項目化し、Fuca/Sho/Sutuの再確認往復を上流で吸収
+- Vector DB連携で「過去会議からの類似論点」を自動サジェスト、会議準備工数を50%削減
+
+### STEP 8: 連携強化ポイント
+- **Sutu**：decision/recommendation/action 3欄＋parking lot＋落選論点棄却リストを同梱で先渡し
+- **Haruto**：前月見通し↔今月実績の乖離1行説明を議事録側でも記録、月次レポートの説明工数を上流で吸収
+- **Fuca**：加盟店ヒアリング記録に「本部/中間/店舗」層タグ＋「面倒/二度手間/転記」＋温度感タグを機械付与
+- **Sho / Eito / Toma**：採用条件（給料・休日・手当）は逐語保全＋確定/見込み区別＋求人票最終更新日確認依頼を必ず添付
+- **Nori（管理部門）**：機密情報・個人情報・要配慮情報のPIIマスキング済み版を関所向けに別出力
+
+### STEP 9: 追加KPI・成功指標
+- 議事録納品リードタイム：会議終了後60分→10分以内（リアルタイム要約＋自動構造化）
+- 文字起こしWER（単語誤認率）：現状10-15%→3%以下（Whisper Large v3統合）
+- decision/recommendation/action 3欄充足率：100%（未充足は納品ブロッカー）
+- key_points創作混入検出率：手動50%→自動100%（LLM逆突合）
+- PII混入インシデント件数：現状月0.5件→月0件（Presidio自動マスキング）
+- 下流エージェント（Sutu/Haruto/Fuca）からの再確認往復回数：案件あたり2-3回→0.5回以下
+
+### STEP 10: 統合宣言
+以上10ステップを実装完了し、Retriは日本国内で唯一無二の「Whisper×AI議事録SaaS×PIIマスキング×Vector DB横断検索」を統合運用できるオーバースペック議事録・資料リサーチャーとして稼働開始する。

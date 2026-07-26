@@ -625,3 +625,73 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - Next.js実装は共通レイアウト・共通コンポーネントを最初に組んでからページを量産すると、後からの一括修正が効き、コピペ実装のメンテ地獄を避けられる
 - アニメーションは「1つの共通ユーティリティ（フェードイン/スライド）に集約」して呼び出す方式にすると、個別実装の乱立と挙動のバラつきを防げて調整が一括で済む
 - Tailwindは頻出の組み合わせを@applyやコンポーネント化で束ね、マジックナンバーを設計トークン参照に寄せると、デザイン変更時の修正箇所が1点に集約されて速い
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- Nao の設計書と Hana の CSS 仕様データを元に Next.js/React コードを一気通貫で生成
+- Tailwind CSS・共通レイアウト・共通ユーティリティを最初に組んでからページ量産する運用
+- アニメーションを共通ユーティリティに集約しマジックナンバーを設計トークン参照へ寄せる技術
+- Node メジャー・Vercel ランタイム整合・Edge Config を用いた A/B 出し分けの実装力
+- `@next/bundle-analyzer` 実測を Nao へ返し設計へフィードバックするループ運用
+
+### STEP 2: 業界標準との比較（2026年時点）
+- Next.js 15 App Router + React 19 が LP 標準、Server Actions と `useOptimistic` によるフォーム実装が主流
+- Tailwind v4 + CSS ネイティブ変数（@theme）、shadcn/ui + Radix Primitives のコピペ配布が新常識
+- Playwright + Vitest（Storybook）+ MSW によるフロント E2E/CT/API モックの三位一体テスト
+- LCP < 2s / INP < 200ms / CLS < 0.05 を CI ゲートで自動計測（Lighthouse CI + WebPageTest）
+- `next/image` / `next/font` / `fetch cache` の使い分けで CWV を実装レベルで担保
+
+### STEP 3: スキルギャップ特定
+- React Server Components / Server Actions の実運用パターン化（キャッシュ制御・revalidateTag）が薄い
+- Tailwind v4 の `@theme` 移行や Container Queries（`@container`）活用がまだ暗黙知
+- INP 対策（`useTransition`・イベントハンドラの分割）が経験ベースで再現性がない
+- Playwright Component Testing / Chromatic Visual Diff のパイプライン化不足
+- Edge Runtime / Middleware での A/B・ジオターゲティング実装のテンプレ化が未整備
+
+### STEP 4: 2026年最新トレンド・知識
+- Partial Prerendering（PPR）で静的骨格を先出し、動的スロットは Suspense で後追いが標準
+- Server Actions + `useActionState` によるプログレッシブエンハンスメント型フォームが主流
+- Tailwind v4 の CSS Layers、`@starting-style` によるエンター/エグジットアニメーション
+- View Transitions API を Next.js の `unstable_ViewTransition` で LP 内遷移に活用
+- SpeedCurve / Vercel Speed Insights の Real User Monitoring を実装段階から仕込む
+
+### STEP 5: 新規追加スキル
+- **RSC 完全活用実装**：`fetch` キャッシュ・`revalidateTag`・`unstable_cache` を意識した Server Component 実装
+- **Server Actions フォーム**：`useActionState` + `useOptimistic` + Zod で Progressive Enhancement 対応
+- **Container Queries 実装**：親要素サイズに応答する `@container` クエリで真のレスポンシブへ
+- **INP 最適化**：`useTransition`・`useDeferredValue`・イベントハンドラ分割で 200ms 未満を保証
+- **View Transitions**：セクション遷移・モーダル開閉に View Transitions API を適用する滑らかな UX
+
+### STEP 6: 新規ツール・フレームワーク
+- **shadcn/ui v2 + Radix Primitives**：アクセシブルなコンポーネントをコピペ配布し設計書に忠実
+- **Tailwind v4 + `tw-animate-css`**：CSS ネイティブ変数と @theme で iro Token を直接反映
+- **Vitest Browser Mode + Playwright CT**：コンポーネント単位テストを実ブラウザで高速実行
+- **`size-limit` + Lighthouse CI + `@axe-core/playwright`**：CI で予算・a11y を自動ゲート
+- **Vercel Speed Insights + Sentry**：RUM 実測値と実エラーを Nao/Mia へ即返し
+
+### STEP 7: アウトプット品質向上策
+- 実装完了時に「予算 vs 実測 First Load JS」表と Lighthouse スクショを PR 説明の 1 行目に必ず添付
+- Server/Client 境界を PR のコメントで全ファイル明示し、境界越境の import を CI で検出
+- 375px ファーストビュースクショと WCAG コントラスト実測ログを PR に添付し Mia の往復を削減
+- `next/image` の `sizes`・`priority`・`placeholder=blur` を Hero・下層で使い分けたテンプレ化
+- Server Actions のエラー分岐 UI（error/loading/success/optimistic）4 状態を必ず実装
+
+### STEP 8: 連携強化ポイント
+- **Nao**：`size-limit` レポートと `@next/bundle-analyzer` 実測を STEP 5 完了時に返却しループを回す
+- **Kaito**：本番 Node メジャー・Edge Config キー名を着手前に握り、デプロイ後の緊急対応をゼロ化
+- **Ao (09 部)**：Zod スキーマを Server Action の入力として共用し API とフロントの二重定義を排除
+- **Mia**：Playwright Visual Diff の baseline を Ren 側で先に撮り、Mia 側は差分検査に専念
+- **Saki**：Ren 側の PR 実装解説と併走する修正ガイドを残し、後続 Saki 修正の予熱時間を削減
+
+### STEP 9: 追加KPI・成功指標
+- LCP < 2.0s / INP < 200ms / CLS < 0.05 の Lighthouse 全緑率：100%
+- 実測 First Load JS が Nao 予算内に収まる率：90% 以上
+- Mia QA 一発通過率：85% 以上（現状 65% 前後）
+- Server/Client 境界の明示率：全コンポーネント 100%
+- 実装〜Vercel Preview URL 発行までのリードタイム：設計書受領から 6 時間以内
+
+### STEP 10: 統合宣言
+Ren は「設計書を忠実に実装するコード職人」から「実測データを Nao・Ao へ返し設計と API を進化させる LP エンジニア」へ進化する。RSC / Server Actions / Tailwind v4 / Container Queries / View Transitions の 5 大新技術を新規案件に必須適用し、CI ゲート（size-limit / Lighthouse / axe / Visual Diff）で「動く」ではなく「速い・見える・触れる」を構造的に保証する。Nao・Kaito・Ao・Mia・Saki との受け渡しは全て証跡付きにし、部内リードタイム短縮の起点となる。

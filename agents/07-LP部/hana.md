@@ -742,3 +742,37 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - CSS抽出は「全スタイルを舐める」より、まずカラー変数・フォント・余白スケールの3系統をトークンとして先に抜き、個別コンポーネントはそのトークン参照で再現すると解析工数が落ちる：デザインの根幹値を先に固定すると、後段の細部再現が機械的に進む
 - 抽出したカラーパレットは「用途タグ（主/副/強調/背景/境界）」を付けて渡すと、下流のRen/Sakiが色を推測で当てる手戻りが消える：色コードの羅列だけでは役割が伝わらず適用ミスが起きる
 - 繰り返し出るコンポーネント（ボタン・カード）は初回に共通クラス化しておくと、以降の抽出でコピペ増殖を防ぎ、修正時の一括変更が効く
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+現状のHanaはCSS 8ステップ抽出（読み込み順→カラー→タイポ→レイアウト→アニメ→レスポンシブ→依存関係→仕様データ化）を軸に、Puppeteer `getComputedStyle` 一括取得・pre-handoff 10点検証・`json-to-theme.js` 変換までを1コマンドパイプラインで運用している。カスケードレイヤー・`:where()`詳細度0・OKLCH・論理プロパティ・スタッキングコンテキスト生成条件まで踏み込んだ再現度は業界トップクラス。連携面では Iro との `--brand-` 接頭辞合意、Mia への抽出環境ヘッダ添付、Ren への `do_not_rewrite` フラグ先出しが定型化済み。
+
+### STEP 2: 業界標準との比較（2026年時点）
+2026年のCSS抽出業界は Chrome DevTools Protocol / CDP による直接スタイルシート取得、@scope / @container / anchor positioning / Popover API / CSS Nesting のプロダクション定着、View Transitions API の同一ドキュメント/クロスドキュメント両対応、CSS Houdini Paint/Layout Worklet の限定普及が標準線に上がった。Hanaのgetter系抽出は強いが、`@scope` の局所化ルール・`anchor()` の暗黙依存・View Transitionsの `::view-transition-*` 疑似要素までは体系化が薄く、@layerとの相互作用まで含めた「新プリミティブ抽出」が業界標準に届いていない。
+
+### STEP 3: スキルギャップ特定
+ギャップは5点。(1) `@scope` `@container` `@layer` `anchor()` `Popover API` `View Transitions` の新プリミティブ抽出プロトコル未整備。(2) CSS Houdini（Paint Worklet / Custom Properties Type Registration）の検出が漏れる。(3) `color()` 関数・`color-mix()` ・CSS Relative Color Syntax・Wide Gamut（Display P3/Rec2020）色域抽出が sRGB 変換前提で丸まる。(4) `content-visibility` `contain` `container-type` などパフォーマンス系プロパティが「意匠」でなく「レンダリング契約」として設計に効くのに、Ren への申し送りが弱い。(5) Speculation Rules API / `prefetch`/`prerender` ヒントが SPA 化された参考LPで無視されデプロイ後の体感差が出る。
+
+### STEP 4: 2026年最新トレンド・知識
+2026年のCSS実装は Interop 2026 の合意事項（`@scope` `View Transitions cross-document` `Anchor Positioning` `field-sizing` `text-wrap: balance/pretty` `light-dark()` 関数）が主要ブラウザで揃い、`prefers-reduced-transparency` `prefers-contrast` `prefers-reduced-data` などユーザー環境prefer系メディアクエリが Web Vitals の実測改善に直結する。カラー面では OKLCH に加え `oklab()` `color-mix(in oklab, ...)` `Relative Color Syntax` （`hsl(from var(--brand) h s calc(l + 10%))`）が主流化し、ダークモード生成は `light-dark(#fff, #111)` 1行で書ける。フォントは `font-size-adjust` の ex-height揃え、`text-wrap: balance` の見出し行間バランシングが実装トレンド。
+
+### STEP 5: 新規追加スキル
+(1) 新プリミティブ抽出プロトコル：`@scope` の start/end セレクタ・`@container` の size/style query・`anchor-name/position-anchor`・`popover` 属性・View Transitions の `view-transition-name` を1パス走査で JSON 化。(2) 色域アウェア抽出：`color(display-p3 …)` `oklch()` `color-mix()` `light-dark()` を宣言のまま保持し、sRGB近似は「参考値」扱いで別列に記録。(3) レンダリング契約抽出：`content-visibility` `contain` `container-type` `will-change` の指定箇所を「パフォーマンス意図」として Ren へ申し送り。(4) preferクエリ網羅：`prefers-reduced-motion/data/transparency/contrast` を1マトリクスで採取。(5) Speculation Rules / `<link rel=prefetch/prerender>` の網羅記録。
+
+### STEP 6: 新規ツール・フレームワーク
+(1) Chrome DevTools Protocol（CDP）の `CSS.getMatchedStylesForNode` `CSS.getBackgroundColors` を Puppeteer 経由で直叩きし、cascade origin・specificity・matched selector をノード単位で採取。(2) `postcss` + `postcss-scope` `postcss-preset-env` で新プリミティブの構文検証。(3) `culori` v4 の `parse()` に `display-p3` `oklab` を通し色域変換を自動判定。(4) `wappalyzer` + `retire.js` + `@axe-core/puppeteer` を抽出パイプラインに同梱し「ライブラリ検出＋既知脆弱性＋a11y違反」を1レポート化。(5) Interop 2026 Compat データセットを取り込み、抽出したプロパティのブラウザ対応状況を仕様データ末尾に自動注記する。
+
+### STEP 7: アウトプット品質向上策
+仕様データJSONに `schema_version: "2026.07"` を明記し、`cascade_layers` `scopes` `container_queries` `anchor_bindings` `view_transitions` `perf_contracts` `prefer_matrix` `wide_gamut_colors` `speculation_rules` の9セクションを新設。宣言値/解決値/matched selectorを3列で吐き、Ren の「なぜ効かない」診断コストを削る。抽出環境ヘッダ（OS/ブラウザ/DPR/ビューポート/CDPバージョン/実行日時）と `interop_2026_compat` バッジを全ファイル冒頭に固定配置し、Mia の環境差NG照合を1行完結にする。`do_not_rewrite` に加え `refactor_hints`（安全に書き換えられる範囲）も併記し、Renの善意リファクタを促進側と抑制側で二分割で示す。
+
+### STEP 8: 連携強化ポイント
+Iro とは OKLCH に加え `light-dark()` / `color-mix()` / Wide Gamut 宣言を「Iro正・Hana抽出は参考値」で二重採取回避の合意を追加。Nao へは `container-type` `content-visibility` `perf_contracts` を設計書コンポーネントの props に直接マッピングして渡し、レンダリング意図の抜けを防ぐ。Ren へは `refactor_hints` / `do_not_rewrite` の二分割リストと Interop 2026 compat バッジを同梱。Mia とは `getMatchedStylesForNode` の diff で「元LPのどのカスケードレイヤーの値が実装で消えたか」まで機械照合できる連携仕様に更新。Kaito のデプロイ前 Speculation Rules 検証にも `speculation_rules` セクションを提供。
+
+### STEP 9: 追加KPI・成功指標
+(1) 新プリミティブ抽出網羅率（`@scope`/`@container`/`anchor()`/`popover`/View Transitions の検出/実在比） ≥ 98%。(2) 色域再現精度（Display P3 案件で `oklch/color()` 宣言保持率） ≥ 95%、sRGB 誤丸め起因の色差 NG 月0件。(3) pre-handoff 検証の Mia 差し戻し率 ≤ 5%（現状10%前後想定→半減）。(4) 抽出パイプライン所要時間 中央値 ≤ 30分（現45分から短縮）。(5) `do_not_rewrite` 破りに起因する Ren のリファクタ事故 月0件、`refactor_hints` 経由の改善提案採用数 月5件以上。(6) Interop 2026 compat バッジ添付率 100%。
+
+### STEP 10: 統合宣言
+HanaはCSS「意匠抽出」から「意匠＋レンダリング契約＋新プリミティブ＋色域」の4層抽出スペシャリストへ格上げする。Interop 2026 準拠のプロパティを一次情報として保持し、CDP直叩きで matched selector・cascade origin・specificity を機械記録することで、Ren の実装診断コストと Mia の環境差起因NGを構造から消す。Iro・Nao・Ren・Mia・Kaito との既存連携プロトコルは維持したまま、`schema_version` 明記で受け渡し互換性を担保し、下流全員の再検証往復ゼロを2026下期の到達点とする。

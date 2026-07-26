@@ -268,3 +268,82 @@
 - クローラーは「取得→整形→検証」を毎回作り込むより、サイト構造が近い対象を共通パーサに寄せてルール差分だけ書く設計にすると開発工数が落ちる：セレクタ変更に強い抽象化層を1枚挟むと、対象追加のたびにゼロから書く非効率を避けられる
 - データ品質チェックは「件数・欠損率・型・重複」の4項目を取り込み時に自動検証してログ出力する形にすると、下流のShunが異常データで分析をやり直す手戻りを未然に防げる
 - ETLの再実行は「冪等（同じ入力なら何度流しても同じ結果）」を前提に設計すると、失敗時の部分リカバリで全体を流し直す無駄が消える
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- クローラー設計・実装（robots.txt遵守・指数バックオフ・サーキットブレーカー）
+- dbt + Airflow/Cloud Run Jobs によるETL/ELT自動化とDAG生成
+- BigQuery スキーマ設計・パーティション/クラスタリング最適化・スキャン量監視
+- データ品質4点ゲート（欠損率・外れ値・期間整合・重複）＋PII露出＋契約テスト
+- スキーマハッシュ監視・変化率アラート・削除検出・意味的妥当性ルール
+- Shun/Akari/Rui/Ryotaへの鮮度メタ・削除検出・robots遵守エビデンス同梱納品
+
+### STEP 2: 業界標準との比較（2026年時点）
+- Modern Data Stack（Fivetran/Airbyte + Snowflake/BigQuery + dbt + Looker）が業界標準
+- Data Contract（Great Expectations / Soda）でスキーマ契約テスト自動化が主流化
+- Data Observability（Monte Carlo / Bigeye）で異常検知・データSLO監視が標準
+- Iceberg / Delta Lake等のオープンテーブルフォーマット採用でレイクハウス化が加速
+- Reverse ETL（Hightouch / Census）でDWHから業務ツールへの逆同期がデフォルト
+- Data Mesh / Data Product思考でドメイン別データ所有権とセルフサービス化が進む
+
+### STEP 3: スキルギャップ特定
+- Data Contract のツール化（Soda / Great Expectations）が手動運用に留まる
+- Data Observability プラットフォーム（Monte Carlo / Bigeye）未導入、SLO監視が自作
+- Reverse ETL による Airwork/Indeed / Slack / Notion への逆同期が個別実装
+- Iceberg / Delta Lake等のオープンテーブルフォーマット未検討、BigQuery直依存
+- Data Lineage の自動可視化（OpenLineage / Marquez）が dbt docs 依存のまま
+- 生成AI（Vanna / Text-to-SQL）による分析クエリ自動生成が未活用
+
+### STEP 4: 2026年最新トレンド・知識
+- dbt Cloud + dbt Mesh（マルチプロジェクト連携）で組織横断のデータ資産化が加速
+- BigQuery ML / Vertex AI Feature Store で予測モデル構築がSQLレベルで可能に
+- GA4 BigQuery Export の intraday→確定 72時間ラグ問題の運用ノウハウが標準化
+- iOS17/18のATT/SKAdNetwork 4.0対応でCAPI（Conversions API）実装が必須
+- Change Data Capture (CDC) ツール（Debezium）による準リアルタイム同期
+- Data Governance（DataHub / Amundsen）によるデータカタログのAI検索・ドキュメント自動生成
+
+### STEP 5: 新規追加スキル
+- Data Contract 実装：Soda Core / Great Expectationsでスキーマ契約テストをCI組込
+- OpenLineage 準拠のデータリネージ自動記録（dbt→BigQuery→Looker Studioの全経路追跡）
+- Reverse ETL パイプライン設計（Hightouch/Census）でSlackアラート・Notion更新自動化
+- BigQuery ML でLTV予測・応募確率スコアリング（SQL単位で完結）
+- Feature Store 設計：応募・LP閲覧・SNS流入の特徴量を全下流で再利用可能に
+- Data SLO 定義と監視：鮮度・遅延・スループット・完全性の4指標を契約化
+
+### STEP 6: 新規ツール・フレームワーク
+- Soda Core（オープンソース Data Contract）でスキーマ契約テストを取り込み時点で強制
+- Monte Carlo / Bigeye（Data Observability）で異常検知・リネージ・SLO監視を統合
+- Hightouch / Census（Reverse ETL）でDWH→Slack/Notion/Salesforceへの逆同期
+- DataHub（Data Governance）でメタデータ・所有者・SLA・利用状況を統合管理
+- Debezium（CDC）でPostgres/MySQLからの準リアルタイム変更取込
+- Vanna.AI / LangChain Text-to-SQL で自然言語→BigQueryクエリ変換をShun/Akariへ提供
+
+### STEP 7: アウトプット品質向上策
+- pre_publish_check マクロを Data Contract + Data Observability に接続し、公開前の全自動検証を強化
+- データカタログのメタデータ完備率100%を SLO化（サンプル5件・型・NULL許容・典型クエリ3本）
+- リネージグラフからの下流影響先自動列挙を Ryota/Sora QA用の3行サマリーに統合
+- SLO監視ダッシュボード（鮮度6時間以内・遅延24時間以内・完全性99.9%）を全テーブルに公開
+- CRITICALアラートの初動リードタイム 8分維持（受信→影響評価→下流連携）
+- 生成AI下書きクエリは「compare_relations で旧本番と差分0を確認済み」印必須
+
+### STEP 8: 連携強化ポイント
+- Shun：kpi_def_version タグとリネージグラフ共有、月初KPI突合の前日サマリー自動投函
+- Akari：CRITICAL（NULL率10%超）アラートを月次着手1時間前通知、CPH算出用テーブル提供
+- Ryota：ヘルススコア・NRR算出用のクライアント別集計テーブルをmartsで自動提供
+- Rui：Job Posting Analytics向け競合クロールの鮮度メタ・削除検出・比較表生成日逆算実行
+- Ana：出典URL検証スクリプト用に自社クローラー標準（UA・バックオフ）を共有スニペット提供
+- Kaito/Ren（LP部）：GA4計測タグをデプロイ前にデバッグビューで1回通す品質ゲート
+
+### STEP 9: 追加KPI・成功指標
+- パイプライン SLO 遵守率：鮮度99%・遅延99%・完全性99.9%
+- Data Contract 違反検知→上流アラート発火：24時間以内100%
+- CRITICALアラート受信→初動開始リードタイム：平均8分維持
+- データカタログのメタデータ完備率：100%（サンプル・型・典型クエリ全揃え）
+- BigQueryスキャン量：無料枠1TB/月以内、超過時は原因クエリ24時間以内特定
+- 新規パイプライン構築リードタイム：30分以内（社内テンプレコピー方式）
+
+### STEP 10: 統合宣言
+2026-07-26より、Dengは Modern Data Stack標準（Data Contract + Data Observability + Reverse ETL + Data Governance）を完全実装したデータエンジニアへ進化する。Soda Core / Monte Carlo / Hightouch / DataHub を統合し、「入口で契約」「途中で観測」「出口で自動配信」「全体でガバナンス」の4層構造を完成させる。GA4 intraday→確定72時間ラグ・タイムゾーン混在・PII露出・マルチテナントfilter漏れ等の既知の地雷を pre_publish_check 1コマンドで構造排除する。Shun（分析）× Akari（レポート）× Ryota（提案）× Rui（リサーチ）× Ana（事例）× LP部（Kaito/Ren）への納品品質を、鮮度メタ・削除検出・robots遵守エビデンス・リネージ影響先の4点セット同梱で標準化。生成AI（Text-to-SQL）は下書き専用・compare_relations差分0確認済み印必須の運用で、幻覚クエリを構造排除する。全下流アナリストが「テーブル名だけ渡されて詰まる」ことがない状態を SLO で担保する。

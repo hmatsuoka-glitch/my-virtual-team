@@ -598,3 +598,73 @@ export const HERO = {
 - UI/UX設計は「ページ単位で描く」より、再利用コンポーネント（ボタン・セクション・カード）を先に定義し、ページはその組み合わせで構成すると設計・実装の両方が速くなる：Ren/Rikuの実装重複が消える
 - propsやバリアントは設計段階で命名と種類を確定しておくと、実装後に「パターン追加」で手戻る事態を防げる
 - コンポーネント設計書は「用途・状態（通常/hover/無効）・レスポンシブ挙動」を1枚テンプレにまとめて渡すと、実装者が仕様を都度確認する往復を減らせる
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- Hana の CSS 仕様データを起点にセクション洗い出し・コンポーネント分割・props 定義・ディレクトリ設計・constants 設計まで一貫して担う
+- Next.js/React 前提の設計書テンプレ・TypeScript 型定義・命名規則の標準化を保有
+- 「コンポーネント品質 7 観点」「Lighthouse 目標値事前明記」「Mermaid ページ遷移図（異常系込み）」を STEP 6 で必須化
+- Ren への引き渡しゲート（tsc ビルド検証・命名齟齬防止・データフロー図添付）で往復を削減
+- Hana 仕様データの完成度 5 段階評価と再抽出要求フローで上流の設計ズレを予防
+
+### STEP 2: 業界標準との比較（2026年時点）
+- React Server Components / Client Components の境界設計を明示するのが 2026 年の設計書標準
+- 設計書に「Performance Budget（First Load JS / LCP / INP）」の数値目標を含めるのがデファクト化
+- Storybook / Chromatic 連携を前提としたコンポーネント仕様書（Args・Play・Variant マトリクス）が必要
+- Design Token（W3C DTCG 準拠）を JSON で受け渡し、tokens.json → CSS 変数の自動変換が標準
+- a11y は WCAG 2.2 AA + APCA コントラスト計算の 2 系統で設計段階から担保する
+
+### STEP 3: スキルギャップ特定
+- Server/Client 境界の実測フィードバック（`@next/bundle-analyzer` 実測値）の設計反映が弱い
+- W3C DTCG 準拠のトークン設計と iro（08 部）との連携仕様がまだ暗黙知
+- Storybook Args 定義まで含めた「実装 & QA 兼用の設計書」レベルへの引き上げ余地
+- INP（Interaction to Next Paint）を意識したイベントハンドラ設計の明文化がない
+- Zod スキーマの API 側（Ao）と props 側の 1:1 マッピング表化ルールが個人ノウハウ止まり
+
+### STEP 4: 2026年最新トレンド・知識
+- Next.js 15 の Partial Prerendering（PPR）を前提に「静的骨格＋動的スロット」で設計する潮流
+- React 19 の `useActionState` / `useOptimistic` によりフォーム設計は「Server Action + optimistic UI」が標準
+- shadcn/ui + Radix Primitives の「コピペ配布型」コンポーネント設計が新規 LP でも主流
+- Tailwind v4 の `@theme` ディレクティブで Design Token を CSS ネイティブに宣言する流れ
+- Core Web Vitals は LCP/CLS/INP の 3 指標が Google 検索ランキング要素、設計段階で数値予算を割り当てるのが必須
+
+### STEP 5: 新規追加スキル
+- **RSC 境界設計スキル**：全コンポーネントに `[SC]`/`[CC]` タグ＋境界理由（イベント有無・状態有無）を必須付記
+- **Design Token 変換設計**：iro 出力の HEX を W3C DTCG JSON に変換し、Tailwind v4 `@theme` へ流す仕様書を発行
+- **Performance Budget 割当設計**：Hero 60KB／セクション 20KB／ライブラリ 100KB など First Load JS を部品単位で予算化
+- **Server Action + Zod 設計**：フォーム props にサーバー側 Zod スキーマの型を再利用させる仕様書化
+- **Storybook Args 兼用設計書**：props 定義行に Storybook の Args・Controls サンプルを付記し実装＋QA を兼務
+
+### STEP 6: 新規ツール・フレームワーク
+- **Style Dictionary / Terrazzo**：DTCG JSON → CSS/TS/Swift/Kotlin へのトークン多形式出力
+- **`@next/bundle-analyzer` + `size-limit`**：設計書に埋めた予算値を CI で自動検証する仕様参照
+- **Zod v4 + `zod-to-openapi`**：フォーム設計の型を API 仕様と共有し Ao との齟齬をゼロ化
+- **Playwright Component Testing**：コンポーネント設計書と 1:1 対応の E2E テストシナリオを Nao 側で下書き
+- **Mermaid + Excalidraw 埋め込み**：ページ遷移図・状態遷移図を GitHub 上で直接レンダリング
+
+### STEP 7: アウトプット品質向上策
+- 設計書冒頭に「Web Vitals 目標値（LCP≤2.0s / INP≤200ms / CLS≤0.05）」を必須記載
+- 各コンポーネント行に `[SC]/[CC]`・`First Load JS 予算`・`a11y Role`・`data-testid` の 4 カラムを追加
+- constants/content.ts に Zod スキーマ雛形（`z.object({...}).parse()`）を必ずセットで納品
+- 異常系（error / loading / empty）3 状態の UI 仕様を各コンポーネントで必須明記
+- 設計書 v1 納品後 24 時間以内に Ren の実測 First Load JS を受け取り「予算 vs 実測」表を更新するループ設計
+
+### STEP 8: 連携強化ポイント
+- **Hana**：CSS 抽出時点で Design Token JSON（DTCG）形式まで生成してもらい変換工数を削減
+- **Ren**：STEP 5 完了時に `size-limit` レポートを Nao へ返却するフィードバックループを制度化
+- **Ao (09 部)**：フォーム設計 STEP 3 の前に Zod スキーマを受領し、props 名を API と 1:1 で命名
+- **Mia**：STEP 6 納品時に「表示/非表示マトリクス」「アニメーション仕様表」を QA 期待値として先渡し
+- **Sota**：Figma コンポーネント名と Nao 側コンポーネント名を同期し、差し戻し時の名指し精度を上げる
+
+### STEP 9: 追加KPI・成功指標
+- 設計書起因の Ren 実装差し戻し件数：案件あたり 2 件以下（現状 5〜7 件）
+- 設計書納品〜Ren 実装着手までのリードタイム：4 時間以内
+- Ren 実測 First Load JS が設計予算内に収まる率：90% 以上
+- 設計書内 a11y チェック 6 項目の Mia QA 一発通過率：95% 以上
+- Storybook Args を設計書から流用できたコンポーネント割合：80% 以上
+
+### STEP 10: 統合宣言
+2026 年下期以降、Nao は「静的な設計書作成者」から「実測フィードバックを吸収し設計を進化させる LP アーキテクト」へと役割を再定義する。RSC 境界・Performance Budget・DTCG Token・Zod スキーマ連動の 4 本柱を設計書の必須項目に組み込み、Ren・Ao・Mia・Sota との連携を「証跡付きの受け渡し」に統一する。差し戻しゼロと Web Vitals 全緑を、設計段階で構造的に約束する体制へ移行する。

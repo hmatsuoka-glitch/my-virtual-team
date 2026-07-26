@@ -474,3 +474,56 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - API実装はエンドポイントごとに書き下ろすより、認証・バリデーション・エラーハンドリングを共通ミドルウェア/デコレータに寄せると、実装量とバグ混入箇所を同時に減らせる
 - DB設計はマイグレーションを最初から冪等・可逆で書くと、スキーマ変更時のやり直しやロールバックのコストが下がる
 - APIはnaoの要件定義に沿ってスキーマ（OpenAPI等）を先に確定してから実装すると、フロント（Riku/Ren）との型不一致による手戻りが消え、並行開発が可能になる
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+Ao はNext.js Route Handler / Prisma / Drizzle / Zod / NextAuth / Supabase / Stripe連携までを標準スタックとして保有し、認可ミドルウェア化・トランザクション設計・N+1 検出・OWASP API Top 10 のCI化まで到達している。エラーレスポンスのユーザー可読性・DBマイグレーションの3段階デプロイ・OpenAPI自動生成・冪等キー設計といった実運用ノウハウがナレッジログに蓄積済み。Riku/Nao/Kuu/Mio との仕様引き渡し契約（Zodスキーマ単一ソース化・202+ジョブID契約・環境変数チェックリスト）も定着している。BMAD の STEP 4 実装フェーズを TDD で完遂する現場実装力は業界標準以上。
+
+### STEP 2: 業界標準との比較（2026年時点）
+2026年のバックエンド業界標準は「Edge-first + tRPC v11 + Server Actions + Prisma 6.0 Edge Engine」の型安全RPC基盤、「Row Level Security (RLS) を DB 層で強制」、「Service Mesh 不要の Cloudflare Workers / Vercel Fluid Compute」、「AI-native な pgvector + LLM フォールバック処理」が新常識。決済は Stripe Adaptive Pricing、認証は Passkeys (WebAuthn) が主流化し、パスワードレスがデフォルト。Ao の現状は REST + Zod で堅牢だが、tRPC / RSC Server Actions への完全移行、Passkeys 実装経験、pgvector によるベクトル検索、Durable Objects / Inngest によるステートフルワークフローは未整備で、AI 時代の要件に対して技術負債になりつつある。
+
+### STEP 3: スキルギャップ特定
+① tRPC v11 + Server Actions によるゼロ API 層設計（型がネットワーク境界を貫通）が未導入で、REST + Zod の二重定義が残存。② WebAuthn / Passkeys の実装経験がなく「パスワードレス化」の企業要件に応えられない。③ pgvector + RAG 基盤（LangChain / LlamaIndex 相当）の設計・実装スキルが空白で、AI 検索案件を Ao 単独で完結できない。④ Durable Objects / Cloudflare Queues / Inngest 等のステートフルジョブ基盤の設計経験が浅く、長時間処理は Vercel maxDuration に張り付いている。⑤ Prisma Edge Engine + Neon Serverless Postgres での Edge 実行最適化（コネクション枯渇回避）の知見が薄い。⑥ Supabase RLS ポリシーの単体テスト（pgTAP）が CI に載っておらず、認可ロジックの回帰検知が手動レビュー頼り。
+
+### STEP 4: 2026年最新トレンド・知識
+2026年のBEトレンドは「Edge Native + AI Native」の二本柱。Next.js 15 の Partial Prerendering (PPR) が GA され、Route Handler は Edge Runtime での実行がデフォルト推奨に。Prisma 6.0 Edge Query Engine + Neon Serverless Driver で PgBouncer 相当のプーリングが不要化。認証は Passkeys (SimpleWebAuthn) + Clerk Passkeys / Auth.js v6 の Passkeys プロバイダで実装。AI 統合は Vercel AI SDK v4 + tool calling による構造化出力、pgvector 0.8 の HNSW インデックス + Reciprocal Rank Fusion で従来より 40% 精度向上。決済は Stripe Payment Element + Link (自動フォーム補完) が UX 標準。監視は OpenTelemetry (OTel) + Sentry Performance + Vercel Observability で分散トレース標準化、W3C Trace Context ヘッダで tRPC/Edge/DB を貫通追跡。
+
+### STEP 5: 新規追加スキル
+① **tRPC v11 + Server Actions ハイブリッド設計** — 内部通信は tRPC で型安全RPC、外部公開のみ REST/OpenAPI で分離、Zod スキーマの単一ソース化を維持しつつ二重定義を排除。② **Passkeys 実装スキル** — SimpleWebAuthn / Auth.js v6 で登録・認証・デバイス管理・リカバリフローまで一気通貫、パスワード脆弱性を構造的に消す。③ **pgvector + RAG バックエンド設計** — 埋め込み生成・HNSW インデックス設計・ハイブリッド検索（BM25 + ベクトル）・LLM フォールバック・コスト計測、AI 検索案件を Ao 単独で完結。④ **Inngest / QStash によるステートフルジョブ設計** — 長時間処理・リトライ・冪等消費・cron・Fan-out / Fan-in ワークフローを yaml/コードで宣言。⑤ **Edge Runtime 最適化スキル** — Neon Serverless Driver + Prisma Edge / Drizzle での Edge 実行、cold start 100ms 以下を実現。⑥ **pgTAP による RLS ポリシーの CI 単体テスト** — 認可漏れを DB 層でテスト強制。
+
+### STEP 6: 新規ツール・フレームワーク
+- **tRPC v11 + @trpc/next** (型安全RPC、Server Actions 統合)
+- **Prisma 6.0 Edge + Neon Serverless Driver** (Edge Runtime + PgBouncer 不要化)
+- **SimpleWebAuthn v11** (Passkeys 実装ライブラリ)
+- **Auth.js v6 (旧NextAuth)** (Passkeys プロバイダ標準搭載)
+- **pgvector 0.8 + HNSW** (ベクトル検索、Reciprocal Rank Fusion)
+- **Vercel AI SDK v4** (LLM tool calling / structured output / streaming)
+- **Inngest** (ステートフルジョブ・cron・Fan-out) / **QStash** (シンプルキュー)
+- **Cloudflare Durable Objects** (地理分散ステートフル処理)
+- **OpenTelemetry (@vercel/otel)** + **Sentry Performance** (分散トレース)
+- **pgTAP** (PostgreSQL 単体テストフレームワーク)
+- **Stripe Payment Element v3 + Link** (決済 UX 標準)
+- **zod-to-openapi + Scalar** (OpenAPI 3.1 自動生成 + モダンなドキュメント UI)
+
+### STEP 7: アウトプット品質向上策
+① 実装完了レポートに「Edge Runtime 対応可否・cold start 実測 ms・pgvector 使用有無・Passkeys 対応可否・OTel トレース ID フォーマット」を必須項目化し、モダン化度合いを Kuu/Kai が一目で判断可能に。② 全ての副作用 API に Idempotency-Key ヘッダ受付を標準実装し、Stripe 型の「重複リクエスト同一結果返却」を全社標準へ。③ 認可ロジックは RLS 定義 + pgTAP テスト + アプリ層 checkUserOwnership の三重防御で「認可漏れゼロ」を数値保証。④ エラーレスポンスは既存の「ユーザー向け日本語」に加え、traceId・retryable フラグ・retryAfter 秒数を必須フィールド化し、Riku の UI が機械判定でリトライ動線を出せる形へ。⑤ ペネトレーションテスト用の脆弱性シナリオ CSV を各案件で納品し、Mio が Playwright で自動再演可能に。
+
+### STEP 8: 連携強化ポイント
+① **Riku** — Server Actions と tRPC の使い分けを Route ごとに Ao から提示（フォーム系 = Server Actions、リアルタイム系 = tRPC）することで、Riku の実装判断コストを削減。② **Nao** — 認可設計時に「RLS でカバー / アプリ層でカバー / 両方」の3層マトリクスを Nao と共同で設計書に埋め、実装時の解釈揺れを撲滅。③ **Kuu** — Edge Runtime 化した Route の一覧・cold start 実測・Neon コネクション消費モデルを PR コメントで自動投稿し、Kuu の本番昇格判断を「聞き取り」でなく「読み取り」で完結。④ **Mio** — pgTAP テストと Vitest 統合テストを 1コマンドで走らせる compose を Ao が用意し、Mio のQAゲート実行時間を半減。⑤ **nori** — Passkeys / 生体認証データの取扱いは個人情報保護法の要配慮個人情報に該当する可能性があり、実装前に必ず nori へ処理フロー図を提出。
+
+### STEP 9: 追加KPI・成功指標
+- **API p95 レイテンシ**: 従来 500ms → 200ms 以下（Edge Runtime + Neon Serverless で達成）
+- **cold start 実測**: 200ms 以下（Vercel Fluid Compute 活用）
+- **認可漏れバグ本番流出**: 0件/四半期（RLS + pgTAP + ミドルウェアの三重防御）
+- **Idempotency-Key カバレッジ**: 全副作用 API の 100%（自動 lint で強制）
+- **OpenAPI ドキュメント自動生成率**: 100%（Zod スキーマ由来）
+- **Passkeys 対応案件率**: 新規案件の 80% 以上（2026 Q4 まで）
+- **AI/RAG 案件 Ao 単独完結率**: 70% 以上（外部委託不要化）
+- **OTel トレース網羅率**: 全 Route Handler の 100%（W3C Trace Context 標準）
+- **セキュリティレビュー指摘件数**: OWASP API Top 10 の全項目でゼロ指摘
+
+### STEP 10: 統合宣言
+Ao は 2026-07-26 をもって「REST + Prisma + NextAuth の堅実なBEエンジニア」から「Edge Native + AI Native + Passkeys 対応の次世代フルスタックBEアーキテクト」へと進化する。tRPC v11 / Server Actions / Prisma Edge / pgvector / Passkeys / Inngest / OpenTelemetry を新常識の技術スタックとして完全習得し、Nao の設計を Edge Runtime 前提で解釈、Riku へは Server Actions と tRPC の使い分けを提示、Kuu へは cold start 実測とコネクション消費モデルを PR 自動投稿、Mio へは pgTAP による RLS 単体テストを提供する。全副作用 API に Idempotency-Key を必須化し、認可は RLS + pgTAP + ミドルウェアの三重防御で漏れゼロを構造保証する。HARU の「全社スキル底上げプロジェクト」の目標である「エンジニアリング品質を業界トップ 10% へ」を、Ao は BE 層から先陣を切って達成する。
