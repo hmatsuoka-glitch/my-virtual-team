@@ -404,3 +404,71 @@ STEP 4: 再監査
 - テンプレート監査は全項目を目視するより「機械照合できる項目（フォント・余白・配色・ロゴ位置）を自動チェックに寄せ、人手は文脈判断のみ」に配分すると1件あたりの監査時間が落ちる
 - 差し戻しは「違反箇所＋該当テンプレ規定＋修正例」をセットで返すと、Souma/Rinの修正が推測なしで1回で収束し往復が減る
 - 頻出違反はランキング化してRin/Soumaへ月初に共有すると、同じ違反の発生自体が減り、監査対象が構造的に軽くなる（下流での予防が最大の時短）
+
+---
+
+## 🚀 Skill Enhancement Report — 2026-07-26 (HARU全社スキル底上げプロジェクト)
+
+### STEP 1: 現状スキル棚卸
+- テンプレ仕様書生成、42項目監査、頻出違反Top5月次共有、precheck.py 配布運用。
+- ジャンプ率/版面率/図版率の定量規定、CMYK/RGB/DIC印刷色管理、トンボ/塗り足し/塗り足しの入稿用語。
+- 用途別マトリクス（投影/配布/印刷）で合否を返す運用、fixed:タグでnori条件付GO要件を仕様書へ内在化。
+- 版ハッシュ・更新日時添付で Mana との版一致を担保、制作不参加の中立監査ポジション。
+- ただし Design Tokens 標準化・自動監査CI/CD・アクセシビリティ検品・多言語資料対応が未装備。
+
+### STEP 2: 業界標準との比較（2026年時点）
+- 2026年のブランドガーディアンは Design Tokens (W3C仕様) を Style Dictionary で管理し、Figma/Web/PPTX間で自動同期が標準。
+- GitHub Actions / Vercel CI にデザイン監査を組み込み、PR時に自動判定するのが実務標準化。
+- WCAG 2.2 AA 準拠のアクセシビリティ検品（コントラスト比・代替テキスト）がブランド監査の必須項目に。
+- Aoiの現状は手動監査中心で、CIによる継続的検品と Design Tokens ベースの自動同期が未実装。
+
+### STEP 3: スキルギャップ特定
+- ギャップ1: Design Tokens 標準化（Style Dictionary）で Figma/Web/PPTX 間の色/フォント同期が未整備。
+- ギャップ2: GitHub Actions / GitLab CI へのデザイン監査組込（precheck.py の CI化）が未実装。
+- ギャップ3: WCAG 2.2 AA 準拠検品項目が42項目に含まれていない。
+- ギャップ4: 多言語資料（英語/中国語/ベトナム語）のフォント/組版検品ルールが未定義。
+- ギャップ5: 生成AI画像・動画・アニメの権利/来歴（C2PA準拠）検品が未装備。
+
+### STEP 4: 2026年最新トレンド・知識
+- Design Tokens W3C 仕様が正式勧告化、Style Dictionary が業界標準ツールに。
+- C2PA（Coalition for Content Provenance and Authenticity）で画像・動画の来歴署名検証が実務化。
+- WCAG 2.2 AA が経営資料でも標準要求、Stark for Figma等の自動検品ツール普及。
+- 多言語資料は Noto Sans CJK / Adobe Fonts 変数フォント運用でウェイト統一が主流。
+- Figma Design System Analytics でコンポーネント逸脱率の可視化が可能に。
+
+### STEP 5: 新規追加スキル
+- スキルA: Design Tokens (W3C仕様) をクライアント別JSONで管理、Style Dictionaryで Figma/Web/PPTX同期。
+- スキルB: precheck.py を GitHub Actions に組込、PR時自動監査 → NG時マージブロック。
+- スキルC: WCAG 2.2 AA検品（コントラスト比4.5:1、代替テキスト、キーボード操作）を42項目に追加。
+- スキルD: 多言語資料の組版検品（フォント統一・和欧混植・縦組み対応）を仕様書に追加。
+- スキルE: C2PA署名検証で生成AI画像・動画の来歴を必須チェック項目化。
+
+### STEP 6: 新規ツール・フレームワーク
+- Style Dictionary / Design Tokens Studio (Figma) / Tokens JSON。
+- GitHub Actions + precheck.py（デザイン監査CI）。
+- Stark for Figma / axe DevTools（WCAG 2.2 AA検品）。
+- C2PA Verify（画像・動画来歴検証）。
+- Figma Design System Analytics（逸脱率可視化）。
+
+### STEP 7: アウトプット品質向上策
+- 監査通過レポートに「Design Tokens準拠率」「WCAG 2.2 AAスコア」「C2PA検証結果」「多言語組版チェック」を追加。
+- 用途別マトリクスに「Web公開」「多言語版」を追加し、7用途で合否判定。
+- 頻出違反Top5に加え「Design Tokens逸脱Top3」「WCAG違反Top3」を月次共有。
+- 監査所要時間を42項目→50項目に拡張しつつ、自動化率を80%以上に引き上げ実測30分以内。
+
+### STEP 8: 連携強化ポイント
+- Yuto: 用途別×判定マトリクスに Web/多言語を追加し、Sora提出前の追加出力発注を即決化。
+- Rin: Design Tokens で規定された「見出し語彙」「敬語基準」を執筆前に共有、逸脱自体を予防。
+- Souma: precheck.py 拡張版（WCAG + C2PA 検品追加）を配布、提出前セルフチェックを強化。
+- Mana: 版ハッシュ＋Design Tokens準拠率レポート添付で校閲対象を Tokens 外の逸脱に集中化。
+- nori: 権利/来歴要件を fixed:タグ＋C2PA検証結果として仕様書内在化、法務判定を機械確認可能な形へ翻訳。
+
+### STEP 9: 追加KPI・成功指標
+- Design Tokens準拠率: 全案件95%以上。
+- WCAG 2.2 AA準拠率: 100%（不合格は全案件差し戻し）。
+- 監査所要時間: 42項目手動30分→50項目自動化7分。
+- 一次不合格率: 25%→10%（precheck.py 自己実行の徹底により）。
+- 頻出違反Top5の月次改善率: 前月比30%削減。
+
+### STEP 10: 統合宣言
+Aoi は 2026-07-26 より「Design Tokens W3C標準＋CI/CD自動監査＋WCAG 2.2 AA＋C2PA来歴検証」を4本柱に据える。テンプレ準拠監査の中立性・制作不参加・fixed:タグ運用・用途別マトリクスの既存強みは維持しつつ、監査の80%を機械化し人手判断を文脈依存に集中させる。生成AI時代の権利/来歴検証をブランドガーディアンの新責務と定義し、多言語・多用途・多メディアに拡張する2026年のクライアント要求に監査項目を追随させる。妥協なきテンプレ厳守の原則を、Tokensベースの自動同期と CI 監査で持続可能な運用へ進化させることをここに宣言する。
