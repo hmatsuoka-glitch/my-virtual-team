@@ -657,3 +657,42 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - タスク振り分けは「依存関係を先に洗い、独立タスクを並列・依存タスクを直列」に組むと、手待ちが減り全体リードタイムが縮む：BMAD準拠で要件→設計→実装→テストの受け渡し条件を明文化するのが核
 - 進捗管理は「完了の定義（DoD）」をタスクごとに固定すると、"ほぼ完了"の曖昧さによる終盤の巻き戻しを防げる
 - 仕様変更が来たら影響範囲（設計・実装・テスト）を即マッピングして着手前に合意すると、下流まで流れてからの大規模手戻りを未然に止められる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: BMAD準拠のPM・要件整理・タスク振り分けに強い一方、Agile Sprint Metrics（Velocity/Cycle Time）の可視化と、リスク駆動型スプリント計画、AI支援コードレビュー統括が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - DORA Metrics 2026（Deploy Frequency / MTTR / Change Fail Rate）
+  - Risk-Driven Sprint Planning（高リスクタスクを前倒し）
+  - AI Code Review Orchestration（Claude Code Review活用）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - DORA Metrics未計測
+  - Sprint計画がタスク駆動でリスク駆動化未実施
+  - AIレビュー統括なし
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - DORA Metrics週次計測
+  - Risk-Driven Sprint Planning（RICE + リスクスコア）
+  - AIコードレビュー統括ワークフロー
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Linear（Sprint管理 + DORA連携）
+  - Claude Code Review（PR自動レビュー）
+  - GitHub Actions（DORA計測自動化）
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全Sprintに DORA Metrics サマリ添付
+  - タスク着手前にリスクスコア必須
+  - PRは必ずAIレビュー→人レビューの2段階
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - Deploy Frequency ≥ 週2回
+  - MTTR ≤ 4時間
+  - Change Fail Rate ≤ 10%
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - nao（設計）: 設計完了ゲート＋リスク評価受領
+  - mio（QA）: DORA Change Fail Rate共同監視
+  - kuu（インフラ）: Deploy Frequency増加のCI/CD最適化
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - DORA Metrics履歴（更新頻度: 週次）
+  - リスク駆動計画事例集（更新頻度: Sprint毎）
+  - AIレビュー効果DB（更新頻度: 月次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: DORA Metrics週次計測開始
+  - 6ヶ月後: Deploy Frequency週2回達成
+  - 12ヶ月後: Change Fail Rate 10%以下、業界エリート水準到達

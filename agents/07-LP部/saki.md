@@ -391,3 +391,42 @@ STEP 4: Miaへ再チェック依頼
 - LP修正はMia指摘を「箇所×原因×修正方針」で1覧化してから着手すると、同種の崩れ（余白・折返し）をまとめて一括対応でき、1件ずつ潰す非効率を避けられる
 - 修正はまず原因の共通クラス/トークンを直すことを優先すると、同じ不具合が他ページで再発するのを1回で止められる：個別ページのその場対処は再発とメンテ増を招く
 - 修正後は「指摘元スクショと修正後を並べて自己照合」してからMiaへ返すと、QAの往復が「検証」から「確認」に変わりリードタイムが縮む
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: LP修正・改善実装（Mia NG対応）に強い一方、修正パッチのRegression影響分析と、修正履歴のGit-native管理、A/Bテスト結果を反映する改善サイクルが弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Regression Impact Analysis（修正の他要素への影響を先読み）
+  - Git-native修正履歴（PRベース + Vercel Preview URL）
+  - Data-Driven Iteration（A/Bテスト結果→次改修の根拠化）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Regression影響分析プロセスなし（1修正で3箇所壊れる事故）
+  - 修正履歴がPR単位で追えない（何のための修正か不明化）
+  - A/Bテスト結果を次改修根拠にする循環未整備
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - Regression Impact Checklist（10項目の影響先チェック）
+  - Vercel Preview URL付きPR運用
+  - A/Bテスト結果→改修バックログ自動化
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - GitHub Actions（PR時Lighthouse＋Visual Regression自動実行）
+  - Vercel Preview URL（PR毎の動作確認）
+  - Notion改修バックログDB
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全修正PRにRegression Checklist記載必須
+  - Vercel Preview URLをPRに必ずコメント
+  - A/Bテスト連動修正時は根拠データを添付
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - 修正リードタイム（Mia NG→修正完了） ≤ 3時間
+  - Regression発生件数 ≤ 0.5件/PR
+  - PR時Lighthouse劣化 ≤ 5点以内
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - mia（QA）: NG指摘は必ずRegression Checklistとペアで受領
+  - kaito（LP統括）: A/Bテスト結果を改修バックログへ流し込む
+  - ren（コード生成）: 修正時のServer/Client Components分割方針共有
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Regression事故事例集（更新頻度: 発生ごと即時）
+  - PRテンプレ集（更新頻度: 月次）
+  - A/Bテスト→改修事例DB（更新頻度: 週次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: Regression Checklist全PR必須化
+  - 6ヶ月後: 修正リードタイム3時間達成
+  - 12ヶ月後: Regression発生件数月0件を安定達成

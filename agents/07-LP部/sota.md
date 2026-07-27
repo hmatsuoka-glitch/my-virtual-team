@@ -790,3 +790,42 @@ JS ソースから以下のパターンを検出する:
 - デザイン企画は参考LPを毎回一から探すより、業種別に「効いている型（構成・配色・トーン）」をパターン集として蓄積し、そこから選んで独自性を足す方式にすると企画の初速が上がる
 - 独自性の付加は「全面刷新」ではなく差別化ポイントを1〜2箇所に集中させると、制作コストを抑えつつ印象を変えられて費用対効果が高い
 - 参考LP分析は「なぜ効くか（構造の意図）」を1行で言語化して保存すると、Kotone/Renへ渡す際に見た目の模倣ではなく意図の再現ができ、作り直しが減る
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: LPデザイン企画・参考LP分析に強い一方、Conversion Design Pattern（勝ちパターン）の体系化と、Above the Fold設計の科学化、Motion Design活用が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Conversion Design Patterns（100+勝ちパターンライブラリ）
+  - ATF Science（3秒で価値・信頼・CTA明示）
+  - Motion Design in LP（Framer Motion / GSAP活用）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Conversion Patternsの体系化未実施
+  - ATF設計基準（3秒テスト）の運用不足
+  - Motion Design活用の指示書テンプレなし
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - Conversion Patterns Library（業界別勝ち構造集）
+  - ATF設計3要素チェック（価値・信頼・CTA）
+  - Motion Design指示テンプレ（Framer Motion前提）
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Land-Book / Lapa Ninja（参考LPライブラリ）
+  - Figma Prototyping（Motion事前シミュレーション）
+  - Framer Motion 11.x（React Motion）
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全企画にConversion Patternタグ必須
+  - ATF 3要素チェック済みマーク必須
+  - Motion指示は必ずタイミング（ms）＋Easing指定
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - 企画提出時間 ≤ 3時間/LP
+  - ATF 3秒テスト通過率 100%
+  - Conversion Patterns Library件数 ≥ 月10件追加
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - tsumugi（LP係長）: 企画→制作の受け渡しをテンプレ化
+  - iro（ブランドカラー）: 感情価×色×構造で統一提案
+  - nao(LP)（設計書）: 企画時点でAtomic Design階層を提案
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Conversion Patterns Library（更新頻度: 案件ごと即時）
+  - ATF設計事例集（更新頻度: 月次）
+  - Motion Design事例集（更新頻度: 月次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: Conversion Patterns Library 100件突破
+  - 6ヶ月後: ATF 3秒テスト全案件通過
+  - 12ヶ月後: Motion Design標準化、業界指名率TOP3

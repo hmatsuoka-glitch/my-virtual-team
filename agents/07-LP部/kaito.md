@@ -393,3 +393,42 @@ STEP 6: Sora（COO）へ成果物を渡す
 - LP複製の統括は「解析→実装→デプロイ確認」を毎回口頭調整せず、係内の受け渡しチェックリスト（渡す成果物・完了条件）を固定すると、Hana/Ren/Mia間の手待ちが減る：誰が何を出せば次が動くかを定義するのが最大の時短
 - Vercelデプロイは「プレビューURLでMiaのビジュアルQA→本番昇格」の順を固定ゲートにすると、本番反映後に崩れが見つかる致命的な差し戻しを防げる
 - ビルド確認は「型エラー・リンク切れ・画像パス」を自動チェックに寄せ、人手は見た目の最終確認に集中させると、複製案件のリードタイムが安定して縮む
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: LP複製統括・Vercelデプロイに強い一方、パフォーマンス最適化（Core Web Vitals）とA/Bテスト基盤構築、SEOメタタグ最適化が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Core Web Vitals 2026: LCP<2.0s / INP<200ms / CLS<0.1 が上位表示条件
+  - Vercel Edge Config + A/Bテスト（Feature Flag型のインライン切替）
+  - Meta Tags Auto-Generation（Structured Data + OG Image動的生成）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Core Web Vitals計測・改善ループ未確立
+  - A/Bテスト基盤未整備（Vercel Edge Config活用）
+  - Structured Data / OG Image動的生成未対応
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - Lighthouse CI + Vercel Analyticsでの継続監視
+  - Vercel Edge Config + Feature Flag A/Bテスト
+  - next/og でのOG Image動的生成
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Vercel Speed Insights（Core Web Vitals自動計測）
+  - Vercel Edge Config（低レイテンシKV）
+  - Next.js 15 App Router（Server Components前提）
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全デプロイ後にLighthouseスコア90+を必須
+  - Meta Tags / OG Image / Structured Dataの3点セット必須
+  - A/Bテスト設計を全新規LPで提案
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - Lighthouse Performance ≥ 90（全LP）
+  - LCP ≤ 2.0秒
+  - デプロイからA/Bテスト稼働までのリードタイム ≤ 2時間
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - ren（コード生成）: Next.js 15 Server Componentsを標準化
+  - mia（ピクセルQA）: Lighthouse監査結果もQA項目に追加
+  - saki（LP修正）: A/Bテストの改善サイクルを共同運用
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Lighthouseスコア履歴（更新頻度: デプロイごと即時）
+  - A/Bテスト結果DB（更新頻度: 週次）
+  - Vercel Edge Config設計パターン集（更新頻度: 月次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: 全LPでLighthouse 90+達成
+  - 6ヶ月後: A/Bテスト基盤全案件で稼働
+  - 12ヶ月後: LCP 2.0秒以下・INP 200ms以下を全LPで安定達成

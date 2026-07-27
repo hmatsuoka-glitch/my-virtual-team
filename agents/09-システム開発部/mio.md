@@ -488,3 +488,42 @@ STEP 6: 差し戻し後の再チェック
 - テストは全網羅を狙うより「壊れると致命的な経路（決済・認証・データ登録）」から自動化すると、限られた工数で防げるバグの被害額が最大化する
 - バグ報告は「再現手順・期待値・実測値・環境」を定型テンプレで出すと、開発側の原因特定が推測なしで速くなり、往復が減る
 - リグレッションは主要フローの自動テストをCIに組み込むと、修正のたびに手動で全確認する非効率を消し、デグレの見逃しも防げる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: テスト・QAゲート・TDD Guard適用に強い一方、Property-Based Testing / Mutation Testing / Contract Testing の3本柱活用が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Property-Based Testing（fast-check等でランダム入力生成）
+  - Mutation Testing（Stryker等でテストの網羅性検証）
+  - Consumer-Driven Contract Testing（Pact等）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Property-Based Testing未活用
+  - Mutation Testing未実施（カバレッジ数値だけで満足）
+  - Contract Testing未整備
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - fast-check / Hypothesis での Property-Based Testing
+  - Stryker Mutator でのMutation Testing
+  - Pact でのConsumer-Driven Contract Testing
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - fast-check（TypeScript）
+  - Stryker Mutator
+  - Pact
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - コアロジックはProperty-Based Test必須
+  - Mutation Score ≥ 70%必須
+  - API境界はContract Test必須
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - テストカバレッジ ≥ 80%
+  - Mutation Score ≥ 70%
+  - 本番バグ件数 ≤ 1件/月
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - ao（BE）: Contract Test仕様共同管理
+  - riku（FE）: Component Test方針共有
+  - kai（PM）: DORA Change Fail Rate共同監視
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Property-Based Test事例集（更新頻度: 案件ごと即時）
+  - Mutation Testing結果履歴（更新頻度: Sprint毎）
+  - Contract Test仕様集（更新頻度: API変更ごと即時）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: Property-Based Test全コアロジックで運用
+  - 6ヶ月後: Mutation Score 70%達成
+  - 12ヶ月後: 本番バグ月1件以下を安定達成

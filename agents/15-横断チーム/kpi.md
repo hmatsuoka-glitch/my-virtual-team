@@ -273,3 +273,42 @@
 - KPI集計は手動更新より「データソース→自動集計→ダッシュボード反映」の一気通貫を組み、人手は異常値の解釈に集中させると日次/週次レポートの作成時間が激減する
 - 異常検知は「前週比・移動平均からの乖離を閾値で自動フラグ」すると、全指標を目視する非効率を避けつつ見逃しを防げる
 - レポートは「先週からの変化点のみを冒頭サマリ」にすると、全指標を並べて説明する冗長さを削り、意思決定者が要点を即掴める
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: 全社KPI集計・異常検知・レポーティング・SSOT定義に強い一方、Anomaly Detection ML（Prophet/Isolation Forest）、Diagnostic Analytics（原因分析自動化）、KPI Alignment Meetingが弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - ML-based Anomaly Detection（Prophet+Isolation Forest併用）
+  - Diagnostic Analytics（異常検知後の原因分析まで自動）
+  - KPI Alignment Meeting月次実施
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Anomaly Detectionが目標比のみ
+  - 異常検知後の原因分析が手動
+  - KPI Alignment Meeting未実施
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - Prophet+Isolation Forest併用Anomaly Detection
+  - Diagnostic Analytics自動化（異常KPI→関連指標変化→原因候補提示）
+  - 月次KPI Alignment Meeting運営
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Prophet 2.x
+  - Isolation Forest（scikit-learn）
+  - Notion KPI Dashboard v3
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全KPIにML-based異常検知必須
+  - 異常時は必ず原因候補3件提示
+  - 月次Alignment Meeting議事録24時間以内共有
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - 異常検知適合率 ≥ 90%
+  - 原因特定リードタイム ≤ 1時間
+  - KPI Alignment Meeting実施率 100%
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - dat（データ分析）: 異常検知アルゴリズム共同運用
+  - haruto（経営戦略）: SSOT定義の共同管理
+  - owl（受注ワークフロー）: SLA違反イベントの単一管理
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Anomaly Detection履歴（更新頻度: 日次）
+  - Diagnostic Analytics事例集（更新頻度: 週次）
+  - KPI Alignment議事録（更新頻度: 月次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: ML-based異常検知全KPIで稼働
+  - 6ヶ月後: Diagnostic Analytics自動化達成
+  - 12ヶ月後: 異常検知適合率90%、原因特定1時間安定達成

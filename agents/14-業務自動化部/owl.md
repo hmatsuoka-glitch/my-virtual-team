@@ -198,3 +198,42 @@
 - 受注フロー設計は「工程を可視化してから、待ち時間（承認待ち・情報待ち）を先に潰す」とリードタイム短縮の効果が最も大きい：作業時間より手待ちの方が総リードタイムを支配することが多い
 - 承認は「金額・リスクで閾値を切り、少額は自動承認」にすると、全件を人が見る非効率を避けつつ統制を保てる
 - フロー変更は影響範囲（前後工程・関係者）を先にマッピングしてから変えると、部分最適で別工程に詰まりを生む事故を防げる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: 状態機械設計・補償イベント・SLA3階層エスカレーションに強く、多数のDaily Knowledge Log記録済み。一方でCEP (Complex Event Processing)、Temporal.io等のDurable Workflow基盤、Business Process Model and Notation (BPMN) 2.0への準拠が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Temporal.io / Cadence（Durable Workflow基盤）
+  - CEP（Apache Flink等でイベント相関分析）
+  - BPMN 2.0準拠（設計図の標準記法）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Temporal.io等Durable Workflowなし
+  - CEPでの複合イベント検知未整備
+  - BPMN 2.0記法非準拠
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - Temporal.io での Durable Workflow設計
+  - Apache Flink CEP でのイベント相関分析
+  - BPMN 2.0準拠のPlantUML拡張ライブラリ
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Temporal.io
+  - Apache Flink
+  - Camunda Modeler（BPMN 2.0）
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 長時間実行フローはTemporal.io前提設計
+  - 複合イベント検知はCEPで実装
+  - 全設計図はBPMN 2.0準拠
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - Durable Workflowカバレッジ（長時間フロー） ≥ 100%
+  - 複合イベント検知漏れ率 ≤ 5%
+  - BPMN 2.0準拠率 100%
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - bo（業務自動化）: Temporal Workflow実装即着手パッケージ受け渡し
+  - dat（データ分析）: CEP検出結果のP25/P75分析共同運用
+  - kpi（KPIマネージャー）: SLA違反イベントSSOTの共同管理
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Temporal Workflow事例集（更新頻度: 案件ごと即時）
+  - CEPパターン集（更新頻度: 月次）
+  - BPMN 2.0設計テンプレ（更新頻度: 四半期）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: Temporal.io PoC完了、BPMN 2.0準拠標準化
+  - 6ヶ月後: 長時間フロー全てDurable Workflow化
+  - 12ヶ月後: CEP検出漏れ5%以下、業界最先端受注設計チーム化

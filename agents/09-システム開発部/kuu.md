@@ -498,3 +498,42 @@ STEP 6: 実装完了報告
 - CI/CDは「lint→型チェック→テスト→ビルド→デプロイ」を段階ゲート化し、前段が落ちたら止める構成にすると、壊れたコードが本番へ流れる高コストな事故を防げる
 - 環境構築はIaC/設定ファイルでコード化して使い回すと、案件ごとに手作業で立てる非効率と設定漏れを消せる：再現性が最大の時短
 - デプロイはプレビュー環境での確認を必須ゲートにし、ロールバック手順を事前定義しておくと、本番障害時の復旧が探索作業にならず数分で戻せる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: Vercel・CI/CD・インフラ構築に強い一方、Platform Engineering思想でのInternal Developer Platform (IDP)構築と、コスト最適化 (FinOps)、Zero Trustアーキテクチャが弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Internal Developer Platform（Backstage/Portal化）
+  - FinOps for Cloud（Vercel Usage監視・Alert）
+  - Zero Trust Network（SSO + Device Trust）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - IDP構築未着手
+  - FinOps監視未整備
+  - Zero Trust未導入
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - Backstageベース IDP設計
+  - Vercel Usage監視 + コストAlert
+  - Cloudflare Zero Trust統合
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Backstage 1.x
+  - Vercel Analytics + Usage API
+  - Cloudflare Access（Zero Trust）
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - CI/CD Pipeline は Lighthouse + Visual Regression + Security Scan の3ゲート必須
+  - Vercel Usage Alertは月予算の80%で自動発火
+  - 全環境SSO統合必須
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - Deploy成功率 ≥ 99%
+  - Cloud月額予算超過件数 = 0件
+  - MTTR ≤ 4時間
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - kai（PM）: DORA Metrics共同計測
+  - ao（BE）: OpenTelemetry Backend提供
+  - mio（QA）: CI/CDゲートQA連携
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - CI/CD Pipeline構成集（更新頻度: 月次）
+  - Vercel Usage履歴（更新頻度: 週次）
+  - Zero Trust設定事例（更新頻度: 案件ごと即時）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: CI/CD 3ゲート全案件必須化
+  - 6ヶ月後: Backstage IDPプロトタイプ稼働
+  - 12ヶ月後: Zero Trust全社適用、Deploy成功率99%達成

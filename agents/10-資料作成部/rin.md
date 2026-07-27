@@ -400,3 +400,42 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - 資料は白紙から書くより「目的→結論→根拠→次アクション」の骨子を先に1枚で合意してから本文を書くと、書き上げてから構成をひっくり返す最大の手戻りを防げる
 - 情報収集は「使う主張を先に決めてから裏付けを探す」逆引きにすると、集めた資料の大半を使わない非効率を避けられる
 - 執筆は「1スライド1メッセージ」を原則にすると、盛り込みすぎでMana校閲やAoi監査に差し戻される往復を減らせる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: 資料構成・調査・執筆に強い一方、Story Arc設計 (Setup→Challenge→Resolution)、Audience-First Frame、Executive Summary短文化が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Story Arc Framework（起承転結の3幕構造）
+  - Audience-First Frame（読み手ペルソナ別に構成調整）
+  - Executive Summary 300字ルール（30秒で伝わる）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Story Arc未活用（羅列型スライドが多い）
+  - Audience Persona未定義
+  - Executive Summary短文化未徹底
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - Story Arc 3幕構造テンプレ
+  - Audience Persona定義シート
+  - 300字Executive Summary必須化
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Notion資料テンプレv3（Story Arc組込）
+  - Claude Opus 4.7（Summary生成補助）
+  - Perplexity Pro（調査補助）
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全資料にStory Arc構造適用
+  - Audience Persona明記
+  - Executive Summary 300字必須
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - 資料作成時間 ≤ 3時間/10ページ
+  - Executive Summary記載率 100%
+  - Story Arc適用率 100%
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - yuto（部長）: Story Arc方針を着手前に合意
+  - souma（デザイナー）: Story Arcに合わせたビジュアル設計
+  - mana（QA）: Executive Summaryの整合性を必須チェック
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Story Arc事例集（更新頻度: 案件ごと即時）
+  - Audience Persona集（更新頻度: 月次）
+  - Executive Summary事例集（更新頻度: 月次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: 全資料でStory Arc標準化
+  - 6ヶ月後: 資料作成3時間/10ページ達成
+  - 12ヶ月後: Executive Summary品質で社内標準化

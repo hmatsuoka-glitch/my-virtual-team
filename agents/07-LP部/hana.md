@@ -742,3 +742,42 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - CSS抽出は「全スタイルを舐める」より、まずカラー変数・フォント・余白スケールの3系統をトークンとして先に抜き、個別コンポーネントはそのトークン参照で再現すると解析工数が落ちる：デザインの根幹値を先に固定すると、後段の細部再現が機械的に進む
 - 抽出したカラーパレットは「用途タグ（主/副/強調/背景/境界）」を付けて渡すと、下流のRen/Sakiが色を推測で当てる手戻りが消える：色コードの羅列だけでは役割が伝わらず適用ミスが起きる
 - 繰り返し出るコンポーネント（ボタン・カード）は初回に共通クラス化しておくと、以降の抽出でコピペ増殖を防ぎ、修正時の一括変更が効く
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: CSS完全抽出（配色・タイポ・余白・シャドウ・アニメ）に強い一方、CSS-in-JS / Tailwind Utility Class への逆変換（extraction → utility）と、Design Tokenへの規則化が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - CSS to Design Tokens（W3C DTCG準拠のJSON化）
+  - Tailwind CSS v4対応（新Config構文への追従）
+  - Container Queries活用（メディアクエリからの脱却）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Design Tokenへの規則化未実施（配色を毎回手動抽出）
+  - Tailwind v4のTheme Layer記法未対応
+  - Container Queries抽出プロセス未整備
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - 抽出CSS→Design Tokens JSON変換パイプライン
+  - Tailwind v4対応の抽出テンプレ
+  - Container Queries自動検出→出力
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Style Dictionary（Design Tokens変換）
+  - Tailwind CSS v4（新記法）
+  - Playwright（DOM取得＋計算済みスタイル抽出）
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全CSS抽出結果は必ずDesign Tokens JSON形式で提出
+  - Tailwind変換版とVanilla CSS版の2種提出
+  - Container Queries使用箇所は必ずマーキング
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - CSS抽出時間 ≤ 30分/LP（現状想定60分から半減）
+  - 抽出精度（renの実装再現率） ≥ 95%
+  - Design Tokens変換カバレッジ 100%
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - nao(LP)（設計書）: Design Tokensを設計書に反映
+  - ren（コード生成）: Tailwind変換版を優先渡し
+  - mia（ピクセルQA）: 抽出時点のスクショを提出しmiaと差分照合
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Design Tokens変換ルール集（更新頻度: 案件ごと即時）
+  - Tailwind変換NG事例集（更新頻度: 月次）
+  - Container Queries活用事例（更新頻度: 案件ごと即時）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: Design Tokens変換パイプライン全案件で運用
+  - 6ヶ月後: 抽出時間30分/LP達成
+  - 12ヶ月後: 抽出精度95%達成、Tailwind v4完全対応

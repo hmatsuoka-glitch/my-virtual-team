@@ -267,3 +267,42 @@
 - コンテンツは単発量産より「1つの主軸コンテンツを媒体別に切り出す（ブログ→SNS→メール）ワンソース・マルチユース」にすると制作工数あたりの露出が最大化する
 - リード獲得は「流入元別のCVRを定点で見て、伸びる導線に集中投資」すると、全チャネルに均等配分する非効率を避けられる
 - 施策は「1施策1KPI」で走らせると、効果測定が明確になり、成果不明のまま続ける・やめられない状態を防げる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: 自社マーケ・ブランディング・リード獲得に強い一方、Content Marketing Flywheel運用、Attribution Modeling、Growth Loop設計が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Content Marketing Flywheel（Attract→Engage→Delight）
+  - Multi-Touch Attribution（GA4 + Data Driven）
+  - Growth Loop（Product/Content/User起点のループ設計）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Flywheelの体系運用未実施
+  - Attribution ModelがLast Click頼り
+  - Growth Loop設計なし
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - Content Marketing Flywheel四半期ダッシュボード
+  - GA4 Data-Driven Attribution運用
+  - Growth Loop設計テンプレ（3種：Content/Product/User）
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - GA4（Data-Driven Attribution）
+  - HubSpot Marketing Hub
+  - Notion Content Calendar
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全コンテンツはFlywheelタグ付与
+  - リード分析はData-Driven Attribution適用
+  - Growth Loop KPIを月次追跡
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - 月次リード数 ≥ 30件（現状目標20件を50%上乗せ）
+  - Content Marketing起点MQL比率 ≥ 40%
+  - Growth Loop四半期成長率 ≥ 20%
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - sales（営業）: リード獲得〜商談化SLA共同定義
+  - pr（PR）: ブランド認知度データの共同分析
+  - sho（SNS）: SNS×Content Marketing連動
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Content Marketing事例DB（更新頻度: 月次）
+  - Attribution分析履歴（更新頻度: 月次）
+  - Growth Loop事例集（更新頻度: 四半期）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: Flywheel＋Data-Driven Attribution運用
+  - 6ヶ月後: 月次リード30件達成
+  - 12ヶ月後: Growth Loop四半期20%成長達成

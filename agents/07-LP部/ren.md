@@ -625,3 +625,42 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - Next.js実装は共通レイアウト・共通コンポーネントを最初に組んでからページを量産すると、後からの一括修正が効き、コピペ実装のメンテ地獄を避けられる
 - アニメーションは「1つの共通ユーティリティ（フェードイン/スライド）に集約」して呼び出す方式にすると、個別実装の乱立と挙動のバラつきを防げて調整が一括で済む
 - Tailwindは頻出の組み合わせを@applyやコンポーネント化で束ね、マジックナンバーを設計トークン参照に寄せると、デザイン変更時の修正箇所が1点に集約されて速い
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: LPコード生成（HTML/CSS/Next.js）に強い一方、React Server Components / Streaming SSR / Suspenseの活用と、Web Accessibility (a11y) の徹底が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Next.js 15 App Router（Server Components前提）
+  - Streaming SSR + Suspense（TTFB最適化）
+  - WCAG 2.2完全準拠のa11y実装（Focus Ring・aria-label徹底）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Server Components前提のコンポーネント分割未徹底
+  - Streaming SSR + Suspense未活用
+  - a11y実装（aria属性・キーボード操作）不徹底
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - Server Components / Client Componentsの明示的分割
+  - Suspense Boundary設計（loading.tsx / error.tsx）
+  - a11y実装テンプレ（Focus Ring・aria-label・スクリーンリーダー確認）
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Next.js 15 App Router
+  - React 19（Server Actions対応）
+  - axe DevTools（a11y自動検証）
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全コードにServer/Client分割理由をコメント記載
+  - Lighthouse a11yスコア100点必須
+  - Suspense Boundary設計を全ページで実装
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - コード生成時間 ≤ 3時間/LP
+  - Lighthouse a11y ≥ 100
+  - Lighthouse Performance ≥ 90
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - nao(LP)（設計書）: Storybook Story付き設計書を受領前提
+  - kaito（LP統括）: デプロイ前にLighthouse自動チェック
+  - mia（ピクセルQA）: Visual Regression Test通過を必須ゲート
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Server/Client Components分割パターン集（更新頻度: 案件ごと即時）
+  - a11y実装テンプレ（更新頻度: 月次）
+  - Suspense設計事例集（更新頻度: 月次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: 全LPでNext.js 15 App Router標準化
+  - 6ヶ月後: a11y 100点全案件達成
+  - 12ヶ月後: コード生成3時間/LPを安定達成

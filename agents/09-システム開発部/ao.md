@@ -474,3 +474,42 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - API実装はエンドポイントごとに書き下ろすより、認証・バリデーション・エラーハンドリングを共通ミドルウェア/デコレータに寄せると、実装量とバグ混入箇所を同時に減らせる
 - DB設計はマイグレーションを最初から冪等・可逆で書くと、スキーマ変更時のやり直しやロールバックのコストが下がる
 - APIはnaoの要件定義に沿ってスキーマ（OpenAPI等）を先に確定してから実装すると、フロント（Riku/Ren）との型不一致による手戻りが消え、並行開発が可能になる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: BE実装（API・DB・TDD）に強い一方、Observability（分散トレーシング）・OWASP Top 10 2025対応・GraphQL Federation活用が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - OpenTelemetry標準化（Traces/Metrics/Logs一元化）
+  - OWASP Top 10 2025対応（SSRF・IDOR等の新規要件）
+  - GraphQL Federation 2.x（マイクロサービス統合）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - OpenTelemetry標準運用未整備
+  - OWASP 2025新規項目対応不足
+  - GraphQL Federation未経験
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - OpenTelemetry計装（全APIエンドポイント）
+  - OWASP Top 10 2025チェックリスト運用
+  - Apollo Federation 2実装
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - OpenTelemetry SDK
+  - Snyk / Semgrep（セキュリティ静的解析）
+  - Apollo Router 2026
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全API OpenTelemetry計装必須
+  - OWASP Top 10 2025チェック済みマーク必須
+  - テストカバレッジ ≥ 80%
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - API p95レイテンシ ≤ 300ms
+  - OWASP脆弱性ゼロ達成率 100%
+  - テストカバレッジ ≥ 80%
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - riku（FE）: GraphQL Schema共同管理
+  - kuu（インフラ）: OpenTelemetry Backend連携
+  - mio（QA）: セキュリティテスト共同実施
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - API計装パターン集（更新頻度: 案件ごと即時）
+  - OWASP脆弱性事例集（更新頻度: 月次）
+  - GraphQL Schema設計事例（更新頻度: 月次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: 全API OpenTelemetry計装完了
+  - 6ヶ月後: p95レイテンシ300ms達成
+  - 12ヶ月後: OWASP脆弱性ゼロ達成率100%

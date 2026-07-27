@@ -279,3 +279,42 @@
 - 横断進捗は「依存関係マップ」を先に描き、クリティカルパス上のタスクを優先監視すると、全タスクを等しく追う非効率を避けられ遅延予兆を早く掴める
 - リソース配分は「各人の稼働上限を見える化」してから割り当てると、特定メンバーへの過負荷による全体遅延を未然に防げる
 - 会議は「決定事項・宿題（担当/期日）」だけを残す形式にすると議事録清書が消え、次アクションが即動き出す
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: 全社横断PJ進捗・リソース配分・納期管理に強い一方、Critical Chain Project Management (CCPM)、Bufferの数値管理、Resource Leveling自動化が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Critical Chain Project Management（CCPM）
+  - Buffer Management（Fever Chart活用）
+  - Resource Leveling自動化（Linear/Notion連携）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - CCPM未活用（CPMのみ）
+  - Buffer Managementなし
+  - Resource Leveling手動
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - CCPM実践（Critical Chainの識別＋Bufferタスク配置）
+  - Fever Chart監視（Buffer消費率をKPI化）
+  - Notion + Linear自動Resource Leveling
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Linear（PJ管理）
+  - Notion Fever Chart
+  - Google Calendar API（リソース可用性）
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全PJでCCPM設計必須
+  - Fever Chart週次更新必須
+  - Resource Leveling結果を週次共有
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - 納期遵守率 ≥ 95%
+  - Buffer消費率 ≤ 80%
+  - Resource稼働率 ≥ 80% & ≤ 100%（過負荷防止）
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - kai（システム開発PM）: DORA Metricsと連動
+  - owl（受注ワークフロー）: SLA計測を営業日カレンダーで統一
+  - ryota（クライアント管理）: Expectation DocをWBSに連結
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - CCPM事例集（更新頻度: PJ毎即時）
+  - Fever Chart履歴（更新頻度: 週次）
+  - Resource Leveling結果履歴（更新頻度: 週次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: CCPM＋Fever Chart全PJ運用
+  - 6ヶ月後: 納期遵守率95%達成
+  - 12ヶ月後: Resource稼働率80-100%安定、Bufferゼロ超過運用

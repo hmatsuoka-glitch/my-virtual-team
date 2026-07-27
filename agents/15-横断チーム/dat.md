@@ -286,3 +286,42 @@
 - 横断分析は依頼のたびにデータを集め直すより、部門横断の共通データマートを整備し定義を統一すると、集計の入口が速くなり数値の食い違いも消える
 - 分析は「問い（意思決定したいこと）を先に1文で確定」してから着手すると、目的不明のまま集計して作り直す非効率を避けられる
 - インサイトは「事実→解釈→推奨アクション」の3層で渡すと、受け手が事実の再確認をせずに判断でき、分析の差し戻しが減る
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: 横断データ分析・インサイト抽出・DID純効果検証に強い一方、Causal Forest / Uplift Modeling、Bayesian Structural Time Seriesの活用が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Causal Forest（EconML）で個別介入効果推定
+  - Uplift Modeling（誰に施策を打つべきか）
+  - Bayesian Structural Time Series（BSTS）で時系列因果
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Causal Forest未活用（DIDのみ）
+  - Uplift Modeling未実装
+  - BSTS未経験
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - EconML Causal Forest実装
+  - Uplift Modeling（CausalML）
+  - BSTS（tfp/Prophet）
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - EconML
+  - CausalML
+  - Prophet / tfp.sts
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全効果検証はDID + Causal Forest併用
+  - 施策提案はUplift Score付き
+  - 時系列因果はBSTS or Interrupted Time Series
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - 因果推論適用案件数 ≥ 月10件
+  - 施策提案の実行→効果検証率 ≥ 90%
+  - Uplift Score適用案件率 ≥ 50%
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - shun（採用×SNS分析）: 因果推論手法の共同ライブラリ化
+  - kpi（KPI）: 異常検知アルゴリズム共同運用
+  - owl（受注ワークフロー）: P25/P75分布共同提供
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Causal Forest事例集（更新頻度: 案件ごと即時）
+  - Uplift Modeling結果DB（更新頻度: 月次）
+  - BSTS実装パターン集（更新頻度: 月次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: Causal Forest全効果検証で併用
+  - 6ヶ月後: Uplift Modeling全施策提案で運用
+  - 12ヶ月後: 効果検証率90%、因果推論チームとして社内定着

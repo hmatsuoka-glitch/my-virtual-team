@@ -444,3 +444,42 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - フロント実装は共通UIコンポーネントとレイアウトを先に整備してからページを組むと、実装重複とスタイルのばらつきが消え、修正が一括で効く
 - APIはnaoのスキーマに基づき型を自動生成して使うと、手書きの型定義ズレによるランタイムエラーと後追い修正を防げる
 - Tailwindの頻出パターンはトークン・コンポーネントに束ね、状態（loading/empty/error）のUIを最初に用意すると、後から抜けを継ぎ足す手戻りを避けられる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: FE実装（Next.js・TDD）に強い一方、React 19 / Server Actions / React Compiler活用、Streaming SSR、State Management（Zustand/Jotai）モダン化が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - React 19 + React Compiler（useMemo/useCallback不要化）
+  - Server Actions（フォーム送信のクライアントJS削減）
+  - Zustand / Jotai（軽量State Management標準化）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - React 19 / React Compiler未活用
+  - Server Actions未経験
+  - State Management標準化なし
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - React Compiler前提のコンポーネント書き方
+  - Server Actions実装標準
+  - Zustand/JotaiでのGlobal State管理
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - React 19
+  - Next.js 15 App Router
+  - Zustand 5.x / Jotai 2.x
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全コンポーネントReact Compiler対応
+  - フォーム送信はServer Actions優先
+  - Global StateはZustand/Jotai一択
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - Bundle Size ≤ 200KB（初期ロード）
+  - Lighthouse Performance ≥ 95
+  - テストカバレッジ ≥ 80%
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - ao（BE）: GraphQL Schema共同管理
+  - mio（QA）: Component Test方針共有
+  - kai（PM）: DORA Deploy Frequency向上のFEチューニング
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Server Components/Client Components分割集（更新頻度: 案件ごと即時）
+  - Server Actions事例（更新頻度: 月次）
+  - Zustand/Jotaiパターン集（更新頻度: 月次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: React 19全案件標準化
+  - 6ヶ月後: Bundle Size 200KB達成
+  - 12ヶ月後: Lighthouse Performance 95達成

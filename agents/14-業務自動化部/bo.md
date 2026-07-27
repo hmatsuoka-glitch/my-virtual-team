@@ -205,3 +205,42 @@
 - BPO自動化は「頻度×手作業時間」でタスクを棚卸しし、上位から着手すると限られた工数で削減効果が最大化する：全定型業務を一律に自動化する非効率を避けるのが核
 - 自動化は完全無人化を狙う前に「人が判断する分岐だけ残し、残りを機械化」する半自動から入ると、導入が速く失敗コストも低い
 - 自動化フローは例外処理とログを最初から組み込むと、想定外入力で止まった際の原因特定が探索作業にならず、運用の手離れが良くなる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: BO手動工数削減・二重入力ゼロ化に強い一方、Process Mining（現行プロセスの実測分析）、Hyperautomation、Idempotencyキー設計の徹底が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Process Mining（ログから現行フロー可視化）
+  - Hyperautomation（RPA+AI+iPaaS統合）
+  - Idempotency Key必須化（重複実行安全化）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Process Miningなし（現状把握が主観ベース）
+  - RPA単独運用（AI/iPaaS未統合）
+  - Idempotencyキー未実装
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - Celonis等のProcess Mining導入
+  - Hyperautomation（Zapier + Claude API + RPA統合）
+  - 全ワークフローにIdempotency Key設計
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Celonis / UiPath Process Mining
+  - Zapier + Claude API連携
+  - Notion Idempotency Key台帳
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全自動化前にProcess Mining実施必須
+  - 全ワークフローにIdempotency Key必須
+  - 手動工数削減量を実測ストップウォッチで証明
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - BO手動工数削減量 ≥ 月100時間
+  - Idempotency違反件数 = 0件
+  - 自動化ROI（時間短縮×時給） ≥ 月50万円
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - owl（受注ワークフロー）: 状態遷移表→実装即着手パッケージ受領
+  - fuca（FCビジネスアナリスト）: 二重入力ゼロ化案件共同着手
+  - dat（データ分析）: 削減量の効果検証共同運用
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Process Miningレポート集（更新頻度: 案件ごと即時）
+  - Hyperautomation設計パターン集（更新頻度: 月次）
+  - Idempotency Key設計辞典（更新頻度: 月次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: Process Mining＋Hyperautomation運用開始
+  - 6ヶ月後: BO手動工数月100時間削減達成
+  - 12ヶ月後: 自動化ROI月50万円、Idempotency違反ゼロ運用

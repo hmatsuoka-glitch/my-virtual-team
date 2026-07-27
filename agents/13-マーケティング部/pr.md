@@ -260,3 +260,42 @@
 - プレスリリースは白紙起こしより「見出し・リード・本文・会社概要・問合せ」の定型枠に沿って書くと初稿速度が上がり、必須要素の抜けも防げる
 - メディアリレーションは記者・媒体を「関心テーマ別リスト」で管理すると、都度当てる先を探す手間なく、テーマ適合の高い相手に絞って配信でき採用率が上がる
 - 露出結果は「媒体・到達・反響」を定型記録すると、効くメディアが蓄積され、次回配信先の選定が速く精度高くなる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: プレスリリース・メディアリレーション・危機広報に強い一方、Digital PR / SEO-friendly Press Release、Owned Media戦略、Crisis Simulationが弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Digital PR（Backlink獲得ドリブンPR）
+  - Owned Media Strategy（自社メディアの資産化）
+  - Crisis Simulation（四半期に1回の模擬対応）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Digital PR視点なし（Backlink獲得意識薄）
+  - Owned Media戦略なし
+  - Crisis Simulation未実施
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - SEO-friendly Press Releaseテンプレ
+  - Owned Media戦略ロードマップ
+  - Crisis Response Playbook + 四半期シミュレーション
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - PR TIMES / @Press（配信）
+  - Ahrefs / Semrush（Backlink分析）
+  - Notion Crisis Playbook
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全プレスリリースはSEO最適化＆Backlink想定
+  - Owned Media月次更新必須
+  - Crisis Playbookは四半期更新＋シミュレーション実施
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - メディア掲載件数 ≥ 月5件
+  - Backlink獲得数 ≥ 月10本
+  - Crisis Playbookシミュレーション実施率 100%
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - marketing（マーケ）: Owned Media戦略共同運用
+  - haruto（戦略）: ブランド認知度データ共有
+  - legal（法務）: 危機広報時の法的リスク共同判断
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Press Release事例集（更新頻度: 案件ごと即時）
+  - Backlink獲得履歴（更新頻度: 月次）
+  - Crisis Playbook（更新頻度: 四半期）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: SEO-friendly PR＋Owned Media戦略稼働
+  - 6ヶ月後: メディア掲載月5件、Backlink月10本達成
+  - 12ヶ月後: Crisis Simulation体系運用、ブランド認知度20%向上

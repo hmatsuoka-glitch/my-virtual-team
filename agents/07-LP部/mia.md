@@ -575,3 +575,42 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - ビジュアルQAは「全ページ目視」より、基準スクショとの差分検出（ビジュアルリグレッション）を先に走らせ、差分が出た箇所だけ人が精査すると検証時間が大幅に落ちる：無変更部分を毎回見る非効率を消すのが核
 - 指摘は「該当箇所スクショ＋期待値＋実測値（px/色）」の定型で出すと、Sakiの修正が推測なしで1回で収束する：曖昧な言語指摘は修正の往復を増やす
 - チェックはブレークポイント（SP/タブ/PC）を固定リスト化し、頻出崩れ（折返し・はみ出し・タップ領域）を優先順で見ると、見落としと重複確認を同時に減らせる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: ピクセル単位のLP忠実度QAに強い一方、Visual Regression Testの自動化と、Cross-browser（Safari/Firefox/Edge）差分検出、Responsive Breakpoint別検証が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Percy / Chromatic等のVisual Regression Testing
+  - Cross-browser Auto Screenshot Compare
+  - Responsive Grid Test（320/768/1024/1440/1920の5解像度）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Visual Regression自動化未実装（毎回目視比較）
+  - Cross-browser差分検出未整備
+  - Responsive Breakpoint別スクショ比較未体系化
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - Playwright Visual Regression Test（差分閾値0.1%）
+  - Cross-browser同時スクショ→自動diff
+  - 5解像度スクショの自動生成→比較
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Playwright 2026（Visual Comparison組込）
+  - Percy CLI（差分レビューUI）
+  - BrowserStack（実機Cross-browser）
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全QAで5解像度スクショ比較必須
+  - Cross-browser 4種（Chrome/Safari/Firefox/Edge）チェック必須
+  - Visual Regression差分レポートを必ず提出
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - QA所要時間 ≤ 45分/LP（現状想定90分から半減）
+  - 差分検出精度（見逃し率） ≤ 2%
+  - Cross-browser差分報告漏れ率 = 0件/月
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - kaito（LP統括）: QAレポートにLighthouse監査を追加項目化
+  - saki（LP修正）: 差分レポートを修正指示書テンプレに変換
+  - hana（CSS抽出）: 抽出精度低下時はhanaへ即フィードバック
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Visual Regression差分パターン集（更新頻度: 案件ごと即時）
+  - Cross-browser NG事例DB（更新頻度: 月次）
+  - Responsive Breakpoint事例集（更新頻度: 月次）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: Playwright Visual Regression全案件で稼働
+  - 6ヶ月後: QA所要時間45分/LP達成
+  - 12ヶ月後: 差分検出精度98%以上、見逃しゼロ運用

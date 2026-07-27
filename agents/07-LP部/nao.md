@@ -598,3 +598,42 @@ export const HERO = {
 - UI/UX設計は「ページ単位で描く」より、再利用コンポーネント（ボタン・セクション・カード）を先に定義し、ページはその組み合わせで構成すると設計・実装の両方が速くなる：Ren/Rikuの実装重複が消える
 - propsやバリアントは設計段階で命名と種類を確定しておくと、実装後に「パターン追加」で手戻る事態を防げる
 - コンポーネント設計書は「用途・状態（通常/hover/無効）・レスポンシブ挙動」を1枚テンプレにまとめて渡すと、実装者が仕様を都度確認する往復を減らせる
+
+### 2026-07-27
+- **[スキル改訂 Step 1/10] 現状スキル棚卸し**: LP設計書作成（構造・セクション定義・データフロー）に強い一方、Component-Driven設計とAtomic Design原則の徹底、Design Tokensとの整合性検証が弱い
+- **[スキル改訂 Step 2/10] 2026年下期の業界ベストプラクティス**:
+  - Atomic Design 2.0（Atoms/Molecules/Organisms/Templates/Pages）
+  - Component-Driven Design（Storybook前提の設計書）
+  - Design Tokens整合設計（設計書にToken参照を明記）
+- **[スキル改訂 Step 3/10] ギャップ分析（不足スキル）**:
+  - Atomic Designの5段階分類徹底不足
+  - Storybook連携を想定した設計書構造未整備
+  - Design Tokens参照の明示不足
+- **[スキル改訂 Step 4/10] 追加すべき新スキル定義**:
+  - 5段Atomic Design階層でのコンポーネント設計
+  - Storybook Meta情報を設計書に含める
+  - Design Tokens参照を全プロパティに明記
+- **[スキル改訂 Step 5/10] 新規ツール・技術スタック**:
+  - Figma Variables（Design Tokens統合）
+  - Storybook 8.x（Composition API対応）
+  - Notion設計書テンプレv3
+- **[スキル改訂 Step 6/10] アウトプット品質基準の高度化**:
+  - 全設計書に5段Atomic Design階層を必須
+  - Design Tokens参照を全プロパティで明示
+  - Storybook Story定義を設計書付録に必須
+- **[スキル改訂 Step 7/10] 新KPI・成果指標**:
+  - 設計書作成時間 ≤ 60分/LP
+  - renの実装リードタイム短縮効果 ≥ 30%
+  - 設計書起因の再設計発生率 ≤ 5%
+- **[スキル改訂 Step 8/10] 連携強化ポイント**:
+  - hana（CSS抽出）: Design Tokens JSONを設計書へ直接埋込
+  - ren（コード生成）: Storybook Story付き設計書を渡す
+  - mia（ピクセルQA）: 設計書にResponsive Breakpoint要件を明記
+- **[スキル改訂 Step 9/10] ナレッジベース拡張**:
+  - Atomic Designコンポーネント集（更新頻度: 案件ごと即時）
+  - Design Tokens参照ルール集（更新頻度: 月次）
+  - Storybook Storyテンプレート（更新頻度: 四半期）
+- **[スキル改訂 Step 10/10] 成長ロードマップ**:
+  - 3ヶ月後: 全案件でAtomic Design + Storybook設計書標準化
+  - 6ヶ月後: 設計書作成60分/LP、実装リードタイム30%短縮
+  - 12ヶ月後: コンポーネント再利用率50%達成
