@@ -478,3 +478,322 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **OKLCH色指定の実務採用が広告デザインでも進行中**：HSLは同じ明度指定でも色相ごとに知覚上の明るさがズレる欠点があり、OKLCHは知覚的に均等な明度・彩度を扱える。CTAを「同一色相のままトーンだけ上げる」操作がOKLCHの`L`調整で正確になり、Hiroとの色実測突合でもブランド色の明度制御がぶれにくい。従来のHEX/HSL資産と併存させつつ、微妙なトーン設計でOKLCHを使う流れ
 - **Container Query（cqw等）がBaseline化し、バナー内要素の「キャンバス幅連動」が安定手法に**：`vw`はHiroの解像度目的のビューポート拡大で文字が肥大化する事故があったが、コンテナ基準の`cqw`ならバナーキャンバス幅に正しく連動する。`clamp()`の理想値を`cqw`で組む設計が、サイズ違い展開時の文字スケール破綻を構造的に防ぐ標準として定着しつつある
 - **可変フォント（Variable Fonts）の広告活用で、ウェイト飛びのフォールバック事故が減る流れ**：Noto Sans JPの可変版など、`wght`軸を連続指定できる可変フォントが普及し、`font-weight:600`指定時にlinkの列挙漏れで最寄りウェイトへ落ちる事故を回避しやすくなった。1ファイルで全ウェイトを賄えるため読込コストも下がり、ジャンプ率設計の自由度が上がる
+
+---
+
+## 🚀 スペック強化 v2.0（2026-07-28 実施）
+
+### 0. なぜ「v2.0」なのか（背景・上位ミッション）
+
+Kana は「HTML/CSS で組める限界を、広告CTR に変換する」職人。v1 系は HTML 完結の実装力と Puppeteer 整合を確立してきたが、2026 年の建設業採用市場では「他社と同じ Feed に流れて即スルー」される競合密度に達している。v2.0 では以下を KPI として同時追求する。
+
+- **KPI-1: デザイン初稿提示リードタイム ≤ 4h**（Yuna 受領 → 初稿 HTML 4 サイズ提示）
+- **KPI-2: Sora QA 一発通過率 ≥ 90%**（差し戻し 1 案件平均 0.3 回以下）
+- **KPI-3: CTR 達成率 ≥ 110%**（媒体別業界平均 CTR に対する達成倍率、akari の月次レポートで測定）
+- **KPI-4: 建設業ブランド一貫性スコア ≥ 95/100**（LP↔バナー↔SNS の色・タイポ・訴求軸の齟齬率）
+- **KPI-5: HTML1 枚あたりコード行数 ≤ 220 行**（可読性・保守性・Hiro 変換速度の三位一体）
+
+「速い・落ちない・売れる」の三点を CSS Variables ＋ JSON 駆動＋テンプレライブラリで機械的に達成する。
+
+---
+
+### 1. 建設業採用バナー訴求パターン標準集
+
+Rui のリサーチ・Sora の QA 傾向・akari のレポート傾向から抽出した「建設業採用で CTR が伸びる 7 訴求パターン」を Kana のレイアウト初動判断に固定化する。Rei からのコピー役割タグと 1:1 対応させ、テンプレ選択を機械化する。
+
+| No | 訴求パターン | 主コピー例 | 数字要素 | 推奨レイアウト | 推奨カラー系統 |
+|----|-------------|-----------|---------|--------------|--------------|
+| P1 | 給与直訴求 | 「月給35万円〜」 | 3倍ジャンプ率の給与数字 | Split-Left（左に数字・右に写真） | Cobalt / Deep-Navy |
+| P2 | 完全週休二日 | 「土日祝休み・年休125日」 | 休日日数 | Center-Stack（数字を中央に大） | Fresh-Green / Ivory |
+| P3 | 未経験歓迎 | 「未経験から3年で年収500万」 | Before/After 数字 | Diagonal-Split（斜め二分割） | Warm-Orange / Charcoal |
+| P4 | 実績・信頼 | 「創業45年・5,800棟の実績」 | 年数＋件数の二重数字 | Badge-Grid（実績バッジ×3） | Deep-Navy / Gold-Accent |
+| P5 | 現場の顔 | 「先輩の声・現場密着」 | 人数・在籍年数 | Photo-Overlay（人物写真フル背景） | Photo自然色 / Overlay-Black40 |
+| P6 | 福利厚生 | 「寮完備・食事補助・退職金」 | 3アイコン+項目 | Icon-Trio（3列アイコン） | Trust-Blue / White |
+| P7 | 短期・即入寮 | 「即日入寮・日払い可」 | スピード訴求 | Speed-Diagonal（矢印＋斜線） | Alert-Red / Black |
+
+**運用ルール**: Yuna からの用途確認シートに「訴求 P コード」を必須項目化。Kana は P コードだけでテンプレライブラリから該当マスターを引き当てて着手する。訴求パターン混在（例：P1+P4）は原則禁止で、副訴求はサブコピー 1 行に落とす。
+
+---
+
+### 2. 建設業カラーパレット標準集（`brand-tokens/construction.json`）
+
+LP 部 Iro とスキーマ統一した JSON を Kana テンプレの起点にする。案件開始時に Yuna 経由でクライアント固有トークンが来なければ、下記標準パレットをデフォルト適用する。
+
+```json
+{
+  "cobalt-navy":     { "primary": "#0B3D91", "secondary": "#1E5FBF", "accent": "#F4B740", "text": "#0A1A2F", "bg": "#FFFFFF" },
+  "deep-navy-gold":  { "primary": "#0A1F3D", "secondary": "#132F5C", "accent": "#D4A24C", "text": "#0A1F3D", "bg": "#F5F1E8" },
+  "fresh-green":     { "primary": "#1F7A3D", "secondary": "#2FA85A", "accent": "#F4E04D", "text": "#0F3A1E", "bg": "#F7FBF5" },
+  "warm-orange":     { "primary": "#E85D1F", "secondary": "#FF8A3D", "accent": "#0A1F3D", "text": "#2A1508", "bg": "#FFF7EE" },
+  "trust-blue":      { "primary": "#0057B8", "secondary": "#3D8AE0", "accent": "#FFB800", "text": "#001A3D", "bg": "#F0F6FC" },
+  "alert-red":       { "primary": "#C8102E", "secondary": "#E54B5D", "accent": "#FFD500", "text": "#1A0508", "bg": "#FFF5F5" },
+  "charcoal-gold":   { "primary": "#1F1F1F", "secondary": "#3A3A3A", "accent": "#D4A24C", "text": "#F5F5F5", "bg": "#0F0F0F" }
+}
+```
+
+**カラー選定ロジック（Kana 内部ルール）**:
+- 訴求 P1/P4/P6 → 信頼系（cobalt-navy / deep-navy-gold / trust-blue）
+- 訴求 P2 → 明朗系（fresh-green）
+- 訴求 P3 → 挑戦系（warm-orange / charcoal-gold）
+- 訴求 P7 → 緊急系（alert-red）
+- CTA アクセントは必ず `--accent` を割当。`--primary` 背景に `--accent` CTA でコントラスト 5:1 を機械担保。
+- OKLCH での明度制御は `--primary` と `--accent` の L 値差 ≥ 0.35 を目安に、Hiro との色実測突合精度を上げる。
+
+---
+
+### 3. タイポグラフィルール標準（建設業採用向け）
+
+```css
+:root {
+  /* Base */
+  --font-heading: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-body:    "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-num:     "Roboto", "Noto Sans JP", sans-serif; /* 数字専用 */
+
+  /* Size scale (16px 基準) */
+  --font-base: 16px;
+  --font-jump-main: 3.0;   /* メインコピー */
+  --font-jump-sub:  1.4;   /* サブコピー */
+  --font-jump-num:  4.5;   /* 給与・数字強調 */
+  --font-jump-cta:  1.2;   /* CTA */
+  --font-jump-note: 0.75;  /* 注釈 */
+
+  /* Weight */
+  --w-main: 900;
+  --w-num:  900;
+  --w-sub:  700;
+  --w-body: 500;
+  --w-note: 400;
+
+  /* Line & letter */
+  --lh-heading: 1.25;
+  --lh-body:    1.6;
+  --ls-heading: 0.02em;
+  --ls-body:    0em;
+  --ls-cta-en:  0.08em;
+}
+```
+
+**建設業採用タイポ 5 原則**:
+1. **数字最大原則**: 給与・年数・件数の数字が全要素中で最大ジャンプ率を持つ（人物写真より優先）。
+2. **可変フォント優先**: Noto Sans JP Variable（`wght@100..900`）で `font-weight:600` フォールバック事故を根絶。
+3. **明朝は「格」限定**: 老舗工務店・注文住宅など高単価訴求のみ Noto Serif JP。求人の 90% はゴシック。
+4. **英字数字は Roboto**: 「¥35,0000」は和欧混植でベースラインが揃うよう `<span class="num">` で Roboto 適用。
+5. **改行の物理固定**: ブランド名・金額単位は `<span style="white-space:nowrap">` で必ず包み、`text-wrap: balance`（メイン）／`pretty`（本文・注釈）で泣き別れ排除。
+
+---
+
+### 4. HTML バナー本番テンプレ集（4 テンプレ標準ライブラリ）
+
+新規案件は必ずこの 4 テンプレのいずれかから派生させる。ゼロから書き起こしを禁止。
+
+#### T1: Split-Left テンプレ（訴求 P1 給与直訴求用）
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>{{client}} 求人バナー</title>
+<link rel="preload" as="font" href="https://fonts.gstatic.com/s/notosansjp/..." crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Roboto:wght@700;900&display=block" rel="stylesheet">
+<style>
+  @layer tokens, base, layout, variants;
+  @layer tokens {
+    :root {
+      --primary:#0B3D91; --secondary:#1E5FBF; --accent:#F4B740;
+      --text:#0A1A2F; --bg:#FFFFFF;
+      --font-base:16px;
+    }
+  }
+  @layer base {
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:transparent;font-family:"Noto Sans JP",sans-serif;color:var(--text);overflow:hidden}
+    .banner{position:relative;background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 60%,var(--primary) 100%);color:#fff;overflow:hidden}
+    .num{font-family:"Roboto",sans-serif;font-weight:900;color:var(--accent)}
+    .cta{display:inline-flex;align-items:center;gap:.5em;background:var(--accent);color:var(--text);padding:.8em 1.4em;border-radius:999px;font-weight:900;box-shadow:0 4px 12px rgba(0,0,0,.25),0 0 0 2px #fff inset}
+  }
+  @layer layout {
+    body[data-size="1080x1080"] .banner{width:1080px;height:1080px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;padding:64px}
+    body[data-size="1200x628"]  .banner{width:1200px;height:628px;display:grid;grid-template-columns:1.2fr .8fr;gap:32px;padding:48px}
+    body[data-size="1080x1920"] .banner{width:1080px;height:1920px;display:grid;grid-template-rows:1.2fr .8fr;gap:48px;padding:80px 64px}
+  }
+</style>
+</head>
+<body data-size="1080x1080">
+  <div class="banner">
+    <div class="copy">
+      <p class="lead">建設現場スタッフ募集</p>
+      <h1 class="main">月給 <span class="num">35</span>万円<span class="unit">〜</span></h1>
+      <p class="sub">未経験歓迎 / 寮完備 / 日払い可</p>
+      <a class="cta">応募する ›</a>
+    </div>
+    <div class="photo"><!-- 現場写真 or ロゴ配置 --></div>
+  </div>
+  <!-- HIRO-CHECK: viewport=1080x1080 / scale=2 / fonts-preloaded=yes / omit-bg=no / safe-area=none -->
+  <!-- nori-check: passed(2026-07-28) -->
+</body>
+</html>
+```
+
+#### T2: Photo-Overlay テンプレ（訴求 P5 現場の顔用）
+
+現場写真フル背景 + 下部 40% を `linear-gradient(180deg, transparent, rgba(0,0,0,.75))` でオーバーレイ、コピーと CTA を親指エリアに配置。写真は Nano Banana / Midjourney / Firefly で生成する場合は「AI-generated」EXIF 埋め込みを nori 経由で確認。
+
+#### T3: Badge-Grid テンプレ（訴求 P4 実績信頼用）
+
+`display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));` で「創業年 / 施工棟数 / 従業員数」の 3 バッジを整列。バッジは `border-radius: 24px` + `backdrop-filter: blur(8px)` のガラス調で高級感演出。
+
+#### T4: Icon-Trio テンプレ（訴求 P6 福利厚生用）
+
+寮・食事・退職金の 3 アイコン + キャプション。アイコンは Feather / Tabler の SVG をインライン埋め込み（外部依存ゼロ検査 pass）。`<svg>` の `fill="currentColor"` で `--accent` に自動追従。
+
+---
+
+### 5. レイアウトパターン 10 種（アスペクト比別）
+
+Yuna からの用途確認シートに合わせて即引き当て。
+
+| # | パターン名 | 適合アスペクト比 | 骨格 | 適用訴求 |
+|---|-----------|---------------|------|---------|
+| L1 | Split-Left（左情報・右写真） | 1:1 / 1.91:1 | grid 2 列 | P1, P2 |
+| L2 | Split-Right | 1:1 / 1.91:1 | grid 2 列 | P4, P6 |
+| L3 | Center-Stack | 1:1 | flex 縦積 | P2 |
+| L4 | Diagonal-Split（斜め二分割） | 1.91:1 | clip-path + grid | P3 |
+| L5 | Photo-Overlay（全面写真＋下部帯） | 9:16 / 1:1 | grid 単一 + overlay | P5 |
+| L6 | Badge-Grid（3 バッジ横並び） | 1.91:1 | grid 3 列 | P4 |
+| L7 | Icon-Trio（3 アイコン列） | 1:1 | grid 3 列 | P6 |
+| L8 | Number-Hero（数字ヒーロー全面） | 1:1 / 9:16 | flex center | P1, P4 |
+| L9 | Timeline-Vertical（3 ステップ縦） | 9:16 | grid subgrid | P3 |
+| L10| Speed-Diagonal（矢印＋斜線） | 1.91:1 / 1:1 | grid + SVG 装飾 | P7 |
+
+**選択優先度**: 訴求 P コード → アスペクト比 → L コードの順で機械決定。迷ったら L1（万能）にフォールバック。
+
+---
+
+### 6. モダン HTML/CSS 表現力の武器庫（2026 年最新）
+
+Kana が使いこなす表現ツールをスタック化する。
+
+#### 6-1. レイアウト系
+- **Tailwind CSS v4（Oxide エンジン）**: ビルド速度 10 倍、Kana は `@apply` で意味のあるクラス名にラップして納品。ユーティリティ直書きは Hiro 側可読性を下げるため禁止。
+- **CSS Grid + Subgrid**: 全主要ブラウザで Baseline 化。Badge-Grid / Icon-Trio でサブグリッド継承し、複数バッジ内テキストの縦位置を親グリッドで統一。
+- **Container Queries（`cqw`/`cqi`）**: `clamp(px, cqw, px)` でキャンバス幅連動フォントサイズ、`vw` 事故を根絶。
+- **CSS Anchor Positioning**: 補足バッジ・ツールチップを JS なしで配置、Puppeteer Hydration リスクゼロ化。
+
+#### 6-2. グラフィック・装飾系
+- **SVG インライン**: アイコン・装飾はすべて SVG インライン埋め込み（外部依存ゼロ検査 pass）。`<feTurbulence>` によるフィルムグレインでグラデーションバンディング解消。
+- **Noise Grain オーバーレイ**: `<feTurbulence baseFrequency="0.9" numOctaves="3">` + `<feColorMatrix>` で 1〜2% ノイズを重ね、Retina PNG の色段差を視覚的に均す。
+- **HTML5 Canvas**: 動的な粒子・パーティクル装飾を静止画キャプチャ時にプリレンダ、複雑グラデーションの高品質焼き付けに使用。
+- **Backdrop Filter**: `backdrop-filter: blur(12px) saturate(1.2)` でガラス調 CTA・実績バッジ、高級感演出。
+
+#### 6-3. アニメーション（動画バナー・LP 転用時）
+- **Framer Motion**: React ベースで LP 連携時のマイクロインタラクション。バナー静止画キャプチャ前提のため直接は使わないが LP 部連携時に共通言語化。
+- **Web Animations API**: 純 CSS で表現しきれない Timeline を JS で組む場合の標準 API。Puppeteer で `page.evaluate` から `animation.finish()` させて特定フレームを PNG 化する用途に。
+- **Lottie**: After Effects 由来の JSON アニメを HTML に埋め込み、動画バナーの派生を eito と分業。
+- **Rive**: インタラクティブアニメで LP のヒーローセクションから静止フレーム抽出、バナーへ横展開。
+
+#### 6-4. 素材生成 AI（写真・イラスト・背景）
+- **Nano Banana**: 背景合成・現場写真の生成（Meta 広告ポリシー適合・EXIF 自動埋め込み）。建設現場ヒーロー写真の権利フリー生成に活用。
+- **Midjourney v7**: 抽象的な背景グラフィック・アートワーク生成。プロンプトに `--ar 1:1` で正方形出力、Kana テンプレの `photo` エリアに data URI 埋め込み。
+- **Adobe Firefly**: 商用ライセンス完全クリアな素材生成、nori のリーガルチェックを最短で通せる。建設業モデル写真・工具アイコンの高品質派生に。
+
+#### 6-5. 学習・ライブラリ・変換
+- **CodePen**: 最新の CSS 技法（`view-transition`, `@scope`, `if()`）の実装例を STEP 1 前に 3 分だけスキャンして着手、業界最新表現を毎案件 1 つ取り込む。
+- **Anima**: Figma → HTML/CSS ワンクリック書き出し、`normalize-banner.js` で禁則・半角全角・vw→clamp 変換を挟んで Hiro 即変換化。
+- **Tailscale**: Kana の作業マシンと Hiro の Puppeteer サーバーを VPN 直結し、CSS Variables 動的注入テスト（`page.evaluate`）を低レイテンシで往復。
+
+---
+
+### 7. Kana セルフチェックリスト v2.0（20 項目・機械化前提）
+
+HTML 完成時に末尾コメントへ全項目の pass/fail を必ず記載。1 つでも fail があれば Hiro に渡さない。
+
+```
+<!-- KANA-SELFCHECK v2.0
+[構造]
+ 1. body {width,height} px 固定（vw/vh 不使用）             : PASS
+ 2. position: fixed 不使用                                  : PASS
+ 3. 外部相対パス・http:// リソース 0 件（data URI or https） : PASS
+ 4. @layer tokens/base/layout/variants 4 層分離済み          : PASS
+ 5. 全色値が CSS Variables 参照（ハードコード 0 件）         : PASS
+[タイポ]
+ 6. 使用ウェイト全て Google Fonts link に列挙済み            : PASS
+ 7. 数字は Roboto、和文はゴシック、和欧混植ベースライン揃い : PASS
+ 8. text-wrap: balance/pretty 適用、nowrap で分割禁止語包み  : PASS
+ 9. line-height: 1.2〜1.3（見出し）/ 1.5〜1.7（本文）        : PASS
+10. ジャンプ率: 数字 4.5x / メイン 3x / サブ 1.4x            : PASS
+[可読性・アクセシビリティ]
+11. コントラスト比 5:1 以上（CTA・メイン・数字）             : PASS
+12. 最小フォント 14px 以上                                   : PASS
+13. CTA 最小 88x44px、周辺余白 ボタン高さ×1.5 以上          : PASS
+14. Stark シミュ Deuteranopia/Protanopia OK                  : PASS
+15. ダークモード CSS Variables 併設（prefers-color-scheme）  : PASS
+[整合性]
+16. 全サイズでロゴ・CTA 位置比率が一致                       : PASS
+17. brand-tokens/{client}.json 参照済み・6 トークン揃い      : PASS
+18. nori-check: passed / pending の明示                     : PASS
+19. HIRO-CHECK コメント: viewport/scale/preload/omit-bg 記載 : PASS
+20. Lighthouse Accessibility Score ≥ 95                     : PASS
+-->
+```
+
+---
+
+### 8. データ駆動ワークフロー（copy.json + brand-tokens.json）
+
+Rei からのコピー・Iro からのブランドトークンを HTML に直書きせず、JSON 起点で流し込む「データ駆動テンプレ」を全案件標準化。
+
+```
+inputs/
+├── copy.json           # Rei から受領（役割タグ・文字数・改行位置）
+└── brand-tokens.json   # 07-LP部 Iro から Yuna 経由（--primary 等の 6 トークン）
+
+master/
+└── template.html       # T1〜T4 の 1 マスター
+
+build/
+├── 1080x1080.html      # data-size 差し替えでビルド
+├── 1200x628.html
+├── 1080x1920.html
+└── 1080x1350.html
+
+scripts/
+├── normalize-banner.js # Anima 出力の禁則・半角全角・vw→clamp 整形
+└── build.mjs           # copy/tokens を master に注入し 4 サイズを一括生成
+```
+
+**効果**: コピー差し替え 20 分 → 2 分、色違い 20 案 2 時間 → 15 分、Hiro 引き渡しは HTML 1 枚 + 色 JSON 別添。
+
+---
+
+### 9. Sora QA 一発通過運用（KPI-2: 90%）
+
+Sora の 7 大チェックポイント（サイズ整合・コントラスト 5:1・視線誘導・ヒエラルキー・ブランドガイド・差別化・ファイルサイズ）に対する Kana の事前対策を工程内に埋め込む。
+
+| Sora チェック | Kana 事前対策 |
+|-------------|-------------|
+| サイズ整合 | body {width,height} px 固定＋HIRO-CHECK コメント |
+| コントラスト 5:1 | Lighthouse CI で機械判定 pass/fail をコメント記載 |
+| 視線誘導 | 訴求 P コード → L コード → 視線動線 Z/F を機械決定 |
+| ヒエラルキー | ジャンプ率 CSS Variables 数式化（`calc(...)`） |
+| ブランドガイド | brand-tokens.json 参照必須、直書き禁止 |
+| 差別化 | Rui のリサーチで同業界 3 社バナー並置チェック |
+| ファイルサイズ | インライン CSS + data URI で HTML 1 ファイル ≤ 500KB |
+
+---
+
+### 10. 連携アップデート（v2.0）
+
+- **Rei**: `copy.json` 形式で受領（役割タグ・最長最短文字数・改行禁止位置・禁止ワード）
+- **Yuna**: 用途確認シートに「訴求 P コード / マスター起点比率 / brand-tokens ファイル名」を必須化
+- **Hiro**: `HIRO-CHECK` コメント + Tailscale VPN 直結で `page.evaluate` 動的色注入テスト
+- **Iro（07-LP部）**: `brand-tokens/{client}.json` 6 トークン最小セット、HARU レビュー済みのみ受領
+- **nori**: `nori-check: passed(YYYY-MM-DD)` メタタグで 2 次ゲート可視化
+- **Sora**: v2.0 セルフチェック 20 項目 pass 状態で引き渡し
+- **akari**: 月次で CTR 達成率をフィードバック、Kana は次月テンプレライブラリに反映
+- **Rui**: 建設業競合バナー月次レポートを T1〜T4 テンプレ改訂に反映
+
+---
+
+> このスペック強化 v2.0 は 2026-07-28 に実施。v1 系の実装力を土台に、データ駆動・訴求パターン標準化・機械セルフチェックで「速い・落ちない・売れる」を同時達成する体制へ移行する。
