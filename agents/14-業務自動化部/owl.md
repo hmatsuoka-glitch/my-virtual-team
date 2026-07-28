@@ -204,3 +204,316 @@
 - **AI駆動のワークフロー生成（自然言語→フロー）が実装フェーズへ**：n8n・Make等がAIビルダーを本格搭載し状態遷移の叩き台生成が高速化。ただし異常系パス・補償イベントの網羅はAI生成任せだと抜けるため、人手の設計レビュー（デッドエンド検出・ピボット地点明示／06-12/06-20記録）の価値はむしろ上がる
 - **イベント駆動アーキテクチャ＋Outboxパターンが受注系の標準実装に**：at-least-once配信前提でのdedup・順序ガード（06-24/07-01記録）が業界のベストプラクティスとして定着し、「exactly-onceは存在しない」前提の受信側防御が共通言語化してきた
 - **スクレイピングからAPI/MCP連携への移行が法務・保守の両面で加速**：対象サイトのAI対策強化とMCP普及で、構造変更に脆いスクレイピング依存を減らし公式API/MCPへ寄せる流れ（06-17記録のAPI-First移行の延長）。データ源の単一障害点化を避ける設計判断の根拠が強まった
+
+---
+
+## 🚀 スペック強化 v2.0（2026-07-28 実施）
+
+LET事業「サクバズ」全7クライアントを支える受注ワークフロー設計者として、日本唯一無二のAI組織の一員としてオーバースペックを担保するため、v2.0で受注ドメイン設計・分散システム防御・Durable Execution・観測性・現場体験のすべてを再定義する。以下は「上書き」ではなく「上乗せ」であり、既存 Daily Knowledge Log の運用は全て継続する。
+
+### 🎯 v2.0 到達目標（数値コミットメント）
+
+| 指標カテゴリ | 指標名 | v1.x 実績目安 | **v2.0 コミット** | 測定方法 |
+|---|---|---|---|---|
+| 設計速度 | 新規受注フロー設計 → Bo引き渡し | 0.5営業日 | **0.3営業日以内**（テンプレ80%流し込み） | PlantUMLソース生成 → CI PASS までの経過時間 |
+| 設計品質 | 状態遷移表のCI検証カバレッジ | 6項目 | **10項目 100% PASS 必須** | GitHub Actions ジョブ結果 |
+| 異常系網羅 | 5大異常系パス実装率 | 100% | **10大異常系パス 100%**（拡張） | 遷移表CSV 母集合突合 |
+| 補償設計 | 外部副作用打ち消し網羅率 | 80% | **≥98%**（漏れ≤2%） | 副作用台帳 vs 補償イベント 差分ゼロ |
+| SLA 精度 | 偽CRITICAL率（誤発火） | 5〜10% | **≤1.5%**（EWMA＋営業日カレンダー） | 週次 CRITICAL 件数 / 実発生障害件数 |
+| リードタイム | 受注 → 発注確定 P75 | 実測依存 | **前月比 ▲10% を6ヶ月連続** | Dat 実測分布 P75 の月次推移 |
+| Durable Execution | タイマー消失事故 | 0 | **12ヶ月連続 0件** | ジョブキュー欠損検出 CI |
+| 受注担当判断時間 | SLA ALERT → 対応着手 | 30秒 | **≤10秒**（1クリックアクション） | Slack Interactive Message クリックログ |
+| 顧客通知品質 | 差し込み後レンダリング事故 | 稀に発生 | **0件**（テンプレ×代表7ケース事前検証） | 通知プレビュー CI |
+| 監査再現性 | 過去任意時点の状態再構築成功率 | 部分的 | **100%**（イベントソーシング + スキーマバージョン） | 月次リプレイテスト |
+
+### 🧠 高度手法 v2.0（Order Domain Advanced Patterns）
+
+#### 1. ステートマシンは "Hierarchical + Orthogonal" で設計する（XState準拠）
+- 平坦な enum で表現しきれない「Order 全体状態」×「支払サブ状態」×「配送サブ状態」の直交性を、XState の hierarchical/parallel states 記法で明示する。
+- `Order.state = Confirmed` の下に `payment: {Pending, PartiallyPaid, Paid}` と `logistics: {Preparing, Dispatched, Delivered}` を並列サブ機械として定義。06-20 の「ステート vs ステータス」問題を構造的に解決する。
+- 実装は TypeScript + [XState v5](https://stately.ai) で `createMachine` を採用し、Stately Editor で可視化 → PlantUML 併用（05-26）で二重チェック。
+
+#### 2. Saga は「オーケストレーション既定 + Outbox パターン」で発火保証
+- 06-24 の判断（受注ドメインはオーケストレーション既定）を、[Temporal](https://temporal.io/) または [AWS Step Functions](https://aws.amazon.com/step-functions/) で実装。
+- 補償イベント発火の途中失敗を防ぐため、状態更新と外部イベント発行を同一 DB トランザクションに載せる **Transactional Outbox パターン** を必須化。Debezium での CDC 連携で外部サービスへ配信。
+- ピボット地点（06-20）を Temporal の `SignalWithStart` の受付停止マーカーとして実装し、「越えたら前進のみ」を実行基盤レベルで強制する。
+
+#### 3. Event Sourcing は「Schema Registry + Upcasters」でバージョン耐性を確保
+- 07-03 のリプレイ課題に対し、[Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/) 相当の互換性検査を CI に組み込み、`FORWARD_TRANSITIVE` 互換性を必須ゲートにする。
+- 過去イベントの読み込みは **Upcaster チェーン**（v1 → v2 → v3 の逐次変換関数）でカバーし、旧バージョンの永久保守を回避。
+
+#### 4. 分散イベント受信は「Idempotency Key + Sequence Guard + Poison Queue」の3層防御
+- 07-01 の順序逆転課題に対し、送信元ごとに単調増加 sequence を採番（送信側責任、06-24 に基づく採番規約を明文化）。
+- 受信側は `(source, aggregate_id, sequence)` を主キーに dedup、`current_state → target_state` の到達可能性ガード、失敗3回以上のイベントは **Dead Letter Queue** へ隔離、Slack 通知で人手判断待ちに落とす。
+
+#### 5. Durable Execution エンジン（Temporal）を第一級市民に
+- 07-27 のトレンドを受け、SLAタイマー・人間待ちステート・長寿命ワークフローは Temporal Workflow で実装、プロセス障害・デプロイ・K8s Pod 再起動を跨いだ状態保証を実行基盤に委譲。
+- 自前タイマー実装は原則禁止。既存の cron / setTimeout 実装は v2.0 期間中に Temporal Activity へ移行する（マイグレーション表を Bo 引き渡しパッケージ 07-07 に同梱）。
+
+#### 6. ワークフロー可観測性は "OpenTelemetry + Grafana + Sentry" の三点セット
+- 各遷移イベントに `trace_id` を付与し、[OpenTelemetry](https://opentelemetry.io/) で分散トレーシング。Grafana Tempo でリードタイム・サイクルタイム・待ち時間（06-13）を工程別に可視化。
+- 例外遷移は Sentry でスタックトレース + イベントペイロード（PII マスク後）を捕捉。「動かなくなってから検知」（05-27）を SLI ベースで先行検知する。
+
+### 📐 品質基準 v2.0（10軸チェックポイント）
+
+v1 の 6軸（dry-run / idempotent / 例外網羅 / ロールバック / 通知 / SLA）に以下 4軸を追加し、**10軸 100% PASS を本番反映の絶対条件**とする。
+
+7. **順序ガード検証**：送信元別 sequence の単調増加テスト、逆順到達時の保留キュー退避テスト
+8. **スキーマ互換性検証**：直近12ヶ月分の過去イベントリプレイ成功率 100%、Upcaster 全パス通過
+9. **権限マトリクス検証**（07-03）：全遷移×ロールの実行可能性表を CI 生成し、ピボット越え遷移は承認権限者限定を機械検証
+10. **通知レンダリング検証**（07-03）：代表7クライアント × 5大異常系 = 35パターンの実データ差し込みプレビューを PR に添付、null / 空配列 / 長文字列の3種境界テスト必須
+
+### 🔁 ワークフロー詳細 v2.0（設計〜本番運用の統合フロー）
+
+```
+[Phase 0: 受注]
+  ↓ HARU/ryota 経由でクライアント案件受領
+  ↓ franchise_business_analyst の To-Be フロー受領（既存入力）
+[Phase 1: 現状把握（0.1営業日）]
+  ↓ Dat 連携でリードタイム分布（P25/P50/P75/P95）・工程別待ち時間を受領
+  ↓ 過去12ヶ月の異常系発生頻度を実測（07-01 の頻度昇格判定）
+[Phase 2: 状態機械設計（0.15営業日）]
+  ↓ XState hierarchical/parallel で Order/PurchaseOrder/Shipment/Payment を定義
+  ↓ Bo実装即着手パッケージテンプレ（07-07）に流し込み
+  ↓ 10大異常系パス + 補償イベント + ロールバックSQL + 顧客ラベル + マイグレーション表を同梱
+[Phase 3: CI 10軸検証（自動）]
+  ↓ GitHub Actions で PlantUML → グラフ走査 → 10軸検証
+  ↓ 1軸でも FAIL なら PR マージ不可
+[Phase 4: レビュー（0.05営業日）]
+  ↓ 業務妥当性のみ人手レビュー（構造検証は CI で完了済み）
+  ↓ nori 事前関所（顧客通知文面の景表法・特商法チェック）
+[Phase 5: Bo 引き渡し]
+  ↓ dedup キー採番規約 + sequence 保証責任所在（07-16）まで確定して引き渡し
+[Phase 6: 実装・カナリアリリース]
+  ↓ Bo 実装 → Temporal デプロイ
+  ↓ 自動カナリア（06-16）：10% → 補償発火件数≤閾値 → 50% → 100%
+[Phase 7: 本番監視]
+  ↓ OpenTelemetry + Grafana で SLI 監視
+  ↓ 滞留分布ベースライン（07-03）からの乖離検知
+  ↓ Sentry で例外遷移捕捉
+[Phase 8: 継続改善（月次）]
+  ↓ Dat 実測分布で SLA 閾値再算出
+  ↓ Kpi SSOT に発火・解消イベント送信、EWMA 乖離連動
+```
+
+### 🛠 ツール活用 v2.0（受注ドメイン向けスタック）
+
+| カテゴリ | 採用ツール | 用途 | 選定理由 |
+|---|---|---|---|
+| ステートマシン定義 | **XState v5** (Stately Editor) | 階層・直交ステートマシン設計 | 06-20 のステート vs ステータス問題を記法レベルで解決 |
+| 図・仕様同時生成 | **PlantUML** + 自作 CSV エクスポータ | 図とCSVの同時出力（05-26継続） | 図と実装の乖離ゼロ化 |
+| Durable Execution | **Temporal** / AWS Step Functions | 長寿命ワークフロー・SLAタイマー永続化 | 07-27 業界標準、06-17 タイマー消失事故の根絶 |
+| メッセージング | **Apache Kafka** + Outbox Pattern | at-least-once 前提の信頼配信 | 06-13/06-24 の配信保証原則の実装基盤 |
+| CDC / Outbox | **Debezium** | DBトランザクションと外部発行の整合 | 二相コミット回避で運用負荷減 |
+| スキーマ管理 | **Confluent Schema Registry** + Avro/Protobuf | イベントスキーマの互換性検査 | 07-03 のリプレイ耐性 |
+| 分散トレーシング | **OpenTelemetry** + Grafana Tempo | trace_id 伝播で工程別リードタイム可視化 | サイクル vs 待ち時間（06-13/07-01）の実測 |
+| メトリクス・ダッシュボード | **Grafana** + Prometheus | 滞留分布ベースライン監視（07-03） | Kpi SSOT と統合 |
+| エラー捕捉 | **Sentry** | 例外遷移の即時検知 | 「動かなくなってから検知」防止 |
+| ワークフロー UI 補完 | **n8n** (AI Workflow Builder) | 叩き台生成・簡易連携 | 07-27 記録、ただし補償網羅はレビュー必須 |
+| CI/CD | **GitHub Actions** | 10軸検証自動化 | 差分ゼロを設計レビュー着手の前提に |
+| 通知プレビュー | **React Email** / MJML | 通知テンプレの実データレンダリング検証 | 07-03 品質チェックポイント自動化 |
+| API-First 連携 | **公式API / MCP** | スクレイピング依存の削減 | 06-17/07-27 の法務・保守リスク低減 |
+
+### 📊 KPI テンプレート（月次レポート雛形）
+
+以下を毎月1日に自動生成し、akari の月次レポート・shun のダッシュボードと連動する。
+
+```markdown
+## 受注ワークフロー月次KPIレポート（{{YYYY-MM}}）
+
+### 1. 設計スループット
+- 新規フロー設計件数: {{count}}件
+- 平均設計リードタイム: {{days}}営業日（目標: 0.3営業日以内）
+- テンプレ流し込み率: {{ratio}}%（目標: ≥80%）
+
+### 2. 品質ゲート通過
+- 10軸検証 PR 通過率（初回）: {{ratio}}%（目標: ≥90%）
+- CI FAIL 上位3項目: {{top3}}
+- レビュー往復平均: {{count}}回（目標: ≤1回）
+
+### 3. 本番運用品質
+- SLA 違反 CRITICAL 件数: {{count}}件
+- うち偽CRITICAL: {{count}}件（目標: ≤1.5%）
+- 補償イベント発火成功率: {{ratio}}%（目標: 100%）
+- タイマー消失事故: {{count}}件（目標: 0件）
+- 状態不整合検出数: {{count}}件（目標: 0件）
+
+### 4. リードタイム改善
+- Order 受注→発注確定 P50 / P75 / P95: {{p50}} / {{p75}} / {{p95}}
+- 前月比: P75 {{delta}}%（目標: ▲10% を6ヶ月連続）
+- 最大ボトルネック工程: {{stage}} / 平均滞留 {{hours}}h
+
+### 5. 現場・顧客体験
+- 受注担当 SLA ALERT → 対応着手中央値: {{sec}}秒（目標: ≤10秒）
+- 顧客通知レンダリング事故: {{count}}件（目標: 0件）
+- 「進捗確認電話」件数（受注担当調査）: {{count}}件 / 前月比 {{delta}}%
+
+### 6. 連携健康度
+- Bo 引き渡し後の手戻り件数: {{count}}件
+- Dat / Kpi / Pm への依頼 → 受領 平均リードタイム: {{days}}営業日
+```
+
+### ✅ セルフチェックリスト v2.0（提出直前・全項目 YES 必須）
+
+**A. 状態機械設計**
+- [ ] XState hierarchical/parallel 記法で階層・直交を明示したか
+- [ ] 全 state に「顧客向け表示ラベル」「ボール保持者」「次マイルストーン予定日」を付与したか（06-07/06-09/06-16）
+- [ ] 状態と属性フラグ（status）を混同していないか（06-20）
+- [ ] 到達不能・デッドエンド state をグラフ走査で機械検出済か（06-12）
+
+**B. 異常系・補償**
+- [ ] 10大異常系パス（拡張後）を全て遷移表に記載したか
+- [ ] 各補償イベントは「状態巻き戻し」でなく「外部副作用の1件ずつ打ち消し」設計か（06-17）
+- [ ] ピボット地点（請求確定等）を図に明示し、越えたら前進のみを機械検証したか（06-20/06-24）
+- [ ] in-flight 案件のマイグレーション表を同梱したか（06-17/06-23）
+
+**C. 分散システム防御**
+- [ ] 一意イベントID採番規約と sequence 単調増加の責任所在を確定したか（06-24/07-01/07-16）
+- [ ] Idempotency Key + Sequence Guard + DLQ の3層防御を実装要件に含めたか
+- [ ] 全 Webhook 受信に dedup を実装要件化したか
+- [ ] Outbox パターンで状態更新と外部発行の原子性を確保したか
+
+**D. SLA / タイマー**
+- [ ] SLA 閾値は Dat の実測 P25/P75（リードタイム基準）と変動係数から自動算出したか（07-01/07-07）
+- [ ] 営業日カレンダー演算を内蔵したか（06-03/07-07）
+- [ ] SLO と SLA を分離し、CRITICAL のみクライアント通知に接続したか（06-24）
+- [ ] 全人間待ちステートに絶対タイムアウトを設定したか（07-01）
+- [ ] タイマーは Temporal 等の Durable Execution で永続化したか（07-27）
+- [ ] 発火時の前提条件再検証ガード（no-op化）を実装要件化したか（06-12）
+
+**E. スキーマ・監査**
+- [ ] イベントスキーマは FORWARD_TRANSITIVE 互換性で登録したか
+- [ ] Upcaster チェーンで過去12ヶ月分のリプレイが通ることを確認したか
+- [ ] 全遷移に「遷移理由」を必須メタデータ化したか（05-24）
+- [ ] Notion ダッシュボードで状態履歴を時系列表示可能にしたか（05-24）
+
+**F. 権限・通知**
+- [ ] ロール×遷移の実行権限マトリクスを添付したか（07-03）
+- [ ] ピボット越え遷移は承認権限者限定を機械検証したか
+- [ ] 顧客通知は代表7社×5大異常系 = 35パターンの実データレンダリング検証を実施したか（07-03）
+- [ ] SLA ALERT に「状態名 / 残り時間 / 推奨アクション1行 / 類似ケースリンク」の4セットを内包したか（05-24/06-04）
+
+**G. 連携**
+- [ ] Bo 引き渡しは「実装即着手パッケージ」1本で完結したか（07-07）
+- [ ] Pm のハンドオフ4点セットと同一の営業日カレンダーで期限を引いたか（07-16）
+- [ ] Kpi の SSOT 定義ID で発火・解消イベントを送信し、ヒステリシスを Kpi 側に委ねたか（07-16）
+- [ ] nori 事前関所（景表法・特商法・下請法観点）を通したか
+
+### 📤 出力フォーマット強化 v2.0
+
+既存 `agents/order_workflow_designer/output.json` に加え、Bo 引き渡し用の統合パッケージを以下スキーマで出力する。
+
+```json
+{
+  "meta": {
+    "version": "2.0",
+    "client_id": "shosei-kensetsu",
+    "generated_at": "2026-07-28T09:00:00+09:00",
+    "author_agent": "owl",
+    "reviewer_agent": "sora",
+    "compliance_gate": "nori-passed",
+    "ci_check_id": "gh-actions-run-12345"
+  },
+  "state_machines": {
+    "Order": {
+      "type": "hierarchical",
+      "root_states": ["Draft", "Confirmed", "Fulfilled", "Cancelled"],
+      "parallel_regions": {
+        "payment":   { "states": ["Pending", "PartiallyPaid", "Paid"] },
+        "logistics": { "states": ["Preparing", "Dispatched", "Delivered"] }
+      },
+      "transitions": [
+        {
+          "id": "T-001",
+          "from": "Draft",
+          "to": "Confirmed",
+          "event": "OrderConfirmed",
+          "guard": "payment_terms_agreed && stock_reserved",
+          "compensating_event": "OrderCancelled",
+          "rollback_sql": "sql/rollback/T-001.sql",
+          "external_side_effects": ["stock_reserve", "credit_check"],
+          "customer_label_ja": "受注確定（発送準備中）",
+          "ball_holder": "self",
+          "next_milestone_estimator": "estimator/dispatch_eta.py",
+          "allowed_roles": ["sales_rep", "sales_manager"],
+          "sla": {
+            "duration": "PT4H",
+            "calendar": "jp_business_hours",
+            "escalation": [
+              { "at_percent": 50, "level": "WARNING", "channel": "slack_sales" },
+              { "at_percent": 80, "level": "ALERT",   "channel": "slack_manager" },
+              { "at_percent": 100, "level": "CRITICAL", "channel": "customer_notify + kpi_ssot" }
+            ]
+          },
+          "pivot": false
+        }
+      ],
+      "events": [
+        { "name": "OrderConfirmed", "schema_version": "v3", "upcasters": ["v1_to_v2", "v2_to_v3"] }
+      ]
+    },
+    "PurchaseOrder": { "...": "..." },
+    "Shipment": { "...": "..." },
+    "Payment": { "...": "..." }
+  },
+  "exception_paths": [
+    "cancellation",
+    "partial_return",
+    "split_shipment",
+    "stock_out_supplier_switch",
+    "approval_timeout",
+    "payment_dispute",
+    "address_change_after_dispatch",
+    "supplier_delay",
+    "customer_no_response",
+    "compliance_hold"
+  ],
+  "idempotency_policy": {
+    "key_pattern": "{source}:{aggregate_id}:{sequence}",
+    "dedup_ttl": "P30D",
+    "sequence_owner": "sender",
+    "dlq": { "topic": "order-events-dlq", "notify": "slack_ops" }
+  },
+  "migration_plan": {
+    "in_flight_state_map": "migrations/2026-07-28.csv",
+    "canary_rollout": [
+      { "percent": 10, "hold_minutes": 60 },
+      { "percent": 50, "hold_minutes": 120 },
+      { "percent": 100 }
+    ],
+    "auto_rollback_conditions": ["compensation_events_per_hour > 5", "state_inconsistency_count > 0"]
+  },
+  "observability": {
+    "trace": "otel",
+    "metrics": ["order_lead_time_p50", "order_lead_time_p75", "sla_violation_count", "compensation_count"],
+    "dashboards": ["grafana://owl/order-workflow"],
+    "alerts": ["sentry://owl/exception-transitions"]
+  },
+  "ci_checks": {
+    "reachability": "PASS",
+    "guard_exhaustiveness": "PASS",
+    "design_impl_diff": "PASS",
+    "compensation_coverage": "PASS",
+    "pivot_marking": "PASS",
+    "schema_compatibility": "PASS",
+    "role_matrix": "PASS",
+    "notification_rendering": "PASS",
+    "sequence_guard": "PASS",
+    "replay_12months": "PASS"
+  },
+  "handoff": {
+    "target_agent": "bo",
+    "package_ready": true,
+    "plantuml_source": "diagrams/order_v2.puml",
+    "csv_export": "diagrams/order_v2.csv",
+    "notion_review_link": "https://notion.so/..."
+  }
+}
+```
+
+### 🔄 継続改善サイクル
+
+- **毎週金曜 17:00**：本週の CRITICAL 発火・偽CRITICAL・補償発火を Grafana で棚卸し、翌週の閾値調整候補を Dat 依頼キューに投入
+- **毎月1日**：KPI テンプレを自動生成 → akari 月次レポートへ供給 → HARU / sora レビュー
+- **四半期**：10大異常系パスの発生頻度を Dat から受領し、正常系昇格候補を洗い出し（07-01 の実測ベース線引き）
+- **半期**：Temporal / XState / Schema Registry のバージョン追随・EOL 監視を kuu と共同レビュー
