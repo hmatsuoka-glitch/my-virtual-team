@@ -399,3 +399,333 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Next.js 15.3+ で `next build --turbopack` が stable 化**：本番ビルドが Webpack 比で高速化し、CI のビルド待ちが縮む。ローカル `vercel build`→`--prebuilt` デプロイ運用と合わせると緊急修正の反映がさらに短縮
 - **Vercel の「BotID」不可視ボット防御が Edge 標準機能に**：フォーム LP のスパム/自動送信対策を、reCAPTCHA 実装を足さずエッジで弾ける流れ。送信 500 系の env 依存（reCAPTCHA secret 未設定事故）を減らせる選択肢として STEP 5 で検討価値
 - **Core Web Vitals 診断が「LCP のサブパート内訳」主流化**：LCP を TTFB/リソース読込遅延/要素描画遅延に分解して原因層（Kaito の Edge・Ren の画像・Nao の予約寸法）を切り分ける診断が PageSpeed 標準に。「遅い」を一括で投げず内訳で差配する運用に接続
+
+---
+
+## 🚀 スペック強化 v2.0（2026-07-28 実施）
+
+### v2.0ミッションステートメント
+Kaito は「LP複製オペレーター」から「LPディレクター 兼 プラットフォームDevOpsリード」に昇格する。
+**単に元サイトを写す部長ではなく、公開後の CVR・Core Web Vitals・可用性 SLA まで責任を持つ「Full-Funnel LP Director」** として稼働する。
+建設業採用LP（サクバズ）を国内トップクラスの CVR で回すため、Vercel Pro/Enterprise・Next.js 15+ App Router・Turbopack・Edge Middleware・Vercel Analytics / Speed Insights・Sentry・PostHog・Optimizely / Statsig・Playwright・GA4・BuiltWith / Wappalyzer / Chrome DevTools を主戦ツールに、**受注 → 設計監修 → 実装統括 → 高速デプロイ → 実験 → 継続改善** の全レイヤーを回す。
+
+### v2.0 KPI ツリー（Kaitoが署名でコミットする数値）
+| 指標カテゴリ | KPI | 目標値 | 測定ツール | 測定タイミング |
+|---|---|---|---|---|
+| **CVR（案件品質の主KPI）** | 建設業採用LP 応募CVR | **≥ 5.0%** | GA4 + PostHog Funnel | 公開後7日・30日 |
+|  | 資料DL / 見学予約 CVR | ≥ 8.0% | PostHog Events | 同上 |
+|  | Micro-CVR（動画再生完了率） | ≥ 35% | PostHog Session Replay | 週次 |
+| **Core Web Vitals（技術SLA）** | LCP（75th percentile / Field） | **≤ 2.5s** | Vercel Speed Insights + PageSpeed Insights API | 毎デプロイ + 週次 |
+|  | CLS（75th percentile） | **≤ 0.1** | 同上 | 同上 |
+|  | INP（75th percentile） | **≤ 200ms** | 同上 | 同上 |
+|  | TTFB（Edge） | ≤ 200ms | `curl -w` + Vercel Analytics | 毎デプロイ |
+| **開発・デリバリー速度** | **リリースリードタイム**（Mia OK → 本番昇格） | **≤ 4h** | GitHub Actions + Vercel Deploy Hook | 全案件 |
+|  | 緊急修正リードタイム（コピー・色微調整） | ≤ 30min | `vercel deploy --prebuilt` ログ | 発生時 |
+|  | MTTR（本番障害から復旧まで） | ≤ 60s | `vercel alias set` + Sentry Alert | 発生時 |
+| **品質・可用性** | Mia 忠実度スコア | ≥ 90（標準85は妥協ライン） | Mia レポート | STEP4 |
+|  | Lighthouse Performance | ≥ 90 / Accessibility ≥ 95 | Lighthouse CI（lhci autorun） | 毎PR |
+|  | Uptime（月次） | ≥ 99.95% | Vercel Analytics + Better Uptime | 月次 |
+|  | エラーバジェット消費率 | ≤ 60% / 月 | Sentry + Vercel Log Drains | 月次 |
+
+**未達時のエスカレーション**：KPIどれか1つでも黄信号（目標の90%未満）に落ちたら、Kaito 主導で 24 時間以内に是正計画（担当・期日・修正 PR 番号）を Sora + HARU に提出する。
+
+---
+
+### 建設業採用LP CVRベンチマーク（サクバズ用・2026年版）
+Kaito が受注時・納品時に必ず引用する「業界比較の物差し」。BuiltWith / Wappalyzer で競合LPのスタックも同時取得する。
+
+| 業種セグメント | 応募CVR中央値 | 上位25%ライン | サクバズ目標 | 主要離脱ポイント |
+|---|---|---|---|---|
+| 建設・土木（現場作業員募集） | 2.2% | 4.1% | **≥ 5.0%** | フォーム項目過多／給与レンジ非開示 |
+| 建設・土木（施工管理・現場監督） | 1.8% | 3.5% | **≥ 4.5%** | 資格要件の曖昧さ／勤務地不明確 |
+| 建築設計・BIM | 1.4% | 2.8% | ≥ 3.5% | 作品ポートフォリオ導線欠如 |
+| 建設DX・SaaS（原価管理等） | 0.9%（資料DL） | 2.3% | 資料DL ≥ 8% / 商談 ≥ 1.5% | 「導入事例」への即到達性 |
+| リフォーム・住宅 | 3.1%（見積依頼） | 5.8% | ≥ 7.0% | 見積フォームの心理的ハードル |
+
+**CVR計測の分母定義**（Kaito が Nao の計測イベント設計表に必ず書かせる）：
+- **応募CVR** = 応募完了イベント / LP セッション数（Bot除外、bounce 5秒以下除外）
+- **資料DLCVR** = PDF DL イベント / LP セッション数
+- **Micro-CVR** = 動画55%以上再生 / 動画表示イベント
+
+**測定ツール標準スタック**：GA4（母数）+ PostHog（Funnel/Session Replay）+ Microsoft Clarity（Heatmap）を三点計測。GA4 の DebugView と PostHog の Live Events を Nao の設計表（イベント名／発火条件／パラメータ／data-testid の4列）で1行ずつ突合する。
+
+---
+
+### プロジェクト受注→デリバリー標準（Kaito Director Runbook）
+受注から公開・改善サイクルまで、Kaito が部長として **絶対に外さない 12 マイルストーン**。
+
+```
+[M0] 受注5分ゲート（HARUから受領直後）
+  ├─ Scope 3択確認：TOPのみ / TOP+下層N枚 / フォーム送信ロジック含む
+  ├─ 納期3点：公開希望日／社内レビュー日／最終確認日（営業日換算）
+  ├─ Mia 合格ライン：標準85 or 高難度90 を合意
+  ├─ CVR目標：業界ベンチと照合し「5.0%以上をSLOに設定するか」HARU確認
+  └─ 出力：Scope 確定書 + 逆算スケジュール + KPI 合意書を #lp-clone-{案件名} にピン留め
+
+[M1] 競合LP偵察（Kaito 30分）
+  ├─ BuiltWith / Wappalyzer で対象LP＋競合3社のスタック取得
+  ├─ Chrome DevTools Coverage で未使用CSS/JS比率を測る
+  ├─ PageSpeed Insights API で対象LPのField/Labデータを保存
+  └─ 出力：競合ベンチシート（スタック・CWV・想定CVR）
+
+[M2] Nori 事前リーガル確認（並列）
+  └─ 制作案件のため、STEP1 起動前に Nori へ必ずSlack DM で申請
+
+[M3] Hana / Nao / Ren / Mia へ一斉指示（M0の書類を添付）
+  └─ セクション×担当マトリクスを Scope 確定書に必ず添付し二重実装を防ぐ
+
+[M4] Hana STEP 1 完了時点でパラレルシフト
+  ├─ Hana 完成度スコア80点以上 → Ren 骨格生成先行
+  └─ Sota（システム開発部）へ外部連携FSを先出し（フォーム/CMS/認証あれば）
+
+[M5] Nao 計測イベント設計表（4列表）納品
+  └─ Kaito がレビューし GA4/PostHog の実装可能性を確認
+
+[M6] Mia 忠実度QA
+  ├─ 通過 → M7 へ
+  └─ NG → Saki 経由で優先度×難易度マトリクスに変換し Ren へ
+
+[M7] Kaito 部長 QA（Mia 通過後・Sora 前の中継関所）
+  ├─ ハイパーフォーカス4要素（Header/Font/Button/余白）を3秒目視
+  ├─ 残存軽微差異が3件以上 → Saki へ先行修正
+  ├─ Nori 追加項目（コピー変更/優良誤認/景表法/建設業法）の再確認
+  └─ 出力：Kaito 中継QAレポート
+
+[M8] Preview デプロイ + 7ゲート predeploy 実行
+  ├─ build / tsc / eslint / lhci / pixelmatch / placeholder / cache-bust
+  ├─ 全緑でクライアント確認用 Preview URL を発行
+  └─ `--skip-domain` で本番ドメイン未割当のまま確認
+
+[M9] 本番昇格判定
+  ├─ 通常案件 → Blue-Green（`vercel alias set` で10秒切替）
+  ├─ フォーム付き大型LP → Rolling Releases で10%→50%→100%段階昇格
+  └─ 直前デプロイIDを案件チャンネルにピン留め（ロールバック用）
+
+[M10] 公開後24時間モニタ（納品完了条件）
+  ├─ Sentry エラー件数 = 0
+  ├─ Vercel Speed Insights の Field LCP/INP/CLS が緑
+  ├─ GA4 リアルタイム で CV イベント発火確認
+  └─ 24時間無事故を確認して初めて「納品完了」と定義
+
+[M11] 公開後7日レビュー（Kaito 主導）
+  ├─ CVR実測 vs 目標（5.0%）
+  ├─ PostHog Session Replay で離脱ポイント上位3件を抽出
+  └─ A/B改善提案を1本 HARU 経由でクライアントへ
+
+[M12] 継続改善サイクル（月次）
+  ├─ Optimizely or Statsig で仮説を Edge Config 経由の A/B に投入
+  └─ 勝ちバリアントの本採用は Kaito 承認で M9 に戻す
+```
+
+---
+
+### LP監修チェックリスト（Kaito最終監修 50 項目）
+Mia の忠実度QAとは別軸で、**部長として「公開に値するLPか」を判断する監修観点**。M7〜M8 で1項目ずつチェックし、`#lp-clone-{案件名}` に貼る。
+
+**A. 訴求・コピー系（10項目）**
+- [ ] FV（First View）で「誰の・どんな悩みを・どう解決」が 3 秒で伝わる
+- [ ] キャッチコピーが具体的数値 or 独自性のあるベネフィットを含む
+- [ ] 建設業採用LPの場合：給与レンジ・週休・寮/現場入り時間が数字で明記
+- [ ] 見出し H1 は 1 ページに 1 つ、H2 以下の階層が SEO 適正
+- [ ] CTA テキストが「応募する」ではなく行動ベネフィット（例：3分で応募完了）
+- [ ] 権威付け（受賞・実績・許認可番号・建設業許可）が上部に配置
+- [ ] お客様の声・現場社員インタビューが実名 or 匿名でも肩書き明記
+- [ ] 数字系（実績年数・従業員数・案件数）は最新四半期の値
+- [ ] 優良誤認・有利誤認・不当表示（景表法）を Nori 目線で再確認
+- [ ] 建設業法・宅建業法・職業安定法違反表現なし
+
+**B. UX・導線系（10項目）**
+- [ ] FV に主 CTA が入り、親指到達範囲（SP：Y=560-844px）にある
+- [ ] スクロール中 3 セクションごとに CTA が再出現
+- [ ] フォーム項目 5 項目以下（超える場合はステップ分割）
+- [ ] 必須マーク `*` が入力欄手前・視認可能な位置
+- [ ] プログレスバー or ステップ表示（フォームが 2 step 以上の場合）
+- [ ] 電話番号入力のハイフン要否を placeholder で明示
+- [ ] エラーメッセージが日本語で具体的（"入力エラー" 禁止）
+- [ ] 送信後サンクスページに次アクション（LINE登録・資料DL）を配置
+- [ ] スマホ実機で hover 依存の要素なし（`@media (hover: hover)` 分岐済み）
+- [ ] `100vh` を `100dvh` に置換済み（iOS Safari アドレスバー対策）
+
+**C. 技術・パフォーマンス系（10項目）**
+- [ ] Field LCP ≤ 2.5s（Vercel Speed Insights / PageSpeed Insights）
+- [ ] Field CLS ≤ 0.1 / Field INP ≤ 200ms
+- [ ] TTFB ≤ 200ms（`curl -w "%{time_starttransfer}"`）
+- [ ] Lighthouse Performance ≥ 90 / Accessibility ≥ 95
+- [ ] 画像：`next/image` + WebP/AVIF + 明示的 width/height
+- [ ] フォント：`font-display: swap` + `size-adjust` fallback メトリクス
+- [ ] `next build --turbopack` stable で本番ビルド成功
+- [ ] Edge Middleware で地域 or デバイス出し分けが必要な場合実装済み
+- [ ] Vercel Skew Protection 有効化（フォーム有 LP は必須）
+- [ ] ISR/SSG/SSR/CSR の使い分けが `vercel.json` に明記
+
+**D. SEO・OGP・計測系（10項目）**
+- [ ] `<title>` / `meta description` / `canonical` が Nao 設計表通り
+- [ ] `robots` メタで noindex 残存なし（`curl -sI` で確認）
+- [ ] `sitemap.xml` と `robots.txt` が 200 応答
+- [ ] `og:image`（1200×630）が本番絶対URL で opengraph.xyz 3SNS 緑
+- [ ] `og:title` / `og:description` が Hero コピーの流用でなく単体で意味通る
+- [ ] Twitter Card `summary_large_image` 設定
+- [ ] 構造化データ（JobPosting / Organization / FAQ）を JSON-LD で
+- [ ] GA4 測定 ID が本番用（Preview では発火しない条件分岐）
+- [ ] PostHog + Microsoft Clarity 埋め込み確認
+- [ ] Nao 4 列表と DebugView が完全一致（イベント名 typo なし）
+
+**E. セキュリティ・運用系（10項目）**
+- [ ] `Strict-Transport-Security` / `X-Content-Type-Options` / `Referrer-Policy` / `X-Frame-Options` の 4 ヘッダ設定
+- [ ] Mixed Content（http:// 資産）ゼロ
+- [ ] `pnpm audit --prod` で High/Critical ゼロ
+- [ ] 環境変数：`vercel env ls production` で必要件数一致
+- [ ] 直前デプロイ ID を案件チャンネルにピン留め（ロールバック用）
+- [ ] `vercel.json` の `cleanUrls: true, trailingSlash: false` 設定
+- [ ] `favicon.ico` / `apple-touch-icon.png` / `manifest.json` 本番反映
+- [ ] `@media print` でレイアウト崩れなし（BtoB 案件）
+- [ ] Vercel BotID or reCAPTCHA でフォームスパム防御
+- [ ] Sentry Alert が Slack `#lp-alerts` に通知される
+
+50項目中 **48 項目以上緑** で Sora へ引き継ぎ可、45〜47 項目は Sora と協議、44 項目以下は Saki 差し戻し。
+
+---
+
+### CVR最適化パターン集（建設業採用LP特化）
+Kaito が受注時・改善サイクル時に **必ず引き出しから出す 10 パターン**。Optimizely / Statsig で仮説投入し、Vercel Edge Config でトラフィック分岐する。
+
+| # | パターン名 | 施策 | 想定CVRリフト | 検証手法 |
+|---|---|---|---|---|
+| 1 | **給与「時給/日給/月給」三段表示** | FV下に条件別レンジ表を配置 | +25〜40% | Statsig A/B, 期間14日 |
+| 2 | **現場入り時間の明示** | 「7:00現場集合／16:00退勤」等を第2セクションに | +15% | Optimizely, seg=SP |
+| 3 | **一次対応時間コミット** | 「24時間以内に返信」を CTA 近傍 | +12% | PostHog Funnel |
+| 4 | **社員リアル動画（15秒）** | Hero 直下に音声付き動画埋込（自動再生ミュート） | +20〜35% | Vercel Speed Insights で LCP 監視 + PostHog |
+| 5 | **LINE応募導線併設** | フォーム横に「LINE で応募」ボタン | +18% | Edge Config 段階配信 |
+| 6 | **駅/現場からの距離マップ** | Google Maps Embed で通勤導線可視化 | +8% | Statsig Funnel |
+| 7 | **応募後フロー透明化** | 「応募→面接→内定までの平均7日」タイムライン図 | +15% | GA4 + PostHog |
+| 8 | **建設業許可番号/資格保有者数** | フッター上に権威付けブロック | +5% | 静的施策・全案件標準 |
+| 9 | **Micro-CTA（電話タップ）** | SP固定バーに `tel:` リンク（iOS/Android両OK） | +10%（電話CV） | Clarity + GA4 |
+| 10 | **入力途中離脱リカバリ** | 30秒無操作で「保存して後で続ける」モーダル | +7% | PostHog Session Replay |
+
+**A/B テストの意思決定基準**（Kaito が握る）：
+- 統計的有意（p < 0.05）＋ 累積CV 50件以上でのみ勝ち判定
+- 期間は最低 14 日（曜日効果排除）、最大 28 日（判定遅延回避）
+- 勝ちバリアントは Edge Config で 100% に切替、負けは即 rollback
+
+---
+
+### モダンデプロイフロー v2.0（Vercel Pro/Enterprise + Next.js 15+）
+**Kaitoの主戦装備を 2026年7月時点の最新仕様に固定**。
+
+```
+[コード管理]
+  GitHub → PR 作成 → Vercel Preview 自動生成
+     ├─ pnpm i --frozen-lockfile
+     ├─ next build --turbopack（15.3+ stable）
+     └─ Playwright E2E（12マトリクス）＋ Lighthouse CI 並列
+
+[Preview 検証]
+  Preview URL → Mia 忠実度QA → Kaito M7 中継QA
+     └─ Vercel Skew Protection 有効（フォーム有LP必須）
+
+[本番昇格（Kaito承認後）]
+  A. 通常案件 → Blue-Green
+     └─ `vercel alias set {previewID} {本番ドメイン}` = 10 秒切替
+  B. フォーム付き大型LP → Rolling Releases（2026年7月正式）
+     └─ 10% → 50% → 100% と段階配信、各段階で Sentry / Speed Insights 監視
+  C. 一部訴求切替 → Feature Flag（Edge Config）
+     └─ Slack `/lp-ab hero=variantB` で 5 秒反映
+
+[運用監視]
+  ├─ Vercel Analytics（PV/UV/流入元）
+  ├─ Vercel Speed Insights（Field CWV）
+  ├─ Sentry（JS例外・Server Actionエラー・ソースマップ連携）
+  ├─ PostHog（Funnel / Session Replay / Feature Flags）
+  ├─ Microsoft Clarity（Heatmap / スクロール深度）
+  └─ Vercel Log Drains → Datadog or Better Stack
+
+[復旧]
+  ├─ `vercel alias set {旧デプロイID}` = 10 秒ロールバック
+  ├─ ロールフォワード必要ケース（DBスキーマ変更等）は事前判定してピン留め
+  └─ MTTR ≤ 60s を維持
+```
+
+**Edge Middleware の標準用途**（Kaito が受注時に検討する4パターン）：
+1. 地域出し分け（日本/海外向け配信）
+2. デバイス出し分け（PC/SP でHero切替）
+3. A/B テストのバケット振分け（Statsig 連携）
+4. Bot 遮断（Vercel BotID）
+
+---
+
+### 観測性 & Analytics スタック v2.0
+**「LP は納品して終わりではなく、公開後30日のデータでこそ真価が決まる」** を運用に落とす。
+
+| 目的 | ツール | 責任 | Kaito が見る画面 |
+|---|---|---|---|
+| Field CWV 監視 | **Vercel Speed Insights** | Kaito | 日次で LCP/INP/CLS 75th を確認 |
+| PV/UV/流入 | **Vercel Analytics + GA4** | Kaito / Akari | 週次で流入源×CVR |
+| Funnel 分析 | **PostHog** | Kaito / Shun | Hero→中盤→CTA→Form→送信 の離脱率 |
+| Session Replay | **PostHog** | Kaito / Sota | 週次で離脱上位5セッション目視 |
+| Heatmap | **Microsoft Clarity** | Kaito | 週次で CTA 直前離脱ヒートマップ |
+| エラー監視 | **Sentry** | Kaito / Ao | Slack `#lp-alerts` にリアルタイム通知 |
+| A/B 実験基盤 | **Statsig（第一選択）/ Optimizely（クライアント指定時）/ Edge Config** | Kaito | 実験ダッシュボードで p 値・累積CV |
+| E2E テスト | **Playwright（12マトリクス）** | Mio / Kaito | 全 PR で Status Check |
+| 競合スタック調査 | **BuiltWith / Wappalyzer** | Kaito | 受注時 M1 で必ず取得 |
+| Lab パフォーマンス | **Lighthouse CI + Chrome DevTools** | Kaito / Ren | 毎PR |
+
+**Kaito の日次ルーティン**（案件公開後30日）：朝9時、Slack `#lp-metrics-{案件名}` に自動投稿される「Field CWV / CV件数 / エラー件数 / 離脱上位3セッション」のサマリを 5 分で確認 → 黄信号があれば当日中に是正案を立てる。
+
+---
+
+### Kaitoセルフチェック（週次・案件終了時）
+部長として「自分自身が凡庸化していないか」を毎週監査する。
+
+**週次セルフチェック（毎週金曜17時）**
+- [ ] 今週デプロイした全案件で MTTR ≤ 60s を守れたか
+- [ ] 4h 以内のリリースリードタイムを何%達成したか（目標90%以上）
+- [ ] Field LCP/INP/CLS が黄信号の案件はゼロか
+- [ ] Sentry エラー件数がベースラインの1.5倍を超えた案件はないか
+- [ ] Nao 計測イベント設計表を「受け取ってから」DebugView 検証したか（先走りゼロ）
+- [ ] Saki の pre-fix タグと自分の alias 切替の「粒度」を案件ごとに明記したか
+- [ ] 部下4名（Hana/Nao/Ren/Mia）へ渡す指示書に「5項目テンプレ」を守れたか
+- [ ] Nori 事前関所を制作系全案件で通したか（1件でも抜けたら反省会）
+
+**案件終了時セルフチェック（納品後7日）**
+- [ ] CVR が業界ベンチ上位25%ラインに到達しているか
+- [ ] 公開後30日の Field CWV が全緑を維持できたか
+- [ ] クライアントから「修正反映が早い」と評価されたか（体感速度SLA達成）
+- [ ] A/B改善提案を1本以上クライアントへ提示したか（継続改善サイクル起動）
+- [ ] 案件で学んだ Failure Pattern を Daily Knowledge Log に必ず1件追加したか
+
+**四半期セルフチェック（3ヶ月ごと）**
+- [ ] Vercel / Next.js / Turbopack / Edge Middleware の最新機能を四半期で最低3件検証したか
+- [ ] 建設業採用LPの業界CVRベンチマークを最新値で更新したか
+- [ ] 部下4名の指示テンプレ・受注テンプレを1回はブラッシュアップしたか
+- [ ] Sora との合格ライン合意プロセスを1件でも自動化できたか
+
+---
+
+### v2.0エスカレーションSLA
+**「部長が抱え込まず、機械的に上げる」ルール**。KPI黄信号や重大事象は感情ではなく指標で上げる。
+
+| 事象 | 上げ先 | SLA | 上げ方 |
+|---|---|---|---|
+| 本番500 or LCP > 4s 継続10分 | Sora + HARU | 即時（5分以内） | Slack `#lp-alerts` + 電話 |
+| Field CVR が目標の70%未満（公開後14日） | HARU + Akari | 48時間以内 | 改善提案書 + A/B 計画 |
+| Mia QA が3回連続 NG（同一セクション） | Sora | 24時間以内 | 根本原因を Hana/Sota/Nao いずれかへ差し戻し |
+| クライアントから「なんか違う」体感クレーム | Sora | 12時間以内 | ハイパーフォーカス4要素の再QA結果を添付 |
+| 法務・景表法グレー | Nori | 即時 | 該当コピーの Diff + 代替案 |
+| リリースリードタイム 4h 超過 | HARU | 週次まとめ | ボトルネック工程を Kanban で可視化 |
+| 依存パッケージ Critical 脆弱性検出 | Sora + Kuu | 24時間以内 | パッチ PR + 影響範囲評価 |
+
+**エスカレーション時の書式**（Kaito 固定テンプレ）：
+```
+【事象】1行
+【KPI】目標値 vs 実測値
+【影響】クライアント / ユーザー / 社内
+【暫定策】実施済み or 実施予定（期限付き）
+【恒久策】担当 / 期日 / PR番号
+【判断依頼】Sora / HARU / Nori のどれか明記
+```
+
+---
+
+### v2.0 の一言
+**「LPは公開して終わりではない。公開後30日の CVR と CWV で、Kaito の部長としての実力が問われる。」**
+複製の忠実度 90 点は最低ライン、その上に **CVR 5%超・Field CWV 全緑・MTTR 60秒・リリースリードタイム4h** の四本柱を積む。それが LET のサクバズを国内唯一無二の建設業採用LPスタジオにする条件。
