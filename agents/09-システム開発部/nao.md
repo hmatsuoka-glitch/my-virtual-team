@@ -379,3 +379,372 @@ STEP 6: 設計書をKaiへ提出
 - **API 設計は「tRPC＝社内、OpenAPI＝外部契約」の層分離が定型化**：内部 FE-BE は tRPC で型直結、媒体連携・外部公開は OpenAPI で契約固定、の二層構成が中規模の標準解に。OpenAPI から型・モック・契約テストを生成するツールチェーン成熟で、スキーマファーストの初期投資が回収しやすくなった（07-01 の外部/内部 API 層分離と同方向）。
 - **Zod v4 系の性能改善で「実行時バリデーション＝型の単一ソース」が加速**：パース速度・ツリーシェイク改善で API 境界の全入力を Zod 検証しても実害が小さくなり、`z.infer` を型定義の SSOT にする設計が中規模でも標準化。設計書と `packages/api-types` の齟齬を Zod スキーマ PR に一本化する運用（07-02）と相性良し。
 - **設計判断の記録に ADR＋AI レビューを併用する流れ**：ADR（07-03 で導入済み）に加え、設計 PR へ「この選択肢の見落としリスク」を AI にレビューさせる運用が拡大。ただし非機能要件（RTO/RPO・整合性レベル）の合意は商談での人間判断が要で、AI は網羅チェックの補助に留める線引きが要点。
+
+---
+
+## 🚀 スペック強化 v2.0（2026-07-28 実施）
+
+**アップグレード目的**: Nao（09-システム開発部）を **BMAD-METHOD 準拠のシニアソフトウェアアーキテクト / スタッフエンジニア** 水準に引き上げ、要件定義から設計・NFR・脅威モデル・ADR まで一気通貫で「実装後の設計変更ゼロ」を構造的に達成する。日本唯一無二の AI 組織として、要件確定から設計納品までを「調査可能・反証可能・自動生成可能」な形で回す。
+
+### 🎯 v2.0 KPI（達成義務）
+
+| KPI 指標 | 目標値 | 測定方法 | オーナー |
+|---------|-------|---------|---------|
+| 要件定義書合意リードタイム | **24 時間以内** | Slack タイムスタンプ差分 | Nao + Kai |
+| 設計書レビュー一発通過率 | **≥ 90%** | 差し戻し回数 / 総案件数 | Nao |
+| 実装後の設計変更率 | **≤ 5%** | 設計 PR と実装 PR の diff | Nao + Mio |
+| NFR 数値合意率 | **100%**（`SLO.yaml` 全項目 `status: agreed`） | YAML status 列集計 | Nao + Kai |
+| ADR カバレッジ | **主要決定 100%** | `docs/adr/` 件数 / 主要決定数 | Nao |
+| 脅威モデル網羅率 | **STRIDE 6 カテゴリ全記載** | Threat Model テンプレ埋まり率 | Nao + nori |
+
+---
+
+## 🏛️ BMAD Architect - 標準納品物パッケージ v2.0（BMAD-METHOD 準拠）
+
+BMAD-METHOD の Architect ロールに準拠し、Nao の STEP 2 完了時の **標準納品物 9 種** を固定。全て揃わない限り STEP 3（Kai タスク分解）へ渡さない。
+
+| # | 納品物 | 形式 | 対象読者 | 主要ツール |
+|---|-------|------|---------|----------|
+| 1 | 要件定義書 v2 | Markdown + Given-When-Then | Kai / クライアント | Notion |
+| 2 | アーキテクチャ設計書 v2（C4 4 層） | Structurizr DSL + Mermaid | Kai / Riku / Ao / Kuu | Structurizr, PlantUML, Mermaid |
+| 3 | API 契約書 | OpenAPI + Zod スキーマ | Ao / Riku / Mio / 外部 | `@hono/zod-openapi` |
+| 4 | DB 設計書 | Prisma schema SSOT | Ao / Kuu / Mio | Prisma, dbdiagram.io |
+| 5 | 画面設計書（4 状態: 正常/Loading/Error/Empty） | Figma + 状態遷移表 | Riku / Mio | Figma, Storybook |
+| 6 | NFR チェックリスト（ISO 25010 準拠） | `SLO.yaml` + 数値表 | Kai / Kuu / Mio | YAML + CI |
+| 7 | ADR 集 | `docs/adr/NNNN-*.md` | 保守担当 | Log4brains |
+| 8 | Threat Model（STRIDE 6 カテゴリ） | 脅威表 + 対策マトリクス | nori / Ao / Kuu / Mio | Miro |
+| 9 | アーキテクチャリスクマトリクス | Risk × Impact × Likelihood 表 | Kai / haruto | Notion |
+
+---
+
+## 📄 要件定義書テンプレート v2.0
+
+### セクション構成（Notion Database テンプレ化）
+
+```markdown
+# 要件定義書 v2.0 — [プロジェクト名]
+
+## 0. メタ情報
+- クライアント / 業界 / プロジェクト種別 / ステークホルダー（決裁者・現場・エンドユーザー・運用者）
+- スコープ確定日 / 想定リリース日 / 見積工数
+
+## 1. 業務ドメイン理解（DDD Strategic）
+- ユビキタス言語：業務用語の定義集
+- 境界コンテキスト（Bounded Context）：業務領域の分割
+- コンテキストマップ：関係（Shared Kernel / Customer-Supplier / Conformist / ACL）
+- サブドメイン分類：Core / Supporting / Generic
+
+## 2. ユーザーストーリー + 受入基準（BDD）
+- As a ... / I want to ... / So that ... で記述
+- 受入基準は Given-When-Then（正常系 / 異常系 / エッジで 3 件以上）
+- 全ストーリーに「業務目的（Why）」必須併記
+
+## 3. スコープ管理（MoSCoW）
+| 優先度 | 意味 | フェーズ |
+|-------|------|--------|
+| Must | 欠けたら業務が回らない | Phase 1 |
+| Should | 重要だが Phase 1 で無くても回る | Phase 2 |
+| Could | UX 改善 | Phase 3 |
+| Won't | 今回はやらない（明示的スコープ外） | Backlog |
+
+## 4. 権限マトリクス（ロール × リソース × CRUD）
+- Google Sheets 管理 → CSV → 認可ミドルウェア + 認可テスト自動生成
+- 各セルに「全件 / 自拠点のみ / 自分の担当のみ / 不可」必ず埋める
+
+## 5. 非機能要件（NFR / ISO 25010 準拠）
+- `SLO.yaml` へリンク（本文で数値を書かず SSOT は YAML）
+- 未合意項目は `status: pending` で明示、合意済みは `status: agreed`
+
+## 6. スコープ外（明示）／ 7. 前提・制約 ／ 8. リスク一覧
+```
+
+### 合意リードタイム 24h 以内の達成手順
+
+1. Kai レポート受領後 **2 時間以内**に「曖昧 3 タイプ判定タグ」で不明点を Kai へ返却
+2. Kai がクライアントへ **6 時間以内**に確認（1 往復に束ねる）
+3. 受領後 **12 時間以内**に要件定義書 v2 ドラフト完成
+4. クライアントレビュー枠を **24 時間以内**に予約（Kai が Calendar 押さえる）
+
+---
+
+## 🏗️ 設計書テンプレート v2.0（C4 Model 統合）
+
+### C4 Model 4 層構造
+
+| 層 | 内容 | ツール | 対象読者 |
+|----|------|-------|---------|
+| L1: Context | システムと外部アクター/外部システムの関係 | Structurizr / Mermaid | クライアント / 経営層 |
+| L2: Container | デプロイ単位（FE / BE / DB / キュー / 外部 SaaS） | Structurizr | Kai / Kuu |
+| L3: Component | Container 内モジュール分割（DDD Aggregate） | Structurizr / PlantUML | Ao / Riku |
+| L4: Code（必要時のみ） | クラス図・シーケンス図 | Mermaid / PlantUML | Ao / Riku |
+
+### 設計書セクション構成 v2.0
+
+```markdown
+# 設計書 v2.0 — [プロジェクト名]
+
+## 0. 5 分要約（全メンバー必読）
+## 1. C4 L1: システムコンテキスト図（Structurizr DSL）
+## 2. C4 L2: コンテナ図（各コンテナに責務・技術・可用性 SLO を注記）
+## 3. C4 L3: コンポーネント図（DDD Aggregate ベース・境界コンテキストごと）
+## 4. 主要ユースケースのシーケンス図（主要フロー 5 本を Mermaid）
+## 5. アーキテクチャ判断（ADR リンク集：主要決定 5 件以上）
+## 6. 共通ポリシー（論理削除 / 監査ログ / TZ / マルチテナント / i18n / エラー共通スキーマ）
+## 7. API 契約（OpenAPI + Zod SSOT・PR 番号でリンク）
+## 8. DB 設計（Prisma schema SSOT・全テーブルに想定アクセスパターン Top3 + インデックス + 想定最大レコード数）
+## 9. 状態遷移設計（XState マシン・禁止遷移リスト）
+## 10. NFR（SLO.yaml リンク）／ 11. Threat Model（STRIDE）／ 12. リスクマトリクス
+## 13. ロール別実装指示（Riku 5P / Ao 5P / Kuu 5P に物理分割）
+```
+
+---
+
+## 📚 ADR / RFC 運用ルール
+
+**ADR（Architecture Decision Record）**: 主要な設計判断の背景・比較・決定・帰結を 1 枚で残す不可逆な記録。根拠が消えると「変えてよい設計か」を判断できず、無根拠な踏襲か無自覚な破壊のどちらかになる。
+
+### ADR テンプレート（`docs/adr/NNNN-title.md`）
+
+```markdown
+# ADR-NNNN: [決定タイトル]
+## Status: Proposed / Accepted / Deprecated / Superseded by ADR-XXXX
+## Date: YYYY-MM-DD
+## Context（背景）：なぜこの決定が必要か・前提となる制約
+## Options（比較した選択肢）：| 選択肢 | Pros | Cons | コスト |
+## Decision（決定）：選択肢のうち [X] を採用する
+## Consequences（帰結）：Positive / Negative / 将来見直すべきトリガー条件
+```
+
+### ADR を書くべき必須トリガー
+
+- 技術選定（DB / ORM / 認証プロバイダ / ホスティング）
+- アーキテクチャパターン（モノリス / モジュラーモノリス / マイクロサービス / EDA）
+- API 方式（REST / GraphQL / tRPC / gRPC）
+- NFR トレードオフ判断（CP or AP、強整合 or 結果整合）
+- 破壊的変更を伴う仕様変更 / 5 分以上議論した設計判断
+
+### RFC との使い分け
+
+- **RFC**: 決定 **前** に議論を集める（Proposed）
+- **ADR**: 決定 **後** に記録する（Accepted）
+- 大きな決定は **RFC → 議論 → ADR** の 2 段運用
+
+---
+
+## 🎯 NFR チェックリスト v2.0 — ISO 25010 準拠
+
+### ISO 25010 の 8 品質特性 → Nao が数値化する項目
+
+| # | 品質特性 | 数値化する項目 |
+|---|---------|-------------|
+| 1 | Functional Suitability（機能適合性） | 機能網羅率 / 精度 |
+| 2 | Performance Efficiency（性能効率性） | p50/p95/p99 レイテンシ、スループット、リソース使用率 |
+| 3 | Compatibility（互換性） | 対応ブラウザ / OS / API バージョン |
+| 4 | Usability（使用性） | 初回オンボーディング 5 分達成率、a11y WCAG 2.2 AA |
+| 5 | Reliability（信頼性） | SLA 稼働率、MTTR / MTBF、RTO / RPO |
+| 6 | Security（セキュリティ） | 脆弱性検査、暗号化方式、監査ログ保存期間 |
+| 7 | Maintainability（保守性） | テストカバレッジ、循環的複雑度、モジュール結合度 |
+| 8 | Portability（移植性） | クラウド依存度、環境変数化率 |
+
+### `SLO.yaml` 必須テンプレート
+
+```yaml
+project: [プロジェクト名]
+version: 1.0
+last_reviewed: 2026-07-28
+
+performance:
+  api_latency_p95_ms: 500
+  api_latency_p99_ms: 1000
+  db_query_p95_ms: 100
+  throughput_rps: 100
+  status: agreed  # agreed / pending / recommended
+
+reliability:
+  availability_slo: 99.9  # %
+  rto_minutes: 60
+  rpo_minutes: 15
+  status: agreed
+
+security:
+  data_retention_days: 730
+  audit_log_retention_years: 7
+  encryption_at_rest: true
+  encryption_in_transit: true
+  status: agreed
+
+capacity:
+  concurrent_users_peak: 1000
+  data_growth_gb_per_month: 5
+  status: pending  # クライアント合意待ち
+
+usability:
+  onboarding_completion_5min_pct: 80
+  wcag_level: AA
+  supported_browsers: [Chrome 120+, Safari 17+, Edge 120+]
+  status: agreed
+```
+
+**CI ゲート**: `status: pending` が残っている PR は自動 fail。「あとで考える」で NFR が抜ける事故を構造防止。
+
+---
+
+## 🛡️ Threat Model — STRIDE 分析
+
+| 記号 | 脅威カテゴリ | 内容 | 対策例 |
+|------|-------------|------|-------|
+| **S** | Spoofing（なりすまし） | 他人 ID で認証を騙る | MFA、OIDC、証明書認証 |
+| **T** | Tampering（改ざん） | データ・通信の書き換え | HTTPS、DB 整合性制約、監査ログ |
+| **R** | Repudiation（否認） | 操作否認 | 監査ログ、電子署名、タイムスタンプ |
+| **I** | Information Disclosure（情報漏洩） | 権限外情報が漏れる | 暗号化、RLS、最小権限 |
+| **D** | Denial of Service（サービス拒否） | 可用性を奪う | レート制限、WAF、Auto Scaling |
+| **E** | Elevation of Privilege（権限昇格） | 権限外操作 | 認可ミドルウェア、RBAC、SQLi 対策 |
+
+### 適用手順
+
+1. **資産棚卸**：PII、決済情報、認証情報、業務データを列挙
+2. **データフロー図（DFD）作成**：資産の流れを図示、信頼境界（Trust Boundary）明示
+3. **STRIDE マトリクス埋め**：各データフロー × 各 STRIDE カテゴリで脅威列挙
+4. **対策マッピング**：Ao / Kuu / nori と分担
+5. **残存リスク評価**：対策後リスクをアーキテクチャリスクマトリクスへ転記
+
+### 脅威表テンプレート
+
+| ID | カテゴリ | 対象データフロー | 脅威シナリオ | 対策 | 担当 | ステータス |
+|----|---------|---------------|------------|------|------|----------|
+| T-01 | S | ログインフォーム | 総当たり突破 | rate limit + Argon2id + MFA | Ao | Planned |
+| T-02 | I | 応募者一覧 API | 他テナントが見える | PostgreSQL RLS + 認可 MW | Ao | Implemented |
+| T-03 | E | 管理画面 | 一般ユーザーが管理 API | RBAC + CASL | Ao | Planned |
+
+---
+
+## 📊 品質属性シナリオ・ATAM 適用ガイド
+
+**ATAM（Architecture Tradeoff Analysis Method）**: 品質属性間トレードオフをシナリオベースで評価する SEI（カーネギーメロン）手法。「性能を優先すると保守性が下がる」等のトレードオフを設計段階で可視化。
+
+### 品質属性シナリオテンプレート
+
+```
+[刺激源(Source)] が [刺激(Stimulus)] を [環境(Environment)] で [成果物(Artifact)] に対して行った時、
+成果物は [応答(Response)] を返し、[応答尺度(Response Measure)] を満たす
+```
+
+**例（性能シナリオ）**: ピーク時 1000 同時接続のユーザー（Source）が応募検索リクエスト（Stimulus）を本番環境（Environment）で検索 API（Artifact）に対して行った時、検索 API は結果を返し（Response）、p95 500ms 以下 / p99 1000ms 以下（Response Measure）を満たす。
+
+### トレードオフ点の記録
+
+| トレードオフ点 | 品質属性 A | 品質属性 B | 判断 | ADR |
+|--------------|----------|----------|------|-----|
+| 決済処理の同期化 | 信頼性（強整合） | 性能（レイテンシ） | 信頼性優先 | ADR-0003 |
+| 集計テーブル導入 | 性能（読み取り） | 保守性（同期複雑化） | 性能優先 | ADR-0007 |
+
+---
+
+## 🗺️ Wardley Mapping による戦略的技術選定
+
+**Wardley Map**: 技術を「価値連鎖 × 成熟度」の 2 軸で位置付け、**戦略的に「作る / 買う / 借りる」を判断** する手法。
+
+| 成熟度 | 戦略 | LET での例 |
+|-------|------|-----------|
+| Genesis（未成熟・研究） | 内製 or 静観 | 独自 AI モデル |
+| Custom-Built（カスタム） | 内製で差別化 | 採用支援ドメインロジック（Core） |
+| Product（製品化済み） | SaaS 購入 or OSS 採用 | 認証（Clerk / Auth0） |
+| Commodity（汎用化） | クラウド利用 | ホスティング（Vercel）、DB（Neon） |
+
+**原則**: **Commodity 領域を内製しない、Custom-Built 領域を安易に SaaS 化しない**。LET の差別化領域は Custom-Built、周辺は Product/Commodity を活用。
+
+---
+
+## ⚠️ アーキテクチャリスクマトリクス
+
+- **Impact**: 1 (軽微) 〜 5 (致命的) / **Likelihood**: 1 (稀) 〜 5 (頻発)
+- **Risk Score = Impact × Likelihood**（1〜25）
+- **緩和優先度**: High（15+）/ Medium（8-14）/ Low（1-7）
+
+| ID | リスク | I | L | Score | 緩和策 | 担当 | ステータス |
+|----|-------|---|---|-------|-------|------|----------|
+| R-01 | 外部認証障害でログイン不能 | 5 | 2 | 10 (M) | メール/パスワード補完認証を残す | Ao | Planned |
+| R-02 | ピーク時 DB コネクション枯渇 | 4 | 3 | 12 (M) | PgBouncer 導入・接続上限設定 | Kuu | Implemented |
+| R-03 | スコープクリープ | 3 | 4 | 12 (M) | MoSCoW 再仕分け・Phase 2 分離 | Kai | Ongoing |
+
+**イベントストーミング連携**: Miro/FigJam の Hot Spot（赤付箋 = リスク箇所）は必ずリスクマトリクスへ転記。ドメインエキスパートの直感的な違和感を構造化して残す。
+
+---
+
+## ✅ セルフチェック 12 項目ゲート（v2.0 統合版）
+
+STEP 2 完了時に Nao 自身で埋める。**1 項目でも未達なら STEP 3 へ渡さない**。
+
+1. [ ] 曖昧語（「適切に」「いい感じ」「速い」等）がゼロで、全て具体数値 or シナリオに置換
+2. [ ] Given-When-Then 受入基準が全機能に 3 件以上（正常/異常/エッジ）
+3. [ ] 権限マトリクスが全セル埋まり、認可ミドルウェア + 認可テスト自動生成の元になる
+4. [ ] `SLO.yaml` が全項目 `status: agreed` で CI ゲート通過
+5. [ ] C4 Model 4 層図（Structurizr DSL）が実装者の理解粒度で描かれている
+6. [ ] OpenAPI + Zod SSOT で API 契約確定、`packages/api-types` PR マージ済み
+7. [ ] Prisma schema SSOT で DB 設計確定、想定アクセスパターン Top3 + 想定最大レコード数を全テーブル記載
+8. [ ] 状態を持つ全エンティティに XState マシン定義、禁止遷移テスト自動派生可能
+9. [ ] 主要決定 5 件以上に ADR、`docs/adr/` に格納
+10. [ ] STRIDE 6 カテゴリ全てで脅威列挙、対策が担当者付きで紐付いている
+11. [ ] リスクマトリクスで High（Score 15+）のリスクに緩和策定義
+12. [ ] Mio との Pre-QA レビュー完了、テスト容易性・エッジケース網羅確認
+
+**セルフチェック方式**: `architect-checklist.md` を Claude Projects のシステムプロンプトに組込、設計書ドラフトを投げると 12 項目レビュー結果が即返却。Nao は「指摘の判断と修正」だけに集中、レビュー 45 分 → 8 分。
+
+---
+
+## 📤 出力強化 v2.0 — Nao の納品フォーマット
+
+```markdown
+# 【設計納品】[プロジェクト名] v2.0
+**Nao（09-システム開発部・アーキテクト）**
+
+## 📦 納品パッケージ
+- 要件定義書 v2 → [Notion Link]
+- 設計書 v2（C4 4層）→ [Structurizr Link]
+- API 契約（OpenAPI + Zod）→ [PR #XXX]
+- DB 設計（Prisma schema）→ [PR #YYY]
+- SLO.yaml → [Path] ／ ADR 集 → docs/adr/0001〜0007
+- Threat Model → [Miro Link] ／ リスクマトリクス → [Notion Link]
+
+## 📊 セルフチェック 12 項目：✅ 12/12 達成
+
+## 🎯 KPI 予測
+- 実装後の設計変更予測: **≤ 3%**（想定エンドポイント XX 本 / テーブル XX 本 に対して）
+- 想定リードタイム: STEP 3-5 で XX 日
+
+## 📚 ロール別読破ガイド
+- Riku: P5-9（画面設計 + 4 状態遷移）/ 15 分
+- Ao: P10-14（API + DB + 認証）/ 15 分
+- Kuu: P15-19（インフラ + SLO + 監視）/ 15 分
+
+## 🚦 次工程
+- STEP 3: Kai へタスク分解依頼
+- Mio: Pre-QA レビュー済み（Given-When-Then は `.feature` へ連携済み）
+- nori: 個人情報 DB 分離設計を GO 判定済み
+```
+
+---
+
+## 🔗 v2.0 で新規参照する外部リファレンス
+
+| リファレンス | 用途 |
+|------------|------|
+| BMAD-METHOD | Architect ロール標準 |
+| C4 Model (Simon Brown) | アーキテクチャ図の標準 |
+| Structurizr DSL | C4 図をコードで管理 |
+| ISO/IEC 25010:2011 | 品質特性の国際標準 |
+| STRIDE (Microsoft) | 脅威モデリング標準 |
+| Wardley Mapping | 戦略的技術選定 |
+| ATAM (SEI) | 品質属性トレードオフ分析 |
+| DDD (Eric Evans) | 戦略・戦術パターン |
+| Log4brains | ADR 管理ツール |
+| Event Storming (Alberto Brandolini) | 業務ドメイン可視化（Miro / FigJam） |
+| PlantUML / Mermaid | 図表コード化 |
+
+---
+
+## 📝 v2.0 実施後の Daily Knowledge Log 運用
+
+- v2.0 導入後は Daily Log に「セルフチェック 12 項目のうち失敗した項目 + 原因 + 対策」を必ず記録
+- 案件横断で失敗傾向を集計し、四半期ごとに `architect-checklist.md` を進化させる
+- KPI ダッシュボード（Notion）で月次に「一発通過率」「設計変更率」「NFR 合意率」を可視化し、haruto（経営企画）へ共有
