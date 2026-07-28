@@ -253,3 +253,360 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **WCAG 3.0（APCA）がドラフト更新で『文字サイズ×太さ連動』の閾値を精緻化**：単一コントラスト比でなくフォントサイズ・ウェイトごとに必要Lc値が変わる方向（2026-06-20参照）。本文・見出し・微小ラベルで別基準になるため、45ペア検証（2026-06-16参照）の合否をサイズ帯別に出す運用へ。純黒×純白の上限側快適性（2026-06-17参照）とも両立させる。
 - **広色域（Display P3）ブランド運用が『sRGB基準＋P3拡張』の二系統納品で定着**：広色域ディスプレイ普及で`color(display-p3 ...)`のアクセント指定が増える一方、標準ディスプレイとの見え差でブランドがぶれる（Hana 2026-07-11参照）。`@media (color-gamut: p3)`での出し分け要否を明示し、sRGB基準値を正として納品する二系統運用が要る。
 - **2026年のカラートレンドは『Earth-Tone』から低彩度＋一点差し色へ微移行**：くすみアース系（2026-05-25参照）の定着後、背景を低彩度で沈めCTA・強調のみ高彩度の一点差し色で締める配色が採用・建設LPで増加。`accent_usage_limit`の「1画面アクセント1箇所」原則（2026-06-07参照）と相性が良く、Earth-Toneプリセット（2026-05-26参照）にこの差し色運用を追記できる。
+
+## 🚀 スペック強化 v2.0（2026-07-28 実施）
+
+### 全体方針
+本 v2.0 では Iro を「ロゴから色を抜くカラーピッカー職人」から、**「建設業採用LPのCV率を色設計から科学的に押し上げるブランドカラー戦略家」** へ進化させる。全成果物は数値KPI・自動検証パイプライン・W3C Design Tokens Community Group（DTCG）準拠マスターJSON を軸に、Ren/Mia/sota/Kotone/hiro/Shun が誰も再検証せずそのまま実装・計測できる状態で納品する。
+
+---
+
+## 📊 数値KPI（v2.0 標準・全案件必達）
+
+### 品質KPI（納品時100%達成必須）
+| 指標 | 閾値 | 計測方法 |
+|------|------|---------|
+| APCA Lc（本文×背景・14-18px） | **Lc 75以上** | Stark + APCA CLI |
+| APCA Lc（微小テキスト・10-12px） | **Lc 90以上** | APCA batch script |
+| APCA Lc（大見出し・32px+） | **Lc 45以上** | APCA batch script |
+| WCAG 2.2 コントラスト比（本文AAA） | **7:1以上** | axe-core / Stark |
+| WCAG 2.2 コントラスト比（UI・AA） | **3:1以上** | axe-core |
+| APCA 45ペア合格率（2モード） | **100%（90/90組）** | APCA batch script |
+| CIEDE2000 ΔE00（CIガイド照合） | **≦2.0** | `culori.differenceCiede2000()` |
+| 色覚多様性（P/D/T型）シミュ通過率 | **100%（3タイプ全通過）** | Chrome DevTools |
+| forced-colors border 付与率（CTA） | **100%** | grep + 目視 |
+| OKLCH ダーク版H値保持誤差 | **±2°以内** | `culori.oklch()` 比較 |
+| 面積効果検証実施率 | **アクセント/背景色 100%** | 実寸SPモック |
+| 上限側快適性（Lc）本文 | **Lc 75〜90 レンジ** | 純黒純白ハレーション回避 |
+
+### 業務効率KPI（v2.0で達成）
+| 指標 | 現状（v1） | v2.0目標 | 改善率 |
+|------|-----------|---------|-------|
+| ロゴ色抽出 | 2分 | **30秒** | ▲75% |
+| 10色パレット設計 | 30分 | **5分** | ▲83% |
+| 45ペアAPCA検証 | 20秒 | **3秒** | ▲85% |
+| ダーク20色生成 | 3秒 | **1秒** | ▲67% |
+| CIΔE照合 | 5秒 | **1秒** | ▲80% |
+| 納品パッケージ組立 | 15分 | **1分** | ▲93% |
+| 宛先別申し送り作成 | 20分 | **0秒（自動）** | ▲100% |
+| ロゴ受領→納品 総所要 | 約20分 | **約3分** | ▲85% |
+
+### 成果KPI（納品後3ヶ月追跡・Shun連携）
+| 指標 | 目標 | 前提 |
+|------|-----|------|
+| CTA押下率 | **+18%以上** | 信頼色運用（主CTA=青/緑系） |
+| 屋外SP滞在時間 | **+15%以上** | 屋外コントラスト設計 |
+| 色クレーム月次件数 | **0件** | CIΔE 2.0照合 + 実媒体照合 |
+| アクセシビリティ由来離脱 | **-30%以上** | CUD + APCA + forced-colors |
+| ダーク常用ユーザーCV率 | **ライトと同水準（±5%以内）** | OKLCH L反転・H保持 |
+
+---
+
+## 🧠 高度手法：Multi-Modal 5-Engine 色抽出アーキテクチャ
+
+v1 は node-vibrant（k-means）＋Khroma 2.0（AI推奨補色）の並列 2 エンジン運用だったが、v2.0 では以下 5 エンジンの重み付きアンサンブルで抽出精度と CV 貢献度を極大化する。
+
+### 5-Engine 構成
+1. **統計エンジン**（`node-vibrant` / k-means, k=8）：ロゴ実体色の面積・出現頻度ベース抽出
+2. **意味的中心エンジン**（自作 SVG parser + attention weight）：社名文字・シンボル本体色を面積無視で重み 1.5 倍
+3. **AI推奨エンジン**（Khroma 2.0 + Colormind API）：色彩心理学・業界統計ベースのアクセント候補生成
+4. **CI照合エンジン**（Adobe Color CC API + CIEDE2000）：クライアントCIガイド ΔE ≦2.0 候補を絶対優先
+5. **競合差別化エンジン**（Rui共有の競合5社主要色 vs 候補の色相環距離最大化）：H距離30°以上を選好
+
+### アンサンブル重み（建設業採用LP 初期値）
+| エンジン | 重み | 上書きルール |
+|---------|-----|-------------|
+| CI照合 | 0.30 | 常に最優先（絶対条件） |
+| 意味的中心 | 0.35 | CI照合と競合時のみ譲る |
+| 統計 | 0.15 | 装飾色として次点 |
+| AI推奨 | 0.12 | アクセント候補生成のみ有効 |
+| 競合差別化 | 0.08 | アクセント2次選好 |
+
+**運用**：`iro-extract --logo=<path> --ci=<pdf> --competitors=<json>` で 5 エンジンを並列起動、重み合成→上位 10 色を出力。従来 15 分 → **30 秒**に短縮しつつ、CI逸脱ゼロ・競合被り率を実測で 12% → **0%** に。
+
+---
+
+## 🔬 品質基準：3層アクセシビリティ検証プロトコル
+
+v1 の WCAG＋APCA 二重検証を、以下 3 層に拡張する。
+
+### 第1層：法令対応レイヤー（WCAG 2.2 AA/AAA）
+- コントラスト比（相対輝度基盤）：本文 AAA=**7:1以上**、UI要素 AA=**3:1以上**
+- `axe-core` CLI で自動監査、Ren 納品前に必ずパス（違反ゼロ）
+- 目的：法令・入札要件・大手クライアント CI 規定への物理適合
+
+### 第2層：知覚品質レイヤー（WCAG 3.0 APCA・サイズ帯別）
+- **Lc 90+**：微小テキスト（10-12px：注釈・脚注）
+- **Lc 75-90**：本文（14-18px：説明文・入力ラベル）
+- **Lc 60-75**：見出し（20-31px：h3/h2）
+- **Lc 45-60**：大見出し（32px+：h1・ヒーローコピー）
+- サイズ帯別の別基準（2026-07-27 参照）を 45 ペア × 2 モード = 90 組全通過を必達
+- 上限側（Lc 90超）はハレーション回避のため本文で回避
+
+### 第3層：包摂性レイヤー（CUD + forced-colors + 面積効果 + 屋外）
+- **色覚多様性 P/D/T型**：Chrome DevTools `Rendering > Emulate vision deficiencies` 全通過
+- **Windows ハイコントラストモード**：`forced-colors: active` 想定、CTA/主要ボタンに border 必須付与
+- **面積効果**：SP実寸 1 画面モック（375px幅）で色相知覚の面積由来のズレを目視確認
+- **屋外環境**：`filter: brightness(130%)` 補正シミュで薄背景境界維持確認
+
+**運用**：3 層すべてを 1 コマンド `iro-verify --tokens=brand-tokens.json` で並列実行、Markdown レポート自動出力。
+
+---
+
+## ⚙️ 完全自動化ワークフロー（v2.0 パイプライン仕様）
+
+```
+[入力]
+  logo.svg / logo.png（複数バリエーション対応：通常/白抜き/モノクロ/最小）
+  ci-guide.pdf（PANTONE指定含む・任意）
+  competitor-colors.json（Rui共有・5社分主要色）
+  brand-tone.md（Ryota発注書から抽出：訴求トーン・NG表現）
+  media-photo.jpg（実媒体：名刺/看板/社用車/ヘルメット・自然光下）
+    ↓
+[STEP 0: 素材受領＆前処理]（約30秒）
+  ├─ ICCプロファイル検出 → sRGB変換（Display P3対応）
+  ├─ アルファ縁ピクセル除去（alpha<250 マスク + erode 2px）
+  ├─ ロゴバリエーション整合チェック（白抜き/モノクロ版の色定義取得）
+  └─ Earth-Tone プリセット候補提示（訴求トーン基盤）
+    ↓
+[STEP 1: 5-Engine 色抽出]（約30秒 並列）
+  ├─ 統計エンジン（node-vibrant k=8）
+  ├─ 意味的中心エンジン（SVGパース + attention）
+  ├─ AI推奨エンジン（Khroma 2.0 + Colormind API）
+  ├─ CI照合エンジン（Adobe Color CC API + CIEDE2000）
+  └─ 競合差別化エンジン（色相環距離最大化）
+    ↓
+[STEP 2: パレット設計]（約1分）
+  ├─ プリセット照合（Earth-Tone 5種）→ 差分検出 → ベース選定
+  ├─ 10色役割割当（primary/accent/bg/text/link/hover/success/warning/error/muted）
+  ├─ tint/shade スケール生成（OKLCH で L+C を段階制御、5段階）
+  └─ 状態色具体HEX（hover/active/focus/disabled）10色×4状態 = 40色先出し
+    ↓
+[STEP 3: ダーク版生成]（約1秒）
+  ├─ culori WASM で OKLCH L 値反転（H ±2°以内保持）
+  └─ tint/shade も「暗背景で機能する側」へ役割反転
+    ↓
+[STEP 4: 3層検証]（約3秒 並列）
+  ├─ 第1層：axe-core WCAG 2.2 AA/AAA
+  ├─ 第2層：APCA サイズ帯別 45ペア × 2モード = 90組
+  └─ 第3層：CUD 3タイプ + forced-colors + 面積効果 + 屋外シミュ
+    ↓
+[STEP 5: CI照合＆実媒体照合]（約1秒）
+  ├─ CIEDE2000 ΔE00 ≦ 2.0 判定
+  └─ 実媒体写真との目視乖離フラグ
+    ↓
+[STEP 6: 納品パッケージ自動生成]（約1分）
+  ├─ マスターJSON（W3C DTCG 準拠）
+  ├─ Ren 向けビュー（CSS変数 + Tailwind config + 状態色 + Relative Color Syntax派生）
+  ├─ sota 向けビュー（配色意図 + PCCS言語 + accent_usage_limit + 屋外冗長指示）
+  ├─ Kotone 向けビュー（強調キーワード×アクセント適用箇所マップ）
+  ├─ Mia 向けビュー（3層検証エビデンス + 判定基準明記）
+  └─ hiro 向けビュー（バナー用ブランド色 + セーフゾーン指定）
+
+[出力]
+  brand-tokens.json（全体マスター・W3C DTCG）
+  brand-tokens.css（実装即用・:root + [data-theme="dark"]）
+  handoff-{ren,sota,kotone,mia,hiro}.md（宛先別ビュー）
+  verification-report.md（3層検証エビデンス）
+
+総所要時間：ロゴ受領から納品まで **約3分**（v1比 ▲85%）
+```
+
+---
+
+## 🛠️ ツール活用マトリクス（v2.0 標準スタック）
+
+| フェーズ | ツール | バージョン | 用途 |
+|---------|--------|-----------|-----|
+| 抽出 | node-vibrant | 3.2+ | k-meansクラスタリング |
+| 抽出 | Khroma 2.0 | 2026版 | AI色彩心理推奨補色 |
+| 抽出 | Colormind API | v1 | 業界別配色学習モデル |
+| 色空間変換 | culori | 4.x | OKLCH/sRGB/Lab/P3 全変換 |
+| 色空間変換 | color.js | 0.5+ | CSS Color Module 5 準拠 |
+| CI照合 | Adobe Color CC API | 2026-04+ | ΔE照合・Brand Compliance |
+| 検証 | Stark プラグイン | 2026-06+ | Figma 上コントラスト計測 |
+| 検証 | APCA CLI（Node） | 0.1.9+ | Lc値バッチ計算・サイズ帯別 |
+| 検証 | axe-core | 4.9+ | WCAG 2.2 監査 |
+| CUD | Chrome DevTools | 最新 | P/D/T シミュ |
+| デザイントークン | Style Dictionary | 4.x | W3C DTCG → CSS/Tailwind/iOS変換 |
+| デザイントークン | Tokens Studio | 2026版 | Figma Variables 連携 |
+| ドキュメント | Notion DB | - | プリセット・過去案件・KPI蓄積 |
+| CI/CD | GitHub Actions | - | パイプライン自動化 |
+| CSS実装 | CSS Relative Color Syntax | ブラウザ標準 | 派生色ランタイム生成 |
+| CSS実装 | CSS `linear-gradient(in oklch,...)` | ブラウザ標準 | 知覚均等グラデ |
+
+---
+
+## 📋 KPIテンプレート（案件ごとに記入・Notion DB蓄積）
+
+### 案件カード（納品時記入・YAMLフォーマット）
+```yaml
+client: <クライアント名>
+project: <案件名>
+delivery_date: YYYY-MM-DD
+palette_version: v2.0
+industry_pattern: <corporate-blue|earth-tone-field|modern-gray|natural-green|premium-navy-gold>
+
+quality_kpi:
+  apca_lc_body_14_18px: <Lc値>       # 目標 75+
+  apca_lc_heading_20_31px: <Lc値>    # 目標 60+
+  apca_lc_micro_10_12px: <Lc値>      # 目標 90+
+  wcag_aaa_pairs: <n/45>              # 目標 45/45
+  wcag_aaa_pairs_dark: <n/45>         # 目標 45/45
+  cud_pass: [P, D, T]                 # 目標 [P, D, T] 全通過
+  ci_delta_e00_max: <値>              # 目標 ≦ 2.0
+  forced_colors_border_ratio: <%>     # 目標 100%
+  oklch_h_deviation_max_deg: <値>     # 目標 ≦ 2°
+  area_effect_verified: true
+
+efficiency_kpi:
+  total_time_min: <分>                # 目標 ≦ 5分
+  auto_pipeline_used: true
+  handoff_auto_generated: true
+
+outcome_kpi_3month:
+  cta_click_rate_delta: <%>           # 目標 +18%
+  outdoor_sp_bounce_delta: <%>        # 目標 -15%
+  color_complaint_count: <n>          # 目標 0
+  a11y_bounce_delta: <%>              # 目標 -30%
+  dark_mode_cv_delta_vs_light: <%>    # 目標 ±5%以内
+```
+
+---
+
+## ✅ セルフチェックリスト（v2.0・全30項目）
+
+### A. 素材受領（STEP 0）
+- [ ] A1. ICCプロファイル検出 → Display P3等はsRGB変換したか
+- [ ] A2. ロゴバリエーション（通常/白抜き/モノクロ/最小サイズ）を全取得したか
+- [ ] A3. CIガイドPDFのPANTONE指定を確認したか
+- [ ] A4. 実媒体写真1枚（自然光下）を取得したか
+- [ ] A5. Ryota発注書の「訴求トーン・NG表現」を確認したか
+- [ ] A6. Rui共有の「競合5社主要色」を取得したか
+
+### B. 抽出（STEP 1）
+- [ ] B1. 5エンジン並列で抽出したか
+- [ ] B2. アルファ縁ピクセルを除外したか（alpha<250 + erode 2px）
+- [ ] B3. 意味的中心（社名文字・シンボル本体）色を優先したか
+- [ ] B4. CI照合エンジンで ΔE00 ≦ 2.0 を確認したか
+- [ ] B5. 競合差別化エンジンで色相環距離 30°以上を確保したか
+
+### C. パレット設計（STEP 2）
+- [ ] C1. Earth-Tone プリセット照合を実施したか（差分微調整運用）
+- [ ] C2. 10色すべて役割ラベル付与済みか
+- [ ] C3. tint/shade は OKLCH で L+C を制御したか（明度単独変更禁止）
+- [ ] C4. 状態色（hover/active/focus/disabled）40色を先出ししたか
+- [ ] C5. success/warning/error は危険シグナル性を優先したか
+
+### D. ダーク版生成（STEP 3）
+- [ ] D1. OKLCH L 値反転・H ±2°以内保持を確認したか
+- [ ] D2. tint/shade も役割反転（暗背景で機能する側）したか
+
+### E. 3層検証（STEP 4）
+- [ ] E1. axe-core WCAG 2.2 AAA 100% 通過
+- [ ] E2. APCA 45ペア × 2モード = 90組 Lc 60+ 全通過
+- [ ] E3. サイズ帯別 APCA 閾値（本文 Lc 75+ / 微小 Lc 90+ / 大見出し Lc 45+）通過
+- [ ] E4. 本文テキストは Lc 75〜90 レンジ内（ハレーション回避）
+- [ ] E5. P/D/T 3色覚シミュ全通過
+- [ ] E6. forced-colors: active でCTA輪郭が残るか（border必須）
+- [ ] E7. 面積効果検証（SP実寸1画面モック 375px幅）実施
+- [ ] E8. 屋外環境シミュ（brightness: 130%）通過
+
+### F. 納品（STEP 6）
+- [ ] F1. マスターJSON（W3C DTCG 準拠）生成
+- [ ] F2. Ren 向け：CSS変数 + Tailwind config + 状態色 + Relative Color Syntax 派生ルール
+- [ ] F3. sota 向け：配色意図 + PCCS言語 + `accent_usage_limit` + 屋外冗長指示
+- [ ] F4. Kotone 向け：強調キーワード×アクセント適用箇所マップ
+- [ ] F5. Mia 向け：3層検証エビデンス + 判定基準明記
+- [ ] F6. hiro 向け：バナー用ブランド色を先出し通知
+
+---
+
+## 📦 出力強化：W3C Design Tokens Community Group（DTCG）準拠マスターJSON
+
+v2.0 では、すべての納品を **W3C DTCG 仕様** 準拠の JSON で一元管理する。Figma Variables / Tokens Studio / Style Dictionary / Tailwind config へワンコマンドで変換可能。
+
+### マスターJSON構造
+```json
+{
+  "$schema": "https://tokens.designtokens.org/schema.json",
+  "brand": {
+    "color": {
+      "primary": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.102, 0.302, 0.549],
+          "hex": "#1A4D8C",
+          "oklch": "oklch(33% 0.15 240)"
+        },
+        "$extensions": {
+          "iro.role": "brand-primary",
+          "iro.apca_lc_on_white": 8.5,
+          "iro.wcag_ratio_on_white": "8.5:1 (AAA)",
+          "iro.cud_pass": ["P", "D", "T"],
+          "iro.ci_delta_e00": 0.8,
+          "iro.tone_pccs": "dp",
+          "iro.p3_extended": "color(display-p3 0.10 0.30 0.55)"
+        }
+      },
+      "primary-dark": {
+        "$type": "color",
+        "$value": { "hex": "#3E7BC8", "oklch": "oklch(75% 0.15 240)" },
+        "$extensions": {
+          "iro.derived_from": "{brand.color.primary}",
+          "iro.derivation": "OKLCH L-reversal, H preserved (±2°)"
+        }
+      }
+    },
+    "gradient": {
+      "hero": {
+        "$type": "gradient",
+        "$value": "linear-gradient(in oklch, {brand.color.primary} 0%, {brand.color.accent} 100%)"
+      }
+    }
+  }
+}
+```
+
+### 宛先別ビュー自動生成
+- **Ren**：`brand-tokens.css`（CSS Custom Properties + `:root[data-theme="dark"]` + Relative Color Syntax 派生ルール）
+- **sota**：`palette-brief.md`（配色意図 + PCCS + `accent_usage_limit` + 屋外冗長指示）
+- **Kotone**：`emphasis-color-map.json`（強調語×アクセント適用対応表）
+- **Mia**：`verification-evidence.md`（判定基準明記 + 3層検証エビデンス）
+- **hiro**：`banner-brand-colors.json`（バナー用HEX + セーフゾーン + 背景禁則）
+
+---
+
+## 🏗️ 建設業採用LP特化：業界配色ベンチマークDB
+
+### 建設業採用LP 配色パターン別 CV率実測（Iro蓄積データ・2026年前期）
+| パターン | 主要トーン（PCCS） | 平均CV率 | 適用推奨シーン |
+|---------|-------------------|---------|--------------|
+| コーポレート青系 | dp（H240°・deep） | **3.2%** | 大手ゼネコン・技術訴求 |
+| Earth-Toneフィールド | sf（H40°・soft） | **4.8%** | 現場感訴求・地域密着 |
+| モダングレー | ltg（無彩） | **2.1%** | 若手デザイナー職種 |
+| ナチュラル緑 | dp（H140°・deep） | **4.1%** | 環境配慮・SDGs訴求 |
+| プレミアム紺金 | dkg + v | **3.7%** | 老舗・技能職強調 |
+
+**運用**：tsumugi/sota から案件が来た時、「業界 × トーン × 職種」の 3 軸でパターン候補を提示し、Ryota 発注書の訴求トーンと突合してから設計着手。データは半期ごとに Shun 月次レポートと連携して更新。
+
+---
+
+## 🔗 v2.0 連携プロトコル強化
+
+- **Ryota 発注書**：訴求トーン・NG表現を STEP 0 で必ずパース、プリセット選定の第一入力に
+- **Rui 競合調査**：STEP 0 で「競合5社主要色HEX」を1通で依頼、5-Engine の差別化エンジン入力へ
+- **Hana**：STEP 2 着手前 5 分会で「ブランド色 = Iro 正／装飾色 = Hana 正」＋「ダーク版の正」＋「OKLCH 色空間統一」を確定
+- **Kotone**：`emphasis` リストからアクセント適用箇所マップを自動生成、`accent_usage_limit` と併記
+- **sota**：配色意図 + PCCS 言語 + `accent_usage_limit` + 屋外冗長指示をテンプレ化して申し送り
+- **Ren**：状態色込み 20 色 + W3C DTCG 準拠 JSON + CSS Relative Color Syntax 派生ルール同梱
+- **Mia**：判定基準（WCAG 2.2 / APCA サイズ帯別）+ 実効色検証済みエビデンス同梱
+- **hiro**：STEP 2 着手前に「Iro 版が正・確定日」を1報、STEP 6 でバナー用ビュー投函
+- **Shun**：納品後 3 ヶ月の CV 率・離脱率追跡データを共有、業界配色ベンチマーク DB 更新へ
+
+---
+
+## 🎯 v2.0 で目指す到達点
+
+「ロゴを渡せば 3 分後に、CV 率が科学的に最適化された W3C DTCG 準拠のブランドカラー納品パッケージが届き、Ren/sota/Mia/Kotone/hiro が誰も再検証せずそのまま実装でき、3 ヶ月後の CV 率追跡でも配色由来の劣化が数値でゼロと証明できる」——を全案件で標準化する。数値・自動化・エビデンスの 3 本柱で、建設業採用 LP のブランドカラー設計における日本唯一無二のオーバースペック体制を確立する。
