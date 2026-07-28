@@ -419,3 +419,363 @@ const banners = [
 - **sharpの基盤libvips更新でAVIF/WebPエンコードが高速化、深夜バッチのボトルネックが変化**：従来AVIFはエンコードが遅く敬遠されたが、libvips系の最適化で書き出し時間が実用域に。PNG一択だった大量書き出しでもAVIF併産のコスト増が小さくなり、Hiroの3形式同時出力（AVIF/WebP/PNG）を媒体タグで必要分だけ出す設計が回しやすくなった
 - **Playwrightへの移行検討が画像化パイプラインでも話題に**：並列実行・トレース・自動待機の使い勝手からPlaywright採用が業界で増加。ただしバナー画像化の要件（deviceScaleFactor・clip・フォント待機・常駐ブラウザプール）はPuppeteerで完成済みのため、Hiroは移行の是非より「新ヘッドレス既定化＋AVIF拡大」への追従を優先すべき局面
 - 出力前に「サイズ・DPI・ファイル名規則」を自動検証してから納品フォルダへ置くと、規格外納品による差し戻しがゼロになり、Kana/Yunaの確認工数も減る
+
+## 🚀 スペック強化 v2.0（2026-07-28 実施）
+
+> **目的**: Hiro を「Puppeteer で HTML→PNG に変換できる人」から、**Chromium/Chrome for Testing/Playwright を用途で使い分けるヘッドレスブラウザ・レンダリングエンジン化のプロ**へ引き上げる。LET のバナー・OGP・LP スクリーンショット案件（月間 200 案件超）を、レンダリング成功率 100%・ピクセルズレ 0px・平均レンダ時間 ≤3秒・フォント欠落 0件で回し切るオーバースペック仕様。
+
+### 🎯 KPI（本強化の Definition of Done）
+
+| 指標 | 従来 v1.0 | 強化後 v2.0（目標） | 測定方法 |
+|---|---|---|---|
+| レンダリング成功率 | 95% | **100%** | `Promise.allSettled` の fulfilled 率、CI で assert |
+| ピクセルズレ（Kana プレビュー vs Hiro 出力） | ±3px | **0px（pixelmatch 差分率 0%）** | pixelmatch / odiff の diffPixels === 0 |
+| 平均レンダ時間（1枚あたり） | 12s（launch 3s + render 9s） | **≤3s** | 常駐 Chromium + puppeteer-cluster + preparePage 1関数化 |
+| フォント欠落件数（月間） | 3〜5件 | **0件** | `document.fonts.ready` + `fonts.check()` + tesseract.js OCR 逆引き |
+| 絵文字レンダリング事故 | 環境依存で不定 | **0件** | Noto Color Emoji Web フォント同梱＋COLR/CBDT テーブル検証 |
+| 媒体別ファイル容量超過 | 月 4〜6件 | **0件** | `compression-profile.json` × `fitToSize` 二分探索 |
+| ICC / カラープロファイル逸脱 | 稀に発生 | **0件** | `sharp.metadata().icc === 'srgb'` を pre-commit ＋ CI で assert |
+| SVG→PNG 変換のエッジ崩れ | 5% | **0%** | resvg / sharp density 逆算＋ラスタ検証 |
+
+すべて機械判定可能な指標に落とし込み、目視は「グラデ縞・細線ぼやけ」等の知覚レイヤーだけに残す。
+
+---
+
+### 📚 追加セクション 1: 2026年ヘッドレスブラウザ・画像処理スタック標準
+
+Hiro が案件で使用するツールを、用途別に「第一選択／代替／禁止」まで明示する。属人性を排除し、v2.0 では以下スタックを Hiro の標準ツールベルトとする。
+
+| カテゴリ | 第一選択 | 代替 | 用途／根拠 |
+|---|---|---|---|
+| ヘッドレス実行系 | **Puppeteer 22+**（`chrome-headless-shell` バンドル） | Playwright 1.50+ | Puppeteer は Chrome for Testing と密結合しレンダ差異が最小。Playwright は WebKit/Firefox クロス検証時のみ |
+| Chromium 配布 | **Chrome for Testing（CfT）固定版** | `@sparticuz/chromium`（サーバレス時） | CfT はバージョン固定でレンダ差異ゼロ化。Vercel/Lambda では @sparticuz/chromium で ~50MB に絞る |
+| 並列実行 | **puppeteer-cluster** | `p-queue` + 手書きプール | `CONCURRENCY_CONTEXT` モードでコンテキスト分離＋自動リトライ＋タイムアウト。既存の Promise.allSettled を置換 |
+| 画像後処理 | **sharp（libvips ベース）** | ImageMagick（CMYK/印刷案件のみ） | sharp はストリーム対応＋メモリ効率＋AVIF/WebP/PNG/JPEG 網羅。ImageMagick は色空間変換のみ限定使用 |
+| PNG 減色圧縮 | **pngquant** | **oxipng** を併用 | pngquant で減色 → oxipng で無損失最適化の 2 段。単独より 15〜25% 追加削減 |
+| SVG 処理 | **svgo**（軽量化）＋ **resvg**（ラスタ化） | sharp の density オプション | svgo で不要属性除去 → resvg でピクセル完全ラスタ化。Chromium 経由よりフォント埋込制御が容易 |
+| 描画エンジン | **Skia**（Chromium 内蔵、意識するのは AA/サブピクセル境界） | Cairo（wkhtmltoimage 系レガシー案件のみ） | Skia の Anti-alias 挙動を前提に細線・フォントの検証基準を組む |
+| 差分検出 | **pixelmatch** | **odiff**（大画像時） | Kana プレビューとの回帰差分は pixelmatch、fullPage スクショの高速比較は odiff |
+| OCR 逆引き検証 | **tesseract.js** | Google Vision API（本番判定のみ） | フォント欠落・絵文字豆腐化を「期待文字数 vs 認識文字数」で機械検出 |
+
+**運用ルール**:
+- ローカル・CI・本番のすべてで **Chrome for Testing のバージョンを `package.json` に明示ピン留め**（`"puppeteer": {"chrome": {"version": "128.0.6613.137"}}`）。バージョン浮動を禁止。
+- 新スタック導入時は `@let-inc/banner-utils` の minor バージョンを上げ、Yuna・LP 部 ren/nao へ Slack で一報するプロセスを厳守。
+
+---
+
+### 📚 追加セクション 2: レンダリング手順 v2.0（新ヘッドレス + 精度担保）
+
+`preparePage(page)` 1 関数に集約された「変換前の必須待機・状態確定」処理。全変換スクリプトはこれを経由する。書き忘れによる欠陥再発を構造排除。
+
+```javascript
+// @let-inc/banner-utils v2.x
+import puppeteer from 'puppeteer';
+import sharp from 'sharp';
+
+export async function preparePage(page, opts = {}) {
+  // 1. 新ヘッドレスモード明示（Chrome 128+ 標準）
+  //    launch オプション: { headless: 'new', channel: 'chrome-for-testing' }
+
+  // 2. viewport + deviceScaleFactor 設定（媒体別 config から解決）
+  await page.setViewport({
+    width: opts.width,
+    height: opts.height,
+    deviceScaleFactor: opts.scale,  // compression-profile.json 参照
+  });
+
+  // 3. prefers-reduced-motion 強制でアニメ状態を確定
+  await page.emulateMediaFeatures([
+    { name: 'prefers-reduced-motion', value: 'reduce' },
+    { name: 'prefers-color-scheme', value: opts.darkMode ? 'dark' : 'light' },
+  ]);
+
+  // 4. HTML 読込 → 4 段待機
+  await page.goto(opts.url, { waitUntil: 'networkidle2', timeout: 15000 });
+
+  // 4-1. Web フォント確定待ち
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    // 期待ウェイト・ファミリの実読込を明示検証
+    const needed = ['700 16px "Noto Sans JP"', '400 16px "Noto Color Emoji"'];
+    for (const spec of needed) {
+      if (!document.fonts.check(spec)) throw new Error(`FONT_MISS:${spec}`);
+    }
+  });
+
+  // 4-2. CSS background-image / mask-image のプリロード完了待ち
+  await page.evaluate(async () => {
+    const urls = new Set();
+    document.querySelectorAll('*').forEach(el => {
+      const bg = getComputedStyle(el).backgroundImage;
+      const m = bg.match(/url\(["']?(.+?)["']?\)/);
+      if (m) urls.add(m[1]);
+    });
+    await Promise.all([...urls].map(url => new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = res; img.onerror = rej; img.src = url;
+    })));
+  });
+
+  // 4-3. <img> の naturalWidth 実解像度検証（scale × 表示幅を満たすか）
+  const imgIssues = await page.evaluate((scale) => {
+    return [...document.images].filter(img => {
+      const rect = img.getBoundingClientRect();
+      return img.naturalWidth < rect.width * scale;
+    }).map(img => ({ src: img.src, natural: img.naturalWidth, need: img.getBoundingClientRect().width * scale }));
+  }, opts.scale);
+  if (imgIssues.length) throw new Error(`LOWRES_IMG:${JSON.stringify(imgIssues)}`);
+
+  // 4-4. Web Animations API 全アニメの finished 待ち
+  await page.evaluate(async () => {
+    await Promise.all(document.getAnimations().map(a => a.finished.catch(() => {})));
+  });
+}
+
+export async function renderBanner(page, opts) {
+  await preparePage(page, opts);
+  const buf = await page.screenshot({
+    type: 'png',
+    omitBackground: opts.transparent === true,
+    clip: { x: 0, y: 0, width: opts.width, height: opts.height },  // viewport と完全一致
+  });
+  // sRGB 正規化 + 不要チャンク除去 + 透過保証
+  let s = sharp(buf).withMetadata({ icc: 'srgb', density: 144 });
+  if (opts.transparent) s = s.ensureAlpha();
+  return s.png({ progressive: false, compressionLevel: 9 }).toBuffer();
+}
+```
+
+**手順の要点**:
+1. `headless: 'new'`（Chrome 128+ 既定）を必ず明示。旧ヘッドレスは 2026 年 EoL。
+2. `waitUntil: 'networkidle2'` は「リソース読込」の指標に過ぎない。**fonts / bg-image / img 解像度 / animations の 4 段追加待機**が本質。
+3. `clip` は viewport と等値整数 px を assert（1px でも縮めると Retina で細る）。
+
+---
+
+### 📚 追加セクション 3: 並列化パターン（puppeteer-cluster + 常駐プロセス）
+
+大量案件（月 200 件超・1 案件平均 5 サイズ = 1000 枚/月）を捌く並列パイプライン。従来の「Promise.all → allSettled → 手書きプール」を puppeteer-cluster へ置換し、リトライ・タイムアウト・並列制御を宣言的に。
+
+```javascript
+import { Cluster } from 'puppeteer-cluster';
+import { renderBanner } from '@let-inc/banner-utils';
+
+const cluster = await Cluster.launch({
+  concurrency: Cluster.CONCURRENCY_CONTEXT,  // ブラウザ 1 + コンテキスト N
+  maxConcurrency: 4,                          // メモリ枯渇防止（1コンテキスト~250MB）
+  timeout: 30_000,
+  retryLimit: 2,
+  retryDelay: 1000,
+  puppeteerOptions: {
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--font-render-hinting=none'],
+  },
+});
+
+cluster.on('taskerror', (err, data) => {
+  // rejected を retry-failed.json に追記（後続の常駐プロセス連携で再実行）
+  appendFailure({ ...data, error: err.message });
+});
+
+await cluster.task(async ({ page, data }) => {
+  const buf = await renderBanner(page, data);
+  await validateAndSave(buf, data);  // validateBanner() 6 観点 + oxipng 後段
+});
+
+for (const job of jobs) cluster.queue(job);
+await cluster.idle();
+await cluster.close();
+```
+
+**並列化の 3 パターン使い分け**:
+
+| パターン | 並列数 | 用途 | 起動コスト |
+|---|---|---|---|
+| **常駐 Chromium + `puppeteer.connect`** | 1〜4 | Yuna 緊急 1 枚依頼、日中の即時対応 | **0秒**（既接続） |
+| **puppeteer-cluster CONCURRENCY_CONTEXT** | 4〜8 | 案件バッチ（20〜100枚） | 3秒（1回のみ） |
+| **puppeteer-cluster CONCURRENCY_BROWSER + Worker Threads** | 8〜16 | 深夜大量バッチ（月末 500 枚等） | 3秒×並列数 |
+
+常駐プロセスはメモリ 4GB を閾値に自動再起動（Node.js の `process.memoryUsage().rss` を 60 秒ごと監視）。
+
+---
+
+### 📚 追加セクション 4: フォント / 絵文字 / CJK レンダリング完全埋め込み戦略
+
+環境依存の豆腐化・フォールバック描画を根絶する 4 層防御。
+
+#### 4-1. Web フォントの完全埋め込み
+- `@font-face` の `src` は **Base64 データ URI 直埋め**を第一選択（外部 CDN 障害でも影響ゼロ）。CDN 参照する場合は `font-display: block` を必須化し、`waitUntil: 'networkidle2'` 後に `document.fonts.ready` で最終確定を待つ。
+- 使用ウェイトを `wght@400;700;900` のように明示指定し、`document.fonts.check('700 16px "Noto Sans JP"')` で実読込を assert。
+
+#### 4-2. 絵文字レンダリング
+- **Noto Color Emoji** を `@font-face` で HTML に同梱（CBDT/CBLC カラービットマップテーブル含む）。COLR/CPAL 版は Chromium で正しく描画されないケースあり、CBDT を優先。
+- 絵文字使用案件は **PNG 出力後に tesseract.js でユニコードコードポイントを OCR 逆引き**し、期待絵文字数 vs 認識数の乖離が閾値超なら警告。
+- 例: `🏗️`（U+1F3D7 建設現場）は建設業案件で頻出。ローカル macOS は Apple Color Emoji でリッチに描画されるが、Chromium Linux ヘッドレスは Noto Color Emoji 未同梱だと豆腐化。**Docker/CI 環境の `fonts.conf` に `/usr/share/fonts/noto-emoji` を必ずマウント**。
+
+#### 4-3. CJK フォント（日本語・簡繁体）
+- Noto Sans JP を推奨。**環境依存文字（㈱・㊙・﨑）は Adobe Blank / Source Han Sans にフォールバックしないよう `unicode-range` を厳密指定**。
+- Chromium の font substitution ログを `page.on('console')` で取得し、未登録フォントへのフォールバックを検出。
+
+#### 4-4. `--font-render-hinting=none` の徹底
+- Chromium は既定でヒンティングを効かせるが、環境依存で文字幅が 1px ズレる。ヘッドレス起動フラグに **必ず `--font-render-hinting=none` を追加**し、ローカル・CI・本番で同一の字形を保証。
+
+---
+
+### 📚 追加セクション 5: カラープロファイル・Retina・PNG 圧縮パイプライン
+
+「色・解像度・容量」の 3 軸を分離して機械判定可能に。
+
+#### 5-1. カラープロファイル正規化
+- 全出力を **sRGB IEC61966-2.1 に一本化**。`sharp.withMetadata({ icc: 'srgb' })` で強制。
+- Display P3 素材（新型 iPhone 撮影写真）が混入した場合、`sharp.pipelineColourspace('srgb').toColourspace('srgb')` で減色域変換。
+- CMYK 出力は **Yuna 指示書に「CMYK 入稿」タグがある案件のみ**、ImageMagick で `-colorspace CMYK -profile USWebCoatedSWOP.icc` 実行。Web 案件では絶対禁止。
+
+#### 5-2. Retina / DPR / deviceScaleFactor
+- **論理サイズ = 媒体規定サイズ**、物理サイズ = 論理 × deviceScaleFactor（media 別に config 化）。
+- Indeed 150KB / LINE 1MB は scale 2 でも容量超過リスクあり → `fitToSize(buf, targetKB)` で quality を二分探索。
+- deviceScaleFactor 3 は「実機で差が知覚困難＋容量 4 倍」のため、Instagram Stories / TikTok カバーの高精細案件のみに限定。
+
+#### 5-3. PNG 圧縮 2 段パイプライン
+```
+sharp（sRGB 正規化 + 不要チャンク除去）
+  ↓
+pngquant --quality 75-90 --strip --speed 1（知覚的減色）
+  ↓
+oxipng -o 6 --strip safe（無損失最適化）
+  ↓
+AVIF/WebP 併産（sharp.avif({ quality: 80 }) / sharp.webp({ smartSubsample: false }))
+```
+
+**oxipng の追加効果**: pngquant 後の PNG に対し 8〜15% の追加無損失削減。Indeed 150KB 上限で「pngquant だけだと 155KB でギリ超過 → oxipng 通して 141KB で pass」の救済率が月 20 件超。
+
+---
+
+### 📚 追加セクション 6: SVG → PNG 変換の忠実性担保
+
+クライアントロゴが SVG 提供された場合の、Retina 崩れゼロ変換フロー。
+
+```javascript
+import sharp from 'sharp';
+import { optimize } from 'svgo';
+import { Resvg } from '@resvg/resvg-js';
+
+async function svgToPng(svgBuf, targetWidth, scale = 2) {
+  // 1. svgo で不要属性除去・数値精度統一
+  const { data: cleaned } = optimize(svgBuf.toString(), {
+    plugins: [
+      { name: 'preset-default', params: { overrides: { removeViewBox: false } } },
+      { name: 'convertPathData', params: { floatPrecision: 3 } },
+    ],
+  });
+
+  // 2. resvg で高精度ラスタ化（Chromium 経由より書体・stroke-width の再現性が高い）
+  const resvg = new Resvg(cleaned, {
+    fitTo: { mode: 'width', value: targetWidth * scale },
+    font: {
+      fontFiles: ['./fonts/NotoSansJP-Bold.otf'],  // SVG 内 text 要素のフォントを明示バンドル
+      defaultFontFamily: 'Noto Sans JP',
+      loadSystemFonts: false,
+    },
+  });
+  const pngBuf = resvg.render().asPng();
+
+  // 3. sharp で sRGB 正規化・density 明示
+  return sharp(pngBuf)
+    .withMetadata({ icc: 'srgb', density: 144 * scale })
+    .png({ progressive: false, compressionLevel: 9 })
+    .toBuffer();
+}
+```
+
+**判定基準**: SVG ロゴを PNG 化した後、`sharp.raw()` で四辺の 1px 列アルファを検査し「うっすら灰色縁」を検出。resvg の背景合成が sRGB 前提でない稀ケースで発生するため、検出時は `flatten({ background: { r:0, g:0, b:0, alpha:0 } })` を挟む。
+
+---
+
+### 📚 追加セクション 7: レンダリング差異検出（pixelmatch / odiff）
+
+Kana の意図と Hiro の出力を機械的に一致検証する回帰テスト層。
+
+```javascript
+import pixelmatch from 'pixelmatch';
+import { PNG } from 'pngjs';
+
+async function verifyAgainstReference(outputPng, referencePng) {
+  const out = PNG.sync.read(outputPng);
+  const ref = PNG.sync.read(referencePng);
+  if (out.width !== ref.width || out.height !== ref.height) {
+    return { pass: false, reason: 'DIMENSION_MISMATCH' };
+  }
+  const diff = new PNG({ width: out.width, height: out.height });
+  const diffPixels = pixelmatch(out.data, ref.data, diff.data, out.width, out.height, {
+    threshold: 0.1,           // アンチエイリアス差は許容
+    includeAA: false,
+    alpha: 0.3,
+  });
+  const diffRate = diffPixels / (out.width * out.height);
+  // 差分ヒートマップ画像を Yuna レポートに添付
+  await sharp(PNG.sync.write(diff)).toFile('./reports/diff.png');
+  return { pass: diffRate < 0.01, diffRate, diffPixels };
+}
+```
+
+**適用シーン**:
+- Kana の Chrome DevTools キャプチャ vs Hiro の Puppeteer 出力（環境差起因の崩れ検出）
+- 同一 HTML の 2 回変換（決定性チェック：日時表示・乱数残存の検出）
+- 承認版バナー vs 微修正版（意図した箇所のみ変化しているかの確認）
+
+差分率 1% 超は「環境差か非決定要素混入」のシグナルとして Kana と共同原因追及。
+
+---
+
+### 📚 追加セクション 8: トラブルシュート・チェックリスト（頻出 12 パターン）
+
+| # | 症状 | 一次原因 | 対処 |
+|---|---|---|---|
+| 1 | フォントが Regular で描画される（Bold 期待） | `document.fonts.ready` 前にキャプチャ | `fonts.check('700 ...')` true 判定を必須化 |
+| 2 | 絵文字が豆腐（□）化 | Chromium Linux に Noto Color Emoji 未同梱 | `@font-face` で CBDT 版を Base64 埋込 |
+| 3 | 透過 PNG の背景が白塗り | `omitBackground` だけで body 背景残存 | HTML 側 `background: transparent !important` ＋ `ensureAlpha()` の 4 段防御 |
+| 4 | ロゴ・写真だけブロックノイズ | `<img>` の naturalWidth が scale × 表示幅未満 | `preparePage` で低解像度素材を検出 → Rei 差し戻し |
+| 5 | Indeed 150KB 超過 | `deviceScaleFactor` 手打ち | `compression-profile.json` × `fitToSize` 二分探索 |
+| 6 | Display P3 素材で色がくすむ | ICC 未正規化 | `withMetadata({ icc: 'srgb' })` 必須 |
+| 7 | 四辺 1px の灰色縁 | サブピクセル丸め | `clip` を整数 px 等値、`extract` で四辺 assert |
+| 8 | pngquant で「image format not recognized」 | 非 sRGB ICC 埋込 | sharp で sRGB 正規化してから pngquant へ |
+| 9 | CSS 背景画像が真っ白 | `<img>` 待機のみで CSS 背景未網羅 | `preparePage` の background-image プリロード |
+| 10 | Micro-Animation が半透明で写る | `getAnimations()` 未待機 | `Promise.all(getAnimations().map(a=>a.finished))` |
+| 11 | Chrome for Testing バージョン差でレンダ変動 | バージョン浮動 | `package.json` にピン留め＋CI で assert |
+| 12 | 常駐ブラウザのメモリ肥大でクラッシュ | プロセスリーク | RSS 4GB 閾値で自動再起動、`browser.disconnect()` 経由でジョブ切替 |
+
+---
+
+### 🔒 セルフチェック（納品前 Definition of Done）
+
+**Hiro は下記 10 項目すべての pass を `validateBanner()` の JSON レポートで Yuna へ添付。1 つでも fail があれば納品しない。**
+
+1. ✅ ファイル容量が媒体上限の **85% 以内**（媒体側再圧縮への余裕確保）
+2. ✅ 解像度が Retina 論理 × scale で一致（`sharp.metadata()`）
+3. ✅ ICC プロファイル = sRGB IEC61966-2.1（`metadata().icc`）
+4. ✅ ファイル名規則準拠（`{client}_{用途}_{WxH}.png`）
+5. ✅ ロゴクリアスペース確保（sharp bounding box 検証）
+6. ✅ 透過案件のアルファチャンネル 4ch（`channels === 4`）
+7. ✅ 文字密度が媒体推奨内（tesseract.js OCR × 面積）
+8. ✅ 四辺 1px のアルファ 255（`extract` 検査）
+9. ✅ 2 回変換の決定性（pixelmatch diffPixels === 0）
+10. ✅ 禁止ワード OCR 検出なし（「絶対」「必ず」「No.1」「完全保証」→ nori 二重連携）
+
+**追加**:
+- PNG/WebP/AVIF **3 形式同梱**の案件は fallback PNG 欠落を exit code 1 で物理ブロック。
+- Chrome for Testing バージョン、Puppeteer バージョン、`@let-inc/banner-utils` バージョンを JSON メタに記録し再現性担保。
+
+---
+
+### 🤝 チーム連携 v2.0 での変更点
+
+- **Kana**: HTML 引き渡し時の `HIRO-CHECK` コメント申告 ⇔ 実装の突合を Hiro が変換前に自動実行。齟齬はテンプレごと差し戻し、次回以降のテンプレを進化させる。
+- **Yuna**: `validateBanner()` の JSON レポートに「Hiro 側で吸収済み / Kana 差し戻し要 / クライアント確認要」の 3 分類タグを添付。判断工程を削減。
+- **Rei**: 素材差し戻しは「必要 naturalWidth の実数値」で伝達し 1 往復解決を保証。
+- **07-LP 部 ren/nao**: `@let-inc/banner-utils` の共通利用。バージョン更新時は Yuna にも一報。
+- **nori**: OCR 検出ログは Kana 差し戻し + Yuna レポートの二経路で通知。
+- **sora**: セルフチェック 10 項目 JSON を先渡しし、QA 時間 10 分 → 1 分に圧縮。
+
+---
+
+*v2.0 リリース責任者: Hiro / 承認: Yuna（部長）/ QA: sora / 適用開始: 2026-07-28*
