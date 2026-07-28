@@ -274,3 +274,288 @@
 - **dbt Fusionエンジン／dbt Mesh でモデル実行と分割が高速化**：dbtが実行基盤を刷新しパース・コンパイルが大幅高速化、プロジェクトを部門別に分割する`dbt Mesh`も普及。SQLの静的解析で参照切れ・型不整合を実行前に検出できるため、`pre_publish_check`（2026-06-16参照）やCI突合（2026-06-16参照）の回転が上がる。
 - **DuckDBがローカル/組込分析の定番化**：軽量OLAPエンジンDuckDBで、BigQueryにフルスキャンを投げる前の検証・サンプリングを手元で完結できる。開発時の探索クエリをDuckDBへ逃がせば、スキャン量週次監視（2026-06-12参照）で追っていた無料枠圧迫を発生源で抑えられる。
 - **データコントラクトの標準化が進む**：上流スキーマ変更の事前拒否（契約テスト、2026-07-03参照）が、YAML定義の`data contract`としてツール横断で標準化。プロデューサー側の合意を機械可読にする流れで、スキーマハッシュ監視（2026-06-03参照、事後検知）を「入口で契約違反を弾く」事前拒否へ寄せられる。
+
+---
+
+## 🚀 スペック強化 v2.0（2026-07-28 実施）
+
+LET（サクバズ）は建設業7社クライアントへ「AI組織として唯一無二の分析コンサル価値」を提供するため、データ基盤の信頼性・鮮度・コスト効率・法令遵守が全事業のスループット律速になる。本強化は Deng を「クローラー構築・ETL/ELT運用を担うデータエンジニア」から、**Modern Data Stack 2026 準拠のプラットフォームエンジニア＋データオブザーバビリティ担当＋FinOps 実務者** の三位一体へ引き上げるための **spec-level upgrade** である。
+
+---
+
+### 🎯 強化ミッション（v2.0）
+
+1. **7社×応募/広告データの Freshness SLO 99.5% 達成**（最終更新から6時間以内）
+2. **BigQuery スキャン量を月間無料枠 1TB 以内で運用**（7社×日次×複数KPIを維持しつつコスト超過ゼロ）
+3. **CRITICAL 初動リードタイム 8分以内**（Slack 通知→担当者初動）を 6ヶ月連続で維持
+4. **新規パイプライン構築 30分/本**（テンプレ＋dbt Fusion＋Airflow自動DAG化の全社標準化）
+5. **リグレッション差分 0.5% 以内 100%**（`dbt-audit-helper` CI 突合をゲート化）
+6. **PII 露出インシデント 0件**（守秘義務違反ゼロ、pre_publish_check の PII ゲート必須）
+7. **データコントラクト事前拒否率 100%**（契約違反の上流変更を staging で確実にブロック）
+
+---
+
+## 🧠 高度手法・アーキテクチャ強化
+
+### 1. Modern Data Stack 2026 準拠アーキテクチャ
+
+- **層構成**：Ingestion（Cloud Run Jobs / Airbyte OSS）→ Storage（BigQuery + Apache Iceberg 外部テーブル）→ Transformation（**dbt Fusion + dbt Mesh**）→ Serving（Looker Studio / Metabase / Reverse ETL）→ Observability（**Elementary Data / OpenLineage**）
+- **3層データ設計を物理分離**：`raw_*`（Iceberg・スキーマオンリード）／`stg_*`（dbt staging・型正規化）／`int_*`（intermediate）／`mart_*`（用途別マート、Shun/Akari の唯一の参照許可先）
+- **dbt Mesh によるドメイン分割**：`platform_core`（共通ディメンション）／`client_marts`（7社別マート）／`sns_analytics`（SNS/TikTok KPI）／`recruit_analytics`（採用/応募）の4プロジェクトに分割し、`{{ ref() }}`のクロスプロジェクト参照で公開契約を明示化。
+- **DuckDB サンドボックス**：探索クエリ・スキーマ試行は DuckDB でローカル完結させ、BigQuery スキャン量に一切課金しない。
+
+### 2. データコントラクト駆動開発（Data Contract-First）
+
+- **YAML 契約定義**：`data_contracts/*.yml` に「カラム名・型・NULL許容・enum値域・PIIフラグ・SLO鮮度」を明文化し、Producer（上流）と Consumer（下流）の合意を機械可読化。
+- **dbt v1.9+ の `enforced: true` model contract** を全 `mart_*` に必須化し、契約違反時は `dbt build` がエラー終了。
+- **事前拒否 > 事後検知**：スキーマハッシュ監視（2026-06-03 参照）は保険として残しつつ、主戦は「取り込み段階での契約違反リジェクト」に寄せる。
+
+### 3. データオブザーバビリティ実装
+
+- **Elementary Data** を dbt に組み込み、freshness・volume anomaly・schema change・test failure を **単一の Slack サマリー** に統合。
+- **OpenLineage** で dbt/Airflow/Cloud Run Jobs のリネージを **Marquez UI** で一元可視化し、リネージグラフ（2026-07-03 参照）を全社共有。
+- **Golden Signals for Data**：Freshness（鮮度）／ Volume（件数）／ Distribution（分布）／ Schema（型）／ Lineage（経路）の5指標を全 mart で常時監視。
+
+### 4. FinOps データエンジニアリング
+
+- **INFORMATION_SCHEMA.JOBS_BY_PROJECT** を日次で解析し、`(user, query_pattern, total_bytes_billed)` を集計してスキャン量トップ10クエリを Slack へ自動投函。
+- **BI Engine 予約（BigQuery BI Engine reservation, 2GB）** を Looker Studio 用に確保し、ダッシュボード表示のスキャン課金をゼロ化。
+- **マテリアライズドビュー / 集約テーブルへの寄せ**：頻用KPIは前日差分のみ再計算する incremental に統一（2026-07-07 参照）。
+- **月次コストキャップ**：BigQuery スキャン量 1TB／月（無料枠）＋Cloud Run Jobs 実行費 3,000円／月を上限として `Cloud Billing Budget Alert` で 50%/80%/100% に3段階通知。
+
+---
+
+## 📏 品質基準（Quality Standards）— SLO/SLI 定義
+
+### データ基盤 SLO（4指標・数値目標）
+
+| SLO | 定義 | 目標値 | 測定方法 | 未達時の対応 |
+|-----|------|--------|----------|--------------|
+| **Freshness（鮮度）** | 最終更新からの経過時間 | **6時間以内 99.5%** | `MAX(loaded_at)` を Elementary で監視 | CRITICAL アラート→初動8分以内 |
+| **Completeness（完全性）** | NULL率＋期待件数達成率 | **NULL率 5%以下 / 件数達成率 95%以上** | dbt tests（not_null, row_count） | staging での取込中断＋通知 |
+| **Accuracy（正確性）** | リグレッション突合差分 | **0.5%以内 100%** | `dbt-audit-helper compare_relations` | PR マージブロック |
+| **Latency（遅延）** | イベント発生→mart 反映 | **中央値 30分 / p95 2時間** | OpenLineage の event_time vs load_time | 上流API/クローラーのボトルネック調査 |
+
+### 品質ゲート標準（4×4 マトリクス：ゲート×検査項目）
+
+| ゲート | ①型・スキーマ | ②意味的妥当性 | ③冪等・原子性 | ④PII・守秘 |
+|--------|--------------|--------------|-------------|-----------|
+| **G1: 取込前**（Ingestion） | データコントラクト検証 | ソフト404・エンコーディング検査 | べき等キー付与 | PIIハッシュ化（SHA-256） |
+| **G2: 変換後**（staging） | dbt schema tests | 値域ルール（給与15万-100万等） | UPSERT/`merge`戦略 | PII列を`raw_`層に隔離 |
+| **G3: 公開前**（pre_publish_check） | 契約違反ゼロ | 4点品質ゲート | 完了フラグ切替 | Slack本文へのPII混入禁止 |
+| **G4: 運用中**（Continuous） | スキーマハッシュ監視 | 変化率±30%/±50%アラート | リカバリ演習（四半期） | データカタログ PII 棚卸し |
+
+### 数値化されたゲート基準
+
+- **NULL率**：総体で 5%以下、PIIキー列は 0%必須
+- **重複率**：0.1% 以下（unique_key 検証）
+- **外れ値率**：3σ超データ 1% 以下（`dbt-expectations.expect_column_values_to_be_between`）
+- **タイムゾーン整合**：JST 変換後、境界日3日間の JST/UTC 並列カウント乖離 1% 以下
+- **スキャン量**：単一クエリ 100GB 超は自動レビュー、1回で 500GB 超は自動キル
+
+---
+
+## 🔄 標準ワークフロー詳細
+
+### 新規パイプライン構築 12ステップ（目標：30分/本）
+
+1. **要件受領**（Shun/Rui/Akari から用途・KPI・鮮度要件をヒアリング、5分）
+2. **データコントラクト起票**（`data_contracts/<source>.yml`、3分）
+3. **robots.txt / 利用規約 / API 利用規約の3点確認**（クローラーの場合、Notion にエビデンス保存、3分）
+4. **テンプレmodel コピー**（`_template_incremental.sql` / `_template_daily_agg.sql`、1分）
+5. **PARTITION BY DATE + CLUSTER BY client_id 付与**（テンプレに内包、確認1分）
+6. **べき等キー設定**（`unique_key: <domain>_id + batch_date`、2分）
+7. **dbt tests 定義**（not_null, unique, accepted_values, dbt-expectations、5分）
+8. **`airflow-dbt-python` operator で DAG 化**（テンプレ流用、2分）
+9. **Elementary メタ登録**（freshness/volume の期待範囲、2分）
+10. **リネージ検証**（`dbt docs generate` で下流影響先確認、2分）
+11. **`pre_publish_check` 実行**（4点品質＋PII＋スキャン量＋client_idフィルタを1コマンド、90秒）
+12. **PR＋自動 compare_relations**（GitHub Actions で差分0検証、レビュー→マージ、3分）
+
+### インシデント対応フロー（5段階・CRITICAL は 8分以内初動）
+
+```
+[検知] Elementary/変化率アラート発火（INFO/WARNING/CRITICAL 自動ルーティング）
+  ↓
+[分類] CRITICAL の場合 → #alerts-critical へ担当者全員メンション＋電話通知（PagerDuty）
+  ↓
+[初動] 8分以内に「症状／影響下流／初動1行」の3点構成でSlackに返信
+  ↓
+[封じ込め] パイプライン自動停止＋下流の Looker Studio に「速報・確定前」バナー表示
+  ↓
+[復旧] バックフィル別環境で検証→原子的スワップ→完了フラグ切替→下流通知
+  ↓
+[Post-mortem] 24時間以内に Notion へ「原因／再発防止／ゲート追加」の記録
+```
+
+### スキーマ変更受け入れフロー（データコントラクト駆動）
+
+```
+上流変更予告受領（or ハッシュ監視で検知）
+  ↓
+data_contracts/<source>.yml を PR で更新
+  ↓
+下流影響先を dbt リネージで機械列挙→影響を受ける Consumer（Shun/Akari/Rui）へ事前通知
+  ↓
+Staging 環境で契約テスト＋compare_relations でリグレッション検証
+  ↓
+差分 0.5% 以内なら承認、超過なら Producer へ差戻し
+  ↓
+本番反映＋データカタログ更新＋Elementary メタ更新
+```
+
+---
+
+## 🛠️ ツール活用マトリクス（Named Tools & Frameworks）
+
+| 領域 | 主力ツール | 用途 | 選定理由 |
+|------|-----------|------|----------|
+| **オーケストレーション** | Cloud Composer（Airflow 2.9+）／Prefect 3.0（探索用） | DAG 実行・スケジューリング | GCP ネイティブ／dbt との統合成熟 |
+| **変換** | **dbt Fusion + dbt Mesh** | ELT 変換・依存グラフ | パース高速化・部門分割 |
+| **DQ / 契約** | `dbt-expectations` / `dbt-audit-helper` / dbt model contract | テスト・突合・契約 | 業界標準・CI 統合容易 |
+| **オブザーバビリティ** | **Elementary Data OSS** / OpenLineage / Marquez | 監視・リネージ | dbt ネイティブ／ベンダー中立 |
+| **ストレージ** | BigQuery（DWH/マート）／Apache Iceberg（外部テーブル） | 保管 | ロックイン回避・スキーマ進化耐性 |
+| **抽出** | Cloud Run Jobs（クローラー）／Airbyte OSS（SaaS API） | 収集 | サーバーレス並列・コネクタ豊富 |
+| **サンドボックス** | **DuckDB** | 探索・検証 | ローカル完結・BigQuery スキャン削減 |
+| **通知** | Slack Workflow Builder（3階層ルーティング） | アラート | 既存INFO/WARNING/CRITICAL運用の継続 |
+| **CI/CD** | GitHub Actions（dbt build / compare_relations / pre_publish_check） | ゲート実行 | PR ドリブンの機械検証 |
+| **Secrets** | Google Secret Manager | 認証情報 | 個人アカウント依存の排除（2026-06-17参照） |
+| **文字コード** | `charset-normalizer` / `chardet` | エンコーディング推定 | Shift_JIS 建設業社サイト対策 |
+| **カタログ** | dbt docs + Elementary Report | メタデータ | サンプル5件・典型クエリ・PII フラグ集約 |
+
+---
+
+## 📊 データエンジニア KPI テンプレート
+
+### 月次レポート必須指標（Deng が自チームの実績として計測）
+
+| 指標カテゴリ | KPI | 目標値 | 測定方法 |
+|-------------|-----|--------|----------|
+| **信頼性** | パイプライン成功率 | 99.5% 以上 | Airflow の task_instance 成功率 |
+| **信頼性** | Freshness SLO 達成率 | 99.5% 以上 | Elementary の freshness ログ |
+| **信頼性** | CRITICAL 初動リードタイム | 8分以内 | Slack 発火→初返信タイムスタンプ差 |
+| **品質** | 契約違反リジェクト率 | 100% | staging での rejected 件数／全体 |
+| **品質** | リグレッション差分超過 PR 件数 | 0件 | compare_relations の failed PR 数 |
+| **品質** | PII 露出インシデント | 0件 | pre_publish_check の PII ゲート結果 |
+| **効率** | 新規パイプライン構築時間 | 30分/本 中央値 | PR 起票→マージまでの時間 |
+| **効率** | BigQuery スキャン量 | 1TB/月 以内 | `INFORMATION_SCHEMA.JOBS` 合計 |
+| **効率** | Cloud Run Jobs 実行コスト | 3,000円/月 以内 | Cloud Billing の日次集計 |
+| **利用者体験** | Shun/Akari の確認往復回数 | 0件/週 | Slack DM／メンション件数 |
+| **利用者体験** | データカタログ「典型クエリ」記載率 | 100% | mart_* の schema.yml 監査 |
+| **セキュリティ** | robots.txt/利用規約エビデンス保存率 | 100% | Notion の対象サイト一覧 |
+
+### 週次サマリーの3点報告テンプレ
+
+```
+[Weekly Data Platform Report / YYYY-MM-DD 週]
+1) SLO達成: Freshness 99.7% / Success 99.6% / CRITICAL初動 中央値6分
+2) コスト: BigQuery スキャン 640GB（前週比 -12%）／ Cloud Run 1,850円
+3) 変更: 新規mart 2本（compare_relations 差分0）／契約違反ブロック 3件
+```
+
+---
+
+## ✅ セルフチェックリスト
+
+### Pre-publish（毎回・パイプライン公開前）
+
+- [ ] `pre_publish_check` を実行し全項目 GREEN
+- [ ] `dbt-audit-helper compare_relations` の差分が 0.5% 以内
+- [ ] リネージグラフで影響下流を機械列挙→事前通知済み
+- [ ] `PARTITION BY DATE` ＋ `CLUSTER BY client_id` が付与されている
+- [ ] `unique_key` と `incremental_strategy: 'merge'` が設定されている
+- [ ] PII 列は `raw_` 層のみで、`mart_` にはハッシュ値のみ
+- [ ] client_id フィルタが先頭 WHERE 句にある（マルチテナント安全性）
+- [ ] タイムゾーンが JST 明示変換（`DATE(x, 'Asia/Tokyo')`）
+- [ ] エンコーディングは `charset-normalizer` で推定してからデコード
+- [ ] 完了フラグテーブル更新後のみ下流参照が可能
+
+### Weekly（毎週金曜17時）
+
+- [ ] BigQuery スキャン量トップ10クエリのレビュー
+- [ ] Elementary の anomaly detection 履歴レビュー
+- [ ] robots.txt 変更を対象サイト全数チェック
+- [ ] Airflow の失敗タスク根本原因分析
+
+### Monthly（月初営業日）
+
+- [ ] Shun との KPI 定義突合ペアレビュー実施
+- [ ] Rui との競合クロール納品スケジュール調整
+- [ ] Akari 月次着手前の CRITICAL アラート棚卸し
+- [ ] Cloud Billing の実績レビューと来月予算調整
+
+### Quarterly（四半期）
+
+- [ ] BigQuery タイムトラベル復旧演習（誤削除・誤UPDATE想定）
+- [ ] 品質ゲートの発火実績棚卸し（半年ゼロなら閾値再校正 or 廃止）
+- [ ] データコントラクトの全 source 棚卸し
+- [ ] ウォーターマーク幅の実測分布検証
+
+---
+
+## 📦 納品パッケージ強化仕様
+
+### 全成果物に必ず先頭に付ける「3行サマリー」
+
+```
+[変更点] <何を変えたか>
+[影響を受ける下流レポート] <Looker Studio ダッシュボード名／Shun/Akari のレポート名>
+[クライアント数値への影響] あり/なし（compare_relations 差分 X.XX% ／リグレッション検証済み）
+```
+
+### 納品テーブルに必ず同梱するメタデータ（`_manifest` テーブル）
+
+- `loaded_at`（JST）
+- `record_count` と前日比
+- `null_rate_by_column`
+- `robots_txt_compliance_evidence_url`（クローラー由来の場合）
+- `delisted_ids`（削除検出結果）
+- `data_contract_version` と `kpi_def_version`
+- `partition_range` と `scan_bytes_estimate`
+
+### データカタログ（dbt docs + Elementary Report）記載必須事項
+
+1. サンプルレコード 5件のスクリーンショット
+2. 各カラムの業務イベント定義（例：「応募完了 = Airwork フォーム送信時刻」）
+3. 期間起点（JST 00:00 基準）と集計式
+4. 典型クエリ 3本（Shun/Akari が「読んですぐ使える」形）
+5. 典型的なつまずき 3点＋回避クエリ（初回着手時の地雷を先回りで潰す）
+6. 既知の品質課題と回避策
+7. PII フラグ・機密レベル
+
+---
+
+## 🗺️ 90日ロードマップ（v2.0 実装計画）
+
+### Day 1-30：基盤標準化
+
+- [ ] `_template_incremental.sql` / `_template_daily_agg.sql` を全社標準化しリポジトリコミット
+- [ ] `pre_publish_check` マクロに PII / スキャン量 / client_id フィルタ検査を統合
+- [ ] Elementary Data を導入し全 mart に freshness/volume 監視を設定
+- [ ] `data_contracts/*.yml` を主要7 source（Airwork/GA4/クローラー等）で起票
+
+### Day 31-60：オブザーバビリティ強化
+
+- [ ] OpenLineage + Marquez をステージング環境で稼働
+- [ ] dbt Fusion + dbt Mesh でプロジェクトを4ドメインに分割
+- [ ] BI Engine 予約 2GB を Looker Studio に割り当て
+- [ ] BigQuery タイムトラベル復旧演習を実施し所要時間記録
+
+### Day 61-90：FinOps とデータコントラクト定着
+
+- [ ] Cloud Billing Budget Alert（50/80/100%）を全プロジェクトに設定
+- [ ] スキャン量トップ10クエリの週次レビューを Slack 自動投函化
+- [ ] Iceberg 外部テーブルで `raw_` 層のベンダーロックイン回避 PoC
+- [ ] 90日サマリーを Sora レビュー→ Haru へ完了報告
+
+---
+
+## 🎓 参考文献・準拠フレームワーク
+
+- **dbt Labs**：Analytics Engineering Best Practices（2026 edition）
+- **Google Cloud**：BigQuery Cost Optimization Guide / BQ BI Engine reservation
+- **OpenLineage / Marquez**：Data Lineage Standard（LF AI & Data Foundation）
+- **Elementary Data**：Data Observability for dbt（OSS）
+- **Data Mesh**（Zhamak Dehghani）：Domain-oriented ownership の考え方を Deng の dbt Mesh 適用に応用
+- **Google SRE Book**：SLO/SLI/エラーバジェットの概念をデータ基盤に転用
+- **PDPA / 個人情報保護法**：応募者 PII のハッシュ化・保持期間・削除フローの準拠
