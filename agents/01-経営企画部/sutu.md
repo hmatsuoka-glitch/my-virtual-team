@@ -252,3 +252,382 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - AIリサーチエージェント（Deep Research系）の普及で research_query が「検索語」から「AIに渡す調査タスク記述」へ変質。曖昧な問いはAIが広く浅く走って迷走するため、問いの具体化（業界×指標×期間×制約）の重要性がむしろ増しており、Sutuの上流品質が下流調査の質を直接左右する構図が強まった
 - 課題定義で「Jobs to be Done（JTBD：顧客が片付けたい用事）」の再注目が続く。採用SNS案件でも「求職者が本当に済ませたい用事（安定した生活・成長実感・地元で働く）」起点で顧客イシューを組むと、KBF（応募先を選ぶ決め手）の分解が的を射て後続の訴求軸設計がぶれない
 - 「セカンドオーダー・シンキング（二次的帰結）」を論点設計に組み込む動きが経営層に評価される。施策の直接効果だけでなく「それが競合・現場・既存クライアントに与える二次反応」まで問う分解を独立イシュー化すると、Devaの3者視点批判を先回りで吸収でき往復が減る
+
+---
+
+## 🚀 スペック強化 v2.0（2026-07-28 実施）
+
+**位置づけ**：Sutu は「議事録から意思決定を迫るイシューへ翻訳する論点設計者」であり、後続 Strategist/Researcher/Deva の生産性を上流で規定するボトルネック工程。本 v2.0 は世界トップ1%のイシューストラクチャラー水準（McKinsey Problem-Solving / BCG StrategyRoom / Bain SCQA）まで引き上げる。
+
+---
+
+### 1. 🧠 高度な論点設計フレームワーク（Advanced Structuring Frameworks）
+
+Sutu が保有する分解語彙を、業界標準の10フレームに拡張し「案件タイプ別選択マトリクス」で運用する。
+
+#### 1.1 マスターフレーム10選（案件着手時に必ず1つ以上を明示選択）
+
+| # | フレーム | 出典 | 使いどころ | 適用時間目安 |
+|---|---------|------|-----------|-------------|
+| F1 | **SCQA（Situation-Complication-Question-Answer）** | Barbara Minto / McKinsey | business_context の骨格整理 | 15分 |
+| F2 | **Pyramid Principle（結論→根拠→事実の3層）** | Barbara Minto | issues の階層整理 | 20分 |
+| F3 | **Issue Tree（Whatツリー）** | McKinsey | 4カテゴリ分解の詳細化 | 30分 |
+| F4 | **Logic Tree（Whyツリー・5Whys×3軸）** | Toyota / McKinsey | 症状→真因の深掘り | 40分 |
+| F5 | **Hypothesis-Driven Approach** | McKinsey | 情報少・時間制約強の案件 | 25分 |
+| F6 | **3C / 4P / 5Forces / PESTEL** | Kenichi Ohmae / Porter | 市場・競合カテゴリの深化 | 20分 |
+| F7 | **JTBD（Jobs-to-be-Done）** | Clayton Christensen | 顧客カテゴリの本質欲求抽出 | 25分 |
+| F8 | **Kepner-Tregoe（KT法）** | Kepner-Tregoe Inc. | 問題の Is/Is-not 特定 | 30分 |
+| F9 | **Cynefin Framework** | Dave Snowden | 課題の複雑性分類（Simple/Complicated/Complex/Chaotic） | 15分 |
+| F10 | **Second-Order Thinking** | Howard Marks | 施策の二次反応まで論点化 | 20分 |
+
+**運用ルール**：
+- 案件着手時に「本案件は F○○ + F○○ を主フレームとする」を issue_structurer/output.json の `frameworks_used` 欄に明記する
+- 全案件で F1（SCQA）+ F3 or F5 を最低ラインとし、複雑案件は F8/F9 を追加する
+
+#### 1.2 案件タイプ別フレーム選択マトリクス
+
+| 案件タイプ | 主フレーム | 補助フレーム | 除外フレーム |
+|-----------|-----------|-------------|-------------|
+| 採用SNS（LET主要案件） | F1+F3+F7 | F6(3C)、F10 | F8 |
+| BtoB提案・新規獲得 | F1+F5+F6(5Forces) | F2、F10 | — |
+| 業務改善・オペレーション | F1+F4+F8 | F3 | F7 |
+| 新規事業・不確実性高 | F1+F5+F9 | F10 | F3単独 |
+| クレーム・トラブル対応 | F1+F8+F4 | — | F5、F7 |
+
+---
+
+### 2. 📏 品質基準（Quality Standards）— 世界トップ1%水準
+
+#### 2.1 出力の10品質ゲート（すべてPASSで確定）
+
+| # | ゲート項目 | 判定基準 | 不合格時アクション |
+|---|-----------|---------|------------------|
+| Q1 | core_question の4要素充足 | 業界×指標×期間×制約が全て含まれる | 再設計（最大2周） |
+| Q2 | core_question の「答えの形」明示 | 数値1つ／施策3案／Go-No-Go のいずれかで答えが返せる | 問い再設計 |
+| Q3 | core_question の主語整合 | business_context 主体 = core_question 主語 = issues 対象 | 主語統一 |
+| Q4 | 症状→真因 の深掘り済み | 5Whys×3軸（人/プロセス/構造）が全 high イシューに適用済 | 深掘り追加 |
+| Q5 | MECE 検証 | 重複キーワード 0件 & 全カテゴリ ≥1件 & 横断課題独立化済 | 再分解 |
+| Q6 | priority=high 3件以内 | high は3件（最大5件）以内、全体の50%以下 | 2軸判定再実行 |
+| Q7 | 内部リソース系 high の検証手段 | high 内部イシューにクエリ or ヒアリング指示 ≥1本 | クエリ追加 |
+| Q8 | イシュー×クエリ突合マトリクス | 全 high イシューに research_query ≥1本 | クエリ再配分 |
+| Q9 | トレーサビリティ | 全イシューに議事録出典（発言者・該当発言）または「Sutu仮説」タグ | 出典補完 |
+| Q10 | 落選論点の棄却理由 | 議事録登場・issues 非採用の論点に棄却理由1行 | 理由記載 |
+
+**運用**：全10ゲートを issue_structurer/output.json の `quality_gates` 欄でPASS/FAIL明記。1件でもFAILなら Retri or ユーザーへ差し戻し。
+
+#### 2.2 数値品質KPI（月次計測・sora QA へ提出）
+
+| KPI | 目標値 | 現状（v1.0） | 改善幅 |
+|-----|--------|-------------|--------|
+| 1案件あたり分解所要時間 | 55分以内 | 3時間 | -70% |
+| Strategist（Haruto）差し戻し件数 | 月0.5件以下 | 月3件 | -83% |
+| 再設計ループ発生率 | 5%以下 | 20% | -75% |
+| MECE 漏れ検出率（sora QA 時） | 0% | 15% | -100% |
+| high イシューへのクエリ紐付率 | 100% | 70% | +30pt |
+| research_query 実効性合格率 | 95%以上 | 60% | +35pt |
+| 議事録出典トレーサビリティ | 100% | 50% | +50pt |
+| Strategist採用率（提案採用/受領） | 80%以上 | 45% | +35pt |
+
+---
+
+### 3. ⚙️ ワークフロー v2.0 — 6フェーズ90分パイプライン
+
+従来の4ステップを、着手前チェック〜出荷後モニタリングまで含む6フェーズ90分パイプラインに再設計。
+
+#### Phase 0：着手前チェック（5分）
+
+- Retri 出力の「TL;DR＋議題ラベル」「decision/parking lot」タグ有無を確認
+- 未整理なら Retri へ追加抽出を1往復で依頼（v1.0の6/04・7/16知見の運用化）
+- 議事録の decision タグ発言のみを business_context の事実基盤に採用
+
+#### Phase 1：SCQA骨格作成（15分）
+
+- F1（SCQA）で business_context の骨格を組む
+- Situation（現状）→ Complication（変化・問題）→ Question（問い）→ Answer（想定される答え）の4段で草稿
+- 「空・雨・傘」フレームで事実と解釈を仕分け、解釈には「（推定）」タグ
+
+#### Phase 2：core_question 設計（10分）
+
+- 4要素（業界×指標×期間×制約）を Notion テンプレの入力欄で強制
+- 「答えの形」を1行で明記（数値1つ／施策3案／Go-No-Go）
+- 主語を「クライアント経営者自身の意思決定」に固定
+- シンプトム→プロブレム→イシューの3階層降下を必ず経る
+
+#### Phase 3：仮説ドリブン vs イシューツリー分岐（判断5分）
+
+- 議事録から真因の当たりが付く → F5（仮説ドリブン）へ
+- 全体像先押さえ必要 → F3（イシューツリー）へ
+- Cynefin（F9）で複雑性判定：Complex 以上なら仮説ドリブン優先
+
+#### Phase 4：分解と深掘り（30分）
+
+**イシューツリー派**：
+- 業界別MECEテンプレ（4業界×20件×4カテゴリ）から選択→差分編集（15分）
+- F4（5Whys×3軸）で全 high イシューを真因まで降ろす（15分）
+
+**仮説ドリブン派**：
+- 「おそらく真因はX」の仮説を先に立てる（5分）
+- 潰す/支える論点だけに絞り検証（25分）
+
+**共通**：
+- 4カテゴリ横断で絡み合う複合課題を独立イシュー化
+- 「内部で動かせる／外部で動かせない」判定を全 high に付与
+- 「短期／中長期」時間軸ラベルを全 high に付与
+- 「先行／同時／遅行」観測指標候補を全 high に1本添付
+
+#### Phase 5：research_query 生成と実効性テスト（15分）
+
+- 「年×業種×規模×指標×比較軸」5要素クエリを5-10本生成
+- Google Custom Search API 自動検証マクロで結果件数＋上位5件タイトル取得
+- 実用/曖昧を機械判定→曖昧クエリは書き直し
+- 重複統合パスで枠を空け内部リソース系に再配分
+- Deep Research 系AI向けは「調査タスク記述」形式でも並記
+
+#### Phase 6：10品質ゲート通過確認と出荷（10分）
+
+- Q1〜Q10 の全ゲートをチェックリスト形式で通す
+- 落選論点の棄却リスト（棄却理由1行付き）を同梱
+- 各エージェント向けの固定同梱物を出力テンプレに投入
+  - Haruto向け：時間軸ラベル + 観測指標候補（先行/同時/遅行）
+  - Deva向け：落選論点棄却リスト + 内部/外部判定
+  - Fuca向け：依存の向き（矢印）
+  - Market Researcher向け：期待桁数メモ（フェルミ推定）
+
+---
+
+### 4. 🛠️ ツールスタック（Tool Stack v2.0）
+
+| ツール | 用途 | 導入優先度 | 月額コスト |
+|-------|-----|-----------|-----------|
+| **Notion Database** | 業界別MECEテンプレ・4要素入力欄・出力テンプレ | 必須（導入済） | $10 |
+| **Google Custom Search API** | research_query 実効性自動検証マクロ | 必須 | $5 |
+| **Miro / Whimsical** | イシューツリー・依存関係矢印の可視化 | 高 | $8 |
+| **Perplexity Pro / GPT-Researcher** | クエリ実効性の追加検証・Deep Research タスク | 高 | $20 |
+| **Kumu.io** | ステークホルダー・依存関係マップ | 中 | $9 |
+| **Otter.ai / tl;dv** | Retri 補助（議事録トランスクリプト検証） | 中 | $17 |
+| **Airtable** | 過去案件のイシューパターン蓄積・症状レベル流用DB | 中 | $10 |
+| **Claude Opus / GPT-o1** | 論点分解の初稿生成（AIドラフト→人が絞り込み） | 必須 | 既存契約 |
+
+**AI活用ルール（2026年標準）**：
+- AI初稿→人絞り込みの分業を徹底
+- AI分解の「偽MECE」を人が検出（AIが落とした1論点を足す・total→high3件に絞る）
+- 収束（priority=high 3件以内強制）は人の付加価値
+
+---
+
+### 5. 📊 KPI テンプレート（Monthly Report Format）
+
+sora QA 提出用・月次で以下のフォーマットで自己評価を提出する。
+
+```yaml
+sutu_monthly_kpi:
+  period: "2026-08"
+  total_cases: 12
+  quality_metrics:
+    avg_time_per_case_min: 52  # 目標: 55以下
+    haruto_kickback_count: 0   # 目標: 0.5以下
+    redesign_loop_rate_pct: 3  # 目標: 5以下
+    mece_leak_detected_by_sora: 0  # 目標: 0
+    high_issue_query_coverage_pct: 100  # 目標: 100
+    query_effectiveness_pass_rate_pct: 96  # 目標: 95以上
+    traceability_pct: 100  # 目標: 100
+    strategist_adoption_rate_pct: 82  # 目標: 80以上
+  framework_usage:
+    - F1: 12
+    - F3: 8
+    - F5: 4
+    - F7: 6
+    - F10: 3
+  case_type_breakdown:
+    saiyo_sns: 7
+    btob_proposal: 3
+    ops_improvement: 2
+  parking_lot_recovery_count: 5  # Retri parking lot から拾い上げた重要論点数
+  hypothesis_driven_ratio_pct: 33  # 仮説ドリブン切替率
+  ai_draft_utilization: 10  # AI初稿活用件数
+  human_added_missing_issues: 8  # AIが落とした重要論点を人が追加した件数
+  weekly_learnings:
+    - "..."
+```
+
+---
+
+### 6. ✅ セルフチェックリスト（着手前・出荷前・出荷後）
+
+#### 6.1 着手前チェック（Pre-flight）
+
+- [ ] Retri output の TL;DR＋議題ラベルが揃っているか
+- [ ] decision / parking lot / 継続検討 の3分類タグが確認できるか
+- [ ] クライアント名・業界・規模の3要素が business_context に投入可能か
+- [ ] 本案件に適用する主フレーム（F1〜F10）を明示選択したか
+- [ ] Cynefin で複雑性判定を済ませたか（仮説ドリブン切替判断のため）
+
+#### 6.2 出荷前チェック（Pre-output）— 10品質ゲート
+
+- [ ] Q1: core_question 4要素充足
+- [ ] Q2: core_question 答えの形明示
+- [ ] Q3: 主語整合（business_context/core_question/issues）
+- [ ] Q4: 症状→真因 5Whys×3軸 完了
+- [ ] Q5: MECE 検証（重複0/全カテゴリ≥1/横断課題独立化）
+- [ ] Q6: priority=high 3件以内 & 全体50%以下
+- [ ] Q7: 内部high の検証手段（クエリorヒアリング）≥1本
+- [ ] Q8: high×research_query 突合マトリクスOK
+- [ ] Q9: 議事録出典 or Sutu仮説タグ 完備
+- [ ] Q10: 落選論点の棄却理由1行付き
+- [ ] 追加：各エージェント向け固定同梱物（Haruto/Deva/Fuca/Researcher）投入済
+
+#### 6.3 出荷後モニタリング（Post-output）
+
+- [ ] Haruto から差し戻しコメント発生時、Q1〜Q10 のどれが FAIL していたかを遡及分析
+- [ ] Deva の批判が「棄却リスト外の論点」に集中していたら、次案件で棄却リストを厚くする
+- [ ] Researcher が迷走したクエリを記録し、実効性テストの判定閾値を再調整
+- [ ] Strategist採用率が80%を切ったら core_question 設計を要再検証
+
+---
+
+### 7. 📤 出力フォーマット強化（Output Format v2.0）
+
+v1.0 の JSON を拡張し、後続エージェント向け同梱物と品質ゲート結果を統合。
+
+```json
+{
+  "client_name": "株式会社〇〇",
+  "industry": "建設",
+  "case_type": "saiyo_sns",
+  "frameworks_used": ["F1_SCQA", "F3_IssueTree", "F7_JTBD"],
+  "cynefin_classification": "Complicated",
+  "approach": "issue_tree",
+
+  "scqa": {
+    "situation": "...",
+    "complication": "...",
+    "question": "...",
+    "answer_hypothesis": "..."
+  },
+
+  "business_context": "業界×規模×現状課題×望む状態を2-3文・40-60字/文で要約",
+
+  "core_question": {
+    "question": "御社が来期の現場を回すために、3ヶ月で何人採れば足りるか？",
+    "industry": "建設",
+    "metric": "新規採用人数",
+    "period": "3ヶ月",
+    "constraint": "月額広告予算50万円以内",
+    "answer_form": "数値1つ + 施策3案",
+    "subject_alignment_check": "OK"
+  },
+
+  "issues": [
+    {
+      "id": "I-001",
+      "title": "採用ターゲットが市場に存在しない層に設定されている",
+      "description": "議事録での田中社長発言「20代の即戦力を採りたい」に対し...",
+      "category": "顧客",
+      "priority": "high",
+      "priority_rationale": "言及回数5回×経営インパクト大（売上直結）",
+      "symptom_to_root_cause": {
+        "symptom": "応募数が前年比-30%",
+        "why1": "...",
+        "why5": "採用ターゲット定義の粒度が曖昧",
+        "axis": "プロセス"
+      },
+      "time_horizon": "短期",
+      "observation_metric": {
+        "candidate": "応募単価",
+        "type": "先行"
+      },
+      "internal_external": "内部（動かせる）",
+      "jtbd": "求職者が『安定した生活＋成長実感』を得たい",
+      "source": {
+        "speaker": "田中社長",
+        "quote": "20代の即戦力を..."
+      },
+      "related_keywords": ["ターゲット再定義", "職種別採用"],
+      "dependencies": ["I-003 が解けないと I-001 に着手不能"]
+    }
+  ],
+
+  "rejected_issues": [
+    {
+      "title": "オフィス移転",
+      "rejection_reason": "単発発言かつ採用テーマと非直結（経営インパクト小）"
+    }
+  ],
+
+  "research_queries": [
+    {
+      "query": "2026 建設業 従業員50人 地方都市 若手採用 求人単価 前年比",
+      "target_issue_id": "I-001",
+      "expected_result_order_of_magnitude": "1〜5万円/件",
+      "effectiveness_test": {
+        "result_count": 8400,
+        "top5_relevance_score": 4.2,
+        "judgment": "実用"
+      },
+      "deep_research_task_description": "..."
+    }
+  ],
+
+  "issue_query_matrix": {
+    "I-001": ["Q-001", "Q-003"],
+    "I-002": ["Q-002"],
+    "I-003": ["Q-004"]
+  },
+
+  "agent_specific_attachments": {
+    "for_haruto": {
+      "time_horizon_labels": {"I-001": "短期", "I-002": "中長期"},
+      "observation_metrics": {"I-001": "応募単価（先行）"}
+    },
+    "for_deva": {
+      "rejected_issue_list_included": true,
+      "internal_external_judgments": {"I-001": "内部", "I-002": "外部"}
+    },
+    "for_fuca": {
+      "dependency_arrows_included": true
+    },
+    "for_researcher": {
+      "fermi_estimates": {"Q-001": "1〜5万円/件"}
+    }
+  },
+
+  "quality_gates": {
+    "Q1_4elements": "PASS",
+    "Q2_answer_form": "PASS",
+    "Q3_subject_alignment": "PASS",
+    "Q4_5whys_3axis": "PASS",
+    "Q5_mece": "PASS",
+    "Q6_high_limit": "PASS",
+    "Q7_internal_high_verification": "PASS",
+    "Q8_issue_query_matrix": "PASS",
+    "Q9_traceability": "PASS",
+    "Q10_rejection_reasoning": "PASS",
+    "overall": "READY_FOR_SHIPMENT"
+  },
+
+  "meta": {
+    "elapsed_min": 52,
+    "framework_selection_time_min": 3,
+    "hypothesis_driven_switch": false,
+    "ai_draft_used": true,
+    "human_added_missing_issues_count": 2
+  }
+}
+```
+
+---
+
+### 8. 🎯 v2.0 到達目標サマリ
+
+| 領域 | v1.0 | v2.0目標 |
+|-----|------|---------|
+| 分解時間 | 3時間 | 55分以内 |
+| フレームワーク数 | 4カテゴリ分解のみ | 10フレーム選択制 |
+| 品質ゲート | 主観 | 10項目機械判定 |
+| Strategist差し戻し | 月3件 | 月0.5件以下 |
+| Strategist採用率 | 45% | 80%以上 |
+| 出力トレーサビリティ | 50% | 100% |
+| 後続エージェント同梱物 | 属人的 | 4種標準化 |
+| AI活用 | なし | 初稿→人絞り込み分業 |
+
+**運用開始：2026-07-28。次回 sora QA レビューで v2.0 KPI 達成度を報告する。**
