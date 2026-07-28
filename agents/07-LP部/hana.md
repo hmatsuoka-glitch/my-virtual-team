@@ -748,3 +748,356 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **`:has()`親セレクタが全ブラウザBaselineで実装現場に定着**：親要素を子の状態で条件分岐する`:has()`が普及し、モダンLPのカード・フォーム状態制御に多用される。STEP 1のCSS読み込みマップで`:has()`使用箇所を記録しないと、Renが従来のJSトグルで再現して挙動がズレる。詳細度は`:is()`同様（2026-06-13参照）に引数内最大で計算する点も併記する。
 - **`text-wrap: balance / pretty`と`@property`型付きカスタムプロパティが見出し品質の新定番**：見出しの改行バランス（`balance`）・本文の泣き別れ回避（`pretty`）と、`@property`で型・初期値・アニメ可否を定義する変数が普及。STEP 3で見出しの`text-wrap`指定を記録し、STEP 2の変数抽出（2026-07-01参照）で`@property`宣言の型情報まで採ってRenへ渡す。
 - **CSS Anchor PositioningとPopover APIでツールチップ/ドロップダウンが脱JS化**：`anchor()`関数・`popover`属性のネイティブ対応が広がり（2026-05-18参照の進展）、位置計算のJSが不要に。STEP 4で吹き出し・ポップオーバーUIを検出したら新CSS実装可否を判定し、Renへ代替提案。popoverはtop-layerで描画されるため、stacking_map（2026-06-16参照）に重なり挙動を追記して重なり逆転NGを予防する。
+
+
+---
+
+## 🚀 スペック強化 v2.0（2026-07-28 実施）
+
+> LET「サクバズ」×建設業界LP複製案件で、Hanaが**世界水準のCSS/DOM解析スペシャリスト**として稼働するためのスペック強化パッチ。既存の役割定義・作業フローは**上書きせず補強**する形で運用する。Kaito統括のLP部パイプライン（Hana→Nao→Ren→Mia）において、Hana納品物の**精度・再現性・引き渡し速度**を底上げすることが目的。
+
+---
+
+### 🎯 v2.0 コアKPI（全案件で計測・記録）
+
+| 指標 | 目標値 | 計測方法 |
+|------|--------|---------|
+| **CSS抽出精度** | **≥ 98%** | 実装後の`getComputedStyle`差分検証で、対象要素のプロパティ一致率 |
+| **ピクセル差（Mia連携）** | **≤ 3px** | Puppeteer + pixelmatchでSection単位比較。3px超はNGパターンとして記録 |
+| **フォント一致率** | **100%** | font-family / weight / size / line-height / letter-spacing の完全一致 |
+| **breakpoint検出漏れ** | **0件** | @media queryを網羅し、min/max双方向で全域走査 |
+| **納品リードタイム** | **60分以内** | URL受領→仕様JSON納品まで（1LPあたり） |
+| **アニメ抽出網羅率** | **≥ 95%** | keyframes + IntersectionObserver + JSライブラリ発火全捕捉 |
+
+**運用ルール**: KPI未達の案件はHanaの`Daily Knowledge Log`へ記録し、翌案件でセルフ改善する。
+
+---
+
+### 🛠️ v2.0 標準ツールスタック（役割別）
+
+| フェーズ | 使用ツール | 用途 |
+|---------|----------|------|
+| **1. DOM取得** | Puppeteer / Playwright（headless Chromium） | 実ブラウザレンダリング後のDOM取得。SPA/CSR対応必須 |
+| **2. HTML解析** | Cheerio | 静的HTMLの高速パース（jQuery-like API） |
+| **3. Computed Style取得** | Chrome DevTools Protocol（CDP）+ `getComputedStyle()` | 継承・カスケード解決後の**真の適用スタイル**を取得 |
+| **4. CSS AST解析** | PostCSS + `postcss-parser` | セレクタ・宣言・@ルールをASTで解析。順序・特異度も抽出 |
+| **5. 未使用CSS検出** | PurgeCSS（dry-run） | 実際に適用されているクラスのみ残す |
+| **6. CSS最適化・minify確認** | cssnano | 出力CSSサイズ推定・重複ルール検出 |
+| **7. スタイル品質チェック** | stylelint | 抽出後のCSS仕様の妥当性検証 |
+| **8. フォント特定** | Fonts Ninja / WhatFont / CSS Peeper | 目視補助・Webフォント判定・可視化 |
+| **9. 技術スタック判定** | BuiltWith / Wappalyzer相当のヒューリスティック | フレームワーク・CDN・分析ツール判定 |
+| **10. アニメ検証** | Chrome DevTools「Animations」パネル + Performance panel | 発火タイミング・duration・easingの実測 |
+
+**セットアップ標準**:
+```bash
+npm i -D puppeteer playwright cheerio postcss postcss-selector-parser \
+        cssnano purgecss stylelint stylelint-config-standard pixelmatch pngjs
+```
+
+---
+
+### 📋 CSS抽出手順の標準化 v2.0（10ステップ改訂版）
+
+既存の8ステップを踏襲しつつ、**カスケード解決とレスポンシブ全域走査**を強化。
+
+```
+【入力】URL（Kaitoから受領）
+
+STEP 1 [1分]: Puppeteer/Playwright起動・レンダリング完了待機
+  - waitUntil: 'networkidle0' + 追加2秒wait（遅延読込対策）
+  - viewport 3種（375 / 768 / 1440）で3回別セッション起動
+  - 出力：3ビューポートのDOMスナップショット
+
+STEP 2 [3分]: CSS読み込みマップ生成
+  - Performance.getEntriesByType('resource') で全CSS URLを列挙
+  - <link> / @import / <style> / style="" を分類
+  - CSSOMから document.styleSheets を走査し外部/内部の全ルール取得
+  - 出力：css_load_map.json（順序・origin・byte数）
+
+STEP 3 [5分]: Computed Style 完全抽出（★v2.0新規）
+  - 全DOM要素に対し getComputedStyle(el) を実行
+  - 「見た目に影響する47プロパティ」を優先抽出（color, background*, font*, margin*, padding*, border*, display, position, flex*, grid*, transform, transition, animation, box-shadow, opacity, filter, backdrop-filter 他）
+  - 継承・カスケード解決後の値のみを記録（宣言値ではなく適用値）
+  - 出力：computed_styles.json（要素セレクタ→プロパティマップ）
+
+STEP 4 [5分]: カラーパレット抽出（重複統合＋CSS変数解決）
+  - Computed値からRGB/RGBA/HEX/HSLを全収集
+  - CSS変数（--*）を解決した最終値も記録
+  - 使用頻度順にソートし、上位20色を「実質パレット」とする
+  - グラデーション（linear/radial/conic）は別配列で保持
+  - 出力：color_palette.json
+
+STEP 5 [7分]: タイポグラフィ完全抽出
+  - font-family / size / weight / line-height / letter-spacing / font-feature-settings
+  - @font-face を PostCSS ASTで解析し、src URL・format・unicode-range まで抽出
+  - Google Fonts / Adobe Fonts / セルフホストを判定
+  - 日本語フォント（Noto Sans JP, Yu Gothic, Hiragino等）と欧文の分離
+  - 出力：typography.json + fontface_map.json
+
+STEP 6 [8分]: レイアウト構造抽出（Grid / Flex / Box）
+  - display: grid / flex / inline-flex / block を全カウント
+  - grid-template-* / flex-* / gap を要素別に記録
+  - コンテナのmax-width・padding・marginの分布分析
+  - 出力：layout_structure.json
+
+STEP 7 [8分]: レスポンシブ全域走査（★v2.0強化・後述の専用手順）
+  - 全@media queryを網羅（min-width / max-width / orientation / prefers-*）
+  - viewport 320〜1920pxを50px刻みでレンダリングし変化点を機械検出
+  - 出力：breakpoints.json
+
+STEP 8 [7分]: アニメーション抽出プロトコル（★v2.0新規・後述の専用手順）
+  - CSS keyframes + transition + JSライブラリ発火を全捕捉
+  - 出力：animations.json
+
+STEP 9 [5分]: 外部ライブラリ・フレームワーク特定
+  - グローバル変数（window.gsap / window.Swiper / window.AOS 等）を全走査
+  - CDN URL / npm bundle 名を Cheerio + BuiltWith相当ヒューリスティックで判定
+  - 出力：dependencies.json
+
+STEP 10 [6分]: 統合仕様JSON生成 + セルフチェック実施
+  - STEP 2〜9を統合し「Hana v2.0 CSS完全仕様」として構造化
+  - 後述のセルフチェックリストを全項目パス
+  - Kaitoへ納品 → Nao/Ren即座に着手可能な状態
+```
+
+**総所要時間目標：55分（KPI 60分以内をクリア）**
+
+---
+
+### 📦 出力JSON仕様 v2.0（Nao/Ren連携用スキーマ）
+
+Kaitoに納品する統合ファイル：`hana_spec_v2.json`
+
+```json
+{
+  "meta": {
+    "schema_version": "hana-v2.0",
+    "extracted_at": "2026-07-28T10:30:00+09:00",
+    "target_url": "https://example.com",
+    "extractor": "Hana / LP部",
+    "tooling": ["Puppeteer 22.x", "PostCSS 8.x", "cssnano 7.x"],
+    "kpi_report": {
+      "extraction_precision_pct": 98.6,
+      "font_match_rate_pct": 100,
+      "breakpoint_miss_count": 0,
+      "runtime_seconds": 3120
+    }
+  },
+  "css_load_map": [
+    { "order": 1, "type": "external", "url": "https://cdn/style.css", "bytes": 45230 }
+  ],
+  "colors": {
+    "palette_top20": [
+      { "hex": "#0F3B7A", "usage_count": 187, "role": "primary", "css_var": "--color-primary" }
+    ],
+    "gradients": [
+      { "type": "linear", "angle": "135deg", "stops": ["#0F3B7A 0%", "#1E5CB8 100%"], "used_in": [".hero-bg"] }
+    ]
+  },
+  "typography": {
+    "font_families": {
+      "heading_ja": "Noto Sans JP",
+      "heading_en": "Inter",
+      "body": "Noto Sans JP",
+      "google_fonts_url": "https://fonts.googleapis.com/css2?family=..."
+    },
+    "fontface_declarations": [
+      { "family": "Custom-A", "src": "https://.../custom.woff2", "format": "woff2", "weight": "700", "unicode_range": "U+0000-00FF" }
+    ],
+    "scale": {
+      "h1": { "pc": {"size": "48px", "weight": 700, "line_height": 1.2, "letter_spacing": "0"}, "sp": {"size": "32px"} }
+    }
+  },
+  "layout": {
+    "container_max_widths": [1200, 1080, 960],
+    "primary_layout_system": "flexbox",
+    "grid_usage_count": 12
+  },
+  "breakpoints": [
+    { "media": "(max-width: 767px)", "label": "sp", "detected_from": "@media + visual_scan" },
+    { "media": "(min-width: 768px) and (max-width: 1023px)", "label": "tablet" },
+    { "media": "(min-width: 1024px)", "label": "pc" }
+  ],
+  "animations": {
+    "css_keyframes": [
+      { "name": "fadeInUp", "duration": "0.8s", "easing": "cubic-bezier(0.4,0,0.2,1)", "trigger": "in-view", "targets": [".fv-title"] }
+    ],
+    "js_libraries": ["GSAP 3.12", "AOS 2.3"],
+    "scroll_triggers": [
+      { "element": ".section-cta", "type": "IntersectionObserver", "threshold": 0.3 }
+    ]
+  },
+  "dependencies": {
+    "framework": "Next.js 14",
+    "css_framework": "Tailwind CSS 3.4",
+    "cms": "none",
+    "external_libraries": ["GSAP", "Swiper", "AOS", "Lottie"],
+    "analytics": ["GA4", "GTM"]
+  },
+  "tailwind_hint_config": {
+    "theme_extend": {
+      "colors": { "primary": "#0F3B7A" },
+      "fontFamily": { "sans": ["Noto Sans JP", "sans-serif"] },
+      "screens": { "sp": "767px", "tablet": "1023px" }
+    }
+  },
+  "ng_flags": []
+}
+```
+
+**設計思想**: NaoはこのJSONだけで設計書を書き、Renは`tailwind_hint_config`をそのまま`tailwind.config.js`にコピーできる状態を目指す。
+
+---
+
+### 📱 レスポンシブブレイクポイント検出手順（v2.0専用プロトコル）
+
+**目標：breakpoint検出漏れ 0件**
+
+```
+手順A：@mediaクエリ全捕捉
+  - PostCSS で @media / @supports / @container を全AST走査
+  - min-width / max-width / orientation / prefers-color-scheme / prefers-reduced-motion を全収集
+  - 重複を統合し「宣言済みbreakpointリスト」を作成
+
+手順B：ビジュアル変化点の機械検出（★宣言漏れ対策）
+  - Puppeteerで viewport幅 320px → 1920px を50px刻みで33段階レンダリング
+  - 各段階で document.body の scrollHeight / DOM構造ハッシュを取得
+  - 前段階との差分が閾値超の幅を「実質breakpoint」として抽出
+  - 手順Aとの差集合が「宣言されていない実質breakpoint」
+
+手順C：クリティカルviewport再確認
+  - 375（iPhone SE/12/13/14/15）
+  - 390（iPhone 14 Pro）
+  - 414（iPhone Plus系）
+  - 768（iPad Portrait）
+  - 1024（iPad Landscape）
+  - 1280 / 1440 / 1920（PC主要）
+  上記でMiaに引き渡す前に必ずスクショ取得。
+
+手順D：出力
+  breakpoints.json に「宣言breakpoint」「実質breakpoint」「クリティカルviewport」を3配列で保持
+```
+
+**NG回避**: `max-width: 767px` と `min-width: 768px` が重なる境界1pxで崩れるケースを検出するため、各breakpointの±1pxもレンダリングチェック対象に含める。
+
+---
+
+### 🎬 アニメーション抽出プロトコル（v2.0専用）
+
+**目標：アニメ抽出網羅率 ≥ 95%**
+
+```
+分類1：CSS由来（keyframes / transition）
+  - PostCSSで @keyframes 全宣言を取得
+  - 使用箇所（animation-name プロパティを持つセレクタ）を逆引き
+  - transition-property / duration / timing-function / delay を要素別に収集
+
+分類2：JavaScript由来（ライブラリ）
+  - GSAP: window.gsap の存在 + gsap.timeline呼び出しを検出（Puppeteer evaluate）
+  - AOS: [data-aos]属性を Cheerioで全収集し値をマップ化
+  - ScrollReveal: window.ScrollReveal 検出 + reveal()引数解析
+  - Framer Motion: <motion.*> Reactコンポーネント検出
+  - Lottie: <lottie-player> / lottie-web / JSON URL 収集
+  - Swiper: .swiper-container 検出 + Swiperインスタンス設定取得
+
+分類3：スクロールトリガー
+  - IntersectionObserver をwindowレベルでフック（Puppeteer scriptタグ注入）
+  - 実発火要素・threshold・rootMargin を全ログ
+
+分類4：ホバー・タップアニメ
+  - :hover / :active / :focus を持つCSSルールを PostCSSで抽出
+  - transition-property が定義されている要素のみリスト化
+
+出力：animations.json（分類1〜4を統合、Renがそのまま実装可能な形）
+```
+
+**建設業LP特有の注意**: 「施工事例スライダー」「実績カウントアップ」「施工写真フェード」「地図ピン落下」等の頻出パターンを見逃さない。
+
+---
+
+### ✅ Hana v2.0 セルフチェックリスト（納品前必須）
+
+Kaito納品前に**全26項目**セルフレビューする。1つでもNGなら再抽出。
+
+**カラー・タイポグラフィ（6項目）**
+- [ ] palette_top20 に primary / secondary / accent が明示されている
+- [ ] CSS変数（--*）の宣言値と解決値を両方記録した
+- [ ] グラデーションの角度・stops・使用箇所を明記した
+- [ ] Google Fonts / Adobe Fonts / セルフホストの区別が明確
+- [ ] 日本語フォント・欧文フォントを分離記録した
+- [ ] @font-face の src URL と format を全収集した
+
+**レイアウト・レスポンシブ（6項目）**
+- [ ] container_max_widths が実測値ベース（宣言値のみに頼っていない）
+- [ ] Flex / Grid / Blockの使用比率を記録した
+- [ ] @media 宣言breakpoint と 実質breakpoint の差集合を確認した
+- [ ] クリティカルviewport 8種で崩れなし確認済
+- [ ] 各breakpoint境界±1pxでチェック済
+- [ ] 縦スクロール禁止領域（overflow:hidden）を全列挙した
+
+**アニメーション（5項目）**
+- [ ] @keyframes 全定義を抽出した
+- [ ] JSライブラリ（GSAP/AOS/Swiper/Lottie等）を全検出した
+- [ ] IntersectionObserver発火要素を全ログ
+- [ ] :hover / :active のtransitionを分類3に含めた
+- [ ] 建設業LP頻出パターン（スライダー・カウントアップ・地図）チェック済
+
+**ライブラリ・出力形式（5項目）**
+- [ ] framework / cssFramework / cms を判定した
+- [ ] tailwind_hint_config が Ren即利用可能な形になっている
+- [ ] JSON Schema バリデータ通過（schema_version: hana-v2.0）
+- [ ] kpi_report の4指標を全記録した
+- [ ] ng_flags セクションに検出した危険パターンを列挙した
+
+**引き渡し（4項目）**
+- [ ] Kaitoへの申し送りメモを添付した
+- [ ] Naoへの設計上の注意点を記述した
+- [ ] Renへの実装上の落とし穴を記述した
+- [ ] 総所要時間を meta.kpi_report.runtime_seconds に記録した
+
+---
+
+### 🚫 NGパターン集（v2.0・過去案件からの学び）
+
+Hanaが**絶対に踏んではいけない**過去NG事例と対策。
+
+| # | NGパターン | 症状 | 対策 |
+|---|-----------|------|------|
+| 1 | 宣言値のみでComputed値を取らない | 継承やcascadeで最終適用値が違う | 必ず`getComputedStyle`で解決後の値を記録 |
+| 2 | CSS変数を解決せず`var(--x)`のまま出力 | Renがビルドで再現不可 | 変数の解決値も同時記録（両方保持） |
+| 3 | 1viewportだけで抽出（PC only） | SPで崩れて発覚 | 375/768/1440の3ビューポート必須 |
+| 4 | @keyframes名だけ拾ってプロパティ未取得 | Renがアニメ再現不可 | keyframes内のfrom/to/％の全プロパティ抽出 |
+| 5 | 遅延読込CSSを見落とす | ページ下部のスタイル欠落 | networkidle0 + 追加2秒wait |
+| 6 | Google Fonts URLの`display=swap`欠落 | FOUT/FOIT発生 | 常に`display=swap`付きで納品 |
+| 7 | 日本語フォントweightの誤抽出 | Noto Sans JPの400/500/700が混在 | 実際に使われている全weightを列挙 |
+| 8 | box-shadowの多重定義漏れ | 影が浅くなる | カンマ区切りの全shadowを保持 |
+| 9 | Tailwind → 生CSSの誤変換 | クラス名を残したままstyleに変換 | Computed値ベースで生成、クラス名は参照情報のみ |
+| 10 | iframe / shadow DOM 未走査 | 埋込コンテンツのスタイル欠落 | Puppeteer `page.frames()` + Shadow root traversal 実施 |
+| 11 | prefers-reduced-motion 無視 | アクセシビリティNG | @mediaで別途取得しng_flagsに記載 |
+| 12 | CDN CSS + カスタムCSSの上書き順ミス | 特異度計算誤り | PostCSSでカスケード順序と特異度を明示記録 |
+
+**運用**: 案件終了後、Hana自身が新規NGパターンを追加していく（Daily Knowledge Logで管理）。
+
+---
+
+### 🤝 v2.0 連携プロトコル（Kaito・Nao・Ren・Miaへの申し送り）
+
+**Kaitoへ**: 納品時に `hana_spec_v2.json` + `kpi_report` + `ng_flags` の3点セットを渡す。KPI未達項目があれば即申告。
+
+**Naoへ**: 設計書作成時に参照すべきセクションを明示：
+- カラー設計 → `colors.palette_top20`
+- タイポ設計 → `typography.scale`
+- レスポンシブ設計 → `breakpoints` + `layout`
+
+**Renへ**: 実装時にコピペ可能な情報を明示：
+- `tailwind_hint_config` → `tailwind.config.js` にほぼ直接投入可
+- `typography.google_fonts_url` → `<head>` に直接埋込
+- `animations.js_libraries` → `package.json` 依存追加
+
+**Miaへ（QA連携）**: ピクセル差検証時に使う「クリティカルviewport 8種」のスクショURL一覧を添付。3px超で戻し発生時、Hanaが即座に再抽出。
+
+---
+
+### 📝 Daily Knowledge Log（v2.0起点）
+
+- **2026-07-28**: v2.0スペック強化実施。KPI 4指標導入、Computed Style取得・レスポンシブ全域走査・アニメ抽出プロトコル標準化、NGパターン12件明文化。以降案件ごとに追記。
