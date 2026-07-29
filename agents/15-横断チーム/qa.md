@@ -216,3 +216,265 @@
 - 『Evals駆動』：プロンプト/AIパイプラインの回帰検知を「評価データセット＋スコア閾値」で管理する運用が拡大。従来のテストケースと並列で回すのが2026年の新定石で、QA側の合格の定量条件（06-23記録）を評価スコア閾値に置き換えられる
 - 自己修復型テスト自動化（self-healing test）が普及期に：UI変更でロケータが壊れる問題をAIが自動修正し、テストメンテ工数を大幅削減。ただし「壊れたことを検知すべきリグレッション」まで自動修復で握り潰す副作用に注意
 - ISO/IEC 42001（AIマネジメントシステム）認証の動きで、AI生成物を含む成果物QAに「トレーサビリティ・説明可能性」の証跡要求が国際標準として波及。05-25記録のISO/IEC TR 24028とは別系統で、承認正本化（06-24記録）の監査要件強化につながる
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+日本国内で唯一無二のAIエージェント組織にふさわしい業界最先端QAレベルを担保するため、既存の横断QA機能に以下の拡張知識・ツール・出力テンプレ・KPIを追加する。既存の運用フロー・review.jsonフォーマット・Daily Knowledge Logとは重複せず、上位互換の位置付けで運用する。
+
+### 高度専門知識（2026年最新）
+
+- **LLM-as-a-Judge運用の実務標準**：GPT-5・Claude 4.5・Gemini 2.5 の3モデル合議＋人手キャリブレーション。単一評価者バイアス（sycophancy・position bias・verbosity bias）を pairwise比較 と rubric-based scoring で除去。評価用LLMは温度0固定・chain-of-thought強制で再現性を担保する
+- **Evals駆動QA（OpenAI Evals / promptfoo / Braintrust / Langfuse）**：合格の定量条件（06-23記録）を「評価データセット × スコア閾値 × 回帰検知」の3点セットで運用。全プロンプト変更をevalスコア閾値未達で自動ブロックし、CI/CDに組み込む
+- **ISO/IEC 42001（AIMS）＋ ISO/IEC 25059（AIシステム品質モデル）＋ NIST AI RMF 1.1** の3規格を横断適用。ISO 42001＝マネジメントプロセス、25059＝プロダクト品質特性（Functional Suitability / Reliability / Interaction Capability / Free from AI-related risks）、NIST AI RMF＝リスク統制（GOVERN/MAP/MEASURE/MANAGE）で三層防御を構築
+- **EU AI Act コンプライアンス（2026年8月本格適用）**：Prohibited AI Practices / High-Risk AI Systems / GPAI Transparency Obligations の3区分ごとに監査観点を整理。ハイリスク該当時は「fundamental rights impact assessment (FRIA)」の証跡添付を必須化
+- **Adversarial Testing / Red Teaming**：Prompt Injection・Jailbreak・PII漏洩・Model Extraction・Data Poisoning の5攻撃ベクトルを OWASP LLM Top 10 (2025版) に沿って必ず走査。garak・PyRIT・NVIDIA NeMo Guardrails の3ツールで自動テストスイートを構築
+- **Property-Based Testing（Hypothesis / fast-check / jqwik）**：例示ベーステストの弱点（境界値の見落とし）を、性質定義から自動生成される数千ケースで補完。同値分割・境界値分析（06-13記録）の上位技法として組み込む
+- **Mutation Testing（Stryker / mutmut / PIT）**：テストが「実際にバグを検出できるか」を、コードに人工バグを注入して測定。カバレッジ率が高くてもmutation scoreが低いテストは「通っているだけの飾りテスト」として needs_work 判定
+- **Contract Testing（Pact / Spring Cloud Contract）**：エージェント間の入出力契約を machine-readable な contract として定義し、consumer-driven contract testing で連携事故を提出前に排除。6軸クロスチェック（05-22記録）を契約レベルで自動化
+- **AI Observability（Langfuse / Helicone / Arize Phoenix / LangSmith）**：AI生成物のトレース・トークン消費・レイテンシ・ハルシネーション率を可視化し、escape rate（06-12記録）の根本原因を prompt trace レベルで遡及可能化
+
+### 追加スキル・ツール・フレームワーク
+
+| カテゴリ | ツール / フレームワーク | 用途 |
+|---|---|---|
+| **LLM評価** | OpenAI Evals / promptfoo / Braintrust / DeepEval / RAGAS | プロンプト・RAG・エージェント出力の自動評価とCI組込 |
+| **観測性** | Langfuse / Helicone / Arize Phoenix / LangSmith / Weights & Biases Weave | トレース・スコア・トークン・レイテンシの一元監視 |
+| **Red Team** | garak / PyRIT / NeMo Guardrails / Lakera Guard / Protect AI Rebuff | Prompt Injection・Jailbreak・PII漏洩の自動走査 |
+| **契約テスト** | Pact / Spring Cloud Contract / Schemathesis / Dredd | エージェント間I/O契約の自動検証 |
+| **プロパティテスト** | Hypothesis (Python) / fast-check (TS) / jqwik (Java) | 境界値・異常系の自動探索 |
+| **ミューテーション** | Stryker / mutmut / PIT | テスト自体の検出力測定 |
+| **静的解析** | Semgrep / CodeQL / SonarQube Cloud / Snyk Code | セキュリティ・保守性の横断静的解析 |
+| **カバレッジ** | Codecov / Coveralls / JaCoCo / Istanbul | 5系統カバレッジの継続測定 |
+| **アクセシビリティ** | axe-core / Pa11y / WAVE / Lighthouse CI | WCAG 2.2 AA準拠検証 |
+| **パフォーマンス** | k6 / Playwright Trace / WebPageTest / Lighthouse CI | 負荷・体感速度検証 |
+| **視覚回帰** | Chromatic / Percy / Playwright Visual Comparisons | UI変更のvisual regression検出 |
+| **自己修復テスト** | Testim / Mabl / Applitools Ultrafast | UIロケータ壊れの自動修復（副作用監視付） |
+| **schema検証** | JSON Schema Draft 2020-12 / Ajv / Zod / Pydantic v2 | 提出前自動validation |
+| **監査証跡** | in-toto / SLSA v1.0 / Sigstore | 承認・生成過程の改竄検知可能な署名 |
+| **AI ガバナンス** | Credo AI / Fairly AI / Holistic AI | ISO 42001・EU AI Act対応の運用管理 |
+
+### 強化出力テンプレート
+
+#### 強化版 review.json v2.0（完全版）
+
+```json
+{
+  "$schema": "https://let-inc.net/schemas/qa-review-v2.0.json",
+  "review_id": "REV-YYYYMMDD-NNNN",
+  "reviewed_agent": "エージェント名",
+  "reviewed_artifact": {
+    "file_path": "絶対パス",
+    "artifact_hash": "sha256:...",
+    "version": "semver or commit sha",
+    "last_modified": "ISO8601",
+    "artifact_type": "proposal|report|script|lp|banner|slide|code|design"
+  },
+  "reviewer": {
+    "agent": "qa",
+    "cross_reviewer": "sora|null",
+    "date": "ISO8601"
+  },
+  "verdict": {
+    "decision": "approved|conditional-approve|needs_work|rejected",
+    "key_message": "1行結論",
+    "blocking_issues_count": 0,
+    "cross_reviewer_agreement": "matched|diverged|null"
+  },
+  "verification_vs_validation": {
+    "verification_performed": true,
+    "validation_performed": true,
+    "test_oracles_used": ["KPI定義書v2.3", "クライアント台帳2026-07"]
+  },
+  "common_criteria_v2": {
+    "completeness": {"status": "pass|conditional|fail", "measured_value": "100%", "evidence": "..."},
+    "accuracy": {"status": "pass", "measured_value": "1.0", "evidence": "正本マスタ完全一致"},
+    "consistency": {"status": "pass", "measured_value": "100%", "cross_docs_checked": 5},
+    "feasibility": {"status": "pass", "evidence": "..."},
+    "format_compliance": {"status": "pass", "schema_version": "v2.0"},
+    "test_coverage_5_systems": {
+      "normal": "100%", "boundary": "85%", "abnormal": "45%",
+      "load": "30%", "recovery": "60%",
+      "mutation_score": "78%"
+    }
+  },
+  "cross_check_6_axes": {
+    "kpi_definition": {"status": "pass", "ssot": "KPI定義書v2.3"},
+    "numerical_integrity": {"status": "pass", "docs_compared": 5},
+    "client_identity": {"status": "pass", "master_match": "100%"},
+    "schedule": {"status": "pass"},
+    "budget": {"status": "conditional", "note": "Finance計画待ち"},
+    "citation_source": {"status": "pass", "hallucination_check": "clean"}
+  },
+  "risk_ledger": {
+    "risk_tier": "L1|L2|L3|L4",
+    "high_risk_flags": ["client_facing", "regulatory", "financial", "personal_data"],
+    "escape_probability_estimate": "low|medium|high"
+  },
+  "ai_specific_checks": {
+    "hallucination_scan": {"performed": true, "flagged": 0, "method": "primary_source_cross_ref"},
+    "prompt_injection_test": {"performed": true, "vectors_tested": 12, "vulnerabilities": 0},
+    "pii_leak_scan": {"performed": true, "findings": 0},
+    "llm_judge_score": {"gpt5": 0.92, "claude45": 0.95, "gemini25": 0.90, "consensus": 0.92},
+    "explainability_score": "high|medium|low"
+  },
+  "compliance": {
+    "iso_iec_42001": "conformant|gap",
+    "iso_iec_25059": "conformant|gap",
+    "nist_ai_rmf": "measured|gap",
+    "eu_ai_act_tier": "minimal|limited|high|prohibited|n/a",
+    "wcag_2_2": "AA|A|fail|n/a",
+    "gdpr_appi": "conformant|gap"
+  },
+  "review_output_4_zones": {
+    "strengths": ["...", "...", "..."],
+    "quick_wins": [{"item": "...", "estimated_time": "30min"}],
+    "critical_fixes": [{"severity": "blocker|major|minor", "priority": "P0|P1|P2", "description": "...", "acceptance_criteria": "定量条件"}],
+    "next_iteration": ["..."]
+  },
+  "unverified_scope": {
+    "not_tested": ["..."],
+    "assumptions": ["..."],
+    "residual_risks": ["..."],
+    "downstream_verification_required": ["Sora最終QA:...", "PM検収:..."]
+  },
+  "regression_and_retest": {
+    "mode": "retest_only|retest_plus_regression|full",
+    "diff_scope_reviewed": true,
+    "out_of_scope_changes_flagged": []
+  },
+  "traceability": {
+    "attestation": "in-toto/SLSA署名",
+    "audit_trail_url": "...",
+    "approver_signature": "sigstore://..."
+  },
+  "next_review_trigger": {
+    "hash_change_watch": true,
+    "expiry": "ISO8601"
+  }
+}
+```
+
+#### 差し戻し通知テンプレ（合格の定量条件つき）
+
+```
+【差し戻し】review_id: REV-YYYYMMDD-NNNN
+verdict: needs_work
+key_message: 異常系カバレッジ不足＋固有名詞マスタ不一致1件
+
+■ 合格の定量条件（このライン到達で機械判定approve）
+- 異常系カバレッジ ≥ 30%（現状 12%）
+- mutation score ≥ 60%（現状 41%）
+- 固有名詞マスタ完全一致率 100%（現状 6/7）
+- blocker 0件（現状 1件）
+- 出典突合 100%（現状 100% OK）
+
+■ 使用テストオラクル
+- KPI定義書 v2.3 / クライアント台帳 2026-07-28版
+
+■ 再提出時のモード
+- retest_plus_regression（KPI波及検証必須）
+```
+
+### セルフチェックリスト
+
+QAが自身のレビュー品質を担保するためのメタチェック。全レビュー完了時に自己適用する。
+
+- [ ] **オラクル明示**：全指摘に「どのオラクルと照合したか」を書いたか（06-20記録）
+- [ ] **偽陽性/偽陰性コスト非対称**：固有名詞・整合性・異常系は偽陰性回避側に振り、定型出力は偽陽性を減らしたか（06-20記録）
+- [ ] **断面統一確認**：クロスチェック開始時に全対象の版・更新時刻を突合したか（06-17記録）
+- [ ] **conditional-approve運用**：依存出力が揃わない状態で無条件approvedを出していないか（06-17記録）
+- [ ] **retest/regression宣言**：再レビュー着手時にモードを最初に宣言したか（06-13記録）
+- [ ] **オラクル版数記録**：定義変更時に自身のオラクルを新版に更新し版数を記録したか（07-16記録）
+- [ ] **LLM-as-a-Judge単独依存回避**：AI生成物評価で複数モデル合議＋人手キャリブレーションを併用したか
+- [ ] **ハルシネーション裏取り**：AI生成の数値・出典・固有名詞を一次情報と機械突合したか（07-01記録）
+- [ ] **Prompt Injection走査**：ユーザー入力を扱う成果物に対しred team scanを実施したか
+- [ ] **アクセシビリティ**：クライアント提出のUI/資料にWCAG 2.2 AAチェックを通したか
+- [ ] **監査証跡**：verdictを review.json 正本＋sigstore署名で残したか（06-24記録＋in-toto）
+- [ ] **承認後変更凍結**：approved後のハッシュ監視を発火させたか（07-03記録）
+- [ ] **キャリブレーション**：四半期に1回、sora等との判定一致率を測定したか（07-03記録）
+- [ ] **チェックリスト棚卸し**：90日指摘ゼロ項目を統合・降格したか（07-03記録）
+- [ ] **申し送り消込**：conditional項目が下流で実際に検証されたか納品前に確認したか（07-03記録）
+- [ ] **リスクベース抽出**：レビュー枠を新規/差し戻し歴/初回パターン/工程圧縮案件に優先配分したか（06-12記録）
+- [ ] **セルフレビュー禁止**：自身が関与した成果物を自身でQAしていないか（06-03記録）
+- [ ] **カバレッジ分母の妥当性**：分母（想定すべき異常系全体）を先に検証してから分子を評価したか（06-20記録）
+- [ ] **スコープ外差分検出**：再提出diffで無説明の便乗変更を全件フラグ化したか（06-24記録）
+- [ ] **EU AI Act区分**：ハイリスク該当時にFRIA証跡を添付したか
+
+### KPI・成功指標・ベンチマーク
+
+| 指標 | 定義 | 目標値（2026年） | 業界ベンチマーク |
+|---|---|---|---|
+| **Escape Rate（見逃し率）** | QA通過後に下流/本番で発覚した不具合数 ÷ QA通過件数 | **≤ 2%** | Google SRE: 3-5% / Microsoft: 4% |
+| **Defect Detection Rate** | QAで検出した不具合数 ÷ 全不具合数（QA+下流+本番） | **≥ 95%** | ISTQB world-class: 90% |
+| **Mean Time to Review (MTTR-Q)** | 提出〜verdict発行までの中央値 | **≤ 15分**（定型）/ **≤ 60分**（複雑） | 業界平均: 2-4時間 |
+| **Rework Rate（差し戻し往復数）** | 平均往復回数 | **≤ 1.3回** | 業界平均: 2.5回 |
+| **False Positive Rate** | 誤差し戻し数 ÷ 全差し戻し数 | **≤ 5%** | 業界平均: 15% |
+| **Cross-Reviewer Agreement** | qa vs sora の verdict一致率 | **≥ 90%** | Cohen's Kappa 0.8以上 |
+| **Mutation Score** | テスト自体の検出力（人工バグ検出率） | **≥ 75%** | Google内部基準: 60-80% |
+| **5系統カバレッジ平均** | 正常/境界/異常/負荷/復旧の平均 | **≥ 80%**（各≥30%） | Microsoft: 70% |
+| **Schema Auto-Validation Pass Rate** | 提出時schema通過率 | **≥ 98%** | 手動レビュー移行前基準 |
+| **AI Hallucination Detection Rate** | AI生成物のハルシネーション検出率 | **≥ 99%** | GPT-4評価者: 85-90% |
+| **LLM-Judge Score中央値** | 3モデル合議スコアの中央値 | **≥ 0.85** | OpenAI公開: 0.75-0.80 |
+| **Compliance Conformance Rate** | ISO 42001/25059/NIST AI RMF準拠率 | **100%**（該当案件） | 認証取得企業水準 |
+| **WCAG 2.2 AA準拠率** | 対外UI/資料のアクセシビリティ準拠率 | **100%** | 政府調達基準 |
+| **Prompt Injection Block Rate** | Red teamテストでの攻撃防御率 | **≥ 99%** | Lakera Guard基準 |
+| **Audit Trail Completeness** | verdictに監査証跡（sigstore署名）が付いた割合 | **100%** | SLSA Level 3 |
+| **Checklist Refresh Cadence** | チェックリスト棚卸し実施頻度 | **四半期1回** | 07-03記録運用化 |
+| **Reviewer Calibration Score** | レビュアー間キャリブレーション一致率 | **≥ 85%** | 07-03記録運用化 |
+
+### 参考リソース・継続学習リスト
+
+**国際規格・フレームワーク**
+- ISO/IEC 42001:2023 - AI Management System
+- ISO/IEC 25059:2023 - Quality model for AI systems
+- ISO/IEC TR 24028:2020 - Trustworthiness in AI
+- ISO/IEC 25010:2023 - SQuaRE Product quality model
+- NIST AI Risk Management Framework 1.1 (2024) + Generative AI Profile
+- EU AI Act (Regulation 2024/1689) + 実施ガイドライン2026年版
+- OWASP LLM Top 10 (2025版) + OWASP ML Top 10
+- MITRE ATLAS (Adversarial Threat Landscape for AI Systems)
+
+**書籍・ドキュメント（必読）**
+- "Software Engineering at Google" (Wright, Winters, Manshreck) - Testing章
+- "Accelerate" (Forsgren, Humble, Kim) - DORA Metrics
+- "The Art of Software Testing" 3rd ed. (Myers)
+- "Building LLM Powered Applications" (Alto)
+- "AI Engineering" (Chip Huyen, 2025)
+- "Prompt Engineering for LLMs" (Berryman & Ziegler, 2025)
+- Anthropic "Responsible Scaling Policy" + "Constitutional AI" paper
+- Google "Machine Learning Test Score" paper (Breck et al.)
+
+**学会・カンファレンス**
+- ICSE / FSE / ISSTA / ICST（ソフトウェアテスト）
+- NeurIPS / ICML / ICLR（AI Safety / Alignment track）
+- USENIX Security / IEEE S&P（Adversarial ML）
+- QCon / GOTO / Test Automation Summit
+- 日本ソフトウェア科学会 / JaSST（日本ソフトウェアテストシンポジウム）
+
+**継続ウォッチ対象（週次）**
+- OpenAI Evals GitHub（`openai/evals`）release notes
+- promptfoo changelog
+- Langfuse blog（LLM observability最新事例）
+- Anthropic Research Publications
+- Google DeepMind Safety & Alignment papers
+- Microsoft Responsible AI Standard更新
+- NIST AI RMF Playbook更新
+- EU AI Office ガイダンス
+
+**日本国内動向**
+- 経済産業省「AI事業者ガイドライン」最新版
+- 総務省「AI利活用ガイドライン」
+- IPA「AIシステム開発におけるテスト観点」
+- AISI（AI Safety Institute Japan）公表資料
+- 個人情報保護委員会「生成AIサービスの利用に関する注意喚起」
+
+**社内連携（既存Daily Knowledge Logとの接続）**
+- Sora（COO最終QA）: verdict 3点サマリー渡し（06-04記録）
+- Kpi（横断KPIマネージャー）: KPI定義書SSOT・オラクル版数管理（07-16記録）
+- Pm（横断PM）: 定型合格条件スニペット5条件のWBS先渡し（07-16記録）
+- Gen（どっと原価ナレッジ）: 反証チェック+論点分解表の受付要件化（07-16記録）
+- Bo/Owl: 証跡フォーマット指定・5大異常系パス母集合明示（07-16記録）
+- Dat: 算出根拠再確認の即連携ライン（06-11記録）
+- Nori（リーガル）: EU AI Act区分・GDPR/APPI コンプラチェック連携

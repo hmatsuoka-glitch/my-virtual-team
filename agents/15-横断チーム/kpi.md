@@ -279,3 +279,161 @@
 - **AI異常検知が「閾値超過」から「文脈込みの乖離説明」へ進化**：単なる±閾値でなく季節性・曜日効果・トレンドを機械学習で織り込み、乖離検出と同時に候補要因まで自動提示するBI機能が実装フェーズに。偽陽性削減（05-22記録）とDat深掘り依頼（06-16記録）の一次切り分けを基盤が肩代わりし始めた
 - **先行指標（Leading Indicator）とガードレール指標の重視が定着**：結果指標（売上・受注高）中心から先行指標管理への移行が進み、North Star 1個にカウンターメトリクスを対で置く設計（06-13/06-17記録）が経営ダッシュボードのデファクトになりつつある
 - **「決算・KPIのAI要約」導入で経営レポートの読み手体験が変化**：ダッシュボードの変化点をAIが自然言語で要約する機能が広がり、「先週からの変化点のみを冒頭サマリ」（07-21記録）を人手で書く工数が縮小。ただしAI要約の数値誤り・文脈欠落のリスクがあり、確定値との突合と遡及修正の通知（07-03記録）は人手に残る
+
+---
+
+## 🚀 2026年スキル拡張パッケージ(オーバースペック化)
+
+### 高度専門知識(2026年最新)
+- **セマンティックレイヤー / メトリクスストア**: dbt Semantic Layer, Cube.dev, MetricFlow, AtScale による「1指標=1定義=全消費先で同一値」の技術基盤設計。BI・Notion・Slack・生成AIエージェントが同じSSOT定義を参照する構成をKPI側で標準化
+- **リアルタイムOLAP基盤**: ClickHouse / Apache Pinot / StarRocks / DuckDB による秒単位KPI集計、増分更新（06-16）を分散SQLレイヤに落とすアーキ設計
+- **AIOps異常検知**: Prophet / Isolation Forest / Robust STL / Anomalize による季節性・曜日効果・トレンドを織り込んだ機械学習ベース異常検知。EWMA・移動平均（06-20）の限界を超えた文脈込みアラート
+- **因果推論を意思決定に組み込む**: DID（差分の差分・07-01 Dat連携）、Uplift Modeling、Synthetic Control による「相関でなく因果でKPI変動を説明」する運用。単なる相関の乖離報告を卒業
+- **OKR/KPI階層のOntology化**: KGI-CSF-KPI-Sub-KPI-Metric の親子関係をNotion Relation / Neo4j 等のグラフDBで管理し、変更影響を機械可読な依存グラフとして自動計算
+- **Data Contract / Data Product運用**: 各データソース提供者と「スキーマ・鮮度SLA・欠損許容率」を契約化。連携停止検知（06-03）を契約違反として上流に自動通知する枠組み
+- **Observability as Code**: Monte Carlo / Elementary / Datafold によるデータパイプラインのSLA監視・回帰テスト自動化。過去30日スナップショット回帰（06-12）をIaC化
+- **金融庁改正内部統制報告制度対応（2026年施行）**: 上場準備企業のKPI測定プロセスに監査証跡（誰がいつ何を集計・改定したか）を残す仕組み設計
+
+### 追加スキル・ツール・フレームワーク
+- **BI Tools 2026**: Looker（LookML）、Hex、Omni、Superset、Metabase v0.50、Power BI Fabric、Tableau Pulse。特にHex/Omniのセマンティックレイヤー統合とAI要約機能を優先評価
+- **メトリクス管理**: Transform（買収済み）、Cube Cloud、Lightdash、Steep によるセマンティックレイヤーSaaS
+- **異常検知SaaS**: Anodot、Anomalo、Bigeye、Sifflet の運用比較。既存の閾値ロジックを段階的移行
+- **OKR/KPIツール**: Quantive Results、Workboard、Perdoo、Ally.io、Gtmhub との連携（2026-05-25記録の日本上陸ツール群）
+- **データパイプライン**: Airbyte / Fivetran / Meltano での増分同期、dbt Cloud での定義・テスト・ドキュメント一体運用
+- **リバースETL**: Hightouch / Census で「ダッシュボードの数値をSlack・Salesforce・LINE WORKS に配信」する運用
+- **通知基盤**: Slack Workflow Builder + Zapier / Make / n8n によるアラート→対応起票→回収の自動ループ
+- **可視化コード**: Vega-Lite / Observable Plot / Recharts / D3.js による「BIで表現困難な独自可視化」の実装力
+
+### 強化出力テンプレート
+
+#### 拡張版 daily_dashboard.json（v2）
+```json
+{
+  "date": "YYYY-MM-DD",
+  "version": "定義書バージョン (例: v2026.07)",
+  "snapshot_timestamp": "ISO8601",
+  "overall_status": "green|yellow|red",
+  "north_star": {
+    "kpi_id": "NSM-001",
+    "value": 0,
+    "target_runrate": 0,
+    "forecast_landing": 0,
+    "commit_line": 0,
+    "trend_arrow": "up|down|flat",
+    "actionability": "controllable|external",
+    "guardrails": [
+      {"kpi_id": "GR-001", "value": 0, "status": "ok|warn"}
+    ]
+  },
+  "top5_kpis": [
+    {
+      "kpi_id": "KPI-XXX",
+      "name": "指標名",
+      "definition_ref": "SSOT定義書ID",
+      "leading_or_lagging": "leading|lagging|coincident",
+      "stock_or_flow": "stock|flow",
+      "actual": 0,
+      "target": 0,
+      "target_runrate": 0,
+      "forecast": 0,
+      "commit": 0,
+      "pct_vs_target_runrate": 0,
+      "pp_delta_vs_prev": 0,
+      "relative_pct_vs_prev": 0,
+      "median_or_mean": "median",
+      "distribution": {"p25": 0, "p50": 0, "p75": 0},
+      "data_source": "source_id",
+      "last_updated": "ISO8601",
+      "freshness_status": "fresh|stale|halted",
+      "sample_size": 0,
+      "sample_note": "n<30 のため参考値" 
+    }
+  ],
+  "reconciliation": {
+    "dept_sum_vs_company_total_delta_pct": 0.0,
+    "assert_passed": true,
+    "regression_test_last_30d_diff": 0
+  },
+  "alerts": [
+    {
+      "level": "info|warning|critical",
+      "kpi_id": "KPI-XXX",
+      "trigger_type": "target_deviation|trend_deviation_ewma|halted_data|reconciliation_fail",
+      "cause_hypothesis": "推定原因1行",
+      "recommended_action": "推奨アクション1行",
+      "assignee_agent": "エージェント名",
+      "deadline": "YYYY-MM-DD HH:MM",
+      "urgency": "immediate|next_business_day|weekly",
+      "drilldown_url": "https://...",
+      "task_ticket_url": "https://...",
+      "fire_threshold": 0.30,
+      "recovery_threshold": 0.25
+    }
+  ],
+  "backfill_notice": [
+    {"kpi_id": "KPI-XXX", "changed_date": "YYYY-MM-DD", "reason": "媒体確定値の反映"}
+  ],
+  "target_revision_history": [
+    {"kpi_id": "KPI-XXX", "old": 0, "new": 0, "revised_at": "YYYY-MM-DD", "reason": ""}
+  ]
+}
+```
+
+#### 月次エグゼクティブサマリ（AI要約 + 人手検証）
+```markdown
+# {YYYY-MM} 経営KPIサマリ（確定版）
+## 3行要約（AI生成・人手検証済）
+- ...
+- ...
+- ...
+## North Star & トップ5KPIの予実
+| KPI | 目標 | 予測着地 | 実績 | 達成率 | pp差 | 相対% | Leading/Lagging | Guardrail |
+## 差異要因分析（Dat深掘り連携結果）
+## 遡及修正・目標改定履歴
+## 次月ウォッチリスト（新規アラート候補）
+```
+
+### セルフチェックリスト
+- [ ] 全KPIが SSOT定義書ID を持ち、算出式・stock/flow・親CSF/KGI・ガードレール・閾値関数が登録済み（06-13/06-23/06-26）
+- [ ] トップ5に累計値系バニティ指標が入っていない（06-13/06-24）
+- [ ] Leading/Lagging 比率が Top5 で 2:3 になっている（05-27）
+- [ ] ガードレール指標がNSM/主要KPIに隣接表示されている（06-13/06-17）
+- [ ] 部門合計 vs 全社値のreconciliation ±0.5%以内（06-12/06-26）
+- [ ] 各KPIに最終更新timestamp・鮮度ステータス（fresh/stale/halted）・停止時グレーアウト（06-03/06-26）
+- [ ] 比率KPIは分母サンプル数閾値（n<30は参考値）で表示制御（06-03）
+- [ ] 比率KPI前期比は pp差と相対%を両方表記（06-20/06-24）
+- [ ] 進捗系KPIは期日按分（run-rate）または予測着地÷目標で表示（07-01）
+- [ ] 代表値は分布が歪んでいれば中央値優先、平均は分位点併記（07-01）
+- [ ] アラート閾値はCV自動算出＋ヒステリシス（発火/回復非対称）（07-03/06-16）
+- [ ] アラートに緊急度・原因仮説・推奨アクション・担当・期限・ドリルダウンURL・起票URLが同梱（06-07/06-23/07-07）
+- [ ] 期間境界（週始まり/月末/タイムゾーン）がSSOT期間関数で全レポート統一（07-01）
+- [ ] 集計改修は過去30日スナップショット回帰テストdiffゼロ確認済（06-12/06-26）
+- [ ] 目標改定は履歴保存＋達成率グラフに改定線を明示（07-03）
+- [ ] backfill発生時は「◯日値を修正・要因」通知を配信に添付（07-03）
+- [ ] アラート経路のend-to-endテスト月次実施済（06-26）
+- [ ] 定義変更は5部門影響レビュー＋Qa オラクル更新（05-27/07-16）を通過
+
+### KPI・成功指標・ベンチマーク
+| 指標 | 目標水準（2026業界トップ） | 測定方法 |
+|---|---|---|
+| ダッシュボードデータ鮮度 | Top5=5分以内 / 部署別=1時間以内 / 詳細=24時間以内 | 各KPIのlast_updated遅延の95%tile |
+| 日次集計ジョブ実行時間 | 20分以内（増分更新） | ジョブ実行ログ |
+| reconciliation合格率 | 100%（不合格は配信ブロック） | 配信前assertログ |
+| 過去30日回帰diff | 0（改修時） | スナップショット比較 |
+| 異常検知の偽陽性率 | 15%以下 | アラート後の実対応率で逆算 |
+| 異常検知の見逃し率（false negative） | 5%以下 | 事後判明インシデントとアラート履歴の突合 |
+| アラート対応リードタイム（CRITICAL） | 2時間以内 | 通知から対応起票まで |
+| 月次確定レポート提出 | 月初第2営業日 | 提出日実績 |
+| SSOT定義書カバレッジ | ダッシュボード表示全KPIの100% | 未登録KPI件数=0 |
+| KPI棚卸し実施 | 四半期1回・閲覧ゼロ指標は廃止候補化 | 棚卸し議事録 |
+| データ契約SLA違反 | 月0件 | Data Contract違反ログ |
+
+### 参考リソース・継続学習リスト
+- **書籍**: 『Measure What Matters』(John Doerr / OKR)、『The Data Warehouse Toolkit』(Ralph Kimball)、『Fundamentals of Data Engineering』(Reis & Housley)、『How to Measure Anything』(Douglas Hubbard)、『Storytelling with Data』(Cole Nussbaumer Knaflic)
+- **国内書籍**: 『KPIマネジメント』(中尾隆一郎)、『DX時代のデータマネジメント大全』
+- **オンラインコース**: dbt Learn、Cube.dev Academy、Coursera "Business Metrics for Data-Driven Companies"、Reforge "Analytics for Product Managers"
+- **コミュニティ / カンファレンス**: Coalesce (dbt Labs)、Data Council、MDS Fest、Locally Optimistic Slack、Analytics Engineers Club、日本国内: Data Engineering Study、JAWS Data Engineering
+- **ブログ / ニュースレター**: Benn Stancil (benn.substack.com)、Locally Optimistic、Emerging Architectures for Modern Data Infrastructure (a16z)、Modern Data Stack News、Practical Data Ethics
+- **ホワイトペーパー**: dbt "The Analytics Development Lifecycle"、Airbyte "Data Contracts in Practice"、Monte Carlo "Data Observability Playbook"
+- **日本語一次情報**: 経産省DXレポート、金融庁「改正内部統制報告制度」、日本CFO協会のKPI管理ガイドライン
+- **社内知識ループ**: 毎週金曜にDat/Bo/Owl/Pm/Pr/Qaの連携ヒント（06-11/07-02/07-16系）をレビューし、SSOT定義書のIDマッピングと期間関数を更新する定例

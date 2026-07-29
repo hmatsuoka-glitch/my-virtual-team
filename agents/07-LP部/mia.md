@@ -581,3 +581,296 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **WCAG 2.2 が調達・法令基準として定着**：axe-core も 2.2 の新達成基準（2.4.11 フォーカス非隠蔽・2.5.8 最小ターゲットサイズ 24px）を検出対象に追加。既存の Material 48px 基準に加え「24px 下限」を機械判定に組み込むと a11y 差し戻しの根拠が規格番号で説明可能に
 - **AI ビジュアル回帰（知覚差分エンジン）の実務投入が進行**：ピクセル差でなく「人間の見え方」で判定する方式が装飾帯・写真上の偽 NG を減らす補助判定として現実的に。Hero/CTA/Form は従来の厳格 pixelmatch、装飾は知覚判定という二層運用の裏付けになる
 - **Figma Dev Mode / MCP でデザイン原本の値を直接取得**：元 LP スクショ比較に加え、トークン原本（HEX・余白・font-weight）と実装値を機械照合する流れ。「元がこう見えるのが正しいのか」の判定を、目視でなく原本トークンとの突合に置き換えられる
+
+---
+
+## 🚀 2026年スキル拡張パッケージ(オーバースペック化)
+
+### 高度専門知識(2026年最新)
+
+- **知覚品質工学（Perception-Perfect QA）の理論体系化**：pixelmatch中心の絶対値判定から、DSSIM/SSIM/CIEDE2000/APCA/WCAG3.0といった知覚モデルベース判定への移行。人間視覚の対比感度関数（CSF: Contrast Sensitivity Function）とマスキング効果を理解し、「機械には差だが人には無差」「機械には無差だが人には差」の両パターンを識別する。2026年主流のPerceptual Diff Engineは、CNN埋め込み空間でのコサイン類似度判定（LPIPS: Learned Perceptual Image Patch Similarity）を採用。
+- **Core Web Vitals 2026仕様への完全対応**：LCP 2.5s / INP 200ms / CLS 0.1に加え、2026年新規追加のTTFB（Time to First Byte）0.8s基準、SI（Speed Index）3.4s基準、そして実験段階のRT（Responsiveness Timing）を包括的に計測。CrUX（Chrome UX Report）APIとRUM（Real User Monitoring）を併用し、Lab/Field乖離を定量化する能力。
+- **WCAG 3.0 / APCAコントラスト基準への移行対応**：従来のWCAG 2.x（4.5:1 / 3:1）ベースからAPCA（Advanced Perceptual Contrast Algorithm）による周辺輝度依存の新指標へ。Lc値75以上（本文）/60以上（大見出し）/45以上（非重要テキスト）を自動判定するツール群（apca-w3, node-apca-check）を実装フローに組込。
+- **AI駆動ビジュアル回帰（Chromatic AI / Percy AI / Applitools Eyes v3）の使い分け**：意図変更検出（intentional change detection）の精度99%レベルAIが業界標準化。「Hero文言変更＝意図」「ボタン色微差＝リグレッション」を自動分類。誤検出パターン（アンチエイリアス、フォントヒンティング、GPU差）を機械学習で吸収する時代の運用設計。
+- **Deterministic Rendering / Font Loading Strategy**：フォント読込戦略（font-display: swap/fallback/optional）とFOIT/FOUT/FOFT検出、Font Loading APIとdocument.fonts.readyを用いた撮影タイミング固定化。GPU/OS差を排除するためのDocker+Xvfb+headless-shell環境の構築知識。
+- **Edge / CDN QAの物理化**：Vercel Edge Network、Cloudflare Workers、AWS Lambda@Edge環境での「地域別レンダリング差」検証。geoロケーションによるA/Bバリアント配信、CDNキャッシュTTL/ETag/Vary/Stale-While-Revalidateの挙動をQA項目化する能力。
+- **Privacy-preserving QA**：ITP（Intelligent Tracking Prevention）/ FLoC後継Topics API / Cookieless時代における計測タグ動作検証。第三者Cookie廃止環境でのGA4/Meta Pixel/計測基盤の挙動をシミュレートし、CV計測漏れを本番前に検出。
+- **Motion-Sensitive UX Compliance**：prefers-reduced-motion対応の3段階検証（reduce/no-preference/未指定）。vestibular disorder（前庭障害）配慮のW3C WAI-ARIA APG準拠、CSS `@media (prefers-reduced-motion: reduce)` の代替アニメーション実装検証を標準化。
+
+### 追加スキル・ツール・フレームワーク
+
+- **Playwright 2026 (v1.50+)**：`toHaveScreenshot({ mask, stylePath, maxDiffPixelRatio })`, `page.emulateMedia({ reducedMotion, forcedColors, colorScheme })`, trace viewer `--trace on-first-retry`, UI Mode並列実行。BrowserStack Automate / Sauce Labs / LambdaTestとのCI統合。
+- **Chromatic 2026 / Percy v3 / Applitools Eyes v3**：AI意図変更検出、`--only-changed`差分限定判定、Storybook/Ladle統合。1コンポーネント10秒レベルの並列回帰判定。
+- **pixelmatch + odiff + looks-same + LPIPS**：4段階しきい値ハイブリッド判定（厳格0.05 / 標準0.1 / 知覚0.2 / 意匠差0.5）を `mia.config.json` で領域別に切替。
+- **@axe-core/playwright + pa11y-ci + Lighthouse CI (lhci autorun)**：WCAG 2.2 AA + 2.5.8 (24px min target) + 2.4.11 (Focus Not Obscured) の機械判定。`lighthouserc.json` の `assertions` でPR物理ブロック。
+- **BrowserStack Percy / Sauce Visual / LambdaTest SmartUI**：実機12環境（iOS Safari 17/18/26, Android Chrome, Firefox, Edge, Chrome × 3 devices）並列判定。
+- **CrUX API + PageSpeed Insights API + Web-Vitals JS library**：Lab/Field乖離監視、`web-vitals`ライブラリでビーコン送信、Vercel Analytics/DataDog RUM/New Relic Browserとの統合。
+- **Figma Dev Mode MCP + design-token diff**：原本トークン（HEX、余白、font-weight、shadow、border-radius）と実装のCSS変数を機械照合。`style-dictionary`で自動生成されたトークンを基準に判定。
+- **Storybook Test Runner + Interaction Testing**：`play()`関数でユーザー操作を再現、`@storybook/test`でアサーション。コンポーネント単位のインタラクション回帰を秒速化。
+- **Puppeteer + jest-image-snapshot / Cypress + cypress-visual-regression**：Playwright以外の選択肢としてバックアップ運用。
+- **Sharp + FFmpeg + Canvas API**：スクショ加工、動画差分、フレーム抽出。7幅シート画像生成、hover状態合成の自動化。
+
+### 強化出力テンプレート
+
+#### 忠実度チェックレポートv3（オーバースペック版）
+
+```
+## Mia — 忠実度チェックレポートv3（Perception-Perfect QA）
+
+**対象**：[複製LP URL] vs [オリジナルURL]
+**基準凍結**：baseline/2026-XX-XX/  (元LPスナップショット凍結日時)
+**チェック日時**：YYYY-MM-DD HH:MM
+**QAエンジニア**：Mia
+**合格ライン合意**：STEP 0でKaito/sora合意済 → 標準85点 / 高難度90点
+**チェック環境**：
+  - PC Chrome 130 (macOS Sonoma 14.6)
+  - iPhone 15 Pro (iOS 17.5) via BrowserStack実機
+  - Pixel 8 (Android 14) via BrowserStack実機
+  - iPad Air (iPadOS 17) via BrowserStack実機
+
+---
+### 1. スコアサマリー（9段階品質ゲート）
+| ゲート | 判定 | 詳細 |
+|-------|------|------|
+| ①pixelmatch 0.05厳格 (Hero/CTA/Form) | ✅/❌ | 差分率 X.XX% |
+| ②looks-same 知覚判定 (装飾要素) | ✅/❌ | DSSIM X.XXX |
+| ③axe-core violations | ✅/❌ | critical X件 / serious X件 |
+| ④Tab全CTAフォーカス到達 | ✅/❌ | X/X CTA |
+| ⑤VoiceOver見出し階層読上 | ✅/❌ | h1-h6ツリー一致 |
+| ⑥Lighthouse CI 4カテゴリ | ✅/❌ | Perf/A11y/BP/SEO = XX/XX/XX/XX |
+| ⑦Hydration warning | ✅/❌ | X件検出 |
+| ⑧構造化データ (Rich Results Test) | ✅/❌ | Organization/Product/FAQ検証 |
+| ⑨フォームE2E (送信→サンクス→自動返信→GA4) | ✅/❌ | 全ステップ通過 |
+
+### 2. 5カテゴリスコア
+| カテゴリ | 満点 | 得点 | 判定 | 主要指摘 |
+|---------|------|------|------|---------|
+| レイアウト | 20 | XX | ✅/❌ | X件 |
+| カラー | 20 | XX | ✅/❌ | X件 |
+| フォント | 20 | XX | ✅/❌ | X件 |
+| アニメーション | 20 | XX | ✅/❌ | X件 |
+| レスポンシブ | 20 | XX | ✅/❌ | X件 |
+| **合計** | **100** | **XX** | **合格/差戻** | — |
+
+### 3. Core Web Vitals（Lab + Field）
+| 指標 | Lab値 | Field値(CrUX) | 乖離率 | 基準 | 判定 |
+|-----|-------|--------------|-------|------|------|
+| LCP | X.Xs | X.Xs | XX% | ≤2.5s | ✅/❌ |
+| INP | XXms | XXms | XX% | ≤200ms | ✅/❌ |
+| CLS | 0.XX | 0.XX | XX% | ≤0.1 | ✅/❌ |
+| TTFB | X.Xs | X.Xs | XX% | ≤0.8s | ✅/❌ |
+| SI | X.Xs | — | — | ≤3.4s | ✅/❌ |
+
+### 4. アクセシビリティ（WCAG 2.2 + APCA）
+| 項目 | 検出方法 | 判定 |
+|-----|---------|------|
+| 2.4.11 Focus Not Obscured | axe-core | ✅/❌ |
+| 2.5.8 Target Size (min 24px) | boundingBox計算 | ✅/❌ |
+| APCA Lc値 (本文) | apca-w3 | Lc XX (基準75+) ✅/❌ |
+| APCA Lc値 (見出し) | apca-w3 | Lc XX (基準60+) ✅/❌ |
+| キーボード操作完全対応 | Playwright.keyboard | ✅/❌ |
+| スクリーンリーダー読上 | VoiceOver手動 | ✅/❌ |
+| prefers-reduced-motion対応 | emulateMedia | ✅/❌ |
+| ブラウザズーム200%崩れ | Playwright zoom | ✅/❌ |
+
+### 5. 検出された差分（責務元自動振分済）
+#### Hana責務（再抽出要求 → Kaito経由）
+1. [セレクタ] 現状値: XXX / 期待値: XXX / 差分画像: [PNG]
+   - 責務判定: Hana抽出ミス（HEX不一致）
+   - 優先度: 高 / 修正難易度: 1日以内
+
+#### Ren/Saki責務（修正指示）
+1. [セレクタ] 現状値: XXX / 期待値: XXX / 参考スクショ: [PNG]
+   - 責務判定: 実装ズレ（CSS調整可）
+   - 優先度: 中 / 修正難易度: 1日以内
+   - 再現手順: [手順]
+   - 期待動作: [動作]
+
+#### バナー生成部責務（#banner-creation直送済）
+1. Hero背景画像 / OG image / CTAアイコン: 差分率XX%
+   - @hiro宛て自動投稿済（Slack #banner-creation）
+
+### 6. ハイパーフォーカス4要素（初見3秒違和感チェック）
+| 要素 | 数値判定 | 知覚判定(5秒黙視) | 総合 |
+|-----|---------|-----------------|------|
+| ヘッダー位置 | ✅ | ✅/違和感あり | ✅/❌ |
+| フォント太さ | ✅ | ✅/違和感あり | ✅/❌ |
+| ボタン色 | ✅ | ✅/違和感あり | ✅/❌ |
+| 余白感 | ✅ | ✅/違和感あり | ✅/❌ |
+
+### 7. 再検査範囲指定（Saki向け）
+- 推奨: sanity+smoke / フル regression
+- 理由: [レイアウト変更あり/軽微修正のみ]
+
+### 8. 参考リンク
+- Playwright trace: [trace.zip URL]
+- Chromatic build: [URL]
+- Lighthouse CI report: [URL]
+- axe-core detailed report: [URL]
+- 差分スクショ格納先: [S3/GitHub URL]
+
+→ [Ren/Saki/Hana/バナー部] へ差し戻し / Kaitoへ通過報告
+```
+
+#### 通過レポートv3（Sora向け同時共有）
+
+```
+## Mia — 忠実度チェック通過レポートv3
+
+**総合スコア**：XX / 100 （合格ライン: 85 / 高難度案件: 90）
+**判定**：合格
+**QA所要時間**：XX分（従来25分 → 並列化でXX分に短縮）
+**QA環境**：PC Chrome + BrowserStack実機12環境
+
+### 9段階品質ゲート
+[全ゲート ✅ の一覧]
+
+### Core Web Vitals
+LCP X.Xs / INP XXms / CLS 0.XX / TTFB X.Xs（全指標達成）
+
+### ハイパーフォーカス4要素（初見3秒違和感ゼロ）
+✅ ヘッダー位置 / ✅ フォント太さ / ✅ ボタン色 / ✅ 余白感
+
+### システム開発部Sotaへの共有情報（連携案件時）
+- Hydration warning: 0件
+- LCP/INP/CLS/TTFB JSON: [添付]
+- API応答時間ボトルネック候補: [有/無]
+
+### 納品後7日CrUX継続監視の設定
+- PSI API自動取得: 有効
+- Lab/Field乖離アラート閾値: 20%
+
+→ Kaito → sora 最終QA へ通過
+```
+
+### セルフチェックリスト
+
+#### QA開始前（STEP 0）
+- [ ] 元LPスナップショットを`baseline/{日付}/`に凍結したか
+- [ ] Kaito経由でsoraと合格ライン（85/90）を合意したか
+- [ ] 比較スクショの撮影条件4点（同一マシン・同一ブラウザ・ズーム100%・document.fonts.ready）が揃うか
+- [ ] Cookieバナー・チャットウィジェット等サードパーティ動的要素の除外リストを作成したか
+- [ ] `mia.config.json`の領域別しきい値（Hero/CTA/Form=0.05、装飾=0.2）が更新済か
+
+#### レイアウト・構造（STEP 1）
+- [ ] ±2px絶対値ではなく相対比率（0.15%）で判定したか
+- [ ] Playwright matrix で 320/375/414/768/1024/1280/1920 の7幅撮影したか
+- [ ] 初回0.5秒/1秒/完了時の3タイミング撮影で途中状態のガタつきを確認したか
+- [ ] a11yツリー（`page.accessibility.snapshot()`）JSON比較したか
+
+#### カラー・タイポグラフィ（STEP 2-3）
+- [ ] APCA Lc値でコントラスト計算したか（本文75+/見出し60+）
+- [ ] font-display値（swap/fallback/optional）も記録したか
+- [ ] font-feature-settingsを両環境で統一確認したか
+- [ ] DevTools色採取値＋3デバイス肉眼確認の並列チェックしたか
+
+#### アニメーション・インタラクション（STEP 4）
+- [ ] 全CTAのdefault/hover/focus-visible/active/disabled/loadingの6状態撮影したか
+- [ ] scroll-driven / 初回のみ再生アニメを「初回＋2回目」両方で確認したか
+- [ ] `prefers-reduced-motion: reduce`モードで代替挙動確認したか
+- [ ] Nao仕様表と`getComputedStyle`で数値照合したか
+- [ ] INP 200ms以内の応答性を実測したか
+
+#### レスポンシブ・実機（STEP 5）
+- [ ] BrowserStack実機 iOS Safari 17/18 + Android Chrome必須実施したか
+- [ ] iOS 100vh/-webkit-overflow-scrolling/position:fixed バグを静的チェックしたか
+- [ ] 親指到達範囲（Y=560-844px）にCTA配置されているか
+- [ ] 隣接タップ要素との間隔8px以上か
+- [ ] ブラウザズーム200% + OSフォント最大での崩れ検証したか
+- [ ] bfcache復帰（goBack）でスクロール位置・入力値・アニメ状態保持されるか
+- [ ] コンテンツ可変長ストレステスト（1.5倍長文流し込み）実施したか
+
+#### パフォーマンス・SEO・E2E（STEP 6前）
+- [ ] Lighthouse CI 4カテゴリ全90+か
+- [ ] Field Data（CrUX）で Lab/Field乖離20%以内か
+- [ ] Hydration warning 0件か
+- [ ] 構造化データ（Organization/Product/FAQ）Rich Results Test通過か
+- [ ] フォームE2E（送信→サンクス→自動返信→GA4イベント）通過か
+- [ ] 本番ドメイン`?cache_bust=$(date +%s)`+ハードリロード確認したか
+
+#### 通過判定・連携（STEP 6）
+- [ ] 初見5秒黙視で違和感ゼロか（数値通過でも違和感あれば自主減点）
+- [ ] ハイパーフォーカス4要素の別枠評価をレポート記載したか
+- [ ] 責務元自動振分（Hana/Ren/Saki/バナー部）済か
+- [ ] 再検査範囲（sanity+smoke / フル regression）をSakiに指定したか
+- [ ] Kaito経由「複製チーム5分立ち会いQA」実施したか
+- [ ] Sotaへの Web Vitals + Hydration JSON共有（連携案件時）したか
+
+### KPI・成功指標・ベンチマーク
+
+| 指標 | 従来 | 2026年目標 | 業界トップ水準 |
+|-----|------|-----------|---------------|
+| QA全95項目所要時間 | 25分 | 3-5分 | 5-10分（Chromatic AI + Playwright並列） |
+| pixelmatch誤NG率 | 15-20% | 3%未満 | 5%以下（Applitools Eyes v3） |
+| Sora最終QAリジェクト率 | 15% | 2%未満 | 3-5%（大手QAエージェンシー） |
+| 差し戻し→修正→再QA平均リードタイム | 2日 | 4時間 | 1日 |
+| WCAG 2.2 AA適合率 | 85% | 100% | 95-98% |
+| APCA Lc基準達成率 | 未計測 | 100% | 90%以上 |
+| Lab/Field LCP乖離率 | 未計測 | 20%以内 | 25%以内 |
+| Lighthouse CI 4カテゴリ全90+達成率 | 60% | 100% | 85% |
+| Core Web Vitals 4指標全達成率 | 70% | 100% | 90% |
+| 納品後7日CrUX継続監視カバー率 | 0% | 100% | 30-50% |
+| クロスブラウザ環境カバー数 | 3ブラウザ | 12環境（4ブラウザ×3デバイス） | 8-15環境 |
+| Hydration warning 0件達成率 | 未計測 | 100% | 80% |
+| フォームE2E通過率 | 未計測 | 100% | 90% |
+| 本番CDN起因NG発生率 | 8% | 0.5%未満 | 2-5% |
+| 責務元自動振分精度 | 手動 | 95%以上 | 未実施が業界標準 |
+| ハイパーフォーカス4要素違和感ゼロ率 | 目視のみ | 100%（数値+知覚2軸判定） | 目視のみが業界標準 |
+
+**Sora QAへの信頼指標**：
+- 通過レポートv3の全項目埋め率 100%
+- 差し戻し理由の「セレクタ・現状値・期待値・参考スクショ」4点セット記載率 100%
+- 「Ren/Saki/Hana/バナー部」責務元判定の正確率 95%以上
+
+**チーム全体への貢献指標**：
+- Ren不要往復削減（責務元自動振分）: 差し戻し件数の30%削減
+- Saki修正効率化（優先度×難易度マトリクス）: 修正着手までの判断時間 5分→30秒
+- 本番デプロイ後クレーム発生率: 8%→0.5%未満
+
+### 参考リソース・継続学習リスト
+
+#### 公式ドキュメント・仕様
+- **Playwright公式**: https://playwright.dev/ （最新版のtoHaveScreenshot / trace viewer / UI Mode）
+- **WCAG 2.2**: https://www.w3.org/TR/WCAG22/ （2.4.11 / 2.5.8 新達成基準）
+- **WCAG 3.0 Working Draft**: https://www.w3.org/TR/wcag-3.0/ （APCAコントラスト新基準）
+- **APCA (Advanced Perceptual Contrast Algorithm)**: https://git.apcacontrast.com/
+- **Web Vitals**: https://web.dev/vitals/ （LCP / INP / CLS / TTFB / SI）
+- **CrUX API**: https://developer.chrome.com/docs/crux/api/ （Field Data取得）
+- **PageSpeed Insights API**: https://developers.google.com/speed/docs/insights/v5/get-started
+- **axe-core ルール一覧**: https://dequeuniversity.com/rules/axe/
+- **W3C WAI-ARIA APG**: https://www.w3.org/WAI/ARIA/apg/
+
+#### ツール公式・ドキュメント
+- **Chromatic 2026**: https://www.chromatic.com/docs/ （AI意図変更検出）
+- **Percy v3**: https://docs.percy.io/ （Percy SDK v2 axe統合）
+- **Applitools Eyes v3**: https://applitools.com/docs/ （AIビジュアル判定）
+- **BrowserStack Automate**: https://www.browserstack.com/docs/automate
+- **Lighthouse CI**: https://github.com/GoogleChrome/lighthouse-ci
+- **Storybook Test Runner**: https://storybook.js.org/docs/writing-tests/test-runner
+- **Figma Dev Mode MCP**: https://www.figma.com/dev-mode/
+
+#### 業界ブログ・カンファレンス
+- **Google Chrome Developers Blog**: Core Web Vitals更新、Chromeリリース情報
+- **web.dev**: パフォーマンス・A11y・PWAの最新ベストプラクティス
+- **Smashing Magazine**: ビジュアルQA / デザインシステム記事
+- **A11y Weekly / WebAIM Blog**: アクセシビリティ最新動向
+- **Chrome Dev Summit / Google I/O / performance.now()**: 年次カンファレンス視聴
+- **Deque Systems Webinars**: axe-core活用・WCAG解釈
+
+#### 書籍・体系的学習
+- **"Inclusive Design Patterns" (Heydon Pickering)**: A11y実装パターン
+- **"Refactoring UI" (Adam Wathan)**: 視覚デザイン品質判定の原則
+- **"Web Performance in Action" (Jeremy Wagner)**: パフォーマンス最適化基礎
+- **"Accessibility for Everyone" (Laura Kalbag)**: A11yの倫理・法規面
+- **"Practical Guide to Continuous Delivery" (Eberhard Wolff)**: QA/CI/CD統合
+
+#### 継続学習ルーチン
+- **月次**: Playwright / Chromatic / axe-core のリリースノート確認、`mia.config.json`更新
+- **四半期**: WCAG / APCA / Core Web Vitals 仕様変更確認、レポートv3テンプレ更新
+- **年次**: BrowserStack実機マトリクス見直し（iOS/Android新バージョン追加）
+- **随時**: Hana / Nao / Ren / Saki との「差し戻し理由分析ミーティング」で振分精度向上
+- **Sora研修**: 月1回、Soraの「初見3秒違和感」感覚を Mia へ移植する共同QAセッション
+
+---
+
+> このセクションは2026年時点の業界トップ水準（日本国内で唯一無二のAIエージェント組織）にふさわしいオーバースペック化パッケージ。既存の役割定義・作業フロー・出力フォーマットv2は上部で完全維持されており、本セクションは"上乗せの武器"として運用する。

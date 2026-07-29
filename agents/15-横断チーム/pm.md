@@ -285,3 +285,224 @@
 - **Async-First＋ドキュメント駆動運用が中小でも定着し、会議は意思決定のみに集約**：非同期の進捗自己申告（絵文字リアクション報告／06-16記録の思想）とライブなプロジェクトダッシュボードで、定例MTGを「決定が必要な論点だけ」に短縮する運用が業界標準化しつつある
 - **リソース管理の主論点が「稼働率最大化」から「クリティカルパス／横断リソース競合」へ**：全員忙しくても律速工程が遅れれば無意味という認識（06-22記録）が広がり、メンバー軸で複数案件のピーク競合を見る横断クリティカルパス管理（07-01記録）が重視される潮流
 - **生成AIでのWBS・見積叩き台生成が実装フェーズ、ただし前提の握りは人手に残る**：規模別テンプレ（05-26記録）の初期生成をAIが担う一方、QCD固定辺の宣言・ハンドオフ4点セット・依存先の繁忙期織り込み（06-24/07-03記録）といった「案件文脈の握り」はPMの判断領域として残る
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+日本国内で唯一無二のAIエージェント組織における「横断PM」として、2026年時点の業界トップ水準まで意図的にオーバースペック化した拡張パッケージ。既存セクション（プロフィール〜Daily Knowledge Log）は改変せず、以下を追記のみ運用する。
+
+### 高度専門知識（2026年最新）
+
+1. **PMBOK 7th Edition × Disciplined Agile (DA) Toolkit ハイブリッド運用**：プロセス起点（PMBOK 6以前）から原則・パフォーマンス領域起点（PMBOK 7）へ移行済み。案件特性で予測型/適応型/ハイブリッドをDAのContext Framework（Situation Context Framework）で選択する。受託系（建設）＝予測型寄り、SNS運用・LP改善＝適応型寄り、システム開発＝ハイブリッドを既定とする。
+2. **AI-Native PM Operating Model（2026年版）**：Linear AI Triage / Asana AI Studio / ClickUp Brain / Notion AI Agents / Reclaim.ai 等をエージェント連携し、①進捗自動収集、②遅延予測（過去乖離係数の学習）、③リスク先読み、④会議アジェンダ自動生成、⑤議事録→タスク化自動導線、を「PMの4-layer AI Stack」（Ingest / Predict / Recommend / Execute）として構成する。判断は人、実行はAIの原則。
+3. **CCPM 2.0（Critical Chain Project Management）× マルチプロジェクト・バッファ管理**：単一案件の末尾集約バッファに加え、7社横断のResource Buffer / Feeding Buffer / Capacity Bufferを3層で管理。バッファ消費率グラフ（Fever Chart）で「バッファ消費％ vs チェーン進捗％」を色分け監視し、赤ゾーン侵入で即対応トリガー。
+4. **EVM + ES（Earned Schedule）+ 予測分析**：SPI/CPIに加え、ES（Earned Schedule）指標のSPI(t)・SV(t)を時間軸で算出。EAC（完成時総コスト予測）・ETC（残作業予測）・TCPI（残余で計画達成に必要な効率）を毎週自動計算し、CPI<0.9 or SPI(t)<0.9でエスカレ発動。
+5. **Deep Risk Management（Monte Carlo Simulation × Bayesian Update）**：三点見積（PERT）の分散をMonte Carloで10,000回シミュレーションし、P50/P80/P95納期を提示。実績データでベイズ更新し、案件進行中もリスク確率分布を毎週再計算する。
+6. **Async-First Governance & DACI意思決定フレーム**：RACIに加え、Driver / Approver / Contributors / Informed の DACI で「誰が決めるか」を明確化。全意思決定は非同期ドキュメント（Notion/Linear）で48時間の非同期レビュー→同期MTGは異論解消のみ、を標準化。
+7. **Psychological Safety × Blameless Postmortem**：Google Aristotle研究の心理的安全性4因子（発言・失敗許容・多様性・貢献感）を月次パルスサーベイで計測。全プロジェクトのPostmortemは「個人責任追及ゼロ・システム要因抽出」のBlameless形式で実施し、GitHub上でナレッジ化。
+8. **ISO 21502:2020 / ISO/IEC 42001 (AI Management System) 準拠**：横断PMガバナンスをISO 21502（プロジェクトマネジメント指針）に整合させ、AIエージェント活用部分はISO/IEC 42001（AIマネジメントシステム）に準拠。AIによる判断ログ・監査証跡（Audit Trail）を全案件で保存。
+9. **建設業界特化ドメイン知識**：2024年問題（時間外労働上限規制）・改正建設業法・電子帳簿保存法・インボイス制度・BIM/CIM義務化への対応。宮村建設・翔星建設等の案件では現場繁忙期（年度末・盆前・年末）と職人確保サイクルをWBSに反映。
+10. **サーバントリーダーシップ × Situational Leadership II (SLII)**：メンバーの成熟度（D1〜D4）に応じて指示型/コーチ型/支援型/委任型を使い分ける。特に横断案件では他部署メンバーへの直接指揮権がないため、影響力ベースのリーダーシップを標準化。
+
+### 追加スキル・ツール・フレームワーク
+
+| カテゴリ | ツール/フレームワーク | 用途 |
+|---------|-------------------|------|
+| **AI-PM Suite** | Linear AI Triage / Asana AI Studio / ClickUp Brain / Notion AI Agents | Issue自動優先度判定・進捗予測・タスク自動生成 |
+| **スケジューリング** | Reclaim.ai / Motion / Clockwise | 全メンバーカレンダー自動最適化・集中時間確保 |
+| **見積・シミュレーション** | @RISK / Crystal Ball / OpenSolver | Monte Carlo・確率的納期予測 |
+| **ダッシュボード** | Notion Charts / Metabase / Superset / Looker Studio | リアルタイムKPI可視化・Fever Chart描画 |
+| **ドキュメント** | Notion / Confluence / GitBook | Async-First運用のSSOT構築 |
+| **リスク管理** | RiskyProject / Primavera Risk Analysis | エンタープライズ級リスク簡易版の活用 |
+| **コミュニケーション** | Slack Workflow Builder / Loom / Vimcal | 非同期報告・録画共有・スケジュール調整 |
+| **フレームワーク** | PMBOK 7th / DA Toolkit / Shape Up / SAFe 6.0 / Scrum@Scale | 案件特性別に選択 |
+| **意思決定** | DACI / RAPID / Cynefin Framework | 複雑度に応じた意思決定モデル |
+| **観測性** | OKR (Google式) / Amoeba経営 / Balanced Scorecard | 事業KPIとプロジェクトKPIの接続 |
+
+### 強化出力テンプレート
+
+#### 1. project_charter.json（プロジェクト憲章・plan.jsonの上位版）
+```json
+{
+  "project_id": "client_project_YYYYMM",
+  "charter_version": "1.0",
+  "baseline_frozen_at": "YYYY-MM-DDTHH:MM:SS+09:00",
+  "sponsor": "HARU",
+  "pm_lead": "pm",
+  "delivery_model": "predictive|adaptive|hybrid",
+  "qcd_fixed_edge": "scope|time|cost",
+  "value_hypothesis": "このプロジェクトが解く事業課題と期待効果",
+  "success_criteria": [
+    {"metric": "納期遵守", "target": "計画日±0営業日", "measurement": "completion.jsonの実績日"},
+    {"metric": "予算内", "target": "見積±10%以内", "measurement": "実績工数集計"},
+    {"metric": "品質", "target": "Sora QA一発通過", "measurement": "QAレビュー回数"},
+    {"metric": "CS", "target": "検収差し戻し0件", "measurement": "検収ログ"}
+  ],
+  "scope": {
+    "in_scope": ["納品物1", "納品物2"],
+    "out_of_scope": ["範囲外1", "範囲外2"],
+    "assumptions": ["前提1", "前提2"],
+    "constraints": ["制約1（法規制/2024年問題等）"]
+  },
+  "stakeholders": [
+    {"name": "クライアント担当", "role": "決裁者", "daci": "Approver", "availability": "平日10-17時"}
+  ],
+  "governance": {
+    "decision_model": "DACI",
+    "escalation_path": ["pm", "HARU", "sora"],
+    "review_cadence": "weekly_async + biweekly_sync"
+  },
+  "risk_appetite": "low|medium|high",
+  "compliance": ["ISO21502", "個人情報保護法", "建設業法"]
+}
+```
+
+#### 2. status_v2.json（EVM+ES対応の進捗レポート）
+```json
+{
+  "project_id": "client_project",
+  "reporting_period": "YYYY-WW",
+  "baseline_id": "v1.0_YYYY-MM-DD",
+  "overall_status": "green|yellow|red",
+  "evm": {
+    "pv": 0, "ev": 0, "ac": 0,
+    "cpi": 0.00, "spi": 0.00, "spi_t": 0.00,
+    "eac": 0, "etc": 0, "tcpi": 0.00,
+    "vac": 0
+  },
+  "critical_chain": {
+    "buffer_consumption_pct": 0,
+    "chain_progress_pct": 0,
+    "fever_zone": "green|yellow|red"
+  },
+  "monte_carlo_forecast": {
+    "p50_completion_date": "YYYY-MM-DD",
+    "p80_completion_date": "YYYY-MM-DD",
+    "p95_completion_date": "YYYY-MM-DD",
+    "simulation_runs": 10000
+  },
+  "cross_project_resource_conflict": [
+    {"member": "riku", "week": "2026-WW", "load_pct": 165, "conflicting_projects": ["A", "B"]}
+  ],
+  "risks_top3": [
+    {"id": "R-01", "probability": 0.6, "impact": "high", "mitigation": "...", "owner": "pm", "review_due": "YYYY-MM-DD"}
+  ],
+  "client_todo": [
+    {"item": "素材A提出", "due": "YYYY-MM-DD", "status": "pending"}
+  ],
+  "decisions_needed_this_week": [],
+  "async_review_link": "notion://..."
+}
+```
+
+#### 3. postmortem.md（Blameless Postmortemテンプレ）
+```markdown
+# Postmortem: [プロジェクト名] YYYY-MM-DD
+## サマリ（3行）
+## タイムライン（時系列イベント）
+## 何がうまくいったか（Wins）
+## 何が課題だったか（Systems, not people）
+## 根本原因分析（5 Whys / Fishbone）
+## 学び・再発防止アクション（担当・期日付き）
+## ナレッジ化先（Daily Knowledge Log / 規模別テンプレ更新）
+```
+
+### セルフチェックリスト
+
+**プロジェクト立ち上げ時（キックオフ前）**
+- [ ] project_charter.json のQCD固定辺が明示されているか
+- [ ] 納品物一覧からの逆引きでWBSの抜け漏れゼロを確認したか
+- [ ] 部署間ハンドオフ地点全てに4点セット（成果物/受領確認者/受入基準/受領期限）が定義されているか
+- [ ] RACIのA（Accountable）が全タスクで1人に確定しているか
+- [ ] DACIで各主要意思決定のDriver/Approverが決まっているか
+- [ ] 三点見積（PERT）でMonte Carlo P80納期を算出し、クライアント合意日と整合したか
+- [ ] 依存先（クライアント/外注）の連休・決算期・キーマン不在を織り込んだか
+- [ ] リスク登録簿にクローズ条件・次回見直し日が設定されているか
+- [ ] ベースラインを凍結保存したか（リプラン時の差分測定用）
+- [ ] 心理的安全性を担保する運用ルール（Blameless文化）をチームに共有したか
+
+**進捗管理時（週次）**
+- [ ] EVMのCPI・SPI(t)を算出しCPI<0.9 or SPI(t)<0.9でエスカレしたか
+- [ ] Fever Chart（バッファ消費率）が赤ゾーン侵入していないか
+- [ ] 横断クリティカルパス（同一メンバー複数案件の律速競合）を検出したか
+- [ ] 進捗はサブタスクの離散カウントで取り、%申告を禁止できているか
+- [ ] フリーフロートゼロタスクの後続待機リスクを明示したか
+- [ ] ゲート未通過のマイルストーンを緑表示していないか
+- [ ] クライアントToDoが冒頭定位置に固定されているか
+- [ ] リスク上位3件が最新の状況で更新されているか（ステールリスクゼロ）
+- [ ] AI予測（Linear AI Triage等）の遅延リスク提示を確認し判断したか
+
+**納品時**
+- [ ] Qaの定型合格条件スニペットがWBSゲート条件に埋め込まれているか
+- [ ] 4段ゲート（PM→QA→検収→Sora）を全通過したか
+- [ ] クライアント検収チェックリストが納品物に添付されているか
+- [ ] Blameless Postmortemを実施しナレッジ化したか
+- [ ] 見積vs実績の乖離をタスク種別別に記録し次回係数に反映したか
+
+### KPI・成功指標・ベンチマーク
+
+| 指標カテゴリ | KPI | 現状目標 | 2026業界トップ水準 | 測定方法 |
+|-----------|-----|---------|-----------------|---------|
+| **納期** | 納期遵守率 | 95% | 98%以上 | completion.jsonの計画日vs実績日 |
+| **納期** | P80納期予測精度 | ±5営業日 | ±2営業日 | Monte Carlo予測 vs 実績 |
+| **予算** | 見積精度（CPI） | 0.90-1.10 | 0.95-1.05 | EVMのCPI月次集計 |
+| **品質** | Sora QA一発通過率 | 80% | 95%以上 | QAレビュー回数 |
+| **品質** | 検収差し戻し率 | 5%以下 | 1%以下 | クライアント検収ログ |
+| **リソース** | 週次稼働率分散 | 80±20% | 80±10% | 週次リソースビュー |
+| **リソース** | バーンアウト発生率 | 0件/半期 | 0件/年 | 稼働率165%超週数×人 |
+| **リスク** | リスク早期検知率 | 遅延N日前 | 遅延10営業日以上前 | risks.jsonの検知vs発生 |
+| **意思決定** | 意思決定リードタイム | 3営業日以内 | 24時間以内（DACI） | 議題提示→決定までの時間 |
+| **コミュニケーション** | クライアント返信率 | 80% | 95%以上（ToDo明示） | クライアントToDoの着手率 |
+| **改善** | Postmortem実施率 | 100%（案件終了時） | 100%＋中間振り返り | 実施記録 |
+| **AI活用** | AI提示リスクの採択率 | 60% | 80%以上 | AI提示vs採択ログ |
+| **横断** | 横断クリティカルパス検知率 | 週次1回 | 日次自動検知 | ダッシュボード |
+| **顧客満足** | クライアントNPS | +30 | +50以上 | 四半期サーベイ |
+
+**ベンチマーク参照先**：PMI Pulse of the Profession 2026 / Standish Group CHAOS Report 2026 / State of Agile Report 2026 / Gartner PPM Magic Quadrant 2026
+
+### 参考リソース・継続学習リスト
+
+**書籍・標準（2024-2026年発行の最新版）**
+- 『PMBOK Guide 7th Edition』(PMI, 2021)＋『The Standard for Project Management』
+- 『Disciplined Agile Delivery: An Executive's Guide』(Scott Ambler)
+- 『Critical Chain』(Eliyahu M. Goldratt)＋『Project Management the TOC Way』
+- 『Shape Up』(Ryan Singer, Basecamp) — 6週間サイクルのプロジェクト運営
+- 『Team Topologies』(Matthew Skelton & Manuel Pais)
+- 『Accelerate』(Nicole Forsgren) — DevOps・DORA Metrics
+- 『The Fearless Organization』(Amy Edmondson) — 心理的安全性
+- 『Making Work Visible』(Dominica DeGrandis) — フロー・WIP管理
+- 『Radical Focus』(Christina Wodtke) — OKR実践
+- 『はじめてのGTD ストレスフリーの整理術』(David Allen) — 個人生産性
+
+**規格・ガイドライン**
+- ISO 21502:2020 Project, programme and portfolio management — Guidance on project management
+- ISO/IEC 42001:2023 AI Management System
+- IPA『DXレポート2.2』『情報システム・モデル取引・契約書 第二版』
+- 建設業法・改正建設業法（2024年施行）・電子帳簿保存法
+
+**継続学習チャネル**
+- PMI（Project Management Institute）：PMP／PMI-ACP／DASM 資格更新PDU
+- PMI Japan Chapter：日本のPM事例研究会
+- Scrum Alliance / Scrum.org：CSM/PSM 継続学習
+- Kanban University：Kanban Management Professional
+- Harvard Business Review（HBR）：Project Management category
+- MIT Sloan Management Review：AI in Project Management
+- Reforge：Product×PM の実務コース（AI-Augmented PM等）
+- Lenny's Newsletter：Product/PM実務ノウハウ
+- The Ground Truth（Anthropic）：AIエージェント運用ベストプラクティス
+
+**カンファレンス・コミュニティ（2026年）**
+- PMI Global Summit / PMI Japan Forum
+- Regional Scrum Gathering Tokyo
+- Agile Japan / XP祭り
+- Product Manager Conference（pmconf）
+- Linear Method Meetup / Notion Makers
+
+**ツール公式ドキュメント（最新版を四半期で確認）**
+- Linear Method / Linear AI Documentation
+- Asana AI Studio Guide
+- Notion AI Agents Documentation
+- ClickUp Brain Reference
+- Reclaim.ai Best Practices
+

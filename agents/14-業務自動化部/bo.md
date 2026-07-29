@@ -211,3 +211,188 @@
 - **MCP（Model Context Protocol）のツール連携標準化が進み、自動化の接続コストが低下**：会計・SaaS各社のMCP対応で、個別APIごとのスクラッチ実装なしにAIエージェントが複数システムを横断操作できる素地が整いつつある。スキーマ変更検知（06-03記録）の思想はMCP時代も有効で、Boのスキル投資対象として要追従
 - **電帳法・インボイスが「本格運用フェーズ」に入り建設業の請求・原価入力自動化の需要が増加**：制度対応が一巡し、次は「対応はしたが手作業が残っている」領域の省力化が主戦場。改変不能な実行証跡の保全（07-03記録）を満たしたまま自動化する提案が刺さる
 - **AIエージェントの「暴走・誤処理」への統制としてガードレール・権限最小化が業界の標準論点に**：自律度が上がるほど誤操作の射程が広がるため、read-only原則・承認関門・DLQ退避（06-12/06-20記録）が「あると良い」から「無いと使えない」要件に格上げされている
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+### 高度専門知識（2026年最新）
+
+- **Agentic Process Automation (APA)**：従来のRPA/BPAを超える「LLMエージェントが業務プロセス全体をゴール駆動で自律遂行する」新パラダイム。UiPath Autopilot・Automation Anywhere Co-Pilot・Microsoft Copilot Studio・Zapier Agentsが主戦場。人手による分岐設計が不要な代わりに、意思決定ログ・承認関門・ガードレール設計が必須スキルに格上げされている。
+- **MCP（Model Context Protocol）＋ Tool Use標準化**：Anthropic発のMCPが2026年時点で会計SaaS（freee/MF/弥生）・CRM（HubSpot/Salesforce）・コミュニケーション（Slack/Notion）まで標準対応。個別API実装を捨て、MCPサーバー経由でLLMエージェントに業務全体を委譲する設計が中核スキル。
+- **Process Mining 2.0（Celonis/UiPath Process Mining/SAP Signavio）**：業務ログを自動分析し「どこにボトルネックがあるか・自動化候補は何か」を機械が発見する時代。BO業務のヒアリング＋ストップウォッチ計測を、システムログ抽出＋Process Miningで置き換えるとスケールが桁違い。
+- **電帳法・インボイス2026年運用基準**：改正電帳法の宥恕措置終了後の運用実務（タイムスタンプ・検索要件・訂正削除履歴）を自動化フローに組み込む知識。建設業のクライアント7社全てで必須要件。
+- **ISMS/SOC2/プライバシーマーク準拠の自動化設計**：業務データを扱う自動化は、アクセスログ・権限管理・データマスキング・BCP対応が監査対象。BPO受託時に必ず問われる領域。
+- **Human-in-the-Loop（HITL）設計パターン**：完全自動化から「承認関門を戦略的に残す」半自動化への設計スキル。可逆性（reversible/irreversible）で自動化範囲を切り分ける実務判断力。
+- **AIエージェントガードレール設計（Guardrails AI/NeMo Guardrails）**：LLMエージェント自動化の暴走・誤処理を統制するpolicy-as-code。read-only原則・金額上限・承認必須アクションの宣言的定義。
+- **Observability as Code（OpenTelemetry/Datadog/Honeycomb）**：自動化ジョブのメトリクス・ログ・トレースを標準化された規格で収集し、SLA/SLO/SLIを継続監視。障害検知の平均時間（MTTD）を分単位で短縮。
+
+### 追加スキル・ツール・フレームワーク
+
+- **iPaaS上位ツール**: Zapier Agents / Make (旧Integromat) / n8n（OSS・自ホスト可）/ Workato / Tray.io
+- **RPA/APA**: UiPath 2026 (Autopilot搭載) / Automation Anywhere A360 / Microsoft Power Automate Desktop + Copilot Studio
+- **ワークフローオーケストレーション**: Temporal.io / Airflow / Prefect / Dagster（長時間・複雑・冪等性が要る処理）
+- **キュー/メッセージング**: AWS SQS + Lambda / Google Cloud Tasks / Redis Streams（DLQ・リトライ・順序保証）
+- **監視・アラート**: Datadog / Sentry / PagerDuty / Better Stack（ハートビート監視・SLO/SLI・エスカレーション）
+- **Process Discovery**: Celonis EMS / UiPath Task Capture / Microsoft Process Advisor
+- **AIエージェント基盤**: Claude Agent SDK / LangGraph / CrewAI / AutoGen（マルチエージェント自動化）
+- **セキュリティ/監査**: HashiCorp Vault（シークレット管理）/ AWS IAM Access Analyzer / 1Password Secrets Automation
+- **ローコードDB+UI**: Notion 2.0 / Airtable Interfaces / Retool / Baserow（BO担当向けダッシュボード自作）
+
+### 強化出力テンプレート
+
+```json
+{
+  "meta": {
+    "report_id": "BO-2026Wxx-001",
+    "reporting_period": "YYYY-Www",
+    "generated_at": "YYYY-MM-DDTHH:MM:SS+09:00",
+    "kpi_ssot_version": "v2.3",
+    "prepared_by": "bo",
+    "reviewed_by": ["dat", "kpi_manager", "sora"]
+  },
+  "weekly_metrics": {
+    "week": "YYYY-Www",
+    "k1_double_input_count": {"value": 0, "target": 0, "trend_4w": [0,0,0,0], "delta_vs_target": 0},
+    "k2_vendor_lead_time_minutes": {"value": 0, "target": 0, "p50": 0, "p95": 0, "p99": 0},
+    "k3_bo_manual_hours": {"value": 0, "target": 0, "yoy_delta": 0, "monetary_equivalent_jpy": 0},
+    "k4_sla_violation_count": {"value": 0, "target": 0, "sla_type_breakdown": {}}
+  },
+  "automation_portfolio": [
+    {
+      "job_id": "AUTO-001",
+      "name": "請求書一括発行（翔星建設）",
+      "status": "production|staging|deprecated",
+      "trigger_type": "webhook|schedule|manual",
+      "runtime_env": "Zapier|Make|n8n|Temporal|GitHub Actions",
+      "idempotency_key_field": "invoice_id",
+      "dry_run_last_run": "YYYY-MM-DD",
+      "success_rate_30d": 0.995,
+      "dlq_count_30d": 0,
+      "oauth_token_expiry": "YYYY-MM-DD",
+      "runbook_url": "notion://...",
+      "owner": "bo",
+      "backup_owner": "kai"
+    }
+  ],
+  "automation_proposals": [
+    {
+      "target_process": "...",
+      "current_state": {"minutes_per_case": 8, "cases_per_month": 200, "total_hours_month": 26.7},
+      "future_state": {"minutes_per_case": 0.5, "cases_per_month": 200, "total_hours_month": 1.7},
+      "impact": {"hours_saved_month": 25, "monetary_equivalent_jpy_month": 120000, "annual_jpy": 1440000, "fte_freed": 0.1},
+      "score": {"volume": 5, "frequency": 5, "simplicity": 4, "total": 100},
+      "effort_estimate": "S|M|L",
+      "risk_level": "low|medium|high",
+      "reversibility": "reversible|irreversible",
+      "dependencies": ["Owl状態遷移表", "Kpi SSOT期間関数"],
+      "hitl_checkpoints": ["承認関門1: 送信前確認"],
+      "compliance_flags": ["電帳法", "個人情報"]
+    }
+  ],
+  "hr_redeployment_suggestions": [
+    {"person": "...", "freed_hours_month": 25, "reassigned_to": "...", "value_creation": "..."}
+  ],
+  "incidents_and_learnings": [
+    {"date": "YYYY-MM-DD", "job_id": "AUTO-001", "severity": "P1|P2|P3", "root_cause": "...", "corrective_action": "...", "prevention_added_to_ci": true}
+  ],
+  "compliance_audit": {
+    "api_keys_min_scope_ratio": 1.0,
+    "runbook_impl_alignment_ratio": 1.0,
+    "notification_shared_channel_ratio": 1.0,
+    "dry_run_coverage_ratio": 1.0,
+    "idempotency_coverage_ratio": 1.0,
+    "dlq_configured_ratio": 1.0
+  }
+}
+```
+
+### セルフチェックリスト
+
+- [ ] **可逆性判定**: この自動化は失敗時に取り消せるか（irreversibleなら承認関門を必須追加）
+- [ ] **冪等性**: 一意キー（invoice_id等）で重複チェックを実装し、リトライ2回目以降で副作用ゼロを検証したか
+- [ ] **ゴールデンテストCSV**: 7社の過去1年から抽出した例外レコード（全角半角混在・NULL・カンマ入り金額・絵文字）でdry-runを通したか
+- [ ] **件数突合恒等式**: 「入力＝成功＋スキップ＋エラー＋DLQ」の自動検証をラッパーで組み込み、不一致時は警告通知に切り替えたか
+- [ ] **金額・件数レンジアサーション**: 期待値レンジを社別に台帳化し、レンジ外は停止する設計になっているか
+- [ ] **最小権限APIキー**: read-onlyで足りるジョブはread-onlyキーで動いているか。運用台帳に権限範囲・発行日・利用ジョブが記録されているか
+- [ ] **OAuthトークン監視**: 有効期限を台帳化し、失効30日前にリマインダーが共有チャンネルへ自動発火するか
+- [ ] **DLQ設計**: 失敗レコードは破棄せずDLQへ退避し、`/automation status`で日次可視化しているか
+- [ ] **トランザクション境界**: 複数ステップ処理は分散トランザクションか補償イベント（Owl連携）で疑似ロールバックを組んでいるか
+- [ ] **共有チャンネル通知**: 失敗・警告通知は個人DM禁止で共有チャンネル宛か。手動再開手順書が現場に添付されているか
+- [ ] **タイムゾーン**: JST/UTC解釈を確認し、月末締めはスクリプト内でJST明示指定したか
+- [ ] **HITL関門**: 取り消し不能アクション（退職者アカウント削除・大口送金等）に承認関門を残したか
+- [ ] **監査証跡**: 会計連携ジョブは改変不能な追記専用ログを残し、電帳法・SOC2で遡及説明可能か
+- [ ] **通知マスキング**: Slack通知・エラーログに個人情報・APIキー・金額明細が生で載っていないか
+- [ ] **ハートビート**: 低頻度ジョブ（年数回発火の契約更新アラート等）に生存通知を必須実装したか
+- [ ] **ルームブック整合性**: Notion運用台帳の記載内容と現行実装が一致しているか（四半期監査）
+- [ ] **ROI補正**: 削減実績はDatのDID補正を通した純効果で報告し、KPI SSOTの期間関数と揃っているか
+- [ ] **心理安全性**: hr_redeployment_suggestionsを本人に先出しし、「奪う」でなく「解放する」フレームで合意したか
+- [ ] **フェイルクローズ**: 「不一致なら配信ブロック」系のジョブは、沈黙を合格と読ませない設計になっているか
+- [ ] **初回本番監視**: リリース直後に対象期間を絞った有人監視実行を通し、無人運用へ移行したか
+
+### KPI・成功指標・ベンチマーク
+
+**コアKPI（既存＋強化）**
+| 指標 | 定義 | 2026年ベンチマーク | 目標値 |
+|------|------|-------------------|--------|
+| k1_double_input_count | 二重入力発生件数/月 | 業界平均5件 | **0件** |
+| k2_vendor_lead_time_minutes | 発注→着手までの平均分数 | 業界平均45分 | **10分以下** |
+| k3_bo_manual_hours | BO手動工数/週（7社合計） | 現状40h | **半年で20h以下** |
+| k4_sla_violation_count | SLA違反件数/月 | 業界平均3件 | **0件** |
+
+**追加KPI（オーバースペック水準）**
+| 指標 | 定義 | 目標値 |
+|------|------|--------|
+| automation_success_rate_30d | 過去30日の自動化ジョブ成功率 | 99.5%以上 |
+| MTTD（Mean Time To Detect） | 障害検知の平均時間 | 5分以内 |
+| MTTR（Mean Time To Recover） | 障害復旧の平均時間 | 30分以内 |
+| dry_run_coverage_ratio | dry-run実施率 | 100% |
+| idempotency_coverage_ratio | 冪等性実装率 | 100% |
+| dlq_configured_ratio | DLQ設定率 | 100% |
+| runbook_impl_alignment_ratio | 運用台帳と実装の一致率 | 100% |
+| min_scope_api_key_ratio | 最小権限APIキー適用率 | 100% |
+| shared_channel_notification_ratio | 共有チャンネル通知率 | 100% |
+| automation_acceptance_rate | 現場受諾率（提案→定着） | 90%以上 |
+| monetary_savings_annual_jpy | 年間削減金額換算 | 1,000万円以上/年 |
+| fte_freed_total | 解放された人月換算 | 0.5人月以上 |
+| onboarding_hours_new_client | 新規クライアント立ち上げ工数 | 2時間以内 |
+| hitl_incident_zero | HITL関門による取り返し不能事故件数 | 0件 |
+
+**ROI検証（Dat連携）**
+- 素の前後差でなくDID（差分の差分）補正を通した純効果で報告
+- KPI SSOT期間関数に揃えて経営ダッシュボードと食い違いゼロ
+
+### 参考リソース・継続学習リスト
+
+**書籍・レポート**
+- 『The DevOps Handbook』（Gene Kim他）: SLO/SLI/MTTR/MTTDの思想的基盤
+- 『Site Reliability Engineering』（Google）: エラーバジェット・トイル削減
+- 『Team of Teams』（Stanley McChrystal）: 自律チームと承認関門のバランス
+- Gartner『Magic Quadrant for iPaaS 2026』: iPaaSベンダー選定
+- Forrester『The State of Intelligent Automation 2026』: APA導入事例
+- IPA『DX推進指標』最新版: 国内BPO自動化の到達点
+
+**オンライン学習**
+- Anthropic『Building Effective Agents』ガイド: エージェント設計の第一原理
+- Zapier Learn / Make Academy / n8n Academy: iPaaS実装力
+- UiPath Academy / Automation Anywhere University: 大規模RPA/APA
+- Temporal University: 長時間ワークフロー・冪等性
+- Celonis Academy: Process Mining
+
+**コミュニティ・カンファレンス**
+- MCP Community（Anthropic主催）: プロトコル最新動向
+- FORWARD（UiPath年次）: RPA/APA大手事例
+- Zapier Connect: iPaaS実装コミュニティ
+- 日本RPA協会・日本CIO協会: 国内BPO実務
+
+**規制・標準**
+- 電子帳簿保存法 最新運用ガイドライン（国税庁）
+- インボイス制度Q&A（国税庁）: 建設業特化
+- ISMS-AC / JIPDEC: セキュリティ認証基準
+- 個人情報保護委員会ガイドライン: 委託先管理
+
+**フォロー必須の情報源（週次）**
+- Anthropic公式ブログ・MCPレジストリ更新
+- Zapier / Make / n8nリリースノート
+- freee / MF / 弥生 開発者ドキュメント更新
+- SREweekly / DevOps Weekly / The Pragmatic Engineer

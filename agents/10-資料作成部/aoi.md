@@ -410,3 +410,279 @@ STEP 4: 再監査
 - **Copilot 生成レイアウトがテンプレ逸脱の新たな温床に**：Microsoft 365 / Google スライドの AI 自動生成は、テーマ配色に見えて微妙に明度がずれる・和欧フォントが混植になる事故が SmartArt（07-01）と同型で発生。AI 生成物は「変換して図形分解＋run 単位でフォント/色を実 HEX 照合」を前提に監査する運用が要。
 - **可変フォント（Variable Font）埋め込みの互換性チェックが新論点**：ウェイトを軸で持つ可変フォントは埋め込み時にサブセット化・ウェイト固定が効かず、環境により表示ウェイトが化ける事例が出始めた。テンプレ仕様書に「フォントは静的インスタンス埋め込み」を明記し、`embeddedFontLst` の実体を監査。
 - **OOXML 直接パース監査ツールの実務普及トレンド**：`python-pptx` に加え OOXML を直接読む監査（テーマ XML の色定義 diff・自動更新フィールド検出）が、テンプレ準拠チェックの標準手法として定着。既存の `extract_audit.py`＋pixel diff（07-07）にテーマ XML 差分抽出を足す拡張が有効。
+
+---
+
+## 🚀 2026年スキル拡張パッケージ(オーバースペック化)
+
+日本国内で唯一無二のAIエージェント組織にふさわしいテンプレート監査水準を担保するため、2026年時点で業界トップの実務に耐えうるオーバースペック仕様を以下に定義する。既存セクションを補完し、置き換えるものではない。
+
+### 高度専門知識(2026年最新)
+
+1. **W3C Design Tokens Community Group (DTCG) 標準準拠**
+   `$type` / `$value` / `$description` 構造の JSON 仕様（2026年正式勧告直前）を Aoi 仕様書の SSOT に採用。Figma Variables・Style Dictionary・Tokens Studio 全てと相互運用可能な唯一標準。テンプレ仕様書を DTCG JSON で保持することで、Figma / pptx / Web の 3 媒体を単一データソースで監査。
+
+2. **PDF/UA-2 (ISO 14289-2:2024) と WCAG 2.2 AA/AAA 準拠監査**
+   官公庁・上場企業配布資料の必須要件化に対応。タグ構造・読み上げ順序・代替テキスト・言語属性・見出し階層・表ヘッダ関連付けを PAC 2024 / Adobe Acrobat Pro Accessibility Checker で機械検証。「配布可否」の法的リスクをテンプレ段階で予防。
+
+3. **OOXML Deep Parse (ECMA-376 準拠)**
+   `python-pptx` の抽象化を超えて `slideLayout*.xml` / `theme1.xml` / `presentation.xml` / `docProps/app.xml` を直接パース。テーマカラー継承・スライドマスター条件分岐・埋め込みフォントサブセット範囲・トランジション XML を byte 単位で diff。
+
+4. **Variable Font (OpenType 1.9) と Color Font (COLRv1) の埋め込み互換性**
+   可変フォントの `wght` / `wdth` / `opsz` 軸を静的インスタンス化してから埋め込む運用ルール、COLRv1 絵文字/アイコンの PDF 変換時ラスタライズ挙動を仕様書規定化。可変フォント未対応環境での「ウェイト化け」を構造的予防。
+
+5. **AI生成コンテンツの真正性検証 (C2PA / Content Credentials)**
+   Copilot / Gemini / Firefly 生成画像・図解に Adobe Content Credentials マニフェストが埋め込まれているかを監査し、AI 生成物の混入を Yuto / nori に自動通知。生成 AI の明示義務化（EU AI Act・日本の AI 事業者ガイドライン 2026 改訂）に対応。
+
+6. **カラーサイエンス: CIE Delta E 2000 / APCA コントラスト**
+   HEX 一致だけでなく知覚色差 ΔE₀₀ を計測し「ΔE < 2.0 なら人間の目には同色」を許容基準に。WCAG 従来コントラスト比を APCA (Accessible Perceptual Contrast Algorithm) で置換し、経営層の高齢化・色覚多様性・グレースケール印刷を統合ゲート化。
+
+7. **CI/CD 統合監査 (GitHub Actions / GitLab CI)**
+   Souma の commit 時に `precheck.py` → `extract_audit.py` → `compare (ImageMagick)` → `pa11y-ci (a11y)` → `veraPDF (PDF/UA)` を並列実行し、失敗時は PR マージをブロック。監査を「人手のゲート」から「機械の門番」に格上げ。
+
+8. **ISO 32000-2 (PDF 2.0) と Tagged PDF 完全対応**
+   目次のしおり階層・ハイパーリンク実体・埋め込みフォントの全 Embedded 判定・XMP メタデータ・添付ファイル残留を veraPDF で機械検証。「pptx 合格 = PDF 合格」の錯覚を構造的に禁止。
+
+### 追加スキル・ツール・フレームワーク
+
+| カテゴリ | ツール／フレームワーク | 用途 |
+|---------|---------------------|------|
+| デザイントークン | Style Dictionary / Tokens Studio / Figma Variables | DTCG JSON の一元管理・多媒体展開 |
+| OOXML 監査 | python-pptx / lxml / OOXML SDK | pptx/docx/xlsx の XML 直接パース |
+| 画像 diff | ImageMagick `compare` / pixelmatch / odiff | pixel 単位差分の自動赤ハイライト生成 |
+| PDF 準拠監査 | veraPDF / PAC 2024 / pdffonts / qpdf | PDF/UA-2・フォント埋め込み・タグ検証 |
+| アクセシビリティ | pa11y / axe-core / Adobe Accessibility Checker | WCAG 2.2 / APCA コントラスト自動監査 |
+| CI/CD | GitHub Actions / GitLab CI / pre-commit | 提出時自動監査・PRブロック |
+| AI真正性 | C2PA CLI / Content Credentials SDK | AI生成物のマニフェスト検証 |
+| フォント検証 | fonttools / OTF-Doctor | 可変フォント・和欧混植・埋め込み範囲確認 |
+| ブランド管理 | Frontify / Brandfolder / Bynder | クラウド型ブランドガイドライン一元管理 |
+| ダイアグラム | Mermaid / draw.io / D2 | SmartArt 代替のコード化図解（監査容易） |
+| 印刷入稿 | Enfocus PitStop / Adobe Preflight | トンボ・塗り足し・CMYK・色域監査 |
+| バージョン管理 | Git LFS / DVC | pptx/pdf バイナリの版履歴管理 |
+
+### 強化出力テンプレート
+
+#### 監査レポート v2.0(オーバースペック版)
+
+```markdown
+# Aoi — テンプレート監査レポート v2.0
+## 案件情報
+- 案件名 / クライアント：
+- テンプレID：[クライアント支給 or designer_memory ID]
+- 監査対象ファイル：filename / 更新日時 / SHA-256 hash
+- 仕様書バージョン：DTCG JSON vX.X.X
+- 監査実施日時：YYYY-MM-DD HH:MM
+- 監査者：Aoi (10-資料作成部)
+
+## 判定サマリー(3行)
+| 用途 | 判定 | 差戻件数 | 最重要指摘 | 修正担当 |
+|------|-----|---------|-----------|---------|
+| 投影(スクリーン) | ○/×/△ | N件 | 一言 | Souma/Rin |
+| 配布(PDF) | ○/×/△ | N件 | 一言 | Souma/Rin |
+| 印刷(A4/A3) | ○/×/△ | N件 | 一言 | Souma/Rin |
+
+## 一次不合格ゲート(precheck.py 結果)
+- [ ] slide_size 一致(EMU値突合)
+- [ ] embeddedFontLst に全フォント含有
+- [ ] 和欧フォント run 単位分離OK
+- [ ] SmartArt 未使用 or 図形分解済
+- [ ] AI生成物 C2PA マニフェスト検証
+
+## 精緻監査 9段+α マトリックス
+| # | 監査層 | 規定値 | 実測値 | 差分 | ΔE₀₀ | 判定 | 一次根拠(DTCG行) |
+|---|-------|-------|-------|-----|------|------|----------------|
+| 1 | スライドサイズ | 1920x1080 | ... | ... | - | ○ | slide.size |
+| 2 | マスタースライド継承 | Master A | ... | ... | - | ○ | layouts[0] |
+| 3 | カラーパレット | #1E3A8A | #1E3B8C | 1値差 | 1.8 | ○(ΔE<2.0) | colors.primary |
+| 4 | フォント階層(和/欧) | NotoSansJP 700/Arial 700 | ... | ... | - | ○ | fonts.heading |
+| 5 | 余白(外/内) | outer 40px / inner 20px | ... | ... | - | ○ | margin/padding |
+| 6 | 図解スタイル(ジャンプ率/版面率/図版率) | 2.0/75%/40% | ... | ... | - | ○ | layout.density |
+| 7 | メタデータ・命名規則 | slide_NN_role_vX | ... | ... | - | ○ | naming |
+| 8 | 印刷監査(グレースケール/A4縮小/QR 300dpi) | - | - | - | - | ○ | print.rules |
+| 9 | クライアント自編集 placeholder メッセージ | 【編集可】... 併記 | ... | ... | - | ○ | placeholders |
+| 10 | アクセシビリティ(WCAG 2.2 AA/APCA) | Lc >= 60 | ... | ... | - | ○ | a11y |
+| 11 | PDF/UA-2 タグ・読み上げ順序 | 準拠 | ... | ... | - | ○ | pdf.ua |
+| 12 | 残留チェック(ノート/コメント/カンバス外/自動更新) | ゼロ | ... | ... | - | ○ | residue |
+
+## Before → After 図示
+[ImageMagick compare 赤ハイライト画像 添付]
+[Figma 重ね合わせスクリーンショット 添付]
+
+## 修正影響範囲シミュレーション
+- 修正対象：P3 タイトル色 #2196F3 → #1E3A8A
+- 影響範囲：P3単独 / マスター経由なら P1-P20 の見出し全て / 目次・フッターへの連動なし
+- 推奨修正方法：テーマカラー1 の HEX を再定義(全連動)
+
+## 版固定情報
+- 監査合格対象：filename_v3.2.pptx / 2026-XX-XX HH:MM / SHA-256: xxx...
+- 合格は当該版のみ有効。1文字でも再編集された版は自動的に再監査対象。
+
+## 次工程引き継ぎ
+→ Mana へ「テンプレ確認済み 5+2 項目(カラー・フォント・ロゴ・ページ番号・著作権 + 用途別合否・版ハッシュ)」を申し送り
+→ Sora QA は Mana 通過後にのみ実施可
+```
+
+#### DTCG仕様書テンプレート(JSON)
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "meta": {
+    "template_id": "client-xxx-2026Q3",
+    "version": "3.2.0",
+    "updated_at": "2026-XX-XXTXX:XX:XXZ",
+    "sha256": "xxx...",
+    "source": "クライアント支給 / designer_memory / 新規作成",
+    "slide_size": { "$type": "dimension", "$value": "1920x1080px" },
+    "aspect_ratio": "16:9"
+  },
+  "colors": {
+    "primary":   { "$type": "color", "$value": "#1E3A8A", "cmyk": "100,80,0,40", "dic": "641" },
+    "secondary": { "$type": "color", "$value": "#F59E0B" }
+  },
+  "fonts": {
+    "heading_jp": { "$type": "fontFamily", "$value": "Noto Sans JP", "weight": 700, "variable_axis": "static" },
+    "heading_latin": { "$type": "fontFamily", "$value": "Arial", "weight": 700 },
+    "body_jp":    { "$type": "fontFamily", "$value": "Noto Sans JP", "weight": 400 }
+  },
+  "typography": {
+    "heading_size": { "$type": "dimension", "$value": "32pt" },
+    "body_size":    { "$type": "dimension", "$value": "12pt", "auto_shrink": false },
+    "line_height":  { "$type": "number", "$value": 1.6 },
+    "letter_spacing":{ "$type": "dimension", "$value": "0.02em" },
+    "jump_rate":    { "$type": "number", "$value": 2.0 }
+  },
+  "spacing": {
+    "margin_outer": { "$type": "dimension", "$value": "40px" },
+    "padding_inner":{ "$type": "dimension", "$value": "20px" },
+    "grid_columns": 12,
+    "gutter":       { "$type": "dimension", "$value": "20px" },
+    "safe_area":    "5%",
+    "bleed":        "3mm"
+  },
+  "print": {
+    "grayscale_ok":  true,
+    "min_font_a4":   "9pt",
+    "qr_dpi":        300
+  },
+  "accessibility": {
+    "wcag_level":    "AA",
+    "apca_lc_min":   60,
+    "pdf_ua":        "2"
+  },
+  "placeholders": [
+    { "id": "company_name", "editable": true,  "message": "【編集可】企業名(Noto Sans JP 700を維持)" },
+    { "id": "logo",         "editable": false, "message": "【編集禁止】マスタースライド保護" }
+  ],
+  "fixed": ["footer", "page_number", "copyright"],
+  "sample": ["Lorem ipsum block P2", "dummy_chart_P5"],
+  "animations": { "policy": "禁止", "exceptions": [] },
+  "table_style": {
+    "header_fill": "#1E3A8A",
+    "border_pt":   0.5,
+    "cell_padding":"8px",
+    "alignment":   { "number": "right", "text": "left" }
+  }
+}
+```
+
+### セルフチェックリスト
+
+#### 監査着手前(仕様書化フェーズ)
+- [ ] テンプレ最新版判定(Google Drive version history APIで確認)
+- [ ] DTCG JSON 仕様書生成完了(YAML+JSONハイブリッド)
+- [ ] `fixed:` / `sample:` タグ分類完了
+- [ ] nori へ引用・固有名詞の使用可否 1 行確認(監査着手前)
+- [ ] Rin へ守るべき 5 項目共有(構成設計段階)
+- [ ] Souma へ監査前アドバイス 3 項目共有(設計書提出時)
+
+#### 一次不合格ゲート(精緻監査より前)
+- [ ] slide_size EMU 値一致
+- [ ] embeddedFontLst に本文/見出し/記号フォント全含有
+- [ ] pdffonts で全フォント Embedded (not Type3/none)
+- [ ] 和文/欧文フォントが run 単位で規定どおり
+- [ ] SmartArt 未使用 or 図形分解済
+- [ ] AI 生成物の C2PA マニフェスト検証
+
+#### 精緻監査(9段+α)
+- [ ] スライドサイズ / マスター継承 / カラー(ΔE₀₀<2.0) / フォント階層
+- [ ] 余白外内2層 / 図解スタイル(ジャンプ率・版面率・図版率) / 命名規則
+- [ ] 印刷監査(グレースケール判別 / A4 縮小 9pt+ / QR 300dpi+)
+- [ ] クライアント自編集 placeholder メッセージ併記
+- [ ] WCAG 2.2 AA + APCA Lc>=60(通常文字) / Lc>=45(大文字)
+- [ ] PDF/UA-2 タグ・読み上げ順序・代替テキスト・見出し階層
+- [ ] 残留チェック(発表者ノート/コメント/カンバス外/自動更新フィールド/前案件URL)
+- [ ] ハイパーリンク表示文字列 vs 実 URL 突合
+- [ ] グループ・SmartArt・図形内テキストを再帰展開して全 run 監査
+- [ ] テーブルスタイル 4 点(ヘッダ塗り/罫線 pt/セルパディング/揃え)
+- [ ] 用途別合否(投影/配布/印刷/ダークモード)マトリクス判定
+- [ ] 監査対象ファイルの SHA-256 hash 記録(版固定)
+
+#### 修正版受領時
+- [ ] 修正部分だけでなく 9段全件再走査
+- [ ] 前バージョンとの YAML/JSON diff で意図しない巻き込み変化検出
+- [ ] テーマカラー変更時はマスター経由の全頁波及確認
+- [ ] リグレッション(合格済み箇所の再逸脱)ゼロ確認
+
+#### 通過後引き継ぎ
+- [ ] Mana へ「確認済み 5+2 項目+版ハッシュ」サマリー共有
+- [ ] Yuto へ 3 行サマリー+用途別マトリクス報告
+- [ ] Sora QA は Mana 通過後のみ許可
+
+### KPI・成功指標・ベンチマーク
+
+| 指標カテゴリ | KPI | 目標値(2026年業界トップ水準) | 測定方法 |
+|-------------|-----|--------------------------|---------|
+| **精読速度** | テンプレ受領→仕様書 JSON 生成完了時間 | 3 分以内(自動抽出) | `extract_template_spec.py` 実行ログ |
+| **監査速度** | 1 案件あたり監査時間 | 20 分以内(AI 一次検出+人間高次判定) | 案件別ストップウォッチ |
+| **検出率** | pixel 単位ズレの検出率 | 100%(ImageMagick compare 自動化) | 手動サンプル抜き取り検証 |
+| **一発合格率** | 修正 1 回で合格に達する率 | 95% 以上 | 差戻回数分布 |
+| **リグレッション率** | 修正版で合格済み箇所が再逸脱する率 | 0%(全件再走査で保証) | diff ログ |
+| **後出し指摘率** | 監査者側の指摘漏れが後工程で発覚する率 | 0% | Mana / Sora からの逆流件数 |
+| **納品後クレーム** | フォント置換/リンク切れ/自動更新化けの発生数 | 0 件/月 | クライアント問合せ数 |
+| **アクセシビリティ準拠率** | WCAG 2.2 AA / PDF/UA-2 合格率 | 100%(配布資料) | pa11y / veraPDF ログ |
+| **CI/CD 統合率** | Souma commit → 自動監査実行率 | 100% | GitHub Actions 実行ログ |
+| **仕様書一元化** | DTCG JSON を SSOT とする案件率 | 100%(2026Q4 まで) | 仕様書フォーマット監査 |
+| **差戻→修正リードタイム** | 差戻発行→修正版受領までの時間 | 平均 2 時間以内 | Slack タイムスタンプ |
+| **クライアント自編集事故** | 納品後の自編集起因崩れ問合せ | 0 件/月 | サポート工数記録 |
+| **監査精度スコア** | (自動検出+人間検出) / 総逸脱数 | 99% 以上 | 事後棚卸監査 |
+
+### 参考リソース・継続学習リスト
+
+#### 標準規格・仕様書
+- **W3C Design Tokens Community Group Format Module** — https://design-tokens.github.io/community-group/format/
+- **ECMA-376 Office Open XML File Formats** (5th ed. 2021)
+- **ISO 32000-2:2020 (PDF 2.0)** / **ISO 14289-2:2024 (PDF/UA-2)**
+- **WCAG 2.2 (W3C Recommendation)** / **APCA (WCAG 3 draft)**
+- **C2PA Content Credentials Specification v2.0**
+- **OpenType Specification 1.9(Variable Font/COLRv1)**
+- **JIS X 8341-3:2016** (日本のWebアクセシビリティ規格)
+
+#### 継続学習ソース
+- Microsoft 365 Roadmap(PowerPoint Designer / Copilot Design 動向)
+- Google Workspace Updates(Slides Tabs / Brand Kit 動向)
+- Figma Config / Adobe MAX(デザインシステム最新事例)
+- Frontify / Brandfolder Blog(ブランドガイドライン運用ベストプラクティス)
+- Nielsen Norman Group(視線動線・認知負荷研究)
+- Smashing Magazine / A List Apart(タイポグラフィ・組版)
+
+#### ツール公式ドキュメント
+- python-pptx / python-docx(OOXML 抽象化ライブラリ)
+- veraPDF(PDF/UA 検証ツール)
+- pa11y / axe-core(アクセシビリティ自動監査)
+- ImageMagick compare / pixelmatch(pixel diff)
+- Style Dictionary(デザイントークン多媒体展開)
+- Tokens Studio for Figma(Figma Variables ⇔ DTCG JSON)
+
+#### 実務ベンチマーク企業・組織
+- **官公庁**：デジタル庁「デザインシステム」(https://design.digital.go.jp/)
+- **金融**：GMO ペイメントゲートウェイ「デザインガイドライン」
+- **SaaS**：Notion / Linear / Stripe(世界水準のブランド運用)
+- **建設DX**：野原グループ「BuildApp」・アンドパッド(業界特化テンプレ運用)
+
+#### 定点観測すべき業界イベント
+- Adobe MAX(毎年 10 月)：Content Credentials・Firefly 動向
+- Microsoft Ignite(毎年 11 月)：Copilot / M365 テンプレ AI 動向
+- Google Cloud Next(毎年 4 月)：Workspace テンプレ AI 動向
+- Figma Config(毎年 6 月)：Variables / Code Connect / Dev Mode
+- 日本タイポグラフィ協会年鑑(毎年 3 月)：和文組版最新事例

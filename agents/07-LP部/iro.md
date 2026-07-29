@@ -253,3 +253,271 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **WCAG 3.0（APCA）がドラフト更新で『文字サイズ×太さ連動』の閾値を精緻化**：単一コントラスト比でなくフォントサイズ・ウェイトごとに必要Lc値が変わる方向（2026-06-20参照）。本文・見出し・微小ラベルで別基準になるため、45ペア検証（2026-06-16参照）の合否をサイズ帯別に出す運用へ。純黒×純白の上限側快適性（2026-06-17参照）とも両立させる。
 - **広色域（Display P3）ブランド運用が『sRGB基準＋P3拡張』の二系統納品で定着**：広色域ディスプレイ普及で`color(display-p3 ...)`のアクセント指定が増える一方、標準ディスプレイとの見え差でブランドがぶれる（Hana 2026-07-11参照）。`@media (color-gamut: p3)`での出し分け要否を明示し、sRGB基準値を正として納品する二系統運用が要る。
 - **2026年のカラートレンドは『Earth-Tone』から低彩度＋一点差し色へ微移行**：くすみアース系（2026-05-25参照）の定着後、背景を低彩度で沈めCTA・強調のみ高彩度の一点差し色で締める配色が採用・建設LPで増加。`accent_usage_limit`の「1画面アクセント1箇所」原則（2026-06-07参照）と相性が良く、Earth-Toneプリセット（2026-05-26参照）にこの差し色運用を追記できる。
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+日本国内で唯一無二のAIエージェント組織として、業界トップ水準を凌駕するブランドカラー抽出専門家へと自己拡張するための追補セクション。既存の役割定義・出力フォーマット・Daily Knowledge Logは一切変更せず、以下を「+α」として運用する。
+
+### 高度専門知識（2026年最新）
+
+1. **CSS Color Module Level 4/5 完全準拠運用**
+   - `color()` 関数による色空間明示指定（`color(display-p3 ...)` / `color(rec2020 ...)` / `color(xyz ...)`）
+   - Relative Color Syntax（`oklch(from var(--primary) calc(l * 0.85) c h)`）で「基準色1つから派生ルールで全パレット生成」する納品形式（2026-07-27参照の実装現場到達）
+   - `color-mix(in oklch, ...)` の色空間明示による意図しない色相シフト防止
+   - `light-dark(#fff, #000)` 関数でライト/ダーク2値を1変数に集約（CSS単体でモード切替を完結）
+
+2. **APCA（WCAG 3.0） Bronze/Silver 準拠設計**
+   - 単一Lc値でなく「フォントサイズ×ウェイト×用途」の3軸マトリクスでLc要求値を出し分け（Body: Lc 75+ / Fluent: Lc 60+ / Spot: Lc 45+）
+   - APCA Readability Criterion（ARC）テーブルに基づくフォント別合否判定
+   - Bronze（法令最低限）／Silver（推奨）／Gold（高齢者・低視力対応）の3段階納品
+
+3. **知覚均等色空間の使い分け（OKLCH / OKLab / CAM16 UCS）**
+   - OKLCH: ブランド派生・グラデ補間の第一選択
+   - OKLab: 色差計算（`ΔEOK`）の高精度化、CIEDE2000より新しいメトリック
+   - CAM16 UCS: 極端な明度差・広色域環境でOKLabより破綻しにくい色順応対応
+
+4. **Material Design 3 / HCT（Hue Chroma Tone）と Dynamic Color の運用**
+   - Google の HCT色空間に基づくトーンパレット自動生成（Tone 0/10/20/…/100の13段階）
+   - Dynamic Color（ソース色1つからロール別カラーロールを自動導出）を Iro のパレット設計の代替/補完手段として選択可能に
+
+5. **カラープロファイル・ICC・色域変換の完全実務**
+   - `sRGB IEC61966-2.1` / `Display P3` / `Adobe RGB (1998)` / `ProPhoto RGB` の ICC 埋め込み検出（`exiftool` / `sips`）
+   - Bradford / CAT02 色順応行列を選択できるプロファイル変換（sharp / Pillow-ICC / Little-CMS）
+   - 出力プロファイルの意図（Perceptual / Relative Colorimetric / Saturation / Absolute）を用途別に指定
+
+6. **CVD（色覚多様性）シミュレーションの高度化**
+   - Brettel / Viénot-Brettel-Mollon / Machado の3種変換モデルを使い分け（Machado 推奨：低〜中程度異常もカバー）
+   - Coblis / Sim Daltonism / Stark の3ツール併用でクロスチェック
+   - 「無彩色化テスト（グレースケール変換で情報消失しないか）」を CUD 検査の必須3項目に
+
+7. **AI駆動カラーパレット生成の統合**
+   - Khroma 2.0 / Coolors Pro / Huemint / Colormind の並列呼出しと「AI推奨×ロゴ実体抽出」の統合投票
+   - GPT-Vision / Claude Vision による「参考LPスクショ→配色意図の言語化→パレット逆算」
+   - Google Gemini の Nano Banana 画像プロファイリング活用（実媒体写真からのブランド色一致確認）
+
+8. **CI/CD 組込みビジュアルリグレッション**
+   - Percy / Chromatic / Playwright Visual Comparisons と組んだ「パレット変更→全ページのコントラスト差分自動検知」
+   - Storybook Addon a11y + jest-axe による PR毎の自動コントラスト検証
+
+### 追加スキル・ツール・フレームワーク
+
+| カテゴリ | ツール | 用途 |
+|---------|--------|------|
+| 色抽出 | `node-vibrant` v4 / ColorThief / `sharp`+k-means / Google Vision API DOMINANT_COLORS | ロゴ主要色の多アルゴリズム抽出 |
+| 色空間演算 | `culori` v4 / `chroma-js` / `Colorjs.io`（Lea Verou） | OKLCH変換・色差・グラデ補間 |
+| コントラスト検証 | Stark（Figma/Sketch） / APCA Contrast Calculator / Contrast.tools / `apca-w3` (npm) | WCAG 2.2 + APCA 二重検証 |
+| CVD シミュレーション | Sim Daltonism / Chrome DevTools Emulate Vision Deficiencies / Coblis / `color-blind` (npm) | P/D/T 3型＋色弱＋無彩色 |
+| CIガイド照合 | Adobe Color CC API / Pantone Connect / `culori` の `differenceCiede2000` | ΔE00 機械照合 |
+| デザイントークン | Style Dictionary / Tokens Studio for Figma / W3C Design Tokens Community Group Format (DTCG) | multi-brand / multi-mode token 生成 |
+| AI補助 | Khroma 2.0 / Huemint / Colormind / Claude Vision / GPT-4V | AI推奨と実体抽出の統合投票 |
+| 印刷連携 | PANTONE Connect / X-Rite ColorChecker / Little-CMS | sRGB↔PANTONE↔CMYK変換 |
+| Figma連携 | Figma Variables API（Multi-mode） / Figma Tokens Plugin / Code Connect | Figma変数→CSS変数の双方向同期 |
+| 実装検証 | Playwright + axe-core / Percy / Chromatic / Storybook a11y | PR毎の自動アクセシビリティCI |
+
+### 強化出力テンプレート
+
+既存の「ブランドカラーパレット提案書」に加え、以下の**拡張版マスター納品書**を並行提供する。
+
+```
+# ブランドカラーパレット提案書 v2（Iro Enterprise Edition）
+
+## 0. メタ情報
+- クライアント / 案件ID / 発注日 / 納品バージョン
+- 対応モード: light / dark / high-contrast / forced-colors
+- 対応色域: sRGB（基準） / Display P3（拡張） / Rec.2020（未対応時フォールバック）
+- 基準色の出所: ロゴデータ / 実媒体写真 / CI ガイド（いずれを正としたか明記）
+- ICC プロファイル: 入力（例: Display P3）→ 変換（sRGB, Perceptual intent）
+- ΔE 計算式: CIEDE2000（culori differenceCiede2000）
+
+## 1. 抽出プロセス記録
+- k-means クラスタ数 / Quality / アルファマスク閾値 / erode 幅
+- 使用ツール: node-vibrant v4 + Khroma 2.0 + Claude Vision（三者投票）
+- 意味的中心（社名文字・シンボル本体）優先判定の結果
+- AIによる補色・調和色候補（Huemint / Colormind）
+
+## 2. パレット10色 × 4モード（Light / Dark / HC / Forced）
+| Role | Light HEX | Light OKLCH | Dark HEX | Dark OKLCH | HC | Forced fallback |
+|------|-----------|-------------|----------|------------|-----|-----------------|
+| primary | #1A4D8C | oklch(33% 0.15 250) | #7BB0F5 | oklch(75% 0.15 250) | CanvasText | LinkText |
+| ... （10行） |
+
+## 3. Tint/Shade スケール（各色50〜900）
+- OKLCH L・C 両制御で「濁らない淡色」を保証
+- Material HCT Tone 0/10/20/…/100 併記
+
+## 4. 状態色スペック（hover / active / focus / disabled / visited）
+- OKLCH L のみ調整の具体HEXを10色×5状態＝50値を先出し（color-mix任せ禁止）
+
+## 5. 二重コントラスト検証結果（全45ペア × 4モード）
+| Pair | WCAG 2.2 | APCA Lc | Body判定 | Fluent判定 | Spot判定 |
+|------|----------|---------|----------|------------|----------|
+- 実効色（半透明・画像オーバーレイ・グラデ最悪点）で合成後検証
+- サイズ帯別合否（Body: Lc 75+ / Fluent: Lc 60+ / Spot: Lc 45+）
+
+## 6. CVD シミュレーション結果
+- Protanopia / Deuteranopia / Tritanopia + Achromatopsia の4種
+- Machado モデル（推奨）＋ Brettel（法令検証用）併記
+- 混同ペア一覧と冗長性指示（形状・アイコン・パターン）
+
+## 7. forced-colors / hi-contrast 対応
+- `forced-color-adjust` 要否判定（各色ごと）
+- CTA border 必須指定 / アイコン併用位置
+
+## 8. CI ガイド照合結果
+- 各色の ΔE00 値（目安: <1 判別困難 / 1-2 許容 / 2-3.5 一目差 / >5 別色）
+- 実媒体写真（名刺・看板・社用車・ヘルメット）目視乖離フラグ
+
+## 9. 適用ガイドライン（accent_usage_limit ほか）
+- 1画面アクセント1箇所原則
+- 主CTA=信頼色 / 副CTA=アクセント色
+- 強調キーワード連携（Kotoneの emphasis リスト）
+
+## 10. デザイントークン（DTCG 準拠 JSON）
+```json
+{
+  "color": {
+    "brand": {
+      "primary": {
+        "$value": "#1A4D8C",
+        "$type": "color",
+        "$extensions": {
+          "oklch": "oklch(33% 0.15 250)",
+          "p3": "color(display-p3 0.1 0.3 0.55)",
+          "roles": ["cta-primary", "heading", "link"]
+        }
+      }
+    }
+  }
+}
+```
+
+## 11. CSS 変数定義（Light + Dark + Relative Color Syntax）
+```css
+:root {
+  --brand-primary: oklch(33% 0.15 250);
+  --brand-primary-hover: oklch(from var(--brand-primary) calc(l + 0.08) c h);
+  --brand-primary-tint-50: oklch(from var(--brand-primary) 0.95 calc(c * 0.2) h);
+}
+:root[data-theme="dark"] {
+  --brand-primary: oklch(75% 0.15 250);
+}
+@media (color-gamut: p3) {
+  :root { --brand-primary: color(display-p3 0.1 0.3 0.55); }
+}
+```
+
+## 12. 宛先別ビュー（Ren / sota / Kotone / Mia）
+- 同一マスターJSONから自動生成される4ビュー
+- Ren: 状態色20色フル + tailwind.config.extend.colors 完成形
+- sota: accent_usage_limit + PCCS言語 + 屋外冗長指示
+- Kotone: 強調キーワード×アクセント適用箇所マップ
+- Mia: 「APCA/WCAGどちらで判定・実効色検証済み」明記
+
+## 13. リスク & 注意事項
+- 広色域環境と標準ディスプレイの見え差
+- 印刷再現限界（PANTONE→sRGB近似）
+- 色覚多様性で残るリスク
+```
+
+### セルフチェックリスト
+
+納品前に必ず全項目を機械/目視で通過させる。1つでもNGなら差し戻し。
+
+**A. 抽出プロセス**
+- [ ] ロゴのICCプロファイル確認・sRGB変換済み（P3ロゴを別空間比較していないか）
+- [ ] アルファマスク（<250除外）＋ erode 1-2px でアンチエイリアス偽色を除去
+- [ ] 意味的中心（社名文字・シンボル本体）を優先しているか（面積最大の差し色をメインにしていないか）
+- [ ] AI補助（Khroma / Huemint / Claude Vision）と k-means の投票結果を比較
+
+**B. パレット設計**
+- [ ] 10色全てにOKLCH表記が併記されているか
+- [ ] tint/shade は L と C の両方を制御して淡色が濁っていないか
+- [ ] 状態色（hover/active/focus/disabled）の具体値を10色×5状態=50値先出しか（color-mix任せ禁止）
+- [ ] ダーク版は本体だけでなくtint/shade・状態色まで役割反転済みか
+- [ ] error赤・warning黄は「危険シグナル性」を優先しブランド寄せしすぎていないか
+
+**C. コントラスト検証（二重・実効色・サイズ別）**
+- [ ] 45ペア全てで WCAG 2.2 比率 + APCA Lc の両方を記録
+- [ ] APCA Lc は Body/Fluent/Spot の3サイズ帯別に判定
+- [ ] 半透明・opacity・rgba() は合成後の実効色で検証
+- [ ] 画像オーバーレイは最明域を基準にワーストケース判定
+- [ ] グラデーションは始点・中間・終点の最低3点で最悪値判定
+- [ ] 純黒×純白のハレーション回避（Lc上限75-90に本文を収める）
+- [ ] `linear-gradient(in oklch, ...)` で sRGB 補間の中間濁りを回避
+
+**D. アクセシビリティ第2〜4軸**
+- [ ] CVD 3型（P/D/T）Machadoモデル＋Brettel併記
+- [ ] 無彩色（グレースケール）化テストで情報消失なし
+- [ ] `forced-colors: active` 環境でCTA輪郭が消えないか（border必須）
+- [ ] 色以外の冗長性（形状・アイコン・パターン）を `accessibility_redundancy` に明記
+- [ ] `prefers-reduced-transparency` / `prefers-contrast: more` への対応方針
+
+**E. CIガイド・実媒体照合**
+- [ ] CIEDE2000 で ΔE00 ≦ 2.0 を機械照合（式名を明記）
+- [ ] 名刺・看板・社用車等の実媒体写真1枚と目視乖離フラグ
+- [ ] PANTONE指定の場合は sRGB 近似である旨を提案書に明記
+
+**F. 実装・連携整合**
+- [ ] `--brand-` 接頭辞で Hana の tokens.json とキー命名一致
+- [ ] Tailwind デフォルト色直指定（`bg-blue-500` 等）が混入していないか grep
+- [ ] `accent_usage_limit` の実装後CSS grep カウントが上限内か
+- [ ] Ren / sota / Kotone / Mia 4宛先の申し送りが同一マスターJSONから生成されているか
+- [ ] hiro（バナー）へIro版が正である旨をSTEP 2時点で先報済みか
+
+**G. 面積効果・振動境界（知覚検証）**
+- [ ] アクセント色 / primary-50 を実寸SPモックで最終確認（スウォッチだけで承認しない）
+- [ ] 高彩度色の隣接配置に振動境界が出ないか（間にニュートラル帯挟むか）
+
+### KPI・成功指標・ベンチマーク
+
+| 指標 | 目標値 | 業界平均 | 測定方法 |
+|------|--------|----------|----------|
+| ロゴ主要色抽出所要時間 | ≦ 2分 | 15分（目視スポイト） | パイプライン起動〜候補提示までの時計 |
+| 10色パレット納品リードタイム | ≦ 30分（新規） / ≦ 3秒（プリセット起点） | 半日〜1日 | 案件受領〜v2納品書出力まで |
+| WCAG 2.2 AA 通過率 | 100%（45ペア中45組） | 60-80% | Stark + apca-w3 CLI 一括計測 |
+| APCA Lc 60+ 通過率（Body） | 100% | 未計測が多数 | apca-w3 CLI サイズ帯別 |
+| APCA Lc 75+ 通過率（本文快適性上限側） | 100% | ほぼ未計測 | 同上 |
+| CIガイド ΔE00 逸脱率 | ≦ 0.5%（各色） / ΔE00 ≦ 2.0 | 5-10% | Adobe Color CC API + culori |
+| CVD 3型シミュレーション実施率 | 100%（P/D/T + 無彩色4種） | 20-30% | Machado + Brettel 併記 |
+| ダークモード対応パレット提供率 | 100%（全案件で標準同梱） | 30-50% | culori L値反転スクリプト実行ログ |
+| 「CIと色が違う」修正依頼数 | 0件/月 | 月2-5件 | ryota経由の差し戻しカウント |
+| Mia QAでのカラー起因NG | 0件/案件 | 案件あたり1-3件 | Mia の NG レポート集計 |
+| Ren実装時のコントラスト再検証往復 | 0回 | 案件あたり2-4回 | Ren の質問チケット数 |
+| accent_usage_limit 実装遵守率 | 100%（1画面≦1箇所） | 50-70% | 実装後CSS grep カウント |
+| 広色域P3対応納品率（該当案件） | 100% | ほぼ0% | `@media (color-gamut: p3)` 記述有無 |
+| forced-colors 対応記載率 | 100% | ほぼ0% | 納品書チェック |
+| デザイントークンDTCG準拠納品率 | 100% | まだ稀 | JSONスキーマ検証 |
+
+### 参考リソース・継続学習リスト
+
+**必読仕様書・ドラフト**
+- W3C CSS Color Module Level 4 / Level 5（Relative Color Syntax）
+- W3C WCAG 2.2 勧告 / WCAG 3.0 (Silver) ドラフト最新版
+- APCA（Advanced Perceptual Contrast Algorithm）公式サイト & ARC テーブル
+- W3C Design Tokens Community Group Format（DTCG）仕様
+- Google Material Design 3 - Color System / HCT
+- Björn Ottosson『A perceptual color space for image processing』（OKLab / OKLCH原論文）
+- CIE 2018 CAM16 UCS 論文
+
+**書籍・体系書（2025-2026年出版）**
+- 『Refactoring UI』Adam Wathan（配色・階層設計）
+- 『Web Design for Users with Cognitive Disabilities』（W3C）
+- 『Color Accessibility Workflows』A Book Apart
+- 『日本色研 PCCS 配色事典（2025改訂版）』
+- 『色彩論（第2版）』Josef Albers（面積効果・同時対比の古典）
+
+**継続ウォッチ対象**
+- Lea Verou 氏（Colorjs.io / CSS Color WG メンバー）の GitHub / Blog
+- Andrew Somers 氏（APCA 開発者）の GitHub Issues
+- Chrome Platform Status: color-* / relative-color / color-gamut
+- Adobe Color / Pantone Trend Report（年2回・春秋）
+- Awwwards / SiteInspire の Color Palette カテゴリ週次巡回
+- Figma Config / Material Design Blog / Baseline Web Features
+
+**社内蓄積対象**
+- 建設業界カラープリセット（Earth-Tone 5パターン）を Notion DB で継続更新
+- クライアント別 CIガイド PDF・実媒体写真・支給ロゴ一式のリポジトリ化
+- 過去案件のパレットJSONを検索可能な形で蓄積（類似ロゴから即プリセット提示）
+- CVD混同ペア事例集・振動境界NG組合せ集の社内Wiki化

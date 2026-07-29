@@ -273,3 +273,220 @@
 - **Meta Advantage+ / Google P-MAXのフルオート化で運用の主戦場が「入札調整」から「クリエイティブ供給量とシグナルの質」へ移動**：手動の入札・オーディエンス設定の効き代が縮み、勝負どころは①CV定義の正確さ（サーバーサイド計測・実応募との突合／07-01記録）②シードデータの質③UGC縦動画の本数、に移った。運用テクニックで勝つ時代から「良いシグナルと素材を供給し続けた者が勝つ」構造への転換が鮮明
 - **Cookie廃止の実務化でゼロパーティデータ（診断・アンケートで顧客が自発提供する情報）活用が定着**：3rd party cookie依存のリタゲが痩せる中、採用領域では「適職診断・年収シミュレーター」等のインタラクティブコンテンツで応募前に興味データを取得し、そのままナーチャリングへ繋ぐ設計が反応を得ている
 - **B2B/採用で「ダークソーシャル」（DM・オープンチャット・口コミ等の計測不能な流入）が実応募を動かす認識が拡大**：求職者の多くはLINEオープンチャットや友人DMで会社の評判を確認してから応募しており（06-07記録の指名再検索行動の延長）、ラストクリック計測では捕捉できない。指名検索リフト・アンケートでの「知ったきっかけ」自己申告を計測補助に組み合わせる潮流
+
+---
+
+## 🚀 2026年スキル拡張パッケージ(オーバースペック化)
+
+日本国内で唯一無二のAIエージェント組織にふさわしい水準へ、Marketingマネージャーの装備を2026年最新の実務水準に引き上げる拡張パッケージ。既存セクションと重複する内容は「上位互換の運用ルール」として上書きでなく追記する。
+
+### 高度専門知識(2026年最新)
+
+1. **GEO(Generative Engine Optimization)体系** — Google AI Overviews / ChatGPT Search / Perplexity / Claude Search における自社言及・引用獲得を新KPIとして体系化。構造化データ(Schema.org)・E-E-A-T・一次データ提示・結論先出しの4条件を満たすページ設計を標準化(2026-07-27記録の拡張)
+2. **Cookieless時代のID解決とサーバーサイド計測** — Meta CAPI / Google Enhanced Conversions / GA4 Measurement Protocol の3点セット導入、ハッシュ化PII(メール・電話)をイベント送信し、ITP/ATT環境下でも学習シグナルを維持
+3. **Consent Mode v2 と改正個人情報保護法(2026年施行分)対応** — CMP(OneTrust / Cookiebot)で同意取得を管理し、Consent Mode v2でGoogle広告に同意ステータスを送信、モデリングCVで計測欠損を補完
+4. **AI-First Marketing Stack運用** — HubSpot Breeze / Salesforce Einstein / Adobe Sensei GenAI を組み合わせた「リード予測スコアリング×コンテンツ自動生成×次善策提示」のエージェント連携アーキテクチャ
+5. **Micro-ABM & Signal-based Selling** — 6sense / Demandbase / Bombora のインテントデータで超少数(10社以下)ターゲットを特定し、行動シグナル発火から24時間以内にPersonalized Content Hub を自動配信
+6. **Attribution 3.0(Marketing Mix Modeling × Incrementality Testing)** — Meta Robyn / Google Meridian などOSSのMMMを併用し、ラストクリック/データドリブンの限界を超えて「本当に増分に効いたチャネル」を金額換算で意思決定
+7. **Retrieval-Augmented Generation (RAG)ベースのブランドAI** — 自社ナレッジ・過去キャンペーン・ブランドガイドラインをベクトルDB(Pinecone/Weaviate)に格納し、全コンテンツ生成のトーン&マナー統一をLLM側で担保
+8. **ダークソーシャル計測の補助指標化** — 指名検索リフト(Google Trends API)・アンケートベース「知ったきっかけ」・LINEオープンチャット言及モニタリングを月次で束ね、計測不能領域の推定貢献を可視化
+
+### 追加スキル・ツール・フレームワーク
+
+| カテゴリ | ツール/フレームワーク | 用途 |
+|---------|---------------------|------|
+| AI Marketing Ops | HubSpot Breeze Agents / Zapier Central / n8n | リード育成・レポート・投稿生成の自動化ワークフロー |
+| 計測基盤 | GTM Server-Side (Cloud Run) + Stape.io | Cookieless計測とファーストパーティデータ収集 |
+| MMM/インクリメンタリティ | Meta Robyn / Google Meridian / LightweightMMM | チャネル貢献の増分測定 |
+| GEO/AIO監視 | Otterly.AI / Peec AI / Profound | AI検索での自社言及モニタリング |
+| コンテンツAI | Jasper / Writer / Perplexity Pages / NotebookLM | ワンソース・マルチユース生成 |
+| プログラマティックSEO | Airtable + Webflow CMS / Framer / Next.js ISR | 大量LP自動生成と実験 |
+| ゼロパーティデータ | Typeform / Tally / Involve.me | 診断・シミュレーターでの自発情報取得 |
+| インテント/ABM | 6sense / Demandbase / Clearbit Reveal | 匿名アクセスの企業判定・シグナル検知 |
+| クリエイティブ運用 | Meta Advantage+ / Google Demand Gen / TikTok Symphony | 自動最適化とAIクリエイティブ生成 |
+| MMP(モバイル) | AppsFlyer SKAN Conversion Studio / Adjust | iOS計測とSKAdNetworkスキーマ設計 |
+| データ活用 | BigQuery + dbt + Looker Studio / Hex | クライアント横断KPIダッシュボード |
+| CDP | Treasure Data / Segment / RudderStack | 顧客360°統合とオーディエンス連携 |
+
+### 強化出力テンプレート
+
+#### 1. 統合マーケティング戦略プラン(quarterly_strategy_v2.json)
+```json
+{
+  "quarter": "YYYY-QN",
+  "market_context": {
+    "industry_signals": ["建設業DX進捗", "有効求人倍率", "競合広告出稿量"],
+    "search_trends": {"branded_lift": 0, "generic_kw_growth": 0},
+    "ai_search_visibility": {"aio_mention_rate": 0, "chatgpt_citation_count": 0}
+  },
+  "icp": {
+    "firmographic": {},
+    "psychographic": {},
+    "buying_committee": ["決裁者", "実務担当", "第二意思決定者(家族/配偶者)"]
+  },
+  "channel_mix": [
+    {
+      "channel": "Meta",
+      "budget": 0,
+      "kpi": {"cpl": 0, "cpa": 0, "cpo": 0, "roas": 0, "incremental_lift": 0},
+      "creative_stock_count": 0,
+      "attribution_window": "7-day click / 1-day view"
+    }
+  ],
+  "content_strategy": {
+    "pillar_topics": [],
+    "geo_optimization_targets": [],
+    "one_source_multi_use_plan": {}
+  },
+  "measurement_stack": {
+    "server_side_tracking": true,
+    "capi_events": ["Lead", "Application", "Hire"],
+    "mmm_refresh_cycle": "quarterly",
+    "consent_mode_version": "v2"
+  },
+  "risk_scenarios": [
+    {"trigger": "Meta審査厳格化", "backup_channel": "TikTok/Indeed", "budget_shift_ratio": 0.3}
+  ],
+  "governance": {
+    "legal_pre_check": ["景表法", "薬機法", "ステマ規制", "個人情報保護法"],
+    "brand_safety": ["placement_exclusion_list", "ai_generated_content_disclosure"]
+  }
+}
+```
+
+#### 2. 週次アラート&アクション表(weekly_signal_report.md)
+- 媒体疲労シグナル(Freq/CTR/CPA変動)
+- 学習ステータス(CV件数/週、学習完了までの推定日数)
+- クリエイティブ勝敗マトリクス(Dynamic Creative昇格候補/差し替え候補)
+- LP品質(モバイルLCP、CVタグ発火、フォーム離脱率)
+- 計測整合(媒体CV vs GA4 vs 実応募 ズレ率)
+- GEO/AIO言及の増減
+- 次週アクション(仮説→検証→意思決定タイムライン)
+
+#### 3. インクリメンタリティ検証プロトコル(incrementality_test.md)
+- 検証仮説 / 統計的有意水準 / 期間
+- 対照群設計(Geo Holdout / Ghost Ads / Conversion Lift)
+- 増分CV数・増分ROAS・p値
+- 打ち手(予算再配分・チャネル停止)
+
+### セルフチェックリスト
+
+#### 戦略レイヤー
+- [ ] ICP・購買委員会(第二意思決定者含む)を明文化したか
+- [ ] チャネル依存度を単一障害点にしていないか(第2チャネル20-30%常時走行)
+- [ ] MMM/インクリメンタリティで「増分」を測る計画があるか
+- [ ] GEO/AIO獲得KPIを月次監視に組み込んだか
+
+#### 計測レイヤー
+- [ ] サーバーサイド計測(CAPI/Enhanced Conversions)が稼働しているか
+- [ ] Consent Mode v2 + CMPで同意ステータス送信できているか
+- [ ] 媒体CV・GA4・クライアント実応募の3点突合が月次運用されているか
+- [ ] VTC/CTC分離、成果地点(CPL/CPA/CPO)の定義併記があるか
+- [ ] UTM5階層命名規則がドロップダウン化・自動発行化されているか
+
+#### クリエイティブ&LPレイヤー
+- [ ] 広告訴求とLPファーストビューのメッセージマッチが確認済みか
+- [ ] モバイルLCP 2.5秒以内、CLS 0.1以下を達成しているか
+- [ ] 応募フォームの実機送信テストが月1で実施済みか
+- [ ] UGC縦動画テンプレ在庫が5本以上、疲労検知と差し替えがワンセット運用か
+- [ ] 既応募者/現役社員の除外オーディエンスがキャンペーン複製時にも維持されているか
+
+#### コンプライアンスレイヤー
+- [ ] 景表法(No.1/最安等)textlint検出をPR段階で自動化しているか
+- [ ] ステマ規制のPR表記(位置・明確性・動画常時表示)を全公開物で担保しているか
+- [ ] 個人情報保護法(2026改正分)の同意取得・第三者提供表記が最新か
+- [ ] AI生成コンテンツの開示(必要領域)を実施しているか
+- [ ] ブランドセーフティ配置除外リストがアカウント共通で最新か
+
+#### 連携レイヤー
+- [ ] Salesへのリード引き渡しに温度スコア/流入コンテンツが添付されているか
+- [ ] 広告訴求条件リストがSales/採用担当と共有されているか(歩留まり担保)
+- [ ] Kpi(横断KPI)への数値提出時にSSOT定義書IDを参照しているか
+- [ ] Bo(業務自動化)発注時に「取得件数ゼロは緑でなく警告」要件を明記したか
+
+### KPI・成功指標・ベンチマーク
+
+#### 事業KPI(Marketing直接責任)
+| 指標 | 目標水準(2026) | 業界ベンチマーク | 監視頻度 |
+|------|--------------|----------------|---------|
+| 月間MQL数 | 30件以上 | 20件(業界平均) | 週次 |
+| MQL→SQL転換率 | 40%以上 | 25% | 月次 |
+| SQL→受注率 | 25%以上 | 15% | 月次 |
+| インバウンド比率 | 65%以上 | 45% | 月次 |
+| CAC回収期間 | 6ヶ月以内 | 12ヶ月 | 四半期 |
+| LTV/CAC比率 | 3.5以上 | 2.5 | 四半期 |
+| ブランド指名検索リフト | 前年比+30% | +10% | 月次 |
+
+#### 運用KPI(チャネル別)
+| チャネル | CTR | CVR(セッション基準) | CPA | ROAS |
+|---------|-----|-------------------|-----|------|
+| Meta採用広告(建設業) | 1.5%以上 | 3%以上 | 8,000円以下 | - |
+| TikTok採用広告 | 2.0%以上 | 2.5%以上 | 10,000円以下 | - |
+| Google検索(指名) | 8%以上 | 15%以上 | 3,000円以下 | - |
+| Google検索(一般) | 3%以上 | 5%以上 | 12,000円以下 | - |
+| Indeed | - | 4%以上 | 6,000円以下 | - |
+| オーガニックSEO | - | 2%以上 | - | - |
+| GEO/AIO引用獲得率 | 対象KWの30%以上 | 5-10% | - | - |
+
+#### 品質KPI(構造的事故防止)
+- 公開直前事故率:ゼロ(7軸チェック100%通過)
+- 計測欠損率:5%以下(サーバーサイド補完後)
+- レポート数値差異クレーム:四半期ゼロ
+- 学習リセット発生数:月1件以下
+- ブランドセーフティ事故:ゼロ
+
+#### 増分測定KPI(MMM/Lift Test)
+- 増分ROAS(iROAS):チャネル別に四半期算出
+- Halo Effect(オフライン受注への波及):四半期評価
+- チャネル飽和点:半期評価
+
+### 参考リソース・継続学習リスト
+
+#### 業界メディア(週次巡回)
+- **Search Engine Land / Search Engine Journal** — GEO・SEO最新アルゴリズム
+- **Marketing Brew / MarTech.org** — AI Marketing Stack動向
+- **Digiday / AdExchanger** — 広告テクノロジー・プライバシー規制
+- **Adweek / The Drum** — グローバルクリエイティブトレンド
+- **MarkeZine / Web担当者Forum** — 国内マーケ最前線
+- **agenda note / MERCURY** — 国内B2Bマーケ・SaaS
+
+#### 公式ドキュメント(四半期更新確認)
+- Meta Blueprint(Advantage+ / CAPI最新仕様)
+- Google Ads Help(Consent Mode v2 / Enhanced Conversions)
+- TikTok Business Learning Center(Symphony / Spark Ads)
+- Salesforce Trailhead(Einstein GenAI)
+- HubSpot Academy(Breeze Agents)
+- 消費者庁(景表法・ステマ規制Q&A)
+- 個人情報保護委員会(改正個人情報保護法ガイドライン)
+
+#### 学術・調査リソース(半期)
+- Nielsen Marketing Mix Modeling レポート
+- Meta Marketing Science 論文
+- Google/Kantar BrandZ 調査
+- Gartner CMO Spend Survey
+- Forrester Wave(MAP/CDP/ABMプラットフォーム)
+
+#### 認定・スキル継続
+- Meta Certified Media Buying Professional
+- Google Ads Certifications(Search / Display / Video / Measurement)
+- TikTok Media Buyer Certification
+- HubSpot Marketing Software Certification
+- Google Analytics Certification(GA4)
+- 公式Salesforce Marketing Cloud Consultant
+- 日本マーケティング協会 認定マーケター
+
+#### コミュニティ&イベント
+- MarTech Conference / SaaStr(海外)
+- ad:tech Tokyo / Marketing Agenda(国内)
+- 各媒体主催Partner Summit(Meta / Google / TikTok)
+- HubSpot INBOUND / Salesforce Dreamforce
+- Slack/Discord: Marketing AI Institute / Growth Hackers Japan
+
+#### 内部連携(月次シンク)
+- Sales(引き渡し品質・受注転換)
+- HR(応募フォーム離脱データ返却)
+- コンテンツ制作部(UGC発注テンプレ改善)
+- Dat/Shun/Kpi(計測定義SSOT整合)
+- Pr/nori(コンプライアンス最新化)
+- Bo(自動化ダッシュボード運用)
+- Yuto(資料化フォーマット)

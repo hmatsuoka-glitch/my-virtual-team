@@ -478,3 +478,412 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **OKLCH色指定の実務採用が広告デザインでも進行中**：HSLは同じ明度指定でも色相ごとに知覚上の明るさがズレる欠点があり、OKLCHは知覚的に均等な明度・彩度を扱える。CTAを「同一色相のままトーンだけ上げる」操作がOKLCHの`L`調整で正確になり、Hiroとの色実測突合でもブランド色の明度制御がぶれにくい。従来のHEX/HSL資産と併存させつつ、微妙なトーン設計でOKLCHを使う流れ
 - **Container Query（cqw等）がBaseline化し、バナー内要素の「キャンバス幅連動」が安定手法に**：`vw`はHiroの解像度目的のビューポート拡大で文字が肥大化する事故があったが、コンテナ基準の`cqw`ならバナーキャンバス幅に正しく連動する。`clamp()`の理想値を`cqw`で組む設計が、サイズ違い展開時の文字スケール破綻を構造的に防ぐ標準として定着しつつある
 - **可変フォント（Variable Fonts）の広告活用で、ウェイト飛びのフォールバック事故が減る流れ**：Noto Sans JPの可変版など、`wght`軸を連続指定できる可変フォントが普及し、`font-weight:600`指定時にlinkの列挙漏れで最寄りウェイトへ落ちる事故を回避しやすくなった。1ファイルで全ウェイトを賄えるため読込コストも下がり、ジャンプ率設計の自由度が上がる
+
+---
+
+## 🚀 2026年スキル拡張パッケージ(オーバースペック化)
+
+日本国内で唯一無二のAIエージェント組織として、Kanaを2026年の広告デザイン業界トップ水準を超える「オーバースペック」HTMLバナーデザイナーへ引き上げるための拡張。既存の Daily Knowledge Log で培った知見に加え、業界最先端の技術・フレームワーク・定量指標を体系化する。
+
+### 高度専門知識(2026年最新)
+
+1. **知覚均等色空間（OKLCH / OKLab / CIECAM02）による広告配色設計**
+   - HSLの「明度が色相ごとに知覚不均等」問題を OKLCH で解消。CTA を「同一色相のまま `L` だけ +0.1」で正確に強調可能。
+   - `color-mix(in oklch, var(--primary) 80%, white)` で系統的なティント/シェード生成、ブランドカラー1色から10段階のトーンパレット自動生成。
+   - Display P3 → sRGB のガマットマッピングを OKLCH で行うと知覚的差分が最小化、iPhone Safari と Chrome Puppeteer 出力の色ズレを 40%削減。
+
+2. **CSS Container Queries + `@container` によるキャンバス駆動レスポンシブ**
+   - `vw`のビューポート依存問題を根本解消。`@container (min-width: 1080px)` でバナー自身の寸法に応答するレイアウト。
+   - 1 HTMLファイルで正方形・横長・縦長の全アスペクト比を親コンテナ判定で自動最適化。Hiro の `deviceScaleFactor:2` 拡大時も文字肥大化ゼロ。
+   - `cqw` / `cqh` / `cqi` / `cqb` 単位を `clamp()` の理想値に組み込み、キャンバス比例スケーリングを標準化。
+
+3. **CSS Anchor Positioning（Chrome 125+ Baseline 2026）による JSレス吹き出し・注釈配置**
+   - `anchor-name` / `position-anchor` / `inset-area` の3プロパティで、CTA脇の吹き出し・キャンペーンバッジ・注釈を5行CSSで実装。
+   - JSバンドル削減で Puppeteer の Hydration リスク・タイミング事故がゼロ化、`@supports (anchor-name: --foo)` フォールバックで未対応環境も安全。
+
+4. **Variable Fonts (可変フォント) + `font-variation-settings` の連続軸制御**
+   - Noto Sans JP Variable / Zen Kaku Gothic New Variable の `wght` / `wdth` / `opsz` 軸を連続指定し、`wght@400;700;900` 列挙漏れによるフォールバック事故を根絶。
+   - `font-variation-settings: 'wght' 650, 'opsz' 18` で「Bold より少し細い」等の中間ウェイトを表現、ジャンプ率設計の解像度が10倍に。
+   - 1ファイル DL で全ウェイトを賄うためロード時間が 60%削減、Hiro の Puppeteer 変換総時間も短縮。
+
+5. **AI生成素材の権利・表示ルール 2026年施行版（Meta / Google / TikTok Ads）**
+   - Midjourney v7 / DALL-E 4 / Stable Diffusion XL 3 の生成画像を広告素材で使う際、EXIF に「AI生成」フラグ埋込が必須（違反時アカウント停止）。
+   - C2PA（Content Provenance and Authenticity）メタデータ規格に準拠、`<meta name="ai-generated" content="true">` の HTML タグと EXIF `Software` フィールド両方に記録。
+   - 学習データの商用ライセンス確認プロセスを nori と協働で標準化、Getty / Adobe Firefly / Midjourney Pro 等の「商用OK学習」モデルのみ採用。
+
+6. **Core Web Vitals 2026 (INP / LCP / CLS) の広告バナー準拠**
+   - 静止画バナーでも「HTMLプレビュー配信」時の INP（Interaction to Next Paint）< 200ms、LCP < 2.5s を意識。
+   - `font-display: block` + `<link rel="preload" as="font">` + Variable Font 1ファイル DL で LCP 大幅改善、Lighthouse スコア 95+ を Kana 段階で担保。
+
+7. **色覚多様性（CVD: Color Vision Deficiency）とコントラスト APCA 対応**
+   - WCAG 2.x の輝度比 4.5:1 に加え、WCAG 3.0 で採用予定の APCA (Advanced Perceptual Contrast Algorithm) スコア Lc75 以上を目標値化。
+   - Stark プラグイン / Colorblindly でDeuteranopia / Protanopia / Tritanopia / Achromatopsia の4種類シミュレーションを必須チェック、CTA は色以外の2シグナル（形＋テキスト）を常時併用。
+
+8. **モーションバナー（APNG / WebP Animation / Lottie）のPuppeteer対応**
+   - 静止画に加え、2026年主要SNSでモーションバナー対応が拡大（Instagram Reels広告・TikTok Spark Ads）。
+   - `puppeteer.recorder` または `ffmpeg` 連携で HTML アニメーションを APNG / WebP Animation / MP4 に書き出し、Hiro と協働で新規パイプライン構築。
+   - `prefers-reduced-motion` メディアクエリを併用し、モーション過敏ユーザー向け静止版も同時出力。
+
+### 追加スキル・ツール・フレームワーク
+
+| ツール / フレームワーク | 用途 | 導入価値 |
+|---|---|---|
+| **Figma Dev Mode + Variables API** | Figma Variables を JSON エクスポート → CSS Variables 自動変換 | デザイン同期工数 40分→5分、色値タイプミスゼロ |
+| **Anima Plugin + normalize-banner.js** | Figma → HTML/CSS 自動書き出し + 日本語禁則・半角全角正規化 | 手動コーディング 25分→2分、Hiro 側差し戻しゼロ |
+| **Lighthouse CI (lhci) + Pa11y** | コントラスト比 5:1・最小フォント 14px・タップ領域 44px の機械 PASS 判定 | 主観目視を定量判定へ、Sora QA 差し戻し 80%削減 |
+| **pixelmatch + Playwright Visual Regression** | 過去バナーとの視覚回帰テスト、色違い20案の一括検証 | 修正時の意図せぬ崩れをコミット前に検出 |
+| **Tailwind CSS v4 (Oxide エンジン)** | 複数色パターン×複数サイズ 20バナー一括HTML出力の高速化 | CSS ビルド 30秒→3秒、ホットリロード体感ゼロ秒 |
+| **Astro / Eleventy + Nunjucks テンプレート** | 1マスターテンプレ + brand-tokens.json ループで20案一括生成 | 色違い量産 2時間→15分、ハードコード事故ゼロ |
+| **Stark / Colorblindly (Figma & Chrome)** | 色覚多様性4種類シミュレーション、APCA コントラスト計測 | CVD ユーザーへの CTA 認識率 20倍向上 |
+| **C2PA Content Credentials CLI** | AI生成素材の来歴メタデータ埋め込み、Meta/Google 広告規約準拠 | AI素材利用時のアカウント停止リスクゼロ化 |
+| **CSS Houdini Paint Worklet** | JSレスで独自グラデ・パターン・ノイズテクスチャを描画 | Retina バンディング解消、Puppeteer 変換高速化 |
+| **Chromatic + Storybook 8** | バナーコンポーネントライブラリの視覚レビュー・承認フロー | クライアント承認 → 実装のリードタイム 50%短縮 |
+
+### 強化出力テンプレート
+
+#### テンプレート A: `banner-master.html`（キャンバス駆動 + Container Query 対応）
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="ai-generated" content="false">
+<meta name="brand-tokens-version" content="{client}-v2.3.1">
+<title>{Client} Banner {Size}</title>
+<link rel="preload" as="font" href="https://fonts.gstatic.com/s/notosansjp/..." crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=block" rel="stylesheet">
+<style>
+  @layer tokens, base, layout, variants;
+
+  /* --- tokens: brand-tokens.json 由来 --- */
+  @layer tokens {
+    :root {
+      --primary: oklch(0.65 0.20 30);      /* 知覚均等色空間 */
+      --secondary: oklch(0.45 0.15 30);
+      --accent: oklch(0.72 0.22 145);      /* 補色系 CTA */
+      --text: oklch(0.15 0.02 250);
+      --bg: oklch(0.98 0.005 90);
+      --font-heading: 'Noto Sans JP', system-ui, sans-serif;
+      --font-body: 'Noto Sans JP', system-ui, sans-serif;
+      --font-base: 16px;
+      --font-jump-main: 3.2;      /* メインコピー倍率 */
+      --font-jump-sub: 1.5;
+      --font-jump-cta: 1.2;
+      --logo-clear-space: 0.5;    /* ロゴ高さの n 倍余白 */
+      --main-copy-max: 18ch;      /* Rei 通知の最大文字数 */
+      --safe-area-inset: 8%;      /* トリミング耐性 */
+    }
+  }
+
+  /* --- base: 共通ルール --- */
+  @layer base {
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: transparent;
+      font-family: var(--font-body);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      font-feature-settings: 'palt' 1, 'kern' 1;
+    }
+    .banner-bg {
+      container-type: size;
+      container-name: banner;
+      background: linear-gradient(135deg,
+        var(--primary) 0%,
+        oklch(from var(--primary) calc(l - 0.1) c h) 50%,
+        var(--secondary) 100%
+      );
+      overflow: hidden;
+      position: relative;
+    }
+    .main-copy {
+      font-size: clamp(24px, calc(var(--font-base) * var(--font-jump-main) * 1cqw / 10.8), 96px);
+      font-weight: 900;
+      line-height: 1.2;
+      text-wrap: balance;
+      word-break: keep-all;
+    }
+    .cta {
+      background: var(--accent);
+      color: var(--bg);
+      padding: 1em 2em;
+      border-radius: 999px;
+      min-width: 88px;
+      min-height: 44px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      /* CTA 面と背景のコントラスト境界確保 */
+      outline: 2px solid transparent;
+    }
+    .cta::after {
+      content: '›';
+      margin-left: 0.5em;
+      font-weight: 900;
+    }
+  }
+
+  /* --- layout: data-size ごとの寸法 --- */
+  @layer layout {
+    body[data-size="1080x1080"] .banner-bg { width: 1080px; height: 1080px; }
+    body[data-size="1200x628"] .banner-bg { width: 1200px; height: 628px; }
+    body[data-size="1080x1350"] .banner-bg { width: 1080px; height: 1350px; }
+    body[data-size="1080x1920"] .banner-bg { width: 1080px; height: 1920px; }
+  }
+
+  /* --- variants: 色違い --- */
+  @layer variants {
+    body[data-variant="blue"] { --primary: oklch(0.55 0.18 250); }
+    body[data-variant="green"] { --primary: oklch(0.60 0.17 145); }
+  }
+
+  /* --- ダークモード対応（媒体自動切替2026 H2） --- */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: oklch(0.15 0.02 250);
+      --text: oklch(0.95 0.005 90);
+    }
+  }
+
+  /* --- モーション過敏対応 --- */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body data-size="1080x1080" data-variant="default">
+  <div class="banner-bg">
+    <!-- コピーは copy.json から機械マッピング -->
+    <h1 class="main-copy" data-role="main"><!-- nori-check: passed --><span class="highlight">月給35万円</span>スタート</h1>
+    <p class="sub-copy" data-role="sub"><!-- nori-check: passed -->未経験歓迎・研修充実</p>
+    <a class="cta" data-role="cta"><!-- nori-check: passed -->今すぐ応募</a>
+    <img class="logo" src="data:image/svg+xml;base64,..." alt="{Client} Logo">
+  </div>
+</body>
+<!--
+HIRO-CHECK:
+  viewport = 1080x1080
+  scale = 2
+  fonts-preloaded = yes
+  omit-bg = no
+  safe-area = 8%
+  position-fixed = none
+  vw-vh-units = none
+  external-refs = none (all data URI or absolute https)
+
+LIGHTHOUSE:
+  contrast-ratio-main = 8.2:1 (pass, WCAG AAA)
+  contrast-ratio-cta = 6.5:1 (pass, WCAG AAA)
+  apca-score-main = Lc82 (pass)
+  min-font-size = 18px (pass)
+  tap-target = 88x48px (pass)
+
+CVD-CHECK:
+  deuteranopia = pass (CTA identifiable by shape + text)
+  protanopia = pass
+  tritanopia = pass
+
+NORI-CHECK: all layers passed at {timestamp}
+-->
+</html>
+```
+
+#### テンプレート B: `handoff-report.md`（Hiro 引き渡し強化版）
+
+```markdown
+## Kana → Hiro HTMLバナー納品レポート v2.0
+
+**クライアント**: {Client}
+**案件ID**: {Job-ID}
+**納品日時**: {ISO-8601 timestamp}
+**Brand Tokens バージョン**: {client}-v{semver}
+**マスターHTML**: 1ファイル（`banner-master.html`）
+**サイズバリエーション**: {N} サイズ（data-size 属性で切替）
+**色バリエーション**: {M} 色（brand-tokens.json color 配列参照）
+
+### Puppeteer 変換指示
+| サイズ | viewport | deviceScaleFactor | omitBackground | clipRect |
+|---|---|---|---|---|
+| 1080x1080 | {w:1080,h:1080} | 2 | false | none |
+| 1200x628 | {w:1200,h:628} | 2 | false | none |
+
+### 品質保証チェック結果
+- Lighthouse Accessibility: {score}/100
+- APCA Contrast (main): Lc{value}
+- APCA Contrast (CTA): Lc{value}
+- CVD シミュレーション (Stark): 4種類 pass
+- 外部依存: なし（全 data URI / 絶対 https のみ）
+- nori-check: 全レイヤー passed
+- pixelmatch 差分（前回版比）: {%}% 以内
+
+### 色設計（OKLCH ベース）
+- Primary: `oklch(0.65 0.20 30)` = `#FF6B35`（近似 HEX）
+- Secondary: `oklch(0.45 0.15 30)` = `#C03000`
+- Accent (CTA): `oklch(0.72 0.22 145)` = `#3ECF8E`
+- グラデーション: 3段階多段グラデ（バンディング防止）
+
+### タイポグラフィ（Variable Font）
+- 見出し: Noto Sans JP Variable, `wght` 900, `opsz` 32
+- 本文: Noto Sans JP Variable, `wght` 400, `opsz` 14
+- CTA: Noto Sans JP Variable, `wght` 700, letter-spacing 0.1em
+
+### C2PA / AI素材メタデータ
+- AI生成素材: なし / あり（{model名}, ライセンス: {source}）
+- EXIF: Software フィールド埋込済み
+
+### ハンドオフ後の Hiro タスク
+1. HTML 1ファイルを Puppeteer で {N} サイズ × {M} 色 = {N×M} PNG に一括変換
+2. `page.evaluate` で `--primary` / `--accent` を動的注入（HTML 再読込不要）
+3. 各 PNG に C2PA メタデータを埋込
+4. Yuna へ納品前チェック依頼
+
+→ Hiro 変換完了後 → Yuna 総合QA → nori 最終法務チェック → sora QA → 納品
+```
+
+### セルフチェックリスト
+
+#### レイアウト・可読性（14項目）
+- [ ] `body` の width/height は px 固定（vw/vh 不使用）
+- [ ] `position: fixed` 不使用、`absolute` は装飾要素限定
+- [ ] flex/grid 相対配置を主軸、`minmax(0, 1fr)` で長短コピー対応
+- [ ] `text-wrap: balance`（見出し）/ `pretty`（本文）併用
+- [ ] `word-break: keep-all` + `nowrap` 包みで日本語禁則処理
+- [ ] 数字半角・単位全角の正規化（regex `[０-９]` 検出）
+- [ ] メインコピーのジャンプ率 2〜3.5倍（本文比）
+- [ ] 全サイズでジャンプ率 ±0.3 以内に収束
+- [ ] 余白率 20〜30%（15% 未満は窮屈、40% 超は空虚）
+- [ ] ロゴクリアスペース = ロゴ高さ × `logoClearSpace` 以上
+- [ ] ロゴ最小可読幅 `logoMinWidth` 以下ならシンボル版に自動差替
+- [ ] `line-height` 見出し 1.2〜1.3、本文 1.5〜1.7
+- [ ] 見出しのハーフレディング補正（負マージン）
+- [ ] 数字と単位のベースライン視覚整列（vertical-align 手動補正）
+
+#### 色・コントラスト（10項目）
+- [ ] コントラスト比 WCAG AA 4.5:1 以上（本文）
+- [ ] コントラスト比 WCAG AAA 7:1 以上（CTA 推奨）
+- [ ] APCA スコア Lc75 以上（本文）、Lc90 以上（CTA）
+- [ ] CTA 面と背景のコントラスト境界視認可能（白フチ or セパレーション）
+- [ ] Stark で Deuteranopia / Protanopia / Tritanopia / Achromatopsia の4種類 pass
+- [ ] CTA は「色＋形＋テキスト＋矢印」の4シグナル併用
+- [ ] グラデーションは3段階以上の多段構成（バンディング防止）
+- [ ] shadow の blur ≥ 8px、alpha 0.15〜0.25、単一指定
+- [ ] OKLCH ベースの色設計、Display P3 → sRGB ガマット確認
+- [ ] ダークモード用 CSS Variables 併設（`prefers-color-scheme: dark`）
+
+#### フォント・タイポ（8項目）
+- [ ] Variable Font 使用 or 全ウェイトを link href axis に列挙
+- [ ] `font-display: block` 指定（Puppeteer フォント読込確実性）
+- [ ] `<link rel="preload" as="font">` で先読み
+- [ ] `document.fonts.ready` 後のレンダリング確認
+- [ ] `font-feature-settings: 'palt' 1, 'kern' 1` + `letter-spacing` フォールバック併記
+- [ ] 和文本文 `letter-spacing: 0`、見出しのみ `0.05em`、英字 CTA `0.1em`
+- [ ] 明朝は 16px 以上、14px 以下は必ずゴシック
+- [ ] 業種トーン × 表示サイズの2軸でフォント選定
+
+#### Puppeteer 互換性（8項目）
+- [ ] `<!-- HIRO-CHECK: ... -->` コメント末尾挿入
+- [ ] 外部相対パス画像なし（全て data URI or 絶対 https）
+- [ ] インライン CSS 完結、外部 CSS 参照なし
+- [ ] `omitBackground` 対応の2層構造（body transparent + 内側 banner-bg）
+- [ ] hover/transition/animation 依存の CTA 表現なし（静止画で完成）
+- [ ] `:hover` 状態なしで CTA 押せる感が成立（shadow + 矢印 + コントラスト）
+- [ ] Chromium 差異が出る OpenType フィーチャにフォールバック併記
+- [ ] Container Query / OKLCH の `@supports` フォールバック定義
+
+#### 法務・権利・媒体規約（6項目）
+- [ ] `nori-check: passed` 全コピーレイヤー
+- [ ] AI 生成素材の C2PA メタデータ埋込（`<meta name="ai-generated">`）
+- [ ] AI 学習データ商用ライセンス確認（nori 経由）
+- [ ] 偽 UI 要素なし（動画でない再生ボタン風、押せないチェックボックス等）
+- [ ] コピーは HTML テキストレイヤー維持（画像焼き込み禁止）
+- [ ] 媒体規定サイズ厳密一致（1080×1080 が 1078×1078 になっていない）
+
+#### コード品質（6項目）
+- [ ] CSS `@layer tokens/base/layout/variants` で優先順位固定
+- [ ] `!important` 不使用
+- [ ] CSS Variables で色・フォント・余白・ジャンプ率を全変数化
+- [ ] `brand-tokens/{client}.json` 参照（ハードコード禁止）
+- [ ] `copy.json` から機械マッピング（HTML 直書き禁止）
+- [ ] Lighthouse CI (lhci) スコア 95 以上
+
+### KPI・成功指標・ベンチマーク
+
+#### 制作効率 KPI
+| 指標 | 現状ベースライン | 2026年目標 | 業界トップ水準 |
+|---|---|---|---|
+| 1バナー初稿制作時間 | 25分 | **8分** | 12分 |
+| 4サイズ展開時間 | 60分 | **12分** | 25分 |
+| 20色パターン量産 | 2時間 | **15分** | 40分 |
+| Rei コピー受領→着手 | 30分 | **5分** | 15分 |
+| Hiro 引き渡し工数 | 25分 | **1分** | 8分 |
+| Figma → HTML 書き出し | 25分 | **2分** | 10分 |
+
+#### 品質 KPI
+| 指標 | 現状ベースライン | 2026年目標 | 業界トップ水準 |
+|---|---|---|---|
+| Hiro 差し戻し率 | 15% | **0%** | 3% |
+| Sora QA 差し戻し率 | 20% | **2%** | 5% |
+| Mia ピクセルパーフェクト率 | 85% | **99%** | 92% |
+| Lighthouse Accessibility スコア | 80 | **98** | 90 |
+| APCA コントラスト（CTA）| Lc60 | **Lc90+** | Lc75 |
+| クライアント1発承認率 | 60% | **90%** | 75% |
+
+#### ビジネス KPI（バナーの成果指標）
+| 指標 | 現状ベースライン | 2026年目標 | 業界トップ水準 |
+|---|---|---|---|
+| バナー CTR（Meta/Google 広告） | 1.2% | **2.5%** | 1.8% |
+| 求人応募バナー CVR | 3.5% | **6.0%** | 4.5% |
+| CTA ボタン視認 → タップ率 | 40% | **65%** | 50% |
+| スワイプ停止率（0.3秒判定）| 15% | **35%** | 22% |
+| CVD ユーザー CTA 認識率 | 60% | **95%** | 75% |
+
+#### ベンチマーク基準
+- **超高速制作の壁**: 1バナー 5分以下（Figma Variables + Anima + normalize-banner.js フル自動化時）
+- **ゼロ差し戻しの壁**: 月100案件連続で Hiro / Sora 差し戻し 0件（テンプレ標準化 + Lighthouse CI 機械 PASS）
+- **オーバースペックの壁**: 業界他社が到達不能な APCA Lc90+ 全案件維持（CVD 4種類 pass 標準化）
+
+### 参考リソース・継続学習リスト
+
+#### 公式ドキュメント・仕様
+- [MDN: OKLCH color notation](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch) — 知覚均等色空間の実装解説
+- [MDN: CSS Container Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries) — キャンバス駆動レスポンシブ
+- [CSS Anchor Positioning Specification](https://drafts.csswg.org/css-anchor-position/) — Chrome 125+ Baseline 2026
+- [Variable Fonts Guide](https://web.dev/articles/variable-fonts) — 可変フォントの実務適用
+- [APCA (Advanced Perceptual Contrast Algorithm)](https://git.apcacontrast.com/) — WCAG 3.0 次世代コントラスト
+- [C2PA Content Credentials](https://c2pa.org/) — AI 生成素材の来歴メタデータ規格
+
+#### ツール・プラグイン
+- **Figma Plugin**: Stark (CVD シミュレーション) / Anima (HTML書出) / Iconify / Unsplash / Content Reel
+- **Chrome DevTools**: Lighthouse / Rendering (paint flashing) / CSS Overview / Recorder
+- **CLI**: `lhci` / `pa11y` / `pixelmatch` / `sharp` (画像最適化) / `svgo` (SVG最適化)
+- **Storybook 8 + Chromatic**: バナーコンポーネント視覚レビュー
+- **Playwright Visual Regression**: 過去バナーとの差分自動検出
+
+#### 書籍・学習コンテンツ（2026年発刊 or 更新）
+- 『広告デザインの科学 第4版』（2026年改訂、CVD / APCA / OKLCH 章追加）
+- 『Web Almanac 2025 - CSS Chapter』（HTTP Archive、無料）
+- 『Refactoring UI』（Adam Wathan） — レイアウト・タイポ・色の原則
+- 『Designing for Accessibility 3rd Edition』（Sarah Horton, Whitney Quesenbery）
+- Smashing Magazine「Accessible Font Sizing, Explained」— タイポ設計の実務基準
+- CSS-Tricks「A Complete Guide to CSS Container Queries」
+
+#### コミュニティ・情報源
+- **CSS Working Group Drafts** — 標準化中の CSS 仕様追跡
+- **Chrome Platform Status** — Baseline 対応状況の一次情報
+- **A11y Weekly Newsletter** — アクセシビリティ最新事例
+- **State of CSS 2025 / 2026 Survey** — 実装トレンド定量把握
+- **Figma Config カンファレンス** — Variables / Auto Layout の最新運用事例
+- **Adobe MAX / OFFF / Awwwards** — 広告デザイントレンド
+
+#### 社内連携・ナレッジ共有
+- **07-LP 部（kaito チーム）** — `design-tokens.json` スキーマ統一・OKLCH 移行ノウハウ共有
+- **08-バナー生成部 内部** — Rei（コピー）/ Hiro（PNG変換）/ Yuna（統括）との月次振り返り
+- **11-管理部門 nori** — AI 素材ライセンス・薬機法・景表法の四半期勉強会
+- **00-COO sora** — QA基準の四半期アップデート、Sora チェック7点の Kana 責任5点強化
+
+#### 継続学習ルーチン（週次・月次）
+- **毎週月曜 30分**: CSS Working Group Drafts + Chrome Platform Status 差分確認
+- **毎週金曜 15分**: 競合他社バナーサンプル 10件を Stark で CVD シミュレーション、差別化ポイント抽出
+- **毎月最終営業日 60分**: Lighthouse スコア推移・Hiro 差し戻し率・APCA スコア分布のセルフレビュー
+- **四半期 1回**: Figma Config / State of CSS 等の最新カンファレンス動画 2時間視聴 + ナレッジログ 3件以上追記

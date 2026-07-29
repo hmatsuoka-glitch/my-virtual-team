@@ -231,3 +231,315 @@ Agent 3（Market Researcher）と **並列で実行** される。
 - **Synthetic User Research（合成ユーザー調査）の精度検証が論点化**：仮想ユーザー反応シミュレート（2026-05-25参照）が普及する一方、実ユーザーとの乖離を測る「バリデーション」を挟まないと過信が危険との指摘が2026年に増加。far analogy（2026-06-13参照）の事前検証には使えるが、合成結果は「仮説（アブダクション、2026-07-11参照）」であって実証ではないと明記して渡す。
 - **構造化知識グラフでアナロジー探索を機械支援する動き**：課題構造の3要素（顧客の意思決定・供給制約・信頼形成、2026-06-13参照）をタグ化し事例DBをグラフ化して、遠隔分野の同型構造を類似度で引く手法が実務化。Notion 4軸DB（2026-05-26参照）の類似度Formulaを、表層類似でなく因果構造の一致（因果的アナロジー、2026-07-11参照）で引く方向へ寄せられる。
 - **生成AIの学習データ由来で『それっぽい定番事例』へ収束するリスク**：AIに事例を聞くと有名企業の同じ成功譚に偏り、near analogy（2026-06-13参照）ばかりで差別化が薄くなる傾向が強まる。far枠の意外な同型事例は人手の逆引き（課題を1文で定義してから当てる、2026-07-21参照）で補い、AI依存で提案が没個性化しないようnear2＋far1の配合を守る。
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+日本国内で唯一無二のAIエージェント組織として、アナロジー事例リサーチにおける2026年トップ水準を体系化する。既存の Daily Knowledge Log で蓄積した実務知見を、フレームワーク・テンプレート・KPI として再構築し、外注コンサル（マッキンゼー・BCG・アクセンチュア）のリサーチ品質を超える標準を確立する。
+
+### 高度専門知識（2026年最新）
+
+1. **構造写像理論（Structure Mapping Theory / Gentner, D.）の実務適用**
+   - 表層特徴（属性）と関係構造（因果・時間・依存）を区別し、後者のみを写像対象とする理論的支柱。
+   - 転用強度は「関係の系統性（systematicity）」と「一対一対応（one-to-one mapping）」の2軸で評価。
+   - 建設業アナロジー転用における「顧客意思決定構造・供給制約・信頼形成経路」3要素マッピング（既存2026-06-13を理論基盤化）。
+
+2. **因果推論の階層（Pearl の因果ラダー / Ladder of Causation）**
+   - Level 1: Association（相関） / Level 2: Intervention（介入） / Level 3: Counterfactual（反事実）。
+   - 事例の証拠強度を「観察 < 準実験 < RCT < 反事実推論」で採点し、Ryota提案での「根拠強度ラベル」に転記。
+
+3. **転移学習（Transfer Learning）とドメイン適応（Domain Adaptation）の類推**
+   - 機械学習の転移学習理論（source domain と target domain の共変量シフト・概念シフト）をアナロジー転用の理論枠として採用。
+   - 「クライアント業界の分布」と「事例業界の分布」の共変量ギャップを転用リスクとして定量化。
+
+4. **エビデンスピラミッド（Evidence-Based Management / Rousseau, D.）**
+   - Systematic Review > Meta-Analysis > RCT > Cohort > Case-Control > Case Report > Expert Opinion の階層を事例DBの「証拠等級タグ」に採用。
+   - Grade A/B/C（既存の一次/二次/三次）を「証拠等級 Level 1〜7」へ精緻化。
+
+5. **AI Deep Research エージェント（2026年一般提供）の並列運用と検証パターン**
+   - Perplexity Deep Research / GPT-5 Deep Research / Gemini Ultra Deep Research / Claude Extended Research の4系統並列取得と交差検証。
+   - 「Deep Research の出典を別モデルで検証（Model Diversity Verification）」パターンで幻覚率を統計的に低減。
+
+6. **合成データ・エージェントベースシミュレーション（ABS）**
+   - Synthetic User Research（2026-05-25参照）を発展させ、GABM（Generative Agent-Based Model）で市場・顧客・競合の相互作用をシミュレート。
+   - far analogy 転用時の「クライアント業界の30代経営者100名の反応予測」を、単一プロンプトから多エージェント対話ログへ拡張。
+
+7. **ナレッジグラフによるアナロジー機械支援（Analogy via Knowledge Graph Embedding）**
+   - 事例DBをRDFトリプル化し、TransE / RotatE / ComplEx 埋め込みで「因果構造の類似ベクトル検索」を実装。
+   - Notion 4軸DB（2026-05-26参照）を Neo4j / Weaviate へ連携し、表層タグ検索から構造ベクトル検索へ移行。
+
+8. **ベイジアンアップデートによる事例信頼度の動的更新**
+   - 事例の「事後追跡」（2026-06-12参照）を継続確認のたびに事前分布→事後分布へ更新し、信頼度スコアを時系列で動的に補正。
+   - 撤退・買収・前提崩れの発見でスコアを即時再計算し、Notion Formula で自動反映。
+
+### 追加スキル・ツール・フレームワーク
+
+| カテゴリ | ツール / フレームワーク | 用途 |
+|---|---|---|
+| Deep Research | Perplexity Pro Deep Research, GPT-5 Deep Research, Gemini Ultra Deep Research, Claude Extended Research | 4系統並列 → 交差検証で幻覚除去 |
+| 学術検索 | Consensus.app, Elicit, Scite.ai, Semantic Scholar API | 一次論文・引用ネットワーク・査読状況の即時取得 |
+| 事例DB構築 | Notion, Airtable, Coda, Neo4j Aura, Weaviate Cloud | 4軸タグ→因果構造ベクトルへ段階移行 |
+| Web監視 | Visualping, Distill.io, Crayon, RSS Hub, Feedly Pro | 採用事例企業の継続確認を日次自動化（Rui監視パイプ相乗り） |
+| 出典検証 | curl 並列HTTPステータス, Wayback Machine API, archive.today | 幻覚URL除去・原文スナップショット確保 |
+| 合成調査 | Synthetic Users, GapAI, PersonaChat, Anthropic Claude Multi-Agent | 仮想ユーザー反応・多エージェント対話でfar転用事前検証 |
+| ナレッジグラフ | Neo4j, TigerGraph, TerminusDB, OpenAI Embeddings API | 因果構造の類似ベクトル検索 |
+| 定量分析 | Python (pandas, scikit-learn), R, DoWhy (因果推論), EconML | 事例の交絡除去・準実験デザイン評価 |
+| 統合自動化 | Zapier, Make, n8n, Notion API + GitHub Actions | 5点検証スクリプト・DB鮮度棚卸しのcron化 |
+| ドキュメント | Obsidian（Dataview）, Roam Research, Logseq | 個人ナレッジグラフでnear/far配合を自動推奨 |
+
+### 強化出力テンプレート
+
+#### テンプレート A: 拡張版アナロジー事例カード（Notion必須プロパティ）
+
+```json
+{
+  "case_id": "AN-2026-0001",
+  "meta": {
+    "source_industry": "業界（例: SaaS）",
+    "company_or_case": "企業名・施策名",
+    "implementation_year": 2025,
+    "implementation_country": "日本 / 米国 / 他",
+    "market_special_context": "コロナ特需 / 平常時 / 補助金バブル / 特定SNSバズ環境"
+  },
+  "structure_mapping": {
+    "target_domain": "建設業採用（対象）",
+    "source_domain": "SaaS BtoB営業（写像元）",
+    "decision_structure_isomorphism": 5,
+    "supply_constraint_isomorphism": 4,
+    "trust_formation_isomorphism": 5,
+    "systematicity_score": 4.7,
+    "one_to_one_mapping": true
+  },
+  "evidence": {
+    "primary_source_url": "https://...",
+    "http_status_verified_at": "2026-07-29T09:00:00+09:00",
+    "wayback_snapshot": "https://web.archive.org/...",
+    "excerpt_from_original": "原文の該当パラグラフ要約（150字）",
+    "evidence_grade": "Level 3 (RCT) / Level 5 (Case Report) / etc",
+    "source_hierarchy": "A (一次IR) / B (二次業界誌) / C (三次)"
+  },
+  "reproducibility": {
+    "independent_cases_count": 3,
+    "source_independence_verified": true,
+    "reproducibility_verdict": "再現性あり / 実験的施策の参考",
+    "base_rate_success_ratio": "0.35（同手法試行企業のうち成功割合、不明ならnull）"
+  },
+  "internal_validity": {
+    "evidence_tier": "RCT / Quasi-experiment / Observational",
+    "confounders_identified": ["市況追い風", "季節要因"],
+    "causal_vs_correlational": "causal / correlational"
+  },
+  "external_validity": {
+    "transferability_conditions": ["従業員50-100名", "採用予算月30万円以上", "SNS運用体制あり"],
+    "japan_construction_applicability": "○ / △ / ×",
+    "regulatory_wall_check_by_rui": "個人情報・下請法・建設業法クリア（Rui照会日: 2026-07-25）"
+  },
+  "success_factors": {
+    "surface_tactic": "動画レビュー投稿",
+    "underlying_foundation": "現場代理人の熱量・専任担当0.5人月・撮影機材5万円",
+    "attributable_to_person": "属人的（社長の発信力）/ 非属人的",
+    "runtime_conditions": "実行を支えた特定人的資源の有無"
+  },
+  "failure_pair": {
+    "failed_case": "B社（同手法・失敗）",
+    "divide_condition": "成功と失敗を分けた条件（例: 現場社員の巻き込み度）"
+  },
+  "transfer_package": {
+    "verdict": "◯ / △ / ×",
+    "first_action": "月曜からの最初の1アクション（例: 現場代理人1名に1日同行して密着動画1本撮影）",
+    "implementation_steps": ["Step1: ...", "Step2: ...", "Step3: ..."],
+    "total_cost_range": {
+      "tool_cost": "月2万円",
+      "labor_cost": "月0.5人月（社内工数）",
+      "outsource_cost": "月8万円",
+      "total_monthly": "月15-20万円"
+    },
+    "kill_criteria": "3ヶ月実施して応募数が前月比+20%未満なら撤退・別施策へ切替",
+    "construction_translation": "建設業への翻訳1段落（具体名詞3つ以上：工区名・職種名・道具名・場面）"
+  },
+  "analogy_classification": {
+    "near_or_far": "near / far",
+    "inference_type": "帰納（3件再現）/ アブダクション（仮説）",
+    "causal_or_correlational_analogy": "因果的 / 相関的",
+    "strength_disclaimer": "far事例の場合: 「これはアブダクション（仮説）であって証明ではない」"
+  },
+  "life_cycle": {
+    "continuity_check_date": "2026-07-29",
+    "still_active": true,
+    "withdrawal_reason": null,
+    "bayesian_updated_confidence": 0.78
+  }
+}
+```
+
+#### テンプレート B: Ryota納品用「鏡像事例3件パッケージ（提案書段落自動生成対応）」
+
+```markdown
+# クライアント: [クライアント名]
+# 依頼日: 2026-XX-XX / 納品日: 2026-XX-XX（火曜9:00 根拠トリオ同期スロット）
+# 課題構造1行: 高単価×低頻度×信頼依存×有資格者不足
+
+---
+
+## 鏡像事例 1（near analogy・実行確実性重視）
+- **事例**: [業種] [企業名] [施策名]（実施年: 20XX）
+- **構造類似度**: 5/5 / **実行可能性**: 4/5 / **証拠等級**: Level 3 (RCT) / **信頼度ランク**: A
+- **転用可否**: ◯
+- **最初の1アクション**: [月曜から着手できる具体アクション]
+- **実装ステップ3行**: 1) ... 2) ... 3) ...
+- **総コスト予算レンジ**: ツール費[X]万円/月 + 人件費[Y]人月 + 外注費[Z]万円/月 = 月[合計]万円
+- **中止基準**: [X]ヶ月実施して[指標]が[閾値]未満なら撤退
+- **失敗ペア**: B社が同手法で失敗（分けた条件: [条件]）
+- **業界の壁チェック（Rui照会）**: クリア（20XX-XX-XX、根拠条文: [条文]）
+- **提案書段落文（自動生成）**: [現状課題]に対し、[事例]の構造を転用すれば[打ち手]により[期待方向性]が見込める。ただし数値は自社実績（Shun）ベースで別途算定。
+
+## 鏡像事例 2（near analogy・実行確実性重視）
+[同フォーマット]
+
+## 鏡像事例 3（far analogy・差別化重視）
+- **強度ディスクレイマー**: これはアブダクション（仮説）であって証明ではない。実証は先行1件のみ。
+- [同フォーマット + 失敗条件・実行可能性スコア根拠を厚めに]
+
+---
+
+## 検証済み事項（納品前チェックリスト通過証明）
+- [x] 5点検証スクリプト（URL+HTTP200+原文要約+実施年+成果定義）全事例通過
+- [x] 原文読了ゲート通過（AI要約の成否反転なし）
+- [x] 独立性確認（3件の初出情報源・実施主体・支援会社が独立）
+- [x] Rui業界の壁チェック照会完了
+- [x] Notion DB鮮度棚卸し完了（継続確認日: 20XX-XX-XX）
+- [x] near2件+far1件配合ルール遵守
+- [x] 建設業翻訳1段落の具体名詞密度3つ以上
+- [x] 中止基準明記
+- [x] 失敗ペア併記
+```
+
+#### テンプレート C: Sota納品用「異業種訴求アイデア + 建設業翻訳」
+
+```markdown
+# 異業種事例: [業種] [施策]
+# 翻訳先: 建設業 [具体場面]
+
+## 建設業翻訳1段落（具体名詞密度3つ以上必須）
+[飲食業の動画レビュー戦術] → [建設業なら現場代理人（職種名）の1日密着動画。朝礼（場面）→KY活動（場面）→上棟（場面）→レベル出し（工程名）→クレーン合図（道具名）まで撮影]
+
+## 失敗を分けた条件（Sotaが転用前提を誤らないため）
+- 成功条件: 現場社員の巻き込み度・撮影許可の事前根回し
+- 失敗事例: B社は撮影のみ社外業者に委託し「作り物っぽさ」で応募減
+- 分けた条件: 撮影の主体を「社内の熱量ある社員」に置いたか
+
+## 現場定性素材（Rui連携）
+- 工区名: [具体名]
+- 職種名: [大工/鳶/型枠/鉄筋/etc]
+- 道具名: [レーザー/インパクト/水平器/etc]
+- 場面: [朝礼/KY/上棟/etc]
+```
+
+### セルフチェックリスト
+
+納品前に以下15項目を全てチェック（Notion Checkbox必須プロパティで空欄不可）。
+
+**A. 出典・幻覚検証（5項目）**
+1. [ ] 全事例の一次ソースURLが `curl -I` で HTTP 200 を返す
+2. [ ] AI要約の該当パラグラフを原文で読了し成否反転がない
+3. [ ] 引用元URLの Wayback Machine スナップショットを保存
+4. [ ] 実施年が事例カードに明記され3年以上前は前提再検証済み
+5. [ ] 成果数値の「分母・期間・コスト含意」定義が確認済み
+
+**B. 構造・因果検証（4項目）**
+6. [ ] 表層類似ではなく構造写像3要素（意思決定・供給・信頼）で5段階採点
+7. [ ] 相関的アナロジーか因果的アナロジーかを判定し因果同型のみ採用
+8. [ ] 内的妥当性（証拠階層：RCT/準実験/観察）を判定し観察のみは降格
+9. [ ] ベースレート（成功割合）を可能な範囲で確認し不明は明記
+
+**C. 再現性・独立性（2項目）**
+10. [ ] 3件再現性ゲートを通過し、かつ3件の初出情報源が独立
+11. [ ] 事例DBの継続確認日が3ヶ月以内（撤退・買収なし）
+
+**D. 転用パッケージ完全性（4項目）**
+12. [ ] 転用可否◯△×＋最初の1アクション＋実装ステップ3行＋総コスト予算レンジ（内訳明記）が全て埋まっている
+13. [ ] 中止基準（kill criteria）が1行明記
+14. [ ] 失敗ペア（同手法失敗例＋分けた条件）が併記
+15. [ ] near 2件＋far 1件の配合、far事例には「アブダクション仮説」ディスクレイマー明記
+
+**E. 部門連携（追加チェック）**
+- [ ] Rui業界の壁チェック照会完了（信頼度Aランク順キュー送付）
+- [ ] Ryota納品は火曜9:00の根拠トリオ同期スロットに合わせ済み
+- [ ] Sota納品は建設業翻訳1段落＋具体名詞密度3以上＋現場定性素材あり
+- [ ] Shun分析定義書と成果数値定義が整合
+
+### KPI・成功指標・ベンチマーク
+
+| KPI領域 | 指標 | 2026年ベンチマーク | 測定方法 |
+|---|---|---|---|
+| **調査効率** | 1テーマあたり調査完了時間 | 25分以下（Perplexity+Consensus二段並列） | Notion調査開始/完了タイムスタンプ差分 |
+| **DB活用効率** | 鏡像事例3件抽出時間 | 1分以下（既存DB充足時） / 15分以下（不足分検索時） | 依頼受領→3件確定までの時間 |
+| **転用精度** | 提案採用事例の的中率（3ヶ月後成果検証） | 80%以上（3件再現性ゲート導入後） | Shun成果データとの照合 |
+| **納品品質** | Ryotaからの差し戻し率 | 0%（階層タグ・転用パッケージ導入後） | Slack差し戻し件数/月 |
+| **信頼性** | AI幻覚事例混入率 | 0%（5点検証スクリプト＋原文読了ゲート） | 納品後クライアント指摘件数 |
+| **URL健全性** | リンク切れ指摘件数 | 0件/月（HTTP200一括チェック） | curl -I 並列チェック結果 |
+| **DB鮮度** | 継続確認日3ヶ月以内の事例割合 | 95%以上（四半期棚卸し＋日次相乗り監視） | Notion Formula集計 |
+| **配合遵守** | near2+far1配合違反率 | 0%（Notionテンプレ強制） | 納品カード自動監査 |
+| **納品スピード** | 火曜9:00スロット遵守率 | 100%（根拠トリオ同期） | Ryotaフィードバック |
+| **提案組込時間** | Ryotaの事例→提案書段落変換時間 | 5分以下（テンプレ差し込み自動生成後） | Ryota計測 |
+| **合成調査精度** | Synthetic User Research と実反応の乖離 | 20%以内（バリデーション実施時） | 実測後の乖離率算出 |
+| **ベイズ更新頻度** | 事例信頼度スコアの動的更新回数 | 月1回以上/採用事例 | Notion Formula履歴 |
+| **証拠等級分布** | Level 1-3（RCT/準実験）事例の採用比率 | 60%以上 | 事例DB集計 |
+| **業種横断度** | 事例DB内の業種カバレッジ | 20業種以上 | Notion業種タグユニーク数 |
+| **far事例発想力** | 遠隔分野からの独創的far事例提案数 | 月5件以上 | Ryota/Sotaフィードバック |
+
+**外部ベンチマーク（外注コンサル比較）**:
+- マッキンゼー・BCG・アクセンチュアの類似リサーチ納期: 2-4週間 → **本エージェント: 25分〜1営業日**
+- 外注リサーチの一次ソース検証実施率: 60-70% → **本エージェント: 100%（5点検証スクリプト）**
+- 外注リサーチの転用パッケージ提供率: 30%以下（素材納品が主） → **本エージェント: 100%（Notion必須プロパティ）**
+
+### 参考リソース・継続学習リスト
+
+**書籍・論文（構造写像・因果推論・アナロジー理論）**
+- Gentner, D. (1983). "Structure-Mapping: A Theoretical Framework for Analogy" — 構造写像理論の原典
+- Hofstadter, D. & Sander, E. (2013). "Surfaces and Essences: Analogy as the Fuel and Fire of Thinking"
+- Pearl, J. & Mackenzie, D. (2018). "The Book of Why" — 因果ラダー
+- Rousseau, D. M. (Ed.). "The Oxford Handbook of Evidence-Based Management"
+- Kahneman, D. "Thinking, Fast and Slow" — ベースレート無視・アンカリング
+
+**業界レポート・調査機関（一次ソース）**
+- 帝国データバンク・東京商工リサーチ（企業成功事例の一次照合）
+- 厚生労働省「建設業就業者統計」（クライアント業界根拠データ）
+- 経済産業省「DX白書」「中小企業白書」
+- Gartner Magic Quadrant / Hype Cycle（技術系事例の成熟度判定）
+- McKinsey Quarterly / HBR / MIT Sloan Management Review
+
+**AI / Deep Research ツール（月次アップデートチェック）**
+- Perplexity Pro Deep Research（changelog購読）
+- OpenAI Deep Research（GPT-5系）
+- Google Gemini Ultra Deep Research
+- Anthropic Claude Extended Research
+- Consensus.app / Elicit / Scite.ai（学術検索）
+- Semantic Scholar API（引用ネットワーク）
+
+**事例DB構築・ナレッジグラフ**
+- Neo4j GraphAcademy（無料コース：知識グラフ構築）
+- Weaviate Documentation（ベクトルDB）
+- Notion Formula 2.0 公式ドキュメント
+- Airtable Scripting Extension
+
+**合成調査・シミュレーション**
+- Synthetic Users（実装事例集）
+- Anthropic Multi-Agent Research（Claude Agent SDK）
+- Stanford Generative Agents論文（Park et al., 2023）
+
+**業界コミュニティ・情報源**
+- ReadyMade（マーケ事例DB）/ AdWeek / MarkeZine
+- 日経クロストレンド / 宣伝会議 デジタル
+- 建設業向け: 日刊建設工業新聞・建設通信新聞
+- HRTech / 採用マーケ: HR NOTE / 採用マーケティングjp
+- 海外: First Round Review / a16z / Stripe Press
+
+**継続学習ルーティン**
+- 週次: Deep Research 4系統の新機能チェック / Notion事例DBの新規10件追加
+- 月次: 学術論文3本読了（構造写像・因果推論・アナロジー） / DB鮮度棚卸し
+- 四半期: 全採用事例のベイジアン信頼度スコア再計算 / 外部ベンチマーク（コンサル）比較レビュー
+- 年次: ナレッジグラフの因果構造ベクトル再構築 / 事例DB業種カバレッジ拡張目標設定
+
+---

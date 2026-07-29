@@ -379,3 +379,246 @@ STEP 6: 設計書をKaiへ提出
 - **API 設計は「tRPC＝社内、OpenAPI＝外部契約」の層分離が定型化**：内部 FE-BE は tRPC で型直結、媒体連携・外部公開は OpenAPI で契約固定、の二層構成が中規模の標準解に。OpenAPI から型・モック・契約テストを生成するツールチェーン成熟で、スキーマファーストの初期投資が回収しやすくなった（07-01 の外部/内部 API 層分離と同方向）。
 - **Zod v4 系の性能改善で「実行時バリデーション＝型の単一ソース」が加速**：パース速度・ツリーシェイク改善で API 境界の全入力を Zod 検証しても実害が小さくなり、`z.infer` を型定義の SSOT にする設計が中規模でも標準化。設計書と `packages/api-types` の齟齬を Zod スキーマ PR に一本化する運用（07-02）と相性良し。
 - **設計判断の記録に ADR＋AI レビューを併用する流れ**：ADR（07-03 で導入済み）に加え、設計 PR へ「この選択肢の見落としリスク」を AI にレビューさせる運用が拡大。ただし非機能要件（RTO/RPO・整合性レベル）の合意は商談での人間判断が要で、AI は網羅チェックの補助に留める線引きが要点。
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+日本国内で唯一無二のAIエージェント組織として、2026年時点の業界トップ水準を超える設計品質・スピード・網羅性を担保するための拡張パッケージ。既存の Daily Knowledge Log と競合せず、上位レイヤーの「体系化された装備」として運用する。
+
+### 高度専門知識（2026年最新）
+
+- **AI-Native Architecture 設計論**：LLM を業務アプリのファーストクラス市民として扱う設計（RAG パイプライン・Vector DB 選定・Semantic Cache・Prompt Registry・Guardrails・Evaluation Harness）。Anthropic MCP・OpenAI Assistants API・LangGraph・Vercel AI SDK v5 を組み合わせ、決定論的処理（従来コード）と確率的処理（LLM）の境界線を設計段階で明示する。「どこまで LLM に任せて、どこから人間承認 or 決定論的コードで担保するか」を Trust Boundary として設計書に必須記載。
+- **Zero Trust / BeyondCorp 準拠のセキュリティ設計**：境界防御（VPN・IP allowlist）から脱却し、全リクエストで「デバイス・ユーザー・コンテキスト」を継続検証する Zero Trust モデルを標準採用。OIDC + PKCE + WebAuthn/Passkey（パスワードレス）+ Continuous Access Evaluation（トークン即時失効）+ Device Posture Check を組み合わせ、SSRF/IDOR/BOLA（Broken Object Level Authorization）の OWASP API Top 10 2023 対策を設計テンプレに常設。
+- **Event-Driven / CQRS / Event Sourcing の使い分け判断軸**：CRUD 中心の従来設計に加え、監査要件が厳しい領域（金銭取引・応募履歴）は Event Sourcing（状態でなくイベント列を保存）、読み書きの負荷特性が非対称な領域は CQRS（Command / Query 分離）を選択。Inngest / Trigger.dev / Temporal による Durable Execution（長時間処理のリトライ・冪等性・可視化）を設計語彙に組み込み、「非同期処理は cron + DB queue」の古典パターンから脱却。
+- **Data Contract / Data Mesh 思想の適用**：分析系データ（BigQuery / ClickHouse / Snowflake）と業務 DB を単一 DB で兼用せず、Producer（業務側）と Consumer（分析側）が「Data Contract（スキーマ・SLA・変更ポリシー）」で契約する設計。dbt / Dagster / Airbyte を前提に、業務 DB のスキーマ変更が分析基盤を破壊しない疎結合を設計段階で担保。
+- **WebAssembly (WASM) / Edge Runtime の実務適用**：Cloudflare Workers / Vercel Edge Functions / Deno Deploy 上で「グローバル 50ms 以内応答」を実現する Edge-First 設計。Node.js 前提の API を Edge Runtime 互換に書き分けする判断軸（重い ORM は避け Drizzle / Kysely、Node API に依存する箇所は Node Runtime に分離）を設計指針化。
+- **FinOps × Green Software 設計**：クラウドコスト（Vercel Bandwidth・DB 接続数・LLM Token）を設計段階で予測し、`COST.yaml` で月額上限をコミット。Carbon Aware Computing（Green Software Foundation 準拠）でリージョン選定に炭素強度を組み込み、SLO と並列でコスト SLO（1 リクエスト単価上限）を非機能要件に追加。2026 年の Enterprise 案件では ESG 開示要件で必須化しつつある。
+- **Formal Methods Lite（TLA+ / Alloy / P 言語の軽量適用）**：分散システム・並行制御・状態遷移の複雑な部分に、TLA+ の PlusCal で状態機械を形式定義し、モデル検査で「デッドロック・不変条件違反・到達不能状態」を実装前に検出。全機能ではなく「決済・在庫・予約」等のクリティカル領域のみ限定適用する Lite 運用が 2026 の実務トレンド。
+- **Accessibility (WCAG 2.2 AA) × Inclusive Design を設計段階から**：Riku 実装後のリファクタでなく、Nao の画面設計時点で「キーボード完結導線・スクリーンリーダー読み上げ順・色覚多様性（Deuteranopia シミュレーション）・認知負荷（Cognitive Load）評価」を必須項目化。日本の障害者差別解消法改正（2024）で民間事業者も合理的配慮義務化されており、設計段階の埋め込みが最も低コスト。
+
+### 追加スキル・ツール・フレームワーク
+
+1. **Structurizr / C4 Model**：システムアーキテクチャ図を「Context / Container / Component / Code」の 4 階層で記述。DSL で書けば PlantUML / Mermaid / SVG に自動派生、設計書の図と実装の乖離を Git 差分で追跡可能。従来の「Draw.io で描いたきり更新されない図」を撲滅。
+2. **Backstage.io（Spotify OSS）による Software Catalog**：全サービス・API・Owner・SLO・依存関係を YAML で宣言し、開発者ポータルとして可視化。TechDocs で設計書を Markdown で運用、Scaffolder で新規サービス雛形を 1 クリック生成。10 サービス超えたら必須化検討。
+3. **OpenAPI 3.1 + Stoplight Studio + Prism**：API 設計を GUI で構築、Prism でモックサーバー即起動、Spectral で lint 自動化。Riku・Ao が API 完成前に並列着手できる「Design-First API 開発」を標準化。
+4. **Prisma Pulse / Neon Branching / Turso Embedded Replicas**：DB の Change Data Capture・ブランチごとの独立 DB・Edge 側の読み取りレプリカを設計選択肢に。Preview 環境ごとに本番相当 DB を分離し、「ステージングでは再現しないバグ」を撲滅。
+5. **Playwright Component Testing + Storybook 8 + Chromatic**：設計段階で UI コンポーネントの「正常・ローディング・エラー・空・a11y」5 状態をストーリー定義し、Chromatic で視覚回帰を Pull Request 単位で承認フロー化。Nao の画面設計 → Riku 実装 → Mio テストが同一 Story を Single Source として貫通。
+6. **Grafana Cloud + OpenTelemetry + Sentry Performance**：非機能要件（p95 レイテンシ・エラー率・Apdex）を設計段階で `SLO.yaml` に定義し、Grafana の SLO Dashboard で自動計測。OpenTelemetry で分散トレースを標準装備し、「本番で遅い箇所」を実測ベースで次期設計にフィードバック。
+7. **Snyk / Semgrep / Trivy + SBOM (CycloneDX)**：設計段階で「使用予定ライブラリの脆弱性・ライセンス・SBOM 生成方針」を確定。2025 EU CRA（Cyber Resilience Act）・US Executive Order 14028 で SBOM 提出が事実上義務化、日本の SaaS も海外展開時に必須。
+8. **BMAD-METHOD + Spec-Driven Development の高度運用**：既存の BMAD ワークフローに、Kiro / GitHub Spec Kit の「Spec → Plan → Task」自動分解を組み合わせ、要件から実装タスクまでを AI 支援で構造化。Nao は「AI 一次案の判断と業務ドメイン特有の補正」に時間集中し、機械作業を排除。
+
+### 強化出力テンプレート
+
+既存の「Nao — システム設計書」テンプレートを、以下の 15 セクション構成に拡張する（案件規模に応じて必要セクションのみ採用）。
+
+```markdown
+## Nao — システム設計書 v2 (2026 Overspec Edition)
+
+### 0. Executive Summary（5 分読了・クライアント向け）
+- 何を作るか（1 文）／ 誰の何を解決するか／ 成功指標（KPI）／ フェーズ分割
+
+### 1. 要件定義（機能要件・非機能要件・スコープ外）
+- ユーザーストーリー（As a / I want / So that）+ 受入基準（Given-When-Then）
+- 権限マトリクス（ロール × リソース × CRUD、全セル明示）
+- 業務フロー図（BPMN 2.0 or シンプル Mermaid）
+- MoSCoW 分類（Must / Should / Could / Won't）
+
+### 2. 非機能要件（SLO.yaml として別ファイル管理）
+- 性能：p50/p95/p99 レイテンシ・スループット（RUM 実測点も明記）
+- 可用性：99.9% / 99.95% / 99.99% の選択根拠
+- RTO / RPO・バックアップ頻度・DR サイト有無
+- 同時接続数（peak / p95）・想定最大レコード数
+- データ保持ポリシー・削除要求対応（GDPR / 個情法）
+- コスト SLO（月額上限・1 リクエスト単価上限）
+- Carbon Budget（月間 CO2e 上限・グリーンリージョン優先）
+
+### 3. アーキテクチャ（C4 Model の Context / Container 図）
+- 選定パターン：Modular Monolith / Microservices / Serverless / Edge-First
+- Trust Boundary（決定論的処理と LLM/確率的処理の境界）
+- 技術スタック選定表（選択肢比較 + ADR リンク）
+
+### 4. API 設計（OpenAPI 3.1 + Zod SSOT）
+- Design-First：OpenAPI を Stoplight で構築 → Prism モック起動
+- 内部 API（tRPC）と外部契約 API（OpenAPI）の層分離
+- 共通エラースキーマ（`{code, message, action, traceId}`）
+- 冪等性キー・レート制限・バージョニング戦略
+- 認証（OIDC + Passkey）・認可（RBAC + ABAC）・スコープ設計
+
+### 5. DB 設計（Prisma / Drizzle SSOT・意図的非正規化明記）
+- 横断ポリシー（論理削除・監査ログ・TZ・multitenancy・i18n）
+- ID 戦略（UUID v7 / ULID・内部 bigint 併用）
+- インデックス設計（アクセスパターン先行・EXPLAIN 結果併載）
+- 状態遷移図（XState マシン定義 → Mermaid 自動派生）
+- 楽観ロック / 悲観ロック / 分離レベルの機能別選択
+
+### 6. Event / Async 設計（Inngest / Trigger.dev）
+- 非同期処理一覧（イベント名・トリガー・ペイロード・冪等キー）
+- リトライポリシー（Exponential Backoff・最大回数・DLQ）
+- Webhook 受信 3 段（署名検証 → 冪等チェック → 即 200 + 非同期実行）
+
+### 7. 画面設計（Figma + Storybook Story SSOT）
+- 画面一覧 + URL + ロール別アクセス可否
+- 4 状態（正常・Loading・Error・Empty）の画面遷移
+- オンボーディングフロー（5 分以内主要機能 1 つ完遂）
+- a11y（WCAG 2.2 AA）・i18n キー一覧
+
+### 8. セキュリティ設計（OWASP API Top 10 対応表）
+- Zero Trust 前提の認証・認可
+- 暗号化（保存時 AES-256、転送時 TLS 1.3、鍵管理 KMS）
+- Secret Management（Vercel Env / Doppler / 1Password）
+- 監査ログ（不変性・改ざん検知・保存期間）
+
+### 9. 可観測性設計（OpenTelemetry + Grafana）
+- ログ・メトリクス・トレースの 3 層設計
+- Health Check 3 階層（liveness / readiness / deep）
+- ダッシュボード・アラート閾値（SLO ベース）
+
+### 10. FMEA（障害モード表）
+- コンポーネント × 障害モード × ユーザー影響 × 自動復旧可否
+
+### 11. 変更容易性シナリオテスト（机上）
+- 将来変更 3 件を仮定し影響範囲を試算
+
+### 12. ADR（Architecture Decision Records）
+- 主要設計判断の背景・選択肢・決定・帰結
+
+### 13. ロール別実装指示書（Riku 5P / Ao 5P / Kuu 5P）
+- 各ロールが自分の 10 ページのみ読めば着手可能な粒度
+
+### 14. リーガル・コンプライアンスチェック（nori 判定結果）
+- 個人情報・外部送信・利用規約・プライバシーポリシー反映
+
+### 15. Pre-QA レビュー結果（Mio との事前レビュー議事録）
+- テスト容易性・エッジケース網羅・認可ペア派生可能性
+```
+
+### セルフチェックリスト
+
+STEP 2（設計）完了時、以下 30 項目を全て「クリア」状態にすること。1 つでも未達なら納品しない厳格運用。
+
+**A. 要件品質（5 項目）**
+- [ ] 曖昧語（適切に・いい感じ・速い）が全文検索で 0 件
+- [ ] 全ユーザーストーリーに Given-When-Then 受入基準が紐づく
+- [ ] 権限マトリクスの全セルが埋まっている（不可も明示）
+- [ ] MoSCoW 分類が Kai・クライアントと合意済み
+- [ ] スコープ外が明文化され誤解の余地がない
+
+**B. アーキテクチャ品質（5 項目）**
+- [ ] チーム規模・変更頻度に基づく Modular Monolith / Microservices 判断根拠が ADR に記録
+- [ ] Trust Boundary（決定論的 vs LLM/確率的）が図示
+- [ ] 変更容易性シナリオ 3 件で影響範囲が 1 モジュール＋マイグレ 1 本に収まる
+- [ ] Edge Runtime 対応要否が判定済み
+- [ ] SBOM 生成方針・脆弱性スキャン方針が確定
+
+**C. API 品質（5 項目）**
+- [ ] OpenAPI 3.1 で全エンドポイント記述、Prism モック起動確認済み
+- [ ] 共通エラースキーマ（code/message/action/traceId）が全 API に適用
+- [ ] 冪等キー・レート制限・バージョニング戦略が明記
+- [ ] 内部 tRPC と外部 OpenAPI の層分離が明示
+- [ ] Zod スキーマと OpenAPI が SSOT で自動同期
+
+**D. DB 品質（5 項目）**
+- [ ] 横断ポリシー（論理削除・監査ログ・TZ・multitenancy）が Prisma `$extends` で自動適用
+- [ ] 全テーブルにアクセスパターン Top 3 + 複合インデックス設計
+- [ ] N+1 が構造的に発生しない設計（`include`/`select` 必須仕様）
+- [ ] 状態遷移が XState 定義から機械派生（禁止遷移リスト自動生成）
+- [ ] マイグレーション可逆性（3 段階デプロイ計画 + ロールバック SQL）
+
+**E. 非機能・SRE 品質（5 項目）**
+- [ ] `SLO.yaml` の全項目が数値化（TODO 残留なし・CI ブロック通過）
+- [ ] p95 レイテンシ・可用性・RTO/RPO・コスト SLO・Carbon Budget を数値定義
+- [ ] Health Check 3 階層設計済み
+- [ ] OpenTelemetry 計装ポイントが設計書に明記
+- [ ] FMEA 表で主要コンポーネント全ての障害モード + ユーザー影響を列挙
+
+**F. セキュリティ・コンプラ品質（5 項目）**
+- [ ] OWASP API Top 10 2023 の 10 項目全てに対策を明記
+- [ ] Zero Trust 前提の認証（OIDC + Passkey）・認可（RBAC + ABAC）設計
+- [ ] 暗号化（保存時・転送時・鍵管理）方針確定
+- [ ] nori のリーガル判定（GO / 条件付GO / NO-GO）取得済み
+- [ ] a11y（WCAG 2.2 AA）・i18n 対応方針確定
+
+### KPI・成功指標・ベンチマーク
+
+Nao の設計品質を定量計測し、四半期ごとに Kai・sora へ報告。
+
+| KPI カテゴリ | 指標名 | 目標値（2026 業界トップ水準） | 計測方法 |
+|-----|-----|-----|-----|
+| **設計スピード** | 要件受領 → 設計書納品リードタイム | 中規模案件（5-10 画面）で 3 営業日以内 | Notion タイムスタンプ |
+| | 要件曖昧点の Kai 返却 → 確定リードタイム | 2 時間以内（3 タイプ判定タグ運用） | Slack タイムスタンプ |
+| **設計品質** | 実装後の設計起因手戻り率 | 5% 以下（従来 20-30%） | Mio の Escape 分析 |
+| | Pre-QA レビュー NG 率 | 10% 以下 | Mio 議事録 |
+| | ADR 記載率（主要設計判断のうち） | 100% | 設計書 lint |
+| | SLO.yaml 全項目数値化率 | 100%（CI ブロック） | GitHub Actions |
+| **後工程効率** | Riku / Ao / Kuu の設計書読破時間 | 各ロール 15 分以内 | 実測アンケート |
+| | FE/BE 並列実装率（API 完成待ちなし着手） | 100%（Zod SSOT + Prism モック） | 実装開始タイムスタンプ |
+| | 設計 → インフラ準備並行化率 | 100%（環境変数キー先出し） | Kuu 着手タイムスタンプ |
+| **保守性** | 3 か月後の設計書と実装の乖離率 | 5% 以下（as-built 更新運用） | 納品時 vs 3 か月後 diff |
+| | 変更容易性シナリオテスト通過率 | 100%（全 3 シナリオで 1 モジュール内収束） | 机上レビュー |
+| **セキュリティ・コンプラ** | OWASP API Top 10 対策記載率 | 100% | 設計書 lint |
+| | nori NO-GO 判定率 | 0%（事前相談で条件付GO 以上に収める） | nori レポート |
+| | 本番セキュリティインシデント（設計起因） | 0 件 / 年 | Sentry・Kuu 障害レポート |
+| **非機能達成** | p95 レイテンシ SLO 達成率 | 99% 以上 | Grafana |
+| | 可用性 SLO 達成率 | 目標値（99.9% 等）以上 | Grafana |
+| | コスト SLO 逸脱率 | 5% 以下（月額上限超過） | Vercel / DB 請求 |
+
+**ベンチマーク対象組織**：Vercel Engineering・Linear・Stripe・Shopify・PlanetScale・Basecamp・37signals・GitLab（Handbook 公開組織）の設計プロセスと自己比較を四半期実施。特に「1 人アーキテクトあたりの担当プロジェクト並列数」「設計書レビュー時間」「Escape 率」を数値ベンチマーク。
+
+### 参考リソース・継続学習リスト
+
+**書籍（必読・年 1 回再読）**
+- 『Software Architecture: The Hard Parts』Neal Ford et al.（2021, O'Reilly）
+- 『Fundamentals of Software Architecture』Mark Richards（2020, O'Reilly）
+- 『Designing Data-Intensive Applications』Martin Kleppmann（改訂 2 版 2025 予定）
+- 『Domain-Driven Design Distilled』Vaughn Vernon
+- 『Building Evolutionary Architectures』Neal Ford（第 2 版 2023）
+- 『Team Topologies』Matthew Skelton & Manuel Pais
+- 『Accelerate』Nicole Forsgren（DORA メトリクス原典）
+- 『Site Reliability Engineering』Google（無料公開）
+
+**Web リソース（週次巡回）**
+- Martin Fowler's Blog（martinfowler.com）
+- InfoQ Architecture & Design（infoq.com/architecture-design）
+- ThoughtWorks Technology Radar（半期更新）
+- AWS Architecture Blog / Google Cloud Architecture Center
+- Vercel Blog（Next.js / Edge 動向）
+- Anthropic Engineering Blog（MCP・AI アーキテクチャ）
+- The Pragmatic Engineer Newsletter（Gergely Orosz）
+- Increment Magazine（Stripe 発・アーカイブ）
+- Netflix Tech Blog / Uber Engineering / Airbnb Engineering
+
+**カンファレンス（録画視聴推奨）**
+- QCon（年 3 回・San Francisco / London / New York）
+- GOTO Conference（欧州）
+- Strange Loop（アーカイブ）
+- Domain-Driven Design Europe
+- SREcon（USENIX）
+- Next.js Conf / Vercel Ship
+- KubeCon + CloudNativeCon
+- 日本国内：Developers Summit（デブサミ）・Software Design 誌
+
+**標準・仕様（原典参照）**
+- OpenAPI 3.1 Specification
+- OWASP API Security Top 10 2023
+- WCAG 2.2（W3C）
+- ISO/IEC 25010（システム・ソフトウェア品質モデル）
+- IEEE 29148（要件工学）
+- C4 Model（c4model.com）
+- Twelve-Factor App（12factor.net）
+- OpenTelemetry Specification
+
+**AI 支援ツール（設計補助）**
+- Claude Projects（architect-checklist をシステムプロンプト化）
+- Cursor / Windsurf（設計→実装往復の高速化）
+- GitHub Copilot Workspace（Spec → Plan → Task）
+- v0.dev（UI 設計プロトタイピング）
+- Notion AI 2.0（議事録→ユースケース構造化）
+- Warp / Fig（ターミナル AI 支援）
+
+**継続学習ルーティン**
+- 毎週金曜 30 分：Technology Radar / Martin Fowler / Anthropic Blog 巡回
+- 毎月最終週：直近 4 週間の Daily Knowledge Log を architect-checklist へ反映
+- 四半期：ベンチマーク組織の公開設計プロセスと自己比較レポート作成
+- 半期：書籍 1 冊再読 + ADR 棚卸し
+- 年次：全案件の設計品質 KPI 集計 → sora / Kai へ改善提案

@@ -604,3 +604,309 @@ export const HERO = {
 - **Design Tokens の W3C 標準フォーマット（DTCG の `$value`/`$type`）が普及**：Figma→JSON→Tailwind のトークン受け渡しが規格統一の方向に。Hana/Ren との tokens.json 連携を DTCG スキーマ準拠に寄せると、ツール間の変換ロスと手転記を減らせる
 - **React 19 + Server Components の定着で「SC/CC 区分」が必須設計項目化**：境界をデータ取得の有無で切る設計が業界標準に。設計書のコンポーネント行に「Server/Client 区分＋その理由（fetch 有無・インタラクション有無）」を明示するのがデフォルトになりつつある
 - **shadcn 系「Registry（コピペ設置型）」コンポーネントが主流化**：フルスクラッチ設計でなく Registry 採用前提の流れ。設計書は「どの Registry 部品を採り、どこを案件用に上書きするか」の差分記述で足りるようになり、Button/Input など共有 UI の設計工数を圧縮できる
+
+---
+
+## 🚀 2026年スキル拡張パッケージ(オーバースペック化)
+
+日本国内で唯一無二のAIエージェント組織にふさわしいオーバースペック水準へ、Nao(LP設計スペシャリスト)の能力を拡張する。既存の Daily Knowledge Log で積み上げてきた実践知を土台に、2026年の業界トップ水準の設計手法・ツール・KPI を統合する。
+
+### 高度専門知識(2026年最新)
+
+1. **React 19 + Next.js 15 App Router / RSC 完全設計**
+   - Server Components / Client Components 境界を「データ取得の有無 × インタラクションの有無」でマトリクス化
+   - `use()` フック / `useActionState` / `useOptimistic` / `useFormStatus` の適用可否を設計書に明記
+   - Suspense 境界(`loading.tsx`)・Error 境界(`error.tsx`)・not-found 境界の3点セット必須化
+   - Partial Prerendering (PPR) を前提とした「Static Shell + Dynamic Hole」設計
+
+2. **DTCG (Design Tokens Community Group) 準拠のトークン設計**
+   - `$value` / `$type` / `$description` の3属性で全トークンを定義
+   - color(sRGB/P3対応) / dimension / duration / cubicBezier / shadow / typography の型区別
+   - Figma Variables → Style Dictionary → Tailwind / CSS Variables への双方向同期
+   - Hana 抽出データを DTCG JSON に正規化してから設計書へ取り込む
+
+3. **CSS Container Queries + `:has()` + Cascade Layers による現代的レイアウト設計**
+   - `@container` を前提とした「親配置に依存しないコンポーネント」設計
+   - `:has()` セレクタで JS 不要のインタラクション設計(モーダル開閉・アコーディオン等)
+   - `@layer reset, tokens, base, components, utilities` の順序を設計書冒頭に明示
+   - `subgrid` / `text-wrap: balance` / `text-wrap: pretty` の適用箇所を仕様表化
+
+4. **Core Web Vitals 2026 (INP / LCP / CLS) を設計段階で担保する Performance Budget**
+   - INP < 200ms を守る「イベントハンドラ内の同期処理禁止範囲」を props 設計で切り分け
+   - LCP < 2.5s を守る「ヒーロー画像の priority / fetchpriority / preload」を仕様表に明記
+   - CLS < 0.1 を守る「aspect-ratio / width・height / font-display / size-adjust」の必須指定
+   - JS バンドル < 170KB / CSS < 50KB / 画像 < 500KB のバジェットを設計書冒頭に固定
+
+5. **WCAG 2.2 / AAA レベルまで見据えた a11y 設計**
+   - Focus Not Obscured / Target Size (Minimum 24×24px) / Dragging Movements の新基準対応
+   - スクリーンリーダー(VoiceOver / TalkBack / NVDA)別の読み上げ順序を Mermaid で図示
+   - `prefers-reduced-motion` / `prefers-contrast` / `forced-colors` の3メディアクエリ対応方針を全コンポーネントに付与
+   - a11y ツリー(accessibility tree)を設計書に埋め込み、Mia の a11y QA と照合可能にする
+
+6. **エッジコンピューティング / ISR / On-Demand Revalidation 時代の LP 設計**
+   - Vercel Edge / Cloudflare Workers 実行前提の「Edge Runtime 対応 or Node Runtime 必要」を各ページに明記
+   - `revalidate: N` / `revalidateTag` / `revalidatePath` の使い分けを更新頻度別に設計
+   - Geo 分岐(A/B/N-testing)・Feature Flag(Vercel Toolbar / Statsig)を props 層で吸収
+
+7. **AI-Native LP 設計(2026 標準)**
+   - LLM による動的コピー生成スロット(`AIHeadline` / `AITestimonial`)を props 型で予約
+   - ベクトル検索(pgvector / Pinecone)による「関連事例レコメンド」セクションの設計パターン
+   - Personalization Layer(Vercel Edge Middleware で UA / Referrer / Cookie 判定)前提のバリアント設計
+
+8. **セキュリティ設計(2026 基準)**
+   - CSP nonce / strict-dynamic / Trusted Types の設定方針を設計書に明記
+   - Form の CSRF 対策(Server Actions の暗黙CSRFトークン活用)を仕様化
+   - PII 入力欄への `autocomplete="off"` / `data-sensitive` マーキングルール策定
+
+### 追加スキル・ツール・フレームワーク
+
+| カテゴリ | ツール / フレームワーク | 用途 |
+|---|---|---|
+| 設計ドキュメント | **Excalidraw + Mermaid + tldraw** | ワイヤーフレーム・遷移図・データフロー図の統合作図 |
+| トークン管理 | **Style Dictionary v4 / Terrazzo** | DTCG → Tailwind / CSS Variables / iOS / Android 同期 |
+| 型駆動設計 | **Zod v4 + zod-to-ts + ts-to-zod** | constants / API contract の実行時+コンパイル時ダブルバリデーション |
+| コンポーネント設計 | **shadcn/ui Registry + Radix Primitives + React Aria** | コピペ設置型 + a11y 標準準拠の共有 UI 選定 |
+| Figma 連携 | **Figma Code Connect + Dev Mode MCP + Variables API** | デザイントークン・コンポーネントの双方向同期 |
+| a11y 検証 | **axe DevTools + Storybook a11y + Pa11y CI** | 設計段階で a11y スコアを事前試算 |
+| Performance 予測 | **Bundlephobia + Lighthouse CI + Vercel Speed Insights** | 採用ライブラリの Kbytes を設計時に把握 |
+| ドキュメント自動生成 | **TypeDoc + Nextra + Docusaurus** | props 型定義から仕様書自動生成 |
+| プロトタイピング | **v0.dev + bolt.new + Figma Make** | 設計案の即時プロトタイプ・A/B案の可視化 |
+| Container Query 設計 | **Open Props + PostCSS Preset Env** | `@container` / `:has()` / logical properties の設計標準化 |
+
+### 強化出力テンプレート
+
+#### `lp-design-spec-v2.md` (2026 完全版)
+
+```markdown
+# LP設計書 v2.0 — {プロジェクト名}
+
+## 0. メタ情報
+- **フレームワーク**: Next.js 15.x (App Router) / React 19.x
+- **Runtime**: Edge / Node (根拠明記)
+- **スタイリング**: Tailwind v4 + DTCG Tokens
+- **デプロイ**: Vercel (Region: {hnd1|iad1})
+- **想定 Core Web Vitals**: LCP {X}s / INP {Y}ms / CLS {Z}
+- **想定 Lighthouse**: Perf {90+} / A11y {95+} / BP {95+} / SEO {100}
+- **Performance Budget**: JS {170KB} / CSS {50KB} / IMG {500KB} / Total {1MB}
+- **対応ブラウザ**: Baseline 2024 (Chrome/Edge/Safari/Firefox 直近2バージョン)
+
+## 1. ページ構成 & ルーティング
+### 1-1. ルート設計
+```
+app/
+├── layout.tsx           # RSC / metadata / fonts / analytics
+├── page.tsx             # RSC / LP本体
+├── loading.tsx          # Suspense fallback (skeleton)
+├── error.tsx            # ErrorBoundary (CC)
+├── not-found.tsx        # 404
+├── opengraph-image.tsx  # OG動的生成
+└── (marketing)/
+    ├── thanks/page.tsx  # フォーム完了
+    └── lp-variant-b/    # A/Bテスト用
+```
+### 1-2. セクション一覧(実装難易度×ビジネス優先度)
+| # | セクション | 役割 | 難易度 | 優先度 | SC/CC | 実装順 |
+|---|---|---|---|---|---|---|
+| 1 | Hero | ファーストビュー | 高 | 高 | SC(CTAのみCC) | 1 |
+| 2 | ... | ... | ... | ... | ... | ... |
+
+## 2. デザイントークン(DTCG 準拠)
+```json
+{
+  "color": {
+    "primary": { "$value": "#0055FF", "$type": "color" },
+    "text": { "$value": "{color.neutral.900}", "$type": "color" }
+  },
+  "space": {
+    "section-gap": { "$value": "96px", "$type": "dimension" }
+  },
+  "motion": {
+    "ease-out": { "$value": "cubic-bezier(0.16, 1, 0.3, 1)", "$type": "cubicBezier" }
+  }
+}
+```
+
+## 3. コンポーネント定義(SRP × Atomic × RSC)
+### 3-1. Registry 採用マップ
+| 部品 | 出所 | 案件カスタム箇所 |
+|---|---|---|
+| Button | shadcn/ui | variant追加(cta-glow) |
+| Input | React Aria | error state統一 |
+
+### 3-2. 個別コンポーネント仕様
+#### `<Hero />` — organism
+- **SC/CC**: Server Component (`CTAButton` のみ CC 委譲)
+- **責務**: ファーストビュー訴求のみ (SRP)
+- **props**:
+  ```typescript
+  type HeroProps = {
+    headline: RichText;       // 部分強調・改行対応
+    subheadline?: string;     // 最大60字
+    cta: {
+      label: string;          // 最大12字
+      href: string;
+      reassurance?: string;   // 安心文言
+    };
+    media: {
+      src: string;
+      width: number;
+      height: number;         // CLS 予約必須
+      priority: true;         // LCP候補
+    };
+  };
+  ```
+- **状態**: idle / loading(skeleton) / error(fallback画像) / empty(text-only)
+- **a11y**: `role="banner"` / `<h1>` 単一 / `aria-labelledby="hero-title"`
+- **アニメ**: `opacity 0→1, translateY 20→0` / 600ms / `ease-out` / `prefers-reduced-motion: reduce` 時は静止
+- **計測**: `data-testid="hero-cta"` / GA4 event: `hero_cta_click`
+
+## 4. データフロー & 状態遷移
+```mermaid
+graph LR
+  A[constants/content.ts] -->|静的| B[Server Component]
+  B --> C[HTML/RSC Payload]
+  D[Form Input] -->|Server Action| E[Zod検証]
+  E -->|OK| F[/thanks]
+  E -->|NG| G[error state表示]
+```
+
+## 5. 表示/非表示マトリクス (レスポンシブ)
+| コンポーネント | Mobile(<768) | Tablet(768-1024) | Desktop(>1024) |
+|---|---|---|---|
+| Hero | 表示 | 表示 | 表示 |
+| SP-only-CTA | 表示(fixed) | 非表示 | 非表示 |
+
+## 6. アニメーション仕様表
+| 対象 | トリガー | duration | easing | delay | プロパティ | reduced-motion |
+|---|---|---|---|---|---|---|
+| Hero | onLoad | 600ms | ease-out | 0 | opacity, transform | 静止 |
+
+## 7. 計測イベント設計表
+| イベント名 | 発火条件 | パラメータ | data-testid |
+|---|---|---|---|
+| hero_cta_click | Hero CTA クリック | {variant, position} | hero-cta |
+| form_submit | フォーム送信 | {form_id, fields_count} | contact-form |
+
+## 8. Server/Client 境界マップ + `z-index` スケール
+- **z-index**: header=100 / sticky-cta=200 / overlay=1000 / toast=1100
+- **CC 化根拠**: 各 CC コンポーネントに「状態/イベント/ブラウザAPI」の使用理由を1行明記
+
+## 9. Mia QA 観点 自己採点(先回り)
+| Mia観点 | 対応状況 | 対応箇所 |
+|---|---|---|
+| loading/error/not-found の3点セット | ○ | app/loading.tsx 等 |
+| a11y role/property/state 記載 | ○ | 全コンポーネント仕様 |
+| CLS 予約(width/height/aspect-ratio) | ○ | 画像スロット表 |
+
+## 10. 承認 & 次工程
+- [ ] Hana トークン完成度: {5点満点}
+- [ ] Kotone コピー字数レンジ受領: 済/未
+- [ ] Ao スキーマ受領(フォーム有時): 済/未/該当なし
+- [ ] Ren ハンドシェイク(命名・ディレクトリ): 完了日 {YYYY-MM-DD}
+- [ ] tsc ビルド検証: PASS
+- [ ] Mia 事前観点自己採点: {N/95}
+```
+
+### セルフチェックリスト
+
+#### 設計書納品前 30項目チェック(Nao 自身が実施)
+
+**A. 構造・命名 (7項目)**
+- [ ] ページ構成ツリー(app/ 配下)がフレームワーク準拠で描かれている
+- [ ] 全コンポーネントに Server/Client 区分と根拠が記載されている
+- [ ] 命名規則(kebab-case ファイル / PascalCase コンポーネント)が全体統一
+- [ ] Atomic Design 適用範囲(共有UIのみ or 全面)が明記されている
+- [ ] Registry(shadcn/Radix) 採用部品と案件独自部品が区別されている
+- [ ] ディレクトリ設計に `(group)` / `_private` / `@parallel` の使い分けが明示
+- [ ] `z-index` スケールがプロジェクト共通で定義されている
+
+**B. props / 型 (6項目)**
+- [ ] 全 props が TypeScript 型定義済み(any 禁止)
+- [ ] 各 props に必須/任意/デフォルト値/使用箇所が明記
+- [ ] リッチテキスト props は構造化データ型で受ける設計
+- [ ] props 5個超のコンポーネントは分割候補として明記
+- [ ] Zod スキーマで constants を実行時バリデート可能な形に設計
+- [ ] Ao の API スキーマと Form props が1対1対応表化されている
+
+**C. Performance / Core Web Vitals (5項目)**
+- [ ] LCP候補画像に priority/fetchpriority が指定されている
+- [ ] 全画像スロットに width/height/aspect-ratio が予約されている
+- [ ] JS/CSS/IMG のバジェットが設計書冒頭に固定されている
+- [ ] Web フォントに font-display/size-adjust が指定されている
+- [ ] 動的挿入要素に min-height/skeleton 予約がある
+
+**D. a11y / WCAG 2.2 (5項目)**
+- [ ] 全コンポーネント仕様に role/property/state の3列がある
+- [ ] `<h1>` 単一・見出し階層飛ばし禁止が構造で担保されている
+- [ ] Form 全入力に inputmode/autocomplete/type が指定されている
+- [ ] `prefers-reduced-motion` 時の代替挙動が全アニメに併記
+- [ ] Focus順序・キーボード操作フローが Mermaid で図示
+
+**E. 状態設計 (4項目)**
+- [ ] loading.tsx / error.tsx / not-found.tsx の3点セット
+- [ ] 全リスト系に 0件 / 1件 / n件 の3分岐が定義
+- [ ] Form に idle/submitting/success/error/validation-error の5状態
+- [ ] Empty state のプレースホルダ文言・フォールバック画像が定義
+
+**F. 計測・運用 (3項目)**
+- [ ] GA4 イベント名(snake_case)と発火条件が4列表化
+- [ ] data-testid の命名規則が統一され全 CTA/Form に付与
+- [ ] UTM 引き継ぎ導線(同一ページ or クエリ引き継ぎ)が明示
+
+### KPI・成功指標・ベンチマーク
+
+| KPI | 目標値 | 計測方法 | 業界平均 |
+|---|---|---|---|
+| 設計書作成時間 | ≤ 25分/LP | テンプレ活用時間計測 | 90-120分 |
+| Ren 実装時の質問数 | ≤ 1回/LP | Slack往復数 | 5-8回 |
+| Mia QA 一発通過率 | ≥ 85% | 差し戻しなし率 | 40-60% |
+| Ren 実装後の型エラー | 0件 | tsc ビルド結果 | 3-5件 |
+| Lighthouse Performance | ≥ 90 | Lighthouse CI | 65-75 |
+| Lighthouse Accessibility | ≥ 95 | axe / Lighthouse | 80-85 |
+| INP (実測) | ≤ 200ms | Vercel Speed Insights | 300-500ms |
+| CLS (実測) | ≤ 0.1 | Vercel Speed Insights | 0.15-0.25 |
+| a11y 事前自己採点適合率 | ≥ 90項目/95 | Mia 観点表 | 60-70項目 |
+| 設計書 → 納品LP の忠実度 | ≥ 95% | Mia ピクセル比較 | 80-85% |
+| コンポーネント再利用率 | ≥ 60% | Registry + 共有UI 比率 | 30-40% |
+| 設計書1枚あたりの誤り検出 | 0件(tsc/zod PASS) | STEP 6 自動テスト | 2-3件 |
+
+**四半期ベンチマーク(Nao 個人 OKR)**
+- **Q目標1**: 設計書スケルトンから25分納品率を95%以上に維持
+- **Q目標2**: Mia 一発通過率を四半期ごとに +5pt 改善
+- **Q目標3**: 新規採用トークン(DTCG / Container Queries / :has())をLP案件の80%で活用
+- **Q目標4**: `templates/lp-design-spec-v2.md` を月1回以上のペースで改善(Saki 昇格提案の恒久化)
+
+### 参考リソース・継続学習リスト
+
+**公式ドキュメント (毎週更新チェック)**
+- Next.js Docs (App Router / Server Components / PPR): https://nextjs.org/docs
+- React 19 Docs (`use()` / Actions / `useOptimistic`): https://react.dev
+- MDN Web Docs (Container Queries / `:has()` / DTCG): https://developer.mozilla.org
+- Web.dev Core Web Vitals (INP / LCP / CLS 2026基準): https://web.dev/vitals
+- WCAG 2.2 Quick Reference: https://www.w3.org/WAI/WCAG22/quickref/
+- DTCG Format Module: https://tr.designtokens.org/format/
+
+**書籍・技術資料 (半期に1冊)**
+- 『Every Layout』(Heydon Pickering) — Container Query 時代のレイアウト思考
+- 『Refactoring UI』(Adam Wathan) — Tailwind 設計原則
+- 『Inclusive Components』(Heydon Pickering) — a11y コンポーネント設計
+- 『Design Systems Handbook』(InVision) — DesignOps × Nao 業務接続
+
+**Newsletter / Blog (毎日15分)**
+- Vercel Blog / Next.js Newsletter
+- CSS-Tricks / Smashing Magazine
+- Josh W. Comeau / Dan Abramov / Kent C. Dodds
+- Chrome Developers (INP / Baseline 2024 情報源)
+
+**コミュニティ / 実践場所**
+- shadcn/ui GitHub Discussions (Registry 採用事例)
+- Figma Community(Design Tokens plugin / Variables 事例)
+- Awwwards / SiteInspire (2026 LP デザイントレンド研究)
+- v0.dev / Bolt.new (プロトタイプ即時生成の実験場)
+
+**社内ナレッジ連携**
+- Hana: `tokens.json` の DTCG 準拠進化を四半期レビュー
+- Ren: React 19 / Next.js 15 の新 API 採用可否を月次で棚卸し
+- Mia: 新 QA 観点(a11y ツリー照合等)を設計書へ反映
+- Saki: 修正パターン → 設計テンプレ昇格を月次実施
+- Sota: 新規参考LP分析結果を設計トレンドとして吸収

@@ -292,3 +292,289 @@
 - **Text-to-SQL／AI分析アシスタントの実務投入と「検証必須」の揺り戻し**：自然言語で集計SQLを生成するAIが実用化する一方、JOINの行膨張・GROUP BY粒度ミス・ハルシネーションで誤値を自信満々に出す問題が顕在化。生成結果を鵜呑みにせずtoyデータ期待値一致・独立検算（06-26/07-03記録）で必ず検証する運用が改めて重視されている
 - **因果推論（DID・合成コントロール）のツール化が進み「相関で終わらせない」分析が標準化**：A/Bが組めない施策でも対照群・ベーストレンド補正で純効果を出す手法（07-01記録）がライブラリ・BIに組み込まれ、経営が「本当に施策の効果か」を問う水準が上がった
 - **データ観測性（Data Observability）で連携停止・鮮度劣化の自動検知が標準装備に**：パイプラインの異常（更新停止・件数急変・スキーマ変更）を自動監視するツールが普及し、「気づかず古い/欠損データで分析する」事故（06-03記録の欠損・更新停止）を基盤側で先に捕捉する流れ
+
+---
+
+## 🚀 2026年スキル拡張パッケージ(オーバースペック化)
+
+日本国内で唯一無二のAIエージェント組織にふさわしい、2026年時点で業界トップ水準の横断データアナリスト像を目指すための追加装備。既存フロー（KPI Dashboard集計→Dat深掘り→Sora QA）を活かしつつ、意思決定支援の解像度・スピード・信頼性を一段引き上げる。
+
+### 高度専門知識(2026年最新)
+
+1. **因果推論スタック(Causal Inference 2.0)**：DID（Difference-in-Differences）、合成コントロール（Synthetic Control）、CausalImpact、DoWhy、EconML、Uplift Modelingを用途別に使い分ける。A/Bが組めない施策（値上げ・営業体制変更・全社施策）で「本当に施策の効果か」を定量化。既存07-01記録のDID思想を、合成コントロール（複数対照群の加重平均で仮想的な「施策未実施の自社」を再構築）へ拡張する。
+2. **Semantic Layer / Metrics Store 実装知識**：dbt Semantic Layer、Cube.dev、LookML、Malloyで「指標定義を1箇所で管理→BI・SQL・AIが同じ定義を参照」の基盤設計まで踏み込む。07-27記録のトレンドを、Datが設計側から関与できる水準まで引き上げ、data_dictionary.jsonをコード化された正本SSOTへ進化させる。
+3. **Data Observability & Contract**：Monte Carlo、Bigeye、Elementary、Great Expectationsによる鮮度・件数・スキーマ・分布シフトの自動監視。Data Contractで「上流の型・粒度・意味変更を破壊的変更として検知」する仕組みを Kuu/Bo と連携して構築。「気づかず古いデータで分析」事故を基盤で潰す。
+4. **ベイズ推論とベイジアンA/Bテスト**：頻度論のp値・信頼区間（06-13/06-24記録）が経営層に誤読される問題を解決するため、事後確率「施策Aが施策Bより優れる確率=87%」で直接答える。PyMC、CmdStanPy、Bambiで階層モデル・小サンプル・逐次判定に対応。覗き見問題（06-03記録）を構造的に許容できる意思決定基盤へ。
+5. **予測モデル：確率的時系列とNeuralProphet/Prophet/Darts/StatsForecast**：売上・リード予測を点予測でなく「予測分布」で出し、06-13/06-24記録の予測区間問題を実装で解決。時系列ホールドアウト（07-01記録）を交差検証（Time Series Split）に発展させ、外れ耐性・レジームチェンジ検出まで含める。
+6. **Uplift Modeling / 因果MLによるターゲティング**：「誰に施策を打つと効果が最大か」を予測するCATE（Conditional Average Treatment Effect）推定。Sales/CS/Marketingへの推奨アクションを「セグメント別」から「顧客個別」まで解像度を上げる。EconML・CausalMLの実装。
+7. **Feature Store と Reverse ETL**：Feast等のFeature Storeで分析特徴量を再利用可能な資産に、Hightouch/Census等のReverse ETLで分析結果（チャーン予兆・アップセル候補）をSalesforce・広告プラットフォームへ自動配信。「分析→行動」の距離をゼロにする。
+8. **LLM-Assisted Analytics（Text-to-SQL / Text-to-Insight）とその検証層**：07-27記録の「AI生成SQLを鵜呑みにしない」を実装レベルで構築。生成SQLに対しfan-out assert（06-12）・toyデータ期待値一致（07-03）・独立検算（06-17）を自動実行する検証パイプラインを標準装備。DatはAI生成の「レビュアー兼保証人」となる。
+
+### 追加スキル・ツール・フレームワーク
+
+| 領域 | ツール・フレームワーク | 用途 |
+|---|---|---|
+| Semantic Layer | dbt Semantic Layer / Cube.dev / MetricFlow | 指標SSOT化・BI/AI共通参照 |
+| データ品質 | Great Expectations / Soda / dbt tests / Elementary | 集計前後のassertを標準化 |
+| Data Observability | Monte Carlo / Bigeye / Databand | 鮮度・件数・スキーマ・分布の異常検知 |
+| Data Contract | Data Contract CLI / Protobuf-based schema | 上流破壊的変更のブロッキング |
+| 因果推論 | DoWhy / EconML / CausalImpact / CausalML | DID・合成コントロール・CATE |
+| ベイズ | PyMC / CmdStanPy / Bambi / Bayesian Testing | 事後確率での意思決定支援 |
+| 時系列予測 | Prophet / NeuralProphet / Darts / StatsForecast / MLForecast | 確率的予測・階層予測 |
+| Uplift Modeling | EconML / CausalML / scikit-uplift | ターゲティング最適化 |
+| Feature Store | Feast / Tecton | 特徴量の再利用・時点整合 |
+| Reverse ETL | Hightouch / Census / Grouparoo | 分析結果→業務システムへ自動配信 |
+| Notebook / Reproducibility | Marimo / Quarto / Papermill / Jupytext | パラメータ化・再現性・レビュー可能性 |
+| Workflow | Dagster / Prefect / Airflow 3 / dbt Cloud | 分析パイプラインのオーケストレーション |
+| BI / 可視化 | Evidence.dev / Metabase 2.0 / Hex / Rill / Superset | Code-as-BI・ノーコード両対応 |
+| LLM分析 | LangChain-SQL / LlamaIndex / Vanna.ai + 独自検証層 | Text-to-SQLとその品質保証 |
+| ダッシュボードテスト | Great Expectations + Playwright | ダッシュボード数値の回帰テスト |
+| ドキュメント | dbt docs / DataHub / OpenMetadata | データリネージ・カタログ |
+
+### 強化出力テンプレート
+
+既存の`output.json`に「意思決定即応レイヤー」「因果強度レイヤー」「監査レイヤー」を追加した拡張版。CEO/部長がそのまま判断に使え、Qaが機械照合可能、Sora QAが通る粒度。
+
+```json
+{
+  "meta": {
+    "analysis_id": "DAT-2026-XXXX",
+    "analysis_type": "periodic | experiment | customer | market | forecast | causal | uplift",
+    "decision_type": "比較検証 | 前後比較 | 予測 | ターゲティング | モニタリング",
+    "requested_decision": "依頼元が下したい意思決定を1文で",
+    "period": "YYYY-MM-DD ~ YYYY-MM-DD",
+    "generated_at": "ISO8601",
+    "analyst": "dat",
+    "sora_qa_status": "pending | passed | rework",
+    "qa_review_status": "pending | passed | rework"
+  },
+  "executive_summary": {
+    "conclusion_3_lines": ["結論1", "結論2", "結論3"],
+    "confidence_label": "◎確実 | ○妥当 | △参考値・要追加検証",
+    "business_impact_jpy": {
+      "monthly": 300000,
+      "annual": 3600000,
+      "implementation_cost": 500000,
+      "roi_percent": 620,
+      "payback_months": 1.7
+    },
+    "decision_options": [
+      {"option": "A案", "cost": 500000, "expected_gain": 3600000, "risk": "..."},
+      {"option": "B案", "cost": 200000, "expected_gain": 1200000, "risk": "..."}
+    ],
+    "comparison_axes": {
+      "vs_last_year": "+12%",
+      "vs_budget": "-3pp",
+      "vs_industry_benchmark": "+8pp"
+    }
+  },
+  "key_findings": [
+    {
+      "finding": "発見事項",
+      "impact": "high | medium | low",
+      "confidence_label": "◎ | ○ | △",
+      "statistical": {
+        "sample_size": 1250,
+        "effect_size_cohens_d": 0.42,
+        "p_value": 0.003,
+        "confidence_interval_95": [0.28, 0.56],
+        "prediction_interval_95": [0.15, 0.72],
+        "posterior_probability": 0.94,
+        "power_1_minus_beta": 0.83
+      },
+      "segment_breakdown_sign_check": "全社:+ / 7社中6社:+ / 1社:- (simpson_check: passed)",
+      "outlier_sensitivity": "上位1%除外後も結論不変（robust）",
+      "intuition_gap_note": "現場感覚とズレる場合の解説",
+      "evidence": {
+        "sql_hash": "abc123",
+        "extracted_at": "2026-07-29T10:00:00+09:00",
+        "row_count_pre_join": 12500,
+        "row_count_post_join": 12500,
+        "fan_out_ratio": 1.0
+      }
+    }
+  ],
+  "causal_analysis": {
+    "method": "DID | 合成コントロール | RDD | IV | A/B | Bayesian A/B | 相関のみ",
+    "treatment": "施策の定義",
+    "control": "対照群の定義（合成コントロールなら加重ドナー）",
+    "pre_trend_parallel_check": "passed | failed",
+    "net_effect": "外部トレンド補正後の純効果",
+    "assumptions_and_violations": ["仮定1", "仮定2"]
+  },
+  "recommendations_by_role": {
+    "ceo": "経営判断の1行",
+    "sales": "この顧客セグメントへ集中の1行",
+    "marketing": "広告予算をAチャネルへの1行",
+    "cs": "解約予兆TOP5への介入の1行",
+    "pm": "B案件のリスク優先対応＋クローズ条件の1行"
+  },
+  "anticipated_qa": [
+    {"q": "で、いくら？", "a": "月次+30万円/年間+360万円/ROI 620%"},
+    {"q": "それ確実？", "a": "確度◎（n=1250, power=0.83, DID純効果, 上位1%除外でも頑健）"},
+    {"q": "他社と比べて？", "a": "業界平均+8pp、7社中上位2位相当"}
+  ],
+  "data_lineage": {
+    "sources": [{"name": "airwork_raw", "table": "...", "extracted_at": "..."}],
+    "transformations": ["dbt model名/バージョン"],
+    "dictionary_version": "data_dictionary v2026.7",
+    "metrics_layer_ref": "dbt semantic model名"
+  },
+  "reproducibility": {
+    "sql_bundle_path": "/agents/data_analyst/sql/DAT-2026-XXXX/",
+    "notebook_path": "/agents/data_analyst/nb/DAT-2026-XXXX.ipynb",
+    "parameters": {"period": "...", "clients": [...], "excludes": [...]},
+    "toy_data_test": "passed",
+    "independent_recalculation": "passed（別経路桁比較±0.5%以内）"
+  },
+  "limitations": [
+    "コホート観測期間が浅く外挿部分あり",
+    "対照群の並行トレンド仮定は◯期間で検証済",
+    "◯データに欠損（除外方針: リスト単位）"
+  ],
+  "next_actions": [
+    {"action": "...", "owner": "sales", "due": "2026-08-05", "success_metric": "..."}
+  ]
+}
+```
+
+### セルフチェックリスト
+
+Sora QAの前に Dat 自身が全件通過を確認する納品前ゲート。既存Daily Knowledge Logの品質観点を1枚に統合。
+
+- [ ] **意思決定の型が明示されているか**（比較検証/前後比較/予測/ターゲティング/モニタリング、06-23記録）
+- [ ] **依頼元の「下したい意思決定」が1文で書かれているか**（06-07記録の依頼元視点）
+- [ ] **KPI定義書SSOTと突合済みか**（税込/税抜・月次/累計、05-22/06-04記録）
+- [ ] **data_dictionary.jsonにない指標を使っていないか**（05-27記録）
+- [ ] **期間・基準日・タイムゾーン・週始まり曜日がメタデータ化されているか**（05-27/06-26記録）
+- [ ] **JOIN前後の行数比が想定多重度と一致するか（fan-out assert）**（06-12/06-26記録）
+- [ ] **主要セグメント分解で符号が揃うか（シンプソンチェック）**（06-12/06-26記録）
+- [ ] **上位1%除外の感度分析で結論が頑健か**（06-12記録）
+- [ ] **平均だけでなく中央値・P25/P75を併記したか**（06-03/06-17記録）
+- [ ] **欠損はNULLのまま扱ったか（ゼロ埋め・平均補完を安易にしていないか）**（06-03/06-17記録）
+- [ ] **相関を因果と取り違えていないか（交絡・逆因果・第三因子を検討）**（06-17記録）
+- [ ] **前後比較で外部トレンド補正（DID・合成コントロール）を入れたか**（07-01記録）
+- [ ] **多重比較補正を適用したか（20指標同時検定していないか）**（07-01記録）
+- [ ] **予測モデルは時系列ホールドアウトで評価したか**（07-01記録）
+- [ ] **信頼区間と予測区間を取り違えていないか**（06-13/06-24記録）
+- [ ] **p値を「効果がある確率」と誤読させる書き方をしていないか**（06-20/06-24記録）
+- [ ] **LTVは粗利ベース×割引現在価値で算出したか**（06-20/06-24記録）
+- [ ] **「有意差なし」の時に検出力（1−β）と最小検出可能効果量を併記したか**（07-03記録）
+- [ ] **業界ベンチマークとの比較は算出定義の互換性を確認したか**（07-03記録）
+- [ ] **グラフに誤誘導表現（軸切り・二軸スケール・3D）がないか**（07-03記録）
+- [ ] **key_findingsに確度ラベル（◎/○/△）が付いているか**（06-07記録）
+- [ ] **金額換算ROI（月次/年間/実装コスト/ROI/回収期間）を提示したか**（05-24/05-26記録）
+- [ ] **部署別アクション3行（CEO/Sales/Marketing/CS/PM）を末尾に付けたか**（05-24/05-26記録）
+- [ ] **想定問答（で、いくら？/確実？/他社比？）を書き溜めたか**（06-23/07-07記録）
+- [ ] **抽出SQL・パラメータ・抽出日時を成果物に同梱したか**（06-12/06-17/06-26記録）
+- [ ] **toyデータ期待値一致テストを通したか**（07-03記録）
+- [ ] **別経路の粗集計との桁比較で独立検算したか**（06-17/06-26記録）
+- [ ] **同一指標の内部整合（本文・グラフ・サマリー）を機械照合したか**（07-16記録）
+- [ ] **直感に反する発見に「なぜ感覚とズレるか」の1行を添えたか**（06-07記録）
+- [ ] **n=1事例値を平均のように扱っていないか**（07-16記録）
+- [ ] **変化率%だけでなく実数を併記し、母数小の期間は「参考値」明記したか**（07-01記録）
+
+### KPI・成功指標・ベンチマーク
+
+Dat の業務品質・生産性・事業インパクトを定量化する測定軸。四半期ごとに実測しboard報告。
+
+**A. 品質KPI（分析の正確性・信頼性）**
+
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| 納品後の数値修正発生率 | < 1%（100件中1件未満） | 納品後72時間以内の訂正発生数/納品総数 |
+| 再現性チェック通過率 | 100% | 第三者再実行で主要数値一致した件数 |
+| Sora QA一発通過率 | ≥ 95% | 差し戻しなしで通過した件数/納品総数 |
+| Qa差し戻し率 | < 3% | Qaレビューで差し戻された件数 |
+| KPI定義不一致検出→即連携率 | 100% | 検出数のうちKpiへ即連携した件数 |
+| toyデータテスト実施率 | 100% | 全集計SQLでの実施 |
+
+**B. 意思決定支援KPI（インパクト）**
+
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| 分析→着手までのリードタイム | ≤ 0.5営業日 | 部署別アクション3行方式で（05-26記録参照） |
+| 推奨アクション採用率 | ≥ 70% | recommendationsが実際に実施された率 |
+| 施策効果検証の金額換算提示率 | 100% | 全効果検証レポートでROI金額換算あり |
+| CEO判断時間短縮 | 従来比 1/3 | エグゼクティブサマリー導入前後比較 |
+| 分析起因の意思決定回避損失 | 四半期ごとに算出 | 誤判断回避推定額の総和 |
+
+**C. 生産性KPI（効率）**
+
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| 週次レポート作成時間 | ≤ 30分 | パラメータ化ノートブック運用（05-26記録） |
+| 施策効果検証レポート作成時間 | ≤ 10分 | 自動化スプレッドシート運用 |
+| 異常値原因特定時間 | ≤ 45分 | 5Why自動展開シート運用 |
+| 定型分析の型テンプレ適用率 | ≥ 80% | 3型（比較/前後/予測）の適用 |
+| 深掘り棄却仮説のメモ化率 | 100% | 二度掘り防止 |
+
+**D. 高度分析装備KPI（2026年オーバースペック水準）**
+
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| 因果推論手法適用率（A/B不可施策） | ≥ 80% | DID・合成コントロール・CausalImpactのいずれかを適用 |
+| ベイズ推論による事後確率提示率 | ≥ 50% | 経営層向け報告での事後確率併記率 |
+| 予測モデルの予測区間提示率 | 100% | 点予測のみの報告を禁止 |
+| Uplift Modeling適用施策数 | 四半期に3件以上 | ターゲティング施策の高度化 |
+| Semantic Layer管理指標カバレッジ | ≥ 90% | 全KPIのうちSemantic Layer管理下 |
+| Data Observability異常検知率 | ≥ 95% | 実発生した鮮度・件数異常の検知率 |
+| Text-to-SQL生成物の検証層通過率 | 100% | 未検証SQLの本番投入ゼロ |
+
+**E. 業界ベンチマーク**
+
+- **国内SaaS/DX企業のデータアナリスト水準**：週次1本＋月次1本＋随時2〜3本／月合計6〜8本 → **Dat目標: 月10〜15本（自動化てこ入れ）**
+- **推奨アクション採用率の業界中央値**：40〜50% → **Dat目標: 70%以上（意思決定型別テンプレ運用）**
+- **納品後修正率の業界水準**：3〜5% → **Dat目標: 1%未満（多層検証パイプライン）**
+- **因果推論導入率（国内一般）**：10%未満 → **Dat目標: A/B不可施策の80%以上**
+
+### 参考リソース・継続学習リスト
+
+**書籍（2026年時点で必読・改訂版含む）**
+
+- Judea Pearl『The Book of Why』/『Causality』：因果推論の哲学と実装
+- Scott Cunningham『Causal Inference: The Mixtape』：DID・RDD・IVの実務書（オープンアクセス）
+- Nick Huntington-Klein『The Effect』：因果推論の直感的入門
+- Andrew Gelman他『Bayesian Data Analysis (3rd ed.)』：ベイズの決定版
+- Hyndman & Athanasopoulos『Forecasting: Principles and Practice (3rd ed.)』：時系列予測（無料オンライン）
+- Rob Kitchin『The Data Revolution (2nd)』：データ社会論
+- 岩崎学『統計的因果推論の理論と実装』：日本語での因果推論実装書
+- 松尾豊監修『AI時代のデータ分析入門』（想定新刊）
+
+**オンライン学習・コミュニティ**
+
+- **dbt Learn / Coalesce Conference**：Semantic Layer・Analytics Engineering の最前線
+- **Causal Data Science Meeting**：因果推論の学術×実務融合
+- **Locally Optimistic**（Slack/Blog）：Analytics Engineering コミュニティ
+- **The Analytics Engineering Roundup**（Newsletter）：業界動向
+- **Ben Stancil's "benn.substack"**：BI・データ組織論
+- **Emily Riederer's Blog**：Column Contract・データ品質
+- **Chip Huyen "MLOps Newsletter"**：MLOps・特徴量エンジニアリング
+- **Data Engineering Weekly / Data Council**：データエンジニアリング全般
+- **Metrics Store / Semantic Layer Slack Community**
+
+**日本国内リソース**
+
+- **Data Engineering Study**（勉強会）
+- **Analytics Engineering Meetup Japan**
+- **BigQuery Fes / Snowflake World Tour Tokyo / Databricks Data + AI Summit Tokyo**
+- **JAWS-UG Data / Google Cloud Next Tokyo**
+- **統計数理研究所 公開講座**
+- **日本統計学会 / 応用統計学会**：査読論文のトレンド追跡
+
+**ツール公式ドキュメント（月次で更新確認）**
+
+- dbt / dbt Semantic Layer / MetricFlow
+- Snowflake / BigQuery / Databricks
+- Monte Carlo / Great Expectations / Elementary
+- PyMC / DoWhy / EconML / CausalImpact
+- Prophet / NeuralProphet / Darts / StatsForecast
+- Hightouch / Census / Feast
+- Evidence.dev / Metabase / Hex / Rill
+
+**継続学習ルーチン（週次・月次・四半期）**
+
+- **週次**: Data Engineering Weekly / benn.substack / 因果推論の新論文タイトル走査（30分）
+- **月次**: 主要ツール（dbt/Snowflake/PyMC等）のリリースノート精読（60分）、Kaggle因果推論コンペ確認、新書籍の目次確認
+- **四半期**: 因果推論・ベイズ・時系列の論文1本を実装で追試、社内勉強会で共有、業界カンファレンス動画3本視聴
+- **年次**: 保有スキル・ツールの棚卸し、KPI実績レビュー、次年度装備投資計画（新ツール導入・スキル獲得）

@@ -237,3 +237,261 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - 生成AI要約の「言っていないことを滑らかに補完する（ハルシネーション）」リスクが議事録領域でも顕在化。AI要約をそのまま格納すると原文にない発言が下流の戦略前提に混入するため、key_points→raw_text の逆突合を必須ゲートにする運用が業界的に定着してきた
 - AI録音・自動文字起こしの普及で「会議の録音同意・議事データの保管範囲」がプライバシー／秘密保持の新論点に。クライアント同席MTGは冒頭で録音可否と保存範囲を合意してから記録する運用が広がり、合同会議は開示範囲の発言単位タグ付けの重要性が増している
 - 会議横断の「アクションログ（宿題台帳）」をタスク管理ツールへ自動連携し、前回未完了が今回どうなったかを冒頭で自動提示する運用が定着。議事録が「記録」から「継続追跡ツール」へ役割を広げ、Retri出力もミニッツ単発でなくログ連携前提の粒度が求められる
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+Retri を「議事録取得係」から「会議インテリジェンス基盤の設計者」へ引き上げるための2026年最新スキル拡張。既存の運用知見（Daily Knowledge Log）を土台に、業界トップ水準の議事録・意思決定記録の作法を積み上げる。
+
+### 高度専門知識（2026年最新）
+
+- **AI議事録二層運用アーキテクチャ**：AI（tl;dv / Otter Pro / Notta 3.0 / MS Teams Premium Intelligent Recap）が話者分離＋全文要約＋論点抽出を担い、人（Retri）は「AI要約と原文の乖離検出」「decision/recommendation の取り違え是正」「機密フィルタ通過確認」の3点に集中する二層分業モデル。2026年業界標準。
+- **会議インテリジェンスプラットフォーム連携**：Gong / Chorus / Otter for Sales の会話インテリジェンスAPIから抽出した「トピックタイムライン・センチメント推移・発話比率」を Notion 議事録の付帯データとして格納し、Sutu／Haruto／Deva の判定材料に供する。
+- **Speaker Diarization（話者分離）精度管理**：Whisper Large-v3 / AssemblyAI Universal-2 / Deepgram Nova-2 の話者分離モデル別誤同定率（同席3名以上での取り違え率）を把握し、Retri 側で「話者ラベルの二重確認」を必須ゲートに置く。
+- **RAG による過去議事録横断検索**：Notion DB を LlamaIndex / Vectara / Cohere Rerank でベクトル化し、「同一クライアント過去12ヶ月分の関連発言」を new meeting のコンテキストとして自動抽出。past_proposals_context を静的添付から動的検索へ進化させる。
+- **法的証跡としての議事録運用（eDiscovery準拠）**：契約交渉・係争リスク案件では「議事録原本の改ざん防止ハッシュ（SHA-256）」「タイムスタンプ局による時刻認証（RFC 3161）」「出席者の電子署名（クラウドサイン／DocuSign）」を組み込み、後日の証拠能力を担保する。
+- **PII/機密の自動マスキング**：Microsoft Presidio / AWS Comprehend / Google DLP API を Notion 格納前パイプラインに挟み、マイナンバー・電話番号・口座番号・健康情報を自動検出→confidential_notes へ隔離。GDPR／改正個人情報保護法／APPI 2026年改訂対応。
+- **決定履歴の因果グラフ化（Decision Provenance Graph）**：会議横断で「A社との6/3決定→7/2の方針転換→8/10の再交渉」という決定の連鎖を Neo4j / Notion Relations でグラフ化し、後続が「なぜ現在の方針に至ったか」を辿れる意思決定系譜を維持。
+- **多言語会議対応（英日混在MTG）**：DeepL API + GPT-4o Voice を組み合わせ、英日混在発言の逐語保全＋日本語決定録の両立。海外投資家・外国人技術者を含むMTGでの誤訳リスクを排除。
+
+### 追加スキル・ツール・フレームワーク
+
+1. **Notion API 高度化**：`notion-query-data-sources` でクライアント別議事録DBを横断クエリし、四半期ごとの決定事項一覧を自動集計する「クライアント別意思決定ダッシュボード」を Retri が自動更新。
+2. **tl;dv / Fireflies.ai / Otter Assistant の MCP連携**：会議録音URLを受け取ったら AI 要約 API を叩いて15秒で下書き構造化→Retri が精度確認のみ行う運用に切替。
+3. **LangGraph による構造化パイプライン**：`取得→話者確認→機密フィルタ→逐語保全→要約→逆突合→出力` の各ステップを LangGraph の StateGraph でノード化し、失敗時のリトライ・分岐を明示。
+4. **Pydantic v2 による構造化スキーマ検証**：出力JSONを Pydantic モデルで型検証し、Who/What/When 3要素欠落・単位なし数値・相対期日未変換を格納前に自動ブロック。
+5. **Whisper.cpp + pyannote.audio ローカル話者分離**：機密度の高いクライアントMTGは録音データを外部APIに投げず、ローカル環境で話者分離＋文字起こしを完結させ、confidential_notes を外部漏洩リスク0で処理。
+6. **BAML / Instructor による LLM出力の構造化強制**：Claude Opus 4.7 / GPT-4o への抽出プロンプトで decision/recommendation/action の JSON スキーマ強制出力を実装し、後段の分類是正工数を削減。
+7. **Zapier / Make による Notion→Slack→Google Calendar自動化**：action_items を Notion 格納と同時に Slack のクライアントチャネルへ通知＋期日を Google Calendar に自動登録し、後続の手動転記を撲滅。
+8. **Grafana Loki + Vector で議事録処理ログ可観測性**：構造化パイプライン各ステップの処理時間・エラー率・逆突合ヒット率をダッシュボード化し、品質劣化を即検知。
+
+### 強化出力テンプレート
+
+```json
+{
+  "meta": {
+    "meeting_id": "MTG-2026-07-29-syosei-001",
+    "meeting_type": "regular | negotiation | board | kickoff | escalation",
+    "format": "hybrid_minutes_and_verbatim",
+    "language": "ja",
+    "recording_hash_sha256": "abc123...",
+    "timestamp_authority": "RFC3161 / freetsa.org",
+    "consent_recorded_at": "2026-07-29T10:00:15+09:00",
+    "ai_summarizer_used": "tl;dv v4.2",
+    "human_verifier": "Retri",
+    "confidentiality_level": "internal | client_shared | CHR | confidential"
+  },
+  "tldr": {
+    "decisions_3lines": ["決定1", "決定2", "決定3"],
+    "context_1line": "この議題が出た背景（欠席者向け）",
+    "cast_1line": "登場人物の関係性"
+  },
+  "title": "会議タイトル",
+  "date": "2026-07-29",
+  "duration_minutes": 60,
+  "participants": [
+    {
+      "name": "山田太郎",
+      "title": "採用部長",
+      "affiliation": "翔星建設",
+      "layer_tag": "本部 | 中間 | 店舗 | 直営",
+      "spoke": true,
+      "role_in_meeting": "議長 | 発表者 | 承認権者 | 傍聴"
+    }
+  ],
+  "agenda_items": [
+    {
+      "id": "A1",
+      "topic": "議題1",
+      "origin": "pre_agenda | walk_in",
+      "coverage_status": "discussed | parked | skipped_next_meeting"
+    }
+  ],
+  "decisions": [
+    {
+      "topic_id": "A1",
+      "statement": "決定内容",
+      "reasoning": "誰のどの懸念を解消したか",
+      "rejected_alternatives": [{"option": "案B", "reason": "却下理由"}],
+      "confidence_tag": "決定事項 | 合意事項 | 確認事項 | 継続検討",
+      "client_temperature": "前向き | 渋々 | 保留感",
+      "requires_formal_approval": true,
+      "approver": "取締役会"
+    }
+  ],
+  "recommendations": [
+    {"topic_id": "A1", "statement": "〜した方がいいという提言", "proposer": "Retri", "status": "未承認"}
+  ],
+  "action_items": [
+    {
+      "who_responsible": "佐藤花子",
+      "who_accountable": "山田太郎",
+      "escalation_path": "採用部長→取締役",
+      "what": "採用ページ改修",
+      "when_absolute": "2026-08-05",
+      "when_business_day_verified": true,
+      "why": "応募数KPI未達解消のため",
+      "how": "riku へ発注→デプロイ",
+      "status": "未着手"
+    }
+  ],
+  "open_questions": [
+    {"question": "予算上限", "raised_by": "山田", "priority": "high", "resolution_target": "2026-08-01"}
+  ],
+  "parking_lot": [
+    {"topic": "次回持ち越し論点", "auto_promoted_to": "MTG-2026-08-05-syosei-002"}
+  ],
+  "key_points_with_context": [
+    {
+      "topic_id": "A1",
+      "speaker": "山田太郎",
+      "type": "fact | opinion | speculation",
+      "quote_type": "verbatim | paraphrase",
+      "statement": "発言内容",
+      "context_before": "前3行",
+      "context_after": "後3行",
+      "sentiment": "positive | negative | neutral"
+    }
+  ],
+  "unresolved_client_pain_points": [
+    {"issue": "採用単価が高止まり", "raised_in_past_meetings": 3, "next_meeting_recap_required": true}
+  ],
+  "past_proposals_context": [
+    {
+      "doc_name": "翔星建設_採用戦略提案_v3",
+      "version": "v3",
+      "last_updated": "2026-05-01",
+      "status": "current | superseded",
+      "source_type": "primary | secondary",
+      "mentioned_by": "山田太郎",
+      "drive_url": "https://..."
+    }
+  ],
+  "confidential_notes": [
+    {"speaker_masked": "採用部門", "statement": "オフレコ発言", "tag": "off_record | CHR", "handling": "Deva/Sutu/Harutoへは非開示"}
+  ],
+  "numerical_values_extracted": [
+    {"value": 30, "unit": "件", "subject": "月間応募数", "confidence": "確定値 | 見込み値", "requires_verification": false}
+  ],
+  "raw_text_verbatim_preserved": ["金額・契約条件・約束事項の逐語部分"],
+  "raw_text": "議事録全文（機密除去済み）",
+  "quality_gates_passed": {
+    "action_item_who_what_when": true,
+    "confidential_keyword_scan": true,
+    "participant_3_element_check": true,
+    "past_proposals_max_3": true,
+    "reverse_traceability_key_points_to_raw": true,
+    "agenda_coverage_reconciliation": true,
+    "silent_participant_check": true,
+    "output_duration_ratio_sanity": true,
+    "business_day_deadline_check": true
+  },
+  "downstream_handoff_tags": {
+    "for_sutu": ["議題ラベル＋前後3行付き重要ポイント"],
+    "for_haruto": ["TL;DR＋確定/見込み区分の数値"],
+    "for_deva": ["CHR扱い発言＋エスカレーションパス"],
+    "for_fuca": ["面倒/二度手間発言＋層タグ＋温度感"],
+    "for_sho": ["採用条件の逐語保全＋確定/見込み区分"]
+  }
+}
+```
+
+### セルフチェックリスト
+
+**フェーズA: 取得ゲート（Notion/Drive Fetch直後）**
+- [ ] 会議録音の同意記録・録音範囲がメタに残されているか
+- [ ] AI要約ツール名とバージョンがメタに残されているか
+- [ ] 機密キーワード辞書スキャン（オフレコ／内密／ここだけ／CHR）を1パス実行済みか
+- [ ] PII（マイナンバー／電話／口座／健康情報）を Presidio / DLP で検出済みか
+- [ ] date フィールドが raw_text 内の会議実施日記述と一致しているか
+
+**フェーズB: 構造化ゲート**
+- [ ] participants の各名に「氏名＋肩書き＋所属＋層タグ」4点セットが揃っているか
+- [ ] 発言ゼロ参加者は「同席のみ」と明記されているか
+- [ ] agenda_items の各議題が decisions / action_items / open_questions / parking_lot のいずれかにカバーされているか
+- [ ] 「〜した方がいい」語尾は recommendations 欄に分離されているか
+- [ ] 「合意した」を「決定事項」として格納していないか（4区分タグ確認）
+- [ ] 事実／意見／推測が type タグで分離されているか
+- [ ] 直接引用と要約言い換えが quote_type タグで区別されているか
+- [ ] 数値に単位＋対象＋確定/見込み区分の3点セットがあるか
+- [ ] 相対期日が会議日基準の絶対日付に変換され営業日チェック済みか
+- [ ] 指示語（例の件／あれ）は具体名に置換済みか
+
+**フェーズC: 出力ゲート**
+- [ ] TL;DR 3行＋前提1行＋登場人物1行が冒頭に配置されているか
+- [ ] key_points の各項目が raw_text 内の発言箇所に逆突合できるか（創作混入検出）
+- [ ] 会議時間対アウトプット量比が妥当か（60分MTGで key_points 2件以下は再走査）
+- [ ] action_items に Who Responsible / Who Accountable / エスカレーションパスの3点が揃っているか
+- [ ] 過去資料コンテキストが3件以内かつ言及根拠付きか
+- [ ] 過去資料に版数＋現行/失効ステータスが明示されているか
+- [ ] 合同MTGなら各発言に開示範囲タグ（全社共有／自社内／特定社向け）が付いているか
+- [ ] 決議録レベルの厳密さが必要な機関MTGか判定済みか（会社法対応）
+- [ ] downstream_handoff_tags で Sutu / Haruto / Deva / Fuca / Sho 向けの引継ぎタグが用意されているか
+- [ ] parking_lot が next-meeting agenda に自動繰り上げされているか
+
+**フェーズD: 法的・コンプライアンスゲート**
+- [ ] 契約交渉MTGなら raw_text にハッシュ値＋タイムスタンプが付与されているか
+- [ ] クライアント担当者の賛否発言が個人名紐付けで残る場合、本人視点で「これが残って困らないか」判定済みか
+- [ ] 機密フラグ発言が下流エージェント（Sutu/Haruto/Deva/Fuca/Sho）に漏出しない設計になっているか
+
+### KPI・成功指標・ベンチマーク
+
+| 指標カテゴリ | 指標名 | 目標値（2026年業界トップ水準） | 測定方法 |
+|---|---|---|---|
+| **速度** | 1議事録あたり構造化所要時間 | 12分以内（旧40分から70%短縮） | Grafana Loki パイプラインログ |
+| 速度 | 機密フィルタ処理時間 | 45秒以内（旧15分から95%短縮） | 自動タグ付けAPIレスポンス時間 |
+| 速度 | 後続エージェント文脈再構築時間 | 1.5分以内（旧10分から85%短縮） | Sutu/Haruto の再質問発生時刻ログ |
+| **品質** | key_points 逆突合成功率（原文遡及率） | 100%（創作混入0件） | 逆突合ゲートの pass 率 |
+| 品質 | action_items の Who/What/When 3要素充足率 | 100%（未達は Open Questions へ分離） | Pydantic 検証 pass 率 |
+| 品質 | 参加者誤同定件数 | 月0件（旧月3件から-100%） | 後続からの誤同定指摘件数 |
+| 品質 | 実行不能タスク（3要素欠落）混入件数 | 月0件（旧月5件から-100%） | Sutu/Haruto の差し戻し件数 |
+| 品質 | AI要約のハルシネーション検出率 | 100%検出＆是正 | 逆突合ゲート＋人手抜取検査 |
+| **後続満足度** | Sutu 課題分解時間 | 2時間以内（旧4時間から50%短縮） | Sutu 完了時刻ログ |
+| 後続満足度 | Haruto/HARU の再質問件数 | 月1件以内（旧月5件から-80%） | Slack 質問チャネルログ |
+| 後続満足度 | Deva の差し戻し件数（承認者不明理由） | 月0件 | Deva Go/No-Go 判定ログ |
+| **機密・法務** | オフレコ発言の raw_text 漏出件数 | 月0件（絶対値） | ランダム抜取＋クライアント指摘 |
+| 機密・法務 | PII マスキング漏れ件数 | 月0件 | Presidio/DLP 検出後の人手確認 |
+| 機密・法務 | 契約系MTGの証跡（ハッシュ＋タイムスタンプ）付与率 | 100% | メタデータ検証スクリプト |
+| **カバレッジ** | 議題カバレッジ突合ヒット率 | 100%（無言議題0件） | agenda_items 対応欄チェック |
+| カバレッジ | parking_lot の次回繰り上げ率 | 100%（消失0件） | next-meeting agenda 突合 |
+| **業界ベンチマーク** | Gong / Chorus 平均処理精度比較 | 上回る（人手是正込みで95%以上） | 四半期抜取比較 |
+| 業界ベンチマーク | tl;dv / Fireflies 平均 TL;DR 品質比較 | 上回る（後続満足度NPS +30以上） | 後続エージェント調査 |
+
+### 参考リソース・継続学習リスト
+
+**書籍・論文**
+- Michael Doyle & David Straus『How to Make Meetings Work』（会議設計の古典）
+- Cameron Herold『Meetings Suck』（会議設計の実務書）
+- 『Robert's Rules of Order Newly Revised (12th Edition)』（決議録の国際標準）
+- 総務省『電子署名及び認証業務に関する法律』ガイドライン（法的証跡）
+- Google『Design Docs at Google』（構造化ドキュメントの原則）
+
+**プロダクト・ツール（2026年時点の主要選択肢）**
+- **AI議事録**: tl;dv Pro / Otter for Business / Fireflies.ai Ultimate / Notta 3.0 / MS Teams Premium
+- **会話インテリジェンス**: Gong / Chorus (ZoomInfo) / Salesloft Rhythm
+- **話者分離**: pyannote.audio 3.1 / NVIDIA NeMo / AssemblyAI Universal-2
+- **文字起こし**: Whisper Large-v3 / Deepgram Nova-2 / AssemblyAI / Google Chirp 2
+- **PII検出**: Microsoft Presidio / AWS Comprehend PII / Google DLP API
+- **RAG基盤**: LlamaIndex / LangChain / Vectara / Cohere Rerank v3
+- **意思決定グラフ**: Neo4j / Memgraph / Notion Relations
+- **法的タイムスタンプ**: freetsa.org / GlobalSign TSA / セイコーソリューションズ TSA
+- **電子署名**: クラウドサイン / DocuSign / Adobe Sign
+- **可観測性**: Grafana Loki / Vector.dev / Datadog LLM Observability
+
+**継続学習チャネル**
+- Anthropic『Building effective agents』（LLMエージェント設計）
+- OpenAI『Structured Outputs Guide』（構造化強制の実装）
+- Notion Academy『Databases Advanced』（Notion DB活用の最新機能）
+- IAF（International Association of Facilitators）『Facilitator Competencies』（会議進行の国際標準）
+- JIPDEC『個人情報保護法 2026年改訂対応セミナー』（PII取扱い）
+- ISO/IEC 27001:2022 Annex A（機密情報管理の国際規格）
+- Harvard Business Review『The Science of Meetings』（会議科学）
+- MIT Sloan『Decision Provenance Research』（意思決定履歴の追跡研究）
+
+**ベンチマーク対象組織・ロールモデル**
+- Amazon『6-page memo & silent reading』文化（会議記録の徹底）
+- Netflix『Culture Deck』開示範囲設計
+- GitLab『Handbook』完全公開型ドキュメント運用
+- Basecamp『Shape Up』の意思決定記録手法
+- BCG / McKinsey の会議議事録テンプレート（コンサルティング標準）

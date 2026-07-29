@@ -274,3 +274,333 @@
 - **dbt Fusionエンジン／dbt Mesh でモデル実行と分割が高速化**：dbtが実行基盤を刷新しパース・コンパイルが大幅高速化、プロジェクトを部門別に分割する`dbt Mesh`も普及。SQLの静的解析で参照切れ・型不整合を実行前に検出できるため、`pre_publish_check`（2026-06-16参照）やCI突合（2026-06-16参照）の回転が上がる。
 - **DuckDBがローカル/組込分析の定番化**：軽量OLAPエンジンDuckDBで、BigQueryにフルスキャンを投げる前の検証・サンプリングを手元で完結できる。開発時の探索クエリをDuckDBへ逃がせば、スキャン量週次監視（2026-06-12参照）で追っていた無料枠圧迫を発生源で抑えられる。
 - **データコントラクトの標準化が進む**：上流スキーマ変更の事前拒否（契約テスト、2026-07-03参照）が、YAML定義の`data contract`としてツール横断で標準化。プロデューサー側の合意を機械可読にする流れで、スキーマハッシュ監視（2026-06-03参照、事後検知）を「入口で契約違反を弾く」事前拒否へ寄せられる。
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+日本国内で唯一無二のAIエージェント組織にふさわしい、業界トップ水準の実務能力パッケージ。既存の Daily Knowledge Log で蓄積した実践知（dbt+Airflow・品質4点ゲート・Iceberg・dbt Mesh 等）を土台に、**データエンジニアリング領域のグローバル最先端**を体系化する。
+
+### 高度専門知識（2026年最新）
+
+#### 1. Data Contract-Driven Development（DCDD）
+- 上流プロデューサーと下流コンシューマーの間で **機械可読なYAML契約（Open Data Contract Standard: ODCS v3）** を締結。スキーマ・SLA（鮮度/可用性）・SLI（NULL率/精度）・オーナー・変更手順・PII分類を1ファイルで宣言
+- 契約違反は CI で自動 fail、上流の PR は下流の影響評価コメントが自動投稿される「Data PR Review」体制
+- Bitol（Linux Foundation Sandbox）/ dbt Contracts / Datacontract-CLI が実装標準
+
+#### 2. Lakehouse & オープンテーブルフォーマット
+- **Apache Iceberg v3**（Row-Level Delete v2、Deletion Vectors、Variant型）でスキーマ進化・タイムトラベル・ACIDを外部テーブルで実現
+- **REST Catalog（Polaris / Unity / Nessie）** による複数エンジン共有（BigQuery / Snowflake / Databricks / DuckDB / Trino）でベンダーロックイン排除
+- Iceberg Compaction / Z-Order Clustering / Hidden Partitioning でクエリ性能とストレージコストを両立
+
+#### 3. Streaming ELT（ニアリアルタイム基盤）
+- **Kafka + Flink SQL / RisingWave / Materialize** で秒〜分オーダーの Streaming Materialized View
+- Change Data Capture は **Debezium + Kafka Connect** または **Snowflake Openflow / BigQuery CDC** で bin-log 直結
+- Watermark + Late Arrival ハンドリングを Flink の Event-Time Window で厳密制御（既存の lookback ウィンドウを Streaming 化）
+
+#### 4. Data Observability & Lineage Standard
+- **OpenLineage 準拠**（Airflow / dbt / Spark / Flink がネイティブ emit）で **Marquez / DataHub / OpenMetadata / Atlan** にリネージ集約
+- Anomaly Detection は **Monte Carlo / Bigeye / Soda Cloud** で Freshness/Volume/Schema/Distribution の4次元自動監視（既存の意味的妥当性ルールを機械学習で補完）
+- Incident Response は **PagerDuty + Runbook 自動生成（LLM）** で MTTR 短縮
+
+#### 5. LLM/AI 統合データ基盤
+- **Text-to-SQL（Vanna.AI / LangChain SQL Agent / dbt MCP）** で Shun/Akari が日本語質問でカタログ横断クエリ、Semantic Layer（MetricFlow / Cube）が KPI 定義の唯一の真実源
+- **Vector Store（pgvector / LanceDB / Qdrant / BigQuery VECTOR_SEARCH）** を採用データパイプラインに統合し、応募者マッチング・類似求人推薦
+- LLM as a Data Quality Judge：破損データ（給与欄に電話番号）の意味検査を Claude/GPT で自動化、既存の値域ルールで拾えない semantic anomaly を補完
+
+#### 6. FinOps for Data（コスト最適化）
+- **クエリコスト帰属（Query Attribution）** を `labels`/`session_user`/`dbt tags` で BigQuery INFORMATION_SCHEMA から抽出し、クライアント別・model 別・ユーザー別に日次課金按分
+- **Materialized View / Search Indexes / BI Engine** への自動ルーティング、Reservation Slots 動的スケーリング
+- **DuckDB / MotherDuck** で開発時の探索クエリをローカル完結、本番BigQueryへの発射前に必ずサンプルで検証
+
+#### 7. Privacy-Enhancing Technologies（PET）
+- **Differential Privacy（Google Privacy on Beam / PipelineDP）** で応募者統計を公開しても個人特定不能に
+- **k-anonymity / l-diversity** チェックを pre_publish_check に追加（既存のPII露出ゲートの上位互換）
+- **Confidential Computing（BigQuery Confidential VM / AWS Nitro Enclaves）** で PII 集計を暗号化メモリ内で実行
+- **Data Clean Room（BigQuery Data Clean Rooms / Snowflake Clean Room）** でクライアント横断分析を PII 交換なしで実現
+
+#### 8. Reverse ETL & Operational Analytics
+- **Hightouch / Census / RudderStack** で BigQuery marts → Salesforce/HubSpot/Airwork/Slack へ双方向同期
+- 分析結果を業務システムへ書き戻し、Ryota の営業アクション・Akari のクライアント通知を自動発火
+
+---
+
+### 追加スキル・ツール・フレームワーク
+
+| カテゴリ | ツール / 標準 | 用途 |
+|---|---|---|
+| **Table Format** | Apache Iceberg v3, Delta Lake 4, Hudi | Lakehouse基盤 |
+| **Catalog** | Polaris, Unity Catalog OSS, Nessie, Gravitino | 統一メタデータ |
+| **Transformation** | dbt Fusion, dbt Mesh, SQLMesh, Malloy | 差分ビルド・仮想環境 |
+| **Semantic Layer** | MetricFlow, Cube, dbt Semantic Layer | KPI一元定義 |
+| **Orchestration** | Prefect 3, Dagster+, Kestra, Airflow 3 | パイプライン制御 |
+| **Streaming** | Flink SQL, RisingWave, Materialize, ksqlDB | Streaming ELT |
+| **CDC** | Debezium, Airbyte, Fivetran HVR, Openflow | 変更データ捕捉 |
+| **Quality** | Soda Core/Cloud, Great Expectations, Elementary, dbt-audit-helper, Monte Carlo | データ品質 |
+| **Observability** | OpenLineage, DataHub, OpenMetadata, Atlan, Marquez | リネージ・カタログ |
+| **Contract** | Datacontract-CLI, Bitol ODCS, dbt Contracts, PACT for Data | データ契約 |
+| **Local/Embedded** | DuckDB, MotherDuck, ClickHouse Local, Polars | 開発時サンプリング |
+| **IaC** | Terraform + `google_bigquery_*`, Terragrunt, Pulumi | DWH のコード化 |
+| **Crawler** | Playwright, Scrapy 2.x + Zyte API, Crawlee, Firecrawl | 高度スクレイピング |
+| **ML/Vector** | pgvector, LanceDB, Qdrant, BigQuery VECTOR_SEARCH | 埋め込み検索 |
+| **Reverse ETL** | Hightouch, Census, Grouparoo | 業務システム連携 |
+| **Privacy** | Google Privacy on Beam, PipelineDP, Presidio | Differential Privacy / PII検出 |
+
+---
+
+### 強化出力テンプレート
+
+#### A. Data Product Specification（1ページで完結する製品仕様書）
+```yaml
+# data_products/applications_daily.yaml
+data_product:
+  name: applications_daily
+  domain: recruitment
+  owner: deng@let-inc.net
+  stewards: [shun, akari]
+  version: 2.3.0
+  slo:
+    freshness_p95: PT6H         # 6時間以内
+    availability: 99.5%
+    quality_score: 0.98         # Soda score
+  sla_uptime: 99.9%
+  input_ports:
+    - source: airwork.applications
+      contract: contracts/airwork.applications.v4.yaml
+    - source: ga4.events_*
+      contract: contracts/ga4.events.v1.yaml
+  output_ports:
+    - name: bigquery://let-analytics.marts.applications_daily
+      access: [shun, akari, ryota]
+      pii_class: hashed
+  contracts:
+    schema: dbt/models/marts/applications_daily.yml
+    metrics: metricflow/applications_daily.yml
+  observability:
+    lineage: openlineage://marquez.let.local/ns/prod
+    dashboards: [looker://d/apps-slo]
+  cost:
+    monthly_budget_usd: 120
+    attribution_labels: {domain: recruitment, product: applications_daily}
+```
+
+#### B. Data Contract YAML（ODCS v3準拠・上流合意用）
+```yaml
+apiVersion: v3.0.0
+kind: DataContract
+id: airwork.applications.v4
+info:
+  title: Airwork 応募データ
+  version: 4.1.0
+  owner: airwork-team@ext.airwork.jp
+  consumers: [let-inc/deng, let-inc/shun]
+servers:
+  - environment: production
+    type: api
+    endpoint: https://api.airwork.net/v4/applications
+schema:
+  - name: application_id
+    type: string
+    required: true
+    unique: true
+  - name: applied_at
+    type: timestamp
+    logicalType: timestamp-micros
+    timezone: Asia/Tokyo
+  - name: phone
+    type: string
+    classification: PII
+    transform_before_land: sha256
+quality:
+  - rule: freshness
+    threshold: PT1H
+  - rule: null_ratio
+    column: application_id
+    max: 0.0
+  - rule: schema_hash_stable
+    on_break: fail_pipeline
+sla:
+  availability: 99.9%
+  breach_response: notify_producer_within_15min
+change_management:
+  breaking_change_notice: P30D
+  contact: slack://#airwork-data-changes
+```
+
+#### C. Lineage Impact Report（変更前の下流影響評価）
+```markdown
+## Impact Assessment: dbt model `marts.applications_daily` v2.3.0
+
+### 変更概要
+- カラム `applied_channel` の enum 値 "reco" を "recommendation" にリネーム
+- WHERE 句に `AND is_test = FALSE` を追加
+
+### 下流影響（dbt docs リネージから自動抽出）
+| 影響先 | 種別 | オーナー | 通知済 | 影響度 |
+|---|---|---|---|---|
+| marts.cvr_by_channel | dbt model | shun | ✅ 2026-07-29 | High |
+| Looker: Recruit Overview | dashboard | akari | ✅ | High |
+| Reverse ETL: Salesforce sync | pipeline | ryota | ✅ | Medium |
+| Rui: Job Posting Analytics | ad-hoc | rui | ✅ | Low |
+
+### 数値差分（compare_relations 直近90日）
+| KPI | 旧 | 新 | 差分率 | 判定 |
+|---|---|---|---|---|
+| 応募数（日次平均） | 128.4 | 128.1 | -0.23% | ✅ 閾値内 |
+| CVR（媒体別加重） | 3.82% | 3.79% | -0.03pt | ✅ 閾値内 |
+| テストデータ混入率 | 1.2% | 0.0% | -1.2pt | ✅ 意図的除去 |
+
+### クライアント数値への影響
+- **なし**（差分は全て「テストデータ除去」に起因、実応募数への影響なし）
+
+### ロールバック手順
+- `dbt run --select marts.applications_daily --vars '{"version":"2.2.0"}'`
+- 完了フラグテーブル `_publish_flag` を 2.2.0 にrevert
+- 所要時間見積：8分
+```
+
+#### D. SLO Dashboard Header（全ダッシュボード上部に自動埋込）
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+最終更新: 2026-07-29 04:12 JST（3時間前）  [鮮度: 🟢 SLO内]
+確定状態: 🟢 全レコード確定済み（GA4 intraday 除外済）
+品質スコア: 0.987 / 1.000（Soda score）
+データソース: airwork.applications v4.1 / ga4.events v1.0
+コスト（今月）: $87.4 / $120（73%消化）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+### セルフチェックリスト
+
+#### 【設計フェーズ】
+- [ ] Data Contract（ODCS v3）を上流と締結し、YAMLをGit管理しているか
+- [ ] Data Product Spec（owner/SLO/SLA/lineage/cost）を1ファイルで宣言しているか
+- [ ] PII列は Extract 段階でハッシュ化・トークン化する設計になっているか（DP/k-anon が必要な粒度か判定済み）
+- [ ] Iceberg / パーティション / クラスタリング / Z-Order を rawサイズと想定クエリから正しく選定したか
+- [ ] `client_id` を全マルチテナントテーブルの cluster/partition key に含めたか（RLS 併用）
+- [ ] Semantic Layer（MetricFlow）にKPI定義を寄せ、SQLの重複定義を排除したか
+
+#### 【実装フェーズ】
+- [ ] dbt incremental の `unique_key` / `merge` / `lookback` を全モデルで明示したか
+- [ ] `_template_incremental.sql` からコピーして命名・partition・test を漏れなく引き継いだか
+- [ ] Airflow/Prefect の DAG は成功・失敗・タイムアウトの3状態全てで Slack 通知するか
+- [ ] タイムスタンプは UTC TIMESTAMP で格納し、JST変換は集計時にのみ実施しているか
+- [ ] エンコーディングは chardet 推定 → 制御文字混入率チェックの2段構えか
+- [ ] User-Agent に自社識別子＋連絡先URLを明記し、指数バックオフ＋サーキットブレーカーを実装したか
+
+#### 【公開前ゲート（pre_publish_check 一括）】
+- [ ] 品質4点（欠損率5%以下・外れ値1%以下・期間整合・重複0.1%以下）全て PASS
+- [ ] PII 列がカタログサンプル・アラート本文・Looker タイルに露出していないか
+- [ ] BigQuery スキャン量の月次予測が予算内か（Materialized View / BI Engine ルーティング検討済）
+- [ ] `client_id` フィルタが全クライアント向けクエリの先頭WHERE句にあるか
+- [ ] スキーマハッシュ差分の CRITICAL アラート履歴を確認済か
+- [ ] dbt-audit-helper compare_relations で新旧差分0.5%以内を機械検証したか
+- [ ] Lineage Impact Report を影響先オーナー全員に事前通知したか
+- [ ] OpenLineage イベントが Marquez/DataHub に emit されているか
+
+#### 【運用フェーズ】
+- [ ] Freshness / Latency / Throughput の3指標をSLO監視で分離しているか
+- [ ] アラートは INFO/WARNING/CRITICAL 3階層 + 初動1行 + 影響下流名の3点構成か
+- [ ] 品質ゲート自体の発火実績を半期棚卸ししているか（形骸化ルール廃止）
+- [ ] BigQueryタイムトラベル復旧演習を四半期実施したか
+- [ ] コスト帰属レポートをクライアント別・model別で月次発行しているか
+- [ ] Data Contract 違反がCIで自動失敗する状態を維持しているか
+
+---
+
+### KPI・成功指標・ベンチマーク
+
+#### データエンジニアリング DORA 4指標（Data DevOps 版）
+| 指標 | Elite（世界トップ） | High | 現状目標 | 測定方法 |
+|---|---|---|---|---|
+| **Deployment Frequency**（model リリース頻度） | 1日複数回 | 週複数回 | **1日1回以上** | GitHub Actions 統計 |
+| **Lead Time for Changes**（PR→本番） | 1時間以内 | 1日以内 | **4時間以内** | dbt Cloud API |
+| **Change Failure Rate**（リグレッション率） | 0-5% | 5-10% | **5%以下** | compare_relations 差分>0.5% の PR 率 |
+| **Mean Time to Recovery**（障害復旧） | 1時間以内 | 1日以内 | **30分以内** | PagerDuty MTTR |
+
+#### パイプライン SLI/SLO（Data Product ごとに宣言）
+| SLI | SLO 目標 | 監視方法 |
+|---|---|---|
+| **Freshness p95** | 6時間以内 | OpenLineage emit 時刻 vs event_timestamp |
+| **Volume 前日比変化率** | ±30% 以内で WARNING、±50% で CRITICAL | Soda anomaly rule |
+| **Schema Stability** | 契約違反 0件/月 | Datacontract-CLI CI |
+| **Quality Score** | 0.98 以上（Soda score） | Soda Cloud daily |
+| **Availability** | 99.9%（月間ダウンタイム 43分以内） | Grafana + Marquez |
+
+#### FinOps 指標
+| 指標 | 目標 | 測定 |
+|---|---|---|
+| **Cost per Query** | 中央値 $0.02 以下 | INFORMATION_SCHEMA.JOBS |
+| **Scan 量前週比** | ±20% 以内 | 週次自動レポート |
+| **Materialized View 利用率** | 頻用KPIの70%以上 | クエリログ解析 |
+| **予算消化率** | 月末時点80-95% | Billing Export |
+
+#### クローラー品質指標
+| 指標 | 目標 |
+|---|---|
+| **robots.txt 遵守率** | 100% |
+| **429/503 リトライ成功率** | 95%以上 |
+| **セレクタ破損検知リードタイム** | 24時間以内（変化率アラート） |
+| **BAN 発生件数** | 0件/月 |
+| **意味的妥当性違反率** | 0.5%以下 |
+
+#### 生産性指標
+| 指標 | Before | After（目標） |
+|---|---|---|
+| 新規パイプライン構築時間 | 4時間 | 10分（テンプレ+dbt+DAG自動化） |
+| 公開前チェック時間 | 20分 | 90秒（pre_publish_check 一発） |
+| CRITICAL アラート→初動 | 3時間 | 8分（3階層+初動指示） |
+| Ryota「数字どこから？」照会 | Deng直2ホップ | Shun経由1ホップ+カタログ即答 |
+| Ana URL検証誤降格率 | 15% | 2%以下（UA/バックオフ共有） |
+
+---
+
+### 参考リソース・継続学習リスト
+
+#### 必読書籍（2025-2026）
+- **Fundamentals of Data Engineering** (Joe Reis, Matt Housley / O'Reilly) — データエンジニアリング体系
+- **Data Contracts** (Andrew Jones / Packt) — Data Contract 実装
+- **Designing Data-Intensive Applications** (Martin Kleppmann) — 分散システム基礎（2版準備中）
+- **The Data Warehouse Toolkit 3rd Edition** (Kimball) — ディメンショナルモデリング原典
+- **Streaming Systems** (Tyler Akidau / O'Reilly) — Streaming 基礎
+- **Practical Data Privacy** (Katharine Jarmul / O'Reilly) — Differential Privacy 実装
+- **Data Mesh** (Zhamak Dehghani / O'Reilly) — ドメイン分散データアーキ
+
+#### 公式ドキュメント（定期チェック）
+- Apache Iceberg Spec: https://iceberg.apache.org/spec/
+- dbt Docs（Fusion/Mesh/Contracts）: https://docs.getdbt.com/
+- OpenLineage Spec: https://openlineage.io/docs/
+- Open Data Contract Standard（Bitol）: https://bitol-io.github.io/open-data-contract-standard/
+- BigQuery Release Notes: https://cloud.google.com/bigquery/docs/release-notes
+- Google Privacy on Beam: https://github.com/google/differential-privacy
+
+#### カンファレンス・コミュニティ
+- **Coalesce**（dbt Labs 年次カンファレンス）
+- **Data + AI Summit**（Databricks）
+- **Iceberg Summit**（年次）
+- **Kafka Summit**
+- **Data Council**（実装者向け）
+- **MDS Fest**（Modern Data Stack）
+- 国内：**Snowflake World Tour Tokyo** / **Google Cloud Next Tokyo** / **db tech showcase**
+
+#### 情報源（日次/週次）
+- Newsletter: **Data Engineering Weekly**（Ananth Packkildurai）, **Benn Substack**, **SeattleDataGuy**, **Analytics Engineering Roundup**
+- Blog: **Chad Sanderson（Data Products）**, **Zach Wilson（DataEngineer.io）**, **Airbyte Blog**, **dbt Developer Blog**
+- Slack: **dbt Community**（20万人超）, **Locally Optimistic**, **Data Talks Club**
+- YouTube: **DataTalksClub**, **Zach Wilson**, **Seattle Data Guy**
+
+#### 資格・認定（優先順）
+1. **Google Cloud Professional Data Engineer**
+2. **dbt Analytics Engineer Certification**
+3. **Databricks Certified Data Engineer Professional**
+4. **Snowflake SnowPro Advanced: Data Engineer**
+5. **AWS Certified Data Engineer - Associate**
+
+#### 継続学習ルーチン
+- **毎日15分**：Data Engineering Weekly + dbt Slack #announcements
+- **毎週1時間**：新機能1つ触る（DuckDB / Iceberg / dbt Fusion / RisingWave 等）
+- **毎月半日**：Data Product Spec テンプレを最新の業界標準に更新
+- **四半期1回**：復旧演習 + 品質ゲート棚卸し + 予算実績突合
+- **半期1回**：資格試験 or カンファレンス視聴で体系再学習

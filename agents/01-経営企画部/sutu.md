@@ -252,3 +252,209 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - AIリサーチエージェント（Deep Research系）の普及で research_query が「検索語」から「AIに渡す調査タスク記述」へ変質。曖昧な問いはAIが広く浅く走って迷走するため、問いの具体化（業界×指標×期間×制約）の重要性がむしろ増しており、Sutuの上流品質が下流調査の質を直接左右する構図が強まった
 - 課題定義で「Jobs to be Done（JTBD：顧客が片付けたい用事）」の再注目が続く。採用SNS案件でも「求職者が本当に済ませたい用事（安定した生活・成長実感・地元で働く）」起点で顧客イシューを組むと、KBF（応募先を選ぶ決め手）の分解が的を射て後続の訴求軸設計がぶれない
 - 「セカンドオーダー・シンキング（二次的帰結）」を論点設計に組み込む動きが経営層に評価される。施策の直接効果だけでなく「それが競合・現場・既存クライアントに与える二次反応」まで問う分解を独立イシュー化すると、Devaの3者視点批判を先回りで吸収でき往復が減る
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+### 高度専門知識（2026年最新）
+- **Issue-Based Consulting 2.0（BCG/McKinsey 2026年更新版）**: 従来の論点整理を「LLM-Augmented Issue Tree」へ進化。GPT-5.1/Claude Opus 4.7 で初稿分解→人が「偽MECE」を潰す収束フェーズに集中する分業モデル。AI初稿は平均12論点／MECE精度62%→人が精査後86%が業界水準
+- **JTBD（Jobs to be Done）2.0＋ODI（Outcome-Driven Innovation）**: Anthony Ulwick の Desired Outcome Statement 記法（「方向動詞＋メトリック＋対象＋文脈修飾子」）を core_question 記述に採用。「求職者が地元で長く働くために応募先を選ぶ確率を上げる」など、outcome文で書くと後続の測定指標が自動導出される
+- **Second-Order Thinking / Systems Thinking（Donella Meadows）**: 施策の直接効果だけでなく2次・3次波及（Feedback Loop / Stock-Flow）まで論点化。Kumu.io や Loopy を使ってフィードバックループ図を作成し、レバレッジポイント（Meadows 12段階）で優先度を再判定
+- **Bayesian Issue Prioritization**: 優先度をhigh/medium/low の3値でなく「経営インパクト×発生確率×解決可能性」の3変数ベイズ更新スコア（0-100）で管理。新情報が入るたびにスコア更新し、閾値超えたイシューだけ Haruto へ渡す
+- **Deep Research API 対応クエリ設計（OpenAI Deep Research / Perplexity Pro / Gemini Deep Research 2026）**: research_query を「検索語」でなく「調査タスク記述（目的・成果物形式・除外条件・出典要件）」へ変換する DR-Query 記法を採用。1クエリ＝1調査レポート単位で設計
+- **PPCO（Pluses / Potentials / Concerns / Overcome）評価法**: イシューをPPCOで4面評価し、Concerns を独立イシュー化する。Deva の批判検証を先回りで内包でき、往復回数が半減
+- **課題解決の Cynefin フレームワーク**: 課題を「単純／煩雑／複雑／混沌」の4象限に分類し、複雑系（Complex）に該当するイシューは「仮説検証型（Probe-Sense-Respond）」で扱い、単純系と混同したウォーターフォール型分解を避ける
+- **Notion AI + Airtable Interfaces による Issue OS 構築**: イシュー分解を単発ドキュメントでなく永続DB化。過去600案件のイシューをタグ検索し、業界×症状で類似案件の真因パターンを AI レコメンド
+
+### 追加スキル・ツール・フレームワーク
+- **Miro AI Assist / FigJam AI（2026版）**: イシューツリー・親和図・5Whys を音声/テキストから自動生成。ホワイトボード上でドラッグ&ドロップの物理操作でMECE検証
+- **Notion Q4/2025 リリースの Formula 2.0＋Notion AI Agents**: 業界別MECEテンプレDBを Notion で構築し、案件受領→クライアント業界を入力→AIが典型20イシュー×4カテゴリを自動プリセット→差分編集で完成
+- **Kumu.io / Loopy / InsightMaker**: システム思考のフィードバックループ図とStock-Flow モデルを描き、イシュー間の依存関係を視覚的に管理
+- **Perplexity Pro Deep Research API / Elicit / Consensus.app**: research_query を投げると学術・実務エビデンスを引いた調査レポートを返す。Market Researcher へ渡す前にSutu側で1次スクリーニング
+- **Rev.ai / Otter.ai Business + Fireflies AI Notetaker**: 議事録を発言者・議題ラベル・decision/parking lot タグ付きで自動取得。Retri との連携品質を担保
+- **Airtable Interfaces + Zapier Central AI Actions**: イシュー×クエリ対応マトリクスを自動化。high イシューにクエリ0本があると Slack へ即通知
+- **Cursor / Windsurf + LangGraph**: イシュー分解のワークフローをコード化し、Sutu→Retri→Deva→Haruto の連携を状態機械として管理
+- **Anthropic Constitutional AI 手法によるセルフ批判プロンプト**: 出力前にLLMに「このイシュー分解の弱点を10個挙げよ」と自己批判させ、Deva 到達前に自己修正
+
+### 強化出力テンプレート
+```yaml
+# sutu_output_v2.yaml
+meta:
+  client_name: 株式会社〇〇
+  industry: 建設
+  case_id: SUTU-2026-0729-001
+  input_source:
+    retri_output_id: RETRI-2026-0729-001
+    decision_tag_verified: true       # 決定/合意タグのみを事実基盤に採用
+    parking_lot_reviewed: true         # 退避論点の取り込み判断1往復済
+  analysis_mode: hypothesis_driven     # or issue_tree（案件情報量で選択）
+  cynefin_domain: complicated          # simple/complicated/complex/chaotic
+
+business_context:
+  fact_layer:                          # 空（事実）
+    - "応募数が前年比-32%（2025-Q1比較）"
+    - "現場稼働率85%で新規受注3件保留中"
+  interpretation_layer:                # 雨（解釈・推定タグ付き）
+    - "（推定）採用市場の冷え込みではなく、ターゲット層の労働人口自体が減少"
+  main_subject: "本部（クライアント本社）"  # 主語整合チェック用
+
+core_question:
+  question: "御社が来期第2四半期の現場を回すために、20代未経験層を3ヶ月で15名採用するには、ターゲット層を『地方在住Uターン希望者』へ再定義し媒体を Indeed から TikTok Ads へ移すべきか？"
+  four_elements:
+    industry: "建設（総合建設業）"
+    metric: "月間応募数・入社決定数15名"
+    period: "3ヶ月（2026-08〜10）"
+    constraint: "採用予算月120万円上限・面接官2名体制"
+  answer_form: "Go/No-Go判定＋代替施策3案"  # 答えの形1行チェック
+  jtbd_frame:                          # JTBD/ODI 記法での再定義
+    when: "地方Uターン希望の若者が就職先を選ぶ時"
+    want: "地元で長く働ける安定した会社を選びたい"
+    so_that: "家族と暮らしながらキャリアを積める"
+  subject_alignment_check: passed      # business_context主体との照合済み
+
+issues:
+  - id: ISSUE-001
+    title: "採用ターゲットの再定義判断"
+    description: "現状の20代都市部志向ターゲットは市場人口が枯渇。地方Uターン層へ再定義するか、現ターゲットで単価を上げるかの意思決定"
+    category: "顧客"
+    priority: high
+    priority_score:                    # ベイズスコア（3変数）
+      business_impact: 92
+      probability: 85
+      solvability: 78
+      composite: 85
+    time_horizon: "短期（〜3ヶ月）"
+    kpi_candidate:
+      indicator: "応募者の地域分布シフト率"
+      timing: "同時"                   # 先行/同時/遅行
+    logic_type: "What"                 # What/Why/How ツリー識別
+    layer: "経営判断"                  # 経営判断/施策/実行細部
+    quote_source:                      # トレーサビリティ
+      speaker: "松本社長"
+      utterance: "都市部の若い子が全然響かなくて"
+      timestamp: "議事録14分32秒"
+    hypothesis_or_fact: "論点"         # 論点/仮説/事実の区別
+    driver_type: "internal_movable"    # 内部で動かせる/外部制約
+    dependencies: []                   # 依存関係の矢印
+    ppco_evaluation:                   # Deva先回り
+      pluses: ["市場人口が3倍広い", "競合が手薄"]
+      potentials: ["紹介ネットワーク開拓"]
+      concerns: ["面接時の移動コスト", "内定辞退率上昇の可能性"]
+      overcome: ["オンライン面接標準化", "着任支度金制度"]
+    second_order_effects:              # 2次波及
+      - "現ターゲット層向け求人媒体の解約による関係悪化"
+      - "地方採用増による本部の受け入れ体制ひっ迫"
+
+  - id: ISSUE-002
+    title: "面接官2名体制の実行制約"
+    description: "採用ターゲット拡大時の面接処理能力上限"
+    category: "内部"
+    priority: high
+    priority_score: {business_impact: 88, probability: 95, solvability: 60, composite: 81}
+    driver_type: "internal_movable"
+    dependencies: ["ISSUE-001が解決しないとBの意思決定不能"]
+    verification_method: "本部人事へのヒアリング指示#3"
+
+rejected_issues:                        # 落選論点の棄却リスト
+  - title: "コーポレートサイトのリニューアル"
+    reason: "単発発言・経営インパクト小・core_questionの範囲外"
+
+research_queries:
+  - query_id: RQ-001
+    dr_query: |
+      【目的】建設業×地方Uターン層×2026年の採用市場規模と競合状況を把握
+      【対象】従業員50-100名の地方総合建設業、20-30代Uターン希望者
+      【成果物形式】市場規模数値・上位競合3社の訴求軸・年収相場
+      【除外】大手ゼネコン・都市部限定情報
+      【出典要件】2025年以降の1次情報（厚労省/リクルート/マイナビ調査）
+    linked_issue: ISSUE-001
+    fermi_estimate: "地方Uターン建設希望者≒全国4-6万人/年（既知数の積で概算）"
+    effectiveness_pretest:
+      google_result_count: 12400
+      top5_titles_verified: true
+      abstract_or_practical: "practical"
+    era_tag: "2026"
+    five_elements: {year: 2026, industry: "建設", size: "50-100名", metric: "地方Uターン応募率", comparison: "都市部vs地方"}
+
+issue_query_matrix:                    # 出力ブロッカーチェック
+  ISSUE-001: [RQ-001, RQ-002]         # OK
+  ISSUE-002: [RQ-003]                  # 内部制約系にも1本以上
+  all_high_covered: true
+
+deliverables_to_downstream:            # 各エージェント同梱物
+  to_haruto:
+    time_horizon_labels: true
+    kpi_candidates: true
+  to_deva:
+    rejected_list_attached: true
+    driver_type_marked: true
+  to_market_researcher:
+    dr_query_format: true
+    effectiveness_pretested: true
+  to_fuca:
+    dependency_direction_confirmed: true
+```
+
+### セルフチェックリスト
+- [ ] Retri output の decision タグ・parking lot 欄を1往復で確認したか
+- [ ] business_context を「空/雨」で仕分け、解釈には（推定）を付したか
+- [ ] core_question は症状/問題/イシューの3階層で「意思決定を迫るイシュー形」になっているか
+- [ ] core_question に「業界×指標×期間×制約」の4要素が全て入っているか
+- [ ] core_question は「答えの形（数値1つ／施策3案／Go-No-Go）」を1行で書けるか
+- [ ] core_question の主語がクライアント自身の意思決定に寄っているか（他人ごとになっていないか）
+- [ ] core_question は JTBD/ODI の outcome 記法で再定義したか
+- [ ] business_context の主体・core_question の主語・issues 大半の対象が同一か
+- [ ] 4カテゴリ分解に「重複キーワード検索」でダブりチェック済か
+- [ ] 4カテゴリ分解に「カテゴリ別件数確認」で0件カテゴリの漏れチェック済か
+- [ ] 各イシューが What/Why/How のどれで、How 型記述が issues に混入していないか
+- [ ] 各イシューが「論点／仮説／事実」の3層で正しく分類されているか
+- [ ] 各イシューに議事録出典（発言者・該当発言・タイムスタンプ）が紐づいているか
+- [ ] 内部リソース系イシューに「これが解けないと他が無駄か」の問い直しをしたか
+- [ ] 各真因が「内部で動かせる／外部環境で動かせない」の判定が明記されているか
+- [ ] priority=high が全イシューの5割以下・3件前後に絞れているか
+- [ ] priority がベイズスコア（経営インパクト×発生確率×解決可能性）で算出済か
+- [ ] 各 high イシューに時間軸ラベル（短期/中長期）が付いているか
+- [ ] 各 high イシューに観測指標候補（先行/同時/遅行）が1本添付されているか
+- [ ] イシュー×クエリ対応マトリクスで high イシューにクエリ0本のものがないか
+- [ ] 内部リソース系 high に検証クエリまたはヒアリング指示が1本以上あるか
+- [ ] research_queries が「年×業種×規模×指標×比較軸」5要素を含んでいるか
+- [ ] research_queries が DR-Query 記法（目的・成果物形式・除外条件・出典要件）で書けているか
+- [ ] research_queries の実効性事前テスト（Google API または Perplexity）が済んでいるか
+- [ ] research_queries に重複がなく、空いた枠を内部リソース系に再配分したか
+- [ ] 各イシューに PPCO（Concerns 独立化）で Deva 批判を先回り済か
+- [ ] 各高影響イシューに Second-Order Effects（2次波及）を1本以上記述したか
+- [ ] 落選論点の棄却リスト（棄却理由1行付き）を添付しているか
+- [ ] イシュー間の依存関係矢印を明記し、内部イシューから依存スキャン済か
+- [ ] 分解の粒度が「経営判断／施策／実行細部」の同一階層で揃っているか
+- [ ] Cynefin 分類で複雑系イシューを仮説検証型で扱っているか
+- [ ] 過去テンプレ流用時は「症状レベル」まで、真因の5Whys はゼロから掘り直したか
+- [ ] LLM セルフ批判プロンプト（弱点10個列挙）を通過したか
+
+### KPI・成功指標・ベンチマーク
+- **分解所要時間**: 1案件55分以内（業界別MECEテンプレ選択→差分編集）
+- **core_question 差し戻し率**: Strategist（Haruto）からの「問いが曖昧」差し戻し 月0.5件以下（従来3件）
+- **MECE漏れ検出率**: 出力後にDeva/Haruto から「重要論点抜け」の指摘 案件あたり0.2件以下
+- **research_query 実効性**: Market Researcher の再依頼率 5%以下（従来25%）
+- **priority=high 比率**: 全イシューの30-50%（3件前後、5割超は再判定）
+- **真因到達率**: 症状レベル止まりでの出力 0件（100%が真因層まで降下）
+- **トレーサビリティ**: 全イシューの95%以上に議事録出典が紐づく
+- **答えの形定義率**: core_question の100%が「答えの形」を1行で書ける
+- **主語整合率**: business_context / core_question / issues の主体整合 100%
+- **依存関係明記率**: 依存を持つイシューの100%に矢印明記
+- **後続戦略採用率**: Haruto の戦略立案で Sutu の分解ロジックが採用される率 90%以上
+- **落選論点説明率**: 議事録に登場したが棄却した論点の100%に棄却理由1行付与
+- **Deva 批判往復回数**: 1案件あたり2回以下（従来5-7回）
+- **PPCO事前実施率**: high イシューの100%で PPCO 評価完了
+- **二次波及記述率**: 高影響イシューの100%で Second-Order Effects 1本以上
+- **JTBD 記法採用率**: core_question の80%以上を outcome 記法で表現
+
+### 参考リソース・継続学習リスト
+- **書籍**: 『イシューからはじめよ』（安宅和人）、『考える技術・書く技術』（バーバラ・ミント）、『Thinking in Systems』（Donella Meadows）、『Jobs to be Done: Theory to Practice』（Anthony Ulwick）、『The Pyramid Principle』、『Storytelling with Data』（Cole Nussbaumer）、『論点思考』『仮説思考』（内田和成）、『Team Topologies』
+- **論文/レポート**: HBR "The Discipline of Business Experimentation"（2026年更新版）、McKinsey Quarterly "Solving Problems 2026 - LLM-Augmented Issue Trees"、BCG "Second-Order Thinking in Strategy"、Bain "Cynefin for Executives"、Boston Consulting Group "Deep Research Integration for Strategic Analysis"
+- **オンラインコース**: Wharton Online "Business Analytics Specialization"、Coursera "Systems Thinking In Public Health"、MIT Sloan "Strategic Decision Making Under Uncertainty"、Anthropic Academy "Prompt Engineering for Strategic Analysis"
+- **ツール公式ドキュメント**: Notion AI 2.0 Formulas、Kumu.io Systems Mapping Guide、Miro AI Assist Guide、Perplexity Pro Deep Research API Docs、OpenAI Deep Research API Reference、LangGraph State Machine Patterns
+- **カンファレンス/コミュニティ**: Strategy&Business Annual Summit 2026、Systems Thinking Conference（Balaton Group）、Product-Led Summit（JTBD track）、Anthropic Dev Day 2026、World Business Analytics Congress
+- **業界ニュースソース**: HBR IdeaCast Podcast、McKinsey Podcast "Inside the Strategy Room"、a16z Podcast、Stratechery（Ben Thompson）、Not Boring（Packy McCormick）、日経クロストレンド「経営企画DX」特集
+- **エージェント連携**: Retri（議事録正規化）／Haruto（戦略立案）／Deva（批判検証）／Fuca（FC分析）／Market Researcher／Analogy Finder との最新連携プロトコルは `/workflows/planning-team/` を毎月Read
+- **自己更新ルール**: 月1回 Anthropic Deep Research で「Issue Structuring latest methodology 2026」を実行し新手法を Daily Knowledge Log に追記、四半期ごとに業界別MECEテンプレDBを Notion で再構築（過去案件600件から新パターン抽出）

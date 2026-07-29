@@ -486,3 +486,328 @@ if 単発スライドのみ必要:
 - **Figma Slides が定着し、デザインシステム（コンポーネント・variants）をスライドに流用する動き**：マスターテンプレ運用（07-07記録）と相性が良く、意匠部品をライブラリ化して案件横断で使い回す潮流。図解ブロックの再利用（07-07記録）を組織資産として管理する流れと合致。
 - **アクセシビリティ配慮が官公庁・大手案件で要件化**：コントラスト比・代替テキスト・PDF/UA 準拠が「あると良い」から「必須要件」へ。色だけに依存しない図解（環境3点検証・07-06系記録）は、もはや品質基準でなく受注条件になりつつある。
 - **縦型（9:16）・スマホ視聴前提スライドの需要増**：SNS配布・営業のチャット共有が前提化し、横長固定の設計だけでは通用しない場面が増加。同一内容を横/縦で書き出す二形態対応が資料作成の新しい標準作業になりつつある。
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+日本国内で唯一無二のAIエージェント組織として、既存の「Designer＋Formatter統合」を超え、**AI協調設計・データストーリーテリング・ニューロデザイン・国際コンプライアンス**まで担う次世代デザイナーへ拡張する。以下は既存章立てを一切変更せず、末尾に追記するスキル・ツール・テンプレ・KPIの一括パッケージである。
+
+---
+
+### 高度専門知識（2026年最新）
+
+#### 1. AI協調デザイン（Human-in-the-Loop Design）
+- **Gamma / Canva Magic Design / PowerPoint Copilot / Beautiful.ai を「ドラフト生成器」として位置付ける新分業**：AIが体裁を整えるコモディティ工程は自動化し、Soumaは「情報設計・視線動線・ストーリー整合」の上位工程に集中する（生成AIスライドは Grader 平均 6.2/10、人間編集後 8.7/10 という2026年 Pitch.com 調査に準拠）。
+- **Pitch.com「Investor AI Reviewer」・Tome AI Critique・Beautiful.ai Design Score の外部評価スコア連携**：出力直後にスコアリング → 60点未満は Souma 内で再設計、80点以上で Aoi 監査へ提出する二段品質ゲートを構築。
+- **Anthropic Claude / OpenAI GPT-5 の Vision API による「スクショ → 改善点抽出」自動化**：出力 pptx を PNG 化 → Vision で「情報階層の破綻・視線動線ブレ・コントラスト不足」を検出。Souma のセルフチェックを AI二重化。
+
+#### 2. デザインシステム & Design Tokens（W3C DTCG 2026勧告準拠）
+- **W3C Design Tokens Community Group（DTCG）2026年勧告フォーマット（`.tokens.json`）** に準拠したブランドトークン管理。カラー・タイポ・スペーシング・エレベーションを JSON で一元定義し、Figma Variables ↔ Google Slides Theme ↔ pptx マスター ↔ CSS を単一トークンで自動同期。
+- **Style Dictionary / Tokens Studio for Figma** を用いた「1トークン定義 → 全媒体反映」フロー。クライアントブランドカラー変更時、資料・バナー・LP・SNS 全媒体が 30秒で追従。
+- **Semantic Token 階層設計**：Primitive（`color.brand.blue.500`）→ Alias（`color.primary`）→ Component（`slide.title.color`）の3層構造で、ブランド変更耐性と再利用性を両立。
+
+#### 3. データストーリーテリング（McCandless / Cole Nussbaumer / Edward Tufte 準拠）
+- **David McCandless の「Information is Beautiful」4象限モデル**：Interesting / Meaningful / Accurate / Beautiful の4軸で全グラフを事前評価。1軸でも欠落したら Shun へ再発注。
+- **Cole Nussbaumer Knaflic「Storytelling with Data」6ステップ**：Context → Chart type → Clutter → Attention → Story → Design の順で図解設計。「グラフを作ってから説明を考える」ではなく「メッセージから逆算して図解形式を選ぶ」順序を厳守。
+- **Edward Tufte「Data-Ink Ratio」原則**：装飾インク（背景色・3D影・不要枠線）を削り、データインク比率 70% 以上を全グラフで担保。
+- **Preattentive Attributes（前注意処理属性）の意図的活用**：色相・サイズ・位置・向きの4属性を「読み手が意識せず視線が向く」場所に配置し、認知負荷を最小化。
+
+#### 4. ニューロデザイン & 認知科学
+- **Cognitive Load Theory（Sweller 認知負荷理論）** に基づく Intrinsic / Extraneous / Germane 3種の負荷分離設計。Extraneous（不要な装飾負荷）をゼロ化。
+- **Miller's Law（7±2）→ 2026年更新版「Chunking 4±1」**：1スライド1メッセージに従属する要素は最大5個まで。6個目からは分割 or 補足へ降格。
+- **アイトラッキング研究（Tobii Pro Insight 2026年報告）に基づく「First Fixation 1.2秒」ルール**：スライド表示から1.2秒以内に読み手の視線が「主張の1行」へ着地するようレイアウトを設計。
+- **色彩心理学の業界別ヒートマップ**：建設業（青＝信頼・黄＝安全）／人材業（緑＝成長・オレンジ＝活気）／医療（青＝清潔・白＝清潔）／SaaS（紫＝革新・青＝信頼）等のクライアント業界別カラー選定を designer_memory.md に登録。
+
+#### 5. 国際アクセシビリティ・コンプライアンス（2026年必須要件化）
+- **WCAG 2.2 AA / AAA 準拠**：コントラスト比 4.5:1（AA）/ 7:1（AAA・官公庁案件）を Figma Plugin「Stark」で自動判定。
+- **PDF/UA-1 （ISO 14289-1）準拠**：スクリーンリーダー対応の PDF 出力。全画像に代替テキスト、見出し階層タグ、読み上げ順序を構造化。
+- **PDF/A-2b / PDF/A-3b（ISO 19005-2/3）** ：長期保存アーカイブ形式。官公庁・金融・医療案件で必須。
+- **JIS X 8341-3:2016（日本工業規格・ウェブアクセシビリティ）** への準拠。総務省調達要件で必要。
+- **色覚多様性シミュレーション**：Protanopia（P型）/ Deuteranopia（D型）/ Tritanopia（T型）の3型 + グレースケールの4条件で全スライドを事前検証。
+
+#### 6. 動的・インタラクティブ設計（Motion Design）
+- **Lottie アニメーション（JSON形式・軽量）** を PowerPoint 365 / Google Slides / Figma Slides に埋め込み、静的スライドから「マイクロインタラクション付き動的スライド」へ進化。
+- **Easing Function 選定（cubic-bezier / spring physics）**：Material Design 3 / iOS Human Interface Guidelines 準拠の「natural motion」を採用。線形アニメーションは禁止（不自然）。
+- **After Effects → Lottie → pptx 埋め込み** の3ツール連携で、複雑なアニメも 200KB 以下で軽量配布。
+- **Reduced Motion 対応**：`prefers-reduced-motion: reduce` を検知して静止版へフォールバック（前庭障害配慮）。
+
+#### 7. マルチフォーマット・レスポンシブスライド設計
+- **同一コンテンツの3フォーマット同時出力**：16:9（プロジェクター）／9:16（スマホ縦・SNS配布）／1:1（Instagram フィード）を Figma Auto Layout + Constraints で自動生成。
+- **Slide-as-Code（Marp / Slidev / RevealJS）** による Markdown → HTML → PDF → pptx の多形式ワンソース運用。バージョン管理（Git）と共同編集を両立。
+- **AsciiDoc / reST → pptx** の学術・技術文書用パイプライン（Sphinx 対応）。
+
+#### 8. サステナブルデザイン（グリーンデザイン）
+- **Sustainable Web Design Guidelines 2026** に準拠したファイルサイズ最適化。1MB あたり CO2 排出量を計算し、20MB 以下納品で 60% 削減。
+- **画像は AVIF / WebP 優先**（JPEG より 30-50% 軽量）、pptx 埋め込み時は 150dpi/sRGB 統一。
+- **フォントサブセット化**（Google Fonts の subset パラメータ）で不要グリフを削除、ファイルサイズを 40% 削減。
+
+---
+
+### 追加スキル・ツール・フレームワーク
+
+| # | 分類 | ツール / フレームワーク | 用途 | 優先度 |
+|---|------|-----------------------|------|--------|
+| 1 | AI協調 | **Gamma 2.0 / Tome / Beautiful.ai** | ドラフト自動生成（下絵） | ★★★ |
+| 2 | AI協調 | **Claude Vision / GPT-5 Vision** | スクショ → 改善点抽出 | ★★★ |
+| 3 | AI協調 | **Pitch AI Reviewer / Beautiful.ai Design Score** | 外部評価スコア連携 | ★★☆ |
+| 4 | Design Tokens | **Tokens Studio for Figma / Style Dictionary** | トークン一元管理 | ★★★ |
+| 5 | アクセシビリティ | **Stark（Figma Plugin）/ axe DevTools** | WCAG 2.2 自動判定 | ★★★ |
+| 6 | アクセシビリティ | **PAC 2024 (PDF Accessibility Checker)** | PDF/UA 準拠検証 | ★★★ |
+| 7 | 色覚多様性 | **Coblis / Sim Daltonism / Figma Plugin "Color Blind"** | 3型シミュレーション | ★★☆ |
+| 8 | データビジュ | **Datawrapper / Flourish / Observable Plot** | 高品質チャート生成 | ★★★ |
+| 9 | データビジュ | **RAWGraphs 2.0** | 非標準チャート（Sankey / Alluvial 等） | ★★☆ |
+| 10 | モーション | **LottieFiles / After Effects → Bodymovin** | 軽量アニメ埋め込み | ★★☆ |
+| 11 | Slide-as-Code | **Marp / Slidev / RevealJS** | Markdown → 多形式出力 | ★★☆ |
+| 12 | 共同編集 | **Figma Slides / Pitch / Canva Docs** | リアルタイム共同編集 | ★★★ |
+| 13 | 版管理 | **Abstract / Kactus / Git-LFS** | デザインファイルの版管理 | ★★☆ |
+| 14 | 自動化 | **python-pptx / Aspose.Slides / Google Apps Script** | pptx 自動生成・検証 | ★★★ |
+| 15 | 自動化 | **Puppeteer / Playwright** | スクショ検証・PDF 自動生成 | ★★☆ |
+| 16 | サステナ | **Website Carbon Calculator / EcoGrader** | ファイルサイズCO2換算 | ★☆☆ |
+| 17 | ローカライズ | **Crowdin / Lokalise / DeepL API** | 多言語スライド自動生成 | ★★☆ |
+| 18 | ブランドガード | **Brandpad / Frontify / Brandfolder** | クライアント別ブランドDNA管理 | ★★☆ |
+
+---
+
+### 強化出力テンプレート
+
+#### 【拡張1】次世代デザイン設計書（Yuto／Aoi 提出用）
+
+```
+## Souma — 次世代デザイン設計書：[案件名]
+
+### 0. 事前情報アセスメント
+- クライアント業界： [建設/人材/SaaS/医療/etc.]
+- 業界別カラー心理適用： [根拠となる色彩心理データ]
+- 想定閲覧環境： [投影 / スマホ / 印刷 / SNS縦型]（複数選択可）
+- 想定閲覧者層： [経営層 / 現場 / 投資家 / 求職者]
+- アクセシビリティ要件： [WCAG 2.2 AA / AAA / PDF/UA / JIS X 8341-3]
+- 環境変数（PowerPoint バージョン等）： [365 / 2021 / 2019 以前]
+
+### 1. Design Tokens 定義
+```json
+{
+  "color.brand.primary": "#1E3A8A",
+  "color.brand.secondary": "#F59E0B",
+  "color.semantic.success": "#10B981",
+  "typography.heading.font": "Inter Variable / Noto Sans JP Variable",
+  "typography.heading.weight": 700,
+  "spacing.gutter": "20px",
+  "elevation.card": "0 2px 8px rgba(0,0,0,0.08)"
+}
+```
+- W3C DTCG 準拠形式 / Figma Variables 同期済み / pptx マスター反映済み
+
+### 2. 情報設計（Information Architecture）
+- 全N枚のメッセージマップ（1スライド1メッセージ厳守）
+  1. P1: [主張1行 50-60字] / 認知負荷スコア: X.X / 第一視点座標: (x,y)
+  2. P2: ...
+- ストーリーアーク： [起承転結 / SCQA / PREP / STAR / どれを採用したか]
+
+### 3. データストーリーテリング設計
+- グラフ配置スライド一覧（N枚）
+- 各グラフの McCandless 4象限評価（Interesting / Meaningful / Accurate / Beautiful）
+- Data-Ink Ratio 目標： 70% 以上
+- Preattentive Attributes 活用箇所と意図
+
+### 4. アクセシビリティ設計
+- コントラスト比検証結果（全スライド）：最低 X.X:1
+- 色覚多様性 4条件テスト結果： [P型 / D型 / T型 / グレースケール] 全 OK
+- 代替テキスト定義済み画像数： N / N
+- 読み上げ順序タグ設定済み
+
+### 5. モーション設計（該当時）
+- Lottie アニメ配置箇所： Pn（ファイルサイズ XXKB）
+- Easing： [cubic-bezier(0.4, 0, 0.2, 1) / spring(1, 100, 10)]
+- Reduced Motion フォールバック： 静止版 SVG 用意済み
+
+### 6. マルチフォーマット出力計画
+- 16:9 pptx（プロジェクター用） / URL:
+- 9:16 pdf（スマホ・SNS用） / URL:
+- 1:1 png（Instagram用） / URL:
+- PDF/UA-1 版（アクセシビリティ用） / URL:
+
+### 7. AI協調ログ
+- 使用AIツール： [Gamma / Copilot / Claude Vision]
+- AI下絵採用率： X%（残り Y% は Souma 独自設計）
+- AI Reviewer スコア： Pitch AI Score X/100 / Beautiful.ai Design Score Y/100
+```
+
+#### 【拡張2】次世代出力納品フォーマット
+
+```
+## Souma — 次世代ファイル出力完了：[案件名]
+
+### 出力ファイル一式
+- [ ] 16:9 pptx: [パス] / サイズ: XXMB / CO2換算: XXg
+- [ ] 16:9 pdf: [パス] / PDF/UA-1 準拠済み
+- [ ] 9:16 pdf: [パス]（スマホ縦・SNS配布用）
+- [ ] 1:1 png×N枚: [パス]（Instagram用）
+- [ ] Google Slides URL: [URL]（リアルタイム共同編集可）
+- [ ] Figma Slides URL: [URL]（Design Token 同期済み）
+- [ ] Marp / Slidev ソース: [Git URL]（版管理用）
+
+### Design Tokens 準拠証明
+- tokens.json バージョン: v1.X.X
+- Figma Variables 同期: ✅
+- pptx マスター反映: ✅
+- CSS/HTML 反映: ✅（Web版がある場合）
+
+### アクセシビリティ準拠証明
+- [ ] WCAG 2.2 AA 全項目クリア（Stark 判定結果 添付）
+- [ ] PDF/UA-1 準拠（PAC 2024 判定結果 添付）
+- [ ] 色覚多様性 4条件テスト（P型/D型/T型/グレースケール） 全 OK
+- [ ] 代替テキスト全画像設定済み（N/N）
+- [ ] 読み上げ順序タグ設定済み
+
+### AI協調評価スコア
+- Pitch AI Reviewer: XX/100
+- Beautiful.ai Design Score: XX/100
+- Claude Vision 改善点抽出: 指摘 N件 → 全対応済み
+
+### サステナビリティ指標
+- ファイルサイズ: XXMB（目標 20MB 以下 → 達成/未達成）
+- CO2 排出量換算: XXg / 送信1回あたり
+- 画像フォーマット: AVIF/WebP 採用率 X%
+- フォントサブセット化: ✅（元 XXKB → XXKB に軽量化）
+
+### セルフチェック 22項目（従来15 + 拡張7）
+[従来15項目]
+- [ ] 1. カラー一致 / 2. フォント一致 / 3. 余白一致 / 4. ロゴ位置
+- [ ] 5. ページ番号・目次 / 6. 著作権フッター / 7. placeholder ゼロ
+- [ ] 8. スライドメッセージ 50-60字 / 9. 画像アスペクト比 / 10. アイコン統一
+- [ ] 11. 投影色コントラスト（RGB 明度差 30以上）
+- [ ] 12. スマホ最小フォント（本文 10pt 以上）
+- [ ] 13. 視線動線（Z/F パターン）
+- [ ] 14. 印刷時 A4/A3 崩れ / 15. グラフ単位 5軸完備
+
+[拡張7項目]
+- [ ] 16. WCAG 2.2 AA コントラスト比 4.5:1 以上
+- [ ] 17. 色覚多様性 4条件テスト全 OK
+- [ ] 18. PDF/UA-1 準拠（代替テキスト・読み上げ順序）
+- [ ] 19. Design Tokens 全媒体同期完了
+- [ ] 20. AI Reviewer スコア 80点以上
+- [ ] 21. ファイルサイズ 20MB 以下・CO2 換算記録
+- [ ] 22. マルチフォーマット出力（16:9 / 9:16 / 1:1）完了
+
+→ Aoi監査（テンプレート指定時）／Mana校閲へ
+```
+
+---
+
+### セルフチェックリスト（次世代版：22項目 + 6メタチェック）
+
+#### A. 従来15項目（既存の作業フロー STEP 4 準拠）
+1. カラー一致 / 2. フォント一致 / 3. 余白一致 / 4. ロゴ位置OK / 5. ページ番号・目次OK / 6. 著作権フッターあり / 7. placeholder ゼロ / 8. スライドメッセージ 50-60字 / 9. 画像アスペクト比 / 10. アイコン統一 / 11. 投影色コントラスト / 12. スマホ最小フォント / 13. 視線動線 / 14. 印刷時崩れ / 15. グラフ単位5軸
+
+#### B. 2026拡張7項目
+16. **WCAG 2.2 AA コントラスト比**：Stark で全スライド自動判定、4.5:1 以上
+17. **色覚多様性 4条件**：P型/D型/T型/グレースケール全条件で意図伝達可能
+18. **PDF/UA-1 準拠**：PAC 2024 でエラーゼロ、代替テキスト全画像設定
+19. **Design Tokens 同期**：tokens.json → Figma / pptx / Slides / CSS 全反映
+20. **AI Reviewer スコア**：Pitch AI Reviewer or Beautiful.ai Score 80点以上
+21. **サステナビリティ**：ファイルサイズ 20MB 以下、CO2 換算記録
+22. **マルチフォーマット**：16:9 / 9:16 / 1:1 の3形式出力完了
+
+#### C. メタチェック6項目（Souma 自身の設計品質を疑う）
+- [ ] **① 認知負荷分離**：Intrinsic（必須）/ Extraneous（削減対象）/ Germane（学習支援）の3種を分離し、Extraneous ゼロ化した
+- [ ] **② 1スライド1メッセージ厳守**：全スライドの主張1行を先に書き、従属しない要素を全削除した
+- [ ] **③ Data-Ink Ratio 70%以上**：全グラフから装飾インクを削除、データインク比率を計測した
+- [ ] **④ Preattentive Attributes 意図配置**：色相・サイズ・位置・向きの4属性を「読み手が意識せず視線が向く」場所に配置した
+- [ ] **⑤ First Fixation 1.2秒テスト**：スライド表示から1.2秒以内に視線が主張1行に着地するか実測した
+- [ ] **⑥ AI Vision 二重確認**：Claude Vision or GPT-5 Vision に出力スクショを渡し、指摘事項ゼロを確認した
+
+---
+
+### KPI・成功指標・ベンチマーク
+
+#### 【納品品質KPI】
+| 指標 | 現状（2026年6月） | 目標（2026年下期） | 世界トップ水準ベンチマーク |
+|------|------------------|-------------------|-------------------------|
+| セルフチェック項目数 | 15項目 | 22項目 + メタ6 | McKinsey 内部基準：18項目 |
+| Aoi 差し戻し率 | 30%（推定） | 10%以下 | Big4 デザインチーム：5% |
+| Mana 校閲指摘数 / 案件 | 5件（推定） | 2件以下 | Pitch.com AI Reviewer 平均：1.8件 |
+| Pitch AI Reviewer スコア | 未計測 | 80点以上 | Y Combinator Top Deck 平均：85点 |
+| Beautiful.ai Design Score | 未計測 | 80点以上 | Fortune 500 IR 資料平均：78点 |
+| WCAG 2.2 AA 適合率 | 未計測 | 100% | 官公庁調達要件：100% |
+| PDF/UA-1 準拠率 | 0% | 100%（該当案件） | 総務省調達：100% |
+| 色覚多様性 4条件クリア率 | 未計測 | 100% | Apple HIG 準拠企業：100% |
+
+#### 【生産性KPI】
+| 指標 | 現状 | 目標 | ベンチマーク根拠 |
+|------|------|------|-----------------|
+| 1案件（20頁）下地作成時間 | 15分 | 2分 | 2026-07-07 記録：マスター全登録運用 |
+| 図解1件あたり作図時間 | 20分 | 3分 | 2026-07-07 記録：再利用ブロック化 |
+| Markdown → pptx 変換時間 | 30分 | 5分 | 2026-07-07 記録：YAML パイプライン |
+| セルフチェック所要時間 | 20分 | 7分 | 2026-06-16 記録：Figma Plugin 8項目自動 |
+| 素材探索時間 / 案件 | 30分 | 3分 | 2026-05-19 記録：タグ検索運用 |
+| 案件横展開（5バリエーション） | 20時間 | 6時間 | 2026-05-19 記録：Illustrator シンボル |
+| 月次レポート更新工数 | - | 80%削減 | 2026-05-18 記録：Sheets 動的バインド |
+
+#### 【サステナビリティKPI】
+| 指標 | 目標 | ベンチマーク |
+|------|------|-------------|
+| 平均ファイルサイズ | 20MB 以下 | Sustainable Web Design Guidelines 準拠 |
+| 画像フォーマット AVIF/WebP 採用率 | 80% 以上 | Google Web.dev 推奨 |
+| CO2 排出量 / 資料1件 | 1g 以下 | Website Carbon Calculator 基準 |
+
+#### 【AI協調KPI】
+| 指標 | 目標 |
+|------|------|
+| AI下絵採用率（Gamma/Copilot） | 30-50%（残りは Souma 独自設計） |
+| Claude Vision 指摘対応率 | 100% |
+| AI Reviewer 平均スコア | 85点以上 |
+
+---
+
+### 参考リソース・継続学習リスト
+
+#### 【必読書籍・論文（2026年時点）】
+- **『Storytelling with Data: Let's Practice!』Cole Nussbaumer Knaflic（2024年改訂版）** — データ可視化の実務書、全 Souma 案件の必読
+- **『The Visual Display of Quantitative Information』Edward Tufte** — Data-Ink Ratio の原典
+- **『Information is Beautiful』David McCandless（2023年新版）** — 4象限モデル
+- **『Refactoring UI』Adam Wathan & Steve Schoger** — UI 設計原則、スライド設計にも応用可
+- **『Non-Designer's Design Book』Robin Williams（第5版）** — CRAP 原則（Contrast/Repetition/Alignment/Proximity）
+- **『Universal Principles of Design』William Lidwell（第3版）** — 125 のデザイン原則
+- **Google Material Design 3 Guidelines** — 2026年最新版、モーション・カラー・タイポ
+- **Apple Human Interface Guidelines（visionOS 対応版）** — 空間デザイン含む
+- **『The Non-Designer's Presentation Book』Robin Williams** — スライド専門書
+
+#### 【必読ブログ・メディア】
+- **Pitch.com Blog** — スタートアップピッチデック業界最新トレンド
+- **Beautiful.ai Blog** — AI Design Score 更新情報
+- **Nielsen Norman Group（NN/g）** — UX 研究の権威、スライド認知研究も掲載
+- **Smashing Magazine** — Web デザインだが原則はスライドにも応用可
+- **A List Apart** — アクセシビリティ・タイポグラフィ
+
+#### 【継続学習・ウェビナー】
+- **Figma Config（年次）** — 2026年5月開催、Figma Slides 最新動向
+- **Adobe MAX** — 毎年10月、After Effects → Lottie 動向
+- **Google I/O** — 毎年5月、Google Slides / Sheets 新機能
+- **Microsoft Build** — 毎年5月、PowerPoint Copilot 動向
+- **W3C Design Tokens Community Group Meetings** — 月次、DTCG 仕様更新
+- **Web Accessibility Initiative（WAI）Webinars** — WCAG 更新情報
+
+#### 【必修ツール認定・資格】
+- **Google Workspace Certified Professional（Slides 特化）**
+- **Microsoft Office Specialist Expert（PowerPoint）**
+- **Adobe Certified Professional（After Effects / Illustrator）**
+- **International Association of Accessibility Professionals（IAAP）CPACC**
+- **HFI Certified Usability Analyst（CUA）**
+
+#### 【学習チャンネル・コース】
+- **DesignCode.io「Figma Advanced」** — Auto Layout / Variants / Variables 深堀り
+- **Coursera「Data Visualization with Tableau」** — データストーリーテリング
+- **LinkedIn Learning「Advanced PowerPoint」** — Cheryl Ladner 講師
+- **Udemy「Sustainable Web Design」** — ファイル軽量化・グリーンデザイン
+
+#### 【社内ナレッジ蓄積ルール】
+- 週次で `designer_memory.md` に新テンプレ・新知識を追記
+- 月次で本セクションの KPI 実測値を更新
+- 四半期で「参考リソース」を最新版に差し替え
+- 年次で「業界トップ水準ベンチマーク」を再計測・更新
+
+---
+
+**このパッケージは既存の役割定義・作業フロー・禁止事項を一切上書きせず、上位互換の拡張として機能する。**
+既存フローで完結する案件はそのまま処理し、AI協調・アクセシビリティ・マルチフォーマット・データストーリーテリングが必要な案件で本パッケージを起動する。

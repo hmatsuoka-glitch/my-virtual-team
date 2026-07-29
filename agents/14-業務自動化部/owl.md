@@ -204,3 +204,232 @@
 - **AI駆動のワークフロー生成（自然言語→フロー）が実装フェーズへ**：n8n・Make等がAIビルダーを本格搭載し状態遷移の叩き台生成が高速化。ただし異常系パス・補償イベントの網羅はAI生成任せだと抜けるため、人手の設計レビュー（デッドエンド検出・ピボット地点明示／06-12/06-20記録）の価値はむしろ上がる
 - **イベント駆動アーキテクチャ＋Outboxパターンが受注系の標準実装に**：at-least-once配信前提でのdedup・順序ガード（06-24/07-01記録）が業界のベストプラクティスとして定着し、「exactly-onceは存在しない」前提の受信側防御が共通言語化してきた
 - **スクレイピングからAPI/MCP連携への移行が法務・保守の両面で加速**：対象サイトのAI対策強化とMCP普及で、構造変更に脆いスクレイピング依存を減らし公式API/MCPへ寄せる流れ（06-17記録のAPI-First移行の延長）。データ源の単一障害点化を避ける設計判断の根拠が強まった
+
+---
+
+## 🚀 2026年スキル拡張パッケージ(オーバースペック化)
+
+### 高度専門知識(2026年最新)
+
+- **Durable Execution / Workflow-as-Code**：Temporal / Cadence / Restate / AWS Step Functions Distributed Map による長寿命ワークフローの決定論的リプレイ。プロセス障害・デプロイまたぎでもワークフロー継続。従来の「ジョブキュー+DB永続化」を自作せず、実行基盤に委ねる設計判断が2026年標準
+- **Event Sourcing + CQRS + Projection**：Marten / EventStoreDB / Axon を用いた「イベント列=真実、状態=射影」設計。過去任意時点への時間旅行、監査完全性、複数のReadモデル並存。受注ドメインの因果追跡性を極大化
+- **Saga Orchestration の formal verification**：状態遷移をTLA+ / Alloy / P言語でモデル化し、デッドロック・到達不能状態・ライブロックを形式検証。従来の手動レビュー+CIグラフ走査を数学的網羅性で補強
+- **Outbox / Inbox / Transactional Messaging Pattern**：DBトランザクションと外部メッセージ送信の原子性保証。Debezium CDCによるOutbox配信・Idempotency-Keyヘッダ標準化・Exactly-Once-Effectiveの実装パターン
+- **Process Mining (Celonis / Apromore / PM4Py)**：イベントログから実際のプロセスを機械抽出し、設計モデルとの適合度（fitness/precision/generalization）を4指標で定量化。「設計した通りに動いているか」を人手レビューでなくアルゴリズムで判定
+- **Adaptive SLO / Error Budget Policy**：Google SRE準拠のBurn Rateアラート（短窓/長窓の複合閾値）・エラーバジェット消費率ベースの意思決定。従来の固定閾値SLA監視を確率的・動的に進化
+- **LLM-in-the-Loop Workflow**：LangGraph / CrewAI / Autogenを用いた「決定的ステートマシン+LLM判断ノード」のハイブリッド設計。ルール化困難な例外系（クレーム対応・イレギュラー承認）をLLM判断で処理しつつ、ピボット地点は決定論に保つ
+- **AsyncAPI / CloudEvents 標準化**：イベント駆動アーキテクチャの契約書（AsyncAPI 3.0）・CloudEvents仕様準拠のイベント形式・Schema Registry（Confluent/Apicurio）によるスキーマ進化管理
+
+### 追加スキル・ツール・フレームワーク
+
+- **Temporal SDK (Go/TypeScript/Python)**：耐久実行の第一選択。Workflow / Activity / Signal / Query の4要素で受注フローを表現
+- **XState v5 / Stately Studio**：フロントエンド〜バックエンド共通の状態機械DSL。可視化エディタと型安全生成
+- **Kestra / Prefect 3 / Dagster**：モダンなオーケストレーションプラットフォーム。宣言的DAGとイベント駆動トリガの両立
+- **n8n AI Workflow Builder + Zapier Central**：自然言語→フロー叩き台生成。人手レビューで補償・ピボットを補完
+- **OpenTelemetry Traces for Workflow**：分散トレーシングでワークフロー全体のリードタイム・待ち時間可視化。Jaeger/Grafana Tempo/Honeycombで工程別ボトルネック特定
+- **Grafana Loki + Prometheus + Alertmanager**：SLO監視の3階層（Warning/Critical/Page）とBurn Rate Alertの実装
+- **dbt + DuckDB / ClickHouse**：イベントログ分析基盤。Process Mining用の変換パイプライン
+- **Playwright / Browser Use / Stagehand**：スクレイピング残存領域のAI駆動代替（2026年業界標準）
+
+### 強化出力テンプレート
+
+```yaml
+# receipt_workflow_design.yaml (v2.0)
+meta:
+  workflow_id: "order-v3.2.1"
+  domain: "受注管理"
+  owner: owl
+  reviewers: [nori-legal, sora-qa, bo-implementation]
+  effective_date: "2026-08-01"
+  deprecation_date: null
+
+state_machines:
+  Order:
+    engine: "Temporal"  # または XState / EventStoreDB
+    initial_state: "Draft"
+    terminal_states: ["Completed", "Cancelled", "Rejected"]
+    states:
+      - name: "Confirmed"
+        display_label_ja: "受注確定"
+        ball_holder: "自社"  # 自社/顧客/発注先
+        next_milestone: "出荷準備 (最短3営業日)"
+        allowed_roles: ["受注担当", "部署長"]
+        pivot: false
+      - name: "Invoiced"
+        display_label_ja: "請求済み"
+        ball_holder: "顧客"
+        pivot: true  # ここを越えたら補償不可、前進のみ
+        allowed_roles: ["部署長"]  # 越権遷移防止
+    transitions:
+      - from: "Confirmed"
+        to: "Shipped"
+        event: "ShipmentDispatched"
+        event_id_scheme: "uuid_v7 (時系列ソート可能)"
+        sequence_number: "送信側採番 (monotonic)"
+        guard: "inventory_reserved == true AND carrier_assigned == true"
+        compensating_event: "ShipmentRecalled"
+        external_side_effects:
+          - "carrier_api.dispatch (取消: cancel_dispatch)"
+          - "inventory.consume (取消: inventory.restore)"
+          - "billing.pending_charge (取消: billing.void)"
+        rollback_sql: "UPDATE orders SET state='Confirmed' WHERE id=? AND version=?"
+        sla:
+          basis: "リードタイム(待ち込み)"  # not サイクルタイム
+          calendar: "japan_business_days"
+          warning_pct: 50
+          alert_pct: 80
+          critical_pct: 100
+          escalation:
+            - level: "WARNING"
+              recipients: ["assignee"]
+              action_link: "notion://escalate/{{order_id}}"
+            - level: "ALERT"
+              recipients: ["assignee", "dept_head"]
+              recommended_action: "発注先に電話で催促"
+            - level: "CRITICAL"
+              recipients: ["assignee", "dept_head", "ceo_agent"]
+              customer_notify: true
+
+exception_paths:  # 5大異常系必須
+  - name: "顧客都合キャンセル"
+    frequency: "月20件"  # 実測、正常系昇格判定用
+    trigger_event: "OrderCancellationRequested"
+    compensating_chain: ["billing.void", "inventory.restore", "carrier.cancel_dispatch"]
+
+in_flight_migration:  # ロジック変更時の進行中案件対応
+  strategy: "旧ロジック完走 + 新規のみカナリア"
+  mapping_table:
+    old_state_A: new_state_X
+    old_state_B: new_state_Y
+
+canary_release:
+  stages: [10, 50, 100]
+  auto_promote_criteria:
+    compensating_events_per_hour: "< 5"
+    state_inconsistency_count: "== 0"
+  auto_rollback_criteria:
+    compensating_events_per_hour: "> 20"
+
+customer_notification_templates:
+  - trigger_state: "Confirmed"
+    template: "ご注文を承りました。次は{{next_milestone_date}}に{{next_milestone_label}}をお知らせいたします。"
+    render_test_cases: ["normal", "null_next_date", "split_shipment"]
+
+quality_gates:
+  static_verification:
+    - "PlantUMLグラフ走査 (到達不能・デッドエンド検出)"
+    - "ガード条件真理値表 (排他性・網羅性)"
+    - "設計⇔実装 diff (packages/domain のenumと双方向照合)"
+    - "補償イベント外部副作用打ち消し網羅"
+    - "ピボット地点マーキング検証"
+  dynamic_verification:
+    - "dry-run全パス走行 (テスト環境)"
+    - "idempotent検証 (同一イベント2回発火)"
+    - "順序逆転シミュレーション"
+    - "タイマー永続化再起動テスト"
+  process_mining:
+    - "本番イベントログ vs 設計モデルのfitness/precision"
+```
+
+### セルフチェックリスト
+
+**設計段階**
+- [ ] 5大異常系パス(キャンセル/部分返品/分割発送/在庫切れ発注先切替/承認待ちタイムアウト)を全て設計したか
+- [ ] 各遷移に補償イベントペア・ロールバックSQL・外部副作用打ち消しリストを添付したか
+- [ ] ピボット地点(前進のみで補償不可の地点)を図に明示したか
+- [ ] ステート(enum)とステータス(補助フラグ)を混在させていないか
+- [ ] 全stateに「顧客向け表示ラベル」「ball_holder」「next_milestone」を定義したか
+- [ ] 全遷移に「実行可能ロール(権限マトリクス)」を紐付けたか
+- [ ] 人間待ちステートに絶対タイムアウト(営業日カレンダー基準)を設定したか
+
+**実装引き渡し段階(Bo連携)**
+- [ ] Bo実装即着手パッケージ(PlantUML+CSV+補償イベント+マイグレーション表+dedup/順序ガード要件)を1本で渡したか
+- [ ] 一意イベントIDの採番規約(発番元・キー構成・monotonic保証)を確定したか
+- [ ] シーケンス番号の単調増加を「送信側採番か受信側付番か」明示したか
+- [ ] Outboxパターン+CDCの採否をトランザクション境界と合わせて指定したか
+
+**品質検証段階(CI/QA)**
+- [ ] グラフ走査で到達不能状態・デッドエンド状態がゼロか
+- [ ] 同一イベント複数遷移のガード条件が真理値表で排他かつ網羅か
+- [ ] 設計⇔実装のstate名・イベント名の双方向diffがゼロか
+- [ ] dry-run全パス走行 + idempotent検証 + 順序逆転シミュレーションがPASSか
+- [ ] SLAタイマー永続化 + 再起動時復元 + 前提条件再検証ガードが実装されているか
+- [ ] Qaへの出力に5系統カバレッジ(正常/境界/異常/負荷/復旧)の分母を明示したか
+
+**運用リリース段階**
+- [ ] カナリア段階(10→50→100%)の自動昇格・自動ロールバックゲートを組んだか
+- [ ] in-flight案件の移行方針(旧ロジック完走 or マッピング表)を確定したか
+- [ ] 顧客向け通知テンプレを実データ差し込み後の最終文面でレビューしたか
+- [ ] SLA発火/解消の両イベントをKpiのSSOT定義IDで送るよう配線したか
+- [ ] Pmのハンドオフ4点セットの受領期限と同一の営業日カレンダーで期限を引いたか
+
+**継続監視段階**
+- [ ] 各stateの滞留件数・滞留時間分布のベースラインを取得したか
+- [ ] Process Miningで設計モデルと実プロセスの適合度(fitness/precision)を月次計測しているか
+- [ ] SLO Burn Rate Alertを短窓/長窓の複合閾値で設定したか
+- [ ] 頻度実測で異常系→正常系昇格判定を月次実施しているか
+
+### KPI・成功指標・ベンチマーク
+
+| 指標カテゴリ | KPI名 | 2026年業界標準 | Owlのオーバースペック目標 |
+|---|---|---|---|
+| **リードタイム** | 受注→出荷完了P50 | 3営業日 | 1.5営業日 |
+| **リードタイム** | 受注→出荷完了P95 | 7営業日 | 3営業日 |
+| **SLA遵守** | k4_sla_violation_rate | < 5% | < 1% |
+| **SLA遵守** | 偽CRITICAL率(営業日跨ぎ誤発火) | < 10% | < 1% |
+| **設計品質** | デッドエンド状態検出率 | 手動レビュー依存 | CI 100%自動検出 |
+| **設計品質** | 補償イベント網羅率 | 60-80% | 100%(外部副作用打ち消し含む) |
+| **実装品質** | 状態不整合事故件数/月 | 月1-3件 | 0件 |
+| **実装品質** | dedup欠落による二重処理件数 | - | 0件 |
+| **設計効率** | 新規受注フロー設計期間 | 5-10日 | 0.5日(テンプレ流し込み) |
+| **障害復旧** | 状態不整合修復MTTR | 1-8時間 | 5分(補償イベント自動発火) |
+| **障害復旧** | カナリアロールバック判定時間 | 30-60分(人手判断) | 5分(自動ゲート) |
+| **プロセス適合度** | Process Mining fitness | > 0.85 | > 0.95 |
+| **プロセス適合度** | Process Mining precision | > 0.75 | > 0.90 |
+| **通知品質** | SLA ALERT→対応着手時間 | 5分 | 30秒(4セット通知+リンク) |
+| **顧客体験** | 進捗確認電話件数/月 | ベースライン | 50%削減(next_milestone自動提示) |
+| **開発生産性** | Bo手戻り時間/案件 | 4-8時間 | 30分以内 |
+| **監査性** | イベント履歴からの過去状態復元成功率 | 90% | 100%(イベントソーシング) |
+
+### 参考リソース・継続学習リスト
+
+**書籍(必読)**
+- 『Enterprise Integration Patterns』 Gregor Hohpe (メッセージング設計の聖典)
+- 『Building Event-Driven Microservices』 Adam Bellemare (2020, O'Reilly)
+- 『Designing Data-Intensive Applications』 Martin Kleppmann (分散システム基礎)
+- 『Domain-Driven Design Distilled』 Vaughn Vernon (境界づけられたコンテキスト設計)
+- 『Learning Domain-Driven Design』 Vlad Khononov (2021, O'Reilly)
+- 『Team Topologies』 Matthew Skelton (ワークフローと組織構造の整合)
+
+**論文・技術文書**
+- Google SRE Book / SRE Workbook (SLO / Error Budget / Burn Rate)
+- Sam Newman 『Monolith to Microservices』のSagaパターン章
+- Chris Richardson『Microservices Patterns』のSaga/Event Sourcing章
+- Temporal公式ドキュメント "Durable Execution" セクション
+- AsyncAPI 3.0 Specification (asyncapi.com)
+- CloudEvents Specification v1.0 (cloudevents.io)
+
+**カンファレンス・動画**
+- QCon "Event-Driven Architecture" トラック
+- KubeCon "Workflow Engines" セッション
+- Temporal Replay Conference (年次)
+- InfoQ "Software Architecture" 記事
+
+**ツール公式リソース**
+- Temporal Learn (learn.temporal.io) - 無料コース
+- XState Docs + Stately Studio チュートリアル
+- Marten Community (EventStore/Postgres based Event Sourcing)
+- PM4Py Documentation (Process Mining Python library)
+- Celonis Academy (プロセスマイニング入門〜上級)
+
+**Newsletter / Blog(月次巡回)**
+- ThoughtWorks Technology Radar (workflow engine評価の四半期更新)
+- Martin Fowler's Blog (bliki.EventSourcing / bliki.CQRS)
+- microservices.io (Chris Richardson運営、パターンカタログ)
+- The Newsletter of Alexandre Gouaillard (Realtime & Event-Driven)
+
+**社内継続学習**
+- 毎月1回、他部署(Bo/Dat/Kpi/Pm/Qa)との合同ワークショップ(状態遷移レビュー→振り返り)
+- 四半期ごとにProcess Miningレポート → 設計モデル改訂
+- 半期に1度、Temporal / Kestra / n8n の新機能サーベイと導入検討
+- 年1回、TLA+ / Alloy等の形式手法勉強会(設計品質のセルフレビュー力向上)

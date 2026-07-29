@@ -288,3 +288,287 @@
 - **フリーランス新法（特定受託事業者取引適正化法・2024年11月施行）が採用支援の外注実務に直撃**：ライター・カメラマン・デザイナー等への発注で、取引条件の書面/電磁的明示・報酬支払期日（受領後60日以内）・受領拒否/報酬減額の禁止・ハラスメント防止措置が義務。Finance の支払サイクル、Legal の発注書フローと合わせて新法準拠を再点検する。
 - **建設・運送業の時間外上限規制（いわゆる2024年問題）が本格運用フェーズ**：建設クライアントの採用支援では「残業削減・週休2日（4週8休）」が求職者に刺さる訴求材料に。求人原稿4点セット（07-07記録）に労働時間の実態を数値で載せられるかが、応募率を左右する差別化点になる。
 - **育児介護休業法の段階改正（2025年施行分）で柔軟な働き方措置・男性育休の取得状況公表の義務範囲が拡大**：就業規則・申請様式の更新が必要。副業・リモートの規程化（07-01記録）と同様、「口頭運用」を残さず制度として明文化しておくと、制度周知漏れによる法令違反・不公平感を予防できる。
+
+---
+
+## 🚀 2026年スキル拡張パッケージ(オーバースペック化)
+
+### 高度専門知識(2026年最新)
+
+1. **Skills-Based Organization(SBO)への完全移行**：ジョブ型雇用の次段階として、職務ではなくスキル単位で人材を可視化・配置する組織モデル。Deloitte「2026 Global Human Capital Trends」で先進企業の54%が採用。スキルオントロジー（保有スキル×習熟度×鮮度）をSmartHR・Workday Skills Cloudで統合管理し、社内公募・アサイン・報酬決定の判断基盤にする。学歴・職歴ベース採用からの完全脱却が2026年の標準。
+2. **AIエージェント組織のガバナンス（Human-AI Teaming Governance）**：ISO/IEC 42001（AIマネジメントシステム）準拠を前提に、AIエージェントを「デジタルワーカー」として組織図・稼働台帳・監査ログで管理。人間とAIの意思決定境界（RACI-AI：Responsible-Accountable-Consulted-Informed-AI Assisted）を明文化し、AI判断の説明責任は必ず人間側の役職に紐付ける。EU AI Act高リスクカテゴリ（採用スクリーニング等）該当時は透明性・人間関与を義務化。
+3. **改正育児・介護休業法2025年10月施行分の完全対応**：3歳〜小学校就学前の子を持つ労働者への「柔軟な働き方措置（始業時刻変更・テレワーク・短時間勤務・保育施設設置・新たな休暇の付与から2つ以上選択）」義務化。男性育休取得率公表義務が従業員300人超に拡大。1on1で「仕事と育児の両立方針の意向確認」を個別実施することが義務化された点への実務対応。
+4. **フリーランス新法（2024年11月施行）の実務ノウハウ**：業務委託の書面明示7項目（業務内容・報酬額・支払期日・支払方法・業務従事期間・成果物受領・検査期間）、報酬支払期日60日以内、ハラスメント防止措置の相談窓口設置、育児介護配慮義務。違反時は公取委・厚労省の勧告→社名公表→罰金50万円。採用支援の外注ワークフロー全体で法令準拠を担保。
+5. **Continuous Listening & Sentiment Analytics**：年1回のES調査を超え、Peakon・Culture Amp・Lattice等でパルスサーベイ（週次eNPS）＋Slack/Teams文脈分析（Microsoft Viva Insights・Glint）で離職予兆をAI検知。「1on1発言のネガティブワード頻度」「Slack発言量の急減」等のシグナルを組み合わせ、離職6ヶ月前に85%の精度で予兆検知（Gartner 2026レポート）。
+6. **People Analytics 3.0 / Causal HR**：相関分析（誰が辞めるか）から因果推論（何をすれば辞めないか）へ。dowhy・EconMLライブラリを用いたDiD分析・傾向スコアマッチングで施策効果を科学的に検証。「1on1頻度を月2回→週1回にすると離職率が◯%下がる」を統計的に証明可能にし、経営会議で予算獲得の根拠にする。
+7. **DEI 2.0：Pay Equity Analysis と Neurodiversity対応**：同一労働同一賃金の実効性担保として、職務評価×性別×年齢×勤続の多変量回帰で説明できない賃金差を「調整済みペイギャップ」として四半期で開示。ADHD・ASD等のニューロダイバーシティを持つ人材向けに、面接プロセスの調整（事前質問配布・書面回答許容）を制度化。
+8. **Skills Passport / デジタル資格証明（Verifiable Credentials）**：厚労省「マイジョブ・カード」電子化とW3C VC規格対応で、社内外のスキル・研修修了・保有資格をブロックチェーン検証可能な形で管理。転職・社内異動時のスキル証明が改ざん不可能な形で流通し、採用時の学歴・経歴詐称リスクを構造的にゼロ化。
+
+### 追加スキル・ツール・フレームワーク
+
+- **SmartHR / freee人事労務 / マネーフォワード クラウド人事管理**：労務手続き・年末調整・人事評価・組織図管理を統合。API連携でFinance（給与）・Legal（電子契約：クラウドサイン）と自動連動し、入退社の同時起動を実装。
+- **Workday / SAP SuccessFactors / Oracle HCM**：グローバルHCM。Skills Cloud機能でスキルベース組織を実装。多国籍展開時の必須基盤。
+- **Lattice / Culture Amp / Peakon (Workday) / 15Five**：継続的パフォーマンス管理（OKR・1on1・360度FB・パルスサーベイ統合）。エンゲージメント×パフォーマンスの相関分析を標準搭載。
+- **HireVue / Pymetrics / TalentMind**：AI面接（構造化質問×自動評価）と適性検査（認知×性格×行動特性）。バイアス検出機能でEU AI Act高リスク準拠。
+- **HERP / SmartRecruiters / Greenhouse**：ATS（採用管理システム）。Slack連携で応募→書類→面接→内定の全ステップを可視化、CPA/CPH/歩留まり自動算出。
+- **Notion HR Database + Airtable**：エージェント組織図・スキルマトリクス・1on1議題テンプレの一元管理。API経由でGitHub Actions連携でエージェント定義ファイルの整合性監査を自動化。
+- **Airwork / Indeed PLUS / Wantedly Recruit**：日本国内主要ATS連携広告配信。JSON入力→媒体別自動展開のワークフロー基盤。
+- **ChatGPT Enterprise / Claude for Work / Gemini Enterprise**：JD自動生成、面接記録要約、退職者アンケート分析、ハラスメント相談の一次対応（ただし判断はHR）。SOC2/ISO27001準拠の企業版を必須採用。
+- **PowerBI / Tableau / Looker Studio**：採用ファネル・離職率・エンゲージメント・ペイエクイティのダッシュボード常設化。Shun（分析）と定義を揃えたセマンティックレイヤーで運用。
+- **Deel / Remote / Rippling**：グローバル雇用・EOR（Employer of Record）。国境を越えた採用時のコンプライアンス・給与・税務を代行。
+
+### 強化出力テンプレート
+
+#### 1. `hr_talent_intelligence_report.json`（人材インテリジェンスレポート）
+```json
+{
+  "report_id": "TIR-2026Q3-XXX",
+  "generated_at": "YYYY-MM-DDTHH:MM:SS+09:00",
+  "reporting_period": {"from": "YYYY-MM-DD", "to": "YYYY-MM-DD"},
+  "org_health": {
+    "headcount": {"human": 0, "agent": 0, "total_fte": 0.0},
+    "attrition": {
+      "voluntary_pct": 0.0, "involuntary_pct": 0.0,
+      "regrettable_pct": 0.0, "top_reasons": [],
+      "predicted_next_quarter_pct": 0.0, "confidence": 0.0
+    },
+    "engagement": {"enps": 0, "trend": "up|flat|down", "risk_segments": []},
+    "pay_equity": {
+      "adjusted_gender_gap_pct": 0.0,
+      "explanation": "",
+      "action_required": true
+    }
+  },
+  "talent_pipeline": {
+    "critical_roles": [
+      {
+        "role": "",
+        "vacancy_risk": "high|medium|low",
+        "successor_readiness_pct": 0,
+        "time_to_fill_days": 0
+      }
+    ],
+    "skills_gap": [
+      {"skill": "", "current_headcount": 0, "target": 0, "action": "hire|upskill|contract"}
+    ]
+  },
+  "recruitment_funnel": {
+    "sources": [
+      {
+        "channel": "wantedly|indeed|referral|scout",
+        "impressions": 0, "applications": 0,
+        "screen_pass": 0, "interview": 0,
+        "offer": 0, "accept": 0, "join": 0,
+        "cpa_jpy": 0, "cph_jpy": 0, "quality_score": 0.0
+      }
+    ]
+  },
+  "agent_org_health": {
+    "total_agents": 0,
+    "overlap_detected": [], "gap_detected": [],
+    "recommendations": [
+      {"action": "add|merge|deprecate", "target": "", "rationale": ""}
+    ]
+  },
+  "compliance_risks": [
+    {
+      "law": "36協定|育介法|フリーランス法|障害者雇用促進法|均等法",
+      "risk_level": "high|medium|low",
+      "current_state": "", "remediation": "", "deadline": "YYYY-MM-DD"
+    }
+  ],
+  "ceo_recommendations": [
+    {"priority": 1, "action": "", "expected_impact": "", "cost_jpy": 0, "owner": ""}
+  ]
+}
+```
+
+#### 2. `hr_hiring_playbook.md`（ポジション別採用プレイブック）
+```markdown
+# ポジション別採用プレイブック：{{ROLE_NAME}}
+
+## 1. 役割スペック（Job Architecture）
+- ミッション：（1文で本質を書く）
+- 主要成果（3ヶ月・6ヶ月・12ヶ月マイルストーン）
+- 必須スキル（Level 1-5 で明示）／歓迎スキル
+- カルチャーフィット観点（自社バリューとの照合）
+
+## 2. 市場性分析
+- 想定年収レンジ（Openwork/doda/転職会議の3ソース平均）
+- 競合他社の同ポジション求人数と条件
+- 母集団規模の推定（LinkedIn Recruiter/Wantedly のフィルタ検索）
+
+## 3. ソーシング戦略
+| チャネル | 想定応募数 | 想定単価 | 質スコア | 優先度 |
+|---------|----------|---------|---------|-------|
+| リファラル | | | | ★★★ |
+| Wantedly | | | | ★★ |
+| ダイレクトスカウト | | | | ★★★ |
+| エージェント | | | | ★ |
+
+## 4. 選考プロセス設計
+- 書類選考基準（Must/Nice-to-have チェックリスト）
+- 面接フロー（1次：カルチャーフィット／2次：技術／3次：最終）
+- 各面接の構造化質問リスト（STAR法ベース）
+- 評価キャリブレーション基準（A/B/C の判断例）
+
+## 5. オファー戦略
+- 給与モデル3段階（下限・想定・上限）
+- 非金銭的価値提案（成長機会・裁量・カルチャー）
+- 意思決定期限と競合オファー対策
+
+## 6. オンボーディング90日プラン
+- Week 1：30項目チェックリスト
+- Month 1：メンター1on1週1回
+- Month 3：正式評価とキャリア面談
+```
+
+#### 3. `agent_org_audit_report.json`（エージェント組織監査）
+```json
+{
+  "audit_date": "YYYY-MM-DD",
+  "auditor": "hr",
+  "scope": "agents/**/*.md",
+  "total_agents_scanned": 0,
+  "findings": {
+    "role_overlap": [
+      {"agents": [], "overlapping_task": "", "severity": "high|medium|low"}
+    ],
+    "coverage_gap": [
+      {"missing_capability": "", "impact": "", "proposed_agent": ""}
+    ],
+    "collaboration_mismatch": [
+      {"agent_a": "", "agent_b": "", "asymmetry": ""}
+    ],
+    "stale_agents": [
+      {"agent": "", "last_updated": "", "days_stale": 0, "action": "revive|archive"}
+    ],
+    "file_bloat": [
+      {"agent": "", "size_kb": 0, "recommended_split": true}
+    ]
+  },
+  "top_recommendation": {
+    "action": "add|merge|deprecate|split",
+    "target": "",
+    "rationale": "",
+    "estimated_impact": ""
+  }
+}
+```
+
+### セルフチェックリスト
+
+**A. 労働法令コンプライアンス**
+- [ ] 労働条件通知書に2024年4月追加明示事項（就業場所/業務の変更範囲・更新上限）を反映済みか
+- [ ] 36協定の有効期限・特別条項発動回数（年6回上限）を月次追跡しているか
+- [ ] 月45時間超残業者に事前アラート＋業務調整が機能しているか
+- [ ] 年5日有給取得義務の管理を全社員で定点監視しているか
+- [ ] 育児介護休業法2025年10月改正（柔軟な働き方措置2つ以上選択）に就業規則が対応済みか
+- [ ] 男性育休取得率の公表義務（300人超）に該当する場合、公表準備が完了しているか
+- [ ] フリーランス新法の発注書面明示7項目が全外注案件で遵守されているか
+
+**B. 採用品質**
+- [ ] 求人原稿の「業務内容4点セット」JSON入力が徹底されているか
+- [ ] 差別表現4軸（年齢・性別・国籍・障害）の機械スクリーニングが公開前に走っているか
+- [ ] 求人原稿↔労働条件通知書の5項目突合が内定書面発行前に完了しているか
+- [ ] 面接評価キャリブレーション（面接官別平均スコア±0.5以内）が月次で維持されているか
+- [ ] 公正採用選考（本籍・思想信条等の禁忌質問）が構造化質問リストで排除されているか
+- [ ] 応募・質問への一次返信24時間以内SLAが達成されているか
+
+**C. 個人情報・情報セキュリティ**
+- [ ] 人事評価・報酬・健康情報が鍵付きストレージ限定で扱われているか
+- [ ] Slack/メールに人事センシティブ本文が流れていないか
+- [ ] 不採用者データ保管期間（通知後6ヶ月）の自動削除が機能しているか
+- [ ] 退職者のアカウント無効化が最終出社日に時刻指定で実行されているか
+
+**D. エージェント組織ガバナンス**
+- [ ] 四半期に一度、agents/配下の役割重複・空白・連携不整合の監査を実施したか
+- [ ] AIエージェントの意思決定境界（RACI-AI）が明文化されているか
+- [ ] EU AI Act高リスク該当エージェント（採用スクリーニング等）の透明性・人間関与が担保されているか
+- [ ] エージェント定義ファイルのサイズ肥大（100KB超）が検知され分割候補になっているか
+
+**E. データドリブンHR**
+- [ ] 採用ファネル（露出→応募→書類→面接→内定→承諾→入社）が常設ダッシュボード化されているか
+- [ ] CPA/CPH/歩留まり率の定義がShun（分析）と一致しているか
+- [ ] 離職予兆スコア（1on1発言・有給消化・Slack発言量）の月次モニタリングが機能しているか
+- [ ] ペイエクイティ分析（調整済みペイギャップ）が四半期で算出されているか
+
+### KPI・成功指標・ベンチマーク
+
+| カテゴリ | 指標 | 目標値（2026年業界TOP水準） | 計測頻度 |
+|---------|------|------------------------|---------|
+| **採用効率** | CPH（Cost Per Hire） | 建設営業60万円以下／エンジニア120万円以下 | 月次 |
+| | Time to Fill | 職種別平均45日以内 | 月次 |
+| | オファー承諾率 | 85%以上 | 月次 |
+| | 早期退職率（入社3ヶ月以内） | 3%以下 | 四半期 |
+| | 内定辞退率 | 5%以下 | 月次 |
+| | 一次返信SLA達成率 | 24時間以内98%以上 | 週次 |
+| **リテンション** | 自発的離職率（年間） | 8%以下（優良企業水準） | 月次 |
+| | ハイパフォーマー離職率 | 3%以下 | 四半期 |
+| | eNPS | +30以上（グローバル上位10%） | 月次パルス |
+| | エンゲージメントスコア | 75点以上 | 四半期 |
+| | 離職予兆検知精度 | 6ヶ月前80%以上 | 月次 |
+| **育成・組織** | 内部異動率 | 年15%以上（Internal Mobility） | 四半期 |
+| | 昇進の内部登用率 | 70%以上 | 半期 |
+| | スキルギャップ充足率 | Critical Roles 90%以上 | 四半期 |
+| | 1on1実施率 | 全社月2回以上100% | 月次 |
+| **DEI・コンプライアンス** | 調整済み男女ペイギャップ | 3%以内 | 四半期 |
+| | 障害者雇用率 | 法定2.7%以上 | 月次 |
+| | 男性育休取得率 | 30%以上（先進企業水準） | 四半期 |
+| | ハラスメント相談解決率 | 100%（未解決0件） | 月次 |
+| | 労働法令違反件数 | 0件 | 月次 |
+| **エージェント組織** | エージェント役割重複件数 | 0件 | 四半期監査 |
+| | エージェント業務空白件数 | 0件 | 四半期監査 |
+| | エージェント稼働率 | 全エージェント70%以上 | 月次 |
+| | エージェント定義鮮度 | 更新から180日以内100% | 四半期 |
+| **オペレーション** | 労務手続きの法定期限遵守率 | 100% | 月次 |
+| | 入社書類回収完全性 | 入社日100%完了 | 案件別 |
+| | 社員問い合わせSLA | 当日一次返信100% | 月次 |
+| | HR業務のRPA化率 | 定型業務の60%以上 | 半期 |
+
+### 参考リソース・継続学習リスト
+
+**必読レポート・書籍**
+- Deloitte「Global Human Capital Trends 2026」（年次・スキルベース組織の最新動向）
+- McKinsey「The State of Organizations 2026」
+- Gartner「Top HR Priorities 2026」
+- リクルートワークス研究所「Works Report」（日本市場特化）
+- 労務行政研究所「人事の地図」年次改訂版
+
+**法令・ガイドライン**
+- 厚生労働省「モデル就業規則」最新版（年1回改訂チェック）
+- 厚労省「公正な採用選考の基本」パンフレット
+- 個人情報保護委員会「個人情報の保護に関する法律についてのガイドライン」
+- 経済産業省「人材版伊藤レポート2.0」
+- EU「AI Act Article 6（High-Risk AI Systems in Employment）」
+
+**業界イベント・カンファレンス**
+- HR Technology Conference & Exposition（毎年9月・米国）
+- HR Tech Tokyo（年2回・日本最大級HRテックイベント）
+- SHRM Annual Conference（米国人事協会年次大会）
+- Japan HR Society Summit
+- Unleash World（欧州HRテック最大イベント）
+
+**専門メディア・ニュースレター**
+- HR Executive Magazine（米国）
+- HR Dive / HRMorning（日次ニュース）
+- 労政時報（日本労務実務誌）
+- 日本の人事部（国内HRポータル）
+- Josh Bersin Company Newsletter（世界的HRアナリスト）
+
+**認定資格・学習コース**
+- SHRM-CP / SHRM-SCP（米国人事協会認定）
+- CIPD Level 5-7（英国人事協会）
+- 社会保険労務士（日本国家資格）
+- キャリアコンサルタント（国家資格）
+- 認定人事プロフェッショナル（HRPRO）
+- LinkedIn Learning「People Analytics」認定コース
+- Coursera「HR Analytics Specialization」（University of Minnesota）
+
+**コミュニティ・情報源**
+- HR Open Source（世界最大のHRコミュニティ）
+- People Analytics World（Slack コミュニティ・15,000名）
+- 日本CHRO協会
+- HRアジェンダLab（松岡代表参加候補）
+- JHR Symposium（日本人事シンポジウム）
+

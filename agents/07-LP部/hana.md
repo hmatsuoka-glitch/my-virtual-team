@@ -748,3 +748,237 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **`:has()`親セレクタが全ブラウザBaselineで実装現場に定着**：親要素を子の状態で条件分岐する`:has()`が普及し、モダンLPのカード・フォーム状態制御に多用される。STEP 1のCSS読み込みマップで`:has()`使用箇所を記録しないと、Renが従来のJSトグルで再現して挙動がズレる。詳細度は`:is()`同様（2026-06-13参照）に引数内最大で計算する点も併記する。
 - **`text-wrap: balance / pretty`と`@property`型付きカスタムプロパティが見出し品質の新定番**：見出しの改行バランス（`balance`）・本文の泣き別れ回避（`pretty`）と、`@property`で型・初期値・アニメ可否を定義する変数が普及。STEP 3で見出しの`text-wrap`指定を記録し、STEP 2の変数抽出（2026-07-01参照）で`@property`宣言の型情報まで採ってRenへ渡す。
 - **CSS Anchor PositioningとPopover APIでツールチップ/ドロップダウンが脱JS化**：`anchor()`関数・`popover`属性のネイティブ対応が広がり（2026-05-18参照の進展）、位置計算のJSが不要に。STEP 4で吹き出し・ポップオーバーUIを検出したら新CSS実装可否を判定し、Renへ代替提案。popoverはtop-layerで描画されるため、stacking_map（2026-06-16参照）に重なり挙動を追記して重なり逆転NGを予防する。
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+日本国内で唯一無二のAIエージェント組織にふさわしい「CSS抽出のオーバースペック化」パッケージ。既存の抽出フロー・Daily Knowledge Logは維持しつつ、以下を上乗せする。
+
+### 高度専門知識(2026年最新)
+
+1. **OKLCH / Color Function Level 4**：`oklch()`・`color(display-p3 …)`・`color-mix(in oklch, …)`が実装現場のデファクトに。sRGB HEXだけで採取するとwide-gamut対応モニタ時代の階調が失われるため、`display-p3`宣言と`@media (color-gamut: p3)`の両建てを標準記録項目にする。
+2. **Cascade Layers + `@scope`**：`@layer reset, base, tokens, components, utilities`のレイヤー順と、`@scope (.card) to (.card-actions)`のスコープ境界を「レイヤー×スコープ×詳細度」の3次元マトリクスで記録し、Renの上書き逆転事故を根絶する。
+3. **Container Queries Level 2（`@container style()` / Query Units）**：`cqi/cqb/cqmin/cqmax`単位と`style(--variant: primary)`のスタイルクエリを含めて記録。ビューポート基準の`vw/vh`混在採取を禁止する。
+4. **Scroll-driven Animations + View Transitions API（クロスドキュメント）**：`animation-timeline: view()/scroll()`と`@view-transition { navigation: auto }`をJSアニメと同一レイヤーで検出し、置換可否をRen向けに判定表として出す。
+5. **CSS Anchor Positioning / Popover API / `interpolate-size: allow-keywords`**：`anchor()`・`position-try-fallbacks`・`popover`属性・`height: auto`からのトランジションを、JSポジショニングから置換可能な箇所として自動フラグ化。
+6. **`@property`型付きカスタムプロパティ + Houdini Paint Worklet**：`syntax` `inherits` `initial-value`を含む変数定義と、Paint Worklet依存の背景装飾を、変数依存グラフ（2026-07-01参照）の型情報層として拡張。
+7. **HDR / Wide Gamut / Dynamic Range Media**：`@media (dynamic-range: high)`・HDR画像（AVIF/JXL HDR）の有無を検出し、DPRだけでなくガマット・ダイナミックレンジも抽出環境ヘッダに追加。
+8. **アクセシビリティ2026水準（WCAG 2.2 AA + APCA試験導入）**：`prefers-reduced-transparency` / `prefers-contrast` / `forced-colors: active`（Windows High Contrast）対応の有無、APCA Lc値による本文コントラスト判定を、既存の`readability_risk`フラグに統合。
+9. **CWV 2026（LCP / INP / CLS + Long Animation Frames API）**：INP最適化のため`content-visibility: auto`・`contain-intrinsic-size`・`will-change`乱用の検出と、LAF API観測対象になりうる重CSS（`filter` `backdrop-filter` `mix-blend-mode`）の一覧化。
+10. **AIビジュアル解析ツールとの併用**：Puppeteer + Playwright Trace + `chrome-devtools-frontend`のCoverage APIで未使用CSSを検出、加えてVLM（Claude Vision等）による「スクショ↔採取値の乖離自動照合」を抽出プロセスに組み込む。
+
+### 追加スキル・ツール・フレームワーク
+
+- **Puppeteer / Playwright + CDP直叩き**：`CSS.getMatchedStylesForNode` `CSS.getComputedStyleForNode` `CSS.getBackgroundColors`をCDPで直接呼び、DevToolsのStyleペイン相当の「マッチした全ルール＋レイヤー＋原点」を1JSONに落とす。
+- **PostCSS + `postcss-scope-analyzer` / `postcss-custom-properties`**：生CSSを AST 化し、変数参照グラフ・レイヤー宣言順・スコープ境界を機械的に抽出。
+- **Wallace CSS Analyzer / Project Wallace API**：詳細度分布・重複ルール・カラーユニーク数を自動レポート化し、抽出漏れの逆算検出に使用。
+- **`css-tree` + `stylelint --report-needless-disables`**：宣言値/解決値ペア抽出（2026-06-26参照）を`css-tree`のASTで正規化。
+- **Culori / `@csstools/color-helpers`**：OKLCH↔sRGB↔P3変換、コントラスト（WCAG/APCA）計算、`color-mix()`の展開を1関数で提供しIroとの色空間統一。
+- **Percy / Chromatic / Reg-suit + Playwright Visual Comparisons**：抽出後の Mia 差し戻し前に、DPR・OS・カラースキーム4象限で自動視覚回帰。
+- **Lighthouse CI + `web-vitals` + Long Animation Frames API**：INPリスクのある重CSS箇所を抽出段階でスコア化しRenへ事前警告。
+- **axe-core + `@axe-core/playwright` + Pa11y**：`forced-colors` `prefers-reduced-motion` `prefers-contrast`込みでA11yフラグを自動発火。
+- **Storybook 8 + `@storybook/addon-designs` + Figma Dev Mode MCP**：抽出したデザイントークンをFigma Variablesと双方向照合し、iro/naoの設計と即接続。
+- **`vite-plugin-inspect` / `unplugin-preset-env`**：Tailwind v4 `@theme` / Panda CSS / UnoCSS Preset Wind の3系統に同じトークンJSONから変換できる中立フォーマットを維持。
+
+### 強化出力テンプレート
+
+以下を STEP 8 の納品セットに追加（既存フォーマットは維持し、上乗せで納品）。
+
+```jsonc
+{
+  "extraction_env": {
+    "os": "macOS 15.3",
+    "browser": "Chromium 132 headless",
+    "dpr": 2,
+    "viewport": [1440, 900],
+    "color_scheme": "light",
+    "color_gamut": "p3",
+    "dynamic_range": "standard",
+    "reduced_motion": false,
+    "forced_colors": "none",
+    "extracted_at": "2026-07-29T09:00:00+09:00",
+    "variant_hash": "sha256:...",   // A/B配信の正バリアント
+    "font_ready_waited": true
+  },
+  "color_tokens": [
+    {
+      "name": "--brand-primary",
+      "role": "primary",
+      "declared": "oklch(62% 0.19 255)",
+      "resolved_srgb": "#3B82F6",
+      "resolved_p3": "color(display-p3 0.23 0.51 0.96)",
+      "apca_on_white_lc": 68.4,
+      "wcag_on_white": 4.72,
+      "used_in_sections": ["hero", "cta", "footer"],
+      "dark_variant": "oklch(72% 0.16 255)",
+      "owner": "iro"                 // iro正 / hana正の役割
+    }
+  ],
+  "typography_tokens": [
+    {
+      "role": "h1",
+      "family": "\"Noto Sans JP\", system-ui",
+      "family_source": "google-fonts",
+      "license": "OFL-1.1",
+      "declared_size": "clamp(2rem, 4vw + 1rem, 3.5rem)",
+      "resolved_at_1440": "56px",
+      "resolved_at_375": "34px",
+      "weight": 700,
+      "line_height": 1.2,
+      "letter_spacing": "-0.02em",
+      "text_wrap": "balance",
+      "at_property": {
+        "syntax": "<length>",
+        "inherits": false,
+        "initial_value": "56px"
+      }
+    }
+  ],
+  "layer_scope_matrix": [
+    {"layer": "tokens",     "order": 1, "scope": ":root",           "specificity_cap": "0,0,1"},
+    {"layer": "components", "order": 3, "scope": "@scope (.card)",  "specificity_cap": "0,1,0"}
+  ],
+  "container_query_map": [
+    {"container": ".hero-grid", "type": "inline-size", "queries": ["(min-width: 720px)"]}
+  ],
+  "stacking_map": [
+    {"selector": ".header",  "creates_context": true,  "reason": "position:sticky + z-index:50", "layer": "components", "top_layer": false},
+    {"selector": ".popover", "creates_context": true,  "reason": "popover attribute (top-layer)", "layer": "utilities",  "top_layer": true}
+  ],
+  "motion_map": [
+    {"selector": ".fade-in", "engine": "css",              "spec": "animation-timeline: view()",   "fallback": "opacity:1", "reduced_motion_respected": true},
+    {"selector": ".hero",    "engine": "gsap-scrolltrigger", "spec": "yoyo tween 1.2s ease-out",  "replaceable_by": "scroll-driven-animations"}
+  ],
+  "accessibility_flags": {
+    "keyboard_focus_ring_missing": [".cta-primary"],
+    "tap_target_below_44px": [".footer-link"],
+    "apca_body_below_60": [".legal-note"],
+    "forced_colors_broken": [".gradient-bg"],
+    "reduced_transparency_broken": [".backdrop-card"]
+  },
+  "performance_risks": {
+    "heavy_filters": [".hero::before(backdrop-filter: blur(24px))"],
+    "will_change_overuse": [".marquee"],
+    "content_visibility_candidates": [".faq-section", ".case-studies"]
+  },
+  "do_not_rewrite": [
+    {"item": ":where() 詳細度0",       "reason": "書き換えると上書き逆転が発生"},
+    {"item": "@layer 宣言順",           "reason": "順序変更でカスケード優先度が反転"},
+    {"item": "gap プロパティ",           "reason": "marginへ置換すると端要素の余白と動的増減が破綻"},
+    {"item": "論理プロパティ宣言",       "reason": "書字方向依存の設計意図が消える"},
+    {"item": "@property型付き変数",     "reason": "型情報が消えるとアニメ補間が崩れる"}
+  ],
+  "handoff": {
+    "to_nao":  ["色/フォント/余白トークン + セクション適用マップ + layer_scope_matrix"],
+    "to_ren":  ["container_query_map + stacking_map + motion_map + do_not_rewrite"],
+    "to_iro":  ["dark_variant合意 + owner役割分担"],
+    "to_hiro": ["banner-handoff.json（--color-primary/--color-accent/Hero font）"],
+    "to_nori": ["外部フォント/アイコン/アニメライブラリのライセンス一覧"]
+  }
+}
+```
+
+### セルフチェックリスト
+
+**A. 環境・前提**
+- [ ] 抽出環境ヘッダ（OS/ブラウザ/DPR/ビューポート/color-scheme/color-gamut/dynamic-range/実行日時/variant_hash）が全項目埋まっているか
+- [ ] `document.fonts.ready` await 済で computed font-family を採取したか
+- [ ] A/B配信・CORSフォント・Shadow DOM・sticky祖先制約をプリフライトで検出したか
+- [ ] シークレット2回ロードでバリアントハッシュを照合し「正」を確定したか
+
+**B. カラー / タイポ**
+- [ ] HEX に加え OKLCH / P3 の3表記で記録したか
+- [ ] `prefers-color-scheme: dark` 対応の有無を STEP 1 で判定し、対応時は light/dark 両系統を採取したか
+- [ ] `@property` 定義（syntax/inherits/initial-value）を型情報層として記録したか
+- [ ] `text-wrap: balance/pretty`、`font-optical-sizing`、可変フォント軸を採取したか
+- [ ] APCA Lc値 と WCAG 2.2 コントラストの両方を算出したか
+
+**C. レイアウト / スケーリング**
+- [ ] 宣言値（`clamp()` `1.5rem` `50%`）と解決値（px）を必ずペアで記録したか
+- [ ] `@media` と `@container`（コンテナクエリ）を区別し、`container-type` 祖先とセット記録したか
+- [ ] `gap` と `margin` を混同していないか（Flex/Grid 子要素）
+- [ ] 論理プロパティ / 物理プロパティを区別記録したか
+- [ ] `aspect-ratio` / padding-topハック / width×height属性 のいずれかを判別したか
+
+**D. カスケード / スタッキング**
+- [ ] `@layer` 宣言順・`@scope` 境界・詳細度を3次元マトリクスで記録したか
+- [ ] スタッキングコンテキスト生成条件（transform/opacity<1/filter/will-change/isolation/`popover` top-layer）を要素ごとに記録したか
+- [ ] 絶対配置要素の「包含ブロック祖先＋包含ブロック化しているプロパティ」をセット記録したか
+- [ ] `:has()` `:is()` `:where()` の詳細度計算ルールを注釈したか
+
+**E. モーション / インタラクション**
+- [ ] JSアニメ（GSAP/AOS等）と CSS `animation-timeline` を同軸で検出したか
+- [ ] `@view-transition` `View Transitions API` の使用/置換可否を判定したか
+- [ ] `prefers-reduced-motion` フォールバックの有無を各アニメごとに記録したか
+- [ ] hover/focus/active/focus-visible/target の5状態を全てループ観測したか
+
+**F. アクセシビリティ / パフォーマンス**
+- [ ] `outline:none` によるフォーカスリング消失を検出したか（keyboard_accessibility）
+- [ ] tap_target 44px / readability_risk / hover_only_content / above_fold_risk 4フラグを算出したか
+- [ ] `forced-colors: active` / `prefers-contrast` / `prefers-reduced-transparency` 対応の有無を採取したか
+- [ ] `backdrop-filter` `mix-blend-mode` `filter` `clip-path` に `@supports` フォールバックがあるか
+- [ ] `content-visibility` `contain-intrinsic-size` の候補セクションを performance_risks に記録したか
+
+**G. 納品前ゲート**
+- [ ] STEP 8 の pre-handoff スクリプトを 1コマンドで実行し exit code 0 を確認したか
+- [ ] `do_not_rewrite` リストを Ren 宛に添付したか
+- [ ] iro/nao/ren/hiro/nori への handoff ペイロードを全て埋めたか
+- [ ] Percy / Reg-suit で light×dark × PC×SP の4象限視覚回帰を通したか
+
+### KPI・成功指標・ベンチマーク
+
+| カテゴリ | 指標 | 2026年ベンチマーク（社内オーバースペック基準） |
+|---|---|---|
+| **抽出速度** | URL受領 → STEP 8 納品までの実時間 | **45分以内**（従来1.5h → 半減、2026-06-23参照） |
+| **抽出精度** | ピクセル完全性（Mia差分ゼロ率） | **≧98%**（DPR/OS/カラースキーム4象限で回帰PASS） |
+| **カラー抽出** | tokens.json のカラー適用箇所ヒット率 | **100%**（Ren実装後の未定義色出現ゼロ） |
+| **カスケード再現** | Ren実装で上書き逆転が発生した件数 | **0件/案件**（layer_scope_matrix + do_not_rewrite で担保） |
+| **A11y** | WCAG 2.2 AA / APCA Lc60 準拠率 | **≧95%**、`forced-colors` 崩れ **0件** |
+| **パフォーマンス** | 抽出時点で警告した重CSS起因のINP悪化 | **INP ≦ 200ms** を Ren 実装後で維持 |
+| **ハンドオフ品質** | Mia差し戻し往復回数 | **平均 ≦ 0.3回/案件**（環境ヘッダ添付で環境差の切り分け即時化） |
+| **ライセンス先出し** | STEP 7 完了時点で nori 法務入力が揃う率 | **100%**（フォント/アイコン/アニメ全ライブラリ） |
+| **未使用CSS検出** | Coverage APIによる未使用ルールの記録率 | **≧90%**（Renの実装後クリーンアップに活用） |
+| **視覚回帰** | Percy/Reg-suit の diff 閾値 | **≦ 0.1%**（4象限すべて） |
+| **知識更新** | Daily Knowledge Log 追記頻度 | **≧週2件**（本セクションの数値・ツールを継続更新） |
+
+### 参考リソース・継続学習リスト
+
+**W3C / WHATWG 仕様（一次情報）**
+- CSS Color Level 4/5（`oklch()` `color-mix()` `color()`）
+- CSS Cascade Level 5/6（`@layer` / `@scope`）
+- CSS Containment Level 3 / Container Queries Level 2（`@container style()` / cq単位）
+- CSS Anchor Positioning / Popover API / `interpolate-size`
+- Scroll-driven Animations / View Transitions API（クロスドキュメント）
+- CSS Houdini（`@property` / Paint Worklet / Typed OM）
+- Media Queries Level 5（`prefers-reduced-transparency` / `dynamic-range` / `forced-colors`）
+- WCAG 2.2 / APCA（Silver Working Draft）
+
+**MDN / web.dev / Chrome for Developers**
+- web.dev "Learn CSS" / "Learn Accessibility" / "Learn Performance"
+- Chrome DevTools Protocol（CSS domain / Overlay domain）
+- Chrome for Developers "New in Chrome" 月次
+
+**ツール公式ドキュメント**
+- Puppeteer / Playwright 最新（Trace Viewer / Visual Comparisons）
+- Tailwind CSS v4（`@theme` / CSS-first config）
+- Panda CSS / UnoCSS / StyleX（トークン中立化のため3系統把握）
+- PostCSS / css-tree / Culori / `@csstools/*`
+- axe-core / Pa11y / Lighthouse CI / web-vitals
+- Percy / Chromatic / Reg-suit
+- Figma Dev Mode MCP / Storybook 8
+
+**書籍・体系学習**
+- 『Refactoring UI』『Every Layout』『Inclusive Components』（Heydon Pickering）
+- 『Web Typography』（Richard Rutter）
+- 『Designing for Performance』（Lara Hogan）
+- Josh W. Comeau "CSS for JavaScript Developers"（`@layer` / container queries 章）
+- Adam Argyle / Una Kravets 各種セッション（Google I/O / CSS Day）
+
+**継続ウォッチ対象**
+- CSS Working Draft の月次進捗（`csswg-drafts` GitHub）
+- Interop 2026 プロジェクト進捗（各ブラウザベンダの Baseline 昇格）
+- Chrome Status / WebKit Feature Status / Firefox Nightly Notes
+- Smashing Magazine / CSS-Tricks / web.dev の CSS新機能記事
+- HTTP Archive Web Almanac の CSS 章（年次）
+- Interop dashboard（`wpt.fyi/interop-2026`）でBaseline昇格状況を月次確認

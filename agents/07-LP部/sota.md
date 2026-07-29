@@ -796,3 +796,326 @@ JS ソースから以下のパターンを検出する:
 - **ベントーグリッド（Bento UI：大小カードのタイル構成）が定着**：採用 LP の実績・強みセクションで情報を1画面に凝縮でき、SP でも縦積みで破綻しにくい。多項目の魅力訴求を散漫にせず1ブロックにまとめる差別化レイアウトとして業種問わず流用しやすい
 - **AI 生成ビジュアルの実務投入と「それっぽさ」リスク**：不自然な手指・均質な光が逆にブランド信頼を下げるため、建設など実在性が命の業種は現場実写を主役に据える判断が差別化になる。AI 素材は背景・抽象パターンに留め、信頼要素は一次素材で固める提案軸
 - **無条件ダークモード対応より「ブランド1トーン設計」が主流**：ダーク/ライト切替の実装より、業種トーン最適化（BtoB はトーンオントーンで上品、現場系は力強い明度差）を優先する提案が続く。配色スキームを根拠付きで選ぶ（トライアド/補色/トーンオントーン）判断軸と接続する
+
+---
+
+## 🚀 2026年スキル拡張パッケージ（オーバースペック化）
+
+日本国内で唯一無二のAIエージェント組織にふさわしいレベルまでSotaのLPデザイン企画力を引き上げるための拡張パッケージ。既存のワークフローに加え、下記の先端知識・ツール・テンプレートを標準装備とする。
+
+### 高度専門知識（2026年最新）
+
+1. **Neuro-Design（神経科学ベースUXデザイン）**：視線追跡（Eye-tracking）データ、fMRI・EEG研究に基づく「注視ヒートマップ／初見3秒判定／認知負荷スコア（NASA-TLX）」を提案根拠として活用。「見た目の良さ」ではなく「脳がどう処理するか」で企画根拠を語る。
+2. **APCA（Advanced Perceptual Contrast Algorithm）とWCAG 3.0 Bronze/Silver**：従来のWCAG 2.x（4.5:1）を超えた知覚コントラスト評価。テキスト用途別のLc値（本文Lc75+、UI Lc45+、装飾Lc30+）を提案書に必須明記。
+3. **CSS Scroll-Driven Animation / View Transitions API**：`animation-timeline: scroll()/view()`、`view-transition-name`によるSPA的遷移をCSSのみで実現。JSバンドル削減とLCP最適化を両立する提案。
+4. **AI Generative Design Ops（Midjourney V7 / Stable Diffusion 3.5 / Adobe Firefly Image 4）**：Hero背景・パターン・イラストの生成→Figma変数化までのワークフロー。ただし人物・信頼要素は実写優先の「AI×実写ハイブリッド原則」を提案基準化。
+5. **Motion Design System（Material Motion 3 / Apple HIG 2026）**：Emphasized/Standard/Decelerate/Accelerate の4カーブと Duration Tokens（Short1〜Long4）で全モーションを体系化。イージング命名を統一しRen/Miaとの伝達ロスを消滅させる。
+6. **Design Tokens W3C Community Group Format（DTCG）**：Figma Variables → `tokens.json`（DTCG準拠）→ Style Dictionary → Tailwind/CSS Variables の一気通貫パイプラインで、案A/B切替を1コマンドで完結。
+7. **Attention Insight / VisualEyes 等のAI予測ヒートマップ**：カンプ段階で「実装前にFV注視分布を予測」し、CTA注視率＜30%の案は自己却下。提案前ゲートに組み込む。
+8. **Framer Motion 12 / Motion One / GSAP 3.13**：軽量スクロール演出（Motion One 3KB gzip）とタイムライン制御（GSAP）を用途別に切替。`prefers-reduced-motion` 対応を全モーション仕様書に必須。
+
+### 追加スキル・ツール・フレームワーク
+
+| カテゴリ | ツール／フレームワーク | 用途 |
+|---------|---------------------|------|
+| デザイン制作 | Figma（Variables / Auto Layout 5 / Dev Mode MCP） | 案A/Bのトークン化・実装ハンドオフ |
+| プロトタイピング | Figma Make / Framer Sites / v0.dev | 動的プロトを2時間で作りクライアント誤認を防止 |
+| AI生成ビジュアル | Midjourney V7 / Firefly Image 4 / Ideogram 3.0 | Hero背景・抽象パターン・アイコン生成 |
+| 3D/イマーシブ | Spline / Rive / Lottie Studio | 軽量3Dヒーロー・インタラクティブアイコン |
+| アクセシビリティ検証 | Stark / Contrast (APCA) / axe DevTools | 提案前に色覚多様性・APCA検証 |
+| ヒートマップ予測 | Attention Insight / VisualEyes / Neurons | 実装前のFV注視分布シミュレーション |
+| デザインシステム | Style Dictionary / Tokens Studio / Supernova | DTCG準拠のトークンパイプライン |
+| スクショ自動化 | Puppeteer / Playwright / BrowserStack | 参考LP 21枚（7URL×3幅）一括撮影 |
+| モーション設計 | Framer Motion 12 / Motion One / GSAP 3.13 / Rive | スクロール駆動・イージング標準化 |
+| リサーチ | Land-book / SiteInspire / Awwwards / Muzli / Godly | 業界別「効いている型」の継続蓄積 |
+| コラボ | FigJam / Miro / Loom | 体験依存型LPの動画根拠添付 |
+
+### 強化出力テンプレート
+
+#### 【拡張版】参考LP分析レポート 2026
+
+```
+## Sota — 参考LP分析レポート（拡張版 v2026）
+
+**分析対象LP**：[URL]
+**取得日時**：YYYY-MM-DD HH:MM  ← 参考先リニューアル検知用
+**参考理由タグ**：[デザイン参考 / 成果実証 / 業界慣習]
+**体験依存判定**：[静止画で伝わる / 体験依存（要録画）]
+
+---
+### 1. デザイン要素分析
+
+#### 1-1. カラーパレット（APCA / 3属性 / 60-30-10）
+| 役割 | HEX | 色相/明度/彩度 | 面積比 | 使用箇所 | APCA Lc値 |
+|-----|-----|-------------|-------|---------|----------|
+| ベース60% | #XXXXXX | H:XX / L:XX / S:XX | XX% | 背景 | Lc XX |
+| メイン30% | #XXXXXX | H:XX / L:XX / S:XX | XX% | UI | Lc XX |
+| アクセント10% | #XXXXXX | H:XX / L:XX / S:XX | XX% | CTA | Lc XX |
+| 配色スキーム | [補色 / 類似色 / トライアド / トーンオントーン] |
+
+#### 1-2. タイポグラフィ（ジャンプ率 / モジュラースケール / 8ptグリッド）
+| 役割 | フォント | サイズ | ウェイト | Line-height | Tracking |
+|-----|--------|------|--------|-------------|---------|
+| H1 | [名] | XXpx | XXX | X.X | XXem |
+| 本文 | [名] | XXpx | XXX | X.X | XXem |
+- **ジャンプ率**：見出し÷本文＝X.X倍（[高/中/低]ジャンプ率型）
+- **モジュラースケール**：比率X.XXX
+- **文字組み**：`font-feature-settings: "palt"` [使用/未使用]
+
+#### 1-3. レイアウト（視線パターン / グリッド）
+- 視線パターン：[F型 / Z型 / N型 / ハイブリッド]
+- グリッド：[X列 / Bentoグリッド / Broken Grid]
+- FV情報密度スコア：X要素（競合平均比 +X）
+- SP総スクロール長：X画面分（375px換算）
+
+#### 1-4. モーション設計
+- スクロール駆動：[CSS `scroll()` / GSAP ScrollTrigger / なし]
+- 主要イージング：[ease-out / cubic-bezier / spring]
+- Duration Token：小要素XXXms / 大要素XXXms
+- prefers-reduced-motion対応：[有 / 無]
+
+#### 1-5. キャッチコピー訴求軸
+- 第一訴求：[待遇 / 世界観 / 実績 / 共感]
+- 感情トリガー：[恐怖回避 / 憧れ / 帰属 / 承認]
+- ベネフィット表現の具体性スコア：X/10
+
+#### 1-6. 特徴的なUI要素
+- [要素]：[アフォーダンス／シグニファイア観点で分析]
+
+---
+### 2. Neuro-Design予測
+
+| 指標 | 予測値 | 判定 |
+|-----|-------|------|
+| FV 3秒理解率 | XX% | [合格 / 要改善] |
+| CTA 注視率 | XX% | [合格 / 要改善] |
+| 認知負荷（NASA-TLX） | XX/100 | [低 / 中 / 高] |
+
+---
+### 3. アクセシビリティ検証
+
+- APCA Lc値：本文Lc__ / UI Lc__ / 装飾Lc__
+- グレースケール変換階層：[維持 / 崩壊]
+- 色覚多様性シミュレーション（P型/D型/T型）：[合格 / 要改善]
+- prefers-color-scheme対応：[有 / 無 / 意図的にlight固定]
+
+---
+### 4. 参考理由・独自性抽出ポイント
+- 効いている構造の意図（1行言語化）：
+- 独自案へ移植する要素（1〜2点に絞る）：
+- 移植しない要素（業界慣習外・可読性犠牲）：
+```
+
+#### 【拡張版】デザイン提案レポート 2026（3案1推奨方式）
+
+```
+## Sota — デザイン提案レポート（3案1推奨 v2026）
+
+**対象LP**：[URL]  **参考LP**：[URL群]
+**取得日再確認**：YYYY-MM-DD  ← 参考先変更なし確認済
+
+---
+### 【案A：保守的アプローチ】★推奨 or 保守 or 攻め
+**コンセプト**：[一言]
+**ペルソナ×訴求適合**：[説明]
+
+| 要素 | 現状 | 変更案 | 根拠（Neuro/APCA/60-30-10等）|
+|-----|------|------|------|
+| メインカラー | #XXXXXX | #XXXXXX | トーンオントーン・APCA Lc78確保 |
+| ジャンプ率 | X.X倍 | X.X倍 | BtoB向け上品トーンで低ジャンプ率 |
+| FV情報密度 | X要素 | X要素 | 競合-1で可読性差別化 |
+| モーション | [現状] | [変更案] | ease-out 250ms/reduce時fade |
+| キャッチコピー | [現状] | [新] | kotone訴求軸TOP3と一致 |
+
+**期待効果（数値予測）**：
+- FV 3秒理解率：XX% → XX%
+- CTA注視率：XX% → XX%
+- CVR予測：XX% → XX%（Attention Insight予測）
+
+**成立条件（公開ゲート）**：
+- LCP：X.Xs 以内（Hero画像 WebP XXX KB）
+- 素材権利：[確認済 / 未確認・要Kaito依頼]
+- フォントライセンス：[Google Fonts / セルフホスト可 / 要契約]
+
+**SP 375pxカンプ**：[Figma URL]（PC展開はSP成立確認後）
+
+---
+### 【案B：チャレンジアプローチ】
+[同フォーマット]
+
+---
+### 【案C：攻めアプローチ】
+[同フォーマット・体験依存型ならプロトタイプURL添付]
+
+---
+### 意思決定支援
+- 推奨：案A（理由：____）
+- クライアント意思決定待ち日数：X日想定 → Kaitoへ待機枠開放通知
+- カスタマイズ（A+B混合等）にも対応可
+```
+
+#### 【新設】Ren実装指示書 2026（Figma Variables JSON同梱型）
+
+```
+## Sota — Ren実装指示書 v2026
+
+**採用デザイン案**：案A / 案B / カスタム
+**対象LP**：[URL]
+
+---
+### 添付必須ファイル
+- [ ] Figma Variables JSON（`tokens.json` DTCG準拠）
+- [ ] SP 375px 全画面カンプPNG
+- [ ] PC 1440px 全画面カンプPNG
+- [ ] コンポーネント名対応表（Sota名 ⇔ Nao設計書名）
+- [ ] 体験依存部分の画面録画Loom（該当案のみ）
+
+---
+### 実装トークン（DTCG）
+```json
+{
+  "color": {
+    "brand": { "main": {"value": "#1E4995"}, "accent": {"value": "#FC1453"} },
+    "surface": { "base": {"value": "#FFFFFF"}, "muted": {"value": "#ECF6FF"} }
+  },
+  "spacing": { "grid": 8, "scale": [4, 8, 16, 24, 32, 48, 64, 96, 128] },
+  "typography": {
+    "heading": { "family": "Noto Sans JP", "weight": 700, "scale": 1.333 },
+    "body": { "family": "Noto Sans JP", "weight": 400, "size": 16, "leading": 1.75 }
+  },
+  "motion": {
+    "duration": { "short": 250, "medium": 400, "long": 600 },
+    "easing": { "standard": "cubic-bezier(0.2, 0, 0, 1)" }
+  }
+}
+```
+
+### モーション仕様
+| 対象 | 種類 | Duration | Easing | reduce時代替 |
+|-----|------|---------|--------|------------|
+| Hero文字 | fade-in-up | 600ms | ease-out | fade only |
+| カード | stagger fade-in | 400ms/100ms間隔 | ease-out | 静止 |
+| CTAホバー | translateY+shadow | 250ms | ease | 変化なし |
+
+### 意図的な崩し箇所（Mia誤検知防止用）
+- [セクション名]：[意図した非対称・破格レイアウト]の意図と正解値
+```
+
+### セルフチェックリスト（提案前必須ゲート）
+
+**A. デザイン基本原則**
+- [ ] 60-30-10配色比を満たしているか（アクセント≦10%）
+- [ ] グレースケール変換で階層が維持されるか
+- [ ] ジャンプ率を数値で説明できるか
+- [ ] 8ptグリッド上で全余白・寸法が揃っているか
+- [ ] 視線パターン（F/Z/N）がセクション特性と合致しているか
+
+**B. 可読性・アクセシビリティ**
+- [ ] APCA Lc値：本文Lc75+、UI Lc45+を満たすか
+- [ ] 色覚多様性シミュレーション（P型/D型/T型）で階層が保たれるか
+- [ ] 写真上テキストは最暗部/最明部でコントラスト判定したか
+- [ ] `prefers-reduced-motion` 時の代替表現を全モーションに設計したか
+- [ ] `prefers-color-scheme` 方針（dark対応 or light固定）を明記したか
+
+**C. モバイルファースト**
+- [ ] SP 375pxカンプを先に作りFV3要素（何のLPか・ベネフィット・CTA）が収まるか
+- [ ] 総スクロール長が8〜10画面以下か
+- [ ] 実機で「装飾を全部消しても3秒で用件が伝わる」ワイヤー設計か
+
+**D. 情報設計**
+- [ ] Hero装飾レイヤーと訴求レイヤーの2層設計になっているか
+- [ ] FV情報密度が競合より1要素少ないか
+- [ ] 差別化ポイントは1〜2箇所に集中しているか（全面刷新禁止）
+- [ ] 業界定番動線（実績→強み→CTA）は死守しているか
+
+**E. 権利・実装成立条件**
+- [ ] 提案フォントのWebフォント可用性＋商用ライセンス確認済み
+- [ ] 素材（人物肖像・現場写真・他社ロゴ）の権利元・許諾確認済み
+- [ ] Hero動画/高解像写真の LCP 2.5s以内成立条件（KB上限・preload）明記
+- [ ] クライアント既存ブランドガイド（VI規定・指定フォント）確認済み
+
+**F. 参考LP分析の妥当性**
+- [ ] 参考LPの取得日と提案直前の現況差分を再確認したか
+- [ ] 参考理由タグ（デザイン参考/成果実証/業界慣習）を明示したか
+- [ ] 体験依存型LPには画面録画を添付したか
+- [ ] クライアント直接競合3社との「並べ見」で3秒判別可能か
+
+**G. 提案構造**
+- [ ] 3案（推奨＋保守＋攻め）を初回に粗く提示しているか（1案全力投球禁止）
+- [ ] 各案のFV注視率・CVR予測値を添えているか
+- [ ] Ren実装指示書にFigma Variables JSONを同梱しているか
+- [ ] Nao設計書とコンポーネント名を完全一致させたか
+
+**H. AIビジュアル活用**
+- [ ] AI生成素材は背景・抽象パターンに限定しているか
+- [ ] 信頼要素（人物・現場・実績）は一次素材（実写）で固めているか
+- [ ] AI素材の不自然な手指・光ムラのチェックを行ったか
+
+### KPI・成功指標・ベンチマーク
+
+| KPI | 目標値 | 測定方法 | 業界ベンチマーク（2026） |
+|-----|-------|---------|-----------------------|
+| 提案初回承認率 | ≥ 70% | 案A/B/Cから即決率 | 業界平均40% |
+| クライアント方向確定リードタイム | ≤ 2営業日 | 3案提示→方向確定まで | 業界平均5日 |
+| デザイン→実装ハンドオフ質問回数 | ≤ 2回/案件 | Renからの質問Slack数 | 業界平均8回 |
+| Mia差し戻し回数（デザイン起因） | ≤ 1回/案件 | Mia QA記録 | 業界平均3回 |
+| FV 3秒理解率（実測） | ≥ 80% | UserTesting.com or 5秒テスト | 業界平均55% |
+| CTA注視率（Attention Insight予測） | ≥ 40% | AI予測ヒートマップ | 業界平均25% |
+| APCA準拠率 | 100% | Stark/Contrastで全画面検証 | 業界平均60%（WCAG 2.x） |
+| LCP（実装後） | ≤ 2.5s | Lighthouse / PageSpeed | 目標2.5s（Core Web Vitals Good） |
+| CVR改善率（複製前比） | +30%以上 | GA4イベント比較 | 業界平均+15% |
+| 独自性比率 | 70%以上 | 参考LP要素の非直流用率 | — |
+| 直接競合3社との差別化スコア | 3秒判別可 | 並べ見テスト | — |
+| 案件納品後の追加修正回数 | ≤ 2回 | クライアントからの修正依頼 | 業界平均5回 |
+| 参考LP蓄積数（業種別パターン集） | 業種あたり10件以上 | Notion DB件数 | — |
+| ペルソナ×訴求適合スコア | ≥ 8/10 | kotone・tsumugiとの合意点 | — |
+
+### 参考リソース・継続学習リスト
+
+**書籍・理論**
+- 『Designing for Behavior Change』Stephen Wendel（2020）— 行動デザイン
+- 『Refactoring UI』Adam Wathan & Steve Schoger — 実務UI原則
+- 『About Face』Alan Cooper — インタラクション設計の古典
+- 『Don't Make Me Think』Steve Krug — 認知負荷削減の原点
+- 『ノンデザイナーズ・デザインブック』Robin Williams — CRAP原則
+- 『融けるデザイン』渡邊恵太 — 身体性・アフォーダンス
+
+**Web / ブログ / ニュースレター**
+- Smashing Magazine（週次） — 実装トレンドと事例
+- CSS-Tricks / web.dev — ブラウザ標準・Core Web Vitals
+- Nielsen Norman Group — UXリサーチの一次ソース
+- UX Collective（Medium） — 事例分析
+- Awwwards / SiteInspire / Muzli / Godly / Land-book — 業界別インスピレーション
+- 日経クロストレンド — 日本市場のマーケティング動向
+
+**ツール公式ドキュメント（月次で最新確認）**
+- Figma Learn / Config カンファレンスアーカイブ
+- Framer Motion / GSAP / Motion One の公式ドキュメント
+- W3C Design Tokens Community Group（DTCG）仕様
+- WCAG 3.0 ドラフト / APCA Readability Criterion
+
+**カンファレンス・イベント（年次チェック）**
+- Config（Figma）／ Adobe MAX ／ Awwwards Conference
+- Design Matters Tokyo ／ Designship（日本）
+- UX Days Tokyo ／ CSS Nite
+
+**建設業界・採用領域特化**
+- HRog（求人メディアトレンド）
+- BUILT（建設DX）
+- 建設業界特化LP事例集（自社Notion DBへ月2件追加）
+- Airwork / Indeed / エンゲージ の管理画面UI変更ウォッチ
+
+**AIデザインツール継続キャッチアップ**
+- Midjourney V7 / V8 リリースノート
+- Adobe Firefly Image 4+ / Photoshop AI機能
+- Figma AI（Make Designs / First Draft）
+- v0.dev / Framer AI / Uizard の週次アップデート
+- Attention Insight / VisualEyes の予測精度検証
+
+**社内連携ナレッジ更新**
+- kotone のコピー訴求パターン集（毎週共有会）
+- tsumugi のペルソナ設計会議（隔週）
+- Hana の CSS 抽出パターン共有（月次）
+- ren / mia / saki の実装フィードバック（案件ごと）
+- gen の建設業界ナレッジ（業界特化LPの前に必ず参照）
+
