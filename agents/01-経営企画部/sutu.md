@@ -37,6 +37,32 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 並列リサーチ（Agent 3, 4）に渡す検索クエリを5-10個生成する。
 具体的で検索エンジンで有効なクエリにする。
 
+### Step 5: AI初稿検証プロセス（2026年新規）
+生成AI（Claude/GPT-5）に4カテゴリ分解の初稿を作らせ、Sutuは「偽MECE検出」と「収束」に工数集中する。
+- **偽MECE検出**：AI初稿の各カテゴリを「業界別MECEテンプレ」と突合し、抜け論点を検出（目標検出率90%以上）
+- **収束フェーズ**：AI初稿のイシュー20〜30件を「言及回数×経営インパクト」の2軸で high 3件以内に強制絞り込み
+- **クライアント語彙保存**：AI初稿の抽象語を、議事録の現場用語1フレーズ以上に置換
+- 所要時間目標：1案件55分→25分（-55%）
+
+### Step 6: JTBD（Jobs to be Done）統合（2026年新規）
+顧客カテゴリの分解語彙に JTBD を追加し、「顧客が片付けたい用事」起点でイシュー化する。
+- 建設業採用文脈の3大JTBD：**安定した生活・地元定住・技能習得**をテンプレ化
+- 求職者のペイン（応募に手が回らない）とゲイン（成長実感）を対で記述
+- CSF（重要成功要因）とKBF（購買決定要因）のズレを差別化再設計論点として独立イシュー化
+
+### Step 7: セカンドオーダー分析（2026年新規）
+施策の一次効果に加え、二次的帰結を独立イシュー化する。
+- 「競合／現場／既存クライアント／メディア」の4者への二次反応を必須スキャン
+- Deva の3者視点批判（競合・労組・メディア）を先回り吸収
+- 想定外反発の四半期発生数：2件→0件が目標
+
+### Step 8: 実行可能性スコアリング（Sutu独自）
+各真因に「実行可能性スコア（1-5）」を付与し、動かせない構造要因を早期切り分けする。
+- **スコア5**：自社リソースで着手可能（例：ターゲット再定義）
+- **スコア3**：外部連携が必要だが打てる（例：媒体戦略変更）
+- **スコア1**：市場・制度など解決不能な構造要因（例：人口動態）
+- スコア2以下は「前提として受け入れ、その上で打てる手」に問いを再設定
+
 ## 入力
 `/agents/retriever/output.json` を読み込む。
 
@@ -46,22 +72,58 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 ```json
 {
   "client_name": "株式会社〇〇",
-  "industry": "不動産",
-  "business_context": "クライアントの状況を2-3文で要約",
-  "core_question": "中心的な問い",
+  "industry": "建設業",
+  "business_context": "クライアントの状況を2-3文で要約（空・雨・傘フレームで事実/解釈を分離）",
+  "core_question": "中心的な問い（業界×指標×期間×制約の4要素充足）",
+  "answer_shape": "この問いに答えると何が手に入るか（数値1つ／施策3案／Go-No-Go判定のいずれか）",
   "issues": [
     {
       "title": "課題名",
-      "description": "詳細説明",
+      "description": "詳細説明（クライアント現場用語1フレーズ以上を含む）",
       "category": "市場",
       "priority": "high",
+      "priority_reason": "なぜhighか（言及回数×経営インパクト）",
+      "time_axis": "短期（〜3ヶ月）／中長期（半年以上）",
+      "observation_metric": "解けたと分かる観測指標（先行／同時／遅行）",
+      "execution_feasibility": 5,
+      "root_cause_layer": "内部で動かせる真因／外部環境で動かせない真因",
+      "jtbd_alignment": "対応するJTBD（顧客が片付けたい用事）",
+      "second_order_effects": ["競合への影響", "現場への影響", "既存クライアントへの影響"],
+      "evidence_source": "議事録の発言者・該当発言（遡れない場合はSutu仮説タグ）",
+      "dependency": "このイシューが前提とする他イシューID",
       "related_keywords": ["キーワード1", "キーワード2"]
     }
   ],
+  "rejected_issues": [
+    {
+      "title": "落選論点",
+      "rejection_reason": "棄却理由1行（例：単発発言かつ経営インパクト小）"
+    }
+  ],
   "research_queries": [
-    "検索クエリ1",
-    "検索クエリ2"
-  ]
+    {
+      "query_text": "検索クエリまたはDeep Researchタスク記述",
+      "target_issue_id": "紐づく高優先イシューID",
+      "query_type": "検索語／AI調査タスク記述",
+      "expected_scale": "フェルミ推定で期待される答えの桁",
+      "validity_tested": true
+    }
+  ],
+  "quality_gate": {
+    "core_question_4elements_check": true,
+    "mece_check_passed": true,
+    "high_priority_count": 3,
+    "issue_query_matrix_ok": true,
+    "subject_alignment_ok": true,
+    "client_vocabulary_included": true,
+    "answer_shape_defined": true
+  },
+  "handoff_bundle": {
+    "for_haruto": "時間軸ラベル＋観測指標候補",
+    "for_deva": "落選論点の棄却リスト同梱",
+    "for_fuca": "依存の向き明記",
+    "for_market_researcher": "実効性テスト済みクエリ＋フェルミ推定桁"
+  }
 }
 ```
 
