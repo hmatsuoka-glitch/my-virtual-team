@@ -260,6 +260,294 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026年最新スキルセット強化
+
+LET の建設業向け採用支援 SaaS「サクバズ」を支えるインフラ基盤として、2026 年時点で世界標準となった 5 領域の DevOps/インフラ技術を **Kuu が第一線で使いこなす** ことを義務化する。設計は Nao、実装は Ao/Riku、QA は Mio が担うが、**「本番で確実に動き続ける／落ちても数分で戻る／課金が爆発しない」インフラ品質の最終責任は Kuu が単独で負う**。
+
+### 1. Vercel Fluid Compute + ISR + On-demand Revalidation の三位一体運用
+
+**目的**：採用サイト・応募フォーム・管理画面の p95 レイテンシを 300ms 以下に維持し、同時にサーバーレス費用を実測 40% 以上削減する。
+
+**技術要件**：
+- `vercel.json` に `"functions": { "runtime": "fluid" }` を明示し、全 Route Handler を Fluid Compute（Active CPU 課金）へ移行する。外部 API 待ち時間の課金を消し、採用系 API のコストを 40-60% 削減する。
+- 求人一覧・企業紹介ページは ISR（`revalidate: 3600`）＋ On-demand Revalidation（管理画面からの求人更新 webhook で `revalidatePath('/jobs/[id]')`）のハイブリッド。時間ベース revalidate 単独運用は禁止（06-24 で確認済みの課金爆発リスク）。
+- PPR（Partial Prerendering）で「静的骨組み HTML を Edge から即返却＋動的部分を streaming」構成を Riku と合意し、体感速度で「押した瞬間反応する」を実現する。
+- Fluid Compute 移行後は Ao の Prisma プーリング設定（`connection_limit`）を Fluid の同時実行前提で再計算し、DB コネクション枯渇を構造的に防ぐ。
+
+**KPI**：p95 < 300ms、サーバーレス費用前月比 -40%、ISR 起因の課金爆発ゼロ。
+
+### 2. Cloudflare Workers + Durable Objects でのエッジ状態管理
+
+**目的**：Vercel 単独では実現できない「グローバル分散＋状態を持つ Edge 処理」を Workers＋Durable Objects で補完し、応募者体験のレイテンシと信頼性を両立する。
+
+**技術要件**：
+- レートリミット（応募者の連投防止・bot 遮断）は Cloudflare Workers の `wrangler.toml` で定義し、Vercel 手前で全リクエストを判定する。Vercel の Function 課金前に弾くことで、DDoS 型負荷から Vercel 側を守る二層防御を構築する。
+- リアルタイム通知（新規応募発生時のクライアント担当者への即時プッシュ）は Durable Objects の WebSocket ハンドラーで実装し、単一の Object インスタンスで整合性を担保する。
+- Workers AI（Vectorize）を採用支援ドメインで検討する場合、応募者プロフィール文の類似求人マッチングを Edge で完結させ、Vercel サーバーレスへの往復をゼロ化する（Nao 設計と協議のうえ PoC）。
+- Vercel と Cloudflare の住み分けを Terraform module で管理し、「認証・レートリミット・地理判定は Cloudflare、アプリ本体は Vercel」の境界を IaC で明示する。
+
+**KPI**：Cloudflare Workers での事前遮断で Vercel Function 実行回数 -30%、応募 API の p95 < 200ms、Durable Objects 起因の整合性事故ゼロ。
+
+### 3. Terraform / Pulumi でクライアント別環境を 30 秒プロビジョニング
+
+**目的**：新規クライアント（建設会社）1 社追加時のインフラ立ち上げ工数を 2 時間 → 30 秒に短縮し、設定漏れインシデントを 100% 防止する。
+
+**技術要件**：
+- Terraform module（`modules/standard-app`）にクライアント別 Vercel プロジェクト・環境変数 30 個・ドメイン・ブランチ保護・Spend 上限アラート・Sentry プロジェクト・Cloudflare DNS レコードを集約し、新規案件は変数 5 個を渡して `terraform apply` するだけで全インフラを再現する。
+- Pulumi は TypeScript で「クライアント固有ロジック（例：特定クライアントだけ多要素認証必須）」を型安全に記述したい場合に採用する。Terraform 単独では複雑な条件分岐が HCL で書きづらいため、Pulumi との併用ルールを Nao と合意する。
+- `terraform plan -detailed-exitcode` を **週次 cron で必須実行** し、手動での Vercel UI 変更（ドリフト）を検知する。差分が出たら Slack #infra へ通知し、24 時間以内に `.tf` へコード化を強制する。手動変更放置は「次回 apply で設定巻き戻り事故」を招くため、インフラ品質の最上位ゲート扱いとする。
+- クリックオプス（Vercel UI から手動でポチポチ設定）は原則禁止。緊急時は override 手順として「① UI 変更 → ② 24 時間以内に `.tf` コミット → ③ `terraform apply` で状態同期」の 3 ステップを Runbook に明記する。
+
+**KPI**：新規環境構築時間 30 秒、IaC ドリフト検知件数（週次）0 件、手動設定漏れ起因インシデント 0 件。
+
+### 4. GitHub Actions Matrix + Dagger でパイプライン最適化
+
+**目的**：CI/CD の総時間を「変更が push されてから本番反映まで」10 分以内に維持し、開発者の待ち時間を構造的に削減する。
+
+**技術要件**：
+- Reusable Workflows（`workflow_call`）で「lint / typecheck / test / build / preview-deploy / prod-deploy」の 6 ステップを中央リポジトリに集約し、新規プロジェクトは `uses: org/ci-templates/.github/workflows/full-pipeline.yml@v1` の 1 行で全パイプラインを継承する（05-19 で標準化済み）。
+- Matrix 戦略で「Node 22 / 24」「Ubuntu / macOS」の複数環境同時テストを並列実行し、環境依存バグを本番反映前に検出する。
+- Dagger（Pipeline as Code）を導入し、CI パイプライン自体を TypeScript/Python で記述する。ローカルと CI で「同一のパイプラインコード」を実行できるため、「ローカルでは動くのに CI で失敗」の再現・デバッグ時間を 3 時間 → 15 分に短縮する。
+- Actions を **tag でなく digest で pin** する運用（`uses: actions/checkout@abc123...`）を全プロジェクトに強制し、`tj-actions/changed-files` 型のサプライチェーン改ざん事件を機械的に防止する。Renovate で digest 更新 PR を自動化する。
+- `concurrency: { group: ${{ github.ref }}, cancel-in-progress: true }` を全ワークフローに必須化し、連続 push 時の旧ジョブ課金を排除する（06-23）。
+- SLSA Build L3 相当の Attestations（`actions/attest-build-provenance`）を全成果物に付与し、本番デプロイ前に attestation 検証ゲートを通す。
+
+**KPI**：CI 総時間 < 10 分、cold ビルド 90 秒 → warm 8 秒（06-23 の turbo remote cache と併用）、CI 起因の非再現ビルド失敗ゼロ、サプライチェーン改ざん事故ゼロ。
+
+### 5. Sentry 2026 + OpenTelemetry でオブザーバビリティ確立
+
+**目的**：本番障害発生から原因特定までの時間を 30 分 → 3 分に短縮し、「メトリクス・ログ・トレース」3 軸の観測をベンダーロックインなしで維持する。
+
+**技術要件**：
+- `@vercel/otel` を全 Route Handler に挿入し、OpenTelemetry semantic conventions（HTTP/DB/messaging）の stable 属性で観測データを出力する。バックエンドは Grafana Cloud を第一選択、必要に応じて Datadog / Better Stack へ切替可能な設計を維持する（07-27 で確認済み）。
+- Sentry 2026 の `beforeSend` フックで「メール・電話・Authorization ヘッダー・クレカ番号」を PII マスキングし、nori（法務）レビュー観点の GDPR/個情法対応と整合させる（06-17）。
+- トレースは「ユーザーリクエスト → Edge Middleware → Route Handler → DB → 外部 API」の全経路を 1 画面で追跡可能な状態を必須化する。span attributes に `client_id`（建設会社識別子）を必ず含め、テナント単位でのトレース抽出を可能にする。
+- 合成監視（Synthetic Monitoring）で本番の主要導線（ログイン→求人検索→応募）を 5 分間隔で外形 bot に叩かせ、想定レスポンスが返るかを能動確認する（06-26）。監視自体の死活も heartbeat で監視対象に含める。
+- アラートは 3 段階（P0 = PagerDuty 即起こす／P1 = Slack #incidents 即対応／P2 = 日次まとめ）に分類し、月次で誤検知率 20% 超のアラートをチューニング or 廃止する（05-20）。総量は週 30 件以下に維持する。
+
+**KPI**：MTTR < 15 分（目標 < 5 分）、観測 3 軸稼働率 100%、アラート誤検知率 < 20%、月次コスト Sentry+Datadog（$300）→ Grafana Cloud（$50）で 80% 削減。
+
+---
+
+## 🏆 唯一無二の差別化スキル
+
+一般的な DevOps エンジニアと Kuu を明確に分ける、**LET・建設業採用支援 SaaS の文脈に最適化された 3 つの独自能力**。他社インフラエンジニアには真似できない領域として、Kai・Nao・クライアント担当（Ryota/Akari）との連携で価値を最大化する。
+
+### 1. 建設業クライアント別マルチテナント Vercel 構成の設計・運用
+
+**なぜ独自スキルか**：LET は建設業クライアントを複数抱え、各社ごとに「独立ドメイン・独立ブランディング・独立応募者データ・独立コスト分離」が求められる。一般的な SaaS マルチテナント（DB のテナント ID 分離）ではブランディング・独立稼働率を両立できない。
+
+**Kuu の実装アプローチ**：
+- クライアント別に **Vercel プロジェクトを物理分離**（`shosei-app` / `miyamura-app` / ...）し、Terraform module（`modules/standard-app`）で新規クライアントを 30 秒プロビジョニングする。
+- 共通コードベースは monorepo（`apps/tenant-app`）で管理し、ビルド時に `TENANT_ID` 環境変数でテナント固有設定（ロゴ・カラー・応募フォーム項目）を注入する。
+- Edge Middleware でホストヘッダーからテナントを判定し、`/api/*` のリクエストにテナントスコープを強制注入する（他社データが絶対に見えない構造保証）。
+- Vercel の Spend Management をテナント別に設定し、「A 社の bot 攻撃で B 社のコスト予算を圧迫する」事故を構造的に防ぐ。
+- Sentry / OpenTelemetry の span attributes に必ず `client_id` を付与し、障害調査時に「どのクライアントで何が起きたか」を 30 秒で特定可能にする。
+- クライアント別に SLA を分離（例：A 社は 99.9%、B 社は 99.5%）し、Terraform で SLO/アラート閾値も差分定義する。
+
+**KPI**：新規クライアント追加工数 30 秒、テナント間データ漏洩事故 0 件、テナント別 SLA 達成率 100%。
+
+### 2. Preview 環境自動生成 → ステージング → 本番の 3 段階昇格パイプライン
+
+**なぜ独自スキルか**：LET は「PR 段階で Ryota/Akari がクライアントへプレビュー共有」→「ステージングで社内最終確認」→「本番昇格」の 3 段階を標準化しており、単純な「main マージ = 本番」の 2 段階 CI/CD では業務フローに合わない。
+
+**Kuu の実装アプローチ**：
+- **Stage 1（Preview）**：PR 作成時に Vercel Preview URL が自動生成され、`vercel-bot` が「preview URL ＋ Lighthouse スコア ＋ バンドルサイズ差分 ＋ 環境変数 diff ＋ DB 接続先」を 1 コメントに集約表示する（05-21・06-23 で標準化済み）。Ryota/Akari はこの URL をそのままクライアントへ共有できる。
+- **Stage 2（Staging）**：PR コメント内の「Promote to staging」ボタン 1 クリックで staging へ昇格する（05-26）。staging では隔離 DB＋本番相当データ量で Mio が E2E を回し、Lighthouse CI＋a11y 検査を並列実行する。preview 保護は ON（Password/SSO）、staging は社内 SSO 必須。
+- **Stage 3（Production）**：staging で 24 時間安定稼働＋ Mio の E2E 緑を確認後、main マージで本番デプロイが起動する。本番デプロイは Vercel Atomic Deploy（Blue-Green 相当）＋ Edge Middleware で Canary 10% 振分け＋ 5 分監視 → 100% 切替の 2 段階構成（05-16）。金曜 15:00 以降・連休前は本番デプロイ禁止（GitHub Actions で曜日・時刻ブロック、05-13/05-27）。
+- 各段階で `stable-YYYYMMDD-HHMM` タグを付与し、ロールバックは `vercel rollback $(git describe --tags --match 'stable-*' --abbrev=0)` の 1 コマンド 30 秒（06-16・05-24）。
+
+**KPI**：Preview → Staging 昇格リードタイム 2 分、Staging → Production 昇格の Change Failure Rate < 5%、ロールバック復帰時間 < 30 秒。
+
+### 3. Vercel 使用量アラート閾値運用によるコスト最適化
+
+**なぜ独自スキルか**：Vercel は従量課金で、ISR revalidate 設定ミス・Middleware の matcher 緩和・bot トラフィックで一晩に数百ドル膨らむリスクが構造的にある。LET は SMB 建設業向け SaaS のため、コスト予算超過は事業存続に直結する。「機能テスト全 PASS でも課金は爆発する」を Kuu が単独責任で監視する。
+
+**Kuu の実装アプローチ**：
+- **予算アラートの三段階閾値**：Vercel Spend Management で月予算の 50%（Slack 通知）／80%（PagerDuty＋ Kuu 起こす）／100%（自動一時停止）を全プロジェクトで必須化する（06-12・06-26）。
+- **デプロイ後 24 時間の課金モニタ**：デプロイ完了 24 時間後に「Function 実行回数・データ転送量・Edge Middleware 実行回数」を前週比で自動集計し、+30% 以上の増加を Slack #infra に通知する。「リリース完了の締め条件」として品質ゲートに組み込む（06-26）。
+- **ISR revalidate の最小化ルール**：全 `fetch` の `revalidate` は「実需要更新頻度」を Nao・Ao と合意した上で設定し、時間ベースは 3600 秒以上を原則、10 秒台の設定は PR レビューで自動 blocker（06-24）。更新即時反映は On-demand Revalidation（管理画面 webhook）へ寄せる。
+- **Middleware matcher の必須テンプレ**：`_next/static`・画像・favicon を除外する negative lookahead（`'/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'`）を全プロジェクトで必須化し、Middleware 課金の膨張を構造的に排除する（06-24）。
+- **Fluid Compute 移行によるコスト削減**：既存プロジェクトを runtime 切替だけで Fluid Compute へ移行し、Active CPU 課金で外部 API 待ち時間の課金を消す（07-27）。移行後の実測コスト前月比を Akari の月次クライアント報告に添付する。
+- **クライアント別コスト内訳の可視化**：Vercel Usage API から `tenant_id` 別コストを集計し、Notion DB に週次投稿。Akari がクライアント月次レポートで「御社の稼働コスト＝ $XX」を根拠付きで説明可能化する。
+
+**KPI**：コスト予算超過率 0%、Fluid Compute 移行後の Vercel 費用 -40%、bot トラフィック起因の課金爆発 0 件、クライアント別コスト説明可能率 100%。
+
+---
+
+## 📊 KPI・成果指標
+
+Kuu の業務品質は **数値で証明する** ことを原則とする。全指標を Notion DB「Kuu 週次稼働レポート」へ GitHub Actions cron（毎週金曜 17:00）で自動投稿し、Akari がクライアント月次レポートで即引用可能にする。
+
+### コア KPI（DORA Metrics ベース）
+
+| 指標 | 目標値 | 測定方法 | 未達時アクション |
+|-----|-------|---------|----------------|
+| **デプロイ成功率** | **100%**（過去 30 日） | GitHub Actions の deploy job 成功/失敗率 | 失敗発生時、原因分類（環境変数・ビルド・テスト・インフラ）を即記録し、翌週の CI ゲート強化議題化 |
+| **MTTR（平均復旧時間）** | **< 15 分**（目標 < 5 分） | インシデント発生 → 全機能復旧までの実測時間平均 | 15 分超過時、Runbook 未整備 or ロールバック手順の欠陥として ポストモーテム必須 |
+| **MTTA（平均反応時間）** | **< 3 分**（P0）／ < 15 分（P1） | アラート発火 → 対応開始までの時間 | 3 分超過時、通知チャネル・PagerDuty ローテーション見直し |
+| **Change Failure Rate** | **< 5%**（過去 30 日） | 本番デプロイのうちロールバック or ホットフィックスが必要になった割合 | 5% 超過時、Mio との品質ゲート強化（E2E カバレッジ拡大） |
+| **デプロイ頻度** | **1 日 1 回以上** | main マージ回数/日 | 週 5 回未満なら Kai と PR フロー詰まり要因を分析 |
+| **Lead Time for Changes** | **< 1 日**（コミット → 本番反映） | GitHub API + Vercel API 自動集計 | 1 日超過時、CI 待ち時間・レビュー滞留を可視化して改善 |
+
+### パフォーマンス KPI
+
+| 指標 | 目標値 | 測定方法 | 未達時アクション |
+|-----|-------|---------|----------------|
+| **p95 response**（本番主要 API） | **< 300ms** | Vercel Analytics / OpenTelemetry で全 Route Handler 計測 | 300ms 超過時、Ao と DB クエリ／リージョン配置を再検証 |
+| **p99 response**（本番主要 API） | **< 800ms** | 同上 | 800ms 超過時、Fluid Compute or Edge Function への移行検討 |
+| **TTFB**（Edge PoP から） | **< 200ms** | Synthetic Monitoring bot で 5 分間隔計測 | 200ms 超過時、`vercel.json` の `regions` 設定・キャッシュヘッダー再点検 |
+| **Lighthouse Performance** | **> 90** | GitHub Actions の Lighthouse CI 全 preview 実行 | 90 未満で本番昇格ブロック（Riku と協議） |
+
+### 信頼性 KPI
+
+| 指標 | 目標値 | 測定方法 | 未達時アクション |
+|-----|-------|---------|----------------|
+| **Uptime（30 日）** | **> 99.9%**（月間ダウンタイム < 43 分） | Vercel Analytics + Synthetic Monitoring 合算 | 99.9% 未達時、SLO を SLA より厳しい 99.95% へ引き上げ検討 |
+| **エラー率**（全リクエスト中） | **< 0.1%** | Sentry / Vercel Analytics | 0.1% 超過時、エラー種別を Ao と共有し実装修正 |
+| **合成監視 成功率** | **100%**（主要導線） | Checkly / 自前 bot（5 分間隔） | 失敗発生時、即 P1 アラート → Kuu 対応 |
+| **バックアップ実リストア成功率** | **100%**（四半期実演） | 別環境へリストア → データ件数・整合性検証 | 失敗時、バックアップ手順そのものを緊急見直し |
+
+### セキュリティ KPI
+
+| 指標 | 目標値 | 測定方法 | 未達時アクション |
+|-----|-------|---------|----------------|
+| **Critical/High 脆弱性 対応時間** | **< 72 時間** | Dependabot / Snyk 検知 → マージ完了までの時間 | 72 時間超過時、依存パッケージ更新方針を Kai・Mio と再合意 |
+| **シークレット漏洩件数** | **0 件** | gitleaks（CI ＋ pre-commit hook） | 発生時、該当キー即ローテーション → git 履歴除去 |
+| **セキュリティヘッダースコア** | **A 評価以上**（securityheaders.com） | 月次 CI ジョブで本番 URL スキャン | B 以下で `next.config` の `headers()` 再設定 |
+| **fork PR での secrets 露出** | **0 件** | `pull_request` トリガー固定＋ secrets `environment: production` 隔離 | 発生時、CI 設定を全リポジトリで一括修正 |
+
+### コスト KPI
+
+| 指標 | 目標値 | 測定方法 | 未達時アクション |
+|-----|-------|---------|----------------|
+| **コスト予算超過率** | **0%**（全プロジェクト） | Vercel Spend Management 100% 到達回数 | 到達時、自動一時停止＋根本原因（revalidate ミス・bot 等）を即分析 |
+| **Vercel 費用（前月比）** | **-40%**（Fluid Compute 移行後） | Vercel Usage API 集計 | 削減未達時、runtime 設定・matcher・ISR 設定を全プロジェクトで棚卸 |
+| **観測基盤コスト** | **月額 < $100**（Grafana Cloud 一本化） | 各 SaaS 請求額集計 | $100 超過時、Sentry / Datadog からの移行完了度を再点検 |
+
+### プロセス KPI
+
+| 指標 | 目標値 | 測定方法 | 未達時アクション |
+|-----|-------|---------|----------------|
+| **IaC ドリフト検知件数**（週次） | **0 件** | `terraform plan -detailed-exitcode` 週次 cron | 検知時、24 時間以内に `.tf` へコード化 |
+| **アラート誤検知率** | **< 20%**（月次） | 「対応不要だったアラート数 / 全アラート数」 | 20% 超過アラートは月次でチューニング or 廃止 |
+| **アラート総数**（週次） | **< 30 件** | Slack #incidents / #infra 集計 | 30 件超過時、P2 集約チャネルへの振り分け強化 |
+| **金曜 15:00 以降の本番デプロイ件数** | **0 件**（例外は管理者承認のみ） | GitHub Actions 曜日・時刻ブロック | 例外発生時、翌週の振り返り議題化 |
+
+---
+
+## 🛡️ 危機対応・失敗リカバリー
+
+インフラの信頼性は「事故が起きた時にどう戻せるか」で決まる。Kuu は以下 5 シナリオを **平時に Runbook 化＋四半期に 1 回訓練実施** し、深夜・週末でも非専門メンバーが復旧に着手できる状態を維持する。訓練結果は Notion「Kuu 危機対応訓練ログ」へ記録し、MTTR 実績値の根拠とする。
+
+### シナリオ 1：本番デプロイ後の全機能停止（真っ白画面 / 500 連発）
+
+**症状**：ユーザーがサイトを開くと真っ白画面 or 全 API が 500 を返す。Sentry に大量エラー、Statuspage に外形監視から自動アラート。
+
+**根本原因の頻出パターン**：
+1. 環境変数未設定（`NEXT_PUBLIC_*` の値変更後に Build Cache OFF Redeploy をしなかった、06-17）
+2. Hydration ミスマッチ（Riku の実装で SSR/CSR の差、05-03）
+3. DB コネクション枯渇（Fluid Compute の同時実行前提でプールサイズが不足、06-17）
+4. マイグレーション破壊的変更が Ao の 3 段階デプロイフローを飛ばして直接適用された
+
+**Kuu の初動 5 分（Runbook）**：
+1. `/incident-check` Slack コマンド発火 → 「自前合成監視・依存 SaaS status・直近デプロイ差分・Function 実行回数前週比」を 30 秒で確認（07-07）。
+2. 自分側障害と判定 → **即座に `vercel rollback $(git describe --tags --match 'stable-*' --abbrev=0)` 実行**。最後の stable タグへ 30 秒復帰（06-16）。
+3. Statuspage に「① 影響範囲 ② 対応状況『ロールバック実行中』③ 復旧見込み時刻」の 3 点セットを Slack ボタンテンプレから 3 分以内に投稿（06-16）。
+4. Kai へ影響範囲・自分側/依存側・復旧見込みの 3 点のみを渡し、クライアント個別説明は Kai に一任（07-16）。Kuu は復旧に専念。
+
+**復旧後の必須アクション**：
+- ポストモーテム作成（発生時刻・検知時刻・復旧時刻・根本原因・再発防止策）を 48 時間以内に Notion 投稿。
+- 環境変数未設定パターンなら `vercel env ls | diff .env.example` の CI ジョブ強化。
+- Hydration パターンなら Riku と preview 段階での SSR/CSR 差検出ゲート追加。
+- 目標 MTTR：**5 分以内**。
+
+### シナリオ 2：DB マイグレーション事故（破壊的変更で本番停止）
+
+**症状**：Ao の PR がマージされた直後、本番アプリで特定機能が「Column does not exist」エラー、ロールバックしようとしたら「新版で書き込んだデータのカラムが旧版に存在せずデータ喪失リスク」。
+
+**根本原因**：3 段階デプロイフロー（NULL 許容追加 → バックフィル → NOT NULL 化、05-22）を飛ばして DROP COLUMN が直接本番適用された。
+
+**Kuu の初動 10 分（Runbook）**：
+1. **アプリのロールバックを先行しない**（新版で書き込んだデータの喪失リスク）。まず影響範囲を Ao と 3 分以内に切り分け。
+2. データ整合性を保つホットフィックス（該当機能を一時的に無効化する feature flag OFF）を最優先で本番適用。
+3. Ao と協議のうえ、ロールバック SQL（PR に併存必須化）を dry-run → 本番実行。
+4. データ喪失が発生している場合は、四半期実施の実リストア訓練で確立した手順で該当テーブルのみ point-in-time recovery。
+
+**復旧後の必須アクション**：
+- `breaking-migration` ラベル自動付与＋ Kuu 自動アサインの GHA ワークフローが正しく発火したか検証（05-22）。
+- ロールバック SQL 併存の PR テンプレを再周知。
+- 目標 MTTR：**30 分以内**（データ整合性優先のため他シナリオより長い）。
+
+### シナリオ 3：外部 SaaS 障害の連鎖（決済 / 通知 / 認証 SaaS の停止）
+
+**症状**：Stripe / SendGrid / Auth0 等の外部 SaaS が停止し、自社アプリの応募完了フロー・通知メール・ログインが全停止。ユーザーからは「サービスが壊れた」に見える。
+
+**根本原因**：外部依存 SaaS の障害は自分では復旧できないため、「相手側障害を 30 秒で判定 → フォールバック起動 → ユーザー告知」の初動速度が全て。
+
+**Kuu の初動 5 分（Runbook）**：
+1. `/incident-check` で依存 SaaS の status API を全参照 → 相手側障害と即判定（07-03・07-07）。
+2. アプリのロールバック・修正は **一切しない**（自分側に問題なし）。
+3. フォールバック起動：決済 SaaS 停止なら「後払い受付フォーム」へ自動切替、通知 SaaS 停止なら「アプリ内通知＋ダッシュボード表示」へ切替する feature flag を ON にする（デプロイ不要で 1 秒切替、06-20）。
+4. Statuspage に「外部サービス X の障害により機能 Y が一時利用不可。復旧は X 社の発表待ち」を明示投稿。「自社が原因ではない」を透明化しユーザー信頼を維持。
+5. Kai へ渡す情報：依存 SaaS 名・影響範囲・フォールバック稼働状況。
+
+**復旧後の必須アクション**：
+- 該当外部 SaaS のフォールバック未整備箇所を洗い出し、Nao と設計段階で追加。
+- 依存 SaaS の status API 統合ダッシュボード（07-03）に該当 SaaS が入っていなかった場合は即追加。
+- 目標 MTTA：**3 分以内**（自分では復旧できないため反応速度が全て）。
+
+### シナリオ 4：課金爆発（一晩で予算 10 倍到達 / DDoS or 設定ミス）
+
+**症状**：Vercel Spend Management から「予算 100% 到達＋自動一時停止」通知が深夜に飛来。原因は bot トラフィック大量流入 or ISR revalidate 設定ミスによる Function 実行回数爆増。
+
+**根本原因の頻出パターン**：
+1. Middleware の `matcher` が緩く、`_next/static` まで Edge 実行課金対象（06-24）。
+2. ISR `revalidate: 10` の設定ミスで Function 実行回数が想定の 360 倍。
+3. 特定 IP からの bot 攻撃で応募 API が 1 分 10,000 リクエスト。
+
+**Kuu の初動 15 分（Runbook）**：
+1. **自動一時停止が既に発動している場合は、まず状況把握（復旧は焦らない）**。ユーザー影響は「サイト全体停止」だが、課金拡大は止まっている。
+2. Vercel Usage ダッシュボードで爆増している Function / Route を特定（5 分）。
+3. bot 攻撃と判定 → Cloudflare Workers 手前でレートリミット強化＋ IP ブロック（10 分）。設定ミスと判定 → 該当 `revalidate` / `matcher` を hotfix PR で修正（10 分）。
+4. Spend 上限を 24 時間だけ緊急引き上げ → サイト復旧 → 24 時間後に元に戻す。
+5. 課金拡大量を Akari と共有し、クライアント別コスト内訳から影響テナントを特定。
+
+**復旧後の必須アクション**：
+- 全プロジェクトの `matcher` / `revalidate` を棚卸し、同種の設定ミスがないか横断チェック。
+- Cloudflare Workers のレートリミット閾値を全テナントで再校正。
+- 目標復旧時間：**15 分以内**（課金拡大は既に止まっているため他シナリオより長くて可）。
+
+### シナリオ 5：TLS 証明書自動更新失敗 / DNS 切替失敗（サイレント障害）
+
+**症状**：ある朝突然、ユーザーが「サイトが安全でないと警告される」と問い合わせ。TLS 証明書が期限切れ or DNS 切替後に旧 IP へ到達する端末が残存。
+
+**根本原因の頻出パターン**：
+1. CAA レコードに `letsencrypt.org` のみ許可の状態で Vercel（他 CA 併用）へ移管し、証明書自動更新が silent に失敗（06-12・06-13）。
+2. DNS 切替時に TTL 短縮を忘れ、旧 IP 端末が 24 時間以上残留（05-20・07-01）。
+3. Cloudflare ヘルスチェックの旧 IP 死活監視を設定せず、切替後に旧環境が残っていることに気づかない。
+
+**Kuu の初動 10 分（Runbook）**：
+1. TLS 期限切れなら Vercel Dashboard から証明書再発行を手動トリガー（3 分）＋ CAA レコードを `dig CAA` で確認し、必要 CA を追加。
+2. DNS 切替失敗なら旧環境を稼働維持したまま、Cloudflare DNS で TTL を 60 秒に緊急短縮＋伝播完了を `dig @8.8.8.8 / @1.1.1.1` で確認。
+3. ユーザーへの告知は「証明書更新中、10 分以内に復旧見込み」を Statuspage に投稿。
+
+**復旧後の必須アクション**：
+- 週次 TLS 期限監視 CI ジョブ（`openssl s_client` で残 14 日アラート、06-12）が正しく発火したか検証。
+- DNS 切替の Runbook に「48 時間前 TTL 短縮」を追加。
+- 目標 MTTR：**10 分以内**（証明書・DNS は影響範囲が大きいため他シナリオより短い目標）。
+
+### 全シナリオ共通の平時準備
+
+- **四半期に 1 回の障害訓練**：ステージング環境で意図的に各シナリオを再現し、Runbook 通りに復旧できるか実測。所要時間を MTTR 目標値と突合し、超過なら Runbook を改訂。
+- **ロールバックの実演**：本番昇格前に staging で `vercel rollback` を 1 回叩き 30 秒復帰を実測（06-26）。「戻せる確証」を取ってから前進する。
+- **合成監視の発火テスト**：四半期に 1 回、ステージングで故意に 500 エラー・レイテンシ遅延を注入し「P0/P1 アラートが想定チャネル・想定時間内に届くか」を実測検証（06-12）。
+- **バックアップの実リストア訓練**：四半期に 1 回、本番バックアップを別環境へ実リストアし「取得→復元→データ件数・整合性検証」まで通す（07-01）。所要時間を RTO 根拠として Nao と突合。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

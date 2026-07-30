@@ -386,6 +386,40 @@ Mio の月次評価に用いる定量指標。全指標を Notion DB に自動�
 
 ---
 
+## 🔬 2026年ツールチェーン・クイックリファレンス
+
+Mio が案件着手時に必ず確認する標準ツール構成。建設業採用SaaS案件のデフォルトスタック。
+
+| レイヤー | ツール | 用途 | ゲート閾値 |
+|---|---|---|---|
+| **単体テスト** | Vitest 3.0 + Vitest Browser Mode | ロジック層・純粋関数・React コンポーネント（実ブラウザ実行） | Branch カバレッジ 80% |
+| **統合テスト** | Vitest + Testcontainers（PostgreSQL/Redis） | DB 連携・キャッシュ・トランザクション境界 | 主要 API 100% |
+| **E2E** | Playwright 1.50（chromium/firefox/webkit） | 応募完了・決済・認証等の画面横断導線 | クリティカルフロー 100% |
+| **Component** | Storybook 9 + play + Chromatic | UI 単体のインタラクション・ビジュアル回帰 | 全コンポーネント play カバレッジ 80% |
+| **Contract** | Pact + openapi-msw + @stoplight/prism | FE-BE スキーマ齟齬・外部 API 契約 | Pass Rate 100% |
+| **Property** | fast-check | 金額・日付・シリアライズの反例発見 | 純粋関数 60% 適用 |
+| **Mutation** | StrykerJS（nightly） | アサーション強度検証 | Mutation Score 75% |
+| **A11y** | axe-core/playwright + eslint-plugin-jsx-a11y | WCAG 2.2 AA 準拠 | Critical/Serious ゼロ |
+| **Visual** | Chromatic / Playwright toHaveScreenshot | ピクセル比較・意図しない見た目差分 | maxDiffPixels 閾値内 |
+| **Security** | Snyk + npm audit + AI Pentest（Pentera/HackerOne AI） | OWASP Top 10・依存脆弱性 | Critical/High ゼロ |
+| **Load** | k6 + Artillery（nightly） | p95 レイテンシ・N+1・レースコンディション | 想定 3 倍負荷で 5 分連続耐久 |
+| **BDD** | vitest-cucumber + playwright-bdd | 受入基準 Gherkin ↔ テスト自動生成 | トレーサビリティ 100% |
+| **TDD Guard** | tdd-guard（pre-commit + CI） | Red→Green→Refactor 強制 | 遵守率 95% |
+| **CI** | GitHub Actions（`needs:` 並列 / `--shard` 4 分割） | 独立ジョブ並列化 | PR 3 分 / full 10 分 |
+| **観測** | Sentry + Notion DB + Looker | Escape 分析・品質メトリクス月次可視化 | Escape Rate 5% 未満 |
+
+### 案件着手時 30 秒チェックリスト
+1. `checklists/qa-gate.md` を Read → 12 項目ゲートの当該案件適用可否確認
+2. Nao 設計書の Given-When-Then を `.feature` に転記 → vitest-cucumber / playwright-bdd で骨格自動生成
+3. Ao の OpenAPI/tRPC スキーマから `openapi-msw` + Pact Consumer テスト初期化
+4. Playwright `global.setup.ts` で各ロール `storageState.json` を事前生成（認可ペアテスト用）
+5. StrykerJS 設定を `stryker.conf.mjs` に配置し nightly GitHub Actions ジョブ登録
+6. 建設業DX 6 大エッジケース（オフライン/TZ 境界/低速回線/大量アップロード/手袋操作/多拠点 TZ）の該当テストひな型を追加
+7. TDD Guard を pre-commit hook + CI に設定し、Riku/Ao の実装環境へ配布
+8. Sentry と Notion DB の連携スクリプト（Escape 分析・週次品質メトリクス自動投稿）を起動
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
