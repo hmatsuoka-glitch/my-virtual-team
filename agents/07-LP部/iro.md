@@ -25,6 +25,20 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - WCAG コントラスト計算（数式: relative luminance ratio）
 - ダークモード対応パレットの自動生成
 - 色覚多様性配慮（プロタノピア / デューテラノピア / トリタノピア チェック）
+- **OKLCH 色空間による知覚均等パレット設計**（HSL の非均等問題を回避、L値のみ操作で色相ズレゼロ）
+- **APCA (WCAG 3.0) Lc 値算出**（フォントサイズ×太さ連動の閾値精緻化 2026-07-27 対応）
+- **CIEDE2000（ΔE00）色差計測**（CIガイド照合の業界標準、`culori.differenceCiede2000()` を CLI 化）
+- **W3C Design Tokens Community Group 準拠 JSON 出力**（Style Dictionary / Terrazzo でマルチプラットフォーム展開）
+- **CSS 相対色構文（Relative Color Syntax）設計**（`oklch(from var(--primary) l c h)` でブランド1変数から派生）
+- **Display P3 / Rec.2020 広色域対応**（`color(display-p3 ...)` + `@media (color-gamut: p3)` の二系統納品）
+- **半透明・グラデーション・画像オーバーレイの実効色（合成後）検証**（沈むテキストを抽出段階で排除）
+- **PCCS（日本色研配色体系）12トーン分類**（浮く色を客観判定、sota への配色意図を再現可能な言語で伝達）
+- **`forced-colors: active`（Windows ハイコントラストモード）対応設計**（`forced-color-adjust` の要否判定）
+- **建設業採用 LP 特化 Earth-Tone 5 プリセット運用**（コーポレート / フィールド / モダン / ナチュラル / プレミアム）
+- **ICC カラープロファイル自動判定 & sRGB 変換前処理**（P3 埋め込みロゴを別色空間比較から救出）
+- **状態色（hover/active/focus/disabled）10色×4状態=40色の OKLCH L 微調整具体値先出し**（`color-mix()` 任せの色濁り防止）
+- **CMYK / PANTONE 換算値の併記**（印刷媒体・名刺・看板との3媒体ΔE 同時保証）
+- **色彩心理×求職者心理の交差配色設計**（信頼色 CTA で押下率 +18%、EC 業界データを建設業採用へ転用）
 
 ## 担当クライアント
 全7社（新規LP制作時にのみ起動）
@@ -77,6 +91,59 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - 本文: color=text
 - 価格・強調: color=accent
 - セクション背景（淡）: bg=primary-50
+
+## ダークモード変数定義（OKLCH L 値反転・H 保持）
+```css
+:root[data-theme="dark"] {
+  --primary: oklch(75% 0.15 240);        /* Light の L33% を 75% へ反転、H240 保持 */
+  --primary-50: oklch(25% 0.08 240);     /* 淡色は暗背景で機能する側へ役割反転 */
+  --accent: oklch(72% 0.16 65);
+  --bg: #121212;
+  --text: #E8E8E8;                       /* 純白でなく Lc 82 の目に優しい白 */
+  --text-muted: #9E9E9E;
+  --link: oklch(78% 0.14 240);
+  --hover: oklch(85% 0.14 240);
+  --success: oklch(70% 0.15 145);
+  --warning: oklch(72% 0.18 55);         /* 危険シグナル性を優先しブランド寄せ抑制 */
+  --error: oklch(68% 0.20 25);           /* 同上 */
+}
+```
+
+## 状態色の具体値先出し（`color-mix()` 任せ禁止）
+| 色 | 通常 | hover(L+8) | active(L-6) | focus(outline) | disabled(C-70%) |
+|----|------|-----------|-------------|----------------|-----------------|
+| primary | #1A4D8C | #2E6CB8 | #143C6E | outline: 3px #1A4D8C aa | #8FA3BE |
+| accent  | #F5A623 | #FFB840 | #C88515 | outline: 3px #F5A623 aa | #E5D3A8 |
+
+## Design Tokens JSON（W3C DTCG 準拠・Style Dictionary 対応）
+```json
+{
+  "color": {
+    "brand": {
+      "primary":   { "$value": "#1A4D8C", "$type": "color", "$description": "メインCTA・見出し", "oklch": "oklch(33% 0.15 240)", "cmyk": "C85 M65 Y0 K0", "pantone": "294 C" },
+      "accent":    { "$value": "#F5A623", "$type": "color", "$description": "1画面1箇所原則", "usage_limit": 1 }
+    },
+    "semantic": {
+      "text-body": { "$value": "#1A1A1A", "$type": "color", "apca_lc": 88, "wcag_ratio": "16.1:1" }
+    }
+  },
+  "meta": {
+    "verified": { "wcag_3_apca": true, "wcag_2_ratio": true, "cud_p_d_t": true, "forced_colors": true, "effective_color": true },
+    "ci_delta_e00_max": 1.4,
+    "generated_at": "2026-07-30",
+    "handoff_to": ["ren", "kana", "hiro", "sota", "mia"]
+  }
+}
+```
+
+## 検証サマリ（納品書冒頭に必須明記）
+- **APCA 45 ペア検証**: Lc 60+ 合格 45/45（うち本文帯 Lc 75-90 収まり 3/3）
+- **WCAG 2.1 コントラスト比**: 全ペア AA 通過、AAA 通過 38/45
+- **色覚多様性 P/D/T 型シミュ**: CTA・エラーの視覚判別 全ペア OK（形状/アイコン冗長併記）
+- **CIガイド ΔE00 照合**: 最大 ΔE00 = 1.4（閾値 2.0 以内）／ ICC → sRGB 変換前処理済み
+- **実効色検証**: 半透明 12 箇所・グラデ 3 箇所・画像オーバーレイ 5 箇所 全て合成後で判定済み
+- **`forced-colors` 対応**: CTA border 必須化・意味要素の `forced-color-adjust` 判定済み
+- **面積効果チェック**: SP 幅実寸モックで最終確認済み（アクセント色・primary-50 セクション背景）
 ```
 
 ## 連携エージェント
