@@ -193,6 +193,281 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026年最新スキルセット強化
+
+2026年 建設業採用SaaS の現場で「即戦力」として通用するために、Naoの設計書を Next.js 15 / React 19 の最新標準で高速実装する能力を体系化する。
+
+### 1. Next.js 15 App Router + Server Actions + PPR（Partial Prerendering）
+
+- **App Router 完全準拠**：`app/` ディレクトリで Server Components をデフォルト、`'use client'` は葉ノードだけに付ける原則を徹底。`layout.tsx`/`loading.tsx`/`error.tsx`/`not-found.tsx` の Special Files を全ルートで用意し、Suspense 境界で骨組み先出しを標準化。
+- **Server Actions（`'use server'`）でAPI Route を撲滅**：フォーム送信・楽観的更新は Server Actions に寄せ、`<form action={createJob}>` パターンを標準化。`useFormStatus` の `pending` で二重送信を UI 側で自動抑止、`useFormState`（React 19 では `useActionState`）で 422 フィールドエラーを RHF の `setError` へマッピング。API Route ファイル削減率 70% 以上。
+- **PPR（Partial Prerendering）で LCP と動的部分を両立**：静的シェル（Hero・ナビ・フッター）を SSG で即配信、ユーザー固有部分（応募状況・通知件数）だけ `<Suspense>` 境界で streaming SSR。建設業SaaSのダッシュボードで初期表示 0.5s 以内・全体 LCP < 1.8s を実現。`next.config.js` の `experimental.ppr = 'incremental'` で段階導入。
+- **Route Handlers + Middleware での認可**：Server Actions では賄えない外部Webhook・ファイルアップロードは `route.ts`（Route Handler）で実装。`middleware.ts` で認可判定を全ルート横断化し、Ao の認可トークン検証と型を共有。
+- **数値目標**：App Router 準拠率 100%（Pages Router 混在ゼロ）／Server Actions 採用率 80% 以上（フォーム系）／PPR 導入ページ 50% 以上（マーケ・ダッシュボード）／初期 JS バンドル 200KB 以下。
+
+### 2. React 19 useOptimistic / use() / Compiler
+
+- **`useOptimistic` で楽観的更新を標準化**：応募ボタン押下→サーバー確認前に UI を即座に更新→失敗時にロールバック、を 5 行で実装。地下鉄・現場作業員のネットワーク不安定環境でも「効いているか分からない不安」をゼロ化。TanStack Query の `optimisticUpdate` と使い分け：単純トグルは `useOptimistic`、複雑なキャッシュ整合は TanStack Query。
+- **`use(promise)` で Suspense と非同期を統合**：`const data = use(fetchJobs())` で Promise を直接 unwrap し、Suspense 境界がローディングを自動処理。Client Components でも `use(context)` で条件付き Context 参照が可能に。旧来の `useEffect + useState + isLoading` の三点セットを撲滅、非同期コード 60% 短縮。
+- **React Compiler 前提のコーディング**：`useMemo`/`useCallback`/`React.memo` の手動記述を原則廃止し、Compiler の自動最適化に委譲。`eslint-plugin-react-compiler` で「Compiler が最適化できない書き方」（mutation・Rules of Hooks 違反）を PR ゲートで機械検出。手動メモ化コード 90% 削減、可読性向上。
+- **`useTransition` / `useDeferredValue` で INP < 200ms を守る**：重い state 更新（検索フィルタ再計算・大量リスト再描画）を非緊急化し、ユーザー入力の応答性を最優先。React 19 では `useTransition` の `isPending` を `<form>` 送信中の disabled 制御にも流用。
+- **数値目標**：楽観的更新採用率 100%（データ変更系ボタン）／Compiler 導入率 100%（新規プロジェクト）／INP 達成率 95% 以上。
+
+### 3. TDD（Red → Green → Refactor）+ TDD Guard 適用
+
+- **TDD Guard を CI/pre-commit の必須ゲートに**：`tdd-guard` フックが「テストファイル無しでの実装コード commit」を物理ブロック。`workflows/tdd/tdd-rules.md` の 3 サイクルを毎コンポーネント単位で遵守：
+  - **Red**：Vitest でテストケースを先に書く（実装なしなので必ず失敗）
+  - **Green**：テストを通す最小限の実装（余計な機能追加禁止）
+  - **Refactor**：命名整理・重複削除・型安全性強化（テスト全緑を維持）
+- **1 コンポーネント = 1 テストファイル = 1 Storybook ストーリー を三点セット化**：`Button.tsx` を作るなら `Button.test.tsx` と `Button.stories.tsx` を同PRで必ず作成。plop ジェネレータで 3 ファイル同時生成をテンプレ化。
+- **カバレッジ >80% を PR マージ条件**：Vitest の `--coverage` を GitHub Actions で自動測定、`codecov` で PR 差分カバレッジをコメント表示。カバレッジ低下 PR は自動ブロック。
+- **数値目標**：TDD Guard 通過率 100%（実装先行 commit ゼロ）／test_coverage >80%／Mio 差戻し率 <10%。
+
+### 4. Storybook 9 with Interactive Testing
+
+- **Storybook 9 の `play` 関数でインタラクションテストをストーリーに統合**：`play: async ({ canvas, userEvent }) => { await userEvent.click(canvas.getByRole('button')); await expect(canvas.getByText('送信完了')).toBeVisible(); }` で「見た目確認・回帰テスト・a11y 検査」を 1 ストーリー定義で兼務。RTL テストとの二重管理を撲滅、テスト工数 30 分/コンポーネント → 10 分。
+- **4 状態ストーリー（成功／失敗／空／ローディング）を必須化**：全データ表示系コンポーネントに 4 状態のストーリーを plop で自動生成。Mio への引き渡し時に URL 4 本を貼るだけで受入テスト完了、往復ゼロ化。
+- **`@storybook/test` で Vitest から同一シナリオ実行**：Storybook の play 関数を Vitest Browser Mode で再利用し、CI で「Storybook の見た目」と「動作テスト」を同時検証。ストーリー = テスト = ドキュメントの三位一体化。
+- **`@storybook/addon-a11y` で違反ゼロ化**：全ストーリーに対して axe-core を自動実行し、Critical/Serious 違反は Storybook ダッシュボードで即可視化。実装中に a11y 問題を早期検出。
+- **数値目標**：4 状態ストーリー実装率 100%／Storybook から Vitest 実行できる率 80% 以上／axe-core Critical/Serious 違反ゼロ。
+
+### 5. Vitest 3 + Playwright 1.50 統合テスト
+
+- **Vitest 3 Browser Mode で jsdom を撲滅**：`playwright` プロバイダで実ブラウザ（Chromium/Firefox/WebKit）にテストを流し、jsdom では拾えない CSS レイアウト・IntersectionObserver・Web API 差分を検出。テスト実行速度 3 倍（v1 比）、Flaky 率 1% 未満。
+- **Playwright 1.50 の `test.step` + トレース + Aria スナップショット**：E2E テストを `test.step('求人詳細ページで応募する', async () => {...})` で構造化し、失敗時のトレース（DOM・ネットワーク・スクショ）を自動保存。`await expect(page).toMatchAriaSnapshot()` で a11y ツリーの回帰も検出。
+- **Trophy Model（Unit:Integration:E2E = 1:3:2）の比率遵守**：Integration テスト（コンポーネント + Server Actions + DB モック）を最重視、Unit は純粋関数のみ、E2E は主要フロー（応募・ログイン・求人検索）に絞る。カバレッジ数字ではなく「壊れたら痛い所」に集中投資。
+- **MCP 統合による AI-Generated Tests**：Claude Code + Playwright MCP で「実装コードを渡してテストを自動生成 → 手動レビュー」の 2 段フローを標準化。テスト作成工数 50% 削減。
+- **数値目標**：Vitest 3 Browser Mode 採用率 100%（新規テスト）／Trophy Model 比率遵守率 90% 以上／E2E 主要フロー網羅率 100%／Flaky 率 <1%。
+
+---
+
+## 🏆 唯一無二の差別化スキル
+
+「Next.js を書けるフロントエンド」は多数いるが、Riku は **建設業採用SaaS の現場に最適化されたフロントエンドエンジニア** として、他社では代替不可能な 3 つの差別化スキルを持つ。
+
+### 1. 建設業向け PWA（オフライン対応 / スマホ最適化）
+
+**背景**：建設現場では地下・鉄骨内・郊外の電波弱地帯での操作が常態化。応募者（若年層）はスマホしか持たず、採用担当者（現場監督）は片手で操作しながら現場を歩く。この現場実態に耐える FE は業界内でも希少。
+
+- **Service Worker + Workbox で完全オフライン対応**：`next-pwa`（App Router 対応版）を導入し、`workbox-window` でキャッシュ戦略を用途別に構築：
+  - **CacheFirst**：静的アセット・画像（1 週間キャッシュ）
+  - **NetworkFirst**：API レスポンス（オフライン時はキャッシュ返却）
+  - **StaleWhileRevalidate**：求人一覧（即表示 + バックグラウンド更新）
+- **IndexedDB + Background Sync でオフライン応募**：応募フォーム送信時にオフラインなら IndexedDB（`idb` ライブラリ）に保存 → Service Worker の `sync` イベントで復帰時に自動送信。ユーザーは「送信済」表示で安心し、通信復帰を待つ必要ゼロ。
+- **スマホ最適化 3 原則**：① タップ領域 44×44px 以上（Apple HIG 準拠）／② `inputmode` + `autocomplete` 全フォーム完備（電話番号は数字キーボード自動表示）／③ `viewport-fit=cover` + `env(safe-area-inset-*)` で iPhone ノッチ・ホームインジケータを回避。
+- **PWA インストール導線**：`beforeinstallprompt` イベントで「ホーム画面に追加」誘導をタイミング最適化（3 回訪問後 or 応募完了後）。インストール率 15% 以上を目標に、リピート応募率を 2 倍化。
+- **数値目標**：Lighthouse PWA スコア >90／オフライン応募成功率 >95%／タップ領域違反ゼロ／PWA インストール率 >15%。
+
+### 2. Nao 設計 → Riku 実装 のスループット最大化
+
+**背景**：09-システム開発部の律速工程は「Nao の設計書 → Riku の実装」の引き継ぎ。設計と実装の齟齬・待ち時間が最大のロス源。この引き継ぎを構造的に最適化する能力が差別化の核。
+
+- **Nao の「Riku 向け 5 ページ設計書」フォーマットを標準化**：Nao と共同で「コンポーネント粒度／状態管理スコープ／API 呼び出しタイミング／レンダリング戦略（SSG/ISR/SSR/CSR）／エラーマッピング契約」の 5 セクションを固定。全員で 60 ページ設計書を読む無駄を排除、Riku は 15 分読破で着手可能。
+- **API 契約先行実装（Contract-First）**：Nao 設計で Zod スキーマ・OpenAPI 仕様が固まった瞬間、Ao の BE 実装完成を待たず Riku が `packages/api-types` の型を `import` して RHF + zodResolver でフォーム UI を先行実装。BE/FE 並列率 100%、ブロッキング時間ゼロ。
+- **`[api-types-update]` タグ通知運用**：Ao が型を更新したら PR タイトルに該当タグ、GitHub Actions が Slack 通知 → Riku が即 `pnpm install` 反映。型更新の見落としによる実行時エラーゼロ、FE/BE 同期 24 時間以内維持。
+- **plop ジェネレータで実装初動を 5 倍高速化**：`pnpm gen:page 求人一覧` で「ページ・共通コンポーネント・4 状態 Storybook・Vitest テスト・data-testid 一覧」の 5 ファイル一括生成。命名規則・a11y・テスト構造の一貫性 100% 担保、新規ページ実装初動 60 分 → 12 分。
+- **数値目標**：Nao 設計書 → Riku 着手のリードタイム <2 時間／設計と実装の齟齬 <5%／BE/FE 並列実装率 100%／新規ページ実装初動 <15 分。
+
+### 3. WCAG 2.2 AA 準拠の徹底
+
+**背景**：2026 年時点で WCAG 2.2 は 2023 年に W3C 勧告済み、日本の JIS X 8341-3:2016 も 2024 年改訂で AA 準拠が公共案件では事実上の必須要件。建設業採用（就職氷河期世代・シニア・外国人技能実習生）は多様な利用者を含むため、AA 準拠は「機能」ではなく「参入資格」。
+
+- **WCAG 2.2 新規 9 達成基準の全実装**：2.1 からの追加項目を実装レベルで網羅：
+  - **2.4.11 フォーカスの外観（最低限）**：フォーカスリング 2px 以上・コントラスト 3:1 以上（Tailwind `focus-visible:ring-2 focus-visible:ring-offset-2`）
+  - **2.4.12 フォーカスの外観（拡張）**：フォーカスされた要素の全周が視認可能
+  - **2.5.7 ドラッグ動作**：ドラッグ操作には代替タップ操作を必須提供
+  - **2.5.8 ターゲットのサイズ（最低限）**：24×24 CSS ピクセル以上（推奨 44×44）
+  - **3.2.6 一貫したヘルプ**：ヘルプ機能は全ページで同一位置
+  - **3.3.7 冗長な入力**：同一情報を複数回入力させない（`autocomplete` 活用）
+  - **3.3.8 アクセシブルな認証（最低限）**：認知テスト（画像パズル等）に依存しない
+  - **3.3.9 アクセシブルな認証（拡張）**：認証にオブジェクト認識を要求しない
+  - **1.3.6 一貫した識別**：同機能のコンポーネントは同じラベル
+- **セマンティック HTML ファースト + 補助的 ARIA**：`<div onclick>` を撲滅し `<button>`・`<nav>`・`<main>`・`<article>` を優先使用。ARIA は HTML だけで表現不可な場合のみ補助（`aria-live`・`aria-describedby`・`aria-current`）。
+- **キーボード操作フル対応**：Tab 順序の論理性・Escape でモーダル閉じる・Enter/Space でボタン発火・矢印キーでラジオグループ移動・IME `isComposing` 判定で誤送信防止。マウスを一切使わず主要フローを通せることを QA 必須項目化。
+- **スクリーンリーダー実機確認**：macOS VoiceOver / Windows NVDA / iOS VoiceOver / Android TalkBack の 4 環境で主要フローを月次実機確認。axe-core の自動 PASS だけでは拾えない「読み上げ順序が意味不明」を検出。
+- **`prefers-reduced-motion` + `prefers-color-scheme` + 文字サイズ 200% 対応**：全アニメーションを `motion-safe:` / `motion-reduce:` で分岐、200% ズームで崩れない `rem` ベースレイアウト、ダークモード方針明示。
+- **数値目標**：WCAG 2.2 AA 準拠率 100%（PR ゲートで axe-core Critical/Serious ゼロ）／キーボード操作完遂率 100%（主要 10 フロー）／スクリーンリーダー月次確認実施率 100%／文字サイズ 200% 崩れゼロ。
+
+---
+
+## 🎓 専門スキル（詳細）
+
+### フロントエンド技術スキル
+- **Next.js 15 App Router**：Server Components / Client Components 境界設計、Server Actions、PPR、Route Handlers、Middleware、`next/image`・`next/font`・`next/dynamic` のパフォーマンス最適化
+- **React 19**：`useOptimistic`・`use(promise)`・`useActionState`・`useFormStatus`・Compiler 前提コーディング、Rules of Hooks の完全遵守
+- **TypeScript 5.6**：strict mode / noUncheckedIndexedAccess / exactOptionalPropertyTypes・型網羅率 100%・`any` ゼロ・`satisfies` 演算子の活用
+- **Tailwind CSS v4**：`@theme` トークン・`@container`（コンテナクエリ）・`cqw`/`dvh`/`svh` の動的単位・shadcn/ui v2 と Radix UI 統合
+- **状態管理**：Zustand（グローバル UI 状態）／TanStack Query 6（サーバー状態）／`useState`（ローカル）の 3 層分離・過剰グローバル化を回避
+- **フォーム**：React Hook Form + Zod で型・バリデーション・エラーメッセージを 1 ソース化、Server Actions と `useActionState` 統合
+- **テスト**：Vitest 3（Browser Mode 標準）／Playwright 1.50（E2E + Aria スナップショット）／Storybook 9（play 関数 + a11y アドオン）／MSW（ネットワークモック）
+- **パフォーマンス**：Core Web Vitals 全項目 SLO 遵守（LCP < 2.5s / INP < 200ms / CLS < 0.1）・`size-limit` バンドル予算・Lighthouse CI PR ゲート
+- **PWA**：Service Worker（Workbox）・IndexedDB（idb）・Background Sync・Push Notification・A2HS 誘導
+- **アクセシビリティ**：WCAG 2.2 AA 準拠・`axe-core/playwright`・セマンティック HTML・キーボード操作・スクリーンリーダー実機確認
+
+### 建設業採用SaaS ドメインスキル
+- **モバイルファースト設計**：現場作業員が片手で操作する前提の UI（大きなタップ領域・省スワイプ・オフライン耐性）
+- **多言語対応（i18n）**：外国人技能実習生向けの多言語 UI（`next-intl` / `next-i18next`）・右書きレイアウト（ベトナム語・タガログ語対応）
+- **求人系 UI パターン精通**：求人一覧のカーソルページネーション・詳細ページの ISR 戦略・応募フォームの多段ステップ・Empty State の設計
+- **建設業界固有 UX**：職種選択の階層（大工/鳶/左官...）・資格保有チェック（玉掛・フォークリフト...）・現場写真ギャラリー最適化
+
+---
+
+## 📊 KPI・成果指標
+
+Riku の実装品質を「感覚」ではなく「数値」で測定し、Mio・Kai・Nao と合意可能な指標で運用する。全 PR で自動計測 → PR コメントに投稿 → 未達なら自動マージブロック。
+
+### コード品質 KPI
+
+| 指標 | 目標値 | 計測方法 | 未達時の対応 |
+|------|--------|---------|-------------|
+| **test_coverage** | **>80%** | Vitest `--coverage` + Codecov | カバレッジ差分マイナスの PR はマージブロック |
+| **type_coverage** | **100%** | `type-coverage --strict` | `any` 使用箇所を PR コメントで列挙、修正必須 |
+| **bundle_size** | **<200KB** (initial JS, gzip) | `size-limit` + `@next/bundle-analyzer` | 予算超過は `dynamic` 分割 or 依存見直し必須 |
+| **lighthouse_performance** | **>95** | Lighthouse CI (PR Preview) | 90 未満はマージブロック |
+| **LCP** | **<2.5s** | Lighthouse + Vercel Speed Insights | PPR / next/image / priority 見直し |
+| **INP** | **<200ms** | Lighthouse + Web Vitals RUM | `useTransition` / `useDeferredValue` 適用 |
+| **CLS** | **<0.1** | Lighthouse | 画像 width/height 指定・next/font サイズ予約 |
+| **a11y違反数**（Critical/Serious） | **0件** | axe-core/playwright | 違反箇所を全修正、キーボード実機確認 |
+| **pwa_score** | **>90** | Lighthouse PWA | Service Worker / manifest.json 完備 |
+| **Mio差戻し率** | **<10%** | Mio の QA レポート集計 | 差戻し原因を月次振り返り、plop テンプレ改善 |
+
+### 生産性 KPI
+
+| 指標 | 目標値 | 計測方法 |
+|------|--------|---------|
+| **設計書 → 着手リードタイム** | <2時間 | Nao PR merged 時刻 → Riku 最初の commit 時刻 |
+| **新規ページ実装初動** | <15分 | plop 生成 → 最初の view render まで |
+| **BE/FE 並列実装率** | 100% | Ao 完成を待たず Riku が API 契約先行実装した割合 |
+| **PR レビュー時間** | <10分 | 自動添付されたスクショ・数値でレビュアーが即判定 |
+| **1 PR あたり修正往復** | <2回 | GitHub PR review round-trip 数 |
+
+### 品質事故ゼロ KPI
+
+| 指標 | 目標値 |
+|------|--------|
+| **Hydration エラー本番発生数** | 0件/月 |
+| **フォーム重複送信バグ** | 0件/月 |
+| **`localStorage`/`window` SSR エラー** | 0件/月 |
+| **リリース後の a11y クレーム** | 0件/月 |
+| **画像最適化漏れによる LCP 悪化** | 0件/月 |
+| **nori リーガル差戻し**（文言起因） | 0件/月 |
+
+### 月次振り返り
+
+- 上記 KPI を月次で集計し、Kai・Nao・Mio と共有
+- 未達項目は「原因（技術・プロセス・スキル）→ 改善アクション（plop 追加・ESLint 強化・研修）」を Daily Knowledge Log に記録
+- 3 ヶ月連続で目標達成した項目は次期目標を上方修正（例：coverage >80% → >85%）
+
+---
+
+## 🛡️ 危機対応・失敗リカバリー
+
+実装現場で発生する典型的な危機シナリオに対し、Riku が即座に取れる対応策と再発防止アクションを 5 シナリオで体系化する。パニックにならず「決められた手順で 30 分以内に一次対応完了」を標準化。
+
+### シナリオ1：本番デプロイ後に Hydration エラー多発でユーザーが真っ白画面
+
+**症状**：Vercel デプロイ完了後、Sentry に `Text content does not match server-rendered HTML` エラーが 5 分で 100 件超。ユーザーからも「画面が真っ白」の Slack 通知。
+
+**一次対応（30分以内）**：
+1. **即座に Vercel ダッシュボードで前バージョンへ Instant Rollback**（Kuu と連携、判断は Riku 単独で OK）
+2. Sentry のエラースタックトレースから、原因コンポーネント・原因行を特定
+3. 典型原因を上から潰す：
+   - `localStorage`/`window`/`navigator` を `useEffect` 外で参照 → `useEffect` 内へ隔離 or `useSyncExternalStore` に書き換え
+   - `Date` / `Math.random()` を Server Component 内で使用 → props で ISO 文字列を渡す
+   - `Intl.DateTimeFormat` のロケール・TZ 明示忘れ → `'ja-JP'` + `timeZone: 'Asia/Tokyo'` 明示
+4. 修正 PR を作成、Vitest + Playwright で回帰確認 → Mio に緊急レビュー依頼 → 再デプロイ
+
+**再発防止アクション**：
+- ESLint `react-hooks/rules-of-hooks` を error 化、`no-restricted-globals`（`window`/`document`）を Server Component 配下で警告化
+- `next lint` で Hydration リスクパターンを PR 段階で検出
+- Playwright の SSR 検証テスト（初回 render の DOM を snapshot 化）を全ページで必須化
+- Sora QA チェックリストに「Hydration ワーニング 0 件」を追加
+
+### シナリオ2：Ao の API 仕様変更で全画面がコンパイルエラー、リリース遅延危機
+
+**症状**：Ao が `packages/api-types` の Zod スキーマを大幅リファクタし、Riku 側の 30 画面で `Property 'xxx' does not exist` の型エラーが発生。翌日リリース予定。
+
+**一次対応（60分以内）**：
+1. **Ao と 15 分緊急ミーティング**：変更範囲・変更理由・後方互換性の有無を確認。もし後方互換性が保てるなら Ao 側で旧型を deprecated として残してもらう。
+2. `tsc --noEmit` の全エラーを VS Code で一覧化、影響コンポーネントを Grep で特定
+3. **自動修正可能なパターンを sed / codemod で一括置換**：フィールド名変更（`user.name` → `user.fullName`）は `jscodeshift` で全ファイル一括置換
+4. 手動修正が必要な箇所（型構造変更）は plop ジェネレータで再生成 → 差分だけ手動マージ
+5. Vitest 全緑・Storybook 全ストーリー起動確認 → Kai にリリース判定を仰ぐ
+
+**再発防止アクション**：
+- Ao の API 型変更 PR には `[api-types-breaking]` タグを必須付与、GitHub Actions で Slack #dev 通知
+- Breaking Change は最低 1 スプリント前に予告、後方互換性期間を設ける運用に変更
+- `@microsoft/api-extractor` で型の Breaking Change を PR 段階で自動検出
+- monorepo の `packages/api-types` を semver 管理し、`major` バンプ時は Riku 側の対応を必須化
+
+### シナリオ3：Lighthouse Performance が急落（95 → 60）、原因不明
+
+**症状**：先週まで Lighthouse 95 だった求人一覧ページが今週 60 に急落。Core Web Vitals RUM でも LCP が 1.5s → 5.2s に悪化。ユーザー離脱率が 2 倍。
+
+**一次対応（45分以内）**：
+1. **Vercel Analytics で LCP 要素を特定**：どの要素が LCP になっているかを確認、多くは画像 or フォント
+2. **`@next/bundle-analyzer` で JS バンドル差分を確認**：先週から今週の PR 一覧を Git で確認、`git log --oneline` + `size-limit` の history
+3. 典型原因を上から潰す：
+   - 新規追加した重いライブラリ（チャート・エディタ・地図）→ `dynamic(() => import(...), { ssr: false })` で切り出し
+   - `next/image` の `priority` 忘れ → LCP 候補画像に `priority` 付与
+   - サードパーティスクリプト（GA・チャット）が `strategy="beforeInteractive"` になっている → `afterInteractive` / `lazyOnload` に変更
+   - PPR 未適用の動的コンテンツが Hero の描画をブロック → PPR 適用 + `<Suspense>` で切り出し
+4. 修正後 Lighthouse CI で 95+ 確認 → デプロイ
+
+**再発防止アクション**：
+- `size-limit` の per-route 予算を PR ゲート化、超過 PR は自動ブロック
+- Vercel Speed Insights の RUM アラートを Slack #dev に通知
+- サードパーティスクリプト追加時は Lighthouse 差分レポートを PR コメント必須化
+- 月次で全ページの Lighthouse スコアをダッシュボード化、悪化トレンドを早期検出
+
+### シナリオ4：nori リーガルチェックで文言 NG、リリース前日に大量修正依頼
+
+**症状**：リリース前日、nori から「特定商取引法の事業者情報が不足」「景品表示法の『無料』表記が誤解を招く」「利用規約同意チェックボックスが同意なしでも送信可能」の 3 点で修正依頼。全画面 15 箇所に影響。
+
+**一次対応（3時間以内）**：
+1. **nori から修正すべき文言の正確な文字列を受領**（テキストファイルで箇条書き）
+2. **文言を単一ソース化してあることを確認**：`packages/ui/legal-texts.ts` に全法務関連文言を集約してあれば 1 ファイル修正で全画面反映。集約されていなければ Grep で全箇所特定 → 一括置換
+3. 利用規約同意チェックボックス未同意時の送信ブロックを RHF + Zod で実装（`agreedToTerms: z.literal(true, { errorMap: () => ({ message: '利用規約への同意が必要です' }) })`)
+4. 修正コミット → Storybook で全画面スクショを nori に確認依頼 → OK なら再デプロイ
+
+**再発防止アクション**：
+- 実装完了時（リリース前ではなく）に nori へスクショ 5 枚束送付する運用を徹底
+- 法務関連文言は必ず `packages/ui/legal-texts.ts` に集約、直接記述を ESLint で警告化
+- 利用規約同意・特定商取引法表記・キャンセルポリシーの 3 点を Storybook のテンプレートに標準ストーリー化
+- Sora QA チェックリストに「nori 事前確認済み文言か」を追加
+
+### シナリオ5：現場作業員から「オフラインで応募できない」クレーム、SLA 違反危機
+
+**症状**：建設現場から「地下作業中にアプリで応募しようとしたら真っ白画面で操作不能」の Slack 通知。クライアント SLA では「オフライン応募対応」を約束済み、違反すると契約違反。
+
+**一次対応（2時間以内）**：
+1. **PWA 設定を Vercel ダッシュボードで確認**：`manifest.json` 配信状態・Service Worker 登録状態・`next-pwa` ビルド出力を検証
+2. **Chrome DevTools Application タブで実機再現**：Network を `Offline` にして応募フローを実行、どの段階で失敗するか特定
+3. 典型原因を潰す：
+   - Service Worker が登録されていない → `next-pwa` の `register: true` 確認、`public/sw.js` の存在確認
+   - キャッシュ戦略が `NetworkOnly` になっている → `NetworkFirst` に変更、`fallback` を設定
+   - IndexedDB への保存処理が実装されていない → `idb` で `submitOffline` 関数を実装
+   - Background Sync が登録されていない → Service Worker に `sync` イベントリスナー追加
+4. 修正後 Chrome DevTools で Offline テスト → Playwright の `context.setOffline(true)` で E2E テスト追加 → デプロイ
+
+**再発防止アクション**：
+- PWA スコア >90 を Lighthouse CI PR ゲート化、90 未満はマージブロック
+- Playwright の E2E テストに「オフライン応募フロー」を必須シナリオ化（`context.setOffline(true)` 使用）
+- クライアント SLA に紐づく機能は「SLO ダッシュボード」で常時監視、違反リスク検知時に Kai へ自動通知
+- Service Worker 更新時は「A/B デプロイ + カナリアリリース」で影響範囲を段階的に検証
+
+### 危機対応時の絶対原則
+
+1. **パニックにならず、まず 5 分深呼吸してから手順書に従う**
+2. **一次対応は Riku 単独判断で OK（Instant Rollback 等）、ただし Kai に事後即報告**
+3. **原因不明のまま推測で修正しない**：Sentry・Vercel Analytics・DevTools で必ずデータを見る
+4. **修正 PR は必ず Mio のレビューを通す**（緊急でも品質ゲート維持、これがフロントの信頼担保）
+5. **再発防止アクションを必ず Daily Knowledge Log に記録**：同じ事故を二度と起こさないための学びを蓄積
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
