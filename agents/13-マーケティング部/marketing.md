@@ -70,6 +70,45 @@
 出力: /agents/marketing/brand_guidelines.json
 ```
 
+### 5. AEO / GEO（Answer Engine / Generative Engine Optimization）
+```
+入力: 検索KW群（指名 + カテゴリ + 悩み系）/ Google AI Overviews / ChatGPT Search / Perplexity での自社言及状況
+処理:
+  1. AI引用適合性の構造化（結論先出し・一次データ・数値比較・E-E-A-T署名）
+  2. FAQ / HowTo / Comparison Schema の実装（構造化データマークアップ）
+  3. Answer-First コンテンツ設計（「〜とは」「〜の違い」「〜の相場」テンプレ）
+  4. 引用リフト計測（AI Overviews 出現率・引用元列挙率・指名検索リフト）
+  5. LLM学習向けリポジトリ整備（自社ホワイトペーパーPDF公開・GitHub掲載）
+出力: /agents/marketing/aeo_report_{month}.json
+KPI: AI回答での自社言及率 30%以上、指名検索リフト前月比 +15%、AI経由セッション 月100件以上
+```
+
+### 6. Attribution・計測基盤（Data-Driven Attribution）
+```
+入力: 全チャネル配信データ / GA4 BigQueryエクスポート / Meta CAPI / クライアント側実応募数
+処理:
+  1. サーバーサイド計測実装（Meta CAPI・GTM Server-side・Enhanced Conversions・TikTok Events API）
+  2. アトリビューションモデル比較（Last / First / Linear / Position-Based / Data-Driven の5モデル並走）
+  3. VTC / CTC 分離集計 + 媒体CV / GA4 / 実応募 の3点突合（月次）
+  4. 指名検索リフト・ブランド検索の分離集計（Assisted Conversions可視化）
+  5. MMM（Marketing Mix Modeling）簡易導入（月次予算×チャネル→応募数の回帰分析）
+出力: /agents/marketing/attribution_report_{month}.json
+KPI: 3点突合ズレ率 ±5%以内、Assisted Conversions可視化率 100%、MMM推奨精度 ±10%以内
+```
+
+### 7. Marketing Operations 自動化（MOps）
+```
+入力: 7クライアント広告アカウント / CRM（HubSpot等）/ Notion / Slack / GA4 / BigQuery
+処理:
+  1. 7社横断朝ダッシュボード（Insights API集約・Freq/CTR/CPA/審査/配信0の赤セル異常検知）
+  2. LP配信前品質ゲート Slack ワークフロー（CVタグ・LCP2.5秒・審査・UTM5階層を1本で確認）
+  3. リードスコアリング自動化（開封3回・閲覧5回・DL1回で MQL 自動昇格）
+  4. ナーチャリングメールシーケンス（応募検討→比較検討→意思決定の3段階×5通）
+  5. レポート自動生成（Slides API + Insights API + Dat集計定義の同一マスタ参照）
+出力: /agents/marketing/mops_runbook.json
+KPI: 手作業工数 70% 削減、月次レポート作成 8時間→30分/社、朝ダッシュボード巡回 70分→2分
+```
+
 ## 出力フォーマット
 ### lead_report.json
 ```json
@@ -95,6 +134,112 @@
   ],
   "content_performance": [],
   "recommendations": []
+}
+```
+
+### attribution_report.json
+```json
+{
+  "month": "YYYY-MM",
+  "channel_contribution": {
+    "meta_ads":        { "last_click_cv": 0, "assisted_cv": 0, "data_driven_share_pct": 0 },
+    "google_ads":      { "last_click_cv": 0, "assisted_cv": 0, "data_driven_share_pct": 0 },
+    "tiktok_ads":      { "last_click_cv": 0, "assisted_cv": 0, "data_driven_share_pct": 0 },
+    "organic_search":  { "last_click_cv": 0, "assisted_cv": 0, "data_driven_share_pct": 0 },
+    "ai_overviews":    { "last_click_cv": 0, "assisted_cv": 0, "data_driven_share_pct": 0 },
+    "direct_named":    { "last_click_cv": 0, "assisted_cv": 0, "data_driven_share_pct": 0 },
+    "referral_ugc":    { "last_click_cv": 0, "assisted_cv": 0, "data_driven_share_pct": 0 }
+  },
+  "measurement_reconciliation": {
+    "media_platform_cv": 0,
+    "ga4_cv": 0,
+    "client_actual_applications": 0,
+    "variance_pct": 0,
+    "root_cause": "計測基盤欠損 / 定義差異 / VTC混在 / 想定内"
+  },
+  "vtc_ctc_split": { "view_through": 0, "click_through": 0 },
+  "mmm_budget_recommendation": {
+    "next_month_meta_pct": 0,
+    "next_month_google_pct": 0,
+    "next_month_tiktok_pct": 0,
+    "next_month_indeed_pct": 0
+  },
+  "recommendation": ""
+}
+```
+
+### gtm_journey_map.json（LP × SNS × Email × Ads 統合ジャーニー設計）
+```json
+{
+  "target_icp": "建設業採用担当者 / 20代求職者",
+  "awareness": {
+    "channels": ["TikTok UGC縦動画", "Meta Reels", "オープンチャット口コミ"],
+    "kpi": { "reach": 0, "video_view_25pct": 0, "brand_lift_pct": 0 }
+  },
+  "consideration": {
+    "channels": ["ブログSEO", "AI Overviews引用", "業界比較ホワイトペーパー"],
+    "kpi": { "session": 0, "engagement_rate": 0, "wp_download": 0 }
+  },
+  "decision": {
+    "channels": ["LP応募フォーム", "LINE誘導2段階", "リターゲMeta"],
+    "kpi": { "cvr_pct": 0, "form_completion_pct": 0, "line_add_rate_pct": 0 }
+  },
+  "retention_post_apply": {
+    "channels": ["自動返信メール", "面接前LINE", "家族向け安心情報1枚"],
+    "kpi": { "no_show_rate_pct": 0, "offer_acceptance_pct": 0, "early_turnover_pct": 0 }
+  },
+  "consistency_check": {
+    "ad_lp_message_match": true,
+    "ad_interview_condition_match": true,
+    "family_leaflet_prepared": true
+  }
+}
+```
+
+### content_cluster.json（トピッククラスタ／AEO最適化）
+```json
+{
+  "pillar_page": {
+    "topic": "建設業採用完全ガイド",
+    "target_kw": "建設業 採用",
+    "url": ""
+  },
+  "cluster_pages": [
+    { "topic": "建設業 未経験 給与相場", "target_kw": "建設業 未経験 給与", "internal_link_from_pillar": true },
+    { "topic": "20代 建設業 転職理由",  "target_kw": "建設業 転職 20代",  "internal_link_from_pillar": true },
+    { "topic": "建設業 週休二日 実態", "target_kw": "建設業 週休二日",   "internal_link_from_pillar": true },
+    { "topic": "建設業 年収シミュ",     "target_kw": "建設業 年収 計算",  "internal_link_from_pillar": true },
+    { "topic": "建設業 現場写真集",     "target_kw": "建設業 職場 雰囲気", "internal_link_from_pillar": true }
+  ],
+  "aeo_optimization": {
+    "answer_first_paragraph": true,
+    "faq_schema": true,
+    "howto_schema": false,
+    "first_party_data_cited": true,
+    "eeat_author_signature": true
+  }
+}
+```
+
+### mops_dashboard.json（7社横断朝ダッシュボード）
+```json
+{
+  "date": "YYYY-MM-DD",
+  "accounts": [
+    {
+      "client": "翔星建設",
+      "meta":  { "freq": 0, "ctr_wow_pct": 0, "cpa": 0, "status": "green|yellow|red" },
+      "google":{ "freq": 0, "ctr_wow_pct": 0, "cpa": 0, "status": "green|yellow|red" },
+      "tiktok":{ "freq": 0, "ctr_wow_pct": 0, "cpa": 0, "status": "green|yellow|red" },
+      "alerts": ["Freq4.5超", "審査落ち", "配信0", "CPA目標超"]
+    }
+  ],
+  "cross_account_summary": {
+    "total_apps_today": 0,
+    "total_spend_today": 0,
+    "red_alert_count": 0,
+    "action_required": []
+  }
 }
 ```
 

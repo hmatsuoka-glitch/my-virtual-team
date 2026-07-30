@@ -70,22 +70,119 @@
 出力: /agents/pr/brand_guidelines.json
 ```
 
+### 5. データドリブン広報（効果測定・KPI管理）
+```
+入力: 過去12ヶ月の掲載実績 / SNS指標 / 指名検索データ / 採用応募データ
+処理:
+  1. PESOモデル別（Paid/Earned/Shared/Owned）の露出集計
+  2. リーチ→エンゲージメント→指名検索リフト→採用応募数の波及分析
+  3. AVE単独ではなくバルセロナ原則準拠の統合指標算出
+  4. 月次ROIレポート作成（対採用応募単価CPA）
+  5. Kpi（横断KPIマネージャー）と週/月境界を統一（月末23:59固定・JST）
+出力: /agents/pr/kpi_dashboard/{YYYY-MM}.json
+```
+
+### 6. インナー広報・従業員アドボカシー
+```
+入力: HR部門 / CEO / 現場社員からの発信素材
+処理:
+  1. 社員個人SNSの発信ガイドライン整備（言ってOK/NG・守秘範囲／07-01記録連動）
+  2. 現場社員インタビュー素材のリライト・二次展開
+  3. HARU（代表）のnote/X運用戦略・ゴースト原稿執筆
+  4. 内定者/新入社員向け社内報配信（月次1本）
+  5. 従業員個人発信のセンチメント監視・炎上兆候検知
+出力: /agents/pr/employee_advocacy/{YYYY-MM}.json
+```
+
+### 7. サステナビリティ・ESG広報
+```
+入力: ESG推進部/経営企画からの取り組みデータ
+処理:
+  1. TCFD/GRI/ISSB/SASB準拠のフォーマット判定
+  2. 建設業ESG指標（労災度数率・週休二日達成率・技能実習生残業時間・CO2排出）の可視化
+  3. 統合報告書/サステナビリティレポートの広報用抜粋作成
+  4. SDGs関連メディア（オルタナ・日経ESG・サステナビリティ経営.com）への個別配信
+  5. Genと連携し建設業法/2024年問題との整合を時点付き表記で担保
+出力: /agents/pr/esg_report/{fiscal_year}.json
+```
+
 ## 出力フォーマット
 ### release.json
 ```json
 {
   "date": "YYYY-MM-DD",
   "type": "press_release | statement | announcement",
-  "title": "タイトル",
-  "lead": "リード文",
-  "body": "本文",
+  "title": "タイトル（30字以内・数値＋業界文脈）",
+  "lead": "リード文（5W1H・90字以内）",
+  "body": "本文（逆ピラミッド構造）",
   "target_media": ["メディア名"],
-  "status": "draft | legal_review | ceo_approval | published",
-  "distribution_channels": ["PR TIMES", "直接送付", "SNS"],
+  "status": "draft | nori_review | ceo_approval | published",
+  "distribution_channels": ["PR TIMES", "@Press", "直接送付", "SNS"],
+  "seo_aeo_geo": {
+    "schema_org_type": "NewsArticle",
+    "faq_section": true,
+    "structured_related_links": 3
+  },
   "kpi": {
     "target_pickups": 5,
     "actual_pickups": 0,
-    "reach_estimate": 0
+    "reach_estimate": 0,
+    "ai_overview_cited": false
+  }
+}
+```
+
+### media_pitch.json（記者個別ピッチ）
+```json
+{
+  "date": "YYYY-MM-DD",
+  "target_journalist": {
+    "name": "記者名",
+    "media": "媒体名",
+    "beat": "担当領域",
+    "recent_articles": ["最近の記事URL"],
+    "sns_handle": "@handle",
+    "interest_score": 85
+  },
+  "pitch_hook": "業界課題×独自データの30字",
+  "supporting_data": ["独自数値1（出典3点セット）", "独自数値2"],
+  "exclusive_offer": "独占取材 | エンバーゴ日時 | 現場同行",
+  "follow_up_schedule": "初回送付後72時間で1回のみ"
+}
+```
+
+### kpi_dashboard.json（月次PR効果測定・バルセロナ原則準拠）
+```json
+{
+  "reporting_period": "YYYY-MM",
+  "peso_breakdown": {
+    "earned": {"pickups": 0, "reach": 0, "sentiment_score": 0.0},
+    "shared": {"mentions": 0, "share_of_voice_pct": 0.0},
+    "owned": {"pv": 0, "session_duration_sec": 0},
+    "paid": {"impressions": 0, "ctr_pct": 0.0}
+  },
+  "brand_lift": {"branded_search_delta_pct": 0.0, "wiki_pageview_delta": 0},
+  "recruit_impact": {"application_from_pr_source": 0, "cpa_yen": 0},
+  "ai_search_impact": {"ai_overview_citations": 0, "chatgpt_referrals": 0},
+  "target_vs_actual": {"target_pickups": 5, "actual_pickups": 0}
+}
+```
+
+### crisis_playbook.json（危機広報プレイブック）
+```json
+{
+  "incident_id": "CRISIS-YYYYMMDD-001",
+  "severity": "L1 軽 | L2 中 | L3 重 | L4 経営危機",
+  "phase": "T+0 一次声明 | T+24 事実確認 | T+72 本声明 | T+7d 事後総括",
+  "primary_statement": {
+    "drafted_by": "nori事前合意テンプレ",
+    "sent_at": "ISO8601",
+    "channels": ["公式X", "自社サイト", "PR TIMES"]
+  },
+  "stakeholder_map": ["求職者", "取引先", "従業員", "メディア", "行政"],
+  "fake_info_check": {
+    "deepfake_detected": false,
+    "official_channel_notice_url": ""
   }
 }
 ```
