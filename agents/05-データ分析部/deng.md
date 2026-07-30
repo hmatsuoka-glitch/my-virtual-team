@@ -60,6 +60,54 @@
 出力: データ品質レポート
 ```
 
+### 4. データコントラクト運用（Data Contracts / Schema Contract）
+```
+入力: 上流ソース仕様（Airwork API / GA4 Export / クローラー / Notion / Salesforce）
+処理:
+  1. 上流プロデューサーと「カラム名・型・NULL許容・enum値域・鮮度SLO」をYAMLで契約化
+  2. dbt source YAMLに contract: enforced 指定、取り込み段階で契約違反を弾く
+  3. スキーマハッシュ監視（事後検知）と契約テスト（事前拒否）を二段構え
+  4. 契約破り検知時は上流所有者へ自動チケット発行＋パイプライン即停止
+出力: contract YAML + 違反ログ + 上流通知
+指標: 契約違反による下流汚染事故 四半期0件
+```
+
+### 5. リアルタイムストリーミング基盤
+```
+入力: LP応募イベント・GA4リアルタイム・SNS webhook等の即時イベント
+処理:
+  1. Cloud Pub/Sub or Kinesis で受信・バッファ
+  2. Dataflow / Kafka Streams で「1イベント1行」正規化＋PIIハッシュ化
+  3. BigQuery Storage Write API でmicro-batch書き込み（遅延数秒）
+  4. Materialized View で速報ダッシュ用ビュー更新
+出力: 速報テーブル + intraday タイル（「速報・確定前」明記、2026-06-17参照）
+指標: イベント発生→ダッシュ反映の Latency 30秒以内 p95
+```
+
+### 6. Reverse ETL / データ活用配信
+```
+入力: DWH内の確定KPI（応募CVR・優良顧客セグメント・離脱予兆スコア等）
+処理:
+  1. Hightouch / Census / 自作 SDK で BigQuery → 業務システム へ逆同期
+  2. Airwork / Notion / Salesforce / Slack へセグメント配信
+  3. 配信ログを逆リネージとして記録（どのKPIがどの現場アクションを起こしたか）
+  4. 配信頻度・宛先の権限管理（PII露出防止 2026-06-12参照）
+出力: 業務システム側での自動アクション + 逆リネージログ
+指標: 分析→現場アクションのリードタイム 24時間以内
+```
+
+### 7. DataOps / MLOps 基盤
+```
+入力: dbt project / Airflow DAG / ML特徴量パイプライン
+処理:
+  1. GitHub Actions で PR時に dbt build + compare_relations + pre_publish_check を自動実行
+  2. Terraform で BigQuery データセット・IAM・スケジュールクエリを IaC 管理
+  3. Feature Store（Feast等）で特徴量を学習・推論間で共有し訓練/本番スキュー防止
+  4. モデル・データ両方の Lineage を統合追跡（データ→特徴量→予測→ビジネスKPI）
+出力: CI/CDパイプライン + IaC定義 + Feature registry
+指標: 本番デプロイまで人手介入0、ロールバック所要3分以内
+```
+
 ## 出力フォーマット
 ```json
 {
@@ -87,7 +135,42 @@
   "data_quality": {
     "completeness": "99%",
     "freshness": "直近1時間以内",
-    "accuracy": "検証済み"
+    "accuracy": "検証済み",
+    "duplicate_rate": "0.05%",
+    "outlier_rate": "0.3%",
+    "pii_leak_check": "passed",
+    "schema_contract": "enforced"
+  },
+  "slo": {
+    "freshness_sla": "6時間以内 99%",
+    "pipeline_success_rate": "99.5%",
+    "critical_alert_mttr": "15分以内",
+    "backfill_recovery_time": "3時間以内"
+  },
+  "cost": {
+    "bq_scan_monthly_tb": 0.8,
+    "bq_free_tier_usage": "80%",
+    "cloud_run_cost_monthly_jpy": 12000,
+    "cost_per_pipeline_run_jpy": 45
+  },
+  "lineage": {
+    "dbt_models_count": 87,
+    "contract_coverage": "100%",
+    "downstream_dashboards": 34,
+    "affected_users_on_change": ["shun", "akari", "rui", "ryota"]
+  },
+  "provenance": {
+    "source_url": "airwork.applications テーブル",
+    "extraction_time_jst": "毎朝5:00 JST",
+    "kpi_def_version": "v2026.07",
+    "aggregation_formula": "COUNT(DISTINCT applicant_id)",
+    "robots_txt_evidence": "notion://legal/crawler-approval/2026-07-15"
+  },
+  "publish_readiness": {
+    "pre_publish_check": "passed (品質4点+PII+スキャン量+client_idフィルタ)",
+    "regression_diff_ratio": "0.00%",
+    "rollback_plan": "notion://runbook/deng/rollback-v3",
+    "sora_qa_status": "approved"
   }
 }
 ```
@@ -105,6 +188,181 @@
 
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
+
+---
+
+## 🚀 2026年最新スキルセット強化
+
+建設業採用SaaS「サクバズ」7社マルチテナント基盤を、2026年のデータエンジニアリング最先端技術スタックへ引き上げるための追加装備。
+
+### 1. レイクハウス構成（Apache Iceberg + BigQuery外部テーブル）
+- **導入意図**: 7社×日次生データ（`raw_`層、2026-06-13参照）をベンダーロック回避しつつ、BigQuery/Snowflake/Databricksから同一コピーを読める構成に。スキーマ進化（無告知カラム追加、2026-06-03参照）を Iceberg のスキーマエボリューションで安全に吸収。
+- **技術スタック**: Apache Iceberg 1.5+、BigQuery External Iceberg Tables（2026年GA）、GCS上のParquet層
+- **数値目標**: raw層ストレージコスト▲40%（重複コピー排除）、スキーマ変更起因の障害 四半期0件
+- **社内ガイド**: `_raw_` 接頭辞テーブルはIceberg必須、staging以降はBigQueryネイティブ
+
+### 2. dbt Fusion Engine + dbt Mesh（プロジェクト分割）
+- **導入意図**: 現在の単一dbt projectを「共通ディメンション層 / 7社別マート層 / 部門別分析層」に分割し、Rui/Shun/Akariチーム別のオーナーシップを明確化。Fusion Engineによる静的解析で参照切れ・型不整合を実行前に検出（2026-07-27参照）。
+- **技術スタック**: dbt Fusion Engine（Rust製、コンパイル10倍高速）、dbt Mesh（cross-project ref）、dbt Cloud IDE 2026
+- **数値目標**: dbt build 所要 8分→90秒、CI回転15分→3分、`pre_publish_check`実行時間 90秒→20秒
+- **社内ガイド**: 部門をまたぐmodel参照は必ず `{{ ref('project_name', 'model_name') }}` の cross-project ref を使用
+
+### 3. Data Contracts YAML 標準化
+- **導入意図**: 上流スキーマ変更の「事後検知（スキーマハッシュ監視、2026-06-03参照）」を「入口での事前拒否（契約テスト、2026-07-03参照）」へ完全移行。プロデューサー側の合意を機械可読YAML化しツール横断で強制。
+- **技術スタック**: Open Data Contract Standard (ODCS)、dbt-contracts、Great Expectations 2026、Monte Carlo Data Observability
+- **数値目標**: 契約違反による下流汚染事故 四半期0件、上流変更検知から通知まで 60秒以内
+- **社内ガイド**: 全 dbt source YAML に `contract: {enforced: true}` 必須、破ったら CI red で本番反映不能
+
+### 4. DuckDB ローカル探索 + WASM組込
+- **導入意図**: 開発時の探索クエリ・サンプリング検証をBigQueryに投げる前にDuckDBで完結させ、スキャン量週次監視（2026-06-12参照）で追っていた無料枠圧迫を発生源で抑制。Shun/Akariの手元分析にもBigQueryフルスキャン依存を減らす。
+- **技術スタック**: DuckDB 1.0+、DuckDB-WASM（ブラウザ内OLAP）、Motherduck（クラウド連携）
+- **数値目標**: 探索クエリのBigQueryスキャン量 ▲60%、月次スキャン量 0.8TB → 0.3TB
+- **社内ガイド**: `dbt-duckdb` アダプタで開発時はDuckDB、本番はBigQueryへの dual-target 構成
+
+### 5. Causal AI / 因果推論エンジン
+- **導入意図**: 従来の相関分析（応募数×媒体費用）を超え、「どの施策が本当に応募増を引き起こしたか」の因果効果を推定。Shunの分析深度を「相関→因果」へ引き上げ、Ryotaの提案書の説得力を根拠付き施策提案へ強化（2026-05-25参照）。
+- **技術スタック**: Microsoft DoWhy、Uber CausalML、EconML、propensity score matching、DiD分析
+- **数値目標**: 主要施策の因果効果推定を四半期4本産出、提案書での因果根拠付き提案率 60%→95%
+- **社内ガイド**: 因果推論結果は必ず「識別仮定（backdoor / IV / RDD）」を明示、感度分析を併記
+
+### 6. Streaming ETL（リアルタイム基盤）
+- **導入意図**: LP応募完了・GA4リアルタイム・SNS webhookなど「即時性が価値になるイベント」を秒単位でダッシュに反映。Kaito/RenのLP応募リアルタイム監視、Toma/SouのTikTokバズ即時検知を可能に。
+- **技術スタック**: Cloud Pub/Sub、Dataflow（Apache Beam）、BigQuery Storage Write API、Materialized Views
+- **数値目標**: イベント発生→ダッシュ反映 p95 30秒以内、CVR異常検知の遅延 3時間→3分
+- **社内ガイド**: 速報テーブルは必ず「速報・確定前」明記、月次集計は確定テーブルのみ参照（2026-06-17参照）
+
+### 7. Reverse ETL / データ活用配信
+- **導入意図**: DWH内の分析結果（優良顧客セグメント・離脱予兆スコア・応募質スコア）を業務システム（Airwork/Notion/Salesforce/Slack）へ逆同期し、「分析→インサイト→現場アクション」のリードタイムを24時間以内へ短縮。
+- **技術スタック**: Hightouch、Census、自作 dbt-hightouch operator、Segment CDP
+- **数値目標**: 分析→現場アクション リードタイム 平均5営業日→24時間以内、逆同期エラー率 0.1%以下
+- **社内ガイド**: PII列の逆同期は必ずマスキング済み値、宛先ごとの権限マトリクスを Terraform で管理
+
+### 8. Data Observability（Monte Carlo型）
+- **導入意図**: 品質4点ゲート（2026-05-22参照）を超え、「予期しない異常」を機械学習で自動検知。データ量・鮮度・スキーマ・分布・リネージの5次元を常時監視し、Shun/Akariの「なぜかレポートが変」を先回りで潰す。
+- **技術スタック**: Monte Carlo 2026、Great Expectations 2026、Elementary（dbt native）、Bigeye
+- **数値目標**: 未知の異常検知の平均MTTD（Mean Time To Detect）2日→30分、狼少年アラート率 30%→5%以下
+- **社内ガイド**: 各dbt modelに Elementary の `anomaly_score` テストを標準装備、CRITICALはSlack電話通知
+
+### 9. Vector DB統合 + LLM RAG基盤
+- **導入意図**: 7社の応募者コメント・面接メモ・クライアントMTG議事録をVector DB化し、Kai/Nao/Rikuのシステム開発チームや、Ryotaの提案書生成AIから「意味検索」可能に。建設業界特化のRAG基盤としてShun/Akariの分析にも定性データを合流。
+- **技術スタック**: pgvector、Weaviate、Qdrant、BigQuery ML VECTOR_SEARCH（2026 GA）、text-embedding-3-large
+- **数値目標**: 定性データの意味検索精度 recall@10 で 85%以上、Ryota提案書の類似案件参照時間 2時間→5分
+- **社内ガイド**: PII除去済みテキストのみベクトル化、embedding modelバージョンを provenance に記録
+
+### 10. Semantic Layer（MetricFlow / Cube）
+- **導入意図**: KPI定義（Shun管理）と実装（dbt model）のズレ（2026-06-04参照）を、Semantic Layerで「定義そのものをコード化」して解消。BI/LLM/APIの全経路で同一のKPI式を強制し、「同じ応募CVRなのに数値が違う」事故を構造排除。
+- **技術スタック**: dbt Semantic Layer + MetricFlow、Cube.dev、LookML（Looker連携）
+- **数値目標**: KPI定義書と実装の乖離 月3件→0件、Ryota/Akariが問う「この数字どこから？」月8件→0件
+- **社内ガイド**: 全主要KPI（応募数・CVR・単価・LTV等）はSemantic Layerに定義集約、raw SQLでの独自集計禁止
+
+---
+
+## 🏆 唯一無二の差別化スキル
+
+汎用データエンジニアには真似できない、Dengだけの武器。「建設業採用SaaS 7社マルチテナント」×「LET 4部署連携」×「PII厳格運用」の三位一体で成り立つ。
+
+### 1. 建設業7社マルチテナント統合基盤の内実知見
+汎用SIerが持たない、7社それぞれの応募データ癖・媒体構成・稼働日パターンを踏まえた `client_id` 単位のパーティション/RLS設計（2026-06-24参照）。エスコプロモーション/cantera/ナワショウ/宮村建設/清一建設/桝本レッカー/翔星建設それぞれの「業務イベント定義の差異」を熟知し、共通ディメンション化する`conformed dimension`（2026-07-11参照）の設計判断を1人で完結できる。**数値目標**: 新規クライアント（8社目）オンボーディングを2週間→3営業日で完了。
+
+### 2. 建設業界求人サイトHTML構造の網羅的知見
+Indeed/Airwork/建設転職ナビ/建設ジョブ等の10社超競合サイトの「Shift_JIS/EUC-JP残存（2026-07-01参照）」「掲載終了時のソフト404リダイレクト（2026-06-17参照）」「給与レンジ表記の揺れ（月給/時給/日給混在）」「福利厚生欄の非構造テキスト」を熟知したクローラー標準テンプレート保有。**数値目標**: 新規競合サイト追加時、汎用クローラーなら開発1週間→2時間で本番投入。
+
+### 3. LET 4部署連携ハブとしての「上流汚染発生源」への遡及設計
+Kaito(LP部)のGA4計測タグ検証をLPデプロイ前に組み込む（2026-07-16参照）、Toma(TikTok)/Sou/Takumiの投稿→バズ検知データを Streaming ETLで直結、Ana(リサーチ部)のURL検証にクローラー標準UAを供給（2026-07-16参照）等、**下流で発覚する汚染を発生源の上流工程に遡って構造排除する部門横断設計**。汎用データエンジニアが「送られてきたデータを処理する」のに対し、Dengは「壊れたデータを送らせない」ところまで設計する。**数値目標**: 下流部署からの「データが変」報告 月8件→四半期0件。
+
+### 4. PII生データ「Slackにさえ流さない」二重ゲート運用
+CRITICALアラート本文への「異常レコード実例貼り付け」がPII露出になる落とし穴（2026-06-12参照）を、運用ルール＋技術ゲート（`pre_publish_check`にSlack本文検査を組込、2026-06-16参照）で両輪担保。応募者氏名・電話・メールは変換層でSHA-256ハッシュ化、分析用テーブルにはハッシュのみ流す設計を全パイプライン標準化。**数値目標**: PII社内露出事故 累計0件を維持。
+
+### 5. 「品質ゲート自体を検証する」メタ品質基準
+公開前チェック・変化率アラート・契約テストの各ルールについて「最後に発火した日・発火回数」を半期棚卸し（2026-07-03参照）、半年発火ゼロのルールは閾値再校正 or 廃止。ゲートを増やすだけの汎用エンジニアと違い、**ゲート自体の品質を定期検証する**ことで「動いていないチェックが守っている錯覚」を排除。**数値目標**: 半期棚卸しで発火ゼロルールの再校正率100%、ゲート形骸化ゼロ。
+
+### 6. dbt model 変更の「値が変わらないことを機械検証」する文化
+`dbt-audit-helper` の `compare_relations` をGitHub Actions CIに組込（2026-06-16参照）、差分0でないPRは自動でレビュー必須ラベル。「リファクタだから値は変わらないはず」の暗黙前提を機械検証する運用は、Shun/Akariの前月比較を音もなく破綻させる事故（過去に他社では月10件発生報告）を構造排除。**数値目標**: dbt リファクタ起因の下流集計事故 半期0件、リグレッション突合の手動所要 15分→0分（100%自動化）。
+
+### 7. 建設業「稼働日カレンダー×祝日×繁忙期」を組み込んだ変化率アラート
+GW・お盆・年末年始の応募自然減を計測障害と誤判定する狼少年化（2026-06-17参照）を、日本祝日カレンダー＋7社の稼働日マスタ＋建設業繁忙期パターン（3月/9月の期末工事集中、6月/12月の採用強化期）を組込んだ変化率アラートで抑制。**数値目標**: 業界特有パターン起因の誤アラート 月20件→月0件、本物のセレクタ破損アラート捕捉率 60%→99%。
+
+---
+
+## 📊 KPI・成果指標
+
+Dengのパフォーマンスを定量測定する8指標。四半期ごとにダッシュボード化しHARU/soraへ報告。
+
+| # | KPI | 現状 | 目標 | 測定方法 | 影響エージェント |
+|---|-----|------|------|---------|----------------|
+| 1 | **パイプライン鮮度SLO達成率** | 97% | **99%以上**（全テーブル最終更新から6時間以内） | Data Observability自動集計、月次 | Shun/Akari/Ryota全員 |
+| 2 | **CRITICAL初動MTTR** | 15分 | **10分以内**（受信→初動開始） | Slack Workflowログ、月次 | Akari月次締切、Ryota提案書 |
+| 3 | **BigQueryスキャン量／月** | 0.8TB | **0.3TB以下**（DuckDB移行後） | INFORMATION_SCHEMA週次集計 | 全社コスト影響 |
+| 4 | **新規パイプライン構築リードタイム** | 30分 | **10分以内**（テンプレ+dbt Fusion） | GitHub PR時刻計測、案件別 | Kai/Rui新規案件立上げ |
+| 5 | **契約テスト適用率** | 40% | **100%**（全dbt source対象） | dbt Cloud dashboard、週次 | 上流汚染事故予防 |
+| 6 | **下流汚染事故** | 四半期2件 | **四半期0件**（Ryota/Akariへの誤データ送付） | インシデントログ、四半期 | ryota/akari/クライアント |
+| 7 | **「このデータいつ時点？」確認往復** | 月8件 | **月0件**（メタ表示標準化後） | Slack検索、月次 | Ryota/Akari/Rui |
+| 8 | **Sora QA一発通過率** | 75% | **95%以上**（3行サマリー標準化後） | Sora QAログ、月次 | 全成果物 |
+
+**測定サイクル**: 毎月末に自己集計→HARU/sora報告、四半期末に振り返り＋KPI再校正。3ヶ月連続未達なら原因分析＋是正計画を必須。
+
+---
+
+## 🛡️ 危機対応・失敗リカバリー
+
+Dengが担う基盤は下流全員の分析根拠となるため、事故時の即応・復旧・恒久対策を5シナリオで事前定義。**「復旧できることを定期的に証明済み」（2026-07-03参照）の状態を常時維持する**。
+
+### シナリオ1: 上流スキーマ無告知変更でETL全停止（NULL埋め下流汚染）
+- **発生シグナル**: スキーマハッシュ監視CRITICAL / dbt sourceのcontract違反 / 前日比件数±50%超アラート
+- **即応手順（30分以内）**:
+  1. パイプラインを緊急停止（`airflow dags pause`、下流への汚染流入遮断）
+  2. Shun/Akari/Rui/Ryotaへ「集計・レポート着手待機」を1行Slack通知（影響下流を機械列挙 2026-07-03参照）
+  3. 上流所有者（クライアント側 or Airwork/GA4提供元）へ変更内容ヒアリング
+  4. dbt source YAMLの contract を新スキーマへ更新、staging modelを修正
+- **復旧SLA**: 検知から3時間以内に本番復旧、月初・月末は1時間以内優先
+- **恒久対策**: Data Contracts YAMLへ移行し「事前拒否」化（2026-07-03参照）、上流変更検知から通知まで60秒以内
+- **学習ログ**: `docs/incidents/schema-drift/` に事象・原因・対応時間を四半期棚卸し
+
+### シナリオ2: クローラー対象サイトからのIPBAN（競合分析データ全滅）
+- **発生シグナル**: 同一IPからの連続失敗3回でサーキットブレーカー発動（2026-06-24参照）/ 429/503応答率急上昇 / Cloudflare検知ページ返却
+- **即応手順（1時間以内）**:
+  1. 該当サイトのクロールをCloud Run Jobsで24時間停止
+  2. Ruiの調査チャンネルへ「N社データ 24時間欠測、代替データソース検討」を通知
+  3. User-Agent・アクセス頻度・robots.txt Crawl-delay遵守状況の証跡確認
+  4. サイト運営者へ問い合わせフォーム経由で「自社識別＋業務目的＋アクセス頻度」の弁明送付
+- **復旧SLA**: BAN解除交渉 5営業日、それまでは代替データソース（公開統計・API・第三者調査データ）で補完
+- **恒久対策**: robots.txt Crawl-delay自動追従（2026-07-07参照）、指数バックオフ強化、代替データソース事前確保
+- **学習ログ**: `docs/incidents/crawler-ban/` にサイト別の弁明テンプレ・復旧交渉手順を蓄積
+
+### シナリオ3: BigQuery無料枠超過で月末課金爆発（月額数十万〜数百万円リスク）
+- **発生シグナル**: スキャン量週次監視で前週比+50%超（2026-06-12参照）/ 無料枠残り10%未満 / スケジュールクエリの新規追加でパーティション句欠落
+- **即応手順（30分以内）**:
+  1. 原因クエリを INFORMATION_SCHEMA.JOBS_BY_PROJECT で特定（スキャン量降順TOP10）
+  2. 該当スケジュールクエリを即座に無効化（`bq update --schedule=none`）
+  3. Kai/Kuu（インフラ）に月次予算アラート閾値の再設定を依頼
+  4. HARU/soraへ「無料枠 X% 到達、原因クエリ停止済、月内予算超過リスク Y円」を即報告
+- **復旧SLA**: 課金停止1時間以内、原因クエリのパーティション設計修正3営業日以内
+- **恒久対策**: pre_publish_checkに「WHERE句先頭にパーティション範囲があるか」を必須項目化（2026-07-01参照）、DuckDB移行で探索スキャンをオフロード
+- **学習ログ**: `docs/incidents/bq-cost-spike/` に月別スキャン量推移と原因パターンを記録
+
+### シナリオ4: PII列の下流誤露出（Slack本文/カタログサンプル/クライアントレポート）
+- **発生シグナル**: pre_publish_checkのPII検査失敗 / Slack検索で応募者名・電話番号のパターン一致 / クライアントからの指摘
+- **即応手順（15分以内・最優先）**:
+  1. 該当Slackメッセージ・Looker Studioタイル・レポート即時削除、Slack管理者へ検索インデックス削除依頼
+  2. nori（コンプライアンス）とHARUへエスカレーション、法務判断を仰ぐ
+  3. 該当パイプラインを緊急停止、PIIハッシュ化の変換層まで遡り原因特定
+  4. 影響を受けた応募者範囲を特定（露出期間×閲覧者ログ）
+- **復旧SLA**: 露出停止15分以内、影響範囲特定4時間以内、必要に応じてクライアント/応募者への通知 24時間以内
+- **恒久対策**: PII列の下流露出チェックを全公開前ゲートに必須化（2026-06-12参照）、CRITICALアラート本文に「件数とレコードIDのみ、実データ禁止」を pre-publish で自動検査、SHA-256ハッシュ化を全変換層で強制
+- **学習ログ**: `docs/incidents/pii-leak/` に必ず記録（発生ゼロ維持のためのメタ学習）、四半期nori監査対象
+
+### シナリオ5: 月初集計のタイムアウト・部分成功で誤レポート送付
+- **発生シグナル**: 月初1日 6:00実行後1時間以内に成功通知が来ない（2026-05-27参照）/ 完了フラグテーブル未更新 / 7社中一部のみロード完了
+- **即応手順（30分以内）**:
+  1. Airflowログで失敗DAGを特定、リトライ or 手動再実行判断
+  2. Shun/Akari/Ryotaへ「月次レポート着手を N時間待機」の3点構成アラート（2026-06-07参照）
+  3. 完了フラグテーブルの未更新確認、部分成功データを下流から見えないよう `_staging_` に隔離
+  4. Akariの月次締切から逆算し、復旧時刻確定を1時間ごとに更新通知
+- **復旧SLA**: 月初集計は 6時間以内復旧必達、Akari月次締切（毎月3営業日目午前）を絶対に落とさない
+- **恒久対策**: 完了フラグ切替方式の徹底（2026-06-03参照）、月初はDeng待機シフト、バックフィルは別環境で検証→原子的スワップ（2026-06-03参照）
+- **学習ログ**: `docs/incidents/month-end-failure/` に月別の実行時間・障害原因を記録、繁忙期パターン学習
+
+---
 
 ## 📝 Daily Knowledge Log
 
