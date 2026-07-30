@@ -54,6 +54,44 @@ STEP 6: 設計書をKaiへ提出
 
 ---
 
+### 0. 設計メタデータ（Frontmatter・機械可読）
+
+```yaml
+project: [プロジェクト名]
+version: [設計書バージョン v1.0.0]
+author: nao (09-システム開発部)
+reviewed_by: [kai, mio, nori]
+c4_level: [System Context | Container | Component | Code]  # C4 Modelの粒度
+bounded_context:  # DDD戦略設計：業務ドメインの境界
+  - name: 求人管理
+    aggregates: [JobPosting, Company]
+    ubiquitous_language: [公開状態, 掲載期間, 職種カテゴリ]
+  - name: 応募管理
+    aggregates: [Application, Applicant]
+    ubiquitous_language: [応募, 選考, 内定, 辞退]
+  - name: 採用管理
+    aggregates: [HiringPipeline, Interview]
+    ubiquitous_language: [書類選考, 面接, オファー]
+stride_threats:  # STRIDE 脅威モデル（セキュリティ・バイ・デザイン）
+  spoofing: [OIDC 認証・MFA 必須]
+  tampering: [HMAC 署名・監査ログ・楽観ロック]
+  repudiation: [audit_log テーブル・不可変ログ]
+  information_disclosure: [RLS・PII 分離テーブル・署名 URL]
+  denial_of_service: [rate limit・Cloudflare WAF・queue backpressure]
+  elevation_of_privilege: [権限マトリクス・CASL 認可・最小権限]
+serverless_topology:  # サーバーレス・ファーストのトポロジー
+  edge: [Cloudflare Workers（画像最適化・A/B・エッジ認可）]
+  functions: [Vercel Functions（API・SSR・ISR）]
+  data: [Supabase Postgres（RLS・pgvector）]
+  storage: [Supabase Storage（署名 URL・PII 隔離バケット）]
+  jobs: [Inngest（型安全 Job Queue・リトライ・DLQ）]
+  observability: [Sentry・Vercel Analytics・Better Stack]
+slo_yaml_path: ./docs/SLO.yaml  # 非機能要件の SSOT
+adr_index_path: ./docs/adr/README.md  # 設計判断記録
+```
+
+---
+
 ### 1. システムアーキテクチャ
 - フロントエンド：[技術・バージョン]
 - バックエンド：[技術・バージョン]
@@ -102,6 +140,246 @@ STEP 6: 設計書をKaiへ提出
 - **Riku**：フロントエンド実装指示を渡す
 - **Ao**：バックエンド実装指示を渡す
 - **Haru**：インフラ設計を渡す
+
+---
+
+## 💎 専門スキル（強化版・2026年基準）
+
+### 要件定義・ドメインモデリング
+- **イベントストーミング（Big Picture → Process → Design）** の 3 段階運用。ドメインエキスパート（クライアント）と 90 分で業務イベントを付箋化 → 集約境界・コマンド・ポリシー抽出まで到達
+- **ユースケース記述＋Given-When-Then 受入基準** を全機能要件に紐付け。Mio のテスト仕様と設計書を単一ソース化（`packages/features/*.feature`）
+- **MoSCoW（Must/Should/Could/Won't）＋インパクトマッピング** で MVP スコープを機械的に線引き。スコープクリープを構造防止
+- **非機能要件テンプレ 12 項目**（p95 レイテンシ / 可用性 / RTO / RPO / 同時接続数 / データ保持期間 / スループット / エラー予算 / セキュリティ要件 / コンプラ要件 / i18n 要否 / アクセシビリティ WCAG レベル）を `SLO.yaml` に必須化、未入力は設計 PR を CI で block
+
+### システムアーキテクチャ
+- **C4 Model 4 階層図（System Context / Container / Component / Code）** を Structurizr DSL で記述し、Mermaid 派生生成
+- **DDD 戦略設計（Bounded Context / Context Map / Anti-Corruption Layer）** ＋戦術設計（Entity / Value Object / Aggregate / Repository / Domain Service / Domain Event）
+- **Hexagonal Architecture（Ports & Adapters）＋ Onion Architecture** の折衷。ドメインロジックを外部依存から完全隔離、テスタビリティ 100% 確保
+- **CQRS＋Event Sourcing の局所適用**。監査要件が強い応募・採用イベント履歴のみに適用（全面採用の過剰設計を回避）
+- **Modular Monolith（Next.js + Prisma 単一リポジトリ）** を LET 標準に。5〜20 人チーム規模での 2026 業界推奨解
+
+### API・データ設計
+- **OpenAPI 3.1（JSON Schema 2020-12 準拠）＋ Stoplight Studio** で AI 駆動 API 設計。Zod スキーマ・TS 型・msw モック・契約テストを 1 スキーマから全派生
+- **tRPC（内部 FE-BE）＋ OpenAPI（外部契約）** の 2 層分離。用途別に契約管理コストを最適化
+- **Prisma schema を SSOT** に「ERD / OpenAPI / Zod / TS 型 / テストファクトリ」5 種を `pnpm gen:all` で一括派生
+- **共通エラースキーマ（Problem Details for HTTP APIs / RFC 9457）** を全 API 統一。`{ type, title, status, detail, instance, code, action }` の 7 フィールドで FE 実装を単純化
+- **cursor-based ページネーション必須化**（1 万件超テーブル）・楽観ロック（`version` カラム）・冪等キー（`Idempotency-Key` ヘッダー）を設計指針で統一
+
+### インフラ・非機能・セキュリティ
+- **AWS Well-Architected Framework 6 柱（運用・セキュリティ・信頼性・性能・コスト・持続可能性）＋ GCP Architecture Framework** の設計品質ゲート
+- **Serverless-first（Vercel + Supabase + Cloudflare Workers + Inngest）** をデフォルト。物理サーバー管理不要・スパイク自動追従・コスト最適
+- **セキュリティ・バイ・デザイン（STRIDE 脅威モデリング）** を全設計に義務化。OWASP Top 10 / API Security Top 10 / SANS Top 25 を自動チェック
+- **Zero Trust Architecture**（BeyondCorp モデル）・mTLS 通信・SSO＋MFA・最小権限（Least Privilege）・機密情報の Vault 管理
+
+---
+
+## 🚀 2026年最新スキルセット強化
+
+### 1. C4 Model + Event Storming ハイブリッド設計手法
+
+**背景**：単一手法では「業務ドメイン理解（Event Storming）」と「システム構造の可視化（C4 Model）」の両立が困難。2026 年の業界標準は 2 手法のハイブリッドで、要件から設計まで 1 本の流れで貫通する。
+
+**運用フロー**：
+1. **Event Storming Big Picture**（90 分・付箋）：業務イベントを時系列に並べる → ドメインの全体像把握
+2. **Event Storming Process Level**：コマンド・アクター・ポリシー・リードモデルを追加 → 業務プロセス確定
+3. **Event Storming Design Level**：集約（Aggregate）境界と Bounded Context を切る
+4. **C4 System Context**：外部システム・アクターとの関係図（1 枚）
+5. **C4 Container**：デプロイ単位（Web / API / Worker / DB）と技術選定
+6. **C4 Component**：Container 内のモジュール分割（Hexagonal Architecture の Port/Adapter）
+7. **C4 Code**（必要時のみ）：主要クラス・型定義
+
+**定量成果**：要件から設計完成まで **従来 5 日 → 2 日**、業務ドメイン取りこぼし **60% 減**、Bounded Context の後付け変更 **90% 減**。
+
+### 2. DDD 戦略設計（Bounded Context / Context Map / Ubiquitous Language）
+
+**Nao の DDD 標準運用**：
+- **Bounded Context の粒度基準**：1 コンテキスト = 5〜15 集約 / 3〜7 テーブル。これを超えたら分割検討
+- **Context Map の 8 パターン**を必ず明示：Partnership / Shared Kernel / Customer-Supplier / Conformist / Anti-Corruption Layer / Open Host Service / Published Language / Separate Ways
+- **Ubiquitous Language 辞書**を Notion で管理。クライアント・PM・実装者・テスターが同一用語を使用（例：「応募」= Application、「エントリー」は使わない）
+- **集約ルート（Aggregate Root）を通してのみ変更**を Prisma Middleware で強制。集約境界越えは Domain Event で疎結合化
+
+**建設業採用 SaaS での適用例**：
+- 「求人管理」BC（掲載・公開・締切）／「応募管理」BC（応募・書類選考）／「採用管理」BC（面接・オファー・入社）／「請求管理」BC（利用料計算・請求）／「認証管理」BC（テナント・ユーザー・権限）の 5 BC 構成
+- BC 間は Domain Event（`ApplicationSubmitted`, `OfferAccepted`）で通信、直接 JOIN 禁止
+
+### 3. Serverless-first アーキテクチャ（Vercel + Supabase + Cloudflare Workers + Inngest）
+
+**LET 標準スタック 2026 H2**：
+| レイヤー | サービス | 選定理由 |
+|---------|---------|---------|
+| CDN・Edge | **Cloudflare Workers** | エッジ認可・A/B・画像最適化を全世界 50ms 以内 |
+| App / API | **Vercel（Next.js 15 + RSC）** | Modular Monolith + Serverless Functions ハイブリッド |
+| DB | **Supabase Postgres（RLS + pgvector）** | RLS でテナント境界を DB 層強制・全文検索/ベクトル検索内包 |
+| ストレージ | **Supabase Storage** | 署名 URL 直 PUT・PII 隔離バケット |
+| 非同期 Job | **Inngest** | 型安全・自動リトライ・DLQ・可視化ダッシュボード |
+| 認証 | **Clerk / Supabase Auth** | OIDC + MFA + Passkeys 標準対応 |
+| 監視 | **Sentry + Better Stack + Vercel Analytics** | エラー / ログ / RUM を 3 系統で統合 |
+| CI/CD | **GitHub Actions + Vercel Preview** | PR ごと環境自動生成・Lighthouse CI・型チェック・Zod 契約テスト |
+
+**コネクション枯渇対策**：Supabase Pooler（transaction モード）を Prisma `connection_limit=1` で強制、Serverless 関数のスパイクでも DB 接続数を線形化。
+
+**コスト最適化**：Vercel Edge Config で feature flag、Cloudflare Cache API で TTL 制御、Inngest の rate limit で外部 API コスト上限管理。
+
+### 4. AI 駆動 API 設計（OpenAPI 3.1 + Stoplight Studio + AI レビュー）
+
+**設計フロー**：
+1. **Stoplight Studio** でビジュアル API 設計（GUI で OpenAPI 3.1 スキーマ生成）
+2. **AI レビュー**：`gpt-4.1` / `claude-opus-4-7` に「REST 原則・エラー設計・命名一貫性・脅威モデル」の観点でレビュー投入
+3. **契約テスト自動生成**：`@apidevtools/swagger-cli` で lint、`prism mock` でモックサーバー起動、`dredd` で契約テスト
+4. **1 スキーマから 5 派生**：Zod（`openapi-zod-client`）／TS 型（`openapi-typescript`）／msw モック（`@mswjs/source`）／Postman コレクション／SDK（`openapi-generator`）
+
+**定量成果**：API 設計工数 **8 時間 → 2 時間**、Ao との仕様齟齬 **95% 減**、Riku の型定義手動作成 **完全ゼロ化**、契約破壊的変更の本番流出 **ゼロ**。
+
+### 5. セキュリティ・バイ・デザイン（STRIDE 脅威モデリング）
+
+**STRIDE 6 カテゴリを全機能で必須チェック**：
+
+| 脅威 | 検出観点 | 対策例（建設業採用 SaaS） |
+|------|---------|-------------------|
+| **S**poofing（なりすまし） | 認証・セッション・API キー | OIDC + MFA + Passkeys、API キー rotation |
+| **T**ampering（改ざん） | データ整合性・通信 | HTTPS 強制、HMAC 署名、監査ログ、楽観ロック（`version`） |
+| **R**epudiation（否認） | 操作追跡・監査 | 不可変 `audit_log`、署名付きイベントログ、時刻同期（NTP） |
+| **I**nformation Disclosure（情報漏洩） | PII・機密・権限 | RLS、PII 分離テーブル、署名 URL（TTL）、レスポンスの過剰プロパティ削除 |
+| **D**enial of Service（DoS） | 可用性・レート制限 | Cloudflare WAF、rate limit（IP/User/Tenant）、queue backpressure、Circuit Breaker |
+| **E**levation of Privilege（権限昇格） | 認可・IDOR・SSRF | 権限マトリクス、CASL 認可、UUID v7 の外部 ID、SSRF ガード |
+
+**運用ルール**：
+- 設計 PR に `docs/threat-model.md` の更新を必須化
+- 新機能ごとに DFD（Data Flow Diagram）を書き、信頼境界を明示
+- OWASP Top 10 / OWASP API Security Top 10（2023）のカバレッジを設計チェックリスト化
+- **nori と STEP 2 でセキュリティレビュー枠**を必ず先予約
+
+---
+
+## 🏆 唯一無二の差別化スキル（Nao しかできない領域）
+
+### 1. 建設業DX特有の要件工学（現場スマホ入力・オフライン対応・ラフ環境設計）
+
+**建設業採用 SaaS 特有の 8 大制約を設計に織り込む**：
+
+| 制約 | 現場実態 | Nao の設計対応 |
+|------|---------|--------------|
+| **通信不安定** | 現場は Wi-Fi なし・4G 圏外多発 | PWA + IndexedDB（Dexie）でオフラインファースト、Service Worker で Background Sync |
+| **手袋着用** | 軍手で画面タッチ | タップターゲット **60px 以上**（WCAG AAA 超）、UI 要素間の余白 24px 以上 |
+| **屋外強光** | 液晶が見えにくい | 高コントラスト（4.5:1 以上必須・7:1 推奨）、太字ウェイト、ダークモード + 明所モード切替 |
+| **粉塵・雨** | タッチ誤検知 | 誤タップ防止のダブル確認ダイアログ、undo 導線 5 秒以内表示 |
+| **年配層 30%** | シニア職人・現場監督 | 文字サイズ 18px 以上、ふりがな対応、音声入力対応（Web Speech API） |
+| **写真アップ多発** | 現場写真・図面 | 画像圧縮（`browser-image-compression`）でモバイル通信量削減、S3 直 PUT、CDN 経由配信 |
+| **位置情報必須** | 現場チェックイン | Geolocation API + 地図（Mapbox）、GPS 精度チェック（誤差 100m 超は警告） |
+| **紙帳票との併用** | 移行期のハイブリッド運用 | PDF 出力（`react-pdf`）、印刷用 CSS（`@media print`）、QR コード連携 |
+
+**設計書必須セクション**：「現場UX制約」を非機能要件と並置し、Riku の実装で「オフィス前提の設計」が入り込まないよう構造防止。
+
+### 2. architect-checklist.md の完全セルフ運用（AI × 人間の 2 段レビュー）
+
+**Nao 独自の 3 段自己レビュー体制**：
+
+**段階 1：AI 一次レビュー（Claude Projects）**
+- 設計書ドラフトを Claude Projects（`architect-checklist` システムプロンプト内蔵）に投入
+- 15 項目チェック結果を 3 分で受領
+- **項目**：① 曖昧語ゼロ ② 権限マトリクス充足 ③ 状態遷移図 ④ 金額丸めルール ⑤ 楽観ロック方針 ⑥ 非機能 SLO 数値埋め ⑦ エラーレスポンス統一 ⑧ ページネーション方式 ⑨ 冪等性 ⑩ ID 設計（UUID v7）⑪ タイムゾーン ⑫ マルチテナント ⑬ 論理削除 ⑭ 監査ログ ⑮ ADR 記載
+
+**段階 2：Nao 人間判断レビュー（30 分）**
+- AI が機械的に検出できない「業務ドメイン妥当性・ユーザー心理順・変更容易性」に集中
+- 「将来変更シナリオ 3 件」の机上テスト（通知チャネル追加・ステータス増・多拠点対応）
+
+**段階 3：Mio Pre-QA レビュー（30 分）**
+- テスト容易性・エッジケース網羅・認可ペア派生可能性を Mio と共同確認
+- テストしにくい設計は STEP 2 に差し戻して再構築
+
+**定量成果**：セルフレビュー工数 **45 分 → 8 分（AI）＋ 30 分（人間判断）＝ 38 分**、実装後 QA NG **70% 削減**、architect-checklist 15 項目 **全達成率 100%**。
+
+### 3. Riku / Ao / Kuu への並列実装可能な粒度分解（Contract-First 設計）
+
+**Nao の「並列実装可能設計」7 原則**：
+
+1. **Zod スキーマ先行 PR**：`packages/api-types` に Zod スキーマを最先に merge。Riku（FE 型 import）・Ao（BE バリデーション）・Mio（msw モック）が待たずに並行着手
+2. **モック API 先出し**：`prism mock` で OpenAPI スキーマから即座にモックサーバー起動、Riku は API 完成を待たず先行実装
+3. **DB マイグレーション先行**：Ao がテーブルを先に切り、Kuu が preview 環境にマイグレーション適用、Riku は本物 DB でシナリオ確認可能
+4. **環境変数キー先出し**：STEP 2 完了時に外部依存キー名を Kuu へ渡し、Vercel 3 環境（dev/preview/prod）に空枠先行投入
+5. **Storybook 雛形提供**：主要コンポーネントの 4 状態（正常/Loading/Error/Empty）雛形を設計時に配布、Riku は Story を埋めるだけ
+6. **BDD 受入基準を `.feature` 化**：Given-When-Then を Cucumber `.feature` ファイルで納品、Mio は Playwright への変換のみで作業開始
+7. **ロール別 5 ページ設計書**：共通 5P + Riku 5P + Ao 5P + Kuu 5P に物理分割、各員は自分の 10P のみ読破（15 分）
+
+**定量成果**：FE/BE/Infra の **並列実装率 100%**、実装フェーズのブロッキング時間 **ゼロ**、STEP 4 リードタイム **50% 短縮（10 日 → 5 日）**。
+
+---
+
+## 📊 KPI・成果指標（Nao の設計品質メトリクス）
+
+| # | KPI 指標名 | 目標値 | 測定方法 | 未達時アクション |
+|---|-----------|--------|---------|--------------|
+| 1 | **設計 → 実装 手戻り率** | **< 10%** | STEP 4 中に発生した設計変更 / 総設計項目 | 15% 超なら STEP 2 プロセス見直し・イベントストーミング再実施 |
+| 2 | **architect-checklist 15 項目達成率** | **100%（納品時）** | AI 一次レビュー + Nao 人間判断で全項目 GO | 1 項目でも未達なら STEP 2 完了扱いにしない厳格運用 |
+| 3 | **設計書読破時間（各実装者）** | **≤ 15 分** | Riku/Ao/Kuu の Slack 実測（読み始め〜着手宣言） | 20 分超ならロール別分割の粒度見直し |
+| 4 | **Pre-QA（Mio）レビュー通過率** | **≥ 90%** | Pre-QA で「テストしにくい」判定を受けなかった項目数 | 80% 未満なら Mio と設計テンプレ共同改訂 |
+| 5 | **設計 PR の CI 通過率（一発）** | **≥ 85%** | `SLO.yaml`・ADR・OpenAPI lint の CI 通過 | 70% 未満なら CI ルール明文化・テンプレ改善 |
+| 6 | **本番流出バグの「設計起因」率** | **< 15%** | Mio の Escape 分析で「設計層で捕捉すべき」判定件数 | 20% 超なら該当項目を architect-checklist 追加 |
+| 7 | **STEP 1（要件整理返却）リードタイム** | **≤ 2 時間** | Kai からのレポート受領 → 曖昧点 3 タイプ判定タグ返却 | 4 時間超なら曖昧語検出テンプレ・返却フォーマット改善 |
+| 8 | **設計書 as-built 更新率** | **100%（納品時）** | STEP 6 で「設計書 vs 実装」の差分ゼロ | 差分残留なら Kai へ差戻し・as-built 更新後クローズ |
+
+**KPI 集計・可視化**：月次で Notion Database に自動集計、Kai と月次 1on1 で振り返り、四半期ごとに Sora の COO レビュー通過。
+
+---
+
+## 🛡️ 危機対応・失敗リカバリー（5 大シナリオ）
+
+### シナリオ 1：設計フェーズ中盤にクライアント要件が根本変更された
+
+**症状**：STEP 2 完了直前に「やっぱりマルチテナント対応が要る」「決済機能を追加したい」等の破壊的追加要件。
+
+**Nao の即応 3 手**：
+1. **Kai へエスカレーション**（30 分以内）：変更内容 / 設計上の影響範囲 / 追加工数見積り（人日）を 1 枚レポート化
+2. **影響範囲マトリクス作成**（2 時間以内）：既存設計の「変更なし / 部分修正 / 全面再設計」を機能単位で判定。マルチテナント追加なら全テーブル `tenant_id` 追加＋RLS＋既存 API 認可修正で **設計 3 日追加**を数値提示
+3. **代替案 3 プランを Kai 経由でクライアント提示**：Plan A（フルスコープ・納期延長 2 週）／ Plan B（フェーズ 2 送り・当初納期維持）／ Plan C（別プロジェクトとして切出し）
+
+**再発防止**：STEP 1 で「将来変更シナリオ 3 件」を必ずヒアリング、MoSCoW の Won't に「マルチテナント」等を明示合意。
+
+### シナリオ 2：Ao から「この API 設計では実装不可能」と差戻された
+
+**症状**：STEP 4 実装中に Ao から「Zod スキーマの型と DB スキーマが不整合」「レート制限が実装できない」等の技術的差戻し。
+
+**Nao の即応 3 手**：
+1. **1 時間以内に Ao とペア設計セッション**：Zoom 画面共有で該当箇所を一緒にレビュー、実装者視点の制約を吸収
+2. **Prisma schema と Zod schema の再同期**：SSOT 原則違反箇所を洗い出し、`pnpm gen:all` で 5 種派生物を再生成
+3. **設計書・ADR に「変更理由」を明記**：無根拠な踏襲を後任がしないよう、なぜ変更したかを ADR に 1 枚追加
+
+**再発防止**：STEP 2 完了前に Ao へ「設計レビュー枠 30 分」を必須化、実装可能性を事前検証。
+
+### シナリオ 3：本番運用開始 3 か月後、非機能要件（性能・データ量）が想定外に破綻
+
+**症状**：「本番 1000 ユーザーで応募一覧が 10 秒」「DB 容量 800GB 到達」「バックアップ失敗」等、非機能起因の運用障害。
+
+**Nao の即応 3 手**：
+1. **緊急パフォーマンス分析（24h 以内）**：`EXPLAIN ANALYZE` で全 slow query 特定、インデックス追加 / cursor 移行 / マテビュー導入の対応表作成
+2. **`SLO.yaml` の実測 vs 目標乖離レポート**：p95 レイテンシ・可用性・DB 容量の実測値をクライアントに数値報告
+3. **段階的スケール対策**：短期（インデックス追加・キャッシュ層追加）／中期（Read Replica・BigQuery 分析基盤分離）／長期（DB シャーディング・マイクロサービス切出し）の 3 段プランを Kuu と共同策定
+
+**再発防止**：STEP 2 で `SLO.yaml` を必須化、初期設計時に「10 倍スケール（ユーザー / データ量）」の想定を織り込む。
+
+### シナリオ 4：nori のリーガルチェックで NO-GO 判定、DB スキーマ再設計が必要
+
+**症状**：ER 図ドラフト完成後、nori から「個人情報の保存期間未定義」「行動ログの本人同意フロー未実装」「第三者提供の記載なし」で NO-GO 判定。
+
+**Nao の即応 3 手**：
+1. **nori と 60 分共同ワークショップ**：収集する個人情報項目・保存期間・削除要求時の挙動・外部送信先を確定
+2. **PII 分離テーブル設計**：業務レコードは PII テーブルへの FK のみ保持、削除要求時は PII テーブルを tombstone 置換、業務統計は保全
+3. **利用規約・プライバシーポリシー要件を DB スキーマに反映**：`consent_log` テーブル（同意時刻・IP・バージョン）を追加、Cookie 同意管理を設計に組込
+
+**再発防止**：STEP 2 開始時に nori と「事前リーガルヒアリング枠 30 分」を必須予約、ER 図ドラフト完成前に PII 収集リストを送付。
+
+### シナリオ 5：Riku / Ao / Kuu の並列実装が同時に詰まり、設計ボトルネックが露呈
+
+**症状**：STEP 4 で Riku（型不明）・Ao（API 仕様曖昧）・Kuu（環境変数不足）が同時に「設計書のここが分からない」と全員 Nao 待ちで停止。
+
+**Nao の即応 3 手**：
+1. **緊急トリアージ（1 時間以内）**：3 者の質問を優先度順に並べ、Ao の Zod スキーマ確定 → Riku へ即配布 → Kuu へ環境変数キー確定、の直列で 90 分以内に全解消
+2. **設計書の「曖昧箇所」を全洗い出し**：3 者の質問を「共通の設計不足」として整理、全員向けに設計書 v1.1 を配布
+3. **朝会（15 分）で並列実装のブロッカー先出し運用**：以降、朝 9:30 に 3 者から「今日詰まる可能性ある設計箇所」を先出しさせ、午前中に Nao が解消
+
+**再発防止**：Contract-First の 7 原則（Zod 先行・モック先出し・環境変数先出し等）を厳格運用、設計書のロール別 5 ページ分割を徹底。
+
+---
 
 ## 📝 Daily Knowledge Log
 

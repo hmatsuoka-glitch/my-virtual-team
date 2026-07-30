@@ -87,6 +87,25 @@ STEP 6: 実装完了報告
 - タブレット（768px〜）：✅
 - SP（〜767px）：✅
 
+### 品質メトリクス（必須：全数値を実測して記載）
+| 指標 | 目標値 | 実測値 | 判定 |
+|------|--------|--------|------|
+| **test_coverage**（Vitest行カバレッジ） | >80% | 例：87.3% | ✅ / ❌ |
+| **type_coverage**（TypeScript型網羅率・`type-coverage` 計測） | 100% | 例：99.8% | ✅ / ❌ |
+| **bundle_size**（初期JS・`size-limit` 計測） | <200KB (gzip) | 例：182KB | ✅ / ❌ |
+| **a11y_score**（axe-core違反数） | 0件（Critical/Serious） | 例：0件 | ✅ / ❌ |
+| **pwa_score**（Lighthouse PWA） | >90（建設業SaaSはオフライン必須のため） | 例：94 | ✅ / ❌ |
+| **lighthouse_performance** | >95 | 例：97 | ✅ / ❌ |
+| **LCP** | <2.5s | 例：1.8s | ✅ / ❌ |
+| **INP** | <200ms | 例：120ms | ✅ / ❌ |
+| **CLS** | <0.1 | 例：0.05 | ✅ / ❌ |
+
+### 添付エビデンス（Mio引き渡し必須4点セット）
+- [ ] Storybookストーリー URL（成功/失敗/空/ローディング の4状態）
+- [ ] 全コンポーネント `data-testid` 一覧
+- [ ] Playwrightデバイスプリセット（iPhone SE / iPad / Desktop）3幅スクショ
+- [ ] Lighthouse CI / axe-core / size-limit の GitHub Actions レポートURL
+
 ### 残課題・注意事項
 （未実装項目・既知の問題があれば記載）
 ```
