@@ -63,6 +63,53 @@
   - INFO → ログのみ
 ```
 
+### 5. リアルタイム異常予測（先読みアラート／PRE-WARNING）
+```
+入力: 直近90日のKPI時系列 + 外部変数（季節性・曜日・キャンペーン日程）
+処理:
+  1. Prophet / EWMA / 移動平均を組み合わせ48h先の予測レンジを算出
+  2. 予測レンジからの逸脱を「PRE-WARNING（発火前警告）」として通知
+  3. 発火閾値と回復閾値（ヒステリシス／07-03記録）を非対称に設定
+  4. 建設業採用の季節性（3月・9月ピーク）を織り込む
+出力: /agents/kpi_dashboard/prewarning_{date}.json
+効果: 事後アラート → 事前介入で対応リードタイム平均42時間短縮
+```
+
+### 6. OKR進捗トラッキング（月次チェックイン対応）
+```
+入力: 全社OKR + 部署OKR + 個人Key Result（Notion SSOT）
+処理:
+  1. Objectiveに対する各Key Resultの達成率を日次集計
+  2. 信頼度（Confidence Level: 1-10）と実績のギャップを可視化
+  3. 月次チェックインの前日に「Update Suggested」通知を該当担当者DM
+  4. Stretch OKR（0.7で成功）とCommit OKR（1.0必達）を分離管理（06-17記録）
+出力: /agents/kpi_dashboard/okr_progress_{quarter}.json
+効果: 四半期見直し → 月次チェックイン化で市場変化対応が3ヶ月→1ヶ月に短縮
+```
+
+### 7. 部署横断ボトルネック検出（Theory of Constraints適用）
+```
+入力: 全17部署のKPI + プロセスフロー定義（SNS投稿→リード→商談→受注→定着）
+処理:
+  1. KPIの因果グラフでスループット最遅工程を特定
+  2. 前週比で悪化した最初のKPIを起点にRoot Cause Trace
+  3. サクバズの主要ファネル5段階（求人掲載→応募→面接→採用→定着）を優先探索
+出力: /agents/kpi_dashboard/bottleneck_{week}.md
+効果: 「なぜ売上が減ったか」の解明時間 3日→30分
+```
+
+### 8. AIレポート自動生成（Claude Opus + SSOT検証）
+```
+入力: 週次/月次KPIデータ + 過去12ヶ月比較 + Dat深掘り結果
+処理:
+  1. Claude Opus で自然言語サマリー生成（文章のみ）
+  2. 数値部分はSSOT APIから直接引用（ハルシネーション0%保証）
+  3. 生成テキスト内の全数値をSSOTと照合、不一致で配信ブロック
+  4. 「先週からの変化点」「注目3指標」「推奨アクション」の構造化出力
+出力: /agents/kpi_dashboard/ai_summary_{week}.md
+効果: 経営会議準備 4時間→30分、CEO読了時間 15分→2分
+```
+
 ## 出力フォーマット
 ### daily_dashboard.json
 ```json
@@ -104,6 +151,88 @@
   ],
   "trends": {}
 }
+```
+
+### weekly_report.md（週次サマリー・Layer 1〜3の3層構造）
+```markdown
+# 週次KPIレポート {YYYY年 第W週}
+
+## Layer 1: Executive Summary（30秒読了・CEO向け）
+- ノーススター指標: {NSM値}（前週比 {±X}%、目標達成率 {Y}%）
+- 注目変化点TOP3: {改善/悪化した指標TOP3を1行ずつ}
+- 推奨アクション: {次週の優先対応3件・担当者・期限}
+
+## Layer 2: 部長向け（3分読了）
+### Top 5 KPI（トレンド線 + ガードレール）
+| KPI | 実績 | 目標 | 前週比(pp/相対%) | ガードレール状態 | Leading/Lagging |
+
+### Alert & Action Log
+- CRITICAL: {件数}件 → 対応済 {N}件 / 対応中 {M}件
+- 未解決の最古アラート: {日付・KPI・経過時間}
+
+## Layer 3: 実務者向け（10分読了）
+- 全部署KPI詳細 + Dat深掘り結果統合
+- Dat連携依頼中: {件数}件、平均返答リードタイム: {時間}
+- 来週の要注視指標: {PRE-WARNING発火中の指標リスト}
+```
+
+### okr_dashboard.json（OKR 2.0対応）
+```json
+{
+  "quarter": "2026Q3",
+  "check_in_frequency": "monthly",
+  "objectives": [
+    {
+      "id": "O1",
+      "text": "建設業採用SaaS「サクバズ」の主要指標を四半期で2倍化",
+      "owner": "haruto",
+      "key_results": [
+        {
+          "kr_id": "O1-KR1",
+          "kr": "MRR 500万円→1,000万円",
+          "current": 620,
+          "target": 1000,
+          "progress": 0.24,
+          "confidence": 6,
+          "type": "commit",
+          "last_check_in": "2026-07-15",
+          "red_flag": false
+        },
+        {
+          "kr_id": "O1-KR2",
+          "kr": "新規クライアント7社→15社",
+          "current": 9,
+          "target": 15,
+          "progress": 0.25,
+          "confidence": 7,
+          "type": "stretch",
+          "red_flag": false
+        }
+      ]
+    }
+  ],
+  "guard_rails": [
+    {"metric": "クライアント継続率", "target": 0.95, "current": 0.97, "status": "green"},
+    {"metric": "応募品質スコア（面接到達率）", "target": 0.20, "current": 0.24, "status": "green"}
+  ]
+}
+```
+
+### bottleneck_report.md（部署横断ボトルネック検出）
+```markdown
+# ボトルネック分析レポート {YYYY-MM-DD}
+
+## 検出されたボトルネック
+- **最遅工程**: {部署名} / {KPI名}（スループット: {実績}件/週 vs 目標 {目標}件/週）
+- **前工程からの流入**: {N}件/週（余剰: {N-実績}件が滞留）
+- **後工程への影響**: {下流KPI名}が {期間}後に悪化見込み
+
+## Root Cause Trace（因果連鎖）
+{KPI A: -20%} → {KPI B: -12%} → {KPI C: -8%} → NSM: -3%
+
+## 推奨アクション
+- 短期（1週間以内）: {具体策と担当エージェント}
+- 中期（1ヶ月以内）: {設計変更・リソース再配分}
 ```
 
 ## 担当クライアント
