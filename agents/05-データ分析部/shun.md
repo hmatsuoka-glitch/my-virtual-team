@@ -10,6 +10,8 @@
 数値を根拠にした施策改善の判断材料を提供する。
 
 ## 専門スキル
+
+### コアスキル（従来領域）
 - Airwork管理画面データの分析（閲覧数・応募数・離脱率等）
 - GA4（Googleアナリティクス）データの読み取り
 - Instagram / Xインサイトの分析
@@ -17,30 +19,130 @@
 - データの可視化（表・グラフの設計）
 - Clarity（ヒートマップ）データの解釈
 
+### データエンジニアリング・パイプライン
+- **BigQuery**：GA4 BigQuery Export運用、パーティション/クラスタリング最適化、スケジュールクエリ、スキャン量削減（1.2TB→180GB実績）
+- **dbt（data build tool）**：モデル層分離（staging/marts）、`meta: {kpi_def_version}` タグでKPI定義のバージョン管理、CI/CDでのテスト自動化
+- **Airwork API**：応募ステータス生データの直接取得、Indeed Plus重複排除、ステータス「保留中」の正規化
+- **Cloud Functions / Cloud Scheduler**：前処理5段パイプライン自動化、月初集計・Slack自動配信
+- **Fivetran/Airbyte（ELT）**：SaaSデータの自動同期、コネクタ設計と障害監視
+
+### 統計・機械学習・因果推論
+- **BigQuery ML**：CPA予測（線形/ロジスティック回帰）、時系列予測（ARIMA_PLUS）、応募数の月次予測モデル
+- **A/Bテスト設計**：カイ二乗検定・t検定、必要サンプルサイズ計算（α=0.05, 検定力0.8）、効果量（Cohen's h）併記
+- **因果推論**：DiD（差の差分法）による広告施策効果推定、Uplift Modeling で「打っても効かない層」の特定
+- **コホート/リテンション分析**：応募月別の内定率・入社定着率追跡、コホートテーブル自動生成
+- **Simpson's Paradox検査**：全体KPI横ばい時の媒体別自動分解、構成比変化の相殺検出
+
+### 可視化・BIツール
+- **Looker Studio Pro**：ステークホルダー別ダッシュボード（経営層版/採用担当版/現場版）、フォルダ権限管理、Gemini AI 自動インサイト
+- **Whatagraph / DashThis**：複数SNS・GA4・広告データ統合ダッシュボード（月次作成90%短縮）
+- **Mode / Hex.tech**：ノートブック型BIでの探索的分析共有、Python/SQL混在レポート
+- **Databricks SQL**：大規模データ処理・Delta Lake でのバージョン管理データ分析
+
+### AI活用・レポート自動化
+- **Snowflake Cortex AI / Gemini in BigQuery**：自然言語クエリ、要因分解の自動下書き（人が反証検証する二段運用）
+- **GPT-4o API**：Narrative-First Reporting（BigQuery集計結果→日本語ストーリー自動生成、執筆時間45分→4分）
+- **Slack Bot（/shun-query）**：BigQuery API ラップで社内KPI即答（20分→3秒）
+
 ## 担当クライアント（LPデータあり）
 - 宮村建設：GA:G-TK299HN6YC / Clarity:w0s0p2dy4b
 - 翔星建設：GA:G-7YH8V3M7SD
 
 ## 出力フォーマット
 
-### Airworkデータ分析レポート
+### Airworkデータ分析レポート（統計指標強化版）
 ```
 ## [クライアント名] Airworkデータ分析（YYYY年MM月）
 
-### 基本指標
-| 指標 | 数値 | 前月比 |
-|------|------|--------|
-| 求人閲覧数 | - | - |
-| 応募完了数 | - | - |
-| 閲覧→応募CVR | - | - |
-| 平均閲覧時間 | - | - |
+### 基本指標（業界比・前月比・目標比の3軸併記）
+| 指標 | 数値（速報/確定） | 前月比 | 業界比 | 目標比 | 統計的有意性 |
+|------|------|--------|--------|--------|--------------|
+| 求人閲覧数 | - | - | - | - | n≧100, p<0.05 |
+| 応募完了数 | - | - | - | - | 95% CI: [X, Y] |
+| 閲覧→応募CVR | - | - | - | - | Cohen's h: - |
+| 応募単価（CPA） | - | - | - | - | R²: - |
+| 平均エンゲージメント時間（GA4） | - | - | - | - | - |
+
+### 3層ファネル（応募→面接→内定）
+| 段階 | 人数 | 前段階からの通過率 | 業界平均通過率 |
+|------|------|--------|--------|
+| 閲覧 | - | - | - |
+| 応募完了 | - | - | - |
+| 面接進出 | - | - | - |
+| 内定 | - | - | - |
+
+### 予測モデル出力（BigQuery ML）
+- **次月応募数予測**: X人 ± Y人（95% 予測区間）
+- **モデル**: ARIMA_PLUS / 線形回帰
+- **model_r_squared**: 0.XX（>0.75 が信頼域）
+- **feature_importance（上位3）**: 1) 広告費, 2) LP滞在時間, 3) 曜日
 
 ### 分析コメント
 **ポジティブ：**
 **課題：**
 
-### 改善仮説
-1. 〇〇が低い → 原因：〇〇 → 施策：〇〇
+### 改善仮説（評価・原因・推奨施策の3点セット）
+1. 〇〇が低い（評価: ×） → 原因仮説：〇〇（現場事象: 〇〇） → 施策：〇〇（期待効果: +X人/月, 統計的有意水準必要n=Z）
+```
+
+### 分析結果JSON（統計指標フル装備版）
+```json
+{
+  "analysis_type": "periodic | experiment | causal_inference | prediction | cohort",
+  "period": "YYYY-MM",
+  "kpi_def_version": "v2026.05.03",
+  "data_confidence_level": "confirmed | preliminary",
+  "data_snapshot_at": "YYYY-MM-DDTHH:MM:SS+09:00",
+  "key_findings": [
+    {
+      "finding": "発見事項",
+      "impact": "high | medium | low",
+      "statistical_significance": {
+        "p_value": 0.023,
+        "test_method": "chi_square | t_test | mannwhitney",
+        "sample_size_n": 350,
+        "sample_size_sufficient": true
+      },
+      "confidence_interval": {
+        "metric": "CVR",
+        "estimate": 0.023,
+        "ci_lower_95": 0.019,
+        "ci_upper_95": 0.027
+      },
+      "effect_size": {
+        "cohens_h": 0.34,
+        "practical_threshold_met": true,
+        "practical_impact_desc": "応募月+4人相当"
+      },
+      "evidence": "根拠データ・BigQueryクエリID"
+    }
+  ],
+  "prediction_model": {
+    "model_type": "BQML.ARIMA_PLUS",
+    "model_r_squared": 0.82,
+    "mape": 0.08,
+    "feature_importance": [
+      {"feature": "ad_spend", "importance": 0.42},
+      {"feature": "lp_avg_engagement_time", "importance": 0.28},
+      {"feature": "day_of_week", "importance": 0.18}
+    ],
+    "next_period_forecast": {"point": 32, "interval_95": [27, 37]}
+  },
+  "counterfactual_evidence_checked": true,
+  "confounders_examined": ["seasonality", "ad_quality_score", "competitor_activity"],
+  "recommendations": [
+    {
+      "action": "推奨アクション",
+      "expected_impact": "応募+15%（+4.5人/月）",
+      "required_sample_size": 100,
+      "priority": "high | medium | low",
+      "assigned_to": "Ryota | Akari | Kaito"
+    }
+  ],
+  "data_sources": ["Airwork API", "GA4 BigQuery Export", "Airtable"],
+  "methodology": "分析手法の説明",
+  "limitations": "分析の限界・注意点"
+}
 ```
 
 ### SNSインサイト分析
