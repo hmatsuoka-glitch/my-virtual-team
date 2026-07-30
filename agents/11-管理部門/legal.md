@@ -181,6 +181,97 @@ KPI: 越境案件の法的リスク顕在化ゼロ、DPA 締結リードタイ�
 }
 ```
 
+### ai_review_report.json（AI契約レビュー強化版・LegalForce/GVA連携）
+```json
+{
+  "reviewed_by": "LegalForce v3.2 + Legal(human)",
+  "contract_id": "CL-2026-XXX",
+  "client": "クライアント名",
+  "diff_source": "自社標準テンプレ v4.0",
+  "risk_summary": {
+    "red_critical": 3,
+    "yellow_recommended": 5,
+    "green_acceptable": 12
+  },
+  "risk_items": [
+    {
+      "clause": "第○条 損害賠償",
+      "current_text": "乙は甲に対し一切の損害を賠償する",
+      "risk_level": "red",
+      "risk_type": "無限責任",
+      "suggested_text": "乙の賠償責任は本契約の受領済み報酬額を上限とし、通常損害に限る",
+      "reference": "民法416条、自社ライブラリ C-LIAB-STD-01"
+    }
+  ],
+  "auto_processed_rate": 0.82,
+  "human_review_time_min": 25,
+  "escalation_needed": false,
+  "next_action": "Ryotaへ交渉提案送付"
+}
+```
+
+### e-contract_status.json（電子契約進捗管理）
+```json
+{
+  "contract_id": "CL-2026-XXX",
+  "service": "CloudSign|GMOサイン|DocuSign",
+  "sent_at": "YYYY-MM-DDTHH:MM",
+  "signer_name": "山田太郎",
+  "signer_authority": "代表取締役|委任状|職務権限規程第○条",
+  "signed_at": "YYYY-MM-DDTHH:MM",
+  "lead_time_hours": 48,
+  "expiration_date": "YYYY-MM-DD",
+  "auto_renewal": true,
+  "cancellation_notice_deadline": "YYYY-MM-DD",
+  "notion_db_synced": true,
+  "stamp_duty_saved_yen": 4000
+}
+```
+
+### subcontract_check.json（下請法・フリーランス法判定）
+```json
+{
+  "vendor": "外注先商号",
+  "vendor_capital_yen": 5000000,
+  "our_capital_yen": 30000000,
+  "commission_type": "情報成果物|役務|製造|修理",
+  "shitauke_law_applies": true,
+  "freelance_law_applies": true,
+  "required_documents": [
+    "3条書面（発注書面）",
+    "業務内容明示書",
+    "支払期日60日以内の記載"
+  ],
+  "payment_deadline_days": 60,
+  "prohibited_acts_check": {
+    "受領拒否": "OK",
+    "報酬減額": "OK",
+    "不当なやり直し": "OK",
+    "支払遅延": "OK"
+  },
+  "compliance_status": "compliant|warning|violation"
+}
+```
+
+### gdpr_ai_act_check.json（越境案件対応レポート）
+```json
+{
+  "project_id": "PJ-2026-XXX",
+  "client_region": "EU|US|APAC",
+  "gdpr_applies": true,
+  "eu_ai_act_risk_level": "prohibited|high_risk|GPAI|minimal",
+  "data_categories": ["personal", "sensitive", "biometric"],
+  "cross_border_transfer": {
+    "mechanism": "SCC|BCR|adequacy_decision",
+    "dpa_signed": true,
+    "sub_processor_list_updated": true
+  },
+  "dpo_required": false,
+  "compliance_status": "compliant|conditional|non_compliant",
+  "next_review_date": "YYYY-MM-DD"
+}
+```
+
 ## 担当クライアント
 全7社（エスコプロモーション、cantera、ナワショウ、宮村建設、清一建設、桝本レッカー、翔星建設）
 ※ 部署や役割により担当範囲が異なる場合は調整
