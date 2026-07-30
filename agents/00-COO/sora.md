@@ -122,6 +122,33 @@ STEP 4: 差し戻し後の再チェック
       "recommendation": "改善提案"
     }
   ],
+  "risk_priority_number": {
+    "score": 0,
+    "importance": "1-5（重要度：事業/信頼への影響度）",
+    "occurrence": "1-3（発生度：同種NGの頻度）",
+    "detection": "1-3（検出度：見逃しリスク）",
+    "classification": "critical(30+)|major(15-29)|minor(5-14)|cosmetic(<5)"
+  },
+  "regression_impact_score": {
+    "score": 0,
+    "affected_areas": ["同一数値の全出現箇所", "連動する合計行", "遷移先リンク"],
+    "regression_test_required": true,
+    "周辺3行再走査": true
+  },
+  "ai_generated_element_disclosure": {
+    "ai_elements_detected": [],
+    "disclosure_label_required": true,
+    "disclosure_label_applied": false,
+    "c2pa_signature_present": false,
+    "platform_penalty_risk": "high|medium|low|none"
+  },
+  "client_context_alignment_score": {
+    "score": 0,
+    "client_specific_rules_check": {"pass": true, "notes": ""},
+    "brand_ci_alignment": {"pass": true, "notes": ""},
+    "past_ng_history_match": {"pass": true, "notes": ""},
+    "operational_usability": {"pass": true, "notes": "経営会議/現場運用/社内承認の場面別確認"}
+  },
   "approved": true
 }
 ```
