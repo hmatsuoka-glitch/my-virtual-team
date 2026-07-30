@@ -114,6 +114,52 @@ STEP 5: デザインの統一感・視認性・訴求力を自己チェック
 - 見出し：Noto Sans JP Bold（Xpx）
 - 本文：Noto Sans JP Regular（Xpx）
 
+### viewport_matrix（サイズ×アスペクト比マトリクス）
+| サイズ | 用途媒体 | data-size | アスペクト比 | セーフエリア(親指ゾーン) |
+|--------|----------|-----------|-------------|--------------------------|
+| 1080×1080 | Instagram Feed / LINE | 1080x1080 | 1:1 | y=400-900px |
+| 1080×1350 | Instagram Portrait | 1080x1350 | 4:5 | y=500-1200px |
+| 1200×628 | X / Facebook / Indeed | 1200x628 | 1.91:1 | x=300-900,y=200-500 |
+| 1080×1920 | Stories / TikTok | 1080x1920 | 9:16 | y=800-1600px |
+
+### readability_score（Lighthouse CI 機械判定）
+- コントラスト比（本文）: X.X : 1（WCAG AA基準 4.5:1 以上 → PASS/FAIL）
+- コントラスト比（CTA）: X.X : 1（WCAG AAA基準 5:1 以上 → PASS/FAIL）
+- 最小フォントサイズ: XXpx（基準 14px 以上 → PASS/FAIL）
+- タップ領域: XX×XXpx（基準 44×44px 以上 → PASS/FAIL）
+- 色覚多様性シミュレーション: Deuteranopia PASS / Protanopia PASS
+- 総合スコア: XX/100
+
+### font_load_optimization（フォント読込最適化仕様）
+- 使用フォント: Noto Sans JP Variable（wght軸連続 100-900）
+- link href axis: `wght@400;500;700;900`（使用ウェイト完全列挙）
+- preload指定: `<link rel="preload" as="font" crossorigin>`
+- font-display: `block`（swap回避、Puppeteer フォールバック排除）
+- CSS Font Loading API: `document.fonts.ready` 待機必須
+- ローカルフォント fallback: `local("Noto Sans JP")` → `sans-serif` チェーン確保
+
+### hiro_handoff_spec（Puppeteer即変換仕様書）
+```html
+<!-- HIRO-CHECK:
+  viewport=1080x1080
+  scale=2
+  fonts-preloaded=yes
+  omit-bg=no
+  safe-area=none
+  position-fixed=none
+  vw-vh=none
+  external-resources=data-uri-only
+  lighthouse-ci=pass
+  nori-check=passed
+-->
+```
+- viewport: `page.setViewport({width, height})` に直接投入可能な数値
+- scale: `deviceScaleFactor` 値（Retina対応は 2 固定）
+- fonts-preloaded: `page.waitForFunction('document.fonts.ready')` 実行推奨判定
+- omit-bg: 透過PNG必要時のみ yes（body: transparent + 内側 .banner-bg にグラデ適用）
+- safe-area: 媒体規定のセーフエリア（none / 上下80px 等）
+- external-resources: 相対パス・http:// 混在なし証明（機械検査済み）
+
 → Hiro へ PNG変換を依頼
 ```
 
