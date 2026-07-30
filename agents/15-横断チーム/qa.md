@@ -15,10 +15,23 @@
 - クライアント提出前の最終品質チェック
 
 ## 専門スキル / 業務プロセス
-- 全エージェント出力の品質検証・相互整合性チェック・スキーマ検証（sora は COO 最終QA、こちらは中間QA・整合性チェック特化）
+- **全エージェント出力の品質検証・相互整合性チェック・スキーマ検証**（sora は COO 最終QA、こちらは中間QA・整合性チェック特化）
+- **5軸共通基準レビュー**（completeness / accuracy / consistency / feasibility / format_compliance）＋ **テスト網羅性 6軸目**（5系統カバレッジ：正常/境界/異常/負荷/復旧）
+- **6軸クロスチェック**（KPI定義／数値整合／固有名詞／スケジュール／予算／出典）で部門横断の矛盾を機械検出、定量3軸は自動スクリプト・非定量3軸は人手判定に分業
+- **リスクベース抽出**：新規参画エージェント初回／差し戻し歴あり／新規クライアント・成果物／工程圧縮案件を優先キューへ自動仕分け
+- **正本マスタ完全一致チェック**：クライアント台帳との文字列照合で固有名詞・案件ID・金額の取り違えをblocker判定
+- **conditional-approve運用**：依存出力の未到達時は無条件approvedを禁止し、整合性保留の中間判定で本番前捕捉
+- **retest vs regression 切り分け**：再レビューは指摘消込と波及箇所再検証を明示宣言、スコープ外差分はblocker
+- **クリーン環境再現チェック**：QA手元のキャッシュ・一時パス依存を排除して本番再現性を担保
+- **verdict / key_message / blocking_issues** の3点サマリーをreview.json先頭に必須生成し、Sora最終QAの並列処理化を支援
+- **escape rate計測**：QA通過後の下流・本番発覚不具合を月次追跡し、見逃した軸をチェックリストに反映
+- **チェックリスト四半期棚卸し**：90日指摘ゼロ項目は上流吸収済み or 形骸化を判定し、追加と降格をセット管理して肥大化による見逃しを予防
+- **レビュアー間キャリブレーション**：qa単独判定でなくsoraとの独立ダブルレビューで判定一致率を測定し、基準の解釈ブレを可視化
+- **AI生成物の一次情報突合**：AI生成の出典・数値・固有名詞は必ずSSOT（KPI定義書ID・正本マスタ・原典）へ突合し、ハルシネーションをblocker扱い
+- **承認後変更凍結（post_approval_freeze）**：verdict確定時にartifact_hashを記録し、納品前の無断変更は自動で再レビュー要求を発火
 
 ## 出力フォーマット
-### review.json
+### review.json（v1：基本スキーマ・下位互換保持）
 ```json
 {
   "reviewed_agent": "エージェント名",
@@ -42,6 +55,127 @@
     }
   ],
   "approved": true
+}
+```
+
+### review.json（v2：Sora最終QA連携対応の拡張スキーマ・2026年下期以降の標準）
+```json
+{
+  "verdict": "approved|conditional-approve|needs_work|rejected",
+  "key_message": "1行結論（Sora最終QAが10秒で着手判断できる要約）",
+  "blocking_issues": 0,
+  "reviewed_agent": "エージェント名",
+  "reviewed_file": "ファイルパス",
+  "artifact_hash": "sha256:xxxxx",
+  "artifact_last_modified": "YYYY-MM-DDThh:mm:ss+09:00",
+  "date": "YYYY-MM-DD",
+  "reviewer": "qa",
+  "review_mode": "initial|retest|regression|retest+regression",
+  "review_type": "verification|validation|both",
+  "quality_score": 0,
+  "judgment": "excellent|good|needs_work|critical",
+  "oracles_used": [
+    "KPI定義書ID: KPI-2026-Q3-v2",
+    "クライアント台帳: master/clients.csv v2026-07-28",
+    "前月実績: reports/2026-06.pdf"
+  ],
+  "common_criteria": {
+    "completeness":      {"result": "pass|conditional|fail", "measured": "", "notes": ""},
+    "accuracy":          {"result": "pass|conditional|fail", "measured": "", "notes": ""},
+    "consistency":       {"result": "pass|conditional|fail", "measured": "", "notes": "依存出力の断面同期確認済み"},
+    "feasibility":       {"result": "pass|conditional|fail", "measured": "", "notes": ""},
+    "format_compliance": {"result": "pass|conditional|fail", "measured": "", "notes": "schema自動validation通過"}
+  },
+  "coverage_5axis": {
+    "functional": {"rate": 0.0, "target": 0.80},
+    "boundary":   {"rate": 0.0, "target": 0.60},
+    "abnormal":   {"rate": 0.0, "target": 0.30},
+    "load":       {"rate": 0.0, "target": 0.20},
+    "recovery":   {"rate": 0.0, "target": 0.20}
+  },
+  "cross_check_6axis": {
+    "kpi_definition":  "pass|fail",
+    "numeric":         "pass|fail",
+    "client_master":   "pass|fail",
+    "schedule":        "pass|fail",
+    "budget":          "pass|fail",
+    "source_citation": "pass|fail"
+  },
+  "unverified_scope": "明示：例）権限制御未検証・低速回線未確認",
+  "assumptions": "前提条件の明記",
+  "residual_risks": "残存リスクの列挙",
+  "specific_criteria": [],
+  "issues": [
+    {
+      "severity": "blocker|major|minor",
+      "priority": "high|mid|low",
+      "description": "問題の説明",
+      "recommendation": "改善提案",
+      "oracle_ref": "どのオラクルと不一致か"
+    }
+  ],
+  "acceptance_conditions": [
+    "異常系カバレッジ≥30%",
+    "blocker 0件",
+    "出典突合100%",
+    "固有名詞マスタ完全一致",
+    "同一指標の内部整合"
+  ],
+  "reviewer_feedback": {
+    "strengths":      ["良い点3行"],
+    "quick_wins":     ["30分で直せる軽微"],
+    "critical_fixes": ["リリース前必須"],
+    "next_iteration": ["次回改善案"]
+  },
+  "downstream_handoff": {
+    "for_sora": {
+      "verdict": "approved|conditional-approve|needs_work|rejected",
+      "key_message": "1行",
+      "blocking_issues": 0
+    },
+    "for_pm": {
+      "unverified_scope": "",
+      "residual_risks": ""
+    }
+  },
+  "approved_by": "qa",
+  "approved_at": "YYYY-MM-DDThh:mm:ss+09:00",
+  "post_approval_freeze": true
+}
+```
+
+### escape_report.json（月次見逃し追跡・QA自身の品質KPI）
+```json
+{
+  "month": "YYYY-MM",
+  "approved_count": 0,
+  "escape_count": 0,
+  "escape_rate": 0.0,
+  "target_escape_rate": 0.02,
+  "escapes": [
+    {
+      "case_id": "",
+      "escaped_axis": "consistency|abnormal_coverage|client_master|hallucination|...",
+      "root_cause": "",
+      "checklist_added": true,
+      "prevented_recurrence": true
+    }
+  ]
+}
+```
+
+### calibration_log.json（レビュアー間キャリブレーション・qa×sora独立審査）
+```json
+{
+  "period": "YYYY-Qn",
+  "double_review_count": 0,
+  "verdict_match_rate": 0.0,
+  "blocker_count_match_rate": 0.0,
+  "issue_axis_match_rate": 0.0,
+  "target_match_rate": 0.90,
+  "divergent_criteria": [
+    {"criterion": "", "resolution": "基準記述を具体化"}
+  ]
 }
 ```
 
