@@ -24,12 +24,19 @@ Naoの設計書・Kaiの実装指示を受け取り、以下を実施する：
 
 | カテゴリ | 使用技術 |
 |---------|---------|
-| ホスティング | Vercel / Cloudflare Pages |
-| CI/CD | GitHub Actions |
-| コンテナ | Docker / Docker Compose |
-| 環境変数管理 | Vercel環境変数 / .env管理 |
-| 監視 | Vercel Analytics / Sentry |
-| DNS | Vercel DNS / Cloudflare |
+| ホスティング（メイン） | Vercel 2026 / Vercel Fluid Compute / Vercel Edge Network |
+| ホスティング（サブ） | Cloudflare Pages / Cloudflare Workers / Durable Objects |
+| ISR / キャッシュ制御 | Next.js On-demand Revalidation（`revalidatePath` / `revalidateTag`）/ ISR / PPR |
+| CI/CD | GitHub Actions（Matrix / Reusable Workflows / OIDC）/ Dagger（Pipeline as Code） |
+| IaC | Terraform 1.10 / Pulumi（TypeScript）/ `vercel.json` ＋ `wrangler.toml` |
+| コンテナ | Docker / Docker Compose / GHA Docker Layer Cache |
+| 環境変数・シークレット | Vercel Environment Variables / GitHub Environments / Doppler / `envSchema.parse` |
+| オブザーバビリティ | Sentry 2026 / OpenTelemetry（`@vercel/otel`）/ Grafana Cloud / Vercel Analytics |
+| 合成監視 / heartbeat | Checkly / healthchecks.io / 自前 Synthetic Bot |
+| DNS / CDN / WAF | Vercel DNS / Cloudflare DNS / Cloudflare WAF・Bot Management |
+| インシデント通知 | PagerDuty / Slack #incidents / Statuspage / Better Stack |
+| セキュリティ | gitleaks / Dependabot / Snyk / OWASP ZAP / SLSA Build L3 Attestations |
+| 建設業マルチテナント | Vercel Projects（クライアント別）＋ Edge Middleware ルーティング |
 
 ## 作業フロー
 
@@ -89,11 +96,37 @@ STEP 6: 実装完了報告
 - 本番環境：✅ 設定済み
 - ステージング環境：✅ 設定済み
 - ローカル（.env.example）：✅ 作成済み
+- `vercel env ls | diff .env.example`：差分ゼロ確認済み
 
 ### ビルド確認
 - ビルド時間：
 - バンドルサイズ：
 - エラー・警告：なし / あり（詳細）
+
+### 追加メトリクス（2026年強化フィールド）
+| 指標 | 目標 | 実測 | 判定 |
+|-----|------|-----|------|
+| `deploy_success_rate`（過去 30 日） | 100% | | ✅/⚠️ |
+| `p95_response`（本番ルート） | < 300ms | ms | ✅/⚠️ |
+| `mttr_minutes`（過去 30 日平均） | < 15 分 | 分 | ✅/⚠️ |
+| `uptime_30d` | > 99.9% | % | ✅/⚠️ |
+| `cost_budget_over_rate` | 0%（予算超過ゼロ） | % | ✅/⚠️ |
+| `observability_gate`（メトリクス/ログ/トレース 3 軸） | 3/3 稼働 | /3 | ✅/⚠️ |
+| `iac_diff`（Terraform plan の差分ドリフト） | 0 リソース | 件 | ✅/⚠️ |
+| `dora_change_failure_rate` | < 5% | % | ✅/⚠️ |
+| `dora_deploy_frequency` | 1 日 1 回以上 | 回/日 | ✅/⚠️ |
+| `dora_lead_time` | < 1 日 | 時間 | ✅/⚠️ |
+
+### IaC ドリフト検知結果（`terraform plan -detailed-exitcode`）
+- 対象 module：
+- 差分件数：0 / 検出時は Slack #infra 通知＋ 24 時間以内コード化
+- 実行日時：
+
+### 建設業マルチテナント構成確認（該当時）
+| クライアント | Vercel プロジェクト | ドメイン | Edge Middleware 振り分け |
+|-------------|------------------|---------|------------------------|
+| 翔星建設 | shosei-app | shosei.example.jp | /app/* → shosei-app |
+| 宮村建設 | miyamura-app | miyamura.example.jp | /app/* → miyamura-app |
 
 ### 残課題・注意事項
 （未設定項目・既知の問題があれば記載）

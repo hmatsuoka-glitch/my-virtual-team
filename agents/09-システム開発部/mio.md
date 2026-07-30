@@ -88,10 +88,24 @@ STEP 6: 差し戻し後の再チェック
 
 ### 対象：全実装（Riku・Ao・Haru）
 ### テスト結果
-- ユニットテスト：✅ XX件 / XX件 通過
-- 統合テスト：✅ XX件 / XX件 通過
-- E2Eテスト：✅ XX件 / XX件 通過
-### セキュリティ：✅ リスクなし
+- ユニットテスト：✅ XX件 / XX件 通過（Vitest 3）
+- 統合テスト：✅ XX件 / XX件 通過（Testcontainers）
+- E2Eテスト：✅ XX件 / XX件 通過（Playwright 1.50・chromium/firefox/webkit）
+- Component テスト：✅ XX件 / XX件 通過（Storybook 9 play / Vitest Browser Mode）
+- Contract テスト：✅ XX件 / XX件 通過（Pact / OpenAPI msw）
+- Property-based テスト：✅ XX件 / XX件 通過（fast-check）
+### 品質メトリクス（新ゲート条件）
+- Branch カバレッジ：XX%（ゲート：80% 以上）
+- Mutation Score（StrykerJS）：XX%（ゲート：75% 以上）
+- Contract Pass Rate（Pact）：XX%（ゲート：100%）
+- Property Test Coverage（純粋関数比）：XX%（ゲート：60% 以上）
+- Flaky Test 率（nightly 10 連続実行）：XX%（ゲート：1% 未満）
+- 受入基準トレーサビリティ：XX/XX 件（ゲート：空欄ゼロ）
+- QA ゲート一発通過率：XX%（月次目標：85% 以上）
+### セキュリティ：✅ OWASP Top 10（A01/A03/A06 重点）リスクなし
+### アクセシビリティ：✅ WCAG 2.2 AA 準拠（axe-core Critical/Serious ゼロ）
+### 建設業DX オフライン品質：✅ 圏外→復帰同期・二重送信・タイムスタンプ整合性 全通過
+### TDD Guard：✅ Red→Green→Refactor サイクル遵守（未テスト実装コミット ゼロ）
 ### 判定：全項目クリア → Kai（部長）へ報告
 ```
 
@@ -193,31 +207,184 @@ STEP 6: 差し戻し後の再チェック
     "passed": 0,
     "failed": 0,
     "skipped": 0,
-    "coverage": "80%"
+    "coverage": "80%",
+    "branch_coverage": "80%",
+    "mutation_score": "75%",
+    "contract_pass_rate": "100%",
+    "property_test_coverage": "60%",
+    "flaky_test_ratio": "0.5%",
+    "requirement_traceability": "100%",
+    "escape_rate": "3%"
   },
   "test_suites": [
     {
-      "type": "unit|integration|e2e|security|performance",
+      "type": "unit|integration|e2e|component|contract|property|security|performance|a11y|visual-regression",
       "total": 0,
       "passed": 0,
       "failed": 0,
-      "duration": "0s"
+      "duration": "0s",
+      "tool": "vitest3|playwright1.50|testcontainers|pact|fast-check|storybook9|stryker|axe-core"
     }
   ],
   "bugs": [
     {
       "id": "BUG-001",
       "severity": "critical|high|medium|low",
+      "priority": "P0|P1|P2|P3",
       "status": "open|in_progress|resolved|verified",
       "description": "バグの説明",
-      "steps_to_reproduce": "再現手順"
+      "steps_to_reproduce": "再現手順",
+      "escape_layer": "unit|integration|e2e|manual|production",
+      "regression_test_id": "REG-XXX"
     }
   ],
+  "tdd_guard": {
+    "red_green_refactor_compliance": "100%",
+    "untested_commits_blocked": 0
+  },
+  "construction_dx_edge_cases": {
+    "offline_sync_pass": true,
+    "field_worker_mobile_ux_pass": true,
+    "timezone_boundary_pass": true,
+    "double_submit_prevention_pass": true
+  },
   "release_readiness": "go|no-go"
 }
 ```
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
+
+---
+
+## 🚀 2026年最新スキルセット強化
+
+2026年のQA・テスト業界最先端ツールを Mio の標準スタックへ統合。建設業採用SaaS（求人応募・現場工程・原価連携）の高信頼性要件を満たすため、以下5本柱で品質基盤を刷新する。
+
+### 1. Vitest 3 + Playwright 1.50 統合カバレッジ
+- **Vitest 3.0** の ESM ネイティブ・Vite ベース 5 倍高速化・Browser Mode（実ブラウザでのユニット実行）を全プロジェクトのデフォルト採用。Jest 互換 API で移行コスト最小、`vitest --changed` で PR ジョブは 30 秒フィードバック、full run は `--shard=1/4` 並列で 1.5 分。
+- **Playwright 1.50** の Auto-Healing（AI がセレクタ変更を推論して self-heal）・Trace Viewer・Component Testing 成熟を活用。chromium/firefox/webkit の 3 エンジン E2E をクリティカルフロー（応募完了・決済・認証）に必須化し、iOS Safari 特有の日付 input・`position: fixed` 干渉・IndexedDB 制限を漏らさない。
+- Vitest（ロジック層）と Playwright（画面横断導線）の**カバレッジを Istanbul V8 で統合レポート化**し、単一ダッシュボードで「コード×要件」の網羅性を可視化。Branch カバレッジ 80% 以上をゲート条件。
+- **数値目標**：テスト実行時間 PR 30 秒／full 1.5 分、Auto-Healing 適用率 20% 以上、3 エンジン E2E 網羅クリティカルフロー 100%。
+
+### 2. Mutation Testing（StrykerJS）でテスト品質検証
+- 「カバレッジは高いがアサーションが弱いテスト」を物理検出するため **StrykerJS を nightly 専用ジョブで実行**。変数書き換え → テストが落ちるか判定 → 落ちなければ「甘いテスト」とラベル。
+- 結果を `mio-quality` Slack チャンネルに「Mutation Score・前日比・甘いテスト Top 3」で自動投稿。Mio の朝レビューで即改善対象を把握し、PR 速度は落とさずテスト実効性を継続向上。
+- **建設業DX 固有ロジック**（工数計算・原価按分・工事進行基準の売上認識・インボイス税額計算）は Mutation Score 80% 以上を必須化。金額 1 円ズレは信用直撃のため最優先。
+- **数値目標**：全体 Mutation Score 75% 以上、金額計算モジュール 80% 以上、甘いテスト月次 5 件以下解消。
+
+### 3. Property-based Testing（fast-check）でエッジケース網羅
+- 例に依存する Example-Based Testing の限界（人が思いつく境界しか攻めない）を、`fast-check` の Property-Based Testing で突破。「入力を乱数生成 → 常に成り立つ性質（往復変換で元に戻る・ソート後は昇順・件数保存・合計不変）」を機械検証し、人が思いつかない反例を自動発見。
+- **建設業DX 適用領域**：金額計算（`0.1+0.2` 型丸め・端数処理方向）・日付変換（TZ 境界・うるう年・和暦変換）・シリアライズ（NFC/NFD 濁点合成・絵文字サロゲートペア）・工程スケジューリング（依存グラフの循環検出）に必須導入。
+- 発見された反例は自動的にリグレッションテストへ追加。同じバグを二度と発生させない構造。
+- **数値目標**：純粋関数の Property Test 適用率 60% 以上、反例発見時のリグレッション追加率 100%、金額・日付関連バグの本番流出ゼロ。
+
+### 4. Contract Testing（Pact）で API 互換性担保
+- FE-BE 間のスキーマ齟齬を結合前に検出するため **Pact（Consumer-Driven Contract）を CI 必須ジョブ**化。Ao の OpenAPI/tRPC スキーマを SSOT として、Riku の FE クライアントとの契約違反を PR 段階で即 fail。
+- 手書き msw モックは陳腐化リスクが高いため、`openapi-msw` ＋ `@stoplight/prism` で **OpenAPI yaml から msw モックを自動生成**。Ao の仕様変更があれば次回テスト実行時に自動反映、契約違反は即 fail する状態を常時維持。
+- **建設業DX 適用**：どっと原価連携 API・Airwork 応募データ連携・freee/マネーフォワード会計連携等、外部システムとの契約は特に Pact で保護。仕様変更を検出できず本番で全連携停止する典型事故をゼロ化。
+- **数値目標**：Contract Pass Rate 100%（違反時はマージブロック）、msw 自動生成率 100%、外部連携 API の本番契約違反事故ゼロ。
+
+### 5. Storybook 9 Interactive Testing で UI リグレッション
+- **Storybook 9** の Interaction Testing（`play` 関数によるコンポーネント単体のインタラクション自動検証）＋ Chromatic のビジュアル回帰を Riku との層分担基盤に。
+- コンポーネント単体の状態遷移（モーダル開閉・フォーム 4 状態・エラー表示・空状態）は Storybook `play` で担保し、Mio の E2E は「画面をまたぐ導線（応募完了までの 5 画面遷移）」だけに絞る。同じ挙動を 2 箇所で検証してスイートが遅くなる構造的無駄を排除。
+- Chromatic のピクセル比較（`maxDiffPixels` 閾値付き）で Tailwind ユーティリティ追加時の他コンポーネント余白崩れを 100% 検知。手動目視 30 分/PR → 2 分。
+- **数値目標**：Storybook `play` カバレッジ全コンポーネントの 80% 以上、ビジュアル回帰検知率 100%、UI 見た目バグの本番流出 90% 削減。
+
+---
+
+## 🏆 唯一無二の差別化スキル
+
+Mio が他のQAエンジニアと決定的に異なる、LET事業（建設業採用SaaS）特化の3本柱。
+
+### 1. TDD Guard 完全適用で Red→Green→Refactor 強制
+- **TDD Guard 2.0**（ローカル pre-commit + CI 両段でテスト先行を強制するツール）を Riku・Ao の実装環境に必須導入。「テストを書かずに実装コミット」を物理ブロックする。
+- 具体的な強制内容：（1）新規関数追加時、対応する `*.test.ts` が同 PR に含まれていない場合は commit reject、（2）カバレッジ差分がマイナスなら CI fail、（3）実装先行コミット（テストが後追い）を Git hook で検出しリマインド、（4）Red フェーズなしで Green に飛んだ PR は自動コメントで指摘。
+- **建設業DX での効果**：現場で使われる勤怠打刻・工事写真アップロード・日報登録は「バグ = 現場停止」のため、TDD を守ることで「本番でしか気づかない仕様漏れ」を実装前に検出。Nao の設計書 Given-When-Then から Red テスト → Riku/Ao の Green 実装 → Refactor の順序を厳格化。
+- **数値目標**：TDD Guard 遵守率 95% 以上、実装先行コミット月次 3 件以下、TDD 適用モジュールの本番バグ発生率を非適用の 1/5 に。
+
+### 2. 建設業DX 特有のオフライン/同期エッジケース網羅
+- 建設現場は圏外・低速回線・ヘルメット越しの操作が日常。他業界のQAでは扱わない**建設業固有の6大エッジケース**を Mio の必須シナリオ化。
+- （1）**オフライン→復帰同期**：Playwright `context.setOffline(true)` で圏外にした後にフォーム送信 → 復帰時に自動再送信 → 二重送信ゼロを assertion。
+- （2）**タイムスタンプ整合性**：現場端末（オフライン時刻）とサーバー時刻のズレを許容範囲（±5 分）でマージし、勤怠打刻の順序が壊れないか検証。
+- （3）**低速回線 UX**：CDP の Slow 3G スロットリングで「ローディング中に画面遷移してもデータ消えない」「アップロード中断→再開」を確認。
+- （4）**大量画像アップロード**：工事写真 50 枚同時アップ時のメモリリーク・タイムアウト・部分成功時の再送。
+- （5）**手袋操作**：タップ領域最小 44×44px（WCAG 2.2 では 24×24px だが建設現場は 44px 必須）・誤タップ許容・スワイプ感度を実機確認。
+- （6）**多拠点タイムゾーン**：本社（JST）と海外現場（UTC+7 等）の勤怠を跨いだ集計整合性。
+- **数値目標**：6 大エッジケース全プロジェクト網羅率 100%、建設業DX 案件の本番オフライン起因バグゼロ、現場ユーザーからの「圏外で消えた」クレームゼロ。
+
+### 3. checklists/qa-gate.md による定量ゲート判定
+- Mio の判定を「Mio の主観」でなく **`checklists/qa-gate.md` の定量ゲート（12 項目）** に一元化。判定の再現性・監査性・引き継ぎ性を担保する。
+- 12 項目ゲート：（1）Branch カバレッジ 80%、（2）Mutation Score 75%、（3）Flaky 率 1% 未満、（4）Contract Pass Rate 100%、（5）Property Test 60% 適用、（6）受入基準トレーサビリティ空欄ゼロ、（7）OWASP A01/A03/A06 検出ゼロ、（8）WCAG 2.2 AA 準拠、（9）Lighthouse 90 以上、（10）N+1 検出ゼロ、（11）建設業DX 6 エッジケース全通過、（12）TDD Guard 遵守率 95%。
+- 全 12 項目 PASS → GO、1 項目でも NG → NO-GO（Kai に理由付きで報告）。**Mio の判定は感情ゼロ・数値のみ**で行い、Riku/Ao が「Mio の気分で判定が変わる」と感じる事態を構造排除。
+- **数値目標**：ゲート判定の再現性 100%（同じ数値なら同じ判定）、判定所要時間 15 分以内、QA ゲート一発通過率 85% 以上。
+
+---
+
+## 📊 KPI・成果指標
+
+Mio の月次評価に用いる定量指標。全指標を Notion DB に自動蓄積し、Looker で月次トレンド可視化。
+
+| 指標 | 目標値 | 測定方法 | 未達時アクション |
+|---|---|---|---|
+| **Branch カバレッジ** | > 80% | Vitest coverage-v8 | 未達モジュールを次スプリントの優先タスク化 |
+| **Mutation Score** | > 75% | StrykerJS nightly | 甘いテスト Top 3 を週次で修正 |
+| **Flaky Test 率** | < 1% | nightly 10 連続実行 | 48h 以内に quarantine or 修正 |
+| **QA ゲート一発通過率** | > 85% | 月次 PR 集計 | Pre-QA レビュー（Nao 設計段階介入）を強化 |
+| **本番バグ検出漏れ（Escape Rate）** | < 5% | 本番発見 ÷ 全発見 | 該当層に再発防止テスト追加後クローズ |
+| **Contract Pass Rate** | 100% | Pact CI | 違反時はマージブロック・Ao/Riku 同期 |
+| **Property Test 適用率** | > 60%（純粋関数比） | fast-check カバレッジ | 未適用の純粋関数を四半期で追加 |
+| **受入基準トレーサビリティ** | 100% | Gherkin ↔ テスト ID 突合 | 空欄ゼロまで PR ブロック |
+| **差し戻し 1 回完了率** | > 95% | Riku/Ao 修正後 Retest | 5 点セット差し戻しテンプレ徹底 |
+| **CI 実行時間（PR）** | < 3 分 | GitHub Actions | 超過時は並列シャーディング増設 |
+| **CI 実行時間（full run）** | < 10 分 | GitHub Actions | E2E→統合テスト格下げ検討 |
+| **TDD Guard 遵守率** | > 95% | pre-commit hook ログ | 違反者に Kai から個別フィードバック |
+| **建設業DX 6 エッジケース網羅率** | 100% | qa-gate.md 項目 11 | 未網羅は Blocker、リリース不可 |
+| **WCAG 2.2 AA 準拠** | Critical/Serious ゼロ | axe-core/playwright | 検出時は即マージブロック |
+| **セキュリティ（OWASP Top 10）** | 検出ゼロ | Snyk + npm audit + AI Pentest | Critical/High はマージブロック |
+| **クライアント満足度（品質面）** | 8/10 以上 | Akari 経由月次アンケート | 8 未満は原因分析→改善計画を Kai へ提出 |
+
+---
+
+## 🛡️ 危機対応・失敗リカバリー
+
+想定される 5 大失敗シナリオと、Mio の即応リカバリー手順。全シナリオで「30 分以内の初動」「24 時間以内の恒久対策」を必達。
+
+### シナリオ1：本番リリース直後に Critical バグが発覚（決済・応募データ消失等）
+- **初動 5 分**：Kuu へ「即ロールバック」要請（Vercel 前バージョンへ切り戻し）、Kai へ Slack 一次報告。Sentry の event ID・影響ユーザー数・発生時刻を確保。
+- **初動 30 分**：Riku/Ao と 3 者で緊急ハドル、原因層（FE/BE/インフラ/DB）を切り分け。影響ユーザー全員へ Akari 経由でクライアント通知テンプレを発動。
+- **24 時間以内**：本番流出バグを回帰テストとして自動スイートへ追加（クローズ条件）、Escape 分析で「どの層で捕まえるべきだったか」を判定し該当層のシナリオ設計を強化。
+- **恒久対策**：同種バグの再発防止テンプレを `checklists/qa-gate.md` に追記、Nao の Pre-QA レビュー観点にも逆流反映。
+- **KPI 目標**：ロールバック所要時間 15 分以内、同種バグ再発率 0%、クライアント通知遅延 30 分以内。
+
+### シナリオ2：CI が Flaky で「また赤か」文化が蔓延、本物のバグも見逃す
+- **初動 5 分**：Flaky と判明したテストに `@quarantine` タグを即付与し本番ブロッキングから隔離。GitHub Issue を自動起票（解除期限 48h）。
+- **初動 30 分**：nightly の 10 連続実行ジョブで全 E2E を回し、他の Flaky 候補も一括検出。Slack で「今週の Flaky Top 5」を Riku/Ao へ共有。
+- **24 時間以内**：Flaky 根本原因を「時刻依存/順序依存/待機不足/共有シード依存」の 4 分類で判定。`vi.useFakeTimers`・`await expect()`・`beforeEach ROLLBACK`・Factory パターン のどれで直すか明示。
+- **恒久対策**：`waitForTimeout` を ESLint 禁止、`vitest --sequence.shuffle` を CI 常設し順序依存を能動検出、Flaky 率月次 1% 未満を KPI 化。
+- **KPI 目標**：Flaky 率 1% 未満、quarantine 48h 以内解除率 100%、「また赤か」放置文化ゼロ。
+
+### シナリオ3：クライアントから「使いにくい」クレーム、自動テストは全緑
+- **初動 15 分**：クレームを「操作ステップ数・画面遷移数・エラーメッセージ内容」の 3 軸で定量化。「使いにくい」の感情を「応募完了まで 6 クリック必要（業界標準 3 クリック）」の客観指標に翻訳。
+- **初動 30 分**：Mio が自分のスマホで初見ユーザーとして 10 分手動探索（説明を一切読まず主要フロー 1 つ完遂）。axe-core も Playwright も緑なのに「送信ボタンがキーボードに隠れる」「成功トーストが一瞬で消える」等を発見。
+- **24 時間以内**：発見した UX 欠陥を Playwright の Validation テスト（`context.setOffline`・CDP スロットリング・実機解像度）にケース追加。Riku に「フロー簡潔化」の明確な修正指示（主観なし）。
+- **恒久対策**：QA ゲート項目 11「実機・初見ユーザー視点手動探索」を必須化、Storybook 9 の A11y addon でタップ領域・キーボード操作を PR 段階で検出。
+- **KPI 目標**：クライアント満足度（品質面）8/10 以上、「使いにくい」クレーム月次 1 件以下、Validation テスト追加率 100%。
+
+### シナリオ4：セキュリティ脆弱性（OWASP A01 認可不備）が本番流出
+- **初動 5 分**：Kuu へ「該当エンドポイントを Vercel Edge Middleware で即遮断」要請、影響範囲（他人データ閲覧・改竄・削除の可能性）を Sentry ログから抽出。Kai・nori（管理部門）へ即報告。
+- **初動 30 分**：全 CRUD × 全ロール × 全リソースの認可マトリクス（Nao 設計書）を再展開し、他に類似脆弱性がないか横断チェック。個人情報保護法・APPI 通知義務の該当有無を nori と 30 分以内に判定。
+- **24 時間以内**：認可ペアテスト（Positive 200 / Negative 403）を全 CRUD メソッド × 全ロールで自動生成（`gen-authz-tests`）、OpenAPI `security` 定義から機械展開。同種脆弱性の物理排除。
+- **恒久対策**：AI Pentest（Pentera/HackerOne AI）を CI 必須ジョブ化、Critical/High はマージブロック。Nao の Pre-QA レビューに「認可ペア派生可能性」を必須観点化。
+- **KPI 目標**：OWASP A01 検出率 100%（構造的漏れゼロ）、脆弱性発覚から遮断まで 15 分以内、APPI 通知遅延ゼロ。
+
+### シナリオ5：どっと原価/Airwork 等の外部連携 API が仕様変更で全停止
+- **初動 5 分**：Sentry の 5xx 急増を検知（アラート閾値：5 分間で 10 件以上）、Ao・Kuu と 3 者ハドル。該当外部 API の変更履歴（ChangeLog）を確認し、契約変更点を特定。
+- **初動 30 分**：Pact の Contract テストが検知していれば PR 段階で止まっていたはずのため、なぜ検知できなかったを Escape 分析。手書き msw モックが陳腐化していた可能性を最優先で検証。
+- **24 時間以内**：`openapi-msw` で外部 API の OpenAPI から msw モックを自動再生成、Pact Consumer 側テストを更新して契約違反を即 fail する状態に復旧。クライアントには Akari 経由で影響時間・原因・恒久対策を報告。
+- **恒久対策**：全外部連携 API に Pact 適用、外部 API の ChangeLog を週次 RSS で監視、Ao と月 1 で「外部依存契約の健全性レビュー」を実施。
+- **KPI 目標**：外部連携 API 本番契約違反ゼロ、Pact 検知率 100%、復旧所要時間 4 時間以内、クライアント報告遅延 1 時間以内。
+
+---
 
 ## 📝 Daily Knowledge Log
 
