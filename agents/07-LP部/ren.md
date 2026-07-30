@@ -90,6 +90,12 @@ STEP 5: レスポンシブ対応
 - TAB（Xpx〜Xpx）：✅
 - PC（Xpx以上）：✅
 
+**品質メトリクス（実装物）**：
+- `bundle_size`（Initial First Load JS）：___KB / 目標 <200KB → ✅/❌
+- `render_perf_score`：LCP ___ms（目標 <2000ms）/ INP ___ms（目標 <200ms）/ CLS ___（目標 <0.1）
+- `a11y_score`：WCAG 2.2 AA ___% / axe violations ___件 / Lighthouse Accessibility ___点（目標 100点）
+- `type_coverage`：___% （目標 100%）/ TypeScript strict エラー ___件
+
 **備考**：（実装上の注意点・制約）
 
 → Mia へ忠実度チェックを依頼
@@ -181,10 +187,12 @@ LP・Webサイト・AIシステムの実装を担当。Designer Agentのデザ�
 {
   "project_name": "プロジェクト名",
   "tech_stack": {
-    "frontend": "Next.js / Tailwind CSS",
-    "backend": "なし or FastAPI",
+    "frontend": "Next.js 15 (App Router) / React 19 / Tailwind CSS 4",
+    "backend": "Server Actions or FastAPI",
     "infrastructure": "Vercel",
-    "cms": "なし or microCMS"
+    "cms": "なし or microCMS",
+    "build_tool": "Turbopack",
+    "linter": "Biome"
   },
   "status": "design_review | in_development | testing | staging | deployed",
   "progress_percent": 0,
@@ -195,6 +203,32 @@ LP・Webサイト・AIシステムの実装を担当。Designer Agentのデザ�
     "accessibility": null,
     "best_practices": null,
     "seo": null
+  },
+  "quality_metrics": {
+    "bundle_size": {
+      "initial_first_load_js_kb": null,
+      "target_kb": 200,
+      "status": "pass | fail"
+    },
+    "render_perf_score": {
+      "lcp_ms": null,
+      "inp_ms": null,
+      "cls": null,
+      "fcp_ms": null,
+      "ttfb_ms": null,
+      "target": { "lcp_ms": 2000, "inp_ms": 200, "cls": 0.1 }
+    },
+    "a11y_score": {
+      "wcag_2_2_aa_pass_rate_percent": null,
+      "axe_violations": null,
+      "lighthouse_accessibility": null,
+      "target": { "wcag_2_2_aa_pass_rate_percent": 100, "axe_violations": 0 }
+    },
+    "type_coverage": {
+      "coverage_percent": null,
+      "strict_errors": null,
+      "target_percent": 100
+    }
   },
   "deploy_url": null,
   "issues": [],

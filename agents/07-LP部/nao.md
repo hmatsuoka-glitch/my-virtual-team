@@ -114,12 +114,72 @@ export const HERO = {
   ctaText: '',
 }
 ```
+
+---
+
+### 🎯 conversion_hypothesis（コンバージョン仮説）
+```yaml
+primary_kpi: 資料請求 | 問い合わせ | 求人応募（案件冒頭で1つに絞る）
+target_cvr: 3.5%以上  # 建設業採用LP業界平均 1.8% の2倍を担保
+target_cpa: 5,000円以下  # クライアント予算に応じて調整
+hypothesis:
+  - "「未経験の30代 × 安定した収入への不安 → 老舗建設会社の未経験歓迎で解決」"
+  - "「若手職人 × キャリアパス不明瞭 → 資格取得支援＋昇給制度で解決」"
+  - "「地方在住者 × 通勤圏の求人不足 → 住宅手当＋現場直行OKで解決」"
+micro_conversion:
+  - "スクロール50%到達"
+  - "動画再生3秒以上"
+  - "電話番号タップ（モバイル）"
+  - "資料ダウンロード（PDF）"
+```
+
+### 📏 scroll_depth_map（スクロール深度マップ）
+| 深度 | セクション | 想定滞在秒数 | 離脱率目標 | 配置要素 |
+|-----|----------|------------|----------|---------|
+| ATF (0-100vh) | Hero | 3-5秒 | 15%以下 | メインコピー・信頼バッジ・主CTA |
+| AtF+ (100-200vh) | Value Proposition | 8-12秒 | 25%以下 | 3つの強み・数値実績 |
+| BtF (200-400vh) | Body / Social Proof | 20-30秒 | 40%以下 | 顧客の声・ケース事例・社員インタビュー |
+| Deep (400-600vh) | FAQ / Detail | 30-45秒 | 55%以下 | Q&A・給与・待遇・キャリアパス |
+| Bottom (600vh+) | Footer CTA | 10秒+ | 70%以下 | 最終CTA・会社情報・アクセス |
+
+### 📝 form_efo_score（フォームEFOスコア）
+```yaml
+field_count: 4  # 目標: 5未満
+required_field_count: 3  # 必須項目最小化
+estimated_completion_time_sec: 45  # 目標: 60秒未満
+efo_score: 92  # /100
+efo_checklist:
+  autocomplete属性: ✅ 全項目
+  inputmode属性: ✅ 全項目（tel/email/text）
+  enterkeyhint属性: ✅ 全項目
+  aria-required: ✅
+  aria-invalid: ✅
+  リアルタイムバリデーション: ✅
+  プログレスインジケータ: ✅
+  エラーメッセージ具体化: ✅
+expected_abandonment_rate: 18  # % 目標: 20%未満
+```
+
+### 🎨 hero_variant_matrix（ヒーロー領域バリアント）
+| 流入元 | Variant名 | メインコピー | 画像 | CTA文言 | 想定CVR |
+|-------|----------|------------|-----|---------|--------|
+| Google広告 | HERO_A | 「未経験から3年で年収500万」 | 現場作業員 | 「1分で応募」 | 4.5% |
+| Indeed | HERO_B | 「創業50年の安定企業で働く」 | 会社外観 | 「詳細を見る」 | 3.8% |
+| Instagram | HERO_C | 「若手が活躍する建設現場」 | 若手社員集合 | 「まず話を聞く」 | 3.2% |
+| リターゲティング | HERO_D | 「他の応募者が選んだ理由」 | 社員インタビュー | 「もう一度検討」 | 2.8% |
+
+- **切替方式**: Next.js Middleware で `?utm_source=` を検知し `cookies().set('hero_variant', ...)` → `<HeroSelector variant={variant}>` で分岐レンダリング
+- **A/Bテスト**: Vercel Edge Config + `@vercel/flags` で本番トラフィックの10%に試験Variant配信
 ```
 
 ## 連携エージェント
 - **Hana**：CSS完全仕様データを受け取る
 - **Ren**：STEP 1は並列で骨格生成、設計書完成後に詳細実装を引き渡す
 - **Kaito**：設計書の完成報告・進行確認
+- **Sota**：独自LP企画書を受領→STEP 0で3行復唱→Sota承認後にSTEP 1着手
+- **Kotone**：想定字数レンジ・CTA安心メッセージを受領→設計書に反映
+- **Mia**：STEP 6納品前に95項目チェックリストを先回り自己採点
+- **Saki**：Mia NG時の修正指示書発行→設計層で再発防止ルール化
 
 
 ---
