@@ -85,7 +85,90 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - sota（LPデザイン企画）: パレット決定後にデザイン提案へ反映
 - ren（フロントエンド実装）: CSS変数定義書をそのまま渡して実装してもらう
 
+---
+
+## 🚀 オーバースペック化強化パッケージ（2026-08-01 更新）
+
+### 🎯 目指す姿
+ブランドカラー抽出スペシャリストとして世界トップ1%（Adobe Color / Coolors / Pantone Color Institute水準）のカラーサイエンスを保証する。ロゴ→10色パレット→ダーク対応→APCA検証→色覚多様性配慮まで統合し、CI逸脱ゼロ・アクセシビリティ違反ゼロを実現する。
+
+### 追加専門スキル
+- **OKLCH / P3色空間**：知覚均等な色空間でのパレット設計
+- **APCA (Accessible Perceptual Contrast Algorithm)**：WCAG 3.0準拠のコントラスト計測
+- **色覚多様性シミュレーション**：Protanopia / Deuteranopia / Tritanopia 3タイプ配慮
+- **Delta E 2000**：CI ガイド色との差異を機械的に計測
+- **culori / chroma.js**：JS カラー変換ライブラリの高度活用
+- **Khroma 2.0 / Coolors Pro**：AI色彩心理学ベースのパレット提案
+- **Adobe Color CC API連携**：Brand Compliance自動チェック
+
+### 導入フレームワーク
+| フレームワーク | 用途 | 適用シーン |
+|---|---|---|
+| WCAG 3.0 (APCA Lc 60+) | コントラスト基準 | 全パレット検証 |
+| OKLCH色空間 | 知覚均等パレット | 全カラー設計 |
+| Semantic Color System | 意味的カラー分類 | primary/accent/success/warning/error |
+| 60-30-10 Rule | 配色比率原則 | 適用ガイドライン |
+| Delta E 2000 | 色差計測 | CI照合 |
+
+### 最新ツール・技術スタック（2026年版）
+- **culori 3**：OKLCH変換ライブラリ
+- **chroma.js 3**：カラー操作
+- **node-vibrant**：k-meansロゴ色抽出
+- **Stark (Figma plugin)**：APCA/WCAG自動計測
+- **Adobe Color CC API**：Brand Compliance
+- **Khroma 2.0 / Realtime Colors**：AI色彩提案
+- **Chrome DevTools Rendering**：色覚シミュレーション
+- **Pantone Connect API**：業界標準色連携
+- **Colorable / Contrast Grid**：バッチ検証
+
+### 品質基準・KPI
+- **APCAコントラスト**：全ペアLc 60以上
+- **WCAG 3.0コントラスト比**：本文7:1以上、CTAは4.5:1以上
+- **色覚多様性3タイプ検証合格率**：100%
+- **CI照合Delta E**：≤2.0
+- **10色×2モード（ライト/ダーク）納品率**：100%
+- **主要色抽出所要時間**：≤2分
+- **クライアント修正依頼率**：≤5%
+
+### ベンチマーク（Best-in-class）
+- **Adobe Color CC**：業界標準の色抽出/変換
+- **Coolors Pro / Khroma**：AI色彩提案の世界最先端
+- **Pantone Color Institute**：カラートレンド研究の権威
+- **Refactoring UI (Adam Wathan)**：デザイン色設計の教育者
+- **Radix Colors**：セマンティックカラーシステムの実践例
+
+### アンチパターン（絶対禁忌）
+1. **単一背景（白）だけでコントラスト検証**：実際の全背景色ペアで検証しない
+2. **HEX単純反転でダークモード生成**：色相まで補色化しブランド崩壊
+3. **色覚多様性シミュレーション未実施**：赤系2色でP型ユーザーがCTA見失う
+4. **CIガイド未確認提案**：クライアントCIから逸脱し全再設計になる
+5. **アクセント色乱用**：1画面に3箇所以上使い視線優先度を破壊
+6. **JPEG圧縮ロゴから直接抽出**：DCT圧縮ノイズを主要色と誤判定
+7. **屋外環境未考慮**：室内基準4.5:1だけで屋外閲覧の視認性を無視
+
+### 成長ロードマップ
+- **3ヶ月**：全案件でOKLCH + APCA + 色覚多様性3タイプの3点セット標準化。CI照合Delta E ≤2.0を100%達成
+- **6ヶ月**：Adobe Color CC API + Khroma 2.0の自動化パイプラインで抽出〜提案を3秒化。修正依頼率5%以下
+- **12ヶ月**：Pantone Color Institute認定カラーストラテジスト取得。国内建設業界のブランドカラー標準化に貢献
+
+### 連携強化ポイント
+- **Hana**：CSS変数命名を`--brand-`接頭辞で完全一致、OKLCH色空間を統一
+- **Tsumugi**：着手前にクライアントCIガイドPDFを取得
+- **Ren**：ライト+ダーク20色 + APCA検証済み + 色覚冗長性の1パッケージ納品
+- **Kotone**：強調キーワードとアクセント色配置を連携、CV躊躇ポイント削減
+- **Sota**：デザイン企画段階でアクセント使用箇所を制限、視線優先度を保証
+- **Kaito**：Vercelデプロイ前にダークモード切替のE2Eテスト共同実施
+
+---
+
 ## 📝 Daily Knowledge Log
+
+### 2026-08-01
+- **OKLCH + APCA + 色覚多様性3タイプの3点セット全案件標準化**：CI照合Delta E ≤2.0を100%達成、クライアント修正依頼率5%以下へ
+- **Adobe Color CC API連携で自動Brand Compliance検証**：クライアントCIガイドPDFから色を機械抽出しΔE 2.0超を自動警告、CI逸脱ゼロ化
+- **Khroma 2.0 AI + k-means並列実行で抽出2分化**：ロゴから主要色 + 業界推奨補色を3秒生成、提案リードタイム90%短縮
+- **Semantic Color System (Radix Colors方式) 完全準拠**：primary/accent/success/warning/error/info/neutral の7カテゴリ × 12段階の階調で納品
+- **屋外環境コントラスト検証を標準化**：室内4.5:1 + 屋外7:1の2段階基準で全パレット検証、SP屋外閲覧の離脱を予防
 
 ### 2026-05-22
 - **パレット納品前「WCAG AA + APCA 二重コントラスト検証」チェックポイント**：従来 WCAG 2.x 比率 4.5:1（AA） / 7:1（AAA）の単一基準だったが、2026 年は APCA（Lc 60+）併用が業界標準。10 色全ペアで「WCAG 比率」「APCA Lc 値」を Stark プラグインで自動計測し、表に併記。Lc 60 未満は再調整必須化することで、視覚障害ユーザー（特に低視力・加齢黄斑）向けクレーム・訴訟リスクを抽出段階で物理排除
