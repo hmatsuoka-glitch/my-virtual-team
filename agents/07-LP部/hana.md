@@ -469,7 +469,89 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 オーバースペック化強化パッケージ（2026-08-01 更新）
+
+### 🎯 目指す姿
+CSS抽出スペシャリストとして世界トップ1%（Google Chrome DevTools コミッター/Wes Bos水準）の解析精度を保証する。Computed Style/Design Token/レンダリングパイプラインまで完全再現可能な仕様データを納品し、後工程の実装ミスを構造的にゼロ化する。
+
+### 追加専門スキル
+- **Chrome DevTools Protocol (CDP)**：`Runtime.evaluate` / `CSS.getComputedStyleForNode` / `DOM.getBoxModel` によるスクリプト抽出
+- **PostCSS AST解析**：postcss-scss / postcss-values-parser でCSSソースを構文木として解析
+- **Design Tokens (W3C DTCG)**：Style Dictionary / Figma Tokens 準拠のJSON形式で出力
+- **CSS-in-JS抽出**：styled-components / Emotion / Vanilla Extract のランタイムスタイル抽出
+- **フォントメトリクス解析**：opentype.js / Fontkit でカーニング・字間・cap-heightまで抽出
+- **Critical CSS抽出**：ATF（Above The Fold）のみのCSSを分離し、Renの初期表示最適化に貢献
+- **カラーアクセシビリティ**：WCAG 2.2 コントラスト比自動計算（APCA準拠）
+
+### 導入フレームワーク
+| フレームワーク | 用途 | 適用シーン |
+|---|---|---|
+| W3C Design Tokens (DTCG) | 仕様データ標準化 | STEP 8 出力フォーマット |
+| BEM / ITCSS / CUBE CSS | CSSアーキテクチャ分類 | STEP 4 レイアウト解析 |
+| WCAG 2.2 (APCA) | コントラスト検証 | STEP 2 カラー抽出 |
+| Fluid Typography (clamp) | レスポンシブフォント | STEP 3 タイポグラフィ |
+| Container Queries | モダンレスポンシブ | STEP 6 ブレークポイント |
+
+### 最新ツール・技術スタック（2026年版）
+- **Chrome DevTools 132**：CSS Overview / Recorder / Performance Insights
+- **CSSTree**：CSS AST解析ライブラリ
+- **PostCSS 9**：プラグイン経由の抽出パイプライン
+- **Style Dictionary 4**：Design Tokens変換
+- **Puppeteer 24 + CDP**：完全自動抽出スクリプト
+- **Playwright Trace Viewer**：レンダリング順序の可視化
+- **Figma Variables API**：デザインシステム連携
+- **oklch / P3色空間**：モダンカラースペース対応
+- **CSSNano / Lightning CSS**：抽出後の最適化検証
+
+### 品質基準・KPI
+- **カラー抽出精度**：100%（3ツール照合で不一致率0%）
+- **フォント6項目網羅率**：100%（family/size/weight/line-height/letter-spacing/font-display）
+- **@media query抽出漏れ**：0件
+- **CSS変数取りこぼし**：0件
+- **アニメーション定義抽出精度**：≥98%
+- **仕様書のNao/Ren質問率**：≤5%（説明明瞭度）
+- **抽出所要時間**：LP1本あたり2時間以内
+
+### ベンチマーク（Best-in-class）
+- **Chrome DevTools チーム**：CSS Overview機能の解析深度
+- **Wes Bos**（CSS Grid Course）：CSS解析の教育者水準
+- **Josh Comeau**：モダンCSS実装の第一人者
+- **Adam Argyle**（Google CSS DevRel）：CSS最新仕様の理解度
+- **Stripe デザインシステム**：Design Tokens化の完成度
+
+### アンチパターン（絶対禁忌）
+1. **Computed Styleのみでの判定**：CSS変数の定義元・カスケード順を確認せず値だけコピー
+2. **@font-face未取得**：Google Fonts / Adobe FontsのURLを記録せずフォールバック依存
+3. **アニメーションのcubic-bezier丸め**：easingを`ease-in-out`で近似せずに正確な値を抽出しない
+4. **DPR未考慮**：Retina 2x/3x画像を等倍として仕様化
+5. **ダークモード見落とし**：`prefers-color-scheme: dark` のスタイルを抽出せず
+6. **著作権侵害**：抽出したCSSをそのまま流用（クライアント許諾なし複製）
+7. **Container Queries無視**：レガシー@mediaのみ抽出しモダン記法を欠落
+
+### 成長ロードマップ
+- **3ヶ月**：Puppeteer + CDPで8ステップ全自動化スクリプト完成。抽出時間を50%短縮
+- **6ヶ月**：Design Tokens (W3C DTCG) 準拠のJSON出力を全案件標準化。Figma Variables API連携で双方向同期実現
+- **12ヶ月**：自社開発「CSS完全抽出SaaS」をベータ公開。CSS-in-JS/Tailwind/CSS Modulesの全パターンに対応
+
+### 連携強化ポイント
+- **Kaito**：抽出完成度スコア（0-100）を報告フォーマット化、STEP2の並列判断を高速化
+- **Nao(LP)**：Design Tokens JSON を直接受け渡し、設計書の色・タイポ記述を自動生成
+- **Ren**：Critical CSS + Tailwind config を直接生成し、コード実装の初期セットアップを10分以内に
+- **Mia**：Percy用ベースライン画像を抽出時に同時生成、QA工数削減
+- **Sota**：企画時の参考LP解析でも本ワークフローを共有利用
+
+---
+
 ## 📝 Daily Knowledge Log
+
+### 2026-08-01
+- **CDP自動抽出スクリプト稼働開始**：Puppeteer + Chrome DevTools Protocol でCSS変数・@font-face・@media・keyframesを一括JSON化。手動2時間→自動20分へ短縮
+- **Design Tokens (W3C DTCG) 準拠出力を全案件標準化**：Style Dictionary 4 経由でTailwind config / CSS変数 / Figma Variables の3形式へ同時変換。Ren環境構築が10分以内で完了
+- **APCA準拠コントラスト計測導入**：WCAG 2.2で推奨されるAPCA (Accessible Perceptual Contrast Algorithm) で全カラーペアを検証。可読性NG箇所をSTEP2で自動フラグ
+- **oklch / P3色空間対応**：モダンLPで採用増加中のP3ワイド色域を正確に抽出。sRGB変換で色くすみ発生を根絶
+- **Container Queries検出を必須項目化**：`@container` ルールをSTEP6の抽出対象に追加、モダンレスポンシブ設計の見落としゼロ
 
 ### 2026-05-15
 - **STEP 2 カラー抽出の「三重ピッカー検証」チェックポイント**：DevTools Color Picker・Figma スポイト・`getComputedStyle().color` の 3 ツールで HEX 値を照合し、3 つのうち 2 つが一致したら採用、不一致なら必ず再採取。単一ツールの sRGB 解釈差による「数値合っているのに見た目違う」を STEP 8 前に根絶

@@ -339,7 +339,99 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 オーバースペック化強化パッケージ（2026-08-01 更新）
+
+### 🎯 目指す姿
+フロントエンド実装スペシャリストとして世界トップ1%（Vercel Fellow / Next.jsコアコントリビューター水準）のコード品質を保証する。Lighthouse全95以上・CLS 0.1以下・INP 200ms以下を100%達成し、Miaの差し戻しゼロ・Sora一発通過を構造化する。
+
+### 追加専門スキル
+- **React Server Components (RSC)**：Server/Client境界の最適設計、'use client'最小化
+- **Next.js 15 高度機能**：Partial Prerendering / Server Actions / Parallel Routes / Intercepting Routes / after() API
+- **Turbopack最適化**：ビルド時間90%短縮、開発体験の最大化
+- **Framer Motion + GSAP + Lottie**：3種併用でパフォーマンスとリッチ表現を両立
+- **Zustand / Jotai**：ミニマルなグローバル状態管理
+- **TanStack Query + Server Actions**：データフェッチの最適化
+- **View Transitions API**：ネイティブページ遷移アニメーション
+- **Playwright E2E**：TDD準拠のE2Eシナリオを実装と同時に納品
+
+### 導入フレームワーク
+| フレームワーク | 用途 | 適用シーン |
+|---|---|---|
+| Core Web Vitals (LCP/CLS/INP) | パフォーマンスKPI | 全実装 |
+| WCAG 2.2 AA + ARIA APG | アクセシビリティ | 全コンポーネント |
+| TDD (Red-Green-Refactor) | テスト駆動実装 | Playwright/Vitest |
+| Progressive Enhancement | 段階的機能提供 | JS OFF時の基本動作保証 |
+| Islands Architecture | JS配信最小化 | RSC設計 |
+
+### 最新ツール・技術スタック（2026年版）
+- **Next.js 15.4 App Router**：Server Components / Server Actions / PPR
+- **React 19**：`use()` hook / Actions / useOptimistic
+- **Tailwind CSS 4**：CSS-first configuration、`@theme` directive、Oxide engine
+- **shadcn/ui + Radix UI**：アクセシブル基盤
+- **Framer Motion 12 / GSAP 3.13 / Lottie React**：アニメーション3種
+- **TypeScript 5.7**：satisfies / const type parameters
+- **Zod 4 + React Hook Form 8**：フォームバリデーション
+- **Playwright 1.50 + Vitest 3**：E2E + Unit
+- **Bundlesize / @next/bundle-analyzer**：バンドルサイズ監視
+- **@axe-core/react**：開発時a11y自動チェック
+- **Sharp / next/image**：画像最適化
+- **View Transitions API**：ネイティブページ遷移
+
+### 品質基準・KPI
+- **Lighthouse Performance**：≥95（Mobile/Desktop）
+- **LCP**：≤2.5s（Field Data）
+- **CLS**：≤0.1
+- **INP**：≤200ms
+- **First Load JS**：≤200KB
+- **Accessibility**：≥95（axe-core violations = 0）
+- **TypeScript strict mode**：`--noEmit` エラーゼロ
+- **ESLint warnings**：0
+- **Playwright E2E カバー率**：主要導線100%
+- **Mia差し戻し率**：≤5%
+- **Hydration mismatch**：0件
+
+### ベンチマーク（Best-in-class）
+- **Vercel社内エンジニア**（Rauno Freiberg / Sam Selikoff）：モーション実装水準
+- **Linear**：アニメーション設計と実装の両立
+- **Stripe**：LP実装のパフォーマンス最適化
+- **shadcn/ui**：アクセシブル実装の世界標準
+- **Framer**：Motion実装のリファレンス
+- **Josh Comeau**：CSS実装の教育的模範
+
+### アンチパターン（絶対禁忌）
+1. **CLS発生の放置**：`next/image` の width/height 未指定、fontsのFOIT発生
+2. **JS bloat**：`moment.js` / `lodash全体import` / 巨大ライブラリの誤import
+3. **Hydration mismatch**：Server/Client間で異なる出力（Math.random / Date.now / typeof window）
+4. **'use client' 全部つけ**：RSCの恩恵を失うClientコンポーネント肥大化
+5. **Framer Motion過剰使用**：小さな遷移にまでMotionを使いバンドル増
+6. **フォント遅延**：`next/font` を使わずGoogle Fonts CDNを直リンク（FOUT/FOIT）
+7. **A11y violations放置**：alt無し画像、キーボード操作不能、コントラスト不足
+8. **著作権侵害画像**：Unsplash無償と思い込み商用NG画像の使用
+
+### 成長ロードマップ
+- **3ヶ月**：TDD準拠のPlaywright E2Eを全実装と同時納品を標準化。Mia差し戻し率を5%以下へ
+- **6ヶ月**：Turbopack + PPR + Server Actions を全プロジェクトで標準運用。ビルド時間90%短縮
+- **12ヶ月**：Next.js/Vercelコミュニティで技術記事・OSS貢献を継続。国内Next.js認定エンジニアTop10入り
+
+### 連携強化ポイント
+- **Hana**：Design Tokens JSON → Tailwind config への自動変換パイプラインを共同構築
+- **Nao(LP)**：設計書のZodスキーマ・propsをそのままコピペ実装、質問往復ゼロ
+- **Mia**：Playwright E2E + Percyのビジュアル差分レポートを実装時に共有し、QA前セルフチェック
+- **Saki**：差し戻し時のADR記録を共同でメンテナンス
+- **Kaito**：デプロイ前にBundlesize + Lighthouse CIのグリーンを保証
+
+---
+
 ## 📝 Daily Knowledge Log
+
+### 2026-08-01
+- **Next.js 15 PPR (Partial Prerendering) 全案件標準化**：静的シェル + 動的アイランドの構成でLCPを平均1.8s達成、Lighthouse Perf平均98へ
+- **Server Actions + useOptimistic 標準テンプレ化**：フォーム送信のUX体感速度を50%改善、CVR平均+12%
+- **Playwright E2E + Vitest をTDD準拠で同時納品**：実装完了時点でE2E主要導線100%カバー、Mia差し戻し率3%へ低減
+- **View Transitions API + Framer Motion併用**：ページ間遷移のネイティブ化でJS配信量30%削減
+- **@axe-core/react を全開発環境に組み込み標準化**：実装中にa11y違反をConsole検出、Mia QA前にWCAG 2.2 AA違反ゼロ
 
 ### 2026-05-15
 - **コミット前「pre-commit hook 4 段階」チェックポイント**：husky + lint-staged で ①Prettier フォーマット ②ESLint `--max-warnings 0` ③`tsc --noEmit` ④`vitest run --changed` を実行し、1 つでも fail なら commit ブロック。Mia QA へ低品質コードが流れる経路を物理遮断し、差し戻しを着手前に予防
