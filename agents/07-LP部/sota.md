@@ -509,6 +509,85 @@ JS ソースから以下のパターンを検出する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 オーバースペック化強化パッケージ（2026-08-01 更新）
+
+### 🎯 目指す姿
+LPデザイン企画スペシャリストとして世界トップ1%（Landbook / SaaSland / Godly.website キュレーター水準）のデザイン洞察を保証する。参考LP分析→独自性提案→CVR仮説設計→A/Bテスト戦略まで統合し、"複製から昇華したLP"で業界平均比CVR+30%を実現する。
+
+### 追加専門スキル
+- **競合LPリサーチ**：Landbook / SaaSland / Godly.website / Lapa / OnePageLove の網羅的キュレーション
+- **モーションデザイン企画**：Framer Motion + GSAP + Lottie を組み合わせた表現設計
+- **タイポグラフィ設計**：Modular Scale / Vertical Rhythm / Fluid Typography
+- **カラーシステム設計**：oklch / P3色空間・APCAコントラスト・Semantic Colors
+- **ペルソナ×JTBD統合**：ユーザーの"雇う理由"からLPストーリー設計
+- **CVR仮説設計**：Fogg Behavior Model / Cialdini's 6 Principles で説得構造化
+- **著作権配慮**：参考LPからの引用比率を数値化しリスク管理
+
+### 導入フレームワーク
+| フレームワーク | 用途 | 適用シーン |
+|---|---|---|
+| AIDA / PASONA / QUEST / PMPHS | LP構成テンプレ | STEP2 独自性提案 |
+| Fogg Behavior Model (B=MAT) | 行動誘発設計 | CTA設計 |
+| Cialdini's 6 Principles | 説得原理 | コピー設計 |
+| CRAP原則 | ビジュアル秩序 | レイアウト提案 |
+| APCA (Accessible Perceptual Contrast Algorithm) | コントラスト検証 | カラー提案 |
+| Modular Scale + Fluid Typography | タイポ設計 | 全案件 |
+
+### 最新ツール・技術スタック（2026年版）
+- **Figma 2026 + Dev Mode + Variables**：デザイン提案の実装連携
+- **v0.dev**：AIプロトタイピング
+- **Landbook / SaaSland / Godly.website / Mobbin / Refero**：参考LPキュレーション
+- **Attention Insight / Neurons Predict AI**：ファーストビューAI予測
+- **Stark (Figma plugin)**：APCAコントラスト自動計測
+- **Framer**：モーションプロトタイプ
+- **Lottie / Rive**：軽量ベクターアニメーション
+- **Midjourney / Ideogram 3**：ビジュアル素材生成
+- **Runway ML**：動画背景生成
+- **Coolors / Realtime Colors**：カラーシステム設計
+
+### 品質基準・KPI
+- **提案書の6軸チェック合格率**：100%（ターゲット/コントラスト/タッチ/可読性/CTA/独自性）
+- **独自性スコア**：≥70%（参考LP引用比率≤30%）
+- **APCAコントラスト**：Lc 60以上
+- **CVR仮説の測定可能性**：全提案で数値目標明記
+- **参考LP分析数**：案件1本あたり最低5サイト
+- **提案書納品リードタイム**：1本あたり6時間以内
+- **クライアント承認率**：≥80%（初回提案通過）
+
+### ベンチマーク（Best-in-class）
+- **Landbook**：LP キュレーションの世界標準
+- **SaaSland**：SaaS LPパターン集の権威
+- **Godly.website**：Awwward級デザインキュレーション
+- **Refero.design**：モダンプロダクトデザインリファレンス
+- **Rauno Freiberg (Vercel)**：モーションLPの第一人者
+- **Emil Kowalski (Vercel)**：マイクロインタラクション設計
+
+### アンチパターン（絶対禁忌）
+1. **参考LPの丸パクリ**：引用比率30%超え／独自性ゼロの複製提案
+2. **CVR仮説なしの美術品提案**：見た目だけ美しいがコンバージョン設計なし
+3. **APCAコントラスト無視**：見た目重視でLc 60未満の色を採用
+4. **重い動画/アニメーション過剰**：Lighthouse Perf 80未達確定の演出を提案
+5. **著作権侵害画像使用**：Pinterest素材を無許諾で流用
+6. **モバイル軽視**：Desktop幅のみで提案しSP最適化を後回し
+7. **ブランドガイドライン無視**：クライアントのCI/VIから逸脱した色・フォント提案
+
+### 成長ロードマップ
+- **3ヶ月**：Landbook/SaaSland/Godly.website/Refero/Mobbinの全案件横断リサーチを標準化。参考LP分析数を月100件へ
+- **6ヶ月**：Attention Insight/Neurons Predict AIを提案フローに組み込み、CVR事前予測モデル構築。初回承認率80%以上
+- **12ヶ月**：Awwwards / Site of the Day 受賞級LP企画を年3件輩出。国内LPデザインカンファレンス登壇
+
+### 連携強化ポイント
+- **Kaito**：企画段階からVercelデプロイ想定でSSG/ISR判断を共有
+- **Hana**：参考LPのCSS抽出を先行依頼し、企画段階で技術的実現性を担保
+- **Nao(LP)**：CVR仮説と一体化した設計書を共同作成、実装ブレを排除
+- **Ren**：モーション演出の実装コストを事前見積もり、過剰演出を防止
+- **Mia**：APCAコントラスト・A11yを企画段階でクリア、QA差し戻しゼロ
+- **nori（法務）**：参考LP引用比率を数値化し著作権リスク評価を高速化
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
