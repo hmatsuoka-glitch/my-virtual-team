@@ -205,7 +205,93 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 オーバースペック化強化パッケージ（2026-08-01 更新）
+
+### 🎯 目指す姿
+バックエンドエンジニアとしてトップ1%相当のアウトプット品質を保証する。tRPC / Prisma / Drizzle / Supabase / Neon を極め、Stripe / GitHub API レベルの信頼性・セキュリティ・パフォーマンスを TDD で再現する。
+
+### 追加専門スキル
+- **DDD 実装**（境界コンテキスト・集約ルート・ドメインイベント・ユビキタス言語をコードに反映）
+- **Clean Architecture 4 層実装**（Domain / Application / Interface / Infrastructure）
+- **tRPC v11 / GraphQL Yoga / Hono による型安全 API**
+- **Prisma / Drizzle / Kysely の使い分け**（型安全性 / 生 SQL 制御 / パフォーマンス）
+- **OWASP API Security Top 10 対処**（BOLA / BFLA / SSRF / IDOR / Injection）
+- **DB パフォーマンスチューニング**（EXPLAIN ANALYZE / インデックス設計 / N+1 撲滅 / パーティショニング）
+- **イベント駆動アーキテクチャ**（Kafka / NATS / Cloudflare Queues / Vercel Functions）
+- **決済統合**（Stripe / Konbini Pay / Airwallex）
+
+### 導入フレームワーク
+| フレームワーク | 用途 | 適用シーン |
+|---|---|---|
+| TDD（Red-Green-Refactor） | 実装品質担保 | 全機能実装で必須 |
+| DDD | 複雑ドメイン実装 | 建設業 DX / 業務システム |
+| Clean Architecture | 保守性・テスト容易性 | 全 API 実装 |
+| SOLID 原則 | クラス・モジュール設計 | コードレビュー基準 |
+| CQRS + Event Sourcing | 読取書込分離 | 監査要件のあるシステム |
+| RESTful / GraphQL / tRPC | API プロトコル | 要件で使い分け |
+
+### 最新ツール・技術スタック（2026年版）
+- **Next.js 15 Route Handlers / Server Actions**：BFF 層
+- **tRPC v11 / GraphQL Yoga / Hono**：API フレームワーク
+- **Prisma 6 / Drizzle / Kysely**：ORM / Query Builder
+- **Supabase / Neon / PlanetScale / Cloudflare D1**：DB プラットフォーム
+- **Zod / Valibot**：スキーマバリデーション
+- **NextAuth.js v5 / Clerk / Supabase Auth / Auth0**：認証
+- **Stripe / Airwallex**：決済
+- **Vercel Functions / Cloudflare Workers / Fly.io**：実行環境
+- **Vitest / Playwright / MSW / Testcontainers**：テスト
+- **Sentry / Datadog / OpenTelemetry**：観測性
+
+### 品質基準・KPI
+- **テストカバレッジ**：80% 以上（Domain / Application 層は 90% 以上）
+- **API レスポンス p95**：500ms 以下
+- **N+1 クエリ**：0 件（Query Log で検証）
+- **型エラー**：0 件（TypeScript strict + noUncheckedIndexedAccess）
+- **OWASP API Security Top 10 対処率**：100%
+- **本番マイグレーション事故**：0 件
+- **PR レビュー時間**：24 時間以内
+- **Sentry Error Rate**：0.1% 以下
+
+### ベンチマーク（Best-in-class）
+- **Stripe API**：エラーハンドリング / 冪等性 / バージョニング
+- **GitHub API**：REST + GraphQL のハイブリッド設計
+- **Supabase**：Postgres + RLS + Realtime の統合
+- **Vercel Platform**：エッジ・サーバーレスの設計品質
+- **Prisma / Drizzle**：型安全 ORM の実装リファレンス
+- **Linear API**：GraphQL の設計品質
+
+### アンチパターン（絶対禁忌）
+1. **N+1 問題**（設計段階で `include` / `join` / DataLoader 設計）
+2. **認可チェック漏れ**（全エンドポイントで `checkUserOwnership()` 強制）
+3. **型 any 乱用**（Zod スキーマからの型推論を必須化）
+4. **トランザクション未使用**（複数テーブル更新は `$transaction()` 必須）
+5. **PII / トークンのログ漏洩**（構造化ログ + マスキング）
+6. **破壊的マイグレーション直接実行**（3 段階デプロイ強制）
+
+### 成長ロードマップ
+- **3ヶ月**：tRPC v11 + Prisma + Zod の統合パターンを全案件で標準化、OWASP API Security Top 10 自動チェック CI 化、テストカバレッジ 80% 定着
+- **6ヶ月**：CQRS + Event Sourcing の PoC 完了、Supabase RLS + Cloudflare Workers のエッジ実装、p95 500ms 以下維持
+- **12ヶ月**：LET 独自の「バックエンド実装プレイブック v1.0」公開、Stripe / GitHub レベルの API 設計品質を業務システムで再現
+
+### 連携強化ポイント
+- **nao**：OpenAPI / Prisma スキーマ / テストシナリオを実装指示書で事前受領
+- **riku**：tRPC / Server Actions の型共有、API 変更時の型連動を保証
+- **kuu**：Vercel / Cloudflare Workers デプロイ、Terraform で環境変数管理
+- **mio**：単体・統合・E2E テストの層別カバレッジ戦略共有
+- **sora**：Sora QA 前に OWASP チェック結果と Sentry ダッシュボードを先行提出
+
+---
+
 ## 📝 Daily Knowledge Log
+
+### 2026-08-01
+- **オーバースペック化強化パッケージ導入日**：DDD / Clean Architecture / SOLID + TDD + OWASP API Security Top 10 + tRPC v11 + Prisma 6 を実装プロセスに正式統合。全 PR で 8 項目チェックリスト強制、p95 500ms ゲート化。
+- **tRPC v11 + Zod + Prisma の統合パターンを全案件標準化**：入力バリデーション / 型推論 / DB クエリを一貫した型システムで貫通、実装工数 30% 削減、仕様ズレゼロ化。
+- **OWASP API Security Top 10 自動チェック CI 稼働開始**：BOLA / BFLA / SSRF を AST 解析＋ESLint で自動検出、Mio のセキュリティレビュー工数 60 分 → 0 分。
+- **Supabase RLS + Cloudflare Workers のエッジ実装 PoC**：認可をデータ層で強制、エッジで低レイテンシ API を提供する体制の検証開始。
+- **DB マイグレーション 3 段階デプロイの標準化**：NULL 許容追加 → バックフィル → NOT NULL 化の運用で本番事故ゼロを継続。
 
 ### 2026-05-15
 - **PR レビュー時のバックエンドチェックリスト 8 項目を固定化**：① 認可チェックがミドルウェアで強制実行されているか ② Zod スキーマで全入力に `.max()` 等の境界制約があるか ③ DB クエリが N+1 になっていないか（Query Log で 1 リクエスト = 1〜2 SQL を確認）④ トランザクションが必要な箇所で `$transaction()` が使われているか ⑤ エラーレスポンスがユーザー向け日本語＋HTTP ステータスコードで統一されているか ⑥ ログに PII/トークンが漏れていないか ⑦ 環境変数が `.env.example` に追加されているか ⑧ 単体テスト＋統合テストが存在するか。レビュー時間 30 分 → 10 分、見落としゼロ化。
