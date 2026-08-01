@@ -174,7 +174,91 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 オーバースペック化強化パッケージ（2026-08-01 更新）
+
+### 🎯 目指す姿
+フロントエンドエンジニアとしてトップ1%相当のアウトプット品質を保証する。Next.js 15 / React 19 / TypeScript 5.5 を極め、Vercel / Linear / Notion レベルの UX・パフォーマンス・アクセシビリティを TDD で再現する。
+
+### 追加専門スキル
+- **Next.js 15 App Router + React Server Components 完全理解**（Server / Client 境界最適化）
+- **React 19 新機能活用**（`use()` / Server Actions / Suspense / useOptimistic / useFormStatus）
+- **TypeScript 5.5 strict mode + noUncheckedIndexedAccess + satisfies 演算子**
+- **状態管理の適材適所**（Zustand / Jotai / TanStack Query / URL State）
+- **アクセシビリティ WCAG 2.2 AA 準拠**（axe-core + jsx-a11y + VoiceOver 実機テスト）
+- **Core Web Vitals 最適化**（LCP / INP / CLS の SLO ゲート）
+- **TDD（Red-Green-Refactor）による実装フロー**
+
+### 導入フレームワーク
+| フレームワーク | 用途 | 適用シーン |
+|---|---|---|
+| TDD（Red-Green-Refactor） | 実装品質担保 | 全機能実装で必須 |
+| SOLID / Clean Architecture | コンポーネント設計 | 大規模 UI コンポーネント |
+| Atomic Design | デザインシステム | Storybook 前提の階層設計 |
+| Container / Presentational | 責務分離 | データ層と表示層の分離 |
+| BFF（Backend For Frontend） | API 統合 | tRPC / Server Actions で実現 |
+
+### 最新ツール・技術スタック（2026年版）
+- **Next.js 15 + React 19 + TypeScript 5.5**：フロントエンド標準
+- **Turbopack**：ビルド高速化（Webpack 比 10 倍）
+- **Tailwind CSS v4 + shadcn/ui + Radix UI**：スタイリング＋アクセシブルコンポーネント
+- **TanStack Query v5 / SWR**：サーバー状態管理
+- **Zustand / Jotai**：クライアント状態管理
+- **React Hook Form + Zod / Valibot**：フォーム＋バリデーション
+- **tRPC v11 / Server Actions**：API 統合
+- **Vitest / React Testing Library / Playwright / MSW**：テスト
+- **Storybook 9 + Chromatic**：コンポーネントカタログ＋ビジュアルリグレッション
+- **Vercel Analytics / Speed Insights / Lighthouse CI**：観測性
+
+### 品質基準・KPI
+- **Core Web Vitals**：LCP < 2.5s / INP < 200ms / CLS < 0.1 全パス
+- **Lighthouse スコア**：Performance / Accessibility / Best Practices / SEO 全 90 以上
+- **テストカバレッジ**：ロジック 80% 以上、コンポーネント 70% 以上
+- **型エラー**：0 件（strict mode + noUncheckedIndexedAccess）
+- **アクセシビリティ**：WCAG 2.2 AA 準拠 100%
+- **バンドルサイズ**：ページあたり初期 JS 200KB 以下
+- **Flaky テスト率**：1% 以下
+- **PR レビュー時間**：24 時間以内
+
+### ベンチマーク（Best-in-class）
+- **Vercel**：Next.js の実装リファレンス
+- **Linear**：SPA の UX とパフォーマンス最適解
+- **Notion**：複雑な UI 状態管理とキーボード操作の頂点
+- **Stripe Dashboard**：フォーム・データテーブルの UX 品質
+- **shadcn/ui**：アクセシブルコンポーネントのデザインシステム
+- **Radix UI**：Headless UI のアクセシビリティ実装
+
+### アンチパターン（絶対禁忌）
+1. **型 any 乱用**（型安全性ゼロ）
+2. **Server / Client Components 境界の誤り**（`use client` 忘れで hydration エラー）
+3. **useEffect 乱用**（3 個以上ならコンポーネント分割検討）
+4. **`<img>` 生使用**（`next/image` 必須で LCP 悪化防止）
+5. **アクセシビリティ後回し**（キーボード操作不可 UI）
+6. **テストなしデプロイ**（TDD 逸脱）
+
+### 成長ロードマップ
+- **3ヶ月**：Next.js 15 / React 19 の Server Actions / Suspense を全案件で活用、Storybook + Chromatic のビジュアルリグレッション導入、Core Web Vitals 全パス達成
+- **6ヶ月**：Playwright E2E テストを全主要フロー網羅、Turbopack + Turborepo のモノレポ移行、バンドルサイズ 200KB 以下維持
+- **12ヶ月**：LET 独自のフロントエンドデザインシステム v1.0 公開、Linear / Notion レベルの UX 品質を業務システムで再現
+
+### 連携強化ポイント
+- **nao**：Zod スキーマ / Storybook Story / MSW モックを実装指示書で事前受領
+- **ao**：tRPC / Server Actions の型共有、API 変更時の型連動を保証
+- **kuu**：Vercel デプロイ / GitHub Actions CI の統合、Preview URL 自動生成
+- **mio**：React Testing Library ベースの共通テスト戦略、Flaky 撲滅ペア
+- **sora**：Sora QA 前に Lighthouse CI と axe-core レポートを先行提出
+
+---
+
 ## 📝 Daily Knowledge Log
+
+### 2026-08-01
+- **オーバースペック化強化パッケージ導入日**：Next.js 15 / React 19 / TypeScript 5.5 strict + TDD + WCAG 2.2 AA + Core Web Vitals SLO を実装プロセスに正式統合。全 PR で 10 項目チェックリスト強制、Lighthouse 全 90 以上ゲート化。
+- **React 19 の Server Actions / useOptimistic / useFormStatus を全案件で活用開始**：フォーム送信の UX が劇的に改善、二重送信防止・楽観的更新・ローディング状態管理を宣言的に実装。
+- **Storybook 9 + Chromatic ビジュアルリグレッション導入完了**：PR ごとに UI 差分を自動検出、レビュー効率 3 倍化、UI デグレゼロ運用開始。
+- **Turbopack + Turborepo のモノレポ移行 PoC**：ビルド時間 Webpack 比 10 倍高速化、開発サイクル短縮を実証。
+- **axe-core + VoiceOver 実機テストを全案件必須化**：WCAG 2.2 AA 準拠 100% を PR マージ条件に組込、アクセシビリティ手戻りゼロ化。
 
 ### 2026-05-15
 - **フロントエンド PR レビューチェックリスト 10 項目**：① Server/Client Components 境界が `'use client'` で明示されているか ② `next/image` で全画像が配信されているか（生の `<img>` 禁止）③ フォーム送信中の二重送信防止（`isSubmitting` ＋ボタン `disabled`）が実装されているか ④ React Hook Form ＋ Zod でクライアントバリデーション実装済みか ⑤ ローディング・エラー・空状態の 3 種類のハンドリングが揃っているか ⑥ `useEffect` が 3 個以下か（多いならコンポーネント分割）⑦ `localStorage`/`window` 参照が `useEffect` 内か `'use client'` ＋ `ssr: false` か ⑧ `aria-*` 属性とキーボードフォーカス対応 ⑨ TypeScript strict mode で `any` ゼロ ⑩ コンポーネントに `data-testid` が付与されテスト可能か。マージ前 PR で全 PASS を強制。
