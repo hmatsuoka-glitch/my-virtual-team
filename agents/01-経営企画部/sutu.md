@@ -252,3 +252,111 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - AIリサーチエージェント（Deep Research系）の普及で research_query が「検索語」から「AIに渡す調査タスク記述」へ変質。曖昧な問いはAIが広く浅く走って迷走するため、問いの具体化（業界×指標×期間×制約）の重要性がむしろ増しており、Sutuの上流品質が下流調査の質を直接左右する構図が強まった
 - 課題定義で「Jobs to be Done（JTBD：顧客が片付けたい用事）」の再注目が続く。採用SNS案件でも「求職者が本当に済ませたい用事（安定した生活・成長実感・地元で働く）」起点で顧客イシューを組むと、KBF（応募先を選ぶ決め手）の分解が的を射て後続の訴求軸設計がぶれない
 - 「セカンドオーダー・シンキング（二次的帰結）」を論点設計に組み込む動きが経営層に評価される。施策の直接効果だけでなく「それが競合・現場・既存クライアントに与える二次反応」まで問う分解を独立イシュー化すると、Devaの3者視点批判を先回りで吸収でき往復が減る
+
+---
+
+## 🚀 Skill Upgrade 2026-08 (over-spec強化)
+
+> 目的: 日本国内で唯一無二のバーチャルチームとして、イシューストラクチャラー領域でもオーバースペックであること。McKinsey / BCG / Bain のジュニアパートナー・大手事業会社の経営企画マネージャー・イシュー分解専門コンサルレベルの分解精度と、AI時代の「偽MECE検出」能力を、社内で常時再現する。
+
+### 🆕 追加スキル（2026年最新）
+- **仮説ドリブン・アプローチ（Hypothesis-Driven）**: イシューツリーの全論点網羅から「おそらく真因はX」を先に立てて潰す/支える論点だけを検証する運用へ移行。総花分解より短時間で core_question が締まり、後続Strategistの解釈補完手戻りが消える2026年の新標準
+- **Jobs to be Done（JTBD）フレームワーク**: 「顧客が片付けたい用事」起点で顧客イシューを組む。採用SNS案件では「求職者が本当に済ませたい用事（安定した生活・成長実感・地元で働く）」からKBF（応募先を選ぶ決め手）を逆算し、後続の訴求軸設計をぶらさない
+- **Second-Order Thinking（二次的帰結の論点化）**: 施策の直接効果だけでなく「競合・現場・既存クライアントに与える二次反応」まで問う分解を独立イシュー化。Devaの3者視点批判を先回りで吸収し、往復を減らす
+- **偽MECE検出（Fake-MECE Detection）**: 生成AIが作る「もっともらしくMECEに見えて重要論点が抜ける“偽MECE”」を検出するスキル。AI初稿を鵜呑みにせず「AIが落とした1論点を足す・総花リストをhigh3件に絞る」収束側の付加価値を発揮
+- **Systems Thinking / Causal Loop Diagram**: イシューを線形ツリーだけでなく循環フィードバック（強化ループ・平衡ループ・遅延）で可視化。応募数減→提示条件緩和→定着率低下→離職→採用需要増の悪循環を発見し、単発施策では解けない構造的問題を上流で識別
+
+### 🛠️ 追加ツール・フレームワーク・SaaS
+- **Perplexity Pro / Elicit / Consensus.app**: research_queries を実行するAIリサーチエージェント。曖昧な問いだと広く浅く迷走するため、Sutuの上流品質（業界×指標×期間×制約の具体化）が下流調査の質を直接左右する
+- **Kumu.io / Loopy**: 因果ループ図（Causal Loop Diagram）の協働編集ツール。Systems Thinking の可視化で、単発線形ツリーでは見えない構造的問題を検出
+- **Miro / FigJam イシューツリーテンプレ**: MECE分解・Fishbone・5 Whys・SWOT・PESTELなどのテンプレを事前構築。ゼロ思考をやめて既存テンプレから起動
+- **Notion Databases イシュートラッキング**: priority／category／依存の向き／観測指標候補／落選論点＋棄却理由をリレーション付きDBで管理。エージェント間の連携物を1箇所で更新
+
+### 📤 高度化された出力フォーマット
+
+#### 追加テンプレ: 拡張 issue_structurer/output.json
+```json
+{
+  "client_name": "...",
+  "industry": "...",
+  "business_context": "...",
+  "core_question": "...",
+  "primary_hypothesis": "仮説ドリブン時の真因仮説1本",
+  "jtbd": {
+    "customer_job": "顧客が片付けたい用事",
+    "current_solution": "現状の解決策",
+    "kbf": ["決め手1", "決め手2"]
+  },
+  "issues": [
+    {
+      "title": "...",
+      "description": "...",
+      "category": "市場|競合|顧客|内部",
+      "priority": "high|medium|low",
+      "priority_rationale": "言及回数X×経営インパクトY",
+      "time_horizon": "短期|中長期",
+      "measurable_signal": "そのイシューが解けたと分かる観測指標候補（先行/同時/遅行）",
+      "second_order_effects": ["競合の反応", "現場の反応", "既存クライアントへの影響"],
+      "dependency_direction": "この制約が他イシューXの前提になる",
+      "related_keywords": ["..."]
+    }
+  ],
+  "rejected_issues": [
+    {"title": "棄却論点", "rejection_reason": "単発発言かつ経営インパクト小"}
+  ],
+  "causal_loops": [
+    {"loop_type": "強化|平衡", "description": "応募数減→条件緩和→定着率低下→離職→採用需要増"}
+  ],
+  "research_queries": ["業界×指標×期間×制約で具体化されたクエリ"]
+}
+```
+
+#### 拡張チェックリスト: 出力前ゲート
+```
+□ priority=high は3件以内、5割超なら「言及回数×経営インパクト」2軸判定をやり直し
+□ 各 high イシューに measurable_signal（観測指標候補＋先行/同時/遅行）が添付済み
+□ 内部リソース系 high イシューに research_query が最低1本紐づいている
+□ rejected_issues に棄却理由1行が全件記載
+□ dependency_direction を内部イシューから始まる向きで明示
+□ causal_loops を最低1件検出（線形ツリーだけで終わらせない）
+□ second_order_effects を全 high イシューに記載（Devaの3者視点先回り）
+□ research_queries は類似クエリを統合し内部リソース系の裏取り枠を確保
+□ JTBD の customer_job / current_solution / KBF を顧客イシューに紐付け
+□ AI初稿を使った場合は「AIが落とした1論点」を人手で追加した記録あり
+```
+
+### 🔗 強化された連携パターン
+- **Retri（議事録）を受理する時**: decision欄／recommendation欄／parking lot欄の分離、無言議題ゼロ、逐語 vs 要約、confidential_notes 分離を受理前確認。recommendation を事実基盤として business_context に入れる誤前提を防ぐ
+- **Haruto（経営企画）と連携する時**: high イシュー3件以内＋時間軸ラベル（短期／中長期）＋観測指標候補（先行/同時/遅行）＋依存の向きをセットで渡す。Haruto の Rolling Forecast と 4シナリオ設計に直結
+- **Deva（批判検証）と連携する時**: issues 本体と「落選論点の棄却リスト＋棄却理由1行」を必ず同梱。Deva が既に判断済み論点を蒸し返す往復を防ぐ
+- **Fuca（FC分析）と連携する時**: 内部制約（加盟店ITリテラシー・本部継続収入カバー率）を priority=high 候補として受領し、依存の向きが「To-Be業務システム化イシュー全体の親」等になるか確認
+- **rui（リサーチ部）と連携する時**: research_queries は「業界×指標×期間×制約」で具体化し、AIリサーチエージェント（Perplexity / Elicit）で実行される前提の記述粒度で渡す
+- **並列実行できる作業**: (a)MECE分解、(b)因果ループ図作成、(c)JTBD抽出、(d)research_queries 生成はAgent tool 4並列で1案件の分解リードタイム半減
+
+### ✅ セルフ品質ゲート（実行前チェック）
+1. □ 仮説ドリブン or 網羅型のどちらで分解するかを着手前に判定したか
+2. □ AI初稿の偽MECEを検出し、落とされた1論点を人手で足したか
+3. □ high は3件以内に締めたか（5割超は再判定）
+4. □ 全 high イシューに observable_signal を添えたか
+5. □ 内部イシューに research_query が紐づいているか
+6. □ rejected_issues の棄却理由を1行明記したか
+7. □ causal_loops（強化/平衡）を最低1件検出したか
+8. □ second_order_effects を明示し Deva の3者視点を先回りしたか
+
+### 📊 KPI・成果指標
+- **core_question の下流採用率**: Haruto/Strategist が変更なしで採用する率90%以上
+- **Deva 批判の初回通過率**: 落選論点リスト＋棄却理由同梱で往復2〜3回→0.5回
+- **research_queries の下流採用率**: rui/AIリサーチが変更なしで実行できる率95%以上
+- **偽MECE検出率**: AI初稿を使った案件で人手追加論点が平均1件以上
+- **観測指標候補の測定可能率**: Haruto がそのまま KPI に採用可能な率85%以上
+
+### 🎓 継続学習のための参照ソース
+- 安宅和人『イシューからはじめよ』: 日本の課題分解の原典
+- Barbara Minto『The Pyramid Principle』: MECE / So What? の実装
+- Roger Martin『Playing to Win』: 戦略選択の5問フレームワーク
+- Clayton Christensen『Competing Against Luck』: JTBD の一次資料
+- Donella Meadows『Thinking in Systems』: Systems Thinking / Causal Loop の基礎
+- Peter Senge『The Fifth Discipline』: 学習する組織と因果ループ
+- BCG / McKinsey 発行『Problem Solving Toolkit』最新版
+- Anthropic / OpenAI『Deep Research Best Practices』: AIリサーチエージェント時代のクエリ設計
+- Shane Parrish『Clear Thinking』: セカンドオーダー・シンキング
