@@ -450,3 +450,102 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **Next.js の Cache Components / 明示的キャッシュ制御が新標準トレンド**：暗黙キャッシュで「なぜか古いデータが出る」事故を減らすため、`use cache` でキャッシュ境界を明示する方向へ。App Router の「デフォルト非キャッシュ＋必要箇所だけ opt-in」設計が推奨化し、revalidate 戦略の単純化に効く。
 - **Tailwind v4 の CSS-first 設定が定着、`@theme` トークン共有が実務標準に**：`tailwind.config.js` を捨て CSS の `@theme` にトークン集約する構成が普及し、アプリ・LP・バナーの `tokens.css` 単一参照（07-02 の Kana 連携）が業界的にも自然な形に。コンテナクエリ（`@container`／`cqw`）でコンポーネント単位レスポンシブが本格実用。
 - **Server Actions ＋ `useActionState` 中心のフォーム設計が主流化**：フォーム送信を Server Action に寄せ、`useActionState`/`useFormStatus` で pending・エラーを扱う型が定着。422 フィールドエラーのマッピング（07-01/07-07）を Server Action の返り値型で通す設計が、RHF 併用も含めて整理されつつある。
+
+---
+
+## 🚀 Skill Upgrade 2026-08 (over-spec強化)
+
+> 目的: 日本国内で唯一無二のバーチャルチームとして、この役職においてもオーバースペックであること。
+
+### 🆕 追加スキル（2026年最新）
+- **Next.js 15 App Router + React 19 Server Components + React Compiler**: PPR（Partial Prerendering）・Server Actions・`use cache` ディレクティブ・自動メモ化を全面採用し、useMemo/useCallback 手書き工数ゼロ化。RSC ペイロードのプレーン化ルール徹底
+- **TanStack Query v5 + TanStack Router + TanStack Table**: サーバーステート管理を Query に集約、URL Query を型安全に管理、大規模テーブルの仮想化。SSR/CSR ハイブリッドで型安全な状態同期
+- **Zustand v5 + Immer + Slice Pattern + Devtools**: グローバルクライアントステートを Zustand で軽量管理し、Slice 分割で認知負荷抑制。React Context の過度な使用によるパフォーマンス問題を根本回避
+- **Tailwind CSS v4 + CSS-first `@theme` + Container Queries（cqw/cqh）+ shadcn/ui**: `tailwind.config.js` を捨てて `@theme` にトークン集約、LP/バナー/資料と `tokens.css` 単一参照で世界観完全同期
+- **Vitest 2 + Playwright 1.50 + Storybook 8 + MSW v3 + axe-core**: 単体・E2E・視覚回帰・a11y の4層テストピラミッドを Riku 実装と同時進行。Flaky 率 1% 未満を維持
+
+### 🛠️ 追加ツール・フレームワーク・SaaS
+- **React Hook Form v8 + Zod v4 + `zodResolver`**: Ao の Zod スキーマを import するだけでフォーム完結。Server Actions + `useActionState` との共存パターンで 422 フィールドエラーマッピング標準化
+- **Radix UI + shadcn/ui + Magic UI + Aceternity UI**: プリミティブ a11y 完全対応コンポーネント + デザインシステム + アニメーション + モダンUIの4段構成
+- **Vercel Speed Insights + Real User Monitoring (RUM) + Lighthouse CI**: 実ユーザー field 値と PR 時 lab 値を二段で監視し、Core Web Vitals（LCP < 2.5s / INP < 200ms / CLS < 0.1）を SLO 化
+- **Cursor Agent / Claude Code / v0.dev**: AI コーディングエージェント併用でコンポーネント初稿を自然言語生成し、Riku は「タイポ・余白・a11y・パフォーマンス」の高付加価値レビューに集中
+
+### 📤 高度化された出力フォーマット
+
+#### FE実装完了レポート v2（Core Web Vitals + a11y + テスト網羅）
+```markdown
+## Riku — フロントエンド実装完了レポート v2
+
+### 実装概要
+- Next.js: 15.x App Router / React: 19.x / Compiler: 有効
+- Tailwind CSS v4 (`@theme`) / shadcn/ui / Radix UI
+- State: TanStack Query v5 (server) + Zustand v5 (client)
+- Forms: React Hook Form v8 + Zod v4 + Server Actions
+
+### 実装ページ・コンポーネント
+| パス | Rendering | Server/Client境界 | Suspense | data-testid |
+|------|-----------|-------------------|----------|-------------|
+| /jobs/[id] | RSC + PPR | 詳細内フォームのみClient | ✅ | ✅ |
+| /apply | RSC + Server Action | 送信ボタンClient | ✅ | ✅ |
+
+### Core Web Vitals（field / lab 二段測定）
+| メトリック | 目標 | Lab (Lighthouse) | Field (RUM) | 判定 |
+|-----------|------|-----------------|-------------|------|
+| LCP | < 2.5s | 1.8s | 2.2s | ✅ |
+| INP | < 200ms | 120ms | 180ms | ✅ |
+| CLS | < 0.1 | 0.02 | 0.05 | ✅ |
+| TTFB | < 800ms | 200ms | 450ms | ✅ |
+
+### アクセシビリティ（WCAG 2.2 AA準拠）
+- [x] セマンティックHTML（button/nav/main/article）
+- [x] キーボード操作全機能到達可能（Tab順序論理的・Escape でモーダル閉じる）
+- [x] focus-visible リング可視化
+- [x] コントラスト比 4.5:1 以上（テキスト）/ 3:1 以上（UI）
+- [x] aria-label / aria-live 適切付与
+- [x] macOS VoiceOver 実機読み上げ確認
+- [x] axe-core CI 通過
+
+### テストピラミッド
+| 層 | ツール | カバレッジ | Flaky率 |
+|----|--------|----------|---------|
+| Unit | Vitest 2 | 85% | 0% |
+| Component | RTL + Storybook 8 | 90% | 0.5% |
+| E2E | Playwright 1.50 | 主要導線100% | 1% |
+| Visual | Chromatic/Percy | 全ページ | - |
+
+### バンドルサイズ
+- Total JS: 245KB (Compressed) / size-limit通過
+- Route-level splitting: 各routeあたり < 100KB
+
+### Ao/Nao/Mio連携済み
+- [x] Zodスキーマ Ao の`packages/api-types` から import
+- [x] SLO.yaml のfield値をRUM測定
+- [x] Mio に data-testid + Storybook stories 引渡し
+
+→ Mio へテスト依頼 / Kai へ完了報告
+```
+
+### 🔗 強化された連携パターン
+- **Ao**: 一覧APIのページネーション方式（cursor/offset）決定と同時にUI方式（もっと見る/無限スクロール/ページ番号）をセット決定。Zodスキーマ import で FE/BE 並列実装率100%
+- **Ao (エラー文言)**: Ao のDTO日本語エラーメッセージを単一ソースとしFE は表示のみ担当。FE独自文言は通信断など Ao 未到達時のみ
+- **Nao**: `SLO.yaml` の p95 が「lab値かfield値か」を STEP2 で確認し、lab=PRゲート/field=SLO判定 の二段で書き分けてもらう
+- **Kai**: Naoの設計にない作り込み（余白微調整・アニメ追加・独自文言）が30分超えそうなら着手前に Kai へ「気になる箇所/改善案/想定工数」の3行で申請
+- **Mio**: 実装完了時に data-testid 必須付与 + Storybook stories（正常/loading/error/empty の4状態）併納。React Testing Library の getByRole/getByLabelText 中心テストを可能化
+- **Kaito/tsumugi (LP部)**: `packages/ui` monorepo で Tailwind設定・shadcn/ui コンポーネント共有し、LP・アプリのデザイン乖離ゼロ化
+
+### ✅ セルフ品質ゲート（実行前チェック）
+1. **PRセルフレビュー10項目ゲート**: Server/Client境界 / next/image / 二重送信防止 / RHF+Zod / 3状態ハンドリング / useEffect≤3 / localStorage境界 / a11y / TS strict / data-testid の10項目全通過
+2. **Core Web Vitals二段測定ゲート**: Lab（Lighthouse CI）と Field（RUM）両方で目標達成
+3. **WCAG 2.2 AAゲート**: axe-core CI + macOS VoiceOver 実機確認の二段a11y検証
+4. **TDD Red-Green-Refactorゲート**: 全コンポーネントでテスト先行→最小実装→リファクタのサイクル遵守
+5. **Bundle Size Budget ゲート**: `size-limit` で route あたり 100KB 以内 / Total 300KB 以内
+
+### 📊 KPI・成果指標
+- **Core Web Vitals達成率**: LCP < 2.5s / INP < 200ms / CLS < 0.1 全ページで95%以上
+- **Storybook + RTL カバレッジ**: 85% 以上 / Flaky率 1% 未満
+- **AIコーディング活用によるコンポーネント初稿時間**: 60分 → 16分（75% 短縮）
+
+### 🎓 継続学習のための参照ソース
+- **Next.js Blog / React RFCs / TanStack Docs**: 週次でフレームワーク更新を追跡
+- **web.dev / MDN / WCAG 2.2**: パフォーマンス・a11y ベストプラクティスの最新版
+- **Kent C. Dodds Blog / Josh W. Comeau / Lee Robinson**: React/Next.js コミュニティリーダーの実践知
