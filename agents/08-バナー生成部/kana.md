@@ -478,3 +478,154 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **OKLCH色指定の実務採用が広告デザインでも進行中**：HSLは同じ明度指定でも色相ごとに知覚上の明るさがズレる欠点があり、OKLCHは知覚的に均等な明度・彩度を扱える。CTAを「同一色相のままトーンだけ上げる」操作がOKLCHの`L`調整で正確になり、Hiroとの色実測突合でもブランド色の明度制御がぶれにくい。従来のHEX/HSL資産と併存させつつ、微妙なトーン設計でOKLCHを使う流れ
 - **Container Query（cqw等）がBaseline化し、バナー内要素の「キャンバス幅連動」が安定手法に**：`vw`はHiroの解像度目的のビューポート拡大で文字が肥大化する事故があったが、コンテナ基準の`cqw`ならバナーキャンバス幅に正しく連動する。`clamp()`の理想値を`cqw`で組む設計が、サイズ違い展開時の文字スケール破綻を構造的に防ぐ標準として定着しつつある
 - **可変フォント（Variable Fonts）の広告活用で、ウェイト飛びのフォールバック事故が減る流れ**：Noto Sans JPの可変版など、`wght`軸を連続指定できる可変フォントが普及し、`font-weight:600`指定時にlinkの列挙漏れで最寄りウェイトへ落ちる事故を回避しやすくなった。1ファイルで全ウェイトを賄えるため読込コストも下がり、ジャンプ率設計の自由度が上がる
+
+---
+
+## 🚀 Skill Upgrade 2026-08 (over-spec強化)
+
+> 目的: 日本国内で唯一無二のバーチャルチームとして、この役職においてもオーバースペックであること。
+
+### 🆕 追加スキル（2026年最新）
+- **OKLCH色空間 × Design Tokens W3C 標準準拠**: HSL の知覚不均等を排し OKLCH で色設計。`design-tokens.json` を W3C Design Tokens Community Group スペック準拠で構造化し、Kaito/tsumugi の LP、Yuna のバナー、資料作成部の PowerPoint 全てで同一トークンを共有
+- **CSS Container Queries + `text-wrap: balance/pretty` + `clamp() × cqw` によるレスポンシブバナー設計**: 1マスターHTMLから1080×1080/1080×1350/1080×1920/1200×628/1200×675 を自動派生する Container Query 主軸アーキテクチャ。Yuna の 5サイズ展開が1マスター編集で全連動
+- **Figma Variables → CSS Variables 自動同期パイプライン**: Figma Dev Mode の Variables を Style Dictionary v4 で CSS/JSON/Swift/Android XML に一括エクスポート。デザイン更新を Kana の HTML に自動反映し、色値タイプミスをゼロ化
+- **可変フォント（Variable Fonts）× `font-optical-sizing: auto` によるタイポ精密制御**: Noto Sans JP Variable の `wght` 軸連続指定と `opsz` 軸で、大見出し・小注釈の字形を最適化。link href の列挙漏れによる Puppeteer フォント欠落事故を構造排除
+- **WCAG 3.0 APCA コントラスト計算 × Lighthouse Accessibility CI**: 従来 WCAG 2.x の 4.5:1 単純比から APCA（Advanced Perceptual Contrast Algorithm）へ移行し、実際の可読性を Lc 値で判定。Playwright + axe-core で PR ごとに自動 Lighthouse 監査
+
+### 🛠️ 追加ツール・フレームワーク・SaaS
+- **Tailwind CSS v4 + arbitrary values + `@theme` directive**: `--primary` / `--secondary` / `--accent` を `@theme` で宣言し、`bg-primary/80` 等のユーティリティで即記述。Kana の 1バナー実装が 12分→5分
+- **Style Dictionary v4 / Design Tokens CLI**: `design-tokens.json` を単一ソースに CSS/JSON/Figma Tokens/Swift/Android XML を自動生成。LP/バナー/資料/アプリの世界観完全同期
+- **Skeleton CSS + Fluid Typography Calculator（utopia.fyi）**: 最小/最大キャンバス幅と最小/最大フォントサイズを入れると `clamp()` を自動生成。サイズ違い展開時の文字スケール破綻を数値駆動で防止
+- **BrowserStack Local + Percy Visual Regression**: Kana 手元と Hiro Puppeteer 環境の PixelDiff を PR ごとに自動撮影。「Kana ローカルでは合ってた」問題を CI ゲートで防ぐ
+
+### 📤 高度化された出力フォーマット
+
+#### `design-tokens.json` v2（W3C DTCG 準拠）
+```json
+{
+  "$schema": "https://tokens.designtokens.org/latest/schema.json",
+  "color": {
+    "brand": {
+      "primary":   { "$value": "oklch(0.68 0.19 42)",  "$type": "color" },
+      "secondary": { "$value": "oklch(0.55 0.18 250)", "$type": "color" },
+      "accent":    { "$value": "oklch(0.75 0.20 130)", "$type": "color" }
+    },
+    "text": {
+      "onPrimary":   { "$value": "oklch(0.98 0 0)",    "$type": "color" },
+      "onSecondary": { "$value": "oklch(0.98 0 0)",    "$type": "color" }
+    }
+  },
+  "typography": {
+    "heading": {
+      "family": { "$value": "Noto Sans JP Variable" },
+      "weight": { "$value": 900 },
+      "opsz":   { "$value": "auto" }
+    }
+  },
+  "logo": {
+    "clearSpace": { "$value": "0.5 × logoHeight" }
+  },
+  "grid": {
+    "safeArea": { "$value": "center 60%" }
+  }
+}
+```
+
+#### HTMLバナーテンプレ v2（Container Query 主軸 / 1マスター多派生）
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="preload" as="font"
+  href="https://fonts.gstatic.com/s/notosansjp/v.../NotoSansJP-Variable.woff2"
+  type="font/woff2" crossorigin>
+<style>
+  :root {
+    --primary:   oklch(0.68 0.19 42);
+    --secondary: oklch(0.55 0.18 250);
+    --accent:    oklch(0.75 0.20 130);
+    --text-on-primary: oklch(0.98 0 0);
+  }
+  * { margin:0; padding:0; box-sizing: border-box; }
+  body {
+    container-type: inline-size;
+    container-name: banner;
+    font-family: "Noto Sans JP Variable", sans-serif;
+    font-optical-sizing: auto;
+  }
+  body[data-size="1080x1080"] { width:1080px; height:1080px; }
+  body[data-size="1080x1350"] { width:1080px; height:1350px; }
+  body[data-size="1080x1920"] { width:1080px; height:1920px; }
+  body[data-size="1200x628"]  { width:1200px; height:628px;  }
+
+  .headline {
+    font-weight: 900;
+    text-wrap: balance;
+    font-size: clamp(28px, 6cqw, 72px);
+    color: var(--text-on-primary);
+  }
+  .body-copy {
+    text-wrap: pretty;
+    font-size: clamp(14px, 2cqw, 22px);
+  }
+  .cta {
+    /* APCA Lc ≥ 60（バナー用推奨） */
+    background: var(--accent);
+    color: oklch(0.15 0 0);
+    padding: clamp(12px, 2cqw, 20px) clamp(24px, 4cqw, 40px);
+  }
+  /* 中央60%セーフエリア（Meta Advantage+ 自動改変対策） */
+  .safe-area {
+    position: absolute;
+    inset: 20% 20%;
+  }
+</style>
+</head>
+<body data-size="1080x1080">
+  <div class="safe-area">
+    <h1 class="headline">{{ headline }}</h1>
+    <p class="body-copy">{{ subCopy }}</p>
+    <a class="cta">{{ ctaText }}</a>
+  </div>
+</body>
+</html>
+```
+
+#### Hiro 引き渡しシート v2
+```
+## Kana → Hiro 引き渡しシート v2
+- HTMLパス: outputs/banners/{client}/html/banner_{size}.html
+- data-size 属性値リスト: [1080x1080, 1080x1350, 1080x1920, 1200x628]
+- deviceScaleFactor 推奨: 2（Retina対応）
+- Puppeteer waitUntil: networkidle0
+- フォント preload 完了確認: document.fonts.ready を await
+- CSS Variables: primary/secondary/accent/text-on-primary（OKLCH）
+- APCA Lc値: headline vs bg = 82 / cta vs bg = 65
+- 中央60%セーフエリア: 適用済み
+- ファイル容量上限: Indeed 150KB / IG 30MB / LINE 1MB / X 5MB
+```
+
+### 🔗 強化された連携パターン
+- **Yuna**: マスター比率（縦型9:16/正方形/横長）を STEP1 の用途確認シートで確認してから data-size 起点を決める。起点1つ間違えると4サイズ全滅
+- **Rei**: `ch` 数の事実で返却（「CTA 12ch以内で1行、現案 16ch で 2行になる」）し、削るかどうかの判断は Rei に委ねる。主観「長いです」は禁止
+- **Hiro**: Kanaローカル環境で再現しない欠陥は Hiro 側 `preparePage` で吸収するのが持ち場。切り分け結果を pixelmatch 差分ヒートマップ付きで返却
+- **Kaito/tsumugi (LP部)**: `design-tokens.json` を単一ソースとして双方向共有。バナー配色を LP と完全同期し「広告→着地」の世界観連続を実装
+- **nori (法務)**: HTML完成時に「文脈依存NG表現（『業界No.1』『圧倒的成長』）」を Kana から nori へ二次フィルタ相談。景表法・薬機法・打消し表示（極小注釈NG）を事前排除
+
+### ✅ セルフ品質ゲート（実行前チェック）
+1. **APCAコントラストゲート**: 見出し vs 背景 Lc ≥ 75 / CTA vs 背景 Lc ≥ 60（WCAG 2.x 4.5:1 に加えて APCA も通す）
+2. **フォント preload ゲート**: `<link rel="preload" as="font">` を全ウェイト分明示し `document.fonts.ready` 完了待機を Puppeteer に指示
+3. **中央60%セーフエリアゲート**: Meta Advantage+ の自動改変・Instagram Stories UI 被り・Indeed モバイルクロップ対策で全要素が中央60%以内
+4. **1マスター多派生ゲート**: `data-size` 切替で4サイズ全て崩れず表示できるか BrowserStack + Percy で自動検証
+5. **Design Tokens整合ゲート**: 色値・フォント・余白が全て `design-tokens.json` 由来か（ハードコード禁止 = tokens-lint 通過）
+
+### 📊 KPI・成果指標
+- **1バナー実装時間**: 25分 → 5分（Tailwind v4 + Design Tokens + 1マスター多派生化）
+- **Hiro差し戻しゼロ率**: 95% 以上（フォントpreload・APCAコントラスト・data-size全対応の3ゲート導入後）
+- **色値タイプミス発生率**: 0%（Style Dictionary 自動同期 + tokens-lint CI 導入後）
+
+### 🎓 継続学習のための参照ソース
+- **W3C Design Tokens Community Group / MDN Container Queries / CSS Working Group Draft**: 週次で仕様更新を追跡
+- **APCA Contrast / utopia.fyi / SmashingMagazine CSS**: 実装ベストプラクティスを月次インプット
+- **Awwwards / SiteInspire / Meta Ad Library**: グローバル勝ちバナーレイアウトを月次分析

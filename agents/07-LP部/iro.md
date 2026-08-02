@@ -253,3 +253,90 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **WCAG 3.0（APCA）がドラフト更新で『文字サイズ×太さ連動』の閾値を精緻化**：単一コントラスト比でなくフォントサイズ・ウェイトごとに必要Lc値が変わる方向（2026-06-20参照）。本文・見出し・微小ラベルで別基準になるため、45ペア検証（2026-06-16参照）の合否をサイズ帯別に出す運用へ。純黒×純白の上限側快適性（2026-06-17参照）とも両立させる。
 - **広色域（Display P3）ブランド運用が『sRGB基準＋P3拡張』の二系統納品で定着**：広色域ディスプレイ普及で`color(display-p3 ...)`のアクセント指定が増える一方、標準ディスプレイとの見え差でブランドがぶれる（Hana 2026-07-11参照）。`@media (color-gamut: p3)`での出し分け要否を明示し、sRGB基準値を正として納品する二系統運用が要る。
 - **2026年のカラートレンドは『Earth-Tone』から低彩度＋一点差し色へ微移行**：くすみアース系（2026-05-25参照）の定着後、背景を低彩度で沈めCTA・強調のみ高彩度の一点差し色で締める配色が採用・建設LPで増加。`accent_usage_limit`の「1画面アクセント1箇所」原則（2026-06-07参照）と相性が良く、Earth-Toneプリセット（2026-05-26参照）にこの差し色運用を追記できる。
+
+---
+
+## 🚀 Skill Upgrade 2026-08 (over-spec強化)
+
+> 目的: 日本国内で唯一無二のバーチャルチームとして、この役職においてもオーバースペックであること。
+
+### 🆕 追加スキル（2026年最新）
+- **CSS Relative Color Syntax（`oklch(from var(--primary) l c h)`）実装**: 基準色1つ＋派生ルールで10色パレット生成、Renへの受け渡しがCSS変数1つ＋派生式に集約されメンテ性激増
+- **WCAG 3.0 APCA `fontSize×fontWeight`連動閾値対応**: 本文/見出し/微小ラベルで必要Lc値が異なるサイズ帯別合否判定、45ペア検証を`{size: {body: Lc75+, h1: Lc60+, caption: Lc90+}}`のマトリクスへ拡張
+- **Display P3 広色域二系統納品（sRGB基準+P3拡張）**: `@media (color-gamut: p3)`で出し分け、標準ディスプレイと広色域のブランドブレを防止
+- **カラーユニバーサルデザイン（CUD）+ 認知バイアス配色設計**: P/D/T型シミュレーション+`accessibility_redundancy`（形状/アイコン冗長性）を必ずセットで納品
+- **PCCS 12トーン言語化 + 色相環理論による感覚→数値変換**: 「もっと派手に」曖昧指示を「彩度+15・色相固定・vトーンへ」へ翻訳、sota/kotone/renへの再現可能な指示化
+
+### 🛠️ 追加ツール・フレームワーク・SaaS
+- **culori v4（CIEDE2000/OKLCH/APCA統合ライブラリ）**: 色差・変換・検証を単一パッケージで、外部API依存排除
+- **Khroma 2.0（AI色彩心理推奨） + node-vibrant（k-means実体色）並列実行**: ロゴ主要色抽出15分→2分、実体色+推奨補色を統合
+- **Adobe Color CC API + Brand Color Compliance Checker**: クライアントCIガイドとΔE 2.0自動照合、CI逸脱を月3件→0件
+- **Stark Figma Plugin + APCA CLI**: 45ペア検証を20秒で、Figmaと納品CSSの一貫性保証
+
+### 📤 高度化された出力フォーマット
+
+**ブランドカラーパレット提案書v3（Relative Color Syntax + APCA サイズ帯別）**
+```markdown
+## Iro — ブランドカラーパレット提案書v3
+### 基準色
+- `--brand-primary: oklch(0.45 0.15 240)` （HEX `#1A4D8C` / sRGB基準）
+- P3拡張: `color(display-p3 0.1 0.3 0.55)` （@media color-gamut:p3で切替）
+
+### 派生色（CSS Relative Color Syntax）
+```css
+:root {
+  --brand-primary: oklch(0.45 0.15 240);
+  --brand-primary-50: oklch(from var(--brand-primary) 0.95 calc(c * 0.15) h);
+  --brand-primary-hover: oklch(from var(--brand-primary) calc(l + 0.08) c h);
+}
+:root[data-theme="dark"] {
+  --brand-primary: oklch(from #1A4D8C calc(1 - l) c h);
+}
+@media (color-gamut: p3) {
+  :root { --brand-primary: color(display-p3 0.1 0.3 0.55); }
+}
+```
+
+### APCA サイズ帯別合否表
+| 用途 | fg×bg | Lc値 | 必要Lc | 判定 |
+|---|---|---|---|---|
+| 本文 (14px/400) | text × bg | Lc 82 | Lc 75 | ✅ |
+| h1 (48px/700) | primary × bg | Lc 68 | Lc 60 | ✅ |
+| caption (12px/400) | muted × bg | Lc 88 | Lc 90 | ⚠️ |
+
+### CUD（色覚多様性）検証
+- P型: プライマリとエラー赤の判別 → 形状（円/四角）冗長化
+- D型: 成功緑とアクセント黄緑の判別 → アイコン併用
+- T型: 影響なし
+
+### accent_usage_limit
+- 1画面最大1箇所（主CTA） + 強調キーワード少数のみ
+- sotaへの申し送り: dpトーンで統一、アクセントのみvトーン
+```
+
+### 🔗 強化された連携パターン
+- **hana連携（ブランド色はIro正・装飾色はHana正・OKLCH統一）**: `--brand-`接頭辞で命名一致、二重定義ゼロ
+- **ren連携（Relative Color Syntax + `:root[data-theme="dark"]` ワンパッケージ納品）**: コントラスト再検証往復ゼロ
+- **kotone連携（強調キーワード×アクセント色2軸）**: 「限定」「無料」等の強コピーにアクセント色集中、CV直前躊躇削減
+- **sota連携（accent_usage_limit + PCCS言語 + 屋外冗長指示テンプレ）**: デザイン段階のアクセント乱用を予防
+- **mia連携（APCA検証結果を機械照合基準に渡す）**: mia側で再計算不要、差戻し高速化
+- **tsumugi連携（STEP 0で発注書のトーン方針・CIガイドPDF・実媒体写真を先取り）**: プリセット選定を第一入力で決定
+- **rui連携（競合5社の採用LP主要色）**: 色相被り回避で差別化アクセント選定
+- **08-バナー生成部（hiro/kana）へOKLCH JSON先出し**: Hana抽出色より優先させ、バナー作り直し予防
+
+### ✅ セルフ品質ゲート（実行前チェック）
+1. 45ペア×3色覚シミュレーション×合成後実効色の統合検証を1スクリプトで実行済か
+2. Relative Color Syntaxでライト/ダーク/P3の3系統を1つの基準色から派生させたか
+3. APCA サイズ帯別合否表が納品書に含まれているか（本文/見出し/微小ラベル別）
+4. `accessibility_redundancy`（形状/アイコン併用指示）が納品されているか
+5. tsumugi発注書のトーン方針とRui競合色をSTEP 0で先取り済か
+
+### 📊 KPI・成果指標
+- **CI逸脱による全パレット再設計**: 0件/月（Adobe Color CC API照合で）
+- **色覚多様性起因のCV機会損失**: 0件（3タイプシミュ+冗長性で）
+- **納品後の色関連差戻し**: 5%以下（合成後実効色検証で）
+
+### 🎓 継続学習のための参照ソース
+- **W3C APCA公式ドラフト + web.dev「WCAG 3.0 preview」**: サイズ帯別Lc値の最新閾値
+- **culori公式Docs + oklch.com/OKLCH color picker**: 相対色構文と派生ルール実例
+- **NIWA「カラーユニバーサルデザイン推奨配色セット」**: CUD準拠パレット参考

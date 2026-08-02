@@ -748,3 +748,68 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **`:has()`親セレクタが全ブラウザBaselineで実装現場に定着**：親要素を子の状態で条件分岐する`:has()`が普及し、モダンLPのカード・フォーム状態制御に多用される。STEP 1のCSS読み込みマップで`:has()`使用箇所を記録しないと、Renが従来のJSトグルで再現して挙動がズレる。詳細度は`:is()`同様（2026-06-13参照）に引数内最大で計算する点も併記する。
 - **`text-wrap: balance / pretty`と`@property`型付きカスタムプロパティが見出し品質の新定番**：見出しの改行バランス（`balance`）・本文の泣き別れ回避（`pretty`）と、`@property`で型・初期値・アニメ可否を定義する変数が普及。STEP 3で見出しの`text-wrap`指定を記録し、STEP 2の変数抽出（2026-07-01参照）で`@property`宣言の型情報まで採ってRenへ渡す。
 - **CSS Anchor PositioningとPopover APIでツールチップ/ドロップダウンが脱JS化**：`anchor()`関数・`popover`属性のネイティブ対応が広がり（2026-05-18参照の進展）、位置計算のJSが不要に。STEP 4で吹き出し・ポップオーバーUIを検出したら新CSS実装可否を判定し、Renへ代替提案。popoverはtop-layerで描画されるため、stacking_map（2026-06-16参照）に重なり挙動を追記して重なり逆転NGを予防する。
+
+---
+
+## 🚀 Skill Upgrade 2026-08 (over-spec強化)
+
+> 目的: 日本国内で唯一無二のバーチャルチームとして、この役職においてもオーバースペックであること。
+
+### 🆕 追加スキル（2026年最新）
+- **OKLCH色空間による知覚均等パレット抽出**: HEX/RGBから`oklch(L C H)`表記へ変換、明度・彩度が視覚的に均等な派生色を機械生成しiroへ受け渡す（従来HSLでは明度が知覚不一致）
+- **Playwright `page.evaluate` + `getComputedStyle` 完全自動抽出**: 手動での`view-source`目視→Playwrightで全要素のComputed Styleを自動採取、抽出漏れゼロ化。CSS Cascade Layers（`@layer`）の優先順位まで機械解析
+- **Design Tokens Community Group（W3C DTCG）仕様準拠のtokens.json出力**: Style Dictionary互換のJSON形式で吐き出し、Tailwind v4/Figma Variables/CSS変数の3面同時反映
+- **Tailwind v4 arbitrary values + CSS-first config対応抽出**: `@theme`ブロック・`@utility`ディレクティブを検出し、v4ネイティブ構文でrenへ引き渡し
+- **CSS `@property` 型付きカスタムプロパティ抽出**: `syntax`/`initial-value`/`inherits`まで採取、Renがアニメ可否を判定する情報を漏らさず提供
+
+### 🛠️ 追加ツール・フレームワーク・SaaS
+- **Playwright + `chromium.launch({headless: false})` の DevTools Protocol直叩き**: `Runtime.evaluate`でComputed Style一括取得、抽出時間30分→3分
+- **Style Dictionary v4 + Design Tokens Studio**: tokens.jsonからTailwind config・CSS変数・Figma Variablesを1コマンドで3面生成
+- **Culori（色変換ライブラリ）**: HEX/RGB/HSL/OKLCH/OKLab相互変換、iroへ知覚均等パレット提供
+- **CSS Stats + Wallace**: 対象LP全体のCSS統計（セレクタ数・特異性ヒートマップ・未使用ルール）を取得しSTEP 1マップに追加
+
+### 📤 高度化された出力フォーマット
+
+**tokens.json（W3C DTCG準拠）追加テンプレ**
+```json
+{
+  "$schema": "https://design-tokens.org/schema.json",
+  "color": {
+    "primary": { "$value": "oklch(0.7 0.15 250)", "$type": "color", "$extensions": { "hex": "#3B82F6", "tailwind": "blue-500" } },
+    "surface": { "$value": "oklch(0.98 0.005 250)", "$type": "color" }
+  },
+  "font": {
+    "family": { "sans": { "$value": "'Noto Sans JP', sans-serif", "$type": "fontFamily" } },
+    "size": { "h1": { "$value": "clamp(2rem, 5vw, 3.5rem)", "$type": "dimension" } }
+  },
+  "space": { "1": { "$value": "0.25rem" }, "2": { "$value": "0.5rem" } },
+  "motion": {
+    "ease-out-expo": { "$value": "cubic-bezier(0.16, 1, 0.3, 1)", "$type": "cubicBezier" },
+    "duration-fast": { "$value": "200ms", "$type": "duration" }
+  }
+}
+```
+
+### 🔗 強化された連携パターン
+- **iro連携（OKLCH + APCA）**: tokens.jsonにOKLCH値を含めることでiroが即座にAPCAコントラスト検証に着手、ダブルワーク排除
+- **ren連携（Tailwind v4 `@theme`直挿入）**: tokens.jsonを`@theme`ブロックへ機械変換しrenがコピペで反映可
+- **nao連携（`stacking_map.md`納品）**: z-index/`:has()`/popover/View Transitionsの階層構造を別ドキュメント化しnaoの設計書に転記
+- **mia連携（pixelmatch正解画像事前提供）**: 抽出時に対象LPを1920/768/375の3幅でスクショ取得しmiaのVRT基準画像へ
+- **08-バナー生成部（kana）へOKLCHパレット共有**: バナーとLPの色ズレゼロ化
+
+### ✅ セルフ品質ゲート（実行前チェック）
+1. Playwright `getComputedStyle`で全要素抽出したか（手動view-sourceで済ませていないか）
+2. tokens.jsonがW3C DTCG準拠か（`$value`/`$type`/`$schema`必須）
+3. OKLCH変換が全カラーに適用されているか
+4. `@property`/`@layer`/`:has()`/`text-wrap`/View Transitionsの近代CSS 5系統をSTEP 1マップに記録済みか
+5. 抽出完了度スコアを80点以上に到達させてからren/naoへハンドオフしたか
+
+### 📊 KPI・成果指標
+- **抽出精度**: 100%（要素・ルール・変数の抽出漏れゼロ、CSS Statsで検証）
+- **抽出時間**: 対象LP1本あたり30分以内（Playwright自動化）
+- **下流の修正手戻り率**: 5%以下（tokens.json W3C DTCG準拠で誤解釈根絶）
+
+### 🎓 継続学習のための参照ソース
+- **W3C Design Tokens Community Group（DTCG）公式spec**: tokens.json形式の最新仕様
+- **Tailwind Labs公式Blog + Tailwind v4 Docs**: `@theme`/`@utility`/CSS-first configの実装例
+- **web.dev「CSS 2026 Baseline」**: `:has()`/`@property`/View Transitions等の対応状況

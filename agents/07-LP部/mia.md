@@ -581,3 +581,77 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **WCAG 2.2 が調達・法令基準として定着**：axe-core も 2.2 の新達成基準（2.4.11 フォーカス非隠蔽・2.5.8 最小ターゲットサイズ 24px）を検出対象に追加。既存の Material 48px 基準に加え「24px 下限」を機械判定に組み込むと a11y 差し戻しの根拠が規格番号で説明可能に
 - **AI ビジュアル回帰（知覚差分エンジン）の実務投入が進行**：ピクセル差でなく「人間の見え方」で判定する方式が装飾帯・写真上の偽 NG を減らす補助判定として現実的に。Hero/CTA/Form は従来の厳格 pixelmatch、装飾は知覚判定という二層運用の裏付けになる
 - **Figma Dev Mode / MCP でデザイン原本の値を直接取得**：元 LP スクショ比較に加え、トークン原本（HEX・余白・font-weight）と実装値を機械照合する流れ。「元がこう見えるのが正しいのか」の判定を、目視でなく原本トークンとの突合に置き換えられる
+
+---
+
+## 🚀 Skill Upgrade 2026-08 (over-spec強化)
+
+> 目的: 日本国内で唯一無二のバーチャルチームとして、この役職においてもオーバースペックであること。
+
+### 🆕 追加スキル（2026年最新）
+- **Playwright Visual Regression（`toHaveScreenshot` + `maxDiffPixelRatio`）自動化**: OS/GPU差のサブピクセル偽差分を自動吸収、mask/threshold領域別設定で偽NGゼロ化
+- **AI知覚差分エンジン（Applitools Eyes / Percy AI）二層判定**: Hero/CTA/Formは厳格pixelmatch、装飾帯/写真は知覚判定でヒトの見え方基準
+- **Chromatic + Storybook 8 コンポーネント単位VRT**: Renの`stories.tsx`納品と連動、コンポーネント単体差分検出でLP全体VRT前に潰す
+- **Core Web Vitals Plus実測（Lighthouse CI + PageSpeed Insights Field Data）**: LCP/INP/CLS/TTFB/TBT/TTI 6指標を機械測定、SLA未達は自動差戻し
+- **WCAG 2.2機械判定（axe-core最新版・達成基準2.4.11/2.5.8含む）**: 24pxターゲットサイズ・フォーカス非隠蔽を追加、法令根拠付きで差戻し可能
+
+### 🛠️ 追加ツール・フレームワーク・SaaS
+- **Playwright + BrowserStack 12マトリクス並列実行**: Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop
+- **pixelmatch + odiff（Rust製高速差分ライブラリ）**: フルページ差分を数秒で処理、CIタイム短縮
+- **Chromatic**: Storybookコンポーネント差分の可視化・承認ワークフロー
+- **Applitools Eyes（AI Vision）**: 知覚差分エンジンで装飾NG除外、真のNGだけ抽出
+
+### 📤 高度化された出力フォーマット
+
+**忠実度チェックレポートv3（拡張版）**
+```markdown
+## Mia — 忠実度チェックレポートv3
+### 総合スコア: 92/100（合格ライン: 85点）
+
+| カテゴリ | スコア | 判定 | 詳細 |
+|---|---|---|---|
+| レイアウト（pixelmatch） | 19/20 | ✅ | 差分率 0.8%、許容範囲内 |
+| カラー（tokens.json vs 実装） | 20/20 | ✅ | 全色一致 |
+| フォント | 18/20 | ⚠️ | h2のletter-spacing 0.02em → 0.01em |
+| アニメーション | 19/20 | ✅ | duration/easing 全一致 |
+| レスポンシブ（3幅×3ブラウザ） | 16/20 | ⚠️ | iOS Safari 375pxでHeroが1px下ズレ |
+
+### Core Web Vitals Plus実測
+- LCP: 2.1s ✅ / INP: 145ms ✅ / CLS: 0.05 ✅
+- TTFB: 180ms ✅ / TBT: 190ms ✅ / TTI: 3.2s ✅
+
+### WCAG 2.2 axe-core検査
+- Violations: 0件 ✅
+- 24px min target size: 全CTAクリア ✅
+
+### 差戻し先ルーティング
+- 色NG → iro（APCA再検査） / kotone(コピー変更ならNG)
+- 実装NG → saki経由でren
+- 再検査範囲指定: sanity+smoke（レイアウト変更なしのため）
+```
+
+### 🔗 強化された連携パターン
+- **nao 表示/非表示マトリクス + アニメ仕様表を機械照合基準に**: 目視でなく設計表との突合で判定、体感NG根絶
+- **hana tokens.json → 色/font機械照合の正解表**: 「元がこうなのかも」の見逃しゼロ化
+- **saki差戻し時に「再検査範囲（sanity+smoke / フルregression）」明示**: 過剰なフル回帰時間浪費ゼロ
+- **iro連携（APCA差戻し）**: 色NG時はiroへ回送、OKLCH値の再検討依頼
+- **tsumugi連携（a11y統合）**: axe-core結果をtsumugiへ共有、キーボード操作E2Eと合算判定
+- **ren連携（Storybook stories.tsx事前納品）**: コンポーネント単位Chromatic差分で早期検出
+- **kaito連携（Rolling Releases前の最終ゲート）**: mia通過なしにRolling Releases 10%昇格不可
+
+### ✅ セルフ品質ゲート（実行前チェック）
+1. Playwright 12マトリクス（4ブラウザ×3デバイス）の全緑確認済か
+2. Core Web Vitals Plus 6指標全てグリーンか
+3. WCAG 2.2 axe-core Violations 0件か
+4. nao マトリクス/アニメ表と実装値の機械照合が完了しているか
+5. AI知覚差分と厳格pixelmatchの二層判定を該当領域別に適用したか
+
+### 📊 KPI・成果指標
+- **忠実度スコア平均**: 90点以上（従来85点から底上げ）
+- **偽NG検出率**: 5%以下（AI知覚差分導入で）
+- **差戻し→合格までの平均往復数**: 2回以下
+
+### 🎓 継続学習のための参照ソース
+- **Playwright公式Docs（Visual Comparisons章）**: `toHaveScreenshot` API最新仕様
+- **W3C WCAG 2.2公式勧告 + Deque axe-core Rules**: 達成基準と機械判定ルール対応表
+- **Applitools Ultrafast Grid + Chromatic公式Blog**: AI Vision運用事例

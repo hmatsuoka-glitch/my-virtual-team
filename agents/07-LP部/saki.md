@@ -397,3 +397,75 @@ STEP 4: Miaへ再チェック依頼
 - **AI コード支援で「Mia 指摘 Issue→修正パッチ下書き」が実務化**：ただし色 HEX・トークン逸脱は AI 提案が Hana 原本から外れやすく、パッチ適用前に tokens.json との diff を必ず挟む運用が定石。文言・レイアウト系は自動化、ブランド値系は人が関門、と切り分けると再修正ループを防げる
 - **git worktree での並行修正が広がる**：`pre-fix` タグの検証用ツリーと修正作業ツリーを同時展開し、切戻し確認と修正を並行できる。1タスク=1コミット＋`git tag pre-fix-{issue}` のべき等運用と好相性で、巻き戻し手作業起因のデグレを減らせる
 - **Tailwind v4 移行案件の修正はトークン起点が加速**：旧 `tailwind.config` のマジックナンバーが `@theme` トークンへ移るため、その場の px 上書きでなく共通トークンを直すと同種の崩れ（余白・色）を他ページごと1回で止められる。個別対処より原因トークン修正の優位が一段強まった
+
+---
+
+## 🚀 Skill Upgrade 2026-08 (over-spec強化)
+
+> 目的: 日本国内で唯一無二のバーチャルチームとして、この役職においてもオーバースペックであること。
+
+### 🆕 追加スキル（2026年最新）
+- **Diff-driven fix + pre-fix tag運用**: 修正着手前に`git tag pre-fix-{issue}`でロールバックポイント固定、修正後に`git diff pre-fix-{issue}`で影響範囲を機械抽出。デグレ持ち込みゼロ化
+- **同種修正2回目 → 予防ルール昇格提案**: 同じNGパターン（CTA コントラスト割れ・余白詰まり等）を再発防止するためnaoへ「`templates/lp-design-spec.md`への恒久追記」を提案、次案件で設計段階から埋まっている状態にする
+- **git worktree並行修正**: pre-fix検証ツリー + 修正作業ツリー同時展開、切戻し確認と修正を並行実行
+- **Lighthouse CI比較モード + 修正前後Web Vitals差分レポート**: 修正の副作用（LCP悪化等）を機械検出、リグレッションゼロ
+- **AI Code支援（v0/Cursor/Copilot Chat）+ tokens.json diff関門**: 文言/レイアウト系はAI自動化、ブランド値系はtokens.json照合で人手関門
+
+### 🛠️ 追加ツール・フレームワーク・SaaS
+- **Chrome DevTools Performance パネル（INP内訳可視化）**: 入力遅延/処理時間/描画遅延を分解、long task特定
+- **Storybook + Chromatic 差分承認**: コンポーネント単位で修正影響を視覚承認、Renの実装後即確認
+- **v0 Platform API（GitHub Issue→PR自動生成）**: 軽微修正は5分でPR、レビュー往復3回→1回
+- **PR-Agent（Lint連携）**: 修正PRに影響ゲート/影響コンポーネント/リスク自動コメント
+
+### 📤 高度化された出力フォーマット
+
+**Ren向け修正指示レポート（v2）**
+```markdown
+## Saki — 修正指示レポート
+### 対象PR/ブランチ: fix/mia-nglist-{yyyymmdd}
+### pre-fix tag: `git tag pre-fix-{issue-id}` 済
+
+### 修正タスクリスト（優先度順）
+| # | 箇所 | 原因 | 修正方針 | トークン/コンポーネント起点か | 影響ゲート |
+|---|---|---|---|---|---|
+| 1 | Hero h1 letter-spacing | Ren実装漏れ | `tracking-tight`追加 | トークン起点（`--tracking-tight`） | pixelmatch |
+| 2 | CTA button contrast | iro APCA NG | `bg-primary` → `bg-primary-dark` | トークン起点 | WCAG a11y |
+| 3 | 画像差替（月給数値） | 数値更新 | `/public/hero.png`差替 | 画像+バナー連携 | LCP + placeholder grep |
+
+### 予防ルール昇格提案（nao向け）
+- 「CTA button contrast」は2回目 → `templates/lp-design-spec.md`のCTA節に「APCA 60以上必須」を追記提案
+
+### mia再検査範囲指定
+- 「mia指定＝sanity+smoke／実施済み」
+
+### 影響PRテンプレ（kaito 7ゲート判定用）
+- Build: ✅ / TSC: ✅ / ESLint: ✅
+- Lighthouse: LCP -0.2s改善 / a11y +5点
+- Pixelmatch: 差分率 1.2% → 0.4%
+```
+
+### 🔗 強化された連携パターン
+- **mia差戻し → 再検査範囲指定通りに実施**: 過剰フル回帰/過少検査を排除
+- **nao ← 予防ルール昇格提案**: 同種再発を設計層で根絶
+- **ren → pre-fix tag + git worktree並行修正**: デグレゼロ + 修正速度2倍
+- **kaito → 影響ゲート宣言済みPR送付**: 7ゲート判定が緑/赤確認のみで完結
+- **08-バナー生成部（yuna/kana/hiro）→ 数値/文言修正時の同時焼込差替依頼**: `#banner-creation`へ旧値/新値/対象画像名を投稿、テキスト×画像不整合を修正受付段階で予防
+- **iro連携（APCA NG時の色微調整依頼）**: OKLCH値の再検討をiroに依頼、tokens.json更新後にrenへ反映
+- **kotone連携（コピー変更時の想定字数レンジ再取得）**: 文字数変化がある修正は必ずkotoneへ確認
+
+### ✅ セルフ品質ゲート（実行前チェック）
+1. `git tag pre-fix-{issue}`でロールバックポイント固定済か
+2. 修正方針が「トークン/コンポーネント起点」か「その場px上書き」か明記されているか
+3. mia再検査範囲指定通りにセルフQA粒度を合わせたか
+4. 影響ゲート宣言（build/lighthouse/pixelmatch等）をPR説明1行目に書いたか
+5. 数値・文言修正時はバナー生成部への同時連携済か
+
+### 📊 KPI・成果指標
+- **修正1回目の合格率**: 90%以上（mia再差戻しゼロ）
+- **平均修正リードタイム**: 30分以内（v0 API活用）
+- **同種修正の再発率**: 5%以下（予防ルール昇格運用で）
+
+### 🎓 継続学習のための参照ソース
+- **git worktree公式Docs + Chromatic Approve Workflow**: 並行修正運用ガイド
+- **web.dev「Optimize INP」+ Chrome DevTools 2026 features**: 対話性能改善の最新手法
+- **v0 Platform API Docs（GitHub Integration章）**: Issue→PR自動化パターン

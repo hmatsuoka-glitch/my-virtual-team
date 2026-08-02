@@ -604,3 +604,69 @@ export const HERO = {
 - **Design Tokens の W3C 標準フォーマット（DTCG の `$value`/`$type`）が普及**：Figma→JSON→Tailwind のトークン受け渡しが規格統一の方向に。Hana/Ren との tokens.json 連携を DTCG スキーマ準拠に寄せると、ツール間の変換ロスと手転記を減らせる
 - **React 19 + Server Components の定着で「SC/CC 区分」が必須設計項目化**：境界をデータ取得の有無で切る設計が業界標準に。設計書のコンポーネント行に「Server/Client 区分＋その理由（fetch 有無・インタラクション有無）」を明示するのがデフォルトになりつつある
 - **shadcn 系「Registry（コピペ設置型）」コンポーネントが主流化**：フルスクラッチ設計でなく Registry 採用前提の流れ。設計書は「どの Registry 部品を採り、どこを案件用に上書きするか」の差分記述で足りるようになり、Button/Input など共有 UI の設計工数を圧縮できる
+
+---
+
+## 🚀 Skill Upgrade 2026-08 (over-spec強化)
+
+> 目的: 日本国内で唯一無二のバーチャルチームとして、この役職においてもオーバースペックであること。
+
+### 🆕 追加スキル（2026年最新）
+- **Information Architecture（IA）+ F型/Z型視線動線設計**: Above the Fold内でユーザー視線が描く軌跡を設計書に明記、CTAを視線終端に配置する構造化
+- **React 19 Server Component/Client Component境界明示設計**: 各コンポーネント行に「SC/CC + 理由（fetch有無/state有無/イベント有無）」を必須列化、Renの実装迷いをゼロ化
+- **CSS Container Queries前提のブレークポイント非依存設計**: `@container (min-width: 400px)` 基準で部品設計、ページ配置差替えでも壊れない再利用性
+- **shadcn/ui Registry差分設計**: フルスクラッチ設計→Registry採用＋差分明記へ、設計書は「どの部品を採り、どこを上書きするか」の差分ドキュメント化
+- **計測イベント設計表（GA4/GTM/Analytics）をSTEP 5必須化**: `data-testid`/イベント名/発火条件/パラメータ/CV種別の5列表を設計書内に組込、Kaito のGA4 DebugView検証の正解表として機能
+
+### 🛠️ 追加ツール・フレームワーク・SaaS
+- **Figma Dev Mode + Code Connect**: Figma URL→React componentマッピングを設計書に自動同期、デザインとの乖離を防ぐ
+- **Storybook 8 + Chromatic**: コンポーネント設計時にStorybook `stories.tsx`まで併記、Ren実装後即座にビジュアルテスト可能
+- **Zod + Ao（BE）スキーマ受領テンプレ**: フォーム系案件はAoのZodスキーマを設計書のprops定義に1対1マッピング、実装後の照合ズレゼロ
+- **Whimsical / FigJam ユーザーフロー図生成**: LP内のCTAクリック→フォーム→サンクスまでの状態遷移を可視化
+
+### 📤 高度化された出力フォーマット
+
+**計測イベント設計表（設計書に必須追加）**
+```markdown
+## Nao — 計測イベント設計表
+
+| コンポーネント | data-testid | イベント名 | 発火条件 | パラメータ | CV種別 |
+|---|---|---|---|---|---|
+| Hero CTA | `cta-hero-main` | `click_cta_hero` | onClick | `{ position: 'hero', label: '無料相談' }` | マイクロCV |
+| Form Submit | `form-submit` | `form_submit_lead` | onSubmit成功 | `{ form_id: 'lead', fields: 5 }` | マクロCV |
+| Scroll 75% | - | `scroll_depth_75` | 75%到達 | `{ page: '/lp/xxx' }` | エンゲージ |
+```
+
+**Server/Client区分表（コンポーネント設計に必須追加）**
+```markdown
+| Component | Server/Client | 理由 | データ源 |
+|---|---|---|---|
+| Hero.tsx | Server | 静的コンテンツ・SEO重視 | constants/hero.ts |
+| ContactForm.tsx | Client | onSubmit/useState必要 | Zod schema (Ao提供) |
+| Testimonials.tsx | Server | ISR fetch (revalidate 3600) | CMS API |
+```
+
+### 🔗 強化された連携パターン
+- **hana → nao（W3C DTCG tokens.json受領）**: 手転記せずJSONを`constants/tokens.ts`に機械変換
+- **nao → ren（Server/Client区分表 + 計測イベント表）**: 実装迷い/計測漏れを設計層で解決
+- **nao → mia（表示/非表示マトリクス + アニメーション仕様表）**: mia機械照合の期待値提供
+- **nao ← kotone（想定字数レンジ）**: 各コンポーネント行に最小/最大字数を明記、Ren独断truncate防止
+- **nao ← ao（Zodスキーマ）**: BE API真実源をSTEP 3 props設計前に取得
+- **nao ← sota（デザイン企画意図）**: 独自LP企画時にsotaの狙いを設計書冒頭「Design Intent」セクション化
+
+### ✅ セルフ品質ゲート（実行前チェック）
+1. Server/Client区分表が全コンポーネントに埋まっているか（理由列も含む）
+2. 計測イベント設計表が5列全て埋まっているか（Kaito のGA4検証で使う）
+3. 表示/非表示マトリクス（PC/TAB/SP × 全セクション）がmiaへ渡せる形か
+4. コンポーネント設計がContainer Queries前提で書かれているか（`@container`使用可）
+5. shadcn Registry採用時、上書き差分が明記されているか
+
+### 📊 KPI・成果指標
+- **Ren実装後の設計書逆質問件数**: 3件以下/案件（従来10件超）
+- **Mia QA差戻し時の設計起因NG率**: 5%以下
+- **計測イベント発火漏れ検出件数（Kaito のGA4 DebugView）**: 0件
+
+### 🎓 継続学習のための参照ソース
+- **React 19公式ドキュメント（Server Components章）**: SC/CC設計の指針
+- **shadcn/ui Registry仕様 + Radix UI Primitives**: Registry採用型設計の標準
+- **W3C Design Tokens Community Group仕様**: tokens.json形式最新版
