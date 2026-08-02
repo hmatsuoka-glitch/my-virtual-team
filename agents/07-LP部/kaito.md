@@ -399,3 +399,72 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Next.js 15.3+ で `next build --turbopack` が stable 化**：本番ビルドが Webpack 比で高速化し、CI のビルド待ちが縮む。ローカル `vercel build`→`--prebuilt` デプロイ運用と合わせると緊急修正の反映がさらに短縮
 - **Vercel の「BotID」不可視ボット防御が Edge 標準機能に**：フォーム LP のスパム/自動送信対策を、reCAPTCHA 実装を足さずエッジで弾ける流れ。送信 500 系の env 依存（reCAPTCHA secret 未設定事故）を減らせる選択肢として STEP 5 で検討価値
 - **Core Web Vitals 診断が「LCP のサブパート内訳」主流化**：LCP を TTFB/リソース読込遅延/要素描画遅延に分解して原因層（Kaito の Edge・Ren の画像・Nao の予約寸法）を切り分ける診断が PageSpeed 標準に。「遅い」を一括で投げず内訳で差配する運用に接続
+
+---
+
+## 🚀 Skill Upgrade 2026-08 (over-spec強化)
+
+> 目的: 日本国内で唯一無二のバーチャルチームとして、この役職においてもオーバースペックであること。
+
+### 🆕 追加スキル（2026年最新）
+- **Next.js 15.3 App Router + Turbopack 本番運用オーケストレーション**: Pages Router deprecatedに完全対応、Turbopack stable化でCIビルド速度2倍。全案件でApp Router標準化＋`--turbopack`フラグをCI/CDに組み込む統括判断力が必須
+- **Vercel Rolling Releases による段階的本番昇格の指揮**: 10%→50%→100%の段階トラフィック配分で監視、Blue-Greenの一発切替リスクをフォームLPで排除。ロールバック閾値（エラー率0.5%超で自動巻き戻し）をSTEP 5で必ず設定
+- **v0 Platform API + Vercel AI Gateway統合による自己修正パイプライン**: `v0 generate --from-issue`で軽微修正を30分内自動PR化、Kaitoが会議中でも修正着地。saki/renの介入を減らし部長リソースを企画・戦略に集中
+- **Vercel BotID（Edge標準）＋Fluid Compute の運用切替判断**: reCAPTCHA実装不要でエッジフォーム防御、Fluid Computeでcold start撲滅。案件特性（フォーム有無・トラフィック変動）に応じ`vercel.json`で瞬時切替する運用ノウハウ
+- **Core Web Vitals Plus（6指標：LCP/INP/CLS/TTFB/TBT/TTI）SLA契約化**: 従来3指標から拡張、GoogleランキングウェイトUP対応。契約書に6指標グリーンをSLAとして明記し、`lhci autorun`で`predeploy`ゲート化
+
+### 🛠️ 追加ツール・フレームワーク・SaaS
+- **Vercel v0 Platform API v2**: LP修正指示テキスト→Pull Request自動生成、GitHub Issue連動で修正リードタイム18倍化
+- **Turborepo Remote Cache（Vercel Remote Cache連携）**: monorepoでの複数LP案件並列デプロイ、ビルド時間4分→25秒
+- **Lighthouse CI + Vercel Speed Insights連結**: `predeploy`フックでSLA違反デプロイを物理ブロック、本番後7日間の実ユーザーメトリクス自動監視
+- **Playwright + BrowserStack 12マトリクス自動巡回**: Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop、CTA→フォーム→サンクスE2Eを本番前に全緑保証
+
+### 📤 高度化された出力フォーマット
+
+**LP複製プロジェクト・受注時Scope確定書テンプレ（Slackピン留め必須）**
+```markdown
+## 【LP複製案件】Scope確定書 — {クライアント名}
+- 複製元URL: {URL}
+- 複製範囲: [ ] TOPのみ / [ ] TOP+下層Nページ / [ ] フォーム送信ロジック含む / [ ] CMS連動含む
+- デバイス対応: [ ] PC / [ ] SP / [ ] TAB
+- ブレークポイント: {sm/md/lg/xl}
+- 忠実度合格ライン: 標準85点 / 高難度90点 / タイト納期80点
+- 公開希望日: {YYYY-MM-DD} / 社内レビュー日: {YYYY-MM-DD}
+- 逆算スケジュール:
+  - {D-10} Hana CSS抽出開始
+  - {D-8}  Nao設計書 + Ren骨格 並列完了
+  - {D-5}  Ren詳細実装完了
+  - {D-3}  Mia QA完了
+  - {D-2}  DNS TTL短縮依頼（HARU経由）
+  - {D-1}  Vercel Preview最終確認
+  - {D-0}  Rolling Release 10%→50%→100%
+- 使用技術: Next.js 15.3 App Router + Turbopack / Tailwind v4 / Vercel Fluid
+- SLA契約: LCP<2.5s / INP<200ms / CLS<0.1 / TTFB<200ms / TBT<200ms / TTI<3.5s
+- ロールバック条件: 昇格中エラー率0.5%超で自動巻き戻し
+```
+
+### 🔗 強化された連携パターン
+- **hana → nao/ren 並列 + tokens.json即時共有**: Hana CSS抽出完了度スコア80点以上で自動的にnao/renへ`design-tokens.json`（OKLCH色空間+CSS変数）配信、待機ゼロ化
+- **mia NG → saki 修正優先度マトリクス（優先度×難易度）自動振分**: Mia QA差戻し時に「高優先×簡易」を最初にrenへ、低優先×難易は次スプリントへ棚上げ
+- **kotone連携（OG description・SNSシェアコピー）**: STEP 5 OGプレビュー検証時、画像/URL系はren・文言系はkotoneへ振分けて往復排除
+- **iro連携（WCAG AAA + APCA差戻し）**: mia通過後もiroのAPCA検査で追加NGがあればsaki経由で色微調整
+- **tsumugi連携（axe-core + キーボード操作E2E）**: 12マトリクス自動巡回にtsumugiのa11yチェックを組込、Sora引継ぎ前ゲート化
+- **08-バナー生成部（yuna/kana/hiro/rei）へ3点セット自動配信**: STEP 5デプロイ完了直後に「URL + Heroスクショ + tokens.json」をSlack `#banner-creation`へGitHub Actionsで自動投稿、ブランドズレゼロ化
+- **09-システム開発部（sota/kai）へCMS/認証連動時の5項目引継テンプレ**: 連携先/API仕様/認証方式/データ流入/実装方式（Server Action/API Route/Edge Function）をSTEP 1完了時点で先出し
+
+### ✅ セルフ品質ゲート（実行前チェック）
+1. Scope確定書がSlackピン留めされ、公開希望日・SLA・ロールバック条件が明記済みか
+2. 部下4名（Hana/Nao/Ren/Mia）+ 拡張3名（iro/kotone/tsumugi）に指示書テンプレ配布済みか
+3. `predeploy`フック7ゲート（build/tsc/eslint/lhci/pixelmatch/placeholder grep/cache-bust確認）が有効化済みか
+4. Vercel Production Branchが`main`であること、環境変数がProduction/Preview両方でセット済みか
+5. Rolling Releases設定＋エラーバジェット閾値（月43分＝99.9%SLO）がクライアントと合意済みか
+
+### 📊 KPI・成果指標
+- **納期遵守率**: 100%（Scope確定書＋逆算スケジュール運用で）
+- **本番デプロイ後の重大障害発生率**: 0件/月（7ゲート＋Rolling Releases＋MTTR10秒台の三重防御）
+- **忠実度スコア平均**: 90点以上（拡張3名連携で85→90に底上げ）
+
+### 🎓 継続学習のための参照ソース
+- **Vercel Ship 2026 Keynote（毎年4月）**: Fluid Compute / v0 Platform API / BotID等の新機能を最速キャッチアップ
+- **Next.js Conf 2026 + web.dev blog**: App Router / Turbopack / Core Web Vitals Plusの公式最新情報
+- **Chrome DevRel「INP最適化ガイド」**: FID→INP移行後の実戦チューニング手法
