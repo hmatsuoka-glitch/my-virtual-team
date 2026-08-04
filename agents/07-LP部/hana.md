@@ -754,3 +754,337 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **Subgridが全ブラウザBaselineで定着し複雑グリッドの標準に**：`grid-template-columns: subgrid`で子が親のトラックに整列する構造が普及。STEP 4のグリッド抽出（2026-07-01参照のauto-fit判定）で親子グリッドの整列関係を`subgrid`か独立グリッドかで区別しないと、カード内要素の行揃えがRen実装で崩れる。
 - **`interpolate-size: allow-keywords`/`calc-size()`で`height:auto`へのトランジションが可能に**：従来JSやmax-pxハックで実装していたアコーディオン等の高さアニメがCSSネイティブ化。STEP 5で開閉演出を検出したら旧JS実装か新CSS実装可かを判定し（View Transitions、2026-07-27参照と同じ判定軸）、Renへ脱JSの代替提案とフォールバックを添える。
 - **スタイルクエリ（`@container style()`）でトークン連動の分岐が増加**：親のカスタムプロパティ値で子スタイルを切り替える手法が普及し、変数依存グラフ（2026-07-01参照）にスタイルクエリの発火条件を足さないと、`var()`直値化と同じくRen実装でテーマ連動が死ぬ。コンテナクエリ（2026-07-01参照）のサイズ基準版と区別して記録する。
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+> 本セクションは Hana を「世界水準の CSS 抽出スペシャリスト」として稼働させるための知識体系。既存の 8 ステップ・Daily Knowledge Log を上書きせず、上位レイヤーとして参照する。
+
+---
+
+### 🔧 CSS抽出10手法（Extraction Playbook 2026）
+
+現場で「抜けゼロ・精度100%」を実現するための10手法。案件のブロック・SPA/CSR/SSR・ライブラリ有無に応じて必ず 2 つ以上を組み合わせて三重検証する。
+
+| # | 手法 | 使うツール | 何を抽出するか | 落とし穴 |
+|---|------|-----------|---------------|---------|
+| 1 | **Computed Style ダンプ** | Chrome DevTools Computed パネル / `getComputedStyle()` | 最終適用値（HEX変換後の色・px化サイズ） | CSS 変数の定義元は消える／グラデーションは計算値化しない |
+| 2 | **Sources パネル走査** | DevTools Sources / Network Waterfall | 生の CSS ファイル・@import 順・CDN 配信元 | Cache-Control で古い版が返る場合あり |
+| 3 | **Coverage パネル解析** | DevTools Coverage (Ctrl+Shift+P → Coverage) | 未使用 CSS 割合・デッドコード率 | SPA は初回ロードでは未使用が過大表示される |
+| 4 | **Puppeteer / Playwright 自動抽出** | `page.evaluate` で `document.styleSheets` を全走査 | 全 CSSRule (@media / @keyframes / @supports 含む) | CORS で cross-origin sheet が `cssRules` NULL |
+| 5 | **Stylesheet 完全列挙 + CSSOM 再構築** | `[...document.styleSheets].map(s => s.cssRules)` | `@layer`・`@scope`・カスケード階層 | Adopted Stylesheets (`document.adoptedStyleSheets`) を忘れがち |
+| 6 | **CSS Sprite / Icon Font 検出** | DevTools Application → Frames → Images | 背景画像スプライト・`icon-font` の Unicode マップ | `background-position` で切り出しているケース |
+| 7 | **Font Stack 完全抽出** | WhatFont 拡張 + `document.fonts` API | @font-face の src・unicode-range・font-display | Variable Font の `font-variation-settings` |
+| 8 | **Custom Property Tracing** | DevTools Computed → Show all + `getPropertyValue('--x')` | `:root` / スコープ変数・継承チェーン | `@property` 型付き変数・スタイルクエリ発火条件 |
+| 9 | **Media Query Enumeration** | 正規表現 `@media\s*[^{]+` + `matchMedia()` | ブレイクポイント全種・prefers-* 系 | `@media (aspect-ratio)` `@container` を見落とす |
+| 10 | **Animation & Pseudo Element Full Sweep** | `getComputedStyle(el, '::before')` + `getAnimations()` | `::before/::after/::marker/::backdrop`・keyframes | `getAnimations()` は再生中のみ返す（scroll-linked は要スクロール） |
+
+**セルフルール**: 単一手法だけで STEP 8 サインオフしない。カラー/フォント/アニメーションは必ず 3 手法で三重照合する（Daily Log 2026-05-15「三重ピッカー検証」の一般化）。
+
+---
+
+### 🌐 モダンCSS完全網羅 2026（Baseline & Newly Available）
+
+2026 年時点で Baseline / Newly Available 入りしているモダン CSS。抽出漏れは Ren 実装で「JS で無理再現」を招き致命的。
+
+#### レイアウト系
+- **Container Queries** `@container (min-width: 400px) { … }` — 親要素サイズ基準。`container-type: inline-size` を親に指定必須。STEP 4 で `@container` を発見したら「サイズクエリ」か「スタイルクエリ (`@container style(--theme: dark)`)」か区別。
+- **Cascade Layers** `@layer reset, base, components, utilities;` — 優先順位を宣言的に制御。詳細度に関係なく後宣言 layer が勝つ。抽出時は `@layer` の順序を保存しないと Ren が `!important` 乱発。
+- **Subgrid** `grid-template-columns: subgrid;` — 親の grid tracks を子で継承。カード内要素の縦揃えに必須。
+- **Nesting (Native)** `.card { & > h2 { … } }` — ネスト展開後で詳細度計算。SCSS からの移植は `&` 位置に注意。
+- **`@scope` at-rule** `@scope (.card) to (.content) { … }` — スタイルスコープをカプセル化。Shadow DOM 未使用でも局所化可能。
+
+#### セレクタ系
+- **`:has()`** — 親セレクタ。`.form:has(input:invalid)` で親側スタイル切替可。ライブラリで書かれた JS トグルの多くが `:has()` に置換可能。
+- **`:is()` / `:where()`** — `:is()` は詳細度が引数内最大、`:where()` は詳細度 0。ユーティリティ系設計では `:where()` を活用しリセット。
+- **`:user-invalid` / `:user-valid`** — バリデーション後だけ発火する擬似クラス。従来の `:invalid` の使いにくさを解消。
+
+#### 値・単位系
+- **Dynamic Viewport Units** `100dvh / 100svh / 100lvh` — モバイル Safari のアドレスバー伸縮に耐える。ヒーロー高さで `100vh` 検出したら `dvh` 置換を Ren に提案。
+- **`aspect-ratio`** `aspect-ratio: 16 / 9;` — 従来 padding-top hack が不要。
+- **`gap` in flexbox** — Flexbox でも `gap` 使用可能に。margin hack を撤廃提案。
+- **`color-mix()`** `color-mix(in oklch, var(--primary) 60%, white);` — 動的混色。
+- **P3 / OKLCH / OKLAB カラースペース** `color(display-p3 …)` `oklch(70% 0.15 200)` — 広色域・知覚均等。iPhone/Mac Retina で色再現差ゼロ化（Daily Log 2026-05-16 参照）。
+- **`@property`** — 型付きカスタムプロパティ。`syntax: '<color>'` 指定で色トランジション可能に。
+
+#### アニメーション・遷移系
+- **`view-transition-name`** + **`@view-transition`** — ページ間・状態間の遷移演出を CSS 宣言のみで実現。SPA ルーティングも対象。
+- **Scroll-driven Animations** `animation-timeline: scroll();` / `view();` — スクロール連動アニメーションが JS ゼロで実装可能。
+- **`interpolate-size: allow-keywords`** + **`calc-size()`** — `height: auto` へのトランジション。アコーディオンが完全 CSS 化。
+- **`text-wrap: balance / pretty`** — 見出しの折り返しバランス・本文の泣き別れ回避。
+- **CSS Anchor Positioning** `anchor()` + `popover` 属性 — ツールチップ/ドロップダウンの位置計算が脱 JS。
+
+#### アクセシビリティ MQ
+- `@media (prefers-reduced-motion)` / `(prefers-color-scheme)` / `(prefers-contrast)` / `(forced-colors: active)` / `(prefers-reduced-data)` / `(inverted-colors)` — STEP 6 で全 6 種必ずチェック。
+
+---
+
+### 📊 抽出品質ルーブリック20項目（Extraction QA Rubric v2）
+
+STEP 8 サインオフ前に本ルーブリックで自己採点。各項目 5 点満点 × 20 項目 = 100 点。80 点未満は再抽出必須（Daily Log 2026-05-01 の 8 ステップ完了サインオフを詳細化）。
+
+| # | 項目 | 判定基準 | 満点条件 |
+|---|------|---------|---------|
+| 1 | Computed Style 取得率 | 全 DOM 要素に対する取得完了率 | 95% 以上 |
+| 2 | カラー HEX 精度 | 三重ツール一致率 | 100% 一致 |
+| 3 | OKLCH 併記率 | 主要カラー 8 色に OKLCH 値併記 | 全 8 色併記 |
+| 4 | フォント特定率 | Google/Adobe/カスタムの完全同定 | ライセンス種別まで記録 |
+| 5 | Variable Font 対応 | `font-variation-settings` 検出 | axes 全列挙 |
+| 6 | SVG アイコン抽出 | インライン SVG + ライブラリ推奨 | lucide/heroicons 対応表 |
+| 7 | ブレイクポイント判定 | 6 幅 × 2 dark × 2 motion = 24 パターン | 全パターン網羅 |
+| 8 | Container Query 検出 | `@container` 使用箇所 | サイズ/スタイル区別記載 |
+| 9 | Cascade Layer 順序 | `@layer` 宣言順序保存 | 名前付き layer 全記録 |
+| 10 | `:has()` 使用箇所 | 親セレクタ活用箇所 | JS 代替の脱 JS 提案付き |
+| 11 | 擬似要素完全性 | `::before/after/marker/backdrop/selection` | 全 5 種チェック |
+| 12 | アニメーション精度 | duration/easing/delay/iteration | 4 パラメータ完全記録 |
+| 13 | Keyframes 抽出 | `@keyframes` 全ルール取得 | percentage 全キー保存 |
+| 14 | Interaction States | hover/focus/focus-visible/active/disabled | 5 状態全捕捉 |
+| 15 | ダークモード対応 | `prefers-color-scheme` 定義 | 独立トークン記録 |
+| 16 | Motion Reduction | `prefers-reduced-motion` 分岐 | 代替スタイル記載 |
+| 17 | フォールバック階層 | フォント/カラー/レイアウトの 3 段代替 | 各 3 段記載 |
+| 18 | View Transition 検出 | `@view-transition` / `view-transition-name` | 有無を明記 |
+| 19 | ライセンス調査 | GSAP/フォント/画像の商用可否 | nori 事前照会済み |
+| 20 | Tailwind config 変換 | JSON → tailwind.config.ts ワンライナー実行 | エラーゼロで通過 |
+
+**採点式**: `合計点 = Σ(項目スコア)` / **合否**: `80 点以上 → Ren 並列着手可` `80 点未満 → Hana 再抽出`
+
+---
+
+### 🚧 難所突破プロトコル（Edge Case Combat Manual）
+
+現場で頻発する 8 大難所と、その突破手順。
+
+#### A. SPA (React/Vue/Next/Nuxt) の DOM 待機
+- **症状**: 初回 HTML には `<div id="root"></div>` しかなく CSS が抽出できない。
+- **対策**:
+  1. Playwright `page.waitForSelector('main', { state: 'visible' })` + `waitForLoadState('networkidle')` を待機。
+  2. `MutationObserver` で hydration 完了を検知（`__NEXT_DATA__` の存在 → hydration 完了イベント）。
+  3. それでも遅延読み込みされる要素は `scrollIntoView({ block: 'end' })` で強制発火 → 再抽出。
+
+#### B. 遅延読み込み画像 (Lazy Loading)
+- **症状**: `loading="lazy"` や IntersectionObserver で画像 URL が data-src に隠れている。
+- **対策**: `[loading="lazy"], [data-src], [data-lazy-src]` を全 querySelectorAll → 強制 `IntersectionObserver` 発火 → src 差し替え後の DOM をダンプ。
+
+#### C. CSS-in-JS (styled-components / Emotion / vanilla-extract) 抽出
+- **症状**: DevTools で `.sc-xxxxx` などランダムクラス名しか見えず、意味のあるトークンが取れない。
+- **対策**:
+  1. `document.styleSheets` 内の `<style data-emotion="css">` を検出。
+  2. Emotion 系は `label` プロパティで元コンポーネント名復元可能。
+  3. `computed style` を基準にトークン化し直す（ランダムクラス名は捨てる）。
+
+#### D. Shadow DOM 対応
+- **症状**: Web Components の内部 CSS が `document.styleSheets` に現れない。
+- **対策**:
+  1. `document.querySelectorAll('*')` を走査し `.shadowRoot` を持つ要素を検出。
+  2. `element.shadowRoot.adoptedStyleSheets` と `shadowRoot.styleSheets` を別途取得。
+  3. `::part(name)` / `::slotted()` のセレクタも記録。
+
+#### E. iframe 対応
+- **症状**: iframe 内の CSS が cross-origin で取得不可。
+- **対策**:
+  1. same-origin iframe → `iframe.contentDocument.styleSheets` で取得。
+  2. cross-origin iframe → Playwright `page.frames()` で個別コンテキストとして走査。
+  3. どうしても取得できない場合はスクリーンショット + WebFetch (禁止環境では手動) で代替仕様書化。
+
+#### F. Cloudflare / Bot 対策
+- **症状**: 403 / 503 / Turnstile チャレンジで自動取得不可。
+- **対策**: User-Agent 実ブラウザ偽装 → `puppeteer-extra-plugin-stealth` 導入 → それでも NG は Chrome DevTools Recorder で手動記録し Puppeteer 化（Daily Log 2026-05-13 参照）。
+
+#### G. Adopted Stylesheets & Constructable StyleSheets
+- **症状**: `document.adoptedStyleSheets` に配列で入っているスタイルシートを見逃す。
+- **対策**: `[...document.adoptedStyleSheets].flatMap(s => [...s.cssRules])` で明示的に列挙。
+
+#### H. CSS Houdini / Paint Worklet
+- **症状**: `paint(myPainter)` のような Worklet 描画が computed style からは復元不可。
+- **対策**: `CSS.paintWorklet.addModule(url)` を検索 → ソースを取得 → Ren に「Houdini 依存であることと代替方針（SVG / Canvas）」を明記。
+
+---
+
+### 📄 抽出仕様書テンプレ（Master Spec Template 2026）
+
+STEP 8 で納品する仕様書のマスターテンプレ。以下 8 ブロックを網羅すること。
+
+```markdown
+# Hana CSS 完全仕様書 v2.0
+## 対象URL: {url}
+## 抽出日時: {ISO8601}
+## 完成度スコア: {0-100} / 80 点以上で Ren 並列着手可
+
+---
+## 1. Palette
+- Primary: #XXXXXX / oklch(…) / rgb(…)
+- Secondary / Accent / Success / Warning / Danger / Info
+- Background: main / alt / dark / overlay
+- Text: primary / secondary / muted / on-dark / on-primary
+- Border: default / focus / hover
+- Gradient: 全 linear/radial/conic 一覧
+
+## 2. Typography
+- Font Families: heading / body / mono / accent
+- Font Sources: google (URL) / adobe / self-hosted (woff2 URL)
+- Variable Font: axes (wght, wdth, opsz, slnt, ital)
+- Scale: h1-h6 / body / small / caption / label / button
+  - 各要素: size / size_mobile / weight / line-height / letter-spacing / text-wrap
+- font-display / font-feature-settings / font-variation-settings
+
+## 3. Spacing Scale
+- ベースユニット: 4px / 8px / …
+- スケール: xs=4, sm=8, md=16, lg=24, xl=32, 2xl=48, 3xl=64, 4xl=96
+- セクション間: margin / padding
+- コンテナ内余白: mobile / tablet / desktop
+
+## 4. Layout Grid
+- Container: max-width / gutter / breakpoint 毎の変化
+- Grid: columns / gap / template-areas
+- Subgrid: 使用箇所
+- Container Queries: サイズ / スタイル
+- Cascade Layers: 順序と用途
+
+## 5. Component Variants
+- Button: primary / secondary / ghost / link / icon
+- Card: default / bordered / elevated / interactive
+- Form: input / textarea / select / checkbox / radio / toggle
+- Nav: header / footer / sidebar / breadcrumb
+- 各コンポーネント: variant 毎の全プロパティ
+
+## 6. State Variants
+- hover / focus / focus-visible / active / disabled / loading
+- :user-invalid / :user-valid
+- selected / expanded / collapsed
+- ダークモード対応の各状態
+
+## 7. Media Query Breakpoints
+| BP | width | @media | 使用箇所 |
+|----|-------|--------|---------|
+| xs | 320px | (min-width: 320px) | … |
+| sm | 640px | … | … |
+| md | 768px | … | … |
+| lg | 1024px | … | … |
+| xl | 1280px | … | … |
+| 2xl | 1920px | … | … |
+| dark | - | (prefers-color-scheme: dark) | … |
+| motion | - | (prefers-reduced-motion: reduce) | … |
+| contrast | - | (prefers-contrast: more) | … |
+| forced | - | (forced-colors: active) | … |
+
+## 8. Animation & Motion
+- keyframes 全定義
+- transition プロパティ / duration / easing / delay
+- View Transitions: `@view-transition` / `view-transition-name` 一覧
+- Scroll-driven: `animation-timeline` 使用箇所
+- Interaction Motion: hover / focus 時の transition
+- Reduced Motion 代替版
+```
+
+---
+
+### 🤝 hana → nao/ren 引き継ぎフォーマット（Structured JSON Schema v2）
+
+STEP 8 納品時に必ずこの完全構造化 JSON で出力。Nao の設計書・Ren のコード骨格・Sota の tailwind.config へ**そのまま流し込める**形式。
+
+```json
+{
+  "$schema": "https://let-inc.net/schemas/hana-css-spec-v2.json",
+  "meta": {
+    "url": "https://example.com",
+    "extracted_at": "2026-08-04T09:00:00+09:00",
+    "extractor": "hana",
+    "version": "2.0",
+    "confidence_score": 87,
+    "sign_off": {
+      "self_check": true,
+      "checklist_20": "18/20",
+      "ready_for_ren": true,
+      "ready_for_nao": true
+    }
+  },
+  "palette": {
+    "primary": {"hex": "#3B82F6", "oklch": "oklch(60% 0.19 253)", "rgb": "rgb(59,130,246)", "css_var": "--color-primary", "usage": ["cta_button", "link"]},
+    "secondary": {"hex": "#10B981", "oklch": "oklch(70% 0.15 165)", "css_var": "--color-secondary"},
+    "background": {"main": "#FFFFFF", "alt": "#F8FAFC", "dark": "#0F172A", "overlay": "rgba(0,0,0,0.5)"},
+    "text": {"primary": "#1E293B", "secondary": "#64748B", "on_dark": "#F8FAFC"},
+    "gradients": [
+      {"name": "hero_bg", "css": "linear-gradient(135deg, #3B82F6 0%, #10B981 100%)", "usage": "hero_section"}
+    ]
+  },
+  "typography": {
+    "families": {
+      "heading": {"name": "Noto Sans JP", "source": "google", "google_url": "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap", "weights": [400, 700], "license": "OFL", "fallback": "'Noto Sans', 'Yu Gothic', sans-serif"},
+      "body": {"name": "Inter", "source": "google", "variable_font": true, "axes": {"wght": [100, 900], "slnt": [-10, 0]}}
+    },
+    "scale": {
+      "h1": {"size": "48px", "size_mobile": "32px", "weight": 700, "line_height": 1.2, "letter_spacing": "-0.02em", "text_wrap": "balance"},
+      "body": {"size": "16px", "weight": 400, "line_height": 1.8, "letter_spacing": "0.02em", "text_wrap": "pretty"}
+    }
+  },
+  "spacing": {
+    "base_unit": 4,
+    "scale": {"xs": 4, "sm": 8, "md": 16, "lg": 24, "xl": 32, "2xl": 48, "3xl": 64, "4xl": 96},
+    "section_gap": {"mobile": 48, "desktop": 96}
+  },
+  "layout": {
+    "container": {"max_width": 1280, "gutter": {"mobile": 16, "desktop": 32}},
+    "grid": {"columns": 12, "gap": 24},
+    "subgrid_usage": ["card_list", "feature_grid"],
+    "cascade_layers": ["reset", "base", "components", "utilities"],
+    "container_queries": [
+      {"selector": ".card", "type": "inline-size", "query": "(min-width: 400px)", "changes": {"grid_template": "repeat(2, 1fr)"}}
+    ]
+  },
+  "components": {
+    "button": {
+      "primary": {"bg": "var(--color-primary)", "color": "#FFF", "padding": "12px 24px", "border_radius": "8px", "font_weight": 600},
+      "states": {"hover": {"bg": "color-mix(in oklch, var(--color-primary), black 10%)"}, "focus_visible": {"outline": "2px solid var(--color-primary)"}, "disabled": {"opacity": 0.5, "cursor": "not-allowed"}}
+    }
+  },
+  "media_queries": {
+    "breakpoints": {"sm": 640, "md": 768, "lg": 1024, "xl": 1280, "2xl": 1920},
+    "preferences": {
+      "dark": {"query": "(prefers-color-scheme: dark)", "detected": true, "token_overrides": {"--color-bg": "#0F172A"}},
+      "reduced_motion": {"query": "(prefers-reduced-motion: reduce)", "detected": true, "animation_overrides": "duration: 0.01ms"},
+      "forced_colors": {"query": "(forced-colors: active)", "detected": false}
+    }
+  },
+  "animations": {
+    "keyframes": [
+      {"name": "fadeIn", "rules": {"from": {"opacity": 0}, "to": {"opacity": 1}}}
+    ],
+    "transitions": [
+      {"selector": ".card", "property": "transform, box-shadow", "duration": "0.3s", "easing": "cubic-bezier(0.4, 0, 0.2, 1)"}
+    ],
+    "view_transitions": {"detected": false, "recommended": true, "targets": ["page_navigation"]},
+    "scroll_driven": {"detected": true, "usage": [{"selector": ".hero", "timeline": "view()", "animation": "fadeIn"}]}
+  },
+  "external_libraries": [
+    {"name": "GSAP", "version": "3.12.5", "license": "commercial_required", "usage": "scroll_trigger", "css_native_alternative": "scroll-driven animations", "recommendation": "replace_with_native"}
+  ],
+  "assets": {
+    "images": [{"url": "…", "usage": "hero_bg", "aspect_ratio": "16:9", "recommended_next_image": true}],
+    "fonts": [{"url": "…", "format": "woff2", "self_host_recommended": true}],
+    "icons": {"library": "lucide-react", "count": 24, "custom_svgs": 3}
+  },
+  "handoff": {
+    "to_nao": {"design_priority": ["palette", "typography", "layout"], "notes": "Container Queries を活用した設計提案が可能"},
+    "to_ren": {"code_priority": ["cascade_layers", "css_variables", "components"], "tailwind_config_ready": true, "estimated_effort_hours": 8},
+    "to_sota": {"design_tokens_json": "…", "reusable_for_other_projects": true},
+    "to_nori": {"legal_review_required": ["GSAP_commercial_check", "font_license_check", "image_copyright_check"]}
+  }
+}
+```
+
+**引き継ぎルール:**
+1. `meta.confidence_score >= 80` かつ `sign_off.ready_for_ren === true` の場合のみ Ren が並列着手可
+2. `external_libraries[*].license === "commercial_required"` は必ず nori 事前照会
+3. `media_queries.preferences.dark.detected === true` なら Nao の設計書にダークモードトークン必須
+4. `animations.view_transitions.recommended === true` は Ren に「脱 JS 提案」として明記
+
+---
+
+### 🎯 運用ルール（このセクションの使い方）
+
+- 既存の 8 ステップ・Daily Knowledge Log の上位レイヤーとして参照する
+- STEP 8 サインオフ時は必ず「抽出品質ルーブリック20項目」で自己採点
+- 引き継ぎ JSON は Slack ではなく `/agents/hana/output/{yyyymmdd}-{project}.json` として保存
+- Ren / Nao / Sota / nori へは JSON の URL を通知するだけで OK（本文貼り付けは冗長）
+- 本セクションは 3 ヶ月毎に「モダン CSS 完全網羅」ブロックをアップデート（次回 2026-11-04）
