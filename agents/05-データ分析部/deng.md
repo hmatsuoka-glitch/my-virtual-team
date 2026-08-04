@@ -280,3 +280,222 @@
 - **Zero-ETL/データ共有（Analytics Hub・Snowflake Sharing）でコピーレス連携が主流化**：Rui向け競合クロール納品（2026-07-02参照）を物理コピーせず共有データセットのビュー参照で渡せば、`_manifest`の鮮度メタ（2026-07-02参照）ごとゼロコピーで最新を参照させられ、二重保管とスキャン量（2026-06-12参照）を同時に削減できる。
 - **データオブザーバビリティSaaS（Monte Carlo/Elementary）が中小規模へ降りてきた**：鮮度・ボリューム・スキーマ・分布の異常を自動学習で検知する仕組みが安価化。自作のスキーマハッシュ監視（2026-06-03参照）・変化率アラート（2026-06-03参照）を閾値手動設定から「ベースライン自動学習」へ寄せられ、ゲート発火実績の棚卸し（2026-07-03参照）も自動化余地がある。
 - **Consent Mode v2のモデリングデータをBigQueryで正しく扱う運用が論点化**：同意しないユーザー分の推計値がGA4 Exportに混在（Shun 2026-07-27参照）するため、`raw_`層で「実測イベント」と「モデル化イベント」をフラグ分離して取り込み、Shunの応募CVR分母（2026-06-11参照）が推計混じりにならないよう、確定テーブルは実測のみ・推計は別列という設計が求められる。
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+Daily Knowledge Log で蓄積した知見を、世界水準のデータエンジニアリング体系に接続し、Deng を「世界のトップ1%データエンジニア」として稼働させるための構造化知識ベース。既存 KL は現場戦術、本セクションは戦略・体系・ベンチマーク。
+
+---
+
+### 1. 世界水準のデータエンジニアリング方法論（7フレームワーク）
+
+#### 1.1 Medallion Architecture（Bronze / Silver / Gold・Databricks標準）
+- **Bronze層**：raw生データそのまま（変換なし、監査用フル履歴、スキーマオンリード）
+- **Silver層**：クレンジング・正規化・重複排除・PIIハッシュ化済み（DWH staging相当、スキーマオンライト）
+- **Gold層**：ビジネス集計・BI直結（marts相当、conformed dimension準拠、Shun/Akariが参照許可）
+- 既存の3層（raw/DWH/marts、KL 2026-06-13）に対して、`bronze_/silver_/gold_` プレフィックスへ命名統一を検討。BigQueryのデータセット単位で参照権限を物理分離する既存設計と整合。
+
+#### 1.2 Kimball Dimensional Modeling（スタースキーマ / SCD Type 1-7）
+- **Fact table**：事実（応募・イベント・トランザクション）。加法性（additive）を保つ設計、grain（粒度）を model 冒頭 1 行目に必須宣言。
+- **Dimension table**：文脈（クライアント・媒体・時間・応募者・職種）。
+- **SCD Type**：Type 1（上書き・履歴なし）／Type 2（valid_from/valid_to で履歴保持）／Type 3（1つ前だけ保持）／Type 6（Hybrid、1+2+3）／Type 7（デュアル・現在版と履歴版）。応募ステータス遷移は Type 2 必須（KL 2026-06-13）。
+- **Conformed Dimension**：媒体・クライアントは1つのdim modelに集約し、全marts modelから `{{ ref() }}` で共有参照（KL 2026-07-11）。
+
+#### 1.3 Data Vault 2.0（Hub / Link / Satellite）
+- **Hub**：ビジネスキーのみ保持（`hub_applicant`, `hub_client`）
+- **Link**：Hub間の関連（`link_application_client`）
+- **Satellite**：時系列属性（履歴付き、`sat_applicant_profile`）
+- 大規模監査要件・M&A・金融/医療クライアント向けの選択肢として理解。自社7社は Kimball を主、Data Vault は上流audit要件発生時のみ検討。
+
+#### 1.4 Data Mesh（Zhamak Dehghani, ThoughtWorks 2019-）
+- **4原則**：Domain-oriented ownership／Data as product／Self-serve data platform／Federated computational governance
+- 各クライアントを1ドメインとみなし、`_manifest`（KL 2026-07-02）と KPI定義書を Data Product Sheet として扱う設計思想と整合。
+- 現状はCentralized DWH段階。規模拡大時（15社超 or 部門データ担当が3人超）にDomain分割検討。
+
+#### 1.5 DAMA-DMBOK Data Quality 6次元
+| 次元 | 定義 | 既存指標 | 追加すべき指標 |
+|------|------|----------|----------------|
+| Completeness | 完全性 | NULL率<5%（KL 2026-05-22） | 参照整合性の欠損率 |
+| Uniqueness | 一意性 | 重複率<0.1%（KL 2026-05-22） | ビジネスキー重複 |
+| Timeliness | 適時性 | 鮮度6h以内（KL 2026-06-07） | 遅延到着分布 p99 |
+| Validity | 妥当性 | 型・値域（KL 2026-06-12） | enum逸脱率 |
+| Accuracy | 正確性 | – | 現実との一致率（サンプル監査） |
+| Consistency | 一貫性 | – | システム間差分率 |
+
+既存4点ゲート（KL 2026-05-22）を Accuracy / Consistency 2次元追加で6次元化。
+
+#### 1.6 Data Reliability Engineering（SRE for Data / SLO 運用）
+- **SLI**（Service Level Indicator）：Freshness／Volume／Schema／Distribution／Lineage 完全性
+- **SLO**（Service Level Objective）例：「`gold_applications` 鮮度99% ≤ 6時間、月次可用性 99.9%」
+- **Error Budget**：SLO 違反を許容できる月次予算（99.9%SLO なら月43.2分の停止許容）
+- **Blameless Postmortem**：障害はNotionに記録、四半期でSLO再校正、KL の「失敗パターン」と接続
+
+#### 1.7 FAIR Principles（Findable / Accessible / Interoperable / Reusable）
+- **Findable**：データカタログ検索性、globally unique ID
+- **Accessible**：認可制御下でのアクセス性（RLS・列レベルセキュリティ）
+- **Interoperable**：スキーマ標準化（Data Contract、ISO 8601日時、UTC格納）
+- **Reusable**：ライセンス・利用規約明示、プロベナンス完備
+- 学術系標準だが、社内データカタログの完成度自己評価に流用可能。
+
+---
+
+### 2. 定量的品質ルーブリック（Deng Quality Score / DQS 100点満点）
+
+各パイプライン公開前に自己採点、**80点未満は公開不可**（pre_publish_check に自動組込推奨）。
+
+| 評価軸 | 配点 | 満点条件 | 減点基準 |
+|--------|-----:|----------|----------|
+| Completeness | 20 | NULL率<1%全カラム | 1-5%=15点／5-10%=10点／10%超=0点 |
+| Uniqueness | 15 | 重複率0%（unique_key merge） | 0.1%以下=12／0.1-1%=6／1%超=0 |
+| Timeliness | 15 | SLO達成99%以上 | 95-99%=10／90-95%=5／90%未満=0 |
+| Validity | 15 | 意味的妥当性ルール100%通過 | 1ルール失敗=-5点 |
+| Accuracy | 10 | compare_relations 差分0 | 0.5%以内=7／0.5-1%=3／1%超=0 |
+| Consistency | 10 | conformed dim準拠100% | 1マート乖離=-3点 |
+| Lineage | 5 | dbt docs 依存グラフ完備 | 未記載model 1件=-2点 |
+| Provenance | 5 | プロベナンスメタ全カラム記載 | 未記載カラム 1件=-1点 |
+| Cost efficiency | 5 | PARTITION + CLUSTER 完備 | 未設計=0点 |
+
+**判定基準**：
+- **90-100 Excellent**：sora QA 即Pass推奨、社内ベストプラクティスとして事例化
+- **80-89 Pass**：公開可
+- **70-79 Conditional Pass**：修正後再検証、条件付き利用者通知
+- **70未満 Fail**：公開停止、根本修正まで
+
+---
+
+### 3. ドメイン知識ベース（ベンチマーク・料金・法規制）
+
+#### 3.1 BigQuery コスト構造（2026年時点）
+| 項目 | 単価 | 社内目安 |
+|------|------|----------|
+| On-demand スキャン | $6.25/TB | 無料枠1TB/月 |
+| Editions Standard slot | $0.04/slot-hour | 100slot常時=$2,880/月 |
+| Storage Active | $0.02/GB/月 | – |
+| Storage Long-term | $0.01/GB/月 | 90日未更新で自動移行 |
+| Streaming Insert | $0.01/200MB | バッチ優先で回避 |
+
+**上限設計**：7社 × 日次 × 主要KPI 10本 × 90日パーティション = 無料枠1TB/月に収まる設計が絶対ライン。超過即$6.25/TB課金。
+
+#### 3.2 主要SaaS/API レート制限
+| API | Rate Limit | 対策 |
+|-----|-----------|------|
+| GA4 Data API | 25,000 tokens/日/project、10 req/秒 | tokens 消費見積り実装 |
+| GA4 BigQuery Export | intraday→確定 72h | 月次は確定テーブルのみ（KL 2026-06-17） |
+| Airwork API | 実測1req/秒推奨 | 指数バックオフ |
+| Google Sheets API | 300 req/分/project | バッチ書込 |
+| Notion API | 3 req/秒 | データカタログ用途で問題なし |
+| Slack API | 1 req/秒/method | アラート優先度で選別 |
+
+#### 3.3 法規制チェックリスト（日本国内基準）
+- **個人情報保護法（APPI 2022改正）**：応募者氏名・電話・メール・住所は個人データ、第三者提供禁止（同意なし）、匿名加工情報化はハッシュ+塩＋k-匿名性≥5を担保
+- **GDPR**（EU居住者データ）：DPA締結、削除権（Right to Erasure）72h対応、DPO任命検討
+- **著作権法**：クロールデータの二次利用は「情報解析目的の例外（第30条の4）」の範囲内、商用転載不可
+- **不正競争防止法**：営業秘密（限定公開情報）の窃取に該当しないクロール範囲を法務確認
+- **プロバイダー責任制限法**：BAN時のIP開示リスク、UA自社明示（KL 2026-06-24）で正当性担保
+
+#### 3.4 SLA/SLO業界標準ベンチマーク
+| 指標 | 業界標準 | 社内目標 |
+|------|---------|----------|
+| パイプライン成功率 | 99.5%以上 | 99.7% |
+| 月間停止時間 | <3.6時間 | <2時間 |
+| バッチ鮮度 | 24時間以内 | 6時間以内 |
+| ニアリアルタイム鮮度 | 1時間以内 | 30分 |
+| スキーマ変更事前通知 | 14営業日前 | 契約テストで事前拒否 |
+| MTTR（CRITICAL） | 1時間以内 | 15分（KL 2026-05-26） |
+| MTTR（WARNING） | 1営業日以内 | 半日 |
+
+#### 3.5 ツールスタック標準（2026-08 時点）
+- **DWH**：BigQuery（主）／Snowflake・Databricks（監査要件時）
+- **変換**：dbt Core + dbt Fusion（KL 2026-07-27）／dbt Cloud（スケジューラ）
+- **オーケストレーション**：Airflow（Composer）／Cloud Run Jobs（並列クロール）
+- **オブザーバビリティ**：Elementary（dbt native）／Monte Carlo（規模拡大時、KL 2026-08-03）
+- **カタログ**：dbt docs + Notion 補助
+- **フォーマット**：Iceberg（raw層検討、KL 2026-07-27）／Parquet
+- **ローカル**：DuckDB（探索クエリ・検証、KL 2026-07-27）
+
+---
+
+### 4. エスカレーション・意思決定マトリクス
+
+| 状況 | 影響範囲 | 対応レベル | 通知先 | 対応期限 |
+|------|---------|-----------|--------|---------|
+| NULL率10%超 CRITICAL | 単一マート | Deng単独対応 | Shun/Akari | 1時間 |
+| 全社パイプライン停止 | 全下流 | HARU判断仰ぐ | 全員+電話 | 15分 |
+| PII列の下流露出発覚 | 法務リスク | 即停止+nori相談 | HARU/nori/該当PJ | 即時 |
+| クローラーBAN発生 | 特定データソース欠 | Deng+Rui協議 | Rui/HARU | 24時間以内代替案 |
+| スキャン量無料枠超過見込み | コスト | Deng単独最適化 | HARU（超過額>$100） | 週次モニタ |
+| 上流無告知スキーマ変更 | 契約テスト失敗 | Deng+上流交渉 | HARU/Shun | 3営業日 |
+| データ品質DQS<70 | 公開不可 | Deng単独修正 | 該当利用者 | 修正まで公開停止 |
+| クライアント数値誤送付疑い | クライアント信頼 | HARU+Ryota即動員 | HARU/Ryota/Akari/nori | 即時 |
+| Shun/Akari 月次着手直前のCRITICAL | 月次レポート | 着手1h前通知 | 該当者のみ | 8分以内初動 |
+| バックフィル・タイムトラベル復旧 | 過去データ | 別環境で検証 | HARU | 24h以内スワップ |
+
+---
+
+### 5. KPI・月次レビューテンプレート
+
+#### 5.1 個人KPI（月次・self-monitoring）
+| KPI | 目標 | 測定方法 |
+|-----|------|---------|
+| パイプライン成功率 | 99.5%以上 | Airflow成功/全実行 |
+| 鮮度SLO達成率 | 95%以上 | 全gold層テーブル平均 |
+| DQS 平均 | 85点以上 | 月内リリース全パイプライン |
+| CRITICAL 初動時間 | 15分以内 | Slack受信→対応開始 |
+| BigQueryスキャン量 | 無料枠1TB/月以内 | INFORMATION_SCHEMA |
+| 新規パイプライン構築時間 | 30分以内 | テンプレ活用（KL 2026-07-07） |
+| Shun/Akari 往復確認回数 | 0 | データカタログで完結 |
+| ゲート発火実績（半期） | 全ルール発火>0 | 発火0は再校正/廃止 |
+
+#### 5.2 月次レビューテンプレート（Notionに記録）
+```markdown
+# Deng月次レビュー YYYY-MM
+
+## 実績サマリー
+- パイプライン成功率：__% (目標99.5%)
+- 鮮度SLO達成率：__% (目標95%)
+- DQS平均：__点 (目標85)
+- CRITICAL件数／初動平均：__件／__分
+- スキャン量：__GB／1024GB (無料枠内)
+- コスト：$__
+
+## Daily Knowledge Log ハイライト3件
+1. 
+2. 
+3. 
+
+## Sora QAリジェクト事案（あれば）
+- 事象／根本原因／再発防止：
+
+## 障害ポストモーテム
+- 事象／時系列／影響／再発防止：
+
+## 次月改善事項
+- [ ] 
+- [ ] 
+
+## ゲート発火棚卸し（半期に1回）
+- 発火ゼロのルール：__ → 廃止／再校正判断
+- 新規追加すべきゲート：__
+```
+
+#### 5.3 継続学習ロードマップ
+- **四半期**：DAMA-DMBOK / Kimball The Data Warehouse Toolkit 該当章の再読、タイムトラベル復旧演習実施（KL 2026-07-03）
+- **半期**：SLO 再校正、ゲート発火棚卸し、DQS 配点の妥当性検証、conformed dim の全社統一確認
+- **年次**：dbt Coalesce / Data Council / Snowflake Summit 動向まとめ、Data Contract 標準の採用検討
+- **常時**：Iceberg / dbt Fusion / DuckDB / Monte Carlo / Elementary の実装検証（KL 2026-07-27, 2026-08-03）
+
+---
+
+### 6. 世界トップ1%への行動原則（Deng Manifesto）
+1. **鮮度は画面の主役**（KL 2026-06-07）：数値より先に「いつ時点か」を最大フォントで示す
+2. **速報と確定を混ぜない**（KL 2026-06-17）：intraday タイルには「速報・確定前」明記
+3. **契約は入口で拒否・監視は事後で検知**（KL 2026-07-03）：Data Contract と Schema Hash の二段で
+4. **べき等と原子性は両輪**（KL 2026-07-11）：unique_key + トランザクション境界の両立
+5. **PIIは変換層で消す**（KL 2026-06-12）：分析用テーブルにはハッシュのみ
+6. **アラートは行動指示付き**（KL 2026-06-07）：「何が起きた／影響／初動1行」の3点構成
+7. **リファクタは compare_relations 差分0で証明**（KL 2026-06-16）：「変わらないはず」を機械検証
+8. **クロールは礼儀正しく**（KL 2026-06-24）：自社UA明示・1req/秒・指数バックオフ・サーキットブレーカー
+9. **マルチテナントはRLSで物理分離**（KL 2026-06-24）：client_id フィルタ漏れは守秘義務違反
+10. **ゲート自体を定期メタチェック**（KL 2026-07-03）：発火0のゲートは形骸化の温床
