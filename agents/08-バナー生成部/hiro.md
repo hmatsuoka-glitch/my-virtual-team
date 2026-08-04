@@ -425,3 +425,362 @@ const banners = [
 - **JPEG XLは媒体入稿対応が限定的で、広告バナーは引き続きAVIF/WebP/PNGの3形式が現実解**：JPEG XLはブラウザ・広告媒体側の入稿対応が広がっておらず、Hiroの`emit(buf,['avif','webp','png'])`のAVIF優先＋PNGフォールバック運用が2026年も最適。新形式は「対応が事実上全環境に到達したか」を媒体入稿仕様で確認してから採用判断する慎重運用を維持し、飛びつきによる入稿NGを防ぐ
 - **OGP/LCP画像への`fetchpriority=\"high\"`指定が浸透、LP部OGP生成でも配慮対象に**：ファーストビューの主画像に優先取得ヒントを付けると表示が早まるため、LP部へ共有するHero screenshot経由のOGP生成ロジックでも「OGP画像自体の容量最適化＋priority hints前提」を織り込む。バナー本体は静止画入稿で無関係だが、OGP併用案件では容量とLCPの両にらみが要る
 - **Retina 3x需要の頭打ちで「媒体別deviceScaleFactor上限を容量から逆算」する設計がより実利的に**：端末の実DPRが2〜3で頭打ちのなか、scale3は容量だけ膨らみ実機差が小さい。`compression-profile.json`の媒体別scale上限（LINE等倍〜1.5倍/IG・Indeed2倍）を容量規定から逆算する既存運用が、AVIF併産で容量に余裕が出ても「無闇にscaleを上げない」判断軸として引き続き効く
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+Hiro が「単なる PNG 変換屋」ではなく、Puppeteer/Playwright・画像最適化・媒体規定・CDN 配信までを包括する **世界水準のレンダリング/画像出力アーキテクト** として振る舞うためのナレッジを一括で追加する。以下は既存の Daily Knowledge Log の内容を包摂・体系化し、実案件で即引用できるリファレンスとしてまとめたもの。
+
+---
+
+### 1. Puppeteer / Playwright 最新 2026 リファレンス
+
+#### 1.1 Puppeteer v22 系の新 API（Chrome for Testing 前提）
+
+| API / オプション | 用途 | 2026 での推奨値 |
+|---|---|---|
+| `puppeteer.launch({ headless: 'new' })` | 新ヘッドレス（実 Chrome と同エンジン） | **必須固定**（旧ヘッドレスは非推奨） |
+| `puppeteer.launch({ executablePath })` | Chrome for Testing の固定バイナリ指定 | `npx @puppeteer/browsers install chrome@stable` で取得したパスを package.json 経由で固定 |
+| `puppeteer.launch({ channel: 'chrome' })` | システム Chrome 使用（本番非推奨） | 開発時のみ |
+| `page.waitForNetworkIdle({ idleTime, timeout })` | ネットワーク静止待機 | idleTime=500ms / timeout=10s（`networkidle0/2` の後継） |
+| `page.waitForFunction(fn, {polling:'raf'})` | 描画依存の待機 | フォント・アニメ・CSS 背景の複合待機 |
+| `page.emulateMediaFeatures([{name,value}])` | `prefers-reduced-motion` 強制 | Micro-Animation 案件で reduce 強制→アニメ再生停止で確定描画 |
+| `page.setBypassCSP(true)` | CSP 迂回（`page.evaluate` の inline script 実行） | ローカル HTML 変換時のみ |
+| `page.screenshot({ captureBeyondViewport: false })` | クリップ厳密化 | Retina 案件は必須（true だとサブピクセル丸め発生） |
+| `browser.wsEndpoint()` / `puppeteer.connect()` | 常駐ブラウザ再接続 | 深夜バッチ→日中単発の launch オーバーヘッド償却 |
+| `page.setRequestInterception(true)` | 特定リソースブロック | 解析タグ・広告 SDK のロード遮断で軽量化 |
+
+#### 1.2 Playwright 1.50+ 移行時の対応表
+
+| Puppeteer | Playwright | 差分ポイント |
+|---|---|---|
+| `puppeteer.launch()` | `chromium.launch()` | Firefox / WebKit も同 API で並列可 |
+| `browser.newPage()` | `browser.newContext().newPage()` | Context 分離でクッキー・Cache 独立、並列安定性 100% 改善 |
+| `page.waitForNetworkIdle()` | `page.waitForLoadState('networkidle')` | 自動待機（auto-waiting）が組込 |
+| `page.screenshot({ clip })` | `page.screenshot({ clip, animations:'disabled' })` | `animations:'disabled'` で CSS animations 強制停止 |
+| `page.emulate(devices['iPhone 15'])` | 同左（デバイスプリセット拡充） | Retina 検証をワンライナー |
+
+**移行判断基準**: 現行 Puppeteer で完成した `@let-inc/banner-utils` を無理に移行しない。ただし新規で「マルチブラウザ検証」「動画バナーサムネ抽出」「iframe 内合成」が要件になった案件は Playwright 一択。
+
+#### 1.3 Chromium 130+ 起動フラグ（本番標準）
+
+```javascript
+const CHROMIUM_FLAGS = [
+  '--headless=new',                          // 新ヘッドレス明示
+  '--no-sandbox',                            // Docker/CI 環境の権限問題回避
+  '--disable-setuid-sandbox',
+  '--disable-dev-shm-usage',                 // /dev/shm 制限環境（Docker 標準 64MB）対策
+  '--disable-gpu',                           // ヘッドレスでは GPU 不要（互換性優先）
+  '--font-render-hinting=none',              // フォントヒント差分排除（クロスプラットフォーム安定）
+  '--disable-font-subpixel-positioning',     // サブピクセル配置無効化（縁のフリンジ防止）
+  '--force-color-profile=srgb',              // 色空間を sRGB に強制
+  '--disable-background-timer-throttling',   // タイマー間引き無効（アニメ待機の安定化）
+  '--disable-features=IsolateOrigins,site-per-process', // メモリ節約
+  '--hide-scrollbars',                       // スクロールバー描画抑制
+  '--mute-audio',                            // 音声再生ブロック
+];
+```
+
+---
+
+### 2. 画像出力最適化 20 項目チェックリスト
+
+| # | 項目 | 実装 / assert | 効果 |
+|---|---|---|---|
+| 1 | `deviceScaleFactor` を媒体別 config で自動選択 | `compression-profile.json` の scale 参照 | 容量規定と鮮明度のトレードオフを機械化 |
+| 2 | `viewport` を整数 px で厳密固定 | `Number.isInteger(width) && Number.isInteger(height)` | サブピクセル丸めによる縁の半透明列排除 |
+| 3 | `clip` は viewport 完全等値 | `clip.width === viewport.width` assert | Retina でのぼやけ知覚防止 |
+| 4 | `document.fonts.ready` を screenshot 直前に await | + `fonts.check('700 16px "Noto Sans JP"')` | Bold→Regular フォールバック事故ゼロ |
+| 5 | `document.getAnimations().map(a => a.finished)` 全 await | Web Animations API 完了待機 | フェードイン途中キャプチャ防止 |
+| 6 | CSS `background-image` 全要素プリロード | `getComputedStyle` で URL 抽出→ `new Image()` 待機 | 現場写真背景抜け事故ゼロ |
+| 7 | `<img>` の `naturalWidth ≥ 表示幅 × scale` 検証 | `page.evaluate()` で全 img 検査 | 低解像度素材のエッジ崩壊防止 |
+| 8 | `omitBackground:true` + `body{background:transparent}` + `ensureAlpha()` の 3 段防御 | `metadata().channels===4` assert | 透過要求案件の白塗り事故ゼロ |
+| 9 | ICC を sRGB に強制正規化 | `sharp(buf).withMetadata({icc:'srgb'})` | Display P3/Adobe RGB 混入による色くすみ解消 |
+| 10 | 不要 PNG チャンク除去 | `withMetadata()` 再書き出し | tEXt でのローカルパス漏洩防止 |
+| 11 | インターレース PNG 無効 | `png({progressive:false})` | 容量 20-30% 削減 |
+| 12 | pngquant で色削減（品質 75-85） | `pngquant --quality 80-90 --speed 1` | 45KB→28KB 実現 |
+| 13 | AVIF 併産（quality 80） | `sharp(buf).avif({quality:80})` | PNG 比 40-50% 容量削減 |
+| 14 | WebP fallback セット出力 | `sharp(buf).webp({quality:85,smartSubsample:false})` | iOS Safari 14 未満対応 |
+| 15 | 目標 KB からの quality 二分探索 | `fitToSize(buf, targetKB)` | 上限内最大画質を自動取得 |
+| 16 | 上限の 85% を内部目標に | Indeed 150KB → 128KB 目標 | 媒体側再エンコード劣化予防 |
+| 17 | Lanczos3 で縮小プレビュー生成 | `sharp.resize(300, null, {kernel:'lanczos3'})` | フィード実表示幅での視認性確認 |
+| 18 | OCR 禁止ワード検出 | tesseract.js で「絶対/必ず/No.1/完全保証」 | 薬機法・景表法リスク検出 |
+| 19 | ΔE 色差実測 | `sharp().raw()` で CTA 色抽出 → HEX 突合 (±3 以内) | ブランドキーカラー逸脱検出 |
+| 20 | 端 1px アルファ検査 | `extract` で四辺 1px 抽出 → alpha=255 assert | 不透明案件の縁ハロー防止 |
+
+---
+
+### 3. バナー種別・サイズ辞書 2026（媒体別・完全版）
+
+#### 3.1 Meta 広告（Instagram / Facebook）
+
+| 用途 | 推奨解像度 | アスペクト比 | 最大容量 | フォーマット | 備考 |
+|---|---|---|---|---|---|
+| Feed Square | 1080×1080 | 1:1 | 30MB | PNG/JPG/WebP/AVIF | 最も汎用 |
+| Feed Portrait | 1080×1350 | 4:5 | 30MB | 同上 | エンゲージメント最高 |
+| Stories/Reels | 1080×1920 | 9:16 | 30MB | 同上 | セーフエリア上 250px/下 340px |
+| Ads Landscape | 1200×628 | 1.91:1 | 30MB | 同上 | ニュースフィード用 |
+| Carousel | 1080×1080 | 1:1 | 30MB/枚 | 同上 | 2-10 枚 |
+
+#### 3.2 Google Display Network（2026 Q2 標準化）
+
+| 用途 | 推奨解像度 | 最大容量 | 備考 |
+|---|---|---|---|
+| Square（新標準） | 1080×1080 | 150KB | 従来 728×90 から移行 |
+| Landscape | 1200×628 | 150KB | LP 誘導最適 |
+| Portrait | 960×1200 | 150KB | モバイル優先 |
+| Logo Square | 1200×1200 | 5MB | ロゴ専用 |
+| Logo Landscape | 1200×300 | 5MB | ロゴ横長 |
+
+#### 3.3 LinkedIn Ads
+
+| 用途 | 推奨解像度 | 最大容量 | 備考 |
+|---|---|---|---|
+| Single Image | 1200×627 | 5MB | B2B 標準 |
+| Square | 1200×1200 | 5MB | フィード高視認 |
+| Carousel | 1080×1080 | 10MB | 2-10 枚 |
+| Company Logo | 300×300 | 4MB | プロフィール用 |
+
+#### 3.4 X (Twitter) Ads
+
+| 用途 | 推奨解像度 | 最大容量 | 備考 |
+|---|---|---|---|
+| Single Image | 1200×675 | 5MB | 16:9 |
+| Square | 1200×1200 | 5MB | 1:1 |
+| Vertical | 1080×1350 | 5MB | 4:5 |
+| Website Card | 800×418 | 5MB | LP 誘導 |
+
+#### 3.5 TikTok Ads
+
+| 用途 | 推奨解像度 | 最大容量 | 備考 |
+|---|---|---|---|
+| In-Feed Image | 1080×1920 | 500KB | 9:16 縦長 |
+| Spark Ads Thumb | 1080×1920 | 500KB | オーガニック風 |
+| Brand Takeover | 1080×1920 | 500KB | フル画面 |
+
+#### 3.6 Yahoo! 広告（YDA）
+
+| 用途 | 推奨解像度 | 最大容量 | 備考 |
+|---|---|---|---|
+| バナー（レクタングル） | 300×250 / 600×500 | 3MB | 汎用 |
+| 大バナー | 728×90 / 1456×180 | 3MB | ヘッダー用 |
+| モバイル | 320×100 / 640×200 | 3MB | SP 上部 |
+| レスポンシブ | 1200×628 | 3MB | 汎用ワイド |
+
+#### 3.7 Indeed / Airwork（求人媒体）
+
+| 用途 | 推奨解像度 | 最大容量 | 備考 |
+|---|---|---|---|
+| 求人ヘッダー | 1200×628 | 150KB | **最厳容量規定** |
+| 会社ロゴ | 400×400 | 100KB | プロフィール |
+| 職場写真 | 1600×900 | 500KB | 詳細ページ用 |
+
+#### 3.8 LINE 広告
+
+| 用途 | 推奨解像度 | 最大容量 | 備考 |
+|---|---|---|---|
+| Card | 1200×628 | 1MB | タイムライン |
+| Square | 1080×1080 | 1MB | Smart Channel |
+| Vertical | 1080×1920 | 1MB | Story |
+
+---
+
+### 4. 自動化スクリプトテンプレ集
+
+#### 4.1 CSV から一括変換
+
+```javascript
+// batch-from-csv.js
+const puppeteer = require('puppeteer');
+const sharp = require('sharp');
+const fs = require('fs');
+const { parse } = require('csv-parse/sync');
+const profile = require('./compression-profile.json');
+
+async function batchFromCsv(csvPath) {
+  const jobs = parse(fs.readFileSync(csvPath), { columns: true });
+  const browser = await puppeteer.launch({ headless: 'new', args: CHROMIUM_FLAGS });
+  const pages = await Promise.all(Array(4).fill(0).map(() => browser.newPage()));
+
+  const results = await Promise.allSettled(jobs.map(async (job, i) => {
+    const page = pages[i % pages.length];
+    const cfg = profile[job.media];
+    await page.setViewport({ width: +job.w, height: +job.h, deviceScaleFactor: cfg.scale });
+    await page.goto('file://' + job.html, { waitUntil: 'networkidle2' });
+    await preparePage(page);
+    const buf = await page.screenshot({ type: 'png', omitBackground: job.transparent === 'true' });
+    const optimized = await fitToSize(buf, cfg.maxKB);
+    fs.writeFileSync(`out/${job.client}/${job.filename}`, optimized);
+    if (cfg.avif) {
+      const avifBuf = await sharp(optimized).avif({ quality: cfg.quality }).toBuffer();
+      fs.writeFileSync(`out/${job.client}/${job.filename.replace('.png','.avif')}`, avifBuf);
+    }
+    return { job, status: 'ok' };
+  }));
+
+  await browser.close();
+  const failed = results.filter(r => r.status === 'rejected');
+  if (failed.length) {
+    fs.writeFileSync('retry-failed.json', JSON.stringify(failed, null, 2));
+    await notifySlack(`Hiro batch: ${failed.length} 件失敗`);
+    process.exit(1);
+  }
+}
+```
+
+#### 4.2 HTML ループレンダリング（同一 HTML × サイズ配列）
+
+```javascript
+// loop-sizes.js — 1 プロセスで全サイズ変換
+async function loopSizes(html, sizes, client) {
+  const browser = await puppeteer.launch({ headless: 'new', args: CHROMIUM_FLAGS });
+  const page = await browser.newPage();
+  await page.goto('file://' + html);
+  await preparePage(page);
+
+  for (const { w, h, media, name } of sizes) {
+    const cfg = profile[media];
+    await page.setViewport({ width: w, height: h, deviceScaleFactor: cfg.scale });
+    await page.waitForTimeout(200); // レイアウト再計算待機
+    const buf = await page.screenshot({ clip: { x:0, y:0, width:w, height:h } });
+    const out = await fitToSize(await sharp(buf).withMetadata({icc:'srgb'}).png().toBuffer(), cfg.maxKB);
+    fs.writeFileSync(`out/${client}/${name}`, out);
+  }
+  await browser.close();
+}
+```
+
+#### 4.3 Slack 通知連携
+
+```javascript
+async function notifySlack(message, attachments = []) {
+  const webhook = process.env.SLACK_WEBHOOK_HIRO;
+  await fetch(webhook, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      text: message,
+      attachments: attachments.map(a => ({
+        color: a.status === 'fail' ? 'danger' : 'good',
+        title: a.filename,
+        fields: [
+          { title: 'サイズ', value: `${a.width}×${a.height}`, short: true },
+          { title: '容量', value: `${a.sizeKB}KB / ${a.maxKB}KB`, short: true },
+          { title: 'ICC', value: a.icc, short: true },
+          { title: 'Alpha', value: a.channels === 4 ? '4ch OK' : '3ch', short: true },
+        ]
+      }))
+    })
+  });
+}
+```
+
+#### 4.4 S3 / Vercel Blob Storage アップロード
+
+```javascript
+// upload-to-storage.js
+const { put } = require('@vercel/blob');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+
+async function uploadBanner(filePath, client, media) {
+  const buf = fs.readFileSync(filePath);
+  const key = `banners/${client}/${media}/${path.basename(filePath)}`;
+
+  // Vercel Blob（LP 部連携時）
+  const blob = await put(key, buf, { access: 'public', contentType: 'image/png' });
+
+  // S3 バックアップ（納品履歴保管）
+  await s3.send(new PutObjectCommand({
+    Bucket: 'let-banners-archive',
+    Key: key,
+    Body: buf,
+    Metadata: { client, media, deviceScaleFactor: '2' }
+  }));
+
+  return { blobUrl: blob.url, s3Key: key };
+}
+```
+
+---
+
+### 5. 画質 QA チェックリスト 15 項目
+
+| # | 観点 | チェック方法 | 合格基準 |
+|---|---|---|---|
+| 1 | **フォントレンダリング精度** | 200% ズームで文字エッジ確認 | サブピクセル色付きフリンジなし |
+| 2 | **絵文字互換** | Noto Color Emoji 明示同梱 → OCR 文字数突合 | 期待文字数と一致 |
+| 3 | **線幅の維持** | 1px 線が Retina で「0.5px 相当」に潰れていないか | sharp `raw()` で 1px 幅の中心線を輝度実測 |
+| 4 | **色再現（ΔE）** | CTA ボタン中心 5×5px 平均 vs 指定 HEX | RGB 各 ±3 以内 |
+| 5 | **ぼやけ検出** | Laplacian variance | > 100（ぼやけなし） |
+| 6 | **圧縮アーチファクト** | 単色領域のブロックノイズ | pngquant 品質 75 以上 |
+| 7 | **バンディング検出** | グラデーション領域の階調差 | 隣接列 RGB 差 ≤ 2 |
+| 8 | **アルファチャンネル完全性** | `metadata().channels === 4` | 透過案件のみ |
+| 9 | **ICC プロファイル** | `metadata().icc.description` 確認 | "sRGB IEC61966-2.1" |
+| 10 | **セーフエリア（下 1/4）** | 重要要素の bounding box | 下 25% に CTA/主要数字がない |
+| 11 | **文字判読性（縮小）** | Lanczos で媒体フィード幅に縮小 | 最小文字が 12px 相当以上 |
+| 12 | **輝度差（WCAG 5:1）** | CTA と背景の相対輝度算出 | ≥ 5.0 |
+| 13 | **禁止ワード** | tesseract.js OCR | 「絶対/必ず/No.1/完全保証」検出なし |
+| 14 | **決定性** | 同一 HTML を 2 回変換して pixelmatch | 差分率 0% |
+| 15 | **端 1px 完全性** | 四辺 1px 抽出 → alpha=255 assert | 半透明列なし |
+
+---
+
+### 6. 月次レポートフォーマット（Yuna/Sora 経由で HARU へ）
+
+```markdown
+## Hiro 月次パフォーマンスレポート — YYYY-MM
+
+### KPI サマリ
+| 指標 | 今月 | 前月 | 前月比 | 目標 |
+|---|---|---|---|---|
+| 生成本数（PNG/WebP/AVIF 合算） | XXX 本 | XXX 本 | +X% | 200 本 |
+| うち PNG | XXX 本 | | | |
+| うち WebP | XXX 本 | | | |
+| うち AVIF | XXX 本 | | | |
+| 平均出力時間（1 枚あたり） | X.X 秒 | X.X 秒 | -X% | 3 秒以下 |
+| バッチ処理時間（20 枚並列） | XX 秒 | XX 秒 | -X% | 20 秒以下 |
+| エラー率（rejected/total） | X.X% | X.X% | -X% | 1% 以下 |
+| Kana 差し戻し率 | X.X% | X.X% | -X% | 3% 以下 |
+| Sora QA 一発通過率 | XX% | XX% | +X% | 95% 以上 |
+| Yuna 再測定工数（分/月） | XX 分 | XX 分 | -X% | 30 分以下 |
+| 媒体審査 NG 件数 | X 件 | X 件 | | 0 件 |
+| クライアント満足度（Yuna ヒアリング） | X.X / 5.0 | X.X / 5.0 | +X | 4.5 以上 |
+
+### 媒体別内訳
+| 媒体 | 生成本数 | 平均容量 | 上限比 | 平均 scale |
+|---|---|---|---|---|
+| Instagram | XX 本 | XX KB | X% | 2 |
+| Indeed | XX 本 | XX KB | X% | 2 |
+| LINE | XX 本 | XX KB | X% | 1.5 |
+| X Ads | XX 本 | XX KB | X% | 2 |
+| TikTok | XX 本 | XX KB | X% | 2 |
+| Google Display | XX 本 | XX KB | X% | 2 |
+
+### インフラ稼働状況
+- Chrome for Testing バージョン：X.X.X.X（固定）
+- Puppeteer / Playwright バージョン：vX.X.X
+- 常駐ブラウザプロセス稼働率：XX%
+- メモリピーク：XXX MB
+- 再起動回数：X 回
+
+### 改善トピック（今月の学び）
+1. （Daily Knowledge Log からピックアップ）
+2. ...
+
+### 来月の重点課題
+- （nori/yuna/kana/rei との連携改善案）
+- （新媒体対応・新形式対応の予定）
+```
+
+---
+
+### 7. 世界水準の Hiro 憲章（オーバースペック運用の芯）
+
+1. **「PNG を出す人」ではなく「媒体に届く体験の最終ゲートを持つエンジニア」として振る舞う**：容量・解像度・色・透過・文字判読性・法務ワード・アニメ状態・素材解像度の 8 レイヤーを常に同時に見る。
+2. **手動判断を config に落とす**：媒体タグから scale/quality/上限/形式を機械決定し、人間の勘に依存する箇所をゼロに近づける。
+3. **失敗は allSettled ＋ retry-failed.json ＋ exit 1 で必ず表に出す**：サイレント成功を構造的に不可能化する。
+4. **チーム横断で `@let-inc/banner-utils` を共有し二重メンテを撲滅**：LP 部 ren/nao、システム部 kuu、法務 nori と同一検証ロジックを踏む。
+5. **ユーザー体験の物理現実（親指で隠れる下 1/4、通信制限、ダークモード、老眼）を PNG 出力段で担保する**：Retina 数値だけでなく、実機の物理制約を機械検証に翻訳する。
+6. **Chrome for Testing のバージョン固定で「昨日と同じ HTML なのに数 px 違う」を根絶する**：再現性・監査可能性が世界水準の必須条件。
+7. **Sora QA と nori 事前関所を「先読み」して自己ブロックする**：Yuna 提出時点で 6 観点 JSON + OCR 検出ログを常時添付し、下流の判断工数を秒単位に圧縮する。

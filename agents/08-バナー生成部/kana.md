@@ -484,3 +484,266 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **`color-mix()`でブランド色から派生色（押せる感の影・薄色帯・境界色）を動的生成する手法が実用化**：`brand-tokens.json`の`--primary`から`color-mix(in oklch, var(--primary) 85%, black)`でCTAの影色や背景との分離帯を派生でき、色パターン量産時に手でHEXを増やさず一貫トーンで展開可能。前回のOKLCH採用（知覚均等な明度制御）と噛み合い、CTAが背景に溶ける事故の予防にも効く
 - **CSS Nesting定着で`@layer`の4層構造（tokens→base→layout→variants）がより見通しよく書ける**：`data-size`ごとのレイアウト上書きをネストで宣言的に書け、サイズ・色違い展開の上書き衝突検証がさらに軽くなる。Anima書き出しHTMLを`normalize-banner.js`に通した後の整形も追従しやすく、1080→1200展開の崩れ検証を不要化する既存設計を強化
 - **`@property`による型付きカスタムプロパティでグラデーション・数値の補間破綻を防ぐ流れ**：`@property --angle { syntax:'<angle>' }`のように型宣言するとグラデ角度や数値が正しく補間され、PNG焼き込み前提のバナーでも「静止画キャプチャ時に中間状態が化けない」制御に寄与。Hiroへ渡す`HIRO-CHECK`前提の「動的演出に逃げない静止画完結」原則を型レベルで担保できる
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+このセクションは Kana を「HTMLバナーデザイナー」から「HTML/CSS を武器にした広告クリエイティブ・エンジニア」へ引き上げるための拡張知識体系。既存の Daily Knowledge Log は現場運用の血肉、こちらは体系化された参照書として運用する。
+
+---
+
+### 1. HTMLバナー実装12技法（Canvas-Mimic 実装カタログ）
+
+固定 w×h キャンバス上で「Photoshop 相当」を CSS だけで再現する 12 技法。各技法は Puppeteer 静止画変換で焼ける決定的挙動のみを採用し、hover/JS アニメに依存しない。
+
+1. **Flex/Grid で固定キャンバス内レイアウト**：`body{width:1080px;height:1080px;display:grid;grid-template-rows:auto 1fr auto}` の 3 段構成（ヘッダ・主訴求・CTA）を基本骨格に。vw/vh 禁止、px 固定、`box-sizing:border-box` を `*` に適用。
+2. **background-blend-mode**：写真背景 + カラーオーバーレイを `background: url(...), var(--primary); background-blend-mode: multiply` で合成し、Photoshop の乗算レイヤーを再現。建設現場写真をブランドカラーで統一トーン化する時の第一選択。
+3. **mix-blend-mode**：テキストや装飾要素を背景に融合させる時に使用。`mix-blend-mode: difference` で白文字が背景色に応じて自動反転し、明暗混在背景でも可読性を確保。
+4. **mask-image**：`mask-image: linear-gradient(to bottom, black 60%, transparent)` で写真の下部を自然にフェードアウト。CTA エリアへの視線誘導を影ではなく透明度で表現。
+5. **clip-path**：`clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%)` で斜めカット装飾を CSS だけで実現。SVG 素材不要、書き出しなしで角度変更可能。
+6. **filter: drop-shadow**：`box-shadow` と違い透過 PNG の非矩形形状に沿った影を付けられる。ロゴや切り抜き人物写真の自然な浮遊感演出に必須。
+7. **filter: blur / hue-rotate**：背景装飾用の写真を `filter: blur(20px) hue-rotate(15deg)` で「ボケ + トーン変更」し、主訴求テキストを邪魔しない背景に変換。
+8. **backdrop-filter**：`backdrop-filter: blur(12px) saturate(1.5)` でガラスモーフィズム風のカード。CTA ボタン背景に敷くと「押せる面」感が上がる（Puppeteer は Chromium なので確実に効く）。
+9. **conic-gradient**：`background: conic-gradient(from 45deg, var(--primary), var(--accent), var(--primary))` で回転グラデーションのバッジ・アイコン装飾。「NEW」「限定」ラベルの背景に使うと安っぽくならない。
+10. **radial-gradient のスポットライト**：`radial-gradient(circle at 30% 40%, var(--accent) 0%, transparent 70%)` で人物顔付近に光源を作り視線を集約。中央過ぎず端過ぎない「1/3 の法則」座標に置く。
+11. **linear-gradient スタック**：`background: linear-gradient(180deg, rgba(0,0,0,0.4), transparent 30%, transparent 70%, rgba(0,0,0,0.6)), url(...)` で上下だけ暗く落として中央テキストを浮かせる二重グラデ。写真の情報量を殺さず可読性だけ稼ぐ。
+12. **-webkit-text-stroke + text-shadow**：`-webkit-text-stroke: 1px black; text-shadow: 0 2px 4px rgba(0,0,0,0.5)` で写真背景上の文字を「縁取り + 影」の二重防護。写真がどこに来ても最悪の可読性を保証する保険。
+
+**技法選択の優先順位**：まず 1（Flex/Grid）で骨格 → 11（グラデスタック）で写真の可読性確保 → 2/3（blend-mode）でブランド色を乗せる → 10（radial スポット）で視線誘導 → 6（drop-shadow）でロゴを浮かせる → 12（stroke）で最終保険。装飾（4/5/9）は「主訴求を邪魔しない範囲」で 1-2 個まで。
+
+---
+
+### 2. アスペクト比別レイアウトプリセット（px 位置定跡集）
+
+サイズごとに「H1/H2/CTA/ロゴ」の物理座標を定跡化。判断時間を消してテンプレ召喚で 30 秒で骨格完成。
+
+#### 1080×1080（Instagram フィード・正方形／Zパターン）
+- ロゴ：左上 x:60, y:60（幅 180px、クリアスペース 40px）
+- H1 メインコピー：中央 y:380-580、`font-size: clamp(64px, 8cqw, 96px)`、`text-wrap: balance`
+- H2 サブコピー：y:620-720、H1 の 40% サイズ
+- CTA：中央 x:340-740, y:840-940（幅 400、高さ 100、`border-radius: 50px`）
+- 装飾・数字強調：右上 or 左下（Z 導線の折り返し点）
+
+#### 1080×1920（Instagram Stories・TikTok／逆Fパターン）
+- 上部 0-400px は「デッドゾーン」（媒体 UI に隠れる）→ ロゴのみ配置
+- 主訴求ゾーン：y:600-1400（親指エリア）に H1・H2・視覚要素を集中
+- CTA：y:1500-1700（下から 220-420px、下端は媒体 UI で隠れる可能性）
+- 縦長は「上から下への視線流下」なので H1→H2→写真→CTA の垂直順序を厳守
+
+#### 1200×628（Facebook/X 広告・LinkedIn OGP／Zパターン）
+- 横長で「左：訴求」「右：ビジュアル」の 2 カラム分割が最強
+- 左カラム（0-600px）：ロゴ y:50、H1 y:180-320、H2 y:340-420、CTA y:480-560
+- 右カラム（600-1200px）：人物写真 or ビジュアル要素（顔は左向きに配置してテキスト側へ視線誘導）
+- H1 は最大 `font-size: 56px`、横長で読める上限
+
+#### 1500×500（Twitter/X ヘッダー・LP ヒーロー／横長Zパターン）
+- 極端な横長は「中央 800px に主訴求集約」＋左右は余白 or 装飾で処理
+- H1 は 1 行完結（改行させると視線が上下に散る）、`font-size: 72-96px`、`letter-spacing: -0.02em`
+- CTA は主訴求のすぐ右 or 下、視線の流れを切らない位置
+
+#### 1080×1350（Instagram ポートレート／Fパターン）
+- 正方形より縦に 25% 長いので「上下 3 分割」レイアウトが機能
+- 上 1/3：ロゴ + H1（訴求提示）／中 1/3：ビジュアル or 数字強調／下 1/3：H2 + CTA
+- 縦長の視線特性で「上から順に読む」を活かす
+
+#### 視線パターンの選択基準
+- **Zパターン**：横長・情報量少なめ・視線がジャンプする（バナー・ヘッダー）→ 1080×1080 / 1200×628 / 1500×500
+- **Fパターン**：縦長・情報量多め・視線が上から下に流れる（記事・LP）→ 1080×1350 / 1080×1920
+- **顔の視線方向は必ずテキスト側**：人物写真を右に置くなら顔は左を向く（視線がテキストに流れる）
+
+---
+
+### 3. カラー＆コントラストサイエンス（定量設計プロトコル）
+
+#### 3コントラスト法則（背景／主色／差し色）
+- **背景色（60%）**：面積が最大、彩度低め・明度高め or 低め（極端）、目を疲れさせない
+- **主色（30%）**：ブランドカラー、H1・主要装飾、彩度中〜高
+- **差し色（10%）**：CTA・アクセント、主色の補色 or トライアド、彩度最高
+- 面積比 60/30/10 を守ると「主張と静けさのバランス」が自動で成立する
+
+#### WCAG 4.5:1 の実務チェック
+- 通常テキスト（14px 以下）：4.5:1 必須
+- 大テキスト（18px 以上 or 14px 太字）：3:1 必須
+- CTA ボタン：面積対比 3:1（隣接背景と）+ テキスト対背景 4.5:1
+- 実測ツール：Chrome DevTools → Inspect → Contrast ratio 表示、または `npm i -g wcag-contrast` で CI 自動判定
+
+#### 色覚多様性（Coblis simulator）確認プロトコル
+- Coblis（Color Blindness Simulator）で `Deuteranopia`（緑色覚異常、日本人男性 5%）と `Protanopia`（赤色覚異常、1%）の 2 モードで検証
+- Chrome DevTools の Rendering → Emulate vision deficiencies でも同等シミュレート可能
+- CTA が背景と同じ色の塊に見えないか、赤緑コンビが灰色に潰れないかを目視確認
+- 対応策：色単独識別を避け「色 + 形（枠線）+ アイコン + テキスト」の 4 シグナル化
+
+#### 色空間の使い分け
+- HEX/RGB：CSS 記述の標準、sRGB 色空間、Web 全般
+- HSL：色相回転（補色は +180°）、トーン調整（S/L だけ動かす）が直感的
+- OKLCH：知覚的均等（同じ L 値なら色相違いでも人間の目に同じ明るさ）、`color-mix(in oklch, ...)` でブランド色から派生色生成
+- P3：iPhone/Mac の広色域ディスプレイ用、広告バナーでは sRGB 統一が安全（Puppeteer は sRGB 出力）
+
+---
+
+### 4. タイポグラフィハック（Rendering Pixel 精度の技術集）
+
+#### 日本語行間の科学
+- Noto Sans JP の `line-height` 標準：見出し 1.2-1.3、本文 1.6-1.8、CTA 1.0-1.1
+- ハーフレディング補正：`text-box-trim: trim-both`（Chrome 133+）で見出し上下の余白ズレを解消
+- 行間を狭くしすぎると「ヨミ」（読み仮名想定）が入り込まず窮屈、広すぎると 1 塊として読めない
+
+#### 詰め（ツメ）・OpenType 機能
+- `font-feature-settings: 'palt' 1`：プロポーショナルメトリクス（約物の自動詰め）、見出し限定
+- `font-feature-settings: 'kern' 1`：ペアカーニング（欧文の Va, To 等）、全体適用可
+- `font-feature-settings: 'pkna' 1`：仮名プロポーショナル、本文の日本語密度を上げる
+- 併記推奨：`font-feature-settings: 'palt' 1, 'kern' 1; letter-spacing: -0.02em`（palt 未対応時のフォールバック）
+
+#### text-wrap: balance / pretty の使い分け
+- `balance`：見出しの各行を均等長さに（複数行見出しの美観優先）
+- `pretty`：本文の最終行を孤立させない（リーダビリティ優先）
+- バナー実装：H1 は `balance`、H2/注釈は `pretty`
+
+#### WebFont ウェイト指定の落とし穴
+- Google Fonts の link に列挙したウェイトしか出ない：`wght@400;700;900` と書けば 400/700/900 だけ
+- `font-weight: 600` を CSS で指定しても link に 600 が無ければ最寄り値にフォールバック
+- 可変フォント（Noto Sans JP Variable）を使えば全ウェイト連続指定可能、link 記述量も削減
+- Puppeteer 変換前に `document.fonts.ready` で読込完了を待つ
+
+#### レジビリティ（1 文字識別性）とリーダビリティ（読みやすさ）の使い分け
+- 月給数字・電話番号：レジビリティ最優先、細明朝や飾りフォントは禁止
+- キャッチコピー本文：リーダビリティ優先、`line-height` と字間で読みやすさを作る
+
+---
+
+### 5. 業界別バナー勝ちパターン（訴求方式カタログ）
+
+各業界で「クリック率が上がる」実証済みパターンを業界別に定跡化。Rei のコピー依頼時にも業界タグを共有すると訴求軸がぶれない。
+
+#### 建設業採用（LET のメイン領域）
+- **勝ちパターン**：現場で笑う作業員の顔写真（中央〜右）+ 大きな月給数字（左下、ジャンプ率 3-4 倍）+「未経験歓迎」等の応募ハードル低減文言
+- **色**：ブランドカラー（多くは青・オレンジ・黒）+ 白背景でクリーンに、または現場写真をブランド色オーバーレイで統一
+- **NG**：ヘルメット無しの現場、暗い工事写真、経営者の顔メイン（求職者視点で「自分が働くイメージ」が持てない）
+- **CTA 文言**：「今すぐ応募」より「話を聞いてみる」「まずは見学」が心理抵抗低い
+
+#### 美容（サロン・化粧品）
+- **勝ちパターン**：Before/After 写真、モデルの美肌クローズアップ、パステル背景 + 手書き風フォント
+- **色**：淡ピンク・ゴールド・白のトーンオントーン、彩度低め・明度高め
+- **薬機法注意**：nori 事前チェック必須、「シミが消える」等の効能表現は NG、「うるおいのある肌へ」等の情緒表現に置換
+- **CTA 文言**：「無料カウンセリング」「初回限定 60% OFF」等の具体的ベネフィット
+
+#### 飲食
+- **勝ちパターン**：シズル感のある料理写真（湯気・照りを強調）+ 価格表示 + 「本日限定」「数量限定」の希少性
+- **色**：温色系（赤・オレンジ・黄）で食欲喚起、白背景 or 木目テクスチャで清潔感
+- **NG**：料理が小さい、皿が空きすぎ、暗い写真、複数料理のごちゃ混ぜ（1 メイン + 1 サブまで）
+- **CTA 文言**：「今すぐ予約」「テイクアウト注文」
+
+#### BtoB SaaS
+- **勝ちパターン**：数字での効果訴求（「工数 70% 削減」等）+ 導入企業ロゴ + プロダクトスクリーンショット
+- **色**：青・グレー・白のクリーン配色、信頼感優先で彩度控えめ
+- **NG**：感情的訴求（BtoB は論理判断）、抽象的すぎるビジュアル、決定権者不明のペルソナ
+- **CTA 文言**：「無料デモを予約」「資料ダウンロード」「14 日間無料トライアル」
+
+#### EC
+- **勝ちパターン**：商品写真ドン + 価格（元値と割引後の対比）+ 送料無料・ポイント還元等の条件
+- **色**：商品の色を邪魔しない中性背景（白・ライトグレー）、CTA は赤系で購買行動促進
+- **NG**：商品が小さい、価格表示なし（EC は価格が最大の判断材料）、複数商品の並列表示（1 商品に集中）
+- **CTA 文言**：「今すぐ購入」「カートに入れる」「在庫あり」
+
+#### イベント告知
+- **勝ちパターン**：日時・場所を最大級のフォントで、登壇者写真、参加費（無料なら大きく明示）
+- **色**：イベントテーマに応じるが、日時情報は必ず高コントラスト（背景と 5:1 以上）
+- **NG**：日時場所が小さい、登壇者不明、申込方法が見えない
+- **CTA 文言**：「参加申込（無料）」「席数限定・先着順」
+
+---
+
+### 6. Hiroへの引き渡し規約（Puppeteer 決定性保証プロトコル）
+
+Hiro が PNG 変換時に「Kana のプレビュー通り」を再現できるように、HTML 側で保証する規約集。
+
+#### ファイル構成
+```
+outputs/banners/{client}/html/
+├── banner_1080x1080.html   # サイズごとに独立、または 1 HTML × data-size
+├── banner_1200x628.html
+├── assets/
+│   ├── logo.svg            # 透過必須、data URI 埋め込み推奨
+│   └── hero.jpg            # base64 data URI 化推奨
+└── brand-tokens.json       # 色・フォントの単一情報源
+```
+
+#### フォント埋め込み規約
+- Google Fonts は `<link rel="preload" as="font" href="..." crossorigin>` + `<link rel="stylesheet" href="...&display=block">` の 2 段構え
+- `font-display: block`（swap 禁止、Puppeteer 変換中にフォールバック描画されるのを防ぐ）
+- 使用ウェイトを link href に完全列挙：`wght@400;500;700;900`
+- ローカルフォント（`~/.fonts/`）にも同フォントを配置し `@font-face { src: local('Noto Sans JP') ... }` でフォールバック確保
+
+#### 画像パス規約
+- **絶対 https URL** または **data URI**（base64 埋め込み）のみ使用
+- 相対パス（`./img/hero.jpg`）は Hiro の `file://` 変換環境で欠落するリスク → 禁止
+- 画像は SVG > PNG（透過）> JPG（写真）の優先順位、SVG は inline 埋め込みが最強
+- 実解像度は表示サイズの 2 倍以上（Retina `deviceScaleFactor: 2` 対応）
+
+#### Puppeteer 専用 meta / コメント
+```html
+<!-- HIRO-CHECK:
+  viewport=1080x1080
+  scale=2
+  fonts-preloaded=yes
+  omit-bg=no
+  safe-area=none
+  no-fixed-position=confirmed
+  no-vw-vh=confirmed
+  contrast-ratio=5.2:1
+  min-font=16px
+  tap-target=88x44
+  self-check=8/8 pass
+-->
+```
+- 末尾コメントで Hiro に Puppeteer 設定を明示、口頭確認ゼロ化
+- `viewport` の数値と `body{width:XXX;height:XXX}` の数値は完全一致必須
+
+#### フォールバック規約
+- フォント読込失敗時：`@font-face` の local() 参照でシステムフォント fallback
+- 画像読込失敗時：`onerror` 属性で単色背景 fallback、`<img alt>` 必須（Hiro の欠落検知用）
+- ブラウザ機能未対応時：`@supports` で分岐、`text-wrap: balance` 等の新機能は `@supports (text-wrap: balance){}` で囲む
+
+#### 決定性保証チェック
+- 同一 HTML を 2 回 Puppeteer 変換して pixelmatch で差分 0 になる状態を保証
+- 差分が出る場合の原因：フォント読込タイミング（`document.fonts.ready` 待機で解決）、CSS アニメ残存（`animation-play-state: paused` で強制停止）、date/random 依存（バナーには不要、あれば削除）
+
+#### ハンドオフフォーマット（Hiro への引き渡しメッセージ）
+```
+【Hiro 宛】バナー HTML 完成、PNG 変換依頼
+
+案件：{client_name}
+サイズ数：{n} ファイル
+保存先：outputs/banners/{client}/html/
+
+Puppeteer 設定（各 HTML の HIRO-CHECK コメント参照）：
+- viewport: 各ファイル指定
+- deviceScaleFactor: 2（Retina 対応）
+- omitBackground: no（背景含めて出力）
+- waitUntil: 'networkidle0' + document.fonts.ready
+
+事前検証済：
+□ コントラスト 5:1 以上（lhci 通過）
+□ 最小フォント 14px 以上
+□ position:fixed / vw / vh 不使用
+□ 外部依存ゼロ（全 https or data URI）
+□ フォント全ウェイト link 列挙
+□ nori リーガルチェック済
+
+差し戻し時の切り分け：
+Kana ローカル再現あり → HTML 側修正
+Kana ローカル再現なし → Hiro preparePage 側で吸収
+
+→ PNG 変換お願いします
+```
+
+---
+
+### 拡張運用の原則
+
+1. **既存の Daily Knowledge Log と競合しない**：ここは体系書、Daily Log は現場ノート。矛盾があれば Daily Log の最新エントリーを優先（現場運用の実証済み解を採用）。
+2. **12技法・6業界パターンは「引き出し」として持ち、案件ごとに 2-3 個だけ選択適用**：全部盛りは広告臭さの元凶。
+3. **hiroへの引き渡し規約は聖域**：規約違反時は Hiro が差し戻す前に Kana 自身で発見・修正。規約を破ると Hiro の工数が丸ごと無駄になる。
+4. **業界別パターンは Rei と共有**：コピー依頼時に業界タグを渡すと訴求軸がぶれず、Kana のレイアウト段階での書き直しがゼロ化。
+5. **年 2 回（1 月・7 月）にトレンド更新**：CSS 新機能・広告媒体仕様変更・色覚シミュレーターアップデートを反映し、拡張知識を陳腐化させない。
