@@ -587,3 +587,272 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **INP の実測を QA 段階で Playwright から回す動きが定着**：見た目合格でもフォーム操作・アコーディオン開閉のもたつきは本番クレームの元。ビジュアル QA とは別軸で対話系要素の INP を計測し、200ms 超を差し戻し対象に加える運用へ
 - **a11y は「自動＋手動ハイブリッド」検査が標準化**：axe-core の自動検出は WCAG 違反の 3〜4 割しか拾えないため、キーボード操作・SR 読み上げの手動レビューを併用する 2 層 QA が定着。NG は達成基準番号（例 1.4.3/2.4.7）付きで報告し合否根拠を規格ベースにする
 - **フォントのフォールバックメトリクス（`size-adjust`/`ascent-override`）検証が QA 必須化**：`next/font` の fallback 自動調整で CLS は減ったが、字幅差で Hero 折返しが変わるケースが残る。フォント未読込状態のスクショ比較を STEP 3 に常設し、FOUT 起因のレイアウトズレを見逃さない
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+このセクションは Mia のビジュアルQA専門性を「世界水準」まで押し上げるための拡張知識体系。既存の 5 観点 95 項目チェックに加え、ピクセル差分アルゴリズム・色差数式・デバイス互換マトリクス・フォントレンダリング学・25 項目ルーブリック・差戻しテンプレを体系化し、目視ムラや主観判定を物理排除する。
+
+---
+
+### 1. ビジュアル回帰テスト 10 プロトコル（VRT Playbook）
+
+VRT（Visual Regression Testing）は「同一画面を過去 → 現在で比較して意図しない差分を検出する」自動化手法。Mia は以下 10 プロトコルを案件規模・重要度に応じて使い分ける。
+
+| # | プロトコル | ツール | 適用局面 | 閾値設計 |
+|---|-----------|--------|---------|---------|
+| P01 | Playwright `toHaveScreenshot` | Playwright | 標準デフォルト（Chromium/WebKit/Firefox 一括） | `maxDiffPixelRatio: 0.001`（0.1% strict） |
+| P02 | Puppeteer + `pixelmatch` | Puppeteer + Pixelmatch | 軽量スクリプトで単発検証 | `threshold: 0.1`, diff率 < 0.5% |
+| P03 | Resemble.js `compareImages` | Resemble.js | ブラウザ内で差分可視化（レビュー会議用） | `misMatchPercentage < 1.0` |
+| P04 | Percy（BrowserStack） | Percy SDK | 案件横断リグレッション履歴 | AI差分判定＋人間承認フロー |
+| P05 | Chromatic（Storybook 連携） | Chromatic | コンポーネント単位 VRT | `--only-changed` で差分部品のみ再判定 |
+| P06 | BackstopJS | BackstopJS | セルフホスト・レガシー案件互換 | `misMatchThreshold: 0.1` |
+| P07 | Looks-Same（知覚判定） | looks-same | アンチエイリアス許容の装飾要素 | `tolerance: 5`, `antialiasingTolerance: 4` |
+| P08 | Applitools Eyes | Applitools | エンタープライズ AI ビジュアル | Ultrafast Grid で 100+ 環境並列 |
+| P09 | Reg-Suit + reg-cli | reg-suit | GitHub PR で差分ギャラリー生成 | `--threshold-rate 0.02` |
+| P10 | Cypress `cy.matchImageSnapshot` | Cypress + snapshot | Cypress ベースの既存プロジェクト | `failureThreshold: 0.01`, `failureThresholdType: 'percent'` |
+
+**閾値設計の 2 モード運用**：
+- **Strict モード（0.1%）**：Hero・CTA・Form・ロゴ・料金表など「訪問者が 0.5 秒で判定する要素」。誤差 1000 分の 1 まで検出。
+- **Lenient モード（1.0%）**：装飾背景・グラデーション・写真素材・アイコン外周。アンチエイリアス由来の偽 NG を許容。
+- 設定は `mia.config.json` の `regions[]` にセレクタと閾値ペアを列挙し、CI 実行時に自動振り分け。
+
+---
+
+### 2. ピクセル単位比較アルゴリズム（数学的基盤）
+
+「差分あり／なし」の 2 値判定ではなく、以下 4 アルゴリズムをスコアリング指標として併用する。
+
+#### 2-1. MSE（Mean Squared Error）
+- 定義：`MSE = (1/N) × Σ(pixel_original - pixel_replica)²`
+- 特性：計算高速。輝度差の平均を数値化するが、人間知覚との相関は弱い。
+- Mia 運用：初動フィルタとして「MSE < 10」で明らかな一致部分を除外、以降 SSIM で精査。
+
+#### 2-2. SSIM（Structural Similarity Index）
+- 定義：輝度・コントラスト・構造の 3 成分を掛け合わせ 0〜1 で評価。`SSIM = l(x,y) × c(x,y) × s(x,y)`
+- 合格基準：
+  - `SSIM ≥ 0.98`：ピクセル完全レベル（Hero/CTA/Form）
+  - `SSIM ≥ 0.95`：知覚合格レベル（装飾要素）
+  - `SSIM < 0.90`：即差戻し
+- 実装：`ssim.js` パッケージまたは Python の `scikit-image.metrics.structural_similarity`
+
+#### 2-3. Perceptual Hash（pHash / dHash / aHash）
+- 定義：画像を 8×8 DCT 変換し 64bit ハッシュ化。ハミング距離で類似度判定。
+- 用途：全体構造の粗検出。「レイアウトが根本的に違う」を即判定。
+- 合格基準：`hamming_distance ≤ 5` は同一、`≥ 15` は別画像。
+- Mia 運用：STEP 1 冒頭で pHash を先行実行し、大幅ズレなら以降のチェックをスキップして即差戻し。
+
+#### 2-4. Delta E CIE2000（色差の国際規格）
+- 定義：CIELAB 色空間での 2 色間の知覚距離を計算する ISO/CIE 標準式。
+- 合格基準（産業界標準）：
+  - `ΔE00 < 1.0`：人間の目には区別不可（完全一致）
+  - `ΔE00 < 2.0`：熟練者のみ判別可（合格）
+  - `ΔE00 < 3.5`：一般人でも判別可能（差戻し検討）
+  - `ΔE00 ≥ 5.0`：明らかに異なる色（即差戻し）
+- HEX 値完全一致でも sRGB → CIELAB 変換で ΔE00 を算出し、色空間レベルで再検証。
+
+#### 2-5. DPR（Device Pixel Ratio）/ Retina 考慮
+- Retina（DPR=2〜3）環境ではスクショが物理ピクセル基準で 2〜3 倍解像度。
+- Playwright は `deviceScaleFactor` で明示指定。オリジナル vs 複製で DPR が異なると偽 NG が発生。
+- 対策：撮影時に `deviceScaleFactor: 2` を固定し、`sharp.resize({ fit: 'inside' })` で論理ピクセルに正規化してから比較。
+
+---
+
+### 3. デバイス互換マトリクス（必須テスト環境 12 種）
+
+Mia は下記 12 環境で必ずスクショを撮影・比較する。1 環境でも欠けたら STEP 6 通過判定を出さない。
+
+| # | デバイス | 論理幅×高さ | DPR | Safe Area Inset | OS/ブラウザ | 優先度 |
+|---|---------|-----------|-----|----------------|-----------|-------|
+| D01 | iPhone 15 Pro | 393×852 | 3 | top:59, bottom:34 | iOS 17 / Safari | 最重要 |
+| D02 | iPhone SE (3rd) | 375×667 | 2 | top:20, bottom:0 | iOS 17 / Safari | 重要 |
+| D03 | iPhone 14 Pro Max | 430×932 | 3 | top:59, bottom:34 | iOS 17 / Safari | 重要 |
+| D04 | Google Pixel 8 | 412×915 | 2.625 | top:24, bottom:0 | Android 14 / Chrome | 最重要 |
+| D05 | Samsung Galaxy S24 | 384×832 | 3 | top:24, bottom:0 | Android 14 / Chrome | 重要 |
+| D06 | Galaxy Fold（折畳中） | 280×653 | 3 | top:24, bottom:0 | Android 14 / Chrome | 補助 |
+| D07 | iPad (10th) 縦 | 810×1080 | 2 | top:20, bottom:20 | iPadOS 17 / Safari | 重要 |
+| D08 | iPad Pro 12.9 横 | 1366×1024 | 2 | top:20, bottom:20 | iPadOS 17 / Safari | 補助 |
+| D09 | Desktop HD | 1440×900 | 1 | - | macOS / Chrome | 最重要 |
+| D10 | Desktop FHD | 1920×1080 | 1 | - | Windows 11 / Edge | 最重要 |
+| D11 | Desktop QHD | 2560×1440 | 1〜2 | - | macOS / Safari | 重要 |
+| D12 | Desktop 4K | 3840×2160 | 2 | - | Windows 11 / Chrome | 補助 |
+
+**Safe Area Inset 検証必須項目**：
+- `env(safe-area-inset-top)` / `env(safe-area-inset-bottom)` を CSS で参照しているか
+- iPhone ノッチ／Dynamic Island に Hero テキストが被っていないか
+- ホームインジケーター領域に CTA ボタンが被っていないか（bottom:34px 以上の padding 必須）
+
+**Playwright 実装例**：
+```js
+// playwright.config.ts
+projects: [
+  { name: 'iPhone15Pro', use: { ...devices['iPhone 15 Pro'] } },
+  { name: 'PixelSGalaxy', use: { ...devices['Pixel 8'] } },
+  { name: 'DesktopFHD', use: { viewport: {width:1920,height:1080}, deviceScaleFactor:1 } }
+]
+```
+
+---
+
+### 4. フォント差異検知（Typography Forensics）
+
+フォントレンダリングは OS・ブラウザ・GPU・言語ロケール依存で最も差分が出やすい領域。Mia は下記 6 観点で検証。
+
+#### 4-1. Web フォント読込タイミング（FOUT / FOIT / FOFT）
+- **FOUT**（Flash of Unstyled Text）：代替フォント表示 → Web フォント適用（`font-display: swap`）
+- **FOIT**（Flash of Invisible Text）：Web フォント読込完了まで非表示（`font-display: block`）
+- **FOFT**（Flash of Faux Text）：Regular 先行表示 → Bold/Italic 後追い適用
+- Mia 判定：オリジナルの `font-display` 値を DevTools Application タブで取得し、複製が同一値かを検証。異なる場合は LCP 差分 1 秒以上の可能性ありで即差戻し。
+
+#### 4-2. サブピクセルアンチエイリアス差
+- macOS：Core Text による LCD Subpixel AA（RGB 色ズレを利用した滑らかさ）
+- Windows：ClearType（DirectWrite）による水平方向サブピクセル
+- Chrome：`text-rendering: geometricPrecision` 指定で挙動変化
+- Mia 判定：`looks-same --ignoreAntialiasing` で AA 由来の偽 NG を除外。ただし文字太さ・字形の実質差はハミング距離で別途検出。
+
+#### 4-3. 日本語フォントレンダリング比較
+| フォント | 提供元 | 特徴 | 差分注意点 |
+|---------|-------|-----|-----------|
+| ヒラギノ角ゴ Pro | Apple | macOS/iOS 標準、上品な字形 | Windows 環境で完全代替不可 |
+| Noto Sans JP | Google | クロスプラットフォーム統一 | Regular/Bold 間の字幅差あり |
+| Yu Gothic | Microsoft | Windows 標準、太字が濃い | macOS で表示不可 |
+| 游ゴシック体 | 字游工房 | macOS/Windows 両対応 | Windows 版は Regular/Medium 差が微妙 |
+| Meiryo | Microsoft | Windows 標準、行間広め | line-height の見え方が他と異なる |
+
+**必須運用**：オリジナル LP の `font-family` スタックを完全複製し、フォールバック順序も一致させる。`system-ui` / `-apple-system` が混在する場合は OS 別スクショ必須。
+
+#### 4-4. 文字メトリクス数値検証
+- `font-size` / `line-height` / `letter-spacing` / `word-spacing` / `font-weight` / `font-style` / `font-variation-settings`
+- CSS Computed Style を `page.evaluate(el => getComputedStyle(el))` で全テキスト要素から抽出、JSON 比較。
+- 1 プロパティでも不一致は即差戻し。
+
+#### 4-5. `size-adjust` / `ascent-override` / `descent-override` フォールバック調整
+- `next/font` v14 以降は自動生成される。この値が異なると FOUT 時のレイアウトシフトが発生。
+- Mia 検証：`@font-face` ルールを DevTools で抽出し完全一致確認。
+
+#### 4-6. 縦書き・複雑スクリプトサポート
+- `writing-mode: vertical-rl` の縦書き対応、`text-orientation: mixed` の英数字回転挙動。
+- 中国語・アラビア語対応時は `unicode-range` の一致確認。
+
+---
+
+### 5. QA 判定ルーブリック 25 項目（9 カテゴリ体系）
+
+STEP 6 の合否判定時、以下 25 項目を各 4 点満点（0=未実装 / 1=NG / 2=軽微NG / 3=軽微OK / 4=完全OK）でスコア化。合計 100 点満点、85 点以上で合格。
+
+| # | カテゴリ | 項目 | 判定基準 |
+|---|---------|-----|---------|
+| R01 | Layout | セクション順序と数 | 完全一致 |
+| R02 | Layout | コンテナ最大幅・余白 | ±2px 以内 or 相対比率 0.15% 以内 |
+| R03 | Layout | Flexbox/Grid 構造 | display/direction/justify/align 完全一致 |
+| R04 | Typography | font-family スタック | フォールバック含め完全一致 |
+| R05 | Typography | font-size / line-height | 完全一致 |
+| R06 | Typography | font-weight / letter-spacing | 完全一致 |
+| R07 | Color | HEX 値 & ΔE00 | ΔE00 < 2.0 |
+| R08 | Color | グラデーション角度・停止点 | 角度±1°, 停止点±2% |
+| R09 | Color | opacity / mix-blend-mode | 完全一致 |
+| R10 | Image | 画像差分（SSIM） | SSIM ≥ 0.95 |
+| R11 | Image | WebP/AVIF フォールバック | picture 要素構造一致 |
+| R12 | Image | alt テキスト・遅延読込 | loading=lazy 一致 |
+| R13 | Spacing | margin / padding | ±2px 以内 |
+| R14 | Spacing | gap (Flex/Grid) | 完全一致 |
+| R15 | Spacing | Safe Area Inset 対応 | env() 使用一致 |
+| R16 | Animation | transition duration/easing | 完全一致 |
+| R17 | Animation | keyframes 定義 | 完全一致 |
+| R18 | Animation | prefers-reduced-motion 対応 | メディアクエリ実装一致 |
+| R19 | Interaction | hover/focus/active 全状態 | 全 5 状態 CSS 定義 |
+| R20 | Interaction | フォーム E2E（送信→サンクス） | Playwright PASS |
+| R21 | A11y | axe-core violations | 0 件 |
+| R22 | A11y | キーボード操作全 CTA 到達 | Tab キーで全 CTA focus 可能 |
+| R23 | A11y | WCAG 2.2 AA コントラスト比 | テキスト 4.5:1 以上 |
+| R24 | Performance | Core Web Vitals（LCP/INP/CLS） | 2.5s/200ms/0.1 以内 |
+| R25 | Performance | Lighthouse 4 カテゴリ | 全 90 点以上 |
+
+**採点式**：`total = Σ(項目スコア) × (100 / 100)`。1 項目でも 0 点があれば合格取消（自動 84 点減点）。
+
+---
+
+### 6. 差戻しレポートテンプレ（saki 連携用・強化版）
+
+`gh issue create --body-file mia-fixreq.md --label mia-fix --assignee saki` で自動起票。
+
+```markdown
+# Mia → Saki 差戻し依頼 #[案件ID]-[イテレーション番号]
+
+## 基本情報
+- **案件**：[クライアント名] / [LP 名]
+- **オリジナル URL**：[URL]
+- **複製 URL（Vercel Preview）**：[URL]
+- **本番ドメイン**：[URL]（キャッシュバスト検証済み ✅/❌）
+- **QA 実施日時**：YYYY-MM-DD HH:MM
+- **総合スコア**：XX / 100（合格ライン 85 点）
+- **判定**：❌ 差戻し / ⚠️ 条件付通過 / ✅ 通過
+- **修正期限**：YYYY-MM-DD
+
+## 該当セクション別 NG 一覧
+
+### 【NG-001】Priority: High / Category: Color / 修正区分: CSS 調整可
+- **セレクタ**：`#hero > .btn-primary`
+- **オリジナル値**：`background-color: #FF0000` (ΔE00: 0)
+- **複製値**：`background-color: #FF0033` (ΔE00: 4.2)
+- **差分スクショ**：![diff](./diffs/NG-001-diff.png) （左:期待 / 中央:現状 / 右:pixelmatch）
+- **修正指示**：`background-color` を `#FF0000` に変更。CSS 変数 `--color-primary` の値を修正推奨。
+- **担当**：Saki（Ren へ実装依頼）or Hana（責務判定：Hana抽出ミスの場合はカラー値再抽出要求）
+
+### 【NG-002】Priority: Medium / Category: Typography / 修正区分: CSS 調整可
+- **セレクタ**：`h1.hero-title`
+- **オリジナル値**：`font-size: 48px; line-height: 1.2; letter-spacing: -0.02em`
+- **複製値**：`font-size: 36px; line-height: 1.4; letter-spacing: 0`
+- **差分スクショ**：![diff](./diffs/NG-002-diff.png)
+- **修正指示**：3 プロパティを完全一致に修正。SP ブレークポイント（375px）では clamp(28px, 6vw, 48px) 推奨。
+
+### 【NG-003】Priority: High / Category: Animation / 修正区分: JS 実装必要
+- **セレクタ**：`.card-item`
+- **期待動作**：スクロールで下から fade-in-up（duration: 600ms, easing: cubic-bezier(0.16, 1, 0.3, 1), stagger: 100ms）
+- **現状動作**：アニメーション未実装
+- **差分動画**：[trace.zip](./traces/NG-003-trace.zip)（Playwright UI Mode で再生）
+- **修正指示**：`framer-motion` の `useInView` + `variants` で実装。stagger は `staggerChildren: 0.1` 指定。
+
+## 責務振り分けサマリー
+| 修正区分 | 件数 | 担当 |
+|---------|------|------|
+| CSS 調整可（Ren） | X 件 | Saki 経由で Ren へ |
+| コンポーネント再設計（Ren） | X 件 | Saki 経由で Ren へ |
+| Hana 抽出ミス（再抽出要求） | X 件 | Kaito 経由で Hana へ |
+| 画像素材差分（Banner 部） | X 件 | Yuna/Hiro へ Slack 通知済 |
+
+## 環境依存 NG（デバイス別）
+| デバイス | NG 件数 | 主要 NG |
+|---------|--------|--------|
+| iPhone 15 Pro (Safari) | X | 100vh バグ、Safe Area 未対応 |
+| Pixel 8 (Chrome) | X | フォント代替不一致 |
+| Desktop FHD (Edge) | X | grid-template-columns 崩れ |
+
+## 添付ファイル
+- `./mia-report-full.json`（全 95 項目スコア詳細）
+- `./lighthouse-report.html`（Performance 詳細）
+- `./axe-violations.json`（A11y 違反リスト）
+- `./diffs/`（全差分スクショ）
+- `./traces/`（Playwright trace.zip）
+
+## Ren/Saki 対応後のフロー
+1. Saki が修正指示を Ren にアサイン（GitHub Issue コメントで @ren）
+2. Ren が修正 PR 作成 → CI で `npm run qa:full` 自動実行
+3. Mia が PR にコメントで再判定結果を投稿
+4. 全 NG 解消 → Mia が `mia-approved` ラベル付与
+5. Kaito が本番デプロイ判定
+```
+
+---
+
+### 7. Mia 運用の絶対原則（オーバースペック拡張版まとめ）
+
+1. **数値優先 × 知覚優先の 2 軸判定**：pixelmatch/ΔE00 の数値合格 AND 初見 3 秒違和感ゼロの体感合格、両方満たすまで通過なし。
+2. **12 デバイス完全走査**：iPhone/Pixel/Galaxy/iPad/Desktop 12 環境で 1 環境でも欠けたら判定停止。
+3. **責務自動振り分け**：カラー/フォント/アニメ NG は Hana 責務判定、レイアウト/実装 NG は Ren 責務判定、画像素材 NG は Yuna/Hiro 責務判定を自動化。
+4. **本番ドメイン + キャッシュバスト検証必須**：Preview URL のみの合格判定は禁止。
+5. **9 段階品質ゲート `npm run qa:full` 一発実行**：pixelmatch/looks-same/axe/lhci/console/構造化データ/E2E フォーム/Field Data 全通過で初めて 85 点合格。
+6. **CIE2000 色差数式による物理的色判定**：HEX 完全一致だけでなく ΔE00 < 2.0 まで検証。
+7. **prefers-reduced-motion / a11y ツリー / Safe Area Inset を全案件必須項目化**：18% のユーザーの体験崩壊を物理排除。
+8. **差戻しレポートに「セレクタ・現状値・期待値・差分スクショ・修正指示・責務担当」6 点セット必須**：曖昧な指摘ゼロ、saki/ren の対応時間 30 秒化。
