@@ -610,3 +610,386 @@ export const HERO = {
 - **React 19 の `useActionState` 前提で Form 仕様を設計する流れ**：pending・エラー・楽観更新が追加ライブラリなしで書けるため、Form 仕様を新フック前提に更新。二重送信防止（冪等キー）と pending 中の disabled も設計項目として常設し、Ren の実装迷いを消す
 - **Next.js の明示的キャッシュ API（`use cache` 等）でデータフロー図に「キャッシュ境界」欄が必要に**：ISR/SSR/CSR の選別に加え、どの fetch をキャッシュするかを設計段階で決める流れ。採用 LP は「基本静的＋フォームのみ動的」の境界を設計書で明示すると Ren の判断迷いが消える
 - **「アクセシブルネーム設計」を部品仕様に前置きする動きが定着**：Mia の a11y ツリー照合（role＋アクセシブルネーム一致）が QA 標準化したため、コンポーネント行に role/aria-label/state を先に定義。div でボタン風を組む実装を設計層でゼロにし、SR 操作不能の差し戻しを予防する
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+Nao(LP) の設計品質を「世界クラスの LP 設計スペシャリスト」水準に押し上げるための知識・型・プロトコル集。既存の Daily Knowledge Log で獲得した現場ノウハウを、体系的な設計理論（Material 3 / HIG / IBM Carbon / W3C DTCG / Atomic Design）と接続する。**この章は基準集であり、案件ごとにチェックリストとして参照する。**
+
+---
+
+### 1. LP 設計 10 フレームワーク（案件着手時に必ず選定）
+
+Kaito から案件を受領した際、以下 10 フレームワークから **最低 3 つを組み合わせて** 設計方針を宣言する。単一手法に固執せず、案件特性（BtoB/BtoC、採用/販促、既存複製/新規企画）で組み合わせを変える。
+
+| # | フレームワーク | 適用シーン | Nao の使い方 |
+|---|---|---|---|
+| 1 | **Atomic Design（2.0 拡張）** | 中〜大規模 LP・複数ページ共通部品化 | Atoms(SA) / Molecules(IM) / Organisms(HO) / Templates / Pages の 5 層で分割。Server/Client 境界も同時ラベル |
+| 2 | **Section-Based Architecture** | 縦長 1 枚 LP・採用/販促の定型 | Section 単位で自己完結ユニット化。前後文脈への依存禁止（訪問者は飛び読みする） |
+| 3 | **F-shape / Z-shape Layout** | 情報量多い LP・BtoB 資料請求型 | ヒートマップ視線パターンに沿って CTA・キービジュアル配置。F(BtoB) / Z(BtoC) を明示 |
+| 4 | **Above-the-Fold Prioritization** | LCP 2.5s 死守案件 | ファーストビュー内の DOM を「①ターゲット明示コピー ②社名+業種 ③ベネフィット1行 ④主 CTA」の 4 要素に限定 |
+| 5 | **Hero + Value Proposition Stack** | サービス紹介・SaaS 系 | Hero → 3 Value（Feature/Benefit/Proof）→ CTA の反復スタック。各 Value に「離脱防止フック」を必須配置 |
+| 6 | **Story-First / Narrative LP** | ブランディング・採用 LP | Problem → Agitate → Solution → Proof → Action の PASPA モデルでセクション順序を決定 |
+| 7 | **Modular Grid System（12/16 col）** | レスポンシブ厳密案件 | 12/16 カラムグリッドに全要素を吸着。`grid-template-columns: repeat(12, 1fr)` を tokens 化 |
+| 8 | **Component API Design（React ライク）** | 再利用部品多い案件 | Props を「必須3件・任意5件」までに制限、children/slot は排他選択。Variant は Discriminated Union で型化 |
+| 9 | **Conversion-First IA** | KPI 直結型（CV 数命） | 全セクションから CTA への距離を「スクロール量 ≤ 1.5 画面」に制約。CTA 密度を IA マップに明記 |
+| 10 | **Progressive Disclosure** | 情報過多を避けたい案件 | 詳細情報は Accordion / Tabs / Modal に格納。初期表示は 3 階層以内、詳細は 1 クリック先へ |
+
+**運用ルール:** STEP 0 で「本案件のフレームワーク組合せ = ②+④+⑨」等を明記し、Kaito・Ren・Mia に共有。以降の設計判断は宣言した組合せを根拠とする。
+
+---
+
+### 2. 設計書ドキュメント構造（7 章構成テンプレ）
+
+STEP 6 納品時、以下 7 章を **すべて埋めた状態** で Ren に渡す。空欄を許容しない。テンプレは `templates/lp-design-spec.md` に固定化。
+
+```
+lp-design-spec.md
+├── 01. IA Map（Information Architecture）
+│    ├─ サイトマップ（Mermaid graph LR）
+│    ├─ ユーザーフロー（Entry → Scan → Consider → Convert）
+│    ├─ セクション優先度マトリクス（重要度×実装難易度）
+│    └─ CTA 密度マップ（各セクションの CTA 位置・種別）
+│
+├── 02. Wireframe（Lo-Fi / Hi-Fi）
+│    ├─ SP(375) / Tablet(768) / Desktop(1280) の 3 breakpoint
+│    ├─ 各セクションの余白・グリッド割付
+│    └─ Above/Below the Fold 境界を明示
+│
+├── 03. Section Spec（セクション単位仕様）
+│    ├─ 目的（Purpose）/ 訴求（Message）/ CV への貢献（KPI）
+│    ├─ レイアウトパターン（full-width / contained / grid-Ncol / alternating）
+│    ├─ 背景処理（color / gradient / image / video）
+│    ├─ 表示条件（常時 / 条件付き / empty state 時の挙動）
+│    └─ 離脱予測点（High / Mid / Low）と対策コンポーネント
+│
+├── 04. Component Spec（CSD: Component Specification Document）
+│    各コンポーネントで以下 8 項目を必須記載
+│    ├─ Purpose（何のための部品か 1 行）
+│    ├─ Variants（primary / secondary / ghost 等）
+│    ├─ States（idle / hover / focus / active / disabled / loading / error）
+│    ├─ Props（型定義 + 必須/任意 + デフォルト値 + 使用箇所リスト）
+│    ├─ Accessibility（role / aria-* / keyboard interaction）
+│    ├─ Performance Budget（バンドル寄与 KB / render cost）
+│    ├─ Dependencies（依存トークン・依存コンポーネント）
+│    └─ Server/Client 区分（SA / IM / HO ラベル + 理由）
+│
+├── 05. Interaction Spec（動き・遷移）
+│    ├─ Mermaid 状態遷移図（各コンポーネントの state machine）
+│    ├─ アニメーション仕様表（duration / easing / trigger / reduced-motion）
+│    ├─ スクロール連動（Scroll-Driven Animations / IntersectionObserver）
+│    ├─ ページ遷移フロー（正常系 + Network Error + Loading Skeleton の 3 系統）
+│    └─ フォーム挙動（validation timing / error message / submit state）
+│
+├── 06. Copy Deck（文言集）
+│    ├─ constants/content.ts の全キー一覧（SCREAMING_SNAKE_CASE）
+│    ├─ 想定字数レンジ（最小/最大）※ kotone 連携
+│    ├─ 超過時挙動（line-clamp / 短縮 B 案）を各行で確定
+│    └─ 多言語対応時は locale 別テーブル
+│
+└── 07. Assets List（画像・アイコン・動画）
+     ├─ 画像スロット仕様表（寸法 / アスペクト比 / 最大 KB / object-fit）
+     ├─ OG / Twitter Card 画像（1200×630 / 1200×600）※ バナー部発注仕様
+     ├─ アイコンセット（Lucide / Heroicons / カスタム SVG）
+     └─ フォント（family / weight / subset / license）※ nori 連携
+```
+
+**納品時チェック:** 7 章のうち 1 章でも空欄・TBD がある状態での Ren 引き渡しを禁止。空欄がある場合は Hana 再抽出 or Sota / kotone / バナー部への追加発注をエスカレーション。
+
+---
+
+### 3. 設計品質ルーブリック 20（STEP 6 納品前セルフ採点）
+
+各項目 0/1/2 点で採点し、**合計 36 点以上（90%）** で Ren 引き渡し可。35 点以下は再設計。
+
+| # | 観点 | カテゴリ | 判定基準（2 点 = 完全 / 1 点 = 部分 / 0 点 = 未達） |
+|---|---|---|---|
+| 1 | Consistency | 一貫性 | 命名・余白・カラー・タイポが全セクションで統一（token 参照率 100%） |
+| 2 | Reusability | 再利用性 | 全コンポーネントが 2 箇所以上で使用 or 単発でも justify されている |
+| 3 | Accessibility | a11y | WCAG 2.2 AA 準拠（コントラスト比 4.5:1 / role / aria-* / keyboard nav） |
+| 4 | Responsive | 応答性 | SP/Tablet/Desktop の 3 breakpoint + Container Queries 対応 |
+| 5 | SEO-friendly | SEO | Metadata API / OG / canonical / structured data 定義済み |
+| 6 | Semantic HTML | 意味論 | `<header><main><section><article><footer>` 適切使用、`<div>` 過多回避 |
+| 7 | Progressive Enhancement | 段階拡張 | JS 無効時も基本表示・CTA クリック可能 |
+| 8 | Server/Client 境界 | RSC | 全 .tsx に SA/IM/HO ラベル、`'use client'` 最小化 |
+| 9 | Performance Budget | 性能 | LCP 2.5s / INP 200ms / CLS 0.1 / TBT 200ms の SLA 宣言 |
+| 10 | Empty State | 空データ | 全動的セクションに「0件時 / 未提供時」の挙動定義 |
+| 11 | Error State | エラー | error.tsx / try-catch / fallback UI の 3 層 |
+| 12 | Loading State | 読込中 | loading.tsx / Suspense / Skeleton の 3 層 |
+| 13 | Component API | 型契約 | Props 5 個以下 or 分割済み、children/slot 排他、Variant は Union |
+| 14 | Design Token 準拠 | トークン | ハードコード値ゼロ、全数値が semantic token 経由 |
+| 15 | Naming Convention | 命名 | PascalCase(Component) / SCREAMING_SNAKE(const) / kebab-case(file) |
+| 16 | Directory Colocation | 配置 | 「一緒に変わるものは一緒に置く」原則、共通化は 2 箇所以上使用時のみ |
+| 17 | Copy Deck 完成度 | 文言 | 想定字数レンジ確定、超過時挙動決定、TBD ゼロ |
+| 18 | Assets 完成度 | 素材 | 画像スロット仕様表・OG 画像・アイコン全確定、素材未定ゼロ |
+| 19 | Interaction 完成度 | 動き | 状態遷移図・アニメ仕様表・reduced-motion 対応 |
+| 20 | Handoff 準備 | 引継 | changelog / 対応表 / チェックリスト / Ren 用 5 分ハンドシェイクアジェンダ |
+
+**採点結果は設計書冒頭に「品質ルーブリック採点: 38/40（95%）」の形で明記。** Mia QA・Sora QA 通過率が事前予測できる。
+
+---
+
+### 4. デザイントークン設計（W3C DTCG 準拠 3 層モデル）
+
+Hana の抽出 CSS を、W3C Design Tokens Community Group（DTCG）標準の JSON フォーマットに正規化。以下 **Primitive → Semantic → Component の 3 層** で設計する。
+
+#### 4.1 3 層モデル
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Layer 1: Primitive Tokens（原始値）                      │
+│  例: color.blue.500 = "#3B82F6"                          │
+│      space.4 = "16px"                                    │
+│      font.size.lg = "18px"                               │
+│  → Hana の CSS 抽出を機械的に JSON 化。値そのもの        │
+└─────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────┐
+│ Layer 2: Semantic Tokens（意味）                         │
+│  例: color.action.primary = "{color.blue.500}"           │
+│      color.text.body = "{color.gray.900}"                │
+│      space.section.gap = "{space.24}"                    │
+│  → Nao が命名・割当。ブランド差替は Semantic 1 層のみ    │
+└─────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────┐
+│ Layer 3: Component Tokens（部品固有）                    │
+│  例: button.primary.bg = "{color.action.primary}"        │
+│      hero.title.size = "{font.size.5xl}"                 │
+│      card.padding = "{space.section.gap}"                │
+│  → Ren 実装時に Tailwind config or CSS var へ展開        │
+└─────────────────────────────────────────────────────────┘
+```
+
+#### 4.2 tokens.json スキーマ（DTCG 準拠）
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "blue": {
+      "500": {
+        "$type": "color",
+        "$value": "#3B82F6",
+        "$description": "Primitive: Hana 抽出の primary blue"
+      }
+    },
+    "action": {
+      "primary": {
+        "$type": "color",
+        "$value": "{color.blue.500}",
+        "$description": "Semantic: 主要 CTA・リンクに使用"
+      }
+    }
+  },
+  "space": {
+    "4": { "$type": "dimension", "$value": "16px" },
+    "section": {
+      "gap": {
+        "$type": "dimension",
+        "$value": "{space.24}",
+        "$description": "Semantic: セクション間の統一余白"
+      }
+    }
+  },
+  "typography": {
+    "heading": {
+      "hero": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.sans}",
+          "fontSize": "{font.size.5xl}",
+          "fontWeight": "{font.weight.bold}",
+          "lineHeight": "1.1"
+        }
+      }
+    }
+  }
+}
+```
+
+#### 4.3 CSS 変数命名規則
+
+```css
+/* Primitive: --{category}-{scale}-{step} */
+--color-blue-500: #3B82F6;
+--space-4: 16px;
+
+/* Semantic: --{category}-{purpose}-{modifier?} */
+--color-action-primary: var(--color-blue-500);
+--color-text-body: var(--color-gray-900);
+--space-section-gap: var(--space-24);
+
+/* Component: --{component}-{part}-{state?} */
+--button-primary-bg: var(--color-action-primary);
+--button-primary-bg-hover: var(--color-action-primary-hover);
+--hero-title-size: var(--font-size-5xl);
+```
+
+#### 4.4 ビルドパイプライン
+
+```
+Hana JSON (CSS 抽出)
+    ↓ [Nao が semantic 層を割当]
+tokens.json (DTCG 準拠)
+    ↓ [style-dictionary build]
+    ├─ tailwind.config.ts   (Ren 実装用)
+    ├─ styles/tokens.css    (CSS var)
+    ├─ ios/Tokens.swift     (マルチプラット時)
+    └─ android/tokens.xml   (マルチプラット時)
+```
+
+**運用ルール:** Ren は Component 層以外を直接編集禁止。ブランド差替・A/B は Semantic 層で完結させる。
+
+---
+
+### 5. ハンドオフプロトコル（→ Ren 引き渡し標準手順）
+
+STEP 6 完了後、Ren への引き渡しは以下 6 ステップを **順守する（省略不可）**。
+
+#### 5.1 納品ファイル構造
+
+```
+/handoff/{project-name}/
+├── README.md                    # このハンドオフの目次・変更履歴
+├── 01-lp-design-spec.md         # 7 章構成の設計書本体
+├── 02-tokens/
+│   ├── tokens.json              # DTCG 準拠
+│   ├── tailwind.config.ts       # 自動生成
+│   └── globals.css              # CSS var 定義
+├── 03-types/
+│   └── index.ts                 # zod-to-ts で自動生成（ビルド検証済み）
+├── 04-constants/
+│   └── content.ts               # コピー・データ構造（tsc 検証済み）
+├── 05-mermaid/
+│   ├── ia-map.mmd               # サイトマップ
+│   ├── user-flow.mmd            # ユーザーフロー
+│   ├── data-flow.mmd            # データフロー
+│   └── state-*.mmd              # コンポーネント別状態遷移
+├── 06-assets-spec/
+│   ├── image-slots.md           # 画像スロット仕様表
+│   └── og-image-spec.md         # OG/Twitter 画像発注仕様
+├── 07-checklists/
+│   ├── quality-rubric-20.md     # セルフ採点結果
+│   ├── mia-95-preflight.md      # Mia 観点先回り自己採点
+│   └── lighthouserc.json        # Performance Budget SLA
+└── 08-changelog.md              # 版差分（再納品時）
+```
+
+#### 5.2 命名規則（全ファイル共通）
+
+| 対象 | 規則 | 例 |
+|---|---|---|
+| コンポーネント | PascalCase | `HeroSection.tsx` `CTAButton.tsx` |
+| フック | camelCase + use 接頭 | `useScrollTrigger.ts` |
+| 定数 | SCREAMING_SNAKE + セクション接頭 | `HERO_TITLE` `CTA_PRIMARY_TEXT` |
+| ファイル/ディレクトリ | kebab-case | `hero-section/` `cta-button.tsx` |
+| CSS クラス | BEM or Tailwind utility | `hero__title--large` or `text-5xl font-bold` |
+| data-* 属性 | kebab-case + testid 統一 | `data-testid="hero-cta-button"` |
+| Mermaid ファイル | kebab-case + `.mmd` | `state-cta-button.mmd` |
+| トークンキー | dot notation | `color.action.primary` |
+
+#### 5.3 コメント形式（設計意図の伝達）
+
+```typescript
+// SA: Server Atom（fetch なし・静的表示のみ）
+// IM: Interactive Molecule（useState/onClick あり = 'use client' 必須）
+// HO: Hybrid Organism（Composition 用・children で子を受ける）
+//
+// @purpose  ヒーローセクションのメイン CTA ボタン
+// @variants primary | secondary | ghost
+// @states   idle, hover, focus, active, disabled, loading
+// @a11y     role="button" / aria-label 必須 / keyboard(Enter/Space) 対応
+// @deps     tokens.color.action.primary, tokens.space.4
+// @perf     bundle: ~2KB / render: negligible
+```
+
+#### 5.4 5 分ハンドシェイクアジェンダ
+
+Ren 実装着手前の口頭同期（5 分厳守）。以下 5 項目のみ確認：
+
+1. **設計フレームワーク宣言の確認**（10 フレームワークから選定した組合せ）
+2. **Server/Client 境界一覧**（SA/IM/HO ラベルの妥当性）
+3. **constants の初期値と型定義の整合**（zod-to-ts 生成物レビュー）
+4. **Performance Budget SLA**（LCP/INP/CLS 目標の合意）
+5. **不明点 3 件以内**（超過は再設計フラグ）
+
+#### 5.5 必要データ一覧（Ren が実装で参照する全入力）
+
+| データ | 提供元 | 形式 | 検証 |
+|---|---|---|---|
+| CSS 抽出 | Hana | tokens.json | DTCG 準拠バリデータ |
+| コピー | kotone / クライアント | content.ts | zod parse + 字数レンジ |
+| 画像 | クライアント / バナー部 | public/ 配下 + spec 表 | 寸法・容量 lint |
+| Figma | Sota | URL + Code Connect | 命名 1:1 対応表 |
+| API スキーマ | Ao (システム開発部) | Zod schema | API 側が真実源 |
+| フォント | クライアント | woff2 + license | nori 承認 |
+
+#### 5.6 引き渡し完了ゲート
+
+以下 4 条件を **全 AND で満たした時のみ** Ren へ渡す：
+
+- [ ] 品質ルーブリック 20 で 36 点以上
+- [ ] Mia 95 項目先回り自己採点で NG 項目ゼロ
+- [ ] tsc / zod / DTCG バリデータ全通過
+- [ ] 5 分ハンドシェイク完了・Ren から不明点 3 件以内
+
+---
+
+### 6. 月次設計レビュー（Nao KPI ダッシュボード）
+
+毎月月末、以下 4 指標を Kaito・Sora に提出。前月比・目標比を追跡し継続改善する。
+
+#### 6.1 追跡指標
+
+| 指標 | 定義 | 目標値 | 計測方法 |
+|---|---|---|---|
+| **案件数** | 当月に STEP 6 納品完了した LP 数 | 月 8 件以上 | handoff/ 配下のディレクトリ数 |
+| **平均設計時間** | STEP 0 開始〜STEP 6 納品までの実工数 | 案件あたり 4h 以内 | 案件別タイムトラック |
+| **差戻し率** | Ren/Mia/Sora から差戻された案件比率 | 10% 以下 | 差戻し件数 / 総納品件数 |
+| **Ren 稼働率** | Ren が Nao 設計書を待つ時間 / Ren 総稼働時間 | 5% 以下 | Ren の Idle 時間ログ |
+
+#### 6.2 差戻し原因の分類（Pareto 分析）
+
+差戻しは以下 8 カテゴリに分類し、上位 3 位を翌月の重点改善対象とする：
+
+1. Server/Client 境界誤り
+2. Props 過多（5 個超）
+3. 命名揺れ（Hana/Nao/Ren 三者間）
+4. Empty/Error/Loading 状態の未定義
+5. Copy Deck の字数超過・TBD 残
+6. Assets Spec 未確定（画像・OG）
+7. a11y 属性抜け
+8. Performance Budget SLA 未達
+
+#### 6.3 月次改善アクション
+
+- **差戻し原因の上位 3 位** → `templates/lp-design-spec.md` に予防条件として追記
+- **平均設計時間の外れ値案件** → 原因分析（要件不明瞭 / Hana 品質 / kotone コピー遅延 等）を Kaito へ報告
+- **Ren 稼働率の低下** → 並列ハンドシェイクプロトコルの見直し（5 分ハンドシェイクの実施率確認）
+- **新規業界トレンド** → Daily Knowledge Log 直近 30 日分から重要 3 件を SKILL.md 級に昇格提案
+
+#### 6.4 レビュー出力フォーマット
+
+```markdown
+## Nao 月次設計レビュー YYYY-MM
+- 案件数: XX 件（前月比 ±X / 目標比 XX%）
+- 平均設計時間: X.Xh（前月比 ±X.X / 目標比 XX%）
+- 差戻し率: X.X%（前月比 ±X.X / 目標比 XX%）
+- Ren 稼働率（Nao 待ち）: X.X%（前月比 ±X.X / 目標比 XX%）
+
+### 差戻し原因 Top 3
+1. XXX（X 件 / XX%）
+2. XXX（X 件 / XX%）
+3. XXX（X 件 / XX%）
+
+### 翌月アクション
+- テンプレ追記: XXX
+- プロトコル改善: XXX
+- ナレッジ昇格: XXX
+```
+
+---
+
+> **この章の位置づけ:** Daily Knowledge Log で獲得した現場ノウハウを、業界標準理論（Atomic Design / DTCG / WCAG / RSC / Container Queries）と接続し、Nao(LP) を「実装者が迷わない設計を毎回出せる世界クラスのスペシャリスト」へ引き上げる基準集。個別 Daily Knowledge の追記はこれまで通り継続し、この章はテンプレ・基準の更新時にのみ改訂する。

@@ -403,3 +403,306 @@ STEP 4: Miaへ再チェック依頼
 - **AI による PR 差分要約で「何をどう変えたか」の説明が自動生成**：修正完了報告の「Before/After＋変更意図」を AI が下書きし、Saki は事実確認に専念。ただし HEX・トークン系は Hana 原本との diff を人が関門にする運用が定石で、ブランド値の自動反映は避ける
 - **WCAG コントラスト（APCA 含む）の自動チェックが CI に組み込まれる流れ**：「色を薄く/淡く」の見た目修正で本文 4.5:1 割れが起きやすいため、修正 PR で対象テキストのコントラスト退行を自動検出。基準割れは近似の代替色を提示してから反映する関門が標準化
 - **`prefers-reduced-motion`・ダークモード分岐の「修正時退行」検査が定着**：アニメ・配色の修正で reduce 時静止や `color-scheme: light` 固定宣言が壊れるデグレを、Playwright の `emulateMedia` でセルフ QA に常設。見た目修正が別文脈の表示を壊す事故を Mia 再依頼前に潰す
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+### 🔍 差分駆動修正手法（Diff-Driven Fix Methodology）
+
+修正案件は「症状」ではなく「差分」から入る。Mia の NG レポートを受け取った瞬間、以下 5 レイヤーで差分を層別化して原因層を特定してから Ren に渡す。
+
+| レイヤー | 差分の種類 | 検出コマンド | 対応部署 |
+|---------|----------|-------------|---------|
+| L1: ピクセル層 | 見た目の1〜3px ズレ | `pixelmatch` + `playwright screenshot` | Saki→Ren |
+| L2: DOM 構造層 | 要素の欠落・順序違い | `diff <(curl 現本番) <(curl プレビュー)` | Saki→Ren |
+| L3: CSS 値層 | 色/余白/フォント値の逸脱 | `computed style` diff (DevTools) | Saki→Ren |
+| L4: 仕様データ層 | Hana 抽出データ自体の誤り | tokens.json vs Figma diff | Hana 再抽出 |
+| L5: 設計層 | Sota デザイン方針との乖離 | 設計書 vs 実装レビュー | Sota 再提案 |
+
+**運用ルール**: L1〜L3 は Saki→Ren で解決、L4 は Hana へ、L5 は Sota へ差し戻す。L2 回目 NG で自動的にレイヤーを1段深く掘る（L3 で 2 回失敗したら L4 を疑う）。
+
+### 🧬 ビジュアルバグの根本原因分析（RCA for Visual Bugs）
+
+見た目のバグは表層修正が効きにくい。以下 7 カテゴリの根本原因マトリクスで、症状から原因候補を絞り込む。
+
+| 症状 | 第一候補原因 | 第二候補原因 | 第三候補原因 |
+|-----|------------|-------------|-------------|
+| 余白がズレる | `box-sizing` 未統一 | 親要素の `padding` 干渉 | Flex/Grid の `gap` 継承 |
+| 色が違う | CSS 変数の未上書き | ダークモード分岐漏れ | ブラウザカラープロファイル差 |
+| フォントが違う | `next/font` 未使用 | fallback fontstack 誤 | ウェイト値と実ファイル不整合 |
+| レイアウトが崩れる | `overflow` 起因のスクロールバー幅 | `min-width: 0` 未指定 | `writing-mode` 影響 |
+| アニメがカクつく | `transform` 未使用の位置系プロパティ | GPU 合成レイヤー未生成 | `will-change` 乱用 |
+| SP で崩れる | `viewport` メタタグ不備 | `100vh` 使用 (iOS Safari) | タッチ判定領域不足 |
+| クリックが効かない | `pointer-events: none` の親継承 | `z-index` レイヤー逆転 | `overflow: hidden` によるクリップ |
+
+**5 Whys 適用ルール**: 症状 → 原因1 → なぜ → 原因2 → ... と最低3階層掘り、「人がミスした」で止めず「仕組みの欠陥」まで到達させる。
+
+### 🔒 インクリメンタル修正プロトコル（No-Regression Fixing）
+
+1つの修正で複数箇所を触らない。以下 4 ステップで「1修正 = 1差分 = 1コミット」を強制する。
+
+```
+STEP A: 修正前スナップショット
+  git tag pre-fix-{issue番号}
+  npx playwright screenshot --full-page → baseline/{日付}-before.png
+
+STEP B: 変更範囲宣言
+  対象ファイル・対象セレクタ・想定変更行数を PR 説明に明記
+  gh pr diff --stat で予定と実測の乖離を検出
+
+STEP C: 単一責任修正
+  1コミット = 1 Mia 指摘 No.
+  他指摘のついで修正禁止（別コミット・別 PR）
+
+STEP D: 修正後スナップショット + 差分検証
+  npx playwright screenshot → after.png
+  pixelmatch before.png after.png diff.png --threshold 0.1
+  差分が想定範囲外なら即ロールバック（git reset --hard pre-fix-{issue}）
+```
+
+### 🎨 CSS 特異度アンタングリング手法（Specificity Untangling）
+
+`!important` の乱用や詳細度競合で泥沼化した CSS を、以下の 3 段階手法で解きほぐす。
+
+#### 段階1: 現状可視化
+```bash
+# 全 !important 出現箇所を列挙
+grep -rn "!important" src/ > important-audit.txt
+
+# 詳細度スコア計算（CSS Specificity Calculator）
+npx specificity-calculator src/**/*.css
+```
+
+#### 段階2: Cascade Layers 導入
+```css
+/* 明示的な優先順位ヒエラルキー */
+@layer reset, base, tokens, components, utilities, overrides;
+
+@layer base {
+  .button { background: var(--brand-primary); }
+}
+
+@layer overrides {
+  /* !important の代わりに @layer overrides で確実に上書き */
+  .cta-button { background: #FF0000; }
+}
+```
+
+#### 段階3: コンポーネント境界の明確化
+- CSS Modules / Tailwind の `@apply` / CSS-in-JS の scoped class を統一
+- グローバル汚染を招く `body > *` セレクタを禁止
+- `:where()` で詳細度を 0-0-0 に抑えた基盤スタイル整備
+
+**除去優先順位**: `!important` を消す順は「① 詳細度誤解による誤 important → ② 動的スタイル対抗の important → ③ サードパーティ CSS 対抗の important」。③ は残す判断もあり。
+
+### 🌐 ブラウザ互換性対応パターン集
+
+#### Safari 特有問題
+| 症状 | 原因 | 対応 |
+|-----|-----|-----|
+| `100vh` で下部が切れる | iOS Safari のアドレスバー計算 | `100dvh` (dynamic vh) 使用、fallback で `100vh` |
+| `backdrop-filter` が効かない | `-webkit-backdrop-filter` プレフィックス必須 | 両方併記 |
+| `position: sticky` が崩れる | 親に `overflow: hidden` があると効かない | 親の overflow を `clip` か削除 |
+| `date` input が独自 UI | Safari のカレンダーピッカーが独自 | react-datepicker で統一 |
+| フォントレンダリングが太い | `-webkit-font-smoothing` デフォルト差 | `antialiased` 明示 |
+| `gap` が Flexbox で効かない | Safari 14.0 以下未対応 | `margin` fallback または caniuse で対象確認 |
+
+#### Chrome / Firefox 差分
+| 症状 | Chrome | Firefox | 対応 |
+|-----|--------|---------|-----|
+| スクロールバー幅 | 15px | 17px | `scrollbar-gutter: stable` |
+| `<select>` スタイル | 一部適用 | 適用不可 | Custom select コンポーネント |
+| `font-variant-numeric` | 効く | 一部効かない | フォント側で数字専用ウェイト |
+| `overflow: overlay` | 対応 | 非対応 | fallback で `auto` |
+
+#### Android Chromium 差分
+| 症状 | 原因 | 対応 |
+|-----|-----|-----|
+| WebView が古い | Android 標準ブラウザ差 | Chrome 100+ を最低ラインに |
+| フォームフォーカス時にキーボードで隠れる | viewport 計算差 | `interactive-widget=resizes-content` |
+| タップ判定が反応しない | 44x44px 未満 | 最小タップ領域を CSS で強制 |
+
+**検証マトリクス**: iOS Safari (最新+1世代前) / Chrome (最新) / Firefox (最新) / Android Chrome (最新+1世代前) の4環境で BrowserStack セルフ QA を Mia 再依頼前必須化。
+
+### 📝 修正コミット規約（Conventional Commits for Fixes）
+
+```
+fix(scope): <指摘 No.> <一行要約>
+
+<変更理由の説明>
+
+Before: <修正前の状態>
+After: <修正後の状態>
+Screenshot: <before.png / after.png の URL>
+
+Refs: #<Issue番号>
+Mia-Report: <Mia の NG レポート URL>
+```
+
+**scope 命名規則**:
+- `hero` / `cta` / `feature` / `footer` 等セクション名
+- `token:color` / `token:spacing` 等トークン修正時
+- `a11y` / `perf` / `seo` 等横断領域修正時
+
+**PR タイトル規約**:
+```
+fix(<scope>): <指摘件数>件対応 [Mia差戻し#<番号>]
+例: fix(hero): 3件対応 [Mia差戻し#42]
+```
+
+**差分最小化ルール**:
+- 1 PR あたり修正行数 100 行以下推奨、300 行超は必ず分割
+- `.prettierignore` に修正無関係ファイルを追加してフォーマット差分を除外
+- lockfile 差分は別 PR で分離（`chore(deps): lockfile update`）
+
+**Before/After スクショ添付規約**:
+- PR 説明の1行目に `<table>` で「現状 / 修正後 / 期待値」3列並列
+- 差分箇所を赤枠で囲む（`sharp` で自動描画）
+- SP/PC/TAB の3デバイス分をタブで切替表示
+
+### 📊 月次修正メトリクス（Monthly Fix Metrics）
+
+Kaito 部長へ毎月1日に自動レポート提出。以下 8 指標で修正チームの健全性を可視化する。
+
+| 指標 | 目標値 | 計測方法 | 悪化時のアクション |
+|-----|--------|---------|-------------------|
+| 修正案件数 | ≥20件/月 | GitHub Issue label:fix の月次 count | 少ない場合は Mia QA 基準の緩み確認 |
+| 平均対応時間 | ≤4時間/件 | Issue open → close の time diff | 8時間超はエスカレ手順見直し |
+| 一発通過率 | ≥85% | Mia 再チェック1回で通過した割合 | 80%割れは指示書テンプレ強化 |
+| 再差戻し率 | ≤15% | Mia 再チェックで再 NG 割合 | 20%超は Ren との難易度事前握り強化 |
+| 3ループ発生率 | ≤5% | 同一セクション3回以上ループ発生数 | 5%超は Hana/Sota/Nao 上流見直し |
+| デグレ発生数 | 0件/月 | Mia が「修正外の箇所で NG」を出した件数 | 1件でも Playwright regression 拡充 |
+| 平均コミット行数 | ≤50行/件 | PR 差分行数の平均 | 100行超は分割ルール徹底 |
+| 依頼者満足度 | ≥4.5/5.0 | Issue クローズ時のクライアント評価 | 4.0割れは意図確認プロセス再構築 |
+
+**レポート雛形**:
+```
+## 2026-XX月 修正チーム月次レポート（Saki）
+- 総修正件数: XX件（前月比 ±X%）
+- 平均対応時間: X.X時間（目標: ≤4時間）
+- 一発通過率: XX%（目標: ≥85%）
+- 再差戻し率: XX%（目標: ≤15%）
+- 3ループ発生: X件 → 根本原因: [Hana/Sota/Nao どこ]
+- デグレ発生: X件 → 予防策: [追加した regression テスト]
+- 満足度: X.X/5.0（コメント抜粋: ...）
+
+## 来月の改善アクション
+1. [具体施策1]
+2. [具体施策2]
+3. [具体施策3]
+```
+
+### 📚 修正パターンカタログ 30（Fix Pattern Catalog）
+
+Mia 差し戻しの 8 カテゴリ × 頻出30パターン。着手前に該当パターンを特定し、既知の解法を最短適用する。
+
+#### A. Layout Shift（レイアウトシフト）
+1. **画像 width/height 欠落による CLS**：`<img width height>` 明示 or `aspect-ratio` CSS 指定。`next/image` なら fill + sizes で対応
+2. **動的コンテンツ挿入による突き上げ**：`<Skeleton />` で予約領域を先に確保。`min-height` で最小高さ保証
+3. **カスタムフォント読込による FOUT/FOIT**：`next/font` で preload + `font-display: swap` + `size-adjust` で fallback フォントを近似化
+4. **広告/埋込 iframe による突き上げ**：`iframe` に `min-height` 固定、遅延読込でも予約領域維持
+
+#### B. Font Mismatch（フォント不一致）
+5. **フォント指定はあるが実ファイル未配布**：`@font-face` の src と実 woff2 ファイル存在確認、`network` タブで 404 検出
+6. **ウェイト値（400/500/700）と実ファイルの不整合**：`font-weight: 500` 指定でも Medium ファイル未配布時は Regular で表示される。ファイル配布状況と `font-weight` 値の突合
+7. **fallback fontstack が Windows/Mac で違う見た目**：`system-ui, -apple-system, "Segoe UI", Roboto` の順で OS 差を吸収、`size-adjust` でメトリクス統一
+8. **和文フォントの縦組み/横組み切替時のグリフ差**：`font-feature-settings: "palt"` で詰め組み、`writing-mode` で明示
+
+#### C. Color Drift（色ずれ）
+9. **HEX 値の1桁ズレ（#FF0000 vs #FF0001）**：Hana 抽出の tokens.json と実装値を diff、CI で自動検出
+10. **CSS 変数の未上書きで親要素の色が漏れる**：`:root` の変数と `.section` レベルの変数を明確に分離
+11. **ダークモード分岐で色トークンの再定義漏れ**：`@media (prefers-color-scheme: dark)` と `[data-theme="dark"]` の両方対応
+12. **カラープロファイル差（sRGB vs Display P3）**：`color(display-p3 ...)` 指定時は sRGB fallback 必須
+
+#### D. Spacing Bug（余白バグ）
+13. **`margin` collapse による予期せぬ余白統合**：`display: flow-root` or Flexbox で block formatting context を分離
+14. **Flex/Grid `gap` が親から継承されて子で二重加算**：`gap` 継承を明示リセット、または `margin` に統一
+15. **`box-sizing` 未統一で padding/border が加算される**：`* { box-sizing: border-box }` を base layer に強制
+16. **`vertical-align: baseline` のインライン要素で微妙なズレ**：`display: block` or `vertical-align: middle` で解決
+
+#### E. Responsive Break（レスポンシブ崩壊）
+17. **`min-width: 0` 未指定で Flex 子要素がはみ出す**：`min-width: 0` を全 Flex 子要素にデフォルト適用
+18. **`100vw` によるスクロールバー幅分の横スクロール**：`100%` or `100dvw` に置換、`overflow-x: hidden` を body に
+19. **ブレークポイント境界（768px 等）で 1px 崩れ**：`min-width: 768.02px` のように境界値をずらす、`clamp()` で連続変化
+20. **タッチ判定領域 44x44px 未満**：`min-width: 44px; min-height: 44px` を CTA 系に強制
+
+#### F. Interaction Bug（インタラクションバグ）
+21. **`pointer-events: none` 親継承でクリック不能**：親の `pointer-events` を確認、子で `pointer-events: auto` 明示
+22. **`z-index` 逆転でモーダルが隠れる**：`z-index` の設計トークン化（modal: 1000, tooltip: 900 等）
+23. **`overflow: hidden` によるドロップダウンクリップ**：`position: fixed` + `Portal` でオーバーレイを body 直下に
+24. **フォーカス管理漏れでキーボード操作不能**：`tabindex` 順序確認、`:focus-visible` スタイル明示
+
+#### G. Animation Jank（アニメーションカクつき）
+25. **`top/left` アニメでレイアウトスラッシング**：`transform: translate3d()` に置換して GPU 合成レイヤー生成
+26. **`will-change` 乱用でメモリ爆発**：アニメ開始直前に付与、終了後に削除するライフサイクル管理
+27. **60fps 未達成な複雑アニメ**：Performance パネルで long task 特定、`@keyframes` を simplify
+
+#### H. Accessibility Failure（アクセシビリティ違反）
+28. **コントラスト比 4.5:1 未達成**：DevTools Contrast チェッカーで測定、APCA でも検証。淡色化指示時は代替色提示必須
+29. **`alt` 属性欠落 or 装飾画像に不要な alt**：装飾は `alt=""`、意味を持つ画像は文脈記述を必ず入れる
+30. **`prefers-reduced-motion` 未対応**：`@media (prefers-reduced-motion: reduce)` で animation を `none` or `duration: 0.01s`
+
+### 🛡️ 回帰防止プロトコル（Regression Prevention Protocol）
+
+修正が過去修正を壊さない保証を、以下 5 段構えで実装する。
+
+#### 段1: 影響範囲マッピング
+```bash
+# 修正対象の依存関係を静的解析
+npx madge --circular src/components/Button.tsx
+npx dependency-cruiser --output-type dot src/ | dot -Tsvg > deps.svg
+
+# 変更ファイルがインポートされている全箇所を検出
+grep -rn "from '.*Button'" src/ > button-consumers.txt
+```
+
+依存グラフから「この修正が影響しうる全ページ・全コンポーネント」を列挙し、修正指示書に添付する。
+
+#### 段2: 修正前スナップショット凍結
+```bash
+# タスク着手時に git tag と Playwright screenshot を同時取得
+git tag pre-fix-${ISSUE_NUM}
+npx playwright test --update-snapshots
+mkdir -p baseline/${ISSUE_NUM}
+cp -r test-results/*.png baseline/${ISSUE_NUM}/
+```
+
+#### 段3: 影響範囲の Visual Regression Test
+```bash
+# 修正対象のみでなく、影響範囲全体のスクショを撮る
+npx playwright test --grep "影響範囲" --update-snapshots=missing
+```
+
+#### 段4: 修正後 diff 比較
+```bash
+# pixelmatch で差分検出、想定範囲外は fail
+for page in $(cat affected-pages.txt); do
+  pixelmatch \
+    baseline/${ISSUE_NUM}/${page}.png \
+    test-results/${page}.png \
+    diff/${page}.png \
+    --threshold 0.1
+done
+```
+
+#### 段5: 過去 NG 項目の再確認
+```bash
+# 過去3ヶ月の Mia NG レポートを検索、同じ箇所が再 NG になっていないか
+gh issue list --label "mia-ng" --state closed --search "in:body ${SECTION}" \
+  --json number,title,body \
+  | jq -r '.[] | "\(.number): \(.title)"'
+```
+
+過去 NG 箇所は Playwright テストに永続追加し、リグレッションの「同じ轍」を仕組みで防ぐ。
+
+---
+
+**上記オーバースペック拡張の適用範囲**: 標準案件は既存フロー（STEP 1-4）で対応、以下条件のいずれかを満たす案件のみ本セクション適用：
+- 修正指摘 10 件以上
+- 同一セクション 2 回目以降の差し戻し
+- ブラウザ互換系 NG（Safari/iOS 特有等）
+- レイアウト・構造レベルの大幅修正
+- 過去に3ループ以上経験したクライアント案件
+
+**Kaito への申請ルール**: オーバースペック適用時は Kaito に「本案件は Level 2 適用（理由：〜）」と事前申請。工数と品質の両立可否を判断してから着手する。

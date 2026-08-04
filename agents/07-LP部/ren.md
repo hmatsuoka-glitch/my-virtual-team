@@ -637,3 +637,614 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Server Actions の `allowedOrigins`／CSRF 強化が実装必須項目に**：フォーム付き採用 LP で本番オリジン制限を設定しないと送信が弾かれる・攻撃面になるため、`next.config` の `serverActions.allowedOrigins` 設定を実装ゲートに追加。プレビュー/本番のドメイン差も含めて登録する
 - **Speculation Rules API（prerender/prefetch）でページ遷移の体感を高速化**：CTA から別ページのフォームへ遷移する構成で遷移先を先読みし体感即時化。UTM 引き継ぎ設計と併せると広告流入 LP の遷移離脱を減らせる
 - **AVIF 優先配信が `next/image` の既定運用に**：建設業クライアントの高精細な現場写真 Hero で、AVIF 自動変換により LCP が WebP 比でさらに軽量化。`images.formats` 設定と Network での実配信フォーマット確認を実装時チェックに組み込む
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+本セクションは Ren のコード生成能力を「2026年時点の世界水準」まで引き上げるための拡張知識体系。既存の作業フロー・出力フォーマット・Daily Knowledge Log をすべて保持したうえで、実装スタック選定・生成規約・パフォーマンス・アニメーション・フォーム・デプロイの6領域を体系化する。
+
+---
+
+### 1. 実装スタック選定マトリクス 2026
+
+LP案件は「静的重視 / 動的重視 / 超軽量 / 迅速立ち上げ」の4方向で最適スタックが異なる。Kaito・Naoから要件を受け取った STEP 1 開始時点で、下記マトリクスに基づき5分以内に選定を確定する。
+
+#### 1-1. スタック比較表（総合）
+
+| 観点 | Astro | Next.js 15 (App Router) | Vite + Vanilla | Vercel Templates |
+|------|-------|-------------------------|----------------|------------------|
+| **主用途** | 静的LP・ブログ・記事型 | 動的LP・フォーム・A/B・ISR | 超軽量1枚もの・ノベルティLP | 5分立ち上げ・PoC・イベントLP |
+| **First Load JS** | 0KB（Islands以外） | 80〜120KB | 5〜20KB | Template依存（80KB前後） |
+| **SSR / SSG** | SSG中心・SSRも可 | 両対応・ISR/Streaming強力 | SSGのみ（プラグイン要） | 両対応 |
+| **Server Actions** | ✗（v5でAPI Routes可） | ○ 標準 | ✗ | ○ |
+| **画像最適化** | `<Image>` + Sharp | `next/image`（AVIF既定） | 手動 or plugin-image | `next/image` |
+| **開発体験（HMR）** | 0.3s | Turbopack 0.7s | 0.1s | 0.7s |
+| **学習コスト** | 中（.astro構文） | 低（React知識で即応） | 極低 | 極低 |
+| **選定条件** | JSがほぼ不要・SEO最重視 | フォーム/決済/認証あり | 単発キャンペーン・軽量最優先 | 締切24h以内・雛形で十分 |
+
+#### 1-2. 判断フローチャート
+
+```
+Q1: フォーム送信 or 認証 or 決済 or A/B切替 が必要か？
+  ├─ YES → Next.js 15 (App Router) を選択
+  └─ NO ↓
+Q2: 総ページ数が5ページ以上、または CMS 連携が必要か？
+  ├─ YES → Astro（Content Collections + Islands）
+  └─ NO ↓
+Q3: 締切24時間以内・雛形で十分か？
+  ├─ YES → Vercel Templates（`vercel-labs/nextjs-marketing` 等）
+  └─ NO → Vite + Vanilla（超軽量・カスタム最大化）
+```
+
+#### 1-3. Tailwind CSS vs Vanilla CSS 比較
+
+| 観点 | Tailwind CSS v4 | Vanilla CSS（CSS Modules / PostCSS） |
+|------|-----------------|--------------------------------------|
+| **記述速度** | 高（ユーティリティ即書き） | 中（クラス命名・ファイル分割） |
+| **First Load CSS** | 5〜15KB（Purge後） | 10〜30KB |
+| **デザイントークン** | `@theme` で CSS変数統合 | CSS Custom Properties直接 |
+| **保守性** | クラス長大化する場合あり | セレクタ設計次第 |
+| **チーム学習** | 3日で戦力化 | 命名規約次第で2週間 |
+| **LP案件推奨** | ○（8割案件で採用） | 特殊デザイン・BEM厳守案件 |
+
+**Ren の標準**: Tailwind v4 + `@theme` + `shadcn/ui` + 一部 Vanilla（複雑アニメのみ）のハイブリッド。
+
+#### 1-4. スタック選定確定レポート（STEP 1 提出）
+
+```markdown
+## Ren — スタック選定レポート
+
+**採用スタック**: Next.js 15 App Router / Astro / Vite / Vercel Template
+**理由**: （要件との合致点を3つ）
+**主要依存**: react@19 / tailwindcss@4 / shadcn-ui / framer-motion（要否）
+**想定 First Load JS**: XXX KB
+**想定 Lighthouse Performance**: 95+
+**リスク**: （あれば）
+```
+
+---
+
+### 2. コード生成規約（Ren Code Convention v2026）
+
+「動けばいい」を排除し、Mia QA を初回で通す本番品質コードを担保する規約。
+
+#### 2-1. ディレクトリ構造（Next.js 15 App Router 標準）
+
+```
+src/
+├── app/
+│   ├── (marketing)/          # ルートグループ：LP・トップ
+│   │   ├── page.tsx
+│   │   ├── layout.tsx
+│   │   └── loading.tsx
+│   ├── api/                  # Route Handlers（Webhook・外部公開のみ）
+│   ├── layout.tsx            # ルートレイアウト（metadata・font）
+│   └── globals.css           # Tailwind + @theme
+├── components/
+│   ├── sections/             # LPセクション（Hero, Features, CTA, FAQ）
+│   ├── ui/                   # shadcn/ui 生成物
+│   ├── forms/                # フォーム系（Contact, Application）
+│   └── layout/               # Header, Footer, Container
+├── constants/
+│   ├── content.ts            # コピー・画像パス・リンク一元管理
+│   ├── colors.ts             # カラートークン（Hana JSON展開）
+│   └── metadata.ts           # OGP・title・description
+├── lib/
+│   ├── utils.ts              # cn(), formatDate 等
+│   ├── actions.ts            # Server Actions
+│   └── validations.ts        # Zod スキーマ
+├── types/
+│   └── index.ts              # 型定義（Naoが定義した単一真実源）
+└── styles/
+    └── animations.css        # CSS-only アニメーション定義
+```
+
+#### 2-2. 命名規則
+
+| 対象 | 規則 | 例 |
+|------|------|-----|
+| コンポーネントファイル | PascalCase.tsx | `HeroSection.tsx` |
+| ユーティリティ | kebab-case.ts | `format-currency.ts` |
+| Server Actions | camelCase 動詞始まり | `submitContactForm` |
+| Zod スキーマ | camelCase + Schema 接尾辞 | `contactFormSchema` |
+| 型 | PascalCase | `ContactFormData` |
+| CSS カスタムプロパティ | `--kebab-case` | `--color-primary` |
+| Tailwind extend トークン | kebab-case | `bg-brand-navy` |
+| data-* 属性 | data-kebab-case | `data-testid`, `data-qa-mask` |
+
+#### 2-3. Component 分割粒度ルール
+
+- **1ファイル 200 行以内** を上限とする（超えたら分割を検討）
+- **1コンポーネント 1責務**（Hero に FAQ を混ぜない）
+- **セクション = 大コンポーネント**、内部要素は同ファイル内 or `_sections/` サブディレクトリ
+- **props 5個超過** で `{ config }` オブジェクト集約を検討
+- **`'use client'` は葉のみ**（page.tsx / layout.tsx には絶対に付けない）
+- **shadcn/ui コンポーネントは `components/ui/` に隔離**、直接編集せず wrapper で拡張
+
+#### 2-4. className 命名（Tailwind + clsx）
+
+```tsx
+// ❌ NG: 動的クラス文字列結合（PurgeCSSで剥がれる）
+<div className={`text-${color}-500`} />
+
+// ✅ OK: フル文字列 + clsx で条件分岐
+<div className={cn(
+  "text-base font-medium",
+  isActive && "text-brand-navy",
+  isDisabled ? "opacity-50" : "opacity-100"
+)} />
+
+// ❌ NG: 任意値の乱用
+<div className="bg-[#3a7bd5] text-[14.5px]" />
+
+// ✅ OK: tailwind.config の extend で token 化
+<div className="bg-brand-primary text-sm" />
+```
+
+#### 2-5. data-* 属性活用ガイド
+
+| 属性 | 用途 | 付与タイミング |
+|------|------|----------------|
+| `data-testid` | Playwright E2E・Mia QA セレクタ | 全主要要素（Hero/CTA/Form）に STEP 1 で付与 |
+| `data-qa-mask` | ピクセル差分計算から除外 | カルーセル・カウンター・日時など可変要素 |
+| `data-analytics` | GA4/CDP イベント紐付け | Naoの計測設計表と一致させる |
+| `data-variant` | A/B テスト表示制御 | Sota A/B 案切替時 |
+| `data-state` | インタラクション状態 | `open`/`closed`, `active`/`inactive` |
+
+**原則**: クラス名で QA/計測セレクタを指定すると実装変更で壊れるため、専用 `data-*` 属性に分離する。
+
+---
+
+### 3. パフォーマンス最適化20（Core Web Vitals 完全対策）
+
+Lighthouse Performance 95+ を実装層で必達する20項目チェックリスト。STEP 5 納品前に全項目を PASS させる。
+
+#### 3-1. LCP（Largest Contentful Paint）対策 7項目
+
+| # | 項目 | 実装 | 目標 |
+|---|------|------|------|
+| 1 | Hero 画像に `priority` + `fetchPriority="high"` | `<Image priority fetchPriority="high" />` | LCP < 2.5s |
+| 2 | フォント `next/font/google` + `display: swap` | `next/font` 経由必須 | FOUT 排除 |
+| 3 | フォント `preload` を Hero テキスト分のみ実施 | `preload: true` | 過剰preload禁止 |
+| 4 | Hero 画像に `placeholder="blur"` + `blurDataURL` | `getPlaiceholder` で生成 | 体感速度向上 |
+| 5 | AVIF 優先配信 (`images.formats: ['image/avif', 'image/webp']`) | next.config.ts | WebP比 30%軽量 |
+| 6 | Above-the-Fold の CSS インライン化 | Next.js 標準で自動 | render-blocking排除 |
+| 7 | 外部スクリプト (GA4等) を `strategy="afterInteractive"` | `next/script` | LCP後に読込 |
+
+#### 3-2. INP（Interaction to Next Paint）対策 7項目
+
+| # | 項目 | 実装 | 目標 |
+|---|------|------|------|
+| 8 | 重い非同期処理を `after()` でレスポンス外へ | Server Action 内で `after(() => log())` | INP < 200ms |
+| 9 | フォームは React Hook Form 非制御モード | `useForm({ mode: 'onBlur' })` | 打鍵ごとの再描画排除 |
+| 10 | React Compiler 導入で自動メモ化 | `next.config.ts` の `reactCompiler: true` | 手動 memo 削減 |
+| 11 | Main Thread splitting: 重い計算を `startTransition` | React 19 標準 | 応答性優先 |
+| 12 | JS を `defer` / `type="module"` で遅延実行 | `next/script` の `strategy` | parser-blocking排除 |
+| 13 | 動的 import で分割 (`dynamic(() => import(...))`) | 地図・チャート等重い依存 | 初期バンドル削減 |
+| 14 | `useCallback` + `useMemo` は Profiler で実測してから | React DevTools Profiler | 過剰メモ化禁止 |
+
+#### 3-3. CLS（Cumulative Layout Shift）対策 6項目
+
+| # | 項目 | 実装 | 目標 |
+|---|------|------|------|
+| 15 | 全画像に `width` / `height` 明示（or `fill` + relative親） | `next/image` 必須属性 | CLS < 0.1 |
+| 16 | フォント `size-adjust` + `ascent-override` メトリクス調整 | `next/font` で自動 | FOUT時のシフト排除 |
+| 17 | 広告・iframe 埋込に `aspect-ratio` 予約 | CSS `aspect-ratio: 16/9` | 埋込時シフト排除 |
+| 18 | 長尺セクションに `content-visibility: auto` + `contain-intrinsic-size` | CSS 2点セット必須 | スクロール中シフト排除 |
+| 19 | Skeleton プレースホルダーでローディング領域確保 | `<Skeleton className="h-64" />` | ロード中シフト排除 |
+| 20 | Web Font 読込前にシステムフォントで確保 | `font-family: 'Inter', -apple-system, ...` | FOUT時のシフト最小化 |
+
+#### 3-4. 実装時の自動測定
+
+```bash
+# 開発中の継続測定
+pnpm lhci autorun --collect.numberOfRuns=3
+
+# バンドルサイズ監視
+pnpm dlx @next/bundle-analyzer
+
+# CI に組込む Performance Budget
+# lighthouserc.json
+{
+  "ci": {
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", {"minScore": 0.95}],
+        "largest-contentful-paint": ["error", {"maxNumericValue": 2500}],
+        "interaction-to-next-paint": ["error", {"maxNumericValue": 200}],
+        "cumulative-layout-shift": ["error", {"maxNumericValue": 0.1}]
+      }
+    }
+  }
+}
+```
+
+---
+
+### 4. アニメーション実装ガイド（CSS-only / Framer Motion / GSAP 判断基準）
+
+#### 4-1. 選定フローチャート
+
+```
+Q1: 動きは transform / opacity だけか？
+  ├─ YES → CSS-only（@keyframes + transition）を第一候補
+  └─ NO ↓
+Q2: React state と連動 or ジェスチャー / drag / gesture?
+  ├─ YES → Framer Motion（motion.div + variants）
+  └─ NO ↓
+Q3: SVG モーフィング / タイムライン / ScrollTrigger 高度制御?
+  ├─ YES → GSAP（+ ScrollTrigger）※ライセンス確認必須
+  └─ NO → CSS-only に戻る
+```
+
+#### 4-2. ライブラリ別比較
+
+| ライブラリ | バンドルサイズ | 用途 | ライセンス |
+|-----------|--------------|------|----------|
+| CSS-only | 0KB | フェード・スライド・ホバー | 制約なし |
+| CSS View Transitions API | 0KB（ネイティブ） | ページ遷移・要素間モーフ | 制約なし |
+| Framer Motion 11 | ~30KB (gzip) | React連動・ジェスチャー・レイアウトアニメ | MIT |
+| GSAP 3 | ~40KB (gzip) | 高度タイムライン・SVG | 商用要ライセンス確認 |
+| Motion One | ~5KB (gzip) | 軽量WAAPI wrapper | MIT |
+
+#### 4-3. `prefers-reduced-motion` 対応（必須）
+
+```tsx
+// CSS-only の場合
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// Framer Motion の場合
+import { useReducedMotion } from 'framer-motion';
+const shouldReduce = useReducedMotion();
+<motion.div
+  animate={shouldReduce ? {} : { opacity: 1, y: 0 }}
+  transition={shouldReduce ? { duration: 0 } : { duration: 0.6 }}
+/>
+```
+
+#### 4-4. IntersectionObserver スクロールアニメ標準実装
+
+```tsx
+// hooks/useInViewAnimation.ts
+export const useInViewAnimation = (options?: IntersectionObserverInit) => {
+  const [ref, setRef] = useState<Element | null>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    if (!ref) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => entry.isIntersecting && setInView(true),
+      { threshold: 0.1, rootMargin: '-10% 0px', ...options }
+    );
+    observer.observe(ref);
+    return () => observer.disconnect();
+  }, [ref, options]);
+
+  return { ref: setRef, inView };
+};
+```
+
+**重要ルール**: 初期 `opacity: 0` は JS 起動後に付与（`.js-ready` クラス起点）。JS 失敗時にコンテンツが永久非表示になる事故を防ぐ。
+
+#### 4-5. アニメ実装アンチパターン
+
+| ❌ NG | ✅ 正解 |
+|-------|--------|
+| `top` / `left` / `width` をアニメ | `transform: translate()` / `scale()` |
+| `will-change` 常時指定 | 発火直前に付与、終了後 remove |
+| 全ページ Framer Motion で組む | CSS-only を優先、状態連動のみ Motion |
+| IntersectionObserver の cleanup 忘れ | `return () => observer.disconnect()` 必須 |
+| `prefers-reduced-motion` 未対応 | 全アニメで分岐実装 |
+
+---
+
+### 5. フォーム実装標準（Native HTML5 + Zod + Server Action）
+
+#### 5-1. ネイティブ HTML5 バリデーション + カスタムメッセージ
+
+```tsx
+<form action={submitContactForm}>
+  <label htmlFor="email">メールアドレス</label>
+  <input
+    id="email"
+    name="email"
+    type="email"
+    required
+    autoComplete="email"
+    inputMode="email"
+    enterKeyHint="next"
+    aria-invalid={errors.email ? 'true' : 'false'}
+    aria-describedby={errors.email ? 'email-error' : undefined}
+    onInvalid={(e) => e.currentTarget.setCustomValidity('正しいメールアドレスを入力してください')}
+    onInput={(e) => e.currentTarget.setCustomValidity('')}
+  />
+  {errors.email && <p id="email-error" role="alert">{errors.email}</p>}
+</form>
+```
+
+#### 5-2. input 属性 6点セット（必須チェックリスト）
+
+| 属性 | 用途 | 例 |
+|------|------|-----|
+| `name` | サーバー側で受け取るキー | `name="email"` |
+| `autoComplete` | ブラウザ自動入力（iOS キーチェーン対応） | `autoComplete="email"`, `"tel"`, `"name"` |
+| `inputMode` | SP キーボード種別 | `inputMode="email"`, `"tel"`, `"numeric"` |
+| `enterKeyHint` | Enter キー表示 | `enterKeyHint="next"`, `"send"` |
+| `aria-invalid` | エラー状態通知 | `aria-invalid="true"` |
+| `aria-describedby` | エラーメッセージ紐付け | `aria-describedby="email-error"` |
+
+#### 5-3. autocomplete 属性の主要値（WHATWG準拠）
+
+| 用途 | 値 |
+|------|-----|
+| 氏名（全体） | `name` |
+| 氏名（姓） | `family-name` |
+| 氏名（名） | `given-name` |
+| メール | `email` |
+| 電話番号 | `tel` |
+| 郵便番号 | `postal-code` |
+| 住所（都道府県） | `address-level1` |
+| 住所（市区町村） | `address-level2` |
+| 会社名 | `organization` |
+| 役職 | `organization-title` |
+| 新パスワード | `new-password` |
+| 既存パスワード | `current-password` |
+| ワンタイムコード | `one-time-code` |
+
+#### 5-4. パスワード表示切替（アクセシブル実装）
+
+```tsx
+const [show, setShow] = useState(false);
+<div className="relative">
+  <input
+    type={show ? 'text' : 'password'}
+    autoComplete="current-password"
+    aria-describedby="pw-toggle"
+  />
+  <button
+    type="button"
+    id="pw-toggle"
+    onClick={() => setShow(!show)}
+    aria-label={show ? 'パスワードを隠す' : 'パスワードを表示'}
+    aria-pressed={show}
+    className="absolute right-2 top-1/2 -translate-y-1/2"
+  >
+    {show ? <EyeOffIcon aria-hidden /> : <EyeIcon aria-hidden />}
+  </button>
+</div>
+```
+
+#### 5-5. Server Action + useFormStatus 標準テンプレ
+
+```tsx
+// lib/actions.ts
+'use server';
+import { after } from 'next/server';
+import { contactFormSchema } from '@/lib/validations';
+
+export async function submitContactForm(prev: State, formData: FormData) {
+  const parsed = contactFormSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors };
+
+  try {
+    await db.insert(contacts).values(parsed.data);
+    // 重い非同期処理はレスポンス外へ
+    after(async () => {
+      await slack.notify(parsed.data);
+      await ga4.event('form_submit', parsed.data);
+    });
+    revalidatePath('/thanks');
+    return { success: true };
+  } catch (e) {
+    return { error: '送信に失敗しました。時間をおいて再度お試しください。' };
+  }
+}
+
+// components/ContactForm.tsx
+'use client';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+
+export function ContactForm() {
+  const [state, action] = useActionState(submitContactForm, { errors: {} });
+  return (
+    <form action={action} noValidate>
+      {/* input 群 */}
+      <SubmitButton />
+      {state.error && <p role="alert" aria-live="polite">{state.error}</p>}
+    </form>
+  );
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" disabled={pending} aria-busy={pending}>
+      {pending ? '送信中...' : '送信する'}
+    </button>
+  );
+}
+```
+
+#### 5-6. エラーサマリ + フォーカス移動（a11y必須）
+
+```tsx
+// エラー発生時、最初のエラーフィールドへフォーカス移動
+useEffect(() => {
+  if (state.errors && Object.keys(state.errors).length > 0) {
+    const firstErrorField = Object.keys(state.errors)[0];
+    document.getElementById(firstErrorField)?.focus();
+  }
+}, [state.errors]);
+
+// エラーサマリ領域
+<div role="alert" aria-live="polite">
+  {state.errors && (
+    <ul>
+      {Object.entries(state.errors).map(([field, msgs]) => (
+        <li key={field}>{msgs?.[0]}</li>
+      ))}
+    </ul>
+  )}
+</div>
+```
+
+---
+
+### 6. デプロイ・PR テンプレート
+
+#### 6-1. Vercel Preview URL 自動生成フロー
+
+```
+1. feature ブランチ push
+   ↓
+2. GitHub Actions がトリガー
+   ├─ Lint / Test / Build
+   ├─ Lighthouse CI （PR コメントに結果投稿）
+   └─ Playwright Visual Regression
+   ↓
+3. Vercel が Preview Deployment を自動生成
+   ├─ preview URL を PR にコメント投稿
+   └─ Sentry / GA4 Preview 環境変数を注入
+   ↓
+4. Kaito が preview URL で目視確認
+   ↓
+5. Mia が preview URL で pixel-perfect QA
+   ↓
+6. PR マージ → main → Production Deploy
+```
+
+#### 6-2. Lighthouse CI 自動測定（.github/workflows/lighthouse.yml）
+
+```yaml
+name: Lighthouse CI
+on: [pull_request]
+jobs:
+  lhci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm dlx @lhci/cli@latest autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+```
+
+#### 6-3. PR チェックリスト（.github/pull_request_template.md）
+
+```markdown
+## 実装内容
+- [ ] 実装したセクション・機能を箇条書き
+
+## 実装スタック
+- [ ] Framework: Next.js 15 / Astro / Vite
+- [ ] Styling: Tailwind v4
+- [ ] Animation: CSS-only / Framer Motion / GSAP
+
+## 品質チェック 9ゲート（全PASS必須）
+- [ ] ①Biome `check --apply` 0 warnings
+- [ ] ②`tsc --noEmit` エラー 0
+- [ ] ③`vitest run --coverage` 80%+
+- [ ] ④`@axe-core/react` violations 0件
+- [ ] ⑤`bundlesize` First Load JS 200KB 以内
+- [ ] ⑥`lhci autorun` Performance 95+
+- [ ] ⑦`pixelmatch` 差分率 1% 以下
+- [ ] ⑧`playwright test` E2E 全 PASS
+- [ ] ⑨`grep -r 'use client' src/app/**/page.tsx` で page最上位 0件
+
+## Core Web Vitals 実測
+- [ ] LCP: XXXms（目標 < 2500ms）
+- [ ] INP: XXXms（目標 < 200ms）
+- [ ] CLS: X.XX（目標 < 0.1）
+
+## アクセシビリティ
+- [ ] `<html lang="ja">` 設定済み
+- [ ] Skip link 実装済み
+- [ ] キーボード操作テスト完了
+- [ ] スクリーンリーダー（VoiceOver）確認完了
+- [ ] `prefers-reduced-motion` 対応済み
+
+## セキュリティ
+- [ ] `dangerouslySetInnerHTML` の使用箇所を全て確認・サニタイズ済み
+- [ ] `NEXT_PUBLIC_` 接頭辞のない env はクライアント参照なし
+- [ ] Server Actions `allowedOrigins` 設定済み
+- [ ] 外部リンクに `rel="noopener noreferrer"` 付与
+- [ ] `productionBrowserSourceMaps: false` 確認済み
+
+## 開発残骸ゼロ確認
+- [ ] `grep -rn "console.log\|debugger\|TODO\|FIXME\|ダミー\|lorem" src/` = 0件
+
+## Preview URL
+- [ ] Vercel Preview: https://xxx.vercel.app
+- [ ] Lighthouse Report: （PR コメント添付）
+- [ ] Playwright VRT: （Artifact URL）
+
+## Mia QA 引継事項
+- [ ] `data-testid` / `data-qa-mask` 属性の付与箇所
+- [ ] マスク対象要素（カルーセル・カウンター等）の一覧
+```
+
+#### 6-4. 本番デプロイ前 最終ゲート（Kaito 手渡し時）
+
+```
+1. Node バージョン固定確認
+   - .nvmrc の Node メジャーが Vercel 本番と一致
+   - package.json の engines.node が同一値
+
+2. Environment Variables 確認
+   - NEXT_PUBLIC_* の公開値と secret の分離
+   - preview / production の allowedOrigins が両方登録
+
+3. next.config.ts 本番設定確認
+   - productionBrowserSourceMaps: false
+   - images.formats: ['image/avif', 'image/webp']
+   - serverActions.allowedOrigins: [本番ドメイン]
+   - experimental.reactCompiler: true
+
+4. metadata / OGP 最終確認
+   - metadataBase が本番URL
+   - og:image が絶対URL
+   - opengraph.xyz で全SNSプレビュー確認
+
+5. Sentry / GA4 本番トラッキング設定
+   - DSN / Measurement ID が本番用
+   - source maps は upload するが public 非公開
+
+→ 全てPASSで Kaito に引き渡し、Vercel Production Deploy へ
+```
+
+---
+
+### 7. Ren 拡張版・作業開始時のセルフチェック
+
+STEP 1 着手前に以下 5 項目を確認：
+
+1. **スタック選定確定**（Section 1 のマトリクスで決定）
+2. **Node メジャー Kaito と一致**（.nvmrc / engines.node）
+3. **Hana JSON が `sync:tokens` 想定形式か**（キー名照合）
+4. **Nao 設計書の型定義が `types/index.ts` に集約されるか**
+5. **A/B 切替キー名を Kaito と合意済みか**（該当時のみ）
+
+STEP 5 納品前に以下 4 項目を確認：
+
+1. **9ゲート全PASS**（Section 6-3 のPRチェックリスト）
+2. **Core Web Vitals 実測値記録**（LCP/INP/CLS）
+3. **data-testid / data-qa-mask 一覧を Mia へ提出**
+4. **Preview URL を Kaito と Mia に共有**
+
+---
+
+> **本セクションの位置づけ**: 既存の作業フロー・出力フォーマット・Daily Knowledge Log を上書きせず補完する「高度専門知識レイヤー」。日常運用は従来通りとし、判断に迷った時・新規案件着手時・品質基準を再確認する時に参照する参照ドキュメントとして機能する。
