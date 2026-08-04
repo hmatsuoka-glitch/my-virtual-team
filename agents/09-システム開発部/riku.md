@@ -455,3 +455,310 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **Partial Prerendering（PPR）が実用段階へ**：静的シェルを即返しつつ動的部分を `<Suspense>` の穴でストリームする方式が安定し、採用求人一覧のような「枠は静的・件数/絞り込みは動的」画面で初期 LCP を稼げる。07-27 の Cache Components（`use cache`）と組み合わせ「デフォルト静的＋必要箇所だけ動的」の設計が既定線に。
 - **shadcn/ui＋Radix のコピペ型コンポーネントがデザインシステム内製の現実解に**：npm 依存でなくソースをリポジトリに取り込む方式で、Tailwind v4 `@theme` トークン（07-27）と直結してブランド適用・改変が自由。LP・採用サイト・管理画面で共通 UI 資産を持ちつつロックインを避ける構成が標準化。
 - **View Transitions API でページ/状態遷移アニメがブラウザネイティブに**：JS ライブラリ無しで滑らかな遷移が書け、React/Next の対応も進行。応募フローのステップ遷移など「体験の質」を軽量に上げられ、07-16 の過剰アニメ作り込み（ゴールドプレーティング懸念）を標準 API で低コスト化。
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+このセクションは Riku をフロントエンド世界レベル（GAFA / Vercel エンジニア級）に引き上げるための「深掘り技術マニュアル」。日々の業務で必要になった時に該当セクションだけ Read すること（一括読み込みしない）。
+
+### 目次
+1. Next.js 15 完全マニュアル（App Router / RSC / Server Actions / Streaming / Parallel Routes / Intercepting Routes / PPR / Middleware / Route Handlers）
+2. React 19 新機能（use hook / useOptimistic / Actions / form action / Ref cleanup / useTransition）
+3. 状態管理選定（Zustand / Jotai / Redux Toolkit / TanStack Query 使い分け）
+4. UI ライブラリ選定（shadcn/ui / Radix Primitives / Ark UI / React Aria）
+5. TDD FE 実践（Vitest + RTL + MSW / ユーザーインタラクション中心 / Snapshot 最小化）
+6. 月次 FE ダッシュボード（Lighthouse / CWV / a11y / Bundle size / Test coverage）
+
+---
+
+### 1. Next.js 15 完全マニュアル
+
+Next.js 15+ は App Router 完全成熟版であり、Server Components を第一級市民に据えた「デフォルト静的・必要箇所だけ動的」の設計思想。Riku は以下の全概念を語彙レベルで説明できるレベルを標準とする。
+
+#### 1-1. App Router の基本構造
+- **`app/` ディレクトリ**が全てのルートの起点。`page.tsx`（ルートの UI）／`layout.tsx`（永続レイアウト）／`loading.tsx`（Suspense fallback）／`error.tsx`（Error Boundary）／`not-found.tsx`（404）／`template.tsx`（インスタンス毎の再マウント layout）／`default.tsx`（Parallel Routes の未マッチ時）／`route.ts`（Route Handler）の 8 ファイル規約を暗記。
+- **ネスト layout** は「共通ヘッダー・サイドバーを親 layout で持ち、子 page は差分のみ」の設計に統一。layout は「レンダリング中に永続され、遷移時に再マウントしない」性質を活用し、フォーム入力状態やアニメーション状態の維持に使う。
+- **ルートグループ `(name)`** は URL に影響せずファイル整理のみに使う。認証済み `/dashboard` と未認証 `/marketing` で `(auth)`・`(marketing)` に分けて別 layout を適用する典型パターン。
+
+#### 1-2. React Server Components（RSC）
+- **原則：Server Components ファースト**。ページとレイアウトは Server のまま保ち、`'use client'` は「イベントハンドラ・useState・useEffect・ブラウザ API」を必要とする葉ノードだけに付ける。
+- **境界の描画コスト**：`'use client'` を親レイアウトに付けると配下ツリー全体がクライアント化され、バンドルが肥大＋データ取得がクライアントに漏れる。CI で `'use client'` 配下のバンドルサイズを計測し、想定外に大きい Client ツリーを PR で警告する。
+- **RSC ペイロードの制約**：Server→Client の props は「プレーンオブジェクト・文字列・数値・配列・null」のみ。Date/Map/Set/関数/class インスタンスは不可（`Only plain objects can be passed to Client Components` エラー）。Date は ISO 文字列で渡し Client 側で `new Date()` する規約に統一。
+- **データ取得の 3 パターン**：① Server Component 内で直接 `await fetch()`（推奨・自動キャッシュ／revalidate 制御）② `use(promise)` で Client Component に Promise を渡し Suspense で待つ（部分的並列取得）③ Client の TanStack Query（ユーザー操作でのリフェッチ・楽観的更新）。
+
+#### 1-3. Server Actions
+- **`'use server'` ディレクティブ**で関数をサーバー実行にし、`<form action={serverFn}>` や `useTransition` から直接呼べる。API Route（`route.ts`）を書かずに mutation を実装できるのが最大の利点。
+- **型安全性の完成**：関数の引数・戻り値型が FE/BE で共有され、`packages/api-types` を経由しなくても型が通る。ただし公開 API（外部連携）は依然 Hono + OpenAPI の hybrid が推奨。
+- **バリデーション**：Server Action 内で必ず Zod で再検証する（Client のバリデーションは UX 用・信頼できない）。`safeParse` の失敗を Result 型で返し、FE 側は `useActionState` の返り値で `setError` にマッピング。
+- **revalidation**：mutation 成功後は `revalidatePath('/jobs')` または `revalidateTag('jobs')` を呼び、関連する Server Component を再レンダリング。TanStack Query の `invalidateQueries` と役割が似ているが RSC 側の再検証は Server Actions の責務。
+
+#### 1-4. Streaming と Suspense
+- **ストリーミング SSR** は `<Suspense fallback={<Skeleton/>}>` で境界を作り、その境界内のデータ取得完了を待たずに HTML を先行フラッシュ。骨組みが即表示され、データ取得後に差し込まれる。
+- **loading.tsx** は暗黙の Suspense 境界。`app/jobs/loading.tsx` を置けば `app/jobs/page.tsx` の全体が Suspense でラップされる。
+- **粒度設計**：ページ全体を 1 つの Suspense で囲むと結局全画面ローディングになるため、「ヒーロー（静的・即表示）／リスト（Suspense・遅延）／サイドバー（Suspense・遅延）」と 3 分割する。Nao の設計書で Suspense 境界を明示的に描いてもらうと実装が高速化する。
+
+#### 1-5. Parallel Routes
+- **`@slot` フォルダ**で複数の子ページを同一 layout に並列表示する仕組み。`app/dashboard/@analytics/page.tsx` と `app/dashboard/@team/page.tsx` を `app/dashboard/layout.tsx` の props で受け取り、独立にレンダリング（＝独立に Suspense / エラー処理可能）。
+- **典型ユースケース**：ダッシュボードで「メインチャート」「サイドの通知一覧」「トップの KPI」を独立ストリームで並列表示。1 つの重い API に全体が引きずられない。
+- **`default.tsx`** はナビゲーション時に該当 slot にマッチする segment がない場合の fallback。省略するとハードナビゲーションで 404 になるため必ず用意する。
+
+#### 1-6. Intercepting Routes
+- **`(.)`・`(..)`・`(...)` 記法**で別ルートの UI を現在のレイアウト内にオーバーレイ表示する。典型は Instagram 風の「写真一覧クリック→モーダルで詳細、URL は `/photos/123`、リロードすると独立ページ」。
+- **実装パターン**：`app/photos/[id]/page.tsx`（独立ページ）と `app/@modal/(.)photos/[id]/page.tsx`（親 layout に差し込むモーダル版）を両方定義し、Parallel Routes と組み合わせる。
+- **落とし穴**：モーダル閉じ時のスクロール復元・フォーカス管理が手薄になりがち。閉じる時に `router.back()` で戻り、a11y で フォーカスを元の要素へ返す実装を必須化。
+
+#### 1-7. Partial Prerendering（PPR）
+- **PPR の思想**：1 ページ内で「静的シェル（Hero・ヘッダー・骨組み）は build 時に生成しエッジから即配信」「動的部分（ユーザー固有情報・在庫・検索結果）は `<Suspense>` の穴でストリーム」。SSG と SSR のハイブリッド。
+- **`next.config.js` で `experimental.ppr = 'incremental'`** を有効化し、ページごとに `export const experimental_ppr = true` で opt-in する段階移行が現実的。
+- **効果**：Hero だけで LCP を稼ぎ、動的部分はネットワーク待ちを Suspense fallback で吸収。Lighthouse Performance 95+ が現実的目標に。Vercel Speed Insights で PPR 前後の LCP を比較する。
+
+#### 1-8. Middleware
+- **`middleware.ts`** はエッジで全リクエストを傍受し、認証チェック・国別リダイレクト・A/B テスト・ヘッダー付与を実行する。Node.js API は使えず Web 標準 API のみ（`fetch`・`Request`・`Response`）。
+- **`matcher` 設定** で発火パスを絞る（`matcher: ['/((?!api|_next/static|favicon.ico).*)']` で静的資産を除外）。全ページで発火するとエッジのコストが跳ねる。
+- **典型パターン**：`NextResponse.rewrite()` で URL を保ったまま別ページを配信（A/B テスト）、`NextResponse.redirect()` でリダイレクト（ロケール判定）、`NextResponse.next({ headers: {...} })` でヘッダー付与（CSP・セキュリティ）。
+
+#### 1-9. Route Handlers
+- **`app/api/xxx/route.ts`** に `GET`・`POST`・`PUT`・`DELETE`・`PATCH`・`HEAD`・`OPTIONS` を named export する。Web 標準 `Request`/`Response` を返す。
+- **Server Actions との使い分け**：外部から叩かれる公開 API・Webhook 受信・OAuth コールバックは Route Handler、内部の form 送信・mutation は Server Actions が原則。
+- **キャッシュ制御**：`GET` はデフォルト静的キャッシュされるが、Next.js 15 からは opt-in の `dynamic = 'force-static'`／`export const revalidate = 60` を明示的に付ける方針が推奨。暗黙キャッシュ由来の「なぜか古い」事故を減らす。
+
+---
+
+### 2. React 19 新機能
+
+React 19 は「サーバーとクライアントの境界を跨いだ非同期処理」を第一級市民化した節目のバージョン。以下 6 つの新機能は Riku が全て手足のように使えるレベルを標準とする。
+
+#### 2-1. `use` Hook
+- **`use(promise)`** で任意の Promise を Suspense と組み合わせて解決できる。従来の `useEffect`+`useState` パターンが 1 行に凝縮。
+- **`use(context)`** で Context を条件分岐内でも呼び出せる（Rules of Hooks の「トップレベル」制約を回避）。ただし乱用すると読みにくくなるため「本当に必要な条件付きコンテキスト取得」だけに限定。
+- **典型パターン**：Server Component で取得した `Promise<Data>` を Client Component に props で渡し、Client 側で `const data = use(dataPromise)` して Suspense で待つ。並列取得を宣言的に書ける。
+
+#### 2-2. `useOptimistic`
+- **楽観的 UI の宣言的実装**。`const [optimisticX, addOptimistic] = useOptimistic(x, (state, newValue) => ...)` で「サーバー確定前の見た目」を即座に反映し、Server Action の完了後に実データへ自動置換。
+- **典型ユースケース**：いいねボタン、コメント投稿、TODO 追加。ユーザーは即座に UI 反応を得られ、失敗時は React が自動でロールバック。
+- **TanStack Query の `onMutate` との違い**：`useOptimistic` は Server Actions と直結し、Query キャッシュへの介入不要。UI ローカルの楽観的表示だけならこちらがシンプル。複数画面のキャッシュ整合が必要なら Query Client の楽観的更新を使い分ける。
+
+#### 2-3. Actions
+- **`<form action={serverFnOrClientFn}>`** で form 送信を関数に直結。従来の `onSubmit` + `preventDefault` + `fetch` が不要に。
+- **`useActionState`**（旧 `useFormState`）で `[state, formAction, isPending]` を取り、フォームの pending・エラー・成功状態を宣言的に扱える。
+- **`useFormStatus`** は form 内部の子コンポーネント（Submit ボタン等）で親 form の pending 状態を取得できる。ボタンの `disabled={pending}` を prop バケツリレー無しで実装可能。
+- **エラーハンドリング**：Server Action の返り値を `{ ok: true, data } | { ok: false, errors }` の Result 型で統一し、`useActionState` の state で分岐。422 フィールドエラーは `errors[fieldName]` を UI に表示。
+
+#### 2-4. form action と Progressive Enhancement
+- **JS 無効でも動く**：`<form action={serverAction}>` はサーバーサイドで動作するため、JS ロード完了前でも form が機能する。JS ロード後は自動的にクライアントサイド処理に切り替わる。
+- **`formData` API**：Server Action の引数は `FormData` として渡され、`formData.get('email')` で取得。Zod と組み合わせて型安全なパースを実装。
+- **ファイルアップロード**：`<input type="file" name="avatar">` を含む form の action に Server Action を指定すると、`formData.get('avatar')` で `File` オブジェクトを取得できる。従来の別 API 呼び出しが不要。
+
+#### 2-5. Ref cleanup 関数
+- **`ref={node => { ...; return () => { cleanup } }}`** の cleanup 返り値がサポートされた。DOM ノードの unmount 時に自動でクリーンアップを実行。
+- **典型パターン**：`IntersectionObserver` の disconnect、`ResizeObserver` の unobserve、`addEventListener` の removeEventListener。従来 `useEffect` で「マウント時に ref から DOM を取得」の 2 段構えが不要に。
+- **注意**：既存の `useEffect` + `ref` パターンを一気に置き換えず、新規実装から段階採用する。
+
+#### 2-6. `useTransition` と `startTransition`
+- **非緊急更新のマーキング**：`startTransition(() => setState(...))` で「この state 更新は緊急ではない」と React に伝え、ユーザー入力などの緊急更新を優先させる。
+- **INP 対策の切り札**：重い state 更新（フィルタ結果 1000 件の再レンダリング等）を `startTransition` で囲むだけで、入力の応答性が改善し INP < 200ms を達成しやすい。
+- **`useTransition` の `isPending`**：トランジション中の pending 状態を取得し、UI に「更新中...」の視覚フィードバックを出せる。ボタンのローディング状態、テーブルの半透明化などに活用。
+- **`useDeferredValue`** は関連機能で、値そのものを「更新を遅延させたコピー」として扱う。検索フィルタの入力値と表示リストを分離する時に有効。
+
+---
+
+### 3. 状態管理選定
+
+「何でもグローバル state」も「何でも useState」も両方 anti-pattern。以下の 4 分類で機械的に選定する。
+
+#### 3-1. サーバー状態（API から取得するデータ）→ **TanStack Query 一択**
+- **理由**：キャッシュ・自動リフェッチ・楽観的更新・無限スクロール・prefetch・staleTime/gcTime 管理を 1 ライブラリで完結。Zustand や Redux でサーバー状態を持つと「キャッシュ無効化ロジックを自作」する地獄に陥る。
+- **`queryOptions` ファクトリ**を機能単位に集約し、`queryKey` の漏れによるキャッシュ不整合を構造的に排除（既存ナレッジ 06-16 参照）。
+- **`useSuspenseQuery`** で Suspense と統合、`<AsyncBoundary>` パターンでローディング・エラー・空の 3 状態を共通化。
+
+#### 3-2. グローバル UI 状態（認証・テーマ・サイドバー開閉等）→ **Zustand**
+- **理由**：boilerplate ゼロ、Provider 不要、hooks で購読、selector で不要な再レンダリングを抑制。Redux Toolkit より 90% コード量少。
+- **典型ストア**：`useAuthStore`（currentUser・login・logout）、`useUIStore`（sidebarOpen・theme）、`useNotificationStore`（トースト管理）。
+- **middleware**：`persist`（localStorage 同期）、`immer`（イミュータブル更新の糖衣）、`devtools`（Redux DevTools 統合）を状況に応じて組み合わせる。
+- **selector 最適化**：`useAuthStore((s) => s.currentUser)` のように必要な slice だけを購読し、無関係な state 変更で再レンダリングされないようにする。
+
+#### 3-3. コンポーネント間の細粒度 atom 状態 → **Jotai**
+- **理由**：atom 単位の宣言的グローバル state。Zustand が「ストア中心」なのに対し、Jotai は「atom 中心」で、複雑な派生関係（`atom((get) => get(a) + get(b))`）を宣言的に組める。
+- **典型ユースケース**：エディタの複雑なフォーム状態、ダイアグラム描画ツールのノード管理、複数コンポーネントで細かく共有する UI トグル群。
+- **選定基準**：state が 30 以上の atom に分割される、または派生関係が複雑（A の変更で B, C, D が連動計算される）場合に Jotai。それ未満なら Zustand で十分。
+
+#### 3-4. Redux Toolkit の残された用途
+- **既存 Redux プロジェクトの継続保守**、**Time Travel Debugging が必須の複雑ドメイン**、**RTK Query を使いたいチーム**の 3 ケースに限定。新規プロジェクトでの積極選定は 2026 年時点では推奨しない（Zustand + TanStack Query の組み合わせが同等機能をより軽量に提供）。
+- **RTK Query vs TanStack Query**：TanStack Query の方が Suspense・楽観的更新・無限スクロール・prefetch のエコシステムが成熟。新規は TanStack Query 推奨。
+
+#### 3-5. React Context の使いどころ
+- **限定的に使う**：Theme（ダーク・ライト）、Auth（currentUser のみ）、i18n（locale）の「変更頻度が低くツリー全体に配布したい値」限定。
+- **anti-pattern**：頻繁に更新される値（フォーム入力値・API レスポンス）を Context に入れると、Provider 配下全体が再レンダリングされてパフォーマンス劣化。この用途は Zustand か Jotai に逃がす。
+
+---
+
+### 4. UI ライブラリ選定
+
+「デザインシステム内製 vs 既製 UI ライブラリ」の選択は、プロジェクト規模・ブランド固有性・a11y 要件で決まる。以下 4 系統を比較。
+
+#### 4-1. shadcn/ui（第一選択・LET 標準）
+- **思想**：npm パッケージではなく、`npx shadcn@latest add button` で **ソースコードをリポジトリに取り込む**方式。ロックインゼロ、自由改変。内部は Radix Primitives + Tailwind。
+- **メリット**：Tailwind v4 の `@theme` トークンと直結してブランド適用が即座、a11y は Radix ベースで担保、コピペ後は自由改変。バージョン地獄なし。
+- **デメリット**：破壊的変更の追従は手動、コンポーネントの一元管理が薄れる。→ `packages/ui` に集約し内部で shadcn/ui を取り込む monorepo 構成で解決。
+- **LET での使い方**：新規プロジェクトはデフォルト shadcn/ui、既存 shadcn を `packages/ui` に集約し全プロジェクトで参照。Kana のバナー配色と `tokens.css` を共有。
+
+#### 4-2. Radix Primitives（低レベル）
+- **思想**：スタイル無しで a11y と挙動だけを提供する「headless」プリミティブ。Dialog・Popover・Dropdown・Select 等の複雑な UI のフォーカス管理・キーボード操作・ARIA 属性を完全実装。
+- **選定基準**：shadcn/ui のスタイルが合わず、独自デザインシステムを 1 から作りたい場合。または shadcn/ui が対応していないコンポーネント（Toast の高度なアニメーション等）を実装したい場合。
+- **a11y スコア**：Radix ベースのコンポーネントは axe-core で 0 violation を達成しやすい。自前実装より遥かに安全。
+
+#### 4-3. Ark UI（フレームワーク非依存）
+- **思想**：React・Vue・Solid で共通のヘッドレス UI を提供。Zag.js の state machine ベースで挙動の正しさが保証される。
+- **選定基準**：複数フレームワーク跨ぎのプロジェクト、または「挙動の正確性」を数学的に保証したい複雑 UI（大規模データテーブル・カレンダー・複雑なフォーム）。
+- **LET での使いどころ**：Web Components で埋め込みウィジェット化する採用ボタン等（既存ナレッジ 05-18 参照）で活用余地。
+
+#### 4-4. React Aria（Adobe）
+- **思想**：Adobe が開発する a11y ファーストの headless hook 群。WAI-ARIA Authoring Practices を厳密に実装。
+- **選定基準**：a11y を最優先する官公庁・医療・金融案件。Radix より更に厳密な a11y 挙動が要求される場合。
+- **デメリット**：学習曲線が急、API 数が多い。中小規模案件では shadcn/ui + Radix で十分。
+
+#### 4-5. アクセシビリティ実装比較表
+
+| ライブラリ | フォーカストラップ | キーボード操作 | ARIA 属性 | RTL 対応 | 学習コスト |
+|---|---|---|---|---|---|
+| shadcn/ui | ◎（Radix） | ◎ | ◎ | ○ | 低 |
+| Radix Primitives | ◎ | ◎ | ◎ | ○ | 中 |
+| Ark UI | ◎ | ◎ | ◎ | ◎ | 中 |
+| React Aria | ◎（最厳密） | ◎ | ◎（最厳密） | ◎ | 高 |
+| MUI | ○ | ○ | ○ | ○ | 低 |
+| Chakra UI | ○ | ○ | ○ | ○ | 低 |
+
+---
+
+### 5. TDD FE 実践
+
+FE の TDD は「実装詳細でなくユーザー視点の振る舞い」をテストする。以下 5 原則を全 PR で厳守する。
+
+#### 5-1. テストスタック
+- **Vitest**：Jest 互換の高速テストランナー。Vite 上で動き、HMR が効き、Vitest UI で対話的にデバッグ可能。Vitest 2.0 で実行速度 3 倍化（既存ナレッジ 05-25 参照）。
+- **React Testing Library（RTL）**：DOM 操作ではなくユーザー視点のクエリ（`getByRole`・`getByLabelText`）でテストを書く思想。実装詳細への結合を防ぐ。
+- **MSW（Mock Service Worker）**：Service Worker レベルで `fetch`／`XMLHttpRequest` を傍受しモック応答を返す。`fetch` を直接モックする anti-pattern を撲滅。
+- **`@testing-library/user-event`**：`fireEvent` より実ブラウザに近いユーザー操作を再現（type・click・tab・keyboard）。
+
+#### 5-2. ユーザー視点クエリの優先順位
+1. **`getByRole`**（推奨・最優先）：`getByRole('button', { name: '送信' })` のようにアクセシブルネーム込みで取得。a11y 対応 UI なら自動的にテスト可能。
+2. **`getByLabelText`**：フォームフィールド取得の標準。`<label>` が正しく紐付いていれば取得可能。
+3. **`getByPlaceholderText`**：Label が無いフィールドの妥協策。多用は a11y 不足の兆候。
+4. **`getByText`**：ボタン・リンク以外のテキスト取得。
+5. **`getByDisplayValue`**：入力済みフォームの現在値で取得。
+6. **`getByAltText`**：画像取得。
+7. **`getByTitle`**：`title` 属性で取得。
+8. **`getByTestId`**（最終手段）：他の全てが使えない場合のみ。`data-testid` の乱用は「実装詳細への結合」の兆候。
+
+#### 5-3. Snapshot テストは原則使わない
+- **Snapshot の罠**：DOM 全体をスナップショット化すると、ちょっとした CSS 変更で大量のテストが赤くなり、`--update` で盲目的に更新される（=テストの意味喪失）。
+- **例外的使用**：inline snapshot で「特定の小さなロジック出力」（例：日付フォーマット関数の返り値、Zod スキーマのエラーメッセージ）だけを対象にする場合。
+- **代替**：ユーザーが見る「特定のテキスト・特定の状態」を assertion する（`expect(screen.getByText('送信完了')).toBeVisible()`）。
+
+#### 5-4. MSW によるネットワーク層のモック
+- **セットアップ**：`src/mocks/handlers.ts` に `http.get('/api/jobs', () => HttpResponse.json({ jobs: [...] }))` のハンドラを定義し、Vitest の `setupFiles` で `server.listen()` を起動。
+- **テスト内で応答差し替え**：`server.use(http.get('/api/jobs', () => new HttpResponse(null, { status: 500 })))` でエラー応答を注入し、UI のエラーハンドリングをテスト。
+- **Storybook との共有**：MSW のハンドラを Storybook の `msw-storybook-addon` でも使い回し、「同じモックで見た目確認とテスト実行」を両立。
+
+#### 5-5. TDD サイクルの実践
+- **Red**：ユーザーが行う操作を先に書く（`await user.type(input, 'a@b.com'); await user.click(submitBtn); expect(await screen.findByText('登録完了')).toBeInTheDocument()`）。実装が無いから失敗。
+- **Green**：テストを通す最小限の実装。過剰実装をしない目利きを鍛える。
+- **Refactor**：コード整理・パフォーマンス最適化。テストが通り続けることを常に確認。
+- **1 テスト = 1 振る舞い**：「送信成功時にトーストが出る」と「送信失敗時にフィールドエラーが出る」は別テスト。1 テストで複数を検証しない。
+
+#### 5-6. E2E テスト（Playwright）
+- **役割分担**：Vitest + RTL は「コンポーネント単位の振る舞い」、Playwright は「主要ユーザーフローの通し」。既存ナレッジ 05-25 の Trophy Model（Unit:Integration:E2E = 1:3:2）を採用。
+- **Playwright MCP 統合**：Claude Code から E2E テストの実装・実行・修正が連携可能（既存ナレッジ 05-25 参照）。
+- **視覚回帰**：`page.screenshot()` の差分検出で「意図しない見た目変化」を検出。Percy や Chromatic との統合も選択肢。
+
+---
+
+### 6. 月次 FE ダッシュボード
+
+毎月 1 日に Riku が提出する定量ダッシュボード。Kai・Mio・Nao と共有し、FE 品質の trend を可視化する。
+
+#### 6-1. Lighthouse スコア（月次）
+
+| 指標 | 目標 | 前月 | 今月 | 差分 | メモ |
+|---|---|---|---|---|---|
+| Performance | 90+ | 92 | 94 | +2 | PPR 導入で LCP 改善 |
+| Accessibility | 100 | 98 | 100 | +2 | axe-core CI ゲート化の効果 |
+| Best Practices | 100 | 100 | 100 | 0 | 維持 |
+| SEO | 100 | 100 | 100 | 0 | 維持 |
+
+#### 6-2. Core Web Vitals（実ユーザー field 値・Vercel Speed Insights）
+
+| 指標 | SLO | p75 | p95 | 判定 |
+|---|---|---|---|---|
+| LCP | < 2.5s | 1.8s | 2.3s | PASS |
+| INP | < 200ms | 120ms | 190ms | PASS |
+| CLS | < 0.1 | 0.05 | 0.08 | PASS |
+| FCP | < 1.8s | 1.2s | 1.6s | PASS |
+| TTFB | < 800ms | 350ms | 620ms | PASS |
+
+- **未達時のアクション**：LCP 未達 → 画像最適化・`next/font` 見直し・PPR 適用検討。INP 未達 → `startTransition`/`useDeferredValue` の適用箇所拡大。CLS 未達 → 画像 `width`/`height` 指定・広告枠のサイズ予約。
+
+#### 6-3. アクセシビリティ（axe-core + 手動確認）
+
+| 項目 | 目標 | 実績 |
+|---|---|---|
+| axe-core violations | 0 | 0 |
+| WCAG 2.1 AA コントラスト比 | 全 PASS | 全 PASS |
+| キーボード操作全機能到達 | 100% | 100% |
+| スクリーンリーダー主要フロー通過 | 月 1 回確認 | VoiceOver で確認済 |
+
+#### 6-4. Bundle Size（`size-limit` + `bundle-analyzer`）
+
+| ページ/バンドル | 予算 | 前月 | 今月 | 差分 |
+|---|---|---|---|---|
+| First Load JS | 100KB | 85KB | 82KB | -3KB |
+| `/jobs` route | 30KB | 25KB | 24KB | -1KB |
+| `/applications` route | 40KB | 38KB | 36KB | -2KB |
+| shared chunks | 60KB | 55KB | 55KB | 0 |
+
+- **予算超過時のアクション**：`dynamic import` での code splitting、tree-shaking の見直し、重量ライブラリの代替検討（moment → date-fns 等）。
+
+#### 6-5. テストカバレッジ（Vitest coverage）
+
+| 種別 | 目標 | 実績 |
+|---|---|---|
+| Statement coverage | 80%+ | 84% |
+| Branch coverage | 75%+ | 78% |
+| Function coverage | 80%+ | 82% |
+| Line coverage | 80%+ | 85% |
+
+- **Trophy Model 比率**：Unit 15% / Integration 55% / E2E 30%（目標 1:3:2 = 17%:50%:33% にほぼ準拠）。
+- **Flaky 率**：1% 未満（今月 0.3%）を維持。
+
+#### 6-6. 開発体験メトリクス
+
+| 項目 | 目標 | 実績 | メモ |
+|---|---|---|---|
+| dev サーバー起動時間 | < 3s | 1.2s | Turbopack 効果 |
+| HMR 反映時間 | < 100ms | 45ms | 良好 |
+| CI 全体時間 | < 10 min | 7 min | Turbopack ビルド化で短縮 |
+| PR レビュー〜マージ平均時間 | < 24h | 18h | Mio との連携効果 |
+
+#### 6-7. 月次まとめレポートフォーマット
+
+```
+## Riku — 2026年MM月 FE ダッシュボード
+
+### サマリー
+- 全体品質：[GREEN / YELLOW / RED]
+- 特記事項：[今月の大きな改善・懸念事項]
+
+### 指標
+[上記 6-1〜6-6 のテーブル貼付]
+
+### 来月のフォーカス
+- [具体的なアクション項目 3 つ]
+
+### Kai/Mio/Nao への相談事項
+- [連携で解決したい懸念]
+```
+
+---
+
+> このセクションは Riku をフロントエンド世界レベルに引き上げる「オーバースペック拡張」。日々の業務では既存のプロフィール・役割定義・Daily Knowledge Log をベースに動き、深掘りが必要になった時にこのセクションの該当箇所だけを Read すること。

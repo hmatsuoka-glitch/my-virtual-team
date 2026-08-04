@@ -384,3 +384,550 @@ STEP 6: 設計書をKaiへ提出
 - **Outbox パターン＋CDC で「DB 書き込みとイベント発行の原子性」が中規模でも標準化**：応募登録と通知/媒体連携イベントを二重処理・欠落なく届けるため、同一トランザクションで outbox テーブルへ書き、CDC/ポーリングで after-commit 配信。07-11 の at-least-once＋冪等消費の設計語彙と直結し、分散の「片方だけ成功」を構造排除。
 - **pgvector＋全文検索で採用マッチングを Postgres 内包する構成が定着**：スキル・職歴のベクトル類似度検索と日本語全文検索を専用エンジン無しで Postgres 一本に寄せる設計が、07-27 の「Postgres＋pgvector 第一選択」を採用ドメインで具体化。ハイブリッド検索（キーワード＋意味）で応募者レコメンドの初期実装コストを圧縮。
 - **設計ドキュメントの粒度統一に C4 モデルが浸透**：Context/Container/Component/Code の 4 階層で「どのズームレベルの図か」を明示し、ステークホルダー別に見せる図を切り替える。07-03 の ADR（なぜその選択か）と C4（どう構造化したか）を対で残すと、as-built 更新（品質チェックポイント）時の差分も図の階層単位で管理しやすい。
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+このセクションは、Nao（09-システム開発部・BMAD Architect）が世界水準のアーキテクトとして「なぜ・どう設計するか」を体系的に説明できるための知識体系。案件規模・チーム構成・非機能要件に応じて機械的に引き出せる形で整理する。
+
+---
+
+### A. アーキテクチャパターン 12選（選定基準込み）
+
+新規案件の STEP 2 冒頭で「どのパターンを採用するか」を必ず言語化して設計書冒頭に明記する。パターンは 1 つに限定せず、レイヤー毎に組み合わせるのが実務標準。
+
+| # | パターン名 | 一言定義 | 適用シーン | LET 採用可否 |
+|---|----------|---------|-----------|-------------|
+| 1 | **Clean Architecture** | 依存を内向き（外→UseCase→Entity）に統一。DIP 徹底 | 中〜大規模・ドメインロジックが厚い | ○ 中規模 SaaS 標準 |
+| 2 | **Hexagonal (Ports & Adapters)** | ドメイン核を Port で公開、外部技術は Adapter として差し替え可能に | 外部依存（DB・外部 API）を差し替えたい | ○ 決済・通知系で採用 |
+| 3 | **Onion Architecture** | Clean と類似。中心 = Domain、外周 = Infrastructure。層方向は内向き | ドメイン駆動・DIP を厳密適用 | ○ Clean と使い分け |
+| 4 | **Layered (N-Tier)** | Presentation / Application / Domain / Infrastructure の水平層 | 小〜中規模・シンプルな CRUD | ○ MVP・PoC 向け |
+| 5 | **MVC** | Model-View-Controller。Web の古典 | Rails/Laravel 系。SSR 中心 | △ Next.js App Router では非推奨 |
+| 6 | **MVP** | Model-View-Presenter。View がロジックを持たず Presenter が仲介 | GUI アプリ・testability 重視 | △ ネイティブアプリで検討 |
+| 7 | **MVVM** | Model-View-ViewModel。双方向バインディング | React/Vue の暗黙モデル。宣言的 UI | ○ FE 内部モデルとして機能 |
+| 8 | **Microservices** | 機能単位で独立デプロイ可能なサービス群 | 大規模・チーム自律・独立スケール | × LET 現状規模では過剰 |
+| 9 | **Modular Monolith** | 単一デプロイ・内部は明確なモジュール境界（Bounded Context） | 5〜20 人チーム・将来分割の余地を残す | ◎ LET 現状の第一選択 |
+| 10 | **Event-Driven Architecture (EDA)** | サービス間を非同期イベントで疎結合化。Kafka/RabbitMQ/Inngest | 非同期処理・スケール・耐障害性 | ○ 通知・媒体連携で採用 |
+| 11 | **CQRS (Command Query Responsibility Segregation)** | 書き込みモデル（Command）と読み取りモデル（Query）を分離 | 集計が重い・読み書きの負荷特性が異なる | △ 分析ダッシュボードで検討 |
+| 12 | **Event Sourcing** | 状態でなくイベントの列を永続化。現状は再生で復元 | 監査要件・状態変遷の完全追跡 | △ 採用管理の履歴で部分適用 |
+| ex1 | **Serverless (FaaS)** | 関数単位でデプロイ・スケール自動・課金は実行時のみ | スパイク対応・コスト最適・運用負荷ゼロ | ◎ Vercel Functions で標準採用 |
+
+**選定フロー**（Nao が STEP 2 冒頭で機械的判定）：
+
+```
+1. チーム規模判定
+   ├─ 5 人以下 → Modular Monolith + Serverless（LET 現状）
+   ├─ 5〜20 人 → Modular Monolith + 部分 Microservices
+   └─ 20 人超  → Microservices + EDA
+
+2. ドメイン複雑度判定
+   ├─ CRUD 中心・薄い    → Layered（3層で十分）
+   ├─ ドメインロジック中厚 → Clean or Hexagonal
+   └─ ドメイン厚・監査要件 → Clean + Event Sourcing 部分適用
+
+3. 非機能要件による補正
+   ├─ 読み書き比 100:1 超 → CQRS 検討（読み取り専用レプリカ）
+   ├─ 非同期処理多い       → EDA（Inngest/Trigger.dev）
+   └─ 履歴・監査必須       → Event Sourcing 部分適用
+```
+
+**組み合わせ例（LET 標準構成）**：
+- **外側**：Modular Monolith（Next.js App Router 単一リポジトリ）
+- **内側**：Clean Architecture（features/{domain}/ で Bounded Context 分割）
+- **横断**：EDA 部分適用（Inngest で応募→通知→媒体連携を非同期化）
+- **インフラ**：Serverless（Vercel Functions + Neon Postgres）
+
+---
+
+### B. C4 モデル完全解説
+
+C4 モデル = Simon Brown 提唱の 4 階層アーキテクチャ図法。「どのズームレベルの図を今描いているか」を明示することで、ステークホルダー別に見せる図を切り替えられる。Nao は設計書に必ず Level 1〜3 を含める（Level 4 は必要時のみ）。
+
+#### Level 1: System Context Diagram
+
+- **目的**：「このシステムは何で、誰が使い、何と繋がるか」を非技術者に 1 枚で示す
+- **登場人物**：System（1 つの箱）＋ Person（ユーザー種別）＋ External System（外部依存）
+- **読者**：クライアント・経営層・PM
+- **粒度**：技術詳細ゼロ・ビジネス言語のみ
+
+```mermaid
+graph TB
+    Applicant[応募者<br/>Person]
+    Recruiter[採用担当<br/>Person]
+    System[採用管理 SaaS<br/>Software System]
+    LineAPI[LINE API<br/>External]
+    JobBoard[求人媒体 API<br/>External]
+
+    Applicant -->|応募する| System
+    Recruiter -->|選考管理| System
+    System -->|通知送信| LineAPI
+    System -->|求人取得| JobBoard
+```
+
+#### Level 2: Container Diagram
+
+- **目的**：System の内部を「デプロイ可能な単位（コンテナ）」で分解
+- **登場人物**：Web App / API / DB / Message Broker / Cache 等
+- **読者**：技術リード・アーキテクト・インフラ担当（Kuu）
+- **粒度**：技術スタック・通信プロトコルまで明記
+
+```mermaid
+graph TB
+    Browser[Webブラウザ]
+    NextApp[Next.js App<br/>Container: Vercel]
+    API[API Routes<br/>Container: Vercel Functions]
+    DB[(Neon Postgres<br/>Container: Serverless DB)]
+    Queue[Inngest<br/>Container: Job Queue]
+    Line[LINE API]
+
+    Browser -->|HTTPS| NextApp
+    NextApp -->|Server Actions| API
+    API -->|Prisma/Drizzle| DB
+    API -->|イベント発行| Queue
+    Queue -->|Webhook| Line
+```
+
+#### Level 3: Component Diagram
+
+- **目的**：1 つの Container 内部を「コード上の責務単位」で分解
+- **登場人物**：Controller / UseCase / Repository / Service 等
+- **読者**：実装者（Riku・Ao）
+- **粒度**：ファイル・モジュール構造とほぼ 1:1 対応
+
+```mermaid
+graph TB
+    Route[/api/applications/route.ts]
+    UseCase[CreateApplicationUseCase]
+    Repo[ApplicationRepository]
+    Validator[ApplicationValidator/Zod]
+    Notifier[NotificationService]
+
+    Route --> Validator
+    Route --> UseCase
+    UseCase --> Repo
+    UseCase --> Notifier
+```
+
+#### Level 4: Code Diagram（必要時のみ）
+
+- **目的**：Component 内部のクラス図・シーケンス図
+- **原則**：**IDE で見れば分かる範囲は書かない**（過剰ドキュメント化を避ける）
+- **書くべき時**：複雑な状態機械・分散トランザクション・非自明な相互作用
+
+#### PlantUML 実装例（Level 2 Container）
+
+```plantuml
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(applicant, "応募者")
+System_Boundary(sys, "採用管理 SaaS") {
+    Container(web, "Next.js App", "React 19, App Router", "SSR/CSR ハイブリッド")
+    Container(api, "API Routes", "Vercel Functions", "REST + Server Actions")
+    ContainerDb(db, "Neon Postgres", "Serverless Postgres 17", "業務データ永続化")
+    Container(queue, "Inngest", "Job Queue", "非同期処理")
+}
+System_Ext(line, "LINE API")
+
+Rel(applicant, web, "利用", "HTTPS")
+Rel(web, api, "呼び出し")
+Rel(api, db, "SQL", "Prisma")
+Rel(api, queue, "イベント発行")
+Rel(queue, line, "通知", "Webhook")
+@enduml
+```
+
+**Nao のルール**：C4 を書く時は「今どのレベルか」を必ず図タイトルに明記（例：`[C4 L2] 採用管理 SaaS Container 図`）。レベル混在は読者を混乱させる最大要因。
+
+---
+
+### C. ADR (Architecture Decision Record) テンプレート
+
+Michael Nygard 式（2011）が業界標準。Nao は「主要アーキテクチャ判断」を全て ADR 化し、設計書の該当箇所からリンクする。番号は `docs/adr/NNNN-title.md` の連番。
+
+#### ADR テンプレート（Nao 必須フォーマット）
+
+```markdown
+# ADR-NNNN: [決定の要約タイトル]
+
+- Status: [Proposed | Accepted | Deprecated | Superseded by ADR-XXXX]
+- Date: YYYY-MM-DD
+- Deciders: [Nao, Kai, ...]
+- Consulted: [nori, Ao, ...]
+- Informed: [Riku, Kuu, Mio]
+
+## Context（背景・課題）
+なぜこの判断が必要になったか。当時の制約・前提条件を書く。
+「未来の自分／後任」が読んで「そういう状況だったのか」と理解できる粒度で。
+
+## Decision Drivers（判断基準）
+- 非機能要件（性能・可用性・コスト）
+- チーム構成・スキルセット
+- 期限・予算
+- 法令・コンプラ要件
+
+## Considered Options（検討した選択肢）
+1. **選択肢 A**: [概要・pros・cons]
+2. **選択肢 B**: [概要・pros・cons]
+3. **選択肢 C**: [概要・pros・cons]
+
+## Decision（決定）
+「我々は選択肢 X を採用する」の 1 行を明記。
+選定理由を Decision Drivers に紐付けて説明。
+
+## Consequences（結果として起きること）
+### Positive
+- 期待される効果
+
+### Negative（技術的負債・トレードオフ）
+- 諦めたこと・将来問題化しうる点
+
+### Neutral
+- 副次的変化（学習コスト・運用手順の変更等）
+
+## Links
+- 関連 ADR: ADR-XXXX
+- 参考資料: [URL]
+- 実装 PR: #NNN
+```
+
+#### ADR 実例（LET 案件想定）
+
+```markdown
+# ADR-0007: ORM に Prisma でなく Drizzle を採用する
+
+- Status: Accepted
+- Date: 2026-08-04
+- Deciders: Nao, Kai
+- Consulted: Ao, Kuu
+
+## Context
+採用管理 SaaS 新規案件で、Vercel Edge Functions での DB アクセスが必要。
+Prisma 標準ランタイムは Edge で追加設定が必要かつ生成物が重く、
+コールドスタートが 800ms を超えるケースが検証で確認された。
+
+## Decision Drivers
+- Edge Runtime 対応（p95 レイテンシ < 300ms 要件）
+- ランタイムサイズ最小化（Vercel Edge の 1MB 制約）
+- SQL の透明性（複雑集計クエリのレビュー容易性）
+
+## Considered Options
+1. Prisma: 型自動生成・DX 良好だがランタイム重・Edge で追加設定
+2. Drizzle: SQL に近い・軽量・Edge ネイティブ・型安全
+3. 生 SQL + kysely: 完全な SQL 制御だが型定義自作
+
+## Decision
+Drizzle ORM を採用。
+
+## Consequences
+### Positive
+- Edge Runtime で追加設定不要、コールドスタート 200ms 以下
+- マイグレーション SQL が透明で設計レビュー容易
+- Zod スキーマとの統合が Prisma より薄い抽象で扱いやすい
+
+### Negative
+- チームの Prisma 経験を捨てる学習コスト（推定 2 人日/人）
+- Prisma Studio 相当の GUI がない（drizzle-kit studio で代替）
+
+### Neutral
+- 移行ガイドを社内 Notion に整備、次案件から標準化
+
+## Links
+- 関連 ADR: ADR-0003（Edge Runtime 採用）
+- 参考: https://orm.drizzle.team/docs/overview
+```
+
+**Nao のルール**：
+- 主要な技術選定・アーキテクチャ判断は必ず ADR を残す（「なんとなく採用」禁止）
+- Status: Superseded の際は新 ADR で旧 ADR を参照し、旧 ADR も残す（履歴として）
+- 「実装後に判明した事実で決定を覆す」時は Deprecated → 新 ADR 作成
+
+---
+
+### D. DDD (Domain-Driven Design) & Event Storming
+
+Eric Evans（2003）の DDD と Alberto Brandolini の Event Storming を組み合わせ、業務ドメインを設計に落とし込む標準手法。
+
+#### D-1. DDD 戦略パターン
+
+| 用語 | 定義 | Nao の活用 |
+|-----|------|-----------|
+| **Ubiquitous Language** | クライアント・開発者・設計書で使う「共通の業務用語辞書」 | STEP 1 で用語集を作成、DB カラム名・API パラメータ名も統一 |
+| **Bounded Context** | 用語・モデルが有効な境界。境界の外では同じ言葉が違う意味を持つ | Modular Monolith の module 境界 = Bounded Context |
+| **Context Map** | 複数の Bounded Context 間の関係図。Shared Kernel / Customer-Supplier / Anti-Corruption Layer 等 | 外部 SaaS 連携は ACL（Anti-Corruption Layer）で必ず隔離 |
+| **Subdomain** | Core（競争優位）/ Supporting（業務必要）/ Generic（汎用・SaaS 購入可） | Core は自前実装厚く、Generic は既製品採用 |
+
+#### D-2. DDD 戦術パターン
+
+| 用語 | 定義 | 実装対応 |
+|-----|------|---------|
+| **Entity** | 一意な ID を持ち状態を持つ | Prisma model の主要テーブル |
+| **Value Object** | ID を持たず値の等価性で比較・不変 | TypeScript の class or branded type |
+| **Aggregate** | 一貫性境界。外部から Root 経由でのみアクセス | 1 トランザクション = 1 Aggregate 更新 |
+| **Aggregate Root** | Aggregate の入口となる Entity | Application/Order/User 等の集約中心 |
+| **Repository** | Aggregate の永続化を抽象化 | `IApplicationRepository` インターフェース |
+| **Domain Service** | Entity/VO に属さないドメインロジック | 複数 Aggregate をまたぐ計算等 |
+| **Domain Event** | ドメイン内で発生した「起きたこと」 | `ApplicationSubmitted` 等の過去形イベント |
+| **Application Service** | ユースケース単位。トランザクション境界を管理 | UseCase クラスとして実装 |
+
+**Nao の原則**：
+- **1 トランザクション = 1 Aggregate 更新**（複数 Aggregate 更新は Domain Event + 結果整合で疎結合化）
+- **集約境界 = トランザクション境界**（跨ぐと分散トランザクションの地獄）
+- **Repository は Aggregate 単位**（テーブル単位でなく）
+
+#### D-3. Event Storming ワークショップ手順
+
+Alberto Brandolini 式。Big Picture → Process → Design の 3 段階。Nao は STEP 1 完了時点で Kai・クライアントと実施推奨。
+
+**準備**：
+- 巨大な壁 or Miro/FigJam ボード
+- 付箋色の意味を固定：
+  - **オレンジ**：Domain Event（過去形：「応募が送信された」）
+  - **青**：Command（現在形：「応募を送信する」）
+  - **黄**：Actor（人・システム）
+  - **ピンク**：Hot Spot（不明点・議論箇所）
+  - **紫**：Policy（「〜が起きたら〜する」ルール）
+  - **緑**：Read Model（画面に表示される情報）
+  - **茶**：Aggregate（複数イベントをまとめる境界）
+
+**手順**：
+
+```
+Phase 1: Big Picture Exploration（60〜90 分）
+  1. 全員がオレンジ付箋に「業務で起きるイベント」を過去形で書き殴る
+  2. 時系列に左→右で並べる
+  3. 矛盾・重複・不明点はピンク付箋でマーク
+  4. 業務全体の骨格を可視化（この段階で 100 個超のイベントが出るのが正常）
+
+Phase 2: Process Modeling（60〜90 分）
+  1. 各 Event に対応する Command（青）を配置
+  2. Command を実行する Actor（黄）を紐付け
+  3. Event を契機に発火する Policy（紫）を追加
+  4. UI に必要な Read Model（緑）を配置
+  5. 「この Command で 3 つの Event が同時発生」等の異常を検出
+
+Phase 3: Software Design（60〜90 分）
+  1. 関連する Event 群を Aggregate（茶）で囲む
+  2. Aggregate 境界 = Bounded Context 境界の候補
+  3. Aggregate 間の結合は Event 経由（同期呼び出し禁止）に整理
+  4. そのまま ER 図・API 設計・状態遷移図に変換
+```
+
+**成果物**：
+- ドメインイベント一覧 → 状態遷移図の元
+- Aggregate 境界 → Bounded Context / モジュール分割
+- Command 一覧 → API エンドポイント一覧の骨格
+- Read Model → 画面設計・DB View の元
+- Hot Spot → Kai への追加ヒアリング項目
+
+**Nao の実務ヒント**：
+- 「業務担当者が付箋を貼る」ワークショップは、要件ヒアリングの中で最も情報密度が高い
+- 文章要件から ER 図を起こす工程（2 時間）が付箋列からの変換（30 分）に短縮
+- Hot Spot が最大の宝物（クライアント自身も気づいていない業務の穴が可視化される）
+
+---
+
+### E. 設計品質ルーブリック 25 項目
+
+Nao が STEP 2 完了時に自己採点・Kai/Mio レビューで使う品質基準。各項目 0/1/2 点、合計 50 点満点で 40 点以上を納品ラインとする。
+
+#### E-1. SOLID 原則（5 項目）
+
+| # | 項目 | 判定基準 |
+|---|-----|---------|
+| 1 | **S: Single Responsibility** | 1 クラス/モジュールが 1 責務。神クラス（500 行超）ゼロ |
+| 2 | **O: Open/Closed** | 新機能追加は既存修正でなく拡張で対応可能な設計（Strategy pattern 等） |
+| 3 | **L: Liskov Substitution** | 派生クラスが基底クラスと置換可能。継承より合成優先 |
+| 4 | **I: Interface Segregation** | 使わないメソッドに依存しない小さな interface 群 |
+| 5 | **D: Dependency Inversion** | 具象に依存せず抽象（interface）に依存。DI コンテナ活用 |
+
+#### E-2. 凝集度 (Cohesion) と結合度 (Coupling)（5 項目）
+
+| # | 項目 | 判定基準 |
+|---|-----|---------|
+| 6 | **凝集度: 機能的凝集** | モジュール内の要素が単一の目的に関連（最高レベル） |
+| 7 | **結合度: メッセージ結合以下** | モジュール間はメッセージ（API/Event）でのみ結合。共有変数結合ゼロ |
+| 8 | **循環依存ゼロ** | `madge --circular` で検出、依存 DAG を維持 |
+| 9 | **モジュール境界明確** | features/{domain}/ で Bounded Context を物理分離 |
+| 10 | **横断関心の分離** | ログ・認証・トランザクション等は Aspect（Middleware/Decorator）に分離 |
+
+#### E-3. Testability（テスト容易性）（5 項目）
+
+| # | 項目 | 判定基準 |
+|---|-----|---------|
+| 11 | **入出力が決定的** | 同じ入力で同じ出力（副作用・時刻依存を明示的に注入） |
+| 12 | **外部依存のモック方法明記** | DB・外部 API・時刻・ランダムを DI で差し替え可能 |
+| 13 | **テストピラミッド遵守** | 単体 70% / 結合 20% / E2E 10% の比率設計 |
+| 14 | **受入基準が Given-When-Then で表現可能** | 全機能に BDD シナリオ書ける |
+| 15 | **エッジケース網羅** | 空・null・最大・特殊文字・連打・ネットワーク切断の 6 種を設計時に列挙 |
+
+#### E-4. Maintainability（保守性）（5 項目）
+
+| # | 項目 | 判定基準 |
+|---|-----|---------|
+| 16 | **命名の意図伝達性** | 変数・関数名で「何のためのものか」が読める（`data`, `flag` 禁止） |
+| 17 | **循環的複雑度 ≤ 10** | 1 関数の分岐数上限。超えたら分割 |
+| 18 | **重複コード（DRY）** | 3 回以上出現するロジックは共通化 |
+| 19 | **ADR が主要判断に紐付く** | 「なぜこう設計したか」が文書で追跡可能 |
+| 20 | **変更容易性テスト合格** | 「機能 X が増えたら」の変更シナリオ 3 件で影響が 1 モジュール＋マイグレ 1 本に収まる |
+
+#### E-5. Observability（可観測性）（5 項目）
+
+| # | 項目 | 判定基準 |
+|---|-----|---------|
+| 21 | **ロギング設計** | 構造化ログ（JSON）・レベル分離（DEBUG/INFO/WARN/ERROR）・trace_id 貫通 |
+| 22 | **メトリクス設計** | RED メソッド（Rate/Errors/Duration）を主要エンドポイントで計測 |
+| 23 | **トレーシング設計** | OpenTelemetry でリクエスト全体の span を追跡可能 |
+| 24 | **ヘルスチェック階層化** | `/health/liveness` / `/health/readiness` / `/health/deep` の 3 階層 |
+| 25 | **監査ログ設計** | 「いつ・誰が・何を」を SQL 一発で追跡可能 |
+
+**採点運用**：
+- 40 点未満 → 設計 PR マージ不可、該当項目を Nao が修正
+- 40〜44 点 → Kai レビュー通過で条件付マージ、改善タスクを次スプリントへ
+- 45 点以上 → 通常マージ
+- 全項目 2 点満点 = 50 点 = 「世界水準の設計」
+
+---
+
+### F. 非機能要件チェックリスト（NFR Checklist）
+
+Nao の STEP 2 で `SLO.yaml` に必ず埋める非機能要件テンプレ。数値未入力（`TODO` 残留）なら CI で設計 PR ブロック。
+
+#### F-1. Performance（性能）
+
+- [ ] **応答時間 p50 / p95 / p99**（主要 API 毎に数値）例：p95 < 300ms
+- [ ] **スループット**（req/sec ピーク）例：peak 100 req/s
+- [ ] **同時接続数**（peak / average）例：peak 500 users
+- [ ] **DB クエリ時間 p95**（重要クエリ毎）例：< 100ms
+- [ ] **バッチ処理時間**（日次集計等）例：日次 < 30 min
+- [ ] **ページロード（LCP / FID / CLS）** Core Web Vitals 基準値
+- [ ] **バンドルサイズ**（初期ロード JS）例：< 200KB gzip
+
+#### F-2. Security（セキュリティ）
+
+- [ ] **認証方式**：OIDC / セッション / JWT / MFA 要否
+- [ ] **認可モデル**：RBAC / ABAC / 権限マトリクス完備
+- [ ] **通信暗号化**：TLS 1.3 必須・HSTS 有効
+- [ ] **データ暗号化**：DB at-rest 暗号化・機密カラム別途暗号化
+- [ ] **入力検証**：全 API 境界で Zod スキーマ検証
+- [ ] **CSRF/XSS/SQLi 対策**：フレームワーク標準 + 追加ヘッダー
+- [ ] **秘密情報管理**：環境変数 / Vault / SOPS 等
+- [ ] **監査ログ**：認証・認可・重要操作の完全記録
+- [ ] **脆弱性対応**：SCA（Snyk 等）で依存関係スキャン
+- [ ] **ペネトレーションテスト**：本番前実施要否
+
+#### F-3. Accessibility（A11y）
+
+- [ ] **WCAG 2.2 準拠レベル**：A / AA / AAA から選択（採用 SaaS は AA 必須）
+- [ ] **キーボード操作**：全機能マウス無しで完遂可能
+- [ ] **スクリーンリーダー対応**：`aria-*` 属性適切・ランドマーク配置
+- [ ] **コントラスト比**：文字 4.5:1 以上・大文字 3:1 以上
+- [ ] **フォーカス表示**：明示的な focus ring
+- [ ] **多言語対応**：i18n の要否・対応言語リスト
+
+#### F-4. Scalability（スケーラビリティ）
+
+- [ ] **水平スケール可能性**：Serverless / Kubernetes / Auto Scaling 等
+- [ ] **DB スケール戦略**：Read Replica / Sharding / パーティショニング
+- [ ] **キャッシュ戦略**：CDN / Redis / アプリケーション層
+- [ ] **想定成長率**：ユーザー数 / データ量の 1 年後予測
+- [ ] **ボトルネック分析**：DB / 外部 API / CPU / メモリのどれが先に詰まるか
+- [ ] **コネクションプーリング**：PgBouncer / Prisma Accelerate 等
+
+#### F-5. Availability（可用性）
+
+- [ ] **SLO（Service Level Objective）**：99.9% / 99.95% / 99.99%
+- [ ] **RTO（Recovery Time Objective）**：障害復旧目標時間 例：< 1 hour
+- [ ] **RPO（Recovery Point Objective）**：データ損失許容時間 例：< 5 min
+- [ ] **バックアップ頻度**：日次 / 時次 / 継続 WAL
+- [ ] **災害復旧計画**：DR サイト / マルチリージョン
+- [ ] **障害モード分析（FMEA）**：主要コンポーネント落ちた時の影響
+- [ ] **ヘルスチェック**：liveness / readiness / deep の 3 階層
+
+#### F-6. Compliance（法令・規制）
+
+- [ ] **個人情報保護法**：収集項目・利用目的・保存期間・削除要求フロー
+- [ ] **GDPR**：EU ユーザー対象の場合。データポータビリティ・忘れられる権利
+- [ ] **業界規制**：PCI DSS（決済）・HIPAA（医療）等の該当有無
+- [ ] **利用規約・プライバシーポリシー**：nori と整合性確認
+- [ ] **クッキー同意**：改正個情法・GDPR 対応
+- [ ] **データ越境**：海外リージョン利用時の同意取得
+
+#### F-7. Cost（コスト）
+
+- [ ] **月額運用コスト予算**：Vercel / Neon / 外部 SaaS 合計 例：< $500/mo
+- [ ] **スケール時のコスト増加率**：ユーザー 10x でコスト何倍か
+- [ ] **無駄なリソース検出**：使わない DB 接続・キャッシュサイズ等
+- [ ] **コスト最適化タイミング**：MVP 期は最適化しない・PMF 後に見直し
+- [ ] **課金モデル整合性**：SaaS の tier 制限に合致するか
+
+**Nao のルール**：
+- `SLO.yaml` 全項目に「クライアント合意済み / Nao 推奨値（未合意）」のステータス必須
+- 未合意項目は Kuu 側のインフラ自動生成から除外し、合意後に反映
+- リリース前に Kuu と全項目レビュー・監視アラート閾値と整合させる
+
+---
+
+### G. 分散システム設計語彙（追加補強）
+
+#### G-1. CAP 定理
+
+- **C (Consistency)**：全ノードが同時点で同じデータを見る
+- **A (Availability)**：全リクエストが応答を得る
+- **P (Partition tolerance)**：ネットワーク分断に耐える
+
+ネットワーク分断（P）は現実には必ず起きるため、実質「CP か AP」の選択：
+- **CP**：PostgreSQL / MongoDB（デフォルト）/ HBase → 整合性優先、分断時は一部拒否
+- **AP**：DynamoDB / Cassandra / Redis Cluster → 可用性優先、結果整合
+
+#### G-2. PACELC 定理
+
+CAP の拡張。「分断時（Partition）は A か C」に加え、「Else（平常時）は L（Latency）か C（Consistency）」のトレードオフ：
+- **PC/EC**：全時 Consistency 優先（BigTable, HBase）
+- **PA/EL**：全時 Availability・Latency 優先（Dynamo, Cassandra）
+- **PC/EL**：分断時 C・平常時 L（MongoDB）
+- **PA/EC**：分断時 A・平常時 C（実例少）
+
+**Nao の判定**：
+- 決済・在庫 → PC/EC（強整合必須）
+- SNS フィード・いいね数 → PA/EL（可用性・低遅延優先）
+- 採用応募 → PC/EL（分断時は書き込み拒否・平常時は低遅延）
+
+#### G-3. 分散システムでよく使う語彙
+
+| 用語 | 定義 |
+|-----|------|
+| **Saga Pattern** | 分散トランザクションを補償トランザクションの連鎖で実現 |
+| **Outbox Pattern** | DB 書き込みとイベント発行の原子性を outbox テーブル経由で保証 |
+| **CDC (Change Data Capture)** | DB 変更をイベントストリーム化 |
+| **Circuit Breaker** | 外部呼び出し失敗閾値超で自動遮断、雪崩防止 |
+| **Bulkhead** | リソースプールを分離し障害波及を防ぐ |
+| **Backpressure** | 下流が詰まったら上流に「待って」を伝える |
+| **Idempotency Key** | 同一操作の複数回実行を 1 回と同結果にするキー |
+| **At-Least-Once / Exactly-Once** | 配信保証の強度。EO は現実には冪等 + AL で近似 |
+
+---
+
+### 参考文献・追加学習リソース
+
+- **Clean Architecture** — Robert C. Martin（2017）
+- **Domain-Driven Design** — Eric Evans（2003）
+- **Implementing DDD** — Vaughn Vernon（2013）
+- **Designing Data-Intensive Applications** — Martin Kleppmann（2017）
+- **The C4 model** — Simon Brown（https://c4model.com）
+- **ADR GitHub** — https://adr.github.io/
+- **Event Storming** — Alberto Brandolini（https://www.eventstorming.com）
+- **Microservices Patterns** — Chris Richardson（2018）
+- **Building Microservices** — Sam Newman（2021, 2nd edition）
+- **Enterprise Integration Patterns** — Gregor Hohpe（2003）
+
+---
+
+**このセクションの運用ルール**：
+- 新規案件の STEP 2 開始時に本セクションを再読し、当該案件の規模・要件に合うパターン・チェック項目を機械的に引き出す
+- ADR は主要判断毎に必ず作成、ADR-0001 から連番管理
+- C4 図は Level 1〜3 を設計書に必ず含める
+- 設計品質ルーブリック 25 項目は自己採点 → Kai/Mio レビューで最終判定
+- 非機能要件チェックリストは `SLO.yaml` として実装リポジトリに配置、CI で TODO 検出
+- Event Storming は要件曖昧度が高い案件で必ず実施（Kai・クライアント同席）
