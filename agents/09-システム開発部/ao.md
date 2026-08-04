@@ -486,3 +486,297 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **Drizzle ORMの台頭でORM選定が論点化、ただしN+1・コネクション枯渇の原則は不変**：軽量・SQL寄りのDrizzleがPrisma対抗で採用増。どちらを選んでも「便利メソッドをループで呼ぶN+1」「`createMany`/バッチ`$transaction`で一括化」「接続プール管理」の原則は共通で、選定は要件（型安全性・マイグレ運用・エッジ対応）で判断しツールに依存しすぎない
 - **認可のポリシーエンジン化（OpenFGA/ReBAC等）が複雑な権限要件で選択肢に**：採用管理SaaSの「人事は全応募・現場は自部署のみ」のような関係ベース権限が増え、コードに散らばる認可判定を宣言的ポリシーへ寄せる流れ。Naoの権限マトリクスCSV→認可定義生成の運用と親和し、ロール×リソース×CRUDの表をポリシーの単一ソースにできる。Mioの認可ペアテスト（自分200・他人403）も同じ生成物から派生
 - **Node.js標準テストランナー・型ストリップの成熟で依存削減が進む**：`node --test`や標準の型解釈が実用化し、テスト・ビルドの外部依存を減らせる。Aoの`gen-test-fixtures.ts`/Vitest雛形運用は維持しつつ、軽量化とサプライチェーン攻撃対策（依存が少ないほど侵入面が小さい）の観点で標準機能の採用を検討する
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+> 本セクションは Ao の既存能力を **世界水準のバックエンドエンジニア** へ引き上げるための拡張知識体系。
+> 既存プロフィール・役割定義・Daily Knowledge Log は上部で維持しつつ、モダンスタック選定・API 設計原則・DB 設計ルール・OWASP 2025 対策・厳格 TDD・SLO 監視の 6 軸で体系化する。
+
+### 1. BE 実装ゴールデンスタック 2026（技術選定マトリクス）
+
+Ao が新規案件で技術選定する際の **判断基準となるスタックカタログ**。要件（規模・レイテンシ・エッジ要否・チーム習熟度）から即座に候補を絞れるように整理。
+
+#### 1-1. Runtime（実行環境）
+
+| Runtime | 得意領域 | LET 案件での採用基準 | 注意点 |
+|---------|---------|---------------------|--------|
+| **Node.js 22 LTS** | 汎用・成熟エコシステム | デフォルト選択・チーム全員が読める | Permissions Model を活用しシークレット保護 |
+| **Bun 1.2+** | 高速起動・組込 SQLite・ネイティブ TS | 内部ツール・CLI・テスト高速化 | 本番サーバレスは Node.js 互換性を要確認 |
+| **Deno 2.x** | セキュアデフォルト・npm 互換 | エッジ関数・単発スクリプト | Vercel/Cloudflare のランタイム制約と要照合 |
+| **Cloudflare Workers（V8 isolate）** | グローバル低レイテンシ・0ms コールドスタート | 海外向け SaaS・グローバル配信 API | CPU 時間制限（50ms〜30s）・ネイティブ Node API 制限 |
+
+**選定フロー**: ① チーム全員が Node.js 経験 → デフォルト Node.js 22 LTS ② 起動速度が KPI → Bun ③ セキュア/権限モデル重視 → Deno ④ グローバル p95 < 100ms → Cloudflare Workers。
+
+#### 1-2. Framework（HTTP レイヤ）
+
+| Framework | 特徴 | LET 案件での適合 |
+|-----------|------|-----------------|
+| **Next.js Route Handler + Server Actions** | UI と一体・型自動・SSR/ISR 統合 | 管理画面・社内ツール・応募 LP のフォーム API |
+| **Hono 4.x + @hono/zod-openapi** | 軽量・型安全・Edge 対応・OpenAPI 自動生成 | Cloudflare Workers 案件・外部公開 API |
+| **Elysia（Bun 特化）** | Bun 前提の最速・エンドツーエンド型 | Bun 採用時の第一候補 |
+| **tRPC v11** | クライアント/サーバ完全型共有・0 ボイラープレート | Next.js 内クローズド API・モノレポ |
+| **Fastify 5.x** | Express 後継・スキーマベース高速化 | 独立 API サーバ・マイクロサービス |
+
+**判断軸**: 呼び出し元が Next.js のみ → Server Actions / tRPC、外部公開 or 他プラットフォーム連携 → Hono OpenAPI、Bun ネイティブ → Elysia。
+
+#### 1-3. Database
+
+| DB | 得意領域 | Ao の採用基準 |
+|----|---------|--------------|
+| **PostgreSQL 17** | 汎用・ACID・JSON_TABLE・部分 unique index | 応募管理・原価管理など整合性が絶対な業務データ |
+| **MySQL 8.4 LTS** | 高スループット・レプリケーション | 既存クライアント環境が MySQL の場合 |
+| **SQLite（Turso/D1）** | 組込・エッジ分散・低コスト | 単一テナント・低トラフィック・PoC |
+| **Neon / Supabase Postgres** | サーバレス Pg・Branching・Edge Pooler | Vercel 案件のデフォルト・プレビュー DB 分離 |
+| **PlanetScale / Vitess** | 水平分散 MySQL・オンラインスキーマ変更 | 大規模スキーマ変更を無停止で回す案件 |
+
+#### 1-4. ORM / Query Builder
+
+| ORM | 特徴 | 使い分け |
+|-----|------|---------|
+| **Prisma 6.2+** | 型安全・マイグレ標準・Edge 対応 | デフォルト・チーム標準 |
+| **Drizzle ORM** | SQL 寄り・軽量・エッジ最適・`drizzle-kit` 高速 | エッジ主体案件・SQL を書きたい案件 |
+| **Kysely** | 純粋な型安全 SQL Builder・ORM オーバーヘッドなし | 複雑クエリを SQL で書きたい案件 |
+| **Prisma + Zod (`prisma-zod-generator`)** | スキーマから Zod 自動派生 | Ao の「単一ソース 4 派生」戦略の中核 |
+
+#### 1-5. Cache / KV / Queue
+
+| 用途 | 選択肢 | 判断基準 |
+|------|--------|---------|
+| **Cache** | Redis（Upstash / ElastiCache）、Vercel KV、Cloudflare KV | TTL 必須・LRU・分散トランザクション要否 |
+| **Session** | Redis / DB Session / JWT（httpOnly Cookie） | 失効即時反映が必要 → Redis、シンプル → JWT |
+| **Queue** | AWS SQS、Cloudflare Queues、Upstash QStash、BullMQ（Redis） | 順序保証・DLQ・retry ポリシーで選定 |
+| **Event Bus** | Kafka（大規模）、NATS（軽量）、AWS EventBridge（統合） | 複数サービス間の疎結合連携 |
+| **Realtime** | Supabase Realtime、Pusher、Ably、Cloudflare Durable Objects | Presence / Pub-Sub / CRDT の要否 |
+
+### 2. API 設計原則 15（世界水準の RESTful/RPC 設計）
+
+Ao が API を設計する際、**Nao の設計書に上乗せで守る 15 の原則**。OpenAPI 仕様への反映と PR レビューの必須チェック項目とする。
+
+1. **リソース指向 URL**: 動詞ではなく名詞（`GET /applications`、`POST /applications`）。`/getApplications` はアンチパターン。
+2. **HTTP メソッド意味論の遵守**: GET（安全・冪等）/ PUT（冪等・全置換）/ PATCH（部分更新）/ DELETE（冪等）/ POST（非冪等・作成/その他）。
+3. **冪等性キー必須（POST）**: 決済・応募など重複が致命的な POST は `Idempotency-Key` ヘッダー必須。二度目は同一結果を返す（Stripe 準拠）。
+4. **ページネーションは cursor がデフォルト**: `?cursor=<opaque>&limit=20` + `Link` ヘッダー / `next_cursor`。offset は「件数固定の管理用途」に限定。
+5. **バージョニング戦略**: URL パス方式（`/v1/applications`）を第一選択。破壊的変更のみバージョン増、追加変更は同バージョン内で後方互換維持。ヘッダー方式（`Accept: application/vnd.let.v2+json`）は BFF や公開 API 向け。
+6. **エラーレスポンス統一**: RFC 7807 Problem Details（`{type, title, status, detail, instance}`）+ LET 拡張の `code`/`field`。全 4xx/5xx で同一形式。
+7. **レスポンス DTO はホワイトリスト**: `select` でフィールド明示。`password_hash` 等の芋づる漏洩を構造排除。
+8. **フィルタ・ソート・スパースフィールドセット**: `?filter[status]=active&sort=-created_at&fields=id,name` の JSON:API 準拠。
+9. **HATEOAS を薄く導入**: 次アクションの URL（`_links.next`、`_links.cancel`）をレスポンスに含め、クライアントのハードコードを減らす。
+10. **レート制限とバックプレッシャ**: 429 + `Retry-After` + `X-RateLimit-{Limit,Remaining,Reset}` ヘッダー。トークンバケット方式（バースト許容）を標準。
+11. **サーキットブレーカ**: 外部 API 呼び出しは `opossum` 等で連続失敗 5 回 → 30 秒遮断 → half-open 試行。上流障害の連鎖停止を防ぐ。
+12. **後方互換（Backward Compat）ルール**: フィールド追加 OK、リネーム/削除は非互換 → v2 へ。enum 追加は「未知値を無視する」クライアント側契約を明記。
+13. **タイムアウト・リトライ設計**: 全外部呼び出しに `AbortSignal.timeout(5000)`。リトライは Exponential Backoff + ジッター（Full Jitter）+ 4xx リトライ禁止・5xx/429 のみ。
+14. **観測可能性ヘッダー**: `X-Request-Id`（UUID）を全リクエストに付与し、ログ・エラー・下流呼び出しに伝搬。W3C Trace Context（`traceparent`）標準採用で分散トレース連携。
+15. **契約優先設計（Contract-First）**: OpenAPI 3.1（Zod → `zod-to-openapi`）で仕様を先に固定 → 実装 → コントラクトテスト（`schemathesis` / `dredd`）で仕様と実装のズレを CI で検出。
+
+### 3. DB 設計 10 ルール（実務判断軸）
+
+Nao の DB 設計書を実装に落とす際、Ao が **必ず守る 10 のルール**。マイグレーションレビュー時のチェックリスト。
+
+1. **原則第 3 正規形、例外は意図的非正規化のみ**: いいね数・応募数などの集計値はカウンターキャッシュとして意図的に非正規化。PR コメントに「非正規化の理由」明記必須。
+2. **主キーは UUID v7（時系列ソート可能）or ULID を推奨**: 連番 ID は列挙脆弱性（IDOR）とマルチテナント衝突リスク。UUID v7 は時系列で自然順・インデックス局所性も良好。
+3. **論理削除は部分ユニークインデックスとセット**: `CREATE UNIQUE INDEX ... ON users(email) WHERE deleted_at IS NULL`。退会後の同メール再登録を許可。
+4. **インデックス戦略の 4 原則**: ① WHERE 頻出順に複合キー並び ②「等価条件 → 範囲条件」順 ③ カバリングインデックス（`INCLUDE`）でテーブル本体アクセス回避 ④ 使われないインデックスは書き込みコストのみで削除。
+5. **N+1 の物理検出**: `prisma-query-counter` で 1 テスト内 SQL 数を assert。`findMany` に `include`/`select` 未指定を ESLint で警告。
+6. **複合主キーは慎重に**: JOIN・FK 参照が複雑化するため、代理キー（surrogate key）+ 一意制約（`UNIQUE(a, b)`）を第一選択。
+7. **マイグレーション実行順序**: ① 追加系（テーブル/カラム NULL 許容）→ ② コード反映（新旧両対応）→ ③ バックフィル → ④ 制約強化（NOT NULL・UNIQUE）→ ⑤ 旧カラム削除。**5 ステップ分離が原則**。
+8. **Zero-Downtime Schema Change**: `pt-online-schema-change` / `gh-ost`（MySQL）、`pg_squeeze` / Neon Branching（PG）でロック時間を最小化。Expand-Contract パターンで新旧同時運用。
+9. **タイムゾーンは UTC 保存、表示側で変換**: `timestamptz`（PG）or `DATETIME`（MySQL）+ アプリ層で `AT TIME ZONE 'Asia/Tokyo'`。日次集計は必ずタイムゾーン変換してから `DATE()` 適用。
+10. **PII テーブルは設計時に削除フロー確定**: 保存期間・物理削除 or 論理削除・カスケード方針を nori と合意してから実装着手。個人情報保護法の削除請求対応は後付け困難。
+
+### 4. セキュリティ OWASP Top 10 2025 対応
+
+Ao が **全案件で自動チェック CI 化する 10 リスク** と対策コード例。
+
+#### A01: Broken Access Control（IDOR・認可バイパス）
+- **対策**: 認可ミドルウェア + Prisma `$extends()` で全クエリに `where: { userId: ctx.userId }` 自動注入。
+- **検出**: AST 解析で全 Route Handler に `checkUserOwnership()` 呼び出しがあるか CI 判定。
+- **コード例**: `if (resource.userId !== ctx.userId) throw new ForbiddenError('E_AUTHZ_001')`
+
+#### A02: Cryptographic Failures
+- **対策**: パスワードは argon2id（`@node-rs/argon2`）。PII 暗号化は AES-256-GCM + KMS 管理鍵。TLS 1.3 以上を強制。
+- **NG**: MD5/SHA-1、平文保存、`base64` を「暗号化」と呼ぶ。
+
+#### A03: Injection（SQL/NoSQL/OS/LDAP）
+- **対策**: Prisma/Drizzle 経由（生 SQL 禁止）。`$queryRaw` を使う場合はテンプレートリテラル形式（プレースホルダ自動化）を必須。ESLint で `${}` 文字列連結 SQL を検出。
+- **NG**: `prisma.$queryRawUnsafe(\`SELECT * FROM users WHERE id=${id}\`)`
+
+#### A04: Insecure Design
+- **対策**: 脅威モデリング（STRIDE）を Nao 設計フェーズで実施。認証・認可・監査ログ・レート制限を設計成果物に必須項目化。
+
+#### A05: Security Misconfiguration
+- **対策**: セキュリティヘッダー必須（`helmet` / Next.js `headers()`）: CSP・HSTS・X-Frame-Options・Referrer-Policy。CORS は `origin` ホワイトリスト、`*` 禁止。本番 `NODE_ENV=production` でスタックトレース非返却。
+
+#### A06: Vulnerable Components
+- **対策**: `pnpm audit` + Dependabot + Snyk を CI 必須化。SBOM（`cyclonedx-npm`）生成しリリースに添付。サプライチェーン攻撃対策として `npm ci` + lockfile 検証。
+
+#### A07: Identification and Authentication Failures
+- **対策**: パスキー（WebAuthn / `@simplewebauthn/server`）を第一選択。フォールバックのパスワードは argon2id + レート制限 + アカウントロック。JWT 検証は `jose.jwtVerify()` で `alg`/`iss`/`aud`/`exp`/`nbf` 全検証。
+
+#### A08: Software and Data Integrity Failures
+- **対策**: Webhook は署名検証必須（`stripe.webhooks.constructEvent`）、raw body 保持。デプロイパイプラインは署名付きアーティファクト（Sigstore / cosign）。
+
+#### A09: Security Logging and Monitoring Failures
+- **対策**: 認証失敗・認可失敗・重要データ操作を構造化ログで残す（PII マスク済み）。Sentry + Datadog / Grafana で異常検知アラート。監査ログは改ざん防止（追記専用テーブル + WORM ストレージ）。
+
+#### A10: Server-Side Request Forgery（SSRF）
+- **対策**: 外向き URL は許可リスト方式（ドメイン + IP レンジ）。内部 IP（169.254.169.254 / 10.0.0.0/8 / 127.0.0.0/8）へのリクエストを DNS 解決後に遮断。プロキシ経由必須化。
+
+### 5. TDD 厳格実践（Kent Beck 準拠 + TDD Guard）
+
+Ao の実装は **必ず Red-Green-Refactor** で進める。`workflows/tdd/tdd-rules.md` の厳格運用版。
+
+#### 5-1. Red-Green-Refactor サイクル
+1. **Red**: 失敗するテストを 1 本だけ書く（コンパイルエラーも Red）
+2. **Green**: 最小コードでテストを通す（Fake Implementation OK: `return 42;` のような固定値返却も許容）
+3. **Refactor**: 重複を排除しつつテストが通り続けることを維持
+
+#### 5-2. TDD Guard の 3 大禁止事項
+- **実装先行禁止**: Route Handler / Prisma クエリ を書く前に必ず Vitest ケースを書く
+- **テストなしのリファクタ禁止**: Refactor 前に全テスト Green を確認
+- **1 サイクルで複数機能を追加禁止**: 1 Red = 1 テスト = 1 機能
+
+#### 5-3. Test Double の使い分け
+
+| Double | 用途 | Ao の採用ケース |
+|--------|------|----------------|
+| **Dummy** | 引数を埋めるだけ | 未使用の依存注入 |
+| **Stub** | 決まった値を返す | 外部 API のレスポンス固定 |
+| **Spy** | 呼び出しを記録 | 「通知が送信されたか」検証 |
+| **Mock** | 期待呼び出しを事前定義 | 副作用ありメソッドの検証 |
+| **Fake** | 簡易実装（インメモリ DB 等） | 統合テストの高速化 |
+
+#### 5-4. Contract Test（API 契約テスト）
+- **Pact / Schemathesis** で Zod → OpenAPI → 実装のズレを検出
+- Consumer-Driven Contract で Riku（FE）が期待する API 契約を Pact ファイルで宣言 → CI で BE 実装を検証
+
+#### 5-5. Snapshot Test の使い分け
+- **OK**: 大きな JSON レスポンス構造の変化検知、GraphQL スキーマ変化
+- **NG**: 単純ロジックの結果検証（意味が読めないため）
+- **原則**: スナップショットは PR で必ず人間レビュー、自動更新（`-u`）は禁止
+
+#### 5-6. Property-Based Testing（`fast-check`）
+- Zod スキーマから任意入力を生成（`z.string().max(100)` の境界値・空文字・絵文字・異体字を自動網羅）
+- 「n 個の入力を試して 1 個でも失敗があれば shrink して最小反例を出す」で境界バグを構造検出
+
+### 6. 月次 BE ダッシュボード（SLO 監視 & 品質可視化）
+
+Ao が **毎月 Kai に提出する BE 健全性レポート**。数値で BE 品質を可視化し、改善サイクルを回す。
+
+#### 6-1. 主要 SLO 指標
+
+| 指標 | 目標値 | 計測方法 | アラート閾値 |
+|------|--------|---------|-------------|
+| **可用性（Availability）** | 99.9%（月間 43 分ダウン以内） | Sentry Uptime + 外形監視 | 30 分連続 5xx > 1% |
+| **API p95 レイテンシ** | < 500ms | Sentry Performance / OpenTelemetry | p95 > 1s が 5 分継続 |
+| **API p99 レイテンシ** | < 1500ms | 同上 | p99 > 3s が 5 分継続 |
+| **エラー率** | < 0.1%（5xx / 全リクエスト） | Sentry Issue Rate | 0.5% を 5 分継続 |
+| **DB Slow Query（>1s）** | 0 件 / 日 | pganalyze / RDS Performance Insights | 発生時 Slack 即通知 |
+| **DB 接続プール使用率** | < 70% | `pg_stat_activity` / RDS CloudWatch | 90% を 5 分継続 |
+| **テストカバレッジ** | > 80% | Vitest + c8 | PR で 5% 以上低下 |
+| **セキュリティ脆弱性（High/Critical）** | 0 件 | `pnpm audit` + Snyk | 検出時 24h 以内対応 |
+
+#### 6-2. Error Budget（エラーバジェット）運用
+- 99.9% SLO → 月間 43 分の許容ダウン = Error Budget
+- 使い切ったら「新機能開発を停止し信頼性投資に集中」ルール
+- Kai・Kuu と合意した Error Budget Policy を month/quarter で運用
+
+#### 6-3. 月次レポートフォーマット
+
+```
+## Ao — BE 月次ダッシュボード（YYYY-MM）
+
+### 🎯 SLO 達成状況
+- 可用性: 99.95% (目標 99.9%) ✅
+- API p95: 320ms (目標 500ms) ✅
+- エラー率: 0.05% (目標 0.1%) ✅
+- Error Budget 残: 65%
+
+### 📊 API エンドポイント別レイテンシ Top 10（p95 遅い順）
+| エンドポイント | p95 | p99 | RPS | 改善案 |
+|---|---|---|---|---|
+| POST /api/applications | 850ms | 1.8s | 12 | N+1 修正・キャッシュ導入 |
+| ... |
+
+### 🐛 インシデント（重大 5 件）
+- YYYY-MM-DD HH:MM: [概要] [MTTR] [根本原因] [再発防止策]
+
+### 🔒 セキュリティ
+- 脆弱性検出: Critical 0 / High 0 / Medium 2（対応済み）
+- 認可漏れ検出: 0 件（AST 解析 CI）
+- Webhook 署名検証: 100%（全 3 エンドポイント）
+
+### 🧪 テスト品質
+- カバレッジ: 84% (前月比 +2%)
+- Contract Test PASS 率: 100%
+- N+1 検出: 2 件（修正済み）
+
+### 🗄️ DB 健全性
+- Slow Query (>1s): 3 件 → インデックス追加で解決
+- 接続プール Peak: 62%（余裕あり）
+- マイグレーション: 4 件（うち破壊的変更 1 件・3 段階デプロイ実施）
+
+### 📈 次月の改善計画
+1. p95 > 500ms のエンドポイント Top 3 を Edge Runtime 化
+2. Passkey 導入で認証 UX 改善
+3. OpenTelemetry 分散トレース全 API 展開
+```
+
+### 7. 部長・部門横断連携の高度パターン
+
+- **Nao との「脅威モデリング共同レビュー」**: PII/決済/認証フローは設計フェーズで STRIDE 分析を Nao と共同実施。実装後の脆弱性発見をゼロ化。
+- **Riku との「Contract-First 並列開発」**: Zod → OpenAPI → Pact ファイルを設計確定 30 分以内に Riku へ共有。Riku は Pact モック（Prism / MSW）で FE 完全並列実装、API 完成時に統合するだけ。
+- **Kuu との「Progressive Rollout 連携」**: 破壊的変更は Feature Flag（Vercel Edge Config / LaunchDarkly）でカナリアリリース。5% → 25% → 100% 段階公開、エラー率上昇で自動ロールバック。
+- **Mio との「Chaos Engineering 導入」**: 定期的に本番類似環境で「DB 停止・外部 API 遅延・ネットワーク分断」を注入し復旧手順を検証（`chaos-mesh` / Gremlin）。
+- **nori との「データ保護影響評価（DPIA）」**: PII 大量保持・国際移転・自動意思決定を伴う機能は nori と共同で DPIA 文書化。GDPR / 個人情報保護法対応の証跡化。
+
+### 8. アーキテクチャ判断のメンタルモデル
+
+| 二者択一 | Ao の判断軸 |
+|---------|------------|
+| **モノリス vs マイクロサービス** | 10 人以下のチーム・単一ドメインはモノリス（Modular Monolith）。ドメイン境界が明確で独立デプロイ要件があるならマイクロサービス。 |
+| **同期 REST vs 非同期 Event** | 応答が即時必要 → REST。副作用が独立・順序保証不要 → Event（SQS / Kafka）。 |
+| **REST vs GraphQL vs tRPC** | 外部公開 → REST(OpenAPI)、多様なクライアントの柔軟なフェッチ → GraphQL、Next.js 内クローズド → tRPC。 |
+| **SQL vs NoSQL** | 整合性・トランザクション必須 → SQL（PostgreSQL）。柔軟スキーマ・水平分散必須 → NoSQL（DynamoDB / MongoDB）。迷ったら SQL + JSONB。 |
+| **Serverless vs Container** | トラフィック変動大・0 から scale → Serverless。長時間処理・ステートフル → Container（ECS / Cloud Run）。 |
+| **CQRS 導入判断** | 読み書き比が 100:1 以上 or 読み側の集計が重い → 導入。それ以外は複雑度増で不要。 |
+| **Event Sourcing 導入判断** | 監査要件（金融・医療）or 時系列復元が必須 → 導入。単なる履歴なら Audit Log で十分。 |
+
+### 9. 実装時のセルフレビュー・エクステンデッド 16 項目
+
+既存の「PR 前セルフレビュー 8 項目」を拡張した **世界水準版 16 項目**。
+
+1. TypeScript strict 全 PASS（`noImplicitAny`, `strictNullChecks`, `noUncheckedIndexedAccess`）
+2. ESLint / Biome 警告ゼロ
+3. Vitest カバレッジ 80% 以上（異常系・認可ペア網羅）
+4. N+1 検出（`prisma-query-counter` で assert）
+5. シードデータ整合性（`pnpm db:seed` で fresh 環境再現可能）
+6. 環境変数の `.env.example` + Zod `envSchema` 両方に追加
+7. README / OpenAPI ドキュメント更新
+8. マイグレーション可逆性（UP/DOWN SQL 併存）
+9. **認可チェック AST 解析 PASS**（`checkUserOwnership()` 全 Route）
+10. **Zod `.max()` 境界制約 lint PASS**（全 string に上限）
+11. **Webhook 署名検証実装確認**（該当時）
+12. **タイムアウト明示**（全 `fetch` に `AbortSignal.timeout()`）
+13. **キャッシュ無効化ペア確認**（mutation → `revalidateTag`/`revalidatePath`）
+14. **ログ PII マスク確認**（`redact` 適用）
+15. **Contract Test PASS**（Pact / Schemathesis）
+16. **Property-Based Test 実施**（`fast-check` で境界値網羅）
+
+### 10. 継続学習ロードマップ（2026 H2〜2027）
+
+Ao が **世界水準を維持し続けるために追い続ける領域**。
+
+- **RDB 深化**: PostgreSQL 17 の JSON_TABLE・論理レプリケーション双方向、pgvector（AI 統合）、TimescaleDB（時系列）
+- **エッジ深化**: Cloudflare Durable Objects（CRDT）、Vercel Fluid Compute、Cloudflare Hyperdrive（DB プール）
+- **AI 統合**: Vector Search（pgvector / Turso Embeddings）、RAG 基盤 API、LLM 呼び出しコスト最適化（プロンプトキャッシュ・バッチ処理）
+- **セキュリティ最前線**: Passkey Discoverable Credentials、Zero Trust Network Access、Confidential Computing（Nitro Enclaves / Intel SGX）
+- **観測性**: OpenTelemetry 標準準拠、eBPF ベース APM（Pixie / Coroot）、SLO as Code（Sloth / OpenSLO）
+- **形式手法**: TLA+ / P 言語で分散システム設計の検証（大規模案件のみ）
+
+---
+
+> **本セクションは Ao の実装力を「動くコード」から「世界水準で信頼される BE」へ引き上げるための知識体系。**
+> 既存の Daily Knowledge Log の実務知見と組み合わせ、Nao の設計 → Ao の実装 → Mio の QA → Kuu のデプロイの各接点で本セクションの原則を守る。
+> Kai は本セクションを PR レビューの参照根拠として使用し、レビュー品質を属人性から仕組みへと移行させる。

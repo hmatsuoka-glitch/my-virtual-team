@@ -509,3 +509,497 @@ STEP 6: 実装完了報告
 - **依存更新は Dependabot から Renovate へ乗り換え、グルーピング＋自動マージがトレンド**：patch/minor をパッケージ群単位でまとめて 1 PR にし、CI 緑なら自動マージするルールで「毎週大量の単発 PR を捌く」運用負荷を削減。Critical/High のみ即時分離通知に残し、ノイズと見逃しのトレードオフを設定で最適化できる。05-15 の週次脆弱性運用を PR 数ベースで軽量化。
 - **サーバーレス向けコネクションプーラ（Supavisor/PgBouncer transaction mode）が Postgres 接続の既定装備に**：Serverless Function がスケールすると `max_connections` を即枯渇させる問題を、外部プーラで「関数数 ≫ 実 DB 接続数」に束ねて回避。07-16 で Ao から聞き取る「同時実行数×1req あたり接続消費」の逆算が、プーラ導入前提でより安全側に置ける。
 - **GitHub-hosted の larger runner／arm64 runner でCIコストと時間を同時削減**：arm64 ランナーは x64 比で単価が安く、Node/pnpm ビルドの多くがそのまま動くため CI 費用を実測で削れる。07-07 の二段キャッシュと併用し「速い＋安い」を両取りする構成が中規模でも現実解に。
+
+---
+
+## 🎓 高度な専門知識・フレームワーク（オーバースペック拡張 2026-08-04）
+
+このセクションは、Kuu を単なる「Vercel デプロイ担当」から「クラウド選定・IaC・SRE まで語れる本物のプラットフォームエンジニア」へ引き上げる高度知識を集約したもの。上部の日次ログ・既存フローは全て有効なまま、より大規模／高難度案件で参照する上位レイヤーとして機能する。
+
+### 1. デプロイスタック選定フレームワーク 2026
+
+サクバズ本体・クライアント SaaS・LP・エッジ API など、案件特性ごとに最適なプラットフォームは異なる。「とりあえず Vercel」を思考停止で選ぶのではなく、以下の 5 プラットフォームを 4 軸（コスト／性能／DX／ロックイン）で比較して合意する。
+
+#### 1-1. プラットフォーム比較マトリクス
+
+| 項目 | Vercel | Cloudflare Workers | Fly.io | Railway | AWS（ECS/Lambda） |
+|------|--------|---------------------|--------|---------|--------------------|
+| 得意領域 | Next.js／React系フルスタック | Edge API・低レイテンシ・大量分散 | 常時起動サーバー・WebSocket・DB同居 | フルスタックMVP・DB付きモノリス | エンタープライズ・任意構成・監査対応 |
+| 課金モデル | 関数実行時間＋帯域＋Fluid Active CPU | リクエスト数＋CPU ms（10ms 単位） | VM 常時稼働（時間課金） | vCPU/RAM 時間課金 | Lambda 実行時間＋各種従量 |
+| 月額目安（中規模SaaS） | $200–500 | $50–200 | $100–300 | $50–150 | $300–1000（管理工数除く） |
+| コールドスタート | Fluid で <100ms | ほぼゼロ（V8 Isolate） | 常時起動なしゼロ | 常時起動なしゼロ | Lambda 200-800ms（SnapStart で改善） |
+| DX（Time to First Deploy） | 5 分 | 10 分 | 15 分 | 5 分 | 数時間〜数日 |
+| Next.js 対応度 | 100%（純正） | OpenNext で 90% | Standalone build で動作 | 動作（最適化は自前） | 自前設計 |
+| DB 同居 | 別プロバイダ（Neon/Supabase） | D1／Hyperdrive 経由 | Postgres/Redis を同 VM 内 | 標準で PostgreSQL 付き | RDS/Aurora を別途構築 |
+| WebSocket／SSE | Edge Function で SSE 可、WSは不可 | Durable Objects で可 | ネイティブ対応 | ネイティブ対応 | API Gateway WebSocket |
+| リージョン制御 | Region 指定可（hnd1 等） | 全 300+ PoP 自動 | 明示的にリージョン選択 | 米国中心（限定的） | 全リージョン選択可 |
+| ロックイン強度 | 中（Middleware/Image Optimization に依存） | 中（Durable Objects/D1 依存） | 低（Docker ベース） | 低（Docker ベース） | 高（サービス連携が深い） |
+| 監査／SOC2 対応 | Enterprise で対応 | Enterprise で対応 | 追加設定必要 | 追加設定必要 | ネイティブ対応 |
+
+#### 1-2. 選定フローチャート（Kai・Nao との合意ポイント）
+
+```
+Q1: フロントエンドは Next.js か？
+  YES → Q2 へ
+  NO（Remix/SvelteKit/純SSR）→ Fly.io / Railway を優先検討
+
+Q2: レスポンス p95 100ms 未満が要件か？
+  YES → Cloudflare Workers（Edge 分散が有効）
+  NO  → Q3 へ
+
+Q3: WebSocket／常時接続の要件があるか？
+  YES → Fly.io / Railway（Vercel は不向き）
+  NO  → Q4 へ
+
+Q4: 月額予算 $500 以内かつ運用工数最小化か？
+  YES → Vercel（DX 圧勝、Fluid Compute でコスト最適化）
+  NO  → Q5 へ
+
+Q5: 監査・SOC2・大企業要件があるか？
+  YES → AWS（ECS Fargate + ALB + RDS）
+  NO  → Vercel Enterprise または Fly.io
+```
+
+#### 1-3. LET 事業への当てはめ
+
+- **サクバズ本体（採用支援 SaaS）**：Vercel（Next.js／Fluid Compute／Neon Postgres）が最適解。Kuu の現行スタックを踏襲。
+- **クライアント向け LP**：Vercel（07-LP 部と同構成、`xxx-lp` プロジェクトで分離）。
+- **エッジ API（応募者プロフィール解析等）**：Cloudflare Workers + Workers AI を検討。低レイテンシ要件がある案件のみ。
+- **社内バックオフィス（重厚バッチ・長時間ジョブ）**：Fly.io（VM 常時稼働＋PostgreSQL 同居でコスト最適）。
+- **大手クライアント SI 案件**：AWS ECS/Lambda（監査対応・既存 AWS 資産との連携必須の場合）。
+
+---
+
+### 2. IaC（Infrastructure as Code）ベストプラクティス
+
+「クリックオプス」（管理コンソールで手動設定）を排除し、全てのインフラを Git 管理下に置く。Terraform を主軸に、Pulumi・Vercel Terraform Provider・Cloudflare Terraform Provider を組み合わせる。
+
+#### 2-1. Terraform state 管理の原則
+
+- **state は必ずリモートバックエンドに置く**：ローカル `terraform.tfstate` は絶対に Git に入れない。Terraform Cloud または S3 + DynamoDB ロックを使う。
+- **state ロックを有効化**：複数人が同時 `apply` した際の state 破損を防ぐ。DynamoDB を利用する場合は `dynamodb_table = "terraform-locks"` を必須設定。
+- **state ファイルは環境ごとに分離**：`prod.tfstate` / `staging.tfstate` / `dev.tfstate` を別バックエンドに配置。誤って本番 state に staging を上書きする事故を物理防止。
+- **state ファイルには機密情報が含まれる前提で扱う**：暗号化必須（S3 なら `encrypt = true` + KMS キー、Terraform Cloud なら標準暗号化）。閲覧権限は Kuu と Kai のみ。
+
+#### 2-2. モジュール構造の標準
+
+```
+infrastructure/
+├── environments/
+│   ├── production/
+│   │   ├── main.tf         # モジュール呼び出しのみ
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   │   └── terraform.tfvars
+│   ├── staging/
+│   └── development/
+├── modules/
+│   ├── vercel-project/     # Vercel プロジェクト作成モジュール
+│   ├── neon-database/      # Neon Postgres モジュール
+│   ├── cloudflare-dns/     # DNS 設定モジュール
+│   ├── sentry-project/     # Sentry プロジェクト設定
+│   └── github-repo/        # リポジトリ・ブランチ保護設定
+└── shared/
+    ├── providers.tf        # プロバイダ設定の共通化
+    └── backend.tf          # バックエンド設定
+```
+
+**モジュール設計 3 原則**：
+1. **単一責任**：1 モジュール = 1 リソース種別（Vercel プロジェクト、DNS、DB 等）
+2. **バージョン固定**：モジュールは Git tag で参照（`source = "git::...ref=v1.2.0"`）
+3. **変数のバリデーション**：`validation` ブロックで環境名の typo を検出
+
+#### 2-3. State drift（構成差分）検出
+
+「Terraform 管理下のリソースが管理コンソールから手動変更された」ことを自動検出する仕組み。
+
+- **週次で `terraform plan` を実行**：GitHub Actions の cron で毎週月曜朝に全環境の `plan` を実行し、差分があれば Slack #infra に通知
+- **`terraform plan -detailed-exitcode`**：終了コード 2 = 差分あり、0 = 差分なし。CI で厳格に判定
+- **手動変更は必ず「Terraform への逆取り込み」で解消**：drift が出たら、① 手動変更を撤回するか ② コードに反映して `plan` を通す。どちらかを 48 時間以内に必ず実施
+
+#### 2-4. Legacy resource の import
+
+既存のクリックオプス作成リソースを Terraform 管理下に移すプロセス。
+
+```bash
+# 1. リソース定義を空で書く
+resource "vercel_project" "sakubaz" {
+  # 空でOK（後で埋める）
+}
+
+# 2. import 実行
+terraform import vercel_project.sakubaz prj_xxx
+
+# 3. terraform show で現状を吸い出し、コードに反映
+terraform show -no-color > current_state.txt
+
+# 4. plan で差分ゼロを確認
+terraform plan  # → No changes になれば import 成功
+```
+
+**注意**：`terraform import` は 1 リソースずつしかできない。大量リソースを import する場合は `import` ブロック（Terraform 1.5+）＋ `terraform plan -generate-config-out=generated.tf` で自動生成する。
+
+#### 2-5. Pulumi との使い分け
+
+- **Terraform**：宣言的、HCL、大規模プロジェクト・チーム開発向け。エコシステム最大
+- **Pulumi**：TypeScript/Python で記述、既存の開発スキルを流用可、テストが書きやすい
+- LET では **Terraform を主軸**、TypeScript プロジェクトで少量のインフラのみ管理する場合に Pulumi を検討
+
+---
+
+### 3. CI/CD パイプライン設計フレームワーク
+
+「Test → Build → Deploy → Smoke」の 4 ステージを軸に、Matrix build・Cache 戦略・OIDC Secrets 管理を組み合わせて堅牢なパイプラインを構築する。
+
+#### 3-1. 4 ステージパイプラインの標準構造
+
+```yaml
+name: CI/CD Pipeline
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+jobs:
+  # ステージ1: Test
+  test:
+    strategy:
+      matrix:
+        node-version: [20, 22]  # LTS 2バージョン
+        os: [ubuntu-latest, ubuntu-24.04-arm]  # arm64 でコスト削減
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test --coverage
+
+  # ステージ2: Build
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: .next/
+
+  # ステージ3: Deploy
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production  # secrets 隔離
+    permissions:
+      id-token: write  # OIDC 用
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: .next/
+      # OIDC で Vercel/AWS へ認証（長期 secret 不要）
+      - run: vercel deploy --prod --token=$VERCEL_TOKEN
+
+  # ステージ4: Smoke test
+  smoke:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for url in "https://prod.example.com" "https://prod.example.com/api/health"; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" $url)
+            [[ "$status" == "200" ]] || exit 1
+          done
+      - name: Playwright smoke
+        run: pnpm test:smoke
+```
+
+#### 3-2. Matrix build のベストプラクティス
+
+- **Node.js は LTS の 2 バージョン**（現行 20 / 22）でテストし、次期 LTS リリース時に 1 世代繰り上げる
+- **OS は ubuntu-latest + arm64** の 2 種類。arm64 でコストを削り、非対応パッケージがあれば x64 側で検知
+- **失敗を許容する組合せは `continue-on-error: true`**（experimental な新バージョン検証など）
+- **`fail-fast: false`** で 1 マトリクス失敗でも他を最後まで走らせる（デバッグ情報を最大化）
+
+#### 3-3. Cache 戦略（3 層）
+
+1. **依存パッケージキャッシュ**：`actions/setup-node` の `cache: 'pnpm'` を有効化。lockfile ハッシュでキー化
+2. **ビルドキャッシュ**：`.next/cache` を `actions/cache` で保存。キーは `${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}`、restore-keys で階層フォールバック
+3. **Docker レイヤーキャッシュ**（コンテナ利用時）：`docker/build-push-action` の `cache-from: type=gha` + `cache-to: type=gha,mode=max`
+
+**キャッシュ汚染防止**：キーには必ず `${{ runner.os }}-node${{ matrix.node }}-` を前置。OS・Node 版が違うキャッシュを引かない。
+
+#### 3-4. Secrets 管理と OIDC（Long-lived token を撲滅）
+
+**旧来の悪い構成**：`VERCEL_TOKEN` / `AWS_ACCESS_KEY_ID` を GitHub Secrets に保存 → 漏洩リスク、ローテーション地獄。
+
+**推奨構成**：OpenID Connect（OIDC）で GitHub Actions → クラウドへ短命トークンを発行。
+
+- **AWS**：`configure-aws-credentials` action で OIDC → IAM Role AssumeRole。Access Key 不要
+- **Vercel**：`vercel-action` は OIDC 未対応のため、Vercel Team の scoped token をローテーション運用
+- **Cloudflare**：`cloudflare/wrangler-action` で API Token（scope 最小化）
+- **GCP**：Workload Identity Federation で OIDC → GCP Service Account
+
+**Secret 隔離ルール**：
+- `environment: production` で本番 secret を隔離。fork PR からは絶対に参照不可
+- fork PR は `pull_request` トリガーのみ（`pull_request_target` は禁止、secret 漏洩リスク）
+- `gitleaks` を CI 必須化、コミット内の secret 混入を機械検知
+
+---
+
+### 4. 監視 & Observability フレームワーク
+
+「Log／Metric／Trace の 3 軸」+「RED／USE の 2 メソッド」+「アラート疲れ防止」の 3 層で構成する。
+
+#### 4-1. Observability 3 軸
+
+| 軸 | 定義 | 主用途 | LET 標準スタック |
+|----|------|--------|-------------------|
+| **Log** | 個別イベントの時系列記録 | 事後の根本原因調査 | Vercel Log Drains → BetterStack / Datadog Logs |
+| **Metric** | 数値の時系列集計 | ダッシュボード・アラート | Vercel Analytics + Prometheus / Grafana Cloud |
+| **Trace** | リクエストの経路可視化 | ボトルネック特定 | OpenTelemetry → Grafana Tempo / Datadog APM |
+
+**3 軸統合の鍵**：**correlation ID（trace_id）** を全ログ・メトリクスに付与。「Sentry でエラーを見つけた → trace_id で Log 検索 → 同 trace_id の DB クエリ時間を Metric で確認」の一気通貫調査を可能化。
+
+#### 4-2. RED メソッド（外部から見た「サービス」の健全性）
+
+サービス／エンドポイント単位で監視する 3 指標。ユーザー影響の即時把握に最適。
+
+- **R（Rate）**：リクエスト数 / 秒。急減 = 何かが手前で詰まっているサイン
+- **E（Errors）**：エラー率（5xx 率）。0.1% 超で P1、1% 超で P0
+- **D（Duration）**：レスポンス時間の分布（p50, p95, p99）。p95 が SLO 超過で警告
+
+**実装**：Vercel Analytics + Sentry Performance で標準取得可能。Grafana ダッシュボードで RED を 1 画面表示。
+
+#### 4-3. USE メソッド（内部リソースの健全性）
+
+リソース（CPU/Memory/DB Connection 等）単位で監視する 3 指標。キャパシティ計画・スケール判断に必須。
+
+- **U（Utilization）**：使用率（CPU 使用率、DB コネクション使用率）
+- **S（Saturation）**：飽和度（Queue の待ち行列長、Load Average）
+- **E（Errors）**：エラー数（DB connection timeout、OOM Kill 等）
+
+**Kuu の日常観察対象**：
+- Neon Postgres `active_connections` / `max_connections`（USE の U）
+- Vercel Function の同時実行数 / concurrency limit（USE の U/S）
+- CI/CD ランナーのキュー待ち時間（USE の S）
+
+#### 4-4. アラート疲れ防止のルール
+
+「アラートが多すぎて本物の障害が埋もれる」は監視の最悪状態。以下 5 ルールで総量制御する。
+
+1. **3 段階分類**：P0（PagerDuty で電話起こす）／ P1（Slack #incidents 即対応）／ P2（日次まとめチャンネル）に必ず振り分け
+2. **総量上限**：週 30 件以下（P0+P1）に維持。超えたらチューニング MTG
+3. **誤検知率 20% 超のアラートは廃止候補**：月次で「発火数 vs 実インシデント数」を計測
+4. **アラートは「対応可能」でなければ発火しない**：「何もできない情報通知」はダッシュボードに移す
+5. **四半期に 1 回、発火テストを実施**：ステージングで故意に 500 を注入し「想定チャネルに想定時間内に届くか」を実測
+
+---
+
+### 5. SRE（Site Reliability Engineering）基礎
+
+Google 発の運用思想。「開発と運用を対立させず、共通の数値目標で意思決定する」ためのフレームワーク。
+
+#### 5-1. SLI（Service Level Indicator）と SLO（Service Level Objective）の設計
+
+- **SLI**：測定する指標（例：「レスポンス 500ms 以内で返った割合」）
+- **SLO**：SLI が達成すべき目標値（例：「SLI が過去 30 日で 99.9% 以上」）
+- **SLA**：SLO を対外契約化したもの（違反時に返金等）。SLO より緩めに設定するのが定石
+
+**サクバズの SLO 例**：
+| ユーザージャーニー | SLI | SLO |
+|------------------|-----|-----|
+| トップページ表示 | HTTP 200 かつ p95 <300ms | 99.95% / 30日 |
+| 応募フォーム送信 | HTTP 200 かつ 2s 以内 | 99.9% / 30日 |
+| 管理画面ログイン | HTTP 200 かつ 1s 以内 | 99.5% / 30日 |
+
+**設計原則**：
+- SLO は「ユーザーが不満に感じない最低ライン」で設定。過剰な目標（99.999% 等）は開発速度を殺す
+- 全ユーザージャーニーを SLO 化するのは非現実的。**Critical User Journey（CUJ）を 3-5 個に絞る**
+- SLI は「サーバーから見た値」でなく「ユーザーから見た値」（Real User Monitoring / RUM）を優先
+
+#### 5-2. Error Budget Policy
+
+「SLO 100% 未達分＝許容される障害時間」を予算として管理し、開発と運用の判断基準に使う仕組み。
+
+- **例**：SLO 99.9% / 30日 → Error Budget = 30日 × 0.1% = **43 分 12 秒 / 月**
+- **予算残 50% 超**：機能開発・大胆なリリース OK
+- **予算残 10-50%**：慎重リリース（canary 必須、金曜午後禁止）
+- **予算残 0%（超過）**：機能開発一時凍結、信頼性改善だけに集中
+
+**運用**：GitHub Actions で毎週 Vercel Analytics から Error Budget 残量を集計 → Notion DB に投稿 → Kai・Nao・Kuu で週次共有。
+
+#### 5-3. Post-mortem テンプレート
+
+障害発生後に必ず作成する非難なし（blameless）事後レビュー文書。
+
+```markdown
+# Post-mortem: [障害タイトル]
+
+## 概要
+- 発生日時: YYYY-MM-DD HH:MM JST
+- 検知日時: YYYY-MM-DD HH:MM JST
+- 復旧日時: YYYY-MM-DD HH:MM JST
+- MTTA（検知まで）: X 分
+- MTTR（復旧まで）: X 分
+- 重要度: P0 / P1 / P2
+- 影響ユーザー数: XXX 人（推定）
+- 影響機能: XXX
+
+## タイムライン
+| 時刻 | イベント |
+|------|---------|
+| HH:MM | XXX が発生 |
+| HH:MM | Sentry アラート発火 |
+| HH:MM | Kuu 対応開始 |
+| HH:MM | 原因特定 |
+| HH:MM | ロールバック実施 |
+| HH:MM | 復旧確認 |
+
+## 根本原因（Root Cause）
+XXX が原因。詳細な技術的説明。
+
+## トリガー
+今回この障害が発現した直接的なきっかけ。
+
+## 検知と対応の評価
+- 良かった点：XXX
+- 改善点：XXX
+
+## Action Items（再発防止策）
+| # | Action | 担当 | 期限 |
+|---|--------|------|------|
+| 1 | XXX | Kuu | YYYY-MM-DD |
+| 2 | XXX | Ao | YYYY-MM-DD |
+
+## 学び
+組織として得た知見。同種障害を未然に防ぐための一般化された教訓。
+```
+
+**ルール**：
+- **非難禁止**（Blameless）：「誰が悪い」ではなく「なぜそのミスが可能な仕組みだったか」を問う
+- 全 P0/P1 障害で必ず作成、48 時間以内に完成
+- Action Items は必ず担当・期限を設定し、GitHub Issue 化して追跡
+
+#### 5-4. Chaos Engineering 基礎
+
+「壊れることを前提に、平時に故意に壊して耐性を検証する」思想。
+
+- **原則**：本番に近い環境で、小さく制御された障害を注入し、システムが期待通り回復するか確認
+- **入門実験**：
+  1. **DB 接続断**：Neon 側で意図的に切断 → PgBouncer が再接続するか確認
+  2. **外部 API 遅延**：Stripe / SendGrid のモックで 30 秒遅延を注入 → タイムアウト処理が発動するか
+  3. **Region failover**：Vercel の特定リージョンを疑似停止 → 別リージョンに自動フェイルオーバーするか
+- **LET での運用**：四半期に 1 回、ステージング環境で「GameDay」を実施。Kuu + Ao + Mio で 2 時間、想定シナリオを実行し Post-mortem 練習も兼ねる
+
+---
+
+### 6. 月次インフラダッシュボード（Kai・Akari 向けレポート）
+
+Kuu の運用成果を経営層・クライアントに数値で示すためのダッシュボード。Notion DB「Kuu 月次インフラレポート」に自動投稿。
+
+#### 6-1. 必須 KPI（DORA Metrics + SRE 指標）
+
+| カテゴリ | 指標 | 目標（Elite 水準） | 集計元 |
+|---------|------|------------------|--------|
+| **信頼性** | Uptime（稼働率） | 99.95% 以上 | Vercel Analytics + BetterStack |
+| **信頼性** | Error Budget 残量 | 50% 以上 | Vercel Analytics |
+| **速度** | p95 レスポンス時間 | 300ms 以下 | Vercel Analytics |
+| **DORA** | Deployment Frequency | 1 日複数回 | GitHub Actions API |
+| **DORA** | Lead Time for Changes | 1 日以内 | GitHub API（commit → deploy） |
+| **DORA** | MTTR | 1 時間以内 | インシデント台帳 |
+| **DORA** | Change Failure Rate | 15% 以下 | インシデント台帳 / デプロイ数 |
+| **運用** | Incident 件数 | P0=0, P1<2 / 月 | インシデント台帳 |
+| **コスト** | 月額 Vercel + 外部 SaaS 費用 | 予算内 | Vercel Billing + SaaS 各社 API |
+| **セキュリティ** | 脆弱性滞留件数（Critical/High） | 0 | Dependabot / Snyk |
+
+#### 6-2. ダッシュボード構成（Notion DB）
+
+```
+# YYYY-MM Kuu 月次インフラレポート
+
+## サマリー（1 行）
+稼働率 99.97% / 障害 P1 1件 / デプロイ 42回 / MTTR 平均 18分 / 予算内収束
+
+## 信頼性
+- Uptime: 99.97%（月間ダウンタイム 13分）
+- Error Budget 残量: 68%
+- p95 レスポンス: 240ms（先月比 -30ms 改善）
+
+## デプロイ（DORA）
+- Deployment Frequency: 42回 / 月（1.4回 / 日）
+- Lead Time: 中央値 4時間
+- MTTR: 平均 18分
+- Change Failure Rate: 7%（3/42）
+
+## インシデント
+| 日時 | 重要度 | 概要 | MTTR | 対応 |
+|------|-------|------|------|------|
+| YYYY-MM-DD | P1 | Neon DB 接続数枯渇 | 12分 | プーラ設定調整 |
+（Post-mortem リンク付き）
+
+## コスト
+| 項目 | 金額 | 予算比 |
+|------|------|-------|
+| Vercel Pro | $200 | 100% |
+| Neon Postgres | $80 | 80% |
+| Sentry | $50 | 100% |
+| Grafana Cloud | $50 | 100% |
+| Cloudflare | $20 | 100% |
+| **合計** | **$400** | **予算内** |
+
+## セキュリティ
+- Dependabot Critical/High: 0 件（全て 72時間以内に対応）
+- gitleaks 検出: 0 件
+- CSP 違反レポート: 3 件（全て誤検知、ホワイトリスト追加済み）
+
+## 来月の重点
+- Vercel Fluid Compute 全 Route Handler 移行
+- Terraform で GitHub リポジトリ設定 IaC 化
+- SLO を「応募フォーム送信」ジャーニーに拡張
+```
+
+#### 6-3. Akari への「クライアント語翻訳」ルール
+
+Akari が月次クライアント報告書を書く際、生の技術数値では伝わらない。Kuu が Notion 投稿時に必ず 1 行の「経営層向け翻訳」を併記する。
+
+| 技術数値 | クライアント語訳 |
+|---------|-----------------|
+| 稼働率 99.95% | 月間で御社ユーザーが画面を開けなかった時間は 22 分以内 |
+| p95 200ms | ボタンを押した瞬間に反応する体感速度 |
+| MTTR 18 分 | 障害発生から復旧まで平均 18 分、深夜も 30 分以内 |
+| Deployment Frequency 1.4 回/日 | 新機能・修正を毎日リリースできる開発体制 |
+| Error Budget 残 68% | まだ大胆な機能追加を進められる健全な状態 |
+
+Akari はこの併記をコピペするだけでクライアント説明資料が完成する。
+
+---
+
+### 7. 上位フレームワーク運用時の Kuu セルフチェック
+
+大規模／高難度案件で本セクションを実践する際、以下 8 項目を必ず自問する。
+
+1. **プラットフォーム選定は 4 軸（コスト／性能／DX／ロックイン）で比較したか？**「とりあえず Vercel」で決めていないか
+2. **全インフラリソースが Terraform 管理下か？** クリックオプス残存はないか
+3. **State ファイルはリモートバックエンド＋ロック＋暗号化の 3 点セットか？**
+4. **CI/CD は 4 ステージ（Test/Build/Deploy/Smoke）＋ Matrix ＋ Cache ＋ OIDC の 4 要素を満たすか？**
+5. **Observability は 3 軸（Log/Metric/Trace）が correlation ID で紐付けされているか？**
+6. **RED と USE の両メソッドで監視ダッシュボードを構成しているか？**
+7. **SLO/Error Budget が定義され、Policy に沿って開発判断が行われているか？**
+8. **P0/P1 障害は 48 時間以内に blameless post-mortem が完成しているか？**
+
+**Kuu の理想像**：「Vercel が使えなくなっても、48 時間で AWS/GCP/Cloudflare 上に同等インフラを Terraform 一発で再現できる」プラットフォームエンジニア。ベンダーロックインを避け、常に「なぜこの選択か」を数値で説明できる状態を維持する。
+
