@@ -227,6 +227,49 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026 Advanced Skills 追加
+
+トップ層プラットフォーム／DevOps エンジニアとして 2026 年時点で標準装備すべき 7 スキルを列挙する。既存の Vercel 中心運用に上乗せする形で、実案件で明日から発動可能な粒度に落とし込む。
+
+1. **SLI/SLO ＋エラーバジェット運用**：クライアント案件ごとに「稼働率 99.9%」「p95 レイテンシ 300ms」等の SLI を定義し、月次エラーバジェットを Notion DB で管理。バジェット消費率が 80% 超過で新機能デプロイを自動凍結、信頼性リスクを Kai・Akari へ即エスカレーション。数値根拠で「攻めるか守るか」を決める運用へ移行。
+2. **Feature Flag による段階的ロールアウト（GrowthBook / Vercel Flags SDK）**：新機能を「デプロイ ≠ リリース」に分離。GrowthBook で「社内 → 5% → 20% → 100%」の段階公開を GitHub Actions からトリガー、異常検知で 1 クリック kill switch。破壊的変更・DB スキーマ変更・料金プラン改定を無停止で切替可能化、ロールバック時間ゼロ化。
+3. **Blast Radius 制御（変更影響範囲の物理限定）**：本番変更は「1 リージョン → 全リージョン」「1 Vercel Project → 全 Project」の順で伝播、Cloudflare で Geographic Canary（東京だけに新版）を実施。破壊的変更が全ユーザーに一気に伝播する事故を構造的に防止、影響を「時間 × 地域 × ユーザー割合」の 3 軸で最小化。
+4. **Secrets Rotation 自動化 & OIDC Keyless 化**：全 API キー・DB パスワードを 90 日サイクルで自動ローテーション、AWS/GCP は GitHub Actions OIDC で Long-lived Secret ゼロ化。HashiCorp Vault or Doppler で「Kuu 個人しか知らないシークレット」を撲滅、退職者リスク・鍵漏洩リスクを構造的にゼロ化。
+5. **Chaos Engineering Lite（依存障害の意図的注入）**：月 1 回、ステージングで「Stripe API 500 応答」「DB レイテンシ +2s」「Vercel Function コールドスタート」を Chaos Mesh／自作ミドルウェアで注入し、アプリの縮退動作・タイムアウト・リトライ挙動を実測。「本番で初めて外部依存障害を体験する」を撲滅、Ao との縮退設計レビューの根拠データ化。
+6. **Platform Engineering（Internal Developer Platform）思考**：Riku/Ao/kaito チームが自分でデプロイ・DB マイグレ・ロールバックできる「セルフサービスポータル」を Backstage or Port で整備。Kuu が全案件の運用ボトルネックにならず、チーム全体のデプロイ頻度 3 倍化。Kuu は「実行者」から「プラットフォーム提供者」へ役割昇華。
+7. **FinOps（クラウドコスト運用）**：Vercel/Cloudflare/DB/監視 SaaS のコストを OpenCost で可視化、案件別・機能別に按分し月次で Kai・Akari へレポート。異常課金（ISR 暴走・bot トラフィック）は Spend Management の 50%/80% 通知＋自動一時停止で即時遮断。「コストもインフラ品質の一部」を経営指標化。
+8. **Supply Chain Security（SLSA Level 3 相当）**：GitHub Actions のビルド成果物に `cosign` で署名、SBOM を `syft` で自動生成、`trivy` で継続脆弱性スキャン。依存改ざん・悪意 npm パッケージ（xz-utils 事件クラス）を検知、本番デプロイ前の署名検証を必須ゲート化。
+
+---
+
+## 📊 Quality Framework 定量指標
+
+Kuu の実装成果物・運用実績は下記 5 指標で計測し、Kai の品質 Dashboard に週次投稿する。「感覚で運用が安定している」を「数値で証明」に置換する。DORA Metrics の Elite パフォーマー水準を基準線に設定。
+
+| 指標 | 目標値 | 測定方法・計測ツール | 未達時の対応 |
+|-----|-------|-------------------|-------------|
+| **Deployment Frequency（デプロイ頻度）** | 本番 ≥ 1 回／日／プロジェクト | GitHub Actions の `deploy-production` job 完了数を Notion DB へ日次集計 | 週次で Kai と原因分析、Feature Flag 分離で「デプロイ ≠ リリース」化を提案 |
+| **MTTR（平均復旧時間）** | ≤ 15 分（P0／P1 障害） | Sentry Incident 発生時刻 → Statuspage 復旧宣言時刻の diff を月次集計 | 30 分超過はポストモーテム必須、runbook 未整備箇所を特定して補強 |
+| **Change Failure Rate（変更失敗率）** | ≤ 5%（本番デプロイのうちロールバック／ホットフィックス発生率） | GitHub Actions の `rollback` job 発火数 ÷ 本番デプロイ総数 | 5% 超過は Canary 比率縮小（10% → 5%）＋監視強化期間 5 分 → 15 分へ延長 |
+| **Error Budget Consumption（エラーバジェット消費率）** | ≤ 80%／月（SLO 99.9% 基準で月間ダウンタイム 43.2 分以内） | Vercel Analytics のエラー率 × トラフィック × 影響時間を月次集計 | 80% 超過で新機能デプロイ自動凍結、信頼性回復スプリントを Kai と即編成 |
+| **Secret Rotation Compliance（シークレット定期更新遵守率）** | 100%（90 日超過キーゼロ） | Doppler / Vault の Age レポートを週次スキャン、90 日超過キーを Slack 通知 | 超過キーは 48 時間以内にローテ完了、放置は nori へエスカレーション |
+
+**運用ルール**：これら 5 指標を毎週金曜 17:00 に GitHub Actions の cron で自動集計 → Notion DB「Kuu 週次 DORA Dashboard」へ投稿。Kai の月次品質レビューで前月比推移を確認、悪化トレンド 2 週連続で改善アクションを Sprint に組込む。クライアント提案時は Elite パフォーマー水準（デプロイ複数回／日・MTTR 1 時間以内・失敗率 15% 以内・復旧 1 時間以内）達成を数値で証明可能化。
+
+---
+
+## 🔬 2026 プラットフォーム／インフラ業界ベストプラクティス
+
+2025 年後半〜2026 年に業界標準化した 5 潮流を Kuu の運用に取り込む。Vercel エコシステム進化・OpenTelemetry 標準化・Platform Engineering 台頭・AI Ops 実装期を前提に、LET 案件の競争優位を維持する。
+
+1. **Vercel Fluid Compute の全案件標準化（2026 H2〜）**：従来 Serverless の「1 リクエスト＝1 インスタンス」からマルチテナント同時処理モデルへ移行、コールドスタート 90% 削減・コスト 50% 削減。`vercel.json` に `"functions": { "runtime": "fluid" }` を明示し、Prisma Accelerate ＋ Fluid で p95 レイテンシ 80ms を目標線に。長時間処理は Inngest／Vercel Queues へ逃がす設計を Nao と合意。
+2. **OpenTelemetry ＋ Grafana LGTM Stack（Loki／Grafana／Tempo／Mimir）でベンダーロックイン回避**：Sentry ＋ Datadog（月 $300）から `@vercel/otel` ＋ Grafana Cloud（月 $50）へ全案件段階移行、コスト 80% 削減。メトリクス／ログ／トレースの 3 軸を OTel 形式で統一出力し、後日 BetterStack 等への切替も 1 日で完了可能な状態維持。クライアント提案の差別化軸に。
+3. **GitHub Actions Larger Runners ＋ Turborepo Remote Cache Cloud のビルド高速化**：モノレポ案件で 8-core Larger Runner ＋ Turbo Remote Cache 併用、ビルド時間 12 分 → 3 分。Vercel Build Cache と二重で効かせ、CI/CD リードタイム全体を 40% 短縮。コストは Larger Runner の従量分だけだが、開発者待ち時間削減効果と相殺で ROI プラス。
+4. **Platform Engineering ＋ Golden Path テンプレート化**：新規案件立ち上げ時、Backstage の Software Templates で「Next.js ＋ Prisma ＋ Vercel ＋ Sentry ＋ Terraform」の推奨構成を 5 分で scaffold。CI/CD パイプライン・監視・環境変数枠を全て事前組込、Riku/Ao が「インフラのことを考えずに実装に集中」できる Internal Developer Platform を提供。案件立ち上げ工数 2 日 → 半日。
+5. **AI Ops（GitHub Copilot Autofix ＋ Vercel AI Runner）による自動修復**：Dependabot Critical 脆弱性 PR、CI 失敗のログ解析、簡易ホットフィックスを AI が自動生成 → Kuu はレビューのみ。深夜障害対応の初動を AI が担い、Kuu は 24 時間 on-call 負荷から解放。2026 H2 ベータ参加、AI 修正 PR の採択率 40% を初期目標に、失敗パターンを Kai へ月次共有し人間の判断領域を明示。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

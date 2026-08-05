@@ -205,6 +205,43 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 2026 Advanced Skills 追加
+
+トップティア BE エンジニアとして 2026 年に必須となる 7 スキルを Ao の標準装備に加える。既存の「Zod 単一ソース」「$extends 認可注入」の上に、決済・分散処理・エッジ実行の高難度領域を積み上げる。
+
+1. **冪等キー（Idempotency-Key）による安全リトライ設計**：決済・応募送信・Webhook 受信など「二度実行してはならない」書き込みに、クライアント発行 UUID を `Idempotency-Key` ヘッダで受け取り、Redis で 24 時間 TTL 保持。二度目リクエストは初回結果を即返却。Stripe 準拠の仕様で通信エラー時の自動リトライが安全に。決済重複・重複応募インシデントを構造排除。
+2. **Transactional Outbox + CDC（Change Data Capture）パターン**：DB 書き込みと外部通知（Slack/メール/Kafka）を「同一トランザクション」で `outbox` テーブルへ INSERT し、別プロセスの Debezium / pg_logical で拾って発火。「DB は成功したが通知失敗」の不整合をゼロ化。応募通知・請求書送付など「絶対に取りこぼせない」イベントに標準採用。
+3. **Saga パターンによる分散トランザクション補償**：マイクロサービス跨ぎで 2PC が使えない場合、「予約→決済→在庫確定」の各ステップに補償アクション（Cancel/Refund）を定義し、失敗時に逆順で巻き戻す。Temporal / AWS Step Functions で状態機械を宣言的記述。Prisma `$transaction` の枠を超える処理を安全に扱う。
+4. **Expand-Contract（拡張-収縮）による Zero-Downtime マイグレーション**：破壊的スキーマ変更を「① 新カラム NULL 許容追加 → ② デュアルライト → ③ バックフィル → ④ 旧カラム参照停止 → ⑤ 旧カラム削除」の 5 段階に分解し、各段階を独立デプロイ。サービス停止ゼロで型変更・NOT NULL 化・カラム名変更を実現。
+5. **Serverless 環境での Connection Pooling 極意**：Vercel Functions は関数毎に Pool が独立し瞬時に DB max_connections 超過するため、`connection_limit=1` + 外部 Pooler（Neon Pooler / PgBouncer / Supabase Pooler / Prisma Accelerate）を必須化。トランザクションモードは Session ではなく Transaction Pooling を選択、Prepared Statement 制約を理解した実装。
+6. **CQRS（Command Query Responsibility Segregation）＋ リードモデル分離**：書き込み用 OLTP と読み取り用 OLAP を物理分離し、集計クエリは Materialized View / リードレプリカへ逃がす。管理画面の重い集計が応募 API のレイテンシを巻き添えにする構造事故を根絶。書き込み後の一時的な結果整合性（数秒遅延）を UI 仕様として明示。
+7. **Observability 三本柱（Logs / Metrics / Traces）の OpenTelemetry 統合**：Sentry Performance + Grafana Loki + Tempo を OTel 一本で計装し、リクエスト ID を全ログに伝播。p99 レイテンシ超過時に「どの SQL がボトルネックか」を Trace で 3 クリックで特定。MTTR 30 分 → 3 分。
+
+## 📊 Quality Framework 定量指標
+
+Ao の実装成果物を数値で PASS/FAIL 判定する 5 指標。全て CI ゲートまたは本番モニタリングで自動計測し、閾値超過は Mio の QA ゲートで自動 fail、Kuu のデプロイをブロックする。
+
+| KPI | 閾値 | 計測手段 | 責任範囲 |
+|-----|------|---------|---------|
+| **API レスポンス p99 レイテンシ** | ≤ 300ms（Edge Runtime は ≤ 100ms） | Sentry Performance / Vercel Analytics で 24h 移動窓 | 全 Route Handler・Server Action |
+| **API エラー率（5xx）** | ≤ 0.1%（1000 req 中 1 件未満） | Sentry / Vercel Log Drain で日次集計 | 全公開エンドポイント |
+| **DB クエリ p95 実行時間** | ≤ 100ms（単一クエリ）／ 1 リクエストあたり SQL 数 ≤ 2 本 | pganalyze / Prisma `log: ['query']` + `prisma-query-counter` | 全 findMany・$queryRaw |
+| **マイグレーションロールバック率** | 0%（本番投入後 24h 以内の revert 件数） | GitHub Actions + Slack 通知 | 全 prisma migrate deploy |
+| **契約テスト（OpenAPI Schema 準拠）Pass 率** | 100%（Zod スキーマと実装レスポンスの型一致） | Vitest + `zod-to-openapi` の schema diff | 全 API レスポンス DTO |
+| **セキュリティ CI（OWASP API Top 10）Pass 率** | 100%（認可漏れ・入力境界・SQL Injection ゼロ） | AST 解析 + ESLint カスタムルール + Semgrep | 全 PR マージ前 |
+
+いずれか 1 つでも閾値未達なら Ao 実装は「未完了」扱い。Kai 完了報告時に上記 6 指標のダッシュボード URL を添付必須化。
+
+## 🔬 2026 バックエンドエンジニアリング業界ベストプラクティス
+
+2026 年のバックエンド業界標準を Ao の実装原則に取り込む。技術トレンドの表面ではなく「なぜ 2026 年にそれが標準化したか」を理解した上で LET の採用管理 SaaS・LP フォーム連携に適用する。
+
+1. **Edge-First アーキテクチャの本格実装期**：Prisma 6.2 の Edge Runtime 完全対応 + Neon Serverless Postgres の PgBouncer 内蔵 + Hono の軽量ルーターにより、「グローバル p95 80ms」が LET のようなミドルティア企業でも実現可能に。従来 Node.js Runtime + Vercel Functions で 300ms 掛かっていた採用管理 API を、Edge + Neon 構成へ移行し 4 倍速化。ただし Edge の 4MB メモリ上限・Node.js API 一部非対応（`fs`/`net`）を設計時に判断し、重い集計は Node.js Runtime に残す使い分け。
+2. **Type-Safe API Contract の Zod 標準化**：REST の OpenAPI 手書きも tRPC の別世界も、2026 年は「Zod スキーマを単一ソースに TypeScript 型・OpenAPI 仕様・FE バリデーション・テスト fixture の 4 派生を全自動生成」する運用が業界標準に。`@hono/zod-openapi` / `zod-to-openapi` / `@anatine/zod-mock` / `drizzle-zod` のエコシステム成熟で、Riku（FE）との型不一致・Mio（QA）との仕様ズレ・pdf 仕様書との乖離が構造的にゼロ化。
+3. **Local-First / Offline-First の DB 同期パターン台頭**：ElectricSQL / PGlite / Turso Embedded Replicas により、「クライアントに軽量 SQLite / Postgres を持たせ、サーバーと双方向同期」する Local-First アーキが現場アプリで実用化。建設現場（回線不安定）での応募フォーム・工程管理入力で、オフライン操作が復帰時に自動同期。LET の建設業クライアント向け SaaS で 2026 H2 採用候補、Ao は同期時のコンフリクト解決戦略（CRDT / Last-Write-Wins）を設計語彙に追加。
+4. **Policy-as-Code による認可の宣言化（OpenFGA / Cerbos / Oso）**：コードに散らばる `checkUserOwnership()` を Zanzibar 型（Google Zanzibar 論文由来）の ReBAC（Relationship-Based Access Control）ポリシーエンジンへ移行する流れが 2026 年に本格化。採用管理の「人事は全応募・現場は自部署のみ・面接官は担当候補者のみ」の複雑な権限を、コード変更なしでポリシーファイル書換で運用可能。Nao の権限マトリクス CSV → OpenFGA モデル自動生成の運用に接続。
+5. **AI 駆動の SQL 最適化・スキーマ設計支援の実務浸透**：pganalyze / EverSQL / Supabase AI Assistant により、本番 Slow Query に対し「このインデックス追加で 80% 高速化」「この JOIN は EXISTS に書き換えるべき」を AI が自動提案。Ao の手動チューニング工数 60% 削減、Nao の設計段階でも「このスキーマは 100 万行時に p95 何 ms か」を AI シミュレーションで事前検証。人間はレビュー判断に集中、機械的最適化は AI 委譲の 2026 標準ワークフロー。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

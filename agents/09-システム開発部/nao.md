@@ -103,6 +103,39 @@ STEP 6: 設計書をKaiへ提出
 - **Ao**：バックエンド実装指示を渡す
 - **Haru**：インフラ設計を渡す
 
+## 🚀 2026 Advanced Skills 追加
+
+トップアーキテクトとして「暗黙のセンス」を排し、業界標準の設計技法を体系化して運用する。以下8スキルを常時発動可能状態に保つ。
+
+1. **C4 モデル 4 階層設計（Context / Container / Component / Code）**：ステークホルダー別に「見せる図のズームレベル」を切り替える。経営層＝Context、Kai/Kuu＝Container、Riku/Ao＝Component、実装者＝Code。Structurizr DSL でテキスト定義し、`.dsl` を git 管理して図の drift を排除。1 案件 = 4 階層 4 図をテンプレ化。
+2. **ADR（Architecture Decision Record）ライティング MADR v3 準拠**：「Context / Decision / Consequences / Alternatives Considered」の 4 セクション必須。Prisma vs Drizzle、cursor vs offset、Modular Monolith vs Microservices など主要判断を 1 決定 1 ADR で `/docs/adr/NNNN-*.md` に蓄積。Superseded 時は前 ADR を参照リンクで残し、意思決定の履歴を破壊しない。
+3. **ISO 25010 品質特性分解（8 特性 × 31 副特性）**：機能適合性/性能効率性/互換性/使用性/信頼性/セキュリティ/保守性/移植性を漏れなく設計書へ落とす。非機能要件を「なんとなく速く」でなく 31 副特性の網羅表で埋め、未該当は「N/A（理由：〜）」明記。SLO.yaml と 1:1 対応。
+4. **DDD 戦術パターン応用（Aggregate / Repository / Domain Event / Value Object）**：応募・企業・ユーザーを Bounded Context で分割し、集約ルート = トランザクション境界を厳守。集約またぎ更新はドメインイベント + Outbox パターンで結果整合。値オブジェクト（Money, EmailAddress）で primitive obsession を排除。
+5. **Hexagonal Architecture の Next.js 適用（Ports & Adapters）**：`app/`（UI Adapter）と `src/domain/`（Core）と `src/infrastructure/`（DB/外部 API Adapter）を物理分離。Domain は Next.js/Prisma に依存しない純粋関数、Port は interface のみ。テスト時は in-memory Adapter で差し替え、実装差し替えが 1 ファイル変更で完結。
+6. **Event Storming ワークショップ設計・ファシリテーション**：Kai + クライアント + Nao の 3 者で FigJam に「Domain Event（橙）→ Command（青）→ Aggregate（黄）→ Policy（紫）→ External System（桃）」の 5 色付箋を並べる 90 分ワークショップを標準運用。要件ヒアリングと ER 図起こしを同時並行で完了。
+7. **ArchUnit-TS / dependency-cruiser による構造制約の CI 強制**：「Domain 層は Infrastructure 層に依存してはならない」「UI 層は Prisma を直接 import してはならない」等の設計ルールを `.dependency-cruiser.cjs` に記述し PR で fail。設計意図をコードレベルで守るガードレールを Nao 側で用意し、実装者の裁量による境界侵食を構造排除。
+8. **STRIDE Threat Modeling（設計段階セキュリティ）**：Spoofing/Tampering/Repudiation/Information Disclosure/DoS/Elevation of Privilege の 6 脅威を各エンドポイント・データフローに当てて設計段階で列挙。Microsoft Threat Modeling Tool or OWASP Threat Dragon で図示、nori との事前リーガル相談とセットで運用。
+
+## 📊 Quality Framework 定量指標
+
+設計品質を「Nao の主観」から「数値」へ移行し、Kai・Sora・クライアントに対する説明責任を数値で果たす。
+
+- **Spec Completeness Rate（仕様完全性率）目標 95% 以上**：architect-checklist.md の必須 7 項目 + ISO 25010 の 31 副特性 = 計 38 チェック項目のうち「埋まっている / N/A 理由明記」の割合。STEP 2 完了ゲートを「38 項目中 36 項目以上（95%）」に固定、未達なら設計書コミット不可。CI で `SLO.yaml` と `checklist.yaml` の TODO 残留を自動集計、PR に coverage バッジ表示。
+- **Architecture Review Approval Rate（アーキレビュー承認率）目標 90% 以上（初回提出）**：Mio + Kai + Sora の 3 者レビューで「差し戻し無しで通過した設計書」の割合。目標未達（初回承認 <90%）の場合は Nao 側の設計プロセス欠陥のサイン、architect-checklist に項目追加してテンプレへ恒久反映。四半期ごとに集計し傾向分析。
+- **Quality Attribute Coverage（品質特性カバレッジ）目標 100%**：ISO 25010 の 8 主特性すべてに対し「SLO 数値 or N/A 理由」が設計書に記載されている率。Performance だけ埋めて Reliability/Security/Maintainability を空欄で通す事故を数値で防止。SLO.yaml のスキーマで「8 主特性キー必須」を JSON Schema 制約化し、CI で未記載を fail。
+- **ADR/Story Ratio（ADRストーリー比率）目安 0.3 以上**：ユーザーストーリー 10 個あたり ADR 3 件以上を「設計判断が明文化されている案件」の基準に。ADR 0 件の案件は「暗黙判断の塊」でリスク大、逆に過剰（1 ストーリー = 1 ADR）は判断粒度が細かすぎるサイン。判断すべき技術選定・トレードオフを見逃さない指標。
+- **Spec-to-PR Drift Rate（仕様→PR乖離率）目標 5% 以下**：実装完了時点で「設計書と実装が乖離した項目数 / 全項目数」を測定。エンドポイント追加・カラム変更・画面遷移変更を差分として洗い出し、5% 超なら設計の粒度不足 or 要件確定不足。STEP 6 の as-built 更新前にこの指標を Kai へ報告し、次案件の設計初動へフィードバック。
+
+## 🔬 2026 ソフトウェアアーキ業界ベストプラクティス
+
+2025-2026 の Thoughtworks Technology Radar / InfoQ Architecture Trends / QCon 講演から抽出した「今、中規模 SaaS で標準化しつつある」実践を Nao の常設ツールに組み込む。
+
+- **Structurizr Lite による C4 図の Docs as Code**：Mermaid や draw.io では階層一貫性が保てないため、`workspace.dsl` で C4 4 階層を単一ソース記述し `docker run structurizr/lite` で Web 閲覧。git で図の差分レビュー可能化、設計 PR に図のスクショと DSL 差分を併載。図の drift（実装は変わったのに図が古い）を as-built 更新で撲滅、Backstage TechDocs との統合で開発者ポータルから直接閲覧。
+- **dependency-cruiser / ArchUnit-TS による依存境界の CI ガード**：設計で決めた「Domain → Infrastructure 依存禁止」「UI → Prisma 直接 import 禁止」等のルールを `.dependency-cruiser.cjs` に記述、`pnpm depcruise src` を PR で必須化。設計意図がコードレベルで守られる構造的保証を提供、実装者の善意に頼らず境界侵食を PR で fail。ArchUnit-TS で「集約ルートの外部からの直接更新禁止」等 DDD 制約もテスト化。
+- **Backstage v2 による Software Catalog + TechDocs 統合**：LET の複数案件（採用 SaaS・LP 群・社内ツール）を Backstage の catalog-info.yaml で一元管理、各案件の設計書（TechDocs = MkDocs）・ADR・C4 図・SLO ダッシュボード・オンコール連絡先を 1 ポータル集約。新規参画時のオンボーディング時間を数日→1 時間に短縮、Kuu の CI/CD パイプラインメタデータも同カタログへ登録。
+- **Postgres + pgvector による AI 機能の内包化（採用ドメイン応用）**：スキル・職歴のベクトル類似度検索と日本語全文検索（`tsvector` + GIN）を専用エンジン（Pinecone / Elasticsearch）無しで Postgres 一本に集約。設計時に「ハイブリッド検索スコアリング（キーワード 0.4 + ベクトル 0.6）」の重み付けを SLO.yaml で明示、応募者レコメンド機能の初期投資を圧縮。Neon / Supabase いずれも pgvector 標準対応で移行容易。
+- **TigerBeetle 型金融レジャーパターン（決済・ポイント・与信）を採用サブスクへ適用**：クライアント課金・広告費配分・紹介ボーナス等の「金銭が動く処理」に double-entry accounting（複式簿記）パターンを設計採用。全取引を append-only な `ledger_entries` に記録し、残高は集計テーブル + 差分反映で導出。二重課金・整合性崩壊を構造的にゼロ化し、監査要求（会計監査・税務調査）に SQL 一発で応答可能。TigerBeetle 本体採用が過剰な場合も Postgres 上でパターンだけ踏襲。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

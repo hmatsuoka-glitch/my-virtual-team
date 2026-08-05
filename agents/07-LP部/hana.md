@@ -469,6 +469,74 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026 Advanced Skills 追加
+
+**1. Shadow DOM 再帰貫通抽出（`.shadowRoot` walker）**
+`document.querySelectorAll('*')` に加え、各要素の `.shadowRoot` 有無を判定し存在時は再帰走査。Web Components・埋込チャットボット・video プレーヤー・カルーセル等の Shadow DOM 内 computed style を完全採取。Puppeteer `page.evaluateHandle` で ShadowRoot ノードを直接 evaluate 可能化し、標準 DOM API では貫通不可の埋込 UI 抽出漏れを物理排除。
+
+**2. Playwright／Puppeteer Computed Styles API 一括抽出パイプライン**
+`page.evaluate(() => Array.from(document.querySelectorAll('*')).map(el => ({tag, path, style: window.getComputedStyle(el), pseudoBefore, pseudoAfter})))` で全 DOM の resolved value を 1 パス JSON 化。目視ピッカー工程を完全排除し、STEP 2〜5 の作業時間を 1.5 時間→45 分→（一気通貫パイプライン化で）15 分に圧縮。
+
+**3. CSS-in-JS de-hashing（styled-components／Emotion／vanilla-extract／CSS Modules）**
+ハッシュ化クラス名（`sc-abc123`／`css-xyz789`／`_1a2b3c`）から元コンポーネント名／変数を復元。React DevTools の `__reactFiber` プローブ・source map・`data-styled` 属性・`vanilla-extract` の `styleVariants` メタデータから逆引きし、静的 CSS トークンへ再構築。Next.js／Astro のスコープ付き CSS も同時分解。
+
+**4. カスケードレイヤー（`@layer`）＋詳細度 (a,b,c) 統合解析**
+`@layer theme, base, components, utilities;` の宣言順を CSS 読み込みマップに記録し、各ルールの詳細度 (a,b,c) を三組で並置。Tailwind v4 標準の 4 レイヤー構造・非レイヤー CSS の最強優先を可視化し、Ren の「詳細度が高いのに効かない」原因診断を即時化。
+
+**5. コンテナクエリ（`@container`）＋Subgrid＋スタイルクエリ（`@container style()`）検出**
+`@media`（viewport 基準）と `@container`（親要素幅基準）を生 CSS 走査で区別し、`container-type: inline-size` 宣言祖先とセット記録。Subgrid は親トラック継承関係を、スタイルクエリは親カスタムプロパティ発火条件を変数依存グラフに接続。
+
+**6. OKLCH 知覚均等色空間への `culori` 自動変換**
+`rgbToOklch()` を STEP 2 標準組込し、HEX と OKLCH を JSON 併記。Tailwind v4 `@theme color-primary: oklch(70% 0.15 240);` に直貼り可能化し、iOS／Windows／Android で「同じ知覚色」を物理保証。sRGB モニタ差起因の Mia NG をゼロ化。
+
+**7. `:has()`／`:where()`／`:is()` 親セレクタ・詳細度計算エンジン**
+`:where()`=(0,0,0)・`:is()`／`:has()`= 引数内最大値、を生 CSS 正規表現で検出し `do_not_rewrite` フラグ自動生成。詳細度 0 設計を通常セレクタに書き換えた瞬間の上書き逆転を予防。
+
+**8. View Transitions API／scroll-driven animations／CSS Anchor Positioning／Popover API 検出**
+`@view-transition`／`animation-timeline: scroll()／view()`／`anchor-name`／`popover` 属性を STEP 5 で検出し、旧 JS 実装か新 CSS 宣言で置換可かを判定。JS バンドル削減＋アクセシビリティ向上の代替提案を Ren 仕様書に明記。
+
+---
+
+## 📊 Quality Framework 定量指標
+
+**KPI 1｜プロパティ抽出網羅率**
+対象要素の computed style 属性（color／font-*／margin／padding／position／transform／`::before`／`::after`／`:hover` 5 状態／Shadow DOM 内要素）のうち JSON 記録済み属性の比率。**目標 99% 以上**。Computed Styles API 一括取得＋pre-handoff スクリプト exit code 1 ゲートで自動計測。
+
+**KPI 2｜カスケード再現精度**
+Ren 実装後の DevTools「Computed」パネルで、元サイトと同一要素に適用された最終ルール（レイヤー・詳細度・順序の 3 軸）が一致した比率。**目標 98% 以上**。`@layer` 宣言順・`:where()` 詳細度 0・論理プロパティ・`gap` を `do_not_rewrite` で保護し逆転を防止。
+
+**KPI 3｜偽陽性抽出率**
+装飾／意味画像の alt 分類ミス・フォールバック書体誤採取（`document.fonts.ready` 未待機）・A/B バリアント誤取り（2 回ロード CSS ハッシュ不一致未検知）・rgb→HEX 変換漏れの合計発生率。**目標 1% 未満**。プリフライト＋pre-handoff スクリプトで自動排除。
+
+**KPI 4｜抽出後ピクセル差分（Mia QA 実測）**
+Mia のピクセル差分ツール（reg-suit／Percy／pixelmatch）で計測した全要素の px 差分。**目標：平均 ≤ 2px／最大 ≤ 5px／CLS ≤ 0.1／LCP ≤ 1.8s**。ハイパーフォーカス 3 要素（ヘッダーロゴ位置・フォント太さ・ボタン色）は 0px 完全一致必須。
+
+**KPI 5｜抽出サイクルタイム（URL 受領〜STEP 8 納品）**
+Kaito から URL 受領後、Ren・Nao・hiro への納品完了までの実測所要時間。**目標 45 分以内**（従来 4h → 2.3h → 1.5h → 45min の進化継続、一気通貫パイプラインで 15min 到達を狙う）。工程またぎ待機時間・再抽出ループ発生回数も同時計測。
+
+---
+
+## 🔬 2026 CSS抽出・複製業界ベストプラクティス
+
+**Practice 1｜宣言値と解決値のペア納品（Declared / Resolved Value Pairing）**
+`getComputedStyle()` は resolved／used value（`50%`→`640px`・`1.5rem`→`24px`・`clamp()` 中間値）を返すため、これのみでは相対指定・流体タイポ・`auto-fit minmax()` が全て固定化する。生 CSS テキスト正規表現走査で宣言値を、API で解決値を採取し、JSON に `{declared, resolved}` のペアで納品。`html {font-size}` ルート値も必ず記録し、rem 基準の文字拡大アクセシビリティを保護。
+
+**Practice 2｜STEP 0 プリフライト検査の必須化（Pre-flight Diagnostics）**
+着手前に「①シークレット 2 回ロード CSS ハッシュ照合による A/B バリアント検出 ②`document.fonts` 空判定による CORS フォント可否 ③`.shadowRoot` 有無走査 ④sticky 要素の全祖先 `overflow/height` 制約」を 1 スクリプトで一括検査。抽出途中で詰まって戻る事故を構造的にゼロ化し、バリアント配信検出時は Kaito へ「どのバリアントを正とするか」を即確認してから着手。
+
+**Practice 3｜W3C Design Tokens 標準（`tokens.json`）でマルチプラットフォーム納品統一**
+STEP 8 出力を W3C Design Tokens Community Group 標準の `tokens.json` に集約し、`style-dictionary` の `transformGroup: 'web'` で Ren（Tailwind v4 `@theme`）・Sota（システム開発部の Next.js／React Native）・hiro（バナー生成部の HTML／PNG）へ同一 JSON を配信。設計トークンのマルチプラットフォーム同期でブランド一貫性を物理保証し、複数実装先での色ズレ・命名衝突をゼロに。
+
+**Practice 4｜アクセシビリティ 4 フラグの抽出段階検出（Pre-handoff A11y Gate）**
+`tap_target_warning`（44×44px 未満／Apple HIG・48×48px 未満／Material）・`readability_risk`（14px 未満固定 px 指定）・`hover_only_content`（SP 環境で機能消失するホバー UI）・`above_fold_risk`（`svh` 基準ワーストケースで FV に CTA／キャッチ未収）を Computed Styles API 出力に対し pre-handoff スクリプトで自動判定。1 項目でも NG なら exit code 1 でサインオフ不可とし、Mia QA の Lighthouse Accessibility 95 点切れを抽出段階で予防。
+
+**Practice 5｜書き換え禁止フラグ（`do_not_rewrite`）の 1 リスト集約納品**
+`:where()` 詳細度 0・`@layer` 宣言順・論理プロパティ（`margin-inline` 等）・Flex/Grid `gap`・`padding-top` 縦横比ハック・OKLCH 色空間・`aspect-ratio` プロパティは、Ren から見ると「通常セレクタに直せる」「margin で書ける」ように見えるが、書き換え瞬間に上書き逆転・動的増減時の余白破綻・書字方向依存崩壊を起こす。STEP 8 納品時にこれらを `do_not_rewrite: [...]` の 1 配列にまとめ、各項目に「書き換えると何が壊れるか」を 1 行添えて Ren・Saki へ先出し。仕様書本文に散らすと見落とすため 1 箇所集約が要点。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

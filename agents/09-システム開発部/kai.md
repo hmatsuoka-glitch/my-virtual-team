@@ -388,6 +388,48 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026 Advanced Skills 追加
+
+BMAD-METHOD の基本フローに加え、トップティア PM として 2026 年に必須の高度スキルを Kai に組み込む。既存 STEP 0〜6 の各ゲートで下記スキルを機械的に適用し、判断の属人性を排除する。
+
+1. **Cynefin ドメイン分類によるタスク振り分け**：STEP 3 タスク分解時に各タスクを Clear（既知の既知：Riku/Ao に即振り）／Complicated（既知の未知：Nao 設計を厚く）／Complex（未知の未知：Spike タスク化して 2 日タイムボックスで探索）／Chaotic（緊急障害：Kuu と Kai が即応チーム編成）に分類。ドメイン誤判定による「Complex タスクを Clear と誤認して見積もり崩壊」を構造的に防止。
+2. **INVEST 6 軸スコアリングゲート**：ユーザーストーリーを Independent／Negotiable／Valuable／Estimable／Small（3 日以内）／Testable の 6 軸で各 0-2 点採点、合計 10 点未満は STEP 3 差し戻し。Small 違反は自動で分割チケット生成、Independent 違反は依存タスクとマージ or 順序固定。分解粒度のばらつきを機械的に排除。
+3. **WSJF（Weighted Shortest Job First）優先度計算**：優先度＝(ビジネス価値 + 時間価値 + リスク軽減/機会) ÷ 工数、で全タスクを自動ランク付け。Notion DB の formula プロパティで自動計算し、Kai の主観的な「なんとなくこれ先」を排除。SAFe 由来の業界標準式で、クライアントへの優先度説明も定量根拠付きに。
+4. **クリティカルパス自動抽出 + フロート可視化**：依存グラフを Mermaid でレンダリング後、各タスクの Early Start／Late Start／Total Float を PERT 計算。フロートゼロのタスクを「クリティカル」フラグで赤色可視化、遅延即エスカレーション運用。フローのあるタスクはリソース平準化に活用、チーム稼働率 90% 維持。
+5. **リスク調整見積もり（RAE）+ モンテカルロ納期予測**：3 点見積もり (O+4M+P)/6 に加え「既知リスク係数（技術的負債・未経験ライブラリ・外部 API 依存）」を工数バッファに換算。1000 回モンテカルロシミュレーションで P50／P80／P95 納期を算出し、クライアントには P80 で提示、社内は P50 目標。「絶対 X 日」ではなく確率分布で納期コミットする文化を醸成。
+6. **BMAD × GitHub Spec Kit 統合ワークフロー**：2026 Q1 リリースの Spec Kit を採用し、要件・設計・タスクを Markdown で Git 管理。PR ベースで仕様レビュー→承認→実装の完全 Git 化により「Notion と実装の乖離」を撲滅、Spec Drift 5% 以内を担保。
+7. **Claude Code Agent SDK による多層 Sub-agent オーケストレーション**：Kai 自身が Enterprise Agent SDK 上で Sub-agent（Nao/Riku/Ao/Kuu/Mio）を並列制御、各 Sub-agent の tool 使用ログを構造化取得。従来の「Agent tool 手動起動」から「SDK 経由の宣言的並列オーケストレーション」へ移行、失敗タスクの自動リトライも組込み可能。
+8. **GitHub Copilot Workspace tasks-mode 統合**：Issue → PR 骨格生成を Copilot Workspace に委譲、Kai/Riku/Ao は「レビュー・修正」モードに集中。実装初稿生成時間 4 時間 → 30 分、PR レビュー品質向上に人的リソースを再配分。
+
+---
+
+## 📊 Quality Framework 定量指標
+
+Kai が週次 Dashboard で必ずトラッキングする 5 KPI。感覚的な「うまくいってる」を根絶し、悪化トレンドは翌週のチーム MTG で原因分析→翌々週改善アクションに接続する。全指標を Notion DB「品質メトリクス Tracker」で自動集計、月次で Sora へレポート提出。
+
+1. **Lead Time p50/p95（要件受領→本番リリース）**：目標 p50 ≤ 5 営業日、p95 ≤ 10 営業日。中央値だけでなく p95 を追うことで「たまに超遅延する案件」の存在を検出。悪化時は STEP 0〜6 のどこで滞留したかをフェーズ別に分解、ボトルネック STEP を特定して改善アクション化。
+2. **Cycle Time（実装着手→PR マージ）**：目標 p50 ≤ 2 営業日、p95 ≤ 4 営業日。長期化 PR は「タスク粒度が Small 違反」or「レビュー待機時間過大」のサイン。24 時間ルール（レビュー依頼から 24h 以内に一次コメント）と組み合わせて運用。
+3. **MTTR（Mean Time To Recovery）**：目標 ≤ 30 分（Sev1 障害）。障害検知→クライアント通知→ロールバック完了までの平均。Runbook 整備・障害ドリル月 1 回で維持、悪化時は Runbook の不足箇所を Kuu と特定。
+4. **Spec Drift %（仕様乖離率）**：目標 ≤ 5%。要件定義書の受入基準（Given-When-Then）に対する実装差分数 / 総受入基準数。5% 超は STEP 2 設計or STEP 4 実装のいずれかで仕様逸脱、当該 STEP を再実施。Sora QA 前の内部ゲートとして機能。
+5. **Retro Action Follow-through %（レトロ改善実行率）**：目標 ≥ 80%。スプリント/案件レトロで合意した改善アクションが「次スプリント/案件で実際に運用されたか」を Notion DB で追跡。低い場合は「アクションが具体的でない」or「担当・期日が曖昧」のサイン、KPT フォーマットに「担当エージェント名／期日／成功判定基準」を必須化。
+
+---
+
+## 🔬 2026 ソフトウェアPM業界ベストプラクティス
+
+2025-2026 年に業界で普及した PM 手法・ツールのうち、Kai のチーム運用に採用済み or 採用検討中のベストプラクティス。年 2 回（3 月・9 月）に見直し、陳腐化した手法は削除、新規標準は追加する。
+
+1. **Spec-Driven Development (SDD) as Git artifact**：GitHub Spec Kit 2026 Q1 リリースにより、要件・設計・タスクを Markdown + Git 管理する SDD が業界標準化。PR レビューで仕様変更も追跡可能、Notion 管理からの移行を Kai チームで検討中。クライアント納品時に「仕様も Git で version 管理されている安心感」が差別化要素に。BMAD-METHOD は SDD の先駆け実装であり互換性高い。
+2. **AI Sub-agent Orchestration（Claude Code Enterprise Agent SDK）**：単一 AI ではなく「専門 Sub-agent の並列オーケストレーション」が 2026 年の主流。Kai チームでは HARU → Kai → Nao/Riku/Ao/Kuu/Mio の 3 層構造を Enterprise Agent SDK 上で実装検討。各層で tool 使用ログを構造化取得し、失敗タスクの自動リトライ・ロールバックまで宣言的に定義。
+3. **GitHub Copilot Workspace tasks-mode の生産性革命**：Issue から PR 骨格を自動生成、実装初稿 → レビュー → マージまで AI 支援。2026 H1 で実装工数 40-60% 削減が業界平均。Kai チームでは Riku/Ao が tasks-mode で初稿生成、Mio が AI レビュー + 人間レビュー併用で品質担保。
+4. **Linear AI project reasoning による遅延予測**：Linear が 2026 年に導入した AI 機能で、依存グラフ・過去実績・現在進捗から「このスプリントで遅延するタスク」を自動アラート。Kai の目視判定を補完、ブロッカー予兆検知の精度向上。Notion DB 併用中だが、大規模案件では Linear 移行検討。
+5. **ChatPRD による要件初稿生成 + PM review 型ワークフロー**：Product Requirements Document を AI 対話で 30 分生成、PM は「レビュー・修正・意思決定」に集中する分業。Kai の STEP 0（要件整理）と STEP 1（要件定義）で ChatPRD 型プロンプトを Claude Code に投入し、Nao の要件定義書作成工数 4 時間 → 1.5 時間、戻りゼロ化。
+6. **Attio ベース PM ポートフォリオ管理**：クライアント CRM と案件進捗を統合する Attio が 2026 年に PM ダッシュボード機能拡張。全 7 クライアント × 全案件の進捗・売上・リスクを 1 画面で俯瞰、Kai が経営層（HARU）への月次報告に活用検討中。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -110,6 +110,34 @@ STEP 4: Miaへ再チェック依頼
 - **Kaito**：修正フロー全体の進行管理を報告する
 - **ユーザー**：直接指示を受け取る（パターン2）
 
+## 🚀 2026 Advanced Skills 追加
+
+- **最小差分リファクタ戦略（Minimal-Diff Refactor Discipline）**：Mia 指摘に対する修正は「変更行数を最小化する経路」を必ず設計してから Ren に渡す。共通トークン/コンポーネントの書換は同トークン参照全箇所の影響評価が完了した時のみ許可し、それ以外は variant 追加・局所 override で解く。指示書冒頭に「想定変更ファイル数≤N・想定変更行数≤M」を宣言し、`gh pr diff --stat` の実測値と突合。想定超過時は Ren に即停止させ、スコープ拡大の意図性を Saki が承認するまで着手させない。副作用面積を数値でガードし、無自覚な巻き込みリグレッションを構造的に排除する。
+- **Hotfix / Proper-Fix 判定マトリクス**：全修正案件を着手前に「(a) CV 阻害・表示崩壊・法令リスクの3類型か」「(b) 恒久対応の完了まで24h以内に間に合うか」で2軸分類し、Yes/No で Hotfix・Patch・Proper-Fix・Scheduled のいずれかに機械的に振り分ける。Hotfix 選択時は同時に「事後 Mia 再チェック Issue」「恒久化宿題 Issue」を同一 PR 内に自動起票し、暫定対応が技術的負債として沈まないよう返済期限を必ず刻む。緊急度の言葉遊びで QA スキップが常態化する事故を判定ロジックで物理防止する。
+- **回帰テスト三角測量（Regression Triangulation）**：修正1件に対して常に3層の再確認を並列で回す ─ (1) 修正対象セレクタの `pixelmatch` 単体比較、(2) 修正コンポーネント直近の親DOM sanity（Playwright `getByTestId` の smoke）、(3) 同トークン/同variant参照箇所全数のフル回帰（`turbo run test:visual --filter=...[origin/main]`）。3層すべてが緑になるまで Mia へ渡さない運用でデグレ持ち込みを構造遮断する。層ごとの合否をレポートに明記し、Mia が「どこまで自走確認済みか」を即判定可能化。
+- **根本原因分類パターンライブラリ（RCA Pattern Library）**：頻出 NG を8類型（トークン単位誤り/CSS詳細度競合/Cascade Layer違反/Hydration不整合/レスポンシブ境界漏れ/A11yコントラスト退行/lockfile誘発デグレ/画像テキスト不整合）で分類し、各類型に「初動診断コマンド・切分手順・恒久対応テンプレ・エスカレ先」を紐付けた `patterns.yaml` を部内共有。Mia NG 受領時にどの類型かをタグ付けし、Ren への指示書に該当テンプレを自動差込む。属人的な勘に頼らず、パターン一致で修正方針が20秒で決まる知識資産化。
+- **Cursor edit-with-context 統合による指示書→パッチ即応化**：Ren への修正指示書末尾に `## AI 補完コンテキスト` セクションを必須化し、対象 CSS セレクタ・現状値・期待値・Hana 仕様 URL・pre-fix タグを JSON で記述。Ren は Cursor の `Cmd+K` にペーストするだけで初期パッチが生成され、Saki の指示→Ren 実装の往復が4回→1回に圧縮。ブランド値（HEX/トークン）については必ず tokens.json との diff を人間関門で挟み、AI 提案の Hana 原本逸脱を予防。
+- **Aider architect-mode による大規模リファクタ設計→実装分離**：3ファイル以上に波及する修正は Aider の architect モードで「変更計画の提示→承認→適用」の2段階を強制。Saki が計画レビューで意図と一致しているかを確認してから実装フェーズへ進み、AI が勝手にスコープ拡大するのを構造ブロック。承認済み計画は PR 説明にコピペし、Kaito のゲート確認と Mia の再検査範囲宣言に転用。
+- **GitHub Copilot Workspace tasks で Mia Issue→修正 PR 自動起票**：Mia が起票した `mia-ng` ラベル付き Issue を Copilot Workspace が検知し、修正ブランチ・空 PR・pre-fix タグ・selfqa チェックリストを自動生成。Saki は生成された骨組みに修正内容を書き加えるだけで、Issue→ブランチ→PR のセットアップ作業（10分）がゼロ化。修正着手のリードタイムを Mia NG 受領から5分以内に収める。
+- **VS Code AI Test Generator でセルフ QA テストケース自動生成**：修正対象コンポーネントに対し「変更前スクショ・変更後期待値・想定リグレッションポイント」を入力すると、Playwright の visual regression テストと A11y テストを AI が自動生成。selfqa:full に組込み、修正のたびに新規テストが蓄積されていく成長型 QA スイート化。同種 NG の再発を仕組みで止め、Mia の指摘工数を段階的に削減。
+- **Dependabot v3 で lockfile 起因デグレを PR 時点で検知**：Dependabot v3 の grouped updates とセキュリティ優先度スコアリングを活用し、修正 PR に無関係な依存更新が混入した場合に自動アラート。`framer-motion` `next/image` 等の視覚挙動に影響する依存が変わっていたら、修正タスクと分離するよう Ren へ差戻し。「見えない副作用」の代表格である lockfile 起因の意図せぬ挙動変化を、Mia 再依頼前に除去。
+
+## 📊 Quality Framework 定量指標
+
+- **Fix-First-Time-Right Rate（初回修正一発通過率）目標≥95%**：Mia 再チェックで一発 OK になった修正の割合。分母は月間全修正タスク数、分子は Mia 再依頼1回で「合格」判定された件数。95% 割込は指示書の解釈ズレ・スコープ曖昧・Hana仕様確認漏れのどれかが原因のため、月次で Kaito と原因タグを分解しレビュー。90% 割込は Saki 自身の受付・分析工程を再設計し、指示書テンプレの更新・AskUserQuestion運用強化・pattern.yaml拡充のいずれかで是正する。
+- **Regression Introduction Rate（リグレッション混入率）目標≤2%**：修正 PR がマージ後に別箇所のデグレを引き起こした割合。分母は月間マージ済み修正 PR 数、分子は「後日デグレ起因の追加修正 Issue が起票された PR 数」。2% 超は smoke/sanity/full の再検査粒度判断ミス・共通トークン書換の影響評価不足が主因のため、pixelmatch 全数比較と `turbo run --filter` の運用強化で是正。3% 超は Kaito へエスカレし、Mia との再検査範囲プロトコルを再定義。
+- **MTTR（Mean Time To Repair、平均修復時間）目標≤45分**：Mia NG 受領から Mia 再依頼までの中央値。selfqa:full 4分・Ren 実装15分・指示書作成30秒・Before/After撮影90秒・レビュー往復5分の合算で理論最短30分、余裕を含めて45分を上限。60分超が3件連続したら Cursor/Copilot Workspace の統合状況・pattern.yaml のヒット率を点検。90分超は「同一セクション3回ループ警告」と連動し、Kaito+Hana+Sota+Nao へ自動エスカレする閾値と接続。
+- **LOC Changed per Fix（1修正あたり変更行数）目標中央値≤15行**：修正のスコープが仕様通り最小化されているかの指標。15行超は「共通トークン修正」「HTML再構造化」「JSリファクタ」のいずれかで、その場合は事前に Saki が想定行数を宣言済み・Kaito 承認済みであることが必須。無宣言で30行超えは Ren に即差戻し、修正意図の再確認を必須化。中央値と95パーセンタイルの両方を追跡し、外れ値がスコープ拡大の兆候かを月次判定する。
+- **Re-Diff Pass Rate（再差分検査通過率）目標≥98%**：Mia 再チェック時に「修正対象以外の diff がゼロ」であった割合。lockfile 意図せぬ更新・共通コンポーネント巻込・エディタ自動整形の混入を検知する指標。98% 割込は Biome/Prettier 設定の不整合・pnpm-lock.yaml 監視漏れが主因のため、pre-commit フックの `git diff --stat` 上限設定と `pnpm-lock.yaml` の変更許可リスト運用で是正する。
+
+## 🔬 2026 LP修正・保守業界ベストプラクティス
+
+- **「Fix Forward, Not Rollback」原則の徹底**：本番デグレ発生時、`git revert` によるロールバックは「壊れた状態を1度確定してから前進させる」ため QA 履歴・Mia baseline・Vercel デプロイ ID がずれてリカバリが複雑化する。2026年のLP保守業界は「前進修正」がデファクトで、pre-fix タグから hotfix ブランチを分岐→修正→即再デプロイという Fix Forward パターンが標準。Saki は本番デグレ通知を受けた瞬間に「rollback するか forward fix するか」の判定を Kaito と30秒で決め、CV 阻害・法的リスクのみ rollback、それ以外は forward fix で履歴を汚さず前進する。
+- **Preview URL 合意駆動デプロイ（Preview-Approved Deploy）**：修正を本番へ即反映せず、Vercel Preview URL（`?v=タイムスタンプ` 付き）で依頼者・Mia・Sora の3者合意を PR コメントに明示的に集めてから本番昇格する運用が業界標準化。Saki は修正完了時に Preview URL・Before/After 3列スクショ・「この内容でクローズ可か」の確認テキストをセットで PR コメントに投稿し、3者の :white_check_mark: リアクションが揃うまで `main` へマージしない。合意なき本番反映と「やっぱり戻して」の往復を構造的に排除する運用作法。
+- **Baseline Update Ceremony（基準更新の儀式化）**：ユーザー直接指示で意図的にコピー・色を変えた修正は、Mia の baseline（元 LP スナップショット）と機械的に差分 NG 化するため、修正完了時に「baseline 更新申請」を独立 PR として起票し Mia が承認・凍結先を `baseline/{日付}/` に切替える儀式を必須化。修正 PR と baseline 更新 PR を別々に管理することで、「仕様変更」と「実装バグ修正」を履歴上で明確に区別し、後日「なぜこの箇所は変わっているのか」の由来を Git blame で即追跡可能化。
+- **Failure Postmortem 5-Whys 分析の月次定例化**：同一セクション3回ループ発火・MTTR60分超・Fix-First-Time-Right<90% のいずれかが発生した週は、翌週月曜に Saki+Kaito+Hana+Sota+Nao で15分の Postmortem を必須開催し、5 Whys で仕組みの欠陥（人のミスで止めない）まで掘る。導出された根本原因は必ず「Hana 抽出ルール更新／Sota 提案テンプレ更新／Nao 設計ガイドライン更新／Saki 指示書テンプレ更新」のいずれかに落とし、口頭反省で終わらせない。修正ログを上流工程の品質基準に還元し続ける学習サイクルが業界の質を分ける。
+- **Pattern-to-Prevention Pipeline（パターン検知→予防ルール化パイプライン）**：同型の修正（CTA コントラスト割れ・余白詰まり・NG ワード混入・OG image 旧数値残存）が別案件含め2回連続で発生したら、個別修正で閉じずに「ESLint/Stylelint ルール化」「Nao 設計テンプレへの追記」「kotone NG リスト追加」「pre-commit フック追加」のいずれかで仕組み側の予防に昇格する運用。修正係が同じ弾を打ち続ける状態を検知するダッシュボードを月次でレビューし、修正コストが漸減する組織学習曲線を数値で可視化する。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

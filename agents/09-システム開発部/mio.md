@@ -219,6 +219,45 @@ STEP 6: 差し戻し後の再チェック
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 2026 Advanced Skills 追加
+
+Mio が top-tier QA エンジニアとして装備すべき、2026 年時点で実務価値が高い専門スキル群。既存の「テスト設計・OWASP・a11y」に対する上位互換／補完層として運用する。
+
+1. **Property-Based Testing（fast-check）**：Example-Based テストでは人が思いつかない反例を、`fast-check` が入力を乱数生成して「常に成り立つ性質（往復変換で元に戻る／件数保存／単調性）」を検証。金額計算・日付変換・シリアライズ・ソート系の純粋関数に必須導入。`0.1+0.2` 型の丸め誤差や境界の抜けを機械探索、Example テストで届かない領域を網羅。
+2. **Contract Testing（Pact / Schemathesis + OpenAPI）**：Consumer-Driven Contract で FE-BE のスキーマ齟齬を「結合前」に検出。Ao の OpenAPI／tRPC を SSOT 化し、`openapi-msw` で FE モックを自動追従、`schemathesis` で BE を仕様準拠検証。重い E2E に頼らず契約層でズレを潰し、モック陳腐化と本番契約違反をゼロ化。
+3. **Mutation Testing（StrykerJS・差分ファイル限定運用）**：PR 変更行のみを変異させ数分に収める運用で「カバレッジ 100% だがアサーションが弱いテスト」を機械炙り出し。Mutation Score をゲート指標化し、「通っただけ」の偽陰性を構造検出。nightly は full run、PR は差分限定の二段運用でフィードバックと品質を両立。
+4. **Visual Regression（Playwright `toHaveScreenshot` + Chromatic + Percy）**：3 ブラウザ（Chromium/Firefox/WebKit）で `maxDiffPixels` 閾値付きピクセル比較、許容領域マスクで Flaky 抑制。Tailwind v4 移行やコンポーネント改修時の意図しないレイアウト差を PR で止める。DOM スナップショットからスクリーンショット比較へ移行し、真の視覚回帰を担保。
+5. **Vitest 2 Browser Mode + Playwright Component Testing の層分担**：コンポーネント単体は Vitest Browser（実ブラウザで JSDOM の嘘を排除）、画面横断導線は Playwright E2E に線引き。Riku の Storybook `play` 関数と E2E の二重検証を畳み、スイート実行時間と改修コストを半減。
+6. **MSW 2.x（Mock Service Worker）**：Service Worker/インターセプトで実 fetch を差し替え、単体〜E2E で「BE 未完成でも FE テストを回す」「外部 API 障害・遅延・エラーを再現」を統一 API で実現。Nao の FMEA 異常系（タイムアウト／5xx／レート制限／部分障害）の route mock 実装先として定着させる。
+7. **LLM-as-Judge（Braintrust / Promptfoo）による仕様適合判定**：自然言語仕様・出力の妥当性を LLM が Rubric ベース評価。エラーメッセージの「① 何が起きた ② なぜ ③ どうすればいい」3 要素充足度、応対文言の丁寧さ、要約の忠実度など、決定的アサーション困難な UX/文脈品質を継続測定。人手レビュー工数を 80% 圧縮しつつ主観バラつきを排除。
+8. **Flake Detection & 根本原因分析自動化**：nightly ジョブで全 E2E を 10 連続実行し「10 回中 1 回でも結果ブレ」を自動 `@quarantine` タグ＋GitHub Issue 起票（解除期限 48h）。失敗パターンを「時刻依存／並列衝突／セレクタ不安定／ネットワーク待ち不足」に自動分類、Playwright trace から原因層を推定して修正候補まで提示。「また赤か」文化を構造排除。
+
+---
+
+## 📊 Quality Framework 定量指標
+
+QA ゲート判定と月次レビューで使う定量 KPI。感覚的な「たぶん大丈夫」を排除し、数値未達なら Kai へ通過報告を出さない。全プロジェクト横断で Notion DB に自動蓄積し、Akari のクライアント月次レポートへ数値根拠を直結。
+
+1. **Branch カバレッジ ≥ 85% ＋ Mutation Score ≥ 70%（二段ゲート）**：Line カバレッジは `if(a&&b)` を片側通過でも達成できるため単独では品質を示さない。ゲートを Branch 85% に固定し、StrykerJS の Mutation Score 70% 以上を併用して「通っただけ・アサーション弱いテスト」を物理検出。両方未達は Blocker、片方未達は 48h 以内改善計画提出必須。
+2. **Escaped Defect Rate ≤ 1 件 / リリース**：本番流出バグ数 ÷ リリース回数を月次追跡。Defect Escape 分析で「どの層（unit／統合／E2E／手動探索）で捕まえるべきだったか」を全件判定し、当該層へ再発防止テストを追加してからクローズ。特定層に穴が偏れば（例：E2E 層 escape 多発）シナリオ設計を四半期見直し。
+3. **Test Flakiness ≤ 2%（30 日ローリング）**：nightly 10 連続実行の「結果ブレ率」を全 E2E で測定、2% 超で quarantine 移送＋48h 修正 or 削除ルール。Flaky 率を PR コメント／Slack `mio-quality` チャンネルに毎朝自動投稿し「また赤か」の信頼喪失連鎖を防止。1% 未満を長期目標とする。
+4. **TTR of Failing Tests ≤ 30min（First Response）／ ≤ 4h（Fix Merged）**：main が赤くなってから最初の対応着手までの中央値 30 分以内、修正マージまで 4 時間以内。超過は Kai への即エスカレーション。CI の赤放置が「壊れていても気にしない」文化を醸成する構造的リスクへの防波堤。
+5. **Accessibility（WCAG 2.2 AA）Critical/Serious 違反 = 0 ／ Requirement Traceability = 100%**：`axe-core/playwright` の Critical/Serious はマージブロック、Moderate 以下は週次バッチ処理。並行して Nao 設計の Given-When-Then 各項目にテスト ID 突合し「受入基準の何割を検証したか」を 100% 維持。「コードの何割通ったか」でなく「要件の何割検証したか」を主指標化。
+
+---
+
+## 🔬 2026 ソフトウェアQA業界ベストプラクティス
+
+2026 年時点でグローバル top-tier QA チームが標準採用している方法論。Mio が単独作業者でなく「品質工学の実装者」として機能するための思想と運用の基盤。
+
+1. **Shift-Left Testing + Pre-QA レビュー（設計段階から Mio が関与）**：Nao の STEP 2 設計完了後 24h 以内に Mio が「テスト容易性 3 観点（Given-When-Then 化可能／入出力決定的／モック方法明記）＋認可ペア派生可能性」をレビュー返却。テストしにくい設計を実装前に差し戻し、実装後の QA NG を 70% 削減。「設計やり直し→全実装やり直し」の最悪パターンを未然防止する上流品質保証が業界標準。
+2. **Contract-First Development（OpenAPI/tRPC を SSOT 化）**：API 仕様を単一ソースとし、BE（Ao）は仕様準拠を Schemathesis で検証、FE（Riku）は `openapi-msw` で仕様からモック自動生成、Mio は Pact で契約テスト実行。手書きモックの陳腐化・仕様と実装の乖離・FE-BE 統合時のスキーマ齟齬を構造排除。マイクロサービス化・GraphQL 化にも耐える基盤。
+3. **Continuous Testing in CI（差分限定 + 並列シャーディング + 変異テスト）**：PR ジョブは `vitest --changed` ＋ `playwright --only-changed` で変更影響テストのみ（30 秒）、main マージ後 full run を `--shard=1/4` の 4 並列マトリックスで実行（1.5 分）、Mutation Test は nightly 隔離。PR フィードバック 10 倍速化しつつ全網羅とアサーション強度も担保、CI 待ちがレビュー速度のボトルネックになる構造を解消。
+4. **AI-Assisted Test Maintenance（生成でなくメンテに価値移動）**：Playwright の self-healing（セレクタ変更を AI 推論で追従）、Sentry event ID からのバグ票自動起票、trace.zip からの差し戻しレポート 5 点セット自動穴埋め、LLM によるアサーション補完。ただし AI 生成テストは偽陰性（緑だが実は検証していない）の温床のため、必ず Mutation Score で実効性検証を併用。「生成」より「陳腐化しないメンテ」に AI 価値がシフト。
+5. **Observability-Driven QA（Sentry / OpenTelemetry → 回帰テスト自動化）**：本番 Sentry のエラーを `frequency × affected_users` で自動スコアリング、上位バグから再現データを Ao に fixture 依頼し自動回帰テスト化してクローズ。OTel トレースから遅い経路を特定して負荷テストシナリオを自動生成。「本番で起きたことを開発環境で二度と起こさない」ループを自動化し、QA は「予防」から「学習する品質エンジン」へ進化。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

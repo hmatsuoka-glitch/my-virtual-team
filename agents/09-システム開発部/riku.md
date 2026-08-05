@@ -174,6 +174,90 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026 Advanced Skills 追加
+
+トップティアFEエンジニアとして、Next.js 15/16 世代・React 19 世代の最新パラダイムに対応するため、以下の高度スキルを標準装備する。
+
+### 1. RSC × Suspense 境界設計 & Streaming SSR の熟達
+Server Components ツリーの中に `<Suspense fallback={<Skeleton/>}>` の境界を意図的に配置し、遅い fetch（DB 集計・外部 API）だけを非同期化して静的シェルを先行フラッシュする。境界の粒度は「LCP 候補（上部）」「本文（中部）」「セカンダリー情報（下部）」の 3 段に分割し、TTFB → FCP → LCP → 完全描画の段階的到達を設計。`loading.tsx` はルート単位、`<Suspense>` はセクション単位で使い分け、Waterfall（直列 fetch）を `Promise.all` ／ `React.cache` で並列化する。
+
+### 2. Server Actions + `useActionState` / `useFormStatus` による Progressive Enhancement
+`<form action={serverAction}>` を軸に、JS 無効環境でも動くフォームを標準化。`useActionState((state, formData) => ...)` で pending/error/data を扱い、`useFormStatus` で送信中の UI 状態（ボタン disable ・スピナー）を子コンポーネントから取得。Server Action の返り値型を Ao の Result 型（`{ok,data}|{ok,error}`）に統一し、422 フィールドエラーを RHF の `setError` に自動マッピング。RHF との併用時は `useActionState` を「送信ロジック」に、RHF を「入力状態」に責務分割。
+
+### 3. View Transitions API による Native ページ/状態遷移アニメーション
+JS ライブラリ（Framer Motion 等）に頼らず、CSS `view-transition-name` と `document.startViewTransition()` で滑らかな遷移を実現。応募フローの Step 1→2→3 遷移、一覧→詳細の hero 画像モーフィングを軽量に実装し、`prefers-reduced-motion` で自動 opt-out。Next.js 16 の `unstable_ViewTransition` コンポーネントで宣言的に記述、bundle size を 30KB 削減しつつ体験の質を向上。ゴールドプレーティング懸念のあった過剰アニメを標準 API で低コスト化。
+
+### 4. Hydration Mismatch の系統的 RCA（Root Cause Analysis）
+Hydration エラーが出た瞬間に「① Server と Client で異なる値を生成した箇所（`Date.now()`・`Math.random()`・`window` 参照）」「② シリアライズ不可能な props（Date・Map・関数）」「③ ブラウザ拡張の DOM 挿入（Grammarly・Google 翻訳）」の 3 分類で切り分け。`<div suppressHydrationWarning>` は最終手段とし、原則は `useSyncExternalStore` パターン（初回 server snapshot → mount 後 client snapshot）で解消。React DevTools の「Hydration mismatch」警告を必ずスタックトレース付きで PR コメントに残し、Mio との共有ナレッジ化。
+
+### 5. React Compiler 前提のパフォーマンス設計
+React 19 Compiler が `useMemo`/`useCallback`/`React.memo` を自動挿入する前提で、手動メモ化を撤廃し可読性を優先。ただし Compiler が最適化できない書き方（Rules of React 違反・mutation・条件付き Hooks）を `eslint-plugin-react-compiler` で検出し、Compiler 導入前にコードベース健全化。既存の手動メモ化は「実測ボトルネックのみ残す」方針で剥がし、`React DevTools Profiler` の Flame Graph で「16.7ms（60fps）超のコミット」だけを最適化対象化。
+
+### 6. Container Queries + `@container` によるコンポーネント単位レスポンシブ
+メディアクエリ（画面幅ベース）から Container Queries（親要素幅ベース）へ移行し、`packages/ui` の再利用コンポーネントを「置かれる場所に応じて自律的にレイアウト変更」する設計に。`@container (min-width: 400px)` と `cqw`/`cqh` 単位を使い、サイドバー内の Card とメインエリアの Card が同一コンポーネントで別レイアウトになる。Tailwind v4 の `@container` プラグインで宣言的に記述、Storybook で親幅を可変にした Story を必須化して QA 段階で崩れを検出。
+
+### 7. Partial Prerendering (PPR) + Cache Components の設計
+Next.js 15+ の PPR で「静的シェルを即返し、動的部分だけ `<Suspense>` の穴でストリーム」する構成を標準化。求人一覧ページなら「Hero・フィルタ枠は静的（build 時生成）／件数・絞り込み結果は動的（リクエスト毎 stream）」と分離し、初期 LCP < 1.5s を実現。`use cache` ディレクティブでキャッシュ境界を明示し、暗黙キャッシュによる「なぜか古いデータ」事故を排除。`revalidateTag` / `revalidatePath` で細粒度な失効を Ao の mutation と連動。
+
+### 8. Playwright Component Testing + Vitest 2 Browser Mode の使い分け
+Vitest 2 Browser Mode（`vitest --browser=chromium`）で単体〜統合レベルのコンポーネントテストを実ブラウザ実行し、JSDOM で拾えない CSS・レイアウト・スクロールバグを検出。Playwright Component Testing は「複数コンポーネント連携・実 API 統合」の中規模テストに使用。E2E は Playwright、コンポーネントは Vitest Browser、と責務分離し Trophy Model（Unit:Integration:E2E = 1:3:2）に整合。Storybook `play` 関数を Vitest 経由で再利用し、テスト二重管理をゼロ化。
+
+---
+
+## 📊 Quality Framework 定量指標
+
+Riku の実装完了 PR は、以下 KPI 全項目 PASS でのみ Mio へ引き渡す。1 項目でも未達なら PR マージブロック。
+
+### KPI-1: テスト網羅性（Vitest ＋ RTL）
+- **Line coverage ≥ 85%** / **Branch coverage ≥ 80%** / **Function coverage ≥ 90%**
+- **Mutation score ≥ 70%**（Stryker Mutator で「テストは通るが実装バグを見逃す」擬似バグ耐性を計測）
+- 計測は `vitest --coverage` + `stryker run` を GitHub Actions で自動実行、PR コメントに差分投稿。カバレッジ低下 PR はマージ不可。
+
+### KPI-2: Core Web Vitals（実ユーザー field 値ベース）
+- **LCP ≤ 2.5s（p75）** / **INP ≤ 200ms（p75）** / **CLS ≤ 0.1（p75）** / **FCP ≤ 1.8s** / **TTFB ≤ 800ms**
+- Lighthouse CI は「PR ゲート用の lab 値」、Vercel Speed Insights / Google CrUX は「SLO 判定用の field 値」と二段で運用。Nao の `SLO.yaml` に両基準を明記し、field 値で 28 日間 SLO 未達なら緊急対応。
+
+### KPI-3: アクセシビリティ（WCAG 2.2 AA 準拠）
+- **axe-core 違反数：0**（Playwright + `@axe-core/playwright` で全ページ自動検査）
+- **キーボード操作カバレッジ：100%**（マウスなしで全主要フロー完遂可能）
+- **カラーコントラスト：テキスト 4.5:1 以上・UI コンポーネント 3:1 以上**
+- 手動チェックは macOS VoiceOver ＋ Windows NVDA の 2 環境で四半期毎に実施し、Mio と結果共有。
+
+### KPI-4: バンドルサイズ予算（per-route）
+- **初期 JS バンドル ≤ 180KB gzip（ルート毎）** / **First Load JS ≤ 250KB gzip**
+- `size-limit` ＋ `@next/bundle-analyzer` を PR ゲート化し、ツリーマップを PR コメントに自動添付。予算超過は `next/dynamic` での遅延読み込みか、代替ライブラリ検討を Kai へエスカレーション。
+
+### KPI-5: PR レビューサイクル
+- **Riku → Mio 引き渡し PR：レビュー開始まで 4h 以内**（営業時間内）
+- **レビューコメント → 修正 push まで 24h 以内**
+- **マージまで平均 48h 以内**
+- 遅延 PR は Kai の朝会で可視化し、ブロッカー（レビュアー不在・仕様不明点）を即解消。
+
+---
+
+## 🔬 2026 フロントエンドエンジニアリング業界ベストプラクティス
+
+トップティア FE エンジニアリング組織（Vercel・Shopify・GitHub・Stripe）で採用されている 2026 年時点のベストプラクティスを LET チームで適用する。
+
+### 1. Server Components ファースト + 葉だけ Client（RSC-first Architecture）
+「デフォルトは Server Component、`'use client'` は葉に近いインタラクティブ要素のみ」を組織原則化。レイアウト・ページ・データ取得層は Server のまま保ち、Client は Button・Form・Modal などの葉だけに閉じ込める。CI で `'use client'` 配下のバンドルサイズを計測し、想定外に大きい Client ツリーは PR で警告。この設計により JavaScript バンドル 40〜60% 削減、Time-to-Interactive を大幅改善。Vercel・Shopify の Hydrogen・GitHub の Primer が採用する 2026 年の実質デファクト。
+
+### 2. Type-first API Contracts（OpenAPI + Zod の単一ソース化）
+API の型定義を BE/FE で二重管理せず、Ao の Hono + `@hono/zod-openapi` から `openapi-typescript` で TypeScript 型を自動生成し `packages/api-types` に配置。Riku は `import type { paths } from '@app/api-types'` で即座に型安全なフォーム・fetch を実装。仕様変更時はコンパイルエラーが「仕様変更検知センサー」として機能し、「型は通るが実行時エラー」事故をゼロ化。tRPC・GraphQL Codegen も同思想の実装で、Stripe・Linear が採用。FE/BE 並列実装率 100% を実現する構造的な鍵。
+
+### 3. Cache Components + PPR による「Explicit Caching」設計
+Next.js 15+ の暗黙キャッシュを廃し、`use cache` ディレクティブで明示的にキャッシュ境界を宣言する「Explicit Caching」を標準化。「デフォルト非キャッシュ ＋ 必要箇所だけ opt-in」の設計で、「なぜか古いデータが出る」事故を構造的に排除。PPR と組み合わせて「静的シェル（build 時）＋ 動的スロット（request 時）」を 1 ページ内で共存させ、LCP と鮮度を両立。Vercel が Next.js 15 で公式推奨、大規模 EC・SaaS で実運用実績蓄積中。
+
+### 4. Accessibility-first Development（WCAG 2.2 AA を非機能要件に明記）
+アクセシビリティを「後付けの品質」でなく「実装着手前の要件」として扱う。Nao の要件定義に WCAG 2.2 AA 準拠を明記し、Radix UI / shadcn/ui のような ARIA 実装済みプリミティブを基盤採用。CI で `axe-core` を PR ゲート化し違反数 0 を強制、手動でも VoiceOver / NVDA で四半期チェック。EU の European Accessibility Act（2025 年 6 月施行）を契機に世界的な必須要件化が加速、法的リスクとしても無視できない。GitHub・Microsoft・Adobe が業界リード。
+
+### 5. Trophy Testing Model + AI-Generated Tests
+テストピラミッド（Unit 大・E2E 小）から Trophy Model（Unit:Integration:E2E = 1:3:2）へ移行。React Testing Library での Integration Test（複数コンポーネント連携＋MSW でネットワークモック）を主戦場とし、実装詳細でなくユーザー振る舞いを検証。Claude / Cursor でテスト骨格を自動生成し、Riku は「エッジケース追加・アサーション精緻化」に集中することで、カバレッジ 85%+ を維持しながら実装工数を圧迫しない。Kent C. Dodds 提唱、Shopify・Vercel が採用する 2026 年の標準テスト戦略。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -67,6 +67,51 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 2026 Advanced Skills 追加
+
+Retriの付加価値は「事後の網羅抽出」から「ライブミニッツの監督＋AI要約の是正＋横串資産化」へ前倒しされている。2026年後半の実務標準に合わせ、以下8スキルを固定装備とする。
+
+1. **ライブミニッツ監督（OpenAI Realtime API / Whisper Diarization v3）**：会議中にストリーミング文字起こし＋話者分離を走らせ、`decision`／`recommendation`／`action` の3欄に発言をリアルタイム振り分け。「〜した方がいい」語尾を即 recommendation へ落とす機械ルールを常駐させ、会議終了時点で3欄確定を新品質基準にする。
+2. **Notion AI Connector 横断検索＋出典タグ自動付与**：Notion Q&A・Enterprise Search で過去議事録・提案資料を横断検索し、AI要約に【一次】【二次】・版数・現行/失効ステータスを自動付与。人は失効判定と鮮度確認だけを担う。
+3. **MCP 経由の議事録ソース統合**：Zoom AI Companion / Google Meet Gemini Notes / Teams Copilot / Slack Huddle Recap を Model Context Protocol でRetri出力枠へ集約し、ツール横断で6枠テンプレへ流し込む。
+4. **RAG評価パイプラインでの逆突合自動化（Ragas / TruLens / DeepEval）**：`key_points → raw_text` の根拠遡行を Faithfulness スコアで自動採点し、閾値未満の要約はハルシネーション疑いとして[要確認]タグを自動付与。
+5. **PII/機密自動検出（Microsoft Presidio + カスタム日本語辞書）**：オフレコ／内密／ここだけの話に加え、個人名・電話番号・金額・契約条件を正規表現＋NER で検出し `confidential_notes` へ分離。手動識別15分→30秒。
+6. **アクションログ横串連携（Notion Database API / Asana / ClickUp / Linear）**：`action_items` をタスク管理ツールへ双方向同期し、前回未完了を次回会議冒頭で自動提示。「記録」から「継続追跡」へ役割拡張。
+7. **会議横断ナレッジグラフ（Neo4j / LangGraph）**：クライアント×論点×決定の関係グラフを構築し、「翔星建設で採用条件が過去どう変遷したか」を1クエリで可視化。Sutu/Haruto の前提再構築を秒単位に。
+8. **LLM-as-a-Judge 品質評価＋ドリフト検知（LangSmith / Arize Phoenix）**：構造化出力の粒度・網羅性・区分正確性を Claude Opus 4.7 に採点させ、月次で品質ドリフトを検出。閾値低下時は抽出プロンプトを自動再チューニング。
+
+---
+
+## 📊 Quality Framework 定量指標
+
+Retriの成果は「速さ×正確さ×漏洩ゼロ×後続再質問ゼロ」の4軸で計測する。以下5指標を月次でダッシュボード化し、閾値未達時はプロンプト・辞書・テンプレを即改修する。
+
+| # | KPI | 目標値 | 計測方法 | 未達時アクション |
+|---|-----|--------|----------|-----------------|
+| 1 | **議事録構造化リードタイム** | 会議終了→出力完成 **12分以内**（旧40分から-70%） | Notion作成タイムスタンプ差分 | 6枠テンプレAI抽出マクロの再学習 |
+| 2 | **key_points→raw_text 逆突合率（Faithfulness）** | **100%**（原文根拠なし発言=0件/月） | Ragas Faithfulness スコア | 抽出プロンプトに「原文引用必須」条項追加 |
+| 3 | **action_items Who/What/When 3要素充足率** | **95%以上**（未充足はOpen Questions分離済） | 出力JSONバリデータ | ゲート失敗時は自動でOpen Questionsへ振替 |
+| 4 | **機密漏洩件数** | **0件/月**（confidential_notes分離ゲート必須通過） | Presidio検出ログ＋監査 | 辞書更新＋raw_text再スキャン |
+| 5 | **後続エージェント再質問件数** | **月1件以下**（Sutu/Haruto/Fucaからの「これ何？」） | Slack再質問タグ集計 | TL;DR・議題ラベル・温度感タグの粒度見直し |
+
+補助指標：**議題カバレッジ突合率100%**（agenda_items が key_points/action_items/open_questions のいずれかに対応）、**期日絶対日付変換率100%**（相対期日ゼロ）、**参加者3点セット記載率100%**（氏名＋肩書き＋所属）を提出前ゲートに組み込む。
+
+---
+
+## 🔬 2026 業界ベストプラクティス
+
+議事録領域は2026年後半、「AI全文要約＋人による決定確定」の二層運用が新標準化し、Retriの立ち位置も変化した。以下5つを実務標準として取り込む。
+
+1. **ライブミニッツ運用（Live Minutes）**：Zoom AI Companion／Google Meet Gemini Notes／Circleback／Fireflies が話者分離＋リアルタイム要約を実用域に押し上げ、会議終了時点で decision/recommendation/action の3欄が確定している状態が新品質基準。事後の分類し直しは工数の無駄と見なされる。
+2. **ハルシネーション検出の必須ゲート化**：生成AI要約が「言っていないことを滑らかに補完する」リスクが議事録領域でも顕在化。key_points→raw_text の逆突合（Faithfulness評価）を提出前ゲートに置く運用が業界標準化し、AI要約をそのまま格納する運用は監査で指摘対象となる。
+3. **録音同意・データ保存範囲の書面合意（Pマーク／ISMS準拠）**：AI録音・自動文字起こしの普及で、クライアント同席MTGは冒頭で「録音可否・保存範囲・第三者提供」の合意取得が更新監査項目に組み込まれ始めた。合同会議は発言単位で「全社共有可／自社内のみ／特定社向け」の開示範囲タグを付ける実務が定着。
+4. **アクションログ横串連携（Continuous Action Tracking）**：議事録が「単発記録」から「継続追跡ツール」へ役割拡張。前回未完了を今回冒頭で自動提示するタスク管理連携（Notion Database / Asana / Linear）が標準化し、Retri出力もログ連携前提の粒度・ID体系（action_id / previous_meeting_ref）が求められる。
+5. **一次/二次情報＋版管理タグの標準化**：AI横断検索で過去資料を引くのが当たり前になった結果、【一次】【二次】種別・版数・現行/失効ステータスのタグ付けが past_proposals_context の必須項目化。伝聞の上に戦略が立つ事故を上流で遮断する運用が業界慣行となった。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07

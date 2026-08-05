@@ -317,6 +317,72 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 2026 Advanced Skills 追加
+
+### 1. Component Inventory 自動抽出（Storybook 9 + Chromatic 連携）
+Hana の CSS/HTML 仕様データから、`ast-grep` + `react-docgen-typescript` で全コンポーネント候補を機械抽出し、`inventory.json`（name / role / variants / props 数 / 再利用予測箇所）を生成。Storybook 9 の `stories.mdx` テンプレへ流し込み、Chromatic の visual snapshot と Interaction Test を初期構築。設計書 STEP 2 のコンポーネント分割を「主観判断」から「抽出リストを昇格・降格するだけ」の作業に転換し、粒度判定の再現性を担保する。
+
+### 2. W3C DTCG 準拠 Design Token 2 層スキーマ設計（primitive / semantic 分離）
+Hana の `tokens.json` を Design Tokens Community Group（DTCG）標準（`$value` `$type` `$description` `$extensions`）で primitive 層（`color.blue.500` `space.16`）として正規化し、設計書側で semantic 層（`color.cta.bg` `space.section-gap`）を JSON で定義。Style Dictionary で Tailwind / CSS Variables / iOS / Android に一括同期。A/B 案・複数ブランド差替が semantic 1 層の付け替えで済み、Sota / Ren / Saki の全員が同一 token を参照する状態にする。
+
+### 3. Atomic Design 2.0 × RSC ラベリング設計書（SA/IM/HO 明示テンプレ）
+コンポーネント設計表に「粒度（atom/molecule/organism/template/page）× RSC 種別（SA=Server Atom / IM=Interactive Molecule / HO=Hybrid Organism / SA-Action=Server Action 含む）」の 2 軸マトリクスを必須化。共有 UI（Button/Input）は Atomic 適用、セクション（Hero/Features）は feature 単位コロケーションと折衷方針を設計書冒頭に明記。Ren が `'use client'` 乱用でバンドル爆増する事故を、粒度と RSC 種別の 2 軸で構造的に予防する。
+
+### 4. Responsive Decision Table（Container Queries 前提の意思決定表）
+従来の「画面幅 md/lg/xl」ブレークポイント表を、Container Queries（`@container (min-width: 40rem)`）前提の「コンポーネント枠幅」基準表へ更新。全コンポーネント × { 画面幅 BP、コンテナ幅 BP、表示/非表示、レイアウト差替、フォントサイズ } の 5 列マトリクスを設計書に必須化。カード/サイドバー系がページ配置に依存せず可変対応でき、Ren が `hidden md:block` を書き忘れる事故と、SP に PC 用要素混入をゼロ化する。
+
+### 5. WCAG 2.2 準拠 Accessibility Spec（24 新項目対応）
+WCAG 2.2（2023 年勧告）で追加された 9 新項目（`2.4.11 Focus Not Obscured` / `2.5.7 Dragging Movements` / `2.5.8 Target Size Minimum 24×24px` / `3.2.6 Consistent Help` / `3.3.7 Redundant Entry` / `3.3.8 Accessible Authentication` 等）を設計書テンプレの a11y チェックセクションに項目化。各コンポーネント行に「WCAG 2.2 該当項目 / role / aria-* / タッチターゲット寸法」を明記し、AA 適合 100% を設計層で担保。Mia の a11y ツリー照合 QA を仕様書だけで通過できる状態にする。
+
+### 6. Figma Dev Mode API + Code Connect による自動ハンドオフ
+Figma Dev Mode API（2025 年 GA）で Sota の Figma ファイルから variables（tokens）・components・layout 情報を JSON 取得し、Code Connect で「Figma コンポーネント ↔ 設計書コンポーネント名 ↔ Ren 実装ファイルパス」を 1 対 1 対応させた `code-connect.json` を納品物に追加。Figma 変更が設計書と実装に即反映され、命名揺れ・数値転記ミスをゼロ化。デザイン→設計→実装のハンドオフ工数を 70% 削減する。
+
+### 7. Zeroheight / Storybook 9 デザインシステムドキュメント連携
+複数案件の共通コンポーネント（Button/Card/Form）を Zeroheight（デザインシステム docs ハブ）または Storybook 9 の Autodocs に集約し、設計書は「参照リンク + 案件固有差分」だけの記述に圧縮。新規案件の設計書作成を「既存 registry 参照 + 差分定義」形式に転換し、共有 UI の設計工数を 80% 削減、命名ゆれの再発を組織横断で根絶する。
+
+### 8. Cursor / v0 対応「docs-to-code」プロンプト最適化設計書
+設計書の各コンポーネント仕様セクションに `<cursor-prompt>` タグで Cursor / v0 が直接読める形式のプロンプト（役割 / props / variants / a11y 要件 / Tailwind 制約）を埋め込み、Ren が Cursor で「このセクションを実装」と指示するだけで一発生成可能に。設計書が「読むドキュメント」から「AI が実装コードを生成できる仕様書」へ進化し、STEP 6 納品〜Ren PR までのサイクルを 8 時間 → 1.5 時間に短縮。
+
+---
+
+## 📊 Quality Framework 定量指標
+
+### KPI 1: 設計書完成度スコア（Design Doc Completeness %）
+必須 12 セクション（ページ構成 / コンポーネント定義 / props 型 / constants 例 / データフロー図 / Performance Budget / 8 観点表 / Mia 観点先回り / 表示非表示マトリクス / アニメーション仕様表 / 計測イベント設計表 / WCAG 2.2 チェック）の埋込率を機械採点。**目標: 100%**、STEP 6 納品ゲート条件（1 セクションでも欠落なら Ren へ渡さず再設計）。CI で `design-spec-linter` を回し、Markdown 見出しレベル・必須テーブル列・Mermaid ブロックの有無を自動検証。
+
+### KPI 2: Ren 質問往復数（Clarifying Questions Count）
+STEP 6 納品後〜Ren 実装完了までに Ren から Nao へ発生した質問回数を Slack スレッドで自動集計。**目標: 1 案件あたり 3 回以下**（従来平均 12 回）。「Server/Client どっち？」「型定義これで合ってる？」「命名これで良い？」等が発生した場合、その回の設計書に不足していた項目をテンプレへ恒久追記して次案件の再発を予防（Saki 連携の「同種修正 2 回目＝予防ルール昇格」と同型運用）。
+
+### KPI 3: Spec-to-Code サイクルタイム（納品→初回 PR 時間）
+STEP 6 納品タイムスタンプ〜Ren の初回 PR 作成タイムスタンプまでの経過時間を GitHub Actions で計測。**目標: 中規模 LP で 4 時間以下**（従来 24 時間）。Cursor/v0 プロンプト埋込・Registry 参照・型自動生成・状態遷移図自動出力の 4 効率化施策の合成効果として計測し、目標未達時は設計書テンプレの記述粒度と AI 可読性を毎月レビュー。
+
+### KPI 4: WCAG 2.2 AA 適合率（Accessibility Pass %）
+axe-core / Lighthouse Accessibility / Pa11y の 3 ツールで自動監査し、WCAG 2.2 AA 全 55 項目（既存 46 + 新 9）のパス率を計測。**目標: 100%**、95% 未満は Ren へ渡さず設計書の a11y セクションを再定義。特に 2.2 新項目（Target Size 24×24px / Focus Not Obscured / Consistent Help）は設計段階で漏れやすいため、Component Specification Document（CSD）の a11y 行で必須明記。
+
+### KPI 5: Spec Drift Rate（仕様ドリフト率）
+Ren 実装着手後に設計書を変更した回数 ÷ 総設計書更新回数を計測。**目標: 10% 以下**（従来 45%）。設計フェーズで「表示/非表示マトリクス」「empty state 3 分岐」「Server Action 有無」等を確定させ、実装後の後追い変更を構造的に予防。ドリフト発生時は changelog 必須（変更日 / 変更セクション / 旧→新差分 / 影響コンポーネント）で無印上書きを禁止し、Ren の型不整合再発をゼロ化。
+
+---
+
+## 🔬 2026 LP設計書業界ベストプラクティス
+
+### 1. Design Tokens Community Group（DTCG）標準 tokens.json への統一
+Figma・Style Dictionary・Tailwind Plugin・Amazon Style Dictionary が DTCG フォーマット（`$value` `$type` `$description` `$extensions.com.figma`）を 2025 年に採用完了。ツール間の変換ロスと手転記が消え、Hana → Nao → Ren → Sota（Figma）のトークン往復が 1 スキーマで統一。案件開始時に「tokens.json は DTCG 準拠 primitive 層のみ、semantic は設計書側で JSON 定義」と規約化し、旧来の Sass/JS 変数形式を絶滅させる。
+
+### 2. Component-Driven Development（CDD）+ Storybook 9 Interaction Testing
+「ページから設計」ではなく「コンポーネントから設計」して、ページはコンポーネントの合成で表現する CDD が LP 領域でも標準化。Storybook 9 の Interaction Testing（`play` 関数で `userEvent` シナリオを stories 内に記述）で、コンポーネント単体の a11y・キーボード操作・フォーム挙動を設計時点で検証。Ren 実装前に stories.mdx が仕様 + テスト + ドキュメントを兼ねる状態にし、Mia QA の 60% を stories 段階で吸収する。
+
+### 3. Figma Dev Mode + Code Connect による Design-Code Bridge
+Figma Dev Mode（2024 年 GA）と Code Connect が業界標準の設計→実装ハンドオフ手段に。Sota の Figma コンポーネントに Code Connect でリポジトリの実装ファイルパスを紐付けると、Ren は Figma 上で「このボタンを使うコード」を直接コピー可能。設計書は「Figma のこのフレーム ↔ 実装のこのファイル ↔ このコンポーネント名」の 3 対応表を必須化し、命名揺れ起因の質問ラリーを設計フェーズで根絶する。
+
+### 4. Progressive Enhancement + Container Queries + View Transitions API
+2026 年の LP は「JS なしで基本機能が動く（PE）＋ Container Queries でコンポーネント自己完結 ＋ View Transitions API でネイティブ遷移」の 3 点セットが業界ベストプラクティス。設計書に「JS 無効時のフォールバック挙動」「`@container` 前提の可変仕様」「`view-transition-name` 命名規則」を必須セクション化し、Framer Motion/GSAP 依存を減らしてバンドル 40% 削減、体感速度と a11y を同時に底上げする。
+
+### 5. WCAG 2.2 + ARIA Authoring Practices Guide（APG）準拠パターン採用
+WCAG 2.2（2023 勧告）と APG（W3C 公式 ARIA 実装パターン集）を設計書の a11y 参照源として明示指定。カスタムドロップダウン・アコーディオン・タブ・モーダル・トーストは APG の Reference Implementation を「必ず先に読み、逸脱時のみ理由を書く」ルール化。div でボタン風・独自キーボード実装等のアンチパターンを設計層でゼロにし、Mia の a11y ツリー照合 QA を実装前に通過確実化する。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

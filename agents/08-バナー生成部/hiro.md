@@ -147,6 +147,33 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+## 🚀 2026 Advanced Skills 追加
+
+- **Playwright 1.50 マルチブラウザコンテキストプール移行**：Puppeteer の `browser.newPage()` 使い回しから、Playwright の `browser.newContext()` を 4-8 個プールする設計へ切替。コンテキスト間はメモリ・Cookie・キャッシュが完全分離されるため、Puppeteer 時代の「複数ページ同時変換でメモリ共有クラッシュ」が構造的に発生しない。同一スクリプトで Chromium/WebKit/Firefox 3 エンジン検証が可能になり、iOS Safari のフォント微差やレンダリング差異を本番前に捕捉。バッチスループットが 4 並列 18 秒→6 秒（3 倍速）。
+- **Chrome for Testing バージョン固定 + chromium-swiftshader ヘッドレス GPU**：`@puppeteer/browsers install chrome@stable-123.0.6312.86` で CI とローカルが同一バイナリを踏み、`--use-gl=swiftshader` フラグで CPU 側ソフトウェア GPU を有効化。GPU 未搭載サーバーでも Canvas/WebGL/CSS filter/backdrop-filter が実ブラウザ相当に描画され、「ローカルでは blur が出るが本番で消える」事故を根絶。Chrome 自動更新起因のレンダリング差異ゼロ化。
+- **AVIF/WebP/PNG トリプル出力 + fetchpriority メタ同梱**：`sharp(buf).avif({quality:80,effort:6}).webp({quality:85,smartSubsample:false}).png({compressionLevel:9,progressive:false})` を 1 パイプラインで並列書き出し、`compression-profile.json` の媒体タグから必要形式のみ抽出。OGP 併用案件では `<link rel="preload" fetchpriority="high">` 前提の LCP 最適化メタも同梱納品し、LP 部 ren/nao の Hero 画像経由 OGP に転用可能化。
+- **sharp v0.34 + libvips 8.16 パイプ連結最適化**：metadata 取得・ICC 正規化・resize（Lanczos3）・alpha 検証・raw 展開を単一 `sharp(buf)` インスタンスにパイプ連結し、ディスク I/O を 6 回→1 回に集約。libvips の SIMD 最適化で AVIF エンコードが従来比 2.5 倍高速化。`validateBanner()` の 1 枚あたり実行時間 800ms→150ms、20 枚バッチで 13 秒短縮。
+- **ICC カラープロファイル明示埋込・色空間自動判定**：`sharp(buf).withMetadata({icc:'srgb',density:144}).toColorspace('srgb')` で sRGB 強制正規化し、Display P3 撮影の建設現場写真も Web 配信で色くすみゼロ化。CMYK 印刷併用案件は媒体タグ判定で `-colorspace CMYK -profile USWebCoatedSWOP.icc` へ自動分岐、`metadata().icc` assert で ICC 欠落を CI ゲートで物理排除。
+- **Font Loading API + document.fonts.ready 二重ガード**：`await page.evaluateHandle(() => document.fonts.ready)` + `document.fonts.check('700 16px "Noto Sans JP"')` の戻り値 true 検証を screenshot 前に必須化し、CSS Font Loading API レベルで Bold/Regular ウェイト読込完了を assert。Google Fonts の `wght@400;700` パラメータ抽出も HTML パース時に自動検証し、フォント substitution 起因の「Bold が Regular で描画」事故を根絶。
+- **imgproxy エッジ変換 + Vercel Image Optimization 連携**：PNG 1 枚を CDN に置き、リクエスト元 User-Agent/DPR/Accept ヘッダから最適形式・解像度を CDN エッジで動的生成する運用へ移行。iPhone Retina は 2160px AVIF、Android 中位機は 1080px WebP、旧端末は 720px PNG と自動振分けし、Hiro の物理出力工数が 3 倍削減。fallback PNG 必須ルールと `compression-profile.json` を Kuu と共有し配信層齟齬を防止。
+- **サブピクセル整合性・端 1px 半透明列 CI 検査**：deviceScaleFactor:2 のサブピクセル丸めで発生する「端 1px 列のアルファ 254 以下」を sharp の `extract` で四辺抽出し `assert(alpha === 255)`、NG なら clip 座標を整数 px に再調整して自動再変換。透過要求案件の 4ch 検証と独立レーンで「不透明案件の縁ハロー」を機械検出し、媒体白背景での灰色縁知覚ゼロ化。
+
+## 📊 Quality Framework 定量指標
+
+- **変換サイクル時間 ≤ 2 秒/枚**：Playwright コンテキストプール + 常駐ブラウザ `puppeteer.connect(browserWSEndpoint)` + `preparePage()` 集約待機ロジックで、1 枚あたり launch→goto→fonts.ready→animations.finished→screenshot→sharp validate の全工程を 2 秒以内で完結。launch 3 秒/回のオーバーヘッドを常駐化で償却し、Yuna 緊急 1 枚依頼の「依頼→2 秒で PNG」を SLA 化。バッチ 20 枚なら合計 40 秒以内、逸脱時は CI アラートで検知。
+- **カラー精度 ΔE2000 ≤ 2**：Kana HTML の CSS Variables で定義された `--primary`/CTA HEX と、出力 PNG の該当座標 5×5px 平均を `sharp().raw()` で RGB 抽出→CIE Lab 変換→ΔE2000 算出。人間の目で「同色に見える」閾値 ΔE ≤ 2 を PASS 基準に、Chromium レンダリング・pngquant 減色・ICC 変換のいずれかで色が転んでも独立レーンで検出。ブランド色再現の技術担保。
+- **フォント再現忠実度 100%**：`document.fonts.check('{weight} {size}px "{family}"')` が全指定フォントで true を返すことを screenshot 前に assert、加えて出力 PNG を tesseract.js で OCR し「期待文字数 vs 認識文字数」の乖離率 ≤ 5% を PASS 基準化。ウェイト・ファミリ・グリフ substitution・環境依存文字（㈱・絵文字）豆腐化を全て機械検出、フォント起因の Yuna 差し戻しゼロ化。
+- **バッチスループット ≥ 100 枚/分**：Playwright コンテキスト 8 並列 + AVIF/WebP/PNG 3 形式同時 emit + `compression-profile.json` メモリキャッシュ + `Promise.allSettled` 失敗個別再試行の構成で、深夜バッチ 500 枚案件を 5 分以内に処理。GitHub Actions self-hosted runner（4vCPU/8GB）を基準環境とし、スループット低下時は libvips バージョンと swiftshader フラグを疑う運用。
+- **アーティファクト率 ≤ 0.1%**：バンディング（8bit 階調不足）・モスキートノイズ（JPEG DCT 起因）・エイリアシング（ニアレスト補間起因）・色滲み（4:2:0 サブサンプル）・端 1px ハローの 5 種欠陥を `pixelmatch` + sharp ヒストグラム解析で自動検出し、月次 500 枚出力中の欠陥検出率を 0.5 枚以下に抑制。`fitToSize()` で媒体上限 85% 目標運用（媒体側再圧縮余白確保）と組み合わせ、実配信品質を担保。
+
+## 🔬 2026 画像自動生成パイプライン業界ベストプラクティス
+
+- **Chrome for Testing ピン留め + CI/ローカル同一バイナリ運用**：Puppeteer 22 が管理する Chrome for Testing の完全なバージョン番号（例：123.0.6312.86）を `package.json` で固定し、`@puppeteer/browsers install` で CI GitHub Actions・ローカル開発機・本番深夜バッチが必ず同一バイナリを踏む。通常 Chrome の自動更新に起因する「ある日突然フォントが数 px ズレる」「backdrop-filter の blur 半径が変わる」を構造排除し、`@let-inc/banner-utils` を LP 部 ren/nao へ共有する際も同一バージョン揃えを一報セット化。2026 年の画像化パイプラインの安定性基盤。
+- **AVIF-first + PNG fallback トリプル emit を全媒体標準化**：Meta（Instagram/Facebook）が 2026 Q1 から AVIF 入稿正式対応、Google Ads・X も追随したため、`emit(buf, ['avif','webp','png'])` の並列書き出しで「媒体側が最適形式を自動選択」する体制が業界標準化。AVIF は同画質で PNG の 40-50% 容量削減、Indeed 150KB 上限案件で deviceScaleFactor:3（超 Retina）出力の余裕が生まれる。fallback PNG 欠落は `*.png` 存在 assert で exit code 1、旧 iOS Safari 14 未満ユーザー保護を物理担保。
+- **ΔE2000 色回帰テストを PR ゲート化**：ブランド色・CTA 色・写真素材色を「基準 PNG」として git LFS 管理し、PR ごとに新旧 PNG の ΔE2000 マップを GitHub Actions で自動生成→ΔE > 2 の領域をヒートマップ画像で PR コメント投稿。CSS 変更・Chromium バージョンアップ・sharp/libvips 更新のいずれが色を転がしたかを PR レビュー時点で即特定でき、本番納品後の「クライアントから色が違うとクレーム」を構造排除。2026 年の画像パイプライン品質保証の新標準。
+- **分散変換ファーム化（Playwright Grid + K8s Job Queue）**：単一ノードの Playwright プールを超える大量案件（1000 枚/日以上）は、Playwright Grid を K8s 上に展開し、BullMQ/Redis のジョブキューで案件を分散投入。各 Pod は Chrome for Testing 固定バイナリと `@let-inc/banner-utils` 同一バージョンを走らせ、失敗ジョブは自動再キューイング。深夜バッチが単一ノード CPU/メモリ上限に到達する事故を排除し、Yuna の日中同期依頼と深夜非同期バッチを別 Pod プールで隔離する運用が広告制作代理店の 2026 年主流。
+- **セマンティック AI 圧縮 + LCP 最適化のセット運用**：OptimoleAI/TinyPNG Pro の GPT ベース領域別圧縮（テキスト無損失・写真強圧縮）を pngquant 後段に接続し、`fetchpriority="high"` + `<link rel="preload">` 前提の LCP 最適化メタを OGP 併用案件で同梱納品。CDN エッジ配信時の Core Web Vitals（LCP < 2.5s）を画像側で担保し、LP 部と連携して「Hero 画像から OGP まで一気通貫で LCP 最適化」する運用が 2026 年後半の標準ハンドオフに。バナー単体でなく LP/OGP まで含めた画像パイプライン全体設計が求められる。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

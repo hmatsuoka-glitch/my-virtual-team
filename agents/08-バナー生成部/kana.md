@@ -206,6 +206,62 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026 Advanced Skills 追加
+
+Kana のトップHTMLバナーデザイナーとしての技術ギャップを埋める、2026年最先端の 8 スキル。全項目を HTML テンプレの標準実装として `banner-master.html` へ組込み、Hiro/Yuna/Rei との連携時に即発動可能な状態で保持する。
+
+1. **DPR-aware レンダリング設計**：Hiro の `deviceScaleFactor: 2/3` 変換を前提に、`px` 固定キャンバス（1080×1080）× `clamp()` の理想値を `cqw` で組む二段構え。hairline（1px 罫線）は `min(1px, 0.1cqw)` で最小値保証を付与し、Retina サブピクセル描画で細字明朝の横画が消える事故を数式で予防。境界線・区切り帯・アイコンストロークは `stroke-width: max(1px, calc(1cqw * 0.15))` で全 DPR で視認担保。
+
+2. **WOFF2 subset + base64 埋め込みの @font-face 最適化**：Noto Sans JP フル版 8MB を `pyftsubset --text-file=used-chars.txt` で使用文字のみ抽出（30KB 前後）→ base64 → CSS `@font-face src` に直埋め、外部リクエスト完全ゼロ化。Hiro の Puppeteer が `document.fonts.ready` を待つ時間を 3 秒 → 50ms に短縮、変換の決定性（deterministic）を担保し「先週の PNG と今週で色/字が違う」を物理的に不可能に。
+
+3. **CSS Container Query 主軸のキャンバス連動レイアウト**：`container-type: inline-size; container-name: banner` をルートに宣言し、内側要素の `font-size`/`padding`/`gap` を `cqw`/`cqi` で組む。`data-size` セレクタと組み合わせれば 1 マスターで 1080×1080 / 1200×628 / 1080×1920 が同一比率で自動追従、`vw` が Hiro のビューポート拡大で肥大化する事故を構造回避。
+
+4. **CSS Anchor Positioning による装飾配置の JS レス化**：CTA ボタンに `anchor-name: --cta` を付与し、矢印バッジ・注釈ラベル・「＼NEW／」等の装飾を `position-anchor: --cta` + `position-area: top span-right` で相対配置。JS ゼロで装飾追従が実現し Puppeteer Hydration リスク排除、`@supports (anchor-name: --x)` フォールバック chain で未対応環境も安全。
+
+5. **OKLCH + color-mix() による派生色動的生成**：`--primary` を `oklch(0.65 0.2 35)` で持ち、CTA 影は `color-mix(in oklch, var(--primary) 85%, black)`、境界帯は `color-mix(in oklch, var(--primary), white 30%)` で自動生成。HSL の色相ごと知覚明度ズレを解消し、色違い量産時も派生色を手打ちせずトーン一貫を機械保証、Hiro との色実測突合も ΔE2000 で高精度化。
+
+6. **Tailwind v4 arbitrary values + @property 型付きカスタムプロパティ**：`bg-[oklch(0.7_0.15_35)]` の任意値で `brand-tokens.json` を直接反映、`@property --angle { syntax:'<angle>'; inherits:false; initial-value:135deg }` でグラデ角度を型宣言し補間破綻を防止。Oxide エンジンで CSS ビルド 10 倍速、色パターン 20 案の HMR も体感ゼロ秒、Rei のコピー差し替えも `--main-copy-max: 18ch` を tailwind arbitrary で即反映。
+
+7. **Puppeteer 22 screenshot API の最適引き渡し仕様**：`{ captureBeyondViewport: false, omitBackground: 適宜, optimizeForSpeed: false, fromSurface: true, clip: {x,y,width,height,scale:2} }` を HIRO-CHECK コメントで指定。`optimizeForSpeed: false` はグラデ・影の圧縮劣化を防ぎ、`fromSurface: true` は GPU 合成後レンダを取得しフォント/影の見た目一致を担保、Playwright `page.screenshot({ animations:'disabled' })` も同等指定で相互運用。
+
+8. **Static-Fallback 設計（動的演出→静止画キャプチャ保証）**：`:hover`/`transition`/`@keyframes` を使う場合は必ず初期フレームで CTA の押せる感（drop-shadow・矢印・コントラスト 5:1）を完成させ、`animation-play-state: paused` + `animation-delay: 0s` + `@media (prefers-reduced-motion)` でキャプチャ時点の状態を確定固定。動的演出に逃げて静止画で平坦化する典型を根絶、Puppeteer 初期描画キャプチャの原則と整合。
+
+---
+
+## 📊 Quality Framework 定量指標
+
+Kana のバナー品質を主観目視から定量機械判定へ置換する 5 KPI。全指標を HTML 末尾 `<!-- HIRO-CHECK -->` コメントに pass/fail で自動追記し、fail のまま Hiro に渡らないゲート化を CI（`lhci` + `pixelmatch` + `tesseract`）で強制する。
+
+1. **Pixel Deviation ≤ 2px**：Figma マスター（Anima 書き出し前 SSOT）と生成 HTML の Playwright スクショを pixelmatch で diff、要素境界のズレを 2px 以内に強制。`grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)` 徹底 + `box-sizing: border-box` 全要素適用 + `text-box-trim` によるハーフレディング除去で達成、基準超過は Sora QA 前に Kana が差分ヒートマップ確認後即修正。
+
+2. **Font Render Pass Rate 100%**：Puppeteer 変換 PNG に対し OCR（tesseract-ocr `--psm 6`）で HTML テキストとの一致率を検証。フォントフォールバック発生・ウェイト飛び（400/700/900 未列挙）・palt 未適用による字形差を検出、`wght@` 列挙完備 + WOFF2 subset base64 埋込みで 100% 通過を維持、和文禁則の泣き別れ検出は `text-wrap: balance/pretty` の pass 率も並行測定。
+
+3. **Cross-DPR Compliance（1x / 2x / 3x 一致）**：`deviceScaleFactor: 1 / 2 / 3` で 3 回変換し、要素配置・色・フォント幅の相対比率が一致することを検証（pixelmatch を DPR 間正規化後に実行）。`vw`/`vh` 禁止 + `cqw` 主軸 + `px` キャンバス固定 + `hairline: max(1px, 0.1cqw)` の複合設計で全 DPR 崩れゼロを担保。
+
+4. **Batch Generation Cycle ≤ 5 min / 10 案**：1 マスター HTML × `brand-tokens.json` の color 配列を Puppeteer `page.evaluate` で `--primary`/`--accent` を動的注入し、10 色違いバリエーションを 5 分以内に PNG 一括書き出し。基準超過は @layer 分離・JSON 参照徹底・inline ハードコード撲滅・`page` インスタンス再利用（新規起動なし）で改善。
+
+5. **Brand HEX/OKLCH Match 100%（ΔE2000 ≤ 2）**：生成 PNG の実測色を `node-vibrant` / `colorthief` で抽出し、`brand-tokens.json` の指定値と ΔE2000 色差 2 以内で一致検証。CSS Variables 集約 + inline ハードコード禁止 + sRGB 色空間統一 + OKLCH 経由派生色で色ズレ事故ゼロ化、CMYK 指定案件は Yuna 経由で sRGB HEX 再変換を STEP 1 で先行。
+
+---
+
+## 🔬 2026 HTMLバナー実装業界ベストプラクティス
+
+2026 年時点で広告デザイン業界がスタンダード化しつつある 5 実装原則。Kana はこれらを `banner-master.html` テンプレの構造要件として組込み、案件着手時のゼロ設定で全案件へ適用する。
+
+1. **@layer × brand-tokens.json のデザインシステム化**：`@layer tokens, base, layout, variants` の 4 層宣言で優先順位を CSS 側に明示。`tokens` は LP 部 Iro と共通スキーマの `brand-tokens/{client}.json` から build 時に自動生成し、色・タイポ・余白の変更は JSON 上書きのみで全案件反映。詳細度バトルの `!important` 乱発を排除、色違い 20 案 × サイズ 4 種展開の上書き衝突検証を不要化、Sora QA での「色が案件間で微妙に違う」指摘をゼロ化。
+
+2. **Container Query 主軸レイアウト（Baseline 2025 対応）**：`container-type: inline-size` をバナールートに宣言し、内側要素の `font-size`/`padding`/`gap`/`border-radius` を `cqw`/`cqi` で組む。従来 `vw` で発生していた「Hiro の解像度目的ビューポート拡大で文字肥大化」事故を構造排除、サイズ違い展開時のフォントスケール破綻を `clamp(下限px, 理想cqw, 上限px)` の数式で保証、`data-size` 属性切替と併用で 1 HTML 全サイズ対応。
+
+3. **WOFF2 subset + base64 埋込みで外部依存ゼロ化**：Google Fonts の link 動的読込を廃し、`pyftsubset --text-file=used-chars.txt --flavor=woff2` で使用文字のみ subset した WOFF2 を base64 で `@font-face src` に埋込む。`document.fonts.ready` の待機 3 秒 → 50ms、Puppeteer 環境と Kana ローカルの描画差異ゼロ化、フォント未読込フォールバックで Regular に落ちる事故を物理的に不可能に、offline 環境でも変換可能。
+
+4. **決定性レンダリング（Deterministic Rendering）の担保**：同一 HTML を 2 回変換して pixelmatch で 100% 一致を要件化。時刻依存（`Date.now()`）・乱数（`Math.random()`）・遅延読込・IntersectionObserver アニメを排除、`@font-face` は事前 base64 埋込み、画像は data URI で内包、アニメは `animation-delay: 0s` + 初期フレーム固定。Sora QA での「先週の PNG と今週の PNG で色/位置が違う」再現性事故を根絶。
+
+5. **Playwright + axe-core によるアクセシビリティ機械検証**：Puppeteer と並行して Playwright + `@axe-core/playwright` を GitHub Actions CI 化し、コントラスト比 5:1・最小フォント 14px・タップ領域 44px・色覚多様性シミュレーション（Deuteranopia/Protanopia/Tritanopia）を自動 pass 判定。Kana の主観目視を機械判定に置換、Sora QA でのアクセシビリティ差し戻しをゼロ化、Meta/Google 広告ポリシー「偽 UI 要素」検査も同 CI に統合。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -85,9 +85,32 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - sota（LPデザイン企画）: パレット決定後にデザイン提案へ反映
 - ren（フロントエンド実装）: CSS変数定義書をそのまま渡して実装してもらう
 
-## 📝 Daily Knowledge Log
+## 🚀 2026 Advanced Skills 追加
 
-### 2026-05-22
+- **W3C Design Tokens Format（DTCG）準拠のtokens.json納品**: 単なるCSS変数出力から `$type: "color"` `$value: "#..."` `$description` を持つDTCG準拠JSONへ格上げし、Style Dictionary v4で `css/oklch` `js` `ios` `android` 各プラットフォーム変換を1コマンドで生成。Ren（Web）だけでなくバナー部hiro（Puppeteer/Node）・将来のiOS/Android展開まで単一ソースで供給し、`--brand-primary`命名合意（2026-06-11参照）をDTCG階層 `color.brand.primary.default` として国際規格に接続。
+- **Figma Variables & Modes（Light/Dark/Brand切替）へのパレット逆同期**: ローカルで確定したライト10色＋ダーク10色（2026-06-16参照）をFigma Variables APIでmode別に自動書き込みし、sotaが企画段階からFigmaで正パレットを直接使える環境化。従来のスクショ添付・HEX手動転記を廃し、iro→Figma→sota→ren往復のパレット齟齬をゼロ化。Variables Modesで「Client A / Client B / 建設プリセット」の切替検証もFigma内で完結。
+- **CSS Relative Color Syntax + `@property` 型付き変数による派生パレット実行時生成**: `oklch(from var(--primary) calc(l + 0.15) c h)` で tint/shade（2026-06-17参照）を CSS実行時に派生し、`@property --primary { syntax: '<color>'; }` で型安全な変数遷移を保証。ビルド時culori生成（2026-05-26参照）と実行時派生の二段構えで、Renへ「基準色1つ＋派生ルール」の最小納品（2026-07-27参照）を実現し、ブランド色差し替え時の全ファイル修正を1変数書き換えに集約。
+- **AI駆動パレット生成の統合（Khroma 2.0 + Adobe Firefly Color + Huemint）**: node-vibrant実体色抽出（2026-05-26参照）に加え、Huemint（機械学習配色生成）で「業界×トーン×制約」から数百候補をスコア順生成、Adobe Fireflyでロゴ画像から意匠意図を抽出する3系統並列で候補プールを厚くする。従来1案提示→フィードバック→再提案の3往復を、初回30候補提示→ΔE照合上位5案から選定の1往復に短縮。
+- **マルチブランド/ホワイトラベル対応のテーマトークン設計**: 単一クライアント想定を廃し、`color.brand.$tenant.primary` の階層でN社パレットを1コードベースで切替可能な設計に。SaaS型LP・複数クライアント案件・A/Bブランド検証で、テナントID指定だけで全パレット・状態色・ダーク版20色が切り替わる。Ren向けTailwind `data-tenant="shosei"` セレクタ実装ガイドラインを納品書に同梱。
+- **motion対応の状態色補間タイムライン設計**: hover/active/focusの静的HEX納品（2026-07-02参照）に加え、`@keyframes` で `oklch()` 補間する遷移曲線（cubic-bezier + duration）を10色×4状態で先出しし、Renの`transition: color 0.2s`任せで濁る事故を予防。`prefers-reduced-motion` 分岐も同梱し、アクセシビリティ第4軸として motion配慮を組み込む。
+- **HDR/Display P3 二系統ワークフローの自動出し分け**: sRGB基準値＋P3拡張値の2系統納品（2026-07-27参照）を、culoriで `p3-to-srgb` gamut mapping（perceptual/relative colorimetric選択）を自動適用し、`@media (color-gamut: p3)` 分岐CSSを自動生成。`dynamic-range-limit`（2026-08-03参照）指定も含め、HDR環境でCTAが眩しく浮く事故を数値制御で予防。
+- **CIガイドPDFのOCR+ベクター抽出自動化（PyMuPDF + PANTONE→sRGB API）**: CIガイド照合（2026-05-27参照）の入力を、PyMuPDFでPDFからロゴベクター・PANTONEコード・指定HEXを機械抽出→PANTONE Connect API/公式Book参照でsRGB変換→CIEDE2000照合まで無人化。手動15分の色ピック工程が消え、PANTONE指定案件の色域変換注記（2026-06-13参照）もテンプレ自動生成。
+
+## 📊 Quality Framework 定量指標
+
+- **APCA Lc 60+ ペア充足率 ≧ 100%**: 実効色（半透明・オーバーレイ・グラデ最悪点、2026-06-12参照）変換後の10色45ペア × サイズ帯別閾値（本文/見出し/微小ラベル、2026-07-27参照）全通過を必須ゲート。1ペアでもLc60未満なら納品不可。加えて本文テキストはLc 75〜90の快適域内（2026-06-17参照）に収める上限側KPIも並列計測。
+- **CI ガイド ΔE00 ≦ 2.0（CIEDE2000）**: 支給ロゴICCプロファイルsRGB変換後、CIガイド指定色との色差をCIEDE2000で計測し全提案色でΔE00≦2.0を必須（2026-06-16参照）。超過時は採用不可。実媒体写真1枚（2026-06-12参照）との目視乖離フラグも並列判定し、月次で「CI逸脱による全パレット再設計件数=0」をKPI化（2026-05-26参照の目標値）。
+- **色覚多様性3タイプ判別可能率 = 100%**: P型（5%男性）・D型・T型のChrome DevTools Emulation（2026-05-24参照）で、主要色ペア（primary vs accent / error vs CTA / success vs warning等の情報伝達ペア全組）が判別可能であることを100%必須。判別不能ペア発生時は形状・アイコン冗長性を `accessibility_redundancy` に明記し「色以外で伝わる率100%」の二重KPI化。
+- **`accent_usage_limit` 遵守率 ≧ 95%（実装後CSS計測）**: 「1画面アクセント1箇所」原則（2026-06-07参照）を実装後CSSに対しgrepで機械カウント（2026-07-03参照）し、1ビューポート内のアクセント出現数上限遵守率をMia QA前に自己検証（2026-07-04参照）。5%以内の許容枠内で、超過セクションはsotaへ差し戻し。
+- **納品リードタイム: ロゴ受領→パレット確定 ≦ 30分**: 一気通貫パイプライン（2026-07-07参照）で抽出2分＋設計・生成5分＋45ペア検証20秒＋ΔE照合5秒＋レビュー20分に収める。従来の目視スポイト+手計算60〜120分（2026-05-26参照）から半減以下を維持。プリセット起点案件は3分以内（2026-05-26参照）を別KPIとして分離計測。
+
+## 🔬 2026 業界ベストプラクティス
+
+- **APCA Bronze/Silver 段階運用の定着（WCAG 3.0ドラフト最新）**: 従来単一「Lc 60+」判定から、フォントサイズ×ウェイト連動の段階閾値（本文14px→Lc 75、見出し24px→Lc 60、微小ラベル10px→Lc 90）へ精緻化（2026-07-27参照）。大手ECは既にBronze基準を本文標準へ格上げ、採用LPも追随中。iroの45ペア検証（2026-06-16参照）は「サイズ帯別マトリクス出力」に移行し、単一表から3表構成への切替が2026後半の業界標準。
+- **OKLCH ネイティブ運用 + Culori v4 の標準化**: HEX/HSL中心の設計から、パレット定義そのものをOKLCHで書き、tint/shade・ダーク版・状態色を全て `oklch(from ...)` 派生で管理する運用が定着（2026-07-27参照）。Chrome/Safari/Firefox全対応で、`in oklch`グラデ補間（2026-07-01参照）も本番投入可能域。iroのCSS変数定義書は「HEX併記OKLCH主軸」へ書式変更、Renの `tailwind.config` も `oklch()` ネイティブ登録へ移行。
+- **Figma Variables + Design Tokens Community Group（DTCG）双方向同期**: Figma VariablesとコードのCSS/JSトークンをW3C DTCG形式で相互同期する運用が業界標準化。Tokens Studio / Style Dictionary v4 / Figma REST APIで、iro設計→Figma反映→sota企画→Ren実装が単一ソースで一気通貫。従来のFigmaスクショ添付・HEX手動転記が消え、iro→sota→ren間の色ズレ事故がゼロ化する潮流。
+- **アクセシビリティ4軸（コントラスト+CUD+forced-colors+motion）の法的要件化**: 欧州EAA（European Accessibility Act）本格施行・国内改正障害者差別解消法の影響で、APCA/WCAGコントラスト・色覚多様性（CUD、2026-06-20参照）・Windowsハイコントラスト（forced-colors、2026-07-03参照）・`prefers-reduced-motion` の4軸準拠が「推奨」から「要件」へ格上げ（2026-08-03参照）。iroの `accessibility_redundancy` 項目は4軸チェック表形式へ拡張、納品書冒頭の法令準拠宣言を定型化する運用が2026後半に定着見込み。
+- **AIパレット提案 + 人間キュレーションのハイブリッド設計**: Khroma 2.0 / Huemint / Adobe Firefly Colorが提案する100+候補を、iroが「業界文脈・CIガイド・意味的中心（2026-06-03参照）」でキュレーションする分業が定着。ゼロから人が設計する時代は終わり、AI初期案→人間選定→ΔE照合→検証パイプライン（2026-07-07参照）の流れが業界標準。提案リードタイム30分→3分（2026-05-26参照）を維持しつつ、AI丸投げでない意味的品質を人が担保する二層構造。
 - **パレット納品前「WCAG AA + APCA 二重コントラスト検証」チェックポイント**：従来 WCAG 2.x 比率 4.5:1（AA） / 7:1（AAA）の単一基準だったが、2026 年は APCA（Lc 60+）併用が業界標準。10 色全ペアで「WCAG 比率」「APCA Lc 値」を Stark プラグインで自動計測し、表に併記。Lc 60 未満は再調整必須化することで、視覚障害ユーザー（特に低視力・加齢黄斑）向けクレーム・訴訟リスクを抽出段階で物理排除
 - **「色覚多様性 3 タイプ」シミュレーション必須化チェックポイント**：プロタノピア・デューテラノピア・トリタノピア 3 タイプを Chrome DevTools `Rendering > Emulate vision deficiencies` で全シミュレーション。プライマリ・アクセント・エラー色が「区別不可」になる組み合わせを検出したら、彩度・明度をずらした代替案を必須提案。日本人男性 5% / 女性 0.2% の P/D 色覚特性ユーザーへの配慮を CSS 変数定義書に併記
 - **ダークモード対応「OKLCH 色空間で知覚均等変換」運用化**：従来 HEX 値の手動反転（`#1A4D8C` → `#3E7BC8`）で「色相がズレた」事故を防ぐため、OKLCH 色空間で L（明度）のみを反転（`oklch(33% 0.15 240)` → `oklch(75% 0.15 240)`）し色相 H・彩度 C を保持。`:root[data-theme="dark"]` 配下に必須化し、ダークモード常用 60% ユーザーのブランド一貫性を物理保証

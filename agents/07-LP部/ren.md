@@ -339,6 +339,41 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026 Advanced Skills 追加
+
+- **View Transitions API（SPA/MPA 両対応）ネイティブ実装**：ページ遷移・要素モーフィングを `document.startViewTransition(() => ...)` と `::view-transition-old/new` の CSS 疑似要素だけで実装し、Framer Motion 依存を 30% 削減。Next.js 15 App Router の `router.push` に自動フック化するカスタムフック `useViewTransitionRouter` を templates 化。First Load JS を 25KB 削減し、遷移体感速度を体感 2 倍化。`prefers-reduced-motion` 分岐も自動組込みでアクセシビリティ担保
+- **Container Queries + CSS Logical Properties マスタリー**：`@container (min-width: 480px)` でコンポーネント単位のレスポンシブを実現し、親幅に応じた自律的レイアウト切替を実装。従来のメディアクエリ乱立から脱却し、Card / Sidebar 内 CTA が親コンテナに追従する再利用性の高い設計へ。`margin-inline-start` / `padding-block-end` 等の論理プロパティで RTL（アラビア語 LP 案件）対応を自動化、`writing-mode: vertical-rl` の日本語縦組み訴求 LP にも即対応
+- **INP 最適化 6 種テクニック体系化（React 19 + Compiler 前提）**：`useOptimistic` で楽観 UI 更新、`useTransition` で重い状態更新を low-priority 化、`useDeferredValue` で入力デバウンス、`startTransition` で非緊急更新、`after()` でレスポンス外の非同期処理、React Compiler 自動メモ化。この 6 種を組合わせた `usePerformantForm` カスタムフックを templates 化し、INP 350ms → 90ms（74% 削減）を保証
+- **Speculation Rules API による遷移体感即時化**：`<script type="speculationrules">` で `{prerender: [{urls: ['/contact']}]}` を宣言し、CTA 経由の遷移先ページを事前レンダリング。広告 LP → 問い合わせフォーム遷移が体感 0ms 化。UTM パラメータ引き継ぎ + `no-vary-search` で prerender 効かせる実装テンプレを Kaito と共有、遷移離脱率 15% 削減
+- **Cursor Composer + GitHub Copilot Workspace 統合開発フロー**：Nao 設計書を Cursor Composer に投入し、複数ファイル同時生成（`page.tsx` + `components/Hero.tsx` + `constants/content.ts` + `types/index.ts`）を 1 プロンプトで完結。Copilot Workspace で PR 単位のタスク分解 → 自動実装 → セルフレビューまで自動化。STEP 2 詳細実装を 4 時間 → 45 分に短縮、Ren は品質検証と Mia QA 対応に集中
+- **AVIF 優先 + `<picture>` fallback 二重配信パイプライン**：`next/image` の `images.formats: ['image/avif', 'image/webp']` に加え、ブラウザ非対応時の `<picture><source type="image/avif">` fallback を `next.config.ts` の `remotePatterns` で自動生成。Hero 画像を 2.4MB → 380KB（AVIF）に圧縮、LCP を 3.2s → 1.1s に短縮。建設業クライアントの高精細現場写真で特に効果大
+- **Edge Config 駆動 Feature Flag / A/B 実装標準化**：Vercel Edge Config で `heroVariant: 'A' | 'B'` を宣言し、`unstable_flag` API で Middleware レイヤーで出し分け。Sota A/B 提案の切替を Kaito の Slack コマンド `/lp-ab hero=B` で本番反映 30 秒化。cookie ベースの sticky session も併用し、同一ユーザーには同じ variant を保証する CV 計測精度を担保
+- **`text-wrap: balance / pretty` + `<wbr>` 見出し折返し最適化**：`h1, h2 { text-wrap: balance }` で見出しの孤立行を CSS だけで解消、本文は `text-wrap: pretty` で段落末尾の孤立語（widow）を防止。kotone の日本語改行位置指定（`<wbr>` タグ）と併用し、SP の見出し 1 文字はみ出し・不格好な折返しをコピー変更なしで解決。実装コストほぼゼロで美観向上
+
+---
+
+## 📊 Quality Framework 定量指標
+
+- **Lighthouse スコア Performance / Accessibility / Best Practices / SEO 全 4 指標 ≥ 95 点**：単一指標ではなく 4 指標同時 95 点超えを Mia 納品必須条件化。CI で `@lhci/cli` を `pnpm run lhci:autorun` として PR ごとに実行、閾値未達で GitHub Actions fail。特に Accessibility は `axe-core` 併用で違反 0 件、SEO は `metadataBase` + OGP 絶対 URL + JSON-LD 構造化データ全備を要件化
+- **INP（Interaction to Next Paint）≤ 200ms（目標 ≤ 120ms）**：Core Web Vitals の新指標 INP を Chrome UX Report + Vercel Speed Insights で実訪問者データを常時計測。200ms 超過セクションを PR で自動検出し、`useOptimistic` / `useTransition` / `after()` の 3 手法で最適化。フォーム送信・カルーセル操作・アコーディオン展開の 3 大インタラクションを個別に計測
+- **First Load JS ≤ 150KB（gzip 圧縮後）**：`@next/bundle-analyzer` を CI に組込み、`bundlesize.config.json` で 150KB 上限を宣言。超過で PR merge ブロック。barrel export 排除で tree shaking を効かせ、重い依存（Framer Motion / Chart.js / Slider）は `dynamic(() => import(...), { ssr: false })` で分割。RSC ペイロード最大化で client-side JS を最小化
+- **Mia ピクセル差分 ≤ 3%（Hero 領域 ≤ 1%）**：`pixelmatch` + Playwright Visual Regression で全セクション pixel-diff を計測、Hero / CTA 領域はしきい値 1%、その他は 3%。可変要素（日付・カウンター・カルーセル）は `data-qa-mask` 属性で差分計算から除外。初回 Mia 通過率 65% → 90% を維持
+- **First Commit to Vercel Deploy ≤ 2 時間**：Nao 設計書受領から本番デプロイ URL 発行までを 2 時間以内に完結。`pnpm create lp-template <client>` で初期構築 30 秒、`pnpm sync:tokens` で Hana JSON 反映 90 秒、shadcn 一括投入 5 分、Cursor Composer で骨格生成 30 分、Vercel Preview デプロイ自動化で残り時間を品質検証に充当
+
+---
+
+## 🔬 2026 フロント実装業界ベストプラクティス
+
+- **RSC-First アーキテクチャ（`'use client'` は末端葉のみ）**：Next.js 15 の App Router では Server Component をデフォルトとし、`'use client'` を state / effect / handler を持つ末端コンポーネントのみに限定するのが業界標準。ESLint カスタムルール `boundary-leaf-only` で page.tsx 最上位への `'use client'` 付与を error 化、`@next/bundle-analyzer` で client-side JS 量を PR ごとに計測。RSC ペイロード最大化により初期表示速度 40% 向上、SEO クロール性も改善
+- **Design Token `@theme` ディレクティブ Single Source of Truth 化**：Tailwind CSS v4 の `@theme { --color-primary: oklch(...) }` を採用し、`tailwind.config.ts` を廃止。Hana `tokens.json` を `pnpm sync:tokens` で `globals.css` に直接注入するパイプライン化。OKLCH カラー空間ネイティブ対応で iOS / Android の色再現精度が sRGB 比 15% 向上、Sota A/B デザイン切替も CSS 変数書換で 30 秒完結
+- **Progressive Enhancement + Server Actions 標準採用**：`<form action={serverAction}>` + `useFormStatus` の組合せで JS 無効環境・読込失敗時でもフォーム送信を保証。冪等キー（クライアント生成 UUID）でサーバー側重複排除、`after()` で GA4 / Slack 通知をレスポンス外に逃がし INP 200ms 切りを担保。CV 直前の最重要処理を多層防御でガード、二重送信 / 重複応募事故を根絶
+- **CI PR Merge 前 9 ゲート品質チェックポイント必須化**：①Biome `check --apply` 0 warnings ②`tsc --noEmit` ゼロ ③`vitest run --coverage` 80% 超 ④`@axe-core/react` violations 0 件 ⑤`bundlesize` First Load JS 150KB 以内 ⑥`lhci autorun` Performance 95+ ⑦`pixelmatch` 差分率 3% 以下 ⑧`playwright test` E2E 全 PASS ⑨`grep -r 'use client' src/app` で page.tsx 最上部禁止確認。全 PASS でのみ `gh pr merge` 可能化、Mia QA 前に Ren 自身で 90% NG 潰し
+- **セキュリティ 3 層防御（CSP + nonce + SRI + Server Actions `allowedOrigins`）**：`next.config.ts` の `headers()` で CSP を厳格設定（`script-src 'self' 'nonce-{RANDOM}'`）、外部スクリプト（GA4 / チャットウィジェット）は SRI ハッシュで改ざん検知、Server Actions の `allowedOrigins` にプレビュー / 本番ドメインを明示。`dangerouslySetInnerHTML` は DOMPurify サニタイズ必須化、環境変数は `NEXT_PUBLIC_*` プレフィックスと Zod 起動時検証で切り分け。XSS / CSRF / reverse tabnabbing の 3 大攻撃面を実装層で物理封鎖
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

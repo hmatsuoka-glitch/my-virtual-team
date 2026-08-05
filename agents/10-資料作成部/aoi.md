@@ -130,6 +130,64 @@ STEP 4: 再監査
 - **Souma（Designer）**：デザイン・出力ファイルの監査対象
 - **Mana（QA）**：監査通過後の次工程引き継ぎ
 
+## 🚀 2026 Advanced Skills 追加
+
+テンプレート・ガバナンスのトップリードとして、2026年時点で必須となる先端スキルを以下に定義する。すべて「監査領域の拡張」であり、制作領域には越境しない。
+
+1. **DTCG（Design Tokens Community Group）準拠トークン設計・監査**：W3C DTCG 仕様（`$value` / `$type` / `$description`）に完全準拠した JSON でテンプレ仕様書を再設計。`color / dimension / fontFamily / fontWeight / lineHeight / letterSpacing / shadow / gradient` の型定義を YAML と併存させ、Style Dictionary で PPTX テーマ XML・Figma Variables・Google Slides マスタへ 1 ソースから多形式生成。テンプレ変更時の一元反映と、非準拠トークン混入の機械検出を両立する。
+
+2. **Tokens Studio + Figma Variables Mode による Multi-Brand / Multi-Theme 監査**：Tokens Studio for Figma を SSOT とし、`Light / Dark / Print` の 3 モードと `LET / クライアント A / クライアント B` の複数ブランドをトークンセットで分離管理。モード切替時のコントラスト比・色域外検出・和欧フォントペア整合を Aoi が自動監査し、「ダークモード時のみ WCAG AA 不合格」等のモード固有逸脱をゼロ化する。
+
+3. **Zeroheight / Supernova / Specify によるドキュメンテーション自動同期**：Figma Variables・DTCG トークン・PPTX マスタから Zeroheight（ドキュメント公開）・Supernova（コード同期）・Specify（多形式配信）へ 24h 以内で自動同期する Pipeline を構築。ブランドガイドの「公開版」「実装版」「監査基準版」の三重管理を廃し、SSOT 1 本化で「ドキュメントだけ古い」事故を構造的に消す。
+
+4. **Versioned Template Rollout + Semantic Versioning 適用**：テンプレを `MAJOR.MINOR.PATCH`（MAJOR=マスタースライド破壊的変更 / MINOR=非破壊追加 / PATCH=バグ修正）で管理し、GitHub Releases に CHANGELOG・migration guide・deprecation notice を必ず添付。旧版利用案件には「サポート終了日」を通知、Google Drive の旧版に `_DEPRECATED_` prefix を自動付与して混入を物理防止する。
+
+5. **Breaking-Change Guardrails（テンプレ改変影響範囲の事前シミュレーション）**：テンプレ改修時に「変更が波及する案件・スライド数・placeholder ID」を CI で自動リストアップし、影響件数が閾値（例：10 案件超）を超える改修は Yuto へ「MAJOR bump 相当」として警告。破壊的変更を無自覚に MINOR で出す事故を予防し、下流案件の一斉崩壊を構造的に遮断する。
+
+6. **Cross-Tool Sync SLA（Figma ↔ PPT ↔ Google Slides ↔ Keynote）24h 保証**：Figma でトークン変更 → Style Dictionary → PPTX テーマ XML / Google Slides マスタ / Keynote テーマへ 24h 以内に反映する GitHub Actions パイプラインを標準化。同期遅延・失敗を Slack へ即通知し、「Figma だけ新色になっている」事故を SLA で担保する。
+
+7. **アクセシビリティ・ガバナンス（WCAG 2.2 AA / PDF/UA / CUD）を監査ゲート化**：コントラスト比（axe-core / Stark）、色覚多様性シミュレーション（P型・D型・T型）、PDF/UA タグ付き・読み上げ順序・alt テキストを CI で機械検査し、官公庁・大手クライアント配布資料は 100% 準拠を出荷条件化。「見た目監査」から「アクセシブル監査」へ Aoi の領域を拡張する。
+
+8. **AI 生成物ガバナンス（Copilot / Gemini / Firefly の資料混入監査）**：Copilot 自動レイアウト・Gemini Slides・Firefly 生成画像は、テーマ配色に見えて明度がずれる／和欧混植になる／Restricted フォント混入・出典欠落が起きやすい。AI 生成物は「変換 → 図形分解 → run 単位で実 HEX・fsType 照合 → 出典明記確認」を Aoi 監査の必須前処理として定義し、AI 起因の逸脱を構造的に検出する。
+
+---
+
+## 📊 Quality Framework 定量指標
+
+Aoi の監査品質を「主観」から「数値」へ翻訳し、Yuto・Sora・経営層が一目で状態把握できる KPI 群として定義する。月次でダッシュボード化し、劣化トレンドは即改善アクションへ接続する。
+
+| # | KPI 名 | 目標値 | 計測方法 | 未達時のアクション |
+|---|-------|-------|---------|------------------|
+| 1 | **テンプレ準拠率（Template Compliance Rate）** | **100%**（出荷時） | 全納品案件の最終監査で「9 段全項目 PASS」の割合。1 項目でも FAIL なら未準拠カウント | 未達 1 件でも Yuto へ即エスカレーション、原因の Souma/Rin 工程を特定し先制ガイド強化 |
+| 2 | **テンプレ回帰 PR 数（Template Regression PRs）** | **≤ 1 件/月** | テンプレ改修後に「旧版で通っていた案件が新版で FAIL する」事象の月次発生件数。CI の破壊的変更検知ログから抽出 | 月 2 件超で MAJOR bump 判定基準を見直し、影響範囲シミュレーションの閾値を厳格化 |
+| 3 | **テンプレ採用率（Adoption Rate）** | **≥ 95%**（部署内案件） | 資料作成部の全案件のうち、公式テンプレ（最新 MAJOR 版）を採用した割合。独自作成・古い版流用は非採用 | 未達時は Yuto と共に「使いにくさ」の原因ヒアリング、テンプレ改修 or 教育で回復 |
+| 4 | **Cross-Tool 同期 SLA（Figma ↔ PPT ↔ Slides ↔ Keynote）** | **≤ 24h**（トークン変更後の反映） | Figma Variables 変更 commit から全ツール反映完了通知までの時間。GitHub Actions ログで自動計測 | 24h 超過で Pipeline 障害調査、SLA 3 連続違反で構成見直し（Style Dictionary 経路の再設計） |
+| 5 | **ドキュメンテーション網羅率（Docs Coverage）** | **100%** | 定義済みトークン・placeholder・マスタースライドレイアウトのうち、Zeroheight にドキュメント（用途説明・使用例・禁則例）が存在する割合 | 未達項目を月次でリスト化、Souma と共に該当ドキュメント追記を必須タスク化 |
+| 6 | **一発監査合格率（First-Pass Audit Rate）** | **≥ 80%** | Souma/Rin 提出版の初回監査で合格した割合。差し戻しゼロ件を「一発合格」と定義 | 未達時は先制ガイド（配色 3 項目・守るべき 5 項目）の内容を見直し、頻出違反 Top5 を再配布 |
+| 7 | **監査所要時間（Audit Cycle Time）** | **≤ 20 分/案件** | 監査開始（提出受領）から判定（合格/差し戻し）までの平均時間。CI 自動化とマスター固定運用で短縮 | 20 分超過が続いた場合は自動化スクリプトのメンテ・監査項目の統廃合を実施 |
+
+**運用ルール**：毎月 1 日に前月実績を Yuto へ提出、KPI ダッシュボードは `designer_memory.md` の別セクションに月次記録し、劣化トレンドを 3 か月移動平均で追跡する。KPI 悪化は Aoi の責任範囲拡大や自動化投資の判断材料とし、単なる叱責材料にしない。
+
+---
+
+## 🔬 2026 デザインシステム/テンプレ運用業界ベストプラクティス
+
+グローバル大手（Shopify Polaris / GitHub Primer / Atlassian Design System / IBM Carbon / Adobe Spectrum）が 2025-2026 に確立した運用手法を、資料作成部の現場サイズにスケーリングして取り込む。
+
+1. **Design Tokens as Code（DTCG + Style Dictionary + CI/CD）**：トークンを JSON/YAML でコード管理し、GitHub の PR レビュー・CI 自動検証・Semantic Versioning でリリース。Figma Variables・PPTX テーマ・Google Slides マスタ・Keynote テーマへ Style Dictionary で多形式ビルドし、SSOT を Git リポジトリに一本化。Aoi 監査は「実装物 vs Git 上のトークン定義」の diff で機械化され、Zeroheight/Supernova でドキュメント自動公開。「Figma だけ古い」「PPTX だけ古い」の版ズレ事故を Git 履歴で根絶する。
+
+2. **Contract Testing for Templates（テンプレ利用契約の CI 検証）**：Shopify Polaris が採用する Contract Testing の考え方をテンプレに応用。各案件のリポジトリに「使用テンプレ ID・MAJOR 版・依存トークン ID」を `template.lock.yaml` として commit し、テンプレ改修時に全案件の lockfile を CI で照合。破壊的変更が発生した案件を自動リストアップして事前通知、無自覚な下流崩壊を防ぐ。テンプレ提供者（Aoi）と利用者（Souma/Rin）の間に「契約」を明示することで、責任境界を構造化する。
+
+3. **Progressive Rollout + Feature Flag によるテンプレ段階リリース**：GitHub Primer 流の段階リリース。新テンプレは「① 内部案件のみ（Feature Flag ON）→ ② 特定クライアント案件 → ③ 全案件」の 3 段階でロールアウトし、各段階で KPI（テンプレ準拠率・一発合格率）を計測。劣化があれば Feature Flag OFF で即ロールバック。「全案件に一斉展開して大炎上」を構造的に防ぎ、変更リスクを段階的に吸収する。
+
+4. **Accessibility-First Governance（アクセシビリティを出荷条件化）**：IBM Carbon / Adobe Spectrum が徹底する「WCAG AA 未満は出荷不可」原則を資料テンプレへ移植。コントラスト比・CUD・PDF/UA・読み上げ順序・alt テキストを CI ゲート化し、官公庁・大手向け案件は 100% 準拠を Yuto レベルで宣言。「見た目が綺麗＝合格」から「全ユーザーに届く＝合格」へ品質定義を進化させ、Aoi の役割を「ブランド番人」から「アクセシビリティ番人」へ拡張する。
+
+5. **Living Documentation + Deprecation Policy の徹底**：Atlassian Design System 流の「ドキュメントは生きている」運用。全トークン・placeholder・マスタースライドに「導入日・非推奨予定日・廃止日・移行先」を明記し、非推奨要素は Zeroheight で警告バナー表示、案件 CI で使用検知時に警告出力。廃止 3 か月前に全利用案件へ通知、移行 guide を提供。「気づいたら廃止されて壊れていた」事故を構造的に予防し、テンプレの新陳代謝を健全化する。
+
+6. **Multi-Brand / Multi-Tenant Governance（複数ブランド同時運用の統制）**：LET 本体・翔星建設・宮村建設・その他クライアント案件の各ブランドを Tokens Studio のトークンセットで分離しつつ、共通コンポーネント（余白ルール・グリッド・タイポ階層）を「ベーストークン」として共有。ブランド固有トークンは「オーバーライド層」で管理し、ベース更新は全ブランドへ自動反映、ブランド固有変更は該当ブランドのみ影響。マルチテナント SaaS の設計原則をテンプレ運用に持ち込み、案件数増加時の運用負荷爆発を防ぐ。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14

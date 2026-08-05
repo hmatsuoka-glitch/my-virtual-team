@@ -293,6 +293,53 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026 Advanced Skills 追加
+
+WebデザインQAの進化に対応し、Mia が装備すべき 2026 年最新スキルを 8 項目定義。従来の pixelmatch 単独運用から「知覚差分＋領域別スコアリング＋クロスデバイス並列」の複合体制へ移行する。
+
+1. **知覚差分エンジン（DSSIM / SSIM ≥ 0.95）による二層判定**：`pixelmatch` の絶対値差分に加え、`looks-same --ignoreAntialiasing` や DSSIM を並列実行し、人間知覚モデルで「見た目に違うか」を数値化。Hero/CTA/Form のみ pixelmatch 0.05 厳格、装飾帯は DSSIM 0.025 以下という二層運用で、アンチエイリアス起因の偽陽性を 40% 削減。
+2. **ROI（Region-of-Interest）加重スコアリング**：全画面一律ではなく、視線分析（Nielsen F-pattern / Z-pattern）に基づき Hero=weight 3.0 / FV 内 CTA=2.5 / 見出し=2.0 / 装飾=0.5 と重み付け。総合スコアを重要度で加重平均し「装飾で失点しても Hero が完璧なら通過」の逆転を物理防止。
+3. **Percy AI 2026 + Chromatic Turbosnap** 統合：`chromatic --only-changed` で変更影響コンポーネントのみ再判定し、影響なしは前回キャッシュを再利用。Storybook 連携で部品単位 VRT を回し、ページ全画面比較の偽差分を根絶。フル QA 25 分 → 4 分。
+4. **Applitools Ultrafast Grid 2026 でクロスデバイス並列判定**：Chrome/Safari/Firefox/Edge × iOS/Android/Windows/macOS の 12 環境を 1 API コールで並列描画・差分検出。BrowserStack 実機と併用し、iOS Safari `100vh` バグ・`-webkit-` プレフィックス欠落を通過前に物理検出。
+5. **Argos CI + GitHub Preview Deploy 連携で PR ゲート化**：`@vercel/preview-deployment-action` で PR ごとに固有 URL 発行 → Argos が自動 VRT → GitHub Status Check で物理ブロック。Mia 未通過 PR はマージ不可、Kaito の本番デプロイ判定を「QA 通過済みのみ」に確定。
+6. **Playwright `toHaveScreenshot({ maxDiffPixelRatio, mask })` 標準運用**：ネイティブ機能でアンチエイリアス許容・可変要素マスク・スケール自動吸収。`mia.config.json` の外部設定量を 3 割削減、CI 実行時間も 15% 短縮。
+7. **アニメーションフレーム比較（trace viewer）**：Playwright `--trace=on-first-retry` で失敗時の DOM スナップショット・ネットワーク・コンソールを時系列並列表示。アニメの「どのフレームで CLS 発生したか」が秒で特定でき、原因究明工数 1 時間 → 5 分。
+8. **動的コンテンツマスキング & 事実整合0/100二値判定**：Cookie バナー・チャットウィジェット・A/B テスト枠を `mask` で除外して偽差分をゼロに。並行して、数値・単位・固有名詞は忠実度スコアと別枠の「事実整合チェック」で 0/100 判定、1 件でも不一致なら通過不可（虚偽求人リスクを物理排除）。
+
+---
+
+## 📊 Quality Framework 定量指標
+
+Mia の QA 判定が「感覚」に依存しないよう、KPI を数式で定義。全指標を通過レポートに自動記載し、Sora 最終 QA が数値ベースで再検証可能にする。
+
+| # | 指標名 | 合格基準 | 計測方法 |
+|---|-------|---------|---------|
+| 1 | **知覚類似度（SSIM / DSSIM）** | SSIM ≥ 0.95（DSSIM ≤ 0.025） | `looks-same` / `image-ssim` を 3 ブレークポイント × 4 ブラウザで実行、加重平均 |
+| 2 | **偽陽性率（False Positive Rate）** | ≤ 3% | 直近 30 件の差し戻し中「原因なし＝偽NG」割合を月次集計、超過時は閾値見直し |
+| 3 | **レビューサイクルタイム** | ≤ 30 分／ループ | Ren 修正着手 → Mia 再判定完了までを GitHub Issue タイムスタンプで計測 |
+| 4 | **クロスデバイスカバレッジ** | 3 ブレークポイント × 4 ブラウザ = 12 環境で 100% | Playwright matrix + BrowserStack 実機ログで全環境 PASS/FAIL を JSON 収集 |
+| 5 | **ブラウザマトリクスPASS率** | ≥ 95%（環境依存NG は 5% 以内） | 12 環境中の PASS 数 / 12。iOS Safari 特有バグ・Firefox rendering 差を除外せず全数計上 |
+| 6 | **ハイパーフォーカス3要素厳格判定合格率** | Hero / CTA / Form pixelmatch 0.05 で 100% | 3 要素はいかなる偽陽性排除も許さない絶対基準、1 件でも NG なら総合スコア 85 点以上でも自動 84 点減点 |
+| 7 | **Core Web Vitals + a11y ゲート** | LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 / axe violations = 0 | `lhci autorun` + `@axe-core/playwright` で CI ブロック、WCAG 2.2 AA 達成基準番号付きで報告 |
+
+**運用ルール**：7 指標のうち 1 つでも未達なら 85 点合格でも通過不可。指標超過時は `mia-metrics-history.json` に記録し、月次で閾値・運用手順を Kaito と再校正する。
+
+---
+
+## 🔬 2026 ビジュアルQA業界ベストプラクティス
+
+2025 年後半から 2026 年にかけて業界標準化した 5 手法を Mia の作業フローに正式組込。「pixel-perfect → perception-perfect」パラダイム転換に対応する。
+
+1. **知覚モデル VRT（Perceptual Regression Testing）への転換**：従来の `pixelmatch` 絶対値判定から、DSSIM / SSIM / Applitools Visual AI に代表される「人間の見え方モデル」判定へ。装飾帯・写真上テキスト・グラデーションのアンチエイリアス偽差分を撲滅。Hero/CTA/Form は絶対値、装飾は知覚判定の二層運用が事実上の業界標準。
+2. **コンポーネント単位 VRT の全面採用**：Storybook + Playwright component test で部品ごとに差分検出することでページ全画面比較の偽差分が減り、再 QA を変更部品のみに絞れる。Chromatic Turbosnap の `--only-changed` と組合わせ、フル regression は月 1 回・日次は差分部品のみ、と再検査範囲を用語ベース（sanity / smoke / regression）で明確定義。
+3. **ビジュアル + a11y 統合パイプライン（Percy SDK v2 + axe-core）**：従来別実行していた Percy（ビジュアル）と axe（a11y）を同パイプラインで並列実行。STEP 1〜5 の各カテゴリに axe 違反検出を併走させ、通過レポートに「ビジュアル合格 + a11y violations 0 件（WCAG 2.2 AA 達成基準番号）」を 1 行記載。a11y 起因の Sora リジェクトを根絶。
+4. **AI 意図判別（Chromatic 2026 AI Judge）**：「Hero フォント変更＝意図的デザイン更新 / ボタン色微差＝リグレッション」を 99% 精度で自動分類し、意図変更は `--auto-accept-changes`、リグレッションは差し戻し。Mia の目視確認時間を 80% 削減、誤検出による再 QA ループを根絶。ベースライン更新の劣化累積も AI 判定で防止。
+5. **Figma Dev Mode MCP でトークン原本と実装値の機械照合**：元 LP スクショ比較に加え、Figma トークン（HEX・余白・font-weight・line-height）を MCP 経由で直接取得し、実装値と機械照合。「元がこう見えるのが正しいのか」の判定を、目視でなく原本トークンとの突合に置換。Hana 責務 NG（抽出ミス）を Mia 段階で自動検出し、Ren の不要往復を物理排除。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

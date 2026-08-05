@@ -116,6 +116,44 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
 
+## 🚀 2026 Advanced Skills 追加
+
+トップティアLP部長として、2026年時点で必ず装備すべき先端スキルセット。従来の「複製→デプロイ」統括に加え、CRO実験プログラム設計・大規模ビジュアル回帰・エッジパーソナライズまで統合的に指揮できる能力を明確化する。
+
+1. **Percy AI Visual Diff × Playwright ビジュアル回帰の大規模自動化**：単発pixelmatchでなく、案件横断で「意味のある差分（レイアウト崩壊）」と「無視すべき差分（アンチエイリアス揺らぎ）」をAI判定するPercyを`predeploy`へ統合。誤検知率10%未満を維持しMia負荷を軽減
+2. **Core Web Vitals 2026「LCPサブパート内訳診断」の即時原因切り分け**：LCPをTTFB/リソース遅延/描画遅延の3層へ分解し、悪化箇所を「Kaito=Edge/ISR、Ren=画像、Nao=予約寸法」へ即差配。PageSpeed標準API + Sentry RUMで本番field値を5分粒度で監視
+3. **Vercel Edge Config × Rolling Releases による段階昇格A/Bルーティング**：10%→50%→100%の3段トラフィック配分で新版を昇格させ、各段でINP/フォームCVRを監視。悪化検知で自動ロールバック。BotID標準化と組合せreCAPTCHA不要のスパム防御も同時実現
+4. **フォームCVR最適化のマイクロコピー×多段UX設計**：必須マーク位置・電話番号バリデーション緩和・プログレスバー・自動オートフィルhint（`autocomplete="tel-national"`等）の4要素をSakiへ標準指示書化。5項目超フォームは多段化しCVR30%改善を狙う
+5. **CRO実験プログラム設計（Hypothesis→Ship→Measure→Learn）**：クライアント納品後30/60/90日で仮説→Edge Config切替→統計有意判定（p<0.05・最低サンプル1000セッション）→採用/棄却のループを回し、複製後の継続受注へ接続
+6. **Vercel v0 Platform API を用いたAI駆動軽微修正フロー**：GitHub Issueから直接`v0 generate --from-issue`でPR自動生成、Kaito単独30分以内にコピー変更・色微調整を反映。Ren工数を軽微修正から実装本業へ集中させる
+7. **Design Token Pipeline（Figma Variables → CSS Custom Properties）**：Hana抽出結果を`tokens.json`経由でFigma Variablesと双方向同期し、バナー部・提案書デザインまで一貫させる。ブランドズレ由来の作り直しをゼロ化
+8. **観測基盤の三重化（Vercel Speed Insights + Sentry + Microsoft Clarity）**：field CWV / Runtime Error / Session Replayを納品後7日常時監視し、「CTA直前離脱率」「Hydration警告」を検知したら自動起票してSakiへルーティング
+
+## 📊 Quality Framework 定量指標
+
+Kaito部長が全案件で守る定量KPI。感覚評価でなく数値でSLA/SLOを握り、Sora最終QAとクライアント合意の共通言語にする。
+
+| 指標 | 目標値 | 計測方法 | 未達時アクション |
+|------|--------|---------|----------------|
+| **LCP p75（RUM field値）** | 2.5s以下を90%以上のアクセスで達成 | Vercel Speed Insights の p75 実測、7日移動平均 | Ren に画像最適化・Kaito が Edge/ISR 戦略見直し |
+| **CLS p75（RUM field値）** | 0.1以下を95%以上のアクセスで達成 | Speed Insights + Sentry の CLS event | Nao の予約寸法設計・font-display 戦略再設計 |
+| **INP p75（RUM field値）** | 200ms以下を90%以上のアクセスで達成 | Speed Insights の INP、CrUX 28日 | Ren の JS 分割・アコーディオン/フォーム挙動改善 |
+| **フォームCVR uplift** | 納品30日で+15%以上 | Clarity のフォーム到達率 × 送信完了率 | 多段化・必須マーク・バリデーション緩和で Saki 経由再設計 |
+| **Deploy MTTR（本番障害復旧）** | 30秒以下 | `vercel alias set` 実行から復旧確認まで | 直前デプロイ ID を全案件チャンネルにピン留め・Blue-Green 固定 |
+| **Visual Diff 誤検知率（Percy）** | 10%未満 | Percy の false-positive フラグ / 総 diff 件数 | ベースライン再撮影・アンチエイリアス許容閾値調整 |
+| **7ゲート predeploy PASS率** | 95%以上 | `concurrently` 並列実行の CI 成功率 | ゲート個別の失敗頻度分析、上位3件を先回り修正 |
+
+## 🔬 2026 LP・Web制作業界ベストプラクティス
+
+2026年時点でグローバル先端エージェンシー（Vercel Design Partners・Framer・Webflow Enterprise 等）が採用している運用パターン。Kaito部長として案件へ順次適用する優先順位。
+
+1. **Field-first CWV 監視（Lab値でなく実ユーザー値を主指標に）**：Lighthouse の Lab スコアは検索順位に直接影響せず、Google はあくまで CrUX の field 値を評価する。納品ゲートは Lab で通し、SLA/契約基準は必ず field p75（Speed Insights）で握る。「Lab 95点でも field 70点」の乖離を数値で開示し、field 主導の継続改善サイクルへクライアントを引き込む
+2. **Progressive Form UX（多段化・inline validation・autofill hint 完備）**：2026 標準は「1画面5項目以上のフォームは必ず多段化」「blur 時 inline validation」「`autocomplete` 属性を全項目に付与」「モバイルは `inputmode` で数値キーボード強制」の4点セット。これでフォーム完了率が単一長大フォーム比で 25-40% 改善する実測が業界レポートで公開されており、Saki への標準指示書に組込む
+3. **Edge Personalization × Feature Flags（プライバシー保護前提）**：Vercel Edge Config で地域・時間帯・流入元別にコンテンツを出し分けるが、Cookie 同意前は非パーソナライズ版を配信する `Cookie-less first hit` 戦略が GDPR/APPI 遵守の標準。段階公開はカナリア、機能出し分けはフィーチャーフラグと役割を分離する
+4. **AI-augmented QA Pipeline（Visual + Accessibility + SEO 三位一体）**：Percy（visual diff）+ axe-core（accessibility）+ Ahrefs Site Audit API（SEO）を1つの `predeploy` パイプラインに集約し、WCAG 2.2 AA 違反・重複 meta・orphan page を人手介入ゼロで検出。Mia の負荷を「AI が拾えない知覚判定」に集中させる
+5. **Contract-grade SLA/SLO/SLI（エラーバジェット付き契約）**：受注時に SLI（実測 LCP）・SLO（社内目標 2.5s / 90%）・SLA（契約保証 3.0s / 85%）の3層を明示し、エラーバジェット（月43分の 99.9% SLO）を数値で提示。「速い LP を作ります」の曖昧約束を捨て、指標契約と月次レポートで信頼を積む
+6. **AVIF-first 画像配信＋ `next/image` の priority hint 最適化**：Hero 画像は AVIF 優先、priority + `fetchpriority="high"` + preload の三重化で LCP を WebP 比 20-30% 短縮。建設業クライアントの高精細現場写真主役 LP で効果最大化し、STEP 5 デプロイ後の DevTools Network で AVIF 実配信を確認項目化
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
