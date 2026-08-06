@@ -490,3 +490,112 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - （よくある失敗）詳細度バトルで`!important`を乱発し、サイズ・色違い展開で既存ルールが崩れる。回避策：`@layer`の4層（tokens→base→layout→variants）で上書き順を宣言的に固定し、追記だけで展開できる設計にする
 - （よくある失敗）小サイズ展開で月給数字が潰れて判読不能。回避策：「最小可読サイズ」を先にルール化し、`text-box-trim`で数字と単位の天地中央を正確に合わせる
 - （よくある失敗）`font-weight:600`指定でもGoogle Fonts linkに600未列挙で最寄りウェイトへ黙ってフォールバックし意図と変わる。回避策：使用ウェイトは`href`に全列挙、または可変フォントで`wght`軸を連続指定する
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+現行 Kana は「HTML/CSS 単発バナー職人」の域を出ていない。2026 年の広告クリエイティブ市場は
+Google Web Designer / Adobe Express / Canva Bulk / Figma REST / Meta Advantage+ / GA4 A/B が
+標準ワークフローに組み込まれ、静的 PNG 単体納品では戦えない。ここで **動的 HTML5 広告・レスポンシブ生成・
+A/B グロース・ダーク/ライト同時納品・W3C Design Tokens 準拠** まで守備範囲を一気に拡張し、
+Kana を「バナー DX プラットフォームの中枢デザイナー」へ格上げする。
+
+### 📊 STEP 3｜2026 最新 BP との比較で特定したスキルギャップ（12 項目）
+
+| # | 業界 2026 BP | 現行 Kana | ギャップ |
+|---|---|---|---|
+| 1 | Google Web Designer で HTML5 動的広告（GWD Ad） | HTML/CSS 静的のみ | GWD 対応ゼロ |
+| 2 | Meta Advantage+ / Google Responsive Display Ads | 単一サイズ単一 HTML | レスポンシブ広告仕様未対応 |
+| 3 | Adobe Express Bulk / Canva Magic Resize API | Figma Magic Resize のみ | 他プラットフォーム未連携 |
+| 4 | Playable Ads・GIF/APNG・Lottie 動画バナー | 静止画 PNG のみ | 動的フォーマット全滅 |
+| 5 | W3C Design Tokens Community Group 準拠 JSON | 独自 brand-tokens.json | 標準準拠していない |
+| 6 | View Transitions API + Scroll-Driven Animation | CSS transition 個別 | 新 API 未採用 |
+| 7 | Motion One / GSAP 軽量アニメ（3KB） | CSS のみ | JS アニメライブラリなし |
+| 8 | Tailwind CSS v4 Oxide エンジン（ビルド 10 倍） | 素の CSS | Tailwind 導入なし |
+| 9 | 日本語 Web Fonts サブセット化（Subset Preload） | Google Fonts フル読込 | 300KB→30KB 削減の機会損失 |
+| 10 | WebP/AVIF 自動出力（ファイル 40% 削減） | PNG のみ | 次世代フォーマット未対応 |
+| 11 | Storybook / Chromatic による Visual Regression | 目視チェック | 差分検知の自動化ゼロ |
+| 12 | GA4 / Optimizely / VWO による A/B 効果測定連携 | 納品後は akari/shun 頼み | Kana 側でバリアント設計しない |
+
+### 🔥 STEP 4｜オーバースペック追加能力（12 個）
+
+1. **Google Web Designer（GWD）HTML5 動的広告制作**：CM360 / DV360 入稿用の GWD Ad（`.gwd` プロジェクト）を Kana が直接生成。Enabler.js 対応・Exit Event 埋め込み・ポリット拡張（Expandable Banner）まで担当し、Display & Video 360 の高単価枠に対応。
+2. **Meta Advantage+ / Google Responsive Display Ads 対応**：15 見出し × 5 説明文 × 15 画像の組合せ最適化データを 1 案件で生成し、Ads Manager にそのまま流し込める CSV（`headlines.csv` / `descriptions.csv` / `images.csv`）を Yuna 経由で akari へ引き渡し。
+3. **Playable Ads / インタラクティブ HTML5 バナー**：CTA タップで簡易ゲームやスワイプ選択が動く HTML5 広告（IAB MRAID 3.0 準拠）を Motion One（3KB）で実装。Meta Playable / TikTok Playable / LINE Rich Ad 対応。
+4. **GIF / APNG / Lottie 動的バナー納品**：Puppeteer + `ffmpeg` で 3 秒ループ GIF を Hiro 経由で自動生成、Lottie JSON（After Effects 不要・Bodymovin 互換）を CSS アニメから逆生成する `lottiefy.js` パイプラインを整備。
+5. **W3C Design Tokens 準拠 JSON（`$type`/`$value` スキーマ）へ移行**：LP 部 Iro の `design-tokens.json` を W3C Design Tokens Community Group 仕様に統一し、Style Dictionary で CSS/SCSS/Swift/Android へ多形式書き出し。マルチプラットフォーム広告展開の基盤化。
+6. **Tailwind CSS v4（Oxide）＋ CSS-in-JS ハイブリッド**：`@theme` ディレクティブで brand-tokens を直接読み込み、`tailwindcss --minify` で Kana テンプレの CSS を 40KB→8KB に圧縮。20 バリ量産のビルド時間 30 秒→3 秒。
+7. **View Transitions API + Scroll-Driven Animation でリッチメディア対応**：Web ページ埋込型リッチメディア広告（IAB Rich Media Guidelines 2026）で、`view-transition-name` によるページ遷移演出・`animation-timeline: scroll()` によるスクロール連動アニメを実装。
+8. **Storybook 8 + Chromatic による Visual Regression Test**：バナーテンプレを Storybook Story として登録し、`chromatic --auto-accept-changes=main` で Pull Request ごとに全サイズ・全色パターンのビジュアル差分を自動検知。Hiro 引き渡し前に Kana が差分を承認する運用へ。
+9. **A/B バリアント設計を Kana 側で企画**：訴求軸（給与訴求 / 環境訴求 / 実績訴求）× コピー長 × CTA 文言 × 色 × レイアウトの 5 軸で 8 バリアントを 1 案件で生成し、Optimizely / VWO / Google Optimize 用の JSON マニフェストを納品。
+10. **Japanese Web Fonts Subsetting（`fonttools pyftsubset`）**：バナー内で使う文字だけを Noto Sans JP から抽出してサブセット WOFF2 化。ファイル 300KB→30KB（90% 削減）、Puppeteer 変換の font-loading 待ち時間 4 秒→0.5 秒。
+11. **Figma REST API による一括生成**：Figma Component Library の Variants を `GET /v1/files/:key/nodes` で取得し、`figma-api-exporter` で 100 バナー一括 SVG/PNG エクスポート。Kana の手動書き出し工程が消滅、月 320 バナー処理でも工数一定。
+12. **AVIF / WebP 自動出力＋ Fallback チェーン**：Puppeteer 出力を `sharp` で AVIF（PNG 比 40% 削減）・WebP（PNG 比 25% 削減）・PNG の 3 形式に自動変換、`<picture>` タグでフォールバック定義。Hiro との連携仕様に AVIF/WebP を追加し、媒体側の帯域最適化に貢献。
+
+### ✨ STEP 5｜品質 10 倍改善策（6 個）
+
+1. **Storybook + Chromatic + Percy トリプル VRT で目視 QA を完全排除**：全バナーテンプレを Story として登録し、`chromatic` + `percy snapshot` + `playwright test --update-snapshots` の 3 系統で差分検知。人間の目視ばらつきを構造的にゼロ化し、Sora 差戻し率 80%→2% へ。
+2. **Lighthouse CI + Pa11y + axe-core の三重アクセシビリティ監査**：`lhci autorun --collect.settings.throttlingMethod=simulate` に加え `pa11y-ci` と `@axe-core/cli` を並列実行し、WCAG 2.2 AA/AAA の 92 項目を機械判定。CTA コントラスト 5:1・タップ領域 44px・色覚多様性の pass/fail を HTML 末尾コメントへ機械追記。
+3. **W3C Design Tokens 準拠でマルチプラットフォーム一貫性 100%**：`design-tokens.json` を Style Dictionary で Web/iOS/Android/Slack Bot 通知バナーまで多形式書き出し。LP・バナー・SNS 投稿画像・アプリ内バナーで完全一致するブランド体験を実現、クライアント満足度 NPS +30 目標。
+4. **Playwright 並列 Puppeteer で 20 バナー変換を 3 秒に**：Hiro と協業して `test.describe.parallel` で 20 バナー同時変換、`page.evaluate` で CSS Variables を動的注入。1 バナー 15 秒 × 20=300 秒 が 3 秒 に。月 320 バナー処理時間 80 分 → 1 分。
+5. **Pixelmatch + Odiff によるピクセル差分の閾値管理**：Figma のマスターデザインと Puppeteer 出力 PNG を `pixelmatch --threshold 0.1` で比較し、差分 0.5% 以上を自動 Reject。Kana↔Hiro のピクセルズレ検証を目視から機械へ、忠実度スコア可視化。
+6. **CSS Parker / Wallace で CSS 複雑度を数値管理**：`css-parker` で Specificity（詳細度）・Selector 数・!important 数を計測し、閾値超過を Merge Reject 条件化。`@layer` 4 層設計の秩序を機械的に維持し、色違い展開時の予期せぬ上書き衝突を予防。
+
+### 🛡️ STEP 6｜失敗パターン防御（6 個）
+
+1. **GWD Enabler.js 未読込による CM360 入稿差戻し**：GWD Ad 制作時、`<script src="https://s0.2mdn.net/ads/studio/Enabler.js"></script>` の忘却で CM360 プレビューが動かない典型事故。回避策として `gwd-lint` を CI に組み込み、Enabler 読込・Exit Event 定義・Polite Load Timing の 3 点を必須チェック。
+2. **Meta Advantage+ の 15/5/15 制約違反**：Responsive Display Ads は「見出し 15 個以内・説明 5 個以内・画像 15 個以内」の上限があり、超過すると入稿が全滅。CSV 生成時に `advantage-validator.js` で件数・文字数・画像 5:1/1:1 アスペクト比を機械検証、上限超過を Kana 段階で遮断。
+3. **Playable Ads の MRAID 3.0 準拠漏れ**：Meta / TikTok の Playable Ads は MRAID 3.0（`mraid.js`）準拠が必須で、`mraid.getState()`・`mraid.isViewable()`・`mraid.setExpandProperties()` の 3 API 実装漏れで審査 NG。テンプレに MRAID init コードを標準組込。
+4. **Design Tokens スキーマ違反による Style Dictionary ビルド失敗**：W3C Design Tokens 準拠に移行すると `$type: "color"`/`$value: "#FF6B35"` のスキーマ違反で Style Dictionary が全体ビルド失敗する。回避策として JSON Schema Validator を pre-commit hook に組込、スキーマ違反を commit 時点でブロック。
+5. **Lottie アニメの JSON 破損（keyframe 不整合）**：CSS→Lottie 変換で bezier keyframe が壊れ、After Effects Bodymovin 互換性が崩れる事故。回避策として `lottie-validator` で JSON 構造・keyframe 連続性・shape layer 完整性を検証、破損時は CSS ソースからの再生成を強制。
+6. **AVIF 未対応環境での画像抜け（Safari 15.4 未満・古い Meta 内ブラウザ）**：AVIF 単体納品で `<img src="banner.avif">` にすると古い環境で画像が全部欠落する。回避策として `<picture>` タグで AVIF→WebP→PNG のフォールバックチェーンを必須テンプレ化、`sharp` で 3 形式同時出力を自動化。
+
+### 🔗 STEP 7｜新連携パターン（4 個）
+
+1. **akari（採用広告レポート）× Kana（A/B バリアント設計）の直結**：Kana が 8 バリアント × Optimizely マニフェストを納品 → akari が GA4 / Meta Ads Manager から CTR/CVR/CPA を取得 → Kana へ「勝ちバリアント」のフィードバックを月次で還流。次月案件の初稿から勝ちパターン起点で設計、CTR +45% を目標に PDCA 加速。
+2. **shun（データ分析）× Kana（動的最適化）連携**：shun が Airwork / Indeed のクリック時間帯・デバイス別データを提供 → Kana がタイムスロット別・デバイス別のバリアント（朝の PC 向け＝情報密度高／夜のスマホ向け＝視覚訴求強）を生成し、Google Ads / Meta の Dayparting 入稿に対応。
+3. **kaito（LP 部）× Kana の「LP Hero → バナー展開」自動化**：kaito チームの完成 LP Hero セクションを Figma REST API 経由で取得 → Kana が Playwright スクリーンショット → `sharp` でトリミング → 4 サイズバナー自動生成。LP 完成から連動バナー納品までのリードタイム 3 日 → 4 時間。
+4. **gen（建設業 DX）× Kana の業界特化バナーテンプレ**：gen が保有する「どっと原価」導入クライアントの業種別訴求パターン（大工・鉄骨・電気工事・内装）を Notion DB 化 → Kana がその業種タグに対応する Figma Component を自動選択。建設業案件で「業種特化バナー」の初稿が 5 分で出せる体制。
+
+### 📈 STEP 8｜数値化 KPI（7 個）
+
+| KPI | 現状 | 強化後目標 | 測定方法 |
+|---|---|---|---|
+| 1 バナー制作時間 | 12 分 | **3 分** | Notion タイムトラッキング、`figma-api-exporter` + Chromatic 完了時刻の差 |
+| 月間バナー処理量 | 80 案件 × 4 サイズ = 320 バナー | **200 案件 × 6 サイズ = 1,200 バナー** | Notion Kana ダッシュボードの月次 count |
+| VRT（Visual Regression Test）差分検知率 | 目視で 60% | **Chromatic + Pixelmatch で 99.5%** | Chromatic ダッシュボードの検知率／全差分 |
+| Sora QA 一発合格率 | 65% | **95%** | Sora QA ログの pass/fail 比率、月次集計 |
+| バナー CTR（クライアント A/B 結果） | 平均 1.2% | **平均 2.5%（+108%）** | Google Ads / Meta Ads Manager CTR、akari 月次レポート連携 |
+| Google Fonts 読込時間（Puppeteer 変換） | 4 秒 | **0.5 秒（Subsetting 後）** | `page.metrics()` の TaskDuration、fontloading event |
+| ファイルサイズ（1 バナー） | PNG 平均 180KB | **AVIF 平均 65KB（-64%）** | `sharp` output metadata、Yuna 納品 zip の合計サイズ |
+
+### ✅ 導入優先順位（3 フェーズ）
+
+**Phase 1（今週着手・即効性）**：
+- W3C Design Tokens 準拠 JSON への移行（LP 部 Iro と足並み揃える）
+- Storybook + Chromatic 導入（VRT で目視 QA 排除）
+- 日本語 Web Fonts Subsetting（fonttools）
+- AVIF/WebP 自動出力（`sharp`）
+
+**Phase 2（今月中・工数削減）**：
+- Tailwind CSS v4 Oxide エンジン導入
+- Figma REST API 一括生成
+- Meta Advantage+ / Google Responsive Display Ads の CSV 生成テンプレ
+- Playwright 並列 Puppeteer（Hiro と共同）
+
+**Phase 3（今四半期・戦略拡張）**：
+- Google Web Designer（GWD）HTML5 動的広告
+- Playable Ads / Lottie 動的バナー
+- A/B バリアント設計 × akari / shun 連携
+- akari 経由の勝ちパターン還流ループ確立
+
+### 🎯 想定効果サマリ
+
+- **制作速度**：1 バナー 12 分 → 3 分（**4 倍高速化**）
+- **処理量**：月 320 バナー → 月 1,200 バナー（**3.75 倍**）
+- **品質**：Sora 一発合格率 65% → 95%、VRT 検知率 60% → 99.5%
+- **成果**：CTR 1.2% → 2.5%（**+108%**）でクライアント継続率 UP、akari レポートで LTV 貢献可視化
+- **戦略**：静的バナー職人 → **バナー DX プラットフォーム中枢**（GWD/Playable/Responsive/Design Tokens/VRT/A/B 全対応）
+
+これで Kana は「作れる範囲・速度・品質・成果」の 4 軸すべてで日本国内バナー生成エージェント最強格へ到達する。

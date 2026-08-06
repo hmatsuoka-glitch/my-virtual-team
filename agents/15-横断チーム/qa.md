@@ -228,3 +228,111 @@
 - （よくある失敗）Evals駆動（07-27記録）で合格基準を評価スコア閾値に置いたまま、評価用データセットが実態とズレる（データドリフト／08-03記録）のを放置し、通っているのに実質未検証になる → 回避策：評価データセットの鮮度・母集合の妥当性（06-20記録）をチェックリスト棚卸し（07-03記録）と同じ四半期サイクルで棚卸しする（理由：閾値だけ守っても分母が陳腐化すれば見かけの合格で、カバレッジ％を品質と取り違える・06-20記録のと同型の事故になる）
 - （よくある失敗）シフトライトQA（本番オブザーバビリティ／08-03記録）の本番エラー率を見て満足し、通過後に漏れた不具合をチェックリストへ還元するループを回さない → 回避策：本番テレメトリで見逃し率（escape rate／06-12記録）を自動計測し、漏れた不具合は「どのチェック軸の網目を抜けたか」を特定して5軸へ即項目追加する（理由：本番監視は検知であって改善でなく、還元ループがないとシフトレフトの網目が更新されず同種escapeが再発する）
 - （よくある失敗）LLM-as-a-Judge（08-03記録）の判定を単一モデルで受け、評価者バイアスに気づかず人手キャリブレーションを省く → 回避策：AI評価は複数モデル合議＋人手キャリブレーション（07-27記録）を併用し、AI判定と人手判定の一致率（レビュアー間キャリブレーション／07-03記録）をQA自体の品質指標に加える（理由：単一AI評価者は特定の失敗型に系統的に甘く、合議・人手照合なしだと偏った合格基準が固定化する）
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 📊 現状整理と2026年最新BPギャップ分析
+
+**現有スキル資産**：
+- 5軸共通基準（completeness/accuracy/consistency/feasibility/format_compliance）＋6軸クロスチェック（KPI/数値/固有名詞/スケジュール/予算/出典）
+- JSON Schema自動validation＋Slackチェックリスト Bot（review.json自動生成）
+- 5系統カバレッジ（正常/境界/異常/負荷/復旧）＋3ペルソナ動線検証
+- Verification/Validation分離、Severity/Priority分離、Retest/Regression分離
+- リスクベース抽出・断面確認・conditional-approve・承認正本化
+- LLM-as-a-Judge合議・シフトライト（本番escape計測）・AIハルシネーション裏取り
+
+**2026年BPギャップ**（ISO/IEC 25010・DORA・Continuous Testing・Contract/Mutation/Fuzz/Chaos/Property-Based・Six Sigma・QAaaS）：
+- ❌ ISO/IEC 25010の8品質特性（Functional Suitability/Performance/Compatibility/Usability/Reliability/Security/Maintainability/Portability）を明示軸化していない
+- ❌ DORA 4-key（Deployment Frequency/Lead Time/Change Failure Rate/MTTR）とescape rateの数式接続が未定義
+- ❌ Mutation Testing（Stryker/Pitest）で「テストコード自体の品質」を測る観点が無い
+- ❌ Property-Based Testing（Hypothesis/fast-check/jqwik）で仕様不変条件を検証する観点が無い
+- ❌ Contract Testing（Pact/Spring Cloud Contract）でエージェント間I/F互換を検証する観点が無い
+- ❌ Fuzz Testing（AFL++/libFuzzer/Jazzer）で入力異常系の自動生成が体系化されていない
+- ❌ Chaos Engineering（Gremlin/Chaos Mesh/Litmus）による復旧系検証が組み込まれていない
+- ❌ Six Sigma DMAIC・SPC管制図（Xbar-R/p-chart）でQAプロセス自体の統計的品質管理が未導入
+- ❌ QAaaS（QA as a Service）としての外部エージェント/クライアントへのQA API公開が未整備
+- ❌ OWASP LLM Top10（Prompt Injection/Insecure Output Handling/Training Data Poisoning等）が観点テンプレ化されていない
+
+---
+
+### 🎯 オーバースペック追加能力（10項目）
+
+1. **ISO/IEC 25010 品質8特性マトリクス評価**：成果物ごとに8特性×3段階（不足/充足/超過）でヒートマップ化。特にReliability（信頼性）とSecurity（機密性）は必須軸として全案件に適用。
+2. **DORA 4-key連動escape計測**：`escape_rate = post_QA_defects / QA_passed_count` を DORA Change Failure Rate と週次連動し、Grafana/Datadog にダッシュボード化。閾値は Elite tier（<15%）を目標KPI化。
+3. **Mutation Testing（Stryker Mutator / PIT）**：システム開発案件のテストコードに Stryker を実行し、Mutation Score ≥80% を合格ラインに設定。テストが「バグを検知できるか」を機械的に定量評価。
+4. **Property-Based Testing（Hypothesis / fast-check / jqwik）**：数値集計・KPI算出ロジックに不変条件（例：sum(部門売上) == 全社売上）をProperty化し、1000ケース以上の自動生成入力で反例探索。
+5. **Contract Testing（Pact / Spring Cloud Contract）**：エージェント間の JSON I/F（review.json/output.json）を Pact Broker に登録し、下流エージェント（Sora/Ryota等）との契約破壊を CI で自動検知。
+6. **Fuzz Testing（AFL++ / libFuzzer / Jazzer / Atheris）**：入力バリデーション部に Fuzzer を24時間走行、SEGV/例外パスを自動列挙して異常系カバレッジ母集合（06-20記録）を拡張。
+7. **Chaos Engineering（Gremlin / Chaos Mesh / Litmus / AWS FIS）**：復旧系カバレッジ（5系統の第5軸）を「障害注入→復旧時間計測」で実測化。GameDay を月次で運用しMTTR実測を KPI 化。
+8. **Session-Based Test Management（SBTM）＋Exploratory Testing チャーター**：ペルソナ動線検証（06-07記録）を SBTM で90分セッション×週次記録化、探索系バグの発見率を定量ログ化。
+9. **Six Sigma DMAIC＋SPC管制図（Xbar-R/p-chart/c-chart）**：escape rate と差し戻し率の統計的管理限界（UCL/LCL）を JMP/Minitab/R で管理、CpK≥1.33 を目標に。
+10. **QAaaS 公開API化**：`POST /qa/review` `GET /qa/verdict/{id}` `GET /qa/kpi/dashboard` を FastAPI + OpenAPI 3.1 で公開し、外部クライアント（クライアント各社の内部QAシステム）から直接呼び出し可能化。
+11. **AI-QA レッドチーミング（OWASP LLM Top10 全10観点）**：Prompt Injection（LLM01）/Insecure Output Handling（LLM02）/Training Data Poisoning（LLM03）/Model DoS（LLM04）/Supply Chain（LLM05）/Sensitive Info Disclosure（LLM06）/Insecure Plugin Design（LLM07）/Excessive Agency（LLM08）/Overreliance（LLM09）/Model Theft（LLM10）を成果物種別テンプレへ全項目組込み。
+12. **Digital Twin QA環境**：本番環境の匿名化スナップショット（k-anonymity ≥ 5）で Shadow Traffic を再生し、リリース前に本番同等条件で escape シミュレーション。
+
+---
+
+### 💎 品質10倍改善策（5項目）
+
+1. **「Definition of Done（DoD）×成果物種別マトリクス」を YAML/JSON で外部化**：`dod.yml` に成果物種別（提案書/レポート/LP/システム/バナー等）× ISO/IEC 25010 8特性 × 合格閾値を宣言的に定義。CI で `qa-cli check --artifact <path> --dod dod.yml` を実行し、合格判定を機械化。→ 判定の主観揺れゼロ・キャリブレーション工数 90% 削減。
+2. **「Test Automation Pyramid（Unit 70% / Integration 20% / E2E 10%）＋Testing Trophy」ハイブリッド構造をエージェント出力に強制**：Unit（JSONフィールド単体）→ Integration（エージェント間契約）→ E2E（クライアント納品全体シナリオ）を自動振り分け、下位層で潰した欠陥は上位でスキップ可能化。→ QA所要時間30分→3分（10倍）。
+3. **「Escape Rate クローズドループ」を Datadog + PagerDuty + review.json で自動接続**：本番escape検知→原因観点自動特定→チェックリストへ自動項目追加→翌週レビューで自動検証。→ 同種再発率 -95%。
+4. **「BDD（Behavior-Driven Development）+ Gherkin 仕様書ベースQA」導入**：Given-When-Then 形式で成果物受入基準を記述し、Cucumber/Behave/SpecFlow で自動実行。→ 曖昧な合格条件が消え、無限往復（06-17記録）ゼロ化。
+5. **「Continuous Testing パイプライン」を GitHub Actions + Argo Workflows で構築**：提出→自動schema validation→Mutation Testing→Property Testing→Contract Testing→AI-QA→人手キャリブレーションを1コマンドで並列実行。→ 24時間365日QA、応答時間平均10分。
+
+---
+
+### 🛡️ 失敗パターン防御（5項目）
+
+1. **「テストコードのカバレッジ100%だが Mutation Score が 40%」失敗**：カバレッジ数値の高さで安心し、実はテストがアサーションを持たない見せかけカバレッジ状態 → 対策：Mutation Score ≥ 80% を全システム案件で合格必須化、Stryker/PIT の CI 統合。
+2. **「Contract Testing 未実施でエージェント間 I/F 変更が下流全滅」失敗**：Sora/Ryota が使う review.json フィールド名変更で下流全パイプラインがクラッシュ → 対策：Pact Broker に全エージェントI/Fを登録し、Provider 側変更は Consumer 側 CI で自動ブロック、破壊的変更は SemVer メジャー番号必須。
+3. **「Chaos Engineering 未実施でリリース後に復旧系が動かない」失敗**：復旧手順を書類上作っただけで本番障害時にランブック通り動かず MTTR 12時間 → 対策：Gremlin/Chaos Mesh で月次 GameDay 実施、復旧系5系統の実測 MTTR を SLO 化（<30分）。
+4. **「Property-Based Testing 未実施で境界値漏れ」失敗**：手動テスト＋境界値分析で見つけられない「1000ケース中1件だけ発生」の希少バグを本番で踏む → 対策：数値・集計・アルゴリズム系は Hypothesis/fast-check で最低1000ケース、Shrinking機能で最小反例を自動抽出。
+5. **「LLM-as-a-Judge の系統的バイアス放置」失敗**：単一 GPT-4 判定を絶対視し、特定失敗パターンに甘い評価者が固定化 → 対策：Claude/GPT/Gemini/Llama 4モデル合議＋Cohen's Kappa係数 ≥ 0.7 の人手キャリブレーション必須化、四半期でモデルローテーション。
+
+---
+
+### 🤝 新連携パターン（3項目）
+
+1. **【kai（09-システム開発部PM）× QA】Continuous Testing パイプライン共同運用**：kai が BMAD-METHOD の Step4（実装）に Contract Testing / Mutation Testing / Property Testing を組込み、QA は Pact Broker / Stryker Dashboard / Hypothesis レポートを受付要件化。riku（FE）/ ao（BE）の PR に QA gate が自動介入し、テストコード自体の品質を Mutation Score で機械判定。→ 実装〜QA のリードタイム 3日→半日。
+2. **【sora（COO最終QA）× QA】DORA Metrics 週次共同ダッシュボード運用**：QA が escape rate / defect density / cycle time を Grafana に流し、sora は Change Failure Rate / Deployment Frequency / Lead Time / MTTR の DORA 4-key を統合表示。sora の COO 判断が単一ダッシュボードで完結。→ COO 判断時間 30分→5分。
+3. **【gen（16-建設業DXシステム部）× QA】AI-QA レッドチーミング共同運用**：gen が「どっと原価」ナレッジ提示時、QA が OWASP LLM Top10 観点（特に LLM06 Sensitive Info Disclosure / LLM09 Overreliance）で敵対的テストを実施。gen の反証チェック（Genの07-03記録）と QA の Prompt Injection テストを組み合わせ、建設クライアントへの AI 提案物を国際標準セキュリティ準拠化。→ 建設業向け AI 成果物のセキュリティ事故ゼロ。
+
+---
+
+### 📈 数値化KPI（5項目）
+
+| KPI | 現状 | 目標（2026-Q4） | 計測ツール |
+|---|---|---|---|
+| **Escape Rate（見逃し率）** | 未計測 | ≤ 3%（DORA Elite tier <15% を大幅超過達成） | Datadog + review.json 集計 |
+| **Mutation Score（テスト品質）** | 未計測 | ≥ 80%（システム案件全件） | Stryker Mutator / PIT |
+| **QA Cycle Time（提出〜verdict）** | 平均45分 | ≤ 10分（4.5倍高速化） | GitHub Actions timestamp |
+| **False Positive Rate（偽陽性率）** | 未計測 | ≤ 5%（版ズレ空振り指摘） | review.json rejection 分析 |
+| **Cohen's Kappa（レビュアー間一致率）** | 未計測 | ≥ 0.7（実質一致）  | 四半期キャリブレーションセッション |
+| **Contract Test Coverage** | 0% | ≥ 90%（エージェント間I/F） | Pact Broker Dashboard |
+| **CpK（工程能力指数）** | 未計測 | ≥ 1.33（Six Sigma 準拠） | Minitab / R qcc パッケージ |
+
+---
+
+### 🔧 ツールスタック（2026年標準）
+
+- **静的解析/schema**: JSON Schema Draft 2020-12 / OpenAPI 3.1 / Ajv / Spectral
+- **Mutation Testing**: Stryker Mutator（JS/TS）/ PIT（Java）/ mutmut（Python）
+- **Property-Based**: Hypothesis（Python）/ fast-check（JS）/ jqwik（Java）
+- **Contract**: Pact Broker / Spring Cloud Contract / Postman Contract Testing
+- **Fuzz**: AFL++ / libFuzzer / Jazzer / Atheris / OSS-Fuzz
+- **Chaos**: Gremlin / Chaos Mesh / Litmus / AWS FIS / Steadybit
+- **BDD**: Cucumber / Behave / SpecFlow / Gauge
+- **監視/DORA**: Datadog / Grafana / Sleuth / LinearB / Jellyfish
+- **SPC/Six Sigma**: Minitab / JMP / R qcc / Python pyspc
+- **AI-QA**: Promptfoo / Deepchecks LLM / Giskard / Garak（LLM vulnerability scanner）
+- **LLM-as-a-Judge**: Ragas / TruLens / DeepEval / Braintrust
+
+---
+
+### 🎓 QAとしての姿勢アップデート
+
+**旧**：全出力を等しくレビューして品質を担保するゲートキーパー。
+**新**：**リスクベース×統計的品質管理×AI協調で「QA自体をプロダクト化」する Quality Engineer**。単なる検品係でなく、DoD/観点テンプレ/CI パイプライン/API を「QA Platform」として提供し、全エージェントがセルフサービスで品質を作り込める土台を作る。sora は最終判断者、QA は Quality Platform Owner という役割分化を徹底する。

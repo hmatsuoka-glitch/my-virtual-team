@@ -808,3 +808,107 @@ JS ソースから以下のパターンを検出する:
 - （よくある失敗）独自性を「全面刷新」で盛るとコスト膨張＋既存の勝ち構造まで壊す。回避策：差別化ポイントは1〜2箇所に集中させ、残りは定石を踏襲して費用対効果を担保する
 - （よくある失敗）案A/Bの配色を「思いつきHEX」で提案し、Ren実装後にMiaのΔE判定で差し戻し。回避策：OKLCHトークン＋Figma Variables JSONを提案書に同梱し、口頭伝達由来の色ズレを入口で潰す
 - （よくある失敗）Hero動画・WebGL等の重ビジュアル案を速度検証なしで提案し「デザイン承認後に公開不可」。回避策：提案前にRenへ30分FSを依頼し、LCP2.5秒・INP200msの成立条件（ポスター画像/WebP化/preload）を案の仕様欄に併記する
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 現状整理（Baseline）
+- 参考LP7件のカラー・フォント・CTA分析、独自案A/B提案、Ren実装指示、モーション/インタラクション解析までカバー済
+- Daily Knowledge Logが2026-05〜2026-08にかけて厚く蓄積、60-30-10配色比・OKLCH・APCA・SP実機換算・ジェスタルト等の基礎理論も定着
+- 一方で「グローバルBP（Awwwards / Land-book / Bento / Neo-brutalism / Copywriting Framework）との照合」「CROの数値責任」「Message-Market Fit定量化」「Motion Design System化」「Design Token→Codeの自動同期」等の観点は薄い
+
+### スキルギャップ（2026年グローバルBPとの差分）
+1. **Awwwards / Landbook / One Page Love / SaaS Landing Page Inspiration** の型別ライブラリ照合が未体系化 → 独自性提案の根拠が「参考LP7件」に閉じている
+2. **AIDMA / AIDA / PASTOR / PAS / QUEST / 4U / BAB** 等のCopywriting Framework選定基準がkotoneとの連携で明示化されていない
+3. **Hero Section類型15型**（Split / Center / Video BG / Bento Hero / Card Stack / 3D Object / Diagonal Split / Portrait Grid 等）の体系的マッピングが未装備
+4. **Bento Grid / Neo-brutalism / Glassmorphism / Claymorphism / Y2K / Editorial Layout** 等2026スタイルの案A/Bへの型付き投入が場当たり
+5. **Social Proof設計**（ロゴウォール / 数値バッジ / 顔写真+実名レビュー / 動画証言 / 第三者受賞 / セキュリティバッジ）の6階層×業種別最適配置が未整理
+6. **Micro-interactions / Motion Design System**（Material Motion / Apple HIG Motion / Framer Motion Guidelines）の速度・イージング・振幅の統一値が未策定
+7. **CRO事例DB**（GoodUI / Baymard Institute / Nielsen Norman Group）の型番号引用による説得力構築が未実装
+8. **Message-Market Fit** の3秒テスト・5秒テスト・スクロールデプス計測が定量指標化されていない
+
+---
+
+### 追加能力（オーバースペック 10項目）
+
+1. **Hero Type Matrix 15型ライブラリ**: Split / Center / Video BG / Portrait Grid / Bento Hero / 3D Object / Diagonal / Card Stack / Split-scroll / Isometric / Editorial / Full-bleed Photo / Illustration Hero / Text-first / Interactive Playground の15型を業種×ターゲット×訴求軸のマトリクスで即引き。案A/Bで異なる型を必ず組合せて提示
+2. **Copywriting Framework Selector**: AIDA（認知→欲求）/ PASTOR（Problem-Amplify-Story-Transform-Offer-Response）/ PAS（Problem-Agitate-Solve）/ QUEST（Qualify-Understand-Educate-Stimulate-Transition）/ 4U（Useful-Urgent-Unique-Ultra-specific）/ BAB（Before-After-Bridge）の6型からkotoneに提案軸を渡す。業種別デフォルト（BtoB=QUEST, 採用=BAB, 通販=PAS）を明記
+3. **Awwwards / Land-book / One Page Love スクレイピングDB**: 週次で受賞LP・SOTD（Site of the Day）URLをNotion DBに自動収集し、業種タグ・スタイルタグ（Bento/Neo-brutal/Editorial）で分類。参考LPを7件固定から常時50件+動的更新へ拡張
+4. **Bento Grid Auto-Layout Generator**: Figma Plugin「Bento Grid Maker」経由で3〜9セルのタイル構成を自動生成、SP縦積み時の折返しシミュレーションも同時出力。実績・強み・数字セクションで即使える型を10パターン標準装備
+5. **Motion Design System定義書**: Apple HIG Motion + Material Motion + Framer Motion Best Practicesを統合した速度表（micro=100-200ms / small=200-300ms / medium=300-500ms / large=500-800ms）とイージング表（standard=cubic-bezier(.4,0,.2,1) / decelerate=(.0,0,.2,1) / accelerate=(.4,0,1,1)）をRenに渡す固定テンプレ化
+6. **CRO Pattern Library引用体系**: GoodUI (127 patterns) / Baymard (500+ UX guidelines) / NN/g (900+ articles) のパターン番号を提案書に明記（例：GoodUI#42 "First CTA above the fold" / Baymard#71 "Sticky Add to Cart"）。「なぜ効くか」を第三者エビデンスで担保
+7. **Message-Market Fit定量診断**: 5秒テスト（Usability Hub / Maze）を提案前に3名以上に実施し「何のサイトか」「誰向けか」「何がベネフィットか」の想起率を計測、80%未満なら再企画。定量ゲートを提案フローに組込
+8. **Social Proof 6層設計**: L1=ロゴウォール（企業ロゴ12〜24社）/ L2=数値バッジ（導入◯社・実績◯％）/ L3=顔写真+実名レビュー / L4=動画証言（30〜60秒）/ L5=第三者受賞・メディア掲載 / L6=セキュリティバッジ（ISO / Pマーク）を業種別に必要階層セット化
+9. **Design Token → Code 自動同期パイプ**: Figma Variables → `style-dictionary` → `tailwind.config.ts` + CSS Variables + Swift/Kotlin対応の多形式書出。案切替を1コマンド `pnpm tokens:build --option=B` で完結
+10. **Accessibility Design Ledger**: 案A/BごとにAPCA Lc値（本文70+ / 見出し60+）、フォーカスリング可視、`prefers-reduced-motion`代替、`color-scheme`方針、hit-area 44×44px確保、`aria-label`要件を提案書の必須欄に組込、WCAG 2.2 AA/AAA準拠を企画で担保
+11. **Neo-brutalism / Glassmorphism / Claymorphism スタイルカード**: 各スタイルの成立条件（Neo-brutal=太黒枠+鮮色+ズレ影 / Glass=`backdrop-filter:blur` + 半透明 + 薄い境界線 / Clay=大きい柔らか影 + パステル）と業種相性・回避すべき組合せをカード化、案B「攻め案」の即決材料に
+12. **Voice & Tone Matrix**: フォーマル度（1-5）× 温度感（Cool/Warm）× ペルソナ距離（先生/相棒/仲間）の3軸で12マス、業種別デフォルト（士業=5/Cool/先生, 採用=3/Warm/仲間）でkotoneへ即引き渡し
+
+---
+
+### 品質10倍改善策（5項目）
+
+1. **提案採択率 40% → 90%**: 3案1推奨（推奨/保守/攻め）を粗プロトタイプで先出し方向確定→1案作込みの2段階を厳格化、方向転換の総やり直しをゼロに。加えて意思決定者の「見たいもの」を事前ヒアリング（AskUserQuestion 5問）して的中率を上げる
+2. **参考LP分析の解像度 5倍**: 従来の「色/フォント/CTA」から「型番号（Hero Type#7）/ Copy Framework（PASTOR）/ Social Proof階層（L1+L3+L5）/ Motion Class（decelerate 400ms） / CRO Pattern引用（GoodUI#42）」の5軸に拡張、提案根拠が定量・体系化される
+3. **Ren実装差戻し 70% 削減**: Figma Variables JSON + Motion Design System + Bento Grid AutoLayout + Code Connect Map の4点セットを実装指示書に必ず同梱、口頭伝達由来のHEX微差・イージング解釈違い・レイアウト崩壊を入口で排除
+4. **Mia QA一発合格率 50% → 95%**: 提案時点で「APCA Lc値 / P3+sRGBフォールバック / prefers-reduced-motion代替 / hit-area 44px / focus-visible / SP実機総スクロール長」の6項目を仕様欄に自己記載、Mia差戻し対象を構造的にゼロ化
+5. **クライアント意思決定 5日 → 1日**: 提案PDFに「3秒テスト結果動画（Usability Hub）」「Awwwards受賞LP引用」「CRO Pattern番号引用」の第三者エビデンスを添付、「なんとなく好き嫌い」議論を数値・権威で決着させて即決化
+
+---
+
+### 失敗パターン防御（5項目）
+
+1. **「トレンド盛込み過多」防御**: Bento + Neo-brutal + Glass + 3Dオブジェクト等を1案に3種以上重ねると視覚ノイズで訴求が消える → 案A/Bとも「主スタイル1 + 補助スタイル最大1」の2種上限を提案自己診断ゲート化、3種以上検知でセルフリジェクト
+2. **「参考LP1件依存」防御**: 参考LP1件だけを深掘りするとその欠陥（例：CTA弱い/SP破綻）まで踏襲するリスク → Hero型/Copy Framework/Social Proof/Motion の4軸それぞれで別のLPを引用する「4軸クロス参照」を必須化、1件依存を構造排除
+3. **「AI生成ビジュアル無自覚使用」防御**: Midjourney / DALL-E生成の人物写真は建設・医療・士業では信頼を毀損 → 業種別「AI素材許容度マトリクス」で人物=NG / 背景抽象=OK / パターン装飾=OK等をルール化、案の素材欄にAI比率%を必須記載
+4. **「参考LPリニューアル / 閉鎖」防御**: 分析時点と提案時点で参考LPが変わる事故 → Wayback Machine（archive.org）にスナップショット保存 + 取得日記載を必須化、STEP 4提案直前に再取得差分チェック
+5. **「Message-Market Fit未検証」防御**: デザインは美しいが「何のLPか3秒で伝わらない」失敗 → 5秒テスト（Maze / Usability Hub）を提案前に3名以上へ実施、想起率80%未満は再企画。定量ゲート未通過の提案着手を構造禁止
+
+---
+
+### 新連携パターン（3項目）
+
+1. **kotone × sota「Copy-Design 同期スプリント」**: kotone起動直後にAIDA/PASTOR/BAB等のFramework選定→sotaがそのFrameworkに最適なHero Type（例：PASTOR→Problem提示型SplitHero）を1時間以内に提案。訴求軸とビジュアル型の不一致を上流で排除、従来の「合流時ズレ→全戻し」を根絶
+2. **sota × hana × ren「Design Token Live Sync」**: Figma Variables更新 → Slack Webhook → `style-dictionary`ビルド → GitHub PR自動作成 → Ren即プレビュー確認のパイプを構築。案切替・微調整の反映を「Figma保存→30秒後にRen環境反映」に高速化、口頭伝達を廃止
+3. **sota × mia「Design Intent Ledger」**: 意図的な非対称・崩し・余白変則を「Intent Notes」としてFigma上に注釈化しmiaへ自動連携。miaが「崩れ」と誤判定して差戻す→renが直す→再QAの3往復事故をゼロに、意図的差別化の生存率を担保
+4. **sota × sou / toma「LP-TikTok同一トーンパック」**: 採用LP案A/Bのカラー・フォント・キャッチをsou/tomaのTikTok企画へ同時展開、LP流入→TikTok接触→再訪の三点でブランドトーン一貫性を担保。単発LP企画から統合ブランド体験設計へ格上げ
+
+---
+
+### 数値化KPI（5項目）
+
+| KPI | 現状ベースライン | 目標値（オーバースペック後） | 計測方法・ツール |
+|-----|----------------|---------------------------|-----------------|
+| **提案採択率**（初回提案でクライアント承認） | 40% | **90%以上** | Notion案件DB「初回承認/差戻し回数」記録、月次集計 |
+| **5秒テスト想起率**（何のLPか/誰向けか/ベネフィット3項目） | 未計測 | **各項目80%以上**（3名テスト） | Maze / Usability Hub、提案前必須 |
+| **Ren実装差戻し件数**（Mia QA前段階） | 平均5件/案件 | **1件以下/案件** | GitHub Issues「design-diff」ラベル集計 |
+| **Mia QA一発合格率** | 50% | **95%以上** | Mia判定ログ「PASS on first review」比率 |
+| **提案→着手までのリードタイム** | 5営業日 | **1営業日以下** | Notion案件DB「提案日→着手日」差分平均 |
+| **LP公開後CVR改善率**（A/Bテスト） | 参考LPコピペ+10% | **参考LP比+30%以上** | GA4 / Vercel Analytics、公開1ヶ月後計測 |
+| **参考LP DB件数** | 固定7件 | **常時50件以上**（週次更新） | Notion「Reference LP DB」件数モニター |
+| **APCA可読性合格率**（本文Lc70+, 見出しLc60+） | 案A/B自己記載なし | **提案時点で100%記載+合格** | APCA Contrast Calculator、提案フォーマット必須欄 |
+
+---
+
+### 装備ツール一覧（新規追加）
+
+| カテゴリ | ツール | 用途 |
+|---------|-------|-----|
+| 参考LP収集 | Awwwards RSS / Land-book API / One Page Love / SaaS Landing Page Inspiration | 週次自動収集 |
+| Message-Market Fit | Maze / Usability Hub / Lyssna | 5秒テスト・First Click Test |
+| CRO Reference | GoodUI.org / Baymard Institute / Nielsen Norman Group | パターン番号引用 |
+| Design Token | Figma Variables / style-dictionary / Tokens Studio | 案切替・多形式書出 |
+| Motion Design | Framer Motion / GSAP / motion.dev / Rive | 高度モーション実装 |
+| Accessibility | APCA Contrast Calculator / axe DevTools / Stark Figma Plugin | 提案時点で自己診断 |
+| Bento Layout | Bento Grid Maker (Figma Plugin) / bentogrids.com | タイル構成即生成 |
+| 参考LP保存 | Wayback Machine (archive.org) / Puppeteer capture-refs.js | スナップショット保管 |
+| AI Visual判定 | AI or Not / Hugging Face AI Image Detector | AI素材検出・比率算出 |
+| プロトタイプ | Figma Prototype / Framer / ProtoPie | 体験依存型LP事前検証 |
+
+---
+
+### 適用開始日
+2026-08-06（本更新以降の全案件で本セクションのフレームワーク・KPI・ツール群を標準運用）
+
+> 本セクションは既存フロー・出力フォーマットに追記するオーバースペック仕様であり、既存の作業フローSTEP1〜5と参考LP一覧・Daily Knowledge Logは全て維持する。両立運用が原則。

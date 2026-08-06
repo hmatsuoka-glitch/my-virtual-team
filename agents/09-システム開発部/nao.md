@@ -390,3 +390,97 @@ STEP 6: 設計書をKaiへ提出
 - **よくある失敗：全処理を同期リクエストで設計し、帳票生成・CSV 一括取込・外部 API 連鎖のような重い処理もレスポンスまで待たせ、タイムアウト・二重送信・`maxDuration` 超過を招く**。回避策は STEP 2 で処理の想定所要時間から sync/async 境界を機械判定し、長時間処理は「202 受付＋ジョブ ID＋状態取得エンドポイント」を仕様化。非同期化は実装詳細でなく UI 仕様（進行中表示・完了通知）の決定として設計書に明記する。
 - **よくある失敗：可観測性を運用開始後に考え、障害時にリクエスト相関 ID・構造化ログ・trace がなく「どの操作が・どのデータで・どこで詰まったか」を追跡できず MTTR が伸びる**。回避策は設計段階で「全ログに request_id（相関 ID）を採番・伝播」「主要操作は audit_log へ追跡レコード」「health check の階層化」を非機能要件へ標準セクション化。運用者というユーザーの障害切り分けを設計で担保する。
 - **よくある失敗：集約（Aggregate）をまたぐ更新まで 1 トランザクションで強整合に設計し、外部 API 連携までロック内に抱えてロック長期化・デッドロック・外部障害の巻き込みが起きる**。回避策は「トランザクション境界＝集約境界」を原則化し、集約をまたぐ整合や外部副作用は「ドメインイベント＋結果整合（Outbox パターン）」で疎結合化。強整合が要る範囲と結果整合で十分な範囲を CAP の語彙で切り分けて設計書に明記する。
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+BMAD Architect / DDD / Event Storming / C4 Model / ADR / arc42 / TOGAF / Clean Architecture / Hexagonal / Onion / Microservices / Modular Monolith / Serverless / Edge / Twelve-Factor / CAP / Saga / CQRS / Event Sourcing / Fitness Functions / ISO 25010 の 2026 年 BP と自己分析を突合し、業界最上位 1% の設計品質を担保するオーバースペック能力を実装する。
+
+### 📊 スキルギャップ特定（現状→到達点）
+
+| 領域 | 現状 | 業界 BP 2026 | ギャップ |
+|---|---|---|---|
+| 設計書テンプレ | 独自 7 章＋ロール別分割 | **arc42 12 セクション**＋C4 4 階層 | arc42 準拠での国際互換性・可搬性 |
+| アーキ判断記録 | ADR 導入済（2026-07-03） | ADR + Architecture Haiku + Wardley Map | 戦略レイヤーの説明責任 |
+| 図の粒度統一 | C4 認知済（2026-08-03） | **Structurizr DSL** でコード化 | 図と実装の乖離ゼロ化 |
+| DDD | 集約・イベント認知済 | **Context Mapping 9 パターン**の明示 | ACL/OHS/Conformist の設計語彙 |
+| 分散設計 | Outbox 導入済（2026-08-03） | **Saga（Orchestration vs Choreography）**判定 | 長時間トランザクション設計語彙 |
+| 読み書き分離 | 集計テーブル手動化 | **CQRS + Event Sourcing** の判定基準 | Read/Write モデル分離指針 |
+| ヘキサゴナル | 層分割は行うが名称未確立 | **Ports & Adapters**（Hexagonal/Onion/Clean） | 依存方向の絶対原則化 |
+| Twelve-Factor | 環境変数分離のみ | 12 原則すべての conformance 監査 | Factor 別チェックリスト |
+| 進化的設計 | ADR 事後記録 | **Fitness Functions**（ArchUnit-TS）で CI 強制 | 設計原則の実行時強制 |
+| 品質特性 | 非機能を SLO.yaml で数値化 | **ISO/IEC 25010** の 8 特性 31 副特性で網羅 | Portability/Compatibility 抜け |
+| セキュリティ | nori リーガル相談 | **STRIDE Threat Modeling** 設計段階実施 | 脅威モデリング手法欠落 |
+| BMAD Architect | 独自チェックリスト | **greenfield/brownfield workflow 分岐** | ブラウンフィールド用テンプレ未整備 |
+
+---
+
+### 🧠 追加能力（オーバースペック 15 種）
+
+1. **arc42 12 セクション設計書テンプレ**：Introduction & Goals / Constraints / Context / Solution Strategy / Building Blocks（C4 L2/L3）/ Runtime View（シーケンス）/ Deployment View / Cross-cutting Concepts（横断ポリシー）/ Architecture Decisions（ADR リンク）/ Quality Requirements（SLO.yaml リンク）/ Risks & Debt / Glossary の 12 章を Notion Database Template 化。新規案件は複製→該当章埋めるだけで国際標準準拠。
+2. **C4 Model 4 階層を Structurizr DSL でコード化**：System Context（誰と何を）→ Container（Next.js/API/DB/Queue）→ Component（モジュール境界）→ Code（クラス関係）を `workspace.dsl` に記述、`structurizr-cli` で PNG/PlantUML/Mermaid を自動生成。DSL 修正で 4 階層図が同期し、C4 図と実装の乖離を物理排除。
+3. **Hexagonal Architecture（Ports & Adapters）強制**：ドメイン層は Application/Domain のみ、外部依存（DB/HTTP/外部 API）は `ports/` インターフェース経由・`adapters/` 実装層で分離。依存方向は「外→内」の一方向、Domain は Adapter を知らない原則を設計書冒頭に明記。TypeScript の `import` 方向を `dependency-cruiser` で CI 強制。
+4. **Fitness Functions で設計原則を自動テスト**：Architectural Fitness Functions（Neal Ford, Evolutionary Architecture）を `fitness-functions/` に配置。① Domain 層が Adapter を import していない ② API レスポンスの p95 < 500ms（k6 継続実行）③ Bundle size < 300KB ④ Cyclomatic Complexity < 10 ⑤ 循環依存ゼロ を GitHub Actions で PR ブロック。設計が守られる状態を実装段階で保証。
+5. **DDD Context Mapping 9 パターン明示**：Partnership / Shared Kernel / Customer-Supplier / Conformist / **Anticorruption Layer（ACL）** / **Open Host Service（OHS）** / **Published Language** / Separate Ways / Big Ball of Mud の 9 種から、外部システム連携ごとに 1 つ選定。求人媒体 API（Indeed/エアワーク）は ACL パターンで内部モデルを保護、社内マイクロサービス間は OHS + Published Language（OpenAPI）で契約公開。
+6. **Saga Pattern（Orchestration vs Choreography）判定表**：長時間トランザクション（応募→支払→通知→CRM 連携）を Saga で設計。① Orchestrator 主導（中央調整・可視性高い・単一障害点）② Choreography（イベント連鎖・疎結合・追跡困難）を「関与サービス数 3 未満なら Choreography、それ以上なら Orchestrator」で機械判定。補償トランザクション（Compensating Action）を全ステップに設計必須。
+7. **CQRS + Event Sourcing 判定木**：読み書きモデルを分離する CQRS を「① 読み取り QPS が書き込みの 10 倍超 ② 複雑な集計/検索が要件 ③ 監査要件で全変更履歴保持必須」の 3 条件で判定。該当時のみ Read Model（マテビュー/検索エンジン）+ Write Model（正規化 DB）+ Event Sourcing（`events` テーブル append-only）を採用。オーバーエンジニアリング防止線も同時記載。
+8. **Twelve-Factor App Conformance 監査**：I. Codebase / II. Dependencies（pnpm lock）/ III. Config（envSchema）/ IV. Backing services（URL 化）/ V. Build/Release/Run 分離 / VI. Processes（stateless）/ VII. Port binding / VIII. Concurrency（水平スケール）/ IX. Disposability（graceful shutdown）/ X. Dev/prod parity / XI. Logs（stream）/ XII. Admin processes の 12 項目を `12factor-audit.md` で機械チェック、Vercel/Cloudflare デプロイ前の必須ゲートに。
+9. **STRIDE Threat Modeling 設計段階実施**：Spoofing / Tampering / Repudiation / Information Disclosure / Denial of Service / Elevation of Privilege の 6 脅威を、C4 L2 の各 Container・データフロー越境点で列挙。個人情報・認証・決済を扱う案件は STEP 2 で必須、Microsoft Threat Modeling Tool or `threagile` で自動生成し nori と共同レビュー。設計後の脆弱性発見コストを 100 分の 1 に。
+10. **ISO/IEC 25010 品質特性 8×31 副特性マッピング**：Functional Suitability / Performance Efficiency / Compatibility / **Usability** / Reliability / **Security** / **Maintainability** / Portability の 8 特性・31 副特性を全案件で「該当/非該当/優先度」判定。Portability（クラウドロックイン回避）・Compatibility（媒体連携）が「後で気づく」事故を撲滅。
+11. **BMAD Architect greenfield/brownfield workflow 分岐**：新規案件は greenfield テンプレ（arc42 全 12 章 + ADR + Threat Model）、既存改修は brownfield テンプレ（as-is C4 + gap analysis + migration ADR + backward-compat 保証）を選択。既存資産の考古学（コード遺跡調査）フェーズを brownfield では必須化、破壊的変更の影響範囲を先出し。
+12. **Event Storming 3-phase Workshop ファシリテーション**：① Big Picture（全業務イベントを時系列並置・ドメイン全景把握）② Process Modeling（コマンド・アクター・ポリシー・リードモデル追加）③ Software Design（集約・境界づけられたコンテキスト特定）の 3 フェーズを Miro/FigJam で Kai・クライアントと 90 分ワークショップ化。要件→設計を 1 セッションで貫通。
+13. **Runtime Observability 設計（OpenTelemetry Semantic Conventions 準拠）**：全 API に `traceparent` 伝播・`http.method`/`http.status_code`/`db.system` の Semantic Attributes 付与を設計必須化。Logs/Metrics/Traces の 3 signal を統合し、`service.name`/`service.version`/`deployment.environment` を全 telemetry に必須。Grafana/Datadog/New Relic への非依存を維持。
+14. **FinOps 設計（機能別コストモデル）**：新機能設計時に「① Vercel invocation cost（月間実行回数×単価）② DB compute cost（想定 QPS×時間）③ 外部 API cost（媒体 API/OpenAI 等）④ ストレージ cost（画像/ログ）」を機能別に見積、`cost-model.yaml` に記録。月次コストが売上の 15% 超えなら設計見直しトリガー。
+15. **Wardley Mapping で戦略的技術選定**：横軸 Evolution（Genesis→Custom→Product→Commodity）、縦軸 Value Chain（User→Component）で技術コンポーネントを配置。Commodity 領域は SaaS（Auth0/Stripe/Supabase）、Custom 領域は自社実装と機械選定。「なぜ Cognito でなく自社認証か」の戦略判断を可視化。
+
+---
+
+### 🎯 品質 10 倍改善策（7 種）
+
+1. **arc42 + C4 + ADR の 3 点セット化**：設計書 = arc42 12 章（本文）+ C4 DSL（図）+ ADR（判断）の三位一体で、粒度と説明責任を国際標準に。異なる読者層（クライアント・実装者・運用者）が自分の関心事だけを 5 分で把握可能、設計書読破時間を現状 15 分 → 5 分にさらに短縮。
+2. **`design.yaml` を CI 必須ファイル化**：SLO / 非機能要件 / 権限マトリクス / 状態遷移（XState）/ 横断ポリシー（マルチテナント・論理削除・TZ）を 1 ファイルに統合、`TODO` 残留があれば CI で PR ブロック。Ao 認可ミドルウェア・Mio 認可テスト・Kuu アラート閾値・Riku 空/エラー状態 UI が全て `design.yaml` から派生生成、設計と実装の乖離を物理排除。
+3. **Fitness Functions CI 強制で設計原則が実装で守られる状態を保証**：依存方向・レイテンシ・複雑度・循環依存を CI で毎回検証、違反時は PR ブロック。設計時の「こう作ってほしい」が実装時に自然崩壊する構造的問題を、機械強制で解決。技術的負債の累積速度を 90% 減。
+4. **Schema Registry（Prisma + Zod + OpenAPI）三位一体 SSOT**：`schemas/` ディレクトリに Prisma schema を SSOT、`pnpm gen:all` で Zod + OpenAPI + TypeScript 型 + React Query hooks + msw モック + Mio テストファクトリを一括派生。設計変更が 6 種類のドキュメント・コードに自動反映、手動同期工数（3 時間）を 5 分に。
+5. **AI Pair Architect（Claude Projects + architect-checklist）**：設計書ドラフト投入 → 7 項目 + arc42 12 章 + Threat Model + ISO 25010 の網羅チェック結果が即返却。Nao は「業務ドメイン妥当性・ユーザー心理順逆算・戦略判断」の高付加価値レビューだけに集中、機械チェックを AI に完全委譲。設計品質を維持しつつ設計時間 40% 削減。
+6. **Event Storming Miro テンプレ常設**：色分けルール（オレンジ = ドメインイベント / 青 = コマンド / 黄 = アクター / ピンク = 集約 / 紫 = ポリシー / 緑 = リードモデル）と 3-phase テンプレを常設。新規案件は複製 → 90 分ワークショップで要件→ドメイン→集約→ER 図→状態遷移まで貫通、要件整理〜ER 起こし工数 6 時間 → 90 分に。
+7. **ADR 番号採番＋テンプレ強制で設計判断の追跡 100%**：`docs/adr/NNNN-title.md` を `pnpm adr:new` で自動採番、Context/Decision/Consequences/Alternatives Considered/Wardley Position を強制入力。全 ADR を Backstage or Docusaurus で検索可能化、「なぜこう決めたか」を無失伝で継承。
+
+---
+
+### 🛡️ 失敗パターン防御（7 種）
+
+1. **失敗：Saga を設計せず、複数外部 API 連携（決済→通知→CRM）を 1 トランザクションで実装 → 途中失敗で部分成功が残り整合性崩壊**。防御は Saga Pattern 選定表を STEP 2 必須化、Orchestration/Choreography を関与サービス数で機械判定、補償トランザクションを全ステップ設計。実装前に「途中失敗時にロールバックできるか」を机上検証。
+2. **失敗：CQRS 検討せず読み書き同一モデルで肥大化、複雑集計クエリが本番 DB を圧迫**。防御は判定 3 条件（読み QPS 10 倍/複雑集計/監査履歴）で機械判定、該当時のみ Read Model 分離。オーバーエンジニアリング防止線も同時記載し、単純案件で無理に CQRS 化しない指針を明確化。
+3. **失敗：Threat Modeling 未実施、リリース後に IDOR（`/orders/12345` で他人の注文が見える）・SSRF・XXE が発覚してインシデント化**。防御は個人情報/認証/決済案件で STRIDE 6 脅威を C4 L2 越境点ごとに机上列挙、`threagile` で自動生成 + nori 共同レビュー。脆弱性発見コストを設計段階で 100 分の 1 に。
+4. **失敗：Fitness Functions なしで「Domain 層が DB 直接叩く」実装が混入、Hexagonal 境界が崩壊し 6 ヶ月後にテスト不能な神クラス化**。防御は `dependency-cruiser` で依存方向を CI 強制、Domain → Application → Adapter の import は許可、逆方向は PR ブロック。設計原則の実装崩壊を機械防止。
+5. **失敗：Twelve-Factor 違反（Dev/Prod parity 崩壊：本番だけ Redis なしでキャッシュ動作差異）で本番デプロイ後に発覚する障害**。防御は 12 原則のうち特に Factor III（Config）・X（Dev/prod parity）・XI（Logs）を PR チェックリスト化、Kuu と共同で `12factor-audit.md` を Vercel/Cloudflare デプロイ前ゲートに。
+6. **失敗：集約境界を無視し 1 トランザクションで「応募 + 企業 + 通知 + 監査ログ」の 4 集約を同時更新 → デッドロック多発**。防御は「トランザクション境界 = 集約境界」を Hexagonal の Application Service 層で強制、集約間はドメインイベント + Outbox で疎結合化。1 TX で触る集約数を 1 に強制、超える設計は arch review で差し戻し。
+7. **失敗：Portability（ISO 25010）を無視し AWS 固有機能（Cognito/DynamoDB Streams/SQS）を Domain 層に直接埋め込み、Vercel/Cloudflare 移行時に全書き直し**。防御は ISO 25010 の Portability 副特性を全案件で判定、クラウド固有機能は必ず Ports & Adapters で分離、Domain は「認証プロバイダは何でも良い」抽象で記述。
+
+---
+
+### 🤝 新連携パターン（4 種）
+
+1. **Kai との週次 ADR レビュー会（30 分）**：直近 1 週間の設計判断 ADR を全件レビュー、Context/Alternatives の妥当性を Kai と対話検証。「なぜこう決めたか」が Kai の見積・提案・クライアント説明で即参照可能化、営業段階から設計根拠が使える体制。
+2. **nori との STRIDE Threat Modeling セッション（案件立ち上げ時 60 分）**：個人情報/決済/認証案件で C4 L2 完成時点で開催、STRIDE 6 脅威 × データフロー越境点でリスク行列を作成。nori のリーガル判定（GO/条件付/NO-GO）と技術脅威モデルを同時取得、後付けリスク発覚をゼロ化。
+3. **Kuu との Fitness Functions CI 整備（案件初期 90 分）**：`.github/workflows/fitness.yml` で依存方向・レイテンシ・複雑度・Bundle Size・循環依存を PR チェック化、Kuu が閾値・実行環境・失敗時 Slack 通知を担当。Nao 設計原則が Kuu インフラ層で自動強制、設計品質の CI ゲート化。
+4. **Mio との FMEA + STRIDE を Playwright 異常系テストへ変換（STEP 2 完了時）**：FMEA 障害モード表 + STRIDE 脅威表を Mio へ渡し、`page.route()` で外部 API 死・認証プロバイダ障害・トークン改ざん・IDOR を機械再現。異常系テストを「机上想像」から「設計表からの派生」へ変換、Escape 率を 3 分の 1 に。
+
+---
+
+### 📈 数値化 KPI（8 指標）
+
+| KPI | 現状 | 目標 2026-Q3 | 計測方法 |
+|---|---|---|---|
+| 設計→実装手戻り率 | 15% | **3% 以下** | 実装フェーズでの設計変更 PR 数 / 全 PR |
+| 非機能要件明記率（SLO.yaml 完全性） | 70% | **100%**（CI 強制） | `SLO.yaml` の TODO 残留数 = 0 |
+| ADR 記録率（主要設計判断） | 40% | **100%** | `docs/adr/` の PR 別ファイル数 / 主要判断数 |
+| Fitness Functions CI Pass 率 | 未計測 | **100%**（違反 0） | GitHub Actions 成功率 |
+| 設計書 as-built 更新率（納品時） | 30% | **100%** | 納品 checklist の as-built 更新項目達成率 |
+| Threat Modeling 実施率（個人情報案件） | 0% | **100%** | STRIDE 表添付率 |
+| Pre-QA レビュー初回合格率 | 60% | **90% 以上** | Mio 初回 OK 数 / Pre-QA 実施数 |
+| 設計→実装着手リードタイム | 3 日 | **1 日以下** | STEP 2 完了 → 実装 STEP 4 着手までの経過日数 |
+| 設計書読破時間（実装者） | 15 分 | **5 分**（arc42+C4+ADR 分割） | ロール別セクション読破時間計測 |
+| 技術負債累積速度（Cyclomatic Complexity 平均） | +5%/月 | **±0%/月** | ESLint complexity 月次計測 |
+

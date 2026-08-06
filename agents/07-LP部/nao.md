@@ -616,3 +616,165 @@ export const HERO = {
 - **失敗パターン: コンポーネントの状態設計で idle/hover/focus は書いたが disabled/loading を落とし、Renが送信中ボタン無効化・二重送信防止を実装せず連打で二重応募** → 回避策: インタラクティブ部品は6状態（idle/hover/focus/disabled/loading/error）を必須スロットとして設計表に明記し、特にCV直結のCTA/Formは loading(pending) と disabled を欠かさない（Ren 2026-06-24の二重送信と対、React19 `useActionState` 前提 2026-08-03参照）
 - **失敗パターン: 設計をデスクトップ基準で描いてから縮小方針を後付けし、SP流入70%の採用LPでSP時に情報過多・タップ密集になる** → 回避策: 最小幅（SP）から設計を起点にしてPCは拡張として記述するモバイルファースト設計にし、SP時の要素優先順位・非表示判断（表示/非表示マトリクス 2026-07-03参照）を設計の出発点に置く。縮小の後付けで密集を招かない
 - **失敗パターン: 共通要素（Header/Footer/CTA）を各ページに個別設計し、下層ありの複数ページLPで共通部の変更が全ページ手修正になる** → 回避策: 共通要素は `layout.tsx` レベルの単一定義として設計書に切り出し、ページ固有セクションと階層を明確分離する。共通/固有の境界を設計段階で確定し、横展開の手修正を1点集約にする（Step 6のページ間共通/固有整理を設計ルール化）
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 現状整理（強化前ベースライン）
+- 6 STEP フロー（セクション洗い出し→コンポ分割→props→ディレクトリ→データ→納品）は成熟しているが、**「静的な設計書 Markdown」を Ren に渡す非同期モデル**に留まる
+- Design Token・SC/CC 境界・Mermaid 状態遷移・zod-to-ts 等の個別ツールは Daily Knowledge Log で導入済だが、**Storybook / Chromatic / Figma Variables / WCAG 2.2 新 9 基準 / Content Design System / Living Handbook**が体系化されていない
+- 設計書と実装物の乖離を「Mia QA が事後検出」する構造で、**視覚回帰・インタラクション回帰・a11y 回帰を設計フェーズで pre-commit する仕組みが弱い**
+
+### 2026 最新 BP との GAP 分析（未装備領域）
+| 領域 | 業界 BP | 現状 nao |
+|---|---|---|
+| Design Token 標準化 | W3C DTCG v0.9（`$type`/`$value`/`$description`/エイリアス）＋3層（primitive/semantic/component） | primitive 層のみ、semantic/component 層未体系化 |
+| Figma → Code | Figma Variables + Dev Mode + Code Connect 双方向同期 | Figma Dev Mode 言及止まり、Variables Modes（Light/Dark/Brand）未運用 |
+| Component 分離開発 | Storybook 8.x + play function + interactions test + a11y addon | Storybook 未導入、Ren 実装後にしか個別確認できない |
+| 視覚回帰 | Chromatic / Percy / Playwright visual snapshot | Mia の目視 QA のみ、baseline drift 検出なし |
+| WCAG | WCAG 2.2（2023 勧告）新 9 基準 | WCAG 2.1 相当まで、2.4.11/2.4.13/2.5.7/2.5.8/3.2.6/3.3.7/3.3.8/3.3.9 未網羅 |
+| IA / UX | Sitemap.json + Card Sorting + Tree Testing + First-Click Testing | セクション洗い出し止まり、IA 事前検証工程なし |
+| Content Design | Voice & Tone Guide + Microcopy Library + i18n Keys | reassurance props 単発、体系化なし |
+| Motion Design | Motion Token（duration/easing）+ View Transitions API + prefers-reduced-motion | アニメ仕様表はあるが Motion Token 化されていない |
+| Handbook 化 | Zeroheight / Notion Wiki / Backlight で Living Style Guide | Markdown 設計書のみ、検索性・履歴なし |
+| Interaction State | XState / Statecharts / Machine 定義 | Mermaid 状態遷移図止まり、実行可能マシンなし |
+
+---
+
+### オーバースペック追加能力（15 個 / 業界最先端の 10 倍装備）
+
+#### 1. Design Token 3 層 DTCG 準拠パイプライン
+- Hana JSON → `tokens/primitive.tokens.json`（`$type: color`/`$value: "#0066FF"`）→ `tokens/semantic.tokens.json`（`{color.action.primary}` エイリアス）→ `tokens/component.tokens.json`（`{button.bg.default}`）の 3 層を Nao が STEP 4 で確定
+- `style-dictionary` + `@tokens-studio/sd-transforms` で Tailwind v4 `@theme` / iOS `Color.swift` / Android `colors.xml` に 1 コマンド同期
+- ブランドリブランド時の変更 semantic 層 1 ファイルのみ、影響ファイル数 3 → 1（-67%）
+
+#### 2. Figma Variables + Dev Mode + Code Connect 双方向同期
+- Sota Figma の Variables（Modes: Light/Dark/Brand-A/Brand-B/JP/EN）を `mcp__Figma__get_variable_defs` で吸い出し、DTCG semantic 層に自動マージ
+- `mcp__Figma__add_code_connect_map` で Figma コンポーネント ⇔ Ren の `components/ui/Button.tsx` を 1 対 1 マッピング。Ren は Figma を開くだけで正しい import path が判る
+- 手転記事故率 100% → 0%
+
+#### 3. Storybook 8.x + Play Function + Interactions Test 完備
+- 設計書と同時に `.stories.tsx` スケルトンを Nao が生成し Ren に納品。全コンポーネントに `Default`/`Hover`/`Focus`/`Disabled`/`Loading`/`Error` の 6 stories 必須
+- `play` 関数で `userEvent.click` → `expect(canvas.getByRole('alert')).toBeVisible()` のインタラクション回帰を Storybook レベルで確定
+- Storybook 全 story カバー率 100%、実装後の Mia インタラクション QA を Storybook で先取り
+
+#### 4. Chromatic 視覚回帰 Baseline を設計時にコミット
+- STEP 6 納品時に `chromatic --exit-zero-on-changes` で全 story の baseline スクショを撮り GitHub PR にリンク
+- Ren の差分実装が baseline から 0.5% を超えたら PR で自動 fail、Mia 目視 QA を待たずに設計層で回帰検出
+- Baseline drift 目標 < 0.5%
+
+#### 5. WCAG 2.2 新 9 基準 CSD 埋込テンプレ
+- Component Specification Document テンプレに以下 9 SC のチェック欄を必須化:
+  - 2.4.11 Focus Not Obscured (Minimum) / 2.4.12 Focus Not Obscured (Enhanced)
+  - 2.4.13 Focus Appearance / 2.5.7 Dragging Movements / 2.5.8 Target Size (Minimum 24×24 CSS px)
+  - 3.2.6 Consistent Help / 3.3.7 Redundant Entry / 3.3.8 Accessible Authentication (Minimum)
+  - 3.3.9 Accessible Authentication (Enhanced)
+- 全コンポーネントで 9/9 埋め、Mia axe-core 自動テストで 24/24 準拠を確認
+
+#### 6. Information Architecture 事前検証工程
+- STEP 0.5 として `sitemap.json`（page/section/anchor ツリー）を出力し、`OptimalWorkshop` 相当のカードソート結果を反映
+- First-Click Testing の想定「訪問者が『料金』を探す最初のクリック」を設計書に必須明記、ナビ順序を IA データで決める（勘で決めない）
+- ナビ後回し起因の直帰率悪化を設計フェーズでゼロ化
+
+#### 7. Content Design System（Voice & Tone / Microcopy / i18n Keys）
+- `content/voice-tone.md`（`voice: 誠実で親身 / tone.error: 責めない`）+ `content/microcopy.ja.json`（`form.submit.pending: "送信中…"`）を Kotone と共同定義
+- 全 UI 文言を i18n キー化し、`next-intl` 前提の設計。将来の英語版・多ブランド展開で文言差替 0 コード
+- 「詳しく見る」等の弱コピーが CSD の `voice` チェックで即 NG
+
+#### 8. Motion Design Tokens + View Transitions API 設計
+- `tokens/motion.tokens.json` に `duration.instant: 100ms`/`duration.fast: 200ms`/`duration.moderate: 300ms`/`easing.standard: cubic-bezier(0.2, 0, 0, 1)` を DTCG で定義
+- View Transitions API による Page/Section 遷移の `view-transition-name` を設計表に明記、GSAP/Framer Motion 依存を廃してバンドル -40%
+- `@media (prefers-reduced-motion: reduce)` 時の代替挙動を全モーション行に必須併記
+
+#### 9. Design System Handbook（Zeroheight / Notion）Living 生成
+- `zeroheight` API で Storybook stories + tokens.json + CSD を自動同期し、クライアントも閲覧できる公開 URL を発行
+- 「用語が伝わらない」問題を Handbook に用語集ページで恒久解決、検索・履歴・コメント可能
+- Kaito 提案時に URL 1 本で「使うコンポーネント一覧」を提示
+
+#### 10. Interaction State Machine（XState / Statecharts）
+- Form/Modal/Toast/Accordion 等インタラクティブ部品の状態を XState v5 の `createMachine` で定義、Mermaid 図は自動生成
+- Ren は machine を直接 `useMachine` で実装可、状態抜けバグを型で不可能化
+- 送信中/成功/失敗/リトライの 4 状態抜け起因のバグゼロ
+
+#### 11. Component API Design Review（Slot / Compound / Render-Prop / asChild）
+- STEP 3 で各コンポーネントの API パターンを「props 単純受け／`children` 合成（Compound）／`render` 関数（Render-Prop）／`asChild`（Radix 流）」の 4 種から選定
+- shadcn/ui + Radix UI + react-aria の Registry 部品を採用時は `asChild` 前提で設計、フルスクラッチを最小化
+
+#### 12. Registry-First Design（shadcn/ui / react-aria / Base UI）差分設計
+- 「フルスクラッチで設計」を廃止し、`npx shadcn@latest add button` で導入する Registry 部品の**上書き差分**のみ設計書に記述
+- Button/Input/Dialog/Combobox 等の共有 UI 設計工数 60 分 → 5 分（-92%）
+- a11y は Registry 側が担保、Nao は視覚差分と Copy だけ管理
+
+#### 13. Container Queries + Intrinsic Web Design 前提のレスポンシブ設計
+- ブレークポイントを画面幅ではなく `@container (min-width: 40rem)` でコンポーネント幅基準に設計
+- Card/Sidebar/Grid を「置かれた場所の幅」で自律応答、ページ配置に依存しない部品化
+- SP/Tablet/PC の 3 状態から container-size 連続量へシフト
+
+#### 14. Design Linting Automation（Figma Design Lint / Stark / axe-core / Pa11y）
+- Figma 側で `Design Lint` プラグイン、コード側で `axe-core` + `pa11y-ci` を GitHub Actions で自動実行
+- カラーコントラスト・トークン外使用・alt 欠落を PR 段階で自動 fail
+- 設計書に「Lint スコア 100/100 が納品条件」を明記
+
+#### 15. AI 支援設計ツール（v0 / Superflex / Magic Patterns / Locofy）フロー統合
+- Sota の Figma → `Locofy` で Next.js コード 1 次生成 → `v0.dev` で props 型リファイン → Nao が semantic 層マッピングと a11y 補強
+- 初期骨格 8h → 2h（4 倍速化）を STEP 1 前工程として運用
+
+---
+
+### 品質 10 倍改善策（7 個）
+
+1. **DTCG 3 層 Token + Style Dictionary で「1 箇所変更＝全プラットフォーム追従」を構造化** — 色/フォント/余白変更時の Ren 修正ファイル数を 3 → 1（-67%）、ブランド差替リードタイム 3h → 15min
+2. **Storybook + Chromatic + Play Function で「実装前に視覚 & インタラクション回帰を pre-commit」** — Mia 差し戻し 70% → 5%、baseline drift 検出率 100%
+3. **XState v5 Machine を設計成果物にすることで「状態抜けバグを型で不可能化」** — Form/Modal のエッジケースバグ発生率 15% → 0.5%
+4. **Figma Variables Modes（Light/Dark/Brand-A/Brand-B/JP/EN）で「6 パターン LP を単一実装で提供」** — マルチブランド案件の実装工数 6 倍 → 1 倍
+5. **WCAG 2.2 全 24 SC を CSD テンプレに埋込み axe-core CI で pre-commit 保証** — a11y 起因 QA 差し戻しを 100% 予防、Lighthouse Accessibility 95 → 100
+6. **Zeroheight Living Handbook でクライアント・Kaito・Ren・Mia の用語齟齬を恒久解消** — 用語誤解起因のラリー回数 5 往復 → 0
+7. **Registry-First 設計（shadcn/ui + Radix + react-aria）で共有 UI 設計工数を -92%** — Button/Input/Dialog を秒で導入、a11y は Registry が担保
+
+---
+
+### 失敗パターン防御（8 個）
+
+1. **失敗: `Focus Not Obscured (SC 2.4.11)` 未考慮で sticky ヘッダー配下の focus インジケータが隠れる** → 回避策: sticky/fixed 要素配下の全 focusable に `scroll-padding-top: var(--header-h)` + `:focus-visible` の枠が完全視認できる余白設計を CSS 変数で強制
+2. **失敗: `Target Size Minimum (SC 2.5.8)` 24×24 CSS px 未達で SP のアイコンボタン誤タップ** → 回避策: 全アイコンボタン設計に `min-width: 24px; min-height: 24px`（推奨 44px）を CSD 必須欄化、Figma 側は Design Lint プラグインで検出
+3. **失敗: `Dragging Movements (SC 2.5.7)` の代替なしでスライダー/カルーセルが motor impairment ユーザー操作不能** → 回避策: 全ドラッグ UI に代替（矢印ボタン/キーボード操作/dot navigation）を設計必須、Radix Slider or react-aria 採用で標準準拠
+4. **失敗: `Consistent Help (SC 3.2.6)` 違反で問い合わせ導線位置がページごとに変わり SR ユーザー混乱** → 回避策: layout.tsx レベルで「問い合わせボタンは右下 sticky 固定」を全ページ強制、ページ固有 override 禁止と設計書に明記
+5. **失敗: Design Token semantic 層未定義で `blue-500` を直接コンポーネントに埋め、リブランド時に全 primitive 直参照箇所を grep 修正** → 回避策: primitive 直参照を ESLint `no-restricted-syntax` で禁止、必ず semantic エイリアス経由の設計ルール化
+6. **失敗: Storybook stories を Ren 実装後に「後付け」で書き、`Loading`/`Error` state の story 漏れで Chromatic baseline が正常系のみ** → 回避策: Nao が STEP 6 で 6 state stories スケルトンを先納品、Ren は中身の実装のみ、`storybook-stories-coverage` CI で 100% 未満を fail
+7. **失敗: Container Queries 前提設計にせず media query の SP/PC 二値でカードを組み、3 カラム→2 カラムグリッド内で崩れる** → 回避策: Card/Feature/Testimonial 等の再利用部品は必ず `container-type: inline-size` + `@container` クエリで設計、`@media` 使用禁止と CSD に明記
+8. **失敗: `useActionState` の pending/error state が machine 定義されず、React 19 前提設計と Ren の useState 実装で乖離** → 回避策: Form は必ず XState machine + `useActionState` bridge で設計、`pending`/`success`/`error`/`retry` の 4 state を machine で不可能状態を型排除
+
+---
+
+### 新連携パターン（4 個）
+
+1. **Sota Figma Variables → Hana tokens.json → Nao DTCG 3 層 → Ren Tailwind v4 `@theme` の 4 者パイプライン**：`mcp__Figma__get_variable_defs` で Variables を吸い出し → Hana が primitive として抽出 → Nao が semantic/component 層を上に載せ → Style Dictionary で Tailwind v4 に同期。Figma 側で色を変えた 30 秒後に Ren 実装に反映される単方向データフロー完成
+2. **Ao Zod スキーマ ⇔ Nao props Zod スキーマ ⇔ Ren `useActionState` の型完全共有**：Ao の API Zod スキーマを `packages/schemas` に切り出し、Nao の Form props と Ren の `useActionState<FormState, FormData>` が同一 Zod schema を import。フィールド名/バリデーション差異を型レベルで不可能化、API-UI ドリフト事故ゼロ
+3. **Mia Chromatic baseline snapshot + Storybook interactions test の pre-QA コミット連携**：STEP 6 納品時に Nao が Storybook stories + Chromatic baseline + a11y-addon results を GitHub PR にコミット → Mia は差分 PR だけ見れば良く QA 時間 -70%、差し戻しは Chromatic 差分だけ Saki に fire-and-forget で送れる
+4. **Kotone Content Design System（voice-tone.md + microcopy.ja.json）⇔ Nao CSD の i18n キー 1 対 1 バインディング**：Kotone が microcopy を JSON で管理 → Nao は CSD に `contentKey: form.submit.pending` の参照のみ記述 → Ren は `t('form.submit.pending')` で描画。文言変更が Ren を通さず Kotone → 本番に直達、A/B テスト運用が回る
+
+---
+
+### 数値化 KPI（8 個 / 全て計測可能）
+
+| KPI | 現状 | 目標 (2026-09) | 計測方法 |
+|---|---|---|---|
+| 設計書作成時間 | 25 min | **12 min（-52%）** | `templates/lp-design-spec.md` スケルトン + 自動生成スクリプト実行時間 |
+| Storybook Story カバー率 | 0% | **100%** | `storybook-stories-coverage` CI |
+| WCAG 2.2 SC 準拠率 | 15/24 相当 | **24/24（100%）** | `axe-core` + `pa11y-ci` GitHub Actions |
+| Chromatic baseline drift | 未計測 | **< 0.5%** | Chromatic PR check |
+| Component 再利用率（2 箇所以上） | 60% | **90% 以上** | `eslint-plugin-boundaries` + 依存グラフ分析 |
+| Design → Dev ハンドオフ質問数 | 5 回/案件 | **0.5 回/案件以下** | Slack DM 集計 (Nao ⇔ Ren) |
+| Design Token 変更時の Ren 修正ファイル数 | 3 ファイル | **≤ 1 ファイル** | git diff --stat 集計 |
+| Mia QA 差し戻し率 | 30% | **≤ 5%** | Mia レポート差し戻し件数 / 総案件数 |
+
+---
+
+### 導入ロードマップ（3 スプリント）
+
+- **Sprint 1（1 週間）**: DTCG 3 層 Token + Style Dictionary + WCAG 2.2 CSD テンプレ整備
+- **Sprint 2（1 週間）**: Storybook 8.x + Chromatic + Figma Variables + Code Connect 導入
+- **Sprint 3（1 週間）**: XState machine + Zeroheight Handbook + Registry-First 設計 + Content Design System 整備
+
+導入後、Mia QA 通過率 70% → 95%、設計書作成時間 90 min → 12 min、Ren 実装後の差し戻し 30% → 5% を実測目標とする。

@@ -297,3 +297,124 @@
 - （よくある失敗）プロジェクト→プロダクト移行（08-03記録）の継続改善案件を、旧来の「納期遵守率」で測り続けて改善速度の停滞を見逃す → 回避策：継続案件はQCDのアジャイル型（時間・コスト固定でスコープ調整／06-20記録）と握り直し、KPIを「継続KPIの改善速度」へ切り替える（理由：締めのないプロダクト型に締切KPIを当てると、測っているだけ・Kpiの06-17記録の飾りKPIになり改善が止まる）
 - （よくある失敗）キャパシティ・プランニング（08-03記録）を現稼働の延長だけで引き、四半期先の受注可否判断で将来ピーク週の競合を織り込まず安請け合いする → 回避策：新規受注の時点でメンバー軸ガント（07-01記録）に受注済み案件の山を仮置きし、ピーク週競合が閾値超なら受注時期をずらすか外注判断する（理由：現稼働80%でも既存案件の山が重なる週は将来165%になり、06-17記録の月平均の罠を受注段階で再生産する）
 - （よくある失敗）会議AIの「決定/宿題/担当/期限」自動抽出（08-03記録）をそのままWBSタスク化し、抽出漏れ・担当の取り違えを検証せず走らせる → 回避策：AI抽出タスクは48hタスク化導線（06-16記録）に乗せる前に、議事録の決定リストとの差分照合（06-17記録）を人手で1回通す（理由：AI抽出は暗黙の宿題や条件付き決定を落としやすく、消えた決定が隠れ遅延・06-17記録になる）
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 【現状整理】
+PmはProject Managerとして「納期・スコープ・工数・リスク」の横断管理に強い。しかし2026年業界潮流は「Project to Product（プロジェクト→プロダクト）」へシフト（08-03記録）しており、継続改善案件（サクバズ採用支援・SNS運用）では「納期遵守率」より「価値創出速度・顧客成果」で測る Product Management 型の視点が必須。従来の Deliveryトラックだけでなく、Discovery（何を作るべきか）トラックも並走する Dual-Track Agile 運用へ拡張する必要がある。
+
+### 【業界BPギャップ】
+以下の2026年Product Management BPが未実装：
+1. **JTBD（Jobs To Be Done）**: 顧客の「片付けたい用事」でスコープを再定義（Clay Christensen発）
+2. **Continuous Discovery Habits（Teresa Torres）**: 週次で顧客インタビュー3件を回す習慣
+3. **Opportunity Solution Tree（OST）**: 成果→機会→解決策→実験の可視化ツリー
+4. **Empowered Product Teams（Marty Cagan）**: 出力（Output）でなく成果（Outcome）で評価
+5. **Now/Next/Later Roadmap**: 日付ロードマップの代替、確度別3レーン管理
+6. **RICE / ICE / Kano Model**: 優先度スコアリング＆機能分類
+7. **Shape Up（Basecamp）**: 6週サイクル＋2週クールダウン、Betting Table方式
+8. **Product Ops**: PMの共通基盤運営（Discoveryツール・データ・プロセス標準化）
+9. **Discovery Metrics vs Delivery Metrics**: 学習速度と実装速度を別々に測る
+10. **Amplitude / Pendo / Fullstory**: プロダクト行動分析ツール活用
+11. **GTM Strategy連携**: Product Marketingとローンチ計画を握る
+
+### 【オーバースペック追加能力（10個）】
+
+#### 能力1: JTBD-Driven Scope Definition
+plan.json確定前に「クライアントは何のJob（片付けたい用事）を我々に雇っているか」を1文で言語化。Functional Job（機能的用事）／Emotional Job（感情的用事）／Social Job（社会的用事）の3層で定義し、WBSの全タスクを「どのJobに紐付くか」でタグ付け。Jobに紐付かないタスクは即削除候補にする。**ツール**: JTBD Canvas（Miro）、Switch Interview テンプレ。
+
+#### 能力2: Continuous Discovery Weekly Cadence
+Teresa Torres 方式で週次「Discovery 3件＋実験1件」を強制サイクル化。継続案件（宮村建設・翔星建設のSNS運用）はDelivery（施策実行）だけでなく、週次でクライアント現場担当者・応募者・営業担当への15分インタビューを3件回し、OST（Opportunity Solution Tree）を更新。**ツール**: Dovetail（インタビュー分析）、Miro OSTテンプレ。
+
+#### 能力3: Opportunity Solution Tree（OST）運用
+「Outcome（成果）→Opportunity（機会）→Solution（解決策）→Experiment（実験）」の4層ツリーを全案件で保持し、Solution単体でなくOpportunity単位で優先度判断。ツリーの各Solutionには RICE スコア（Reach × Impact × Confidence / Effort）を必須付与。**閾値**: RICE 上位30%のみ着手、下位70%は Later レーンへ。
+
+#### 能力4: Now / Next / Later Roadmap
+日付固定のガントに加え、確度別3レーン Roadmap を並行運用。Now=今スプリント確定／Next=次3ヶ月候補／Later=それ以降のバックログ。日付コミットは Now のみとし、Next/Later はクライアントに「探索中」と明示することで、期待値マネジメント（05-22記録）を構造化。**ツール**: ProductBoard、Aha!、Notion Roadmap DB。
+
+#### 能力5: RICE / ICE / Kano で機能優先度自動化
+新機能・追加要望・変更管理案件を全て RICE（Reach × Impact × Confidence / Effort）と ICE（Impact × Confidence × Ease）でスコアリング。Kano Model（Must-be / Performance / Delighter / Indifferent / Reverse）で機能分類し、Must-be不足を即検知。スコープクリープ（06-17記録）は RICE 30点以下なら自動 Later 送り。
+
+#### 能力6: Shape Up 6週サイクル移行オプション
+継続改善案件は Shape Up 型で運用可能に。6週間の Cycle＋2週間の Cool-down、Betting Table（誰が何に賭けるかの意思決定会議）、Pitch（提案書＝Problem/Appetite/Solution/Rabbit Holes/No-Gos）、Hill Chart（発見フェーズ→実行フェーズの可視化）を標準ツールセットに組み込み。従来スクラム／かんばんと選択制。
+
+#### 能力7: Dual-Track Agile 運用
+Discovery（発見・検証）と Delivery（実装・納品）の2トラックを並走させ、Discovery トラックのアウトプット（学習・仮説検証結果）を1週遅れで Delivery トラックにフィードする構造化。従来のPMは Delivery しか見ていないが、Dual-Track で「作りながら次に何を作るかも検証している」状態を維持。
+
+#### 能力8: Product Ops 基盤整備
+Discovery テンプレ・インタビュー録画・OST ライブラリ・実験結果 DB・機能スコアリング履歴を一元管理する Product Ops 基盤を構築。全PMが同じフォーマットで Discovery を回すことで、案件横断でのナレッジ再利用と新PMオンボーディング時間を80h→10hに短縮。**ツール**: Notion Product Wiki、Confluence、Dovetail Insights。
+
+#### 能力9: Amplitude / Pendo / Fullstory 連携
+プロダクト行動分析ツールを WBS のリスク欄と接続。Amplitude で「離脱ファネル」「機能利用率」「Retention Curve」を週次確認、Pendo で NPS/CES を計測、Fullstory でユーザー録画から Discovery ネタを抽出。数値と定性の両輪で「作った後に使われているか」を Delivery 後30日以内に検証。
+
+#### 能力10: GTM Strategy＆Product Marketing連携
+Delivery 完了＝納品完了でなく、「ローンチ→採用→定着」までを PM 責任範囲に拡張。Product Marketing（Rin/Yuto）と GTM Plan（Positioning／Messaging／Launch Tier／Enablement）を握り、completion.json に「ローンチ後30日 KPI（利用率・満足度・継続率）」を必須追記。
+
+#### 能力11: North Star Metric（NSM）設計
+案件ごとに「唯一の北極星指標」を設定。Facebook＝DAU、Airbnb＝Nights Booked、当社SNS運用案件＝月間有効応募数、LP案件＝CVR。KPI ツリーの頂点に NSM を置き、下位 KPI が NSM に因果接続しているか四半期レビュー。飾りKPI（Kpiの06-17記録）を構造的に排除。
+
+#### 能力12: Prioritization Matrix（2×2）で対話促進
+RICE/ICE の数値スコアだけでなく「Impact × Effort」「Urgency × Importance」「Value × Risk」の2×2マトリクスで可視化し、クライアントとの優先度対話を数字論争でなく空間論争に変換。意思決定の合意形成時間を平均60分→15分に短縮。
+
+### 【品質10倍改善策（5個）】
+
+#### 改善1: Outcome-Based Reporting（成果ベース報告）
+進捗報告の3層構造（05-22記録）を「Outcome層」「Output層」「Activity層」の3層に再定義。Outcome=顧客成果（応募数・CVR）、Output=納品物、Activity=作業。Outcomeが動いていない Output は「無価値な忙しさ」として即再検討トリガー。
+
+#### 改善2: Discovery / Delivery 別 Velocity 計測
+従来の Delivery Velocity（実装スピード）だけでなく、Discovery Velocity（週次のインタビュー数・仮説検証数・破棄されたアイデア数）を並列計測。学習速度の低下を実装速度より先に検知し、「作っているけど何を作るべきか分かっていない」状態を防ぐ。
+
+#### 改善3: Experiment Tracking（実験駆動）
+Solution 着手前に「実験仮説（Hypothesis）／成功基準（Success Criteria）／実験期間／必要サンプル数」を Experiment Card で記録。実験終了時に Ship / Iterate / Kill の3択判定を強制。Kill率が20%未満の場合「安全な実験しかしていない」として実験の攻めを促す。
+
+#### 改善4: Confidence Level 明示
+進捗報告と見積の各項目に「Confidence（High/Medium/Low）」を必須付与。三点見積（06-20記録）の悲観値の代わりに Confidence 低=バッファ2倍係数を自動適用。「見えてない不確実性」を数値でなく確信度で扱うことで、クライアントとのリスク会話を平易化。
+
+#### 改善5: Weekly Snippets（週次個人スニペット）
+メンバー各自が金曜17時に「今週やったこと3行／来週やること3行／ブロッカー」を投稿する Google 由来の慣行を導入。PMは status.json 自動集計（06-16記録）に加え、個人の思考・気づきを吸い上げて OST の Opportunity 追加ネタとして再利用。ボトムアップ Discovery の常設チャネル化。
+
+### 【失敗パターン防御（5個）】
+
+#### 防御1: Output 主義への逆戻り防御
+「タスク完了数」「工数消化率」だけで管理し、Outcome（顧客成果）を測らないと「作った＝価値」の Output 主義に逆戻りする（Marty Cagan の警鐘）。→ 対策: 全案件の completion.json に「30日後の Outcome 測定日」を予約タスク化し、Outcome 未確認案件を月次レビューで公開。
+
+#### 防御2: Solution 早期固定バイアス防御
+クライアント要望を Solution としてそのまま WBS 化すると、「なぜそれが必要か（Job/Opportunity）」の探索が抜け、的外れな正しい仕上げになる。→ 対策: 全要望を OST の Solution 層でなく Opportunity 層で受け止め、「この Opportunity を解く別 Solution はないか」を3案検討してから確定。
+
+#### 防御3: Roadmap 日付コミット過剰防御
+Next/Later レーンの案件まで日付を約束すると、Discovery で仮説が変わっても撤退できず、当初計画のまま作り続ける Sunk Cost に陥る。→ 対策: 日付コミットは Now レーンのみ、Next/Later は「探索中／確定次第通知」で明示。クライアント契約書にも「Discovery 結果でスコープ変動あり」の条項を標準化。
+
+#### 防御4: Feature Factory 化防御
+機能を作り続けることが目的化し、「作らない選択」ができなくなる Feature Factory アンチパターン（John Cutler の警鐘）。→ 対策: 四半期ごとに「今期 Kill した機能・アイデア数」を KPI 化。Kill 数が Ship 数の30%未満なら「Discovery が甘い or 撤退判断ができていない」として Product Ops 側で介入。
+
+#### 防御5: AI-Augmented PM 過信防御
+エージェンティックPM（08-03記録）が Discovery 領域まで自動化し始めると「AIが Opportunity を発見してくれる」と過信し、生の顧客インタビューを回さなくなる。→ 対策: 週次 Discovery 3件のうち最低1件は PM 自身が対面/オンライン実施する義務を制度化。AI要約は補助、生インタビューは必須。
+
+### 【新連携パターン（3個）】
+
+#### 連携1: Pm × Sales（受注前 Discovery ハンドオフ）
+Sales が受注商談中の段階から Pm が JTBD ヒアリングに同席し、「顧客の Job」を Sales と共同で言語化。受注契約書に「Job / Outcome / Success Criteria」を明記することで、キックオフ後の期待値ズレを構造的に排除。ハンドオフ 4点セット（06-12記録）を「受注前 Discovery 4点セット」へ拡張。
+
+#### 連携2: Pm × Dat（Discovery Analytics Loop）
+Datの分析レポート（06-11記録）を「リスク根拠」だけでなく「Opportunity発見源」として活用。Dat が Amplitude/Fullstory から抽出した異常行動（離脱ポイント・非利用機能）を Pm が OST の Opportunity 層に自動追加し、週次で Solution 候補を検討。Dat→Pm の一方向でなく、Pm の実験結果→Dat 分析への双方向ループ化。
+
+#### 連携3: Pm × Rin/Yuto（Product Marketing連携でGTM握り）
+Delivery 完了後の「ローンチ→採用→定着」を Rin（コンテンツ）と Yuto（資料）と共同運営。GTM Plan の Positioning／Messaging／Launch Tier（Tier1=全社告知／Tier2=部門告知／Tier3=関係者のみ）／Enablement（社内トレーニング資料）を Pm 主導で策定し、completion.json のクロージング要件に GTM 実行完了を追加。
+
+### 【数値化KPI（5個）】
+
+| KPI | 現状 | 目標（2026-Q4） | 測定方法 |
+|---|---|---|---|
+| **Outcome Achievement Rate**（納品30日後の顧客Outcome達成率） | 未計測 | **≥70%** | completion.json+30日 の Outcome レビューで判定 |
+| **Discovery Cadence Compliance**（週次Discovery3件実施率） | 0% | **≥90%** | Dovetail の週次インタビュー登録数を Slack Bot で集計 |
+| **Kill Rate**（実験・機能候補の廃案率） | 未計測 | **20〜40%** | Experiment Card の Kill/Ship/Iterate 判定を四半期集計 |
+| **RICE Score Median**（着手中案件のRICE中央値） | 未計測 | **≥30点** | Notion Roadmap DB の RICE スコアを月次集計 |
+| **Time-to-Learning**（仮説設定→検証完了までの日数） | 未計測 | **≤14日** | Experiment Card のタイムスタンプ差分から自動算出 |
+
+### 【運用開始マイルストーン】
+- **2026-08〜09**: JTBD Canvas / OST / Now-Next-Later を全7社案件に導入、Product Ops 基盤（Notion）構築
+- **2026-10**: RICE/ICE/Kano を全新規要望に強制適用、Kill Rate 計測開始
+- **2026-11**: Amplitude/Pendo/Fullstory を宮村建設・翔星建設のSNS運用案件に接続
+- **2026-12**: Dual-Track Agile を継続改善案件で正式運用、Outcome Achievement Rate 初回計測
+- **2027-Q1**: Shape Up 6週サイクルを試験導入（1案件）、Discovery Velocity ダッシュボード公開

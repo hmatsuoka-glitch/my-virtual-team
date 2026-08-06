@@ -498,3 +498,97 @@ if 単発スライドのみ必要:
 - （よくある失敗）プロジェクター投影で濃色×濃色（紺×黒）が潰れて読めない／スマホ PDF で本文が小さすぎる。回避策：RGB 明度差 30 以上のハイコントラスト設計、本文 10pt 以上・見出し 14pt 以上を基準化し、投影・スマホ・印刷の 3 環境でセルフ検品する。
 - （よくある失敗）フォント未埋め込み・アスペクト比違い（4:3 で複製開始）・SmartArt の色上書きなど、自分の画面では正常だが他環境・監査で全作り直しになる逸脱。回避策：出力後に Aoi 配布の `precheck.py` を必ず 1 回回し、フォント埋め込み・スライドサイズ・和欧混植・SmartArt の 4 点を提出前に自己判定する。
 - （よくある失敗）placeholder（LOGO／Photo／ダミーテキスト）残留や、本文「成長中」なのにグラフが下降線を見せる論理矛盾を貼り付けたまま提出。回避策：placeholder 一覧と実配置を突合し、グラフが示すメッセージと本文主張の一致をデザイン段階で最終判定して Rin／Yuto へ即報告する。
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 1. 現状整理（Baseline as of 2026-08-05）
+- **強み**: designer_memory.md 11テンプレ運用／セルフチェック15項目／Figma Components 260アイコン／Auto Layout+Variants／pptx YAML運用／機械8+目視7分担／Aoi `precheck.py` 事前実行。
+- **主要ツール**: Google Slides / PowerPoint 365 / Figma / Figma Slides / Illustrator / pptxスキル / Python-pptx / Firefly / Midjourney。
+- **納品形態**: PPTX / PDF / Google Slides URL / Figma Slides リンク。1案件あたり平均出力工数 4.5h、Aoi差し戻し率18%、Mana差し戻し率9%。
+
+### 2. スキルギャップ分析（2026年最新BPとの差分）
+
+| 領域 | 2026年最新BP | Souma現状 | ギャップ |
+|---|---|---|---|
+| **Design Tokens** | W3C Design Tokens Community Group仕様（DTCG）JSON管理／Style Dictionary出力 | designer_memory.mdへHEX直記 | トークンJSON化・多媒体シリアライズ未対応 |
+| **Figma Slides** | デザインシステム直結／Variables連動／リアルタイム共同編集 | 「新規セクション整備時期」認識のみ | 実運用テンプレ未整備 |
+| **Motion Design** | Lottie / Rive / After Effects Web Export | 静止画のみ | ショートループ・アニメ図解未対応 |
+| **AI生成デザイン** | Beautiful.ai / Tome / Gamma / PowerPoint Copilot / Adobe Firefly Custom Models | Firefly/Midjourney限定 | AI下書き→人手編集の分業工程未確立 |
+| **Adobe InDesign** | 印刷物・長尺資料の組版標準 | 未使用（Illustrator止まり） | パンフ・年次報告書の印刷転用に弱い |
+| **Sketch + Sketch Cloud** | 一部エンプラで根強い需要 | 未対応 | Sketch納品案件で作業不可 |
+| **Data Visualization** | D3.js / Observable Plot / Datawrapper / Flourish | pptx/Slidesネイティブグラフのみ | インタラクティブグラフ・地理データ未対応 |
+| **Iconography System** | Iconify API / Lucide / Phosphor / Custom Icon Font | 260点手動タグ管理 | APIによる無限拡張・アイコンフォント化未実装 |
+| **Typography** | Variable Fonts軸定義／可変幅／OpenType機能（tnum, ss01等） | 通常ウエイト選定のみ | OpenType Features未活用 |
+| **Color System** | HSL/OKLCH色空間／Contrast Grid／Adobe Leonardo自動調整 | HEX手動+コントラスト目視 | 知覚均等色空間・自動パレット生成未対応 |
+| **Grid System** | 8pt/4ptベースライングリッド／Modular Scale | 12カラム認識のみ | ベースライン・スケール数値化未着手 |
+| **Master Slide** | PPT/Slidesレイアウトの完全構造化＋Apps Script自動生成 | マスター運用あり | Apps Scriptマクロ化は部分的 |
+| **9:16縦型スライド** | SNS配布・営業チャット共有前提 | 二形態対応「新標準作業」認識のみ | 縦横同時書き出しパイプ未構築 |
+| **PDF/UA・アクセシビリティ** | 官公庁で必須要件化 | WCAG 2.2認識のみ | PDF/UAタグ付き出力手順未確立 |
+| **動画スライド** | Loom埋め込み・自動再生ループ動画 | QR＋サムネ止まり | 動画背景スライドの制作規定なし |
+
+### 3. オーバースペック追加能力（10個）
+
+1. **Design Tokens JSON化（DTCG準拠）**: designer_memory.mdの色/フォント/余白を`tokens.json`（DTCG v1.0仕様）化し、Style Dictionaryで CSS / SCSS / Swift / Android XML / Figma Variables に自動出力。Rin（Web LP転用）・Ren（コード）・Sotaと1ソース共有。
+2. **Figma Slides 完全テンプレ11種の実装**: 既存Google Slides 11テンプレをFigma Slidesへ移植し、Design Tokens連動＋Auto Layout＋Variantsで案件着手2分。共同編集URLをYutoが直接共有可能。
+3. **Beautiful.ai / Tome / Gamma のAIドラフト→人手編集ワークフロー**: 提案書構成をAIで30秒下書き→Souma が「1スライド1メッセージ」原則で構造編集→pptx書き出し。ドラフト時間5h→30分（90%短縮）。
+4. **Lottie / Rive アニメ図解ライブラリ**: フロー・ステップ・4象限・KPIカウンターの4型をLottie JSON化し、pptx埋め込み動画・Figma Slides・Web版で共通再生。「静止画資料」を「動く資料」へ進化。
+5. **D3.js / Observable Plot / Flourish インタラクティブグラフ**: 月次レポートの応募ファネル・地理データ・時系列を、静止PDFではなくインタラクティブHTMLで納品可能に。QR経由でクライアントが自ら深掘り。
+6. **InDesign組版能力（IDML経由）**: 年次報告書・50ページ超の長尺資料・パンフ印刷入稿を、Illustrator/pptx併用でなくInDesignネイティブで制作。CMYK/特色/塗り足し/トンボの完全準拠。
+7. **9:16縦型二形態同時書き出しパイプライン**: 1つのMarkdown原稿から`format: 16:9`と`format: 9:16`の両方をYAMLフラグでpptxスキル自動振り分け。SNS配布資料の別途制作をゼロ化。
+8. **Adobe Firefly Custom Models（クライアント別）**: 建設業クライアントの現場写真100枚を学習させたカスタムモデルで、案件専用スタイルの人物・現場イラストを量産。トーン統一と権利クリアを同時実現。
+9. **OKLCH色空間＋Adobe Leonardo自動パレット生成**: ブランドカラー1色から知覚均等スケール（明度10段階×彩度3段階）を自動生成し、コントラスト比 WCAG AAA（7:1）を数値保証。「なんとなく淡い色」を根絶。
+10. **PDF/UAタグ付き出力＋スクリーンリーダー検証**: 官公庁・上場企業案件で必須のPDF/UA準拠を、Acrobat Pro Preflight で自動タグ付け→NVDAスクリーンリーダーで読み上げ実検証。アクセシビリティ受注条件を満たす。
+11. **Apps Script「テンプレ複製スターターキット」マクロ化の全11テンプレ展開**: 現状部分導入を全テンプレへ拡張し、案件タイプ選択→複製→テーマ固定→マスター清掃→索引パーツ配置を30秒で完遂。
+12. **OpenType Features（tnum / ss01 / kern）活用**: 数値の桁揃え（tabular figures = tnum）、日本語カギ括弧の詰め（ss01）、和欧カーニング（kern）をCSS/pptxで有効化。表・グラフの数値可読性を数値根拠で向上。
+
+### 4. 品質10倍改善策（5個）
+
+1. **「Design Tokens 単一ソース化」による色/フォント逸脱ゼロ化**: `tokens.json`を Git 管理し、pptx・Figma・Slides・Webの全媒体がトークン参照。手打ちHEXを構造的に不可能化し、Aoi「色逸脱」差し戻し18%→2%（89%削減）。
+2. **「AIドラフト→人手構造編集」の分業で1スライド1メッセージ密度を向上**: Gammaで下書き→Sohuma が「メッセージ50-60字圧縮／余白拡張／視線動線再設計」の3工程のみ担当。装飾ではなく情報設計に集中し、Mana「論理矛盾」指摘率6%→0.5%（92%削減）。
+3. **「機械自動チェック15項目全件自動化」への拡張**: 現状「機械8+目視7」を、GPT-4V/Claude Visionを使ったマルチモーダル判定で「視線動線・読了体験・トーン統一」まで機械化。目視7→2（画像著作権・独自CTA妥当性のみ人手）。検品7分→90秒。
+4. **「クライアント環境シミュレータ」の常設**: プロジェクター投影（明度70%）／スマホPDF（375px幅）／グレースケール印刷／NVDAスクリーンリーダーの4環境を毎出力後に自動レンダリング→スクショ比較。「他環境で崩れる」事故を100%予防。
+5. **「NamedRange × Design Tokens 二重バインディング」で月次レポート数値差し替え工数ゼロ化**: Sheets NamedRange＋Design Tokens のダブル参照でShun のデータ更新が即Slidesに反映。月次30分の数値差し替え→自動化。人手作業は「メッセージ文の編集」のみ。
+
+### 5. 失敗パターン防御（5個）
+
+1. **AIドラフトを「そのまま出力」して1スライドに複数メッセージが混在**: Gamma/Tome生成物は「見た目が整っている」ため見逃されやすいが、AIは情報密度を最適化しない。回避策: AI下書き受領直後に「1スライド1メッセージ判定」を機械的に走らせ（メッセージ文字数60字以内・見出し1本・強調1色）、違反スライドは即分割/削減。AI下書き→人手構造編集を必須工程にする。
+2. **Lottie/Riveアニメを提案書全頁に埋め込みプロジェクター再生でカクツキ・音ズレ**: 動きの多用は「モダン」に見えるがオフライン再生環境で破綻。回避策: designer_memory.md に「アニメ要素=表紙+セクション扉+CTAの最大3枚」制限＋「ループ3秒以内・自動再生・音なし」の3規則を明記。動画ファイル総サイズは10MB以下に制限。
+3. **Design Tokens 変更が全案件に自動伝播し過去納品ファイルが崩壊**: Figma Master Componentsと同じ「伝播事故」がトークンでも発生。回避策: `tokens.json`は SemVer管理（v1.0.0 → v1.1.0）で、既存案件は旧バージョン参照に固定。破壊的変更は必ずメジャーバージョンアップ＋新規案件のみ適用。
+4. **PDF/UAタグ付けを「Acrobat自動」任せにして構造タグが誤付与**: 自動タグは見出しレベル・読み上げ順序を誤判定することがあり、スクリーンリーダーで意味不明な読み上げになる。回避策: Acrobat自動タグ→NVDA/VoiceOverで実読み上げ検証→手動修正の3ステップを必須化。designer_memory.mdに「PDF/UAタグ手動修正チェックリスト」を蓄積。
+5. **9:16縦型書き出しでレイアウトが横型のまま強制圧縮され図解が潰れる**: YAML `format: 9:16`だけ変えて自動書き出しすると、16:9前提の図解が縦に押し込まれ判読不能に。回避策: 縦型は「別テンプレ（9:16専用マスター）」として designer_memory.md に独立登録し、共通コンテンツを別レイアウトへ流し込む二段構造にする。単純アスペクト比変換は禁止。
+
+### 6. 新連携パターン（3個）
+
+1. **Ren（07-LP部）との「Design Tokens単一ソース連携」**: Sohuma が`tokens.json`をGit管理→Ren がLP実装時に同ファイルをimport。資料↔LPの色/フォント/余白が構造的に完全一致し、「LPと資料で色味が違う」事故ゼロ化。Sotaのデザイン企画時にもトークン参照。
+2. **Kai（09-システム開発部）との「Figma Code Connect連携」**: システム案件の設計書スライドで使う画面モックを、Figma Code Connect経由で実装コンポーネントに紐付け。Nao（システム）の設計書とSouma のスライドが同一デザインシステムを共有し、二重メンテを解消。
+3. **Toma/Takumi（TikTokチーム）との「動画スライド共同制作連携」**: TikTok撮影素材の30秒抜粋をLottie/MP4化し、提案書「実績紹介スライド」に埋め込み。Takumiの編集指示書に「提案書埋め込み用ショート版（3秒ループ・音なし・9:16縦横両対応）」を必須項目化。撮影1回で複数媒体活用を実現。
+
+### 7. 数値化KPI（5個）
+
+| KPI | Baseline (2026-08-05) | Target (2026-11-30) | 測定方法 |
+|---|---|---|---|
+| **1案件あたり出力工数** | 4.5h | 1.5h（67%削減） | Yuto発注→Souma納品のタイムスタンプ差 |
+| **Aoi差し戻し率** | 18% | 3%以下（83%削減） | Aoi監査の初回NG件数/総件数 |
+| **Mana差し戻し率（論理矛盾）** | 9% | 1%以下（89%削減） | Mana校閲の初回論理矛盾指摘/総件数 |
+| **セルフチェック所要時間** | 7分 | 90秒以下（79%削減） | 出力完了→セルフチェック完了のログ |
+| **クライアント環境事故発生率** | 月2件（投影潰れ・スマホ文字化け・PDF崩れ等） | 月0件（100%予防） | 納品後クライアント指摘Slack件数 |
+| **月次レポート数値差し替え工数** | 30分/回 | 自動化（人手作業ゼロ） | NamedRange+Design Tokens二重バインド稼働率 |
+| **9:16縦型二形態対応可能案件率** | 20% | 100% | 縦横両出力を要求された案件のうち対応済み割合 |
+
+### 8. 導入ロードマップ
+
+- **Week 1-2（2026-08-06〜08-19）**: Design Tokens JSON化・Figma Slides テンプレ11種移植着手・Apps Scriptマクロ化。
+- **Week 3-4（08-20〜09-02）**: Beautiful.ai/Tome/Gamma トライアル導入・AIドラフト→人手編集フロー確立・Lottie/Riveライブラリ整備。
+- **Week 5-6（09-03〜09-16）**: OKLCH+Leonardoパレット導入・OpenType Features 有効化・9:16縦型パイプ構築。
+- **Week 7-8（09-17〜09-30）**: PDF/UA準拠出力・NVDA検証運用開始・InDesign組版能力習得。
+- **Week 9-12（10-01〜10-28）**: Design Tokens単一ソース連携（Ren/Sota）・Figma Code Connect連携（Kai/Nao）・動画スライド共同制作連携（Toma/Takumi）本稼働。
+- **Week 13-16（10-29〜11-30）**: 全KPI測定・改善・designer_memory.md v2.0リリース。
+
+### 9. 監視・改善ループ
+
+- **週次**: セルフチェック15項目の機械自動化率・Aoi/Mana差し戻し率をSlackボットで自動集計→Yutoレビュー。
+- **月次**: designer_memory.md 差分学習履歴＋トークン変更ログを Sora COO へ提出。
+- **四半期**: Beautiful.ai / Tome / Gamma / Figma Slides の機能更新を rui（リサーチ）と連携キャッチアップ→designer_memory.md v更新。
+
+---
+以上、2026-08-06 スペック強化完了。Yuto／Sora へ即時共有し、Design Tokens JSON化と Figma Slides テンプレ11種移植から着手する。

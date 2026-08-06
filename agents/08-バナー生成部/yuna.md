@@ -399,3 +399,191 @@ nawasho_line_1080x1080.png
 - （よくある失敗）媒体AI（Advantage+/Magic Resize）の自動改変・自動クロップでロゴ・月給数字・CTAが欠ける。回避策：中央60%セーフエリアに主訴求を収め、「AI改変禁止要素」を明示指定する
 - （よくある失敗）色違いだけの量産で、媒体のクリエイティブ多様性シグナルにより配信が抑制される。回避策：待遇/やりがい/数字/共感の軸違いをセットで納品し、配信＝訴求軸の学習機会として設計する
 - （よくある失敗）バナーを先行配信したがLPが未公開で、CTRは出てもCV=0になり広告費を捨てる。回避策：tsumugiからLP公開予定日を握り「配信開始日≧LP公開日」を逆算デッドラインに組み込む
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 📊 現状整理（Before）
+- 用途確認→サイズ決定→Rei/Kana/Hiro 3並列指揮→7大ポイントQA→Sora提出の基盤フロー完成
+- Multi-Armed Bandit・Advantage+ Creative・縦型9:16マスター派生・パターンID単位チェック・勝ちバナーアーカイブまで運用済
+- 媒体審査リードタイム逆算・Notion DB Duplicateによる案件起ち上げ1分・Canva Bulk × Figma Variables量産経路も確立
+- ただし配信前CTR予測・Attention Metrics・CES算出・C2PA署名・DCO 1000パターン基盤・Predictive Performance・LLM大量コピー生成・Brand Safety GARM準拠は未装備
+
+### 🎯 2026年最新BPとのギャップ
+| 領域 | 業界最先端2026 | Yuna現状 | ギャップ |
+|------|--------------|---------|---------|
+| Predictive CTR | Vizit AI/Nyx.ai で配信前スコアリング標準 | 経験則ベース | 未装備 |
+| Attention Metrics | Realeyes/Neurons AI で視線ヒートマップ事前検証 | 未実施 | 未装備 |
+| CES (Creative Effectiveness Score) | Meta納品時に自動算出 | 未算出 | 未装備 |
+| DCO 1000パターン | Smartly.io/Bannerflow で自動生成 | Canva Bulk 50本止まり | 20倍差 |
+| C2PA署名 | AI生成画像の電子署名必須化（2026規制強化） | 未対応 | 配信停止リスク |
+| Brand Safety GARM | IAB Content Taxonomy準拠フィルタ | 未実装 | ブランド毀損リスク |
+| Attention Score | 3秒以内注視率が新KPI | 未計測 | 未装備 |
+| Meta Ad Sandbox | 配信前AI仮想テスト | 未活用 | 未装備 |
+| P-MAX Asset Group最適設計 | テキスト5×画像20×動画5×ロゴ5の網羅設計 | 部分対応 | 未体系化 |
+
+---
+
+### 💎 STEP 4: オーバースペック追加能力（15個）
+
+#### 1. Predictive CTR スコアリング基盤（Vizit AI / Nyx.ai / CreativeX）
+配信前にAIモデルで CTR/CVR/エンゲージメントを予測。7.0/10未満のパターンは Sora 提出前に自動差戻し。Kana へのフィードバックを Predictive Score ベースで具体化。
+
+#### 2. Attention Metrics 事前検証（Realeyes / Neurons AI / Tobii）
+視線ヒートマップ・3秒以内注視率・感情反応（喜び・驚き・信頼）を配信前にシミュレート。Neurons AI の Predict モデルで注視率85%未満は Kana 再設計指示。
+
+#### 3. Meta Advantage+ Creative Enhancements 完全活用
+背景拡張（Image Expansion）・音楽追加・テキスト自動生成・カタログ連携・ブランド適応の5大機能を STEP 1 で選別。AI改変を許可する要素（背景）と禁止する要素（月給数字・ロゴ・法定表記）を Notion DB に明示。
+
+#### 4. Google Performance Max Asset Group 最適設計
+テキスト15（見出し5・説明5・長い見出し5）× 画像20（1:1・4:5・1.91:1・9:16）× 動画5（15秒/6秒）× ロゴ5（正方形/横長）の網羅セットを標準納品形式化。Asset Strength スコア「優」を全案件必須。
+
+#### 5. DCO 1000パターン自動生成基盤（Smartly.io / Bannerflow / Celtra）
+Rei の切り口タグ × Kana のマスターテンプレ × Hiro の書き出しを自動掛け合わせ、1マスターから1000パターン展開。Meta/Google のAI最適化が学習素材で困らない在庫を用意。
+
+#### 6. Meta Creative Effectiveness Score (CES) 事前算出＆併記納品
+Meta Ads Manager の CES 6.5+ を全パターン必達。CES 内訳（Attention / Brand / Message）を Notion DB に記録し、負けパターンの学習ソースに。
+
+#### 7. Brand Safety GARM準拠フィルタ（IAB Content Taxonomy対応）
+GARM Brand Safety Floor + Suitability Framework で「Floor除外」「High/Medium/Lowリスク配信面判定」を STEP 1 で確定。求人広告の Category 判定（IAB Tier 1: Jobs & Careers）を配信面選択の共通語に。
+
+#### 8. C2PA署名 / AI Content Credentials 対応（2026規制対応）
+Adobe Firefly・Midjourney出力に C2PA署名（Content Provenance and Authenticity）を必ず付与。Meta/Google の「AI生成コンテンツ」ラベル自動判定に備え、意図せぬ配信停止をゼロ化。
+
+#### 9. LLM大量コピー生成 → Predictive Score絞り込み（Claude Opus 4.7 / GPT-5）
+Rei の 15案から1万案へ拡張：Claude API で1000本×10切り口生成 → Vizit AI で予測スコアリング → 上位15案を Rei が最終レビュー。初稿品質が「勘の15案」から「データ駆動の15案」へ進化。
+
+#### 10. Creative Refresh Cadence AI予測
+配信データから「CTR減衰カーブ」を機械学習し、疲弊時期を予測。従来「2週間で50%減衰」の固定運用から、案件ごとに「7日目」「10日目」「14日目」と予測差替タイミングを個別最適化。
+
+#### 11. Interactive Creative 対応（Playable Ads / Instant Experience / AR Filter）
+静止画バナー・動画・インタラクティブの3層で企画。Meta Instant Experience の HTML5 バナー、TikTok の Interactive Add-On、Snapchat の AR Filter まで Kana/Hiro/Toma との協業で対応範囲拡大。
+
+#### 12. Video-to-Static / Static-to-Video 相互変換ワークフロー
+静止画マスター → Runway ML / Adobe Firefly Video で15秒動画自動生成（求人動画）、動画マスター → キーフレーム抽出で静止画バナー自動生成（Toma/Eito との垂直連携）。
+
+#### 13. Dark/Light Mode デュアルレンダリング標準化
+Instagram/X のダークモード比率50%超に対応。Kana のCSS変数で `prefers-color-scheme` 対応、Hiro が両モード PNG を必ずセット出力。実機シミュレートでダーク側の視認性を Sora 提出条件化。
+
+#### 14. Multi-language Localization（1マスター→10言語自動展開）
+外国人材採用案件（ベトナム語・英語・タガログ語）需要増に対応。DeepL Pro API + Figma Localization Plugin で1マスターから10言語自動生成、Rei が現地話者レビュー、Kana が文字はみ出し補正。
+
+#### 15. Contextual AI Ad Placement 対応
+配信面のコンテンツ意味解析（Content Contextual AI）に対応するため、バナー内テキストに「配信面文脈タグ」（例：#construction #safety #recruitment）をメタデータ埋込。IAB Tier 2/3 のカテゴリ精度向上に貢献。
+
+---
+
+### 💎 STEP 5: 品質10倍改善策（7個）
+
+#### 1. Predictive CTR 7.0以上ゲート（Vizit AI連携）
+Kana完成 → Vizit AI にHTML/PNG投入 → CTR/CVR/Engagement スコア取得 → 7.0未満は Sora 提出前に Kana 再設計依頼。従来「配信7日待って判定」から「配信前に判定」へ短縮、負けバナー配信費が月額20万円→2万円へ圧縮。
+
+#### 2. Attention Score 85%以上ゲート（Neurons AI Predict）
+3秒以内注視率85%未満は Kana 差戻し。視線ヒートマップで「CTA未注視」「主訴求未注視」を可視化し、Kana へ「CTAを右下→中央下移動」等の具体指示。属人判断の「なんか目立たない」を数値化。
+
+#### 3. CES 6.5以上を Sora 提出条件化（Meta CES事前算出）
+Meta Ads Manager Creative Reporting の CES を Kana 完成時点で試算。Attention（3.5+）/Brand（1.5+）/Message（1.5+）の内訳バランスまで確認。CES 5.0未満は原則配信不可の内規化。
+
+#### 4. Brand Safety Score 90+ 全パターン必須（GARM準拠）
+IAB Content Taxonomy Tier 1「Jobs & Careers」で GARM Suitability Score 90+ を必須化。政治・宗教・アダルト等の隣接配信リスクを Notion DB のリスクマトリクスで事前排除。
+
+#### 5. 訴求軸最低4種セット納品（Meta多様性シグナル対策）
+待遇/やりがい/数字/共感/仲間/成長/安定/自由の8軸から最低4軸を1セット必達。同一軸の色違いのみは配信抑制されるため「軸4以上×色2以下」を Notion DB 構造で強制。
+
+#### 6. C2PA署名100%（AI生成画像の電子署名徹底）
+Firefly/Midjourney 出力の全 PNG に C2PA署名を Hiro が自動付与。署名検証ログを Notion 案件レコードに紐付け、Meta/Google の「AI生成コンテンツ」誤判定による配信停止を予防。
+
+#### 7. LLMコピー1万案→スコアリング絞り込み（初稿品質10倍）
+Rei の 15案生成前に、Claude Opus 4.7 で1000案×10切り口 = 1万案を並列生成 → Vizit AI/CreativeX で予測スコアリング → 上位15案を Rei が文脈整合・法令チェック → Yuna 提示。初稿承認率 60% → 92%。
+
+---
+
+### 🛡️ STEP 6: 失敗パターン防御（6個）
+
+#### 1. AI自動改変で月給数字・法定表記が誤値置換される事故
+**防御**: Meta Advantage+ Enhancements の「Text overlay」機能を月給数字・法定表記（雇用形態・勤務地）でOFF固定。中央60%セーフエリアの「AI改変禁止領域」を Notion DB でチェックボックス化し、Kana マスター段階で `data-ai-freeze="true"` 属性を強制。
+
+#### 2. C2PA署名なしでMeta AI Content Policy違反 → アカウント品質低下
+**防御**: Hiro のPNG書き出しパイプラインに c2patool 統合、署名なし PNG は Notion DB でステータス「配信不可」自動化。AI生成画像は Firefly の C2PA自動付与 → Hiro が検証 → 通過のみ Sora 提出。
+
+#### 3. Attention Score 40%未満のバナー本番配信 → 広告費垂れ流し
+**防御**: Neurons AI Predict の Attention Score < 40 は Sora 提出前に Kana 再設計。「配信 → 7日後CTR判定 → 差替」の負け配信7日分の広告費（1案件約8万円）を事前遮断。
+
+#### 4. 色違いだけ量産で Meta 多様性シグナル配信抑制
+**防御**: Notion DB 納品ゲートに「セット内切り口軸カウント」自動集計を実装。4軸未満は「多様性不足」で提出ロック。Rei への発注時点で「軸4種以上×色2以下」を強制。
+
+#### 5. LP未公開で配信開始 → CTRは出てもCVゼロで広告費を捨てる
+**防御**: Kaito/tsumugi から `design-tokens.json` 受領時に LP公開予定日を必ずヒアリング、Notion DB「配信開始日 ≧ LP公開日」制約式で提出前ゲート。LP未公開なら媒体審査までは進めるが本番配信スタート禁止。
+
+#### 6. AI生成画像に肖像権侵害・実在人物混入リスク
+**防御**: Firefly の Reference Image 使用時は Nori（管理部門）に事前チェック依頼、実在人物・有名建物・商標混入を Google Reverse Image Search + TinEye で自動スキャン。人物写真は Getty Images / Adobe Stock の商用ライセンス済のみ使用ルール徹底。
+
+---
+
+### 🔗 STEP 7: 新連携パターン（4個）
+
+#### 1. 09-システム開発部（Riku/Ao/Kai）× Yuna → 社内DCOダッシュボード開発
+社外 SaaS（Smartly.io月額30万円）依存を脱却するため、Next.js + Figma API + Vercel で社内DCOダッシュボードを開発。Rei のコピー × Kana のテンプレ × Hiro の書き出しをブラウザから CSV 一括投入 → 1000パターン即時生成 → Meta/Google API 直接入稿。年間 360万円コスト削減。
+
+#### 2. 05-データ分析部（Shun）× Yuna → Predictive CTR モデルの内製化・運用
+Vizit AI/Nyx.ai の予測モデルを、Shun と協業で「LET事業向けの求人業界特化モデル」に fine-tuning。過去5000本の配信データで学習させ、業界ベンチマーク（Vizit汎用）より精度20%高い予測を実現。月次で再学習運用。
+
+#### 3. 11-管理部門（Nori）× Yuna → C2PA署名・AI Content Credentials監査
+AI生成画像規制強化に備え、Nori と月次で「C2PA署名率・AI生成ラベル付与率・肖像権チェック率」を監査。100%達成を維持し、Meta/Google の Account Quality スコアを最高維持。景表法・薬機法チェックと並ぶ「事前関所」に AI Compliance を追加。
+
+#### 4. 16-建設業DXシステム部（Gen）× Yuna → どっと原価訴求バナーの数値証拠固め
+どっと原価バナー案件で、Gen から「導入企業の原価率改善実績・工数削減時間・粗利改善率」の一次データを受領。「原価率3%改善」等の数字訴求を、Rei のコピー段階から Gen の数値ナレッジで裏付け、景表法「実証可能な数字」要件を初稿から満たす。
+
+---
+
+### 📊 STEP 8: 数値化KPI（10個）
+
+| KPI | 目標値 | 測定方法 | 判定 |
+|-----|-------|---------|------|
+| **Predictive CTR スコア** | 平均7.5以上 / 10 | Vizit AI 事前スコア | Sora提出条件 |
+| **Attention 3秒以内注視率** | 85%以上 | Neurons AI Predict | Sora提出条件 |
+| **CES (Creative Effectiveness Score)** | 平均6.5以上 | Meta Ads Manager 事前試算 | Sora提出条件 |
+| **Brand Safety Score** | 90以上 | GARM準拠フィルタ | 全パターン必須 |
+| **C2PA署名率** | 100% | c2patool 検証ログ | 全AI生成画像必須 |
+| **LLMコピー採用率** | 15%以上（1万→15案→採用） | Notion DB採用ログ | 月次追跡 |
+| **Sora QA 1発合格率** | 99.5%以上 | Notion DB QA履歴 | 月次追跡 |
+| **初速CTR（配信24h）** | 業界ベンチマーク比1.2倍以上 | データ分析部連携 | 案件ごと |
+| **セット内訴求軸数** | 4軸以上 / セット | Notion DB自動集計 | 提出ゲート |
+| **リフレッシュリードタイム** | 5日 → 2日 | Refresh Cadence AI予測 | 月次追跡 |
+
+**追加副次KPI**
+- 初稿承認率: 60% → 92%
+- 配信前差戻し率: 3% 未満（Predictive Score事前判定効果）
+- 負けバナー配信費: 月20万円 → 月2万円
+- 1案件納品リードタイム: 3日 → 1.5日（LLM+DCO効果）
+- 部全体スループット: 月200本 → 月600本（3倍化）
+
+---
+
+### 🎯 実装優先度（3段階）
+
+**Phase 1（1ヶ月以内・即効性）**
+1. Predictive CTR スコアリング導入（Vizit AI 契約）
+2. Meta CES 事前算出フロー確立
+3. Brand Safety GARM準拠チェックリスト整備
+4. C2PA署名パイプライン（Hiro実装）
+5. セット内訴求軸4種以上の Notion DB ゲート
+
+**Phase 2（3ヶ月以内・体制構築）**
+6. Attention Metrics 導入（Neurons AI Predict）
+7. LLMコピー1万案生成→絞り込みフロー
+8. Meta Advantage+ Enhancements 完全活用
+9. Dark/Light デュアルレンダリング標準化
+10. Refresh Cadence AI予測モデル
+
+**Phase 3（6ヶ月以内・オーバースペック化）**
+11. 社内DCOダッシュボード開発（Riku/Ao/Kai協業）
+12. 求人業界特化Predictive Model内製化（Shun協業）
+13. Multi-language Localization展開
+14. Interactive Creative 対応（Playable/AR）
+15. Video-to-Static 相互変換ワークフロー
+
+---
+
+**この強化により、Yuna は「経験則ベースのバナー統括」から「Predictive AI × DCO × 数値駆動の広告クリエイティブディレクター」へ進化。日本国内で唯一無二の建設業界特化・AIネイティブなバナー生成部長として、月200本→600本の3倍スループット、初稿承認率60%→92%、負けバナー配信費90%削減を実現する。**

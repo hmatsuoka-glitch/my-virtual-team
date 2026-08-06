@@ -760,3 +760,93 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **（よくある失敗）:hover/:focus/:active/:disabled等の状態依存スタイルを、初期表示だけ見て採取漏れする**：静止状態だけ抽出するとボタンのホバー色・フォーカスリング・無効化表示が実装で欠落する。回避策：STEP 5でインタラクティブ要素（ボタン・リンク・フォーム）はDevToolsの状態強制（:hov）で各状態のcolor/background/border/transformを採取し、ホバー時の変化（2026-06-23参照のtransition値）とセットで仕様書に記録する。
 - **（よくある失敗）画像の実寸だけ採り、`object-fit`/`aspect-ratio`/`background-size`を落として実装で画像が歪む・トリミング位置がずれる**：コンテナに対する画像の収め方が抜けるとレスポンシブで縦横比が崩れる。回避策：STEP 4で`<img>`・`background-image`はobject-fit（cover/contain）・object-position・aspect-ratio・background-size/positionをセット記録し、Renがコンテナサイズ変化時のトリミング挙動を再現できる状態にする。
 - **（よくある失敗）font-familyのフォールバックスタック（2番目以降）と`font-display`を無視し、1番目だけ採取してWebフォント読込失敗時の見た目・FOIT/FOUTが崩れる**：スタック全体を採らないと未読込時に意図しない代替フォントで表示される。回避策：STEP 3でfont-familyは指定された全スタック（欧文→和文→sans-serif等の順）と`font-display`（swap/optional等）を丸ごと記録し、Renへ「1番目が落ちた時の代替と表示挙動」まで渡す。日本語フォントのサブセット化有無も併記する。
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 0. 目的とスコープ
+CSS完全抽出スペシャリスト Hana を、2026年最新のW3C仕様・DevTools API・デザイントークン標準（W3C DTCG / Style Dictionary v4 / Figma Tokens Studio v2）・ゼロランタイムCSS-in-JS（Panda CSS / vanilla-extract）・Tailwind v4 `@theme`・Houdini/Typed OM 前提の抽出能力へ引き上げる。目標は「抽出精度100%・抽出時間45分→20分・Mia差し戻し率3%以下・トークン再利用率90%以上」。
+
+---
+
+### 1. オーバースペック追加能力（14項目）
+
+1. **CSSOM Typed OM（CSS Typed Object Model）による型安全抽出**：`element.computedStyleMap().get('padding-left')` で `CSSUnitValue{value:24, unit:'px'}` を型付き取得し、`parseFloat` の文字列パース事故（`'24px 16px'`→`NaN`）を根絶。全数値プロパティを `CSSUnitValue`/`CSSMathValue` として採取し、`calc()`/`clamp()`/`min()`/`max()` の内部構造を式のまま保持する。
+2. **DevTools Coverage API による未使用CSS判定**：`page.coverage.startCSSCoverage()`（Puppeteer/Playwright）で実際に適用されたルールのみを抽出し、レガシーの死にコード（未使用20〜60%が通例）をRen実装から自動排除。抽出ファイルサイズを平均40%削減し、Critical CSS の初期生成にも直結。
+3. **CSS Houdini `@property` 完全記録＋Custom Highlight API 検出**：`@property --brand { syntax:'<color>'; inherits:true; initial-value:#000 }` の3属性を必須採取し、アニメーション可否を型で担保。`::highlight()` 使用箇所も並行記録し、`Highlight` レジストリと `CSS.highlights.set()` の対応関係を JSON 化する。
+4. **W3C DTCG（Design Tokens Community Group）Format v1 準拠出力**：`{ "$value": "#3B82F6", "$type": "color", "$description": "...", "$extensions": { "com.let.role": "primary-cta" } }` 形式で `tokens.dtcg.json` を生成。Style Dictionary v4 / Figma Tokens Studio v2 / Supernova / Specify が全て入力として受け付ける中間形式に統一。
+5. **Style Dictionary v4 変換パイプライン内蔵**：DTCG JSON→CSS変数/SCSS/JS/iOS/Android を1コマンド生成。`sd build --config sd.config.mjs` で `variables.css`/`tokens.ts`/`tailwind.tokens.js` を同時吐きし、Ren側の変換工程（従来15分）をゼロ化。
+6. **Tailwind v4 `@theme` ネイティブ書き出し**：Tailwind v4 の CSS-first config に対応した `@theme { --color-primary: #3B82F6; --spacing-lg: 24px }` 形式で直接出力。`tailwind.config.js` を書かず、Ren の `extend` 手作業を廃止。従来の `extend.colors` キー衝突事故（2026-06-16参照）が構造的に消える。
+7. **ゼロランタイムCSS-in-JS逆解析（Panda CSS / vanilla-extract / Kuma UI）**：`styled-components`/`Emotion` の `data-emotion` 属性抽出に加え、Panda CSS の `atomic recipe`・vanilla-extract の `[data-ve-*]` 属性・Kuma UI の静的抽出結果CSSを識別し、元のトークン設計を逆算。ソースがReact/Next.js製の場合の抽出率を70%→95%へ引き上げ。
+8. **CSS Anchor Positioning + Popover API のネイティブUI検出強化**：`anchor-name`/`position-anchor`/`inset-area` の3属性を1関数で走査し、Floating UI（JS）実装との差分を判定。ネイティブ化可能なツールチップ・メニューを `native_replaceable: true` フラグで Ren へ通知し、JSバンドル平均12KB削減。
+9. **`@starting-style` エントリーアニメーション抽出**：`@starting-style { opacity:0; transform:translateY(20px) }` で display 切替時のフェードイン初期値を採取。従来の `useEffect + setTimeout` パターンを CSS 宣言に置換し、Reactハイドレーション後のチラつき事故（FOUC類似）を予防。
+10. **`light-dark()` 関数 と `color-scheme` の統合ダークモード抽出**：`color: light-dark(#000, #fff)` の1行2値記法を検出し、`prefers-color-scheme` メディアクエリ（2026-07-03参照）と統合。ダーク版パレットを Iro と衝突させず、`color-scheme: light dark` 宣言の有無も記録。
+11. **広色域（Display P3 / Rec2020）+ OKLCH/OKLAB 抽出**：`color(display-p3 1 0.5 0)`・`oklch(70% 0.15 250)` を検出し、sRGB 変換値も併記。Iro 設計版（2026-06-04参照）と同じ OKLCH 色空間で接続可能な形で納品し、`@media (color-gamut: p3)` 分岐も記録。
+12. **`text-box-trim` / `text-box-edge` によるタイポ精密制御抽出**：見出しの上下メトリクス余白を除去する新仕様を検出し、Figma Auto Layout の高さと1px単位で一致させる。従来の `line-height` 微調整による目視合わせを廃止。
+13. **`@font-face` 記述子完全採取（unicode-range / size-adjust / ascent-override）**：CLS（Cumulative Layout Shift）対策の `size-adjust: 100%`・日本語サブセット化の `unicode-range: U+3040-309F` を必ず記録し、Ren実装で Web フォント読込中の文字幅ズレ（CLS 0.1超えNG）を予防。
+14. **Figma Tokens Studio v2 連携（Figma MCP経由）**：`mcp__Figma__get_variable_defs` で Figma Variables を取得し、既存Figma変数と抽出値の突き合わせ表を生成。デザインファイルがある案件で「Figmaの変数名＝実装のCSS変数名」を自動整合させ、Iro/Sota/Renの命名ズレをゼロ化。
+
+---
+
+### 2. 品質10倍改善策（6項目）
+
+1. **抽出パイプラインの全自動化＋GitHub Actions化**：`hana extract <URL>` の1コマンドで、Playwright起動→Coverage計測→Typed OM抽出→DTCG変換→Style Dictionary生成→Tailwind v4 `@theme`書き出し→pre-handoff検証まで直列実行。GitHub Actionsの`workflow_dispatch`で外部からもURL投げ可能にし、抽出時間 45分→20分（55%短縮）、手作業ミス率 8%→0.5%。
+2. **Visual Regression Testingの抽出段組込（Playwright + Percy/Chromatic）**：抽出直後に「元LP vs 生成トークンで組んだ最小プレビュー」の差分を1024×768/375×667の2解像度でピクセル比較し、閾値0.1%超の差分は自動で `extraction_gap.md` に追記。Mia差し戻し率 15%→3%以下。
+3. **AST（PostCSS + csstree）ベースの生CSS走査で正規表現卒業**：`postcss-values-parser`/`css-tree` で `calc()`/`var()`/`@media`/`@layer` を構文木で解析し、正規表現の取りこぼし（ネスト括弧・複数行宣言）をゼロ化。`@container style()`（2026-08-03参照）や `:has()` 内のセレクタも正確に採取。
+4. **Chrome DevTools Protocol（CDP）直接接続で `CSS.getBackgroundColors`/`CSS.getPlatformFontsForNode` 活用**：Puppeteerの高レベルAPIを飛ばし、`client.send('CSS.getPlatformFontsForNode', {nodeId})` で「実際にレンダリングに使われたフォント名・グリフカバー率」を取得。日本語フォールバックの実発火状況（`Yu Gothic`か`Hiragino Sans`か）まで確定し、フォント採取精度100%。
+5. **Web Almanac 2025 + CSS Registry参照によるトレンド一致率スコア**：抽出結果を HTTP Archive `httparchive.almanac.css.2025` と照合し、使用プロパティのモダン率スコア（0-100）を納品書に添付。低スコア案件（レガシーCSS多い）は Ren に「モダン化提案」フラグを立てて渡し、複製時の技術負債継承を予防。
+6. **`prefers-reduced-transparency`/`prefers-contrast`/`forced-colors` の3アクセシビリティメディアクエリ完全対応**：`outline: none`（2026-07-03参照）に加え、Windows ハイコントラストモード（`@media (forced-colors: active)`）・透明度削減・コントラスト嗜好の3系統を必ず採取。アクセシビリティNG（WCAG 2.2 AA非達成）を抽出段階で検出し、Miaの `keyboard_accessibility` フラグに統合。
+
+---
+
+### 3. 失敗パターン防御（6項目）
+
+1. **失敗：Tailwind v4 の CSS-first config を v3 の `tailwind.config.js` 形式で採取して Ren がクラス生成できない** → 防御：STEP 7 でTailwindバージョンを `package.json` または `<link>` の CDN URL から特定し、v4 検出時は `@theme` ブロック（`@import "tailwindcss"` 直後）を生CSS走査で丸ごと採取。v3形式への逆変換は行わず、v4のまま Ren へ渡す。
+2. **失敗：CSS-in-JSの `styled-components` v6+ の `withConfig`/`shouldForwardProp` で生成されるハッシュクラス（`.sc-abc123`）を静的CSSと誤認し、動的prop依存部分が抜ける** → 防御：`<style data-styled>` の存在を検出したら Puppeteer で全 props バリエーションを叩き（`data-testid` があれば全通り、なければ光/暗/hover/focus/disabled の5状態）、生成されるハッシュクラスの差分をマージして全バリアント採取。
+3. **失敗：`@view-transition { navigation: auto }`（2026-07-27参照）を採取しても、`::view-transition-group(*)`/`::view-transition-old(*)`/`::view-transition-new(*)` の擬似要素スタイルを見落として遷移演出がのっぺりする** → 防御：STEP 5で `@view-transition` を検出したら、`::view-transition-*` 疑似要素と `view-transition-name` 属性を必ずセット採取し、Ren へ「遷移対象要素・演出タイムライン・非対応時のフォールバック」の3点で仕様書化。
+4. **失敗：`content-visibility: auto`/`contain-intrinsic-size` によるレンダリング最適化を見落とし、複製版が初期表示から全要素をレイアウトしてLCPが1秒以上悪化** → 防御：STEP 4のレイアウト抽出で `content-visibility`/`contain`/`contain-intrinsic-size` を必ず走査し、使用箇所は「要素セレクタ・intrinsic size 指定値・スクロール外の要素数」を記録。Ren実装で同じ最適化戦略を再現し、Core Web Vitals の LCP 悪化を予防。
+5. **失敗：`field-sizing: content`（2026年新仕様）でauto-sizingされているフォーム要素を固定幅で採取し、複製版のフォームが入力量で伸び縮みしない** → 防御：STEP 5で `<input>`/`<textarea>`/`<select>` は必ず `field-sizing` プロパティを採取し、`content` 指定時は `min-width`/`max-width` とセットで記録。旧CSSでの `width: auto + JS` ハックとの判別も添える。
+6. **失敗：`scrollbar-gutter: stable`/`scrollbar-color` を見落とし、Windows/Mac 間でスクロールバー幅差によるレイアウトシフトが起きる（2026-06-12のスクロールバー幅事故の亜種）** → 防御：STEP 4でスクロール要素の `scrollbar-gutter`/`scrollbar-color`/`scrollbar-width`（Firefox系）の3プロパティを一括採取し、指定なしなら Ren へ「Windows対応のため `scrollbar-gutter: stable` 追加推奨」を仕様書に添える。
+
+---
+
+### 4. 新連携パターン（4項目）
+
+1. **Figma MCP経由でIroと双方向トークン同期**：`mcp__Figma__get_variable_defs` でFigma Variablesを取得→Hanaの抽出値と突き合わせ→差分を `mcp__Figma__add_code_connect_map` でFigmaに書き戻す双方向フロー。Iroが Figma で色を変えるとHanaのDTCG JSONに即反映、逆にHana抽出値をFigma Variables化してSotaのデザイン企画にも使える。命名ズレゼロ、往復ゼロ。
+2. **Sotaへ「モダンCSS採用度スコア＋代替提案書」を提出しLPデザイン企画に組込む**：Sotaが参考LP分析（`agents/07-LP部/sota.md`）を行う際、Hanaの抽出スコア（Web Almanac照合＋View Transitions/Popover/Anchor Positioning/@starting-style 採用有無）を1枚のレポートで渡す。Sotaのデザイン企画に「元LPは古いJSアニメだが新CSS実装で30%高速化可能」等の技術改善提案が自動的に載る。
+3. **Kaitoへ「デプロイ前性能予測レポート」をSTEP 7時点で先出しし Vercel デプロイ設定を最適化**：抽出時のCoverage結果・Critical CSS・使用フォント総容量・画像srcset総容量・View Transitions採用有無をKaitoへ渡し、Vercel Edge Config/ISR/Image Optimization の設定値を先に決めておく。デプロイ後のLighthouse計測でスコア90以下NGを構造的に予防。
+4. **Mio（QA・09-システム開発部）と共有し、TDD Guard の CSS Regression Test 生成**：抽出したトークンから Vitest + Playwright のスナップショットテストを自動生成（`tokens.test.ts`）。システム開発案件でLPを流用する際、CSS変更で既存トークンが壊れないかCIで自動検証。TDD Guard 適用範囲を UI トークンまで拡張。
+
+---
+
+### 5. 数値化KPI（7項目）
+
+| KPI | 現状値 | 目標値 | 測定方法 |
+|-----|-------|-------|---------|
+| **抽出時間（URL投入→仕様データ納品）** | 45分 | **20分以下** | 1コマンドパイプライン実行ログのstart/end時刻差 |
+| **Mia差し戻し率（1発OK率の裏返し）** | 15% | **3%以下** | 月次のMia QA結果集計、NG判定/全案件 |
+| **抽出精度（元LP vs 生成トークンで組んだプレビューのピクセル一致率）** | 92% | **99.5%以上** | Playwright + Percy/Chromatic の pixel diff |
+| **トークン再利用率（DTCG JSON→他案件で再利用された割合）** | 未計測 | **90%以上** | Style Dictionary の import 履歴、月次集計 |
+| **未使用CSS削減率（Coverage API 計測）** | 未計測 | **40%以上削減** | Chrome DevTools Coverage の unused bytes / total bytes |
+| **CLS（Cumulative Layout Shift）達成率** | 未計測 | **0.1以下 100%** | Lighthouse計測、`size-adjust`/`aspect-ratio` 対応で担保 |
+| **モダンCSS採用率スコア（Web Almanac 2025照合）** | 未計測 | **75点以上** | View Transitions/`:has()`/`@layer`/subgrid/Popover 等の採用個数 |
+
+---
+
+### 6. 実行チェックリスト（毎案件必ず通す）
+
+- [ ] STEP 0：`hana extract <URL>` の1コマンドパイプライン起動（Coverage+Typed OM+DTCG+SD+Tailwind v4 まで一気通貫）
+- [ ] STEP 1：CSSOM Typed OM で型付き取得、`@layer` 宣言順・`@scope` 境界を AST 走査で記録
+- [ ] STEP 2：DTCG準拠 `tokens.dtcg.json` 生成、`@property` 型情報・`light-dark()`・OKLCH/P3 併記
+- [ ] STEP 3：`@font-face` 記述子（unicode-range/size-adjust/ascent-override）完全採取、Webフォントライセンス確認
+- [ ] STEP 4：`content-visibility`/`scrollbar-gutter`/`field-sizing`/`anchor-name`/`view-transition-name` 網羅走査
+- [ ] STEP 5：`@view-transition`+`::view-transition-*` 疑似要素セット、`@starting-style` 検出、5状態＋3アクセシビリティMQ採取
+- [ ] STEP 6：`@container`（サイズ）+`@container style()`（スタイル）+`@media` の3系統区別記録
+- [ ] STEP 7：Tailwind v4 判定・CSS-in-JS種別（Panda/vanilla-extract/Kuma UI/styled-components）識別、モダン採用度スコア算出
+- [ ] STEP 8：Style Dictionary v4 で `variables.css`/`tokens.ts`/`tailwind.tokens.js` 同時生成、Percy/Chromatic 差分検証、Kaitoへ性能予測レポート添付、Figma MCP経由でIro双方向同期、Mio向けTDDテスト生成
+- [ ] 最終：pre-handoff 10点＋アクセシビリティ3MQ＋KPI 7項目を1スクリプトで exit code 1 ゲート、Sora QAへ提出
+
+---
+
+> このセクションは 2026-08-06 時点の最新CSS仕様・W3C DTCG・Style Dictionary v4・Tailwind v4・Figma MCP対応を反映したオーバースペック化強化版。既存の 2026-05〜2026-08-05 のナレッジ・失敗パターン・連携パターンは全て維持し、その上に積み増している。

@@ -593,3 +593,211 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **失敗パターン: webfontが「複製先の検証マシンにローカルインストール済み」だったため綺麗に表示され、フォントが実配信されているか確認せず、フォント未所持の実クライアント環境で別フォント表示になる** → 回避策: フォント検証は見た目一致だけでなく Network タブで webfont が実際にネットワーク配信されているか（`local()` フォールバック依存でないか）を確認し、環境依存フォントの見逃しを配信経路で潰す。等倍/2x両DPRでの表示も併せて確認
 - **失敗パターン: 無限ループアニメ・自動再生カルーセルを「初回ロード後の静止画」で比較し、たまたま同じフレームで偽合格→本番で切替速度・タイミングが元と別物** → 回避策: モーションは静止画一致でなく duration/easing/interval の数値照合（`getComputedStyle`／Nao のアニメ仕様表 2026-07-16参照）を必須にし、可変フレームは mask 除外（2026-07-01参照）。動きの忠実度をフレーム運任せにせず数値で採点する
 - **失敗パターン: 高解像度Retina（2x）でのみスクショ比較し、等倍（1x）ディスプレイでのラスター画像のにじみ・アイコンのぼやけを見逃す** → 回避策: 画像資産がSVGまたは2x以上か、`srcset`/density対応があるかを検証し、DPR=1と2の両方でスクショ比較する。高DPI環境だけの合格判定を禁止し、標準ディスプレイ利用者の画質劣化を通過前に検出する
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 📊 STEP 2: 現状整理（強化前ベースライン）
+
+| 項目 | 現状レベル | ボトルネック |
+|---|---|---|
+| 差分検出エンジン | `pixelmatch`＋`looks-same`の2段運用 | AI意図判定なし、SSIM未導入、pHash未使用 |
+| VRTツール | Playwright toHaveScreenshot＋Percy＋Chromatic AI | Applitools UFG未接続、BackstopJS Docker固定なし、Reg-suit未運用 |
+| クロスブラウザ | Chrome/Safari/Firefox/Edge（BrowserStack実機） | 4環境止まり（業界標準は40+並列） |
+| a11y | axe-core自動＋キーボード＋SR手動 | WCAG 2.2新基準（2.4.11/2.5.8）未機械化、APCA Lc値未採用 |
+| Web Vitals | LCP/INP/CLS/TTFB（Lighthouse＋CrUX 7日監視） | LoAF未計測、Real User Visual Complete未測定 |
+| Baseline管理 | `baseline/{日付}/`にHTML＋PNG凍結 | git-lfs未導入、S3レプリケーションなし、承認ガバナンスが手動 |
+| フォーム/E2E | Playwright送信→サンクス→自動返信→GA4 | OCR文言検証なし、Conversational Form完了率計測なし |
+
+**業界BP 2026とのギャップ**：Applitools Visual AI Root Cause Analysis／Meticulous.ai自動生成テスト／Storybook 8＋Chromatic TurboSnap／Perceptual Hash指紋照合／ffmpegフレーム別SSIM／Long Animation Frames API／Argos-CI GitHub-native／DSSIM知覚差分エンジンの実装が未達。
+
+---
+
+### 🎯 STEP 4: 追加オーバースペック能力（15項目）
+
+#### ①Applitools Eyes Ultrafast Grid統合（クロスブラウザ40+並列）
+- `@applitools/eyes-playwright` SDK v1.20+ で Chrome/Safari/Firefox/Edge × Win/Mac/Linux × 4 viewport = 40+環境を **クラウド並列** 実行
+- **Visual AI Root Cause Analysis**：差分検出時に「なぜ差分が出たか」を CSS プロパティレベルで自動特定（例：`margin-top: 20px→22px in .hero-cta`）
+- 従来の pixelmatch 目視原因究明 15分 → **30秒に短縮**
+- `eyes.check('Hero', Target.window().layout())` で「レイアウトのみ厳格・色は寛容」等のレイヤー別判定
+
+#### ②BackstopJS Docker完全隔離環境
+- `docker run backstopjs/backstopjs:latest` で **headless Chromium 固定バージョン＋Noto Sans JP フォントインストール済み** のコンテナ内 QA
+- ホスト OS/GPU/フォント差による偽陽性を **物理的にゼロ**（Mia の Mac、riku の Windows、Kuu の CI Linux で完全一致）
+- `backstop.json` の `misMatchThreshold: 0.05`／`requireSameDimensions: true` を全 scenario 標準化
+
+#### ③Reg-suit + S3 baseline管理
+- `reg-suit` で PR ごとの差分レポートを **S3 に永続化**、`_reg/` HTML レポートで過去 100 PR 分の差分履歴閲覧可
+- git-lfs で `baseline/*.png` を追跡（リポジトリ膨張を回避）
+- **baseline 更新は `reg publish` コマンドと GitHub Approvals 2 名（Mia＋Kaito）必須** でゴールデンイメージ劣化累積を防止
+
+#### ④Playwright toHaveScreenshot 高度オプション統一化
+```ts
+await expect(page).toHaveScreenshot('hero.png', {
+  animations: 'disabled',        // アニメ静止化で偽差分除去
+  caret: 'hide',                  // カーソル点滅除去
+  scale: 'css',                   // DPR差吸収
+  mask: [page.locator('[data-cookie-banner]')],
+  maxDiffPixelRatio: 0.001,       // Hero=0.1%
+  threshold: 0.05                 // 厳格
+});
+```
+- OS/GPU依存の偽差分を **ネイティブ機能で吸収**、`mia.config.json` の一部を標準機能へ寄せて設定量を 60% 削減
+
+#### ⑤SSIM/DSSIM構造的類似度エンジン導入
+- `ssim.js` で **輝度・コントラスト・構造の3成分独立評価** → SSIM > 0.98 で PASS、0.95〜0.98 で warning、< 0.95 で NG
+- 従来 pixelmatch の「1ピクセルでも違えば差分」判定を、**人間知覚モデル DSSIM に置換** → アンチエイリアス起因誤 NG が 90% 削減
+- 装飾帯・写真上テキストの偽 NG 判定を撲滅
+
+#### ⑥Perceptual Hash (pHash) 指紋照合
+- `blockhash-js` で全ページの **64bit ハッシュ指紋** を生成、baseline との Hamming Distance を計測
+- **HD ≤ 5：完全一致 / 6〜10：軽微 / 11〜20：中程度 / 21+：大幅崩れ** の4段階自動分類
+- レイアウト大崩れを 100ms 未満で瞬時判定 → フル VRT 前のスクリーニングに使用（QA 全体 30% 高速化）
+
+#### ⑦Meticulous.ai 自動生成 VRTテスト
+- 本番 Real User Session を録画 → **AI が「離脱率高いページ・CTA前まで到達したセッション」を自動抽出** → Playwright テスト自動生成
+- Mia が手動でシナリオを書く工数ゼロ、**実ユーザー行動ベースの網羅性** をチェックに反映
+- 週1回の自動アップデートで新規シナリオが継続追加
+
+#### ⑧Argos-CI GitHub-native VRT
+- `argos-cli upload ./screenshots` で PR ごとに差分レビュー UI を GitHub Checks に埋め込み
+- **PR コメントに差分サムネイル自動添付**、Approve/Reject をワンクリックで実行
+- Chromatic の代替として GitHub 完結ワークフローを実現
+
+#### ⑨Tesseract.js OCR 文言整合検証
+- Hero・CTA・見出し画像内テキストを **OCR 抽出** → kotone の正解表と機械照合
+- 画像内埋め込みテキスト（Photoshop生成バナー等）の「28万→26万」誤植を視覚 QA では検出不能な層で捕捉
+- STEP 4.5 事実整合チェック（0/100二値）に統合
+
+#### ⑩ffmpeg フレーム別 SSIM 動画差分
+- スクロールアニメ・ホバーエフェクトを `page.video()` で MP4 収録 → `ffmpeg -i out.mp4 frame_%03d.png` で30fps分解
+- 各フレームに SSIM 適用、**フレーム単位で「元動画と複製動画の類似度カーブ」をグラフ化**
+- 「たまたま同一フレームで偽合格」を物理排除（2026-08-05失敗パターンの根本解決）
+
+#### ⑪Storybook 8 + Chromatic TurboSnap（コンポーネント別VRT）
+- 部品ごとに `.stories.tsx` を持ち、Chromatic の **TurboSnap で変更ファイル依存の Story のみ再撮影**
+- ページ全画面撮影の偽差分を撲滅、**再QAが変更部品のみに絞られ 25分→2分に短縮**
+- ren の1コンポーネント：mia の1テストの **1:1 マッピング** で責務境界明確化
+
+#### ⑫Long Animation Frames API (LoAF) 実測導入
+- `PerformanceObserver({ type: 'long-animation-frame' })` で **INP > 200ms の根本原因スクリプト** を特定
+- 「見た目合格でもフォーム操作がもたつく」問題の CSS/JS 起因を明示化
+- LoAF エントリを Sota に JSON 共有し、SSR/RSC 最適化ルートを確立
+
+#### ⑬Lighthouse CI Budget マトリクス
+- `lighthouserc.json` に **10 指標の SLA（LCP<2.5s / INP<200ms / CLS<0.1 / FCP<1.8s / TBT<200ms / TTI<3.8s / SI<3.4s / Performance>90 / Accessibility>95 / SEO>95）** を assert 記載
+- CI matrix で 3G/4G/Wi-Fi × Mobile/Desktop の 6 プロファイル並列実行、1つでも fail で PR ブロック
+
+#### ⑭SpeedCurve VisualComplete（Real User Visual Complete）
+- Lab Lighthouse の LCP と Field VisualComplete の乖離を **実ユーザーヒートマップで検出**
+- 「Mia OK・Lighthouse 90 でも実ユーザー 4G で 5秒待たされている」問題を **リリース前に予測**
+- 納品後 7日 CrUX 監視を **リアルタイム RUM 監視に強化**
+
+#### ⑮WCAG 2.2 新達成基準（2.4.11/2.5.8）機械判定
+- axe-core v4.9+ の新ルールで **2.4.11 Focus Not Obscured（フォーカスが sticky ヘッダーに隠れない）・2.5.8 Target Size Minimum 24px** を自動検出
+- 既存の Material 48px 基準に **WCAG 24px 下限** を併記、a11y NG の差し戻し根拠を規格番号（例：「WCAG 2.2 SC 2.5.8 違反」）で説明
+
+---
+
+### 💎 STEP 5: 品質10倍改善策（5項目）
+
+#### ①Applitools Visual AI 意図分類（差し戻し根拠の質10倍化）
+- 差分検出時に **「意図的デザイン変更 / バグリグレッション / 環境依存偽差分」を AI が99%精度で分類**
+- Mia の判定を「NG/OK」二値から **「NG（バグ由来）・要確認（意図変更疑い）・OK（環境依存）」の3段階** に進化
+- 誤 NG による Ren/Saki 疲弊を根絶し、真の NG のみに集中させる
+
+#### ②Perceptual Hash 全ページ指紋台帳（履歴管理10倍化）
+- 全 QA セッションの pHash を SQLite DB に永続保存 → **過去半年の baseline drift を Hamming Distance の時系列グラフで可視化**
+- ゴールデンイメージが徐々に劣化していく "silent regression" を早期検出
+
+#### ③Container Query VRT（レスポンシブ検証10倍化）
+- Storybook で `container-type: inline-size` の要素を **width スライダー UI で 320px→1920px 連続変化**、崩れる幅を秒単位で特定
+- 従来の3ブレークポイント（375/768/1280）チェックを **連続幅 QA** に進化、境界±1px 崩れの残存ゼロ化
+
+#### ④動的しきい値算出式（誤 NG 削減10倍化）
+```
+threshold = 0.05 × (要素重要度: Hero=1.0, CTA=1.0, Form=1.0, 装飾=0.3)
+maxDiffPixelRatio = 0.001 × (面積割合: 全画面=1.0, セクション=0.5, 部品=0.2)
+```
+- 領域別しきい値を **数式化して mia.config.json に定数のみ記述**、新規案件でも数式適用で誤 NG がゼロベースで最適化
+
+#### ⑤Golden Image Governance（baseline 承認フロー10倍化）
+- baseline 更新は **PR ベースで Mia＋Kaito 2名承認必須**、git-lfs でバージョニング
+- Chromatic の `--auto-accept-changes` を **禁止フラグ化**、劣化累積を物理防止
+- 週1回月曜 8:00 に **自動 baseline 健康診断ジョブ**（過去 baseline との pHash 比較で drift 検出）
+
+---
+
+### 🛡️ STEP 6: 失敗パターン防御（6項目）
+
+#### ①Storybook 実装コンポーネント数 vs QA テスト数の乖離検知
+- `npm run test:storybook -- --coverage` で **`.stories.tsx` があるのに VRT テスト未定義のコンポーネント** を CI で fail
+- コンポーネント追加時のテスト漏れを物理防止
+
+#### ②baseline drift 週次健康診断
+- 月曜 8:00 GitHub Actions cron で **全 baseline を pHash 比較**、Hamming Distance > 3 で Kaito に自動通知
+- ゴールデンイメージ静かな劣化を自動検出
+
+#### ③GPU/OS依存偽差分の Docker 固定化
+- QA は **必ず `docker run mia-qa:v1.0` 内で実行**、ホスト環境依存を排除
+- `Dockerfile` に Noto Sans JP／Roboto／Inter 等のフォントを明示 install
+
+#### ④Component isolation不足検知（グローバル CSS浸入）
+- Storybook の Preview 環境で **`window.getComputedStyle` を全 Story で実行 → 想定外の inherited style を検出**
+- 実装時の CSS 汚染（例：`body { font-size: 14px }` が全部品に浸入）を QA 段階でブロック
+
+#### ⑤フォント hinting 環境差の Fontconfig lock
+- Docker 内 `fonts.conf` で **hintstyle=hintfull・antialias=true・rgba=rgb** を固定
+- ホスト OS のフォント設定差による文字周り偽差分を物理排除
+
+#### ⑥INP flakiness 対策：3回計測中央値採用
+- INP は 1回計測だと変動大なので **`for (let i=0; i<3; i++)` で 3回計測し中央値を採用**
+- flaky な差し戻しで Ren を疲弊させない
+
+---
+
+### 🔗 STEP 7: 新連携パターン（4項目）
+
+#### ①Applitools UFG × Kuu（インフラ）
+- Applitools UFG のクロスブラウザ実行ログを **Kuu の Vercel/GitHub Actions ダッシュボードに集約**、コスト・実行時間・失敗率を月次可視化
+- QA 品質と CI コストのトレードオフを Kuu が最適化
+
+#### ②Meticulous.ai × Shun（データ分析）
+- Meticulous が録画した実ユーザーセッションを **Shun が離脱率・CV率でスコアリング** → 優先度上位10セッションを Mia の必須検査対象に決定
+- QA リソースを「本当に見るべきユーザー動線」に集中投下
+
+#### ③Storybook TurboSnap × ren（実装）× mia（QA）1:1マッピング
+- 1コンポーネント：1 Story：1 VRT テスト の **完全1:1構造** を CI で強制
+- ren の実装粒度と mia の QA 粒度が同期し、責務境界のズレによる往復ゼロ化
+
+#### ④axe-core WCAG 2.2 × nori（リーガル）
+- WCAG 2.2 AA 違反を **達成基準番号（2.4.11 等）付きで nori に自動通知**、法令準拠報告書を自動生成
+- 採用 LP の障害者雇用促進法対応・情報バリアフリー法対応を QA 段階で保証
+
+---
+
+### 📈 STEP 8: 数値化 KPI（8項目）
+
+| KPI | 現状 | 目標 | 測定方法 |
+|---|---|---|---|
+| False Positive Rate（誤NG率） | 15% | **<2%** | pHash＋SSIM＋Applitools AI 3段判定で削減 |
+| QA turnaround（フル QA 時間） | 25分 | **<3分** | Chromatic TurboSnap＋10並列＋Applitools UFG |
+| Escape defect rate（本番後発覚率） | 8% | **<0.5%** | LoAF＋SpeedCurve RUM＋Meticulous自動生成 |
+| Re-review count（差し戻し往復回数） | 平均3回 | **平均1回** | Applitools Root Cause＋4点セット GitHub Issue |
+| Cross-browser coverage（環境網羅） | 4環境 | **40+環境** | Applitools UFG（Chrome/Safari/Firefox/Edge × Win/Mac/iOS/Android × 4 viewport） |
+| a11y WCAG適合（達成基準ベース） | AA 95% | **AA 100%＋AAA 40%** | axe-core 2.2＋APCA Lc≥60＋手動SR |
+| Animation fidelity（アニメ忠実度） | duration±10% | **duration±2%** | Nao仕様表＋ffmpegフレーム別SSIM |
+| INP p75 保証率 | 90% | **99%** | LoAF＋3回計測中央値＋CrUX 7日監視 |
+
+---
+
+### 📝 導入ロードマップ（30日）
+
+- **Day 1-7**：BackstopJS Docker環境構築 / Reg-suit + S3 baseline移行 / Playwright toHaveScreenshot 高度オプション統一
+- **Day 8-14**：Applitools Eyes UFG導入（40環境並列）／ SSIM＋pHash 判定器実装
+- **Day 15-21**：Storybook 8＋Chromatic TurboSnap 移行 / Meticulous.ai セッション連携
+- **Day 22-30**：LoAF＋SpeedCurve RUM 監視ダッシュボード構築 / WCAG 2.2 新基準機械化 / KPI 8指標 Kaito 向け月次レポート化
+
+**完了判定**：8 KPI のうち 6項目以上が目標値達成 → sora 最終 QA へ「オーバースペック化完了報告」提出
+

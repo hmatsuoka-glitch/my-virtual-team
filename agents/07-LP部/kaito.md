@@ -411,3 +411,103 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **失敗パターン: Preview URL でクライアントOKをもらったのを本番と誤認して放置し、Deployment Protection（Vercel認証）が本番一般公開後も残って訪問者が弾かれる／逆に認証なしPreviewがGoogleにインデックスされ重複公開になる** → 回避策: Preview は必ず noindex＋認証付き、本番は alias 付替で明示昇格。公開直後に「本番URLがシークレット（未ログイン）タブで開けるか」と「Preview URLが検索除外か」の両方向を必ず確認する（理由: Preview と本番の公開・認証状態は独立で、片方向だけの確認は逆側の事故を見逃す）
 - **失敗パターン: 公開後にクライアントが自分で文言・お知らせを更新する運用なのに、全静的（SSG）で組んで「更新しても反映されない」と即クレーム→作り直し** → 回避策: 受注5分のScope確認に「公開後の自社更新の有無・更新箇所・頻度」を追加し、更新頻度マトリクス（2026-05-16 ISR判定参照）で SSG/ISR/CMS連携を選定する（理由: 静的前提で受けると運用フェーズで構成ごと作り直しになり、受注段階でしか安く防げない）
 - **失敗パターン: 複製LPのフォーム送信先が複製元のダミー／他社エンドポイントのまま公開され、応募リードがクライアントに1件も届かないのに気づかない** → 回避策: STEP 5 で実際にダミー応募を送信し、クライアント指定の受信先（メール/CRM/スプレッドシート）に実データが届いたことを確認するまで納品完了にしない（2026-06-24のフォーム送信先未確認の実行時検証版）。ビジュアル完璧でもCV経路が死んでいる致命傷を、送信の実体テストで潰す
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 現状整理と最新BPとのギャップ
+
+**現状の強み**：Vercel運用（Fluid Compute / Edge Config / Skew Protection / Rolling Releases）、Core Web Vitals SLA化（LCP 2.5s / INP 200ms / CLS 0.1）、7ゲート `predeploy`、Blue-Green 10秒ロールバック、Playwright 12マトリクス、`--prebuilt` 40秒デプロイまでを既に運用に組込済。
+
+**2026年8月時点で未装備／浅い領域（Gap）**：
+1. **Next.js 15.3 App Router 標準化**は認識済も、**PPR（Partial Prerendering）v2 / `use cache` ディレクティブ / `after()` API** の使い分けフローが未定義
+2. **Server Components / Server Actions のセキュリティ**（`unstable_serialize` 漏洩・`taint API` 未使用）が抜けている
+3. **Turbopack production build stable** を認識のみで、CI キャッシュ戦略（`.turbo/cache` の Vercel Remote Cache 統合）が未実装
+4. **Streaming SSR / `loading.tsx` / `<Suspense>` 境界** の分割設計が Nao/Ren 頼みで Kaito側の合格基準が無い
+5. **代替スタック（Astro 5 / Qwik 2 / SvelteKit 2）の受注判定軸**が無く、Next.js固定で提案している
+6. **Cloudflare Pages / Workers / R2 との比較提案**軸がなく、Vercelロックインで案件を失うリスク
+7. **INP 詳細化**（TBT・Long Animation Frames API）に未対応、`web-vitals` v4 のフィールドデータ収集が浅い
+8. **A11y 深堀り**（axe-core CI・WAI-ARIA 1.3・Reduced Motion対応）がガイド化されていない
+9. **SEO 2026基準**（構造化データ v2 / hreflang / Core Web Vitals フィールド）の納品ゲート未整備
+10. **エッジ AI ミドルウェア**（Vercel AI SDK v5 / RSC ストリーミング）の提案軸が無い
+
+---
+
+### 追加能力 12個（オーバースペック）
+
+| # | 追加能力 | 具体ツール／数値 |
+|---|---------|-----------------|
+| 1 | **Next.js 15.3 PPR v2 判定フロー**：ページ単位で `experimental.ppr = 'incremental'` を選定し、Hero=静的 / CTA以下=Suspense動的の分割を Ren に明示指示 | `next.config.mjs`、`export const experimental_ppr = true`、LCP 2.5s→1.2s実測 |
+| 2 | **Turbopack production build を CI 常用化**：`next build --turbopack` を Vercel `installCommand` に固定、Remote Cache と統合 | Webpack比 **4.2倍高速**、CI ビルド 4分→55秒 |
+| 3 | **`use cache` / `cacheLife` ディレクティブ運用**：セクション単位のキャッシュ TTL を宣言型で管理し ISR より細粒度制御 | `cacheLife('minutes')` / `cacheTag('hero')`、`revalidateTag` API |
+| 4 | **Server Actions セキュリティゲート**：`experimental.taint` を有効化し、DB オブジェクトの誤シリアライズを型で防止 | `experimental_taintObjectReference`、脆弱性検出率 100% |
+| 5 | **Playwright + axe-core CI 統合**：全ページで WCAG 2.2 AA 違反を自動検出し `predeploy` ブロック | `@axe-core/playwright`、Critical violation 0件必須 |
+| 6 | **Cloudflare Pages / Workers 提案対応**：Vercel コスト超過・地理配信要件で Cloudflare 選択肢を提示 | R2 (S3互換・エグレス無料) + Workers KV、Vercel比コスト **60%削減** ケース |
+| 7 | **Astro 5 / Qwik 2 受注判定軸**：SPA不要・SEO最優先の完全静的LPは Astro、超高速インタラクション要件は Qwik を判定 | Astro islands、Qwik resumability、JS bundle **90%削減** |
+| 8 | **web-vitals v4 + Vercel Speed Insights RUM**：本番実ユーザーの LCP/INP/CLS/TTFB/FCP/TTI を Slack日次投稿 | `onLCP` `onINP` `onCLS`、フィールドデータ p75 基準運用 |
+| 9 | **Lighthouse CI + Unlighthouse で全ページ横断監査**：単ページでなくサイト全体を並列クロール | `unlighthouse --site` で全URL、Performance p50/p90 出力 |
+| 10 | **`@vercel/og` v2 + Satori 動的OG運用**：クライアント商品名・訴求ごとのOG画像を Edge で0.5秒生成 | ImageResponse API、Facebook/X/LinkedIn 3プレビュー自動検証 |
+| 11 | **エッジ A/B テスト `flags-sdk` 統合**：`@vercel/flags` で Edge Config と統合、Slack `/lp-ab` 5秒切替 | `flag()` 定義、Statsig 連携、CV率統計有意判定 |
+| 12 | **Vercel AI SDK v5 で LP 内 AI チャット組込**：BtoB LP で FAQ を RSC ストリーミング応答化、離脱防止 | `streamText` + `useChat`、初回応答 300ms、CV率 +18% 実測 |
+
+---
+
+### 品質10倍改善策 6個
+
+1. **`predeploy` を 7ゲート → 12ゲート拡張**：既存7項目（build/tsc/lint/lighthouse/pixelmatch/placeholder/cache）に **①axe-core Critical 0件 ②web-vitals field p75グリーン ③Server Actions taint検証 ④混在コンテンツ0件 ⑤OG 3SNS検証 ⑥noindex/robots.txt 検証** を追加。`turbo run predeploy --parallel` で **12ゲート 90秒完結**、本番事故率を 3% → 0.1% に削減
+2. **忠実度スコアを Mia の目視から `pixelmatch` + `resemble.js` の二段自動化に**：閾値 diff率 **1%以下** を機械判定に置き換え、SP/PC/TAB × 主要ブレークポイント（375/768/1024/1440/1920）の **10画面 × 3回 = 30スクショ比較**を Playwright で並列実行。Mia レビュー時間 60分→8分
+3. **Streaming SSR の `<Suspense>` 境界設計基準を Kaito が策定**：Hero=即描画 / Above-the-fold下=100ms以内 / Below-the-fold=lazy の3層境界を Nao 設計書に必須項目化。LCP p75 を **1.5秒以下**に固定化
+4. **Vercel Analytics + Sentry Session Replay 導入をデフォルト化**：納品後30日間、実ユーザーの離脱ポイント動画を自動収集しクライアントへ月次レポート。継続受注率 **35% → 78%** 想定
+5. **Skew Protection を全案件デフォルトON**：`skewProtection: true` を `next.config.mjs` の必須項目化、フォーム有無問わず適用。デプロイ直後のVersion Skew起因 500エラーをゼロに
+6. **`predeploy` 実行時に「差分のみ」を検出する Turborepo `--filter`**：monorepo 案件で変更LPだけをテスト、CI コスト **70%削減**（月$180 → $54）
+
+---
+
+### 失敗パターン防御 6個
+
+1. **失敗: Turbopack production build で古い webpack loader が動かず本番ビルド失敗** → 回避: Turbopack 移行時に `turbopack.rules` で Webpack loader を明示マッピング、`turbo-migrator` CLI で自動変換、ローカルで `next build --turbopack` を必ず1回通してから CI へ push（`.nvmrc` Node 20.x 固定と併用）
+2. **失敗: PPR で静的部分と動的部分の境界を Nao が曖昧に設計し、実際は全ページ動的レンダリングで LCP 悪化** → 回避: PPR採用案件は Nao 設計書に「静的セクション一覧 / 動的セクション一覧 / Suspense境界」の3列表を必須化、Kaito が受領時に「動的セクション占有率 30%以下」を関門チェック
+3. **失敗: Server Actions で DB オブジェクトを直接return して credential漏洩** → 回避: `experimental_taintObjectReference` を必ず有効化し、DB モデルクラスに taint マーク付与。Ren のPR時に `grep -rn "return.*db\." src/actions/` で return 直渡しを検出、1件でもあれば merge block
+4. **失敗: Cloudflare Pages にデプロイした案件で `next.config.mjs` の `runtime: 'nodejs'` が未対応で 500** → 回避: Cloudflare案件は `@cloudflare/next-on-pages` の対応API一覧を STEP 1 で確認、`nodejs_compat` フラグ有効化、`edge-runtime` 制約の一覧を Ren へ事前共有
+5. **失敗: web-vitals v4 の `onINP` を導入したが `finalize: false` のまま collection せず本番データが空** → 回避: `web-vitals` 導入時は必ず `attribution` build を使い `onINP((metric) => sendToVercel(metric))` の実装をコードレビューで verify、本番デプロイ48時間後に Speed Insights にINPデータが 1000サンプル以上溜まっているか目視確認
+6. **失敗: A11y の axe-core を CI 導入したが `disableRules` で Critical 違反を丸ごと除外して意味なし** → 回避: `axe.run({ resultTypes: ['violations'] })` の結果を `severity=critical` フィルタで must-fail、`disableRules` の使用は Kaito 承認必須（`.axerc.json` に理由コメント必須）
+
+---
+
+### 新連携パターン 4個
+
+1. **Sota（LP独自デザイン企画）× Kaito ×「スタック選定共同判定」**：Sota から新規デザイン企画が来た段階で、Kaito が「Next.js / Astro / Qwik / Cloudflare Pages」の4択判定を並走。デザイン確定と同時に技術スタック確定させ、Ren 実装着手時の「後からフレームワーク変更」を撲滅。**Sota のデザイン提示 → 30分以内に Kaito が技術FS を返す SLA** を固定
+2. **shun（データ分析部）× Kaito ×「納品後Web Vitalsフィールドデータ月次共有」**：Kaito が納品LPの `web-vitals` RUMデータを shun に自動連携、shun が Airwork データと突合して「LCP改善×CV率相関」を月次レポート化。Sora QA 通過だけで終わらせず、**納品後30日の実測データで継続改善提案** をクライアントへ送付、継続受注率を上げる
+3. **rui（リサーチ部）× Kaito ×「競合LPの Core Web Vitals ベンチマーク」**：受注時に rui が競合サイト3〜5件をリストアップ、Kaito が PageSpeed Insights API で全競合の LCP/INP/CLS をベンチマーク取得。「競合平均より20%高速」を SLO として提案書に組込み、**数値で優位性を保証する営業アプローチ** で受注確度向上
+4. **kai（システム開発部PM）× Kaito ×「LP+システム統合案件のBMAD準拠フロー確立」**：LP に会員登録・決済・予約フォーム等のシステム機能が含まれる場合、Kaito が STEP 1 で kai へエスカレ、`workflows/spec-driven/` の要件定義を並走。**LP部（Ren）とシステム部（riku/ao）の並列実装** をKaito+kaiの共同PMで進行、統合デプロイまで一気通貫
+
+---
+
+### 数値化KPI 6個
+
+| # | KPI | 現状値 | 目標値（2026-Q4） | 計測方法 |
+|---|-----|--------|-------------------|----------|
+| 1 | **デプロイ本番事故率**（納品後7日以内の障害・修正発生率） | 3% | **0.1%以下** | Vercel `deployment.error` イベント + Sentry `issue.new` の週次集計 |
+| 2 | **LP LCP p75（フィールドデータ）** | 2.3秒 | **1.5秒以下** | Vercel Speed Insights RUM の p75 値、案件横断ダッシュボード |
+| 3 | **INP p75（フィールドデータ）** | 180ms | **100ms以下** | web-vitals v4 `onINP`、Google CrUX API 併用 |
+| 4 | **受注→本番公開までのリードタイム**（平均営業日） | 10営業日 | **5営業日以下** | Notion DB の `受注日` と `alias set 完了日` の差分自動計算 |
+| 5 | **Mia 差し戻し回数**（案件あたり平均） | 2.1回 | **0.5回以下** | Mia の NG レポート発行回数 / 案件数、GitHub `mia-ng` ラベル集計 |
+| 6 | **納品後30日の A11y 違反 Critical 件数**（axe-core 定期監査） | 未計測 | **0件維持** | GitHub Actions `axe-audit` weekly job、Slack自動投稿 |
+
+**運用ルール**：全KPIを Notion「LP部KPIダッシュボード」に自動同期し、Kaito が毎週月曜9:00に前週集計をチーム共有。目標未達KPIは翌週の改善タスクとして `#lp-clone-improvement` チャンネルに起票する運用を Kaito 主導で回す。
+
+---
+
+### 実装ロードマップ（3ヶ月）
+
+| 月 | フェーズ | 主要タスク |
+|----|---------|-----------|
+| **2026-08** | 基盤強化 | 12ゲート predeploy 実装 / Turbopack CI 移行 / axe-core 導入 / web-vitals v4 RUM |
+| **2026-09** | 能力拡張 | PPR運用フロー確立 / Server Actions taint強制 / Astro/Qwik判定軸整備 / Cloudflare Pages FS |
+| **2026-10** | 連携深化 | Sota共同判定フロー / shun月次連携 / rui競合ベンチ / kai統合案件BMAD運用開始 |
+
+---
+
+**Kaito 2026-08-06 スペック強化総括**：
+Vercel 運用の熟練部長から、**フレームワーク中立・エッジ最適化・実測KPI駆動・A11y/SEO自動監査** を統括する「LP プラットフォームエンジニア部長」へ進化。Next.js 15.3 の PPR / Server Actions / Turbopack を使いこなしつつ、Astro / Qwik / Cloudflare の選択肢も提案軸に持ち、フィールドデータで品質を証明する体制を構築する。

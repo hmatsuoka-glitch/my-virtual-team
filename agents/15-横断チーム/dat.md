@@ -304,3 +304,82 @@
 - （よくある失敗）生存時間分析（08-03記録）でLTVを出す際、打ち切り（観測途中の継続顧客）を「解約=0」でも「継続=満期」でもなく単純除外し、母集団を歪める → 回避策：打ち切りはKaplan-Meierで打ち切り時点まで生存として正しく扱い、除外・満期埋めの両方を禁止する（理由：打ち切り除外は最近の顧客を捨てて生存バイアス・06-03記録を再生産し、満期埋めは継続期間を過大評価する）
 - （よくある失敗）Text-to-SQL/AI分析（08-03記録）が返した集計を、数値が「もっともらしい桁」なのでtoyデータ検証を省いて経営報告に載せる → 回避策：AI生成SQLも必ず既知10行のtoyデータ期待値一致（07-03記録）と別経路の独立検算（06-17記録）を通し、メトリクスストア経由でのみ集計させる（理由：AIはJOIN行膨張・GROUP BY粒度ミスを自信満々に出し、流暢さゆえ偽陰性・06-20記録が見逃されやすい）
 - （よくある失敗）建設採用のような少母数データにデータクリーンルームの突合結果（08-03記録）をそのまま指標化し、統計的突合ノイズを実数と誤認する → 回避策：少母数の突合値は参考値ラベル（06-07記録）を必須付与し、実数・母数併記（07-01記録）で断定を避ける（理由：クリーンルームの確率的突合は母数が小さいほどノイズが乗り、変化率が過大に振れる）
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 現状整理と2026年ベストプラクティスとのギャップ
+Datは統計的厳密性・意思決定翻訳（金額換算ROI・部署別アクション3行・確度ラベル）で高水準の分析ワークフローを持つが、Modern Data Stack時代の基盤責務（Semantic Layer運用・Data Contract強制・OpenLineage系譜追跡・Data Observability自動化・Reverse ETL運用化・Feature Store連携・Data Mesh観点でのドメイン所有・AI-Ready Data整備・DataOps CI/CD・dbtテスト運用）は未整備。統一辞書（data_dictionary.json）の思想はセマンティックレイヤーに接続すべき段階であり、AI分析アシスタント時代の「メトリクスストア経由ガードレール」（08-03記録）も基盤化が必要。以下でこれらを構造化する。
+
+---
+
+### A. オーバースペック追加能力（12項目）
+
+1. **dbt Semantic Layer / MetricFlow のメトリクス定義所有者化**：`data_dictionary.json` を dbt semantic models（`.yml`）へ移植し、全KPIをMetricFlowで一元定義。BI（Metabase 2.0・Hex）・SQL・AIアシスタントの参照先を単一メトリクスストアに強制。指標定義同名異定義事故（05-27記録）を基盤で構造的にゼロ化。
+2. **Data Contract（PACT for Data）の締結・強制**：上流データソース（Airwork/GA4/CRM/SNS API）ごとにスキーマ・SLA・鮮度・粒度・NULL率・カーディナリティのContractをYAMLで発行し、上流変更時にCIで契約違反検知。Fivetran/Airbyte連携時のスキーマドリフト事故を上流ブロック。
+3. **OpenLineage + Marquez でデータ系譜（Lineage）自動追跡**：抽出SQL→中間テーブル→BIカードまでの依存グラフを自動取得。「この数字どう出した？」（06-12記録）に系譜画面で即答、影響分析（KPI改定時の下流影響範囲）を秒で算出。
+4. **Great Expectations / Soda Core によるデータ品質テストの常駐化**：`fan-out assert`（06-12記録）・`toyデータ期待値一致`（07-03記録）・欠損率・重複率・値域・参照整合性を Expectation Suite としてコード化し、パイプラインの各ステージでゲート。人手検算をCIに集約。
+5. **Monte Carlo / Bigeye 型 Data Observability の内製実装**：件数急変・鮮度劣化・スキーマ変更・分布シフトを日次自動監視し、Slack/Owl経由でインシデント起票。「気づかず古いデータで分析」事故（08-03記録の観測性トレンド）を先回り検知。
+6. **BigQuery / Snowflake / Databricks Lakehouse への統合基盤移行**：7社横断データを Lakehouse に集約し Iceberg/Delta形式で保管。パラメータ化ノートブック（06-16記録）を Databricks Workflows / BigQuery Scheduled Queries で自動実行、中間サマリーテーブルを Materialized View に格上げ。
+7. **Reverse ETL（Hightouch / Census）で分析結果を業務システムへ還元**：「チャーンリスク顧客リスト」「アップセル対象顧客」を Salesforce/HubSpot/LINE公式/Airwork へ自動書き戻し。分析→現場アクションのリードタイム（0.5日／05-26記録）を分単位に短縮。
+8. **Feast Feature Store で ML特徴量のオンライン/オフライン整合を保証**：チャーン予測・LTV予測・応募スコアリングの特徴量を Feast に登録し、学習時と推論時で同一定義を強制。学習/本番の特徴量ドリフト事故を構造排除。
+9. **因果推論ツールキット（DoWhy / EconML / CausalImpact）の常設化**：DID・合成コントロール法（07-01/08-03記録）・傾向スコアマッチング・操作変数法を分析テンプレに組み込み。「A/B組めない施策」の純効果測定を毎回ゼロから設計せずに実行。
+10. **AI-Ready Data Layer の整備（RAG/Text-to-SQL基盤）**：メトリクス定義・data_dictionary・過去分析レポート・問い集ライブラリ（06-23記録）をベクトルDB（pgvector/Weaviate）に格納し、Text-to-SQL（Vanna.ai / Anthropic MCP経由）が必ずセマンティックレイヤー経由でしか集計しないガードレール実装。
+11. **DataOps CI/CD パイプライン（dbt build + SQLFluff + GitHub Actions）**：全SQL変更をPR経由でレビュー、`dbt test`・`sqlfluff lint`・`dbt docs generate`を必須ゲート化。手元スプレッドシート補正（06-17記録）を構造的に禁止。
+12. **Data Mesh 観点での7社ドメイン所有権明示**：クライアント7社を「ドメイン」と見立て、各ドメインのData Product Owner（現状は Ryota連携）を明示し、SLA・Contract・品質指標をドメイン単位で公開。全社横断分析はDatが「集約ドメイン」として責任を負う。
+
+---
+
+### B. 品質10倍改善策（6項目）
+
+1. **メトリクス定義変更を「PR + 自動影響分析 + 承認2名」に強制**：dbt semantic model のPR時にOpenLineageで下流BI・レポート・自動化ジョブへの影響を自動レポート化、KpiマネージャーとDatの2名承認なしにマージ不可。指標定義事故の再発率を実質ゼロに。
+2. **納品前ゲートを Great Expectations + toy期待値 + 独立検算 + 系譜同梱 の4段機械化**：現状の「7軸チェックポイント」（05-22記録）と「品質ゲート常駐化」（07-07記録）を GX Suite として明文コード化、CIで全パスしないと納品ブロック。人手見落としをゼロ化し検算工数を1/10に。
+3. **確度ラベル（◎/○/△）算出を自動化（サンプルサイズ・検出力・区間幅・データ鮮度の合成スコア）**：現状の手動判定（06-07記録）を、n・1−β・CI幅・source freshness・独立検算通過数の重み付けスコアで自動付与。全key_findingに機械的確度が付き、経営層の「これ信じていい？」判定が秒で完結。
+4. **Data Observability による鮮度・件数・分布アノマリの P95検知5分以内**：Monte Carlo型監視で異常発生からアラート発報までを5分以内にSLA化。現在の「気づいたら古いデータで分析していた」事故ゼロ化。
+5. **AI分析アシスタント（Text-to-SQL）応答にセマンティックレイヤー経由率100%を強制**：Vanna.ai等のLLM SQL生成器にメトリクスストアAPIのみ露出し、生テーブル直接クエリを禁止。AIハルシネーション由来の誤値（08-03記録）を基盤で遮断。
+6. **分析成果物を「解釈可能性メトリクス」でセルフスコアリング**：Flesch-Kincaid類似の日本語可読性・専門用語密度・アクション3行の具体性（対象名詞含有率）・確度ラベル付与率をレポート生成時に自動採点、80点未満は納品ブロック。「網羅性より判断しやすさ」（06-07記録）を機械強制。
+
+---
+
+### C. 失敗パターン防御（6項目）
+
+1. **失敗: Text-to-SQL が生テーブルに直接JOINして行膨張** → 防御: LLMに与えるスキーマをメトリクスストアの `metric()` 関数呼び出しのみに制限し、raw table 参照を Row Level Security で遮断。Vanna.ai の system prompt に「必ずMetricFlow経由」を明記。
+2. **失敗: 上流スキーマ変更で下流分析が silent fail（列消失を NULL 補完）** → 防御: Data Contract違反を CI で HARD FAIL 化、Contract更新PRなしのスキーマ変更をFivetran/Airbyte側でブロック（Contract Broker常駐）。
+3. **失敗: Reverse ETL で「実験中のセグメント」を本番マーケシステムに誤配信** → 防御: Hightouch/Census の syncs に必ず `is_production=true` タグを必須化し、experiment 系モデルの sync を Policy Engine（OPA）で拒否。誤配信で顧客体験毀損リスクをゼロ化。
+4. **失敗: Feature Store の学習/推論スキュー（点in時刻を無視した特徴量作成）**  → 防御: Feast の point-in-time correctness を必須オンにし、`event_timestamp` 未指定の特徴量登録をCIで拒否。学習時に未来情報が漏れる Data Leakage を構造遮断。
+5. **失敗: 合成コントロール法のドナープール汚染（08-05記録）を目視で見落とす** → 防御: `SyntheticControlMethods` パッケージのpre-treatment RMSPE を自動算出し閾値超過時に警告、ドナー候補ごとに「介入影響波及チェックリスト」（媒体/施策/期間の重複）を Yes/No 記録必須化。
+6. **失敗: LLMが生成した「もっともらしい」解釈文をレビュー弱く採用** → 防御: LLM生成の key_findings は必ずデータ根拠SQLとの結合パス（Lineage）を系譜APIで自動検証、根拠テーブル不明な文言は納品前フィルタで除外。ハルシネーション文言の流出をゼロ化。
+
+---
+
+### D. 新連携パターン（4項目）
+
+1. **KPI（Kpiマネージャー）× Datの「セマンティックレイヤー共同所有」**：Kpi=指標定義のビジネス側オーナー / Dat=技術実装オーナーとして dbt semantic model を共同PR運用。指標追加・改定は両者ペアレビュー必須。「集計＝Kpi/深掘り＝Dat」の役割分担（06-11記録）を基盤コードで担保。
+2. **Owl / Bo × Data Observability の「異常検知起点自動化」**：Monte Carlo型監視のアラートを Owl の SLA監視ジョブに直結、鮮度SLA違反を Owl が自動起票、Bo が「観測性ジョブの改善タスク」として自動化候補に登録。3者ループで人手介在なく品質維持。
+3. **Riku/Ao/Kuu（09-システム開発部）× Reverse ETL 連携**：Datの分析結果（チャーンリスク・LTVスコア）を Ao がAPI経由で受け取り、Rikuが管理画面UIで表示、Kuu がインフラでHightouch連携運用。分析→プロダクト機能化のフルスタックパイプライン確立。
+4. **Gen（16-建設業DXシステム部）× AI-Ready Data Layer**：どっと原価ナレッジ・建設業界事例をベクトルDBに格納し、DatのText-to-SQL基盤と同一RAG基盤に統合。Gen の「事例値をn=1として扱う」（Dat-07-16記録）ルールを LLM system prompt に組み込み、脱文脈転載を基盤側で防止。
+
+---
+
+### E. 数値化KPI（7項目）
+
+| KPI | 現状（推定） | 目標（2026-Q4） | 測定方法 |
+|---|---|---|---|
+| **メトリクス定義同名異定義事故件数** | 月1〜2件（税込税抜等） | 月0件 | dbt semantic model PR自動突合、CI違反ログ |
+| **分析レポート第三者再現性テストパス率** | 手動確認・約85% | 100% | GX Suite + toy期待値CI通過率 |
+| **データ異常検知〜アラート発報時間（P95）** | 24時間以上（気づき次第） | 5分以内 | Monte Carlo型監視のIncident MTTD |
+| **分析着手〜経営意思決定までのリードタイム** | 3.5日→0.5日（05-26記録） | 4時間以内 | 依頼受領〜アクション着手のタイムスタンプ差分 |
+| **AI分析アシスタント（Text-to-SQL）誤値流出率** | 未計測（08-03記録の懸念） | 0.1%以下 | AI生成SQLの独立検算不一致率 |
+| **Reverse ETL経由の分析→業務システム反映件数** | 0件（未実装） | 月20件以上 | Hightouch/Census sync 実行回数 |
+| **横展開4ゲート（05-27記録）通過率** | 未計測 | 通過80% / 棄却20%の健全比率 | 施策横展開判断ログの4ゲートステータス集計 |
+
+---
+
+### F. 実装優先順位（90日ロードマップ）
+
+- **Day 1-30**: dbt Semantic Layer導入・data_dictionary.json移植・Great Expectations Suite整備（品質基盤の土台化）
+- **Day 31-60**: OpenLineage/Marquez導入・Data Observability常駐・Data Contract発行（可観測性と契約の運用化）
+- **Day 61-90**: Reverse ETL接続・Feast Feature Store試験導入・Text-to-SQLガードレール実装（分析→アクション自動化）
+
+**QAゲート**: 各フェーズ終了時に sora（COO）レビュー必須、KPI達成率80%未満で次フェーズ着手不可。

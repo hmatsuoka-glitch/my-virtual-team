@@ -286,3 +286,126 @@
 - **失敗パターン: dbtのnot_null/uniqueテストを`severity: warn`のまま運用し、主キー破損・重複が警告ログで素通りして下流に流れる** → 回避策: 主キー・件数整合・PII非露出に関わるテストは`severity: error`で必ずパイプライン停止、`warn`は監視目的の軽微チェックに限定し、テスト追加時に「これは止めるべきか」をレビュー必須項目にする（理由: warnはCIが緑のまま通り、重複二重計上（2026-05-27参照）を検知しても誰も止めず、Shunの集計が崩れてから発覚する）
 - **失敗パターン: ログイン/セッション依存でクロールする競合サイトで、Cookie失効・ログイン画面リダイレクト時に空データを「正常取得0件」として格納する** → 回避策: ログイン後のみ表示される要素（ログアウトボタン・会員限定ラベル）の存在を取得成否判定に組み込み、認証切れ検知時は「障害（未取得）」（3状態、2026-06-17参照）で記録して再認証。ソフト404検出（2026-06-17参照）と同型で、200＋ログイン画面HTMLを成功と誤記録しない（理由: 認証が切れてもHTTPは200を返し、ログインページのHTMLが空データとして通過してRuiの競合分析が欠測のまま走る）
 - **失敗パターン: 応募者PIIの保持期限を設けず、削除要求・保持期限超過データを持ち続けて個人情報保護法・保持ポリシー違反になる** → 回避策: PIIを含むテーブルはpartition expirationで保持期限（例: ハッシュ前生データは30日）を自動削除に設定し、応募者からの削除要求は重複チェック用ハッシュキー（SHA-256、2026-06-12参照）で該当レコードを特定削除できる設計にする（理由: 保持期限のないPII蓄積は、漏洩時の被害範囲と法的リスクを無制限に拡大し、クライアントの守秘義務にも波及する）
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 現状整理（既存の強み）
+- dbt + Airflow による自動DAG化、`airflow-dbt-python` operator の実運用（2026-05-26 / 2026-06-23）
+- Cloud Run Jobs 並列クロール + robots.txt Crawl-delay 自動配分（2026-05-26 / 2026-07-07）
+- 4点品質ゲート + pre_publish_check マクロで PII露出/スキャン量/client_id フィルタ を1コマンド検証（2026-05-22 / 2026-06-16 / 2026-06-26）
+- dbt-audit-helper `compare_relations` CI 自動突合、`meta: {kpi_def_version}` タグでの Shun/Ryota 出所連続性（2026-06-16 / 2026-06-11）
+- Iceberg / dbt Fusion / DuckDB / データコントラクト の2026年トレンド把握（2026-07-27 / 2026-08-03）
+
+### スキルギャップ（2026年最新BPとの差分）
+| 領域 | 業界標準 | 現状 | ギャップ |
+|---|---|---|---|
+| ELT SaaS | Fivetran / Airbyte / Stitch のマネージドコネクタ | クローラー自作中心 | 60+ SaaS連携の自動化選択肢が薄い |
+| Semantic Layer | dbt Semantic Layer / Cube / MetricFlow | KPI定義は Shun の Notion + dbt meta タグ | メトリクスの一元定義・BI横断参照が未整備 |
+| Reverse ETL | Hightouch / Census / RudderStack | 一方向 DWH→BI のみ | DWH → SFA/MA/広告への逆流ルートなし |
+| Streaming / CDC | Debezium / Kafka / Flink / Materialize | バッチ日次中心 | リアルタイム応募検知・在庫連動が不可 |
+| MLOps / Feature Store | Feast / MLflow / Vertex AI Pipelines | BigQuery ML の埋込利用のみ | 特徴量再利用・モデル再学習の自動化なし |
+| 因果推論 / 実験 | Bayesian AB / DoWhy / CausalML / GeoLift | 相関分析のみ | 施策の真の効果を定量化できない |
+| Data Mesh / ドメイン所有 | ドメイン別データプロダクト / Data Contract v1 | 中央集権 dbt project | ドメイン別自律運用が未設計 |
+| オブザーバビリティ | Monte Carlo / Elementary / Bigeye | 自作アラート | ベースライン自動学習・根本原因推定が手動 |
+| モダンオーケストレーション | Dagster / Prefect 2.x（asset-based） | Airflow task-based | データ資産駆動の依存管理・部分再実行が弱い |
+| LLM x SQL | Text-to-SQL / Cortex Analyst / Vanna AI | Looker Studio 自然言語 | 内製データに対する対話型分析ゲートウェイなし |
+
+### オーバースペック追加能力（10項目）
+
+1. **Fivetran / Airbyte OSS 二層構成でSaaS接続を自作クローラーから卒業**
+   - 有料SaaS（Salesforce/HubSpot/Stripe等）は Fivetran 標準コネクタ、ロングテール/独自APIは Airbyte OSS を Cloud Run で自ホスト。自作クローラーは「Fivetran/Airbyte に無い建設業求人サイト」だけに集中する棲み分けで、新規ソース連携が 2-3日 → 30分に短縮。
+
+2. **dbt Semantic Layer + MetricFlow でメトリクス一元定義**
+   - 応募CVR/媒体CPA/歩留率を `metrics.yml` に semantic model として定義し、Shun の Looker Studio / Akari の月次レポート / Ryota の提案書グラフが全て同じ MetricFlow API 経由で数値を取得。KPI 定義ズレ（2026-05-22 / 2026-06-04参照）を「定義の物理単一化」で構造排除。
+
+3. **Reverse ETL（Hightouch）で分析結果を Airwork/HubSpot へ逆流**
+   - DWH の「応募スコアリング結果」「離脱リスクセグメント」を Hightouch 経由で Airwork のタグ・HubSpot のリストへ自動同期。分析→アクションのラストマイルを人手 CSV アップロードから解放し、Ryota/Akari の運用施策への実装リードタイムを 1週間 → 1時間 に短縮。
+
+4. **Debezium + Kafka + Materialize でリアルタイム応募CDC基盤**
+   - Airwork DB の応募テーブル変更を Debezium で CDC 取得、Kafka 経由で Materialize にストリーム、5秒以内に BI へ反映。日次バッチでは掴めない「面接直前キャンセル」「同日複数応募の重複」をリアルタイム検知し、クライアントへ即通知可能化。
+
+5. **Dagster asset-based オーケストレーションで部分再実行を最適化**
+   - Airflow の task-based DAG（2026-05-26参照）と並行して、Dagster の Software-Defined Assets で「上流の1テーブルだけ壊れた時、その依存先だけを自動再実行」を実現。全DAG再実行のコスト（無料枠1TB圧迫、2026-06-12参照）を回避し、リカバリ時間を 6時間 → 20分。
+
+6. **Feast Feature Store で ML 特徴量を DWH と共用**
+   - 応募者スコアリング/離脱予測の特徴量を Feast に登録し、オフライン学習（BigQuery）とオンライン推論（Redis）で同一特徴量を共有。「学習時と本番で特徴量が食い違う」古典的な MLOps 事故を構造排除、Shun の分析特徴量エンジニアリング成果を Ren の LP パーソナライズにも再利用可能化。
+
+7. **Monte Carlo / Elementary によるデータオブザーバビリティ自動学習**
+   - スキーマハッシュ監視（2026-06-03参照）・変化率アラート（2026-06-03参照）の閾値手動設定を、Elementary（OSS）でベースライン自動学習に置換。半期ゲート棚卸し（2026-07-03参照）も発火実績の自動集計で機械化。人手チューニング工数を月8時間 → 1時間。
+
+8. **DoWhy / CausalML による因果推論分析パイプライン**
+   - 「LP改修で応募が20%増えた」を単なる前後比較ではなく、傾向スコアマッチング/差分の差分（DID）/合成統制法で真の因果効果を推定。Shun の相関分析（2026-05-25参照）を「因果証拠」レベルへ昇格させ、Ryota の提案書の説得力を統計的に担保。
+
+9. **Bayesian AB Test（PyMC / VWO Bayesian）で頻度論から脱却**
+   - 頻度論の p値ハッキング・早期停止バイアスを回避するため、事前分布 + 事後分布ベースの Bayesian AB Test に統一。「95%信頼区間」でなく「A案がB案より優れる確率85%」を提示でき、Ren の LP AB テスト（Ren 領域）の意思決定速度が 2週間 → 3日に。
+
+10. **Text-to-SQL ゲートウェイ（Vanna AI + Slack Bot）で非エンジニアの直接分析化**
+    - Shun/Akari/Ryota が Slack で「翔星建設の先月応募数を媒体別に」と自然言語質問→内部で BigQuery SQL 自動生成→結果を返すゲートウェイを構築。学習コーパスは dbt Semantic Layer の metrics + `_manifest`（2026-07-02参照）で、Deng への「このデータ取れる？」照会を 週20件 → 3件 に削減。
+
+### 品質10倍改善策（5項目）
+
+1. **データコントラクト v1（Producer合意）を GitHub PR ベースで機械化**
+   - 上流システム（Airwork/GA4 タグ担当）とのスキーマ変更を「事後検知（スキーマハッシュ監視）」から「事前 PR 合意」に格上げ。`data_contract.yaml` に SLA/SLO/カラム意味/PII フラグを明記し、変更は GitHub PR で Producer 承認必須。契約違反は取り込み段階で自動 reject。スキーマ起因インシデントを 月2件 → 0件。
+
+2. **7社共通の Golden Dataset で全 dbt model にリグレッションテスト**
+   - `dbt-audit-helper compare_relations`（2026-06-16参照）を「本番テーブルとの突合」から「バージョン管理された Golden Dataset との突合」に拡張。過去5年分の主要KPI確定値をスナップショット固定し、リファクタ時の 0.5% 差分閾値を再現性ある形で機械検証。「本番と比較」だと本番自体が壊れた時に検知不能な穴を塞ぐ。
+
+3. **PII 検出を静的解析 + LLM で二段化（Presidio + Claude）**
+   - Microsoft Presidio で氏名/電話/メールを正規表現・NLP検出、さらに Claude API で「文脈上のPII」（履歴書のフリーテキスト内の個人特定情報）を検出。pre_publish_check（2026-06-16参照）の PII 露出チェックを、正規表現漏れの盲点まで塞いだ二段構えに。
+
+4. **カオスエンジニアリング演習（Chaos Data Engineering）を四半期実施**
+   - 本番相当のステージング環境で「上流 API が突然 500 を返す」「スキーマが無告知変更」「BigQuery クオータ超過」を意図的に注入し、アラート発火→初動→復旧までを実測。演習ログを Runbook に反映し、実障害時の初動を 15分（2026-05-26参照）→ 5分 に短縮。
+
+5. **データ品質スコアカードを 6軸で定量公表（Completeness/Uniqueness/Timeliness/Validity/Consistency/Accuracy）**
+   - 各テーブルの品質を DAMA-DMBOK 6軸で 0-100 スコア化し、データカタログに常時公表。Shun/Akari は「スコア 90 以上のテーブルだけ」で月次確定レポートを組むルールにし、低スコアテーブルの改善を可視化。品質改善の PDCA が「感覚」から「スコア変化」に。
+
+### 失敗パターン防御（5項目）
+
+1. **失敗: Reverse ETL で分析結果を業務システムに逆流させた際、古いスナップショットで顧客タグを上書きし業務側の最新情報を破壊** → 回避策: Hightouch の Sync に必ず「DWH側 updated_at > 業務側 updated_at」の条件を挿入、ミラー先の最新更新時刻を尊重するマージ戦略を Sync 定義に必須化。フルオーバーライトモードは監査ログ付きで四半期1回のみ許可。
+
+2. **失敗: ストリーミング（Kafka/Debezium）でオフセット管理を誤り、リプレイ時に同一イベントを二重処理して応募数が実数の2倍に** → 回避策: consumer offset を Kafka 側だけでなく DWH 側の `processed_events` テーブルにも記録し、リプレイ時は DWH 側の最終 offset を起点に。べき等キー（2026-06-20参照）を event_id + partition + offset の三点ハッシュで生成し、二重処理を物理排除。
+
+3. **失敗: Semantic Layer で metrics 定義を変更した際、旧定義参照の Looker Studio ダッシュボードが「動くけど数値が違う」状態に** → 回避策: metrics.yml の変更は semantic version（v1.2.3）で管理し、Breaking Change（分母定義変更等）はメジャーバージョンアップ必須、旧バージョンを最低3ヶ月並行提供。全ダッシュボードにバージョンタグを埋め込み、非推奨バージョン参照は毎週 Slack で棚卸し通知。
+
+4. **失敗: MLモデル（Feast/BigQuery ML）を本番投入後、学習時と本番の特徴量分布が乖離（データドリフト）して予測精度が音もなく劣化** → 回避策: Evidently AI で PSI（Population Stability Index）を日次計算、PSI > 0.2 で WARNING・> 0.3 で CRITICAL アラート、再学習トリガー自動化。モデル予測値の統計量（平均・分散・分位数）も日次記録し、突然の分布シフトを検知。
+
+5. **失敗: dbt Mesh でプロジェクトを分割した際、下流プロジェクトが上流の Private model を参照して密結合化** → 回避策: dbt Mesh の `access: public/protected/private` を全 model に明示、`groups` で所有権を明確化。Cross-project 参照は Public model 経由のみ許可、CI で private 参照違反を検出。ドメイン間の契約面（Public model）だけを安定 API とする。
+
+### 新連携パターン（3項目）
+
+1. **Shun × Deng：Semantic Layer 共同設計と「Metrics Council」月次開催**
+   - 月初のペアレビュー（2026-06-04参照）を発展させ、Shun/Haruto/Deng の3名で「Metrics Council」を月次開催。metrics.yml の変更提案・非推奨判定・新規追加を合議制で決定し、決定事項を PR にコミット。Shun の分析定義書と Deng の semantic model が「後から突合」ではなく「同時に生成」される連携に格上げ。
+
+2. **Kaito/Ren × Deng：LP計測タグを「Deng デバッグビュー→Ren 実装」の順に固定**
+   - 現状の「Ren 実装→Deng が公開後汚染チェック」（2026-07-16参照）を反転させ、LP 要件確定時点で Deng が GA4 タグ設計仕様書（イベント名/パラメータ/発火条件）を先出し、Ren はそれに従って実装。デバッグビュー通過をデプロイゲートに組込。汚染検知後の再集計コストを構造排除、Kaito の LP 部の納品品質を底上げ。
+
+3. **Rui × Deng：競合クロールを「調査仮説駆動」で先回り実行**
+   - 現状の「Rui 依頼→Deng 実行」を発展させ、Rui の四半期リサーチ計画（Rui 領域）を月初に共有してもらい、Deng が翌週の必要データ（競合10社の求人・給与・福利厚生）を先回りでクロール・DWH 格納。Rui は着手時点で最新データが揃っている状態から分析着手できる。データ準備のリードタイム 3日 → 0日。
+
+### 数値化KPI（8項目）
+
+| KPI | 現状（2026-08時点想定） | 3ヶ月目標 | 6ヶ月目標 | 測定方法 |
+|---|---|---|---|---|
+| **新規パイプライン構築時間** | 30分（2026-05-26参照） | 15分 | 5分（テンプレ自動生成化） | Git commit → dbt run 成功までの分数 |
+| **CRITICAL アラート初動リードタイム** | 15分（2026-05-26参照） | 8分 | 3分（Runbook自動起動） | Slack alert → 担当者最初のコマンド実行 |
+| **データコントラクト違反インシデント** | 月2件（想定） | 月0.5件 | 月0件 | GitHub Issue「data-contract-violation」ラベル数 |
+| **BigQuery スキャン量（月次）** | 800GB（無料枠内） | 500GB | 300GB（マテビュー/DuckDB移行） | INFORMATION_SCHEMA.JOBS の bytes_processed 月次集計 |
+| **Shun からの「このデータ取れる？」照会数** | 週20件（想定） | 週8件 | 週3件（Text-to-SQL/Semantic Layer） | Slack DM/mention の照会数を Notion で記録 |
+| **データ品質スコアカード平均** | 未計測 | 85点 | 92点 | DAMA-DMBOK 6軸の重み付け平均 |
+| **リアルタイム応募検知遅延** | 24時間（日次バッチ） | 5分 | 30秒（Debezium+Materialize） | 応募DB書込時刻 → BI表示時刻の差分p95 |
+| **AB テスト意思決定リードタイム** | 2週間（頻度論） | 3日（Bayesian） | 1日（早期停止許可） | テスト開始 → 意思決定確定日 |
+
+### 実装ロードマップ（優先順）
+- **Month 1**: dbt Semantic Layer + MetricFlow 導入、Elementary によるオブザーバビリティ、Golden Dataset 整備
+- **Month 2**: Fivetran/Airbyte OSS 二層構成、Reverse ETL（Hightouch）、データコントラクト v1 GitHub PR 化
+- **Month 3**: Debezium + Kafka + Materialize でリアルタイム CDC、Dagster asset-based 段階移行、Text-to-SQL ゲートウェイ β
+- **Month 4-6**: Feast Feature Store、DoWhy/CausalML 因果推論、Bayesian AB、カオスエンジニアリング四半期演習定着
+
+### 連携チーム所信表明
+- **Shun**（分析）: Metrics Council 月次で定義の物理単一化、Semantic Layer を共通言語に
+- **Rui**（リサーチ）: 仮説駆動先回りクロール、Iceberg 共有で二重保管ゼロ化
+- **Kaito/Ren**（LP）: GA4 タグ設計を Deng 先出し、デバッグビュー通過をデプロイゲート化
+- **Akari/Ryota**（クライアント）: Reverse ETL で分析結果を Airwork/HubSpot へ自動流し込み、施策実装リードタイム短縮
+- **sora**（COO/QA）: 3行サマリー（変更点/下流影響/クライアント数値影響、2026-07-16参照）を全納品物先頭に強制

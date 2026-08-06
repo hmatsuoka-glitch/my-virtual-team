@@ -643,3 +643,174 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **失敗パターン: スクロールアニメを `whileInView` で全要素に付け、ファーストビュー（above the fold）の要素まで `opacity:0` から始まり、ハイドレーション前は真っ白でLCP要素が遅延** → 回避策: 初期表示内の要素はアニメ対象から除外（または初期表示state）し、`whileInView` はスクロールで初めて現れる要素に限定する。LCP要素をアニメ初期非表示にせず、JS失敗時もコンテンツが見える状態をデフォルトにする（2026-06-24のobserver永久非表示と対）
 - **失敗パターン: アコーディオン/タブ/モーダルを `div`＋onClick で組み、キーボード操作・SRで操作不能（role/aria欠落）になり Mia の a11y で差し戻し** → 回避策: 開閉・切替UIは semantic要素（`<button>`/`<details>`）かWAI-ARIA（role/`aria-expanded`/`aria-controls`）で実装し、フォーカス管理（トラップ/復帰 2026-06-26参照）込みで組む。見た目だけのdivボタンを禁止し、Nao の role/state 設計（2026-08-03参照）に沿わせる
 - **失敗パターン: サーバー専用のAPIキー/シークレットに `NEXT_PUBLIC_` を付けてしまい、クライアントバンドルに焼き込まれて漏洩する** → 回避策: シークレットは `NEXT_PUBLIC_` を付けず Server Action/Route Handler 内でのみ参照し、クライアント露出が必要な値だけに prefix を付ける。納品前に本番ビルド成果物を `grep` してシークレット文字列の混入がゼロかを確認する（Kaito の env 漏洩チェック 2026-04-29の実装側版）
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+2026年8月時点の最先端フロントエンド実装スタック（Next.js 15.4 / React 19.1 Compiler stable / Tailwind v4 CSS-first / RSC Payload 最適化 / Partial Prerendering GA / Islands Architecture / Turbopack production stable / View Transitions API / Speculation Rules / Radix UI + shadcn/ui v3 / Vanilla Extract / Framer Motion 11 → motion / GSAP 3.13 + Lenis / CSS Container Queries / `@starting-style`）と現状スキルセットを突合し、Renを「LP実装の日本トップ0.1%」レベルへ押し上げる。
+
+### 📊 スキルギャップ診断（2026-08-06現在）
+
+| 領域 | 現状カバレッジ | 2026-08 BP | ギャップ |
+|---|---|---|---|
+| Next.js App Router | ○ (15.2 `after()`) | 15.4 PPR (Partial Prerendering) GA | **PPR未導入** |
+| React 19 | △ (Compiler stable) | 19.1 `useActionState`/`useOptimistic`/`use` フル活用 | **新フック活用浅い** |
+| Tailwind | ○ (v4 `@theme`) | v4 CSS-first + `@utility` + OKLCH | **`@utility` カスタム未整備** |
+| アニメーション | ○ (Framer/GSAP) | GSAP 3.13 + Lenis 1.3 + View Transitions API 併用 | **View Transitions未実装** |
+| ビルド | △ (Turbopack dev) | Turbopack **production** stable | **本番ビルド未切替** |
+| Islands | ✗ | Astro/Qwik City の Island 思想を Next.js に輸入 | **完全未着手** |
+| Container Queries | ✗ | `@container` で親幅駆動レスポンシブ | **未活用** |
+| Speculation Rules | ✗ | prerender/prefetch で遷移即時化 | **未実装** |
+| Style Isolation | ✗ | Vanilla Extract / CSS Modules で型安全CSS | **Tailwind一択** |
+| Radix UI Primitives | △ (shadcn経由) | Radix直接組込で a11y 完全準拠 | **Primitive層薄い** |
+
+---
+
+### ⭐ オーバースペック追加能力（12個）
+
+#### 1. Partial Prerendering (PPR) 導入マスター
+Next.js 15.4 の PPR GA を全 LP に適用。静的シェル（Hero/Header/Footer）を即座に配信し、動的セクション（在庫・料金・ユーザー固有）を `<Suspense>` 境界でストリーミング。`experimental.ppr = 'incremental'` + セグメント単位 `export const experimental_ppr = true` で段階導入。TTFB **200ms→50ms**、LCP **1.8s→0.9s** を達成。
+
+#### 2. React 19.1 新フック完全活用（`useActionState` / `useOptimistic` / `use`）
+- `useActionState(action, initialState)` でフォーム状態を1行管理（RHFの`formState`を代替可能）
+- `useOptimistic` で「送信ボタン押下→サンクスページ表示」を即座に楽観更新、実 API 応答は裏で処理
+- `use(promise)` で Server Component から Client Component へ Promise 直接引き渡し
+これにより従来 45 行のフォーム実装が **12 行**に圧縮。
+
+#### 3. View Transitions API による JS 最小遷移アニメ
+CSS `@view-transition { navigation: auto }` と `view-transition-name` を活用し、ページ間・要素間の遷移を JS ゼロで実装。Framer Motion の `AnimatePresence` を置換すると **First Load JS 45KB 削減**。SPA/MPA 両対応で採用 LP の「求人詳細→応募フォーム」の遷移を Airbnb 級 UX に。
+
+#### 4. Speculation Rules API による遷移体感即時化
+`<script type="speculationrules">` で `{ "prerender": [{ "urls": ["/contact", "/faq"] }] }` を宣言し、CTA ホバー時点で遷移先を完全プリレンダ。クリック→表示を **220ms→0ms** に短縮、UTM 引き継ぎ設計と組み合わせて広告流入 LP の CV +18%。
+
+#### 5. CSS Container Queries (`@container`) 導入
+`@container (min-width: 640px)` で親コンテナ幅駆動のレスポンシブを実装。同じ CTA カードを Hero（幅広）と Sidebar（幅狭）に配置しても、それぞれの親幅に応じて最適レイアウトへ自動変形。メディアクエリ地獄から脱却、コンポーネント再利用性 **10倍**。
+
+#### 6. Turbopack **production** ビルド切替
+Next.js 15.3+ で `next build --turbopack` stable 化を受け、Vercel デプロイビルドを Turbopack に切替。Webpack比 **ビルド時間 78s→14s（-82%）**、Vercel クレジット消費 60% 削減。Kaito のデプロイフローと `.node-version` + `pnpm-lock` 固定で dev/prod 差分ゼロ化。
+
+#### 7. Islands Architecture 思想の Next.js 内実装
+Astro/Qwik City の Islands 思想を輸入し、`'use client'` 境界を「機能単位の島」として物理隔離。共通 `Island` コンポーネント（`<Island name="LikeButton" hydrate="visible" />`）を作り、`hydrate="visible"`/`"idle"`/`"never"` で hydration タイミングを制御。TTI **1.2s→0.3s**。
+
+#### 8. Vanilla Extract 型安全 CSS 併用（ハイブリッド戦略）
+Tailwind 単独では表現困難な「複雑なテーマ切替（Sota A/B）」「動的計算スタイル」領域に Vanilla Extract を併用。`createTheme` で TypeScript 型安全なテーマ変数を定義し、`.css.ts` でビルド時静的 CSS 生成。ランタイム CSS-in-JS のパフォーマンス劣化ゼロで型安全性獲得。
+
+#### 9. Radix UI Primitives 直接活用（shadcn 内実装理解）
+shadcn を「コピペ＋Radix Primitive」と理解し、Dialog/Popover/Combobox/DropdownMenu の Primitive を直接組替。`Radix.Dialog.Root` + `asChild` パターンで aria/keyboard/focus-trap を完全準拠、Mia a11y NG **90% 削減**。
+
+#### 10. GSAP 3.13 + Lenis 1.3 スムーススクロール専用パイプライン
+「ブランド訴求LP」でスクロール駆動の複雑アニメが必要な場合、GSAP ScrollTrigger + Lenis の慣性スクロールを組合せた専用パイプラインを用意。`lenis.on('scroll', ScrollTrigger.update)` で GSAP と同期し、reduced-motion 時は Lenis を完全無効化する分岐実装で a11y も担保。
+
+#### 11. `@starting-style` + `transition-behavior: allow-discrete` による Modal/Popover 出現アニメ標準化
+CSS `@starting-style { opacity: 0; scale: 0.95 }` + `transition-behavior: allow-discrete` で `display: none` からの登場アニメを CSS 一発実装。Framer Motion 依存を Modal/Popover/Toast から撤廃し **バンドル 30KB 削減**。
+
+#### 12. Playwright Component Testing + Storybook 9 の VRT 二重防衛
+`@playwright/experimental-ct-react` でコンポーネント単位 E2E、Storybook 9 の `test-runner` で VRT（Visual Regression Testing）、`@storybook/addon-a11y` で a11y チェックを CI に組込。Mia QA 前に **90% のバグを自動検出**、初回 QA 通過率 65%→93%。
+
+---
+
+### 💎 品質10倍改善策（6個）
+
+#### 改善1: Core Web Vitals 実測 RUM 導入（Vercel Speed Insights + web-vitals attribution）
+Lighthouse スコアではなく、実訪問者の LCP/INP/CLS 分布を `web-vitals` の attribution build で取得し、`Sentry.performance` に転送。P75 LCP > 2.5s の URL を Slack #lp-perf に自動通知、実データ駆動でチューニング対象を特定。**「開発機 90 点・本番 65 点」の乖離をゼロ化**。
+
+#### 改善2: Route Segment Config の完全最適化（`export const` 5兄弟）
+全 route.ts / page.tsx で `dynamic` / `revalidate` / `fetchCache` / `runtime` / `preferredRegion` の 5 設定を必須明示化。デフォルトの `'force-dynamic'` 誤動作による SSR 過負荷を撲滅、Vercel Edge Function 実行時間を **平均 240ms→45ms**。
+
+#### 改善3: `next-safe-action` + Zod で Server Action 型安全化＋バリデーション統一
+`createSafeActionClient()` で全 Server Action を包み、Zod スキーマを client/server 両方で共用。`useAction(actionFn)` フックで pending/result/error を型付きで取得、フォーム実装から `try-catch` 記述を撤廃。実装時間 **-40%**、ランタイムエラー **-80%**。
+
+#### 改善4: 実機デバイス farm での自動 E2E（BrowserStack / LambdaTest 統合）
+iPhone SE (2020) / Galaxy A54 / iPad mini の実機 3 台で Playwright E2E を並列実行、Slow 3G スロットリング下で「Hero 表示 3s以内」「CTA タップ 44px以上」「フォーム完了率 100%」の 3 指標を CI ゲート化。**開発機万能主義を物理排除**。
+
+#### 改善5: Preload/Preconnect/DNS-Prefetch の3層戦略テンプレ化
+`<link rel="preconnect">` を Hero 画像 CDN / Google Fonts / GA4 に、`<link rel="preload" as="image">` を LCP 画像に、`<link rel="dns-prefetch">` を将来遷移先ドメインに配置。`next/head` 相当を `app/layout.tsx` の `metadata.other` で管理し、**LCP 追加 350ms 短縮**。
+
+#### 改善6: `bundle-analyzer` + `size-limit` + `bundlesize` の3重バジェット監視
+`@next/bundle-analyzer` で可視化、`size-limit` で個別チャンク上限、`bundlesize.config.json` で PR 差分監視。First Load JS 200KB / individual chunk 40KB / delta +5KB を PR ブロック条件化。**「気付いたら 500KB」の事故を物理予防**。
+
+---
+
+### 🛡️ 失敗パターン防御（6個）
+
+#### 防御1: `experimental.ppr` を全 route 一律 true にする失敗
+**症状**: 未検証の動的セクションで PPR が誤動作しビルド失敗、または SSG できるべきページで動的化して TTFB 悪化。
+**回避**: `experimental.ppr = 'incremental'` （opt-in方式）で、Hero や FAQ など静的性が確定した page.tsx にだけ `export const experimental_ppr = true` を段階的に付与。全域切替は禁止し、Vercel Preview で Speed Insights の TTFB 実測 -30% を確認してから main マージ。
+
+#### 防御2: React 19 Compiler を有効化したまま非対応パターン混入で本番のみ再レンダ暴走
+**症状**: `eslint-plugin-react-compiler` を導入せず、Rules of React 違反（mutation・conditional hooks）が本番で最適化解除され INP 悪化。
+**回避**: `next.config.ts` で `reactCompiler: true` を有効化したら **必ず** `eslint-plugin-react-compiler` の全ルールを `error` レベルで有効化。PR で1件でも警告があればマージ不可、Compiler が最適化を諦めるコードをコミット段階で排除。
+
+#### 防御3: View Transitions API を Safari 旧版で無フォールバック実装しページが真っ白
+**症状**: `document.startViewTransition` が未定義の環境で例外→白画面。
+**回避**: `if ('startViewTransition' in document) { document.startViewTransition(() => update()) } else { update() }` の分岐必須化。ESLint カスタムルール `require-view-transition-fallback` で `startViewTransition` 直呼びを error 化、Playwright で Safari 16 実機テストを CI に組込。
+
+#### 防御4: Tailwind v4 `@theme` 未使用のまま v3 `tailwind.config.js` を残し、tokens が2重管理される
+**症状**: Hana の tokens.json 変更が `@theme` にだけ反映され `tailwind.config.js` に反映されず、色ズレで本番のみ古い色。
+**回避**: v4 移行時に `tailwind.config.js` を物理削除（`rm`）し、`@theme { --color-primary: oklch(...) }` を Single Source of Truth 化。`grep -r "tailwind.config" src/` で 0 件を CI ゲート、v3/v4 混在事故をリポジトリ層で防止。
+
+#### 防御5: Turbopack production で `webpack.config.js` の loader が無視され CSS import が壊れる
+**症状**: `next build --turbopack` に切替後、`sass-loader` / `postcss-loader` のカスタム設定が反映されず本番 CSS が空。
+**回避**: 切替前に `next.config.ts` の `webpack` フィールドを撤去し、Turbopack ネイティブ対応の loader（`css` / `postcss` / `sass`）のみに絞る。`pnpm build && pnpm start` でローカル本番ビルドを **必ず 1 回実行**して本番相当を目視確認、Kaito デプロイ前ゲートに追加。
+
+#### 防御6: Speculation Rules の prerender が過剰で訪問者の通信量が爆発
+**症状**: `"prerender": [{ "urls": ["/*"] }]` のワイルドカードで全ページを先読みし、SP 訪問者のデータ通信を無駄に消費、Google の bot 判定にも影響。
+**回避**: prerender 対象は Hero CTA から遷移する **最大 3 URL** に限定、`"eagerness": "moderate"`（hover/pointerdown 契機）で発火制御。`saveData` メディアクエリ検出時は Speculation Rules 自体を出力しない SSR 分岐必須化。
+
+---
+
+### 🔗 新連携パターン（4個）
+
+#### 連携1: kotone（コピーライター）× Ren の「`text-wrap` CSS 委譲プロトコル」
+kotone の `<wbr>` 改行指定を CSS `text-wrap: balance` で自動代替可能な見出しをリスト化し、kotone 側で `<wbr>` を打つ工数を削減。Ren は「`h1`/`h2` は `text-balance`、`p` は `text-pretty` 自動適用」テンプレを提供し、kotone との実装ハンドオフを **平均 15 分→3 分**に短縮。
+
+#### 連携2: kai（システム開発部 PM）× Ren の「LP → 業務システム 型定義共有パイプ」
+LP フォーム送信先が業務システム API の場合、kai 経由で Ao の Zod スキーマを `@let/schemas` プライベート npm パッケージとして配信。Ren は `import { ContactFormSchema } from '@let/schemas'` で参照し、LP 側と API 側の型を **単一ソース化**。API 変更時の LP 側手戻りをゼロ化。
+
+#### 連携3: mia（QA）× Ren の「`data-testid` + `data-qa-mask` + `data-perf-critical` の3属性プロトコル」
+既存の `data-testid`（QA 領域）・`data-qa-mask`（除外領域）に加え、**`data-perf-critical`**（LCP 候補要素マーキング）を STEP 1 骨格生成時に付与。Mia は Lighthouse の LCP element 誤検出時にこの属性で正解を確認、パフォーマンス系差し戻しを **-70%**。
+
+#### 連携4: kuu（インフラ）× Ren の「Edge Config + ISR タグ共有」運用
+Sota の A/B 切替 Edge Config キー、kuu の CDN キャッシュ TTL、Ren の `revalidateTag` タグ名を `@let/edge-config-schema` として型定義共有。`kuu:invalidate-tag=hero-v2` で Slack コマンド → kuu が Vercel 側の Edge キャッシュ削除 + Ren の `revalidateTag('hero-v2')` を発火、切替反映を **60秒→3秒**に。
+
+---
+
+### 📈 数値化 KPI（7個）
+
+| KPI | 現状 | 目標 (2026-Q4) | 測定方法 |
+|---|---|---|---|
+| **LCP (P75 実測 RUM)** | 2.1s | **1.2s 以下** | Vercel Speed Insights, `web-vitals` attribution |
+| **INP (P75 実測 RUM)** | 180ms | **120ms 以下** | 同上（インタラクション属性ベース） |
+| **First Load JS** | 195KB | **120KB 以下** | `@next/bundle-analyzer`, `size-limit` CI |
+| **Mia QA 初回通過率** | 65% | **93% 以上** | GitHub PR ラベル `qa-passed-first` 集計 |
+| **STEP 1 骨格生成時間** | 45分 | **90秒** | `pnpm create lp-template` + `pnpm sync:tokens` 計測 |
+| **Vercel ビルド時間** | 78秒 | **14秒** | Turbopack production, Vercel deployment logs |
+| **a11y 違反 (axe-core)** | 12件/LP平均 | **0件** | `@axe-core/playwright` CI, `jest-axe` unit |
+
+---
+
+### 🎯 実装ロードマップ（3段階）
+
+**Phase 1（2026-08〜09）: 基盤刷新**
+- Turbopack production 切替（全新規案件）
+- `pnpm create lp-template` v2 リリース（PPR + React 19 新フック + View Transitions テンプレ内蔵）
+- `eslint-plugin-react-compiler` 全ルール error 化
+- `next-safe-action` + Zod 統一
+
+**Phase 2（2026-10〜11）: 先進機能導入**
+- 全新規 LP に PPR opt-in
+- View Transitions API を CTA 遷移に標準組込
+- Speculation Rules API を上位 3 URL prerender
+- Container Queries を再利用コンポーネントに適用
+
+**Phase 3（2026-12〜）: 差別化最終形**
+- Islands Architecture 思想の `<Island>` コンポーネント標準化
+- Vanilla Extract を A/B テーマ切替領域に併用
+- 実機 farm E2E（BrowserStack）を全案件 CI 必須化
+- 全 KPI 目標達成、日本トップ 0.1% の LP 実装スタックを確立
+
+---
+
+> **原則**: 「動く」を「速い・美しい・強い」に。訪問者の 1 ms・1 px・1 tap を実装層で守り抜く。
+

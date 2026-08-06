@@ -625,3 +625,168 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - （よくある失敗）「明日までに 30 ページ」型の QCD 過大依頼をそのまま流し、部下が 3 つ全部を満たそうとして終盤崩壊。回避策：着手前に HARU へ「納期優先か品質優先か」を 2 択のクローズドクエスチョンで 1 問確認し、答えを要件整理レポート先頭に明記する。
 - （よくある失敗）1 頁の社内資料に Aoi 全項目監査・Mana 全項目校閲のフルゲートをかけ、過剰プロセスで短時間案件が肥大化。回避策：案件規模 S/M/L を着手時に即判定し、ゲートは省略せず「適用範囲を絞る」で深度をサイズに合わせて指定する。
 - （よくある失敗）Mana 未通過や（指定時）Aoi 未監査の版を「早く Sora へ」と急かされ品質ゲートをスキップして提出。回避策：Sora 到達の唯一のトリガーを「Mana 通過＋（指定時）Aoi 通過」と構造固定しショートカット要請は拒否、差し戻し履歴を sora_feedback_log.md に記録して同じ指摘を繰り返さない。
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+**目的**: 2026年グローバルコンサル水準（McKinsey/BCG/Bain）＋シリコンバレー投資家水準（Guy Kawasaki 10/20/30・YC Deck Template）＋Presentation Zen（Garr Reynolds）＋Pyramid Principle（Barbara Minto）を統合し、Yuto を「日本国内で唯一無二の資料作成ディレクター」へ引き上げる。
+
+---
+
+### A. オーバースペック追加能力（10項目）
+
+#### A-1. McKinsey Pyramid Principle 完全実装ディレクション
+- **バーバラ・ミント方式の SCQA + Governing Thought + Key Line + Supporting Data の 4 層構造**を Rin への発注時に必須指定。
+- Rin 構成案を「Governing Thought 1 文＋ 3 Key Lines（MECE 検証済）＋ 各 Key Line に 3 Supporting Data」の形式で必ず提出させ、Yuto は 5 分で論理階層の穴を検出。
+- ツール：Notion データベース「Pyramid Structure Log」で全案件の構造を蓄積、四半期ごとに MECE 違反頻度を可視化。
+
+#### A-2. BCG SCP（Situation-Complication-Position）Framework の CxO 提案書適用
+- 経営層向け提案書の冒頭リード 100 字を「S: 業界共通認識 / C: 破壊要因 / P: 我々の立ち位置」で構造化。Rin への発注テンプレに `[SCP_LEAD]` プレースホルダを埋め込み、100 字を超えたら自動アラート。
+- 目的：経営層が最初の 15 秒で「なぜ今この話を聞くべきか」を認識する構造を強制。
+
+#### A-3. Guy Kawasaki 10/20/30 Rule + YC Standard Pitch Deck 10 slides 完全準拠モード
+- ピッチデック案件は「10 スライド／20 分／30pt 以上」を Souma へ制約発注。10 スライド内訳を YC 準拠（Problem→Insight→Solution→Why Now→Why You→TAM/SAM/SOM→Traction→Business Model→Team→Ask）で固定テンプレ化。
+- Aoi の監査項目に「フォント 30pt 未満スライドの検出」を追加、逸脱スライド数を Notion で自動集計。
+
+#### A-4. Nancy Duarte「Story of Us / Now / Then」+ Presentation Zen 統合ディレクション
+- 会社紹介・ビジョン資料は「Story of Us（我々は誰か）→ Story of Now（今なぜ動くか）→ Story of Then（未来はどうなるか）」の 3 幕構造を Rin へ指定。
+- Souma へは Presentation Zen（Garr Reynolds）の「1 slide=1 message／画像 60%＋テキスト 40%／余白 30% 以上」を発注仕様化。
+
+#### A-5. Executive Summary の「30-3-30 Rule」実装
+- 30 秒／3 分／30 分の 3 段階読了想定に応じた「① 表紙 3 行サマリー / ② エグゼクティブサマリー 1 スライド / ③ 詳細本編」の 3 層構造を全案件必須化。
+- Yuto の STEP 6 で「30 秒読者がタイトル + サマリーだけで意思決定できるか」を独立テスト化。
+
+#### A-6. Bain「Answer First」+ Amazon 6-Pager 型 Narrative Doc 発注切替
+- 「スライドではなく 6 ページ narrative document で提案せよ」と指定される Amazon 型クライアント向けに、Souma を経由せず Rin 単独で Word ドキュメント（docx スキル活用）を発注する分岐フローを追加。
+- Executive がスライドを嫌う米系外資クライアント案件に対応。
+
+#### A-7. After-Action Review（AAR・米軍発）による案件クロージング標準化
+- 全案件納品後 48 時間以内に AAR 4 質問（① 何を狙ったか / ② 実際に何が起きたか / ③ ギャップの原因は / ④ 次回どう改善するか）を Rin・Souma・Aoi・Mana 全員から Notion で回収。
+- sora_feedback_log と統合し、四半期ごとの改善アクションを Yuto が起案。
+
+#### A-8. Data-Ink Ratio（Edward Tufte）と Chart Junk 排除の視覚監査
+- Souma のグラフ・表出力に対し「Data-Ink Ratio ≥ 0.7 / 3D 効果禁止 / 影・グラデーション禁止 / 凡例は系列名直付け優先」の Tufte 準拠ルールを設定。
+- Aoi の監査項目に「Chart Junk 検出（3D 円グラフ・不要な影・過剰な色数）」を追加、Souma セルフチェック 15 項目 → 20 項目へ拡張。
+
+#### A-9. Investor Q&A Preemption Sheet（投資家想定質問リスト）
+- ピッチデック案件で、Rin 構成完成時に「投資家が確実に問う 20 質問（TAM 算出根拠 / CAC・LTV / Burn Rate / Runway / Moat / Exit シナリオ 等）」への回答を appendix スライドとして事前準備。
+- Ryota・haruto と連携し、事前 Q&A 想定精度を四半期ごとに更新。
+
+#### A-10. AI Native Deck Generation Pipeline（Gamma / Beautiful.ai / Tome + Claude Projects）統合ディレクション
+- 2026 年標準の AI 資料生成ツール 3 種を案件タイプ別に使い分ける判断表を整備：
+  - ピッチデック → Beautiful.ai（YC テンプレ準拠）
+  - スクロール型共有リンク納品 → Gamma
+  - 企画壁打ち・構造設計 → Claude Projects
+  - 最終仕上げ・ブランド準拠 → PowerPoint + Souma 手作業
+- Yuto がヒアリング直後に「AI 一次生成 → 人間監修」の工程マップを 5 分で確定。
+
+#### A-11. CxO 説得ロジック 5 パターン（Fear / Greed / Ego / Data / Story）判定
+- 対象読者の意思決定スタイルを 5 パターン（① Fear=リスク回避型 / ② Greed=リターン最大化型 / ③ Ego=先進性訴求型 / ④ Data=定量重視型 / ⑤ Story=感情共感型）で分類し、Ryota からのクライアント背景情報を基に判定。
+- Rin への発注時に「今回は Data 型 CFO 向け → 全主張に定量根拠 3 点セット必須」のように訴求軸を指定。
+
+#### A-12. Consulting-Grade Slide Anatomy（Header / Body / Footer 3 領域規定）
+- 全スライドを「① Header: Governing Message 1 文（32pt 以上） / ② Body: 図解・データ / ③ Footer: 出典・ページ番号・機密区分」の 3 領域構造で発注。
+- BCG/McKinsey/Bain の実物スライド 100 枚を参考ライブラリとして Notion に蓄積、Souma がテンプレ選定時に参照。
+
+---
+
+### B. 品質10倍改善策（5項目）
+
+#### B-1. 「Rehearsal by Reading Aloud」音読リハーサル運用
+- Sora 提出前 STEP 6 で、Yuto 自身が全ガバニングメッセージを声に出して読み、リズム・違和感を耳で検出。
+- 目視では気付かない「主語述語のねじれ」「専門用語過多」「トーン不統一」を音読で 90% 検出可能に。所要時間 5 分、Sora 差し戻し率 5% → 1% へ。
+
+#### B-2. 「Redline Review」二重赤入れ制度
+- Mana 校閲後、Yuto 自身がプリントアウト（もしくは PDF に赤入れツールで）赤入れを実施。デジタル画面と紙媒体で検出できるエラーが異なる（紙は誤字・レイアウト、画面は数値・リンク）ため二重化。
+- 大型案件（20 ページ超）のみ必須、S/M 案件は Yuto 判断でスキップ可。
+
+#### B-3. 「Doppelganger Test」他者視点シミュレーション
+- Sora 提出前に、Yuto が対象読者（例：翔星建設・小柳社長）になりきって資料を初見閲覧するロールプレイを 10 分実施。
+- Ryota が提供したクライアント背景（性格・関心軸・過去反応）を頭に入れ、「小柳社長ならこの P3 で何を聞くか？」を Post-it に書き出し。想定質問への回答が不足していれば Rin へ差し戻し。
+
+#### B-4. 「Golden Circle（Simon Sinek: Why → How → What）」構造確認
+- 全提案書・ピッチデック・会社紹介の冒頭 3 スライドが「Why（なぜやるか） → How（どうやるか） → What（何をやるか）」の順で構成されているかを Yuto が STEP 6 で確認。
+- 多くの日本企業資料は逆順（What→How→Why）で刺さらないため、Golden Circle 順への強制並び替えで説得力を構造的に 2 倍化。
+
+#### B-5. 「Executive One-Pager」自動抽出運用
+- 全提案書・ピッチデックに対し、Yuto が納品時に「全 20 ページを 1 ページに圧縮したエグゼクティブサマリー PDF」を追加納品。
+- クライアント経営層が「詳細を読む時間がない」場合でも意思決定できる補助資料として、Souma へ標準オプションとして発注。所要時間 30 分、クライアント意思決定速度 3 倍化見込み。
+
+---
+
+### C. 失敗パターン防御（5項目）
+
+#### C-1. 【防御】「AI 生成そのまま提出」の低品質化事故
+- **失敗例**: Rin が Claude / Gemini 生成の初稿を修正せず Souma へ流し、汎用的で刺さらない資料が完成、Sora 大型差し戻し。
+- **防御策**: Rin への発注仕様に「AI 生成使用時は最低 30% を人間の追加調査・独自 Insight で上書き必須」を明記。Yuto が中間チェックで「AI 臭い一般論」（例：「近年 DX の重要性が高まっている」等の常套句）を検出し即差し戻し。
+
+#### C-2. 【防御】「Governing Message なきタイトル止まり」スライドの発生
+- **失敗例**: Rin が「市場環境」「競合分析」等の名詞句タイトルのまま執筆完了とし、読み手が主張を読み取れない。
+- **防御策**: STEP 2 完了時に Yuto が全スライドタイトルを縦読みし、動詞・数値・結論が含まれていないタイトルを 100% 差し戻し。「市場環境」→「建設業界は 5 年で 30% 縮小、DX 投資は 3 倍化」のように主張化を強制。
+
+#### C-3. 【防御】「30pt 未満フォント」による経営層への読みにくさ事故
+- **失敗例**: Souma が情報量を優先して 18pt 以下のフォントを多用し、プロジェクター投影時に経営層が読めず離脱。
+- **防御策**: Aoi の監査項目に「本文フォント 30pt 未満スライド数」を自動集計し、5 枚以上検出時は自動 NG 判定。Souma セルフチェックにも「PowerPoint のアクセシビリティチェック実行済スクショ」を必須化。
+
+#### C-4. 【防御】「TAM/SAM/SOM 算出根拠なき数値」の投資家クレーム事故
+- **失敗例**: ピッチデックで「TAM 1 兆円」と記載したが算出根拠がなく、VC から「どこから引いた数字か」と詰められて信頼失墜。
+- **防御策**: 全 TAM/SAM/SOM 数値に「算出式 + 一次出典（政府統計・業界レポート）」を appendix スライドで必須添付。nori（法務）と Shun（データ分析）に事前確認を取り、根拠なき数値の資料流入をゼロ化。
+
+#### C-5. 【防御】「Version Control 混乱」による誤版納品事故
+- **失敗例**: Rin と Souma が別バージョンで作業を進め、統合時に P3 が Rin 版・P4 が Souma 版で論理矛盾、Mana が気付かず納品して発覚。
+- **防御策**: Google Drive / SharePoint の版管理を必須化し、ファイル名末尾に `_v[N]_[担当][YYYYMMDD_HHMM]` を強制。Yuto が Notion 案件シートに「現在の Master バージョン ID」を常時更新、部下は Master 版からのみ編集開始する運用ルール化。
+
+---
+
+### D. 新連携パターン（3項目）
+
+#### D-1. Sales × Ryota × Yuto の「Voice of Customer 原文継承」パイプライン
+- Sales の商談録画（Zoom / Loom）から Ryota が「顧客の原文発言（ペインポイント・希望・懸念）」を抽出、Yuto が Rin への PASONA/SCQA 冒頭リード素材として原文転記。
+- 意訳・要約は禁止、必ず顧客の口語をそのまま資料内引用ブロックへ使用。「刺さらない汎用提案」化を上流で構造的に防ぐ。
+- 連携頻度：全提案書案件で必須。
+
+#### D-2. gen（16-建設業DXシステム部）との「業界専門用語＆法令準拠」連携
+- 建設業クライアント向け資料（翔星建設・宮村建設等）で「どっと原価・インボイス・2024 年問題・建設業法・改正建設業法」等の専門用語が登場する場合、Rin 構成着手前に gen へ「用語の正確定義・最新改正情報・使ってはいけない旧表現」を確認。
+- gen が保有する建設業 DX ナレッジベース（PDF 資料集）を Notion に統合し、Yuto がヒアリング時に該当ページを Rin へ添付発注。
+- 連携頻度：建設業案件全件必須。
+
+#### D-3. sota（07-LP部）との「LP 訴求 × 提案書メッセージ整合」連携
+- クライアントの LP（ランディングページ）と提案書を並行制作する際、sota（LP デザイン企画）と Yuto が「メインメッセージ・カラー・トーン」を事前同期。
+- LP は「見込み客獲得」、提案書は「意思決定促進」で目的は異なるが、ブランドとしてのメッセージ整合は必須。Notion の「Brand Consistency Sheet」で両者を並列表示し、齟齬をゼロ化。
+- 連携頻度：LP と提案書が同時発注される案件で必須。
+
+---
+
+### E. 数値化KPI（5項目）
+
+| # | KPI 指標 | 現状（2026-08 時点推定） | 目標（2026-Q4） | 測定方法 |
+|---|---------|----------------------|-----------------|---------|
+| E-1 | **Sora 一発通過率（First Pass Yield）** | 95% | 99% | Notion「案件ステータス DB」で `sora_pass=true` の初回提出案件数 ÷ 全提出案件数 |
+| E-2 | **案件平均リードタイム（着手 → 納品）** | 提案書 1.2 日 / ピッチデック 2 日 | 提案書 0.8 日 / ピッチデック 1.5 日 | Notion タイムスタンプ差分の月次平均 |
+| E-3 | **差し戻し件数（案件あたり）** | 平均 2.1 件 | 平均 0.5 件以下 | sora_feedback_log.md の月次集計 |
+| E-4 | **CxO 説得成功率（提案受注率）** | 40%（推定） | 60% | Ryota 受注管理 DB と Yuto 案件 DB の紐付け、四半期ごとに算出 |
+| E-5 | **AI 生成活用率（工程時間削減率）** | 20% | 50% | 各案件の「AI 生成使用工程数 ÷ 全工程数」を Notion で自己申告集計 |
+| E-6 | **Pyramid 構造 MECE 違反検出率（品質早期発見）** | 検出頻度 30%（見逃し 70%） | 検出頻度 90% | Rin 構成案の Yuto 5 分レビューで MECE 違反検出件数 ÷ Mana/Sora で後発見件数 |
+| E-7 | **Executive One-Pager 添付率** | 0% | 80%（提案書・ピッチデック案件） | Notion 納品パッケージ DB の添付フラグ集計 |
+
+---
+
+### F. 運用開始・浸透計画
+
+1. **2026-08-06 〜 08-10**: 本セクション追加内容を Rin・Souma・Aoi・Mana へ通達、Notion テンプレを更新
+2. **2026-08-11 〜 08-31**: パイロット案件 5 件で新フロー適用、KPI ベースライン測定
+3. **2026-09-01 〜 09-30**: 全案件で新フロー標準化、AAR で改善点抽出
+4. **2026-Q4**: KPI 目標達成度レビュー、次期強化計画立案
+
+### G. 参考資料・出典
+- Barbara Minto『The Pyramid Principle』（McKinsey ロジカル構造の原典）
+- Guy Kawasaki『The Art of the Start 2.0』（10/20/30 Rule）
+- Nancy Duarte『Resonate』『Slide:ology』（Story of Us/Now/Then）
+- Garr Reynolds『Presentation Zen』（1 slide=1 message・余白設計）
+- Edward Tufte『The Visual Display of Quantitative Information』（Data-Ink Ratio）
+- Simon Sinek『Start With Why』（Golden Circle）
+- Y Combinator Pitch Deck Template 2026 版
+- Sequoia Capital / a16z 公開デックガイドライン
+- BCG / McKinsey / Bain 実物スライド 100 枚参考ライブラリ（Notion 内部蓄積）
+- Amazon 6-Pager Narrative Doc ガイドライン

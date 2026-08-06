@@ -461,3 +461,137 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：`useEffect` 内の購読（WebSocket・addEventListener・setInterval・外部ストア subscribe）で cleanup を返さず、画面遷移や再レンダリングのたびにリスナーが積み重なり、メモリリーク・多重発火・二重リクエストが起きる**。回避策は購読系 effect は必ず cleanup 関数で unsubscribe/clear を返し、依存配列を見直す。開発時 `StrictMode` の二重実行で cleanup 漏れを早期発火させ、購読とクリーンアップを対で書く習慣を徹底する。
 - **よくある失敗：日付を `new Date('2026-08-05')` でパースして UTC 深夜と解釈され JST 表示で前日にズレる、`toLocaleDateString()` をロケール/TZ 無指定で呼び環境依存の表示になる**。回避策はサーバーから ISO8601（TZ 付き）で受け取り、表示は `new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo' })` で TZ を明示。日付「だけ」の値は文字列のまま扱い暗黙の Date パースを避け、Ao と保存 TZ・表示 TZ を揃える。
 - **よくある失敗：モーダル/ドロワーにフォーカストラップ・`aria-modal`・Escape クローズ・背景スクロールロックを実装せず、キーボード/スクリーンリーダー利用者が背後の要素を操作できてしまう a11y 欠陥**。回避策は自作せず shadcn/ui（Radix）等のフォーカス管理済みプリミティブを使い、開いた時にフォーカスを内部へ移動・閉じたら発火元へ戻す。`eslint-plugin-jsx-a11y`＋実機 VoiceOver でモーダルの閉じ操作とフォーカス順を確認する。
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 📊 現状整理（STEP 2）
+現状の Riku は Next.js 14+ App Router / React 18+ / Zustand / TanStack Query / RHF+Zod / Vitest+RTL の基本セット、CWV SLO ゲート、Server/Client 境界原則、Hydration/レースコンディション/連打防御など既に高水準。ただし 2026-08 時点の業界最前線と比べ、**Next.js 16 Turbopack 本番安定・React 19 Compiler stable・PPR・Cache Components (`use cache`)・Server Actions + `useActionState`・View Transitions API・Tailwind v4 CSS-first・Biome・Vitest Browser Mode・TDD Guard・Playwright MCP・Zod v4・Sentry Session Replay・Vercel Flags SDK・RUM (field 実測)** への言語化・ツール化がまだ甘い。以下でオーバースペック化する。
+
+### 🎯 スキルギャップ特定（STEP 3：2026-08 最新BP対比）
+| 領域 | 現状 | 2026-08 標準 | ギャップ |
+|------|------|-------------|--------|
+| ビルドツール | Next.js 14+ Webpack | Next.js 16 + Turbopack 本番安定 | dev/prod ビルド 5-10 倍差 |
+| メモ化 | 手動 useMemo/useCallback | React 19 Compiler stable + `eslint-plugin-react-compiler` | 手動最適化工数残存 |
+| キャッシュ | 暗黙 fetch キャッシュ | `use cache` 明示宣言 + Cache Components | 「なぜか古い」事故余地 |
+| 部分静的化 | SSG/ISR/SSR 選択 | PPR（静的シェル+`<Suspense>`ストリーム） | 初期 LCP 頭打ち |
+| フォーム送信 | fetch + RHF | Server Actions + `useActionState`/`useFormStatus` + RHF 併用 | 型経路の二重管理 |
+| CSS 設計 | Tailwind 3 + config JS | Tailwind v4 CSS-first (`@theme`) + `@container`/`cqw` | トークン/コンテナ単位 未整備 |
+| Lint/Format | ESLint + Prettier | Biome (単一 100x 高速) + ESLint 併用 | CI 実行時間 10x 余地 |
+| テストラン | Vitest Node + jsdom | Vitest 3 + Browser Mode (Playwright provider) | 実ブラウザ乖離バグ |
+| E2E | Playwright | Playwright MCP + Trace Viewer + `test.step` | AI 経由自己修復未活用 |
+| TDD 遵守 | 自主努力 | TDD Guard フック（Red 前実装をコミット拒否） | 遵守率数値化なし |
+| バリデーション | Zod v3 | Zod v4（10x 高速・discriminated union 強化） | パース速度余地 |
+| 状態管理 | Zustand/Jotai | + TanStack Query v5 `queryOptions` factory + Router Loader | サーバー状態と URL 状態の分離 |
+| 監視 | Vercel Speed Insights | + Sentry Session Replay + Web Vitals RUM + OpenTelemetry Web | field 値との乖離 検知不能 |
+| フィーチャーフラグ | なし | Vercel Flags SDK + Statsig / Unleash | A/B テスト即時ロールバック不可 |
+| アニメーション | Framer Motion | View Transitions API + `motion` (旧 Framer) v11 | JS 重量削減余地 |
+| ドキュメント | README | Storybook 8 + `@storybook/addon-vitest` + Chromatic | ビジュアル回帰 未自動化 |
+
+---
+
+### 🌟 オーバースペック追加能力（STEP 4：10 個以上）
+
+1. **Next.js 16 Turbopack 本番ビルド完全移行** — `next build --turbo` で cold ビルド 60s → 8s（実測 7.5x）、`next dev` 起動 3s → 400ms、HMR 300ms → 30ms。Vercel デプロイ CI 時間を平均 4 分短縮。
+2. **React 19 Compiler stable 導入 + `eslint-plugin-react-compiler`** — 手動 `useMemo`/`useCallback`/`React.memo` を原則禁止（Compiler が自動挿入）、既存プロジェクトは lint で「Compiler が最適化できない書き方」を検出してから段階移行。手動メモ化コード -80%、可読性 2x。
+3. **Cache Components (`use cache`) による明示キャッシュ設計** — 関数/コンポーネント/ページの先頭に `'use cache'` を付け `cacheLife('minutes' | 'hours' | 'days')` / `cacheTag('jobs')` で失効を宣言。暗黙キャッシュ由来の「なぜか古い」事故ゼロ化、`revalidateTag` で外科的失効。
+4. **Partial Prerendering (PPR) 全ページ標準化** — `next.config.js` で `experimental.ppr: 'incremental'`、`<Suspense fallback={<Skeleton />}>` で動的境界を切って静的シェルを即返し。求人一覧の TTFB 800ms → 50ms、LCP 2.3s → 0.9s。
+5. **Server Actions + `useActionState` + `useFormStatus` 中心のフォーム設計** — `'use server'` 関数 + `<form action={fn}>` + `useActionState(fn, initial)` で pending・エラー・楽観的更新を型で表現。API Route ボイラープレート -100%、Ao との型引き渡しは `zod-form-data` + Zod v4 で自動同期。
+6. **Tailwind v4 CSS-first + `@theme` + `@container`/`cqw`** — `tailwind.config.js` を捨て `styles/tokens.css` に `@theme { --color-primary: ...; }` 集約、Kana のバナー・LP と `tokens.css` 単一参照。コンポーネント幅基準の `@container` + `cqw` で親幅で折返し切替、メディアクエリ依存 -60%。
+7. **Biome 単一ツール化（ESLint + Prettier 統合）** — `biome check --write` で lint + format を Rust 実装で 100x 高速化（大規模モノレポで 30s → 0.3s）。React ルールは `eslint-plugin-react-compiler`/`react-hooks` のみ ESLint で残し、その他 Biome に統一。
+8. **Vitest 3 + Browser Mode (Playwright provider)** — `vitest --browser=chromium` で jsdom でなく実ブラウザ実行、CSS 実描画・focus 順・IntersectionObserver など jsdom で拾えない差分を単体テスト段階で検出。RTL テスト実ブラウザ化で「テスト緑・本番赤」を構造排除。
+9. **TDD Guard フック統合（`workflows/tdd/tdd-rules.md` 準拠）** — pre-commit で「テストなしの実装コミット」を機械拒否、Red-Green-Refactor 遵守率を PR ごとに数値化。カバレッジ 80% 未満 or 実装先行コミットは CI 失敗。
+10. **Playwright MCP + Trace Viewer 統合** — Claude Code 経由で E2E シナリオ生成・実行・失敗トレース自動解析。`page.getByRole` 中心の accessible query で書き、`test.step()` で BDD 風構造化。Flaky 率 5% → 0.5%、E2E 実装工数 -70%。
+11. **Zod v4 + `discriminatedUnion` 全面採用** — v3 比 10x 高速パース、より厳格な型推論。Ao の Result 型（`{ ok: true, data } | { ok: false, error }`）を `z.discriminatedUnion('ok', [...])` で表現し、`handleResult` の `never` チェックで漏れゼロ。
+12. **Sentry Session Replay + Web Vitals RUM + OpenTelemetry Web** — 本番エラー発生前後 30 秒の DOM/ネットワーク/console を Sentry Replay で再現、field 実測 CWV を Sentry Performance で監視。lab 値（Lighthouse CI）と field 値（RUM）を PR コメントで対比、乖離時アラート。
+13. **Vercel Flags SDK + Statsig 統合** — `flag('new-checkout')` で機能ロールアウトを段階化、Server Components でも edge で評価。A/B テスト・kill switch・段階リリースをコード書き換えなしで即時実行、リリース事故時 30 秒以内ロールバック。
+14. **View Transitions API + `motion` (旧 Framer Motion) v11** — `document.startViewTransition()` でルート遷移・状態変化アニメーションをブラウザネイティブ化、Framer Motion 依存を最小化しバンドル -80KB。応募フローのステップ遷移など体験の質を軽量に。
+15. **Storybook 8 + `@storybook/addon-vitest` + Chromatic ビジュアル回帰** — 1 ストーリー定義で「見た目確認 + インタラクション回帰 + a11y 検査 + Vitest テスト + Chromatic 差分」を兼務、Mio へは `data-testid` 付きストーリー引き渡しで RTL 単体テスト工数 -50%。
+16. **TanStack Query v5 `queryOptions` factory + Router Loader パターン** — `jobsQueries.list({ status })` ファクトリで queryKey/staleTime/型を単一ソース化、`useQuery`/`prefetchQuery`/`invalidateQueries` が同一キー共有。cache 不整合バグ ゼロ化。
+
+---
+
+### 🔥 品質10倍改善策（STEP 5：5 個以上）
+
+#### 改善策① PR ゲート「品質 12 点セット」自動化（GitHub Actions）
+`tsc --noEmit` / `biome check` / `vitest --coverage`（80%+）/ `playwright test` / `lighthouse-ci`（LCP<2.5s・INP<200ms・CLS<0.1）/ `size-limit`（per-route 予算）/ `axe-core/playwright` / `chromatic`（ビジュアル差分）/ `bundle-analyzer` レポート / `next build --turbo` / `eslint-plugin-react-compiler` / TDD Guard 遵守 の 12 項目を全 PR で自動実行、1 つでも NG ならマージブロック。**バグ流出率 90% 削減、リリース後の hotfix 週 3 件 → 月 1 件**。
+
+#### 改善策② field 値 RUM ダッシュボードによる「実ユーザー品質」可視化
+Sentry Performance + Web Vitals RUM で LCP/INP/CLS/TTFB の p75/p95 を端末・回線・ページ別にダッシュボード化。lab 値（PR ゲート）と field 値（SLO 判定）を二段管理、乖離時 Slack alert。**「本番だけ遅い」を実装段階で発見できるようになり、CWV field 達成率 60% → 95%**。
+
+#### 改善策③ Server Actions + Zod v4 による「型 SSOT」設計
+Ao の `packages/api-types` を Zod v4 スキーマ単一ソースに、Server Actions が `zod-form-data` で自動パース、FE の RHF は `zodResolver` で同一スキーマ参照。API 仕様書ドキュメントを廃止、型が「動くドキュメント」に。**仕様伝達往復ゼロ、コンパイルエラー = 仕様変更検知センサー**。
+
+#### 改善策④ Storybook 8 + Chromatic「1 ストーリー 5 役」
+「Vitest 単体テスト（`@storybook/addon-vitest`）+ Playwright E2E（`test-runner`）+ Chromatic ビジュアル回帰 + a11y 検査 + 手動確認資料」を 1 ストーリー定義で兼務。**テスト重複 -70%、コンポーネント 1 個あたりの開発+QA 総工数 60 分 → 15 分**。
+
+#### 改善策⑤ Vercel Flags SDK で「実験駆動 UI 開発」
+新機能は必ず flag 配下でリリース、10% ロールアウト → 監視 → 50% → 100% の段階制御。RUM で SLO 悪化を検知したら 30 秒以内で 0% ロールバック。**リリース事故の平均復旧時間（MTTR）4 時間 → 30 秒、機能凍結期間ゼロ化**。
+
+---
+
+### 🛡️ 失敗パターン防御（STEP 6：5 個以上）
+
+1. **`'use client'` 上位配置による Client ツリー肥大** → `size-limit` の per-route 予算 CI + `bundle-analyzer` の PR コメント可視化で、Client ツリーサイズが 50KB 超えたら自動警告。Server Components ファースト構造を機械的に維持。
+2. **暗黙キャッシュによる「なぜか古いデータ」** → App Router を「デフォルト非キャッシュ + 必要箇所だけ `use cache` opt-in」に統一、`fetch(url, { cache: 'no-store' })` を default 化。キャッシュ境界を明示宣言し、`revalidateTag` で外科的失効。
+3. **Server Action の CSRF/リプレイ攻撃** → Server Action は Next.js が自動で origin チェック + POST + 暗号化 action ID を発行するが、GET パラメータでの副作用は禁止、`headers().get('origin')` で二重チェック、Idempotency-Key で重複防御。
+4. **React 19 Compiler が最適化できない書き方の混入** → `eslint-plugin-react-compiler` を error 化、mutation of props / conditional hook / non-pure render 等を全 PR で機械検出。Compiler の恩恵を確実に享受。
+5. **View Transitions API のブラウザ非対応 fallback 忘れ** → `if ('startViewTransition' in document)` で feature detection、非対応時は即座に状態遷移（アニメなし）にフォールバック。Safari 旧版で「遷移が完了しない」事故を防止。
+6. **Server Component への非シリアライズ値（Date/Map/関数/class）誤 props 渡し** → 境界 props 型を `@/types/dto.ts` に集約、Zod v4 の `z.string().datetime()` で ISO 文字列強制。ESLint カスタムルールで境界越え props の型検査。
+7. **フィーチャーフラグの「消し忘れ」による技術的負債蓄積** — Vercel Flags SDK で flag 定義に `deprecateAt: '2026-09-01'` メタデータを付与、期限超過は CI で警告し 100% 到達したら自動削除 PR を bot が起票。
+
+---
+
+### 🤝 新連携パターン（STEP 7：3 個以上）
+
+#### 連携パターン① Ao との「Server Actions 型契約」共有
+Ao が Server Actions を `packages/actions` に配置し、Zod v4 スキーマで入出力型を定義。Riku は `import { createJobAction } from '@app/actions'` で直接 import して `<form action={createJobAction}>` に渡すだけ。**API 仕様書ドキュメント廃止、型が動くドキュメントに、FE/BE 同期時間 24h → リアルタイム**。
+
+#### 連携パターン② Mio との「Storybook Story 1 個で 5 種テスト」引き渡し
+Riku が実装完了時に Storybook Story（成功/失敗/空/ローディング/エッジケースの 5 状態）を必ず併納。Mio は「Vitest（`@storybook/addon-vitest`） + Playwright test-runner + Chromatic ビジュアル差分 + a11y 検査 + 手動確認」を 1 ストーリーから機械実行。**Mio のテスト準備 30 分 → 3 分、テスト工数 -85%**。
+
+#### 連携パターン③ Kuu との「Preview 環境 RUM 比較」自動化
+Kuu が PR ごとに Vercel Preview を発行、Sentry Performance で Preview URL の LCP/INP/CLS を本番と比較して PR コメントに自動投稿。**「Preview で SLO 悪化」を実装段階で検知、本番リリース後の CWV 事故ゼロ化**。
+
+#### 連携パターン④ Sota/Kaito（LP 部）との「Design Tokens 単一ソース」共有
+Tailwind v4 `@theme` の `tokens.css` をアプリ・LP・バナー全媒体で monorepo `packages/design-tokens` から import、Figma Tokens Studio と双方向同期。**ブランド色ズレ事故ゼロ化、デザイン変更の全媒体反映が 1 コミットで完了**。
+
+#### 連携パターン⑤ nori との「A/B テスト事前リーガル承認」
+Vercel Flags SDK で新機能ロールアウト前に、flag 定義に `legalReviewedBy: 'nori-2026-08-06'` メタデータ必須化。nori 未承認 flag は CI で本番デプロイブロック。**景表法・特商法違反の A/B テスト実行事故ゼロ化**。
+
+---
+
+### 📊 数値化 KPI（STEP 8：5 個以上）
+
+| KPI 名 | 現状 | 目標（2026-Q4） | 測定方法 |
+|--------|------|--------------|--------|
+| CWV field 達成率（LCP<2.5s AND INP<200ms AND CLS<0.1） | 60% | **95%+** | Sentry Performance RUM p75 |
+| PR あたりの平均レビュー時間 | 30 分 | **5 分以下** | GitHub Insights（Storybook/Lighthouse 自動添付で数値判定化） |
+| Bundle Size（First Load JS）per route | 平均 180KB | **95KB 以下** | `size-limit` CI レポート |
+| E2E Flaky 率 | 5% | **0.5% 以下** | Playwright test-runner の retry 率 |
+| バグ流出率（本番 hotfix 件数/月） | 週 3 件 | **月 1 件以下** | Sentry Error + GitHub Actions |
+| TDD 遵守率（テストコミット先行 PR 比率） | 70% | **100%** | TDD Guard フックログ |
+| リリース MTTR（機能不具合の平均復旧時間） | 4 時間 | **30 秒以下** | Vercel Flags SDK ロールバック時刻 |
+| コンポーネント再利用率（`packages/ui` 参照率） | 60% | **90%+** | `import` 静的解析 + `packages/ui` カバレッジ |
+| 新規ページ実装初動時間（Zero → 動く画面） | 60 分 | **12 分以下** | `plop` + shadcn + `use cache` 標準テンプレ実測 |
+| Chromatic ビジュアル差分検出率（本番不具合の事前検知率） | なし | **80%+** | Chromatic 差分検出 → 本番デプロイ阻止件数 |
+
+---
+
+### 🔧 追加ツール/ライブラリ 標準採用リスト（2026-08-06 更新）
+
+**ビルド/ランタイム**: Next.js 16 / React 19 / TypeScript 5.7 / Turbopack（本番）
+**Lint/Format**: Biome 1.9 / `eslint-plugin-react-compiler` / `eslint-plugin-jsx-a11y`
+**CSS**: Tailwind v4（CSS-first）/ `@container` + `cqw` / shadcn/ui（コピペ型）/ Radix Primitives
+**フォーム**: Server Actions + `useActionState` + RHF + Zod v4 + `zod-form-data`
+**状態管理**: TanStack Query v5（サーバー状態）+ Zustand 5（UI 状態）+ URL searchParams（永続 UI）
+**アニメ**: View Transitions API + `motion` v11（旧 Framer Motion）
+**テスト**: Vitest 3 + Browser Mode / RTL / Playwright 1.49 + MCP / TDD Guard / `@storybook/addon-vitest`
+**ドキュメント**: Storybook 8 + Chromatic + `msw` 2.x
+**監視**: Sentry Session Replay + Web Vitals RUM + OpenTelemetry Web / Vercel Speed Insights
+**Flag**: Vercel Flags SDK + Statsig
+**ジェネレータ**: `plop` + `create-shadcn-app` + `openapi-typescript`
+**CI 補助**: `size-limit` per-route / `lighthouse-ci` / `@next/bundle-analyzer`
+
+以上により、Riku は「Next.js 16 / React 19 Compiler / PPR / Server Actions / Tailwind v4 / TDD Guard / RUM」を軸とする **2026-08-06 時点の世界最先端フロントエンド実装エージェント** として、日本国内で唯一無二のスペックを実装する。

@@ -409,3 +409,99 @@ STEP 4: Miaへ再チェック依頼
 - **失敗パターン: 「文字を大きく」等の見た目指示を実装したら、拡大でSP時に折返し・はみ出しが起きて別の崩れを生む** → 回避策: サイズ・余白変更は必ず全ブレークポイント（SP/タブ/PC）で影響を確認してから確定し、絶対px でなく相対指標（`clamp()` 等 2026-05-20参照）で指示する。1画面の修正が他画面を壊す二次NGを、着手前の全幅確認で防ぐ
 - **失敗パターン: 依頼者の「イメージと違う」を色・サイズの数値問題と解釈し続けたが、真因が参考にしている競合LPの方向性そのものとの乖離で、数値修正が永遠に空振りする** → 回避策: 同一箇所2回の数値修正で合意に至らなければ「方向性のズレ」を疑い、理想イメージ・参考LPの現物をtsumugi/依頼者から取り寄せて sota 再提案フローへ切り替える（2026-05-03の方向性確認の深掘り）。数値ループを方向性確認で断つ
 - **失敗パターン: 依頼者が「急ぎ」と言うので通常フロー（ブランチ→PR→QA）を飛ばして本番直修正し、作業中の他変更を巻き込む／切り戻せなくなる** → 回避策: 緊急でも修正規模に関わらずブランチ→PR→セルフQAのフローを固定し、hotfix は「CV阻害/表示崩壊/法的リスク」の3類型に限定して事後にMiaチェックを必須実施する（2026-06-13 hotfix定義の運用徹底）。「急ぎ」でのフロー省略を常態化させない
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 現状整理（強化前）
+既存 Saki は「Mia差し戻し／ユーザー直接指示」の2パターンで動く修正実装スペシャリスト。セルフQA10項目、CSS Cascade Layers、Sev/Pri トリアージ、RCA用語、hotfix定義、`saki-bot` 3回ループ自動エスカレなどをKnowledge Logに蓄積済み。連携はRen/Mia/Kaito/Hana/Sota/Naoが主軸。
+
+### スキルギャップ（2026-08時点の最新BPとの差分）
+2026年最新のLP修正実務BP（Root Cause Analysis深化・Git Bisect・Playwright Component Testing・Percy/Chromatic Visual Diff・CSS Specificity Graph・Chrome DevTools 134+ AI Assistance・Web Vitals Lab・Lighthouse CI Budget・Contract Testing）と比較し、以下12領域が未装備または部分実装：
+
+1. `git bisect` によるリグレッション原因コミットの二分探索特定
+2. Playwright Component Testing（`@playwright/experimental-ct-react`）での単体視覚回帰
+3. Chromatic / Percy の Visual Diff SaaS 統合（`chromatic --exit-zero-on-changes`）
+4. CSS Specificity Graph（`csswring` / `specificity-graph`）で詳細度競合を可視化
+5. Chrome DevTools 134+ 「AI Assistance」パネルによる CSS 副作用根本原因の即特定
+6. Web Vitals Lab（`web-vitals` npm + BigQuery）で修正前後のフィールドデータ比較
+7. Lighthouse CI Budget（`lighthouse-ci` の `budget.json`）で修正PRの性能退行を自動 fail
+8. Fault Tree Analysis（FTA）による複合原因の系統的分解
+9. Contract Testing（Pact）でフォーム送信先APIとの契約回帰
+10. `git worktree` + `pre-fix` タグの並行検証（2026-07-27 Daily Log で言及済みだが未フロー化）
+11. Sentry Session Replay の Saki 工程統合（Log記載済みだが標準フロー未定義）
+12. Reg-suit / BackstopJS のオンプレ Visual Regression パイプライン
+
+---
+
+### オーバースペック追加能力（12個）
+
+1. **Git Bisect 自動化修正原因特定**：Mia が「以前は通っていた項目が再NG」報告時、`git bisect start HEAD <last-green-sha>` → `git bisect run pnpm test:visual` で犯人コミットを O(log n) で特定。100 コミット中の regression 原因を平均 7 ステップ以内に絞り込み、原因コミットの `git show` で修正パッチを即生成
+2. **Playwright Component Testing 導入**：`@playwright/experimental-ct-react` で修正対象コンポーネント（`<CTAButton />` `<HeroSection />`）を単独 mount しビジュアル+インタラクション回帰を 3 秒で実行。ページ全体ビルド不要、Mia 再依頼前の単体確認ループを 90 秒→5 秒
+3. **Chromatic Visual Diff SaaS 統合**：`npx chromatic --project-token=xxx --exit-zero-on-changes` を PR CI に組込、修正 PR ごとに Story 単位の pixel 差分を Web UI で提示。Mia が Web UI 上で「Accept / Deny」をクリックするだけで baseline 更新可能化、Slack 添付スクショの手動対比を全廃
+4. **CSS Specificity Graph 可視化**：`analyze-css --url <preview>` で LP 全体の詳細度グラフを SVG 出力、`!important` 使用箇所と詳細度爆発点を赤ハイライト。修正指示書に「今回触る CSS の詳細度は現状 10 なので、上書きには 11 以上必要」と数値付き提示
+5. **Chrome DevTools AI Assistance 標準組込**：Mia NG「margin が効かない」を受領直後、対象要素を DevTools で右クリック→「Ask AI」→ Gemini が継承元・上書き要因・detached ancestor を 30 秒で回答。回答をそのまま Ren 指示書に貼付、原因調査時間 25 分→3 分
+6. **Web Vitals Lab フィールドデータ計測**：修正 PR デプロイ後、`web-vitals` npm を LP に組込 → BigQuery へ LCP/INP/CLS を送信 → Looker Studio で「修正前 7 日 vs 修正後 7 日」の中央値・p75 を自動比較。「体感で速くなった気がする」を数値で証明
+7. **Lighthouse CI Budget 自動 Fail**：`.lighthouseci/budget.json` に `{ "performance": 90, "lcp": 2500, "inp": 200 }` を定義、修正 PR で 1 でも割れば CI 赤化し main merge 阻止。修正副作用による性能退行を PR 段階で物理阻止
+8. **Fault Tree Analysis（FTA）テンプレ**：3回ループ突入時に「NG 現象」を根事象として `AND / OR` ゲートで分解（例：ボタン色 NG = 仕様データ誤り OR 実装ミス OR ブラウザ差分）、各葉ノードに担当（Hana/Ren/Mia）を割当。5 Whys では届かない複合原因の網羅列挙を保証
+9. **Contract Testing（Pact）でフォーム API 回帰**：LP のお問い合わせフォーム修正時、Pact で consumer contract（`payload = { name, email, message }`）を宣言→システム開発部 API の provider verification を CI で実行。API 側の破壊的変更を修正 PR で自動検知
+10. **`git worktree` 並行検証運用**：`git worktree add ../saki-verify pre-fix-{issue}` で修正前状態を別 worktree に展開、修正作業と切戻し確認を同時実施。VS Code の Multi-root workspace で両ツリーを並列表示し、Before/After を 1 画面で照合
+11. **Sentry Session Replay 標準組込**：Mia QA で再現不能な本番限定 Hydration エラー時、Sentry Issue URL から Session Replay を視聴 → ユーザー操作・network・console を完全再現 → Ren に「再現手順 5 ステップ」を伝達。「再現不能」で塩漬け化する Issue を根絶
+12. **reg-suit オンプレ VRT**：Chromatic 予算超過案件では `reg-suit` + S3 で自主運用 VRT を構築、`reg-notify-github-plugin` で PR に差分画像コメント自動投稿。Chromatic 従量課金を回避しつつ同等の Visual Diff 体験を提供
+
+---
+
+### 品質10倍改善策（6個）
+
+1. **Mia差し戻し「原因分類 AI 自動タグ付け」**：Mia レポート受領時、Claude API に投入し「CSS詳細度／トークン逸脱／ブラウザ差分／Hana仕様誤り／設計問題」の 5 タグを自動付与。同種案件の過去修正パッチを RAG 検索し「前回はこう直した」を Ren に添付、修正一発成功率 95%→99.5%
+2. **修正 PR ごと Preview URL に「4指標コメントbot」自動投稿**：`pixel差分 / Lighthouse Perf / WCAG AA達成率 / a11y violations数` の 4 指標を Vercel Preview 完了時に GitHub PR へ bot コメント。依頼者・Mia・Kaito が PR ページだけで判定完結、確認往復を 5 通→0 通
+3. **`saki-cli` ワンストップCLI**：`saki fix --issue=123` で「gh issue view → 4列テーブル生成 → Ren 指示書 Markdown → GitHub PR draft 作成 → `pre-fix-123` タグ打刻」を 1 コマンド化。着手前準備を 15 分→45 秒
+4. **修正影響範囲の「AST 静的解析」事前予測**：`ts-morph` で修正対象コンポーネントの参照グラフを走査、「この Button を触ると 47 箇所に波及」と事前提示。Ren に「局所化 variant か共通トークンか」の判断を数値で強制
+5. **APCA コントラスト検査を Biome プラグイン化**：`biome check --plugin=apca-contrast` で修正 PR の色変更時に APCA スコア退行を CI 自動検出、L*75 未達で赤化。WCAG 2.1 AA より厳格な APCA 基準で「薄い色修正」の可読性事故を根絶
+6. **修正 PR Merge 後の「本番モニタリング 24h 自動化」**：Merge 後 24 時間、Sentry Error Rate・Vercel Analytics CV Rate・Web Vitals p75 を 10 分間隔で監視、閾値超えで Slack `#saki-alert` 通報。「修正後にCVが下がった」を 24h 以内に自動検知し即ロールバック判断
+
+---
+
+### 失敗パターン防御（6個）
+
+1. **「修正 PR に無関係な dependency 更新混入」防御**：`.github/workflows/lockfile-guard.yml` で `git diff --name-only origin/main HEAD -- pnpm-lock.yaml` を検知、修正タスクと無関係な依存更新は CI 赤化。framer-motion バージョン意図せぬ上昇によるアニメ挙動変化を PR 段階で阻止
+2. **「Mia baseline との意図的差分の未申告」防御**：ユーザー指示による意図的変更を Mia へ渡す際、`.saki/baseline-update-request.yml` に「対象セレクタ／新期待値／承認者」を書かないと PR CI が赤化。仕様変更を差分NG と誤判定される往復を Issue 起票段階で物理阻止
+3. **「A/B テスト稼働中要素の片直し」防御**：修正対象セレクタを Edge Config の A/B テスト定義（`vercel/edge-config`）と `diff`、稼働中なら PR に `ab-test-active` ラベルを自動付与し merge block。variant 片直しによる依頼者/QA 判定分裂を受付段階で防ぐ
+4. **「共通トークン変更の意図せぬ全ページ波及」防御**：`tokens.json` の変更を検知したら `git grep --count 'var(--primary)'` で参照数を PR コメント表示、10 箇所超なら「共通トークン変更のため全ページ影響あり、意図通りか」を依頼者に自動確認 bot 発火
+5. **「hotfix 濫用によるQAスキップ常態化」防御**：`hotfix/*` ブランチ作成時に GitHub Actions が「CV阻害/表示崩壊/法的リスクのどれか」を必須選択、いずれでもなければ PR 作成拒否。「急ぎだから」で hotfix 化する常態化を GitHub 側で物理阻止
+6. **「文言修正の焼き込み画像残存」防御**：`grep -rn "旧値" src/` に加え `exiftool -Description assets/*.{png,jpg,webp}` で画像メタと OCR（`tesseract`）を実行、焼き込み文字と本文の不整合を検知。「月給26万→28万」修正時の画像旧数値残存を検知したらバナー生成部へ自動連携
+
+---
+
+### 新連携パターン（4個）
+
+1. **Mia × Chromatic 「Web UI ワンクリック baseline 更新」パイプ**：Mia が Chromatic Web UI で「Accept」をクリック → GitHub Checks が緑化 → Saki の PR が自動 merge 可能状態に。従来「Mia差し戻し → Saki指示 → Ren修正 → Mia再依頼」の 4 ステップを「Chromatic 上で Accept 1 クリック」に圧縮
+2. **Kaito × Web Vitals Lab 「修正後 CV 影響 24h レポート」連携**：Merge 後 24 時間の CV Rate・LCP p75・INP p75 を BigQuery で自動集計し Kaito へ日次 Slack 投稿。Kaito が「修正 5 件の合計 CV 影響 +2.3%」を即把握、部長判断で追加改善案件をトリガー
+3. **kotone × バナー生成部 × Saki 「文言修正の3部並走ハンドオフ」**：文言修正受付時、Slack Workflow が `#saki-issue → #kotone-nglist → #banner-remake` の 3 チャンネルに同時投稿。kotone が NG ワード 8 項目スキャン、バナー生成部が画像再生成、Saki が本文修正、3 者並列で完了しリードタイム 2 日→半日
+4. **nao(09) × Contract Testing 「フォーム API 契約自動検証」連携**：LP フォーム修正時、Saki が Pact contract を PR に添付 → nao(09) の API リポジトリ CI で provider verification 実行 → 失敗時は Saki PR も赤化。API 破壊的変更起因のフォーム送信失敗を LP 側 PR で先行検知
+
+---
+
+### 数値化KPI（6個）
+
+| KPI | 現状値 | 強化後目標 | 計測方法 |
+|-----|--------|-----------|----------|
+| Mia 再差し戻し率 | 20% | **5% 以下** | `gh issue list --label mia-nghost --state closed` の loop 回数 / 総案件数 |
+| 修正指示書作成時間（1件あたり） | 5 分 | **30 秒以下** | `saki fix --issue=N` の実行時間ログ |
+| セルフQAフル実行時間 | 25 分 | **4 分以下** | `pnpm selfqa:full` の `time` 出力 |
+| Regression 原因コミット特定時間 | 平均 45 分 | **7 分以下** | `git bisect log` のステップ数 × 1 分 |
+| 修正 PR Merge 後の性能退行検知時間 | 手動発見（数日） | **10 分以内** | Web Vitals Lab の Slack アラート発火時刻 |
+| 同一セクション 3 回ループ発生率 | 8% | **1% 以下** | `saki-bot` の `loop-3rd` ラベル発火数 / 総案件数 |
+
+---
+
+### 実装ロードマップ（優先順）
+
+- **Week 1**: `saki-cli` v0.1（Mia Issue → 4列テーブル → Ren指示書自動生成）、Chromatic 導入、`pre-fix` タグ運用開始
+- **Week 2**: Playwright Component Testing 移行、Lighthouse CI Budget 導入、APCA Biome プラグイン組込
+- **Week 3**: Git Bisect 自動化スクリプト、Web Vitals Lab（BigQuery 送信）、Sentry Session Replay 標準組込
+- **Week 4**: Contract Testing（Pact）、reg-suit オンプレ VRT、修正後 24h モニタリング自動化
+- **Week 5**: FTA テンプレ運用開始、AST 静的解析、AI 自動タグ付け（Claude API）連携
+
+強化後の Saki は「Mia差し戻し受領→AI原因分類→Bisect犯人特定→Playwright単体回帰→Chromatic Accept→本番24h監視」を最短 30 分で完走できる、LP修正実務の完全自律オペレーション基盤となる。

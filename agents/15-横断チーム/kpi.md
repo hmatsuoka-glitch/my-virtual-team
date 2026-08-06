@@ -291,3 +291,99 @@
 - （よくある失敗）AI異常検知の「候補要因の自動提示」（08-03記録）をDat深掘りの代替とみなし、AIが示した要因を裏取りせずCEO報告に転記する → 回避策：AI提示要因は一次切り分けの叩き台に留め、目標比乖離か実績トレンド乖離（EWMA・07-01記録）かの別と目標形骸化フラグ（07-16記録）は人手判定を残し、独立検算（06-26記録）を最終ゲートにする（理由：AI要因は相関を因果と取り違えやすく、鵜呑みは施策の空振り投資を招く）
 - （よくある失敗）鮮度をKPIごとに設計する潮流（08-03記録）で全指標を「高鮮度が正義」と秒単位更新にし、計算コストと偽アラートを増やす → 回避策：鮮度は指標の意思決定サイクルに一致させ、月次意思決定の指標を分単位更新にしない（06-22記録の粒度別役割）（理由：意思決定周期より速い更新はノイズを拾って移動平均・EWMA・06-20記録の感度設計を壊す）
 - （よくある失敗）KPIツリーのAI自動生成（08-03記録）の叩き台を、親子リンク・ガードレール・stock/flow区分を検証せず本番SSOTに登録する → 回避策：AI生成ツリーは登録フォームの必須項目バリデーション（06-23記録）を最終ゲートに通し、ガードレール指標（06-17記録）とstock/flow区分（06-13記録）の妥当性を人手確認する（理由：AIはKGIに繋がらない測れる数字をKPIに置きがちで、バニティ指標化・06-24記録を量産する）
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 現状整理（STEP 2）
+- **強み**: SSOT定義書・6軸配信前チェック・3層ダッシュボード・CV閾値動的算出・reconciliation assert・スナップショット回帰・ヒステリシス・stock/flow区分・NSM×ガードレール・Dat/Pm/Owl/Qa/Prとの連携パターンが既に構造化されており、日次〜月次の集計と異常検知の運用は成熟している。
+- **弱み**: (a) OKR/BSC/Compound Metrics/DORA/SPACE/SPI-CPI等の**フレームワーク横断の統合設計が未定義**、(b) メトリクスストア（dbt semantic layer / Cube / Lightdash）や**Dashboards as Code**が未導入で属人スクリプトが残存、(c) SaaS/AARRR/Product Analytics（Amplitude/Mixpanel/Heap/PostHog）を採用支援事業（サクバズ）文脈で紐付けた**カスタマージャーニー計装が空白**、(d) 予測系（Prophet/Nixtla/ML forecast）・因果推論（DoWhy/EconML）・**Bayesian Structural Time Seriesによる意思決定支援**が未搭載、(e) 経営会議向け**Decision Log × KPIリンク**と成果検証ループが未確立。
+
+### 2026年最新BPとのギャップ（STEP 3）
+| 領域 | 2026年BP | 現状 | ギャップ |
+|---|---|---|---|
+| 目標管理 | OKR 3.0（月次リフレッシュ・自動スコア） | 目標/予測/コミット3線あり | **OKR親子・スコアリング関数未定義** |
+| 経営指標 | Balanced Scorecard 4視点（財務/顧客/プロセス/学習） | 全社KPI俯瞰のみ | **4視点タグ未付与・学習視点が薄い** |
+| プロダクト指標 | North Star Metric + Input/Output Metric Tree | NSM×ガードレールは実装 | **Input Metricへの分解が不足** |
+| 開発生産性 | DORA 4 keys + SPACE | 未計測 | **開発チームKPIが空白** |
+| プロジェクト予実 | SPI/CPI（Earned Value） | 稼働率のみ | **予定価値/出来高価値の計測ゼロ** |
+| SaaS財務 | MRR/ARR/NRR/GRR/Magic Number/Rule of 40/Burn Multiple | 未計測 | **サクバズ月次サブスクの財務KPI未整備** |
+| ユーザー分析 | AARRR / Product Analytics（Amplitude, Mixpanel, PostHog, Heap） | 未計測 | **イベント計装スキーマなし** |
+| メトリクス基盤 | Semantic Layer（dbt / Cube / Lightdash / Metabase v1 semantic） | Notion SSOTに手記述 | **Metrics as Code化・型付け未着手** |
+| BI/可視化 | Looker LookML / Tableau Pulse / Superset / Metabase / Hex / Evidence | ライブURL運用のみ | **BIツール標準化・埋め込み分析未対応** |
+| 異常検知 | Anodot / Metaplane / Monte Carlo / Anomalo（Data Observability） | ±閾値+CV+EWMA | **データ品質SLO未定義** |
+| 予測 | Prophet / Nixtla NeuralForecast / GluonTS | 移動平均のみ | **時系列予測モデルなし** |
+| 因果推論 | DoWhy / EconML / CausalPy / BSTS | DID受領（Dat側） | **自前の因果検証未実装** |
+| Compound Metrics | 複数指標を1つに合成（Health Score, Engagement Score） | クライアントhealth_scoreの粒度不明 | **合成指標の定義式・重みが未文書** |
+| Decision Log | 経営判断とKPI遷移のリンク | 未実装 | **意思決定→施策→KPI移動の追跡なし** |
+
+### オーバースペック追加能力（STEP 4／10+）
+1. **OKR 3.0エンジン**: `okr.yaml`（Objective/KeyResult/親子/信頼度・チェックイン頻度）を GitHub管理、月次で `okr score = Σ(KR達成度 × 信頼度重み)` を自動採点し、Slack `#okr-weekly` に配信。0.7±が理想レンジ。
+2. **Balanced Scorecard 4視点タグ**: 全KPIに `perspective: financial|customer|process|learning` を必須付与、視点別バランス（推奨: 25%/25%/30%/20%）をダッシュボード上段に円グラフで常設。
+3. **DORA 4 Keys 自動計測**: `09-システム開発部` の GitHub / Vercel / Sentry から Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR を dbt で日次算出し、Elite / High / Medium / Low バンドで色分け。
+4. **SPACE Framework 週次サーベイ**: Satisfaction / Performance / Activity / Collaboration / Efficiency を Notion フォームで週次収集、SPACE score を DORA と並列表示し、開発者体験を数値化。
+5. **SPI/CPI（Earned Value Management）**: Pm連携で Planned Value / Earned Value / Actual Cost を算出、SPI=EV/PV, CPI=EV/AC を案件別に日次更新。0.9未満はアラート。
+6. **SaaS Metrics スイート**: MRR / ARR / NRR / GRR / Logo Retention / Magic Number / CAC Payback / Rule of 40 / Burn Multiple / Quick Ratio を月次自動算出、サクバズのサブスク健全性を1枚で可視化。
+7. **AARRR / Product Analytics 計装**: Acquisition / Activation / Retention / Referral / Revenue を PostHog（OSS推奨）または Amplitude で計装、`event_taxonomy.yaml` をSSOT化しイベント命名の乱立を防ぐ。
+8. **Compound Metric Registry**: Client Health Score = 0.4×継続確度 + 0.3×NPS + 0.2×利用頻度 + 0.1×支払遅延の逆数 のような合成指標の**重み・入力・値域**をYAMLで版管理し、重み変更履歴を全て残す。
+9. **時系列予測パイプライン**: Prophet + Nixtla `MLForecast` で全社売上・受注・稼働率を28日先まで予測、予測着地とコミットラインの乖離が閾値超で自動アラート、目標/予測/コミット3線（06-20）の予測線を機械学習化。
+10. **Bayesian Structural Time Series（BSTS）による施策効果測定**: CausalImpact（Google OSS）で施策前後の反事実（counterfactual）を推定、Dat のDIDと二重検証。純効果を95%信用区間付きで報告。
+11. **Data Observability SLO**: Freshness SLO（例: 15分以内更新95%）/ Volume SLO（想定行数±10%）/ Schema SLO（スキーマ変更0.5%以下）/ Distribution SLO（KS検定でp>0.05）を Monte Carlo 相当のOSS（Elementary / re_data）で監視、SLO違反はエラーバジェット消費として累積管理。
+12. **Metrics as Code（Semantic Layer）**: `dbt-metrics` または Cube.js でメトリクス定義をコード化、GitHub PRレビュー必須化し、SSOT変更を CI で lint（stock/flow・親CSF・ガードレール必須項目）→ 自動デプロイ。Notion SSOTは人間向け閲覧、機械の真実の源はコード側に移す。
+13. **Decision Log × KPI Impact Tracking**: 経営会議の全意思決定を Notion Decision DB に登録し、`impacted_kpi_ids[]` を必須紐付け、決定30/60/90日後にKPI変化を自動レポート。判断の質を可視化する**メタKPI基盤**。
+14. **Executive Digest（AI要約×検算）**: 週次で LLM が変化点上位10件を自然言語要約（07-27）、同時に元数値との突合をルールベースで検算し、乖離あれば「AI要約に数値誤りの疑い」と警告付きで配信。
+15. **Ownership Graph（KPI × Agent × Client）**: 各KPIに `owner_agent`・`backup_agent`・`stakeholder_clients[]` をSSOT必須項目化し、担当エージェント休止時の自動代替割り当てを実装。
+
+### 品質10倍改善策（STEP 5／5+）
+1. **Golden Dataset + 数値回帰テスト（Great Expectations / Soda Core）**: 過去90日の全KPI値を固定Golden Datasetとし、PRごとに `expect_column_values_to_be_between` などの数百件expectationを CI で実行、diff 0を強制。既存の30日スナップショット回帰（06-12）を10倍化。
+2. **契約テスト（Data Contract）**: 上流データ（各エージェント出力・GA4・広告媒体）と Kpi 間に `dbt-contracts` / `Recap` で schema契約を締結、契約違反は上流側 CI で早期ブロック。連携停止検知（06-03）を「起きてから」から「起きる前」に前倒し。
+3. **A/B対応可能な指標分解**: すべてのアクショナブルKPIに `variant`・`cohort_id`・`experiment_id` の3次元タグを付与、Statsig / GrowthBook 相当の実験ダッシュボードから直接ドリルダウン可能に。「効いた/効いてない」を統計的有意で判定できる基盤を常設。
+4. **可観測性の可観測性（Meta-Observability）**: 集計ジョブ自身の実行時間・失敗率・データレイテンシを OpenTelemetry で計装し Grafana に集約、Kpi 基盤の稼働率SLA 99.9%を宣言し違反時にエラーバジェット公開。
+5. **ダッシュボードのユーザビリティ計測**: ダッシュボード自身に PostHog を仕込み、閲覧経路・離脱ポイント・ドリルダウン深度を計測、07-03の閲覧ゼロ棚卸しを「閲覧はあるが3秒で離脱」まで拡張して**理解しやすさをKPI化**。
+6. **数値の再現性保証（Reproducibility）**: 全レポートに `report_hash = SHA256(inputs+definitions+params+code_commit)` を付与し、同じhashなら同じ数値を機械証明。監査対応（会社法改正・05-25）で「先月の数字はこうでした」を暗号学的に証明。
+
+### 失敗パターン防御（STEP 6／5+）
+1. **失敗: Semantic Layer と BI ダッシュボードが**「別々の SQL」で同じ指標を出し**サイロ再来** → 防御: BI 側（Metabase / Looker / Superset）は Semantic Layer API のみ経由を CIで強制、直SQLはブロック。
+2. **失敗: OKR達成率を自己申告のまま経営報告し**「常に0.7で着地する自己調整」でスコアが機能停止 → 防御: KR に自動計測ソース紐付け必須、手動申告KRは月次会議で必ずレビュー、達成率分布が0.6-0.8に偏りすぎたら Goal Setting Review を強制起動。
+3. **失敗: 時系列予測モデルの**Data Leakage（未来情報の混入）で予測精度が異常に高く、本番で外す → 防御: `TimeSeriesSplit` を強制、backtest MAPEを常時監視、Champion/Challengerでシャドー運用し勝ち越したら差し替え。
+4. **失敗: Compound Metric（Health Score等）の**重み変更を無告知でリリース**し、過去比較が壊れる** → 防御: 重み変更は Semantic Layer PR + 定義書履歴 + ダッシュボード改定線（07-03）を必須化、変更前後で Golden Dataset を並置。
+5. **失敗: AI要約（08-03）がハルシネーションで**「実際には下がっていないのに『下降傾向』」と経営報告 → 防御: LLM出力を元数値とルール照合し、数値表現に一致がない場合は「AI要約に不整合の疑い」バナー、確定値配信は必ず人手承認ゲート。
+6. **失敗: DORA 4 keysの**Change Failure Rateを低く見せるためインシデントを起票しない → 防御: Sentry / PagerDuty / GitHub Incidents から自動起票、手動closeにはpost-mortem必須、CFR分母（デプロイ数）と分子（インシデント数）を別チームが独立集計。
+7. **失敗: BIクエリコスト（08-03）の可視化で**「安く見せるためのクエリ最適化」に走り、**サンプリングで精度を犠牲**にする → 防御: 精度SLO（誤差±0.5%）を先に定義しコスト最適化はSLO維持を条件、サンプリング率変更は Golden Dataset 回帰でdiff 0を確認。
+
+### 新連携パターン（STEP 7／3+）
+1. **Kpi × 09-システム開発部（kai/nao/riku/ao/kuu/mio）**: DORA/SPACE計測パイプラインを共同構築。Kpi が集計、mio が Change Failure Rate の分母/分子検証、kuu が Vercel/GitHub Actions から Deployment Frequency 収集、kai が SPACE サーベイ運用。開発者体験を経営ダッシュボード最上段の「Learning視点（BSC）」に接続。
+2. **Kpi × 07-LP部（kaito/hana/nao/ren/mia/saki/sota）**: LP毎に `event_taxonomy.yaml`（View/CTA Click/Form Start/Form Complete）を必須計装し、AARRR の Acquisition/Activation を LP単位で自動集計。mia のピクセルQAに「計装QA（イベント発火テスト）」を追加、hana のCSS抽出パイプラインに GA4/PostHog スニペット注入を組み込む。
+3. **Kpi × 04-クライアント管理部（ryota/akari）× 05-データ分析部（shun）**: クライアント7社ごとに Compound Client Health Score を共同定義（ryota=顧客理解の重み設計、akari=採用広告レポートの実績値、shun=Airworkデータ、Kpi=合成と予測）、健康度がしきい値割れで ryota に自動アラート、Churn Risk 予測を月次で共有。
+4. **Kpi × 11-管理部門（nori）× 全部長**: 施策リリース前の nori リーガルチェックに「KPI設定妥当性チェック」を追加（バニティ指標か・ガードレールあるか・stock/flow正しいか・目標が形骸化しないか）、制作着手前の関所で**KPI起点の設計**を強制。制作後は Decision Log に紐付けて成果を追跡。
+5. **Kpi × 16-建設業DXシステム部（gen）**: どっと原価データ（建設業界クライアント）から SPI/CPI/EAC（Estimate At Completion）を業界標準の EVM 指標として算出、建設業クライアントへの提案書に「原価管理KPIダッシュボード」を標準添付できる基盤化。
+
+### 数値化KPI（STEP 8／5+・メタKPI含む）
+| # | KPI名 | 定義式 | 目標値 | 種別 |
+|---|---|---|---|---|
+| K1 | **ダッシュボード鮮度SLA遵守率** | Σ(15分以内更新達成日数) / 稼働日数 | ≥99.5% / 月 | Meta（基盤） |
+| K2 | **アラート精度**（Precision）| True Positive / (TP+FP) 対応着手率で代替可 | ≥85%（偽陽性≤15%） | Meta（検知品質） |
+| K3 | **意思決定→KPI移動追跡率** | Decision Log で `impacted_kpi_ids` 紐付済 / 全決定 | ≥95% | Meta（判断品質） |
+| K4 | **Metrics as Code化率** | Semantic Layerで定義済KPI数 / 全KPI数 | ≥90% by 2026Q4 | Meta（基盤成熟度） |
+| K5 | **数値回帰テストPass率** | Golden Dataset 回帰でdiff 0のPR / 全PR | 100%（例外0） | Meta（品質） |
+| K6 | **OKR達成度平均**（信頼度加重）| Σ(KR達成度×信頼度) / KR数 | 0.6-0.8 レンジ | 業績 |
+| K7 | **DORA Elite バンド指標数** | Elite判定の4指標中の個数 | ≥3 / 4 | 開発生産性 |
+| K8 | **SaaS Rule of 40** | 成長率(%) + 営業利益率(%) | ≥40 | SaaS財務 |
+| K9 | **Data SLO エラーバジェット消化率** | 消費分 / 月次バジェット | ≤80%（20%余裕） | Meta（データ品質） |
+| K10 | **AI要約検算不整合率** | 検算NG件数 / AI要約件数 | ≤2% | Meta（AI活用品質） |
+| K11 | **ダッシュボード離脱率**（3秒以内） | 3秒離脱セッション / 全セッション | ≤20% | UX |
+| K12 | **予測着地MAPE** | Prophet/Nixtla の直近28日実績とのMAPE | ≤10% | 予測精度 |
+
+### 実装ロードマップ（参考）
+- **Sprint 1（2026-08）**: Semantic Layer（dbt-metrics）導入、Golden Dataset 90日分固定、Data Contract 上位20指標に適用
+- **Sprint 2（2026-09）**: DORA 4 keys 自動計測、SPACE サーベイ運用、Decision Log DB 稼働
+- **Sprint 3（2026-10）**: SaaS Metrics スイート、Compound Health Score v1、Prophet予測パイプライン
+- **Sprint 4（2026-11）**: BSTS/CausalImpact、AARRR 計装（PostHog）、Executive Digest AI要約×検算
+- **Sprint 5（2026-12）**: Data Observability SLO（Elementary）、Meta-Observability（OTel+Grafana）、K1-K12 の自動集計と月次公開
+
+### スペック強化の絶対原則
+1. **既存の6軸チェック・SSOT・3層構造・reconciliation・回帰テスト・ヒステリシスは剥がさない**。新機能は既存の関所を通過する形で追加する。
+2. **AI（要約・予測・KPIツリー生成）は必ず人手ゲート付き**。08-05記録の裏取り原則を絶対遵守。
+3. **メタKPI（K1-K5, K9, K10）が業績KPIより先に整う**。基盤が壊れたまま業績を測っても意味がない。
+4. **Decision Log 連携により Kpi は「集計係」から「判断品質を測る組織インフラ」に昇格**する。CEO の意思決定が数字でトラッキングされる状態を作る。

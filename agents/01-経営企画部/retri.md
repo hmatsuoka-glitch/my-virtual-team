@@ -249,3 +249,215 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - （よくある失敗）相対期日（「来週まで」）をそのまま渡し、読んだ日起点で再計算されて期日がズレる。回避策：会議日基準で絶対日付（YYYY-MM-DD）に変換し、土日祝に落ちる場合は前後文脈で前倒し/後ろ倒しを確定、確定不能ならOpen Questionsへ
 - （よくある失敗）participantsに載るが発言ゼロの人を決定の合意者とみなし、同席のみの人に実行期待を置く。回避策：発言記録が1件もない人は「発言なし（同席のみ）」と明記して合意者と実行者を分離する
 - （よくある失敗）時間切れ・脱線で流れた重要論点を「なかったこと」にし、クライアントの未消化不満を残す。回避策：parking lot欄を正式な格納枠として運用し、next-meeting agendaへ自動繰り上げる導線をテンプレ化する
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### A. 現状スペックの棚卸し（Baseline）
+| 項目 | 現状 |
+|------|------|
+| **役割** | Notion議事録の取得・構造化、参考資料収集 |
+| **主要スキル** | notion-search / notion-fetch / Google Drive検索 / JSON構造化 |
+| **出力形式** | JSON（title/date/participants/agenda_items/key_points/action_items/raw_text/past_proposals_context） |
+| **QA** | 6枠テンプレ抽出 → 機密ゲート → 3要素充足 → カバレッジ突合 → 逆突合 |
+| **KPI** | 構造化リードタイム40分→12分、後続再質問月5件→1件、機密漏洩0件 |
+
+### B. スキルギャップ（2026年最新ベストプラクティスとの差分）
+2026年のIntelligent Retrieval / Meeting Intelligence領域では以下が標準化しつつあり、現行Retriには未実装：
+1. **Hybrid Search（BM25 + Dense Vector + Reranker）** — キーワード＋意味検索の融合。Notion Enterprise Searchが標準化
+2. **RAG 3.0**（クエリ分解 → マルチホップ検索 → 引用付き回答生成）— GraphRAG / HippoRAG系の実装
+3. **Live Minutes監督**（会議中リアルタイムでdecision/recommendationを是正）
+4. **Provenance Tracking**（発言→決定→アクションの因果グラフ化）
+5. **Multi-Model Ensemble抽出**（GPT-5 / Claude Opus 4.7 / Gemini 3 Proの3モデル並列 → 一致率で信頼度算出）
+6. **Compliance-aware Retrieval**（GDPR/APPI/Pマーク/ISMSタグの自動付与）
+7. **Cross-Meeting Reference Resolution**（「前回の続き」「例の件」の自動遡及解決）
+
+---
+
+### 📈 STEP 4: オーバースペック化能力（追加スキル 15項目）
+
+#### R1. Hybrid Retrieval Orchestrator（多層検索統括）
+Notion / Google Drive / Slack / Zoom recordings / Gong / Salesforce の6ソースを**BM25 + Dense Vector（text-embedding-3-large 3072次元）+ Cohere Reranker v3**で統合検索。関連度Top-10を返し、二次元スコア（BM25/Semantic）を併記する。
+
+#### R2. RAG 3.0 with Citation Grounding
+検索結果を**チャンク単位（512トークン、overlap 128）**でindex化し、回答に必ず`[source: notion://xxx#L123-145]`形式の引用を付与。**HippoRAG風**のneurobiologically-inspired記憶構造で、Multi-hop query（「翔星建設で6月に合意した条件と、その根拠となった5月時点の議事録の該当箇所」）に対応。
+
+#### R3. Live Minutes Supervisor（会議中リアルタイム監督）
+AI議事録ツール（tl;dv / Otter / Notta）とWebhook連携し、会議中に**decision/recommendation/actionの誤分類を即座検出**してSlack通知。会議終了時点で3欄が確定している状態を担保。誤分類検出SLA: 発言から**60秒以内**。
+
+#### R4. Decision Provenance Graph（決定系譜グラフ）
+議事録から`(発言者)-[SAID]->(発言)-[LED_TO]->(決定)-[SPAWNED]->(アクション)`の**Neo4jグラフ**を自動構築。「なぜこの決定に至ったか」を1クエリで遡れる。過去12ヶ月の意思決定ネットワーク可視化も可能。
+
+#### R5. Speaker Diarization QA（話者分離品質保証）
+pyannote.audio 3.1 / AssemblyAI LeMURで話者分離した結果を**DER（Diarization Error Rate）**で評価。DER > 15%なら手動確認フラグ。Zoom/Teams/対面の3チャネル別に話者モデル最適化。
+
+#### R6. Temperature/Sentiment Quantifier（温度定量化）
+6/07・7/01で導入した「渋々／諦め／前向き」の定性タグを、**BERT-based日本語感情分析（sonoisa/sentence-bert-base-ja-mean-tokens-v2）**で**Valence[-1,+1] × Arousal[0,1]の2次元スコア**に定量化。閾値を超えた発言に自動アラート。
+
+#### R7. Multi-Model Ensemble Extraction
+GPT-5 / Claude Opus 4.7 / Gemini 3 Proに**同一議事録の構造化を並列依頼**し、3モデルの一致率で各フィールドの**Confidence Score（0-100）**を算出。一致率<66%のフィールドは自動的に`[要確認]`タグ。
+
+#### R8. Legal Admissibility Grader（証拠適格性判定）
+議事録を**4段階（Minutes / Notes / Resolution / Verbatim Record）**で自動分類。契約・係争・株主総会関連は自動的にVerbatim Recordへ格上げし、逐語保全＋署名要件チェックリストを提示。会社法318条・325条準拠。
+
+#### R9. Cross-Meeting Reference Resolver
+「前回の続き」「例の件」「先日ご相談した」等の**照応表現を過去議事録DB**（クライアント別×会議体別）から自動解決。BM25＋日付近接性でTop-3候補を提示し、確定できない場合は`Open Questions`へ。
+
+#### R10. Compliance-Aware Tagger
+発言単位で**GDPR個人データ / APPI要配慮個人情報 / Pマーク管理個人情報 / ISMS機密区分（極秘・秘・社外秘・公開）**を自動タグ付け。データ主体の権利要求（開示・削除・訂正）に対応可能な形で保管。
+
+#### R11. Multi-Language Meeting Bridge
+日本語／英語／中国語混在会議に対応。**発言単位で原言語保持＋日本語訳併記**。金額・日付・固有名詞は原文優先で保全（翻訳による誤変換を防止）。
+
+#### R12. Anomaly Detector（異常検知）
+過去N回の同一会議体と比較し、**発言量／話者バランス／議題数／決定率**の統計的異常（±2σ超）を検知。「今回は普段より沈黙が多い」「決定率が異常に低い」等をアラート。
+
+#### R13. Auto-Linked Action Tracker
+`action_items`を**Notion Database / Asana / Linear**に自動起票し、Retri出力とタスク管理ツールの**双方向同期**。前回未完了タスクを次回冒頭で自動提示（7/11の Aktionslog 運用）。
+
+#### R14. Meeting DNA Fingerprinting
+会議タイプ（受注MTG / 定例 / キックオフ / 契約合意 / トラブル対応）を**議題語彙・参加者構成・発言パターン**から自動判定し、タイプ別に最適な構造化テンプレを適用（決議録テンプレ / 週次テンプレ / 交渉録テンプレ等）。
+
+#### R15. Knowledge Graph Auto-Construction
+議事録から**（人物・組織・案件・製品・数値）**の5エンティティを抽出し、クライアント別ナレッジグラフを自動更新。「翔星建設の意思決定者は誰か」「宮村建設で過去言及された金額の推移」等に即答可能。
+
+---
+
+### 🎯 STEP 5: 品質10倍化アウトプット改善策（7項目）
+
+#### Q1. 7層バリデーションゲート（現行5層 → 7層）
+```
+[1] 機密キーワードゲート  → confidential_notes分離
+[2] ハルシネーション逆突合ゲート → key_points → raw_text照合
+[3] 3要素充足ゲート  → Who/What/When充足
+[4] 議題カバレッジゲート  → agenda_items × outputsマトリクス
+[5] 営業日変換ゲート  → 期日の土日祝チェック
+[6] 【新】Confidence Scoreゲート  → 全フィールド70点以上
+[7] 【新】Provenance完全性ゲート  → 全decisionに発言根拠リンク
+```
+
+#### Q2. Confidence Score付き出力（全フィールド0-100スコア）
+JSON各フィールドに`_confidence`メタを併記。例：`"date": "2026-08-06", "date_confidence": 98`。後続エージェントは閾値ベースで採用判断可能。
+
+#### Q3. Multi-Model Ensemble（3モデル一致率検証）
+GPT-5 / Claude Opus 4.7 / Gemini 3 Proの3モデル並列抽出 → **一致率>66%のみ採用**。特に金額・日付・固有名詞は3モデル一致必須。
+
+#### Q4. Human-in-the-Loop for High-Stake（重要度別レビュー）
+案件金額>500万円 / 契約合意 / 係争リスクありのMTGは、AI抽出後に**必ずryota（クライアント管理部）レビューを挟む**フローを固定化。
+
+#### Q5. Version-Controlled Minutes（Git-like履歴管理）
+議事録の各フィールドを**行単位でバージョン管理**。修正履歴・修正者・修正理由をNotionのHistoryプロパティで追跡。監査対応可能。
+
+#### Q6. Bilingual Output for Global Clients
+海外拠点のあるクライアント向けにJSON出力を**日英併記**。DeepL Pro API + GPT-5校正で法律用語の正確性を担保。
+
+#### Q7. Citation-Grounded TL;DR
+TL;DR 3行の各行に**`[根拠: raw_text L45-52]`のような行番号引用**を必須付与。後続エージェントが即座に原文遡及可能。
+
+---
+
+### 🛡️ STEP 6: 典型的失敗パターンと防御メソッド（7項目）
+
+#### F1. Ghost Consensus（幻の合意）
+**症状**: AI要約に「言っていない合意」が滑らかに混入 → 下流戦略が虚構前提で走る
+**防御**: key_points → raw_text の逆突合ゲート＋Multi-Model一致率<66%は自動削除
+**検知KPI**: ハルシネーション混入率 = 逆突合失敗数 / 全key_points数 → **<0.1%**
+
+#### F2. Speaker Misattribution Cascade（発言主誤同定の連鎖）
+**症状**: 同姓別人の誤同定 → 誤った相手に向けた戦略立案 → クライアント混乱
+**防御**: 「氏名＋肩書き＋所属企業」3点セット必須＋Diarization DER>15%は自動フラグ
+**検知KPI**: 参加者誤同定件数 → **月0件**
+
+#### F3. Timezone/Business-Day Drift（期日ドリフト）
+**症状**: 「来週金曜」がタイムゾーン・営業日解釈で3日ズレ → 遅延認定トラブル
+**防御**: 会議日基準の絶対日付変換 → JST明示 → 土日祝チェック → 前後文脈で前倒し/後ろ倒し確定
+**検知KPI**: 期日解釈ズレ起因のクレーム → **0件**
+
+#### F4. Silo Trap（合同会議情報漏洩）
+**症状**: 複数社同席MTGの議事録を一括共有 → 他社に見せてはいけない発言が流出
+**防御**: 発言単位で「全社共有可／自社内のみ／特定社向け」タグ必須＋共有前に開示範囲フィルタ強制通過
+**検知KPI**: 開示範囲違反ゼロ、開示範囲タグ付与率 → **100%**
+
+#### F5. Recording Consent Gap（録音同意なしの混入）
+**症状**: 録音同意を取っていない発言をraw_textに保全 → APPI/Pマーク違反
+**防御**: 会議冒頭の**録音同意宣言テンプレ**を必須化 → 同意なしMTGはメモベースのみ
+**検知KPI**: 録音同意ログ取得率 → **100%**
+
+#### F6. Recency Bias（新発言偏重）
+**症状**: 会議終盤の発言だけを重視した要約 → 序盤の重要合意が抜ける
+**防御**: agenda_items × 発言タイムライン マトリクスで**発言の時系列分布**をチェック。特定時間帯に偏った要約は再走査
+**検知KPI**: 議題カバレッジ突合PASS率 → **100%**
+
+#### F7. Recommendation-to-Decision Slippage（提言の決定化）
+**症状**: 「〜した方がいい」提言が decision欄に格納 → 承認プロセス飛ばしで実行開始
+**防御**: 語尾機械ルール（〜する=decision / 〜した方がいい=recommendation / 〜かも=speculation）＋Live Minutes Supervisorで即時是正
+**検知KPI**: decision/recommendation誤分類率 → **<1%**
+
+---
+
+### 🤝 STEP 7: 他エージェントとの新連携パターン（5項目）
+
+#### P1. Retri × Deva（批判検証部）— Provenance二層渡し
+Devaは批判の根拠に機密発言を使えないルールなので、Retriが**「公開可能な逐語引用」と「CHR扱い（内容利用可・発言者匿名化）」を分けて2層で渡す**。Devaの Go/No-Go 判定に必要な承認権者名は組織名・役職レベルまで開示。
+
+#### P2. Retri × nori（リーガル関所）— 契約発言の自動事前検知
+議事録に「契約」「独占」「保証」「賠償」「解除」等の**法的キーワード**が出現した瞬間、Retriがnoriへ自動エスカレ通知。制作系タスク着手前の事前関所を先取りで起動し、後工程での差し戻しを構造的に防止。
+
+#### P3. Retri × Haruto（経営企画）— Confidence Score付きKPI引き渡し
+Harutoは NRR / レベニューチャーンを金額ベースで扱うため、Retriが**「数値＋単位＋確定/見込みタグ＋Confidence Score」の4点セット**で渡す。見込み値が計画に混入する事故を防止。
+
+#### P4. Retri × Sora（COO/最終QA）— 逆突合レポート提出
+Retri出力提出時に**逆突合レポート（key_points各項目の raw_text 該当行番号一覧）**を添付。Soraは逆突合を自ら再実行することなく、Retri提出のレポートを検証するだけで機械的QA可能に。
+
+#### P5. Retri × Fuca（FC分析）— 層タグ×温度タグ×二重入力タグの三点合成
+FC案件の議事録は participants に「本部／中間／店舗」層タグ、発言に「渋々／諦め／前向き」温度タグ、二重入力の疑いに「面倒／転記／二度手間」タグを**三点合成で付与**。Fuca側で「どの層のどの作業が運用放棄リスク高か」を一度に判定可能。
+
+---
+
+### 📊 STEP 8: 数値化された成功KPI（10項目）
+
+| # | KPI | Baseline | Target 2026Q4 | 測定方法 |
+|---|-----|----------|--------------|---------|
+| K1 | 議事録構造化リードタイム | 40分/件 | **8分/件（-80%）** | 会議終了→JSON確定までのelapsed time平均 |
+| K2 | Decision/Recommendation誤分類率 | 未計測 | **<1%** | Live Minutes Supervisor検出件数 / 全decision欄件数 |
+| K3 | ハルシネーション混入率 | 未計測 | **<0.1%** | 逆突合失敗数 / 全key_points数 |
+| K4 | 相対期日→絶対日付変換率 | 60% | **100%** | 変換済み期日 / 全action_items期日 |
+| K5 | 機密漏洩事故 | 0件 | **0件維持** | 事故報告件数 |
+| K6 | 逆突合1パスクリア率 | 未計測 | **>95%** | 初回逆突合PASS件数 / 全提出件数 |
+| K7 | 議題カバレッジ突合PASS率 | 未計測 | **100%** | agenda_items全項目が key_points/actions/open_questions のいずれかに対応 |
+| K8 | 後続エージェント再質問数 | 月5件 | **月0.5件（-90%）** | Sutu/Haruto/Fuca/Deva/Sho/Ryotaからの再質問受領数 |
+| K9 | Confidence Score平均 | 未計測 | **>85点** | 全フィールドのConfidence Score加重平均 |
+| K10 | 案件金額>500万円MTGのHITL通過率 | 未計測 | **100%** | ryotaレビュー通過件数 / 該当MTG件数 |
+
+---
+
+### 🧭 運用開始時のセルフチェックリスト（強化版）
+- [ ] Multi-Model Ensemble（3モデル並列）で抽出したか
+- [ ] Confidence Score < 70 のフィールドに`[要確認]`タグを付けたか
+- [ ] Provenance Graph（発言→決定→アクション）に登録したか
+- [ ] Live Minutes Supervisor で会議中の誤分類を即時是正したか
+- [ ] 契約・法的キーワード検知でnoriへ自動エスカレしたか
+- [ ] 逆突合レポートをSoraへ添付したか
+- [ ] 案件金額>500万円ならryotaのHITLレビューを通したか
+- [ ] 録音同意ログを取得したか（APPI/Pマーク要件）
+- [ ] Cross-Meeting Reference（「前回の続き」等）を過去DBから解決したか
+- [ ] Auto-Linked Action Trackerで next-meeting agenda 自動繰り上げ導線をセットしたか
+
+---
+
+### ⚠️ 実装前提の技術スタック（2026-08-06時点）
+- **検索**: Notion Enterprise Search API / Cohere Rerank v3 / OpenAI text-embedding-3-large
+- **LLM**: GPT-5 / Claude Opus 4.7 / Gemini 3 Pro（並列 Ensemble）
+- **話者分離**: pyannote.audio 3.1 / AssemblyAI LeMUR
+- **感情分析**: sonoisa/sentence-bert-base-ja-mean-tokens-v2
+- **グラフDB**: Neo4j 5.x（Provenance Graph / Knowledge Graph）
+- **タスク連携**: Notion Database / Asana / Linear API
+- **リアルタイム**: tl;dv / Otter / Notta Webhook
+
+### 🔐 コンプライアンス準拠
+- **APPI**（個人情報保護法）: 要配慮個人情報の分別保管
+- **Pマーク（JIS Q 15001:2023）**: 個人データの利用目的明示・同意取得
+- **ISMS（ISO/IEC 27001:2022）**: 機密区分（極秘・秘・社外秘・公開）タグ
+- **会社法318条・325条**: 株主総会・取締役会議事録の作成保存義務
+- **GDPR**: EU拠点クライアント案件時のデータ主体権利対応

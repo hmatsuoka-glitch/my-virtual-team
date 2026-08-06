@@ -431,3 +431,136 @@ const banners = [
 - （よくある失敗）deviceScaleFactor未指定でRetina解像度不足の再書き出し。回避策：媒体別scale上限を`compression-profile.json`で固定し、DPR頭打ちのなか無闇な3xは容量だけ増えるため避ける
 - （よくある失敗）容量規定（Indeed150KB等）超過に気づかず入稿NG。回避策：出力前にサイズ・DPI・ファイル名規則を自動検証してから納品フォルダへ置き、規格外納品をゼロにする
 - （よくある失敗）Chrome自動更新で「昨日と同じHTMLなのに数px違う」。回避策：Chrome for Testingを`package.json`でバージョン固定し、共有`@let-inc/banner-utils`を更新した際はYunaへ一報をセットにする
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 現状整理（STEP 2）
+既存のHiroは「Puppeteer + sharp + pngquant」を軸に、Retina 2倍出力・ICC sRGB正規化・6観点`validateBanner()`・媒体別`compression-profile.json`・`@let-inc/banner-utils` npm化・Playwright 1.50移行検討まで到達。Daily Knowledge Log 2026-04〜08で「常駐ブラウザ + `puppeteer.connect()`」「AVIF/WebP/PNG 3形式同時出力」「Chrome for Testingバージョン固定」まで実装済み。次段階は Puppeteer 22 BiDi・Sharp v0.33 libvips 8.15・CDN Edge配信・レスポンシブ画像（srcset/sizes/picture）・HDR/Wide Gamut・OpenTelemetry計装・エッジ関数化まで進める。
+
+### スキルギャップ特定（STEP 3：2026年最新BP比較）
+| 領域 | 2026最新BP | Hiro現状 | ギャップ |
+|---|---|---|---|
+| Puppeteer | v22 WebDriver BiDi標準 / Cooperative Cancellation | v21ベース（CDPのみ） | BiDi未採用・キャンセラ未実装 |
+| Playwright | v1.50 Tracing v2 / component testing | 移行検討中 | Trace基盤なし |
+| Chromium | Headless=new / Origin Trial / Fenced Frames | new headless固定済み | Origin Trial未活用 |
+| Sharp | v0.33 libvips 8.15 / Sequential Access API | v0.32ベース | ストリーミング未活用 |
+| WebP | Lossless α / smartSubsample:false | 対応済 | プロファイル最適化余地 |
+| AVIF | AV1 tuning `chroma-subsampling` / grain synthesis | 品質80固定 | tuning未詰め |
+| CDN | Cloudflare Polish / Vercel Image / Fastly IO | Vercel言及のみ | Polish/Fastly未検討 |
+| レスポンシブ | `<picture>`+srcset+sizes+fetchpriority | 3形式emit止まり | srcset生成なし |
+| Lazy Loading | loading="lazy" + Intersection Observer | 対象外 | LP部連携で未提供 |
+| DPR | Client Hints `Sec-CH-DPR` / `Viewport-Width` | scale固定 | Client Hints未対応 |
+| 色空間 | Display P3 wide gamut配信 / rec2020 | sRGB統一 | P3配信選択肢なし |
+| EXIF | GPS/機材情報strip + Copyright注入 | withMetadataでicc/densityのみ | 権利メタ未管理 |
+| 計装 | OpenTelemetry / structured logs | JSON console | OTel計装なし |
+| セキュリティ | SVG sanitize（DOMPurify）/ SSRF対策 | 未対応 | 外部SVG受入時の穴 |
+
+### オーバースペック追加能力（STEP 4：10個以上）
+
+1. **Puppeteer 22 WebDriver BiDi対応**：`protocol: 'webDriverBiDi'` オプションで CDP から BiDi へ移行し、Firefox クロスブラウザ検証（`page.emulateNetworkConditions` 標準化）を同一スクリプトで実行。Chrome専用bugsを回避。
+
+2. **Sharp v0.33 Sequential Access API**：`sharp(buf, { sequentialRead: true }).pipelineColourspace('rgb16').toColourspace('srgb').png()` でメモリ 60% 削減。8K解像度バナー（3840×2160 scale2）でも RSS 500MB→200MB。
+
+3. **AVIF AV1 tuning（chroma/grain）**：`sharp().avif({ quality: 82, effort: 6, chromaSubsampling: '4:4:4' })` で写真は 4:2:0・テキスト混在は 4:4:4 と機械分岐。 grain synthesis で写真ノイズを送信側で削減。
+
+4. **`<picture>` + srcset + sizes 自動生成**：LP部/OGP連携用に `emit()` を拡張し `banner.html.snippet` に `<picture><source type="image/avif" srcset="x.avif 1x, x@2x.avif 2x"><source type="image/webp" ...><img loading="lazy" fetchpriority="auto" decoding="async" src="x.png"></picture>` を吐き出す。renの実装工数ゼロ化。
+
+5. **Cloudflare Polish / Fastly IO 変換ヒント埋込**：`x-frame-options`・`cache-control: public,max-age=31536000,immutable`・`link: <x.avif>; rel=preload; as=image` を出力サイドカーJSONに同梱。Kuu が Vercel/Cloudflare いずれでも即適用可能。
+
+6. **Client Hints（Sec-CH-DPR / Viewport-Width）対応レンダリング**：`page.setExtraHTTPHeaders({ 'Sec-CH-DPR': '3' })` でクライアント側DPRを模擬してレンダリング差を検証。実iPhone 15 Pro（DPR 3）体験を CI で事前検証。
+
+7. **HDR / Display P3 出力レーン**：Meta Reels HDR広告等の広色域案件に `sharp().pipelineColourspace('p3').withMetadata({ icc: 'p3' }).png()` を追加。sRGB 統一の原則は維持しつつ、案件タグ `wide-gamut: true` で分岐。
+
+8. **EXIF strip + Copyright 注入 + IPTC メタデータ**：`sharp().withMetadata({ exif: { IFD0: { Copyright: '(c) LET Inc. 2026', Artist: 'sakubuzz' } } })` で権利表示を機械注入。GPS/機材情報は `withMetadata({ exif: false })` で完全 strip し、クライアント撮影素材の位置情報漏洩を防止。
+
+9. **OpenTelemetry 計装（`@opentelemetry/api`）**：`tracer.startSpan('validateBanner')` で各観点の spanを Datadog/Honeycomb へ送信。「どのHTMLがどの観点でNGか」の統計を月次で haruto に提出。
+
+10. **oxipng（Rust製）を pngquant/pngcrush の代替に**：`oxipng -o max --strip safe` で lossless 20-30% 追加削減。lossy が使えない企業ロゴ案件でも容量削減。
+
+11. **SVG sanitize（DOMPurify）＋ SSRF 防御**：LP部/クライアント提供の SVG ロゴを `DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } })` で無害化し、`<foreignObject>`/`<script>` を除去。`page.route('**/*', route => route.request().url().startsWith('file://') || route.abort())` で外部通信遮断。
+
+12. **BiDi 経由 Fenced Frames プレビュー**：広告主が使う Fenced Frames コンテナ内での表示差異を Puppeteer 22 の BiDi で検証。Chrome Origin Trial 対応。
+
+13. **リサイズ Lanczos3 / Mitchell 選択の機械判定**：写真は Lanczos3、ロゴ・テキストは Mitchell、ドット絵は nearest、と `sharp().resize({ kernel: 'lanczos3'|'mitchell'|'nearest' })` を素材種別で自動選択。
+
+14. **Container Queries 対応バナー**：Kana の HTML が `@container` を使う案件で `page.emulateMediaFeatures` で container context 模擬。次世代レスポンシブ広告の先行対応。
+
+### 品質10倍改善策（STEP 5：5個以上）
+
+1. **`validateBanner()` v3 で 12観点機械判定**：既存6観点＋①EXIF strip確認 ②Copyright注入確認 ③srcset/picture snippet生成確認 ④HDR/sRGB混在検出 ⑤oxipng lossless削減後容量 ⑥pixelmatch回帰差分1%以内 ⑦決定性2回変換一致 の6観点を追加。目視工数 30秒→0秒、Sora QA一発通過率 85%→99%。
+
+2. **pixelmatch + odiff 二重回帰テスト**：Kanaプレビュー↔Hiro出力を `pixelmatch(0.1閾値)` で機械検証し、加えて `odiff --antialiasing` で AA 差を分離検出。フォントレンダリング差起因のノイズを除外して真の崩れだけを検出。
+
+3. **fitToSize（二分探索）で媒体上限85%最大画質**：`compression-profile.json` の `targetKB` を上限×0.85 に固定し、二分探索で quality 40-95 の最適値を1秒以内で決定。媒体再圧縮後の劣化を予防し、実配信品質を+15%改善。
+
+4. **Chrome for Testing の SHA256 lock**：`@puppeteer/browsers install chrome@129.0.6668.100` のバイナリ SHA256 を `package.json.puppeteer.chromeVersion` に固定し、CI で SHA 検証。バイナリすり替え/更新事故ゼロ化。
+
+5. **Structured Log → Datadog / Honeycomb 送信**：`pino` で JSON ログを吐き、`opentelemetry-log-exporter` で Datadog に送信。「深夜バッチのどこで詰まったか」を朝の Yuna が dashboard 1画面で把握。MTTR 30分→3分。
+
+6. **Diff-preview 3背景合成をアニメGIF化**：透過PNGを 白/黒/ブランド色 3背景に合成した preview を `sharp().gif()` で 1枚 GIF 化。Yuna が Slack で 1タップ確認可能に。
+
+### 失敗パターン防御（STEP 6：5個以上）
+
+1. **Puppeteer BiDi 移行時の CDP 混在事故**：BiDi と CDP を同一スクリプトで併用すると `Session closed` が頻発。`protocol` 明示 + BiDi 移行 PR は `codemod-cdp-to-bidi` スクリプトで一括変換。混在テストを CI で禁止。
+
+2. **Sharp v0.33 の `sequentialRead: true` を透過案件に使うと α消失**：Sequential Access はストリーミング読み前提でα4chをドロップするケースがある。透過要求案件は `sequentialRead: false`（デフォルト）を強制。`if (needsAlpha) opts.sequentialRead = false;` を validateBanner の前段に固定。
+
+3. **HDR PNG を sRGB 媒体へ納品して色沈み事故**：`wide-gamut: true` タグ案件を Indeed（sRGB強制）に納品すると彩度が沈む。媒体タグ × 色空間タグの互換性マトリクスを `compatibility.json` で管理し、非互換なら exit 1。
+
+4. **oxipng の `--strip safe` で ICC まで剥がれる事故**：`--strip safe` は tEXt/iTXt を落とすがまれに sRGB ICC も落とす報告あり。oxipng 後に `sharp().metadata().icc` を再 assert し、欠落時は `withMetadata({ icc: 'srgb' })` で再注入。
+
+5. **fetchpriority=high 濫用で LCP 劣化**：LP部 OGP に `fetchpriority='high'` を全画像に付けるとブラウザが並列取得を制限し逆に遅くなる。「ファーストビュー主画像 1 枚のみ high、それ以外は auto/low」を snippet 生成時に強制。
+
+6. **SVG `<foreignObject>` 経由 XSS**：クライアント提供 SVG ロゴが `<foreignObject><script>` で悪意コードを持つケース。DOMPurify で必ずサニタイズし、Puppeteer 実行環境は `--no-sandbox` を CI 専用に限定（本番は sandbox 有効）。
+
+7. **Client Hints Sec-CH-DPR の spoofing 事故**：CI で DPR 3 を模擬した PNG を実 iPhone 15 Pro（DPR 3）向けに納品すると、GPU 合成差で 2-3px ズレる。CI 検証は「参考値」扱いとし、最終ゲートは実機スクショ比較を維持。
+
+### 新連携パターン（STEP 7：3個以上）
+
+1. **Kuu（09-システム開発部）× Vercel Image Optimization API 連携**：Hiro が PNG/WebP/AVIF 3形式 + サイドカー JSON（`{ formats: [...], sizes: [1080,2160,3240], cacheControl: 'public,max-age=31536000,immutable' }`）を出力し、Kuu が `next/image` の `loader` を Hiro サイドカー参照に置換。LP/管理画面での画像配信を「Hiro出力→CDN自動最適化」の一気通貫化。
+
+2. **rui（06-リサーチ部）× 建設業競合バナー逆解析パイプライン**：rui が競合の Indeed/Instagram 広告 URL を提供 → Hiro が Puppeteer で screenshot 取得 → sharp で解像度/ICC/容量メタデータ抽出 → 「競合の deviceScaleFactor 推定・使用形式・容量目安」を rui のレポートに機械添付。競合バナー技術リサーチを 4時間→10分に。
+
+3. **haruto（01-経営企画部）× KPI Dashboard 連携（OpenTelemetry → BigQuery）**：Hiro の OTel span を BigQuery に日次エクスポートし、haruto の月次経営会議で「バナー生産数・NG率・平均処理時間・媒体別容量トレンド」を dashboard 化。「バナー部の生産性を経営指標化」する初の取り組み。
+
+4. **sota（07-LP部・独自LP企画）× LP Hero → 6サイズOGP自動展開**：sota が LP デザイン企画を FIX した瞬間、Hiro のパイプラインが LP Hero を screenshot し、Twitter (1200×630) / Facebook (1200×630) / LinkedIn (1200×627) / Instagram (1080×1080) / TikTok (1080×1920) / Slack (1200×630) の 6 OGP を自動出力。sota の手戻り工数ゼロ化。
+
+5. **nori（法務）× OCR + LLM ハイブリッド禁止表現検出**：tesseract.js の OCR 出力を Claude API（Opus 4.7）に渡し、「絶対/必ず/No.1」の直接語だけでなく「業界最高峰」「他社を圧倒」等の含意表現も検出。景表法グレー領域を LLM 判定で網羅。
+
+### 数値化KPI（STEP 8：5個以上）
+
+| KPI | 現状（2026-08 時点） | 強化後目標（2026-Q4） | 測定方法 |
+|---|---|---|---|
+| 1バナー処理時間 | 3秒（常駐ブラウザ経由） | 1.2秒（Sequential Access + BiDi） | OTel span p50 |
+| 月次バナー生産数 | 200件/月 | 500件/月 | Notion DB件数 |
+| Sora QA一発通過率 | 85% | 99% | Sora レポートの pass 率 |
+| 媒体入稿NG率 | 1.5%（容量/ICC起因） | 0.05%（12観点機械判定） | Yuna 差戻ログ集計 |
+| ファイルサイズ（Indeed 1200×628） | 128KB（PNG）/ 90KB（AVIF） | 60KB（AVIF quality逆算） | sharp metadata size |
+| 深夜バッチ完走率 | 95%（1件失敗で継続困難） | 99.9%（allSettled + auto-retry） | GitHub Actions success rate |
+| MTTR（バッチ障害復旧） | 30分（朝の Yuna 手動対応） | 3分（Datadog dashboard 通知） | Datadog incident 集計 |
+| 競合バナー技術リサーチ工数 | 4時間/件 | 10分/件 | rui 実測 |
+| Retina体感満足度（クライアント調査） | 82% | 95% | 四半期NPS |
+| LCP改善（LP部OGP経由） | 2.4秒 | 1.6秒（fetchpriority + preload） | Vercel Analytics |
+| Chrome更新起因の出力差事故 | 2件/月 | 0件/月（SHA256 lock） | インシデントログ |
+| 権利メタデータ注入率 | 0%（未実装） | 100%（全PNG Copyright） | validateBanner v3 |
+
+### 実装ロードマップ（8週間）
+
+| 週 | 実装項目 | 責任者 |
+|---|---|---|
+| W1-W2 | Sharp v0.33 移行 + Sequential Access API 導入 | Hiro |
+| W3 | Puppeteer 22 BiDi 対応 + Chrome for Testing SHA256 lock | Hiro + Kuu |
+| W4 | `validateBanner()` v3（12観点）＋ oxipng 導入 | Hiro |
+| W5 | `<picture>` + srcset 自動生成 + fetchpriority snippet | Hiro + ren |
+| W6 | OpenTelemetry 計装 + Datadog dashboard | Hiro + Kuu |
+| W7 | HDR/Display P3 レーン + EXIF Copyright 注入 | Hiro + nori |
+| W8 | sota LP Hero → 6 OGP 自動展開 + rui 競合逆解析 | Hiro + sota + rui |
+
+### 継続運用ルール
+
+- **月次でBP追従レビュー**：Puppeteer/Sharp/Playwright/Chrome for Testing のリリースノートを毎月1日に読み、breaking change を harutoに事前報告
+- **四半期でKPI再測定**：上記12KPIをNotion DBに記録し、haruto の月次経営会議で共有
+- **バージョン固定は package.json + SHA256 の二重管理**：`chrome@129.0.6668.100`（SHA256: ...）を lockfile で強制
+- **`@let-inc/banner-utils` は semver 厳守**：LP部/システム部との共有パッケージは breaking change 時 major bump + Yuna/ren/nao へ一報必須

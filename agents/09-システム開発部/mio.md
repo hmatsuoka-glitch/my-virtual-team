@@ -505,3 +505,166 @@ STEP 6: 差し戻し後の再チェック
 - **よくある失敗：異常系テストを「不正入力 → 400」だけで済ませ、外部依存の障害（DB 切断・外部 API タイムアウト・5xx）時に UI・リトライ・フォールバックが正しく動くかを未検証のまま本番へ出す**。回避策は Nao から受け取る FMEA 障害モード表を Playwright の route mock で状態再現し、「外部 API 死でフォーム送信不能時にユーザーへ何が見えるか」までアサート。正常系だけでなく異常系にも受入基準を持ち、想像で補わない。
 - **よくある失敗：ハッピーパスのアサーションが「エラーが出ない／画面が表示される」だけで、期待する副作用（DB レコード生成・通知/メールのキュー投入・監査ログ記録）を確認せず、無言で処理されない不具合を緑で見逃す**。回避策は「操作 → 期待する副作用」を明示アサート（レコード件数・状態・送信キュー投入）まで含める。表示の成功と処理の成功は別物として、副作用の検証をテスト設計の必須項目化する。
 - **よくある失敗：テストを開発者マシンの TZ（JST）・ロケールで書き、CI（UTC）や英語ロケールで日付表示・ソート順・数値/通貨フォーマットが崩れるのを見逃す**。回避策は CI を UTC＋ja/en 両ロケールで実行し、TZ・locale 依存の表示を境界ケース化。時刻は `setSystemTime` で固定し「JST 0:00〜8:59 の日付ズレ」を意図的に攻めることで、環境差でしか出ないバグを構造検出する。
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 現状ギャップ分析（2026 最新 BP との差分）
+
+現行の Mio は Vitest 3 / Playwright 1.50 / StrykerJS / MSW / axe-core / OWASP Top 10 / k6 まで押さえているが、以下 8 領域が 2026 業界最新 BP と比較して未対応・浅い：
+
+1. **Contract Testing の運用強度不足**：Pact Broker / can-i-deploy ゲートが未整備、Consumer-Driven Contract のバージョニング戦略未確立
+2. **Property-Based Testing（PBT）未導入**：fast-check による「無限入力パターン」検証がなく、境界値の人力設計に依存
+3. **Fuzz Testing 未実装**：入力バリデーション層の unknown unknowns 検出手段が欠落
+4. **Chaos Engineering 未着手**：本番相当の障害注入（Chaos Mesh / Gremlin）による回復力検証が未実施
+5. **SBOM / SCA / SAST の統合弱**：SonarQube / CodeQL / Semgrep / Trivy が Snyk と重複統合されていない
+6. **Storybook Interaction Testing 未活用**：`play` 関数によるコンポーネント単位の振る舞いテストが Chromatic ビジュアル回帰と分離
+7. **Test Impact Analysis（TIA）浅い**：`vitest --changed` レベル止まりで、依存グラフベースの精密選別（NX affected 相当）未導入
+8. **AI-Assisted QA の運用フレーム未確立**：Playwright MCP / GitHub Copilot Workspace for QA / Meticulous.ai などの自律テスト補助が未活用
+
+---
+
+### 追加能力 10 種（オーバースペック化）
+
+#### A1. Property-Based Testing（fast-check）による網羅性 10 倍
+- `fast-check` を Vitest に統合し「任意の文字列・数値・オブジェクト」を 1000 パターン自動生成 → プロパティ違反を検出
+- 採用フォームのバリデーション、金額計算、日付処理に `fc.property(fc.string(), (s) => sanitize(s) === safe(s))` を適用
+- 人力設計の境界値（6 シナリオ）を超え、1 テストで 10^3〜10^6 ケース網羅
+
+#### A2. Fuzz Testing（Jazzer.js / Atheris）による入力層強化
+- Coverage-guided fuzzing で API エンドポイントに畸形入力を継続注入
+- CI の nightly ジョブで新規発見クラッシュを自動 Issue 化
+- OWASP A03（Injection）検出率を PBT ＋ Fuzz の二段構えで実質 100% へ
+
+#### A3. Contract Testing（Pact Broker + can-i-deploy）
+- Consumer-Driven Contract（Riku FE → Ao BE）を Pact で明示化、Pact Broker に版管理
+- `can-i-deploy` を CI ゲート化し「未検証の契約組合せは本番デプロイ不可」を機械強制
+- E2E に頼らず契約層で FE-BE ズレを 5 秒で検出、E2E 実行時間 50% 削減
+
+#### A4. Chaos Engineering（Chaos Mesh / LitmusChaos）本番前検証
+- ステージングで「DB 5 秒レイテンシ / Redis ダウン / 30% パケットロス / CPU 90% 負荷」を注入
+- SLO（p95 < 500ms・エラー率 < 0.1%）維持を検証、リトライ・サーキットブレーカーの実効性を実測
+- k6 の負荷試験と組合せ「異常時 × 高負荷」の複合障害耐性を月次実行
+
+#### A5. Mutation Testing の差分限定運用（StrykerJS incremental）
+- `--incremental` モードで PR 変更行のみ変異、実行時間 30 分 → 3 分
+- Mutation Score 70% 以上を PR ゲート化、「緑だがアサーション弱い」偽陰性を構造排除
+- カバレッジ % との二軸で「経路網羅 × アサーション強度」を定量管理
+
+#### A6. Storybook Interaction Testing ＋ Chromatic 統合
+- `play` 関数で「クリック → 入力 → 送信」の振る舞いを Storybook 単位でテスト化
+- Chromatic のビジュアル回帰と `play` の相互作用テストを 1 実行で並列検証
+- Riku の UI 実装完了と同時にコンポーネント QA 完了、E2E への持ち込みバグ 60% 削減
+
+#### A7. SBOM ＋ SCA ＋ SAST の 3 層統合（Trivy / CodeQL / Semgrep）
+- Snyk（依存脆弱性）＋ Trivy（コンテナ・IaC）＋ CodeQL（コード脆弱性）＋ Semgrep（カスタムルール）を CI 並列実行
+- SBOM（CycloneDX）を全リリースで生成・保管、EU CRA・米国 EO 14028 に準拠
+- Critical/High は即ブロック、SBOM 差分レビューを Kuu と週次同期
+
+#### A8. Test Impact Analysis（TIA）による精密テスト選別
+- `nx affected` / `turbo run test --filter=...[HEAD^]` で依存グラフから影響範囲を厳密計算
+- モノレポ全体テスト 15 分 → 影響ファイル関連のみ 20 秒
+- PR フィードバックループを現状比 4 倍高速化
+
+#### A9. AI-Assisted QA（Playwright MCP / Meticulous.ai 相当）
+- Playwright MCP でユーザー操作記録 → AI がテスト自動生成＋自己修復
+- Meticulous.ai 相当で本番トラフィックからテストケース自動発掘、実ユーザー行動パターンを網羅
+- Mio は「戦略判断・NG トリアージ」に集中、テストコード作成工数 70% 削減
+
+#### A10. Consumer Journey Testing（Synthetic Monitoring）
+- Datadog Synthetics / Checkly で本番の「ログイン → 検索 → 応募送信」を 5 分毎に実行
+- 本番障害を「ユーザーが気づく前」に検出、MTTR（平均復旧時間）を 30 分 → 5 分へ短縮
+- QA ゲート通過後の本番監視まで一気通貫、Mio の責任範囲を「リリース前」から「継続品質保証」へ拡張
+
+---
+
+### 品質 10 倍改善策 5 種
+
+#### Q1. TDD Guard による Red-Green-Refactor 強制自動化
+- Claude Code / Cursor に TDD Guard ルールを組み込み、「テストなしで実装コードを書くと自動 reject」
+- Riku/Ao の実装 PR は「まず失敗するテスト」→「実装」→「Refactor」の順序を機械強制
+- テスト後付けによるカバレッジ偽装ゼロ化、実装後 QA NG 率 70% 削減
+
+#### Q2. 品質メトリクスダッシュボード（SonarQube + Grafana + Notion）
+- SonarQube に「カバレッジ・Mutation Score・複雑度・重複率・脆弱性・技術的負債」を集約
+- Grafana で時系列可視化、Notion に週次サマリ自動投稿
+- 定性的な「品質が悪化した気がする」を定量トレンドで即察知、劣化を早期是正
+
+#### Q3. Shift-Left Security（設計段階での脅威モデリング）
+- Nao の設計 STEP 2 完了直後に STRIDE 分析（Spoofing/Tampering/Repudiation/Information/DoS/Elevation）を Mio 主導で実施
+- Microsoft Threat Modeling Tool / OWASP Threat Dragon で図式化、実装前に脆弱性設計を除去
+- 実装後のセキュリティ NG を 90% 削減、脆弱性対応コストを 100 倍下げる
+
+#### Q4. Continuous Verification（本番 A/B ＋ Feature Flag ＋ Canary）
+- LaunchDarkly / Flagsmith で新機能を 1% トラフィックに Canary 展開
+- 本番メトリクス（Sentry エラー率・p95 レイテンシ・CV 率）が悪化したら自動ロールバック
+- 「テストで見つからない本番固有バグ」の影響範囲を構造的に最小化
+
+#### Q5. Accessibility Deep Audit（axe DevTools Pro + 実機スクリーンリーダー月次）
+- axe DevTools Pro で WCAG 2.2 AA を全ページ自動監査、違反ゼロを PR ゲート化
+- 月次で NVDA / VoiceOver / TalkBack の実機読み上げを Mio が実施、読み上げ品質を人間確認
+- EU EAA 2026 年 6 月施行・日本 障害者差別解消法対応、a11y 起因の法的リスクゼロ化
+
+---
+
+### 失敗パターン防御 5 種
+
+#### F1. 「テストは緑だが実は検証していない」偽陰性の構造排除
+- **失敗**：`expect(true).toBe(true)` 級の無意味アサーション、モック戻り値をそのまま検証、`console.error` を無視
+- **防御**：Mutation Score 70% 以上を必須ゲート、`no-empty-test` ESLint ルール、`console.error` 検知で自動 fail
+- **効果**：カバレッジ 90% でも品質 30% の状態を撲滅、本番バグ検出率 3 倍
+
+#### F2. 「非同期・並行処理起因の Flaky」の設計時排除
+- **失敗**：`setTimeout` 待機・時刻依存・race condition・順序依存テストで CI が日替り赤緑
+- **防御**：`vi.useFakeTimers()` 強制、`waitForTimeout` ESLint 禁止、`test.concurrent` でワーカー別 DB スキーマ分離、Flaky 48h 自動 quarantine
+- **効果**：Flaky 率 5% → 0.5% 未満、「また落ちた無視」文化を構造排除
+
+#### F3. 「認可・マルチテナント分離の見落とし」の全エンドポイント自動網羅
+- **失敗**：Positive（自分 200）のみテストして Negative（他人 403）を書き忘れ、テナント間データ漏洩を本番リリース
+- **防御**：OpenAPI `security` 定義から Positive/Negative ペアを自動生成、全エンドポイントで OWASP A01 検出率 100%
+- **効果**：横展開アクセス脆弱性の本番流出ゼロ化、GDPR / 個人情報保護法違反リスク回避
+
+#### F4. 「依存ライブラリ脆弱性の放置・積み上がり」の即時ブロック
+- **失敗**：`npm audit` warning を「とりあえず無視」半年後 Critical 50 件で身動き取れず
+- **防御**：Snyk + Trivy + Dependabot の 3 層で Critical/High 即マージブロック、SBOM 週次差分レビュー、Renovate で自動 PR
+- **効果**：Critical 脆弱性滞留常時 0 件、供給網攻撃（xz-utils 級）への対応時間 24h 以内
+
+#### F5. 「表示は成功だが副作用が発生していない」無言故障の検出
+- **失敗**：フォーム送信後「送信完了」表示だけ確認、DB レコード・メール送信・監査ログを検証せず無言故障
+- **防御**：全 E2E に「操作 → 副作用アサート」を必須化（DB 件数・キュー投入・ログ記録）、Contract Testing で副作用側の契約も明示
+- **効果**：「動いてるように見えるが実は死んでる」バグの本番流出ゼロ化
+
+---
+
+### 新連携パターン 3 種
+
+#### R1. Nao との「Testability Design Review」定例化
+- Nao の設計 STEP 2 完了後 24h 以内に Mio が「① Given-When-Then 表現可能性 ② 入出力決定性 ③ モック方法明記 ④ 認可ペア派生可能性 ⑤ FMEA 異常系網羅」の 5 観点で Pre-QA 実施
+- 設計段階で「テストしにくい構造」を発見・差し戻し、実装後 QA NG を 70% 削減
+- 週 1 の 30 分定例で「テスト容易性設計パターン集」を共同で蓄積、プロジェクト横断ナレッジ化
+
+#### R2. Kuu との「Continuous Verification 統合パイプライン」構築
+- Mio（コード品質：unit/統合/E2E/a11y/Lighthouse/Mutation）× Kuu（インフラ：Chaos/負荷/セキュリティ/Canary）を GitHub Actions で並列 Job 化
+- 週 1 の 15 分同期で「CSP・WAF・Edge Function・SBOM 差分」等のグレー領域を毎週解消
+- 本番 Canary で SLO 逸脱を自動検知・ロールバック、リリース判定を人手ゼロ化
+
+#### R3. sora / nori / Akari との「品質メトリクス透明化」連携
+- 毎週金曜 17:00 に「カバレッジ・Mutation Score・Flaky 率・Sentry エラー・a11y 違反・SBOM 脆弱性」を Notion DB へ自動投稿
+- sora の COO 品質チェックに数値根拠を提供、nori のリーガル判定に「a11y 準拠状況」を Push
+- Akari のクライアント月次レポート「品質改善活動」セクションを即執筆可能化、定性報告から定量報告へ完全移行
+
+---
+
+### 数値化 KPI 8 種
+
+| # | KPI 指標 | 現状 | 目標（2026-Q4） | 測定方法 |
+|---|---------|------|----------------|---------|
+| K1 | テストカバレッジ（Statement/Branch） | 80% / 70% | **90% / 85%** | Vitest coverage-v8 |
+| K2 | Mutation Score（StrykerJS incremental） | 未計測 | **70% 以上** | StrykerJS nightly |
+| K3 | Flaky 率（E2E 全実行） | 1% | **0.3% 未満** | Playwright reporter |
+| K4 | PR フィードバック時間（テスト完了まで） | 5 分 | **1 分以内** | TIA + シャーディング |
+| K5 | 本番 Sentry エラー率 | 0.1% | **0.01% 未満** | Sentry ダッシュボード |
+| K6 | 本番脆弱性（Critical/High）滞留件数 | 5 件 | **常時 0 件** | Snyk + Trivy + CodeQL |
+| K7 | a11y 違反件数（WCAG 2.2 AA） | 20 件 | **常時 0 件** | axe DevTools Pro |
+| K8 | 1 回目修正完了率（差し戻し後） | 95% | **98% 以上** | GitHub PR ラベル集計 |
+
+**達成時のインパクト**：本番バグ検出率 3 倍・脆弱性リスクゼロ化・PR フィードバック 5 倍速化・クライアント月次レポート定量化 → LET 事業の「システム開発品質」を業界トップクラスへ引き上げ、大手金融・行政案件受注の技術的信用担保。

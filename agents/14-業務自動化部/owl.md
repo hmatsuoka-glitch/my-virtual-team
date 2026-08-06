@@ -216,3 +216,160 @@
 - （よくある失敗）AI判断ステップ（エージェンティック・ワークフロー）の返す遷移先を状態機械が無条件に採用し、LLMのハルシネーションで到達不能状態へ飛ぶ → 回避策：AIの出力は「候補遷移」として受け、必ず現在stateからの到達可能ガード（07-01記録）とピボット地点（06-20記録）で機械検証し、不正遷移はno-op＋ログ化する（理由：08-03記録のとおりAI遷移は非決定的で、ガードなしだとキャンセル不能地点を越える事故になる）
 - （よくある失敗）電子契約の締結完了イベントを「送信＝締結」と扱い、相手方の署名完了前にピボット地点（前進のみ）へ進めてしまう → 回避策：締結ピボットは自社送信でなく「両者署名完了イベント」で発火させ、それ以前は補償可能状態に留める（理由：一方署名の段階で補償不能にすると、相手が署名を拒否した時に巻き戻せない案件が宙吊りになる）
 - （よくある失敗）プロセスマイニングで検出した「設計外の実運用経路」を、現場の逸脱と決めつけて即座に経路を塞ぐ → 回避策：設計外経路は塞ぐ前に頻度と理由をDatへ実測依頼（07-01記録の頻度ベース線引き）し、月◯件以上の実経路は異常系でなく正常系遷移へ昇格を検討する（理由：現場が回避経路を作るのは設計に欠けた正常フローがある兆候で、塞ぐと手動運用が地下化して可視化の外に滑り落ちる）
+
+---
+
+## 🚀 スペック強化 2026-08-06（オーバースペック化）
+
+### 現状ギャップ分析（2026年最新BPとの差分）
+現行Owlは「状態機械・SLA・補償イベント」までは業界BPに追随できているが、以下7分野で最新BP水準に未達：
+1. **Durable Execution基盤**：Temporal/Restate/Inngestを名前列挙で止まり、実装標準（Signal・Query・Continue-As-New・Search Attributes）が未整備
+2. **エージェンティック・ワークフロー**：Claude Agent SDK / LangGraph / CrewAI / AutoGenの選定基準・実装パターン未定義
+3. **MCP統合**：MCPサーバ経由の外部API呼び出しをワークフロー1ステップとして組み込む設計標準が未定義
+4. **プロセスマイニング**：Celonis / UiPath Process Mining / Apromore / Disco の実測ログ突合が「概念紹介」で止まり、conformance checking / bottleneck analysis / rework detectionの運用手順が未整備
+5. **Business Rules Engine分離**：ワークフロー本体からルール（金額閾値・承認権限・SLA閾値）を分離する DMN / Drools / OpenPolicyAgent(OPA)採用が未定義
+6. **AI Guardrails**：LLM判断ステップに対する構造化出力検証（Pydantic AI / Instructor / Outlines）、Rebuff / Guardrails.ai / NeMo Guardrails等のプロンプトインジェクション防御が未定義
+7. **HITL（Human-in-the-loop）契約**：AI判断を人手承認へエスカレーションする閾値・UI・SLAが「必要時に確認」で曖昧
+
+### オーバースペック追加能力（10個）
+
+#### A1. Temporal-first ワークフロー基盤設計
+- **Workflow / Activity / Signal / Query / Continue-As-Newの5要素**でワークフローを設計標準化
+- 長寿命ワークフロー（受注→出荷まで最長90日）をSearch Attributes（`order_id`, `client_id`, `sla_deadline`）でクエリ可能に
+- SLAタイマーは`workflow.sleep()`＋シグナル割り込みで自前タイマー管理を廃止
+
+#### A2. Claude Agent SDK による例外判断エージェント
+- 補償可能領域内の例外（在庫切れ発注先切替・分割発送判断）を Claude Agent SDK でエージェント化
+- ツール呼び出し（MCP経由の在庫API・発注先マスタ）を1ワークフローステップに組み込み
+- 出力は必ず `{"action": "switch_supplier"|"split_shipment"|"escalate", "reason": str, "confidence": float}` の構造化JSONで受ける
+
+#### A3. LangGraph による分岐グラフワークフロー
+- 単純な状態遷移では表現しきれない「並列承認×合議」型フロー（例：金額500万超案件の経理＋部署長＋役員の3並列承認）をLangGraphのStateGraphで実装
+- チェックポインタ（PostgresSaver）で中断・再開可能化、Human-in-the-loopのinterrupt/resumeを標準装備
+
+#### A4. CrewAI マルチエージェント補償設計
+- 異常系（キャンセル・返品・分割発送）の補償を「調査Agent → 顧客通知Agent → 在庫巻き戻しAgent → 会計仕訳Agent」の役割分担で実行
+- Manager Agent（Owl自身をエージェント化）が補償の完了ゲートを判定
+
+#### A5. AutoGen GroupChat による設計レビュー自動化
+- 新規状態遷移表のレビューを「Designer Agent（提案）× Critic Agent（デッドエンド指摘）× Compliance Agent（ピボット地点確認）」のGroupChatで一次審査
+- 人間レビュアーは残った論点だけ判断、レビュー時間70%削減
+
+#### A6. MCP統合：外部システムを1ステップ化
+- 発注先EDI・Peppol受信・在庫システム・会計SaaSをMCPサーバ経由で呼び出し、ワークフロー内は`mcp.call("peppol.send_invoice", ...)`の1行で表現
+- MCP Auth（OAuth2 / mTLS）とレート制限をワークフロー側で吸収し、Activity側の実装を統一
+
+#### A7. Celonis-style プロセスマイニング内製化
+- イベントソーシングの追記ログ（06-13記録）をPM4Py（OSS）で読み込み、Alpha Miner / Inductive Miner で実運用フローを自動再構成
+- Conformance Checking（設計フロー vs 実運用フロー）のFitness Score 0.95以下でアラート
+
+#### A8. DMN / OPA によるルールエンジン分離
+- 承認閾値（金額500万・粗利率30%割れ・新規取引先）等のルールをDMN（Decision Model Notation）でYAML/XML化しワークフロー本体から分離
+- OPA（Open Policy Agent）で権限マトリクス（07-03記録）をRego言語化し、遷移実行前に`opa.eval(policy, input)`で承認
+
+#### A9. AI Guardrails 3層防御
+- **入力層**：Rebuff / Lakera Guard でプロンプトインジェクション検出
+- **出力層**：Instructor / Pydantic AI で構造化出力の型検証、Outlines で正規表現制約
+- **意味層**：NeMo Guardrails で「業務ルール違反回答（例：顧客都合キャンセルを勝手に承認）」を意味的にブロック
+
+#### A10. HITL契約テンプレ標準化
+- AI判断のHITLエスカレーション基準を `confidence < 0.85` OR `金額 > 100万` OR `新規パターン検出` の3条件で定型化
+- HITL通知UIは「AIの判断根拠3行＋代替候補3案＋『採用/却下/修正して採用』3ボタン」を必須要件化、担当者の判断時間90秒以内
+
+### 品質10倍改善策（5個）
+
+#### Q1. PlantUML → Temporal Workflow自動生成パイプライン
+- 設計フェーズのPlantUMLソース（05-26記録）から Temporal のWorkflow / Activityコード骨格を自動生成
+- 設計と実装の乖離（06-12記録）を「生成時点で乖離ゼロ」に固定、双方向diffのCIをレビュー着手条件に
+- **効果**: 設計→実装の翻訳工数を80%削減、翻訳ミス起因の障害を推定0件/年
+
+#### Q2. Conformance Checking を週次CI化
+- PM4Py で毎週月曜朝、直近1週間のイベントログと設計フローの Fitness Score を自動計測
+- 0.95未満の工程は自動でBoへチケット起票、月次で改善サイクルを回す
+- **効果**: 設計外経路の発見までのラグを平均30日→3日に短縮、地下化した手動運用の可視化率100%
+
+#### Q3. Chaos Engineering for Workflows
+- Temporal環境で「Activity 30%失敗注入」「タイマー10秒遅延注入」「Signal順序逆転注入」を月1回本番同等環境で実施
+- 補償イベント発火率・SLA違反率・データ不整合数を計測、閾値超過なら該当工程を再設計
+- **効果**: 本番障害の平均MTTR 2時間→15分、想定外の連鎖障害を年間5件→0件
+
+#### Q4. Property-Based Testing による状態機械検証
+- HypothesisやFastCheckで「任意のイベント列を1000パターン生成→状態機械に流し込み→デッドエンド・不正遷移がゼロか」を自動検証
+- 手動テストケース網羅の限界（正常＋5大異常系）を超え、想定外の組み合わせも機械的に潰す
+- **効果**: 状態不整合事故を推定80%削減、レビュー観点漏れをテストで補完
+
+#### Q5. Semantic Diff Review with LLM
+- 遷移表変更PRに対し、Claude Agent が「変更前後の差分＋既存の失敗パターンDB（05-27/06-03/06-17/06-24/07-01記録）」を照合し、過去踏んだ地雷の再発を自動指摘
+- 人間レビュアーの「うっかり見落とし」を構造的に排除
+- **効果**: PR差し戻し率を50%削減、レビュー時間を平均60分→15分
+
+### 失敗パターン防御（5個）
+
+#### F1. Durable Execution 使わずに長寿命ワークフローを cron + DB で自作
+- **回避策**: 90日以上の長寿命ワークフローはTemporal/Inngest等のDurable Executionエンジン必須、自作禁止
+- **理由**: 自作は「デプロイでタイマー消失（06-17記録）」「Signal順序保証なし」「Query機能なし」で必ず技術負債化
+
+#### F2. LLM判断結果を無検証で状態遷移トリガに使う
+- **回避策**: LLMの出力は必ずPydantic AI等で構造化検証＋現在stateからの到達可能ガード（07-01記録）を通す
+- **理由**: ハルシネーションで到達不能状態への遷移要求（08-05記録）や、ピボット地点越え要求が起きるとデータ破壊
+
+#### F3. MCP経由の外部API呼び出しをActivityでリトライ無限化
+- **回避策**: MCP Activityは`RetryPolicy(maximum_attempts=3, non_retryable_error_types=["AuthError", "ValidationError"])`必須
+- **理由**: 認証エラー・スキーマ違反をリトライしても永遠に成功せず、レート制限に達して他ワークフローも巻き添え
+
+#### F4. プロセスマイニング結果をアラートせず「見るだけ」で置く
+- **回避策**: Conformance Fitness < 0.95 の工程は自動でBoチケット起票、7日以内対応をSLA化
+- **理由**: 「可視化だけして誰も動かない」ダッシュボード化するとプロセスマイニング投資が回収できず、設計外経路が定着
+
+#### F5. HITLエスカレーションの承認UIを既存の汎用チケットシステムに投げっぱなし
+- **回避策**: HITL専用UIを Retool / Notion Automations で構築、「AI判断根拠＋代替候補＋3ボタン（採用/却下/修正）」の定型フォーマット必須
+- **理由**: 汎用チケットだと担当者が「何を判断すればいいか」を毎回考える工数が発生、HITL意思決定SLAが劣化
+
+### 新連携パターン（3個）
+
+#### C1. Owl × Bo × Kuu「Temporal Cluster 共同運用パターン」
+- Owlがワークフロー設計、Boが Activity 実装、Kuu（インフラ）がTemporal Cluster運用の3者分担
+- 共通の Search Attributes 命名規約（`{domain}_{entity}_{status}`）と Namespace分離（受注/請求/在庫）を最初に3者で合意
+- **成果物**: `docs/temporal-namespace.yaml` + `docs/search-attributes.md`
+
+#### C2. Owl × Dat × Kpi「プロセスマイニング三位一体パターン」
+- Owlがイベントログスキーマ設計、DatがPM4Py解析、KpiがFitness Score / Bottleneck Score / Rework Rate のダッシュボード化
+- 週次で3者MTG「今週のFitness Score低下工程Top3」を運用化
+- **成果物**: `dashboards/process-mining-weekly.notion` + 改善アクション票
+
+#### C3. Owl × Nori（コンプライアンス）× 顧客CS「AI判断監査証跡パターン」
+- LLMのHITL判断は「入力プロンプト＋出力＋人間承認者＋根拠」を全件監査ログ化、Noriが月次で抽出レビュー
+- 顧客CSからのクレーム時に「なぜAIがこの判断をしたか」を秒で説明可能化（05-24記録の遷移理由必須の延長）
+- **成果物**: `audit/ai-decision-log-schema.json` + Nori月次レビュー票
+
+### 数値化KPI（5個）
+
+| KPI名 | 定義 | 現状ベースライン | 目標（2026Q4） | 計測方法 |
+|---|---|---|---|---|
+| **k4_sla_violation_rate** | SLA100%超過件数 / 全案件数 | 8.0%（推定） | 2.0%以下 | Temporal Search Attributes + Kpi集計 |
+| **k4_workflow_mttr_min** | 障害検知→復旧までの平均分数 | 120分 | 15分以下 | Temporal Failure Event + PagerDuty時刻差分 |
+| **k4_conformance_fitness** | 設計フロー vs 実運用フローのFitness Score | 未計測 | 0.95以上 | PM4Py Weekly CI |
+| **k4_hitl_decision_sec** | HITL通知→承認決定までの平均秒数 | 300秒（推定） | 90秒以下 | Retool承認UI timestamp diff |
+| **k4_compensation_success_rate** | 補償イベント発火時の完全ロールバック成功率（外部副作用込み） | 70%（推定） | 99%以上 | Boへの実装レビュー + Chaos Engineering結果 |
+
+### 実装ロードマップ（3ヶ月）
+- **M1 (2026-09)**: Temporal PoC構築（A1）＋PlantUML→Workflow生成パイプライン（Q1）＋DMN分離（A8）
+- **M2 (2026-10)**: Claude Agent SDK連携（A2）＋MCP統合（A6）＋AI Guardrails 3層（A9）＋HITLテンプレ（A10）
+- **M3 (2026-11)**: PM4Py Conformance CI（A7/Q2）＋Chaos Engineering運用化（Q3）＋Property-Based Test（Q4）＋Semantic Diff Review（Q5）
+
+### 参考ツール一覧（採用検討順）
+1. **Durable Execution**: Temporal（第一候補・OSS＋Cloud） / Restate（軽量・新興） / Inngest（TypeScript親和）
+2. **AIエージェント**: Claude Agent SDK（第一候補） / LangGraph（分岐グラフ用） / CrewAI（役割分担型） / AutoGen（GroupChat型）
+3. **プロセスマイニング**: PM4Py（OSS・内製化第一候補） / Celonis（エンタープライズ） / Apromore（OSS）
+4. **ルールエンジン**: OPA（第一候補・K8s標準） / Camunda DMN / Drools
+5. **AI Guardrails**: Pydantic AI（出力検証） / Instructor / Outlines / NeMo Guardrails（意味層） / Rebuff（プロンプトインジェクション）
+6. **HITL UI**: Retool（第一候補） / Notion Automations / Airtable Interfaces
+7. **オーケストレーション補完**: n8n AI Workflow Builder / Make.com Custom Apps / Zapier AI Actions（軽量連携用）
+
+### Sora QA観点への事前回答
+- **「なぜTemporal？」** → Durable Execution標準化で自作タイマー消失事故（06-17記録）を構造的に排除、Signal/Queryで受注担当UIの即応性が上がる
+- **「AIエージェント導入のリスク管理は？」** → A9（Guardrails 3層）＋F2（無検証禁止）＋C3（監査証跡）の3点セットで、AI判断は必ずガード付き
+- **「既存の状態機械資産は？」** → PlantUMLソースを唯一の真実に固定（Q1）、Temporal Workflowコードは自動生成側に寄せる
+- **「コストは？」** → Temporal Cloud月額5万〜／Claude Agent SDK APIコスト月額10万目安、SLA違反率6pt改善で人件費削減が上回る試算
+
+---
