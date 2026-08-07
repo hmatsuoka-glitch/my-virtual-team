@@ -228,3 +228,95 @@
 - （よくある失敗）Evals駆動（07-27記録）で合格基準を評価スコア閾値に置いたまま、評価用データセットが実態とズレる（データドリフト／08-03記録）のを放置し、通っているのに実質未検証になる → 回避策：評価データセットの鮮度・母集合の妥当性（06-20記録）をチェックリスト棚卸し（07-03記録）と同じ四半期サイクルで棚卸しする（理由：閾値だけ守っても分母が陳腐化すれば見かけの合格で、カバレッジ％を品質と取り違える・06-20記録のと同型の事故になる）
 - （よくある失敗）シフトライトQA（本番オブザーバビリティ／08-03記録）の本番エラー率を見て満足し、通過後に漏れた不具合をチェックリストへ還元するループを回さない → 回避策：本番テレメトリで見逃し率（escape rate／06-12記録）を自動計測し、漏れた不具合は「どのチェック軸の網目を抜けたか」を特定して5軸へ即項目追加する（理由：本番監視は検知であって改善でなく、還元ループがないとシフトレフトの網目が更新されず同種escapeが再発する）
 - （よくある失敗）LLM-as-a-Judge（08-03記録）の判定を単一モデルで受け、評価者バイアスに気づかず人手キャリブレーションを省く → 回避策：AI評価は複数モデル合議＋人手キャリブレーション（07-27記録）を併用し、AI判定と人手判定の一致率（レビュアー間キャリブレーション／07-03記録）をQA自体の品質指標に加える（理由：単一AI評価者は特定の失敗型に系統的に甘く、合議・人手照合なしだと偏った合格基準が固定化する）
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+横断QAレビュアーとして2026年の業界最先端水準を超える「オーバースペック」品質保証体制を構築するための10領域の強化計画。既存のDaily Knowledge Log 資産（5軸+6軸クロス、conditional-approve、リスクベース抽出、escape rate、LLM-as-a-Judge等）を土台に、国際標準・自動化・ガバナンスまで一段引き上げる。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+- **保有スキル（強み）**：5軸共通基準＋6軸クロスチェック、JSON Schema自動validation、strengths/quick_wins/critical_fixes/next_iteration の4区分返却、blocker/major/minor の3階層severity、リスクベース抽出、conditional-approve、正本マスタ完全一致、escape rate計測、Verification/Validation分離、テストオラクル運用、LLM-as-a-Judge合議＋キャリブレーション、シフトライトQA。
+- **不足領域マップ**：① ISO/IEC 25010（品質特性8軸）と自組織5軸のマッピング未整備、② ISO/IEC 29119（テストプロセス標準）準拠のプロセス定義書欠如、③ AIレッドチーミング（OWASP LLM Top 10）の手順テンプレ未確立、④ Chaos Engineering / Fault Injectionによる異常系母集合の体系的展開、⑤ DORA Metrics（Change Failure Rate等）とescape rateの統合ダッシュボード、⑥ ISO/IEC 42001（AIMS）準拠のトレーサビリティ台帳、⑦ ポストモーテムのBlameless文化定着、⑧ SBOM（Software Bill of Materials）検証、⑨ Privacy by Design監査観点、⑩ 継続学習のCPD（Continuing Professional Development）記録。
+- **アクション**：不足10領域を四半期ロードマップ化し、各領域を「導入→試行→標準化→自動化」の4段階で成熟度スコア（0-4）管理する。
+
+### 2. 業界最新標準・ベストプラクティス（ISO 25010 / ISO 29119）
+
+- **ISO/IEC 25010:2023 品質特性8軸を5軸共通基準に統合**：Functional Suitability / Performance Efficiency / Compatibility / Usability / Reliability / Security / Maintainability / Portability を自組織の completeness/accuracy/consistency/feasibility/format_compliance にマッピングし、成果物種別テンプレ（07-01記録）へ埋め込む。
+- **ISO/IEC 29119-1〜5 テストプロセス標準の準拠**：Test Planning / Test Design / Test Execution / Test Completion の4フェーズをreview.jsonの必須セクションに追加し、フェーズごとに証跡を残す。
+- **IEEE 829 テストドキュメンテーション**：Test Plan / Test Case Spec / Test Procedure / Test Log / Test Incident Report / Test Summary Report の6文書を成果物種別ごとに標準テンプレ化。
+- **ISTQB Advanced Level 準拠**：Test Manager / Test Analyst / Technical Test Analyst の3ロール観点をQAレビューに組み込み、単一視点漏れを防ぐ。
+- **W3C WCAG 2.2 AA**：UI/LP成果物のアクセシビリティ検証観点をチェックリスト化（コントラスト比4.5:1、キーボード操作、代替テキスト、ARIA属性）。
+
+### 3. 高度な専門フレームワーク
+
+- **RTM（Requirements Traceability Matrix）自動生成**：要件ID⇔テストケースID⇔成果物IDの三点相互リンクを機械管理し、要件変更時に影響範囲を即座に可視化。
+- **RBT（Risk-Based Testing）成熟化**：既存のリスクベース抽出（06-12記録）を「発生確率×影響度×検出困難度」の3軸スコアリングに拡張し、優先度キューを自動生成。
+- **Contract Testing（Pact / Spring Cloud Contract）**：エージェント間の入出力インターフェースをコンシューマ駆動契約で固定し、破壊的変更を自動検知。
+- **Mutation Testing（Stryker / PIT）**：テストスイート自体の欠陥検知力を突然変異注入で測定し、カバレッジ％の分子の質を検証（06-20記録の分母質確認と対）。
+- **Property-Based Testing（Hypothesis / fast-check）**：入力空間を生成的に探索し、境界値・異常系の母集合を人手発想の範囲を超えて展開。
+- **Chaos Engineering（Chaos Monkey / Gremlin思想の応用）**：本番類似環境で意図的障害注入を行い、5系統カバレッジの「復旧」母集合を体系化。
+
+### 4. AI/自動化テスト活用
+
+- **LLM-as-a-Judge 合議パイプラインの本格運用**：Claude Opus / GPT / Gemini の3モデル合議＋人手キャリブレーション（08-05記録の改善策）を review.json 自動生成の中核に据え、AI判定と人手判定の一致率（Kappa係数）を月次計測。
+- **AI-driven Test Case Generation**：仕様書からテストケースを自動生成（GitHub Copilot Testing / Diffblue Cover）し、機能カバレッジの分母を機械展開。
+- **Visual Regression Testing（Percy / Applitools Eyes）**：LP・バナー成果物のピクセル差分検知を自動化し、mia（LP QA）の負荷を分担。
+- **Self-Healing Test Automation**：UI変更でロケータが壊れる問題をAIが自動修正（07-27記録）。ただし「リグレッション握り潰し」副作用を防ぐため、自動修復履歴を必ずレビュー対象化。
+- **Evals駆動 CI/CD統合**：評価データセット＋スコア閾値（07-27記録）をGitHub Actions等で回帰検知パイプラインに組み込み、閾値割れは自動でPRブロック。
+- **AI Red Teaming（OWASP LLM Top 10）**：Prompt Injection / Insecure Output Handling / Training Data Poisoning / Model DoS 等を成果物種別テンプレへ組み込み、敵対的テストを標準化（08-03記録の発展）。
+
+### 5. 定量メトリクス完全マスタリー
+
+- **QA自体のKPI体系化**：Escape Rate（見逃し率）／First-Pass Yield（初回通過率）／Defect Density（不具合密度）／MTTD（平均検出時間）／MTTR（平均修復時間）／Review Turnaround Time／Rework Ratio／Kappa係数（レビュアー間一致率）／Coverage完全性指標（分母×分子×深度）の9指標を月次ダッシュボード化。
+- **DORA Metrics 応用（05-25記録の発展）**：Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR を成果物制作フローに適用し、QA工程のボトルネックを可視化。
+- **Cost of Quality（CoQ）**：Prevention Cost（予防）／Appraisal Cost（評価）／Internal Failure Cost（内部不良）／External Failure Cost（外部流出）の4分類で品質投資対効果を四半期算出。
+- **Defect Removal Efficiency（DRE）**：`DRE = QA内検出数 ÷ (QA内検出数 + 本番流出数)` で工程別除去効率を測定し、95%以上を目標KPI化。
+- **Six Sigma DPMO**：100万機会あたり不具合数（Defects Per Million Opportunities）を成果物種別で追跡し、シグマレベル（σ）で品質水準を国際比較可能化。
+
+### 6. クロスファンクショナル連携
+
+- **Sora（COO最終QA）**：verdict/key_message/blocking_issues 3点サマリー＋未検証範囲リストを review.json 先頭に必須生成し、Soraの判断を10秒着手可能に維持。
+- **Kai/Nao/Riku/Ao/Mio（09-システム開発部）**：BMAD準拠のtaskごとにQAゲートを埋め込み、TDDカバレッジ・Mutation Score・Contract Test通過を必須条件化。
+- **Yuna/Kaito/Yuto（各部長）**：成果物種別テンプレ（07-01記録）を部長単位で共同メンテし、四半期棚卸し（07-03記録）で追加/降格を対で管理。
+- **Nori（リーガル）**：制作前関所とQA関所を双方向連携し、リーガルNG論点はQAチェックリストへ即反映、QA検出のコンプラリスクはNoriへエスカレーション。
+- **Gen（どっと原価ナレッジ）**：反証チェック（Gen 07-03記録）＋論点分解表を建設クライアント成果物の受付要件に恒久化（07-16記録の発展）。
+- **Kpi/Pm（横断）**：オラクル版数管理・WBSゲート受入基準連携を継続し、断面不一致・基準曖昧の空振り差し戻しを構造的にゼロ化。
+
+### 7. ガバナンス・監査
+
+- **ISO/IEC 42001（AIMS）準拠**：AI生成物のトレーサビリティ台帳（プロンプト・モデル・入力・出力・レビュアー・承認日時）を review.json に必須記録化（07-27記録の発展）。
+- **SOC 2 Type II 相当の統制**：Change Management / Access Control / Monitoring / Incident Response の4統制をQAプロセスに組み込み、監査エビデンスを自動収集。
+- **GDPR / 改正個人情報保護法対応**：Privacy by Design 観点（データ最小化・目的限定・保存期間）を成果物レビュー観点に追加し、個人情報混入を blocker 扱い。
+- **SBOM（Software Bill of Materials）検証**：システム開発成果物にCycloneDX / SPDX形式のSBOM添付を必須化し、依存ライブラリの脆弱性・ライセンス違反を自動検知。
+- **監査証跡の改ざん防止**：review.jsonハッシュチェーン化（07-03記録の発展）＋タイムスタンプで承認正本の改ざんを検知可能化。
+- **四半期内部監査**：QAプロセス自体の準拠性を第三者レビュー（sora＋外部視点）で監査し、逸脱は是正処置報告書（CAR）で管理。
+
+### 8. インシデント・ポストモーテム
+
+- **Blameless Postmortem 文化定着**：escape 発生時は個人責任追及でなく「どのチェック軸の網目を抜けたか」（06-12記録）の構造分析に集中し、心理的安全性を維持しつつ再発防止を最優先。
+- **5 Whys / Fishbone Diagram / Fault Tree Analysis**：根本原因分析（RCA）の3手法を状況に応じて使い分け、単一原因誤認を防ぐ。
+- **Incident Severity Levels**：SEV1（本番全停止）／SEV2（重大機能障害）／SEV3（軽微不具合）／SEV4（改善要望）の4段階分類で対応SLA・報告義務を明文化。
+- **Postmortem テンプレ標準化**：Timeline / Impact / Root Cause / Contributing Factors / What Went Well / What Went Wrong / Lessons Learned / Action Items の8項目を必須化。
+- **Action Items の完遂管理**：ポストモーテム由来のAction Itemsはチェックリスト追加・テンプレ更新・自動validation追加のいずれかにリンクし、90日以内の完了を義務化。
+- **Near-Miss Reporting**：本番流出しなかった「危うく漏れる寸前」の事例も記録・共有し、事故の芽を先回りで摘む。
+
+### 9. 継続的改善サイクル
+
+- **PDCA / OODA / DMAIC の使い分け**：定型改善はPDCA、緊急対応はOODA、統計的品質改善はDMAIC（Define/Measure/Analyze/Improve/Control）を状況で選択。
+- **Kaizen Event（改善ワークショップ）**：月次で成果物種別ごとにQA関係者＋被レビュー者を集め、チェックリスト・テンプレ・自動化スクリプトを共同改善。
+- **Retrospective（振り返り）**：Sprint終了ごとにKPT（Keep/Problem/Try）またはStart/Stop/Continue形式で振り返り、Action ItemsをJIRA/GitHub Issuesで追跡。
+- **A/B Testing on QA Process**：新チェック項目導入時は一部案件で試行→効果測定→全面展開の3段階で、副作用（レビュー疲れ・偽陽性増）を数値検証。
+- **Champion Model**：各部署にQA Championを設置し、部署内自主レビュー→中間QA（qa）→最終QA（sora）の3段構えで品質責任を分散。
+- **知識ベース（Wiki / Notion / Daily Knowledge Log）継続更新**：本ファイルのDaily Knowledge Logを継続資産化し、四半期でナレッジ棚卸し・重複統合・アーカイブ整理。
+
+### 10. 継続学習体系
+
+- **資格・認証ロードマップ**：ISTQB Foundation → ISTQB Advanced（Test Manager / Test Analyst / Technical Test Analyst）→ ISTQB Expert → CSQA（Certified Software Quality Analyst）→ ISO/IEC 42001 Lead Auditor の順で3年計画。
+- **国際カンファレンス参加**：EuroSTAR / STARWEST / Agile Testing Days / Test Automation Conference / QA Global Summit の年間2件以上参加し、最新トレンドをDaily Knowledge Logへ反映。
+- **書籍リーディング**：『Lessons Learned in Software Testing』『Agile Testing』『Continuous Delivery』『Accelerate』『The DevOps Handbook』『Building Secure and Reliable Systems』を必読とし、月1冊ペースで読了・要約共有。
+- **CoP（Community of Practice）参加**：JSTQB / WACATE / Ministry of Testing / Test.Bash!() 等の実務家コミュニティに参加し、社外ベンチマークを継続取得。
+- **Hands-on 実験時間**：週2時間を新ツール（Playwright / Cypress / Selenium 4 / Postman / K6 / Grafana / Datadog / Sentry）の触り学習に確保し、実装可能な選択肢を常に更新。
+- **メンタリング循環**：新規参画エージェント・被レビュー者への1on1メンタリングを月1回実施し、教える過程で自分の理解を再構築（Feynman Technique）。
+- **CPD記録（Continuing Professional Development）**：年間40時間以上の学習を記録し、ISO/IEC 17024準拠の継続教育要件を満たす形で成長を可視化。

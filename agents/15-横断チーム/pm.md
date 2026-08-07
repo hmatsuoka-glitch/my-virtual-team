@@ -297,3 +297,225 @@
 - （よくある失敗）プロジェクト→プロダクト移行（08-03記録）の継続改善案件を、旧来の「納期遵守率」で測り続けて改善速度の停滞を見逃す → 回避策：継続案件はQCDのアジャイル型（時間・コスト固定でスコープ調整／06-20記録）と握り直し、KPIを「継続KPIの改善速度」へ切り替える（理由：締めのないプロダクト型に締切KPIを当てると、測っているだけ・Kpiの06-17記録の飾りKPIになり改善が止まる）
 - （よくある失敗）キャパシティ・プランニング（08-03記録）を現稼働の延長だけで引き、四半期先の受注可否判断で将来ピーク週の競合を織り込まず安請け合いする → 回避策：新規受注の時点でメンバー軸ガント（07-01記録）に受注済み案件の山を仮置きし、ピーク週競合が閾値超なら受注時期をずらすか外注判断する（理由：現稼働80%でも既存案件の山が重なる週は将来165%になり、06-17記録の月平均の罠を受注段階で再生産する）
 - （よくある失敗）会議AIの「決定/宿題/担当/期限」自動抽出（08-03記録）をそのままWBSタスク化し、抽出漏れ・担当の取り違えを検証せず走らせる → 回避策：AI抽出タスクは48hタスク化導線（06-16記録）に乗せる前に、議事録の決定リストとの差分照合（06-17記録）を人手で1回通す（理由：AI抽出は暗黙の宿題や条件付き決定を落としやすく、消えた決定が隠れ遅延・06-17記録になる）
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+2026年時点のクロスファンクショナルPM業界最先端水準（Marty Cagan / Silicon Valley Product Group / Reforge / Shape Up / Basecamp / Linear AI 等）に到達するための強化計画。既存のDaily Knowledge Log運用と並列で段階的に取り込む。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+**現状の強み（Daily Knowledge Log 蓄積分）**：
+- 3層構造進捗報告・7軸キックオフチェック・リスク5軸監視・4段QAゲート
+- クリティカルパス／フリーフロート／CCPM／EVM／PERT等の実践的用語運用
+- 絵文字リアクション報告 → Bot自動集計 → status.json 生成の日次ルーチン
+- 横断クリティカルパス（メンバー軸ガント）・見積乖離係数の学習ループ
+
+**2026年業界標準に対する不足領域**：
+| 領域 | 現状 | 2026年標準 | ギャップ度 |
+|---|---|---|---|
+| Product Discovery連動 | 受注後遂行に特化 | Discovery→Delivery一気通貫 | 高 |
+| フレームワーク使い分け | Scrum前提の運用 | Shape Up / Kanban / SAFe 選択 | 高 |
+| ロードマッピング | ガント中心 | Now-Next-Later / Story Map | 中 |
+| AI活用 | 絵文字集計・見積係数 | Linear AI / Copilot Workspace | 中 |
+| ステークホルダー | RACI言及のみ | RACI / RAPID / DACI 使い分け | 高 |
+| フロー計測 | 稼働率中心 | Cycle Time / Lead Time / Flow Efficiency | 高 |
+| リスク | 5軸監視 | Assumption Mapping / Pre-mortem | 中 |
+| 継続改善 | Daily Log内自然発生 | Retro / Improvement Kata 定型化 | 中 |
+| 学習体系 | 内部知見中心 | Cagan / Reforge / Product Hunt | 高 |
+
+### 2. Cross-functional PM標準（Marty Cagan・Silicon Valley Product Group）
+
+**取り込む思想**：
+- **Empowered Product Teams**：ミッション与えて成果責任、手段はチーム裁量。当チームの部署間ハンドオフ4点セット（06-12記録）は「受領確認者=A」を確定する運用と親和的で、Aに実行手段の裁量まで持たせる拡張を行う
+- **Product Discovery vs Delivery の並走**：受注前フェーズ（Salesハンドオフ受領前）にPmが軽量Discovery（顧客インタビュー要約・仮説マップ）へ関与し、plan.json確定前に「解くべき課題の妥当性」を検証
+- **4大リスク**：Value（価値）・Usability（使いやすさ）・Feasibility（実現可能性）・Business Viability（事業成立性）をキックオフ時に4象限で明示。従来の「スケジュール/リソース/スコープ」リスクの前段に配置
+- **Product Trio**：PM / Designer / Engineer の三位一体。当チームでは Pm / 各部長（sota・kai・yuto等） / 実装エージェント（riku・ao等）が三位一体に相当し、意思決定を三者合議で走らせる
+
+**実装アクション**：
+- plan.jsonに「4大リスク評価欄」を追加（Value/Usability/Feasibility/Viability）
+- 受注前Salesハンドオフに Discovery要約（顧客インタビュー3件・仮説3件・検証方法）添付を必須化
+- 「Product Trio ミーティング」を週次30分でキックオフ後2週間だけ走らせる
+
+### 3. Shape Up / Scrum / Kanban / SAFe 使い分け
+
+**選択マトリクス**（案件特性 × フレームワーク）：
+
+| 案件特性 | 推奨FW | 理由 |
+|---|---|---|
+| 新規LP・独自機能（2〜6週間・固定スコープ） | **Shape Up** | 6週サイクル + Cool-downで納期固定・スコープ調整、Betting Table的キックオフと親和 |
+| SNS運用継続改善・週次リズム | **Scrum-lite** | 1週スプリント・Daily Standup（絵文字報告で代替）・Retroが機能 |
+| 採用支援・依頼が流入型 | **Kanban** | WIP制限（一人3件まで）・Cycle Time計測・優先度Pull |
+| 全7社横断ロードマップ調整 | **SAFe-lite（ART的発想）** | 四半期PI Planning相当のキャパシティ・プランニング（08-03記録）に接続 |
+
+**Shape Up具体運用**：
+- **Pitch**（提案）：Sales引き継ぎ資料をPitchフォーマット（Problem / Appetite=時間予算 / Solution / Rabbit Holes=危険領域 / No-Goes=範囲外）に変換
+- **Betting Table**：HARU / Pm / 該当部長で四半期に一度、次サイクルの取り組みを承認
+- **Hill Chart**：タスクを「Uphill=問題解明中／Downhill=解法実行中」の2象限で可視化。90%症候群（06-03/06-17記録）対策として%より本質的
+- **Cool-down期間**：6週後の2週間を修正・技術負債返済・次Pitch検討に固定
+
+**Kanban具体運用**：
+- WIP制限：一人あたり In Progress 3件・Blocked 1件まで
+- Class of Service：Standard / Fixed-date / Expedite / Intangible の4クラスで優先度合意
+- Cumulative Flow Diagram（CFD）で滞留を検知
+
+### 4. Roadmapping（Now-Next-Later・Story Mapping）
+
+**Now-Next-Later ロードマップ**：
+- 従来のガント（日付固定）ではなく、優先度3階層で全社ロードマップを表現
+  - **Now**：今サイクル（4-6週）で着手中
+  - **Next**：次サイクル候補（コミット手前）
+  - **Later**：発想プール（Discovery対象）
+- クライアント報告に「Now-Next-Later ビュー」を追加し、契約スコープ外の期待値を Later 側で吸収
+
+**Story Mapping**（Jeff Patton）：
+- 大規模案件（M/L）のキックオフでStory Mapを描く
+  - X軸：ユーザージャーニー（時系列）
+  - Y軸：優先度（MVPライン → リリース1 → リリース2）
+- WBSの前段としてStory Mapを置き、「ジャーニー抜けの納品物」を逆引き検証（06-12記録の拡張版）
+- MVPライン下は「Cut Line」として明示、スコープクリープ（06-17記録）の判断基準に
+
+**OKR接続**：
+- 各Now項目に会社OKR（HARU管理）とのリンクを必須化。「なぜ今これをやるか」を Objectives レベルまで遡れる状態を維持
+
+### 5. AI活用（Linear AI / Notion AI / Copilot Workspace）
+
+**Linear AI**（07-27/08-03記録の実装深化）：
+- **Auto-Triage**：Issue流入時にAIが優先度・担当・見積を推定 → PMは差分レビューのみ
+- **Delay Prediction**：過去の見積乖離係数（06-16記録）をLinear AIに学習させ、納期リスクスコアを毎朝提示
+- **Auto-Summarization**：週次ステータス報告の下書きをAIが自動生成、PMは検証・追記のみ
+
+**Notion AI / Docs駆動**：
+- 全プロジェクトのplan.json / status.json をNotionページ化しAI検索対象に
+- 過去類似案件検索：「宮村建設と類似の建設業クライアント案件を検索し、リスク傾向を要約」でDiscovery初期の30分を5分に
+
+**Copilot Workspace（GitHub）**：
+- システム開発案件（09-部連携）でIssue → Spec → Plan → PR の全工程AI下書き
+- kai / nao / riku / ao と連携し、Copilot Workspace生成の下書きをPmがゲート判定
+
+**AI活用の境界線（08-05記録の教訓）**：
+- AI自律実行は「単一案件内・非律速タスク」に限定
+- 横断クリティカルパスに触れる再配置は必ず人手承認ゲート
+- AI抽出タスクは差分照合を人手で1回通してからWBS化
+
+### 6. Stakeholder Management（RACI / RAPID / DACI 使い分け）
+
+**3フレームワークの使い分け**：
+
+| フレームワーク | 用途 | 当チーム適用 |
+|---|---|---|
+| **RACI**（Responsible/Accountable/Consulted/Informed） | 実行タスクの役割分担 | 部署間ハンドオフ4点セット（06-12記録）の受領確認者=A |
+| **RAPID**（Recommend/Agree/Perform/Input/Decide） | 意思決定プロセスの明確化 | クライアント案件の重要意思決定（スコープ変更・追加見積）で使用 |
+| **DACI**（Driver/Approver/Contributor/Informed） | プロジェクト内の合意形成 | キックオフ・リプラン時の合意形成 |
+
+**RAPID具体運用**：
+- スコープ変更依頼受領時に「Recommend=誰が推奨案を出すか / Agree=誰の同意が必要か / Perform=誰が実行するか / Input=誰の意見を聞くか / Decide=最終決定者は誰か」を1枚で明示
+- クライアント側の意思決定遅延（06-03/07-01記録）の予防：Decide役の明示を先方に依頼
+
+**Stakeholder Mapping**：
+- Power/Interest マトリクスで案件ごとにマッピング
+  - 高Power×高Interest → Manage Closely（週次接触）
+  - 高Power×低Interest → Keep Satisfied（定例MTG参加）
+  - 低Power×高Interest → Keep Informed（週次レポート配信）
+  - 低Power×低Interest → Monitor（月次サマリー）
+
+### 7. 定量メトリクス（Cycle Time・Lead Time・Flow Efficiency）
+
+**Flow Metrics 4指標**（Kanban由来・全案件横断で計測）：
+
+| 指標 | 定義 | 目標値（初期） |
+|---|---|---|
+| **Cycle Time** | タスクIn Progress→Done までの時間 | S案件<3日 / M<7日 / L<14日 |
+| **Lead Time** | タスク登録→Done までの時間 | Cycle Timeの2倍以内 |
+| **Throughput** | 単位時間あたりのDone件数 | 週次で±20%以内の安定性 |
+| **Flow Efficiency** | Cycle Time中の実作業時間 / 全時間 | 40%以上（待機50%超は要改善） |
+
+**計測実装**：
+- status.jsonに各タスクの状態遷移タイムスタンプ（Registered / In Progress / Blocked / Done）を追加
+- Bot集計で週次Flow Metricsダッシュボード生成
+- Cumulative Flow Diagram（CFD）で滞留・ボトルネック検知
+
+**既存KPI（納期遵守率・稼働率）との接続**：
+- 納期遵守率95%（現ミッション）を Flow Metrics で先行検知：Cycle Time悪化 → Lead Time悪化 → 納期リスク
+- 稼働率と Flow Efficiency のトレードオフ可視化：稼働率100%はFlow Efficiency低下（待機増）のシグナル
+
+### 8. リスク管理（Assumption Mapping・Pre-mortem）
+
+**Assumption Mapping**（David J. Bland）：
+- キックオフ時にプロジェクトの前提（Assumption）を洗い出し、2軸で分類
+  - X軸：Known ↔ Unknown（分かっているか）
+  - Y軸：Important ↔ Unimportant（重要か）
+- 右上（Unknown × Important）を最優先で検証タスク化 → Discovery スプリントで潰す
+- 既存の「リスク5軸監視」（05-22記録）は発生後検知、Assumption Mappingは発生前予防で補完
+
+**Pre-mortem**（Gary Klein）：
+- キックオフ会議の最後15分で「このプロジェクトは6ヶ月後に大失敗した。何が原因か？」を全員で書き出す
+- 上位5リスクをリスク登録簿の初期エントリに
+- 「後悔最小化」の視点で盲点を可視化。7軸チェック（05-22記録）の抜けを補完
+
+**リスク登録簿の2026版拡張**：
+- 既存の5軸（スコープ/スケジュール/リソース/意思決定/技術）に「価値（顧客が本当に欲しいものか）」「事業成立性（収益が見合うか）」を追加（Cagan 4大リスク）
+- 各リスクに「Assumption ID」を紐付け、Assumption検証と連動
+- クローズ条件・次回見直し日は必須（07-03記録の運用継承）
+
+### 9. 継続改善サイクル（Retro・Improvement Kata）
+
+**Retro（レトロスペクティブ）の定型化**：
+- 全案件で「completion.json確定時」に必ずRetroを実施
+- フォーマット：**Start / Stop / Continue**（何を始める / やめる / 続ける）
+- 追加軸：**Mad / Sad / Glad**（感情軸で心理的安全性を確保）
+- Retro結果は `/agents/project_manager/retros/{client}_{project}.json` に蓄積
+
+**Improvement Kata**（Mike Rother / トヨタ生産方式）：
+- 4ステップの継続改善サイクルを月次で回す
+  1. **理解する（Understand）**：現状のFlow Metricsとチャレンジ方向を把握
+  2. **現状把握（Grasp）**：ボトルネック工程・待機発生源を特定
+  3. **次の目標設定（Establish）**：1ヶ月後の目標状態を定義
+  4. **PDCA（Iterate）**：週次で小さな実験を回し目標に近づける
+
+**Coaching Kata**：
+- HARU / sora との週次1on1で「5つの質問」を機械的に問う
+  1. 目標状態は何か？
+  2. 現状はどうか？
+  3. 目標達成の障害は何か？
+  4. 次の一手は何か？
+  5. いつ結果を確認するか？
+
+**知見のSSOT化**：
+- Daily Knowledge Log（現運用）をRetroと接続し、月次で「今月の学び10選」に集約
+- 集約結果は各エージェントの sync-source-readmes.py 経由でチーム全体に配信
+
+### 10. 継続学習体系（Marty Cagan / Reforge / Product Hunt）
+
+**必読書リスト（2026版）**：
+- **Marty Cagan『INSPIRED』『EMPOWERED』『TRANSFORMED』**：Product Trio と Empowered Team の原典
+- **Jason Fried & DHH『Shape Up』**：Basecamp流の6週サイクル運用
+- **Melissa Perri『Escaping the Build Trap』**：Discovery偏重の Product Management
+- **Jeff Patton『User Story Mapping』**：Story Mapの原典
+- **David J. Bland『Testing Business Ideas』**：Assumption Mapping と実験手法
+- **Mik Kersten『Project to Product』**：08-03記録のシフトの原典
+- **Eliyahu Goldratt『クリティカルチェーン』**：CCPM（06-13記録）の原典
+
+**継続学習チャネル**：
+| ソース | 更新頻度 | 学習領域 |
+|---|---|---|
+| **Reforge** | 週次コース | Product Management / Growth |
+| **Silicon Valley Product Group Blog** | 月2-3本 | Empowered Teams / Discovery |
+| **Product Hunt** | 日次 | 新ツール・SaaS動向 |
+| **Lenny's Newsletter** | 週次 | PM実務・キャリア |
+| **Mind the Product** | 週次 | グローバルPMコミュニティ |
+| **Basecamp / 37signals Blog** | 不定期 | Shape Up 実践事例 |
+
+**学習アウトプット運用**：
+- 週次30分の「学習タイム」を確保し、Daily Knowledge Log に「学んだこと1件」を必須記録
+- 月次で学んだこと10選をチーム共有（sora経由でCOO報告）
+- 四半期で「導入した施策 vs 導入しなかった施策」を振り返り、次四半期の学習優先度を再設定
+
+**外部コミュニティ参加**：
+- Product Camp / Mind the Product Conference（年1回）参加を四半期予算に組み込み
+- 国内のPM Meetup（PMConf・Product Manager Nightなど）に月1回参加、社外ネットワーク維持
+
+---
+
+**この10項目は段階的に取り込む。既存のDaily Knowledge Log運用を止めず、Retro / Improvement Kata経由で自然に統合する。四半期ごとに sora QAで進捗レビューを受ける。**
