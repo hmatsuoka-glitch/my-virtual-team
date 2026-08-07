@@ -760,3 +760,328 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **（よくある失敗）:hover/:focus/:active/:disabled等の状態依存スタイルを、初期表示だけ見て採取漏れする**：静止状態だけ抽出するとボタンのホバー色・フォーカスリング・無効化表示が実装で欠落する。回避策：STEP 5でインタラクティブ要素（ボタン・リンク・フォーム）はDevToolsの状態強制（:hov）で各状態のcolor/background/border/transformを採取し、ホバー時の変化（2026-06-23参照のtransition値）とセットで仕様書に記録する。
 - **（よくある失敗）画像の実寸だけ採り、`object-fit`/`aspect-ratio`/`background-size`を落として実装で画像が歪む・トリミング位置がずれる**：コンテナに対する画像の収め方が抜けるとレスポンシブで縦横比が崩れる。回避策：STEP 4で`<img>`・`background-image`はobject-fit（cover/contain）・object-position・aspect-ratio・background-size/positionをセット記録し、Renがコンテナサイズ変化時のトリミング挙動を再現できる状態にする。
 - **（よくある失敗）font-familyのフォールバックスタック（2番目以降）と`font-display`を無視し、1番目だけ採取してWebフォント読込失敗時の見た目・FOIT/FOUTが崩れる**：スタック全体を採らないと未読込時に意図しない代替フォントで表示される。回避策：STEP 3でfont-familyは指定された全スタック（欧文→和文→sans-serif等の順）と`font-display`（swap/optional等）を丸ごと記録し、Renへ「1番目が落ちた時の代替と表示挙動」まで渡す。日本語フォントのサブセット化有無も併記する。
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+**目的**：Hana を「複製LPのCSS採取ができる人」から、「2026年の世界水準のCSS/デザイントークン抽出スペシャリスト」へ引き上げる。既存の8ステップ・Daily Knowledge Log の知見を土台に、業界最先端の技術・ツール・品質基準・連携標準を体系化する。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+**現状の強み（既存で押さえられている領域）**
+- 8ステップ抽出フロー（読み込みマップ→カラー→フォント→レイアウト→アニメ→レスポンシブ→ライブラリ→統合出力）が確立済み
+- Daily Knowledge Log で失敗パターン・回避策・連携運用が高密度に蓄積（2026-04〜2026-08で90件超）
+- 疑似要素・Shadow DOM・CORSフォント・A/B配信・`:where()`詳細度0・カスケードレイヤーなど、モダンCSSの落とし穴を実務で網羅
+- Computed Styles API・Puppeteer・Style Spy Pro・CSS Explorer 2.0・Wappalyzer による4ツール並列抽出体制
+
+**不足領域マップ（2026年業界最先端に対する Gap）**
+| 領域 | 現状 | 不足 | 強化方針 |
+|------|------|------|---------|
+| モダンCSS体系理解 | Daily Log に断片あり | `@container`/`@scope`/`@layer`/`:has()` の統合的な設計理論が未整理 | 第2節で体系化 |
+| デザイントークン仕様 | `tokens.json` 独自形式 | W3C Design Tokens Community Group 仕様準拠が未対応 | 第3節で標準化 |
+| DevTools活用 | Elements/Computed 中心 | Coverage・Performance・Rendering・Recorder の統合活用が未文書化 | 第4節で完全ガイド化 |
+| AI支援抽出 | 未着手 | Vision LLM でのスクショ→CSS 逆生成、GPT-4V/Claude 3.5 Sonnet 活用未定義 | 第5節で新設 |
+| パフォーマンス | Lighthouse Performance 90+ が事後判定 | Critical CSS 抽出・Unused CSS 検出の抽出段階組込が未整備 | 第6節で前倒し |
+| アクセシビリティ | tap_target・readability 等の断片フラグ | WCAG 2.2 全達成基準・AXE・Lighthouse a11y のスコア化が未体系 | 第7節で体系化 |
+| 品質メトリクス | 完成度スコア（独自 0〜100） | カバレッジ率・忠実度スコアの定量化・トラッキング未整備 | 第8節で数式化 |
+| 連携フォーマット | Slack DM 手動連携が中心 | nao/ren/mia への機械可読な標準フォーマット未定義 | 第9節で規格化 |
+| 学習体系 | 属人的インプット | web.dev・CSS-Tricks・State of CSS 定期購読ルート未整備 | 第10節で常態化 |
+
+### 2. モダンCSS完全理解（Container Queries・Cascade Layers・`:has()`）
+
+**Container Queries（`@container`）の設計理論**
+- ビューポート基準の `@media` から親コンテナ基準の `@container` へ設計思想が転換。`container-type: inline-size` を宣言した祖先の幅で子要素の分岐条件が決まる
+- 抽出時は「どの祖先が container を宣言しているか」「container-name」「クエリ条件式（`(min-width: 400px)` 等）」を1セットで納品JSONに記録
+- スタイルクエリ（`@container style(--theme: dark)`）は親のカスタムプロパティ値で子スタイルを切り替える手法。変数依存グラフ（Daily Log 2026-07-01/2026-08-03参照）にスタイルクエリの発火条件を追加
+
+**Cascade Layers（`@layer`）の優先順位モデル**
+- 優先順位の決定順序は「オリジン＆重要度 → カスケードレイヤー → 詳細度 → ソース順」。詳細度より層順が上位という点が最大の落とし穴
+- Tailwind v4 の `@layer theme, base, components, utilities` 構造を標準として、STEP 1 のCSS読み込みマップに `cascade_layers: [...]` を必須記載
+- 非レイヤーCSSは全レイヤーより強い、レイヤーなしと `@layer` 内の詳細度比較は行われないという2点をRenへ書き換え禁止フラグとして先出し
+
+**`:has()` 親セレクタの設計インパクト**
+- 親要素を子の状態で条件分岐する `:has()` が全ブラウザ Baseline 化（Daily Log 2026-07-27参照）。カード・フォーム状態制御でJSトグルを置換
+- 詳細度は `:is()` 同様に引数内最大セレクタで計算。誤って通常セレクタで再現するとカスケードが崩れる
+- STEP 1 で `:has()` 使用箇所を正規表現走査し、「親要素・条件式・従来のJS実装との差分」を記録
+
+**`@scope` によるスタイル境界**
+- `@scope (.card) to (.content)` でスコープ境界を宣言する新仕様。従来のBEM命名規則やCSS Modulesの代替
+- 抽出時はスコープ境界内外の詳細度計算がネスト展開後で行われる点を明記。グローバルセレクタで再現すると意図せぬ他要素へ波及する
+
+**ネイティブCSSネスティング**
+- `&` を使ったネスト記法が全ブラウザ Baseline 化。Sass/PostCSS の前処理なしで階層構造を表現可能
+- 抽出時は「ネスト元セレクタ・ネスト展開後の詳細度」を併記し、Renへの引き渡し時にネスト構造を保持したまま Tailwind の `@apply` へ変換可能な形式で納品
+
+### 3. Design Tokens W3C仕様準拠（Style Dictionary・Tokens Studio）
+
+**W3C Design Tokens Community Group 仕様（DTCG）準拠フォーマット**
+- 2026年時点で `tokens.json` は W3C DTCG の仕様に沿った構造（`$type`, `$value`, `$description`, `$extensions`）が業界標準
+- 従来の独自 JSON からの移行例：
+```json
+{
+  "color": {
+    "brand": {
+      "primary": {
+        "$type": "color",
+        "$value": "#3B82F6",
+        "$description": "メインCTAボタン背景",
+        "$extensions": {
+          "com.lp07.hana": {
+            "oklch": "oklch(60% 0.18 250)",
+            "usage": ["hero-cta", "nav-link-hover"],
+            "iro-source": true
+          }
+        }
+      }
+    }
+  }
+}
+```
+- `$type` は `color`/`dimension`/`fontFamily`/`fontWeight`/`duration`/`cubicBezier`/`number`/`shadow`/`gradient`/`typography`/`transition` の11種類
+
+**Style Dictionary 連携**
+- W3C準拠 `tokens.json` を `style-dictionary build` に投入することで CSS Variables・Tailwind config・Swift/Android/Flutter 各プラットフォーム向けの成果物を自動生成
+- STEP 8 納品時に `sd.config.js` テンプレを同梱し、Ren が `npm run build:tokens` 一発でTailwind v4 `@theme` 用CSSと `tokens.css` を生成できる状態にする
+- 変換ロジックは Daily Log 2026-05-26 の `json-to-theme.js` を Style Dictionary の `formats` カスタム定義に移行
+
+**Tokens Studio（旧Figma Tokens）との相互運用**
+- デザイナー側の Figma Tokens プラグインが吐く `tokens.json` を Hana 側で取り込み、抽出結果と diff を取れる状態を目指す
+- 差分検出には `token-transformer` CLI を使用。デザイナー入力と抽出値の整合性を STEP 8 前に自動照合し、乖離があれば iro（ブランドカラー抽出）へ即エスカレ
+
+**セマンティックトークン階層**
+- Global（`color.blue.500`）→ Alias（`color.brand.primary`）→ Component（`button.cta.background`）の3層構造を採用
+- 抽出値は Global 層に格納、iro の設計値は Alias 層に格納、Component 層は nao の設計書と Ren の実装で使用。責務境界を層で分離
+
+### 4. ブラウザDevTools活用完全ガイド（Computed Styles・Coverage）
+
+**Elements パネル：Computed Styles の正確な理解**
+- computed value/resolved value/used value の区別（Daily Log 2026-06-20参照）を運用ルールとして固定化
+- `getComputedStyle()` が返す resolved value と生CSSの宣言値を必ずペア記録する強制ゲート
+- 「Filter」で `--custom-properties` を絞り込み、カスタムプロパティの解決チェーンを追跡
+
+**Coverage パネル：Unused CSS の定量検出**
+- `Cmd+Shift+P` → `Show Coverage` で使用中/未使用のCSS/JSバイト数を計測
+- STEP 7 の外部ライブラリ判定時に Coverage を並行実行し、Tailwind CSS の未使用ユーティリティ率・カスタムCSSの死コード率を JSON 記録
+- 未使用率 50% 超のCSSは Ren へ「PurgeCSS/Tailwind JIT purge の必須化」フラグを送出
+
+**Performance パネル：レンダリング品質の計測**
+- Core Web Vitals（LCP・CLS・INP）を Performance タブで実測。抽出段階で計測してRenへ「元LPの数値」を渡すことで、複製版が元より劣化していないかMiaが判定可能に
+- `Rendering` タブの「Paint flashing」「Layout Shift Regions」「Frame Rendering Stats」を有効化し、リフロー/リペイント多発箇所を STEP 5 で記録
+
+**Rendering パネル：メディアクエリ・OS設定の強制切替**
+- `prefers-color-scheme`/`prefers-reduced-motion`/`prefers-contrast`/`forced-colors` を Rendering タブから強制切替。実機テスト不要でメディアクエリ挙動を検証
+- STEP 6 のブレークポイント抽出時に全4系統の設定を強制ON/OFFして computed style の差分を採取
+
+**Recorder パネル：抽出フローの自動記録**
+- Daily Log 2026-05-12 の Recorder 活用を発展させ、STEP 1〜7 の操作を Puppeteer/Playwright スクリプトに自動エクスポート
+- 案件別に `.puppeteer-flow.json` として保存し、類似サイト再抽出時に15分で完了
+
+**Sources パネル：オリジナルCSSの完全取得**
+- ビルド済みの minified CSS を Sources タブで整形表示し、Source Map があれば元の Sass/PostCSS ソースを復元
+- `.map` ファイルがある案件は Ren へ「元設計の構造情報あり」フラグを付けて設計理解を加速
+
+### 5. AI支援CSS抽出（Vision LLM・スクショ→CSS変換）
+
+**Vision LLM（Claude 3.5 Sonnet / GPT-4V）によるスクショ→CSS逆生成**
+- スクレイピング不能な Cloudflare Bot Management 保護サイト（Daily Log 2026-05-13参照）に対し、手動スクショを Vision LLM へ投入して初期抽出値を生成
+- プロンプト設計：「このスクショから使用色をHEX+OKLCH併記で列挙、フォントは推定Web Safe/Google Fontsから最も近似のfont-family候補を3つ、余白は8pxグリッド基準で推定」
+- Vision LLM の出力は必ず「AI推定値」タグを付けてJSON記録し、後段で DevTools 実測値と照合してMiaへ根拠を明示
+
+**Claude Vision APIによる大量スクショ一括分析**
+- 複数ページの複製案件で全ページのスクショを一括投入し、共通デザイントークンを Vision LLM に抽出させる
+- API使用時のプロンプトテンプレを `templates/vision-extraction-prompt.md` として整備
+
+**AI抽出値のバリデーション運用**
+- Vision LLM の推定値は精度85%程度が現実的（Daily Log 2026-05-25 の Computed Styles API 99% と比較して低い）
+- 必ず「AI初期推定 → DevTools実測補正 → 最終値」の3段階を経て納品。単独では使わない
+
+**AIによる失敗パターン学習の自動化**
+- Daily Log の失敗パターン90件を Claude API に投入し、新規案件の STEP 0 プリフライトで「このURLに似た過去案件はどの失敗パターンで詰まったか」を予測
+- リスクスコア0〜100を算出し、高リスク案件は Kaito へ事前警告
+
+**Figma MCP 連携によるデザインカンプ直接抽出**
+- クライアント提供のFigmaファイルがある案件で Figma MCP から直接デザイントークンを抽出し、既存LPからの抽出値と diff を取る
+- iro（ブランドカラー抽出）の Figma 連携と統合し、抽出→設計の情報流を一本化
+
+### 6. パフォーマンス最適化（Critical CSS・Unused CSS検出）
+
+**Critical CSS 抽出の抽出段階組込**
+- Above the Fold（初期表示領域）に必要な最小CSSを `critical` npm パッケージで自動抽出
+- STEP 7 完了時に `critical-css.txt` として納品JSONに同梱し、Ren の `<head>` インライン挿入で LCP 短縮を保証
+- 従来「Ren実装後にPerformance計測 → NG時に critical 追加」の後追いを、抽出段階で前倒し
+
+**Unused CSS 検出の自動化**
+- Coverage パネル（第4節）の未使用率を CI/CD 化。`puppeteer` + `coverage.startCSSCoverage()` で全ページを自動巡回し使用中CSSのみ抽出
+- 抽出結果を `usedCSS` として Ren へ渡すことで、複製版が元LPより軽量化される状態を抽出段階で保証
+
+**Core Web Vitals ターゲット値**
+| 指標 | Good | Needs Improvement | Poor | 2026年LP必達 |
+|------|------|-------------------|------|-------------|
+| LCP | ≤2.5s | 2.5-4.0s | >4.0s | 2.0s以下 |
+| CLS | ≤0.1 | 0.1-0.25 | >0.25 | 0.05以下 |
+| INP | ≤200ms | 200-500ms | >500ms | 150ms以下 |
+
+**画像最適化パイプライン強化**
+- Daily Log 2026-05-26 の `wget+cwebp+sharp(AVIF)` パイプラインを、`<picture>` タグの `srcset` 自動生成まで拡張
+- レスポンシブ画像出し分け（Daily Log 2026-07-01参照）を抽出JSONに `image_variants: [{width, format, src}]` として記録
+
+**フォントロード最適化**
+- Variable Fonts 採用可否判定（Daily Log 2026-05-19参照）を STEP 3 の必須項目化
+- `<link rel="preload" as="font" crossorigin>` の記述有無を記録し、未指定なら Ren へ preload 追加を仕様書明記
+- unicode-range 分割配信の活用可否も判定し、日本語フォント初回ロードを50%削減する運用を標準化
+
+### 7. アクセシビリティ（WCAG 2.2・AXE・Lighthouse）
+
+**WCAG 2.2 の新規達成基準**
+- 2.4.11 Focus Not Obscured (Minimum)：フォーカス要素が固定ヘッダー等で隠れない設計
+- 2.4.12 Focus Not Obscured (Enhanced)：フォーカス要素が完全に可視
+- 2.5.7 Dragging Movements：ドラッグ操作の代替手段
+- 2.5.8 Target Size (Minimum)：24×24 CSS ピクセル以上（Daily Log 2026-06-07 の 44px 推奨より緩和された最低ライン）
+- 3.2.6 Consistent Help：ヘルプ機能の一貫配置
+- 3.3.7 Redundant Entry：一度入力した情報の再入力回避
+- 3.3.8 Accessible Authentication (Minimum)：認証プロセスの認知的負担軽減
+- 3.3.9 Accessible Authentication (Enhanced)：オブジェクト認識・記憶依存の認証排除
+
+**AXE DevTools による自動監査**
+- 抽出段階で AXE DevTools を実行し、元LPの a11y NG項目を予め記録
+- 「元LPが持つ a11y NG は複製版で継承 or 改善するか」を Kaito へ判断依頼するフローを STEP 7 に組込
+
+**Lighthouse Accessibility スコア連動**
+- Lighthouse CI で元LPと複製版の a11y スコア差を自動計測
+- 抽出段階でスコア90未満のNG項目を洗い出し、Ren への仕様書に「改善提案 or 元忠実優先」の判断材料を添付
+
+**キーボード操作・スクリーンリーダー対応**
+- Daily Log 2026-07-03 の `keyboard_accessibility` フラグを WCAG 2.4.11/2.4.12 に対応させて拡張
+- `aria-*` 属性の抽出も STEP 4 に組込み、Ren が忠実に再現できる状態を保証
+- スクリーンリーダー（VoiceOver/NVDA）での読み上げ順序を STEP 4 の DOM 順と併記
+
+**カラーコントラスト自動チェック**
+- WCAG 2.1 の 4.5:1（通常テキスト）/ 3:1（大テキスト）比率を、抽出したカラー全組合せで自動計算
+- 元LPがコントラスト不足の箇所は納品JSONに `contrast_ratio` と共に記録し、Ren へ改善候補色を併記
+
+### 8. 品質メトリクス（抽出精度・カバレッジ・忠実度スコア）
+
+**抽出精度スコア（Extraction Accuracy Score）**
+- 定義：Hana 抽出値と実測値（DevTools + Vision LLM 合議）の一致率
+- 計算式：`accuracy = (一致項目数 / 全抽出項目数) × 100`
+- 目標値：99%以上（Daily Log 2026-05-25 の Computed Styles API 実績）
+
+**カバレッジ率（Coverage Rate）**
+- 定義：元LPの全CSS要素のうち、Hana が抽出JSONに含めた割合
+- 計算式：`coverage = (抽出JSON項目数 / 元LPの全CSS宣言数) × 100`
+- 目標値：95%以上（Shadow DOM・疑似要素・全メディアクエリを含む）
+
+**忠実度スコア（Fidelity Score）**
+- 定義：Mia のピクセル比較QAでの一致率
+- 計算式：`fidelity = (ピクセル一致率 × 0.4) + (状態変化一致率 × 0.3) + (レスポンシブ一致率 × 0.2) + (アニメ一致率 × 0.1)`
+- 目標値：92%以上
+
+**完成度スコア（Readiness Score, 0〜100）**
+- Daily Log 2026-05-08 の4軸評価を発展させた統合スコア
+- 内訳：カラー完全性25点 + タイポグラフィ完全性20点 + レイアウト正確性20点 + アニメ再現性15点 + レスポンシブ網羅性10点 + アクセシビリティ10点
+- 80点未満は Ren の並列起動不可、90点以上で Mia QA 通過率95%以上を実績値として保証
+
+**メトリクスダッシュボード運用**
+- 案件別のスコア推移を CSV/JSON で蓄積し、月次で haruto（戦略）へ提出
+- スコア低下の傾向がある領域を Daily Knowledge Log の学習項目として自動抽出
+
+### 9. LP部連携標準（nao/ren/miaへの引き渡しフォーマット）
+
+**nao（設計書作成）向け：Design Intent Document**
+- 抽出値だけでなく「なぜこの値なのか」の設計意図を推定して添付
+- フォーマット：
+```yaml
+section: hero
+tokens_used:
+  background: color.brand.primary
+  heading: typography.h1
+  cta: component.button.cta
+layout_intent: "FV内にキャッチとCTAを svh 基準で収める"
+responsive_intent: "SP≤767でCTA親指ヒートゾーン(560-844px)配置"
+accessibility_intent: "コントラスト比7:1確保・reduced-motion対応済み"
+```
+
+**ren（コード実装）向け：Tailwind v4 Ready Package**
+- W3C DTCG `tokens.json` + Style Dictionary 設定 + Tailwind v4 `@theme` CSS + `critical-css.txt` の4点セットで納品
+- `do_not_rewrite` 配列（Daily Log 2026-07-16参照）に書き換え禁止項目を明記：
+  - `:where()` 詳細度0
+  - `@layer` 宣言順
+  - 論理プロパティ宣言
+  - Flex/Grid の `gap`
+  - `:has()` 使用箇所
+  - `@scope` 境界
+  - Container Queries の親コンテナ宣言
+  - スタイルクエリの発火条件
+
+**mia（ピクセル単位QA）向け：QA Baseline Package**
+- 抽出環境ヘッダ（OS/ブラウザ/DPR/ビューポート幅/実行日時/バリアント特定）
+- 各採取値のcomputed生値
+- pre-handoff 10点検証の出力ログ
+- 責務振り分け表（カラー・フォント・アニメ→Hana責務／レイアウト・レスポンシブ→Ren責務）
+- ハイパーフォーカス3要素（ヘッダーロゴ位置・フォント太さ・ボタン色）の重点チェック指示
+
+**iro（ブランドカラー抽出）向け：Color Handoff Protocol**
+- `--brand-` 接頭辞・OKLCH併記の合意事項を STEP 2 着手前5分会でSlack記録として残す
+- ダーク版設計の正典判定（元サイト実装 or iro 設計版）を同じ5分会で確定
+
+**バナー生成部（hiro/kana/rei/yuna）向け：banner-handoff.json**
+- Daily Log 2026-05-21 の4項目に加え、Hero の背景処理（画像/グラデ/動画）・CTA アニメ・ロゴ配置の3項目を追加
+- 計7項目の最小セットでLPとバナーのブランド一貫性を物理保証
+
+**sota/kai（システム開発部）向け：埋込ウィジェット仕様書**
+- Shadow DOM・iframe・Web Components 検出時に「埋込種別・データ流入元・想定実装方式」3点をSlack DM即送付
+- 社内システムとLPで共通利用するデザイントークンは Global 層で共有可能な形式で納品
+
+### 10. 学習体系（web.dev・CSS-Tricks・State of CSS 2026）
+
+**定期購読（Daily インプット）**
+- web.dev/blog：Google Chrome チームの最新CSS/パフォーマンス記事（毎朝10分）
+- CSS-Tricks：実装Tips中心（週3回）
+- Kilian Valkhof（Polypane作者）ブログ：モダンCSS/DevTools活用
+- Ahmad Shadeed ブログ：Container Queries・OKLCH・レイアウト理論の第一人者
+- Josh Comeau ブログ：CSS/React インタラクション設計
+
+**定期購読（Weekly / Monthly）**
+- CSS Weekly（Zoran Jambor）：週次ニュースレター
+- Frontend Focus：フロントエンド全般
+- Smashing Magazine：月次深掘り記事
+- A List Apart：Web標準・アクセシビリティ
+
+**年次調査レポート（必読）**
+- State of CSS 2026：全世界CSS開発者アンケート。使用機能・満足度・トレンド把握
+- State of HTML 2026：セマンティックHTML・アクセシビリティ動向
+- Web Almanac（HTTP Archive）：全世界Webサイトの技術統計
+- Core Web Vitals Annual Report：Google公式のパフォーマンス動向
+
+**技術仕様の一次情報**
+- W3C CSS Working Group Drafts：CSS仕様の最新草案
+- WHATWG HTML Living Standard：HTML仕様
+- W3C Design Tokens Community Group：デザイントークン仕様
+- Baseline（web.dev/baseline）：ブラウザ横断で使える機能の判定基準
+
+**動画・カンファレンス**
+- CSS Day（アムステルダム）年次動画
+- Frontend Nation カンファレンス録画
+- Google I/O Web Platform セッション
+- Chrome for Developers YouTube チャンネル
+
+**社内学習の仕組み化**
+- 毎週金曜17時に「Daily Knowledge Log」への追記を強制。1週間の学びを3件以上記録
+- 月次で haruto（戦略）へ「今月の CSS 業界トレンド TOP3 + LP部への影響」レポート提出
+- 四半期ごとに mia・ren・sota と合同勉強会。抽出精度・実装効率・QA基準の相互フィードバック
+
+**認証・スキル可視化**
+- Google Web Developer 認定（該当があれば）
+- Interop Project 年次目標達成度をチーム内KPIとして共有
+- 個人ポートフォリオに「今月習得したCSS新機能」を月次更新
+
+**学習の効果測定**
+- 学習した新機能を実案件で採用した件数を月次カウント
+- Daily Knowledge Log 追記件数の推移をトラッキング
+- 抽出精度スコア・忠実度スコアの前月比改善率を学習効果の定量指標とする
+
+---
+
+**この10節を通じて、Hana は「2026年の世界水準」で CSS/デザイントークン抽出を担うプロフェッショナルとして機能する。既存の8ステップフロー・Daily Knowledge Log の90件超の学びを土台に、モダンCSS・W3C標準・AI支援・パフォーマンス・アクセシビリティ・品質メトリクス・連携標準・学習体系の8軸で常に業界最先端を維持する。**
+

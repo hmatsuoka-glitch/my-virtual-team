@@ -585,3 +585,92 @@
 - **（よくある失敗）前月比を営業日数・祝日数の違いを補正せず比較し、2月やGW・お盆月を「応募が減った」と誤判定する**：営業日が少ない月は総数が下がって当然で、施策の失敗と誤読する。回避策：応募数・流入の前月比は「1営業日あたり平均」で比較するか営業日数・祝日数を併記し、Dengの稼働日マスタ（Deng 2026-06-17参照）と揃えて、増減は営業日補正後に評価する。
 - **（よくある失敗）1件の大型流入・bot・社内アクセスを除外せず平均を歪め、CVRや滞在時間を誤報告する**：外れ値1件で平均が跳ね実態と乖離する。回避策：平均だけでなく中央値・分布（ヒストグラム）を併記し、GA4は社内IP・bot・自己参照を除外フィルタ設定。異常な1日はイベント要因メタ（Deng 2026-06-07参照）で注記し移動平均で均す。
 - **（よくある失敗）統計的に有意な差を、実務的にはほぼ無意味な微差でも「効果あり」と報告する**：nが大きいと0.1%の差でもp<0.05になり、施策採用の根拠として誇張される。回避策：有意性（p値）と効果量（実務インパクト＝応募換算で何件・いくらの差か）を必ず分けて報告し、「統計的に有意だが実務的には応募0.3件/月で投資回収に満たない」と実務判断まで添える（検定力の注記、2026-07-11参照とセット）。
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+2026年時点のリクルーティング・データアナリティクス最前線に照準を合わせ、Shunの分析力を「業界平均のレポート職人」から「意思決定を駆動する Talent Analytics Engineer」へ段階的に引き上げる強化計画。以下10領域を四半期ごとに巡回し、各サイクルで定義書・スクリプト・ダッシュボードを1つずつアップデートする。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+- **現有スキル（強み）**：Airwork/GA4/Clarity/Airwork API/BigQuery Export/Looker Studio Pro/Whatagraph の実運用、5段前処理パイプライン、ダッシュボード月初照合、AB判定Python関数、Simpson's Paradox自動検査、Ryota/Akari/Rui/Yui/Deng/Hanaとの連携運用が既に稼働している。
+- **不足領域マップ（8象限）**：①統計的因果推論（DiD/Synthetic Control/PSM）、②時系列モデル（Prophet/ARIMA/状態空間）、③生存分析（応募→内定までの時間分析）、④機械学習（XGBoost/LightGBMでの応募予測）、⑤Polars/DuckDB等の高速データ処理、⑥dbtによるアナリティクスエンジニアリング、⑦データガバナンス（DAMA-DMBOK/データカタログ運用）、⑧可視化理論（Colin Ware/Cleveland知覚階層）。
+- **習熟度自己評価テンプレ**：各項目を「知らない/読んだ/写経した/実案件で使った/後進に教えられる」の5段階で四半期ごとに自己採点し、Notion「Shun Skill Radar」ページで前四半期比の伸びを可視化。
+- **ギャップ優先度**：LET案件で即効性が高いのは「因果推論（インクリメンタリティ検証）」「機械学習応募予測」「dbtデータモデリング」の3領域。ここから着手する。
+
+### 2. 採用データ分析標準（Talent Analytics Maturity Model）
+
+- **Bersin Talent Analytics Maturity Model 4段階**：Level 1=Operational Reporting（月次数値の羅列）、Level 2=Advanced Reporting（分解・比較・可視化）、Level 3=Advanced Analytics（因果推論・予測モデル）、Level 4=Predictive Analytics（LTV/QoH予測を経営意思決定へ組込）。
+- **Shunの現在地判定**：Level 2〜3の境界。定型月次レポート・AB判定・Simpson検査までは到達しているが、応募予測モデル・Quality of Hire連鎖分析・LTVモデリングはまだ未着手。目標は年内Level 3後半、来年Level 4到達。
+- **成熟度指標**：（1）レポートの「予測セクション」比率、（2）意思決定に使われた分析の割合（Ryota提案採択率でトラッキング）、（3）ダッシュボード自動化率、（4）因果推論の適用件数/月。四半期ごとに測定。
+- **HR Tech業界標準の参照文献**：Josh Bersin『People Analytics: A New Playbook』、Jean Paul Isson『People Analytics in the Era of Big Data』、Ben Waber『People Analytics』、経済産業省「人的資本可視化指針」、ISO 30414（人的資本レポーティング国際規格）。四半期に1章ずつ精読し「LET事業への翻訳メモ」を作成。
+
+### 3. 統計分析手法（回帰・時系列・生存分析・A/Bテスト検出力）
+
+- **回帰分析の実践レパートリー拡張**：単回帰・重回帰に加え、ロジスティック回帰（応募/非応募の二値予測）、階層線形モデル（クライアント別ランダム効果）、ベイズ回帰（PyMC/Stanで信頼区間を事後分布として提示）を case study 単位で習得。宮村建設のCVR要因分解に段階適用。
+- **時系列モデル**：Prophet（週次季節性＋祝日効果を自動推定）、SARIMA（月次応募数の自己相関モデル）、状態空間モデル（施策投入日を「介入」として組込）、Google CausalImpact（介入前後のカウンターファクトを合成対照群で推定）。営業日補正（2026-08-05参照）と組み合わせて予測精度を高める。
+- **生存分析**：応募→面接→内定までの「時間」を Kaplan-Meier曲線・Cox比例ハザードモデルで分析し、「どの媒体経由の応募者が最も早く内定に至るか」「どのタイミングで脱落しやすいか」を可視化。lifelinesライブラリで実装、Airwork履歴データで検証。
+- **A/Bテスト検出力計算の標準化**：`statsmodels.stats.power`で事前サンプルサイズ設計を必須化（2026-07-11の4者連動関係を実装レベルで固定）。逐次検定（Sequential Testing/mSPRT）でpeeking問題（2026-06-03参照）を数理的に許容する手法も導入検討。多重比較補正（Bonferroni/Benjamini-Hochberg）で複数媒体同時検定の偽陽性率も統制。
+- **因果推論の武器庫**：Difference-in-Differences（DiD）、Propensity Score Matching（PSM）、Synthetic Control Method（合成対照法）、Regression Discontinuity Design（RDD）を状況別に使い分け。ジオリフト（2026-08-03参照）はDiDと合成対照の組合せで実装。
+
+### 4. Python/R/SQLエコシステム（pandas 2.x・DuckDB・Polars最新）
+
+- **pandas 2.x + PyArrow バックエンド**：文字列型のArrow採用でメモリ50%削減・処理2-3倍高速化。既存の5段前処理スクリプトをArrow対応に書き換え、月初集計の実行時間を追加で圧縮。Copy-on-Write化で意図しないビュー変更のバグも構造排除。
+- **Polars**：pandasより5-10倍速い列指向データフレーム。7社×3媒体×12ヶ月のクロス集計はPolarsのLazy APIで書き、実行計画の最適化を委ねる。式APIでチェーン記述する記法に慣れると、pandasの中間変数汚染も消える。
+- **DuckDB**：ローカルで動くOLAP DB。BigQueryにアップする前の中規模データ（1-10GB）はDuckDBで先に集計・検証し、BigQuery課金を節約。Parquet直接読込でETL不要。Jupyter Notebookから`%sql`マジックで即クエリできる導入体験も良い。
+- **dbt (data build tool)**：SQLモデルを再利用可能なDAGとして管理。宮村・翔星・その他7社のKPI定義を`models/marts/kpi_*.sql`として一元管理し、`ref()`関数で依存関係を追跡。`kpi_def_version`（2026-06-11参照）をdbt tagで表現し、変更履歴をGitで追跡可能に。
+- **R言語の限定活用**：統計モデリング（生存分析`survival`、混合効果`lme4`、Bayesian `brms`）はRの方が成熟。Python主軸を維持しつつ、統計解析のみRScript化してBigQueryから呼び出すハイブリッド運用。
+- **SQL標準の底上げ**：Window関数（LAG/LEAD/ROW_NUMBER/RANK/PERCENTILE_CONT）、CTE入れ子（WITH RECURSIVE）、QUALIFY句、ARRAY/STRUCT操作、UNNEST最適化をBigQuery/DuckDB両方で書けるレベルに。JOIN前フィルタ最適化（2026-05-12参照）を全クエリで徹底。
+
+### 5. BIツール完全活用（Looker/Tableau/Power BI・Metabase）
+
+- **Looker Studio Pro深堀り**：現在稼働中のPro版（2026-05-18参照）で、Blended Data・Calculated Fields・Parameters・Community Visualizations（Sankey/Waterfall/Bullet chart）まで使いこなす。BigQuery BI Engineでキャッシュ有効化し、ダッシュボード応答を1秒以下へ。
+- **Looker（LookML）**：エンタープライズ向けBI。LookMLで「KPIを1度定義、複数ダッシュボードで再利用」を実現。7社を超えるスケール時の第一候補として検証運用を開始。
+- **Tableau/Power BI**：クライアント側で既に導入済みの企業への納品時にShunが直接触れる必要が出るケースに備え、Tableau Public無料版と Power BI Desktop で操作習熟。ダッシュボード成果物のインポート/エクスポート互換を事前検証。
+- **Metabase (OSS)**：LET社内向けのセルフサービスBI基盤として検証。Ryota/Akariが「自分でクエリを書かずに数字を引ける」環境を提供し、Shunへの`/shun-query`Slack問合せ（2026-05-26参照）をさらに減らす。
+- **観点別ツール選定基準**：（1）クライアント納品＝Looker Studio、（2）社内探索＝Metabase、（3）大規模スケール＝Looker、（4）データサイエンス出力＝Streamlit/Dashで軽量Webアプリ化、を用途別に切替。
+
+### 6. ML/AI活用（応募数予測・LTV予測・チャネル最適化）
+
+- **応募数予測モデル**：媒体別投下額・季節性・過去応募推移を特徴量に、XGBoost/LightGBMで「翌月応募数の予測±95%予測区間」を出す。Prophet（時系列）とXGBoost（要因分解）のアンサンブルで、Ryota提案の「次月応募予測」セクション（2026-05-26参照）の精度を+15%改善。
+- **応募者LTV予測**：応募→内定→定着→貢献のコホート（2026-08-03参照）を、生存分析（項目3参照）とXGBoost回帰でモデル化。「この応募者の期待貢献価値=◯円」を出せると、単純な応募単価CPAより上位の意思決定指標（CPQH: Cost Per Quality Hire）が提示可能。
+- **チャネル最適化（Marketing Mix Modeling）**：Meta Robynや Google Meridian（OSSのベイジアンMMMライブラリ）を使い、7社集計データで媒体別の応募貢献を推定。MMM単独ではデータ不足でも、インクリメンタリティ検証（項目3のジオリフト）と組合せて三角測量。
+- **応募者クラスタリング**：K-means・Gaussian Mixture Model・HDBSCANで応募者の行動パターンを教師なしクラスタリングし、「早期内定型」「複数媒体接触型」「長期検討型」等のペルソナを発見。SotaのLPデザイン企画・Yuiのバズ分析へペルソナデータを供給。
+- **生成AI活用（LLM）**：GPT-4o/Claude Opusで（a）月次レポートのナラティブ自動生成（2026-05-26で稼働中）、（b）SQLクエリ自然言語→自動生成、（c）ダッシュボードのAI要因分解（2026-07-27参照）、（d）Airworkフリーテキスト応募理由の感情分析、を実装。LLM出力は必ず「反証データ探索」（2026-07-03参照）で人が検証する二段運用。
+- **MLOps基礎**：MLflowで実験管理、DVCでデータバージョン管理、Vertex AI/SageMakerで学習・推論のマネージド運用。モデルドリフト検知（本番CVR予測精度の月次モニタリング）でモデル劣化を早期発見。
+
+### 7. データ可視化原則（Storytelling with Data・Colin Ware理論）
+
+- **Colin Ware『Information Visualization』3レベル**：（1）前意識的処理（色相・向き・サイズは瞬時に知覚）、（2）パターン認識（近接・類似・連続の Gestalt原則）、（3）順次的視覚探索（意識的な走査）。前意識レベルで結論が伝わるチャート設計を優先。
+- **Cleveland-McGill知覚精度階層**：位置比較 > 長さ > 角度 > 面積 > 色相の順で人間の量的比較精度が下がる。円グラフ（角度）より棒グラフ（長さ・位置）を優先。3D効果・ドーナツグラフは知覚精度を下げるので原則不使用。
+- **Cole Nussbaumer Knaflic『Storytelling with Data』の6原則**：（1）文脈を理解する、（2）適切な視覚表現を選ぶ、（3）ノイズを排除する、（4）注意を惹きつける（プリアテンティブ属性の意図的使用）、（5）分析者のように考える、（6）ストーリーを語る。全レポートで6原則チェックリストを通す。
+- **色覚多様性配慮（2026-07-03参照を体系化）**：ColorBrewer 2.0のCB-safeパレット、viridis/cividis（Perceptually Uniform）、Okabe-Itoパレット（色覚異常対応8色）を標準採用。Adobe Color Accessibility Toolでコントラスト比WCAG AA準拠を全ダッシュボードで確認。
+- **BAN（Big Ass Number）とスパークラインの適材適所**：Stephen Few『Now You See It』のガイドラインで、経営者向けは「1画面1メッセージ+BAN+スパークライン」を原則化。ダッシュボードのタイル配置もF字型視線動線に沿わせる。
+- **アニメーション/インタラクションの節度**：無意味な回転・遷移は認知負荷。データ変化を示すトランジション（Draggan-Duke: Object Constancy）のみに限定。
+
+### 8. データ品質・ガバナンス（DAMA-DMBOK準拠）
+
+- **DAMA-DMBOK2の11データ管理領域**：（1）データガバナンス、（2）データアーキテクチャ、（3）データモデリング&設計、（4）データストレージ&運用、（5）データセキュリティ、（6）データ統合&相互運用性、（7）ドキュメント&コンテンツ、（8）参照&マスターデータ、（9）DWH&BI、（10）メタデータ、（11）データ品質。Shunが直接責任を持つのは（9）（10）（11）、Dengと共同で（1）（4）（6）を担う。
+- **DQ Dimensions 6軸（DAMA-UK）**：Accuracy（正確性）、Completeness（完全性）、Consistency（一貫性）、Timeliness（適時性）、Uniqueness（一意性）、Validity（妥当性）。既存の月初品質チェック（2026-05-22参照）をこの6軸に再整理し、Great Expectations（Pythonデータ品質フレームワーク）で自動テスト化。
+- **メタデータ管理**：dbtの`schema.yml`にKPI定義・オーナー・鮮度SLA・信頼性グレードを記述。DataHub/OpenMetadata（OSSカタログ）でShun管理のデータセットを一元検索可能に。Dengのカタログ（2026-07-02参照）と統合。
+- **データリネージ**：ソース（Airwork/GA4/Clarity/Indeed）→ステージング→dbt marts→ダッシュボード→レポートPDF、まで1ホップで遡れる系譜図を dbt docs + DataHub で自動生成。「この数字どこから？」（2026-06-11参照）の1ホップ遡及を制度化。
+- **PII/個人情報保護**：Airwork応募者の氏名・電話・メールは前処理段でハッシュ化。個人情報保護法（2022年改正）、GDPR、CCPAの準拠チェックをレビューフローに組込。Dengの匿名化スキーマと足並みを揃える。
+- **KPI辞書（Business Glossary）**：LETのKPI用語（応募CVR/CPA/CPQH/LTV/QoH等）を統一辞書にまとめ、定義・分母・分子・除外条件・オーナー・改定履歴を Notion で管理。Akari/Ryota/Ruiとの部署横断で共有し「同名別指標」問題（2026-06-13参照）を根絶。
+
+### 9. 継続的改善サイクル（分析→施策→効果測定ループ）
+
+- **PDCA→OODA→Double Loop Learningへの段階移行**：（1）PDCA=定型月次改善サイクル、（2）OODA=市場変化への即応（Airwork仕様変更等）、（3）Double Loop Learning=「前提そのものを疑う」（例：「応募CVR最大化」が本当に正しい北極星指標か？「Quality of Hire」の方が事業インパクト大では？）。四半期に1度Double Loopの問いを立てる時間を確保。
+- **Growth LoopとNorth Star Metric**：Reforge/Amplitudeのフレームワークで、LET事業のNorth Star Metric候補を「月次確定応募数」「月次採用貢献粗利」「月次Quality of Hire数」で比較検討し、Haruto/Soraと合意。Growth Loopは「良い応募→良い採用→クライアント継続→事例増→新規獲得」の自己増強ループとして設計。
+- **効果検証プロトコルの標準化**：全施策提案を「①仮説（H0/H1）②検証方法（AB/DiD/前後比較）③必要サンプル数④実施期間⑤成功基準（p値+効果量+実務閾値）⑥反証データ探索計画」の6項目テンプレで書式化し、Ryota提案とセット納品。実施後は必ず効果測定レポートを作成してGitHub Discussionsに残す。
+- **意思決定ログ（Decision Log）**：Ryota提案のクライアント意思決定を、Amazon流の「PR/FAQ」or「6-Pager」or「Type 1/Type 2 Decision」の粒度で記録し、3ヶ月後・6ヶ月後にレビュー。データが意思決定に効いたか、意思決定が事業成果に効いたかを追跡。
+- **Fail Fastと死角学習**：施策の失敗（Ryota提案的中率60%の下位40%）を「Post-Mortem 5 Whys」で解剖し、Notion「Shun 死角ノート」に記録。同じ誤りの再発を月次レビューで潰す（既存Daily Knowledge Logの発展形）。
+
+### 10. 学習体系（Coursera/Kaggle・HR Tech国内外レポート）
+
+- **Coursera専門特化**：（1）Duke「Data Analysis and Visualization Foundations」、（2）Google「Advanced Data Analytics Professional Certificate」、（3）DeepLearning.AI「Machine Learning Specialization」、（4）Imperial College「Mathematics for Machine Learning」、（5）Harvard「CS50's Introduction to Probability for Computer Scientists」。四半期に1コース完走を目標。
+- **Kaggle実践**：HRデータ系コンペ（IBM HR Analytics、Employee Attrition Prediction等）に参加し、上位30%以内を目標。Notebookをフォークして写経→自分の宮村・翔星データで再現→Ryota提案への転用、の3段活用。
+- **書籍リスト（2026年重点10冊）**：（1）『効果検証入門』安井翔太、（2）『施策デザインのための機械学習入門』齋藤優太、（3）『Storytelling with Data』C.N.Knaflic、（4）『People Analytics for Dummies』Mike West、（5）『実践的データ基盤への処方箋』ゆずたそ他、（6）『分析者のためのデータ解釈学入門』江崎貴裕、（7）『Trustworthy Online Controlled Experiments』R.Kohavi、（8）『Designing Data-Intensive Applications』M.Kleppmann、（9）『Fundamentals of Data Engineering』J.Reis、（10）『The Model Thinker』S.Page。月1冊読了→要約をNotionに残す。
+- **HR Tech国内レポート定期購読**：（1）リクルートワークス研究所「Works」、（2）パーソル総合研究所「HITO」、（3）マイナビキャリアリサーチLab、（4）HR総研、（5）日本の人事部「HRカンファレンス」レジュメ、（6）経産省「未来人材ビジョン」「人的資本経営」報告書。月次レビューで採用市場の変化を分析定義書へ反映。
+- **HR Tech国外レポート**：（1）Bersin by Deloitte「Global Human Capital Trends」、（2）LinkedIn「Global Talent Trends」、（3）Gartner「Future of Work」、（4）McKinsey「State of Organizations」、（5）SHRM Research、（6）Josh Bersin Academy。四半期に1レポート精読→「LET事業への翻訳メモ」化。
+- **コミュニティ参加**：（1）People Analytics Japan、（2）Data Analyst Meetup、（3）dbt Tokyo Meetup、（4）Marketing Analytics Japan、（5）Kaggle Tokyo Meetup、（6）Analytics Engineering Roundtable、（7）ATD（Association for Talent Development）Japan Summit。四半期に1回登壇 or LT発表を目標にし、外部ベンチマークで自己成長を測る。
+- **学習の運用ルール**：（1）学んだことは翌週の実案件で必ず1つ試す、（2）試した結果をDaily Knowledge Logに記録、（3）四半期に1度「学習→業務適用」の対応表を作成しHaruto/Soraへ共有、（4）教えることが最大の学びと定義しRyota/Akari/Yui/Deng向け社内勉強会を月1回主催。
+
