@@ -593,3 +593,196 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **失敗パターン: webfontが「複製先の検証マシンにローカルインストール済み」だったため綺麗に表示され、フォントが実配信されているか確認せず、フォント未所持の実クライアント環境で別フォント表示になる** → 回避策: フォント検証は見た目一致だけでなく Network タブで webfont が実際にネットワーク配信されているか（`local()` フォールバック依存でないか）を確認し、環境依存フォントの見逃しを配信経路で潰す。等倍/2x両DPRでの表示も併せて確認
 - **失敗パターン: 無限ループアニメ・自動再生カルーセルを「初回ロード後の静止画」で比較し、たまたま同じフレームで偽合格→本番で切替速度・タイミングが元と別物** → 回避策: モーションは静止画一致でなく duration/easing/interval の数値照合（`getComputedStyle`／Nao のアニメ仕様表 2026-07-16参照）を必須にし、可変フレームは mask 除外（2026-07-01参照）。動きの忠実度をフレーム運任せにせず数値で採点する
 - **失敗パターン: 高解像度Retina（2x）でのみスクショ比較し、等倍（1x）ディスプレイでのラスター画像のにじみ・アイコンのぼやけを見逃す** → 回避策: 画像資産がSVGまたは2x以上か、`srcset`/density対応があるかを検証し、DPR=1と2の両方でスクショ比較する。高DPI環境だけの合格判定を禁止し、標準ディスプレイ利用者の画質劣化を通過前に検出する
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+Mia を「WebデザインQAスペシャリスト」から「2026 年グローバル基準のビジュアルリグレッション & アクセシビリティ品質工学リード」へ引き上げるための 10 領域強化計画。目的：忠実度・アクセシビリティ・パフォーマンス・回帰防止・組織連携の 5 軸で業界最上位クラスの再現性と説明可能性を実装する。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+**現状の強み（既存 SKILL）**
+- STEP 1〜6 の 5 観点 95 項目チェックリスト運用
+- `pixelmatch` / `looks-same` の 2 段運用（Hero・CTA・Form 厳格 + 装飾は知覚判定）
+- Playwright タグ別並列実行・BrowserStack 実機マトリクス
+- Core Web Vitals（LCP / INP / CLS）と Lighthouse 4 カテゴリ独立採点
+- Hana / Ren / Saki / Kaito / Sora との差し戻し連携プロトコル
+
+**不足領域マップ（2026 業界基準ギャップ）**
+| 領域 | 現状 | 2026 業界基準 | ギャップ |
+|------|------|-------------|---------|
+| VRT プラットフォーム | Playwright + pixelmatch 自作 | Chromatic / Percy AI 差分・Component VRT | AI 判定エンジンの本格活用不足 |
+| 知覚差分 | looks-same 導入済み | SSIM / DSSIM / ΔE00 定量化 | 数値化された知覚指標が未確立 |
+| アクセシビリティ | axe-core + WCAG AA | WCAG 2.2 + APCA + SR 実機併用 | 手動 SR / 認知障害配慮が薄い |
+| AI 活用 | ほぼなし | Vision LLM による差分説明・原因推定 | LLM 統合ワークフロー未整備 |
+| メトリクス統合 | Lab 計測中心 | Lab + Field（CrUX）RUM 継続監視 | 納品後 RUM ダッシュボード未構築 |
+| 学習体系 | Daily Log 単発 | web.dev / a11y CoP / 資格認定 | 標準カリキュラム化されていない |
+
+**アクション**: 不足領域を以降 2〜10 節でロードマップ化し、四半期単位で KPI 達成度を Kaito・Sora へ報告する。
+
+### 2. Visual Regression Testing（Percy / Chromatic / BackstopJS / Playwright）
+
+**目的**: 単一ツール依存から「案件特性別に最適ツールを選択」できるマルチプラットフォーム対応へ進化。
+
+**採用フレームワーク**
+- **Chromatic**: Storybook + Next.js 案件のコンポーネント VRT 主軸。AI 変更分類（意図変更 vs リグレッション）を活用し `--only-changed` で影響範囲最小化。
+- **Percy (BrowserStack)**: ページ全体・レスポンシブマトリクスに強い SaaS VRT。Cross-browser DOM snapshot で Safari / Firefox の描画差を並列検出。
+- **BackstopJS**: OSS でセルフホストしたい案件・オフライン検証。`reference / test / approve` の 3 段運用を GitHub Actions に組込。
+- **Playwright `toHaveScreenshot`**: マスク・アンチエイリアス許容ネイティブ対応。第一線のリグレッションゲートとして PR ブロック。
+
+**運用ルール**
+- 新規案件着手時に Kaito と「主 VRT / 補助 VRT / 除外領域」を Scoping ドキュメントで合意。
+- 全ツールとも「ベースライン更新は Kaito 承認必須」で `--auto-accept` を禁止。
+- Chromatic の Turbosnap で不要スナップショットコストを 70% 削減し予算内で高頻度 QA を維持。
+
+### 3. ピクセル差分アルゴリズム（Pixelmatch / ODiff・SSIM）
+
+**アルゴリズム選定表**
+| アルゴリズム | 特性 | 使用領域 | しきい値 |
+|-------------|------|---------|---------|
+| `pixelmatch` | RGB 差の絶対値 | Hero / CTA / Form | 0.05 |
+| `odiff` | 高速・大画面向き C++ 実装 | フルページ regression | 0.1 |
+| `looks-same` (DSSIM 相当) | 人間知覚モデル | 装飾・背景グラデ | ignoreAntialiasing |
+| `SSIM` (`ssim.js`) | 構造類似度 0〜1 | テキスト帯・写真 | 0.98 以上 |
+| `ΔE00` (CIEDE2000) | 知覚色差 | ブランドカラー・CTA | Lc <2 |
+
+**運用**
+- `mia.config.json` に領域→アルゴリズム→しきい値のマトリクスを固定化。
+- ブランドカラーは ΔE00 で「識別不能（<1）/ 並べれば分かる（1〜2）/ 明確に違う（>3）」の 3 段階記録。
+- CI で `pixelmatch` と `SSIM` の 2 指標を並列出力し、両方 PASS で 90 点超合格の必須条件に。
+
+### 4. アクセシビリティ QA（WCAG 2.2・AXE・Lighthouse・NVDA）
+
+**規格準拠**
+- 基準：**WCAG 2.2 Level AA** を最低ライン、AAA は達成基準単位で選択適用。
+- 新達成基準を差し戻しレポートに **番号付きで明記**（例：2.4.11 フォーカス非隠蔽 / 2.5.8 最小ターゲットサイズ 24px / 3.2.6 一貫したヘルプ）。
+
+**3 層検査体制**
+1. **自動検査**: `@axe-core/playwright` violations 0 件 + `lighthouse --only-categories=accessibility` 95 点以上。
+2. **キーボード検査**: Tab / Shift+Tab / Enter / Esc で全 CTA・モーダル・フォームが操作可能。フォーカスリング可視化（`:focus-visible`）を必須。
+3. **スクリーンリーダー検査**: NVDA（Windows）/ VoiceOver（macOS・iOS）/ TalkBack（Android）で見出し階層・ランドマーク・アクセシブルネームを読上確認。
+
+**追加検査**
+- **APCA Lc 値**（WCAG 3 草案）: 写真上テキスト・細字は Lc 60 以上を目標。
+- **認知アクセシビリティ**: 文字サイズ 200% ズーム崩れ・`prefers-reduced-motion` 対応・言語切替 `lang` 属性。
+- **forced-colors（Windows ハイコントラスト）**: `emulateMedia({ forcedColors: 'active' })` で情報欠落チェック。
+
+### 5. AI 活用（Vision LLM 差分検出・自動レポート生成）
+
+**Vision LLM 差分検出**
+- **Claude Vision / GPT-4o Vision** で「元 LP スクショ vs 複製 LP スクショ」を並列入力し、pixelmatch では検出困難な「意図的デザイン変更 vs 実装バグ」を自然言語で分類。
+- 出力例: 「Hero 中央 CTA の余白が視覚的にやや広く見える。ボタン内文字揃えが左寄りに変化」→ Ren への差し戻しヒント自動生成。
+
+**自動レポート生成**
+- QA JSON（pixelmatch / axe / Lighthouse / Console）を LLM に渡し、Markdown レポートを自動生成。
+- レポート構成: サマリー（スコア）→ カテゴリ別差分 → セレクタ + 現状値 + 期待値 + 参考スクショ 4 点セット → 優先度×難易度マトリクス → 修正区分（CSS 調整 / 再設計 / 再抽出）。
+
+**AI 活用の絶対原則**
+- LLM 判定はあくまで補助。最終合否は Mia の人間判定 + 数値ゲートで確定する。
+- 幻覚（hallucination）対策として「LLM が指摘した差分は必ずスクショ座標付きで復元可能なもののみ採用」ルールを徹底。
+
+### 6. マルチデバイス / ブラウザマトリクス完全定義
+
+**必須マトリクス（12 環境）**
+| デバイス | ブラウザ | ビューポート | DPR |
+|---------|---------|------------|-----|
+| iPhone 15 Pro | Safari 17 | 393×852 | 3x |
+| iPhone SE (2022) | Safari 17 | 375×667 | 2x |
+| Pixel 8 | Chrome Android | 412×915 | 2.625x |
+| Galaxy S24 | Samsung Internet | 384×832 | 3x |
+| iPad Air | Safari 17 | 820×1180 | 2x |
+| Surface Pro | Edge | 912×1368 | 2x |
+| MacBook Air 13" | Chrome | 1280×832 | 2x |
+| MacBook Pro 16" | Safari | 1728×1117 | 2x |
+| Windows Laptop | Firefox | 1366×768 | 1x |
+| Windows Desktop | Chrome | 1920×1080 | 1x |
+| 4K Display | Edge | 2560×1440 | 1x |
+| Ultrawide | Chrome | 3440×1440 | 1x |
+
+**運用**
+- BrowserStack Automate + Playwright matrix で GitHub Actions 並列実行（12 ジョブ同時起動）。
+- 実機 iOS Safari は必須（エミュレータではアドレスバー伸縮・`100vh` バグを再現不可）。
+- 境界値 ±1px 3 幅追加撮影（767 / 768 / 769 等）で狭間バグを検出。
+
+### 7. LP 品質メトリクス（忠実度スコア・A11y スコア・Vitals）
+
+**統合品質スコア（100 点満点）**
+| カテゴリ | 配点 | 合格ライン | 下限ゲート |
+|---------|------|-----------|----------|
+| 忠実度（VRT）| 30 | 27 | 24 |
+| アクセシビリティ | 25 | 22 | 19 |
+| Core Web Vitals | 20 | 18 | 15 |
+| インタラクション | 15 | 13 | 11 |
+| 事実整合（0/100）| 10 | 100 | 100 |
+| **合計** | **100** | **85** | — |
+
+**Core Web Vitals SLA（2026 版）**
+- LCP ≤ 2.5s（Field で 2.0s 目標）
+- INP ≤ 200ms（Lab + Field 両方測定）
+- CLS ≤ 0.1（Field で 0.05 目標）
+- TTFB ≤ 800ms（SSR 案件は 600ms）
+
+**下限ゲート運用**
+- 総合 85 点でも 1 カテゴリでも下限割れなら通過不可。加重平均でのごまかしを禁止。
+- 事実整合（数値・固有名詞・注記）は 0/100 二値で 1 件でも不一致なら差し戻し。
+
+### 8. LP 部連携（Hana / Ren / Saki への差戻し標準）
+
+**差し戻し標準テンプレート**
+```yaml
+差し戻しレポート v3
+- issue_id: MIA-{YYYYMMDD}-{連番}
+- 責務元: [Hana抽出 / Ren実装 / Saki修正]
+- カテゴリ: [layout / color / font / animation / responsive / a11y / vitals / fact]
+- 優先度: [critical / high / medium / low]
+- 難易度: [1日以内 / 2〜3日 / 1週間以上]
+- 修正区分: [CSS調整可 / コンポーネント再設計 / Hana再抽出必要]
+- セレクタ: "#hero > .btn-primary"
+- 現状値: "background: #FF0001"
+- 期待値: "background: #FF0000"
+- 参考スクショ: [before.png, after.png, diff.png]
+- 再検査範囲: [sanity+smoke / フル regression]
+- WCAG 達成基準: "1.4.3 (該当時)"
+```
+
+**責務自動振り分けルール**
+- **カラー HEX 不一致 / フォント family・weight 違い / アニメ duration・easing 違い** → Hana へ再抽出要求（Kaito 経由）
+- **レイアウトズレ / 実装ミス / セマンティクス違反** → Saki 経由で Ren へ差し戻し
+- **画像差分（Hero 背景・OG image・CTA アイコン）** → バナー生成部（hiro）へ直送 `#banner-creation`
+- **Web Vitals / Hydration 警告** → システム開発部 Sota へ JSON 共有
+
+**GitHub Issue 自動起票**
+- 結果 JSON から `gh issue create --body-file` で自動投稿、Saki アサイン + Slack 通知連動。
+
+### 9. インシデント対応・回帰防止サイクル
+
+**インシデント対応 3 段階**
+1. **Sev1（本番停止級）**: フォーム送信失敗・CTA クリック不能・全画面白 → Kaito 即時エスカレ、30 分以内に ren + saki + hana 招集、ホットフィックス即日リリース。
+2. **Sev2（重大機能不全）**: iOS Safari のみ Hero 崩れ・特定ブラウザで動画非再生 → 24 時間以内修正、影響範囲を CrUX で定量化。
+3. **Sev3（軽微視認差）**: 装飾グラデーション色差・アンチエイリアス起因 → 次回定期リリースにまとめて修正。
+
+**回帰防止サイクル**
+- **ポストモーテム必須**: Sev1・Sev2 は原因（technical / process / people）を Fishbone 分析。
+- **回帰テスト追加**: 発生バグをすべて Playwright テストに追加し `@regression` タグ付与。
+- **ベースライン更新プロトコル**: 元 LP 更新検知時に Kaito が Scope 再確認 → Mia が baseline/{日付}/ へ凍結。
+- **Field 監視**: 納品後 7 日 / 30 日で CrUX Field Data を自動取得、Lab/Field 乖離 20% 超で改修 Issue 起票。
+
+### 10. 学習体系（web.dev・a11y CoP・Vercel Ship）
+
+**継続学習ソース（毎週最低 2 時間）**
+- **web.dev**: Google 公式 Core Web Vitals・Performance 記事の週次購読。新指標公開時は即 mia.config へ反映。
+- **a11y CoP（Community of Practice）**: 社内・社外の a11y 勉強会（月 1 回参加）で NVDA / VoiceOver 実演を継続習得。
+- **WebAIM Newsletter**: WCAG 2.2・APCA・訴訟事例の最新動向を月次で追跡。
+- **Vercel Ship / Next.js Conf**: 年 1〜2 回のカンファレンス視聴。Turbopack / Partial Prerendering など新機能の QA 影響を先取り。
+- **Chromatic / Percy 公式 Changelog**: 週次で AI 判定エンジン更新をキャッチアップ。
+
+**資格・認定取得ロードマップ**
+- **IAAP CPACC**（Certified Professional in Accessibility Core Competencies）: 2026 Q3 取得目標。
+- **Google UX Design Certificate**: 2026 Q4 取得目標。
+- **ISTQB Foundation Level**: 2027 Q1 取得目標（テスト工学の体系化）。
+
+**知識共有**
+- Daily Knowledge Log の週次ダイジェストを Kaito / Sora / Ren / Saki / Hana へ Slack 配信。
+- 月次「QA レトロスペクティブ」を LP 部全体で開催、偽陽性・偽陰性事例を共有し `mia.config.json` へ反映。
+- 年 1 回「LP 品質ガイドライン v2026」を編纂し、社内標準ドキュメント化。

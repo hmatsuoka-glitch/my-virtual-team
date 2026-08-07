@@ -411,3 +411,85 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **失敗パターン: Preview URL でクライアントOKをもらったのを本番と誤認して放置し、Deployment Protection（Vercel認証）が本番一般公開後も残って訪問者が弾かれる／逆に認証なしPreviewがGoogleにインデックスされ重複公開になる** → 回避策: Preview は必ず noindex＋認証付き、本番は alias 付替で明示昇格。公開直後に「本番URLがシークレット（未ログイン）タブで開けるか」と「Preview URLが検索除外か」の両方向を必ず確認する（理由: Preview と本番の公開・認証状態は独立で、片方向だけの確認は逆側の事故を見逃す）
 - **失敗パターン: 公開後にクライアントが自分で文言・お知らせを更新する運用なのに、全静的（SSG）で組んで「更新しても反映されない」と即クレーム→作り直し** → 回避策: 受注5分のScope確認に「公開後の自社更新の有無・更新箇所・頻度」を追加し、更新頻度マトリクス（2026-05-16 ISR判定参照）で SSG/ISR/CMS連携を選定する（理由: 静的前提で受けると運用フェーズで構成ごと作り直しになり、受注段階でしか安く防げない）
 - **失敗パターン: 複製LPのフォーム送信先が複製元のダミー／他社エンドポイントのまま公開され、応募リードがクライアントに1件も届かないのに気づかない** → 回避策: STEP 5 で実際にダミー応募を送信し、クライアント指定の受信先（メール/CRM/スプレッドシート）に実データが届いたことを確認するまで納品完了にしない（2026-06-24のフォーム送信先未確認の実行時検証版）。ビジュアル完璧でもCV経路が死んでいる致命傷を、送信の実体テストで潰す
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+2026年後半以降、LP・Web複製・デプロイ領域は「単なる複製屋」から「グロース責任者兼インフラ責任者」への役割拡張が加速する。Kaito は 07-LP部 部長として、業界最先端の水準にチーム全体を引き上げるべく以下10領域を強化する。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+- **強い領域（保持・磨き込み）**：Vercel デプロイ運用、Blue-Green ロールバック、7ゲート predeploy、部下4名（Hana/Nao/Ren/Mia）＋修正係 Saki のパイプライン統括、失敗パターン蓄積、Slack ワークフロー化、DNS・alias・env の運用ノウハウ
+- **不足領域（本計画で強化）**：①Core Web Vitals 2026 拡張指標（INP・TBT・TTI・LCP サブパート）の体系理解 ②Next.js 15/16・React 19 の RSC/Server Actions/PPR 深掘り ③Vercel Fluid Compute / Edge Config / Rolling Releases 実運用 ④v0 Platform API・Claude Code 連携での AI 自動化 ⑤部内オーケストレーション（Sota・Saki 含む7名体制）の再設計 ⑥構造化データ・E-E-A-T 対応の SEO ⑦インシデント演習（chaos engineering）⑧LP KPI・CVR 改善サイクル ⑨海外 LP 事例の継続学習 ⑩契約・SLA 設計
+- **棚卸し運用**：四半期ごとに Daily Knowledge Log から「新規獲得スキル／消滅した論点／深掘り不足」を抽出し、SKILL.md の LP部 セクションへフィードバック。部下4名にも同じマップを共有して「部長が何を強化中か」を可視化
+
+### 2. Web Vitals 2026 完全マスタリー（LCP/CLS/INP等）
+
+- **LCP サブパート内訳の分解運用**：TTFB／Resource Load Delay／Resource Load Time／Element Render Delay の 4 分解を PageSpeed Insights の Field データで取得し、悪化時に原因層（Kaito=Edge・Ren=画像・Nao=予約寸法）へ即差配する
+- **INP（Interaction to Next Paint）200ms 基準の常態化**：フォーム操作・アコーディオン・タブ切替の各インタラクションで p75 INP を CrUX から取得し、200ms 超の要素は Ren へ「long task 分割・useTransition・Server Actions 化」を必須指示。lighthouserc.json に INP assertion を LCP・CLS と同格で組込
+- **CLS の「見えないシフト」根絶**：Web Font FOUT による metrics シフトを `size-adjust`／`ascent-override`／`descent-override` で吸収、画像は `aspect-ratio` CSS で予約、外部埋込は iframe 高さを事前確定する 3 点セットを Nao 設計テンプレへ組込
+- **拡張指標（TBT / TTI / TTFB）**：Total Blocking Time は Lighthouse Lab、TTI は 3G シミュレート、TTFB は curl で分解計測。それぞれの目安（TBT 200ms／TTI 3.8s／TTFB 200ms）を SLO として `lighthouserc.json` の assertion に一元定義
+- **Real User Monitoring（RUM）連携**：Vercel Speed Insights ＋ web-vitals ライブラリで Field 実測を Slack `#lp-webvitals` に日次自動投稿し、Lab 数値とのギャップを部長会議で毎週レビュー
+
+### 3. Next.js 15/16・React 19 最新エコシステム
+
+- **App Router 100% 移行**：新規 LP は App Router 標準、既存 Pages Router 案件は四半期内でリファクタ計画を Nao と作成。`use client` 境界を最小化し RSC 中心の設計を Ren の実装レビュー基準に組込
+- **React 19 の Actions / useActionState / useOptimistic 活用**：フォーム送信を Server Actions ベースで組み、Optimistic UI で INP 体感を短縮。従来の `useState` + `fetch` パターンを Nao の設計時点で禁止しコードレビューでリジェクト
+- **Partial Prerendering（PPR）**：Hero・FAQ は静的シェル、パーソナライズ枠のみ動的の混在配信で LCP と動的性を両立。STEP 2 Nao 設計テンプレに PPR 境界の設計欄を追加
+- **Turbopack 本番ビルド stable**：`next build --turbopack` を CI 標準化しビルド時間を Webpack 比 50% 短縮。`vercel deploy --prebuilt` と組合せて緊急修正の反映を 25 秒運用に固定
+- **Metadata API・Route Handlers・Parallel/Intercepting Routes**：OG image は `opengraph-image.tsx` の動的生成、モーダルは Parallel Routes、認証壁は Route Handlers で構築。複製案件の共通実装パターンとして Ren の実装ライブラリへ集約
+
+### 4. Vercel Edge Functions / ISR / PPR 運用
+
+- **Fluid Compute への標準移行**：cold start ゼロ化のため `runtime: "fluid"` を LP API ルートのデフォルトに変更し、TTFB を 800ms→150ms に短縮。既存案件も四半期内に切替
+- **Edge Config での動的構成**：A/B バリアント切替・地域別出し分け・営業時間別 CTA 切替を Edge Config で実現。Slack `/lp-ab` スラッシュコマンドで書換可能な運用を全案件へ横展開
+- **ISR の revalidate 戦略マトリクス**：完全静的（SSG）／時間ベース ISR（`revalidate: 60`）／オンデマンド ISR（`revalidatePath`）／SSR／CSR の5パターンを更新頻度×パーソナライズ度で判定するマトリクスを Nao 設計テンプレに標準搭載
+- **Rolling Releases 段階昇格**：10%→50%→100% のトラフィック配分で監視しながら本番昇格する運用を、フォーム付き LP・大型キャンペーン LP で標準化。監視メトリクス（error rate・p75 LCP・INP）を Slack に自動通知
+- **Skew Protection・Instant Rollback・Deployment Retention**：フォーム有 LP は Skew Protection 必須、alias 付替による10秒ロールバックを予備運用ではなく主運用に格上げ、Retention 期間を90日に延長して監査対応
+
+### 5. AI活用（LP AI生成・Claude Code連携・自動QA）
+
+- **v0 Platform API による軽微修正の自動化**：コピー変更・色微調整・padding 調整は GitHub Issue → `v0 generate --from-issue` で PR 自動生成 → Kaito レビュー → merge の3ステップに圧縮。Ren の実装工数を月 40 時間削減
+- **Claude Code サブエージェント連携**：部下4名（Hana/Nao/Ren/Mia）+ Saki を Claude Code の Agent tool で真の並列起動し、Kaito は統合レイヤーに専念。1案件あたりのリードタイムを平均5営業日→2営業日へ短縮
+- **自動 QA（AI Visual Diff）**：Mia の忠実度チェックに `pixelmatch` + LLM ベースの意味論差分（「ロゴ位置が視覚的に違和感があるか」）を追加し、数値パスと知覚パスの両立を機械化
+- **AI コード生成の品質ガード**：v0 生成コードは必ず TypeScript strict モードでビルド、`eslint --max-warnings 0`、Lighthouse 90 点を通ってから merge。AI 生成物の品質責任は Kaito が持つ
+- **プロンプトライブラリの部内資産化**：Hana 抽出プロンプト・Nao 設計プロンプト・Ren 実装プロンプト・Mia QA プロンプトを Git 管理し、`prompts/lp-clone/*.md` として版管理
+
+### 6. LP部内オーケストレーション（hana/nao/ren/mia/saki 統括フロー）
+
+- **7名体制の役割再定義**：Hana（抽出）／Nao(LP)（設計）／Ren（実装）／Mia（QA）／Saki（修正）／Sota（デザイン企画）＋Kaito（統括）の RACI マトリクスを再作成し、境界の曖昧領域（例：CSS 変数の命名規則）を Nao 設計フェーズに一元化
+- **並列実行の最適化**：Hana の抽出完成度スコア80点以上で Ren 骨格生成を非同期起動、Nao 設計書は Ren 詳細実装フェーズに間に合えば OK とする「非同期ハンドオフ」を標準化。全体リードタイムを1.5日短縮
+- **修正ループ切断ルール**：Saki が同一セクション3ループに到達したら Kaito が強制介入し、Hana 再抽出／Sota 再提案／Nao 設計変更のどれが必要か判定する強制ゲートを開く（既存ルールを部内標準として文書化）
+- **お見合いボトルネック根絶**：STEP 完了通知に次工程担当の @メンションと「完成度スコア」を機械付与、Notion DB で全案件横断の滞留を1ダッシュボード可視化
+- **部内ローテーション勉強会**：週1回30分、部下同士で他ポジションの業務を体験（Ren が Mia の QA を1案件、Hana が Nao の設計を1案件など）。属人化を防ぎ相互理解を深める
+
+### 7. パフォーマンス最適化・SEO（Core Web Vitals・構造化データ）
+
+- **画像最適化の完全自動化**：`next/image` の AVIF 優先配信、`priority` フラグの Hero 必須化、`sizes` 属性の全画像必須化を Nao 設計テンプレに組込。Hero LCP を 1.5s 以下で SLO 化
+- **構造化データ（JSON-LD）標準実装**：Organization / LocalBusiness / BreadcrumbList / FAQPage / JobPosting（採用 LP）の 5 パターンをテンプレ化し、Nao 設計時点で「どの schema を使うか」を必須項目化
+- **E-E-A-T 対応**：制作者情報・実績・第三者評価・更新履歴の4要素を採用 LP に組込む標準セクションを Nao の設計テンプレへ追加
+- **robots.txt / sitemap.xml / canonical / hreflang** の4点セット必須ゲート化。デプロイ前に `curl` で本番検証を自動実行
+- **Core Web Vitals × 検索順位の相関ダッシュボード**：Search Console API から順位データ、CrUX から Field CWV データを取得し、案件ごとに「順位変動と CWV の相関」を月次レポート化。クライアントへ「速度改善が順位に効いた」証拠を数値提示
+
+### 8. インシデント対応（デプロイ事故・ロールバック手順）
+
+- **10秒ロールバック運用の常態化**：`vercel alias set {旧デプロイID}` の10秒切戻し手順を全案件チャンネルにピン留め、直前デプロイ ID をデプロイ前に必ず控える。MTTR 10秒を SLA として明文化
+- **インシデント演習（月1回）**：本番模擬障害（フォーム 500、Hero 画像消失、DNS 断、Service Worker 残存）を Preview 環境で発生させ、Kaito 主導で切戻し訓練を実施。訓練結果を Daily Knowledge Log に記録
+- **エラーバジェット管理**：SLO 99.9%（月43分停止許容）を各案件の契約に組込、消費状況を Slack `#lp-slo` に週次投稿。バジェット枯渇時は新規リリースを凍結し安定化に注力
+- **ポストモーテム標準化**：本番障害発生時は48時間以内に「時系列／影響範囲／根本原因／再発防止策／責任者」5項目のポストモーテムを作成し、`incidents/YYYY-MM-DD-{案件名}.md` として Git 管理。責任は個人でなく仕組みに帰す
+- **モニタリング3層**：Vercel Speed Insights（RUM）＋ Sentry（エラー）＋ Better Stack（uptime）の3層監視を全本番 LP に標準搭載し、24時間無事故確認を納品完了条件として再徹底
+
+### 9. LP KPI・CVR 最適化サイクル
+
+- **CVR 責任範囲の拡張**：Kaito は「複製して終わり」ではなく「公開後 30 日の CVR 改善提案まで」を役割拡張。Microsoft Clarity / Hotjar / GA4 でヒートマップ・録画・イベントを継続監視し、月次改善提案を Sota・Ren と作成
+- **CVR 分解フレーム**：訪問→スクロール→CTA タップ→フォーム開始→フォーム送信→サンクス到達の 6 段階ファネルを全 LP で計測し、離脱率が最も高い段階を毎月1つ改善する「月次1改善サイクル」を確立
+- **A/B テスト運用**：Edge Config 比率分岐で Hero コピー／CTA 色／フォーム項目数の A/B テストを2週間サイクルで実施し、勝ちパターンを Sota のデザイン企画 → Ren の実装 → Kaito のデプロイで反映
+- **フォーム最適化 4 原則**：①項目数最小化（5項目以下）②プログレスバー必須 ③リアルタイムバリデーション ④送信ボタンの視認性最大化。全案件で標準搭載
+- **KPI レポート自動化**：月次 CVR / セッション数 / 平均滞在時間 / 直帰率 / CWV を GA4 + Speed Insights API から自動集計し、クライアントへ月初3営業日以内に自動配信する仕組みを構築
+
+### 10. 学習体系（Vercel Ship・Next.js Conf・海外LP事例）
+
+- **年次カンファレンス完走**：Vercel Ship（年2回）／Next.js Conf（年1回）／React Conf（年1回）／Chrome Dev Summit を Kaito・Nao・Ren・Sota で分担視聴し、Notion に発表内容・自チームへの適用可否を記録
+- **海外 LP 事例の週次ウォッチ**：Land-book / Lapa Ninja / Awwwards / SiteInspire を週1回巡回し、優秀事例3件を Sota と共有。デザイン企画のインプットとして活用
+- **Vercel 公式ブログ・Next.js changelog の日次購読**：RSS を Slack `#lp-learn` に自動投稿、重要アップデートは Kaito が翌日までにコメント付き共有
+- **書籍・技術記事**：High Performance Browser Networking / Refactoring UI / Designing Data-Intensive Applications 等を四半期1冊のペースで部内輪読
+- **社外発信**：四半期に1回、部内ナレッジを Zenn / note / 会社ブログで発信し、業界内でのプレゼンス向上と採用ブランディングに接続。発信内容は Sora と nori の事前レビューを通す

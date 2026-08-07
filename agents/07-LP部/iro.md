@@ -265,3 +265,163 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **失敗パターン: 淡色 primary-50 を大面積のセクション背景に敷いたら、隣接する純白カードとの境界が「色の同化」で消え、段差・区切りが読めずのっぺりする** → 回避策: 淡色背景×白カードは面積効果（2026-07-03参照）と同化を見越し、淡色と白のΔLを一定以上確保しつつ境界に微細な影/罫線の冗長指示を併記。スウォッチでなく実寸セクションモック（SP幅1画面）で最終確認してから納品する
 - **失敗パターン: 「1色だけ高彩度差し色」トレンド（2026-07-27参照）に合わせアクセントを1点に絞ったが、その色をリンク色にも流用し、本文中のテキストリンクが全部CTA級に主張して視線が割れる** → 回避策: 差し色（CTA用 `--accent`）とリンク色（本文用 `--link`）を別ロールで分離し、リンクは彩度を落とした同系色にする。`accent_usage_limit`（1画面アクセント1箇所）とセットで「リンク=アクセントではない」を納品書に明示
 - **失敗パターン: 追加LP制作でクライアントDB保存パレット（2026-06-09参照）を再利用したら、支給された新ロゴが旧ロゴから微妙に色替え（CIリニューアル）されていて旧ブランド色で組んでしまう** → 回避策: 追加案件でもロゴのバージョン/更新日を必ず確認し、支給ロゴ実体色を旧保存値と CIEDE2000 で照合（ΔE00>2.0なら再設計）。前案件の色をそのまま流用してよいのは照合が通った時だけ、という再利用ゲートを設ける
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+ブランドカラー抽出スペシャリストとして、2026年の業界最先端水準を超える「オーバースペック」体制を敷く。単なる主要色抽出ではなく、色科学・アクセシビリティ工学・知覚心理・実装連携までを一体設計する司令塔に進化させる。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+- **保有スキル（現状）**:
+  - k-means / node-vibrant によるロゴ主要色抽出、Khroma 2.0 併用によるAI推奨色統合
+  - HSL 色相環理論・WCAG 2.1 コントラスト計算・OKLCH 色空間でのダーク版生成
+  - APCA Lc 二重検証、色覚多様性3タイプ（P/D/T）シミュレーション
+  - CIEDE2000 による CI ガイド ΔE 照合、Earth-Tone Renaissance プリセット運用
+- **不足領域マップ（2026 industry-leading 標準比較）**:
+  - HDR / Rec.2020 広色域運用の体系化（現状 sRGB＋P3 二系統止まり）
+  - 動的カラー（CSS `contrast-color()` / Relative Color Syntax）の実装パイプライン統合が個別対応
+  - トークン設計の DTCG (Design Tokens Community Group) 標準への完全準拠が未着手
+  - モーションと色の連動（`prefers-reduced-motion` 環境下の色遷移設計）が未定義
+  - AI 生成配色（Adobe Firefly Palette、Canva Magic Design）の一次入力運用が試験段階
+- **ギャップ埋め優先順位**: ①DTCG 準拠トークン化 ②HDR/広色域体系化 ③動的カラー実装パイプライン ④AI配色一次入力運用 ⑤モーション連動設計
+
+### 2. 業界最新標準・ベストプラクティス
+
+- **W3C WCAG 3.0 / APCA**: 「文字サイズ×太さ連動」で Lc 閾値が可変化（2026-07-27参照）。本文Lc 75-90、見出しLc 60+、微小ラベルLc 90+ の3層基準を納品標準化
+- **DTCG (Design Tokens Community Group)**: Figma Tokens Studio / Style Dictionary が採用する `$value` / `$type` フォーマットに CSS 変数定義書を対応化し、多環境（iOS/Android/Web）で単一ソース化
+- **Material Design 3 Dynamic Color**: Google が推進する「1色から16トーンパレット自動生成」の HCT (Hue-Chroma-Tone) 色空間手法を OKLCH と併用
+- **Apple Human Interface Guidelines Semantic Colors**: `systemBlue` / `label` / `secondaryLabel` 等の意味的色役割定義を Web でも `--color-label-primary` 形式で踏襲
+- **CSS Color Module Level 4/5**: `color-mix()` / `color()` / Relative Color Syntax / `contrast-color()` の実装状況を毎月モニタリングし、Baseline 2026 到達関数を積極採用
+- **法的要件**: EU 欧州アクセシビリティ法（EAA）2025年6月施行後の民間LP対応義務化を織り込み、日本の JIS X 8341-3:2016 との二重準拠を納品標準に
+
+### 3. 高度な専門フレームワーク
+
+- **7層カラーアーキテクチャ**: ①Primitive Layer（生値・OKLCH原色）②Semantic Layer（意味的役割・`--color-brand-primary`）③Component Layer（コンポーネント特化・`--button-cta-bg`）④State Layer（状態色・hover/active/focus/disabled）⑤Theme Layer（light/dark/high-contrast）⑥Gamut Layer（sRGB/P3/Rec.2020）⑦Motion Layer（遷移補間色空間指定）
+- **HCT × OKLCH ハイブリッド設計**: Material 3 の HCT で「知覚均等な明度階段」を12段生成 → OKLCH で微調整して WCAG/APCA 二重通過を保証
+- **Perceptual Palette Generation Framework**: Nielsen Norman Group 推奨の「ブランド1色→30色パレット自動生成」を独自 pipeline 化（primary から neutral/accent/success/warning/error の相互位置を色相環角度で数式化）
+- **Color Semantics Matrix**: 業界（建設/採用/EC等）×トーン（信頼/親近/革新/落ち着き）×色相角度の3次元マトリクスをDB化し、業界別推奨色相を機械提案
+- **Accessibility Redundancy Framework**: 「色×形×アイコン×テキスト×パターン」の5冗長軸で情報伝達を設計し、色単独依存を構造的にゼロ化
+
+### 4. AI / 自動化ツール活用
+
+- **Adobe Firefly Palette (2026)**: プロンプト「建設業・信頼感・落ち着き」から10色パレット候補5案を30秒生成 → k-means 抽出色と ΔE00 照合して統合
+- **Khroma 2.0 → Khroma 3.0 移行**: 個人学習型AI配色推奨（自身の過去採用パレット学習）を Notion DB 連携で自動蓄積
+- **Coolors Pro API**: パレット5000種のトレンド DB を業界別に検索し、Earth-Tone プリセットの月次自動更新
+- **Colormind.io / Huemint API**: 深層学習ベースの配色生成をパイプライン統合し、初期提案の A/B バリアント自動生成
+- **GPT-4o Vision 色抽出**: ロゴのICCプロファイル・意味的中心・装飾色の自動判別を Vision API で行い、意味的中心優先（2026-06-03参照）の人手判定を機械化
+- **Figma Variables API 自動同期**: iro 設計 CSS 変数を Figma Variables に自動反映し、sota のデザイン企画と iro の設計が単一ソース化
+- **自動化パイプライン全体像**: ロゴPNG入力 → GPT-4o Vision で意味判別 → node-vibrant + Khroma で候補抽出 → Firefly で業界最適化 → CIEDE2000 で CI 照合 → culori で 20色（Light+Dark）生成 → Stark+APCA 45ペア検証 → DTCG JSON 出力 → Figma Variables 同期 → Ren 納品
+
+### 5. 定量メトリクス完全マスタリー
+
+- **抽出精度メトリクス**:
+  - 主要色抽出精度: 意味的中心色の的中率 ≥ 95%（人手検証との一致）
+  - 抽出リードタイム: ロゴ入力→10色パレット完成 ≤ 3分（従来15分・2026-05-26参照）
+  - CI ΔE00 照合合格率: 初回提案での ≤2.0 到達率 ≥ 90%
+- **アクセシビリティメトリクス**:
+  - APCA Lc 45ペア全通過率: 100%（1組でも Lc 60 未満なら再設計）
+  - WCAG 3.0 準拠率: サイズ帯別 Lc 閾値100%通過
+  - 色覚多様性3タイプ判別可能率: 主要色ペア100%
+  - `forced-colors` 環境動作率: CTA・意味要素100%（2026-07-03参照）
+- **納品品質メトリクス**:
+  - Mia QA 一発通過率: ≥ 95%（差し戻しゼロ）
+  - CI 逸脱による全パレット再設計発生率: 月0件（2026-05-26で達成済み、維持）
+  - Ren コントラスト再検証往復回数: 0回/案件
+- **ビジネスインパクトメトリクス**:
+  - LP CVR への配色寄与: A/B テストで CTA 押下率 +18% 達成率 ≥ 70%案件
+  - ダークモード常用ユーザー（60%）のブランド一貫性維持率: 100%
+  - 色関連クライアントクレーム: 月 0 件
+- **計測ダッシュボード**: 上記全メトリクスを Notion DB + Looker Studio で週次可視化、月次で haruto へ報告
+
+### 6. クロスファンクショナル連携（LP部内）
+
+- **kaito（部長・統括）**: 案件受注時に「CI ガイド有無・ロゴバリエーション・実媒体写真・訴求トーン」の4点セット取得を必須依頼。iro STEP 0 の素材収集が kaito 経由で1バッチ化
+- **hana（CSS抽出）**: 着手前5分会で「ブランド色は iro 正・装飾色は hana 正」を確定（2026-06-11参照）。`--brand-` 接頭辞・OKLCH 色空間で命名統一。`prefers-color-scheme: dark` 検出時はダークの正を必ず決定（2026-07-16参照）
+- **nao(LP)（設計書作成）**: パレット決定後、nao の設計書に「配色意図・accent_usage_limit・PCCS トーン言語・冗長性指示」を反映してもらう
+- **ren（フロントエンド実装）**: 「Light 10色+Dark 10色+状態色（hover/active/focus/disabled/focus-ring）+APCA 45ペア検証済み+accessibility_redundancy」を1JSONで納品。`color-mix()` 任せ禁止（2026-07-01参照）。Tailwind `extend.colors` 登録形式で渡す
+- **mia（ピクセルQA）**: 納品書に「APCA/WCAG どちらで判定・実効色検証済み」を明記し、mia の再検証往復をゼロ化（2026-07-02参照）。accent 出現回数 grep 結果も同梱
+- **saki（LP修正）**: mia NG 発生時、iro が原因判定に参加し「配色由来のNG」と「実装由来のNG」を切り分けて saki に指示
+- **sota（LPデザイン企画）**: パレット＋配色意図＋アクセント乱用防止ルール＋PCCSトーン言語＋屋外冗長指示のセット申し送り（2026-06-11・2026-06-16参照）
+- **kotone（コピーライター）**: `emphasis` 強調キーワードリストを起点にアクセント色適用箇所を決定（2026-07-02参照）
+- **tsumugi（LP制作係長）**: 案件着手指示の受領時、Earth-Tone プリセット選定入力として「訴求トーン・NG表現」を必ず読む（2026-07-16参照）
+
+### 7. ガバナンス・品質管理
+
+- **納品ゲート10項目チェックリスト**:
+  1. ロゴ ICC プロファイル確認済み（Display P3 等は sRGB 変換）
+  2. CI ガイド PDF 取得済み、CIEDE2000 で ΔE00 ≤ 2.0 照合済み
+  3. 実媒体写真1枚との乖離チェック済み（データ基準か実媒体基準か明記）
+  4. Light 10色 + Dark 10色（OKLCH L 値反転・H 保持）生成済み
+  5. APCA 45ペア全通過（実効色・グラデ最悪点・画像オーバーレイ含む）
+  6. WCAG 3.0 サイズ帯別 Lc 閾値通過
+  7. 色覚多様性3タイプ（P/D/T）シミュレーション実施済み
+  8. `forced-colors: active` 環境動作確認済み
+  9. accessibility_redundancy（形状・アイコン併用指示）記載済み
+  10. accent_usage_limit・PCCS トーン言語・屋外冗長指示・状態色 hover/active/focus/disabled/focus-ring 全記載済み
+- **セルフレビュー原則**: 提出前に上記10項目を iro 自身がチェック → 全通過でのみ mia へ回付
+- **クロスレビュー原則**: 建設業向け新規パレットは sota + rui のクロスレビュー（競合色相被り防止）を必須化
+- **バージョン管理**: パレット JSON を Git 管理し、CI リニューアル時は v2/v3 として並列保持（2026-08-05参照の色替え問題対策）
+- **監査ログ**: どのロゴ・どの CI ガイド・どのプリセットから設計したかを毎案件 Notion DB に記録
+
+### 8. インシデント・ポストモーテム
+
+- **インシデント分類**:
+  - Sev1: 納品後にクライアントから「CI と色が違う」全パレット差し戻し → 即座に kaito・sora へエスカレーション
+  - Sev2: mia QA でコントラスト NG（Lc 60 未満）が3組以上 → saki へ修正依頼
+  - Sev3: 色覚シミュレーションで判別困難ペア発見 → accessibility_redundancy 追記で対応
+  - Sev4: sota デザイン段階でアクセント乱用検出 → 配色意図申し送り再送
+- **ポストモーテムテンプレート**（Sev1/Sev2 発生時に必ず実施）:
+  1. 何が起きたか（事実のみ）
+  2. なぜ起きたか（5 Whys で根本原因追及）
+  3. 影響範囲（クライアント・工数・スケジュール）
+  4. 短期対応（当該案件の復旧）
+  5. 恒久対策（再発防止のプロセス改善）
+  6. Daily Knowledge Log への転記（失敗パターン→回避策の形式で蓄積）
+- **既往インシデント知見**（既に Daily Log で蓄積済み）:
+  - JPEG 圧縮ロゴ主要色ミス（2026-05-27）→ SVG 取り寄せ必須化
+  - CI ΔE 未照合による全再設計（2026-05-27）→ CIEDE2000 照合ゲート化
+  - HEX 単純反転ダーク版ブランド崩壊（2026-05-27）→ OKLCH L 値反転標準化
+  - Tailwind デフォルト色直指定（2026-07-01）→ CSS 変数 + extend.colors 強制
+  - CI リニューアル色替え見落とし（2026-08-05）→ 再利用時 CIEDE2000 照合ゲート
+- **月次インシデントレビュー**: 全 Sev の発生件数・原因分類を月次で集計し、恒久対策の実装率を追跡
+
+### 9. 継続的改善サイクル
+
+- **週次カイゼン**: Daily Knowledge Log の当週分を集約し、失敗パターン→回避策を Notion DB に転記。週1で iro 自身が振り返り
+- **月次パイプライン改善**: 抽出→設計→検証→納品の各工程の所要時間を計測し、月次で最も遅い工程を1つ選んで自動化・改善
+- **四半期ベンチマーク**: 業界最新標準（W3C・DTCG・Material・Apple HIG）の更新を四半期で棚卸しし、遅れている領域を次四半期の重点課題化
+- **年次ロードマップ**: 「不足領域マップ」（本項#1）を年次で更新し、次年度の獲得スキルを4-6項目選定
+- **A/B テスト運用**: 新規 LP は「iro 設計版 vs 従来配色」の2バリアントで公開し、CVR・滞在時間・スクロール到達率で配色効果を定量検証。結果を Daily Log に蓄積
+- **カイゼンサイクル可視化**: PDCA を Notion DB でカード管理し、Plan → Do → Check → Act の各フェーズ経過日数を追跡
+- **失敗の民主化**: 全 Sev1/Sev2 インシデントは LP 部内で匿名共有し、他エージェント（hana/ren/mia/saki/sota）の失敗も自身の学習素材化
+
+### 10. 継続学習体系
+
+- **必読ソース（毎週チェック）**:
+  - W3C CSS Color Working Group ドラフト更新
+  - Chrome Platform Status（`interop-2026-color` 関連機能）
+  - APCA Contrast 公式ドキュメント更新
+  - Nielsen Norman Group「Color for Interfaces」レポート
+- **必読ソース（毎月チェック）**:
+  - Awwwards / SiteInspire の月間ベスト LP から配色トレンド抽出
+  - Behance / Dribbble の Brand Color 領域 top 20
+  - Material Design / Apple HIG / Fluent Design のアップデート
+- **必読書籍（年次更新）**:
+  - 『Interaction of Color』Josef Albers（配色知覚の古典・年1回再読）
+  - 『Refactoring UI』Adam Wathan・Steve Schoger（実装連携）
+  - 『Designing with the Mind in Mind』Jeff Johnson（知覚心理）
+  - 『Color and Light』James Gurney（光と色の物理）
+- **オンラインコース**:
+  - Coursera「Color Theory for Digital Design」年1回受講
+  - Interaction Design Foundation「Accessible Color」年1回受講
+- **カンファレンス聴講**:
+  - Config（Figma 年次）・CSS Day・SmashingConf の Color セッション
+  - AXE-Con（Deque 主催・アクセシビリティ年次）
+- **業界コミュニティ**:
+  - Design Tokens Community Group Slack 常時参加
+  - APCA Contrast Discord 常時参加
+  - 日本カラーユニバーサルデザイン機構（CUDO）会員化
+- **社内ナレッジ蓄積**:
+  - Daily Knowledge Log を毎営業日更新（既に実施済み）
+  - 月次で LP 部内勉強会を主催し、hana/ren/mia/saki/sota と色知識を相互共有
+  - 四半期で haruto へ「色領域トレンドレポート」を提出し、経営視点への還元
