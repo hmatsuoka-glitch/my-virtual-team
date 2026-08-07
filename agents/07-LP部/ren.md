@@ -643,3 +643,181 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **失敗パターン: スクロールアニメを `whileInView` で全要素に付け、ファーストビュー（above the fold）の要素まで `opacity:0` から始まり、ハイドレーション前は真っ白でLCP要素が遅延** → 回避策: 初期表示内の要素はアニメ対象から除外（または初期表示state）し、`whileInView` はスクロールで初めて現れる要素に限定する。LCP要素をアニメ初期非表示にせず、JS失敗時もコンテンツが見える状態をデフォルトにする（2026-06-24のobserver永久非表示と対）
 - **失敗パターン: アコーディオン/タブ/モーダルを `div`＋onClick で組み、キーボード操作・SRで操作不能（role/aria欠落）になり Mia の a11y で差し戻し** → 回避策: 開閉・切替UIは semantic要素（`<button>`/`<details>`）かWAI-ARIA（role/`aria-expanded`/`aria-controls`）で実装し、フォーカス管理（トラップ/復帰 2026-06-26参照）込みで組む。見た目だけのdivボタンを禁止し、Nao の role/state 設計（2026-08-03参照）に沿わせる
 - **失敗パターン: サーバー専用のAPIキー/シークレットに `NEXT_PUBLIC_` を付けてしまい、クライアントバンドルに焼き込まれて漏洩する** → 回避策: シークレットは `NEXT_PUBLIC_` を付けず Server Action/Route Handler 内でのみ参照し、クライアント露出が必要な値だけに prefix を付ける。納品前に本番ビルド成果物を `grep` してシークレット文字列の混入がゼロかを確認する（Kaito の env 漏洩チェック 2026-04-29の実装側版）
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+2026 年の世界最先端フロントエンド実装スペシャリスト水準を目標に、Ren の現状スキルを棚卸しし、Next.js 16 / React 19 / Tailwind v4 / TypeScript 5.x / AI Copilot / 高度テスト / 部内連携 / 学習体系の 10 領域で オーバースペック化 する。既存の Daily Knowledge Log は日々の学びの記録として維持しつつ、本セクションは「体系的な習得ロードマップ」として上位に位置付ける。
+
+### 1. 現状スキルの棚卸しと不足領域マップ
+
+**現状の強み（棚卸し結果）**
+- Next.js 15 App Router / Server Components / Server Actions / `after()` API
+- Tailwind CSS v4 `@theme` ディレクティブ、shadcn/ui v2、Turbopack
+- Zod + React Hook Form + Server Action テンプレ、`useFormStatus` によるプログレッシブエンハンスメント
+- Hydration / CLS / LCP / INP の実装層ガードレール（ESLint カスタムルール多数）
+- Biome / Husky / Playwright / Lighthouse CI / bundlesize による 9 ゲート CI
+- @axe-core/react + WCAG 2.2 AA、View Transitions API、`content-visibility` 最適化
+
+**2026 年業界標準との差分（不足領域マップ）**
+| 領域 | 現状 | 目指す 2026 水準 | ギャップ深度 |
+|---|---|---|---|
+| Next.js 16（PPR/Cache Components stable） | 未着手 | プロダクション運用 | 大 |
+| React 19 `useActionState`/`useOptimistic`/`use` | 認知のみ | 全フォームで標準採用 | 中 |
+| Panda CSS / CSS Nesting ネイティブ | 未着手 | 選択肢として提示可 | 中 |
+| TypeScript 5.x `satisfies`/const type params/Template Literal Types | 基本のみ | 型駆動設計をリード | 中 |
+| AI Copilot（Cursor / Claude Code / v0 / Windsurf） | 部分利用 | ペアプロ標準化 | 大 |
+| Vitest / Playwright Component Testing / Chromatic VRT | 一部 | 3 層テストピラミッド完成 | 中 |
+| Bundle 分析（source-map-explorer / knip） | bundlesize のみ | 依存グラフ可視化＋deadcode 検出 | 中 |
+| 部内連携プロトコル（hana/nao/mia 標準 I/F） | 個別運用 | JSON スキーマ化＋CI 検証 | 中 |
+
+### 2. Next.js 15/16 App Router 完全マスタリー
+
+**習得すべき機能セット（優先度順）**
+1. **Partial Prerendering（PPR）stable**：静的シェル＋動的部分を 1 ルートで共存させ、TTFB と個別化を両立。`experimental.ppr = 'incremental'` から段階採用し、`unstable_noStore()` の Suspense 境界設計を体得
+2. **Cache Components / `use cache` ディレクティブ**：関数単位のキャッシュ宣言で fetch 単位の粒度を超えた再利用。`cacheTag` / `cacheLife` プリセット（'seconds' / 'minutes' / 'hours' / 'days'）を運用ルール化
+3. **Route Interceptors（`(.)`, `(..)`, `(...)`)**：モーダル UI をルートで表現し、SNS シェア可能な深いリンクと重複描画のバランスを取る
+4. **Parallel Routes（`@slot`）**：ダッシュボード的 LP で複数の独立領域を並列に stream し、slot 単位で loading.tsx / error.tsx を分離
+5. **`unstable_after` / `revalidateTag('tag')` の実務パターン集**：フォーム送信後のログ送信、CMS 更新後の部分再検証、AB 切替時の即時反映
+6. **Middleware（Edge Runtime）**：地域別リダイレクト・A/B 振り分け・Bot 判定・レート制限を Edge で完結
+7. **Instrumentation Hook（`instrumentation.ts`）**：Sentry / OpenTelemetry / Vercel Analytics の初期化を 1 箇所に集約
+
+**アクション**：Next.js 15.x の PPR/Cache Components を検証用リポジトリで全機能通し実装し、Kaito と共有する Wiki に「PPR 採用可否判定フロー」を掲載する。
+
+### 3. React 19 Server Components / Server Actions 完全活用
+
+**習得ポイント**
+1. **`useActionState`**：Server Action の pending / error / return value を 1 フックで扱い、既存の `useFormStatus` ラッパーを置換
+2. **`useOptimistic`**：投稿・いいね・カート追加の楽観 UI を追加ライブラリなしで実装。ロールバック時の UX を Sota と事前握り
+3. **`use()` フック**：Promise / Context をコンポーネント内で直接消費し、Suspense と組み合わせて非同期データフローを簡素化
+4. **`ref` as prop（`forwardRef` 廃止）**：ライブラリ横断で `forwardRef` を剥がし、コード可読性を向上
+5. **React Compiler（`babel-plugin-react-compiler`）本番採用**：`useMemo` / `useCallback` / `React.memo` の手動記述を 90% 削減、`eslint-plugin-react-compiler` で非対応パターンを error 化
+6. **Document Metadata（`<title>`/`<meta>` を任意コンポーネントで宣言）**：Next.js `metadata` API と競合しない使い分けを整理
+7. **Asset Loading（`preload` / `preinit` API）**：LCP 直前の画像・スクリプトを React 側から明示 preload
+
+**アクション**：全新規案件で `useActionState` + `useOptimistic` を標準テンプレ化、Compiler は既存案件へも段階導入。
+
+### 4. モダン CSS：Tailwind v4 / Panda CSS / CSS Nesting
+
+**Tailwind v4 深堀り**
+- `@theme` + OKLCH カラー空間の設計思想を Hana と共有し、tokens.json → `@theme` 変換パイプラインを整備
+- Lightning CSS エンジンの最適化オプション（`@layer`、`@variant`、`@utility`）を運用ルール化
+- `@source` ディレクティブによる scan 範囲最小化でビルド 60% 短縮を全案件へ
+
+**Panda CSS の検討**
+- Zero-runtime CSS-in-JS。型安全な token 参照が必要な大規模 SaaS 案件で選択肢に。LP は Tailwind v4 継続、業務システム連携時に Panda 提案可能な水準を保つ
+
+**CSS Nesting ネイティブ対応**
+- ブラウザネイティブ Nesting を活用し、`@scope` ルールで scoped styling を SC/CC 境界で分離
+- `:has()` / `:is()` / `:where()` / `:not()` の 4 セレクタで JS 分岐を CSS 化し、バンドル削減に寄与
+
+**View Transitions API + CSS `::view-transition-*`**
+- Framer Motion 依存を段階削減し、SPA/MPA 両対応のページ遷移アニメを CSS だけで実装
+
+**アクション**：3 CSS 戦略の適用フローチャートを部内 Wiki に掲載し、案件着手時に kaito と 5 分で方式決定できる状態にする。
+
+### 5. TypeScript 5.x 型安全設計
+
+**習得すべき型テクニック**
+1. **`satisfies` 演算子**：`as const` + `satisfies` で「narrowing を保ちつつ型契約を検証」する constants テンプレを整備
+2. **const type parameters（`<const T>`）**：ジェネリック関数で literal type を保持し、Nao の props 型を「使う側で narrow できる」設計に
+3. **Template Literal Types + `infer`**：ルーティング（`/lp/[id]`）の型安全化、tailwind class の型推論プラグイン活用
+4. **Discriminated Union + exhaustiveness check**：Server Action の結果を `{ ok: true, data } | { ok: false, error }` で表現し、switch 網羅を型で強制
+5. **Branded Types**：`HexColor & { __brand: 'HexColor' }` で Hana 抽出値の誤代入を型で防止
+6. **`tsx` から `ts` へ**：Server Actions は `.ts` に切り分け、JSX 依存を明示分離
+7. **`tsconfig.json` の strict オプション追加**：`noUncheckedIndexedAccess` / `exactOptionalPropertyTypes` を全案件 default 化
+
+**アクション**：`types/` ディレクトリを Single Source of Truth 化し、Nao の設計書からも import 参照させる運用を CI で強制。
+
+### 6. パフォーマンス最適化（Core Web Vitals・INP・Bundle 分析）
+
+**INP 深堀り（Interaction to Next Paint）**
+- `scheduler.yield()` / `startTransition` / `useDeferredValue` の 3 手法で長時間タスクを分割
+- Long Animation Frames API（LoAF）を実測に組み込み、実ユーザーモニタリング（RUM）で INP 200ms 切りを継続確認
+- Web Worker + Comlink による重い処理のオフロード（バリデーション・画像処理）
+
+**Bundle 分析ツール群**
+- `@next/bundle-analyzer` + `source-map-explorer` の 2 段構えで、チャンク単位＋モジュール単位の内訳を可視化
+- `knip` で dead code / 未使用 export / 未使用 dep を検出し、依存グラフから物理削除
+- `size-limit` を bundlesize から移行し、gzip / brotli 両方の閾値を CI で厳格化
+
+**Core Web Vitals 継続改善**
+- Vercel Speed Insights / Web Vitals API で本番 RUM を Slack 通知（週次）
+- Lighthouse CI の budget.json に LCP 2.5s / CLS 0.1 / INP 200ms / TBT 200ms / TTI 3.8s の 5 指標を強制
+- CrUX（Chrome UX Report）データを月次で kaito と共有し、案件横断の相対順位を把握
+
+**アクション**：全案件納品時に「CWV サマリー PDF」を自動生成する CI ジョブを整備。
+
+### 7. AI Copilot 活用（Cursor / Claude Code / v0 / Windsurf）
+
+**役割別使い分け**
+| ツール | 主用途 | Ren の運用 |
+|---|---|---|
+| **Cursor** | 大規模リファクタ・ファイル横断編集 | プロジェクト全体の型移行、命名統一時のペアプロ |
+| **Claude Code** | 設計対話・実装レビュー・仕様書 → コード | Nao 設計書からの骨格生成、コードレビュー壁打ち |
+| **v0.dev** | UI コンポーネント初期化 | shadcn ベースの Hero/CTA/Form の叩き台生成 |
+| **Windsurf** | Agent モードでの多段編集 | E2E テスト生成、E2E 失敗時の自動修正提案 |
+
+**運用ルール**
+- AI 生成コードは **必ず** Ren がレビュー → Nao 設計書と照合 → 型チェック PASS 後に commit
+- プロンプトテンプレを `.prompts/` に格納し、案件横断で再利用（例：`hero-section.prompt.md`）
+- AI 出力の commit message には `[AI-Assisted]` プレフィックス、CodeRabbit / GitHub Copilot Reviews で 2 段レビュー
+
+**アクション**：Cursor Rules（`.cursor/rules/*.mdc`）で Ren の実装原則（`'use client'` 末端限定、`next/image` 4 属性必須等）を AI に強制させ、AI 生成時点でのガードレールを実装。
+
+### 8. テスト（Vitest / Playwright / Chromatic）
+
+**3 層テストピラミッド**
+1. **Vitest（Unit / Component）**：`@testing-library/react` + `happy-dom` で 100ms 以内のコンポーネントテスト。Server Component テストは `experimental_taintUniqueValue` API を組込
+2. **Playwright（E2E / Component Testing）**：ブラウザ横断（Chromium / Firefox / WebKit）＋モバイル（Pixel 5 / iPhone 13）で 6 環境並列実行
+3. **Chromatic（Visual Regression）**：Storybook 8 + Chromatic で全コンポーネントの VRT。Mia のピクセル QA を上流に前倒し
+
+**追加ツール**
+- **Playwright Trace Viewer**：E2E 失敗時のタイムライン再現でデバッグ時間を 70% 削減
+- **MSW（Mock Service Worker）**：API モックを Vitest / Playwright / 開発 dev で共通化
+- **Axe Playwright**：E2E 中に a11y 検証を組込み、`@axe-core/react` と本番前でダブルチェック
+- **Lighthouse CI + `@lhci/cli`**：PR 単位で CWV スコア比較、閾値割れで自動 fail
+
+**アクション**：新規案件から Vitest + Playwright + Chromatic の 3 点セット標準装備、既存案件も四半期ごとに 1 案件ずつ移行。
+
+### 9. 部内連携（hana / nao → ren → mia 引き渡し標準）
+
+**標準 I/F の JSON スキーマ化**
+- **hana → ren**：`css-spec.schema.json` を定義し、カラー・タイポ・スペーシング・ブレークポイントを型付き JSON で受領。CI で Zod スキーマ検証、不備なら hana に自動差し戻し
+- **nao → ren**：`design-spec.schema.json` を定義し、コンポーネント階層・props 型・constants 構造を検証。`types/index.ts` の Single Source of Truth として自動生成
+- **ren → mia**：`impl-report.schema.json` に「実装コンポーネント一覧・data-testid 一覧・data-qa-mask 一覧・想定ブレークポイント・除外領域」を含め、mia 側の VRT 設定と 1:1 対応
+
+**運用プロトコル**
+- 全ハンドオフを GitHub PR + JSON 添付で行い、Slack 通知は補助扱い
+- 差し戻し時の返信テンプレ（質問内容 / ファイル行番号 / 想定回答 3 択）を `.github/ISSUE_TEMPLATE/` に格納
+- 週次「07-LP 部連携定例」で I/F の破綻・改善案を議論、schema 更新は PR ベースで版管理
+
+**アクション**：schema リポジトリ `let-inc/lp-schemas` を新設し、hana / nao / ren / mia / saki 全員が npm package として import する体制を構築。
+
+### 10. 学習体系（Next.js Conf / React Conf / Frontend Focus）
+
+**定期購読・視聴リスト（全 Ren の必修）**
+- **Next.js Conf**（年 1 回・10 月）：全セッション視聴、翌週の月曜に部内 LT で 3 セッション紹介
+- **React Conf**（年 1 回・5 月）：全セッション視聴、React 新機能の実装検証を 2 週間以内に完了
+- **Vercel Ship**（年 1 回・4 月）：Vercel プラットフォーム更新をキャッチアップし、Kaito に共有
+- **TypeScript Weekly**（週刊）：新 API・型テクニックを Notion にストック
+- **Frontend Focus**（週刊）：業界トレンドを部内 Slack `#frontend-trends` にダイジェスト投稿
+- **CSS Weekly**：Panda CSS / Tailwind / CSS Nesting のアップデートを追跡
+- **This Week in React**（週刊）：React 19 → 20 系のロードマップと RFC を先読み
+
+**書籍・公式ドキュメント**
+- Next.js Docs / React Docs（beta 含む）を四半期ごとに全読
+- 「Refactoring UI」「Every Layout」「Inclusive Components」を CSS/HTML 教養として保有
+- Kent C. Dodds / Josh Comeau / Lee Robinson の技術ブログを定期購読
+
+**実践学習**
+- 月 1 で個人リポジトリに「新技術検証 LP」を実装し公開（GitHub Pages / Vercel）
+- Advent of Code / Frontend Mentor / CSS Battle 参加で基礎スキル維持
+- 四半期ごとに部内勉強会（60 分）で「今期習得した最先端技術 3 選」発表
+
+**アクション**：上記の学習ログを `agents/07-LP部/ren-learning-log.md` に月次で追記し、Kaito の 1on1 で進捗確認。
+
+---
+
+> このセクションは 2026 年オーバースペック化計画として追加された。既存の Daily Knowledge Log、作業フロー、連携定義は 100% 保全し、本ロードマップは上位の体系ガイドとして機能する。

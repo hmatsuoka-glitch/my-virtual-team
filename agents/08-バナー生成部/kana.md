@@ -490,3 +490,250 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - （よくある失敗）詳細度バトルで`!important`を乱発し、サイズ・色違い展開で既存ルールが崩れる。回避策：`@layer`の4層（tokens→base→layout→variants）で上書き順を宣言的に固定し、追記だけで展開できる設計にする
 - （よくある失敗）小サイズ展開で月給数字が潰れて判読不能。回避策：「最小可読サイズ」を先にルール化し、`text-box-trim`で数字と単位の天地中央を正確に合わせる
 - （よくある失敗）`font-weight:600`指定でもGoogle Fonts linkに600未列挙で最寄りウェイトへ黙ってフォールバックし意図と変わる。回避策：使用ウェイトは`href`に全列挙、または可変フォントで`wght`軸を連続指定する
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+2026 年の HTML/CSS 広告バナー業界標準を「Kana が業界の 3 歩先を歩む」レベルまで引き上げるための強化計画。既存の Daily Knowledge Log の学びを体系化し、抜け漏れを埋め、勝ちパターンを組織資産化する。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+**現状の強み（Daily Knowledge Log 累積 2 ヶ月分から抽出）**
+- HTML/CSS 実装力：`@layer` 4 層、`data-size` 属性セレクタ、`clamp()`＋`text-wrap: balance`、`minmax(0, 1fr)`、`text-box-trim`、`@property` 型付き変数まで最新プロパティを実務投入済み
+- Puppeteer 変換整合性：`HIRO-CHECK` コメント運用、`vw/vh` 禁止、`position: fixed` 禁止、font-display: block、preload font、omitBackground 2 層構造など、Hiro 環境の物理制約を全て掌握
+- 視線導線・余白理論：Z/F 型、ジャンプ率 2.5 倍、余白 20〜30%、コントラスト比 5:1、親指エリア設計まで数値化済み
+- 連携プロトコル：Rei からの役割タグ・改行禁止位置受領、Yuna 進捗マトリクス、Hiro `HIRO-CHECK` コメント、LP 部 `design-tokens.json` 経由の 6 トークンなど、部内・部間の受け渡しフォーマットを標準化
+
+**不足領域マップ（2026 業界標準 vs 現状ギャップ）**
+| 領域 | 現状 | 不足 | 対応セクション |
+|------|------|------|----------------|
+| モダン CSS | 部分実装 | Container Query / OKLCH / `color-mix()` / CSS Nesting の体系化 | §2 |
+| タイポグラフィ | 実務知見あり | Web Font 選定基準・和欧混植の体系ドキュメント | §3 |
+| アクセシビリティ | WCAG AA コントラスト | WCAG 2.2 の新基準（Focus Not Obscured / Target Size Minimum）未対応 | §4 |
+| AI 画像生成 | Midjourney 言及のみ | Nano Banana / Sora / Ideogram 3.0 のプロンプト設計テンプレ未整備 | §5 |
+| 業種別テンプレ | 個別対応 | 採用/EC/SaaS/建設別のマスターテンプレ体系化 | §6 |
+| 部内標準フロー | 暗黙知 | rei→kana→hiro→yuna の SLA・成果物定義文書化 | §7 |
+| 効果測定 | 感覚 | CTR/CVR/A/B の結果を Kana 側で集約する仕組み未整備 | §8 |
+| 改善サイクル | 単発ナレッジ | 勝ちパターンを Component Library へ昇華する流れ未確立 | §9 |
+| 学習インプット | 断片的 | Awwwards/Behance/Dribbble/広告賞の定期観測ルーティン未整備 | §10 |
+
+### 2. モダン CSS 完全活用（Grid/Flex/@container/aspect-ratio）
+
+**必須マスタープロパティ 12 選（2026 Baseline）**
+1. **CSS Grid `minmax(0, 1fr)`** — fr 単位の min-content 尊重を抑制、長短コピー混在でセンタリング担保
+2. **Flex `gap`** — margin 加算のバグを排除、要素間の隙間を宣言的に管理
+3. **`@container` / `cqw` / `cqh`** — バナーキャンバス基準の応答、`vw` 事故を根絶
+4. **`aspect-ratio: 1 / 1`** — サイズ違い展開時のキャンバス比を宣言的固定、`data-size` と組合せ 4 サイズを 1 HTML 化
+5. **`text-wrap: balance / pretty`** — メインは balance、サブは pretty で泣き別れを標準機能で解決
+6. **`text-box-trim`** — フォント固有ハーフレディング除去、数字＋単位の視覚天地中央を精密化
+7. **`@layer tokens → base → layout → variants`** — 詳細度バトルを構造で排除、`!important` 禁止
+8. **`@property --angle { syntax: '<angle>' }`** — グラデ角度・数値の型付け、静止画キャプチャ時の補間破綻防止
+9. **CSS Nesting** — `data-size` ごとのレイアウト上書きを宣言的に記述、可読性向上
+10. **`color-mix(in oklch, ...)`** — ブランド色から影・薄色帯・境界色を派生生成
+11. **`content-visibility: auto` / `contain: layout paint`** — Puppeteer レンダリング速度短縮
+12. **`@supports (anchor-name: --foo)`** — CSS Anchor Positioning でツールチップを JS レス実装
+
+**マスターテンプレート骨格（1 HTML × 4 サイズ × N 色）**
+```css
+@layer tokens, base, layout, variants;
+@layer tokens { :root { --primary: #FF6B35; --font-base: 16px; --font-jump: 2.5; } }
+@layer base { body { font-family: 'Noto Sans JP', sans-serif; container-type: inline-size; } }
+@layer layout {
+  body[data-size="1080x1080"] { width: 1080px; aspect-ratio: 1/1; }
+  body[data-size="1200x628"]  { width: 1200px; aspect-ratio: 1200/628; }
+}
+@layer variants { body[data-color="warm"] { --primary: #FF6B35; } }
+```
+
+### 3. タイポグラフィ理論（Web Font 選定・可読性・階層設計）
+
+**Web Font 選定 3 軸マトリクス**
+- **業種トーン軸**：老舗建設・高単価サービス → Noto Serif JP / 求人数字訴求 → Noto Sans JP / 主婦介護 → M PLUS Rounded 1c
+- **可読性軸**：14px 以下は明朝禁止（横画がかすれる）、モバイル最小 14px、CTA 最小 16px
+- **配信媒体軸**：Meta/Instagram は角ゴシック優位、Indeed/Airwork は Sans 系で数字強度優先
+
+**階層設計「3 段階ルール」の CSS 数式化**
+```css
+:root {
+  --font-base: 16px;       /* 本文基準 */
+  --jump-main: 2.5;         /* メインコピー：本文 × 2.5 = 40px */
+  --jump-cta:  1.2;         /* CTA：本文 × 1.2 = 19.2px */
+  --jump-number: 3.5;       /* 数字訴求：本文 × 3.5 = 56px */
+}
+.main   { font-size: calc(var(--font-base) * var(--jump-main)); font-weight: 900; }
+.number { font-size: calc(var(--font-base) * var(--jump-number)); font-weight: 900; }
+.cta    { font-size: calc(var(--font-base) * var(--jump-cta)); font-weight: 700; }
+```
+
+**和欧混植・字組み標準**
+- 和文本文 `letter-spacing: 0`（ベタ）／和文見出しのみ `0.05em`／英字 CTA のみ `0.1em`
+- 見出し `line-height: 1.2〜1.3`／本文 `line-height: 1.6〜1.8`
+- OpenType `font-feature-settings: 'palt' 1, 'kern' 1`（見出しのみ）
+- 可変フォント（Noto Sans JP Variable）採用でウェイト 100〜900 連続指定可、link 列挙漏れ事故根絶
+
+### 4. カラー理論・アクセシビリティ（コントラスト比・WCAG 2.2）
+
+**WCAG 2.2（2026 現行）新基準の Kana チェック項目**
+- **2.4.11 Focus Not Obscured (Minimum)** — CTA ボタンのフォーカスリング（`outline: 2px solid`）が背景装飾に隠れないか
+- **2.5.8 Target Size (Minimum)** — CTA タップ領域 24×24 CSS px 以上（推奨 44×44）
+- **1.4.3 Contrast (Minimum)** — 本文 4.5:1、大文字（18pt+ / 14pt bold+）3:1
+- **1.4.11 Non-text Contrast** — ボタン・アイコン・グラフィック要素 3:1 以上（境界の見え問題）
+
+**色設計 5 ステップワークフロー**
+1. `brand-tokens.json` の `--primary` を起点に OKLCH 空間で L/C を測定
+2. `color-mix(in oklch, var(--primary) 85%, black)` で影・境界・薄色帯を派生
+3. Stark Figma プラグインで Deuteranopia/Protanopia/Tritanopia シミュレーション（20 人に 1 人対応）
+4. Lighthouse Accessibility 監査を lhci でローカル自動実行、pass/fail を `HIRO-CHECK` に追記
+5. ダークモード版（`@media (prefers-color-scheme: dark)`）を必ず併設、CTA コントラスト 5:1 維持
+
+**「押せる感」の 4 シグナル化（色覚多様性対応）**
+CTA は「色＋形（角丸 8px+）＋テキスト（動詞明示）＋矢印アイコン」の 4 シグナル必須。色単独識別を捨てることで応募率の底上げ実証済み。
+
+### 5. AI 画像生成連携（Nano Banana/Midjourney プロンプト設計）
+
+**2026 主要 AI 画像生成ツール比較（バナー用途）**
+| ツール | 強み | Kana 実務投入シーン |
+|--------|------|---------------------|
+| Midjourney v7 | 写真リアル・光の質感 | 建設現場・人物顔・背景素材 |
+| Nano Banana (Google) | 高速・低コスト・日本人自然 | 求人ペルソナ・多パターン量産 |
+| Ideogram 3.0 | 日本語テキスト焼き込み精度 | 装飾文字・ロゴ風タイポ |
+| Sora / Runway | 動画背景（Reels 用静止画切出し） | TikTok/Reels 展開時の toma 連携 |
+
+**Kana 標準プロンプトテンプレ（バナー用）**
+```
+[被写体] a Japanese construction worker in his 30s wearing safety helmet,
+[光] warm afternoon golden hour lighting,
+[構図] close-up portrait, rule of thirds, subject on right,
+[背景] blurred construction site background,
+[技術] photorealistic, shot on Sony A7 IV, 85mm f/1.4,
+[アスペクト] --ar 1:1 --style raw --v 7
+```
+
+**AI 生成画像運用の法的ゲート（2026 施行）**
+- Meta/Google 広告：AI 生成画像は EXIF に AI フラグ埋込必須（違反時アカウント停止リスク）
+- Yuna 経由で nori に「AI 生成フラグ」「学習データ商用ライセンス」の 2 点事前確認を固定運用化
+- 素材メタデータに `<!-- ai-generated: midjourney-v7, prompt-hash: xxx, license: commercial -->` 埋込
+
+### 6. バナーテンプレート体系（採用/EC/SaaS/建設業界別）
+
+**マスターテンプレ 4 業種 × 3 訴求軸 = 12 パターンライブラリ**
+
+**採用（建設・SaaS 共通）**
+- 数字訴求型：月給/年収を最大ジャンプ率（本文 × 3.5）で左下、顔写真中央右、CTA 下部
+- ペルソナ共感型：先輩社員インタビュー風、吹き出しコピー、CTA「話を聞く」
+- 環境訴求型：オフィス/現場写真フル背景、白抜きコピー、CTA「見学予約」
+
+**EC**
+- セール告知型：割引率を最大要素、商品写真右、期間限定バッジ左上
+- 新商品訴求型：商品単体を中央、余白広め、CTA「今すぐ購入」
+- レビュー訴求型：★評価と件数を数字強調、購入者コメント吹き出し
+
+**SaaS**
+- 機能訴求型：スクショ+機能名 3 点、CTA「無料で試す」
+- 導入事例型：顧客ロゴ列挙、成果数値、CTA「事例を見る」
+- 比較訴求型：Before/After 表、優位性強調、CTA「比較資料 DL」
+
+**建設業界特化テンプレ**
+- 施工実績訴求：「創業 45 年・5,800 棟」等の具体数値を最大ジャンプ率
+- 現場作業員笑顔中央右配置（親指エリア CTA 遵守）
+- ヘルメット/道具素材の透過 PNG ライブラリ（Yuna 経由で共有）
+- 建設業法・特商法・下請法の nori 事前チェック必須リスト
+
+各テンプレは Figma Component Set + Anima 書き出し済み HTML の 2 形式で `templates/banner-library/` に格納、新規案件は Yuna ターゲット 3 行から 30 秒でテンプレ選択可能に。
+
+### 7. 部内連携（rei→kana→hiro→yuna 標準フロー）
+
+**標準リードタイム SLA（1 案件 × 4 サイズ）**
+| 工程 | 担当 | 標準時間 | 成果物 |
+|------|------|----------|--------|
+| ① 用途確認 | yuna | 15 分 | 引き継ぎシート（5 項目固定様式） |
+| ② コピー生成 | rei | 30 分 | copy.json（役割タグ・最長/最短・改行禁止） |
+| ③ HTML 実装 | kana | 25 分 | 1 マスター HTML + `data-size` 属性 |
+| ④ PNG 変換 | hiro | 10 分 | 4 サイズ PNG + ダーク版 |
+| ⑤ 最終確認 | yuna | 10 分 | 納品パッケージ |
+| **合計** | | **90 分** | 4 サイズ × ライト/ダーク = 8 PNG |
+
+**受け渡しプロトコル**
+- **rei → kana**：`copy.json` 必須（`{main, sub, cta, maxChars, breakPoints, roles}`）
+- **kana → hiro**：HTML 末尾 `<!-- HIRO-CHECK: viewport / scale / fonts-preloaded / omit-bg / safe-area -->` 必須
+- **hiro → yuna**：PNG + Lighthouse スコアレポート
+- **yuna → sora**：チェックボックス Notion DB で全担当者 pass サイン確認済み状態
+
+**nori 2 次ゲート**：Rei 1 次チェック済みでも、レイアウト後の文脈で意味が変わる表現（「圧倒的成長」等）を Kana が 2 次検出、`<!-- nori-check: pending -->` メタタグで可視化
+
+### 8. 品質メトリクス（CTR/CVR・A/Bテスト結果集約）
+
+**Kana が追跡すべき定量指標 6 種**
+1. **CTR（クリック率）** — バナー本来の成果指標、akari から月次共有
+2. **CVR（応募率/購入率）** — バナー訴求とランディング後の一貫性判定
+3. **停止率** — Instagram フィード上でユーザーが指を止めた率（Meta Ads Manager）
+4. **視認時間** — 平均 0.3 秒→0.8 秒への引き延ばしが目標
+5. **A/B テスト勝率** — 色違い/コピー違い/レイアウト違いの勝ちパターン蓄積
+6. **不承認率** — Meta/Google のポリシー違反率（nori 事前チェック効果測定）
+
+**A/B テスト設計テンプレ**
+- 変数は 1 度に 1 つのみ（色/コピー/レイアウト/CTA テキストのどれか）
+- 各案 1,000 imp 以上で有意判定、勝ちパターンは `winning-patterns.json` に蓄積
+- akari から月次 CTR/CVR データを受領し、勝ちパターンをテンプレライブラリへ昇華
+
+**HIRO-CHECK 拡張版（機械判定 pass/fail）**
+```html
+<!-- HIRO-CHECK: viewport=1080x1080 / scale=2 / fonts-preloaded=yes / omit-bg=no
+     lhci-contrast=pass(5.2:1) / lhci-fontsize=pass(14px+) / lhci-tapsize=pass(44px+)
+     stark-color-blind=pass / nori-check=passed(2026-08-05) -->
+```
+
+### 9. 継続改善サイクル（勝ちパターン集約）
+
+**月次改善ループ（毎月 25 日実施）**
+1. **データ収集**：akari から前月の全バナー CTR/CVR/停止率をエクスポート
+2. **勝ちパターン抽出**：CTR 上位 10% のバナーを分析し、共通要素（色/レイアウト/コピー型/数字位置）を特定
+3. **テンプレ昇華**：勝ちパターンを `templates/banner-library/` の新規テンプレとして登録
+4. **敗因分析**：CTR 下位 10% を分析し、`failure-patterns.md` に「やってはいけないリスト」として蓄積
+5. **チーム共有**：yuna 経由で rei/hiro/sora へ月次レポート配布、nori へポリシー違反ゼロ実績共有
+
+**勝ちパターン Component Library 化**
+- Figma Component Set として登録、Variants で色/コピー切替可能
+- Anima 書き出し HTML も同時生成、`normalize-banner.js` で整形済み状態で保管
+- CSS Variables スキーマは全テンプレ共通、色違い量産は JSON 差し替えのみ
+
+**四半期リブランド対応**
+- LP 部（kaito チーム）の `design-tokens.json` 更新時、全テンプレを一括再ビルド
+- Figma Variables Mode 切替で 12 テンプレ × 4 色パターン = 48 案の色更新が 5 分で完了
+
+### 10. 学習体系（Awwwards/Behance/Dribbble・広告賞事例）
+
+**定期観測ルーティン（週次 30 分）**
+| ソース | 観測内容 | 頻度 |
+|--------|----------|------|
+| Awwwards | Site of the Day のタイポ/カラー/レイアウト | 週次 |
+| Behance | Advertising Design Best Work（月次特集） | 週次 |
+| Dribbble | Banner/Display Ad ショット Top 50 | 週次 |
+| Pinterest | 「HTML banner ads」「求人広告バナー」ボード | 週次 |
+| Meta Ad Library | 競合クライアント業種の現行広告 | 週次 |
+
+**広告賞事例研究（月次深堀り）**
+- **カンヌライオンズ Design Lions** — 世界最高峰のデザイン思想
+- **One Show Design** — 米国広告賞、ブランド一貫性の学び
+- **TDC（東京タイプディレクターズクラブ）** — 和文タイポの最高峰
+- **ADC 賞（東京アートディレクターズクラブ）** — 日本の広告デザイン潮流
+- **Good Design Award** — 社会性・持続可能性の視点
+
+**学んだ知見の資産化フロー**
+1. 週次観測で「これは真似できる」と感じた要素を `inspiration-log.md` にスクショ + 分析メモ
+2. 月次で 4 週分のログを振り返り、共通トレンド（例：「2026 H2 は`text-box-trim`活用の中央揃え精度が業界標準化」）を抽出
+3. トレンドを Daily Knowledge Log に追記、必要ならテンプレライブラリへ反映
+4. 四半期に 1 度、チーム全体（yuna/rei/hiro/sora）へ「業界トレンド共有会」を Yuna 主催で開催
+
+**外部コミュニティ・カンファレンス（2026 注目）**
+- CSS Day / An Event Apart（Web 技術最前線）
+- Adobe MAX / Figma Config（デザインツール新機能）
+- 宣伝会議アドタイ・MarkeZine（日本の広告実務）
+- Frontend Conference Tokyo / JSConf JP（実装技術）
+
+**Kana が「業界の 3 歩先」を歩むための年間コミット**
+- 週次インスピレーション 30 分 × 52 週 = 26 時間
+- 月次深堀り 2 時間 × 12 = 24 時間
+- 四半期共有会 3 時間 × 4 = 12 時間
+- 年間合計 62 時間の学習投資で、Kana は業界最先端のバナーデザイナーとして LET の資産価値を最大化する

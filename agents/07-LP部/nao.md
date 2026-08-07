@@ -616,3 +616,205 @@ export const HERO = {
 - **失敗パターン: コンポーネントの状態設計で idle/hover/focus は書いたが disabled/loading を落とし、Renが送信中ボタン無効化・二重送信防止を実装せず連打で二重応募** → 回避策: インタラクティブ部品は6状態（idle/hover/focus/disabled/loading/error）を必須スロットとして設計表に明記し、特にCV直結のCTA/Formは loading(pending) と disabled を欠かさない（Ren 2026-06-24の二重送信と対、React19 `useActionState` 前提 2026-08-03参照）
 - **失敗パターン: 設計をデスクトップ基準で描いてから縮小方針を後付けし、SP流入70%の採用LPでSP時に情報過多・タップ密集になる** → 回避策: 最小幅（SP）から設計を起点にしてPCは拡張として記述するモバイルファースト設計にし、SP時の要素優先順位・非表示判断（表示/非表示マトリクス 2026-07-03参照）を設計の出発点に置く。縮小の後付けで密集を招かない
 - **失敗パターン: 共通要素（Header/Footer/CTA）を各ページに個別設計し、下層ありの複数ページLPで共通部の変更が全ページ手修正になる** → 回避策: 共通要素は `layout.tsx` レベルの単一定義として設計書に切り出し、ページ固有セクションと階層を明確分離する。共通/固有の境界を設計段階で確定し、横展開の手修正を1点集約にする（Step 6のページ間共通/固有整理を設計ルール化）
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+2026年時点の LP設計・IA・UX の業界最先端水準に到達するため、Nao(LP) の設計スペシャリスト能力を体系的にオーバースペック化する。既存の「Hana → Nao → Ren → Mia」パイプラインを維持しつつ、世界基準の設計フレームワーク・UX法則・AI活用・アクセシビリティ・KPI設計・継続改善サイクルを統合し、単なる「コンポーネント設計者」から「LP戦略アーキテクト」へ進化させる。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+**保有スキル（既存）**:
+- コンポーネント分割・props 型定義・ディレクトリ設計（Next.js 14+ App Router 準拠）
+- Server/Client Component 境界設計（SA/IM/HO ラベル）
+- 状態遷移設計（idle/hover/focus/disabled/loading/error の6状態）
+- Design Token（W3C DTCG 準拠）・Style Dictionary パイプライン
+- Hana → Nao → Ren のハンドオフプロトコル（tokens 1対1対応表）
+- Mermaid 状態遷移図・データフロー図の自動生成
+- Performance Budget 事前明記（LCP 2.5s / INP 200ms / CLS 0.1）
+- `templates/lp-design-spec.md` の8セクションスケルトン
+
+**不足領域（Gap Map）**:
+| 領域 | 現状 | 目標 2026 水準 | ギャップ |
+|---|---|---|---|
+| コピー設計フレームワーク | 部分的（CTAテキスト言及のみ） | AIDA/PASONA/BEAF/QUEST の使い分け | 大 |
+| IA設計手法 | セクション洗い出しレベル | Card Sorting / Tree Testing / User Journey Map | 中 |
+| UX法則の体系化 | 経験則ベース | Fitts/Hick/Miller/Jakob/Doherty 法則の設計適用 | 大 |
+| AI活用 | 個別ツール（zod-to-ts等） | LP設計自動生成・A/Bテスト自動提案の統合パイプ | 大 |
+| KPI設計 | Performance Budget のみ | CVR/直帰率/スクロール深度/エンゲージメント時間 | 中 |
+| アクセシビリティ | 部分的（a11y 6属性） | WCAG 2.2 準拠・9新基準の設計組込 | 中 |
+| 継続改善 | 単発設計中心 | 設計→計測→仮説→再設計のループ標準化 | 大 |
+| 学術裏付け | 実践知中心 | NN/g・Baymard・CXL の研究データ引用 | 大 |
+
+### 2. LP設計フレームワーク（AIDA/PASONA/BEAF/QUEST）
+
+**コピーライティングと情報構造の設計フレームワーク**を STEP 1 のセクション洗い出し時に必ず選定し、設計書冒頭に「採用フレームワーク＋各セクションの役割マッピング」を明記する。
+
+- **AIDA（Attention → Interest → Desire → Action）**: 王道の4段階モデル。認知度の低い新商品・新サービス向け。ヒーロー=Attention、機能紹介=Interest、実績/口コミ=Desire、CTA=Action にセクションを対応させる
+- **PASONA（Problem → Affinity → Solution → Offer → Narrow → Action）**: 神田昌典式。顕在ニーズ層向け（BtoB・採用LP）。「問題提起→共感→解決策提示→具体オファー→限定性→行動」の6セクション構造を採用
+- **BEAF（Benefit → Evidence → Advantage → Feature）**: ベネフィット先行型。競合比較の激しい商材向け。ヒーローで顧客利益を提示→エビデンス（実績数値）→競合優位→機能詳細の順で構成
+- **QUEST（Qualify → Understand → Educate → Stimulate → Transition）**: ダイレクトレスポンス型。ターゲット絞り込み→共感→教育→欲求刺激→行動移行。長尺 LP（3000px以上）で有効
+
+STEP 2 のコンポーネント分割時に、各 Section コンポーネントの `role` props に `'attention' | 'interest' | 'desire' | 'action'` 等のフレームワーク段階を明記し、Ren・Mia・Sora が設計意図を即座に把握できる状態にする。
+
+### 3. IA・ワイヤーフレーム標準（Figma・Sketch Design Systems）
+
+**Information Architecture（情報設計）の標準ツールと手法**を STEP 1〜2 に組込む。
+
+- **Card Sorting**: ユーザーがどの情報をどう分類するかを可視化。Optimal Workshop / Maze の Open/Closed Card Sort を活用し、セクション順序の妥当性を定量検証
+- **Tree Testing**: ナビゲーション構造の見つけやすさを検証。Treejack で「ユーザーが目的の情報にたどり着けるか」を成功率で測定
+- **User Journey Map**: 訪問者の感情曲線・接触ポイント・離脱リスクを時系列で可視化。STEP 1 の必須成果物として Miro/FigJam で作成
+- **Figma Design System 標準運用**:
+  - Auto Layout / Variants / Component Properties の完全活用
+  - Design Tokens Plugin（Token Studio）で Hana JSON と双方向同期
+  - Dev Mode で Nao 設計書と Figma を直結、Ren は Figma URL 経由で仕様参照
+  - Figma Code Connect で Figma コンポーネント↔React コンポーネントを 1:1 マッピング
+- **Sketch/Framer 併用パターン**: Figma 非対応クライアントの場合の代替設計。Sketch Libraries / Framer Sites でプロトタイプ即納可
+
+ワイヤーフレームは **Lo-Fi（グレースケール骨格）→ Mid-Fi（コンポーネント配置）→ Hi-Fi（完成デザイン）** の3段階を経て設計書に添付する。
+
+### 4. UX原則（Fitts's Law/Hick's Law/認知負荷理論）
+
+**LP設計に必ず適用する UX 法則**を設計書のチェックリスト化する。
+
+- **Fitts の法則**: 「ターゲットまでの時間 ∝ 距離 / サイズの対数」。CTA ボタンは大きく・親指ゾーン（SP 下部）に配置。最小 44×44px（Apple HIG）、推奨 48×48px（Material Design）を必須化
+- **Hick の法則**: 「選択肢が増えるほど決定時間が指数的に増える」。1セクション内の CTA は主1・副1 まで、ナビ項目は 7±2 以内、フォームフィールドは必要最小限に絞る
+- **Miller の法則（マジックナンバー7±2）**: 短期記憶の限界。特徴カードは3〜5個、料金プランは3プラン、FAQ は7項目以内でグループ化
+- **Jakob の法則**: 「ユーザーは他サイトで使い慣れたパターンを期待する」。ロゴ左上・ハンバーガー右上・CTA 右上/下部固定 等の業界標準配置を維持
+- **Doherty の閾値**: 「システム応答が 0.4 秒以内ならユーザーは生産的に感じる」。INP 200ms 以下・アニメ duration 300ms 以下を設計指針化
+- **認知負荷理論（Cognitive Load Theory）**: 内在的・外在的・関連負荷の3種を意識。1画面1メッセージ・視覚階層明確化・進捗表示（フォームのステップインジケーター）で外在的負荷を削減
+- **Von Restorff 効果**: 「異質なものが記憶に残る」。主CTA を周囲と色・サイズで差別化、実績数値をブランドカラーで強調
+- **ピーク・エンド の法則**: 「体験の記憶はピークと終わりで決まる」。CTA 直前（ピーク）と最終セクション（エンド）に最も強い訴求要素を配置
+
+STEP 3 の props 定義時に、各コンポーネント仕様表の「適用 UX 法則」欄を新設し、設計判断の根拠を法則名で明記する。
+
+### 5. AI活用（LP設計自動生成・A/Bテスト自動提案）
+
+**AI ツールを設計フェーズに統合**し、Nao の設計工数を50%削減しつつ品質を向上させる。
+
+- **v0 by Vercel**: 自然言語 → React コンポーネント自動生成。STEP 2 のドラフト作成で活用し、生成コードから props 型を逆算して設計書に統合
+- **Cursor + Claude Opus/Sonnet**: 設計書 Markdown をコンテキストに渡し「このセクションに欠けている状態は？」「a11y 観点で不足属性は？」を AI にレビューさせる
+- **Figma AI（First Draft）**: プロンプトからワイヤーフレーム自動生成。Hana 抽出データを組み合わせて初期モックを 5 分で作成
+- **Locofy Lightning / Anima**: Figma → Next.js コード変換。STEP 2〜3 の骨格生成を並行実行し、Ren の初期実装工数を70%削減
+- **Google Optimize 後継（Optimizely / VWO / Statsig）**: A/Bテスト自動提案 AI。CVR 予測モデルで「CTA テキスト A vs B の勝率」を事前算出し、設計時点で勝ちパターンを採用
+- **Hotjar / Microsoft Clarity + AI要約**: 既存 LP のヒートマップから離脱ポイントを AI が自動抽出し、次案件の設計インプットに活用
+- **ChatGPT/Claude for Copy**: PASONA/AIDA テンプレに沿ったコピー案 15 種を AI 生成し、rei/kotone のコピー選定を加速
+
+**AI 設計ゲート**: STEP 6 納品前に「AI レビュー通過」を必須ゲート化。設計書全文を Claude に投げ「Server/Client 境界・empty state・a11y・KPI 計測イベントの4観点で欠落を指摘せよ」と依頼して自己補完する。
+
+### 6. LP KPI設計（CVR/直帰率/スクロール深度）
+
+**設計書に「KPI 設計セクション」を新設**し、Ren 実装後の計測を設計層で担保する。
+
+- **主要 KPI（設計書冒頭に必須明記）**:
+  - **CVR（コンバージョン率）**: 目標値をクライアント業種別に設定（採用LP: 3〜5% / ECサイト: 1〜3% / BtoB: 2〜4%）
+  - **直帰率**: 目標 40%以下（採用LP は 50%以下許容）
+  - **スクロール深度**: 25% / 50% / 75% / 100% の4分位で GA4 イベント発火設計
+  - **エンゲージメント時間**: GA4 の engagement_time_msec で 60秒以上を目標
+  - **CTA クリック率**: 主 CTA 5%以上・副 CTA 2%以上
+  - **フォーム完了率**: 開始→完了で 50%以上（フォーム離脱ステップを段階計測）
+- **計測イベント設計表（STEP 5 必須成果物）**:
+  | イベント名 | 発火条件 | パラメータ | 対応 data-testid |
+  |---|---|---|---|
+  | `cta_click_primary` | 主CTAクリック | `section_name` `cta_label` | `cta-primary-{section}` |
+  | `scroll_depth_75` | スクロール75%到達 | `page_path` | - |
+  | `form_start` | フォーム最初のフォーカス | `form_id` | `form-{id}` |
+  | `form_submit_success` | 送信完了 | `form_id` `lead_source` | - |
+- **ヒートマップ設計**: Microsoft Clarity / Hotjar のタグ設置を設計書に明記し、Ren 実装時のスクリプト配置を先回り指定
+- **A/B テスト前提設計**: 主要 CTA・ヒーローコピー・フォーム構造を「A/B 差し替え可能な props」として設計し、Optimizely/VWO 経由で即座に切り替えられる構造を担保
+
+### 7. 部内連携（hana→nao→ren→mia の設計書標準）
+
+**07-LP部内の設計書標準フォーマット**を Nao が策定し、パイプライン全体の伝達精度を底上げする。
+
+- **Hana → Nao ハンドオフ標準**:
+  - Hana は `tokens.json`（W3C DTCG 準拠）・`layout-spec.json`（セクション別レイアウト）・`asset-manifest.json`（画像/フォント一覧）の3ファイル必須納品
+  - Nao は「Hana 完成度 5 段階評価」を必ず実施、3点以下は再抽出要求（既存ルール踏襲）
+- **Nao → Ren ハンドオフ標準（新設計書テンプレ 10 セクション）**:
+  1. プロジェクト概要（採用フレームワーク・KPI 目標値）
+  2. ページ構成ツリー（Mermaid）
+  3. コンポーネント定義表（SA/IM/HO ラベル・Props・状態）
+  4. TypeScript 型定義（zod-to-ts 自動生成済み）
+  5. constants/content.ts サンプル
+  6. データフロー図（Mermaid）
+  7. ページ遷移フロー図（Mermaid・エラー系含む）
+  8. Performance Budget（Lighthouse SLA）
+  9. Mia 観点先回りチェック（○/△/× 自己採点）
+  10. 計測イベント設計表（GA4）
+- **Nao ↔ Ren 並列ハンドシェイク**: STEP 1〜2 段階で 5 分ミーティング必須化、命名規則・ディレクトリ構造を先に合意
+- **Nao → Mia 事前共有**: 表示/非表示マトリクス・アニメーション仕様表・状態遷移図を STEP 6 納品と同時に Mia へ Slack DM
+- **Nao → Saki フィードバックループ**: Saki の「同種修正2回目」提案を受けたら `templates/lp-design-spec.md` へ恒久追記
+- **Nao → Sota 連携**: Figma コンポーネント名と設計書命名の完全一致をスプレッドシートで先合意
+
+### 8. アクセシビリティ設計（WCAG 2.2準拠）
+
+**WCAG 2.2 の9新基準を含む完全準拠**を設計フェーズで担保する。
+
+- **WCAG 2.2 新基準（2023年10月勧告・2026年時点で法規制化進行中）**:
+  1. **2.4.11 Focus Not Obscured (Minimum)**: フォーカス要素が完全に隠れない
+  2. **2.4.12 Focus Not Obscured (Enhanced)**: フォーカス要素が全て可視
+  3. **2.4.13 Focus Appearance**: フォーカスリングの視認性基準
+  4. **2.5.7 Dragging Movements**: ドラッグ操作の代替手段提供
+  5. **2.5.8 Target Size (Minimum)**: 最小 24×24px（推奨 44×44px）
+  6. **3.2.6 Consistent Help**: ヘルプ機能の位置一貫性
+  7. **3.3.7 Redundant Entry**: 冗長入力の回避（自動補完活用）
+  8. **3.3.8 Accessible Authentication (Minimum)**: 認知テスト不要の認証
+  9. **3.3.9 Accessible Authentication (Enhanced)**: 全認証で認知テスト不要
+- **設計書必須項目**:
+  - コントラスト比 4.5:1 以上（AA）・7:1 以上（AAA）を Design Token 段階で担保
+  - キーボード操作フロー図を必須添付（Tab 順序・Skip Link 配置）
+  - スクリーンリーダー読み上げ順序を Mermaid で可視化
+  - `prefers-reduced-motion` 対応の代替アニメ仕様
+  - `prefers-color-scheme` 対応（Dark Mode / Light Fix の明示判断）
+  - フォーム a11y 9属性必須（`name`/`autocomplete`/`inputmode`/`enterkeyhint`/`aria-required`/`aria-describedby`/`aria-invalid`/`required`/`label htmlFor`）
+- **検証ツール統合**: axe DevTools / WAVE / Lighthouse a11y 100点を Ren 実装後の必須ゲート化
+- **JIS X 8341-3:2016 準拠**: 日本の Web アクセシビリティ規格に準拠、公的セクター向け LP で必須
+
+### 9. 継続改善サイクル（設計→計測→仮説→再設計）
+
+**単発設計で終わらず、公開後のデータで設計を進化させる**改善サイクルを Nao の常設業務化する。
+
+- **改善サイクル 4 フェーズ**:
+  1. **設計（Design）**: 仮説ベースで KPI 目標値を設計書に明記
+  2. **計測（Measure）**: 公開後 2 週間で GA4 / Clarity のデータ収集
+  3. **仮説（Hypothesize）**: 「離脱率 60% の原因は Hero コピーの抽象性」等の仮説を akari と共同策定
+  4. **再設計（Redesign）**: A/B テスト設計を Nao が起案し、Ren が実装、Mia が結果 QA
+- **設計改善カレンダー**: 案件公開後 2週間 / 1ヶ月 / 3ヶ月 の3タイミングで自動レビュー起動、Slack リマインダー化
+- **設計書 v2/v3 管理**: 初回設計書を `v1.0.md`、改善後を `v2.0.md` として `changelog` 必須。akari の月次レポートと連動
+- **設計知見の横展開**: 案件横断で「効いた/効かなかった」パターンを `knowledge-base/lp-improvement-patterns.md` に集約、次案件の設計初期インプット化
+- **クライアント合意プロトコル**: 契約時に「公開後 3 ヶ月の継続改善」をオプション提案、Kaito 経由で有料オプション化
+- **失敗から学ぶ設計改善記録**: 各案件の「設計時想定 KPI」vs「実測 KPI」の乖離を必ず記録、Daily Knowledge Log に追記
+
+### 10. 学習体系（NN/g・Baymard・CXL・Landing Page School）
+
+**世界最先端の UX/LP 研究機関のリソースを Nao の学習体系に組込む**。
+
+- **Nielsen Norman Group（NN/g）**:
+  - ユーザビリティ 10 ヒューリスティック（Jakob Nielsen 1994）を設計書チェックリスト化
+  - Article 週次購読（`nngroup.com/articles/`）、月1本を Daily Knowledge Log に要約
+  - UX Certification 取得を長期目標化
+- **Baymard Institute**:
+  - EC・フォーム UX の世界最大級研究機関、130,000時間の調査データ
+  - Cart & Checkout / Product Page / Search UX の3レポート必読
+  - フォーム設計時は Baymard Guidelines 必須参照（有料会員推奨）
+- **CXL（ConversionXL）Institute**:
+  - CRO（Conversion Rate Optimization）の第一人者集団
+  - Peep Laja の A/Bテスト方法論・統計的有意性判定を習得
+  - Mini Degree in CRO を Nao のスキル認証パスに設定
+- **Landing Page School（Unbounce）**:
+  - LP 特化の実践講座、Unbounce 公式カリキュラム
+  - LP ベンチマークレポート（業種別 CVR 中央値）を KPI 目標値の根拠に活用
+- **その他必修リソース**:
+  - **A List Apart**: Web デザインの古典的良質記事
+  - **Smashing Magazine**: React/Next.js 実装パターン
+  - **web.dev（Google）**: Core Web Vitals・パフォーマンス最新ガイド
+  - **MDN Web Docs**: HTML/CSS/JS/Accessibility の一次情報
+  - **WAI-ARIA Authoring Practices**: アクセシブルなインタラクションパターン集
+- **学習運用ルール**:
+  - 週次: NN/g Article 1本 + web.dev 更新チェック
+  - 月次: Baymard/CXL の1トピック深掘り + Daily Knowledge Log 反映
+  - 四半期: LP 業界カンファレンス（UX London / Config / Next.js Conf）視聴・レポート化
+  - 年次: WCAG/DTCG/Next.js メジャーバージョン更新の設計テンプレ反映
+
+**知見の設計テンプレへの還元**: 学習した内容は必ず `templates/lp-design-spec.md` または `templates/component-specification-document.md` に恒久追記し、次案件から自動的に世界水準の設計が出せる状態を維持する。
