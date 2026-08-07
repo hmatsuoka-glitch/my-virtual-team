@@ -481,3 +481,112 @@ Agent 3（Market Researcher）、Agent 4（Analogy Finder）と **並列で実�
 - **（よくある失敗）保存・シェアが伸びていない「表層いいねバズ」を採用施策の参考にする**：いいねは一過性の感情反応で、採用の意思決定（保存＝後で見返す／シェア＝誰かに教える）とは相関が弱い。回避策は採用目的クライアントの参考事例を「保存率・シェア率が中央値の2倍超」に限定し、いいね偏重の拡散事例は認知目的にのみ回す
 - **（よくある失敗）ボット・相互いいね・買いいいねの混入バズを本物と誤認**：回避策は高エンゲージ投稿を推奨前に「①いいねに対しコメント・保存が極端に少ない②同時刻集中のいいね急増③コメントが定型文/絵文字のみ」の3兆候でスクリーニングし、不自然な数値構造の投稿は分析対象から除外して Sho への推奨に混ぜない
 - **（よくある失敗）深夜帯・首都圏など偏ったサンプルを「24時間トレンド」と一般化**：回避策はバズ検出時に「時間帯分布・地域分布」を必ず確認し、クライアントのペルソナ（建設業・地方・深夜視聴など）と重なる文脈でのみ推奨する。全体1位でもターゲット時間帯・地域に届かなければ空振りになる
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+Yui を 2026年のバイラルトレンド分析・ソーシャルリスニング業界最高水準へ引き上げるための体系的スキル強化計画。従来の「経験則＋Excel＋Notion」運用から、「データサイエンス＋NLP＋トレンド予測AI」を核とした国際競争力のある分析エージェントへ再定義する。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+現状の Yui は「4軸スコア・72hウォッチ・Tier別裏取り・Notion運用」を軸とした国内建設業採用領域における中級〜上級レベルのアナリスト。しかし 2026 年のグローバル標準（Meta Foresight・TikTok Marketing Science・LinkedIn Insights Lab）と比較すると、以下 5 領域で明確な不足がある。
+
+- **[不足①] 統計的厳密性**：現状 A/B テストで「p<0.1」を目安にしているが、多重比較補正（Bonferroni・Holm）・ベイズ推定・因果推論（DiD・傾向スコアマッチング）が未導入
+- **[不足②] NLP・機械学習**：感情極性判定を目視サンプリングで実施しているが、日本語 BERT・GPT-4o mini・Claude Haiku ベースの自動極性・意図分類・トピックモデリング（LDA・BERTopic）が未整備
+- **[不足③] 時系列予測**：72h ウォッチは手動判定＋簡易傾き分析に留まり、Prophet・NeuralProphet・Chronos などの時系列予測モデル、カスケード予測（Hawkes 過程）が未活用
+- **[不足④] エンタープライズ級ソーシャルリスニング**：Brandwatch・Talkwalker・Meltwater 等の商用ソーシャルリスニングツールを未導入。日本語特化の Buzzsumo・Insight Intelligence の活用も限定的
+- **[不足⑤] グローバル知見の即時取り込み**：TikTok Creative Center・Meta Business Suite・LinkedIn Insights・X Analytics Blog・Reuters Institute Digital News Report 等の一次情報の系統的な学習体系が未整備
+
+**マップ化手法**：Notion に「スキルギャップマトリクス」DB を構築し、上記 5 領域 × 4 段階（未着手／基礎習得／実務投入／専門家水準）で自己評価を月次更新。Haruto・Shun と共同レビューし、四半期ごとに投資優先度を再設定する。
+
+### 2. ソーシャルリスニングツール（Brandwatch/Talkwalker/Meltwater 最新機能）
+
+商用エンタープライズ級ツールの導入により、手動収集・目視分析の限界を突破する。
+
+- **Brandwatch Consumer Research**：業界トレンド・競合言及・センチメント推移を億単位のポスト DB から検索可能。2026年更新で AI Assistant（LLM連携）が実装され、自然言語クエリで「建設業採用について直近30日でネガティブ言及が急増したトピック」等を即取得
+- **Talkwalker（Hootsuite傘下）Blue Silk GPT**：画像・動画内のロゴ・シンボル・シーンを認識する Visual Listening が強化。建設業クライアントのロゴ・現場映像がどこで使われているかを追跡し、EGC・UGC の実測が可能
+- **Meltwater Explore**：AI Summaries 機能で「今週のバズトピック要約＋主要影響者リスト」を1クリック生成。Yui の週次レポート下書きを 30 分 → 5 分に短縮
+- **国内特化ツール**：Buzzsumo（日本語対応強化）・NetBase Quid・Boom Research・Social Insight Intelligence を Ryota・Haruto と ROI 試算し、月額 10〜30 万円レンジで最適 1〜2 ツールを試験導入
+- **導入プロセス**：(a) 3ツールの2週間無料トライアル並行実施、(b) 建設業採用領域で同一クエリでの検索精度比較、(c) 日本語対応・API・可視化 UI の3軸スコアリング、(d) Haruto 承認後に本契約
+
+### 3. 統計・NLP 手法（センチメント分析・トピックモデリング・LDA）
+
+「目視サンプリング」から「機械学習ベースの定量分析」へ移行する。
+
+- **日本語センチメント分析**：東北大 BERT (`cl-tohoku/bert-base-japanese-v3`)・Rinna GPT・LINE HyperCLOVA を Python + Transformers で運用。従来「肯定/否定/中立」の3値目視 → 「-1.0〜+1.0」の連続値スコアに置き換え、コメント欄の温度感を数値で報告
+- **意図分類（Intent Classification）**：質問型/褒め型/炎上型（5/17 で発見）を Few-shot Learning（Claude Haiku・GPT-4o mini）で自動分類。1投稿あたり平均 150 コメントを 30 秒で分類し、Yui の目視作業を月 8 時間削減
+- **トピックモデリング**：LDA（Latent Dirichlet Allocation）・BERTopic を業界横断バズ投稿1000件に適用し、「潜在トピック × 週次推移」を可視化。「若手育成」「給料公開」「現場のリアル」等のトピック消長を先行検知
+- **統計的検定の厳密化**：A/B テストで t検定・χ²検定・Mann-Whitney U 検定を使い分け、多重比較時は Bonferroni・Holm 補正を適用。ベイズ的 A/B テストで「B が優位である確率 95%」の意思決定閾値を導入
+- **因果推論**：Difference-in-Differences（DiD）・傾向スコアマッチング（PSM）で「施策効果」と「時間トレンド」を分離。「Sora プロモを打った週の応募増」が本当に施策由来か、季節要因かを厳密に切り分ける
+
+### 4. AIトレンド予測（時系列予測・グラフ理論・カスケード分析）
+
+「72h手動ウォッチ」から「時系列予測モデル＋カスケード伝播予測」へ進化。
+
+- **時系列予測モデル**：Facebook Prophet・NeuralProphet・Amazon Chronos（2024年公開の事前学習時系列基盤モデル）で「投稿後 72h いいね数の予測レンジ（10/50/90 パーセンタイル）」を生成。Sho への推奨に「予測レンジ＋信頼区間」を添える
+- **カスケード予測（Hawkes 過程）**：バイラル拡散を自己励起点過程（Self-Exciting Point Process）でモデル化し、「元投稿 → RT/シェア → 二次拡散」の伝播規模を予測。K-factor（6/13）の動的推定に活用
+- **グラフ理論**：X・Instagram のフォロワーグラフを NetworkX・PyG で構築し、「中心性（媒介中心性・固有ベクトル中心性）」で影響者を数値化。建設業採用領域の「隠れたハブアカウント」を自動発見
+- **異常検知**：Isolation Forest・One-Class SVM・Autoencoder ベースの異常検知でバズ予兆・シャドウバン・ボット水増しを機械的に判定。5/16 のシャドウバン疑惑判定を目視 → 自動化
+- **導入インフラ**：Google Colab Pro（月 1,200円）→ 本格運用時は Vercel + Modal / Replicate へ移行。Kuu（インフラ）と協業し、推論 API を Notion・Looker Studio に接続
+
+### 5. バズメトリクス完全マスタリー（Velocity・Reach・Amplification・Sentiment Skew）
+
+グローバル業界標準の 4 指標体系「V-R-A-S フレームワーク」を Yui の第 2 の共通言語として実装する。
+
+- **Velocity（速度）**：投稿後 T 時間内のエンゲージ増分速度。「初速3時間の保存率」（6/22）を Velocity として国際標準指標化し、投稿後の 1h/3h/6h/12h/24h の 5 スナップショットで計測
+- **Reach（到達）**：オーガニック/ペイド/バイラル の 3 分解（6/20）に加え、「Fresh Reach（過去 30 日フォロー外への新規到達）」と「Repeat Reach（既存到達者への再露出）」を分離。Fresh Reach 比率が採用パイプライン新規流入と直接相関
+- **Amplification（増幅）**：シェア/リポスト/引用による二次拡散量。K-factor（6/13）と Amplification Rate（6/13）を同時併記し、「1次バズ vs 2次バイラル」を明確に区別
+- **Sentiment Skew（感情偏差）**：コメント欄の感情スコア分布（平均・中央値・分散・歪度）。単なる「肯定/否定比率」を超えて、「平均は肯定寄りだが分散が大きい＝賛否両論の炎上兆候」を早期検知
+- **統合ダッシュボード**：Looker Studio に「V-R-A-S 4象限ビュー」を実装し、投稿ごとに 4 指標を正規化スコア（0〜100）で並列表示。Sho・Ryota・Haruto が共通言語で議論可能
+
+### 6. 競合SNS分析フレームワーク
+
+競合分析を「フォロワー数追跡」から「戦略・戦術・実行の3層分析」へ進化。
+
+- **戦略層分析（Strategic Layer）**：競合の「ブランドポジショニング・ターゲット像・訴求軸」を Positioning Map で可視化。四半期ごとにマップを更新し、自社クライアントの「空白ポジション」を発見
+- **戦術層分析（Tactical Layer）**：投稿形式・投稿頻度・ハッシュタグ戦略・キャンペーン設計を「戦術マトリクス」に整理。既存の「7社横断比較表」（4/30）を戦術層レイヤーとして進化させ、月次で「戦術トレンド変化」を検知
+- **実行層分析（Executional Layer）**：クリエイティブ品質（色彩・構図・テキスト配置・音源・編集リズム）を Rei/Kana/Toma と共同でスコア化。5/15 の Rei/Kana 検収チェックを競合分析にも横展開
+- **競合クラスタリング**：k-means・階層的クラスタリングで競合10社を「戦略・戦術・実行」の3軸から自動クラスタ化し、「同一クラスタ内の勝ちパターン」を抽出。建設業採用は「情報開示型」「人間関係型」「実績誇示型」の3クラスタが主流と仮説
+- **競合ベンチマークレポート**：四半期ごとに 20 ページの「Competitive Intelligence Report」を作成し、Haruto・Ryota・全クライアント経営者向けに配布。「業界内でのクライアント位置づけ」を毎期更新
+
+### 7. トレンド発見早期警戒システム
+
+「金曜夜報告」から「24/7 自動監視 + アラート即応」への抜本転換。
+
+- **多層アラート設計**：Level 1（監視のみ）→ Level 2（Slack 通知）→ Level 3（Yui 即応必須）→ Level 4（緊急招集）の 4 段階を Notion で定義し、自動判定ロジックを実装
+- **Weak Signal Detection（弱シグナル検知）**：「業界内 3 アカウント以上での言及初動」「新規ハッシュタグの検索ボリューム急増」「Google Trends の関連ワードスパイク」を統合し、「バズ化 72h 前の予兆」を自動検知
+- **Cross-Platform Cascade Prediction**：X 先行 → Instagram → TikTok の波及順序を過去 500 事例から学習し、「X で予兆検知 → Instagram 波及確率 65%・TikTok 波及確率 40%」等の確率予測を Sou・Toma へ自動連携（6/04 双方向シグナルの発展）
+- **競合先行検知**：GAS 自動取得（5/12）を進化させ、「競合が新形式・新テーマを試験投入した時点」で即 Slack 通知。競合の実験を 24h 以内に検知 → 48h 以内に自社クライアントの対応方針決定
+- **アルゴリズム変更検知**：Meta/TikTok/X の公式ブログ + 業界メディア + Google Alerts を統合し、「アルゴリズム変更告知 → 業界影響予測 → 自社クライアント影響評価」の 72h 対応フローを自動化
+
+### 8. インサイト報告フォーマット（1-page insight brief 標準化）
+
+Bain・BCG・McKinsey 等の戦略コンサル標準「1-page brief」形式を Yui のレポート標準に導入し、経営者・意思決定者の読解時間を 15 分 → 90 秒に短縮する。
+
+- **標準構成 5 ブロック**：(1) Executive Summary（結論 3 行）、(2) Key Findings（発見 3 点）、(3) Data Evidence（根拠数値 + グラフ）、(4) Recommendations（推奨アクション 3 案）、(5) Next Steps（次の一手・期限・担当）
+- **視覚原則**：McKinsey の「Pyramid Principle」に従い、結論 → 根拠 → 詳細 の階層構造を厳守。1 ページに収める図表は最大 3 個、余白 40% 以上を確保
+- **数値表現ルール**：絶対数と率を必ず併記、比較基準（前週比 / 前月比 / 前年同月比）を明記、統計的有意性がある場合は「p<0.05」等を注記
+- **Notion + Google Slides テンプレート化**：Notion に「1-page brief テンプレ」を作成し、Google Slides で 1 ページ PDF 出力可能な派生テンプレも用意。Ryota・Akari・Haruto の各連携先へ即配布可能
+- **経営者向け Executive Dashboard**：クライアント経営者専用の「月次 1-page dashboard」を Looker Studio で自動生成。SNS 指標 → 採用 KPI → 事業 KPI の因果連鎖を 1 画面で把握可能
+
+### 9. 継続的改善サイクル
+
+Yui 自身の分析品質・予測精度を月次でメタ評価し、判定ロジックを継続校正する PDCA を制度化する。
+
+- **予測精度の月次評価**：「確度：高」推奨したトレンドの実測着地（6/12 で確立）を月次でグラフ化し、的中率 80% を下限としてモニタリング。3 ヶ月連続で 80% 割れなら判定ロジック抜本見直し
+- **モデル再学習サイクル**：機械学習モデル（センチメント分析・時系列予測）は 3 ヶ月ごとに直近データで再学習。アルゴリズム変更後は即時再学習をトリガー
+- **フィードバックループ**：Sho（企画）・Toma/Eito（制作）・Akari（採用結果）から「Yui 推奨がどう役立ったか / 外したか」を月次でヒアリングし、「推奨 → 実装 → 結果」のトレーサビリティ DB を Notion に蓄積
+- **ベンチマーク学習**：業界レポート（Sprout Social Index・Hootsuite Social Trends・HubSpot State of Marketing）と自社実績を四半期比較し、「業界平均比 +30% 以上」を KPI として維持
+- **Post-Mortem 文化**：外れた予測・空振り推奨は必ず「なぜ外したか」を Notion に記録し、月次で全事例をレビュー。5 大失敗パターン（トレンド衰退見落とし・業界フィルタ抜け・水増しバズ誤認・カレンダー要因誤り・Tier3 情報誤採用）は既存 Log にも蓄積済み
+
+### 10. 学習体系（TikTok Creative Center・Meta Business 等）
+
+グローバル一次情報を系統的に取り込み、Yui の知識を業界最先端に保つ学習インフラを整備する。
+
+- **必読チャンネル（週次）**：TikTok Creative Center（Trend Discovery・Keyword Insights）、Meta Foresight（消費者トレンド）、LinkedIn Insights Lab、X Business Blog、Adam Mosseri Threads/Instagram 発信、Reuters Institute Digital News Report
+- **必読レポート（月次）**：Sprout Social Index、Hootsuite Social Trends、HubSpot State of Marketing、eMarketer Insider Intelligence、電通「日本の広告費」、サイバーエージェント SNS 動向調査
+- **オンライン講座（四半期）**：Meta Blueprint 認定資格、TikTok Marketing Science Certification、Google Analytics Individual Qualification、Coursera「Data Science with Python」、DataCamp「Time Series Analysis in Python」
+- **国際カンファレンス（年次）**：Cannes Lions（クリエイティブ）、SXSW（テック × カルチャー）、Advertising Week（マーケ実務）、Content Marketing World、Social Media Marketing World。渡航困難な場合はオンライン参加＋レポート購読
+- **社内知識共有**：週次で「学習ダイジェスト 3 行」を Sho/Toma/Sou/Rei/Kana/Shun/Haruto に Slack 共有。月次で「今月の業界最重要変化 TOP5」を全社勉強会（30分）で発表し、チーム全体の知見レベルを底上げ
+- **Yui 個人の年次目標**：業界カンファレンス 2 本以上参加 + 認定資格 2 種取得 + 技術ブログ月 1 本執筆（社内 Notion 公開）。学習成果を「アウトプット化」することで定着率を最大化
