@@ -421,3 +421,241 @@ STEP 4: 再監査
 - （よくある失敗）修正版を「指摘箇所だけ」再監査し、修正に伴う連動崩れ（マスター経由で全スライドの見出し色が変化する等）を見逃す。回避策：修正版は必ず全スライドを STEP2 から再走査し、diff だけの部分監査を禁止する（修正が新たなズレを生む前提で走る）。
 - （よくある失敗）「合格」を出した後に Souma が微修正した版が「Aoi 済み」として流れ、未監査版が納品される。回避策：通過レポートに更新日時・ハッシュを記録し「当該版のみ有効」を明記、1 文字でも再編集があれば自動的に再監査対象と定義する。
 - （よくある失敗）画面 PDF では正常だが印刷・投影・別環境で崩れる（フォント未埋め込み・塗り足し不足・自動更新の日付フィールド残留）。回避策：用途別（投影／配布／印刷）合否マトリクスで判定し、`embeddedFontLst`・`fld` 要素・bleed を機械抽出してから合格を出す。「画面合格＝全用途合格」の単一判定をやめる。
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+**現状の強み（棚卸し）**
+- テンプレート仕様書化（YAML＋Figma Variables JSON ハイブリッド）と 9 段最終チェックポイント運用
+- `python-pptx` × ImageMagick `compare` の要素 diff ＋ pixel diff 二本立て自動監査
+- マスタースライド物理ロック運用による監査項目 8 項目の自動✅化
+- 印刷・投影・ダークモード・PDF/UA・CUD の用途別合否マトリクス
+- 和欧混植・可変フォント・`fsType` ライセンスまで踏み込んだフォント監査
+
+**不足領域マップ（2026 業界標準比）**
+| 不足領域 | 影響度 | 緊急度 | 対応セクション |
+|---------|-------|-------|--------------|
+| Design Tokens W3C 標準（DTCG）対応 | 高 | 高 | §2 |
+| テンプレバージョン監査体系（SemVer・監査証跡） | 高 | 高 | §3 |
+| PPT/Keynote/Google Slides 2026 新機能 | 中 | 高 | §4 |
+| PDF/UA-2・WCAG 2.2/3.0 準拠 | 高 | 高 | §5 |
+| Gamma/Tome/Beautiful.ai・Copilot 出力監査 | 高 | 中 | §6 |
+| 部内オーケストレーション自動化 | 中 | 高 | §7 |
+| 品質メトリクス KPI ダッシュボード | 中 | 中 | §8 |
+| インシデント対応プレイブック | 高 | 中 | §9 |
+| 継続学習パス（NN/g・DSC） | 中 | 低 | §10 |
+
+**優先順位判定基準**：クライアント信用毀損リスク × 発生頻度 × 復旧コストの三次元スコアで加重。上位 3 領域（§2/§3/§5）を Q3 内で先行整備、残りを Q4 で完成させる。
+
+---
+
+### 2. Design System 運用（Figma / Design Tokens W3C）
+
+**Design Tokens Community Group（DTCG）標準準拠**
+- W3C Design Tokens Format Module（Draft 2026）の JSON 仕様に完全準拠したトークン定義：`$type: color`、`$value: "#1E3A8A"`、`$description: "Primary brand navy"` の 3 要素を全トークンに必須付与
+- Style Dictionary / Terrazzo によるトークン変換パイプライン：Figma Variables → DTCG JSON → CSS/SCSS/pptx theme XML / Keynote KTH / Google Slides theme JSON へマルチ出力
+- Alias Token 階層（Global → Alias → Component）を厳守し、テンプレ仕様書は Alias 層で記述して「トークン変更が全媒体に自動伝播」を担保
+
+**Figma Variables × Aoi 監査自動化**
+- Figma REST API `GET /v1/files/{key}/variables/local` でブランドガイドラインを 5 分間隔ポーリング、Variables 変更があれば `aoi_spec.yaml` を自動再生成し Slack 通知
+- Figma Code Connect でトークンをコンポーネント単位にマッピングし、Souma が Figma で選んだコンポーネントがそのまま pptx マスターに変換される SSOT 体制
+- Figma Dev Mode MCP Server 経由で「テンプレ原本 Figma → 出力 pptx」の要素対応表を自動抽出、監査 diff の初期精度を 30% 向上
+
+**運用ルール**
+1. トークン更新は必ず Figma 側で行い、pptx/Keynote 側での直接編集は監査違反
+2. Global Token 変更は「全媒体影響」ラベルを PR に必須付与し、Aoi の承認なしにマージ不可
+3. 四半期ごとに W3C DTCG Draft 更新を追跡し、Breaking Change があれば 2 週間以内に仕様書テンプレを改訂
+
+---
+
+### 3. テンプレートガバナンス（Version 管理・監査体系）
+
+**SemVer 準拠のテンプレバージョニング**
+- `MAJOR.MINOR.PATCH` 形式（例：`shosei_proposal_v2.3.1`）を全テンプレの必須メタデータ化：MAJOR ＝マスター構造変更、MINOR ＝新スライド追加、PATCH ＝色/文言微修正
+- ファイル名・ドキュメントプロパティ・仕様書冒頭の 3 箇所に版番号を冗長記載し、Google Drive のバージョン履歴 API とハッシュ値の四重照合で「旧版誤用」を構造的にゼロ化
+- `CHANGELOG.md` をテンプレ 1 対 1 で必須運用し、変更理由・影響範囲・下位互換性を Keep a Changelog 準拠で記録
+
+**監査証跡（Audit Trail）体系**
+- 全監査結果を `audit_log/{yyyy-mm-dd}_{project_id}_{template_version}.json` で永続保存：入力ハッシュ・出力ハッシュ・監査項目 42 件の合否・逸脱詳細・担当者・所要時間を JSON Lines 形式で蓄積
+- 監査ログは 5 年間保持（クライアント法務要件想定）し、ISO 27001 の変更管理・アクセス制御要件を満たす構造で GCS Bucket に WORM（Write Once Read Many）保管
+- 「合格版のハッシュ」を通過レポートに固定記載し、Mana/Sora/Yuto の全員が「開いた版のハッシュ = 通過ハッシュ」を工程着手前に照合するルールで、合格後改変事故をゼロ化
+
+**テンプレ廃止（Deprecation）フロー**
+- MAJOR バージョン更新時は旧版に `DEPRECATED` タグを付与し、90 日移行期間を経て `archived/` へ物理移動
+- 旧版利用中の全案件を洗い出し、移行期間中に Rin/Souma へ「新版へのマイグレーションガイド」を配布
+
+---
+
+### 4. PowerPoint / Keynote / Google Slides 2026 最新機能
+
+**PowerPoint（Microsoft 365 Copilot 統合 2026 版）**
+- Copilot in PowerPoint「Designer 3.0」の AI 自動レイアウトは「テーマ色に見えて明度が微妙にずれる」逸脱の温床（§6 参照）。Aoi は Copilot 生成スライドを「変換 > 図形に変換」で分解し、run 単位で実 HEX を再検証する監査運用を標準化
+- 「Cameo」機能（プレゼンター動画埋め込み）の解像度・アスペクト比・配置枠監査を仕様書に `cameo_position:` として追加
+- 「Loop コンポーネント」を pptx に埋め込むケースが増加、埋め込みリンクの権限（Anyone with link / 組織内のみ）を必須確認項目化
+- 新形式 `.pptx` OOXML 拡張（`p:extLst` の 2026 追加要素）を `python-pptx` v0.7 以降で対応、テーマ XML 直接パースで従来検出できなかった逸脱を抽出
+
+**Keynote（macOS 15/iOS 18 対応 2026 版）**
+- Keynote は OOXML でなく独自 XML（`Index.zip` 内の `Metadata.iwa`）のため、`iwa-to-json` 等の変換ツールで一次抽出してから YAML 突合
+- 「マジックムーブ」「シネマティック」トランジションはテンプレ規定外の動きが混入しやすく、`animations:` セクションで全面禁止か個別許可を明示
+- Keynote Live（リアルタイム共同編集）のバージョン競合検出：同時編集時のマージ結果を必ずハッシュ再計算してから監査対象化
+
+**Google Slides（2026 Tabs 機能・Workspace 統合）**
+- Tabs 機能（1 ファイル × 複数タブ）は監査対象を「タブ ID 単位」で分割管理、タブ間の共通要素（ロゴ・配色・フッター）の統一を新規監査項目化
+- Google Slides API `presentations.get` で全スライド要素を JSON 抽出、`python-pptx` と同等の YAML 突合パイプラインを構築
+- Gemini for Workspace の自動生成スライドは Copilot と同型の逸脱パターンを持つため、§6 の AI 生成物監査ルールを共通適用
+
+---
+
+### 5. 資料アクセシビリティ（PDF/UA・WCAG）
+
+**PDF/UA-1 及び PDF/UA-2（2024 改訂版）準拠**
+- タグ付き PDF の必須要件：`<Document>` ルート、見出し階層 `<H1>-<H6>` の論理順序、`<Figure>` の `Alt` 属性、`<Table>` の `<TH>/<TD>` 構造化
+- Adobe Acrobat Pro のアクセシビリティチェッカー + PAC 2024（PDF Accessibility Checker）でダブル検証を監査ゲート化
+- 「読み上げ順序（Reading Order）」を Acrobat の Order パネルで手動確認し、視覚順序と論理順序の乖離を検出
+
+**WCAG 2.2 / 3.0（2026 Draft）準拠**
+- コントラスト比：通常文字 4.5:1、大文字 3:1、UI コンポーネント 3:1 を APCA（Advanced Perceptual Contrast Algorithm、WCAG 3.0 採用）で実測
+- WCAG 2.2 新基準：Focus Not Obscured (2.4.11)、Dragging Movements (2.5.7)、Consistent Help (3.2.6) を pptx/PDF のインタラクティブ要素で確認
+- 色覚多様性（P 型・D 型・T 型）を Sim Daltonism / Color Oracle でシミュレーション、色分けのみの図解を「色＋パターン＋ラベル」の三重表現に強制
+
+**アクセシビリティ監査自動化**
+- `pdfua-checker` CLI / axe-core PDF プラグイン / `pptx-a11y-check` を CI に統合、コミット時に自動判定
+- Alt テキスト欠落・装飾画像の alt 誤設定・タブ順序の乱れを OOXML/PDF タグ構造から一括抽出（§07-27・§08-03 の延長）
+- 「WCAG AA 準拠」を通過レポートの必須スタンプ化、官公庁・大手クライアント案件では「PDF/UA 準拠」を追加
+
+---
+
+### 6. AI 活用（Gamma / Tome / Beautiful.ai・Copilot for PPT）
+
+**Gamma AI（2026 Brand Kit Pro 対応）**
+- Gamma の Brand Kit Pro でクライアント CI を登録すると全スライド自動ブランディング、Aoi の初期監査工数を 60% 削減
+- ただし Gamma 生成スライドは「テーマカラーの微妙な明度ずれ」「和欧混植の自動判定ミス」が残るため、§3 のハッシュ監査と §2 のトークン照合を必ず適用
+- Gamma → pptx エクスポート時のフォント埋め込み設定（`Embed all characters` 必須）を運用ルール化
+
+**Tome / Beautiful.ai / Pitch**
+- Tome の AI ストーリー生成は「1 スライド 1 メッセージ」原則（§05-25）に自然に合致するが、テンプレ規定のジャンプ率・版面率（§07-11）を守れないケースが頻発
+- Beautiful.ai の Smart Slides はレイアウト自動最適化で「テンプレ規定余白」を勝手に上書き、`margin_outer:` / `padding_inner:` の二層監査（§07-01）が必須
+- Pitch のリアルタイム共同編集は Google Slides Tabs と同等の版管理課題を持つ、ハッシュ照合ルールを共通適用
+
+**Microsoft Copilot for PPT（2026 秋アップデート）**
+- Copilot の「Design Ideas」自動生成は SmartArt と同型の逸脱リスク、`precheck.py` に「Copilot 生成マーカー検出」ロジックを追加
+- Copilot の「Rewrite with Copilot」機能はテキスト改変で文字数上限を破りやすく、Rin 領域だが Aoi 監査時に文字数超過を機械検出
+- Copilot Studio でカスタムエージェント化した「テンプレ準拠 Copilot」を Aoi 監修で構築、Souma の出力前セルフチェックに組み込む
+
+**AI 生成物監査の共通ルール**
+1. AI 生成マーカー（メタデータの `Application`, `LastModifiedBy` に AI ツール名）を全件検出
+2. AI 生成要素は「変換 > 図形分解」で run 単位までフラット化してから照合
+3. AI 生成の Alt テキストは必ず人間再確認（アクセシビリティ品質担保）
+
+---
+
+### 7. 部内オーケストレーション（yuto/rin/souma/mana 統括支援）
+
+**Yuto（部長）連携の高度化**
+- 監査結果報告を「3 行サマリー＋詳細マトリクス＋用途別合否＋担当別内訳」の四層構造で Slack 自動投稿（GitHub Actions → Slack Webhook）
+- Yuto の「Sora へ早く渡したい」プレッシャーへの構造的対応：Aoi 未完了状態を Slack Bot が可視化し、Yuto 単独判断でのスキップを不可能化
+- Yuto ダッシュボードに「Aoi 監査待ち案件」「差し戻し中案件」「合格版ハッシュ一覧」をリアルタイム表示
+
+**Rin（コンテンツ）連携の前倒し化**
+- Rin 構成 FIX の明示通知（`#構成確定` タグ）を受けてから Aoi 監査開始、空振り監査ゼロ化
+- 「守るべき 5 項目」（ページ数上限・文字数・見出し階層・出典フォーマット・固有名詞表記）を Notion テンプレ化し、Rin の執筆段階から自己監査を促進
+- Rin 起因の差し戻し傾向を月次で集計、Rin へ「頻出違反 Top3」をフィードバック
+
+**Souma（デザイナー）連携のセルフ監査化**
+- `precheck.py` を Souma へ配布し、提出前セルフ実行で全作り直し級（フォント未埋め込み・スライドサイズ・和欧混植・SmartArt）を自己潰し
+- 「監査前アドバイス 3 項目」（配色予兆・フォント環境置換リスク・余白逸脱予兆）を Souma のデザイン設計書提出時に先制共有
+- Souma の頻出ミスを designer_memory.md に構造化蓄積し、次案件の予防知識に転換
+
+**Mana（QA）連携の領域分離
+- 通過レポートに「テンプレ確認済み 5 項目 + 版ハッシュ + 用途別合否」を固定記載、Mana はテンプレ準拠の二重チェック負荷を排除し文章品質に集中
+- Mana の校閲着手条件を「開いた版のハッシュ = 通過ハッシュ」に固定、版不一致時は自動的に Yuto へ差し戻し
+- Mana 校閲時間の実測 1.5h → 1h → 45 分への段階的短縮を四半期 KPI 化
+
+**nori（法務）連携の前置化**
+- テンプレ仕様書に引用・固有名詞がある場合、監査着手前に Yuto 経由で nori 判定（GO/条件付/NO-GO）を取得
+- nori「条件付 GO」の条件を仕様書 `fixed:` 要素として登録し、監査必須項目化
+
+---
+
+### 8. 品質メトリクス（テンプレ準拠率・修正率・差戻し率）
+
+**KPI 定義（四半期目標値）**
+| 指標 | 定義 | 現状 | Q3 目標 | Q4 目標 |
+|-----|------|-----|--------|--------|
+| テンプレ準拠率 | 監査 42 項目のうち初回合格項目数 / 42 | 75% | 88% | 95% |
+| 一発合格率 | 初回監査で全項目合格した案件数 / 総案件数 | 40% | 65% | 80% |
+| 差戻し率 | 差戻し発生案件数 / 総案件数 | 60% | 35% | 20% |
+| 差戻しループ回数 | 1 案件あたり平均差戻し回数 | 2.3 | 1.5 | 1.1 |
+| 監査所要時間 | 1 案件あたり平均監査時間 | 20 分 | 15 分 | 10 分 |
+| 合格後改変事故 | 合格後に版改変された案件数 | 月 2 件 | 月 0 件 | 月 0 件 |
+| クライアント指摘率 | 納品後のクライアント指摘発生率 | 8% | 3% | 1% |
+
+**メトリクス自動収集パイプライン**
+- 監査ログ JSON Lines を BigQuery に日次連携、Looker Studio で KPI ダッシュボード自動生成
+- Rin/Souma 別・案件別・テンプレ別に差戻し傾向を分解、根本原因分析（RCA）を月次で実施
+- KPI 未達成時は Yuto へ自動アラート、部内改善アクションを 2 週間以内に策定
+
+**継続改善（Kaizen）ループ**
+- 頻出違反 Top5 を月初に Rin/Souma へ配布（§07-21 の運用を KPI 連動で自動化）
+- 監査項目 42 件のうち発生ゼロが 90 日続いた項目は「マスター保護済み」として自動✅化候補
+- 新規発生した違反パターンは即座に監査項目 43 件目・44 件目として追加、監査基準を進化させ続ける
+
+---
+
+### 9. インシデント対応（テンプレ破損・ブランド逸脱）
+
+**Severity 定義**
+- **SEV-1（重大）**：クライアントに納品済み資料でブランドカラー完全誤用・ロゴ改変・法務違反表記が発覚。1 時間以内に Yuto・nori・Sora 全員招集
+- **SEV-2（高）**：納品前に SEV-1 級逸脱を検出、全スライド作り直し級。4 時間以内に修正版提出
+- **SEV-3（中）**：テンプレ準拠率 50% 未満の逸脱、8 時間以内に修正
+- **SEV-4（低）**：軽微な逸脱（Aoi の「軽微容認ゼロ」原則により差戻しは必ず発生）、24 時間以内
+
+**インシデント対応プレイブック**
+1. **検知**：CI アラート / クライアント指摘 / 内部発見の 3 経路を統合、Slack `#incident-aoi` に自動投稿
+2. **封じ込め**：納品済み案件は即座にクライアントへ「差し替え版準備中」の 1 次連絡、内部案件は該当版を `quarantine/` へ隔離
+3. **根本原因分析**：監査ログ・変更履歴・Rin/Souma のコミット履歴を突合し、RCA レポートを 48 時間以内に作成
+4. **再発防止**：監査項目追加・自動化強化・Rin/Souma への教育、恒久対策を 2 週間以内に実装
+5. **事後レビュー**：Yuto・Sora・関係者で Blameless Postmortem を実施、教訓を designer_memory.md に永続保存
+
+**ブランド逸脱の 3 大パターンと予防策**
+- **色ずれ（#1E3A8A vs #1E40AF）**：Figma Variables × テーマカラー番号運用で HEX 直指定を全面禁止
+- **ロゴ改変（縦横比歪み・色反転誤用）**：ロゴを画像ではなく EMF/SVG のマスタースライド固定要素として物理ロック
+- **フォント代替置換**：`embeddedFontLst` 監査 + `fsType` ライセンス確認 + 静的インスタンス埋め込みの三重ガード
+
+**BCP（事業継続計画）**
+- 主要監査スクリプト（`extract_audit.py` / `precheck.py` / `residue_check.py`）を GitHub + GCS の二重バックアップ
+- Aoi 不在時の代替監査体制：Mana が緊急代行し、簡略版チェックリスト 15 項目で最低限の品質担保
+
+---
+
+### 10. 学習体系（Nielsen Norman・Design System Coalition）
+
+**必読リソース（月次購読）**
+- **Nielsen Norman Group（NN/g）**：週次記事、特に「Presentation Design」「Information Architecture」「Cognitive Load」カテゴリを必読
+- **Design System Coalition（DSC）**：月次 Meetup ライブ配信、企業事例（Salesforce Lightning / IBM Carbon / Google Material）を追跡
+- **Design Tokens Community Group（DTCG）**：W3C 仕様 Draft の更新を GitHub Watch、Breaking Change を即キャッチ
+- **Brand New（UnderConsideration）**：ブランドリブランド事例を週次で追跡、ロゴ・カラー変更の意思決定パターンを蓄積
+- **A List Apart / Smashing Magazine**：Web 系だが「タイポグラフィ」「アクセシビリティ」「デザインシステム」の記事は資料設計にも直結
+
+**四半期学習計画**
+| 四半期 | テーマ | アウトプット |
+|-------|-------|-----------|
+| Q3 2026 | W3C DTCG 標準完全習得 | 仕様書テンプレを DTCG 準拠に全面改訂 |
+| Q4 2026 | PDF/UA-2 & WCAG 3.0 | アクセシビリティ監査ゲートを標準化 |
+| Q1 2027 | Figma Dev Mode MCP 実装 | Figma → pptx 自動変換パイプライン構築 |
+| Q2 2027 | Copilot Studio カスタム AI | 「テンプレ準拠 Copilot」を全部門展開 |
+
+**資格・認定**
+- Adobe Certified Professional（PDF Accessibility）を Q4 2026 内に取得
+- IAAP CPACC（Certified Professional in Accessibility Core Competencies）を Q1 2027 目標
+- Figma Certified Professional（Design Systems Track）を Q2 2027 目標
+
+**社内知識共有**
+- 月次「Aoi Design Governance Session」を開催、Rin/Souma/Mana/Yuto へ最新動向と監査ルール更新を 30 分プレゼン
+- designer_memory.md への学び蓄積を週次習慣化、四半期ごとに構造化して「Aoi ナレッジベース v.X」としてリリース
+- 業界カンファレンス（Config by Figma / Adobe MAX / Design Systems Conference）年 2 回参加、参加後 1 週間以内に社内報告会
+
+---
+
+**オーバースペック化の哲学**：テンプレ準拠は「見た目の統一」ではなく「クライアントの無意識判定における信頼度」を守る専門性。ピクセル単位の追求・機械監査の徹底・W3C 標準準拠の三本柱で、2026 年の業界標準を凌駕する「テンプレ・ガーディアン」として、株式会社 LET の全資料に「開いた瞬間の信頼」を保証する。
