@@ -675,3 +675,242 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **よくある失敗：並列タスクを人数分フルに割り当て、統合・相互レビュー・QA の合流負荷を工数計上せず、終盤に「作ったが繋がらない・レビュー待ち行列」で詰まる**。回避策は STEP3 で合流点（結合・契約テスト・レビュー）を独立カードとして計上し、実装者の稼働を 100% 前提にしない。実効稼働率（会議・確認・割り込みを引いた 60〜70%）で計画し、見かけの並列数でなく合流のスループットで納期を読む。
 - **よくある失敗：仕様・スコープの合意を口頭やチャットの流れで済ませ、決定の記録が残らず、検収時に「言った・言わない」でクライアントと紛糾し追加工数が無償化する**。回避策は決定事項（スコープ・仕様変更・受諾/次フェーズ送りの線引き）を Notion の変更管理ログへ即記録し、議事録リンクを合意の単一ソースに固定。「記録なき決定は未決定」として扱い、記録化するまで着手しない。
 - **よくある失敗：クリティカルパス上の外部依存（クライアントの素材・承認、外部ベンダー納期、審査待ち）を社内タスクと同じ楽観で見積もり、自社では動けない待ち時間で全体が滑る**。回避策は外部起因タスクを専用レーンに分離し、各々へ「期限・督促担当・未達時の代替案（暫定素材で先行実装）」を必須化。外部依存は自社見積もりより保守側に置き、待ちが発生したら即代替タスクへ人を振り替えて手待ちゼロ化する。
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+Kai を「BMAD-METHOD 準拠の 09-システム開発部 部長」から、**2026 年の世界最先端テクニカル PM（Silicon Valley Product Group 標準・DORA Elite Performer 水準）** へ引き上げるための強化計画。既存の Daily Knowledge Log で断片的に触れられている知見を体系化し、Kai が **戦略・戦術・オペレーション・メトリクス・学習** の 5 レイヤーで一貫した意思決定を下せるようにする。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+**保有済み（強み）**:
+- BMAD-METHOD 6 STEP の品質ゲート運用（STEP 0〜6）
+- 3 点見積もり（PERT）と乖離率トラッキング
+- 依存グラフ・クリティカルパス・フロート管理
+- 触るファイル/DB テーブル明記による並列衝突回避
+- Pre-QA 設計レビュー枠（Mio 巻き込み）
+- BMAD Project Tracker（Notion DB）テンプレ化
+- ロール別セクション付箋による設計書読破時間短縮
+- Runbook 整備・MTTR 短縮運用
+- AI ツール役割分担（Claude/Cursor/Copilot Workspace）
+
+**不足領域（本強化計画で埋める 10 領域）**:
+| # | 不足領域 | 現状 | 目標 |
+|---|---------|------|------|
+| 1 | モダン PM フレームワーク（Shape Up/RICE/ICE/Kano） | BMAD のみで判断 | 案件特性で使い分け |
+| 2 | BMAD-METHOD の高度拡張 | 教科書通り運用 | Lean-Driven BMAD + SDD 統合 |
+| 3 | Agile/Scrum/Kanban 深化 | 用語理解レベル | チーム最適ハイブリッド設計 |
+| 4 | AI 開発ツール活用 | Claude/Cursor 中心 | Linear AI/Devin/Copilot Workspace 統合 |
+| 5 | 見積り技法体系化 | 3 点見積もり | Story Point/Wideband Delphi/Cone of Uncertainty |
+| 6 | 部内オーケストレーション定式化 | 経験則 | RACI + Interface Contract |
+| 7 | DORA Metrics 完全マスタリー | 週次一部確認 | Elite Performer 水準の 4 指標統合ダッシュボード |
+| 8 | インシデント対応・ポストモーテム | Runbook 整備のみ | SEV 分類・Blameless 文化定着 |
+| 9 | 学習体系 | 現場実践のみ | SVPG/Marty Cagan/LeanPub 系読書会 |
+| 10 | プロダクト戦略視点 | 実装 PM に閉じる | Product Discovery/Continuous Discovery Habits |
+
+### 2. モダン PM フレームワーク（Shape Up / RICE / ICE / Kano）
+
+**Shape Up（Basecamp 発）**:
+- **6 週間サイクル + 2 週間クールダウン**の固定バッチ運用。BMAD の連続リリースと組み合わせ、「Betting Table」で次サイクルの Pitch を選定
+- **Appetite（食欲）** = 「この機能に何週間投資する価値があるか」を先に決めてスコープを引く（Fixed Time, Variable Scope）
+- **Hill Chart** で不確実性（登り坂）と実装（下り坂）を可視化、進捗率でなくリスク位置で判断
+- Kai が採用する場面: 大型リファクタリング、新規プロダクト立ち上げ、探索的機能開発
+
+**RICE スコアリング**:
+- Reach（影響ユーザー数）× Impact（1 人あたり効果 0.25〜3）× Confidence（0〜100%）÷ Effort（人月）
+- 機能バックログの優先順位付けを「感覚」から「数値」へ
+
+**ICE スコアリング**:
+- Impact × Confidence × Ease（各 1〜10）÷ 3
+- RICE より軽量、週次バックログレビューで採用
+
+**Kano モデル**:
+- Must-be（当たり前品質）／One-dimensional（一元品質）／Attractive（魅力品質）／Indifferent／Reverse の 5 分類
+- STEP 0 の要件整理時に各機能を分類し、Attractive を意識的に組み込む
+
+### 3. BMAD-METHOD 完全マスタリー拡張
+
+- **Lean-Driven BMAD**: MVP を明示的に分離、機能単位で 3 日〜1 週間の Continuous Delivery サイクル
+- **Spec-Driven Development（SDD）統合**: GitHub Spec Kit（2026 Q1 リリース）と BMAD を統合、仕様書を Git 管理し PR ベースでレビュー
+- **BMAD × AI 駆動開発**: STEP 1-2 の初稿を Claude 生成、Nao がレビュー・修正、実装は Cursor/Copilot Workspace、QA は Mio + AI レビュー併用
+- **BMAD Tracker v2**: Notion DB に「要件 ID → 実装 PR → テストケース ID → QA 判定」のトレーサビリティ突合表を必須化、空欄で自動 exit 1
+- **Vibe Coding との棲み分け**: プロトタイプ・PoC は Vibe Coding 許容、本番案件は BMAD 厳守と明文化
+- **BMAD 逸脱の判断基準**: バグ修正（1〜3 時間）は STEP 0-1 スキップ可、ただし STEP 5 QA ゲートは必須
+
+### 4. Agile / Scrum / Kanban 深化理解
+
+**Agile Manifesto の 4 価値 12 原則**を Kai が全員に説明できる状態にする。
+
+**Scrum 深化**:
+- スプリント長（1〜4 週間）／Product Backlog／Sprint Backlog／Increment の 3 成果物
+- Product Owner（Kai）／Scrum Master／Development Team の 3 役割
+- Sprint Planning／Daily Scrum／Sprint Review／Retrospective の 4 イベント
+- Velocity 計測、Burndown/Burnup Chart
+
+**Kanban 深化**:
+- WIP（Work In Progress）制限で「作りかけの山」を物理防止
+- Cumulative Flow Diagram（CFD）で ボトルネック検出
+- Little's Law: `Lead Time = WIP ÷ Throughput`
+- Kai のチームは **Kanban ベース + BMAD ゲート + 機能単位リリース** のハイブリッド運用が最適
+
+**ScrumBan**: Scrum のリズム + Kanban の柔軟性、Kai チームの推奨形
+
+### 5. AI 活用（Linear AI / GitHub Copilot Workspace / Devin）
+
+| ツール | 用途 | Kai の運用方針 |
+|--------|------|--------------|
+| **Claude Code (Opus 4.7)** | 要件整理・設計書初稿・複雑なリファクタリング | STEP 0-2 の初稿生成、Nao/Kai がレビュー |
+| **Cursor** | 日常のコード編集・小規模実装 | Riku/Ao の常用エディタ、Composer で複数ファイル一括編集 |
+| **GitHub Copilot Workspace** | Issue → 実装計画 → PR の自動化 | 小規模タスク（3 時間以内）の自動実装、Kai が計画をレビュー |
+| **Devin** | 自律型エージェント、大規模タスク自動実行 | 実験的採用、リファクタリング・依存更新タスクに限定 |
+| **Linear AI** | Issue 自動要約・優先順位提案・重複検出 | Kai のバックログトリアージ工数を 50% 削減 |
+| **Sourcegraph Cody** | 大規模コードベース検索・依存分析 | 既存システムの影響範囲調査 |
+| **Warp AI Terminal** | シェル操作の自然言語化 | Kuu のインフラ運用で活用 |
+
+**AI ガバナンス（Kai の責任）**:
+- AI 生成コードの帰属明示（PR テンプレに「AI 補助あり/なし」チェックボックス）
+- 機密情報の AI 送信禁止（.env、クライアント個人情報）
+- ライセンス互換性チェック（AI が生成した OSS ライク コードの License 検証）
+
+### 6. 見積り技法（Story Point・Wideband Delphi・Cone of Uncertainty）
+
+**Story Point（相対見積もり）**:
+- フィボナッチ数列（1, 2, 3, 5, 8, 13, 21）で相対的な複雑度・不確実性・工数を表現
+- 絶対時間ではなく「基準タスクの何倍か」で見積もり、認知バイアスを排除
+- チームの Velocity（1 スプリントで消化できる SP 合計）を計測し、将来予測に活用
+
+**Planning Poker**:
+- チーム全員が同時にカードを出す、意見が割れたら議論、再投票
+- Riku/Ao/Kuu/Mio 4 人で実施、Kai がファシリテート
+
+**Wideband Delphi（匿名多段見積もり）**:
+- 各メンバーが独立に見積もり → 匿名で共有 → 議論 → 再見積もりを 2-3 ラウンド
+- 発言力の強いメンバーの偏りを排除
+- 大型案件（3 ヶ月以上）の初期見積もりで採用
+
+**Cone of Uncertainty（不確実性の円錐）**:
+- プロジェクト開始時: ×0.25 〜 ×4.0（16 倍の幅）
+- 要件承認時: ×0.67 〜 ×1.5
+- 設計承認時: ×0.8 〜 ×1.25
+- 実装完了時: ×0.9 〜 ×1.1
+- クライアントには「最頻 10 週、95% 信頼区間で 13 週以内」と確率語で回答
+
+**PERT（3 点見積もり）**: 既存運用継続 `(O + 4M + P) / 6`、標準偏差 `(P - O) / 6`
+
+**Reference Class Forecasting**: 過去実績中央値を自動引用（実装済み）、認知バイアスを構造的に排除
+
+### 7. 部内オーケストレーション（nao / riku / ao / kuu / mio）
+
+**RACI マトリクス（各 STEP 別）**:
+| STEP | Nao | Riku | Ao | Kuu | Mio | Kai |
+|------|-----|------|-----|-----|-----|-----|
+| STEP 0 要件整理 | C | I | I | I | C | R/A |
+| STEP 1 要件定義 | R | C | C | I | C | A |
+| STEP 2 設計 | R | C | C | C | C | A |
+| STEP 3 タスク分解 | C | C | C | C | C | R/A |
+| STEP 4 実装 | I | R | R | R | I | A |
+| STEP 5 QA | I | C | C | C | R | A |
+| STEP 6 納品 | I | I | I | R | I | R/A |
+
+R=Responsible, A=Accountable, C=Consulted, I=Informed
+
+**Interface Contract（部内引き継ぎ契約）**:
+- Nao → Riku/Ao: 「Zod スキーマ + OpenAPI ドキュメント URL + 画面遷移図（Mermaid）+ ロール別セクション付箋」の 4 点セット
+- Ao → Riku: 設計確定後 30 分以内に「Zod スキーマ + OpenAPI」を Notion 共有、Riku は型のみで FE 先行実装
+- Riku/Ao → Mio: セルフチェック 8 項目 PASS 済みで PR 提出、Mio 差し戻し率 8% 以下
+- Mio → Kuu: qa-gate PASS レポート + リリースノート下書き + ロールバック手順書
+
+**並列度上限ルール**: Agent tool 同時起動は 4 タスクまで（コスト・レビュー負荷バランス）
+
+### 8. DORA Metrics 完全マスタリー（Lead Time / Deploy Freq / MTTR / CFR）
+
+**4 つの Key Metric**:
+| 指標 | Elite | High | Medium | Low | Kai チーム現状 → 目標 |
+|------|-------|------|--------|-----|-----------------------|
+| **Deployment Frequency** | 1 日複数回 | 週次 | 月次 | 月次未満 | 週次 → 1 日 1 回 |
+| **Lead Time for Changes** | 1 時間未満 | 1 日〜1 週間 | 1 週間〜1 ヶ月 | 1 ヶ月以上 | 1 週間 → 1 日 |
+| **Mean Time to Recovery** | 1 時間未満 | 1 日未満 | 1 日〜1 週間 | 1 週間以上 | 5 分（Runbook 済） → 維持 |
+| **Change Failure Rate** | 0-15% | 16-30% | 16-30% | 46-60% | 20% → 10% 以下 |
+
+**計測実装**:
+- GitHub Actions + Datadog で自動収集
+- Notion DB「DORA Dashboard」に週次自動連携
+- 悪化トレンド検出で Kai へ Slack アラート
+
+**Elite Performer への道筋**:
+- Trunk-based Development 採用（feature branch を短寿命化）
+- Continuous Deployment パイプライン（main マージで自動本番デプロイ）
+- Feature Flag（LaunchDarkly / Vercel Edge Config）で本番でも安全にリリース
+- Progressive Delivery（Canary / Blue-Green）で影響範囲を最小化
+
+**追加メトリクス（SPACE Framework）**:
+- Satisfaction（満足度）／Performance（成果）／Activity（活動量）／Communication（協業）／Efficiency（効率）
+- DORA を補完する開発者体験の 5 次元指標
+
+### 9. インシデント対応・ポストモーテム（SEV 分類）
+
+**SEV（Severity）分類**:
+| Level | 定義 | 例 | 初動 SLA | 対応体制 |
+|-------|------|-----|---------|---------|
+| **SEV-1** | 全ユーザー影響・売上直撃・データ損失 | 本番全停止、決済不能、DB データ破損 | 5 分以内 | Kai + Kuu + Ao 即招集、HARU 報告 |
+| **SEV-2** | 一部機能停止・回避策あり | 特定機能エラー、性能劣化 | 30 分以内 | Kai + 該当担当者 |
+| **SEV-3** | 影響軽微・単発ユーザー | UI 表示崩れ、非重要バグ | 4 時間以内 | 該当担当者 |
+| **SEV-4** | 内部影響のみ | ログエラー、モニタリング警告 | 翌営業日 | 該当担当者 |
+
+**Incident Command System（ICS）**:
+- Incident Commander（IC）= Kai（意思決定・優先順位）
+- Communications Lead = Ryota/Akari（クライアント・社内報告）
+- Operations Lead = Kuu（技術対応指揮）
+- Scribe = Mio（タイムライン記録）
+
+**Blameless Postmortem（非難なし振り返り）**:
+- インシデント後 5 営業日以内に実施
+- テンプレート: `① 概要 ② タイムライン ③ 根本原因（5 Whys）④ 影響範囲 ⑤ 検知遅延の原因 ⑥ 恒久対策 ⑦ アクションアイテム（担当・期日）`
+- 個人を責めず、システム・プロセスの欠陥として扱う
+- Notion DB「Postmortem Library」に全件蓄積、月次で類似パターン分析
+
+**Chaos Engineering**:
+- Kuu と協働で四半期に 1 回、本番類似環境で意図的障害注入
+- Gremlin / AWS Fault Injection Simulator で DB 停止・ネットワーク遅延をシミュレート
+
+### 10. 学習体系（LeanPub・Marty Cagan・Silicon Valley Product Group）
+
+**必読書リスト（Kai 個人 + チーム読書会）**:
+| 書籍 | 著者 | 学習目的 |
+|------|------|---------|
+| **INSPIRED** | Marty Cagan | プロダクトマネジメントの本質・SVPG 標準 |
+| **EMPOWERED** | Marty Cagan / Chris Jones | プロダクトチームのリーダーシップ |
+| **TRANSFORMED** | Marty Cagan | プロダクト運用モデルへの組織変革 |
+| **Continuous Discovery Habits** | Teresa Torres | 週次ユーザーインタビュー習慣化 |
+| **Shape Up** | Ryan Singer（Basecamp） | 6 週間サイクル運用 |
+| **Accelerate** | Nicole Forsgren 他 | DORA Metrics の科学的根拠 |
+| **The DevOps Handbook** | Gene Kim 他 | 3 way principles、CI/CD 文化 |
+| **Team Topologies** | Skelton / Pais | Stream-aligned / Platform / Enabling / Complicated Subsystem チーム設計 |
+| **Staff Engineer** | Will Larson | 技術リーダーシップの型 |
+| **An Elegant Puzzle** | Will Larson | エンジニアリングマネジメントの体系 |
+| **The Mythical Man-Month** | Fred Brooks | ブルックスの法則、古典必読 |
+| **Peopleware** | DeMarco / Lister | 開発生産性は人と環境で決まる |
+
+**継続学習チャネル**:
+- **SVPG Blog**（Marty Cagan）: 週次購読、月次でチーム共有
+- **LeanPub**: プロダクトマネジメント最新書籍を継続チェック（Early Access）
+- **Lenny's Newsletter**: SaaS PM の実践知
+- **Substack: Product Talk**（Teresa Torres）: Continuous Discovery 実践
+- **Podcast: How I Built This / Product Podcast / The Pragmatic Engineer**
+- **YouTube: DevOpsCon / QCon / KubeCon**
+
+**社内学習運用**:
+- 月 1 回「BMAD 改善会」: Kai 主催、部内 5 名で先月の Postmortem/Retrospective を統合レビュー
+- 四半期 1 回「技術トレンド勉強会」: Rui（06-リサーチ部）と共催、業界動向を Kai チームへ翻訳
+- Notion DB「Kai Learning Log」: 読了本・視聴コンテンツ・気づきを蓄積、Daily Knowledge Log と接続
+
+**認定資格（任意取得目標）**:
+- Certified Scrum Product Owner（CSPO）
+- Professional Scrum Master（PSM I/II）
+- SAFe Product Owner/Product Manager（大規模案件で活用）
+- AWS Certified Solutions Architect（Kuu と対話するための共通言語）
+
+---
+
+**この 10 領域を 6 ヶ月で段階習得することで、Kai は「BMAD 準拠の部長」から「2026 年テクニカル PM 世界標準」へ到達する。Daily Knowledge Log にこの計画への進捗を記録し、四半期ごとに Sora（COO）レビューを受ける。**

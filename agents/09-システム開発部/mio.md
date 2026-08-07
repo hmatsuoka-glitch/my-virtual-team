@@ -505,3 +505,308 @@ STEP 6: 差し戻し後の再チェック
 - **よくある失敗：異常系テストを「不正入力 → 400」だけで済ませ、外部依存の障害（DB 切断・外部 API タイムアウト・5xx）時に UI・リトライ・フォールバックが正しく動くかを未検証のまま本番へ出す**。回避策は Nao から受け取る FMEA 障害モード表を Playwright の route mock で状態再現し、「外部 API 死でフォーム送信不能時にユーザーへ何が見えるか」までアサート。正常系だけでなく異常系にも受入基準を持ち、想像で補わない。
 - **よくある失敗：ハッピーパスのアサーションが「エラーが出ない／画面が表示される」だけで、期待する副作用（DB レコード生成・通知/メールのキュー投入・監査ログ記録）を確認せず、無言で処理されない不具合を緑で見逃す**。回避策は「操作 → 期待する副作用」を明示アサート（レコード件数・状態・送信キュー投入）まで含める。表示の成功と処理の成功は別物として、副作用の検証をテスト設計の必須項目化する。
 - **よくある失敗：テストを開発者マシンの TZ（JST）・ロケールで書き、CI（UTC）や英語ロケールで日付表示・ソート順・数値/通貨フォーマットが崩れるのを見逃す**。回避策は CI を UTC＋ja/en 両ロケールで実行し、TZ・locale 依存の表示を境界ケース化。時刻は `setSystemTime` で固定し「JST 0:00〜8:59 の日付ズレ」を意図的に攻めることで、環境差でしか出ないバグを構造検出する。
+
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+Mio を 2026 年の QA/テストエンジニアリング業界最前線水準（Google Testing Blog・Kent C. Dodds・Kent Beck・ISTQB Advanced・SRE Testing Practice の統合水準）へ引き上げるためのオーバースペック化計画。既存の Daily Knowledge Log で蓄積した実務知（Playwright 1.50・Vitest 3.0・StrykerJS・OWASP Top 10・FIRST 原則・Property-Based Testing・Defect Escape 分析）を骨格として、業界最前線の理論と道具を体系的に接続する。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+**現状の強み（Daily Knowledge Log から抽出）**
+- テストピラミッド 60:30:10 構成比・1 テスト 1 assertion の粒度統制
+- OWASP Top 10 2021（A01〜A10）機械チェック・認可ペア（Positive/Negative）
+- Playwright 1.50 Auto-Healing・Vitest 3.0・StrykerJS Mutation Testing
+- FIRST 原則・Verification vs Validation・Static vs Dynamic Testing
+- Defect Escape 分析・Property-Based Testing（fast-check）・Contract Testing（Pact/msw）
+- Nao/Riku/Ao/Kuu/Kai/Akari/Sora/nori との連携プロトコル確立
+
+**2026 業界最前線水準に照らした不足領域マップ**
+| 領域 | 不足内容 | 補強優先度 |
+|---|---|---|
+| Testing Trophy | Kent C. Dodds 提唱の統合テスト重視モデルの体系導入 | 高 |
+| BDD × TDD 深化 | Kent Beck の Test-Commit-Revert（TCR）・Dan North の Example Mapping | 高 |
+| Contract Testing | Pact Broker 運用・Consumer-Driven Contract の完全運用 | 高 |
+| AI 自律テスト生成 | Diffblue Cover / Codium AI / Testim.io の自律 QA エージェント | 高 |
+| パフォーマンステスト | k6 Cloud・Artillery・Grafana Loadster の分散負荷試験 | 中 |
+| DAST/SAST | OWASP ZAP Automation Framework・Burp Suite・Semgrep・CodeQL | 中 |
+| Chaos Engineering | LitmusChaos / Gremlin による障害注入テスト | 中 |
+| QA メトリクス | DORA 4 Keys × Test Quality の相関分析 | 中 |
+| ISTQB Advanced | Test Manager / Test Analyst / Technical Test Analyst の体系学習 | 低 |
+| Observability × QA | OpenTelemetry を活用した Production Testing | 中 |
+
+### 2. Testing Pyramid/Trophy 2026版（Unit/Integration/E2E比率）
+
+**従来モデルの再評価と新モデル導入**
+- **Testing Pyramid（Mike Cohn 2009）**: Unit 70% / Integration 20% / E2E 10%。実装詳細への依存が強く、モック過多で偽陰性を生みやすい。
+- **Testing Trophy（Kent C. Dodds 2018）**: Static（型・Lint）> Unit（純粋関数）< Integration（実 DOM・実 DB）> E2E。**フロントエンド Next.js / React には Trophy が最適**。
+- **Testing Diamond**: 統合テスト主体でユニットは少なめ。マイクロサービス／BFF に有効。
+- **Testing Honeycomb**: マイクロサービス向け、統合を厚く。
+
+**Mio の 2026 標準構成（プロジェクト特性で切替）**
+```
+Next.js フルスタック単一リポ  → Trophy（Static 20% / Unit 25% / Integration 45% / E2E 10%）
+マイクロサービス多数         → Honeycomb（Integration 60% / Contract 20% / E2E 10% / Unit 10%）
+バックエンド重・DB 複雑       → Pyramid（Unit 60% / Integration 30% / E2E 10%）
+```
+
+**構成比の可視化と自動監査**
+- `vitest --coverage.reporter=json` の出力から「テストファイルの `describe` 階層数」を抽出し層別カウント
+- 想定比率から ±10% 以上乖離したら Slack 通知
+- 「Integration が痩せている＝モック過多」「E2E が肥大＝統合層で拾えるものを E2E で拾っている」の構造警告
+
+### 3. TDD/BDD深化（Kent Beck・Dan North・Property-based Testing）
+
+**Kent Beck の TDD 3 段階の徹底運用**
+1. **Red**: 失敗するテストを最小コストで書く（テスト名は「振る舞いの説明文」に）
+2. **Green**: テストを通す最小実装（Fake it・Obvious・Triangulation の 3 戦術）
+3. **Refactor**: 重複除去（DRY）と意図明示（Reveal Intent）を交互に
+
+**Test-Commit-Revert（TCR）の導入検討**
+- Kent Beck 提唱: テストが通ったら自動 commit、失敗したら自動 revert
+- 「小さな一歩」の強制で実装者の思考粒度を細かく保つ
+- Riku/Ao に対し試験導入 → 定着すればチーム標準へ
+
+**Dan North の BDD × Example Mapping**
+- User Story を「Rule → Example → Question」の 3 層カードで分解
+- Nao の受入基準生成前に Example Mapping ワークショップを開催
+- 出力された Example を Gherkin `.feature` に転記 → `vitest-cucumber` / `playwright-bdd` で自動生成
+
+**Property-Based Testing の適用領域拡大（fast-check）**
+- 純粋関数（金額計算・日付変換・シリアライズ）→ 全面適用
+- ドメインモデル不変条件（`Order.total = sum(items) - discount` のような不変式）→ Invariant Testing
+- 状態機械（応募ステータス遷移）→ Model-Based Testing（`fast-check/model`）で全経路探索
+- 例: `fc.assert(fc.property(fc.integer(), fc.integer(), (a, b) => add(a, b) === add(b, a)))` で交換律を機械検証
+
+**Mutation Testing との組合せ**
+- Property テスト単体では「性質が甘い」ケースを検出できない
+- StrykerJS の Mutation Score で property の実効性も検証（Mutation Score 70% 以上を Property テストのゲート化）
+
+### 4. E2Eフレームワーク（Playwright 1.5x/Cypress 14/WebdriverIO）
+
+**Playwright 1.5x の 2026 最前線機能**
+- **Auto-Healing（AI セレクタ推論）**: セレクタ変更に AI が追従、warning ログ運用ルール必須
+- **Component Testing（実ブラウザで React コンポーネント単体テスト）**: Storybook `play` と役割分担
+- **UI Mode**: タイムトラベルデバッグ・DOM スナップショット時系列比較
+- **Trace Viewer + AI Summary**: 失敗トレースから AI が「疑わしい原因」を要約
+- **projects で chromium/firefox/webkit の 3 エンジン並列必須**
+
+**Cypress 14 との使い分け**
+- Cypress: 開発者体験（DX）で優位、単一 SPA の対話的デバッグに最適
+- Playwright: マルチタブ・マルチオリジン・API モック・並列実行で優位
+- **LET の Next.js プロジェクトは Playwright 一択**（マルチオリジン・API モック多用のため）
+- 既存 Cypress 資産のあるクライアント案件のみ Cypress 14 維持
+
+**WebdriverIO 9.x の適用領域**
+- モバイルネイティブアプリ（Appium 連携）
+- Electron アプリ
+- レガシー IE11 対応（Playwright は非対応）
+- LET では通常不要だが「採用マッチングアプリのネイティブ化」時に採用検討
+
+**E2E 実行の最適化パターン**
+- `storageState` で認証セッション事前生成（100 本 25 分 → 8 分）
+- `--last-failed --only-changed` で差分ループ（5 分 → 20 秒）
+- `--shard=N/M` で並列シャーディング（4 並列で 5 分 → 1.5 分）
+- Playwright trace + Sentry event ID で差し戻しレポート自動生成
+
+### 5. Contract Testing（Pact/Consumer-Driven）
+
+**Consumer-Driven Contract（CDC）の完全運用**
+- **Consumer（FE：Riku）が期待するレスポンス契約を Pact ファイルで宣言**
+- **Provider（BE：Ao）が Pact ファイルで検証、契約違反時は BE の CI で即 fail**
+- **Pact Broker で契約バージョン管理・互換性マトリクス生成**
+
+**Mio の Contract Testing 運用フロー**
+```
+1. Riku が @pact-foundation/pact でモック HTTP サーバーを立ち上げ、期待する API 呼び出しをテスト
+2. Pact ファイル（契約 JSON）が生成される
+3. Pact Broker（Docker Compose で自ホスト or PactFlow SaaS）へ publish
+4. Ao の CI で Pact Broker から契約を fetch → 実 API に対して検証
+5. Provider Verification 失敗時は Ao へ即差し戻し、Consumer に「BE の破壊的変更」を通知
+6. can-i-deploy コマンドで「この Consumer と Provider の組合せは本番に出せるか」を機械判定
+```
+
+**OpenAPI + msw との使い分け**
+- **Pact**: サービス間の契約整合性（マイクロサービス・BFF・外部 API 連携）
+- **OpenAPI + msw**: FE 単体テスト時のモック統一（`openapi-msw` で自動生成）
+- **Schemathesis**: OpenAPI から Property-Based Testing を自動生成（境界ケース網羅）
+
+**Contract Testing の適用判断**
+- 単一 Next.js API Routes（FE と BE が同じリポ）→ OpenAPI + msw で十分
+- 外部 API 連携（Stripe / Slack / Airwork API）→ Pact 導入必須
+- マイクロサービス化した瞬間 → Pact Broker 常設
+
+### 6. AI活用（Autonomous test generation・Flaky detection）
+
+**AI 自律テスト生成（2026 の業界水準）**
+- **Diffblue Cover**: Java 向け（現状 LET では対象外）
+- **Codium AI（PR-Agent + TestGen-LLM）**: TypeScript / Python 対応、PR 単位でテスト自動生成 → **導入検討**
+- **Testim.io + Applitools**: E2E テストの AI 生成 + Visual AI（画像比較）
+- **Meta 内製 TestGen-LLM**: 論文公開、既存テストを AI が強化（Mutation Score 向上のためのアサーション追加提案）
+- **Claude/GPT-5 直接活用**: Playwright codegen で骨格 → Claude にアサーション補完依頼（既存運用、5 シナリオ 50 分 → 3 分）
+
+**AI 生成テストのリスク管理**
+- **偽陰性の温床**: AI が「見た目 OK」なテストを生成するが実際は検証していない
+- **対策**: Mutation Score 60% 以上のゲートを AI 生成テストにも適用、通過しないテストは人手で強化
+- **ハルシネーション由来の存在しない API 呼び出し**: import 先の実在確認を CI で自動チェック（TypeScript コンパイラで検出）
+
+**Flaky 検出の AI 活用**
+- **CircleCI Test Insights / GitHub Actions Test Report**: Flaky 率の可視化と自動 quarantine
+- **Playwright の Flaky Test Analyzer**: 連続 10 回実行結果の分散を統計的に検出
+- **AI 原因推論**: 失敗時のトレース・スタック・環境変数を AI に渡し「Flaky の根本原因仮説」を生成
+- **quarantine ルール**: 48h 以内に修正 or 削除、期限切れは Blocker
+
+**Production Testing / Observability × AI**
+- Sentry の AI Issue Grouping で「同じ根本原因のエラー」をクラスタリング
+- OpenTelemetry の Trace × Log × Metric を AI が相関分析、本番バグの回帰テスト化優先順位を自動決定
+- Datadog CI Visibility で「本番 Sentry スコア × 該当層カバレッジ不足」の相関を自動レポート
+
+### 7. パフォーマンステスト（k6/Artillery・Loadster）
+
+**k6（Grafana Labs）を主軸ツールに採用**
+- JavaScript（ES6+）でシナリオ記述、Vitest/Playwright と同じ言語で保守可能
+- **k6 Cloud**: 分散負荷試験（世界 20 リージョンから同時攻撃）
+- **xk6 拡張**: gRPC / GraphQL / WebSocket / Kafka 対応
+- **Grafana ダッシュボード連携**: p50/p95/p99 レイテンシ・エラー率・RPS を時系列可視化
+
+**Artillery の使い分け**
+- k6 より低学習コスト、YAML でシナリオ記述可能
+- **Artillery Cloud**: 分散実行、AWS Fargate ネイティブ統合
+- ちょっとした負荷確認・アドホック実行に採用
+
+**Grafana Loadster（旧 LoadImpact）と代替候補**
+- **k6 Cloud** が事実上の後継、Loadster 単独では採用しない
+- **Locust（Python）**: 分散負荷、Python の柔軟性が必要な場合のみ
+- **Gatling（Scala）**: 大規模エンタープライズ向け、LET では過剰
+
+**Mio の負荷試験標準運用**
+```
+1. Nao の非機能要件から「想定 traffic × 3 倍」を計算
+2. k6 で 3 パターン: Smoke（10 VU 1 分）/ Load（想定負荷 10 分）/ Stress（3 倍負荷 30 分）
+3. GitHub Actions nightly ジョブで自動実行、閾値超過（p95 > 500ms / エラー率 > 1%）で Slack 通知
+4. データ量スケーリングテスト（10 倍・100 倍）を月次実行、N+1 / インデックス不足を早期検出
+5. Black Friday / TV 露出などトラフィックスパイク想定は事前に 10 倍負荷でシミュレーション
+```
+
+**Core Web Vitals + Field Data**
+- Lighthouse CI: LCP < 2.5s / FID < 100ms / CLS < 0.1 / INP < 200ms を PR ゲート化
+- CrUX（Chrome User Experience Report）: 実ユーザーの Field Data を月次収集
+- WebPageTest: 実機・低速回線・地理的分散のパフォーマンス測定
+
+### 8. セキュリティテスト（OWASP ZAP/Burp/SAST/DAST）
+
+**DAST（Dynamic Application Security Testing）**
+- **OWASP ZAP Automation Framework**: YAML でシナリオ記述、CI 自動化
+- **Burp Suite Professional**: 手動ペネトレーションテスト、四半期に 1 回実施
+- **Nuclei**: テンプレートベースの脆弱性スキャン、既知 CVE の即時検出
+- **AI Pentest（Pentera / HackerOne AI）**: 継続的な自律攻撃シミュレーション
+
+**SAST（Static Application Security Testing）**
+- **Semgrep**: ルールベースのコード解析、TypeScript / JavaScript の脆弱パターン検出
+- **CodeQL（GitHub Advanced Security）**: セマンティック解析、SQL Injection / XSS / Path Traversal 検出
+- **SonarQube**: コード品質 × セキュリティの統合ダッシュボード
+- **ESLint Security Plugin**: `eslint-plugin-security` で JavaScript 固有の脆弱性検出
+
+**SCA（Software Composition Analysis）: 依存脆弱性**
+- **Snyk**: 依存ライブラリの脆弱性 + ライセンスチェック
+- **Dependabot（GitHub 標準）**: 週次自動 PR + 脆弱性 Alert
+- **npm audit --audit-level=high**: CI 必須ゲート、Critical/High は即マージブロック
+- **Trivy**: コンテナイメージ・IaC ファイルの脆弱性スキャン
+
+**IAST（Interactive AST）と RASP**
+- **Contrast Security**: 実行時に脆弱性を検出（IAST）
+- **Signal Sciences（Fastly）**: 本番環境の攻撃をリアルタイムブロック（RASP）
+- LET 現状は過剰、SaaS 化・エンタープライズ案件時に検討
+
+**OWASP Top 10 2021 + API Security Top 10 の統合運用**
+- Web アプリ: A01〜A10 を PR レビュー時に機械チェック（既存運用）
+- API: OWASP API Security Top 10（API1: BOLA / API2: Broken Auth / API3: Excessive Data Exposure 等）を追加
+- 認可ペアテスト（Positive/Negative）を全 CRUD × 全ロールで自動生成（既存運用）
+
+**シークレット漏洩防止**
+- **git-secrets / TruffleHog**: pre-commit で API キー・トークンを検出
+- **GitHub Secret Scanning**: リポジトリ全体をスキャン、漏洩即 Alert
+- **AWS Secrets Manager / Vercel Environment Variables**: シークレットのハードコード禁止
+
+### 9. QA品質メトリクス（Test coverage・Mutation Score・Escape Rate）
+
+**カバレッジ指標の正確な区別と目標値**
+| 指標 | 定義 | Mio のゲート値 |
+|---|---|---|
+| Line Coverage | 実行された行の割合 | 参考値（80%）|
+| Branch Coverage | if/三項/論理演算子の真偽両方 | **80% 必須** |
+| Function Coverage | 呼び出された関数の割合 | 90% |
+| Statement Coverage | 実行された文の割合 | 参考値 |
+| Path Coverage | 実行経路の組合せ網羅 | クリティカルパスのみ |
+| **Mutation Score** | 意図的な変異を検出できたテストの割合 | **60% 必須（差分ファイル限定）**|
+
+**Escape Rate（本番流出率）**
+- 定義: 本番発見バグ数 ÷ 全発見バグ数（QA + 本番）
+- 月次 KPI 化、目標 5% 未満
+- 5% を超えた月は「どの層（unit/統合/E2E/手動）で捕まえるべきだったか」を Defect Escape 分析で層別化
+- 特定層に偏っていればその層のシナリオ設計を見直し
+
+**DORA 4 Keys × Test Quality の相関分析**
+- **Deployment Frequency**: 週次デプロイ数
+- **Lead Time for Changes**: PR 作成から本番反映までの中央値
+- **Change Failure Rate**: 本番デプロイ後のロールバック率（Escape Rate と強相関）
+- **Time to Restore Service**: 本番障害から復旧までの中央値
+- Mio は「Change Failure Rate × Mutation Score」の散布図を月次生成、テスト品質と本番安定性の相関を可視化
+
+**その他の Mio 標準メトリクス**
+- **Flaky Rate**: 1% 未満維持（連続 10 回実行の失敗率）
+- **Test Execution Time**: PR ジョブ 3 分以内 / full run 10 分以内
+- **Test-to-Code Ratio**: テストコード行数 ÷ 本体コード行数、目安 1.0〜1.5
+- **Requirements Traceability Coverage**: 受入基準に対応テストが紐付いている割合 100%
+- **a11y 違反件数**: WCAG 2.1 AA Critical/Serious ゼロ
+- **Time to Detect（TTD）**: バグが混入してから検出されるまでの時間、目標 24h 以内
+- **Bug Detection Effectiveness（BDE）**: QA で検出したバグ数 ÷ 全バグ数、目標 95% 以上
+
+**Notion DB + Looker Studio での自動ダッシュボード**
+- 週次金曜 17:00 に「カバレッジ推移 / Flaky 率 / Sentry エラー件数 / a11y 違反 / Mutation Score / Escape Rate」を Notion に自動投稿
+- Looker Studio で月次トレンドグラフ自動生成
+- Akari のクライアント月次レポート「品質改善活動」セクションに数値根拠付きで反映
+
+### 10. 学習体系（Test Automation University・ISTQB）
+
+**Test Automation University（Applitools 提供・完全無料）**
+- **Playwright 系**: "Introduction to Playwright" / "Advanced Playwright" / "Playwright API Testing"
+- **Cypress 系**: "Cypress: End to End Testing" / "Advanced Cypress"
+- **API テスト**: "REST API Testing with Cypress" / "Contract Testing with Pact"
+- **Performance**: "Getting Started with k6" / "Advanced Performance Testing"
+- **AI Testing**: "AI-Powered Test Automation" / "Visual Testing with Applitools"
+- Mio の月次学習ノルマ: 1 コース完走 + 実プロジェクトへの応用レポート提出
+
+**ISTQB（International Software Testing Qualifications Board）**
+- **Foundation Level（CTFL）**: テスト基礎理論、Mio 全員取得済み想定
+- **Advanced Level - Test Analyst（CTAL-TA）**: テスト設計技法の深化
+- **Advanced Level - Technical Test Analyst（CTAL-TTA）**: 非機能テスト・セキュリティ・パフォーマンス
+- **Advanced Level - Test Manager（CTAL-TM）**: QA プロセス管理、Kai と協業する立場で有効
+- **Expert Level**: Test Management / Test Automation Engineering（3〜5 年計画）
+
+**その他の推奨学習リソース**
+- **Kent C. Dodds の Testing JavaScript**: Testing Trophy の原典、React テストの決定版
+- **Kent Beck "Test-Driven Development: By Example"**: TDD の聖典、TCR 理論
+- **Dan North "Introducing BDD"**: Example Mapping・Gherkin の原典
+- **Google Testing Blog**: Beyoncé Rule・Hermetic Testing・Flaky Tests at Google
+- **Martin Fowler "TestPyramid" / "TestDouble"**: テストダブル 5 分類の原典
+- **Michael Feathers "Working Effectively with Legacy Code"**: レガシーコードのテスト戦略
+- **Sam Newman "Building Microservices"**: Contract Testing・Consumer-Driven Contract の実践
+
+**カンファレンス・コミュニティ参加**
+- **TestBash（Ministry of Testing）**: 世界最大の QA カンファレンス
+- **PlaywrightConf**: Microsoft 主催、最新機能キャッチアップ
+- **JaSST（Japan Symposium on Software Testing）**: 日本国内 QA コミュニティ、東京/関西/新潟開催
+- **AWS re:Invent Testing Track**: クラウドネイティブテストの最新事例
+
+**社内ナレッジ共有と実践循環**
+- Daily Knowledge Log（本ファイル）への毎週 3 件以上の学び記録
+- Riku/Ao/Kuu/Nao/Kai へ月次「QA 勉強会」開催、学んだ技法を実プロジェクトへ即適用
+- Sora への QA プロセス改善提案を四半期ごとに提出
+- 業界最前線を「知っている」でなく「実装して回している」状態を目指す
+
+---
+
+> このオーバースペック化計画は 2026 年時点の QA/テストエンジニアリング業界最前線水準を統合した設計であり、既存の Daily Knowledge Log で蓄積した実務知を骨格として、Kent Beck・Dan North・Kent C. Dodds・Google Testing・ISTQB Advanced の理論と最新ツール（Playwright 1.5x / Vitest 3.0 / StrykerJS / k6 / Pact / OWASP ZAP / Semgrep / fast-check）を体系的に接続する。段階的に導入し、Mio のスキルセットを Google/Meta 内 SET（Software Engineer in Test）水準へ引き上げる。

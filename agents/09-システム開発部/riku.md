@@ -461,3 +461,161 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：`useEffect` 内の購読（WebSocket・addEventListener・setInterval・外部ストア subscribe）で cleanup を返さず、画面遷移や再レンダリングのたびにリスナーが積み重なり、メモリリーク・多重発火・二重リクエストが起きる**。回避策は購読系 effect は必ず cleanup 関数で unsubscribe/clear を返し、依存配列を見直す。開発時 `StrictMode` の二重実行で cleanup 漏れを早期発火させ、購読とクリーンアップを対で書く習慣を徹底する。
 - **よくある失敗：日付を `new Date('2026-08-05')` でパースして UTC 深夜と解釈され JST 表示で前日にズレる、`toLocaleDateString()` をロケール/TZ 無指定で呼び環境依存の表示になる**。回避策はサーバーから ISO8601（TZ 付き）で受け取り、表示は `new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo' })` で TZ を明示。日付「だけ」の値は文字列のまま扱い暗黙の Date パースを避け、Ao と保存 TZ・表示 TZ を揃える。
 - **よくある失敗：モーダル/ドロワーにフォーカストラップ・`aria-modal`・Escape クローズ・背景スクロールロックを実装せず、キーボード/スクリーンリーダー利用者が背後の要素を操作できてしまう a11y 欠陥**。回避策は自作せず shadcn/ui（Radix）等のフォーカス管理済みプリミティブを使い、開いた時にフォーカスを内部へ移動・閉じたら発火元へ戻す。`eslint-plugin-jsx-a11y`＋実機 VoiceOver でモーダルの閉じ操作とフォーカス順を確認する。
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+2026年のフロントエンドエンジニアリング最前線に到達し、Nao の設計と Ao の API を最短時間で「体験品質の高いプロダクト」へ変換できる Riku を作る。以下 10 項目を年内マスター、四半期ごとにセルフレビュー実施。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+- **現状（保持済み）**：Next.js 14 App Router / React 18 / Tailwind CSS / TypeScript / Zustand / TanStack Query / SWR / React Hook Form + Zod / Vitest / RTL / Playwright / shadcn/ui / Server Components 基礎 / Core Web Vitals（LCP/INP/CLS）/ WCAG 2.1 AA / TDD Red-Green-Refactor / Storybook / axe-core
+- **不足領域マップ（2026 基準ギャップ）**：
+  - Next.js 15/16 の Cache Components（`use cache`）・PPR 本番運用・Turbopack 本番ビルド・Server Actions 深化
+  - React 19 の `use()` Hook・`useActionState`/`useOptimistic`/`useFormStatus`・Compiler 前提の設計
+  - TanStack Query v5 の `queryOptions` ファクトリ・Suspense 統合・Streaming SSR 連携
+  - Tailwind v4 の `@theme` CSS-first 設定・コンテナクエリ（`@container`/`cqw`）
+  - shadcn/ui v2 / Radix Primitives / Panda CSS / Vanilla Extract / CSS Cascade Layers
+  - TypeScript 5.x の const type parameters・satisfies・Template Literal Types・Branded Types
+  - WCAG 2.2 の 9 新基準（Focus Not Obscured / Target Size / Dragging Movements 等）
+  - Playwright Component Testing / Vitest Browser Mode / Chromatic ビジュアル回帰
+  - View Transitions API / Web Components 併用戦略 / Speculation Rules API
+  - AI Copilot（Cursor Composer / Claude Code / v0 / Windsurf）を活かした「初稿生成→仕上げ」ワークフロー
+- **セルフ棚卸し運用**：四半期の最初に本セクションを見返し、「習得済み✅／進行中🟡／未着手⬜」を Daily Knowledge Log に記録。Kai と 1on1 で優先順位を決めて次四半期のバックログ化する。
+
+### 2. Next.js 15/16・React 19 完全マスタリー
+
+- **Next.js 15/16 の新機能を業務で使い切る**：
+  - **Turbopack 本番ビルド**：`next build --turbo` を CI へ導入し、cold ビルド時間を実測。Kuu の GitHub Actions 高速化と連動して PR ゲートの待ち時間を短縮。
+  - **Partial Prerendering（PPR）**：静的シェル即返し＋動的 `<Suspense>` 穴でストリーム。採用求人一覧の「枠は静的・件数/絞り込みは動的」に適用し LCP を 2 秒切りに固定。
+  - **Cache Components（`use cache`）**：暗黙キャッシュ廃止時代の「デフォルト非キャッシュ＋必要箇所だけ opt-in」設計。revalidate/tag ベース失効を `revalidateTag`/`revalidatePath` で明示。
+  - **Server Actions 深化**：`'use server'` 関数を Client Component の `<form action={fn}>` に直接渡し、progressive enhancement（JS 無効でも動く）を確保。`useActionState` で pending/エラーを扱う。
+- **React 19 標準機能**：
+  - `use(promise)` を Suspense 境界と組合せ、Server Components の非同期取得を宣言的に。
+  - `useOptimistic` で送信中の楽観的 UI を型安全に、失敗時ロールバックを自動。
+  - `useFormStatus` でネストされたコンポーネントから親フォームの送信状態を購読、送信ボタンを分離設計可能に。
+  - React Compiler stable 化で `useMemo`/`useCallback` 手動挿入を廃止、`eslint-plugin-react-compiler` で「Compiler が最適化不能な書き方」を検出。
+- **習得指標**：LET 案件 1 本を PPR＋Cache Components＋Server Actions 構成で本番稼働させ、LCP < 1.8s / INP < 150ms を field 値で達成。Nao 設計書に「PPR 境界／`use cache` 対象／Server Action 対象」を書き込む運用を定着。
+
+### 3. State 管理最新（TanStack Query・Zustand・Jotai）
+
+- **サーバー状態と UI 状態の完全分離**：全プロジェクトで「サーバー状態＝TanStack Query」「UI 状態（開閉・ステップ・入力バッファ）＝Zustand / Jotai / useState」の三層に強制分離。「何でも Zustand に置く」設計を禁止する。
+- **TanStack Query v5 の高度活用**：
+  - `queryOptions` ファクトリを機能単位で 1 ファイル集約し、`queryKey`/`staleTime`/`select`/型を単一ソース化（06-16 Daily Log で確立済み手法を全案件へ展開）。
+  - `useSuspenseQuery` を Server Components の `prefetchQuery`＋Hydration Boundary と組合せ、SSR で温めたキャッシュを Client で継続利用。
+  - `useMutation` の `onMutate`/`onError`/`onSettled` で楽観的更新＋ロールバック＋関連 `invalidateQueries` を型定義付きヘルパー化。
+- **Zustand 上級パターン**：`slices` パターンで機能別 store 分割、`persist` ミドルウェアで localStorage 永続化、`devtools` ミドルウェアで Redux DevTools 対応、`subscribeWithSelector` で不要再レンダリング抑制。
+- **Jotai の細粒度アトム設計**：フォーム 1 項目 = 1 atom で「入力 1 文字ごとに全体再レンダリング」を構造回避、`atomFamily` で動的リスト・`atomWithQuery` で TanStack Query 統合・`atomWithStorage` で永続化。
+- **判断基準**：フォーム＝RHF（非制御）／モーダル開閉・トースト＝Zustand／複雑な派生状態が多い設定画面＝Jotai／サーバー由来＝TanStack Query。使い分け表を `packages/state/STATE.md` に固定化。
+
+### 4. モダン CSS/UI ライブラリ（Tailwind v4・shadcn/Radix・Panda）
+
+- **Tailwind v4 の CSS-first 設定へ全移行**：
+  - `tailwind.config.js` を廃棄し、CSS の `@theme` にトークン（色・余白・書体・影・radius）を集約。
+  - `--color-primary` 等を `tokens.css` として Kana のバナー・sota の LP デザインと単一参照し、アプリ・LP・バナー・資料の色ズレを構造的にゼロ化。
+  - `@container`／`cqw`/`cqh` のコンテナクエリで「親要素幅基準」のコンポーネント単位レスポンシブを本番活用（従来の viewport ベースでは表現不能なカードグリッドの折返しを解決）。
+- **shadcn/ui v2 + Radix Primitives**：
+  - `npx shadcn@latest add` でソースをリポジトリに取り込む方式に統一。npm 依存でなくコード所有権を持つことで自由改変とロックイン回避を両立。
+  - Radix のアクセシビリティ保証（フォーカストラップ・ARIA・キーボードナビ）を土台に、`packages/ui` でブランド適用済みラッパーを提供。
+- **Panda CSS / Vanilla Extract 検証**：ゼロランタイム CSS-in-JS の選択肢として Panda を LET の新規プロダクトで PoC 実施、Tailwind との比較検証を Kai へ提案書化。
+- **View Transitions API**：ブラウザネイティブの遷移アニメーションを応募フローのステップ遷移で試験導入、JS ライブラリ依存の遷移演出を軽量化。
+- **習得指標**：Tailwind v4 完全移行済みの LET プロダクトを 1 本以上運用、コンテナクエリで作った UI を 3 コンポーネント以上納品。
+
+### 5. TypeScript 5.x 上級パターン
+
+- **型プログラミングの実務パターン**：
+  - **`satisfies` 演算子**：定数の型を「代入互換性は満たしつつ、リテラル型を保持」して narrow に。設定オブジェクト・ルーティング定義・列挙的マップに標準適用。
+  - **`const` type parameters**：ジェネリック関数の型推論をリテラル維持し、`useForm<const T>` などで API 呼び出しの引数リテラルを型で拾う。
+  - **Branded Types**：`type UserId = string & { __brand: 'UserId' }` で「文字列だが混同不可」な ID 型を作り、`postId` を `userId` に渡す事故をコンパイル時に阻止。
+  - **Template Literal Types**：`type Route = \`/users/\${string}\`` で URL パターンを型化、`Uppercase`/`Lowercase` と組合せて i18n キー・イベント名を型安全に。
+  - **Discriminated Unions**：Ao の Result 型（`{ok: true, data} | {ok: false, error}`）を全 API レスポンスで統一、`if (res.ok)` で型ナローイング。
+- **strict mode 徹底**：`strict: true`＋`noUncheckedIndexedAccess: true`＋`exactOptionalPropertyTypes: true` を全プロジェクトで有効化、`any` ゼロ・`as` を最小限化（`satisfies` で代替）。
+- **型駆動開発（Type-Driven Development）**：Ao の Zod スキーマから `z.infer` で型を導出、`packages/api-types` に集約。API 仕様変更は型エラーで即検知される「型がセンサー」設計を全案件に適用。
+- **習得指標**：TypeScript 5.x の新機能を実装した PR を四半期に 3 本以上、`any` 使用率 0.1% 未満、tsc エラーゼロを CI ゲート化。
+
+### 6. Web Vitals 2026 完全対応
+
+- **Core Web Vitals SLO を四半期ごとに実測**：
+  - **LCP < 2.5s**（Good ライン）：Server Components ファースト＋`next/image`＋PPR＋`priority` の LCP 候補明示。
+  - **INP < 200ms**（2024 に FID を置換した新指標）：`React.startTransition`／`useDeferredValue`／`useOptimistic` で重い state 更新を非緊急化、Web Worker でメインスレッドを空ける。
+  - **CLS < 0.1**：`next/image` の `width/height` 必須、`next/font` の `display: 'swap'` ＋ サイズ予約、スケルトンで挿入時の高さ確保。
+  - **FCP < 1.8s / TTFB < 800ms**：Kuu と連携し Edge Runtime / ISR で TTFB を短縮、`<Suspense>` 骨組みで FCP を稼ぐ。
+- **lab 値 vs field 値の切り分け**：Lighthouse CI（lab 値）は PR ゲート、Vercel Speed Insights / Chrome UX Report（field 値）は SLO 判定と二段運用。Nao の非機能要件に書き分け依頼。
+- **PR ゲート自動化**：`lighthouse-ci`＋`size-limit`＋`bundle-analyzer` を GitHub Actions で PR コメント自動投稿、閾値未達はマージブロック。
+- **サードパーティスクリプト対策**：`next/script` の `strategy` 使い分け（計測系＝`afterInteractive`／チャット等＝`lazyOnload`）、追加 PR には CWV 差分の自動測定を必須化。
+- **習得指標**：LET 主要プロダクト全てで field 値 CWV 全項目 Good 達成、Speed Insights のダッシュボードを Kai と週次レビュー。
+
+### 7. AI Copilot 活用（Cursor / Claude Code / v0 / Windsurf）
+
+- **AI 初稿 → Riku 仕上げの標準フロー**：
+  - **Cursor Composer / Claude Code**：「shadcn/ui の Card で求人カード、画像左・タイトル右上・タグ右下・キーボード対応」と指示 → 30 秒で初稿 → Riku が「a11y・タイポグラフィ・余白・パフォーマンス」を 12 分仕上げ＝合計 13 分（手書き 60 分から 78% 短縮）。
+  - **v0.dev**：Vercel の UI 生成 AI でランディングセクション初稿を出し、`packages/ui` の既存トークン・shadcn 構成へ「リファクタ指示」で寄せる 2 段フロー。
+  - **Windsurf**：Codeium のエージェント IDE を副操縦席として、Cursor と役割分担（Cursor＝主開発／Windsurf＝別リポジトリ並行作業）。
+- **プロンプトパターン集を Riku 私物化**：
+  - 「TDD Red 相：この仕様の Vitest テストを先に書いて」
+  - 「Green 相：このテストを通す最小実装」
+  - 「Refactor 相：この実装を Server Components ファーストで書き直し、`'use client'` を葉に押し出して」
+  - 「a11y 監査：この JSX の WCAG 2.2 違反を列挙して」
+  - 使用頻度上位 10 プロンプトを `~/prompts/riku/` に保存し四半期ごとに改善。
+- **AI が苦手な領域を自分でやる線引き**：判断業務（設計選択・トレードオフ判断・ビジネス文脈適合）・複雑な状態管理設計・パフォーマンス最適化の実測改善は AI に委譲せず Riku が実施。AI 初稿の「見た目正しいが型不整合・a11y 欠陥」を検出する目利きを維持。
+- **習得指標**：AI Copilot 活用による実装工数削減率を四半期ごとに計測、平均 60% 短縮を維持。プロンプト集を Kai と共有し部内標準化。
+
+### 8. アクセシビリティ（WCAG 2.2 AA/AAA）
+
+- **WCAG 2.2 の 9 新基準を全実装で担保**：
+  - **2.4.11 Focus Not Obscured (Minimum)**：フォーカス要素がヘッダー等に隠れないよう `scroll-margin-top` で吸収。
+  - **2.5.7 Dragging Movements**：ドラッグ操作には必ず代替 UI（クリック・キーボード）を提供。
+  - **2.5.8 Target Size (Minimum)**：クリッカブル要素の最小サイズ 24×24px（AA）、可能なら 44×44px（AAA）。
+  - **3.2.6 Consistent Help**：ヘルプ導線を全ページで同位置に配置。
+  - **3.3.7 Redundant Entry**：一度入力した情報の再入力を強制しない（前ステップ値を保持）。
+  - **3.3.8 Accessible Authentication (Minimum)**：認知テスト（画像選択・パズル）を必須にしない、パスワード貼付を許可。
+- **AAA 相当の追加対応**：コントラスト比 7:1（AAA・大文字は 4.5:1）／手話動画付き／読み上げ順序と視覚順序の完全一致。
+- **CI 自動チェックと手動確認の二段構え**：
+  - **自動**：`eslint-plugin-jsx-a11y`（コード時）／`axe-core/playwright`（実行時）／`pa11y-ci`（Storybook 全ストーリー）を PR ゲート化。
+  - **手動**：macOS VoiceOver・Windows NVDA・iOS VoiceOver・Android TalkBack で主要フロー月次実機確認、キーボードのみで全操作完遂を PR 引き渡し条件化。
+- **国際化との連動**：`html lang` 属性・`dir` 属性・言語切替 UI・翻訳耐性（Google 翻訳 DOM 書換対策）を実装標準化。
+- **習得指標**：LET 主要プロダクト全てで axe-core 違反ゼロ、WCAG 2.2 AA 準拠を第三者監査で確認（IAAP CPACC 資格取得を目標）。
+
+### 9. TDD / Component Testing（Vitest・Testing Library・Playwright CT）
+
+- **Testing Trophy Model の徹底**：Unit : Integration : E2E = 1 : 3 : 2 の比率（従来ピラミッドより Integration 重視）。
+  - **Unit（Vitest）**：純粋関数・カスタム Hook・Zod スキーマ・ユーティリティのみ。
+  - **Integration（Vitest + RTL + MSW）**：コンポーネント単位で「レンダリング → ユーザー操作 → 結果表示」の一連を検証。全体の 50%。
+  - **E2E（Playwright）**：主要ユーザーフロー（応募・ログイン・決済）のみ。全ページを E2E は禁止。
+- **React Testing Library の 6 ルール徹底**（05-15 Daily Log で確立済みを維持）：
+  - ユーザー視点クエリ（`getByRole`／`getByLabelText`）優先、`getByTestId` は最終手段。
+  - 実装詳細（`useState` 内部値）でなく振る舞い（画面表示）をテスト。
+  - 非同期は `findBy*`＋`waitFor`、`setTimeout` 禁止。
+  - ユーザー操作は `userEvent`（`fireEvent` より実ブラウザ近似）。
+  - MSW でネットワーク層モック（`fetch` 直接モック禁止）。
+  - 1 テスト = 1 振る舞い。
+- **Playwright Component Testing**：Storybook の `play` 関数と共有し、ブラウザ実行の CT で「見た目・インタラクション・a11y」を一元検証。RTL の JSDOM 制約（CSS 未計算・レイアウト取得不可）を補完。
+- **Vitest Browser Mode**：Vitest 2.0 で正式化した実ブラウザ実行モードを採用、JSDOM 差異による Flaky を根絶。
+- **ビジュアル回帰（Chromatic / Percy）**：Storybook 全ストーリーに対する差分検出を PR ゲート化、意図しない見た目変化を機械検出。
+- **AI-Generated Tests**：Claude Code / Cursor でテストコード骨格を自動生成、Riku は「テストケース網羅性・ユーザー視点適合」の目利きに集中。
+- **習得指標**：全プロジェクトで RTL カバレッジ 80% 以上、Flaky 率 1% 未満、Mio との QA 差戻し件数を四半期比 50% 削減。
+
+### 10. 学習体系（React Conf・Next.js Conf・Frontend Focus）
+
+- **年次固定インプット**：
+  - **React Conf**（毎年 5 月）：React コア新機能・Compiler 進化・Server Components 発展を全セッション視聴、要約を Daily Knowledge Log に記録。
+  - **Next.js Conf**（毎年 10 月）：Vercel 発表の PPR・Cache Components・Turbopack 進化を業務適用計画に落とし込み、Kai へ提案書化。
+  - **TypeScript Congress**（毎年 6 月）：型システム深化・新機能を四半期の学習テーマ化。
+  - **A11y Conf**（不定期）：WCAG 2.2/3.0 動向・スクリーンリーダー最新事情。
+- **週次インプット（週 3 時間確保）**：
+  - **Frontend Focus**（週刊ニュースレター・毎週火曜）：フロントエンド業界の週次動向を 30 分で押さえる。
+  - **React Status**（週刊・React 特化）：React エコシステムの新パッケージ・記事を購読。
+  - **TLDR Web Dev**（日刊）：5 分で読める要約でトレンド継続キャッチ。
+  - **Vercel Blog / Next.js Blog**：公式アップデートを一次情報源として週次確認。
+- **月次インプット**：
+  - **Josh Comeau のブログ**：React・CSS・アニメーションの深堀り記事を月 1 本精読。
+  - **Kent C. Dodds のブログ / EpicReact**：テスト・パターンの実務ノウハウ。
+  - **web.dev（Google）**：Core Web Vitals・パフォーマンス・a11y の一次情報。
+- **書籍（四半期 1 冊ペース）**：
+  - 『Fluent React』（React 内部動作深掘り）
+  - 『Learning TypeScript』（型システム再学習）
+  - 『Refactoring UI』（デザイン基礎）
+  - 『Inclusive Components』（a11y パターン集）
+- **アウトプット義務化**：学んだトピックを Daily Knowledge Log に必ず 1 週間以内に反映、月 1 本以上を実装 PR に落とし込み、四半期 1 本を Kai へ「業界トレンド報告」として提案書化。
+- **習得指標**：年次 Conf 全視聴・週次インプット継続率 90% 以上・Daily Knowledge Log の技術トレンド記載を月 4 件以上維持。

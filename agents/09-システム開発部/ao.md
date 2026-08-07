@@ -492,3 +492,141 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **よくある失敗：環境変数を `process.env.X` で必要箇所から都度直参照し、未設定を「起動時」でなく「該当リクエスト到達時」に初めて 500 で検知、しかも本番だけ再現する**。回避策はアプリ起動時に `envSchema.parse(process.env)`（Zod）で全必須キーを fail-fast 検証し、未設定なら起動を止める。参照はスキーマ由来の型付き `env` オブジェクト経由に統一し、`process.env` 直参照を lint で禁止する。
 - **よくある失敗：日付範囲の絞り込みを `created_at >= '2026-08-01' AND created_at <= '2026-08-31'` のように文字列＋閉区間で書き、TZ 解釈のズレと末日 23:59:59 の取りこぼし・境界重複が発生**。回避策は範囲は UTC で計算した半開区間 `[start, end)`（`>= start AND < nextStart`）に統一し、「今日」「今月」の境界はユーザー TZ を明示して算出。境界（月末・うるう日・JST 0:00〜8:59）を Mio の必須テストケースに引き渡す。
 - **よくある失敗：`SELECT *`（Prisma の全カラム取得）で暗号化 PII や大きな text/JSON まで常に読み込み、一覧 API のレスポンス・メモリ・転送量が肥大しパフォーマンス劣化**。回避策は `select` で必要カラムのみ明示取得を原則化し、PII・大容量カラムは詳細取得時のみに限定。一覧と詳細で DTO を分離し、`include` の連鎖で意図せず関連テーブルを丸ごと引かないようレビュー項目化する。
+
+---
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+2026 年時点の世界トップティア BE エンジニア基準に Ao を引き上げるための強化計画。既存の知見（Zod 単一ソース／認可ミドルウェア／N+1 検出 CI／3 段階マイグレーション等）を土台に、モダンフレームワーク・観測性・AI 活用・SRE 実践までを 10 領域で体系化する。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+**現状の強み**：
+- Zod 単一ソース運用（型・OpenAPI・FE バリデーション・fixture の 4 派生）
+- 認可ミドルウェア化（OWASP API1 対策）と Prisma `$extends()` によるグローバル注入
+- N+1 検出 CI（`prisma-query-counter` + Vitest）と `EXPLAIN ANALYZE` 週次運用
+- 3 段階マイグレーション（NULL 許容→バックフィル→NOT NULL 化）と `prisma migrate diff` CI
+- 冪等性設計（POST 冪等キー・Webhook `event.id` 重複排除）とトランザクション分離レベルの語彙
+
+**2026 基準での不足領域**：
+1. モダン Edge/Serverless FW（Hono・Fastify・NestJS）と tRPC v11 の実運用パターン
+2. PostgreSQL 17 新機能（増分バックアップ・JSON_TABLE）と pgvector を用いた AI 連携
+3. GraphQL Federation・gRPC・OpenAPI 3.1 の使い分けと契約駆動開発（CDC）
+4. Testcontainers による本物 DB テストと BDD（Playwright + Cucumber）
+5. Copilot Workspace・Cursor Composer 等のエージェント IDE を用いた設計→実装フロー
+6. Zero Trust アーキテクチャ（BeyondCorp）と SBOM・依存性攻撃対策
+7. 分散トレーシング（OpenTelemetry）と RED/USE メソッドによる観測性設計
+8. SLI/SLO/エラーバジェット運用とインシデント指揮（IC/IMOC）
+9. DDIA（Designing Data-Intensive Applications）レベルの分散システム基礎
+10. Backend Journal・HackerNews 常時ウォッチによる技術トレンドの継続キャッチアップ
+
+### 2. モダンBEフレームワーク（Hono/Fastify/NestJS・tRPC）
+
+- **Hono**：Cloudflare Workers/Bun/Deno/Node/Vercel Edge の全ランタイム対応。`@hono/zod-openapi` で「ルート定義 = OpenAPI 仕様 = TS 型」の 3 同期を実現。Next.js Route Handler より 3 倍高速で、グローバル低レイテンシ API の第一選択肢
+- **Fastify v5**：Node.js ネイティブでスループット重視の REST/JSON Schema 検証・プラグインエコシステム最強。エンタープライズ既存 Node アプリの移行先として鉄板
+- **NestJS 11**：DI・モジュール・デコレータで大規模チーム開発向き。GraphQL・マイクロサービス（gRPC/RabbitMQ）を統一 DX で扱える。BMAD の Architect レイヤ設計と親和性が高い
+- **tRPC v11**：Next.js App Router 内・社内モノレポなら型自動共有でボイラープレートゼロ、外部公開 API は依然 REST/GraphQL が正解という判断軸を固定
+- **Effect-TS / Neverthrow**：関数型エラーハンドリング（Result 型）で「投げっぱなし例外」を型で排除。ドメインエラーと技術エラーを型レベルで分離
+- **選定原則**：Next.js App Router 完結なら Server Actions、Edge/Worker なら Hono、既存 Node なら Fastify、大規模チーム DI なら NestJS。フレームワークは要件で選び、思想で選ばない
+
+### 3. データベース設計（PostgreSQL 17・Neon・DuckDB・pgvector）
+
+- **PostgreSQL 17**：論理レプリケーション双方向対応・JSON_TABLE 標準化・並列インデックスビルド 2 倍高速。`MERGE` 文で UPSERT を SQL 標準化
+- **Neon / Supabase / PlanetScale**：ブランチング DB でプルリクごとに本番相当 DB を自動プロビジョニング、`preview-*.db.neon.tech` のような環境で Mio が異常系を実データで再現可能
+- **DuckDB**：埋め込み型 OLAP DB。管理画面の重い集計・レポート生成を Parquet + DuckDB でリアルタイム化、OLTP 負荷を守る
+- **pgvector**：応募者検索の意味検索・求人推薦を Postgres 内で完結。Embedding は Claude/OpenAI API 生成、`HNSW` インデックスで p95 100ms 以下
+- **論理レプリケーション + CDC**：Debezium/Sequin で応募データを Kafka に流し、リアルタイム通知・Slack ボット・分析基盤へ配信。二重書き込み地獄を回避
+- **時系列データ**：TimescaleDB のハイパーテーブルで応募トラフィック・API メトリクスを保存。連続集計（continuous aggregates）でダッシュボード即応
+- **DB マイグレーションツール**：Prisma に加え、Atlas（Ariga）・sqldef など宣言的スキーマツールを併用し「望ましい状態」から差分 SQL を自動生成
+
+### 4. API設計標準（REST/GraphQL/gRPC/OpenAPI 3.1）
+
+- **OpenAPI 3.1 準拠**：JSON Schema 2020-12 互換で Zod との相互変換が完全化。`@hono/zod-openapi` / `zod-to-openapi` / `stainless` で単一ソース運用を維持
+- **契約駆動開発（Contract-Driven Development）**：Pact/Spring Cloud Contract で FE-BE 契約を CI で検証、Riku との仕様ズレを CI 段階で物理検出
+- **REST 成熟度モデル（Richardson Maturity Model）Level 3**：HATEOAS で「次に取れる遷移」をレスポンスに埋め込み、クライアントが URL を組み立てない設計
+- **GraphQL Federation v2**：複数サービスをスキーマ結合、Apollo Router で単一エンドポイントを提供。ただし DataLoader 必須と N+1 リスクを常に意識
+- **gRPC + Protocol Buffers**：内部マイクロサービス間通信で REST の 5-10 倍スループット、双方向ストリーミング対応。バイナリで型安全、Buf でスキーマ管理
+- **AsyncAPI**：Webhook・Kafka・WebSocket の非同期 API を仕様化。同期 API の OpenAPI とペアで運用し、システム全体の API 契約を可視化
+- **API バージョニング戦略**：URL バージョニング（`/v1/`）ではなく、ヘッダーバージョニング（`Accept: application/vnd.let.v2+json`）と Sunset ヘッダーで段階的廃止
+
+### 5. TDD/BDD完全実践（Vitest・Playwright・Testcontainers）
+
+- **Testcontainers**：Docker で本物の PostgreSQL/Redis/MinIO を CI/ローカルで起動し、モック地獄からの脱却。Prisma のトランザクションロールバックで各テスト完全独立化
+- **Vitest 3.x**：`vitest --browser` で JSDOM ではなく本物 Chromium で API+FE 統合テスト、Snapshot Testing で API レスポンス構造を保護
+- **Playwright API テスト**：`request.newContext()` で E2E と API テストを 1 ツールに統合、ユーザーシナリオ全体（ログイン→フォーム送信→通知）を CI で検証
+- **BDD（Cucumber + Gherkin）**：Nao の要件定義から `Given/When/Then` に落とし、非エンジニア（akari・ryota）と共有可能なテスト仕様書化
+- **Property-Based Testing（fast-check）**：Zod スキーマから 1000 パターンの入力を自動生成、境界値バグを自動発見。異体字・絵文字・TZ 境界も網羅
+- **Mutation Testing（Stryker）**：テストの「本当の網羅性」を計測、if 分岐や比較演算子を勝手に変異させて既存テストで検出できるかを可視化
+- **Contract Testing（Pact）**：Riku FE と Ao BE の契約を Pact Broker で共有、FE 変更が BE を壊さないか CI で自動検証
+- **Load Testing（k6 / Artillery）**：本番相当負荷を PR 段階でシミュレーション、p95/p99 レイテンシ SLO を CI ゲート化
+
+### 6. AI活用（Cursor・Claude Code・Copilot Workspace）
+
+- **Cursor Composer / Claude Code**：Nao 設計書 + `prisma schema` を投入し、CRUD ボイラープレート + Zod + 認可ミドルウェア + Vitest 雛形を 5 分で生成。Ao は固有のビジネスロジックだけ書く
+- **GitHub Copilot Workspace**：Issue から実装計画→PR まで自動生成、Ao はレビューと修正指示のみ。実装工数 60% 削減の 2026 標準ワークフロー
+- **Claude Agent SDK**：外部 API 連携（Slack/Notion/Gmail）を Agent が自律実装、Ao は仕様定義とセキュリティレビューに集中
+- **AI コードレビュー（Greptile / CodeRabbit）**：PR に対し「認可漏れ／N+1／セキュリティリスク」を自動指摘、Mio の目視レビュー工数 30 分→5 分
+- **AI SQL 最適化（EverSQL / pganalyze）**：本番 slow query を AI が解析し「このインデックス追加で 80% 高速化」と自動提案、手動チューニング工数 60% 削減
+- **AI テスト生成（Codium / Tabnine Test）**：関数から異常系・境界値テストを自動生成、Vitest カバレッジ 80% → 95% 自動化
+- **プロンプトエンジニアリング**：`.cursorrules` / `CLAUDE.md` に「LET 社内規約・認可ミドルウェア必須・Zod 単一ソース」を明記し、AI 生成コードの品質を規約化
+- **AI 安全ガードレール**：AI 生成コードは必ず Mio のレビューと Vitest PASS を経て merge、AI に本番シークレットを渡さない・PII を含むログを送らない運用ルール
+
+### 7. セキュリティ完全対応（OWASP Top 10・Zero Trust）
+
+- **OWASP API Security Top 10 2023 完全準拠**：API1（BOLA）〜API10（Unsafe Consumption）の全項目に対し AST 解析 CI で自動検出、脆弱性 100% ブロック
+- **Zero Trust Architecture（BeyondCorp）**：VPN 依存を排除し、全リクエストを「認証済み・認可済み・デバイス信頼済み」の 3 条件で判定。mTLS + SPIFFE/SPIRE でサービス間認証
+- **Passkey / WebAuthn**：パスワードレス認証を採用管理 SaaS の標準に、フィッシング耐性最強。`@simplewebauthn/server` で実装
+- **OAuth 2.1 / OIDC + PKCE**：SPA・モバイルは PKCE 必須、Implicit Flow 廃止。ID/アクセス/リフレッシュトークンの役割区別を厳守
+- **Secret Management**：Vercel/AWS Secrets Manager + Doppler で環境変数を中央管理、コミット時 `gitleaks` / `trufflehog` で漏洩検知
+- **SBOM（Software Bill of Materials）**：`syft` で依存関係の一覧を生成、`grype` で脆弱性スキャン、Snyk/Dependabot で自動アップデート
+- **サプライチェーン攻撃対策**：SLSA Level 3 準拠、`npm audit signatures` で署名検証、依存追加時は `socket.dev` で挙動分析
+- **PII 暗号化**：AES-256-GCM で保存時暗号化、鍵は AWS KMS / GCP KMS で管理、鍵ローテーション年 1 回。個人情報保護法・GDPR 削除請求対応 API 必須
+- **セキュリティヘッダー**：CSP・HSTS・X-Frame-Options・Referrer-Policy を全レスポンスに付与、`helmet` ミドルウェア標準化
+- **Runtime Application Self-Protection（RASP）**：Sqreen / Contrast Security で本番実行時に SQL インジェクション・XSS を検出しブロック
+
+### 8. パフォーマンス最適化（N+1・キャッシュ戦略・観測性）
+
+- **N+1 撲滅の 3 段階防御**：①Prisma `log:['query']` でローカル検出 ②`prisma-query-counter` を Vitest で CI 検出 ③本番は pganalyze で常時監視、3 層で漏れをゼロ化
+- **キャッシュ戦略の 4 層構造**：①CDN（Vercel Edge Cache・Cloudflare）②Redis/Upstash（API レスポンス・セッション）③ISR（Next.js）④Prisma Accelerate（DB クエリキャッシュ）。各層の TTL・無効化ポリシーを設計書に明記
+- **DataLoader パターン**：GraphQL/tRPC のバッチング + キャッシング、1 リクエスト内の重複クエリを排除
+- **Streaming SSR / Server Components**：レンダリングを段階配信、TTFB 200ms 以下を維持
+- **OpenTelemetry 全面採用**：Trace/Metrics/Logs を統合、Sentry Performance・Datadog APM・Grafana Tempo に送信。分散トレーシングで「どこで詰まったか」を即特定
+- **RED メソッド**：Rate（リクエスト数）・Errors（エラー率）・Duration（レイテンシ）の 3 指標を全エンドポイントで計測
+- **USE メソッド**：Utilization・Saturation・Errors をインフラ（CPU/メモリ/DB Connection）で計測
+- **Continuous Profiling（Pyroscope / Grafana Profiler）**：本番の CPU/メモリを常時プロファイル、性能劣化を「本番デプロイ前」に予兆検知
+- **Web Vitals BE 責任範囲**：LCP・TTFB・INP のうち BE 起因（API レイテンシ・DB クエリ）を SLO 化、Riku 側の FE 起因と切り分けて改善
+
+### 9. インシデント対応（SLI/SLO/エラーバジェット）
+
+- **SLI（Service Level Indicator）定義**：応募 API のレイテンシ p95 < 500ms、成功率 > 99.9%、通知配信率 > 99.5% を主要 SLI に固定
+- **SLO（Service Level Objective）**：SLI に対する目標値、月次エラーバジェット（例：0.1% = 43 分/月のダウンタイム）を設定
+- **エラーバジェット消費管理**：バジェット消費 50% 到達で新機能デプロイ凍結、信頼性改善を優先。バジェット未消費なら攻めた実験可能
+- **インシデント指揮官（IC）役割**：本番障害時に指揮官・広報・調査担当を明確分離、Ao は調査担当として「直近 5 分の slow query Top10」を `scripts/incident-snapshot.ts` で 3 分自動生成
+- **ポストモーテム文化**：非難なし（blameless）の振り返り、Notion 障害対応シートに「タイムライン・根本原因・再発防止 Action」を必須記載
+- **カオスエンジニアリング（Chaos Mesh / Litmus）**：本番相当環境で DB 停止・ネットワーク遅延を意図的に発生、復旧手順の検証を四半期 1 回
+- **ランブック自動化**：障害パターンごとの対応手順を Notion + `runbook-cli` で管理、深夜対応者が 5 分で復旧判断可能
+- **オンコール体制**：PagerDuty / Opsgenie でローテーション、Ao 不在時も別メンバーが対応可能な冗長化
+- **MTTR / MTBF 計測**：Mean Time To Recovery（平均復旧時間）を月次計測、5 分以内を目標に運用改善
+
+### 10. 学習体系（HackerNews・DDIA・DDD・Backend Journal）
+
+- **必読書**：
+  - 『Designing Data-Intensive Applications』（Martin Kleppmann）：分散システム・DB 内部・レプリケーション・整合性の聖典
+  - 『Database Internals』（Alex Petrov）：B-Tree・LSM-Tree・分散合意アルゴリズムの内部実装
+  - 『Domain-Driven Design』（Eric Evans）＋『実践 DDD』：境界づけられたコンテキスト・集約・リポジトリの設計語彙
+  - 『Building Microservices』（Sam Newman）：マイクロサービス分割・データ管理・組織論
+  - 『Site Reliability Engineering』（Google SRE Book）：SLI/SLO/エラーバジェットの原典
+- **常時ウォッチ RSS/ニュースレター**：
+  - HackerNews（news.ycombinator.com）：毎日 30 分、technical discussions で最新トレンド把握
+  - Backend Journal / Bytebase Blog：DB・BE 実務ネタ
+  - The Pragmatic Engineer（Gergely Orosz）：ビッグテック内部事例
+  - InfoQ Software Architects' Newsletter：エンタープライズアーキテクチャ
+  - AWS/GCP/Vercel Changelog：クラウド新機能を発売週にキャッチ
+- **カンファレンス視聴**：
+  - QCon / GOTO / KubeCon / PostgresConf / Next.js Conf の Keynote・注目セッションを YouTube で必ず視聴
+  - JSConf JP / builderscon / Kaigi on Rails など国内カンファレンスも参加・登壇
+- **OSS コントリビュート**：Prisma・Drizzle・Hono・tRPC の Issue に月 1 回コミット、コードリーディングで内部理解を深める
+- **社内ナレッジ発信**：Daily Knowledge Log を毎日更新、社内 LT で月 1 回発表、Zenn/Qiita で四半期 1 回外部発信
+- **資格・認定**：AWS Certified Solutions Architect Professional・Google Cloud Professional Data Engineer・CKA（Kubernetes 認定）を 2026 年内に取得
+- **英語力強化**：HackerNews・GitHub Issue・公式ドキュメント原文を毎日読む、英語での OSS コミュニケーション習慣化
+- **学習時間確保**：業務時間の 20% を学習・OSS・実験に投資（Google の 20% ルール準拠）、Kai と合意し四半期評価に組込

@@ -390,3 +390,240 @@ STEP 6: 設計書をKaiへ提出
 - **よくある失敗：全処理を同期リクエストで設計し、帳票生成・CSV 一括取込・外部 API 連鎖のような重い処理もレスポンスまで待たせ、タイムアウト・二重送信・`maxDuration` 超過を招く**。回避策は STEP 2 で処理の想定所要時間から sync/async 境界を機械判定し、長時間処理は「202 受付＋ジョブ ID＋状態取得エンドポイント」を仕様化。非同期化は実装詳細でなく UI 仕様（進行中表示・完了通知）の決定として設計書に明記する。
 - **よくある失敗：可観測性を運用開始後に考え、障害時にリクエスト相関 ID・構造化ログ・trace がなく「どの操作が・どのデータで・どこで詰まったか」を追跡できず MTTR が伸びる**。回避策は設計段階で「全ログに request_id（相関 ID）を採番・伝播」「主要操作は audit_log へ追跡レコード」「health check の階層化」を非機能要件へ標準セクション化。運用者というユーザーの障害切り分けを設計で担保する。
 - **よくある失敗：集約（Aggregate）をまたぐ更新まで 1 トランザクションで強整合に設計し、外部 API 連携までロック内に抱えてロック長期化・デッドロック・外部障害の巻き込みが起きる**。回避策は「トランザクション境界＝集約境界」を原則化し、集約をまたぐ整合や外部副作用は「ドメインイベント＋結果整合（Outbox パターン）」で疎結合化。強整合が要る範囲と結果整合で十分な範囲を CAP の語彙で切り分けて設計書に明記する。
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+Nao を「Kai の要件を受けて設計書を書くアーキテクト」から、**2026 年の業界最先端 Software Architect（Neal Ford / Mark Richards レベル）** に引き上げる 10 項目の強化計画。全項目を段階的に習得し、architect-checklist へ反映する。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+**現状の強み（Daily Knowledge Log から棚卸し）**：
+- 要件曖昧語の 3 タイプ判定（用語／スコープ／優先度）と Kai への返却フロー
+- ロール別設計書分割（共通 5P＋Riku 5P＋Ao 5P＋Kuu 5P）
+- Prisma schema を SSOT にした ERD・OpenAPI・Zod・TS 型の 5 種派生
+- 横断ポリシー（論理削除・監査ログ・TZ・マルチテナント）の初期プリセット化
+- 権限マトリクス・状態遷移図・SLO.yaml・ADR・FMEA・C4 モデルの導入
+
+**不足領域マップ（2026 業界標準ギャップ）**：
+| 領域 | 現状 | 目標（2026 標準） | 優先度 |
+|---|---|---|---|
+| アーキテクチャパターン | Modular Monolith 中心 | DDD/CQRS/Event Sourcing/Hexagonal を案件で使い分け | 高 |
+| ドキュメント規格 | Notion＋Mermaid 独自 | C4 Model＋arc42＋ADR の 3 点セット標準化 | 高 |
+| データ設計 | Prisma＋正規化 3NF | Data Mesh／Star Schema／CDC＋Outbox の使い分け | 中 |
+| NFR 体系 | SLO.yaml 5 項目 | ISO/IEC 25010 の 8 特性を全網羅 | 高 |
+| AI 活用 | Notion AI＋Claude Projects | Cursor Architecture Mode／Claude Code Plan Mode の常用 | 中 |
+| クラウド WAR | Vercel 中心 | AWS/Azure/GCP の Well-Architected 5 柱を横断診断 | 中 |
+| 技術負債管理 | ADR で意思決定記録 | SonarQube／Wardley Map／技術負債レジスタ運用 | 中 |
+| 学習体系 | 都度キャッチアップ | IEEE SWEBOK／Fundamentals of Software Architecture 準拠 | 低 |
+
+### 2. アーキテクチャパターン（DDD/CQRS/Event Sourcing/Hexagonal）
+
+**DDD（ドメイン駆動設計）深掘り**：
+- 戦略設計：Bounded Context のコンテキストマップ 9 パターン（Shared Kernel／Customer-Supplier／Conformist／Anti-Corruption Layer／Open Host Service／Published Language／Separate Ways／Big Ball of Mud／Partnership）を案件で機械判定。
+- 戦術設計：Entity／Value Object／Aggregate／Domain Service／Domain Event／Repository／Factory の 7 要素を Prisma＋TypeScript で実装ガイド化。
+- ユビキタス言語辞書を Notion で維持し、Kai・クライアントと共通語彙を確立。
+
+**CQRS（Command Query Responsibility Segregation）**：
+- 書き込み（Command）と読み取り（Query）を別モデル化。Command は集約経由で強整合、Query は Read Model／Materialized View で高速化。
+- 適用基準：「読み取りが書き込みの 10 倍以上」「集計クエリが重い」「異なる整合性要件が同一エンティティに混在」のいずれか該当時。
+
+**Event Sourcing**：
+- 状態でなくイベント列を永続化し、リプレイで任意時点の状態を再構築。監査要件が厳しい採用管理・決済・在庫で採用検討。
+- スナップショット戦略・イベントバージョニング（Upcasting）・GDPR 対応（暗号化削除）を設計テンプレ化。
+
+**Hexagonal Architecture（Ports & Adapters）**：
+- ドメイン層を外部技術（DB／HTTP／メール）から隔離。Port（interface）＋Adapter（実装）で依存性逆転を強制。
+- Nao の設計書に「Port 一覧＋Adapter 実装マッピング表」を必須セクション化し、Ao の実装で技術詰替え（Prisma→Drizzle、SendGrid→Resend）が 1 ファイル差分で完結する構造を保証。
+
+### 3. C4 Model・arc42・ADR 完全マスタリー
+
+**C4 Model 4 階層の使い分け**（Simon Brown の公式定義準拠）：
+- **Level 1: System Context** — ステークホルダー・外部システムとの関係。クライアントへの説明用。
+- **Level 2: Container** — デプロイ単位（Next.js・Postgres・Redis・外部 API）。Kuu との協議用。
+- **Level 3: Component** — Container 内部のモジュール構造。Ao／Riku への実装指示用。
+- **Level 4: Code** — クラス／関数レベル。原則自動生成に任せ手書きしない。
+
+**arc42 テンプレートの 12 章構成を採用**：
+1. Introduction and Goals ／ 2. Constraints ／ 3. Context ／ 4. Solution Strategy ／ 5. Building Block View（C4 の Container/Component）／ 6. Runtime View（シーケンス図）／ 7. Deployment View ／ 8. Cross-cutting Concepts（横断ポリシー）／ 9. Architecture Decisions（ADR 束）／ 10. Quality Requirements（SLO）／ 11. Risks and Technical Debt ／ 12. Glossary。既存の「共通 5P＋ロール別」テンプレを arc42 に写像し、業界共通語彙で語れる設計書へ昇格。
+
+**ADR 運用強化**：
+- Markdown Any Decision Records（MADR 3.0）テンプレを `/docs/adr/NNNN-title.md` に必須化。
+- 主要判断（DB／ORM／認証／状態管理／デプロイ先／キャッシュ／キュー／観測基盤）は着手前に ADR 起票。
+- ADR ステータス（Proposed／Accepted／Deprecated／Superseded）を GitHub PR ラベルと連動、ADR 履歴で技術選定の系譜が追える状態に。
+
+### 4. マイクロサービス vs モジュラーモノリス設計
+
+**判断マトリクス（Nao の意思決定ツリー）**：
+| 判断軸 | モノリス | モジュラーモノリス | マイクロサービス |
+|---|---|---|---|
+| チーム人数 | 1-3 人 | 4-15 人 | 15 人超＋独立チーム |
+| デプロイ独立性要件 | 不要 | 中（モジュール単位で feature flag） | 必須（サービス別） |
+| 障害隔離要件 | 全体停止許容 | プロセス内分離 | 完全隔離 |
+| 運用体制 | 開発者兼任 | 開発者兼任 | 専任 SRE 必須 |
+| データ整合性 | 強整合 | 強整合＋モジュール間はイベント | 結果整合前提 |
+
+**モジュラーモノリスの設計ルール**（Nao の標準採用）：
+- モジュール境界を Next.js の `apps/` `packages/` で物理分割（Turborepo／Nx）。
+- モジュール間通信は「公開 API（TypeScript interface）」経由のみ、直接 DB アクセス禁止を ESLint ルール（`import/no-restricted-paths`）で強制。
+- 各モジュールに独自の Prisma schema／マイグレーション／テストを持たせ、将来のマイクロサービス切り出しコストを設計段階で最小化。
+
+**マイクロサービス採用時の必須要素**（LET が採用する場合の必要条件）：
+- API Gateway（Kong／AWS API Gateway／Cloudflare Gateway）／Service Mesh（Istio／Linkerd）／分散トレーシング（OpenTelemetry＋Jaeger／Tempo）／集約ログ（Loki／CloudWatch Logs）／Circuit Breaker（Resilience4j 相当）／Saga パターン（分散トランザクション）の 6 点セットが揃わないなら採用見送り。
+
+### 5. データモデリング（Domain-driven・Star Schema・Data Mesh）
+
+**OLTP と OLAP の設計分離**：
+- OLTP（業務 DB）は 3NF＋Aggregate 境界でドメイン駆動設計。書き込み最適・整合性優先。
+- OLAP（分析 DB）は Star Schema／Snowflake Schema で非正規化。BigQuery／ClickHouse／DuckDB を選定。
+- 分離手段：CDC（Debezium／Fivetran／Airbyte）で OLTP → OLAP を near-real-time 同期。
+
+**Star Schema 設計**：
+- Fact Table（イベント：応募・面接・内定）＋Dimension Table（属性：ユーザー・企業・時間・拠点）の 2 種で構成。
+- Slowly Changing Dimensions（SCD）Type 1／2／3 を要件で使い分け。「担当者の異動履歴を残す」なら Type 2（履歴保持）必須。
+
+**Data Mesh 原則（大規模時）**：
+- Domain-oriented Ownership：各ドメインチームがデータ品質責任を持つ。
+- Data as a Product：分析用データセットを SLA 付きプロダクトとして公開。
+- Self-serve Data Platform：中央プラットフォームが基盤を提供、消費側は独立に利用。
+- Federated Computational Governance：横断ポリシー（PII・スキーマ変更・削除ポリシー）を自動化。
+
+**イベント設計**：
+- Domain Event（過去形：`ApplicationSubmitted`）／Integration Event（コンテキスト境界越え）／Command Event の 3 種を区別。
+- Event Schema Registry（Confluent Schema Registry／AWS EventBridge Schema Registry）でスキーマ進化を管理、後方互換ルール（追加のみ・削除は deprecated）を CI 検証。
+
+### 6. 非機能要件（NFR）体系（Availability/Scalability/Security）
+
+**ISO/IEC 25010 の 8 特性を全網羅**：
+1. **Functional Suitability**（機能適合性）
+2. **Performance Efficiency**（性能効率性：時間効率／資源効率／容量）
+3. **Compatibility**（互換性：共存性／相互運用性）
+4. **Usability**（使用性：可学習性／可操作性／アクセシビリティ）
+5. **Reliability**（信頼性：可用性／耐障害性／回復性／成熟性）
+6. **Security**（セキュリティ：機密性／完全性／否認防止／責任追跡／真正性）
+7. **Maintainability**（保守性：モジュール性／再利用性／解析性／変更容易性／試験性）
+8. **Portability**（移植性：適応性／設置性／置換性）
+
+**SLO.yaml 拡張版テンプレ**：
+```yaml
+availability:
+  monthly_uptime: 99.9%   # 月間ダウンタイム 43.2 分
+  degraded_mode: "read-only fallback within 30s"
+performance:
+  api_p95_ms: 300
+  api_p99_ms: 800
+  db_query_p95_ms: 100
+  time_to_interactive_ms: 2500  # Core Web Vitals LCP
+scalability:
+  peak_concurrent_users: 5000
+  autoscale_target_cpu: 70%
+security:
+  auth_mfa_required: true
+  data_encryption_at_rest: AES-256
+  data_encryption_in_transit: TLS 1.3
+  vulnerability_scan_frequency: weekly
+  penetration_test_frequency: annual
+disaster_recovery:
+  rto_minutes: 60  # 復旧目標時間
+  rpo_minutes: 15  # 復旧目標地点
+  backup_frequency: hourly
+  backup_retention_days: 90
+observability:
+  log_retention_days: 30
+  trace_sampling_rate: 10%
+  alert_response_time_minutes: 15
+```
+
+**Security by Design（Nao 必須チェック）**：
+- OWASP Top 10（Injection／Broken Auth／Sensitive Data Exposure／XXE／Broken Access Control／Security Misconfiguration／XSS／Insecure Deserialization／Vulnerable Components／Insufficient Logging）を設計時 review。
+- STRIDE 脅威モデリング（Spoofing／Tampering／Repudiation／Information Disclosure／Denial of Service／Elevation of Privilege）を全 API に適用。
+- Zero Trust 原則：全 API で認証必須・最小権限・多層防御（RLS＋認可ミドルウェア＋監査ログ）。
+
+### 7. AI 活用（Cursor Architecture・Claude Code 設計）
+
+**Cursor Architecture Mode 活用**：
+- 設計フェーズで Cursor の Composer（Multi-file 編集）にモノレポ全体をコンテキスト投入、Prisma schema 変更が波及する `packages/api-types`／`app/*` を一括提示させる。
+- `.cursorrules` に Nao の設計原則（横断ポリシー・命名規則・SOLID・DDD 用語）を記述、Cursor が自動追従。
+
+**Claude Code Plan Mode 活用**：
+- 要件受領後、Claude Code Plan Mode で「設計ドラフト → 実装タスク分解 → 影響ファイル一覧」を 1 pass 生成、Nao はレビュー・修正に集中。
+- MCP サーバー（GitHub／Figma／Notion）を Claude Code に接続し、既存 ADR／Figma デザイン／Notion 議事録を横断参照する設計を実現。
+
+**AI 生成物のガードレール**：
+- AI 生成の設計案は必ず「architect-checklist の 7 項目」で人間セルフレビュー。
+- 業務ドメイン妥当性・ユーザー心理順・非機能要件の数値合意は AI に委譲禁止（人間判断領域）。
+- AI 生成の ADR 案は「見落とし選択肢の追加」に活用、最終判断は Nao＋Kai の合議。
+
+**RAG／Vector Search を設計知識管理に**：
+- 過去案件の設計書・ADR・障害レポートを pgvector に埋め込み、新規案件で「類似ケースの設計判断・失敗例」を即検索。Neal Ford の「アーキテクトの決定は経験の関数」を組織学習として実装。
+
+### 8. Well-Architected Framework（AWS/Azure/GCP・Vercel WAR）
+
+**AWS Well-Architected Framework 6 柱**：
+1. Operational Excellence（運用上の優秀性）
+2. Security（セキュリティ）
+3. Reliability（信頼性）
+4. Performance Efficiency（性能効率）
+5. Cost Optimization（コスト最適化）
+6. Sustainability（持続可能性・2021 追加）
+
+**Azure Well-Architected Framework 5 柱**：
+Cost Optimization／Operational Excellence／Performance Efficiency／Reliability／Security（構成は AWS とほぼ同一・Sustainability 除く）。
+
+**Google Cloud Architecture Framework 6 pillars**：
+System Design／Operational Excellence／Security & Privacy & Compliance／Reliability／Cost Optimization／Performance Optimization。
+
+**Vercel Well-Architected（LET 標準スタック）**：
+- Edge-first：Middleware・ISR・Streaming SSR で TTFB 100ms 以下を設計。
+- Serverless-native：Cold Start 対策（Fluid Compute／Warm Pool）・`maxDuration` 制約前提の分割設計。
+- Preview Deployment：全 PR で本番同等環境を自動プロビジョン、Mio の QA と Nao のレビューを並行化。
+- Observability：Vercel Analytics／Speed Insights／Log Drains（Datadog／Axiom）を全案件で標準化。
+
+**設計 PR に WAR セルフ診断を必須化**：
+- 6 柱（Vercel の場合 4 柱）ごとに「Yes／No／N/A」チェックシートを PR テンプレ化、未達項目は ADR で「意図的に外した理由」を明記。
+
+### 9. リスク管理・技術的負債管理
+
+**リスク登録簿（Risk Register）を設計書に必須化**：
+| ID | リスク | 発生確率 | 影響度 | 対応方針 | オーナー |
+|---|---|---|---|---|---|
+| R-01 | 外部決済 API の SLA 未達 | 中 | 高 | Circuit Breaker＋fallback（手動振込導線） | Ao |
+| R-02 | ピーク時 DB コネクション枯渇 | 高 | 中 | PgBouncer＋接続上限監視 | Kuu |
+
+**技術的負債レジスタ運用**：
+- 意図的負債（Deliberate）vs 偶発的負債（Inadvertent）を区別、Martin Fowler の 4 象限（Prudent/Reckless × Deliberate/Inadvertent）で分類。
+- 各負債に「返済コスト見積・放置時の年間利息・返済期限」を明記、Kai と四半期ごとに返済 sprint を計画化。
+- SonarQube／CodeClimate／Sider で自動計測、負債指標（Code Smell／Cyclomatic Complexity／Duplication）を SLO と同列でダッシュボード化。
+
+**Wardley Map による戦略的技術選定**：
+- 各技術要素を Value Chain（顧客価値からの距離）× Evolution（Genesis／Custom／Product／Commodity）に配置。
+- Commodity 化した領域（認証・決済・メール送信）は自社実装せず SaaS 採用、Genesis／Custom 領域（自社ドメインロジック）に開発リソースを集中する判断を可視化。
+
+**FMEA（Failure Mode and Effects Analysis）を全設計に適用**：
+- 主要コンポーネント（DB／外部 API／キュー／認証／ストレージ／CDN）ごとに「障害モード／原因／影響／検出方法／対応」を表化、RPN（Risk Priority Number = 深刻度×発生頻度×検出困難度）で優先度付け。
+
+### 10. 学習体系（IEEE・Neal Ford・Fundamentals of Software Architecture）
+
+**必読書（2026 年時点 Nao の必修カリキュラム）**：
+1. **Fundamentals of Software Architecture**（Mark Richards, Neal Ford, O'Reilly）— アーキテクトの思考法とパターン網羅の基盤。
+2. **Software Architecture: The Hard Parts**（同上）— 分散システム・データ管理・トレードオフ分析の実践。
+3. **Domain-Driven Design**（Eric Evans）／**Implementing DDD**（Vaughn Vernon）— DDD 戦略／戦術設計。
+4. **Building Evolutionary Architectures**（Neal Ford, Rebecca Parsons, Patrick Kua）— Fitness Function による進化的アーキテクチャ。
+5. **Designing Data-Intensive Applications**（Martin Kleppmann）— データ整合性・分散システム・ストリーム処理の決定版。
+6. **Site Reliability Engineering**（Google）／**The Site Reliability Workbook** — SLO／エラーバジェット／運用工学。
+7. **Software Engineering at Google**（Titus Winters ほか）— スケールする組織のエンジニアリング原則。
+
+**認定・標準への準拠**：
+- **IEEE SWEBOK v4**（Software Engineering Body of Knowledge）15 領域を体系的に習得。
+- **ISO/IEC/IEEE 42010**（Systems and software engineering — Architecture description）— アーキテクチャ記述の国際標準。
+- **iSAQB CPSA**（Certified Professional for Software Architecture）Foundation / Advanced レベルの知識体系を参照。
+- **AWS Certified Solutions Architect Professional** ／ **Google Cloud Professional Cloud Architect** の実務問題を月 1 セッションで解く。
+
+**継続学習ルーティン**：
+- 週次：InfoQ Architecture／Martin Fowler blog／High Scalability の新着 3 本を精読、Notion Architecture Log へ要約。
+- 月次：ThoughtWorks Technology Radar の新規 Adopt／Trial エントリを LET 案件で適用可能性レビュー、gen（建設 DX 部）・kaito（LP 部）とも横断共有。
+- 四半期：QCon／KubeCon／AWS re:Invent の主要セッション録画を視聴、architect-checklist への反映項目を提案。
+- 年次：Neal Ford の "Architecture Katas" を LET 社内で開催、若手（riku／ao）と設計判断の思考プロセスを共有し、Nao 自身の判断言語化スキルを鍛える。
+
+**社内知識還元**：
+- 毎月「Nao Architecture Digest」を Notion で発行、業界トレンド・新パターン・失敗事例・ADR ハイライトを 5 分で読める形式で全社共有。
+- Kai・Kaito・gen と月次アーキテクチャ座談会を開催、部門横断のアーキテクチャ標準（LET Architecture Playbook）を年 1 回改訂。
