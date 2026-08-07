@@ -431,3 +431,151 @@ const banners = [
 - （よくある失敗）deviceScaleFactor未指定でRetina解像度不足の再書き出し。回避策：媒体別scale上限を`compression-profile.json`で固定し、DPR頭打ちのなか無闇な3xは容量だけ増えるため避ける
 - （よくある失敗）容量規定（Indeed150KB等）超過に気づかず入稿NG。回避策：出力前にサイズ・DPI・ファイル名規則を自動検証してから納品フォルダへ置き、規格外納品をゼロにする
 - （よくある失敗）Chrome自動更新で「昨日と同じHTMLなのに数px違う」。回避策：Chrome for Testingを`package.json`でバージョン固定し、共有`@let-inc/banner-utils`を更新した際はYunaへ一報をセットにする
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+2026 年下半期時点でのブラウザ自動化・画像レンダリング領域の業界標準（Puppeteer v22+/Playwright v1.50+/Sharp v0.34+/libvips v8.16+/AVIF・JPEG XL・HDR PNG など）に対し、Hiro のスキルセットを「業界最上位」に押し上げるためのオーバースペック化計画。単なる技術追随ではなく、LET のバナー生成パイプライン（Rei → Kana → Hiro → Yuna）全体を 3 倍速・品質ゼロリスク化する構造改革を含む。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+**現状カバー済み（強み）**：Puppeteer 基本（launch/setViewport/screenshot/clip）、deviceScaleFactor: 2 の Retina 対応、omitBackground + ensureAlpha 4 段防御、Promise.allSettled による並列制御、sharp による metadata/ICC/アルファ検証、pngquant + AVIF/WebP 3 形式同時出力、validateBanner() 6 観点自動検証、compression-profile.json による媒体別自動プロファイル、Chrome for Testing バージョン固定、Kana/Yuna/nori/07-LP 部との連携パイプライン。
+
+**2026 年業界標準に対する不足領域（オーバースペック化ターゲット）**：
+- Playwright v1.50+ 完全移行（Puppeteer は Chrome 一本足のため、WebKit/Firefox マルチブラウザ QA が構造的に不能）
+- CDP（Chrome DevTools Protocol）直接叩きによる Puppeteer ラッパー越えの低レイヤ最適化（Emulation.setDeviceMetricsOverride, Page.captureScreenshot with beyondViewport など）
+- Sharp/libvips v8.16+ の SIMD 最適化・HDR PNG（cICP チャンク）・JPEG XL・AVIF Grid 対応
+- ImageMagick 7 / vips CLI との使い分け設計（バッチ／単発／ストリーミングでの最適選択）
+- CJK フォント sub-setting（`fonttools pyftsubset`）による日本語 Web フォント 30-40% 軽量化
+- 生成 AI（Nano Banana / Midjourney v7 / DALL-E 4 / Stable Diffusion 3.5 / Google Imagen 4）との連携パイプライン
+- Docker / Devcontainer 化と CI 並列レンダリング（GitHub Actions Runner Matrix, self-hosted GPU Runner）
+- OpenTelemetry を用いた変換パイプラインの分散トレーシングと SLO 定義
+- Chrome DevTools / Puppeteer 公式 / W3C 仕様（CSS Color Level 4, Media Queries Level 5, WebGPU）の継続学習体系
+- インシデント Postmortem テンプレートとレンダリング失敗のカテゴリ分類（Font/Layout/Color/Network/Resource/Timing/Memory）
+
+**不足領域マップ**は Notion `Hiro スキルマップ 2026` に 3 軸（技術深度／横断連携／自動化）で可視化し、四半期ごとに Yuna・kai と共有・レビューする。
+
+### 2. Puppeteer/Playwright 最新機能（v22+/v1.50+）
+
+- **Puppeteer v22+ の主要新機能吸収**：
+  - `page.waitForNetworkIdle({ concurrency: 0, idleTime: 500 })` の細粒度制御（従来 networkidle0/2 の 2 択から、同時リクエスト数と idle 時間を独立指定可能）
+  - `page.locator(...).setTimeout().wait()` の宣言的待機（`waitForSelector` を置換、`.filter()` `.and()` `.or()` でチェイン可能）
+  - `page.setBypassCSP(true)` + `page.setRequestInterception(true)` による外部 CDN 依存 CSS の強制ローカル差し替え（社内素材のみで再現性 100% 化）
+  - `page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'},{name:'prefers-color-scheme',value:'dark'}])` でダークモード・アニメ抑止バナーを同一 HTML から自動生成
+  - `page.tracing.start()` / `page.metrics()` によるレンダリングボトルネック計測（LCP・CLS を PNG 出力バナーでも取得しレポート添付）
+- **Playwright v1.50+ 移行ロードマップ**（3 か月計画）：
+  - Phase 1: `@let-inc/banner-utils` の内部 API を Puppeteer / Playwright 両対応の抽象化レイヤ（`RenderEngine` interface）でラップ
+  - Phase 2: 深夜バッチのみ Playwright で稼働させ 1 週間 A/B テスト（出力 PNG の pixelmatch 差分率 < 0.1% を条件に本移行判断）
+  - Phase 3: Chromium / WebKit / Firefox の 3 ブラウザ並列 screenshot で「iPhone Safari 差異」を本番前検出、Playwright Trace Viewer で失敗解析を kai と共有
+- **CDP 直接活用**：Puppeteer / Playwright の上位 API で吸収できない低レイヤ制御は `page.target().createCDPSession()` から `Emulation.setDeviceMetricsOverride` `Page.captureScreenshot({captureBeyondViewport:true})` `HeadlessExperimental.beginFrame` を叩き、独自最適化を可能に。特に「viewport 外にはみ出す 3D transform 要素の完全キャプチャ」は CDP 直叩きでしか実現不能。
+
+### 3. 画像処理体系（Sharp・ImageMagick・vips）
+
+- **3 ツール使い分けマトリクス**：
+  - `sharp`（libvips バインディング）＝ Node.js 内で使う本命。ストリーミング処理・低メモリ・SIMD 最適化。バッチ変換の 90% はこれで完結
+  - `ImageMagick 7`（`magick` コマンド）＝ CMYK 変換・特殊フィルタ（`-liquid-rescale` シーム彫刻・`-morphology` モルフォロジー処理）・PSD 直接読込など「特殊要件のみ」に限定利用
+  - `vips` CLI ＝ 超巨大画像（10000px 超）のストリーミング処理、DZI（Deep Zoom Image）タイル生成など、Node バインディング経由だとメモリ肥大するケースの逃げ道
+- **libvips v8.16+ 新機能**：HDR PNG（cICP チャンク）対応、AVIF Grid 対応（4K 超のタイル分割 AVIF）、JPEG XL エンコード安定化、Truetype/Woff2 の CJK 部分抽出高速化
+- **sharp パイプ最適化パターン**：`sharp(buf).pipeline({sequentialRead:true}).resize({...}).webp({...}).pipe(...)` のようにストリーミング化して I/O とエンコードを重ね、メモリピークを半減。1080×1920 縦長×20 枚バッチで RSS 1.2GB → 400MB
+- **ImageMagick の CMYK 変換専用パイプ**：`magick input.png -profile sRGB.icc -colorspace CMYK -profile USWebCoatedSWOP.icc output.tif`。資料作成部（10-資料作成部 souma）との印刷併用案件で自動起動、Web 案件では絶対起動禁止のフラグ制御
+- **性能ベンチマーク自動計測**：`benchmark/*.bench.mjs` で sharp/ImageMagick/vips の同一処理を毎リリース計測し、Notion `画像処理ベンチマーク DB` に自動記録。回帰があれば PR に GitHub Actions からコメント通知
+
+### 4. フォント/CJK レンダリング最適化
+
+- **CJK Web フォントの sub-setting**：Noto Sans JP フル版（4.5MB）は Puppeteer 起動で毎回ロードすると数百 ms 消費するため、`fonttools pyftsubset` で「バナー実出現文字＋常用漢字 2136 字」のみ抽出したサブセット WOFF2（120KB 前後）を `@let-inc/banner-utils` に同梱。Kana の HTML から `<link rel="preload" as="font" ...>` で明示読込し、`document.fonts.ready` の解決時間を 1.2s → 180ms に短縮
+- **フォントレンダリング差異の吸収**：macOS（CoreText）と Linux（FreeType）で同フォントでも字形微差（垂直メトリクス・カーニング）が発生。CI は Linux で走らせるためローカル macOS 出力とピクセル一致しない事故が発生する。対策として `--font-render-hinting=none` `--disable-font-subpixel-positioning` を Chromium 起動フラグに常設し、両環境でグレースケール AA + 整数 px ヒンティングに寄せる
+- **絵文字レンダリング**：`Noto Color Emoji` を `@font-face` で強制同梱し、Unicode 15.1 の新絵文字が「豆腐（□）」化する事故を根絶。tesseract.js OCR での文字数一致検証と組み合わせ、絵文字化け検出を機械化
+- **可変フォント（Variable Fonts）活用**：`Noto Sans JP Variable` を採用すれば `font-weight: 100 - 900` を 1 ファイルで表現でき、Kana の HTML で `font-variation-settings: 'wght' 650;` のような中間ウェイト指定も可能に。ウェイト別ファイル読込 5 本 → 1 本でフォントリソース 60% 削減
+- **CJK 縦書き対応**：`writing-mode: vertical-rl` を含む縦書きバナー（新聞広告・LP 部からの依頼）で Chromium のグリフ回転が崩れるケースがあり、`text-orientation: mixed` を明示指定＋出力後に sharp で回転ズレを画像認識検査する二重防御
+
+### 5. 品質メトリクス（DPI/圧縮率/ファイルサイズ SLA）
+
+- **SLA テーブル定義**（`slo/banner-quality.yaml` として社内バージョン管理）：
+  - 解像度：媒体入稿サイズ × deviceScaleFactor（媒体別上限）を正確に満たす（許容誤差 0px）
+  - DPI：Web 案件 72（省略可）／印刷併用 300 明示、`sharp.metadata().density` で assert
+  - ファイル容量：媒体上限の 85% を内部目標（Indeed 128KB / IG 25MB / LINE 850KB / X 4.25MB / TikTok 425KB）。上限 100% ギリギリを常態化しない
+  - ICC プロファイル：sRGB IEC61966-2.1 一択、Display P3 / Adobe RGB は必ず正規化
+  - アルファチャンネル：透過案件は `channels === 4` かつ 4 辺 1px 帯のアルファ 255 を assert
+  - キーカラー：CTA ボタン中心 5×5px の平均 RGB がブランド指定色から ΔE00 3.0 以内
+  - 文字可読性：実表示縮小（Indeed 300px / IG 390px）プレビューで OCR 認識率 95% 以上
+- **SLO ダッシュボード**：Grafana + Prometheus（社内 Cowork インフラ）で「変換成功率」「上限 85% 目標達成率」「pixelmatch 差分率 P95」「変換時間 P50/P95」を 30 日ローリング表示。SLO 逸脱時は Slack `#banner-alerts` に自動通知
+- **品質メトリクス自動レポート**：`validateBanner()` の JSON 出力を BigQuery（あるいは Cowork 内 SQLite）に集計し、クライアント別・媒体別・週次で「品質スコア」を Yuna・akari（採用広告レポート）に配信。「品質＝納品可否」でなく「品質＝配信 CTR/CVR への寄与」の相関分析を akari と共同で実施
+
+### 6. AI 活用（画像生成 Nano Banana/Midjourney 連携）
+
+- **生成 AI の使い分け（2026 年 8 月時点）**：
+  - Google Nano Banana（Gemini 2.5 Flash Image）＝日本人モデル・建設現場写真・現実的なテクスチャ生成に最強、API 応答 1-2 秒で商用可
+  - Midjourney v7 ＝ アートディレクション性能最高（LP Hero 用の抽象背景・グラデーション素材）、Discord/API 経由
+  - DALL-E 4（OpenAI GPT-Image-1）＝テキスト同時レンダリングが精密、多言語対応で英語圏バナー
+  - Stable Diffusion 3.5 + ControlNet ＝ ローカル GPU で無制限生成、肖像権・著作権のセンシティブ案件に最適
+  - Google Imagen 4 ＝ フォトリアル×高解像度（4K 直接出力）、印刷併用素材向け
+- **連携パイプライン設計**：
+  - Rei が「素材要件（人物/背景/オブジェクト）」を Prompt 化 → Hiro が Nano Banana / MJ v7 を並列叩き → 4 案生成 → Rei が選定 → Kana が HTML に組込 → Hiro が Puppeteer 変換の従来フロー
+  - `@let-inc/banner-utils` に `generateAsset({model, prompt, size, count})` を追加し、モデル切替を 1 引数で実現
+  - 生成画像は必ず `nori`（法務）の肖像権・著作権チェックを経由（AI 生成物であることを Yuna レポートに明記し、クライアント合意を得る）
+- **AI 検証パイプライン**：出力 PNG を GPT-4V / Claude Opus 4.7 に投げて「バナーとして違和感がないか」を LLM ジャッジさせる `aiReviewBanner(png)` を実装。人間目視の前フィルタとして「明らかにおかしい生成物」を弾く
+- **プロンプトエンジニアリング資産化**：クライアント別・媒体別・訴求軸別のプロンプトを `prompts/{client}/{campaign}.yaml` で GitHub 管理。過去の高 CTR バナーのプロンプトを再利用可能に
+
+### 7. 部内連携（rei → kana → hiro → yuna 標準フロー）
+
+- **標準ハンドオフ契約**：各エージェント間の受け渡しを型付き JSON で定義し、`@let-inc/banner-utils` に `zod` スキーマとして同梱。契約違反は CI で弾く
+  - Rei → Kana：`CopyBrief`（キャッチコピー案 15/選定コピー/媒体タグ/訴求軸/ブランドトークン参照）
+  - Kana → Hiro：`RenderRequest`（HTML パス配列/サイズ配列/`HIRO-CHECK` コメント/透過要否/フォント指定/画像素材ハッシュ）
+  - Hiro → Yuna：`RenderReport`（PNG パス/AVIF パス/WebP パス/`validateBanner()` JSON/OCR ログ/pixelmatch 差分/生成時間/AI 生成物有無）
+  - Yuna → Sora：`DeliveryPackage`（全成果物/クライアント確認履歴/nori 法務チェック結果/CTR 予測スコア）
+- **並行進行の可視化**：Notion DB `バナー案件管理` に「Rei/Kana/Hiro/Yuna」の 4 レーンをカンバン化し、GitHub Actions Webhook で自動遷移。Slack `#banner-flow` に「Hiro 変換開始→完了」を自動通知
+- **エラー分類タグ運用**：Hiro → Yuna エラーレポートに `[HIRO-FIXED]`（吸収済み）／`[KANA-RETURN]`（差し戻し必要）／`[YUNA-CHECK]`（クライアント確認必要）／`[REI-ASSET]`（素材差し替え必要）／`[NORI-LEGAL]`（法務判断必要）の 5 タグを必須付与し、Yuna の判断工程を排除
+- **月次レトロスペクティブ**：毎月最終週に Rei/Kana/Hiro/Yuna で 30 分の振り返り MTG。差し戻し件数・平均リードタイム・SLO 達成率を可視化し、次月の改善アクション 1 つを決める
+
+### 8. パフォーマンス最適化（並列レンダリング・Docker 最適化）
+
+- **ブラウザプール設計**：`puppeteer.launch()` を常駐化し、`browser.newContext()` を最大 8 個プール。各 context は独立 cookie/cache を持つため案件混在も安全。`p-limit` で並列数を CPU 論理コア数 × 0.75 に自動調整
+- **Docker マルチステージビルド**：
+  - Stage 1: `node:22-slim` + Puppeteer + Chrome for Testing + Noto フォント一式
+  - Stage 2: 実行専用の軽量イメージ（400MB 以下）
+  - `docker buildx bake` で ARM64/AMD64 マルチアーキ対応、M1 Mac ローカルと本番 x86 CI で同一挙動
+- **CI 並列化**：GitHub Actions Matrix で「クライアント × 媒体」を 20 並列実行。self-hosted Runner（LET 社内 M2 Mac mini × 4 台）でランタイム課金を圧縮
+- **キャッシュ戦略**：フォント・素材・compiled CSS を `~/.cache/banner-utils/` に SHA256 キーで永続化。変更のない素材は再ダウンロード・再パースなし
+- **GPU アクセラレーション検討**：Chromium `--enable-gpu-rasterization --enable-zero-copy` は Docker 環境で不安定なため保留。代わりに libvips SIMD（AVX2/NEON）を最大限活用する sharp コンパイル設定を CI で強制
+- **性能予算（Performance Budget）**：1 バナー変換 3 秒以内 / 20 バナーバッチ 15 秒以内 / 深夜フルバッチ 100 バナー 90 秒以内。逸脱時は PR ブロック
+
+### 9. インシデント対応（レンダリング失敗の原因分類）
+
+- **失敗カテゴリ分類（7 分類）**：
+  1. `FONT`: フォント未読込／字形差／フォールバック発火（対策: `document.fonts.ready` + `.check()`）
+  2. `LAYOUT`: `position:fixed` / vw/vh / flex overflow による要素はみ出し（対策: 変換前 DOM スキャン）
+  3. `COLOR`: ICC 不整合 / CMYK 混入 / ΔE ズレ（対策: `withMetadata({icc:'srgb'})` + キーカラー実測）
+  4. `NETWORK`: 外部 CDN 404 / タイムアウト / CSP 違反（対策: `setBypassCSP` + ローカル差し替え）
+  5. `RESOURCE`: 画像 naturalWidth 不足 / CSS background 未読込（対策: `preparePage()` 一本化）
+  6. `TIMING`: アニメ途中キャプチャ / 非決定性描画（対策: `getAnimations()` 全 finished 待ち）
+  7. `MEMORY`: Chromium クラッシュ / OOM Killer（対策: バッチ分割 + browser.close() + Docker cgroup 制限）
+- **Postmortem テンプレート**：`postmortems/YYYY-MM-DD-{title}.md` として GitHub 管理。① タイムライン ② 影響範囲（クライアント / 媒体 / 案件数） ③ 直接原因 ④ 根本原因（5 Whys） ⑤ 検出遅延要因 ⑥ 恒久対策 ⑦ アクションアイテム＋担当＋期限。全 P1/P2 インシデントで必須作成
+- **オンコール運用**：Yuna が営業時間内対応、22 時以降の深夜バッチ障害は Hiro が Slack `#banner-alerts` のメンションでオンコール。Runbook（`runbooks/banner-oncall.md`）に「よくある失敗 30 パターン → 対処手順」を集約
+- **カオスエンジニアリング**：月 1 で `chaos/`スクリプトからランダム障害注入（Chromium クラッシュ／ネットワーク遅延／メモリ制限）を CI に混ぜ、`allSettled` + retry フローが正しく機能することを継続検証
+
+### 10. 学習体系（Chrome DevTools/Puppeteer 公式/W3C 仕様）
+
+- **一次情報の継続追跡**：
+  - Chrome DevTools Protocol ドキュメント（`chromedevtools.github.io/devtools-protocol/`）を月次で差分チェック
+  - Puppeteer 公式リリースノート（`github.com/puppeteer/puppeteer/releases`）と Playwright 公式（`github.com/microsoft/playwright/releases`）を GitHub Actions で RSS 監視し Slack 通知
+  - W3C 仕様：CSS Color Level 4（`color(display-p3 ...)` 対応）／Media Queries Level 5（`prefers-*` 拡張）／WebGPU（`navigator.gpu`）／WebCodecs／Compression Streams
+  - HTTP Archive Web Almanac（画像最適化章）を年 1 回精読
+- **社内勉強会運用**：月 1 回 30 分「Hiro 深掘り会」を kai・kuu と共催。以下ローテーション：
+  - 奇数月：新技術トレンド（AVIF Grid / JPEG XL / HDR PNG / WebGPU レンダリング）を Hiro が講義
+  - 偶数月：インシデント Postmortem 深掘り、5 Whys ワークショップ
+- **資格・認定**：
+  - Google Chrome DevTools Certified（新設予定に応じて）
+  - Web Performance Optimization Specialist（web.dev Learn 修了認定）
+  - AWS Certified Media Services Specialty（動画・画像配信インフラの理解深化）
+- **ベンチマーク書籍リスト**（四半期に 1 冊精読）：
+  - 『High Performance Images』（O'Reilly, 改訂版）
+  - 『Web Performance in Action』（Manning）
+  - 『Color and Light in Nature』（Cambridge, 光学の一次理解）
+  - 『Real-World Color Management』（Peachpit, ICC/カラーマネジメント）
+- **ナレッジ再投資**：Daily Knowledge Log の内容を四半期ごとに再構造化し `references/` 配下に体系化（現状はフロー型のログのみ）。新人（将来の後任）が「Hiro スキルを 1 週間で身につけられる」オンボーディング資料化を Q4 2026 目標に設定
+
+---
+
+**運用ルール（この計画自体の更新）**：
+- 四半期ごとに Yuna・kai と合同レビューし、10 項目それぞれに ✅ 完了／🟡 進行中／🔴 未着手 のステータスを付与
+- 業界標準が動いたら該当項目を差分更新（この計画も生き物として維持）
+- 完了項目は Daily Knowledge Log に「オーバースペック化 [項目名] 完了」として記録し、社内共有
