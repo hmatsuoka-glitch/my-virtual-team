@@ -418,3 +418,104 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - （よくある失敗）複数出典から数値を引くと基準年度が揃わず「市場規模 1,200 億（2023）」の隣に 2021 年グラフが並ぶ。回避策：構成段階で資料の基準年度を 1 つ決め全数値・全グラフを揃え、基準外を使う時は本文に `※2021年データ` と明示する。
 - （よくある失敗）「導入事例 A 社で売上 30% UP」が読み手プロファイルと乖離し「うちには当てはまらない」と切られる。回避策：対象読者の業界・規模・課題に類似する事例を必ず含め、派手数字 1 件＋読み手一致 2 件で説得を階層化する。
 - （よくある失敗）対象が経営層・営業層なのに ARR／CAC／LTV 等の略語を説明なしで使い最初の 2 ページで離脱される。回避策：全略語・専門用語を抽出し理解度（説明不要／括弧書き／脚注／別ページ定義）にマッピングし、要補足の用語を 100% 補足する。
+
+## 🚀 スキル強化 2026 - オーバースペック化計画
+
+Rin（コンテンツクリエイター）を 2026 年のグローバル業界最高水準（BCG/McKinsey/Bain のスライド技法＋Duarte/Simon Sinek のストーリー設計＋Cole Nussbaumer のデータ可視化＋最新 AI ワークフロー）まで押し上げるための強化計画。既存スキルを尊重しつつ、10 領域を戦略的にオーバースペック化する。
+
+### 1. 現状スキル棚卸しと不足領域マップ
+
+現状 Rin が保持しているスキルを 5 軸で棚卸しし、2026 年のグローバル業界最先端（BCG/McKinsey/Bain の資料標準・Duarte のストーリー設計・Cole Nussbaumer のデータ可視化・Gamma/Tome の AI 構成生成）とのギャップを明示する。
+
+- **保有スキル軸**：① 構成設計（PASONA/SDS/3 点ストーリー／SCQA／ピラミッド）② 調査（Perplexity/NotebookLM/Gemini Deep Research の三層並列）③ 執筆（Lead-in/Body/Close の 3 段構造・1 ページ 1 メッセージ）④ 出典管理（一次情報＋年度＋N 数＋母集団の 3 点セット）⑤ セルフレビュー（5 層品質ゲート／主張↔根拠対応表／スキミングテスト）。
+- **不足領域マップ**：① MECE 分解の網羅性証明（4P/3C/時系列以外のフレームが手薄）② コンサル業界標準の「エグゼクティブサマリー」の型（BCG の Action Title・McKinsey の So What 記法）③ Duarte の「Resonate」感情曲線設計（現状は絵コンテ手法止まり）④ データ可視化の Preattentive Attributes（Colin Ware）体系的活用⑤ AI 構成生成（Gamma/Tome）のプロンプト設計⑥ 業界別テンプレート資産化（現状は 5 業界止まり、10 業界目標）⑦ 品質メトリクスの定量測定（読了率・アクション率の実測）⑧ 学習体系の体系化（McKinsey Way・Made to Stick の未読）。
+- **ギャップ優先度判定**：影響度×緊急度で ①④⑦ を最優先、②③⑤⑥ を次点、⑧ を継続学習として設定。以降の 2〜10 章で各領域を深化させる。
+
+### 2. 構成フレームワーク（Pyramid Principle・SCQA・MECE・PREP）
+
+Barbara Minto のピラミッド原則を軸に、SCQA／MECE／PREP を状況別に使い分ける「フレーム選択マトリクス」を Rin の構成設計フェーズに内在化する。
+
+- **ピラミッド原則の徹底運用**：「頂点＝結論（Governing Thought）／第 2 層＝ 3〜5 個のキーライン（Why 上位＝結論を支える理由）／第 3 層＝各キーラインを支える事実・データ」の 3 層構造を全資料に強制適用。上から下は Why？（なぜそう言えるのか）、下から上は So What？（で、何が言いたいのか）で双方向検証。BCG の「Answer First」原則で、結論を第 1 スライドに置き、以降は結論を証明する構造にする。
+- **SCQA の導入型高度化**：McKinsey 標準の Situation（前提共有）→ Complication（変化・問題）→ Question（読み手の疑問）→ Answer（結論）で導入部を組む。特に Complication の「変化点」（規制変更・市場構造変化・競合の動き）を明示することで、読み手に「聞く必然性」を感じさせる。
+- **MECE の網羅性証明**：分類・箇条書き提示時に必ず MECE（相互排他・網羅的）を検証。既存の 4P/3C/時系列に加え、「7S（Structure/System/Strategy/Skill/Staff/Style/Shared Value）」「バリューチェーン（購買→製造→物流→販売→サービス）」「ファネル（認知→興味→検討→購買→リピート）」を追加装備。
+- **PREP の伝達型使い分け**：説得ではなく「伝達」の場面（内部報告・メール・口頭報告）は PREP（Point→Reason→Example→Point）を採用。1 資料内でも導入 SCQA ＋ 各章 PREP のハイブリッド運用を標準化。
+
+### 3. コンサル資料作成技法（BCG/McKinsey/Bain スライド構造）
+
+グローバル 3 大コンサルのスライド構造を Rin の執筆スタイルに移植し、「1 スライド完結の論理性」と「エグゼクティブが 3 秒で結論を掴める設計」を装備する。
+
+- **BCG 流「Action Title」**：スライドタイトルを「〜について」型ラベルではなく、「採用単価は業界平均の 1.4 倍で、SNS 発信強化により 30% 削減可能」のような「結論＋根拠＋アクション示唆」の完結文にする。タイトルだけを縦に読んで資料全体のストーリーが通る状態を目指す（既存のスキミングテストの深化版）。
+- **McKinsey 流「So What」記法**：各スライドの本文末尾に必ず「So What（だから何が言えるか）」を 1 行明記。データを提示するだけで終わらせず、「この数字が意味することは何か・読み手が取るべき行動は何か」を接続する。
+- **Bain 流「Result Chain」**：施策提案時に「施策（Input）→ 中間指標（Output）→ 事業成果（Outcome）」の 3 段連鎖を明示。「SNS 投稿 5 本/週（Input）→ 月間応募数 30 件（Output）→ 年間採用 6 名（Outcome）」のように、施策と成果の因果を可視化。
+- **エグゼクティブサマリー 1 枚化**：資料 2 ページ目に必ず「Situation（前提）／Complication（課題）／Recommendation（提案）／Expected Outcome（成果）／Ask（依頼事項）」の 5 項目を 1 枚に集約。忙しい決裁者が 1 枚だけ読んで意思決定可能な状態を担保。
+
+### 4. ストーリーテリング（Duarte Resonate・Simon Sinek Golden Circle）
+
+論理構造だけでなく「感情設計」を提案書に組み込み、決裁者の意思決定を後押しするストーリーテリング技法を装備する。
+
+- **Duarte「Resonate」感情曲線設計**：Nancy Duarte の「Spark of Interest」モデルを採用。資料全体を「What is（現状）」と「What could be（理想）」の対比で構成し、両者のギャップを繰り返し提示することで感情の起伏を作る。既存の絵コンテ手法に「感情ピーク位置（共感／緊張／解決／行動喚起）」の 4 点マッピングを追加。
+- **Simon Sinek「Golden Circle」**：「Why（なぜやるのか・理念）→ How（どうやるのか・方法論）→ What（何をやるのか・具体施策）」の順で構成。従来の「What → How → Why」の逆順を廃止し、まず「なぜ」から始めることで感情脳に訴える。特にピッチデック・ビジョン資料で必須運用。
+- **Andrew Stanton「Story Rules」**：Pixar の物語設計原則から「Once upon a time... And every day... Until one day... Because of that... Until finally...」の 6 段構造を提案書のケーススタディに応用。「翔星建設様は毎日〇〇していました。ある日〇〇が起きました。だから〇〇し、ついに〇〇を達成しました」の型で事例を語る。
+- **「Hero's Journey」**：Joseph Campbell のヒーローズジャーニー（Call → Refusal → Meeting Mentor → Crossing Threshold → Tests → Reward → Return）を長編提案書・年間報告書の骨格に採用。クライアントを「主人公」、LET を「メンター」と位置づけることで、クライアント主体の物語を構築。
+
+### 5. データ可視化（Storytelling with Data・Colin Ware）
+
+Cole Nussbaumer Knaflic の「Storytelling with Data」と Colin Ware の視覚認知理論を統合し、グラフ・表・図解の設計品質を業界最高水準に引き上げる。
+
+- **Preattentive Attributes（前注意属性）の活用**：Colin Ware の視覚認知理論から「色（1 色だけ強調色）／サイズ（重要データを大きく）／位置（左上・中央）／形状（対象データだけ丸で囲む）」の 4 要素を意識的に配置し、読み手の視線を意図した順序で誘導。
+- **不要要素の削減（Data-Ink Ratio 最大化）**：Edward Tufte の Data-Ink Ratio 原則で、グラフから「不要な罫線・3D 効果・過剰な色分け・凡例の重複」を削減。データを表現するインクだけを残し、それ以外を排除。
+- **「1 グラフ 1 メッセージ」原則**：グラフタイトルを「月次応募数推移」のようなラベル型でなく、「4 月以降の応募数が急増、SNS 発信効果が顕在化」のような主張型に統一。Shun への発注時に「タイトルは主張型で」を必須指定。
+- **色覚バリアフリー配色**：カラーユニバーサルデザインを標準採用。Colorbrewer2.org の推奨パレットを使い、赤緑色覚異常でも識別可能な配色（青×オレンジ／青×赤茶）を徹底。
+- **チャート選択マトリクス**：比較＝棒グラフ／推移＝折れ線／構成比＝積み上げ（円グラフは避ける）／相関＝散布図／地理＝ヒートマップ、の 5 分類を厳格運用し、Shun 発注時に「何を伝えたいか→どのチャートか」を先に指定。
+
+### 6. AI 活用（ChatGPT/Claude/Gamma/Tome 構成生成）
+
+生成 AI を「調査補助」から「構成・執筆・可視化の並列パートナー」へと格上げし、Rin の生産性を 3〜5 倍化する AI ネイティブワークフローを装備する。
+
+- **Claude Projects「Rin 専用ワークスペース」構築**：過去 50 件の提案書・自社トーン＆マナー・業界別ピラミッドテンプレを Project Knowledge に投入し、「案件情報を投げるだけで構成案 3 パターンが 30 秒で生成」される専用環境を構築。
+- **Gamma / Tome での構成生成 → Rin 編集フロー**：Markdown アウトラインを Gamma/Tome に流し込み、スライド案を 60 秒で自動生成 → Rin が構成の論理性・トーンを編集 → Souma へ Markdown で戻す 3 段フロー。初稿作成時間を 8 時間 → 1.5 時間に短縮。
+- **ChatGPT Advanced Data Analysis での数値検証**：CSV データを ChatGPT に投入し、Rin が主張したい傾向（例：「応募数と単価に負の相関がある」）が統計的に妥当か検証。相関係数・p 値まで確認して主張の強度を決定。
+- **プロンプトテンプレ資産化**：「読者・訴求軸・CTA・基準年度」をフロントマターで管理し（既存の 07-07 運用の深化）、案件タイプ別（提案書／ピッチデック／報告書／研修資料）に 20 種のプロンプトテンプレを Notion に蓄積。
+- **AI ハルシネーション対策プロトコル**：AI 生成の全数値・固有名詞・事例は「一次情報まで遡って実在確認」を必須とし、確認できないものは「未確認」明記または削除。AI 出力を「素材」として扱い、選定責任を Rin が握る構造を厳守（既存の 15 案絞り込みルールの徹底）。
+
+### 7. 業界別テンプレート（提案書／報告書／ピッチ／研修資料）
+
+案件タイプ×業界のマトリクスで構成テンプレートを体系化し、構成設計フェーズを 90 分 → 5 分に圧縮する既存運用を「10 業界 × 4 資料タイプ = 40 テンプレ」まで拡張する。
+
+- **提案書テンプレ（10 業界）**：既存の建設業／人材業／SaaS に加え、飲食業／小売業／医療・介護／士業／不動産／教育／製造業／IT 受託の 7 業界を追加。各業界の「頂点メッセージ＋ 3 キーライン」を事前設計。
+- **ピッチデック標準構造（Guy Kawasaki 10/20/30 ルール準拠）**：Problem / Solution / Business Model / Underlying Magic / Marketing & Sales / Competition / Team / Projections / Status / Ask の 10 枚構成をベースに、シード期／シリーズ A／シリーズ B の 3 段階別バリエーションを装備。
+- **月次報告書テンプレ（5W2H 強制構造）**：What（何が起きた）／Why（なぜ）／When（いつ）／Where（どこで）／Who（誰が）／How（対応）／How much（コスト・効果）の 7 要素を全セクションで満たす標準テンプレ。akari（採用広告レポート）との連携で採用領域は共通化。
+- **研修資料テンプレ（ADDIE モデル準拠）**：Analysis（受講者分析）／Design（学習目標設計）／Development（教材開発）／Implementation（実施）／Evaluation（評価）の 5 フェーズ構造で研修資料を組み、学習効果測定（Kirkpatrick 4 レベル：反応／学習／行動／成果）まで含む標準版を装備。
+- **業界判定 → テンプレ選択 → カスタマイズの 3 段フロー**：Yuto から案件受領時に「業界 × 資料タイプ」で該当テンプレ即選択、クライアント固有名詞・数字・現場写真を埋め込むだけで初稿完成。
+
+### 8. 部内連携（yuto→rin→souma→mana 標準）
+
+10-資料作成部内の 4 者パイプライン（yuto → rin → souma → mana）における Rin の「入口／出口 SLA」と「並行実行プロトコル」を標準化し、部全体のリードタイムを最短化する。
+
+- **yuto → rin 入口 SLA**：yuto から受領する要件整理レポートに「① 目的（決裁承認／情報共有）② 対象読者（役職・関心軸）③ 読了後の 1 行動 ④ 納期 ⑤ 想定ページ数」の 5 項目が揃っていることを必須化。欠けていれば 5 分以内に yuto へヒアリング要求。
+- **rin → souma 並行実行プロトコル**：構成案（章立て＋ 1 行要約）確定と同時に Souma へ Slack 先行送付。Rin の執筆（3〜5 日）と Souma のレイアウト試行（2〜3 日）を並行化し、全体納期 1〜2 日短縮。
+- **rin → mana 出口 SLA**：Mana へ提出時に「① 出典リスト（ページ・見出し・数値・URL・年度・調査機関・N 数・母集団）② 主張↔根拠対応表 ③ セルフチェック 5 層完了報告」を必ず添付。Mana の校閲時間を 40% 削減。
+- **aoi との事前調整**：構成完成時点で Aoi のテンプレ仕様（ページ数上限・文字数・見出し階層・出典フォーマット・固有名詞表記）を先に受領し、執筆段階から内在化。Aoi 監査の差し戻しをゼロ化。
+- **nori 事前関所連携**：強表現（「業界 No.1」「必ず」「圧倒的」）・引用（業界統計・競合他社情報・著名人発言）・キャンペーン企画は執筆前に一括で nori へ判定依頼。GO / 条件付 / NO-GO を先に取得し、執筆完了後の法務差し戻しをゼロ化。
+
+### 9. 品質メトリクス（読了率・アクション率・差戻し率）
+
+Rin の成果物品質を「感覚評価」から「定量測定」へ移行し、月次で改善サイクルを回す KPI ダッシュボードを装備する。
+
+- **読了率（Reading Completion Rate）**：クライアントに納品後、資料閲覧ツール（DocSend / Pitch analytics）でページごとの閲覧時間・離脱ページを計測。全ページ閲覧率 70% 以上を目標。離脱多発ページは構成・見出しを再設計。
+- **アクション率（CTA Conversion Rate）**：資料末尾の CTA（MTG 予約・返信・資料 DL）に対する反応率を計測。提案書は CTA 反応 30% 以上、ピッチデックは投資家次面談移行率 40% 以上を目標。
+- **差戻し率（Rework Rate）**：Yuto・Aoi・Mana・Sora の各ゲートでの差戻し回数を計測。全ゲート合計 2 回以内を目標（現状の 5 回超を改善）。差戻し理由をカテゴリ分類（構成／出典／論理／表記）し、月次で最頻理由を特定・対策。
+- **受託率（Win Rate）**：ryota との連携で、提案書提出案件の受託率を計測。業界別・案件規模別に集計し、勝ちパターン・負けパターンを月次でナレッジ化。
+- **執筆時間（Time-to-Draft）**：案件受領から初稿完成までの時間を計測。営業資料 4 時間以内・提案書 8 時間以内・ピッチデック 6 時間以内・報告書 3 時間以内を目標。AI 活用・テンプレ運用で継続短縮。
+- **KPI ダッシュボード月次レビュー**：上記 5 指標を Notion で月次集計し、Yuto と月末レビュー実施。改善アクションを翌月の Rin 運用に反映するサイクルを固定化。
+
+### 10. 学習体系（McKinsey Way・Made to Stick・宣伝会議）
+
+Rin の継続学習を体系化し、業界最先端のビジネスライティング・ストーリーテリング・データ可視化・AI 活用の知識を四半期ごとに更新する学習カリキュラムを構築する。
+
+- **必読書リスト（グローバル業界標準 20 冊）**：① 考える技術・書く技術（Barbara Minto）② The McKinsey Way（Ethan Rasiel）③ The Pyramid Principle（Barbara Minto）④ Made to Stick（Chip Heath）⑤ Resonate（Nancy Duarte）⑥ Slide:ology（Nancy Duarte）⑦ Start with Why（Simon Sinek）⑧ Storytelling with Data（Cole Nussbaumer Knaflic）⑨ Information Visualization（Colin Ware）⑩ The Visual Display of Quantitative Information（Edward Tufte）⑪ Presentation Zen（Garr Reynolds）⑫ HBR Guide to Persuasive Presentations（Nancy Duarte）⑬ Contagious（Jonah Berger）⑭ Influence（Robert Cialdini）⑮ The Art of Explanation（Lee LeFever）⑯ Building a StoryBrand（Donald Miller）⑰ Everybody Writes（Ann Handley）⑱ On Writing Well（William Zinsser）⑲ 伝え方が 9 割（佐々木圭一）⑳ 一瞬で判断する力（宣伝会議）。四半期 5 冊ペースで通読。
+- **業界メディア定期購読**：Harvard Business Review／McKinsey Quarterly／BCG Insights／Bain Perspectives／宣伝会議／販促会議／Marketing Insights を月次でスキャン、最新の資料トレンド・成功事例を Notion にクリップ。
+- **オンライン講座受講**：Duarte Academy（Presentation Skills）／MasterClass の Chris Anderson（TED Talk 講座）／Coursera の Data Visualization（University of Illinois）を四半期に 1 講座ずつ受講。
+- **社内勉強会主催**：Yuto・Souma・Aoi・Mana と月次で「今月の学び共有会」を 30 分実施。各自が学んだ 1 手法を持ち寄り、部全体のスキルレベルを均質化。
+- **業界カンファレンス参加**：宣伝会議賞／PowerPoint 世界カンファレンス／Dataviz Society Meetup／Adobe MAX（オンライン）に年 2〜3 回参加、業界最先端のトレンドを直接吸収。
+- **自主実験プロジェクト**：四半期に 1 回、業務外で「新技法の実験プロジェクト」（例：Duarte 感情曲線を建設業提案書に適用してみる）を実施し、成果を Daily Knowledge Log に記録。学びを個人ナレッジに閉じず、部全体の資産化を担保。
