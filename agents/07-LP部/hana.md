@@ -760,3 +760,10 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **（よくある失敗）:hover/:focus/:active/:disabled等の状態依存スタイルを、初期表示だけ見て採取漏れする**：静止状態だけ抽出するとボタンのホバー色・フォーカスリング・無効化表示が実装で欠落する。回避策：STEP 5でインタラクティブ要素（ボタン・リンク・フォーム）はDevToolsの状態強制（:hov）で各状態のcolor/background/border/transformを採取し、ホバー時の変化（2026-06-23参照のtransition値）とセットで仕様書に記録する。
 - **（よくある失敗）画像の実寸だけ採り、`object-fit`/`aspect-ratio`/`background-size`を落として実装で画像が歪む・トリミング位置がずれる**：コンテナに対する画像の収め方が抜けるとレスポンシブで縦横比が崩れる。回避策：STEP 4で`<img>`・`background-image`はobject-fit（cover/contain）・object-position・aspect-ratio・background-size/positionをセット記録し、Renがコンテナサイズ変化時のトリミング挙動を再現できる状態にする。
 - **（よくある失敗）font-familyのフォールバックスタック（2番目以降）と`font-display`を無視し、1番目だけ採取してWebフォント読込失敗時の見た目・FOIT/FOUTが崩れる**：スタック全体を採らないと未読込時に意図しない代替フォントで表示される。回避策：STEP 3でfont-familyは指定された全スタック（欧文→和文→sans-serif等の順）と`font-display`（swap/optional等）を丸ごと記録し、Renへ「1番目が落ちた時の代替と表示挙動」まで渡す。日本語フォントのサブセット化有無も併記する。
+
+### 2026-08-08
+- **効率化テクニック：Playwrightの`page.evaluate`で`getComputedStyle()`を全DOM要素に走らせ、CSS変数解決後の実値をJSON化して差分抽出**：STEP 2〜5をブラウザレンダリング後の「実際に効いている値」ベースで一括採取できるため、複数CSSファイルのカスケード解析（2026-08-03のネスティング/@scope、2026-07-27の`:has()`）を目視で追う工数が消える。取得結果は「セレクタ→効いているプロパティ全展開」の辞書形式でNao/Renへ渡す。
+- **品質チェックポイント：viewport 375/768/1280/1920の4断面で同一要素の`getBoundingClientRect`と`getComputedStyle`をスナップショット化し、container query（2026-07-01参照）とmedia queryどちらで分岐しているかを判定してから記録**：ブレークポイント判定を「幅だけで見る」とcontainer query採用サイトの分岐を丸ごと逃す。STEP 6のブレークポイント表に「トリガー種別（vw/cqw/cqi）」列を追加し、Renの再現漏れを防ぐ。
+- **失敗パターン：`@font-face`の`unicode-range`分割配信を無視して1ファイルとして扱い、日本語サブセット（漢字レンジ）が抜けて実装で豆腐化する**：Google Fonts CSS2の`Noto Sans JP`等はU+30xx/U+4E00-9FFFなど範囲別に複数`@font-face`が定義されている。STEP 3の追加として`unicode-range`宣言を全て採取し、Renへ「レンジ毎の読込順・優先度」まで渡す。2026-08-05のライセンス確認と同じ関所として運用する。
+- **トレンド察知：Baseline 2026対応の`color-mix()`・`oklch()`色空間・`light-dark()`関数の採用が急増**：ブランドカラーを`oklch()`で定義してテーマ切替を`light-dark()`一関数で表現するサイトが増えた。STEP 2のカラー抽出で「色空間（sRGB/OKLCH/P3）」と`color-mix()`のミックス比を必ず記録し、HEX変換のみで渡すと広色域ディスプレイでの見え方が劣化することをNao/Renへ明記する。
+- **連携ヒント：Kaitoへの納品時に「Ren即実装可能スニペット」欄を新設し、`@property`宣言・`:root`カスタムプロパティ・`@font-face`ブロックをCSSそのままコピペ可能な形で先頭に格納**：仕様書表→Renの手打ち変換で発生するタイポやスペル揺れ（`--color-primary`と`--primary-color`の食い違い等）を消せる。2026-07-21のトークン先出しをコード形式にまで進化させた運用。
