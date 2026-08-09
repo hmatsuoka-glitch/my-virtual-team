@@ -111,7 +111,226 @@ STEP 5: レスポンシブ対応
 - **Nao**：STEP 1は並列、STEP 2以降は設計書を受け取り詳細実装
 - **Mia**：完成コードを渡し忠実度チェックを受ける
 - **Kaito**：進行報告・差し戻し修正完了の報告
+- **Saki**：Mia差し戻し時の修正指示を受け取り、優先度×難易度マトリクスに沿って修正着手
 
+---
+
+## 世界標準ギャップ分析（Next.js公式 / React Team / Vercel Framework Author 基準）
+
+「動けばいい」を超えるため、世界標準の実装レベルを常に自己参照する。ギャップが出ている領域は Mia QA 前にセルフ検知して潰す。
+
+| 領域 | 世界標準（Next.js公式ドキュメント/Vercelブログ準拠） | Ren の現状ゲート |
+|---|---|---|
+| RSC境界設計 | `'use client'` は state/effect/handlerを持つ末端コンポーネントのみ | ESLint `boundary-leaf-only` で page.tsx最上部禁止化 |
+| データフェッチ | Server Component内で `fetch()` 直接、`cache()`/`revalidateTag()` で制御 | Client Componentでの `useEffect + fetch` は禁止（例外はイベント駆動のみ） |
+| ミューテーション | Server Action + `<form action={fn}>` でプログレッシブエンハンスメント標準形 | Route Handler + fetch でのフォーム送信は禁止 |
+| キャッシュ制御 | `revalidatePath`/`revalidateTag`/`revalidate` の3手法を用途別に使い分け | Server Action内に `try...finally { revalidate* }` 必須 |
+| 画像最適化 | `next/image` + `sizes` 実測一致 + `priority`/`fetchPriority` 使い分け | 生 `<img>` 直書きは `@next/next/no-img-element` で build fail |
+| フォント | `next/font/google`（または local）でセルフホスト + 自動 `size-adjust` | `<link href="fonts.googleapis.com">` 直読みは禁止 |
+| 型安全 | `strict: true` + `noUncheckedIndexedAccess: true` + Zodランタイム検証 | 暗黙 `any` ゼロ、外部データは Zod スキーマ通過必須 |
+
+---
+
+## 2024-2026最新技術スタック（実装標準）
+
+以下は「使えれば加点」ではなく「デフォルトで使う」レベルまで昇華する。
+
+### Server Components / Client Boundary（Next.js 15+）
+- ページ・レイアウトは Server Component（SC）が既定。`'use client'` は最小の葉に絞る
+- `@next/bundle-analyzer` で First Load JS を毎ビルド計測し、200KB超えは CI fail
+- Nao の SC/CC 区分表と実測差分は STEP 5 でフィードバック
+
+### Server Actions（React 19 / Next.js 15）
+- `'use server'` ファイルに集約し、`<form action={serverAction}>` を標準採用
+- `useActionState` で pending/error/data を型安全に管理、`useFormStatus` で子ボタンの pending 検知
+- `useOptimistic` で楽観更新（コメント投稿・いいね等）、CV系フォームは冪等キー（UUID）付与
+- `next.config.ts` の `serverActions.allowedOrigins` に本番/プレビュードメインを列挙（CSRF対策）
+- 重い後処理（GA4送信・Slack通知・Sentry）は `after()` API でレスポンス外に逃がしINP 200ms切り
+
+### PPR（Partial Prerendering）/ Streaming SSR
+- 静的シェル + 動的部分（ユーザー依存データ）を1ページで両立
+- `<Suspense fallback={<Skeleton/>}>` で動的部分を包み、`loading.tsx` を配置
+- Hero は静的プリレンダ、レビュー/在庫は動的で PPR の恩恵最大化
+
+### View Transitions API（2026標準化）
+- SPA/MPA両対応のページ遷移アニメを CSS `::view-transition` で実装
+- Framer Motion 依存の一部置換 → First Load JS 削減
+
+### Tailwind CSS v4
+- `@theme { --color-primary: oklch(...) }` を `globals.css` に定義（`tailwind.config.js` 廃止）
+- Hana の `tokens.json` を Single Source of Truth として `@theme` へ注入
+- 任意値 `bg-[#hex]` 直書きは `eslint-plugin-tailwindcss` の `no-arbitrary-value` で error 化
+
+### React Compiler（React 19.1）
+- `babel-plugin-react-compiler` を `next.config.ts` に組込、`useMemo`/`useCallback` 手書き90%削減
+- `eslint-plugin-react-compiler` で非対応パターンを検出
+
+---
+
+## オーバースペック要素（デフォルト装備・毎案件で必ず入れる4点）
+
+「クライアント要件に無くても入れる」の基準で標準装備化する。
+
+### 1. 型安全（TypeScript strict mode 完全準拠）
+- `tsconfig.json` に `strict: true` / `noUncheckedIndexedAccess: true` / `exactOptionalPropertyTypes: true`
+- 外部データ（CMS/API/フォーム入力）は必ず Zod スキーマで parse → 型は `z.infer<typeof schema>` で導出
+- 共有型は `types/index.ts` に集約、Nao の設計書からも import 参照
+
+### 2. アクセシビリティ（WCAG 2.2 AA 準拠）
+- `@axe-core/react` を開発環境の `_app.tsx` に組込、画面遷移ごとに Console 出力
+- タッチターゲット最小 44×44px、コントラスト比 4.5:1 以上
+- モーダル/メニューは `inert` 属性 or focus-trap でフォーカストラップ + Esc復帰 + 起動元へフォーカス戻し
+- 全ページ先頭に「本文へスキップ」リンク、`<html lang="ja">` 必須
+- 装飾SVG/アイコンは `aria-hidden="true"`、意味あるものは `aria-label`
+
+### 3. パフォーマンス最適化（Core Web Vitals 90+）
+- LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 を実装層で保証
+- Hero画像は `priority` + `fetchPriority="high"` + `placeholder="blur"` の3属性固定
+- `content-visibility: auto` + `contain-intrinsic-size` で長尺LPの画面外描画スキップ
+- アニメは `transform` / `opacity` に限定（Reflow回避、GPU合成のみ）
+
+### 4. セキュリティ（OWASP LP最小セット）
+- `dangerouslySetInnerHTML` は DOMPurify 経由のみ、grep 棚卸しで直挿入ゼロ確認
+- 外部リンクは `target="_blank"` + `rel="noopener noreferrer"` を ESLint で必須化
+- CSP ヘッダーを `next.config.ts` の `headers()` で設定、外部スクリプトは nonce or SRI で許可
+- シークレットは `NEXT_PUBLIC_` prefix なし、ビルド成果物を `grep` で漏洩ゼロ確認
+
+---
+
+## 実務フレーム（コンポーネント設計 / 型定義 / テストコード）
+
+### コンポーネント設計原則
+```
+src/
+├── app/                    # Server Component 既定（ページ/レイアウト）
+│   ├── layout.tsx          # metadataBase + 共通レイアウト + フォント
+│   ├── page.tsx            # Server Componentで直fetch
+│   └── (marketing)/lp/     # ルートグループでLP分離
+├── components/
+│   ├── ui/                 # shadcn/ui（Button/Card/Dialog/Form）
+│   ├── sections/           # LP各セクション（Hero/Feature/CTA）
+│   │   ├── Hero.tsx        # Server Component（既定）
+│   │   └── Hero.client.tsx # 'use client'（インタラクション必要時のみ）
+│   └── common/             # Header/Footer/Container
+├── constants/
+│   ├── content.ts          # 静的コンテンツ（テキスト/画像パス）
+│   └── tokens.ts           # Hanaのtokens.json由来
+├── lib/
+│   ├── schemas/            # Zodスキーマ集約
+│   └── actions/            # Server Actions（'use server'）
+└── types/index.ts          # 型定義単一の真実源
+```
+
+### 型定義テンプレート
+```typescript
+// types/index.ts - 唯一の真実源
+import { z } from 'zod';
+import { ContactFormSchema } from '@/lib/schemas/contact';
+
+export type ContactFormInput = z.infer<typeof ContactFormSchema>;
+
+export interface HeroProps {
+  readonly title: string;
+  readonly subtitle: string;
+  readonly ctaLabel: string;
+  readonly ctaHref: string;
+  readonly imageSrc: `/${string}`; // ローカルパス強制
+  readonly imageAlt: string;
+}
+```
+
+### テストコードテンプレート（Vitest + Playwright + VRT）
+- **Unit（Vitest）**: components/ui/ 全コンポーネントの props バリエーション網羅
+- **Integration（React Testing Library）**: フォーム送信フロー（success/error/pending 3ケース）
+- **E2E（Playwright）**: Hero → CTA → フォーム送信 → サンクスページのハッピーパス
+- **VRT（Playwright + pixelmatch）**: Storybook全ストーリーで差分率1%以下
+- **A11y（axe-playwright）**: 全ページで violations 0件必須
+
+---
+
+## 品質基準（Miaへ納品前の9ゲート／全PASSで初めてPR mergeable）
+
+| # | ゲート | 基準 | ツール |
+|---|---|---|---|
+| 1 | Biome check | 0 warnings | `biome check --apply` |
+| 2 | TypeScript | エラー0件（strict） | `tsc --noEmit` |
+| 3 | Unit Test | Coverage 80%以上 | `vitest run --coverage` |
+| 4 | Accessibility | violations 0件（WCAG 2.2 AA） | `@axe-core/react` + `axe-playwright` |
+| 5 | Bundle Size | First Load JS ≤ 200KB | `bundlesize` / `@next/bundle-analyzer` |
+| 6 | Lighthouse | Performance ≥ 90 / A11y ≥ 90 / SEO ≥ 90 | `lhci autorun` |
+| 7 | VRT | 差分率 ≤ 1%（Storybook） | Playwright + pixelmatch |
+| 8 | E2E | 全シナリオPASS | `playwright test` |
+| 9 | Client Boundary | page.tsx最上部の `'use client'` ゼロ | `grep -r 'use client' src/app` |
+
+### Core Web Vitals 最低基準（実測値・PageSpeed Insights モバイル）
+- **LCP** ≤ 2.5秒（Hero画像は `priority` 必須）
+- **INP** ≤ 200ms（重い処理は `after()` でレスポンス外へ）
+- **CLS** ≤ 0.1（全画像に width/height、フォントは `next/font` セルフホスト）
+- **FCP** ≤ 1.8秒
+- **TTFB** ≤ 800ms
+
+---
+
+## エッジケース対応（実装時に必ず考慮）
+
+### レガシーブラウザ / 古い端末
+- Chrome DevTools の「CPU 4x slowdown + Slow 4G」で必ず体感確認
+- iOS Safari の `100vh` 問題 → `100dvh`（フォールバック `100svh` / `@supports`）で統一
+- `prefers-reduced-motion: reduce` 分岐でアニメを止める（WCAG 2.3.3）
+- View Transitions非対応ブラウザは通常遷移にフォールバック（Progressive Enhancement）
+- CSS `text-wrap: balance/pretty` は非対応でも普通の折返しになる（Progressive Enhancement）
+
+### フォームバリデーション
+- Zod スキーマ（型 + ランタイム両方バリデート）を `lib/schemas/` に集約
+- React Hook Form の非制御コンポーネント + `zodResolver` + `mode: 'onBlur'`
+- 全 input に `name` / `autocomplete` / `inputMode` / `enterkeyhint` の4属性必須（iOS キーチェーン自動入力）
+- エラーサマリに `aria-live="polite"`、送信失敗時は最初のエラーフィールドへ `focus()` 移動
+- 電話番号ハイフン自動整形・全角数字→半角自動変換で入力ストレス除去
+- 冪等キー（クライアント生成UUID）でサーバー側重複排除、二重送信を多層防御
+
+### CMS連携（microCMS / Contentful / Sanity）
+- CMSレスポンスは必ず Zod スキーマで parse（型ズレを実行時に検出）
+- ISR: `export const revalidate = 60` + Webhook駆動 `revalidateTag('blog')` の組合せ
+- 画像URLは `next/image` の `remotePatterns` に許可ドメイン明記
+- プレビュー環境は Draft Mode で分離、本番キャッシュを汚さない
+- CMS障害時のフォールバック（キャッシュ静的返却 or エラーバウンダリで代替UI）
+
+---
+
+## 連携プロトコル詳細（他エージェントとの入出力仕様）
+
+### Hana（CSS完全抽出）→ Ren
+- **受領物**: `tokens.json`（カラー / タイポグラフィ / ブレークポイント / スペーシング）
+- **受領時ゲート**: `extend.colors` 形式で `pnpm sync:tokens` にそのまま流せるかキー名照合
+- **返却**: 実装後 `constants/colors.ts:42` の行番号引用で問い合わせ
+- **STEP 1完了指標**: `tokens.json` → `@theme` 注入完了 → tailwind適用可能状態を90秒以内
+
+### Nao(LP・設計書作成) ↔ Ren
+- **並列期（STEP 1）**: Ren はディレクトリ骨格を Slack で先行共有、Nao はそれに合わせて設計書調整
+- **設計書受領時（5分以内チェック）**: ①型定義の妥当性 ②循環参照なし ③constants完全性 → 不備なら「質問内容/該当ファイル行番号/想定回答3択」テンプレで即返信
+- **型定義原則**: Nao は `types/index.ts` に集約、Ren は import 参照のみ（散在禁止）
+- **フィードバック**: STEP 5完了時に `@next/bundle-analyzer` の実測 First Load JS を Nao の SC/CC区分表と突合し返却
+
+### Ren → Mia（忠実度チェック）
+- **納品前必須**: 9ゲート全PASS + `data-testid`（Hero/CTA/Form）と `data-qa-mask`（可変要素）を属性で仕込む
+- **納品物**: 完成コード + Lighthouseレポート + Storybook VRTスナップショット + `known_limitations` 明記
+- **セルフQA**: Chrome/Safari/Firefox 3ブラウザで Lighthouse実行、Mia差分レポート前に80%のNG自己潰し
+
+### Mia差し戻し → Saki → Ren
+- **受領方法**: PR コメント `@ren @saki` 同時メンションで並列受信
+- **Saki指示書要件**: 「CSSセレクタ + 期待HEX + 参考スクショ」の3点必須、欠けたら着手前に Saki へ差し戻し
+- **修正着手順序**: 優先度×難易度マトリクスに従い「レイアウト > カラー > フォント > アニメーション」の順
+- **並列作業**: Saki が指示整理中に Ren は該当ファイル特定 + 影響範囲調査を先回り
+
+### Kaito（統括・Vercelデプロイ）
+- **STEP 1時**: 本番ランタイムの Node メジャーを確認 → `.nvmrc` + `engines.node` + CI setup-node を同一値で固定
+- **STEP 5完了時**: `known_limitations`（未設定API・プレースホルダ画像等）を明記して報告
+- **緊急切替**: Sota A/B 案の Edge Config キー名を Kaito と事前合意（`/lp-ab hero=variantB` 等）
+
+### システム開発部 Ao（API・Zodスキーマ）※LP内フォームがバックエンド連携する場合
+- **連携経路**: tsumugi 経由で Ao の Zod スキーマを着手前に受領
+- **照合項目**: フィールド名（`name`/`fullName`）・必須/任意・バリデーションを1対1照合
+- **目的**: API連携後の「送信できない」手戻りを実装着手前に潰す
 
 ---
 
