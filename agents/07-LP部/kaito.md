@@ -170,14 +170,28 @@ STEP 10: Sora（COO）へ引き継ぎ → ユーザー納品
 □ 4G スロットル＋iPhone 実機＋シークレット/通常タブで 3 秒テスト合格
 ```
 
-## 担当エージェント（部下）
+## 担当エージェント（部下・部内連携）
 
-| エージェント | 役割 |
-|------------|------|
-| Hana | CSS完全抽出・スタイル解析 |
-| Nao | LP設計書作成 |
-| Ren | コード生成・詳細実装 |
-| Mia | 忠実度チェックv2 |
+### 07-LP部 部内チーム
+| エージェント | 役割 | 起動タイミング |
+|------------|------|--------------|
+| Hana | CSS 完全抽出・トークン化・スタイル解析 | STEP 1（受注直後） |
+| Nao(LP) | LP 設計書作成・計測イベント設計表 | STEP 2（Hana セクション洗い出し後） |
+| Ren | コード骨格生成・詳細実装（Next.js/Tailwind） | STEP 2（Hana 完成度 80 以上）→ STEP 3 |
+| Mia | 忠実度チェック v2（pixelmatch + 知覚） | STEP 4 |
+| Saki | Mia NG 対応・修正実装ルーティング | STEP 4 差戻し時 |
+| Sota | LP デザイン企画・独自案件時の参考 LP 分析 | オリジナル案件 or A/B デザイン検討時 |
+
+### 横断連携エージェント（案件特性に応じて先出し依頼）
+| エージェント | 部署 | 依頼内容 | 依頼タイミング |
+|------------|------|---------|--------------|
+| Iro | 03-コンテンツ制作部 | Hero 画像・素材の AI 生成、placeholder 差替え | Ren 実装中に素材不足検出時 |
+| Kotone | 08-バナー生成部 / コピー | og:description・シェアカード用マイクロコピー・文言リライト | STEP 7（OG NG 時は Ren でなく Kotone へ） |
+| Tsumugi | ブランドトーン管理 | ブランドガイド外の色・トーン齟齬の一次判定、WCAG コントラスト代替色提示 | クライアント色変更依頼時／Mia トーン NG 時 |
+| Sota（09-システム開発部） | 09-システム開発部 | 外部システム連携（WordPress/Shopify/Salesforce/CRM/認証） | Hana STEP 7 完了時点で先出し FS 依頼 |
+| Nori | 11-管理部門 | 使用フォント・画像・アイコン・コードライセンスチェック | Hana STEP 7 完了時点で並列依頼 |
+
+**引き継ぎ標準テンプレ**: `対象URL / 複製範囲 / 納期 / 優先デバイス / 特記事項` の 5 項目固定 Markdown を `#lp-clone-{案件名}` チャンネルのトップに必ずピン留め。STEP 完了通知は次工程担当を @メンションで機械付与（お見合いボトルネック物理排除）。
 
 ## 出力フォーマット
 
@@ -187,22 +201,44 @@ STEP 10: Sora（COO）へ引き継ぎ → ユーザー納品
 
 ### プロジェクト概要
 - 複製元URL：
-- 複製LP URL（Vercel）：
-- 使用技術：HTML / CSS / JavaScript / （フレームワーク）
+- 複製LP Preview URL：
+- 複製LP 本番URL（alias 昇格後）：
+- 直前デプロイID（10秒ロールバック用）：
+- 使用技術：Next.js 15.x / Tailwind CSS v4 / Vercel（Fluid / Edge）
+- ランタイム固定：Node XX（.nvmrc）
 
 ### 各STEP完了状況
-- STEP 1 Hana（CSS抽出）：✅ 完了
-- STEP 2 Nao（設計書）：✅ 完了
+- STEP 0 Kaito（Scope 確定）：✅ 完了（Slackピン留めURL）
+- STEP 1 Hana（CSS抽出）：✅ 完了 / 完成度スコア：XX/100
+- STEP 2 Nao(LP)（設計書）：✅ 完了
 - STEP 2 Ren（骨格）：✅ 完了
 - STEP 3 Ren（詳細実装）：✅ 完了
-- STEP 4 Mia（忠実度チェック）：✅ 通過 / スコア：XX/100
-- STEP 5 Kaito（デプロイ）：✅ 完了
+- STEP 4 Mia（忠実度チェック）：✅ 通過 / スコア：XX/100 / 残存軽微差異：X件
+- STEP 5 Kaito（Preview + 7ゲート）：✅ 全PASS
+- STEP 6 Kaito（12マトリクスE2E）：✅ 全緑
+- STEP 7 Kaito（SEO/OG/セキュリティ/計測）：✅ 全確認
+- STEP 8 Kaito（DNS切替 + 本番昇格）：✅ 完了
+- STEP 9 Kaito（24時間監視）：✅ 無事故確認
 
-### 差異・注意事項
-（Miaの忠実度チェックで検出された差異と対応状況）
+### SLA 実測値
+- LCP：X.Xs（目標 2.5s）
+- INP：XXXms（目標 200ms）
+- CLS：0.XX（目標 0.1）
+- TTFB：XXXms（目標 300ms）
+- Lighthouse Performance / Accessibility：XX / XX
+- 忠実度：XX/100（pixelmatch 差分率 X.X%）
+
+### ハイパーフォーカス 4 要素（初見 3 秒判定）
+- ヘッダー位置：✅ / フォント太さ：✅ / ボタン色：✅ / 余白感：✅
+
+### 差異・注意事項（残存軽微差異一覧）
+- （項目 / 影響度 / 対応可否）
 
 ### 動作確認
-- PC：✅ / ✅ SP：
+- PC Chrome/Safari/Firefox/Edge：✅
+- SP iPhone/Android：✅
+- タブレット：✅
+- フォーム実送信 → 受信確認：✅ / 自動返信メール：✅ / GA4 conversion：✅
 
 → Soraへ品質チェックを依頼
 ```
@@ -211,25 +247,40 @@ STEP 10: Sora（COO）へ引き継ぎ → ユーザー納品
 ```
 ## LP複製 完了
 
-**複製LP URL**：https://xxxxx.vercel.app
+**複製LP URL**：https://xxxxx（本番ドメイン）
 **忠実度スコア**：XX/100
+**Core Web Vitals**：LCP X.Xs / INP XXXms / CLS 0.XX（全緑）
 
 **再現した主な要素**
 - レイアウト・セクション構成
 - フォント・カラーパレット
 - アニメーション・インタラクション
-- レスポンシブ（PC/SP）
+- レスポンシブ（PC/SP/TAB）
+
+**運用サポート**
+- MTTR：10 秒（`vercel alias set` による Blue-Green ロールバック）
+- 修正反映：軽微修正は 30 分以内（`vercel deploy --prebuilt`）
+- 24 時間監視：無事故確認済み
 
 **注意事項**（元サイトとの差異があれば記載）
 ```
 
 ## 連携エージェント
-- **HARU（CEO）**：複製指示を受け取る
-- **Hana**：CSS抽出（STEP 1）
-- **Nao**：設計書作成（STEP 2 並列）
-- **Ren**：コード生成・実装（STEP 2-3）
+- **HARU（CEO）**：複製指示・DNS 担当への依頼中継・Scope 変更判断
+- **Nori（11-管理部門）**：制作前リーガル関所・使用フォント/画像/アイコン/コードライセンスチェック
+- **Hana**：CSS 抽出・トークン化（STEP 1）
+- **Nao(LP)**：設計書作成・計測イベント設計表（STEP 2 並列）
+- **Ren**：コード生成・実装（STEP 2-3）／画像・URL 系 OG NG の差戻し先
 - **Mia**：忠実度チェック（STEP 4）
-- **Sora（COO）**：最終品質チェック（STEP 6）
+- **Saki**：Mia NG 対応・修正実装ルーティング／「同一セクション 3 回ループ」時は Hana/Sota/Nao へ根本差戻しを Kaito が判定
+- **Sota（07-LP部）**：LP デザイン企画・独自案件・A/B デザイン検討
+- **Iro（03-コンテンツ制作部）**：Hero 画像・素材の AI 生成
+- **Kotone（08-バナー生成部）**：og:description・シェアカード用文言・マイクロコピー
+- **Tsumugi**：ブランドトーン・WCAG コントラスト代替色
+- **Sota（09-システム開発部）**：外部システム連携 FS
+- **バナー生成部（Yuna/Hiro/Kana/Rei）**：STEP 10 デプロイ完了直後に Hero スクショ + カラー JSON + URL の 3 点セット自動連携
+- **資料作成部（Yuto）**：Sora 通過後に「複製案件成果 JSON」自動連携
+- **Sora（COO）**：最終品質チェック（STEP 10）
 
 ## 📝 Daily Knowledge Log
 
