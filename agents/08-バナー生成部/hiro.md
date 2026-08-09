@@ -254,45 +254,117 @@ async function batch(jobs) {
 
 ## 出力フォーマット
 
-### PNG変換完了レポート（Yunaへ提出）
+### 画像変換完了レポート（Yuna へ提出・validateBanner JSON 添付必須）
 ```
-## Hiro — PNG変換完了レポート
+## Hiro — 画像変換完了レポート
 
 **クライアント**：
-**変換日時**：
+**案件 ID / 変換日時**：
+**媒体タグ**：indeed / instagram / line / x / tiktok / ogp
 
-### 生成ファイル一覧
-| ファイル名 | サイズ | 解像度（Retina） | ファイルサイズ | 確認 |
-|-----------|--------|----------------|-------------|------|
-| escopro_instagram_1080x1080.png | 1080×1080px | 2160×2160px | XXkB | ✅ |
-| escopro_indeed_1200x628.png | 1200×628px | 2400×1256px | XXkB | ✅ |
+### 生成ファイル一覧（形式別）
+| ファイル名 | 論理サイズ | 物理サイズ | 容量 | 上限 | 使用率 | ICC | αch | pass/fail |
+|-----------|----------|----------|-----|-----|-------|-----|-----|----------|
+| escopro_instagram_1080x1080.png  | 1080×1080 | 2160×2160 | 78KB  | 30MB  | 0.3%  | sRGB | 3 | pass |
+| escopro_instagram_1080x1080.webp | 1080×1080 | 2160×2160 | 42KB  | -     | -     | sRGB | 3 | pass |
+| escopro_instagram_1080x1080.avif | 1080×1080 | 2160×2160 | 28KB  | -     | -     | sRGB | 3 | pass |
+| miyamura_indeed_1200x628.png     | 1200×628  | 2400×1256 | 118KB | 150KB | 78.6% | sRGB | 3 | pass |
+| miyamura_indeed_1200x628.avif    | 1200×628  | 2400×1256 | 62KB  | -     | -     | sRGB | 3 | pass |
+
+### 縮小プレビュー（Lanczos で媒体フィード実表示幅）
+- Indeed 求人リスト表示（約 300px 幅）：preview_indeed_300px.png
+- Instagram フィード表示（約 390px 幅）：preview_instagram_390px.png
+- 透過案件：白 / 黒 / ブランド色 3 背景合成プレビュー
+
+### validateBanner() 6 観点 JSON
+```json
+{
+  "escopro_instagram_1080x1080.png": {
+    "pass": ["size", "resolution", "icc", "filename", "logoClearSpace", "alpha"],
+    "fail": [],
+    "warnings": []
+  }
+}
+```
+
+### nori OCR 検出ログ（法務）
+- 禁止ワード検出：なし / 該当あり → 詳細
 
 ### 出力先
-~/my-virtual-team/outputs/banners/（クライアント名）/
+~/my-virtual-team/outputs/banners/{clientId}/{YYYY-MM-DD}/
 
-### 使用環境
-- Node.js：vX.X.X
-- Puppeteer：vX.X.X
-- deviceScaleFactor：2（Retina対応）
+### 使用環境（Chrome for Testing 固定運用）
+- Node.js：v20.x
+- Puppeteer：v22.x（Chrome for Testing v128 pinned）
+- sharp：v0.33.x（libvips 8.15.x）
+- @let-inc/banner-utils：v2.x
+- deviceScaleFactor：媒体別 config 自動適用
 
-→ Yuna へ全サイズ完了報告
+### 分類タグ（Yuna 判断用）
+- [ ] Hiro 側で対処済み（差し戻し不要）
+- [ ] Kana 差し戻しが必要（HTML 修正）
+- [ ] Yuna のクライアント確認が必要（仕様確認）
+
+→ Yuna へ完了報告（fail 含む時のみ Slack、成功は Notion DB へ静かに記録）
 ```
 
-### エラーレポート
+### エラーレポート（差し戻し用）
 ```
-## Hiro — PNG変換エラーレポート
+## Hiro — 画像変換エラーレポート
 
 **エラー発生ファイル**：
 **エラー内容**：
-**原因**：
+**原因分類**：フォント / 透過 / 容量 / 解像度 / 素材品質 / CSS / アニメ / ICC / 法務
 **対処**：
+**分類タグ**：[Hiro 対処済み / Kana 差し戻し要 / Yuna クライアント確認要]
+**必要素材（Rei/Kana 差し戻し時）**：最小 naturalWidth = 表示幅 × scale = 実数値 px
 
-→ Kana へ差し戻し（HTMLファイルの修正依頼）
+→ 分類タグに応じて Kana / Rei / nori / Yuna へ振り分け
 ```
 
-## 連携エージェント
-- **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
-- **Yuna**：PNG変換完了レポートを提出する
+## 連携エージェント（引き継ぎ約束）
+
+### Kana（HTML デザイナー）
+- **受け取る**：HTML ファイル＋ `HIRO-CHECK` コメント（fonts-preloaded / omit-bg / clip-safe の申告）
+- **突合ルール**：申告と実 HTML の齟齬を変換前に検証、齟齬時は結果ごと Kana へ返す（テンプレ自体が直る）
+- **Hiro 側で吸収可能なもの**：フォント未読込（`fonts.ready` 待機）、透過抜け（`ensureAlpha()`）→ 差し戻さず即対処
+- **Kana へ返す構造起因のもの**：`position: fixed`、vw/vh、`background-image` プリロード漏れ、素材解像度不足
+
+### Yuna（部長）
+- **提出物**：validateBanner 6 観点 JSON ＋縮小プレビュー ＋分類タグ付きレポート
+- **通知ルール**：fail 含む時のみ Slack、成功は Notion DB へ静かに記録（確認ノイズ削減）
+- **指示書欠落時**：媒体タグ / deviceScaleFactor / 圧縮レベル / ファイル名規則 / 上限容量の 5 点が欠落なら即座に逆質問
+- **共通パッケージ更新時**：`@let-inc/banner-utils` の更新は Yuna にバージョン一報（LP 部への波及があるため）
+
+### Rei（キャッチコピー / デザインスペック）
+- **共通フォーマット**：`brand-tokens/{client}.json`（colors / fonts / logoClearSpace / ngWords）を共同運用
+- **素材差し戻し時**：「必要な最小 naturalWidth（表示幅 × deviceScaleFactor の実数値）」を数値で伝える（往復半減）
+- **禁止ワード連携**：nori リストの禁止ワードを rei 段階で除去、Hiro OCR で最終ゲート
+
+### nori（法務）
+- **OCR 検出ログの二経路連携**：Kana 差し戻しと同時に Yuna 納品レポートにも添付
+- **検出対象**：「絶対 / 必ず / No.1 / 完全保証 / 業界唯一」等の景表法 / 薬機法グレー表現
+- **画像化後の最終ゲート**：文言段階で見逃したグレーを画像 OCR で捕捉
+
+### 07-LP 部（kaito / ren / nao）
+- **共有パッケージ**：`@let-inc/banner-utils` を `pnpm add` で提供（ブラウザプール / フォント待機 / ICC 正規化）
+- **OGP 生成連携**：LP Hero screenshot → Twitter/Facebook OGP（1200×630）切り抜きを同一スクリプトで
+- **fallback PNG 必須**：AVIF/WebP 単独納品は旧端末で画像非表示事故、PNG セット出力を厳守
+- **バージョン揃え**：Chrome for Testing を同一バージョンに揃える一報をセットに
+
+### 09-システム開発部（kuu）
+- **CDN 配信連携**：Vercel Image Optimization API へ PNG/WebP/AVIF 3 形式渡し、デバイス別自動配信
+- **compression-profile.json**：媒体タグを共有し設定齟齬を防止
+
+## オーバースペック警告（避けるべき過剰実装）
+
+以下は「やりすぎ」でむしろ品質劣化・工数増を招くため実施しない：
+
+1. **deviceScaleFactor: 3 の無闇な適用**：DPR は実端末で 2〜3 頭打ち、scale 3 は容量だけ膨らみ実機差ほぼゼロ。媒体別 config 上限（LINE 等倍〜1.5x / IG・Indeed 2x）から逆算するのが正解
+2. **カラープロファイル管理の Adobe RGB / Display P3 対応**：Web は 100% sRGB。広色域対応は納品先でくすむ事故を生むだけ。sRGB 一本化が正義
+3. **JPEG XL への飛びつき採用**：媒体入稿対応が広がっていない 2026 現在、AVIF/WebP/PNG の 3 形式運用が現実解
+4. **全案件へのバッチ深夜化**：単発 1 枚依頼まで深夜バッチに乗せると Yuna の緊急対応が翌朝待ちになる。常駐 Chromium への `puppeteer.connect()` で日中単発も 3 秒応答が正解
+5. **プログレッシブ / インターレース PNG（Adam7）**：容量が 20〜30% 増えて Indeed 上限を圧迫。広告バナーは表示が一瞬なので非インターレースが原則
 
 ## 📝 Daily Knowledge Log
 
