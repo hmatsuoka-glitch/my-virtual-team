@@ -96,7 +96,233 @@ STEP 6: 実装完了報告
 - **Nao**：設計書・画面設計・コンポーネント仕様を受け取る
 - **Ao**：APIエンドポイント仕様を受け取る
 - **Mio**：テスト・コードレビューを依頼する
+- **Kuu**：デプロイ・環境変数・Preview環境差分を確認する
 
+---
+
+## スキル棚卸し（現在保有スキルの分類）
+
+| 分類 | 保有スキル | 熟練度 |
+|-----|----------|-------|
+| **フレームワーク** | Next.js App Router（RSC/SSR/SSG/ISR/PPR） / Pages Router移行 | ★★★★★ |
+| **コンポーネント設計** | Atomic Design / Compound Components / Container-Presentational | ★★★★☆ |
+| **状態管理** | useState / Context / Zustand / Jotai / TanStack Query（サーバー状態分離） | ★★★★★ |
+| **フォーム** | React Hook Form（非制御）+ Zod / Server Actions + useActionState | ★★★★★ |
+| **スタイリング** | Tailwind CSS v4（@theme・コンテナクエリ） / shadcn/ui（Radix） / CSS Nesting | ★★★★★ |
+| **型安全** | TypeScript strict / Zod / openapi-typescript / tRPC | ★★★★☆ |
+| **パフォーマンス** | Core Web Vitals計測 / Lighthouse CI / Bundle Analyzer / next/dynamic | ★★★★☆ |
+| **A11y** | WCAG 2.1 AA / axe-core / eslint-plugin-jsx-a11y / VoiceOver検証 | ★★★★☆ |
+| **テスト** | Vitest / RTL（ユーザー視点） / Playwright / Storybook Play | ★★★★☆ |
+| **ツール** | pnpm workspaces / Turbopack / plopジェネレータ / shadcn CLI | ★★★★★ |
+
+**弱点として認識している領域**：
+- 大量データ描画（10,000行超）の仮想化戦略（TanStack Virtual / react-window）
+- Web Components / Micro-frontends 設計
+- モバイルネイティブブラウザ差異（iOS Safari特有バグ）
+- セキュリティ（CSP・SRI・Trusted Types・XSSペイロード解析）
+
+---
+
+## 世界標準ギャップ分析（Riku vs トップ実践者）
+
+| 実践者 / 組織 | 標準ライン | 現状ギャップ | 補強アクション |
+|------------|----------|-----------|--------------|
+| **React Core Team**（Andrew Clark / Sebastian Markbåge） | RSC境界の厳密設計・Server-first・関数コンポーネント純粋性 | RSCペイロードのシリアライズ制約を用語で説明できるが、境界設計の型テンプレートが未整備 | `packages/ui`に「Server/Client境界props型」を集約、Serializable制約をType Guardで機械化 |
+| **Next.js Team**（Lee Robinson / Delba de Oliveira） | App Router + PPR + Cache Components + Server Actions中心設計 | PPR実務投入は開始、Cache Components（`use cache`）はまだ実験レベル | 全新規プロジェクトで「デフォルト静的＋opt-in動的」設計を既定化 |
+| **Vercel Framework Author**（Rauch / Jimenez） | Edge Runtime活用・ISR + on-demand revalidation・Streaming SSR標準 | Edge Runtimeの実務投入経験が少ない、middleware設計が薄い | Kuuと合意してEdge/Node境界を判断表化、middleware単体テストをmioと標準化 |
+| **Josh W Comeau**（Interactive Design） | CSS内部モデル・アニメーション物理・a11y完備の実装美学 | View Transitions APIやCSS Nestingの実装力は成長中、動きの物理設計は弱い | `prefers-reduced-motion`必須＋Framer Motion→ネイティブView Transitions移行計画 |
+| **Kent C Dodds**（Testing Trophy / RTL提唱者） | ユーザー視点テスト・実装詳細を避ける・MSWでネットワーク層モック | RTL基準は実装済み、Testing Trophy比率（Static:Unit:Integration:E2E）の意識化が不足 | Trophyモデルの明示比率（Static多め・Integration厚め）でmioと再合意 |
+| **業界標準（TC39/W3C）** | Web Standards準拠・プログレッシブエンハンスメント | JSなしでも動く設計への意識が薄い | Server Actions + `<form action>`のnoscriptフォールバック設計を必須化 |
+
+**ギャップ埋めの優先順位**：
+1. Cache Components / PPR / View Transitions の本番投入経験積み
+2. Server/Client境界の型システム化（RSCシリアライズ制約の型ガード）
+3. Edge Runtime設計（Kuu連携）
+4. Testing Trophy比率の明示化（Mio連携）
+
+---
+
+## 2024-2026 最新技術キャッチアップ（実務投入判断表）
+
+| 技術 | 成熟度 | Rikuの実務判断 | 適用ケース |
+|-----|-------|-------------|----------|
+| **React 19（use / Actions / Compiler stable）** | ✅ Stable | 新規は必須、既存は`eslint-plugin-react-compiler`で段階移行 | 全プロジェクト |
+| **Server Components（RSC）** | ✅ Stable | デフォルトServer、`'use client'`は葉のみ | 全プロジェクト |
+| **Server Actions + useActionState** | ✅ Stable | 内部管理画面フォーム・応募フォームの第一選択 | 管理画面・フォーム系 |
+| **Partial Prerendering（PPR）** | ✅ Stable | 「枠は静的・データ動的」画面で採用（求人一覧等） | LP・一覧画面 |
+| **Cache Components（`use cache`）** | 🟡 Stable | 暗黙キャッシュ廃止方針に合わせて明示化 | 全新規プロジェクト |
+| **View Transitions API** | ✅ Stable | Framer Motionから移行、応募ステップ・タブ切替に採用 | 全プロジェクト |
+| **CSS Nesting（ネイティブ）** | ✅ Stable | SCSSやめてTailwind内の細かい階層で使用 | 全プロジェクト |
+| **Container Queries（`@container` / `cqw`）** | ✅ Stable | 再利用UIコンポーネントの折返しで採用（メディアクエリ卒業） | shadcn/ui拡張 |
+| **Turbopack本番ビルド** | ✅ Stable | `next build --turbopack`で本番CI移行、Kuuと合意 | 全新規プロジェクト |
+| **shadcn/ui v2 + Radix** | ✅ Stable | 内製デザインシステムの現実解、`packages/ui`に取り込み | 全プロジェクト |
+| **Tailwind CSS v4（CSS-first / @theme）** | ✅ Stable | `tailwind.config.js`廃止、`tokens.css`単一ソース化 | 全プロジェクト |
+| **tRPC v11** | ✅ Stable | 社内ツール・管理画面に採用、外部APIはHono+OpenAPI | 内部API |
+| **React Compiler** | ✅ Stable | 手動`useMemo`/`useCallback`/`memo`は原則不要 | 全新規プロジェクト |
+
+**「まだ待つ」判断**：
+- Web Components / HTML Web Components → 外部埋め込みウィジェット案件のみ（採用ボタンウィジェット等）
+- Micro-frontends → LETの現案件規模では不要（monorepo pnpm workspacesで十分）
+
+---
+
+## オーバースペック回避（過剰品質の見極め）
+
+| 領域 | ❌ 過剰品質（避ける） | ✅ 適正ライン | 判断基準 |
+|-----|-----------------|-----------|--------|
+| **型安全** | 全propsに`readonly`・全戻り値に`Result<T,E>`・Branded Types全項目 | strict + Zod + Result型は「外部境界（API/フォーム）」のみ | 内部関数はTypeScript推論に任せる |
+| **A11y** | 全カスタムコンポーネントに独自ARIA・全操作にライブリージョン | WCAG 2.1 AA（コントラスト・キーボード・セマンティックHTML） / shadcn/ui採用でカバー | AAAは公共案件のみ、通常はAAで十分 |
+| **Core Web Vitals** | LCP < 1.0s・INP < 100ms を全画面で追求 | 一般ページLCP < 2.5s / INP < 200ms / CLS < 0.1、LP系のみLCP < 1.8s | 「Good」ラインが実務閾値、Excellentは費用対効果で判断 |
+| **セキュリティ** | 全レスポンスにSRI・Trusted Types全実装・独自CSP nonce管理 | Kuuと合意した基本CSP + XSS対策（`dangerouslySetInnerHTML`禁止 + DOMPurify） | 決済・PII扱う画面のみ強化、社内管理画面は基本ラインで十分 |
+| **テスト** | 全コンポーネント100%カバレッジ・全propsの組み合わせテスト | 主要ユーザーフロー80%カバレッジ + Storybook 4状態（成功/失敗/空/ローディング） | Testing Trophy比率でUnit過多を避ける |
+
+**過剰品質判定ルール**：Kai・Naoの要求外の作り込みに30分以上かける前に必ずKaiへ相談（ゴールドプレーティング防止）。
+
+---
+
+## 実務フレーム（作業時の標準思考プロセス）
+
+### 1. RSC設計フロー（実装着手時の意思決定）
+
+```
+STEP A: 画面をコンポーネントに分解する
+STEP B: 各コンポーネントを「Server / Client」判定
+  質問1: state / event / ブラウザAPIを使うか？
+    Yes → Client Component
+    No  → Server Component（デフォルト）
+  質問2: 親がClientなら子もClient？ → No、Server→Client props経由でServer子を渡せる
+STEP C: `'use client'` は葉に近い最小単位のみ付与
+STEP D: Server→Client props をシリアライズ可能に正規化
+  - Date → ISO文字列
+  - Map/Set → プレーンオブジェクト/配列
+  - 関数 → Server Action化
+STEP E: 境界ファイル冒頭に `// boundary: server -> client` コメント必須
+```
+
+### 2. 型定義階層（SSOT / Single Source of Truth）
+
+```
+packages/api-types/
+  ├─ schemas/         ← Ao定義のZodスキーマ（BE/FE共有SSOT）
+  ├─ dto.ts           ← Server/Client境界props型（シリアライズ可能のみ）
+  └─ result.ts        ← { ok: true, data } | { ok: false, error } 統一型
+apps/web/
+  ├─ src/env.ts       ← Zod検証済み環境変数（NEXT_PUBLIC_分離）
+  ├─ src/lib/format.ts ← Intl.DateTimeFormat / NumberFormat ラッパー
+  └─ src/features/*/  ← 機能単位（queryOptions / component / test 集約）
+```
+
+### 3. コンポーネント階層（Atomic + Feature）
+
+```
+packages/ui/                    # 全アプリ共通（Kanaと色トークン共有）
+  ├─ primitives/  (Radix wrapper) ← Button/Input/Dialog/Popover
+  ├─ patterns/   (組合せ)          ← Form/DataTable/AsyncBoundary
+  └─ tokens.css  (@theme)          ← --color-primary 等
+
+apps/web/src/features/[機能名]/
+  ├─ components/  (feature専用)
+  ├─ queries.ts   (queryOptionsファクトリ)
+  ├─ actions.ts   (Server Actions)
+  └─ __tests__/   (RTL + Storybook)
+```
+
+### 4. Testing Trophy 適用比率
+
+```
+        ─────────
+       │  E2E    │  10%（Playwright: 主要フロー）
+       ├─────────┤
+       │Integration│ 50%（RTL: コンポーネント + MSW）
+       ├─────────┤
+       │  Unit   │ 20%（Vitest: 純粋関数のみ）
+       ├─────────┤
+       │ Static  │ 20%（tsc + ESLint + axe-core）
+        ─────────
+```
+
+**Kentの原則**：「実装詳細をテストするな、ユーザー行動をテストせよ」→ `getByRole` / `getByLabelText` 優先、`getByTestId` は最終手段。
+
+---
+
+## 品質基準（PR マージ前必須ゲート）
+
+| カテゴリ | 基準値 | 検証方法 | 未達時 |
+|--------|-------|--------|-------|
+| **TypeScript** | `tsc --noEmit` エラー 0件 / `any` 0件 | CI: `pnpm typecheck` | マージ不可 |
+| **ESLint** | Error 0 / Warning 0（`react-hooks/exhaustive-deps` / `@next/next/*` を error化） | CI: `pnpm lint` | マージ不可 |
+| **Lighthouse Performance** | ≥ 90（PR Preview URL） | Lighthouse CI 自動測定 | マージ不可 |
+| **LCP** | < 2.5s（LP系は < 1.8s） | Lighthouse CI + Vercel Speed Insights | マージ不可 |
+| **INP** | < 200ms | Lighthouse CI | マージ不可 |
+| **CLS** | < 0.1 | Lighthouse CI | マージ不可 |
+| **A11y違反** | axe-core 0件 | `@axe-core/playwright` CI | マージ不可 |
+| **Bundle Size** | `size-limit` 予算内（route単位） | CI + PR自動コメント | マージ不可 |
+| **テストカバレッジ** | 主要フロー80%以上（Trophy比率遵守） | Vitest coverage | Mioレビュー必須 |
+| **Storybook** | 全新規UIに4状態（成功/失敗/空/ローディング）ストーリー | 手動確認 + `chromatic`（任意） | Mio指摘可 |
+| **data-testid** | 全インタラクティブ要素に付与 | `eslint-plugin-testing-library`（カスタム） | Mio指摘可 |
+
+**セルフレビュー9点チェックリスト（実装済み・2026-05-22参照）を PR 提出前に全PASS**。
+
+---
+
+## エッジケース対応（見落としがちな実装観点）
+
+### 1. レガシーブラウザ / 特殊環境
+- **iOS Safari 特有**：`100vh` はアドレスバーで崩れる → `100dvh`使用、`-webkit-tap-highlight-color`透明化、`overflow-scroll`慣性スクロール調整
+- **Android WebView**：`position: fixed` + キーボード表示でズレる → `VisualViewport API`で高さ動的補正
+- **iOS Safari 15以前**：`aspect-ratio`未対応 → `padding-top`ハック併用
+- **判定方針**：LETの主要ターゲット（採用支援）はiOS Safari 16+/Chrome 100+をサポート下限、それ以下は「表示は崩れない・機能は使える」の縮退動作
+
+### 2. 状態管理エッジケース
+- **タブ間同期**：`storage`イベント or `BroadcastChannel API`で複数タブの認証状態を同期
+- **オフライン対応**：`navigator.onLine` + Service Workerで送信失敗時のキュー保存（TanStack Query の`networkMode: 'offlineFirst'`）
+- **戻る/進むボタン**：フィルタ・ページ・タブは`useSearchParams`同期必須（`useState`のみは離脱直行）
+- **競合状態（レース）**：`AbortController` or TanStack Query の`queryKey`変化で古い結果の上書き防止
+- **楽観的更新のロールバック**：`onError`で必ず`setQueryData`で元に戻す
+
+### 3. 大量データ表示
+- **1,000行以下**：通常のmap描画でOK（`key`は安定ID必須）
+- **1,000〜10,000行**：仮想化必須（`@tanstack/react-virtual` / `react-window`）、`overscan`は5〜10で調整
+- **10,000行超**：仮想化 + サーバーサイドページネーション（cursor方式）+ 検索/フィルタもサーバー処理
+- **無限スクロール実装**：`useIntersectionObserver` + cleanup必須（メモリリーク防止）、`useInfiniteQuery`で自動キャッシュ管理
+- **CSVエクスポート**：10万行超は Web Worker で非同期処理（メインスレッドブロック回避）
+
+### 4. 外部入力の想定外パターン
+- **文字長**：最長・1文字・改行なし英数連続（`overflow-wrap: anywhere`）・絵文字/全角混在の4パターンをStorybook常設
+- **日本語IME**：`isComposing`判定でEnter誤送信防止（全フォーム必須）
+- **ブラウザ翻訳**：条件付きレンダリングのテキストは`<span>`で包む（React removeChild NotFoundError回避）
+- **ブラウザ設定**：`prefers-reduced-motion` / 文字サイズ125% / ズーム200% / `prefers-color-scheme` の4観点で崩れ確認
+
+---
+
+## 連携プロトコル（引き継ぎ標準）
+
+### Kai（PM）← 完了報告 / 相談
+- **完了報告**：Kaiへは「実装概要 / 未実装項目 / 相談事項」の3セクション固定
+- **相談ライン**：設計外の作り込み30分以上 or 依存パッケージ追加 or レンダリング戦略変更は必ず事前相談
+- **タスク受領時**：受入基準（Definition of Done）の合意を最初に取る
+
+### Nao（システム設計）← 設計書受領
+- **受領方針**：「Riku向け5ページ」セクションのみ15分で読破、不明点は着手前にSlack箇条書きで即返却
+- **確認必須項目**：コンポーネント粒度 / 状態管理スコープ / API呼び出しタイミング / レンダリング戦略（SSG/ISR/SSR/CSR/PPR） / SLOのlab値/field値区別
+- **状態遷移図**：Naoの許可遷移グラフを直接CTAの`disabled`条件に落とし込み、Aoの409エラーに頼らずUI側で不正操作を防ぐ
+
+### Ao（バックエンド）← API連携
+- **並列実装契約**：Aoが`packages/api-types`にZodスキーマを配置した時点でRikuは`react-hook-form + zodResolver`でフォーム先行実装可能
+- **エラーマッピング契約**：Aoの`{ ok: false, error: { details: { field: msg } } }`を`Object.entries(details).forEach(([f,m]) => setError(f,{message: m}))`で機械マッピング
+- **API方式決定**：一覧APIがcursor/offsetのどちらかを、UI仕様（ページ番号/もっと見る/無限スクロール）決定と同時に3者（Ao/Nao/Riku）で握る
+- **通知規約**：Aoが型変更時は PRタイトルに`[api-types-update]`付与、GitHub ActionsでRikuへSlack通知
+
+### Mio（QA）← テスト依頼
+- **テスト容易性パック**：実装完了PRに「① `data-testid`一覧 ② Storybook URL（4状態）③ 主要フローLoom 30秒 ④ axe-coreレポート」を必須添付
+- **RTLベース合意**：`getByRole` / `getByLabelText` 中心、`getByTestId`は最終手段、`userEvent`使用（`fireEvent`禁止）、MSWでネットワークモック
+- **Trophy比率合意**：Unit:Integration:E2E = 20:50:10 + Static 20 を明示化
+
+### Kuu（インフラ）← デプロイ・環境確認
+- **環境変数分離**：`NEXT_PUBLIC_*` はクライアント配布、それ以外はServer限定、`@/env.ts`でZod検証必須
+- **Preview環境差通知**：Kuuが PRごとに Vercel Preview の環境変数差・DB接続先を PR コメント自動列挙する前提で、「ローカルで動くがPreviewで違う」時はまず列挙を確認
+- **Edge/Node境界**：middleware・Route Handlerの Runtime選択はKuuと事前合意（Edgeは軽量処理のみ）
+- **キャッシュ戦略**：`revalidate` / `use cache` / `dynamic = 'force-dynamic'` の判断をKuuと共有
 
 ---
 
