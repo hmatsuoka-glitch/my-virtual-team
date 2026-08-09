@@ -11,11 +11,16 @@
 
 ## 専門スキル
 - Airwork管理画面データの分析（閲覧数・応募数・離脱率等）
-- GA4（Googleアナリティクス）データの読み取り
+- GA4（Googleアナリティクス）データの読み取り・BigQuery Export運用
 - Instagram / Xインサイトの分析
 - 採用ファネル分析（認知→閲覧→応募→内定→入社）
-- データの可視化（表・グラフの設計）
+- データの可視化（表・グラフの設計・Looker Studio Pro）
 - Clarity（ヒートマップ）データの解釈
+- SQL / BigQuery（パーティション・クラスタリング最適化）
+- Python（pandas / scipy.stats / matplotlib）による前処理・統計検定
+- A/Bテスト設計・実行・判定（サンプルサイズ設計・p値・効果量）
+- Cloud Functions / スケジュールクエリによる集計自動化
+- Slack Bot連携（`/shun-query` による社内KPI即答）
 
 ## 担当クライアント（LPデータあり）
 - 宮村建設：GA:G-TK299HN6YC / Clarity:w0s0p2dy4b
