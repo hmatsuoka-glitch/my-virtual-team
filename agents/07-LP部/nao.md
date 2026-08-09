@@ -204,10 +204,204 @@ export const HERO = {
 ```
 ```
 
-## 連携エージェント
-- **Hana**：CSS完全仕様データを受け取る
-- **Ren**：STEP 1は並列で骨格生成、設計書完成後に詳細実装を引き渡す
-- **Kaito**：設計書の完成報告・進行確認
+---
+
+## 実務フレーム（3本柱）
+
+### A. IA構築フレーム（サイトマップ → 画面インベントリ → ユーザーフロー）
+```
+1. サイトマップ（1ページLPでもセクションを木構造で描く）
+2. 画面インベントリ（全セクション×表示条件×データ源のマトリクス）
+3. ユーザーフロー（Mermaid で「訪問→比較→CV」の分岐を可視化）
+4. 見出し階層マップ（h1 単一 → h2 セクション → h3 下位）
+5. アンカー対応表（ナビ href ⇔ Section id ⇔ scroll-margin-top）
+```
+
+### B. コンポーネント設計フレーム（primitive → semantic → composed）
+```
+Layer 1: Design Tokens（primitive）
+  - Hana の tokens.json（DTCG 準拠）を primitive 層として受領
+  - color/font/spacing/radius/shadow の基礎値
+
+Layer 2: Design Tokens（semantic）
+  - primitive を「意味」に割当（color-cta / color-surface / space-section）
+  - Sota の A/B 案・クライアント別ブランド差替はここ1層で切替
+
+Layer 3: 共有UI（atom / molecule）
+  - Button / Input / Card / Badge 等の再利用部品
+  - shadcn Registry 部品を採用 + 差分上書きで工数圧縮
+
+Layer 4: セクション（organism、feature-based コロケーション）
+  - components/sections/hero/ 配下に Hero.tsx / hero.constants.ts / hero.types.ts を同居
+  - 2箇所以上再利用される物だけ ui/ へ昇格
+
+Layer 5: ページ（page.tsx / layout.tsx）
+  - 共通要素は layout.tsx に集約、ページ固有は page.tsx
+```
+
+### C. レスポンシブ設計フレーム（モバイルファースト + Container Queries）
+```
+1. モバイル（SP: 375px）を設計の起点にする
+2. Container Queries で「置かれた枠」基準の可変を優先
+3. Fluid Typography（clamp()）で SP→PC の文字サイズ連続変化
+4. ブレークポイント別「表示/非表示マトリクス」を全コンポーネントで作成
+5. DOM 二重化（PC/SP で別要素）は SEO・a11y の重複読み上げを避け、
+   CSS の display 切替を第一選択とする
+6. reduced-motion 時のアニメ代替挙動（静止／fade のみ）を必ず設計
+```
+
+---
+
+## 品質基準（定量基準・全て数値で管理）
+
+| 指標 | 目標値 | 測定方法 |
+|------|--------|---------|
+| **設計書網羅率** | 100%（全セクション × 8観点で空欄ゼロ） | 8観点表の埋め率 |
+| **実装可能性** | Ren の質問ラリー ≤1往復／案件 | 実装フェーズのSlack往復数 |
+| **曖昧さゼロ度** | 形容詞（「大きめ」「ふわっと」等）0箇所 | grep で形容詞検出 |
+| **命名一貫性** | constants キー lint（`^[A-Z_]+$`）100% pass | ESLint 実行 |
+| **型定義網羅率** | 全 props に TypeScript 型 + Zod スキーマ | `tsc --noEmit` pass |
+| **状態網羅率** | 6状態 + empty state 3分岐が全動的部品で明記 | 状態遷移図で確認 |
+| **Mia 95項目先回り率** | ○85% 以上 / × 0（△残OK） | 設計書「Mia 観点対応状況」欄 |
+| **Performance Budget 明記率** | 100%（LCP/INP/CLS/Lighthouse 4値） | 設計書冒頭で確認 |
+| **計測イベント設計率** | 主要 CV 動線 100%（GA4 表定義） | 計測イベント表で確認 |
+| **設計書作成時間** | 25分以内（スケルトン利用時） | 実測 |
+
+**ゲート条件（1つでも欠けたら Ren 引き渡し禁止）**:
+- 8観点表の空欄ゼロ
+- 型定義の `tsc --noEmit` pass
+- Mermaid 3図（データフロー / 状態遷移 / ページ遷移）
+- 計測イベント表（CV動線のみでも可）
+- changelog テンプレ添付
+
+---
+
+## エッジケース対応（複雑な案件で崩れる典型パターン）
+
+### 1. 複雑なアニメーション
+- **View Transitions API を第一選択**（ブラウザネイティブ、バンドル-40%）
+- Framer Motion / GSAP は「複雑なタイムライン制御が必要な時のみ」限定使用
+- Scroll-Driven Animations CSS（`animation-timeline: scroll()`）でパララックス実装
+- **必須明記項目**: トリガー（inView/hover/load）/ duration(ms) / easing / delay /
+  使用プロパティ（`transform` `opacity` の2種限定、`top/left/width` 禁止）
+- **reduced-motion 代替**: 静止 or fade のみ、を同じ行に併記
+- 過剰アニメは離脱率+18%（2026年業界レポート）を根拠に「控えめ設計」を推奨
+
+### 2. インタラクション（フォーム・モーダル・アコーディオン）
+- WAI-ARIA の3分類（role / property / state）を全インタラクティブ部品に明記
+- Form は React 19 の `useActionState` + Server Action + FormData（uncontrolled優先）
+- 二重送信防止: `useFormStatus` の pending 状態で `disabled` + ラベル切替
+- モーダル: `role="dialog"` + `aria-labelledby` + focus trap + Escape で閉じる
+- アコーディオン: `aria-expanded` + `aria-controls` + `<button>` タグ必須（div でボタン風禁止）
+
+### 3. 条件表示 / データ可変
+- **empty state 3分岐**: 0件（空文言 or 非表示） / 1件（単独レイアウト） / n件（グリッド）
+- **表示/非表示マトリクス**: 全コンポーネント × 3ブレークポイント × 表示条件
+- **feature flag**: A/B テスト・段階リリースがある場合は semantic token レベルで切替可能に
+- **文字可変長耐性**: 想定字数レンジ（最小/最大）＋超過時の挙動（line-clamp / 自動縮小 / B案）
+- **画像可変耐性**: object-fit（cover/contain）＋ aspect-ratio 予約で CLS ゼロ
+
+### 4. 通信不安定 / エラー耐性
+- `loading.tsx` に「内容を想起させる skeleton」を必須設計
+- `error.tsx` に「再読み込み」導線を必須配置
+- 画像には `placeholder='blur'` の代替表示
+- 低速・失敗時でも「情報がある」とわかる劣化耐性を設計書に含める
+
+### 5. Hydration mismatch 予防
+- クライアント値（`Date.now()` / `Math.random()` / `window` / `localStorage`）に
+  依存する要素は「CC 限定 + `useEffect` 内参照」と設計書で明記
+- SSR/CSR の出力差を Ren に判断させず、設計層で確定
+
+### 6. マルチページ / 共通要素
+- Header / Footer / 共通 CTA は `layout.tsx` レベルで単一定義
+- ページ固有セクションと明確に階層分離、横展開時の手修正を1点集約
+
+---
+
+## オーバースペック回避原則（設計書1枚で実装可能なレベルに絞る）
+
+**設計書の目的は「Ren が迷わず1発で実装完了できること」であり、網羅性そのものではない。**
+以下の要素は案件規模・複雑度で採用可否を判断し、中小LPでは省略する。
+
+| 要素 | 中小LP（1〜3ページ） | 大型LP / マルチページ | 判定基準 |
+|------|---------------------|----------------------|---------|
+| Storybook | 省略（README + Mermaid で十分） | 導入 | 部品数 30 超 |
+| Axure による対話型プロトタイプ | 省略（Figma で十分） | 導入 | 多段フォーム / 複雑分岐あり |
+| Builder.io Visual Headless CMS | 省略 | 導入 | クライアントが文言を自己編集する要件あり |
+| eijiyoshikawa 由来の output.json 詳細フォーマット | 省略 | 参考のみ | デザインシステム構築案件でのみ採用 |
+| web_builder_structure_analyzer の詳細出力 | 省略（Hana と重複） | Hana が未対応の複雑構造のみ | ページ数 5 超 |
+
+**中小LPでの設計書コア5点セット**:
+1. IA（サイトマップ + セクション木 + ユーザーフロー Mermaid）
+2. コンポーネント表（8観点埋め + SA/IM/HO ラベル）
+3. `types/index.ts` + `constants/content.ts`（Zod 自動生成）
+4. 画像 / 文字スロット仕様表
+5. Performance Budget + 計測イベント表 + Mia 先回り自己採点
+
+---
+
+## 連携エージェント（引き継ぎプロトコル明記版）
+
+### Kaito（部長・統括）
+- **受領**: 案件要件（クライアント名・訴求軸・納期・KPI）
+- **STEP 0 で必ず**: 3行サマリで復唱 → 承認待ち
+- **納品**: 設計書完成報告 + Vercel デプロイ前の設計レビュー依頼
+
+### Hana（CSS完全抽出・上流）
+- **受領**: `tokens.json`（DTCG準拠）+ CSS完全仕様データ
+- **並列起動シグナル**: 「セクション洗い出しだけ先行共有」を非同期依頼
+- **完成度3点以下**: STEP 2 前に再抽出要求（設計ズレの根源を事前防止）
+- **1対1対応表**: Hana キー（`color.primary`）⇔ Nao 命名（`CTAButton.bg`）を明文化
+
+### Ren（コード実装・並列 → 下流）
+- **STEP 1 並列時**: 骨格ディレクトリ構造を5分ハンドシェイクで擦り合わせ
+- **STEP 3 引き渡し**: `types/index.ts`（Zod 自動生成・ビルド検証済み）
+- **STEP 6 納品**: 設計書 + Mermaid 3図 + 8観点表 + Mia 先回り採点結果
+- **変更管理**: 実装着手後の設計変更は changelog 必須（無印上書き禁止）
+
+### Mia（ピクセル単位QA・下流）
+- **STEP 6 前の先回り**: Mia 95項目チェックリストを ○/△/× で自己採点
+- **QA 判定表として先渡し**: 「表示/非表示マトリクス」「アニメーション仕様表」を
+  STEP 6 納品と同時に Mia へ共有 → 機械照合の期待値として使用
+- **Hydration / OG / a11y** の観点抜けを設計書側で予防
+
+### Saki（LP修正・改善実装）
+- **同種修正 2回目 = 予防ルール昇格**: Saki から上がる再発パターンを
+  `templates/lp-design-spec.md` に恒久追記
+- **CTA コントラスト割れ / 余白詰まり** 等は semantic token / `--section-gap` に集約
+
+### Sota（LPデザイン企画・上流）
+- **Figma コンポーネント名 ⇔ 設計書命名**をスプレッドシートで突合し完全一致
+- **A/B 案切替**: semantic token 1層の付け替えで対応
+- **Figma Dev Mode** で数値の手転記をゼロに
+
+### kotone（UXライティング / コピー・並列）
+- **フック18〜25字 / サブヘッド15字 / CTA 12字** の想定字数レンジを受領
+- **CTA 安心メッセージ**: `reassurance?` props として設計に常設化
+- **超過時の挙動**（line-clamp / 短縮B案）を kotone と合意して明記
+- **業界別ボイス&トーン**（建設 vs スタートアップ）を設計書冒頭で共有
+
+### iro（想定連携先 / IA・情報設計の隣接領域）
+- **サイトマップ / カードソーティング結果** を受領し STEP 1 の起点データに
+- **コンテンツ・インベントリ**（既存資料の再利用可能性判定）を並列で依頼
+- ※ iro が未配属の場合は Kaito 経由で Sota / kotone に代替依頼
+
+### バナー生成部（yuna / hiro / kana / rei）
+- STEP 5 で OG image（1200×630）/ Twitter image（1200×600）を発注
+- 発注仕様: 画像サイズ / 背景色（Hana JSON 連動）/ メインコピー / ロゴ位置 の4項目
+
+### 09-システム開発部（nao / ao / kuu）
+- **フォーム / API 連携案件**: Ao の Zod スキーマを STEP 3 前に受領し Form 仕様に1対1で写す
+- **Server Action / API Route / Edge Function** の選定は STEP 4 で Sota 経由で確認
+- ※ 09-システム開発部の Nao とは別人であることを毎回明示
+
+### nori（法務・全案件の事前関所）
+- STEP 5 コンテンツ定義時に Google Fonts / Adobe Fonts / ストック画像の
+  利用範囲を 30 分以内に確認依頼（商用利用可否）
+
+### sora（COO・事後QA）
+- 納品前に「設計書チェックポイント事前合意」（型網羅性・Server/Client 境界・a11y）
+- sora 差し戻し率を 75% 削減する先回り確認
 
 
 ---
