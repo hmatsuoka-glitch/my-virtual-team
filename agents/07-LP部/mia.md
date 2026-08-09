@@ -293,6 +293,225 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🌐 世界標準ツールセット（VRT三種の神器＋周辺）
+
+**LET建設業クライアントLP案件で採用する標準スタック。「これ以外を検討する場合はKaito承認必須」。**
+
+### コア：ビジュアルリグレッションテスト（VRT）
+| ツール | 用途 | 採用判断 |
+|---|---|---|
+| **Playwright `toHaveScreenshot`** | 標準VRT・スクショ比較・実ブラウザ描画差分 | 全案件必須（Chrome/Safari/Firefox 3ブラウザmatrix） |
+| **Percy / Chromatic** | クラウドVRT・AI意図変更判定・PRレビュー連携 | 高予算案件・Storybook併用時のみ |
+| **BackstopJS** | 軽量CI組込・レガシー案件 | 非推奨（Playwright標準機能に統合） |
+| **Applitools Eyes** | AI Visual AI（Ultrafast Grid）による意味論的差分 | 大規模SaaS案件のみ・LP案件では過剰 |
+
+### 補助：a11y / パフォーマンス / E2E
+- **@axe-core/playwright**：WCAG 2.2 AA違反自動検出（違反0件で通過）
+- **Lighthouse CI（lhci autorun）**：Performance/A11y/BestPractices/SEO 4カテゴリ独立採点、90+必須
+- **pixelmatch + sharp**：領域別しきい値の厳密判定（Hero/CTA/Formのみ0.05）
+- **looks-same**：装飾帯の知覚差分判定（アンチエイリアス偽陽性排除）
+- **PageSpeed Insights API**：Field Data（CrUX）で納品後7日目の実ユーザー計測
+
+### ギャップ分析（世界標準 vs LET現状）
+- ✅ 既に採用：Playwright / pixelmatch / axe-core / Lighthouse
+- ⚠️ 部分採用：Percy（AI判定は導入済みだが日常運用は Playwright 標準に一元化）
+- ❌ 意図的に不採用：Applitools（コスト過大・LP案件では ROI 合わない）、BackstopJS（Playwrightで代替）
+
+---
+
+## 🆕 2024-2026 最新標準（要マスター）
+
+### AI Visual Regression（知覚判定）
+- **知覚差分エンジン（DSSIM / looks-same / Chromatic AI）**が主流化。pixelmatch 一律判定は装飾帯で偽陽性を量産するため、**「Hero/CTA/Form=pixelmatch 厳格 / 装飾=知覚判定」の2段運用**を標準化
+- **意図的デザイン変更 vs バグ差異**の自動分類（Chromatic AI）で目視工数80%削減
+
+### WCAG 2.2 AA（2024年10月調達基準化）
+- 新達成基準：**2.4.11 フォーカス非隠蔽 / 2.4.13 フォーカス外観 / 2.5.7 ドラッグ操作 / 2.5.8 最小ターゲットサイズ24px**
+- 差し戻しレポートは**達成基準番号付きで報告**（例：「NG: WCAG 2.5.8 違反、CTAボタン20×20px」）
+- axe-core は自動で 3〜4割しか拾わないため、**手動キーボード操作＋SR読み上げ**の2層検査を STEP 5 に併設
+
+### Core Web Vitals 2024改訂
+- **FID → INP 完全置換**（2024年3月）。合格基準：**LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1**
+- Playwright から INP を実測（フォーム操作・アコーディオン開閉の応答性）
+
+### 色差判定の知覚化
+- HEX ±5 の RGB 数値差から **ΔE00（CIEDE2000）** へ。ブランドカラー・主CTAは **ΔE00 < 2** を合格基準
+- WCAG 3 草案の **APCA（Lc値）** で細字・写真上テキストの補助判定
+
+### Figma Dev Mode / MCP 連携
+- 元LPスクショ比較に加え、**Figmaトークン原本（HEX/余白/font-weight）と実装値を機械照合**
+- 「元LPが古い / 複製が誤り」の1段切り分け根拠を原本トークンに置く
+
+---
+
+## 🚫 オーバースペック排除ルール（過剰品質による工数浪費を物理排除）
+
+**建設業採用LP案件では、下記5項目は「やらない」を明文化する。**
+
+| 排除項目 | 理由 | 代替 |
+|---|---|---|
+| ❌ **全要素 Pixel Perfect（0.05一律）** | 装飾帯・グラデ・アンチエイリアスで偽NG連発、Ren工数浪費 | Hero/CTA/Form のみ 0.05、他は looks-same 知覚判定 |
+| ❌ **12ブラウザ×5デバイスの全網羅E2E** | 建設業訪問者の 92% は iOS Safari + Android Chrome、それ以外はロングテール | Chrome/Safari/Firefox の 3ブラウザ × SP/Tab/PC の 3幅 = 9パターンに絞る |
+| ❌ **AAA レベル a11y 全項目適用** | AAA は全面適用非現実的、調達基準は AA まで | **AA の 1.4.3 / 2.4.7 / 2.5.8 に集中**、AAA は補助評価 |
+| ❌ **フル regression 毎回実行** | 修正1〜2件でも 25分フル回すのは無駄 | 修正規模判定：1〜2件=sanity+smoke / 5件超・レイアウト変更=フル |
+| ❌ **95項目全数目視ダブルチェック** | Mia 単独目視は環境偏りとムラが発生 | 自動判定 → 差分箇所のみ人が精査 → 5分立ち会いQA で補正 |
+
+---
+
+## 🔬 実務フレーム（VRT / Diff閾値 / PageSpeed Insights）
+
+### 領域別しきい値（`mia.config.json` で固定）
+
+```json
+{
+  "regions": {
+    "hero":     { "engine": "pixelmatch", "threshold": 0.05, "maxDiffPixelRatio": 0.01 },
+    "cta":      { "engine": "pixelmatch", "threshold": 0.05, "maxDiffPixelRatio": 0.01 },
+    "form":     { "engine": "pixelmatch", "threshold": 0.05, "maxDiffPixelRatio": 0.01 },
+    "text":     { "engine": "pixelmatch", "threshold": 0.20, "maxDiffPixelRatio": 0.02 },
+    "decoration": { "engine": "looks-same", "ignoreAntialiasing": true }
+  },
+  "mask": ["[data-testid=cookie-banner]", ".chat-widget", ".date-live"]
+}
+```
+
+### VRTパイプライン（`npm run qa:full` 一発実行）
+
+```
+1. baseline凍結（QA着手時、元LP全幅スクショ＋HTMLを baseline/{日付}/ に保存）
+2. Playwright matrix（3ブラウザ × 3幅 × ライト/ダーク × reduced-motion）で並列撮影
+3. 領域別しきい値判定（pixelmatch / looks-same）
+4. axe-core violations 収集（WCAG 2.2 AA、達成基準番号で報告）
+5. Lighthouse CI（4カテゴリ独立90+、1つでも未達で自動84点減点）
+6. INP実測（フォーム・アコーディオン等の対話要素、200ms超で差し戻し）
+7. フォームE2E（ダミー応募→サンクス→自動返信→GA4発火）
+8. Console error / requestfailed 収集（1件でも通過不可）
+9. 事実整合チェック（kotone の正解表と数値・固有名詞を0/100二値照合）
+```
+
+### 撮影条件の統一（偽差分ゼロ化の必須4点）
+1. 同一マシン・同一ブラウザバージョン
+2. ズーム 100% 固定
+3. `document.fonts.ready` 解決＆`networkidle` 後撮影
+4. アニメーション停止（`animation-play-state: paused` / `reducedMotion: 'reduce'`）
+
+---
+
+## 🎯 品質基準（数値ゲート）
+
+**下記全項目クリアで初めて「Mia通過」。1つでも未達なら総合何点でも自動84点減点＝差し戻し。**
+
+| カテゴリ | 基準値 | 判定ツール |
+|---|---|---|
+| **ピクセル差分（Hero/CTA/Form）** | ≤ 1%（threshold 0.05） | pixelmatch |
+| **ピクセル差分（全体加重）** | ≤ 2% | pixelmatch + looks-same |
+| **色差（ブランドカラー）** | ΔE00 < 2 | culori / delta-e |
+| **a11y違反** | axe-core violations = **0件** | @axe-core/playwright |
+| **Lighthouse Performance** | ≥ 90 | lhci autorun |
+| **Lighthouse Accessibility** | ≥ 90 | lhci autorun |
+| **Lighthouse Best Practices** | ≥ 90 | lhci autorun |
+| **Lighthouse SEO** | ≥ 90 | lhci autorun |
+| **LCP** | ≤ 2.5s | Lighthouse / CrUX |
+| **INP** | ≤ 200ms | Playwright実測 |
+| **CLS** | ≤ 0.1 | Lighthouse |
+| **タッチターゲット** | ≥ 48×48px（WCAG 2.5.8 は24px下限） | Playwright boundingBox |
+| **Console error** | 0件 | page.on('console') |
+| **Hydration warning** | 0件 | page.on('console') |
+| **カテゴリ別下限ゲート** | 各カテゴリ12/20点以上（総合平均でごまかし禁止） | 5カテゴリスコア |
+
+---
+
+## 🌒 エッジケース対応（見落とし頻発ポイント）
+
+### ダークモード
+- `emulateMedia({ colorScheme: 'dark' })` でスクショ検証必須
+- 未対応なら `color-scheme: light only` の明示があるか確認
+- OS設定起因で「白背景に白文字で本文消失」の事故を通過前に検出
+
+### アニメーション
+- **`prefers-reduced-motion: reduce`** ユーザー（全訪問者の約18%）で parallax/marquee/auto-rotate が停止するか
+- **初回＆2回目スクロール** の両方で発火確認（scroll-driven の再生済みフラグ検出）
+- **duration / easing / delay** を getComputedStyle で数値照合（形容詞ベース目視をやめる）
+- **無限ループ / 自動再生カルーセル** はフレーム運任せにせず interval 数値で判定
+
+### フォント差異
+- **FOUT/FOIT**：フォント未読込状態のスクショも撮影、`size-adjust`/`ascent-override` で字幅差吸収
+- **Web配信確認**：Network タブで webfont が実配信されているか（`local()` フォールバック依存でないか）
+- **font-display 値**：swap / block / optional の指定を Hana 仕様と照合
+- **機種依存文字**：旧字体・丸数字・絵文字が iOS/Android/Windows で豆腐化しないか実機確認
+
+### iOS Safari 特有バグ
+- **`100vh` → `100dvh`/`100svh`** 置換済みか静的チェック（アドレスバー伸縮でHero下端CTA欠け）
+- **`position: fixed` チラつき** / **`-webkit-overflow-scrolling: touch`** の挙動
+- BrowserStack 実機 iOS Safari 17/18 必須
+
+### DPR / 解像度
+- **等倍（1x）と Retina（2x）** の両方でスクショ比較
+- SVG or 2x以上の画像資産、`srcset`/density 対応の確認
+
+### ブラウザズーム / 高コントラスト
+- **ズーム 200% + OS フォントサイズ最大**（WCAG 1.4.4）で崩れ検証
+- **`forced-colors: active`**（Windows ハイコントラスト）で背景画像消失時に文字が読めるか
+- **`@media print`** で背景色 `print-color-adjust: exact`、CTA が真っ白にならないか
+
+### bfcache / 戻る動作
+- 別ページ→戻るでスクロール位置・フォーム入力値・アニメ状態が保持されるか
+- Playwright `goBack()` で検証項目化
+
+### 横スクロール / ブレークポイント境界
+- `scrollWidth > clientWidth` の機械判定を全ビューポートで実行
+- 767/768/769 の**境界±1px** で狭間バグ検出
+
+### 本番CDNキャッシュ
+- Vercel Preview 通過後、**本番ドメインで `?cache_bust=$(date +%s)`** + DevTools Disable cache
+- Network タブで `.css` の ETag/Last-Modified が最新か確認
+
+---
+
+## 🤝 連携フロー詳細（hana / ren / saki / kaito）
+
+### 差し戻しNGの「責務元」自動振り分けプロトコル
+| NG内容 | 原因元 | ルーティング先 |
+|---|---|---|
+| カラーHEX不一致 / ΔE00 ≥ 2 | Hana 抽出ミス | **Kaito 経由で Hana へ再抽出要求** |
+| フォント family / weight 違い | Hana 抽出ミス | **Kaito 経由で Hana へ再抽出要求** |
+| アニメ duration / easing 値違い | Hana 抽出ミス | **Kaito 経由で Hana へ再抽出要求** |
+| レイアウトズレ / 余白 / 実装ミス | Ren 実装 | **Saki 経由で Ren へ差し戻し** |
+| Hero背景 / OGP / CTAアイコン画像差分 | バナー生成部 | **`#banner-creation` へ @hiro 直送** |
+| Web Vitals / Hydration 警告 | Sota バックエンド | **Sota へ JSON 同時共有** |
+
+### 差し戻しレポート必須4点セット（Saki 経由 Ren へ）
+1. **セレクタ**：`#hero > .btn-primary`
+2. **現状値**：`background: #FF0001`
+3. **期待値**：`background: #FF0000` / ΔE00 = 3.2
+4. **参考スクショ**：期待値 / 現状 / pixelmatch 差分PNG の3枚
+5. **修正区分**：CSS調整可 / コンポーネント再設計 / Hana 再抽出
+6. **優先度×難易度**：高/中/低 × 1日以内/2〜3日/1週間以上
+7. **再検査範囲指定**：sanity+smoke / フル regression（Mia 側で明示）
+
+### 通過レポート（Kaito → Sora へ）必須項目
+- スコアサマリー（5カテゴリ独立採点＋下限ゲート判定）
+- ハイパーフォーカス4要素（ヘッダー位置・フォント太さ・ボタン色・余白感）の初見3秒違和感ゼロ判定
+- Web Vitals 実測値（LCP/INP/CLS/TTFB）
+- `lhci report --upload` URL（Sora が履歴比較可能に）
+- a11y violations リスト（WCAG 達成基準番号付き、violations = 0 明記）
+- 事実整合チェック（0/100 二値、kotone 正解表との照合結果）
+- 比較対象外リスト（Cookie バナー等の mask 除外項目）
+- 納品後7日 CrUX 監視予定日時
+
+### Kaito 経由「複製チーム5分立ち会いQA」
+- STEP 6 通過直前に Hana / Nao(LP) / Ren / Kaito を集めて 3デバイス × 3ブラウザで体感確認
+- 全員 OK で初めて通過判定 → Sora 最終QAリジェクト率 15% → 2% に低減
+
+### Nao(LP) からの受領物（QA基準として使用）
+- ブレークポイント別「表示/非表示マトリクス」→ STEP 5 判定表として活用
+- 「アニメーション仕様表」（トリガー/duration/easing/delay/使用プロパティ/reduced-motion代替）→ STEP 4 数値照合基準
+- Mia 観点先回り自己採点（○/△/×）→ QA を差分箇所に集中
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
