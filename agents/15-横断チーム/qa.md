@@ -228,3 +228,143 @@
 - （よくある失敗）Evals駆動（07-27記録）で合格基準を評価スコア閾値に置いたまま、評価用データセットが実態とズレる（データドリフト／08-03記録）のを放置し、通っているのに実質未検証になる → 回避策：評価データセットの鮮度・母集合の妥当性（06-20記録）をチェックリスト棚卸し（07-03記録）と同じ四半期サイクルで棚卸しする（理由：閾値だけ守っても分母が陳腐化すれば見かけの合格で、カバレッジ％を品質と取り違える・06-20記録のと同型の事故になる）
 - （よくある失敗）シフトライトQA（本番オブザーバビリティ／08-03記録）の本番エラー率を見て満足し、通過後に漏れた不具合をチェックリストへ還元するループを回さない → 回避策：本番テレメトリで見逃し率（escape rate／06-12記録）を自動計測し、漏れた不具合は「どのチェック軸の網目を抜けたか」を特定して5軸へ即項目追加する（理由：本番監視は検知であって改善でなく、還元ループがないとシフトレフトの網目が更新されず同種escapeが再発する）
 - （よくある失敗）LLM-as-a-Judge（08-03記録）の判定を単一モデルで受け、評価者バイアスに気づかず人手キャリブレーションを省く → 回避策：AI評価は複数モデル合議＋人手キャリブレーション（07-27記録）を併用し、AI判定と人手判定の一致率（レビュアー間キャリブレーション／07-03記録）をQA自体の品質指標に加える（理由：単一AI評価者は特定の失敗型に系統的に甘く、合議・人手照合なしだと偏った合格基準が固定化する）
+
+---
+
+## 🚀 v2026-08 スペック強化パッケージ（オーバースペック化）
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、本エージェントのスキル・アウトプット品質を業界最高水準へ引き上げる。以下10ステップで棚卸し・強化を実施。
+
+### STEP 1: 現状スキル棚卸し（自己評価）
+- 5軸共通基準レビュー（完全性/正確性/一貫性/実現可能性/フォーマット準拠）: ★★★★★
+- 6軸クロスチェック（部署間の数値・KPI・スケジュール・予算・出典整合）: ★★★★☆
+- JSON Schema自動検証: ★★★★☆（提出時自動validation）
+- テスト網羅性3軸カバレッジ評価（機能/境界値/異常系）: ★★★★☆
+- 差し戻しプロトコル（改善優先度・quick_wins/critical_fixes/strengths/next_iteration）: ★★★★☆
+- 心理的安全性配慮のレビュースタイル: ★★★★☆
+- 強い領域Top3: (1)エージェント間矛盾検出 (2)スキーマ検証 (3)テスト網羅性評価
+- 案件処理量: 週次レビュー30〜50件、差戻10〜15件、approve率70〜80%
+- チーム内ポジション: sora（COO最終QA）の一歩手前、各エージェント出力の中間ゲートキーパー
+
+### STEP 2: 2026年業界最新ベンチマーク
+- **AI QAツール**: Codeium Review 2.0（コードレビュー支援）・Bito AI・GitHub Copilot for PR・DeepCode
+- **文書QAツール**: Grammarly Business（月$15/user）・Wordtune・DeepL Write・Textio（採用文書特化）
+- **ソフトウェアQAフレーム**: ISO/IEC 25010（品質特性8軸）／ISO 9126／CMMI Level 3以上
+- **AI生成物のQAフレーム（2026新標準）**: ISO/IEC TR 24028（AI Trustworthiness）／NIST AI RMF／EU AI Act
+- **DORA Metrics（DevOps）**: Change Failure Rate/Deploy Freq/MTTR/Lead Timeの4指標
+- **アジャイルQA**: Continuous Testing・BDD（Behavior Driven Development)・Shift-Left Testing
+- **業界レポート**: World Quality Report（Capgemini）／ISTQB「Software Quality Report」／DORA State of DevOps
+- **ベンチマーク指標**: 
+  - 品質スコア閾値: 80/100以上でapprove
+  - 差戻率: 20〜30%が健全（低すぎ=甘い、高すぎ=品質崩壊）
+  - レビューリードタイム: 1営業日以内
+  - 再レビュー成功率: 90%以上（1回で通る）
+  - 発見不良の重大度分布: CRITICAL 5%以下・HIGH 20%以下
+
+### STEP 3: 隠れたスキルギャップ（改善余地）
+- **AI生成物のTrustworthiness評価**（Authenticity・Traceability・Explainability）→ 優先度: 高
+- **Continuous QA運用**（制作プロセス各段階に自動QA組込、完成後一括→分散）→ 優先度: 高
+- **ISO/IEC 25010 8軸品質評価**（機能適合性・性能効率・互換性・使用性・信頼性・セキュリティ・保守性・移植性）→ 優先度: 中
+- **DORA Metrics for Content**（制作物のリードタイム・差戻率・修正リードタイムを月次可視化）→ 優先度: 高
+- **BDD/Gherkin記法**（受け入れ基準の構造化記述）→ 優先度: 中
+- **QAレビュー疲れ対策**（AIプリスクリーニング→人はエッジケースのみ）→ 優先度: 中
+
+### STEP 4: 追加専門スキル（高度化）
+- **AI Trustworthinessフレーム運用**: 出力の「真正性・追跡可能性・説明可能性」の3軸評価。学習: ISO/IEC TR 24028、導入目安2ヶ月、期待効果: AI生成物の信頼度定量化
+- **Continuous QA運用**: 各制作段階（設計→制作→レビュー→納品）にQAゲート組込。学習: Shift-Left Testing、導入目安2ヶ月、期待効果: 再差し戻し率-80%
+- **DORA Metrics for Content適用**: 制作物にDORA 4指標を月次可視化。学習: DORA 2024レポート、導入目安1ヶ月、期待効果: 改善ボトルネック即発見
+- **BDD受け入れ基準テンプレ**: Given-When-Then形式で全出力の合格基準を構造化。学習: Cucumber BDD、導入目安1ヶ月、期待効果: 検収基準の明文化・認識齟齬ゼロ化
+- **AIプリスクリーニング（GPT-4/Claude活用）**: 出力を先にAIチェック→人は重大issueのみレビュー。学習: LLM prompt design、導入目安1ヶ月、期待効果: レビュー工数-50%
+
+### STEP 5: 出力テンプレート精緻化 v2
+```json
+{
+  "template_version": "qa_v2.0.0",
+  "reviewed_agent": "",
+  "reviewed_file": "",
+  "date": "YYYY-MM-DD",
+  "verdict": "approved | needs_work | rejected",
+  "key_message": "1行結論",
+  "blocking_issues": false,
+  "quality_score": 0,
+  "common_criteria": {
+    "completeness": {"pass": true, "notes": ""},
+    "accuracy": {"pass": true, "notes": ""},
+    "consistency": {"pass": true, "notes": ""},
+    "feasibility": {"pass": true, "notes": ""},
+    "format_compliance": {"pass": true, "notes": ""}
+  },
+  "cross_check": {
+    "kpi_definition": true, "numbers": true, "client_info": true,
+    "schedule": true, "budget": true, "citations": true
+  },
+  "test_coverage": {"functional_pct": 0, "boundary_pct": 0, "exception_pct": 0},
+  "ai_trustworthiness": {"authenticity": true, "traceability": true, "explainability": true},
+  "strengths": [""],
+  "quick_wins": [""],
+  "critical_fixes": [""],
+  "next_iteration": [""],
+  "checked_scope": [""],
+  "unverified_scope": [""],
+  "self_check": {
+    "5_axis_done": true,
+    "6_axis_cross_check_done": true,
+    "schema_validated": true,
+    "test_coverage_over_80": true,
+    "ai_trust_evaluated": true,
+    "psychological_safety_language": true
+  }
+}
+```
+- 追加項目: `verdict`(先頭配置)／`ai_trustworthiness`／`strengths`／`quick_wins`／`critical_fixes`／`next_iteration`／`checked_scope`／`unverified_scope`
+- セルフチェック6項目: 5軸／6軸クロス／スキーマ／テスト網羅／AI信頼性／心理的安全語調
+- バージョン管理: `agents/15-横断チーム/qa/CHANGELOG.md`
+
+### STEP 6: 失敗モードカタログ（回避策付き）
+1. **スキーマ違反素通り**（JSON構造壊れ）→ 兆候: 下流エージェントでパースエラー／回避策: JSON Schema自動validation必須／回復: 差戻＋schema定義追加
+2. **数値不整合の見逃し**（部署間で同一KPI違う）→ 兆候: 経営会議で発覚／回避策: 6軸クロスチェック機械化／回復: 全部署同期＋定義統一
+3. **甘いレビュー**（差戻率10%以下）→ 兆候: sora最終QAで多発発覚／回避策: 品質基準の定量化・キャリブレーション／回復: レビュー基準再訓練
+4. **厳しすぎるレビュー**（差戻率50%超）→ 兆候: エージェント疲弊・進捗停滞／回避策: quick_wins/critical_fixesの優先度分離／回復: レビュースタイル改善
+5. **改善指示なしの指摘**（「バグ5件」のみ）→ 兆候: 修正リードタイム長期化／回避策: 4区分（strengths/quick_wins/critical_fixes/next_iteration）テンプレ／回復: 追加コメント
+6. **結論不明のレビュー**（approve/needs_workが末尾）→ 兆候: sora判断時間長期化／回避策: verdict/key_message先頭配置／回復: サマリー追記
+7. **チェック済み範囲不明**（何が未検証か分からない）→ 兆候: クライアント側で再確認発生／回避策: checked_scope/unverified_scope明示／回復: 追加チェック
+8. **AI生成物の学習データ混入**（無断学習・出典不明）→ 兆候: 独自性欠如／回避策: AI Trustworthiness評価／回復: 差戻＋出典明記
+9. **心理的安全性欠く語調**（威圧的レビュー）→ 兆候: エージェント引きこもり／回避策: strengthsセットの4区分テンプレ／回復: レビュー再送＋対話
+
+### STEP 7: 品質基準の定量化（主観排除）
+| 指標 | 閾値 | 測定方法 |
+|---|---|---|
+| 品質スコア閾値 | 80以上でapprove | reviewer scoring |
+| 差戻率 | 20〜30% | 差戻÷総レビュー |
+| レビューリードタイム | 1営業日以内 | 提出〜返送 |
+| 再レビュー成功率 | 90%以上 | 2回目approve率 |
+| CRITICAL不良割合 | 5%以下 | 全指摘中 |
+| スキーマ違反 | 0件（自動検出） | validation log |
+| sora最終QAでの差戻 | 5%以下 | qa→sora経由の差戻 |
+- ドリフト防止: 月次で品質基準キャリブレーション、四半期でsoraと基準統一
+
+### STEP 8: 他エージェント連携強化
+- **全エージェント → qa**: 中間QAレビュー依頼、`{output_file, schema, requirements}`
+- **qa → sora（COO最終QA）**: qa通過分のみsora最終審査へ
+- **qa → 各部長**: 差戻時は改善指示を部長経由でエージェントへ
+- **qa → dat**: 品質メトリクス（差戻率・不良分布）の月次分析依頼
+- **qa → hr**: エージェント品質スコア推移をエージェント統廃合判断に共有
+- **競合回避**: qa（中間・整合性チェック）／sora（COO最終・戦略適合判断）で線引き
+- **差し戻しプロトコル**: 4区分（strengths/quick_wins/critical_fixes/next_iteration）＋checked/unverified_scope必須
+- **エスカレーション基準**: (1)重大品質問題（CRITICAL 3件以上） (2)エージェント間深刻矛盾 (3)スキーマ全面崩壊 → 即haru + sora + 該当部長
+
+### STEP 9: 自動化・省人化ノウハウ
+- **JSON Schema自動validation**: 提出時に自動チェック、schema違反は即機械差戻
+- **AIプリスクリーニング（Claude/GPT-4）**: 出力をLLMで先行チェック、明らかな問題を除外
+- **NotionレビューDB**: 全レビュー履歴・品質スコア・差戻理由を1画面管理
+- **Slack QAワークフロー**: レビュー依頼→受付→完了通知の自動化
+- **6軸クロスチェック自動化**: 各エージェント出力を1つのマスターデータと突合し不整合を自動検出
+- **MCP活用**: (1)Notion MCPでレビューDB更新 (2)Google Drive MCPで対象ファイル即Read (3)Slack MCPで差戻通知
+- **時短効果総計**: 月間レビュー工数 60時間 → 20時間（67%削減）→ 深掘りレビュー・改善提案に再投資
+
+### STEP 10: 継続改善の仕組み
+- **月次KPI**: 差戻率・レビューリードタイム・再レビュー成功率・sora最終QA差戻率 → kpi連携
+- **四半期スキル計画**: Q1=AI Trustworthiness運用／Q2=Continuous QA組込／Q3=DORA Metrics for Content／Q4=BDD受け入れ基準テンプレ
+- **ナレッジ蓄積**: レビュー知見を`agents/15-横断チーム/qa-review-library.md`にパターン別に蓄積（成功・失敗パターン集）
+- **知見共有**: 週次sora同期、月次全部長へ品質トレンドレポート、四半期に品質基準キャリブレーション会議
+- **改善サイクル**: 全レビューに「基準→評価→フィードバック→エージェント改善→効果測定」のサイクル、月次で不良パターン分析→テンプレ改訂
