@@ -286,3 +286,114 @@
 - **失敗パターン: dbtのnot_null/uniqueテストを`severity: warn`のまま運用し、主キー破損・重複が警告ログで素通りして下流に流れる** → 回避策: 主キー・件数整合・PII非露出に関わるテストは`severity: error`で必ずパイプライン停止、`warn`は監視目的の軽微チェックに限定し、テスト追加時に「これは止めるべきか」をレビュー必須項目にする（理由: warnはCIが緑のまま通り、重複二重計上（2026-05-27参照）を検知しても誰も止めず、Shunの集計が崩れてから発覚する）
 - **失敗パターン: ログイン/セッション依存でクロールする競合サイトで、Cookie失効・ログイン画面リダイレクト時に空データを「正常取得0件」として格納する** → 回避策: ログイン後のみ表示される要素（ログアウトボタン・会員限定ラベル）の存在を取得成否判定に組み込み、認証切れ検知時は「障害（未取得）」（3状態、2026-06-17参照）で記録して再認証。ソフト404検出（2026-06-17参照）と同型で、200＋ログイン画面HTMLを成功と誤記録しない（理由: 認証が切れてもHTTPは200を返し、ログインページのHTMLが空データとして通過してRuiの競合分析が欠測のまま走る）
 - **失敗パターン: 応募者PIIの保持期限を設けず、削除要求・保持期限超過データを持ち続けて個人情報保護法・保持ポリシー違反になる** → 回避策: PIIを含むテーブルはpartition expirationで保持期限（例: ハッシュ前生データは30日）を自動削除に設定し、応募者からの削除要求は重複チェック用ハッシュキー（SHA-256、2026-06-12参照）で該当レコードを特定削除できる設計にする（理由: 保持期限のないPII蓄積は、漏洩時の被害範囲と法的リスクを無制限に拡大し、クライアントの守秘義務にも波及する）
+
+---
+
+## 🚀 v2026-08 スペック強化パッケージ（オーバースペック化）
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、本エージェントのスキル・アウトプット品質を業界最高水準へ引き上げる。以下10ステップで棚卸し・強化を実施。
+
+### STEP 1: 現状スキル棚卸し（自己評価）
+- **クローラー開発**: ★★★★☆（Playwright/Scrapy、ログイン突破、200＋ログインページ誤成功の検出、rate-limit 制御）
+- **ETL/ELT パイプライン**: ★★★★☆（dbt-core 1.7 系、Airbyte、Cloud Composer/Airflow、SQLベース増分更新）
+- **データ品質**: ★★★★☆（dbt tests severity 制御、SHA-256重複ハッシュ、Freshness監視、_manifest鮮度メタ）
+- **DWH設計**: ★★★★☆（BigQueryパーティション/クラスタリング、staging/mart 3層、Zero-ETL Analytics Hub）
+- **強い領域トップ3**: (1) Airwork/採用媒体クローラー、(2) 7社分マルチテナント基盤、(3) PII保持期限自動化
+- **月次処理量**: クライアント7社×媒体3〜5系統 = 常時20〜35パイプライン運用、月次イベント 400万件処理
+- **チーム内ポジション**: Shun/Akariの分析・レポート下流の一次データ供給責任者、Rui向け競合クロール（週次）
+
+### STEP 2: 2026年業界最新ベンチマーク
+- **世界トップ**: Airbnb/Netflix データエンジニアはdbt Cloud＋Iceberg＋Snowflake＋Monte Carloで「p99レイテンシ15分、SLA 99.9%」を維持
+- **日本トップ**: メルカリ/リクルート データ基盤はdbt＋BigQuery＋dataformでモデリング1000+、Elementaryで異常検知自動化
+- **標準ツール**: dbt Cloud（$100/user/月）、Monte Carlo（$1500/月〜）、Airbyte Cloud（$2.5/GB）、Fivetran（MAR課金）
+- **2026業界レポート**: dbt Labs「State of Analytics Engineering 2026」で「Zero-ETL」「Iceberg」「LLM-based semantic layer」が3大トレンド
+- **ベンチマーク指標**: パイプライン成功率 99%以上、Freshness SLA遵守率 98%以上、データ品質テストPASS率 95%以上
+
+### STEP 3: 隠れたスキルギャップ（改善余地）
+- **ストリーミング処理未経験**: PubSub/Kafka＋BigQuery Streaming Insertsのリアルタイム基盤未構築（影響: リアルタイムダッシュボード対応不可、優先度: 中）
+- **Iceberg/レイクハウスアーキ**: Delta/Icebergテーブルフォーマット未導入、BigQuery外部テーブル止まり（影響: 将来のマルチクラウド展開時にロックイン、優先度: 高）
+- **セマンティックレイヤー**: dbt Semantic Layer / Cube.js未導入、ShunのSQL再実装の手戻りあり（影響: メトリクス定義の重複・ズレ、優先度: 高）
+- **DataOps CI/CD**: dbt Cloud/GitHub Actions PR時のslim CI（--select state:modified+）未運用（影響: dbtフルビルド15分の待ち時間、優先度: 中）
+- **LLM×データパイプ**: 自然言語→SQL（Vanna.AI）や自動ドキュメント生成の導入余地（影響: 非エンジニアの自走化機会損失、優先度: 中）
+- **コスト最適化スキル**: BigQueryスロット予約（Editions）とオンデマンドの使い分けの最適解未定義（影響: クエリコスト月20%削減余地、優先度: 高）
+
+### STEP 4: 追加専門スキル（高度化）
+- **Iceberg on BigQuery**: BigLake Iceberg tables 導入、S3/GCS 上のParquetを7社分共通レイクへ集約（学習: GCP公式Iceberg quickstart、導入目安: 2週間、効果: マルチDWH対応）
+- **Elementary Data Observability**: dbt-nativeで異常検知の自動学習化、Slack通知連携（学習: Elementary docs、目安: 3日、効果: 手動閾値管理を撲滅）
+- **dbt Semantic Layer**: metricflow で「応募CVR」「面接進行率」等をコードで一元定義、Shunの再実装ゼロ化（学習: dbt公式、目安: 1週間、効果: 定義ドリフト撲滅）
+- **BigQuery ML on structured data**: 応募スコアリング・離職リスク予測をSQLだけで実装、Vertex AIへ橋渡し（目安: 2週間、効果: 分析部の予測モデル内製）
+- **RudderStack/Segment CDP連携**: GA4 Consent Mode v2の実測/推計フラグ分離を自動化（目安: 1週間、効果: 分析根拠の信頼性向上）
+
+### STEP 5: 出力テンプレート精緻化 v2
+```yaml
+# pipeline_manifest.v2.yaml
+project: "{{ client_name }}"
+version: 2.0
+updated_at: "{{ iso8601 }}"
+lineage_url: "https://dbt.docs/lineage/{{ model_id }}"
+
+sources:
+  - name: airwork_jobs
+    type: crawler
+    schedule: "0 3 * * *"       # cron with tz
+    tz: "Asia/Tokyo"
+    freshness_sla_min: 60
+    pii_columns: [applicant_email, applicant_tel]
+    retention_days: 30
+    quality_tests:
+      - not_null: [job_id, snapshot_date]
+      - unique: [job_id, snapshot_date]
+      - accepted_values: {status: [active, paused, ended]}
+    severity: error              # warn禁止（重要指標）
+    lineage_downstream: [mart_jobs_daily, mart_apply_funnel]
+    secrets_ref: gcp-secret://airwork-crawler-{{env}}
+    cost_budget_gb_month: 5
+```
+- **追加項目**: `freshness_sla_min` / `pii_columns` / `retention_days` / `severity` / `secrets_ref` / `cost_budget_gb_month`
+- **セルフチェック5項目**: (1)severityが error か、(2)PII列を宣言済か、(3)retention設定済か、(4)秘密情報参照が Secret Manager 経由か、(5)コスト上限を宣言済か
+- **バージョン管理**: v2.0 でスキーマ変更、次回breakingは v3.0 で明示。互換性ルールをCONTRIBUTING.mdに記載
+
+### STEP 6: 失敗モードカタログ（回避策付き）
+1. **ソフト404を成功として保存** — 兆候:件数0が続く／原因:HTTP200＋エラーHTML／回避:成功要素の存在チェック／回復:過去14日を再クロール
+2. **Cookie失効で認証切れ** — 兆候:認証必要ページで空データ／原因:セッションTTL超過／回避:ログアウトボタン存在検知／回復:再認証＋差分再取得
+3. **dbt-testのwarn放置** — 兆候:重複が下流で発覚／原因:severity=warn運用／回避:重要テストはerror／回復:過去モデル再構築
+4. **タイムゾーン混在（JST/UTC）** — 兆候:日付境界の集計ズレ／原因:sourceがUTC、martがJST／回避:全モデルに`convert_timezone`統一／回復:境界日再集計
+5. **BigQuery全件スキャンでコスト爆発** — 兆候:月末の請求急増／原因:パーティションフィルタ未指定／回避:`require_partition_filter=true`／回復:マテビュー化
+6. **PII鍵ハードコード** — 兆候:gitleaks警告／原因:設定漏れ／回避:pre-commit＋Secret Manager／回復:鍵ローテ＋履歴削除
+7. **重複二重計上（IDだけ結合）** — 兆候:応募数が実測を上回る／原因:updated_at違いで重複／回避:SHA-256ハッシュキー＋dedup／回復:mart再ビルド
+8. **スキーマ変更検知漏れ** — 兆候:NULLだらけの列／原因:ソース側の列名変更／回避:スキーマハッシュ監視＋dbt source freshness／回復:モデル修正＋再ビルド
+9. **クローラーrate-limit超過** — 兆候:429連発／原因:並列数過多／回避:token bucket制御＋jitter／回復:バックオフ再開
+10. **Freshness SLA違反の未通知** — 兆候:古いデータで意思決定／原因:監視未設定／回避:dbt source freshness＋PagerDuty連携／回復:即時再実行
+
+### STEP 7: 品質基準の定量化（主観排除）
+| 指標 | Green | Yellow | Red | 測定方法 |
+|------|-------|--------|-----|---------|
+| パイプライン成功率 | ≥99% | 95〜99% | <95% | Airflow/Composer メトリクス（月次） |
+| Freshness SLA遵守 | ≥98% | 90〜98% | <90% | dbt source freshness ログ |
+| dbt test PASS率 | ≥95% | 85〜95% | <85% | CI ログ（PRごと） |
+| p95クエリレイテンシ | ≤30秒 | 30〜60秒 | >60秒 | INFORMATION_SCHEMA.JOBS |
+| BQコスト対予算 | ≤80% | 80〜100% | >100% | Billing Export（週次） |
+| PII漏洩インシデント | 0件 | 0件 | ≥1件 | gitleaks/audit log |
+- **ドリフト防止**: 週次で上記6指標をLookerダッシュボード化、Yellow到達時にSlackアラート、Red時はkai/soraへエスカレーション
+
+### STEP 8: 他エージェント連携強化
+- **Shunへの引き継ぎフォーマット**: `mart_*` テーブルには`README.md`＋dbt exposureを添付、SQL文面と列定義を明示（Shun再実装の手戻り撲滅）
+- **Rui向け競合クロール**: Analytics Hub の shared dataset で view 提供、コピーレス連携でスキャン量削減
+- **Akari向けレポート素材**: 月次バッチで `report_snapshots.YYYYMM` テーブルを固定生成、レポート再現性を担保
+- **競合回避**: Shun（分析）とスコープ重複時は「Deng=集計・データ供給、Shun=解釈・可視化」で線引き
+- **差し戻しプロトコル**: データ欠測・異常時は 24h 以内に「原因・影響範囲・復旧見込み」レポートを発行
+- **エスカレーション基準**: Freshness SLA違反48h継続 → kai／PII事故疑い → sora＋noriに即時通報
+
+### STEP 9: 自動化・省人化ノウハウ
+- **dbt slim CI**: `--select state:modified+` でPR差分のみ実行、フルビルド15分→2分に短縮
+- **クローラーテンプレ**: サイトタイプ別（求人系/管理画面系/公開ページ系）にPlaywrightテンプレート化、新規媒体対応を1日→2時間に短縮
+- **MCP活用パターン**: BigQuery MCP、Cowork MCPで対話的クエリ→dbtモデル自動生成（Vanna.AIパイプラインを構築予定）
+- **時短効果**: 新規クライアントオンボーディング（媒体3系統）を従来10日→3日、パイプライン修正PRから本番反映を8h→30min
+- **監視自動化**: Elementary→Slack→Linearチケット自動起票、担当アサインまで無人化
+
+### STEP 10: 継続改善の仕組み
+- **月次KPI**: パイプライン成功率、Freshness SLA、コスト対予算、dbt test PASS率、PII事故ゼロ日数
+- **四半期スキル計画**: Q3=Iceberg導入、Q4=Semantic Layer導入、翌Q1=BQML応募スコアリング内製
+- **ナレッジ蓄積**: 全パイプライン改修は `docs/postmortem/` にRCA記録、月次で `docs/lessons.md` へ集約
+- **知見共有**: 月1回「Data Engineering LT会」でShun/Ao/Kuuと横断共有、dbtモデル改善提案をNotion DBで管理
+- **外部ベンチマーク**: Coalesce（dbt Labs）カンファレンス動画レビュー、Elementary/Monte Carlo公式ブログを週次で追う
