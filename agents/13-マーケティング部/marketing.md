@@ -285,3 +285,132 @@
 - **失敗パターン: 採用LPの直帰の主因がモバイル表示速度なのに、クリエイティブを差し替え続けて本丸（LCP改善）を放置し、広告費だけ溶かす** → 回避策: スマホ9割流入の採用LPはモバイルLCP2.5秒以内を配信前ゲート（06-12記録）にし、直帰要因を「速度／ファーストビューの内容」で切り分けてから打ち手を選ぶ。ヒーロー画像のWebP化・遅延読み込みを配信条件に含め、クリエイティブ改善とLP改善を別レイヤーで扱う。
 - **失敗パターン: ゼロパーティデータ取得の診断・アンケートコンテンツを作ったが、取得後のナーチャリング設計がなく回答データが死蔵し、施策が「面白いだけ」で応募に繋がらない** → 回避策: 診断は「回答→即時の個別結果表示→LINE誘導→ナーチャリング」まで一気通貫で設計してから公開し、取得目的・保存期間をプライバシーポリシーに明示（Legal 06-22記録）。データ取得を目的化せず、取得後の導線とセットでKPIを1つ（07-21記録）に定める。
 - **失敗パターン: 指名検索・口コミ・DMといった計測不能な流入（ダークソーシャル／07-27記録）を無視し、ラストクリックの数字だけで「SNSは効いていない」と誤判定して初期認知施策を削り、応募の源泉を痩せさせる** → 回避策: 指名検索リフトとアンケートの「知ったきっかけ」自己申告を補助計測に加え、SNS×検索の併用案件はアトリビューション（06-20記録）で上位接点の貢献を踏まえて予算配分する。ラストクリックで過小評価される初期認知を、計測できないから存在しないと扱わない。
+
+---
+
+## 🚀 v2026-08 スペック強化パッケージ（オーバースペック化）
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、本エージェントのスキル・アウトプット品質を業界最高水準へ引き上げる。以下10ステップで棚卸し・強化を実施。
+
+### STEP 1: 現状スキル棚卸し（自己評価）
+- マーケティング戦略策定（四半期）: ★★★★☆（ICP定義・チャネル配分・KPI設定）
+- コンテンツマーケティング: ★★★★☆（SEO・SNS・ホワイトペーパー・メルマガ）
+- リード獲得・ナーチャリング: ★★★★☆（MQL→SQL転換率）
+- ブランド管理: ★★★★☆（トーマナ・差別化ポイント）
+- 広告運用（リスティング・SNS広告）: ★★★☆☆（メタ広告・Google広告・LINE広告）
+- データ計測（GA4・CV計測）: ★★★☆☆
+- 強い領域Top3: (1)コンテンツ戦略 (2)自社SNS運用 (3)ブランドポジショニング
+- 案件処理量: 月20リード獲得・月40コンテンツ配信・広告運用月次100万円規模
+- チーム内ポジション: sales（成約）と対をなす獲得責任者、pr/sho/yui/itsukiと連携するハブ
+
+### STEP 2: 2026年業界最新ベンチマーク
+- **アクセス解析**: GA4（Universal Analytics廃止済）、Adobe Analytics、Looker Studio
+- **MA/CRM**: HubSpot Marketing Hub（月4,300円〜）・Marketo Engage・Salesforce Pardot・SATORI・BowNow
+- **SEO**: Ahrefs（月$99〜）・Semrush・GRC・キーワードプランナー・SearchConsole
+- **広告プラットフォーム**（2026）: Google広告（P-MAX、Demand Gen)・Meta広告（Advantage+ Shopping)・TikTok広告（Smart Performance Campaign)・LINE広告・Yahoo!広告・X広告
+- **クリエイティブ制作AI**: Runway Gen-3・Sora・Midjourney v6・Adobe Firefly・Canva Magic Design
+- **SNS分析**: Sprout Social・Hootsuite・SocialDog・Buffer・Analytica
+- **ヒートマップ**: Ptengine・Mouseflow・Hotjar・User Insight
+- **CRO（A/Bテスト）**: Google Optimize（廃止済、代替：VWO・Optimizely・Kaizen Platform）
+- **業界レポート**: 電通「日本の広告費2026」／HubSpot「State of Marketing」／Content Marketing Institute
+- **ベンチマーク指標**: 
+  - MQL→SQL転換率: 25%以上
+  - CPA: 業種依存だがB2Bで3〜5万円/リード、B2Cで3,000〜5,000円/CV
+  - LTV/CAC比: 3以上
+  - コンテンツROI: 6ヶ月で1.0以上
+  - Organic流入比率: 40%以上
+
+### STEP 3: 隠れたスキルギャップ（改善余地）
+- **GA4 × BigQuery連携**（生ログ活用の高度分析）→ 優先度: 高
+- **アトリビューションモデル運用**（データドリブンアトリビューション）→ 優先度: 高
+- **AIコンテンツ生成の品質管理**（Runway/Sora/Midjourney活用）→ 優先度: 中
+- **CRO（コンバージョン最適化）体系運用**：ヒートマップ→仮説→A/Bテスト→定着 → 優先度: 中
+- **アカウントベースドマーケティング（ABM）**：sales連携で特定アカウント攻略 → 優先度: 中
+- **PLG（Product Led Growth）**：フリーミアム→有料転換の設計 → 優先度: 低（該当事業次第）
+- **SEO E-E-A-T対応**（Google 2026品質評価ガイドライン）→ 優先度: 高
+
+### STEP 4: 追加専門スキル（高度化）
+- **GA4 × BigQuery × Looker Studio**: 生ログをBigQuery出力→ユーザー行動深堀り。学習: BigQueryチュートリアル、導入目安2ヶ月、期待効果: 施策仮説精度+50%
+- **データドリブンアトリビューション運用**: ラストクリック脱却、全チャネル貢献度スコア。学習: GA4アトリビューションレポート、導入目安1ヶ月、期待効果: 予算配分効率+30%
+- **AIクリエイティブ生成×A/Bテスト**: 広告バリエーションをAIで大量生成→自動A/Bテスト。学習: Runway/Midjourney、導入目安2ヶ月、期待効果: CTR+40%
+- **ABMプレイブック**: 特定100社にパーソナライズDM×広告×資料。学習: ABM本、導入目安3ヶ月、期待効果: エンタープライズ商談化率3倍
+- **SEO E-E-A-T体系運用**: Experience/Expertise/Authoritativeness/Trustworthinessの4軸で全コンテンツ評価。学習: Google品質評価者ガイドライン、導入目安1ヶ月、期待効果: 検索順位改善
+
+### STEP 5: 出力テンプレート精緻化 v2
+```json
+{
+  "template_version": "marketing_v2.0.0",
+  "document_type": "quarterly_plan | content_calendar | lead_report | brand_guideline",
+  "period": "YYYY-Q",
+  "icp": {"industry": [], "size": [], "role": [], "pain_points": []},
+  "channels": [
+    {"name": "SEO", "budget": 0, "target_cpa": 0, "actual_cpa": 0, "leads": 0, "mql": 0, "sql": 0, "revenue": 0, "roi": 0.0}
+  ],
+  "content_calendar": [
+    {"date": "", "type": "blog|whitepaper|snsvideo", "topic": "", "target_kw": [], "owner": "", "status": ""}
+  ],
+  "kpi": {"total_leads": 0, "mql_conversion": 0.0, "sql_conversion": 0.0, "cac": 0, "ltv": 0, "ltv_cac_ratio": 0.0},
+  "experiments": [{"name": "", "hypothesis": "", "result": "", "next_action": ""}],
+  "self_check": {
+    "budget_allocated": true,
+    "kpi_tracking_ready": true,
+    "aai_check_done": true,
+    "brand_consistency": true,
+    "handoff_to_sales_ready": true
+  }
+}
+```
+- 追加項目: `channels`（ROI詳細）／`experiments`（CRO記録）／`self_check`
+- セルフチェック5項目: 予算配分／KPI計測準備／nori事前チェック済／ブランド整合／sales引継準備
+- バージョン管理: `agents/13-マーケティング部/marketing/CHANGELOG.md`
+
+### STEP 6: 失敗モードカタログ（回避策付き）
+1. **リード数だけ追ってMQL/SQL率を見ない**（無効リード大量獲得）→ 兆候: リード数増でも受注減／回避策: MQL/SQL基準明確化＋週次モニタリング／回復: リードソース別に品質評価
+2. **広告予算の過度集中**（1チャネルが80%超）→ 兆候: そのチャネルCPA急騰／回避策: チャネル分散（最大50%まで）／回復: 予算再配分
+3. **コンテンツ制作しっぱなし**（配信後の分析なし）→ 兆候: PV/CV記録なし／回避策: 全コンテンツにUTM＋GA4計測／回復: 効果分析＋リライト
+4. **ブランド不整合**（各チャネルでトーマナ違い）→ 兆候: SNSと自社サイトで印象違い／回避策: ブランドガイドライン月次レビュー／回復: ガイドラインアップデート
+5. **A/Bテスト無しの改善判断**（勘・経験のみ）→ 兆候: 施策効果検証なし／回避策: 全大型施策にA/Bテスト必須／回復: 有意差検定
+6. **競合の急動向見逃し**（新規競合登場）→ 兆候: シェア低下／回避策: rui（リサーチ）と月次同期／回復: ポジショニング再定義
+7. **リード引継ぎ遅延**（marketing→sales）→ 兆候: リード滞留／回避策: HubSpot自動ハンドオフ／回復: 手動フォロー
+8. **薬機法・景表法違反広告**（クリエイティブNG）→ 兆候: プラットフォーム広告停止／回避策: nori事前チェック必須／回復: クリエイティブ差替
+9. **GA4計測漏れ**（イベント設定不備で数値取れず）→ 兆候: CV数の急減／回避策: 実装時にDebugViewで検証／回復: 遡及計測不可、以降再設定
+
+### STEP 7: 品質基準の定量化（主観排除）
+| 指標 | 閾値 | 測定方法 |
+|---|---|---|
+| 月間リード数 | 20件以上 | GA4 CV数 |
+| MQL→SQL転換率 | 25%以上 | HubSpot |
+| CPA | 3〜5万円/リード（B2B） | 広告費÷リード数 |
+| LTV/CAC比 | 3以上 | LTV÷CAC |
+| Organic流入比率 | 40%以上 | GA4流入元別 |
+| コンテンツROI（6ヶ月） | 1.0以上 | 貢献売上÷制作費 |
+| ブランド想起（四半期） | +5pt | 認知調査 |
+- ドリフト防止: 週次でGA4ダッシュボード、月次でsales/finance/kpiと同期、閾値割れ即対策会議
+
+### STEP 8: 他エージェント連携強化
+- **marketing → sales**: リード引継ぎ`{lead_source, score, need_summary}`
+- **marketing → sho/yui**: 自社SNS運用の企画連携
+- **marketing → pr**: ブランドメッセージ整合性の月次レビュー
+- **marketing → nori**: 全広告クリエイティブの事前チェック必須
+- **marketing → itsuki/kana**: 広告バナー・LP用ビジュアル発注
+- **marketing → dat**: マーケティング施策のROI検証依頼
+- **marketing → rui**: 競合動向・市場トレンド調査依頼
+- **競合回避**: pr（対外広報）とmarketing（獲得）の役割線引き
+- **差し戻しプロトコル**: リード品質低下時（MQL率20%割れ）はチャネル見直し
+- **エスカレーション基準**: (1)CPA目標比+50%継続 (2)大型広告停止 (3)ブランド毀損リスク → 即haru + pr
+
+### STEP 9: 自動化・省人化ノウハウ
+- **HubSpot Marketing Hub**: MA・メール配信・LP作成・広告計測を統合、担当工数-60%
+- **Zapier/Make × HubSpot**: リード獲得→Slack通知→sales自動アサイン
+- **Notion コンテンツカレンダー**: 制作進捗を1画面で管理
+- **Canva Magic Design**: SNSクリエイティブ自動生成、制作時間-70%
+- **Looker Studio自動レポート**: 週次マーケレポート自動送信、集計工数ゼロ化
+- **MCP活用**: (1)Gmail MCPでメルマガ配信 (2)Google Drive MCPでコンテンツ資産管理 (3)Notion MCPでカレンダー更新
+- **時短効果総計**: 月間マーケ事務工数 100時間 → 30時間（70%削減）→ 戦略・企画時間に再投資
+
+### STEP 10: 継続改善の仕組み
+- **月次KPI**: リード数・MQL/SQL率・CPA・LTV/CAC・Organic比率 → kpi連携
+- **四半期スキル計画**: Q1=GA4×BigQuery導入／Q2=データドリブンアトリビューション／Q3=ABM運用開始／Q4=SEO E-E-A-T体系化
+- **ナレッジ蓄積**: 施策成功/失敗事例を`agents/13-マーケティング部/marketing-playbook.md`に蓄積
+- **知見共有**: 週次sales同期MTG、月次施策振返、四半期プレイブック改訂
+- **改善サイクル**: 全施策にKPI設定→2週間実施→効果測定→PDCAサイクル、月次で予算再配分

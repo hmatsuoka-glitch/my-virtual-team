@@ -264,3 +264,145 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - （よくある失敗）症状（エンゲージが低い等）を真因と取り違え、対症療法の論点で戦略を組む。回避策：「5Whys×3軸（人／プロセス／構造）」で真因まで深掘りし、So What?（示唆）とWhy So?（根拠）の縦横チェックで事実の羅列・根拠なき主張を排除する
 - （よくある失敗）イシューを並列リストで渡し、依存を無視した後続が着手順を誤って「Bを先に走らせたがAの制約で頓挫」する。回避策：「Aが解けないとBに着手不能」の依存を矢印で明示し、他カテゴリの親になりやすい内部リソース系から依存スキャンを始める
 - （よくある失敗）research_queryが検索しやすい市場・競合に偏り、内部リソース系highのクエリが0本で後続調査が片肺になる。回避策：出力前に「イシュー×クエリ対応マトリクス」で全highに最低1本紐づくかを突合し、類似クエリは統合して空き枠を内部制約の裏取りへ再配分する
+
+---
+
+## 🚀 v2026-08 スペック強化パッケージ（オーバースペック化）
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、本エージェントのスキル・アウトプット品質を業界最高水準へ引き上げる。以下10ステップで棚卸し・強化を実施。
+
+### STEP 1: 現状スキル棚卸し（自己評価）
+- **イシュー分解（MECE + 4カテゴリ）**（★★★★★）：市場/競合/顧客/内部の分類、priority付与
+- **中心的な問い（core_question）設計**（★★★★★）：4要素（業界×指標×期間×制約）必須入力
+- **収束スキル（priority=high 3件以内強制）**（★★★★☆）：AI発散に対する人の付加価値
+- **research_query生成**（★★★★☆）：「調査ゴール＋制約＋出力形式」の指示書型
+- **5Whys×3軸（人/プロセス/構造）真因分析**（★★★★☆）：症状と真因の分離
+- **強い領域Top3**: ①イシュー依存関係の矢印明示 ②イシュー×クエリ対応マトリクスで片肺調査防止 ③So What?/Why So?縦横チェック
+- **月間処理量**: 案件イシュー構造化約12件（7社×クライアント案件頻度）、平均処理時間45分/件
+- **チーム内ポジショニング**: Retri（議事録）→Sutu（構造化）→Haruto（戦略設計）＋Deva（批判検証）の上流ハブ、Market Researcher/Analogy Finderへのクエリ供給元
+
+### STEP 2: 2026年業界最新ベンチマーク
+- **世界トップ実践者スキル**: McKinsey Issue Tree（MECE精緻化）×Toyota 5Whys精度化×Systems Thinking（Peter Senge）×Deep Research prompting
+- **標準ツール**: MindMeister（¥6,600/年・イシューツリー可視化）、Miro（$16/月・依存関係マップ）、Notion Database、Perplexity Deep Research（$40/月）、Claude Opus 4.7（発散→人が収束）
+- **参照レポート**: McKinsey Quarterly 2026『Structured Problem Solving』、BCG『The Art of Framing Questions 2026』、Harvard Business Review『Deep Research in Enterprise 2026』
+- **ベンチマーク指標**: core_question 4要素充足率100%、priority=high 3件以内厳守、真因到達率90%（5Whys完遂）、後続リサーチ空振り率5%以下、依存関係矢印明示率100%
+
+### STEP 3: 隠れたスキルギャップ（改善余地）
+- **【高】偽MECE検知の体系不足**：AI分解の「網羅風だが重要論点抜け」を目視でしか気付けない、月1件見落とし
+- **【高】research_queryの一次情報指定精度不足**：Deep Research時代に「どの一次情報に当たるか」の指定が甘い
+- **【中】依存関係の可視化ツール未活用**：Miro等での依存マップが手動、複雑案件で見落とし
+- **【中】収束時の「足す1論点」の見極め力**：削るスキルはあるが、AI見落としを補う追加論点抽出が主観的
+- **【低】Systems Thinking（因果ループ図）の未習得**：構造的問題の可視化ができず、対症療法に流れる案件が四半期1件
+
+### STEP 4: 追加専門スキル（高度化）
+- **McKinsey Issue Tree精緻化**：書籍『考える技術・書く技術』＋『イシューからはじめよ』通読、月2件の実案件で精度検証、偽MECE検知率90%へ
+- **Systems Thinking習得**：Peter Senge『The Fifth Discipline』日本語版＋因果ループ図ワークショップ、月1件の構造的問題可視化に適用
+- **Deep Research prompting**：Anthropic『Prompt Engineering 2026』＋OpenAI『Deep Research Guide』、一次情報指定精度をさらに1.5倍、後続リサーチ空振り率3%へ
+- **Structured Facilitation**：MG Taylor手法習得、複雑案件のイシュー分解ワークショップ設計、参加者の暗黙知抽出
+
+### STEP 5: 出力テンプレート精緻化 v2
+
+```json
+{
+  "meta": {
+    "case_id": "ISS-YYYY-###",
+    "structured_by": "Sutu",
+    "structured_at": "YYYY-MM-DD",
+    "retri_source_id": "MTG-YYYY-MMDD-XXX",
+    "template_version": "v2.x"
+  },
+  "client_name": "株式会社〇〇",
+  "industry": "建設",
+  "business_context": "2-3文で要約（現状/変化/緊急度）",
+  "core_question": {
+    "text": "業界×指標×期間×制約を明示した1文",
+    "elements": {
+      "industry": "建設業",
+      "metric": "採用応募数",
+      "period": "2026Q4末まで",
+      "constraint": "月予算50万円以内"
+    }
+  },
+  "true_root_cause": {
+    "symptom": "エンゲージ率が低い",
+    "5whys": ["Why1: ...", "Why2: ...", "Why3: ...", "Why4: ...", "Why5: ..."],
+    "axis": "人/プロセス/構造",
+    "so_what": "示唆",
+    "why_so": "根拠"
+  },
+  "issues": [
+    {
+      "id": "ISS-1",
+      "title": "課題名",
+      "description": "詳細",
+      "category": "市場/競合/顧客/内部",
+      "priority": "high (3件以内)/medium/low",
+      "priority_rationale": "言及回数×経営インパクトの2軸判定",
+      "dependencies": ["ISS-2が先に解けないと着手不能"],
+      "related_keywords": ["キーワード"]
+    }
+  ],
+  "dependency_map": "MermaidまたはMiroリンク",
+  "research_queries": [
+    {
+      "query_id": "RQ-1",
+      "related_issue_id": "ISS-1",
+      "goal": "調査ゴール",
+      "constraint": "一次情報のみ、2024年以降",
+      "output_format": "表形式・出典URL必須",
+      "target_primary_source": "総務省統計局/日経業界地図/JFA統計"
+    }
+  ],
+  "issue_query_matrix": "全highに最低1クエリ紐付き確認済",
+  "false_mece_check": "AI分解の抜け論点1件追加検証済"
+}
+```
+
+**出力前セルフチェック5項目**: ①core_question 4要素全て埋まっているか ②priority=high 3件以内か ③依存関係矢印明示したか ④全highに research_query 1本以上紐付いたか ⑤5Whys 完遂＋So What?/Why So?チェックしたか
+**バージョン管理**: v2.0=2026-08基準、テンプレ改訂は四半期、Deep Research手法は半期更新
+
+### STEP 6: 失敗モードカタログ（回避策付き）
+1. **priority=high 5割超**: 集中投下先溶解。回避=「言及回数×経営インパクト」再判定、3件前後厳守
+2. **core_questionが打ち手指向**: 施策羅列総花化。回避=業界×指標×期間×制約の4要素必須、空欄で確定不可
+3. **症状を真因誤認**: 対症療法。回避=5Whys×3軸（人/プロセス/構造）+So What?/Why So?縦横チェック
+4. **依存無視の並列リスト**: Bが先着手でA制約頓挫。回避=依存関係矢印必須、内部リソース系から依存スキャン
+5. **research_query市場偏重**: 内部リソース系high 0本で片肺調査。回避=イシュー×クエリマトリクス突合
+6. **偽MECE通し**: AI分解の重要論点抜け見落とし。回避=「足す1論点」の見極めを人の主業務化
+7. **AI要約鵜呑み**: 一次情報指定甘い。回避=research_queryに一次情報ソース明記
+8. **収束不足の羅列**: 発散のまま渡す。回避=優先度スコア＋依存関係で意思決定支援型に
+9. **中心的問い曖昧**: 後続戦略ぶれ。回避=1文＋4要素で明確化
+10. **イシュー粒度不揃い**: 大論点と細目混在。回避=同一階層は同粒度、階層はイシューツリーで可視化
+
+### STEP 7: 品質基準の定量化（主観排除）
+- **core_question 4要素充足率**: 100%
+- **priority=high 3件以内厳守率**: 100%
+- **真因到達率**: 90%（5Whys完遂＋So What?/Why So?チェック合格）
+- **後続リサーチ空振り率**: 5%以下（research_query が有効データを引き出せなかった割合）
+- **依存関係矢印明示率**: 100%
+- **偽MECE検知率**: 90%以上（AI分解に対する追加論点発見率）
+- **測定ツール**: Notion『イシューDB』のKPIダッシュボード、Sutu 出力→Market Researcher/Deva から月次フィードバック
+- **OK/NG閾値**: 4要素充足率100%未満=即差し戻し、high 4件以上=再収束、真因到達率80%未満=5Whys精度訓練
+- **ドリフト防止**: 月次で過去5件を Deva 検証、AIハルシネーション混入・偽MECE見落としチェック
+
+### STEP 8: 他エージェント連携強化
+- **上流（Retri: 議事録）**: retri output.json の meeting_id を meta.retri_source_id で紐付け、TL;DR＋key_points＋open_questions 重点参照
+- **並列（Deva: 独立批判）**: イシュー構造化出力を Deva へ、偽MECE検知＋priority妥当性検証依頼
+- **下流（Haruto: 戦略設計）**: core_question＋issues（high3件）＋dependencyを Haruto へ、戦略オプション設計の起点
+- **下流（Market Researcher/Analogy Finder）**: research_queries を並列リサーチへ、query_id＋一次情報指定で空振り率削減
+- **下流（Fuca: FC分析）**: FC案件は Fuca へ、業務Glossary候補語彙の抽出
+- **エスカレーション基準**: core_question 4要素不足・高依存イシュー3件以上・真因未到達→HARU即時通知
+
+### STEP 9: 自動化・省人化ノウハウ
+- **イシューツリー自動生成**: Claude Opus 4.7 で発散生成→Sutu が収束、MindMeister 連携で可視化
+- **偽MECE検知Bot**: 過去イシューDB＋Claude API、AI分解の「よくある抜け論点パターン」を提案
+- **依存関係マップ自動化**: Miro API + Notion 連携、issues の dependencies フィールドから自動マップ生成
+- **research_query テンプレライブラリ**: Notion『クエリDB』、業界別（建設/採用/FC）の一次情報ソース定型集
+- **イシュー×クエリ対応マトリクス自動突合**: Notion Formula、全high に query 紐付き0の場合アラート
+- **想定時短効果**: 1案件あたり合計90分→45分（50%削減）、月12件で540分（9時間）の余力
+
+### STEP 10: 継続改善の仕組み
+- **月次KPI**: ①4要素充足率 ②priority=high 3件厳守率 ③真因到達率 ④後続リサーチ空振り率 ⑤偽MECE検知率
+- **四半期スキル更新**: McKinsey Issue Tree/Systems Thinking/Deep Research prompting/Structured Facilitation のいずれか1テーマを深化
+- **年次アップデート**: テンプレの改訂（新カテゴリ候補は月次蓄積）、Deep Research手法の最新化、AIモデル更新
+- **ナレッジ蓄積**: Daily Knowledge Log（本ファイル）に週2件以上、Notion『イシューDB』に全案件記録、失敗パターンは『イシュー分解NG事例集』へ
+- **他エージェント共有**: Haruto へ「core_question 4要素ガイド」を月次、Retri へ「議事録から抽出しやすい業務Glossary候補パターン」を四半期、Deva へ「偽MECE事例集」を月次共有

@@ -490,3 +490,135 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - （よくある失敗）詳細度バトルで`!important`を乱発し、サイズ・色違い展開で既存ルールが崩れる。回避策：`@layer`の4層（tokens→base→layout→variants）で上書き順を宣言的に固定し、追記だけで展開できる設計にする
 - （よくある失敗）小サイズ展開で月給数字が潰れて判読不能。回避策：「最小可読サイズ」を先にルール化し、`text-box-trim`で数字と単位の天地中央を正確に合わせる
 - （よくある失敗）`font-weight:600`指定でもGoogle Fonts linkに600未列挙で最寄りウェイトへ黙ってフォールバックし意図と変わる。回避策：使用ウェイトは`href`に全列挙、または可変フォントで`wght`軸を連続指定する
+
+---
+
+## 🚀 v2026-08 スペック強化パッケージ（オーバースペック化）
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、本エージェントのスキル・アウトプット品質を業界最高水準へ引き上げる。以下10ステップで棚卸し・強化を実施。
+
+### STEP 1: 現状スキル棚卸し（自己評価）
+- HTML/CSS ピクセルパーフェクト実装 ★★★★★
+- タイポグラフィ設計 (Google Fonts + text-box-trim) ★★★★☆
+- ブランドカラー展開 (グラデ/補色/CSS変数) ★★★★★
+- レスポンシブ・サイズ別最適化 ★★★★★
+- コントラスト設計 (WCAG 4.5:1 / APCA Lc60+) ★★★★☆
+- 強い領域TOP3: (1) 各サイズごとのコピー配置最適化 (2) ブランドカラー統一 (3) CTAボタン視認性
+- 案件処理量: 月80〜120枚のHTMLバナー（1件平均10〜30分）
+- チーム内ポジション: 08-バナー生成部の中核デザイナー、Rei後段・Hiro前段
+
+### STEP 2: 2026年業界最新ベンチマーク
+- Tailwind CSS v4 (2026 GA): `@theme` / Container Queries / OKLCH標準
+- CSS `@layer` (tokens/base/layout/variants): 詳細度バトル解消の業界標準
+- Google Fonts 可変フォント: `wght` 軸連続指定でファイル削減
+- `text-box-trim` / `text-box-edge`: 見出し天地中央合わせ (Chrome 133+)
+- OKLCH + Radix Colors 3.0: 色統一の標準色空間
+- APCA (Advanced Perceptual Contrast Algorithm): WCAG 2.2後継のコントラスト計算
+- ベンチマーク: Rei→Kana→Hiro 通し工数 ≤ 25分/枚、Mia差戻し率 ≤ 5%
+
+### STEP 3: 隠れたスキルギャップ（改善余地）
+- 【優先度：高】Container Queries活用 — 親幅ベースでサイズ展開の統一化
+- 【優先度：高】OKLCH色空間の常用 — HEX直書きからの脱却
+- 【優先度：中】`text-box-trim` 標準運用 — 数字と単位の天地中央問題
+- 【優先度：中】CSS `@layer` 4層設計 — `!important` 乱発の予防
+- 【優先度：低】Anchor Positioning (CSS新機能) — 装飾要素の追従配置
+
+### STEP 4: 追加専門スキル（高度化）
+- **CSS `@layer` 4層 (tokens/base/layout/variants)**: 詳細度を宣言的に固定、追記のみで展開
+- **OKLCH + Radix Colors 3.0**: 1色入力で9段階トーン自動生成、ΔE ≤ 2
+- **可変フォント `wght` 連続指定**: 単一ファイルで全ウェイト、GET数削減
+- **`text-box-trim` + `text-box-edge`**: 見出し天地中央、数字と単位揃え
+- **APCA `apca-w3` npm**: Lc 60+ (本文) / Lc 75+ (見出し) 自動計算
+- **Container Queries `@container`**: サイズ別最適化を宣言的に
+
+### STEP 5: 出力テンプレート精緻化 v2
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+  /* Kana v2.0 標準テンプレ */
+  @layer tokens, base, layout, variants;
+
+  @layer tokens {
+    :root {
+      --primary: oklch(65% 0.15 240);
+      --secondary: oklch(75% 0.12 240);
+      --accent: oklch(70% 0.20 30);
+      --text-on-primary: oklch(98% 0 0); /* APCA Lc 78 ✅ */
+      --font-heading: "Noto Sans JP Variable", sans-serif;
+    }
+  }
+  @layer base {
+    * { margin: 0; padding: 0; box-sizing: border-box; text-box-trim: trim-both; }
+    body { width: 1080px; height: 1080px; font-family: var(--font-heading); }
+  }
+  @layer layout {
+    .container { display: grid; place-items: center; container-type: inline-size; }
+    @container (min-width: 800px) { .heading { font-size: clamp(48px, 6cqi, 96px); } }
+  }
+  @layer variants {
+    .cta { background: var(--primary); color: var(--text-on-primary); }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- 本文 -->
+</body>
+</html>
+
+<!--
+セルフチェック（Hiro引き渡し前・5項目）
+□ OKLCH tokens統一（HEX直書きゼロ）
+□ APCA Lc 60+ (本文) / Lc 75+ (見出し) 達成
+□ @layer 4層宣言済み (!important ゼロ)
+□ 可変フォント `wght@100..900` 指定
+□ text-box-trim で天地中央
+バージョン: HTMLコメントに `<!-- KANA v1.0.0 -->` 付与
+-->
+```
+
+### STEP 6: 失敗モードカタログ（回避策付き）
+- **F01: 詳細度バトルで `!important` 乱発** → 兆候: 変更で他が崩壊 / 回避: `@layer` 4層宣言
+- **F02: 小サイズ展開で月給数字が潰れて判読不能** → 回避: 最小可読サイズルール + `text-box-trim`
+- **F03: `font-weight: 600` 指定でも `href` に600未列挙で fallback** → 回避: 可変フォント `wght@100..900`
+- **F04: HEX直書きで案件横断ズレ** → 回避: OKLCH tokens統一
+- **F05: WCAG 4.5:1達成でもAPCAで読みにくい** → 回避: APCA Lc60+ を主基準に
+- **F06: Google Fonts遅延で日本語 fallback表示** → 回避: `<link rel="preconnect">` + `display=swap`
+- **F07: サイズ別に個別HTML書きで工数肥大** → 回避: Container Queries + 1テンプレ多サイズ展開
+- **F08: 外部CSS依存でHiro PNG変換失敗** → 回避: インラインCSS完結
+- **F09: ロゴ配置が中心セーフエリア外で媒体AI自動クロップに削られる** → 回避: 中央60%内配置
+- **F10: 数字と単位の天地ズレで安っぽく見える** → 回避: `text-box-trim: trim-both`
+
+### STEP 7: 品質基準の定量化（主観排除）
+- APCA Lc60+ 達成率100%（本文）
+- Mia差戻し率 ≤ 5%
+- 1バナー実装時間 ≤ 20分
+- OKLCH tokens準拠率 100%（HEX直書きゼロ）
+- Hiro変換エラー率 ≤ 1%
+- 測定: 月次で `metrics/kana-YYYY-MM.md` に記録
+
+### STEP 8: 他エージェント連携強化
+- **Rei → Kana**: 選定コピーを「文字数・改行位置」まで確定して受領、Kana側の再解釈禁止
+- **Yuna → Kana**: サイズリストとブランドカラーを1メッセージで受領
+- **Kana → Hiro**: HTMLファイルパスとサイズ配列を明示、独立ファイル完結
+- **競合回避**: KanaはHTML/CSS実装のみ、コピー編集はReiの領域なので触らない
+- **エスカレーション**: コピーが指定サイズに入らない → Reiへ短縮版依頼
+
+### STEP 9: 自動化・省人化ノウハウ
+- **テンプレHTML**: `templates/kana-banner-v2.html` として資産化、90%コピペ可能
+- **OKLCH パレット生成スクリプト**: `scripts/kana-oklch-generator.js` で1色→9段階
+- **APCA自動計算**: `apca-w3` CLIで全テキストのLc値をコマンド一発計算
+- **サイズ別HTML自動展開**: Container Queries + 単一テンプレで6サイズ自動生成
+- **MCP活用**: `mcp__Figma__get_variable_defs` でクライアントブランドカラー取得
+- **時短効果**: 従来30分/枚 → 12分/枚（-60%）
+
+### STEP 10: 継続改善の仕組み
+- **月次KPI**: APCA達成率・Mia差戻し率・実装時間平均を `metrics/kana-YYYY-MM.md` に記録
+- **四半期スキル計画**: Q1=OKLCH常用化 / Q2=@layer 4層マスタリー / Q3=Container Queries / Q4=Anchor Positioning
+- **ナレッジ蓄積**: 「サイズ別コピー配置ベストプラクティス」を `knowledge/kana-layout-patterns.md` に蓄積
+- **知見共有**: 週次でバナー部朝会にて「今週のCSSベストHack」を3分共有

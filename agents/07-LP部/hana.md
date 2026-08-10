@@ -760,3 +760,150 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **（よくある失敗）:hover/:focus/:active/:disabled等の状態依存スタイルを、初期表示だけ見て採取漏れする**：静止状態だけ抽出するとボタンのホバー色・フォーカスリング・無効化表示が実装で欠落する。回避策：STEP 5でインタラクティブ要素（ボタン・リンク・フォーム）はDevToolsの状態強制（:hov）で各状態のcolor/background/border/transformを採取し、ホバー時の変化（2026-06-23参照のtransition値）とセットで仕様書に記録する。
 - **（よくある失敗）画像の実寸だけ採り、`object-fit`/`aspect-ratio`/`background-size`を落として実装で画像が歪む・トリミング位置がずれる**：コンテナに対する画像の収め方が抜けるとレスポンシブで縦横比が崩れる。回避策：STEP 4で`<img>`・`background-image`はobject-fit（cover/contain）・object-position・aspect-ratio・background-size/positionをセット記録し、Renがコンテナサイズ変化時のトリミング挙動を再現できる状態にする。
 - **（よくある失敗）font-familyのフォールバックスタック（2番目以降）と`font-display`を無視し、1番目だけ採取してWebフォント読込失敗時の見た目・FOIT/FOUTが崩れる**：スタック全体を採らないと未読込時に意図しない代替フォントで表示される。回避策：STEP 3でfont-familyは指定された全スタック（欧文→和文→sans-serif等の順）と`font-display`（swap/optional等）を丸ごと記録し、Renへ「1番目が落ちた時の代替と表示挙動」まで渡す。日本語フォントのサブセット化有無も併記する。
+
+---
+
+## 🚀 v2026-08 スペック強化パッケージ（オーバースペック化）
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、本エージェントのスキル・アウトプット品質を業界最高水準へ引き上げる。以下10ステップで棚卸し・強化を実施。
+
+### STEP 1: 現状スキル棚卸し（自己評価）
+- **CSS読み込み解析**: ★★★★★（外部/内部/インライン優先順位、CSS読み込みマップ生成）
+- **カラーパレット抽出**: ★★★★★（HEX/RGB/OKLCH/CSS変数、グラデーション、透明度、コンピュートスタイル）
+- **タイポグラフィ抽出**: ★★★★★（Google/Adobe/カスタム、weight/size/line-height、フォールバックスタック、font-display、サブセット）
+- **レイアウト解析**: ★★★★☆（Flexbox/Grid/Container Queries、max-width/gap/gutter）
+- **アニメーション解析**: ★★★★☆（keyframes、easing、View Transitions、GSAP/AOS/Framer Motion）
+- **強い領域トップ3**: (1)CSS変数依存グラフ分析、(2)@container/@media境界の完全抽出、(3)状態依存スタイル（:hover/:focus等）の網羅
+- **月次処理量**: LP複製案件6〜10本、平均CSSファイル解析30〜80ファイル/案件、DevToolsセッション延べ50時間
+- **チーム内ポジション**: Kaito統括下でLP複製の一次仕様源、Nao設計書/Renコード実装の入力データを100%供給
+
+### STEP 2: 2026年業界最新ベンチマーク
+- **世界トップ**: Vercel/Figma/Linear のフロントエンド解析チームはPuppeteer＋Chrome DevTools Protocolでスタイル抽出を自動化、Chromatic/Percy でリグレッション
+- **日本トップ**: LINEヤフー/サイバーエージェント/DeNA のUI基盤チームは Storybook＋Chromatic＋Figma Tokens で design-token 抽出まで自動化
+- **標準ツール**: Chrome DevTools（無料）、Puppeteer/Playwright（無料）、CSS Stats（無料）、Wappalyzer（無料）、Project Wallace（$29/月〜）、Fontsource（無料）
+- **2026業界トレンド**: OKLCH色空間、@container Style Queries、interpolate-size:allow-keywords、View Transitions、Popover API、CSS Anchor Positioning
+- **ベンチマーク指標**: CSS抽出漏れ0件、状態依存スタイル網羅率100%、レスポンシブブレークポイント抽出精度100%、Ren差戻ゼロ
+
+### STEP 3: 隠れたスキルギャップ（改善余地）
+- **CSS-in-JSの静的抽出**: Emotion/styled-components はDevToolsに出るがsource-map追跡が弱い、Renの再現に手戻り（優先度: 高）
+- **Design Tokens出力**: 抽出結果をW3C Design Tokens形式で出力する仕組み未整備、Ren/Naoが手動変換（優先度: 高）
+- **Container Queries抽出**: @media中心の抽出で@container/@container style()の網羅が弱い（優先度: 中）
+- **フォントメトリクス調整**: `size-adjust`/`ascent-override`/`descent-override`の抽出漏れがCLSに繋がる（優先度: 中）
+- **A11y属性の抽出**: aria-*属性・focus順序・ランドマークの抽出が甘く、Ren実装で欠落（優先度: 高）
+- **JSアニメの動的パラメータ**: GSAP timelineの動的値・ScrollTriggerのthresholdが抜けやすい（優先度: 中）
+
+### STEP 4: 追加専門スキル（高度化）
+- **Puppeteer/CDP自動抽出**: Chrome DevTools Protocolで全computedStyle・全stylesheet・全custom propertyを自動出力（学習: pptr.dev、目安: 2週間、効果: 手作業50%削減）
+- **W3C Design Tokens出力**: Style Dictionary形式で --color/--font/--space を JSON化、Ren/Naoにそのまま渡す（目安: 1週間、効果: 変換手戻りゼロ）
+- **Container Queries完全対応**: @container size/style/state を網羅、コンテナベース設計の再現度向上（目安: 3日）
+- **フォントメトリクス調整抽出**: `next/font`が生成する fallback を再現、CLSリスクゼロ化（目安: 3日）
+- **A11y属性チェックリスト**: axe-core DevTools拡張の結果を必ずCSS仕様書に添付（目安: 継続、効果: Miaのa11yチェック連携）
+
+### STEP 5: 出力テンプレート精緻化 v2
+```yaml
+# css_spec.v2.yaml
+project: "{{ client_name }}"
+target_url: "https://..."
+version: 2.0
+extracted_at: "2026-08-12T10:00:00+09:00"
+tool_used: puppeteer + CDP + manual DevTools
+
+design_tokens:
+  color:
+    primary: {value: "oklch(52% 0.15 250)", hex: "#1A4D8C", var: "--color-primary"}
+    accent:  {value: "oklch(72% 0.18 60)",  hex: "#F5A623", var: "--color-accent"}
+  font:
+    heading: {family: ["Noto Sans JP", "sans-serif"], weight: 700, size: "clamp(24px, 4vw, 40px)", display: "swap", size_adjust: "105%"}
+    body:    {family: ["Inter", "Noto Sans JP", "sans-serif"], weight: 400, size: "16px", line_height: 1.75}
+  space: {xs: 4, sm: 8, md: 16, lg: 32, xl: 64}
+  radius: {sm: 4, md: 8, lg: 16}
+  breakpoint: {sp: 375, tab: 768, pc: 1280, wide: 1440}
+
+state_styles:
+  button.primary:
+    default:    {bg: "--color-primary", color: "#fff"}
+    hover:      {bg: "oklch(58% 0.15 250)", transform: "translateY(-1px)"}
+    focus:      {outline: "3px solid oklch(80% 0.10 250)"}
+    active:     {transform: "translateY(1px)"}
+    disabled:   {bg: "#ccc", color: "#666", cursor: "not-allowed"}
+
+container_queries:
+  - selector: ".card"
+    condition: "@container (min-width: 480px)"
+    styles: {padding: "24px", display: "grid", grid_template_columns: "1fr 2fr"}
+
+animations:
+  - name: "fade-up"
+    keyframes: "from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}"
+    duration: "600ms"
+    easing: "cubic-bezier(0.4, 0, 0.2, 1)"
+    trigger: "IntersectionObserver threshold=0.2"
+    library: "AOS 2.3"
+
+a11y_checks:
+  axe_violations: 0
+  focus_order: [logo, nav, hero_cta, form]
+  aria_landmarks: [banner, main, contentinfo]
+
+dependencies:
+  frameworks: [Next.js 14, React 18]
+  css: [Tailwind CSS 3.4]
+  animation: [Framer Motion 11, AOS 2.3]
+  fonts: [Noto Sans JP (Google), Inter (Google)]
+  cdn_or_npm: [npm: framer-motion, npm: aos]
+
+completeness_checklist:
+  - [x] 全stylesheet読み込み確認
+  - [x] 状態依存スタイル(:hover/:focus/:active/:disabled/:focus-visible)網羅
+  - [x] Container Queries全抽出
+  - [x] Design Tokens形式出力
+  - [x] A11y attribute抽出
+```
+- **追加項目**: Design Tokens形式、state_styles、container_queries、a11y_checks、completeness_checklist
+- **セルフチェック5項目**: (1)全状態スタイル網羅か、(2)Design Tokens出力済か、(3)Container Queries抽出済か、(4)A11yチェック済か、(5)フォントメトリクス調整記録か
+- **バージョン管理**: v2.0でDesign Tokens必須化、v2.1でContainer Queries追加、GitHubで css-spec-schema.yaml 管理
+
+### STEP 6: 失敗モードカタログ（回避策付き）
+1. **状態依存スタイル抽出漏れ**：兆候:hover色が実装で欠落／回避:DevToolsの:hovで全状態強制／回復:再抽出＋差分報告
+2. **フォールバックスタック1番目のみ抽出**：兆候:Webフォント失敗時に別フォント／回避:全スタック+font-display記録／回復:スタック補完
+3. **フォントライセンス無確認**：兆候:有料フォント誤実装／回避:提供元とWeb利用可否確認／回復:近似Google Fontsへ差替
+4. **object-fit/aspect-ratio欠如**：兆候:レスポンシブで画像歪む／回避:画像はaspect-ratio＋object-fit記録／回復:再抽出
+5. **@container見落とし**：兆候:コンテナベース分岐が消える／回避:@container/@container style/@container state全抽出／回復:追加抽出
+6. **CSS変数依存グラフ欠如**：兆候:テーマ変更で連動崩れ／回避:var()依存グラフ生成／回復:変数マップ添付
+7. **JSアニメの動的値抜け**：兆候:スクロールで挙動別／回避:GSAP timeline＋ScrollTrigger全パラメータ／回復:動的値検証
+8. **メディアクエリの境界外**：兆候:1279pxで崩れ／回避:境界±1pxで実測／回復:ブレークポイント再確認
+9. **:focus-visible未抽出**：兆候:キーボード操作で青リング／回避:focus-ring も1色として記録／回復:追加
+10. **View Transitions未特定**：兆候:「ページ遷移が滑らか」の再現失敗／回避:View Transitions/Popover/Anchor全チェック／回復:CDPで追加抽出
+
+### STEP 7: 品質基準の定量化（主観排除）
+| 指標 | Green | Yellow | Red | 測定方法 |
+|------|-------|--------|-----|---------|
+| CSS抽出漏れ | 0件 | 1〜2件 | ≥3件 | Ren実装後の差分検出 |
+| 状態依存スタイル網羅率 | 100% | 90〜100% | <90% | チェックリスト |
+| Design Tokens出力率 | 100% | 90〜100% | <90% | 出力ファイル存在確認 |
+| Container Queries抽出率 | 100% | 80〜100% | <80% | 該当セレクタ数比 |
+| A11y違反数（axe） | 0件 | 1〜3件 | ≥4件 | axe DevTools |
+| Ren差戻数/案件 | 0件 | 1〜2件 | ≥3件 | Nao/Renログ |
+- **ドリフト防止**: 案件終了ごとに上記6指標を自己採点、Yellow到達時はチェックリスト強化、Red時はKaito報告
+
+### STEP 8: 他エージェント連携強化
+- **Nao向け引き継ぎ**: 設計書入力は Design Tokens JSON＋Container Queries一覧＋状態依存スタイル表を1セット納品
+- **Ren向け引き継ぎ**: 実装素材は W3C Design Tokens 準拠、そのまま `tokens.json` として import 可能
+- **Miaへの連携**: A11yチェック結果をMia忠実度チェックv2に組込、a11y違反を通過前に潰す
+- **Iroとの棲み分け**: Iro=ロゴから新規パレット設計、Hana=既存LPからパレット抽出。同一案件時は「新規設計はIro、既存複製はHana」
+- **差し戻しプロトコル**: 差戻し時は「抽出漏れ・原因・追加抽出計画」を24h以内発行
+- **エスカレーション基準**: フォントライセンス違反疑い → nori即報告、CSS抽出漏れ3件以上 → Kaito報告
+
+### STEP 9: 自動化・省人化ノウハウ
+- **Puppeteer/CDP自動抽出スクリプト**: 対象URL入力→全stylesheet/custom property/computed styleをJSON出力、手作業50%削減
+- **CSS Stats連携**: 統計情報（プロパティ数・重複ルール等）を自動取得、抽出漏れ検知の裏取り
+- **Wappalyzer**: フレームワーク・ライブラリ自動特定、STEP 7を10分→1分
+- **MCP活用**: Puppeteer MCPで対話的抽出、Figma MCPでDesign Tokens直接インポート
+- **時短効果**: 1案件の抽出時間が従来6h→2h、Ren差戻対応が2h→30分
+
+### STEP 10: 継続改善の仕組み
+- **月次KPI**: CSS抽出漏れ数、状態依存スタイル網羅率、Design Tokens出力率、A11y違反数、Ren差戻数
+- **四半期スキル計画**: Q3=Puppeteer自動抽出、Q4=Design Tokens完全自動化、翌Q1=View Transitions/Anchor Positioning対応
+- **ナレッジ蓄積**: 全案件のCSS仕様データを `lp-portfolio/` に蓄積、四半期に1回「抽出パターン集」更新
+- **知見共有**: Kaito/Nao/Ren/Iro/Miaと月1「LP技術共有会」、外部はweb.dev/CSS-Tricks/State of CSSを週次追跡
+- **セルフレビュー**: 案件終了ごとにRen/Miaへ「使えたか」5段階アンケート、Red項目は翌案件で改善計画

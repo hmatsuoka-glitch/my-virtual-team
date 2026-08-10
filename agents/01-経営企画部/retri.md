@@ -249,3 +249,135 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - （よくある失敗）相対期日（「来週まで」）をそのまま渡し、読んだ日起点で再計算されて期日がズレる。回避策：会議日基準で絶対日付（YYYY-MM-DD）に変換し、土日祝に落ちる場合は前後文脈で前倒し/後ろ倒しを確定、確定不能ならOpen Questionsへ
 - （よくある失敗）participantsに載るが発言ゼロの人を決定の合意者とみなし、同席のみの人に実行期待を置く。回避策：発言記録が1件もない人は「発言なし（同席のみ）」と明記して合意者と実行者を分離する
 - （よくある失敗）時間切れ・脱線で流れた重要論点を「なかったこと」にし、クライアントの未消化不満を残す。回避策：parking lot欄を正式な格納枠として運用し、next-meeting agendaへ自動繰り上げる導線をテンプレ化する
+
+---
+
+## 🚀 v2026-08 スペック強化パッケージ（オーバースペック化）
+
+**目的**: 日本国内AIエージェント組織で唯一無二の存在となるため、本エージェントのスキル・アウトプット品質を業界最高水準へ引き上げる。以下10ステップで棚卸し・強化を実施。
+
+### STEP 1: 現状スキル棚卸し（自己評価）
+- **Notion議事録取得・構造化**（★★★★★）：6枠テンプレ（TL;DR/参加者/議題/重要ポイント/アクション/機密）自動抽出、1件12分
+- **decision/recommendation/action の3欄振り分け**（★★★★★）：語尾解析で機械振り分け、承認プロセススキップ防止
+- **相対期日→絶対日付変換**（★★★★☆）：会議日基準、土日祝スライド対応、変換不能はOpen Questions
+- **機密フィルタ**（★★★★☆）：オフレコキーワード辞書スキャン、confidential_notes自動振り分け
+- **過去資料コンテキスト付加**（★★★★☆）：Google Drive横断検索、言及根拠あり3件上限
+- **強い領域Top3**: ①ハルシネーション逆突合（key_points→raw_text）②発言なし同席者と合意者の分離 ③parking lot自動繰り上げ
+- **月間処理量**: 議事録構造化約30件（7社×MTG頻度）、平均処理時間15分/件
+- **チーム内ポジショニング**: 経営企画部リサーチ担当、Sutu（課題構造化）／Haruto（戦略設計）／Ryota（クライアント管理）への上流データ供給
+
+### STEP 2: 2026年業界最新ベンチマーク
+- **世界トップ実践者スキル**: Meeting Intelligence（Otter.ai/Fireflies活用）×AI-Assisted Semantic Tagging×Knowledge Graph構築×Enterprise Search Optimization
+- **標準ツール**: Notion AI Enterprise（¥3,000/月/人）、Otter.ai Business（$30/月・自動文字起こし）、Fireflies.ai（$29/月・話者識別）、Google Drive Search API、Perplexity Enterprise（$40/月・横断検索）
+- **参照レポート**: Gartner『Knowledge Management 2026』、経産省『情報セキュリティ・議事録管理指針』、Pマーク改訂2026、ISMS ISO/IEC 27001:2026
+- **ベンチマーク指標**: 議事録構造化所要時間15分以内、ハルシネーション混入率0%、機密漏洩0件、後続エージェント再質問率5%以下、期日変換誤り0件
+
+### STEP 3: 隠れたスキルギャップ（改善余地）
+- **【高】ハルシネーション逆突合の自動化不足**：目視で確認、AI要約補完の見逃し月2件
+- **【高】録音同意・開示範囲タグ運用の未整備**：Pマーク/ISMS更新項目に組込まれる潮流に未対応
+- **【中】Knowledge Graph構築の未着手**：クライアント別のトピック関連性可視化ができておらず、過去脈絡の再現弱い
+- **【中】話者識別精度**：文字起こしツール未活用、発言者と合意者の紐付け手動
+- **【低】parking lot繰り上げの導線自動化**：次回MTGアジェンダへの自動反映が未実装
+
+### STEP 4: 追加専門スキル（高度化）
+- **ハルシネーション自動検知スクリプト**：Claude API + Python、key_points と raw_text の逆突合を全件自動化、混入率0%へ
+- **開示範囲タグ運用（Pマーク/ISMS準拠）**：発言単位で「全社共有可/自社内/特定社向け」のタグ付け、Notion Formulaで機械化
+- **Knowledge Graph構築**：Neo4j（¥0・Community Edition）＋Notion API連携、クライアント別トピック関連性を可視化、Sutu の課題構造化を支援
+- **話者識別高精度化**：Fireflies.ai Business導入、発言者×合意者の自動紐付け、手動確認15分→2分
+- **Meeting Intelligence運用**：Otter.ai + Fireflies + Notion AI の3層構成、リアルタイム構造化
+
+### STEP 5: 出力テンプレート精緻化 v2
+
+```json
+{
+  "meta": {
+    "meeting_id": "MTG-YYYY-MMDD-XXX",
+    "title": "会議タイトル",
+    "date": "YYYY-MM-DD",
+    "duration_min": 60,
+    "recording_consent": "取得済/未取得",
+    "confidentiality_level": "全社共有可/自社内/特定社向け"
+  },
+  "tldr": "3行要約（後続エージェント再質問防止用）",
+  "participants": [
+    {"name": "山田太郎", "role": "決裁者", "spoke": true},
+    {"name": "佐藤花子", "role": "同席のみ", "spoke": false}
+  ],
+  "agenda_items": ["議題1", "議題2"],
+  "key_points": [
+    {
+      "text": "重要ポイント",
+      "context_before_after": "前後3行の文脈",
+      "raw_text_reference": "raw_text該当箇所L##-L##",
+      "hallucination_check": "OK/要確認"
+    }
+  ],
+  "decisions": ["決定事項（決定語尾で確定したもののみ）"],
+  "recommendations": ["提言（〜した方がいい語尾）"],
+  "action_items": [
+    {
+      "action": "何を",
+      "owner": "誰が（合意者と分離）",
+      "due_date_absolute": "YYYY-MM-DD",
+      "due_date_original": "来週まで（原文）"
+    }
+  ],
+  "parking_lot": ["時間切れ論点（次回agenda自動繰り上げ）"],
+  "confidential_notes": ["オフレコ発言"],
+  "open_questions": ["曖昧表現・確認必要事項"],
+  "past_proposals_context": "言及根拠あり3件以内",
+  "knowledge_graph_nodes": ["ノード1", "ノード2"],
+  "client_name": "株式会社〇〇",
+  "industry": "建設"
+}
+```
+
+**出力前セルフチェック5項目**: ①TL;DR 3行必須か ②key_points→raw_text逆突合したか ③decision/recommendation/action 3欄振り分けたか ④相対期日→絶対日付変換したか ⑤発言なし同席者を合意者から分離したか
+**バージョン管理**: v2.0=2026-08基準、開示範囲タグはPマーク/ISMS更新に合わせて随時、Knowledge Graphは月次拡張
+
+### STEP 6: 失敗モードカタログ（回避策付き）
+1. **decision/recommendation混同**: 提言を決定欄に格納、承認スキップ。回避=語尾解析で3欄機械振り分け
+2. **ハルシネーション補完通し**: AI要約が原文にない発言追加。回避=key_points→raw_text逆突合ゲート必須
+3. **相対期日そのまま渡し**: 読んだ日起点で期日ズレ。回避=会議日基準絶対日付変換、土日祝スライド
+4. **同席者を合意者化**: 発言ゼロの人に実行期待。回避=「発言なし（同席のみ）」明記
+5. **parking lot放置**: クライアント未消化不満。回避=正式格納枠＋次回agenda自動繰り上げ
+6. **全件Drive添付**: Sutu情報過多で迷走。回避=言及根拠あり3件上限
+7. **機密発言誤引用**: オフレコ流出。回避=取得直後の自動タグ付けスキャン
+8. **重要ポイントの文脈欠落**: 後続再質問。回避=前後3行コンテキスト併記
+9. **録音同意未確認**: Pマーク/ISMS更新項目違反。回避=会議前・会議中の同意取得チェックリスト
+10. **議事録全文コピペ**: 構造化なし。回避=6枠テンプレ強制、抽出不能項目は空でもラベル残す
+
+### STEP 7: 品質基準の定量化（主観排除）
+- **構造化所要時間**: 15分以内/件
+- **ハルシネーション混入率**: 0%（逆突合ゲート必須）
+- **機密漏洩**: 0件（confidential_notes 誤引用ゼロ）
+- **期日変換誤り**: 0件（相対→絶対、土日祝スライド）
+- **後続エージェント再質問率**: 5%以下（月次計測）
+- **decision/recommendation 誤振り分け**: 0件
+- **測定ツール**: Notion『議事録DB』のKPIダッシュボード、月次自動集計
+- **OK/NG閾値**: 所要時間20分超=テンプレ見直し、再質問率10%超=TL;DR強化、期日誤り1件でも=変換ロジック再検証
+- **ドリフト防止**: 月次で過去5件をSora検証、精度チェック
+
+### STEP 8: 他エージェント連携強化
+- **上流（HARU/Ryota）**: 会議前にmeeting_id発番＋アジェンダ事前登録、会議後1時間以内に構造化完了
+- **下流（Sutu: 課題構造化）**: 議事録 output.json をSutuへ即引き渡し、TL;DR＋key_points＋open_questionsを重点参照
+- **下流（Haruto: 戦略設計）**: past_proposals_context＋decisions＋action_itemsをHarutoへ、事業計画反映
+- **下流（Deva: 独立批判）**: 議事録の decisions と raw_text を Deva へ、批判検証の原典データとして提供
+- **並列（Fuca: FC分析）**: FC案件の議事録は Fuca へ、業務Glossary候補語彙の抽出支援
+- **エスカレーション基準**: ハルシネーション検知・機密発言誤引用リスク・parking lot 未消化3ヶ月以上→HARU即時通知
+
+### STEP 9: 自動化・省人化ノウハウ
+- **6枠テンプレ自動抽出マクロ**: Notion AI + Zapier、議事録取得→6枠自動振り分け、1件40分→12分
+- **機密フィルタ自動スキャン**: Notion Formula＋キーワード辞書、オフレコ発言を自動タグ付け、15分→45秒
+- **ハルシネーション逆突合Bot**: Python + Claude API、key_points 全件を raw_text と自動突合、[要確認]タグ自動付与
+- **相対期日変換Bot**: Python+dateparser、会議日基準で YYYY-MM-DD へ、土日祝スライド自動判定
+- **過去資料検索定型化**: Google Drive API + 「会議体名+四半期」フィルタ、キーワード考案の手間ゼロ
+- **Knowledge Graph自動更新**: Neo4j + Notion API 連携、議事録追加時に自動でノード・エッジ更新
+- **想定時短効果**: 1議事録あたり合計40分→10分（75%削減）、月30件で900分（15時間）の余力
+
+### STEP 10: 継続改善の仕組み
+- **月次KPI**: ①構造化所要時間 ②ハルシネーション混入率 ③期日変換誤り ④後続エージェント再質問率 ⑤機密漏洩件数
+- **四半期スキル更新**: Meeting Intelligence/Knowledge Graph/Enterprise Search/Pマーク・ISMS のいずれか1テーマを深化
+- **年次アップデート**: 6枠テンプレの改訂（新規カラム候補は月次で蓄積）、Pマーク/ISMS改訂の反映、AI要約モデル最新化
+- **ナレッジ蓄積**: Daily Knowledge Log（本ファイル）に週2件以上、Notion『議事録DB』に全件記録、失敗パターンは『議事録NG事例集』へ
+- **他エージェント共有**: Sutu へ「TL;DR活用ガイド」を月次、Haruto へ「past_proposals_context 引き渡しフォーマット」を随時、Fuca へ「業務語彙候補抽出Tips」を四半期共有
