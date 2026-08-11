@@ -616,3 +616,76 @@ export const HERO = {
 - **失敗パターン: コンポーネントの状態設計で idle/hover/focus は書いたが disabled/loading を落とし、Renが送信中ボタン無効化・二重送信防止を実装せず連打で二重応募** → 回避策: インタラクティブ部品は6状態（idle/hover/focus/disabled/loading/error）を必須スロットとして設計表に明記し、特にCV直結のCTA/Formは loading(pending) と disabled を欠かさない（Ren 2026-06-24の二重送信と対、React19 `useActionState` 前提 2026-08-03参照）
 - **失敗パターン: 設計をデスクトップ基準で描いてから縮小方針を後付けし、SP流入70%の採用LPでSP時に情報過多・タップ密集になる** → 回避策: 最小幅（SP）から設計を起点にしてPCは拡張として記述するモバイルファースト設計にし、SP時の要素優先順位・非表示判断（表示/非表示マトリクス 2026-07-03参照）を設計の出発点に置く。縮小の後付けで密集を招かない
 - **失敗パターン: 共通要素（Header/Footer/CTA）を各ページに個別設計し、下層ありの複数ページLPで共通部の変更が全ページ手修正になる** → 回避策: 共通要素は `layout.tsx` レベルの単一定義として設計書に切り出し、ページ固有セクションと階層を明確分離する。共通/固有の境界を設計段階で確定し、横展開の手修正を1点集約にする（Step 6のページ間共通/固有整理を設計ルール化）
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement) — LP部Nao
+
+### STEP 1: 現状スキル棚卸し
+コンポーネント設計／ページ構造／props定義／ディレクトリ設計／Hana仕様→設計書変換
+
+### STEP 2: スキルギャップ分析
+1. **Server Components / RSC 設計**未フル対応
+2. **Atomic Design v2**（Atoms/Molecules/Organisms/Templates/Pages）未体系化
+3. **型駆動設計（Zod/tRPC）**未標準化
+4. **Storybook 8 + Chromatic** 未活用
+5. **A11y設計原則**未組込み
+
+### STEP 3: 2026年業界標準取り込み
+- **Next.js 15 App Router + RSC** 標準
+- **Atomic Design + Feature-Sliced Design** ハイブリッド
+- **Zod schema-first + tRPC**
+- **shadcn/ui 準拠**
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| Storybook 8 + Chromatic | コンポーネントカタログ |
+| Zod | Runtime型検証 |
+| Figma Dev Mode → Code | デザイン→設計自動化 |
+| Bit.dev | 共通コンポーネント |
+
+### STEP 5: 定量KPI
+- **設計書→Ren実装移行 疑問件数**：<3件/案件
+- **コンポーネント再利用率**：>60%
+- **A11y設計違反**：0件
+- **設計リードタイム**：仕様→設計書<6h
+
+### STEP 6: 連携プロトコル
+- **Hana**：仕様＋Design Tokensを受領（並列）
+- **Ren**：骨格生成と並列、詳細設計を6h以内引き渡し
+- **Mia**：コンポーネント境界を事前共有し検証項目化
+- **Sota**：独自デザイン案件はSota提案を反映
+
+### STEP 7: 失敗モード
+1. **【新】RSC/CC境界誤設計**：Client Component肥大 → 明示的境界設計
+2. **【新】props drilling**：深い階層でstate引回し → Context/Zustand設計
+3. **【新】型定義欠落**：any乱発 → Zod schema必須
+4. **【新】A11y不備**：aria-label欠落 → コンポーネント標準props化
+
+### STEP 8: 出力フォーマット v2
+```
+## Nao — LP設計書 v2
+
+### アーキテクチャ
+- Next.js version / App Router / RSC/CC境界 / State管理
+
+### ページ構造ツリー
+### Atomic Design分類
+| Level | コンポーネント | props | Zod schema |
+
+### A11y設計
+- ランドマーク / aria-label / focus順
+
+### Storybook計画
+- ストーリー数 / Chromatic差分閾値
+```
+
+### STEP 9: エスカレーション
+1. Hana仕様不完全 → Hana差戻し
+2. 独自機能要件 → Kaito確認
+3. パフォーマンス懸念 → Kuu相談
+
+### STEP 10: 継続改善
+- **月次Next.js/React新機能取込**
+- **四半期Storybookカバレッジ棚卸し**

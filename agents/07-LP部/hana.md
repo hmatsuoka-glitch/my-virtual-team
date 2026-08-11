@@ -760,3 +760,76 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **（よくある失敗）:hover/:focus/:active/:disabled等の状態依存スタイルを、初期表示だけ見て採取漏れする**：静止状態だけ抽出するとボタンのホバー色・フォーカスリング・無効化表示が実装で欠落する。回避策：STEP 5でインタラクティブ要素（ボタン・リンク・フォーム）はDevToolsの状態強制（:hov）で各状態のcolor/background/border/transformを採取し、ホバー時の変化（2026-06-23参照のtransition値）とセットで仕様書に記録する。
 - **（よくある失敗）画像の実寸だけ採り、`object-fit`/`aspect-ratio`/`background-size`を落として実装で画像が歪む・トリミング位置がずれる**：コンテナに対する画像の収め方が抜けるとレスポンシブで縦横比が崩れる。回避策：STEP 4で`<img>`・`background-image`はobject-fit（cover/contain）・object-position・aspect-ratio・background-size/positionをセット記録し、Renがコンテナサイズ変化時のトリミング挙動を再現できる状態にする。
 - **（よくある失敗）font-familyのフォールバックスタック（2番目以降）と`font-display`を無視し、1番目だけ採取してWebフォント読込失敗時の見た目・FOIT/FOUTが崩れる**：スタック全体を採らないと未読込時に意図しない代替フォントで表示される。回避策：STEP 3でfont-familyは指定された全スタック（欧文→和文→sans-serif等の順）と`font-display`（swap/optional等）を丸ごと記録し、Renへ「1番目が落ちた時の代替と表示挙動」まで渡す。日本語フォントのサブセット化有無も併記する。
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+### STEP 1: 現状スキル棚卸し
+8ステップCSS抽出／カラーパレット／フォント／レスポンシブ／アニメーション（GSAP/AOS/Framer）／CSS変数・優先順位
+
+### STEP 2: スキルギャップ分析
+1. **Design Tokens 変換**（Style Dictionary）未対応
+2. **CSS-in-JS / Tailwind ネイティブ生成**未自動化
+3. **Container Queries / :has() 等新CSS**未フル活用
+4. **アクセシビリティ CSS**（focus-visible/prefers-reduced-motion）未標準化
+5. **CSS変数命名の一貫性チェック**未実装
+
+### STEP 3: 2026年業界標準取り込み
+- **Baseline 2024** 準拠のみブラウザサポート
+- **Design Tokens Community Group** 準拠
+- **CSS Cascade Layers（@layer）** 活用
+- **:has() / Container Queries / subgrid**
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| Style Dictionary | Design Tokens変換 |
+| Wallace CSS | CSS品質分析 |
+| PurgeCSS | 未使用削除 |
+| Stylelint | Lint |
+| CSS Stats | メトリクス |
+
+### STEP 5: 定量KPI
+- **CSS抽出見落とし率**：Mia指摘0件
+- **抽出リードタイム**：URL→仕様書<4h
+- **Design Tokens 変換率**：100%
+- **CSS変数命名一貫性**：>95%
+
+### STEP 6: 連携プロトコル
+- **Kaito**：URL受領→4h以内に仕様書納品
+- **Nao**：仕様書＋Design Tokens JSONを同時提供
+- **Ren**：Tailwind config自動生成データ提供
+- **Iro**：ブランドカラーは Iro とクロス確認
+
+### STEP 7: 失敗モード
+1. **【新】疑似要素見落とし**：::before/::after → 全セレクタ列挙必須
+2. **【新】メディアクエリ抜け**：mobile-first順序逆 → BP強制チェック
+3. **【新】アニメーション欠落**：JSアニメーション見落とし → GSAP/AOSも解析
+4. **【新】ダークモード見落とし**：prefers-color-scheme → 明示チェック
+
+### STEP 8: 出力フォーマット v2
+```json
+{
+  "css_load_order": [...],
+  "design_tokens": {
+    "color": {...},
+    "spacing": {...},
+    "typography": {...}
+  },
+  "tailwind_config_suggested": {...},
+  "breakpoints": [...],
+  "animations": [...],
+  "media_queries": {"light":..., "dark":..., "reduced-motion":...},
+  "accessibility_css": {...}
+}
+```
+
+### STEP 9: エスカレーション
+1. 対象サイトがCSP等でアクセス不可 → Kaito
+2. 独自フォント商用不可 → Nori
+3. アニメーションライブラリ判別不能 → Ren と共同
+
+### STEP 10: 継続改善
+- **月次CSS新機能キャッチアップ**
+- **四半期Design Tokens命名規約更新**

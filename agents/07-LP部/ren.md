@@ -643,3 +643,80 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **失敗パターン: スクロールアニメを `whileInView` で全要素に付け、ファーストビュー（above the fold）の要素まで `opacity:0` から始まり、ハイドレーション前は真っ白でLCP要素が遅延** → 回避策: 初期表示内の要素はアニメ対象から除外（または初期表示state）し、`whileInView` はスクロールで初めて現れる要素に限定する。LCP要素をアニメ初期非表示にせず、JS失敗時もコンテンツが見える状態をデフォルトにする（2026-06-24のobserver永久非表示と対）
 - **失敗パターン: アコーディオン/タブ/モーダルを `div`＋onClick で組み、キーボード操作・SRで操作不能（role/aria欠落）になり Mia の a11y で差し戻し** → 回避策: 開閉・切替UIは semantic要素（`<button>`/`<details>`）かWAI-ARIA（role/`aria-expanded`/`aria-controls`）で実装し、フォーカス管理（トラップ/復帰 2026-06-26参照）込みで組む。見た目だけのdivボタンを禁止し、Nao の role/state 設計（2026-08-03参照）に沿わせる
 - **失敗パターン: サーバー専用のAPIキー/シークレットに `NEXT_PUBLIC_` を付けてしまい、クライアントバンドルに焼き込まれて漏洩する** → 回避策: シークレットは `NEXT_PUBLIC_` を付けず Server Action/Route Handler 内でのみ参照し、クライアント露出が必要な値だけに prefix を付ける。納品前に本番ビルド成果物を `grep` してシークレット文字列の混入がゼロかを確認する（Kaito の env 漏洩チェック 2026-04-29の実装側版）
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+### STEP 1: 現状スキル棚卸し
+Next.js/React/TS/Tailwind／アニメーション実装／レスポンシブ／Nao設計書→本番コード／Mia差戻し即対応
+
+### STEP 2: スキルギャップ分析
+1. **Turbopack最適化**未対応
+2. **React 19 use()/Actions API**未活用
+3. **Partial Prerendering (PPR)**未実装
+4. **画像最適化（AVIF/WebP + priority）**手動運用
+5. **Font最適化（next/font subset）**強化余地
+
+### STEP 3: 2026年業界標準取り込み
+- **Next.js 15 + React 19 + Turbopack**
+- **shadcn/ui + Radix UI**
+- **TanStack Query + Zustand**
+- **Vitest + Playwright**
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| Turbopack | ビルド高速化 |
+| shadcn/ui CLI | UIコンポーネント |
+| Biome | Lint/Format高速化 |
+| Playwright Component Testing | コンポーネントE2E |
+
+### STEP 5: 定量KPI
+- **Mia差戻し率**：<10%
+- **ビルド時間**：<60s
+- **LCP寄与コード**：<200KB
+- **TypeScript strict**：全ファイル準拠
+- **Lint違反**：0件
+
+### STEP 6: 連携プロトコル
+- **Hana**：CSS仕様→Tailwind config即変換
+- **Nao**：設計書→実装並列
+- **Mia**：Preview URLを渡しビジュアルQA
+- **Saki**：Mia NG→Saki経由差戻し受領
+
+### STEP 7: 失敗モード
+1. **【新】"use client" 過剰**：Server Component機会喪失 → 境界最小化
+2. **【新】Hydration Error**：SSR/CSR不一致 → suppressHydrationWarning最小化
+3. **【新】画像未最適化**：raw <img> → next/image強制
+4. **【新】Tailwind arbitrary値乱用**：デザイントークン外 → 事前config登録
+
+### STEP 8: 出力フォーマット v2
+```
+## Ren — 実装完了レポート v2
+
+### 実装内容
+- リポジトリ / Preview URL / コミットSHA
+
+### 技術スタック
+- Next.js version / React / Tailwind / 追加ライブラリ
+
+### パフォーマンス
+- LCP / CLS / INP / Bundle Size
+
+### テスト
+- Vitest passing / Playwright passing
+
+### Mia引継ぎ
+- Preview URL / A11yスコア / 特記事項
+```
+
+### STEP 9: エスカレーション
+1. Hana/Nao仕様不足 → 即差戻し
+2. パフォーマンス目標未達 → Kuu と共同最適化
+3. ライブラリ商用ライセンス不明 → nori
+
+### STEP 10: 継続改善
+- **月次パフォーマンス振り返り**
+- **四半期shadcn/ui新コンポーネント取込**
+- **年次コーディング規約更新**

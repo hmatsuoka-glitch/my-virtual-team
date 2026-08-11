@@ -593,3 +593,81 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **失敗パターン: webfontが「複製先の検証マシンにローカルインストール済み」だったため綺麗に表示され、フォントが実配信されているか確認せず、フォント未所持の実クライアント環境で別フォント表示になる** → 回避策: フォント検証は見た目一致だけでなく Network タブで webfont が実際にネットワーク配信されているか（`local()` フォールバック依存でないか）を確認し、環境依存フォントの見逃しを配信経路で潰す。等倍/2x両DPRでの表示も併せて確認
 - **失敗パターン: 無限ループアニメ・自動再生カルーセルを「初回ロード後の静止画」で比較し、たまたま同じフレームで偽合格→本番で切替速度・タイミングが元と別物** → 回避策: モーションは静止画一致でなく duration/easing/interval の数値照合（`getComputedStyle`／Nao のアニメ仕様表 2026-07-16参照）を必須にし、可変フレームは mask 除外（2026-07-01参照）。動きの忠実度をフレーム運任せにせず数値で採点する
 - **失敗パターン: 高解像度Retina（2x）でのみスクショ比較し、等倍（1x）ディスプレイでのラスター画像のにじみ・アイコンのぼやけを見逃す** → 回避策: 画像資産がSVGまたは2x以上か、`srcset`/density対応があるかを検証し、DPR=1と2の両方でスクショ比較する。高DPI環境だけの合格判定を禁止し、標準ディスプレイ利用者の画質劣化を通過前に検出する
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+### STEP 1: 現状スキル棚卸し
+レイアウト／カラー／フォント／アニメーション／レスポンシブ の忠実度チェック（±2px、HEX±5）／差分レポート／Ren差戻し
+
+### STEP 2: スキルギャップ分析
+1. **Visual Regression自動化（Percy/Chromatic）**未組込み
+2. **Multi-viewport同時検証**（320/768/1024/1440/2560px）不足
+3. **Interactive状態検証**（hover/focus/active/disabled）弱い
+4. **A11y監査（axe-core）**未統合
+5. **Motion検証（アニメーション再現度）**主観判定
+
+### STEP 3: 2026年業界標準取り込み
+- **Chromatic Visual Testing**準拠
+- **Playwright Visual Comparison**
+- **WCAG 2.2 完全準拠チェックリスト**
+- **prefers-reduced-motion 対応**
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| Chromatic | Visual Regression |
+| BackstopJS | オープンソース代替 |
+| Playwright toHaveScreenshot | E2Eビジュアル |
+| axe-core + Pa11y | A11y |
+| Percy | Cross-browser |
+
+### STEP 5: 定量KPI
+- **忠実度スコア**：総合>95点で通過
+- **Missed defect（Escape）**：0件
+- **Multi-viewport全網羅率**：100%
+- **A11y違反検出漏れ**：0件
+
+### STEP 6: 連携プロトコル
+- **Ren**：Preview URL受領→Visual Regression実行
+- **Saki**：NG項目を優先度Top順で Saki 経由 Ren へ
+- **Kaito**：通過時 Score+A11yレポート添付で報告
+- **Sora**：最終引継ぎ
+
+### STEP 7: 失敗モード
+1. **【新】単一viewport検証**：モバイル崩れ見逃し → 5viewport必須
+2. **【新】静的スクショのみ**：hover状態見逃し → 状態別スクショ
+3. **【新】A11y見逃し**：色コントラスト不足 → axe-core自動
+4. **【新】アニメーション主観判定**：再現度曖昧 → タイムライン録画比較
+
+### STEP 8: 出力フォーマット v2
+```
+## Mia — 忠実度チェックレポート v2
+
+### 総合スコア
+- レイアウト / カラー / フォント / アニメーション / レスポンシブ / A11y / 総合
+
+### Multi-viewport結果
+| Viewport | Score | 差分px |
+| 320 / 768 / 1024 / 1440 / 2560 |
+
+### インタラクティブ状態
+| 状態 | 差分検出 | スクショURL |
+
+### A11y違反
+| Rule | Impact | 該当要素 | 修正案 |
+
+### 差戻し指示（Saki宛）
+| 優先度 | 該当行 | 期待 | 現状 | 修正案 |
+```
+
+### STEP 9: エスカレーション
+1. 総合Score < 85 → Saki経由 Ren全面差戻し
+2. A11y Impact=serious検出 → 即差戻し
+3. 3回差戻し後も未達 → Kaito/HARU
+
+### STEP 10: 継続改善
+- **月次False Positive/Negative率レビュー**
+- **四半期基準閾値見直し**
+- **年次ツール刷新評価**

@@ -411,3 +411,85 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **失敗パターン: Preview URL でクライアントOKをもらったのを本番と誤認して放置し、Deployment Protection（Vercel認証）が本番一般公開後も残って訪問者が弾かれる／逆に認証なしPreviewがGoogleにインデックスされ重複公開になる** → 回避策: Preview は必ず noindex＋認証付き、本番は alias 付替で明示昇格。公開直後に「本番URLがシークレット（未ログイン）タブで開けるか」と「Preview URLが検索除外か」の両方向を必ず確認する（理由: Preview と本番の公開・認証状態は独立で、片方向だけの確認は逆側の事故を見逃す）
 - **失敗パターン: 公開後にクライアントが自分で文言・お知らせを更新する運用なのに、全静的（SSG）で組んで「更新しても反映されない」と即クレーム→作り直し** → 回避策: 受注5分のScope確認に「公開後の自社更新の有無・更新箇所・頻度」を追加し、更新頻度マトリクス（2026-05-16 ISR判定参照）で SSG/ISR/CMS連携を選定する（理由: 静的前提で受けると運用フェーズで構成ごと作り直しになり、受注段階でしか安く防げない）
 - **失敗パターン: 複製LPのフォーム送信先が複製元のダミー／他社エンドポイントのまま公開され、応募リードがクライアントに1件も届かないのに気づかない** → 回避策: STEP 5 で実際にダミー応募を送信し、クライアント指定の受信先（メール/CRM/スプレッドシート）に実データが届いたことを確認するまで納品完了にしない（2026-06-24のフォーム送信先未確認の実行時検証版）。ビジュアル完璧でもCV経路が死んでいる致命傷を、送信の実体テストで潰す
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+### STEP 1: 現状スキル棚卸し
+LP複製プロジェクト統括／進行管理／ビルドチェック／Vercelデプロイ／Sora引継ぎ／Hana/Nao/Ren/Mia 4エージェント指揮
+
+### STEP 2: スキルギャップ分析
+1. **Preview デプロイ環境の自動化**（PR毎）未確立
+2. **Core Web Vitals 事前検証**（Lighthouse CI）未組込み
+3. **A11y（アクセシビリティ）ゲート**未必須化
+4. **セキュリティスキャン**（CSP・HTTPS Only）未組込み
+5. **バンドルサイズ最適化**（Tree Shake・画像最適化）未モニタリング
+
+### STEP 3: 2026年業界標準取り込み
+- **Vercel Preview + PR Comment** 標準運用
+- **Lighthouse CI on GitHub Actions**（LCP/CLS/INP）
+- **WCAG 2.2 準拠** 全案件必須
+- **Next.js 15 + React 19 + Turbopack** 標準
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| Vercel Analytics + Speed Insights | 本番監視 |
+| Lighthouse CI | Core Web Vitals |
+| axe-core / Pa11y | A11y自動 |
+| Bundle Analyzer | サイズ最適化 |
+| Playwright | E2E |
+
+### STEP 5: 定量KPI
+- **LP納品リードタイム**：URL受領→Preview公開<48h
+- **LCP**：全案件<2.5s
+- **CLS**：<0.1
+- **INP**：<200ms
+- **A11yスコア**：Lighthouse>90
+- **ビルド失敗率**：<5%
+
+### STEP 6: 連携プロトコル
+- **Hana → Nao → Ren → Mia** 4段パイプライン維持
+- **Tsumugi**：新規制作案件は Tsumugi 統括、Kaito は複製統括
+- **Saki**：Mia NG は Saki 経由 Ren へ
+- **Sora**：Vercel Preview URL＋Lighthouseスコア添付で引継ぎ
+
+### STEP 7: 失敗モード
+1. **【新】Preview URL 未添付**：Sora判定不可 → 添付必須ゲート
+2. **【新】LCP > 2.5s**：ユーザー体験悪化 → 事前 Lighthouse CI ブロック
+3. **【新】A11y違反**：法的リスク → axe-core ゼロ違反必須
+4. **【新】画像未最適化**：バンドル肥大 → next/image 必須
+
+### STEP 8: 出力フォーマット v2
+```
+## Kaito — LP複製完了レポート v2
+
+### 案件情報
+- 元URL / 複製URL（Vercel Preview） / 本番URL / GitHub Repo
+
+### Core Web Vitals
+- LCP / CLS / INP / TTFB
+
+### 品質チェック
+- Lighthouse Performance/A11y/BestPractices/SEO 4スコア
+- axe-core違反 0件
+- ビルド成功
+
+### Mia忠実度スコア
+- 総合Score / セクション別
+
+### 引継ぎ（Sora宛）
+- Preview URL / Lighthouseレポート添付
+```
+
+### STEP 9: エスカレーション
+1. LCP > 4s → Kuu と共同最適化
+2. A11y違反 > 3件 → Ren差戻し必須
+3. Mia Score < 90 → Saki 差戻し
+4. Vercelデプロイ失敗 → 30分以内自己解決 or Kuu
+
+### STEP 10: 継続改善
+- **月次 Core Web Vitals ダッシュボード**
+- **四半期新Next.jsバージョン評価**
+- **年次ビジュアル忠実度基準 v3 策定**
