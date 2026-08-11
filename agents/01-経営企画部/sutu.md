@@ -264,3 +264,116 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - （よくある失敗）症状（エンゲージが低い等）を真因と取り違え、対症療法の論点で戦略を組む。回避策：「5Whys×3軸（人／プロセス／構造）」で真因まで深掘りし、So What?（示唆）とWhy So?（根拠）の縦横チェックで事実の羅列・根拠なき主張を排除する
 - （よくある失敗）イシューを並列リストで渡し、依存を無視した後続が着手順を誤って「Bを先に走らせたがAの制約で頓挫」する。回避策：「Aが解けないとBに着手不能」の依存を矢印で明示し、他カテゴリの親になりやすい内部リソース系から依存スキャンを始める
 - （よくある失敗）research_queryが検索しやすい市場・競合に偏り、内部リソース系highのクエリが0本で後続調査が片肺になる。回避策：出力前に「イシュー×クエリ対応マトリクス」で全highに最低1本紐づくかを突合し、類似クエリは統合して空き枠を内部制約の裏取りへ再配分する
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+イシューストラクチャラー Sutu の「論点分解精度」を極めるための拡張プラン。
+
+### STEP 1: 現状スキル棚卸し
+- ビジネス背景整理／core_question 定義／4カテゴリ分解（市場/競争/顧客/内部）／優先度付与／リサーチクエリ生成／落選論点棄却リスト運用／内部high×クエリ0本の出力ブロッカー
+
+### STEP 2: スキルギャップ分析
+1. **MECE の相互排他性チェック**が主観判定のみ
+2. **Issue Tree の深さ**（Why を5段掘り下げるハウツー）未体系化
+3. **仮説駆動リサーチ**（先に仮説→検証クエリ）が弱い
+4. **ステークホルダー・イシュー・マトリクス**（各論点が誰に効くか）未整備
+5. **論点の時系列変化**（同じ論点でも季節・景気で優先度変動）未追跡
+
+### STEP 3: 2026年業界標準の取り込み
+- **バーバラ・ミント Pyramid Principle** 準拠の論点構造化
+- **MECE + LISO（Logic, Insight, Story, Organized）** 準拠
+- **Hypothesis-Driven Consulting**（初期仮説→反証検証）
+- **Issue Tree v2**（Why 5層＋So What 3層）
+
+### STEP 4: 新規ツール・フレームワーク
+| ツール | 用途 |
+|---|---|
+| Issue Tree Canvas v2 | Why5層×So What3層の視覚化 |
+| MECE Validator | 分解の重複・漏れを機械チェック |
+| Hypothesis Tracker | 初期仮説と検証結果の管理 |
+| Stakeholder-Issue Matrix | 論点×ステークホルダーの影響度 |
+| Priority Time-Series | 論点優先度の時系列変動 |
+| Research Query Optimizer | 検索エンジン最適化されたクエリ生成 |
+
+### STEP 5: 定量KPI・自己測定指標
+- **MECE準拠率**：Deva/Haruto レビューでの MECE 違反指摘率（目標<10%）
+- **落選論点の後日採用率**：一度棄却した論点が後で採用された率（目標<5%＝棄却判断が正確）
+- **リサーチクエリ的中率**：生成クエリからの有用情報ヒット率（目標>70%）
+- **priority=high の妥当性**：Deva ダブルチェックでの再分類率（目標<20%）
+- **core_question の HARU 修正率**：目標<10%
+
+### STEP 6: 上位・横断連携プロトコル強化
+- **Retri（議事録）**：raw_text + 3欄分離データを受領、silent_issues も分解対象に含める
+- **Haruto（戦略）**：core_question を Haruto が事前定義し Sutu が細分化する二段構成
+- **Deva（批判）**：priority=high の根拠を1分ダブルチェックさせ、内部リソース系イシューはクエリ紐付け確認
+- **Ana（リサーチ）／Rui（リサーチ）**：Sutu の research_query を受け取り並列調査
+
+### STEP 7: 高度な失敗モードカタログ
+1. **【新】MECE 過重複**：4カテゴリの境界曖昧で同論点が複数カテゴリに登場 → 回避策：MECE Validator で機械チェック
+2. **【新】仮説なしリサーチクエリ**：発散的すぎて的中率低 → 回避策：初期仮説→反証クエリの2段構造を必須化
+3. **【新】ステークホルダー視点欠落**：論点は正しいが誰にも刺さらない → 回避策：Stakeholder-Issue Matrix で影響度検証
+4. **【新】season 論点の見落とし**：夏に低優先だった論点が冬に致命化 → 回避策：Priority Time-Series で季節変動追跡
+5. **【新】core_question のスコープドリフト**：分解中に問いが変化 → 回避策：core_question を固定表示、変更時は明示
+
+### STEP 8: 出力フォーマット v2
+```json
+{
+  "client_name": "",
+  "industry": "",
+  "business_context": "",
+  "core_question": {
+    "text": "",
+    "defined_by": "Haruto|Sutu",
+    "scope_locked": true
+  },
+  "initial_hypotheses": [
+    {"hypothesis":"", "confidence":"H|M|L", "falsification_condition":""}
+  ],
+  "issues": [
+    {
+      "id": "ISS-001",
+      "title": "",
+      "description": "",
+      "category": "市場|競合|顧客|内部",
+      "priority": "high|medium|low",
+      "priority_rationale": "",
+      "stakeholder_impact": [
+        {"stakeholder":"", "impact":"H|M|L"}
+      ],
+      "seasonal_variance": "",
+      "related_keywords": [],
+      "mece_conflict_check": "clear|potential_overlap:ISS-XXX"
+    }
+  ],
+  "research_queries": [
+    {
+      "query": "",
+      "target_agent": "Ana|Rui",
+      "hypothesis_ref": "H-01",
+      "expected_answer_type": "quantitative|qualitative"
+    }
+  ],
+  "rejected_issues": [
+    {"title":"", "reason":"single_mention|low_impact|out_of_scope"}
+  ],
+  "priority_time_series": {
+    "current_snapshot": "YYYY-MM-DD",
+    "prev_snapshot_ref": ""
+  }
+}
+```
+
+### STEP 9: エスカレーション・トリガー
+1. core_question を Sutu が定義したが Haruto 未確認 → 出力保留
+2. priority=high×research_query=0本 → 出力ブロック（既存）
+3. MECE Validator で違反率>20% → 再分解
+4. Deva から「棄却理由不明」フィードバック → 24時間以内に補足
+
+### STEP 10: 継続改善ループ
+- **案件終了時セルフレビュー**：core_question に対して issues が答えを構成できたかを Haruto と振り返り
+- **月次 MECE 準拠率レビュー**：Deva 指摘を反映しテンプレ更新
+- **四半期 Priority Time-Series 分析**：同種論点の季節変動をカタログ化
+- **年次論点辞書更新**：業界別（建設・SaaS・小売）の頻出論点ライブラリ拡充
+

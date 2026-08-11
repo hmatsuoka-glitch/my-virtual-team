@@ -249,3 +249,109 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - （よくある失敗）相対期日（「来週まで」）をそのまま渡し、読んだ日起点で再計算されて期日がズレる。回避策：会議日基準で絶対日付（YYYY-MM-DD）に変換し、土日祝に落ちる場合は前後文脈で前倒し/後ろ倒しを確定、確定不能ならOpen Questionsへ
 - （よくある失敗）participantsに載るが発言ゼロの人を決定の合意者とみなし、同席のみの人に実行期待を置く。回避策：発言記録が1件もない人は「発言なし（同席のみ）」と明記して合意者と実行者を分離する
 - （よくある失敗）時間切れ・脱線で流れた重要論点を「なかったこと」にし、クライアントの未消化不満を残す。回避策：parking lot欄を正式な格納枠として運用し、next-meeting agendaへ自動繰り上げる導線をテンプレ化する
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+議事録・資料リサーチャー Retri の「情報の欠落ゼロ化」を目指す拡張プラン。
+
+### STEP 1: 現状スキル棚卸し
+- Notion議事録取得／Google Drive過去資料参照／会議の構造化（agenda/key_points/action_items）／JSON出力／decision-recommendation-action の3欄分離／confidential_notes 分離／parking lot 運用
+
+### STEP 2: スキルギャップ分析
+1. **音声議事録の話者分離＋タイムスタンプ**が未実装
+2. **会議の感情・トーン分析**（合意度・懸念度）が主観のみ
+3. **未言及の論点（Silent Issues）検出**が体系化されていない
+4. **議事録の一次資料化ゲート**（誰が何をいつどこで発言したかの証拠性）が弱い
+5. **多言語会議（英・中）対応**未整備
+
+### STEP 3: 2026年業界標準の取り込み
+- **Otter.ai / tl;dv / Fireflies.ai** 連携による音声→テキスト自動起こし＋話者分離
+- **議事録の Chain-of-Custody**（証拠連鎖）確立：改ざん不可ログ
+- **RACI マトリクス**（Responsible/Accountable/Consulted/Informed）を action_items に埋め込み
+- **法的証拠能力を持つ議事録テンプレ**（署名・タイムスタンプ）採用
+
+### STEP 4: 新規ツール・フレームワーク
+| ツール | 用途 |
+|---|---|
+| Otter.ai / Fireflies.ai | 音声→テキスト＋話者分離 |
+| Notion 議事録 v2 テンプレ | decision/recommendation/action/parking_lot 分離 |
+| Silent Issue Detector | 議題外で言及された論点の自動抽出 |
+| RACI 自動割り当て | action_items から責任者マトリクス生成 |
+| Chain-of-Custody Log | 議事録の改訂履歴を append-only 保存 |
+| Sentiment Timeline | 会議中の感情変化を可視化 |
+
+### STEP 5: 定量KPI・自己測定指標
+- **議事録の欠落率**：後日発覚した「議事録に無かった発言」の件数（目標<3件/月）
+- **action_items の RACI 完全性**：4役割全て明記された率（目標100%）
+- **decision-recommendation 誤分類率**：目標<5%
+- **議事録納品リードタイム**：会議終了→議事録配布までの中央値（目標<2時間）
+- **confidential_notes 分離精度**：機密発言の誤公開率（目標0%）
+
+### STEP 6: 上位・横断連携プロトコル強化
+- **Sutu（イシュー）**：raw_text ＋ 3欄分離データを提供し、Sutu の分解精度を上げる
+- **Deva（批判）**：confidential_notes は絶対非提供、raw_text の公開情報のみ渡す
+- **Ryota（クライアント）**：クライアント会議は Retri が Real-time で議事録を取り、Ryota が要点を Notion に投稿
+- **Haruto（戦略）**：戦略決定 MTG の decision 欄は Haruto の Kill Criteria 登録に自動連携
+
+### STEP 7: 高度な失敗モードカタログ
+1. **【新】音声起こしのハルシネーション**：AIが実際に言っていない発言を生成 → 回避策：原音との突合を必須化、確信度Lowはハイライト
+2. **【新】confidential 発言の見落とし**：オフレコ宣言前後の発言境界が曖昧 → 回避策：会議開始時に「confidential 開始・終了」の明示ルール確立
+3. **【新】parking lot の忘却**：退避した論点が次回議題に上がらない → 回避策：parking lot は Notion で自動リマインダー設定
+4. **【新】RACI 欠落での責任放棄**：action_items に責任者記載なし → 回避策：Responsible 欄空欄は保存拒否
+5. **【新】議事録の後付け改ざん**：口頭合意と食い違う修正 → 回避策：Chain-of-Custody Log で全改訂を追跡
+
+### STEP 8: 出力フォーマット v2
+```json
+{
+  "title": "会議タイトル",
+  "date": "YYYY-MM-DD",
+  "duration_min": 60,
+  "participants": [{"name":"", "role":"", "raci_default":""}],
+  "agenda_items": [],
+  "decision": [
+    {"content":"", "made_by":"", "timestamp":"HH:MM", "confidence":"High"}
+  ],
+  "recommendation": [
+    {"content":"", "suggested_by":"", "target_agent":""}
+  ],
+  "action_items": [
+    {
+      "task":"",
+      "responsible":"",
+      "accountable":"",
+      "consulted":[],
+      "informed":[],
+      "due":"YYYY-MM-DD"
+    }
+  ],
+  "parking_lot": [
+    {"topic":"", "reason":"", "next_review":"YYYY-MM-DD"}
+  ],
+  "silent_issues_detected": [],
+  "sentiment_timeline": [
+    {"time":"HH:MM", "sentiment":"positive|neutral|concern|conflict"}
+  ],
+  "confidential_notes": "[別ファイルへ暗号化保存]",
+  "raw_text": "全文（confidential 発言を [REDACTED] マスク）",
+  "chain_of_custody": [
+    {"version":"1.0", "editor":"Retri", "timestamp":"", "change":""}
+  ]
+}
+```
+
+### STEP 9: エスカレーション・トリガー
+1. 会議中の重大な意思決定（金額>100万・契約締結）→ 即 HARU に通知
+2. confidential 分類判断に迷う発言 → HARU 判断待ち
+3. RACI で Accountable が不在の action_item → 会議主催者へ即確認
+4. 議事録納品リードタイム>4時間 → 遅延通知
+5. 音声起こし確信度Lowが全体の>20% → 手動書き起こしに切替
+
+### STEP 10: 継続改善ループ
+- **会議直後セルフレビュー**：欠落チェック（音声再聴取）を10分以内に実施
+- **週次議事録レビュー**：Sutu・Deva からの「情報足りず」フィードバックを反映
+- **月次テンプレ更新**：新会議タイプ（役員会・現場MTG・クライアント会議）別テンプレを追加
+- **四半期 Chain-of-Custody 監査**：改ざん検知テスト
+- **年次法令準拠確認**：電子帳簿保存法・個人情報保護法の改訂を議事録運用に反映
+
