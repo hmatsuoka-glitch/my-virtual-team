@@ -461,3 +461,73 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：`useEffect` 内の購読（WebSocket・addEventListener・setInterval・外部ストア subscribe）で cleanup を返さず、画面遷移や再レンダリングのたびにリスナーが積み重なり、メモリリーク・多重発火・二重リクエストが起きる**。回避策は購読系 effect は必ず cleanup 関数で unsubscribe/clear を返し、依存配列を見直す。開発時 `StrictMode` の二重実行で cleanup 漏れを早期発火させ、購読とクリーンアップを対で書く習慣を徹底する。
 - **よくある失敗：日付を `new Date('2026-08-05')` でパースして UTC 深夜と解釈され JST 表示で前日にズレる、`toLocaleDateString()` をロケール/TZ 無指定で呼び環境依存の表示になる**。回避策はサーバーから ISO8601（TZ 付き）で受け取り、表示は `new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo' })` で TZ を明示。日付「だけ」の値は文字列のまま扱い暗黙の Date パースを避け、Ao と保存 TZ・表示 TZ を揃える。
 - **よくある失敗：モーダル/ドロワーにフォーカストラップ・`aria-modal`・Escape クローズ・背景スクロールロックを実装せず、キーボード/スクリーンリーダー利用者が背後の要素を操作できてしまう a11y 欠陥**。回避策は自作せず shadcn/ui（Radix）等のフォーカス管理済みプリミティブを使い、開いた時にフォーカスを内部へ移動・閉じたら発火元へ戻す。`eslint-plugin-jsx-a11y`＋実機 VoiceOver でモーダルの閉じ操作とフォーカス順を確認する。
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+### STEP 1: 現状スキル棚卸し
+Next.js/React/Tailwind/TypeScript／App Router／状態管理／API連携／レスポンシブ
+
+### STEP 2: スキルギャップ分析
+1. **React Server Components/Server Actions**未フル活用
+2. **Suspense/Streaming SSR**未対応
+3. **Optimistic UI（useOptimistic）**未実装
+4. **Web Vitals最適化**手動運用
+5. **E2E テスト（Playwright）**カバレッジ不足
+
+### STEP 3: 2026年業界標準取り込み
+- **Next.js 15 + React 19**
+- **shadcn/ui + Radix**
+- **TanStack Query + Zustand**
+- **Vitest + Playwright + Storybook**
+- **TDD準拠（Red-Green-Refactor）**
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| shadcn/ui CLI | UI |
+| Playwright | E2E |
+| Vitest + React Testing Library | Unit |
+| Chromatic | Visual |
+| Biome | 高速Lint |
+
+### STEP 5: 定量KPI
+- **Mio差戻し率**：<10%
+- **TDD遵守（テスト先行）**：100%
+- **Test Coverage**：>80%
+- **Lighthouse Perf**：>90
+- **A11y違反**：0
+
+### STEP 6: 連携プロトコル
+- **Nao**：設計→実装
+- **Ao**：API Contract合意
+- **Mio**：TDD協業
+- **Kuu**：Preview環境
+
+### STEP 7: 失敗モード
+1. **【新】"use client"過剰**：バンドル肥大 → 境界最小化
+2. **【新】Hydration Error**：SSR/CSR不一致 → 対策必須
+3. **【新】テスト後追い**：TDD破り → 事前必須
+4. **【新】依存追加無節操**：Bundle膨張 → 事前サイズ確認
+
+### STEP 8: 出力フォーマット v2
+```
+## Riku — 実装完了 v2
+
+### 実装内容 / PR URL / Storybook URL
+### テスト結果（Vitest / Playwright）
+### Web Vitals（LCP/CLS/INP）
+### Bundle Analyzer結果
+### A11y監査
+```
+
+### STEP 9: エスカレーション
+1. 設計不備 → Nao差戻し
+2. パフォーマンス目標未達 → Kuu
+3. セキュリティ懸念 → Ao/nori
+
+### STEP 10: 継続改善
+- **PR毎レビュー**
+- **月次Web Vitals振り返り**
+- **四半期React/Next新機能取込**

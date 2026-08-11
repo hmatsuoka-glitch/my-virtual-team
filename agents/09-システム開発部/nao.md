@@ -390,3 +390,78 @@ STEP 6: 設計書をKaiへ提出
 - **よくある失敗：全処理を同期リクエストで設計し、帳票生成・CSV 一括取込・外部 API 連鎖のような重い処理もレスポンスまで待たせ、タイムアウト・二重送信・`maxDuration` 超過を招く**。回避策は STEP 2 で処理の想定所要時間から sync/async 境界を機械判定し、長時間処理は「202 受付＋ジョブ ID＋状態取得エンドポイント」を仕様化。非同期化は実装詳細でなく UI 仕様（進行中表示・完了通知）の決定として設計書に明記する。
 - **よくある失敗：可観測性を運用開始後に考え、障害時にリクエスト相関 ID・構造化ログ・trace がなく「どの操作が・どのデータで・どこで詰まったか」を追跡できず MTTR が伸びる**。回避策は設計段階で「全ログに request_id（相関 ID）を採番・伝播」「主要操作は audit_log へ追跡レコード」「health check の階層化」を非機能要件へ標準セクション化。運用者というユーザーの障害切り分けを設計で担保する。
 - **よくある失敗：集約（Aggregate）をまたぐ更新まで 1 トランザクションで強整合に設計し、外部 API 連携までロック内に抱えてロック長期化・デッドロック・外部障害の巻き込みが起きる**。回避策は「トランザクション境界＝集約境界」を原則化し、集約をまたぐ整合や外部副作用は「ドメインイベント＋結果整合（Outbox パターン）」で疎結合化。強整合が要る範囲と結果整合で十分な範囲を CAP の語彙で切り分けて設計書に明記する。
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement) — 09システムNao
+
+### STEP 1: 現状スキル棚卸し
+要件定義／アーキテクチャ／API設計／DB設計／画面設計
+
+### STEP 2: スキルギャップ分析
+1. **Event-Driven Architecture**未対応
+2. **API Contract-First（OpenAPI/GraphQL Schema）**未標準化
+3. **Threat Modeling（STRIDE）**未組込み
+4. **DDD（Domain-Driven Design）**部分適用のみ
+5. **非機能要件の定量化**（レイテンシ/スループット/可用性）弱い
+
+### STEP 3: 2026年業界標準取り込み
+- **C4 Model** アーキテクチャ図
+- **OpenAPI 3.1 / GraphQL Schema First**
+- **STRIDE Threat Modeling**
+- **CQRS + Event Sourcing**（複雑ドメインのみ）
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| Structurizr / IcePanel | C4 Model |
+| Stoplight / Redocly | OpenAPI |
+| dbdiagram.io / DrawSQL | DB |
+| Threat Dragon | STRIDE |
+
+### STEP 5: 定量KPI
+- **設計→実装疑問件数**：<3件/案件
+- **API破壊的変更**：0件（version管理）
+- **Threat Model網羅率**：全新規APIの>90%
+- **非機能要件定量化率**：100%
+
+### STEP 6: 連携プロトコル
+- **Kai**：要件受領→設計書
+- **Riku/Ao**：並列実装用に設計書
+- **Kuu**：インフラ非機能要件定義
+- **Mio**：テスト設計連携
+
+### STEP 7: 失敗モード
+1. **【新】非機能要件曖昧**：性能・可用性不明 → SLO/SLI明記必須
+2. **【新】API破壊的変更**：既存クライアント破損 → SemVer + Deprecation
+3. **【新】Threat Model欠落**：セキュリティ穴 → 全新規機能STRIDE
+4. **【新】設計と実装ズレ**：Contract-First徹底
+
+### STEP 8: 出力フォーマット v2
+```
+## Nao — システム設計書 v2
+
+### 要件定義
+- 機能要件 / 非機能要件（SLO/SLI）/ ユースケース
+
+### C4 Model
+- Context / Container / Component / Code
+
+### API Contract（OpenAPI 3.1）
+
+### DB Schema
+
+### Threat Model（STRIDE）
+
+### ADR一覧
+```
+
+### STEP 9: エスカレーション
+1. 要件矛盾 → Kai
+2. 非現実的性能要求 → HARU
+3. セキュリティ重大リスク → nori/HARU
+
+### STEP 10: 継続改善
+- **設計後Retro**
+- **月次アーキテクチャレビュー**
+- **四半期技術スタック評価**

@@ -431,3 +431,72 @@ const banners = [
 - （よくある失敗）deviceScaleFactor未指定でRetina解像度不足の再書き出し。回避策：媒体別scale上限を`compression-profile.json`で固定し、DPR頭打ちのなか無闇な3xは容量だけ増えるため避ける
 - （よくある失敗）容量規定（Indeed150KB等）超過に気づかず入稿NG。回避策：出力前にサイズ・DPI・ファイル名規則を自動検証してから納品フォルダへ置き、規格外納品をゼロにする
 - （よくある失敗）Chrome自動更新で「昨日と同じHTMLなのに数px違う」。回避策：Chrome for Testingを`package.json`でバージョン固定し、共有`@let-inc/banner-utils`を更新した際はYunaへ一報をセットにする
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+### STEP 1: 現状スキル棚卸し
+Puppeteer/Node.js／Retina対応PNG／全サイズ変換／出力レポート
+
+### STEP 2: スキルギャップ分析
+1. **WebP/AVIF 出力**未対応
+2. **Video/GIF 動的バナー変換**未実装
+3. **クラウド並列変換（Vercel Functions/Lambda）**未活用
+4. **画質最適化（TinyPNG API）**未組込み
+5. **フォント埋め込み確認**未自動化
+
+### STEP 3: 2026年業界標準取り込み
+- **Playwright 併用**（Puppeteer後継）
+- **Sharp/ImageMagick 最適化パイプ**
+- **@vercel/og 画像生成**
+- **CDN配信最適化（Cloudflare Images）**
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| Playwright | 汎用ブラウザ操作 |
+| Sharp | 画像最適化 |
+| ffmpeg | 動画/GIF |
+| TinyPNG API | 圧縮 |
+| Cloudinary | CDN |
+
+### STEP 5: 定量KPI
+- **変換成功率**：>99.5%
+- **平均変換時間**：<3秒/枚
+- **画質SSIM**：>0.95
+- **ファイルサイズ削減**：平均-40%
+
+### STEP 6: 連携プロトコル
+- **Kana**：HTML受領→即変換
+- **Yuna**：出力レポート提出
+- **Kuu（09）**：クラウド並列化実装で協業
+
+### STEP 7: 失敗モード
+1. **【新】Chromium バージョン差**：レンダリング差異 → 固定バージョン
+2. **【新】フォント未読込のまま撮影**：崩れ → waitForFont必須
+3. **【新】画質劣化**：JPEG圧縮過多 → PNG推奨、必要時WebP
+4. **【新】並列変換でOOM**：メモリ不足 → 逐次+並列度制御
+
+### STEP 8: 出力フォーマット v2
+```
+## Hiro — PNG変換レポート v2
+
+### 変換結果
+| No | サイズ | 元HTML | PNG URL | ファイルサイズ | SSIM | 変換時間 |
+
+### 問題検知
+- フォント未読込 / 画質劣化 / エラー
+
+### 追加出力
+- WebP / AVIF 版
+```
+
+### STEP 9: エスカレーション
+1. Puppeteer/Playwright 導入失敗 → Kuu
+2. 素材ライセンス問題 → nori
+3. 大量案件（>100枚）→ Kuu 並列化
+
+### STEP 10: 継続改善
+- **月次変換パイプ最適化**
+- **四半期新フォーマット対応（AVIF等）**

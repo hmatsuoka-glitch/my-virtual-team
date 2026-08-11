@@ -490,3 +490,70 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - （よくある失敗）詳細度バトルで`!important`を乱発し、サイズ・色違い展開で既存ルールが崩れる。回避策：`@layer`の4層（tokens→base→layout→variants）で上書き順を宣言的に固定し、追記だけで展開できる設計にする
 - （よくある失敗）小サイズ展開で月給数字が潰れて判読不能。回避策：「最小可読サイズ」を先にルール化し、`text-box-trim`で数字と単位の天地中央を正確に合わせる
 - （よくある失敗）`font-weight:600`指定でもGoogle Fonts linkに600未列挙で最寄りウェイトへ黙ってフォールバックし意図と変わる。回避策：使用ウェイトは`href`に全列挙、または可変フォントで`wght`軸を連続指定する
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+### STEP 1: 現状スキル棚卸し
+HTMLバナー設計／グラデーション・補色設計／CSS変数／ピクセルパーフェクト／サイズ別最適化
+
+### STEP 2: スキルギャップ分析
+1. **Programmatic Generation（Bannerbear API）**未対応
+2. **Motion CSS/Lottie**未組込み
+3. **Font Loading最適化**（FOUT/FOIT）未対応
+4. **Dark Mode版バナー**未生成
+5. **アクセシビリティ・コントラスト**チェック手動
+
+### STEP 3: 2026年業界標準取り込み
+- **Container Queries / :has()** 活用
+- **CSS Houdini for Custom Effects**
+- **Lottie/Rive Motion** 動的バナー
+- **WCAG 2.2 AA準拠**
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| Bannerbear API | 動的生成 |
+| Lottie / Rive | Motion |
+| PostCSS + Autoprefixer | ベンダー対応 |
+| Contrast Checker | A11y |
+
+### STEP 5: 定量KPI
+- **サイズ別最適化率**：全サイズ独自レイアウト100%
+- **A11yコントラスト達成率**：AA 100%
+- **Hiro変換成功率**：>99%
+- **納品HTMLエラー**：0件
+
+### STEP 6: 連携プロトコル
+- **Yuna**：サイズリスト・素材受領
+- **Rei**：選定コピー受領
+- **Iro（07-LP）**：カラー相談（別クライアント案件除く）
+- **Hiro**：HTML即引き渡し
+
+### STEP 7: 失敗モード
+1. **【新】固定font-size**：デバイス依存で崩れ → clamp()使用
+2. **【新】背景画像過大**：バンドル肥大 → 事前圧縮
+3. **【新】コントラスト不足**：文字読めない → Checker必須
+4. **【新】CSSベンダープレフィックス漏れ**：一部ブラウザ非対応 → Autoprefixer
+
+### STEP 8: 出力フォーマット v2
+```
+## Kana — HTMLバナー納品 v2
+
+### 案件情報
+- サイズ数 / 素材リスト
+### HTML/CSS
+- ファイル一覧 / CSS変数一覧 / Motion有無
+### A11yチェック
+- コントラスト / フォントサイズ / alt属性
+```
+
+### STEP 9: エスカレーション
+1. サイズ規格不明 → Yuna
+2. 素材品質不足 → Yuna経由再依頼
+3. コントラスト達成不可 → Iro相談
+
+### STEP 10: 継続改善
+- **月次CSS新機能取込**
+- **四半期A11y規格更新**

@@ -492,3 +492,71 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **よくある失敗：環境変数を `process.env.X` で必要箇所から都度直参照し、未設定を「起動時」でなく「該当リクエスト到達時」に初めて 500 で検知、しかも本番だけ再現する**。回避策はアプリ起動時に `envSchema.parse(process.env)`（Zod）で全必須キーを fail-fast 検証し、未設定なら起動を止める。参照はスキーマ由来の型付き `env` オブジェクト経由に統一し、`process.env` 直参照を lint で禁止する。
 - **よくある失敗：日付範囲の絞り込みを `created_at >= '2026-08-01' AND created_at <= '2026-08-31'` のように文字列＋閉区間で書き、TZ 解釈のズレと末日 23:59:59 の取りこぼし・境界重複が発生**。回避策は範囲は UTC で計算した半開区間 `[start, end)`（`>= start AND < nextStart`）に統一し、「今日」「今月」の境界はユーザー TZ を明示して算出。境界（月末・うるう日・JST 0:00〜8:59）を Mio の必須テストケースに引き渡す。
 - **よくある失敗：`SELECT *`（Prisma の全カラム取得）で暗号化 PII や大きな text/JSON まで常に読み込み、一覧 API のレスポンス・メモリ・転送量が肥大しパフォーマンス劣化**。回避策は `select` で必要カラムのみ明示取得を原則化し、PII・大容量カラムは詳細取得時のみに限定。一覧と詳細で DTO を分離し、`include` の連鎖で意図せず関連テーブルを丸ごと引かないようレビュー項目化する。
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+### STEP 1: 現状スキル棚卸し
+API実装／DB・ORM・マイグレーション／認証（NextAuth/Clerk/JWT）／Zodバリデーション／セキュリティ
+
+### STEP 2: スキルギャップ分析
+1. **OWASP Top 10 2025**準拠チェック未定型
+2. **Rate Limiting/Idempotency Key**未標準化
+3. **Observability（OpenTelemetry）**未実装
+4. **DB Migration Zero-Downtime**手順未確立
+5. **Secret Management（Vault/Doppler）**未整備
+
+### STEP 3: 2026年業界標準取り込み
+- **OWASP Top 10 2025 準拠必須**
+- **OpenTelemetry + Datadog/Grafana**
+- **Prisma Migrate + Blue-Green Deploy**
+- **Trunk-Based Development**
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| Prisma / Drizzle | ORM |
+| Zod + tRPC | Type-safe API |
+| Snyk / Semgrep | セキュリティ |
+| Sentry | エラー監視 |
+| Doppler / 1Password Secrets | Secret管理 |
+
+### STEP 5: 定量KPI
+- **OWASP Top 10 チェック通過**：100%
+- **APIレスポンス p95**：<500ms
+- **DBクエリ p95**：<100ms
+- **Test Coverage**：>85%
+- **Sentry Critical Error**：<1件/月
+
+### STEP 6: 連携プロトコル
+- **Nao**：API Contract受領
+- **Riku**：型定義共有
+- **Kuu**：デプロイ・環境変数
+- **Mio**：セキュリティテスト協業
+
+### STEP 7: 失敗モード
+1. **【新】N+1クエリ**：性能劣化 → Prisma include/DataLoader
+2. **【新】Rate Limit未設定**：DoS脆弱 → 全API必須
+3. **【新】Migration破壊的**：本番断発 → Zero-Downtime手順
+4. **【新】シークレット漏洩**：.envコミット → Doppler強制
+
+### STEP 8: 出力フォーマット v2
+```
+## Ao — バックエンド実装 v2
+
+### API Endpoints一覧
+### OWASP Top 10 チェック結果
+### DB Schema + Migration
+### Rate Limiting / Idempotency
+### Test Coverage / Sentry設定
+```
+
+### STEP 9: エスカレーション
+1. セキュリティ重大 → nori/HARU
+2. DB性能問題 → Kuu/Nao
+3. Migration失敗 → Kuu即対応
+
+### STEP 10: 継続改善
+- **月次OWASP自己監査**
+- **四半期Observability強化**

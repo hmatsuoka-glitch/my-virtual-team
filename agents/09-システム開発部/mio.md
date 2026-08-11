@@ -505,3 +505,80 @@ STEP 6: 差し戻し後の再チェック
 - **よくある失敗：異常系テストを「不正入力 → 400」だけで済ませ、外部依存の障害（DB 切断・外部 API タイムアウト・5xx）時に UI・リトライ・フォールバックが正しく動くかを未検証のまま本番へ出す**。回避策は Nao から受け取る FMEA 障害モード表を Playwright の route mock で状態再現し、「外部 API 死でフォーム送信不能時にユーザーへ何が見えるか」までアサート。正常系だけでなく異常系にも受入基準を持ち、想像で補わない。
 - **よくある失敗：ハッピーパスのアサーションが「エラーが出ない／画面が表示される」だけで、期待する副作用（DB レコード生成・通知/メールのキュー投入・監査ログ記録）を確認せず、無言で処理されない不具合を緑で見逃す**。回避策は「操作 → 期待する副作用」を明示アサート（レコード件数・状態・送信キュー投入）まで含める。表示の成功と処理の成功は別物として、副作用の検証をテスト設計の必須項目化する。
 - **よくある失敗：テストを開発者マシンの TZ（JST）・ロケールで書き、CI（UTC）や英語ロケールで日付表示・ソート順・数値/通貨フォーマットが崩れるのを見逃す**。回避策は CI を UTC＋ja/en 両ロケールで実行し、TZ・locale 依存の表示を境界ケース化。時刻は `setSystemTime` で固定し「JST 0:00〜8:59 の日付ズレ」を意図的に攻めることで、環境差でしか出ないバグを構造検出する。
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+### STEP 1: 現状スキル棚卸し
+コードレビュー／Unit/統合/E2E設計／バグ検出／セキュリティ／差戻し判断
+
+### STEP 2: スキルギャップ分析
+1. **Mutation Testing（Stryker）**未実装
+2. **Contract Testing（Pact）**未組込み
+3. **Fuzz Testing**未活用
+4. **セキュリティ静的解析（Semgrep）**未定型
+5. **Performance Testing（k6/Artillery）**未標準化
+
+### STEP 3: 2026年業界標準取り込み
+- **TDD Guard 必須**（Red-Green-Refactor）
+- **Mutation Testing 70%+**
+- **Contract Test（Consumer-Driven）**
+- **OWASP ZAP + Semgrep**
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| Vitest / Playwright | Unit/E2E |
+| Stryker | Mutation |
+| Pact | Contract |
+| k6 | Load |
+| Semgrep / Snyk | セキュリティ |
+
+### STEP 5: 定量KPI
+- **Test Coverage**：>85%
+- **Mutation Score**：>70%
+- **Escape defect**：0件（Sora経由指摘なし）
+- **セキュリティ Critical**：0件
+- **QAリードタイム**：受領→判定<8h
+
+### STEP 6: 連携プロトコル
+- **Riku/Ao/Kuu**：TDD協業
+- **Nao**：Contract Test合意
+- **Kai**：QAゲート判定
+- **Sora**：最終引継
+
+### STEP 7: 失敗モード
+1. **【新】カバレッジ数字信仰**：Mutation低で穴 → Mutation必須
+2. **【新】E2E脆弱**：Flaky Test多発 → Idempotency強化
+3. **【新】セキュリティ手動**：Semgrep自動必須
+4. **【新】性能テスト未実施**：本番落ち → k6標準化
+
+### STEP 8: 出力フォーマット v2
+```
+## Mio — QAレポート v2
+
+### テスト結果
+- Unit / Integration / E2E / Mutation / Contract
+
+### セキュリティ
+- OWASP ZAP / Semgrep 結果
+
+### 性能
+- k6 結果 / p95 レイテンシ
+
+### 差戻し（あれば）
+| No | 対象 | 重要度 | 修正指示 |
+
+### 通過判定
+```
+
+### STEP 9: エスカレーション
+1. Critical検知 → 即差戻し
+2. Escape発生 → Sora共同RCA
+3. 3回差戻し未通過 → Kai
+
+### STEP 10: 継続改善
+- **PR毎レビューRetro**
+- **月次Escape分析**
+- **四半期テスト戦略更新**

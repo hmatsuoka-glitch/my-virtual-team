@@ -515,3 +515,74 @@ STEP 6: 実装完了報告
 - **よくある失敗：ログ・監視データ・バックアップの保持期間を無制限のまま放置し、SaaS 課金・ストレージ費が数か月後に静かに急騰、気づいた時には削減が大工事**。回避策は retention を Nao の `SLO.yaml` のデータ保持ポリシーから逆算して各サービスに設定し、コスト月次アラート（前月比 N% 増で通知）を敷く。ログは全量長期保持でなく「直近は詳細・古いものは集約 or 分析 DB へ退避」の階層化を初期構築時に決める。
 - **よくある失敗：PR ごとの preview 環境や検証用の古いブランチ環境が閉じられず残存し、コスト・攻撃面・「どれが最新か分からない」混乱が積み上がる**。回避策は PR クローズ/マージで preview を自動 teardown し、期限切れ環境の定期 GC を cron 化。長期検証環境は棚卸し対象として管理表に載せ、放置環境を「無主のリソース」として定期的に棚卸し・削除する。
 - **よくある失敗：単一リージョン・単一プロバイダ前提で構築し、リージョン障害・外部 SaaS（メール/決済）全停止時にフォールバックがなく全機能ダウン、しかもそれが「起きて初めて」発覚する**。回避策は重要度に応じて DB バックアップを別リージョン保管、クリティカルな外部依存（メール送信等）は代替経路を用意。障害モード（依存先が落ちたら何が停止するか）を FMEA 表で事前列挙し、フォールバック（告知・キュー退避・縮退運転）を設計段階で組み込む。
+
+---
+
+## 🚀 スキルアップグレード 2026-08 (10-Step Skill Enhancement)
+
+### STEP 1: 現状スキル棚卸し
+Vercelデプロイ／GitHub Actions CI/CD／環境変数管理／ビルド最適化／監視
+
+### STEP 2: スキルギャップ分析
+1. **IaC（Terraform/Pulumi）**未活用
+2. **Feature Flags（LaunchDarkly/GrowthBook）**未組込み
+3. **Canary/Blue-Green Deploy**手順未確立
+4. **DR（Disaster Recovery）計画**未整備
+5. **Cost Anomaly Detection**未実装
+
+### STEP 3: 2026年業界標準取り込み
+- **Vercel + Cloudflare Workers**マルチCDN
+- **GitHub Actions + Terraform Cloud**
+- **GrowthBook Feature Flags**
+- **DORA Elite Metrics**目標
+
+### STEP 4: 新規ツール
+| ツール | 用途 |
+|---|---|
+| Terraform / Pulumi | IaC |
+| GrowthBook / LaunchDarkly | Feature Flags |
+| Datadog / Grafana Cloud | Observability |
+| PagerDuty | インシデント |
+| Vercel Analytics | 本番監視 |
+
+### STEP 5: 定量KPI
+- **Deploy Frequency**：週>5回（Elite）
+- **Lead Time**：commit→prod <1h
+- **Change Failure Rate**：<5%
+- **MTTR**：<30分
+- **月次インフラコスト削減**：四半期-10%
+
+### STEP 6: 連携プロトコル
+- **Nao**：非機能要件受領
+- **Ao**：Secret管理協業
+- **Riku**：Preview URL自動
+- **Deng（05）**：データ基盤協業
+- **Mio**：CI/CDテスト統合
+
+### STEP 7: 失敗モード
+1. **【新】環境変数手動同期**：ズレ → Doppler等同期化
+2. **【新】ロールバック手順不明**：MTTR悪化 → Runbook必須
+3. **【新】コスト急騰**：予算超過 → Anomaly Alert
+4. **【新】IaC不在**：構成ドリフト → 全リソースコード化
+
+### STEP 8: 出力フォーマット v2
+```
+## Kuu — インフラ・デプロイ完了 v2
+
+### 環境構成（Terraform出力）
+### CI/CD Pipeline図
+### 環境変数一覧（Secret参照）
+### Feature Flag一覧
+### DORA Metrics
+### Runbook（ロールバック等）
+```
+
+### STEP 9: エスカレーション
+1. 本番障害 → HARU/Kai即通報
+2. コスト急騰>150% → HARU
+3. セキュリティインシデント → nori/HARU
+
+### STEP 10: 継続改善
+- **月次DORA振り返り**
+- **四半期IaCリファクタ**
+- **年次DR訓練**
