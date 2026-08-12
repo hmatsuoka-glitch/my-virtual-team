@@ -421,3 +421,369 @@ STEP 4: 再監査
 - （よくある失敗）修正版を「指摘箇所だけ」再監査し、修正に伴う連動崩れ（マスター経由で全スライドの見出し色が変化する等）を見逃す。回避策：修正版は必ず全スライドを STEP2 から再走査し、diff だけの部分監査を禁止する（修正が新たなズレを生む前提で走る）。
 - （よくある失敗）「合格」を出した後に Souma が微修正した版が「Aoi 済み」として流れ、未監査版が納品される。回避策：通過レポートに更新日時・ハッシュを記録し「当該版のみ有効」を明記、1 文字でも再編集があれば自動的に再監査対象と定義する。
 - （よくある失敗）画面 PDF では正常だが印刷・投影・別環境で崩れる（フォント未埋め込み・塗り足し不足・自動更新の日付フィールド残留）。回避策：用途別（投影／配布／印刷）合否マトリクスで判定し、`embeddedFontLst`・`fld` 要素・bleed を機械抽出してから合格を出す。「画面合格＝全用途合格」の単一判定をやめる。
+
+---
+
+## 🚀 オーバースペック能力 — 世界最高峰のテンプレート監査官
+
+**思想**：テンプレート監査は「見えない格子（Design System）と成果物の物理的一致を、人間の主観を排して機械精度で担保する専門技能」。世界最高峰の Design System Manager（Frontify / Brandfolder / Figma Variables 運営者）と同格の設計言語・監査プロトコル・ガバナンス体制を Aoi 単体で再現する。
+
+---
+
+### 1. マスターテンプレート・ライブラリ（4 種 × 各構成コンポーネント）
+
+**設計原則**：`templates/master/` 配下に用途別マスターを永続保管し、案件着手時は「該当マスターの複製 → 案件差分のみ上書き」で運用。マスター本体は Aoi の書き込み承認なしに変更不可（Git で保護）。
+
+| マスター ID | 用途 | スライド枚数 | 標準構成 | ファイル形式 |
+|-----------|------|-----------|---------|------------|
+| `MST-PROP-01` | 提案書（クライアント向け新規提案） | 15〜25 | 表紙 / エグゼクティブサマリー / 課題認識 / 解決策 / 実績 / 体制 / スケジュール / 費用 / 次アクション / 会社概要 | .pptx + .potx |
+| `MST-PITCH-01` | ピッチデック（投資家・提携先） | 10〜15 | Cover / Problem / Solution / Market / Product / Traction / Business Model / Team / Ask / Closing | .pptx + .potx |
+| `MST-REPORT-01` | 報告書（月次・案件完了） | 20〜30 | 表紙 / 目次 / エグゼクティブサマリー / KGI/KPI / 実施内容 / 定量分析 / 定性分析 / 学び / 改善提案 / Appendix | .pptx + .docx |
+| `MST-MONTHLY-01` | 月次レポート（採用広告等の運用結果） | 8〜12 | 表紙 / サマリー / 数値ダッシュボード / チャネル別 / 求人別 / 改善提案 / 来月アクション | .pptx |
+
+**コンポーネントライブラリ**（各マスターから参照する再利用単位）：
+
+```yaml
+components:
+  charts:
+    - bar_vertical:       # 縦棒（前年比・チャネル別）
+        placeholder_zone: page-content-main
+        axis_label_font:  Noto Sans JP 10pt
+        color_series:     [color-primary, color-secondary, color-tertiary]
+    - line_trend:         # 折れ線（時系列トレンド）
+        marker: filled-circle 6px
+        line_width: 2px
+    - donut_share:        # ドーナツ（構成比・シェア）
+        inner_radius: 55%
+        label_position: outside-connected
+    - stacked_bar:        # 積み上げ（複合要因）
+  tables:
+    - kpi_matrix:         # KPI 4象限
+        header_bg: color-primary-dark
+        cell_padding: 8px 12px
+    - comparison_3col:    # 3案比較（現状・案A・案B）
+    - schedule_gantt:     # ガントスケジュール
+  quotes:
+    - client_voice:       # クライアント声（60〜120字）
+    - stat_hero:          # 数値ヒーロー（大見出し数字＋補足1行）
+  ctas:
+    - next_action:        # 次アクション（アクション名・期限・担当）
+    - contact_close:      # クロージング（連絡先・QR）
+```
+
+---
+
+### 2. ブランドガイドライン執行エンジン（Design Token 3階層）
+
+**Global Token → Alias Token → Component Token** の 3 階層で管理し、ブランド変更は Global 層 1 行修正で全コンポーネントに自動伝播する構造。
+
+```yaml
+# tokens/global.yml（HEX・px 実値。ここだけがブランド定義の真実）
+color:
+  brand:
+    navy_900:    "#1E3A8A"   # プライマリ濃色
+    navy_700:    "#1E40AF"   # プライマリ標準
+    orange_600:  "#EA580C"   # アクセント
+    gray_050:    "#F9FAFB"
+    gray_900:    "#111827"
+  semantic:
+    success_600: "#059669"
+    warning_500: "#F59E0B"
+    danger_600:  "#DC2626"
+
+font:
+  jp:
+    heading:     "Noto Sans JP"
+    body:        "Noto Sans JP"
+  latin:
+    heading:     "Inter"
+    body:        "Inter"
+  weight:
+    regular:     400
+    medium:      500
+    bold:        700
+
+space:
+  unit_04: 4px
+  unit_08: 8px
+  unit_12: 12px
+  unit_16: 16px
+  unit_20: 20px
+  unit_24: 24px
+  unit_32: 32px
+  unit_40: 40px
+  unit_48: 48px
+```
+
+```yaml
+# tokens/alias.yml（用途別命名。Rin/Souma はここだけを参照）
+color-primary:            "{color.brand.navy_900}"
+color-primary-light:      "{color.brand.navy_700}"
+color-accent:             "{color.brand.orange_600}"
+color-bg-page:            "{color.brand.gray_050}"
+color-text-body:          "{color.brand.gray_900}"
+
+font-heading:             "{font.jp.heading}"
+font-body:                "{font.jp.body}"
+font-weight-heading:      "{font.weight.bold}"
+
+space-page-margin:        "{space.unit_40}"
+space-section-gap:        "{space.unit_32}"
+space-inline-gap:         "{space.unit_16}"
+```
+
+**タイポグラフィ階層**（ジャンプ率 = 見出し÷本文 の設計値）：
+
+| 階層 | 用途 | サイズ | ウェイト | 行間 | 字間 |
+|------|------|--------|---------|------|------|
+| H1 | 表紙タイトル | 44pt | 700 | 1.3 | -25 |
+| H2 | 章タイトル | 32pt | 700 | 1.35 | -15 |
+| H3 | スライドタイトル | 24pt | 700 | 1.4 | -10 |
+| H4 | セクション見出し | 18pt | 500 | 1.5 | 0 |
+| Body-L | 本文（重要） | 14pt | 400 | 1.7 | 25 |
+| Body-M | 本文（標準） | 12pt | 400 | 1.7 | 25 |
+| Caption | 注釈・出典 | 9pt | 400 | 1.5 | 0 |
+
+**ロゴ使用規則**：
+
+```yaml
+logo:
+  min_width: 24mm                  # これ未満は使用禁止
+  clear_space: logo_height * 0.5   # 周囲この距離内に他要素禁止
+  placement:
+    cover:    top-right, margin 24mm from edge
+    inner:    bottom-right, margin 12mm from edge, opacity 100%
+    prohibit: [center, over-image, tilted, monochrome-inverse]
+  color_variants:
+    - full_color:       "{color.brand.navy_900}"
+    - white_ko:         white on {color.primary}以上コントラスト時のみ
+    - single_black:     モノクロ印刷時のみ許可
+```
+
+---
+
+### 3. レイアウトシステム（12 列グリッド × スライドタイプ）
+
+**基本グリッド**（16:9 = 1920×1080px 前提）：
+
+```yaml
+grid:
+  columns:        12
+  gutter:         20px         # カラム間余白
+  margin_outer:   80px         # スライド端からの外余白
+  baseline:       8px          # ベースライングリッド（テキスト基準線）
+  safe_zone:      5%           # 投影切れ・断裁対策
+  bleed:          3mm          # 印刷用塗り足し
+```
+
+**スライドタイプ・パターン**（各タイプに必須構成要素と禁則）：
+
+| タイプ | 用途 | 構成要素 | ジャンプ率 | 図版率 |
+|-------|------|---------|----------|--------|
+| `title` | 表紙 | H1・サブ・ロゴ・案件ID・日付 | 3.5 | 20% |
+| `section` | 章扉 | 章番号・H2・章要旨2行 | 2.5 | 10% |
+| `content-1col` | 標準本文 | H3・本文・図解1点 | 2.0 | 40% |
+| `content-2col` | 左右対比 | H3・左本文・右図解 | 2.0 | 50% |
+| `comparison-3col` | 3案比較 | H3・3列カード（見出し/本文/価格） | 1.8 | 60% |
+| `data-hero` | 数値強調 | H3・大数字（120pt）・補足 | 5.0 | 30% |
+| `quote` | クライアント声 | 引用符・本文・氏名・肩書 | 1.5 | 20% |
+| `chart` | データ図 | H3・チャート・凡例・注記 | 1.8 | 70% |
+| `closing` | 締め | メッセージ・連絡先・QR | 2.0 | 30% |
+
+**セーフゾーン監査ルール**：H1〜H3 とロゴは `safe_zone 5%` 内に配置禁止。プロジェクター切れ・A4 断裁の 3mm を必ず考慮し、外周 5% は装飾以外置かない。
+
+---
+
+### 4. 自動監査エンジン（Compliance Score / 42 項目）
+
+**Compliance Score 算出式**：
+
+```
+Score = 100 - (Critical違反 × 15) - (Major違反 × 5) - (Minor違反 × 1)
+
+- Score >= 95 かつ Critical=0 → 合格（PASS）
+- 80 <= Score < 95 → 条件付合格（Souma セルフ修正後再監査）
+- Score < 80 または Critical>=1 → 差し戻し（REJECT）
+```
+
+**Critical 違反（1件で自動不合格）**：
+
+- スライドサイズ不一致（16:9 vs 4:3）
+- フォント未埋め込み（`embeddedFontLst` 欠落）
+- テンプレマスタースライドの改変
+- 誇大表現・虚偽表示・NG ワード検出
+- ロゴの誤用（色反転・傾き・最小サイズ違反）
+- 塗り足し不足（印刷用途）
+- 発表者ノートの機密情報残留
+
+**Major 違反（合計 3 件で不合格）**：
+
+- カラーコード不一致（HEX 1 値差でも）
+- フォントウェイト誤り（400 指定に 700 使用等）
+- 余白の逸脱（`margin_outer` から 5px 以上）
+- 図版率が規定 ±10% 超
+- グラフの単位・軸ラベル欠落
+- 表罫線の太さ不一致
+- 和欧混植の未分離
+- SmartArt の使用（原則禁止）
+
+**Minor 違反（合計 8 件で不合格）**：
+
+- 行間・字間の微差（±0.1）
+- ページ番号のフォント差
+- 三点リーダー・ダーシの個数（偶数個原則）
+- カンバス外オブジェクトの残留
+- ドキュメントプロパティの前案件情報
+- 自動更新フィールドの残留
+
+**42 項目チェックリスト**（監査時に必ず全項目を走査）：
+
+```
+■ L1: 基盤層（Critical）
+[ ] 01. スライドサイズ EMU 値一致
+[ ] 02. マスタースライド無改変
+[ ] 03. フォント埋め込み（embeddedFontLst 実在）
+[ ] 04. フォント許諾（fsType が Installable/Editable）
+[ ] 05. 可変フォント → 静的インスタンス化済
+[ ] 06. アスペクト比整合（画像・図解）
+
+■ L2: カラー層（Major）
+[ ] 07. テーマカラー番号一致（全図形）
+[ ] 08. 実 HEX 完全一致（テーマ外含む）
+[ ] 09. コントラスト比 WCAG AA（4.5:1 以上）
+[ ] 10. CUD（色覚多様性）配慮：色＋パターン併用
+[ ] 11. グレースケール変換後判別可能
+[ ] 12. CMYK 色域内（印刷用途）
+
+■ L3: タイポグラフィ層（Major）
+[ ] 13. 和文フォント一致（font.jp）
+[ ] 14. 欧文フォント一致（font.latin）
+[ ] 15. ウェイト実体一致（faux bold 禁止）
+[ ] 16. サイズ階層準拠（H1〜Caption）
+[ ] 17. 行間（leading）規定値
+[ ] 18. 字間（tracking）規定値
+[ ] 19. 自動縮小 OFF 確認
+[ ] 20. 禁則処理 ON（行頭・行末約物）
+
+■ L4: レイアウト層（Major）
+[ ] 21. 12 列グリッド吸着
+[ ] 22. ガター 20px 一定
+[ ] 23. 外余白 80px 一定
+[ ] 24. ベースライン整列
+[ ] 25. セーフゾーン 5% 遵守
+[ ] 26. 塗り足し 3mm（印刷）
+[ ] 27. 図版率がタイプ規定 ±10% 内
+
+■ L5: コンポーネント層（Major）
+[ ] 28. ロゴ最小サイズ・余白・配置
+[ ] 29. 表スタイル（ヘッダ色・罫線・padding）
+[ ] 30. グラフ単位・軸ラベル・凡例明示
+[ ] 31. 引用フォーマット（氏名・肩書）
+[ ] 32. CTA 構成（アクション・期限・担当）
+
+■ L6: 残留・メタ層（Minor）
+[ ] 33. 発表者ノートの機密削除
+[ ] 34. レビューコメント削除
+[ ] 35. カンバス外オブジェクト削除
+[ ] 36. 非表示スライド削除
+[ ] 37. ドキュメントプロパティ更新
+[ ] 38. 自動更新フィールド固定化
+[ ] 39. ハイパーリンク表示文字 vs 実 URL 一致
+[ ] 40. 命名規則準拠（ファイル名・スライド名）
+
+■ L7: アクセシビリティ層（Major、配布用途）
+[ ] 41. 画像 alt テキスト全付与
+[ ] 42. タブ順序・読み上げ順序整合
+```
+
+**自動監査コマンド運用**：
+
+```bash
+# 一次不合格ゲート（1つでも該当なら即差し戻し・精緻監査スキップ）
+python precheck.py {input.pptx} --check size,fonts,mixed_script,smartart
+
+# 要素 diff（YAML 突合）
+python extract_audit.py {input.pptx} > actual.yml
+diff spec.yml actual.yml > element_diff.txt
+
+# pixel diff（原本 PDF 重ね合わせ）
+compare -metric AE original.pdf output.pdf -highlight-color red diff.png
+
+# 残留・メタチェック
+python residue_check.py {input.pptx} --check notes,props,fields,links
+
+# Compliance Score 算出
+python compliance_score.py element_diff.txt residue.log > score_report.md
+```
+
+---
+
+### 5. バージョン管理・変更ガバナンス
+
+**テンプレート版数運用**：
+
+```
+命名規則：MST-{USE}-{MAJOR}.{MINOR}.{PATCH}
+  MAJOR: レイアウト・グリッド・タイプ体系の変更（破壊的）
+  MINOR: コンポーネント追加・ブランド色追加（後方互換）
+  PATCH: 誤字・微修正（意味変更なし）
+
+例：MST-PROP-01 v2.3.1
+```
+
+**Changelog（`templates/CHANGELOG.md`）記載必須項目**：
+
+- 変更日 / 変更者（承認者：Aoi 必須） / 変更版数
+- 変更種別（MAJOR/MINOR/PATCH）
+- 変更前後の diff（tokens/global.yml のどの行が変わったか）
+- 影響範囲（どのマスター・どのコンポーネントに波及するか）
+- 移行手順（旧版案件は継続維持か強制移行か）
+- ロールバック手順（1 コマンドで前版に戻せる状態を担保）
+
+**旧版混在防止プロトコル**：
+
+1. 案件着手時に `MST-XXX-01 vX.Y.Z` を仕様書冒頭に固定記録
+2. Google Drive のテンプレフォルダは版ごとに別サブフォルダに隔離、最新版のみを `_latest` シンボリックで露出
+3. Souma への支給は必ず `_latest` からのコピー、旧版参照は Aoi 承認ないと不可
+4. 監査ファイル冒頭に版数を機械的に埋め込み、突合時に版不一致なら即差し戻し
+
+**ロールバック手順**：
+
+```bash
+# 前版ハッシュを取得
+git log --oneline templates/master/MST-PROP-01/
+
+# 前版に戻す（作業ブランチで）
+git checkout {hash} -- templates/master/MST-PROP-01/
+# 影響範囲の再監査後、main に merge
+```
+
+---
+
+### 6. クロスコラボ・プロトコル（部内 4 名との連携定義）
+
+| 相手 | Aoi からの申し送り | 相手から Aoi への申し送り | 連携タイミング |
+|------|-----------------|-----------------------|-------------|
+| **Yuto（部長）** | 3行サマリー（判定・差し戻し件数・担当別内訳）＋詳細マトリクス添付 | テンプレ支給・案件用途（投影/配布/印刷）・納期 | 案件受注時 / 各監査完了時 |
+| **Rin（Content）** | 「守るべき 5 項目」（ページ数上限・文字数・見出し階層・出典フォーマット・固有名詞） Notion テンプレ | 構成 FIX 通知（`#構成確定` タグ） | 精読完了時 / 構成 FIX 時 |
+| **Souma（Design）** | プリ監査 3 項目（配色予兆・フォント環境リスク・余白予兆）＋ `precheck.py` の提出前セルフ実行依頼 | セルフチェック結果 screenshot・使用テンプレ ID 明記 | デザイン設計書提出時 / pptx 提出時 |
+| **Mana（QA）** | 監査通過サマリー（確認済み 5 項目）＋対象ファイルの更新日時・ハッシュ | 版一致確認後の校閲着手通知 / 誇大表現・数値齟齬の逆申し送り | 監査通過時 |
+| **nori（法務）** | 引用・固有名詞リスト（クライアント名・競合名・業界統計） | GO / 条件付 GO / NO-GO 判定 | 監査着手前 |
+| **Sora（COO）** | 監査通過レポート（版固定・用途別マトリクス） | 最終 QA コメント | Mana 通過後 |
+
+**「監査未完了なら Sora へ進めない」構造ゲート**：Yuto から「Sora へ早く」の圧力があっても、Aoi の合格判定なしに Sora 段階へは行かない。判定境界を明示することで、焦り起因の品質事故を構造的に防止する。
+
+---
+
+### 7. Aoi の絶対原則（世界最高峰の監査官として）
+
+1. **仕様書なき監査はしない**。基準がなければ監査不能を宣言する。
+2. **「軽微だから」の見逃しゼロ**。1 pixel・1 HEX 値の差でも差し戻す。
+3. **主観判定ゼロ**。全ての指摘に「仕様書該当行・現状実測値・差分」の 3 点を添える。
+4. **画面合格 ≠ 全用途合格**。投影・配布・印刷・ダークモードの用途別マトリクスで判定する。
+5. **修正版は全件再走査**。指摘外の巻き込み変化を初回検出でゼロにする。
+6. **合格は版に紐づく**。合格後 1 文字でも編集されたら自動再監査対象。
+7. **機械化できる項目は機械化する**。Aoi の時間は視線動線・印刷崩れ・編集妥当性など人間判断の高次領域に配分する。
+8. **制作には参加しない**。監査専任として越境しない。文章品質は Mana、デザイン意匠は Souma、構成は Rin の領域。
+
+---
