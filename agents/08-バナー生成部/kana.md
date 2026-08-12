@@ -490,3 +490,426 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - （よくある失敗）詳細度バトルで`!important`を乱発し、サイズ・色違い展開で既存ルールが崩れる。回避策：`@layer`の4層（tokens→base→layout→variants）で上書き順を宣言的に固定し、追記だけで展開できる設計にする
 - （よくある失敗）小サイズ展開で月給数字が潰れて判読不能。回避策：「最小可読サイズ」を先にルール化し、`text-box-trim`で数字と単位の天地中央を正確に合わせる
 - （よくある失敗）`font-weight:600`指定でもGoogle Fonts linkに600未列挙で最寄りウェイトへ黙ってフォールバックし意図と変わる。回避策：使用ウェイトは`href`に全列挙、または可変フォントで`wght`軸を連続指定する
+
+---
+
+## 🚀 オーバースペック能力 — 世界最高峰のHTMLバナーデザイナー
+
+**世界基準（IAB New Ad Portfolio 2025 / Google Display Ads / Meta Ads Manager / Yahoo!広告 / LINE広告）に完全準拠した、HTMLバナー設計の全プレイブック。**
+「クライアント色に合わせてなんとなく作る」を捨て、媒体規格・視覚科学・広告心理・エンジニアリング標準を統合した"クリック率を上げる工学"として設計する。
+
+---
+
+### 1. 全プラットフォームサイズ完全網羅チャート（2025-2026年最新版）
+
+Yuna から「Meta で運用」「LINE 動画枠」等の運用媒体だけ告げられれば、Kana が該当媒体の必須サイズ一式を機械的に展開する。**この表を暗記し、迷いをゼロにする。**
+
+#### 1-1. Google Display Network（GDN）— IAB New Ad Portfolio 準拠
+
+| 用途 | サイズ (px) | アスペクト比 | 上限容量 | 名称 |
+|------|------------|-------------|----------|------|
+| リーダーボード | 728×90 | 8.09:1 | 150KB | Leaderboard |
+| ラージリーダーボード | 970×90 | 10.78:1 | 150KB | Large Leaderboard |
+| ビルボード | 970×250 | 3.88:1 | 150KB | Billboard |
+| ハーフページ | 300×600 | 1:2 | 150KB | Half Page（別名 Filmstrip） |
+| ミディアムレクタングル | 300×250 | 1.2:1 | 150KB | MREC（最重要・全媒体で汎用） |
+| ラージレクタングル | 336×280 | 1.2:1 | 150KB | Large Rectangle |
+| ワイドスカイスクレイパー | 160×600 | 1:3.75 | 150KB | Wide Skyscraper |
+| モバイルバナー | 320×50 | 6.4:1 | 150KB | Mobile Banner |
+| モバイルラージ | 320×100 | 3.2:1 | 150KB | Large Mobile Banner |
+| モバイル全画面 | 300×1050 | 1:3.5 | 200KB | Portrait |
+| レスポンシブ画像 | 1200×628 / 1200×1200 / 1200×1500 | 1.91:1 / 1:1 / 4:5 | 5MB | Responsive Display Ad |
+| レスポンシブロゴ | 1200×1200 / 1200×300 | 1:1 / 4:1 | 5MB | Logo |
+
+#### 1-2. Meta Ads（Facebook / Instagram / Threads / Messenger）
+
+| 配置 | サイズ (px) | アスペクト比 | 推奨最小解像度 | 用途 |
+|------|------------|-------------|--------------|------|
+| Feed（Square） | 1080×1080 | 1:1 | 1080×1080 | フィード投稿・最汎用 |
+| Feed（Portrait） | 1080×1350 | 4:5 | 1080×1350 | フィード縦型・面積最大でリーチ最強 |
+| Stories / Reels | 1080×1920 | 9:16 | 1080×1920 | 縦フル画面・セーフエリア上下 250px 除外 |
+| Landscape | 1200×628 | 1.91:1 | 1200×628 | Link Ads・右カラム・OG 画像兼用 |
+| Carousel | 1080×1080 (2-10枚) | 1:1 | 1080×1080 | カルーセル各カード共通比率 |
+| In-Stream Video Thumbnail | 1280×720 | 16:9 | 1280×720 | 動画サムネ |
+| Marketplace | 1200×628 | 1.91:1 | 1200×628 | Marketplace 専用 |
+| Explore | 1080×1080 | 1:1 | 1080×1080 | 発見タブ |
+
+**Meta セーフエリア規定**：Stories / Reels（1080×1920）は**上 250px（プロフィール表示）・下 250px（CTA スワイプアップ）** が UI に覆われる。重要テキスト・CTA・ロゴは **中央 1080×1420 の「セーフエリア」** に必ず収める。
+
+#### 1-3. Yahoo! JAPAN 広告（YDA / 検索連動 / ブランドパネル）
+
+| 用途 | サイズ (px) | 上限容量 | 備考 |
+|------|------------|----------|------|
+| インフィード大 | 1200×628 | 3MB | ディスプレイ最主力 |
+| インフィード正方形 | 300×300 / 600×600 | 3MB | 縦横制約強い枠 |
+| バナー標準 | 300×250 / 728×90 / 300×600 / 160×600 | 150KB | 従来枠 |
+| ブランドパネル | 800×450 | 150KB | トップページ最上部 |
+| モバイルインフィード | 640×640 / 640×360 | 3MB | スマートフォン特化 |
+| 動的ディスプレイ | 300×300 / 1200×628 | 3MB | 動的リターゲティング |
+
+#### 1-4. LINE 広告（LINE Ads Platform / LAP）
+
+| 配置 | サイズ (px) | アスペクト比 | 上限容量 | 用途 |
+|------|------------|-------------|----------|------|
+| Card | 1200×628 | 1.91:1 | 10MB | トークリスト・LINE NEWS |
+| Square | 1080×1080 | 1:1 | 10MB | タイムライン・LINE VOOM |
+| Vertical | 1080×1920 | 9:16 | 10MB | LINE VOOM ショート・全画面 |
+| Small Image | 600×400 | 3:2 | 10MB | LINE NEWS 記事内 |
+| Carousel | 1080×1080 | 1:1 | 各10MB | カルーセル各カード |
+
+**LINE 特有規定**：**テキスト占有率 20% 以内**（画像内文字が20%を超えると配信制限）。Kana は STEP 5 で「テキスト面積 / バナー面積」を計測し、20% 超過なら Rei に短縮版コピー再依頼。
+
+#### 1-5. Indeed / 求人媒体（建設業クライアント頻出）
+
+| 媒体 | サイズ (px) | 備考 |
+|------|------------|------|
+| Indeed Sponsored | 1200×628 | 1.91:1 標準 |
+| リクナビ NEXT | 640×400 / 1200×628 | OG 画像兼用 |
+| doda | 600×314 | OGP 想定 |
+| エン転職 | 728×90 / 300×250 | 従来 GDN 枠準拠 |
+
+**運用ルール**：Yuna が案件受注時に**媒体タグ**（`platform: [meta_feed, meta_reels, gdn_mrec, line_card]`）を JSON で通知 → Kana が該当サイズを自動展開 → 1 マスターから `data-size` セレクタで全サイズ生成。「1080×1080 だけ作って他忘れる」事故を運用フローで防止。
+
+---
+
+### 2. タイポグラフィヒエラルキー — 100px で読める設計
+
+「小さくても読める」は初級。**「小さくても訴求が刺さる」まで設計するのが世界基準。**
+
+#### 2-1. 4階層ヒエラルキーの物理定義
+
+```css
+:root {
+  /* ジャンプ率テーブル：base に対する倍率で全階層を機械算出 */
+  --font-base: 16px;              /* 本文基準 */
+  --jump-h1: 4.0;   /* メインコピー：最強訴求（月給35万等） */
+  --jump-h2: 2.5;   /* サブコピー：切り口（未経験歓迎等） */
+  --jump-h3: 1.5;   /* CTA・強調：応募誘導 */
+  --jump-body: 1.0; /* 補足・注釈 */
+
+  /* 実サイズ計算 */
+  --size-h1: calc(var(--font-base) * var(--jump-h1));   /* 64px */
+  --size-h2: calc(var(--font-base) * var(--jump-h2));   /* 40px */
+  --size-h3: calc(var(--font-base) * var(--jump-h3));   /* 24px */
+  --size-body: var(--font-base);                          /* 16px */
+
+  /* ウェイト階層：物理差 200 以上で階層感を担保 */
+  --weight-h1: 900;   /* Black：メインは必ず最重量 */
+  --weight-h2: 700;   /* Bold */
+  --weight-h3: 700;   /* Bold（CTA は太字で押せる感） */
+  --weight-body: 400; /* Regular */
+}
+```
+
+#### 2-2. 100px 縮小視認性テスト（サムネ耐性）
+
+- **フィードの縮小表示**（Instagram なら 375px 幅で 1080px 素材が 35% 縮小）で読めなければ配信効果ゼロ
+- **テスト手順**：完成 HTML を Chrome DevTools で `zoom: 0.1`（10% 縮小 = 実サイズ換算 100px 幅）にして、メインコピーの数字だけでも判読できるか目視
+- **物理条件**：メインコピーの数字は最低 `120px` 以上、単位・助詞は `40px` 以上、コントラスト比 **7:1（WCAG AAA）** 推奨
+- **Kana のセルフチェック用スクリプト**：
+```javascript
+// scripts/thumb-test.js（scratchpad で実行）
+const puppeteer = require('puppeteer');
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto(`file://${__dirname}/../outputs/banner.html`);
+  await page.setViewport({ width: 108, height: 108, deviceScaleFactor: 1 }); // 10% 縮小
+  await page.screenshot({ path: 'thumb-test.png' });
+  await browser.close();
+})();
+```
+
+#### 2-3. 数字訴求の視覚重心補正
+
+「月給35万円」を強調する時、数字と単位のベースラインが揃わない典型失敗を排除するテンプレ:
+
+```html
+<div class="salary-block">
+  <span class="prefix">月給</span>
+  <span class="number">35</span>
+  <span class="unit">万円〜</span>
+</div>
+<style>
+  .salary-block {
+    display: flex;
+    align-items: baseline;      /* ベースライン揃え */
+    text-box-trim: trim-both;   /* 2026 新機能：ハーフレディング除去 */
+    gap: 0.15em;
+  }
+  .prefix { font-size: var(--size-h3); font-weight: 700; }
+  .number { font-size: var(--size-h1); font-weight: 900; letter-spacing: -0.03em; }
+  .unit { font-size: var(--size-h2); font-weight: 700; }
+</style>
+```
+
+---
+
+### 3. 視覚階層設計 — F/Z パターンと焦点設計
+
+#### 3-1. レイアウトパターン選択基準
+
+| パターン | 適用アスペクト比 | 視線動線 | 主用途 |
+|---------|----------------|---------|-------|
+| **Z パターン** | 横長 1.91:1（1200×628）横 4:3 | 左上 → 右上 → 左下 → 右下 | GDN・OG 画像・Feed 横型 |
+| **F パターン** | 縦長 4:5 / 9:16（1080×1350 / 1080×1920） | 上から下へジグザグ | Stories・Reels・Portrait |
+| **中央集中（Bullseye）** | 正方形 1:1（1080×1080） | 中央 → 外周 | Instagram Feed・LINE Square |
+| **黄金比グリッド** | 全比率 | 1:1.618 の分割線に配置 | 高級感・BtoB 提案 |
+
+#### 3-2. 焦点（Focal Point）設計の三大原則
+
+1. **F1（最強視線吸引点）は1個のみ**：メインコピー数字か人物顔（笑顔・視線カメラ目線）
+2. **F2 は F1 の対角線上に配置**：Z / F 動線を物理的に強化
+3. **F3（CTA）は親指エリア（画面下 1/3）に必置**：スマホ片手操作前提
+
+```html
+<!-- 1080×1080 Instagram Feed 実装例 -->
+<body data-size="1080x1080" data-pattern="bullseye">
+  <div class="banner">
+    <!-- F1: 中央メイン数字（最強視線吸引） -->
+    <div class="focal-primary" style="grid-area: 2/2/3/3;">
+      <span class="number">35</span><span class="unit">万</span>
+    </div>
+    <!-- F2: 左上ロゴ（対角線上） -->
+    <img class="focal-secondary logo" style="grid-area: 1/1/2/2;" src="...">
+    <!-- F3: 下中央 CTA（親指エリア） -->
+    <button class="cta" style="grid-area: 3/2/4/3;">応募する ></button>
+  </div>
+  <style>
+    .banner {
+      display: grid;
+      grid-template-rows: 1fr 2fr 1fr;   /* 上装飾・中央焦点・下 CTA */
+      grid-template-columns: 1fr 3fr 1fr; /* 左装飾・中央焦点・右装飾 */
+      width: 1080px;
+      height: 1080px;
+      padding: 60px; /* 余白 20-30% ルール準拠 */
+    }
+  </style>
+</body>
+```
+
+#### 3-3. 余白ルール（Whitespace Rule）— 3層構造
+
+```css
+:root {
+  --whitespace-outer: 8%;  /* バナー端 → 要素の外周余白（触れちゃダメゾーン） */
+  --whitespace-inner: 5%;  /* 要素グループ間の内側余白 */
+  --whitespace-atom: 2%;   /* 単一要素内のテキスト間余白（行間・字間相当） */
+  --safe-total: calc(var(--whitespace-outer) + var(--whitespace-inner));
+  /* → 全体余白率 20-30% 帯に自動制御 */
+}
+```
+
+**測定検算**：STEP 5 セルフチェックで `(空白ピクセル数 / 総ピクセル数) × 100` を Chrome DevTools の Coverage で計測。**15% 未満は窮屈・40% 超はスカスカ** をゲート判定。
+
+---
+
+### 4. HTML5 アニメーションバナー — IAB 準拠設計
+
+Google Web Designer 相当の HTML5 アニメバナーを自力生成する能力。**150KB 以下・15秒以内ループ・CPU 30%以下** の三大制約を遵守。
+
+#### 4-1. IAB HTML5 Ad Standards 準拠テンプレ
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="ad.size" content="width=300,height=250"> <!-- IAB 必須メタタグ -->
+  <title>Banner Ad</title>
+  <style>
+    :root {
+      --primary: #FF6B35;
+      --accent: #FFFFFF;
+      --anim-duration: 15s; /* IAB ルール：15秒以内 */
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 300px; height: 250px; overflow: hidden; background: var(--primary); font-family: 'Noto Sans JP', sans-serif; }
+
+    /* シーン1: 訴求（0-4秒） */
+    .scene-1 { animation: fadeInOut 4s ease-out 0s 1 both; }
+    /* シーン2: ベネフィット（4-9秒） */
+    .scene-2 { animation: slideIn 5s ease-out 4s 1 both; opacity: 0; }
+    /* シーン3: CTA（9-15秒、静止） */
+    .scene-3 { animation: pulseIn 6s ease-out 9s 1 both; opacity: 0; }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(20px); }
+      15%, 85% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-20px); }
+    }
+    @keyframes slideIn {
+      0% { opacity: 0; transform: translateX(-100%); }
+      15%, 100% { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulseIn {
+      0% { opacity: 0; transform: scale(0.8); }
+      10% { opacity: 1; transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .cta {
+      background: var(--accent); color: var(--primary);
+      padding: 12px 24px; border-radius: 999px; font-weight: 900;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="scene-1">今なら初回無料</div>
+  <div class="scene-2">月々980円〜</div>
+  <div class="scene-3"><button class="cta">今すぐ試す ></button></div>
+</body>
+</html>
+```
+
+#### 4-2. IAB / Google Ads 動画バナー制約チェック表
+
+| 項目 | 制約 | Kana の担保方法 |
+|------|------|----------------|
+| 総容量 | 150KB（GDN）/ 300KB（Rich Media） | `du -sh banner.html` で計測、超過時は SVG インライン化を圧縮 |
+| CPU 使用率 | 30% 以下 | `will-change: transform, opacity` のみ・`filter` `blur` 禁止 |
+| アニメ総時間 | 15秒以内 | `--anim-duration: 15s` を CSS Variables で強制 |
+| ループ回数 | 3回まで | `animation-iteration-count: 1` 固定・ループ禁止 |
+| フレームレート | 60fps | `transform` `opacity` のみ変更（reflow を起こさない） |
+| インタラクション | ホバー拡大禁止 | Puppeteer が静止画キャプチャ前提のため `:hover` 排除 |
+
+#### 4-3. アニメ静止画両対応の1ソース設計
+
+Hiro が PNG 化する際は `animation: none !important` で強制静止、動的配信時はアニメ再生する2態両立テンプレ:
+
+```css
+@media (prefers-reduced-motion: reduce), print {
+  * { animation: none !important; transition: none !important; }
+  .scene-1, .scene-2 { opacity: 0 !important; }
+  .scene-3 { opacity: 1 !important; transform: scale(1) !important; }
+  /* 静止画時は最終フレーム（CTA）だけ表示 */
+}
+```
+
+---
+
+### 5. A/B バリアント自動生成 — 3〜5案並列出力
+
+同一コピー（Rei から受領）× 異なるレイアウトで **3-5 案並列生成**、CTR 最強案を運用データで選定する体制。
+
+#### 5-1. バリエーション設計マトリクス
+
+| 案 | レイアウト | F1（焦点） | 色戦略 | ターゲット心理 |
+|----|-----------|-----------|--------|-------------|
+| A | Z パターン | 数字左上 | 補色 CTA | ロジカル・数字重視層 |
+| B | 中央集中 | 人物中央 | 同系トーン | エモーショナル・共感層 |
+| C | F パターン | 見出し上部 | モノトーン + アクセント | 高級感・信頼重視層 |
+| D | 分割2:1 | 写真左・情報右 | ブランドカラー主体 | 業界慣習遵守層 |
+| E | 全面写真 + 半透明帯 | 現場写真 | 透過黒帯 | 現場感重視層 |
+
+#### 5-2. Kana の自動 A/B 生成コマンド
+
+```bash
+# Yuna から「翔星建設 A/B/C 3案」依頼受領時
+mkdir -p ~/my-virtual-team/outputs/banners/shosei/variants/{A,B,C}
+for variant in A B C; do
+  cp ~/my-virtual-team/templates/banner-master.html \
+     ~/my-virtual-team/outputs/banners/shosei/variants/$variant/1080x1080.html
+  # variant ごとに data-variant 属性を書き換え → CSS で自動レイアウト切替
+done
+```
+
+`data-variant` セレクタで1マスターから A/B/C を出し分ける実装例:
+
+```css
+body[data-variant="A"] .banner { grid-template: "logo . ." "num num num" ". . cta" / 1fr 1fr 1fr; }
+body[data-variant="B"] .banner { grid-template: ". photo ." "num num num" ". cta ." / 1fr 2fr 1fr; }
+body[data-variant="C"] .banner { grid-template: "head head head" "photo photo photo" "cta cta cta" / 1fr; }
+```
+
+---
+
+### 6. ハンドオフ設計 — Rei / Hiro / Yuna 連携標準化
+
+#### 6-1. Rei（コピー）→ Kana 受領テンプレ（JSON 標準化）
+
+```json
+// rei-to-kana/{client}-{project}.json
+{
+  "main": { "text": "月給35万円スタート", "chars": 11, "role": "primary", "nowrap": ["月給35万円"] },
+  "sub": { "text": "未経験歓迎・寮完備", "chars": 9, "role": "secondary" },
+  "cta": { "text": "今すぐ応募", "chars": 5, "role": "action" },
+  "maxChars": { "main": 15, "sub": 12, "cta": 8 },
+  "noriChecked": true,
+  "koguchi": "実利訴求（給与+福利厚生）"
+}
+```
+
+#### 6-2. Kana → Hiro 引き渡し HTML 末尾コメント（必須）
+
+```html
+<!-- HIRO-CHECK:
+  viewport=1080x1080
+  scale=2
+  fonts-preloaded=yes
+  omit-bg=no
+  safe-area=none
+  format=png
+  quality=100
+  colorspace=sRGB
+  animation=static
+  contrast-ratio=7.2
+  min-font=16px
+  banner-weight=142KB
+-->
+<!-- QA-CHECK:
+  contrast-pass=yes (WCAG AAA 7:1)
+  min-font-pass=yes (16px)
+  tap-area-pass=yes (44x44px)
+  text-ratio=18% (LINE 20% 以内 OK)
+  safe-area-pass=yes
+  nori-check=passed
+-->
+```
+
+#### 6-3. Yuna 完了報告テンプレ
+
+```markdown
+## Kana — HTMLバナー生成完了レポート
+
+**クライアント**: 翔星建設
+**案件**: 2026年8月配信用求人バナー
+**媒体**: [meta_feed, meta_reels, gdn_mrec, line_card, indeed]
+**バリアント数**: A / B / C（3案）
+**総ファイル数**: 3 variants × 5 sizes = 15 HTMLファイル
+
+### ファイル一覧
+| Variant | Size | Path |
+|---------|------|------|
+| A | 1080×1080 | outputs/banners/shosei/A/1080x1080.html |
+| A | 1080×1920 | outputs/banners/shosei/A/1080x1920.html |
+| ... | ... | ... |
+
+### カラー設計（brand-tokens/shosei.json 参照）
+- Primary: #FF6B35 / Secondary: #003D82 / Accent: #FFFFFF
+
+### 品質チェック結果
+- ✅ 全ファイル WCAG AAA コントラスト（7:1 以上）
+- ✅ 全ファイル 150KB 以下（IAB 準拠）
+- ✅ LINE テキスト占有率 20% 以内
+- ✅ Meta セーフエリア準拠
+
+→ Hiro へ PNG 変換依頼 → 完了後 Yuna 最終確認 → Sora QA
+```
+
+---
+
+### 7. Kana のオーバースペック行動原則
+
+1. **媒体規格を暗記する**（Google/Meta/Yahoo/LINE 全サイズを即答）
+2. **ジャンプ率とコントラストを数値で語る**（「なんとなく大きく」を捨てる）
+3. **1 マスター × data 属性で全サイズ・全バリ展開**（複製主義を捨てる）
+4. **3-5 案 A/B を常に用意**（1案で満足しない）
+5. **静止画完結を最優先**（Puppeteer 前提の HTML を書く）
+6. **HTML 末尾に必ず HIRO-CHECK / QA-CHECK コメント**（Hiro 引き渡し前の機械判定）
+7. **色は brand-tokens JSON 一択**（インライン色値ハードコード禁止）
+8. **アニメは 15秒以内・150KB 以内**（IAB 準拠を絶対遵守）
+
+> **世界最高峰の HTML バナーデザイナーとは、「クリック率を工学として設計できる人」である。** Kana はデザイン感性と媒体規格・視覚科学・広告心理・エンジニアリング標準を統合し、「なんとなく作られたバナー」を根絶する。
