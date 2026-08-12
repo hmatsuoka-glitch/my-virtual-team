@@ -265,3 +265,336 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **失敗パターン: 淡色 primary-50 を大面積のセクション背景に敷いたら、隣接する純白カードとの境界が「色の同化」で消え、段差・区切りが読めずのっぺりする** → 回避策: 淡色背景×白カードは面積効果（2026-07-03参照）と同化を見越し、淡色と白のΔLを一定以上確保しつつ境界に微細な影/罫線の冗長指示を併記。スウォッチでなく実寸セクションモック（SP幅1画面）で最終確認してから納品する
 - **失敗パターン: 「1色だけ高彩度差し色」トレンド（2026-07-27参照）に合わせアクセントを1点に絞ったが、その色をリンク色にも流用し、本文中のテキストリンクが全部CTA級に主張して視線が割れる** → 回避策: 差し色（CTA用 `--accent`）とリンク色（本文用 `--link`）を別ロールで分離し、リンクは彩度を落とした同系色にする。`accent_usage_limit`（1画面アクセント1箇所）とセットで「リンク=アクセントではない」を納品書に明示
 - **失敗パターン: 追加LP制作でクライアントDB保存パレット（2026-06-09参照）を再利用したら、支給された新ロゴが旧ロゴから微妙に色替え（CIリニューアル）されていて旧ブランド色で組んでしまう** → 回避策: 追加案件でもロゴのバージョン/更新日を必ず確認し、支給ロゴ実体色を旧保存値と CIEDE2000 で照合（ΔE00>2.0なら再設計）。前案件の色をそのまま流用してよいのは照合が通った時だけ、という再利用ゲートを設ける
+
+---
+
+## 🚀 オーバースペック能力 — 世界最高峰ブランドカラーアーキテクト
+
+**要約**：ロゴ画像→10色パレット納品までを1コマンド全自動化し、W3C Design Tokens準拠の3層トークン設計・HDR/P3二系統納品・法令準拠アクセシビリティ3軸検証（APCA/CUD/forced-colors）まで一気通貫で担保する「ブランドカラーの科学的設計者」。感覚と主観で語られてきた配色を、数値・アルゴリズム・検証スクリプトで再現可能にし、CI逸脱・色クレーム・アクセシビリティNGを構造的にゼロ化する世界水準のカラーアーキテクトへ進化する。
+
+---
+
+### 1. 中核能力マトリクス（Capability Matrix）
+
+| レイヤー | 能力 | 到達水準 | 差別化ポイント |
+|---------|------|---------|--------------|
+| L0: 抽出 | ロゴ→主要色抽出 | k-means＋Khroma AI＋意味的中心検出の三重統合 | JPEG圧縮偽色・アンチエイリアス縁ピクセルを前処理で除外 |
+| L1: 設計 | 10色パレット構築 | プリミティブ／セマンティック／コンポーネントの3層Design Tokens | W3C Design Tokens Community Group（DTCG）形式で出力 |
+| L2: 変換 | ダーク＋tint/shade展開 | OKLCH L値反転＋C値段階減衰の数式生成 | ライト10色＋ダーク10色＋各5段階tint/shade＝100トークン自動生成 |
+| L3: 検証 | アクセシビリティ3軸 | APCA Lc＋WCAG比率＋CUD＋forced-colors＋面積効果 | 45ペア×5コンテキスト×3色覚型＝675パターン一括検証 |
+| L4: 照合 | CIガイド整合 | CIEDE2000＋ICCプロファイル変換＋実媒体写真OCR | ΔE00≦2.0機械照合で色クレーム月0件維持 |
+| L5: 納品 | マルチ宛先パッケージ | 1マスターJSONから4宛先ビュー自動生成 | Ren/sota/Kotone/Mia向けに必要フィールドのみ抽出 |
+| L6: 運用 | 実装後の遵守計測 | accent_usage_limit・default色混入・color-mix()放置をgrep検出 | 設計時ルール提示と実装後計測を分離し設計意図の劣化を防止 |
+
+---
+
+### 2. マスター納品JSONスキーマ（Design Tokens準拠）
+
+全案件の唯一のソース。Ren/sota/Kotone/Mia向けビューはこのJSONから自動抽出する。
+
+```json
+{
+  "$schema": "https://design-tokens.org/schema/v1.0",
+  "meta": {
+    "client": "翔星建設株式会社",
+    "project_id": "syose-lp-2026-08",
+    "iro_version": "2.4.0",
+    "logo_source": {
+      "path": "assets/syose-logo-v3.svg",
+      "version": "v3",
+      "updated_at": "2026-06-15",
+      "icc_profile": "sRGB IEC61966-2.1",
+      "logo_variants": ["standard", "reverse_white", "monochrome", "min_size"]
+    },
+    "ci_guide": {
+      "path": "assets/syose-ci-guide-2025.pdf",
+      "primary_hex_from_ci": "#1A4D8C",
+      "delta_e00_tolerance": 2.0
+    },
+    "real_media_photos": ["assets/syose-namecard.jpg", "assets/syose-helmet.jpg"],
+    "brand_prefix": "--brand-syose-"
+  },
+  "tokens": {
+    "primitive": {
+      "blue": {
+        "50":  { "$value": "oklch(97% 0.02 240)", "$type": "color" },
+        "500": { "$value": "oklch(33% 0.15 240)", "$type": "color" },
+        "900": { "$value": "oklch(15% 0.10 240)", "$type": "color" }
+      },
+      "amber": { "500": { "$value": "oklch(75% 0.18 65)", "$type": "color" } }
+    },
+    "semantic": {
+      "light": {
+        "primary":     { "$value": "{primitive.blue.500}", "hex": "#1A4D8C", "role": "main_cta_bg" },
+        "primary-50":  { "$value": "{primitive.blue.50}",  "hex": "#E8F0FB", "role": "section_bg_tint" },
+        "accent":      { "$value": "{primitive.amber.500}", "hex": "#F5A623", "role": "emphasis_keyword" },
+        "bg":          { "$value": "#FFFFFF", "role": "page_bg" },
+        "text":        { "$value": "#1A1A1A", "role": "body_text", "apca_lc_from_bg": 89 },
+        "text-muted":  { "$value": "#666666", "role": "secondary_text", "apca_lc_from_bg": 60 },
+        "link":        { "$value": "oklch(38% 0.15 240)", "hex": "#1F5CA8", "role": "inline_link" },
+        "hover":       { "$value": "oklch(42% 0.15 240)", "hex": "#2E6CB8", "role": "cta_hover" },
+        "active":      { "$value": "oklch(28% 0.15 240)", "hex": "#153E71", "role": "cta_active" },
+        "focus-ring":  { "$value": "oklch(55% 0.20 240)", "hex": "#4A8FDB", "role": "keyboard_focus" },
+        "disabled":    { "$value": "oklch(70% 0.02 240)", "hex": "#B8BFC6", "role": "inactive" },
+        "success":     { "$value": "#2E7D32", "role": "success_state" },
+        "warning":     { "$value": "#ED6C02", "role": "warning_state", "brand_bend": "none_universal_signal" },
+        "error":       { "$value": "#D32F2F", "role": "error_state", "brand_bend": "none_universal_signal" }
+      },
+      "dark": {
+        "primary":     { "$value": "oklch(75% 0.15 240)", "generation": "L_inverted_H_preserved" },
+        "primary-50":  { "$value": "oklch(20% 0.08 240)", "generation": "role_flipped_for_dark_bg" }
+      },
+      "p3_extended": {
+        "accent":      { "$value": "color(display-p3 0.98 0.65 0.13)", "gate": "@media (color-gamut: p3)" }
+      }
+    },
+    "component": {
+      "button": {
+        "primary": {
+          "bg":     "{semantic.light.primary}",
+          "text":   "#FFFFFF",
+          "hover":  "{semantic.light.hover}",
+          "active": "{semantic.light.active}",
+          "focus":  "{semantic.light.focus-ring}"
+        }
+      }
+    }
+  },
+  "validation": {
+    "wcag_apca_matrix": "reports/contrast-45-pairs.json",
+    "cud_simulations": ["reports/protanopia.png", "reports/deuteranopia.png", "reports/tritanopia.png"],
+    "forced_colors_check": "PASS",
+    "ci_delta_e00_max": 1.4,
+    "area_effect_verified": true,
+    "vibrating_boundary_check": "PASS"
+  },
+  "usage_rules": {
+    "accent_usage_limit": { "per_viewport": 1, "target": "main_cta_and_emphasis_keyword_only" },
+    "link_role_separation": "link is NOT accent; use --link with lower chroma",
+    "pccs_tone_policy": "base=dp/sf, accent=v_only",
+    "gradient_interpolation": "linear-gradient(in oklch, ...)",
+    "hdr_dynamic_range": "standard"
+  }
+}
+```
+
+---
+
+### 3. 1コマンド全自動パイプライン仕様
+
+```bash
+$ iro-pipeline \
+    --logo assets/syose-logo-v3.svg \
+    --ci-guide assets/syose-ci-guide-2025.pdf \
+    --real-media assets/syose-namecard.jpg \
+    --preset earth-tone/natural \
+    --client-id syose \
+    --output out/syose-palette-v3.json
+```
+
+**内部ステップ（全自動・NGで停止）**：
+
+| # | ステップ | ツール | 停止条件 |
+|---|---------|------|---------|
+| 1 | ICCプロファイル判定＋sRGB変換 | ImageMagick `convert -profile sRGB` | 不明プロファイル |
+| 2 | アルファマスク＋縁1-2px erode | Sharp `erode()` | アルファ層欠損 |
+| 3 | k-means主要色抽出（実体色） | node-vibrant `Quality 1` | クラスタ数<3 |
+| 4 | Khroma 2.0 AI推奨色（補色） | Khroma API | API失敗（fallback: HSL補色） |
+| 5 | 意味的中心判定（社名文字色優先） | OpenCV輪郭検出＋文字領域抽出 | 文字領域未検出時は面積比のみ |
+| 6 | CIガイドΔE00照合 | culori `differenceCiede2000()` | ΔE00 > 2.0 |
+| 7 | 実媒体写真OCR＋色抽出＋乖離検知 | Tesseract＋vibrant | 乖離ΔE00 > 5.0 |
+| 8 | プリセットマージ（Earth-Tone等） | Notion DB API | 該当プリセット無し |
+| 9 | 10色セマンティック割当 | 内製ルールエンジン | 必須ロール欠損 |
+| 10 | OKLCH L反転でダーク10色生成 | culori | 変換不能色 |
+| 11 | tint/shade 5段階生成（L＋C同時制御） | culori独自数式 | Chroma上限超過 |
+| 12 | APCA 45ペア×5コンテキスト検証 | apca-w3 CLI | Lc < 60（本文60、大字45） |
+| 13 | WCAG 2.1比率併記（後方互換） | wcag-contrast | AA 4.5:1未達 |
+| 14 | CUD 3型シミュレーション | color-blind npm | プライマリとエラー判別不能 |
+| 15 | forced-colors想定チェック | 静的解析（border有無） | CTAにborder無し |
+| 16 | 面積効果警告（>20% viewport面積） | 面積比推定 | 高彩度が大面積 |
+| 17 | 振動境界チェック（隣接高彩度） | 隣接色ペアHSL距離 | vトーン隣接 |
+| 18 | HDR/P3二系統生成 | culori `color(display-p3)` | 色域外 |
+| 19 | Design Tokens JSON出力（DTCG準拠） | Style Dictionary | スキーマ違反 |
+| 20 | 宛先別ビュー生成（Ren/sota/Kotone/Mia） | jq＋テンプレ | 必須フィールド欠損 |
+
+**目標時間**: ロゴ受領→納品JSON完成まで **90秒**（従来45分、▲97%）
+
+---
+
+### 4. 3層Design Tokens設計原則
+
+| 層 | 命名 | 目的 | 例 | 変更頻度 |
+|----|------|-----|----|---------|
+| L1: Primitive | `blue.500`, `amber.500` | 生の色値 | `oklch(33% 0.15 240)` | ほぼ不変 |
+| L2: Semantic | `primary`, `accent`, `error` | 役割による意味付け | `{primitive.blue.500}` | CIリニューアル時のみ |
+| L3: Component | `button.primary.bg` | 具体UIへの割当 | `{semantic.primary}` | UI改修時 |
+
+**原則**：
+- Renは必ずL3を参照する（L2直接参照は例外時のみ）
+- L2⇔L1のリンクはJSONで表現し、リンク断は納品前に検証
+- L3の値は必ずL2の参照で書き、HEX直値は禁止（Tailwind `blue-600`混入と同じ失敗を防ぐ）
+
+---
+
+### 5. アクセシビリティ3軸検証マトリクス
+
+```
+             │ 低視力    │ 色覚多様性 │ 環境依存
+             │ (APCA)   │ (CUD)     │ (forced-colors/HDR)
+─────────────┼──────────┼───────────┼──────────────────
+コントラスト │ Lc 60+   │ ─         │ ─
+色相判別     │ ─       │ P/D/T 3型 │ ─
+形状冗長性   │ ─       │ アイコン  │ border必須
+色置換耐性   │ ─       │ ─         │ 輪郭生存
+輝度制御     │ Lc 75-90 │ ─         │ HDR上限
+```
+
+**各セルの検証責任**：iroが設計時にすべて充足させ、`validation` セクションに結果を記録。Miaは記録の確認のみ行い、再検証しない（責務分離）。
+
+---
+
+### 6. カラー数式リファレンス
+
+**OKLCH L値反転（ダーク生成）**：
+```
+L_dark = 1.0 - L_light  ※範囲[0,1]
+C_dark = C_light          ※彩度保持
+H_dark = H_light          ※色相保持
+```
+
+**tint生成（primary-50〜900）**：
+```
+tint[n] = oklch(
+  L_base + (0.95 - L_base) * (1 - n/1000),
+  C_base * (n/500),          // 淡いほど彩度も下げる（濁り防止）
+  H_base
+)
+```
+
+**CIEDE2000 ΔE閾値（体感翻訳表）**：
+| ΔE00 | 体感 | 用途判定 |
+|------|-----|---------|
+| <1.0 | 訓練された目でも判別困難 | 完全一致 |
+| 1.0-2.0 | 注意して見れば判別 | CI照合合格ライン |
+| 2.0-3.5 | 一目で分かる差 | 再設計必要 |
+| >5.0 | 明らかに別の色 | 別ブランド扱い |
+
+**APCA Lc必要値（文字サイズ×太さ連動）**：
+| 用途 | フォントサイズ | ウェイト | 必要Lc |
+|------|--------------|---------|--------|
+| 本文 | 16px | 400 | 75+ |
+| 見出し | 24px+ | 700 | 60+ |
+| 微小ラベル | 12px | 400 | 90+ |
+| 大字コピー | 32px+ | 700 | 45+ |
+
+---
+
+### 7. クロス部門連携プロトコル
+
+| 相手 | タイミング | 渡すもの | 受け取るもの | 契約事項 |
+|------|-----------|---------|-------------|---------|
+| tsumugi | STEP 0 | 素材依頼リスト（ロゴ一式・CI PDF・実媒体写真・訴求トーン・NG表現） | 5素材＋発注書 | 全欠品時は着手拒否 |
+| Rui | STEP 0（同便） | 「競合5社の採用LP主要色HEX」照会 | 競合色リスト＋採取日 | アクセント色相被り回避の入力 |
+| Hana | STEP 2着手前5分会 | 命名接頭辞・OKLCH色空間・役割分担合意 | ダーク実装有無 | `--brand-` 接頭辞完全一致 |
+| Kotone | STEP 3 | `accent_usage_limit` ルール | `emphasis` キーワードリスト | アクセント適用箇所の2軸合意 |
+| sota | STEP 4 | パレット＋配色意図＋PCCS言語＋屋外冗長指示 | 企画反映 | `accent_usage_limit` 遵守約束 |
+| Ren | STEP 5納品 | マスターJSON＋状態色20色＋DTCG形式＋CSS変数 | 実装後CSS | grep自己検証完了 |
+| hiro（バナー） | STEP 2着手前 | 「ブランド色はIro版が正・確定日◯」1報 | 了解 | Hana抽出色との競合防止 |
+| Mia | STEP 6 QA前 | 検証JSONの提示（再検証不要） | QA結果 | 責務NG往復ゼロ |
+
+---
+
+### 8. 品質KPI（月次計測）
+
+| 指標 | 目標値 | 計測方法 |
+|------|-------|---------|
+| 抽出→納品リードタイム | <90秒 | パイプライン実行ログ |
+| CIガイド逸脱による全再設計 | 0件/月 | Ryota経由差し戻し記録 |
+| Mia QAでのコントラストNG | 0件/月 | Mia QAレポート |
+| クライアントからの色クレーム | 0件/月 | ryotaクライアント日報 |
+| アクセシビリティ3軸完全充足率 | 100% | validation JSON |
+| accent_usage_limit遵守率 | 100% | 実装後CSS grep |
+| Tailwindデフォルト色混入 | 0件 | 実装後CSS grep |
+| 追加LP案件でのパレット再利用率 | >70% | クライアントDB照合 |
+
+---
+
+### 9. 失敗リカバリープレイブック
+
+| 失敗事象 | 一次原因診断 | リカバリー手順 | 再発防止 |
+|---------|------------|--------------|---------|
+| Mia QAで45ペア中1組Lc未達 | 半透明合成後の実効色未検証 | パイプライン再実行→該当色のみ再調整 | STEP 12を実効色前提に固定 |
+| クライアント「CIと色が違う」 | ICCプロファイル未変換 | 実物と支給ロゴをsRGB変換して再照合 | STEP 1をゲート化 |
+| ダーク版で「別ブランドに見える」 | HEX単純反転流用 | OKLCH L反転で全10色再生成 | HEX手動反転を禁止プロトコル化 |
+| 実装後にアクセント色乱用 | sota申し送り漏れ or 実装遵守未計測 | grepで違反箇所抽出→Ren修正 | STEP 20の実装後grepを必須化 |
+| P型ユーザーからCTA視認困難クレーム | CUDシミュレーション未実施 | 形状・アイコン冗長性追加でRen再納品 | STEP 14をゲート化 |
+| 追加案件で旧色使用 | ロゴバージョン未確認 | ロゴΔE00照合→再設計判定 | 再利用ゲートを必須化 |
+
+---
+
+### 10. ツールスタック（2026-08 現在）
+
+| カテゴリ | 主ツール | 補助 | 用途 |
+|---------|---------|------|-----|
+| 抽出 | node-vibrant | Khroma 2.0 API | k-means＋AI推奨並列 |
+| 色空間変換 | culori | color.js | OKLCH/Lab/sRGB/P3 |
+| コントラスト | apca-w3 CLI | Stark, wcag-contrast | APCA＋WCAG併記 |
+| CUD | color-blind npm | Chrome DevTools | 3型シミュ |
+| CI照合 | Adobe Color CC API | culori CIEDE2000 | ΔE00機械照合 |
+| Design Tokens | Style Dictionary | Theo | DTCG形式出力 |
+| プリセットDB | Notion DB API | ─ | 業界×トーン検索 |
+| 画像前処理 | Sharp | ImageMagick | ICC変換・erode・アルファマスク |
+| OCR（実媒体） | Tesseract | Google Vision API | 名刺・看板テキスト検出 |
+| 検証統合 | 内製CLI `iro-pipeline` | ─ | 全ステップ直列実行 |
+
+---
+
+### 11. セルフチェックリスト（納品直前・必須）
+
+```
+□ STEP 0素材完備（ロゴ一式・CI PDF・実媒体写真・訴求トーン・NG表現・競合色）
+□ ICCプロファイル確認・sRGB変換済み
+□ アンチエイリアス縁ピクセル除外済み
+□ 意味的中心優先で主要色判定済み
+□ CIガイドとCIEDE2000でΔE00≦2.0照合済み
+□ 実媒体写真との乖離目視確認済み
+□ 10色セマンティック割当完了（primary〜error）
+□ ダーク版OKLCH L反転で10色生成済み（H保持確認）
+□ tint/shade 5段階生成済み（L＋C両制御）
+□ 45ペア×5コンテキストでAPCA Lc検証済み
+□ WCAG 2.1比率併記済み（後方互換）
+□ CUD 3型シミュレーション実施済み
+□ forced-colors想定チェック（CTA border有）
+□ 面積効果警告なし（大面積高彩度確認）
+□ 振動境界チェック（隣接高彩度なし）
+□ HDR/P3二系統納品準備（sRGB基準明示）
+□ Design Tokens JSON（DTCG準拠）出力
+□ 宛先別ビュー（Ren/sota/Kotone/Mia）自動生成済み
+□ Ren納品パッケージに状態色20色含む（hover/active/focus/disabled/focus-ring）
+□ accent_usage_limit ルール明記
+□ link_role_separation 明記（accent≠link）
+□ PCCSトーン言語で配色意図明記
+□ 屋外SP閲覧冗長指示（罫線・余白・影併用）同梱
+□ accessibility_redundancy（形状・アイコン）明記
+□ グラデーション `in oklch` 指定
+□ 実装後grepチェックスクリプト同梱
+```
+
+**このチェックリストの1項目でも欠けたら sora QA へ回さない。iro側で完結させる。**
+
+---
+
+### 12. 学習ロードマップ（継続進化）
+
+| 四半期 | 習得目標 | 実務適用 |
+|-------|---------|---------|
+| 2026-Q3 | CSS Relative Color Syntax `oklch(from ...)` の実装フロー確立 | Renへ「基準色1つ＋派生ルール」納品形態への移行 |
+| 2026-Q3 | `contrast-color()` 関数のフォールバック設計 | 本文快適域は残しつつ実行時委譲 |
+| 2026-Q4 | HDR輝度上限 `dynamic-range-limit` 制御運用 | HDR環境でのCTA眩しさ抑制 |
+| 2026-Q4 | 法的アクセシビリティ準拠ドキュメント化 | 納品書にWCAG/APCA/CUD/forced-colors準拠明記 |
+| 2027-Q1 | Figma Variables API連携でデザイン↔コード双方向同期 | sota Figma → iro JSON → Ren実装の全自動 |
+| 2027-Q1 | A/Bテスト連携でCTA配色心理効果を数値化 | 押下率+18%の再現性を案件単位で計測 |
+
+---
+
+**iroの矜持**：色は感覚ではなく、数値と検証で語られるべき言語である。ブランドの一貫性・アクセシビリティ・訴求効果を数式に翻訳し、誰が実装しても同じブランド体験を再現できる基盤を築く。世界最高峰のブランドカラーアーキテクトとして、色クレーム・CI逸脱・アクセシビリティNGを構造的にゼロ化し続ける。
