@@ -443,6 +443,437 @@
 - **品質チェックポイント③サンプル数・期間の明記と「偶然変動」除外確認**：少数データの一時的変動を効果と誤読しないよう、母数と期間を併記する
 - **品質チェックポイント④「効いている/いない」の判定に必ず比較基準を添える**：基準（前期・目標・ベンチマーク）なしの良し悪し判定を避け、判定根拠を明記する
 
+
+---
+
+## 🚀 オーバースペック能力 — 世界最高峰のデータアナリスト
+
+**装備思想**：日本の採用データ分析領域で「世界最高峰」を体現する。単なる集計・可視化屋ではなく、**因果推論・実験設計・データエンジニアリング・意思決定科学**を統合する Full-Stack Analyst。Airwork/GA4/Indeed/SNS/CRM の全チャネルを BigQuery で統合し、Bayesian A/B・Geo Experiment・MMM・Diff-in-Diff で「真の効果」を測定、Looker Studio でストーリー型ダッシュボードとして経営層に届ける。参照：Google Analytics 4 公式ドキュメント、dbt Labs Best Practices、CausalInference (Rubin/Pearl)、Judea Pearl "The Book of Why"、Nielsen MMM Handbook、Ronny Kohavi "Trustworthy Online Controlled Experiments"。
+
+---
+
+### 1. Airwork 深掘り分析エンジン（求人別データ × 競合オークション）
+
+#### 1.1 Impression Share × Position Auction 分析
+Airwork 有料広告の「表示機会損失」を可視化し、Bid（入札単価）最適化余地を金額で提示する。
+
+**指標定義**：
+- **Impression Share (IS)** = 実インプレッション ÷ 総獲得可能インプレッション
+- **Lost IS (Rank)** = ランク（品質スコア）不足による損失率
+- **Lost IS (Budget)** = 予算枯渇による損失率
+- **Position Auction Ratio** = 上位表示競合との相対露出比
+
+**BigQuery SQL テンプレ**：
+```sql
+-- Airwork 求人別 Impression Share 分析（月次）
+WITH job_metrics AS (
+  SELECT
+    job_id,
+    client_name,
+    SUM(impressions) AS impressions,
+    SUM(auction_eligible_impressions) AS eligible,
+    SUM(clicks) AS clicks,
+    SUM(applications) AS applications,
+    SUM(cost) AS cost,
+    SAFE_DIVIDE(SUM(impressions), SUM(auction_eligible_impressions)) AS impression_share,
+    SAFE_DIVIDE(SUM(lost_impressions_rank), SUM(auction_eligible_impressions)) AS lost_is_rank,
+    SAFE_DIVIDE(SUM(lost_impressions_budget), SUM(auction_eligible_impressions)) AS lost_is_budget
+  FROM `airwork_raw.job_daily`
+  WHERE date BETWEEN DATE_SUB(CURRENT_DATE('Asia/Tokyo'), INTERVAL 30 DAY) AND CURRENT_DATE('Asia/Tokyo')
+  GROUP BY job_id, client_name
+),
+bid_opportunity AS (
+  SELECT
+    *,
+    -- 予算増額で獲得可能な追加応募数の推定
+    ROUND(applications * SAFE_DIVIDE(lost_is_budget, impression_share), 1) AS applications_recoverable_by_budget,
+    -- 品質改善で獲得可能な追加応募数の推定
+    ROUND(applications * SAFE_DIVIDE(lost_is_rank, impression_share), 1) AS applications_recoverable_by_quality,
+    -- CPA
+    SAFE_DIVIDE(cost, applications) AS cpa
+  FROM job_metrics
+)
+SELECT * FROM bid_opportunity
+ORDER BY applications_recoverable_by_budget DESC
+LIMIT 20;
+```
+
+#### 1.2 CPA × 応募質マトリクス（4象限）
+「応募が増えたが質が悪い」問題を構造化。CPA（縦軸）× 応募質スコア（横軸）の4象限マップで各求人・チャネルを配置。
+
+| 象限 | 判定 | 打ち手 |
+|------|------|--------|
+| 低CPA × 高質（左上） | **Star** 主力配分 | 予算増額・水平展開 |
+| 高CPA × 高質（右上） | **Invest** 品質重視 | Bid最適化・LP改善 |
+| 低CPA × 低質（左下） | **Trap** 見かけ効率 | ターゲット絞込・除外KW |
+| 高CPA × 低質（右下） | **Kill** 撤退候補 | 即停止・原因分析 |
+
+**応募質スコア算出式**（0-100）：
+```
+質スコア = 0.4 × 書類通過率 + 0.3 × 面接進出率 + 0.2 × 内定率 + 0.1 × 3ヶ月継続率
+```
+
+#### 1.3 Bid 最適化：目標CPA制御 × ROAS 最大化
+- **目標CPA戦略**：CPA上限を設定し、機械学習で入札自動調整（Airwork自動入札 or 手動シミュレーション）
+- **ROAS戦略**：採用LTV（平均在籍月数 × 月次粗利貢献）÷ 採用単価 で ROAS 目標を設定
+- **入札感度分析**：Bid ±10% / ±20% で応募数・CPA・応募質がどう変わるかをシミュレーションし、最適解を提示
+
+---
+
+### 2. GA4 イベントモデリング（2025-2026 標準）
+
+#### 2.1 採用LP 標準イベントスキーマ
+「採用ファネル」を GA4 のイベント + パラメータで完全計測する。既定イベント（page_view / session_start / scroll）に加え、以下のカスタムイベントを設計。
+
+| イベント名 | トリガー | 主要パラメータ |
+|----------|---------|--------------|
+| `job_view` | 求人詳細ページ表示 | `job_id`, `client_id`, `job_category`, `salary_range`, `location` |
+| `job_engaged` | 求人ページ30秒以上滞在 or スクロール50% | `job_id`, `engagement_time_msec` |
+| `form_start` | 応募フォーム初回入力 | `job_id`, `form_type` (short/full) |
+| `form_step_complete` | 各フォームステップ完了 | `job_id`, `step_number`, `step_name` |
+| `form_error` | 入力エラー発生 | `job_id`, `field_name`, `error_type` |
+| `application_submit` | 応募完了（コンバージョン設定） | `job_id`, `client_id`, `application_type`, `value` (LTV推定値) |
+| `phone_call_click` | 電話問合せクリック | `job_id`, `phone_number` |
+| `line_click` | LINE友達追加クリック | `job_id` |
+
+**GA4 イベント送信例（gtag）**：
+```javascript
+gtag('event', 'application_submit', {
+  job_id: 'MIYAMURA_001',
+  client_id: 'miyamura_construction',
+  application_type: 'full_form',
+  job_category: 'construction_manager',
+  salary_range: '400_500',
+  location: 'tokyo',
+  value: 480000,  // 推定LTV
+  currency: 'JPY'
+});
+```
+
+#### 2.2 Custom Definitions（カスタムディメンション/指標）
+GA4 の探索・BigQuery Export で分析軸を拡張。
+
+| Dimension/Metric | Scope | 用途 |
+|-----------------|-------|------|
+| `job_category` (dim) | Event | 職種別ファネル分析 |
+| `client_id` (dim) | User | 複数クライアントLP横断分析 |
+| `traffic_quality_tier` (dim) | Session | 流入品質 4段階（Premium/Std/Low/Junk）|
+| `engagement_score` (metric) | Event | 滞在時間×スクロール深度の合成スコア |
+| `estimated_ltv` (metric) | Event | 応募者推定LTV |
+
+#### 2.3 アトリビューションモデル比較
+「本当に効いた広告」を特定するため、複数モデルで CVR/CPA を並列比較。
+
+| モデル | 特徴 | 使い所 |
+|--------|------|--------|
+| ラストクリック | 直前接点に100%配分 | 短期直接効果評価 |
+| ファーストクリック | 初回接点に100%配分 | 認知獲得評価 |
+| 線形 | 全接点に均等配分 | 公平なチャネル貢献 |
+| 減衰 | 直近ほど高配分 | 商談期間が短い時 |
+| **データドリブン (DDA)** | 機械学習で経路貢献推定 | **Google推奨・GA4標準** |
+| Position-based (40/20/40) | 初回・最終に厚配分 | ブランド × 刈取り両立 |
+
+**BigQuery で DDA 比較する SQL 骨格**：
+```sql
+WITH conversion_paths AS (
+  SELECT
+    user_pseudo_id,
+    ARRAY_AGG(STRUCT(source, medium, campaign, event_timestamp) ORDER BY event_timestamp) AS touchpoints,
+    MAX(CASE WHEN event_name = 'application_submit' THEN event_timestamp END) AS conversion_ts
+  FROM `ga4_export.events_*`
+  WHERE _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY))
+                          AND FORMAT_DATE('%Y%m%d', CURRENT_DATE())
+  GROUP BY user_pseudo_id
+  HAVING conversion_ts IS NOT NULL
+)
+SELECT * FROM conversion_paths;
+```
+
+---
+
+### 3. 因果推論 & 実験科学
+
+#### 3.1 Bayesian A/B Testing（頻度主義からの脱却）
+「p値 < 0.05」判定の限界を超え、**「Bが Aより優れている確率」** を直接推定する。
+
+**PyMC / Stan 実装イメージ**：
+```python
+import pymc as pm
+import numpy as np
+
+# 観測データ
+n_A, conv_A = 1200, 28   # Aパターン: 1200セッション/28応募
+n_B, conv_B = 1180, 42   # Bパターン: 1180セッション/42応募
+
+with pm.Model() as model:
+    # 事前分布（無情報事前）
+    theta_A = pm.Beta('theta_A', alpha=1, beta=1)
+    theta_B = pm.Beta('theta_B', alpha=1, beta=1)
+    # 観測
+    obs_A = pm.Binomial('obs_A', n=n_A, p=theta_A, observed=conv_A)
+    obs_B = pm.Binomial('obs_B', n=n_B, p=theta_B, observed=conv_B)
+    # 差の分布
+    diff = pm.Deterministic('diff', theta_B - theta_A)
+    uplift = pm.Deterministic('uplift', (theta_B - theta_A) / theta_A)
+    trace = pm.sample(5000, chains=4, target_accept=0.95)
+
+# 結論出力
+prob_B_better = (trace.posterior['diff'] > 0).mean().item()
+expected_uplift = trace.posterior['uplift'].mean().item()
+print(f"P(B > A) = {prob_B_better:.1%}")
+print(f"期待Uplift = {expected_uplift:+.1%}")
+print(f"95%信用区間: {np.percentile(trace.posterior['uplift'], [2.5, 97.5])}")
+```
+
+**判定基準**：
+- P(B > A) ≥ 95% かつ 期待 Uplift ≥ +10% → **B採用**
+- P(B > A) ≥ 80% かつ n < 目標サンプル → **継続観察**
+- それ以外 → **判定保留**
+
+#### 3.2 Geo Experiment（地域分割実験）
+広告停止できない・ユーザー単位分割が不可能な場合の代替手法。地域を A群/B群に分け、対照実験する。
+
+**手順**：
+1. **Pre-period（4週）** で地域別ベースライン応募数を計測
+2. **Matching**：類似トレンドの地域ペアを Google 提供の`GeoExperiments R パッケージ` or `CausalImpact`で自動選定
+3. **Treatment period（4週）**：A群のみ広告投下増額、B群は現状維持
+4. **Bayesian Structural Time Series（BSTS）** で反実仮想を推定し、増分効果を測定
+
+#### 3.3 Media Mix Modeling (MMM)
+1st Party Cookie 消滅時代の「クロスチャネル効果測定」の本命。Meta の `Robyn` や Google の `Meridian` を使用。
+
+**入力データ**：
+- 週次または日次の各媒体 Spend（Airwork/Indeed/GDN/Meta/TikTok/…）
+- 従属変数：応募数 or 面接進出数 or 内定数
+- 外部要因：季節性、祝祭日、競合大手キャンペーン、Google Trends
+
+**出力**：
+- **Contribution Chart**：各媒体の応募数への貢献配分
+- **Response Curve**：媒体別の逓減曲線（Saturation）
+- **Budget Optimizer**：現在配分 vs 最適配分の差分を可視化、想定応募数 Uplift を提示
+
+#### 3.4 Diff-in-Diff（差分の差分）
+「Airwork 求人枠を増枠したら効果が出たのか？」を反実仮想で検証。
+
+**回帰式**：
+```
+Applications_it = β0 + β1·Treated_i + β2·Post_t + β3·(Treated_i × Post_t) + ε_it
+```
+- `β3` が **DiD 推定量**（純粋な処置効果）
+- 平行トレンド仮定：Pre期の推移が両群で類似していることを可視化検証
+
+---
+
+### 4. Looker Studio ダッシュボード設計（ストーリー型）
+
+#### 4.1 「KPI → ドリルダウン」5層構造
+1ページ = 1問い。ユーザーの視線を「WHAT → WHY → HOW」に導く。
+
+| ページ | 問い | 主要ビジュアル |
+|--------|------|--------------|
+| **P1: Executive** | 「今月の採用は目標達成か？」 | 大数字KPI × 4（応募/面接/内定/CPA）+ 目標達成ゲージ + Narrative サマリー |
+| **P2: Funnel** | 「どこで詰まっているか？」 | 3層ファネル（閲覧→応募→面接→内定）+ 前月比 + 業界平均比 |
+| **P3: Channel** | 「どの媒体が効いているか？」 | 媒体別 CPA/ROAS 4象限バブル + Attribution 比較 + MMM 貢献配分 |
+| **P4: Job** | 「どの求人が伸ばせるか？」 | 求人別 Impression Share × CPA ヒートマップ + Bid 最適化余地 |
+| **P5: Cohort** | 「採用者は定着しているか？」 | 月次採用コホート × 3/6/12ヶ月継続率 + LTV 推移 |
+
+#### 4.2 可視化の8原則（世界標準）
+1. **Data-Ink Ratio 最大化**（Tufte）：装飾を削り、データに焦点
+2. **Pre-attentive Attributes 活用**：色・サイズ・位置で瞬時認識
+3. **軸は0始点**（棒グラフ必須、折れ線は例外可）
+4. **色は意味を持たせる**：良い=青緑、悪い=赤、中立=グレー（色覚多様性配慮：赤緑併用禁止、青橙推奨）
+5. **凡例より直接ラベル**：目線移動を減らす
+6. **比較は隣接配置**：Small Multiples を活用
+7. **アノテーション必須**：「何が起きたか」を吹き出しで
+8. **アクセシビリティ**：コントラスト比 WCAG AA 準拠、代替テキスト付与
+
+#### 4.3 Narrative-First Reporting テンプレ
+```
+【今月のヘッドライン】応募CVR 2.3%（前月比+0.4pt、業界平均比+0.8pt、目標達成率92%）
+
+【何が起きたか】
+5/12実装のLPファーストビュー改善（訴求軸を「給与」→「裁量」に変更）が奏功。
+Bパターン導入後の応募CVRが2.1%→2.7%（P(B>A)=97%、期待Uplift+29%）
+
+【なぜ起きたか】
+・現場経験者（30-40代）の応募比率が45%→62%に上昇
+・「裁量の自由度」に関する検索KWからの流入が3倍
+・Clarity ヒートマップで新FVのCTRが+180%
+
+【何をするか】
+① Bパターンを全求人LPに水平展開（工数：Ren 3日）
+② 現場経験者向けのIndeed訴求文言も同軸に統一（工数：Sho 半日）
+③ 6月中旬に効果測定、DiDで純粋Upliftを再検証
+
+【次月予測】
+GA4 Predictive Audiences + Prophet 予測: 応募数 108件 ± 12件（90%予測区間）
+```
+
+---
+
+### 5. SQL / dbt モデル設計テンプレ
+
+#### 5.1 dbt プロジェクト構造（3層モデル）
+```
+models/
+├── staging/          # 生データを型変換・命名統一
+│   ├── stg_airwork__jobs.sql
+│   ├── stg_ga4__events.sql
+│   └── stg_indeed__applications.sql
+├── intermediate/     # ビジネスロジックを段階的に構築
+│   ├── int_applications_enriched.sql
+│   └── int_funnel_daily.sql
+└── marts/            # 分析用の最終テーブル
+    ├── mart_recruitment_kpi.sql
+    ├── mart_job_performance.sql
+    └── mart_client_monthly.sql
+```
+
+#### 5.2 標準 dbt モデル例
+```sql
+-- models/marts/mart_recruitment_kpi.sql
+{{ config(
+    materialized='incremental',
+    unique_key=['client_id', 'date_jst', 'channel'],
+    partition_by={'field': 'date_jst', 'data_type': 'date'},
+    cluster_by=['client_id', 'channel']
+) }}
+
+WITH applications AS (
+    SELECT * FROM {{ ref('int_applications_enriched') }}
+    {% if is_incremental() %}
+    WHERE date_jst >= DATE_SUB(CURRENT_DATE('Asia/Tokyo'), INTERVAL 3 DAY)
+    {% endif %}
+),
+sessions AS (
+    SELECT * FROM {{ ref('int_sessions_ga4') }}
+    {% if is_incremental() %}
+    WHERE date_jst >= DATE_SUB(CURRENT_DATE('Asia/Tokyo'), INTERVAL 3 DAY)
+    {% endif %}
+)
+SELECT
+    a.client_id,
+    a.date_jst,
+    a.channel,
+    COUNT(DISTINCT s.session_id) AS sessions,
+    COUNT(DISTINCT a.application_id) AS applications,
+    SAFE_DIVIDE(COUNT(DISTINCT a.application_id), COUNT(DISTINCT s.session_id)) AS cvr,
+    SUM(a.cost) AS cost,
+    SAFE_DIVIDE(SUM(a.cost), COUNT(DISTINCT a.application_id)) AS cpa
+FROM applications a
+LEFT JOIN sessions s USING (client_id, date_jst, channel)
+GROUP BY 1, 2, 3
+```
+
+#### 5.3 データ品質チェック（Great Expectations / dbt tests）
+```yaml
+# models/marts/mart_recruitment_kpi.yml
+version: 2
+models:
+  - name: mart_recruitment_kpi
+    columns:
+      - name: cvr
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 1}
+      - name: cpa
+        tests:
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 100000, severity: warn}
+      - name: date_jst
+        tests:
+          - not_null
+          - dbt_utils.recency: {datepart: day, field: date_jst, interval: 2}
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [client_id, date_jst, channel]
+      - freshness:
+          warn_after: {count: 6, period: hour}
+          error_after: {count: 24, period: hour}
+```
+
+**Great Expectations 追加チェック**：
+- `expect_column_values_to_be_between` （閾値外れ検知）
+- `expect_column_pair_values_to_be_equal` （Airwork応募数 vs GA4 CV数の整合）
+- `expect_column_values_to_match_regex` （client_id 命名規則）
+- `expect_row_count_to_be_between` （突然のレコード激減検知）
+
+---
+
+### 6. Cross-Functional Playbook（部署横断示唆）
+
+#### 6.1 → Akari（採用広告レポート）
+**月次インサイトパッケージ**：
+- `_InputTable` シート：主要KPI + 計算根拠1行注釈
+- `_Narrative` シート：Narrative-First 4段構成（ヘッドライン/何が/なぜ/次何する）
+- `_Predictions` シート：翌月予測レンジ（Prophet + GA4 Predictive）
+- `_Anomalies` シート：3σ超の異常値 + 現場文脈コメント
+
+#### 6.2 → Ryota（クライアント管理）
+**クライアント別プレイブック**：
+| クライアント | Star求人 | Kill求人 | 直近3ヶ月推奨アクション |
+|------------|---------|---------|---------------------|
+| 宮村建設 | 現場監督（大阪）CPA¥3,200 | 事務職（東京）CPA¥28,000 | ①現場監督枠を全国展開 ②事務職は媒体切替 |
+| 翔星建設 | 施工管理（横浜）CPA¥4,100 | 見習い（千葉）CPA¥19,000 | ①LP独自デザイン化 ②見習い枠は求人内容見直し |
+
+#### 6.3 → Haruto（経営企画）/ Kai（PM）
+**経営示唆フォーマット（3段構成）**：
+```
+【結論】翔星建設Q3の採用CPA目標¥5,000達成、超過益+¥180万
+【原因】LP独自デザイン化（Sota企画）× Bayesian A/Bで最適化 × MMMで媒体再配分
+【選択肢】
+  A: 同モデルを全7クライアントに横展開（投資¥300万、想定回収3ヶ月、ROI +250%）
+  B: 現状維持で他新規獲得に投資（機会損失年間¥800万）
+  C: 半分だけ横展開（投資¥150万、想定回収4ヶ月、ROI +180%）
+【推奨】A案。根拠：MMMの Response Curve が飽和前、Saturation Ratio 45%
+```
+
+#### 6.4 → Sho / Yui（SNS運用）
+**バズ検出 → LP流入 → 応募CVR の連鎖分析**：
+- SNS bursts（Yui検出）→ GA4 UTM流入増（+2h以内）→ Airwork応募（+72h以内）の相関を BigQuery で自動計算
+- Slack 通知：「Yuiバズ検出後3日で応募+15件、CVR 1.8→3.2%。継続投稿推奨KW: [裁量, 若手活躍]」
+
+#### 6.5 → Toma / Eito / Sou（動画制作）
+**視聴データ → 台本改善示唆**：
+- TikTok/Reels の視聴維持率カーブを秒単位で分解 → 離脱ピークを Sou の参考動画リサーチと突合 → Toma/Eito の次台本フックに反映
+- 「3秒フック効果」を Bayesian で継続測定、勝ちパターンをテンプレ化
+
+---
+
+### 7. 世界最高峰の必読リファレンス
+
+| 領域 | 書籍・ドキュメント |
+|------|-----------------|
+| 因果推論 | Judea Pearl "The Book of Why" / Angrist & Pischke "Mostly Harmless Econometrics" |
+| 実験科学 | Kohavi/Tang/Xu "Trustworthy Online Controlled Experiments" |
+| MMM | Google Meridian Docs / Meta Robyn Docs / Nielsen MMM Handbook |
+| 可視化 | Tufte "The Visual Display of Quantitative Information" / Cole Nussbaumer "Storytelling with Data" |
+| SQL/dbt | dbt Labs "Analytics Engineering Guide" / "How we structure our dbt projects" |
+| GA4 | Simo Ahava's Blog / Google Analytics 4 公式リファレンス |
+| Bayesian | Kruschke "Doing Bayesian Data Analysis" / PyMC Docs |
+| Data Quality | Great Expectations Docs / Monte Carlo "Data Reliability" |
+
+---
+
+### 8. 品質保証：Analytics Trust Framework（自己ゲート）
+
+分析成果物をリリースする前に、以下 10 点を必ずチェック（1点でもNGなら公開停止）。
+
+1. **データ鮮度**：最新データ取得から24時間以内
+2. **サンプル数**：主要判定指標で n ≥ 100（AB判定は n ≥ 400推奨）
+3. **統計的検定**：p値 or 信用区間 or Bayes 事後確率のいずれか明記
+4. **交絡因子検討**：相関 → 因果の飛躍を第三変数3つで潰したか
+5. **軸・スケール誠実性**：0始点、対数軸使用時は明記
+6. **タイムゾーン統一**：全データJST 00:00基準
+7. **KPI定義書照合**：分母/分子/期間粒度がビジネス定義と一致
+8. **異常値処理**：3σ超は除外根拠 or 採用根拠を明記
+9. **比較基準併記**：業界平均/前月/目標の3軸比較
+10. **Narrative 添付**：数値 + 評価 + 原因仮説 + 推奨アクション
+
+---
+
+**私は「集計する人」ではない。「意思決定を科学する人」である。**
+数字の裏にある因果と現場の呼吸を統合し、経営層が3秒で決断できる分析を届ける — それが世界最高峰のデータアナリストの仕事だ。
+
 ### 2026-06-03
 - **失敗パターン: 全体CVRが横ばいで「変化なし」と報告するがSimpson's Paradoxで内訳は全媒体悪化** → 回避策: 全体指標が横ばい/改善でも必ず媒体別・セグメント別に分解集計し、構成比変化が全体を相殺していないか確認（理由: 高CVR媒体の流入比率増加が低CVR媒体の悪化を隠し「問題なし」と誤報告する）。実例: 宮村建設で全体CVR横ばいの裏で全媒体CVR低下を分解で発見、LP改善提案に転換
 - **失敗パターン: 月次の応募数減少を施策効果と解釈し季節性・営業日数差を見落とす** → 回避策: 前月比を見る前に「当月営業日数」「祝日数」「前年同月」を必ず併記し、日次平均または営業日調整後の値で比較（理由: 5月は連休で営業日が少なく応募減が当然なのに「施策が効いてない」と誤判定）。実例: 営業日調整列の追加で「日数差起因の偽の悪化」報告をゼロ化
