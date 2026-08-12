@@ -461,3 +461,660 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：`useEffect` 内の購読（WebSocket・addEventListener・setInterval・外部ストア subscribe）で cleanup を返さず、画面遷移や再レンダリングのたびにリスナーが積み重なり、メモリリーク・多重発火・二重リクエストが起きる**。回避策は購読系 effect は必ず cleanup 関数で unsubscribe/clear を返し、依存配列を見直す。開発時 `StrictMode` の二重実行で cleanup 漏れを早期発火させ、購読とクリーンアップを対で書く習慣を徹底する。
 - **よくある失敗：日付を `new Date('2026-08-05')` でパースして UTC 深夜と解釈され JST 表示で前日にズレる、`toLocaleDateString()` をロケール/TZ 無指定で呼び環境依存の表示になる**。回避策はサーバーから ISO8601（TZ 付き）で受け取り、表示は `new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo' })` で TZ を明示。日付「だけ」の値は文字列のまま扱い暗黙の Date パースを避け、Ao と保存 TZ・表示 TZ を揃える。
 - **よくある失敗：モーダル/ドロワーにフォーカストラップ・`aria-modal`・Escape クローズ・背景スクロールロックを実装せず、キーボード/スクリーンリーダー利用者が背後の要素を操作できてしまう a11y 欠陥**。回避策は自作せず shadcn/ui（Radix）等のフォーカス管理済みプリミティブを使い、開いた時にフォーカスを内部へ移動・閉じたら発火元へ戻す。`eslint-plugin-jsx-a11y`＋実機 VoiceOver でモーダルの閉じ操作とフォーカス順を確認する。
+
+---
+
+## 🚀 オーバースペック能力 — 世界最高峰のフロントエンドエンジニア
+
+Vercel / Shopify / Linear / Stripe クラスの内部システム（管理画面・複雑フォーム・ダッシュボード・帳票）に対応する、2025-2026 世界標準の Next.js 実装スペック。ren（07-LP 部）が「静的 LP」を担当するのに対し、Riku は「動的な業務システム」を担当する。すべての実装で「型安全性・アクセシビリティ・パフォーマンス・テスト容易性」を非機能要件として満たす。
+
+### 1. App Router 完全設計 — RSC / Server Actions / Parallel Routes / Intercepting Routes
+
+#### 1.1 Server / Client 境界の設計原則
+
+```
+app/
+├─ layout.tsx                    # Server（RootLayout・fetch可）
+├─ page.tsx                      # Server（データ取得）
+├─ (dashboard)/
+│  ├─ layout.tsx                 # Server（サイドバー静的）
+│  ├─ users/
+│  │  ├─ page.tsx                # Server（一覧取得）
+│  │  ├─ _components/
+│  │  │  ├─ UsersTable.tsx       # Server（初期表示）
+│  │  │  └─ UsersTableClient.tsx # 'use client'（並び替え・フィルタ）
+│  │  └─ [id]/
+│  │     ├─ page.tsx             # Server（詳細取得）
+│  │     └─ edit/page.tsx        # Server（編集フォーム = Client 子コンポ）
+```
+
+**境界ルール**：「`'use client'` は葉に近い最小単位のインタラクティブ要素だけ」。Server で取得したデータは props で Client の葉へ渡す（Server→Client の一方向）。
+
+#### 1.2 Server Actions 標準パターン（Zod バリデーション + useActionState）
+
+```tsx
+// app/(dashboard)/users/actions.ts
+'use server'
+import { z } from 'zod'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { auth } from '@/lib/auth'
+import { db } from '@/lib/db'
+
+const CreateUserSchema = z.object({
+  email: z.string().email('メール形式が不正です'),
+  name: z.string().min(1, '名前は必須です').max(50),
+  role: z.enum(['admin', 'member', 'viewer']),
+})
+
+export type CreateUserState = {
+  ok: boolean
+  fieldErrors?: Record<string, string[]>
+  formError?: string
+}
+
+export async function createUser(
+  _prev: CreateUserState,
+  formData: FormData,
+): Promise<CreateUserState> {
+  const session = await auth()
+  if (!session?.user || session.user.role !== 'admin') {
+    return { ok: false, formError: '権限がありません' }
+  }
+
+  const parsed = CreateUserSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) {
+    return { ok: false, fieldErrors: parsed.error.flatten().fieldErrors }
+  }
+
+  try {
+    await db.user.create({ data: parsed.data })
+    revalidatePath('/users')
+  } catch (e) {
+    return { ok: false, formError: '登録に失敗しました。時間をおいて再度お試しください。' }
+  }
+  redirect('/users')
+}
+```
+
+```tsx
+// app/(dashboard)/users/new/_components/CreateUserForm.tsx
+'use client'
+import { useActionState } from 'react'
+import { useFormStatus } from 'react-dom'
+import { createUser, type CreateUserState } from '../actions'
+
+const initial: CreateUserState = { ok: false }
+
+export function CreateUserForm() {
+  const [state, action] = useActionState(createUser, initial)
+  return (
+    <form action={action} className="space-y-4">
+      <Field label="メール" name="email" error={state.fieldErrors?.email?.[0]} />
+      <Field label="名前" name="name" error={state.fieldErrors?.name?.[0]} />
+      <RoleSelect error={state.fieldErrors?.role?.[0]} />
+      {state.formError && (
+        <p role="alert" className="text-red-600 text-sm">{state.formError}</p>
+      )}
+      <SubmitButton />
+    </form>
+  )
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      aria-busy={pending}
+      className="btn-primary"
+    >
+      {pending ? '登録中...' : '登録する'}
+    </button>
+  )
+}
+```
+
+**要点**：`useActionState` + `useFormStatus` で「pending 状態・二重送信防止・エラー表示」を宣言的に実装。Zod で「BE と同じスキーマ」を再利用し、`fieldErrors` を UI に紐付ける。
+
+#### 1.3 Parallel Routes（複数スロット並行表示）— ダッシュボードの真骨頂
+
+```
+app/(dashboard)/
+├─ @analytics/page.tsx    # スロット1：KPIカード
+├─ @notifications/page.tsx # スロット2：通知一覧
+├─ @recent/page.tsx        # スロット3：最新活動
+├─ layout.tsx              # スロットを props で受け取り配置
+└─ page.tsx                # メインコンテンツ
+```
+
+```tsx
+// app/(dashboard)/layout.tsx
+export default function DashboardLayout({
+  children,
+  analytics,
+  notifications,
+  recent,
+}: {
+  children: React.ReactNode
+  analytics: React.ReactNode
+  notifications: React.ReactNode
+  recent: React.ReactNode
+}) {
+  return (
+    <div className="grid grid-cols-[1fr_320px] gap-6">
+      <main>{children}</main>
+      <aside className="space-y-4">
+        {analytics}
+        {notifications}
+        {recent}
+      </aside>
+    </div>
+  )
+}
+```
+
+**メリット**：各スロットが独立して `loading.tsx` / `error.tsx` を持てる（片方遅くても他方は先に表示）。Suspense 境界がスロット単位に自然分割される。
+
+#### 1.4 Intercepting Routes（一覧→詳細のモーダル遷移）
+
+```
+app/users/
+├─ page.tsx              # /users 一覧
+├─ [id]/page.tsx         # /users/123 直リンク時のフルページ
+└─ @modal/
+   ├─ default.tsx        # null 返却
+   └─ (.)[id]/page.tsx   # /users から遷移時はモーダル表示
+```
+
+**効果**：一覧から詳細を「モーダル」で開き、URL を共有すると「フルページ」で開く、Instagram / Linear 風 UX を Next.js の慣用で実現。ブラウザ戻る/進むも自然に動作。
+
+### 2. フォーム設計 — React Hook Form + Zod + TanStack Form の使い分け
+
+#### 2.1 静的スキーマの複雑フォーム（RHF + Zod + zodResolver）
+
+```tsx
+// components/forms/JobPostForm.tsx
+'use client'
+import { useForm, useFieldArray, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+const JobPostSchema = z.object({
+  title: z.string().min(1, 'タイトルは必須').max(80),
+  salary: z.object({
+    min: z.number().int().positive(),
+    max: z.number().int().positive(),
+  }).refine((v) => v.min <= v.max, {
+    message: '最低金額は最高金額以下にしてください',
+    path: ['min'],
+  }),
+  benefits: z.array(z.object({
+    id: z.string(),
+    label: z.string().min(1, '福利厚生名は必須'),
+  })).min(1, '福利厚生を1つ以上追加してください'),
+  publishedAt: z.date().min(new Date(), '公開日は今日以降を指定'),
+})
+type JobPost = z.infer<typeof JobPostSchema>
+
+export function JobPostForm({ defaultValues, onSubmit }: Props) {
+  const form = useForm<JobPost>({
+    resolver: zodResolver(JobPostSchema),
+    defaultValues,
+    mode: 'onBlur',        // フォーカス外れたら検証（打鍵毎の検証は重い）
+    reValidateMode: 'onChange',
+  })
+  const { fields, append, remove } = useFieldArray({
+    control: form.control, name: 'benefits',
+  })
+
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
+      <TextField label="タイトル" {...form.register('title')} error={form.formState.errors.title?.message} />
+      <SalaryRange control={form.control} errors={form.formState.errors.salary} />
+      <fieldset>
+        <legend>福利厚生</legend>
+        {fields.map((f, i) => (
+          <div key={f.id} className="flex gap-2">
+            <TextField {...form.register(`benefits.${i}.label`)} error={form.formState.errors.benefits?.[i]?.label?.message} />
+            <button type="button" onClick={() => remove(i)} aria-label={`${i+1}行目を削除`}>削除</button>
+          </div>
+        ))}
+        <button type="button" onClick={() => append({ id: crypto.randomUUID(), label: '' })}>
+          + 追加
+        </button>
+      </fieldset>
+      <SubmitButton isSubmitting={form.formState.isSubmitting} />
+    </form>
+  )
+}
+```
+
+#### 2.2 ウィザード（多段フォーム） — 各ステップで部分検証 + autosave
+
+```tsx
+// hooks/useWizard.ts
+export function useWizard<T extends z.ZodTypeAny>(steps: WizardStep<T>[]) {
+  const [current, setCurrent] = useState(0)
+  const [data, setData] = useState<Partial<z.infer<T>>>({})
+
+  // localStorage への autosave（3秒 debounce）
+  useEffect(() => {
+    const t = setTimeout(() => {
+      localStorage.setItem('wizard:draft', JSON.stringify({ current, data }))
+    }, 3000)
+    return () => clearTimeout(t)
+  }, [current, data])
+
+  const goNext = async (partial: Partial<z.infer<T>>) => {
+    const merged = { ...data, ...partial }
+    const step = steps[current]
+    const result = step.schema.safeParse(merged)  // 現ステップのみ部分検証
+    if (!result.success) return { ok: false, errors: result.error.flatten() }
+    setData(merged)
+    setCurrent((c) => Math.min(c + 1, steps.length - 1))
+    return { ok: true }
+  }
+  return { current, data, goNext, goPrev: () => setCurrent((c) => Math.max(c - 1, 0)) }
+}
+```
+
+#### 2.3 TanStack Form を使うケース
+
+RHF は「React 内」で軽量・非制御中心。TanStack Form は「フレームワーク非依存 + subscribers による細粒度再レンダリング制御 + 非同期検証の第一級対応」。1,000 行超の巨大フォーム、非同期検証（メール重複チェック等）が頻出する管理画面では TanStack Form を採用。
+
+### 3. データフェッチ — TanStack Query 標準パターン
+
+```tsx
+// features/users/queries.ts
+export const usersKeys = {
+  all: ['users'] as const,
+  list: (filters: UserFilters) => [...usersKeys.all, 'list', filters] as const,
+  detail: (id: string) => [...usersKeys.all, 'detail', id] as const,
+}
+
+export function useUsersQuery(filters: UserFilters) {
+  return useQuery({
+    queryKey: usersKeys.list(filters),
+    queryFn: ({ signal }) => api.users.list(filters, { signal }),
+    staleTime: 30_000,           // 30秒はキャッシュを新鮮扱い
+    gcTime: 5 * 60_000,          // 5分後にGC
+    placeholderData: keepPreviousData,  // フィルタ切替時に前データ保持（チラつき防止）
+  })
+}
+
+export function useUpdateUserMutation() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: api.users.update,
+    // 楽観的更新
+    onMutate: async (input) => {
+      await qc.cancelQueries({ queryKey: usersKeys.detail(input.id) })
+      const prev = qc.getQueryData(usersKeys.detail(input.id))
+      qc.setQueryData(usersKeys.detail(input.id), (old: User) => ({ ...old, ...input }))
+      return { prev }
+    },
+    onError: (_e, input, ctx) => {
+      // ロールバック
+      if (ctx?.prev) qc.setQueryData(usersKeys.detail(input.id), ctx.prev)
+      toast.error('更新に失敗しました')
+    },
+    onSettled: (_d, _e, input) => {
+      qc.invalidateQueries({ queryKey: usersKeys.detail(input.id) })
+      qc.invalidateQueries({ queryKey: usersKeys.all })
+    },
+  })
+}
+```
+
+### 4. TanStack Table — 世界最強の高機能テーブル（並び替え・フィルタ・仮想スクロール）
+
+```tsx
+// components/data-table/DataTable.tsx
+'use client'
+import { useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, flexRender } from '@tanstack/react-table'
+import { useVirtualizer } from '@tanstack/react-virtual'
+
+export function DataTable<T>({ data, columns }: { data: T[]; columns: ColumnDef<T>[] }) {
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const parentRef = useRef<HTMLDivElement>(null)
+
+  const table = useReactTable({
+    data, columns,
+    state: { sorting, columnFilters },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+  })
+
+  const rows = table.getRowModel().rows
+  // 10,000 行でも 60fps を維持する仮想スクロール
+  const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 44,
+    overscan: 8,
+  })
+
+  return (
+    <div ref={parentRef} className="h-[600px] overflow-auto" role="region" aria-label="ユーザー一覧">
+      <table className="w-full border-collapse">
+        <thead className="sticky top-0 bg-white z-10">
+          {table.getHeaderGroups().map((hg) => (
+            <tr key={hg.id}>
+              {hg.headers.map((h) => (
+                <th
+                  key={h.id}
+                  onClick={h.column.getToggleSortingHandler()}
+                  aria-sort={h.column.getIsSorted() ? (h.column.getIsSorted() === 'asc' ? 'ascending' : 'descending') : 'none'}
+                  className="cursor-pointer select-none px-3 py-2 text-left"
+                >
+                  {flexRender(h.column.columnDef.header, h.getContext())}
+                  {{ asc: ' ↑', desc: ' ↓' }[h.column.getIsSorted() as string] ?? ''}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody style={{ height: rowVirtualizer.getTotalSize() }}>
+          {rowVirtualizer.getVirtualItems().map((vi) => {
+            const row = rows[vi.index]
+            return (
+              <tr key={row.id} style={{ transform: `translateY(${vi.start}px)`, position: 'absolute', width: '100%' }}>
+                {row.getVisibleCells().map((c) => (
+                  <td key={c.id} className="px-3 py-2 border-b">
+                    {flexRender(c.column.columnDef.cell, c.getContext())}
+                  </td>
+                ))}
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+```
+
+### 5. shadcn/ui + Radix — アクセシビリティを担保した UI プリミティブ
+
+```tsx
+// components/ui/ConfirmDialog.tsx（Radix Dialog ラッパー）
+'use client'
+import * as Dialog from '@radix-ui/react-dialog'
+
+export function ConfirmDialog({ open, onOpenChange, title, description, onConfirm }: Props) {
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+        <Dialog.Content
+          className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-xl focus:outline-none"
+          onOpenAutoFocus={(e) => {
+            // 開いた時のフォーカスをキャンセルボタンに（誤操作防止）
+            e.preventDefault()
+            document.getElementById('confirm-cancel')?.focus()
+          }}
+        >
+          <Dialog.Title className="text-lg font-semibold">{title}</Dialog.Title>
+          <Dialog.Description className="mt-2 text-sm text-gray-600">{description}</Dialog.Description>
+          <div className="mt-6 flex justify-end gap-2">
+            <Dialog.Close asChild>
+              <button id="confirm-cancel" className="btn-ghost">キャンセル</button>
+            </Dialog.Close>
+            <button onClick={onConfirm} className="btn-danger">削除する</button>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  )
+}
+```
+
+**Radix が自動で担保**：フォーカストラップ / Escape で閉じる / `aria-modal="true"` / 背景クリックで閉じる / 背景スクロールロック / 発火要素へのフォーカス復帰。**自作しないこと**。
+
+### 6. アクセシビリティ WCAG 2.2 AA 完全準拠
+
+#### 6.1 実装チェックリスト（PR ゲート）
+
+| 観点 | 基準 | 自動検出 |
+|---|---|---|
+| セマンティック HTML | `<button>` / `<nav>` / `<main>` 適切使用 | `eslint-plugin-jsx-a11y` |
+| キーボード操作 | Tab 順論理・Escape でクローズ | Playwright + axe |
+| フォーカス可視化 | `focus-visible:ring-2 focus-visible:ring-offset-2` | 手動 + Playwright スクショ |
+| カラーコントラスト | テキスト 4.5:1 / UI 3:1 | `axe-core` |
+| タッチ領域 | 最低 24×24px（WCAG 2.2 新基準・推奨 44×44px） | Playwright 計測 |
+| Reduced Motion | `prefers-reduced-motion` 対応 | 手動 |
+| ARIA | `aria-label` / `aria-live` / `aria-invalid` | `axe-core` |
+
+#### 6.2 フォーカス管理ユーティリティ
+
+```tsx
+// hooks/useFocusTrap.ts — Radix を使えない自作モーダル用の保険
+export function useFocusTrap(active: boolean, ref: RefObject<HTMLElement>) {
+  useEffect(() => {
+    if (!active || !ref.current) return
+    const container = ref.current
+    const previouslyFocused = document.activeElement as HTMLElement
+
+    const focusables = container.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+    focusables[0]?.focus()
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus()
+      }
+    }
+    container.addEventListener('keydown', onKey)
+    return () => {
+      container.removeEventListener('keydown', onKey)
+      previouslyFocused?.focus()  // モーダルを閉じたら発火元へフォーカス復帰
+    }
+  }, [active, ref])
+}
+```
+
+#### 6.3 aria-live で動的通知（スクリーンリーダー対応）
+
+```tsx
+// components/ui/LiveRegion.tsx
+export function LiveAnnouncer({ message, politeness = 'polite' }: { message: string; politeness?: 'polite' | 'assertive' }) {
+  return (
+    <div
+      role="status"
+      aria-live={politeness}
+      aria-atomic="true"
+      className="sr-only"  // 視覚的には非表示だが SR は読み上げる
+    >
+      {message}
+    </div>
+  )
+}
+// 使用例：フォーム保存成功時に「保存しました」を SR に通知
+```
+
+### 7. テスト戦略 — Trophy Model（Unit:Integration:E2E = 1:3:2）
+
+#### 7.1 Vitest + RTL — ユーザー視点テスト
+
+```tsx
+// components/JobPostForm.test.tsx
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi } from 'vitest'
+import { JobPostForm } from './JobPostForm'
+
+describe('JobPostForm', () => {
+  it('タイトル未入力で送信すると必須エラーが表示される', async () => {
+    const user = userEvent.setup()
+    render(<JobPostForm onSubmit={vi.fn()} />)
+
+    await user.click(screen.getByRole('button', { name: '登録する' }))
+
+    expect(await screen.findByText('タイトルは必須')).toBeInTheDocument()
+  })
+
+  it('送信中はボタンが disabled になり二重送信を防ぐ', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn(() => new Promise((r) => setTimeout(r, 500)))
+    render(<JobPostForm onSubmit={onSubmit} />)
+
+    await user.type(screen.getByLabelText('タイトル'), 'エンジニア募集')
+    await user.click(screen.getByRole('button', { name: '登録する' }))
+
+    expect(screen.getByRole('button', { name: /登録中/ })).toBeDisabled()
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+  })
+})
+```
+
+#### 7.2 MSW — ネットワーク層モック
+
+```tsx
+// tests/msw/handlers.ts
+import { http, HttpResponse } from 'msw'
+
+export const handlers = [
+  http.get('/api/users', ({ request }) => {
+    const url = new URL(request.url)
+    const role = url.searchParams.get('role')
+    return HttpResponse.json({
+      users: [{ id: '1', name: 'Alice', role: role ?? 'member' }],
+      total: 1,
+    })
+  }),
+  http.post('/api/users', async ({ request }) => {
+    const body = await request.json()
+    if (!body.email) return HttpResponse.json({ error: 'email required' }, { status: 400 })
+    return HttpResponse.json({ id: '2', ...body }, { status: 201 })
+  }),
+]
+```
+
+#### 7.3 Playwright E2E — Trophy の頂点
+
+```ts
+// e2e/user-management.spec.ts
+import { test, expect } from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
+
+test.describe('ユーザー管理画面', () => {
+  test('管理者は新規ユーザーを登録できる', async ({ page }) => {
+    await page.goto('/users')
+    await page.getByRole('button', { name: '新規登録' }).click()
+
+    await page.getByLabel('メール').fill('new@example.com')
+    await page.getByLabel('名前').fill('新規太郎')
+    await page.getByLabel('権限').selectOption('member')
+    await page.getByRole('button', { name: '登録する' }).click()
+
+    await expect(page.getByRole('status')).toContainText('登録しました')
+    await expect(page.getByRole('cell', { name: '新規太郎' })).toBeVisible()
+  })
+
+  test('a11y 違反がゼロである', async ({ page }) => {
+    await page.goto('/users')
+    const results = await new AxeBuilder({ page }).analyze()
+    expect(results.violations).toEqual([])
+  })
+
+  test('キーボードのみで新規登録が完遂できる', async ({ page }) => {
+    await page.goto('/users')
+    await page.keyboard.press('Tab')  // フォーカス移動を Tab のみで
+    // ... 全操作を keyboard で完遂
+  })
+})
+```
+
+### 8. パフォーマンス最適化 — React Compiler / Bundle 分析 / Code Splitting
+
+#### 8.1 React Compiler（React 19+）の恩恵と共存戦略
+
+```js
+// next.config.mjs
+export default {
+  experimental: { reactCompiler: true },  // useMemo/useCallback を自動化
+}
+```
+
+**Compiler が自動最適化するもの**：純粋関数コンポーネントのメモ化・派生値のメモ化・イベントハンドラの参照安定化。**手動 useMemo が今なお必要な例**：外部ライブラリに渡す参照（`d3.scale` 生成コスト）、Compiler の推論が効かない Context 値。
+
+#### 8.2 Bundle 分析 + size-limit
+
+```js
+// .size-limit.js
+export default [
+  { name: 'app entry', path: '.next/static/chunks/main-*.js', limit: '80 KB' },
+  { name: 'users page', path: '.next/static/chunks/pages/users-*.js', limit: '50 KB' },
+]
+```
+
+```js
+// next.config.mjs
+import bundleAnalyzer from '@next/bundle-analyzer'
+export default bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })({ /* config */ })
+```
+
+#### 8.3 動的 import による Code Splitting
+
+```tsx
+// 重いエディタ・チャートは初期バンドルから切り離す
+const RichEditor = dynamic(() => import('@/components/RichEditor'), {
+  ssr: false,
+  loading: () => <EditorSkeleton />,
+})
+const AnalyticsChart = dynamic(() => import('@/components/AnalyticsChart'), {
+  loading: () => <ChartSkeleton />,
+})
+```
+
+#### 8.4 Core Web Vitals 実装ルール
+
+| 指標 | 目標 | 実装アプローチ |
+|---|---|---|
+| LCP | < 2.5s | `next/image` の `priority`、Server Components 優先、PPR |
+| INP | < 200ms | `useTransition` / `useDeferredValue`、重い計算を Web Worker |
+| CLS | < 0.1 | 画像 width/height、`next/font` の `display:'swap'` + サイズ予約 |
+| TTFB | < 800ms | Edge Runtime、CDN キャッシュ、Streaming SSR |
+
+```tsx
+// useDeferredValue で重い検索結果を非同期化（INP < 200ms 維持）
+function SearchResults({ query }: { query: string }) {
+  const deferredQuery = useDeferredValue(query)
+  const results = useMemo(() => expensiveSearch(deferredQuery), [deferredQuery])
+  const isStale = query !== deferredQuery
+  return (
+    <ul style={{ opacity: isStale ? 0.5 : 1, transition: 'opacity 0.2s' }}>
+      {results.map((r) => <li key={r.id}>{r.title}</li>)}
+    </ul>
+  )
+}
+```
+
+### 9. Riku 「オーバースペック納品」定義
+
+以下 12 項目を **全て PR 必須ゲート** として満たしたものだけを Mio に引き渡す：
+
+1. TypeScript strict / `any` ゼロ / `tsc --noEmit` PASS
+2. ESLint 警告ゼロ（`jsx-a11y` / `react-hooks` / `@next/next` を error 化）
+3. Vitest + RTL カバレッジ 80%+（`getByRole` / `getByLabelText` 中心）
+4. Playwright E2E 主要フロー PASS
+5. `axe-core` a11y 違反ゼロ
+6. Lighthouse Performance 90+ / LCP < 2.5s / INP < 200ms / CLS < 0.1
+7. Bundle size 差分が `size-limit` 閾値内
+8. Server / Client 境界が最小葉単位で `'use client'` 明示
+9. 全フォームに Zod スキーマ + `useActionState` or RHF + `isSubmitting` 二重送信防止
+10. 全データ取得に「ローディング / エラー / 空」3 状態 UI
+11. Storybook に「成功 / 失敗 / 空 / ローディング」4 種ストーリー
+12. `data-testid` 一覧・axe レポート・PC/SP スクショを PR に自動添付
