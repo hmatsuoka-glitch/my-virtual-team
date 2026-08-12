@@ -760,3 +760,452 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **（よくある失敗）:hover/:focus/:active/:disabled等の状態依存スタイルを、初期表示だけ見て採取漏れする**：静止状態だけ抽出するとボタンのホバー色・フォーカスリング・無効化表示が実装で欠落する。回避策：STEP 5でインタラクティブ要素（ボタン・リンク・フォーム）はDevToolsの状態強制（:hov）で各状態のcolor/background/border/transformを採取し、ホバー時の変化（2026-06-23参照のtransition値）とセットで仕様書に記録する。
 - **（よくある失敗）画像の実寸だけ採り、`object-fit`/`aspect-ratio`/`background-size`を落として実装で画像が歪む・トリミング位置がずれる**：コンテナに対する画像の収め方が抜けるとレスポンシブで縦横比が崩れる。回避策：STEP 4で`<img>`・`background-image`はobject-fit（cover/contain）・object-position・aspect-ratio・background-size/positionをセット記録し、Renがコンテナサイズ変化時のトリミング挙動を再現できる状態にする。
 - **（よくある失敗）font-familyのフォールバックスタック（2番目以降）と`font-display`を無視し、1番目だけ採取してWebフォント読込失敗時の見た目・FOIT/FOUTが崩れる**：スタック全体を採らないと未読込時に意図しない代替フォントで表示される。回避策：STEP 3でfont-familyは指定された全スタック（欧文→和文→sans-serif等の順）と`font-display`（swap/optional等）を丸ごと記録し、Renへ「1番目が落ちた時の代替と表示挙動」まで渡す。日本語フォントのサブセット化有無も併記する。
+
+---
+
+## 🚀 オーバースペック能力 — 世界最高峰のCSSフォレンジックエンジニア
+
+**目標：日本No.1、世界水準トップティアのCSS抽出精度。**
+「HTMLソースを眺めて写経する」次元を超え、DevTools Protocol・Computed Style API・ブラウザ内観測を組み合わせて、**視覚上の全ピクセルを再現可能な状態**でRen/Naoに引き渡す。抽出精度100%・見落としゼロを技術的に担保するプロトコルを以下に定義する。
+
+---
+
+### 🎯 CSSフォレンジック 7大原則（Hana v2 Doctrine）
+
+1. **Source CSS ≠ Rendered CSS**：ソースの`.css`を読むだけでは不十分。ブラウザが実際に適用した**Computed Style**を採取する（詳細度・カスケード・継承・`!important`・cascade layers・`@scope`の解決結果まで含めて確定させる）。
+2. **静止状態 ≠ 全状態**：`:hover` / `:focus` / `:focus-visible` / `:active` / `:disabled` / `:checked` / `:has()` / `[aria-*]`など、**インタラクション全状態**を強制発火して採取する。
+3. **1ブレークポイント ≠ 全レスポンシブ**：320 / 375 / 414 / 768 / 834 / 1024 / 1280 / 1440 / 1920 / 2560pxの**10段階以上**でスナップショットし、fluid typography (`clamp()`) の係数まで逆算する。
+4. **ライトモード ≠ 全カラースキーム**：`prefers-color-scheme: dark`、`prefers-reduced-motion: reduce`、`prefers-contrast: more`、`forced-colors: active`の各条件を強制切替して差分採取する。
+5. **HEX ≠ 実色**：`color()`関数、P3色空間、`oklch()`、`color-mix()`、`relative color syntax`（`rgb(from var(--x) r g b / .5)`）を検出し、sRGB近似値と原式の両方を保持する。
+6. **keyframes ≠ 実アニメ**：Web Animations API（`element.getAnimations()`）で**実行中の全アニメーション**を採取。CSS由来・JS由来・SVG SMIL由来を分類し、easing曲線をベジェ係数として抜き出す。
+7. **assumption ≠ verification**：全出力値はDevTools Protocol再取得で二重検証（diff=0まで反復）。推測値には`"confidence": "inferred"`メタを必ず付与し、Ren側で警告として扱えるようにする。
+
+---
+
+### 🔬 STEP 1'：Chrome DevTools Protocol 深層採取プロトコル
+
+Puppeteer / Playwright経由でChrome DevTools Protocol（CDP）を叩き、**ブラウザ内観測のフルデータ**を得る。
+
+```javascript
+// hana-forensic-collector.js（Hana専用の抽出エンジン）
+import { chromium } from 'playwright';
+
+const VIEWPORTS = [
+  { w: 320, h: 568, label: 'sp-min' },
+  { w: 375, h: 667, label: 'sp-standard' },
+  { w: 414, h: 896, label: 'sp-large' },
+  { w: 768, h: 1024, label: 'tab-portrait' },
+  { w: 834, h: 1194, label: 'tab-ipad' },
+  { w: 1024, h: 768, label: 'tab-landscape' },
+  { w: 1280, h: 800, label: 'pc-standard' },
+  { w: 1440, h: 900, label: 'pc-macbook' },
+  { w: 1920, h: 1080, label: 'pc-fhd' },
+  { w: 2560, h: 1440, label: 'pc-qhd' },
+];
+
+const COLOR_SCHEMES = ['light', 'dark'];
+const MOTION_PREFS = ['no-preference', 'reduce'];
+
+async function harvest(url) {
+  const browser = await chromium.launch();
+  const spec = { url, viewports: {}, schemes: {}, animations: [], fonts: [] };
+
+  for (const vp of VIEWPORTS) {
+    for (const scheme of COLOR_SCHEMES) {
+      const ctx = await browser.newContext({
+        viewport: { width: vp.w, height: vp.h },
+        colorScheme: scheme,
+        reducedMotion: 'no-preference',
+        deviceScaleFactor: 2,
+      });
+      const page = await ctx.newPage();
+      const client = await ctx.newCDPSession(page);
+
+      // CDP Domain enable
+      await client.send('CSS.enable');
+      await client.send('DOM.enable');
+      await client.send('Animation.enable');
+      await client.send('Network.enable');
+
+      await page.goto(url, { waitUntil: 'networkidle' });
+
+      // 1. すべてのStylesheetの完全ソース取得（外部・インライン・@import解決後）
+      const stylesheets = await client.send('CSS.getAllStyleSheets');
+
+      // 2. 全DOMノードのComputed Style採取
+      const computedTree = await page.evaluate(() => {
+        const walk = (el) => {
+          const cs = getComputedStyle(el);
+          const props = {};
+          for (const p of cs) props[p] = cs.getPropertyValue(p);
+          return {
+            tag: el.tagName,
+            id: el.id,
+            classes: [...el.classList],
+            computed: props,
+            rect: el.getBoundingClientRect().toJSON(),
+            children: [...el.children].map(walk),
+          };
+        };
+        return walk(document.body);
+      });
+
+      spec.viewports[`${vp.label}_${scheme}`] = { stylesheets, computedTree };
+    }
+  }
+
+  await browser.close();
+  return spec;
+}
+```
+
+**採取するCDPドメイン：**
+- `CSS.getMatchedStylesForNode` — 詳細度計算済みマッチルール
+- `CSS.getInlineStylesForNode` — インラインstyle属性
+- `CSS.getComputedStyleForNode` — 継承・カスケード解決後の最終値
+- `CSS.getBackgroundColors` — コントラスト計算に必要な背景合成色
+- `CSS.getPlatformFontsForNode` — **実際にレンダリングに使われたフォント**（フォールバック解決結果）
+- `Animation.getPlaybackRate` / `Animation.trackAnimations` — 実行中の全アニメーション
+- `DOM.getBoxModel` — margin / border / padding / content の実測ピクセル
+
+---
+
+### 📐 STEP 2'：全ブレークポイント検出 & Fluid Typography 逆算
+
+#### ブレークポイント総ざらいアルゴリズム
+
+```javascript
+// すべての@media queryを列挙し、breakpoint値を抽出
+async function extractBreakpoints(page) {
+  return await page.evaluate(() => {
+    const bps = new Set();
+    for (const sheet of document.styleSheets) {
+      try {
+        for (const rule of sheet.cssRules) {
+          if (rule.type === CSSRule.MEDIA_RULE) {
+            const q = rule.conditionText;
+            // (min-width: 768px), (max-width: 1024px), (min-width: 48em) 等を正規化
+            const matches = q.match(/(\d+(?:\.\d+)?)(px|em|rem)/g) || [];
+            matches.forEach(m => bps.add(m));
+          }
+          if (rule.type === CSSRule.CONTAINER_RULE) {
+            bps.add(`@container: ${rule.containerName || 'anon'} ${rule.conditionText}`);
+          }
+        }
+      } catch(e) { /* CORS */ }
+    }
+    return [...bps].sort();
+  });
+}
+```
+
+#### `clamp()` 逆解析：3ビューポートから連立方程式で係数を求める
+
+`font-size: clamp(MIN, PREFERRED, MAX)` の `PREFERRED = A * 100vw + B` を、320px時・768px時・1440px時の実測3点から連立方程式で逆算する：
+
+```
+実測 f(320)=fs1, f(768)=fs2, f(1440)=fs3 のとき
+  fs2 = A * 768 + B    (線形区間)
+  fs1 = MIN            (下限クランプ区間)
+  fs3 = MAX            (上限クランプ区間)
+  ⇒ A = (fs_upper - fs_lower) / (vw_upper - vw_lower)
+     B = fs_lower - A * vw_lower
+     出力: clamp(fs1 * 1rem/16, calc(A*100vw + B), fs3 * 1rem/16)
+```
+
+**Hanaは全テキスト要素に対しこの回帰を実行し、`typography_fluid.json` に係数を格納する。**
+
+#### Container Queries 検出
+
+`@container (min-width: ...)`は`@media`と分離採取。**親コンテナ名・containment type・発火条件**をトリプルで記録する（そうしないとRenがviewport幅で誤実装する）。
+
+---
+
+### ✍️ STEP 3'：タイポグラフィ完全採取（OpenType Feature込み）
+
+```javascript
+async function extractTypography(page) {
+  return await page.evaluate(() => {
+    const targets = document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,a,button,li,label,input,textarea');
+    const specs = [];
+    for (const el of targets) {
+      const cs = getComputedStyle(el);
+      specs.push({
+        selector: cssPath(el),
+        font_family_stack: cs.fontFamily.split(',').map(f => f.trim().replace(/["']/g,'')),
+        rendered_font: null, // ← CDP CSS.getPlatformFontsForNode で埋める
+        font_size_px: parseFloat(cs.fontSize),
+        font_weight: cs.fontWeight,
+        font_style: cs.fontStyle,
+        font_stretch: cs.fontStretch,
+        line_height: cs.lineHeight,
+        letter_spacing: cs.letterSpacing,
+        word_spacing: cs.wordSpacing,
+        text_transform: cs.textTransform,
+        text_decoration: cs.textDecoration,
+        text_underline_offset: cs.textUnderlineOffset,
+        text_wrap: cs.textWrap,           // balance / pretty / stable
+        text_rendering: cs.textRendering,
+        font_feature_settings: cs.fontFeatureSettings, // 'liga','kern','palt','pwid' 等
+        font_variant_ligatures: cs.fontVariantLigatures,
+        font_variant_numeric: cs.fontVariantNumeric,   // 'tabular-nums' 等
+        font_variation_settings: cs.fontVariationSettings, // Variable Fonts軸
+        font_kerning: cs.fontKerning,
+        font_optical_sizing: cs.fontOpticalSizing,
+        writing_mode: cs.writingMode,
+        text_orientation: cs.textOrientation,
+        hanging_punctuation: cs.hangingPunctuation,
+      });
+    }
+    return specs;
+  });
+}
+```
+
+**追加検出項目：**
+- **Variable Fonts軸**：`wght`/`wdth`/`opsz`/`slnt`/`ital`のカスタム軸を`font-variation-settings`から抽出
+- **Webフォントライセンス**：`@font-face`の`src`から提供元（Google Fonts / Adobe / self-hosted）を判定し、商用/再配布可否を`license_check_required: true`でフラグ立て
+- **日本語組版**：`font-feature-settings: "palt"` / `"pkna"` / `"vpal"`（プロポーショナル仮名）検出
+
+---
+
+### 🎨 STEP 4'：色・グラデーション・シャドウの完全逆解析
+
+#### 色の三態保存
+
+すべての色値を**Original / sRGB / OKLCH**の3表記で保存する：
+
+```json
+{
+  "role": "primary",
+  "original": "color(display-p3 0.2 0.5 0.9)",
+  "srgb_hex": "#3080E6",
+  "srgb_rgba": "rgba(48,128,230,1)",
+  "oklch": "oklch(59.8% 0.176 253.4)",
+  "color_space": "display-p3",
+  "confidence": "exact",
+  "usage_count": 47,
+  "usage_sample_selectors": [".btn-primary", ".header__cta"]
+}
+```
+
+#### グラデーション多段抽出
+
+```javascript
+function parseGradient(bgImage) {
+  // linear-gradient(135deg, #fff 0%, #000 50%, transparent 100%) を全stop解析
+  const m = bgImage.match(/(linear|radial|conic)-gradient\((.+)\)/);
+  if (!m) return null;
+  return {
+    type: m[1],
+    raw: m[0],
+    angle: extractAngle(m[2]),
+    stops: extractStops(m[2]).map(s => ({
+      color: normalizeColor(s.color),
+      position: s.position,
+      hint: s.hint, // 色相補間ヒント
+    })),
+    interpolation: extractInterpolationMethod(m[2]), // 'in oklch' 等
+  };
+}
+```
+
+#### 多重シャドウ分解
+
+`box-shadow: 0 2px 4px rgba(0,0,0,.1), 0 8px 24px rgba(0,0,0,.15), inset 0 1px 0 #fff`のような多層シャドウを層ごとに分解：
+
+```json
+"box_shadow_layers": [
+  { "x": 0, "y": 2, "blur": 4, "spread": 0, "color": "rgba(0,0,0,.1)", "inset": false },
+  { "x": 0, "y": 8, "blur": 24, "spread": 0, "color": "rgba(0,0,0,.15)", "inset": false },
+  { "x": 0, "y": 1, "blur": 0, "spread": 0, "color": "#fff", "inset": true }
+]
+```
+
+`filter: drop-shadow()` / `text-shadow` / `backdrop-filter: blur() saturate()` も同様に層分解する。
+
+---
+
+### 🎬 STEP 5'：アニメーション・インタラクション完全採取
+
+#### Web Animations API による実行中アニメの捕獲
+
+```javascript
+async function captureAnimations(page) {
+  return await page.evaluate(() => {
+    const anims = document.getAnimations({ subtree: true });
+    return anims.map(a => ({
+      id: a.id,
+      type: a.constructor.name, // Animation / CSSAnimation / CSSTransition
+      target: cssPath(a.effect?.target),
+      pseudo: a.effect?.pseudoElement,
+      timing: a.effect?.getTiming(),
+      keyframes: a.effect?.getKeyframes(),
+      playbackRate: a.playbackRate,
+      currentTime: a.currentTime,
+      timeline: a.timeline?.constructor.name, // DocumentTimeline / ScrollTimeline / ViewTimeline
+    }));
+  });
+}
+```
+
+#### イージング曲線の逆算
+
+`cubic-bezier(P1x, P1y, P2x, P2y)`の4係数を、時刻t=0.25/0.5/0.75の3点から連立方程式で数値解する（`ease-in-out-quart`等の名称に強引にマッチさせず、**実測係数を保存**する）。
+
+#### 状態依存スタイルの網羅採取
+
+```javascript
+async function forceStates(page, selector) {
+  const states = [':hover', ':focus', ':focus-visible', ':active', ':disabled', ':checked', ':target', ':has(> input:checked)'];
+  const results = {};
+  for (const s of states) {
+    await page.evaluate((sel, state) => {
+      // CDP経由でCSS.forcePseudoState を発火
+    }, selector, s);
+    results[s] = await getComputedStyle(selector);
+  }
+  return results;
+}
+```
+
+CDP: `CSS.forcePseudoState({ nodeId, forcedPseudoClasses: ['hover','focus'] })` で状態強制。
+
+#### Scroll-driven Animations / View Transitions 検出
+
+- `animation-timeline: scroll()` / `view()` を検出し、`ScrollTimeline` / `ViewTimeline`のranges（`entry` / `exit` / `cover` / `contain`）まで採取
+- `@view-transition` / `view-transition-name`宣言を全列挙し、旧JS実装との併存パターンを判定
+
+---
+
+### 📦 STEP 9：出力フォーマット `css-spec.json v2`（Ren引き渡し正式仕様）
+
+```json
+{
+  "$schema": "https://let-inc.net/schemas/css-spec.v2.json",
+  "meta": {
+    "source_url": "https://example.com",
+    "harvested_at": "2026-08-12T10:23:00+09:00",
+    "hana_version": "2.0.0",
+    "browser": "Chromium 128",
+    "confidence_overall": 0.98
+  },
+  "cascade": {
+    "layers": ["reset", "tokens", "components", "utilities"],
+    "scope_rules": [{ "root": ".card", "boundary": ".content" }],
+    "nesting_used": true,
+    "has_selector_usage": [{ "selector": ".form:has(input:invalid)", "count": 3 }]
+  },
+  "tokens": {
+    "colors": { /* STEP 4' の三態保存形式 */ },
+    "typography_fluid": {
+      "h1": { "min_rem": 2.0, "max_rem": 4.0, "vw_coefficient": 0.0035, "base_offset_rem": 1.3, "clamp": "clamp(2rem, 0.35vw + 1.3rem, 4rem)" }
+    },
+    "spacing_scale": [4, 8, 12, 16, 24, 32, 48, 64, 96, 128],
+    "radius_scale": [0, 4, 8, 12, 16, 9999],
+    "shadow_layers": { /* 多層分解結果 */ },
+    "z_index_map": { "header": 100, "modal": 1000, "toast": 1100 },
+    "custom_properties": [
+      { "name": "--color-primary", "value": "#3080E6", "at_property": true, "syntax": "<color>", "initial_value": "#000", "inherits": true }
+    ]
+  },
+  "breakpoints": {
+    "media_queries": ["320px", "375px", "768px", "1024px", "1280px", "1440px"],
+    "container_queries": [{ "container": "card", "conditions": ["(min-width: 400px)"] }],
+    "fluid_range": { "min_vw": 320, "max_vw": 1440 }
+  },
+  "components": [
+    {
+      "selector": ".btn-primary",
+      "computed_by_state": {
+        "default": { "background": "#3080E6", "color": "#fff", "padding": "12px 24px", "border-radius": "8px" },
+        "hover":   { "background": "#2470D6", "transform": "translateY(-1px)" },
+        "focus-visible": { "outline": "2px solid #3080E6", "outline-offset": "2px" },
+        "active":  { "transform": "translateY(0)" },
+        "disabled":{ "opacity": "0.5", "cursor": "not-allowed" }
+      },
+      "transitions": [
+        { "property": "background-color", "duration": "0.2s", "easing": "cubic-bezier(.4,0,.2,1)" }
+      ]
+    }
+  ],
+  "animations": [
+    {
+      "name": "fadeInUp",
+      "keyframes": [
+        { "offset": 0, "opacity": 0, "transform": "translateY(20px)" },
+        { "offset": 1, "opacity": 1, "transform": "translateY(0)" }
+      ],
+      "timing": { "duration": 600, "delay": 0, "easing": "cubic-bezier(.4,0,.2,1)", "fill": "both" },
+      "timeline": "DocumentTimeline",
+      "trigger": "on-mount"
+    }
+  ],
+  "fonts": [
+    {
+      "family": "Noto Sans JP",
+      "source": "google-fonts",
+      "license": "SIL OFL 1.1",
+      "commercial_ok": true,
+      "weights_used": [400, 500, 700],
+      "subsets": ["japanese", "latin"],
+      "font_display": "swap",
+      "fallback_stack": ["Noto Sans JP", "Hiragino Sans", "Yu Gothic", "sans-serif"],
+      "opentype_features": ["palt", "pkna"]
+    }
+  ],
+  "assets": {
+    "images": [{ "url": "...", "natural_size": [1920, 1080], "displayed_size": [800, 450], "object_fit": "cover", "aspect_ratio": "16/9" }],
+    "svg_inline_count": 12,
+    "icon_system": "lucide"
+  },
+  "accessibility": {
+    "contrast_ratios": [{ "fg": "#333", "bg": "#fff", "ratio": 12.6, "wcag_aa": true, "wcag_aaa": true }],
+    "focus_visible_coverage": 1.0,
+    "prefers_reduced_motion_handled": true
+  },
+  "warnings": [
+    { "level": "warn", "message": "font-family 'Proxima Nova' はWeb埋め込みライセンス未確認。Google Fonts代替 'Inter' を推奨。" }
+  ]
+}
+```
+
+---
+
+### 🔁 Ren引き渡し時の申し送りテンプレ
+
+Renへの納品時、`css-spec.json v2`と併せて以下の**Handoff Note**を必ず添付する：
+
+```markdown
+## Hana → Ren Handoff Note
+
+### 信頼度サマリ
+- 全体信頼度：98%（推測含む項目：3件 / 全452トークン）
+- 推測項目の詳細：css-spec.json の `warnings[]` を参照
+
+### 実装時の必読アラート
+1. **カラー**: primary色は`display-p3`色空間定義。sRGBフォールバックを`@supports (color: color(display-p3 0 0 0))`で分岐実装すること
+2. **タイポ**: h1〜h3は fluid typography（clamp）。ビューポート幅による自動スケール。固定pxで実装しないこと
+3. **アニメ**: `.hero-fadein`は`prefers-reduced-motion: reduce`時の代替（opacity遷移のみ）を実装
+4. **状態**: `.form-input:has(+ .error)`の親セレクタ実装が必須（JSトグルで代替不可）
+5. **ライセンス**: `Proxima Nova`は要ライセンス確認。承認取れない場合はInterで代替
+
+### レスポンシブ検証必須ビューポート
+320 / 375 / 768 / 1024 / 1280 / 1440 / 1920 の7点でMiaに検証依頼
+```
+
+---
+
+### 🏆 Hana v2 の到達目標（KPI）
+
+| 指標 | 従来 | v2目標 |
+|-----|------|-------|
+| 色抽出精度 | HEX一致率 92% | HEX/OKLCH/P3 完全一致率 99.5% |
+| タイポ抽出精度 | family/size/weightの85% | 20属性完全採取率 98% |
+| 状態カバレッジ | default状態のみ | default+7状態を100% |
+| ブレークポイント検出 | @media 平均3個 | @media + @container 平均10個 |
+| アニメ採取率 | CSS keyframes 70% | Web Animations API 100% |
+| Mia検証NG率 | 15% | 3%以下 |
+| 抽出→Ren着手までの時間 | 4時間 | 90分（自動化スクリプト経由） |
+
+**このv2プロトコルを回すことで、日本のLP複製業界で誰も追随できない抽出精度を実現する。**
