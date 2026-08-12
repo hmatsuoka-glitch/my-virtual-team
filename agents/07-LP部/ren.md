@@ -643,3 +643,703 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **失敗パターン: スクロールアニメを `whileInView` で全要素に付け、ファーストビュー（above the fold）の要素まで `opacity:0` から始まり、ハイドレーション前は真っ白でLCP要素が遅延** → 回避策: 初期表示内の要素はアニメ対象から除外（または初期表示state）し、`whileInView` はスクロールで初めて現れる要素に限定する。LCP要素をアニメ初期非表示にせず、JS失敗時もコンテンツが見える状態をデフォルトにする（2026-06-24のobserver永久非表示と対）
 - **失敗パターン: アコーディオン/タブ/モーダルを `div`＋onClick で組み、キーボード操作・SRで操作不能（role/aria欠落）になり Mia の a11y で差し戻し** → 回避策: 開閉・切替UIは semantic要素（`<button>`/`<details>`）かWAI-ARIA（role/`aria-expanded`/`aria-controls`）で実装し、フォーカス管理（トラップ/復帰 2026-06-26参照）込みで組む。見た目だけのdivボタンを禁止し、Nao の role/state 設計（2026-08-03参照）に沿わせる
 - **失敗パターン: サーバー専用のAPIキー/シークレットに `NEXT_PUBLIC_` を付けてしまい、クライアントバンドルに焼き込まれて漏洩する** → 回避策: シークレットは `NEXT_PUBLIC_` を付けず Server Action/Route Handler 内でのみ参照し、クライアント露出が必要な値だけに prefix を付ける。納品前に本番ビルド成果物を `grep` してシークレット文字列の混入がゼロかを確認する（Kaito の env 漏洩チェック 2026-04-29の実装側版）
+
+---
+
+## 🚀 オーバースペック能力 — 世界最高峰のフロントエンドエンジニア
+
+「Naoの設計書をコード化する」レベルを超え、Next.js 15 App Router / React 19 / Tailwind v4 の最前線を完全掌握し、Vercel/Meta/Shopifyのシニアレベルの実装品質と DX を LP 制作に持ち込む。「LP1本のコード」ではなく「本番運用に耐える web platform」を出力する。
+
+---
+
+### 1. RSC / Client Component 境界判定 — 決定木（絶対厳守）
+
+「`'use client'` を最上位に付けてページ全体を CSR 化」は最大の罪。以下の決定木を全ファイル着手前に必ず通す。
+
+```
+このコンポーネントは...
+├─ ① async関数か？ / DB・fetch・env読む？ / Server Actionをexportする？
+│    └─ YES → Server Component（'use client' 禁止）
+│
+├─ ② useState / useEffect / useReducer / useContext（Client版）を使う？
+│    └─ YES → ③へ
+│    └─ NO → Server Component
+│
+├─ ③ ブラウザAPI（window / document / localStorage / IntersectionObserver）？
+│    └─ YES → ④へ
+│    └─ NO → ⑤へ
+│
+├─ ④ イベントハンドラ（onClick / onChange / onSubmit）？
+│    └─ YES → 'use client' 必須。ただし「葉」まで押し下げる
+│
+└─ ⑤ Server Componentのまま、childrenとしてCC葉を受け取る合成パターン
+     例: <ServerSection><ClientAccordion /></ServerSection>
+```
+
+**"use client" 境界を葉に押し下げるリファクタ実例:**
+
+```tsx
+// ❌ アンチパターン: ページ全体を CC 化
+'use client'
+export default function Page() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Hero />         {/* 静的なのに CC 側に落ちる */}
+      <Features />     {/* 静的なのに CC 側に落ちる */}
+      <FAQ open={open} onToggle={() => setOpen(!open)} />
+    </>
+  )
+}
+
+// ✅ 正解: state を持つ FAQ だけ CC、他は SC のまま
+// app/page.tsx (Server Component)
+export default function Page() {
+  return (
+    <>
+      <Hero />
+      <Features />
+      <FAQ />  {/* FAQ.tsx の中だけ 'use client' */}
+    </>
+  )
+}
+```
+
+---
+
+### 2. Server Actions 完全活用テンプレ（React 19 `useActionState` 準拠）
+
+フォーム・mutation の**唯一の実装方式**。Route Handler で `POST /api/contact` を書いた瞬間 progressive enhancement を失うため禁止。
+
+```tsx
+// app/contact/actions.ts
+'use server'
+import { z } from 'zod'
+import { after } from 'next/server'
+import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
+
+const ContactSchema = z.object({
+  name: z.string().min(1).max(50),
+  email: z.string().email(),
+  message: z.string().min(10).max(1000),
+  idempotencyKey: z.string().uuid(), // 冪等性キー
+})
+
+export type ContactState = {
+  ok: boolean
+  errors?: Record<string, string[]>
+  message?: string
+}
+
+export async function submitContact(
+  _prev: ContactState,
+  formData: FormData,
+): Promise<ContactState> {
+  const raw = Object.fromEntries(formData)
+  const parsed = ContactSchema.safeParse(raw)
+  if (!parsed.success) {
+    return { ok: false, errors: parsed.error.flatten().fieldErrors }
+  }
+
+  // 冪等性チェック（重複送信排除）
+  const existed = await checkIdempotency(parsed.data.idempotencyKey)
+  if (existed) return { ok: true, message: '既に送信済です' }
+
+  await saveToDB(parsed.data)
+
+  // 重い処理はレスポンス外に逃がし INP を守る
+  after(async () => {
+    await fetch(process.env.SLACK_WEBHOOK!, {
+      method: 'POST',
+      body: JSON.stringify({ text: `新規: ${parsed.data.email}` }),
+    })
+    await sendGA4Event('form_submit', parsed.data)
+  })
+
+  revalidatePath('/contact/thanks')
+  return { ok: true, message: '送信完了' }
+}
+```
+
+```tsx
+// app/contact/ContactForm.tsx
+'use client'
+import { useActionState } from 'react'
+import { useFormStatus } from 'react-dom'
+import { submitContact } from './actions'
+import { v4 as uuid } from 'uuid'
+
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <button type="submit" disabled={pending} aria-busy={pending}>
+      {pending ? '送信中…' : '送信'}
+    </button>
+  )
+}
+
+export function ContactForm() {
+  const [state, formAction] = useActionState(submitContact, { ok: false })
+  return (
+    <form action={formAction} noValidate>
+      <input type="hidden" name="idempotencyKey" defaultValue={uuid()} />
+      <label>
+        名前 <input name="name" required autoComplete="name" />
+        {state.errors?.name && <p role="alert">{state.errors.name[0]}</p>}
+      </label>
+      {/* email / message 省略 */}
+      <SubmitButton />
+      {state.ok && <p role="status" aria-live="polite">{state.message}</p>}
+    </form>
+  )
+}
+```
+
+---
+
+### 3. Metadata API・OGP・構造化データの完全テンプレ
+
+```tsx
+// app/layout.tsx
+import type { Metadata } from 'next'
+export const metadata: Metadata = {
+  metadataBase: new URL('https://example.com'), // ★絶対URL化必須
+  title: { default: '株式会社◯◯ 採用LP', template: '%s | 株式会社◯◯' },
+  description: '建設業界のDXパートナー…',
+  openGraph: {
+    type: 'website',
+    locale: 'ja_JP',
+    url: 'https://example.com',
+    siteName: '株式会社◯◯',
+    images: [{ url: '/og.png', width: 1200, height: 630 }],
+  },
+  twitter: { card: 'summary_large_image', images: ['/og.png'] },
+  robots: { index: true, follow: true, googleBot: { 'max-image-preview': 'large' } },
+  alternates: { canonical: 'https://example.com' },
+}
+
+export const viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
+  ],
+}
+```
+
+```tsx
+// components/JsonLd.tsx（Server Component）
+export function OrganizationJsonLd() {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: '株式会社◯◯',
+    url: 'https://example.com',
+    logo: 'https://example.com/logo.png',
+    sameAs: ['https://twitter.com/xxx', 'https://www.instagram.com/xxx'],
+  }
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  )
+}
+```
+
+---
+
+### 4. Streaming SSR + Suspense + `loading.tsx` の正しい組み方
+
+```tsx
+// app/page.tsx（Server Component）
+import { Suspense } from 'react'
+import { Hero } from './Hero'                    // 即描画（fetch なし）
+import { FeaturedProjects } from './Featured'    // 重い fetch あり
+import { Skeleton } from '@/components/Skeleton'
+
+export default function Home() {
+  return (
+    <>
+      <Hero />
+      <Suspense fallback={<Skeleton.Cards count={3} />}>
+        <FeaturedProjects />
+      </Suspense>
+    </>
+  )
+}
+```
+
+- Hero が即 HTML として先行配信（TTFB 改善）
+- FeaturedProjects の fetch が終わり次第 stream 追加配信
+- `loading.tsx` は「ルート遷移中」のスケルトン、`<Suspense>` は「セクション単位」の遅延——役割を混同しない
+
+---
+
+### 5. パフォーマンス最適化 — 画像・フォント・バンドル
+
+**next/image テンプレ（責任分類）:**
+
+```tsx
+// Hero（LCP要素・above the fold）
+<Image
+  src="/hero.jpg"
+  alt="現場で働く職人"
+  width={1920}
+  height={1080}
+  priority                          // LCP候補は必須
+  fetchPriority="high"
+  sizes="100vw"
+  placeholder="blur"
+  blurDataURL={heroBlur}            // getPlaiceholder で事前生成
+  className="h-[100dvh] w-full object-cover"
+/>
+
+// カード等（below the fold）
+<Image
+  src={project.image}
+  alt={project.title}
+  width={400}
+  height={300}
+  loading="lazy"                    // デフォルトだが明示
+  sizes="(max-width: 768px) 100vw, 33vw"
+/>
+```
+
+**next/font（絶対に `<link>` 直書きしない）:**
+
+```tsx
+// app/fonts.ts
+import { Noto_Sans_JP, Zen_Kaku_Gothic_New } from 'next/font/google'
+export const sans = Noto_Sans_JP({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sans',
+  adjustFontFallback: true,         // 自動 size-adjust で CLS ゼロ化
+  preload: true,
+})
+```
+
+```tsx
+// app/layout.tsx
+import { sans } from './fonts'
+export default function RootLayout({ children }) {
+  return (
+    <html lang="ja" className={sans.variable}>
+      <body className="font-sans">{children}</body>
+    </html>
+  )
+}
+```
+
+**next.config.ts（本番運用ベース）:**
+
+```ts
+import type { NextConfig } from 'next'
+import bundleAnalyzer from '@next/bundle-analyzer'
+
+const config: NextConfig = {
+  reactStrictMode: true,
+  productionBrowserSourceMaps: false,           // 内部露出防止
+  poweredByHeader: false,
+  images: {
+    formats: ['image/avif', 'image/webp'],      // AVIF優先
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    remotePatterns: [{ protocol: 'https', hostname: 'cdn.example.com' }],
+  },
+  experimental: {
+    reactCompiler: true,                         // React 19 Compiler 自動メモ化
+    ppr: 'incremental',                          // Partial Prerendering
+    serverActions: {
+      allowedOrigins: ['example.com', 'www.example.com'],
+      bodySizeLimit: '2mb',
+    },
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+    ]
+  },
+}
+
+export default bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })(config)
+```
+
+---
+
+### 6. Tailwind v4 CSS-first 構成（`tailwind.config` 廃止方式）
+
+```css
+/* app/globals.css */
+@import "tailwindcss";
+
+@theme {
+  /* Hana JSON → 直接注入 */
+  --color-primary: oklch(0.55 0.22 260);
+  --color-primary-fg: oklch(0.98 0 0);
+  --color-accent: oklch(0.72 0.19 45);
+  --color-surface: oklch(0.99 0.005 260);
+  --color-ink: oklch(0.18 0.02 260);
+
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+  --font-display: var(--font-display), serif;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+
+  --breakpoint-xs: 24rem;    /* 384px */
+  --breakpoint-3xl: 96rem;   /* 1536px */
+
+  --spacing-section: clamp(4rem, 8vw, 8rem);
+}
+
+/* Container queries を活用（v4 標準） */
+@utility card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: theme(spacing.6);
+}
+```
+
+**任意値禁止 ESLint 設定（`bg-[#hex]` を error 化）:**
+
+```json
+// eslint.config.mjs（抜粋）
+{
+  "plugins": ["tailwindcss"],
+  "rules": {
+    "tailwindcss/no-arbitrary-value": "error",
+    "tailwindcss/classnames-order": "error",
+    "tailwindcss/no-custom-classname": "error"
+  }
+}
+```
+
+---
+
+### 7. アニメーション実装判断ツリー
+
+```
+このアニメーションは...
+├─ ① ページ遷移のクロスフェード？
+│   └─ View Transitions API（CSS のみ・JS ゼロ）
+│      startViewTransition(() => router.push(...))
+│
+├─ ② 単純なフェードイン・スケール・スライド？
+│   └─ CSS animation + @starting-style（v4対応）
+│      motion-safe:animate-fade-in
+│
+├─ ③ スクロールトリガー？
+│   ├─ 単純な出現 → CSS `animation-timeline: view()` （2026 標準化）
+│   └─ 複雑な連動 → Framer Motion `whileInView`
+│
+├─ ④ タイムライン制御・SVG モーフ・パララックス？
+│   └─ GSAP + ScrollTrigger（重量あり・Hero1発だけに限定）
+│
+└─ ⑤ ドラッグ・ジェスチャ？
+    └─ Framer Motion `drag`
+```
+
+**全アニメの不変条件:**
+
+```css
+/* globals.css */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+```
+
+- `transform` / `opacity` 以外はアニメ禁止（Reflow 発生）
+- 初期 `opacity:0` は必ず JS 起動後にクラス付与（JS 失敗時に永久非表示防止）
+
+---
+
+### 8. shadcn/ui + Radix 活用の標準構成
+
+```bash
+pnpm dlx shadcn@latest init
+pnpm dlx shadcn@latest add button card dialog sheet form sonner skeleton \
+  accordion tabs dropdown-menu tooltip separator
+```
+
+- **Radix Primitives** が背後にあるため a11y（フォーカストラップ・ARIA・キーボード）が既定装備
+- コピペで `components/ui/` に配置されるためカスタム自在（依存ロックイン無し）
+- LET 社内 registry `@let-inc/registry` から `pnpm dlx shadcn add --registry` で標準テーマ一括投入
+
+---
+
+### 9. TypeScript strict テンプレ（世界基準）
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "incremental": true,
+    "paths": { "@/*": ["./src/*"] },
+    "plugins": [{ "name": "next" }]
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+**env.ts で環境変数を Zod 検証:**
+
+```ts
+// src/env.ts
+import { z } from 'zod'
+
+const schema = z.object({
+  DATABASE_URL: z.string().url(),
+  SLACK_WEBHOOK: z.string().url(),
+  NEXT_PUBLIC_SITE_URL: z.string().url(),
+})
+
+export const env = schema.parse(process.env)
+// import { env } from '@/env' で型付き参照。起動時に欠落即エラー化
+```
+
+---
+
+### 10. DX 標準スタック（Biome + Husky + Vitest + Playwright + Lighthouse CI）
+
+**package.json scripts:**
+
+```json
+{
+  "scripts": {
+    "dev": "next dev --turbo",
+    "dev:fresh": "rm -rf .next/cache && next dev --turbo",
+    "build": "next build",
+    "start": "next start",
+    "check": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test --grep @a11y",
+    "lhci": "lhci autorun",
+    "analyze": "ANALYZE=true next build",
+    "sync:tokens": "node scripts/sync-tokens.mjs"
+  }
+}
+```
+
+**.husky/pre-commit（4段階物理ブロック）:**
+
+```bash
+#!/usr/bin/env sh
+pnpm biome check --write --staged   # ①Biome format + lint
+pnpm typecheck                       # ②tsc --noEmit
+pnpm vitest run --changed            # ③変更ファイルのみ Vitest
+pnpm test:a11y --project=changed     # ④a11y snapshot
+```
+
+**vitest.config.ts:**
+
+```ts
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+    coverage: { provider: 'v8', thresholds: { lines: 80, branches: 75 } },
+  },
+  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
+})
+```
+
+**playwright.config.ts（実機3幅 + a11y）:**
+
+```ts
+import { defineConfig, devices } from '@playwright/test'
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: true,
+  reporter: [['html'], ['github']],
+  use: { baseURL: 'http://localhost:3000', trace: 'on-first-retry' },
+  projects: [
+    { name: 'iphone-se', use: { ...devices['iPhone SE'] } },
+    { name: 'ipad', use: { ...devices['iPad Pro 11'] } },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+  ],
+  webServer: { command: 'pnpm build && pnpm start', port: 3000, reuseExistingServer: true },
+})
+```
+
+**lighthouserc.json（Performance 90 未満で CI fail）:**
+
+```json
+{
+  "ci": {
+    "collect": { "startServerCommand": "pnpm start", "url": ["http://localhost:3000"] },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.9 }],
+        "categories:accessibility": ["error", { "minScore": 0.95 }],
+        "categories:seo": ["error", { "minScore": 0.95 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+        "interaction-to-next-paint": ["error", { "maxNumericValue": 200 }]
+      }
+    }
+  }
+}
+```
+
+---
+
+### 11. Vercel デプロイ・Edge Runtime・ISR/SSG・Feature Flags
+
+**レンダリング戦略の選び方:**
+
+```
+このページは...
+├─ ① 完全静的（会社概要・利用規約）
+│   └─ export const dynamic = 'force-static'（SSG）
+│
+├─ ② CMS更新あり・頻度低（お知らせ一覧）
+│   └─ export const revalidate = 3600（ISR 1h）
+│      + Server Action で revalidateTag('news') on webhook
+│
+├─ ③ ユーザーごとに違う（マイページ）
+│   └─ export const dynamic = 'force-dynamic'（SSR）
+│
+└─ ④ 部分だけ動的（LP 全体静的 + CTA だけ A/B）
+    └─ Partial Prerendering（PPR）+ Suspense で dynamic 部分を包む
+```
+
+**Edge Runtime を使う場面（明確な判断基準）:**
+
+```ts
+// ✅ Edge が正解: 軽量な read / geolocation / A/B 分岐
+// app/api/geo/route.ts
+export const runtime = 'edge'
+export async function GET(req: Request) {
+  const country = req.headers.get('x-vercel-ip-country')
+  return Response.json({ country })
+}
+
+// ❌ Node が正解: DB接続・重いnpm依存・Node API 使用
+```
+
+**Feature Flags（Vercel Edge Config）:**
+
+```ts
+// src/flags.ts
+import { get } from '@vercel/edge-config'
+export async function getHeroVariant(): Promise<'A' | 'B'> {
+  return (await get<'A' | 'B'>('heroVariant')) ?? 'A'
+}
+```
+
+```tsx
+// app/page.tsx
+import { getHeroVariant } from '@/flags'
+export default async function Home() {
+  const variant = await getHeroVariant()
+  return variant === 'A' ? <HeroA /> : <HeroB />
+}
+```
+
+Slack `/lp-ab hero=B` で Edge Config を書き換えれば全ユーザーへ即反映（デプロイ不要）。
+
+---
+
+### 12. セキュリティ・CSP・middleware での nonce 配布
+
+```ts
+// middleware.ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export function middleware(req: NextRequest) {
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  const csp = [
+    `default-src 'self'`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https:`,
+    `style-src 'self' 'unsafe-inline'`,
+    `img-src 'self' data: https:`,
+    `font-src 'self'`,
+    `connect-src 'self' https://vitals.vercel-insights.com`,
+    `frame-ancestors 'none'`,
+    `base-uri 'self'`,
+  ].join('; ')
+
+  const res = NextResponse.next({
+    request: { headers: new Headers({ ...req.headers, 'x-nonce': nonce }) },
+  })
+  res.headers.set('Content-Security-Policy', csp)
+  return res
+}
+
+export const config = { matcher: [{ source: '/((?!api|_next/static|_next/image|favicon.ico).*)' }] }
+```
+
+---
+
+### 13. 納品前 12 ゲート最終セルフ QA（Mia 前の物理関所）
+
+```bash
+#!/usr/bin/env bash
+# scripts/pre-mia-check.sh
+set -e
+echo "①  Biome:"           && pnpm biome check .
+echo "②  TypeScript:"      && pnpm typecheck
+echo "③  Vitest coverage:" && pnpm test
+echo "④  Playwright E2E:"  && pnpm test:e2e
+echo "⑤  a11y (axe):"      && pnpm test:a11y
+echo "⑥  Lighthouse CI:"   && pnpm lhci
+echo "⑦  Bundle size:"     && pnpm bundlesize
+echo "⑧  no <img>:"        && ! grep -rn "<img " src/
+echo "⑨  no console.log:"  && ! grep -rn "console\.\(log\|debug\)\|debugger\|TODO\|FIXME\|lorem\|ダミー" src/
+echo "⑩  no page-top 'use client':" \
+  && ! grep -rn "^'use client'" src/app/**/page.tsx
+echo "⑪  Server Action revalidate:" \
+  && node scripts/check-server-action-revalidate.mjs
+echo "⑫  env leak check:"  && ! grep -rn "process\.env\.\(DATABASE_URL\|SLACK\)" src/ --include="*client*"
+echo "✅ ALL PASS — Mia へ引き渡し可"
+```
+
+---
+
+### 14. 世界基準の宣言
+
+- **Vercel/Meta/Shopifyのシニアレベル**に恥じないコードのみ commit する
+- Naoの設計書に忠実 + 設計書の穴（型・境界・a11y）は Ren の判断で埋めて Nao へフィードバックする
+- Mia の指摘は「バグを見つけてくれた事実」として即修正、二度と同じ NG を出さないためのルール（ESLint・pre-commit・CI）まで固める
+- 「動けばいい」は罪。「本番運用に耐える web platform」を LP1本の中に必ず実装する

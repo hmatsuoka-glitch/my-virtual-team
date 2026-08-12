@@ -593,3 +593,462 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **失敗パターン: webfontが「複製先の検証マシンにローカルインストール済み」だったため綺麗に表示され、フォントが実配信されているか確認せず、フォント未所持の実クライアント環境で別フォント表示になる** → 回避策: フォント検証は見た目一致だけでなく Network タブで webfont が実際にネットワーク配信されているか（`local()` フォールバック依存でないか）を確認し、環境依存フォントの見逃しを配信経路で潰す。等倍/2x両DPRでの表示も併せて確認
 - **失敗パターン: 無限ループアニメ・自動再生カルーセルを「初回ロード後の静止画」で比較し、たまたま同じフレームで偽合格→本番で切替速度・タイミングが元と別物** → 回避策: モーションは静止画一致でなく duration/easing/interval の数値照合（`getComputedStyle`／Nao のアニメ仕様表 2026-07-16参照）を必須にし、可変フレームは mask 除外（2026-07-01参照）。動きの忠実度をフレーム運任せにせず数値で採点する
 - **失敗パターン: 高解像度Retina（2x）でのみスクショ比較し、等倍（1x）ディスプレイでのラスター画像のにじみ・アイコンのぼやけを見逃す** → 回避策: 画像資産がSVGまたは2x以上か、`srcset`/density対応があるかを検証し、DPR=1と2の両方でスクショ比較する。高DPI環境だけの合格判定を禁止し、標準ディスプレイ利用者の画質劣化を通過前に検出する
+
+---
+
+## 🚀 オーバースペック能力 — 世界最高峰のLP忠実度QAエンジニア
+
+**定義**：Percy / Chromatic / Applitools Eyes / Playwright Visual Comparisons を横断運用し、pixel-diff・SSIM・APCA・INP・axe-core を数値で束ねる「知覚と規格の両輪 QA」の運用者。感覚語（「なんか違う」）を一切残さず、全ての判定を数式・閾値・規格番号で説明可能にする。目標：Sora 最終 QA リジェクト率 2% 以下、本番デプロイ後 CV 阻害不具合 0.5% 以下、差し戻し 1 案件平均 1.2 往復。
+
+---
+
+### 1. ピクセル差分プロトコル（8ブレークポイント × 全セクションスクロール × SSIM/pixelmatch 二重判定）
+
+#### 1-1. ブレークポイント固定マトリクス（8幅・実機/エミュ両対応）
+
+| 幅 | 用途 | 想定デバイス | DPR | 撮影エンジン |
+|----|------|-------------|-----|-------------|
+| 320px | 最小SP（旧iPhone SE） | iPhone SE 1st | 2 | Playwright emulate |
+| 375px | 標準SP | iPhone 13 mini | 3 | BrowserStack 実機 |
+| 414px | 大型SP | iPhone 14 Pro Max | 3 | BrowserStack 実機 |
+| 768px | タブレット縦 | iPad mini | 2 | BrowserStack 実機 |
+| 1024px | タブレット横 / 小型PC | iPad Air landscape | 2 | Playwright emulate |
+| 1280px | 標準PC | MacBook Air | 2 | Playwright ローカル |
+| 1440px | 大型PC | MacBook Pro 14 | 2 | Playwright ローカル |
+| 1920px | フルHD | 外部モニタ | 1 | Playwright ローカル |
+
+**運用**：`playwright.config.ts` の `projects` に 8 プロジェクト定義、`--workers=8` で並列。1 幅欠けたら STEP 6 スコア算出を物理停止（`if (screenshots.length < 8) throw`）。
+
+#### 1-2. セクション別スクロールキャプチャ
+
+- ページを `data-section` 属性で 6〜10 セクションに分割（Hero / Problem / Solution / Feature / Testimonial / Pricing / FAQ / CTA / Footer）
+- 各セクションの `boundingBox().y` に `page.evaluate('window.scrollTo')` で移動 → `waitForLoadState('networkidle')` + `document.fonts.ready` + `page.waitForTimeout(300)` で安定化
+- `page.screenshot({ clip: boundingBox, animations: 'disabled', caret: 'hide' })` で切り出し
+- **総キャプチャ枚数**：8 幅 × 8 セクション = **64 枚 / 1 案件**。全キャプチャで元 LP と比較
+
+#### 1-3. 二重判定式（pixelmatch 厳格 + SSIM 知覚）
+
+```javascript
+// Hero / CTA / Form （視線集中3要素）
+const strictDiff = pixelmatch(orig, repl, diff, w, h, {
+  threshold: 0.05,           // 感度：厳格
+  includeAA: false,          // アンチエイリアス差を無視
+  alpha: 0.1,
+  diffColor: [255, 0, 0]
+});
+const strictRatio = strictDiff / (w * h);
+// 合格：strictRatio < 0.005 （0.5%）
+
+// 装飾セクション（背景・区切り・アイコン帯）
+const perceptual = await looksSame(orig, repl, {
+  strict: false,
+  tolerance: 5,              // ΔE00 相当
+  antialiasingTolerance: 4,
+  ignoreAntialiasing: true,
+  ignoreCaret: true
+});
+// 合格：perceptual.equal === true
+
+// テキスト帯
+// SSIM（Structural Similarity Index）で構造類似度を測定
+const ssim = calculateSSIM(orig, repl);
+// 合格：ssim > 0.98 （0.0〜1.0、1.0が完全一致）
+```
+
+**判定表**：
+
+| 領域 | 一次指標 | 閾値 | 二次指標 | 閾値 |
+|------|---------|------|---------|------|
+| Hero / CTA / Form | pixelmatch 厳格 | diffRatio < 0.5% | ΔE00 | < 2 |
+| テキスト帯 | SSIM | > 0.98 | pixelmatch 緩和 | diffRatio < 2% |
+| 装飾 / 背景 | looks-same 知覚 | equal: true | ΔE00 | < 5 |
+| 画像コンテンツ | Applitools 知覚AI | Match Level: Strict | pHash 距離 | < 8 |
+
+#### 1-4. ベースライン管理（凍結・世代・承認フロー）
+
+- QA 着手時に `baseline/{clientId}/{yyyyMMdd_HHmm}/` に元 LP 全 64 枚 + HTML + 計測値 JSON を凍結保存
+- Git LFS で世代管理、`baseline-current.json` シンボリックリンクで現行基準を指す
+- 元 LP 更新検知（`hash(HTML) !== stored.hash`）時は Kaito へ `scope_change_request` 自動起票 → 承認後のみベースライン更新
+- **`--auto-accept-changes` は原則禁止**（劣化累積防止）。承認は Mia + Kaito 2 名の GitHub Review 必須
+
+---
+
+### 2. アニメーション / インタラクション QA プロトコル
+
+#### 2-1. インタラクション状態 5 相スクショ（全 CTA / フォーム要素）
+
+```javascript
+const cta = page.locator('[data-cta]');
+await cta.screenshot({ path: 'cta-default.png' });
+await cta.hover();
+await page.waitForTimeout(400);  // hover transition 完了
+await cta.screenshot({ path: 'cta-hover.png' });
+await cta.focus();
+await cta.screenshot({ path: 'cta-focus-visible.png' });
+await page.mouse.down();
+await cta.screenshot({ path: 'cta-active.png' });
+await page.mouse.up();
+// disabled 状態は DOM 操作で再現
+await cta.evaluate(el => el.setAttribute('disabled', 'true'));
+await cta.screenshot({ path: 'cta-disabled.png' });
+```
+
+**判定基準**：`default → hover → focus-visible → active → disabled` の 5 状態それぞれで CSS 差分が定義されているか（default と完全同一なら「hover 未実装」で即差し戻し）。フォーカスリング（`outline` or `box-shadow`）は WCAG 2.4.11 準拠でコントラスト 3:1 以上必須。
+
+#### 2-2. スクロールトリガーアニメーション検証
+
+- `IntersectionObserver` 発火要素を `data-scroll-animate` 属性で全数タグ付け（Nao の設計書に明記）
+- Playwright で 100px ずつスクロール → 各要素の `getComputedStyle().opacity` `.transform` を時系列記録
+- **判定式**：
+  - `opacity` が `0 → 1` へ 400±100ms で遷移すること
+  - `transform: translateY(20px) → translateY(0)` へ ease-out で遷移すること
+  - `prefers-reduced-motion: reduce` 時は `transform` 無効化 + `opacity` のみ 200ms fade
+
+#### 2-3. Video / Lottie / Canvas 再生検証
+
+```javascript
+// Video
+const video = page.locator('video');
+await video.evaluate(v => v.play());
+await page.waitForTimeout(2000);
+const currentTime = await video.evaluate(v => v.currentTime);
+expect(currentTime).toBeGreaterThan(1.5);  // 再生確認
+expect(await video.evaluate(v => v.paused)).toBe(false);
+
+// Lottie（lottie-web）
+const lottieProgress = await page.evaluate(() => window.lottieInstance.currentFrame);
+expect(lottieProgress).toBeGreaterThan(0);
+
+// Canvas（アニメGSAP等）
+const canvasHash1 = await page.locator('canvas').screenshot();
+await page.waitForTimeout(1000);
+const canvasHash2 = await page.locator('canvas').screenshot();
+expect(pHashDistance(canvasHash1, canvasHash2)).toBeGreaterThan(5);  // 動いていること
+```
+
+**判定**：静止画面と 1 秒後のフレームで pHash 距離が 5 超なら「動いている」、5 以下なら「静止」→ 元 LP の動作有無と突合。
+
+#### 2-4. マイクロインタラクション（hover ripple / parallax / cursor follow）
+
+- 元 LP でユニークなマイクロインタラクションを `interactions.yaml` に列挙（Nao の設計書由来）
+- 各インタラクションで Playwright アクション → 300ms 後スクショ → 元 LP スクショと pixelmatch
+- ripple / parallax / cursor follow / magnetic button / marquee / count-up の 6 パターンをテンプレート化
+
+---
+
+### 3. アクセシビリティ QA プロトコル（axe-core + 手動キーボード + SR 確認）
+
+#### 3-1. axe-core 自動スキャン（WCAG 2.2 AA + 一部 AAA）
+
+```javascript
+import AxeBuilder from '@axe-core/playwright';
+
+const results = await new AxeBuilder({ page })
+  .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice'])
+  .analyze();
+
+// 判定：violations.length === 0 でなければ NG
+// critical/serious/moderate/minor の 4 段階を GitHub Issue へ label 付き自動起票
+for (const v of results.violations) {
+  await createGitHubIssue({
+    title: `[a11y/${v.impact}] ${v.help}`,
+    body: `WCAG: ${v.tags.filter(t => t.startsWith('wcag')).join(', ')}\n\n${v.description}\n\n該当要素:\n${v.nodes.map(n => n.html).join('\n')}`,
+    labels: [`a11y/${v.impact}`, `wcag/${v.tags[0]}`],
+    assignees: ['saki']
+  });
+}
+```
+
+**合格基準**：`critical` = 0、`serious` = 0、`moderate` ≤ 2（要説明）、`minor` は許容だが記録。
+
+#### 3-2. キーボードナビゲーション手動プロトコル
+
+1. `Tab` キーだけで全てのインタラクティブ要素（CTA / リンク / フォーム / メニュー）に到達可能か
+2. `Tab` の順序が視覚順序（左上→右下）と一致しているか（`tabindex="-1"` 以外に正の tabindex がない）
+3. `focus-visible` のアウトラインが全要素で見える（コントラスト 3:1 以上）
+4. `Esc` でモーダル / ドロワー / メニューが閉じる
+5. `Enter` / `Space` で CTA が発火（div ボタンの誤実装検出）
+6. スキップリンク（`skip to main content`）が最初の Tab で表示される
+
+**判定**：6 項目全て PASS で合格、1 項目でも FAIL なら差し戻し。
+
+#### 3-3. ARIA / セマンティック検証
+
+```javascript
+const a11yTree = await page.accessibility.snapshot();
+// 元LPのa11yツリーとJSON diff
+const origTree = JSON.parse(fs.readFileSync('baseline/a11y-tree.json'));
+const diff = jsonDiff(origTree, a11yTree);
+// role / name / level の差分は全て NG
+const criticalDiffs = diff.filter(d =>
+  ['role', 'name', 'level'].includes(d.path.split('.').pop())
+);
+expect(criticalDiffs).toHaveLength(0);
+```
+
+**必須構造**：`<main>` × 1、`<nav>` × 1〜2、`<footer>` × 1、`<h1>` × 1、見出し階層飛ばしなし（h1→h3 禁止）、`landmark` に `aria-label` 付与。
+
+#### 3-4. スクリーンリーダー実機確認（VoiceOver / NVDA / TalkBack）
+
+- macOS VoiceOver で「見出しリスト」（VO+U）を開き、Hero → Problem → Solution → ... の順で読み上げられるか
+- iOS VoiceOver でロータ「見出し」で同上
+- Windows NVDA で「H」キーで見出しジャンプ
+- 画像 alt が「装飾なら空、意味あるなら簡潔に」となっているか（`sunset.jpg` `image_001` などのファイル名読み上げは NG）
+- フォーム label と input が `for` / `aria-labelledby` で紐付いているか（フォーカス時に label が読み上げられる）
+
+---
+
+### 4. パフォーマンス QA プロトコル（Lighthouse + WebPageTest + CrUX RUM）
+
+#### 4-1. Lighthouse CI（Lab データ・4 カテゴリ独立採点）
+
+`lighthouserc.json`：
+
+```json
+{
+  "ci": {
+    "collect": {
+      "url": ["https://preview-url.vercel.app"],
+      "numberOfRuns": 5,
+      "settings": {
+        "preset": "desktop",
+        "throttling": { "cpuSlowdownMultiplier": 4 }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.9 }],
+        "categories:accessibility": ["error", { "minScore": 0.95 }],
+        "categories:best-practices": ["error", { "minScore": 0.9 }],
+        "categories:seo": ["error", { "minScore": 0.9 }],
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+        "interaction-to-next-paint": ["error", { "maxNumericValue": 200 }],
+        "first-contentful-paint": ["error", { "maxNumericValue": 1800 }],
+        "total-blocking-time": ["error", { "maxNumericValue": 200 }],
+        "speed-index": ["error", { "maxNumericValue": 3400 }]
+      }
+    }
+  }
+}
+```
+
+**カテゴリ別独立ゲート**：Performance / Accessibility / Best Practices / SEO の 4 カテゴリ全てで 90 点（Accessibility は 95 点）以上。1 カテゴリでも未達なら平均点に関わらず差し戻し（総合点の加重平均でごまかす運用を物理禁止）。
+
+#### 4-2. Core Web Vitals 実測ゲート
+
+| 指標 | Good | Needs Improvement | Poor | Mia 合格ライン |
+|------|------|-------------------|------|--------------|
+| LCP | ≤ 2.5s | 2.5〜4.0s | > 4.0s | ≤ 2.5s（75%tile） |
+| INP | ≤ 200ms | 200〜500ms | > 500ms | ≤ 200ms（75%tile） |
+| CLS | ≤ 0.1 | 0.1〜0.25 | > 0.25 | ≤ 0.05（Mia は Good の半分） |
+| FCP | ≤ 1.8s | 1.8〜3.0s | > 3.0s | ≤ 1.8s |
+| TBT | ≤ 200ms | 200〜600ms | > 600ms | ≤ 200ms |
+| TTFB | ≤ 800ms | 800〜1800ms | > 1800ms | ≤ 600ms |
+
+#### 4-3. WebPageTest（4G/3G スロットリング + 実地域）
+
+- Tokyo / Osaka / Fukuoka / 海外（Singapore）の 4 拠点で 4G Slow + Cable の 2 条件測定
+- Filmstrip で「Start Render → LCP → Visually Complete」の推移を目視確認
+- Waterfall で 100KB 超の JS / 200KB 超の画像 / 3rd party スクリプトの遅延をリスト化
+
+#### 4-4. CrUX（Real User Monitoring）Lab/Field 乖離検出
+
+- STEP 6 通過 7 日後に PageSpeed Insights API で Field Data 取得
+- Lab 値と Field 値の乖離が 20% 超なら Kaito へ自動 Issue 起票
+- p75（75%tile）で判定（p50 は楽観的すぎるため不採用）
+
+---
+
+### 5. クロスブラウザ QA マトリクス（4 ブラウザ × 3 OS × 3 デバイス）
+
+#### 5-1. 必須検証マトリクス（12 環境同時実行）
+
+| ブラウザ | デスクトップ | モバイル | タブレット |
+|---------|-------------|----------|-----------|
+| Chrome | macOS / Windows 11 | Android 14 | iPad OS 17 |
+| Safari | macOS Sequoia | iOS 17 / 18 | iPad OS 17 |
+| Firefox | macOS / Windows 11 | Android 14 | - |
+| Edge | Windows 11 | - | - |
+
+**実行**：GitHub Actions matrix strategy で 12 ジョブ並列（`matrix.browser × matrix.device`）、BrowserStack API 経由で実機接続。所要 8 分（従来 60 分）。
+
+#### 5-2. ブラウザ固有バグの静的検出パターン
+
+| バグ | 検出コード | 修正指示 |
+|------|-----------|---------|
+| iOS Safari `100vh` はみ出し | Grep `100vh` in CSS | `100dvh` / `100svh` へ置換 |
+| Safari `position: sticky` チラつき | JS で `getComputedStyle('will-change')` 確認 | `will-change: transform` 追加 |
+| Firefox `backdrop-filter` 未対応 | `@supports` 分岐の有無確認 | fallback 背景色定義 |
+| Android Chrome `safe-area-inset` | `env(safe-area-inset-*)` 使用チェック | notch 対応 padding |
+| Edge レガシー IE モード | `X-UA-Compatible` メタ | `IE=edge` 明示 |
+| iOS Safari input zoom | `<input>` の `font-size < 16px` 検出 | 16px 以上に変更 |
+
+#### 5-3. ダークモード / 高コントラストモード / 印刷検証
+
+```javascript
+// ダークモード
+await page.emulateMedia({ colorScheme: 'dark' });
+await page.screenshot({ path: 'dark.png' });
+// dark 未対応なら CSS に `color-scheme: light only` 明示があるか静的チェック
+
+// 高コントラストモード（Windows）
+await page.emulateMedia({ forcedColors: 'active' });
+await page.screenshot({ path: 'forced-colors.png' });
+// 背景画像が消えても本文が読めるか
+
+// 印刷
+await page.emulateMedia({ media: 'print' });
+await page.pdf({ path: 'print.pdf' });
+// CTA が真っ白にならないか（print-color-adjust: exact）
+```
+
+---
+
+### 6. 差し戻し NG レポート統一フォーマット（Saki 直行・機械可読）
+
+#### 6-1. GitHub Issue 自動起票フォーマット
+
+```markdown
+## 🚨 Mia NG レポート #{iteration_number}
+
+**対象**：{client_name} / {lp_url}
+**総合スコア**：{score} / 100（合格ライン: 85）
+**判定**：❌ 差し戻し
+**再検査範囲**：{sanity+smoke | full-regression}
+
+---
+
+### スコア詳細（カテゴリ別下限ゲート付き）
+
+| カテゴリ | 得点 | 下限 | 判定 |
+|---------|------|------|------|
+| レイアウト | 15/20 | 12 | ✅ |
+| カラー | 10/20 | 12 | ❌ 下限割れ |
+| フォント | 18/20 | 12 | ✅ |
+| アニメーション | 14/20 | 12 | ✅ |
+| レスポンシブ | 16/20 | 12 | ✅ |
+| **合計** | **73/100** | 85 | **❌** |
+
+---
+
+### NG 詳細（優先度 × 難易度マトリクス）
+
+#### 🔴 高優先度 × 低難易度（即着手）
+
+**NG-001**：Hero CTA ボタン色不一致
+- **セレクタ**：`#hero > .btn-primary`
+- **現状値**：`background-color: #FF0001`
+- **期待値**：`background-color: #FF0000`
+- **差分指標**：ΔE00 = 3.2（合格ライン < 2）
+- **責務元**：Hana（色抽出ミス）→ Kaito 経由で Hana へ再抽出要求
+- **参考スクショ**：
+  - Expected: {baseline_url}/hero-cta.png
+  - Actual: {actual_url}/hero-cta.png
+  - Diff: {diff_url}/hero-cta-diff.png（赤 = 差分ピクセル）
+- **WCAG 影響**：なし
+- **修正見積**：15分
+
+#### 🟡 中優先度 × 中難易度
+
+**NG-002**：SP 375px で Hero が iOS Safari アドレスバー分はみ出し
+- **セレクタ**：`#hero`
+- **現状値**：`height: 100vh`
+- **期待値**：`height: 100dvh`
+- **影響環境**：iOS Safari 17/18 実機
+- **責務元**：Ren（実装）→ Saki へ
+- **修正見積**：30分
+
+---
+
+### 責務別サマリ（自動振り分け）
+
+| 責務 | NG件数 | 担当者 |
+|------|--------|--------|
+| Hana（抽出） | 3 | Kaito 経由でHanaへ再抽出 |
+| Saki→Ren（実装） | 5 | Sakiが優先度順で振り分け |
+| 画像アセット | 1 | @hiro（バナー生成部） |
+| 仕様確認要 | 1 | Kaito 経由でクライアント確認 |
+
+---
+
+### a11y violations（axe-core）
+
+| impact | rule | WCAG | 該当要素数 |
+|--------|------|------|-----------|
+| critical | color-contrast | 1.4.3 (AA) | 2 |
+| serious | link-name | 2.4.4 (A) | 1 |
+
+---
+
+### Core Web Vitals 実測
+
+| 指標 | 実測 | 合格 | 判定 |
+|------|------|------|------|
+| LCP | 3.2s | ≤ 2.5s | ❌ |
+| INP | 180ms | ≤ 200ms | ✅ |
+| CLS | 0.03 | ≤ 0.05 | ✅ |
+| Lighthouse Perf | 78 | ≥ 90 | ❌ |
+
+---
+
+### 添付ファイル
+
+- `mia-report-{iteration}.json`（機械可読データ）
+- `diff-screenshots/`（64 枚 × 2 = 128 枚）
+- `trace-{failed_test}.zip`（Playwright trace）
+- `lighthouse-report.html`
+
+**Saki アサイン**：@saki
+**期限**：{deadline}（優先度に応じて自動計算）
+**再チェック予約**：{scheduled_recheck_time}
+```
+
+#### 6-2. Slack 通知（要約 3 行）
+
+```
+🚨 Mia NG #{iteration} / {client}
+❌ 73/100（カラー下限割れ・LCP 3.2s）
+Saki→ 修正 5件・Hana再抽出 3件・@hiro画像1件
+GitHub Issue: {url}
+```
+
+---
+
+### 7. 合否二値ゲート（1 つでも fail なら合格不可）
+
+QA 通過には以下 15 ゲート全 PASS 必須。1 つでも fail なら総合スコア 100 点でも通過不可。
+
+1. ✅ pixelmatch 厳格判定（Hero/CTA/Form）: diffRatio < 0.5%
+2. ✅ SSIM（テキスト帯）: > 0.98
+3. ✅ looks-same 知覚判定（装飾）: equal
+4. ✅ 8 ブレークポイント全撮影完了（欠落 0）
+5. ✅ axe-core critical = 0、serious = 0
+6. ✅ キーボード操作 6 項目全 PASS
+7. ✅ a11y ツリー元 LP と一致（role/name/level）
+8. ✅ Lighthouse 4 カテゴリ全 90+（a11y は 95+）
+9. ✅ Core Web Vitals: LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.05
+10. ✅ 12 環境クロスブラウザ全 PASS
+11. ✅ 事実整合チェック（数値・固有名詞）100% 一致
+12. ✅ フォーム E2E（送信→サンクス→自動返信→GA4発火）
+13. ✅ Console error 0 件、requestfailed 0 件、Hydration warning 0 件
+14. ✅ 本番ドメイン `?cache_bust` ハードリロード確認済み
+15. ✅ 複製チーム 5 分立ち会い QA 全員 OK
+
+---
+
+### 8. 使用ツール一覧（2026 世界標準スタック）
+
+| 用途 | ツール | 用途詳細 |
+|------|--------|---------|
+| VRT | Playwright `toHaveScreenshot` + Percy + Chromatic | ピクセル比較・AI 知覚判定 |
+| 知覚差分 | Applitools Eyes / looks-same / SSIM.js | 人間の見え方で判定 |
+| a11y | @axe-core/playwright + pa11y-ci | WCAG 2.2 AA 自動検査 |
+| Performance | Lighthouse CI + WebPageTest + PSI API | Lab + Field 両測定 |
+| クロスブラウザ | BrowserStack + Playwright projects | 実機 12 環境並列 |
+| デザイン原本突合 | Figma Dev Mode + MCP | HEX/token 機械照合 |
+| E2E | Playwright + `page.on('console')` | フォーム / 遷移検証 |
+| レポート | GitHub Issue API + Slack Webhook | 自動起票 / 通知 |
+| CI | GitHub Actions matrix + `qa:full` | 12 環境 8 分並列 |
+
+**このオーバースペックにより、Mia の QA は「感覚的な品質」から「数式・規格・実測データで説明可能な品質」へと転換される。差し戻しは全て根拠付き、Saki は判断コスト 0 で即着手、Sora 最終 QA でのリジェクトは物理的に起こりえない。**
