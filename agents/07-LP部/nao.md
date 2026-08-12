@@ -616,3 +616,493 @@ export const HERO = {
 - **失敗パターン: コンポーネントの状態設計で idle/hover/focus は書いたが disabled/loading を落とし、Renが送信中ボタン無効化・二重送信防止を実装せず連打で二重応募** → 回避策: インタラクティブ部品は6状態（idle/hover/focus/disabled/loading/error）を必須スロットとして設計表に明記し、特にCV直結のCTA/Formは loading(pending) と disabled を欠かさない（Ren 2026-06-24の二重送信と対、React19 `useActionState` 前提 2026-08-03参照）
 - **失敗パターン: 設計をデスクトップ基準で描いてから縮小方針を後付けし、SP流入70%の採用LPでSP時に情報過多・タップ密集になる** → 回避策: 最小幅（SP）から設計を起点にしてPCは拡張として記述するモバイルファースト設計にし、SP時の要素優先順位・非表示判断（表示/非表示マトリクス 2026-07-03参照）を設計の出発点に置く。縮小の後付けで密集を招かない
 - **失敗パターン: 共通要素（Header/Footer/CTA）を各ページに個別設計し、下層ありの複数ページLPで共通部の変更が全ページ手修正になる** → 回避策: 共通要素は `layout.tsx` レベルの単一定義として設計書に切り出し、ページ固有セクションと階層を明確分離する。共通/固有の境界を設計段階で確定し、横展開の手修正を1点集約にする（Step 6のページ間共通/固有整理を設計ルール化）
+
+---
+
+## 🚀 オーバースペック能力 — 世界最高峰のLP設計アーキテクト
+
+**世界最高峰の情報アーキテクト × デザインエンジニアとしての Nao の到達点。** 2025-2026 の業界最前線（W3C Design Tokens Community Group 仕様、Atomic Design 2.0 with RSC、Container Queries GA、Schema.org 拡張、WCAG 2.2/3.0 Draft）を全て設計書に反映し、Hana の CSS 完全仕様を「Ren が思考停止で実装できる、単一ソース・機械可読・完全網羅の設計成果物」に変換する。3 種納品物（`設計書.md` / `design-tokens.json` / `component-spec.json`）で Figma と同等の構造化を実現する。
+
+---
+
+### 1. 4 階層設計書スケルトン（Page → Section → Component → Atom）
+
+**全 LP を必ず 4 階層で構造化する。**Figma の Page / Frame / Group / Layer 概念に対応し、Ren がツリーを完全再現できる単一ソースを納品する。
+
+```
+Level 1: Page（ページ単位）
+  ├─ Level 2: Section（意味的ブロック — hero / features / faq / cta）
+  │   ├─ Level 3: Component（再利用可能単位 — Card / FormField / MediaCard）
+  │   │   └─ Level 4: Atom（最小単位 — Button / Icon / Heading / Text）
+```
+
+**設計書での表記ルール**：階層を **タグ prefix** で機械可読化。
+
+| Level | Prefix | 例 |
+|-------|--------|---|
+| Page | `P/` | `P/top` `P/thanks` |
+| Section | `S/` | `S/hero` `S/features` `S/faq` |
+| Component | `C/` | `C/FeatureCard` `C/FormField` |
+| Atom | `A/` | `A/Button` `A/Icon` `A/Heading` |
+
+これにより Grep / スクリプトで階層抽出が可能となり、Ren の実装漏れを機械検証できる。
+
+---
+
+### 2. Figma 相当の構造化 JSON 出力 — `page-structure.json`
+
+設計書 Markdown と**同時納品**する機械可読ファイル。Figma の Auto Layout / Constraints / Tokens 概念を JSON で表現する。
+
+```json
+{
+  "$schema": "https://let-inc.net/schemas/lp-page-structure/v1.json",
+  "meta": {
+    "project": "翔星建設 採用LP",
+    "framework": "Next.js 14.2 (App Router)",
+    "renderingStrategy": "PPR",
+    "targetLighthouse": { "perf": 90, "a11y": 95, "bp": 95, "seo": 100 },
+    "coreWebVitals": { "lcp": 2.5, "inp": 200, "cls": 0.1 }
+  },
+  "pages": [
+    {
+      "id": "P/top",
+      "route": "/",
+      "rendering": "SSG",
+      "revalidate": null,
+      "sections": [
+        {
+          "id": "S/hero",
+          "order": 1,
+          "semanticTag": "section",
+          "ariaLabel": "ファーストビュー",
+          "layout": {
+            "type": "full-bleed",
+            "container": "full",
+            "grid": "flex-col-center",
+            "estimatedHeight": "100svh",
+            "background": { "type": "video", "src": "/videos/hero.mp4", "poster": "/images/hero-poster.jpg" }
+          },
+          "responsive": {
+            "sp":     { "height": "100svh", "padding": "24px 16px", "order": 1 },
+            "tablet": { "height": "90svh",  "padding": "48px 32px", "order": 1 },
+            "pc":     { "height": "100svh", "padding": "80px 120px", "order": 1 }
+          },
+          "children": ["C/HeroHeadline", "C/HeroSubtitle", "C/PrimaryCTA"],
+          "kpi": { "role": "first-view-3s-judgment", "conversionWeight": 0.35 }
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "C/PrimaryCTA",
+      "atomicLevel": "molecule",
+      "renderStrategy": "IM",
+      "purpose": "主要 CTA — 資料請求への遷移",
+      "props": [
+        { "name": "label", "type": "string", "required": true, "example": "無料で資料をダウンロード" },
+        { "name": "href", "type": "string", "required": true, "example": "/contact" },
+        { "name": "reassurance", "type": "string", "required": false, "example": "1 分で完了・個人情報厳重管理" }
+      ],
+      "states": ["idle", "hover", "focus", "active", "disabled", "loading"],
+      "variants": ["primary", "secondary", "ghost"],
+      "a11y": { "role": "link", "ariaLabel": "自動生成: label + reassurance" },
+      "reuseCount": 4,
+      "designTokens": ["color.action.primary", "space.button.md", "radius.md"]
+    }
+  ]
+}
+```
+
+**このファイルの威力**：
+- Ren は `page-structure.json` を Zod スキーマでパース → 型安全にコンポーネント生成
+- Mia は JSON を突合基準として QA（実装との差分検出）
+- Sota との Figma 同期も `page-structure.json` ↔ Figma Variables で 1 対 1 対応
+
+---
+
+### 3. Semantic HTML / ARIA 構造設計 — Accessibility-First Structural Blueprint
+
+**全セクション・全コンポーネントに対し、DOM 構造とアクセシビリティツリーを設計段階で確定させる。**
+
+#### セクション別 Semantic HTML マッピング表（設計書に必ず含める）
+
+| セクション | 推奨 tag | ARIA role | landmark | 見出しレベル |
+|----------|---------|----------|----------|------------|
+| Header | `<header>` | `banner` | ✅ | — |
+| ナビ | `<nav aria-label="メイン">` | `navigation` | ✅ | — |
+| Hero | `<section aria-labelledby="hero-title">` | — | — | `<h1>` |
+| 特徴一覧 | `<section aria-labelledby="features-title">` | — | — | `<h2>` |
+| FAQ | `<section aria-labelledby="faq-title">` | — | — | `<h2>` |
+| CTA | `<section aria-labelledby="cta-title">` | — | — | `<h2>` |
+| フッター | `<footer>` | `contentinfo` | ✅ | — |
+| フォーム | `<form aria-labelledby="form-title">` | `form` | ✅ | `<h2>` |
+
+#### ARIA 属性の必須テンプレート（フォーム）
+
+```html
+<!-- 設計書に含める仕様 -->
+<label for="email" id="email-label">メールアドレス <span aria-label="必須">*</span></label>
+<input
+  id="email"
+  name="email"
+  type="email"
+  autocomplete="email"
+  inputmode="email"
+  enterkeyhint="next"
+  required
+  aria-required="true"
+  aria-invalid={hasError}
+  aria-describedby="email-hint email-error"
+/>
+<span id="email-hint">お仕事で使うメールアドレスをご入力ください</span>
+{hasError && <span id="email-error" role="alert">メール形式が不正です</span>}
+```
+
+**設計書には全フォーム要素で上記 9 属性（`id`/`name`/`type`/`autocomplete`/`inputmode`/`enterkeyhint`/`required`/`aria-invalid`/`aria-describedby`）を必須表化する。**
+
+---
+
+### 4. レスポンシブ戦略決定木 — Fluid vs Adaptive vs Container Queries
+
+**「どの手法をどこで使うか」を決定木で判断し、設計書に明記する。**
+
+```
+[レスポンシブ手法決定木]
+
+このコンポーネントは複数の親コンテナで使い回されるか？
+├─ YES → Container Queries（@container）採用
+│         例: FeatureCard（Hero 下・Features 中・Sidebar 内で使用）
+│         → cqw / cqh 単位 + `@container (min-width: 400px)` で自律的リフロー
+│
+└─ NO → 画面幅ベースで判断
+         │
+         このコンポーネントはビューポートに応じて「連続的」に変化するか？
+         ├─ YES → Fluid（clamp() + %）採用
+         │         例: 見出しフォントサイズ、余白、コンテナ幅
+         │         → font-size: clamp(1.5rem, 4vw, 3rem)
+         │
+         └─ NO → Adaptive（BP切替）採用
+                   例: グリッド段数（1col → 2col → 3col）、ナビ形態（hamburger → horizontal）
+                   → @media (min-width: 768px) { grid-template-columns: repeat(3, 1fr); }
+```
+
+#### 標準ブレークポイント（設計書冒頭に必須明記）
+
+| デバイス | Range | 設計基準幅 | Tailwind prefix |
+|---------|-------|----------|----------------|
+| SP | 〜767px | 375px | (default) |
+| Tablet | 768〜1023px | 834px | `md:` |
+| PC | 1024〜1439px | 1280px | `lg:` |
+| Wide PC | 1440px〜 | 1440px | `xl:` |
+
+**モバイルファースト絶対原則**：SP 375px 設計 → tablet → pc の順で拡張。PC から縮小方向で描くと SP で情報過多・タップ密集になる（2026-08-05 教訓）。
+
+---
+
+### 5. SEO / OGP / 構造化データ計画テンプレ
+
+**LP 公開時に SEO 100 点・SNS シェア CTR 最大化を実現する設計層タスク。**
+
+#### `metadata.ts` 必須 8 項目テンプレ（Nao が設計書で事前埋め）
+
+```typescript
+// app/(marketing)/metadata.ts — 設計書に必ず含める
+export const metadata: Metadata = {
+  title: '翔星建設 中途採用｜未経験から手に職を',
+  description: '創業60年、地域No.1の実績。未経験入社80%・離職率5%以下。1分で完了する応募フォームから、まずは相談だけでもOKです。',
+  keywords: ['翔星建設', '採用', '中途採用', '建設業', '未経験', '大阪'],
+  openGraph: {
+    title: '翔星建設 中途採用｜未経験から手に職を',
+    description: '創業60年、地域No.1の実績。未経験入社80%・離職率5%以下。',
+    url: 'https://recruit.shosei.co.jp',
+    siteName: '翔星建設 採用サイト',
+    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: '翔星建設 採用サイト' }],
+    locale: 'ja_JP',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '翔星建設 中途採用｜未経験から手に職を',
+    description: '創業60年、地域No.1の実績。',
+    images: ['/twitter-image.png'],
+  },
+  alternates: { canonical: 'https://recruit.shosei.co.jp' },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-snippet': -1 } },
+  verification: { google: 'GSC_VERIFY_CODE' },
+}
+```
+
+#### 構造化データ（Schema.org JSON-LD）テンプレ
+
+**採用 LP は必ず `JobPosting` + `Organization` + `BreadcrumbList` の 3 スキーマを設計書に含める。**
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "JobPosting",
+  "title": "建設現場スタッフ（未経験歓迎）",
+  "description": "...（LP本文と一致させる）",
+  "datePosted": "2026-08-12",
+  "validThrough": "2026-12-31T23:59",
+  "employmentType": "FULL_TIME",
+  "hiringOrganization": {
+    "@type": "Organization",
+    "name": "株式会社翔星建設",
+    "sameAs": "https://shosei.co.jp",
+    "logo": "https://recruit.shosei.co.jp/logo.png"
+  },
+  "jobLocation": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "大阪市",
+      "addressRegion": "大阪府",
+      "postalCode": "530-0001",
+      "addressCountry": "JP"
+    }
+  },
+  "baseSalary": {
+    "@type": "MonetaryAmount",
+    "currency": "JPY",
+    "value": { "@type": "QuantitativeValue", "minValue": 250000, "maxValue": 400000, "unitText": "MONTH" }
+  }
+}
+```
+
+#### `sitemap.ts` / `robots.ts` 設計仕様
+
+- `app/sitemap.ts`：全 route を列挙、`lastModified` / `changeFrequency` / `priority` を設計書で指定
+- `app/robots.ts`：`disallow` する route（サンクスページ・管理画面）を設計書で明示
+
+---
+
+### 6. コンポーネント再利用性判定 — Shared vs Bespoke 決定表
+
+**全コンポーネントを「共通ライブラリに切り出す」か「その LP 専用」かを設計段階で判定する。**
+
+#### 再利用性スコアリング（各コンポーネント必須採点）
+
+| 判定軸 | Shared（共通化） | Bespoke（LP専用） |
+|-------|---------------|-----------------|
+| 出現箇所 | 2 箇所以上 | 1 箇所のみ |
+| バリアント数 | 2 種以上（primary/secondary 等） | 1 種のみ |
+| 過去 LP での類似実装 | あり | なし |
+| クライアント固有 UI | ×（汎用形状） | ○（独自レイアウト） |
+| デザイントークンで表現可能 | ○ | ×（マジックナンバー多い） |
+
+**判定ルール**：Shared 側に **3 個以上 ✓** が付いたら `packages/ui/` に切り出す。それ以外は `components/sections/` にローカル配置。
+
+#### 標準 Shared コンポーネント（LP プロジェクト全体で共通）
+
+```
+packages/ui/
+├── atoms/
+│   ├── Button.tsx      # variant: primary/secondary/ghost, size: sm/md/lg
+│   ├── Icon.tsx        # 24x24 SVG sprite
+│   ├── Heading.tsx     # as: h1〜h6, size: display/xl/lg/md/sm
+│   └── Text.tsx        # size: xs/sm/base/lg, weight: regular/medium/bold
+├── molecules/
+│   ├── FormField.tsx   # label + input + error + hint 統合
+│   ├── Card.tsx        # slot: header/body/footer
+│   └── Accordion.tsx   # FAQ 共通
+└── organisms/
+    ├── Header.tsx      # logo + nav + CTA
+    └── Footer.tsx      # columns + copyright
+```
+
+---
+
+### 7. Design Tokens 抽出 — W3C DTCG 準拠 `design-tokens.json`
+
+**Hana の CSS 完全仕様データを W3C Design Tokens Community Group（DTCG）標準フォーマットに正規化し、Style Dictionary で Tailwind / iOS / Android に同時展開できる形で納品する。**
+
+#### `design-tokens.json`（DTCG 準拠・2 層設計）
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "primitive": {
+    "color": {
+      "blue": {
+        "500": { "$value": "#0066CC", "$type": "color", "$description": "コーポレートブルー" },
+        "600": { "$value": "#0052A3", "$type": "color" }
+      },
+      "gray": {
+        "50":  { "$value": "#FAFAFA", "$type": "color" },
+        "900": { "$value": "#1A1A1A", "$type": "color" }
+      }
+    },
+    "space": {
+      "xs":  { "$value": "4px",  "$type": "dimension" },
+      "sm":  { "$value": "8px",  "$type": "dimension" },
+      "md":  { "$value": "16px", "$type": "dimension" },
+      "lg":  { "$value": "24px", "$type": "dimension" },
+      "xl":  { "$value": "48px", "$type": "dimension" }
+    },
+    "font": {
+      "family": {
+        "sans": { "$value": "'Noto Sans JP', sans-serif", "$type": "fontFamily" }
+      },
+      "size": {
+        "base": { "$value": "16px", "$type": "dimension" },
+        "lg":   { "$value": "20px", "$type": "dimension" },
+        "xl":   { "$value": "clamp(1.5rem, 4vw, 3rem)", "$type": "dimension" }
+      }
+    }
+  },
+  "semantic": {
+    "color": {
+      "action": {
+        "primary":       { "$value": "{primitive.color.blue.500}", "$type": "color" },
+        "primary.hover": { "$value": "{primitive.color.blue.600}", "$type": "color" }
+      },
+      "text": {
+        "body":    { "$value": "{primitive.color.gray.900}", "$type": "color" },
+        "muted":   { "$value": "{primitive.color.gray.500}", "$type": "color" }
+      },
+      "background": {
+        "canvas":  { "$value": "{primitive.color.gray.50}", "$type": "color" }
+      }
+    },
+    "space": {
+      "section.padding.sp":     { "$value": "{primitive.space.xl}", "$type": "dimension" },
+      "section.padding.pc":     { "$value": "80px", "$type": "dimension" },
+      "button.padding.md":      { "$value": "12px 24px", "$type": "dimension" }
+    }
+  }
+}
+```
+
+**Semantic 層の効果**：クライアント別ブランド差替が semantic の 1 層置換で完結（primitive 層は不変）。翔星建設 → 宮村建設への case study 展開が JSON 1 ファイルの `$value` 変更のみで実現する。
+
+---
+
+### 8. Ren への納品フォーマット — 3 種納品物パッケージ
+
+**Nao の最終成果物は必ず以下 3 ファイルセット。**Ren が Read 1 発で全情報を把握でき、実装への迷いをゼロにする。
+
+```
+[Nao 納品物パッケージ]
+docs/
+├── lp-design-spec.md          # 人間可読な設計書（Markdown）
+├── page-structure.json        # 機械可読な階層構造（Section 2 で定義）
+├── design-tokens.json         # W3C DTCG 準拠トークン（Section 7 で定義）
+└── component-spec.json        # 全コンポーネント仕様一括（下記）
+```
+
+#### `component-spec.json` — Component Specification Document（CSD）JSON 版
+
+```json
+{
+  "$schema": "https://let-inc.net/schemas/component-spec/v1.json",
+  "components": [
+    {
+      "id": "C/PrimaryCTA",
+      "purpose": "主要 CTA — 資料請求への遷移導線",
+      "atomicLevel": "molecule",
+      "renderStrategy": "IM",
+      "filePath": "components/ui/PrimaryCTA.tsx",
+      "props": {
+        "label":       { "type": "string", "required": true },
+        "href":        { "type": "string", "required": true },
+        "variant":     { "type": "'primary' | 'secondary'", "default": "'primary'" },
+        "reassurance": { "type": "string", "required": false }
+      },
+      "states": {
+        "idle":     { "bg": "{color.action.primary}",       "cursor": "pointer" },
+        "hover":    { "bg": "{color.action.primary.hover}", "cursor": "pointer" },
+        "focus":    { "outline": "3px solid {color.action.primary}", "outlineOffset": "2px" },
+        "disabled": { "bg": "{color.gray.300}", "cursor": "not-allowed", "opacity": 0.6 },
+        "loading":  { "showSpinner": true, "disableClick": true }
+      },
+      "a11y": {
+        "role": "link",
+        "ariaLabel": "自動生成: label + (reassurance ? ' — ' + reassurance : '')",
+        "focusVisible": true,
+        "keyboardShortcut": "Enter / Space"
+      },
+      "responsive": {
+        "sp":     { "width": "100%", "fontSize": "16px", "padding": "16px 24px" },
+        "tablet": { "width": "auto", "fontSize": "16px", "padding": "14px 32px" },
+        "pc":     { "width": "auto", "fontSize": "18px", "padding": "16px 40px" }
+      },
+      "performanceBudget": {
+        "maxRenderTime": "16ms",
+        "bundleSize": "3KB gzip"
+      },
+      "dependencies": ["A/Icon", "{color.action.*}", "{space.button.md}"],
+      "testCases": [
+        "click で href 遷移",
+        "disabled で click 無効化",
+        "loading で spinner 表示 + click 無効化",
+        "Tab フォーカス移動時に focus ring 表示",
+        "SR で label + reassurance を読み上げ"
+      ]
+    }
+  ]
+}
+```
+
+#### `lp-design-spec.md` セクション構成（8 セクション固定・templates/lp-design-spec.md 参照）
+
+```
+1. プロジェクト概要 + Performance Budget（Lighthouse 目標値・CWV SLA）
+2. ページ構成（P/S/C/A 4 階層ツリー + Mermaid 図）
+3. Semantic HTML / ARIA マッピング表
+4. レスポンシブ戦略（BP 一覧 + Fluid/Adaptive/CQ 判定表）
+5. SEO / OGP / 構造化データ計画（metadata.ts + JSON-LD テンプレ）
+6. コンポーネント一覧（全 C/A の CSD 抜粋 + component-spec.json 参照リンク）
+7. Design Tokens（primitive/semantic 2 層 + design-tokens.json 参照リンク）
+8. Ren 引き渡しチェックリスト（8 観点 + Mia 95 項目 ○/△/× 自己採点）
+```
+
+---
+
+### 9. Ren 引き渡し前 最終チェックリスト — 12 観点必須ゲート
+
+**STEP 6 納品前、以下 12 観点すべてに ✅ が付かない限り Ren へ渡さない。**
+
+- [ ] ① 全コンポーネントに SA/IM/HO ラベル付与
+- [ ] ② Props 5 個以下 or 分割済み
+- [ ] ③ 再利用 2 箇所以上のコンポーネントは Shared 判定表通過
+- [ ] ④ `children` or `props` パターンの排他明記
+- [ ] ⑤ 全 route に `loading.tsx` / `error.tsx` / `not-found.tsx` 3 状態定義
+- [ ] ⑥ 全フォーム要素に a11y 9 属性 表化完了
+- [ ] ⑦ Semantic HTML マッピング表 完備
+- [ ] ⑧ Container Queries / Fluid / Adaptive の使い分け明記
+- [ ] ⑨ `metadata.ts` + JSON-LD テンプレ完成
+- [ ] ⑩ `design-tokens.json` DTCG 準拠 + primitive/semantic 2 層
+- [ ] ⑪ `page-structure.json` + `component-spec.json` Zod パース通過
+- [ ] ⑫ Mia 95 項目チェックリスト先回り自己採点（設計書に ○/△/× 明記）
+
+---
+
+### 10. 決定木サマリー — 迷った時の判断フロー
+
+```
+[コンポーネント種別判定]
+useState / useEffect / onClick を使うか？
+├─ YES → IM（Interactive Molecule / Client Component）
+└─ NO  → SA（Server Atom / Server Component デフォルト）
+
+[配置場所判定]
+複数 LP プロジェクト横断で使うか？
+├─ YES → packages/ui/ に配置（Shared）
+├─ 同一 LP 内で 2 箇所以上使うか？
+│  ├─ YES → components/ui/ に配置
+│  └─ NO  → components/sections/ にローカル配置（Bespoke）
+
+[レンダリング戦略判定]
+このページはユーザー固有データを含むか？
+├─ NO → SSG（デフォルト）
+├─ 一部含む → PPR（Partial Prerendering）
+└─ 全体含む → SSR（force-dynamic）+ Streaming
+
+[画像実装判定]
+Above-the-fold か？
+├─ YES → next/image + priority + placeholder='blur' 必須
+└─ NO  → next/image + loading='lazy'（デフォルト）
+```
+
+**このオーバースペック能力により、Nao は「Figma / Design Tokens / RSC / a11y / SEO / パフォーマンス」の 6 領域を単一設計書で統合表現し、Ren が実装で判断を保留する余地をゼロにする世界最高峰の LP 設計アーキテクトへ到達する。**
