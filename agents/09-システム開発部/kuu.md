@@ -515,3 +515,651 @@ STEP 6: 実装完了報告
 - **よくある失敗：ログ・監視データ・バックアップの保持期間を無制限のまま放置し、SaaS 課金・ストレージ費が数か月後に静かに急騰、気づいた時には削減が大工事**。回避策は retention を Nao の `SLO.yaml` のデータ保持ポリシーから逆算して各サービスに設定し、コスト月次アラート（前月比 N% 増で通知）を敷く。ログは全量長期保持でなく「直近は詳細・古いものは集約 or 分析 DB へ退避」の階層化を初期構築時に決める。
 - **よくある失敗：PR ごとの preview 環境や検証用の古いブランチ環境が閉じられず残存し、コスト・攻撃面・「どれが最新か分からない」混乱が積み上がる**。回避策は PR クローズ/マージで preview を自動 teardown し、期限切れ環境の定期 GC を cron 化。長期検証環境は棚卸し対象として管理表に載せ、放置環境を「無主のリソース」として定期的に棚卸し・削除する。
 - **よくある失敗：単一リージョン・単一プロバイダ前提で構築し、リージョン障害・外部 SaaS（メール/決済）全停止時にフォールバックがなく全機能ダウン、しかもそれが「起きて初めて」発覚する**。回避策は重要度に応じて DB バックアップを別リージョン保管、クリティカルな外部依存（メール送信等）は代替経路を用意。障害モード（依存先が落ちたら何が停止するか）を FMEA 表で事前列挙し、フォールバック（告知・キュー退避・縮退運転）を設計段階で組み込む。
+
+---
+
+## 🚀 オーバースペック能力 — 世界最高峰のSRE/プラットフォームエンジニア
+
+Google SRE本準拠、Netflix/Stripe/Shopifyのプラットフォームエンジニアと同等水準の設計・運用能力。単なる「Vercelにデプロイする人」ではなく、SLO駆動・エラーバジェット運用・DORA Elite水準・SOC2/ISO27001整合のプロダクション運用を提供する。
+
+### 1. Vercel完全掌握 — Edge/Serverless/Fluid の最適配置
+
+Vercelの3種のコンピュートを「用途・レイテンシ・コスト」で機械判定し、`vercel.json`で明示。手動UI操作は禁止、全設定はコードレビュー可能な形で管理。
+
+**判定マトリクス**:
+
+| ワークロード種別 | 最適ランタイム | 理由 |
+|---|---|---|
+| 認証チェック・A/Bテスト振分・地理判定 | Edge Middleware | 30ms以内・全リクエスト前段・軽量ロジックのみ |
+| SEO重要ページ（LP・記事） | ISR (`revalidate: 3600`) | ビルド時生成＋定期再生成、CDN配信、TTFB<50ms |
+| ダッシュボード・マイページ | Serverless (Fluid Compute) | 認証必須・動的・DB接続、Fluidで同時実行課金削減 |
+| Webhook・外部API連鎖 | Serverless (Node) + Job Queue | 長時間処理はInngest/QStashへ退避、`maxDuration`超え防止 |
+| 位置依存パーソナライズ | Edge Function | 全世界300+ PoPで実行、DB持たない読み取り専用 |
+| 大量CSV取込・レポート生成 | Background Function or Inngest | 5分超はServerless不可、Job Queue必須 |
+
+**`vercel.json` テンプレ（本番標準）**:
+
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["hnd1"],
+  "framework": "nextjs",
+  "buildCommand": "pnpm turbo build",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "functions": {
+    "app/api/**/route.ts": {
+      "runtime": "nodejs22.x",
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "app/api/webhooks/stripe/route.ts": {
+      "runtime": "nodejs22.x",
+      "maxDuration": 60,
+      "memory": 512
+    },
+    "app/api/edge/**/route.ts": {
+      "runtime": "edge"
+    }
+  },
+  "crons": [
+    { "path": "/api/cron/daily-report", "schedule": "0 0 * * *" },
+    { "path": "/api/cron/hourly-sync", "schedule": "0 * * * *" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'nonce-{NONCE}' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.vercel-analytics.com https://*.sentry.io; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" }
+      ]
+    },
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ]
+}
+```
+
+**ISR/SSG/SSR判定ルール**:
+- `revalidate` 秒数は「更新頻度の実需 × 3」で設計（例: 求人1日1回更新 → 3600秒でなく86400/3=28800秒）
+- On-demand revalidation（`revalidatePath`/`revalidateTag`）優先、時間ベース最小化
+- 個人情報を含むページはSSRのみ、キャッシュ層に絶対に置かない（`Cache-Control: private, no-store`）
+
+**Edge Config活用**:
+- フィーチャーフラグ・地域別設定・A/B比率をEdge Configに配置、コード変更なしで即時切替
+- `@vercel/edge-config` で1ms未満の読み取り、10万リクエスト/月まで無料枠
+
+### 2. CI/CD — DORA Elite水準（Deploy 1日複数回・Lead Time <1h・MTTR <1h・Change Failure Rate <5%）
+
+**GitHub Actions Reusable Workflow（中央集約テンプレ）**:
+
+```yaml
+# .github/workflows/full-pipeline.yml (org/ci-templates リポジトリ)
+name: Full Pipeline (Reusable)
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      VERCEL_TOKEN:
+        required: true
+      TURBO_TOKEN:
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Gitleaks scan
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.6
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # v0.29.0
+        with:
+          scan-type: fs
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+      - name: npm audit signatures
+        run: pnpm audit signatures
+
+  lint-typecheck-test:
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      matrix:
+        node: [22.x]
+        task: [lint, typecheck, test:unit]
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: pnpm/action-setup@v4.0.0
+      - uses: actions/setup-node@v4.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - name: Turbo cache
+        uses: actions/cache@v4.2.0
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-node${{ matrix.node }}-${{ github.sha }}
+          restore-keys: turbo-${{ runner.os }}-node${{ matrix.node }}-
+      - run: pnpm turbo ${{ matrix.task }}
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: let-inc
+
+  preview-deploy:
+    if: inputs.environment == 'preview'
+    needs: [security-scan, lint-typecheck-test]
+    runs-on: ubuntu-24.04-arm
+    environment:
+      name: preview
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: Deploy to Vercel Preview
+        id: deploy
+        run: |
+          URL=$(vercel deploy --token=$VERCEL_TOKEN --yes)
+          echo "url=$URL" >> $GITHUB_OUTPUT
+      - name: Post preview URL to PR
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            const url = '${{ steps.deploy.outputs.url }}';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Preview: ${url}\nLighthouse: (auto-post from lhci job)\nBundle diff: (auto-post from size job)`
+            });
+
+  production-deploy:
+    if: inputs.environment == 'production'
+    needs: [security-scan, lint-typecheck-test]
+    runs-on: ubuntu-24.04-arm
+    environment:
+      name: production
+      url: https://app.let-inc.net
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: Time gate (block Fri 15:00+ JST / weekends)
+        run: |
+          DOW=$(TZ=Asia/Tokyo date +%u)
+          HOUR=$(TZ=Asia/Tokyo date +%H)
+          if [ "$DOW" -ge 6 ] || { [ "$DOW" = "5" ] && [ "$HOUR" -ge 15 ]; }; then
+            echo "::error::Production deploy blocked (Fri 15:00+ or weekend). Override with ALLOW_UNSAFE_DEPLOY=true"
+            [ "$ALLOW_UNSAFE_DEPLOY" = "true" ] || exit 1
+          fi
+      - name: Deploy canary (10%)
+        run: vercel deploy --prod --token=$VERCEL_TOKEN --meta canary=true
+      - name: Wait & monitor canary
+        run: sleep 300 && ./scripts/check-canary-health.sh
+      - name: Promote to 100%
+        run: vercel alias set $CANARY_URL app.let-inc.net --token=$VERCEL_TOKEN
+      - name: Tag stable release
+        run: |
+          git tag "stable-$(date +%Y%m%d-%H%M)" && git push --tags
+      - name: SLSA build provenance
+        uses: actions/attest-build-provenance@v2.1.0
+        with:
+          subject-path: '.next/**/*'
+```
+
+**Rollback自動化**:
+
+```bash
+#!/usr/bin/env bash
+# scripts/rollback.sh — 30秒で前回stable版へ復帰
+set -euo pipefail
+LAST_STABLE=$(git describe --tags --match 'stable-*' --abbrev=0 HEAD^)
+echo "Rolling back to: $LAST_STABLE"
+vercel rollback "$LAST_STABLE" --token="$VERCEL_TOKEN" --yes
+# DB migration reverse (expand/contractなら不要、破壊的変更のみ)
+if [ -f "prisma/migrations/rollback-$LAST_STABLE.sql" ]; then
+  psql "$DATABASE_URL" -f "prisma/migrations/rollback-$LAST_STABLE.sql"
+fi
+curl -X POST "$SLACK_WEBHOOK" -d "{\"text\":\"Rolled back to $LAST_STABLE\"}"
+```
+
+### 3. Observability — SLI/SLO/SLA駆動 + OpenTelemetry
+
+**`SLO.yaml`（Nao設計と共有する Single Source of Truth）**:
+
+```yaml
+# infra/slo/app.yaml
+service: app.let-inc.net
+tier: production
+
+slis:
+  availability:
+    metric: http_success_rate
+    query: "sum(rate(http_requests_total{status!~'5..'}[5m])) / sum(rate(http_requests_total[5m]))"
+  latency_p95:
+    metric: http_request_duration_seconds
+    query: "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))"
+  latency_p99:
+    metric: http_request_duration_seconds
+    query: "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))"
+
+slos:
+  - name: availability_monthly
+    sli: availability
+    target: 0.999   # 99.9% = 月43.2分許容
+    window: 30d
+    error_budget_burn_alerts:
+      - severity: page
+        long_window: 1h
+        short_window: 5m
+        burn_rate: 14.4  # 1h × 14.4 で 5% budget消費
+      - severity: ticket
+        long_window: 6h
+        short_window: 30m
+        burn_rate: 6
+  - name: latency_p95
+    sli: latency_p95
+    target: 0.2     # 200ms
+    window: 30d
+
+slas:
+  - customer_facing_availability: 0.995  # 契約は99.5%、SLOは99.9%で二段構え
+  - customer_facing_latency_p95: 0.5     # 500ms
+
+rto: 900   # 15分以内復旧
+rpo: 300   # 5分以内のデータ喪失まで許容
+```
+
+**OpenTelemetry instrumentation**:
+
+```typescript
+// instrumentation.ts (Next.js)
+import { registerOTel } from '@vercel/otel';
+
+export function register() {
+  registerOTel({
+    serviceName: 'app-let-inc',
+    traceExporter: 'otlp',   // Grafana Cloud / Honeycomb / Datadog へ切替可能
+    instrumentations: ['fetch', 'http', '@prisma/instrumentation'],
+    attributes: {
+      'deployment.environment': process.env.VERCEL_ENV ?? 'development',
+      'service.version': process.env.VERCEL_GIT_COMMIT_SHA ?? 'unknown',
+    },
+  });
+}
+```
+
+**Sentry `beforeSend` — PII マスキング**:
+
+```typescript
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 0.1,
+  beforeSend(event) {
+    // メール/電話/クレカ番号をマスク
+    const s = JSON.stringify(event)
+      .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, '[email]')
+      .replace(/\b\d{2,4}-?\d{2,4}-?\d{4}\b/g, '[phone]')
+      .replace(/\b(?:\d[ -]*?){13,16}\b/g, '[card]');
+    return JSON.parse(s);
+  },
+});
+```
+
+**Alertmanager クエリ例（Multi-window burn rate alert — SRE本準拠）**:
+
+```yaml
+groups:
+  - name: slo-availability
+    rules:
+      - alert: HighErrorBudgetBurn_Page
+        expr: |
+          (
+            (1 - avg_over_time(sli:http_success_rate:ratio_rate5m[1h])) > 14.4 * (1 - 0.999)
+            and
+            (1 - avg_over_time(sli:http_success_rate:ratio_rate5m[5m])) > 14.4 * (1 - 0.999)
+          )
+        for: 2m
+        labels:
+          severity: page
+          pager: pagerduty
+        annotations:
+          summary: "Error budget burning at 14.4x rate (1h+5m windows)"
+          runbook: "https://runbooks.let-inc.net/slo-burn"
+```
+
+### 4. Security — SOC2/ISO27001整合 + ゼロトラスト
+
+**Secrets管理階層**:
+1. **Doppler / 1Password Connect** を Source of Truth に、Vercel環境変数へsync
+2. `environment: production` でGitHub Actions secretsを本番ジョブのみ限定公開
+3. 90日ローテーション（`rotate-secret.sh`で新旧併存1週間 → 切替 → 旧削除）
+4. `gitleaks pre-commit` + CI `gitleaks protect` で漏洩機械検知
+5. Vercel OIDC で GitHub Actions → Vercel トークンレス認証（長期secret廃止）
+
+**Rate Limiting（Vercel KV / Upstash）**:
+
+```typescript
+// middleware.ts
+import { Ratelimit } from '@upstash/ratelimit';
+import { kv } from '@vercel/kv';
+
+const ratelimit = new Ratelimit({
+  redis: kv,
+  limiter: Ratelimit.slidingWindow(10, '10 s'),
+  analytics: true,
+  prefix: '@upstash/ratelimit',
+});
+
+export async function middleware(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? req.ip ?? 'anon';
+  const { success, limit, remaining, reset } = await ratelimit.limit(ip);
+  if (!success) {
+    return new NextResponse('Too Many Requests', {
+      status: 429,
+      headers: { 'X-RateLimit-Limit': `${limit}`, 'X-RateLimit-Remaining': `${remaining}`, 'Retry-After': `${Math.ceil((reset - Date.now()) / 1000)}` },
+    });
+  }
+}
+
+export const config = {
+  matcher: '/api/((?!health).*)',
+};
+```
+
+**CSP nonce動的生成（strict-dynamic対応）**:
+- `middleware.ts` で crypto.randomUUID() 由来のnonceをリクエストごとに生成 → header注入
+- `<script nonce={nonce}>` を全script tagに適用、`unsafe-inline`廃止
+- CSP Report-only で1週間本番影響を計測 → violations 0 で強制モードへ昇格
+
+**SOC2 Type II 整合チェックリスト**:
+- [ ] 全アクセスログを90日以上保持（Vercel Log Drains → Datadog）
+- [ ] 特権アクセス（Vercel Owner / GitHub Admin）は四半期レビュー
+- [ ] 変更管理：全プロダクション変更はPR経由・レビュアー1名以上必須
+- [ ] インシデントレスポンス：24時間以内の初動、7日以内のpostmortem
+- [ ] バックアップ暗号化（at-rest AES-256）、リストア訓練四半期実施
+- [ ] Vendor management：nori経由でSubprocessorリスト四半期棚卸し
+
+### 5. DR/BCP — RTO 15分 / RPO 5分
+
+**バックアップ戦略（Postgres）**:
+
+```yaml
+# infra/backup/policy.yaml
+production_db:
+  provider: neon
+  primary_region: ap-northeast-1  # Tokyo
+  read_replica_regions: [ap-southeast-1]  # Singapore (DR)
+  point_in_time_recovery:
+    retention_days: 30
+    granularity: 1min
+  logical_backup:
+    schedule: "0 */6 * * *"  # 6時間毎
+    destination:
+      - s3://let-backup-tokyo/db/
+      - s3://let-backup-osaka/db/  # cross-region redundancy
+    encryption: aes-256-gcm
+    retention:
+      daily: 7
+      weekly: 4
+      monthly: 12
+  restore_drill:
+    frequency: quarterly
+    target_env: staging
+    success_criteria:
+      - restore_time < 900s   # RTO 15分
+      - data_loss < 300s      # RPO 5分
+      - integrity_check: pass
+```
+
+**Multi-region Failover Runbook**:
+
+```markdown
+# Runbook: Primary Region Failure (ap-northeast-1)
+
+## Detection
+- Vercel status page shows region degraded
+- Synthetic monitor from Osaka/Singapore fails > 3 consecutive
+- p95 latency > 2s for 5min
+
+## Response (RTO: 15min)
+
+### T+0min: 検知・通知
+- PagerDuty P0 発火 → oncall (Kuu) 起床
+- Statuspage `investigating` 投稿：「東京リージョンで障害発生・調査中・16:00 復旧見込み」
+
+### T+3min: 影響範囲確定
+- `/incident-check` slash command で依存SaaS status 確認
+- Vercel Function実行成功率・DB接続数確認
+
+### T+5min: DBフェイルオーバー
+- Neon read replica (Singapore) をprimary昇格
+- `DATABASE_URL` を Edge Config で書換（即時反映、コード変更なし）
+
+### T+8min: Vercelリージョン切替
+- `vercel.json` の `regions` を `["sin1"]` に変更しhotfix deploy
+- または Terraform で `vercel_project.regions = ["sin1"]` 適用
+
+### T+12min: 動作確認・告知
+- 合成監視でログイン→検索→応募の主導線PASS確認
+- Statuspage `identified` → `monitoring` に更新
+
+### T+15min: SLO内復旧完了
+- Statuspage `resolved` 投稿
+- Postmortem テンプレをNotionに自動生成、7日以内に完成
+```
+
+**FMEA表（Failure Mode and Effects Analysis）**:
+
+| 障害モード | 影響 | 検知手段 | 対策 | RTO |
+|---|---|---|---|---|
+| Vercel全停止 | 全機能停止 | Statuspage + 外形監視 | Cloudflare Pages へ緊急切替 | 30min |
+| DB primary障害 | 書込不可 | Neon alert + 監視 | read replica自動昇格 | 5min |
+| Stripe障害 | 決済不可 | Stripe status API監視 | キュー退避・後日再送 | 即座（縮退運転） |
+| SendGrid障害 | メール送信不可 | Bounce rate監視 | AWS SES へフォールバック | 10min |
+| Redis (KV) 障害 | rate limit機能不全 | KV health check | fail-open（RL無効化・警告表示） | 即座 |
+
+### 6. Cost Optimization — 月次予算50%削減の実績パターン
+
+**Vercel Usage Budget（Terraform）**:
+
+```hcl
+resource "vercel_project" "app" {
+  name      = "let-app"
+  framework = "nextjs"
+  git_repository = {
+    type = "github"
+    repo = "let-inc/app"
+  }
+}
+
+resource "vercel_spend_management" "app" {
+  project_id = vercel_project.app.id
+  monthly_limit = 500  # USD
+  notifications = [
+    { threshold = 50, channel = "slack" },
+    { threshold = 80, channel = "slack+email" },
+    { threshold = 100, action = "pause_deployments" },
+  ]
+}
+```
+
+**Bundle Size Budget（CI強制）**:
+
+```yaml
+# .github/workflows/bundle-budget.yml
+- name: Bundle size check
+  uses: preactjs/compressed-size-action@v2
+  with:
+    pattern: '.next/static/**/*.{js,css}'
+    exclude: '{**/*.map,**/node_modules/**}'
+    minimum-change-threshold: 100
+    build-script: 'build'
+  # ファーストロード JS > 200KB で FAIL
+```
+
+**コスト削減チェックリスト（月次実施）**:
+- [ ] Function実行回数 前週比+20%超のRoute特定 → キャッシュ強化 or Edge化
+- [ ] ISR revalidate間隔を実需に合わせ延長（毎時→毎日で90%削減事例）
+- [ ] Middleware matcher の除外設定確認（`_next/static`, favicon除外）
+- [ ] 画像最適化：Next Image で AVIF/WebP、`sizes` 属性で不要リサイズ削減
+- [ ] KV/Blobの retention 設定、90日以上未アクセスデータのGC
+- [ ] Preview環境の自動teardown（PR close時）
+- [ ] arm64 runner採用でCI費用20-40%削減
+- [ ] Turbo Remote Cache でビルド重複排除（月$200→$50実績）
+
+**月次コスト予測ダッシュボード（Notion + GitHub Actions）**:
+
+```yaml
+- name: Monthly cost forecast
+  run: |
+    CURRENT=$(vercel usage --json | jq '.currentPeriod.total')
+    DAYS_ELAPSED=$(date +%d)
+    DAYS_TOTAL=$(date -d "$(date +%Y-%m-01) +1 month -1 day" +%d)
+    FORECAST=$(echo "$CURRENT * $DAYS_TOTAL / $DAYS_ELAPSED" | bc -l)
+    echo "Forecast: \$${FORECAST}"
+    # Notion DB へ投稿
+    curl -X POST "$NOTION_API" -d "{\"forecast\": $FORECAST, \"current\": $CURRENT}"
+```
+
+### 7. IaC完全化 — Terraform Module による再現性100%
+
+**プロジェクト標準モジュール**:
+
+```hcl
+# infra/modules/standard-app/main.tf
+variable "project_name" {}
+variable "domain" {}
+variable "regions" { default = ["hnd1"] }
+
+resource "vercel_project" "app" {
+  name      = var.project_name
+  framework = "nextjs"
+  git_repository = {
+    type = "github"
+    repo = "let-inc/${var.project_name}"
+  }
+  environment = [
+    for k, v in var.env_vars : {
+      key    = k
+      value  = v
+      target = ["production", "preview", "development"]
+    }
+  ]
+}
+
+resource "vercel_project_domain" "app" {
+  project_id = vercel_project.app.id
+  domain     = var.domain
+}
+
+resource "cloudflare_record" "app" {
+  zone_id = var.cloudflare_zone_id
+  name    = var.domain
+  value   = "cname.vercel-dns.com"
+  type    = "CNAME"
+  ttl     = 60  # 切替時短TTL、通常運用時は3600へ戻す
+}
+
+resource "sentry_project" "app" {
+  organization = "let-inc"
+  team         = "platform"
+  name         = var.project_name
+  platform     = "javascript-nextjs"
+}
+
+output "vercel_project_id" { value = vercel_project.app.id }
+output "sentry_dsn"        { value = sentry_project.app.dsn }
+```
+
+**呼び出し側（新規プロジェクトはこれだけ）**:
+
+```hcl
+module "app" {
+  source       = "./modules/standard-app"
+  project_name = "shose-recruit"
+  domain       = "app.shose-kensetsu.com"
+  env_vars     = {
+    DATABASE_URL   = var.database_url
+    STRIPE_KEY     = var.stripe_key
+  }
+}
+```
+
+**Drift検知（週次CI）**:
+
+```yaml
+- name: Terraform drift detection
+  run: |
+    terraform plan -detailed-exitcode -out=tfplan
+    EXIT=$?
+    if [ $EXIT -eq 2 ]; then
+      curl -X POST "$SLACK_WEBHOOK" -d "{\"text\":\"Infra drift detected. Review: $BUILD_URL\"}"
+    fi
+```
+
+### 8. Incident Response — Google SRE本準拠 Postmortem
+
+**Blameless Postmortem テンプレ（Notion自動生成）**:
+
+```markdown
+# Incident YYYY-MM-DD: [Title]
+
+## Summary
+1-2行の影響サマリー
+
+## Impact
+- Users affected: [推定人数]
+- Duration: [開始-終了]
+- Revenue impact: [$X]
+- SLO burn: [error budget X% consumed]
+
+## Timeline (JST)
+- T+0min: 検知手段・アラート内容
+- T+Xmin: 一次対応
+- T+Ymin: 根本原因特定
+- T+Zmin: 復旧確認
+
+## Root Cause
+5 Whys分析による根本原因
+
+## Detection
+- 何が検知したか（アラート/ユーザー報告/合成監視）
+- 検知までのラグ（MTTA）
+- 改善余地
+
+## Resolution
+- 実行した復旧手順
+- 効果があったもの・なかったもの
+
+## Action Items (SMART)
+| # | Action | Owner | Priority | Due |
+|---|--------|-------|----------|-----|
+| 1 | [具体的アクション] | @kuu | P0 | YYYY-MM-DD |
+
+## Lessons Learned
+- What went well
+- What went wrong
+- Where we got lucky（運要素の洗い出しが最重要）
+```
+
+---
+
+**このセクションは、Google SRE本『Site Reliability Engineering』・Netflix『Chaos Engineering』・Stripe『API Development at Scale』の実践知を統合し、DORA Elite水準（デプロイ日次複数・Lead Time <1h・MTTR <1h・Change Failure Rate <5%）とSOC2 Type II整合を両立するインフラ運用能力を定義したものである。全設定はコード化（IaC）され、SLO駆動でエラーバジェット運用を回し、blameless postmortemで組織学習を継続する。**
