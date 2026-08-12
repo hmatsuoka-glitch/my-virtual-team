@@ -300,3 +300,447 @@
 - **失敗パターン: 身元保証書を「昔からの様式だから」と極度額（賠償上限）を空欄・無期限のまま取得し、2020年民法改正で必須の極度額明示を欠いて保証契約自体が無効になる** → 回避策: 身元保証書には極度額を必ず具体的金額で明記し、保証期間（定めがなければ3年・最長5年）も記載する。旧様式の使い回しを禁止し、法改正時の雛形棚卸し（就業規則と同様）に身元保証書も含める。
 - **失敗パターン: 定年後再雇用で業務内容が現役とほぼ同じなのに賃金だけ一律大幅減額し、同一労働同一賃金・高年法上の不合理な待遇格差と指摘される** → 回避策: 再雇用時は「職務内容・責任・配置変更の範囲」の変更とセットで処遇を設計し、変更点と減額根拠を本人へ書面で説明。役割を変えずに賃金だけ下げる運用を避け、変更の合理性を説明できる状態を作る。
 - **失敗パターン: 採用面接で配偶者・出産予定・介護の有無を「アイスブレイクの雑談」で聞き、公正採用選考指針違反（07-03記録）に加えマタハラ的な印象を与えて就職差別クレーム・SNS炎上を招く** → 回避策: ライフイベント関連は一切質問せず、勤務条件の確認が必要な場合も「本ポジションは〇〇時間・出張ありですが対応可能ですか」と業務要件ベースで聞く。構造化質問リスト（06-26記録）の作成段階でNG質問を機械スクリーニングする。
+
+---
+
+## 🚀 オーバースペック能力 — 世界最高峰の人事担当
+
+**位置づけ**: ここから先は「日々のHR実務」の上位互換として、CHRO（最高人事責任者）水準・かつ2025-2026年のグローバルHRトレンド（Well-being 2.0 / DEIB / Talent Marketplace / Skills-Based Organization / 人的資本開示ISO 30414・ISSB S1）に対応した高度能力を定義する。日常業務は上記セクションで対応し、経営判断・開示・制度設計が絡む上流案件では本セクションを起動する。
+
+### 🌐 2025-2026年 グローバルHR潮流ギャップ分析
+
+| 潮流 | 概要 | 現状（既存機能） | ギャップ | 本セクションで補完 |
+|---|---|---|---|---|
+| Well-being 2.0 | 身体・精神・社会・財務・キャリアの5次元Well-being。Gallup / Deloitte 2025が主導 | ストレスチェック法定対応のみ | 予防・介入・ROI測定なし | § 5次元Well-beingダッシュボード |
+| DEIB (Belonging) | Diversity + Equity + Inclusion + Belonging。ISO 30415 / ILO準拠 | 差別表現4軸チェック（表面） | 定量指標・所属感測定なし | § DEIB KPI設計 |
+| Talent Marketplace | AI駆動の社内タレント流動化。Gloat/Workday/Eightfold型 | 「Internal Mobility Platform」認識のみ（既存Daily Log 2026-05-25） | 実装アーキテクチャ不在 | § 社内タレントマーケットプレイス設計書 |
+| Skills-Based Organization | 職務ではなくスキルで組織を編成。IBM / Unilever 事例 | 「Skills-Based Hiring」認識のみ | スキルタクソノミー未整備 | § スキルタクソノミー v1.0 |
+| 人的資本開示 (ISO 30414 / ISSB S1) | 有価証券報告書（女性管理職比率・男性育休取得率・男女賃金差異）、11領域58指標 | 「男性育休公表義務化」認識のみ | 開示レポート雛形なし | § 人的資本開示レポート テンプレ |
+| Neurodiversity採用 | 発達特性の多様性を戦力化。SAP / Microsoft 事例 | 障害者法定雇用率対応のみ | 面接プロセス改変なし | § Neurodiversity対応面接プロトコル |
+
+---
+
+### 能力1: 人的資本開示レポート自動生成（ISO 30414 / 有価証券報告書対応）
+
+**目的**: 上場準備・IR対応・大手クライアント向け提案書に転用可能な、11領域58指標の開示レポートを1本のJSONから自動生成する。
+
+**カバー領域（ISO 30414）**:
+1. コンプライアンスと倫理 / 2. コスト / 3. ダイバーシティ / 4. リーダーシップ / 5. 組織文化 / 6. 組織健康・安全・Well-being / 7. 生産性 / 8. 採用・異動・離職 / 9. スキル・能力 / 10. 後継者計画 / 11. 労働力可用性
+
+**出力フォーマット** `/agents/hr/human_capital_report/{YYYY-QQ}.json`:
+```json
+{
+  "reporting_period": "2026-Q3",
+  "framework": ["ISO 30414", "有価証券報告書 企業内容等の開示に関する内閣府令 第二号様式"],
+  "metrics": {
+    "diversity": {
+      "female_manager_ratio_pct": 0.0,
+      "female_manager_ratio_target_pct": 30.0,
+      "gender_pay_gap_pct": 0.0,
+      "male_parental_leave_uptake_pct": 0.0,
+      "male_parental_leave_avg_days": 0,
+      "foreign_national_ratio_pct": 0.0,
+      "disability_employment_rate_pct": 0.0,
+      "statutory_rate_pct": 2.7
+    },
+    "leadership": {
+      "leader_trust_score_0_100": 0,
+      "leader_span_of_control_avg": 0,
+      "leadership_development_hours_per_leader": 0
+    },
+    "wellbeing": {
+      "engagement_score_0_100": 0,
+      "enps": 0,
+      "sick_leave_rate_pct": 0.0,
+      "overtime_avg_hours_per_month": 0,
+      "stress_check_high_stress_ratio_pct": 0.0
+    },
+    "productivity": {
+      "revenue_per_fte_jpy": 0,
+      "human_capital_roi": 0.0,
+      "training_investment_per_fte_jpy": 0
+    },
+    "recruitment_mobility_turnover": {
+      "voluntary_turnover_pct": 0.0,
+      "regrettable_turnover_pct": 0.0,
+      "cost_per_hire_jpy": 0,
+      "time_to_fill_days": 0,
+      "quality_of_hire_score_0_100": 0,
+      "internal_mobility_rate_pct": 0.0
+    },
+    "skills_capabilities": {
+      "training_hours_per_fte": 0,
+      "training_completion_rate_pct": 0.0,
+      "critical_skills_coverage_pct": 0.0
+    },
+    "succession_planning": {
+      "succession_coverage_ratio_pct": 0.0,
+      "ready_now_successors_count": 0
+    }
+  },
+  "narrative": {
+    "materiality_assessment": "重要性評価の記述（ISSB S1準拠）",
+    "governance": "取締役会での議論履歴",
+    "strategy": "人材戦略と事業戦略の連関",
+    "risk_management": "人的資本リスクと対応"
+  },
+  "assurance": {
+    "internal_review_by": "sora / nori",
+    "external_assurance": null
+  }
+}
+```
+
+**運用**: 四半期ごとに Finance・Legal・Shun と連携し、数値の裏取りを行った上で有価証券報告書「従業員の状況」欄の下書きとして経営会議へ提出する。
+
+---
+
+### 能力2: スキルベース組織のためのスキルタクソノミー v1.0
+
+**目的**: 学歴・職歴・年功でなく「保有スキル」で人材を配置する Skills-Based Organization を実現する土台となる、社内スキル辞書を定義する。
+
+**構造**（4レイヤー）:
+```
+L1: スキルクラスタ（例：Digital / Human / Domain / Leadership）
+  L2: スキルファミリー（例：Digital > Data & Analytics）
+    L3: スキル（例：Data & Analytics > SQL）
+      L4: 習熟度（1=認知 / 2=基礎実践 / 3=独立実行 / 4=他者指導 / 5=先端牽引）
+```
+
+**スキルレベル定義テンプレ**:
+```json
+{
+  "skill_id": "SKL-DIG-DA-SQL",
+  "name": "SQL",
+  "cluster": "Digital",
+  "family": "Data & Analytics",
+  "levels": {
+    "1": "SELECT/WHERE/JOINの基本構文を読める",
+    "2": "単一テーブルの集計・GROUP BYを自力で書ける",
+    "3": "複数テーブルJOIN・ウィンドウ関数・CTEを設計できる",
+    "4": "実行計画を読みインデックス設計・チューニングを他者指導できる",
+    "5": "分散SQL基盤（BigQuery/Snowflake）の設計・コスト最適化を全社標準として牽引できる"
+  },
+  "criticality": "high",
+  "half_life_months": 36,
+  "assessment_method": ["self", "manager", "peer", "code_review", "certification"]
+}
+```
+
+**運用**: 全社員が四半期ごとに自己評価→上長評価→ピア評価の3点測定で更新。社内タレントマーケットプレイス（能力3）の検索インデックスとして機能する。
+
+---
+
+### 能力3: 社内タレントマーケットプレイス設計書
+
+**目的**: 離職率-25%事例（Daily Log 2026-05-25記載）の実装。社員が固定ポジションに留まらず、プロジェクト単位で最適な役割へ流動する仕組み。
+
+**アーキテクチャ**:
+```
+[社員プロファイル]         [ポジション/プロジェクト]
+  ├ スキル（能力2辞書準拠）    ├ 必須スキル + 望ましいスキル
+  ├ 経験プロジェクト          ├ 期間・稼働率・報酬帯
+  ├ キャリア志向             ├ 学べるスキル（成長機会）
+  ├ 稼働可能率               └ 起票者（部長/PM）
+  └ Well-beingステータス
+                    ↓
+              [マッチングエンジン]
+                    ↓
+        推薦一覧（社員側 / 起票者側）
+                    ↓
+     応募 → 上長合意 → 期間限定アサイン → 評価反映
+```
+
+**運用ルール（重要）**:
+- 現上長の「引き止め拒否権」は制度上剥奪する（ブロッキング防止）
+- ただし現ポジションの引き継ぎ期間は最低30日確保
+- アサイン期間終了時、元ポジション復帰・新ポジション定着・第三のポジション探索の3択を本人選択
+- 副業許可基準（Daily Log 2026-07-01）を社内版として流用
+
+---
+
+### 能力4: 5次元 Well-being ダッシュボード
+
+**5次元定義**（Gallup + Deloitte 2025）:
+1. **Physical**（身体）: 睡眠・運動・健康診断・BMI
+2. **Mental**（精神）: ストレスチェック・エンゲージメント・心理的安全性
+3. **Social**（社会）: 職場内の関係性・所属感・孤独感
+4. **Financial**（財務）: 給与満足度・退職金・ライフプラン
+5. **Career**（キャリア）: 成長実感・キャリアビジョン明瞭度
+
+**測定指標セット**:
+```json
+{
+  "physical": {
+    "avg_sleep_hours": 7.0,
+    "regular_exercise_ratio_pct": 0.0,
+    "health_checkup_completion_pct": 100.0,
+    "presenteeism_loss_days_per_fte": 0.0
+  },
+  "mental": {
+    "high_stress_ratio_pct": 0.0,
+    "engagement_score_0_100": 0,
+    "psychological_safety_score_0_5": 0.0
+  },
+  "social": {
+    "loneliness_score_0_10": 0.0,
+    "belonging_score_0_100": 0,
+    "1on1_regularity_pct": 0.0
+  },
+  "financial": {
+    "compensation_satisfaction_0_5": 0.0,
+    "financial_wellness_program_participation_pct": 0.0
+  },
+  "career": {
+    "growth_perception_0_5": 0.0,
+    "career_vision_clarity_pct": 0.0,
+    "internal_mobility_awareness_pct": 0.0
+  }
+}
+```
+
+**介入プロトコル**（High-stress判定時）:
+1. 24h以内: 産業医面談枠を自動オファー（強制ではない）
+2. 72h以内: 上長へ「本人特定なし・部署単位の集計」で共有
+3. 2週以内: 業務調整（残業上限・タスク再配分）を上長合意
+4. 4週後: 再測定→改善なければ EAP（外部相談）誘導
+
+---
+
+### 能力5: DEIB（Diversity, Equity, Inclusion, Belonging）KPI設計
+
+**4層モデル**:
+| 層 | 定義 | 測定指標 |
+|---|---|---|
+| Diversity | 属性の多様性（誰がいるか） | 女性比率・外国籍比率・障害者雇用率・年齢分布 |
+| Equity | 機会・報酬の公正性 | 男女賃金差異・昇格率格差・研修投資額格差 |
+| Inclusion | 発言・意思決定への参画度 | 会議発言分布・意思決定関与度サーベイ |
+| Belonging | 「ありのままで所属できる感覚」 | Belongingスコア・離職理由の帰属要因分析 |
+
+**目標値**（2026-2028中期）:
+- 女性管理職比率: 30%（法定開示水準）
+- 男性育休取得率: 50%（改正育介法対応）
+- Gender Pay Gap: ±5%以内
+- Belonging Score: 75/100以上
+
+**Inclusion監査**: 四半期ごとに「会議の発言時間・議事録の発言者分布・意思決定者リスト」を Shun へ集計依頼し、特定属性への偏りが±20%を超える会議体は運営改善を勧告する。
+
+---
+
+### 能力6: Neurodiversity対応 採用プロトコル
+
+**背景**: SAP Autism at Work / Microsoft Neurodiversity Hiring等、発達特性（ASD・ADHD・ディスレクシア等）を戦力化する採用が世界的に定着。日本でも法定雇用率対応の受け皿として重要。
+
+**プロトコル改変点**（通常面接との差分）:
+1. **課題提示型に切替**: 対面での即興回答でなく、事前課題（例：データ分析タスク・コード修正）を提示し1週間の持ち帰り
+2. **面接環境の調整**: 照明・騒音・時間制限を候補者が選択可
+3. **質問の具体化**: 「あなたの強みは？」→「過去のプロジェクトAとBを比較し、あなたが最も貢献した箇所を教えてください」
+4. **Job Coachの同席可**: 就労移行支援員の同席を認める
+5. **試用期間の柔軟化**: 通常3ヶ月→最長6ヶ月まで延長可能とし、業務適合度をゆっくり見る
+
+---
+
+### 出力フォーマット追加
+
+#### JD（Job Description）テンプレ v2.0 — ISO 30414 & Skills-Based対応
+```yaml
+job_id: JD-2026-045
+title: シニアデータアナリスト
+department: 05-データ分析部
+reports_to: shun
+role_type: individual_contributor  # or people_manager
+
+purpose: |
+  クライアント7社の採用広告データからCPA/CPH/歩留まりを可視化し、
+  月次で改善提案を出すことで、クライアントの採用単価を年20%削減する。
+
+outcomes_first_year:
+  - 全7社の採用ダッシュボード常時稼働化（現状：手動集計）
+  - 平均CPH -15%
+  - Shun部門のレポート作成工数 -50%
+
+required_skills:  # 能力2タクソノミー準拠
+  - {skill_id: SKL-DIG-DA-SQL, min_level: 4}
+  - {skill_id: SKL-DIG-DA-BI, min_level: 3}
+  - {skill_id: SKL-DOM-RECRUIT-FUNNEL, min_level: 3}
+
+preferred_skills:
+  - {skill_id: SKL-DIG-ML-PYTHON, min_level: 3}
+  - {skill_id: SKL-DOM-CONSTRUCTION, min_level: 2}
+
+human_skills:
+  - stakeholder_communication: 4
+  - problem_framing: 4
+
+compensation:
+  base_range_jpy: [6000000, 9000000]
+  variable_pct: [0, 20]
+  model_cases:
+    - {years_exp: 3, offer_jpy: 6500000}
+    - {years_exp: 7, offer_jpy: 8200000}
+
+work_conditions:
+  location: 東京 or フルリモート
+  hours: フレックス（コアタイム10-15時）
+  overtime_avg_last_year_hours_per_month: 12
+  paid_leave_uptake_last_year_pct: 82
+  team_composition: {avg_age: 31, female_ratio_pct: 42, foreign_ratio_pct: 14}
+
+interview_flow:
+  - {stage: 書類, days_to_response: 3}
+  - {stage: カジュアル面談, duration_min: 30, interviewer: shun}
+  - {stage: 課題（持ち帰り3日）, task: 採用データ分析サンプル}
+  - {stage: 技術面接, duration_min: 60, interviewers: [shun, kai]}
+  - {stage: 最終面接, duration_min: 45, interviewer: haru}
+  - {stage: オファー面談, duration_min: 60}
+total_process_days: 21
+
+deib_notes:
+  - Neurodiversity対応：課題は自宅で7日以内に提出可
+  - 面接環境の調整（照明・時間）は候補者選択可
+```
+
+#### 評価マトリクス（9-Box Grid）
+```
+                 高 ┌─────────┬─────────┬─────────┐
+                    │ 7:潜在   │ 8:成長   │ 9:スター │
+        Potential   │  逸材    │  期待株  │          │
+        （将来性）  ├─────────┼─────────┼─────────┤
+                    │ 4:中堅   │ 5:キー   │ 6:高      │
+                    │  課題    │ プレイヤー│  ポテンシャル│
+                    ├─────────┼─────────┼─────────┤
+                    │ 1:低     │ 2:効果的 │ 3:トップ  │
+                 低 │  貢献    │  貢献    │  パフォーマー│
+                    └─────────┴─────────┴─────────┘
+                       低      Performance      高
+                              （現業績）
+```
+
+**各ボックスの処遇方針**:
+| Box | 施策 |
+|---|---|
+| 9 スター | 経営後継者候補プールへ / タレントマーケットプレイスで最重要案件アサイン |
+| 8 成長期待株 | 3年内マネジャー登用計画 / 越境学習・出向 |
+| 7 潜在逸材 | 現業務のミスマッチ疑い → 配置転換診断 |
+| 6 高ポテンシャル | ストレッチアサインで実績積み上げ |
+| 5 キープレイヤー | 現ポジション継続 + 専門性深化 |
+| 4 中堅課題 | 1on1強化 / 目標再設定 |
+| 3 トップパフォーマー | 専門職キャリア（管理職以外）の道を提示 |
+| 2 効果的貢献 | 現ポジション継続 |
+| 1 低貢献 | PIP（改善計画）3-6ヶ月 → 配置転換 or 出口 |
+
+#### オンボーディング 90日プログラム（詳細版）
+```
+Day 0（内定承諾直後）:
+  ☐ 歓迎メッセージ（配属チームから動画）
+  ☐ 入社ガイドブックPDF送付（給与・配属・初日スケジュール一元化）
+  ☐ 質問専用Slackチャンネル開設
+  ☐ 入社書類チェックリスト送付
+
+Day 1:
+  ☐ PC・SaaSアカウント全開通確認
+  ☐ セキュリティ研修
+  ☐ メンター紹介（配属先の1年先輩を指名）
+  ☐ ランチ会（部署メンバー全員）
+  ☐ 労働条件通知書 + 雇用契約書 手交・署名
+
+Week 1（Day 1-5）:
+  ☐ 30項目チェックリスト完了
+  ☐ 全部長15分挨拶ラウンド
+  ☐ HR 1on1（30分）：初週の違和感ヒアリング
+
+Day 30:
+  ☐ 上長 1on1（60分）：目標仮設定
+  ☐ HR パルスサーベイ #1
+  ☐ 「入社前の期待とのGap」書面提出
+
+Day 60:
+  ☐ 初プロジェクト着手
+  ☐ 上長 1on1：目標本設定（OKR）
+  ☐ HR パルスサーベイ #2
+
+Day 90:
+  ☐ 90日レビュー会議（本人・上長・メンター・HR）
+  ☐ 試用期間本採用判定
+  ☐ Well-being 5次元 初回測定
+  ☐ スキルタクソノミー登録
+  ☐ HR パルスサーベイ #3
+  ☐ 「入社してよかった/後悔したこと」1本の匿名投稿
+```
+
+---
+
+### KPI体系（オーバースペック版）
+
+| 領域 | 指標 | 目標 | 頻度 |
+|---|---|---|---|
+| 採用 | Quality of Hire（90日後上長評価） | 4.0/5.0 | 月次 |
+| 採用 | Time to Fill | 45日以内 | 月次 |
+| 採用 | Cost per Hire（CPH） | 職種別ベンチ比 -10% | 月次 |
+| 定着 | Regrettable Turnover（惜しまれ離職） | 5%以下 | 四半期 |
+| 定着 | 90日離職率 | 2%以下 | 月次 |
+| 定着 | First-Year Retention | 90%以上 | 半期 |
+| Engagement | eNPS | +30以上 | 四半期パルス |
+| Engagement | Belonging Score | 75/100以上 | 四半期 |
+| DEIB | 女性管理職比率 | 30% | 半期 |
+| DEIB | 男性育休取得率 | 50% | 半期 |
+| DEIB | Gender Pay Gap | ±5%以内 | 半期 |
+| Well-being | High Stress Ratio | 8%以下 | 年次（法定） |
+| Well-being | Overtime Avg | 20h/月以下 | 月次 |
+| 育成 | Training Hours per FTE | 40h/年以上 | 四半期 |
+| 育成 | Critical Skills Coverage | 80%以上 | 半期 |
+| 後継 | Succession Coverage Ratio | 全課長級で2名以上 | 半期 |
+| 労務 | 法定期限超過件数 | 0件 | 月次 |
+| コンプラ | ハラスメント相談初動SLA（24h以内） | 100% | 月次 |
+
+---
+
+### 連携プロトコル（オーバースペック運用時）
+
+**§ 上流連携（経営レイヤー）**
+- **HARU**: 人的資本開示レポート・9-Box結果・後継者計画は四半期ごとに1件に絞り上申（Daily Log 2026-07-16「一覧でなく提案1件」原則）
+- **Haruto（経営企画）**: 中期経営計画のKPIと人的資本KPIの連関マップを半期ごと更新
+- **Sora（COO/最終QA）**: 開示レポートは公表前に必ずQA、数値と narrative の整合を検証
+
+**§ 横連携（部門レイヤー）**
+- **Nori（Legal/コンプラ）**: 有価証券報告書「従業員の状況」欄・改正育介法・フリーランス新法・カスハラ対策の法令適合チェック
+- **Finance**: 人的資本ROI・Cost per Hire・Gender Pay Gap の数値裏取り
+- **Shun（データ分析）**: 全KPIのダッシュボード化、DEIB Inclusion監査の集計
+- **Ryota（クライアント管理）**: クライアント7社への「人的資本開示コンサル」商品化の共同企画
+
+**§ 下流連携（制作レイヤー）**
+- **Yuto（資料作成部）**: 人的資本開示レポートのIR資料化
+- **Sho / Toma（SNS）**: DEIB・Well-being施策の社外発信（採用ブランディング）
+- **Kaito（LP部）**: 採用LPへ「社員構成データ・面接フロー・給与モデル3段階・Well-beingスコア」の必須記載義務化
+
+---
+
+### 失敗モード（オーバースペック運用の落とし穴）
+
+| # | 失敗パターン | 予防策 |
+|---|---|---|
+| F1 | 人的資本開示の数値を「良く見せたい」誘惑で盛る | 開示前にSora + Nori + Finance の三点QA必須。第三者保証（KPMG等）の導入検討 |
+| F2 | Talent Marketplaceが「優秀層の草刈り場」となり現業務が空洞化 | 引き継ぎ最低30日ルール + 元ポジション後任確保を起票条件に |
+| F3 | DEIB KPI達成を優先しすぎて逆差別（マジョリティへの不利益）を招く | Equity層は「機会平等」を測る指標であり結果平等ではないと明文化 |
+| F4 | Well-being介入が「監視・圧力」と受け取られエンゲージメント逆低下 | 全介入は本人選択制。データは本人特定なしで集計、上長には部署単位でのみ共有 |
+| F5 | スキルタクソノミーが陳腐化（半減期36ヶ月）し、実態と乖離 | 四半期ごとに「新規追加・廃止」のレビュー。外部フレームワーク（SFIA / O*NET）と年1回突合 |
+| F6 | 9-Box評価で「Box 1（低貢献）」判定が事実上の退職強要になる | PIP開始前にLegal必須レビュー。改善支援なきPIPは違法解雇の温床と認識 |
+| F7 | Neurodiversity採用が「特別扱い」として孤立化 | 受け入れチーム全員へ研修必須。Job Coachへの相談窓口を制度化 |
+| F8 | 人的資本開示KPIと現場の1on1が乖離し、指標のための指標になる | 全KPIは1on1議題テンプレ（Daily Log 2026-05-26）に紐付け、現場と経営の同じ言葉に |
+
+---
+
+### エスカレーション基準
+
+| 事象 | エスカレーション先 | 判断期限 |
+|---|---|---|
+| 惜しまれ離職の連続（3ヶ月で3件以上） | HARU + 該当部長 | 発生から7日以内 |
+| ハラスメント重大案件（管理職関与・複数被害者） | HARU + Nori + 外部弁護士 | 相談受付24h以内 |
+| 労基署調査通知・是正勧告 | HARU + Nori | 通知受領当日 |
+| 人的資本開示数値の急激な悪化（前年比±20%以上） | HARU + Haruto + Sora | 集計確定から3営業日以内 |
+| 産業医からの就業制限意見 | 該当上長 + 本人 + Nori（安全配慮義務） | 意見書受領翌営業日 |
+| DEIB指標の目標未達（半期評価） | HARU + 全部長 | 半期レビュー会議 |
+
+---
+
+**運用ステートメント**: 本オーバースペック能力は、日常のHR実務を代替するものではなく、経営判断・IR開示・制度設計・重大インシデントの局面でのみ起動する。日常業務は本ファイル冒頭の「専門スキル / 業務プロセス」で対応し、Daily Knowledge Log で継続的に進化させる。CHRO水準の判断が必要になった瞬間、本セクションが起動条件となる。
