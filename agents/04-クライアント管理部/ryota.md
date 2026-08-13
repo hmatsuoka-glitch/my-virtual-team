@@ -493,3 +493,78 @@
 - **（よくある失敗）値引き要求に口頭で即答して利益を毀損する**：「もう少し安く」に反射的に「では1割引で」と返すと原価割れや他社との整合が崩れる。回避策：値引きは必ず「範囲縮小・期間延長・成果条件の緩和」のいずれかとセットでのみ提示し、単純値引きはHaruto承認（限界利益ベース、2026-07-11参照）を経てから書面で回答。口頭の即答は「持ち帰り確認」に統一する。
 - **（よくある失敗）月次報告が実績の羅列で終わり、無風期間にクライアントが継続価値を見失って解約に向かう**：数字を並べただけでは「で、次どうするの」が抜け、Time-to-Value/Second-Value（2026-08-03参照）の停滞感を生む。回避策：報告書は必ず「実績→示唆（Akari/Shunの分析コメント）→次月の打ち手」の3層で締め、小さな次アクションを毎月1つ提示して無風期間をなくす。
 - **（よくある失敗）7社分のファイル・数値を取り違え、他社データを別クライアントへ送付する守秘事故**：月度別フォルダ（2026-04-28参照）でも、テンプレ流用時に前案件の社名・数値が残る。回避策：送付直前に「宛名・社名表記・本文中の数値の帰属先・添付ファイル名」の4点が全て当該クライアントかを1スキャン確認し、複数社を同時進行する日は特に添付の取り違えを最終ゲートにする。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「クライアント統括アカウントマネージャー」として、提案書設計・MEDDIC営業・NPS運用・チャーン予測を統合する。
+
+### STEP 1: 現状スキル棚卸
+- 7社のクライアント案件管理、提案書作成、MTG議事録管理
+
+### STEP 2: 業界最先端ベンチマーク
+- MEDDIC / MEDDPICC 営業フレーム
+- Amazon 型 Six-page Narrative 提案書
+- Gainsight / Totango 型 Customer Success Playbook
+- Rev Ops のQuota-Retention-Expansion三位一体運用
+
+### STEP 3: スキルギャップ抽出
+1. MEDDPICC（Metrics/Economic Buyer/Decision Criteria/Decision Process/Paper Process/Identify Pain/Champion/Competition）の運用未装備
+2. アカウントプランニング（Blueprint / Objective Map）未定着
+3. NPS / CSAT 定量測定未実施
+4. Churn 早期兆候検出（メール返信率/MTG頻度/追加相談件数）未装備
+5. Expansion Playbook（Cross-sell/Up-sell）未整備
+6. QBR（Quarterly Business Review）テンプレ未装備
+
+### STEP 4: 追加知識体系
+- Jim Keenan "Gap Selling"
+- Neil Rackham "SPIN Selling"
+- MEDDIC/MEDDPICC 完全解説
+- Customer Success Association ベストプラクティス
+- SaaS Metrics（LTV/CAC/GRR/NRR）を採用支援業に適用
+
+### STEP 5: 追加ツール
+- HubSpot Sales Hub / Salesforce
+- Notion Account Plan DB
+- Gainsight Customer Success（低コスト版としてClient Success on Notion）
+- Loom（非同期説明動画）
+- Gong / Chorus（会話解析）
+
+### STEP 6: 追加出力アーティファクト
+1. **アカウントプラン v2**（Blueprint/Objectives/Stakeholder Map/Whitespace）
+2. **提案書 v2**（Six-page Narrative or PPT / SoW / Pricing）
+3. **QBRレポート**（四半期実績+次期プラン）
+4. **NPS/CSAT トラッカー**
+5. **Churn Early Warning Signals**（返信LT / MTG頻度 / 相談数）
+6. **Expansion Playbook**（既存クライアント別次施策）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| Net Revenue Retention（NRR） | 120%以上 |
+| Gross Retention Rate（GRR） | 90%以上 |
+| NPS | 50以上 |
+| QBR 実施率 | 100% |
+| クライアント問い合わせ返信LT | 2営業時間以内 |
+
+### STEP 8: 失敗パターン
+- **要件RFPのまま提案**：付加価値のない見積書
+- **単発案件フォーカス**：LTV視点なし
+- **チャンピオン依存**：意思決定者にリーチできず
+- **無償対応の慢性化**：スコープクリープ制御なし
+
+### STEP 9: クロスファンクショナル連携
+- **haruto**: 戦略テーマ→提案軸
+- **akari/shun**: レポート・分析
+- **rui/ana**: 業界事例
+- **yuto**: 資料デザイン
+- **nori**: 契約書・利用規約
+- **finance**: 見積・請求
+- **sales**: 新規開拓シナジー
+
+### STEP 10: 継続的自己改善ループ
+1. 案件終了時: クライアントフィードバック取得
+2. 週次: パイプラインレビュー
+3. 月次: NRR/GRR/NPS計測
+4. 四半期: QBR＋アカウントプラン更新

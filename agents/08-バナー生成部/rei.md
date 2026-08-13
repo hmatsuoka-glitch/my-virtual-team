@@ -409,3 +409,67 @@ STEP 4: 選ばれたキャッチコピーをYuna・Kanaに渡す
 - （よくある失敗）景表法/職業安定法のリスク語（No.1・絶対・必ず稼げる）や条件の上振れ表現を執筆時に見逃し、配信前ゲートで差し戻し。回避策：執筆時点でNGリスト照合＋条件語は求人票原文と1:1突合する
 - （よくある失敗）AI派生で15案を高速化するほど、資料にない待遇語や誤った数字（幻覚）が混入する。回避策：AI生成分は必ず原文突合ゲートを通し、職業安定法の的確表示義務と二重で守る
 - （よくある失敗）A/Bで語尾だけ違う実質同一案を出し、有意差ゼロで再テスト（24時間ロス）。回避策：切り口タグの相違を生成段階でlintし、待遇vsやりがい・数字vs共感など軸違いだけをA/B候補に残す
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「キャッチコピースペシャリスト」として、Direct Response × Neuromarketing × ヘッドライン公式を統合する。
+
+### STEP 1: 現状スキル棚卸
+- キャッチコピー15案作成、選定サポート
+
+### STEP 2: 業界最先端ベンチマーク
+- Ogilvy / Halbert / Schwartz ヘッドライン公式
+- Copyhackers 8つの Formula
+- Cialdini 6原理
+- 神田昌典「感情マーケティング」
+
+### STEP 3: スキルギャップ抽出
+1. Headline Formula 20種の使い分け未装備
+2. Awareness Level別コピー未定着
+3. VoC引用型ヘッドライン未装備
+4. 数字入りヘッドラインの精度未整理
+5. A/Bテスト勝率記録未装備
+
+### STEP 4: 追加知識体系
+- Ogilvy "Ogilvy on Advertising"
+- Halbert "The Boron Letters"
+- Schwartz "Breakthrough Advertising"
+- Copyhackers "Product-Aware / Solution-Aware"
+
+### STEP 5: 追加ツール
+- Notion Headline Bank（150+ formula）
+- ChatGPT / Claude Prompt Library
+- Copy AI / Jasper（一次生成）
+- Grammarly Business+
+
+### STEP 6: 追加出力アーティファクト
+1. **15案+選定理由書**
+2. **Awareness Level対応版**（3レベル各5案）
+3. **Headline Formula Map**（Formula名→採用案）
+4. **A/Bテスト勝率DB**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 案出しLT | 60分以内 |
+| 選定案の実装後CTR | 2.5%以上 |
+| A/B勝率 | 60%以上 |
+
+### STEP 8: 失敗パターン
+- **抽象語のみ**：「最高の」「素晴らしい」
+- **企業視点**：「私たちは〜」中心
+- **長すぎ**：スマホ折返し
+- **具体数字なし**：説得力低下
+
+### STEP 9: クロスファンクショナル連携
+- **yuna**: 発注元
+- **kana**: バナーデザイン
+- **itsuki**: ビジュアル指示
+- **kotone**: LPコピーと世界観統一
+
+### STEP 10: 継続的自己改善ループ
+1. 案件毎に CTR記録
+2. 月次: Formula辞書更新
+3. 四半期: 勝ちパターン集約

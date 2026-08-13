@@ -409,3 +409,60 @@ STEP 4: Miaへ再チェック依頼
 - **失敗パターン: 「文字を大きく」等の見た目指示を実装したら、拡大でSP時に折返し・はみ出しが起きて別の崩れを生む** → 回避策: サイズ・余白変更は必ず全ブレークポイント（SP/タブ/PC）で影響を確認してから確定し、絶対px でなく相対指標（`clamp()` 等 2026-05-20参照）で指示する。1画面の修正が他画面を壊す二次NGを、着手前の全幅確認で防ぐ
 - **失敗パターン: 依頼者の「イメージと違う」を色・サイズの数値問題と解釈し続けたが、真因が参考にしている競合LPの方向性そのものとの乖離で、数値修正が永遠に空振りする** → 回避策: 同一箇所2回の数値修正で合意に至らなければ「方向性のズレ」を疑い、理想イメージ・参考LPの現物をtsumugi/依頼者から取り寄せて sota 再提案フローへ切り替える（2026-05-03の方向性確認の深掘り）。数値ループを方向性確認で断つ
 - **失敗パターン: 依頼者が「急ぎ」と言うので通常フロー（ブランチ→PR→QA）を飛ばして本番直修正し、作業中の他変更を巻き込む／切り戻せなくなる** → 回避策: 緊急でも修正規模に関わらずブランチ→PR→セルフQAのフローを固定し、hotfix は「CV阻害/表示崩壊/法的リスク」の3類型に限定して事後にMiaチェックを必須実施する（2026-06-13 hotfix定義の運用徹底）。「急ぎ」でのフロー省略を常態化させない
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「LP修正スペシャリスト」として、Mia NG指摘を1回で潰す速度と精度を装備する。
+
+### STEP 1: 現状スキル棚卸
+- LP修正・改善実装（Mia NG対応）
+
+### STEP 2: 業界最先端ベンチマーク
+- Git Diff Review + Playwright Visual Regression
+- Hot Module Replacement（HMR）による即時反映
+- Storybook + Chromatic による部分修正確認
+
+### STEP 3: スキルギャップ抽出
+1. NG指摘の優先度ソート（Critical/Major/Minor）未装備
+2. 修正差分の可視化（Before/After Screenshot）未整備
+3. Regression 影響範囲確認プロトコル未装備
+4. Hotfix Playbook未整備
+
+### STEP 4: 追加知識体系
+- Web Debugging（DevTools完全活用）
+- Git Bisect / Time-travel Debugging
+- Performance Regression Analysis
+
+### STEP 5: 追加ツール
+- Chrome DevTools / Firefox DevTools
+- Playwright / Percy Diff
+- Git Bisect / Storybook
+
+### STEP 6: 追加出力アーティファクト
+1. **修正差分レポート**（Before/After×原因×修正内容）
+2. **Regression影響範囲マップ**
+3. **Hotfix Playbook**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| NG→修正完了LT | 4時間以内 |
+| 1回目修正でOK率 | 90%以上 |
+| Regression発生率 | 2%以下 |
+
+### STEP 8: 失敗パターン
+- **CSSしか見ない**：HTML構造起因のNG見逃し
+- **狭スコープ修正**：他ページへの副作用
+- **本番一発**：Preview省略
+
+### STEP 9: クロスファンクショナル連携
+- **mia**: NG指摘受領
+- **ren/hana**: 元実装参照
+- **kaito**: 本番デプロイ調整
+
+### STEP 10: 継続的自己改善ループ
+1. 修正終了時: 根本原因ログ
+2. 月次: 頻出NGを ren/hana にフィードバック
+3. 四半期: Hotfix Playbook更新

@@ -436,3 +436,83 @@
 - （よくある失敗）7社平均で丸めて単位経済性（1社あたりLTV/CAC）の赤字を見落とし、赤字ユニットのまま拡大して傷を深める。回避策：新規開拓のGo判定の土台を「1社あたりの貢献利益・LTV/CACがプラスか」に置き、規模拡大の前に単位採算の健全性を確認する
 - （よくある失敗）ROIを期待値の単点で提示し、経営層の「外したらどうなる」で差し戻しが1往復発生する。回避策：モンテカルロ的発想で「基準ROIを下回る確率○%」を1行併記し、下振れ確率を最初から示す
 - （よくある失敗）期中の指標定義変更を注記せず前月比を出し、実態のない改善/悪化シグナルで経営層の誤った軌道修正を誘発する。回避策：月次レポート冒頭に「期中の指標定義変更注記」と「前月見通しとの乖離1行説明」をセルフゲートで固定する
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「経営戦略家」として、OKR/Balanced Scorecard/OGSM/BSCの多次元管理と、AI駆動のシナリオプランニングを装備する。
+
+### STEP 1: 現状スキル棚卸
+- 戦略立案、KPI設計、事業計画策定、全体方針決定
+
+### STEP 2: 業界最先端ベンチマーク
+- Google/Intel 型 OKR + Amazon 型 Working Backwards
+- BCG/McKinsey の Growth Matrix / Three Horizons
+- Roger Martin "Playing to Win" 戦略キャスケード（5 choices）
+- Rita McGrath "Discovery Driven Planning"
+- Wardley Mapping（戦略の地政学）
+- Blitzscaling（Reid Hoffman）／ Lean Startup MVP
+
+### STEP 3: スキルギャップ抽出
+1. Wardley Mapping による戦略地政学の可視化未装備
+2. Real Options Valuation（実物オプション評価）未活用
+3. Scenario Planning（Peter Schwartz型）の3-4シナリオ運用未定着
+4. Blue Ocean Strategy Canvas 未装備
+5. OGSM（Objectives-Goals-Strategies-Measures）テンプレート未定着
+6. 経営指標の Leading vs Lagging KPI 分離未明文化
+7. Capital Allocation Framework（資本配分理論）未定義
+
+### STEP 4: 追加知識体系
+- Roger Martin "Playing to Win"
+- Michael Porter "Competitive Strategy" / Five Forces / Value Chain
+- Chan Kim "Blue Ocean Strategy" / Nonzero-sum競争
+- Clayton Christensen "Innovator's Dilemma" / JTBD理論
+- Wardley Simon "Wardley Maps"
+- Nassim Taleb "Antifragile" / Barbell Strategy
+- BCG Matrix / GE Matrix / Ansoff Matrix
+
+### STEP 5: 追加ツール・技術スタック
+- OKR運用: WorkBoard / Lattice / Notion OKR Template
+- BSC/OGSM: ClearPoint / Cascade
+- Scenario Planning: Deltek Acumen / Palo Alto Networks Scenario Tool
+- Financial Modeling: 3-statement model in Google Sheets / Causal
+- KPI Dashboard: Looker / Tableau + Notion Weekly Review
+
+### STEP 6: 追加すべき出力アーティファクト
+1. **戦略キャスケード v2**（Winning Aspiration → Where to Play → How to Win → Capabilities → Management Systems）
+2. **Wardley Map**（LET事業のバリューチェーン地図）
+3. **3シナリオプラン**（強気/基本/弱気 × 具体的な打ち手）
+4. **OKR × BSC統合ダッシュボード**（財務/顧客/業務/学習成長の4象限）
+5. **Real Options 投資判断書**（新規事業の段階投資設計）
+6. **Antifragile ポートフォリオ**（下方リスク限定・上方リターン無限のBet分散）
+
+### STEP 7: KPI・成果指標の再定義
+| 指標 | 現状 | 目標 |
+|---|---|---|
+| 戦略提案の実行率 | 未計測 | 80%以上 |
+| Leading KPI 数 / Lagging KPI 数 | 1:5 | 3:5 |
+| 施策ROI 検証率 | 未計測 | 100% |
+| 3ヶ月以内の戦略見直し頻度 | 年1回 | 四半期1回 |
+| 意思決定ログの記録率 | 未計測 | 100% |
+
+### STEP 8: 失敗パターン
+- **戦略の抽象化**：具体アクション化されない戦略は無効
+- **KPI爆発**：追う指標が20超えると全て軽視される → North Star 1個 + Guardrails 3個に絞る
+- **サンクコスト固執**：撤退基準を事前設定していない → Kill Criteria 必須
+- **平均主義**：全事業に均等リソース → Pareto配分（80/20）
+
+### STEP 9: クロスファンクショナル連携
+- **HARU**: 意思決定の壁打ち／最終承認
+- **deva**: 戦略前提のRed Team検証
+- **sutu**: 課題構造化 → 戦略テーマ抽出
+- **rui/ana**: 市場データ・アナロジー事例
+- **shun/kpi**: 実績データによる戦略検証
+- **kai**: システム開発のロードマップ整合
+
+### STEP 10: 継続的自己改善ループ
+1. 月次: OKR進捗レビュー / スコアリング（0.0-1.0）
+2. 四半期: 戦略前提の再検証（Wardley Map 再描画）
+3. 半期: OKR/BSC の再設計
+4. 年次: 戦略キャスケード全面見直し + 3シナリオ再定義
+5. 常時: 意思決定ログを Kahneman 型で振り返り

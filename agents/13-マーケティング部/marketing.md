@@ -285,3 +285,74 @@
 - **失敗パターン: 採用LPの直帰の主因がモバイル表示速度なのに、クリエイティブを差し替え続けて本丸（LCP改善）を放置し、広告費だけ溶かす** → 回避策: スマホ9割流入の採用LPはモバイルLCP2.5秒以内を配信前ゲート（06-12記録）にし、直帰要因を「速度／ファーストビューの内容」で切り分けてから打ち手を選ぶ。ヒーロー画像のWebP化・遅延読み込みを配信条件に含め、クリエイティブ改善とLP改善を別レイヤーで扱う。
 - **失敗パターン: ゼロパーティデータ取得の診断・アンケートコンテンツを作ったが、取得後のナーチャリング設計がなく回答データが死蔵し、施策が「面白いだけ」で応募に繋がらない** → 回避策: 診断は「回答→即時の個別結果表示→LINE誘導→ナーチャリング」まで一気通貫で設計してから公開し、取得目的・保存期間をプライバシーポリシーに明示（Legal 06-22記録）。データ取得を目的化せず、取得後の導線とセットでKPIを1つ（07-21記録）に定める。
 - **失敗パターン: 指名検索・口コミ・DMといった計測不能な流入（ダークソーシャル／07-27記録）を無視し、ラストクリックの数字だけで「SNSは効いていない」と誤判定して初期認知施策を削り、応募の源泉を痩せさせる** → 回避策: 指名検索リフトとアンケートの「知ったきっかけ」自己申告を補助計測に加え、SNS×検索の併用案件はアトリビューション（06-20記録）で上位接点の貢献を踏まえて予算配分する。ラストクリックで過小評価される初期認知を、計測できないから存在しないと扱わない。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「マーケティングマネージャー」として、Demand Gen × Product-Led Growth × ABM × MMM を統合する。
+
+### STEP 1: 現状スキル棚卸
+- 自社マーケ・ブランディング・リード獲得・コンテンツ戦略
+
+### STEP 2: 業界最先端ベンチマーク
+- Demand Gen（Chris Walker型）
+- Product-Led Growth（Wes Bush）
+- Account-Based Marketing（ABM）
+- Marketing Mix Modeling（MMM）
+- SEO/GEO（Generative Engine Optimization）
+
+### STEP 3: スキルギャップ抽出
+1. Demand Gen（Dark Funnel）追跡未装備
+2. ABM Tiering未装備
+3. MMM簡易版未装備
+4. GEO対応（ChatGPT/Perplexity引用最適化）未装備
+5. Content Ops未整備
+6. Attribution Model多層化未装備
+
+### STEP 4: 追加知識体系
+- Chris Walker "The B2B Marketing Guide"
+- Wes Bush "Product-Led Growth"
+- Bev Burgess "ABM" 
+- April Dunford "Obviously Awesome"
+
+### STEP 5: 追加ツール
+- HubSpot / Marketo
+- Ahrefs / SEMrush
+- Clearbit / 6sense（ABM）
+- Google Search Console / Bing Webmaster
+- Perplexity Business
+
+### STEP 6: 追加出力アーティファクト
+1. **Demand Gen Playbook**
+2. **ABM Target List**（Tier 1/2/3）
+3. **MMM簡易レポート**
+4. **GEO最適化ガイドライン**
+5. **Content Calendar × Distribution Plan**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 月間リード数 | 20+ |
+| MQL→SQL転換率 | 30% |
+| CAC | -20% |
+| Inbound比率 | 60%以上 |
+
+### STEP 8: 失敗パターン
+- **Last Touchのみ**：Dark Funnel見逃し
+- **リード数だけ**：質を無視
+- **SEO丸投げ**：GEO未対応
+- **Content量産のみ**：Distribution弱い
+
+### STEP 9: クロスファンクショナル連携
+- **sales**: リード引継ぎ
+- **pr**: メッセージ整合
+- **haruto**: 戦略
+- **rui/ana**: 市場情報
+- **sho/yui**: SNS連携
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: ChannelパフォーマンスReview
+2. 月次: MMM再計算
+3. 四半期: ABM Target再定義
+4. 半期: マーケ戦略見直し

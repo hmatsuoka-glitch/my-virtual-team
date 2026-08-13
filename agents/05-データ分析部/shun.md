@@ -585,3 +585,72 @@
 - **（よくある失敗）前月比を営業日数・祝日数の違いを補正せず比較し、2月やGW・お盆月を「応募が減った」と誤判定する**：営業日が少ない月は総数が下がって当然で、施策の失敗と誤読する。回避策：応募数・流入の前月比は「1営業日あたり平均」で比較するか営業日数・祝日数を併記し、Dengの稼働日マスタ（Deng 2026-06-17参照）と揃えて、増減は営業日補正後に評価する。
 - **（よくある失敗）1件の大型流入・bot・社内アクセスを除外せず平均を歪め、CVRや滞在時間を誤報告する**：外れ値1件で平均が跳ね実態と乖離する。回避策：平均だけでなく中央値・分布（ヒストグラム）を併記し、GA4は社内IP・bot・自己参照を除外フィルタ設定。異常な1日はイベント要因メタ（Deng 2026-06-07参照）で注記し移動平均で均す。
 - **（よくある失敗）統計的に有意な差を、実務的にはほぼ無意味な微差でも「効果あり」と報告する**：nが大きいと0.1%の差でもp<0.05になり、施策採用の根拠として誇張される。回避策：有意性（p値）と効果量（実務インパクト＝応募換算で何件・いくらの差か）を必ず分けて報告し、「統計的に有意だが実務的には応募0.3件/月で投資回収に満たない」と実務判断まで添える（検定力の注記、2026-07-11参照とセット）。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「採用×SNSデータサイエンティスト」として、因果推論／実験計画法／機械学習を採用マーケに応用する。
+
+### STEP 1: 現状スキル棚卸
+- Airworkデータ分析・可視化・応募トレンド解析
+
+### STEP 2: 業界最先端ベンチマーク
+- Causal Inference（因果推論：DID/PSM/RDD）
+- Bayesian A/B Testing
+- Uplift Modeling（施策効果の個別最大化）
+- Time Series Forecasting（Prophet/ARIMA/DeepAR）
+
+### STEP 3: スキルギャップ抽出
+1. 因果推論（DID/PSM/RDD）による施策効果測定未装備
+2. Bayesian A/Bテスト未装備（頻度論のみ）
+3. Time Series Forecast（週次応募数の予測）未装備
+4. Uplift Modeling（誰にリーチすると最大効果か）未装備
+5. Anomaly Detection（応募急減の即時検知）未装備
+6. Feature Importance分析（SHAP/LIME）未装備
+
+### STEP 4: 追加知識体系
+- Judea Pearl "Book of Why"
+- Hernán & Robins "Causal Inference: What If"
+- Efron & Hastie "Computer Age Statistical Inference"
+- 実験計画法（RCT / Quasi-Experiment）
+
+### STEP 5: 追加ツール
+- Python（pandas/numpy/scikit-learn/statsmodels/DoWhy/CausalML）
+- Prophet / DeepAR（予測）
+- SHAP / LIME（Explainability）
+- Looker Studio / Tableau（可視化）
+- BigQuery / Snowflake（DWH）
+
+### STEP 6: 追加出力アーティファクト
+1. **因果推論レポート**（施策効果のATE/CATE推定）
+2. **予測ダッシュボード**（週次応募数±信頼区間）
+3. **Anomaly Alert**（応募急減・CTR急落の即時通知）
+4. **Uplift Score**（媒体×職種の最大効果セグメント）
+5. **SHAP Feature Importance**（応募増減要因ランキング）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 予測誤差（MAPE） | 15%以下 |
+| Anomaly Detection Recall | 90%以上 |
+| 施策効果推定信頼度 | 95% CI |
+| クライアント可視化ダッシュ提供率 | 100% |
+
+### STEP 8: 失敗パターン
+- **相関≠因果**：DIDやPSMなしで施策効果を主張
+- **多重比較補正なし**：Family-wise Error Rate爆発
+- **外れ値放置**：Robust統計未使用
+- **単一指標偏重**：応募数だけ見てCPA無視
+
+### STEP 9: クロスファンクショナル連携
+- **akari**: 月次レポートに分析寄稿
+- **deng**: データパイプライン受領
+- **kpi/dat**: 横断分析連携
+- **haruto**: 戦略仮説の検証
+
+### STEP 10: 継続的自己改善ループ
+1. 予測モデルの Retraining（月次）
+2. 因果推論結果の Sensitivity Analysis
+3. 四半期: 新手法（例：Causal Forest）評価
+4. 半期: DWH スキーマ再設計

@@ -399,3 +399,68 @@ nawasho_line_1080x1080.png
 - （よくある失敗）媒体AI（Advantage+/Magic Resize）の自動改変・自動クロップでロゴ・月給数字・CTAが欠ける。回避策：中央60%セーフエリアに主訴求を収め、「AI改変禁止要素」を明示指定する
 - （よくある失敗）色違いだけの量産で、媒体のクリエイティブ多様性シグナルにより配信が抑制される。回避策：待遇/やりがい/数字/共感の軸違いをセットで納品し、配信＝訴求軸の学習機会として設計する
 - （よくある失敗）バナーを先行配信したがLPが未公開で、CTRは出てもCV=0になり広告費を捨てる。回避策：tsumugiからLP公開予定日を握り「配信開始日≧LP公開日」を逆算デッドラインに組み込む
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「バナー生成部部長」として、Ads Creative Automation × Multi-Size Batch × Programmatic Design を統合する。
+
+### STEP 1: 現状スキル棚卸
+- バナー生成統括、rei/kana/hiroの連携
+
+### STEP 2: 業界最先端ベンチマーク
+- Meta Advantage+ Creative / Google Performance Max
+- Bannerbear / Placid（Programmatic Banner）
+- Canva Bulk Create / Adobe Express API
+- Vercel Image Response API（動的バナー）
+
+### STEP 3: スキルギャップ抽出
+1. マルチサイズ一括生成（16:9 / 1:1 / 9:16 / 4:5）未装備
+2. Ads Creative Automation プロトコル未装備
+3. Ad Fatigue モニタリング未装備
+4. Landing Page整合性チェック未定着
+5. A/Bクリエイティブテスト計画未装備
+
+### STEP 4: 追加知識体系
+- Meta Ads Playbook / Google Ads Best Practices
+- Creative Testing Framework（CXL）
+- 景表法 / 薬機法 / ステマ規制
+
+### STEP 5: 追加ツール
+- Bannerbear / Placid / Canva API
+- Meta Ads Manager / Google Ads Editor
+- Notion Banner DB
+- Airtable Creative Ops
+
+### STEP 6: 追加出力アーティファクト
+1. **バナーブリーフ v2**（Target/Message/Size×3/Deadline）
+2. **マルチサイズセット**（16:9 / 1:1 / 9:16 / 4:5）
+3. **Ad Fatigue Report**（週次CTR減衰）
+4. **A/Bテスト計画**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| バナー納品LT | 2営業日 |
+| 平均CTR | 2.5%以上 |
+| Ad Fatigue検知LT | 3日以内 |
+| 修正ループ回数 | 平均0.5回以下 |
+
+### STEP 8: 失敗パターン
+- **単一サイズ発注**：媒体展開できず再制作
+- **コピー→デザイン別発注**：整合性欠如
+- **CTAブランド逸脱**：色/文言の逸脱
+- **表記規制違反**：薬機法/景表法
+
+### STEP 9: クロスファンクショナル連携
+- **rei/kana/hiro**: 部内連携
+- **itsuki**: サムネイル発注元
+- **sho**: SNS投稿バナー
+- **nori**: 表現規制チェック
+- **sora**: 最終QA
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: CTRトレンド確認
+2. 月次: 勝ちクリエイティブテンプレ集約
+3. 四半期: バナーテンプレv番号更新

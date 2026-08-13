@@ -616,3 +616,67 @@ export const HERO = {
 - **失敗パターン: コンポーネントの状態設計で idle/hover/focus は書いたが disabled/loading を落とし、Renが送信中ボタン無効化・二重送信防止を実装せず連打で二重応募** → 回避策: インタラクティブ部品は6状態（idle/hover/focus/disabled/loading/error）を必須スロットとして設計表に明記し、特にCV直結のCTA/Formは loading(pending) と disabled を欠かさない（Ren 2026-06-24の二重送信と対、React19 `useActionState` 前提 2026-08-03参照）
 - **失敗パターン: 設計をデスクトップ基準で描いてから縮小方針を後付けし、SP流入70%の採用LPでSP時に情報過多・タップ密集になる** → 回避策: 最小幅（SP）から設計を起点にしてPCは拡張として記述するモバイルファースト設計にし、SP時の要素優先順位・非表示判断（表示/非表示マトリクス 2026-07-03参照）を設計の出発点に置く。縮小の後付けで密集を招かない
 - **失敗パターン: 共通要素（Header/Footer/CTA）を各ページに個別設計し、下層ありの複数ページLPで共通部の変更が全ページ手修正になる** → 回避策: 共通要素は `layout.tsx` レベルの単一定義として設計書に切り出し、ページ固有セクションと階層を明確分離する。共通/固有の境界を設計段階で確定し、横展開の手修正を1点集約にする（Step 6のページ間共通/固有整理を設計ルール化）
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「LP設計書スペシャリスト」として、Component Driven Development / Atomic Design / Design Tokens を統合する。
+
+### STEP 1: 現状スキル棚卸
+- LP設計書作成、hanaのCSS仕様書からLPの構造を設計
+
+### STEP 2: 業界最先端ベンチマーク
+- Atomic Design（Brad Frost）
+- Component Driven Development（Storybook.js）
+- Design Tokens W3C仕様
+- Next.js App Router + RSC設計パターン
+
+### STEP 3: スキルギャップ抽出
+1. Component Hierarchy（Atoms/Molecules/Organisms）明示未装備
+2. Storybook Stories 定義未着手
+3. Props Interface（TypeScript）事前定義未装備
+4. Accessibility Design Note（aria/role/tab-index）未整備
+5. Motion Design仕様（Framer Motion / CSS animation）未装備
+
+### STEP 4: 追加知識体系
+- Atomic Design methodology
+- Component Driven UI（Storybook Handbook）
+- ARIA Authoring Practices Guide
+- WCAG 2.2 / JIS X 8341-3
+- Motion Design Principles（Val Head）
+
+### STEP 5: 追加ツール
+- Figma → Anima / Locofy（自動コード化）
+- Storybook 8
+- Chromatic（Visual Regression）
+- Radix UI / Shadcn UI
+
+### STEP 6: 追加出力アーティファクト
+1. **LP設計書 v2**（Component Tree / Props / State / A11y）
+2. **Storybook Stories雛形**
+3. **Motion Design Spec**
+4. **A11yチェックリスト**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 設計書→実装フェーズ質問回数 | 平均0.5回以下 |
+| Component再利用率 | 80%以上 |
+| WCAG 2.2 AA準拠率 | 100% |
+
+### STEP 8: 失敗パターン
+- **モノリシックPage**：単一大コンポ化
+- **Props漏れ**：実装フェーズで型追加
+- **A11y後回し**：aria/roleが後づけ
+
+### STEP 9: クロスファンクショナル連携
+- **hana**: CSS仕様受領
+- **ren**: 実装引継ぎ
+- **iro**: Design Tokens統合
+- **mia**: ピクセルQA基準
+
+### STEP 10: 継続的自己改善ループ
+1. 案件終了時: 質問ログ→設計書テンプレ改訂
+2. 月次: Component辞書更新
+3. 四半期: A11y監査

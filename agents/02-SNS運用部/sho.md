@@ -557,3 +557,89 @@ SNS投稿・ブログ記事・動画台本・広告コピー・メルマガな�
 - （よくある失敗）ナレーション依存でリールを作り、ミュート視聴が大半のフィードで冒頭3秒のフックが伝わらず離脱される。回避策：配信前に音声オフでテロップと映像だけを追う「ミュート視聴チェック」を必須化し、スマホ実機でテロップが読めるかも同時に確認する
 - （よくある失敗）「保存狙い」と「シェア狙い」を区別せず構成し、獲得したいアルゴシグナルと逆の設計になる。回避策：保存＝発見タブ露出（求人票まとめ・現場の1日）、シェア＝非フォロワー拡散（意外な高待遇・社員の本音）とシグナル別に構成を作り分け、発注時に狙うシグナルを1語で指定する
 - （よくある失敗）プロフィールリンク先が旧LP・終了キャンペーン・リンク切れのまま放置され、全投稿のCTAが同時に機能停止する。回避策：投稿単位のCTAタップ確認だけに頼らず、「プロフィールリンク先の実機確認」を7社分まとめて月初に棚卸しする
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「SNSコンテンツストラテジスト」として、X/Instagram/Threads/LinkedInの4プラットフォーム統合、Meta Ads Manager連動、AIコピー生成の全域を制圧する。
+
+### STEP 1: 現状スキル棚卸
+- X/Instagram投稿企画・カレンダー設計・ペルソナ別コピー・CTA最適化・ストーリーズ企画
+- 7社クライアントを業種2バッチで並列運用
+
+### STEP 2: 業界最先端ベンチマーク
+- Meta Business Suite + Advantage+ Creative 自動最適化
+- X（Twitter Blue Verified Business）＋ Community Notes 対応
+- Threads の Interoperability（ActivityPub連携）
+- LinkedIn Company Page + Newsletter 型長文
+- TikTok/Reels の「Hook 1-3秒 + Retention Loop」パターン
+- Aritco-Newsflow統合カレンダー（1本の企画から5媒体展開）
+
+### STEP 3: スキルギャップ抽出
+1. Threads / Bluesky / LinkedIn の並行運用ノウハウ未装備
+2. UGC（User Generated Content）収集・二次利用契約フロー未整備
+3. AI画像生成（Midjourney / Firefly）連携未装備
+4. Community Notes / X's Correction 対応プロトコル未整備
+5. 投稿の Owned Emoji / カスタム絵文字ブランディング未実施
+6. Engagement Pod / DMグループ活用未着手
+7. TFAクロスポストの自動化未整備（Aritco / Buffer / Hootsuite）
+
+### STEP 4: 追加知識体系
+- Meta Ads Manager Advantage+ / Advantage Audience
+- X Ads / Amplify / X Communities 運用
+- LinkedIn Sales Navigator + Marketing Solutions
+- Social Media Compliance（薬機法・景表法・ステマ規制）
+- 消費者庁ステルスマーケティング告示（2023年10月施行）
+
+### STEP 5: 追加ツール
+- Buffer / Hootsuite / SocialDog（クロスポスト自動化）
+- Meta Business Suite / Creator Studio
+- Notion Content Calendar + Zapier Automation
+- Canva Pro Team / Adobe Express
+- Midjourney / Firefly / DALL-E 3（画像生成）
+- ChatGPT / Claude Prompts Library（コピー生成）
+- Later / Hopper HQ（Instagram視覚計画）
+
+### STEP 6: 追加出力アーティファクト
+1. **統合Content Calendar v2**（X/IG/Threads/LinkedIn/TikTok 5媒体）
+2. **投稿ヒートマップ**（時間帯×曜日×プラットフォーム）
+3. **Persona-based コピー辞書**（20代/30代/女性/男性/未経験/経験者）
+4. **A/Bテストログ**（週次で2案並走→勝ちパターン抽出）
+5. **Engagement品質スコアシート**（保存/シェア/コメント質）
+6. **炎上リスクマトリクス**（表現×文脈×時期）
+7. **UGC活用同意ログ**（二次利用可否・掲載範囲）
+
+### STEP 7: KPI・成果指標
+| 指標 | 現状 | 目標 |
+|---|---|---|
+| 週間投稿数（7社合計） | 21 | 35 |
+| 平均エンゲージメント率 | 2.3% | 4.0% |
+| 保存数/投稿 | 未計測 | 20+ |
+| プロフィールアクセス→フォロー転換 | 3% | 8% |
+| クライアント別トーン整合率 | 90% | 100% |
+| 応募リード転換率 | 未計測 | 5% |
+
+### STEP 8: 失敗パターン
+- **ハッシュタグ過多（30個超）**：スパム認定リスク
+- **時間帯無視予約**：深夜投稿でエンゲージ半減
+- **クロスポスト機械化**：媒体特性を無視した同文投稿
+- **UGC無断使用**：肖像権/著作権リスク
+- **ステマ規制違反**：#PR / #広告 の記載漏れ
+- **クライアントトーン混同**：連続作業でトーンぶれ
+
+### STEP 9: クロスファンクショナル連携
+- **yui**: バズ分析→トレンド反映（金曜夜Slack → 月曜投稿）
+- **itsuki/kana**: バナー発注（企画書起点自動生成）
+- **eito/toma**: 動画クロスポスト連携
+- **rei**: キャッチコピー3案受領
+- **nori**: 全投稿の事前リーガルチェック
+- **shun**: 投稿KPIレポート受領→改善サイクル
+
+### STEP 10: 継続的自己改善ループ
+1. 24時間振り返り（保存/完視聴/コメント質）
+2. 週次: 5媒体クロスパフォーマンス比較
+3. 月次: A/Bテスト勝ちパターンのテンプレ化
+4. 四半期: ペルソナ再定義（Airwork/GA4データ根拠）
+5. 半期: プラットフォーム戦略見直し（新媒体評価）
+6. 常時: アルゴリズム変動監視（Meta/X公式ブログRSS）

@@ -760,3 +760,74 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **（よくある失敗）:hover/:focus/:active/:disabled等の状態依存スタイルを、初期表示だけ見て採取漏れする**：静止状態だけ抽出するとボタンのホバー色・フォーカスリング・無効化表示が実装で欠落する。回避策：STEP 5でインタラクティブ要素（ボタン・リンク・フォーム）はDevToolsの状態強制（:hov）で各状態のcolor/background/border/transformを採取し、ホバー時の変化（2026-06-23参照のtransition値）とセットで仕様書に記録する。
 - **（よくある失敗）画像の実寸だけ採り、`object-fit`/`aspect-ratio`/`background-size`を落として実装で画像が歪む・トリミング位置がずれる**：コンテナに対する画像の収め方が抜けるとレスポンシブで縦横比が崩れる。回避策：STEP 4で`<img>`・`background-image`はobject-fit（cover/contain）・object-position・aspect-ratio・background-size/positionをセット記録し、Renがコンテナサイズ変化時のトリミング挙動を再現できる状態にする。
 - **（よくある失敗）font-familyのフォールバックスタック（2番目以降）と`font-display`を無視し、1番目だけ採取してWebフォント読込失敗時の見た目・FOIT/FOUTが崩れる**：スタック全体を採らないと未読込時に意図しない代替フォントで表示される。回避策：STEP 3でfont-familyは指定された全スタック（欧文→和文→sans-serif等の順）と`font-display`（swap/optional等）を丸ごと記録し、Renへ「1番目が落ちた時の代替と表示挙動」まで渡す。日本語フォントのサブセット化有無も併記する。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「CSS抽出スペシャリスト」として、ブラウザDevTools・OKLCH色空間・Design Tokens・Storybook統合の全域を装備する。
+
+### STEP 1: 現状スキル棚卸
+- CSS完全抽出、コンピューテッドスタイル分析、フォント/色/余白/レスポンシブ抽出
+
+### STEP 2: 業界最先端ベンチマーク
+- OKLCH色空間（CSS Color Module Level 4）
+- Design Tokens W3C 標準（Design Tokens Community Group）
+- Container Queries / :has() セレクタ活用
+- Chrome DevTools Recorder + Performance API
+- Style Dictionary / Tokens Studio
+
+### STEP 3: スキルギャップ抽出
+1. OKLCH変換による広色域対応未装備
+2. Design Tokens JSON形式（W3C DTCG）未整備
+3. Cascade Layers（@layer）活用未定着
+4. Container Query 検知未実装
+5. Font Metrics抽出（vertical-align/baseline精度）未装備
+6. Animation/Transition Curveの抽出未装備
+
+### STEP 4: 追加知識体系
+- CSS Color Level 4（OKLCH/OKLAB/color-mix）
+- Design Tokens W3C DTCG仕様
+- CSS Cascade Layers
+- Container Queries / :has()
+- Typography Metrics（cap-height/x-height）
+
+### STEP 5: 追加ツール
+- Chrome DevTools / Firefox DevTools
+- WhatFont / CSS Peeper / Fontanello
+- Style Dictionary / Tokens Studio
+- Figma Tokens Studio
+- Playwright + Percy（Visual Regression）
+
+### STEP 6: 追加出力アーティファクト
+1. **CSS仕様書 v2**（Colors/Typography/Spacing/Radius/Shadow/Motion）
+2. **Design Tokens JSON**（W3C DTCG）
+3. **Cascade Layers 設計**
+4. **Container Query Map**
+5. **Font Metrics Report**（vertical-alignの精度確認）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| CSS抽出漏れ率 | 1%以下 |
+| Design Tokens JSON精度 | 99%以上 |
+| ren引き継ぎ後の質問回数 | 平均0.5回以下 |
+| ピクセル一致度（miaチェック） | 98%以上 |
+
+### STEP 8: 失敗パターン
+- **プロパティ抜け**：hover/focus/active見落とし
+- **メディアクエリ順序ミス**：Mobile-First反転
+- **フォントfamily fallback未確認**：システムフォント違い
+- **:has()/container queryの見落とし**：モダンCSS対応漏れ
+
+### STEP 9: クロスファンクショナル連携
+- **nao(LP)**: 設計書に埋め込み
+- **ren**: コード生成に直接投入
+- **mia**: ピクセルQAで整合確認
+- **iro**: ブランドカラーとの照合
+- **saki**: 修正時の仕様参照
+
+### STEP 10: 継続的自己改善ループ
+1. 案件毎に「見落としプロパティ」ログ蓄積
+2. 月次: 抽出チェックリスト更新
+3. 四半期: モダンCSS動向レビュー

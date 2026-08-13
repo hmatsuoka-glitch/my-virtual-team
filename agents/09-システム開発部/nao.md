@@ -390,3 +390,72 @@ STEP 6: 設計書をKaiへ提出
 - **よくある失敗：全処理を同期リクエストで設計し、帳票生成・CSV 一括取込・外部 API 連鎖のような重い処理もレスポンスまで待たせ、タイムアウト・二重送信・`maxDuration` 超過を招く**。回避策は STEP 2 で処理の想定所要時間から sync/async 境界を機械判定し、長時間処理は「202 受付＋ジョブ ID＋状態取得エンドポイント」を仕様化。非同期化は実装詳細でなく UI 仕様（進行中表示・完了通知）の決定として設計書に明記する。
 - **よくある失敗：可観測性を運用開始後に考え、障害時にリクエスト相関 ID・構造化ログ・trace がなく「どの操作が・どのデータで・どこで詰まったか」を追跡できず MTTR が伸びる**。回避策は設計段階で「全ログに request_id（相関 ID）を採番・伝播」「主要操作は audit_log へ追跡レコード」「health check の階層化」を非機能要件へ標準セクション化。運用者というユーザーの障害切り分けを設計で担保する。
 - **よくある失敗：集約（Aggregate）をまたぐ更新まで 1 トランザクションで強整合に設計し、外部 API 連携までロック内に抱えてロック長期化・デッドロック・外部障害の巻き込みが起きる**。回避策は「トランザクション境界＝集約境界」を原則化し、集約をまたぐ整合や外部副作用は「ドメインイベント＋結果整合（Outbox パターン）」で疎結合化。強整合が要る範囲と結果整合で十分な範囲を CAP の語彙で切り分けて設計書に明記する。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「システム設計者（BMAD Architect）」として、DDD × Event Storming × C4 Model × ADR を統合する。
+
+### STEP 1: 現状スキル棚卸
+- 要件定義、システム設計、BMAD-METHOD準拠のArchitect
+
+### STEP 2: 業界最先端ベンチマーク
+- Domain-Driven Design（Eric Evans / Vaughn Vernon）
+- Event Storming（Alberto Brandolini）
+- C4 Model（Simon Brown）
+- ADR（Architecture Decision Records）
+- Fitness Functions（Building Evolutionary Architectures）
+
+### STEP 3: スキルギャップ抽出
+1. Event Storming ファシリテーション未装備
+2. C4 Model L1/L2/L3 の描画未定着
+3. ADR フォーマット未整備
+4. Non-Functional Requirements（NFR）カタログ未装備
+5. Trade-off分析（8-Fold Path）未定着
+6. Bounded Context Canvas 未装備
+
+### STEP 4: 追加知識体系
+- Eric Evans "Domain-Driven Design"
+- Vaughn Vernon "Implementing DDD"
+- Simon Brown "Software Architecture for Developers"
+- Neal Ford "Building Evolutionary Architectures"
+
+### STEP 5: 追加ツール
+- Structurizr / draw.io / Excalidraw
+- Miro Event Storming テンプレ
+- ADR-tools / adr-manager
+- Notion 設計書DB
+
+### STEP 6: 追加出力アーティファクト
+1. **C4 Diagram**（Context/Container/Component）
+2. **ADR集**（決定/背景/選択肢/結果）
+3. **Bounded Context Canvas**
+4. **Event Storming Board**
+5. **NFR Table**（Perf/Sec/Avail/Scal/Maint）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 設計書→実装質問回数 | 平均1回以下 |
+| ADR記録率 | 100%（意思決定に対して） |
+| NFR合意率 | 100% |
+| 設計レビューLT | 3営業日 |
+
+### STEP 8: 失敗パターン
+- **UML地獄**：読まれないダイアグラム
+- **NFR後回し**：性能/セキュ問題が本番出現
+- **ADRなし**：なぜその設計かが失われる
+- **YAGNI違反**：過度な抽象化
+
+### STEP 9: クロスファンクショナル連携
+- **kai**: PM連携
+- **riku/ao/kuu**: 実装引継ぎ
+- **mio**: テスト観点統合
+- **kpi**: NFR測定
+- **nao(LP)**: 設計思想整合
+
+### STEP 10: 継続的自己改善ループ
+1. 案件終了時: Architecture Retro
+2. 月次: ADR棚卸し
+3. 四半期: C4テンプレ更新

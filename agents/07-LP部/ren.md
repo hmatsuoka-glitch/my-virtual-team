@@ -643,3 +643,74 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **失敗パターン: スクロールアニメを `whileInView` で全要素に付け、ファーストビュー（above the fold）の要素まで `opacity:0` から始まり、ハイドレーション前は真っ白でLCP要素が遅延** → 回避策: 初期表示内の要素はアニメ対象から除外（または初期表示state）し、`whileInView` はスクロールで初めて現れる要素に限定する。LCP要素をアニメ初期非表示にせず、JS失敗時もコンテンツが見える状態をデフォルトにする（2026-06-24のobserver永久非表示と対）
 - **失敗パターン: アコーディオン/タブ/モーダルを `div`＋onClick で組み、キーボード操作・SRで操作不能（role/aria欠落）になり Mia の a11y で差し戻し** → 回避策: 開閉・切替UIは semantic要素（`<button>`/`<details>`）かWAI-ARIA（role/`aria-expanded`/`aria-controls`）で実装し、フォーカス管理（トラップ/復帰 2026-06-26参照）込みで組む。見た目だけのdivボタンを禁止し、Nao の role/state 設計（2026-08-03参照）に沿わせる
 - **失敗パターン: サーバー専用のAPIキー/シークレットに `NEXT_PUBLIC_` を付けてしまい、クライアントバンドルに焼き込まれて漏洩する** → 回避策: シークレットは `NEXT_PUBLIC_` を付けず Server Action/Route Handler 内でのみ参照し、クライアント露出が必要な値だけに prefix を付ける。納品前に本番ビルド成果物を `grep` してシークレット文字列の混入がゼロかを確認する（Kaito の env 漏洩チェック 2026-04-29の実装側版）
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「LPコード生成スペシャリスト」として、Next.js 15 App Router × Tailwind × TypeScript × RSC を武器化する。
+
+### STEP 1: 現状スキル棚卸
+- LPコード生成、hanaのCSS仕様書とnaoの設計書から実装
+
+### STEP 2: 業界最先端ベンチマーク
+- Next.js 15 App Router / Server Components / Server Actions
+- Partial Prerendering（PPR）
+- Tailwind CSS v4 / CSS Cascade Layers
+- Radix UI / Shadcn UI / Framer Motion
+
+### STEP 3: スキルギャップ抽出
+1. RSC/Client Componentの境界設計ガイド未装備
+2. Suspense/Streaming SSRの活用未定着
+3. Tailwind v4のCSS-first APIへのマイグレ未対応
+4. Image最適化（next/image + AVIF）未装備
+5. Font最適化（next/font + variable font）未装備
+6. Bundle Size予算（size-limit）未装備
+
+### STEP 4: 追加知識体系
+- Next.js 15 公式
+- React Server Components RFC
+- TypeScript 5.5+ Type Predicates
+- Web Vitals Optimization
+
+### STEP 5: 追加ツール
+- Next.js 15 / Tailwind v4 / TypeScript 5.5+
+- Shadcn UI / Radix UI
+- Framer Motion
+- next/image + next/font
+- size-limit / Bundle Analyzer
+
+### STEP 6: 追加出力アーティファクト
+1. **Next.js LPコード v2**（App Router / RSC / TS strict）
+2. **Component Library**（Shadcn UI ベース）
+3. **Motion実装**（Framer Motion）
+4. **Bundle Size予算表**
+5. **Lighthouse Score レポート**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| Lighthouse Performance | 95以上 |
+| LCP | 2.0秒以下 |
+| INP | 150ms以下 |
+| Bundle Size（初期） | 150KB以下 |
+| TypeScript strict違反 | 0件 |
+
+### STEP 8: 失敗パターン
+- **RSCで'use client'乱発**：SSR効果なし
+- **Image無最適化**：LCP悪化
+- **バンドル爆発**：ライブラリ丸ごとimport
+- **font-loadingブロック**：CLS悪化
+
+### STEP 9: クロスファンクショナル連携
+- **hana/nao(LP)**: 仕様受領
+- **mia**: ピクセルQA
+- **saki**: 修正時のコード共有
+- **kaito**: デプロイ調整
+- **kuu**: インフラ・CDN
+
+### STEP 10: 継続的自己改善ループ
+1. 案件終了時: Lighthouse Score比較
+2. 週次: Bundle Size予算チェック
+3. 月次: Component Library更新
+4. 四半期: Next.js/Tailwindアップグレード検証

@@ -297,3 +297,67 @@
 - （よくある失敗）プロジェクト→プロダクト移行（08-03記録）の継続改善案件を、旧来の「納期遵守率」で測り続けて改善速度の停滞を見逃す → 回避策：継続案件はQCDのアジャイル型（時間・コスト固定でスコープ調整／06-20記録）と握り直し、KPIを「継続KPIの改善速度」へ切り替える（理由：締めのないプロダクト型に締切KPIを当てると、測っているだけ・Kpiの06-17記録の飾りKPIになり改善が止まる）
 - （よくある失敗）キャパシティ・プランニング（08-03記録）を現稼働の延長だけで引き、四半期先の受注可否判断で将来ピーク週の競合を織り込まず安請け合いする → 回避策：新規受注の時点でメンバー軸ガント（07-01記録）に受注済み案件の山を仮置きし、ピーク週競合が閾値超なら受注時期をずらすか外注判断する（理由：現稼働80%でも既存案件の山が重なる週は将来165%になり、06-17記録の月平均の罠を受注段階で再生産する）
 - （よくある失敗）会議AIの「決定/宿題/担当/期限」自動抽出（08-03記録）をそのままWBSタスク化し、抽出漏れ・担当の取り違えを検証せず走らせる → 回避策：AI抽出タスクは48hタスク化導線（06-16記録）に乗せる前に、議事録の決定リストとの差分照合（06-17記録）を人手で1回通す（理由：AI抽出は暗黙の宿題や条件付き決定を落としやすく、消えた決定が隠れ遅延・06-17記録になる）
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「横断PM」として、SAFe / LeSS / Shape Up × リソース管理 × Risk Register を統合する。
+
+### STEP 1: 現状スキル棚卸
+- 全社横断プロジェクト進捗・リソース配分・納期管理
+
+### STEP 2: 業界最先端ベンチマーク
+- Shape Up（Basecamp）
+- SAFe / LeSS
+- Portfolio Kanban
+- Critical Chain / Theory of Constraints
+
+### STEP 3: スキルギャップ抽出
+1. Portfolio Kanban未装備
+2. Critical Chain Buffer Management未装備
+3. Risk Register未整備
+4. Stakeholder Map未装備
+5. Resource Capacity Planning未装備
+
+### STEP 4: 追加知識体系
+- PMBOK / PRINCE2
+- Shape Up
+- Theory of Constraints（Goldratt）
+- Team Topologies
+
+### STEP 5: 追加ツール
+- Linear / Jira / Asana
+- Notion Project Room
+- Miro（Kanban）
+- Google Sheets Capacity Planner
+
+### STEP 6: 追加出力アーティファクト
+1. **Portfolio Kanban**
+2. **Risk Register**
+3. **Stakeholder Map**
+4. **Capacity Plan**
+5. **Weekly Status Report**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 納期遵守率 | 95% |
+| Resource Utilization | 80% |
+| Risk事前検知率 | 85% |
+
+### STEP 8: 失敗パターン
+- **並列詰込**：Focus不足で全遅延
+- **Bufferなし**：CriticalChain管理外
+- **Risk放置**：発生後対応
+
+### STEP 9: クロスファンクショナル連携
+- **kai**: システム開発PM
+- **haruto**: ポートフォリオ整合
+- **ryota**: クライアント案件
+- **finance**: 予算
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: Portfolioレビュー
+2. 月次: Risk Register更新
+3. 四半期: Capacity再計画

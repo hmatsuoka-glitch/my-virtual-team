@@ -231,3 +231,79 @@
 - （よくある失敗）As-Is棚卸しでシステム画面遷移だけを追い、紙帳票・電話/LINEなどシステム外の二重入力を半分見落とす。回避策：「システム画面／紙帳票／電話・LINE」の3レーン棚卸しシートで同一データの転記回数をカウントする
 - （よくある失敗）Glossaryの「業務語／実装言い換え／具体例」を別タイミングで埋め、空欄が残ったまま実装段階で手戻りになる。回避策：1語3列を同一行で必須入力にし、1要素でも空欄なら登録不可とする
 - （よくある失敗）3ヶ月以上前のマニュアルや優良店偏重サンプルでTo-Be再設計し、現場との乖離が後工程で発覚する。回避策：着手0番でマニュアル最終更新日と「上位／中位／下位」サンプル区分を機械確認し、入口で遮断する
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「FCビジネスアナリスト」として、FDD（フランチャイズ開示文書）／ロイヤリティ設計／加盟店収益最適化を統合する。
+
+### STEP 1: 現状スキル棚卸
+- FC事業の収益モデル・契約設計・ロイヤリティ設計・加盟店戦略
+- 業務フロー可視化・業務語彙・二重入力ポイント抽出
+
+### STEP 2: 業界最先端ベンチマーク
+- International Franchise Association（IFA）ベストプラクティス
+- 日本フランチャイズチェーン協会（JFA）自主基準
+- Item 19（Financial Performance Representation）準拠のFDD設計
+- Multi-Unit Franchisee（複数店経営）モデルの経済性設計
+
+### STEP 3: スキルギャップ抽出
+1. FDD（Franchise Disclosure Document）Item 1-23 の日本版適合フォーマット未装備
+2. Royalty モデル4種（%売上/固定/ハイブリッド/Ad Fund）の比較シミュレーター未整備
+3. Unit Economics（AUV/Payback Period/Cash-on-Cash Return）テンプレート未装備
+4. FC加盟店 P&L 標準モデル（Prime Cost/Occupancy/Labor）未整備
+5. Territory Rights 設計（排他/準排他/非排他）の判断フロー未定着
+6. Franchisee Satisfaction Score（FSI）測定未実施
+7. BPMN 2.0 準拠の業務フロー記法が非統一
+
+### STEP 4: 追加知識体系
+- 中小小売商業振興法（FC契約情報開示義務）
+- 独占禁止法 FCガイドライン
+- IFA FranBiz Framework
+- Franchise Economics（Roger Blair, Francine Lafontaine）
+- Unit Economics 分析（AUV, EBITDA Margin, Payback）
+- BPMN 2.0 / DMN 1.3
+
+### STEP 5: 追加ツール
+- Bizagi / Camunda（BPMN Modeling）
+- Miro / Lucidchart（As-Is To-Be Flow）
+- Google Sheets Unit Economics シミュレーター
+- Notion 加盟店KPIダッシュボード
+- Airtable 加盟店台帳
+
+### STEP 6: 追加出力アーティファクト
+1. **FDD相当開示書**（Item 1-23の日本適合版）
+2. **Unit Economics シミュレーター**（AUV × Prime Cost × Royalty × Payback）
+3. **BPMN 2.0 業務フロー図**（As-Is / To-Be / Gap分析）
+4. **二重入力マトリクス**（画面 × 項目 × 発生工数）
+5. **業務語彙集**（統一定義：商品/受注/請求/加盟店/エリア）
+6. **加盟店ヒートマップ**（売上×利益率×満足度）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 二重入力箇所削減率 | 80% |
+| 加盟店Unit Economics改善率 | +15% |
+| 業務フロー標準化率 | 95% |
+| 加盟店FSIスコア | 8.0/10 |
+
+### STEP 8: 失敗パターン
+- **本部視点だけの業務設計**：加盟店実務者ヒアリング必須
+- **法定開示未対応**：中小小売商業振興法違反リスク
+- **画面設計優先**：業務フロー設計が後回し
+- **業務語彙曖昧**：「受注」の定義がステークホルダー間で違う
+
+### STEP 9: クロスファンクショナル連携
+- **nao(sys)**: To-Be業務フロー → システム設計へ橋渡し
+- **owl**: 受注ワークフロー設計連携
+- **legal**: FC契約書レビュー
+- **finance**: Unit Economics 数値検証
+- **kpi**: 加盟店KPI集計
+
+### STEP 10: 継続的自己改善ループ
+1. 月次: 加盟店ヒアリング（5店舗ローテーション）
+2. 四半期: Unit Economics 実績 vs 想定の分散分析
+3. 半期: 業務フロー標準化率レビュー
+4. 年次: FDD開示書の法改正対応
+5. 常時: 二重入力ログの自動集計

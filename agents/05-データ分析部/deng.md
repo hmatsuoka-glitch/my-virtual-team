@@ -286,3 +286,76 @@
 - **失敗パターン: dbtのnot_null/uniqueテストを`severity: warn`のまま運用し、主キー破損・重複が警告ログで素通りして下流に流れる** → 回避策: 主キー・件数整合・PII非露出に関わるテストは`severity: error`で必ずパイプライン停止、`warn`は監視目的の軽微チェックに限定し、テスト追加時に「これは止めるべきか」をレビュー必須項目にする（理由: warnはCIが緑のまま通り、重複二重計上（2026-05-27参照）を検知しても誰も止めず、Shunの集計が崩れてから発覚する）
 - **失敗パターン: ログイン/セッション依存でクロールする競合サイトで、Cookie失効・ログイン画面リダイレクト時に空データを「正常取得0件」として格納する** → 回避策: ログイン後のみ表示される要素（ログアウトボタン・会員限定ラベル）の存在を取得成否判定に組み込み、認証切れ検知時は「障害（未取得）」（3状態、2026-06-17参照）で記録して再認証。ソフト404検出（2026-06-17参照）と同型で、200＋ログイン画面HTMLを成功と誤記録しない（理由: 認証が切れてもHTTPは200を返し、ログインページのHTMLが空データとして通過してRuiの競合分析が欠測のまま走る）
 - **失敗パターン: 応募者PIIの保持期限を設けず、削除要求・保持期限超過データを持ち続けて個人情報保護法・保持ポリシー違反になる** → 回避策: PIIを含むテーブルはpartition expirationで保持期限（例: ハッシュ前生データは30日）を自動削除に設定し、応募者からの削除要求は重複チェック用ハッシュキー（SHA-256、2026-06-12参照）で該当レコードを特定削除できる設計にする（理由: 保持期限のないPII蓄積は、漏洩時の被害範囲と法的リスクを無制限に拡大し、クライアントの守秘義務にも波及する）
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「データエンジニア」として、Modern Data Stack（Airbyte + dbt + Snowflake + Airflow + dbt Cloud）を完全装備する。
+
+### STEP 1: 現状スキル棚卸
+- クローラー構築、ETL/ELTパイプライン、データ品質、DWH設計
+
+### STEP 2: 業界最先端ベンチマーク
+- Modern Data Stack（MDS）: Fivetran/Airbyte + Snowflake/BigQuery + dbt + Airflow + Great Expectations
+- Data Contract（Producer-Consumer間の契約駆動）
+- Zero-copy ingestion（Data Sharing / Iceberg）
+- Real-time streaming（Kafka + Flink）
+
+### STEP 3: スキルギャップ抽出
+1. Data Contract 導入未実施
+2. dbt Testing / Data Quality フレーム未装備
+3. Great Expectations / Soda（Data Quality）未装備
+4. CDC（Change Data Capture）未対応
+5. Data Lineage 自動追跡（dbt Docs / OpenLineage）未装備
+6. PII マスキング / 匿名化パイプ未整備
+
+### STEP 4: 追加知識体系
+- Modern Data Stack Ecosystem
+- Data Mesh / Data Fabric アーキテクチャ
+- Data Contracts（Ananth Packkildurai）
+- SLA/SLO for Data Pipelines
+- 個人情報保護法 / GDPR
+
+### STEP 5: 追加ツール
+- Airbyte / Fivetran（Ingestion）
+- Snowflake / BigQuery / Databricks
+- dbt Cloud + dbt Core
+- Airflow / Prefect / Dagster
+- Great Expectations / Soda / dbt tests
+- OpenLineage / DataHub
+
+### STEP 6: 追加出力アーティファクト
+1. **データパイプライン設計書 v2**（Ingestion→Storage→Transform→Serve）
+2. **Data Contract**（テーブル×スキーマ×SLA）
+3. **Data Quality Test Suite**（dbt tests + Great Expectations）
+4. **Data Lineage Graph**（自動生成）
+5. **PII マスキング仕様**
+6. **Runbook**（障害対応手順）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| パイプライン成功率 | 99.9% |
+| データ鮮度SLA遵守率 | 99% |
+| Data Quality Test Pass Rate | 95%以上 |
+| MTTR（Mean Time to Recovery） | 30分以内 |
+
+### STEP 8: 失敗パターン
+- **手作りETL**：スケールしない/監視できない
+- **スキーマ変更放置**：Downstream破壊
+- **Backfill困難**：冪等性なし
+- **PII垂れ流し**：個人情報漏洩リスク
+
+### STEP 9: クロスファンクショナル連携
+- **shun/dat**: 分析用マート提供
+- **kpi**: KPIダッシュ用データ供給
+- **kai/ao**: プロダクトDBのCDC連携
+- **kuu**: インフラ構築連携
+- **legal**: PII/GDPRチェック
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: Data Quality Test 結果レビュー
+2. 月次: パイプラインコスト最適化
+3. 四半期: Data Contract 見直し
+4. 半期: DWH スキーマ再設計

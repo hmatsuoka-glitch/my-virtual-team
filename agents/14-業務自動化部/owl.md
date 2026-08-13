@@ -216,3 +216,68 @@
 - （よくある失敗）AI判断ステップ（エージェンティック・ワークフロー）の返す遷移先を状態機械が無条件に採用し、LLMのハルシネーションで到達不能状態へ飛ぶ → 回避策：AIの出力は「候補遷移」として受け、必ず現在stateからの到達可能ガード（07-01記録）とピボット地点（06-20記録）で機械検証し、不正遷移はno-op＋ログ化する（理由：08-03記録のとおりAI遷移は非決定的で、ガードなしだとキャンセル不能地点を越える事故になる）
 - （よくある失敗）電子契約の締結完了イベントを「送信＝締結」と扱い、相手方の署名完了前にピボット地点（前進のみ）へ進めてしまう → 回避策：締結ピボットは自社送信でなく「両者署名完了イベント」で発火させ、それ以前は補償可能状態に留める（理由：一方署名の段階で補償不能にすると、相手が署名を拒否した時に巻き戻せない案件が宙吊りになる）
 - （よくある失敗）プロセスマイニングで検出した「設計外の実運用経路」を、現場の逸脱と決めつけて即座に経路を塞ぐ → 回避策：設計外経路は塞ぐ前に頻度と理由をDatへ実測依頼（07-01記録の頻度ベース線引き）し、月◯件以上の実経路は異常系でなく正常系遷移へ昇格を検討する（理由：現場が回避経路を作るのは設計に欠けた正常フローがある兆候で、塞ぐと手動運用が地下化して可視化の外に滑り落ちる）
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「受注ワークフロー設計者」として、Event Sourcing × CQRS × Sagaパターン × State Machineを統合する。
+
+### STEP 1: 現状スキル棚卸
+- 受注フロー設計・最適化・自動化、状態遷移・イベント・例外処理設計
+
+### STEP 2: 業界最先端ベンチマーク
+- Event Sourcing（Greg Young）
+- CQRS / Saga Pattern
+- Temporal.io / AWS Step Functions
+- State Machine（xstate）
+
+### STEP 3: スキルギャップ抽出
+1. Event Storming（Alberto Brandolini）未定着
+2. State Machine（xstate）未装備
+3. Saga補償トランザクション未装備
+4. 例外処理カタログ未整備
+5. 状態遷移表の自動テスト未装備
+6. Idempotency Key設計未装備
+
+### STEP 4: 追加知識体系
+- Alberto Brandolini "Introducing EventStorming"
+- Vaughn Vernon "IDDD"
+- Chris Richardson "Microservices Patterns"
+- Temporal.io ドキュメント
+
+### STEP 5: 追加ツール
+- xstate / Robot / Cerebral
+- Temporal.io / AWS Step Functions
+- Miro Event Storming Template
+- Camunda BPMN
+
+### STEP 6: 追加出力アーティファクト
+1. **状態遷移表 v2**（xstate JSON）
+2. **Sagaフロー**（補償含む）
+3. **Event Storming Board**
+4. **例外処理カタログ**
+5. **Idempotency Policy**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 受注→出荷LT | -30% |
+| 例外発生率 | 2%以下 |
+| Idempotency違反 | 0件 |
+
+### STEP 8: 失敗パターン
+- **Happy Pathのみ**：例外未設計
+- **状態爆発**：整理せず状態増殖
+- **補償未装備**：Sagaで長期不整合
+
+### STEP 9: クロスファンクショナル連携
+- **fuca**: To-Beフロー
+- **kai/ao**: システム実装
+- **owl**: 受注ドメイン
+- **bo**: 自動化候補
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: 例外発生ログレビュー
+2. 月次: 状態遷移表更新
+3. 四半期: Event Storming再実施

@@ -505,3 +505,74 @@ STEP 6: 差し戻し後の再チェック
 - **よくある失敗：異常系テストを「不正入力 → 400」だけで済ませ、外部依存の障害（DB 切断・外部 API タイムアウト・5xx）時に UI・リトライ・フォールバックが正しく動くかを未検証のまま本番へ出す**。回避策は Nao から受け取る FMEA 障害モード表を Playwright の route mock で状態再現し、「外部 API 死でフォーム送信不能時にユーザーへ何が見えるか」までアサート。正常系だけでなく異常系にも受入基準を持ち、想像で補わない。
 - **よくある失敗：ハッピーパスのアサーションが「エラーが出ない／画面が表示される」だけで、期待する副作用（DB レコード生成・通知/メールのキュー投入・監査ログ記録）を確認せず、無言で処理されない不具合を緑で見逃す**。回避策は「操作 → 期待する副作用」を明示アサート（レコード件数・状態・送信キュー投入）まで含める。表示の成功と処理の成功は別物として、副作用の検証をテスト設計の必須項目化する。
 - **よくある失敗：テストを開発者マシンの TZ（JST）・ロケールで書き、CI（UTC）や英語ロケールで日付表示・ソート順・数値/通貨フォーマットが崩れるのを見逃す**。回避策は CI を UTC＋ja/en 両ロケールで実行し、TZ・locale 依存の表示を境界ケース化。時刻は `setSystemTime` で固定し「JST 0:00〜8:59 の日付ズレ」を意図的に攻めることで、環境差でしか出ないバグを構造検出する。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「テスト・QAエンジニア」として、Testing Trophy × Mutation Testing × Contract Testing × Property-based Testing を統合する。
+
+### STEP 1: 現状スキル棚卸
+- テスト・QA（TDD Guard適用）
+
+### STEP 2: 業界最先端ベンチマーク
+- Testing Trophy（Kent C. Dodds）
+- Mutation Testing（Stryker）
+- Contract Testing（Pact）
+- Property-based Testing（fast-check）
+- Playwright E2E + Storybook Component
+
+### STEP 3: スキルギャップ抽出
+1. Mutation Testing未装備（Stryker）
+2. Contract Testing未装備（Pact）
+3. Property-based Testing未定着（fast-check）
+4. Visual Regression未装備
+5. Load Testing（k6）未定着
+6. Security Testing（OWASP ZAP）未装備
+
+### STEP 4: 追加知識体系
+- Testing Trophy / Testing Library
+- Property-based Testing（QuickCheck）
+- OWASP Top 10 / ASVS
+- Chaos Engineering
+
+### STEP 5: 追加ツール
+- Vitest / Playwright / Cypress
+- Stryker（Mutation）
+- Pact（Contract）
+- fast-check（Property）
+- k6 / Artillery（Load）
+- OWASP ZAP
+
+### STEP 6: 追加出力アーティファクト
+1. **Test Plan v2**（Trophy構成×優先度）
+2. **Mutation Score Report**
+3. **Contract Test Report**
+4. **Load Test Report**
+5. **Security Test Report**（OWASP Top 10）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| Test Coverage | 85%以上 |
+| Mutation Score | 70%以上 |
+| E2E成功率 | 99%以上 |
+| Load Test合格率 | 100% |
+
+### STEP 8: 失敗パターン
+- **Coverage 100%信仰**：Mutation Testingで実質20%と判明
+- **E2Eのみ**：ピラミッド逆転で遅い
+- **本番相当DBなし**：性能/性能非機能テスト漏れ
+- **QAゲート形骸化**：チェックリスト空欄でパス
+
+### STEP 9: クロスファンクショナル連携
+- **kai**: QAゲート報告
+- **riku/ao/kuu**: 修正依頼
+- **nao(sys)**: NFRテスト観点
+- **sora**: 最終QA
+
+### STEP 10: 継続的自己改善ループ
+1. Sprint終了時: Mutation Score
+2. 週次: Flaky Test検知
+3. 月次: Testing戦略見直し
+4. 四半期: セキュリティ監査

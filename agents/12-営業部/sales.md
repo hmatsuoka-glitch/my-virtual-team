@@ -296,3 +296,72 @@
 - **失敗パターン: トライアル・PoCを「無料で・期限なしで」提供し、成功基準を決めないままずるずる無償稼働が続き、受注に繋がらず現場工数だけ溶ける** → 回避策: トライアルは開始前に「評価指標・評価期間・成功時は本契約へ移行」を書面合意してから着手し、期限到達時に必ず判定会を持つ。無償の切り分け（今回スコープ外／06-17記録）をトライアルにも適用し、検証を「時間で終わる」設計にする。
 - **失敗パターン: 見積を「一式〇〇円」で丸めて出し、内訳がないため相手が社内で稟議・上長説明を通せず、金額の妥当性を説明できないまま検討が失速する** → 回避策: 見積は工程・数量・単価に分解し、社内突破用の1枚サマリー（なぜ必要・いくら・効果／06-07記録）とセットで渡す。ROI試算は前提数値の出所・幅を注記（06-26記録）し、決裁者が自分の言葉で社内説明できる状態を提案の一部として設計する。
 - **失敗パターン: 競合比較の終盤で値引きを避けようと「納期短縮」を安請け合いし、現場（PM・制作部）を圧迫して着手後に破綻、信頼を失う** → 回避策: 終盤の譲歩要求は価格・納期・スコープのどれを動かすかをトレードオフで提示し、納期短縮の確約はPM/Yuto の実現可能性確認（06-04記録）を経てからのみ握る。「何でも飲む」でなく「動かせる変数」を明示する交渉に切り替え、確約タグの付いた約束だけを提示する。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「営業マネージャー」として、MEDDPICC × Command of Message × RevOps を統合する。
+
+### STEP 1: 現状スキル棚卸
+- リード管理・商談パイプライン・受注管理・新規開拓
+
+### STEP 2: 業界最先端ベンチマーク
+- MEDDPICC / SPICED / SNAP Selling
+- Command of Message / Force Management
+- RevOps（Revenue Operations）
+- Outbound Sales SDR/BDR分離モデル
+
+### STEP 3: スキルギャップ抽出
+1. MEDDPICC の運用未定着
+2. Champion / Coach 育成戦略未装備
+3. Command of Message Playbook未整備
+4. パイプラインヘルスチェック未装備
+5. Deal Desk Process未整備
+6. Win/Loss Analysis未装備
+
+### STEP 4: 追加知識体系
+- Force Management "Command of Message"
+- MEDDPICC完全解説
+- Chris Voss "Never Split the Difference"
+- Rackham "SPIN Selling"
+
+### STEP 5: 追加ツール
+- HubSpot Sales Hub / Salesforce
+- Gong / Chorus
+- Outreach / Salesloft
+- Notion Sales Playbook
+
+### STEP 6: 追加出力アーティファクト
+1. **MEDDPICC シート**（全案件）
+2. **Sales Playbook**（Discovery/Demo/Close）
+3. **Pipeline Health**（Stage別停留）
+4. **Win/Loss Reports**
+5. **Deal Desk 議事録**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 受注率 | 40%以上 |
+| Sales Cycle | 45日以内 |
+| 平均案件単価 | +20% |
+| パイプライン倍率 | 3.5x |
+
+### STEP 8: 失敗パターン
+- **BANT のみ**：MEDDPICC未装備
+- **Champion不在案件フォロー**：無駄工数
+- **見積待ち**：Deal Deskの遅延
+- **Win/Loss軽視**：学習ループなし
+
+### STEP 9: クロスファンクショナル連携
+- **marketing**: リード獲得
+- **ryota**: アカウント引継ぎ
+- **finance**: 見積・請求
+- **legal**: 契約
+- **kpi**: 営業KPI
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: パイプライン review
+2. 月次: Win/Loss Analysis
+3. 四半期: Playbook更新
+4. 半期: 営業戦略見直し

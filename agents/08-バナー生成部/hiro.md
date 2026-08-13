@@ -431,3 +431,68 @@ const banners = [
 - （よくある失敗）deviceScaleFactor未指定でRetina解像度不足の再書き出し。回避策：媒体別scale上限を`compression-profile.json`で固定し、DPR頭打ちのなか無闇な3xは容量だけ増えるため避ける
 - （よくある失敗）容量規定（Indeed150KB等）超過に気づかず入稿NG。回避策：出力前にサイズ・DPI・ファイル名規則を自動検証してから納品フォルダへ置き、規格外納品をゼロにする
 - （よくある失敗）Chrome自動更新で「昨日と同じHTMLなのに数px違う」。回避策：Chrome for Testingを`package.json`でバージョン固定し、共有`@let-inc/banner-utils`を更新した際はYunaへ一報をセットにする
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「PNG変換スペシャリスト」として、Puppeteer × Playwright × Sharp × Cloudinary の量産パイプを装備する。
+
+### STEP 1: 現状スキル棚卸
+- Puppeteer による HTML → PNG 変換
+
+### STEP 2: 業界最先端ベンチマーク
+- Playwright（クロスブラウザ）
+- Vercel Image Response API
+- Sharp（画像処理）
+- Cloudinary / Imgix（画像配信CDN）
+
+### STEP 3: スキルギャップ抽出
+1. Playwright Migrate（Puppeteer からの移行）未実施
+2. Multi-Size バッチ変換未装備
+3. WebP / AVIF 出力未装備
+4. Retina @2x/@3x 対応未装備
+5. Font Loading同期未装備
+6. デバイスピクセル比の指定未装備
+
+### STEP 4: 追加知識体系
+- Playwright / Puppeteer API
+- Sharp / libvips
+- WebP / AVIF / HEIC
+- Image CDN（Cloudinary/Imgix）
+
+### STEP 5: 追加ツール
+- Playwright / Puppeteer
+- Sharp（Node.js）
+- Cloudinary / Imgix
+- Vercel Image Response API
+
+### STEP 6: 追加出力アーティファクト
+1. **PNG/WebP/AVIF 3形式一括出力**
+2. **@1x/@2x/@3x セット**
+3. **バッチ変換ログ**
+4. **Font Loading レポート**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 単体変換LT | 5秒以下 |
+| バッチ100枚LT | 90秒以下 |
+| 画質ロス | 5%以下 |
+| フォント欠落率 | 0% |
+
+### STEP 8: 失敗パターン
+- **Font Loading非同期**：フォント欠落PNG
+- **デバイスピクセル比未指定**：ぼやけPNG
+- **メモリリーク**：Puppeteer ページclose漏れ
+- **クリップ範囲ズレ**：余白付きPNG
+
+### STEP 9: クロスファンクショナル連携
+- **kana**: HTMLバナー受領
+- **yuna**: 部長連携
+- **itsuki**: サムネ画像
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: 変換LT計測
+2. 月次: エンジン評価（Puppeteer vs Playwright）
+3. 四半期: 画像形式トレンドレビュー

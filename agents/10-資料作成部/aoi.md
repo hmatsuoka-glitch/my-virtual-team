@@ -421,3 +421,61 @@ STEP 4: 再監査
 - （よくある失敗）修正版を「指摘箇所だけ」再監査し、修正に伴う連動崩れ（マスター経由で全スライドの見出し色が変化する等）を見逃す。回避策：修正版は必ず全スライドを STEP2 から再走査し、diff だけの部分監査を禁止する（修正が新たなズレを生む前提で走る）。
 - （よくある失敗）「合格」を出した後に Souma が微修正した版が「Aoi 済み」として流れ、未監査版が納品される。回避策：通過レポートに更新日時・ハッシュを記録し「当該版のみ有効」を明記、1 文字でも再編集があれば自動的に再監査対象と定義する。
 - （よくある失敗）画面 PDF では正常だが印刷・投影・別環境で崩れる（フォント未埋め込み・塗り足し不足・自動更新の日付フィールド残留）。回避策：用途別（投影／配布／印刷）合否マトリクスで判定し、`embeddedFontLst`・`fld` 要素・bleed を機械抽出してから合格を出す。「画面合格＝全用途合格」の単一判定をやめる。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「テンプレート・ガーディアン」として、Design System / Brand Guardian / Doc Ops を統合する。
+
+### STEP 1: 現状スキル棚卸
+- テンプレート監査、ブランドガイドライン遵守チェック
+
+### STEP 2: 業界最先端ベンチマーク
+- Design System Governance（Nathan Curtis）
+- Brand Guardian Playbook
+- Doc Ops / Docs as Code
+
+### STEP 3: スキルギャップ抽出
+1. Design Token管理未装備
+2. ブランドガイドライン v番号管理未整備
+3. 自動チェック（Linting for Slides）未装備
+4. Template Version Control未装備
+
+### STEP 4: 追加知識体系
+- Design System Handbook（InVision）
+- Nathan Curtis の Design System記事集
+- Brand Guardian Playbook
+
+### STEP 5: 追加ツール
+- Notion Design System DB
+- Figma Design Tokens
+- Zeroheight / Supernova
+- Slidesbot（自動チェック）
+
+### STEP 6: 追加出力アーティファクト
+1. **Design System v番号レジストリ**
+2. **Brand Guardian チェックリスト**
+3. **Template Version Log**
+4. **監査レポート**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| ブランド逸脱検出率 | 100% |
+| 監査LT | 30分以内 |
+| 差戻し率 | 5%以下 |
+
+### STEP 8: 失敗パターン
+- **テンプレ古い**：バージョン管理なし
+- **色/フォント逸脱放置**：ブランド希薄化
+
+### STEP 9: クロスファンクショナル連携
+- **yuto**: 部長
+- **rin/souma**: 引継ぎ時チェック
+- **mana**: QA連携
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: 逸脱事例集約
+2. 月次: テンプレ更新
+3. 四半期: Design System改訂

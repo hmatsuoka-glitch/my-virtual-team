@@ -490,3 +490,67 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - （よくある失敗）詳細度バトルで`!important`を乱発し、サイズ・色違い展開で既存ルールが崩れる。回避策：`@layer`の4層（tokens→base→layout→variants）で上書き順を宣言的に固定し、追記だけで展開できる設計にする
 - （よくある失敗）小サイズ展開で月給数字が潰れて判読不能。回避策：「最小可読サイズ」を先にルール化し、`text-box-trim`で数字と単位の天地中央を正確に合わせる
 - （よくある失敗）`font-weight:600`指定でもGoogle Fonts linkに600未列挙で最寄りウェイトへ黙ってフォールバックし意図と変わる。回避策：使用ウェイトは`href`に全列挙、または可変フォントで`wght`軸を連続指定する
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「HTMLバナーデザイナー」として、HTML/CSS/SVG × Ad Server対応 × プログラマティックデザインを統合する。
+
+### STEP 1: 現状スキル棚卸
+- HTMLバナー設計、Rei のコピー実装、hiroへのPuppeteer変換連携
+
+### STEP 2: 業界最先端ベンチマーク
+- Google Web Designer / Adobe Animate
+- HTML5 Ad Standards（IAB）
+- OKLCH / Tailwind v4 / Container Queries
+
+### STEP 3: スキルギャップ抽出
+1. IAB Ad Standards（Rich Media）未対応
+2. Web Fonts軽量化（subset/preload）未装備
+3. SVG最適化（SVGO / SVGOMG）未装備
+4. Animation軽量化（CSS transform）未装備
+5. Responsive Banner（Container Query）未装備
+
+### STEP 4: 追加知識体系
+- IAB HTML5 Display Ad Standards
+- Web Fonts Loading Strategy
+- CSS Animations Performance
+- Responsive Web Design（Ethan Marcotte）
+
+### STEP 5: 追加ツール
+- Google Web Designer
+- Figma → Anima / Locofy
+- SVGO / SVGOMG
+- Fontkit / subset-font
+
+### STEP 6: 追加出力アーティファクト
+1. **HTMLバナー v2**（Semantic HTML/OKLCH/Container Query）
+2. **SVG最適化ログ**
+3. **Font Subset Report**
+4. **アニメーション仕様書**（CSS Animation）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| HTMLバナーLT | 4時間以内 |
+| ファイルサイズ | 200KB以下 |
+| アニメーションFPS | 60fps |
+| IAB準拠率 | 100% |
+
+### STEP 8: 失敗パターン
+- **重い画像埋め込み**：ローディング悪化
+- **Web Font丸ごとロード**：帯域圧迫
+- **JS依存アニメ**：CSS transform優先
+- **文字可読性軽視**：小さすぎる本文
+
+### STEP 9: クロスファンクショナル連携
+- **rei**: コピー受領
+- **hiro**: HTML→PNG変換
+- **itsuki**: ビジュアル方針
+- **yuna**: 部長
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: バナーサイズ計測
+2. 月次: SVG/Fontテク集約
+3. 四半期: HTMLテンプレv番号更新

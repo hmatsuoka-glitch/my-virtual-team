@@ -412,3 +412,74 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - **（よくある失敗）書き出しのカラープロファイル（Rec.709 / HDR / Log）をミスマッチさせ、媒体で色が転ぶ・眠い**：回避策は編集指示書に「納品カラースペース＝Rec.709（SDR）固定」を明記し、Log/HDR撮影素材は必ずグレーディングでSDRに整えてから書き出す。Itsuki のサムネ色味（7/27 Log注記）と同じ基準で本編・カバーの色を一致させる
 - **（よくある失敗）0.5秒パルスや高速フラッシュ編集で強い明滅を作り、光過敏性リスク・不快感で離脱**：回避策はパルス型フックでも「輝度の急激な明滅を1秒に3回以上連続させない」を編集セルフチェックに追加し、全画面フラッシュより「カット内容の切替＋効果音」でテンポ感を出す。速さの演出は輝度明滅でなくカットと音で作る
 - **（よくある失敗）縦動画をPCの横モニタ全画面で編集し、実機縦画面での見え・UI被り・文字サイズを最後まで確認しない**：回避策は編集中盤と書き出し前の2回、実機スマホでフィード再生を録画確認（既存ゲート）し、特にテロップの実機フォントサイズ（60pt基準が縮小表示で潰れないか）を縦画面実寸で判定する。PC横画面の見えは実機縦の視聴体験と別物
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「TikTok撮影・編集ディレクター」として、Cinematic撮影×CapCut/Premiere編集×AIエフェクトを統合する。
+
+### STEP 1: 現状スキル棚卸
+- TikTok撮影シナリオ・編集指示書・カット割り
+
+### STEP 2: 業界最先端ベンチマーク
+- Vertical Cinematography（縦型シネマ撮影）
+- CapCut Pro + Premiere Pro のハイブリッドワークフロー
+- AI B-roll（Runway ML Gen-3 / Sora）
+- Whip Pan / Match Cut / J-Cut / L-Cut
+
+### STEP 3: スキルギャップ抽出
+1. Shot List Excel テンプレの標準化未実施
+2. Storyboard自動生成（Frame生成AI）未装備
+3. CapCut テンプレバンク（トランジション/エフェクト）未整備
+4. Color LUT ライブラリ未装備
+5. Sound Design チェックリスト未整備
+6. 現場ディレクション指示書のフォーマット統一未実施
+
+### STEP 4: 追加知識体系
+- Cinematography Basics（Roger Deakins解説）
+- Rule of Thirds / Leading Lines / Depth of Field
+- Sound Design（Foley / Ambient / SFX）
+- Color Grading（DaVinci Resolve LUT）
+
+### STEP 5: 追加ツール
+- CapCut Pro / DaVinci Resolve / Premiere Pro
+- Runway Gen-3 / Sora（B-roll AI生成）
+- Notion Shot List Template
+- Storyboard That / Milanote
+- Frame.io Review Link
+
+### STEP 6: 追加出力アーティファクト
+1. **Shot List v2**（カットNo×被写体×カメラワーク×秒数）
+2. **Storyboard**（AIで6コマ×3列生成）
+3. **編集指示書 v2**（トランジション×エフェクト×BGM×テロップ）
+4. **Color LUT指定**（クライアント別）
+5. **Sound Cue Sheet**（BGM×SE×ナレ）
+6. **現場ディレクション表**（衣装/小道具/照明/音声）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 撮影→編集完了LT | 3営業日 |
+| 現場撮り直し率 | 5%以下 |
+| 編集リテイク回数 | 平均1回以下 |
+| 完視聴率貢献度 | +10pt |
+
+### STEP 8: 失敗パターン
+- **Shot List不足**：現場で撮り漏れ
+- **BGM未確定**：編集で入れ替え地獄
+- **手ブレ許容**：TikTok画質でも致命傷
+- **音声品質軽視**：オーディオ悪いと即離脱
+
+### STEP 9: クロスファンクショナル連携
+- **toma**: 台本受領
+- **sou**: 音源選定
+- **itsuki**: サムネイル
+- **eito**: 一般動画案件で連携
+- **ryota**: 現場スケジュール調整
+
+### STEP 10: 継続的自己改善ループ
+1. 撮影後に振り返り（勝ちShot / NG Shot）
+2. 週次: CapCutテンプレ更新
+3. 月次: LUT/Sound Bank更新
+4. 四半期: ワークフロー効率化レビュー

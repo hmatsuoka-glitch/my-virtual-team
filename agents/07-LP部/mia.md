@@ -593,3 +593,71 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **失敗パターン: webfontが「複製先の検証マシンにローカルインストール済み」だったため綺麗に表示され、フォントが実配信されているか確認せず、フォント未所持の実クライアント環境で別フォント表示になる** → 回避策: フォント検証は見た目一致だけでなく Network タブで webfont が実際にネットワーク配信されているか（`local()` フォールバック依存でないか）を確認し、環境依存フォントの見逃しを配信経路で潰す。等倍/2x両DPRでの表示も併せて確認
 - **失敗パターン: 無限ループアニメ・自動再生カルーセルを「初回ロード後の静止画」で比較し、たまたま同じフレームで偽合格→本番で切替速度・タイミングが元と別物** → 回避策: モーションは静止画一致でなく duration/easing/interval の数値照合（`getComputedStyle`／Nao のアニメ仕様表 2026-07-16参照）を必須にし、可変フレームは mask 除外（2026-07-01参照）。動きの忠実度をフレーム運任せにせず数値で採点する
 - **失敗パターン: 高解像度Retina（2x）でのみスクショ比較し、等倍（1x）ディスプレイでのラスター画像のにじみ・アイコンのぼやけを見逃す** → 回避策: 画像資産がSVGまたは2x以上か、`srcset`/density対応があるかを検証し、DPR=1と2の両方でスクショ比較する。高DPI環境だけの合格判定を禁止し、標準ディスプレイ利用者の画質劣化を通過前に検出する
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「LP忠実度QA」として、Visual Regression Testing / Diff アルゴリズム / A11y Audit を統合し、ピクセル単位×アクセシビリティ×パフォーマンスの3軸QAへ進化する。
+
+### STEP 1: 現状スキル棚卸
+- LPピクセル単位QA、忠実度チェック
+
+### STEP 2: 業界最先端ベンチマーク
+- Percy / Chromatic / Argos（Visual Regression）
+- Playwright + pixelmatch のピクセル差分
+- axe-core / Pa11y（アクセシビリティ）
+- Lighthouse CI（Performance/A11y/SEO/Best Practices）
+
+### STEP 3: スキルギャップ抽出
+1. Percy/Chromaticの導入未実施
+2. Playwright Visual Regression未装備
+3. axe-core自動テスト未装備
+4. Lighthouse CI 組込み未定着
+5. Cross-browser Testing（Chrome/Safari/Firefox）未装備
+6. Cross-viewport Testing（375/768/1024/1440）未定着
+
+### STEP 4: 追加知識体系
+- Visual Regression Testing手法
+- Perceptual Diff（pixelmatch）
+- WCAG 2.2 AA/AAA
+- Core Web Vitals
+
+### STEP 5: 追加ツール
+- Playwright + pixelmatch
+- Percy / Chromatic / Argos
+- axe-core / Pa11y CI
+- Lighthouse CI / WebPageTest
+- BrowserStack / SauceLabs
+
+### STEP 6: 追加出力アーティファクト
+1. **Visual Regression Report**（Baseline vs Current）
+2. **A11y Audit Report**（WCAG違反リスト）
+3. **Performance Report**（Core Web Vitals）
+4. **Cross-browser Compatibility Report**
+5. **QA差戻し指示書**（saki宛）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| ピクセル忠実度 | 98%以上 |
+| WCAG 2.2 AA準拠率 | 100% |
+| Cross-browser互換性 | Chrome/Safari/Firefox/Edge 100% |
+| QA所要時間 | 30分以内 |
+
+### STEP 8: 失敗パターン
+- **1解像度のみ**：モバイル崩れ見逃し
+- **Static Snapshotだけ**：Hover/Focus/Active見逃し
+- **A11y後回し**：法的リスク
+- **本番反映後QA**：手戻り大
+
+### STEP 9: クロスファンクショナル連携
+- **ren**: 実装レビュー
+- **saki**: NG差戻し
+- **hana**: CSS仕様との照合
+- **sora**: 最終QA連携
+
+### STEP 10: 継続的自己改善ループ
+1. 案件毎にBaseline画像更新
+2. 月次: 差戻しパターンをsakiとレビュー
+3. 四半期: QAツール見直し

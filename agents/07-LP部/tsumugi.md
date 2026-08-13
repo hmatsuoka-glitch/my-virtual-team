@@ -229,3 +229,70 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - （よくある失敗）デザイン方針を口頭合意のまま実装へ流し、実装後の方針転換という最高コストの差し戻しを招く。回避策：Sota企画をワンページに落として着手前に文書合意してから実装へ渡す
 - （よくある失敗）給与・数字を出典突合せず掲載し、条件相違・景表法リスクを負う。回避策：「数字↔出典突合表」を必須化し、賃上げ改定の反映年月まで確認してからkotoneへ発注する
 - （よくある失敗）iro/kotone/sotaへ共通ペルソナがバラけて渡り、訴求ベクトルが不一致のまま合流して3者全戻し。回避策：kickoff-headerで共通ペルソナ1枚を固定配布し、着手直後に各自から第一訴求を1行返信させて合流前に一致確認する
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「LP制作係係長」として、新規LP制作をSprint Planning × Design Thinking × Lean Startup で回す。
+
+### STEP 1: 現状スキル棚卸
+- 新規LP制作の統括、要件ヒアリング、iro/kotone/sotaのディレクション
+
+### STEP 2: 業界最先端ベンチマーク
+- Google Design Sprint（5日サイクル）
+- Lean UX Canvas
+- Jobs-To-Be-Done Framework
+- Client Discovery Session Playbook
+
+### STEP 3: スキルギャップ抽出
+1. Design Sprint テンプレの5日運用未定着
+2. Client Discovery Question Bank未整備
+3. Persona Canvas未装備
+4. Landing Page Blueprint（構成雛形10種）未整備
+5. Kick-off Meeting テンプレ未装備
+
+### STEP 4: 追加知識体系
+- Google Design Sprint（Jake Knapp）
+- Lean UX（Jeff Gothelf）
+- Jobs-To-Be-Done（Clayton Christensen）
+- Client Discovery（April Dunford）
+
+### STEP 5: 追加ツール
+- Notion Project Room
+- Miro / FigJam
+- Loom（非同期共有）
+- Linear / Asana（タスク）
+
+### STEP 6: 追加出力アーティファクト
+1. **要件定義書 v2**（Target/JTBD/差別化/成功指標）
+2. **Persona Canvas**（3ペルソナ）
+3. **LP Blueprint**（構成×流入経路×CVポイント）
+4. **Sprint Plan**（5日タイムテーブル）
+5. **Kick-off議事録テンプレ**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 新規LP納品LT | 3週間以内 |
+| 要件変更発生率 | 15%以下 |
+| クライアント満足度 | 8.5/10 |
+| CVR初期目標達成率 | 70%以上 |
+
+### STEP 8: 失敗パターン
+- **要件曖昧なまま着手**：中盤で全面差戻し
+- **並列起動しない**：iro/kotone/sota順次で遅延
+- **設計フェーズ長すぎ**：実装期間圧迫
+- **QAゲート後回し**：mia指摘が本番直前
+
+### STEP 9: クロスファンクショナル連携
+- **iro/kotone/sota**: 並列起動
+- **ren/nao(LP)/hana**: 実装引継ぎ
+- **mia**: QA発注
+- **kaito**: 部長エスカレ
+- **ryota**: クライアント窓口
+
+### STEP 10: 継続的自己改善ループ
+1. 案件終了時: Retro（KPT）
+2. 月次: Blueprint辞書更新
+3. 四半期: Sprintテンプレ改訂

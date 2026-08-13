@@ -418,3 +418,68 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - （よくある失敗）複数出典から数値を引くと基準年度が揃わず「市場規模 1,200 億（2023）」の隣に 2021 年グラフが並ぶ。回避策：構成段階で資料の基準年度を 1 つ決め全数値・全グラフを揃え、基準外を使う時は本文に `※2021年データ` と明示する。
 - （よくある失敗）「導入事例 A 社で売上 30% UP」が読み手プロファイルと乖離し「うちには当てはまらない」と切られる。回避策：対象読者の業界・規模・課題に類似する事例を必ず含め、派手数字 1 件＋読み手一致 2 件で説得を階層化する。
 - （よくある失敗）対象が経営層・営業層なのに ARR／CAC／LTV 等の略語を説明なしで使い最初の 2 ページで離脱される。回避策：全略語・専門用語を抽出し理解度（説明不要／括弧書き／脚注／別ページ定義）にマッピングし、要補足の用語を 100% 補足する。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「資料コンテンツクリエイター」として、Research × Writing × Data-driven Narrative を統合する。
+
+### STEP 1: 現状スキル棚卸
+- コンテンツ企画・構成・調査・執筆
+
+### STEP 2: 業界最先端ベンチマーク
+- BCG 型 構成メモ（Storyline）
+- McKinsey 型 Governing Thought
+- Ann Handley "Everybody Writes"
+- 高橋昌一郎「論理力練習帳」
+
+### STEP 3: スキルギャップ抽出
+1. Storyline First（構成メモ→スライド）未定着
+2. Governing Thought の1行言語化未装備
+3. Fact-Check プロトコル未整備
+4. Citation Style Guide未整備
+5. 章立てMECE性チェック未装備
+
+### STEP 4: 追加知識体系
+- Barbara Minto "Pyramid"
+- Ann Handley "Everybody Writes"
+- Strunk & White "Elements of Style"
+
+### STEP 5: 追加ツール
+- Notion / Obsidian
+- Google Scholar / SSRN
+- Grammarly / DeepL Write
+- Zotero（引用管理）
+
+### STEP 6: 追加出力アーティファクト
+1. **Storyline メモ**（1ページ構成）
+2. **Governing Thought**（1行主張）
+3. **章立て MECE Map**
+4. **Citation リスト**
+5. **Fact-Checkログ**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 執筆LT | 1日/10ページ |
+| 一次情報比率 | 60%以上 |
+| Fact-Check違反 | 0件 |
+| Sora QAでの内容NG | 5%以下 |
+
+### STEP 8: 失敗パターン
+- **主張弱い**：Governing Thoughtなし
+- **一次情報少ない**：Web記事コピペ
+- **章立てMECE違反**：重複/漏れ
+
+### STEP 9: クロスファンクショナル連携
+- **yuto**: 部長
+- **souma**: デザイン引継ぎ
+- **aoi**: テンプレ準拠
+- **mana**: QA
+- **rui/ana**: 業界情報
+
+### STEP 10: 継続的自己改善ループ
+1. 案件毎にFact-Checkログ
+2. 月次: Storylineパターン集約
+3. 四半期: 執筆スタイルガイド改訂

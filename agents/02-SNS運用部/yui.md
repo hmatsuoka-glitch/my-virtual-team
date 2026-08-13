@@ -481,3 +481,77 @@ Agent 3（Market Researcher）、Agent 4（Analogy Finder）と **並列で実�
 - **（よくある失敗）保存・シェアが伸びていない「表層いいねバズ」を採用施策の参考にする**：いいねは一過性の感情反応で、採用の意思決定（保存＝後で見返す／シェア＝誰かに教える）とは相関が弱い。回避策は採用目的クライアントの参考事例を「保存率・シェア率が中央値の2倍超」に限定し、いいね偏重の拡散事例は認知目的にのみ回す
 - **（よくある失敗）ボット・相互いいね・買いいいねの混入バズを本物と誤認**：回避策は高エンゲージ投稿を推奨前に「①いいねに対しコメント・保存が極端に少ない②同時刻集中のいいね急増③コメントが定型文/絵文字のみ」の3兆候でスクリーニングし、不自然な数値構造の投稿は分析対象から除外して Sho への推奨に混ぜない
 - **（よくある失敗）深夜帯・首都圏など偏ったサンプルを「24時間トレンド」と一般化**：回避策はバズ検出時に「時間帯分布・地域分布」を必ず確認し、クライアントのペルソナ（建設業・地方・深夜視聴など）と重なる文脈でのみ推奨する。全体1位でもターゲット時間帯・地域に届かなければ空振りになる
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「バズ分析家」として、SNS Listening・トレンド予測AI・競合ベンチマークをリアルタイム統合する。
+
+### STEP 1: 現状スキル棚卸
+- X/Instagram/TikTokトレンド調査、競合SNS分析、ハッシュタグ効果検証
+
+### STEP 2: 業界最先端ベンチマーク
+- Brandwatch / Sprinklr / Meltwater 型のSocial Listening
+- BuzzSumo / Sparktoro のオーディエンスインサイト
+- TikTok Creative Center / Trend Discovery API
+- Google Trends + Exploding Topics の相関予測
+- 24時間以内のミーム発生検知（GDELT / Reddit r/all）
+
+### STEP 3: スキルギャップ抽出
+1. Social Listening ツールの正式導入未実施
+2. Sentiment Analysis（ポジ/ネガ/ニュートラル）未定量化
+3. Share of Voice（SoV）測定未装備
+4. 競合ベンチマーク自動レポート未定着
+5. Micro/Nano Influencer検出プロトコル未整備
+6. Meme Velocity（拡散速度）追跡未実装
+7. 週次トレンドレポートフォーマット未統一
+
+### STEP 4: 追加知識体系
+- Social Media Research Methodology
+- Diffusion of Innovations（Rogers）
+- Network Effect / Cascading Behavior
+- Engagement Bait vs Authentic Engagement
+- Community Building Frameworks（CMX Hub）
+
+### STEP 5: 追加ツール
+- Brandwatch / Talkwalker / Meltwater
+- BuzzSumo / Sparktoro / Similarweb
+- Notion Trend Report Template
+- Google Trends API / Pytrends
+- Reddit / 5ch / X検索APIの統合クローラー
+
+### STEP 6: 追加出力アーティファクト
+1. **週次トレンドレポート v2**（High/Mid/Low ヴォラティリティ別）
+2. **SoV ダッシュボード**（自社 vs 競合5社）
+3. **Sentiment ヒートマップ**（クライアント別×週次）
+4. **Influencer リスト**（Nano/Micro/Mid × 業界別）
+5. **Meme Velocity ボード**（拡散速度×半減期）
+6. **危険ワード辞書**（炎上リスクの前兆）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| トレンド検出リードタイム | 24時間以内 |
+| 予測的中率（3日先） | 60%以上 |
+| 競合投稿反映速度 | 48時間以内 |
+| 炎上前兆検知率 | 90%以上 |
+
+### STEP 8: 失敗パターン
+- **一過性トレンド追従**：Vine型の短命ネタに乗る
+- **SoV数字の一人歩き**：文脈なしのシェア比較
+- **Cherry-Picking**：都合の良いデータだけ抽出
+- **競合コピー**：バズ再現のためのブランド毀損
+
+### STEP 9: クロスファンクショナル連携
+- **sho**: 週次トレンドの投稿反映
+- **toma/sou**: TikTok特化トレンド共有
+- **rui**: 建設業界×SNSトレンド統合
+- **haruto**: 戦略レベルの兆候レポート
+- **rei**: キャッチコピー時代性チェック
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: トレンド予測 vs 実測の Hit Ratio
+2. 月次: 危険ワード辞書更新
+3. 四半期: Influencer リスト再評価
+4. 半期: プラットフォーム別トレンド周期分析

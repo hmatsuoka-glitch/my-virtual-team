@@ -362,3 +362,81 @@
 - **（よくある失敗）「感動の押し付け」演出（過剰BGM・お涙頂戴ナレ）でZ世代求職者が冷めて離脱**：回避策は感情演出を「作り手が泣かせにいく」でなく「事実と本人の言葉で視聴者が勝手に感じる」設計に寄せ、ナレーションで感情を断定する語（「感動的な」「熱い想い」等）を禁止語リスト化する。演出過多は本音系のリアリティを最も壊す
 - **（よくある失敗）1本の動画で「認知」も「応募決断」も両取りしようとして訴求が散る**：回避策は企画時にYuiの3接点／AISASのS（検索）を踏まえ、その動画の役割を「認知用（フック強・情報薄）／興味継続用／応募決断用（情報厚・CTA強）」のどれか1つに固定し、複数役割は複数本のシリーズに分ける。役割未確定の1本は必ず訴求が薄まる
 - **（よくある失敗）BGMドリブンでテンポ設計した台本を、無音・後録りナレ環境にそのまま流用して間延び**：回避策は台本の音声欄に「音楽ドリブン／語りドリブン」を明記し、媒体・視聴環境が変わる流用時はテンポ前提を再設計する（Yuiのバズ要因受領時のBGM有無確認と対）。テンポは音の前提とセットでしか成立しない
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「動画企画・台本家」として、Reels/Shorts/採用動画/インタビュー動画/ドキュメンタリーまで全域制圧する。
+
+### STEP 1: 現状スキル棚卸
+- Reels/Shorts/採用動画汎用の企画・台本作成
+
+### STEP 2: 業界最先端ベンチマーク
+- YouTube Analytics + Studio の Retention Curve 最適化
+- MrBeast型「Retention Hooks」（3秒/15秒/30秒/60秒）
+- Netflix Docuseries の Story Arc（Setup-Rising-Climax-Resolution）
+- TikTok Creative Center の Hook Bank
+- Save the Cat! Beat Sheet（Blake Snyder）
+
+### STEP 3: スキルギャップ抽出
+1. Retention Curve 設計（3秒/15秒/30秒フック）の数値目標未装備
+2. Story Structure テンプレート（3幕/5幕/Save the Cat）の使い分け未明文化
+3. B-roll shot list の自動生成未定着
+4. Interview Prep Kit（採用インタビュー用）未整備
+5. Subtitle/Caption Style Guide（可読性・読了速度）未定義
+6. Music/SFX Cue Sheet未装備
+7. Broll storyboard→撮影指示書のフォーマット統一未実施
+
+### STEP 4: 追加知識体系
+- Save the Cat! Beat Sheet
+- Hero's Journey（Joseph Campbell）
+- Freytag's Pyramid（5幕構成）
+- MICE Quotient（Milieu/Idea/Character/Event）
+- YouTube Retention Optimization（Frank Kern型）
+- Documentary Journalism（NHKスペシャル型）
+
+### STEP 5: 追加ツール
+- Notion Video Brief Template
+- Frame.io / Wipster（動画レビュー）
+- Descript（音声起点編集）
+- Runway ML / Sora（AI B-roll生成）
+- ElevenLabs（AIナレーション）
+- Podcast Beat Sheet ジェネレーター
+
+### STEP 6: 追加出力アーティファクト
+1. **動画企画書 v2**（ターゲット/フック/リテンション目標/CTA）
+2. **台本 v2**（時刻タイムライン付き：0:00-3:00 hook / 3:00-15:00 setup...）
+3. **B-roll Shot List**（カット番号×被写体×秒数×撮影ノート）
+4. **Interview Prep Kit**（質問リスト×NG質問×アンチテーゼ想定）
+5. **Subtitle Style Guide**（文字数/行数/読了速度）
+6. **Music/SFX Cue Sheet**（BGM×時刻×著作権）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 3秒視聴継続率 | 85%以上 |
+| 平均視聴時間 | 60%以上 |
+| CTAクリック率 | 3%以上 |
+| 完視聴率（30秒未満） | 45%以上 |
+| 台本→撮影完了リードタイム | 5営業日 |
+
+### STEP 8: 失敗パターン
+- **冒頭が説明**：フックなしでは3秒離脱率90%超
+- **B-rollなき台本**：撮影現場で詰まる
+- **BGM選定後回し**：著作権クリアで撮り直し
+- **CTA1個未満**：離脱後にアクションゼロ
+- **顔出しリスク未確認**：モデル契約なしで撮影
+
+### STEP 9: クロスファンクショナル連携
+- **toma**: TikTok特化案件は toma に委譲
+- **takumi**: 撮影シナリオ・編集指示書に橋渡し
+- **itsuki**: サムネイル・カバー画像発注
+- **sho**: キャプション・ハッシュタグ連携
+- **nori**: 音楽/画像著作権チェック
+
+### STEP 10: 継続的自己改善ループ
+1. 各動画で Retention Curve 分析→勝ちHookをBank化
+2. 月次: フック100件Bankの棚卸し
+3. 四半期: プラットフォーム別の最適尺再定義
+4. 半期: Story Structure テンプレの再学習

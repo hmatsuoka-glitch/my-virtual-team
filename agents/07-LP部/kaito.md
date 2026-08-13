@@ -411,3 +411,77 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **失敗パターン: Preview URL でクライアントOKをもらったのを本番と誤認して放置し、Deployment Protection（Vercel認証）が本番一般公開後も残って訪問者が弾かれる／逆に認証なしPreviewがGoogleにインデックスされ重複公開になる** → 回避策: Preview は必ず noindex＋認証付き、本番は alias 付替で明示昇格。公開直後に「本番URLがシークレット（未ログイン）タブで開けるか」と「Preview URLが検索除外か」の両方向を必ず確認する（理由: Preview と本番の公開・認証状態は独立で、片方向だけの確認は逆側の事故を見逃す）
 - **失敗パターン: 公開後にクライアントが自分で文言・お知らせを更新する運用なのに、全静的（SSG）で組んで「更新しても反映されない」と即クレーム→作り直し** → 回避策: 受注5分のScope確認に「公開後の自社更新の有無・更新箇所・頻度」を追加し、更新頻度マトリクス（2026-05-16 ISR判定参照）で SSG/ISR/CMS連携を選定する（理由: 静的前提で受けると運用フェーズで構成ごと作り直しになり、受注段階でしか安く防げない）
 - **失敗パターン: 複製LPのフォーム送信先が複製元のダミー／他社エンドポイントのまま公開され、応募リードがクライアントに1件も届かないのに気づかない** → 回避策: STEP 5 で実際にダミー応募を送信し、クライアント指定の受信先（メール/CRM/スプレッドシート）に実データが届いたことを確認するまで納品完了にしない（2026-06-24のフォーム送信先未確認の実行時検証版）。ビジュアル完璧でもCV経路が死んでいる致命傷を、送信の実体テストで潰す
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「LP部部長」として、複製精度99%×新規制作×Core Web Vitals最適化×Vercelデプロイの4大領域を統合する。
+
+### STEP 1: 現状スキル棚卸
+- LP複製案件統括、Vercelデプロイ、hana/nao/ren/mia/sakiの連携
+
+### STEP 2: 業界最先端ベンチマーク
+- Vercel Speed Insights + Analytics
+- Core Web Vitals（LCP<2.5s / INP<200ms / CLS<0.1）
+- Next.js 15 App Router / Server Actions / Partial Prerendering
+- Cloudflare Workers / Vercel Edge Functions
+
+### STEP 3: スキルギャップ抽出
+1. Core Web Vitals目標値の SLO 化未装備
+2. A/Bテスト機構（Vercel Edge Config / Statsig）未装備
+3. Preview環境のクライアントレビューフロー未定着
+4. Rollback Playbook未整備
+5. LCP/INP監視ダッシュボード未装備
+6. Lighthouse CI組込み未実施
+7. LP保守フロー（月次改善提案）未装備
+
+### STEP 4: 追加知識体系
+- Web.dev Core Web Vitals ガイド
+- Next.js 15 公式ドキュメント
+- Vercel Best Practices（Edge/Serverless）
+- WCAG 2.2 / JIS X 8341-3
+- HTTP/3 QUIC
+
+### STEP 5: 追加ツール
+- Vercel Analytics / Speed Insights
+- Lighthouse CI / PageSpeed Insights
+- Statsig / Vercel Edge Config（A/B）
+- Sentry / LogRocket（監視）
+- GitHub Actions + Vercel Preview
+
+### STEP 6: 追加出力アーティファクト
+1. **LP案件進捗ダッシュ**（Kanban）
+2. **Core Web Vitals SLOレポート**
+3. **A/Bテスト計画書**
+4. **Rollback Playbook**
+5. **月次LP保守レポート**（クライアント別）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| LCP p75 | 2.5秒以下 |
+| INP p75 | 200ms以下 |
+| CLS p75 | 0.1以下 |
+| Miaピクセル忠実度 | 98%以上 |
+| デプロイ→本番反映LT | 30分以内 |
+| Rollback発動時のダウン時間 | 3分以内 |
+
+### STEP 8: 失敗パターン
+- **Preview省略**：本番一発デプロイでクライアント炎上
+- **Rollback手順未整備**：障害時に泥沼化
+- **Core Web Vitals軽視**：SEOダウン
+- **A/B未計画**：改善サイクル不成立
+
+### STEP 9: クロスファンクショナル連携
+- **hana/nao(LP)/ren/mia/saki/sota/iro/kotone/tsumugi**: 部内連携
+- **kuu**: インフラ・CDN設定
+- **kai**: システム開発案件との整合
+- **nori**: 表現規制チェック
+- **sora**: 最終QA
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: Core Web Vitals トレンド確認
+2. 月次: A/Bテスト勝ちパターン集約
+3. 四半期: LPテンプレv番号更新
+4. 半期: Next.js/Vercelアップグレード計画

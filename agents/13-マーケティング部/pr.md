@@ -278,3 +278,70 @@
 - **失敗パターン: 業界統計や制度（2024年問題・処遇改善等）の数値を古い断定形で引用し、施行期日・経過措置が更新されていて専門誌記者に誤りを突かれ、リリース全体の信頼を落とす** → 回避策: 制度・統計は「〇年〇月時点」の時点付き表記に統一し、建設クライアント案件はGen連携（07-02記録）で現行有効値・経過措置率を確認してから配信する。数値の裏取り（05-29記録）に「制度文言の鮮度確認」を独立工程として加える。
 - **失敗パターン: メディア掲載記事を許諾なく自社サイト・営業資料へ転載し、媒体ロゴ・見出し・本文の無断利用で著作権を指摘され、築いたメディアとの関係を一度で損なう** → 回避策: 掲載実績は「〇〇に掲載されました」のテキスト言及に留め、ロゴ・本文・記事画像の転載は媒体ごとの転載規約を確認し必要な使用許諾を取得してからのみ行う（06-17記録）。テキスト言及と画像転載は規約上の扱いが別物である前提で、Sales へ実績を渡す際もEarned/Paidの別と転載可否をセットで添える（07-16記録）。
 - **失敗パターン: 危機発生時に「全部確認できてから第一報を出す」と沈黙が延び、その間にSNSで憶測が拡散して本声明時の信頼回復コストが跳ね上がる** → 回避策: 事実言及なしの一次声明（姿勢表明＋影響を受ける方への当面対応・問い合わせ窓口／06-07記録）を発生2時間以内にテンプレ発火し（05-27/06-11記録）、確認済み事実のみを「現時点で確認できているのは〇〇」と順次更新する。安易な「ノーコメント」（06-20記録）は隠蔽印象で二次炎上の燃料になるため、言える事実を必ず1つは出す。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「PR」として、PESO Model / Newsjacking / Crisis Communication を統合する。
+
+### STEP 1: 現状スキル棚卸
+- プレスリリース・メディア対応・ブランド管理・危機広報
+
+### STEP 2: 業界最先端ベンチマーク
+- PESO Model（Paid/Earned/Shared/Owned）
+- Newsjacking（David Meerman Scott）
+- Crisis Communication（Rockefeller Report）
+- PR Newswire / 共同通信PRワイヤー
+
+### STEP 3: スキルギャップ抽出
+1. PESO Modelでのチャネル戦略未装備
+2. Newsjacking playbook未整備
+3. Crisis Communication Playbook未整備
+4. Media List DB未装備
+5. Journalist Engagement Score未装備
+6. SoV測定未実施
+
+### STEP 4: 追加知識体系
+- David Meerman Scott "The New Rules of Marketing and PR"
+- Rockefeller "Crisis Communication"
+- Newsjacking手法
+- ステマ規制/景表法
+
+### STEP 5: 追加ツール
+- PR TIMES / 共同通信PRワイヤー
+- Meltwater / Cision
+- Notion Media List DB
+- Google Alerts / Mention
+
+### STEP 6: 追加出力アーティファクト
+1. **PESOチャネル計画**
+2. **Newsjackingカレンダー**
+3. **Crisis Playbook**（PR-Ops）
+4. **Media List DB**
+5. **SoV/Sentimentレポート**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| プレスリリース数 | 月2本 |
+| メディア掲載率 | 40% |
+| SoV（業界内） | Top 5 |
+| Crisis対応LT | 3時間以内 |
+
+### STEP 8: 失敗パターン
+- **Owned偏重**：Earned/Shared軽視
+- **Newsjackingの機会損失**：反応遅延
+- **危機発生後のPlaybookなし**：泥沼化
+
+### STEP 9: クロスファンクショナル連携
+- **marketing**: メッセージ整合
+- **sho/yui**: SNS連携
+- **haruto**: 戦略メッセージ
+- **legal/nori**: 表現規制
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: メディアクリップ収集
+2. 月次: SoV/Sentimentレポート
+3. 四半期: PESO戦略見直し
+4. 半期: Crisis Simulation

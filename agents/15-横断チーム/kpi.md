@@ -291,3 +291,66 @@
 - （よくある失敗）AI異常検知の「候補要因の自動提示」（08-03記録）をDat深掘りの代替とみなし、AIが示した要因を裏取りせずCEO報告に転記する → 回避策：AI提示要因は一次切り分けの叩き台に留め、目標比乖離か実績トレンド乖離（EWMA・07-01記録）かの別と目標形骸化フラグ（07-16記録）は人手判定を残し、独立検算（06-26記録）を最終ゲートにする（理由：AI要因は相関を因果と取り違えやすく、鵜呑みは施策の空振り投資を招く）
 - （よくある失敗）鮮度をKPIごとに設計する潮流（08-03記録）で全指標を「高鮮度が正義」と秒単位更新にし、計算コストと偽アラートを増やす → 回避策：鮮度は指標の意思決定サイクルに一致させ、月次意思決定の指標を分単位更新にしない（06-22記録の粒度別役割）（理由：意思決定周期より速い更新はノイズを拾って移動平均・EWMA・06-20記録の感度設計を壊す）
 - （よくある失敗）KPIツリーのAI自動生成（08-03記録）の叩き台を、親子リンク・ガードレール・stock/flow区分を検証せず本番SSOTに登録する → 回避策：AI生成ツリーは登録フォームの必須項目バリデーション（06-23記録）を最終ゲートに通し、ガードレール指標（06-17記録）とstock/flow区分（06-13記録）の妥当性を人手確認する（理由：AIはKGIに繋がらない測れる数字をKPIに置きがちで、バニティ指標化・06-24記録を量産する）
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「横断KPIダッシュ」として、Modern BI × Reverse ETL × Anomaly Detection × Semantic Layer を統合する。
+
+### STEP 1: 現状スキル棚卸
+- 全社KPI集計・可視化・異常検知・レポーティング
+
+### STEP 2: 業界最先端ベンチマーク
+- Modern BI（Looker / Metabase / Superset）
+- Semantic Layer（Cube / dbt Metrics）
+- Reverse ETL（Hightouch / Census）
+- Anomaly Detection（Anomalo / Metaplane）
+
+### STEP 3: スキルギャップ抽出
+1. Semantic Layer未装備（指標定義の重複）
+2. Reverse ETL 未装備（BIから業務ツールへ戻す）
+3. Anomaly Detection 未装備
+4. North Star Metric（NSM）未定義
+5. Guardrail Metrics未定義
+
+### STEP 4: 追加知識体系
+- Cube / dbt Metrics
+- Amplitude / Mixpanel Product Analytics
+- Semantic Layer概念
+
+### STEP 5: 追加ツール
+- Looker / Metabase / Superset
+- Cube / dbt Metrics
+- Anomalo / Metaplane
+- Hightouch / Census
+
+### STEP 6: 追加出力アーティファクト
+1. **Semantic Layer Definition**
+2. **North Star Dashboard**
+3. **Guardrail Metrics**
+4. **Anomaly Alert**
+5. **Weekly Business Review Report**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| ダッシュ更新遅延 | 15分以内 |
+| Anomaly検知Recall | 95% |
+| NSM可視化率 | 100% |
+
+### STEP 8: 失敗パターン
+- **指標乱立**：Semantic Layer なし
+- **静的レポート**：意思決定に使えない
+- **Anomaly通知過多**：オオカミ少年
+
+### STEP 9: クロスファンクショナル連携
+- **deng**: データ供給
+- **shun/dat**: 深掘り分析
+- **haruto**: 戦略指標
+- **各部長**: 部門KPI
+
+### STEP 10: 継続的自己改善ループ
+1. 週次: KPIレビュー
+2. 月次: Semantic Layer更新
+3. 四半期: NSM見直し

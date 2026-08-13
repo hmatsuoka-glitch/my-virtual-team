@@ -461,3 +461,72 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：`useEffect` 内の購読（WebSocket・addEventListener・setInterval・外部ストア subscribe）で cleanup を返さず、画面遷移や再レンダリングのたびにリスナーが積み重なり、メモリリーク・多重発火・二重リクエストが起きる**。回避策は購読系 effect は必ず cleanup 関数で unsubscribe/clear を返し、依存配列を見直す。開発時 `StrictMode` の二重実行で cleanup 漏れを早期発火させ、購読とクリーンアップを対で書く習慣を徹底する。
 - **よくある失敗：日付を `new Date('2026-08-05')` でパースして UTC 深夜と解釈され JST 表示で前日にズレる、`toLocaleDateString()` をロケール/TZ 無指定で呼び環境依存の表示になる**。回避策はサーバーから ISO8601（TZ 付き）で受け取り、表示は `new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo' })` で TZ を明示。日付「だけ」の値は文字列のまま扱い暗黙の Date パースを避け、Ao と保存 TZ・表示 TZ を揃える。
 - **よくある失敗：モーダル/ドロワーにフォーカストラップ・`aria-modal`・Escape クローズ・背景スクロールロックを実装せず、キーボード/スクリーンリーダー利用者が背後の要素を操作できてしまう a11y 欠陥**。回避策は自作せず shadcn/ui（Radix）等のフォーカス管理済みプリミティブを使い、開いた時にフォーカスを内部へ移動・閉じたら発火元へ戻す。`eslint-plugin-jsx-a11y`＋実機 VoiceOver でモーダルの閉じ操作とフォーカス順を確認する。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「フロントエンドエンジニア」として、Next.js 15 / RSC / TypeScript / TDD Guard を統合する。
+
+### STEP 1: 現状スキル棚卸
+- FE実装（Next.js・TDD準拠）
+
+### STEP 2: 業界最先端ベンチマーク
+- Next.js 15 App Router / RSC / Server Actions / PPR
+- Testing Trophy（Kent C. Dodds）: Static/Unit/Integration/E2E
+- Radix / Shadcn / TanStack
+- Storybook Component-Driven Development
+
+### STEP 3: スキルギャップ抽出
+1. RSC/Client境界の設計ルール未装備
+2. Server Actions のエラーハンドリング未定着
+3. Testing Trophy比率（10/60/25/5）未定着
+4. Storybook Component駆動未装備
+5. Web Vitals予算未装備
+6. i18n / a11y の網羅未整備
+
+### STEP 4: 追加知識体系
+- Next.js 15 公式
+- Kent C. Dodds Testing Best Practices
+- Rich Harris Sveltekit哲学
+- React Concurrent Rendering
+
+### STEP 5: 追加ツール
+- Next.js 15 / TypeScript 5.5+
+- Vitest / React Testing Library / Playwright
+- Storybook 8 / Chromatic
+- ESLint / Biome / Prettier
+
+### STEP 6: 追加出力アーティファクト
+1. **FE実装コード**（Next.js/RSC/TS strict）
+2. **テストスイート**（Trophy構成）
+3. **Storybook Stories**
+4. **Web Vitals予算表**
+5. **a11yチェックリスト**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| Test Coverage | 80%以上 |
+| Lighthouse Performance | 95以上 |
+| TypeScript strict違反 | 0件 |
+| a11y違反 | 0件 |
+
+### STEP 8: 失敗パターン
+- **'use client'乱用**：SSR効果消失
+- **any型使用**：型安全崩壊
+- **単体テストのみ**：Integration不足
+- **Bundle爆発**：dynamic import未使用
+
+### STEP 9: クロスファンクショナル連携
+- **nao(sys)**: 設計受領
+- **ao**: BE連携
+- **mio**: QAゲート
+- **kuu**: デプロイ
+- **kai**: PM
+
+### STEP 10: 継続的自己改善ループ
+1. Sprint終了時: Web Vitals比較
+2. 週次: Bundle Size予算
+3. 月次: Storybookカタログ更新
+4. 四半期: Next.jsアップグレード

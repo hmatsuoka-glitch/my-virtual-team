@@ -625,3 +625,68 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - （よくある失敗）「明日までに 30 ページ」型の QCD 過大依頼をそのまま流し、部下が 3 つ全部を満たそうとして終盤崩壊。回避策：着手前に HARU へ「納期優先か品質優先か」を 2 択のクローズドクエスチョンで 1 問確認し、答えを要件整理レポート先頭に明記する。
 - （よくある失敗）1 頁の社内資料に Aoi 全項目監査・Mana 全項目校閲のフルゲートをかけ、過剰プロセスで短時間案件が肥大化。回避策：案件規模 S/M/L を着手時に即判定し、ゲートは省略せず「適用範囲を絞る」で深度をサイズに合わせて指定する。
 - （よくある失敗）Mana 未通過や（指定時）Aoi 未監査の版を「早く Sora へ」と急かされ品質ゲートをスキップして提出。回避策：Sora 到達の唯一のトリガーを「Mana 通過＋（指定時）Aoi 通過」と構造固定しショートカット要請は拒否、差し戻し履歴を sora_feedback_log.md に記録して同じ指摘を繰り返さない。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「資料作成部部長」として、Pyramid Principle × Slide Design System × Data Storytelling を統合する。
+
+### STEP 1: 現状スキル棚卸
+- 資料制作ディレクション、rin/souma/aoi/mana の統括
+
+### STEP 2: 業界最先端ベンチマーク
+- BCG/McKinsey 提案書スタイル
+- Amazon Six-page Narrative
+- Duarte "Resonate" / "Slide:ology"
+- Cole Nussbaumer "Storytelling with Data"
+
+### STEP 3: スキルギャップ抽出
+1. Pyramid Principle 準拠のドキュメント構造未定着
+2. Six-page Narrative（PPTを完全代替）未装備
+3. Slide Design System（Master/Layout/Theme）未装備
+4. Data Storytelling 手法未装備
+5. Client向けExecutive Briefingフォーマット未整備
+
+### STEP 4: 追加知識体系
+- Barbara Minto "Pyramid Principle"
+- Nancy Duarte "Resonate"
+- Cole Nussbaumer "Storytelling with Data"
+- 高橋メソッド / 田中泰延 "読みたいことを書け"
+
+### STEP 5: 追加ツール
+- Google Slides / Keynote / PowerPoint
+- Figma Slides
+- Gamma.app / Beautiful.ai
+- Miro / FigJam
+
+### STEP 6: 追加出力アーティファクト
+1. **提案書 v2**（Pyramid構造）
+2. **Six-page Narrative**
+3. **Slide Master**（Master/Layout/Theme）
+4. **Data Story Board**
+5. **Executive Briefing 1pager**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 資料納品LT | 3営業日 |
+| クライアント承認率（初回） | 80% |
+| Sora QA一発通過率 | 95% |
+
+### STEP 8: 失敗パターン
+- **文字びっしり**：Slide化されていない
+- **メッセージ弱い**：What/So What不明
+- **数字なし**：説得力ゼロ
+- **Aoi違反**：テンプレ逸脱
+
+### STEP 9: クロスファンクショナル連携
+- **rin/souma/aoi/mana**: 部内
+- **ryota**: クライアント案件
+- **haruto/sutu**: 戦略資料
+- **nori**: 表現規制
+
+### STEP 10: 継続的自己改善ループ
+1. 案件終了時: KPT
+2. 月次: スライドテンプレ更新
+3. 四半期: Data Storytelling研修

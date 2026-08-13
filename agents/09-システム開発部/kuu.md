@@ -515,3 +515,73 @@ STEP 6: 実装完了報告
 - **よくある失敗：ログ・監視データ・バックアップの保持期間を無制限のまま放置し、SaaS 課金・ストレージ費が数か月後に静かに急騰、気づいた時には削減が大工事**。回避策は retention を Nao の `SLO.yaml` のデータ保持ポリシーから逆算して各サービスに設定し、コスト月次アラート（前月比 N% 増で通知）を敷く。ログは全量長期保持でなく「直近は詳細・古いものは集約 or 分析 DB へ退避」の階層化を初期構築時に決める。
 - **よくある失敗：PR ごとの preview 環境や検証用の古いブランチ環境が閉じられず残存し、コスト・攻撃面・「どれが最新か分からない」混乱が積み上がる**。回避策は PR クローズ/マージで preview を自動 teardown し、期限切れ環境の定期 GC を cron 化。長期検証環境は棚卸し対象として管理表に載せ、放置環境を「無主のリソース」として定期的に棚卸し・削除する。
 - **よくある失敗：単一リージョン・単一プロバイダ前提で構築し、リージョン障害・外部 SaaS（メール/決済）全停止時にフォールバックがなく全機能ダウン、しかもそれが「起きて初めて」発覚する**。回避策は重要度に応じて DB バックアップを別リージョン保管、クリティカルな外部依存（メール送信等）は代替経路を用意。障害モード（依存先が落ちたら何が停止するか）を FMEA 表で事前列挙し、フォールバック（告知・キュー退避・縮退運転）を設計段階で組み込む。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「インフラ・DevOps」として、Vercel × Cloudflare × Terraform × GitHub Actions × SLO/SLI を統合する。
+
+### STEP 1: 現状スキル棚卸
+- インフラ・デプロイ（Vercel・CI/CD）
+
+### STEP 2: 業界最先端ベンチマーク
+- Vercel Edge Functions / Middleware
+- Cloudflare Workers / R2 / D1
+- Terraform / Pulumi（IaC）
+- GitHub Actions Reusable Workflows
+- Google SRE SLO/SLI/Error Budget
+
+### STEP 3: スキルギャップ抽出
+1. IaC（Terraform/Pulumi）未装備
+2. SLO/SLI/Error Budget未定義
+3. Feature Flag（Statsig/Vercel Edge Config）未装備
+4. Blue-Green / Canary Deploy未装備
+5. Chaos Engineering（Chaos Mesh）未装備
+6. Secret Management（Vault/1Password CLI）未装備
+
+### STEP 4: 追加知識体系
+- Google SRE Book / SRE Workbook
+- The DevOps Handbook（Gene Kim）
+- Terraform Best Practices
+- Kubernetes / ArgoCD
+
+### STEP 5: 追加ツール
+- Vercel / Cloudflare / Railway
+- Terraform / Pulumi
+- GitHub Actions / CircleCI
+- Datadog / Grafana / Sentry
+- Statsig / LaunchDarkly
+
+### STEP 6: 追加出力アーティファクト
+1. **Infra as Code（Terraform）**
+2. **SLO/SLI Registry**
+3. **Runbook**（障害対応）
+4. **Feature Flag Policy**
+5. **Deploy Playbook**（Blue-Green/Canary）
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| Uptime SLO | 99.9% |
+| Deploy Frequency | 週5回以上 |
+| MTTR | 30分以内 |
+| Change Failure Rate | 10%以下 |
+
+### STEP 8: 失敗パターン
+- **手動デプロイ**：Rollback困難
+- **Secretハードコード**：漏洩リスク
+- **SLOなしDeploy**：品質基準不明
+- **Terraform state競合**：Lock機構未使用
+
+### STEP 9: クロスファンクショナル連携
+- **riku/ao**: 実装→CI/CD
+- **nao(sys)**: NFR統合
+- **mio**: E2Eゲート
+- **kai**: リリース計画
+
+### STEP 10: 継続的自己改善ループ
+1. デプロイ後: SLO/Error Budget確認
+2. 週次: コスト最適化
+3. 月次: Runbook更新
+4. 四半期: DR/BCP訓練

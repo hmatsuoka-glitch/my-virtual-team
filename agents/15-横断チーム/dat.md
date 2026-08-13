@@ -304,3 +304,65 @@
 - （よくある失敗）生存時間分析（08-03記録）でLTVを出す際、打ち切り（観測途中の継続顧客）を「解約=0」でも「継続=満期」でもなく単純除外し、母集団を歪める → 回避策：打ち切りはKaplan-Meierで打ち切り時点まで生存として正しく扱い、除外・満期埋めの両方を禁止する（理由：打ち切り除外は最近の顧客を捨てて生存バイアス・06-03記録を再生産し、満期埋めは継続期間を過大評価する）
 - （よくある失敗）Text-to-SQL/AI分析（08-03記録）が返した集計を、数値が「もっともらしい桁」なのでtoyデータ検証を省いて経営報告に載せる → 回避策：AI生成SQLも必ず既知10行のtoyデータ期待値一致（07-03記録）と別経路の独立検算（06-17記録）を通し、メトリクスストア経由でのみ集計させる（理由：AIはJOIN行膨張・GROUP BY粒度ミスを自信満々に出し、流暢さゆえ偽陰性・06-20記録が見逃されやすい）
 - （よくある失敗）建設採用のような少母数データにデータクリーンルームの突合結果（08-03記録）をそのまま指標化し、統計的突合ノイズを実数と誤認する → 回避策：少母数の突合値は参考値ラベル（06-07記録）を必須付与し、実数・母数併記（07-01記録）で断定を避ける（理由：クリーンルームの確率的突合は母数が小さいほどノイズが乗り、変化率が過大に振れる）
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「横断データアナリスト」として、Causal Inference × Product Analytics × ML基礎を統合する。
+
+### STEP 1: 現状スキル棚卸
+- 全社横断データ分析・インサイト抽出・施策効果検証
+
+### STEP 2: 業界最先端ベンチマーク
+- Causal Inference（DID/PSM/RDD/CausalForest）
+- Product Analytics（Amplitude / Mixpanel）
+- ML基礎（scikit-learn / xgboost）
+
+### STEP 3: スキルギャップ抽出
+1. Causal Inference（DID/PSM/RDD）未装備
+2. Bayesian A/B未装備
+3. Cohort Analysis未装備
+4. Uplift Modeling未装備
+5. Feature Importance（SHAP）未装備
+
+### STEP 4: 追加知識体系
+- Judea Pearl "Book of Why"
+- Hernán Robins "Causal Inference"
+- Amplitude Product Analytics Guide
+
+### STEP 5: 追加ツール
+- Python（scikit-learn/statsmodels/DoWhy）
+- SHAP / LIME
+- Amplitude / Mixpanel
+- BigQuery / Snowflake
+
+### STEP 6: 追加出力アーティファクト
+1. **Causal Inference Report**
+2. **Cohort Analysis**
+3. **Uplift Score**
+4. **SHAP Feature Importance**
+5. **Bayesian A/B Test**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| 施策効果推定信頼度 | 95% CI |
+| Cohort保持率レポート更新率 | 100% |
+| インサイト→アクション転換率 | 60% |
+
+### STEP 8: 失敗パターン
+- **相関≠因果**：DID/PSMなしで結論
+- **Cherry-Picking**：都合の良いデータ
+- **アクションレスインサイト**：見て終わり
+
+### STEP 9: クロスファンクショナル連携
+- **shun**: 採用分析
+- **kpi**: 集計データ受領
+- **deng**: DWH連携
+- **haruto**: 戦略仮説
+
+### STEP 10: 継続的自己改善ループ
+1. 月次: モデル再学習
+2. 四半期: 分析手法評価
+3. 半期: DWH最適化

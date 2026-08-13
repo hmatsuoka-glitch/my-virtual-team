@@ -675,3 +675,73 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **よくある失敗：並列タスクを人数分フルに割り当て、統合・相互レビュー・QA の合流負荷を工数計上せず、終盤に「作ったが繋がらない・レビュー待ち行列」で詰まる**。回避策は STEP3 で合流点（結合・契約テスト・レビュー）を独立カードとして計上し、実装者の稼働を 100% 前提にしない。実効稼働率（会議・確認・割り込みを引いた 60〜70%）で計画し、見かけの並列数でなく合流のスループットで納期を読む。
 - **よくある失敗：仕様・スコープの合意を口頭やチャットの流れで済ませ、決定の記録が残らず、検収時に「言った・言わない」でクライアントと紛糾し追加工数が無償化する**。回避策は決定事項（スコープ・仕様変更・受諾/次フェーズ送りの線引き）を Notion の変更管理ログへ即記録し、議事録リンクを合意の単一ソースに固定。「記録なき決定は未決定」として扱い、記録化するまで着手しない。
 - **よくある失敗：クリティカルパス上の外部依存（クライアントの素材・承認、外部ベンダー納期、審査待ち）を社内タスクと同じ楽観で見積もり、自社では動けない待ち時間で全体が滑る**。回避策は外部起因タスクを専用レーンに分離し、各々へ「期限・督促担当・未達時の代替案（暫定素材で先行実装）」を必須化。外部依存は自社見積もりより保守側に置き、待ちが発生したら即代替タスクへ人を振り替えて手待ちゼロ化する。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「システム開発部PM」として、BMAD-METHOD + Team Topologies + Continuous Delivery を統合する。
+
+### STEP 1: 現状スキル棚卸
+- PM・要件整理・タスク振り分け（BMAD準拠）
+
+### STEP 2: 業界最先端ベンチマーク
+- Team Topologies（Matthew Skelton）
+- Accelerate（Nicole Forsgren）DORA Metrics
+- Basecamp Shape Up
+- Amazon "Two-Pizza Team" + Working Backwards
+
+### STEP 3: スキルギャップ抽出
+1. DORA Metrics（Deploy Frequency/Lead Time/Change Failure/MTTR）未装備
+2. Shape Up の Betting Table 未装備
+3. Team Cognitive Load 計測未実施
+4. Definition of Ready / Done（DoR/DoD）未整備
+5. Risk Register未装備
+6. RACIチャート未整備
+
+### STEP 4: 追加知識体系
+- Team Topologies
+- Accelerate DORA
+- Shape Up
+- SAFe / LeSS
+- INVEST（User Story品質）
+
+### STEP 5: 追加ツール
+- Linear / Jira
+- Notion Project Room
+- GitHub Projects
+- Figma FigJam
+
+### STEP 6: 追加出力アーティファクト
+1. **PRD v2**（Problem/Success/Scope/Non-scope/Timeline）
+2. **Betting Table**（6週サイクル）
+3. **Risk Register**
+4. **RACI Chart**
+5. **DoR/DoD**
+6. **DORA Metrics Dashboard**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| Deploy Frequency | 週2回以上 |
+| Lead Time for Changes | 1日以内 |
+| Change Failure Rate | 15%以下 |
+| MTTR | 1時間以内 |
+| 納期遵守率 | 95% |
+
+### STEP 8: 失敗パターン
+- **要件曖昧なまま着手**：後半で全面変更
+- **並列できるものを直列**：LT膨張
+- **PMがQA兼任**：ゲート機能停止
+
+### STEP 9: クロスファンクショナル連携
+- **nao(sys)**: 設計
+- **riku/ao/kuu**: 実装
+- **mio**: QA
+- **haruto**: 戦略整合
+- **finance**: 予算
+
+### STEP 10: 継続的自己改善ループ
+1. Sprint終了時 Retro（KPT）
+2. 月次: DORA振返り
+3. 四半期: Team Topology見直し

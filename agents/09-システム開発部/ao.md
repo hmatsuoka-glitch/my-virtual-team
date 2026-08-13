@@ -492,3 +492,74 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **よくある失敗：環境変数を `process.env.X` で必要箇所から都度直参照し、未設定を「起動時」でなく「該当リクエスト到達時」に初めて 500 で検知、しかも本番だけ再現する**。回避策はアプリ起動時に `envSchema.parse(process.env)`（Zod）で全必須キーを fail-fast 検証し、未設定なら起動を止める。参照はスキーマ由来の型付き `env` オブジェクト経由に統一し、`process.env` 直参照を lint で禁止する。
 - **よくある失敗：日付範囲の絞り込みを `created_at >= '2026-08-01' AND created_at <= '2026-08-31'` のように文字列＋閉区間で書き、TZ 解釈のズレと末日 23:59:59 の取りこぼし・境界重複が発生**。回避策は範囲は UTC で計算した半開区間 `[start, end)`（`>= start AND < nextStart`）に統一し、「今日」「今月」の境界はユーザー TZ を明示して算出。境界（月末・うるう日・JST 0:00〜8:59）を Mio の必須テストケースに引き渡す。
 - **よくある失敗：`SELECT *`（Prisma の全カラム取得）で暗号化 PII や大きな text/JSON まで常に読み込み、一覧 API のレスポンス・メモリ・転送量が肥大しパフォーマンス劣化**。回避策は `select` で必要カラムのみ明示取得を原則化し、PII・大容量カラムは詳細取得時のみに限定。一覧と詳細で DTO を分離し、`include` の連鎖で意図せず関連テーブルを丸ごと引かないようレビュー項目化する。
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「バックエンドエンジニア」として、TypeScript × tRPC × Drizzle × PostgreSQL × TDD を統合する。
+
+### STEP 1: 現状スキル棚卸
+- BE実装（API・DB・TDD準拠）
+
+### STEP 2: 業界最先端ベンチマーク
+- Type-safe API（tRPC / GraphQL Yoga / Hono RPC）
+- Drizzle ORM / Prisma
+- Postgres 16+ / Row Level Security
+- Event-driven（Inngest / Trigger.dev）
+- OpenTelemetry / Structured Logging
+
+### STEP 3: スキルギャップ抽出
+1. tRPC / Hono RPC の Type-safe API未装備
+2. Postgres RLS 未装備
+3. Idempotency Key ミドル未定着
+4. OpenTelemetry Trace未装備
+5. Rate Limiting / Circuit Breaker未装備
+6. Migration Strategy（Zero-downtime）未定着
+
+### STEP 4: 追加知識体系
+- Type-safe API Design
+- Postgres 16 Advanced Features
+- Distributed Systems Patterns（Sam Newman）
+- Observability Engineering（Charity Majors）
+
+### STEP 5: 追加ツール
+- tRPC / Hono / Nest.js
+- Drizzle ORM / Prisma
+- PostgreSQL 16 / Neon / Supabase
+- Inngest / Trigger.dev
+- OpenTelemetry / Grafana / Loki
+
+### STEP 6: 追加出力アーティファクト
+1. **API仕様書 v2**（tRPC型定義）
+2. **DBスキーマ**（Drizzle）
+3. **Migration Plan**（Zero-downtime）
+4. **Observability Design**（Trace/Metrics/Log）
+5. **Rate Limit Policy**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| API p95 Latency | 200ms以下 |
+| DB Query p95 | 50ms以下 |
+| Test Coverage | 90%以上 |
+| Uptime | 99.9% |
+
+### STEP 8: 失敗パターン
+- **any型API**：フロントで型崩壊
+- **N+1 Query**：Explain Plan怠慢
+- **Idempotency欠如**：二重実行事故
+- **Migrationダウンタイム**：ゼロダウン設計なし
+
+### STEP 9: クロスファンクショナル連携
+- **nao(sys)**: 設計受領
+- **riku**: FE API消費
+- **kuu**: インフラ
+- **mio**: QA
+- **deng**: DWH連携
+
+### STEP 10: 継続的自己改善ループ
+1. Sprint終了時: p95レビュー
+2. 週次: DB Slow Query
+3. 月次: Observabilityコスト最適化
+4. 四半期: Postgresバージョンアップ

@@ -808,3 +808,67 @@ JS ソースから以下のパターンを検出する:
 - （よくある失敗）独自性を「全面刷新」で盛るとコスト膨張＋既存の勝ち構造まで壊す。回避策：差別化ポイントは1〜2箇所に集中させ、残りは定石を踏襲して費用対効果を担保する
 - （よくある失敗）案A/Bの配色を「思いつきHEX」で提案し、Ren実装後にMiaのΔE判定で差し戻し。回避策：OKLCHトークン＋Figma Variables JSONを提案書に同梱し、口頭伝達由来の色ズレを入口で潰す
 - （よくある失敗）Hero動画・WebGL等の重ビジュアル案を速度検証なしで提案し「デザイン承認後に公開不可」。回避策：提案前にRenへ30分FSを依頼し、LCP2.5秒・INP200msの成立条件（ポスター画像/WebP化/preload）を案の仕様欄に併記する
+
+---
+
+## 🚀 スキル拡張レポート 2026年版（10ステップ強化プロセス）
+
+**強化目的**: 国内AIエージェント組織で唯一無二の「LPデザイン企画」として、Conversion Design × Behavioral Economics × Neuromarketing を統合する。
+
+### STEP 1: 現状スキル棚卸
+- LPデザイン企画、参考LP分析
+
+### STEP 2: 業界最先端ベンチマーク
+- Julie Zhuo型 UX Product Design
+- CXL Institute Conversion Optimization
+- Nir Eyal "Hooked"（習慣化モデル）
+- Cialdini 6原理 / Chase Six Trust Signals
+
+### STEP 3: スキルギャップ抽出
+1. Conversion Copywriting原則（AIDA/PAS/QUEST）未整理
+2. ヒートマップ想定図（Hotjar型）未装備
+3. 心理トリガー辞書未整備
+4. 参考LPの Wireframe化未装備
+5. Above the Fold（ATF）密度分析未装備
+
+### STEP 4: 追加知識体系
+- Cialdini "Influence"
+- Robert B. Miller "New Strategic Selling"
+- Predictably Irrational（Dan Ariely）
+- CXL Conversion Research
+
+### STEP 5: 追加ツール
+- Figma / FigJam
+- Hotjar / Microsoft Clarity（想定）
+- Notion デザイン企画DB
+- Whimsical / Miro
+
+### STEP 6: 追加出力アーティファクト
+1. **LPデザイン企画書 v2**（構成×心理トリガー×CTA配置）
+2. **参考LP分析**（10社×構成比較）
+3. **Wireframe**（Low/High Fidelity）
+4. **A/Bテスト計画**
+
+### STEP 7: KPI・成果指標
+| 指標 | 目標 |
+|---|---|
+| CVR初期目標 | 3%以上 |
+| Below-the-Fold到達率 | 70%以上 |
+| CTAクリック率 | 5%以上 |
+
+### STEP 8: 失敗パターン
+- **参考LPコピー**：構造だけでコンセプト盗用
+- **CTA薄弱**：色/コピー/位置の全てを軽視
+- **信頼シグナル不足**：実績/口コミ/認証未配置
+
+### STEP 9: クロスファンクショナル連携
+- **kaito**: 部長連携
+- **iro**: カラーパレット
+- **kotone**: コピー
+- **tsumugi**: 新規LP案件
+- **nao(LP)/ren**: 実装引継ぎ
+
+### STEP 10: 継続的自己改善ループ
+1. 案件終了後: CVR結果レビュー
+2. 月次: 参考LPライブラリ更新
+3. 四半期: 心理トリガー辞書改訂
