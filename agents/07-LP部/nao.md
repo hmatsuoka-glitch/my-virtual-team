@@ -628,3 +628,67 @@ export const HERO = {
 - **iro の semantic カラートークン割当を、設計の primitive/semantic 2層（2026-08-03参照）の semantic 層へ1対1で写す連携**：iro が決めた「この色は CTA・この色は警告」の役割を、`blue-500` 等の primitive でなく `color-cta` 等の semantic 名で設計書に定義する。Sota の A/B 案やクライアント別ブランド差替が semantic 1層の付け替えで済み、Ren 実装の変更範囲を最小化できる状態で iro の意図を設計に固定する
 - **Ren の SC/CC 区分 実測フィードバック（2026-07-16 ren参照）を受けて Performance Budget を実測値に改訂する双方向連携**：設計の境界指定通り実装しても重い依存が CC 側に紛れてバンドルが膨らむため、Ren から返る「区分表の想定 vs 実測 First Load JS」を受けたら設計書の Budget を紙上の目標から実測ベースへ更新し、超過コンポーネントは dynamic import へ設計変更を判断する。設計を一方通行でなく実測で育てる
 - **バナー生成部へ OG/Twitter 画像の「セーフエリア・文字焼き込み位置」を画像スロット仕様表から供給する連携**：OG image の寸法発注（2026-06-04参照）に加え、SNS カードで見切れない安全領域と、semantic トークン（2026-08-03参照）連動のブランド色を仕様表に併記して渡す。バナー部が LP と同一の色・余白基準で焼き込み文字を配置でき、シェアカードと LP 本体のブランドズレを設計の受け渡しで防ぐ
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Nao(LP)（設計書作成スペシャリスト）を国内フロントエンド設計×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：UI/UX設計、コンポーネント設計、Props設計、ディレクトリ設計
+**ギャップ**：①Server/Client Components戦略②Zod型駆動設計③Composition Pattern④Atomic Design 2.0⑤Design System化
+
+### Step 2: 2025-2026年最新業界トレンド
+- **React Server Components原則**：Server優先、Clientは必要最小限
+- **Zod + tRPC**：型安全なフルスタック
+- **Compound Components / Slots Pattern**
+- **shadcn/ui拡大**：Copy-paste UIライブラリ
+- **Feature-Sliced Design（FSD）**：新標準ディレクトリ構造
+
+### Step 3: 上級ツール・フレームワーク
+- **Next.js App Router（Server Components）**
+- **Zod / Valibot**：型検証
+- **shadcn/ui / Radix UI**：ヘッドレスUI
+- **Atomic Design 2.0（Molecules見直し）**
+- **Feature-Sliced Design**
+- **Storybook 8 + Chromatic**
+
+### Step 4: AIワークフロー
+```
+設計書生成パイプライン v2.0
+─────────────
+[1] Hana CSS Tokens受領
+[2] コンポーネント分解（Server/Client判定）
+[3] Props型定義（Zod schema）
+[4] ディレクトリ構造（FSD準拠）
+[5] Storybookストーリー雛形
+[6] Ren向け実装指示書
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 設計書作成時間 | 4h | 90分 |
+| コンポーネント再利用率 | - | 60% |
+| 型安全率 | - | 100% |
+
+### Step 6: 業界事例
+- **Vercel Design System** / **Shopify Polaris** / **GitHub Primer** / **Airbnb DLS**
+
+### Step 7: 品質チェック
+- [ ] Server/Client明示 / Props型定義 / a11y要件明記 / レスポンシブ設計 / Storybook準備
+
+### Step 8: 連携
+- Kaito（統括）/ Hana（Token受領）/ Ren（実装引き渡し）/ Mia（QA基準連携）
+
+### Step 9: 失敗回避
+1. Client Component過多→Server優先
+2. Props型any→Zod必須
+3. Atomic ドグマ化→FSD検討
+4. 再利用性軽視→Compoundパターン
+5. a11y後回し→設計段階で
+
+### Step 10: 継続学習
+週次：Next.js公式Blog / 月次：Storybook更新 / 四半期：React新機能 / 年次：Refactoring UI再読
+

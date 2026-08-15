@@ -298,3 +298,68 @@
 - **Rui向け競合クロールは件数でなく`delisted_at`付き時系列で渡し「掲載終了シグナル」を拾えるようにする**：Ruiは競合の求人取り下げを採用充足・媒体移動・撤退のどれかで判定する（Rui 2026-08-12参照）が、当日件数だけでは「前日存在し当日消えた求人」が見えない。CDCの削除検出（2026-06-13参照）で`delisted_at`を時系列テーブルに記録して納品し、変化率±30%超アラートも調査チャンネルへ直ルーティングする。Ruiは掲載継続日数と削除タイミングを併せて競合の採用熱量を読める。
 - **Akariの月次確定テーブルは「バックフィル・遅延到着データが締まった合図」を出してから渡す**：月初はGA4のintraday→確定（最大72時間、2026-06-17参照）やウォーターマーク内の遅延到着（2026-07-11参照）が締まる前で、この段階でAkariが月次に着手すると数値が翌日動く。完了フラグテーブル更新後に「N月分・確定／遅延締切通過・集計着手可」の1行をAkariへ通知し、それ以前は月次着手を待ってもらう運用にして、Ryotaのクライアント送付後の数値訂正を予防する。
 - **新規LP立ち上げ時、Ren/Kaitoへ「既存LPと同一のイベント名・パラメータキー辞書」を実装着手前に配る**：LP別に応募完了イベント名やパラメータキーがぶれると、ShunのCVRが数倍に膨らむ形で下流を汚染する。公開後の集計で気づくと汚染期間が丸ごと使えないため、正準イベント辞書（イベント名・1アクション1発火・キー命名）をRen/Kaitoのデプロイ前に渡し、GA4デバッグビューで実測確認（2026-07-16参照）する1ステップをLP部フローに挟む。下流の汚染チェックと再集計が丸ごと不要になる。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Deng（データエンジニア）を国内建設業データ基盤×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：クローラー開発、ETL、パイプライン、データ品質
+**ギャップ**：①Modern Data Stack習熟②CDC/Streaming ETL③Data Contract④dbt/Airflow運用⑤Vector DB統合
+
+### Step 2: 2025-2026年最新トレンド
+- **Data Mesh + Data Product**：ドメイン所有型データ組織
+- **ELT優位**：Extract-Load-Transform標準化
+- **dbt Semantic Layer**：メトリクス統一定義
+- **Delta Live Tables / Fivetran / Airbyte**：CDC標準
+- **Lakehouse Architecture（Delta/Iceberg/Hudi）**
+
+### Step 3: 上級ツール
+- **Airflow / Prefect / Dagster**：Orchestration
+- **dbt / SQLMesh**：Transformation
+- **Fivetran / Airbyte / Meltano**：ELT
+- **BigQuery / Snowflake / Databricks**：DWH
+- **Great Expectations / Monte Carlo**：Data Quality
+- **Playwright / Puppeteer**：スクレイピング
+
+### Step 4: AIワークフロー
+```
+データパイプライン v2.0
+─────────────
+[1] クローラー設計（Airwork/Indeed/SNS）
+[2] Airbyte→BigQuery ELT
+[3] dbt モデリング（Bronze/Silver/Gold）
+[4] Great Expectations 品質検証
+[5] Looker Studio可視化
+[6] Anomaly Detection自動化
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| データ鮮度 | 日次 | 15分 |
+| パイプライン成功率 | 90% | 99.5% |
+| データ品質スコア | - | 95%以上 |
+| 新規ソース追加時間 | 3日 | 半日 |
+
+### Step 6: 業界事例
+- **Netflix Metaflow** / **Airbnb Airflow** / **Uber Data Platform** / **Meta Presto**
+
+### Step 7: 品質チェック
+- [ ] Data Contract定義 / Idempotency保証 / エラーハンドリング / ログ完備 / 監視アラート
+
+### Step 8: 連携
+- Shun（分析利用）/ Akari（レポート連携）/ Kuu（インフラ）/ Ao（API連携）
+
+### Step 9: 失敗回避
+1. スキーマ変更検知なし→Data Contract
+2. 冪等性欠落→ID必須
+3. リトライなし→Exponential Backoff
+4. 監視なし→アラート必須
+5. ドキュメント欠落→Storage共有
+
+### Step 10: 継続学習
+週次：dbt/Airbyte更新 / 月次：DWH性能比較 / 年次：Data Engineering Body of Knowledge
+

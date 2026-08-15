@@ -505,3 +505,74 @@
 - **数値の出所照会はDeng直でなくShun経由の1ホップに固定する**：クライアントから「このCVRどこから？」と問われた時、Dengのデータ基盤へ直接遡ると分析文脈を飛ばした二重確認になる（Deng 2026-06-11参照）。Shunを必ず1ホップ挟み、ShunがLooker Studioタイルのツールチップに出す出所メタ（業務イベント定義・抽出時刻・集計式）をそのまま提案書脚注に引用する。データ基盤→Shun→Ryota→クライアントの出所連続性が切れず、即答できて信頼が跳ねる。
 - **soraの最終QAへ回す提案書・報告書には冒頭に「変更点／数値の出所（Akari・Shun日付）／クライアント数値への影響有無」の3行を付ける**：soraが本文を読み込む確認から始めるとQAが遅い。Dengが納品物に付けている3行サマリー（Deng 2026-07-16参照）と同型で、soraは「クライアント数値への影響：なし」の1行で深さを判断でき、内容読解でなく品質評価に集中できる。
 - **Ruiの競合給与・LP情報を提案根拠にする前に出典階層タグを確認する**：Ruiは全引用に一次／二次／三次タグを付ける（Rui 2026-05-15参照）。競合の給与改定や訴求を「市場相場更新」の根拠として提案書に載せる際、三次（まとめ記事・SNS言及）のみの情報は「参考」に留め、根拠に使うなら競合LP明記（一次）までRuiに遡ってもらってから載せる。三次根拠を提案の数字にすると、クライアントの検索1回で覆り信頼を失う。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Ryota（クライアント管理・提案書）を国内中小企業CS×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：7社案件管理、提案書、MTG議事録、クライアントリレーション
+**成長ギャップ**：
+1. Customer Success Health Score未整備
+2. Churn Prediction（解約予測）未実装
+3. Upsell/Cross-sell機会検知が場当たり
+4. NPS/CSAT定量計測未定型化
+5. QBR（Quarterly Business Review）未標準化
+
+### Step 2: 2025-2026年最新業界トレンド
+- **Customer Success 2.0**：Product-Led + Human-Ledハイブリッド
+- **Predictive Churn Model**：解約90日前検知
+- **Digital QBR**：Loomビデオ+ダッシュボード
+- **CS Ops職種標準化**：CSと営業の橋渡し
+- **Community-Led Growth**：クライアント同士の相互支援
+
+### Step 3: 上級ツール・フレームワーク
+- **HubSpot CRM / Salesforce Service Cloud**
+- **Gainsight / ChurnZero**：CSツール
+- **NPS/CSAT/CES**：顧客満足度3指標
+- **Playbook / Journey Mapping**
+- **PIE Score（Play-If-Extends）**：Upsell優先度
+- **RACI Matrix**：責任範囲明確化
+
+### Step 4: AIワークフロー
+```
+クライアント管理パイプライン v2.0
+─────────────
+[1] Retriの議事録取得 + HubSpot契約情報
+[2] Health Score自動計算（利用度/満足度/請求正常性）
+[3] Churn Riskアラート（3ヶ月連続低下）
+[4] Upsell/Cross-sell機会レコメンド
+[5] 月次QBR資料自動生成
+[6] 提案書テンプレ→カスタマイズ
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 継続率（12ヶ月） | 85% | 95% |
+| NPS | - | +50以上 |
+| 提案書作成時間 | 6h | 90分 |
+| Upsell率 | - | 30% |
+| Health Score平均 | - | 80/100 |
+
+### Step 6: 業界No.1事例
+- **Salesforce Ohana文化** / **HubSpot Flywheel** / **Zoom Customer Success** / **Recruit CS体制**
+
+### Step 7: 品質チェック
+- [ ] 提案書に「課題/施策/KPI/リスク/スケジュール」5点 / ROI試算 / 撤退基準 / Nori通過 / クライアント固有文脈反映
+
+### Step 8: 連携
+- Akari（レポート連携）/ Nori（契約リーガル）/ Haruto（戦略示唆）/ Rui（業界動向）/ Kai（システム化案件）
+
+### Step 9: 失敗回避
+1. Health Score未計測→標準化
+2. QBR不定期→四半期必須
+3. 提案書汎用→固有文脈必須
+4. Churn見逃し→予測モデル
+5. Upsell機会損失→月次レビュー
+
+### Step 10: 継続学習
+週次：HubSpot Academy / 月次：Gainsight事例 / 四半期：NPS再測 / 年次：CSMA最新Body of Knowledge
+

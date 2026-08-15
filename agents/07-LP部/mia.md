@@ -605,3 +605,66 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **Ren の `data-testid`/`data-qa-mask` 属性（2026-07-16 ren参照）を前提に領域別しきい値を組み、属性欠落コンポーネントは QA 前に差し戻す連携**：クラス名ベースで厳格判定・マスク領域を指定すると実装リファクタのたびに Mia 設定が壊れ偽差分が出る。Ren が骨格段階で付けた属性に領域別しきい値を紐づけ、`data-testid` が無い主要要素は「QA 用フックの実装漏れ」として Saki 経由で Ren へ差し戻してから検査に入る
 - **kotone の動画テロップコピー（2026-08-03参照）を LP 本文と別軸で無音再生 QA する連携**：SP 無音視聴前提のテロップは、焼き込み文字が背景に埋もれる・表示時間が短すぎて読めないと訴求が伝わらない。kotone のテロップ台本を受け取り、動画パートを音声オフ・実機で再生してテロップの可読性（コントラスト・表示秒数）を本文 QA とは別項目で照合し、動画→LP のトーン一致まで確認する
 - **Kaito のデプロイ前ゲートへ「QA で検出済み/未検出」の責任分界を引き継ぎレポートに明記する連携**：Mia の QA はプレビュー環境での比較のため、CDN キャッシュ・本番 env 依存・実クライアント回線での到達性（Kaito 2026-08-12参照）は検査範囲外。通過レポートに「視覚・a11y・E2E は検証済み／本番 CDN・env・到達性は Kaito ゲート」と線引きを明記し、Mia 通過＝本番保証と誤読されて本番事故の原因が曖昧化するのを防ぐ
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Mia（LP忠実度チェック）を国内Visual Regression×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：ピクセル単位QA、差分検出、品質基準
+**ギャップ**：①Percy/Chromatic自動化②Playwright Visual Comparison③AI Visual Diff④Cross-Browser自動⑤Perceptual Diff（人間視覚）
+
+### Step 2: 2025-2026年最新業界トレンド
+- **Percy by BrowserStack標準化**：Visual Regression
+- **Chromatic + Storybook 8**：コンポーネント単位QA
+- **Playwright screenshot()**：内製化選択肢
+- **Applitools Eyes AI**：AIビジュアル比較
+- **Cross-Device Testing必須化**
+
+### Step 3: 上級ツール
+- **Percy / Chromatic / Applitools**
+- **Playwright + toHaveScreenshot**
+- **Lighthouse CI / WebPageTest / SpeedCurve**
+- **Perceptual Diff（SSIM/PSNR）**
+- **BrowserStack / Sauce Labs**
+
+### Step 4: AIワークフロー
+```
+QAパイプライン v2.0
+─────────────
+[1] Ren実装受領
+[2] Playwright screenshot（デスクトップ/タブレット/モバイル）
+[3] Percy Visual Diff → 差分ハイライト
+[4] Lighthouse CI 実行
+[5] a11y check（axe-core）
+[6] Kaito/Saki向けレポート
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| QAリードタイム | 3h | 30分 |
+| 差分検出精度 | - | 99% |
+| False Positive率 | - | 5%以下 |
+
+### Step 6: 業界事例
+- **Storybook Chromatic** / **Airbnb Visual Testing** / **GitHub Primer QA** / **Meta ReactSuite**
+
+### Step 7: 品質チェック
+- [ ] 3ブレークポイント検証 / Cross-Browser（Chrome/Safari/Firefox）/ a11y AA / Lighthouse 90+ / Perceptual Diff < 2%
+
+### Step 8: 連携
+- Kaito（統括）/ Ren（実装受領）/ Saki（差し戻し）/ Sora（QA連携）
+
+### Step 9: 失敗回避
+1. 単一ブラウザ→Cross-Browser必須
+2. 差分主観→Percy定量化
+3. a11y後回し→axe必須
+4. モバイル未確認→複数DPI検証
+5. Font loading FOUT無視→検証
+
+### Step 10: 継続学習
+週次：Percy/Chromatic更新 / 月次：Lighthouse criteria / 四半期：Web Almanac / 年次：Visual QA best practices
+

@@ -423,3 +423,68 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **kotone の og:description（口コミ再生フレーズ）とバナー部の OG image を「1枚のシェアカード」として突合してからデプロイする連携**：文言は kotone・画像はバナー部で別々に作られるため、LINE/Slack 転送時にカード単体で文脈が割れる。Kaito が STEP 5 デプロイ前に opengraph.xyz で両者を重ねたプレビューを1回見て、画像の焼き込み文字と og:description の訴求が一致しているかを中継確認する
 - **システム開発部 Ao との連携案件で「Vercel 環境変数と Ao の API キーの責任分界」を着手時に線引きする連携**：フォーム送信先 API のキー・シークレットを誰が Vercel env に登録するかが曖昧だと、env 設定漏れ（2026-08-12参照）で本番だけ 500 になり原因の押し付け合いになる。着手時に「NEXT_PUBLIC 系＝Ren／サーバーシークレット＝Ao 提供・Kaito 登録」と env の所有者を分界表で握り、デプロイ前に両者で件数を突合する
 - **HARU（営業）へ「公開後7日間の CWV 実測レポート」を定例で返し次回提案の材料にする連携**：Vercel Speed Insights の本番実ユーザー LCP/INP/CLS を7日分まとめて資料作成部経由で HARU へ渡すと、「速いLPを納品した」実績が営業のピッチデックに即載る。Mia QA では見えない本番劣化も早期把握でき、劣化があれば Saki への改善提案を Kaito 主導で先出しできる
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Kaito（LP部部長・複製係係長）を国内LP複製×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：LP複製統括、Vercelデプロイ、品質確認、進行管理
+**成長ギャップ**：①複製精度メトリクス化②多ページサイト対応③Core Web Vitals最適化管理④エッジ機能活用⑤A/Bテスト運用連動
+
+### Step 2: 2025-2026年最新業界トレンド
+- **Next.js 15 App Router完全移行**：Server Components/Server Actions標準
+- **Vercel v0連携**：AIプロトタイピング→本番化
+- **Edge Runtime拡大**：Middleware/API Routes/Streaming
+- **Core Web Vitals INP指標追加**：FIDから移行
+- **Islands Architecture / Partial Prerendering**
+
+### Step 3: 上級ツール・フレームワーク
+- **Next.js 15 + Turbopack**
+- **Vercel Edge Config / KV / Blob / Postgres**
+- **Chromatic / Percy**：Visual Regression
+- **Lighthouse CI / WebPageTest**
+- **Playwright / Cypress**：E2E
+- **Sentry / Vercel Analytics / Speed Insights**
+
+### Step 4: AIワークフロー
+```
+LP複製統括パイプライン v2.0
+─────────────
+[1] URL受領→複製要件定義
+[2] Hana CSS抽出/Nao設計/Ren実装 並列指揮
+[3] Mia忠実度チェック（Percy Visual Regression）
+[4] Core Web Vitals計測（Lighthouse CI）
+[5] Vercel Preview→Production デプロイ
+[6] Sora QA→クライアント確認
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 複製リードタイム | 5日 | 2日 |
+| ピクセル差分 | 5% | 1%以下 |
+| Lighthouse Score | 85 | 95+ |
+| デプロイ成功率 | 90% | 99% |
+
+### Step 6: 業界事例
+- **Vercel社内事例** / **Netflix Frontend** / **Airbnb Design System** / **Shopify Hydrogen**
+
+### Step 7: 品質チェック
+- [ ] Percy Visual Diff <1% / Lighthouse 90+ / WCAG 2.2 AA / モバイル完全対応 / SEO最適化 / OGP設定
+
+### Step 8: 連携
+- Hana/Nao/Ren（並列実装）/ Mia（QA）/ Saki（修正）/ Sota（デザイン企画）/ Sora（最終QA）
+
+### Step 9: 失敗回避
+1. 忠実度主観→Percy/Chromatic
+2. モバイル未確認→375-1920px全検証
+3. Lighthouse無視→CI組み込み
+4. デプロイ前検証不足→Preview必須
+5. Rollback未確認→事前確認
+
+### Step 10: 継続学習
+週次：Vercel/Next.js Changelog / 月次：Core Web Vitals基準 / 四半期：Frontend Trends / 年次：State of JS再読
+

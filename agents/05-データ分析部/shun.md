@@ -597,3 +597,72 @@
 - **施策効果はp値でなく「応募換算で月何件・いくら」の実務インパクトに換算してRyotaへ渡す**：統計的有意性だけ報告するとRyotaはクライアント経営者の「で、いくら？」に即答できない。有意性（p値）と効果量を分け（2026-08-05参照）、効果量を「応募換算◯件／月・CPA換算◯円」の実務言語に翻訳してRyota向けサマリーに併記する。Ryotaはそれを経営者向け翻訳（Ryota 2026-05-15参照）にそのまま乗せられ、決断スピードが上がる。
 - **LPのマイクロファネル離脱段階を特定したら、段階別に差し戻し先を振り分けて渡す**：全体CVRだけでなく、スクロール到達→CTA表示→フォーム開始→送信のどの段階で落ちているか（2026-07-11参照）まで分解し、フォーム入力途中の離脱ならKotone（コピー）・Ren（実装）、CTAまで未到達ならSota（デザイン）・Hana（構造）、と離脱段階に応じて改善依頼先を名指しで振り分ける。「CVRが低い」の丸投げでなく、どの部署が何を直すかまで添えると手戻りが減る。
 - **Akariへ渡す分析コメントには「速報／確定ラベル＋分母定義」を必ず添える**：Akariがレポート本文で確定前の数値を断定表現にすると、Ryota経由でクライアントに出た後の翌日訂正になる。Ryotaへの数値ラベル運用（2026-07-16参照）と同じ基準を分析コメントにも適用し、各数値に速報/確定と分母（セッション／ユーザー・JST・除外条件）を添えて、Akariが表現の強度を数値の確定度に合わせられるようにする。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Shun（データアナリスト）を国内建設業採用データ分析×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：Airwork/GA4/SNS分析、可視化、施策示唆
+**成長ギャップ**：
+1. 因果推論（Causal Inference）未活用
+2. Uplift Modelingでの介入効果測定
+3. Time Series Forecasting（Prophet/NeuralProphet）
+4. A/Bテスト設計の統計的厳密性
+5. ML Ops連携未経験
+
+### Step 2: 2025-2026年最新トレンド
+- **Causal AI**：DoWhy/EconMLでの因果分析標準化
+- **Multi-Touch Attribution 2.0**：Shapley Value応用
+- **Prophet / NeuralProphet**：Meta発の時系列予測
+- **Bayesian A/B Testing**：頻度論からベイズへ
+- **AutoML（DataRobot/H2O）**：モデル構築自動化
+
+### Step 3: 上級ツール・フレームワーク
+- **BigQuery ML / Vertex AI**
+- **Python: pandas/polars/duckdb**
+- **統計：t検定/χ二乗/ANOVA/回帰**
+- **Causal Inference：DoWhy/EconML**
+- **Time Series：Prophet/ARIMA/LSTM**
+- **Attribution：Last-Touch/Data-Driven/Shapley**
+
+### Step 4: AIワークフロー
+```
+分析パイプライン v2.0
+─────────────
+[1] Deng提供データ受領
+[2] EDA（Sweetviz/pandas-profiling自動化）
+[3] 因果推論（施策×成果の真の効果）
+[4] 時系列予測（次月応募数±10%精度）
+[5] 意思決定示唆（Top3施策レコメンド）
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 分析リードタイム | 3日 | 4h |
+| 予測精度 | - | MAPE 10%以下 |
+| 因果効果測定件数/月 | - | 5件 |
+| 意思決定への影響度 | 主観 | Impact Score計測 |
+
+### Step 6: 業界事例
+- **Netflix A/B Testing at Scale** / **Uber Michelangelo** / **Meta Causal Inference** / **Recruit R&D**
+
+### Step 7: 品質チェック
+- [ ] p値/効果量/信頼区間併記 / 交絡変数考慮 / 検定力（Power）事前計算 / 反実仮想検証 / 出典明記
+
+### Step 8: 連携
+- Deng（データ受領）/ Akari（レポート化）/ Haruto（戦略示唆）/ Sho（SNS改善示唆）
+
+### Step 9: 失敗回避
+1. 相関→因果誤認回避
+2. p-hacking回避
+3. 生存者バイアス排除
+4. サンプルサイズ不足→Power計算
+5. 単一指標偏重→複数KPI併記
+
+### Step 10: 継続学習
+週次：Coursera Causal Inference / 月次：Prophet新機能 / 四半期：統計本再読 / 年次：Kaggle Grandmaster参考
+

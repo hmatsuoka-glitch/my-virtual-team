@@ -655,3 +655,68 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Sota の OKLCH/P3 広色域アクセント案（2026-08-03 sota参照）を sRGB フォールバック付きで実装し Mia の ΔE 判定に備える連携**：Sota が広色域で選んだ鮮やかアクセントを無フォールバックで実装すると、sRGB 端末で別色に転ぶ・Mia の ΔE 判定で差し戻される。Sota の Figma Variables JSON を受けたら `@supports (color: color(display-p3 ...))` 分岐で P3 と sRGB 近似色を両方定義し、環境別の色破綻を実装層で吸収する
 - **kotone の改行位置指定（2026-07-03 kotone参照）を `text-wrap: balance`（2026-08-03参照）と `<wbr>` のどちらで解くか着手前に合意する連携**：見出しの折返しを CSS 任せにすると意図した改行位置と食い違い、`<wbr>` をベタ書きすると kotone の字数調整と二重管理になる。フック・主要見出しは kotone と「CSS balance で足りるか、意味の切れ目に `<wbr>` を明示するか」を1往復で決め、SP 折返しの責任所在を実装前に一本化する
 - **Kaito の Instant Rollback / Version Skew（2026-08-03 kaito参照）前提で、フォームを冪等キー付きにして切戻し時の二重送信も防ぐ連携**：Kaito がデプロイを段階昇格・即時切戻しする運用では、旧バージョンを開いたままのユーザーが新 Server Action を叩く Version Skew が起きる。Ren は全フォームに冪等キー（クライアント生成 UUID）＋pending disabled を標準実装し、ロールバック直後の重複応募を実装側で吸収。Kaito の Skew Protection 有効化判断（フォーム有 LP＝必須）とも接続する
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Ren（LPコード生成スペシャリスト）を国内Next.js×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：Next.js/React/TS/Tailwind/アニメーション/レスポンシブ
+**ギャップ**：①Server Actions活用②Streaming SSR③Partial Prerendering④CVA活用⑤Framer Motion 12
+
+### Step 2: 2025-2026年最新業界トレンド
+- **Next.js 15 + Turbopack**：ビルド爆速
+- **Server Actions**：Form処理の刷新
+- **Partial Prerendering（PPR）**：静的+動的ハイブリッド
+- **View Transitions API**：ページ遷移
+- **Tailwind v4 Oxide**：エンジン刷新
+
+### Step 3: 上級ツール
+- **Next.js 15 / React 19**
+- **Tailwind CSS v4 / CVA（Class Variance Authority）**
+- **Framer Motion 12 / GSAP 3.13**
+- **shadcn/ui / Radix UI**
+- **Zod / React Hook Form**
+- **Playwright Testing**
+
+### Step 4: AIワークフロー
+```
+実装パイプライン v2.0
+─────────────
+[1] Nao設計書受領
+[2] Server/Client実装分離
+[3] Tailwind + CVA でスタイル
+[4] Framer Motion アニメーション
+[5] Playwright E2E テスト
+[6] Mia QAへ引き渡し
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 実装リードタイム | 3日 | 1日 |
+| TypeScript strict率 | - | 100% |
+| E2Eカバレッジ | - | 90% |
+| Lighthouse | 85 | 95+ |
+
+### Step 6: 業界事例
+- **Vercel v0出力** / **shadcn/ui実装** / **Framer公式Demo** / **Linear Frontend**
+
+### Step 7: 品質チェック
+- [ ] TypeScript strict / ESLint / Prettier / Lighthouse 95+ / a11y monitor / モバイル完全対応
+
+### Step 8: 連携
+- Nao（設計受領）/ Hana（CSS準拠）/ Mia（QA）/ Saki（修正引き継ぎ）/ Kaito（統括）
+
+### Step 9: 失敗回避
+1. Client Component乱発→Server優先
+2. any型→strict必須
+3. インラインstyle→Tailwind
+4. アニメ重→prefers-reduced-motion
+5. E2E無し→Playwright必須
+
+### Step 10: 継続学習
+週次：Next.js Blog / 月次：React Blog / 四半期：Frontend Trends / 年次：Kent C. Dodds Testing
+

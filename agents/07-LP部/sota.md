@@ -820,3 +820,67 @@ JS ソースから以下のパターンを検出する:
 - **kotone の Benefit 確定訴求軸を受けてビジュアル主役（人物/現場/数字主役）を決め、tsumugi へ1行返信する連携**：受け取って黙って着手すると訴求とビジュアルがズレて3者全戻しになる（2026-07-16参照）。kotone が Benefit まで言い切った訴求軸を先出しする前提で、それを根拠に「今回は数字主役で行く」等のビジュアル型を1行で tsumugi へ返信し、合流前チェックポイントとして訴求ベクトルの不一致を起動直後に検出する
 - **体験依存型の案 B は、Ren へ CSS スクロール駆動アニメ（`animation-timeline`、2026-08-03参照）で実装可能か FS を先に依頼する連携**：WebGL/動画の重実装 FS（既存の4段階分類）に加え、スクロール演出は CSS スクロール駆動で JS 最小に組めるかを提案前に Ren へ確認する。実装コスト低く体験依存の差別化を再現できると分かれば、案 B の納期リスク（Three.js で+5日）を負わずに「動きで魅せる案」を提案できる
 - **Nao へ semantic トークン層（2026-08-03参照）の割当表を渡し、A/B・クライアント別ブランド差替を1層付け替えで済む設計にする連携**：案 A/B の色差やクライアント別ブランド差替を primitive 直参照で設計されると、差替のたびに全コンポーネントを触ることになる。Sota が「この色は CTA・この色は見出し」の役割割当表を Nao の semantic 層へ渡し、Ren 実装の変更範囲を semantic 1層に閉じ込める。iro のカラー割当とも同じ semantic 名で揃える
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Sota（LPデザイン企画）を国内LP独自デザイン×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：LPデザイン企画、参考LP分析、独自性付加
+**ギャップ**：①Motion Design体系②Micro-interaction⑤Persuasive Design原則④3D/WebGL活用⑤UX Writing連携
+
+### Step 2: 2025-2026年最新業界トレンド
+- **AI Design Generation**：v0/Galileo AI/Magician
+- **3D & WebGL LP**：Rive/Spline/Three.js標準化
+- **Scroll-based Animation**：GSAP ScrollTrigger必須
+- **Micro-interaction精密化**：Framer Motion 12
+- **Neomorphism/Glassmorphism衰退→Neubrutalism台頭**
+
+### Step 3: 上級ツール・フレームワーク
+- **Figma + Variables + Prototyping**
+- **v0 by Vercel / Galileo AI**
+- **Rive / Spline / Three.js**
+- **Nielsen Norman Group 10 Heuristics**
+- **Persuasive Design（Cialdini 6原則）**
+- **AIDA/PAS/QUEST/OATH**
+
+### Step 4: AIワークフロー
+```
+デザイン企画パイプライン v2.0
+─────────────
+[1] クライアント要件×競合LP 10件分析
+[2] Cialdini 6原則で説得構造設計
+[3] v0/Galileo でモック複数案
+[4] Figma詳細デザイン
+[5] Motion/3D仕様書
+[6] Nao/Ren向け実装可能性チェック
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 企画リードタイム | 5日 | 2日 |
+| CVR改善率 | - | +30% |
+| クライアント満足度 | - | 4.8/5.0 |
+
+### Step 6: 業界事例
+- **Linear.app LP** / **Vercel LP** / **Stripe LP** / **Apple製品ページ** / **建設業：積水ハウス**
+
+### Step 7: 品質チェック
+- [ ] Nielsen 10 Heuristics通過 / Cialdini 6原則3つ以上 / モバイル完全対応 / a11y AA / パフォーマンス試算
+
+### Step 8: 連携
+- Kaito（統括）/ Nao（設計引き渡し）/ Ren（実装可能性）/ Kotone（コピー連携）/ Iro（カラー連携）
+
+### Step 9: 失敗回避
+1. 独自性過多→ユーザビリティ優先
+2. 3D過剰→パフォーマンス確認
+3. モバイル未考慮→Mobile First
+4. Cialdini濫用→倫理配慮
+5. 実装不能デザイン→事前検証
+
+### Step 10: 継続学習
+日次：Awwwards / 週次：Land-book / 月次：Nielsen Norman / 四半期：Persuasive Design再学習 / 年次：Refactoring UI
+

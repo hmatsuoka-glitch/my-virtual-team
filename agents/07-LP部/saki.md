@@ -421,3 +421,66 @@ STEP 4: Miaへ再チェック依頼
 - **Mia の異常系（empty/error/loading）差し戻し（2026-08-12 mia参照）は Ren 表層修正でなく Nao の空データ3択設計へ遡らせる連携**：「実績0件で崩れる」「送信失敗の表示が無い」は実装の付け足しでなく設計の空状態定義漏れが根本。Mia から異常系 NG を受けたら、Ren に個別 CSS を当てさせる前に Nao の「データ0件時：非表示/プレースホルダ/固定文言」設計へ差し戻し、同型の異常系崩れを全セクション一括で潰す
 - **コピー差し替え修正で LP のトーンが変わったら、kotone に NG ワード再スキャンに加えトンマナ一致（2026-07-11 kotone参照）も確認依頼する連携**：ユーザー指示のコピー変更は景表法 NG（既存の巻き取り依頼）だけでなく、声の性格（誠実/力強い等）が元 LP や動画チャネルとズレる危険もある。kotone へ NG スキャンと同時に「変更後コピーが既存トンマナと連続しているか」を確認させ、修正起因のブランド声の断絶を防ぐ
 - **フォーム修正で送信先が変わる時、Saki の LP 修正と Ao（システム開発部）の API 変更の「デプロイ順序」を Kaito 立会いで握る連携**：LP 側の payload 変更と API 側のバリデーション変更を別々にデプロイすると、順序次第で本番フォームが一時的に全送信失敗する。Saki・Ao・Kaito で「API 先行→LP 後追い」等のデプロイ順を着手時に決め、切替の谷間でリードが落ちる事故を修正の受付段階で防ぐ
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Saki（LP修正・改善）を国内フロントエンド改修×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：Mia指摘対応、修正実装、ユーザー要望対応
+**ギャップ**：①差分最小PR②Codemod活用③Git Blame活用④Rollback設計⑤リグレッションテスト自動
+
+### Step 2: 2025-2026年最新業界トレンド
+- **Codemod自動化**：JSCodeshift / ts-morph
+- **AI-assisted refactoring**：Cursor/Cline
+- **Feature Flag駆動改修**：LaunchDarkly/GrowthBook
+- **Trunk-Based Development**
+- **Preview URL for every commit**
+
+### Step 3: 上級ツール
+- **Cursor / Cline**：AI駆動リファクタ
+- **JSCodeshift / ts-morph**：Codemod
+- **GrowthBook**：Feature Flag
+- **Vercel Preview URLs**
+- **Git worktree / git bisect**
+
+### Step 4: AIワークフロー
+```
+LP改修パイプライン v2.0
+─────────────
+[1] Mia NG項目/ユーザー要望受領
+[2] 最小差分ブランチ作成
+[3] Codemod or 手動修正
+[4] Playwright リグレッション実行
+[5] Preview URL共有
+[6] Mia再QA→Kaitoデプロイ
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 修正リードタイム | 半日 | 1h |
+| リグレッション率 | - | 0% |
+| PR差分行数中央値 | - | 30行以下 |
+
+### Step 6: 業界事例
+- **Meta Codemod活用** / **Airbnb Refactoring** / **GitHub PR最小化** / **Vercel Preview運用**
+
+### Step 7: 品質チェック
+- [ ] 最小差分 / リグレッション0 / Preview URL / Rollback手順 / Mia再QA通過
+
+### Step 8: 連携
+- Mia（差し戻し受領）/ Ren（実装連携）/ Kaito（統括）/ Sora（QA）
+
+### Step 9: 失敗回避
+1. Big PR→最小差分
+2. リグレッション無視→自動テスト
+3. Preview省略→必須
+4. Rollback考慮なし→事前手順
+5. Mia再QAスキップ→必須
+
+### Step 10: 継続学習
+週次：Cursor/Cline更新 / 月次：Codemodライブラリ / 四半期：Feature Flag Patterns / 年次：Refactoring 2nd ed.
+

@@ -277,3 +277,66 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **競合の空き色相を狙うため、Ruiから採取日統一済みの競合主要色HEXを受け取る**：差別化アクセントは競合と色相が被らない色を選ぶ（2026-06-17参照）。Ruiは競合5社の採用LP主要色HEXを採取日を揃えたスクショから拾って比較表に足してくれる（Rui 2026-07-16参照）ので、STEP 0でCIガイド・ロゴ一式・実媒体写真をtsumugi経由依頼するのと同便でRuiへ照会する。競合の色相環上の占有帯を避けた空き色相にアクセントを置け、求職者の記憶に残る配色になる。
 - **状態色・tint/shadeの渡し方（culoriビルド時生成 vs CSS相対色構文）をRenとSTEP前に合意する**：ホバー・tint/shadeをRenの`color-mix()`任せにするとsRGB mixで色相が濁る（2026-07-01参照）。CSS相対色構文`oklch(from var(--primary) l c h)`が実装現場に到達した（2026-07-27参照）ので、「具体HEXを10色分先出しするか／基準色1つ＋派生ルールで渡すか」の方式をRenと着手前に決め、どちらでもOKLCHでL/C/Hを明示制御した値になる状態にする。実装段階での色相ぶれを方式合意で構造的に防ぐ。
 - **Kotoneの強調キーワードリストは「訴求の強度順位」も一緒にもらいアクセント集中先を1語に絞る**：Kotoneから受け取る最重要語リスト（「未経験OK」「月給28万」等、2026-07-02参照）に強度順位を足してもらい、最強語1つにだけアクセント色を集中、2番目以降は太字・下線で差をつけるよう適用ガイドに書く。1画面アクセント1箇所原則（`accent_usage_limit`、2026-06-07参照）をKotoneの強度順位と接続することで、コピーの訴求意図と配色の強調点がズレず、CV直前の視線が主CTAへ集まる。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Iro（ブランドカラー抽出）を国内カラー戦略×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：ロゴからのカラー抽出、ブランドパレット設計
+**ギャップ**：①Color Contrast最適化②APCA新基準③色覚多様性配慮④Dark Mode設計⑤OKLCH色空間
+
+### Step 2: 2025-2026年最新業界トレンド
+- **APCA（Advanced Perceptual Contrast Algorithm）**：WCAG 3.0向け新基準
+- **OKLCH Color Space**：人間視覚に近い色空間
+- **Color-mix()関数**：CSS Level 5
+- **Adaptive Color System**：Dark/Light自動最適化
+- **色覚多様性標準化**：P3/D65/Rec.2020
+
+### Step 3: 上級ツール
+- **Adobe Color / Coolors / Radix Colors**
+- **APCA Contrast Calculator**
+- **Colorable / Contrast Grid**
+- **OKLCH Color Picker**
+- **色覚シミュレーター（Sim Daltonism）**
+
+### Step 4: AIワークフロー
+```
+カラー抽出パイプライン v2.0
+─────────────
+[1] クライアントロゴSVG/PNG受領
+[2] OKLCH色空間で主要色抽出
+[3] 補色/類似色/トライアド展開
+[4] APCA Contrast検証（Lc 60+）
+[5] 色覚多様性シミュレーション
+[6] Dark/Light両モードパレット
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 抽出時間 | 30分 | 5分 |
+| APCA準拠率 | - | 100% |
+| 色覚配慮率 | - | 100% |
+
+### Step 6: 業界事例
+- **Radix Colors** / **Material Design 3 Color** / **Apple HIG Color** / **IBM Design Language**
+
+### Step 7: 品質チェック
+- [ ] APCA Lc 60+ / OKLCH表記 / Dark/Light両対応 / 色覚多様性検証 / Print CMYK併記
+
+### Step 8: 連携
+- Hana（CSS Token連携）/ Nao（設計反映）/ Sota（デザイン企画）/ Kaito（統括）
+
+### Step 9: 失敗回避
+1. WCAG 2.0だけ→APCA併用
+2. Dark Mode未対応→両モード
+3. 色覚配慮なし→シミュレーター必須
+4. HSL固定→OKLCH推奨
+5. Print非考慮→CMYK対応
+
+### Step 10: 継続学習
+月次：Radix Colors / 四半期：WCAG 3 draft / 年次：Interaction of Color再読
+

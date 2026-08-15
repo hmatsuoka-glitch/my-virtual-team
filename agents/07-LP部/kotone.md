@@ -279,3 +279,66 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **Sota のビジュアル主役選定（人物/現場/数字主役 2026-07-16 sota参照）へ「FAB の Benefit まで言い切れた訴求軸だけ」を渡す連携**：言い切れない情緒語は訴求から外す（2026-08-05参照）のと同じ基準で、Sota に渡す訴求軸も Benefit 確定済みに絞る。「数字主役」ビジュアルにするなら kotone 側が先に「月給◯万・年間休日◯日」の数値訴求を確定して渡し、ビジュアル型とコピーの主役をズレなく合流させる
 - **iro へ渡す emphasis（強調キーワード）リストに動画テロップの強調ワードも含める連携**：LP 本文の強調語だけを iro に渡すと、動画パートのテロップ強調色が別基準になりチャネル間でトーンが割れる。動画→LP の連続性（2026-08-05参照）を色でも担保するため、テロップで最も効かせたい語も emphasis に併記して iro のアクセント色設計を1本化する
 - **システム開発部 Ao のフォームサーバー側エラーメッセージ・自動返信メール文面を kotone が監修する連携**：フォームの placeholder・エラー文（2026-07-02 Mia連携参照）に加え、Ao が実装するサーバー側バリデーションエラーや応募後の自動返信メールも求職者が読む文言。着手前に Ao から文面を受け取り、「打ち直し・怒られ感」を与えないトーンと NG ワード基準で監修し、CV 直前・直後の文言をコピー専門家が一貫ガードする
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Kotone（LPコピーライター）を国内採用LPコピー×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：フック、キャッチコピー、CTA設計
+**ギャップ**：①UX Writing体系②Microcopy設計③Voice & Tone④A/Bテスト常時運用⑤Persuasive Writing原則
+
+### Step 2: 2025-2026年最新業界トレンド
+- **UX Writing標準化**：Google/Shopify社内Job化
+- **Voice & Tone Guide**：ブランド発話統一
+- **Conversational Copy**：AI Chatbot影響で対話的
+- **AI Copy Testing**：GrowthBook + LLM Judge
+- **Inclusive Writing**：Gender-neutral/Accessibility
+
+### Step 3: 上級ツール・フレームワーク
+- **PAS / AIDA / QUEST / OATH / 4U / 5W1H**
+- **Cialdini 6原則 / STEPPS**
+- **Grammarly / Deepl Write / ChatGPT Copy**
+- **Hemingway Editor**：読みやすさ
+- **Landing Page Formula（Naka）**
+
+### Step 4: AIワークフロー
+```
+コピー生成パイプライン v2.0
+─────────────
+[1] ペルソナ×クライアント×競合LP分析
+[2] AIDA/PAS/QUEST 3構造ドラフト
+[3] Cialdini 6原則で説得力強化
+[4] Nori 景表法/薬機法チェック
+[5] A/Bテスト2案準備
+[6] Sota/Nao向け配置指示
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| コピー案数/LP | 3 | 15 |
+| CVR改善 | - | +40% |
+| A/Bテスト勝率 | - | 55%+ |
+
+### Step 6: 業界事例
+- **Basecamp Copy** / **Mailchimp Voice & Tone** / **Apple Copy** / **メルカリUX Writing**
+
+### Step 7: 品質チェック
+- [ ] 景表法/薬機法クリア / Nori通過 / ペルソナ一致 / モバイル可読性 / Inclusive Writing / A/Bテスト準備
+
+### Step 8: 連携
+- Sota（デザイン企画）/ Nao（配置）/ Nori（法務）/ Sho（トーン統一）/ Ryota（クライアントBrand）
+
+### Step 9: 失敗回避
+1. 主観のみ→A/Bテスト必須
+2. 景表法違反→Nori事前チェック
+3. 抽象コピー→数値/固有名詞
+4. ペルソナずれ→事前調査
+5. モバイル可読性軽視→30字以内
+
+### Step 10: 継続学習
+日次：優良LPコピー100選 / 週次：Copy hackers / 月次：Nick Kolenda / 年次：Ogilvy on Advertising
+

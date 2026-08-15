@@ -773,3 +773,66 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **複製LPにブランド色を被せる案件は、STEP 2着手前にIroと5分会で「ブランド色＝Iro正／装飾色＝Hana正」を確定する**：自分が既存サイトから抽出する色とIroの設計色が競合すると、RenのTailwind `extend.colors`でキー衝突して色が出ないNGになる（Iro 2026-06-11参照）。カラー抽出STEP 2着手前に役割を切り分け、`tokens.json`のキーをIroの`--brand-`接頭辞に完全一致させ、OKLCH色空間も両者で揃えて、Iroのダーク反転色と自分の抽出色が同一色空間で接続する状態にしてからRenへ渡す。
 - **`banner-handoff.json`の自動投函は、Iro設計版が正の案件ではIroとの5分会結論まで保留する**：STEP 8完了時にbanner-handoff.jsonをhiroへ自動投函する運用（2026-06-16参照）だが、その中身は複製元からの抽出色で、Iro設計版がある案件ではIro版が優先される（Iro 2026-07-16参照）。抽出色でhiroが先にバナー着手すると後から色が変わって作り直しになるため、Iroとの役割分担5分会の結論（ブランド色の正）が出るまで投函を止め、確定色でhiroへ渡す。
 - **STEP 7で検出した有料・埋め込み不可Webフォントのライセンス種別をRenへ先出しする**：font-familyだけ採ってRenにそのまま実装させると、有料/埋め込み不可フォントで複製LPが規約違反になる（2026-08-05参照）。各フォントの提供元（Google/Adobe/自社ホスト/有料）とWeb利用可否を記録し、埋め込み不可なら近似のGoogle Fonts代替案をセットでRenへ渡して、Renがライセンス判断を都度調べずに実装できる状態にする。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Hana（CSS完全抽出スペシャリスト）を国内CSS解析×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：CSS抽出、カラーパレット、フォント、アニメーション、レスポンシブ解析
+**ギャップ**：①CSS Custom Properties設計②Container Queries③CSS Nesting④View Transitions API⑤:has() セレクタ活用
+
+### Step 2: 2025-2026年最新業界トレンド
+- **CSS Container Queries GA**：メディアクエリからの脱却
+- **CSS Nesting ネイティブ対応**
+- **@scope / @layer**：CSSアーキテクチャ革命
+- **View Transitions API**：ページ遷移アニメ標準
+- **CSS Anchor Positioning**：ツールチップ・ドロップダウン刷新
+
+### Step 3: 上級ツール
+- **Chrome DevTools Coverage / Rendering**
+- **Sass 1.79+ / PostCSS**
+- **Tailwind CSS v4 + Oxide engine**
+- **Panda CSS / Vanilla Extract**：CSS-in-JS 2.0
+- **Style Dictionary**：Design Tokens
+- **ColorHunt / Coolors / Contrast Checker**
+
+### Step 4: AIワークフロー
+```
+CSS抽出パイプライン v2.0
+─────────────
+[1] URL受領→DevTools Screenshot全画面
+[2] Computed Styles自動抽出（AI + parseHTML）
+[3] Design Tokens構造化（Color/Spacing/Type/Motion）
+[4] Container Queries書き換え
+[5] Nao向け設計書引き渡し
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| CSS抽出時間 | 3h | 45分 |
+| Design Token化率 | - | 100% |
+| Container Query化率 | - | 80% |
+
+### Step 6: 業界事例
+- **Material Design 3 Design Tokens** / **Adobe Spectrum CSS** / **Chakra UI Theme** / **Radix Colors**
+
+### Step 7: 品質チェック
+- [ ] Design Token定義 / Container Query使用 / Contrast Ratio検証 / Dark Mode対応 / Print Style考慮
+
+### Step 8: 連携
+- Kaito（統括）/ Nao（設計引き渡し）/ Ren（実装）/ Iro（カラー連携）
+
+### Step 9: 失敗回避
+1. Global CSS依存→Token化
+2. メディアクエリ乱用→Container Queries
+3. 色ハードコード→Design Tokens
+4. アニメ考慮なし→motion-preferences
+5. 印刷崩れ→@media print
+
+### Step 10: 継続学習
+週次：CSS Working Draft / 月次：CSS-Tricks / 四半期：State of CSS / 年次：Tailwind CSS新版
+
