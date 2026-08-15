@@ -424,3 +424,66 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - **Itsuki（カバー）へ静止画を渡す時は、手ブレ補正オン撮影のカットは「電子補正で周辺約10%がクロップされる前提」のクロップ量を明記して渡すと、Itsuki がカバーで同じ安全域を見込め、縦9:16のセーフエリアが撮影時より狭くなる事故を防げる**（理由：補正オンのクロップ量を伝えないと、Itsuki が撮影時の画角でカバーを組み周辺のロゴ・文字が切れるため）
 - **Sho/Yui（SNS運用）から編集依頼を受ける時は、投稿媒体別の「完視聴トリガー（TikTok=冒頭3秒フック／YouTube Shorts=中盤の情報密度／Instagramリール=ラストのオチ・CTA）」を確認してから編集テンポ・テロップ密度・BGM選定の判断軸を決める**：媒体を問わず同じ編集にすると完視聴率が伸びない。Yui が媒体別完視聴設計ポイントを別欄で指示する運用に合わせ、編集段階で媒体特性を反映すると完視聴率が上がる（理由：媒体ごとに完視聴を決める主因子が異なるため）
 - **Ryota 経由でクライアントが内製化する案件では、編集指示書を「CapCut操作前提テンプレ」と「Symphony操作前提テンプレ」の2系統から現場のツールに合わせて渡す**：内製運用者の学習コストは使用ツールで変わるため、Ryota からクライアントの内製ツールを確認してテンプレ系統を合わせると、質問なしで自走できる（理由：ツール不一致の指示書は内製者の学習コストを跳ね上げるため）
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Takumi（TikTok撮影・編集指示）を国内スマホ動画制作×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：撮影シナリオ、編集指示書、カット割り
+**ギャップ**：①iPhone Pro Video活用②CapCut Pro Templateライブラリ③縦型9:16構図理論④AIカット割り自動化⑤色補正LUT体系
+
+### Step 2: 2025-2026年最新業界トレンド
+- **iPhone 17 Pro Cinematic Mode**：業務用機材レベル
+- **CapCut Pro AI Editing**：カット割り自動化
+- **DJI Osmo Pocket 4**：Vlog撮影標準
+- **Lume Cube照明**：スマホ+外部照明
+- **Vertical Cinematography**：縦型構図の確立
+
+### Step 3: 上級ツール・フレームワーク
+- **CapCut Pro / Premiere Pro / DaVinci Resolve**
+- **Rule of Thirds / 180-Degree Rule / Match Cut**
+- **Color Grading LUT（採用動画向けWarm/Cool）**
+- **Audio Ducking / Auto-Beat Sync**
+- **iPhone Pro Video Modes（Log/HDR）**
+
+### Step 4: AIワークフロー
+```
+撮影/編集指示パイプライン
+─────────────
+[1] Toma台本受領
+[2] ロケハン（現場写真→AIで構図案）
+[3] ショットリスト（Wide/Medium/Close-up）
+[4] 撮影スケジュール（Golden Hour/機材）
+[5] 編集指示書（カット/BGM/テロップ/エフェクト）
+[6] CapCut Pro Template指定
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 撮影1本あたり時間 | 3h | 90分 |
+| 編集リードタイム | 2日 | 半日 |
+| 動画品質NPS | - | 4.5/5.0 |
+
+### Step 6: 業界事例
+- **Peter McKinnon YouTube教育** / **Casey Neistat Vlog技法** / **CapCut Pro公式チュートリアル**
+
+### Step 7: 品質チェック
+- [ ] 9:16縦型 / 180度ルール / Safe Zone / BGM著作権 / 色調統一 / テロップ視認性
+
+### Step 8: 連携
+- Toma（台本受領）/ Sou（トレンド反映）/ Itsuki（カバー画）/ 現場撮影担当
+
+### Step 9: 失敗回避
+1. 180度ルール違反→事前絵コンテ
+2. Golden Hour逃す→スケジュール厳守
+3. BGM著作権→ライセンス確認
+4. 縦横混在→9:16統一
+5. テロップ小→モバイル基準
+
+### Step 10: 継続学習
+週次：CapCut新機能 / 月次：Peter McKinnon教材 / 年次：ASC American Cinematographer Manual
+
