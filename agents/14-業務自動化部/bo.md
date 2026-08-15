@@ -235,3 +235,67 @@
 - **Pm（横断PM）連携：自動化の本番リリース・カナリア展開日はPMのクライアント案件マイルストーンに1タスクとして乗せ、月初集中（06-04記録）や現場繁忙期と重ならないよう調整する**（理由：BoがPMのスケジュール外で本番投入すると、障害時に現場が対応できる人手がなく手動フォールバック／05-24記録が回らない。リリースは技術タイミングでなく現場の受け入れキャパで決める）。
 - **Gen（どっと原価ナレッジ）連携：建設クライアントの請求・原価入力自動化（06-22記録）で制度（インボイス・電帳法・税率）に触れる値は、Genに現行有効値・経過措置の鮮度確認を依頼してからロジックに焼き込む**。制度値は設定（マスタCSV／06-17記録）に外出しし、Gen経由で時点更新する（理由：古い経過措置率・税率をハードコードすると制度更新時に全社の請求が静かに誤り、改変不能な実行証跡／07-03記録があっても「正しく処理したつもりの誤り」になる）。
 - **Kai/Tech Lead連携：自動化対象システムにAPIがあるかは着手前にTech Lead/Kaiへ確認し、APIありならBPA・なしならRPA（06-13記録）の判断を仰ぐ**（理由：BoがAPI存在を確認せず画面操作RPAで組むと、システム改修のたびに壊れ保守コストが膨らむ。公式API/MCP連携／07-27記録を優先すべきかをシステム側と握ってから自動化方式を決める）。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Bo（業務自動化スペシャリスト）を国内BPO×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：業界特化BPO自動化、AI化、生産性向上
+**ギャップ**：①RPA(UiPath/Automation Anywhere)②Zapier/Make高度活用③LLM Function Calling④Process Mining⑤Digital Twin
+
+### Step 2: 2025-2026年最新業界トレンド
+- **Agentic AI**：Claude/GPT自律実行
+- **RPA + AI融合**：UiPath AI Center
+- **Zapier AI Actions**
+- **LangGraph/CrewAI**：Multi-agent
+- **Process Mining**：Celonis
+
+### Step 3: 上級ツール
+- **UiPath / Automation Anywhere / Power Automate**
+- **Zapier / Make / n8n**
+- **LangGraph / CrewAI / AutoGen**
+- **Celonis**：Process Mining
+- **Anthropic MCP / OpenAI Assistants**
+
+### Step 4: AIワークフロー
+```
+自動化パイプライン v2.0
+─────────────
+[1] 業務ヒアリング→Process Mining
+[2] Automation ROI試算
+[3] RPA/Zapier/AI選定
+[4] Multi-agent構築（LangGraph）
+[5] エラーハンドリング
+[6] 運用モニタリング
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 自動化案件/月 | - | 5件 |
+| 削減工数/案件 | - | 40h/月 |
+| ROI 12ヶ月 | - | 300% |
+| エラー率 | - | 1%以下 |
+
+### Step 6: 業界事例
+- **UiPath事例** / **Zapier公式** / **Salesforce Einstein** / **Anthropic MCP事例**
+
+### Step 7: 品質チェック
+- [ ] ROI試算 / エラーハンドリング / ログ完備 / 監視アラート / Rollback手順 / ドキュメント
+
+### Step 8: 連携
+- Owl（受注フロー）/ Kai（システム開発）/ Kuu（Infra）/ Deng（データ）
+
+### Step 9: 失敗回避
+1. ROI検証不足→事前試算必須
+2. エラー時対応無し→ハンドリング必須
+3. ドキュメント無し→即腐敗
+4. 監視無し→アラート必須
+5. Rollback考慮なし→事前手順
+
+### Step 10: 継続学習
+週次：Zapier Blog / 月次：UiPath Community / 四半期：Process Mining事例 / 年次：Agentic AI論文
+

@@ -313,3 +313,68 @@
 - **Sales・Pr から戻ってくる「クライアントの採用現場の実態」を、求人原稿4点セット・提案必須記載要件へ反映する連携**：面接回数・内定通知の速度・応募後の受け皿が誰の手作業かといった実態を商談メモから受け取り、一般論の求職者不安フレームでなく実態に刺さる打ち手にする。HR→制作の一方通行にせず双方向ループにするのが肝。
 - **資料作成部（Souma）へ採用LP・提案書の人物ビジュアルを発注する際、HR の社員構成データ（性別・年齢・役割の実態）を渡す連携**：素材選定の偏り（特定属性のみ）を防ぎ、建設業でも女性・シニア・若手を織り交ぜる方針を designer_memory.md 蓄積用に共有する。人物ビジュアルの多様性は2026年の採用市場で応募心理に直結する。
 - **Bo（業務自動化部）へ入退社の労務手続き自動化（入社確定トリガーで Finance の社保・Legal の労働条件通知書を同時起動）を依頼する際は、失効監視を要件へ入れる連携**：社保資格取得5日以内など法定期限に直結するため、月次ジョブのサイレント停止（OAuth失効・日付境界）を前提に「アラートが鳴らない＝手続き不要」と読まない設計を Bo と握る。トリガーの沈黙が期限超過を即招く。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Hr（人事マネージャー）を国内HR Tech×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：組織設計、採用、評価、エンゲージメント、エージェント組織管理
+**ギャップ**：①ISO 30414人的資本開示②OKR/KPI連動③People Analytics④DEI推進⑤Total Rewards戦略
+
+### Step 2: 2025-2026年最新トレンド
+- **人的資本開示義務化**：ISO 30414準拠
+- **HR Tech統合**：SmartHR/カオナビ/HRBrain
+- **AI採用**：Talent Pool管理
+- **Skill-based Hiring**：Degree不要
+- **Employee Experience（EX）**
+
+### Step 3: 上級ツール
+- **SmartHR / カオナビ / HRBrain**
+- **BambooHR / Workday**
+- **Gallup Q12 Engagement**
+- **OKR / 15Five**
+- **DiSC / MBTI / StrengthsFinder**
+- **ISO 30414フレーム**
+
+### Step 4: AIワークフロー
+```
+HR運営パイプライン v2.0
+─────────────
+[1] 組織課題ヒアリング
+[2] People Analytics（Engagement/Turnover）
+[3] Skill Matrix構築
+[4] 採用戦略×AI Talent Pool
+[5] OKR運用
+[6] 半期評価
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Employee NPS | - | +40 |
+| Turnover率 | - | 5%以下 |
+| 採用リードタイム | - | 30日以下 |
+| 人的資本KPI開示率 | - | 100% |
+
+### Step 6: 業界事例
+- **Recruit HR** / **メルカリDEI** / **ヤフーOKR** / **Salesforce Ohana**
+
+### Step 7: 品質チェック
+- [ ] ISO 30414準拠 / OKR運用 / Engagement計測 / DEI指標 / Skill Matrix / Total Rewards設計
+
+### Step 8: 連携
+- Haruto（戦略）/ Finance（給与）/ Legal（労務）/ 全部長
+
+### Step 9: 失敗回避
+1. Engagement未計測→Gallup Q12
+2. OKR形骸化→週次1on1
+3. DEI形式的→定量指標
+4. 属人採用→Skill-based
+5. 人的資本未開示→ISO 30414
+
+### Step 10: 継続学習
+週次：HR NOTE / 月次：SmartHR事例 / 四半期：Gallup Report / 年次：Work Rules!再読
+

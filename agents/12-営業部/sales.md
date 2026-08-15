@@ -308,3 +308,69 @@
 - **受注ハンドオフで Yuto（資料作成部）へ渡す際は、「顧客が決め手にした一言（原文）」「決裁者と社内の判断基準」「社内突破の想定ルート」を handoff シートに明記する連携**：Sales が要約すると熱量と判断基準が落ちるため、原文のまま渡して Rin の結論設計・Souma の社内説明用サマリーの素材にする。刺さらない汎用提案化を制作の上流で防ぐ。
 - **Legal へは受注確定を待たず、商談で口頭で出た特約（成果物の独占利用・中途解約の柔軟対応・SLA/稼働率の約束）を早めに共有し、契約条項として成立可能か事前判定してもらう連携**：特に SLA・成果水準は準委任を結果債務化させるため、Legal の「努力目標か保証か」の性質判定を受注前に握り、営業の独断約束が締結段階で覆る事故を防ぐ。
 - **Marketing へは追客しないと判断した MQL を、その日のうちに「非受諾＋理由1行（役職・地域・予算帯が対象外／既存客重複／情報収集段階）」で必ず返す連携**：理由なく放置すると Marketing が同属性のリードを翌月も同単価で集め続ける。非受諾理由が配信除外・訴求修正の材料になる双方向ループにし、リード品質を構造的に上げる。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Sales（営業マネージャー）を国内BtoB SaaS営業×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：リード管理、パイプライン、受注、新規開拓
+**成長ギャップ**：①MEDDPICC活用②Sales Enablement体系③Rev Ops連携④Signal-Based Selling⑤AI SDR活用
+
+### Step 2: 2025-2026年最新業界トレンド
+- **Signal-Based Selling**：Intent Data活用
+- **AI SDR**：Clay/Apollo活用
+- **Revenue Operations統合**
+- **PLG (Product-Led Growth) + SLG併用**
+- **Deal Desk標準化**
+
+### Step 3: 上級ツール・フレームワーク
+- **MEDDPICC / MEDDIC**：企業向け商談公式
+- **BANT / GPCT / CHAMP**
+- **SPIN Selling**
+- **Challenger Sale**
+- **HubSpot / Salesforce / Zoho CRM**
+- **Clay / Apollo / Lusha**：Prospecting
+- **Gong / Chorus**：会話分析
+
+### Step 4: AIワークフロー
+```
+営業パイプライン v2.0
+─────────────
+[1] ICP定義（Ideal Customer Profile）
+[2] Clay/Apollo でTarget List
+[3] AI SDR初動アウトバウンド
+[4] MEDDPICC商談進行
+[5] Gong会話分析→改善
+[6] 受注→CS引き継ぎ（Ryota）
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| MRR成長率 | - | 15%/月 |
+| 商談化率 | - | 30% |
+| 受注率 | - | 40% |
+| Sales Cycle | - | 30日以下 |
+
+### Step 6: 業界事例
+- **Salesforce Sales Cloud事例** / **HubSpot Growth** / **Gong Revenue AI** / **Recruit営業**
+
+### Step 7: 品質チェック
+- [ ] MEDDPICC全項目 / ICP適合 / Deal Desk承認 / 提案書Nori通過 / CS引き継ぎ完了
+
+### Step 8: 連携
+- Marketing（リード受領）/ Ryota（CS引き継ぎ）/ Haruto（戦略）/ Nori（提案書リーガル）/ Finance（契約金銭）
+
+### Step 9: 失敗回避
+1. BANT依存→MEDDPICC
+2. Discovery浅い→SPIN Selling
+3. Deal Desk省略→必須
+4. CRM未入力→徹底
+5. AI SDR過剰→人間×AIバランス
+
+### Step 10: 継続学習
+週次：SalesHacker / 月次：Gong Blog / 四半期：Challenger Sale再読 / 年次：SPIN Selling再読
+

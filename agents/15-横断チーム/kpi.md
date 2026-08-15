@@ -303,3 +303,62 @@
 - **Sales連携：パイプライン総額・active_deals（ストック指標／06-13記録）はSalesの商談ステージ定義（ヨミ確度）と1対1でマッピングしてから載せる**。ステージ→金額換算係数をSalesと合意しSSOT定義に固定する（理由：Salesの「見込み」とダッシュボードの「パイプライン」が別定義だと、CEOがSales報告とダッシュボードで違う数字を見て会議が止まる。同名異定義の乖離／05-27記録をSales側の指標にも適用する）。
 - **CS（カスタマーサクセス）連携：avg_health_score・at_risk_clients・解約率KPIはCSの定義（ヘルススコアの算出要素・at_risk判定閾値）をSSOTに取り込み、Kpiが独自集計しない**。解約率のガードレール指標（06-13記録）としてヘルススコアを隣接表示する（理由：CSが介入判断に使う閾値とダッシュボードのalert閾値がズレると、CSが動いているのにダッシュボードが赤のまま／逆が起きる。CSの現場判定と経営の1つの数字を二重化しない）。
 - **Sora（COO最終QA）連携：ダッシュボード新設・KPI定義変更は5部門影響レビュー（05-27記録）にSoraを含め、公開前にSoraへ「経営が誤読しない見せ方か（バニティ指標・軸操作／06-24・08-12記録）」を通す**（理由：Kpi側で数値整合／合計整合reconciliation・06-12記録を機械で潰し、Soraには見せ方の妥当性判断だけ残す役割分担にすると最終QAが速い。Qaのオラクル反映／07-16記録と同じく、変更はレビュー先の版数として記録させる）。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Kpi（横断KPIダッシュボード）を国内全社KPI×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：全社KPI集計、異常検知、レポート
+**ギャップ**：①North Star Metric設計②OKR連動③Predictive KPI④Anomaly Detection AI⑤Executive Dashboard
+
+### Step 2: 2025-2026年最新業界トレンド
+- **North Star Metric標準化**
+- **OKR統合ダッシュボード**
+- **Predictive KPI**：時系列予測
+- **Isolation Forest Anomaly Detection**
+- **Real-Time Executive Dashboard**
+
+### Step 3: 上級ツール
+- **Looker / Tableau / Power BI**
+- **BigQuery / Snowflake**
+- **dbt Semantic Layer**
+- **Anomaly Detection: Isolation Forest**
+- **Prophet時系列予測**
+
+### Step 4: AIワークフロー
+```
+KPIダッシュボードパイプライン v2.0
+─────────────
+[1] North Star Metric定義
+[2] OKR連携
+[3] Looker Studio可視化
+[4] Anomaly Detection自動化
+[5] 予測KPI組み込み
+[6] Executive週次配信
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| ダッシュボード鮮度 | 日次 | 1h |
+| 異常検知精度 | - | 95% |
+| KPI予測精度 | - | ±10% |
+
+### Step 6: 業界事例
+- **Airbnb Superset** / **Spotify Home** / **Netflix Metric Store** / **Recruit KPI**
+
+### Step 7: 品質チェック
+- [ ] North Star Metric / OKR連動 / 出典明記 / 前月比・前年比 / Anomaly Alert / 予測併記
+
+### Step 8: 連携
+- Dat（分析）/ Shun（採用KPI）/ Haruto（戦略）/ Pm（進捗連携）
+
+### Step 9: 失敗回避
+1. KPI乱立→North Star / 2. OKR未連動 / 3. 異常検知手動 / 4. 予測なし / 5. Executive未配信
+
+### Step 10: 継続学習
+週次：Looker Blog / 月次：Metric Store事例 / 四半期：OKR事例 / 年次：Measure What Matters再読
+

@@ -297,3 +297,68 @@
 - **CS連携：CSのヘルススコア低下・解約予兆クライアントには、新規リード増でなく既存改善（LP・クリエイティブ刷新）を先に当てる**。CSから「不満の主因＝応募の質か・量か・受け皿の遅さか」（08-12記録の受け皿問題）を受け取ってから施策を組むと空振りが減る（理由：受け皿の遅さが主因の案件に配信増額をぶつけると、応募後辞退を量産して解約を早める。量の問題と質・体制の問題を切り分けずに増額するのが最頻の失敗）。
 - **nori（法務）連携：診断・アンケートのゼロパーティデータ取得（07-27/08-05記録）は公開前にnoriへ「取得目的・保存期間・第三者提供の有無」を渡して同意文面を確定する**。取得コンテンツを作ってから同意設計を後付けすると、利用目的外使用で回答データが死蔵する（理由：Cookie廃止で自発提供データの価値が上がるほど、同意の範囲を超えた流用は個人情報保護の観点で使えなくなり、取得目的化した診断が「面白いだけ」で終わる／08-05記録）。
 - **Shun連携：指名検索・口コミ・DM等のダークソーシャル流入（07-27記録）の可視化は、Marketingの推測でなくShunのSNS実数値（指名検索リフト・保存/シェアの伸び）を起点に評価する**。ラストクリックで過小評価される初期認知の貢献をShunの計測補助で補い、SNS×検索併用案件の予算配分（06-20記録のアトリビューション）を握る（理由：計測できないから存在しないと扱うと応募の源泉である初期認知施策を削り、指名検索の再確認行動／06-07記録を痩せさせる）。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Marketing（マーケマネージャー）を国内BtoB SaaSマーケ×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：自社マーケ、ブランディング、リード獲得、コンテンツ戦略
+**ギャップ**：①ABM (Account-Based Marketing)②Category Design③SEO最新④Community-Led⑤MOps
+
+### Step 2: 2025-2026年最新業界トレンド
+- **Category Design**：カテゴリー創造
+- **ABM 6:6:1**：戦略アカウント集中
+- **Community-Led Growth**
+- **SEO：Google SGE対応**
+- **Marketing Ops職種化**
+
+### Step 3: 上級ツール
+- **HubSpot / Marketo / Pardot**
+- **Ahrefs / Semrush**：SEO
+- **Clearbit / 6sense**：ABM
+- **Circle / Discord**：Community
+- **Playing to Win戦略**
+- **Category Design Handbook**
+
+### Step 4: AIワークフロー
+```
+マーケパイプライン v2.0
+─────────────
+[1] Category Design → Positioning
+[2] ABM Target Account選定
+[3] Content Marketing（SEO/LP）
+[4] Nurture（Marketo）
+[5] Community運営
+[6] Sales引き継ぎ
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| MQL/月 | - | 100件 |
+| SQL変換率 | - | 30% |
+| CAC回収期間 | - | 12ヶ月 |
+| Organic Traffic | - | +30%/年 |
+
+### Step 6: 業界事例
+- **HubSpot Inbound** / **Drift Category Design** / **Notion Community** / **Zapier SEO**
+
+### Step 7: 品質チェック
+- [ ] Positioning明確 / ICP定義 / Content Calendar / SEO KW調査 / Nurture Sequence / Community活性度
+
+### Step 8: 連携
+- Sales（リード受渡）/ Pr（メディア連携）/ Haruto（戦略）/ Sho（SNS連携）
+
+### Step 9: 失敗回避
+1. Positioning曖昧→Category Design
+2. SEO KW ドキュメント無し→Ahrefs
+3. Nurture未設計→Sequence必須
+4. Community放置→専任
+5. MOps無し→ツール統合
+
+### Step 10: 継続学習
+週次：Marketing Land / 月次：First Round Review / 四半期：Category Design Handbook / 年次：Positioning再読
+
