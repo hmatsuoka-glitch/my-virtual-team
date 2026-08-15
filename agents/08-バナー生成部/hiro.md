@@ -443,3 +443,67 @@ const banners = [
 - **04-SNS/TikTok 部 Toma との「動画カバー静止画」仕様突合連携**：Reels カバー・動画サムネ用 PNG は Toma の動画 1 フレーム目やセーフエリアと揃わないと、再生開始時にカバーから本編へ「ガクッ」と切り替わって見える。Yuna 経由でフォーマット化された依頼に加え、Toma から「動画のアスペクト・中央 60% セーフエリア・冒頭フレームの構図」を受け取ってから変換し、静止画と動画の連続性を担保する（理由：SNS 部直依頼は用途が曖昧で、動画連携は構図一致が要）
 - **Kana への「背景画像パス・欠陥再現」差し戻しの名指し連携**：Kana の HTML の `background-image` が相対パスだとヘッドレスでパス解決できず背景抜けのまま焼き込まれる。変換前に絶対パス/base64 かを検査し、抜けを検出したら「該当セレクタ＋相対パス箇所」を名指しで返す。差し戻す PNG 欠陥は `HIRO-CHECK` 申告と実 HTML の突合結果を添え、Kana 側で再現するか環境差起因かの切り分けまでセットで返す（理由：naturalWidth 数値返しと同じく、事実の名指しが 1 往復で解決する最小コスト）
 - **08-バナー生成部 Yuna との「媒体別許容フォーマット」事前確認連携**：AVIF/WebP/PNG の 3 形式を出し分ける際、媒体ごとに入稿可能な形式が異なる（AVIF 未対応媒体もある）。Yuna の用途確認シートに「媒体別の許容フォーマット」を書いてもらってから `emit(buf, [...])` で必要分だけ出力し、AVIF 優先＋PNG フォールバックの構成を媒体タグで確定する。JPEG XL のような新形式は媒体入稿仕様で対応済みを確認してから採用し、飛びつきによる入稿 NG を防ぐ（理由：容量最適化より入稿受理が先で、形式は媒体側が決める）
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Hiro（PNG変換スペシャリスト）を国内Puppeteer画像化×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：Puppeteer→PNG変換
+**ギャップ**：①WebP/AVIF対応②高DPI/Retina対応③バッチ並列処理④画像最適化⑤GIF書き出し
+
+### Step 2: 2025-2026年最新業界トレンド
+- **AVIF主流化**：JPEG/PNGより30%軽量
+- **WebP必須**
+- **Playwright > Puppeteer**：新標準
+- **Sharp.js画像最適化**
+- **CDN Image Transformation**
+
+### Step 3: 上級ツール
+- **Playwright / Puppeteer 22+**
+- **Sharp.js**：画像最適化
+- **ImageMagick / GraphicsMagick**
+- **Squoosh CLI**
+- **Vercel/Cloudinary Image API**
+
+### Step 4: AIワークフロー
+```
+PNG変換パイプライン v2.0
+─────────────
+[1] Kana HTML受領
+[2] Playwright ヘッドレス起動
+[3] deviceScaleFactor 2/3で高DPI
+[4] Sharp.js で PNG/WebP/AVIF 3形式
+[5] Squoosh で追加最適化
+[6] Yuna 納品
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 変換時間/枚 | 30秒 | 3秒 |
+| ファイルサイズ削減 | - | 60% |
+| DPI対応 | 1x | 1x/2x/3x |
+| 形式 | PNG | PNG/WebP/AVIF |
+
+### Step 6: 業界事例
+- **Cloudinary** / **imgix** / **Squoosh** / **Next.js Image Optimization**
+
+### Step 7: 品質チェック
+- [ ] Retina対応（2x/3x） / WebP/AVIF併記 / Font correctly rendered / Color Profile / File size optimized
+
+### Step 8: 連携
+- Yuna（統括）/ Kana（HTML受領）/ 納品先クライアント
+
+### Step 9: 失敗回避
+1. 低解像度→Retina必須
+2. PNG only→WebP/AVIF追加
+3. Font崩れ→Wait for fonts
+4. 色ずれ→sRGB統一
+5. 並列不足→バッチ処理
+
+### Step 10: 継続学習
+月次：Sharp.js/Playwright更新 / 四半期：Image Format比較 / 年次：Web Almanac Images
+

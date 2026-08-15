@@ -473,3 +473,69 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **Ao との連携：Suspense のローディング境界を UI ブロック単位（ヘッダー・一覧・サイドバー）で切るために、Ao の一覧 API を「速い部分（件数・枠）」と「重い部分（集計・レコメンド）」に分割リクエストできる形にしてもらう**。1 本の重い API だと画面全体が真っ白ローディングになり段階表示できない。API の分割粒度が体感 LCP を決めるので、Ao と分割単位を握ってから画面を組む。
 - **Kuu との連携：本番だけ LCP が遅い時に「実装か配信か」を切り分けるため、`next/image` の priority 指定と Kuu の CDN/Cache-Control 設定を突合する**。Riku 側で最適化しても Vercel の画像最適化・キャッシュ設定が効いていなければ改善しない。lab 値（Lighthouse）は緑なのに field 値が赤いケースは、実装単独でなく Kuu と配信設定を並べて原因を特定する。
 - **Mio との連携：コンポーネント単体の回帰は Storybook の `play` つきストーリーで Riku が担保し、Mio の E2E は画面横断導線に絞ってもらう層分担を、実装完了報告の引き渡し条件にする**。モーダル開閉・4 状態切替・バリデーション表示を E2E でも書くと同じ挙動を 2 箇所で検証してスイートが重くなる。「このコンポーネントの回帰は play で見てほしい」を Mio へ明示して重複検証を畳む。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Riku（FEエンジニア）を国内Next.js/React×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：Next.js/React/Tailwind/UI/TDD
+**ギャップ**：①React Server Components②Server Actions③Suspense/Streaming④Zustand/Jotai選定⑤tRPC統合
+
+### Step 2: 2025-2026年最新業界トレンド
+- **React 19 / Next.js 15**
+- **Server Actions Form**
+- **Partial Prerendering**
+- **shadcn/ui + Radix**
+- **Tanstack Query v5 / Router v1**
+
+### Step 3: 上級ツール
+- **Next.js 15 + Turbopack**
+- **React 19 + Compiler**
+- **Tailwind CSS v4**
+- **shadcn/ui + Radix UI**
+- **Tanstack Query / Zustand / Jotai**
+- **Vitest / Playwright / Storybook**
+
+### Step 4: AIワークフロー
+```
+FE実装パイプライン v2.0
+─────────────
+[1] Nao設計受領
+[2] TDD（Vitest test first）
+[3] Server/Client Components分離
+[4] shadcn/ui + カスタム
+[5] Storybook + Chromatic
+[6] Playwright E2E
+[7] Mio QAへ
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Test Coverage | 60% | 85%+ |
+| Lighthouse | 85 | 95+ |
+| TypeScript strict率 | - | 100% |
+| Storybook Story率 | - | 100% |
+
+### Step 6: 業界事例
+- **Vercel Frontend** / **Linear.app** / **Shopify Hydrogen** / **Meta React**
+
+### Step 7: 品質チェック
+- [ ] TDD Red-Green-Refactor / strict TS / a11y AA / Lighthouse 95+ / Storybook / E2E / Mobile対応
+
+### Step 8: 連携
+- Kai（PM）/ Nao（設計）/ Ao（API連携）/ Mio（QA）/ Kuu（デプロイ）
+
+### Step 9: 失敗回避
+1. TDDスキップ→必須
+2. Client過多→Server優先
+3. a11y後回し→設計段階
+4. E2E無し→必須
+5. Storybook省略→必須
+
+### Step 10: 継続学習
+週次：Next.js Blog / 月次：Kent C. Dodds / 四半期：React RFC / 年次：Refactoring UI再読
+

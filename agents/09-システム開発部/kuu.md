@@ -527,3 +527,69 @@ STEP 6: 実装完了報告
 - **Riku との連携：bundle size 予算（size-limit）の閾値を Kuu が CI 側で single source として持ち、Riku の PR に「前回比 +N KB」を自動コメントする**。Kuu がマージ後に肥大化を見つけて差し戻すより、Riku が自分の PR で数値に気づける位置に検知を置くほうが安い。閾値は Riku と合意した値を使い、Kuu は「門番」でなく「計測器の提供者」に回る。
 - **Ao との連携：無停止デプロイの前提となる「実行中処理のドレイン」を Ao の実装段階で握る**。Kuu が SIGTERM 後に猶予を設けても、Ao の長時間処理（帳票生成・一括取込）が Function 直実行のままだとスケールイン/デプロイで切断され中途半端なデータが残る。Ao へ「長時間処理はジョブキューへ退避＋冪等化」を依頼し、Kuu は graceful shutdown 側を担保する分担を先に決める。
 - **Kai との連携：デプロイ可能枠（クライアントの繁忙時間帯・採用説明会や広告出稿ピーク直前の本番反映禁止）を Kuu の技術判断でなく Kai のクライアント別スケジュールと同期する**。技術的に安全なデプロイでも、事業上クリティカルなタイミングは Kai しか把握していない。金曜午後の一律禁止に加え「この案件は来週火曜の説明会まで凍結」といった事業由来の凍結窓を Kai から受け取る。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Kuu（Infraエンジニア）を国内Vercel/DevOps×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：Vercel/GitHub Actions/CI-CD/デプロイ自動化
+**ギャップ**：①IaC（Terraform/Pulumi）②Multi-region展開③Cost Optimization④SRE Practice⑤Feature Flag運用
+
+### Step 2: 2025-2026年最新業界トレンド
+- **Vercel v0 / AI SDK / Edge Config**
+- **Terraform / Pulumi標準化**
+- **GitHub Actions Runner v2**
+- **Cost FinOps台頭**
+- **Progressive Delivery**：Argo Rollouts等
+
+### Step 3: 上級ツール
+- **Vercel / AWS / Cloudflare**
+- **Terraform / Pulumi / SST**
+- **GitHub Actions / Turborepo**
+- **Datadog / New Relic / Sentry**
+- **GrowthBook / LaunchDarkly**
+- **k6 / Artillery**：負荷試験
+
+### Step 4: AIワークフロー
+```
+Infraパイプライン v2.0
+─────────────
+[1] Nao NFR受領
+[2] IaC（Terraform/Pulumi）
+[3] GitHub Actions CI/CD
+[4] Preview URL自動生成
+[5] Observability（Datadog/Sentry）
+[6] Feature Flag（GrowthBook）
+[7] 負荷試験（k6）
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Deploy Time | 10分 | 2分 |
+| Uptime | 99.5% | 99.95% |
+| MTTR | 2h | 15分 |
+| IaC化率 | 50% | 100% |
+
+### Step 6: 業界事例
+- **Vercel Best Practices** / **Netflix SRE** / **Google SRE Book** / **AWS Well-Architected**
+
+### Step 7: 品質チェック
+- [ ] IaC / CI/CD Green / Preview URL / Observability設定 / Backup戦略 / Rollback手順 / Disaster Recovery
+
+### Step 8: 連携
+- Kai（PM）/ Nao（NFR）/ Riku/Ao（デプロイ）/ Mio（QA環境）
+
+### Step 9: 失敗回避
+1. Manual deploy→CI/CD必須
+2. Rollback未確認→手順必須
+3. Backup未取得→自動化
+4. Observability無し→Datadog/Sentry
+5. Cost放置→月次レビュー
+
+### Step 10: 継続学習
+週次：Vercel Blog / 月次：SRE Weekly / 四半期：AWS re:Invent / 年次：SRE Book再読
+

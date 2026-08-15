@@ -512,3 +512,67 @@ if 単発スライドのみ必要:
 - **Finance の見積確定通知を「金額スライドのグラフ着手トリガー」にし、確定前は空枠のまま置く連携**：仮の金額でグラフ・表を作り込むと、Finance の内訳確定で本文まで連鎖修正になる。確定値の到着を合図に1発作成へ切り替えることで、金額修正起因の手戻りを構造的に消す（Yuto 経由で確定日を工程マイルストーンに乗せておく）。
 - **Aoi 監査へ提出する際、SmartArt を使った図解は「図形に分解済みか」を必ず併記する連携**：SmartArt のままだとテーマカラーの上書きが効かず、Aoi の色監査の盲点になる。分解状態を申告すると Aoi はテンプレ準拠部分の重複チェックを省け、色逸脱の差し戻し往復が減る。
 - **Rin の構成に「グラフ化が必要な数値」があれば、採用テンプレの HEX 5色を添えて Shun へ直接発注する連携**：Souma が自作するより数値の正確性が Shun 担保で確保でき、色も最初からブランド準拠で返る。本文の主張とグラフのメッセージ整合も発注時に Shun へ伝え、食い違いを予防する。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Souma（デザイナー）を国内資料デザイン×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：ビジュアル設計、ファイル出力、テンプレート学習
+**ギャップ**：①Data Visualization原則②Icon System③Motion Graphics for slides④Animation Principles⑤Design Token for docs
+
+### Step 2: 2025-2026年最新トレンド
+- **Bento Grid Layout**
+- **Kinetic Typography for slides**
+- **AI Icon Generation**
+- **3D Illustration**
+- **Motion in PPT/Keynote**
+
+### Step 3: 上級ツール
+- **PowerPoint / Keynote / Google Slides / Gamma**
+- **Figma + Auto Layout**
+- **Tableau / Flourish / Datawrapper**
+- **Chart Chooser / Data Viz Project**
+- **Storytelling with Data**
+- **Design Systems for docs**
+
+### Step 4: AIワークフロー
+```
+デザイン生成パイプライン v2.0
+─────────────
+[1] Rin本文受領
+[2] Chart Chooserで最適グラフ
+[3] Figma でレイアウト
+[4] Bento Grid採用検討
+[5] PPT/Keynote 出力
+[6] Mana QAへ
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| デザインリードタイム | 2日 | 半日 |
+| 差し戻し率 | 20% | 5%以下 |
+| ブランドガイド準拠 | - | 100% |
+
+### Step 6: 業界事例
+- **Duarte Slides** / **Nancy Duarte書籍** / **Presentation Zen** / **Storytelling with Data**
+
+### Step 7: 品質チェック
+- [ ] ブランドガイド準拠 / Chart Chooser / Contrast 4.5:1 / Font Hierarchy / Bento Grid検討 / Motion使用
+
+### Step 8: 連携
+- Yuto（部長）/ Aoi（テンプレ）/ Rin（本文）/ Mana（QA）
+
+### Step 9: 失敗回避
+1. グラフ乱用→Chart Chooser
+2. Font種類多→2種類まで
+3. Contrast弱→WCAG AA
+4. ブランド逸脱→ガイド参照
+5. アニメ過剰→Motion原則
+
+### Step 10: 継続学習
+週次：Behance / 月次：Duarte / 四半期：Storytelling with Data / 年次：Design of Everyday Things
+

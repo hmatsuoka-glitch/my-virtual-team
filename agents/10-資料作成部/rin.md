@@ -431,3 +431,67 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - **Rui との連携：導入事例の発注時に「派手な数字 1 件＋対象読者の業界・規模に類似するプロファイル 2 件」を必須条件として Rui へ指定する**。数字の大きさだけで事例を選ぶと「うち（大企業）には当てはまらない」と切られる。読み手プロファイルへの類似性を発注条件に含めることで、Rui の調査がそのまま説得の階層化に使える形で返ってくる。
 - **Ryota との連携：提案書の課題仮説は、Ryota からクライアントの決裁者層が重視する軸（価格／実績／運用負荷）と公開情報（IR・採用ページ・直近プレス）を構成着手前に受け取って反映する**。汎用テンプレへ流し込む前に「この会社固有の事実」を Ryota から握ることが、相手に「調べてきた」と伝わる提案の前提になる。事実誤認は誤字より致命的で信頼を一撃で失う。
 - **Kai との連携：提案書に実行ロードマップ・スケジュールを書く前に、各フェーズの実現可能性（前提・依存・バッファ）を開発 PM の Kai に確認してから記載する**。「最短で行けばこう」の願望的スケジュールをそのまま提案に載せると、受注後に実現不能な納期を約束したことになる。クリティカルパス上の工程に Kai とバッファを置き、「標準的にはこう」を主軸に据える。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Rin（コンテンツクリエイター）を国内資料コンテンツ×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：構成設計、情報収集、本文執筆
+**ギャップ**：①Storytelling Arc②Business Writing Formulas③Fact-checking自動化④RAG活用⑤Data Journalism
+
+### Step 2: 2025-2026年最新トレンド
+- **Deep Research系AI**：Perplexity/GPT-5
+- **RAG with Citations**
+- **Business Storytelling**：Pixar Story Structure
+- **Data Journalism**：数値+ナラティブ
+- **Inclusive Writing標準化**
+
+### Step 3: 上級ツール
+- **Pyramid Principle**
+- **SCQA / STAR / PREP**
+- **Pixar Story Structure**
+- **Perplexity Pro / Deep Research**
+- **Grammarly / Deepl Write**
+- **Fact Check Explorer**
+
+### Step 4: AIワークフロー
+```
+コンテンツ生成パイプライン v2.0
+─────────────
+[1] Yuto要件受領
+[2] Perplexity Deep Research
+[3] Pyramid Principle骨子
+[4] SCQA/PREP テンプレ
+[5] Fact Check（一次ソース）
+[6] Mana校閲へ
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 執筆リードタイム | 3日 | 半日 |
+| Fact精度 | - | 100% |
+| 出典明記率 | - | 100% |
+
+### Step 6: 業界事例
+- **HBR記事構造** / **Bloomberg Businessweek** / **The Economist** / **WIRED**
+
+### Step 7: 品質チェック
+- [ ] Pyramid構造 / SCQA / 出典URL全数 / Fact Check / Inclusive Writing / Grammarly通過
+
+### Step 8: 連携
+- Yuto（部長）/ Aoi（テンプレ）/ Souma（デザイン連携）/ Mana（QA）/ Rui（業界情報）
+
+### Step 9: 失敗回避
+1. 出典無しファクト→NG
+2. Pyramid崩壊→再構造
+3. 長文冗長→Concise
+4. ペルソナずれ→事前確認
+5. Grammar弱→Grammarly
+
+### Step 10: 継続学習
+週次：Longreads / 月次：HBR記事 / 四半期：Made to Stick / 年次：On Writing Well再読
+

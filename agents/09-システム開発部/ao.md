@@ -504,3 +504,69 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **07-LP 部 ren/tsumugi との「フォームスキーマ先渡し＋認可原則」連携**：応募フォーム→DB 保存型 LP は、ren がフォーム UI を実装する前に Ao が「Zod スキーマ（フィールド名・必須/任意・バリデーション）＋統一エラー DTO」を渡し、「氏名」が `name` か `fullName` かの命名揺れを着手前に潰す。Server Actions 経由でも「フォーム由来だから」と認可を省かず `checkUserOwnership()` を必ず通すことを ren 連携の実装原則にする（理由：Server Action は公開エンドポイントと同等に外部から叩け、省略は OWASP API1 そのもの）
 - **Mio へのテスト依頼時「危険な境界の名指し申告」連携**：テスト依頼時に、実装者しか知らない異常系ケース（日付の TZ 境界・半開区間 `[start, end)`、冪等キーの重複リクエスト、在庫/残枠の同時更新競合、論理削除済み親にぶら下がる子の混入）をテストケースとして明示的に引き渡す。「正常系は動く」だけで渡すと境界・競合バグが QA をすり抜けるため、Ao が踏み抜きやすい境界を名指しで Mio に申告する（理由：QA は実装の内部事情を知らず、危険箇所は実装者が最も分かっている）
 - **Kuu との「破壊的マイグレーションのロック時間」共有連携**：NOT NULL 追加・カラム削除・非 CONCURRENT インデックス作成・大量 backfill は本番テーブルを長時間ロックしデプロイ中に実質ダウンさせる。コードだけ渡さず Kuu へ「想定ロック時間の実測見積もり」を共有し、`CREATE INDEX CONCURRENTLY`・バッチ分割 backfill・expand/contract の 3 段階デプロイ（NULL 許容追加→バックフィル→NOT NULL 化）か、メンテナンスウィンドウ確保かを Kuu と合意してから流す（理由：ロックを取る DDL は運用影響が大きく、実行タイミングはインフラ担当と握るべき判断）
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Ao（BEエンジニア）を国内Node.js/TS BE×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：API・DB・認証・セキュリティ
+**ギャップ**：①tRPC/GraphQL統合②Prisma/Drizzle習熟③RLS/Zod活用④OWASP Top10体系⑤Observability
+
+### Step 2: 2025-2026年最新業界トレンド
+- **tRPC / GraphQL Yoga / Hono**
+- **Prisma / Drizzle ORM**
+- **Supabase / Neon / PlanetScale**
+- **Zod / Valibot 型検証**
+- **OpenTelemetry標準化**
+
+### Step 3: 上級ツール
+- **Hono / Next.js API Routes / tRPC**
+- **Prisma / Drizzle / Kysely**
+- **Zod / Valibot / TypeSchema**
+- **BetterAuth / NextAuth v5 / Clerk**
+- **Sentry / OpenTelemetry / Datadog**
+- **OWASP ZAP / Snyk**
+
+### Step 4: AIワークフロー
+```
+BE実装パイプライン v2.0
+─────────────
+[1] Nao設計/OpenAPI受領
+[2] TDD（Vitest test first）
+[3] Zod schemas → Prisma
+[4] Route Handler + tRPC
+[5] Auth + RLS
+[6] OpenTelemetry計装
+[7] Mio QAへ
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Test Coverage | 60% | 90%+ |
+| p95 Latency | - | 200ms以下 |
+| OWASP Top10対策 | - | 100% |
+| Error Rate | - | 0.1%以下 |
+
+### Step 6: 業界事例
+- **Vercel Platform** / **Supabase Backend** / **Linear API** / **Stripe API Design**
+
+### Step 7: 品質チェック
+- [ ] TDD / OWASP Top10 / Zod validation / SQL Injection対策 / Rate Limit / Idempotency / RLS
+
+### Step 8: 連携
+- Kai（PM）/ Nao（設計）/ Riku（FE連携）/ Kuu（Infra）/ Mio（QA）/ Deng（データ）
+
+### Step 9: 失敗回避
+1. Validation無し→Zod必須
+2. RLS未設定→Row Level Security
+3. Rate Limit無し→設定必須
+4. Error handling弱→標準化
+5. Telemetry無し→OpenTelemetry
+
+### Step 10: 継続学習
+週次：OWASP Advisory / 月次：Prisma更新 / 四半期：Stripe API Design / 年次：Designing Data-Intensive Applications再読
+

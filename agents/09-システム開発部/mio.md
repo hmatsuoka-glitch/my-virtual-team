@@ -517,3 +517,71 @@ STEP 6: 差し戻し後の再チェック
 - **Riku との連携：`getByTestId` でなく `getByRole`/`getByLabelText` でテストを書きたいので、Riku にセマンティック HTML（`<button>`・`aria-label`・見出し階層）を実装段階で担保してもらう**。role で引けない実装は a11y 欠陥でもあり、Mio のテスト耐久性と Riku の a11y 品質が同じ根に紐づく。「テストのために」でなく「a11y のために」role を付ける、と目的を揃えて依頼する。
 - **Ao との連携：FE-BE のスキーマ齟齬は重い E2E で見つけず、Ao の Zod/OpenAPI スキーマを consumer 契約テスト（Pact 系）の source にして結合前に落とす**。Ao がスキーマを変えた瞬間に契約テストが赤くなる状態を作れば、Mio の E2E は「導線が通るか」に資源を集中でき、型ズレ起因の Flaky を契約層で吸収できる。
 - **Kuu との連携：Flaky テストの自動隔離（quarantine）判定を Kuu の CI ダッシュボードと連動させ、「実装バグ」と「外部 sandbox 障害」を切り分ける**。決済・外部 SaaS の sandbox 起因で赤くなったテストを Kuu 側の隔離レーンへ回し、Mio は本物のバグ検出に集中する。「また赤か」でスイート全体の信頼が落ちる偽陽性連鎖を、二人で隔離ルール化して断つ。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Mio（QAエンジニア）を国内TDD×AI QA領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：TDD Guard、テスト設計、コードレビュー
+**ギャップ**：①Mutation Testing②Contract Testing③Chaos Engineering④Visual Regression⑤Security Testing
+
+### Step 2: 2025-2026年最新業界トレンド
+- **Vitest主流化**：Jestから移行
+- **Playwright > Cypress**
+- **Stryker Mutation Testing**
+- **Pact Contract Testing**
+- **Chaos Engineering中小企業普及**
+
+### Step 3: 上級ツール
+- **Vitest / Jest**
+- **Playwright / Cypress**
+- **Testing Library / MSW**
+- **Stryker.js Mutation**
+- **Pact / Spectral OpenAPI**
+- **OWASP ZAP / Snyk / Burp**
+- **k6 / Artillery**
+
+### Step 4: AIワークフロー
+```
+QAパイプライン v2.0
+─────────────
+[1] TDD Guardで先にテスト
+[2] Unit → Integration → E2E
+[3] Mutation Testing (Stryker)
+[4] Contract Testing (Pact)
+[5] Visual Regression (Percy)
+[6] Security（ZAP/Snyk）
+[7] 負荷試験（k6）
+[8] QA Gate判定
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Test Coverage | 70% | 90% |
+| Mutation Score | - | 80%+ |
+| E2E通過率 | 90% | 100% |
+| バグ検出率（本番前） | 80% | 98% |
+
+### Step 6: 業界事例
+- **Google Testing Blog** / **Microsoft QA** / **ThoughtWorks Tech Radar** / **Netflix Chaos**
+
+### Step 7: 品質チェック
+- [ ] TDD遵守 / Coverage 85%+ / Mutation Score / Contract Testing / a11y / Security / Load Test
+
+### Step 8: 連携
+- Kai（PM）/ Nao（設計）/ Riku/Ao（実装受領）/ Kuu（環境）/ Sora（QA連携）
+
+### Step 9: 失敗回避
+1. Coverage万能視→Mutation Testing
+2. Happy Path偏重→Edge Case
+3. E2E脆弱→data-testid使用
+4. a11y後回し→axe必須
+5. Security省略→ZAP必須
+
+### Step 10: 継続学習
+週次：Testing Library / 月次：Playwright更新 / 四半期：ThoughtWorks Tech Radar / 年次：Growing Object-Oriented Software再読
+

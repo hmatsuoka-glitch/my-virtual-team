@@ -687,3 +687,69 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **08-バナー生成部（Yuna）への「開発 Ready 日」先渡し連携**：LP 付きバナー案件では、システム側の「本番デプロイ・環境変数設定・計測タグ稼働」完了日を Kai が Yuna の配信開始逆算デッドラインへ先に渡す。開発の遅延を Yuna に黙っていると、システム未 Ready のままバナーが先行配信されフォーム全断で応募がロスする・計測未発火で「応募ゼロ」に誤認される。開発 Ready 日を広告側の制約として能動共有する（理由：広告部から開発進捗は見えず、無言だと空撃ちになる）
 - **Mio への QA 依頼時「対象外リスト」明示連携**：STEP 5 の QA ゲートへ渡す前に、Kai が「今回わざとスコープ外にした項目・次フェーズ送りの線引き」を Mio へ明示する。線引きを伝えずに渡すと Mio が未実装を「バグ」として起票し、FAIL 判定と差し戻しの往復が無駄に増える。Given-When-Then の受け入れ基準と「対象外リスト」をセットで Mio に渡し、判定を合意済みスコープ内に集中させる（理由：QA は仕様の意図を知らず、対象外の明示がないと過剰検出になる）
 - **Kuu との「リリースゲート基準」共有連携**：本番リリース判定で、Kai が「Blocker 0 件・ロールバック実演済み・依存の脆弱性スキャン・シークレット混入検知」をリリースゲート基準として Kuu と共有し、Kuu の本番昇格前チェックに品質ゲートとして明示計上する。AI 生成コードや依存パッケージが増える中、サプライチェーン観点（SLSA/依存監査）を STEP 5 のリリース判定に組み込む。ゲート未達なら Kai が昇格を止める（理由：リリースは可逆性とセキュリティの担保が揃って初めて許可できる）
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Kai（部長・PM）を国内BMAD-METHOD×AI PM領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：BMAD準拠、要件整理、タスク振り分け、進捗管理
+**成長ギャップ**：①Value Stream Mapping②Cynefin Framework適用③Dora Metrics計測④Team Topologies⑤Async First運営
+
+### Step 2: 2025-2026年最新業界トレンド
+- **DORA Metrics標準化**：Deploy Frequency/Lead Time/MTTR/Change Failure Rate
+- **Team Topologies**：Stream-aligned/Enabling/Platform/Complicated-subsystem
+- **AI Pair Programming標準**：Cursor/Cline/Aider
+- **SPACE Framework**：開発生産性測定
+- **Async-First + Documentation-Driven**
+
+### Step 3: 上級ツール・フレームワーク
+- **Linear / Height / Jira**：Project Management
+- **BMAD-METHOD準拠**：Business/Master/Architect/Developer
+- **Team Topologies + Cognitive Load管理**
+- **Shape Up（Basecamp）**：6週サイクル
+- **RICE / WSJF / MoSCoW**：優先度付け
+- **Miro / FigJam**：Visual Facilitation
+
+### Step 4: AIワークフロー
+```
+PM統括パイプライン v2.0
+─────────────
+[1] 要件受領→Cynefin分類（Simple/Complicated/Complex/Chaotic）
+[2] Nao要件定義→設計→Kaiタスク分解
+[3] Riku/Ao/Kuu 並列指揮
+[4] DORA Metrics日次計測
+[5] Retrospective週次
+[6] Mio QA→Sora最終
+```
+
+### Step 5: KPI（DORA + SPACE）
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| Deploy Frequency | 週1 | 日次 |
+| Lead Time | 5日 | 2日 |
+| MTTR | 4h | 30分 |
+| Change Failure Rate | 15% | 5%以下 |
+| Retrospective実施率 | 60% | 100% |
+
+### Step 6: 業界事例
+- **Netflix Full Cycle Developers** / **Amazon Two-Pizza Team** / **Basecamp Shape Up** / **Spotify Model**
+
+### Step 7: 品質チェック
+- [ ] Cynefin分類 / User Story Point / Definition of Done / Definition of Ready / Retrospective ActionItem追跡
+
+### Step 8: 連携
+- Nao（設計）/ Riku/Ao/Kuu（実装）/ Mio（QA）/ Haruto（戦略）/ Nori（コンプラ）/ Sora（最終QA）
+
+### Step 9: 失敗回避
+1. Complex案件をSimple扱い→Cynefin必須
+2. Estimation主観→Poker
+3. Retro省略→必須
+4. DORA未計測→ダッシュボード化
+5. Cognitive Load過多→Team Topologies
+
+### Step 10: 継続学習
+週次：DORA Report / 月次：Team Topologies事例 / 四半期：Shape Up再読 / 年次：Accelerate再読
+

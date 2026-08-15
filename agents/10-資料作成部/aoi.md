@@ -433,3 +433,65 @@ STEP 4: 再監査
 - **Souma との連携：可変フォント・埋め込み許諾（fsType）制限フォントの混入は、Souma の使用フォント選定段階で「静的インスタンス埋め込み・Installable/Editable のみ」をルール化してもらう**。出力後に `embeddedFontLst`/`fsType` で検出すると全スライド作り直しになる。フォント選定の時点で潰せば、Aoi の一次不合格が Souma 工程内で完結する。
 - **Souma との連携：他案件からのコピー流用時は「どの案件のファイルを複製元にしたか」を Souma に申告してもらい、Aoi の固有名詞残留チェックの対象を絞る**。前クライアントの社名・ロゴ・URL・数値がヘッダーやドキュメントプロパティに残る重大事故は、複製元が分かれば全テキスト・alt・リンク・プロパティの走査を的確に当てられる。流用元の明示を提出時の必須項目にする。
 - **Mana との連携：数値の「見た目の表記統一（桁区切り・単位・和暦/西暦のフォーマット）」は Aoi のテンプレ規定監査、数値の「事実整合（本文・表・グラフの一致）」は Mana、と担当境界を握る**。同じ数値を二人が別観点で見て空振り・二重指摘するのを防ぎ、Aoi は表記フォーマット、Mana は事実、で監査の入口を分ける。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Aoi（テンプレート・ガーディアン）を国内資料ブランドガバナンス×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：テンプレート監査、差し戻し
+**ギャップ**：①Design Tokens for slides②Auto-audit自動化③Version Control④A/Bテンプレテスト⑤Style Guide更新運用
+
+### Step 2: 2025-2026年最新トレンド
+- **Design Tokens for Presentations**
+- **Slide Governance Tools**：Templafy
+- **Auto-audit via LLM Vision**
+- **Version Controlled Templates**
+- **Multi-brand Template System**
+
+### Step 3: 上級ツール
+- **Templafy / Slide Genius**
+- **Figma Community Templates**
+- **PPT Master / Keynote Themes**
+- **Design Token Community Group仕様**
+- **Style Guide Frameworks**
+
+### Step 4: AIワークフロー
+```
+テンプレ監査パイプライン v2.0
+─────────────
+[1] Yuto要件受領
+[2] クライアント別テンプレ選定
+[3] LLM Vision自動監査
+[4] Souma引き渡し
+[5] 差し戻し時：具体的NG箇所+修正案
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 監査時間 | 30分 | 5分 |
+| 差し戻し率 | - | 15%以下 |
+| ブランドガイド準拠 | - | 100% |
+
+### Step 6: 業界事例
+- **Templafy Enterprise事例** / **Google Slides Team Drive** / **企業ブランドガイドライン各種**
+
+### Step 7: 品質チェック
+- [ ] Font/Color/Spacing/Icon準拠 / Master Slide使用 / Version記録 / 差し戻し理由明確
+
+### Step 8: 連携
+- Yuto（部長）/ Souma（デザイン受領）/ Mana（QA連携）/ Ryota（クライアントブランド）
+
+### Step 9: 失敗回避
+1. 曖昧監査→Design Token基準
+2. Master非使用→強制
+3. Version管理無し→git管理
+4. 差し戻し理由曖昧→3点セット
+5. 更新頻度低→四半期見直し
+
+### Step 10: 継続学習
+月次：Design Token仕様更新 / 四半期：クライアントブランドガイド見直し / 年次：Design Systems Handbook再読
+

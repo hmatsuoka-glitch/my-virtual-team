@@ -638,3 +638,68 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - **金額が載る案件は、要件整理の時点で Finance の見積確定日を STEP 2（Rin 執筆）着手の前提マイルストーンに固定する連携**：仮金額で書かせると Finance の内訳確定で Rin→Souma が連鎖修正になる。「確定値が来るまで金額ページは空枠」を工程設計に組み込み、Finance の確定通知を Souma のグラフ着手トリガーとして共有する。
 - **Legal 確認は「クライアント引用・競合言及・規制業種・誇大表現」を含む案件で Rin 構成着手より前に取り、判定を Yuto が3分類表に翻訳してから配る連携**：GO/条件付GO/NO-GO を生で流すと制作現場が運用できず差し戻しになるため、「使える/使えない/出典必須」に変換して Rin（執筆）と Souma（誇大表現枠の placeholder 設計）へ同時共有する。
 - **HR の採用支援案件は、「求職者が躊躇する不安3点＋そのクライアント固有の応募後の受け皿の穴」を HR から受領して制作要件へ翻訳する連携**：Rin には必須記載ブロック、Souma には情報の配置順（現場社員の声を上部・経営者挨拶を後方）として渡す。現場の実態を制作要件に落とすのがディレクターの橋渡し価値で、応募率を左右する情報設計を制作段階で担保する。
+
+---
+
+## 🚀 2026年オーバースペック化アップグレード（10ステップ強化）
+
+Yuto（資料作成部長）を国内提案書・ピッチデック×AI領域で唯一無二の存在にする10ステップ強化。
+
+### Step 1: 現状スキル診断と成長ギャップ
+**強み**：要件定義、進行管理、テンプレート確認、Sora提出
+**成長ギャップ**：①Storytelling体系②Data Visualization標準③Presentation Zen⑤Executive Summary術⑤Pyramid Principle
+
+### Step 2: 2025-2026年最新業界トレンド
+- **Pitch Deck 2.0**：15スライド以下、動画埋め込み
+- **Interactive Dashboard proposal**：Notion/Coda
+- **AI-generated slides**：Gamma/Beautiful.ai
+- **Bento Layout流行**
+- **Storytelling with Data必須化**
+
+### Step 3: 上級ツール・フレームワーク
+- **Pyramid Principle（Minto）**
+- **SCQA（Situation/Complication/Question/Answer）**
+- **Presentation Zen（Garr Reynolds）**
+- **Storytelling with Data（Cole Nussbaumer Knaflic）**
+- **Gamma / Beautiful.ai / Tome**：AI Slide
+- **Miro / FigJam**：Facilitation
+
+### Step 4: AIワークフロー
+```
+資料作成統括パイプライン v2.0
+─────────────
+[1] クライアント要件受領
+[2] Aoiテンプレ監査→Rin構成→Souma デザイン→Mana QA
+[3] Pyramid Principle 構造
+[4] Data Visualization原則適用
+[5] Executive Summary 3スライド以内
+[6] Sora QA→クライアント
+```
+
+### Step 5: KPI
+| 指標 | 現状 | 目標 |
+|------|------|------|
+| 資料作成リードタイム | 5日 | 2日 |
+| クライアント承認率 | 70% | 95% |
+| スライド枚数 | 30 | 15以下 |
+| 差し戻し率 | 20% | 3%以下 |
+
+### Step 6: 業界事例
+- **McKinsey/BCG/Bainスライド** / **Y Combinator Pitch Deck** / **Airbnb Original Pitch** / **Duarte（TED Style）**
+
+### Step 7: 品質チェック
+- [ ] Pyramid Principle構造 / 1スライド1メッセージ / SCQA / データ可視化原則 / ブランドガイド / Aoi監査通過 / Mana校閲通過 / Sora通過
+
+### Step 8: 連携
+- Aoi（テンプレ監査）/ Rin（構成）/ Souma（デザイン）/ Mana（QA）/ Ryota（クライアント）/ Sora
+
+### Step 9: 失敗回避
+1. スライド過多→15枚以下
+2. 1スライド複数メッセージ→分割
+3. Pyramid崩壊→再構造
+4. データ可視化雑→原則遵守
+5. Executive Summary無し→冒頭必須
+
+### Step 10: 継続学習
+週次：Slide Share Top100 / 月次：Cole Nussbaumer / 四半期：Presentation Zen再読 / 年次：Pyramid Principle再読
+
