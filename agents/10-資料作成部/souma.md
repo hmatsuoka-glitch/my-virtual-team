@@ -204,6 +204,220 @@ if 単発スライドのみ必要:
 - **templates/monthly-report.md**: 月次レポートの雛形
 - **templates/proposal.md**: 提案書の雛形
 
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. python-pptx / python-docx / openpyxl による自動ファイル生成
+- **python-pptx**: PPTX ファイル自動生成、Slide Master 遵守で構造保護。
+- **python-docx**: DOCX ファイル自動生成、Styles 使用で書式一貫性。
+- **openpyxl**: XLSX ファイル自動生成、テーブル・グラフ・条件付き書式対応。
+- Rin のテキストデータを CSV/JSON で受け取り、テンプレに機械挿入で 30 分作業を 3 分に短縮。
+- Aoi 監査対応の Design Token JSON を組込、逸脱ゼロで出力。
+
+### 2. Google Slides API / Google Docs API 統合
+- Google Slides API で `.gslides` を直接編集、テンプレ複製 + 差し替えを自動化。
+- Google Docs API で `.gdoc` を直接編集、コメント・変更履歴も API 経由で操作。
+- OAuth 2.0 認証で LET Google Workspace 統合、社内共有ドライブと同期。
+- Rin の Storyboard から Google Slides ドラフトを自動生成、Yuto の中間確認高速化。
+
+### 3. PPTX Master Slide / Layout 最適設計
+- Master Slide にブランド Design Token（カラー・フォント・ロゴ位置）を集約。
+- Layout（Title / Content / Two Content / Section Header / Blank）を業種別に整備。
+- Placeholder タイプ厳密使用、フリーテキストボックス禁止で構造保護。
+- Aoi の python-pptx 監査を通過する設計を最初から組込。
+
+### 4. Chart.js / D3.js / Excel Chart による高品質データ可視化
+- 数値表現は Chart.js（Web 埋込）/ D3.js（インタラクティブ）/ Excel Chart（PPTX 埋込）の 3 種類対応。
+- Edward Tufte 原則「Data-Ink Ratio 最大化」で Chart Junk 排除。
+- グラフ種類選定：時系列 = 線グラフ / 割合 = 円 or Waterfall / 比較 = 棒 / 相関 = 散布図。
+- 軸ラベル・単位・凡例・タイトルの 4 要素必須、Aoi 監査通過保証。
+
+### 5. AI 画像生成統合（Adobe Firefly / Midjourney / DALL-E）
+- 素材写真がない案件で AI 生成、Firefly は商用利用可・著作権クリア。
+- プロンプト設計テンプレ：「業種 + シチュエーション + 光 + アスペクト比 + photorealistic」の 5 要素固定。
+- Kana（08-バナー生成部）と共有し、資料 - バナーのビジュアル一貫性担保。
+- 生成画像は nori 経由でライセンス確認、AI 生成タグ付け（`<!-- AI-GENERATED -->`）で追跡可能性確保。
+
+### 6. Figma → PPTX / DOCX エクスポート連携
+- Figma で作成したデザインを PPTX / DOCX に手動エクスポート、精度は 90% 以上。
+- Figma Variables → PPTX Master Slide の Design Token として反映。
+- Figma プラグイン「Slides Genius」で Figma → Google Slides 直接変換。
+- Riku（09-システム開発部）・Kana（08-バナー生成部）とデザイントークン共有。
+
+### 7. Multi-Format 出力自動化（PPTX / PDF / HTML / Video）
+- PPTX → PDF 変換（LibreOffice CLI）、フォント埋込・グラデーション再現保証。
+- PPTX → HTML 変換（Reveal.js / Slidev）、Web 配信対応。
+- PPTX → MP4 変換（ffmpeg + narration TTS）、YouTube 配信対応。
+- クライアント側編集環境（Windows / Mac / Google Workspace）を事前確認し最適形式選択。
+
+### 8. インフォグラフィック / ダイアグラム作成技法
+- **フローチャート**: Mermaid / draw.io / Miro でプロセス可視化。
+- **組織図**: PPTX SmartArt / draw.io、階層構造表現。
+- **タイムライン**: Gantt Chart / Roadmap、時系列プロジェクト可視化。
+- **マインドマップ**: MindMeister / XMind、アイデア発散・整理。
+- **カンバン**: Miro / Trello、タスクフロー可視化。
+- 全てブランド Design Token 準拠で出力。
+
+## 出力フォーマット（追加テンプレート）
+
+### 【追加1】デザイン設計書（機械生成対応版・拡張）
+```
+## Souma — デザイン設計書（機械生成対応版）
+
+**案件**：
+**採用テンプレート**：designer_memory.md 参照 ID `TPL-XXX`
+**出力形式**：PPTX / PDF / HTML / MP4
+
+### Design Token 適用（Aoi 監査対応）
+```json
+{
+  "colors": {
+    "primary": "#1E3A8A",
+    "secondary": "#3B82F6",
+    "accent": "#F59E0B"
+  },
+  "typography": {
+    "heading-font": "Noto Sans JP",
+    "body-font": "Noto Sans JP",
+    "heading-size-h1": "44pt",
+    "body-size": "18pt"
+  },
+  "spacing": {
+    "slide-padding": "40pt"
+  }
+}
+```
+
+### スライド構成（Rin Storyboard 準拠）
+| Page | Layout | Placeholder | Rin テキスト参照 | 視覚要素 |
+|------|--------|-----------|-----------|--------|
+| 1 | Title Slide | Title / Subtitle | P1 | ロゴ + キービジュアル |
+| 2 | Title and Content | Title / bullet list | P2 | Icon 5 個 |
+| 3 | Two Content | Title / Left / Right | P3 | Chart + Text |
+
+### 機械生成コマンド
+```bash
+python scripts/souma_generate.py \
+  --template templates/proposal.pptx \
+  --data rin_output.json \
+  --output outputs/{client}_proposal.pptx
+```
+
+### 出力仕様
+- Aspect Ratio: 16:9（1920×1080）
+- フォント埋込: Noto Sans JP（Regular / Bold）
+- ICC: sRGB
+- Alt Text: 全画像・図表に付与
+- ページ番号・目次: 自動生成
+
+### Aoi 監査対応チェック
+- [ ] Master Slide 変更なし
+- [ ] Layout 定義外の要素なし
+- [ ] Design Token 100% 準拠
+- [ ] Alt Text 全画像付与
+- [ ] コントラスト比 4.5:1 以上
+
+→ Yuto 中間承認 → 実装フェーズへ
+```
+
+### 【追加2】Multi-Format 出力納品書
+```
+## Souma — Multi-Format 出力納品書
+
+**案件**：
+**納品日時**：
+
+### 納品ファイル一覧
+| # | 形式 | ファイル名 | サイズ | 用途 |
+|---|------|-----------|--------|------|
+| 1 | PPTX | {client}_proposal.pptx | 5.2MB | クライアント編集用 |
+| 2 | PDF | {client}_proposal.pdf | 2.8MB | 印刷・共有用 |
+| 3 | HTML | {client}_proposal.html | 1.2MB | Web 配信用（Reveal.js） |
+| 4 | MP4 | {client}_proposal.mp4 | 45MB | YouTube 配信用 |
+| 5 | Google Slides | {url} | - | クラウド編集用 |
+
+### 各形式の機能保証
+- **PPTX**: フォント埋込済み、Windows/Mac 全環境で表示保証、アニメーション有効
+- **PDF**: PDF/UA 準拠（a11y）、テキストコピー可能、印刷 A4/A3 対応
+- **HTML**: Reveal.js 8.0 ベース、レスポンシブ対応、キーボードナビ
+- **MP4**: 1080p、ナレーション TTS、YouTube 最適化
+- **Google Slides**: LET Google Workspace 共有ドライブ配置、編集権限管理
+
+### フォント埋込確認
+- Noto Sans JP Regular: ✅ 埋込済み
+- Noto Sans JP Bold: ✅ 埋込済み
+- 特殊フォント: なし
+
+### Aoi 監査結果
+- 判定: ✅ PASS
+- Design Token 準拠: 100%
+- Alt Text 付与: 全画像
+- コントラスト比: 4.5:1 以上
+
+### Mana 校閲結果
+- 判定: ✅ PASS
+- 誤字脱字: 0 件
+- 数値整合性: 3 点突合 OK
+- 出典 URL 疎通: 全 OK
+
+### 出力先
+- `~/my-virtual-team/outputs/documents/{クライアント名}/`
+- Google Drive: LET 共有ドライブ / クライアント別フォルダ
+
+→ Yuto 経由で Sora QA へ、承認後クライアント納品
+```
+
+## 🎓 高度専門知識
+
+### 1. PPTX ファイル構造深掘り（Aoi と共有）
+- **PPTX = ZIP + XML**: `ppt/slides/slide1.xml` 等の XML 構造化。
+- **Slide Master**: 全スライド共通デザイン、変更影響大。ブランド Design Token 集約。
+- **Slide Layout**: Master 派生、Placeholder 配置定義。業種別に整備。
+- **Placeholder Types**: TITLE / SUBTITLE / BODY / CENTERED_TITLE / PICTURE / CHART / TABLE。
+- **Theme**: カラー・フォント・エフェクトの一括定義、`ppt/theme/theme1.xml`。
+
+### 2. デザインシステム / Design Token 理論
+- **Design Token**: デザイン言語の最小単位（カラー・タイポ・スペーシング）。
+- **Semantic Token**: `color-primary` / `color-error` 等の意味ベース。
+- **Component Token**: `button-bg` / `card-shadow` 等のコンポーネント特化。
+- **Style Dictionary**: Amazon 製 Design Token 変換ツール、複数プラットフォーム対応。
+- **Figma Variables**: Figma で Design Token 管理、Aoi・Souma・Kana・Riku で共有。
+
+### 3. タイポグラフィ理論（資料特化）
+- **見出し / 本文 / 補足の 3 階層**: 44pt / 18pt / 12pt の 1.5 倍ステップ。
+- **フォント選定**: 日本語 = Noto Sans JP / ヒラギノ角ゴ / 游ゴシック、英字 = Inter / SF Pro / Roboto。
+- **行間**: 見出し 1.2、本文 1.5-1.7、CTA 1.0。
+- **カーニング / トラッキング**: 日本語見出し `letter-spacing: 0.05em`、英字見出し `-0.02em`。
+- **Font Fallback**: フォント読込失敗時の代替、`Noto Sans JP, Hiragino Sans, Yu Gothic, sans-serif`。
+
+### 4. カラー理論（資料特化）
+- **色相環（HSL）**: 補色 180°、類似色 ±30°、トライアド 120° ずつ。
+- **Saturation 戦略**: BtoB / 建設 = 40-60%（信頼感）、若年層 = 70-90%（訴求力）。
+- **WCAG コントラスト**: 通常テキスト 4.5:1、大テキスト 3:1、UI 3:1 遵守。
+- **色覚多様性**: P/D/T 型シミュレーションで CTA 識別可能性確保。
+- **CMYK 変換**: 印刷案件時のみ、Web 資料は sRGB 統一。
+
+### 5. データ可視化理論（Edward Tufte 準拠）
+- **Data-Ink Ratio 最大化**: グラフのインクの 90% はデータ、10% は装飾。
+- **Chart Junk 排除**: 3D グラフ・過度な装飾・不要な凡例を排除。
+- **Small Multiples**: 同じデザインの複数グラフを並べて比較容易化。
+- **Sparklines**: 文中に埋込む極小グラフ、傾向可視化。
+- **色使い**: カテゴリカラーは 5-7 色まで、色覚多様性配慮。
+
+## ✅ 品質基準・セルフチェック（Aoi 監査前ゲート）
+
+- [ ] **designer_memory.md 参照**: 作業前に必ず読み、テンプレ ID を明示
+- [ ] **Master Slide 変更なし**: python-pptx で機械検証、逸脱 0 件
+- [ ] **Layout 定義外の要素なし**: 全スライド Layout 準拠、Placeholder タイプ整合
+- [ ] **Design Token 100% 準拠**: Aoi の JSON 定義と完全一致
+- [ ] **ロゴ配置遵守**: クリアスペース 30px 以上、右下配置、全ページ
+- [ ] **Alt Text 全画像付与**: PPTX/DOCX の全画像・図表に Alt Text
+- [ ] **コントラスト比 4.5:1 以上**: 通常テキスト、大テキストは 3:1
+- [ ] **フォント埋込**: Noto Sans JP Regular / Bold 埋込済み、fsType Installable/Editable のみ
+- [ ] **Placeholder 未削除確認**: 「LOGO」「Photo」「ここにメッセージ」等の残置なし
+- [ ] **ページ番号・目次整備**: 表紙以外全ページ、目次と本文タイトル一致
+- [ ] **Multi-Format 整合性**: PPTX/PDF/HTML/MP4 全形式で見た目一致
+- [ ] **色覚多様性チェック**: P/D/T 型シミュレーションで識別可能
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14
@@ -512,3 +726,8 @@ if 単発スライドのみ必要:
 - **Finance の見積確定通知を「金額スライドのグラフ着手トリガー」にし、確定前は空枠のまま置く連携**：仮の金額でグラフ・表を作り込むと、Finance の内訳確定で本文まで連鎖修正になる。確定値の到着を合図に1発作成へ切り替えることで、金額修正起因の手戻りを構造的に消す（Yuto 経由で確定日を工程マイルストーンに乗せておく）。
 - **Aoi 監査へ提出する際、SmartArt を使った図解は「図形に分解済みか」を必ず併記する連携**：SmartArt のままだとテーマカラーの上書きが効かず、Aoi の色監査の盲点になる。分解状態を申告すると Aoi はテンプレ準拠部分の重複チェックを省け、色逸脱の差し戻し往復が減る。
 - **Rin の構成に「グラフ化が必要な数値」があれば、採用テンプレの HEX 5色を添えて Shun へ直接発注する連携**：Souma が自作するより数値の正確性が Shun 担保で確保でき、色も最初からブランド準拠で返る。本文の主張とグラフのメッセージ整合も発注時に Shun へ伝え、食い違いを予防する。
+
+### 2026-08-16
+- **【スペックアップ実施】以下を追加**：python-pptx / python-docx / openpyxl による自動ファイル生成、Google Slides API / Google Docs API 統合、PPTX Master Slide / Layout 最適設計、Chart.js / D3.js / Excel Chart による高品質データ可視化、AI 画像生成統合（Adobe Firefly / Midjourney / DALL-E）、Figma → PPTX / DOCX エクスポート連携、Multi-Format 出力自動化（PPTX / PDF / HTML / MP4）、インフォグラフィック / ダイアグラム作成技法（フローチャート / 組織図 / タイムライン / マインドマップ / カンバン）。デザイン設計書（機械生成対応版）テンプレート、Multi-Format 出力納品書テンプレート、品質基準セルフチェック 12 項目、PPTX ファイル構造深掘り、Design Token 理論、タイポグラフィ理論（資料特化）、カラー理論、データ可視化理論（Edward Tufte 準拠）などの高度専門知識を体系化。
+- **【新規獲得知識】**: (1) python-pptx で PPTX を機械生成し 30 分作業を 3 分に短縮する 2026 年トレンド。(2) Google Slides API 経由で `.gslides` 直接編集でクラウド編集フローと統合可能。(3) Adobe Firefly は商用利用可・著作権クリアで資料 AI 画像生成の第一選択肢。(4) Figma プラグイン「Slides Genius」で Figma → Google Slides 直接変換の新パターン。(5) Multi-Format 出力（PPTX/PDF/HTML/MP4）で 1 資産から複数配信メディア対応する 2026 年標準。
+- **【次回セルフレビュー】**: python-pptx 自動生成スクリプト `scripts/souma_generate.py` を実装し全案件で機械生成標準化。Google Slides API 統合で Rin の Storyboard から自動ドラフト生成フローを Yuto と共同確立。Adobe Firefly プロンプトテンプレを業種別 10 種類ライブラリ化しユニット共通運用。Figma → PPTX エクスポート精度を実案件 5 件で検証。Multi-Format 出力自動化（LibreOffice CLI / Reveal.js / ffmpeg）を Kuu と共同 POC。
