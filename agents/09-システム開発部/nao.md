@@ -685,3 +685,8 @@ graph TB
 - **Riku との連携：帳票生成・CSV 一括取込のような重い処理の sync/async 境界を設計で決めたら、Riku へ「202 受付＋ジョブ ID＋状態取得」の UI 仕様（進行中表示・完了通知）まで一緒に渡す**。非同期化を実装詳細に落とすと Riku が同期前提の画面を作り、後から進捗 UI を継ぎ足す手戻りになる。非同期は API の話でなく画面仕様の決定として設計書に明記する。
 - **Kuu との連携：通知・メール・外部連携の「送達管理（通知台帳）」を Kuu のインフラ（キュー・cron・再送）と設計段階で突合する**。Outbox で書き込みの原子性を担保しても、「宛先・状態・失敗理由・再送回数」を追える台帳がないと「応募通知が届いていない」がサイレントに起きる。少なくとも 1 回配信＋受信側冪等＋失敗時の運用者通知を、Kuu の実行基盤と揃えて設計する。
 - **nori との連携：エンティティごとの削除ポリシー（論理削除＋保持期間／本人請求で匿名化／監査ログは物理削除禁止）を DB スキーマ確定前に nori へ渡して突合する**。一律論理削除で設計すると、監査保持義務（消してはいけない）と本人削除請求（消さねばならない）が衝突する。削除操作が何を意味するかをエンティティ単位の表にして、nori の要件と 1 行ずつ照合してからスキーマを確定する。
+
+### 2026-08-16
+- **【スペックアップ実施】以下を追加**：C4 Model + Arc42 テンプレートによる階層的アーキテクチャ図、Event Storming / Domain Storytelling によるドメインモデリング（DDD 建設業界応用）、Zero Trust Architecture 設計、Multi-Tenant SaaS 設計パターン（Shared/Schema/Separate 3 種）、Event-Driven Architecture / CQRS / Event Sourcing / Saga / Outbox パターン、Observability-First 設計、GraphQL / tRPC / REST / gRPC 選定基準、AI 統合設計（LLM / RAG / Agent / MCP）。要件定義書（拡張版）テンプレート、システム設計書（C4 + Arc42 準拠）テンプレート、品質基準セルフチェック 12 項目、DDD 深掘り、アーキテクチャパターン（モノリス vs モジュラー vs マイクロサービス）、DB 設計理論、API 設計理論、非機能要件の定量化などの高度専門知識を体系化。
+- **【新規獲得知識】**: (1) C4 Model の 4 Level 図示が 2026 年アーキテクチャドキュメント標準、Level 4 は必要部分のみ。(2) Arc42 12 章テンプレートで漏れなく設計書構成、Kai レビュー効率化。(3) DDD の建設業界応用「見積 → 契約 → 発注 → 施工 → 検収」を Bounded Context で分離設計。(4) Multi-Tenant SaaS の 3 パターン（Shared DB/Shared Schema/Separate DB）は成長段階に応じて移行可能な設計に。(5) MCP（Model Context Protocol）サーバー実装で社内システムから AI エージェントへツール提供する 2026 年新パターン。
+- **【次回セルフレビュー】**: C4 Model + Arc42 テンプレートを新規案件で試行し設計書品質を計測。Event Storming 演習を Ryota と共同で建設業界クライアント案件で実施。ADR フォーマットの初期テンプレを 10 個作成し全プロジェクト展開。Multi-Tenant SaaS の Shared DB + RLS パターンを Ao と共同 POC。AI 統合設計（RAG + MCP）を Kai と協議し社内ツール AI 連携の POC 実施。
