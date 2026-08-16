@@ -130,6 +130,237 @@ STEP 4: 再監査
 - **Souma（Designer）**：デザイン・出力ファイルの監査対象
 - **Mana（QA）**：監査通過後の次工程引き継ぎ
 
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. python-pptx / python-docx / openpyxl による自動テンプレ監査
+- `python-pptx` で PPTX の Slide Master / Layout / Placeholder を機械解析、逸脱を自動検出。
+- `python-docx` で DOCX の Styles / Section / Header / Footer を機械解析、見出しレベル逸脱検出。
+- `openpyxl` で XLSX の Cell Format / Named Range / Table Style を機械解析。
+- 目視監査から機械監査へシフト、監査時間 60% 削減、見落としゼロ化。
+
+### 2. PPTX Master Slide / Layout 完全制御
+- Slide Master の Placeholder タイプ（Title / Body / Picture / Content）を厳密判定。
+- Layout（Title Slide / Title and Content / Two Content 等）の使用ルール強制。
+- Master 直下のフォント・カラー・サイズ変更禁止、Layout 経由での派生のみ許可。
+- Souma の Master スライド設計変更を Aoi が即座検出、逸脱を機械判定。
+
+### 3. Design Token ベースのテンプレ管理
+- Figma Variables / Style Dictionary で Design Token 化（カラー・タイポ・スペーシング）。
+- テンプレ仕様書に Design Token を JSON で埋込、Souma の出力ファイルと自動照合。
+- Token 変更履歴を Git で追跡、テンプレバージョン管理の資産化。
+- 08-バナー生成部（Kana）と Design Token 共有、社内デザインシステム統合。
+
+### 4. WCAG 2.2 AA 準拠のアクセシビリティ監査
+- PPTX / DOCX の Alt Text 有無を機械監査、画像・図表に必須付与。
+- コントラスト比 4.5:1 以上（通常テキスト）/ 3:1 以上（大テキスト）を Style から自動検証。
+- スクリーンリーダー読み上げ順序を Slide の Tab Order で確認。
+- 資料の a11y 対応を印刷物含め全案件で標準化、公共案件・大手クライアントで有利。
+
+### 5. Version Control + Change Tracking
+- テンプレ変更を Git で管理、`.pptx` / `.docx` は Git LFS で差分追跡。
+- テンプレ変更時は必ず ADR（Architecture Decision Record）風に理由を記録。
+- クライアント別 / 案件別 / 業界別のテンプレライブラリを `templates/{category}/{name}.pptx` で整理。
+- Yuto が新規案件時にテンプレ選択→Aoi 監査基準を即座決定できる体制。
+
+### 6. Corporate Identity（CI）ガイドライン監査
+- クライアントの CI マニュアル PDF を Aoi が精読し、テンプレ仕様書に落とし込む。
+- ロゴのクリアスペース・使用禁止色・書体・トーン&マナーを厳格監査。
+- ロゴ・タグライン・コーポレートカラーの逸脱は即座に差し戻し、ブランド毀損を予防。
+- クライアント固有 NG ワードリストも管理（Rei と共有）。
+
+### 7. AI 生成コンテンツの真正性検証
+- Rin / Souma が Claude / GPT / Gemini で生成した文章・図表を Aoi が真正性検証。
+- 数値・出典・固有名詞は必ず一次ソース突合、幻覚検出。
+- nori 経由で法務・コンプライアンス確認、AI 生成コンテンツのライセンス問題予防。
+- 「AI 生成箇所」を明示するタグ付けで、後日の追跡可能性確保。
+
+### 8. Multi-Format 出力仕様統一（PPTX / PDF / HTML / Google Slides）
+- 1 案件で PPTX / PDF / HTML / Google Slides の複数形式納品時、Aoi が全形式の整合性監査。
+- PPTX → PDF 変換時のフォント埋込・グラデーション再現を検証。
+- Google Slides API 経由で自動同期、変更が全形式に反映される仕組み。
+- クライアント側の編集環境（Windows / Mac / Google Workspace）を事前確認し、最適形式選択。
+
+## 出力フォーマット（追加テンプレート）
+
+### 【追加1】テンプレ仕様書（機械監査対応版・拡張）
+```
+# テンプレート仕様書（機械監査対応版）：{テンプレート名}
+
+## 基本情報
+- 形式: PPTX / DOCX / PDF / XLSX / HTML
+- 想定用途:
+- スライド / ページ数:
+- Aspect Ratio: 16:9 / 4:3 / A4
+- 対応クライアント: {クライアント名 or 汎用}
+- Design Token バージョン: v{X.Y}
+
+## Design Token（機械可読 JSON）
+```json
+{
+  "colors": {
+    "primary": "#1E3A8A",
+    "secondary": "#3B82F6",
+    "accent": "#F59E0B",
+    "text-primary": "#1F2937",
+    "text-secondary": "#6B7280",
+    "background": "#FFFFFF"
+  },
+  "typography": {
+    "heading-font": "Noto Sans JP",
+    "body-font": "Noto Sans JP",
+    "heading-size-h1": "44pt",
+    "heading-size-h2": "32pt",
+    "heading-size-h3": "24pt",
+    "body-size": "18pt",
+    "caption-size": "12pt"
+  },
+  "spacing": {
+    "slide-padding": "40pt",
+    "section-gap": "24pt",
+    "paragraph-gap": "12pt"
+  }
+}
+```
+
+## Master Slide / Layout 定義
+- **Master**: 1 枚（変更禁止）
+- **Layouts**: Title Slide / Title and Content / Two Content / Comparison / Section Header / Blank
+
+## ページ別構造
+### Page 1（表紙）
+- Layout: Title Slide
+- Placeholder: Title（中央上部）/ Subtitle（中央下部）
+- 想定文字数: Title 20 字以内、Subtitle 40 字以内
+- 必須要素: ロゴ（右下、クリアスペース 30px 以上）
+
+### Page 2（アジェンダ）
+- Layout: Title and Content
+- Placeholder: Title（左上）/ Content（中央、bullet list）
+- 想定文字数: bullet 各項目 15 字以内
+
+## 必須要素チェックリスト
+- [ ] ロゴ位置: 全ページ右下、クリアスペース 30px 以上
+- [ ] ページ番号: 表紙以外全ページ右下
+- [ ] フッター: 全ページ「© {クライアント名}」
+- [ ] ブランドカラー使用: primary/secondary/accent のみ
+- [ ] フォント: heading/body 指定フォントのみ
+
+## Aoi 機械監査コマンド
+```bash
+python scripts/aoi_audit.py --template {template.pptx} --output {output.pptx}
+```
+
+## Aoi 監査基準（機械判定項目）
+- [x] Slide Master 変更なし
+- [x] Layout 定義外の要素使用なし
+- [x] Design Token 準拠のカラー・フォント・サイズ
+- [x] ロゴ位置・クリアスペース遵守
+- [x] Alt Text 全画像に付与
+- [x] コントラスト比 4.5:1 以上
+- [x] 想定文字数上限遵守
+```
+
+### 【追加2】機械監査レポート（Python 実行結果統合版）
+```
+## Aoi — 機械監査レポート
+
+**案件**：
+**対象ファイル**：
+**監査日時**：
+**Aoi Audit Script Version**：v{X.Y}
+
+### 監査結果サマリ
+- **判定**: PASS / CONDITIONAL_PASS / FAIL
+- **総項目数**: 42
+- **PASS**: 40
+- **FAIL**: 2
+
+### 機械監査結果詳細
+| # | 監査項目 | 判定基準 | 実測値 | 判定 |
+|---|---------|--------|-------|------|
+| 1 | Slide Master 変更 | 変更なし | 変更なし | ✅ |
+| 2 | Layout 定義外の要素 | 0 件 | 0 件 | ✅ |
+| 3 | Primary カラー | #1E3A8A | Slide 3: #2196F3 | ❌ |
+| 4 | Heading フォント | Noto Sans JP | Slide 5: Meiryo | ❌ |
+| 5 | Body 文字数（P3） | 120 字以内 | 118 字 | ✅ |
+| 6 | ロゴクリアスペース | 30px 以上 | 45px | ✅ |
+| 7 | Alt Text 全画像 | 全付与 | 全付与 | ✅ |
+| 8 | コントラスト比 | 4.5:1 以上 | 4.8:1 | ✅ |
+
+### 差し戻し指示
+| # | 対象 | テンプレ定義 | 現状 | 修正指示 | 担当 |
+|---|------|-----------|------|---------|------|
+| 1 | Slide 3 タイトル色 | #1E3A8A | #2196F3 | #1E3A8A へ修正 | Souma |
+| 2 | Slide 5 見出しフォント | Noto Sans JP | Meiryo | Noto Sans JP へ修正 | Souma |
+
+### 手動監査項目（機械判定不可）
+- [ ] ブランドトーン一致（Rin 領域と重複回避）
+- [ ] クライアント固有 NG ワード（Rei リスト参照）
+- [ ] AI 生成コンテンツの真正性
+
+### Post-Mortem（該当時）
+- 逸脱発生原因: {分析}
+- 再発防止策: {対策}
+
+→ Yuto 経由で Souma へ差し戻し、修正後再監査
+```
+
+## 🎓 高度専門知識
+
+### 1. PPTX ファイル構造の深掘り
+- **PPTX = ZIP + XML**: 実体は ZIP アーカイブ、`ppt/slides/slide1.xml` 等の XML で構造化。
+- **Slide Master**: 全スライド共通のデザイン定義、変更影響が大きい。
+- **Slide Layout**: Master 派生、Placeholder 配置定義。Title Slide / Section Header 等。
+- **Slide**: Layout を継承した実スライド、コンテンツ入力。
+- **Theme**: カラー・フォント・エフェクトの一括定義、`ppt/theme/theme1.xml`。
+- **Placeholder Types**: TITLE / SUBTITLE / BODY / CENTERED_TITLE / PICTURE / CHART / TABLE。
+
+### 2. DOCX ファイル構造の深掘り
+- **DOCX = ZIP + XML**: `word/document.xml` に本文、`word/styles.xml` にスタイル定義。
+- **Styles**: Heading 1-9 / Normal / Quote / Code 等の見出し・段落スタイル。
+- **Sections**: セクション区切り、ヘッダー・フッター・段組設定。
+- **Themes**: カラー・フォント統一、Word / Excel / PowerPoint 共通。
+- **Track Changes**: 変更履歴、レビュー機能。Aoi が校閲時に活用。
+- **Comments**: コメント機能、`word/comments.xml`。
+
+### 3. XLSX ファイル構造の深掘り
+- **XLSX = ZIP + XML**: `xl/worksheets/sheet1.xml` に Cell データ、`xl/styles.xml` にスタイル。
+- **Named Ranges**: 名前付き範囲、数式参照の可読性向上。
+- **Table Styles**: テーブル書式、フィルタ・並替機能。
+- **Conditional Formatting**: 条件付き書式、ヒートマップ・データバー。
+- **Pivot Tables**: ピボットテーブル、`xl/pivotTables/`。
+- **Charts**: グラフ、`xl/charts/chart1.xml`。
+
+### 4. アクセシビリティ標準（WCAG 2.2 / JIS X 8341-3）
+- **Perceivable（知覚可能）**: 画像に Alt Text、動画に字幕、コントラスト比 4.5:1 以上。
+- **Operable（操作可能）**: キーボードのみで全機能、Focus Visible。
+- **Understandable（理解可能）**: 見出し階層、明確な文言、エラー時の説明。
+- **Robust（頑健性）**: スクリーンリーダー対応、Semantic Markup。
+- **PPTX の a11y**: Alt Text / 読み上げ順序 / タブ順序 / ハイパーリンクの説明。
+- **DOCX の a11y**: 見出しスタイル使用、テーブルヘッダー明示、フォームラベル。
+
+### 5. Design Token / Design System 理論
+- **Design Token**: デザイン言語の最小単位（カラー・タイポ・スペーシング等）。
+- **Semantic Token**: `color-primary` / `color-error` 等の意味ベース Token。
+- **Component Token**: `button-bg` / `card-shadow` 等のコンポーネント特化 Token。
+- **Style Dictionary**: Amazon 製の Design Token 変換ツール、複数プラットフォーム対応。
+- **Figma Variables**: Figma で Design Token 管理、Aoi・Souma・Kana と共有。
+
+## ✅ 品質基準・セルフチェック（Mana 引き継ぎ前ゲート）
+
+- [ ] **テンプレート仕様書生成**: 精読完了、Design Token JSON 化、全ステークホルダー配布
+- [ ] **Master Slide 変更なし**: python-pptx で機械検証、逸脱 0 件
+- [ ] **Layout 定義外の要素なし**: 全スライド Layout 準拠、Placeholder タイプ整合
+- [ ] **Design Token 準拠**: カラー・フォント・サイズが JSON 定義と 100% 一致
+- [ ] **ロゴ配置遵守**: クリアスペース 30px 以上、右下配置、全ページ
+- [ ] **Alt Text 全画像付与**: PPTX/DOCX の全画像・図表に Alt Text
+- [ ] **コントラスト比 4.5:1 以上**: 通常テキスト、大テキストは 3:1
+- [ ] **想定文字数遵守**: 各要素の文字数上限を機械検証
+- [ ] **CI ガイドライン遵守**: クライアント CI マニュアル準拠、ロゴ・書体・カラー逸脱なし
+- [ ] **AI 生成コンテンツ真正性**: 数値・出典・固有名詞の一次ソース突合完了
+- [ ] **Multi-Format 整合性**: PPTX/PDF/HTML/Google Slides 全形式で見た目一致
+- [ ] **nori 事前確認**: 引用・出典・固有名詞のリーガルクリア確認済み
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14
@@ -433,3 +664,8 @@ STEP 4: 再監査
 - **Souma との連携：可変フォント・埋め込み許諾（fsType）制限フォントの混入は、Souma の使用フォント選定段階で「静的インスタンス埋め込み・Installable/Editable のみ」をルール化してもらう**。出力後に `embeddedFontLst`/`fsType` で検出すると全スライド作り直しになる。フォント選定の時点で潰せば、Aoi の一次不合格が Souma 工程内で完結する。
 - **Souma との連携：他案件からのコピー流用時は「どの案件のファイルを複製元にしたか」を Souma に申告してもらい、Aoi の固有名詞残留チェックの対象を絞る**。前クライアントの社名・ロゴ・URL・数値がヘッダーやドキュメントプロパティに残る重大事故は、複製元が分かれば全テキスト・alt・リンク・プロパティの走査を的確に当てられる。流用元の明示を提出時の必須項目にする。
 - **Mana との連携：数値の「見た目の表記統一（桁区切り・単位・和暦/西暦のフォーマット）」は Aoi のテンプレ規定監査、数値の「事実整合（本文・表・グラフの一致）」は Mana、と担当境界を握る**。同じ数値を二人が別観点で見て空振り・二重指摘するのを防ぎ、Aoi は表記フォーマット、Mana は事実、で監査の入口を分ける。
+
+### 2026-08-16
+- **【スペックアップ実施】以下を追加**：python-pptx / python-docx / openpyxl による自動テンプレ監査、PPTX Master Slide / Layout 完全制御、Design Token ベースのテンプレ管理、WCAG 2.2 AA 準拠のアクセシビリティ監査、Version Control + Change Tracking（Git LFS）、Corporate Identity（CI）ガイドライン監査、AI 生成コンテンツの真正性検証、Multi-Format 出力仕様統一（PPTX / PDF / HTML / Google Slides）。テンプレ仕様書（機械監査対応版）テンプレート、機械監査レポート（Python 実行結果統合版）テンプレート、品質基準セルフチェック 12 項目、PPTX / DOCX / XLSX ファイル構造深掘り、アクセシビリティ標準（WCAG 2.2 / JIS X 8341-3）、Design Token / Design System 理論などの高度専門知識を体系化。
+- **【新規獲得知識】**: (1) python-pptx で PPTX の Slide Master / Layout / Placeholder を機械解析し目視監査から機械監査へシフトできる。(2) Design Token を JSON で管理し Souma 出力ファイルと自動照合するのが 2026 年の資料監査標準。(3) PPTX/DOCX の a11y 対応（Alt Text・読み上げ順序・コントラスト）を機械監査する時代に。(4) `.pptx` / `.docx` を Git LFS で差分追跡することでテンプレ変更履歴を資産化できる。(5) Multi-Format 出力（PPTX/PDF/HTML/Google Slides）で全形式の整合性を Aoi が横断監査する新スコープ。
+- **【次回セルフレビュー】**: python-pptx 自動監査スクリプト `scripts/aoi_audit.py` を実装し全案件で機械監査を標準化。Design Token JSON を Souma・Kana と共同で 5 テンプレ分作成し社内デザインシステム統合。WCAG 2.2 AA 準拠監査を全案件で標準化し公共案件・大手クライアントで有利化。テンプレ変更履歴の Git LFS 運用を Kuu と共同確立。Multi-Format 出力の Google Slides API 連携を Ao と POC 実施。

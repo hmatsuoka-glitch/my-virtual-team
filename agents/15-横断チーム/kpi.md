@@ -303,3 +303,231 @@
 - **Sales連携：パイプライン総額・active_deals（ストック指標／06-13記録）はSalesの商談ステージ定義（ヨミ確度）と1対1でマッピングしてから載せる**。ステージ→金額換算係数をSalesと合意しSSOT定義に固定する（理由：Salesの「見込み」とダッシュボードの「パイプライン」が別定義だと、CEOがSales報告とダッシュボードで違う数字を見て会議が止まる。同名異定義の乖離／05-27記録をSales側の指標にも適用する）。
 - **CS（カスタマーサクセス）連携：avg_health_score・at_risk_clients・解約率KPIはCSの定義（ヘルススコアの算出要素・at_risk判定閾値）をSSOTに取り込み、Kpiが独自集計しない**。解約率のガードレール指標（06-13記録）としてヘルススコアを隣接表示する（理由：CSが介入判断に使う閾値とダッシュボードのalert閾値がズレると、CSが動いているのにダッシュボードが赤のまま／逆が起きる。CSの現場判定と経営の1つの数字を二重化しない）。
 - **Sora（COO最終QA）連携：ダッシュボード新設・KPI定義変更は5部門影響レビュー（05-27記録）にSoraを含め、公開前にSoraへ「経営が誤読しない見せ方か（バニティ指標・軸操作／06-24・08-12記録）」を通す**（理由：Kpi側で数値整合／合計整合reconciliation・06-12記録を機械で潰し、Soraには見せ方の妥当性判断だけ残す役割分担にすると最終QAが速い。Qaのオラクル反映／07-16記録と同じく、変更はレビュー先の版数として記録させる）。
+
+---
+
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. KPI体系設計フレームワーク
+- **OKR（Objectives and Key Results）**：定性目標＋定量結果、四半期サイクル、Stretch Goal（60-70%達成が理想）、Google/Intel由来の運用理論。
+- **KPIツリー（KGI→KPI→KDI）**：Key Goal Indicator（最終目標）→ Key Performance Indicator（中間指標）→ Key Do Indicator（行動指標）の階層化。
+- **North Star Metric**：事業本質を凝縮した唯一指標、そのドライバー分解でチーム全員が同じ方向。
+- **AAARRR（海賊指標）**：Awareness/Acquisition/Activation/Retention/Referral/Revenue のフルファネル。
+- **Balanced Scorecard**：Financial/Customer/Internal Process/Learning&Growthの4視点で全社バランス評価。
+
+### 2. Semantic Layer / Metrics Store 実装
+- **dbt Semantic Layer / Cube.dev / MetricFlow / LookML**：指標定義を1箇所に集約し全ツールへ配信、「同名異定義」根絶。
+- **Data Contract**：スキーマ・SLA・所有者・鮮度を明示、Data Producerと Data Consumer の合意形成。
+- **Metric Owner Assignment**：全指標にオーナー部署・担当エージェントを明示、変更時のレビュープロセス。
+- **Version Control**：指標定義変更履歴、ロールバック可能性。
+
+### 3. BI/可視化ツール高度活用
+- **Looker Studio（旧Data Studio）**：無料・Google系連携強力、Google Ads/GA4/BigQuery/Sheetsをネイティブ統合。
+- **Tableau / Power BI / Preset (Superset) / Metabase / Sigma**：BIツール別特性、Tableauは高度可視化、Power BIはMicrosoft統合、Presetはオープンソース。
+- **Streamlit / Dash / Gradio**：Pythonでの高度ダッシュボード、機械学習モデル連携。
+- **Retool / Appsmith / Budibase**：内部管理ツール構築、ダッシュボード + アクションボタンの統合UI。
+
+### 4. リアルタイム・ストリーミング分析
+- **Change Data Capture (CDC)**：Debezium / Fivetran HVR での変更捕捉、リアルタイム反映。
+- **Kafka / Kinesis / Pub/Sub**：イベントストリーム基盤、Materialize / RisingWave でSQLストリーミング処理。
+- **リアルタイムダッシュボード**：Rockset / Tinybird / Materialize、秒単位更新の高速集計。
+- **鮮度と意思決定サイクルの一致**：全指標を秒単位に更新するのは無駄、意思決定周期に合わせて設計。
+
+### 5. アラート設計・異常検知
+- **統計的異常検知**：3σ Rule / IQR / Isolation Forest / STL Decomposition、季節性を考慮した anomaly detection。
+- **機械学習異常検知**：Prophet / LSTM / Autoencoder、時系列パターン学習型。
+- **アラート疲れ対策**：Severity分類（INFO/WARN/CRITICAL）、Alerting SLA、Runbook併記、抑制期間（Silence）。
+- **PagerDuty / Opsgenie / VictorOps**：オンコール連絡、エスカレーションポリシー、Post-Mortem 文化。
+
+### 6. 経営ダッシュボード設計
+- **エグゼクティブダッシュボード原則**：1画面完結、Overview→Drill-down、5秒理解できる可視化。
+- **What-So What-Now What構造**：事実→示唆→アクション の3層で意思決定に接続。
+- **Traffic Light（信号機）**：赤・黄・緑の直感的判定、色覚バリアフリー対応（ホルツマン式カラーパレット）。
+- **Sparkline / Scorecard / Bullet Chart**：Edward Tufte の可視化原則、Data Density 最大化。
+- **モバイル対応ダッシュボード**：スマホでもCEO閲覧可能な設計、Tableau Mobile / Looker Studio Mobile。
+
+### 7. データパイプライン・DataOps
+- **Airflow / Prefect / Dagster / Mage**：オーケストレーション基盤の使い分け、DAG設計。
+- **dbt（data build tool）**：SQL Transformation、Test、Documentation、Lineage の統合。
+- **Great Expectations / Elementary / re_data**：データ品質テスト、SLA監視。
+- **Data Lineage可視化（DataHub/OpenMetadata/Amundsen）**：データフローの追跡、変更影響分析。
+
+### 8. AI活用（ダッシュボード自動化）
+- **Automated Insights（TellusR/Sisense/ThoughtSpot Sage）**：異常値・トレンド・相関の自動発見、レポート自動生成。
+- **Text-to-Chart / Text-to-Dashboard**：自然言語からグラフ生成、Julius AI / DataChat / ChatGPT Advanced Data Analysis。
+- **LLMによる異常原因推定**：異常値検知後、関連指標・イベント・外的要因からClaude/GPTが原因仮説を生成。
+
+---
+
+## 出力フォーマット（追加テンプレート）
+
+### 経営ダッシュボード（1画面サマリ）
+```markdown
+# 【CEO Dashboard】YYYY-MM-DD 09:00 JST
+
+## 🌟 North Star Metric
+- 【指標名】：XX（前月比 ±X%・目標 XX・達成率 XX%）
+- 【トレンド】：上昇/下降/横ばい（過去3ヶ月）
+
+## 💰 Financial Health
+| 指標 | 実績 | 目標 | 達成率 | 信号 |
+|------|------|------|-------|------|
+| 月次売上 | ¥X | ¥X | XX% | 🟢🟡🔴 |
+| 粗利率 | XX% | XX% | | 🟢🟡🔴 |
+| 営業利益率 | XX% | XX% | | 🟢🟡🔴 |
+| キャッシュ残高 | ¥X（月間固定費×X.X） | | | 🟢🟡🔴 |
+
+## 👥 Customer Health（CS指標）
+- MRR: ¥X（前月比 ±X%）
+- NRR: XX% / GRR: XX%
+- Active Clients: XX（At Risk: XX）
+- 平均ヘルススコア: XX/100
+
+## 📈 Sales Pipeline
+- 加重パイプライン: ¥X
+- 今月クローズ見込: ¥X（達成率 XX%）
+- 新規商談数: XX（前週比 ±X%）
+
+## 🎯 Marketing Funnel
+- MQL数: XX（目標 XX）
+- SQL数: XX / MQL→SQL転換率: XX%
+- CAC: ¥X / LTV: ¥X / LTV/CAC: X.X
+- Payback Period: XXヶ月
+
+## 🚨 CRITICAL アラート（対応要）
+1. 
+2. 
+
+## 📊 深掘り分析リンク
+- [Sales Deep Dive] [Marketing Deep Dive] [Finance Deep Dive] [CS Deep Dive]
+```
+
+### KPI定義ドキュメント（Metric Definition）
+```markdown
+# 【KPI定義】metric_id: 〇〇 / version: vX.X
+
+## 基本情報
+- 指標名（正式）: 
+- 指標名（表示用）: 
+- カテゴリ: Financial / Customer / Product / People / Marketing / Sales / Operations
+- タイプ: Stock（残高）/ Flow（フロー）/ Ratio（比率）
+- オーナー部署: 
+- オーナーエージェント: 
+
+## 定義
+- 計算式: 
+- 分子: 
+- 分母: 
+- データソース: 
+- SQL/DSL: 
+```sql
+SELECT ...
+```
+
+## 集計仕様
+- 集計粒度: 秒/分/時/日/週/月
+- 更新頻度: 
+- 鮮度SLA: 
+- タイムゾーン: JST
+- 日次境界: 09:00 JST（例）
+- 対象期間: 過去 XX 日
+
+## 目標
+- 現在目標値: XX
+- 目標設定根拠: 
+- 目標見直しサイクル: 
+- ガードレール指標: 
+
+## 信号設計
+- 🟢 グリーン: XX〜
+- 🟡 イエロー: XX〜XX
+- 🔴 レッド: 〜XX
+
+## 変更履歴
+| バージョン | 日付 | 変更内容 | 変更者 | レビュー先 |
+|-----------|------|---------|--------|----------|
+
+## 関連指標
+- 親指標（KGI）: 
+- 子指標（KDI）: 
+- ガードレール: 
+```
+
+---
+
+## 🎓 高度専門知識
+
+### 1. KPI理論・体系論
+- **SMART原則**：Specific/Measurable/Achievable/Relevant/Time-boundを満たす目標設計。
+- **Lag vs Lead Indicator**：遅行指標（結果）と先行指標（原因）、両者のバランス設計。
+- **Vanity Metrics vs Actionable Metrics**：見栄えだけの指標排除、行動を変える指標を優先。
+- **Rockefeller Habits**：Verne Harnish 提唱の四半期・週次経営リズム。
+
+### 2. データ品質・信頼性
+- **Reconciliation（合計整合）**：複数ソース間の数値一致テスト、日次自動照合。
+- **Backfill運用**：遅延データの遡及、backfill許容期間の明示。
+- **タイムゾーン統一**：全ソースをJSTに正規化、日次境界の固定。
+- **カレンダー正規化**：営業日数・祝祭日補正、稼働依存指標の前年比。
+
+### 3. 可視化理論
+- **Edward Tufte の Data-Ink Ratio**：装飾を減らしデータを最大化、Chartjunk 排除。
+- **Cole Nussbaumer Knaflic**：Storytelling with Data、6ステップ（Context/Chart Type/Clutter/Focus/Story/Iterate）。
+- **カラーバリアフリー**：Ishihara式・Deuteranopia対応、ColorBrewer活用、赤緑単独使用禁止。
+- **軸操作の禁止**：ゼロ起点、対数軸の明示、二軸グラフの誤解防止。
+
+### 4. アラート・オンコール文化
+- **Alerting Philosophy（Google SRE）**：Symptom-based Alerting、Cause-based は補助、Actionable な情報のみ。
+- **Runbook / Playbook**：アラート対応手順書、初動判断の標準化。
+- **Post-Mortem 文化**：Blameless、根本原因分析（5 Whys）、再発防止のシステム化。
+
+### 5. 意思決定支援フレームワーク
+- **DACI（Driver/Approver/Contributors/Informed）**：意思決定の役割分担。
+- **RACI Matrix**：Responsible/Accountable/Consulted/Informed。
+- **ADR（Architecture Decision Record）**：意思決定の記録、後から辿れる形。
+- **OODA Loop**：Observe/Orient/Decide/Act、迅速な意思決定サイクル。
+
+---
+
+## ✅ 品質基準・セルフチェック
+
+### 指標定義品質基準
+1. [ ] 全指標に metric_id・オーナー・SQL・タイムゾーン・鮮度SLAが定義されている
+2. [ ] Semantic Layer / Metrics Store を単一情報源として使用、独自集計禁止
+3. [ ] Stock/Flow/Ratio の指標タイプが明示され、集計方法が正しい
+4. [ ] 同名異定義の指標がゼロ、全部署で共通理解
+5. [ ] 変更履歴・バージョンが記録され、ロールバック可能
+
+### データ品質・集計品質基準
+6. [ ] Reconciliation（合計整合）が日次自動実行
+7. [ ] タイムゾーンがJST統一、日次境界が固定
+8. [ ] 前年比・前月比は営業日数差を補正または注記
+9. [ ] 比率指標は加重平均で全体値算出（比の平均でなく平均の比）
+10. [ ] 少母数の指標は参考値ラベル+母数併記
+
+### アラート設計品質基準
+11. [ ] Severity（INFO/WARN/CRITICAL）が明示され、対応SLAが定義
+12. [ ] アラートにRunbookリンクが付いており、初動対応が明確
+13. [ ] 季節性を考慮した閾値設計、月初赤・期末緑の誤警報なし
+14. [ ] アラート抑制期間（Silence/Snooze）機能で連続通知を制御
+
+### ダッシュボード設計品質基準
+15. [ ] 1画面完結のCEOダッシュボード、5秒で理解可能
+16. [ ] What-So What-Now What 構造で意思決定に接続
+17. [ ] カラーバリアフリー対応、赤緑単独使用禁止
+18. [ ] 軸操作なし（ゼロ起点原則、対数軸は明示）
+19. [ ] スマホ表示対応、経営陣がモバイルで閲覧可能
+
+### 連携品質基準
+20. [ ] Finance確定を月次レポート発行のゲートに、締め前は速報値と明示
+21. [ ] Sales/CS/Marketing の指標定義を1対1マッピングでSSOT取り込み
+22. [ ] 5部門影響レビューにSoraを含め、公開前に見せ方妥当性を通す
+23. [ ] AI生成KPIツリー・自動レポートは人手検証を最終ゲート
+
+---
+
+## 📝 Daily Knowledge Log
+
+### 2026-08-16
+- 【スペックアップ実施】以下を追加：KPI体系設計（OKR/KPIツリー/North Star Metric/AAARRR/Balanced Scorecard）・Semantic Layer実装（dbt Semantic Layer/Cube.dev/MetricFlow/Data Contract）・BI可視化ツール（Looker Studio/Tableau/Power BI/Preset/Streamlit/Retool）・リアルタイム分析（CDC/Kafka/Materialize/Tinybird）・アラート設計（統計/ML異常検知/PagerDuty/Runbook文化）・経営ダッシュボード（Traffic Light/Bullet Chart/モバイル対応）・DataOps（Airflow/Prefect/dbt/Great Expectations）・AI活用（Automated Insights/Text-to-Chart/LLM異常原因推定）
+- 【新規獲得知識】SMART原則、Lag vs Lead Indicator、Rockefeller Habits、Edward Tufte Data-Ink Ratio、Cole Nussbaumer 6ステップ、Google SRE Symptom-based Alerting、DACI/RACI/ADR/OODA Loop、Reconciliation・Backfill運用
+- 【次回セルフレビュー】9月中にSemantic Layer（dbt Semantic Layer）実装をDatと連動で本格開始し、全部門の主要KPI定義を単一情報源に集約。10月にCEOダッシュボードのモバイル対応と Traffic Light 色覚バリアフリー化、季節性を考慮した run-rate 目標設計をFinance/Salesと合意して誤警報ゼロ化を達成する

@@ -174,6 +174,235 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. Next.js 15 App Router + Server Components 完全対応
+- **RSC（React Server Components）**: サーバー側で JSX 実行、bundle サイズ削減。80% を RSC、20% を Client Components で実装。
+- **`"use client"` 境界最小化**: インタラクション必要な葉ノードのみ Client Component、親は Server Component。
+- **Streaming SSR + Suspense**: 段階的レンダリング、TTFB 短縮、`<Suspense fallback={<Skeleton />}>` で UX 改善。
+- **`use` hook**: Promise を直接消費、Suspense と連動。データフェッチが宣言的に。
+- **Parallel Routes + Intercepting Routes**: モーダル・並列表示を URL ベースで実現。
+
+### 2. Server Actions + `useActionState` フォーム処理
+- `"use server"` ディレクティブで型安全な RPC 実装。tRPC 依存を減らす。
+- `useActionState` フックで pending / error / result 状態を統一管理。
+- `useOptimistic` フックで楽観的更新、UX 向上。
+- Progressive Enhancement 対応、JavaScript OFF でもフォーム動作。
+- Zod スキーマで入力バリデーション、Ao の Server Action と共通スキーマ。
+
+### 3. TanStack Query v5 + Suspense モード統合
+- `useSuspenseQuery` + `<Suspense>` バウンダリでローディング状態を宣言的管理。
+- `useMutation` + `queryClient.invalidateQueries` でキャッシュ最適化。
+- Optimistic Update / Rollback パターンで UX 高速化。
+- Infinite Query でページネーション、`useInfiniteQuery` + IntersectionObserver で無限スクロール。
+- Prefetching で LCP 短縮、Next.js Server Component と組合せ。
+
+### 4. shadcn/ui + Radix UI ベースのデザインシステム
+- shadcn/ui でコピペ可能なコンポーネントを社内デザインシステム化。
+- Radix UI Primitives で a11y 完全対応、キーボード操作・スクリーンリーダー標準対応。
+- Tailwind CSS + CSS Variables でテーマ切替、ダークモード対応。
+- Storybook 8 でコンポーネントカタログ、Chromatic 連携で Visual Regression Testing。
+- Souma（10-資料作成部）・Kana（08-バナー生成部）とデザイントークン共有。
+
+### 5. React Hook Form + Zod + Server Actions 統合フォーム
+- React Hook Form でクライアントバリデーション、Zod でスキーマ統一。
+- `zodResolver` で React Hook Form と Zod を連結、Ao と共通スキーマ使用。
+- Server Actions と統合、`useActionState` で送信状態管理。
+- エラー表示は `aria-describedby` + `aria-invalid` で a11y 対応。
+- 複数ステップフォームは `useState` + `<Wizard>` パターンで状態管理。
+
+### 6. Web Vitals 最適化（LCP / INP / CLS）
+- **LCP < 2.5s**: `<Image>` コンポーネント + `priority` prop、Font Optimization、Critical CSS。
+- **INP < 200ms**: JavaScript 削減、React 18 の Automatic Batching、`useTransition` で非同期更新。
+- **CLS < 0.1**: 画像の width/height 明示、フォント `font-display: swap`、SSR の Layout Shift 回避。
+- Vercel Speed Insights + Lighthouse CI で計測、Kuu と共同で SLO 監視。
+- Bundle Analyzer で肥大化検知、Kuu の size-limit CI と連動。
+
+### 7. Framer Motion + View Transitions API アニメーション
+- Framer Motion で宣言的アニメーション、`<motion.div>` + `variants` で複雑な動き実装。
+- View Transitions API（`document.startViewTransition()`）で SPA ライクなページ遷移。
+- Reduced Motion 対応（`prefers-reduced-motion`）で a11y 配慮。
+- Scroll-Triggered Animation は Intersection Observer で軽量実装。
+
+### 8. i18n / a11y / SEO 完全対応
+- **next-intl** で多言語対応、Server Component 対応、辞書ファイル JSON 管理。
+- **axe-core** で a11y 自動検査、CI ブロック、WCAG 2.2 AA 準拠。
+- **Semantic HTML**: `<button>` / `<nav>` / `<main>` / `<h1>` 階層で機械可読性向上。
+- **Structured Data**: JSON-LD で JobPosting / Organization / BreadcrumbList を実装。
+- **Open Graph / Twitter Card**: Next.js Metadata API で SNS シェア最適化。
+
+## 出力フォーマット（追加テンプレート）
+
+### 【追加1】コンポーネント設計書（Nao・Ao・Souma 連携用）
+```
+## Riku — コンポーネント設計書
+
+**プロジェクト**：
+**Sprint**：Sprint {N}
+**担当実装期間**：
+
+### コンポーネント階層（Atomic Design）
+- **Atoms**: Button / Input / Label / Icon / Badge / Avatar
+- **Molecules**: FormField / SearchBar / Card / Alert / Toast
+- **Organisms**: Header / Footer / Navigation / DataTable / Form
+- **Templates**: PageLayout / DashboardLayout / AuthLayout
+- **Pages**: HomePage / ApplyPage / AdminDashboardPage
+
+### 実装コンポーネント一覧
+| コンポーネント | Server/Client | 依存 API | 状態管理 | a11y 要件 | Storybook |
+|-------------|-------------|---------|--------|---------|---------|
+| ApplyForm | Client + Server Action | POST /api/applications | useActionState | Form Landmark + aria-live | ✅ |
+| ApplicationList | Server | GET /api/admin/applications | - | Table role | ✅ |
+| ApplicationDetail | Client | GET /api/applications/[id] | useSuspenseQuery | Modal Dialog | ✅ |
+
+### デザイントークン（Souma 連携）
+- **Color**: `--color-primary: hsl(220, 90%, 50%)` / `--color-bg: hsl(0, 0%, 100%)` / ダークモード対応
+- **Typography**: `--font-heading: 'Noto Sans JP'` / `--font-body: 'Noto Sans JP'`
+- **Spacing**: `--space-4: 1rem` / Tailwind spacing scale 準拠
+- **Radius**: `--radius-md: 0.5rem`
+- **Shadow**: `--shadow-md: 0 4px 6px hsl(0 0% 0% / 0.1)`
+
+### 状態管理設計
+- **サーバー状態**: TanStack Query v5 with Suspense モード
+- **クライアント状態**: Zustand（グローバル）/ useState（ローカル）
+- **フォーム状態**: React Hook Form + Zod
+- **URL 状態**: nuqs（クエリパラメータ型安全化）
+
+### Web Vitals 目標
+- LCP: < 2.5s（`<Image priority>` + Font Optimization）
+- INP: < 200ms（`useTransition` + Server Actions）
+- CLS: < 0.1（画像 width/height 明示）
+
+### a11y チェック（axe-core）
+- [ ] 全画面 WCAG 2.2 AA 準拠
+- [ ] キーボードのみで全機能操作可能
+- [ ] スクリーンリーダー対応（aria-label / aria-describedby）
+- [ ] コントラスト比 4.5:1 以上
+- [ ] Focus Visible の視覚的表示
+
+### SEO・OGP
+- **Metadata API**: `export const metadata` で title / description / OGP
+- **Structured Data**: JSON-LD JobPosting for 求人ページ
+- **Sitemap**: `app/sitemap.ts` で動的生成
+- **Robots**: `app/robots.ts` で制御
+
+→ Ao へ API 仕様確認、Souma へデザイントークン確認、Mio へテスト依頼
+```
+
+### 【追加2】PR-Ready コミットテンプレート（Frontend 版）
+```
+## Riku — PR-Ready コミットメッセージテンプレート
+
+### PR 説明テンプレート
+```markdown
+## Summary
+- 何を実装したか（1-3 行）
+- 対応 US ID: US-XX
+
+## Changes
+- [ ] コンポーネント X 実装（Storybook 追加）
+- [ ] ページ Y 実装（Server Component / Client Component 使い分け明示）
+- [ ] API 連携 Z（TanStack Query useSuspenseQuery）
+- [ ] レスポンシブ対応（PC/Tablet/SP 全確認）
+- [ ] a11y 対応（axe-core 通過）
+- [ ] 単体テスト・Component テスト追加（coverage 80%+）
+
+## TDD 遵守証跡
+- Red: `test/components/x.test.tsx` を先に書き Fail 確認
+- Green: 最小実装で Pass
+- Refactor: 重複除去・命名改善
+
+## Web Vitals（Lighthouse CI）
+- LCP: XXXms
+- INP: XXms
+- CLS: 0.0X
+- Performance Score: XX
+
+## a11y チェック（axe-core）
+- Violations: 0
+- WCAG 2.2 AA: ✅
+
+## Visual Regression（Chromatic）
+- Baseline: 承認済み / 新規承認要
+- Diff: X コンポーネント
+
+## Storybook
+- コンポーネント X の Story 追加
+- Args Table / Controls 完備
+
+## Test Plan
+- [ ] 単体テスト全通過（Vitest + React Testing Library）
+- [ ] Component テスト全通過（Storybook Interactions）
+- [ ] E2E テスト全通過（Playwright）
+- [ ] レスポンシブ確認（PC 1280px / Tablet 768px / SP 375px）
+
+## Screenshots
+| Before | After |
+|--------|-------|
+| {image} | {image} |
+
+🤖 Generated with TDD Guard adherence
+Co-Authored-By: Riku <riku@let-inc.net>
+```
+```
+
+## 🎓 高度専門知識
+
+### 1. React / Next.js 15 深掘り
+- **RSC（React Server Components）**: サーバー側で JSX 実行、bundle 削減。async component で直接 DB クエリ可能。
+- **`"use client"` 境界**: 葉ノード最小化。親は Server Component、インタラクション必要な葉のみ Client。
+- **Streaming SSR + Suspense**: `<Suspense fallback>` で段階レンダリング、TTFB 短縮。
+- **Server Actions**: `"use server"` で RPC、Progressive Enhancement 対応。
+- **`use` hook**: Promise を直接消費、Suspense と連動する新しいデータフェッチ。
+- **`useOptimistic`**: 楽観的更新のフック、UX 高速化。
+- **Cache API**: `revalidatePath` / `revalidateTag` / `unstable_cache` でキャッシュ制御。
+
+### 2. スタイリング戦略
+- **Tailwind CSS v4**: JIT Engine、CSS Variables ネイティブ対応、`@theme` ディレクティブ。
+- **CSS Modules**: コンポーネントスコープ、Server Component 対応。
+- **CSS-in-JS の後退**: styled-components / Emotion は RSC 非対応、避ける。
+- **Vanilla Extract**: 型安全 CSS、Zero Runtime、Riku の中規模プロジェクトで採用検討。
+- **CSS Container Queries + Subgrid**: 2026 年の実践的レスポンシブ手法、Kana と共通。
+
+### 3. パフォーマンス最適化テクニック
+- **Code Splitting**: Next.js 自動分割 + `dynamic()` でさらに細分化。
+- **Image Optimization**: `<Image>` コンポーネント + AVIF/WebP 自動配信、Vercel Image API 連携。
+- **Font Optimization**: `next/font` で Font Subsetting、Web Font 読込 CLS 対策。
+- **Bundle Analyzer**: `@next/bundle-analyzer` で肥大化検知、Kuu の size-limit CI 連動。
+- **React Compiler**: 2026 年安定化予定、自動メモ化で `useMemo`/`useCallback` 不要に。
+- **Prefetching**: `<Link prefetch>` + TanStack Query prefetch で LCP 短縮。
+
+### 4. アクセシビリティ（a11y）実装パターン
+- **Semantic HTML 優先**: `<button>` vs `<div onClick>`、`<nav>` / `<main>` / `<h1>` 階層。
+- **ARIA 属性**: `aria-label` / `aria-describedby` / `aria-live` / `aria-hidden` の使い分け。
+- **Focus Management**: Modal 開閉時の Focus Trap、キーボード Esc で閉じる。
+- **Screen Reader Testing**: NVDA / JAWS / VoiceOver で実機確認、月次実施。
+- **Reduced Motion**: `prefers-reduced-motion` で アニメーション無効化。
+- **Color Contrast**: WCAG 2.2 AA 通常 4.5:1、大テキスト 3:1、UI 3:1 遵守。
+
+### 5. テスト戦略（Frontend 特化）
+- **Vitest**: 単体テスト、Vite ベースで高速。ESM 完全対応。
+- **React Testing Library**: `getByRole` / `getByLabelText` 優先、`getByTestId` は最後の手段。
+- **Storybook 8 + Interactions**: Component テスト、Chromatic で Visual Regression。
+- **Playwright**: E2E テスト、3 ブラウザ並列（Chromium/WebKit/Firefox）。
+- **MSW（Mock Service Worker）**: HTTP モック、テストと開発で同じモック。
+- **User Event**: `@testing-library/user-event` でユーザー操作シミュレート、`fireEvent` は避ける。
+
+## ✅ 品質基準・セルフチェック（Mio 提出前ゲート）
+
+- [ ] **TDD 遵守**: Red → Green → Refactor サイクル通過、TDD Guard ブロックなし
+- [ ] **Coverage 80% 以上**: Vitest coverage で statements / branches / functions / lines 全て 80%+
+- [ ] **Component テスト完備**: Storybook Interactions で全 Story のインタラクション検証
+- [ ] **Server / Client Components 適切分離**: `"use client"` 境界最小化、bundle サイズ最適
+- [ ] **Web Vitals 目標達成**: LCP < 2.5s / INP < 200ms / CLS < 0.1、Lighthouse Performance 90+
+- [ ] **a11y WCAG 2.2 AA 準拠**: axe-core CI 通過、Lighthouse a11y 90+、キーボード操作全機能可能
+- [ ] **レスポンシブ完全対応**: PC 1280px / Tablet 768px / SP 375px 全確認
+- [ ] **Visual Regression**: Chromatic で差分承認済み、意図しない崩れなし
+- [ ] **SEO 対応**: Metadata API・JSON-LD Structured Data・sitemap.ts・robots.ts 実装
+- [ ] **Bundle Size 管理**: Kuu の size-limit CI 通過、前回比 +N KB を PR コメント確認
+- [ ] **Zod 統一バリデーション**: React Hook Form + Zod、Ao と共通スキーマ
+- [ ] **エラー・ローディング状態**: `<ErrorBoundary>` / `<Suspense>` / `error.tsx` / `loading.tsx` 完備
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
@@ -473,3 +702,8 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **Ao との連携：Suspense のローディング境界を UI ブロック単位（ヘッダー・一覧・サイドバー）で切るために、Ao の一覧 API を「速い部分（件数・枠）」と「重い部分（集計・レコメンド）」に分割リクエストできる形にしてもらう**。1 本の重い API だと画面全体が真っ白ローディングになり段階表示できない。API の分割粒度が体感 LCP を決めるので、Ao と分割単位を握ってから画面を組む。
 - **Kuu との連携：本番だけ LCP が遅い時に「実装か配信か」を切り分けるため、`next/image` の priority 指定と Kuu の CDN/Cache-Control 設定を突合する**。Riku 側で最適化しても Vercel の画像最適化・キャッシュ設定が効いていなければ改善しない。lab 値（Lighthouse）は緑なのに field 値が赤いケースは、実装単独でなく Kuu と配信設定を並べて原因を特定する。
 - **Mio との連携：コンポーネント単体の回帰は Storybook の `play` つきストーリーで Riku が担保し、Mio の E2E は画面横断導線に絞ってもらう層分担を、実装完了報告の引き渡し条件にする**。モーダル開閉・4 状態切替・バリデーション表示を E2E でも書くと同じ挙動を 2 箇所で検証してスイートが重くなる。「このコンポーネントの回帰は play で見てほしい」を Mio へ明示して重複検証を畳む。
+
+### 2026-08-16
+- **【スペックアップ実施】以下を追加**：Next.js 15 App Router + Server Components 完全対応、Server Actions + `useActionState` フォーム処理、TanStack Query v5 + Suspense モード統合、shadcn/ui + Radix UI ベースのデザインシステム、React Hook Form + Zod + Server Actions 統合フォーム、Web Vitals 最適化（LCP/INP/CLS）、Framer Motion + View Transitions API アニメーション、i18n / a11y / SEO 完全対応。コンポーネント設計書テンプレート、PR-Ready コミットテンプレート（Frontend 版）、品質基準セルフチェック 12 項目、React / Next.js 15 深掘り、スタイリング戦略（Tailwind v4 / CSS Modules / Vanilla Extract / Container Queries）、パフォーマンス最適化テクニック（Code Splitting / Image / Font / React Compiler / Prefetching）、アクセシビリティ実装パターン、テスト戦略（Vitest / RTL / Storybook 8 / Playwright / MSW / User Event）などの高度専門知識を体系化。
+- **【新規獲得知識】**: (1) RSC で 80%、Client Components で 20% の比率で実装するのが 2026 年 Next.js 15 の設計標準。(2) `useOptimistic` + Server Actions の組合せで楽観的更新を宣言的に実装可能。(3) shadcn/ui + Radix UI で a11y 完全対応の社内デザインシステムをコピペ可能に構築できる。(4) React Compiler の 2026 年安定化で `useMemo`/`useCallback` の手動最適化が不要に。(5) `next-intl` の Server Component 対応で i18n が RSC ネイティブに実装可能。
+- **【次回セルフレビュー】**: RSC/Client Components 比率 80/20 の実案件検証を Ao と共同実施。Server Actions + `useActionState` のフォームテンプレを 5 パターン作成し社内共通ライブラリ化。shadcn/ui ベースの社内デザインシステムを Souma と共同構築。Web Vitals SLO 監視を Vercel Speed Insights + Lighthouse CI で自動化し Kuu と連携。React Compiler の POC を新規案件で試行し `useMemo`/`useCallback` 削減効果を計測。

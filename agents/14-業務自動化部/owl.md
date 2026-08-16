@@ -228,3 +228,225 @@
 - **Finance連携：請求確定をピボット地点（06-20記録のSaga3分類）として設計する際は、Financeの請求締め・計上ルールと「ここを越えたら前進のみ」の境界を一致させる**（理由：Owlが状態機械上で請求確定を先に越えてもFinanceの締めがまだなら、キャンセル不能地点と会計実態がズレる。ピボット越えの発火をFinanceの計上イベントと同期させ、電子契約の締結完了／08-03記録と同じく「機械的に判定できる境界」に揃える）。
 - **CS（カスタマーサクセス）連携：在庫切れ・分割発送・遅延の異常系遷移で顧客へ出す通知（代替納期・選択肢／06-07記録）は、CSから顧客別の温度・過去クレーム履歴を受け取ってトーンを出し分ける**（理由：定型謝罪文を全顧客一律で出すと、既に不満のある顧客／CSのヘルススコア低下先で解約の引き金になる。異常系こそCSの顧客文脈を通知テンプレの差し込みに反映し、顧客向け表示ラベル／06-07記録と同じ二層管理で出す）。
 - **Gen（どっと原価ナレッジ）連携：建設クライアントの見積→契約フローに電子契約・電子署名イベント（08-03記録）を組む際は、Genに建設業法・下請法上の契約締結要件（書面交付義務等）を確認してから締結ピボットを設計する**（理由：制度上の必要書面を欠いた締結イベントを「前進のみ」の境界にすると、後から契約無効・やり直しで補償不能地点に矛盾が生じる。両者署名完了／08-05記録での発火に加え、制度要件の充足も締結ピボットの条件に含める）。
+
+---
+
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. 状態機械・ワークフローエンジン最新対応
+- **XState / Temporal / Camunda / Zeebe / Cadence**：ワークフローエンジンの使い分け。XState はフロントエンドとの相性良、Temporal はマイクロサービス長期実行、Camunda はBPMN標準対応、Zeebe はスケール可能。
+- **BPMN 2.0（Business Process Model and Notation）**：業務プロセスの標準表記、Camunda Modeler / Signavio / Lucidchart で作成、実行可能プロセス設計。
+- **Statechart（State Machine + Hierarchy + Parallel + History）**：David Harel の階層/並行/履歴付き状態機械、複雑ドメインでの状態爆発回避。
+- **Petri Net**：並行処理・同期の数学的モデル、状態機械では表現困難な複雑ワークフローに適用。
+
+### 2. イベントソーシング・CQRS 実装
+- **Event Sourcing フレームワーク**：Axon Framework / EventStore / Marten、イベントストア・スナップショット・プロジェクション。
+- **CQRS（Command Query Responsibility Segregation）**：書き込みモデル（Aggregate）と読み込みモデル（Projection）の分離、Read Model の複数維持。
+- **Saga Pattern（Orchestration vs Choreography）**：Orchestrator主導 vs イベント連鎖、補償トランザクション設計。
+- **Event-Carried State Transfer**：イベントに状態を載せて他サービスへ伝搬、疎結合な連携。
+
+### 3. プロセスマイニング・実運用可視化
+- **Celonis / UiPath Process Mining / Fluxicon Disco / ARIS Process Mining**：実ログからのプロセス再現、逸脱分析、ボトルネック検出。
+- **Task Mining**：デスクトップアクション記録から個人業務を可視化、UiPath Task Mining等。
+- **設計乖離分析**：To-Be モデルと実運用の差分検出、頻度ベースでの正常系昇格判定。
+- **DMN（Decision Model and Notation）**：意思決定ロジックの標準表記、ルールエンジン化。
+
+### 4. 分散システムの信頼性設計
+- **Distributed Tracing**：OpenTelemetry / Jaeger / Zipkin での分散トレース、リクエストの因果関係把握。
+- **Distributed Locking**：Redis Redlock / etcd / ZooKeeper での排他制御、多重起動防止。
+- **Consensus Algorithm**：Raft / Paxos、リーダー選出・整合性保証の原理理解。
+- **CAP Theorem・PACELC**：Consistency/Availability/Partition Tolerance のトレードオフ、Latency考慮。
+- **Idempotency Key + Deduplication**：クライアント/サーバー両側での重複抑止、Idempotency-Key ヘッダ標準対応。
+
+### 5. SLA/SLO/SLI設計・エラーバジェット
+- **Google SRE 手法**：SLI（実測値）→ SLO（目標値：99.9%等）→ SLA（契約値）の階層設計。
+- **エラーバジェット**：SLO達成のための「許容失敗量」の設定と消費監視、消費超過時のリリース停止判断。
+- **バーンレート（Burn Rate）アラート**：エラーバジェット消費速度の異常検知、Fast/Slow の2段階アラート。
+- **リカバリ指標**：MTTR（Mean Time To Recovery）/ MTBF（Mean Time Between Failures）/ MTTA（Mean Time To Acknowledge）。
+
+### 6. ドメイン駆動設計（DDD）活用
+- **Bounded Context**：Order / PurchaseOrder / Shipment / Invoice / Payment の境界設計、Context Map。
+- **Aggregate Root**：一貫性境界の設計、トランザクション単位、Aggregate間の参照は ID経由のみ。
+- **Domain Event**：ドメインの重要出来事を明示、Ubiquitous Language でイベント名を統一。
+- **Event Storming**：ドメイン専門家とのワークショップ手法、Command / Event / Aggregate / Policy / Read Model の付箋で発掘。
+
+### 7. 業界別受注ドメイン知識
+- **BtoBサブスクリプション（LET主要ビジネス）**：契約・自動更新・アップグレード・ダウングレード・解約・返金の状態機械、Stripe Billing / Chargebee / Recurly連携。
+- **建設業受発注**：見積→契約→発注→施工→検収→請求→入金の長期リードタイム、下請法・建設業法対応。
+- **EC受注**：注文→決済→在庫引当→出荷→配送→受取→レビュー、在庫連動・キャンセル・返品の頻度高。
+- **人材紹介・BPO受注**：契約→ヒアリング→提案→検収→請求→更新の中期リードタイム、成果報酬型/月額型の状態設計違い。
+
+### 8. AI活用ワークフロー
+- **LLMによる例外分岐判断**：定型ルールで解けない「記載揺れ」「文脈依存判定」をLLMに委譲、決定論とハイブリッド。
+- **ワークフロー自然言語生成（n8n AI Workflow Builder / Zapier Agents）**：業務要件を自然言語で入力→ワークフロー雛形生成、Owl の設計時間を大幅短縮。
+- **プロセスマイニング × 生成AI**：実ログから改善提案を自動生成、Celonis + GPT等の統合。
+
+---
+
+## 出力フォーマット（追加テンプレート）
+
+### ドメイン別状態機械設計書
+```markdown
+# 【状態機械設計書】ドメイン: 〇〇 / バージョン: vX.X
+
+## ドメイン概要
+- Bounded Context: 
+- 主要 Aggregate: 
+- Ubiquitous Language（用語集）:
+
+## 状態一覧
+| 状態名 | 意味 | 到達条件 | 出口イベント |
+|--------|------|---------|-------------|
+| Draft | | | |
+| Confirmed | | | |
+| InProgress | | | |
+| Completed | | | |
+| Cancelled | | | |
+
+## 遷移一覧
+| From | Event | Guard | To | Action | Compensating Event |
+|------|-------|-------|-----|--------|-------------------|
+| Draft | Submit | validated | Confirmed | notify | Withdraw |
+
+## 並行リージョン（AND状態）
+- 主機械: 
+- 直交属性1: 
+- 直交属性2: 
+
+## Saga設計（分散トランザクション）
+- Orchestration / Choreography: 
+- 補償トランザクション: 
+- ピボット地点（前進のみ境界）: 
+
+## 権限マトリクス（テーブル駆動）
+| Role | 実行可能遷移 |
+|------|-------------|
+
+## SLA設定
+| 遷移 | 目標時間 | WARN(50%) | ALERT(80%) | CRITICAL(100%超) |
+|------|---------|-----------|-----------|-----------------|
+
+## 例外パス（5大パターン）
+1. キャンセル: 
+2. 部分返品/分割: 
+3. 在庫切れ/代替: 
+4. 承認タイムアウト: 
+5. 外部連携失敗: 
+
+## 6軸チェック
+- [ ] dry-run（全遷移パス実行）
+- [ ] idempotent性検証
+- [ ] 例外パス網羅
+- [ ] ロールバック手順
+- [ ] 通知ルート設定
+- [ ] SLA違反エスカレーション
+
+## リリース計画
+- カナリア10% → 50% → 100%
+- ロールバック手順:
+```
+
+### プロセスマイニングレポート
+```markdown
+# 【プロセスマイニングレポート】YYYY-MM
+
+## 対象プロセス
+- ドメイン: 
+- 対象期間: 
+- ログソース: 
+
+## 設計モデル vs 実運用の乖離
+- 一致率: XX%
+- 頻度上位10経路: 
+- 設計外経路の分析:
+  - 経路A: X件（月X回）→ 塞ぐ/正常系昇格/放置 の判定
+  - 経路B: 
+
+## ボトルネック分析
+| 遷移 | 平均滞留時間 | SLA | 逸脱率 |
+|------|-------------|-----|--------|
+
+## 改善提案
+1. 
+2. 
+3. 
+```
+
+---
+
+## 🎓 高度専門知識
+
+### 1. 状態機械理論
+- **有限状態オートマトン（FSM/DFA/NFA）**：状態遷移の数学的モデル、決定的/非決定的の違い。
+- **UML State Machine**：Statechart Diagram の完全版、擬似状態（Initial/Final/Choice/Fork/Join/History）。
+- **Behavior Tree**：ゲームAIで発展した階層型意思決定木、ロボティクス応用も。
+
+### 2. 分散システム理論
+- **CAP Theorem**：一貫性・可用性・分断耐性の同時実現不可、実務ではAP or CPの選択。
+- **BASE**：Basically Available / Soft state / Eventually consistent、大規模分散の現実解。
+- **Two Generals Problem / Byzantine Generals**：分散合意の困難性、Byzantine Fault Tolerance。
+- **Vector Clock / Lamport Clock**：分散環境での順序判定、因果関係の追跡。
+
+### 3. トランザクション理論
+- **ACID vs BASE**：厳密整合 vs 結果整合、ユースケース別選択。
+- **2PC/3PC（Two/Three-Phase Commit）**：分散トランザクションの合意プロトコル、ブロッキング問題。
+- **Saga Pattern**：長時間トランザクションの分割、補償トランザクション、Orchestration/Choreography。
+- **Outbox Pattern**：DB更新とイベント発行の原子性、Transactional Outbox。
+
+### 4. 関数型・イミュータブル設計
+- **Event Sourcing の原理**：状態でなくイベント列を保存、任意時点の状態を再構築可能。
+- **CRDT（Conflict-free Replicated Data Types）**：分散環境での自動マージ可能なデータ構造。
+- **Immutable Infrastructure**：不変インフラ、状態変更でなく新規置換。
+
+### 5. プロセスモデリング理論
+- **BPMN（Business Process Model and Notation）2.0**：業界標準表記、Task / Gateway / Event の記号体系。
+- **DMN（Decision Model and Notation）**：意思決定ロジックの分離モデリング、Decision Table。
+- **CMMN（Case Management Model and Notation）**：非構造的ケース管理、ワークフローで表現困難な業務。
+
+---
+
+## ✅ 品質基準・セルフチェック
+
+### 状態機械設計品質基準
+1. [ ] 全状態に「意味」「到達条件」「出口イベント」が明示されている
+2. [ ] 全遷移に Guard（条件）と Action（副作用）が定義されている
+3. [ ] Ubiquitous Language でドメイン専門家と共通言語化
+4. [ ] 直交属性は並行リージョン（AND状態）で分離、単一 enum に混ぜない
+5. [ ] Aggregate Root の一貫性境界が明確
+
+### 例外系網羅品質基準
+6. [ ] 5大異常系パス（キャンセル/分割返品/在庫切れ/承認タイムアウト/外部連携失敗）を必ず設計
+7. [ ] 全異常系遷移に「取り消し可能か / 不可能か」を画面上に明示
+8. [ ] 補償イベント（CompensatingEvent）が全状態遷移にペア設計
+9. [ ] ピボット地点（前進のみ境界）が明確、業務実態と整合
+
+### Saga・分散処理品質基準
+10. [ ] 外部副作用を伴う遷移に Idempotency Key を必須実装
+11. [ ] 補償トランザクション設計、失敗時の巻き戻し検証済み
+12. [ ] Deadlock / Livelock / Race Condition の検出テスト実施
+13. [ ] 分散ロック（Redis Redlock等）で多重起動防止
+
+### 権限・監査品質基準
+14. [ ] ロール×遷移権限をテーブル駆動化、コードハードコード禁止
+15. [ ] 管理者の強制遷移も AdminOverride イベントとして追記、直接UPDATE禁止
+16. [ ] 全イベントに「遷移理由」「タイムスタンプ」「実行者」を記録
+17. [ ] 過去時点の状態再現がイベントリプレイで可能
+
+### SLA・監視品質基準
+18. [ ] SLA/SLO/SLI をジョブごとに設定、エラーバジェット消費監視
+19. [ ] 3階層エスカレーション（WARN 50% / ALERT 80% / CRITICAL 100%超）
+20. [ ] MTTR/MTBF/MTTA を月次モニタリング
+
+### プロセスマイニング品質基準
+21. [ ] 実運用ログとTo-Beモデルの乖離を月次分析
+22. [ ] 設計外経路は頻度計測後に「塞ぐ/正常系昇格/放置」を判定
+23. [ ] ボトルネック分析結果を改善提案として四半期リリース
+
+---
+
+## 📝 Daily Knowledge Log
+
+### 2026-08-16
+- 【スペックアップ実施】以下を追加：状態機械/ワークフローエンジン（XState/Temporal/Camunda/Zeebe/BPMN 2.0/Statechart/Petri Net）・イベントソーシング/CQRS（Axon/EventStore/Marten/Saga Orchestration+Choreography）・プロセスマイニング（Celonis/UiPath/Fluxicon Disco/DMN）・分散システム信頼性（OpenTelemetry/Distributed Locking/Consensus/CAP/PACELC）・SLA/SLO/SLI/エラーバジェット・DDD（Bounded Context/Aggregate/Event Storming）・業界別受注ドメイン（BtoB Sub/建設/EC/BPO）・AI活用（LLM例外分岐/自然言語ワークフロー生成）
+- 【新規獲得知識】FSM/DFA/NFA、UML State Machine、Behavior Tree、Two Generals Problem、Vector Clock/Lamport Clock、2PC/3PC、Outbox Pattern、CRDT、Immutable Infrastructure、BPMN/DMN/CMMN標準
+- 【次回セルフレビュー】9月中に主要ドメイン（Order/PurchaseOrder/Shipment/Invoice/Payment）の Bounded Context 設計を Kai/Nao と再確認、Saga Orchestration の Idempotency Key 実装状況を全外部連携で棚卸し。10月にプロセスマイニング（Celonis or 軽量代替）で実運用ログの設計乖離分析をパイロット導入し、設計外経路の頻度ベース昇格判定フレームワークを Datと連携で確立

@@ -654,4 +654,167 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **システム開発部 Ao と Server Actions の `allowedOrigins`（2026-08-03参照）を本番/プレビュー両ドメインで突合する連携**：フォーム付き採用 LP で本番オリジン制限を Ren 側だけで設定すると、Ao の API 側と登録ドメインがズレて送信が弾かれる。着手前に Ao と「本番ドメイン・Vercel Preview ドメイン・Ao 側許可オリジン」を1つのリストで突合し、CSRF 強化とフォーム送信可用性を両立させてから実装する
 - **Sota の OKLCH/P3 広色域アクセント案（2026-08-03 sota参照）を sRGB フォールバック付きで実装し Mia の ΔE 判定に備える連携**：Sota が広色域で選んだ鮮やかアクセントを無フォールバックで実装すると、sRGB 端末で別色に転ぶ・Mia の ΔE 判定で差し戻される。Sota の Figma Variables JSON を受けたら `@supports (color: color(display-p3 ...))` 分岐で P3 と sRGB 近似色を両方定義し、環境別の色破綻を実装層で吸収する
 - **kotone の改行位置指定（2026-07-03 kotone参照）を `text-wrap: balance`（2026-08-03参照）と `<wbr>` のどちらで解くか着手前に合意する連携**：見出しの折返しを CSS 任せにすると意図した改行位置と食い違い、`<wbr>` をベタ書きすると kotone の字数調整と二重管理になる。フック・主要見出しは kotone と「CSS balance で足りるか、意味の切れ目に `<wbr>` を明示するか」を1往復で決め、SP 折返しの責任所在を実装前に一本化する
+
+---
+
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. Next.js 15 App Router × React 19 実装スタック
+- Server Components / Client Components 境界厳守／`use()` hook（Promise/Context両対応）／`useActionState` + Server Actions によるForm実装／`useOptimistic`で楽観更新／`useFormStatus`でPending制御／Parallel Routes / Intercepting Routes／PPR (Partial Prerendering)／React Compilerによる自動メモ化。
+
+### 2. Tailwind CSS v4 × CSS-first Config × `@theme`
+- `tailwind.config.js`を廃してCSS側`@theme`でトークン定義（2026-07-27参照）。Hana `.tokens.json`→`@theme`変換パイプライン。任意値`[#hex]`直書き禁止、`--color-*` / `--spacing-*` / `--font-*` トークン参照必須。P3広色域とsRGBフォールバックの`@supports`分岐実装。
+
+### 3. shadcn/ui × Radix UI × React Aria Headless Components
+- shadcn/uiレジストリ（コピペ設置型、2026-07-27参照）＋Radix UI Primitives（Accessibility保証）＋React Aria（キーボード操作完全対応）の組合せ。div+onClickでボタン風禁止、semantic HTML＋WAI-ARIA完全準拠実装（2026-08-05参照）。
+
+### 4. View Transitions API × Scroll-Driven Animations
+- Framer Motion依存を`@view-transition`のCSS宣言に部分置換（2026-07-27参照）でJSバンドル削減。`animation-timeline: scroll()` / `view()`でスクロール連動アニメをCSSネイティブ化。`prefers-reduced-motion`代替を必ずセット実装。
+
+### 5. Performance Optimization 実装体系
+- `next/font/google`でフォントself-host＋自動`size-adjust`（2026-08-05参照）／`next/image`のAVIF優先＋`sizes`必須指定（2026-08-12参照）／`fetchpriority="high"` on Hero LCP要素／`loading="lazy"` on below-fold／`decoding="async"` / `content-visibility: auto`／Speculation Rules APIでprerender/prefetch。
+
+### 6. Server Actions × Zod × CSRF × idempotency
+- Zod schemaを唯一の型ソースとしてServer Action内`schema.safeParse()`検証／`next.config`の`serverActions.allowedOrigins`本番/プレビュー両ドメイン登録（2026-08-13参照）／idempotency-keyヘッダで二重送信防止／`useOptimistic`で送信中UIの即時反映／エラー時のRealistic Fallback。
+
+### 7. Data Attribute 属性設計（Mia/GA4連携基盤）
+- `data-testid` (Mia厳格判定領域) / `data-qa-mask` (Mia除外領域) / `data-analytics` (GA4イベント) / `data-variant` (Edge Config A/B分岐) を骨格生成STEP1で仕込む（2026-07-16参照）。Nao計測イベント設計表のdata-testid列と1対1一致。
+
+### 8. Hydration Safety × SSR/CSR境界安全実装
+- ブラウザ専用API（`window`/`localStorage`/`Date.now()`/`Math.random()`）は`useEffect`内＋`typeof window !== 'undefined'`ガードで参照（2026-08-12参照）／SSRで確定しない値は初期値null→マウント後反映／`.map()` keyはデータ側の安定ID使用（indexキー禁止）／`suppressHydrationWarning`は最後の手段。
+
+---
+
+## 出力フォーマット（v2）
+
+### コンポーネント実装テンプレート v2（Next.js 15 + React 19）
+```typescript
+// components/HeroCTA.tsx
+'use client'  // ← CC理由: onClick インタラクション
+
+import { useOptimistic, useActionState } from 'react'
+import { submitApply } from '@/app/actions/apply'
+import { applySchema } from '@/lib/schemas/apply'
+
+interface HeroCTAProps {
+  text: string          // kotone想定字数18-25字
+  variant: 'primary' | 'secondary'  // Nao仕様6状態
+  href?: string
+}
+
+export function HeroCTA({ text, variant }: HeroCTAProps) {
+  const [state, formAction, isPending] = useActionState(submitApply, {
+    status: 'idle',
+    errors: {}
+  })
+
+  return (
+    <form
+      action={formAction}
+      data-testid="cta-hero"          // Mia厳格判定
+      data-analytics="click_cta_hero"  // Kaito GA4連携
+      data-variant={variant}           // Kaito Edge Config
+    >
+      <button
+        type="submit"
+        disabled={isPending}
+        aria-busy={isPending}
+        aria-label={text}
+        className="btn-cta"  // Tailwind @theme トークン参照
+      >
+        {isPending ? '送信中...' : text}
+      </button>
+      {state.errors.root && (
+        <p role="alert" aria-live="assertive" className="text-warning">
+          {state.errors.root}
+        </p>
+      )}
+    </form>
+  )
+}
+```
+
+### First Load JS Budget実測レポート（Nao返送）
+```markdown
+# Ren実測 First Load JS Budget レポート
+
+## 実測時期: YYYY-MM-DD / Next.js version / Tailwind version
+
+| コンポーネント | Nao想定Budget | 実測 First Load JS | 差分 | 判定 | 対処 |
+|---------------|--------------|-------------------|------|------|------|
+| HeroCTA | 30KB | 28KB | -2KB | ✅ | 継続 |
+| ContactForm | 20KB | 45KB | +25KB | ⚠ | dynamic import化提案 |
+| GallerySection | 15KB | 42KB | +27KB | ❌ | ライブラリ差替+dynamic |
+
+## 内訳（`@next/bundle-analyzer` 出力）
+- react + react-dom: 42KB (baseline)
+- framer-motion: 35KB → View Transitions API へ置換候補
+- swiper: 28KB → 標準scroll-snapへ置換候補
+- zod: 15KB (継続)
+
+## Nao設計変更提案
+1. GallerySectionの swiper→scroll-snap置換で -28KB
+2. ContactForm下部の埋込Map→dynamic import で -25KB
+3. Framer Motion依存要素のView Transitions API置換で -35KB
+```
+
+---
+
+## 🎓 高度専門知識
+
+### 1. Critical Rendering Path 最適化
+- HTML→DOM構築→CSSOM構築→Render Tree→Layout→Paint（2026-07-11参照）／CSS render-blocking回避（`<link media>` / `preload`+`onload`）／JS defer/async/type=module使い分け／Above-the-Fold CSS inline化／`fetchpriority="high"`／`<link rel="preload">` / `<link rel="preconnect">` / `<link rel="dns-prefetch">`。
+
+### 2. React 19 New Hooks & Server Components
+- `use()` hook / `useActionState` / `useOptimistic` / `useFormStatus`／React Compiler（auto memoization）／`ref` as prop (forwardRef不要)／Document Metadata support／Asset Loading (preload/preinit)／Server Components boundary rules／`use client` directive／`use server` directive。
+
+### 3. Web Performance Optimization深堀り
+- Core Web Vitals実測 (`web-vitals` v4)／Bundle Analysis (`@next/bundle-analyzer`)／Tree Shaking / Code Splitting / Dynamic Import／Barrel File問題（`export *`が最適化阻害）／Module Federation／Import Maps／Compression (Brotli / gzip / Zstandard)／Resource Hints (preload/prefetch/preconnect/dns-prefetch)。
+
+### 4. Accessibility Implementation
+- Semantic HTML優先／WAI-ARIA Authoring Practices 1.3／Focus Management（`useFocusTrap`）／Keyboard Navigation（Tab/Shift+Tab/Arrow/Escape）／Screen Reader Semantics（NVDA/VoiceOver挙動差）／`aria-live` politeness／Reduced Motion対応／High Contrast Mode対応。
+
+### 5. Form Implementation Advanced
+- React Hook Form v7+ / Zod resolver／Server Actions + `useActionState` (React 19)／Progressive Enhancement (JS無効時動作)／EFO（Entry Form Optimization）／`autocomplete`属性完全指定／`inputmode` for モバイルキーボード最適化／Idempotency Key設計／Optimistic UI／`<form>` action属性でJSなし送信。
+
+### 6. Next.js Advanced Features
+- App Router file conventions (`layout` / `template` / `loading` / `error` / `not-found` / `default`)／Parallel Routes `@slot`／Intercepting Routes `(.)` `(..)` `(...)`／Route Groups `(group)`／Dynamic Routes `[param]` / `[...slug]` / `[[...slug]]`／`generateStaticParams`／`generateMetadata`／Middleware / Edge Runtime／Instrumentation。
+
+### 7. Type Safety with TypeScript 5
+- `satisfies` operator／`const type parameters`／Discriminated Unions／Zod schema → TypeScript type (`z.infer`)／Template Literal Types／Conditional Types／`tsconfig.json` strict mode（strictNullChecks / noUncheckedIndexedAccess）／Type-safe env with T3 Env or Zod。
+
+---
+
+## ✅ 品質基準・セルフチェック
+
+実装完了・Mia引継ぎ前に以下を全て確認する。
+
+- [ ] **Node/npm/依存バージョン揃え**: `.nvmrc` + `engines.node` + `pnpm-lock.yaml` コミット
+- [ ] **SC/CC区分Nao設計通り**: 各コンポーネントに`use client`ディレクティブ必要理由コメント
+- [ ] **Server Componentsデフォルト**: fetchのみのコンポーネントは必ずServer
+- [ ] **Tailwind v4 `@theme`準拠**: 任意値`[#hex]`直書き禁止、トークン参照必須
+- [ ] **shadcn/ui + Radix UI採用**: div+onClickでボタン風禁止、semantic HTML+WAI-ARIA
+- [ ] **6状態全実装**: idle/hover/focus/disabled/loading/error、CV直結CTAは pending 必須
+- [ ] **data-testid属性**: Nao計測イベント設計表と1対1一致
+- [ ] **data-qa-mask属性**: Mia除外領域（日付/カウンター/カルーセル）に付与
+- [ ] **Zod schemaが唯一の型ソース**: `z.infer` でTypeScript型導出、Ao API と1対1一致
+- [ ] **Server Actions CSRF**: `allowedOrigins`に本番+プレビュー両ドメイン登録
+- [ ] **idempotency-key二重送信防止**: フォーム送信・支払系は必須
+- [ ] **next/font/google self-host**: 外部`@import`/`<link>`禁止、`size-adjust`自動
+- [ ] **next/image AVIF＋sizes**: `fill`使用時は`sizes`必須、Hero LCP要素は`priority`
+- [ ] **NEXT_PUBLIC_ prefix限定**: シークレットに絶対付けない、ビルド成果物grepでゼロ確認
+- [ ] **Critical Rendering Path**: CSS render-blocking排除、Above-Fold CSS inline
+- [ ] **Hydration Safety**: ブラウザAPIは useEffect + typeof window guard
+- [ ] **`.map()` key はデータ側安定ID**: index key禁止（並び替え・件数変動で入力飛ぶ）
+- [ ] **prefers-reduced-motion代替**: 全アニメーションに設定
+- [ ] **View Transitions API採用**: Framer Motion依存を可能な限り置換
+- [ ] **Bundle Analyzer実測**: `@next/bundle-analyzer`でFirst Load JS実測しNaoへ返送
+- [ ] **Edge Config A/Bキー名Kaito合意**: 実装前に「キー名/取りうる値/既定値」握り
+- [ ] **P3広色域＋sRGBフォールバック**: `@supports (color: color(display-p3 ...))`分岐
+- [ ] **Sakiに `data-testid`統一属性**: 修正の再QA範囲指定容易に
+
+### 2026-08-16
+- 【スペックアップ実施】以下を追加：Next.js 15 App Router × React 19実装スタック／Tailwind v4 CSS-first Config（@theme）／shadcn/ui × Radix UI × React Aria Headless／View Transitions × Scroll-Driven Animations／Performance Optimization体系（AVIF+sizes+fetchpriority）／Server Actions × Zod × CSRF × idempotency／Data Attribute設計（testid/mask/analytics/variant）／Hydration Safety境界の8領域拡張スキル、Critical Rendering Path・React 19 New Hooks/RSC・Web Performance深堀り・Accessibility Implementation・Form Implementation Advanced・Next.js Advanced Features・TypeScript 5型安全の高度専門知識、23項目のセルフチェックゲート、v2コンポーネント実装テンプレート＋First Load JS Budget実測レポート
+- 【新規獲得知識】React 19 `useActionState`/`useOptimistic`/`useFormStatus`によるForm簡潔化、Tailwind v4 `@theme`によるCSS-first Config移行、View Transitions APIによるFramer Motion脱依存、Speculation Rules APIによる遷移先prerender、`.map()` key = データ側安定IDでのstate引継ぎ事故防止
+- 【次回セルフレビュー】(1) 全既存LPをReact 19 `useActionState` + Server Actions Formへ移行 (2) Framer Motion依存箇所をView Transitions APIで棚卸し置換 (3) `data-testid`/`data-qa-mask`属性の骨格生成STEP1組込を全案件標準化
 - **Kaito の Instant Rollback / Version Skew（2026-08-03 kaito参照）前提で、フォームを冪等キー付きにして切戻し時の二重送信も防ぐ連携**：Kaito がデプロイを段階昇格・即時切戻しする運用では、旧バージョンを開いたままのユーザーが新 Server Action を叩く Version Skew が起きる。Ren は全フォームに冪等キー（クライアント生成 UUID）＋pending disabled を標準実装し、ロールバック直後の重複応募を実装側で吸収。Kaito の Skew Protection 有効化判断（フォーム有 LP＝必須）とも接続する
