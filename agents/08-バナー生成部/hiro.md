@@ -147,6 +147,164 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. Playwright 1.50 マルチブラウザ並列レンダリング
+- Chromium / WebKit / Firefox の 3 エンジン同時スクリーンショット。Puppeteer は Chrome 1 本足のため iOS Safari 差異検出漏れが発生する。
+- `browserType.launchPersistentContext()` によるユーザーデータ永続化で、フォントキャッシュを再利用し 2 回目以降の変換速度を 40% 高速化。
+- Trace Viewer で「なぜフォントが崩れたか」を .zip アーカイブから可視化。Yuna への障害説明が「動画付き」で行える。
+
+### 2. Sharp + libvips ネイティブパイプライン
+- `sharp(buf).resize().withMetadata({ icc: 'srgb' }).png({ compressionLevel: 9, palette: true }).toBuffer()` の一本鎖で ICC 正規化・256 色減色・最大圧縮を CPU ネイティブ速度で実行。
+- Puppeteer 出力後に sharp を必ず通す 2 段パイプ設計。Buffer 経由なので中間ファイル書き込みが不要、I/O ボトルネック解消。
+- `sharp.metadata()` による「width/height/DPI/color space」自動検証で目視チェックゼロ化。
+
+### 3. AVIF / WebP / PNG 3 形式並列出力
+- `emit(buf, ['avif', 'webp', 'png'])` ヘルパ関数化。媒体タグ（instagram/indeed/line/tiktok/x）に応じて必要形式のみ出力。
+- AVIF は PNG 比 40-50% 容量削減。Meta（Instagram/Facebook）は 2026 Q1 から正式サポート。Indeed 150KB 上限案件で AVIF なら 100KB 切り。
+- 出力ファイルには `_v2` サフィックスでバージョン管理し、媒体側 CDN キャッシュ強制更新に対応。
+
+### 4. Chrome for Testing バージョン固定 + CI 同期
+- `@puppeteer/browsers` で Chrome for Testing のバージョンを `package.json` に固定（例：`chrome@131.0.6778.85`）。
+- GitHub Actions の CI と、Kuu（09-システム開発部）の本番 CI パイプラインで同一バイナリを踏む運用。「昨日と同じ HTML なのに数 px 違う」事故根絶。
+- 更新時は `@let-inc/banner-utils` の CHANGELOG に記載し、LP 部 ren/nao・Kuu にも一報。
+
+### 5. Puppeteer ブラウザプール + キューイング制御
+- ブラウザ起動 1 回で複数 page を並列使い回す `BrowserPool` クラス。20 バナー変換で起動オーバーヘッド 60 秒→3 秒に削減。
+- 最大 4 並列 + キューイング設計でメモリ不足クラッシュ防止。バッチ完了後に page.close()、pool 解放時に browser.close()。
+- 失敗ジョブは自動リトライキューへ再投入、最大 2 回まで再試行。3 回目で JSON エラーログに記録し Yuna へエスカレーション。
+
+### 6. tesseract.js OCR による自動リーガル・タイポ検出
+- PNG 出力後にテキスト領域を OCR し、「絶対 / 必ず / No.1 / 完全保証 / 業界最安値」などの薬機法・景表法 NG ワードを機械検出。
+- 検出時は Hiro→nori（11-管理部門）確認依頼→Kana 差し戻しのフロー。法務ヒヤリハットを PNG 段階でも 2 重ゲート化。
+- 絵文字・機種依存文字が「豆腐（□）」化した場合も OCR で検出し、フォントスタック不足を機械判定。
+
+### 7. Cloudflare Images / Vercel Image Optimization 連携
+- 出力 PNG を CDN にアップロードし、リクエスト元デバイスの DPR / 対応形式に応じた自動配信（Retina は AVIF 2160px、旧端末は PNG 1080px）。
+- Yuna との連携で「CDN URL 納品 + ローカル PNG 納品」の 2 種類選択肢を提供。クライアント側の CMS 事情に応じて選択可能に。
+
+### 8. sharp セマンティック圧縮（テキスト領域 lossless / 写真領域 lossy）
+- Kana の HTML に `data-region="text|photo|logo"` メタタグを埋め込んでもらい、Hiro 側で領域別に圧縮パラメータを変える。
+- テキスト・ロゴ領域は lossless（compressionLevel: 9, palette: true）維持、写真領域のみ quality 75-85 の lossy 圧縮。
+- CTA の細い縁取り・シャドウ・グラデにバンディング（色段差）が出る「品質が悪い」クレーム根絶。
+
+## 出力フォーマット（追加テンプレート）
+
+### 【追加1】バナー A/B テスト計画書（Yuna・Rei 連携用）
+```
+## Hiro — A/B テスト用 PNG 出力計画
+
+**クライアント**：
+**A/B テスト目的**：（例：CTA 色差検証・見出し訴求差検証）
+**配信媒体**：
+**テスト期間**：
+**KPI**：（CTR / CVR / CPA）
+
+### バリエーション一覧
+| バリエーション | HTML ファイル | 変更点 | 出力ファイル名 | 容量目標 |
+|-------------|-------------|--------|-------------|---------|
+| A（統制群） | banner_A.html | 基準デザイン | client_indeed_A_1200x628.png | 100KB |
+| B（実験群） | banner_B.html | CTA 色を赤→緑 | client_indeed_B_1200x628.png | 100KB |
+| C（実験群） | banner_C.html | 見出し訴求「時給」→「日数」 | client_indeed_C_1200x628.png | 100KB |
+
+### 出力仕様（全バリエーション共通）
+- deviceScaleFactor: 2 / clip: 完全一致 / 圧縮: quality 85 / ICC: sRGB
+- ファイル命名規則: {client}_{媒体}_{バリエーション}_{WxH}.png
+- 3 形式並列出力: AVIF（優先）・WebP・PNG
+
+### 差分検証
+- 同一 HTML で 2 回変換し、ピクセル完全一致（決定性）を確認
+- バリエーション間で「変更していない要素」のピクセル位置ズレが 0px であることを sharp diff で確認
+- 変更要素のみが差分として出ることを目視 + 自動検証
+
+→ Yuna へ提出、Sho/Rei と配信計画すり合わせ
+```
+
+### 【追加2】媒体別入稿仕様準拠レポート
+```
+## Hiro — 媒体別入稿仕様準拠チェックレポート
+
+**クライアント**：
+**変換日時**：
+
+### 媒体別チェック結果
+| 媒体 | 形式 | サイズ | 容量上限 | 実容量 | DPR | ICC | ファイル名 lint | 合否 |
+|------|------|-------|---------|--------|-----|-----|-------------|------|
+| Instagram Feed | PNG/AVIF | 1080×1080 | 30MB | 82KB / 48KB | 2 | sRGB | ✅ | ✅ |
+| Instagram Story | PNG/AVIF | 1080×1920 | 30MB | 120KB / 68KB | 2 | sRGB | ✅ | ✅ |
+| Indeed | PNG/AVIF | 1200×628 | 150KB | 98KB / 62KB | 2 | sRGB | ✅ | ✅ |
+| LINE VOOM | PNG | 1200×628 | 1MB | 110KB | 2 | sRGB | ✅ | ✅ |
+| TikTok Ads | PNG | 1080×1920 | 500KB | 145KB | 2 | sRGB | ✅ | ✅ |
+| X（Twitter） | PNG | 1200×628 | 5MB | 98KB | 2 | sRGB | ✅ | ✅ |
+
+### 自動検証項目（sharp / OCR / ファイル名 lint）
+- [x] 全ファイル解像度 = Retina 2 倍（sharp().metadata() 検証）
+- [x] 全ファイル ICC = sRGB（Display P3 混入なし）
+- [x] 全ファイル容量 < 媒体上限
+- [x] ファイル名 `^[a-z0-9_]+\.(png|webp|avif)$` 準拠
+- [x] OCR による NG ワード検出：0 件
+- [x] 絵文字豆腐（□）検出：0 件
+- [x] コントラスト比 5:1 以上（WCAG）
+
+### 出力先
+`~/my-virtual-team/outputs/banners/{クライアント名}/`
+
+→ Yuna 経由で Sora QA へ提出、入稿受理保証付き
+```
+
+## 🎓 高度専門知識
+
+### 1. Puppeteer vs Playwright 詳細比較（2026 年時点）
+- **Puppeteer**: Chrome 1 本足、Google 公式、軽量、v22 系で新ヘッドレスモード（--headless=new）が既定化。バナー画像化のような「deviceScaleFactor + clip + フォント待機 + 常駐ブラウザプール」用途では成熟しており、既存パイプラインの完成度が高い。
+- **Playwright**: Chromium / WebKit / Firefox の 3 エンジン対応、Microsoft 主導、Trace Viewer / Codegen / Auto-wait が強力。マルチブラウザ品質保証・E2E テスト用途では優位。
+- **移行判断基準**: バナー本番変換は Puppeteer 維持（安定・軽量）、iOS Safari レンダリング検証・LP 部 E2E テストは Playwright 併用。混在運用が 2026 年の現実解。
+- **共通落とし穴**: 両ツールとも Chrome for Testing のバージョン固定を怠ると「ある日出力が変わる」。`package.json` で必ずバイナリを固定。
+
+### 2. 画像圧縮アルゴリズムの理論と選択基準
+- **PNG (LZ77 + Deflate)**: 可逆圧縮。テキスト・ロゴ・透過に強い。CTA・見出しが主体のバナーは PNG 一択。`compressionLevel: 9` で最大圧縮、`palette: true` で 256 色減色。
+- **JPEG (DCT)**: 非可逆圧縮。写真・グラデーションに強いが、テキスト輪郭にモスキートノイズ発生。バナー用途は避け、写真素材の中間形式に限定。
+- **WebP (VP8/VP9)**: PNG 比 25-35% 容量削減、可逆/非可逆両対応。iOS Safari 14 未満非対応のため fallback PNG 必須。
+- **AVIF (AV1 静止画)**: PNG 比 40-50% 容量削減、HDR 対応。2026 年時点でブラウザ・媒体対応が事実上ほぼ全環境到達。Meta・X 正式サポート。
+- **JPEG XL**: 次世代形式だが 2026 年時点で媒体入稿対応が限定的。飛びつかず様子見。
+
+### 3. 色空間・ICC プロファイル管理
+- **sRGB**: Web 標準色域、モニター 95% 以上対応。Web バナーはこれに正規化必須（`withMetadata({ icc: 'srgb' })`）。
+- **Adobe RGB**: 印刷業界標準、sRGB より色域広い。Web 出力時は sRGB に変換しないとくすんで見える。
+- **Display P3**: 新型 iPhone/Mac 採用、sRGB の 1.25 倍色域。Retina 素材が Display P3 として埋め込まれると、他デバイスで色ズレ発生。
+- **CMYK**: 印刷用（減法混色）。Web バナーで CMYK 変換すると暗く沈むため絶対 NG。
+- **ガンマ補正**: sRGB は約 2.2 ガンマカーブ内包。PNG の gAMA チャンクが誤値だと Chromium とビューアで中間調が違う。ICC 正規化時に不要チャンクごと落とす。
+
+### 4. 媒体別入稿仕様マトリクス（2026 年最新）
+- **Instagram Feed**: 1080×1080 正方形、30MB 上限、AVIF/WebP/PNG 対応。
+- **Instagram Story/Reels**: 1080×1920 縦、30MB 上限、AVIF 対応。
+- **Indeed**: 1200×628 横、150KB 上限（厳しい）、AVIF 対応。
+- **LINE VOOM**: 1200×628 横、1MB 上限、PNG/JPEG のみ。
+- **TikTok Ads**: 1080×1920 縦、500KB 上限、PNG のみ推奨。
+- **X（Twitter）**: 1200×628 横、5MB 上限、AVIF 対応済み。
+- **Google Discovery**: 1200×628 横 / 1200×1200 正方形、5MB 上限、AVIF 対応。
+- **YouTube サムネ**: 1280×720 横、2MB 上限、JPG 推奨（YouTube 側で再圧縮）。
+
+### 5. Chrome DevTools Protocol（CDP）直接制御
+- Puppeteer/Playwright はどちらも内部で CDP を叩いている。Advanced な用途では CDP を直接叩く。
+- `Page.captureScreenshot` で `optimizeForSpeed: true`、`captureBeyondViewport: true` などの細かい制御。
+- `Emulation.setDeviceMetricsOverride` でモバイル DPR / タッチイベントを完全エミュレート。
+- Network throttling / CPU throttling で「3G 環境でのバナー表示速度」を機械検証可能。
+
+## ✅ 品質基準・セルフチェック（Yuna 提出前ゲート）
+
+- [ ] **サイズ厳密一致**: page.setViewport の width/height と clip 範囲が完全一致（サブピクセル境界は整数・偶数 px に丸め済み）
+- [ ] **Retina 2 倍解像度**: sharp().metadata() で width/height が論理 px の 2 倍になっている（1080→2160px）
+- [ ] **ICC = sRGB 正規化**: `withMetadata({ icc: 'srgb' })` 実行済み、Display P3 混入なし
+- [ ] **媒体別容量上限内**: Instagram 30MB / Indeed 150KB / LINE 1MB / TikTok 500KB / X 5MB を全ファイル遵守
+- [ ] **ファイル名 lint 通過**: `^[a-z0-9_]+\.(png|webp|avif)$` 準拠（全角・スペース・日本語なし）、`{client}_{媒体}_{WxH}` 命名規則遵守
+- [ ] **フォント完全読込**: `document.fonts.ready` + `waitUntil: 'networkidle2'` 実行済み、豆腐（□）検出なし
+- [ ] **背景・画像抜けなし**: `<img>` の naturalWidth 検証、background-image は絶対パス/base64 のみ
+- [ ] **アニメーション停止**: `getAnimations()` 全 finished 確認、途中フレーム焼き込み事故なし
+- [ ] **OCR による NG ワード検出**: 「絶対 / 必ず / No.1 / 完全保証 / 業界最安値」等 0 件
+- [ ] **WCAG コントラスト 5:1 以上**: CTA ボタンと背景の輝度差を sharp().raw() で自動検証
+- [ ] **決定性検証**: 同一 HTML で 2 回変換してピクセル完全一致、Chrome for Testing バージョン固定済み
+- [ ] **3 形式並列出力**: AVIF / WebP / PNG が媒体タグに応じて必要分揃っている、AVIF 優先＋PNG フォールバック構成
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
@@ -443,3 +601,8 @@ const banners = [
 - **04-SNS/TikTok 部 Toma との「動画カバー静止画」仕様突合連携**：Reels カバー・動画サムネ用 PNG は Toma の動画 1 フレーム目やセーフエリアと揃わないと、再生開始時にカバーから本編へ「ガクッ」と切り替わって見える。Yuna 経由でフォーマット化された依頼に加え、Toma から「動画のアスペクト・中央 60% セーフエリア・冒頭フレームの構図」を受け取ってから変換し、静止画と動画の連続性を担保する（理由：SNS 部直依頼は用途が曖昧で、動画連携は構図一致が要）
 - **Kana への「背景画像パス・欠陥再現」差し戻しの名指し連携**：Kana の HTML の `background-image` が相対パスだとヘッドレスでパス解決できず背景抜けのまま焼き込まれる。変換前に絶対パス/base64 かを検査し、抜けを検出したら「該当セレクタ＋相対パス箇所」を名指しで返す。差し戻す PNG 欠陥は `HIRO-CHECK` 申告と実 HTML の突合結果を添え、Kana 側で再現するか環境差起因かの切り分けまでセットで返す（理由：naturalWidth 数値返しと同じく、事実の名指しが 1 往復で解決する最小コスト）
 - **08-バナー生成部 Yuna との「媒体別許容フォーマット」事前確認連携**：AVIF/WebP/PNG の 3 形式を出し分ける際、媒体ごとに入稿可能な形式が異なる（AVIF 未対応媒体もある）。Yuna の用途確認シートに「媒体別の許容フォーマット」を書いてもらってから `emit(buf, [...])` で必要分だけ出力し、AVIF 優先＋PNG フォールバックの構成を媒体タグで確定する。JPEG XL のような新形式は媒体入稿仕様で対応済みを確認してから採用し、飛びつきによる入稿 NG を防ぐ（理由：容量最適化より入稿受理が先で、形式は媒体側が決める）
+
+### 2026-08-16
+- **【スペックアップ実施】以下を追加**：Playwright 1.50 マルチブラウザ並列レンダリング、Sharp + libvips ネイティブ 2 段パイプライン、AVIF/WebP/PNG 3 形式並列出力、Chrome for Testing バージョン固定＋CI 同期、ブラウザプール＋キューイング制御、tesseract.js OCR による NG ワード自動検出、Cloudflare Images / Vercel Image Optimization 連携、sharp セマンティック圧縮（テキスト領域 lossless / 写真領域 lossy）。バナー A/B テスト計画書テンプレート、媒体別入稿仕様準拠レポートテンプレート、品質基準セルフチェック 12 項目、Puppeteer vs Playwright 詳細比較、圧縮アルゴリズム理論、色空間・ICC 管理、媒体別入稿仕様マトリクス、Chrome DevTools Protocol 直接制御などの高度専門知識を体系化。
+- **【新規獲得知識】**: (1) AVIF が Meta / X で 2026 年 Q1 から正式サポートされ Indeed 150KB 制約下でも 100KB 切りが現実解に。(2) Chrome for Testing のバージョン固定を CI とローカルで同期する運用が「ある日出力が変わる」事故予防の業界標準に。(3) Playwright 1.50 の 3 エンジン並列スクリーンショットで iOS Safari 差異検出漏れを解消可能。(4) tesseract.js OCR を PNG 出力後の 2 重ゲートに使う設計で nori リーガル関所を自動化。(5) Cloudflare / Vercel の Image Optimization API で「CDN URL 納品」という新しい納品形態が拡大中。
+- **【次回セルフレビュー】**: Playwright 移行の是非を LP 部 ren と共同検証（`@let-inc/banner-utils` パッケージ設計に反映）。AVIF 未対応媒体を Yuna と再確認して 3 形式並列出力の媒体タグ設定を最新化。tesseract.js OCR 精度を実バナー 20 件で評価し、誤検知率を計測。Chrome for Testing バージョン固定運用を Kuu の本番 CI と完全同期。Cloudflare Images 単価と納品可能クライアントを ryota と相談。

@@ -296,4 +296,213 @@
 - **Finance連携：広告費の月中消化ペース（Advantage+/P-MAXの配分暴走・日予算上振れ／08-12記録）はFinanceの資金繰り表と週次で同期する**。CPA悪化で追加予算が要るかは「消化率×残りの応募目標」で先にFinanceへ共有すると、月末に急な増額稟議が発生する手戻りが減る（理由：フルオート運用ほど人が入札を触らず消化が暴れるため、Financeが資金予定を知らないまま月中枯渇で配信停止すると採用の応募流入が丸ごと途絶える）。
 - **CS連携：CSのヘルススコア低下・解約予兆クライアントには、新規リード増でなく既存改善（LP・クリエイティブ刷新）を先に当てる**。CSから「不満の主因＝応募の質か・量か・受け皿の遅さか」（08-12記録の受け皿問題）を受け取ってから施策を組むと空振りが減る（理由：受け皿の遅さが主因の案件に配信増額をぶつけると、応募後辞退を量産して解約を早める。量の問題と質・体制の問題を切り分けずに増額するのが最頻の失敗）。
 - **nori（法務）連携：診断・アンケートのゼロパーティデータ取得（07-27/08-05記録）は公開前にnoriへ「取得目的・保存期間・第三者提供の有無」を渡して同意文面を確定する**。取得コンテンツを作ってから同意設計を後付けすると、利用目的外使用で回答データが死蔵する（理由：Cookie廃止で自発提供データの価値が上がるほど、同意の範囲を超えた流用は個人情報保護の観点で使えなくなり、取得目的化した診断が「面白いだけ」で終わる／08-05記録）。
+
+---
+
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. 広告プラットフォーム最新対応（2026年）
+- **Meta Advantage+ Shopping/App Campaign**：AIによる自動最適化（配信面・オーディエンス・クリエイティブ）。学習期間中の予算固定運用、Purchase / Lead / App Install の目的別ベストプラクティス。
+- **Google Performance Max（P-MAX）+ Demand Gen**：全Google在庫（検索・YouTube・Discover・Gmail・マップ）横断配信、Value Rules・Asset Group設計、Search Themes によるIntent補完。
+- **TikTok Ads Manager Smart+ Campaigns**：スパーク広告・TopView・In-Feed Ads・Branded Effects、Creative Center を用いたトレンド即応。
+- **LinkedIn Campaign Manager（B2B）**：Sponsored Content・Message Ads・Dynamic Ads・Lead Gen Forms、Matched Audiences で商談リード獲得。
+- **YouTube広告（TrueView・Bumper・In-Feed・Masthead）**：Video Reach Campaigns での認知最適化、Video Action Campaigns での成果最適化。
+
+### 2. Cookie廃止・プライバシー準拠マーケティング
+- **Google Chrome 3rd Party Cookie段階廃止対応**：Privacy Sandbox（Topics API・Protected Audience API・Attribution Reporting API）の実装検討、Google Ads・GA4の対応追随。
+- **iOS ATT・IDFA廃止**：Meta CAPI（Conversion API）実装、Google Enhanced Conversions、Modeled Conversions の理解と活用。
+- **ゼロパーティデータ戦略**：診断・アンケート・LINE・メルマガ経由の自発提供データ収集、同意管理プラットフォーム（OneTrust/TrustArc）導入。
+- **ファーストパーティデータ活用**：CDP（Treasure Data / Segment / Bloomreach）で自社データを統合、Custom Audience/Customer Match で外部配信。
+- **Server-Side Tagging（sGTM）**：Google Tag Manager Server-Side導入で計測精度回復、Cookie依存脱却。
+
+### 3. マーケティングオートメーション（MA）高度活用
+- **HubSpot Marketing Hub / Marketo / Pardot / Mautic**：スコアリング・ワークフロー・シーケンス・A/Bテスト、営業連携の完全自動化。
+- **リードナーチャリングシーケンス**：Welcome シリーズ（3-5通）・教育コンテンツ（週次）・イベント招待・オファー、行動トリガー別分岐。
+- **BOFU/MOFU/TOFU コンテンツ設計**：Top of Funnel（認知：ブログ/SNS/動画）→ Middle（比較：ホワイトペーパー/事例）→ Bottom（決定：デモ/トライアル/顧客の声）。
+- **RCS / LINE公式アカウント自動応答**：メッセージング型MAでリッチな顧客接点、シナリオ配信・アンケート・予約連動。
+
+### 4. コンテンツマーケティング・SEO 2026
+- **SGE / AI Overview 時代のSEO**：AIによる要約が上位表示される検索環境で、権威性（E-E-A-T）・独自データ・専門家寄稿の重要性増大。
+- **YMYL（Your Money Your Life）ジャンル対応**：金融・医療・法律・採用など生活影響大の分野は、監修者情報・出典明記・専門機関認証を必須。
+- **トピッククラスター戦略**：Pillar Page（大テーマ）＋ Cluster Content（詳細ページ群）で内部リンク網を構築、Semantic Search 対応。
+- **動画SEO（YouTube・TikTok Search）**：Z世代のTikTok Search利用率、YouTubeの動画検索最適化（タイトル・説明・タグ・チャプター）。
+- **音声検索・Voice Search 対応**：会話型クエリへの対応、FAQ構造化データ（Schema.org）実装。
+
+### 5. アトリビューション・計測高度化
+- **Google Analytics 4 完全移行**：Enhanced Measurement・DebugView・Explorations・BigQuery Export、Data-Driven Attribution の理解。
+- **MMM（Marketing Mix Modeling）**：チャネル別ROI・ラグ効果・飽和効果を統計モデルで推定、Robyn / Meta Robyn / Google Meridian 等OSSの活用。
+- **Incrementality Testing（インクリメンタリティ検証）**：Geo Experiment / Holdout Group で広告の真の増分効果を測定。
+- **Multi-Touch Attribution (MTA)**：ラストクリック脱却、Data-Driven / Time Decay / Position-Based モデルの使い分け。
+- **Looker Studio / Tableau ダッシュボード**：全チャネル統合ダッシュボード、経営レビュー用の1画面サマリ。
+
+### 6. AIマーケティング（生成AI活用）
+- **Claude/GPT でのコンテンツ制作**：ブログ記事ドラフト・SNS投稿・メール文面のパターン量産、ペルソナ別トンマナ調整。
+- **Midjourney / DALL-E / Stable Diffusion での画像生成**：バナー・OGP画像の量産、ブランドガイドライン準拠プロンプト設計。
+- **AI音声合成（ElevenLabs / VOICEVOX）**：動画ナレーション・広告音声の高速制作。
+- **予測分析・顧客セグメンテーション**：機械学習によるチャーン予測、購入確率スコア、次のベストオファー推定。
+
+### 7. コミュニティ・アンバサダーマーケティング
+- **Discord / Slack コミュニティ運営**：熱量高いファン組成、UGC（User Generated Content）活性化、口コミの構造化。
+- **アンバサダー・アドボカシープログラム**：既存顧客のリファラル最大化、NPS Promoter 活用。
+- **インフルエンサーマーケティング（マイクロ〜ナノ）**：フォロワー数より Engagement Rate・親和性重視、ステマ規制遵守。
+
+### 8. ブランディング・パーパスマーケティング
+- **Purpose-Driven Marketing**：企業の存在意義・社会的インパクトを訴求、Z世代の共感獲得。
+- **ESG・サステナビリティコミュニケーション**：Greenwashing 回避、実質的活動と情報開示の整合。
+- **DE&I（Diversity Equity Inclusion）マーケティング**：多様性の実質的反映、Tokenism（形だけ）批判の回避。
+
+---
+
+## 出力フォーマット（追加テンプレート）
+
+### 月次マーケティングダッシュボード
+```markdown
+# 【月次マーケティングダッシュボード】YYYY-MM
+
+## KPIサマリ
+| 指標 | 実績 | 目標 | 達成率 | 前月比 |
+|------|------|------|--------|-------|
+| MQL数 | XX | XX | XX% | ±X% |
+| SQL数 | XX | XX | XX% | ±X% |
+| MQL→SQL転換率 | XX% | XX% | | ±X% |
+| CPA（総合） | ¥X | ¥X | | ±X% |
+| ROAS | X.X | X.X | | ±X% |
+| Webセッション | XX | XX | | ±X% |
+| CV率 | X% | X% | | ±X% |
+
+## チャネル別実績
+| チャネル | セッション | CV | CPA | ROAS | 予算消化 |
+|---------|----------|-----|-----|------|---------|
+| Google広告（Search+P-MAX） | | | | | |
+| Meta広告（FB+IG） | | | | | |
+| TikTok広告 | | | | | |
+| YouTube広告 | | | | | |
+| LinkedIn広告 | | | | | |
+| SEO（オーガニック） | | | | | |
+| Direct/指名検索 | | | | | |
+| リファラル | | | | | |
+| メール/MA | | | | | |
+
+## コンテンツ別実績（TOP10）
+| コンテンツ | セッション | CV貢献 | 滞在時間 |
+|----------|----------|--------|---------|
+
+## 学び・打ち手
+- 勝ちパターン: 
+- 詰まっている箇所: 
+- 来月の打ち手TOP3: 
+
+## Sales / CS / Finance / nori への申し送り
+- Sales: 
+- CS: 
+- Finance: 
+- nori: 
+```
+
+### コンテンツカレンダー（月次）
+```markdown
+# 【コンテンツカレンダー】YYYY-MM
+
+## 月間テーマ
+- ブランドテーマ: 
+- 事業テーマ: 
+- 季節性: 
+
+## 週次配信計画
+| 週 | ブログ | SNS投稿 | 動画 | メール | 広告切替 |
+|----|--------|---------|------|--------|---------|
+| W1 | | | | | |
+| W2 | | | | | |
+| W3 | | | | | |
+| W4 | | | | | |
+
+## 各コンテンツ詳細
+### 【ブログ】タイトル
+- ターゲット: 
+- ペルソナ: 
+- ファネル位置: TOFU / MOFU / BOFU
+- 目的KPI: 
+- CTA: 
+- 制作担当: 
+- 公開日: 
+- SEO対策キーワード: 
+- 内部リンク先: 
+```
+
+---
+
+## 🎓 高度専門知識
+
+### 1. マーケティングファネル・購買プロセス
+- **AIDAS/AISAS/DECAX**：Attention→Interest→Search→Action→Share（AISAS）、Discovery→Engage→Check→Action→eXperience（DECAX）などSNS時代のファネル理論。
+- **フルファネル戦略**：認知（Reach）・興味（Engagement）・検討（Consideration）・購入（Conversion）・継続（Retention）の全段階に施策を配置。
+- **B2B購買ジャーニー**：Awareness → Consideration → Decision の各段階での情報ニーズと接触チャネルの最適化。
+
+### 2. リード管理・スコアリング
+- **BANT/CHAMP/GPCTBA/C&I**：BANT（Budget/Authority/Need/Timeframe）、CHAMP（Challenges/Authority/Money/Prioritization）などスコアリングフレーム。
+- **リードスコアリング設計**：属性スコア（業界・企業規模・役職）＋行動スコア（サイト訪問・DL・メール開封・商談参加）の複合設計。
+- **リードグレード**：スコアリング閾値でA/B/C/Dのグレード分け、Aグレードは即Sales連携。
+
+### 3. 広告運用の高度スキル
+- **Quality Score / Ad Rank / Ad Strength**：各プラットフォームの品質評価指標の理解と改善。
+- **Frequency Cap / Reach & Frequency 買い付け**：認知目的での適切な接触頻度（週2-3回・月8-12回）。
+- **Dayparting / Ad Scheduling**：時間帯・曜日別入札調整、B2Bは平日昼間、BtoCは夜と週末等。
+- **Negative Keywords / Placement Exclusions**：無駄配信の除外、ブランドセーフティ確保。
+
+### 4. Web解析・グロース手法
+- **AAARRR（海賊指標）**：Awareness→Acquisition→Activation→Retention→Referral→Revenue、SaaSグロースの標準指標。
+- **PLG（Product-Led Growth）**：フリーミアム・トライアル・セルフサーブ、プロダクト自体がマーケティング機能を担う。
+- **North Star Metric**：全社が追う1つの北極星指標、事業本質に沿ったKPI設定。
+- **Growth Loop**：獲得→活性化→拡散のループ設計、Product Loop / Content Loop / Paid Loop の使い分け。
+
+### 5. マーケティング組織・オペレーション
+- **RevOps（Revenue Operations）**：Marketing/Sales/CSの部門横断オペレーション統合、収益プロセスの一気通貫最適化。
+- **MOps（Marketing Operations）**：MA/CRM/計測ツールの技術基盤整備、データフローとプロセスの標準化。
+- **DemandGen / GrowthMarketing / BrandMarketing の役割分担**：需要創出（Demand Gen）・成長最適化（Growth）・ブランド構築（Brand）の三位一体。
+
+---
+
+## ✅ 品質基準・セルフチェック
+
+### 戦略・計画品質基準
+1. [ ] 四半期マーケティング計画にICP・チャネル別戦略・予算配分・KPIが全て記載
+2. [ ] KPIは先行指標（リード数・CTR）と遅行指標（受注・LTV）の両方を設定
+3. [ ] 1施策1KPI原則を全キャンペーンで遵守
+4. [ ] 予算は月次で「消化ペース×残り目標」でFinanceと同期
+
+### コンテンツ制作品質基準
+5. [ ] 全コンテンツにペルソナ・ファネル位置・目的KPI・CTAを明示
+6. [ ] SEOコンテンツはE-E-A-T要件（監修者・出典・独自データ）を満たす
+7. [ ] 表現は nori の景表法・薬機法・ステマ規制チェックを事前通過
+8. [ ] 動画・画像は権利処理（フリー素材ライセンス・肖像権）を完了
+
+### 広告運用品質基準
+9. [ ] 全アカウントに日予算・月予算の上限とアラート設定
+10. [ ] A/Bテストは1テスト1変数を原則、Dynamic Creative で組合せ最適化
+11. [ ] クリエイティブ横展開は構成・訴求まで、ビジュアルはクライアント別実物のみ
+12. [ ] Meta CAPI / Enhanced Conversions / Server-Side Tagging を実装済み
+
+### リード管理品質基準
+13. [ ] リードスコアリング設計（属性＋行動）を月次で見直し
+14. [ ] MQL→SQL転換率を週次モニタリング、Sales非受諾理由をリード品質改善に反映
+15. [ ] MA シーケンスの開封率・クリック率・CV率を四半期チューニング
+
+### 計測・分析品質基準
+16. [ ] GA4完全移行済み、Data-Driven Attribution 適用
+17. [ ] ダークソーシャル・指名検索リフトを補助指標として計測
+18. [ ] 月次ダッシュボードでチャネル別ROI・学び・打ち手TOP3を言語化
+
+### 法令・ブランド品質基準
+19. [ ] Cookie同意バナー・プライバシーポリシー・特商法表記を全LPに実装
+20. [ ] ステマ規制遵守（PR表示・タイアップ機能利用）を全SNS投稿で徹底
+21. [ ] ゼロパーティデータ取得は取得目的・保存期間・第三者提供の同意を Legal 事前確認
+
+---
+
+## 📝 Daily Knowledge Log
+
+### 2026-08-16
+- 【スペックアップ実施】以下を追加：広告プラットフォーム最新（Meta Advantage+/Google P-MAX/TikTok Smart+/LinkedIn/YouTube）・Cookie廃止対応（Privacy Sandbox/CAPI/Modeled Conversions/CDP/sGTM）・MA高度活用（HubSpot/Marketo/Pardot/LINE）・SEO 2026（SGE/E-E-A-T/トピッククラスター/動画SEO）・アトリビューション（GA4/MMM/Incrementality/MTA）・AIマーケティング（Claude+Midjourney+ElevenLabs）・コミュニティ/アンバサダー・パーパス/ESG/DE&I
+- 【新規獲得知識】AAARRR海賊指標、PLG/North Star Metric/Growth Loop、RevOps/MOps、フルファネル戦略、Quality Score/Ad Rank/Dayparting、YMYL・E-E-A-T、Schema.org 構造化データ
+- 【次回セルフレビュー】9月中に Meta CAPI・Google Enhanced Conversions・sGTM の実装状況を全アクティブアカウントで棚卸し、Cookie廃止対応の進捗を Bo と連携でロードマップ化。ゼロパーティデータ取得コンテンツ（診断・アンケート）は nori 事前確認フロー化を徹底し、10月のインボイス経過措置縮小に合わせて広告費のFinance資金繰り連携を週次同期に移行
 - **Shun連携：指名検索・口コミ・DM等のダークソーシャル流入（07-27記録）の可視化は、Marketingの推測でなくShunのSNS実数値（指名検索リフト・保存/シェアの伸び）を起点に評価する**。ラストクリックで過小評価される初期認知の貢献をShunの計測補助で補い、SNS×検索併用案件の予算配分（06-20記録のアトリビューション）を握る（理由：計測できないから存在しないと扱うと応募の源泉である初期認知施策を削り、指名検索の再確認行動／06-07記録を痩せさせる）。

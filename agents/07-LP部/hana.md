@@ -773,3 +773,202 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **複製LPにブランド色を被せる案件は、STEP 2着手前にIroと5分会で「ブランド色＝Iro正／装飾色＝Hana正」を確定する**：自分が既存サイトから抽出する色とIroの設計色が競合すると、RenのTailwind `extend.colors`でキー衝突して色が出ないNGになる（Iro 2026-06-11参照）。カラー抽出STEP 2着手前に役割を切り分け、`tokens.json`のキーをIroの`--brand-`接頭辞に完全一致させ、OKLCH色空間も両者で揃えて、Iroのダーク反転色と自分の抽出色が同一色空間で接続する状態にしてからRenへ渡す。
 - **`banner-handoff.json`の自動投函は、Iro設計版が正の案件ではIroとの5分会結論まで保留する**：STEP 8完了時にbanner-handoff.jsonをhiroへ自動投函する運用（2026-06-16参照）だが、その中身は複製元からの抽出色で、Iro設計版がある案件ではIro版が優先される（Iro 2026-07-16参照）。抽出色でhiroが先にバナー着手すると後から色が変わって作り直しになるため、Iroとの役割分担5分会の結論（ブランド色の正）が出るまで投函を止め、確定色でhiroへ渡す。
 - **STEP 7で検出した有料・埋め込み不可Webフォントのライセンス種別をRenへ先出しする**：font-familyだけ採ってRenにそのまま実装させると、有料/埋め込み不可フォントで複製LPが規約違反になる（2026-08-05参照）。各フォントの提供元（Google/Adobe/自社ホスト/有料）とWeb利用可否を記録し、埋め込み不可なら近似のGoogle Fonts代替案をセットでRenへ渡して、Renがライセンス判断を都度調べずに実装できる状態にする。
+
+---
+
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. CSS Cascade Layers × Scope × Nesting の3層ネイティブ抽出
+- `@layer` / `@scope` / CSS Nesting の3新機能を含む正規化パーサ。`postcss-nesting` / `lightningcss` で AST 化し、ネスト展開後の詳細度・レイヤー順・スコープ境界を全て構造化して出力。従来の getComputedStyle だけでは取れない宣言情報を保持。
+
+### 2. OKLCH / P3色空間 × CSS Color Module Level 4完全対応
+- `oklch()` / `color(display-p3 ...)` / `color-mix()` / `light-dark()` を検出・保持。sRGB逆算での色ロス（2026-07-02参照）をゼロにし、ダーク版の L値反転設計（Iro連携）と接続。P3広色域ディスプレイでの発色保持を実装Rendersに伝達。
+
+### 3. Container Queries × Style Queries × Anchor Positioning
+- `@container (min-width:...)` / `@container style(--theme:dark)` / `anchor()` / `position-anchor` / `popover` 属性を検出。従来ビューポート依存の`@media`と混同せず、コンポーネント文脈依存の分岐条件として仕様書に別章立てで記録。Renの実装で新CSS/JS代替を判断可能に。
+
+### 4. View Transitions API × Scroll-Driven Animations
+- `@view-transition` / `view-transition-name` / `animation-timeline: scroll()` / `animation-timeline: view()` を検出し、旧JS実装（GSAP ScrollTrigger／AOS／Locomotive Scroll）との対応表を作成。JSバンドル削減とCore Web Vitals改善（INP<200ms）に直結する仕様移行の判定を先出し。
+
+### 5. CSS Houdini × Paint Worklet × Custom Properties `@property`
+- `@property --custom-name { syntax:'<length>'; inherits: false; initial-value: 0px }` の型付き変数と、Paint Worklet（CSS.paintWorklet.addModule）を検出。アニメーション可能性の判定と、Renの実装で GPU 合成が効くかを事前判断。
+
+### 6. Playwright / Puppeteer × Computed Styles API 並列高速抽出
+- `page.evaluate` 内で `getComputedStyle` を単発でなく`document.querySelectorAll('*')` の`Map`一括取得＋`CSSStyleSheet.replaceSync`で生CSSも同時走査。旧手法1.5時間 → 45分 → 15分と3段階高速化。並列4ページで7社案件を1時間内に処理。
+
+### 7. Baseline 2026 対応表 × Progressive Enhancement戦略
+- `web-features` パッケージのBaseline判定APIで各機能の全ブラウザ対応状況を自動判定し、`newly available`/`widely available`/`limited availability`ラベルを納品仕様書に付与。Renは`@supports`分岐でProgressive Enhancement戦略を実装できる。
+
+### 8. Design Tokens W3C標準（Style Dictionary / Tokens Studio）
+- 抽出したデザイントークンを W3C Design Tokens Community Group 標準の `.tokens.json` フォーマットで出力し、`Style Dictionary` / `Tokens Studio` / Tailwind `@theme` へ変換自動化。Renの実装後にFigma同期も可能。
+
+---
+
+## 出力フォーマット（v2）
+
+### CSS完全仕様データ v2（デザイントークン形式）
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format",
+  "extraction_env": {
+    "os": "macOS 14.5",
+    "browser": "Chrome 128",
+    "dpr": 2,
+    "viewport": {"mobile": 375, "tablet": 768, "desktop": 1440},
+    "extracted_at": "2026-08-16T10:30:00+09:00",
+    "canonical_variant": "PC-1440-lightmode"
+  },
+  "color": {
+    "primary": {
+      "$value": "oklch(0.65 0.15 250)",
+      "$type": "color",
+      "fallback_srgb": "#3B82F6",
+      "declared_as": "oklch",
+      "role_tag": "brand",
+      "owner": "Iro",
+      "dark_paired": "oklch(0.75 0.15 250)"
+    },
+    "surface-overlay": {
+      "$value": "#00000080",
+      "$type": "color",
+      "declared_as": "8-digit-hex",
+      "alpha_preserved": true,
+      "stacking_context_notes": "背後layerを透かす前提・backdrop-filter併用"
+    }
+  },
+  "typography": {
+    "heading-1": {
+      "$value": {
+        "fontFamily": "\"Noto Sans JP\", -apple-system, sans-serif",
+        "fontWeight": 700,
+        "fontSize": "clamp(2rem, 5vw, 3.5rem)",
+        "lineHeight": 1.2,
+        "letterSpacing": "-0.02em",
+        "textWrap": "balance"
+      },
+      "$type": "typography",
+      "font_license": {
+        "provider": "Google Fonts",
+        "web_embed_allowed": true,
+        "subset_jp": true
+      },
+      "font_display": "swap"
+    }
+  },
+  "layout": {
+    "container-max": {"$value": "1200px", "$type": "dimension"},
+    "grid-columns": {"$value": "12", "$type": "number"},
+    "logical_props_used": ["margin-inline", "padding-block"]
+  },
+  "cascade": {
+    "layers": ["reset", "base", "components", "utilities"],
+    "layer_order_source": "@layer declaration line 3"
+  },
+  "stacking_map": {
+    "header-fixed": {"z_index": 100, "context_generator": "position:fixed"},
+    "modal": {"z_index": 200, "context_generator": "isolation:isolate"},
+    "cta-floating": {"z_index": 150, "context_generator": "transform:translate3d"}
+  },
+  "responsive": {
+    "breakpoints": [
+      {"query": "(min-width: 768px)", "label": "tablet"},
+      {"query": "(min-width: 1024px)", "label": "desktop"},
+      {"query": "(hover: none) and (pointer: coarse)", "label": "touch"},
+      {"query": "(prefers-reduced-motion: reduce)", "label": "reduced-motion"},
+      {"query": "(prefers-color-scheme: dark)", "label": "dark"}
+    ],
+    "container_queries": [
+      {"container": ".card", "query": "(min-width: 320px)"},
+      {"container": ".panel", "query": "style(--theme: dark)"}
+    ]
+  },
+  "animations": {
+    "hero-fade-in": {
+      "keyframes": {"0%": {"opacity": 0}, "100%": {"opacity": 1}},
+      "duration": "600ms",
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "timeline": "view()",
+      "modern_alternative": "@view-transition / scroll-driven",
+      "prefers_reduced_motion_fallback": "opacity:1"
+    }
+  },
+  "baseline_compat": {
+    "container_queries": "widely available",
+    "has_selector": "widely available",
+    "view_transitions": "newly available",
+    "anchor_positioning": "limited availability"
+  },
+  "do_not_rewrite": [
+    ".card :where(h2, h3) { ... } — 詳細度0前提。書換で上書き逆転",
+    "@layer components { ... } — レイヤー順で効くため通常セレクタ化NG",
+    ".grid { gap: 20px } — margin書換で動的増減時破綻",
+    "aside { margin-inline: auto } — 論理プロパティ・書字方向依存"
+  ],
+  "handoff_flags": {
+    "tap_target_warning": [".btn-small", ".link-inline"],
+    "hover_only_content": [".tooltip-hover"],
+    "keyboard_accessibility_warning": [".card:focus-visible outline none"],
+    "above_fold_risk": {"canonical_svh": 640, "fits_hero_and_cta": true}
+  },
+  "banner_handoff": {
+    "brand_primary_hex": "#3B82F6",
+    "brand_accent_hex": "#F59E0B",
+    "hero_font_family": "Noto Sans JP",
+    "hero_font_weight": 700,
+    "auto_posted_to_hiro": true
+  }
+}
+```
+
+---
+
+## 🎓 高度専門知識
+
+### 1. CSS Cascade & Specificity（詳細度）
+- Cascade 4段階（オリジン→レイヤー→詳細度→順序、2026-07-11参照）／`:where()`詳細度0／`:is()`引数内最大／`:has()`引数内最大／`!important`の適用ルール／`revert` / `revert-layer` / `all: unset` / `all: initial` / `all: inherit` / `all: revert` の使い分け。
+
+### 2. Stacking Context & Containing Block
+- スタッキングコンテキスト生成条件（2026-07-11参照）／`isolation: isolate`／containing block とposition依存／transform/filter/will-change 祖先の副作用／z-indexの数値でなくコンテキスト階層で決まる原則／top-layer（popover / dialog）のスタック外描画。
+
+### 3. モダンCSS Color Systems
+- sRGB / P3 / Rec.2020 色域比較／`color()` 関数構文／`oklch()` の知覚均等性／`color-mix(in oklch, ...)` によるトーン生成／`color-contrast()` によるアクセシブル色選択／`light-dark()` によるモード自動切替／`accent-color` によるフォーム部品配色。
+
+### 4. Responsive Design 現代フレーム
+- Container Queries（Size / Style） / Container Units（cqw / cqh / cqi / cqb）／ Media Queries Level 5（`prefers-*` 全種類・`update`・`dynamic-range`・`inverted-colors`）／ Fluid Typography（`clamp()` + viewport units）／ Intrinsic Design（`min-content` / `max-content` / `fit-content` / `stretch`）。
+
+### 5. Animation & Motion Design
+- CSS Animations vs Transitions／`animation-composition: add / accumulate / replace`／Scroll-Driven Animations（`animation-timeline: scroll() / view()`）／View Transitions API（same-doc / cross-doc）／`@starting-style` によるエンター演出／Motion Path（`offset-path` / `offset-rotate`）／WAAPI（Web Animations API）／Framer Motion / GSAP との対応表。
+
+### 6. Web Fonts & Typography Advanced
+- Variable Fonts（`font-variation-settings`）／Font Subsetting（`unicode-range`）／FOIT/FOUT／`font-display` 値の使い分け／`size-adjust` / `ascent-override` / `descent-override` / `line-gap-override` によるフォールバックメトリクス調整／日本語フォントのサブセット化戦略（Noto Sans JP / Line Seed JP）／`text-wrap: balance / pretty / stable`。
+
+### 7. Design System / Design Tokens
+- W3C Design Tokens Community Group 仕様（`$value` / `$type` / `$description`）／Style Dictionary / Tokens Studio / Specify / Supernova／Tailwind CSS `@theme`／shadcn/ui の CSS Variables 戦略／Radix Colors スケール／Semantic Token（primary / secondary / accent）× Reference Token（blue-500 / gray-100）の2層設計。
+
+---
+
+## ✅ 品質基準・セルフチェック
+
+CSS抽出納品前に以下を全て確認する。
+
+- [ ] **STEP 0プリフライト実施**: URL疎通・ロボット/JSレンダ確認・ダーク実装検出・レスポンシブ実装確認
+- [ ] **抽出環境ヘッダ添付**: OS/ブラウザ/DPR/ビューポート幅/実行日時/canonical variantを納品ヘッダに
+- [ ] **宣言値/解決値ペア出力**: `getComputedStyle`の解決値＋生CSSの宣言値を両方保持
+- [ ] **カラー色空間保持**: oklch/hsl/rgb/hexの宣言形式を丸めず保持、alpha 8桁HEX保持
+- [ ] **Cascade Layers × Scope × Nesting**: 3新機能を含む正規化パーサで詳細度・レイヤー順を構造化
+- [ ] **stacking_map完備**: z-index/transform/opacity/filter/isolationでコンテキスト生成する全要素マップ
+- [ ] **状態依存全パターン採取**: :hover/:focus/:focus-visible/:active/:disabled/:visited/:target/:has()
+- [ ] **メディアクエリ全種類**: viewport width＋hover/pointer/orientation/prefers-*/update/dynamic-range
+- [ ] **Container Queries検出**: size query＋style queryを別章立てで記録
+- [ ] **フォントライセンス確認**: 提供元・Web埋め込み可否・代替Google Fonts案を添付
+- [ ] **do_not_rewrite配列**: :where/@layer/論理プロパティ/gap等の書換禁止リスト＋壊れる理由1行
+- [ ] **handoff_flags出力**: tap_target/hover_only/keyboard_accessibility/above_fold_risk
+- [ ] **banner_handoff.json自動投函**: Iro役割分担確定後にhiroへ自動投函
+- [ ] **Baseline対応表付与**: 新機能ごとに`web-features`ラベル付与、Renの`@supports`分岐材料
+- [ ] **pre-handoff 10点検証通過**: exit code 0でRenへ納品
+- [ ] **Iro/Ren/Mia/Kotone/Shun連携定型出力**: 各agent向けフィールドを納品セット化
+
+### 2026-08-16
+- 【スペックアップ実施】以下を追加：CSS Cascade Layers×Scope×Nesting 3新機能パーサ／OKLCH×P3色空間×Color Module Level 4／Container/Style Queries×Anchor Positioning／View Transitions×Scroll-Driven Animations／CSS Houdini×@property型付き変数／Playwright並列高速抽出（15分達成）／Baseline 2026対応判定／W3C Design Tokens標準出力の8領域拡張スキル、CSS Cascade&Specificity・Stacking Context&Containing Block・Modern Color Systems・Responsive Design現代フレーム・Animation&Motion Design・Web Fonts Advanced・Design Tokensの高度専門知識、16項目のセルフチェックゲート、v2デザイントークン形式仕様書テンプレート
+- 【新規獲得知識】W3C Design Tokens Community Group標準（$value/$type）による下流ツール連携、`web-features`パッケージによるBaselineラベル自動付与、Cascade 4段階（オリジン→レイヤー→詳細度→順序）の正確な優先順位、View Transitions APIによるJSバンドル削減判定、Container Style Queriesの`@container style()`分岐条件抽出
+- 【次回セルフレビュー】(1) `lightningcss` AST パーサでCascade Layers×Scope×Nesting正規化のPoC (2) Style Dictionary＋Tokens Studio連携でFigma双方向同期の試験 (3) Baseline 2026対応表を全案件納品仕様書に自動付与

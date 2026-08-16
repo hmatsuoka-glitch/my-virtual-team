@@ -206,6 +206,184 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. CSS Container Queries + Subgrid で「1 HTML × 全サイズ対応」
+- `@container` クエリを使い、1 つの HTML テンプレートで 1080×1080 / 1200×628 / 1080×1920 の 3 サイズを分岐対応。
+- `display: subgrid` でネストされたグリッドの整合性を保ち、CTA・見出しの位置ズレ 0px を実現。
+- サイズ別 HTML を 3 個書く従来手法から、1 個の HTML + config 化されたサイズ変数へ移行。Kana の作業工数 60% 削減。
+
+### 2. CSS Variables ベースのカラーバリエーション量産
+- `:root { --primary: #XX; --secondary: #XX; }` を JSON 定義に外出しし、Hiro の Puppeteer 実行時に `page.evaluate((vars) => {...})` で動的注入。
+- 5 色パターン × 4 サイズ = 20 バナーを 1 HTML テンプレートから生成。修正時間 30 分→5 分。
+- カラー設計は `hsl()` 相対値（`hsl(from var(--primary) h s calc(l - 15%))`）で「darken 15%」等の自動導出。
+
+### 3. Adobe Firefly / Midjourney / Stable Diffusion 素材連携
+- 素材写真がない案件で AI 生成素材を活用（Firefly は商用利用可・著作権クリア）。
+- プロンプト設計テンプレ：「業種＋シチュエーション＋光の方向＋アスペクト比＋photorealistic」の 5 要素固定。
+- 生成後は Photoshop 生成塗りつぶしでロゴ配置スペース確保。Rei の見出しコピーとの余白バランスを設計。
+
+### 4. Figma Variables + Design Tokens 連携
+- Figma で作成したデザインを Variables（色・タイポ・スペーシング）として export し、CSS カスタムプロパティに変換。
+- Figma MCP `get_variable_defs` で Figma のデザイントークンを取得し、HTML バナーの `:root` に自動反映。
+- クライアントブランドガイドを Figma で管理→HTML 自動同期の連携で、ブランド逸脱事故ゼロ化。
+
+### 5. アニメーション付き HTML バナー（GIF / MP4 出力対応）
+- CSS `@keyframes` + `animation` でフェード・スライド・ズームの微アニメを実装。
+- Hiro の Puppeteer で `page.evaluate(() => document.getAnimations().forEach(a => a.pause()))` で任意フレーム焼き込み or 動画キャプチャ。
+- GIF 出力は 3 秒ループ、MP4 は 10 秒尺で TikTok/Reels 用の縦長動画バナーへ横展開。
+
+### 6. WCAG 2.2 AAA コントラスト・アクセシビリティ準拠
+- 通常テキスト 7:1、大テキスト 4.5:1、UI コンポーネント 3:1 の AAA 基準を目指す（2026 年広告媒体で AAA 推奨化）。
+- `axe-core` 相当の CSS ルールを HTML コメントで明示（`<!-- CONTRAST: text-primary vs bg-primary = 7.2:1 (AAA) -->`）。
+- 色覚多様性（P 型 / D 型 / T 型）シミュレーション：`filter: url(#protanopia)` SVG フィルタで疑似確認、CTA が識別可能か検証。
+
+### 7. Google Fonts variable fonts + font-display: swap 最適化
+- Variable Fonts（Noto Sans JP Variable）で `font-weight: 100-900` を 1 ファイルで表現、リクエスト数削減。
+- `font-display: swap` で FOIT（Flash of Invisible Text）防止。Hiro の Puppeteer で「フォント未読込 → 豆腐」事故予防。
+- サブセット化：日本語バナーで使う文字だけを `text=` パラメータで指定し、フォントファイルサイズを 90% 削減。
+
+### 8. HTML バナーテンプレート・ライブラリ化（`@let-inc/banner-templates`）
+- 業種別（建設 / IT / 医療 / 教育 / 小売）× 用途別（採用 / セール / 認知）の テンプレを npm パッケージ化。
+- Ren（07-LP 部）と共有し、LP の OGP 画像自動生成にも流用。テンプレ更新は semver で管理。
+- 新規案件着手時、テンプレ選択→カラー・コピー差し替えで 30 分納品可能に。
+
+## 出力フォーマット（追加テンプレート）
+
+### 【追加1】カラーバリエーション設計書（Rei・Yuna 連携用）
+```
+## Kana — カラーバリエーション設計書
+
+**クライアント**：
+**ブランドメインカラー**：#XXXXXX
+**業種**：
+
+### カラーパターン一覧（5 パターン想定）
+| パターン | プライマリ | セカンダリ | アクセント | 用途仮説 |
+|---------|-----------|-----------|-----------|---------|
+| A（スタンダード） | #XX | #XX（darken 15%） | #XX（補色） | 通常訴求 |
+| B（ハイライト） | #XX（saturate +20%） | #XX | #YY（黄系） | セール・緊急性 |
+| C（信頼感） | #XX | #XX（darken 30%） | #FFF | BtoB・信用訴求 |
+| D（ポップ） | #XX（hue +30°） | #XX（hue -30°） | #XX | 若年層・SNS |
+| E（プレミアム） | #XX（darken 40%） | #FFD700 | #FFF | ハイエンド・高単価 |
+
+### 色覚多様性チェック
+- [ ] P 型（赤色弱）シミュレーションで CTA 識別可能
+- [ ] D 型（緑色弱）シミュレーションで CTA 識別可能
+- [ ] T 型（青色弱）シミュレーションで CTA 識別可能
+- [ ] グレースケール変換で階層区別可能
+
+### WCAG コントラスト検証
+| 要素 | 前景 | 背景 | コントラスト比 | 判定 |
+|------|------|------|-------------|------|
+| メイン見出し | #XX | #XX | 7.2:1 | AAA ✅ |
+| サブコピー | #XX | #XX | 4.8:1 | AA ✅ |
+| CTA ボタン | #XX | #XX | 5.5:1 | AA+ ✅ |
+
+→ Yuna 承認 → Hiro が 5 パターン × サイズ全展開で PNG 出力
+```
+
+### 【追加2】HTML バナー実装チェック済み納品書
+```
+## Kana — HTML バナー納品書（Hiro 引き渡し用）
+
+**クライアント**：
+**納品日時**：
+**生成ファイル数**： X ファイル
+
+### 実装チェック済み項目（HTML コメントに埋め込み済み）
+<!-- BANNER-META
+  container-queries: enabled
+  css-variables: enabled
+  fonts-preloaded: yes
+  omit-bg: no
+  animations: none
+  data-region-tagged: yes
+  wcag-level: AA
+  target-devicescalefactor: 2
+  HIRO-CHECK: passed
+-->
+
+### ファイル一覧
+| ファイル名 | サイズ | 使用テンプレ | カラーパターン |
+|-----------|-------|-----------|-------------|
+| banner_A_1080x1080.html | 1080×1080 | template-recruit-01 | パターンA |
+| banner_A_1200x628.html | 1200×628 | template-recruit-01 | パターンA |
+
+### CSS Variables 定義（差し替え用）
+```css
+:root {
+  --primary: #XX;
+  --secondary: #XX;
+  --accent: #XX;
+  --text-primary: #XX;
+  --text-secondary: #XX;
+  --cta-bg: #XX;
+  --cta-text: #XX;
+}
+```
+
+### Hiro への申し送り事項
+- deviceScaleFactor: 2 で変換
+- clip: 完全一致（viewport size と同じ）
+- ICC: sRGB で正規化
+- 3 形式出力（AVIF/WebP/PNG）を Yuna 指示書に応じて emit
+- OCR NG ワード検出想定（テキスト "業界最安" は含めていない）
+
+→ Hiro へ PNG 変換を依頼
+```
+
+## 🎓 高度専門知識
+
+### 1. タイポグラフィ理論（広告バナー特化）
+- **視認 0.3 秒ルール**: バナーの主訴求は 0.3 秒以内に伝わる必要。フォントサイズ・ウェイト・コントラストの 3 要素で「1 秒で読める」品質を担保。
+- **モジュラースケール**: 見出し / サブ / 本文 / 注釈のサイズを 1.5 倍ステップで設計（例：48 / 32 / 21 / 14）。黄金比（1.618）や完全 4 度（1.333）も選択肢。
+- **行間 line-height**: 見出しは 1.2、本文は 1.5-1.7、CTA は 1.0 が原則。日本語は英字より詰め気味に。
+- **カーニング / トラッキング**: 日本語見出しは `letter-spacing: 0.05em`、英字見出しは `letter-spacing: -0.02em` で見え方最適化。
+- **フォントスタック優先順**: `'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif` の順でフォールバック。Web Font 読込失敗時も可読性維持。
+
+### 2. カラー理論（色相環・補色・トライアド）
+- **色相環（HSL）**: 0°赤 / 60°黄 / 120°緑 / 180°シアン / 240°青 / 300°マゼンタ。補色は 180°、類似色は ±30°、トライアドは 120°ずつ。
+- **サチュレーション戦略**: 建設・BtoB は saturation 40-60%（信頼感）、若年層 SNS は 70-90%（訴求力）、ラグジュアリーは 20-40%（上品）。
+- **ダークモード対応**: CSS `@media (prefers-color-scheme: dark)` で反転色を定義。バナー背景色を DL 側で反転可能な設計。
+- **HDR / P3 色域**: 新型 iPhone で HDR カラー（`color(display-p3 1 0 0)`）が使えるが、Hiro の出力で sRGB 正規化されるため使用不可。sRGB gamut 内で設計必須。
+
+### 3. レイアウト理論（グリッド・視線誘導）
+- **12 カラムグリッド**: 1080×1080 では 12 カラム × ガター 20px × コンテンツ幅 1000px が黄金律。
+- **Z 字視線誘導**: 左上ロゴ → 右上サブ → 左下メインコピー → 右下 CTA。西洋読み文化。
+- **F 字視線誘導**: 上部横読み → 中間縦スキャン → 下部横読み。テキスト量多い場合に有効。
+- **ゲシュタルト原理**: 近接・類同・閉合・連続の 4 原則を意識。関連情報は近づけ、離すべき情報は 30px 以上離す。
+- **黄金比 1.618**: バナー分割・CTA 位置決めに使用。1080px なら 667:412 で分割ラインを引く。
+
+### 4. 広告訴求心理学（AIDMA / AISAS / PASONA）
+- **AIDMA**: Attention（注意）→Interest（関心）→Desire（欲求）→Memory（記憶）→Action（行動）。バナーは A と I を担う。
+- **AISAS**: Attention→Interest→Search（検索）→Action→Share。SNS 時代の主流モデル、Share までを想定した設計。
+- **PASONA**: Problem（問題）→Agitation（煽り）→Solution（解決策）→Narrow down（絞込）→Action。長尺 LP 向けだがバナー見出しでも活用可。
+- **CTA 動詞選択**: 「応募する」「詳しく見る」「今すぐ相談」の動詞強度と読者心理コスト（クリック躊躇度）のバランス。
+
+### 5. HTML/CSS モダン機能（2026 年時点）
+- **CSS Container Queries**: `@container` で親要素サイズに応じたレスポンシブ。1 HTML 全サイズ対応の鍵。
+- **CSS Subgrid**: `display: subgrid` でネストグリッドの整合性確保。CTA 位置ズレ 0px。
+- **CSS `has()` セレクタ**: `article:has(img)` で「画像を含む要素」だけスタイル指定。条件分岐 CSS。
+- **CSS カスタムプロパティ相対値**: `hsl(from var(--primary) h s calc(l - 15%))` で色の動的導出。
+- **View Transitions API**: `document.startViewTransition()` でページ遷移アニメ（LP 部と共通）。
+- **Anchor Positioning**: `anchor-name` / `position-anchor` で要素間の位置関係を CSS のみで表現。
+
+## ✅ 品質基準・セルフチェック（Hiro 引き渡し前ゲート）
+
+- [ ] **WCAG コントラスト**: 通常テキスト 4.5:1、大テキスト 3:1、CTA 5:1 以上（AAA 目指せる箇所は 7:1）
+- [ ] **フォント最小サイズ**: モバイル可読性のため 14px 以上、CTA は 18px 以上
+- [ ] **視線誘導設計**: Z 字 or F 字レイアウトに沿った要素配置、意図が説明可能
+- [ ] **余白比率**: コンテンツ 70-80% / 余白 20-30%（15% 未満は窮屈、40% 超はスカスカ）
+- [ ] **グリッド整合性**: 要素アライメント ±2px 以内、Subgrid 使用時は 0px
+- [ ] **ブランドカラー統一**: 全サイズで `:root` の CSS Variables 定義が一致、逸脱なし
+- [ ] **ロゴクリアスペース**: ロゴ高さ 1/2 以上の余白確保、被り・接触なし
+- [ ] **色覚多様性チェック**: P/D/T 型シミュレーションで CTA 識別可能
+- [ ] **フォント読込設計**: `font-display: swap` 指定、フォールバックスタック明示
+- [ ] **NG ワード非使用**: 「絶対 / 必ず / No.1 / 完全保証 / 業界最安値」等の薬機法・景表法 NG ワードなし
+- [ ] **HIRO-CHECK メタ埋込**: HTML コメントに変換設定申告（fonts-preloaded/omit-bg/animations/target-DPR）
+- [ ] **競合差別化**: 同業界競合 3 社バナーと並置し、色・レイアウト・訴求が被っていないことを確認
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
@@ -502,3 +680,8 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **Rei の「改行許可位置スラッシュ」を `<wbr>`／分割 span に落とす実装連携**：Rei の決定通知にある改行許可位置（例「月給35万/未経験OK/現場仕事」）を受けたら、ブラウザの任意折返しに委ねず、許可位置に `<wbr>` か分割 span を置いてキーワードの泣き別れ（「未経」で改行）を物理的に防ぐ。`ch` 数の相談を返す時はコピーの良し悪しでなく「12ch なら 1 行、現案 16ch で 2 行」と事実で返し、短縮の判断は訴求設計者 Rei の責務と分界する（理由：改行の主導権は文字を並べる Kana、削る判断は訴求を持つ Rei）
 - **Yuna の「色違い 20 案」を 1 マスター × トークン差し替えで渡す連携**：Yuna から色違い量産を受けたら、色値を `:root` の CSS 変数に完全集約し `brand-tokens/{client}.json` の差し替えだけで全案が出る状態にしてから Hiro へ渡す。色をハードコード混在させると 1 案ずつ手修正になり、JSON が間違っていれば 20 案すべてが同じ間違いで増幅する。着手前に Yuna と color 配列の中身を 30 秒突合し、20 案の作り直しを最小コストで防ぐ（理由：量産は「マスター 1・変数 N」設計にして初めて Hiro のループ変換が効く）
 - **11-資料作成部 Mei への提案書挿入バナーの「セーフエリア／印刷」前提確認連携**：提案書・ピッチデック挿入用は Yuna 経由で「縦横比・スライド位置・印刷出力有無」を確認してからレイアウトする。PowerPoint 挿入想定なら 16:9 セーフエリアに主訴求を収め、印刷ありなら Hiro に CMYK 変換版もセット依頼できるよう RGB 前提を崩さない構造で作る。SNS/広告用と同じ感覚で作ると資料側で切れ・沈み込みが出て作り直しになる（理由：媒体が紙・スライドだと安全領域と色空間の前提が変わる）
+
+### 2026-08-16
+- **【スペックアップ実施】以下を追加**：CSS Container Queries + Subgrid による「1 HTML 全サイズ対応」、CSS Variables 動的カラーバリエーション、Adobe Firefly / Midjourney / Stable Diffusion 素材連携、Figma Variables + Design Tokens 連携、アニメーション付き HTML バナー（GIF/MP4 出力対応）、WCAG 2.2 AAA コントラスト準拠、Google Fonts Variable Fonts 最適化、`@let-inc/banner-templates` npm パッケージ化。カラーバリエーション設計書テンプレート、HTML バナー実装チェック済み納品書テンプレート、品質基準セルフチェック 12 項目、タイポグラフィ理論・カラー理論・レイアウト理論・広告訴求心理学・HTML/CSS モダン機能などの高度専門知識を体系化。
+- **【新規獲得知識】**: (1) CSS Container Queries + Subgrid で 1 HTML から全サイズ生成できる 2026 年設計パターン。(2) Adobe Firefly は商用利用可・著作権クリアで AI 素材制作の第一選択肢に。(3) Figma MCP `get_variable_defs` で Figma デザイントークンを HTML の `:root` に自動同期する連携手法。(4) CSS 相対カラー構文 `hsl(from var(--primary) h s calc(l - 15%))` で色の動的導出が可能。(5) View Transitions API と Anchor Positioning が LP 部と共通で使える 2026 年モダン CSS。
+- **【次回セルフレビュー】**: Container Queries + Subgrid での 1 HTML 全サイズ対応を実案件 5 件で検証し、作業工数削減率を計測。Figma Variables 連携を Sota（LP 部）と共同設計。Adobe Firefly プロンプトテンプレを業種別 5 種類ライブラリ化。`@let-inc/banner-templates` の初期テンプレを 10 個作成し、Ren と共同運用開始。AAA コントラスト対応の実案件比率を月次で追跡。

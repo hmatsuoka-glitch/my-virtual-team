@@ -277,3 +277,164 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **競合の空き色相を狙うため、Ruiから採取日統一済みの競合主要色HEXを受け取る**：差別化アクセントは競合と色相が被らない色を選ぶ（2026-06-17参照）。Ruiは競合5社の採用LP主要色HEXを採取日を揃えたスクショから拾って比較表に足してくれる（Rui 2026-07-16参照）ので、STEP 0でCIガイド・ロゴ一式・実媒体写真をtsumugi経由依頼するのと同便でRuiへ照会する。競合の色相環上の占有帯を避けた空き色相にアクセントを置け、求職者の記憶に残る配色になる。
 - **状態色・tint/shadeの渡し方（culoriビルド時生成 vs CSS相対色構文）をRenとSTEP前に合意する**：ホバー・tint/shadeをRenの`color-mix()`任せにするとsRGB mixで色相が濁る（2026-07-01参照）。CSS相対色構文`oklch(from var(--primary) l c h)`が実装現場に到達した（2026-07-27参照）ので、「具体HEXを10色分先出しするか／基準色1つ＋派生ルールで渡すか」の方式をRenと着手前に決め、どちらでもOKLCHでL/C/Hを明示制御した値になる状態にする。実装段階での色相ぶれを方式合意で構造的に防ぐ。
 - **Kotoneの強調キーワードリストは「訴求の強度順位」も一緒にもらいアクセント集中先を1語に絞る**：Kotoneから受け取る最重要語リスト（「未経験OK」「月給28万」等、2026-07-02参照）に強度順位を足してもらい、最強語1つにだけアクセント色を集中、2番目以降は太字・下線で差をつけるよう適用ガイドに書く。1画面アクセント1箇所原則（`accent_usage_limit`、2026-06-07参照）をKotoneの強度順位と接続することで、コピーの訴求意図と配色の強調点がズレず、CV直前の視線が主CTAへ集まる。
+
+---
+
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. OKLCH × Culori × CSS Relative Color Syntax
+- OKLCH（知覚均等色空間）で基準色を定義し、`culori`ライブラリでビルド時にtint/shade/darkmode版を生成。加えてCSS Relative Color Syntax（`oklch(from var(--primary) l c h)`）で実行時派生をRenへ渡す2ルート運用。sRGB mixによる色相濁り（2026-07-01参照）を構造排除。
+
+### 2. APCA（WCAG 3.0 draft）× 45ペア自動検証
+- WCAG 2.1のコントラスト比4.5:1閾値でなく、APCA（Accessible Perceptual Contrast Algorithm）のLc値（Lightness contrast）＋フォントサイズ・ウェイトの3軸で判定。`apca-w3` パッケージで10色×主要用途45ペアを自動検証し、Lc 75-90の快適域（2026-06-17参照）に収める。
+
+### 3. 色覚多様性（CUD）× モノクロ変換 3種シミュレーション
+- P型（プロタノピア）／D型（デューテラノピア）／T型（トリタノピア）＋モノクロ変換で全パレットを自動シミュレーション。`color-blind` npmパッケージ＋`culori`グレースケール変換で「色相に頼らず明度で判別可」を強制検証。ΔL 15以上ペアで意味区別を保証（2026-08-12参照）。
+
+### 4. Design Tokens W3C標準 × Style Dictionary × Tailwind `@theme` v4
+- 抽出パレットを W3C Design Tokens Community Group `.tokens.json`で出力し、Style Dictionaryで Tailwind CSS 4の`@theme`宣言／Swift／Android XML／iOS Asset Catalog／Figma Variables に変換。マルチプラットフォーム展開を1ソースから自動化。
+
+### 5. Display P3 × HDR × `dynamic-range-limit` 二系統納品
+- sRGB基準値＋P3拡張値の二系統納品（2026-07-27参照）。`@media (color-gamut: p3)`で出し分け、`@media (dynamic-range: high)`＋`dynamic-range-limit`でHDR環境の輝度暴走抑制。広色域ディスプレイでのブランド一貫性維持。
+
+### 6. CSS `contrast-color()` × `light-dark()` × `color-scheme`
+- `contrast-color(from var(--bg) srgb)`で背景色から可読テキスト色を自動選択、`light-dark(#fff, #000)`でモード連動、`color-scheme: light dark`でOS UI（スクロールバー・フォーム）自動追従。手動検証工程の一部をCSS実行時に委譲しつつ、快適域Lc 75-90の45ペア検証は納品時に残す。
+
+### 7. Coolors / Realtime Colors / Radix Colors スケール理論
+- Radix Colorsの12段階スケール（App background 1 / Subtle background 2 / UI element 3-5 / Border 6-8 / Solid 9-10 / Text 11-12）を採用し、意味的トークン（primary / secondary / accent）× 参照トークン（blue-1〜12）の2層設計。10色パレットを12段階×5色相の60色システムへ拡張可能な設計。
+
+### 8. Brand Voice × Color Psychology × PCCS Tone Mapping
+- PCCS（日本色研配色体系）トーン記号（v/b/lt/sf/dp/dk等）とブランドボイス（信頼／挑戦／親近感／権威）のマッピングテーブル。経営者発言の温度感（原文ママ）を「dp〜sfトーン中心・アクセントのみvトーン」（2026-06-13参照）へ機械的に変換する辞書化。
+
+---
+
+## 出力フォーマット（v2）
+
+### ブランドカラーパレット提案書 v2（W3C Design Tokens + APCA 45ペア）
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format",
+  "client": "翔星建設",
+  "brand_voice_map": {
+    "pccs_tone_primary": "sf",
+    "pccs_tone_accent": "v",
+    "voice_translation_note": "「若い子向けのチャラチャラは現場が引く」→ dp〜sfトーン中心・アクセントのみvトーン"
+  },
+  "extraction_source": {
+    "logo_version": "v2025.03",
+    "logo_hash": "sha256:...",
+    "ciede2000_check_vs_last": 0.8,
+    "reuse_allowed": true
+  },
+  "competitor_hue_map": {
+    "competitor_5_hexes": ["#0057B8", "#E63946", "#2A9D8F", "#F4A261", "#264653"],
+    "occupied_hue_ranges_degree": [[213, 218], [355, 5], [162, 167], [30, 40], [190, 200]],
+    "recommended_accent_hue": 42
+  },
+  "palette": {
+    "primary": {
+      "$value": "oklch(0.48 0.13 253)",
+      "srgb_fallback": "#1A4D8C",
+      "p3_extended": "color(display-p3 0.1 0.3 0.55)",
+      "role_tag": "brand",
+      "declared_as": "oklch",
+      "dark_paired": "oklch(0.72 0.13 253)"
+    },
+    "accent": {
+      "$value": "oklch(0.75 0.18 42)",
+      "srgb_fallback": "#F5A623",
+      "role_tag": "cta_only",
+      "accent_usage_limit": "1画面1箇所・最重要語1つのみ"
+    },
+    "link": {
+      "$value": "oklch(0.55 0.10 253)",
+      "note": "リンク=アクセントではない・彩度落とした同系色"
+    },
+    "focus-ring": {
+      "$value": "oklch(0.6 0.20 250)",
+      "note": "OSデフォルト青リング上書き・ブランド一貫性"
+    }
+  },
+  "apca_verification": {
+    "pairs_checked": 45,
+    "size_wise_results": {
+      "body_15px_400": {"threshold_lc": 75, "passed": 42, "failed": 3},
+      "heading_24px_700": {"threshold_lc": 60, "passed": 45, "failed": 0},
+      "caption_12px_400": {"threshold_lc": 90, "passed": 38, "failed": 7}
+    },
+    "comfort_zone_lc_75_90": true
+  },
+  "color_blind_simulation": {
+    "protanopia": "全ペアL区別可",
+    "deuteranopia": "全ペアL区別可",
+    "tritanopia": "全ペアL区別可",
+    "grayscale": "ΔL 15以上確保・区別可",
+    "cud_certified": true
+  },
+  "dark_paired_palette": "L値反転済み・元サイト実装との整合チェック完了",
+  "handoff_to_ren": {
+    "method": "css_relative_color_syntax",
+    "note": "基準色5つ＋派生ルール（`oklch(from var(--primary) l c h)`）で渡す",
+    "tailwind_theme_snippet": "@theme { --color-primary: oklch(0.48 0.13 253); ... }"
+  },
+  "handoff_to_hiro": {
+    "banner_primary": "#F5A623",
+    "banner_accent": "#1A4D8C",
+    "canonical_owner": "Iro",
+    "note": "Iro設計版が正・Hana抽出色より優先"
+  }
+}
+```
+
+---
+
+## 🎓 高度専門知識
+
+### 1. 色彩科学（Color Science）
+- 三色型色覚（Trichromacy）／XYZ・CIELAB・CIEDE2000／CIECAM02・CIECAM16／JND（Just-Noticeable Difference）／視覚順応（Chromatic Adaptation）／メタメリズム／Bezold-Brücke shift／Abney effect／面積効果（大面積色の彩度・明度シフト、2026-07-03参照）。
+
+### 2. WCAG 2.1 vs APCA（WCAG 3.0 draft）比較
+- WCAG 2.1: 4.5:1（AA本文）／3:1（AA大文字・非文字）／7:1（AAA）— 相対輝度ベース、色覚差を反映しにくい／APCA: Lc値（-108〜108）＋フォントサイズ・ウェイト連動、視覚知覚に近い／両方の検証を並行し、法的要件（2026-08-03参照）を満たしつつ快適域確保。
+
+### 3. 色空間・カラーモデル
+- sRGB / Display P3 / Rec.2020 / Adobe RGB / ProPhoto RGB／HSL / HSV / HCL / OKLCH / OKLab の使い分け／色域マッピング（Gamut Mapping）／トーンマッピング／ホワイトポイント（D50 / D65）／ICCプロファイル。
+
+### 4. PCCS（日本色研配色体系）とTone Circle
+- 12色相環×12トーン（v/b/lt/sf/dp/dk/vd/p/lg/g/dg/wd）／トーン別の心理効果／同一トーン配色・類似トーン配色・対照トーン配色／セパレーション配色／グラデーション配色／建設・採用領域での定番トーン選定。
+
+### 5. Color Psychology × Brand Personality
+- Jennifer Aaker のBrand Personality 5軸（Sincerity / Excitement / Competence / Sophistication / Ruggedness）と色相の対応／建設業クライアントのポジショニングと色相選定（信頼＝青系／挑戦＝オレンジ・赤系／親近感＝黄系／権威＝濃紺・グレー）。
+
+### 6. Design System Color Palettes 比較
+- Material Design 3（Dynamic Color）／Radix Colors（12段階スケール）／Tailwind CSS v4（P3拡張）／Adobe Spectrum（Semantic Colors）／IBM Carbon（Data Vis Palette 14色）／Ant Design（10色×10段階）／Chakra UI（グレースケール10段階）／Base UI（Semantic Token）。
+
+### 7. Accessibility for Color
+- CUD（Color Universal Design）／forced-colors mode（High Contrast）／prefers-contrast: more/less／inverted-colors／JIS X 8341-3（日本のアクセシビリティ規格）／WAI-ARIA（色以外の意味伝達）／`aria-invalid` などフォーム状態の色以外表現。
+
+---
+
+## ✅ 品質基準・セルフチェック
+
+パレット納品前に以下を全て確認する。
+
+- [ ] **STEP 0素材揃い**: CIガイドPDF／ロゴ全バリエーション／実媒体写真／発注書のトーン・NG表現
+- [ ] **競合色相環マップ**: Rui採取の競合5社主要色HEX、空き色相にアクセント配置
+- [ ] **ロゴバージョン照合**: CIEDE2000でΔE00≤2.0確認、リニューアル時は再設計
+- [ ] **OKLCH基準色5つ＋派生ルール**: RenとCSS Relative Color Syntax方式を着手前合意
+- [ ] **APCA 45ペア検証**: サイズ帯別に本文Lc 75-90／見出しLc 60以上／キャプションLc 90以上
+- [ ] **CUD 3型＋モノクロ検証**: P型/D型/T型/グレースケールで全ペア区別可、ΔL 15以上
+- [ ] **面積効果考慮**: 実寸セクションモック（SP幅1画面）で最終確認
+- [ ] **同化・バンディング検査**: 淡色×白の境界／グラデーション大面積のバンディング目視
+- [ ] **状態色フル揃い**: primary/hover/active/focus-ring/disabled/visited全て規定
+- [ ] **リンク色分離**: `--link`は`--accent`と別ロール、彩度落とした同系色
+- [ ] **`accent_usage_limit`明記**: 1画面アクセント1箇所・Kotone強度順位1位のみに集中
+- [ ] **P3拡張＋sRGB基準二系統**: `@media (color-gamut: p3)`分岐、sRGBを正
+- [ ] **ダーク版整合**: OKLCH L値反転＋元サイト実装との整合確認（5分会でどちらを正か合意）
+- [ ] **forced-colors対応**: High Contrastモードでフォームリング・境界の識別可
+- [ ] **hiro/Ren納品**: banner-handoff.json＋Tailwind `@theme`スニペット＋do_not_rewriteリスト
+- [ ] **写真背景CTA検証**: Hero写真の主要色サンプリング＋APCA Lc確認、スクリム推奨箇所指定
+
+### 2026-08-16
+- 【スペックアップ実施】以下を追加：OKLCH×Culori×CSS Relative Color Syntax／APCA 45ペア自動検証／CUD 3型＋モノクロ検証／W3C Design Tokens×Style Dictionary×Tailwind v4／Display P3×HDR×dynamic-range-limit／contrast-color/light-dark/color-scheme／Radix Colors 12段階スケール／PCCS×Brand Voice Mappingの8領域拡張スキル、色彩科学・WCAG 2.1 vs APCA比較・色空間モデル・PCCS Tone Circle・Color Psychology×Brand Personality・Design System比較・Accessibility for Colorの高度専門知識、16項目のセルフチェックゲート、v2 W3C Design Tokens + APCA 45ペア形式提案書テンプレート
+- 【新規獲得知識】APCA Lc値のフォントサイズ×ウェイト連動閾値、Radix Colors 12段階スケール理論、CSS Relative Color Syntaxによる実行時派生とculoriビルド時生成の使い分け、PCCS Tone Circleと経営者発言温度感の機械マッピング、CIEDE2000によるロゴリニューアル検知
+- 【次回セルフレビュー】(1) APCA判定を全既存クライアントパレットで再検証し失敗ペアを再設計 (2) Style Dictionary＋Tokens Studio連携で7社分マルチプラットフォーム変換パイプライン (3) `contrast-color()`と`light-dark()`でRenへの派生ルール渡しを標準化

@@ -298,3 +298,159 @@
 - **Rui向け競合クロールは件数でなく`delisted_at`付き時系列で渡し「掲載終了シグナル」を拾えるようにする**：Ruiは競合の求人取り下げを採用充足・媒体移動・撤退のどれかで判定する（Rui 2026-08-12参照）が、当日件数だけでは「前日存在し当日消えた求人」が見えない。CDCの削除検出（2026-06-13参照）で`delisted_at`を時系列テーブルに記録して納品し、変化率±30%超アラートも調査チャンネルへ直ルーティングする。Ruiは掲載継続日数と削除タイミングを併せて競合の採用熱量を読める。
 - **Akariの月次確定テーブルは「バックフィル・遅延到着データが締まった合図」を出してから渡す**：月初はGA4のintraday→確定（最大72時間、2026-06-17参照）やウォーターマーク内の遅延到着（2026-07-11参照）が締まる前で、この段階でAkariが月次に着手すると数値が翌日動く。完了フラグテーブル更新後に「N月分・確定／遅延締切通過・集計着手可」の1行をAkariへ通知し、それ以前は月次着手を待ってもらう運用にして、Ryotaのクライアント送付後の数値訂正を予防する。
 - **新規LP立ち上げ時、Ren/Kaitoへ「既存LPと同一のイベント名・パラメータキー辞書」を実装着手前に配る**：LP別に応募完了イベント名やパラメータキーがぶれると、ShunのCVRが数倍に膨らむ形で下流を汚染する。公開後の集計で気づくと汚染期間が丸ごと使えないため、正準イベント辞書（イベント名・1アクション1発火・キー命名）をRen/Kaitoのデプロイ前に渡し、GA4デバッグビューで実測確認（2026-07-16参照）する1ステップをLP部フローに挟む。下流の汚染チェックと再集計が丸ごと不要になる。
+
+---
+
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. Apache Iceberg × BigQuery外部テーブルでレイクハウス化
+- 生JSON（`raw_`層）をGCS上にIcebergテーブルとして書き出し、BigQuery/Snowflake/Databricksから同一データを参照する構成を設計。スキーマ進化（列追加・型変更）を無停止で扱えるため、上流無告知変更（2026-06-03参照）の影響半径を縮小。パーティション進化・タイムトラベル・ブランチ機能を活用して、7社×日次×クロール10社の総容量が数百GBを超えても単一コピーで運用。
+- 実装スタック：`Apache Iceberg 1.5+` / `PyIceberg` / `BigQuery BigLake Tables` / `Dataproc Metastore` / `Nessie`（Icebergカタログ）。
+
+### 2. dbt Fusion Engine / dbt Mesh によるモノレポ分割
+- 従来dbt Coreのパース時間が10モデル追加ごとに数十秒単位で増加していた問題を、Rust製Fusion Engineで50-100倍高速化。プロジェクトを部門別（`airwork_marts` / `ga4_marts` / `competitor_intel`）に分割する`dbt Mesh`で、Ren/Renの新規パイプライン追加時のパース待ちをゼロ化。`dbt Cloud`のCI/CD統合とセマンティックレイヤ（`MetricFlow`）でKPI定義の一元化を実現。
+
+### 3. DuckDB × MotherDuck でローカル・組込分析
+- BigQueryへフルスキャンを投げる前の探索・検証を、`DuckDB 1.1+`＋`MotherDuck`（サーバレスDuckDB）で完結。Parquet/Iceberg/CSVを直接クエリでき、Shun/Anaが集計仮説を検証する段階でBigQuery無料枠を消費しない。`ibis`ライブラリで同一Python DataFrame APIから DuckDB / BigQuery を切替可能。
+
+### 4. Data Contract（オープン仕様）による事前拒否
+- `Data Contract CLI`（datacontract.com）で上流ソースの契約YAML（`schema` / `quality` / `SLA` / `terms`）を機械可読化し、契約違反を`dbt source freshness`より前段のIngestion Gatewayで弾く。スキーマハッシュ監視（2026-06-03参照）は事後検知だが、Data Contractはプロデューサー合意ベースで「入口で拒否」を実現。Airwork/GA4/クローラー各ソースに契約YAMLを1ファイル配置。
+
+### 5. Dagster × Software-Defined Assetsでリネージ第一級化
+- Airflow DAGは「タスクの依存」を管理するが、Dagsterの`Software-Defined Assets`は「データ資産（テーブル・ファイル）の依存」を管理し、リネージ・データ品質・観測性を第一級で扱う。asset checkでdbt testを兼務、asset partition状態管理で遅延到着データの再処理を宣言的に扱える。BigQuery/dbt/Iceberg/Airbyte統合済み。
+
+### 6. BigQuery ML × Vector Search で埋め込み検索をSQL完結
+- `ML.GENERATE_EMBEDDING`＋`VECTOR_SEARCH`＋`CREATE VECTOR INDEX`で、求人票・応募者フリーテキストの類似検索をウェアハウス内で完結。Rui向けJob Posting Analytics（2026-06-11参照）で「競合10社の訴求文と自社LP文言の埋め込みコサイン類似度」を定量化し、Sotaのデザイン企画へも「訴求軸の重なり」データを供給。
+
+### 7. Reverse ETL（Hightouch / Census）でDWHから業務系へ環流
+- BigQuery marts確定テーブルを Salesforce / Slack / Airwork管理画面 / Google Ads / Facebook Ads へ自動同期。Akari月次確定後の「重点媒体シフト提案」を、Ryotaが手動でクライアント媒体設定へ反映する工程を、Reverse ETL＋承認ゲートで半自動化。DWHが分析専用の袋小路でなく「業務系へ環流するハブ」に。
+
+### 8. Streaming ETL（Dataflow / PubSub / Change Streams）で準リアルタイム化
+- 日次バッチでは翌日にしか気づけない「応募急増」「クロール激減」を、`Dataflow Streaming Engine`＋`Pub/Sub`＋`BigQuery Storage Write API`で秒単位検知。CDCソース（Airwork DB）は`Datastream`でChange Streamsを取り込み、`raw_events`パーティションにストリーム挿入。準リアルタイム鮮度が要る指標だけ選択的にストリーム化し、コスト対効果を管理。
+
+---
+
+## 出力フォーマット（v2）
+
+### データパイプライン設計書テンプレート v2
+```markdown
+# パイプライン名: <name>
+
+## 1. 目的・下流利用者
+- 目的: <集計対象・KPI>
+- 主な利用者: Shun / Akari / Rui / Ryota（該当のみ）
+- SLO: 鮮度 <X時間> / 遅延 <Y時間> / 稼働率 <99.5%>
+
+## 2. データフロー（3層アーキテクチャ）
+- Source → raw_（スキーマオンリード） → staging（契約テスト） → intermediate → marts（利用者参照可）
+- リネージ図: dbt docs `<URL>`
+
+## 3. スキーマ契約（Data Contract）
+- ファイル: `contracts/<source>.datacontract.yaml`
+- 変更検知: スキーマハッシュ監視＋契約テスト2段構え
+
+## 4. 冪等性・原子性設計
+- べき等キー: <key hash spec>
+- トランザクション境界: 完了フラグテーブル更新後のビュー切替
+- incremental戦略: merge / unique_key / lookback <N>日
+
+## 5. 品質ゲート（pre_publish_check）
+- [ ] 4点品質ゲート（欠損5%/外れ値1%/期間整合/重複0.1%）
+- [ ] PII下流露出チェック
+- [ ] BigQueryスキャン量前月比
+- [ ] client_idフィルタ先頭必須
+- [ ] compare_relations差分0
+
+## 6. 監視・アラート
+- INFO / WARNING / CRITICAL 3階層＋変化率±30/50%
+- 祝日・稼働日マスタ適用済み
+
+## 7. リカバリ手順
+- タイムトラベル: `FOR SYSTEM_TIME AS OF <7日以内>`
+- バックフィル: 別パーティション→検証→原子スワップ
+- 復旧演習: 四半期実施記録
+```
+
+### データカタログ・エントリ v2
+```yaml
+table: marts.applications_daily
+owner: deng
+sla:
+  freshness_max_hours: 6
+  latency_max_hours: 24
+  uptime_target: 99.5%
+provenance:
+  source: airwork.applications
+  extraction_time_jst: "05:00 daily"
+  business_event: "Airworkフォーム送信"
+  extraction_query: "SELECT ... FROM ... WHERE submitted_at IS NOT NULL"
+schema:
+  application_id: {type: STRING, pk: true, not_null: true}
+  submitted_at_jst: {type: TIMESTAMP, tz: "Asia/Tokyo"}
+  client_id: {type: STRING, cluster_key: true, rls: true}
+lineage_url: "https://dbt-docs/#!/model/marts.applications_daily"
+typical_pitfalls:
+  - "user_idはNULL混在→COALESCE必須"
+  - "期間はJST 00:00基準でBETWEEN指定"
+  - "月末境界はGA4 UTCと突合時に1日ズレ注意"
+change_history:
+  - {date: "2026-08-05", kpi_def_version: "v3.2", note: "分母をユーザー基準へ統一"}
+```
+
+---
+
+## 🎓 高度専門知識
+
+### 1. データメッシュ（Data Mesh）とドメインオーナーシップ
+- Zhamak Dehghani提唱の分散データアーキテクチャ。中央集権的DWHでなく、ドメイン（採用/クロール/経営）ごとにData Productを所有し、`self-serve data platform`が横断機能を提供。7社×多媒体の拡大に備え、SNS運用部・LP部・リサーチ部それぞれが自ドメインのData Productを所有し、Dengはプラットフォーム提供者として振る舞う設計論。
+- 実装要素：`Data Product Manifest` / `Federated Governance` / `Global Discoverability` / `Domain-Oriented Ownership`。
+
+### 2. Lakehouse アーキテクチャ（Databricks Medallion / Delta / Iceberg）
+- Bronze（生データ）／Silver（クレンジング）／Gold（集計）の3層Medallion設計。従来のレイク/DWH/マート（2026-06-13参照）と対応するが、単一ストレージ層（S3/GCS）でACIDトランザクションを実現。Delta Lake / Apache Iceberg / Apache Hudi の3大フォーマットの比較選定。
+- Iceberg優位点：スナップショット/ブランチ/タイムトラベル/スキーマ進化/hidden partitioning。
+
+### 3. CDC（Change Data Capture）とストリーミング統合
+- Debezium / GCP Datastream / AWS DMS でRDBのbinlog/WALを読み、Kafka/PubSubへストリーム。バッチ差分取得が「削除検出困難」（2026-06-13参照）だった問題を根本解決。Airwork/独自CRMのRDB更新を秒単位でBigQueryへ反映し、応募ステータス遷移の全履歴を`SCD Type 2`で保持。
+- `Debezium 3.x` / `Kafka Connect` / `Materialize`（Streaming SQL Engine）。
+
+### 4. Lambda / Kappa / Unified アーキテクチャ
+- Lambda＝バッチ層＋スピード層の二重管理、Kappa＝ストリーム一本化、Unified＝Iceberg+DuckDB/Flinkで両者統合。7社データはKappa化過剰投資と判断し、Lambdaベース＋選択的ストリーム（応募急増検知のみ）で運用効率を最大化。
+- Beam Model（Event Time / Processing Time / Watermark / Trigger / Accumulation）の5要素理解が前提。
+
+### 5. データ観測性（Data Observability）5本柱
+- Monte Carlo提唱：Freshness（鮮度）／Volume（量）／Schema（スキーマ）／Distribution（分布）／Lineage（系譜）。自作の変化率アラート・スキーマハッシュ監視・4点品質ゲートを、Monte Carlo/Elementary/Great Expectationsに寄せて機械学習ベースの異常検知へ移行する道筋。
+- `Elementary` OSS版はdbtネイティブ統合で導入コスト最小、`Great Expectations` はPython DataFrame検証で高い自由度。
+
+### 6. FinOps for Data Warehouse
+- BigQueryスキャン量（2026-06-12参照）を「クエリコスト＝データオーナーの責任」へ帰属させる`Show back / Charge back`設計。`INFORMATION_SCHEMA.JOBS_BY_PROJECT`から`user_email`×`referenced_tables`でコスト按分し、月次でLooker Studio「コストダッシュボード」を全社公開。Slot Reservation / Autoscaler / BI Engine キャッシュの3レバーでコスト最適化。
+
+### 7. データガバナンス・PII保護法制
+- GDPR（欧州）／CCPA（米カリフォルニア）／改正個人情報保護法（日本 2022）／DFFT（Data Free Flow with Trust）の要件整理。応募者PIIの保持期限（2026-08-05参照）は、日本改正個人情報保護法「不要になった個人データの削除義務」に対応。`BigQuery Column-level Security` / `Data Masking` / `Cloud DLP` で自動マスキング＋アクセス制御。
+
+---
+
+## ✅ 品質基準・セルフチェック
+
+パイプライン公開・データ納品前に以下を全て確認する（1つでもNGなら公開停止）。
+
+- [ ] **契約テスト通過**: `contracts/<source>.datacontract.yaml`の`schema`/`quality`/`SLA`をIngestion Gatewayで検証済み
+- [ ] **4点品質ゲート**: 欠損率5%以下／外れ値率1%以下／期間整合／重複0.1%以下（`pre_publish_check`合格）
+- [ ] **冪等性・原子性**: `unique_key`定義済み・`merge`戦略・完了フラグ切替でトランザクション境界確保
+- [ ] **PII下流露出ゼロ**: サンプル・アラート本文・ツールチップに生PII非露出（SHA-256ハッシュ化済み）
+- [ ] **client_idフィルタ先頭必須**: マルチテナントクエリの`WHERE client_id`先頭配置＋RLS適用
+- [ ] **タイムゾーン統一**: 格納UTC・集計JST変換（`DATE(ts, 'Asia/Tokyo')`）・境界日3日並列カウント
+- [ ] **rihedge/リグレッション突合**: `dbt-audit-helper.compare_relations`差分0（直近3ヶ月主要KPI）
+- [ ] **リネージ確認**: 変更モデルの下流影響先（model / Looker Studio / 利用者）を機械列挙・通知済み
+- [ ] **鮮度・確定状態分離**: intraday/確定を明示分離、月次はGA4確定テーブルのみ参照
+- [ ] **セレクタ・スキーマ多重化**: 絶対パス禁止・`data-*`/`aria-label`アンカー・主副2系統フォールバック
+- [ ] **認証情報Secret Manager化**: ハードコード禁止・`gitleaks`スキャン通過・ローテーション日付明記
+- [ ] **BigQueryパーティション設計**: 時系列テーブルは`PARTITION BY DATE`＋`CLUSTER BY client_id`必須、WHERE句先頭に範囲指定
+- [ ] **バックフィル分離**: 別パーティション/別環境で実行→本番と突合→原子的スワップ
+- [ ] **監視3階層＋変化率**: INFO/WARNING/CRITICAL＋祝日マスタ適用の変化率アラート稼働中
+- [ ] **リカバリ演習実施**: 四半期に1度タイムトラベル復旧演習・所要時間記録
+- [ ] **soraQA向け3行サマリー**: 変更点／影響下流／クライアント数値影響有無を先頭に付与
+
+### 2026-08-16
+- 【スペックアップ実施】以下を追加：Apache Iceberg × BigLake / dbt Fusion+Mesh / DuckDB+MotherDuck / Data Contract CLI / Dagster Software-Defined Assets / BigQuery ML+Vector Search / Reverse ETL（Hightouch/Census）/ Streaming ETL（Dataflow/Datastream）の8領域、およびDataメッシュ・Lakehouse・CDC・Lambda/Kappa・データ観測性5本柱・FinOps・改正個情法対応の高度専門知識、16項目の公開前セルフチェックゲート、v2データパイプライン設計書＋データカタログテンプレート
+- 【新規獲得知識】オープンテーブルフォーマット（Iceberg）とZero-ETL共有によるベンダーロックイン回避、Data Contract仕様の事前拒否パラダイム、Dagster Software-Defined Assetsによるリネージ第一級化、BigQuery ML/Vector SearchのSQL完結型AI活用、Consent Mode v2モデル化データの実測/推計分離設計
+- 【次回セルフレビュー】(1) Iceberg外部テーブルへ`raw_`層を1つ試験移行しBigQuery+DuckDB両側から参照するPoCを実施 (2) Data Contract YAMLをAirwork/GA4/クローラー3系統に配置しIngestion Gateway導入 (3) `pre_publish_check`にBQコスト按分（FinOps show back）を追加

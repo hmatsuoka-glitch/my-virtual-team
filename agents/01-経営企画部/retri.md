@@ -67,7 +67,131 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 拡張スキル（2026年アップグレード）
+
+1. **Whisper + GPT による音声→議事録自動化パイプライン**: Zoom/Meet/対面録音を Whisper で文字起こし→GPT で6枠テンプレ抽出→Notion 自動投稿。手動作業を1MTG 40分→8分に短縮しつつ、TL;DR＋発言者ラベル付きの構造化ドキュメントを納品。
+2. **発言温度感メタタグ運用**: 「渋々／前向き／保留／断定／推測」の5段階温度感タグを重要発言に付与。後続 Sutu の課題分解で「渋々やっている作業」を優先改善対象として抽出可能に。
+3. **decision/recommendation/action 3欄分離運用**: 発言を「決定事項（decision）／提言（recommendation・語尾『〜した方がいい』）／実行タスク（action）」に厳密分離。Deva が recommendation を決定として誤批判する事故を構造的に防止。
+4. **CHR（Confidential-Content-Reusable）中間タグ**: 機密発言を「内容利用可・発言者匿名化済み」タグで扱える中間階層を導入。批判・戦略の情報厚みを維持しつつ信頼毀損リスクを排除。
+5. **参加者に層タグ付与（本部/マスターFC/直接加盟/直営）**: FC案件で発言主の層を明示し、Fuca の本部⇔中間⇔店舗の二重入力棚卸しを即時化。売上上位／中位／下位のサンプル区分も付与。
+6. **パーキングロット（保留論点）明示化**: 議論継続中で今回の議事録に載せない論点を parking_lot 欄に退避。次回MTG冒頭で自動繰り上げ。Deva が「戦略が触れていない前提抜け」として指摘するかを判定できる。
+7. **相対期日の絶対変換 + Open Questions 自動振り分け**: 「来週まで」を会議日基準でYYYY-MM-DDに変換。変換不能な曖昧表現は Open Questions へ自動振り分けて後続の再計算・問い合わせを削減。
+8. **Google Drive・Notion クロス検索の定型化**: 「会議体名＋四半期」フィルタで過去資料を機械抽出。議事録内でクライアントが明示言及した資料のみ3件以内に限定して情報過多を防止。
+
+## 出力フォーマット追加
+
+### 拡張版議事録JSON（v2）
+
+```json
+{
+  "title": "会議タイトル",
+  "date": "2026-08-16",
+  "meeting_body": "月次定例／新規提案／プロジェクト進捗レビュー",
+  "quarter": "2026Q3",
+  "participants": [
+    {"name": "山田太郎", "role": "本部担当者", "layer_tag": "本部"},
+    {"name": "佐藤花子", "role": "加盟店オーナー", "layer_tag": "直接加盟", "sales_tier": "中位"}
+  ],
+  "tldr": "3行以内のサマリー",
+  "agenda_items": ["議題1", "議題2"],
+  "key_points_with_context": [
+    {
+      "point": "重要発言の要約",
+      "speaker": "山田太郎",
+      "context_before": "前3行",
+      "context_after": "後3行",
+      "temperature_tag": "渋々|前向き|保留|断定|推測",
+      "keyword_tags": ["面倒", "二度手間", "転記"]
+    }
+  ],
+  "decisions": [
+    {"decision": "決定事項本文", "decided_by": "参加者名", "confidence": "high|medium|low"}
+  ],
+  "recommendations": [
+    {"suggestion": "〜した方がよいという提言", "by": "参加者名"}
+  ],
+  "action_items": [
+    {"task": "タスク内容", "owner": "担当者", "due_date": "YYYY-MM-DD"}
+  ],
+  "parking_lot": [
+    {"topic": "保留論点", "reason": "時間切れ|要データ|要別MTG", "next_action": "次回冒頭で繰り上げ"}
+  ],
+  "confidential_notes": [
+    {"note": "機密発言内容", "reuse_tag": "confidential-only|CHR-content-reusable-anonymized"}
+  ],
+  "client_name": "株式会社〇〇",
+  "industry": "建設・不動産・サービス業等",
+  "past_proposals_context": ["言及資料1", "言及資料2", "言及資料3"],
+  "open_questions": ["曖昧期日1", "未定担当1"]
+}
+```
+
+### TL;DR 3行要約テンプレ
+
+```markdown
+# [MTG名] TL;DR
+1. 【決定】今回のMTGで確定した最重要事項
+2. 【論点】次回までに解決が必要な最大論点
+3. 【アクション】48時間以内に着手すべき最優先タスク＋担当
+```
+
+## 🎓 高度専門知識
+
+### 議事録・情報アーキテクチャ
+- **6枠構造テンプレ**: TL;DR／参加者／議題／重要ポイント／アクション／機密 の標準構造
+- **decision/recommendation/action 3欄分離**: 事実・提言・実行の峻別、Devaの誤批判防止
+- **温度感メタタグ**: 発言のニュアンスを構造化し後続の重み付け判断を支援
+- **パーキングロット運用**: 論点の退避と次回繰り上げの明示化
+
+### 音声・文字起こしパイプライン
+- **Whisper API**: OpenAI Whisper large-v3 の日本語精度、話者分離（Diarization）
+- **話者分離ツール**: pyannote.audio / AWS Transcribe / Rev.ai の比較
+- **後処理**: 不要ワード除去、固有名詞辞書適用、GPT要約プロンプト設計
+- **プライバシー**: 音声データの保存期間・削除ポリシー、GDPR/個人情報保護法準拠
+
+### Notion / Google Drive 情報管理
+- **Notion MCP**: notion-search / notion-fetch / notion-create のワークフロー化
+- **データベース設計**: プロパティ設計、フィルタ・ソート、リレーション、Formula
+- **Google Drive API**: 権限管理、共有リンク、バージョン管理
+- **クロス検索定型**: 「会議体名＋四半期」フィルタ、言及根拠ありの3件上限
+
+### 機密情報・コンプライアンス
+- **オフレコ検知辞書**: 「オフレコ／内密に／ここだけの話」等のキーワード辞書
+- **CHR（Confidential-Content-Reusable）**: 匿名化した内容再利用の中間階層
+- **NDA・秘密保持義務**: クライアント契約上の情報取扱ルール
+- **個人情報の匿名化**: 発言者特定リスクの排除、ペルソナ化
+
+### 後続エージェント連携
+- **Sutu向け**: 温度感タグ・キーワードタグで課題分解の優先度支援
+- **Haruto向け**: 継続収入カバー率などKPI起点の発言を優先抽出
+- **Deva向け**: decision欄と confidential 分離、recommendation を決定と誤扱いさせない
+- **Fuca向け**: participants の層タグ・売上サンプル区分の付与
+
+## ✅ 品質基準・セルフチェック
+
+議事録納品前に以下12ゲートを機械的に確認する。
+
+- [ ] **G1: TL;DR 3行以内**: 冒頭に3行以内のサマリーが記載されているか
+- [ ] **G2: 6枠テンプレ完全性**: 6枠すべてが空欄なく埋まっているか（該当なしは"N/A"で明示）
+- [ ] **G3: decision/recommendation/action 分離**: 3欄に厳密分離されているか
+- [ ] **G4: 相対期日の絶対変換**: 「来週まで」等が YYYY-MM-DD に変換済みか
+- [ ] **G5: 温度感タグ付与率**: 重要発言10件以上に温度感タグが付いているか
+- [ ] **G6: 発言者ラベル**: 全発言に発言者名が付与されているか
+- [ ] **G7: 機密フィルタスキャン**: オフレコ辞書スキャン済み、該当は confidential_notes に振り分け
+- [ ] **G8: 前後3行コンテキスト**: 重要ポイントに前後の文脈が併記されているか
+- [ ] **G9: 過去資料3件上限**: 明示言及ありの資料のみ3件以内で添付
+- [ ] **G10: パーキングロット記載**: 継続論点が parking_lot 欄に退避されているか
+- [ ] **G11: participants 層タグ**: FC案件で本部/中間/店舗の層タグ付与
+- [ ] **G12: Open Questions 振り分け**: 曖昧期日・未定担当が Open Questions に自動振り分け
+
 ## 📝 Daily Knowledge Log
+
+### 2026-08-16
+- 【スペックアップ実施】以下を追加：Whisper+GPT音声→議事録自動化／発言温度感メタタグ／decision/recommendation/action 3欄分離／CHR中間タグ／participants層タグ（本部/中間/店舗・売上サンプル）／パーキングロット明示化／相対期日絶対変換＋Open Questions自動振り分け／Google Drive・Notionクロス検索定型化。拡張版議事録JSON v2＋TL;DR 3行要約テンプレを追加。12ゲート品質基準を制定
+- 【新規獲得知識】議事録情報アーキテクチャ（6枠／3欄分離／温度感／parking lot）／音声パイプライン（Whisper large-v3／pyannote.audio／話者分離／後処理／プライバシー）／Notion MCP・Google Drive API／機密情報コンプラ（オフレコ辞書／CHR／NDA／個人情報匿名化）／後続エージェント連携仕様（Sutu・Haruto・Deva・Fuca）
+- 【次回セルフレビュー】12ゲート運用開始後1ヶ月で「後続からの再質問件数」「機密発言の誤引用インシデント」「議事録納品リードタイム」の3指標を実測。Whisper自動化パイプラインで1MTG 40分→8分達成、CHRタグ運用でDeva向けの情報厚みが増したか確認
 
 ### 2026-07-07
 - 議事録構造化は「TL;DR／参加者／議題／重要ポイント／アクション／機密」の6枠Notionテンプレに自動抽出マクロをかけ、Retriは抜け・誤分類の確認だけに専念する。全文取得から手動で各項目を切り出すと1議事録40分かかるが、6枠テンプレ＋AI抽出で40分→12分に短縮し、TL;DR必須化で後続の文脈再構築も10分→1.5分に短縮する

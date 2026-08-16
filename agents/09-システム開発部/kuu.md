@@ -227,6 +227,254 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. GitHub Actions 高度パイプライン設計
+- **Matrix Strategy**: Node.js 18/20/22 × OS Ubuntu/macOS/Windows の 9 環境並列テスト。
+- **Reusable Workflows**: `workflow_call` で共通処理を抽出し、複数リポジトリで再利用。
+- **Composite Actions**: 頻出タスクを Composite Action 化、DRY 化とテスト容易性向上。
+- **OIDC 認証**: AWS/GCP/Azure への長期認証情報 不要のクラウド連携、シークレット漏洩リスクゼロ。
+- **Concurrency Groups**: 同時実行制御で無駄な CI ラン削減、コスト 40% 節約。
+- **Deployment Environments**: `production` / `staging` の承認ゲート、リリース管理を GitHub 上で完結。
+
+### 2. Vercel 高度機能活用（Enterprise 前提）
+- **Edge Middleware**: 認証・A/B テスト・ジオロケーションをエッジ実行、コールドスタート 5ms。
+- **Edge Config**: Feature Flag / Kill Switch を再デプロイなしで即座反映（<50ms）。
+- **ISR（Incremental Static Regeneration）**: 静的生成 + オンデマンド再生成、パフォーマンスと最新性の両立。
+- **Preview Deployments**: PR 毎の独立環境で Riku・Ao・Mio・クライアントレビューを高速化。
+- **Analytics + Speed Insights**: Web Vitals（LCP/INP/CLS）を実ユーザー計測、Riku へフィードバック。
+- **Vercel KV / Postgres / Blob Storage**: Serverless データストアで運用負荷軽減。
+
+### 3. Cloudflare エコシステム統合
+- **Cloudflare Workers**: エッジコンピューティング、Node.js 依存排除で低レイテンシ API。
+- **Cloudflare R2**: S3 互換オブジェクトストレージ、エグレス無料でコスト削減。
+- **Cloudflare Images**: 画像最適化 CDN、Yuna/Hiro のバナー配信で活用。
+- **Cloudflare Access**: Zero Trust ネットワーク、社内システム認証統合。
+- **Turnstile**: CAPTCHA 代替、UX を損なわず bot 対策。
+
+### 4. Docker + Docker Compose ローカル開発環境標準化
+- 全プロジェクトで `docker-compose.yml` 提供、`docker compose up` 一発でローカル開発環境起動。
+- PostgreSQL / Redis / MinIO（S3 互換）/ MailHog（メール確認）を統合。
+- `Dockerfile` は Multi-Stage Build でイメージサイズ最小化、`distroless` ベースで攻撃面削減。
+- Testcontainers 統合でテスト時に本番同等 DB を起動、Ao の統合テスト現実性担保。
+
+### 5. Terraform + Pulumi による IaC（Infrastructure as Code）
+- Vercel Project / Domain / Environment Variables を Terraform で管理、コード化で属人性排除。
+- Cloudflare DNS / WAF ルールを Terraform で管理、変更履歴を Git で追跡。
+- Pulumi は TypeScript でインフラ記述、Ao/Riku も読める共通言語化。
+- `terraform plan` → PR レビュー → `terraform apply` の 3 段階承認フロー。
+
+### 6. GitHub Actions セキュリティスキャン統合
+- **Dependabot**: 依存パッケージ脆弱性の自動 PR、Critical/High は即座 Kai エスカレーション。
+- **Snyk / Trivy**: コンテナイメージ・依存パッケージ脆弱性スキャン、CI 段階でブロック。
+- **GitHub Secret Scanning + Push Protection**: シークレット漏洩を Push 段階でブロック。
+- **CodeQL**: 静的解析で SQL Injection / XSS / SSRF を自動検出。
+- **SLSA Level 3**: サプライチェーンセキュリティ、ビルドプロビナンス署名で改竄検知。
+
+### 7. Observability プラットフォーム統合
+- **Sentry**: エラー監視、リリース単位のエラー率追跡、Slack 自動通知。
+- **Datadog**: APM / Log / Metric の統合、SLO 監視 (p95 500ms / エラー率 0.1% / 可用性 99.9%)。
+- **Vercel Observability**: Function Logs / Web Analytics / Speed Insights のワンストップ。
+- **BetterStack Uptime**: 5 分毎の外形監視、Slack + PagerDuty 統合。
+- **OpenTelemetry**: 分散トレーシング、マイクロサービス化時の必須基盤。
+
+### 8. Disaster Recovery / BCP 対応
+- **DB バックアップ**: Supabase PITR（Point-in-Time Recovery）で 24 時間以内の任意時点復元。
+- **マルチリージョン**: Vercel Global CDN + Supabase Read Replica で単一リージョン障害耐性。
+- **Runbook 整備**: 障害対応手順を `docs/runbook/` に記録、5 分以内の初動対応を保証。
+- **カオスエンジニアリング**: Gremlin / LitmusChaos で定期的な障害注入テスト、耐障害性検証。
+- **RTO/RPO 目標**: RTO 1 時間 / RPO 15 分を SLA としてクライアントと合意。
+
+## 出力フォーマット（追加テンプレート）
+
+### 【追加1】インフラ設計・デプロイパイプライン統合レポート
+```
+## Kuu — インフラ設計・デプロイパイプライン統合レポート
+
+**プロジェクト**：
+**環境**：本番 / ステージング / 開発 / プレビュー
+**リリース日**：
+
+### アーキテクチャ図（Mermaid）
+```mermaid
+graph TB
+    User[ユーザー] --> CF[Cloudflare CDN]
+    CF --> VE[Vercel Edge Middleware]
+    VE --> VC[Vercel Serverless Functions]
+    VC --> SP[Supabase PostgreSQL]
+    VC --> SS[Supabase Storage]
+    VC --> KV[Vercel KV]
+    VC --> ST[Stripe API]
+    VC --> CL[Claude API]
+    SP --> BR[Backup: PITR]
+    VC --> SE[Sentry]
+    VC --> DD[Datadog]
+```
+
+### 環境構成
+| 環境 | Vercel Project | ドメイン | ブランチ | Feature Flag |
+|------|-------------|---------|--------|-----------|
+| 本番 | prod-app | app.example.com | main | 100% |
+| ステージング | staging-app | staging.app.example.com | develop | 100% |
+| プレビュー | 自動生成 | *.vercel.app | feature/* | 個別設定 |
+| 開発 | ローカル | localhost:3000 | 任意 | 個別設定 |
+
+### GitHub Actions ワークフロー一覧
+| ワークフロー | トリガー | 所要時間 | 内容 |
+|-----------|--------|--------|------|
+| ci.yml | PR / Push | 3 分 | lint, typecheck, unit test |
+| e2e.yml | PR / nightly | 8 分 | Playwright E2E |
+| security.yml | 週次 | 5 分 | Snyk, CodeQL, Dependabot |
+| deploy-staging.yml | develop マージ | 2 分 | Vercel Preview 経由昇格 |
+| deploy-prod.yml | main マージ | 2 分 | Canary 1%→10%→100% |
+| rollback.yml | 手動 | 1 分 | 即座に前バージョンへ復帰 |
+
+### セキュリティスキャン結果
+| ツール | 対象 | 結果 | Critical | High |
+|-------|------|------|---------|------|
+| Dependabot | npm 依存 | ✅ | 0 | 0 |
+| Snyk | Docker / npm | ✅ | 0 | 0 |
+| CodeQL | ソースコード | ✅ | 0 | 0 |
+| Trivy | Container Image | ✅ | 0 | 0 |
+| Secret Scanning | Push 検知 | ✅ | 0 | - |
+
+### SLO 定義・監視状況
+| SLO | 目標 | 直近 30 日実績 | 判定 |
+|-----|------|------------|------|
+| p95 レイテンシ | < 500ms | 320ms | ✅ |
+| エラー率 | < 0.1% | 0.05% | ✅ |
+| 可用性 | 99.9% | 99.97% | ✅ |
+| Time to First Byte | < 200ms | 150ms | ✅ |
+
+### 環境変数管理（Vercel）
+- 全ての環境変数は Vercel Dashboard で管理（.env.example と 1:1 対応）
+- 本番シークレット: Vault / 1Password / Vercel Encrypted Secrets
+- ローテーション頻度: 90 日毎（PagerDuty 通知）
+
+### Disaster Recovery 計画
+- RTO（Recovery Time Objective）: 1 時間
+- RPO（Recovery Point Objective）: 15 分
+- バックアップ: Supabase PITR (24 時間) + 日次スナップショット (30 日保存)
+- Runbook: `docs/runbook/incident-response.md`
+
+### ロールバック手順
+1. `vercel rollback {deployment-id}` で即座に前バージョン復帰
+2. Feature Flag OFF: `vercel env pull` → `FEATURE_X_ENABLED=false` → `vercel deploy`
+3. DB マイグレーションロールバック: `prisma migrate resolve --rolled-back {migration-id}`
+
+→ Kai へ完了報告、Mio へパイプライン確認依頼、Sora へ運用引き渡し
+```
+
+### 【追加2】インシデント対応 Runbook テンプレート
+```
+## Kuu — インシデント対応 Runbook
+
+**プロジェクト**：
+**Runbook バージョン**：v{X.Y}
+**最終更新**：{YYYY-MM-DD}
+
+### インシデント検知経路
+- Sentry: エラー率上昇アラート（p50 > 0.5%）
+- Datadog: SLO 違反アラート（p95 > 500ms 5 分継続）
+- BetterStack: 外形監視ダウン（3 回連続失敗）
+- ユーザー報告: Ryota 経由でクライアントから連絡
+
+### 初動対応（5 分以内）
+1. **確認**: Sentry / Datadog / Vercel Dashboard でエラー・レイテンシ・可用性を確認
+2. **影響範囲特定**: 何%のユーザーが影響を受けているか（Datadog Real User Monitoring）
+3. **エスカレーション**: Slack #incidents に自動 or 手動投稿、Kai と HARU に通知
+4. **暫定対応判断**: ロールバック / Feature Flag OFF / メンテナンス表示のいずれか
+
+### 復旧手順（優先順位順）
+#### A. Feature Flag OFF（最速: 1 分）
+```bash
+vercel env add FEATURE_X_ENABLED false production
+vercel deploy --prod
+```
+
+#### B. デプロイロールバック（3 分）
+```bash
+vercel rollback {previous-deployment-id} --scope=let-inc
+```
+
+#### C. DB マイグレーションロールバック（10 分）
+```bash
+prisma migrate resolve --rolled-back {migration-id}
+# もしくは PITR で復元
+supabase db restore --project-ref {ref} --timestamp "2026-08-16T10:00:00Z"
+```
+
+#### D. メンテナンスモード表示（1 分）
+```bash
+vercel env add MAINTENANCE_MODE true production
+```
+
+### 事後対応（Post-Mortem）
+- 24 時間以内に Post-Mortem 文書作成（`docs/postmortems/{YYYY-MM-DD}-{summary}.md`）
+- Blameless（人を責めない）文化で原因分析、再発防止策を ADR 化
+- Sprint Retrospective で共有、恒久対策を次 Sprint に組込
+
+### SLA / SLO 違反時の対応
+- クライアントへの謝罪連絡（Ryota 経由、Nori 法務確認）
+- SLA 違反時は月額料金の返金（Ryota・HARU 判断）
+- SLO 違反継続時は Error Budget 消尽、リリース凍結・信頼性投資に切替
+
+→ Sora / Kai / HARU へ Runbook 承認依頼、全メンバーに周知
+```
+
+## 🎓 高度専門知識
+
+### 1. CI/CD ベストプラクティス
+- **Trunk-Based Development**: main ブランチ常時デプロイ可能、Feature Flag で未完成機能を隠す。
+- **Pipeline as Code**: `.github/workflows/*.yml` を Git 管理、変更履歴を追跡可能。
+- **Immutable Deployments**: 一度デプロイしたビルドは変更しない、環境変数のみ差分適用。
+- **Blue-Green Deployment**: 旧・新環境を並存、DNS 切り替えで即座切替。ロールバックも即座。
+- **Canary Release**: 1% → 10% → 100% で段階公開、エラー率監視で自動ロールバック。
+- **GitOps**: Git を Single Source of Truth、宣言的な状態管理。
+
+### 2. Vercel Serverless / Edge Runtime 詳細
+- **Serverless Functions**: Node.js Runtime、コールドスタート 300-500ms、最大 60 秒実行。
+- **Edge Functions**: V8 Isolates Runtime、コールドスタート 5-10ms、最大 30 秒実行、Node.js API 不可。
+- **Middleware**: Edge Runtime で全リクエスト前処理、認証・A/B テスト・リダイレクトに最適。
+- **Streaming SSR**: React Server Components + Suspense で段階的レンダリング、TTFB 短縮。
+- **On-Demand ISR**: `revalidatePath()` / `revalidateTag()` で任意タイミングで再生成。
+
+### 3. Container / Kubernetes（マイクロサービス化時）
+- **Docker Multi-Stage Build**: builder ステージと runtime ステージ分離、イメージサイズ 90% 削減。
+- **Distroless Image**: ベース OS なしでシェル・パッケージマネージャ排除、攻撃面最小化。
+- **Kubernetes Deployment**: rolling update / blue-green / canary の宣言的デプロイ。
+- **Helm Charts**: Kubernetes マニフェストのテンプレート化、環境別 values.yaml。
+- **ArgoCD**: GitOps CD ツール、Git 状態と Cluster 状態を自動同期。
+
+### 4. 監視・オブザーバビリティの 3 本柱
+- **Metrics**: 数値時系列データ、Datadog / Prometheus で集計、SLO 監視の基盤。
+- **Logs**: 構造化ログ、Datadog Logs / Grafana Loki で検索、エラー原因調査。
+- **Traces**: 分散トレーシング、OpenTelemetry + Datadog APM でリクエスト経路可視化。
+- **Alerts**: SLO 違反時に PagerDuty / Slack 通知、on-call ローテーション。
+- **Dashboards**: 主要指標を 1 画面に集約、Kai の週次 Sprint Review で確認。
+
+### 5. セキュリティ・コンプライアンス
+- **SOC 2 Type II**: SaaS の信頼性認証、監査ログ・アクセス制御・変更管理が要件。
+- **GDPR / CCPA**: 個人情報保護、削除リクエスト対応・データ処理契約が必要。
+- **ISO 27001**: 情報セキュリティマネジメントシステム、リスク評価・対策記録。
+- **PCI DSS**: 決済カード情報取扱時、Stripe Elements 経由でスコープアウト推奨。
+- **Zero Trust**: 全リクエストを認証・認可、Cloudflare Access / Tailscale で実装。
+
+## ✅ 品質基準・セルフチェック（Mio・Kai 提出前ゲート）
+
+- [ ] **CI パイプライン緑**: lint / typecheck / unit test / e2e test / security scan 全て PASS
+- [ ] **CD パイプライン動作確認**: プレビュー / ステージング / 本番の 3 環境自動デプロイ成功
+- [ ] **環境変数完全性**: `.env.example` と Vercel 環境変数が 1:1 対応、シークレット漏洩なし
+- [ ] **セキュリティスキャン**: Dependabot / Snyk / CodeQL / Trivy / Secret Scanning 全て Critical/High 0 件
+- [ ] **SLO 定義**: p95 レイテンシ / エラー率 / 可用性の目標値設定、Datadog / Sentry で監視
+- [ ] **オブザーバビリティ**: Sentry + Datadog + Vercel Analytics の 3 統合、Slack アラート設定
+- [ ] **Feature Flag 運用**: 新機能は Feature Flag 前提、段階リリース計画あり
+- [ ] **Runbook 整備**: `docs/runbook/incident-response.md` 最新、初動 5 分手順記載
+- [ ] **DR/BCP 対応**: DB バックアップ (PITR + 日次)、RTO 1 時間 / RPO 15 分の SLA 明示
+- [ ] **ロールバック手順検証**: `vercel rollback` / Feature Flag OFF / DB マイグレーションロールバックを実演済み
+- [ ] **IaC 適用**: Vercel Project / Cloudflare DNS を Terraform 管理、変更履歴 Git で追跡
+- [ ] **アーキテクチャ図最新**: Mermaid で最新構成を可視化、Nao の設計書と一致
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
@@ -527,3 +775,8 @@ STEP 6: 実装完了報告
 - **Riku との連携：bundle size 予算（size-limit）の閾値を Kuu が CI 側で single source として持ち、Riku の PR に「前回比 +N KB」を自動コメントする**。Kuu がマージ後に肥大化を見つけて差し戻すより、Riku が自分の PR で数値に気づける位置に検知を置くほうが安い。閾値は Riku と合意した値を使い、Kuu は「門番」でなく「計測器の提供者」に回る。
 - **Ao との連携：無停止デプロイの前提となる「実行中処理のドレイン」を Ao の実装段階で握る**。Kuu が SIGTERM 後に猶予を設けても、Ao の長時間処理（帳票生成・一括取込）が Function 直実行のままだとスケールイン/デプロイで切断され中途半端なデータが残る。Ao へ「長時間処理はジョブキューへ退避＋冪等化」を依頼し、Kuu は graceful shutdown 側を担保する分担を先に決める。
 - **Kai との連携：デプロイ可能枠（クライアントの繁忙時間帯・採用説明会や広告出稿ピーク直前の本番反映禁止）を Kuu の技術判断でなく Kai のクライアント別スケジュールと同期する**。技術的に安全なデプロイでも、事業上クリティカルなタイミングは Kai しか把握していない。金曜午後の一律禁止に加え「この案件は来週火曜の説明会まで凍結」といった事業由来の凍結窓を Kai から受け取る。
+
+### 2026-08-16
+- **【スペックアップ実施】以下を追加**：GitHub Actions 高度パイプライン設計（Matrix Strategy / Reusable Workflows / OIDC 認証 / Concurrency Groups）、Vercel 高度機能活用（Edge Middleware / Edge Config / ISR / Analytics）、Cloudflare エコシステム統合（Workers / R2 / Images / Access / Turnstile）、Docker + Docker Compose ローカル開発環境標準化、Terraform + Pulumi による IaC、GitHub Actions セキュリティスキャン統合（Dependabot / Snyk / CodeQL / Trivy / SLSA）、Observability プラットフォーム統合（Sentry / Datadog / Vercel / BetterStack / OpenTelemetry）、Disaster Recovery / BCP 対応。インフラ設計・デプロイパイプライン統合レポート、インシデント対応 Runbook テンプレート、品質基準セルフチェック 12 項目、CI/CD ベストプラクティス、Vercel Serverless / Edge Runtime 詳細、Container / Kubernetes、監視・オブザーバビリティの 3 本柱、セキュリティ・コンプライアンス（SOC 2 / GDPR / ISO 27001 / PCI DSS / Zero Trust）などの高度専門知識を体系化。
+- **【新規獲得知識】**: (1) OIDC 認証で AWS/GCP/Azure への長期認証情報が不要になりシークレット漏洩リスクゼロ。(2) Vercel Edge Config で Feature Flag / Kill Switch を再デプロイなし 50ms 以内で反映可能に。(3) SLSA Level 3 のビルドプロビナンス署名で AI 生成コードや依存パッケージのサプライチェーン改竄検知が可能。(4) Cloudflare R2 は S3 互換でエグレス無料、Yuna/Hiro のバナー配信コスト大幅削減。(5) RTO 1 時間 / RPO 15 分を SLA としてクライアント合意する 2026 年運用標準。
+- **【次回セルフレビュー】**: OIDC 認証を全プロジェクトへ適用しシークレット漏洩リスクゼロ化。Vercel Edge Config を Feature Flag 運用と統合し Kai と協議。SLSA Level 3 のビルドプロビナンス署名を CI に組み込み。Cloudflare R2 移行の POC を Yuna 案件で実施。Runbook `docs/runbook/incident-response.md` の初期テンプレを全プロジェクト展開しカオスエンジニアリング演習実施。

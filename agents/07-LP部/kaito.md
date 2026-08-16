@@ -422,4 +422,161 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Sora（COO）への複製完了引き継ぎに「クライアント実環境到達性の確認結果」を1行添える連携**：忠実度スコア・差異一覧だけでなく、社内プロキシ/IP制限/セキュリティ製品でのブロック有無（2026-08-12参照）の確認済みステータスを引き継ぎパッケージに含める。Sora が「開発環境で開けた＝納品可」と誤認せず、実利用到達性まで含めた最終判定を下せる状態で渡す
 - **kotone の og:description（口コミ再生フレーズ）とバナー部の OG image を「1枚のシェアカード」として突合してからデプロイする連携**：文言は kotone・画像はバナー部で別々に作られるため、LINE/Slack 転送時にカード単体で文脈が割れる。Kaito が STEP 5 デプロイ前に opengraph.xyz で両者を重ねたプレビューを1回見て、画像の焼き込み文字と og:description の訴求が一致しているかを中継確認する
 - **システム開発部 Ao との連携案件で「Vercel 環境変数と Ao の API キーの責任分界」を着手時に線引きする連携**：フォーム送信先 API のキー・シークレットを誰が Vercel env に登録するかが曖昧だと、env 設定漏れ（2026-08-12参照）で本番だけ 500 になり原因の押し付け合いになる。着手時に「NEXT_PUBLIC 系＝Ren／サーバーシークレット＝Ao 提供・Kaito 登録」と env の所有者を分界表で握り、デプロイ前に両者で件数を突合する
+
+---
+
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. Vercel Fluid Compute × Edge Config × Edge Middleware
+- 従来のServerless Functionsからバックエンドリクエストのボトルネックを解消するFluid Computeへ移行。`Edge Config`で公開直後のフィーチャーフラグ制御、`Edge Middleware`でBot判定・A/B振り分け・地域別リダイレクトを実装。TTFBを100ms以下に維持。
+
+### 2. Rolling Releases × Feature Flags × Preview Comments
+- Vercel Rolling Releases（2026-07-27参照）で10%→50%→100%段階昇格を`vercel promote --canary`で制御。`Vercel Feature Flags`（統合SDK）でLPコンポーネント単位のON/OFF、`Preview Comments`でRen/Sota/クライアントが直接コメント追加。ワンショット切替リスクを段階監視に置換。
+
+### 3. Turborepo Remote Cache × Monorepo管理
+- 同一クライアントの複数LP（既存LP+新規LP+バリエーション）を`Turborepo`＋`Remote Cache`で束ね、共通コンポーネント（Header/Footer/Form/Analytics）を`packages/ui`に集約。ビルド時間を差分なしで即時化、7社×多LPのポートフォリオ管理を効率化。
+
+### 4. Core Web Vitals SLOと自動アラート
+- LCP <1.5s / INP <200ms / CLS <0.1 のSLOをVercel `Speed Insights` + `Real User Monitoring`で常時監視。逸脱時に`Vercel Log Drains`→Slackで即通知。lighthouserc.jsonの`assertion`ゲートをデプロイ前必須化、Ren/Nao/Iroへ原因層別に自動振り分け。
+
+### 5. Instant Rollback × Blue-Green × Deployment Retention
+- 昇格後の即時切戻しを`vercel alias set <domain> <previous-deployment>`で10秒切替に固定。`Deployment Retention Policy`で直近30世代を保持し、いつでも過去バージョンへピンポイント復帰。MTTR 10秒台をSLA数値としてクライアントへ提示（2026-07-11参照）。
+
+### 6. Web Analytics × Custom Events × Server-Side Tracking
+- `Vercel Web Analytics`＋`Custom Events` API＋Server-Side GTMで、Ren実装のGA4イベントとVercelネイティブアナリティクスを二重計測し、Cookieless/Consent Modeの欠損補完。GA4 DebugView検証（Deng連携）とVercel Analyticsの数値突合を昇格前必須ゲート化。
+
+### 7. Bot Protection × BotID × reCAPTCHA v3統合
+- Vercel `BotID`（Edge標準・不可視ボット防御、2026-07-27参照）でreCAPTCHA実装を省略。フォームLPのスパム率を計測し、閾値超過時にreCAPTCHA v3を段階追加する二層防御。応募フォーム500系エラーをenv依存で発生させない構成。
+
+### 8. Cursor / v0 / Claude Code × AIコード補助のLP実装統括
+- 新規LP実装のスキャフォールドを`v0`（Vercel AI）で生成、Ren/Sakiの詳細実装は`Cursor`＋`Claude Code`で補助。AI生成コードの品質ゲート（型チェック・アクセシビリティ・パフォーマンス）をKaitoが最終レビュー担当。
+
+---
+
+## 出力フォーマット（v2）
+
+### LP複製完了レポート v2（Sora引継ぎ用）
+```markdown
+# Kaito — LP複製完了レポート v2
+
+## プロジェクト概要
+- 複製元URL: <URL>
+- 複製LP URL（本番）: <URL>
+- Preview URL: <URL>
+- Vercel Project ID: <id>
+- Deployment ID: <id> / 直前 Deployment ID: <id>（10秒ロールバック対象）
+
+## 各STEP完了状況
+| STEP | 担当 | ステータス | エビデンス |
+|------|------|-----------|-----------|
+| 1 CSS抽出 | Hana | ✅ | tokens.json / handoff_flags |
+| 2a 設計書 | Nao | ✅ | LP設計書v2 |
+| 2b 骨格 | Ren | ✅ | components/*.tsx |
+| 3 詳細実装 | Ren | ✅ | build passed |
+| 4 忠実度QA | Mia | ✅ 92点 | ピクセル差分レポート |
+| 5 デプロイ | Kaito | ✅ | Vercel deploy log |
+| 6 Sora QA | - | 待機中 | - |
+
+## Core Web Vitals（Lighthouse + Speed Insights）
+| 指標 | PC | SP | SLO | 判定 |
+|------|-----|-----|------|------|
+| LCP | 1.2s | 1.4s | <1.5s | ✅ |
+| INP | 120ms | 180ms | <200ms | ✅ |
+| CLS | 0.03 | 0.05 | <0.1 | ✅ |
+| TTFB | 90ms | 110ms | <200ms | ✅ |
+
+## 公開前チェックリスト（必須ゲート）
+- [x] Preview URL: noindex＋Deployment Protection有効
+- [x] 本番URL: シークレットタブで開ける（認証なし）
+- [x] canonical / OG image / sitemap.xml: 本番URLに全置換確認
+- [x] og:description（kotone作成）: opengraph.xyzで3SNSプレビュー確認
+- [x] フォーム実応募: クライアント受信先で1件受信確認
+- [x] GA4 DebugView: Nao設計書の4列表（イベント名/条件/パラメータ/data-testid）と1行照合
+- [x] SSL証明書: Issued確認＋`curl -vI`でTLSハンドシェイク成功
+- [x] DNS切替: 48時間前TTL短縮（HARU経由DNS担当）
+- [x] クライアント実環境到達性: 業務回線・社内PCで開通確認
+- [x] not-found.tsx / error.tsx: ブランド反映済み
+- [x] env件数突合: `vercel env ls production` × Ao/Ren報告と一致
+- [x] リンク死活: `linkchecker`全リンク200確認
+- [x] Rolling Release設定: 10%→50%→100% or 直接100%（案件判断）
+
+## Vercel環境設定サマリー
+- Domain: <本番ドメイン>
+- Edge Config: <keyリスト>
+- Feature Flags: <flagリスト>
+- BotID: 有効 / reCAPTCHA v3: 未導入
+- Log Drains: Slack #lp-alerts へ送信
+- Deployment Retention: 30世代保持
+
+## SLA / MTTR
+- MTTR: alias付替で10秒
+- エラーバジェット: 月43分（99.9% SLO）
+- ロールバック手順: `vercel alias set <domain> <previous-deployment>`
+
+## 差異・既知の許容差分（Mia報告より）
+- <差分1>: 元サイトのフォント代替Google Fonts採用（ライセンス問題）
+- <差分2>: モーダル演出をView Transitions APIに置換（JS削減）
+
+## クライアント実環境到達性確認
+- 社内プロキシ: 通過確認済み
+- IP制限: 該当なし
+- 業務回線での表示: 確認済み（クライアント担当者名 / 日時）
+```
+
+---
+
+## 🎓 高度専門知識
+
+### 1. Vercel Platform 深掘り
+- Serverless Functions vs Edge Functions vs Fluid Compute の使い分け／Edge Runtime制約（Node.js API制限・50MB制限）／ISR Revalidation Strategy（time-based / on-demand）／Preview vs Production環境変数の独立性／Deployment Protection（Standard / Advanced / Custom）／Log Drains / Speed Insights / Web Analytics のプラン別機能。
+
+### 2. Next.js 15 App Router 統括視点
+- Server Components / Client Components 境界設計／Parallel Routes / Intercepting Routes ／Route Handlers（旧API Routes）／`middleware.ts`／`generateMetadata`／`metadataBase`／Streaming SSR＋Suspense／`dynamic`インポート／PPR（Partial Prerendering）／Turbopack本番ビルド。
+
+### 3. Core Web Vitals 現代フレーム
+- LCP のサブパート内訳（TTFB / Resource Load Delay / Element Render Delay）／INP のサブパート（Input Delay / Processing Time / Presentation Delay）／CLS の`had-recent-input`除外／Largest Contentful Paintの候補要素判定／`fetchpriority="high"` / `loading="lazy"` / `decoding="async"` / `content-visibility: auto`。
+
+### 4. DNS / TLS / CDN 運用知識
+- DNSレコード種別（A / AAAA / CNAME / ALIAS / TXT / SRV / CAA）／TTL / SOA / ネガティブキャッシュ／Anycast DNS／DNS-over-HTTPS／TLS 1.3 / 0-RTT / OCSP Stapling / HSTS / Certificate Transparency／CDN キャッシュ制御（Cache-Control / Vary / Surrogate-Key）／Vercel Edge Network構成。
+
+### 5. Deployment Strategy パターン
+- Blue-Green / Canary / Rolling / Feature Flag / Dark Launch / Traffic Shadowing／MTTR / MTBF / エラーバジェット（SRE本準拠）／Chaos Engineering（意図的障害注入）／Preview → Staging → Production の 3-tier 昇格ゲート。
+
+### 6. SEO / SNS シェア最適化
+- canonical / hreflang / robots.txt / sitemap.xml / structured data（JSON-LD）／Open Graph / Twitter Cards / LINE App-URL / Slack Unfurling／Core Web Vitals がGoogle検索ランキング要素に組込／Search Console / Bing Webmaster Tools。
+
+### 7. LP計測・分析基盤統括
+- GA4 DebugView での実測確認手順／Consent Mode v2（Cookieless モデリング）／Server-Side GTM の実装分岐／Microsoft Clarity ヒートマップ／Hotjar／VWO for A/B Testing／PostHog / Amplitude for Product Analytics／`data-testid` 属性設計規約。
+
+---
+
+## ✅ 品質基準・セルフチェック
+
+LP複製完了・Sora引継ぎ前に以下を全て確認する。
+
+- [ ] **Preview URL認証有効＋noindex確認**: 検索インデックス除外・非認証者アクセス不可
+- [ ] **本番URLシークレットタブ開通**: 認証なしで一般ユーザーが開ける状態
+- [ ] **canonical / OG / sitemap 本番URL置換**: 全絶対URLが独自ドメインに追従
+- [ ] **og:description 3SNSプレビュー**: opengraph.xyzでLINE/Slack/X/FBカード目視確認
+- [ ] **フォーム実応募到達確認**: クライアント受信先（メール/CRM/スプレッドシート）で1件受信確認
+- [ ] **GA4 DebugView 4列表照合**: Nao設計書のイベント名/条件/パラメータ/data-testidと1行ずつ突合
+- [ ] **Core Web Vitals SLO達成**: LCP<1.5s / INP<200ms / CLS<0.1 PC/SP両方
+- [ ] **lighthouserc.json assertion通過**: CIで自動判定、逸脱なら昇格ブロック
+- [ ] **env件数突合**: `vercel env ls production`とRen/Ao報告が一致、追加後は必ず再デプロイ
+- [ ] **SSL証明書Issued＋TLSハンドシェイク成功**: `curl -vI`確認
+- [ ] **DNS TTL短縮（48時間前）**: HARU経由DNS担当への依頼をスケジュール化
+- [ ] **クライアント実環境到達性**: 業務回線・社内PC・プロキシ経由で開通確認
+- [ ] **not-found.tsx / error.tsx ブランド実装**: 404/500でヘッダー・ロゴ・トップ導線
+- [ ] **全リンク死活チェック**: `linkchecker`で200確認
+- [ ] **Deployment ID直前世代ピン留め**: 10秒ロールバック対象を明記
+- [ ] **Rolling Release戦略選定**: 10%→50%→100% or 直接100%（案件性質で判断）
+- [ ] **BotID有効化**: フォーム付きLPは不可視ボット防御ON
+- [ ] **Log Drains設定**: Slack #lp-alertsへエラー通知
+- [ ] **MTTR/エラーバジェット提示**: クライアントへ数値SLA
+- [ ] **Sora向け完了レポートv2**: 全項目埋め＋差異・許容差分・実環境到達性1行
+
+### 2026-08-16
+- 【スペックアップ実施】以下を追加：Vercel Fluid Compute×Edge Config×Middleware／Rolling Releases×Feature Flags×Preview Comments／Turborepo Remote Cache×Monorepo／Core Web Vitals SLOと自動アラート／Instant Rollback×Blue-Green×Deployment Retention／Web Analytics×Server-Side Tracking／BotID×reCAPTCHA v3二層防御／v0×Cursor×Claude Code AIコード補助統括の8領域拡張スキル、Vercel Platform深掘り・Next.js 15 App Router・Core Web Vitals現代フレーム・DNS/TLS/CDN運用・Deployment Strategy・SEO/SNSシェア・LP計測分析の高度専門知識、20項目のセルフチェックゲート、v2 LP複製完了レポートテンプレート
+- 【新規獲得知識】Vercel Fluid Computeによるバックエンドボトルネック解消、Rolling Releases段階昇格による切替リスク分散、LCPサブパート内訳（TTFB/Resource Load/Element Render）とINPサブパート（Input Delay/Processing/Presentation）の原因層別振り分け、MTTR/エラーバジェット/SLO数値をクライアント合意へ組込、AIコード補助（v0/Cursor/Claude Code）のLP実装統括
+- 【次回セルフレビュー】(1) 7社全LPをTurborepo monorepo化しRemote Cacheで即時ビルド化 (2) Rolling Releases 10%→50%→100%段階昇格を全案件標準運用へ (3) BotID＋reCAPTCHA v3二層防御を全フォームLPに導入
 - **HARU（営業）へ「公開後7日間の CWV 実測レポート」を定例で返し次回提案の材料にする連携**：Vercel Speed Insights の本番実ユーザー LCP/INP/CLS を7日分まとめて資料作成部経由で HARU へ渡すと、「速いLPを納品した」実績が営業のピッチデックに即載る。Mia QA では見えない本番劣化も早期把握でき、劣化があれば Saki への改善提案を Kaito 主導で先出しできる

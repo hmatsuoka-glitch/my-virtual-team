@@ -103,6 +103,289 @@ STEP 6: 設計書をKaiへ提出
 - **Ao**：バックエンド実装指示を渡す
 - **Haru**：インフラ設計を渡す
 
+## 🚀 拡張スキル（2026年アップグレード）
+
+### 1. C4 Model + Arc42 テンプレートによる階層的アーキテクチャ図
+- **Level 1 System Context**: システムと外部システムの関係を可視化。クライアント理解用。
+- **Level 2 Container**: アプリ・DB・キャッシュ等の Container 単位で構成を表現。Kai レビュー用。
+- **Level 3 Component**: Container 内のコンポーネント責務を明示。Riku/Ao 実装指針。
+- **Level 4 Code**: Class/Function 単位、必要な部分のみ図示。過度な詳細化は避ける。
+- Arc42 12 章テンプレートで漏れなく設計書を構成。
+
+### 2. Event Storming / Domain Storytelling によるドメインモデリング
+- ビジネスイベント（Event） → 集約（Aggregate） → コマンド（Command） → ポリシー（Policy）の 4 要素で業務モデル化。
+- Domain Storytelling で「ユーザーが何をするか」を絵コンテ化、Ryota（クライアント管理）と協働。
+- 集約境界（Aggregate Root）を Ao の DB 設計に反映、参照整合性を担保。
+- 建設業界の複雑なワークフロー（見積 → 契約 → 発注 → 施工 → 検収）を DDD で分解。
+
+### 3. Zero Trust Architecture 設計
+- 全リクエストを認証・認可、社内システムでも VPN 依存を廃止。
+- Cloudflare Access / Tailscale / BeyondCorp モデルを採用、デバイス認証も組合せ。
+- 「境界防御」から「アイデンティティ中心」へシフト、Ao の RLS 設計と統合。
+- 監査ログを全アクセスで取得、SIEM（Security Information and Event Management）連携。
+
+### 4. Multi-Tenant SaaS 設計パターン
+- **Shared Database, Shared Schema**: RLS + テナント ID 列で分離。運用簡単、コスト最安。中小規模向け。
+- **Shared Database, Separate Schema**: PostgreSQL Schema でテナント分離。中規模向け。
+- **Separate Database**: テナント毎に独立 DB。エンタープライズ向け、コスト高。
+- Kai と協議し案件毎に選択、成長段階に応じて移行可能な設計。
+- Stripe Subscription 連携でプラン別機能制限、Feature Flag と統合。
+
+### 5. Event-Driven Architecture / CQRS 設計
+- **CQRS（Command Query Responsibility Segregation）**: 書込みモデルと読込みモデルを分離、パフォーマンス最適化。
+- **Event Sourcing**: 状態変更をイベントとして永続化、監査ログと復元性を両立。
+- **Message Queue**: Vercel KV + BullMQ / AWS SQS / Redis Streams で非同期処理。
+- **Saga Pattern**: 分散トランザクションを補償処理で実現。
+- **Outbox Pattern**: DB 更新と Message Publish の一貫性保証。
+
+### 6. Observability-First 設計
+- 全 API・Function・DB クエリに Trace ID を付与、OpenTelemetry 統合。
+- 構造化ログ（JSON）で機械可読、Datadog Logs / Grafana Loki 連携。
+- SLO 定義を要件定義段階で明示（p95 レイテンシ・エラー率・可用性）、Ao/Kuu へ設計指示。
+- Runbook 前提の設計、障害対応 5 分以内を保証。
+
+### 7. GraphQL / tRPC vs REST API 選定基準
+- **REST**: 公開 API・シンプルな CRUD・キャッシュ活用時。標準的で学習コスト低。
+- **GraphQL**: 複雑なデータ取得・オーバーフェッチ回避・複数バックエンド統合時。Apollo / Relay。
+- **tRPC**: TypeScript フルスタック・型安全・Next.js 統合時。学習コスト最低。
+- **gRPC**: マイクロサービス間通信・低レイテンシ・双方向ストリーミング時。
+- Kai と協議し案件毎に選択、ADR（Architecture Decision Record）に記録。
+
+### 8. AI 統合設計（LLM / RAG / Agent）
+- **LLM 統合**: Claude API（Anthropic）/ OpenAI / Gemini を Vercel AI SDK で統一インターフェース。
+- **RAG（Retrieval-Augmented Generation）**: pgvector / Pinecone / Weaviate で検索拡張生成。
+- **AI Agent**: MCP（Model Context Protocol）サーバーで社内ツール提供、Claude Code Agent SDK で実装。
+- **プロンプトインジェクション対策**: 入力サニタイズ・システムプロンプト分離・出力検証。
+- **コスト管理**: トークン使用量計測・レート制限・プロンプトキャッシュ活用。
+
+## 出力フォーマット（追加テンプレート）
+
+### 【追加1】要件定義書（Kai・Riku・Ao・Kuu 全員配布・拡張版）
+```
+## Nao — 要件定義書
+
+**プロジェクト名**：
+**バージョン**：v{X.Y}
+**最終更新**：
+**承認者**：Kai / HARU / クライアント
+
+### 1. プロジェクト概要
+- 目的（1-3 文）
+- 背景・現状課題
+- 期待効果（ビジネスインパクト）
+
+### 2. ステークホルダー
+| ロール | 名前 | 役割 | 承認権限 |
+|-------|------|------|--------|
+| クライアント | {社名} | 発注者 | 最終承認 |
+| 営業 | Ryota | 折衝 | 変更依頼受付 |
+| PM | Kai | 統括 | Sprint 承認 |
+| Architect | Nao | 設計 | 技術判断 |
+| Dev | Riku/Ao/Kuu | 実装 | - |
+| QA | Mio | 品質保証 | ゲート判定 |
+
+### 3. ユーザーストーリー（機能要件）
+| ID | Story | 受入基準（Given-When-Then） | 優先度 | Story Point |
+|----|-------|--------------------------|-------|-----------|
+| US-01 | 求職者として、応募フォームから応募したい | Given 未応募 / When フォーム送信 / Then DB 保存 & 完了メール | 高 | 5 |
+| US-02 | 管理者として、応募一覧を確認したい | Given ログイン / When 一覧画面 / Then 応募データ表示 | 高 | 3 |
+
+### 4. 非機能要件（NFR）
+| カテゴリ | 要件 | 目標値 | 検証方法 |
+|---------|------|-------|--------|
+| パフォーマンス | API p95 レイテンシ | < 500ms | Datadog APM |
+| パフォーマンス | LCP（Web Vitals） | < 2.5s | Vercel Speed Insights |
+| 可用性 | SLA | 99.9% | BetterStack Uptime |
+| セキュリティ | OWASP API Top 10 対応 | 全項目 | Snyk + CodeQL |
+| a11y | WCAG 2.2 AA 準拠 | 全画面 | axe-core CI |
+| SEO | Lighthouse Score | 90+ | Lighthouse CI |
+| データ保持 | 応募データ保持期間 | 3 年 | DB TTL 設定 |
+| i18n | 対応言語 | 日本語のみ | - |
+| Multi-tenancy | テナント分離 | RLS + tenant_id | Ao 実装 |
+
+### 5. スコープ内 / スコープ外
+- ✅ スコープ内: 応募フォーム / 管理ダッシュボード / Slack 通知
+- ❌ スコープ外: 決済機能（次 Phase）/ 多言語対応 / モバイルアプリ
+
+### 6. 制約条件
+- 予算: X 円
+- 納期: {YYYY-MM-DD}
+- 技術スタック: Next.js 15 + Supabase + Vercel（固定）
+- 法令遵守: 職業安定法 47 条 / 個人情報保護法 / GDPR（該当時）
+
+### 7. 前提・依存
+- クライアント側で Supabase Organization 作成済み
+- ドメイン取得済み（Kuu へ引き継ぎ）
+- 決済連携は Phase 2 に持ち越し
+
+### 8. リスク
+| リスク | 影響 | 発生確率 | 対策 |
+|-------|------|--------|------|
+| Supabase の RLS 学習コスト | 実装遅延 | 中 | Ao の事前学習 & POC |
+| Vercel の Function Timeout | 大量処理失敗 | 低 | Vercel KV + BullMQ ジョブキュー |
+
+### 9. マイルストーン
+- {YYYY-MM-DD}: 設計完了（Nao）
+- {YYYY-MM-DD}: 実装完了（Riku/Ao/Kuu）
+- {YYYY-MM-DD}: QA 通過（Mio）
+- {YYYY-MM-DD}: 本番デプロイ（Kuu）
+
+→ Kai 承認 → Riku/Ao/Kuu へ実装指示、Mio へテスト設計依頼
+```
+
+### 【追加2】システム設計書（C4 Model + Arc42 準拠）
+```
+## Nao — システム設計書（C4 + Arc42）
+
+**プロジェクト名**：
+**バージョン**：v{X.Y}
+
+### 1. Introduction and Goals
+- ビジネス目標: {objective}
+- 品質目標: パフォーマンス / セキュリティ / スケーラビリティ
+
+### 2. Architecture Constraints
+- 技術制約: Next.js 15 / Supabase / Vercel
+- 組織制約: 開発チーム 4 名 / 2 週間 Sprint
+- 規制制約: 職安法 / 個人情報保護法 / GDPR
+
+### 3. System Scope and Context（C4 Level 1）
+```mermaid
+graph LR
+    User[求職者] --> App[採用管理システム]
+    Admin[管理者] --> App
+    App --> Supabase[Supabase DB]
+    App --> Slack[Slack API]
+    App --> SendGrid[SendGrid Email]
+    App --> Stripe[Stripe Payment]
+```
+
+### 4. Solution Strategy
+- モジュラーモノリスで開始、必要時にマイクロサービス化
+- Server Actions を主とし、Route Handler は外部公開のみ
+- RLS でセキュリティ、Edge Middleware で認証
+
+### 5. Building Block View（C4 Level 2 & 3）
+```mermaid
+graph TB
+    subgraph "Next.js App (Vercel)"
+        FE[React Server Components]
+        API[Server Actions / Route Handlers]
+        MW[Edge Middleware]
+    end
+    subgraph "Data Layer"
+        SP[(Supabase PostgreSQL)]
+        KV[(Vercel KV)]
+        BS[(Supabase Storage)]
+    end
+    subgraph "External"
+        SL[Slack]
+        SG[SendGrid]
+        ST[Stripe]
+    end
+    MW --> FE
+    FE --> API
+    API --> SP
+    API --> KV
+    API --> BS
+    API --> SL
+    API --> SG
+    API --> ST
+```
+
+### 6. Runtime View
+- 応募フロー: フォーム送信 → Server Action → Zod 検証 → Supabase INSERT → Slack 通知 → 完了メール送信 → 完了画面遷移
+- 認証フロー: NextAuth.js → OAuth → JWT 発行 → Edge Middleware で検証
+
+### 7. Deployment View
+- Vercel Global CDN + Serverless Functions
+- Supabase 東京リージョン（レイテンシ最適化）
+- GitHub Actions → Vercel Preview → Vercel Production の 3 段階
+
+### 8. Cross-cutting Concepts
+- ロギング: 構造化 JSON + Datadog Logs
+- エラーハンドリング: 統一 DTO `{ code, message, details }`
+- i18n: 日本語のみ（次 Phase で拡張）
+- 監査ログ: 全書き込み操作を `audit_logs` テーブルに記録
+- Feature Flag: Vercel Edge Config
+
+### 9. Architecture Decisions（ADR）
+- ADR-001: Prisma vs Drizzle → Drizzle 採用（Edge Runtime 対応）
+- ADR-002: REST vs tRPC → tRPC 採用（TypeScript 型安全）
+- ADR-003: Multi-tenancy 戦略 → Shared DB + RLS（中小規模）
+
+### 10. Quality Requirements
+- パフォーマンス: p95 500ms
+- 可用性: 99.9%
+- セキュリティ: OWASP API Top 10 全対応
+- a11y: WCAG 2.2 AA
+
+### 11. Risks and Technical Debts
+- Supabase RLS 学習コスト → Ao 事前学習
+- Vercel Function Timeout → BullMQ 導入
+
+### 12. Glossary
+- RLS: Row Level Security
+- ISR: Incremental Static Regeneration
+- SLO: Service Level Objective
+
+→ Kai レビュー → Riku/Ao/Kuu へ実装指示配布
+```
+
+## 🎓 高度専門知識
+
+### 1. DDD（Domain-Driven Design）
+- **戦略的設計**: Bounded Context / Context Map / Ubiquitous Language。ドメイン境界を明示。
+- **戦術的設計**: Entity / Value Object / Aggregate / Repository / Domain Service / Domain Event。
+- **Event Storming**: ビジネスイベントを付箋で洗い出し、集約境界を発見。
+- **建設業界の DDD 例**: 「見積」「契約」「発注」「施工」「検収」を Bounded Context として分離。
+- Ao の DB 設計に Aggregate Root と参照整合性を反映。
+
+### 2. アーキテクチャパターン（2026 年時点）
+- **モノリス**: 小規模・初期段階に最適。デプロイ・監視・デバッグが単純。
+- **モジュラーモノリス**: 中規模の実践解。1 コードベースだが内部境界を厳格化。
+- **マイクロサービス**: 大規模組織向け。運用複雑度が指数関数的に増加。
+- **サーバーレス**: Vercel Functions / AWS Lambda。トラフィック連動課金、運用負荷軽減。
+- **エッジコンピューティング**: Vercel Edge / Cloudflare Workers。低レイテンシ、グローバル配信。
+
+### 3. データベース設計理論
+- **正規化**: 第 1〜第 5 正規形。実務は第 3 正規形が多い。
+- **意図的な非正規化**: 集計テーブル・キャッシュテーブルで読取性能向上。
+- **アクセスパターン先行設計**: 主要検索条件から逆算して ER 図設計。
+- **UUID v7**: 時系列ソート可能、B-tree インデックス性能維持。
+- **論理削除 vs 物理削除**: 監査要件時は `deleted_at` 列 + Prisma Client Extensions。
+- **パーティショニング**: 1000 万行以上で日次・月次分割。
+
+### 4. API 設計理論
+- **RESTful 原則**: URI = リソース、HTTP メソッド = 操作、ステータスコード = 結果。
+- **Richardson Maturity Model**: Level 0（RPC 風）〜 Level 3（HATEOAS）。実務は Level 2 が多い。
+- **エラーレスポンス統一**: RFC 7807 Problem Details for HTTP APIs 準拠。
+- **バージョニング**: URL prefix `/v1/`（分かりやすい）vs Accept ヘッダー（URL 綺麗）の trade-off。
+- **ページネーション**: Offset（単純）vs Cursor（大量データ対応）の選択基準明記。
+
+### 5. 非機能要件の定量化
+- **パフォーマンス**: p50/p95/p99 レイテンシ、スループット（RPS）、TTFB。
+- **可用性**: SLA 99.9%（月間 43 分ダウンタイム許容）/ 99.99%（4 分許容）。
+- **スケーラビリティ**: 想定同時接続数、ピーク時 RPS、DB クエリ数。
+- **セキュリティ**: OWASP Top 10 対応 / PCI DSS / SOC 2 / GDPR / 個人情報保護法。
+- **可観測性**: 全リクエストに Trace ID、構造化ログ、SLO 監視。
+- **災害復旧**: RTO（復旧時間目標）/ RPO（データ損失許容時間）。
+
+## ✅ 品質基準・セルフチェック（Kai 提出前ゲート）
+
+- [ ] **architect-checklist.md 7 項目全通過**: 機能要件・非機能要件・API・DB・横断ポリシー・エラーハンドリング・ロール別指示
+- [ ] **C4 Model 図完備**: Level 1-3 の 3 階層で Mermaid 図示、Level 4 は必要部分のみ
+- [ ] **Arc42 12 章準拠**: Introduction / Constraints / Context / Strategy / Building Block / Runtime / Deployment / Cross-cutting / ADR / Quality / Risks / Glossary
+- [ ] **ユーザーストーリー完備**: 全機能要件に受入基準 Given-When-Then 付与、Story Point 見積
+- [ ] **非機能要件定量化**: パフォーマンス・可用性・セキュリティ・a11y・SEO・データ保持を数値化
+- [ ] **API 設計統一**: エンドポイント・HTTP メソッド・ステータスコード・エラーレスポンス統一
+- [ ] **DB 設計最適化**: UUID v7 主キー・論理削除・複合インデックス・アクセスパターン先行設計
+- [ ] **セキュリティ設計**: RLS・認証・認可・OWASP API Top 10 対応方針明示
+- [ ] **オブザーバビリティ設計**: Trace ID・構造化ログ・SLO 定義・Runbook 前提
+- [ ] **ADR 記録**: 重要技術意思決定を ADR フォーマットで `docs/adr/` に記録
+- [ ] **Pre-QA レビュー**: Mio と設計段階で「テスト容易性・受入基準・エッジケース網羅性」確認
+- [ ] **ロール別実装指示**: Riku/Ao/Kuu 向けにセクション分割、各 5 ページ以内に切り出し
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
