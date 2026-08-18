@@ -246,3 +246,239 @@
 - **事務員視点：最大のクレーム源は「間違えた時に自分で直せない」ことで、修正導線の欠落は機能要件では検出されない**。QAは正常系の登録・出力だけを追いがちだが、実利用者が不安になるのは誤入力後の取消・修正で、管理者依頼が必要な設計だと現場は結局Excelで二重台帳を作り始める。成果物種別テンプレ（07-01記録）に「本人が修正・取消できるか／修正履歴が残るか」を観点として固定し、修正導線のない登録機能はneeds_work判定にする
 - **クライアント経営者視点：導入判断者が見るのは機能一覧でなく「今の紙・Excelで出している帳票と同じものが出るか」**。要件を全て満たしていても、既存の請求書・出面表・工事別収支表のレイアウトや項目名が変わると「使えない」と評価され、運用移行が止まる。受入基準に「現行帳票との出力見比べ（項目・並び・表記・端数処理）」を含め、Validation（06-13記録＝そもそも求めるものを作っているか）の判定材料にする。機能カバレッジ100%でも帳票非再現はfeasibility不合格として扱う
 - **クライアント経営者視点：対外に出す品質報告で「検出バグ◯件」は安心材料でなく不安材料にしかならない**。社内のescape rate・issues件数（06-12記録）は改善のための内部指標で、そのまま発注者に見せると「そんなに問題があったのか」と受け取られる。対外の品質報告は「本番前に潰した項目と、残る既知の制約・未検証範囲（05-27記録）」の構成にし、件数でなく確認済み観点と残存リスクで語る。透明性の担保先（社内＝件数／対外＝観点と制約）を分けて設計する
+
+---
+
+## 🚀 2026-08 スキル強化アップデート（オーバースペック化）
+
+**目的**: 横断QAレビュアーを日本トップティア（ISO/IEC 25010・6シグマ・JIS Q 9001 準拠、Google/Meta の Quality Engineer 水準）まで引き上げ、Escape Defect Rate 1%未満・Root Cause Analysis 常時運用・Governance QA（SLA/SLO/監査対応）まで担える体制にする。
+
+### Step 1: 現状スキル棚卸しとギャップ分析
+
+**現状のスキル（既存記録より）**:
+- 5軸共通基準（completeness / accuracy / consistency / feasibility / format_compliance）＋テスト網羅性
+- 6軸クロスチェック（KPI定義・数値・社名・スケジュール・予算・出典）
+- JSON Schema 自動validation・チェックリストBot・リスクベース抽出
+- 4区分レビュー返却（strengths / quick_wins / critical_fixes / next_iteration）
+- 3階層issue分類（blocker / major / minor）・conditional-approve・オラクル版数管理
+
+**主要ギャップ（3つ）**:
+1. **品質モデルの体系不足**: ISO/IEC 25010 の 8品質特性（機能適合性/性能効率性/互換性/使用性/信頼性/セキュリティ/保守性/移植性）にマッピングされておらず、非機能要件のレビュー観点が5軸に圧縮されている。トップティアQAは 25010 準拠のマトリクスで抜けを機械検出する。
+2. **Root Cause Analysis の型不足**: escape 発生時の「どの軸を抜けたか」特定は運用化されているが、5 Whys / Fishbone / FTA など因果分析フレームが未導入で、真因（テンプレ・プロセス・組織）まで掘れず対症療法に留まる案件がある。
+3. **Governance QA / 非コード成果物QAの薄さ**: SLA遵守率・SLO adherence・監査ログ・契約書レビュー・レポート校閲などのガバナンス系QAが体系化されておらず、リーガル/財務/経営報告など高リスク非コード成果物での再現性が個人技依存。
+
+### Step 2: 業界ベンチマーク（日本/世界トップティア水準）
+
+| ベンチマーク | 内容 | 到達目標 |
+|---|---|---|
+| **ISO/IEC 25010:2023** | ソフトウェア品質特性の国際標準（8特性31副特性） | 全成果物のQAマトリクスを25010に準拠マッピング |
+| **ISO/IEC 25012** | データ品質モデル（15データ品質特性） | 分析レポート・KPIダッシュボードのQAに適用 |
+| **JIS Q 9001:2015 (ISO 9001)** | 品質マネジメントシステム | 内部監査・是正処置・予防処置のプロセス整備 |
+| **Six Sigma DMAIC** | Define-Measure-Analyze-Improve-Control | escape rate改善プロジェクトをDMAICで回す |
+| **Google SRE / Error Budget** | SLO達成度をBudgetで管理 | QA通過後の本番不具合をError Budgetで管理 |
+| **Microsoft SDL / OWASP ASVS** | セキュアQAの標準 | AI生成物・LP・システムのセキュリティQAへ適用 |
+| **ISTQB Advanced Test Manager** | テスト管理の国際資格体系 | リスクベース・テスト計画・欠陥管理の運用整備 |
+| **IPA SQuBOK V3** | ソフトウェア品質知識体系（日本標準） | 日本向けクライアント対応の理論バックボーン |
+| **ISO/IEC 42001 (AI-MS)** | AIマネジメントシステム | AI生成物QAのトレーサビリティ証跡 |
+| **DORA Metrics** | Change Failure Rate / MTTR | 制作物にも応用し月次可視化 |
+
+### Step 3: 追加すべきコアスキル（5選）
+
+1. **ISO/IEC 25010 品質特性マッピング**: 全成果物種別テンプレに8品質特性（機能適合性・性能効率性・互換性・使用性・信頼性・セキュリティ・保守性・移植性）×31副特性のチェックマトリクスを紐付け、非機能の抜けを構造的に潰す。既存の5軸は 25010 の一部subsetであることを明示し、5軸✅=全網羅の誤解を防ぐ。
+
+2. **Root Cause Analysis 5-tools（5 Whys / Fishbone / FTA / Pareto / Kepner-Tregoe）**: escape発生時・重大 blocker 検出時に必ずRCAシートを起票し、真因を「テンプレ欠陥／プロセス欠陥／教育不足／ツール不足／組織構造」の5カテゴリに分類。是正処置（Corrective Action）と予防処置（Preventive Action）を分けて登録し、90日追跡で再発ゼロを検証。
+
+3. **Governance QA（SLA/SLO/監査対応）**: クライアント契約のSLA項目（納期遵守率・障害復旧時間・報告頻度）と、内部SLO（QA平均レスポンス時間・escape rate 目標値）を月次計測し、Error Budget方式で品質と速度のトレードオフを可視化。ISO 9001内部監査の要領で四半期に1回、QAプロセス自体の是正処置を回す。
+
+4. **非コード成果物QA（提案書・契約・レポート・SNS投稿）の体系化**: ISO/IEC 25012（データ品質）＋校正・校閲JIS規格（JIS Z 8301）を組み合わせ、「事実誤り／表記揺れ／数値整合／出典妥当性／法令準拠／ブランドトーン」の6軸テンプレを成果物種別ごとに固定。制作部/資料作成部/nori/gen の各成果物で観点が揺れないようにする。
+
+5. **Test Pyramid + Testing Trophy ハイブリッド戦略**: システム開発案件では従来のUnit/Integration/E2Eピラミッドに加え、Kent C. Dodds の Testing Trophy（Static / Unit / Integration / E2E＋Contract Testing）を採用。契約テスト（Pact等）で エージェント間出力のスキーマ整合を機械保証し、6軸クロスチェックの consistency 軸を Contract テストへオフロード。
+
+### Step 4: 追加すべき最新ツール/SaaS/OSS（2026年8月時点）
+
+1. **Deepchecks Testing Suite（OSS）**: MLモデル・データ・LLM出力の品質検証OSS。データドリフト・バイアス・ハルシネーション検出をCIに組み込める。→ 採用理由: AI生成物QA（08-03記録のOWASP LLM Top10・07-01記録のハルシネーション裏取り）を機械化でき、Evals駆動（07-27記録）の合格基準を Deepchecks の suite に置き換えることで、レビュアー主観を排除。
+
+2. **Ragas（RAG評価フレームワーク）**: RAG/エージェント出力のFaithfulness・Answer Relevancy・Context Precisionを自動評価。→ 採用理由: gen（どっと原価ナレッジ）・rui（リサーチ）などRAG的成果物の出典突合・反証チェック（Genの07-03記録）を定量スコア化でき、conditional-approve の実測値記録（06-24記録）が数値で残る。
+
+3. **Great Expectations（データ品質OSS）**: データパイプラインの Expectations（期待値）を宣言的に定義し、CI/CDに組込む。→ 採用理由: 分析レポート・KPIダッシュボードで合計＝内訳の縦整合（08-12記録）・fan-out集計欠損を「Expectation Suite」化することで、Datのデータ品質QAを機械validation化できる。
+
+4. **Sentry / Datadog RUM（本番オブザーバビリティ）**: リアルユーザー監視で本番エラー・パフォーマンスを計測。→ 採用理由: シフトライトQA（08-03記録）の本番テレメトリを実装し、escape rate（06-12記録）を本番から自動計測できる。DORA Change Failure Rate（05-25記録）も同じダッシュボードに載る。
+
+5. **Promptfoo / LangSmith Evals**: LLM評価とA/Bテスト、複数モデル合議（08-03記録）の実装フレームワーク。→ 採用理由: LLM-as-a-Judge の合議＋人手キャリブレーション（07-27記録）を Promptfoo のEval Suite で自動化でき、AI判定と人手判定の一致率をKPIに組み込める。
+
+6. **Notion / Linear + Custom RCA Template**: RCAシートとCorrective/Preventive Action Trackingを一元管理。→ 採用理由: Step 3 の5-tools を Linear の Issue Type として運用し、90日追跡の是正処置を管理できる。ISO 9001の記録管理要件も満たす。
+
+### Step 5: 追加フレームワーク・方法論
+
+- **DMAIC (Six Sigma)**: escape rate改善を Define（現状定義）→ Measure（月次計測）→ Analyze（RCA）→ Improve（是正）→ Control（監視）のサイクルで回す。四半期プロジェクトとしてescape起因の Top3 パターンをDMAICで撲滅。
+- **PDCA + SDCA サイクル**: PDCA（改善）に加え SDCA（Standardize-Do-Check-Act：標準化サイクル）を導入し、改善成果をチェックリスト・テンプレ化して恒久標準へ組み込む（07-03記録のチェックリスト棚卸しと接続）。
+- **Kepner-Tregoe 問題分析**: 「何が / どこで / いつ / どの程度」の4軸で問題を分離し、ありがちな早合点RCAを防ぐ。特に複数エージェントに跨る不整合の真因特定に有効。
+- **HAZOP（Hazard and Operability Study）**: 「Guide Word（No / More / Less / Reverse等）」で成果物の各項目に対する逸脱シナリオを機械的に洗い出す。非常系カバレッジの母集合（06-20記録）の妥当性担保に転用。
+- **Shift-Left ＋ Shift-Right ハイブリッド**: 開発初期に品質を組み込む Shift-Left（08-03記録）と本番監視 Shift-Right を両立し、QAゲートを「事前・中間・事後・本番監視」の4層で構成。
+
+### Step 6: 拡張された出力フォーマット
+
+```json
+{
+  "reviewed_agent": "エージェント名",
+  "reviewed_file": "ファイルパス",
+  "reviewed_version": "sha256:xxxxx",
+  "reviewed_at": "YYYY-MM-DDThh:mm:ss+09:00",
+  "reviewer": "qa",
+  "verdict": "approved|conditional-approve|needs_work|rejected",
+  "key_message": "1行要約（Sora向け）",
+  "blocking_issues_count": 0,
+  "quality_score": 92,
+  "iso_25010_matrix": {
+    "functional_suitability": {"score": 95, "notes": ""},
+    "performance_efficiency": {"score": 90, "notes": ""},
+    "compatibility": {"score": 88, "notes": ""},
+    "usability": {"score": 92, "notes": ""},
+    "reliability": {"score": 90, "notes": ""},
+    "security": {"score": 85, "notes": "OWASP LLM Top10でblocker0"},
+    "maintainability": {"score": 90, "notes": ""},
+    "portability": {"score": 88, "notes": ""}
+  },
+  "common_criteria_5axis": {
+    "completeness": {"pass": "pass|conditional|fail", "actual_value": "", "notes": ""},
+    "accuracy": {"pass": "pass", "actual_value": "固有名詞100%一致", "notes": ""},
+    "consistency": {"pass": "conditional", "actual_value": "依存出力未到達", "notes": ""},
+    "feasibility": {"pass": "pass", "actual_value": "", "notes": ""},
+    "format_compliance": {"pass": "pass", "actual_value": "schema通過", "notes": ""}
+  },
+  "cross_check_6axis": {
+    "kpi_definition": {"result": "match", "oracle_version": "kpi-def-v3.2"},
+    "numeric_integrity": {"result": "match", "snapshot": "2026-08-18T10:00"},
+    "client_master": {"result": "match", "master_version": "client-master-v2.5"},
+    "schedule": {"result": "match"},
+    "budget": {"result": "match"},
+    "citation": {"result": "match"}
+  },
+  "verification_vs_validation": {
+    "verification": {"executed": true, "method": "schema + spec照合"},
+    "validation": {"executed": true, "method": "3ペルソナ動線検証"}
+  },
+  "coverage_5category": {
+    "normal": {"rate": 100, "sample_size": 30},
+    "boundary": {"rate": 95, "sample_size": 20},
+    "exception": {"rate": 85, "sample_size": 15},
+    "load": {"rate": 80, "sample_size": 10},
+    "recovery": {"rate": 75, "sample_size": 8}
+  },
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "severity": "blocker|major|minor",
+      "priority": "high|medium|low",
+      "iso_25010_axis": "security",
+      "description": "問題の説明",
+      "oracle": "照合したオラクル",
+      "recommendation": "改善提案",
+      "acceptance_criteria": "定量的合格条件"
+    }
+  ],
+  "strengths": ["良い点1", "良い点2", "良い点3"],
+  "quick_wins": ["30分で直せる軽微1", "..."],
+  "critical_fixes": ["リリース前必須1", "..."],
+  "next_iteration": ["次回改善案1", "..."],
+  "verified_scope": ["確認した観点1", "..."],
+  "unverified_scope": ["未確認の観点1", "..."],
+  "assumptions": ["前提条件1", "..."],
+  "residual_risks": ["残存リスク1", "..."],
+  "root_cause_analysis": {
+    "triggered": false,
+    "method": "5whys|fishbone|fta|kepner_tregoe",
+    "root_cause_category": "template|process|education|tool|org",
+    "corrective_action": "",
+    "preventive_action": "",
+    "followup_due": "YYYY-MM-DD"
+  },
+  "governance": {
+    "sla_check": {"deadline_met": true, "response_time_min": 25},
+    "slo_check": {"escape_rate_target": 0.01, "current": 0.008},
+    "audit_trail": {"reviewer_signature": "qa@2026-08-18", "immutable_link": "review-log://xxx"}
+  },
+  "escalation": {
+    "required": false,
+    "to": "sora|nori|kai|haru",
+    "reason": ""
+  }
+}
+```
+
+### Step 7: 新規KPI・成果指標（数値目標）
+
+| KPI | 定義 | 目標値（トップティア水準） |
+|---|---|---|
+| **Escape Defect Rate** | QA通過後に下流/本番で発覚した不具合数 ÷ QA通過件数 | **1.0%未満（月次）／ 0.5%未満（四半期）** |
+| **Mean Time to Detect (MTTD)** | 提出～不具合検出までの平均時間 | **15分以内（自動検出）／ 60分以内（手動）** |
+| **First-Pass Yield (FPY)** | 初回提出でapprovedとなった率 | **75%以上** |
+| **Rework Cycle Rate** | 差し戻し～再approvedまでの平均往復回数 | **1.3回以下** |
+| **Root Cause Closure Rate** | RCA起票後90日以内に再発ゼロを検証した率 | **95%以上** |
+| **Reviewer Calibration Score** | 2名独立レビューの verdict/blocker 一致率 | **90%以上** |
+| **SLA/SLO Compliance** | クライアントSLA・内部SLO の月次遵守率 | **99.5%以上** |
+| **Governance Audit Pass Rate** | 四半期内部監査の指摘ゼロ率 | **100%（軽微は含む）** |
+
+### Step 8: 失敗パターン & 回避策
+
+1. **失敗パターン: ISO/IEC 25010 マッピングを導入しても、既存の5軸チェックと重複させて工数だけ倍増する**
+   → 回避策: 5軸は 25010 の subset として位置づけ、25010マトリクスは非機能副特性（性能・セキュリティ・保守性・移植性）のみを追加チェックする差分運用にする。既存のSlackチェックリストBotに 25010 の副特性チェック項目だけ追加し、機能系はそのまま5軸で処理する（理由: 完全並列運用はQA時間を倍にしescape減少より疲弊増加を招く）。
+
+2. **失敗パターン: RCAを起票しても是正処置（Corrective Action）と予防処置（Preventive Action）を分離せず、対症療法で終わる**
+   → 回避策: RCAテンプレの必須フィールドをCorrective/Preventive で分け、Preventive が空欄のRCAはクローズ不可にする。Preventive は必ず「テンプレ更新／自動validation追加／教育資料化」のいずれかに落とし込む（理由: 対症療法だけでは同種escapeが3ヶ月以内に再発し、RCA自体が形骸化する）。
+
+3. **失敗パターン: Governance QA（SLA/SLO監視）を導入したが、Error Budgetを使い切っても品質より速度を優先し続けて信頼摩耗**
+   → 回避策: SLO違反時のポリシー（機能追加停止・QA工数の緊急割り当て）を事前にkai/haruと合意し、Error Budget燃え尽き時は自動でリリース凍結・RCAプロジェクト起動を発火する（理由: Budgetは監視値でなく行動トリガーであり、超過時の対応が事前合意されていないと監視の意味がない）。
+
+4. **失敗パターン: Deepchecks / Ragas 等の自動評価ツールを導入して合格基準を全部スコア閾値化し、Validation（そもそも求めるものか）の人手判定を省く**
+   → 回避策: 自動評価は Verification（機械的に判定可能な軸）に限定し、Validation は必ずペルソナ検証・現場ヒアリング等の人手判定を残す。ツール判定と人手判定の一致率（レビュアーキャリブレーション）を月次計測し、乖離が大きい軸は人手比重を戻す（理由: 07-01記録の「もっともらしいAI生成物」を自動評価で通す事故と同型で、閾値通過＝品質ではない）。
+
+5. **失敗パターン: 拡張された出力フォーマット（Step 6）を全成果物に強制し、軽微な定型出力までフル記入で工数爆発**
+   → 回避策: フォーマットは3段階（Full/Standard/Light）を用意し、リスクベース抽出（06-12記録）で高リスク案件のみFull、定型はLight（verdict+key_message+blocking_issues のみ）を使う。iso_25010_matrix / RCA セクションは blocker 検出時のみ必須化する（理由: 全件Full記入は記入疲れによる形骸化を招き、記録品質そのものが下がる）。
+
+### Step 9: 連携・エスカレーション基準
+
+**通常連携（review.json＋Slack通知）**:
+- **sora（COO最終QA）**: 全案件で verdict/key_message/blocking_issues の3点サマリー＋申し送り消込表を必ず添付
+- **nori（法務）**: AI生成物のセキュリティ・出典・免責表記に懸念がある場合、対外配布前に必須連携
+- **kpi（KPIマネージャー）**: KPI定義不一致検出時、定義統一を依頼
+- **dat（データアナリスト）**: 数値算出根拠・fan-out集計欠損の疑い時、算出ロジック確認を依頼
+- **pm（プロジェクトマネージャー）**: WBSゲート受入基準の逆提示・合格の定量条件先渡し
+
+**エスカレーション基準（haru直報＋sora即時共有）**:
+1. **Escape Rate が月次1%を超えた場合** → 即時RCAプロジェクト起動をharu/soraへ提案
+2. **同一クライアント案件でblocker 3件以上検出** → クライアント担当ryotaへ即時共有、原因が組織横断の場合はharuへエスカレーション
+3. **SLO違反（Error Budget燃え尽き）** → リリース凍結をkai/haruへ提案、翌営業日までにRCA・是正計画を提出
+4. **法令・契約違反の疑い（AI生成物の情報漏洩・出典なき主張）** → nori/haruへ即時エスカレーション、対外配布停止を最優先
+5. **レビュアー間キャリブレーション一致率が90%を下回った場合** → soraへ観点テンプレの再整備を提案
+
+### Step 10: 自己研鑽ルーティン（週次・月次インプット源）
+
+**週次（毎週金曜16:00-17:30 学習ブロック）**:
+- **月**: [ISTQB Advanced Test Manager Study Guide](https://www.istqb.org/) の該当章読了＋自組織適用メモ
+- **火**: [Google Testing Blog](https://testing.googleblog.com/) / [Microsoft Engineering Playbook](https://microsoft.github.io/code-with-engineering-playbook/) 最新記事レビュー
+- **水**: [OWASP LLM Top 10](https://genai.owasp.org/) / [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/) の更新確認
+- **木**: [DORA State of DevOps Report](https://dora.dev/) / [Accelerate Book Club](https://itrevolution.com/product/accelerate/) 関連コンテンツ
+- **金**: 自組織 escape 事例のRCA振り返り＋Preventive Actionの週次消込
+
+**月次（毎月第1月曜10:00-12:00 深掘りブロック）**:
+- **ISO/IEC 25010 / 25012 / 42001** 該当章の精読と自組織テンプレへの反映
+- **IPA SQuBOK V3** の該当章読了（日本標準の理論バックボーン強化）
+- **Deepchecks / Ragas / Great Expectations / Promptfoo** のリリースノート＋新機能検証
+- **Six Sigma Green Belt / Black Belt** の該当モジュール学習（DMAIC実践力強化）
+- **Kepner-Tregoe / HAZOP** の症例研究（複数エージェント跨ぎ問題分析力の強化）
+
+**四半期（3ヶ月に1回）**:
+- **JaSST / JaSPIC**（日本ソフトウェアテストシンポジウム）等の国内カンファレンス聴講
+- **STAREAST / EuroSTAR**（国際テストカンファレンス）のセッション動画レビュー
+- **自組織チェックリスト棚卸し**（07-03記録）＋観点テンプレ再整備
+- **レビュアー間キャリブレーション実施**（qa＋sora の2名独立レビューで一致率測定）
+
+**年次**:
+- **ISTQB Advanced Test Manager 資格更新** / **Six Sigma Green Belt 取得または更新**
+- **年間 escape 事例の総まとめレポート**（DMAIC の Control フェーズ）
+- **業界ベンチマーク再測定**（Step 2 の目標値の見直し）
+
+---
+
+**このアップデートにより、qa（横断QAレビュアー）は「中間QA・整合性チェック特化」から「ISO/IEC 25010 準拠・RCA運用・Governance QA・非コード成果物QA まで担う、日本トップティア水準の横断品質保証部門」へ進化する。**
