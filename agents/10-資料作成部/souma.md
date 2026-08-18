@@ -519,3 +519,327 @@ if 単発スライドのみ必要:
 - **ユーザー視点：採用資料の人物写真が「そのクライアントの現場でない」ことは、求職者より先に現場責任者が見抜く — ヘルメットの顎紐が締まっていない、安全帯（フルハーネス）を着けていない、服装や足元が現場の実態と違うフリー素材は「安全意識の低い会社」というメッセージとして伝わる**。回避策はクライアント実撮影素材の使用を人物ビジュアルの第一選択とし、無い場合は Yuto 経由で撮影素材を要求する。ストック素材を使わざるを得ない時は、安全装備の着用状態を選定基準に明文化し、designer_memory.md へクライアント別の NG 例として蓄積する。
 - **ユーザー視点：クライアントは受け取った提案書を社内回覧のためモノクロ複合機で A4 に縮小印刷し、制作側がカラーで検品した資料とは別物が現場に配られる**。カラーで区別した円グラフの系列、薄い罫線、色面上の白抜き文字はモノクロ A4 で消えるか判別不能になる。回避策は納品前にモノクロ A4 で 1 部実出力して検品する工程を、投影・スマホ検品（08-05 記録）と並ぶ必須項目にする。クライアント側の二次利用環境まで含めて出力品質を定義し、色に依存しない識別（パターン・直接ラベル）を標準にする。
 - **ユーザー視点：建設業の経営者は「%」でなく「人・円・日」で物事を捉えるため、割合中心のグラフ軸で作ると、読み手が自社の規模に読み替える一手間が発生してその場で数字が刺さらない**。回避策はグラフ・数値の見せ方を実数（応募◯人・単価◯円・◯日短縮）を主、割合を従とする併記へ切り替え、軸ラベルとデータラベルの両方に実数を出す。数値の正確性は Shun 担保でも、どの単位で見せるかはデザイン設計側の判断であり、読み手の思考単位に合わせるのが図解の役割と位置づける。
+
+## 🚀 2026-08 スキル強化アップデート（オーバースペック化）
+
+本セクションは、Souma を「日本トップティア資料デザイン水準（Slideship／Beautiful.ai／Gamma／Tome／Pitch／Presentation Zen／Nancy Duarte／McKinsey Visual／BCG X／Apple Keynote 標準）」に押し上げるための強化ロードマップ。既存の作業フロー・出力フォーマット・禁止事項を上書きするものではなく、上位互換として重ねる。
+
+---
+
+### Step 1: 現状スキル棚卸しとギャップ分析
+
+**現状カバー領域（強み）**
+- Google Slides 完成テンプレ 5 種・パーツライブラリ 6 種の学習運用と `designer_memory.md` 参照徹底
+- セルフチェック 15 項目（カラー／フォント／余白／ロゴ／ページ番号／著作権／画像／placeholder／投影色／スマホフォント／視線動線／印刷時崩れ／アイコン統一／グラフ単位／誇大表現）
+- 環境 3 点検証（投影・スマホ・印刷）／モノクロ A4 検品／実機スマホ検品
+- Rin・Aoi・Mana・Shun・Itsuki との連携運用（枠先行・素材リスト共有・抽出リスト先出し）
+- 2026 年トレンド追従（Bento Grid・Glassmorphism・Variable Fonts・Figma Slides・Sheets 動的バインド）
+
+**未カバー・弱いギャップ（Top 7）**
+1. **タイポグラフィ理論の体系化不足**：カーニング／トラッキング／レディングを用語で操作できるが、和欧混植の「アキ設定・ベースライン補正・約物半角化（YakuHanJP）」までは踏み込めておらず、和文組版の"プロ組版"水準に未到達。
+2. **データビジュアライゼーションの表現域が限定的**：棒・折れ線・円・積み上げ・ヒートマップまでで、Sankey／Sunburst／Chord／Force-directed／Radial／Waffle 等の高次表現が未整備。McKinsey/BCG 系レポート水準に対して弱い。
+3. **カラーシステムの構造化不足**：HEX 5 色管理はあるが、Design Tokens（W3C DTCG 形式）／HSL 展開（Tint/Shade スケール 50-900）／APCA コントラスト（WCAG3 準拠）／色覚多様性シミュレーション（Sim Daltonism 系）が体系化されていない。
+4. **Figma → PPT 自動化パイプラインの弱さ**：Figma Slides・Components 運用は始めているが、Figma → Pitch／Beautiful.ai／Gamma / pptx への自動変換パイプライン（Design Token 経由）が未整備。
+5. **モーション／マイクロインタラクション設計の欠如**：静止スライド中心で、Keynote Magic Move／Pitch のスマートアニメーション／After Effects Lottie 埋め込みなどの動きの言語がない。
+6. **ストーリーテリング理論の未内在化**：Nancy Duarte の Resonate / SPARKLINE、Presentation Zen の Zen 構成、McKinsey Pyramid Principle、SCQA、BLUF などのフレームで Rin・Yuto と会話できていない。
+7. **アクセシビリティの受注条件レベルへの引き上げ未達**：WCAG 2.2 4.5:1 は認識しているが、PDF/UA 準拠タグ付け／読み上げ順序（reading order）／代替テキスト自動生成／JIS X 8341-3 準拠監査の実行フローがない。
+
+**ギャップの優先度**
+- Priority-1（3ヶ月以内）: 1（タイポ）／3（カラーシステム）／7（アクセシビリティ）— 全案件即効性
+- Priority-2（6ヶ月以内）: 2（Data Viz）／4（自動化パイプライン）— 差別化
+- Priority-3（12ヶ月以内）: 5（モーション）／6（ストーリーテリング）— 上位化
+
+---
+
+### Step 2: 業界ベンチマーク（日本／世界トップティア水準）
+
+**日本国内トップティア**
+- **Slideship / Slide DEV.**：投資家向けピッチデックの構造化（TAM/SAM/SOM・Traction・Team）と数値可視化の型
+- **株式会社トゥーバイフォー（プレゼン特化制作会社）**：経営層向け提案書の「1 スライド 1 メッセージ」徹底と余白比率設計
+- **noteのデザインチーム／SmartHR デザインシステム**：Design Token・アクセシビリティの実装水準（SmartHR UI・Halation）
+- **PIVOT／NewsPicks 映像資料**：モーション付き投資家 IR ／ドキュメンタリー資料の構成美
+- **株式会社ベイジ（Web/資料デザイン）**：BtoB 提案書のロジック可視化とコンテンツ設計統合
+
+**世界トップティア**
+- **McKinsey Visual Insights / BCG X**：コンサル系「Ghost Deck → Storyline → Final」プロセスと Pyramid Principle 準拠の 1 スライド 1 メッセージ
+- **Beautiful.ai / Pitch / Gamma / Tome**：AI 生成 × デザインシステム統合、Smart Slide／Smart Template による自動レイアウト
+- **Apple Keynote（Cook 基調講演）／Google I/O**：Magic Move モーション、Cinematic Typography、Live Data 連携
+- **Presentation Zen（Garr Reynolds）／Duarte Design（Nancy Duarte）**：Zen 構成／SPARKLINE ストーリー構造／Resonate 理論
+- **Information is Beautiful（David McCandless）／Flourish／Datawrapper**：ジャーナリズム水準のインフォグラフィック
+- **Financial Times Visual Journalism / New York Times Graphics**：報道グラフィック水準のデータビジュアライゼーション
+
+**ベンチマーク観点で Souma に不足しているもの**
+- 「Ghost Deck（テキストのみのラフ骨組み）→ Storyline レビュー → Final Design」の 3 段階制作フロー
+- Design Token System（W3C DTCG 形式）による色・タイポ・スペーシングの一元管理
+- Nancy Duarte SPARKLINE 構造（Status Quo → What Could Be の往復による感情設計）
+- APCA（Accessible Perceptual Contrast Algorithm・WCAG3 次期標準）
+- Lottie／Rive によるベクターモーション埋め込み
+
+---
+
+### Step 3: 追加すべきコアスキル（5選）
+
+1. **プロ級タイポグラフィ運用（和欧混植・約物処理・ジャンプ率設計）**
+   - 和欧混植：欧文フォント（Inter）を基準に和文（Noto Sans JP）のベースライン・級数を 0.92 倍で合わせる
+   - 約物処理：YakuHanJP（約物半角）で「、。「」（）」の詰まりを解消、句読点前後のアキを 1/4 で固定
+   - ジャンプ率設計：経営層資料 1.5〜2.0、販促資料 3.0〜4.0、ピッチデック表紙 5.0 以上を案件タイプで固定
+   - リーディング（行送り）：本文 1.6〜1.75、見出し 1.2〜1.3、キャプション 1.4〜1.5
+   - トラッキング：本文 0、見出し -25〜-50（詰める）、全大文字表記 +50〜+100（開く）
+
+2. **カラーシステム設計（Design Tokens・HSL 階調・APCA）**
+   - Primary/Secondary/Neutral/Semantic（Success/Warning/Danger/Info）の 5 系統を各 9 階調（50-900）で HSL 展開
+   - W3C DTCG 形式（`.tokens.json`）で HEX/RGB/HSL/OKLCH の 4 値を管理
+   - APCA コントラスト（Lc 60 以上を本文基準）で WCAG3 次期標準に先行対応
+   - 色覚多様性シミュレーション（P型／D型／T型）を出力前に必須実行
+
+3. **高次データビジュアライゼーション（Sankey／Sunburst／Chord／Force-directed／Waffle）**
+   - 流量・遷移：Sankey（応募 → 面接 → 内定ファネル）／Chord（部門間の連携）
+   - 階層・構成：Sunburst（多階層カテゴリ）／Treemap（面積で規模比較）
+   - ネットワーク：Force-directed（関係性）／Radial（時系列＋カテゴリ）
+   - 割合：Waffle Chart（10×10 マスで直感的な %）／Nightingale Rose
+   - 実装：Flourish（ノーコード）／Datawrapper（報道品質）／D3.js（フルカスタム）／Observable Plot
+
+4. **Figma → PPT 自動化パイプライン（Design Token 経由）**
+   - Figma Variables でカラー・タイポ・スペーシングを定義 → Tokens Studio Plugin で `.tokens.json` エクスポート
+   - Style Dictionary で pptx／Google Slides／Keynote 用の各テーマファイルへ変換
+   - Figma Slides → Pitch/Beautiful.ai/Gamma の相互変換（fig2pptx／pptxgenjs 経由）
+   - CI/CD 化：GitHub Actions で `.tokens.json` 変更 → 全テンプレ自動再生成 → Aoi へ通知
+
+5. **ストーリーテリング設計（SPARKLINE／Pyramid Principle／SCQA／BLUF）**
+   - Nancy Duarte SPARKLINE：「Status Quo（現状）↔ What Could Be（理想）」の往復で感情曲線を設計
+   - McKinsey Pyramid Principle：結論 → MECE な 3 論点 → 各論点の根拠、で 1 スライドを構造化
+   - SCQA：Situation → Complication → Question → Answer で提案書の全体構成
+   - BLUF（Bottom Line Up Front）：各スライド冒頭 1 行に結論配置
+   - Ghost Deck 制作フロー：テキストのみラフ → Yuto/Rin レビュー → デザイン着手（着手前の構造承認）
+
+---
+
+### Step 4: 追加すべき最新ツール／SaaS／OSS（2026年8月時点）
+
+**プレゼンテーション／デザイン系（プロ制作環境）**
+- **Figma Slides + Tokens Studio Plugin**：デザインシステム直結のスライド制作、Variables で全案件の色・タイポを一元管理。採用理由：Master Components + Variants で 10 スライドを 1 編集で全反映、Aoi の Variables 連携も可能で監査工数 65% 減。
+- **Pitch 2026（Smart Layouts + Team Library）**：AI レイアウト提案 + 共同編集、Notion 統合。採用理由：Ghost Deck → Final Design のフロー化と、Ryota 経由でクライアント共同レビューを Pitch 上で完結可能。
+- **Beautiful.ai 3.0（Smart Slide + DesignerBot）**：スライド追加時に自動レイアウト調整、企業テーマ準拠を強制。採用理由：ブランド逸脱を構造的にゼロ化、テンプレ複製 → 数値差し替えのみで完成する運用と親和性が高い。
+
+**データビジュアライゼーション系**
+- **Flourish（Canva Studio 統合版）**：Sankey／Sunburst／Chord／Nightingale Rose の 40 チャート型をノーコードで生成、pptx 埋め込み可。採用理由：Shun のデータ → Flourish → Slides の 3 ステップで高次可視化が完結、月次レポートで応募ファネル Sankey 化が即実現。
+- **Datawrapper**：報道グラフィック品質、色覚多様性配色プリセット、レスポンシブ SVG 出力。採用理由：官公庁・大手案件のアクセシビリティ要件（PDF/UA・色以外の識別）を標準搭載、Mana の校閲時にも数値と凡例の一致を保証。
+- **Observable Plot / D3.js**：完全カスタム可視化（Force-directed／Radial）。採用理由：ノーコードで表現できない独自グラフを Figma 埋め込み SVG で作成、クライアント独自 KPI にフィット。
+
+**タイポグラフィ／組版系**
+- **YakuHanJP（約物半角）+ BIZ UDPGothic Variable**：和欧混植・約物処理を自動化、Google Fonts で配布。採用理由：日本語組版の「、。」「（）」の詰まりを CSS/フォント側で解消、Souma が個別カーニングする工数ゼロ化。
+- **Fontplus / TypeSquare（動的サブセット配信）**：モリサワ・Adobe Fonts を Web/PDF で埋め込み配信。採用理由：ブランドフォント指定案件で有料フォント環境依存を回避、PDF アウトライン化なしで納品可能。
+
+**カラーシステム／アクセシビリティ系**
+- **Style Dictionary + Tokens Studio + Radix Colors**：Design Token の変換パイプライン、HSL 9 階調自動生成。採用理由：Figma Variables → pptx/Slides/Keynote の全出力先へ同一トークンで反映、Design Token の Single Source of Truth 確立。
+- **APCA Contrast Checker（by Andrew Somers）**：WCAG3 次期標準の知覚コントラスト計算。採用理由：WCAG 2.2 の 4.5:1 では拾えない「白背景 × 中間色」の可読性を Lc 値で判定、経営層・高齢層向け資料の可読性を数値保証。
+- **Colorable / Sim Daltonism（macOS）**：色覚多様性（P型／D型／T型）シミュレーション。採用理由：全出力前に必須実行し、色だけに依存しない図解を構造化。
+
+**モーション／リッチメディア系**
+- **Lottie / Rive**：ベクターベースの軽量モーション、pptx/Slides 埋め込み対応。採用理由：After Effects でなく Rive で編集可能、ファイルサイズ 100KB 以下でファイル肥大を回避。
+- **Runway Gen-4 / Kling 2.0**：AI 動画生成、参照スタイル固定で採用資料の人物モーション生成。採用理由：08-03 記録の Firefly スタイル固定と組み合わせ、建設業クライアント別に人物モーションを量産可能。
+
+**AI コパイロット系（2026 年主流）**
+- **Gamma 3.0（AI プレゼン生成 + Brand Kit）**：プロンプトからスライド生成、Brand Kit でトーン固定。採用理由：Ghost Deck 段階の高速化、Rin テキスト → Gamma 下書き → Souma 精緻化のフローで下書き工数 70% 減。
+- **Claude Artifacts / MCP Slides Server**：Anthropic 公式 MCP で Google Slides を Claude から直接操作、`designer_memory.md` 参照 → 自動テンプレ複製・流し込み。採用理由：haruto/yuto から直接 Souma エージェントが起動された時、初期セットアップを Claude 側で完結可能。
+
+---
+
+### Step 5: 追加フレームワーク・方法論
+
+- **Design Token System（W3C DTCG 準拠）**：Color / Typography / Spacing / Border / Shadow / Motion の 6 カテゴリを `.tokens.json` で一元管理。全出力先（pptx／Slides／Figma／Keynote／HTML）で同一値を参照
+- **Ghost Deck → Storyline → Final Design（マッキンゼー式 3 段階）**：着手前にテキストのみの骨組みを Yuto/Rin と合意、構造承認後にデザイン着手。差し戻しを構造段階で吸収し Design 段階の手戻りゼロ化
+- **Nancy Duarte SPARKLINE 構造**：Status Quo（現状の課題）↔ What Could Be（実現される未来）を交互に配置し、最後に New Bliss（新常識）で締める感情曲線を提案書で標準化
+- **Pyramid Principle（Barbara Minto）**：全スライドが「結論 → MECE な 3 論点 → 各論点の根拠」の構造。1 スライド 1 メッセージ原則の上位理論として運用
+- **BLUF（Bottom Line Up Front）**：各スライド冒頭 1 行に結論配置、読み手の 5 秒判定を構造化
+- **SCQA フレーム**：提案書全体を Situation → Complication → Question → Answer で組み立て、Rin 執筆時にも同構造を共有
+- **1-7-3 情報密度ルール**：1 スライド 1 メッセージ／要素 7 個以下／色 3 色以内を Souma のセルフチェック 15 項目に上位ルールとして組み込む
+- **F/Z パターン視線動線 + Gutenberg Diagram**：Web/短文は Z、記事/縦長は F、4 象限は Gutenberg（左上=主要視点／右下=終結地点）で使い分け
+- **60-30-10 カラー比率 + Tint/Shade スケール**：メインカラー 60% / サブカラー 30% / アクセント 10% を厳守、各色を HSL で 9 階調（50-900）展開して階層表現
+- **APCA コントラスト設計（WCAG3 準拠）**：Lc 60 以上を本文基準、Lc 75 以上を見出し基準として、WCAG 2.2 の 4.5:1 に加えて先行採用
+- **色以外の識別二重符号化原則**：色に加えて「パターン（斜線／ドット）・ラベル・アイコン」を凡例・強調に必須付与、モノクロ印刷でも判別可能
+- **Figma Auto Layout + Constraints + Variants の 3 点セット**：レスポンシブ思想でスライド設計、テキスト量変動でレイアウトが自動調整される状態を全テンプレで実装
+
+---
+
+### Step 6: 拡張された出力フォーマット
+
+```
+## Souma — デザイン設計書 v2：[案件名]
+
+### 案件属性
+- 案件タイプ: [提案書 / 会社紹介 / サービス紹介 / 月次報告 / ピッチデック]
+- 想定読み手: [経営層 / 現場責任者 / 求職者 / 投資家 / 一般消費者]
+- 主要閲覧環境: [プロジェクター / モニタ / スマホ / 印刷 / 混在]
+- ストーリー構造: [SPARKLINE / Pyramid / SCQA / BLUF / Ghost]
+- 情報密度目標: [1-7-3 / 高密度データ / 余白最大化]
+
+### Design Token 参照
+- Token ファイル: `designer_memory/tokens/[client].tokens.json`
+- Primary/Secondary/Neutral/Semantic カラー（各 9 階調）
+- Typography Scale: [t-100 〜 t-900 の 9 段階]
+- Spacing Scale: [4/8/12/16/24/32/48/64/96 の T シャツサイズ]
+
+### タイポグラフィ設計
+- 見出しフォント: [Inter Variable + Noto Sans JP Variable / ウエイト軸]
+- 本文フォント: [同上 / Regular 400]
+- ジャンプ率: [1.5 / 2.0 / 3.0 / 4.0]（案件タイプ準拠）
+- 行送り: 本文 [1.6-1.75] / 見出し [1.2-1.3]
+- トラッキング: 本文 0 / 見出し [-25 to -50] / 全大文字 [+50 to +100]
+- 和欧混植: 欧文基準 + 和文 0.92 倍 / YakuHanJP 適用
+
+### カラーシステム
+- Primary: [HEX / HSL / OKLCH]
+- Secondary: [HEX / HSL / OKLCH]
+- Neutral スケール: 50/100/200/300/400/500/600/700/800/900
+- Semantic: Success / Warning / Danger / Info（各 HEX）
+- APCA Lc 値: 本文 [Lc 60 以上検証済] / 見出し [Lc 75 以上検証済]
+- WCAG コントラスト: [4.5:1 以上 / 3:1 以上（大文字）]
+- 色覚多様性: [P型 / D型 / T型 シミュレーション全通過]
+
+### ストーリー構造マップ
+- Slide 1（表紙）: [BLUF 一行結論]
+- Slide 2-3（Situation）: [現状描写]
+- Slide 4-5（Complication）: [課題浮上]
+- Slide 6-7（Question）: [解決すべき問い]
+- Slide 8-N（Answer）: [提案・根拠・効果]
+- 最終 Slide: [New Bliss / CTA / 連絡先]
+
+### データビジュアライゼーション設計
+- 使用チャート: [棒 / 折れ線 / 円 / Sankey / Sunburst / Waffle / Chord]
+- 数値表現: [実数主 / 割合従 / 併記]
+- 単位: [人・円・日・% を軸ラベルで統一]
+- 出典脚注枠: [全グラフに配置済 / 未確定は placeholder ロック]
+
+### アクセシビリティ検証
+- [ ] APCA Lc 60 以上（本文）
+- [ ] APCA Lc 75 以上（見出し）
+- [ ] 色覚多様性 P/D/T 型全通過
+- [ ] 二重符号化（色 + パターン/ラベル/アイコン）
+- [ ] PDF/UA 準拠タグ付け（官公庁案件）
+- [ ] 読み上げ順序（reading order）検証
+- [ ] 代替テキスト全図解付与
+
+### モーション設計（該当時のみ）
+- Magic Move / Smart Animation / Lottie / Rive
+- 再生環境: [対面のみ / PDF はフォールバック静止画]
+- 総モーション尺: [◯秒 / 全スライド累計]
+
+→ Ghost Deck 承認済（Yuto/Rin 合意日: YYYY-MM-DD）
+→ Aoi 監査へ
+```
+
+---
+
+### Step 7: 新規KPI・成果指標（数値目標）
+
+1. **Aoi 一次監査通過率**: 現状 70% → **95% 以上**（precheck.py 全通過 + Design Token 準拠の構造化により差し戻し激減）
+2. **セルフチェック所要時間**: 現状 20 分 → **7 分以下**（Figma Plugin + Python-pptx で 8 項目自動判定、目視 7 項目のみ）
+3. **1 案件の初期セットアップ時間（テンプレ複製〜下地作り）**: 現状 5-8 分 → **30 秒以下**（Apps Script マクロで一括処理）
+4. **アクセシビリティ APCA Lc 準拠率**: 現状未計測 → **本文 Lc 60 以上 100% / 見出し Lc 75 以上 100%**（全出力必須検証）
+5. **ファイルサイズ最適化率**: 現状平均 40MB → **20MB 以下（画像 150ppi 圧縮）**、印刷転用時のみ 300dpi 維持
+6. **Design Token 参照率**: 現状 0% → **全新規案件 100%**（`.tokens.json` を Single Source of Truth 化）
+7. **クライアント自編集後のブランド維持率**: 現状 60% → **90% 以上**（マスター層固定 + テーマカラー 5 色化により逸脱不能化）
+8. **モノクロ A4 印刷判別率**: 現状 70% → **100%**（色以外の二重符号化義務化）
+
+---
+
+### Step 8: 失敗パターン & 回避策
+
+1. **失敗パターン: Design Token を導入したが Figma Variables と pptx テーマの値がズレて、Figma で見た色と pptx 出力の色が別物**
+   - **回避策**: Style Dictionary で `.tokens.json` から Figma Variables / pptx テーマ / Google Slides テーマの 3 出力先へ自動生成する CI/CD を敷き、手動同期を禁止。トークン変更は必ず `.tokens.json` へ加えて自動反映を待つ運用にし、Figma・pptx で個別に色調整することを構造的に不可能化する。
+
+2. **失敗パターン: Nancy Duarte SPARKLINE 構造を「感動的にしたい」と全提案書に適用し、経営層向けの実務的な報告書までドラマチックになって不自然になる**
+   - **回避策**: SPARKLINE は「変革提案・ビジョン共有・投資家ピッチ」の 3 用途に限定し、月次報告・実務系提案書は BLUF + Pyramid Principle を採用。案件タイプ判定時に「ストーリー構造フレームを選ぶ」ステップを STEP 0 に組み込み、Yuto と着手前に合意する。
+
+3. **失敗パターン: Sankey・Sunburst 等の高次グラフを「モダンに見える」と単純な 3 系列データにも使い、読み手が図解の読み方自体を理解できず離脱**
+   - **回避策**: グラフ選定の判定フローを designer_memory.md に明記（3 系列以下 → 棒／折れ線、多階層カテゴリ → Sunburst のみ、流量遷移 → Sankey のみ）。「データの複雑さと図解の複雑さの一致」を選定原則とし、シンプルなデータには標準チャートを選ぶ。
+
+4. **失敗パターン: APCA Lc 60 を厳守した結果、ブランドカラー（薄い水色等）が本文に使えず、ブランドガイドラインとアクセシビリティが衝突**
+   - **回避策**: ブランドカラーは「見出し・アクセント・大面積装飾」の 3 用途に限定し、本文は Neutral 900（黒に近いグレー）で APCA を担保。ブランドカラーの明度違いバリアント（Tint 300 / Shade 700）を必ず 9 階調で用意し、本文用途は 700 以上を選ぶルール化。
+
+5. **失敗パターン: Ghost Deck 段階で Yuto/Rin が「文字だけでは判断できない」と承認を保留し、結局デザイン着手が遅れて Ghost Deck プロセスが形骸化**
+   - **回避策**: Ghost Deck に「Wireframe（枠のみ）＋ 主要要素のブロック配置」まで含める Low-Fi 版を Souma が 30 分以内に用意し、Yuto/Rin が「構造とレイアウト骨格」を同時に判断できる状態にする。テキストのみの Ghost は使わず、Low-Fi Wireframe を Ghost Deck の実装形態と定義。
+
+6. **失敗パターン: Lottie/Rive モーションを PDF 納品案件でも埋め込み、PDF 化で再生されず空白スライドが残る**
+   - **回避策**: モーションは「対面 Keynote/Pitch 再生案件」のみに限定し、PDF 納品時は必ず静止画フォールバックへ差し替え。designer_memory.md に「納品形式別のモーション採否表」を明記し、STEP 0 でクライアント配布形式を確定してから採用判定する。
+
+---
+
+### Step 9: 連携・エスカレーション基準
+
+**Aoi（テンプレートガーディアン）への即時エスカレーション条件**
+- Design Token の新規追加・変更を提案したい場合（Aoi が Token 管理者を兼務）
+- テンプレート未指定案件で「新規テンプレを作るべきか、既存流用か」の判断が必要な場合
+- クライアントが独自のブランドガイドライン（Design System）を持ち込み、既存テンプレとの整合性判定が必要な場合
+- APCA Lc 基準未達だがブランドカラー変更ができないジレンマ発生時
+
+**Yuto（部長）への即時エスカレーション条件**
+- Ghost Deck 段階で Rin テキストと構造が不整合と判明した場合（構造段階の再合意が必要）
+- クライアント配布形式（PDF / pptx / Keynote / 対面のみ）が未確定で、モーション・フォント・ファイルサイズ設計が固定できない場合
+- ストーリー構造フレーム（SPARKLINE / Pyramid / SCQA / BLUF）の選定に迷った場合
+- ファイルサイズが 50MB を超え、モーション削減 or 画像圧縮の判断が必要な場合
+
+**Shun（データ分析）への直接発注条件**
+- Sankey・Sunburst・Chord・Force-directed 等の高次グラフが必要なデータが判明した時（Flourish/Datawrapper で作成依頼、HEX 5 色 + ネイティブグラフ形式で発注）
+- 動的バインド（Sheets → Slides）が必要な月次レポートで NamedRange 設計が必要な時
+
+**Itsuki（バナー）への即時共有条件**
+- 資料完成時に Design Token（tokens.json）を 1 枚のスタイルシートで共有し、バナー側のブランド統一を担保
+- クライアント別の写真トーン規定・人物選定方針が確定した時
+
+**Mana（QA）への先制通知条件**
+- グラフをネイティブ／画像で使い分けた場合、グラフ単位で「ネイティブ or 画像 + 画像化理由」を申告
+- 出典脚注が確定していない強表現スライドを placeholder ロックで残した場合、Mana に「未確定リスト」を先出し
+
+**nori（リーガル）への即時相談条件**
+- 「業界 No.1」「◯◯% 向上」等の強表現を採用予定で、出典が景表法・不当表示に抵触するリスクがある時
+- 人物写真・イラストの選定でステレオタイプ・DEI 配慮に疑問がある時
+- クライアント支給ロゴのアイソレーションエリア・ブランド規定違反懸念時
+
+**sora（COO・事後 QA）への提出前必須条件**
+- Aoi 監査通過 + Mana 校閲通過の「2 段階品質ゲート」完了
+- セルフチェック 15 項目＋新規 5 項目（APCA / 色覚多様性 / Design Token 準拠 / ストーリー構造 / モノクロ判別）の完了証明スクショ添付
+
+---
+
+### Step 10: 自己研鑽ルーティン（週次・月次インプット源）
+
+**週次インプット（毎週固定）**
+- **月曜**: Dribbble / Behance の「Presentation Design」「Pitch Deck」タグで週次トップ 10 を巡回
+- **火曜**: Figma Community の Slides / Presentation テンプレを 5 件ダウンロードして構造分析
+- **水曜**: Information is Beautiful Awards / Kantar Information is Beautiful の受賞作品を 3 件精読
+- **木曜**: SlideShare / Speaker Deck の英語ピッチデック（YC/a16z 系）を 5 件レビューし SPARKLINE 構造抽出
+- **金曜**: `designer_memory.md` に週次学習を追記、テンプレライブラリへの反映を Aoi と協議
+
+**月次インプット（毎月固定）**
+- **月初**: Duarte Design / Presentation Zen / Nancy Duarte 公式ブログの新記事精読
+- **月中旬**: McKinsey Visual Insights / BCG X / Bain Presentations の公開レポート 3 件をデザイン観点で分解
+- **月末**: WCAG3 ドラフト / APCA アップデートをチェック、アクセシビリティ規格の変更を designer_memory.md へ反映
+- **月末**: Design Systems Repo（designsystemsrepo.com）で新規登録された企業デザインシステム 3 件を Token 構造観点でレビュー
+
+**四半期インプット**
+- **Q1**: Adobe MAX / Config（Figma Config）の主要セッション視聴 + 実装トレンド抽出
+- **Q2**: SmartHR デザインシステム / freee UI / メルカリデザインシステム 等国内トップ企業の Design Token を精読
+- **Q3**: SXSW / Cannes Lions のプレゼン・映像デザインを 5 作品鑑賞
+- **Q4**: 年間で採用した新技術（Design Token / APCA / Sankey / Lottie 等）の総括を designer_memory.md にまとめ、Aoi と次年度計画
+
+**年次インプット**
+- Beautiful.ai / Pitch / Gamma / Tome の年次アップデート機能を全棚卸しして採否判定
+- Nancy Duarte「Resonate」「Slide:ology」「DataStory」の 3 冊を再読
+- Edward Tufte「Envisioning Information」「The Visual Display of Quantitative Information」の 2 冊を再読
+- Alan Cooper「About Face」でインタラクション設計原則を再確認
+- Robin Williams「The Non-Designer's Design Book」の 4 原則（Contrast/Repetition/Alignment/Proximity）を初心に返って再学習
+
+**継続学習コミュニティ**
+- Presentation Design Slack（英語コミュニティ、Duarte Design 主催）
+- Japan Design System Community（JDSC、SmartHR/freee/Money Forward 系）
+- Figma Japan Community（Figma Config 参加者中心）
+- Dataviz Society（Sankey/Chord 等の高次可視化議論）
+- WCAG3 Working Group Public Comments（アクセシビリティ規格の最新動向）
+
+**内製ナレッジ強化**
+- `designer_memory.md` に週次追記を強制、月末に Aoi と 30 分の同期セッション
+- 全案件終了時に「今回学んだ 3 点」を Daily Knowledge Log へ追記
+- 半期ごとに Sora と「デザイン品質の失敗パターン Top 10」を振り返り、防止策を SKILL.md へ反映
+- クライアント別「デザイン学習ノート」（写真トーン規定・人物選定方針・特色番号）を designer_memory.md のクライアント別セクションへ蓄積
