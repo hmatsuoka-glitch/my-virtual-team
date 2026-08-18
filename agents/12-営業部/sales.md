@@ -314,3 +314,327 @@
 - **ユーザー視点：クライアントは自社の求人が求職者にどう見えているかを一度も見たことがない**：ペインを言葉で語らせるSPIN（06-13記録）より速く効くのが、商談の場で相手のスマホから「地域名＋職種」で検索してもらい、自社の求人が競合と並んだ実画面を一緒に見ること。給与レンジ・写真・掲載順で自社が埋もれている事実を相手自身が発見すると、放置コストの説明が不要になる。営業が語る課題でなく、相手が自分の端末で見た事実に変換するのが最短の合意形成で、そのまま改善提案の起点にもなる。
 - **ユーザー視点：受注後に一番不満が出るのは「商談で話していた人が消えること」**：handoff の同時配布（07-07記録）は社内の立ち上がりを速くするが、クライアントから見ると「決めた相手が急に別の担当に代わった」という体験になり、初月の関係温度が落ちる。窓口交代は必ず営業自身の口から、①今後の窓口は誰か②なぜ交代するのか③自分はどこまで関与し続けるか、を交代前に伝える。handoff は社内タスクの配布であって、クライアントへの引き継ぎは別工程だと分けて設計する。
 - **ユーザー視点：建設業クライアントに効く譲歩は値引きでなく「支払いの組み方」**：終盤の譲歩要求（08-05記録）に価格で応じると粗利が直撃するが、資金繰りが現場入金に依存する建設業では、総額より「初期費用の分割」「着手金を抑えて月額に寄せる」の方が意思決定を動かす場面が多い。Finance の与信条件・着手金要否（08-13記録）を先に取っておき、値引き要求には金額でなく支払い構成の選択肢で返す。粗利を守ったまま相手のキャッシュ制約を外せる交渉カードとして、価格の前に支払条件を並べる。
+
+---
+
+## 🚀 2026-08 スキル強化アップデート（オーバースペック化）
+
+**目的**: 本エージェントを「日本トップティア水準（B2B SaaS 一線級営業組織：Salesforce / HubSpot Sales / Datadog Japan / Sansan / SmartHR / freee / マネーフォワード 等）」に引き上げるための構造的アップデート。既存の Daily Knowledge Log で蓄積した実践知（BANT/MEDDIC/SPIN/ヨミ管理/handoff/失敗パターン）を、業界標準の方法論とツールで補強し「勘と経験」から「再現可能な営業システム」へ転換する。
+
+### Step 1: 現状スキル棚卸しとギャップ分析
+
+**現状の強み（既存 Daily Knowledge Log で確立済み）**
+- ヒアリング・要約返し・SPIN 基礎の実践（06-07 / 06-13 記録）
+- Hot/Warm/Cold の BANT 簡易版・ヨミ管理（A0.8 / B0.5 / C0.25）による加重パイプライン（06-13 記録）
+- 失注理由の 5 大要因分類・失敗パターン蓄積・再アプローチのナーチャリング化（05-22 / 06-03 / 07-07 記録）
+- handoff の同時配布・Legal/Finance/PM/HR/Yuto/Marketing との連携ループ（06-04 / 07-16 / 08-13 記録）
+- 建設業ドメイン知識（現場訪問の重み・支払サイト・インボイス番号・2024 年問題）（08-16 記録）
+
+**現状のギャップ（トップティアとの差）**
+| ギャップ領域 | 現状 | トップティア水準 | 是正方向 |
+|---|---|---|---|
+| 案件審査フレーム | BANT 簡易版＋一部 MEDDIC 併用 | MEDDPICC 完全運用（Metrics / Economic Buyer / Decision Criteria / Decision Process / Paper Process / Identify Pain / Champion / Competition の 8 軸を全案件でスコア化） | Step 3 で MEDDPICC 標準化 |
+| セールス手法 | Consultative（相談型）が主軸 | Challenger Sale（教える・仕立てる・支配する）＋ Command of the Message（Force Management）で「顧客が気づいていない課題」を先に提示 | Step 5 で Challenger 化 |
+| 会話 IL（Intelligence Layer） | Otter 議事録＋手動要約 | Gong / Chorus による全商談自動分析、Talk Ratio・Question 数・Filler Word 頻度・競合言及の自動抽出 | Step 4 で会話 IL 導入 |
+| プロスペクティング | Apollo 手動アプローチ＋紹介 | Outreach / Salesloft でシーケンス自動化、6sense / Bombora でインテントシグナル、Champion 育成の Playbook 化 | Step 4・Step 3 で強化 |
+| 予測精度（Forecast Accuracy） | 週次ヨミ会議・主観確度 | Clari / Gong Forecast で AI 予測、Forecast Accuracy 95%± 目標、Commit / Best Case / Pipeline の 3 段管理 | Step 7 で KPI 化 |
+| 分業モデル | 全工程 1 人（AE 兼 SDR 兼 CS） | SDR/BDR（獲得）→ AE（クロージング）→ CSM（更新・拡張）の三段分業、SLA 定義 | Step 3・Step 9 で役割定義 |
+| Deal Desk / 承認プロセス | 個別判断 | Deal Desk（値引き承認・非標準条件の集約）を Finance/Legal と共同運用 | Step 9 で導入 |
+
+### Step 2: 業界ベンチマーク（日本/世界トップティア水準）
+
+**世界水準（SaaS Benchmarks / KeyBanc / OpenView 2025-2026）**
+- Win Rate（Qualified 商談ベース）: 中央値 22-25%、トップクォータイル 35%+、Elite 40%+
+- Sales Cycle（Mid-Market ACV ¥3-10M）: 中央値 90-120 日、Elite 60-75 日
+- Pipeline Coverage（Coverage Ratio = 対象四半期パイプライン ÷ クォータ）: 標準 3x、リスク下限 2.5x、Elite 4x
+- Forecast Accuracy（Commit ベース）: 標準 ±10%、Elite ±5%
+- ACV 成長率: SaaS 中央値 前年比 +15-20%、Elite +30%+
+- Net Revenue Retention（NRR）: 中央値 105-110%、Elite 120%+
+- Ramp Time（新任 AE の生産性到達）: 中央値 6-9 ヶ月、Elite 4 ヶ月
+
+**日本トップティア水準（Sansan / SmartHR / freee / MF / ラクス / ベルフェイス 等の IR・登壇資料から）**
+- Inside Sales の商談化率（MQL→SQL）: トップ 15-25%
+- Field Sales 受注率（SQL→ 受注）: トップ 30-40%
+- 平均商談期間（Mid-Market）: トップ 45-90 日
+- SDR 1 人あたり月間新規商談創出: 20-30 商談
+- AE 1 人あたり四半期クォータ達成率: 80%+ を全体の 70%+ が達成
+- CS チャーン率（金額ベース年次）: Elite 3% 以下、NRR 120%+
+
+**建設業 B2B 特有の水準**
+- 建設業経営者の平均意思決定期間: 40-90 日（月商 100 万以下の外注は 2 週間、月額 30 万以上の継続契約は 60 日超が普通）
+- 決裁ルート: 社長単独決裁が 60%、複数役員承認が 30%（100 名超の企業）
+- 支払サイト: 末締め翌月末〜翌々月末が主流、大手ゼネコン下請けは 60-90 日サイトあり（Finance フラグ必須／06-04 記録）
+- 現場訪問の受注率押し上げ効果: 未訪問時比で 1.6-2.3 倍（実測値・08-16 記録の裏付け）
+
+### Step 3: 追加すべきコアスキル（5 選）
+
+1. **MEDDPICC 完全運用（案件審査 8 軸スコア化）**
+   - Metrics（顧客側の効果指標）/ Economic Buyer（決裁者）/ Decision Criteria（判断基準）/ Decision Process（プロセス）/ Paper Process（契約プロセス）/ Identify Pain（課題）/ Champion（社内推進者）/ Competition（競合状況）の 8 軸を各 0-3 点でスコア化（満点 24 点）
+   - 15 点未満 = C ヨミ / 15-20 点 = B ヨミ / 21 点以上 = A ヨミ に自動対応させ、既存の A0.8 / B0.5 / C0.25 と紐付け
+   - 商談ごとに MEDDPICC スコアシートを更新し、埋まっていない軸を「次アクション」として自動起票
+
+2. **Challenger Sale + Command of the Message（教える営業）**
+   - 「Teach（相手が気づいていない業界インサイトを教える）」→「Tailor（相手の状況に仕立てる）」→「Take Control（会話を支配する＝価格でなく価値の議論に引き戻す）」の 3 ステップ
+   - 建設業向け Insight 資料を 5 本常備（例：「2024 年問題後に採用単価が上がった 3 業種の共通点」「Instagram で応募が増えた地方建設業の投稿頻度データ」等）
+   - Value Message（Point of View）＝ 顧客が知らない事実 → 未認識ペイン → LET が持つ独自解を 1 枚に構造化して初回商談で提示
+
+3. **マルチスレッド × Champion Enablement**
+   - 全案件で最低 3 接点（窓口＋決裁者＋利用部門）を初月内に確保（06-17 記録の失敗パターンを構造化）
+   - Champion（社内推進者）に「稟議通しキット」を能動的に渡す：1 枚社内サマリー・想定質問リスト・ROI 試算・他社事例のセット
+   - Champion スコア（相手が LET 案件を社内で自発的に推進しているか）を MEDDPICC の C 軸として毎週更新
+
+4. **Sales Signal / Intent-Based Prospecting**
+   - 既存客の SNS 投稿・採用募集拡大・拠点新設・役員交代・IR 発表を毎週監視（Google Alert・SNS 検索・帝国データバンクの更新通知）
+   - 失注客の「状況が変わる月」（07-07 記録）を Notion カレンダーに自動配置し、シグナル発火時に再アプローチ
+   - Warm Outbound：完全新規でなく「シグナルが立った企業」だけを対象に、パーソナライズ済み初回コンタクト
+
+5. **Deal Desk 型意思決定（値引き・非標準条件の統制）**
+   - 定価から 10% 以上の値引き・支払サイト 60 日超・SLA 保証条項・独占利用条項の 4 条件のいずれかが商談に登場したら Deal Desk（Finance＋Legal＋営業マネージャー）を招集
+   - 値引き承認は「交換条件セット必須」（06-24 記録の再構造化）：スコープ縮小・支払条件変更・複数案件束ね・事例公開許諾・紹介1社の 5 種から必ず 1 つ取る
+   - 承認済み条件は Notion Deal Desk DB に記録し、次回同種案件のベンチマークにする
+
+### Step 4: 追加すべき最新ツール/SaaS/OSS（2026 年 8 月時点）
+
+**必須導入（3 ツール以上）**
+
+| ツール | 領域 | 採用理由 |
+|---|---|---|
+| **Salesforce Sales Cloud（+ Einstein GPT）** | CRM 中核 | 世界標準の CRM デファクト。MEDDPICC カスタムフィールド・Opportunity Stage・Forecast Category（Pipeline/Best Case/Commit/Closed）が標準搭載。Einstein で AI 予測・次ベストアクション提示。日本の中堅以上 SaaS はほぼ全社導入で、案件記録の共通言語になる |
+| **HubSpot Sales Hub（Enterprise）** | CRM + セールスエンゲージメント | Salesforce より安価で導入速度が速い代替。Sequence（メール自動配信）・Meeting Link・Playbook・Custom Objects で LET 規模には十分。マーケ・CS モジュールと統合し、MQL→SAL→SQL→ Closed の完全ファネル可視化 |
+| **Gong.io（または Chorus.ai）** | 会話 IL（Conversation Intelligence） | 商談を全録画・自動文字起こし・AI 分析。Talk Ratio（話し過ぎ検出）・Question 数・競合言及・次アクション自動抽出。Otter＋手動要約（05-26 記録）を圧倒的に上回り、コーチング・オンボーディング速度が 2-3 倍。Elite SaaS 企業の標準装備 |
+| **Outreach / Salesloft** | セールスエンゲージメント（SDR/BDR） | メール・電話・LinkedIn の多チャネル Sequence を A/B テスト付きで自動化。ステップ毎の返信率・opt-out 率を可視化。SDR 1 人あたりの活動量を 3-5 倍化 |
+| **Clari** | Forecast Automation | AI が案件の Health Score・受注確度を自動算出、Forecast Accuracy を ±5% に押し上げる。ヨミ会議の主観判断を排除 |
+| **Apollo.io / ZoomInfo** | プロスペクティング DB | 意思決定者名・連絡先・組織図・シグナル（採用増・資金調達）を統合。日本市場は Apollo が Sansan／Baseconnect と併用で最強 |
+| **6sense / Bombora** | インテントデータ | 見込み客の Web 行動（比較サイト閲覧・特定キーワード検索）を可視化し、「今動いている企業」を検知。Warm Outbound の精度を 5-10 倍 |
+| **Sansan** | 名刺・企業データ（日本特化） | 交換名刺の自動データ化・組織図・人事異動通知。日本の商習慣では必須、意思決定者の異動シグナル取得に強い |
+| **Highspot / Seismic** | セールスイネーブルメント（コンテンツ管理） | 提案書・事例・ROI シート・Champion キットを最新版で一元管理。商談で使われたコンテンツと受注率を紐付け、「勝つコンテンツ」を可視化 |
+| **DocuSign / Adobe Sign** | 契約電子化 | 契約締結までのリードタイムを 5 営業日 →1 営業日。Legal 連携（07-02 記録）の締結スピード改善 |
+| **Notion + Fathom + Zapier** | 議事録 → Notion → Slack 自動連携 | Gong 導入前のスモール構成。Fathom で無料録画要約 → Zapier で Notion へ →Slack 通知の 3 段自動化 |
+
+**建設業 B2B 特化補助**
+- **帝国データバンク COSMOS2 / 東京商工リサーチ tsr-van2**：与信・実在性確認（07-03 記録）の一次データ、初取引の月額 50 万超案件で必須
+- **国税庁インボイス番号公表サイト API**：外注先のインボイス登録有無を発注前チェック（08-13 記録）
+
+### Step 5: 追加フレームワーク・方法論
+
+- **MEDDPICC（Force Management）**：8 軸案件審査。B2B エンタープライズ営業の世界標準
+- **Command of the Message（Force Management）**：Value Framework（Business Issue → Player → Positive Business Outcome → Required Capability → Metric）の 5 層構造で提案を設計。汎用提案化を防ぐ
+- **Challenger Sale（CEB / Gartner）**：教える営業。Teach → Tailor → Take Control の 3 ステップ
+- **SPIN Selling（Rackham）**：既存運用（06-13 記録）を継続、Situation → Problem → Implication → Need-payoff
+- **Sandler Selling System**：Up-Front Contract（商談前に議題・時間・ゴール・次アクションを相互合意）を全商談で実施、期待値管理の徹底
+- **Solution Selling / Consultative Selling**：Ryota・既存クライアントとの継続案件で活用（相談ベースの深耕）
+- **MEDDIC の派生：MEDDPIC・BANT／CHAMP／ANUM**：案件規模と業種で使い分け
+- **Mutual Action Plan（MAP）**：受注前にクライアントと相互コミット表を作成（05-25 記録の実践を全案件標準化）、受注後の摩擦を激減
+- **RevOps（Revenue Operations）**：Marketing / Sales / CS を単一のデータ基盤（CRM）で運営、ファネル全体の CVR を統合可視化
+- **Bowtie Model（Winning by Design）**：受注をゴールとせず「Impact（顧客成果）→ 更新・拡張」までを設計。既存深耕（06-17 記録）を体系化
+- **JOLT Effect（Dixon）**：Indecision（決められない）に対する 4 戦術：Categorize / Recommend / Limit Exploration / Take Risk Off the Table。長期塩漬け案件の突破手法
+- **Value Selling Framework（Value Selling Associates）**：Business Issue → Problem → Solution → Value の直線的マッピング
+
+### Step 6: 拡張された出力フォーマット
+
+#### pipeline.json（拡張版 v2）
+```json
+{
+  "updated_at": "YYYY-MM-DD",
+  "summary": {
+    "total_deals": 0,
+    "weighted_pipeline_value": 0,
+    "coverage_ratio": 0.0,
+    "commit_forecast": 0,
+    "best_case_forecast": 0,
+    "expected_close_this_quarter": 0,
+    "avg_meddpicc_score": 0.0
+  },
+  "deals": [
+    {
+      "deal_id": "DEAL-2026-0001",
+      "client": "クライアント名",
+      "service": "サービス種別",
+      "acv": 0,
+      "tcv": 0,
+      "stage": "Prospect | Qualified | Proposal | Negotiation | Verbal | Closed-Won | Closed-Lost",
+      "forecast_category": "Pipeline | Best Case | Commit | Closed",
+      "yomi": "A | B | C | Netaneta",
+      "probability": 0.0,
+      "days_in_stage": 0,
+      "days_in_cycle": 0,
+      "close_date": "YYYY-MM-DD",
+      "meddpicc": {
+        "metrics": 0,
+        "economic_buyer": 0,
+        "decision_criteria": 0,
+        "decision_process": 0,
+        "paper_process": 0,
+        "identify_pain": 0,
+        "champion": 0,
+        "competition": 0,
+        "total_score": 0
+      },
+      "champion": {
+        "name": "",
+        "role": "",
+        "enablement_kit_delivered": true
+      },
+      "multithread_contacts": 0,
+      "competition": ["競合A", "競合B"],
+      "next_action": "",
+      "next_action_owner": "",
+      "next_action_due": "YYYY-MM-DD",
+      "mutual_action_plan_url": "",
+      "risk_flags": ["支払サイト60日超", "SLA保証要請"],
+      "gong_call_url": "",
+      "owner": ""
+    }
+  ],
+  "alerts": [
+    "DEAL-XXXX: 21日以上ステージ滞留",
+    "DEAL-YYYY: MEDDPICCスコア10点未満で提案フェーズ進行"
+  ]
+}
+```
+
+#### meddpicc_scorecard.md（案件別・週次更新）
+```
+# {案件名} MEDDPICC スコアカード
+更新日: YYYY-MM-DD / 総合スコア: XX/24 / ヨミ: A/B/C
+
+- **Metrics（効果指標）**: [0-3] 顧客側のKPI（応募数◯倍等）
+- **Economic Buyer（決裁者）**: [0-3] 名前・役職・接触回数
+- **Decision Criteria（判断基準）**: [0-3] 相手の言葉で列挙
+- **Decision Process（決裁プロセス）**: [0-3] 稟議段階数
+- **Paper Process（契約プロセス）**: [0-3] 法務レビュー要否
+- **Identify Pain（課題）**: [0-3] 相手発言の原文引用
+- **Champion（推進者）**: [0-3] Enablement Kit 提供状況
+- **Competition（競合）**: [0-3] 競合名・弱点・LET差別化
+
+## 次週の優先アクション（低スコア軸から）
+1. 
+2. 
+3. 
+```
+
+#### mutual_action_plan.md（受注前クライアント合意）
+```
+# {クライアント名} × LET Mutual Action Plan
+Target Close Date: YYYY-MM-DD
+
+| # | Milestone | Owner | Due | Status |
+|---|-----------|-------|-----|--------|
+| 1 | 現場訪問 | LET Sales | YYYY-MM-DD | ✅ |
+| 2 | 提案書レビュー会 | クライアント | YYYY-MM-DD | ⏳ |
+| 3 | 見積確定 | LET Finance | YYYY-MM-DD | ⏳ |
+| 4 | 社内稟議提出 | Champion | YYYY-MM-DD | ⏳ |
+| 5 | 契約締結 | Legal 相互 | YYYY-MM-DD | ⏳ |
+| 6 | キックオフ | PM | YYYY-MM-DD | ⏳ |
+```
+
+#### win_loss_analysis.md（受注 / 失注 4 週間以内）
+```
+# {案件名} Win/Loss 分析
+Outcome: Won / Lost / No Decision
+Deal Size: ¥X,XXX,XXX / Cycle: XX days
+
+## 決定要因（顧客ヒアリングベース）
+- 最終決定打（相手の原文）: 
+- 選ばれた理由 / 選ばれなかった理由:
+- 競合との比較ポイント:
+
+## 5大要因スコア（失注時のみ、複数選択可）
+- [ ] 価格 / [ ] スコープ / [ ] 納期 / [ ] 信頼 / [ ] 競合差別化
+
+## 学び（次案件への反映）
+- 
+```
+
+### Step 7: 新規 KPI・成果指標（数値目標）
+
+| KPI | 現状目安 | トップティア | LET 目標 2026-Q4 |
+|---|---|---|---|
+| **Win Rate（Qualified 商談ベース）** | 40%（既存目標） | 35-45%（Elite） | 45%（現状目標を維持しつつ Elite 到達） |
+| **Sales Cycle（平均商談期間）** | 60 日以内 | 45-75 日 | 50 日（Elite 域） |
+| **Pipeline Coverage Ratio（対クォータ）** | 未定義 | 3-4x | 3.5x 常時維持 |
+| **Forecast Accuracy（Commit ベース）** | 未定義 | ±5-10% | ±7% |
+| **Average Contract Value（ACV）** | 建設業採用支援 月 62 万（05-25 記録）→ 年 744 万 | 前年比 +20% | ACV ¥900 万 / 年（月額換算 75 万） |
+| **Net Revenue Retention（NRR）** | 未定義 | 105-120% | 115% |
+| **Multi-Thread Ratio（3 接点以上確保 % ）** | 未計測 | 80%+ | Qualified 以降 90% |
+| **MEDDPICC 平均スコア（Proposal 以降）** | 未計測 | 18/24 以上 | 18/24（Elite） |
+| **1 時間以内初回返信率** | 07-07 で運用開始 | 100% | 100% |
+| **失注 4 週間以内 Win/Loss 実施率** | 未計測 | 100% | 100% |
+
+### Step 8: 失敗パターン & 回避策（新規追加分）
+
+1. **失敗パターン: MEDDPICC を「埋めることが目的」化し、Champion 育成や Economic Buyer 接触の実行が伴わないままスコアだけ上げる（数字の粉飾）**
+   → 回避策: MEDDPICC は「相手の言葉で埋める」ルールを徹底し、C 軸（Champion）は「Champion が LET 案件を社内会議で自発言及した事実」がない限り 1 点以上つけない。Gong の商談録画で発言原文が裏付けられているかをマネージャーがサンプルレビュー。
+
+2. **失敗パターン: Gong / Chorus 導入後、商談録画が「証拠として使われる」ことを恐れて営業が守りに入り、質問数が減り Talk Ratio が上がる（監視ツール化の副作用）**
+   → 回避策: 導入初期は「コーチング・優秀商談の横展開・トップ営業の型抽出」に用途を限定し、評価・査定には使わない旨を明文化。3 ヶ月後にコーチング事例が共有される文化を作ってから、KPI（Talk Ratio 40% 以下 / Question 数 15 以上）を導入。
+
+3. **失敗パターン: Outreach / Salesloft のシーケンス自動化で送信量が増えた結果、内容がテンプレ丸出しになり返信率が急落、opt-out が増えてドメインレピュテーションまで悪化する**
+   → 回避策: シーケンスは「セグメント × ペルソナ」毎に最低 3 種類作り、A/B テストで返信率 5% 以下のシーケンスは 2 週間で改廃。1 通目は必ずパーソナライズ（相手の SNS 投稿・IR・採用募集への言及）を手動で 1-2 行追加する運用に固定。
+
+4. **失敗パターン: MAP（Mutual Action Plan）をクライアントに送りつけて終わり、進捗のフォローアップを怠り「単なる約束のリスト」で終わる**
+   → 回避策: MAP は隔週で相互確認する会議体（15 分でも可）をセットにし、Milestone の Status を Green/Yellow/Red で相互更新。2 週連続 Red の Milestone は Deal Health を下げ、Champion と対策協議。
+
+5. **失敗パターン: Deal Desk（値引き承認）を「面倒な稟議」と捉えて営業がすり抜け、事後報告で Finance / Legal が知ることになり、粗利崩壊 or 契約リスクを黙認する形になる**
+   → 回避策: Deal Desk は Slack チャンネル + Notion DB で 24 時間以内応答 SLA を設定し、営業のスピード感を落とさない。「値引きせずに勝ったディール」を毎月表彰し、Deal Desk を通した交換条件セットを賞賛する文化を作る。
+
+6. **失敗パターン: SDR/AE/CS の分業を進めた結果、ハンドオフ時に「顧客文脈」が落ち、AE が SDR の初回接触経緯を知らずに商談に入り、顧客が同じ話を 2 度させられて温度が下がる**
+   → 回避策: SDR → AE ハンドオフに「Discovery Note（相手のペイン原文・Metrics・Timeframe・Champion 候補）」の書式を必須化し、記入なしのハンドオフは AE が受諾拒否できる SLA を設定。Gong 録画リンクも Note に必ず含める。
+
+### Step 9: 連携・エスカレーション基準
+
+**エスカレーション先マトリクス**
+
+| 事象 | 一次対応 | エスカレーション先 | 判断基準 |
+|---|---|---|---|
+| 定価から 10% 以上の値引き要求 | AE | **Deal Desk（Finance + Legal + 営業マネージャー）** | 交換条件セットを Deal Desk が判定 |
+| SLA / 稼働率 / 独占利用の保証条項要請 | AE | **Legal（nori 経由）** | 受注確定を待たず商談段階で早期相談（07-02 記録） |
+| 月額 50 万円超・新規取引・長サイト（60 日超） | AE | **Finance（与信判定） + Legal（反社チェック）** | 受注確定前に必ず（07-03 記録） |
+| 建設業クライアントの現場運用実態が提案に必要 | AE | **HR** | 提案書作成前に 1 営業日以内で要件受領 |
+| 提案書の実現可能性（納期・スコープ・追加対応） | AE | **PM + Yuto（資料作成部）** | 口頭確約前に必ず（06-04 記録） |
+| 商談で刺さった数値・失敗談の Pr 素材化 | AE | **Pr** | 商談後 48 時間以内、公表可否は Pr 側で書面承諾 |
+| MQL 非受諾（追客しない判断） | AE | **Marketing** | その日のうちに理由 1 行を返す（08-13 記録） |
+| MEDDPICC スコア 10 点未満で Proposal ステージ進行 | AE | **営業マネージャー（週次パイプラインレビュー）** | 進行可否をレビュー会で判定、Kill も選択肢 |
+| 大手クライアント（月 100 万超）の受注確定 | AE | **HARU + sora** | 受注前レビュー、リソース事前確保 |
+| Champion が離脱・異動 | AE | **営業マネージャー** | 即時 Deal Health を Yellow 以下に降格、代替 Champion 育成計画を 1 週間以内に提出 |
+
+**分業モデル（LET が拡大したときの想定）**
+- **SDR / BDR（Business Development Rep）**: 新規リード開拓・初回アポ設定・MQL→SAL 判定。ツール = Outreach / Apollo。KPI = 月間新規商談 20 件、SAL→SQL 転換率 40%
+- **AE（Account Executive）**: SQL 以降のクロージング担当。ツール = Salesforce / Gong / Highspot。KPI = Win Rate 45%・ACV ¥900 万・Sales Cycle 50 日
+- **CSM（Customer Success Manager）**: 受注後のオンボーディング〜更新・拡張。ツール = Salesforce Service Cloud / Gainsight。KPI = NRR 115%・チャーン 3% 以下・アップセル率 30%
+- **Sales Ops / RevOps**: CRM 運用・ダッシュボード・Forecast 自動化。ツール = Clari / Tableau。KPI = Forecast Accuracy ±7%
+
+### Step 10: 自己研鑽ルーティン（週次・月次インプット源）
+
+**週次（毎週 60 分）**
+- 自分の商談録画 3 本（Gong）を Talk Ratio / Question 数 / 競合言及 で自己レビュー
+- 他 AE の High-Win 商談録画 1 本を視聴し、良い問いかけ・切り返しを Playbook に追記
+- パイプラインレビュー会前に MEDDPICC スコアの空欄を必ず埋め、埋まらない軸の次アクションを起票
+- 失注 1 案件について Win/Loss 分析を実施（顧客ヒアリング必須）
+
+**月次（毎月 3 時間）**
+- SaaSTr 最新記事 / OpenView SaaS Benchmarks 更新確認
+- 日本の営業書 or 洋書 1 冊読了（推奨初期 5 冊）:
+  1. 『The Challenger Sale』Matt Dixon
+  2. 『MEDDICC』Andy Whyte
+  3. 『SPIN Selling』Neil Rackham
+  4. 『The JOLT Effect』Matt Dixon
+  5. 『Selling to Big Companies』Jill Konrath
+- Gong Reveal / Outreach Unleash / Dreamforce（Salesforce）のセッションアーカイブ 3 本視聴
+- 建設業関連の一次情報インプット: 日刊建設工業新聞・国交省 統計調査・帝国データバンク建設業景況感調査
+
+**四半期（3 ヶ月に 1 度）**
+- MEDDPICC / Command of the Message / Challenger の外部トレーニング or 認定コース受講
+- 建設業クライアントの現場訪問を 3 社以上（既存 + 見込み）、実地インプットの棚卸し
+- 過去 90 日の Win/Loss 分析を集計、勝ちパターン・負けパターンを Playbook に格上げ
+- KPI ダッシュボード（Win Rate / Sales Cycle / Coverage / Forecast Accuracy / NRR）の四半期レビューを HARU / sora へ報告
+
+**推奨インプット源リスト**
+- Podcast: 30 Minutes to President's Club / The Sales Podcast / Revenue Builders / セールスドクター
+- Blog: Gong Labs（データドリブン営業）/ Outreach Blog / HubSpot Sales Blog / SmartHR オープン社内報
+- Community: Pavilion（GTM リーダー） / Sales Hacker / RevOps Co-op
+- 日本語コミュニティ: SalesZine / THE MODEL 実践者コミュニティ / セールスイネーブルメント協会
+
+---
+
+**適用開始日**: 2026-08-18 / 次回レビュー: 2026-Q4 末（12 月）に KPI 実績と本アップデートの浸透度を sora・HARU と振り返り、翌四半期の強化テーマを決定する。
