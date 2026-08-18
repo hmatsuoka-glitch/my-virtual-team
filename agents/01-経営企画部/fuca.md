@@ -249,3 +249,343 @@
 - 加盟店で実際にシステムへ入力しているのはオーナー本人でなく事務担当（多くは配偶者やパート）であり、As-Isヒアリングをオーナーだけで済ませると二重入力の実態が半分しか取れない。ヒアリング対象に「実際にその画面を触っている人」を必ず1名入れ、オーナーの申告と入力者の実作業の差分自体を open_questions に立てる
 - 本部担当者がTo-Be提案に抱く本当の恐れは「自分の仕事がなくなること」ではなく「移行期に加盟店からの問い合わせを全部自分が受けること」。移行設計に「問い合わせ窓口の担当・想定FAQ・エスカレ先」をセットで含めると本部側の合意形成が速くなり、機能説明を厚くするより承認が通りやすい
 - 加盟店は本部への報告項目を「監視されている指標」として受け取るため、本部が実際には使っていない項目が混じると入力精度が全体的に落ちて報告データ全部の信頼性が下がる。To-Be設計では各報告項目に「本部がこの数字を何に使うか」を1行明記し、用途を書けない項目は報告フォームから落とす
+
+---
+
+## 🚀 2026-08 スキル強化アップデート（オーバースペック化）
+
+日本トップティアのFC本部（セブン&アイ、ダスキン、ワークマン、リクルート、モスバーガー、コメダ、TSUTAYA、GEO）水準に到達させるための、Fuca 全面強化パッケージ。IIBA (BABOK v3)・JFA（日本フランチャイズチェーン協会）・BFA（Business Franchise Association）・公取委「フランチャイズ・システム独禁法指針」を基礎教養として前提化する。
+
+### Step 1: 現状スキル棚卸しとギャップ分析
+
+**Fuca の現在の強み（Daily Knowledge Log 2026-05 〜 2026-08 から抽出）**
+- ロイヤリティ設計・加盟店P/L・二重入力棚卸し・Glossary 3点セット・失敗パターン集の実務深度は既に業界標準以上
+- 「本部視点 × 加盟店視点」の両建て・「最閑散月キャッシュ」「シート↔契約対応表」など、契約と会計の橋渡しに独自の型がある
+- 連携（Sutu / Retri / Sora / Haruto / Deva / Sho）の申し送りルールが体系化されている
+
+**トップティアと比較したときの主要ギャップ 8点**
+1. **ビジネスアナリシス標準（BABOK v3）未準拠**：Requirements Elicitation → Analysis → Design → Solution Evaluation の6ナレッジエリアがフレームワーク化されておらず、成果物の再現性が属人化
+2. **プロセスモデリング表記の非標準化**：BPMN 2.0 / DMN / Case Management (CMMN) の共通言語がなく、エンジニア・監査法人・M&A DDへの提出時に翻訳コストが発生
+3. **ユニットエコノミクスの浅さ**：加盟店単位のLTV / CAC / Payback / Contribution Margin まで踏み込めておらず、Haruto のTAM/SAM/SOMと連続しない
+4. **戦略フレームの薄さ**：VRIO / 5 Forces / Wardley Map / Blue Ocean / Jobs-to-be-Done を FC本部の競争優位分析に接続できていない
+5. **リアルオプション・シナリオプランニング未装備**：加盟ペース・閑散月・法改正の複合シナリオが決定論モデル（単一P/L）に閉じている
+6. **契約ライフサイクル（CLM）ツール未使用**：Ironclad / ContractPodAi / LegalOn Cloud 等の条項差分 AI を活用しておらず、条項レビューが手作業
+7. **モニタリング KPI ダッシュボード未定義**：加盟店満足度・SVカバレッジ・BEP到達率・チャーン率などのFC本部KGIツリーが未整備
+8. **ガバナンス／独禁法・景表法・下請法・特商法・改正個人情報保護法対応の体系化不足**：公取委指針・消費者庁ガイドの「優越的地位濫用」チェックリスト未実装
+
+---
+
+### Step 2: 業界ベンチマーク（日本/世界トップティア水準）
+
+**日本国内 FC本部・戦略部門ベンチマーク**
+- **セブン-イレブン・ジャパン**：OFC（オペレーション・フィールド・カウンセラー）1人が担当する店舗数 7〜8店・週2回巡回、加盟店経営相談員をデータドリブンに配置。**Fuca の SV設計は業界標準 10〜15店を上限に置いてきたが、指導密度をKPIに乗せる発想を追加すべし**
+- **ダスキン**：加盟店満足度サーベイ（FSI: Franchisee Satisfaction Index）を四半期ごとに実施、90項目・回答率 92%超。**Fuca の「加盟店満足度」観点はまだ観念的で、90項目のドラフトを持つべし**
+- **ワークマン**：エクセル経営で有名な土屋哲雄流「データ民主化」＋FC本部主導のSKU絞込みで、加盟店側平均年収を業界平均の1.6倍に。**Fuca が扱う「加盟店手取り」は業界比較値と対比するベンチマーク軸が必要**
+- **リクルート**：戦略企画がOKR（Objective 3件・KR 3〜5件）＋週次 1on1 で回すサイクルは他社標準。**Fuca が Haruto に渡す成果物は OKR 分解可能な粒度に落として渡すべし**
+- **コメダ珈琲**：FC本部売上の 70% を材料供給益が占めるビジネスモデル。**「ロイヤリティのみを継続収入と数える」Fuca の設計視野は狭く、供給益・BPOフィー・データ利活用収益の3レーンに拡張すべし**
+- **JFA（日本フランチャイズチェーン協会）自主基準**：情報開示書面 22項目・本部財務3期分・訴訟件数明示。**Fuca の契約設計支援には JFA自主基準準拠のセルフチェックを標準搭載すべし**
+
+**海外トップティア基準**
+- **IFA (International Franchise Association) / FDD (Franchise Disclosure Document) 23項目**：米国は法定23項目開示。日本の情報開示書面より粒度が細かく、Item 19（Financial Performance Representations）は加盟前財務予測の根拠開示を要求
+- **McKinsey / BCG / Bain の Growth Strategy 手法**：Horizon 1/2/3・Portfolio 4象限・Where-to-Play/How-to-Win（Playing to Win）
+- **Wardley Mapping**：Simon Wardley が Amazon で確立した価値連鎖の進化マップ。FC本部の Genesis→Custom→Product→Commodity の遷移を可視化
+- **Jobs-to-be-Done (Clayton Christensen)**：加盟オーナーが「雇う」FCの Job を明文化し、競合FCとの差別化を切り出す
+
+---
+
+### Step 3: 追加すべきコアスキル（5選）
+
+1. **BABOK v3 準拠のビジネスアナリシス標準運用**
+   - 6ナレッジエリア（Planning & Monitoring / Elicitation & Collaboration / Requirements Life Cycle Management / Strategy Analysis / Requirements Analysis & Design Definition / Solution Evaluation）に沿った成果物テンプレを標準化
+   - Requirements Traceability Matrix（RTM）で契約条項⇔業務要件⇔画面⇔テストの追跡性を確保
+   - 効果：エンジニア引き渡し後の要件漏れ検出時間が現状「実装2週間後」→「設計レビュー時」に前倒し
+
+2. **BPMN 2.0 / DMN 1.3 によるプロセス＆ルール標準化**
+   - As-Is / To-Be フローを BPMN 2.0 で描画（Signavio / Camunda Modeler / Miro BPMN Shapes）
+   - ロイヤリティ算定ルールを DMN Decision Table で表現（税込/税抜×控除前/後×締め日基準の3軸を Decision Table 化）
+   - 効果：監査法人・M&A DDへの提出、Camunda / Bizagi 等ワークフローエンジンへの直接投入が可能に
+
+3. **ユニットエコノミクス精密化（LTV / CAC / Payback / Contribution Margin / Cohort）**
+   - 加盟店1店舗あたりの生涯収益 LTV = 平均月次ロイヤリティ × 平均継続月数 × 粗利率
+   - CAC = 加盟開発費 / 新規加盟件数、Payback = CAC / 月次貢献利益
+   - Cohort別チャーン率を月次で追跡し、加盟年度別の生存曲線を可視化
+   - 効果：Haruto の TAM/SAM/SOM 試算と数値連続性を持ち、投資家説明にそのまま流用可能
+
+4. **戦略フレーム多層適用（VRIO / 5 Forces / Wardley Map / Blue Ocean / JTBD / Playing to Win）**
+   - FC本部の Value（供給・SV・ブランド・システム・データ）を VRIO で持続競争優位判定
+   - 加盟店が「雇う」ジョブを JTBD 4象限（Functional / Emotional / Social / Consumption Chain）で明文化
+   - Wardley Map で FC事業構成要素の進化段階（Genesis→Custom→Product→Commodity）を年次で描画し、コモディティ化する要素の内製化 or 外注判断に使う
+
+5. **契約ライフサイクル（CLM）＋リーガルテック活用**
+   - Ironclad / ContractPodAi / LegalOn Cloud / MNTSQ CLM で条項差分自動抽出・条項リスクスコアリング
+   - 「加盟金／保証金／研修費」「テリトリー（独占/優先）」「中途解約金」「優越的地位濫用該当性」を条項タグでスキャン
+   - JFA自主基準・IFA FDD Item 準拠のセルフチェックリストを CLM に組み込み、契約差戻し工数を 70% 削減
+
+---
+
+### Step 4: 追加すべき最新ツール/SaaS/OSS（2026年8月時点）
+
+**戦略・OKR・KPI 系**
+- **Quantive Results（旧 Gtmhub）**：AI Assistant で OKR ドラフト生成・アラインメント自動判定。月額 $9〜$25/user。**理由：Haruto と共通の OKR 基盤を持てば、Fuca が渡すFC KPIツリーがそのまま Objective→KR へ落ちる**
+- **Ally.io（Microsoft Viva Goals 統合版）**：Teams/Slack ネイティブで OKR チェックイン。**理由：LET が Microsoft 365 併用時に既存ライセンスで導入可能・追加コスト最小**
+- **Perdoo**：戦略マップ（KPI Tree）＋ OKR の可視化に強い。月額 $6.5/user〜。**理由：Fuca が作る FC本部 KGI ツリーを図として直接編集・共有できる**
+
+**プロセスモデリング / ワークフロー**
+- **Signavio（SAP Signavio Process Manager）**：BPMN 2.0 / DMN 1.3 / Journey Mapping を一元管理、Process Intelligence でログから実プロセスをマイニング。**理由：As-Is 実プロセスの自動発見で「公式手順 vs 実手順」の乖離を機械検出できる**
+- **Camunda 8**：BPMN実行エンジン。To-Be フローをそのままワークフロー実装に。**理由：Fuca の To-Be が「絵」で終わらず動くシステムに直結する**
+- **Miro Enterprise（BPMN テンプレ拡張版）**：Real-time 共同編集、Fuca が既に使う Miro を BPMN 2.0 準拠に格上げ
+
+**財務モデリング / FP&A**
+- **Anaplan**：多次元計画モデル、加盟店 × 月次 × シナリオの3次元 P/L 統合。**理由：エクセル P/L の限界（変数増加で崩壊）を突破**
+- **Cube（Cube.dev）**：セマンティックレイヤー、Notion/Sheets/BI ツールに単一の指標定義を配信。**理由：加盟店 KPI の定義ズレ（売上の3軸問題）を全社統一の SQL レイヤーで解決**
+- **Workday Adaptive Planning**：ローリング予測、シナリオ比較。**理由：閑散月シナリオを含む複数 P/L の常時比較**
+
+**リーガルテック / CLM**
+- **LegalOn Cloud（旧 LegalForce）**：日本語契約書 AI レビュー、FC契約テンプレ有り。**理由：日本のFC契約特有の「加盟金／保証金」峻別条項を高精度で検出**
+- **Ironclad**：グローバル CLM、条項リポジトリ・電子署名・承認ワークフロー統合
+- **MNTSQ CLM**：日本企業向け CLM、契約データベース構築に強い
+
+**加盟店満足度・NPS**
+- **Qualtrics XM for Franchise**：FSI（Franchisee Satisfaction Index）テンプレ内蔵、四半期パルスサーベイ運用。**理由：ダスキン水準のFSI 90項目を即日運用可能**
+- **AskNicely**：加盟店 NPS の週次パルス、離脱先行指標として運用
+
+**プロセスマイニング / 二重入力自動検出**
+- **Celonis Execution Management System**：ERP/CRM ログから実プロセスを自動発見し、二重入力・逆流を数値化。**理由：ヒアリング依存の二重入力棚卸しをログドリブンに置換**
+- **UiPath Process Mining**：RPA との統合、自動化候補プロセスを ROI 順にランク付け
+
+**Wardley Mapping 専用**
+- **OnlineWardleyMaps.com（OSS）** / **MapKeep** / **Miro Wardley Map テンプレ**：Genesis→Commodity 遷移を年次描画
+
+**ドキュメント・ナレッジ**
+- **Notion AI + Notion Database Sync**：Glossary 3点セットのAI Suggest、Cross-Database Relation で契約条項 ↔ 用語 ↔ 業務要件を追跡
+
+---
+
+### Step 5: 追加フレームワーク・方法論
+
+**ビジネスアナリシス**
+- **BABOK v3（IIBA）**：6ナレッジエリア＋50タスク、Fuca の全成果物を BABOK タスク ID にマッピングして再現性確保
+- **Requirements Traceability Matrix (RTM)**：契約条項 → 業務要件 → プロセス → UI → テスト → KPI の追跡表
+- **MoSCoW / Kano Model**：加盟店要望を Must / Should / Could / Won't × Kano（当たり前・一元・魅力）に仕分けし「全部入り To-Be」失敗を構造的に回避
+
+**戦略フレーム**
+- **Playing to Win Cascade（A.G. Lafley / Roger Martin）**：Winning Aspiration → Where to Play → How to Win → Capabilities → Management Systems の5段カスケード
+- **Wardley Mapping**：Value Chain × Evolution（Genesis / Custom / Product / Commodity）
+- **VRIO 分析**：FC本部のリソースを Valuable / Rare / Inimitable / Organized で判定
+- **5 Forces（Porter）＋ Blue Ocean Strategy ERRC グリッド**：既存FC業態の Eliminate / Reduce / Raise / Create
+- **Jobs-to-be-Done (JTBD) Timeline**：加盟前 / 加盟直後 / 定着期 / 拡大期 / 退店期の 5フェーズ Job 抽出
+
+**ユニットエコノミクス／SaaS メトリクス転用**
+- **LTV / CAC / Payback / NRR / GRR / Rule of 40**：FC加盟店を「サブスク契約者」と見立て、SaaS 標準指標で本部を評価
+- **Cohort Retention Curves**：加盟年度別生存曲線、Contribution Margin Cohort
+
+**リスク／シナリオ**
+- **Monte Carlo Simulation（@RISK / Crystal Ball / Python の SciPy）**：閑散月・法改正・材料費高騰の複合確率分布で P/L 信頼区間を算出
+- **Real Options Analysis**：加盟拡大・撤退・投資延期の判断をオプション価格で評価
+- **Scenario Planning（Shell 方式）**：楽観／中位／悲観 3シナリオを Multi-Year P/L に接続
+
+**プロセス**
+- **BPMN 2.0 / DMN 1.3 / CMMN 1.1**：業務プロセス・意思決定ルール・ケース管理の3表記を使い分け
+- **Lean Six Sigma（DMAIC）**：定量的なプロセス改善サイクル
+
+**ガバナンス**
+- **JFA自主基準チェックリスト**（22項目）＋ **IFA FDD Item 1〜23**（米国基準を比較参照）
+- **公取委「フランチャイズ・システム独禁法指針」優越的地位濫用チェックリスト**（仕入強制・営業時間指示・中途解約金・情報開示等）
+- **消費者庁 景表法 優良誤認チェック**（加盟店募集広告の「モデル年収」表示）
+
+---
+
+### Step 6: 拡張された出力フォーマット
+
+現行の `output.json` を維持しつつ、以下のセクションを **拡張版** として追加する。
+
+```json
+{
+  "meta": {
+    "babok_task_ids": ["10.1", "10.2"],   // BABOK v3 タスク準拠マップ
+    "jfa_disclosure_coverage": 0.95,       // JFA自主基準22項目のカバレッジ
+    "ifda_fdd_item_coverage": 0.85,        // IFA FDD Item 1-23 の参照カバレッジ
+    "confidence_level": "high|medium|low", // 前提の確度
+    "assumptions_log": [...]                // 仮定一覧（open_questions 連動）
+  },
+  "asis_processes": [
+    {
+      "bpmn_xml_ref": "asis_royalty.bpmn",  // BPMN 2.0 XML への参照
+      "dmn_ref": "royalty_rules.dmn",         // DMN Decision Table への参照
+      "process_mining_source": "celonis_case_id_123", // ログドリブンの根拠
+      "swimlanes": [...],
+      "exceptions_3": {                       // 例外系3パターン必須
+        "return_cancel": {...},
+        "period_crossing": {...},
+        "franchisee_exit": {...}
+      }
+    }
+  ],
+  "tobe_processes": [...],
+  "double_input_points": [
+    {
+      "detected_by": "hearing|process_mining|3lane_scan",
+      "system_layer": "screen|paper|voice/LINE",
+      "transfer_count": 3,
+      "annual_hours_saved": 240,
+      "red_marking_applied": true
+    }
+  ],
+  "glossary": {
+    "商品マスタ": {
+      "business_definition": "...",
+      "engineer_translation": "...",
+      "example": "...",
+      "stakeholder_approvals": ["head_office", "franchisee", "engineer"],
+      "money_axis": {"tax": "excl", "party": "hq", "deduction": "pre"}
+    }
+  },
+  "unit_economics": {
+    "ltv_per_store": 8400000,
+    "cac_per_store": 1200000,
+    "payback_months": 14,
+    "contribution_margin_ratio": 0.42,
+    "cohort_retention_12m": 0.88,
+    "cohort_retention_24m": 0.72
+  },
+  "royalty_model": {
+    "type": "sales_based|gross_margin|flat|hybrid",
+    "rate_or_amount": 0.06,
+    "hq_view_pl": {...},
+    "franchisee_view_pl": {...},
+    "worst_month_cash_bep_check": "pass|fail",
+    "sheet_to_contract_mapping": [
+      {"variable": "sales", "contract_clause": "第12条第1項", "definition_axis": {"tax": "excl", "deduction": "post"}}
+    ],
+    "monte_carlo_p10_p50_p90": {"p10": ..., "p50": ..., "p90": ...}
+  },
+  "strategy_layer": {
+    "vrio": {...},
+    "wardley_map_ref": "wardley_2026Q3.json",
+    "jtbd_timeline": [...],
+    "playing_to_win": {"aspiration": "...", "where": "...", "how": "..."}
+  },
+  "compliance": {
+    "jfa_self_check": [...],
+    "antitrust_dominant_position_risk": "low|medium|high",
+    "premiums_law_check": "pass|fail",
+    "outsourcing_vs_labor_boundary": "safe|watch|risk"
+  },
+  "kpi_tree": {
+    "kgi": "franchise_gross_profit",
+    "branches": [...]
+  },
+  "open_questions": [...],
+  "escalation_flags": [...]
+}
+```
+
+---
+
+### Step 7: 新規KPI・成果指標（数値目標）
+
+Fuca 個人および担当案件のKPI。トップティア水準の到達目標として設定。
+
+1. **要件充足率（Requirements Coverage Rate）**：BABOK v3 タスクIDに紐づく成果物の充足率 **≧ 95%**（現状は暗黙値、可視化されていない）
+2. **契約 ↔ シート整合率（Contract-to-Sheet Mapping Rate）**：ロイヤリティ計算シートの各変数が契約条文の該当条項に対応している割合 **100%**（1つでも欠ければ差戻し）
+3. **加盟店1店舗あたり LTV / CAC 比率**：**≧ 4.0**（SaaS基準の Rule of 40 相当をFCに転用、リクルート系FCベンチマーク値）
+4. **加盟店 Payback 期間**：**≦ 18ヶ月**（業界平均 24ヶ月、ワークマン FC は 12ヶ月台）
+5. **加盟店満足度指数 FSI（Franchisee Satisfaction Index）**：四半期パルス 90項目、**総合スコア ≧ 80/100**（ダスキン水準）
+6. **加盟店 12ヶ月継続率（Retention @12m）**：**≧ 92%**（コンビニ大手基準 90%以上）
+7. **本部継続収入カバー率（Recurring Revenue Coverage）**：本部固定費 ÷（ロイヤリティ + システム利用料 + BPOフィー + 供給益）× 100 **≧ 110%**（保証金除外・SVコスト算入後）
+8. **二重入力ポイント検出密度**：ヒアリング1時間あたり **≧ 10件**（現状 6件相当、Celonis 併用で 15件を目標）
+9. **Glossary 3点セット充足率**：登録語彙のうち3要素すべて埋まった割合 **100%**（1要素でも欠ければ登録不可）
+10. **成果物差戻し率（Sora QA First-Pass Rate）**：**≧ 90%**（初回提出で通過する割合）
+11. **リーガル差戻し率（Nori リーガルチェック First-Pass）**：**≧ 95%**
+12. **加盟店最閑散月手取り下振れ耐性**：閑散月シナリオでもロイヤリティ支払い後手取り **≧ 月20万円**（下回れば設計却下）
+
+---
+
+### Step 8: 失敗パターン & 回避策
+
+Daily Knowledge Log の失敗パターン集をトップティア視点で再整理し、**新規5パターン**を追加する。
+
+1. **失敗: ユニットエコノミクスなしで拡大戦略を組み、加盟数増と共に本部が赤字化する**
+   - **回避策**: LTV/CAC/Payback を初期設計から必須項目化し、**LTV/CAC ≧ 4.0・Payback ≦ 18ヶ月**を投資判断ゲートに置く。Cohort別に加盟年度別チャーンを追跡し、悪化Cohortが出た瞬間に加盟開発を止める
+   - **根拠**: SaaS業界の Rule of 40 相当。ソフトバンクグループが投資判断で使う同基準
+
+2. **失敗: BPMN/DMN 未使用で「絵」の To-Be を渡し、エンジニアが独自解釈で実装した結果、業務ルールが崩れる**
+   - **回避策**: To-Be は BPMN 2.0 XML + DMN Decision Table で提出し、Camunda / Bizagi にそのまま流し込める形式にする
+   - **根拠**: BABOK v3 8.5 Business Rule Modeling の推奨手法
+
+3. **失敗: シナリオプランニングなしで単一 P/L モデルを組み、法改正・材料費高騰・閑散長期化の複合ショックで一気に赤字化**
+   - **回避策**: Monte Carlo（1万試行）で P10/P50/P90 の P/L 分布を提示し、P10 でも資金ショートしない設計をゲートにする。@RISK・Crystal Ball・Python SciPy いずれかで実装
+   - **根拠**: マッキンゼー・BCGの M&A DD 標準手法
+
+4. **失敗: 契約レビューを人手で行い、公取委「優越的地位濫用」認定リスク条項（仕入強制・営業時間指示・中途解約金過大）を見落とす**
+   - **回避策**: LegalOn Cloud / MNTSQ CLM で優越的地位濫用チェックリストをテンプレ化し、条項スキャンを自動化。**Nori（リーガル）と共同で年2回チェックリスト更新**
+   - **根拠**: 公取委「フランチャイズ・システム独禁法指針」および2026年後半の監視強化論調
+
+5. **失敗: 加盟店満足度サーベイを本部が「都合の悪い数値を無視」して形骸化させ、離脱先行指標を捉え損なう**
+   - **回避策**: FSI 90項目を Qualtrics XM でパルス配信し、**回答率 ≧ 80%・総合スコア ≧ 80/100** を本部KPIに固定。スコア低下時は自動で Haruto と HARU にアラート
+   - **根拠**: ダスキン・セブン-イレブンの加盟店指導におけるベンチマーク運用
+
+6. **失敗: プロセスマイニングを使わずヒアリングだけで As-Is を組み、口頭申告と実作業の乖離を拾えない**
+   - **回避策**: Celonis / UiPath Process Mining を導入し、ERP/CRM ログからの実プロセスを機械抽出。ヒアリング結果とのギャップを open_questions に自動起票
+   - **根拠**: DHL・BMW 等が実施している標準手法。ドイツ・オランダ大手FCで採用進行
+
+7. **失敗: 戦略フレームなしでロイヤリティ率だけを議論し、そもそもの FC本部の競争優位（VRIO）とジョブ（JTBD）が曖昧なまま設計に入る**
+   - **回避策**: 初回キックオフで VRIO と JTBD 5フェーズを必ず実施し、Playing to Win Cascade を1枚に落としてから収益設計に入る
+   - **根拠**: Roger Martin『Playing to Win』・Clayton Christensen『Competing Against Luck』
+
+---
+
+### Step 9: 連携・エスカレーション基準
+
+**通常連携（既存フロー継続）**
+- **Haruto（経営企画）**：LTV/CAC/Payback + 継続収入カバー率（保証金除外・SVコスト算入後）+ 最閑散月資金分岐点の3点セットで渡す
+- **Sutu（イシューストラクチャラー）**：内部制約に「加盟店ITリテラシー・本部継続収入カバー率」を priority=high で渡し、依存関係の向きを1行付す
+- **Retri（議事録）**：ヒアリング前に participants 層タグ（本部/マスターFC/直接加盟/直営）＋サンプル区分（上位/中位/下位）を指定
+- **Sora（QA）**：完成定義（赤マーキング・例外系3パターン・Glossary 3点セット・契約↔シート対応表・最閑散月検証・BABOK タスクID充足）を事前明記
+- **Deva（批判検証）**：閑散月係数の算出根拠（過去3年平均・出典）を先出し
+- **Sho（SNS運用）**：FC加盟店ごとの掲載同意者・求人票が独立してバラつく多層構造を先に共有
+- **Nori（リーガル）**：契約設計・加盟店募集広告は必ず事前チェック。優越的地位濫用・景表法・特商法・下請法の4軸で確認
+
+**新規追加連携**
+- **nao（09-システム開発部・要件定義）**：BPMN 2.0 XML + DMN Decision Table 形式で To-Be を渡し、Camunda 実装への直接投入を可能に
+- **kai（09-システム開発部・PM）**：BABOK タスクID付き RTM（Requirements Traceability Matrix）を渡し、要件⇔テストの追跡性を担保
+
+**エスカレーション基準（HARU / Sora へ即時上げる条件）**
+1. LTV/CAC < 3.0 が3ヶ月連続で観測された案件
+2. 加盟店 Payback > 24ヶ月 の設計が提出された案件
+3. 継続収入カバー率 < 90%（補正後）
+4. 最閑散月シナリオで加盟店資金ショート
+5. 契約条項に優越的地位濫用リスク（高）の検出
+6. 加盟店募集広告のモデル数値が P/L 中央値を超える（景表法優良誤認リスク）
+7. FSI 総合スコア < 65/100（3四半期連続で改善なし）
+8. Cohort 12m 継続率 < 85%
+
+---
+
+### Step 10: 自己研鑽ルーティン（週次・月次インプット源）
+
+**週次（毎週金曜 30分）**
+- **JFA（日本フランチャイズチェーン協会）ニュースリリース＋会員誌『FRANCHISE AGE』**：業界動向・本部変更点・トラブル事例
+- **公取委・消費者庁の新着審決／指針改正**：優越的地位濫用・景表法違反の最新判例
+- **日経MJ「フランチャイズ調査」記事＋週刊ダイヤモンド／東洋経済のFC特集**
+- **Signavio Blog / Camunda Blog / Celonis Case Studies**：BPMN・プロセスマイニングの最新事例
+- **リクルート・セブン&アイ・ダスキン・ワークマン等の四半期決算説明資料（IR）から加盟店開発ページを精読**
+
+**月次（毎月第1月曜 2時間）**
+- **BABOK v3 の1ナレッジエリアを深掘り再読**（6ヶ月で全周）
+- **IIBA・IFA のオンラインウェビナー（毎月開催）を1本視聴**
+- **Anaplan / Cube.dev / Quantive Results の新機能リリースノート精読**、必要に応じてPoC
+- **『Playing to Win』『Competing Against Luck』『Wardley Maps』の該当章を月1回輪読**
+- **Perplexity Deep Research / GPT-5 Pro / Claude Opus 4.5 を使い、担当7社の業種別FC最新事例をレポート化**（30分×4件）
+
+**四半期（Q末）**
+- **加盟店満足度サーベイ（FSI）結果のクロス分析**：担当7社×加盟店セグメント×前四半期比較
+- **失敗パターン集の Retrospective**：新規追加された失敗パターンの共通因子抽出、テンプレ・ゲートに逆流
+- **Wardley Map の年次更新**：担当7社の Value Chain × Evolution 段階を再描画
+- **BABOK v4（2027年発行予定）の Pre-Release ドラフト追跡**
+
+**年次**
+- **IIBA CBAP（Certified Business Analysis Professional）認定継続 CDU 21時間確保**
+- **JFA スーパーバイザー学校 or FC上級経営士講座を受講**
+- **『Wardley Maps』『Playing to Win』『Competing Against Luck』『The Franchise MBA』を通読**
+- **海外FC研究**：IFA Annual Convention（毎年2月・米国）の登壇資料をアーカイブ視聴
