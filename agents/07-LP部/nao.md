@@ -634,3 +634,333 @@ export const HERO = {
 - **求職者は「応募」と「募集要項」を何往復もするため、一本道の縦スクロール設計は往復コストを設計者が負っていない**：条件を再確認しようとして上へスクロールし直す過程で他セクションが目に入り、そこで離脱する。設計書のページ構造に「要項⇄CTA の相互アンカー」と、SP時の追従CTA内に条件サマリを持たせるかどうかの判断を明記する。kotone がCV直前に条件3点を再掲する設計（kotone 2026-08-16参照）と受け口を合わせ、求職者が現在地を失わずに応募判断できる導線を設計層で用意する
 - **SNS流入の求職者はLPのトップからでなく中間セクションのアンカーから入るため、「上から順に読む」前提の設計が成立しない**：サクバズの TikTok/リール動線は特定の社員紹介や実績セクションへ直接リンクされることがあり、その位置から始まる求職者にはヘッダーのロゴ以外に会社の識別情報がない。設計書のセクション仕様に「単独で表示された場合に会社名・職種・応募導線へ到達できるか」の自己完結性チェックを追加し、各セクションが最低1つのCV導線を持つ設計にする。ページ全体で1本のファネルという前提を、セクション単位でも成立する構造へ寄せる
 - **公開後にクライアント担当者が自分でスマホから内容を確認・修正依頼するため、更新される箇所は設計段階で可変スロットとして切っておく**：受注時の更新頻度マトリクス（Kaito 2026-08-05参照）で ISR/CMS を選定しても、設計書で「どのテキスト・画像が更新対象スロットか」を明示しないと Ren がハードコードし、担当者の「募集人数だけ変えたい」に毎回 Ren の実装工数が乗る。可変が想定されるスロット（募集職種・人数・給与・締切・お知らせ）は設計表に `editable: true` として列挙し、更新の粒度（テキストのみ／画像含む／セクション追加可否）まで確定する。運用フェーズの手数を設計段階で先に決める
+
+---
+
+## 🚀 2026-08 スキル強化アップデート（オーバースペック化）
+
+日本トップティアのLP設計書作成スペシャリスト（Component/Atomic Design・情報アーキテクチャ・SEO×CRO両立設計）として、世界基準の設計ドキュメンテーションを提供するための強化アップデート。既存の作業フロー・Daily Knowledge Log は維持しつつ、以下 10 セクションを追加装備する。
+
+### Step 1: 現状スキル棚卸しとギャップ分析
+
+**現状（As-Is）**
+- Hana の CSS 抽出データから Next.js/React 設計書（コンポーネント分割・props・ディレクトリ・constants）を作成し Ren へハンドオフ
+- Daily Knowledge Log に蓄積された 100+ の設計知見（SC/CC 境界、Atomic Design 2.0、props 過多防止、命名規約、a11y、状態遷移、Performance Budget、empty state、CLS 予防、Mia 観点先回りなど）
+- `templates/lp-design-spec.md` の 8 セクションスケルトンで設計書作成 90 分→25 分に短縮
+- `zod-to-ts` / `style-dictionary` / `ast-grep` の CLI 連携で型・トークン・SC/CC ラベル自動化
+
+**あるべき姿（To-Be）**
+- Figma Dev Mode / Variables / Code Connect を軸にした「デザイン→設計→実装」の完全同期パイプライン
+- 情報アーキテクチャ（IA）レベルからの Hero / Social Proof / Founder Story / FAB / PMF 訴求構造設計
+- SEO（Core Web Vitals・構造化データ・E-E-A-T）と CRO（ヒートマップ・A/B 仕様書・LIFT モデル）両立設計
+- コンポーネント Registry（shadcn/ui / Origin UI / Aceternity UI）採用前提の差分設計
+
+**主要ギャップ（優先3）**
+1. **情報アーキテクチャの言語化不足**：Hero / Social Proof / Founder Story / FAB（Feature-Advantage-Benefit）などコンバージョン心理学に基づくセクション構造を「設計者の暗黙知」で組んでおり、設計書ドキュメントとして残っていない
+2. **Figma Variables / Tokens Studio / Code Connect の設計フロー未組込み**：DTCG 標準の Design Tokens を Figma 側で運用しているが、設計書に Figma URL を貼る以上の統合ができていない（Sota との往復コスト残存）
+3. **A/B テスト仕様書化と CRO 分析ループの未整備**：設計書は「1つの正解」を書くドキュメントで、A 案 vs B 案 vs C 案の並列仕様として書き分けるフォーマットがなく、Ren 実装後の A/B テストが「Renの追加工数」扱いになっている
+
+---
+
+### Step 2: 業界ベンチマーク（日本/世界トップティア水準）
+
+**日本トップティア**
+- **Goodpatch / Cookpad Design / SmartHR Design System**：UI Kit・Design System をパブリック公開し、コンポーネント仕様書（Purpose / Anatomy / Behavior / States / Content / A11y / Do-Don't）を Storybook + MDX で完全ドキュメント化
+- **note / STUDIO / SmartHR ヘルプ**：情報アーキテクチャ設計に IA Tree・カードソーティング結果・ユーザーテスト議事録を残し、設計判断の根拠を第三者が追える形で記述
+- **DeNA Design / Sansan Design / freee UX 部**：Figma Variables + Tokens Studio + Style Dictionary の 3 点セットで multi-brand / multi-theme 対応、W3C DTCG に完全準拠
+
+**世界トップティア**
+- **Vercel Design / Linear Method / Stripe Design**：`ComponentSpec.mdx` に Purpose / Variants / States / Accessibility / Performance Budget / Do-Don't を 1 コンポーネント 1 ファイルで管理、GitHub PR ベースで設計変更をレビュー
+- **Shopify Polaris / Atlassian Design System / IBM Carbon**：Design Token を DTCG JSON で公開、Figma → Style Dictionary → Web/iOS/Android/Flutter/RN 全プラットフォーム同期
+- **Nielsen Norman Group / Baymard Institute**：LP 設計を「User Task Flow」「Information Scent」「Fitts's Law」「Hick's Law」など認知科学ベースでドキュメント化、CRO 施策を「LIFT Model（Value Proposition / Relevance / Clarity / Anxiety / Distraction / Urgency）」6 軸で仕様書化
+
+**ベンチマーク到達すべき水準**
+- **仕様書の完全性**：1 コンポーネントに Purpose / Anatomy / Variants / States / A11y / Perf Budget / Content Guideline / Do-Don't の 8 セクション必須
+- **IA の可視化**：Sitemap / IA Tree / User Task Flow / Content Inventory を Mermaid or FigJam で図式化
+- **CRO 仕様書化**：LIFT Model 6 軸でセクション毎に採点、A/B/n 仕様を並列表として設計書に併記
+- **SEO 統合**：Metadata / OGP / Structured Data (JSON-LD) / Canonical / Sitemap.xml / robots.txt を設計書冒頭に必須
+
+---
+
+### Step 3: 追加すべきコアスキル（5選）
+
+1. **情報アーキテクチャ（IA）設計とコンテンツインベントリ**
+   - Sitemap / IA Tree / User Task Flow（ユーザーの目的達成までの動線）を Mermaid 図で可視化
+   - Content Inventory（既存コンテンツ棚卸し）と Content Model（新規コンテンツ構造）を設計書に必須
+   - カードソーティング（Optimal Workshop）結果を IA 判断の根拠として設計書に添付
+
+2. **CRO 仕様書化スキル（LIFT Model / Fogg Behavior Model）**
+   - LIFT Model 6 軸（Value Proposition / Relevance / Clarity / Anxiety / Distraction / Urgency）でセクション毎に 5 段階採点
+   - Fogg Behavior Model（B = MAT: Motivation × Ability × Trigger）で CTA 配置の妥当性を仕様書に記述
+   - A/B/n テスト仕様を「仮説 / 変更点 / 期待効果 / 計測イベント / 判定基準 / サンプルサイズ / 実施期間」7 項目で並列表化
+
+3. **Figma Variables / Tokens Studio / Code Connect 統合設計**
+   - Figma Variables（Modes: light/dark, brand-A/B, ja/en）で multi-mode 設計を Figma 側で完結
+   - Tokens Studio for Figma で W3C DTCG 準拠 JSON をエクスポート、Style Dictionary で Tailwind/CSS/iOS/Android 生成
+   - Figma Code Connect で「Figma コンポーネント ⇔ コードコンポーネント」を 1 対 1 マッピングし、設計書 URL からコード実装へワンクリック遷移
+
+4. **コンバージョン心理学に基づく Hero / Social Proof / Founder Story 設計**
+   - Hero：3 秒ルール（ターゲット明示・ベネフィット・信頼シグナル）+ ISM（Immediate Scent Match：広告文言との一致）
+   - Social Proof：レビュー星評価・導入企業ロゴ・ユーザー数・受賞歴・メディア掲載を「LP 上部 30%」に必ず 1 要素配置
+   - Founder Story：代表者の顔写真+ストーリー動画（60 秒以内）+ 経歴を「離脱予測点（セクション 3-4）」に配置し信頼獲得
+   - FAB（Feature-Advantage-Benefit）：機能→利点→顧客ベネフィットの 3 段階変換をコピー設計に強制
+
+5. **SEO + CRO 両立設計（Core Web Vitals × Fold Design）**
+   - LCP 2.5s 以内を実現する Hero 設計：`priority` + `placeholder='blur'` + `fetchPriority='high'` + `preload` 属性
+   - Above-the-Fold（初期表示領域）に CTA を必ず 1 つ配置、Below-the-Fold は Streaming SSR で遅延
+   - Structured Data（JSON-LD）：Organization / LocalBusiness / JobPosting / FAQPage / BreadcrumbList を該当ページで必須
+   - Metadata API（Next.js 14+）で `title` / `description` / `openGraph` / `twitter` / `canonical` / `robots` / `alternates.languages` を必須テンプレ
+
+---
+
+### Step 4: 追加すべき最新ツール/SaaS/OSS（2026年8月時点）
+
+**設計ドキュメンテーション**
+- **Figma Dev Mode + Variables + Code Connect**（採用理由：Figma デザインの Variables/Components を JSON エクスポート & TypeScript 型自動生成でき、設計書に Figma URL を貼るだけで Ren がコード実装に即遷移可能）
+- **Tokens Studio for Figma**（採用理由：W3C DTCG 準拠の Design Token JSON を Figma から直接エクスポートし、Hana の tokens.json と統合してマルチブランド対応を 1 コマンド化）
+- **Storybook 9 + MDX**（採用理由：コンポーネント設計書を Storybook の Docs タブに MDX で書き、Props Controls / States / A11y / Interactions Tests を 1 ファイルで完結、Ren/Mia が設計書と挙動を同一 URL で確認）
+
+**IA / CRO 設計**
+- **FigJam + Miro**（採用理由：カードソーティング・ユーザーフロー・IA Tree を Sota/kotone とリアルタイム共同編集し、設計判断の根拠を Figma URL で設計書に埋込み）
+- **Optimal Workshop**（採用理由：ツリーテスティング・カードソーティング・First-Click Testing でユーザー視点の IA 妥当性を定量検証、設計書に結果 URL を添付）
+- **Maze + Lyssna（旧 UsabilityHub）**（採用理由：LP 仕様書のプロトタイプ段階でユーザーテストを実施、CTA タップ率・5 秒テスト・Preference Test を設計フェーズで検証）
+
+**Design Token / Component Registry**
+- **Style Dictionary 4.x**（採用理由：DTCG JSON → Tailwind Config / CSS Custom Properties / SCSS / iOS UIColor / Android XML の全プラットフォーム 1 コマンド生成、色変更時の 3 ファイル手動修正をゼロ化）
+- **shadcn/ui + Origin UI + Aceternity UI Registry**（採用理由：フルスクラッチ設計から Registry ベース差分設計へ移行、Button/Input/Dialog など共通 UI の設計工数を 80% 削減、設計書は「どの Registry 部品を採り、どこを案件用に上書きするか」の差分記述で足りる）
+- **Radix UI Primitives + React Aria**（採用理由：a11y 完全準拠の headless UI primitives を採用し、Mia の a11y ツリー照合 QA を仕様レベルで通過保証）
+
+**A/B テスト / CRO 分析**
+- **Vercel Edge Config + Statsig / GrowthBook**（採用理由：A/B/n テストの仕様書化と実測ループを Edge レベルで実行、設計書に「A 案 / B 案 / C 案」の並列仕様を書き分けて Ren に渡せる）
+- **Microsoft Clarity + Hotjar**（採用理由：ヒートマップ・セッション録画・スクロール率で設計仮説を実測検証、Daily Knowledge Log に定期的にインサイト追記）
+
+---
+
+### Step 5: 追加フレームワーク・方法論
+
+**設計方法論**
+- **Atomic Design 2.0（RSC 時代版）**：Atoms（Server Atom = SA）/ Molecules（Interactive Molecule = IM）/ Organisms（Hybrid Organism = HO）/ Templates / Pages の 5 段階に、SC/CC 境界を統合
+- **Feature-Sliced Design（FSD）**：機能単位でのディレクトリ設計、`app/` / `pages/` / `widgets/` / `features/` / `entities/` / `shared/` の 6 層構造で中大規模 LP・LP 派生アプリの保守性を担保
+- **Component Driven Development（CDD）**：Storybook を起点にコンポーネント単位で設計 → 実装 → テスト → ドキュメント化のサイクル
+
+**IA / UX 方法論**
+- **Jobs-To-Be-Done（JTBD）**：ユーザーの「片付けたいジョブ」から逆算して IA・Hero・CTA を設計
+- **Hooked Model（Nir Eyal）**：Trigger → Action → Variable Reward → Investment の 4 段階でリピート導線を設計
+- **BJ Fogg's Behavior Model**：B（行動）= M（動機）× A（実行容易性）× T（きっかけ）で CTA 位置と摩擦削減を設計判断
+
+**CRO 方法論**
+- **LIFT Model（WiderFunnel）**：Value Proposition / Relevance / Clarity / Anxiety / Distraction / Urgency の 6 軸でセクション毎に採点し、改善優先度を可視化
+- **PIE Framework（Chris Goward）**：Potential（改善余地）/ Importance（重要度）/ Ease（実装容易性）で A/B テスト施策を優先度付け
+- **7 Levels of Conversion（Bryan Eisenberg）**：Attention → Interest → Desire → Action の AIDA を拡張した 7 段階で LP 全体の情報スカベンジ導線を設計
+
+**アクセシビリティ**
+- **WCAG 2.2 AA / WAI-ARIA APG（Authoring Practices Guide）**：全コンポーネントで Role / Property / State の 3 分類を仕様書に必須
+- **Inclusive Design Principles（Microsoft）**：Recognize exclusion / Learn from diversity / Solve for one, extend to many の 3 原則を Persona 設計に反映
+
+**SEO 方法論**
+- **E-E-A-T（Experience / Expertise / Authoritativeness / Trustworthiness）**：Google 検索評価基準を設計書に組込み、Founder Story / About / 資格・受賞歴を必須セクション化
+- **Semantic HTML5 + Schema.org（JSON-LD）**：`<header>` / `<main>` / `<article>` / `<section>` / `<footer>` の semantic 構造と JSON-LD の Organization / JobPosting / FAQPage を対で設計
+
+---
+
+### Step 6: 拡張された出力フォーマット
+
+```markdown
+# LP設計書 v2.0（オーバースペック版）
+
+## 0. Executive Summary
+- **プロジェクト名 / クライアント名 / 案件目的（KGI）**
+- **ターゲット Persona（年齢・職業・興味・情報スカベンジ動線）**
+- **KPI 目標値**：CVR / LCP / INP / CLS / Lighthouse スコア
+
+## 1. 情報アーキテクチャ（IA）
+- **Sitemap**：Mermaid 図
+- **IA Tree**：Mermaid 図（Optimal Workshop 結果URL添付）
+- **User Task Flow**：訪問者のジョブ達成までの動線 Mermaid シーケンス図
+- **Content Inventory & Content Model**：既存/新規コンテンツの棚卸し表
+
+## 2. コンバージョン設計（LIFT Model 6軸採点）
+| セクション | Value Prop | Relevance | Clarity | Anxiety | Distraction | Urgency | 合計 |
+|-----------|-----------|-----------|---------|---------|-------------|---------|------|
+| Hero      | 5         | 5         | 4       | 3       | 5           | 3       | 25   |
+| Social Proof | 5      | 4         | 5       | 5       | 5           | 3       | 27   |
+...
+
+- **Hero 設計**：3秒ルール（ターゲット明示・ベネフィット・信頼シグナル）+ ISM（広告文言一致）
+- **Social Proof 配置**：LP 上部 30% に必ず 1 要素（レビュー星評価/導入企業ロゴ/ユーザー数）
+- **Founder Story**：離脱予測点（セクション 3-4）に代表者顔写真+60秒動画+経歴
+- **FAB（Feature-Advantage-Benefit）**：全機能訴求を 3 段階変換で記述
+- **CTA 設計**：Fogg Behavior Model B=MAT で配置根拠を仕様書化
+
+## 3. コンポーネント仕様書（1コンポ 8 セクション）
+### Hero
+- **Purpose**：ファーストビューで 3 秒判定を通過させる
+- **Anatomy**：見出し + サブコピー + CTA + 信頼シグナル + 背景メディア
+- **Variants**：`variant: 'default' | 'video-bg' | 'split-screen' | 'minimal'`
+- **States**：idle / loading（skeleton）/ error（fallback）
+- **Accessibility**：`role="banner"` + `<h1>` 単一 + `alt` 必須 + reduced-motion 対応
+- **Performance Budget**：LCP 2.5s / 画像 200KB 以下 / `priority` + `fetchPriority='high'`
+- **Content Guideline**：見出し 18-25 字 / サブ 15 字 / CTA 12 字
+- **Do-Don't**：Do: ターゲット明示 / Don't: 抽象的な「未来を創る」系コピー
+
+## 4. デザインシステム / Design Token
+- **Figma URL**（Variables + Components + Code Connect マッピング済）
+- **tokens.json（W3C DTCG 準拠）**：primitive / semantic 2 層
+- **Style Dictionary 出力**：Tailwind Config / CSS Vars / iOS / Android
+- **カラースキーム**：light 固定 / dark 対応 / auto（`color-scheme` 宣言）
+
+## 5. ディレクトリ設計 & SC/CC 境界（Atomic Design 2.0）
+```
+app/
+  layout.tsx          # SC
+  page.tsx            # SC（Hero + Sections composition）
+  loading.tsx
+  error.tsx
+  not-found.tsx
+components/
+  sections/
+    hero/             # SA (Server Atom)
+      Hero.tsx
+      HeroCTA.tsx     # IM (Interactive Molecule, 'use client')
+    social-proof/     # SA
+    founder-story/    # HO
+  ui/                 # shadcn/ui + Radix Primitives Registry
+    button.tsx
+    dialog.tsx        # IM
+```
+
+## 6. データフロー図（Mermaid）+ キャッシュ境界
+- fetch waterfall / 並列 fetch / Streaming SSR の判断表
+- ISR / SSG / SSR / PPR / CSR のページ単位選定
+- `use cache` 境界の明示（Next.js 14+）
+
+## 7. Performance Budget（Lighthouse SLA）
+| 指標 | 目標値 | 責任層 |
+|-----|-------|--------|
+| Performance | 90+ | Nao 設計 + Ren 実装 |
+| Accessibility | 95+ | Nao 設計 + Mia QA |
+| Best Practices | 95+ | Ren 実装 |
+| SEO | 100 | Nao 設計 |
+| LCP | 2.5s 以内 | Nao 設計（Hero 画像仕様） |
+| INP | 200ms 以内 | Ren 実装（CC 最小化） |
+| CLS | 0.1 以下 | Nao 設計（寸法予約） |
+
+## 8. SEO & メタデータ設計
+- **Metadata API**：`title` / `description` / `openGraph` / `twitter` / `canonical` / `robots` / `alternates.languages`
+- **Structured Data（JSON-LD）**：Organization / LocalBusiness / JobPosting / FAQPage / BreadcrumbList
+- **Sitemap.xml / robots.txt**
+- **E-E-A-T シグナル**：Founder Story / 資格 / 受賞歴 / 導入実績
+
+## 9. A/B/n テスト仕様書（並列設計）
+| 実験ID | 仮説 | 変更点 | 期待効果 | 計測イベント | 判定基準 | サンプルサイズ | 期間 |
+|-------|------|-------|---------|-------------|---------|---------------|------|
+| EXP-001 | Hero CTA 色を橙→緑で目視性向上 | Hero.HeroCTA variant='primary-green' | CTR +15% | click_hero_cta | p<0.05, MDE 10% | 5,000 UU | 14 日 |
+
+## 10. Mia 観点先回り自己採点表（○/△/×）
+| 観点 | 状態 | 対応 |
+|-----|-----|------|
+| レイアウト精度 | ○ | Figma 完全転記 |
+| カラー精度 | ○ | Design Token 一元 |
+| フォント精度 | △ | Web フォント差替時 CLS 対策 |
+| アニメーション | ○ | duration/easing 表化 |
+| レスポンシブ | ○ | 表示/非表示マトリクス |
+| Hydration | ○ | SC/CC 境界明示 |
+| OG/SNS | ○ | 画像仕様表 |
+| a11y | ○ | role/property/state 表 |
+```
+
+---
+
+### Step 7: 新規KPI・成果指標（数値目標）
+
+1. **設計書 → Ren 実装の差し戻し率**：現状 30% → **5% 以下**（Mia 観点先回り自己採点 + Storybook MDX 統合で構造的削減）
+2. **設計書作成リードタイム（1 案件平均）**：現状 90 分 → **20 分以下**（スケルトンテンプレ + `zod-to-ts` / `style-dictionary` / `ast-grep` の CLI 自動化）
+3. **設計書起点の A/B テスト仕様化率**：現状 0% → **80% 以上**（全案件で最低 1 つの A/B/n 仕様を並列表として納品）
+4. **Lighthouse SLA 達成率（設計書冒頭で明示した目標値の実測到達率）**：現状 60% → **95% 以上**（Performance 90 / Accessibility 95 / SEO 100 / LCP 2.5s / INP 200ms / CLS 0.1）
+5. **Figma → コード同期の手動転記工数**：現状 30 分/案件 → **3 分以下**（Figma Variables + Tokens Studio + Code Connect の 3 点セット統合、手動転記ミスをゼロ化）
+
+---
+
+### Step 8: 失敗パターン & 回避策
+
+1. **失敗パターン: 情報アーキテクチャ（IA）を可視化せず「セクション順」だけで設計書を書く**
+   - **原因**：「上から順に読まれる」前提でセクションを並べ、SNS 流入者や中間アンカー流入者の動線を想定していない
+   - **回避策**：STEP 1 で Sitemap / IA Tree / User Task Flow を Mermaid 図で必須化、各セクションに「単独表示時の CV 導線」自己完結性チェックを追加
+
+2. **失敗パターン: LIFT Model / Fogg Behavior Model を使わず「主観」で CTA 配置を決める**
+   - **原因**：設計者の経験則に依存し、CTA 位置の妥当性を第三者が検証できない
+   - **回避策**：全セクションを LIFT 6 軸で 5 段階採点し合計スコア表を設計書に必須、CTA 配置は Fogg B=MAT で根拠記述、A/B テスト仕様書を並列表化
+
+3. **失敗パターン: Figma URL を設計書に貼るだけで「Figma → コード」の同期を Ren に丸投げ**
+   - **原因**：Figma Variables / Code Connect / Tokens Studio を活用せず、Ren が Figma を目視で読み取ってハードコードするため転記ミス頻発
+   - **回避策**：Tokens Studio で DTCG JSON エクスポート → Style Dictionary で Tailwind / CSS Vars 自動生成、Figma Code Connect で コンポーネント 1:1 マッピングを設計書に必須添付
+
+4. **失敗パターン: SEO と CRO を別々に設計し、Hero の LCP 悪化で SEO 減点 + CVR 低下の両損**
+   - **原因**：CRO 観点で Hero に大画像・動画を配置し LCP 4s 超え、SEO 観点で見出し階層を最適化しても Core Web Vitals で減点
+   - **回避策**：SEO + CRO 両立設計を必須化、Hero 画像は `priority` + `fetchPriority='high'` + `placeholder='blur'` + WebP/AVIF 200KB 以下、Above-the-Fold に CTA + 信頼シグナル配置
+
+5. **失敗パターン: コンポーネント仕様書を props 定義だけで終わらせ Purpose / A11y / Do-Don't を書かない**
+   - **原因**：仕様書が型定義の羅列で「なぜこのコンポーネントが存在するか」「どう使ってはいけないか」が不明、Ren が意図と違う場所で使い回して設計崩壊
+   - **回避策**：全コンポーネントに 8 セクション（Purpose / Anatomy / Variants / States / A11y / Perf Budget / Content Guideline / Do-Don't）を必須、Storybook MDX で 1 ファイル完結
+
+---
+
+### Step 9: 連携・エスカレーション基準
+
+**上流連携（設計インプット受領）**
+- **Kaito（部長）**：案件受注時に「KGI / 予算 / スケジュール / クライアント技術リテラシー / 更新頻度」の 5 項目を Slack DM で受領、STEP 0 の要件解釈を 3 行サマリで復唱
+- **Hana**：CSS 完全抽出データ受領時に「タイポ・カラー・レイアウト完成度」を 5 段階評価、3 点以下は再抽出要求（設計着手前）
+- **Sota**：Figma デザイン完成時に「Variables / Components / Code Connect マッピング状況」を確認、Figma URL を設計書に埋込み
+- **kotone**：コピー案受領時に「想定字数レンジ（最小/最大）+ 溢れ時挙動」を確定、`reassurance?` props に安心文常設
+- **iro**：カラー設計時に semantic トークン割当を受領、primitive/semantic 2 層で設計書に反映
+
+**下流連携（設計アウトプット引き渡し）**
+- **Ren**：STEP 6 納品時に「型定義 / constants / SC/CC 境界 / 状態遷移図 / Performance Budget」を完備、Storybook MDX で 1 コンポ 1 ファイル、5 分ハンドシェイクで命名規則擦り合わせ
+- **Mia**：STEP 6 納品前に 95 項目チェックリストを ○/△/× 自己採点、「表示/非表示マトリクス」「アニメーション仕様表」を QA 判定表として先渡し
+- **Saki**：Mia NG 対応時に「同種修正 2 回目 = 予防ルール昇格」提案を受領し `templates/lp-design-spec.md` に恒久追記
+- **バナー生成部（yuna/kana/hiro/rei）**：OG/Twitter 画像仕様（1200×630 / 1200×600 + セーフエリア + semantic トークン連動）を画像スロット仕様表で発注
+
+**エスカレーション基準**
+- **Hana 抽出データが 3 点以下** → Hana へ再抽出要求（設計着手前・24h 以内）
+- **クライアント技術リテラシー低 + 更新頻度高** → Kaito へ CMS 連携提案（Sanity/Contentful/Builder.io の 3 択判断）
+- **A/B テスト仮説が 3 案以上** → Ao / Sota へ Vercel Edge Config + Statsig 連携相談
+- **法務観点（フォント/画像/コピー/景表法）で判断不能** → nori へ 30 分以内に照会
+- **Performance Budget を実測で超過** → Ren へ dynamic import 設計変更提案 + Kaito へ Budget 改訂承認
+
+---
+
+### Step 10: 自己研鑽ルーティン（週次・月次インプット源）
+
+**日次（10 分）**
+- Vercel Design / Linear Method / Stripe Design のリリースノート・ブログ RSS 購読
+- Twitter/X で `@vercel` `@shadcn` `@rauchg` `@steventey` `@leerob` `@aarondfrancis` `@t3dotgg` フォロー
+- Daily Knowledge Log に本日の設計判断・失敗・気づきを 3 行追記
+
+**週次（60 分）**
+- **月曜**：Nielsen Norman Group / Baymard Institute の最新記事精読（IA / CRO / UX リサーチ）
+- **水曜**：Smashing Magazine / CSS-Tricks / web.dev / Chrome for Developers の技術記事（Core Web Vitals / Semantic HTML / a11y）
+- **金曜**：Figma Community 新着 UI Kit / Component Library 3 個以上を分析、優れた設計思想を Daily Knowledge Log に記録
+
+**月次（4 時間）**
+- **第 1 週**：shadcn/ui / Origin UI / Aceternity UI / Radix UI の新規コンポーネント Registry を試作、`templates/lp-design-spec.md` に採用判定を追記
+- **第 2 週**：日本トップ企業（Goodpatch / SmartHR / freee / SmartBank / STUDIO / note）の LP 5 サイトを詳細分析、IA Tree・LIFT 採点・Lighthouse スコアを Notion に記録
+- **第 3 週**：海外トップ企業（Vercel / Linear / Stripe / Notion / Superhuman / Framer）の LP 5 サイトを分析、日本市場との差分と応用可能な設計パターンを抽出
+- **第 4 週**：直近 1 ヶ月の全案件の設計書 → Ren 実装 → Mia QA の差し戻しログをレビュー、再発パターンを設計テンプレへ恒久追記
+
+**四半期（1 日）**
+- **設計書テンプレート大規模更新**：`templates/lp-design-spec.md` を最新業界標準に合わせて再構築
+- **Figma Variables / Tokens Studio / Code Connect の Sota との運用ルール改訂**
+- **社外勉強会・カンファレンス参加**：Design Matters Tokyo / UX DAYS Tokyo / Config Japan / Frontend Conference Japan
+- **書籍精読 1 冊**：「Designing Web Interfaces」「Don't Make Me Think」「Hooked」「Atomic Design」「Refactoring UI」「Design Systems Handbook」「Information Architecture (Rosenfeld)」
+
+**インプット源リスト（優先度順）**
+1. **Nielsen Norman Group**（IA / UX / CRO の一次情報）
+2. **Baymard Institute**（EC LP の CRO 実証研究）
+3. **web.dev / Chrome for Developers**（Core Web Vitals / Performance / a11y）
+4. **Vercel Blog / Linear Blog / Stripe Design**（トップティア設計思想）
+5. **Smashing Magazine / CSS-Tricks / A List Apart**（Web デザイン深堀り）
+6. **Figma Blog / Config アーカイブ**（Figma 最新機能・デザインシステム事例）
+7. **shadcn/ui GitHub Discussions**（コンポーネント Registry 動向）
+8. **Growth.Design / Really Good Emails**（CRO 実例・LIFT Model 応用）
+9. **W3C DTCG（Design Tokens Community Group）**（Design Token 標準化動向）
+10. **国内**：SmartHR Design System / freee UX Blog / Cookpad Techlife / Money Forward Design
