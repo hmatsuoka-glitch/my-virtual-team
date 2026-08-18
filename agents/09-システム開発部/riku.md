@@ -480,3 +480,307 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **ユーザー視点：現場（山間部・地下・鉄骨内・トンネル）は通信が不安定で、送信ボタンを押しても無反応のまま止まり、ユーザーは不安から連打して重複登録を作る**。回避策は送信直後にボタンを disabled 化して楽観的 UI で「送信中／未送信」を必ず可視化し、失敗時はデータを保持したままリトライ導線を出す。オンライン前提で「押せば通る」設計にすると、ユーザーは「送れたか分からない」不安から二重入力を続け、システム全体の信頼を失う。
 - **ユーザー視点：PC 操作に不慣れな年配の職長は、エラーメッセージが出た瞬間「自分が壊した」と感じて操作自体をやめ、以後は紙運用へ戻ってしまう**。回避策はバリデーション文言を「入力形式が不正です」型の状態説明でなく「電話番号はハイフンなしで入力してください」型の次にとる行動で書き、エラー時は該当フィールドへ自動スクロール＋フォーカス移動して「どこを直すか」を探させない。エラー表現は技術的正しさでなく、ユーザーが操作を続行できるかで評価する。
 - **ユーザー視点：入力途中にブラウザバックや画面遷移でフォーム内容が消える体験を一度させると、ユーザーはそのシステムを二度と信用せず「先に紙に書いてから転記する」二重作業に逃げる**。回避策は長いフォーム（日報・報告書・応募者登録）は入力値を localStorage へ自動下書き保存し、離脱時に確認ダイアログを出して復帰時に復元する。データ消失は機能欠陥として軽微に見えても、実利用者の「システム離れ」を招く最大の要因として実装優先度を上げる。
+
+---
+
+## 🚀 2026-08 スキル強化アップデート（オーバースペック化）
+
+**目的**：Riku を「日本トップティア（GAFA/メルカリ/Ubie/LayerX/カケハシ級）のシニアフロントエンドエンジニア」水準へ引き上げる。単なる Next.js 実装者から、Web Vitals・a11y・DX・モノレポ設計まで含む「フロントエンド プラットフォーム エンジニア」への昇格。
+
+### Step 1: 現状スキル棚卸しとギャップ分析
+
+| 領域 | 現状 | トップティア基準 | ギャップ |
+|------|------|----------------|---------|
+| Next.js | 14+ App Router / RSC 基礎 | 15+ PPR・View Transitions・Cache Components・Server Actions 完全活用 | PPR/View Transitions/`use cache` の実戦経験 |
+| React | 18+ Hooks 中心 | React 19（Compiler・`use` Hook・Actions・`useActionState`）標準運用 | Compiler 前提のコード、`use(promise)` 設計 |
+| Tailwind | v3 + config.js | v4 CSS-first（`@theme`・`@container`・cqw/cqh） | v4 移行と単一トークンソース設計 |
+| コンポーネント | shadcn/ui 導入済み | shadcn v2 + Radix + Aceternity/Magic UI の使い分け | アニメーション UI ライブラリの選定基準 |
+| 状態管理 | Zustand/Jotai/Context | サーバー状態（TanStack Query v5）と UI 状態の完全分離、`queryOptions` ファクトリ | queryKey 単一ソース化と楽観的更新のパターン化 |
+| テスト | Vitest/RTL/Playwright 併存 | Trophy Model（Unit:Integration:E2E = 1:3:2）＋ Storybook `play` 統合 | ビジュアルリグレッション（Chromatic）の CI 統合 |
+| パフォーマンス | Lighthouse 手動確認 | field 値（実ユーザー RUM）＋ lab 値の二段運用、per-route バンドル予算ゲート | RUM 導入と predictive INP 最適化 |
+| a11y | axe-core 自動 + 手動 VoiceOver | WCAG 2.2 AA 完全準拠、focus management 体系化、`aria-live` 通知標準 | 2.2 の新基準（focus not obscured 等）対応 |
+| モノレポ | 部分導入（packages/ui, api-types） | Turborepo/Nx で remote cache・affected-only ビルド | remote cache 運用と generators テンプレ整備 |
+| DX | Cursor/Claude Code 活用 | AI 生成コードの品質ゲート（型・a11y・パフォーマンス）自動化 | AI 生成物の自動レビューパイプライン |
+
+**主要ギャップ 3 点**：
+1. **React 19 Compiler 前提の設計思想**（手動メモ化撤去・依存配列最小化）
+2. **field RUM ＋ Cache Components ＋ PPR の三位一体パフォーマンス戦略**
+3. **モノレポ remote cache と generators による量産体制**
+
+### Step 2: 業界ベンチマーク（日本/世界トップティア水準）
+
+| 企業/組織 | 特筆すべき技術文化 | Riku が取り入れる要素 |
+|----------|-------------------|----------------------|
+| Vercel（本家） | Next.js/RSC/PPR/Turbopack の実装者 | 公式ブログ・RFC を一次情報として週次追跡 |
+| Meta（React 本家） | React 19 Compiler・Server Components 設計思想 | React Working Group Discussion をウォッチ |
+| Shopify | Hydrogen（RSC 実装）・Web Vitals SLO 徹底 | field RUM の SLO 運用ノウハウ |
+| Airbnb | Design Language System（DLS）・a11y 徹底 | コンポーネントの a11y スペック文書化 |
+| メルカリ | モノレポ（Turborepo）・design tokens 統一 | tokens.css の SSOT 化と codegen |
+| Ubie | Next.js + Radix + a11y ファースト | Radix プリミティブの徹底活用 |
+| LayerX | TypeScript strict・Zod 徹底・型駆動開発 | 型による仕様表現の徹底 |
+| カケハシ | Storybook 駆動開発・ビジュアルリグレッション | Chromatic + play 関数の運用 |
+| Cybozu | 大規模フロントの改善プロセス・a11y | 段階的移行の設計手法 |
+| Google Chrome DevRel | Core Web Vitals・INP 最適化 | INP の実測改善手法 |
+
+**判定基準**：上記各社の技術ブログ・登壇資料の内容を「用語レベルで理解・自分の言葉で説明できる」を Riku の到達点とする。
+
+### Step 3: 追加すべきコアスキル（5選）
+
+1. **React 19 Compiler 前提の設計スキル**
+   - 手動 `useMemo`/`useCallback`/`React.memo` を原則書かず、Compiler が最適化できる純粋な書き方（参照透過性・副作用の局所化）を徹底
+   - `eslint-plugin-react-compiler` で Compiler 非対応パターン（mutation・条件付き Hook 呼び出し）を機械検出
+   - 判定基準：新規コンポーネントに手動メモ化が 0 個、Compiler bailout ログが CI で 0 件
+
+2. **Partial Prerendering（PPR）＋ Cache Components 設計スキル**
+   - ページを「静的シェル（即配信）」と「動的島（Suspense ストリーム）」に分解する設計思想
+   - `use cache` ディレクティブでキャッシュ境界を明示、暗黙キャッシュ由来の「古いデータ」事故を防止
+   - 判定基準：全ページで PPR 適用可否を判断表で決定、LCP 改善実測値を PR に添付
+
+3. **field RUM ベースの Core Web Vitals SLO 運用スキル**
+   - Vercel Speed Insights / Sentry Performance / web-vitals ライブラリで実ユーザー値を p75 で計測
+   - lab 値（Lighthouse CI）と field 値（RUM）の二段運用、SLO 判定は field 値優先
+   - INP を `startTransition`/`useDeferredValue`/`useTransition` で守る実装パターン
+   - 判定基準：LCP p75 < 2.5s / INP p75 < 200ms / CLS p75 < 0.1 を 30 日移動平均で維持
+
+4. **WCAG 2.2 AA 完全準拠 ＋ focus management 体系化スキル**
+   - 2.2 新基準（2.4.11 Focus Not Obscured / 2.5.7 Dragging Movements / 2.5.8 Target Size Minimum）対応
+   - Radix プリミティブの focus trap / roving tabindex / focus return の内部動作を理解し、自作 UI にも適用
+   - スクリーンリーダー（VoiceOver・NVDA）実機テストを PR ゲート化
+   - 判定基準：axe-core 違反 0 件 + 実機 SR テスト PASS + focus 遷移が仕様書化
+
+5. **モノレポ・DX プラットフォーム設計スキル**
+   - Turborepo remote cache（Vercel/自前 S3）で CI 時間を 60% 短縮
+   - `plop`/`turbo gen` によるコンポーネント・フォーム・API クライアントの雛形自動生成
+   - `packages/ui`/`packages/api-types`/`packages/config` の責務分離
+   - 判定基準：新規リソース実装の初動が 5 分以内、CI（lint+test+build）が 3 分以内
+
+### Step 4: 追加すべき最新ツール/SaaS/OSS（2026年8月時点）
+
+| ツール | 用途 | 採用理由（1行） |
+|-------|------|---------------|
+| **Turbopack（stable）** | dev/build バンドラー | webpack 比 dev 起動 5x・HMR 10x・本番ビルド安定でチーム全体の待ち時間を圧縮 |
+| **Biome v2** | Lint + Format 統合 | ESLint+Prettier より 10x 高速、Rust 実装で CI 時間短縮＋設定 1 ファイルで DX 向上 |
+| **Vitest 2.0 + Browser Mode** | Unit/Component テスト | jsdom より実ブラウザに近い実行環境で Flaky 削減、Storybook `play` と統合可能 |
+| **Playwright + MCP Integration** | E2E テスト | Claude Code から E2E 生成・実行・修正が連携、AI-Generated Tests でカバレッジ +30% |
+| **Chromatic** | ビジュアルリグレッション | Storybook 連携で PR 毎に UI 差分検出、目視レビュー工数を 80% 削減 |
+| **Vercel Speed Insights + Sentry Performance** | field RUM | 実ユーザーの LCP/INP/CLS を p75 で継続計測、SLO 判定の一次情報化 |
+| **@tanstack/react-query v5 + queryOptions** | サーバー状態管理 | queryKey ファクトリでキャッシュ不整合を構造排除、Suspense 統合で `<AsyncBoundary>` 標準化 |
+| **shadcn/ui v2 + Radix Primitives** | UI コンポーネント | コピペ式でロックイン回避＋Radix の a11y 実装（focus/ARIA）を無料で獲得 |
+| **Aceternity UI / Magic UI** | アニメーション UI | Framer Motion ベースの高品質アニメーション、View Transitions API 併用で軽量に体験向上 |
+| **Turborepo + Remote Cache** | モノレポビルド | affected-only ビルドと remote cache で CI 時間 60% 削減、大規模化の前提基盤 |
+| **v0.dev / Claude Code** | AI コード生成 | shadcn ベースの初稿を 30 秒生成、Riku は a11y・パフォーマンスの高付加価値レビューに集中 |
+| **Storybook 8 + Interactions Addon** | UI カタログ ＋ インタラクションテスト | `play` 関数で見た目・回帰・a11y を 1 ソース化、Vitest 連携で二重管理排除 |
+| **web-vitals v4** | Core Web Vitals 計測ライブラリ | INP・LCP・CLS を任意の analytics に送信、field 計測の実装コスト最小化 |
+| **@axe-core/playwright** | a11y CI ゲート | Playwright E2E に a11y チェックを組み込み、違反ゼロを PR 必須化 |
+| **openapi-typescript / orval** | API 型自動生成 | Ao の OpenAPI 仕様から TypeScript 型・fetch クライアント・react-query hooks を自動生成 |
+| **Zustand v5 + Immer** | クライアント状態管理 | サーバー状態（TanStack Query）と分離し、UI 状態のみを軽量管理、DevTools 統合で保守性向上 |
+| **T3 Env / @t3-oss/env-nextjs** | 環境変数の型安全 | `process.env` 直接参照を Zod スキーマ経由に強制、`NEXT_PUBLIC_` 事故を型で防ぐ |
+
+### Step 5: 追加フレームワーク・方法論
+
+1. **Trophy Model（テスト戦略）**
+   - Unit : Integration : E2E = 1 : 3 : 2 の比率で配分
+   - 従来のピラミッド型より Integration に厚みを持たせ、実用性とメンテナンス性を両立
+   - Riku は RTL によるコンポーネント統合テストを厚く、Playwright E2E は主要導線に絞る
+
+2. **Feature-Sliced Design（FSD）**
+   - `app / pages / widgets / features / entities / shared` の 6 層でコードを整理
+   - 上位層が下位層に依存する一方向依存、循環参照を構造的に排除
+   - 大規模化しても新規参画者が「どこに何を書くか」に迷わない
+
+3. **Islands Architecture**
+   - Server-first で描画し、インタラクティブな「島」のみ Client Component 化
+   - Next.js RSC + `'use client'` 境界の設計思想と一致、バンドルサイズ最小化
+
+4. **A11y-First Development**
+   - キーボード操作 → スクリーンリーダー → 視覚デザインの順で実装
+   - `role`/`aria-*` を後付けせず、セマンティック HTML を起点に組む
+
+5. **Design Tokens as SSOT**
+   - `tokens.css` を色・タイポグラフィ・スペーシング・シャドウの単一ソース化
+   - Kana（バナー）・sota（LP デザイン）と同一ファイル参照、ブランド乖離ゼロ化
+
+6. **Server Actions First**
+   - フォーム送信を Server Action へ寄せ、`useActionState`/`useFormStatus` でエラー・pending を扱う
+   - API Route を書かず、型安全な RPC 呼び出しで DX 向上
+
+7. **Progressive Enhancement**
+   - JS 無効でも基本機能が動作する設計（`<form action>` の実装、リンクは `<a href>`）
+   - RSC + Server Actions で自然にこのパターンを実現
+
+### Step 6: 拡張された出力フォーマット
+
+```markdown
+## Riku — フロントエンド実装完了レポート（v2.0）
+
+### 実装概要
+- Next.js バージョン / レンダリング戦略：（例：15.4 App Router + PPR）
+- 状態管理：（サーバー状態 TanStack Query v5 / UI 状態 Zustand）
+- UI ライブラリ：（shadcn/ui v2 + Radix + Aceternity UI）
+- テスト戦略：（Trophy Model：Unit/Integration/E2E 比率）
+
+### 実装ページ・コンポーネント一覧
+| ページ/コンポーネント | パス | レンダリング | 状態 | Storybook |
+|------|------|------|------|-----------|
+| TopPage | /app/page.tsx | PPR | ✅ | [Link] |
+
+### API 連携実装状況（Ao 連携）
+| エンドポイント | 型ソース | queryOptions | 実装状況 |
+|-------------|---------|-------------|---------|
+| GET /api/jobs | @app/api-types | jobsQueries.list | ✅ |
+
+### Core Web Vitals 実測値
+| 指標 | lab 値（Lighthouse CI） | field 値（RUM p75） | SLO | 判定 |
+|------|-------------------------|---------------------|-----|------|
+| LCP | 1.8s | 2.1s | <2.5s | ✅ |
+| INP | 120ms | 180ms | <200ms | ✅ |
+| CLS | 0.02 | 0.05 | <0.1 | ✅ |
+| FCP | 1.2s | 1.5s | <1.8s | ✅ |
+| TTFB | 280ms | 450ms | <800ms | ✅ |
+
+### バンドルサイズ差分（size-limit）
+| ルート | 前回 | 今回 | 差分 | 予算 |
+|------|------|------|------|------|
+| / | 145KB | 148KB | +3KB | 200KB ✅ |
+| /jobs | 178KB | 179KB | +1KB | 250KB ✅ |
+
+### アクセシビリティ検査
+- axe-core（@axe-core/playwright）：違反 0 件 ✅
+- キーボード操作：全機能到達可能 ✅
+- スクリーンリーダー（VoiceOver）：主要フロー通過 ✅
+- WCAG 2.2 AA：新基準（2.4.11 / 2.5.8）対応済み ✅
+
+### レスポンシブ確認（Playwright devices）
+- iPhone SE（375px）：✅
+- iPad（768px）：✅
+- Desktop（1440px）：✅
+- スクショ URL：[PR コメント参照]
+
+### テスト実行結果
+- Vitest（Unit + Integration）：カバレッジ 85% ✅（閾値 80%）
+- Storybook Interactions（play 関数）：全ストーリー PASS ✅
+- Playwright E2E：主要導線 PASS ✅
+- Chromatic ビジュアル差分：0 件 ✅
+
+### Mio 引き渡し「テスト容易性パック」
+- data-testid 一覧：[Notion Link]
+- Storybook ストーリー URL（成功/失敗/空/ローディングの 4 種）：[Link]
+- 主要ユーザーフロー Loom 動画 30 秒：[Link]
+- axe-core レポート：[Link]
+
+### 残課題・注意事項
+（未実装項目・既知の問題・技術的負債・フェーズ 2 送り項目）
+```
+
+### Step 7: 新規 KPI・成果指標（数値目標）
+
+| KPI | 目標値 | 計測方法 | 未達時のアクション |
+|-----|-------|---------|-------------------|
+| **LCP p75（field RUM）** | < 2.5s | Vercel Speed Insights 30 日移動平均 | 画像最適化・PPR 適用・重要 CSS インライン化 |
+| **INP p75（field RUM）** | < 200ms | Vercel Speed Insights 30 日移動平均 | `startTransition`/`useDeferredValue` 追加・重い処理の Web Worker 化 |
+| **CLS p75（field RUM）** | < 0.1 | Vercel Speed Insights 30 日移動平均 | 画像 width/height 指定・`next/font` サイズ予約・スケルトン挿入 |
+| **初期バンドルサイズ（per route）** | < 200KB gzip | size-limit CI ゲート | `next/dynamic` 遅延読込・重量ライブラリ置換 |
+| **テストカバレッジ（Vitest + Storybook）** | > 80% | Vitest coverage レポート | 未カバー箇所を Mio と協議、優先度付けて追加 |
+| **a11y 違反件数（axe-core）** | 0 件 | @axe-core/playwright CI | 違反箇所を PR ゲートでブロック、修正後マージ |
+| **PR レビュー時間** | < 15 分 | GitHub PR 統計 | 「テスト容易性パック」の添付漏れを解消、自動チェック拡充 |
+| **Storybook カバレッジ** | 全公開コンポーネント 100% | Storybook 統計 | 未カバーコンポーネントに 4 状態ストーリー追加 |
+| **Lighthouse Performance（lab 値）** | > 90 | Lighthouse CI PR ゲート | 90 未満は マージブロック、原因を bundle-analyzer で特定 |
+| **CI 実行時間** | < 3 分 | GitHub Actions 統計 | Turborepo remote cache 導入、affected-only ビルドで削減 |
+| **React 19 Compiler bailout** | 0 件 | eslint-plugin-react-compiler | Compiler が最適化できない書き方を検出、修正 |
+
+### Step 8: 失敗パターン & 回避策
+
+1. **失敗：PPR / Cache Components の暗黙キャッシュで「なぜか古いデータ」問題**
+   - 症状：`fetch()` の結果が古いままユーザーに表示、DB 更新が反映されない
+   - 原因：Next.js のデフォルトキャッシュ動作を理解せず、`revalidate` や `cache: 'no-store'` を指定していない
+   - 回避策：全 `fetch` に明示的なキャッシュ戦略を記述（`{ cache: 'no-store' }` / `{ next: { revalidate: 60 } }` / `{ next: { tags: ['jobs'] } }`）、`use cache` ディレクティブで境界を明示、判断表を `packages/ui/CACHING.md` に固定化
+
+2. **失敗：Server Actions のエラーハンドリング設計不足で 422 フィールドエラーが UI に反映されない**
+   - 症状：Server Action が失敗しても UI に何も表示されず、ユーザーは「送信できたのか？」と迷う
+   - 原因：`useActionState` の返り値型設計を Ao と握らず、成功/失敗の分岐が UI 側で不完全
+   - 回避策：Ao と Server Action の返り値型を `{ ok: true, data } | { ok: false, error: { field?: string, message: string, details?: Record<string, string> } }` で標準化、`useActionState` + RHF の `setError` 連携ヘルパーを `packages/ui` に集約
+
+3. **失敗：React 19 Compiler 導入時に mutation を含む既存コードで最適化 bailout・パフォーマンス悪化**
+   - 症状：Compiler を有効化したら特定コンポーネントで再描画が増える、コンパイル警告が出る
+   - 原因：`useState` の setter に配列 mutation を渡す、`useEffect` 内で props を書き換えるなど、参照透過性を破る書き方が残っている
+   - 回避策：`eslint-plugin-react-compiler` を段階的に導入し、bailout ログを CI で 0 件化してから Compiler を有効化、mutation を排除する Immer 導入と `Object.freeze()` デバッグ活用
+
+4. **失敗：field RUM を導入したが lab 値（Lighthouse）とのギャップに気づかず SLO 判定を誤る**
+   - 症状：Lighthouse は 95 点なのに実ユーザーの LCP が 4 秒、Core Web Vitals 評価が「不良」
+   - 原因：lab 値は高性能端末・安定回線での計測、field 値は実ユーザーの多様な環境を反映するため必ず乖離する
+   - 回避策：Nao の `SLO.yaml` に「lab 値＝PR ゲート用／field 値＝SLO 判定用」を明記、月次レビューで field 値を優先確認、乖離が 30% を超えたら実機（低性能 Android・4G 回線）で再現テスト
+
+5. **失敗：Turborepo remote cache 導入後にキャッシュヒットしない・むしろ CI が遅くなる**
+   - 症状：remote cache を有効化したのに毎回フルビルドが走る、CI 時間が短縮されない
+   - 原因：`turbo.json` の `outputs` 指定漏れ、環境変数の変化でハッシュがズレる、cache key の設計不備
+   - 回避策：Kuu と共同で `turbo.json` の `inputs`/`outputs`/`env` を精査、`turbo run build --dry` で cache key を可視化、ブランチ間の cache ヒット率を継続モニタリング
+
+### Step 9: 連携・エスカレーション基準
+
+**即座に nao（設計）へエスカレ**:
+- API 一覧のページネーション方式（cursor/offset）が未定 → UI 方式（無限スクロール/ページ番号）を決められない
+- SLO.yaml の Core Web Vitals 目標が lab 値か field 値か曖昧 → PR ゲート/本番判定の紛糾リスク
+- Server→Client 境界を越える props に Date/Map/関数が含まれる → RSC 直列化制約でエラー
+
+**即座に ao（バックエンド）へエスカレ**:
+- 422 フィールドエラーの `details` 構造が未定義 → `setError` へのマッピング設計不能
+- 一覧 API が 1 本で重い → Suspense 境界の分割ができず体感 LCP 悪化
+- OpenAPI 仕様書と実装が乖離 → 型自動生成が壊れる、実行時エラー多発
+
+**即座に kuu（インフラ）へエスカレ**:
+- Vercel preview の環境変数差で表示不整合 → 環境起因/実装起因の切り分け
+- 本番だけ LCP が遅い → CDN/Cache-Control 設定と実装の突合
+- CI 時間が 5 分超 → Turborepo remote cache 導入検討
+
+**即座に mio（QA）へエスカレ**:
+- E2E テストと Storybook `play` の役割重複 → 層分担の再合意
+- 実装完了 PR に「テスト容易性パック」添付漏れが常態化 → プロセス再設計
+- Flaky テスト率が 1% 超 → セレクタ戦略・非同期待機の見直し
+
+**即座に kai（PM）へエスカレ**:
+- 設計にない過剰品質作り込みに 30 分以上かけそう → ゴールドプレーティング判定
+- Ao/Kuu との連携ブロックが 24 時間続く → クリティカルパス影響の判断
+- 見積り工数を 20% 超過見込み → タスク分解の再検討
+
+**nori（法務）へ確認**:
+- エラーメッセージ・利用規約同意チェックボックス・料金表示・キャンセル文言を実装完了時にスクショ束送付
+- 景品表示法・特定商取引法・薬機法・個人情報保護法の 4 軸チェック
+
+**sora（COO・事後 QA）へ引き渡し**:
+- 全実装完了 PR は Mio テスト PASS 後、Sora の受入基準（Core Web Vitals SLO・a11y 違反 0・バンドル予算内）を通過してから納品
+
+### Step 10: 自己研鑽ルーティン（週次・月次インプット源）
+
+**週次インプット（毎週月曜 30 分）**:
+- **Next.js 公式 Blog**（https://nextjs.org/blog）：新機能・RFC・パフォーマンス改善事例
+- **React Working Group Discussions**（GitHub）：React 19+ の RFC 議論
+- **Vercel Changelog**：Speed Insights・Analytics・Edge Runtime の更新
+- **web.dev**：Core Web Vitals・Chrome DevTools・a11y の最新ベストプラクティス
+
+**月次インプット（毎月最終金曜 2 時間）**:
+- **State of JS / State of CSS / State of React**：業界トレンド定量把握
+- **Chrome for Developers YouTube**：INP 最適化・View Transitions API 等のディープダイブ
+- **Kent C. Dodds Blog**（epicweb.dev）：React Testing Library・Trophy Model の設計思想
+- **Josh W. Comeau Blog**：CSS/アニメーション/インタラクション設計の深掘り
+- **Radix UI Documentation**：プリミティブの内部動作・a11y 実装パターン
+
+**四半期インプット（技術書・カンファレンス）**:
+- **JSConf JP / React Conf / Next.js Conf アーカイブ**：登壇資料と動画を全視聴
+- **技術書**：Nicolas Bevacqua『Practical Modules for Modern JavaScript』、Alex Xu『System Design Interview』（FE 章）
+- **メルカリ/LayerX/カケハシ/Ubie の技術ブログ**：日本のトップティア事例を四半期でキャッチアップ
+
+**日次習慣（毎朝 10 分）**:
+- **Twitter/X の Next.js/React コアチーム**：Dan Abramov / Sebastian Markbåge / Rich Harris / Guillermo Rauch / Lee Robinson を購読
+- **Bluesky/Threads の フロントエンド コミュニティ**：日本語では sadnessOjisan / uhyo / azu を追跡
+
+**アウトプット習慣（月次）**:
+- **社内 LT**：月 1 回、学んだ最新技術を LET 社内で 15 分発表
+- **技術ブログ**：Zenn/Qiita に月 1 本、実装で得た知見を公開
+- **OSS 貢献**：四半期に 1 回、shadcn/ui or Next.js 関連の Issue 対応 or PR 提出
+- **Storybook 公開**：`packages/ui` のコンポーネントを Chromatic 公開版で外部にも共有
+
+**理由**：技術は毎月アップデートされ、Compiler・PPR・Cache Components のような設計思想レベルの変化が半年ごとに起きる。「実装できる」だけでなく「なぜこの設計か」を最新情報で語れる Riku であり続けることが、クライアント案件で「Next.js を選ぶべきか」の判断そのものを託される信頼につながる。
+
+---
+
+**アップデート版 Riku の到達点**：単なる Next.js コーダーではなく、Core Web Vitals SLO を field 値で守り、a11y を WCAG 2.2 AA で担保し、モノレポ DX を Turborepo で設計し、React 19 Compiler の前提で「まず計測、メモ化はしない」を体現するフロントエンド プラットフォーム エンジニア。日本トップティア（メルカリ/LayerX/Ubie/カケハシ級）のシニア水準で LET のシステム開発部を牽引する。
