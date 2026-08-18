@@ -779,3 +779,356 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **クライアント担当者（建設会社の役員・総務）はPCブラウザを125%表示で見るため、px固定font-sizeが「小さい」クレームの温床になる**：確認する側は50代以上が多く、Windows社用PCの表示倍率やブラウザ最小フォントサイズを既定で変えている。STEP 3のフォント抽出で`font-size`が絶対値（px）指定か相対値（rem/em/%）指定かを区別せず一律px記録すると、ユーザー側の文字サイズ設定が効かない箇所が実装に残る。抽出表に「px固定／相対」の列を足し、本文・要項テキストがpx固定の箇所はrem換算値を併記してRenへ渡す。
 - **スクロールの速い求職者にとって、AOS等の`delay`累積は「要素が存在しない」体験になる**：抽出時はスクロールをゆっくり動かして検証するため全アニメが正しく発火して見えるが、親指で一気に流し読みする求職者は出現アニメの完了前にセクションを通過し、実績数値や社員写真が見えないまま下へ抜ける。STEP 5でスクロール連動アニメを採る際は個別のdurationだけでなく`delay`のセクション内累積値を記録し、累積0.6秒超の箇所は`late_reveal_risk`として明記。Renへ「高速スクロール時に見えない前提」を伝え、CV直結要素（実績・給与・CTA）は演出なしか短縮を提案する。
 - **`hover_only_content`フラグは「タッチで消える」だけでなく「情報がどこにも無い」の申し送りまで書く**：ホバー時にだけ出るキャプション・詳細テキスト（2026-08-12参照の入力デバイス別クエリ検出）は、SP流入70%の採用LPでは大半の求職者が一生見ない情報になる。抽出段階でフラグを立てるだけだとRenは「タッチ環境で非表示」と実装して終わり、元サイトでホバー内にあった職種説明や社員コメントが複製版から実質消滅する。フラグに「ホバー内テキストの実内容」も添えて記録し、Nao/Renへ常時表示化かタップ開閉への置換を判断させる。
+
+---
+
+## 🚀 2026-08 スキル強化アップデート（オーバースペック化）
+
+日本トップティア水準（サイバーエージェント／LINEヤフー／メルカリ／SmartHR のデザインシステム・フロントエンド基盤チーム、および Chrome DevTools チーム・Figma Dev Mode・Tailwind Labs・Style Dictionary 等のグローバル水準）へ到達するための、CSS抽出スペシャリストとしての体系的スキル強化パッケージ。
+既存の Daily Knowledge Log が「日々の発見」レイヤであるのに対し、本セクションは「抽出工学としての体系」レイヤ。目視と勘に依存した抽出を、**計測可能・再現可能・機械可読**な抽出パイプラインへ引き上げることを目的とする。
+
+---
+
+### Step 1: 現状スキル棚卸しとギャップ分析
+
+**現状の強み**
+- 8ステップの抽出フロー（読み込み順→色→タイポ→レイアウト→アニメ→BP→依存→統合）が確立され、Nao/Ren がそのまま設計・実装に入れる納品形式を持つ
+- 技術スタック検出（Next.js / Nuxt / WordPress / Tailwind / Bootstrap / GSAP / Swiper / AOS / Lottie / Three.js）の実務パターンを保有
+- Daily Knowledge Log にモダンCSS仕様（`:has()` / `@scope` / subgrid / スタイルクエリ / View Transitions / Anchor Positioning / `interpolate-size`）の最新動向が蓄積されている
+- 建設業採用LP特有の実閲覧環境（屋外直射日光・SP流入70%・高速スクロール）を踏まえた運用フラグ（`outdoor_readability_risk` / `late_reveal_risk` / `hover_only_content` / `tap_target_warning`）を独自に運用
+
+**主要ギャップ（トップティア水準との差分・3軸）**
+
+1. **【静的HTML読解依存 → 計測駆動抽出への未移行】**
+   現状の抽出は HTML/CSSソースの読解が主体で、**ブラウザが実際に解決した最終値（computed value）** を機械的に採る仕組みが無い。カスケード・継承・`@layer` 順・`!important`・詳細度・ユーザーエージェントスタイルが絡む箇所は、ソース読解では必ず取りこぼす。Chrome DevTools Protocol（CDP）の `CSS.getMatchedStylesForNode` / `CSS.getComputedStyleForNode` と `getComputedStyle()` を全要素・全ブレークポイント・全状態（`:hover` / `:focus-visible` / `:active` / `:disabled` / `prefers-color-scheme` / `prefers-reduced-motion`）に対して総当たりで回す計測基盤が空白。**「見て書き写す」から「測って吐き出す」へ**の転換が最大のギャップ。
+
+2. **【デザイントークンの標準形式化・機械可読ハンドオフの不在】**
+   抽出結果が Markdown 表と手書き JSON に留まり、W3C Design Tokens Community Group（DTCG）形式・Style Dictionary・Figma Variables へ機械的に流し込める**単一の正（Single Source of Truth）**が存在しない。結果として Ren は Tailwind config を手で書き、Iro のブランド色と衝突し、hiro のバナー色がズレる（2026-08-13 の課題の根本原因）。トークンを 3 層（Primitive → Semantic → Component）で正規化し、そこから CSS変数 / Tailwind theme / Figma Variables を**自動生成**する状態に到達していない。
+
+3. **【モダンCSS仕様のカスケード解決とBaseline互換判定の形式化不足】**
+   Daily Log には個別の仕様知識が溜まっているが、「検出 → 詳細度・レイヤ解決 → Baseline 判定 → フォールバック設計 → Ren への互換指示」という**一本の判定パイプライン**として形式化されていない。Container Queries / `:has()` / CSS Nesting / `@layer` / `@scope` / `@property` / `clamp()` / `color-mix()` / subgrid / `anchor()` が混在するモダンLPでは、検出漏れ 1 件が Mia の QA を通らない実装差分に直結する。
+
+**副次ギャップ**
+- アセット抽出（Webフォントの `unicode-range` サブセット構成、画像の `srcset` / `<picture>` フォーマット交渉、CDN・画像最適化サービス検出）の体系化不足
+- 忠実度の**定量測定**（pixelmatch / SSIM / Applitools 等による差分率）が Mia 任せで、自分の抽出精度を自己採点する指標が無い
+- Critical CSS / CSS Coverage（未使用CSS率）の把握が無く、抽出した CSS の「実際に効いている範囲」を切り分けられない
+- フォントライセンス・画像権利の自動判定（2026-08-05 の学びの仕組み化）が手動チェック止まり
+
+---
+
+### Step 2: 業界ベンチマーク（日本/世界トップティア水準）
+
+**日本トップティア（学ぶべき対象と観察点）**
+- **LINEヤフー / LINE Design System・SmartHR Design System・メルカリ Mercari Design System**：公開されているセマンティックトークン体系（`color.background.surface` / `color.text.onPrimary` 等の命名規約）、コンポーネントトークンの粒度、light/dark のトークン反転設計。**抽出結果の命名をこの水準に寄せる**ことで、Ren/Iro/hiro の解釈ブレが消える。
+- **サイバーエージェント（AI Creative / 極 AI）**：LP・広告クリエイティブを大量生成・自動検証するパイプライン思想。抽出→生成→検証をコード連鎖させる発想を借用する。
+- **PLAID / ZOZO / クックパッド / Ubie の技術ブログ**：大規模 CSS のリファクタ・トークン移行・Visual Regression Testing 導入の実戦記録。日本語 UI・日本語フォント（Noto Sans JP / ヒラギノ / Yu Gothic）特有の `line-height` / `letter-spacing` / `font-feature-settings` の実装知見はここが最も濃い。
+- **Studio / STUDIO・Framer 系ノーコード出力サイト**：吐き出される CSS の構造（ユーティリティ生成・絶対配置多用）を知っておくと、複製時に「そのまま写すべきか、再構成すべきか」の判断が早い。
+
+**グローバルトップティア（学ぶべき対象と観察点）**
+- **Chrome DevTools チーム（CSS Overview / Computed pane / Coverage / Rendering）**：抽出の「正解の道具立て」そのもの。CDP の CSS ドメイン仕様は自分の抽出パイプラインの API リファレンスとして読む。
+- **W3C Design Tokens Community Group（DTCG）**：トークン JSON の標準フォーマット（`$type` / `$value` / `$description`）。ここに準拠すれば Style Dictionary・Figma・Tokens Studio と無変換で接続できる。
+- **Style Dictionary（Amazon）/ Tokens Studio**：トークン → CSS変数 / Tailwind / iOS / Android への変換基盤の標準実装。
+- **Figma Dev Mode / Code Connect / Variables REST API**：デザイン側の変数構造。抽出トークンを Figma Variables 形式にマッピングできれば、Sota/Iro のデザイン工程と往復可能になる。
+- **Baseline（web.dev / webstatus.dev）・MDN・caniuse**：モダンCSS採用可否の**唯一の客観基準**。「Widely available / Newly available / Limited」の 3 段階で Ren への互換指示を機械的に決める。
+- **Tailwind Labs / Open Props / Adobe Spectrum / GitHub Primer / Shopify Polaris / Salesforce Lightning**：トークン設計の実例カタログ。抽出値を「どの粒度でトークン化すべきか」の判断基準として参照する。
+- **Applitools / Percy / Chromatic / BackstopJS**：Visual Regression の業界標準。忠実度を人の目でなく数値で判定する文化を持ち込む。
+- **Wappalyzer / WhatRuns / BuiltWith / Project Wallace（CSS Analyzer）/ CSS Stats**：技術スタック検出と CSS 統計（宣言数・色数・font-size 種類数・詳細度分布）の定番。
+
+---
+
+### Step 3: 追加すべきコアスキル（5選）
+
+**1. CDP駆動「全解決値」抽出スキル（計測駆動抽出）**
+- Chrome DevTools Protocol の `CSS.getMatchedStylesForNode`（マッチした全ルール＋詳細度＋由来）、`CSS.getComputedStyleForNode`（最終解決値）、`CSS.getBackgroundColors`、`DOM.getFlattenedDocument`、`Page.captureScreenshot`（`fromSurface` / `captureBeyondViewport`）を直接叩き、**DOM 全要素 × 全ブレークポイント × 全状態**の computed style を機械的にダンプできる。
+- `CSS.forcePseudoState` で `:hover` / `:focus` / `:focus-visible` / `:active` / `:visited` を強制し、状態依存スタイル（2026-08-05 の失敗パターン）を採取漏れゼロにできる。
+- `Emulation.setEmulatedMedia` で `prefers-color-scheme: dark` / `prefers-reduced-motion: reduce` / `print` を切り替え、ダークモード・モーション低減・印刷スタイルの差分を一括採取できる。
+- `::before` / `::after` / `::marker` / `::selection` / `::placeholder` の疑似要素は `getComputedStyle(el, '::before')` で `content` を含めて採る（2026-08-12 の失敗パターンの機械化）。
+
+**2. CSSOM/AST 解析とカスケード解決モデリングスキル**
+- `csstree` / `postcss` / `postcss-selector-parser` で全 CSS を AST 化し、セレクタの詳細度（(a,b,c) タプル）、`@layer` 宣言順、`@scope` 境界、`!important` の有無、ネスト展開後の実効セレクタを構造化できる。
+- **カスケード解決順（Origin → `@layer` 順 → 詳細度 → ソース順）** を明示的に再現し、「なぜこの値が勝ったか」を根拠付きで Ren に渡せる。`:is()` / `:where()` / `:has()` の詳細度計算（引数内最大／`:where()` は 0）を正しく扱える。
+- CSS変数の**依存グラフ**（`--a` → `--b` → `--c` の参照連鎖、`@property` の型・初期値・`inherits`）を構築し、直値化（ハードコード）を禁止した状態でトークンを渡せる。
+- Coverage API（`Profiler` / DevTools Coverage）で未使用CSS率を測り、抽出対象を「実際に効いている CSS」に絞り込める。
+
+**3. デザイントークン正規化・多形式書き出しスキル**
+- 抽出した生値を **DTCG 標準 JSON**（`$type: color|dimension|fontFamily|duration|cubicBezier|shadow`, `$value`, `$description`）に正規化し、Primitive → Semantic → Component の 3 層に分解できる。
+- Style Dictionary のビルド設定を書き、1 つのトークン JSON から **CSS Custom Properties / Tailwind `theme.extend` / SCSS変数 / JSON（Figma Variables インポート形式）** を自動生成できる。
+- 色は **OKLCH を正準表現**として保持（`oklch(L C H / α)`）し、HEX/RGB は派生値として併記。alpha を持つ色は 8 桁 HEX または `oklch(... / α)` で丸めずに保持する（2026-08-12 の失敗パターンの構造化）。
+- Figma Variables へのマッピング規約（Collection = ブランド、Mode = light/dark、変数名 = セマンティックトークン名）を定め、Iro/Sota のデザイン工程と双方向に接続できる。
+
+**4. モダンCSS仕様の同定・Baseline判定・フォールバック設計スキル**
+- 以下を**検出漏れゼロ**で同定し、それぞれに Baseline ステータスと Ren 向けフォールバック指示を付ける：
+  Container Queries（`@container` / `cqw` / `cqi` / スタイルクエリ `style()`）、`:has()`、CSS Nesting、Cascade Layers（`@layer`）、`@scope`、Custom Properties ＋ `@property`、`clamp()` / `min()` / `max()`、`color-mix()` / 相対色構文 `rgb(from ...)`、subgrid、`aspect-ratio`、`inset`／論理プロパティ（`margin-inline` 等）、`text-wrap: balance/pretty`、`interpolate-size` / `calc-size()`、Anchor Positioning（`anchor()` / `position-area`）、Popover API、View Transitions（`@view-transition`）、Scroll-driven Animations（`animation-timeline`）、`backdrop-filter`、`content-visibility`、`@supports`。
+- Baseline（Widely / Newly / Limited）に応じて **① そのまま採用 ② `@supports` フォールバック併記 ③ 旧実装維持** の 3 択を機械的に判定できる。
+- 「元サイトが旧 JS 実装 → モダン CSS で置換可」の提案（View Transitions / `interpolate-size` / Anchor Positioning）を、フォールバック込みで Ren に提示できる。
+
+**5. アセット・配信解析スキル（フォント／画像／CDN／Critical CSS）**
+- **フォント**：`document.fonts`（FontFaceSet）と `@font-face` から family / weight / style / `font-display` / `unicode-range`（サブセット構成）/ 配信元（Google Fonts / Adobe Fonts / 自社ホスト / 有料ファウンダリ）を採取し、`fonttools`（`pyftsubset`）でサブセット構成を検証。**ライセンス種別と Web 埋め込み可否を必ずセットで記録**し、不可の場合は近似 Google Fonts 代替を提示（2026-08-05 の仕組み化）。
+- **画像**：`srcset` / `sizes` / `<picture><source type>` / `loading` / `decoding` / `fetchpriority` / `object-fit` / `object-position` / `aspect-ratio` / `background-size` / `background-position` を一括採取。実配信フォーマット（AVIF / WebP / JPEG）とレスポンス Content-Type を突き合わせ、フォーマット交渉の有無を判定。
+- **CDN／最適化サービス検出**：レスポンスヘッダ（`server` / `via` / `cf-ray` / `x-vercel-cache` / `x-amz-cf-id` / `x-nextjs-cache`）と URL パターン（`/_next/image?url=` / `/cdn-cgi/image/` / `.imgix.net` / `cloudinary` / `akamaized`）から配信基盤を同定し、Ren/Kuu へ Vercel 環境での代替手段を提示。
+- **Critical CSS**：ファーストビューに効く CSS を切り出し、`above_fold_risk`（2026-06-07 参照）と接続して初期描画品質の指示に落とす。
+
+---
+
+### Step 4: 追加すべき最新ツール/SaaS/OSS（2026年8月時点）
+
+**抽出・計測の中核**
+- **Chrome DevTools Protocol（CSS / DOM / Emulation / Page ドメイン）**：採用理由 — ブラウザが解決した最終値・マッチルール・詳細度・疑似状態を唯一 API として取得でき、抽出網羅率 98% 超の土台になるため。
+- **Playwright（Chromium / WebKit / Firefox）**：採用理由 — 複数ブラウザ・複数ビューポート・複数メディア条件を 1 スクリプトで総当たりでき、CDP セッション（`context.newCDPSession`）にも直接降りられるため。
+- **Puppeteer**：採用理由 — 既存の hiro（PNG変換）と同じ基盤で、部内のスクリプト資産・実行環境を共通化できるため。
+- **csstree（OSS）**：採用理由 — CSS を仕様準拠の AST に落とし、セレクタ詳細度・`@` ルール・値構文を高速に走査できる最軽量パーサのため。
+- **PostCSS ＋ postcss-selector-parser / postcss-value-parser**：採用理由 — ネスト展開・ベンダープレフィックス正規化・カスタムプロパティ解決をプラグインで組み立てられ、抽出前処理の標準基盤になるため。
+
+**トークン化・ハンドオフ**
+- **Style Dictionary（Amazon / OSS）**：採用理由 — 1 つのトークン JSON から CSS変数・Tailwind config・SCSS・JSON を自動生成でき、Ren の手書き Tailwind config を廃止できるため。
+- **Tokens Studio（Figma プラグイン）／ Figma Variables REST API**：採用理由 — 抽出トークンを Figma の Collection/Mode 構造に流し込み、Iro・Sota のデザイン工程と双方向同期できるため。
+- **W3C DTCG 形式（`$type` / `$value`）**：採用理由 — ツール非依存の標準形式で、将来ツールを乗り換えても抽出資産が死なないため。
+- **Open Props（OSS トークン集）**：採用理由 — 抽出値をトークン化する際の粒度・命名のリファレンス実装として最短で参照できるため。
+
+**検出・解析**
+- **Wappalyzer CLI / WhatRuns**：採用理由 — フレームワーク・CMS・CDN・解析タグを署名ベースで一括検出し、STEP 7 の依存関係リストを自動化できるため。
+- **Project Wallace CSS Analyzer / CSS Stats（OSS）**：採用理由 — 色数・font-size 種類数・詳細度分布・重複宣言を統計化し、「トークン化すべき値」を客観的に絞り込めるため。
+- **caniuse-lite / browserslist / webstatus.dev（Baseline API）**：採用理由 — モダンCSSの採用可否を主観でなく Baseline ステータスで機械判定できるため。
+
+**忠実度検証（Mia との接続）**
+- **pixelmatch / odiff（OSS）**：採用理由 — スクショ差分をピクセル単位・ミリ秒単位で数値化でき、忠実度スコアの自前計測に使えるため。
+- **Applitools Eyes / Percy / Chromatic**：採用理由 — アンチエイリアス・レンダリング差を無視した「意味的な差分」判定ができ、誤検出の多い純ピクセル比較を補完するため。
+- **BackstopJS（OSS）**：採用理由 — 無料・自己ホストで複数ビューポートの VRT を CI に組み込め、小規模案件でも回せるため。
+
+**アセット・アクセシビリティ**
+- **fonttools（`pyftsubset`）／ opentype.js**：採用理由 — Webフォントのサブセット構成・`unicode-range`・グリフ数を実ファイルから検証でき、日本語フォントの読み込み設計を再現できるため。
+- **Sharp / Squoosh CLI**：採用理由 — 抽出画像の AVIF/WebP 変換と品質・寸法検証を自動化でき、複製版の配信品質を元サイト水準に揃えられるため。
+- **axe-core / Lighthouse CI / APCA（apca-w3）**：採用理由 — 抽出段階で `outdoor_readability_risk`（2026-08-16 参照）をコントラスト比・APCA Lc 値として数値化し、主観判断を排除できるため。
+
+---
+
+### Step 5: 追加フレームワーク・方法論
+
+**抽出の理論基盤**
+- **CSS Cascade 解決モデル（Origin → Importance → `@layer` 順 → Specificity → Source Order）**：抽出結果に「なぜこの値が採用されたか」の根拠を必ず付ける。詳細度は (a,b,c) タプルで記録し、`:is()`/`:has()` は引数内最大、`:where()` は 0 として計算する。
+- **CSSOM / Computed Value チェーン（Specified → Computed → Used → Actual）**：`em`/`%`/`vw` 等の相対値は「指定値」と「使用値（px 実測）」の両方を記録し、Ren がどちらで実装すべきか判断できる状態にする（2026-08-16 の px固定/相対 列の一般化）。
+- **ITCSS / CUBE CSS / OOCSS 分類**：抽出した膨大な宣言を Settings / Tools / Generic / Elements / Objects / Components / Utilities に再分類し、Ren が実装順を決められる形で渡す。
+- **Design Tokens 3層モデル（Primitive → Semantic → Component）**：`#1A5276` → `color.brand.primary` → `button.primary.background` の 3 段。Iro のブランド色との衝突（2026-08-13）は Semantic 層の所有者を明示することで構造的に解消する。
+- **Baseline 判定 ＋ Progressive Enhancement（`@supports`）**：モダンCSS採用は「Widely = そのまま／Newly = `@supports` 併記／Limited = 旧実装維持」の 3 択で機械決定する。
+- **Atomic Design（抽出側の視点）**：抽出したコンポーネントスタイルを Atom/Molecule/Organism に分けて渡すと、Ren の共通クラス化（既存 Daily Log の学び）が設計段階から効く。
+
+**品質・検証の方法論**
+- **抽出網羅率（Coverage）の定義**：`要素被覆率 × プロパティ被覆率 × 状態被覆率 × ブレークポイント被覆率` の 4 軸で自己採点する。「なんとなく全部見た」を数値に置き換える。
+- **Visual Regression Testing（SSIM / pixelmatch）**：忠実度を人の目でなくスコアで判定し、Mia の QA 前に自分でセルフゲートをかける。
+- **WCAG 2.2 AA / APCA（Lc 値）**：抽出色のコントラストを両基準で測定し、元サイト由来の可読性欠陥を「忠実に複製しつつフラグを立てる」線引き（2026-08-16）を数値で担保する。
+- **Critical Rendering Path 分析**：Critical CSS・`content-visibility`・フォント読み込み戦略（`font-display` / preload）をセットで抽出し、複製版が元サイトより遅くならないことを保証する。
+- **RUM 前提の劣化許容設計**：建設業求職者の 4G / 屋外環境を前提に、抽出した装飾（`backdrop-filter` / 大量アニメ）が低スペック端末で落ちた場合の見た目を必ず併記する。
+
+---
+
+### Step 6: 拡張された出力フォーマット
+
+既存の「CSS完全仕様データ」（Markdown 表）は**人間が読む要約**として維持し、以下 2 ファイルを**機械可読の正**として追加納品する。
+
+**① `css-spec.json`（抽出フルスペック）**
+
+```json
+{
+  "meta": {
+    "source_url": "https://example.com",
+    "extracted_at": "2026-08-18T10:00:00+09:00",
+    "extractor": "Hana / CDP + Playwright",
+    "viewports": [375, 768, 1024, 1440],
+    "states_captured": ["default", "hover", "focus-visible", "active", "disabled"],
+    "media_emulated": ["prefers-color-scheme:dark", "prefers-reduced-motion:reduce", "print"]
+  },
+  "coverage": {
+    "element_coverage": 0.99,
+    "property_coverage": 0.98,
+    "state_coverage": 1.0,
+    "breakpoint_coverage": 1.0,
+    "unused_css_ratio": 0.42
+  },
+  "tokens_ref": "tokens.dtcg.json",
+  "cascade": {
+    "layers_order": ["reset", "base", "components", "utilities"],
+    "scopes": [{ "selector": "@scope (.card) to (.content)", "affects": [".card__title"] }],
+    "important_declarations": [{ "selector": ".cta", "property": "background-color", "reason": "3rd-party override" }]
+  },
+  "typography": {
+    "families": [
+      {
+        "role": "body",
+        "stack": ["Noto Sans JP", "Hiragino Sans", "sans-serif"],
+        "source": "google-fonts",
+        "license": "SIL OFL / Web埋め込み可",
+        "font_display": "swap",
+        "unicode_range": ["U+0000-00FF", "U+3000-30FF", "U+4E00-9FFF"],
+        "subset": true
+      }
+    ],
+    "scale": [
+      { "role": "h1", "size_px": 48, "size_rem": 3.0, "unit_in_source": "px", "fluid": "clamp(2rem,5vw,3rem)", "weight": 700, "line_height": 1.2, "letter_spacing": "0.02em", "text_wrap": "balance", "mobile_px": 32 }
+    ]
+  },
+  "layout": {
+    "container_max_width_px": 1200,
+    "grid": { "type": "grid", "columns": "repeat(auto-fit,minmax(280px,1fr))", "gap_px": 24, "subgrid_used": true },
+    "spacing_scale_px": [4, 8, 16, 24, 32, 48, 64, 96],
+    "logical_properties_used": true
+  },
+  "breakpoints": [
+    { "label": "sp", "query": "(max-width: 767px)", "type": "media" },
+    { "label": "card-narrow", "query": "@container (max-width: 400px)", "type": "container" },
+    { "label": "touch", "query": "(hover: none) and (pointer: coarse)", "type": "interaction" }
+  ],
+  "modern_features": [
+    { "feature": ":has()", "baseline": "widely", "usage_count": 12, "fallback_required": false },
+    { "feature": "anchor-positioning", "baseline": "newly", "usage_count": 3, "fallback_required": true, "fallback": "JS位置計算 or @supports (anchor-name:--x)" },
+    { "feature": "@scope", "baseline": "newly", "usage_count": 2, "fallback_required": true }
+  ],
+  "animations": [
+    { "target": ".hero__title", "engine": "css", "type": "keyframes", "duration_ms": 600, "delay_ms": 200, "cumulative_delay_ms": 800, "easing": "cubic-bezier(.16,1,.3,1)", "trigger": "scroll", "late_reveal_risk": true, "reduced_motion_fallback": "opacity only" }
+  ],
+  "assets": {
+    "images": [
+      { "src": "/hero.avif", "srcset_widths": [640, 1280, 1920], "formats": ["avif", "webp", "jpeg"], "object_fit": "cover", "object_position": "50% 30%", "aspect_ratio": "16/9", "loading": "eager", "fetchpriority": "high" }
+    ],
+    "cdn": { "provider": "Vercel Image Optimization", "evidence": "/_next/image?url=, x-vercel-cache" },
+    "icons": [{ "type": "svg-inline", "color_binding": "currentColor" }]
+  },
+  "risks": {
+    "outdoor_readability_risk": [{ "selector": ".note", "contrast_ratio": 3.1, "apca_lc": 52, "wcag": "FAIL(AA)" }],
+    "hover_only_content": [{ "selector": ".member__caption", "hidden_text": "施工管理／入社3年目 山田" }],
+    "tap_target_warning": [{ "selector": ".nav__link", "size_px": [38, 30] }],
+    "license_risk": [{ "font": "A-OTF 見出ミンMB31", "web_embed": "不可", "alternative": "Shippori Mincho B1" }]
+  },
+  "handoff": { "to_nao": true, "to_ren": true, "to_hiro_banner": "hold-until-iro-decision" }
+}
+```
+
+**② `tokens.dtcg.json`（W3C DTCG 準拠・Style Dictionary 入力）**
+
+```json
+{
+  "color": {
+    "brand": {
+      "primary": { "$type": "color", "$value": "oklch(0.52 0.13 250)", "$description": "抽出元: --color-primary / #1A5276 / CTA・見出し" },
+      "primary-alpha-60": { "$type": "color", "$value": "#1A527699", "$description": "オーバーレイ用・alpha保持（丸め禁止）" }
+    },
+    "text": {
+      "body": { "$type": "color", "$value": "{color.gray.800}" },
+      "on-primary": { "$type": "color", "$value": "{color.white}" }
+    }
+  },
+  "dimension": {
+    "space": { "4": { "$type": "dimension", "$value": "16px" } },
+    "radius": { "card": { "$type": "dimension", "$value": "12px" } }
+  },
+  "duration": { "fast": { "$type": "duration", "$value": "200ms" } },
+  "cubicBezier": { "emphasized": { "$type": "cubicBezier", "$value": [0.16, 1, 0.3, 1] } },
+  "shadow": { "card": { "$type": "shadow", "$value": { "color": "#0F172A1F", "offsetX": "0px", "offsetY": "4px", "blur": "16px", "spread": "0px" } } }
+}
+```
+
+**③ 人間向けサマリ（既存フォーマットに追加する 3 表）**
+
+| 追加表 | 内容 | 主な読み手 |
+|---|---|---|
+| モダンCSS採用判定表 | 機能 / Baseline / 使用箇所数 / フォールバック要否 / 代替実装 | Ren・Kuu |
+| リスクフラグ一覧 | `outdoor_readability_risk` / `late_reveal_risk` / `hover_only_content` / `tap_target_warning` / `license_risk` | Nao・Kaito・nori・Shun |
+| トークン所有権表 | トークン名 / 抽出元値 / 正の所有者（Hana抽出 or Iro設計） / Tailwind キー | Ren・Iro・hiro |
+
+---
+
+### Step 7: 新規KPI・成果指標（数値目標）
+
+| # | KPI | 定義・測定方法 | 目標値 | 測定タイミング |
+|---|---|---|---|---|
+| 1 | **抽出網羅率** | `要素被覆率 × プロパティ被覆率 × 状態被覆率 × BP被覆率`。CDP ダンプ対象要素数 ÷ DOM 全可視要素数、および状態（default/hover/focus/active/disabled）× BP（4種）の採取完了率 | **≥ 98%**（状態・BP 被覆は 100%） | STEP 8 納品前セルフゲート |
+| 2 | **忠実度スコア（SSIM）** | 元サイトと複製版のフルページスクショを 4 ビューポートで比較。SSIM 平均値と pixelmatch 差分ピクセル率 | **SSIM ≥ 0.98 / 差分率 ≤ 0.5%** | Ren 実装後・Mia QA 前 |
+| 3 | **抽出所要時間** | URL 受領から `css-spec.json` + `tokens.dtcg.json` 納品までの実時間（1ページLP・自動化スクリプト適用後） | **≤ 25分**（従来比 60% 削減。5ページのコーポレートは ≤ 90分） | 案件ごと |
+| 4 | **トークン化率（ハードコード残存率）** | Ren 実装コード中、`var(--*)` / Tailwind theme 参照で書かれた色・余白・タイポの比率 | **トークン参照率 ≥ 90%（ハードコード ≤ 10%）** | Ren 実装コードレビュー時 |
+| 5 | **Ren/Mia 差し戻し率** | 「抽出漏れ・仕様書不備」を原因とする差し戻し件数 ÷ 総納品件数。モダンCSS検出漏れは 0 件が必達 | **≤ 5%（モダンCSS検出漏れ 0件）** | 月次集計 |
+
+---
+
+### Step 8: 失敗パターン & 回避策
+
+**FP-1. ソース CSS を読んで書き写し、computed value を測らない**
+- 症状：カスケード・継承・`@layer` 順・UA スタイル・`!important` が絡む箇所で値がズレ、Mia の QA で「なぜか色が違う」が多発する。特に第三者ウィジェット（フォーム・チャット）が上書きしている箇所は 100% 外す。
+- 回避策：**抽出の正は常に `getComputedStyle()` / CDP の computed value**とし、ソース CSS は「なぜその値になったか」の根拠としてのみ使う。`CSS.getMatchedStylesForNode` でマッチルールと詳細度を併記し、勝敗理由を仕様書に残す。
+
+**FP-2. デフォルト状態・PC 幅だけ採り、状態 × ブレークポイント × メディア条件の掛け算を落とす**
+- 症状：hover 色・フォーカスリング・disabled 表示・ダークモード・`prefers-reduced-motion`・タッチ端末（`hover: none` / `pointer: coarse`）・印刷スタイルが実装から消える（2026-08-05 / 2026-08-12 の再発）。
+- 回避策：抽出を**総当たりマトリクス**として定義する。`状態5種 × ビューポート4種 × メディア条件3種` を必ず全セル埋め、埋まっていないセルがあれば納品しない。`CSS.forcePseudoState` と `Emulation.setEmulatedMedia` でスクリプト化し、人の記憶に依存させない。
+
+**FP-3. 抽出値を生のまま並べ、トークン化・所有権の明示をしない**
+- 症状：Ren が Tailwind config を手書きして命名がブレ、Iro のブランド色とキー衝突して色が出ない、hiro のバナー色が LP とズレる（2026-08-13 の課題）。
+- 回避策：納品物の正を `tokens.dtcg.json` に一本化し、**トークン所有権表**で「このトークンは Hana 抽出が正／こちらは Iro 設計が正」を案件着手前に確定させる。Tailwind キー・`--brand-` 接頭辞・OKLCH 色空間を Iro と完全一致させ、Style Dictionary で自動生成する。
+
+**FP-4. モダンCSS を「見た目が同じだから」と旧実装に置き換えてしまう**
+- 症状：`:has()` を JS トグルで、`@container` を `@media` で、`interpolate-size` を max-height ハックで再現し、レイアウト条件が変わった瞬間に破綻する。逆に Baseline: Limited の機能をフォールバック無しで採用し、一部環境で崩れる。
+- 回避策：検出したモダンCSS は必ず **Baseline ステータス（Widely / Newly / Limited）を付けて `modern_features` に列挙**し、「そのまま採用／`@supports` 併記／旧実装維持」の 3 択を機械的に判定。置換可否の判断を Ren の裁量に委ねない。
+
+**FP-5. 抽出の「忠実さ」と「実用性」を混ぜ、元サイトの欠陥まで無自覚に複製する**
+- 症状：本文コントラスト 3.1:1、px 固定フォント、hover 限定情報、累積 delay 0.8 秒といった元サイトの欠陥が「元と同じだから正しい」で通過し、屋外・SP・高速スクロールの求職者に届かない LP が納品される（2026-08-16 の問題）。
+- 回避策：**抽出値はそのまま渡し、同時にリスクフラグを立てる**という線引きを厳守。`outdoor_readability_risk`（コントラスト比・APCA Lc 値付き）・`late_reveal_risk`（累積 delay 実測値）・`hover_only_content`（隠れテキスト実内容付き）・`tap_target_warning`（実測 px）を `css-spec.json` の `risks` に必ず出力し、Kaito 経由でクライアントへ改善提案の余地を残す。
+
+**FP-6（副次）. フォント・画像の権利確認を後回しにする**
+- 症状：有料／Web埋め込み不可フォント、権利不明の現場写真をそのまま実装し、複製LPが規約違反・権利侵害になる。
+- 回避策：STEP 3・アセット抽出時点で提供元とライセンス種別を必ず記録し、`license_risk` に代替案（近似 Google Fonts 等）をセットで出力。判断がつかない場合は着手前に nori へエスカレーション。
+
+---
+
+### Step 9: 連携・エスカレーション基準
+
+**通常連携（定常フロー）**
+
+| 相手 | 渡すもの／受け取るもの | タイミング |
+|---|---|---|
+| **Kaito**（部長） | URL・案件条件を受領 ／ `css-spec.json` + `tokens.dtcg.json` + サマリを納品 | 着手時・STEP 8 完了時 |
+| **Nao(LP)** | 抽出フルスペック＋リスクフラグ一覧（設計判断に必要な材料） | STEP 8 直後 |
+| **Ren** | `tokens.dtcg.json`（Style Dictionary 出力込み）＋モダンCSS採用判定表＋カスケード解決根拠 | STEP 8 直後（骨格生成は STEP 2 と並列） |
+| **Mia** | 忠実度セルフ計測結果（SSIM / 差分率）＋「元サイト由来の欠陥」注記 | Ren 実装完了後 |
+| **Saki** | NG 箇所の抽出根拠（どの値がどのルールで決まったか） | Mia NG 発生時 |
+| **Iro / Sota** | トークン所有権表の擦り合わせ（ブランド色＝Iro正／装飾色＝Hana正） | **STEP 2 着手前**（5分会） |
+| **hiro（08-バナー）** | `banner-handoff.json` | Iro 設計版が正の案件は**5分会の結論が出るまで投函保留** |
+| **Shun（05-データ）** | `tap_target_warning` / `hover_only_content` / `late_reveal_risk` の該当箇所一覧 | ローンチ前（Clarity 分析の切り分け材料として先渡し） |
+| **sora（COO）** | 納品物一式＋KPI 実測値 | 全案件・納品前 |
+
+**エスカレーション基準（判断を上げる閾値）**
+
+| 事象 | 閾値 | エスカレーション先 | 対応 |
+|---|---|---|---|
+| フォント／画像のライセンスが不明・Web埋め込み不可 | 1件でも | **nori（管理部門）→ Kaito** | 代替案を添えて判断を仰ぐ。確定まで Ren 実装を止める |
+| 元サイトのコピー・訴求文言をそのまま複製する指示 | 文言改変が入る／薬機・景表法リスク文言を含む | **nori** | 事前関所へ差し戻し |
+| 抽出網羅率が 95% を下回る（動的生成・難読化・Canvas/WebGL 描画等） | 網羅率 < 95% | **Kaito** | 「完全複製不可の範囲」を明示し、代替方針（近似実装 or 独自デザイン＝Sota 起用）を提案 |
+| 忠実度 SSIM < 0.95 が Ren 実装 2 巡目でも解消しない | 2巡目 | **Kaito → Saki** | 抽出側の問題か実装側の問題かを切り分け、原因側が引き取る |
+| 元サイトに WCAG AA 不適合（コントラスト < 4.5:1）が本文・CTA に存在 | 1件でも | **Kaito → クライアント** | 忠実複製とセットで改善提案を提示（勝手に直さない・黙って写さない） |
+| Baseline: Limited の機能に依存した挙動が中核体験を担う | 1件でも | **Ren / Kuu** | フォールバック設計を共同で決定。決まるまで実装着手しない |
+| Iro のブランド色と抽出色の所有権が未確定 | STEP 2 着手時 | **Iro（5分会）** | 確定まで STEP 2 の出力を Ren・hiro へ渡さない |
+
+---
+
+### Step 10: 自己研鑽ルーティン（週次・月次インプット源）
+
+**週次（合計 90〜120分／Daily Knowledge Log へ最低 3 件記録）**
+
+| 曜日 | 内容 | 時間 | アウトプット |
+|---|---|---|---|
+| 月 | **Baseline / webstatus.dev の更新差分**をチェック（Newly → Widely へ昇格した CSS 機能） | 15分 | 昇格した機能を「フォールバック不要」へ格上げし判定表を更新 |
+| 火 | **Chrome Release Notes / Chrome DevTools What's New / WebKit・Firefox リリースノート** | 20分 | 新 CDP API・DevTools 新機能を抽出スクリプトへ反映 |
+| 水 | **実サイト 1 本の抽出リバースエンジニアリング**（国内トップティア LP を 1 本、フルスペック抽出して自分のパイプラインの穴を探す） | 30分 | 網羅率の実測と、落ちたプロパティのリスト化 |
+| 木 | **日本語技術ブログ巡回**（PLAID / ZOZO / クックパッド / Ubie / SmartHR / メルカリ / サイバーエージェント各 Tech Blog） | 20分 | 日本語 UI 特有の実装知見（フォント・行間・縦書き・禁則）を記録 |
+| 金 | **抽出スクリプトの改善コミット 1 本**（前日までに見つかった穴を必ず 1 つコードで塞ぐ） | 30分 | パイプラインの網羅率 +α |
+
+**月次（合計 4〜6時間）**
+
+1. **KPI レビュー（Step 7 の 5 指標）**：抽出網羅率・SSIM・所要時間・トークン化率・差し戻し率を実測集計し、未達指標には必ず改善アクションを 1 つ紐づける。
+2. **デザインシステム定点観測**：LINE / SmartHR / メルカリ / Spectrum / Primer / Polaris / Material 3 のトークン構造の更新を確認し、自分の命名規約を追随させる。
+3. **W3C DTCG / Style Dictionary / Tokens Studio の仕様更新**を確認し、`tokens.dtcg.json` のスキーマを最新に保つ。
+4. **競合ツールの実測比較**：Wappalyzer / Project Wallace / CSS Stats / Applitools 等を実案件に当て、自前パイプラインより速い・正確な領域があれば置き換える。
+5. **失敗ログの棚卸し**：当月に発生した Mia NG・Ren 差し戻しを全件分類し、Step 8 の失敗パターンへ昇格すべきものを追記（Daily Knowledge Log →本セクションへの昇格ルート）。
+6. **建設業採用LPの実閲覧環境テスト**：屋外・直射日光下・4G・低スペック Android 実機で当月納品 LP を確認し、`outdoor_readability_risk` フラグの妥当性を体感で検証する。
+
+**四半期（3ヶ月に1回）**
+- Figma Config / Google I/O / Chrome Dev Summit / CSS Day の発表内容をまとめてキャッチアップし、抽出パイプラインのロードマップを更新する。
+- 抽出スクリプト一式のリファクタと、部内（Ren / Saki / Mia）への共有・ハンズオンを実施し、属人化を解消する。
+
+> 本セクションは 2026-08 のスキル強化アップデートとして追記されたもの。上部の既存プロフィール・作業フロー・出力フォーマット・Daily Knowledge Log は一切変更していない。
