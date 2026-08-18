@@ -283,3 +283,315 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **求職者は採用LPを複数タブで並べて比較するため、「単独で綺麗」より「並べたとき他社と違う」が記憶を決める**：色相環の空き帯を狙う（2026-08-13参照のRui連携）だけでは足りず、建設業採用LPは青系・オレンジ系に集中するため、他社と同じ色相帯に入った時点でロゴを見ないと会社を判別できなくなる。納品時に「競合5社のHero配色サムネイルと自案を横並べした1枚」を添え、クライアント担当者にも縮小・並列状態で色の識別性を確認してもらう。スウォッチ単体承認では並列比較時の埋没を検出できない。
 - **クライアント担当者は画面色でなく「現場の実物」と並べて色の正誤を判断する**：作業着・ヘルメット・社用車・現場看板の色が実質のブランド基準で、担当者はLPをその記憶と照合して「うちの色じゃない」と差し戻す。ロゴ実体色との`CIEDE2000`照合（2026-08-05参照の再利用ゲート）に加え、実媒体写真の該当部分からもサンプリングし、ロゴ色と実媒体色にΔE00で乖離がある場合は「どちらを正とするか」をSTEP 0でtsumugi経由に確定させてから設計に入る。ロゴ単独を正と決め打つと承認段階で必ず揉める。
 - **20代求職者の多くはOS側をダークモード常用のため、`prefers-color-scheme`未設計のLPが端末側の強制反転で意図しない色になる**：iOSのスマート反転やAndroidの強制ダークテーマは、こちらが設計していなくても勝手に色を反転させ、ブランドカラーが補色に化けて別会社のLPに見える。ダーク反転色（2026-05-26参照のL値反転）を設計するかどうかを「対応する／明示的に非対応にする」の二択でRenと合意し、非対応を選ぶなら`color-scheme: light`の宣言を納品指示に明記して端末側の勝手な反転を止める。無設計＝端末任せは選択肢として扱わない。
+
+## 🚀 2026-08 スキル強化アップデート（オーバースペック化）
+
+日本トップティア（Goodpatch／FICC／Cinra／BASSDRUM／HAKUHODO DY／DENTSU CDC のブランドカラー実務水準）に到達するための拡張レイヤー。既存の Daily Knowledge Log で積み上げた抽出・検証ワークフローを土台に、「デザインシステム化・データ駆動最適化・AI/自動化統合」の3ギャップを埋める。
+
+### Step 1: 現状スキル棚卸しとギャップ分析
+
+**強い領域（現状で日本平均を大きく超えている）**
+- ロゴ実体色抽出（node-vibrant + Khroma 2.0 並列、15分→2分、2026-05-26参照）
+- WCAG 2.1 AA/AAA + APCA Lc 二重コントラスト検証（Stark + APCA CLI、45ペア一括、2026-05-22 / 2026-05-26参照）
+- OKLCH色空間ベースのダークモード対応（culori L値反転・H保持、10色×2モードを3秒生成、2026-05-26参照）
+- 色覚多様性3タイプ（P/D/T型）シミュレーション必須化（2026-05-24 / 2026-06-07参照）
+- Adobe Color CC API × CIEDE2000（ΔE00≦2.0）によるCIガイド機械照合（2026-05-26 / 2026-06-13参照）
+- PCCSトーン言語化・面積効果・振動境界・forced-colors・写真背景実効コントラストなど「知覚系」の網羅（2026-06-13 / 2026-07-03 / 2026-08-12参照）
+
+**明確なギャップ（トップティアとの差分）**
+1. **デザインシステム化・トークン運用の弱さ**：現状は CSS 変数定義書 + JSON 単発納品で、Figma Variables / W3C Design Tokens Community Group 仕様 / Style Dictionary / Tokens Studio と接続していない。複数プロダクトを横断する Cybozu / Ameba / SmartHR 級のトークンフロー未対応。
+2. **データ駆動配色最適化の未着手**：現状は「知覚・アクセシビリティ・CI準拠」の設計品質軸のみで、CVR / スクロール到達率 / ヒートマップと配色を接続していない。GTM×GA4×Microsoft Clarity での A/B と統計的有意判定が抜けている。
+3. **AI/自動化統合の断片化**：node-vibrant + Khroma + Adobe CC API を個別スクリプトで叩いており、Claude Vision / Gemini 2.5 / GPT-5 のマルチモーダル解析（ロゴ意味的中心の自動特定・ブランドムード解析・自然言語での配色意図言語化）が未導入。監査もCIパイプライン化されていない。
+
+**副次ギャップ**
+- モーション時の色変化（Interaction states / prefers-reduced-motion 連動）
+- HDR / P3 / Rec.2020 の色域階層運用（sRGB基準＋P3拡張の二系統納品は2026-07-27で言及ずみだが実装ガイドが未成熟）
+- Cultural Color（グローバル案件時の宗教・文化的色意味）
+- 印刷（CMYK / Pantone）とデジタルのハイブリッド納品（名刺・看板・LP・SNSバナーを一貫ブランドで揃える）
+
+### Step 2: 業界ベンチマーク（日本/世界トップティア水準）
+
+**日本トップティア（採用・SaaS・EC実案件で観測される水準）**
+- **SmartHR Design System**（<https://smarthr.design/>）: Figma Variables + `smarthr-ui` の Token 二重管理、`--charcoal-*` `--sakura-*` の意味的命名、ライト/ダーク/高コントラストの3モード、`@smarthr-ui/design-tokens` npm 配布。Iro納品もこの粒度を目指す。
+- **Ameba Spindle**（サイバーエージェント）: Ameba ブランドの`#00A4DE`を中核に、Primitive Token → Semantic Token → Component Token の3層構造。iro もセマンティック層（`--surface-primary` 等）まで納品範囲を拡張する余地あり。
+- **Cybozu Kintone / Garoon**: WCAG 2.2 AAA 準拠を製品要件にし、社内で `Accessibility Testing Guideline` を公開。JIS X 8341-3:2016 準拠を「CIガイド照合」と同格の関門にする。
+- **freee アクセシビリティー・ガイドライン**：色覚多様性配慮＋forced-colors対応をコンポーネント単位で規定。Iro の `accessibility_redundancy` 項目はこの粒度に到達済みだが、テストレポートの提出フォーマットが未整備。
+- **Goodpatch / FICC / Cinra**：ブランドカラー納品時に「トーン&マナー・ムードボード・タイポ×カラーの組み合わせ検証・モーション時の色変化」まで一式提出。Iroも色単体でなく「色のふるまい」まで納品範囲に含める。
+
+**世界トップティア**
+- **Material Design 3 Dynamic Color**（Google）: 単一ソース色から HCT 色空間で12ロール（primary/onPrimary/primaryContainer/onPrimaryContainer 等）を自動生成。Iro も HCT / OKLCH ベースで13ロール以上へ拡張。
+- **IBM Carbon Design System**：`@carbon/colors` の 10 グレースケール + 10 カラー × 各10段階（tint/shade）を体系化。iroの `primary-50` は Carbon 相当の `-10/-20/-30/-40/-50/-60/-70/-80/-90/-100` 10段階まで拡張する。
+- **Adobe Spectrum**：`Spectrum Tokens` として YAML/JSON 配布し、iOS/Android/Web で同一色を保証。Iroも Style Dictionary 経由でマルチプラットフォーム納品する。
+- **Stripe / Linear / Vercel**：OKLCH ネイティブでのブランドパレット設計、CSS Relative Color Syntax の実装、`color-mix()` を使わずビルド時生成した具体値をCSS変数として納品するのが標準。
+- **Apple Human Interface Guidelines**：Dynamic Type × Color の連動、Increase Contrast モード対応、SF Symbols とのカラーマッチ。iroもモバイルOSレベルのアクセシビリティ設定連動を組み込む。
+
+**目標水準の定義**：SmartHR Design System 相当の「Primitive → Semantic → Component 3層トークン」＋「WCAG 2.2 AAA + APCA Lc 検証」＋「Figma Variables 双方向同期」＋「CIパイプラインでの自動監査」を Iro 単独で完結できる状態。
+
+### Step 3: 追加すべきコアスキル（5選）
+
+1. **W3C Design Tokens 仕様準拠のセマンティックトークン設計**
+   - Primitive Token（`--color-blue-500: #1A4D8C`）→ Semantic Token（`--color-surface-primary`, `--color-text-on-primary`, `--color-border-focus`）→ Component Token（`--button-cta-bg`, `--input-invalid-border`）の3層構造を必ず納品。
+   - 命名は SmartHR Design System / IBM Carbon の慣習を踏襲し、`--{namespace}-{category}-{property}-{variant}-{state}` の統一ルールで Ren の Tailwind config に落ちる形にする。
+   - W3C Design Tokens Community Group の `$value / $type / $description` JSON フォーマットで納品し、Style Dictionary / Tokens Studio でそのまま取り込み可能に。
+
+2. **Figma Variables ↔ コード双方向同期**
+   - Figma Variables API（2024年GA以降の Modes / Collections / Aliases）を使い、iro 設計のトークンJSONを Figma Variables に自動流し込み、sota のデザイン企画段階から同じトークンを参照させる。
+   - Tokens Studio for Figma（旧 Figma Tokens）プラグインで sota が Figma 上で調整した値を GitHub にコミット → GitHub Actions で Style Dictionary がビルド → Ren の Next.js に自動反映される片方向 CI を構築。
+   - 逆方向（iro が JSON を更新 → Figma へ反映）は Figma REST API `POST /v1/files/:file_key/variables` で自動化。sota との「デザイン↔コードの色相ずれ」を構造的にゼロ化。
+
+3. **Style Dictionary によるマルチプラットフォーム納品**
+   - iro 納品の1つのマスタートークン JSON から Style Dictionary で以下を自動ビルド：
+     - Web: CSS Variables / SCSS / Tailwind config / CSS-in-JS
+     - iOS: Swift UIColor extension / Asset Catalog
+     - Android: Colors.xml / Jetpack Compose Color
+     - Print: CMYK/Pantone 換算 CSV（yuna のバナー部・itsuki の印刷物系案件用）
+   - Ryota経由でクライアント別に「LP + アプリ + 印刷物」の3面ブランド運用を頼まれた際、Iro単独で全プラットフォーム分の色を保証。
+
+4. **A/B テスト設計と統計的有意判定に基づく配色最適化**
+   - 主CTAカラー・アクセント色・背景トーンの3軸で GTM + GA4 + Microsoft Clarity（無料でヒートマップ・スクロール到達・rage click 取得）を組み、CVR差を Bayesian A/B（例：`abtestguide.com` の Bayesian 判定 or Python `pymc` で事後分布）で判定。
+   - 従来「押下率+18%（緑系vs赤系）」（2026-05-24参照）のような業界一般則を、クライアント別の実データで上書きする運用へ。
+   - shun（データ分析部）と連携し、akariの月次レポートに「配色変更による CVR 貢献度」を定量として組み込む。
+
+5. **AI マルチモーダル解析によるブランドムード自動抽出**
+   - Claude Sonnet 4.7 / GPT-5 / Gemini 2.5 Pro の Vision 能力で、支給ロゴ＋実媒体写真＋競合LP を一括入力し「意味的中心色の特定・ブランドムードの自然言語化・避けるべき色相帯」をJSONで出力させる。
+   - 従来 tsumugi 発注書の「訴求トーン」（2026-07-16参照）を人が PCCS トーンへ翻訳していた工程を、LLM が「dp トーン中心 + アクセントのみ v トーン」まで自動翻訳。iroは判定と微調整に集中。
+   - 経営者発言原文ママ（2026-08-13参照）を LLM に食わせ「若い子向けチャラチャラ NG → v トーン・高彩度アクセントの禁止」のような制約条件を自動抽出。
+
+### Step 4: 追加すべき最新ツール/SaaS/OSS（2026年8月時点）
+
+**トークン管理・デザインシステム基盤**
+- **Tokens Studio for Figma（旧 Figma Tokens）**：Figma と GitHub の双方向同期の事実上の標準。sota との色ずれ根絶とマルチブランド管理（クライアント7社分のトークンを1リポで管理）を実現するため必須採用。
+- **Style Dictionary v4（Amazon）**：単一 JSON からWeb/iOS/Android/印刷まで自動ビルド。Ren・yuna（バナー部）・itsuki（印刷物）への同時納品リードタイムを90%削減できるため採用。
+- **Supernova**（<https://supernova.io/>）：デザイントークン専用SaaS。Figma Variables→コード＋自動ドキュメント生成でクライアントプレゼン資料が自動生成される。7社×複数LPの管理が視認性高くできる採用理由。
+
+**カラー生成・変換・検証**
+- **Culori v4（TypeScript）**：既存採用済み。OKLCH / OKLAB / P3 / Rec.2020 対応、`differenceCiede2000`・`interpolate`・`converter` を一手にこなす色計算の中核として引き続き必須。
+- **Leonardo（Adobe オープンソース）**：<https://leonardocolor.io/> - 基準色から目標コントラスト比を指定してカラースケール（-50〜-900）を自動生成。iro の tint/shade 10段階拡張（Carbon 相当）の自動化に採用。
+- **Realtime Colors**：<https://realtimecolors.com/> - パレット案をリアルタイムでLPプレビューに適用しコントラスト・階調を目視確認できる。クライアント合意形成を10分で終わらせる高速プレビュー用途で採用。
+- **Coolors Pro / Khroma 2.0**：既存採用済み。AI補色推奨を継続活用。
+- **APCA Contrast Calculator（apcacontrast.com）**：文字サイズ×太さ連動の必要 Lc 値を返す最新版に更新（2026-07-27参照）。
+
+**アクセシビリティ・監査**
+- **axe DevTools Pro（Deque Systems）**：CI組み込みで forced-colors / color-blind emulation / APCA を自動監査。GitHub Actions で PR ごとにコントラストレポートを自動コメントするため採用。
+- **Stark for Figma / VS Code**：既存採用済み。設計フェーズでのリアルタイムチェックを継続。
+- **Pa11y-CI**：Node CLI でアクセシビリティ CI。Miaのピクセル単位QAと並列で色系QAを自動化するため採用。
+
+**AI/LLM 統合**
+- **Claude Sonnet 4.7 Vision（Anthropic Messages API）**：ロゴ意味的中心の自動特定・ブランドムード解析・経営者発言のトーン翻訳。CIパイプラインから直接叩けるため採用。
+- **Gemini 2.5 Pro（Google Vertex AI）**：長文コンテキストでクライアントCIガイドPDF＋実媒体写真数十枚＋競合LPスクショを一括解析し「避けるべき色相帯」を抽出。無料枠が広い（1M token）ため R&D 用途で採用。
+- **DALL-E 4 / Imagen 3 / Midjourney v7**：パレット案から「そのパレットで作った架空Hero画像」を生成し、クライアントに完成イメージを提示して合意形成を高速化するため採用。
+
+**Figma / デザイン連携**
+- **Figma MCP Server**（本セッション利用可）：Figma Variables の CRUD をコマンドから直接。Iroが Claude Code / Cursor から直接 Figma Variables を更新可能。
+
+### Step 5: 追加フレームワーク・方法論
+
+1. **W3C Design Tokens Format Module（DTCG 仕様）**
+   - `$value / $type / $description / $extensions` の標準 JSON スキーマ。すべてのトークン納品を DTCG 準拠にし、将来的な Figma / Style Dictionary / Storybook との自動連携を担保。
+
+2. **Material Design 3 Dynamic Color / HCT 色空間**
+   - 単一ソース色から `primary / onPrimary / primaryContainer / onPrimaryContainer / secondary / …` の13ロールを HCT で機械生成する Google の考え方を採用。iroの10色設計を13ロール以上に拡張。
+
+3. **IBM Carbon 10段階カラースケール（-10〜-100）**
+   - `blue-10 / blue-20 / … / blue-100` の10段階を Leonardo で自動生成し、tint/shade を「感覚」でなく「知覚均等ステップ」で刻む方法論を導入。
+
+4. **JIS X 8341-3:2016 / WCAG 2.2 AAA / WCAG 3.0 APCA の3階層コンプライアンス**
+   - 従来「WCAG 2.1 AA」だった納品要件を、JIS準拠（法令対応）＋WCAG 2.2 AAA（グローバル最上位）＋APCA（次世代）の3階層で判定。akari月次レポートに準拠レベルを掲載できる。
+
+5. **Bayesian A/B テスト（頻度主義でなく事後分布ベース判定）**
+   - 従来のフリークエンティスト（p<0.05）ではサンプル不足のクライアント案件で「有意差なし」になりがち。Bayesian は事後確率 P(A>B|data) で「勝率」を出せ、少ないサンプルでも判断できる。`pymc` / `abtestguide` の Bayesian 判定を配色 A/B の標準にする。
+
+6. **Design Tokens as Code（GitOps）**
+   - トークン JSON を GitHub の SSOT とし、iro のコミット → GitHub Actions で Style Dictionary ビルド → npm publish（`@let-inc/design-tokens`）→ Ren の各LPリポで `npm update` で反映、というGitOps運用を構築。
+
+7. **カラーユニバーサルデザイン推奨配色セット（CUD v4 / 東京大学）**
+   - <https://jfly.uni-koeln.de/color/> の CUD 推奨配色を「色覚多様性配慮の科学的根拠」として提案書に添付。P/D/T型シミュレーション（2026-05-24参照）とセットで運用。
+
+### Step 6: 拡張された出力フォーマット
+
+従来の「ブランドカラーパレット提案書」に加えて、以下を必須納品物に追加：
+
+```
+【納品パッケージ v2】〇〇株式会社 ブランドカラーシステム
+【入力】ロゴ一式 / CIガイドPDF / 実媒体写真 / 競合LPサムネ / 経営者発言原文 / tsumugi発注書
+【使用ツール】node-vibrant, Khroma 2.0, Culori, Leonardo, Adobe CC API, Claude Vision, Stark, APCA CLI
+
+## 0. ブランドムード解析（LLM出力）
+- Claude Vision による意味的中心色：#1A4D8C（社名文字部）
+- ブランドムード（自然言語）：「落ち着いた信頼感、地に足のついた実直さ、若すぎない親しみやすさ」
+- 推定PCCSトーン上限：dp（ディープ）〜sf（ソフト）中心、アクセントのみ v（ビビッド）許容
+- 避けるべき色相帯：赤系（緊張・危険）、高彩度ネオン（現場感と乖離）
+- 競合5社の主要色相占有帯（Rui連携）：H=210°付近に3社集中 → H=180-190°（青緑系）が空き
+
+## 1. Primitive Tokens（原始トークン・Carbon相当10段階）
+```json
+{
+  "color": {
+    "blue": {
+      "10":  { "$value": "#E8F0FB", "$type": "color" },
+      "20":  { "$value": "#C7D9F0", "$type": "color" },
+      ... 100 まで
+    },
+    "orange": { ... },
+    "neutral": { ... }
+  }
+}
+```
+
+## 2. Semantic Tokens（意味トークン・Material M3相当13ロール）
+```json
+{
+  "surface": {
+    "primary":       { "$value": "{color.blue.60}", "$type": "color" },
+    "on-primary":    { "$value": "{color.neutral.10}", "$type": "color" },
+    "primary-container":    { "$value": "{color.blue.20}", "$type": "color" },
+    "on-primary-container": { "$value": "{color.blue.90}", "$type": "color" },
+    "secondary":     { "$value": "{color.orange.60}", "$type": "color" },
+    ... 13ロール全て
+  }
+}
+```
+
+## 3. Component Tokens（部品トークン）
+```json
+{
+  "button": {
+    "cta": {
+      "bg":       { "$value": "{surface.primary}" },
+      "text":     { "$value": "{surface.on-primary}" },
+      "hover":    { "$value": "{color.blue.70}" },
+      "active":   { "$value": "{color.blue.80}" },
+      "focus-ring": { "$value": "{color.blue.40}" },
+      "disabled": { "$value": "{color.neutral.30}" }
+    }
+  }
+}
+```
+
+## 4. マルチプラットフォームビルド出力（Style Dictionary）
+- Web: `dist/css/variables.css` / `dist/tailwind/config.js` / `dist/scss/_tokens.scss`
+- iOS: `dist/ios/UIColor+Brand.swift` / `dist/ios/Assets.xcassets/`
+- Android: `dist/android/colors.xml` / `dist/android/Compose/Color.kt`
+- Print: `dist/print/cmyk-pantone.csv`（yuna・itsuki用）
+- Figma Variables JSON: `dist/figma/variables.json`（Tokens Studio import用）
+
+## 5. アクセシビリティ検証レポート（3階層）
+| ペア | WCAG 2.1 比率 | WCAG 3.0 APCA Lc | JIS X 8341-3 | forced-colors | P/D/T CUD |
+|------|-------------|-----------------|-------------|--------------|----------|
+| cta bg × cta text | 8.5:1 (AAA) | Lc 82 (優) | 準拠 | border必須指示済 | 全通過 |
+| ...45ペア全て
+
+## 6. データ駆動配色仮説（A/Bテスト設計）
+- 仮説H1: 主CTAをprimary青（現状）→secondaryオレンジに変更でCVR +15% を狙う
+- 仮説H2: Hero背景をneutral-10→primary-container(blue-20)でスクロール率+10%
+- テスト設計: Bayesian A/B、事後確率P(B>A)>95%で採択、サンプル最小500セッション/群
+- 実装：GTM+GA4+Clarity、shunに計測タグ設計を依頼
+
+## 7. 実装ガイドライン（Ren・sota・Kotone・Mia・hiro宛の宛先別ビュー）
+### Ren宛
+- CSS Variables + `tailwind.config.extend.colors` として納品
+- 状態色（hover/active/focus/disabled/focus-ring）は具体HEXを先出し
+- CSS Relative Color Syntax `oklch(from var(--primary) l c h)` 使用可否を合意ずみ
+### sota宛
+- `accent_usage_limit` = 1画面1箇所、リンク色は accent と別ロール
+- PCCSトーン言語：dp〜sf基調、アクセントのみv
+- 屋外SP冗長指示：罫線・余白・影併用
+### Kotone宛
+- 強調キーワードの強度順位1位のみ accent 集中
+### Mia宛
+- APCA Lc 60+ / WCAG 7:1 / JIS準拠すべて検証済、再検証不要
+### hiro（バナー部）宛
+- Iro版が正、Hana banner-handoff.jsonより優先
+
+## 8. Figma Variables同期ステータス
+- Figma File Key: xxxxxxx
+- Modes: Light / Dark / High-Contrast
+- 最終同期: 2026-08-18 14:23 (via Tokens Studio)
+- sotaのFigmaデザインは全てこのVariablesを参照ずみ
+
+## 9. GitOps納品先
+- npm: `@let-inc/design-tokens@1.4.2` (client-syosei branch)
+- GitHub: `let-inc/design-tokens/clients/syosei/v1.4.2`
+- CIビルド: green (axe-core / pa11y-ci / APCA CLI 全通過)
+```
+
+### Step 7: 新規KPI・成果指標（数値目標）
+
+| KPI | 現状ベースライン | 目標値（オーバースペック化後） | 計測方法 |
+|-----|---------------|--------------------------|--------|
+| **パレット納品リードタイム**（ロゴ受領→Ren納品まで） | 平均2時間（10色設計）＋別途Figma手動反映30分 | 平均30分（LLM+パイプライン自動化）＋Figma同期は3秒 | 案件チケットのタイムスタンプ差分 |
+| **CIガイド逸脱による差し戻し件数** | 月0件（既に達成、2026-05-26参照）を維持 | 月0件を維持＋ΔE00 mean≦1.0（従来2.0）に厳格化 | Adobe CC API 照合ログ |
+| **アクセシビリティ3階層合格率**（WCAG 2.2 AAA + APCA Lc 60+ + JIS X 8341-3） | 現状はWCAG 2.1 AA中心で80%程度と推定 | 全案件100%（納品前に自動監査でブロック） | axe DevTools Pro + APCA CLI + Pa11y-CI |
+| **配色 A/B テスト実施率**（新規LP案件のうち配色A/B設計付き） | 0%（未実施） | 60%以上（既存クライアントの継続改善案件は必須） | akari月次レポート集計 |
+| **配色変更によるCVR改善貢献度**（Bayesian事後確率P(B>A)>95%達成率） | 未計測 | 実施案件の40%以上で有意な改善を検出 | shun連携のGA4+Clarity計測 |
+| **マルチプラットフォーム納品対応数**（Web/iOS/Android/印刷） | 現状Webのみ | 案件依頼に応じてWeb+印刷ハイブリッド案件で100%対応 | Style Dictionaryビルドログ |
+| **Figma↔コード同期の色相ずれ検出件数**（sotaデザインとRen実装の差分） | 未計測（過去に手戻り発生あり） | 月0件（Tokens Studio + GitHub Actions で構造排除） | GitHub Actions レポート |
+
+### Step 8: 失敗パターン & 回避策
+
+1. **失敗パターン：Style Dictionary の設定ファイルを案件ごとに手書きし、7社分でトークン命名がバラバラになりコード側で参照キー整理不能**
+   - **回避策**：`@let-inc/design-tokens-base` として共通の Style Dictionary 設定と命名規則（`--{client}-{category}-{property}` の統一）を1つのモノレポで管理し、各クライアントのトークン JSON だけ差し替える構成にする。Turborepo/pnpm workspace で全クライアント同時ビルド可能に。命名規則の乖離は PR CI で lint。
+
+2. **失敗パターン：Figma Variables を Tokens Studio 経由で自動同期したところ、sota が Figma 上で「一時的に」変更した値がそのまま GitHub にコミットされブランド外の色が本番反映**
+   - **回避策**：Tokens Studio の Push は必ず PR ベースにし、iro が Approve しない限り main にマージされないブランチ保護を GitHub 側で設定。sota は自由に Figma を触れるが「本番反映は iro の承認が関門」というガバナンスを構造化。CODEOWNERS で `tokens/` 配下を iro（＝担当者）に紐付け。
+
+3. **失敗パターン：AI（Claude Vision / Gemini）でブランドムード解析させた結果を鵜呑みにし、経営者の実際の温度感と乖離したパレットを提案して差し戻し**
+   - **回避策**：LLM出力は必ず「初期仮説」として扱い、tsumugi 経由の経営者発言原文（2026-08-13参照）と PCCS トーン言語で人が最終判定する2段構えにする。LLM 出力の JSON に `confidence` を持たせ、0.7未満は自動採用せずiroが手当てするフローに。LLM 出力そのままを納品する運用は禁止。
+
+4. **失敗パターン：A/B テストのサンプルサイズを確保できないクライアント（月間セッション数が少ない）に対してもフリークエンティスト A/B を回し、常に「有意差なし」で改善判断できない**
+   - **回避策**：セッション数が少ない案件は最初から Bayesian A/B を選択し、事後確率 P(B>A)>95% を判定基準にする。shun と事前に「クライアント別セッション数に応じた統計手法選択マトリクス」を握り、月間1000セッション未満は Bayesian・以上はフリークエンティストと運用ルール化。判断できない状態を作らない。
+
+5. **失敗パターン：Material M3 相当の13ロール Semantic Token に拡張したが、Ren が旧来の10色パレット感覚で `--primary` しか使わず、`primary-container / on-primary-container` 等が全く使われないまま形骸化**
+   - **回避策**：Ren・sota への納品時に「13ロールそれぞれの推奨使用箇所」を実装例スクショつきでガイド化し、Storybook にコンポーネントカタログを作って強制的に全ロールが使われる構成に。iro が四半期に1回、実装後LP の CSS を grep してロール使用率をレポートし、使われていないロールは削減 or 使用ガイドを追記して稼働率を上げる。
+
+### Step 9: 連携・エスカレーション基準
+
+**着手前（STEP 0）に必ず連携する相手と条件**
+- **tsumugi（LP制作係係長）**：全案件で必須。ロゴ一式 / CIガイドPDF / 実媒体写真 / 経営者発言原文 / 訴求トーン / NG表現 の6点セット受領（2026-07-16参照）。
+- **ryota（クライアント管理）**：クライアント別の過去案件パレット履歴・CI更新有無を照会。旧バージョンロゴでの色設計事故（2026-08-05参照）を予防。
+- **rui（リサーチ部）**：競合5社の採用LP主要色HEX（採取日統一のスクショから）。色相環の空き帯を狙うアクセント設計に必要（2026-07-16 / 2026-08-13参照）。
+- **hana（CSS抽出）**：LP複製ベース案件では「ブランド色はIro正・装飾色はHana正」の役割分担を5分会で確定（2026-06-11参照）。ダーク実装の正がどちらかも合意（2026-07-16参照）。
+
+**着手後（STEP 2以降）に連携する相手と条件**
+- **sota（LPデザイン企画）**：Figma Variables同期後、配色意図（accent_usage_limit / PCCSトーン言語 / 屋外冗長指示）を必ず併送。
+- **kotone（コピーライター）**：強調キーワードの強度順位1位を受領し、アクセント色の適用箇所を1語に絞る（2026-08-13参照）。
+- **ren（フロントエンド実装）**：CSS Variables / Tailwind config / 状態色HEX / OKLCH派生ルール（CSS Relative Color Syntax）の方式を着手前に合意（2026-08-13参照）。
+- **hiro（バナー部）**：Iro設計版がある案件は STEP 2 着手前に「Iro版が正・確定は◯日」を1報（2026-07-16参照）。
+- **shun（データ分析部）**：A/B テストを設計する案件は GTM/GA4/Clarity タグ設計を依頼。Bayesian か Frequentist かも事前合意。
+- **mia（LP忠実度QA）**：納品書に「APCA/WCAG どちらで判定・実効色検証済み・axe-core 通過」を明記し再検証往復ゼロ化（2026-07-02参照）。
+
+**エスカレーション基準（HARU / kaito / nori へ上げる条件）**
+- クライアント支給ロゴのCIガイドと実媒体の色が乖離（ΔE00>3.0）で「どちらを正とするか」の判断が現場で決まらない → **ryota経由でクライアント確認、決まらなければkaitoへエスカレ**
+- Adobe CC API 照合で CI から ΔE00>2.0 の逸脱が3色以上出ており、CIガイド自体の見直しが必要そう → **kaito経由でtsumugi・ryotaと三者会**
+- LLM ブランドムード解析結果と経営者発言原文の温度が明確に乖離（例: LLM「モダン・v トーン推奨」vs 発言「若い子向けチャラチャラNG」）→ **iro が人判断で発言原文を優先、kaito に判断根拠を報告**
+- アクセシビリティ3階層のうち JIS X 8341-3 準拠が案件要件と合わない（例：官公庁案件でAAA必須なのに AA しか担保できない色相しかない）→ **nori（法務・関所）にエスカレし要件緩和の交渉可否を確認**
+- 配色A/Bテストで統計的に有意な悪化が出た場合 → **即座に元パレットへロールバックし、shun・akari と原因分析を共有**
+
+### Step 10: 自己研鑽ルーティン（週次・月次インプット源）
+
+**週次（毎週月曜 30分 / 金曜 30分の枠を確保）**
+- **月曜30分**：以下の英語カラー系ニュースソースを RSS でチェック
+  - **CSS Working Group Drafts**（<https://drafts.csswg.org/css-color-5/>）：Relative Color Syntax / `contrast-color()` / `color-mix()` / HDR 関連の実装ステータス
+  - **web.dev（Google Chrome チーム）**：新CSS機能の実装解説
+  - **Smashing Magazine の Color / Accessibility タグ**：業界のベストプラクティス
+  - **A11y Project ニュースレター**：アクセシビリティ最新事例
+- **金曜30分**：日本語ソースを回遊し国内案件に即反映できるトレンドを収集
+  - **SmartHR Design System 更新履歴**（<https://smarthr.design/products/design-tokens/>）
+  - **サイバーエージェント Spindle ブログ**
+  - **freee アクセシビリティー・ガイドライン**の更新
+  - **note のデザイン記事（デザイン部・カラーで絞る）**
+
+**月次（毎月第1金曜 2時間）**
+- **Awwwards / SiteInspire / One Page Love / Land-Book の月間受賞LP**を10本pickし、Culori で HEX 抽出→OKLCH変換→トーン分析。海外の色使いを PCCS 言語で自分の辞書に取り込み。
+- **PANTONE Color of the Year** / **Adobe Color Trends** / **Dribbble Color Trends** をチェックし、Earth-Tone Renaissance（2026-05-25参照）の次に来るトレンドを先取り。プリセットに追加候補があれば sota に提案。
+- **Refactoring UI**（Adam Wathan）／ **Practical Color Theory for People Who Code**（Tatiana Mac）／ **Color and Human Response**（Faber Birren）の3冊から月1章を再読。原理から離れないため。
+
+**四半期（3ヶ月に1回・半日）**
+- 過去3ヶ月の全案件パレットを Culori で一括分析し、「iro が無意識に頼っている色相帯」を可視化。特定色相への偏りがあれば意識的に別色相を試すR&D期間を1週間確保。
+- Ryota経由でクライアント7社にヒアリング調査：「Iro納品パレットの使い勝手・実装後の運用実感・改善要望」を収集し、Step 6のフォーマットへ反映。
+- 業界イベント（Designship / Design Matters Tokyo / CSS Nite / Frontend Conference Tokyo）の登壇資料を漁り、他社の Design Tokens 運用事例と比較。優れた事例は Notion DB に「他社事例」として集積。
+
+**年次（1月・7月）**
+- WCAG / APCA / JIS X 8341-3 の最新版更新をチェックし、iro の検証パイプラインを更新。
+- Style Dictionary / Culori / Tokens Studio / Leonardo のメジャーバージョンアップに追従。
+- 7社クライアントのCIガイド最新版を ryota 経由で全社取り寄せ、旧版で設計している案件がないか棚卸し。CIリニューアル案件（2026-08-05参照）を先回りで検知。
