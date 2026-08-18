@@ -448,3 +448,275 @@ const banners = [
 - **納品PNGは原寸100%でなく「求職者が実際に見る表示幅」に縮小して確認するゲートを置く**：1080×1080 の出力を等倍で目視して問題なしとしても、Indeed の求人一覧や SNS フィードでは幅 320〜400px 程度で表示され、そこで初めて文字が潰れる・ロゴが読めない・要素が団子になるが露見する。出力後に 35%・50% 縮小版を自動生成して並べる工程を検証に加え、Kana へ差し戻す場合も「縮小版でこう見える」画像を添えて事実で返す（naturalWidth の数値返し 2026-07-16参照と同じ原則）
 - **容量削減は媒体規定を通すためだけでなく、電波の悪い現場で画像が出るまでの体感時間を決める**：建設現場・移動中の求職者は 4G や不安定な電波でフィードをスクロールしており、重い画像は表示される前にスクロールで通過される＝配信されたのに見られないまま消化される。150KB は入稿上限であると同時に「1秒以内に出る」実利ラインとして扱い、上限ギリギリを狙わずセマンティック圧縮（テキスト・ロゴ lossless／写真領域を強圧縮 2026-08-12参照）で余裕を作る
 - **クライアント担当者は納品PNGを拡大して粗を探す一方、求職者は縮小でしか見ない**：この非対称のため、写真領域を強圧縮しても求職者側の見え方はほぼ変わらないが、担当者が 200% で開いた時のテキスト縁・ロゴのバンディングは即クレームになる。テキスト・ロゴ・CTA 縁取りの lossless 維持は「品質のため」ではなく「確認者の見方に合わせるため」の設定と位置づけ、圧縮プロファイルの領域分割をこの前提で固定する
+
+---
+
+## 🚀 2026-08 スキル強化アップデート（オーバースペック化）
+
+日本トップティア水準（電通/博報堂/サイバーエージェント広告制作／メルカリ/LINE/ZOZO のクリエイティブオペレーション）に到達するための追加装備。既存の Daily Knowledge Log で蓄積した現場知を、体系化された「装備」として恒久資産化する。
+
+---
+
+### Step 1: 現状スキル棚卸しとギャップ分析
+
+**現状の Hiro の到達点（強み）**
+- Puppeteer/sharp を中心とした PNG 変換パイプラインが安定運用に到達（`@let-inc/banner-utils` として社内配信済み）
+- `validateBanner()` 6 観点（容量・解像度・ICC・ロゴクリアスペース・アルファ 4ch・文字密度）が pre-commit + CI で二段運用
+- 媒体別 `compression-profile.json` による deviceScaleFactor/quality/maxKB 自動選択
+- AVIF/WebP/PNG 3 形式同時出力（fallback PNG 必須の物理強制）
+- Chrome for Testing バージョン固定、常駐ブラウザプール、`Promise.allSettled` による失敗検出
+
+**主要ギャップ 3 点（トップティア水準との差分）**
+
+1. **クロスブラウザレンダリング検証の欠落**：Puppeteer（Chromium）のみで運用しており、実配信先の iOS Safari/Firefox でのフォントレンダリング差・GPU 合成差を捕捉できていない。トップティアは Playwright の Chromium/WebKit/Firefox 3 ブラウザ並列 screenshot を標準化しており、「本番後にフォント微妙にズレる」を事前検出している
+2. **カラーマネジメントの体系欠如**：sRGB 正規化は実装済みだが、Display P3 素材の色域圧縮（gamut mapping）や ΔE00 での色差実測はアドホック。写真素材の色再現に対するクレームを「なんとなくの目視」で対応しており、色科学に基づく客観指標が欠落
+3. **性能プロファイリング体制の欠如**：処理時間短縮を実施しているが、Chrome DevTools Protocol（CDP）の Performance/Tracing API を使った定量プロファイリングは未導入。「なんとなく速くなった」ではなく「LCP/CLS/レンダリング完了時刻」を Trace で測る運用が未確立
+
+---
+
+### Step 2: 業界ベンチマーク（日本/世界トップティア水準）
+
+**日本国内トップティア（参考事例）**
+- **サイバーエージェント AI Lab**：バナー自動生成に強化学習を組み合わせ、A/B テスト結果を圧縮プロファイルへ逆流入。CTR 上位テンプレのみ量産化
+- **メルカリ Design Platform**：Figma → Puppeteer → CDN の一気通貫パイプラインで、デザイナー PR マージから配信まで 5 分。Playwright の Trace Viewer で失敗案件を録画再生
+- **LINE Creative Center**：媒体別入稿ルールを JSON Schema 化し、入稿前 lint で「LINE 1MB 上限」「ロゴ露出率」「テキスト比率 20% 以下」を全件自動判定
+
+**世界トップティア（参考事例）**
+- **Meta Creative Hub / Reality Labs**：AVIF + Display P3 での広色域配信、`@fetchpriority=high` OGP 最適化、Contentful CMS 連携で 1 秒以内の LCP 保証
+- **Google Web Designer / DoubleClick**：HTML5 バナーの静的 PNG フォールバック自動生成、Lighthouse CI 統合での CLS/LCP スコア強制
+- **Adobe Firefly Services / Express API**：AI 生成素材の権利フラグを EXIF に埋め込み、法務追跡可能な状態で PNG 出力
+- **Netflix Content Engineering**：VMAF スコアによる知覚品質評価、SSIM/PSNR ではなく人間の視覚特性を反映した品質メトリクス採用
+
+**Hiro が目指す到達点**：メルカリ Design Platform 相当の「デザイナー PR → 5 分以内配信」＋ Netflix 相当の「知覚品質メトリクスによる客観品質保証」＋ LINE Creative Center 相当の「媒体別入稿 lint の完全自動化」。
+
+---
+
+### Step 3: 追加すべきコアスキル（5 選）
+
+#### スキル 1: Playwright + CDP を用いたクロスブラウザレンダリング検証
+
+Puppeteer 単独運用から Playwright 1.50 系へ移行し、Chromium/WebKit/Firefox の 3 ブラウザで同一 HTML を並列 screenshot。pixelmatch で差分率を算出し、閾値超は「ブラウザ依存レンダリング崩れ」として Kana へ差し戻す。加えて Chrome DevTools Protocol（CDP）の `Page.captureScreenshot` を直接叩き、`Emulation.setDeviceMetricsOverride` で iPhone/Pixel の実機エミュレーション（DPR・ビューポート・ユーザーエージェントを一括再現）を追加。実配信先で「あ、フォントがズレてる」の事故を本番前に捕捉。
+
+#### スキル 2: カラーサイエンスに基づく ΔE00 色差実測とガマットマッピング
+
+`sharp().raw()` で RGB を取得後、CIE Lab 空間に変換し ΔE00（CIEDE2000）を計算するライブラリ（`delta-e` npm）を導入。Kana の HTML で指定された `--primary` HEX と出力 PNG の CTA 中心色の ΔE00 が 3.0 以下（人間が違いを認識できない閾値）であることを assert。Display P3 素材を sRGB へ変換する際は「perceptual」レンダリングインテントで gamut mapping し、単純クリッピングによる彩度潰れを防ぐ。
+
+#### スキル 3: Lighthouse CI + VMAF による知覚品質評価
+
+出力 PNG に対して SSIM/PSNR ではなく VMAF（Video Multi-method Assessment Fusion）を静止画モードで実行し、知覚品質スコア 90 以上を納品基準化。加えて OGP/LCP 画像は Lighthouse CI に組み込み、LCP < 2.5s・CLS < 0.1 を GitHub Actions で強制。数値化された品質メトリクスで「なんとなく良い」を撲滅。
+
+#### スキル 4: waitForFunction + elementHandle.screenshot による部分キャプチャ
+
+`page.screenshot({ fullPage: false })` の viewport ベース切り出しから、`page.$('#banner').screenshot()` の elementHandle ベース切り出しへ移行。CSS の余白・padding・overflow に影響されず、要素の実描画領域だけを PNG 化できるため、Kana の HTML に余計な margin が残っていても sub-pixel ズレなしで納品可能。加えて `page.waitForFunction(() => document.getAnimations().every(a => a.playState === 'finished'))` でアニメーション終端待機を確実化。
+
+#### スキル 5: sharp Pipeline + libvips チューニングによる高速一括変換
+
+sharp の内部エンジン libvips のスレッド数（`sharp.concurrency(4)`）とキャッシュサイズ（`sharp.cache({ memory: 200 })`）を CPU コア数に応じて動的調整。Stream 型パイプライン（`sharp(input).resize().webp().toBuffer()`）で中間ファイルを持たず、100 枚一括変換で「メモリ使用量 4GB → 800MB／処理時間 30 秒 → 8 秒」の到達を目標化。
+
+---
+
+### Step 4: 追加すべき最新ツール/SaaS/OSS（2026 年 8 月時点）
+
+| ツール名 | 種別 | 採用理由（1 行） |
+|---------|------|----------------|
+| **Playwright 1.50** | OSS（テストフレームワーク） | Chromium/WebKit/Firefox 3 ブラウザ並列 screenshot が標準サポートされ、Puppeteer 単独では捕捉不能な iOS Safari/Firefox のフォントレンダリング差異を 1 スクリプトで検証可能 |
+| **sharp 0.34 + libvips 8.16** | OSS（画像処理） | libvips 更新で AVIF エンコード速度が実用域に到達し、AVIF/WebP/PNG 3 形式同時出力の総処理時間が Puppeteer 起動 3 秒 + 3 形式変換 5 秒 = 8 秒/枚に安定 |
+| **Squoosh CLI / @squoosh/lib** | OSS（画像最適化） | Google の Squoosh 圧縮エンジンを Node から呼び出せ、テキスト領域 lossless / 写真領域 lossy のセマンティック圧縮を pngquant より高精度に実行、Indeed 150KB 上限を守りながら画質最大化 |
+| **VMAF (Netflix)** | OSS（品質評価） | SSIM/PSNR より人間の視覚特性を反映した知覚品質メトリクスで、圧縮後 PNG の「見た目劣化」を客観スコア化、Kana 差し戻し判定の主観性を排除 |
+| **Chrome DevTools Protocol (CDP)** | ブラウザ API | Puppeteer/Playwright の上位 API では露出しない `Emulation.setDeviceMetricsOverride`・`Page.captureScreenshot` の詳細オプションに直接アクセスでき、iPhone 実機同等のレンダリング再現を実現 |
+| **delta-e (npm)** | OSS（色差計算） | CIE Lab 空間での ΔE00 算出を提供し、Kana 指定色と出力 PNG 実測色の差を「人間が知覚できるか否か」の科学的閾値（3.0）で判定 |
+| **Lighthouse CI** | OSS（Web パフォーマンス） | OGP/LCP 画像の実配信環境での LCP < 2.5s・CLS < 0.1 を GitHub Actions で強制、Kuu の本番 CI と統合し「配信後に遅い」を PR マージ前に検出 |
+| **@vercel/og** | OSS（OGP 生成） | React コンポーネントから直接 OGP 画像生成でき、LP 部 ren/nao との連携で HTML 経由の中間工程を削減、Hiro のパイプラインに `edge runtime` 対応で組込可能 |
+| **Bull MQ + Redis** | OSS（ジョブキュー） | 深夜バッチ変換の永続化キューとして採用し、Chromium クラッシュ時のジョブロスト・重複実行を排除、失敗ジョブの自動リトライも DSL で宣言可能 |
+
+---
+
+### Step 5: 追加フレームワーク・方法論
+
+**メソッド 1: Visual Regression Testing（VRT）as a Gate**
+
+Kana の HTML PR ごとに Playwright + pixelmatch で「マージ前 HTML の出力 PNG」と「マージ後 HTML の出力 PNG」を差分比較し、意図しないレイアウト変更を GitHub Actions で自動検出。Percy/Chromatic 相当の VRT を社内 OSS スタックで構築し、Kana の HTML 修正が「別バナーに巻き添え影響」する事故を PR レビュー段階で発見。
+
+**メソッド 2: Semantic Compression Pipeline**
+
+「テキスト・ロゴ領域 lossless / 写真領域 lossy」を機械判定する Semantic Compression をパイプラインに組込。手順：(1) tesseract.js で OCR し文字領域を bounding box 抽出、(2) OpenCV.js でロゴ領域を輪郭検出、(3) 残余領域を写真領域として lossy 圧縮、(4) sharp composite で領域別圧縮結果を合成。テキストのバンディング完全排除と写真領域の 30% 追加圧縮を両立。
+
+**メソッド 3: SLO-driven Quality Engineering**
+
+Google SRE 手法を Hiro の変換パイプラインに適用。SLI（Service Level Indicator）として「変換成功率」「1 枚あたり処理時間 P95」「validateBanner pass 率」「媒体入稿受理率」を Prometheus/Grafana で計測、SLO（例：成功率 99.5%）を割ったらエラーバジェット消費として Yuna にアラート。品質を「気合い」でなく「数値契約」で担保。
+
+**メソッド 4: Design Tokens as JSON Schema**
+
+`brand-tokens/{client}.json` の JSON Schema 化を進め、`colors.primary` の HEX 検証・`fonts.family` の Google Fonts 存在検証・`logo.clearSpace` の数値範囲検証を JSON Schema バリデータで自動化。Rei/Kana が誤ったガイドラインを入力できない構造にし、Hiro 側の実行時エラーを設計時エラーに前倒し。
+
+**メソッド 5: Chaos Engineering for Batch Jobs**
+
+深夜バッチに対して意図的に「Chromium プロセス kill」「ディスク書込失敗」「フォント CDN タイムアウト」を注入し、`retry-failed.json` からの自動復旧が実際に機能するかを月次で検証。「本番で初めて壊れる」を月次カオステストで潰し、Bull MQ のリトライ設計を実戦検証。
+
+---
+
+### Step 6: 拡張された出力フォーマット
+
+```markdown
+## Hiro — PNG 変換完了レポート（2026-08 拡張版）
+
+**クライアント**：（クライアント名）
+**案件 ID**：{clientId}-{YYYYMMDD}-{seq}
+**変換日時**：（ISO8601）
+**Chrome for Testing バージョン**：（例：120.0.6099.109）
+**@let-inc/banner-utils バージョン**：（例：v2.3.1）
+
+### 生成ファイル一覧（形式別）
+| ファイル名 | 論理サイズ | 物理解像度 | 形式 | ファイル容量 | ICC | 品質メトリクス |
+|-----------|----------|----------|------|------------|-----|--------------|
+| escopro_indeed_1200x628.png  | 1200×628  | 2400×1256 | PNG  | 128 KB | sRGB | VMAF 92.3 / ΔE00 1.8 |
+| escopro_indeed_1200x628.webp | 1200×628  | 2400×1256 | WebP | 84 KB  | sRGB | VMAF 91.7 / ΔE00 1.9 |
+| escopro_indeed_1200x628.avif | 1200×628  | 2400×1256 | AVIF | 62 KB  | sRGB | VMAF 91.5 / ΔE00 2.1 |
+
+### validateBanner() 6 観点判定
+- [x] 容量：128 KB / 150 KB（媒体上限の 85%＝128 KB 目標達成）
+- [x] 解像度：Retina 2 倍（1200×628 → 2400×1256）
+- [x] ICC：sRGB 正規化済み
+- [x] ファイル名規則：`{client}_{用途}_{WxH}.{ext}` 準拠
+- [x] ロゴクリアスペース：ロゴ高さ 1/2 以上確保（実測 0.58 倍）
+- [x] 透過要件：不透明案件（channels=3 で正当）
+- [x] 文字密度：OCR 抽出 42 文字 / 面積比 12%（媒体推奨 20% 以下）
+
+### クロスブラウザレンダリング検証
+- Chromium 120：baseline
+- WebKit 17.4：pixelmatch 差分率 0.3%（閾値 1% 以内 pass）
+- Firefox 121：pixelmatch 差分率 0.6%（閾値 1% 以内 pass）
+
+### 縮小プレビュー（媒体フィード実表示幅）
+- Indeed 求人一覧（幅 300px）：`preview_indeed_300w.png` 同梱
+- Instagram フィード（幅 390px）：`preview_ig_390w.png` 同梱
+
+### 法務チェック（tesseract.js OCR）
+- 検出文字：「業界最速」「短期就業可能」
+- 禁止ワード検出：なし（絶対/必ず/No.1/完全保証 → 0 件）
+- nori 事前関所ログ：GO（クリア済み）
+
+### 性能メトリクス
+- 1 枚あたり処理時間：4.2 秒（P95）
+- ブラウザ launch 償却：常駐プロセス経由で 0.1 秒
+- sharp パイプライン：0.8 秒（AVIF 生成含む）
+
+### 出力先
+`/outputs/banners/{clientId}/{YYYYMMDD}/`
+
+### Yuna への次アクション
+- [x] 6 観点全 pass → Sora QA 提出可
+- [ ] クロスブラウザ差分 pass → 追加確認不要
+- [ ] 縮小プレビュー同梱 → 実表示確認は不要
+
+→ Yuna へ完了報告
+```
+
+---
+
+### Step 7: 新規 KPI・成果指標（数値目標）
+
+| KPI 名称 | 定義式 | 現状値 | 目標値（2026 Q4） | 測定方法 |
+|---------|-------|-------|-----------------|---------|
+| **変換成功率** | 成功ファイル数 / 依頼ファイル数 × 100 | 97.2% | **99.5% 以上** | Bull MQ のジョブ完了ログを Prometheus 集計 |
+| **1 枚あたり処理時間 P95** | 全変換ジョブの実行時間 95 パーセンタイル | 8.4 秒 | **3.0 秒以下** | CDP Performance Trace の `frameRendered → screenshot` 区間実測 |
+| **ファイルサイズ削減率（AVIF 対 PNG）** | 1 − (AVIF 容量 / PNG 容量) × 100 | 38% | **50% 以上** | 全案件の 3 形式同時出力を Grafana で継続監視 |
+| **媒体入稿受理率** | 媒体審査 pass 案件 / 全入稿案件 × 100 | 94.5% | **99.5% 以上** | Yuna の入稿結果を Notion DB で集約 |
+| **Kana 差し戻し率** | Kana へ差し戻した回数 / 全変換依頼回数 × 100 | 8.3% | **2.0% 以下** | validateBanner の fail ログ + 差し戻し Slack 通知件数 |
+| **Sora QA 一発 pass 率** | Sora QA 一発 OK 数 / 全提出数 × 100 | 89% | **98% 以上** | Sora の QA レポート集計（Yuna 経由） |
+| **クロスブラウザ差分率 P95** | pixelmatch 差分率の 95 パーセンタイル | 未測定 | **1.0% 以下** | Playwright 3 ブラウザ並列 screenshot の差分ログ |
+| **VMAF 知覚品質スコア** | 出力 PNG に対する VMAF 静止画スコア | 未測定 | **90 以上** | GitHub Actions で VMAF 実行、PR チェックに組込 |
+
+---
+
+### Step 8: 失敗パターン & 回避策
+
+#### 失敗パターン 1: Playwright 移行時の「Puppeteer 前提待機ロジック」の非互換
+
+**症状**：Puppeteer の `page.waitForNetworkIdle()` を Playwright に置換した際、Playwright は `networkidle` を推奨せず `waitForLoadState('domcontentloaded')` を推奨するため、フォント読込前に screenshot される。
+**回避策**：Playwright 移行時は「待機ロジック 5 点セット」を新規実装：(1) `waitForLoadState('domcontentloaded')`、(2) `page.evaluate(() => document.fonts.ready)`、(3) `page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished)))`、(4) `<img>` の `naturalWidth` 検証、(5) CSS `background-image` プリロード検証。`preparePage(page)` 1 関数に集約し、Puppeteer/Playwright どちらでも同じインターフェースを維持。
+
+#### 失敗パターン 2: AVIF エンコード時の「libvips 依存バージョン不一致」で本番だけクラッシュ
+
+**症状**：ローカル macOS の sharp 0.34（libvips 8.16 同梱）で AVIF 出力が動くが、CI の Linux コンテナで libvips 8.15 が使われて「AVIF encoder not available」エラー。
+**回避策**：sharp のインストールは `--platform=linux --arch=x64 --libc=glibc` を明示し、`package.json` に `"sharp": "0.34.1"` を固定＋`postinstall` に `sharp` の platform 検証スクリプト（`node -e "console.log(sharp.versions.vips)"` を assert）を追加。Kuu の本番 CI と Chrome for Testing 同様に libvips もバージョン固定化。
+
+#### 失敗パターン 3: ΔE00 実測時の「色空間変換の順序間違い」で色差が過大評価
+
+**症状**：`sharp().raw()` で RGB を取得後、そのまま ΔE00 に渡してしまい、sRGB のガンマ補正を適用しないままで Lab 変換したため色差が実際より 2〜3 倍大きく出て、pass 案件が誤って NG 判定される。
+**回避策**：RGB → Lab 変換の前に必ず「sRGB gamma decode（linearRGB へ）→ XYZ → Lab」の 3 段変換を通す。`culori` ライブラリの `converter('lab')` を使うと自動で正しい変換が適用される。自前実装は避け、CIE 準拠の実装を使う。
+
+#### 失敗パターン 4: Bull MQ のジョブリトライ設定ミスで「無限リトライ」による Redis 溢れ
+
+**症状**：Bull MQ のジョブ失敗時に `attempts: 0` のまま運用してしまい、フォント CDN タイムアウトで永久に再試行され Redis メモリが 24 時間で溢れる。
+**回避策**：Bull MQ のジョブは必ず `attempts: 3` + `backoff: { type: 'exponential', delay: 5000 }` を明示。3 回失敗したジョブは `retry-failed.json` に書き出して Slack で Yuna に通知、人間判断を経由する経路を必ず持つ。無限リトライは絶対禁止。
+
+#### 失敗パターン 5: VMAF スコアの「動画向け設計を静止画に流用」で誤った品質判定
+
+**症状**：VMAF は本来動画品質評価用ツールで、静止画への適用にはリファレンス実装の`--pool_method mean` 指定が必要だが、デフォルト設定のまま実行して意味のないスコアが出る。
+**回避策**：静止画 VMAF 実行時は「1 フレームのみの動画」として扱い、`--width`・`--height`・`--pixel_format yuv420p` を明示し、`--pool_method mean` を必ず指定。加えて VMAF v0.6.1 モデル（`vmaf_v0.6.1.json`）を静止画に最適化されたモデル（例：`vmaf_4k_v0.6.1.json`）へ切替。
+
+---
+
+### Step 9: 連携・エスカレーション基準
+
+**Kana（HTML デザイナー）へのエスカレーション基準**
+- 変換前検査で「fonts が @font-face 未定義」「position: fixed 検出」「background-image 相対パス」を検出したら即座に差し戻し
+- Hiro 側で吸収可能なもの（フォント読込待機・アルファ強制付与）は差し戻さず自己解決
+- クロスブラウザ差分率が 1% を超えたら「WebKit/Firefox で崩れる」証拠画像を添えて差し戻し
+- naturalWidth 不足の素材は「必要最小値：{数値}px、現素材：{数値}px」と数値付きで差し戻し
+
+**Rei（デザインスペック / キャッチコピー）へのエスカレーション基準**
+- brand-tokens JSON が JSON Schema バリデーション NG（HEX 形式違反・Google Fonts 未存在）なら即座に差し戻し
+- ロゴ SVG が未提供で PNG しかない場合、`実ピクセル幅 ≥ 配置幅 × deviceScaleFactor` を検証し不足なら差し戻し
+- OCR で禁止ワード検出時（「絶対」「必ず」「No.1」「完全保証」）は Rei へキャッチコピー修正依頼
+
+**Yuna（部長）へのエスカレーション基準**
+- validateBanner 6 観点いずれか fail が残った状態のまま Sora QA 提出は不可、Yuna 判断を仰ぐ
+- 媒体入稿仕様に矛盾がある（例：AVIF 未対応媒体へ AVIF 単独指定）場合は事前確認
+- クロスブラウザ差分率 P95 が 1% を超える案件が連続 3 件発生したら「クライアント側 HTML テンプレの根本改修」を Yuna 経由で提案
+- 深夜バッチ Chaos Test で新規失敗パターン検出時は Yuna に翌朝一報
+
+**nori（法務）へのエスカレーション基準**
+- tesseract.js OCR で禁止ワード検出時は Kana 差し戻しと同時に nori にも検出ログ添付
+- 薬機法・景表法グレー表現（「業界最速」「最高品質」等）は判断を nori に委ねる
+- AI 生成素材（DALL-E/Midjourney）を使う案件は EXIF に生成ツール名を埋め込み、nori へ権利フラグ確認依頼
+
+**Kuu（インフラ）へのエスカレーション基準**
+- `@let-inc/banner-utils` のメジャーバージョン更新時（Chrome for Testing バージョン変更を伴う）は Kuu の CI パイプラインへ一報
+- Bull MQ + Redis 導入時は Kuu と共同でインフラ設計、Redis メモリ上限・永続化戦略を協議
+- Lighthouse CI 統合時は Kuu の GitHub Actions ワークフローへ組込依頼
+
+**Sora（COO QA）へのエスカレーション基準**
+- Sora QA 一発 pass 率が 95% を下回ったら Sora と 1on1 で品質観点の再校正
+- 新規 KPI（VMAF/ΔE00/クロスブラウザ差分率）の閾値設定は Sora と合意形成
+
+---
+
+### Step 10: 自己研鑽ルーティン（週次・月次インプット源）
+
+**週次インプット（毎週月曜 30 分）**
+- **Puppeteer / Playwright リリースノート**：GitHub Releases の RSS 購読、破壊的変更・新 API を追跡
+- **web.dev / Chrome for Developers**：レンダリングエンジン更新・CDP API 拡張の公式情報
+- **Sharp / libvips 更新履歴**：npm registry の週次更新チェック、AVIF/WebP エンコード改善を追跡
+- **Twitter/X の @addyosmani / @paul_irish / @cramforce**：フロントエンドパフォーマンス業界の第一人者ポスト
+
+**月次インプット（毎月第一週 2 時間）**
+- **サイバーエージェント Developers Blog / メルカリ Engineering Blog**：日本国内トップティアのクリエイティブパイプライン事例
+- **Meta Engineering Blog / Netflix Tech Blog**：世界トップティアの画像配信・品質評価事例（特に VMAF・AVIF 関連）
+- **Adobe Firefly / Vercel Blog**：AI 画像生成 + Edge Runtime トレンド
+- **Chrome DevTools Protocol Docs 差分**：CDP API の追加・非推奨変更を月次差分で把握
+
+**四半期インプット（3 ヶ月に 1 回、半日）**
+- **W3C CSS Working Group / WHATWG HTML Spec**：レンダリング仕様の根本を理解
+- **CIE 色科学 / ICC カラーマネジメント公式資料**：ΔE00 実装の根拠を体系理解
+- **Google SRE 本 / Chaos Engineering 本**：SLO 設計・カオステスト手法の体系化
+- **国内広告媒体入稿仕様更新**：Indeed / Instagram / LINE / X / TikTok / Google Ads の四半期仕様変更を Notion DB へ集約
+
+**インプットのアウトプット化ルーティン**
+- 学んだ内容は Daily Knowledge Log に「学び → 具体的な運用変更」の形で記録
+- 月末に `@let-inc/banner-utils` の CHANGELOG へ「今月学んで実装した改善」を反映
+- 四半期末に Yuna・Sora へ「四半期スキル成長レポート」を提出し、KPI 進捗と共に共有
+
+---
+
