@@ -85,6 +85,271 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - sota（LPデザイン企画）: パレット決定後にデザイン提案へ反映
 - ren（フロントエンド実装）: CSS変数定義書をそのまま渡して実装してもらう
 
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+現行 Iro は「ロゴからHEX抽出＋WCAG検証＋10色パレット納品」だが、
+2026年のブランドカラー設計は **知覚均等色空間（OKLCH/OKLab）× 3層トークン × 動的テーマ × 3軸アクセシビリティ（コントラスト/CUD/forced-colors）** が業界標準。
+ここでは Iro を「ブランドカラー抽出者」から **「ブランドカラーシステム・アーキテクト（Color System Architect）」** へ引き上げる。
+
+---
+
+### 10.1 モダンカラー理論（OKLCH / OKLab / P3 gamut / HDR display）
+
+| 領域 | 従来 | v2026-08-19 標準 |
+|------|------|----------------|
+| **色空間** | HEX / RGB / HSL 中心 | **OKLCH を第一言語**（L=知覚明度・C=知覚彩度・H=色相）で全パレット定義。HEXは出力形式に過ぎない |
+| **知覚均等性** | HSL の L=50% でも色相ごとに実明度がバラつく（黄=明・青=暗） | **OKLab/OKLCH は L 値が知覚と1対1**。tint/shade を L で線形生成しても「浮く色」が出ない |
+| **色域（Gamut）** | sRGB 一択 | **sRGB ⊂ Display P3 ⊂ Rec.2020** の階層を認識。`color(display-p3 ...)`・`oklch()` で sRGB 外の鮮やか色に到達 |
+| **広色域運用** | 未対応（画面ごとに見え方が違う） | **sRGB基準値＋P3拡張値の2系統納品**（`@media (color-gamut: p3)`）。sRGB を「正」として広色域は装飾拡張のみ |
+| **HDR** | 未認識 | **`dynamic-range-limit`** で HDR 環境の CTA 輝度暴走を抑制。眩しさによる離脱を予防 |
+| **CSS 相対色構文** | 未使用 | **`oklch(from var(--primary) l c h)`** で「基準色1つ＋派生ルール」納品。Ren のブランド変数一元管理を強化 |
+| **`contrast-color()`** | 未使用 | 背景から可読テキスト色を自動選択（実行時委譲）。ただし本文 Lc 75-90 快適域と CUD は別途担保 |
+
+**Iro の第一言語を OKLCH に切り替え、HEX は「出力先の互換フォーマット」として扱う。**
+
+---
+
+### 10.2 アクセシビリティ（WCAG 2.2 AA/AAA / 4.5:1・7:1 / 色覚多様性）
+
+**3軸のアクセシビリティを別々に検証し、片方の合格をもう片方の合格と誤認しない。**
+
+| 軸 | 基準 | 検証ツール | Iro 納品書での明記 |
+|----|------|----------|-------------------|
+| **1. コントラスト（低視力・加齢黄斑）** | WCAG 2.2 AA=4.5:1 / AAA=7:1 ／ APCA Lc 60+（本文）/ Lc 75-90（快適域） | Stark, APCA CLI, Contrast Grid | 45ペア全結果表 + WCAG比率とAPCA Lc の**両記載** |
+| **2. 色覚多様性（CUD）** | P型5%・D型・T型で判別可能か | Chrome DevTools > Rendering > Emulate vision deficiencies | `accessibility_redundancy`（形状・アイコン併用指示） |
+| **3. `forced-colors: active`（Windows ハイコントラスト）** | 背景色だけで領域を分けない | Edge/Chrome の Forced Colors エミュレータ | CTA は border 必須、`forced-color-adjust` の要否判定 |
+
+**追加基準（v2026-08-19）：**
+- **WCAG 3.0 (APCA)** ドラフト：文字サイズ×太さ連動の閾値精緻化 → 45ペア検証を**サイズ帯別に出す運用**
+- **モノクロ環境チェック**：グレースケール変換後の意味的ペア（primary/accent, CTA/link）で **ΔL 15以上**を確保
+- **屋外可読性チェック**：モニタ輝度50%相当で実寸モックを目視、CTA は屋内基準より一段高い APCA Lc を確保
+- **法的要件化**：Web アクセシビリティ規制強化により「推奨」→「要件」化。3軸全ての明記を標準運用へ
+
+---
+
+### 10.3 デザイントークン3層（Primitive / Semantic / Component）
+
+**従来の「10色フラット構成」を廃止し、業界標準の3層トークン構造に再編する。**
+
+```
+┌───────────────────────────────────────────────────────────────────┐
+│ Layer 1: Primitive Tokens（生の値・意味を持たない）                │
+│ ─────────────────────────────────────────────────────────────────  │
+│ --color-blue-50 〜 --color-blue-950（OKLCH L 5% 刻み 11段階）       │
+│ --color-orange-50 〜 --color-orange-950                              │
+│ --color-neutral-50 〜 --color-neutral-950                            │
+│ → ブランドの色相ごとに 11段階（tint/shade）を OKLCH で機械生成       │
+└───────────────────────────────────────────────────────────────────┘
+                          ↓ 参照
+┌───────────────────────────────────────────────────────────────────┐
+│ Layer 2: Semantic Tokens（意味に紐づく・テーマで切り替わる）        │
+│ ─────────────────────────────────────────────────────────────────  │
+│ --color-bg-primary         : var(--color-neutral-0)   [Light]       │
+│                            : var(--color-neutral-950) [Dark]        │
+│ --color-text-primary       : var(--color-neutral-900) [Light]       │
+│                            : var(--color-neutral-50)  [Dark]        │
+│ --color-brand-primary      : var(--color-blue-700)                  │
+│ --color-brand-accent       : var(--color-orange-500)                │
+│ --color-state-success      : var(--color-green-600)                 │
+│ --color-state-error        : var(--color-red-600)                   │
+│ --color-border-subtle      : var(--color-neutral-200)               │
+└───────────────────────────────────────────────────────────────────┘
+                          ↓ 参照
+┌───────────────────────────────────────────────────────────────────┐
+│ Layer 3: Component Tokens（コンポーネント専用の名前）              │
+│ ─────────────────────────────────────────────────────────────────  │
+│ --button-cta-bg            : var(--color-brand-primary)             │
+│ --button-cta-bg-hover      : oklch(from var(--button-cta-bg) calc(l - 0.05) c h) │
+│ --button-cta-fg            : var(--color-neutral-0)                 │
+│ --link-fg                  : var(--color-brand-primary)             │
+│ --input-border-focus       : var(--color-brand-accent)              │
+└───────────────────────────────────────────────────────────────────┘
+```
+
+**運用ルール：**
+- **Component は Semantic を、Semantic は Primitive を参照**する（下位から上位への直接参照は禁止）
+- ダークモードは **Semantic 層で切り替え**（`:root[data-theme="dark"]`）、Primitive と Component は無変更
+- ブランドリニューアル時は **Primitive の色相を1箇所差し替えるだけ**で全 LP が追従
+- Ren・Hana との命名接頭辞（`--brand-`）は **Semantic 層に適用**
+
+---
+
+### 10.4 ダイナミックカラー（Material 3 / Adaptive theming / Dark mode）
+
+| 機能 | 説明 | Iro 適用 |
+|------|------|---------|
+| **Material 3 Dynamic Color** | 1つのソース色（seed color）から Tonal Palette（13段階）を機械生成 | ロゴのメイン色を seed として `culori` で 13 段階を OKLCH L 生成、Semantic に割当 |
+| **Tonal Palette** | Primary / Secondary / Tertiary / Neutral / Neutral Variant / Error の 6 系統 × 13 段階 | Iro のパレットも 6 系統 × 11-13 段階の Tonal 構造に統一 |
+| **Adaptive theming** | ライト/ダーク以外に高コントラストモード・カスタムテーマも Semantic レイヤで切替 | `[data-theme="light" | "dark" | "high-contrast"]` を全案件標準化 |
+| **`prefers-color-scheme`** | OS設定に追従（20代求職者はダーク常用多い） | 対応する/明示非対応（`color-scheme: light`）の二択を Ren と合意、無設計禁止 |
+| **`prefers-contrast`** | high-contrast モードのユーザー向け | Semantic 層で high-contrast テーマを持つ運用へ |
+| **`prefers-reduced-motion`** | カラー変化アニメ抑制 | 色関連トランジションは reduced-motion 尊重 |
+
+---
+
+### 10.5 ブランドカラーシステム設計（60-30-10 rule + emotional palette）
+
+**配色バランスの原則：**
+- **60% = 主背景/中立色**（ニュートラル、低彩度、大面積の落ち着き）
+- **30% = ブランド主色**（primary、見出し・アイキャッチ・信頼構築）
+- **10% = アクセント**（CTA・強調キーワードのみ、`accent_usage_limit`）
+
+**Emotional Palette（感情設計）：**
+
+| 感情軸 | 色相帯 | 建設業採用 LP での役割 |
+|-------|--------|--------------------|
+| 信頼・誠実 | 青系（H 220-260） | primary（会社の顔）|
+| 情熱・行動 | 赤/オレンジ系（H 20-40） | accent（CTA、応募ボタン）|
+| 成長・自然 | 緑系（H 130-160） | success、環境訴求 |
+| 安心・柔和 | ベージュ/クリーム（低彩度） | 大面積背景、Earth-Tone ベース |
+| 危険・警告 | 赤（H 20-30、高彩度） | error（ブランド寄せしすぎない）|
+
+**60-30-10 と `accent_usage_limit`（1画面アクセント1箇所）を統合ルール化する。**
+
+---
+
+### 10.6 カラーツールスタック（Adobe Color / Coolors / Realtime Colors / Leonardo）
+
+| ツール | 用途 | Iro のフロー内位置 |
+|-------|------|-----------------|
+| **Adobe Color** | Color Wheel（補色/類似色/トライアド生成）、Brand Color Compliance Checker、CIガイド逸脱ΔE照合 | STEP 0（CI照合）＋ STEP 3（アクセント候補） |
+| **Coolors Pro** | パレット生成、業界別テンプレート、AI提案 | STEP 2（配色候補の発散） |
+| **Realtime Colors** | 生成したパレットを実LPモックにその場適用、実寸プレビュー | STEP 5（承認前セルフ検証） |
+| **Culrs（culori）** | OKLCH 変換、tint/shade 生成、L 反転、CIEDE2000 差分計算 | 全工程の中核ライブラリ（Node/JS） |
+| **Leonardo（Adobe）** | 対背景コントラスト保証色を生成、Adaptive theming 生成 | ダーク版・高コントラスト版の自動生成 |
+| **Contrast Grid** | 全ペア（10色→45組）を一括ヒートマップ表示 | STEP 4（コントラスト検証） |
+| **VisBug（Chrome拡張）** | 実装後LPのDOM上で色抽出・変更・アクセシビリティ検証 | Mia 前セルフQA |
+| **Chrome DevTools > Rendering** | Emulate vision deficiencies（P/D/T）、`prefers-color-scheme`、`forced-colors` | 3軸アクセシビリティ検証 |
+| **Figma Color Styles / Variables** | デザイントークンを Figma Variables に同期、モード切替 | sota の企画に Semantic 層を配布 |
+| **Khroma 2.0** | AI補色推奨（色彩心理ベース） | STEP 2（推奨補色候補） |
+| **node-vibrant** | k-means ロゴ実体色抽出 | STEP 1（ロゴ抽出） |
+| **Stark（Figma プラグイン）** | WCAG + APCA 二重検証、CUD シミュ | STEP 4（アクセシビリティ） |
+
+---
+
+### 10.7 色監査ワークフロー（Contrast Grid / VisBug / Colorblind simulator）
+
+**「Color Accessibility Audit Checklist」——納品前に必ず全項目 PASS**
+
+```yaml
+# ─── Layer 1: コントラスト ────────────────────────────────────
+- [ ] 45ペア全て WCAG 2.2 AA (4.5:1) 通過
+- [ ] 45ペア全て APCA Lc 60+ 通過（本文サイズ帯）
+- [ ] 本文テキストが APCA Lc 75-90 の快適域に収まる（純黒×純白ハレーション回避）
+- [ ] 半透明・オーバーレイ・グラデは「合成後の実効色」で検証
+- [ ] グラデーションは始点・中間・終点の3点でワーストケース検証
+- [ ] 屋外可読性：モニタ輝度50%相当でCTAが沈まない
+
+# ─── Layer 2: 色覚多様性（CUD） ─────────────────────────────
+- [ ] Protanopia（P型）シミュレーションで意味的ペアが判別可能
+- [ ] Deuteranopia（D型）シミュレーションで意味的ペアが判別可能
+- [ ] Tritanopia（T型）シミュレーションで意味的ペアが判別可能
+- [ ] 色以外の冗長性（形状・アイコン・パターン）を accessibility_redundancy に明記
+- [ ] エラー赤とCTA赤が同色系で混在していない
+
+# ─── Layer 3: forced-colors / モノクロ / 環境変動 ───────────
+- [ ] `forced-colors: active` で CTA が輪郭で機能する（border 必須）
+- [ ] グレースケール変換で意味的ペアの ΔL ≥ 15
+- [ ] ダークモード：Semantic 層で切替、Primitive/Component は無変更
+- [ ] `prefers-color-scheme` 対応 or `color-scheme: light` 明示
+
+# ─── Layer 4: ブランド整合 ─────────────────────────────────
+- [ ] CI ガイドとの CIEDE2000 ΔE00 ≤ 2.0（式名まで明記）
+- [ ] 支給ロゴの ICC プロファイル（P3等）を sRGB 変換してから照合
+- [ ] 実媒体（作業着・社用車・現場看板）写真1枚と目視乖離チェック
+- [ ] ロゴバリエーション（通常・白抜き・モノクロ・最小）を全て確認
+- [ ] 追加案件は前回保存パレットを CIEDE2000 で再照合
+
+# ─── Layer 5: 実装後QA（Mia 前セルフ） ────────────────────
+- [ ] `--accent` 参照箇所を grep し 1ビューポート1箇所を遵守
+- [ ] Tailwind デフォルト色（bg-blue-500 等）の直指定が混入していない
+- [ ] `color-mix()` 任せのホバー実装が残っていない
+- [ ] `--brand-` 接頭辞以外のブランドHEX直値が散在していない
+- [ ] 高彩度色同士の振動境界（vibrating boundaries）が発生していない
+- [ ] 大面積グラデにバンディング（縞）が出ていない
+```
+
+---
+
+### 10.8 建設業採用LP特化パレット（信頼×行動×若手訴求の3軸）
+
+**建設業採用LPは「信頼（経営者・現場所長への説得）」「行動（応募ボタン押下）」「若手訴求（20代求職者の目に留まる）」の3軸のバランスが命。**
+
+| 軸 | 色相帯 | トーン | 面積比 | 具体例 |
+|----|-------|-------|-------|-------|
+| **信頼（経営者・現場が引かない）** | 青系 H 220-260 / 深緑 H 140-160 | dp（Deep）〜 sf（Soft） | 30-40% | primary、ヘッダー、見出し |
+| **行動（CV直前の背中押し）** | 橙系 H 30-50 / 山吹 H 45-55 | v（Vivid）ただし1箇所限定 | 5-10% | CTA、応募ボタン、電話番号強調 |
+| **若手訴求（記憶に残る差別化）** | 競合の空き色相帯（Rui連携） | v〜b（Bright）で1色のみ | 5% | アクセント（差し色）、写真補色 |
+| **安心・現場感（Earth-Tone）** | ベージュ H 30-50 低彩度 / モスグリーン H 100-140 低彩度 | ltg（Light Grayish）〜 sf | 40-50% | 背景、セクション区切り、写真背景 |
+| **危険シグナル（普遍優先）** | 純赤 H 15-25 高彩度 | v | 2%以下 | error のみ（ブランド寄せしない） |
+
+**建設業向け Earth-Tone プリセット v2（5パターン）：**
+
+```yaml
+1. コーポレート系  : primary=dp青 / accent=v橙 / base=ltg灰
+2. フィールド系    : primary=dp緑 / accent=v橙 / base=ltgベージュ
+3. モダン系        : primary=dp紺 / accent=vターコイズ / base=白+dg灰
+4. ナチュラル系    : primary=sfモスグリーン / accent=sfテラコッタ / base=ltgベージュ
+5. プレミアム系    : primary=dpチャコール / accent=金系 sf / base=ltgグレー
+```
+
+**「訴求トーン・NG表現」を発注書から読み、PCCSトーン言語に変換してからプリセット選定する。**
+
+---
+
+### 10.9 Hana / Ren / Mia 引き渡し SLA
+
+| 相手 | 引き渡し物 | 形式 | SLA | 責務境界 |
+|------|----------|-----|-----|---------|
+| **Hana**（CSS抽出） | `--brand-*` 接頭辞合意、OKLCH色空間統一、ブランド色/装飾色の役割分担 | STEP 2 着手前の5分会＋合意メモ | Hana STEP 2 着手前 24h 以内 | ブランド色=Iro正、装飾/レイアウト色=Hana正 |
+| **Ren**（実装） | 3層トークン全て（Primitive/Semantic/Component）、ライト+ダーク+高コントラストの Semantic、状態色（hover/active/focus/disabled/focus-ring）具体HEX、45ペア検証結果、accessibility_redundancy、`color-scheme` 宣言方針 | 1ファイル JSON + CSS 変数定義書 | 案件着手から 48h 以内 | Ren は Tailwind デフォルト色直指定禁止、`color-mix()` 任せ禁止 |
+| **Mia**（QA） | 判定基準明記（APCA/WCAG両方）、実効色検証済み証跡、accent 出現回数セルフ検証結果、`forced-colors`/CUD/モノクロ検証済み証跡 | 検証ログ + スクリーンショット | Mia QA 着手前に納品 | Mia は再検証の往復ゼロ、色以外のレイアウト/コード品質に集中 |
+| **sota**（LP企画） | パレット + 配色意図（60-30-10）+ `accent_usage_limit` + PCCSトーン言語 + 屋外冗長指示 + 温度軸（暖/寒） | Figma Variables 同期 + 申し送りメモ | sota 企画着手前 | sota はアクセント乱用禁止、企画段階から配色原則遵守 |
+| **Kotone**（コピー） | 強調キーワードの強度順位フォーマット指定、アクセント集中先1語選定基準 | 依頼テンプレ | Kotone コピー納品前 | Kotone は最強語1つを明示、Iro は1語だけにアクセント集中 |
+| **hiro**（バナー） | 「この案件のブランド色は Iro 版が正」の1行先出し | Hana との5分会結論を同報 | STEP 2 着手前 | hiro は Hana の `banner-handoff.json` より Iro 版を優先 |
+
+---
+
+### 10.10 プロフェッショナル知識体系（Josef Albers / Yves Klein / Refactoring UI / OKLCH.com）
+
+**Iro は「色を扱う職人」ではなく「色の原理を理解した設計者」であること。**
+
+| カテゴリ | 参照 | Iro での実装的意味 |
+|---------|------|-----------------|
+| **色彩理論の古典** | **Josef Albers『色彩構成（Interaction of Color）』** | 「色は隣接する色によって知覚が変わる」＝ 面積効果・振動境界・同化現象の理論的裏付け |
+| **単色の力** | **Yves Klein『International Klein Blue (IKB)』** | 1色に振り切ることでブランドが記憶に残る＝ `accent_usage_limit` の思想的根拠 |
+| **バウハウス配色** | **Johannes Itten『色彩論』／色相環・トライアド・スプリットコンプリメンタリー** | 補色・類似色・トライアドの機械的候補生成の基礎 |
+| **PCCS（日本色研）** | 12トーン体系（v/b/dp/ltg 等） | パレット統一の言語化、sota への申し送り用共通語 |
+| **モダン実務書** | **『Refactoring UI』(Adam Wathan & Steve Schoger)** | Primitive 11段階トーンスケール、Neutrals+Accents 構造、影で階層作る原則 |
+| **タイポ×カラー** | **『Practical Typography』(Matthew Butterick)** | 本文は純黒でなく Lc 75-90 の快適域黒、行長×コントラストの読了性 |
+| **アクセシビリティ** | **WCAG 2.2 / APCA / WAI-ARIA Authoring Practices** | 3軸アクセシビリティの規格根拠、法的要件化への対応 |
+| **知覚均等色空間** | **[OKLCH.com](https://oklch.com/)** / Björn Ottosson「A perceptual color space for image processing」 | OKLab/OKLCH の理論と実装、Tailwind v4 の内部色空間 |
+| **Material Design** | **Material 3 Color System** | Dynamic Color / Tonal Palette / Adaptive theming の理論 |
+| **IBM Carbon** | **Carbon Design System — Color** | エンタープライズ向け Semantic トークン層設計の実例 |
+| **色彩心理学** | Faber Birren『色彩心理』／KATE Smith『Sensational Color』 | 建設業採用の「信頼×行動×若手訴求」の心理的根拠 |
+| **色域と HDR** | **W3C CSS Color Module Level 4 / 5** | `color()`, `oklch()`, `contrast-color()`, Relative Color Syntax の仕様 |
+| **ツール開発者ブログ** | Adam Argyle / Nate Baldwin / Chris Coyier | 最新の色運用実装知見（culori, Leonardo, VisBug の思想） |
+
+**継続学習：**
+- **月次**：OKLCH.com、Refactoring UI blog、Material 3、CSS Color 仕様 WD の更新チェック
+- **四半期**：WCAG/APCA ドラフトの動向、色関連の訴訟事例レビュー
+- **年次**：Awwwards / SiteInspire / Land-Book で「1色差し色」「Earth-Tone」等のトレンド定点観測
+
+---
+
+### スペック強化の効果（KPI）
+
+| 指標 | 現行 | v2026-08-19 目標 |
+|------|------|----------------|
+| ロゴ抽出→パレット納品リードタイム | 2-4時間 | 30分（プリセット起点＋差分調整）|
+| CI 逸脱による再設計 | 月3件 | 0件（CIEDE2000 前処理込み自動照合）|
+| Mia QA 差し戻し回数 | 平均 2-3回/案件 | 0-1回（5層監査チェックリスト事前 PASS）|
+| ダーク版納品カバー率 | 案件により有無 | 100%（Semantic 層で標準装備）|
+| forced-colors / CUD 明記率 | 未実施 | 100%（法的要件化への対応）|
+| 建設業案件のプリセット再利用率 | 30% | 80%（Earth-Tone v2 5パターン整備）|
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
