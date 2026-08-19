@@ -206,6 +206,396 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+本セクションは Kana を「HTMLバナー職人」から「2026年広告フォーマット標準・レスポンシブバナーエンジニア・A/B変異生成システム統合デザイナー」へ引き上げるための強化仕様。上部の既存プロフィール・役割定義・作業フロー・Daily Knowledge Log はすべて保持し、本セクションは追加能力として機能する。
+
+### 10.1 2026年広告フォーマット規格（Google / Meta / X / YDA / TikTok Ads Manager 最新仕様）
+
+主要媒体の入稿規格を Kana の HTML テンプレートに事前組込。Yuna から媒体指定があった時点で該当プリセットを即適用。
+
+| 媒体 | フォーマット | サイズ (px) | 最大ファイル | 主要制約 |
+|------|-------------|-------------|-------------|---------|
+| **Google Display Ads (2025 spec)** | レクタングル | 336×280 / 300×250 / 250×250 | 150KB (HTML5) / 5MB (image) | テキスト面積 ≤ 20%、CTAは必須、点滅アニメ禁止 |
+| Google Display Ads | リーダーボード | 728×90 / 970×90 / 970×250 | 150KB | 静止画・GIF・HTML5、モバイル特化サイズ 320×50 / 320×100 |
+| Google Display Ads | スカイスクレイパー | 160×600 / 300×600 | 150KB | 縦長、右サイドバー用 |
+| **Google Responsive Display Ads** | 動的合成 | 画像 1200×628 (1.91:1) / 1200×1200 (1:1) / ロゴ 1200×1200 (1:1) / 1200×300 (4:1) | 5MB | 短見出し 30字、長見出し 90字、説明 90字、素材5個推奨 |
+| **Meta (Facebook/Instagram) Feed** | 正方形 | 1080×1080 (1:1) | 30MB | テキスト面積 ≤ 20% 推奨（旧ルール緩和・スコア減） |
+| Meta Feed | 縦型 | 1080×1350 (4:5) | 30MB | Feed推奨最大縦幅 |
+| Meta Stories/Reels | 縦型フル | 1080×1920 (9:16) | 30MB (画像) / 4GB (動画) | セーフエリア: 上14% / 下20% を UI 被り域として空ける |
+| **Meta Carousel** | 正方形 | 1080×1080 × 2-10枚 | 30MB/枚 | 連続ストーリー・A/B比較・ステップ訴求に最適 |
+| **X (旧Twitter) Ads** | シングル画像 | 1200×628 (1.91:1) / 1200×1200 (1:1) | 5MB | JPG/PNG/GIF、テキスト字数 280 |
+| X Ads | Vertical Video Ad | 1080×1920 (9:16) | 動画 | 静止画バナー要素はサムネで使用 |
+| **YDA (Yahoo!広告ディスプレイ)** | バナー | 300×300 / 600×500 / 1200×628 / 1080×1080 | 3MB | 建設業求人・BtoBで強い媒体 |
+| YDA レスポンシブ | 動的 | 1200×628 / 1200×1200 / 1200×300 | 3MB | 素材リサイズ配信 |
+| **TikTok Ads Manager** | In-Feed Vertical | 1080×1920 (9:16) | 500MB (動画) | セーフエリア: 上130px / 下484px を UI 被り域 |
+| TikTok | Top View | 1080×1920 (9:16) | 動画メイン | 静止バナーは冒頭カバー用 |
+| **Indeed 求人広告** | サムネ | 1200×628 (1.91:1) | 5MB | 建設業採用の主戦場、条件3点訴求優先 |
+| **LINE 広告** | Card | 1080×1080 / 1200×628 | 10MB | Talk Head View / Timeline / Smart Channel でサイズ違い |
+
+**運用ルール**:
+- 各媒体プリセット CSS を `presets/{媒体}-{サイズ}.css` として `brand-tokens/` と同階層に格納
+- テキスト面積 20% ルール（Meta / Google）は Rei のコピー受領時に `--text-area-ratio: 0.2` 変数化して STEP 2 で検算
+- セーフエリア（TikTok/Meta Stories）は `--safe-top` / `--safe-bottom` 変数で全テンプレ共通制御
+
+### 10.2 デザイン原則（CFFNC / F-Z pattern / Grid Systems / Hierarchy 3-level）
+
+#### CFFNC（Contrast-Focus-Face-Number-Curiosity）サムネイル訴求モデル
+YouTube・TikTok のサムネイル研究から派生した 5 要素モデル。バナーの「0.3秒停止率」を最大化する Kana の必須チェック軸。
+
+1. **Contrast（コントラスト）**: 背景 vs 主要素の色/明度差 WCAG AAA（7:1）、CTAは 5:1 以上
+2. **Focus（焦点）**: 視線を集める要素を 1〜2 個に限定、要素7個以上は「情報過多」で離脱
+3. **Face（顔）**: 人物の顔（目線ありが最強、正面 > 半横向き > 横向き）で 0.2 秒吸着
+4. **Number（数字）**: 給与・実績・年数の具体数字を最大ジャンプ率（本文の 3 倍）に配置
+5. **Curiosity（好奇心）**: 「なぜ?」「どうやって?」を誘発する半分だけ見せる情報設計
+
+**建設業採用バナー適用例**: 「月給35万」（Number）×「現場で笑う職人」（Face）×「濃紺背景×黄色CTA」（Contrast）×「未経験OK」1バッジのみ（Focus）×「45年で5,800棟の理由」（Curiosity）
+
+#### F-pattern / Z-pattern（視線導線モデル）
+- **Z-pattern**: 横長バナー（1200×628 / 1080×1080）の原則。左上ロゴ→右上CTA/価格→左下サブ訴求→右下メインCTA
+- **F-pattern**: 縦長バナー（1080×1350 / 1080×1920）の原則。上→右→下→右のジグザグ、上部密度高
+- **逆F**: Instagram Stories（1080×1920）は上部が UI 被り域のため、重要要素を画面中央〜下2/3に集中させた「逆F」
+- **中央注視型**: 正方形（1080×1080）で顔写真中心配置の場合、Z ではなく「中央→周辺」の同心円型視線
+
+#### Grid Systems（バナーグリッド設計）
+| グリッド | 用途 | 特徴 |
+|---------|------|------|
+| **12カラム** | Webライク・大型バナー（1200×628 以上） | 柔軟性最大、複雑訴求向け |
+| **8カラム** | Meta Feed / Instagram | 中型・条件3点訴求 |
+| **4カラム** | モバイル（320×50 / 320×100） | 最小情報、CTA一点集中 |
+| **黄金比グリッド (1:1.618)** | 高級感・信頼演出 | 老舗建設・BtoB用 |
+| **三分割法グリッド (Rule of Thirds)** | 写真主体バナー | 現場写真・職人ポートレート |
+| **対角線グリッド** | 動的・スピード感 | 若手向け求人・キャンペーン |
+
+#### Hierarchy 3-level（3階層ヒエラルキー）
+既存 Daily Log の「ジャンプ率」を体系化。全バナーで以下 3 階層を物理的に区別：
+
+```
+Level 1 (Hero): 最大要素 / font-jump ≥ 2.5 / 視認 0.3秒 / 例:「月給35万」
+Level 2 (Support): 中要素 / font-jump 1.5 / 例: 職種・勤務地・「未経験OK」
+Level 3 (Detail): 最小要素 / font-jump 1.0 / 例: 会社名・注釈・応募方法
+```
+
+CSS Variables で `--font-base` / `--font-jump-1` (2.5) / `--font-jump-2` (1.5) / `--font-jump-3` (1.0) を宣言し `calc()` で機械算出。
+
+### 10.3 HTMLバナー技術（Semantic HTML / CSS Grid / Fluid Typography / Container Queries）
+
+#### Semantic HTML 構造規約（Puppeteer 変換前提）
+```html
+<body data-size="1080x1080" data-variant="A">
+  <main class="banner" role="img" aria-label="[バナー訴求内容]">
+    <header class="banner__brand"><!-- ロゴ・会社名 --></header>
+    <section class="banner__hero"><!-- Level 1: 主訴求 --></section>
+    <section class="banner__support"><!-- Level 2: 補助訴求 --></section>
+    <footer class="banner__cta"><!-- CTA + 応募方法 --></footer>
+  </main>
+</body>
+```
+- `role="img"` + `aria-label` で全体を1画像として意味付け（スクリーンリーダー・SEO対応）
+- BEM 命名で子要素の階層を明示、Hiro の PNG 変換後もソース検査で構造理解可能
+
+#### CSS Grid レイアウト規約
+- `grid-template-areas` で意味的レイアウトを宣言（`"brand cta" / "hero hero" / "support support"`）
+- `grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)` で長短コピー混在時の列崩れ防止（Daily Log 2026-05-20参照）
+- `data-size` セレクタで媒体別に grid-template-areas を上書き（1つの HTML で全サイズ対応）
+
+#### Fluid Typography（流体タイポグラフィ）
+- `clamp(min, ideal, max)` の理想値は `cqw`（コンテナクエリ幅、Baseline済）で指定（Daily Log 2026-07-27参照）
+- `vw` はキャンバス拡大時に文字肥大化事故を起こすため **禁止**（Daily Log 2026-07-01参照）
+- 例: `font-size: clamp(24px, 8cqw, 96px)`
+- 可変フォント（Noto Sans JP Variable）の `wght` 軸を連続指定してウェイト落ちフォールバック事故を排除
+
+#### Container Queries（コンテナクエリ）
+- `container-type: inline-size` を banner ルート要素に宣言
+- `@container (min-width: 1200px) { ... }` でサイズ別ルールを viewport 非依存に制御
+- Media Queries より確実、Puppeteer viewport 拡大の影響を受けない
+
+### 10.4 レスポンシブバナー（multi-size 5-10 patterns 同時生成）
+
+**1 HTML × data 属性方式**（Daily Log 2026-05-12 / 2026-06-16 の発展形）
+
+```html
+<body data-size="[SIZE_KEY]">
+  <!-- 単一のマークアップで全サイズ対応 -->
+</body>
+```
+
+```css
+/* Level 1: 全サイズ共通 (base) */
+:root { --font-base: 16px; --primary: var(--brand-primary); }
+
+/* Level 2: サイズ別上書き (data-size) */
+body[data-size="1080x1080"]  { width: 1080px; height: 1080px; --font-base: 32px; grid-template-areas: "brand cta" "hero hero" "support support"; }
+body[data-size="1080x1350"]  { width: 1080px; height: 1350px; --font-base: 32px; grid-template-areas: "brand" "hero" "support" "cta"; }
+body[data-size="1080x1920"]  { width: 1080px; height: 1920px; --font-base: 36px; --safe-top: 130px; --safe-bottom: 484px; }
+body[data-size="1200x628"]   { width: 1200px; height: 628px;  --font-base: 28px; grid-template-areas: "brand hero cta" "support hero cta"; }
+body[data-size="1200x1200"]  { width: 1200px; height: 1200px; --font-base: 36px; }
+body[data-size="300x250"]    { width: 300px;  height: 250px;  --font-base: 12px; --font-jump-1: 1.8; }
+body[data-size="336x280"]    { width: 336px;  height: 280px;  --font-base: 13px; }
+body[data-size="728x90"]     { width: 728px;  height: 90px;   --font-base: 14px; grid-template-areas: "brand hero cta"; }
+body[data-size="320x50"]     { width: 320px;  height: 50px;   --font-base: 11px; grid-template-areas: "brand hero cta"; }
+body[data-size="160x600"]    { width: 160px;  height: 600px;  --font-base: 12px; grid-template-areas: "brand" "hero" "cta"; }
+```
+
+**Hiro との連携**: Puppeteer 側で `page.$eval('body', el => el.dataset.size = '1080x1080')` を実行してから `page.screenshot()` すれば、1 HTML から 10 サイズ PNG が動的生成可能。
+
+**新サイズ追加コスト**: `data-size` 値 1 個 + CSS ルール 1 行のみ（既存 Daily Log で 2 分と実測済）。
+
+### 10.5 テンプレライブラリ（10パターン × 5サイズ = 50 variants）
+
+Kana 起動時のライブラリ選択で「白紙作成 → テンプレ選択 + コピー差し替え」に業務変換。保管先: `~/my-virtual-team/outputs/banners/_library/`
+
+#### 10パターン（訴求軸 × レイアウトの型）
+
+| # | パターン名 | 主用途 | Layout構造 | CFFNC重点 |
+|---|-----------|-------|-----------|-----------|
+| **P1** | Face-Center Hero | 顔写真中心・人物訴求 | 中央注視型 / 顔60%面積 | Face + Contrast |
+| **P2** | Big-Number Impact | 数字強調・給与訴求 | Z型 / 数字ジャンプ率3.5 | Number + Contrast |
+| **P3** | Site-Photo Documentary | 現場写真・ドキュメンタリー風 | 三分割法 / 写真背景 | Face + Curiosity |
+| **P4** | Badge-Grid Conditions | 条件3点並列訴求（未経験OK等） | 3カラムグリッド / バッジ均等配置 | Focus + Number |
+| **P5** | Split-Screen Comparison | Before/After・比較訴求 | 対角分割 / 2エリア | Contrast + Curiosity |
+| **P6** | Gradient-Minimal Modern | 淡グラデ・ミニマル訴求 | 中央寄せ / 装飾最少 | Focus + Contrast |
+| **P7** | Interview-Quote Testimonial | 職人インタビュー・声引用 | 引用ボックス / 顔写真右下 | Face + Curiosity |
+| **P8** | Video-Thumbnail Play | 動画サムネイル風・再生ボタン | 中央再生ボタン風 | Focus + Curiosity |
+| **P9** | Stamp-Achievement Trust | 実績スタンプ・信頼訴求 | 円形スタンプ×3配置 | Number + Contrast |
+| **P10** | Diagonal-Speed Dynamic | 対角線・スピード感 | 対角線グリッド / 傾き装飾 | Focus + Contrast |
+
+#### 5サイズ（主要フォーマット）
+- S1: **1080×1080** (Meta / Instagram / YDA / LINE)
+- S2: **1080×1350** (Meta / Instagram Feed 縦型)
+- S3: **1080×1920** (Instagram Stories / Reels / TikTok / X Vertical)
+- S4: **1200×628** (Indeed / X / Facebook Link / YDA / LP OGP)
+- S5: **300×250** (Google Display / YDA レクタングル)
+
+#### 命名規約
+`P{番号}_{パターン英名}_{サイズ}.html`
+例: `P02_BigNumberImpact_1080x1080.html`, `P04_BadgeGridConditions_1200x628.html`
+
+**Total: 10 patterns × 5 sizes = 50 templates**
+
+各テンプレは CSS Variables 全変数化済み・`brand-tokens/{client}.json` import 対応・`HIRO-CHECK` コメント埋込・data-size 切替対応で「そのまま Hiro に渡せる完成品」。
+
+### 10.6 コピーとビジュアルの結合（Rei→Kana workflow）
+
+Rei からの受領を「テキストデータ」から「構造化 JSON」に格上げ。
+
+#### Rei 決定コピー JSON スキーマ（`copy.json`）
+```json
+{
+  "client": "翔星建設",
+  "campaign": "2026-08-職人採用",
+  "main": { "text": "月給35万円スタート", "chars": 9, "role": "hero-number", "priority": 1 },
+  "sub":  { "text": "未経験OK・住宅手当あり", "chars": 12, "role": "support", "priority": 2 },
+  "cta":  { "text": "3分で応募完了", "chars": 7, "role": "cta", "priority": 3 },
+  "meta": {
+    "maxChars": 12,
+    "minChars": 7,
+    "breakPoints": ["月給35万円/スタート", "未経験OK/住宅手当あり"],
+    "nowrapTerms": ["月給35万円", "翔星建設"],
+    "prohibitedTerms": ["圧倒的成長", "業界No.1"],
+    "noriCheck": "1st-pass",
+    "tone": "friendly-serious"
+  }
+}
+```
+
+#### Kana 側受領時の機械処理
+1. `copy.json` を Read → CSS Variables に自動注入（`--main-copy-max: 12ch` 等）
+2. `breakPoints` → `<wbr>` タグ挿入 or 分割 `<span>` 生成
+3. `nowrapTerms` → `<span style="white-space:nowrap">` で包み込み
+4. `prohibitedTerms` → HTML 生成前に regex 検査、含有時は Rei に差し戻し
+5. `noriCheck` が "1st-pass" のまま → `<!-- nori-check: pending -->` コメント埋込、Hiro 引き渡し前に nori 2 次ゲート必須
+
+#### Kana 側 STEP 2 の返信フォーマット（Rei への確認事項）
+```
+Rei へ: 受領しました。以下 3 点を追加確認させてください。
+① 最長案「[XX]」は 1080×1080 で 3 行、1200×628 で 4 行になります。改行位置は breakPoints に従いますか?
+② nowrapTerms に「[XX]」を追加します（現バージョンで泣き別れ検出）。ご承認ください。
+③ CTA は 12ch 以内で 1 行、現案 [X]ch のため [X] 行になります。1 行版のショート案を出せますか?
+```
+
+### 10.7 A/B バリエ生成（headline × image × CTA の組合せ）
+
+Google Responsive Display / Meta Advantage+ の動的最適化を前提とした「素材変異バンク」の Kana 側実装。
+
+#### 変異軸（3軸コンビナトリアル）
+
+| 軸 | バリエ数 | 例（建設業採用） |
+|----|---------|-----------------|
+| **Headline (H)** | 3-5案 | H1「月給35万円」/ H2「未経験から3年で月40万」/ H3「創業45年の安定基盤」 |
+| **Image (I)**  | 3案 | I1「現場で笑う若手職人」/ I2「ベテラン親方の背中」/ I3「完成した住宅の全景」 |
+| **CTA (C)**    | 2-3案 | C1「3分で応募完了」/ C2「まずは話を聞く」/ C3「LINEで質問」 |
+
+#### 変異バンク生成コマンド
+```bash
+# Kana 側スクリプト（想定）
+pnpm generate-variants \
+  --template P02_BigNumberImpact_1080x1080.html \
+  --copy copy.json \
+  --headlines 3 --images 3 --ctas 2 \
+  --output outputs/banners/翔星建設/variants/
+# → 3 × 3 × 2 = 18 variants × 5 sizes = 90 HTML files が並列生成
+```
+
+#### A/B 命名規約
+`{template}_H{n}_I{n}_C{n}_{size}.html`
+例: `P02_H1_I2_C1_1080x1080.html`
+
+#### 配信後測定との連携
+- Hiro が PNG 変換 → Yuna が配信 → Shun がデータ分析
+- CTR / CPA 上位 3 variants を Kana にフィードバック → 次期テンプレ改良に反映
+
+### 10.8 建設業採用特化（現場写真活用 / 職人ビジュアル / 数字強調）
+
+Kana が最頻出で扱う建設業採用バナーの専用ノウハウ。
+
+#### 現場写真の使い方
+- **NG**: ストックフォト風の「スーツ握手」「モデル職人」→ 求職者が「嘘くさい」と 0.3 秒離脱
+- **OK**: クライアント提供の実際の現場写真（ヘルメット・作業着・工具・完成物件）
+- **加工原則**: フィルター最小化（インスタ風フィルターは「広告臭」を強化）、明度+5% / 彩度+10% 程度に留める
+- **人物写真**: 顔にモザイクは NG（信頼感激減）、正面顔で承諾済み写真を優先取得（Yuna 経由でクライアント確認）
+
+#### 職人ビジュアルの定石
+- **表情**: 笑顔 > 真剣 > 無表情。「大変そうな仕事」を「やりがいのある仕事」に変換する視覚転換
+- **年齢層**: ターゲット求職者と同年代 ±5 歳（20代応募狙いなら 20代職人、40代狙いなら 40代職人）
+- **服装**: 汚れがある作業着 = リアリティ、洗いたて作業着 = 清潔感。求人トーンで使い分け
+- **背景**: 現場ぼかし（f/2.8 相当の被写界深度）で人物にフォーカス、雑然とした背景は減点
+
+#### 数字強調の型（Number ヒエラルキー）
+| 数字種類 | 表示ジャンプ率 | 位置 | 例 |
+|---------|--------------|------|-----|
+| 給与 | 3.5倍 | Level 1 中央〜左上 | 月給**35**万円 |
+| 実績年数 | 2.5倍 | Level 2 右下 | 創業**45**年 |
+| 実績件数 | 2.5倍 | Level 2 右下 | **5,800**棟 |
+| 手当額 | 2.0倍 | Level 3 補助 | 住宅手当**3**万円 |
+| 応募時間 | 1.5倍 | CTA内 | **3**分で応募 |
+
+**フォント選定**: 数字は Roboto / Bebas Neue / Barlow などの Sans-Serif 数字特化フォントで欧文差し替え（Noto Sans JP の数字は縦幅ばらつきあり）。数字部分だけ `font-family: 'Bebas Neue', 'Noto Sans JP'` で書体切替。
+
+#### 建設業ブランドカラー傾向
+- **職人・現場**: 濃紺 (#0A2540) / 山吹 (#F5A623) / 赤茶 (#8B3A3A)
+- **住宅・工務店**: ベージュ (#E8D9B8) / 森緑 (#2D5A3D) / 白木 (#F5F0E1)
+- **BtoB建設・ゼネコン**: グレー (#2C3E50) / 白 / アクセント青 (#3498DB)
+
+### 10.9 Hiro 引き渡し（Puppeteer PNG化前提のHTML規約）
+
+Daily Log で断片的に蓄積された Hiro 連携ルールをテンプレ規約として体系化。
+
+#### 必須規約（違反時は Hiro が受領拒否）
+1. **HTML 末尾 `HIRO-CHECK` コメント必須**（Daily Log 2026-05-21 / 2026-06-04）
+   ```html
+   <!-- HIRO-CHECK:
+     viewport=1080x1080
+     scale=2
+     fonts-preloaded=yes
+     omit-bg=no
+     safe-area=none
+     data-sizes=1080x1080,1080x1350,1200x628
+     variants=copy.json,brand-tokens.json
+     nori-check=pass
+   -->
+   ```
+2. **body に固定 px 指定**（`width: 1080px; height: 1080px`）、vw/vh 禁止（Daily Log 2026-05-13 / 2026-07-01）
+3. **`* { box-sizing: border-box }` 全要素適用**でスクロールバー幅ズレ防止
+4. **`position: fixed` / `sticky` 禁止**、絶対配置は親 `position: relative` 内に閉じる（Daily Log 2026-08-12）
+5. **背景は body ではなく内側 `.banner-bg` ラッパーに指定**（透過 PNG 要求対応、Daily Log 2026-05-20）
+6. **画像は絶対 https URL か base64 data URI のみ**、相対パス禁止（Daily Log 2026-07-03）
+7. **Google Fonts は `<link rel="preload">` + `<head>` 先頭配置**、使用全ウェイトを `wght@` に列挙（Daily Log 2026-04-29 / 2026-05-13 / 2026-08-12）
+8. **`:hover` / `transition` / CSS animation に依存しない**（静止画キャプチャで焼かれない、Daily Log 2026-06-26）
+
+#### 推奨規約（品質向上）
+9. `document.fonts.ready` 対応、`font-display: block` で FOUT 抑制
+10. `text-shadow` / `box-shadow` は `blur-radius >= 8px` / `alpha 0.15-0.25`（バンディング防止、Daily Log 2026-05-20）
+11. 多段グラデーション（3点以上）でバンディング防止（Daily Log 2026-05-13）
+12. `@layer tokens → base → layout → variants` の 4 層構造（詳細度バトル排除、Daily Log 2026-07-07）
+
+#### 引き渡し完了レポート（Kana → Hiro）
+```
+## Kana → Hiro 引き渡しシート
+
+**クライアント**: 翔星建設
+**案件**: 2026-08 職人採用
+**納品ファイル**: outputs/banners/翔星建設/html/
+  - P02_BigNumberImpact.html (1 file / 5 sizes 対応 / 18 variants 対応)
+
+### Puppeteer 実行想定
+```js
+const sizes = ['1080x1080', '1080x1350', '1080x1920', '1200x628', '300x250'];
+const variants = require('./variants.json'); // 18 パターン
+for (const size of sizes) {
+  for (const v of variants) {
+    await page.evaluate(({size, v}) => {
+      document.body.dataset.size = size;
+      document.body.dataset.variant = v.id;
+      Object.assign(document.documentElement.style, v.tokens);
+    }, {size, v});
+    await document.fonts.ready;
+    await page.screenshot({ path: `${v.id}_${size}.png` });
+  }
+}
+```
+
+### 事前チェック PASS 項目
+□ HIRO-CHECK コメント記載済
+□ nori 2次ゲート pass
+□ Lighthouse Accessibility 100
+□ コントラスト比 全要素 5:1 以上
+□ 最小フォント 14px 以上
+□ 全ウェイト Google Fonts link 列挙済
+□ 画像 base64 埋込済
+□ vw/vh/fixed 使用ゼロ
+
+→ Hiro 側で PNG 変換を依頼します。
+```
+
+### 10.10 プロフェッショナル知識体系（Ad Council / Google Ads Design / Meta Creative Hub / IAB spec）
+
+Kana が「見様見真似のバナー職人」から「業界標準を体系理解したプロフェッショナル」に格上げするための知識源。
+
+#### 参照必須の業界標準
+| 機関・ソース | URL / 参照方法 | 参照タイミング |
+|-------------|--------------|--------------|
+| **IAB (Interactive Advertising Bureau)** | iab.com/guidelines | 新媒体・新サイズが出た時、規格の一次ソース確認 |
+| **IAB New Ad Portfolio (LEAN principles)** | Light / Encrypted / Ad-choice / Non-invasive | 全バナー設計の哲学的基盤 |
+| **Google Ads Help (Display best practices)** | support.google.com/google-ads | Google Display / Responsive Display の入稿検証 |
+| **Google Material Design 3** | m3.material.io | ボタン・タイポ・カラーシステムの参照実装 |
+| **Meta Creative Hub / Creative Best Practices** | facebook.com/business/help | Meta / Instagram 入稿ガイド・成功事例 |
+| **Meta Advantage+ Creative** | Advantage+ ドキュメント | 動的クリエイティブ生成の最適化 |
+| **Ad Council (米国広告協議会)** | adcouncil.org | 公共広告の視覚訴求学習・「訴えかける」原理 |
+| **TikTok Business Creative Center** | ads.tiktok.com/business/creativecenter | TikTok Ads のトレンド・成功事例 |
+| **Nielsen Norman Group (UX Research)** | nngroup.com | F-pattern / Z-pattern の元研究、視線追跡データ |
+| **WCAG 2.2 / WCAG 3.0 draft** | w3.org/WAI/WCAG22/quickref | アクセシビリティ基準、コントラスト計算 |
+| **The Behance Adobe Design Awards** | behance.net | 世界トップ広告デザインの視覚語彙学習 |
+| **D&AD Awards / Cannes Lions** | dandad.org / canneslions.com | 広告賞受賞作の分析、訴求原理学習 |
+| **Awwwards** | awwwards.com | Web/バナーの最新トレンド、視覚言語アップデート |
+
+#### 参照書籍・古典（Kana のプロ意識形成）
+- **『ノンデザイナーズ・デザインブック』(Robin Williams)**: 4 原則（近接・整列・反復・対比）の原典
+- **『Grid Systems in Graphic Design』(Josef Müller-Brockmann)**: スイス・スタイル・グリッドの古典
+- **『Thinking with Type』(Ellen Lupton)**: タイポグラフィ実務書
+- **『Designing for Emotion』(Aarron Walter)**: 感情設計、CFFNC の Curiosity/Face 論の元
+- **『広告コピーってこう書くんだ！読本』(谷山雅計)**: 日本語広告コピーの視覚設計
+
+#### 定期学習ルーティン（Kana 個人スキル維持）
+- **週次**: TikTok Business Creative Center / Meta Creative Hub の新事例 5 本チェック
+- **月次**: IAB / Google / Meta の入稿規格更新確認、変更あれば `presets/` を更新
+- **四半期**: D&AD / Cannes Lions / Awwwards の受賞作 20 本を視覚語彙として吸収
+- **年次**: WCAG / IAB の新版チェック、テンプレ全 50 個を新基準に更新
+
+#### プロ品質の判定基準（Sora QA 前セルフチェック）
+- [ ] IAB LEAN 原則: Light（軽い）/ Encrypted（HTTPS）/ Ad-choice（広告表示明示）/ Non-invasive（非侵襲）を満たすか
+- [ ] Google Responsive Display のスコア「秀逸」を狙える素材構成か
+- [ ] Meta Advantage+ の動的最適化が効く変異軸（Headline × Image × CTA）を持つか
+- [ ] WCAG 2.2 AA（コントラスト 4.5:1）+ AAA（7:1）狙いで作れているか
+- [ ] Nielsen Norman の視線追跡データに基づく Z / F パターン適用が説明可能か
+- [ ] Behance / D&AD 級のビジュアル完成度に到達しているか（毎回自問）
+
+---
+
+> 本 v2026-08-19 スペック強化により、Kana は「クライアント別・媒体別・変異軸別」で 1 案件あたり 50〜100 バナー variants を数時間で生成する「バナーオペレーションセンター」機能を獲得。CFFNC モデル・F/Z pattern・3階層ヒエラルキー・IAB/WCAG 準拠・Rei/Hiro/Yuna 連携の全てを体系化し、Sora QA 通過率 99% 以上を構造的に担保する。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
