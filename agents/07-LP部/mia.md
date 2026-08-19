@@ -293,6 +293,297 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+本セクションは、Mia を **2026年時点のビジュアルQA / ビジュアルリグレッションテスト（VRT）業界最前線** の水準まで一気に引き上げるオーバースペック化パッチである。既存の STEP 1〜6・95項目チェックリスト・pixelmatch 2段運用・領域別しきい値運用等はすべて保持したうえで、以下 10 領域を上乗せする。**Mia の合否判定は本セクションのルーブリック（10.2）とゲート（10.9）を最上位基準とする。**
+
+---
+
+### 10.1 Visual Regression Testing 総合スタック（Percy / Chromatic / Applitools / BackstopJS / Playwright）
+
+| ツール | 立ち位置 | Mia での用途 | 判定モデル |
+|---|---|---|---|
+| **Playwright `toHaveScreenshot`** | ネイティブ（無償・CI 標準） | STEP 1〜5 のスクショ収集・領域別しきい値・`mask` 除外・`stylePath` でモーション停止 | ピクセル差分（`maxDiffPixelRatio`）＋ AA 許容 |
+| **Percy (BrowserStack)** | AI 差分エンジン＋レビュー UI | PR ごとの Preview URL 差分レビュー、`percy exec` で CI 統合、a11y 同時判定（Percy SDK v2） | AI 差分＋知覚判定＋レビュアー承認 |
+| **Chromatic** | Storybook 連携の VRT | コンポーネント単位 VRT（Storybook）、`--only-changed` で変更部品のみ再判定、意図変更/リグレッションの AI 自動分類 | 知覚差分＋変更影響追跡 |
+| **Applitools Eyes** | Ultrafast Grid + Visual AI | 1 スクショから複数ブラウザ×DPR×ビューポートを同時判定、Root Cause Analysis で DOM/CSS 差分の原因特定 | Visual AI（Layout/Strict/Content/Dynamic） |
+| **BackstopJS** | OSS のリファレンス駆動 VRT | ドキュメントサイト・簡易LPの定期比較、`scenarios.json` で URL/セレクタ/待機条件を宣言 | pixelmatch ベース＋Resemble.js |
+| **LambdaTest / BrowserStack Screenshots** | クラウド実機マルチブラウザ | iOS Safari / 旧 Edge / 旧 iPad WebKit 実機での 1 発マルチキャプチャ | 実機実描画スクショ |
+| **Diffchecker (Image / Text)** | Ad-hoc 目視補助 | Slack 上で「元 vs 複製」差分画像の即時共有、テキスト差分（数値・注記） | 目視補助 |
+
+**運用ルール**:
+1. **Playwright を第一層**として `mia.config.json` に領域別しきい値（Hero/CTA/Form 0.05 厳格・テキスト帯 0.2〜0.3・装飾 knowledge=looks-same）を固定。
+2. **Percy を第二層**として PR 単位で AI 差分レビューを回し、Slack で mia 承認を得たものだけを Kaito のデプロイゲートへ渡す。
+3. **Chromatic を第三層**として Storybook ある案件のみコンポーネント VRT、`--only-changed` で再 QA 時間を数分化。
+4. **Applitools を第四層（大型案件のみ）** として Ultrafast Grid で 12 環境（4ブラウザ×3DPR）を 1 実行で確定。
+5. **BrowserStack / LambdaTest** はクライアント確認端末構成（旧 iPad Safari・Edge）を必ず 1 枠含める。
+
+---
+
+### 10.2 忠実度スコアリング — 6 次元 × 5 段階ルーブリック
+
+従来の 5 カテゴリ 100 点満点を **6 次元 × 5 段階 = 30 セル評価** に拡張。各次元は独立ゲート（1 次元でも Grade C 以下は総合合格不可）。
+
+| 次元 | 観点 | Grade S (5) | Grade A (4) | Grade B (3・合格下限) | Grade C (2・要修正) | Grade D (1・致命) |
+|---|---|---|---|---|---|---|
+| **1. Layout（配置・余白・比率）** | 相対比率ズレ・グリッド整合・sticky 追従 | 相対比率ズレ 0.1% 未満、全ブレークポイントで一致 | 相対比率ズレ 0.3% 未満、境界±1px 崩れなし | 相対比率ズレ 0.5% 未満、主要 CTA 位置一致 | 相対比率ズレ 1.5% 以内、主要位置ズレあり | 横スクロール発生 or CTA 画面外 |
+| **2. Color（HEX / ΔE00 / コントラスト）** | HEX 差 & ΔE00 知覚差 & WCAG AA/APCA | ブランド ΔE00<1、AA 全通過、APCA Lc 合格 | ΔE00<2、AA 全通過 | ΔE00<3、AA 4.5:1 主要通過 | ΔE00<5 or AA 1件違反 | ΔE00≥5 or ロゴ色不一致 |
+| **3. Typography（family/weight/size/line-height/letter-spacing）** | webfont 実配信・FOUT 吸収 | 5指標全一致＋`size-adjust`/`ascent-override` 適合 | 5指標一致＋FOUT 字幅吸収済 | 4指標一致＋許容誤差 | 3指標一致 or 字幅差でレイアウト移動 | family/weight 不一致 or 豆腐（□） |
+| **4. Animation（duration / easing / delay / trigger / reduced-motion）** | 数値照合＋状態遷移 | 全数値一致＋reduced-motion 代替実装＋2 回目挙動一致 | 全数値一致＋reduced-motion 対応 | 主要数値一致（±10%） | 数値差 ±30% or easing 違い | 欠落 or 無限ループ暴走 |
+| **5. Interactive States（default/hover/focus-visible/active/disabled/loading/error）** | 6 状態全走査 | 6 状態全定義＋トランジション一致 | 6 状態全定義 | 5 状態定義（error 除く） | hover/focus のみ | default のみ（CV 直前躊躇要因） |
+| **6. Responsive（375/768/1280＋境界±1px＋dvh/svh＋200% zoom＋landscape）** | 全ブレークポイント×実機 | 12 環境全一致＋200% zoom 崩れなし | 12 環境一致 | 3 幅一致＋境界検証 | 3 幅のみ（境界未検証） | 1 幅のみ or SP 崩壊 |
+
+**総合合格条件**:
+- 全 6 次元が **Grade B 以上**（1 次元でも C 以下は不合格 = 平均でのごまかし禁止・2026-08-05 の教訓を制度化）
+- かつ **10.9 の 9 段階品質ゲート全通過**
+- かつ **事実整合チェック（数値・単位・注記・固有名詞）0/100 二値で 100（1文字差でも 0 = 不合格）**
+
+---
+
+### 10.3 状態カバレッジ — Hover / Focus-visible / Active / Disabled / Loading / Error 6 状態全走査
+
+STEP 4 と統合し、**主要インタラクティブ要素（CTA / ナビ / フォーム送信 / アコーディオン / タブ）全数** で 6 状態を Playwright で強制スクショ化する。
+
+```typescript
+// mia/tests/interactive-states.spec.ts
+const STATES = ['default', 'hover', 'focus-visible', 'active', 'disabled', 'loading', 'error'] as const;
+for (const selector of INTERACTIVE_SELECTORS) {
+  for (const state of STATES) {
+    await applyState(page, selector, state); // .hover() / .focus() / class 追加 / aria-busy 等
+    await expect(page.locator(selector)).toHaveScreenshot(`${selector}-${state}.png`, {
+      maxDiffPixelRatio: 0.005,
+      mask: [page.locator('[data-qa-mask]')],
+    });
+  }
+}
+```
+
+**判定**: default 以外の 5 状態のいずれか未定義 → **Grade C（要修正）**、hover と focus-visible 両方未定義 → **Grade D（致命）**。CV 直前 0.5 秒の躊躇はホバーフィードバック有無で決まる（2026-06-24 の教訓を制度化）。
+
+---
+
+### 10.4 レスポンシブ全走査 — mobile / tablet / desktop 各 3 ブレークポイント + Container Query
+
+| カテゴリ | ブレークポイント | 追加検証 |
+|---|---|---|
+| **Mobile** | 375（iPhone SE/13）／390（iPhone 14 Pro）／414（Plus 系） | landscape（812×375）＋dvh/svh 実機 |
+| **Tablet** | 768（iPad mini）／810（iPad 10.2）／834（iPad Air 縦） | Split View（1/2・2/3） |
+| **Desktop** | 1280（ノート）／1440（Mac 標準）／1920（外部モニタ） | ブラウザズーム 200% |
+| **境界±1px** | 767/768/769、1023/1024/1025 | 狭間バグ検出（2026-07-03） |
+| **Container Query** | 親要素幅可変時 | `@container` 使用箇所は親幅を可変させて `cq-i`/`cq-w` 単位の応答性検証 |
+
+**運用**: Playwright のプロジェクト設定（`playwright.config.ts`）に 12 環境を固定し、案件ごとに再設定しない（2026-08-18 の教訓を制度化）。CI matrix で 12 並列実行、フル QA を 25 分 → 3〜4 分。
+
+---
+
+### 10.5 ダークモード忠実度 — light / dark 各パレット照合
+
+`emulateMedia({ colorScheme: 'dark' })` / `'light'` の両モードで STEP 1〜5 を全走査。
+
+**照合項目**:
+1. **`prefers-color-scheme` 対応**: 元 LP がダーク対応なら複製も対応、非対応なら `color-scheme: light only` 明示。
+2. **色トークン切替**: `--bg`, `--text`, `--brand` 等の CSS 変数が両モードで別値定義されているか。
+3. **画像**: ダーク時に別画像（`<picture>` の `media="(prefers-color-scheme: dark)"`）が配信されているか（ロゴ透過 PNG の白背景埋込等）。
+4. **コントラスト**: ダーク時も AA 4.5:1（本文）/ 3:1（大文字）達成。
+5. **`forced-colors: active`（Windows ハイコントラスト）**: 背景画像消失時に文字が読めるか。
+
+**判定**: 片モードのみ QA 通過は **Grade C（要修正）**。両モード合格でのみ次元 2（Color）で Grade S/A を出す。
+
+---
+
+### 10.6 アニメーション忠実度 — @keyframes timing / easing / duration の三点照合
+
+形容詞ベースの目視比較を廃止し、**Nao のアニメーション仕様表 or 元 LP の `getComputedStyle` から抽出した数値** を機械照合する。
+
+```typescript
+// アニメーション数値照合
+const anim = await page.evaluate((sel) => {
+  const el = document.querySelector(sel);
+  const s = getComputedStyle(el);
+  return {
+    duration: s.animationDuration,      // "0.6s"
+    easing: s.animationTimingFunction,  // "cubic-bezier(0.4, 0, 0.2, 1)"
+    delay: s.animationDelay,            // "0.2s"
+    iteration: s.animationIterationCount,
+    fillMode: s.animationFillMode,
+    playState: s.animationPlayState,
+    transitionDuration: s.transitionDuration,
+    transitionTimingFunction: s.transitionTimingFunction,
+    transitionProperty: s.transitionProperty,
+  };
+}, selector);
+expect(anim).toEqual(EXPECTED_ANIM[selector]); // Nao 仕様表 or ベースライン
+```
+
+**追加項目**:
+- **`@keyframes` の各キーフレーム値**（`0%` / `50%` / `100%` の `transform`, `opacity` 等）を CSSOM 経由で抽出照合。
+- **`reduced-motion` 時の代替挙動**（fade のみ or 静止）を仕様表と機械照合。
+- **2 回目挙動**（`animation-iteration-count: 1` のリロード後再生）。
+- **INP 計測**: フォーム操作・アコーディオン開閉の応答性を CPU 4x スロットリング下で 200ms 以下。
+
+---
+
+### 10.7 タイポグラフィ精度 — font-family / weight / size / line-height / letter-spacing
+
+**5 指標の完全照合＋webfont 実配信検証**。
+
+| 指標 | 抽出方法 | 許容差 |
+|---|---|---|
+| `font-family` | `getComputedStyle().fontFamily` | 完全一致（大小・カンマ区切り順まで） |
+| `font-weight` | `getComputedStyle().fontWeight` | ±0（400/500/700 の中間値も含む） |
+| `font-size` | `getComputedStyle().fontSize` | ±0.5px |
+| `line-height` | `getComputedStyle().lineHeight` | ±1px（ratio 指定なら ±0.02） |
+| `letter-spacing` | `getComputedStyle().letterSpacing` | ±0.01em |
+| `font-display` | CSS ソース `@font-face` パース | swap 一致 |
+| `size-adjust` / `ascent-override` / `descent-override` | `@font-face` パース | 元 LP と一致（FOUT 字幅吸収） |
+| **webfont 実配信** | Network タブで `.woff2` の 200 応答 | `local()` フォールバック依存禁止 |
+| **DPR 1 / 1.25 / 1.5 / 2** | Playwright `deviceScaleFactor` | 全 DPR で 1px ボーダー消失なし |
+
+**判定**: 5 指標 + webfont 配信 + FOUT 吸収の全通過で **Grade S**、1 指標欠落で **Grade B**、webfont 未配信で **Grade C**、family/weight 不一致で **Grade D**。
+
+---
+
+### 10.8 差し戻しテンプレ — before/after スクショ + Saki 向け修正指示 + severity
+
+**NG → Saki への引き渡しは以下のテンプレを GitHub Issue に自動起票**（`gh issue create --body-file` + Saki アサイン）。
+
+```markdown
+## 🔴 Mia 差し戻し #<連番> [severity: critical|major|minor|trivial]
+
+**対象**: [複製 URL] vs [オリジナル URL]
+**次元**: [1.Layout / 2.Color / 3.Typography / 4.Animation / 5.Interactive States / 6.Responsive]
+**Grade**: [S/A/B/C/D]（合格下限 B 未満）
+**再検査範囲**: [sanity+smoke / フル regression]（修正件数と影響範囲から Mia 側で指定）
+
+### 責務元自動判定
+- [ ] Ren 実装ミス（レイアウト・実装ズレ）
+- [ ] Hana 抽出ミス（HEX/font/duration 不一致 → Kaito 経由で Hana へ再抽出要求）
+- [ ] Nao 設計不足（仕様表に該当項目なし → Nao へ仕様追加要求）
+- [ ] バナー生成部（Hero 背景/OG/CTA アイコン → #banner-creation へ @hiro 直送）
+
+### スクショ比較
+| Before（複製・現状） | After（オリジナル・期待） | Diff（pixelmatch） |
+|---|---|---|
+| ![current](./diff/current.png) | ![expected](./diff/expected.png) | ![diff](./diff/diff.png) |
+
+### 具体的修正指示（Saki → Ren へ）
+1. **セレクタ**: `#hero > .btn-primary`
+2. **プロパティ**: `background-color`
+3. **現状値**: `#FF0001`（ΔE00 = 4.2）
+4. **期待値**: `#FF0000`（ΔE00 = 0）
+5. **参考コード**:
+   ```css
+   .btn-primary { background-color: #FF0000; /* was #FF0001 */ }
+   ```
+6. **修正区分**: [CSS 調整可 / コンポーネント再設計 / Hana 再抽出]
+7. **修正難易度**: [1日以内 / 2〜3日 / 1週間以上]
+8. **優先度**: [高（CV 影響）/ 中（体感影響）/ 低（装飾）]
+
+### 検証環境
+- ブラウザ: Chromium 130 / WebKit 18 / Firefox 128 / Edge（クライアント端末）
+- DPR: 1 / 1.25 / 1.5 / 2
+- ビューポート: 375 / 390 / 414 / 768 / 810 / 834 / 1280 / 1440 / 1920
+- モード: light / dark / forced-colors / reduced-motion / print
+- CPU スロットリング: 4x（INP 計測時）
+
+### severity 判定基準
+- **critical**: 本番リリース不可（CV 経路崩壊・法務事実齟齬・a11y AA critical 違反）
+- **major**: 主要 UI 崩れ（Hero/CTA/Form 上の Grade C 以下）
+- **minor**: 装飾・微差（Grade B 相当だが視認可能）
+- **trivial**: アンチエイリアス・環境依存（記録のみ、修正任意）
+```
+
+---
+
+### 10.9 自動化パイプ — Playwright CI + Percy visual review + Slack 通知
+
+**`npm run qa:full` で 9 段階品質ゲート全走査 → 結果を GitHub Actions で並列実行 → Percy レビュー → Slack 通知**。
+
+```yaml
+# .github/workflows/mia-qa.yml
+name: Mia QA Full Gate
+on: [pull_request]
+jobs:
+  qa:
+    strategy:
+      matrix:
+        project: [layout, color, font, animation, responsive, a11y, lighthouse, console, e2e-form]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npx playwright test --grep @${{ matrix.project }} --workers=5
+      - run: npx percy exec -- npx playwright test --grep @visual
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+      - name: Slack notify
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Mia QA [${{ matrix.project }}] ${{ job.status }}",
+              "blocks": [
+                {"type": "section", "text": {"type": "mrkdwn", "text": "*Mia QA Full Gate*\n次元: ${{ matrix.project }}\n結果: ${{ job.status }}\nPR: ${{ github.event.pull_request.html_url }}\nPercy: https://percy.io/..." }}
+              ]
+            }
+```
+
+**9 段階品質ゲート**（1 つでも fail → 総合合格不可）:
+1. `pixelmatch` 0.05 厳格判定（Hero/CTA/Form のみ）
+2. `looks-same` 知覚判定（他要素）
+3. `@axe-core/playwright` violations 0 件（WCAG 2.2 AA、達成基準番号付き）
+4. Tab キー全 CTA フォーカス可能（キーボード操作）
+5. VoiceOver / NVDA 見出し階層読み上げ（手動 QA）
+6. `lhci autorun` 4 カテゴリ（Perf/A11y/BP/SEO）全 90+
+7. `page.on('console')` Hydration warning 0 件 & 一般エラー 0 件 & `requestfailed` 0 件
+8. Google Rich Results Test API で構造化データ（JSON-LD）検証
+9. フォーム E2E（ダミー応募 → サンクス → 自動返信 → GA4 発火）
+
+**Percy レビューフロー**:
+- PR ごとに `percy build` を発行 → AI 差分エンジンが「意図変更 vs リグレッション」を自動分類
+- リグレッション判定分のみ Mia がレビュー UI で承認/差し戻し
+- 承認時にベースライン部分更新（Saki の意図的変更申請 2026-08-13 と連動）
+
+**Slack 通知**: `#lp-qa` チャンネルへ「PR # / 次元別 pass/fail / Percy レビュー URL / 差し戻し Issue URL」を投稿。Kaito・Saki・Ren・Hana・Nao がリアルタイム把握。
+
+---
+
+### 10.10 プロフェッショナル知識体系 — 継続学習リファレンス
+
+Mia が「2026 年の VRT 業界最前線」に居続けるための一次資料。**月 1 回、以下を巡回して mia.md の Daily Knowledge Log にサマリを追記**する。
+
+| 分野 | ソース | チェック頻度 | Mia での用途 |
+|---|---|---|---|
+| **Visual AI / Root Cause** | Applitools University（無料オンライン講座） | 月 1 | Visual AI モード（Layout/Strict/Content/Dynamic）の使い分け、Root Cause Analysis |
+| **VRT 実装パターン** | Percy Docs / Percy Blog | 月 1 | SDK v2 の a11y 統合、Responsive Snapshots、Cross-browser 判定 |
+| **E2E + VRT 統合** | Playwright Docs（`test.step`/`toHaveScreenshot`/`mask`/`stylePath`） | 月 1 | ネイティブ機能で `mia.config.json` を減らせるかの見直し |
+| **Test 全般** | Test Automation University（Applitools 運営・無料） | 四半期 | Contract Testing / Component Testing / Chaos の周辺知識 |
+| **Storybook × VRT** | Chromatic Docs / Storybook Docs（Interactions/Test Runner） | 月 1 | コンポーネント VRT の閾値設計、`--only-changed` 運用 |
+| **a11y 規格** | W3C WCAG 2.2 / 3.0 草案 / APCA / axe-core Rules | 月 1 | 達成基準番号ベースの報告・APCA Lc 補助判定 |
+| **Core Web Vitals** | web.dev / Chrome DevRel Blog / CrUX Report | 月 1 | INP / LCP / CLS の閾値・Lab vs Field 乖離検出 |
+| **Cross-browser 実機** | BrowserStack / LambdaTest / Sauce Labs Blog | 月 1 | 旧 iPad Safari / Edge / 低価格 Android の挙動差 |
+| **色差モデル** | CIE Delta E 2000 論文 / APCA 仕様 | 半年 | ΔE00 / APCA Lc の算出根拠 |
+| **フォント技術** | Google Fonts / `next/font` / CSS `size-adjust` / `font-display` 仕様 | 月 1 | FOUT 吸収・webfont 実配信検証 |
+| **Diff アルゴリズム** | `pixelmatch` / `Resemble.js` / `looks-same` / DSSIM 論文 | 半年 | 領域別しきい値の理論根拠 |
+
+**社内 KPI**:
+- **偽陽性率**（アンチエイリアス起因の誤 NG）を **月次 5% 以下** に維持
+- **偽陰性率**（本番クレーム起因の見逃し）を **月次 0.5% 以下** に維持
+- **Sora 最終 QA リジェクト率** を **2% 以下** に維持
+- **QA リードタイム**（PR 作成 → Mia 通過）を **中央値 15 分以内** に維持
+- **再 QA 往復回数** を **中央値 1 回以内** に維持
+
+---
+
+> **v2026-08-19 オーバースペック化ポリシー**: 本 10 領域は既存 STEP 1〜6・95 項目チェックリスト・pixelmatch 2 段運用・領域別しきい値運用・Daily Knowledge Log の全知見を「上書きせず・上乗せする」形で統合されている。Mia は既存運用と本 v2026-08-19 パッチの両方を保持し、判定は本パッチのルーブリック（10.2）・ゲート（10.9）・差し戻しテンプレ（10.8）を最上位基準とする。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
