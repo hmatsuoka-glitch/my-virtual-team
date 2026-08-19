@@ -112,6 +112,145 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+現行の「リード獲得×コンテンツ×ブランド×広告」中心のマーケティング業務プロセスに対して、2026年時点の Modern Marketing 実務水準（Category Design / PLG / ABM 2.0 / Content Marketing 2.0 / Community-Led Growth）を追加装備する。既存の 4 プロセス（戦略／コンテンツ／リード／ブランド）は残したまま、以下 10 領域を上書き適用可能な標準装備として保持する。
+
+### 1. マーケティング戦略フレームワーク標準セット
+
+戦略策定時（四半期・年次）に必ず「複数フレームワークを同時参照」して結論の妥当性を交差検証する。単一フレームワーク（例：4Pのみ）で戦略を組むと、市場前提が変わった瞬間に説明不能になるため、以下 5 種を Marketing の共通言語として常備する。
+
+- **Category Design（Play Bigger 準拠）**：既存カテゴリで戦うか、新カテゴリを定義して「王」になるかを毎四半期で選び直す。LET／サクバズは「建設業 × SNS 採用」を新カテゴリとして再定義するオプションを常に保持し、Point of View（POV）ドキュメント（世界観・敵・移行の必然性・新カテゴリ名・数値予測）を年次で更新する
+- **Jobs-to-be-Done（JTBD）Marketing**：顧客がプロダクトを「雇う」理由を「機能ジョブ／感情ジョブ／社会ジョブ」の3層で言語化する。建設採用の場合、機能ジョブ＝応募数確保、感情ジョブ＝経営者の焦り解消、社会ジョブ＝現場の若返り。訴求は3層すべてに1本ずつ用意する
+- **StoryBrand（SB7）**：LP／ホワイトペーパー／ピッチの全ての物語構造を「① Character（顧客）／② Problem／③ Guide（自社）／④ Plan／⑤ Call to Action／⑥ Success／⑦ Failure」の7ステップに固定する。自社を主人公にする物語は必ずボツ
+- **Bullseye Framework（19チャネル探索）**：Traction 準拠で 19 チャネル（Viral / PR / Unconventional PR / SEM / Social & Display Ads / Offline Ads / SEO / Content Marketing / Email Marketing / Engineering as Marketing / Blogs / Business Development / Sales / Affiliate / Existing Platforms / Trade Shows / Offline Events / Speaking Engagements / Community Building）を毎四半期スクリーニング。3チャネルを「Outer Ring」で並列テスト → 1チャネルを「Bullseye」に絞る
+- **RACE Planning（Reach → Act → Convert → Engage）**：施策を必ず4段階のどこに効かせるかで分類し、各段階の KPI（Reach: リーチ／指名検索リフト、Act: 訪問／滞在／DL、Convert: MQL／SQL／受注、Engage: リピート／NPS／紹介）を1施策1KPI（07-21記録）で明示する
+
+### 2. チャネルミックス（10チャネル標準構成）
+
+Bullseye Framework の 19 チャネルを、LET の事業特性に合わせて以下 10 系統に絞り、四半期ごとに「主軸／並走／休眠」を明示する。単一チャネル集中は 07-01 記録のとおり単一障害点になるため、常に主軸1＋並走2＋観測3の最低6チャネルを保持する。
+
+| # | チャネル | 主用途 | 主 KPI |
+|---|---------|--------|-------|
+| 1 | **SEO / GEO**（Generative Engine Optimization） | 情報収集層の獲得・AI 引用獲得（07-27記録） | Organic Sessions / AI Overviews 出現率 / 指名検索 |
+| 2 | **SEM（リスティング）** | 顕在ニーズの刈り取り | CPA / CVR / IS（Impression Share） |
+| 3 | **Paid Social**（Meta / TikTok / X / LinkedIn） | 潜在層への認知＋UGC配信 | CTR / CPM / Freq / Video Completion |
+| 4 | **Email / MA** | ナーチャリング・既存関係の再活性 | Open / CTR / MQL 転換率 |
+| 5 | **Content Marketing**（オウンドメディア） | 検索資産・SME（Subject Matter Expertise）の証明 | 記事別 CV 貢献 / Backlinks |
+| 6 | **PR / Earned Media** | 第三者信頼・カテゴリ言語化 | 掲載件数 / Share of Voice |
+| 7 | **Community**（Slack/Discord/LINE OpenChat/オフ会） | Community-Led Growth（第 7 節） | Active Members / Contribution Ratio |
+| 8 | **ABM（Account-Based Marketing）** | 大口・戦略アカウント攻略 | Target Account Coverage / Engagement Score |
+| 9 | **Partnerships / Alliance** | 他社ネットワーク経由の獲得 | Partner-sourced Pipeline |
+| 10 | **Events / Webinars**（オンライン・オフライン） | 高熱量リード創出 | 登録数 / 出席率 / 商談化率 |
+
+### 3. Martech Stack（マーケティングテクノロジー標準構成）
+
+「ツールを増やす」ではなく「データを一元化する」を第一原則とし、CDP（Customer Data Platform）を中枢に据えた Composable Stack を採用する。
+
+- **CDP（中枢）**：Segment / RudderStack / Treasure Data いずれか。全チャネルのイベントを一次データとして統合し、下流ツールへ配信する
+- **MA / CRM**：HubSpot Marketing Hub（中小・SaaS 志向）／Marketo Engage（エンプラ・複雑分岐）／Mailchimp（軽量）／Braze（モバイル・ライフサイクル）を用途で使い分け
+- **Analytics**：GA4（Web 標準）／Amplitude（プロダクト分析・ファネル・リテンション）／Mixpanel（イベント分析・A/B）／Looker Studio or BigQuery（BI）
+- **SEO / Content Intelligence**：SEMrush / Ahrefs（KW・被リンク・競合分析）／BuzzSumo（バイラル分析・インフルエンサー特定）／Surfer SEO or Clearscope（コンテンツ最適化）
+- **広告運用**：Meta Ads Manager + CAPI（07-01記録）／Google Ads + Enhanced Conversions／TikTok Ads + Events API
+- **タグ管理・実装**：Google Tag Manager（サーバーサイド GTM 推奨）／Segment source
+- **Attribution / MMM**：Triple Whale（EC）／Northbeam／Rockerbox／独自 MMM（Robyn / LightweightMMM）
+- **AI 補助**：Jasper / Copy.ai（コピー生成）／Perplexity（一次リサーチ）／Claude Projects（自社ナレッジ運用）
+
+構築原則：「Best-of-Breed ×  Data Layer 統一」。ベンダーロックインを避けるため、識別子（user_id / anonymous_id）と主要イベント名は Segment 経由で単一定義に統一する。
+
+### 4. Content Marketing 2.0（Pillar + Cluster + Topic Authority）
+
+単発ブログの積み上げでは 2026 年の AI 検索環境（07-27記録）で埋もれるため、Topic Authority モデルへ移行する。
+
+- **Pillar Content（母記事）**：1テーマにつき 4,000〜8,000 語の網羅記事を Pillar として1本作る。例：「建設業 SNS 採用の完全ガイド」
+- **Cluster Content（子記事）**：Pillar から派生する 15〜30 本の詳細記事を Cluster として作り、全記事から Pillar へ内部リンクを集中させる
+- **Topic Authority シグナル**：Google が評価する Topic Authority を得るため、① 1テーマの記事量（30本以上）、② 一次データ（自社実測値）の掲載、③ 著者 E-E-A-T（実名・経歴・SNS）、④ 更新頻度（四半期リフレッシュ）の4シグナルを揃える
+- **ワンソース・マルチユース（07-21記録の発展）**：Pillar 1本 → ホワイトペーパー1本 → ウェビナー1本 → メルマガシリーズ4本 → SNS 投稿20本 → ショート動画5本 に自動分解する Editorial Ops を運用
+- **GEO（Generative Engine Optimization）対応**：AI Overviews / ChatGPT 検索の引用ソースになるため、記事構造を「結論先出し → 一次データ → 出典明記 → FAQ の schema.org 構造化データ」で固定
+- **UGC / ダークソーシャル活用（08-03記録）**：Reddit / 掲示板 / Google Business Profile 上の社員・現場のリアル投稿を「AI に拾われる一次ソース」として整備
+
+### 5. Demand Generation vs Brand Marketing（LinkedIn Model 準拠）
+
+Marketing 予算は「Demand Gen（需要顕在化・短期）」と「Brand Marketing（需要創造・長期）」の 2 系統に明確に分ける。混在させると「今月の CPA」だけで長期資産（ブランド）投資が削られる。
+
+- **予算配分の推奨比率**：Demand Gen 40% / Brand 60%（LinkedIn B2B Institute の The Long and the Short of it 準拠。中長期成長を狙う場合）／緊急期 60% : 40% 反転可
+- **Demand Gen 施策**：SEM／リターゲティング／ホワイトペーパー DL／ウェビナー／ABM／営業連携メール。KPI: MQL 数・SQL 数・パイプライン金額・CAC Payback
+- **Brand Marketing 施策**：Category Design POV / Thought Leadership（役員記事・登壇・書籍）／PR ／ Sponsorship ／ Podcast ／ Documentary 型動画。KPI: 指名検索リフト・Share of Voice・Aided/Unaided Awareness・Brand Preference
+- **The 95-5 Rule（Ehrenberg-Bass 準拠）**：BtoB 市場で「今買う準備がある層」は常に約 5%。残り 95% への Memory Structure 構築（Brand）を怠ると、5% が買うタイミングで想起されない
+- **測定分離**：Brand 施策を CPA / ROAS では絶対に評価しない。Brand は 6〜12 ヶ月ラグで指名検索・Direct 流入・Aided Awareness に効いてくる前提でロング KPI で追う
+
+### 6. Growth Marketing / Experimentation（AARRR + North Star Metric）
+
+Reforge / GrowthHackers 準拠のグロース運用を標準装備する。
+
+- **AARRR ファネル**：Acquisition → Activation → Retention → Referral → Revenue（Dave McClure）を全プロダクト／サービスに適用し、ボトルネックの1段階に集中投資する
+- **North Star Metric（NSM）**：全社が追う単一の先行指標を定義（例：「月次アクティブ提案書作成社数」）。Marketing の全施策は NSM への貢献で優先順位付け
+- **Experimentation Program**：週1〜2の実験を回す仕組みを固定。① Hypothesis（仮説）② Variant（変化点）③ Metric（成功指標）④ Sample size（サンプルサイズ）⑤ Duration（期間）⑥ Result & Learning を Notion 実験ログに1件1行で蓄積
+- **ICE スコアリング**：全実験アイデアを Impact × Confidence × Ease で 0-10 スコア化し優先順位付け
+- **1テスト1変数ルール（08-12記録）**：複数要素は Dynamic Creative（06-16記録）で媒体に組ませ、要素別寄与を分離
+- **Reverse Funnel Analysis**：離脱ポイントを Amplitude / Mixpanel の Funnel 機能で毎週特定し、離脱率上位3ステップに施策を集中
+
+### 7. Community-Led Growth（CLG）
+
+Product-Led / Sales-Led に続く第3のグロースエンジンとして Community-Led Growth を装備する。CMX / Commsor 準拠。
+
+- **SPACES モデル**：コミュニティの目的を Support / Product / Acquisition / Contribution / Engagement / Success の6種類で明確化し、複数目的の混在を避ける
+- **建設業 × 採用領域での運用**：① 建設業採用担当者向け Slack コミュニティ（Support + Contribution）②「若手職人が語る現場のリアル」LINE オープンチャット（Engagement）③ サクバズ導入企業限定の非公開 Success コミュニティ（Success）
+- **Contribution Ratio**：全メンバー数のうち「発言／シェア／招待」等の貢献をした人の割合。健康なコミュニティは 10-30%。5% を切ったら復活施策
+- **Ambassador Program**：熱量の高いメンバー 20〜50 名を Ambassador 化し、独自コンテンツ発信・イベント登壇・新規招待を担ってもらう
+- **Community-to-Pipeline 計測**：コミュニティ経由の商談・受注を Salesforce / HubSpot に Source として明示的に分離計上し、Community が Marketing コストの正当な受益者であることを数値で示す
+
+### 8. ABM 2.0（Micro-ABM + Programmatic ABM）
+
+2026 年の ABM は「大口手動運用」から「Programmatic × Micro」の 2 極化へ。5 月記録の Micro-ABM トレンドを標準装備化。
+
+- **3 層構成**：One-to-One（10 社以下・完全個別）／One-to-Few（10-50 社・業界／規模でグルーピング）／One-to-Many（Programmatic ABM・数百〜数千アカウント）を層別に運用
+- **ICP（Ideal Customer Profile）定義**：Firmographic（業種・従業員数・売上）／Technographic（利用ツール）／Behavioral（Intent データ）／Fit Score（0-100）の4軸で ICP スコアリング
+- **Intent Data 活用**：Bombora / G2 / TrustRadius / 6sense 等の Intent シグナルを取得し、「今調べている企業」に集中攻撃
+- **Account-Based Advertising**：LinkedIn Matched Audiences / Meta Custom Audiences / RollWorks / Terminus / Demandbase で企業単位配信
+- **Playbook（アカウント別）**：Tier 1 アカウントには「アカウント別 LP ／ 手書きレター ／ 経営者向け限定コンテンツ ／ 個別ウェビナー招待」の4施策セット
+- **Sales / Marketing Alignment（SMA）**：SDR / AE と週次で Target Account Review を実施し、Engagement Score → Meeting Booked → Opportunity → Won の進捗を共同管理
+
+### 9. Marketing Analytics（Attribution + Incrementality + MMM）
+
+計測の 3 層構造を装備する。1 層だけでは 2026 年の Cookie 制限・iOS 制限・ダークソーシャル環境で判断を誤る。
+
+- **Layer 1: Multi-Touch Attribution（MTA）**：GA4 データドリブンアトリビューション／Segment＋独自モデル。ラストクリック単独評価を禁止（06-20記録）
+- **Layer 2: Incrementality Testing**：Geo Hold-out（地域 A で配信・地域 B で停止）／Ghost Ads（同オーディエンスに配信有無を割付）で「本当にその施策が生んだ増分」を検証。相関と因果の混同を防ぐ
+- **Layer 3: Marketing Mix Modeling（MMM）**：Meta Robyn / Google LightweightMMM で四半期に 1 度、全チャネルの寄与を経済学的に推定。予算配分の最終根拠にする
+- **測定 KPI 標準セット**
+  - **効率**：CAC（顧客獲得コスト）／CAC Payback Period（回収期間、SaaS 目安 12ヶ月以下）／LTV／LTV:CAC 比（目安 3:1 以上）
+  - **ファネル**：MQL → SAL → SQL → Won の各転換率（06-13/07-02 記録の 3 段定義準拠）
+  - **ブランド**：Aided / Unaided Awareness ／ Brand Consideration ／ Brand Preference ／ NPS ／ Share of Voice
+  - **エンゲージメント**：Retention Cohort ／ Repeat Rate ／ Referral Rate
+- **計測ガバナンス**：メディア CV／GA4／実受注の3点突合を月次で必須実施（07-01記録）。ズレ率が拡大したら計測基盤欠損を疑う
+
+### 10. プロフェッショナルナレッジベース
+
+Marketing 職能の Continuous Learning を組織装備化する。個人依存の学習では 2026 年の変化速度に追いつかない。
+
+- **公式認証・学習プラットフォーム**
+  - **HubSpot Academy**：Inbound / Content / Email / Social / Sales Enablement の各認証を年次リフレッシュ
+  - **Google Skillshop**：Google Ads / Analytics / Digital Marketing 認証
+  - **Meta Blueprint**：Meta Certified Media Buying / Media Planning Professional
+  - **CXL Institute**：Growth Marketing / CRO / Digital Analytics Mini-Degree（実務家育成の最高峰の一つ）
+  - **Reforge**：Growth Series / Product Marketing / Retention + Engagement（SaaS グロースの標準教材）
+  - **MarketingProfs University**：B2B Marketing / Content Marketing
+  - **Coursera / edX**：Northwestern Kellogg / Wharton の Digital Marketing Specialization
+- **必読書（Marketing 職能 Canon）**
+  - Play Bigger（Category Design）／ Obviously Awesome（Product Positioning・April Dunford）／ Traction（19 Channels）／ Building a StoryBrand ／ The Long and the Short of it（LinkedIn B2B Institute）／ How Brands Grow（Byron Sharp）／ Hacking Growth（Sean Ellis）／ Contagious（Jonah Berger）／ Blue Ocean Strategy ／ The Cold Start Problem（Andrew Chen）
+- **業界情報ソース（週次ウォッチ）**
+  - Marketing Brew ／ Morning Brew ／ Digiday ／ AdExchanger ／ Search Engine Land ／ Search Engine Journal ／ MarketingProfs ／ MarketingLand ／ Adweek ／ CMSWire ／ Contently ／ Content Marketing Institute
+  - Podcasts: Marketing Against The Grain（HubSpot）／ The GTM Podcast ／ Reforge Content ／ CXL Podcast ／ On Strategy Showcase
+- **社内ナレッジ運用**
+  - Notion に「Marketing Playbook」DB を持ち、実験ログ・勝ちクリエイティブ要素分解（08-18記録）・チャネル別ベストプラクティスを蓄積
+  - 四半期ごとに「業界トレンド × 自社への適用可否」レビューを実施し、SKILL.md の担当領域を更新
+  - Community（第7節）でのメンバー知見も内部ナレッジへ還流
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24
