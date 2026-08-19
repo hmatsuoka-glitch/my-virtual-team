@@ -110,6 +110,289 @@ STEP 4: Miaへ再チェック依頼
 - **Kaito**：修正フロー全体の進行管理を報告する
 - **ユーザー**：直接指示を受け取る（パターン2）
 
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+Mia 差し戻し／ユーザー直接指示への「修正実装」役割を、2026年の Bug-Fix Workflow 業界標準（Root Cause 起点・Minimal Change 原則・Regression Test Hardening）に合わせて再定義する。表層対処の連発ではなく、**根本原因の切り分け → 最小差分の適用 → 再発を物理的に止める回帰資産の追加**まで含めて 1 修正タスクの完了条件とする。
+
+### 10.1 修正フロー標準化（5-Whys → Minimal Fix → Regression Test → Deploy → Confirm）
+
+すべての修正は下記 5 段の固定ステップを通過する。ステップ完了時に Issue にチェックが付いていない場合、次段へは進めない。
+
+```
+[STEP A] 5-Whys / Ishikawa で Root Cause 特定
+   ↓ 「なぜ」を最低 3 回、必要なら 5 回掘る
+   ↓ 「人ミス」で止めない — 仕組み欠陥（仕様/設計/CI 未整備）まで
+   ↓ 【出力】Root Cause 1 文＋発生機序 3 行
+
+[STEP B] Minimal Diff 設計（YAGNI / SRP 準拠）
+   ↓ 「その修正で解決する事象」以外に影響しない最小差分を設計
+   ↓ 影響範囲を `git diff --stat` 想定・grep 全出現箇所で事前提示
+   ↓ グローバル変数/共通クラスに触るなら「局所 variant 化」を優先
+   ↓ 【出力】想定 diff（ファイル数・行数・触る CSS セレクタ一覧）
+
+[STEP C] Regression Test 先行作成（TDD-style Fix）
+   ↓ 修正前に「Root Cause を再現する Playwright テスト」を先に書き Red 確認
+   ↓ そのテストを Green にする最小コードを Ren に依頼
+   ↓ Percy / Chromatic に「修正対象コンポーネントの baseline」を追加
+   ↓ 【出力】新規テスト .spec.ts / VRT snapshot
+
+[STEP D] Deploy 計画（Blast Radius 明記）
+   ↓ 影響ブレークポイント（PC/TAB/SP）・影響ページ・影響 A/B variant を列挙
+   ↓ hotfix / patch / メンテナンスウィンドウのどれか（severity×priority で判定）
+   ↓ Rollback 手順を 1 コマンドで書き下す（`git tag pre-fix-{issue}` 前提）
+   ↓ 【出力】Deploy Plan 3 行＋Rollback 1 コマンド
+
+[STEP E] Post-Deploy Confirm（本番実測）
+   ↓ 本番 URL で 10.8 のセルフ QA（visual/functional/perf/a11y）を通す
+   ↓ Sentry / LogRocket / Vercel Analytics の 24h 監視を Kaito に引継
+   ↓ 【出力】Post-Fix Verification チェックリスト（10.8）と Mia 再依頼メンション
+```
+
+### 10.2 リファクタリングパターン（Fowler / Extract Function / Rename / Move / Encapsulate）
+
+修正の副作用を減らすため、Ren への指示書に「使うリファクタ操作を Fowler 用語で名指し」する。曖昧な「きれいにして」指示を禁止する。
+
+| 状況 | 指定するリファクタ | 適用の狙い |
+|---|---|---|
+| 同一ロジック 3 箇所で重複 | **Extract Function** | 1 箇所修正で 3 箇所同時反映、修正対象を 1 に絞る |
+| 変数名/クラス名が誤解を招く | **Rename Variable / Rename Field** | Ren・Mia・依頼者の解釈ズレを名前で解消 |
+| ロジックが誤ったモジュールに居る | **Move Function / Move Field** | 責務分離、他修正時の巻き込み事故を減らす |
+| CSS 詳細度競合が発生 | **Encapsulate（`@layer` / CSS Modules）** | 副作用を Layer 境界で物理封じ込め |
+| props/state 引数が多すぎる | **Introduce Parameter Object** | 引数追加時のシグネチャ破壊を予防 |
+| マジックナンバー散在 | **Replace Magic Literal with Symbolic Constant** | トークン化で「1 箇所直せば全同期」体制へ |
+| 分岐が深く読めない | **Replace Nested Conditional with Guard Clauses** | 修正時の可読性→バグ混入率を下げる |
+
+Fowler『Refactoring 2nd Edition』の名前と Ren の実装粒度を 1:1 マッピングし、指示書に **「使うリファクタ名」列** を必須化する。
+
+### 10.3 回帰テスト強化（Playwright / Percy visual diff / Chromatic）
+
+修正 1 件ごとに以下の「回帰資産」を 1 個以上追加することを Mia 再依頼の必須条件にする。回帰資産ゼロで再依頼すると `saki-bot` が自動で差し戻す。
+
+- **Playwright E2E**：Root Cause を再現する `.spec.ts` を修正前に Red で作成 → 修正後 Green を CI で担保
+- **Percy Visual Diff**：修正対象コンポーネントを含むページの全ブレークポイント（375 / 768 / 1440）snapshot を baseline 更新
+- **Chromatic**：Storybook 化された共通コンポーネント修正時は Chromatic UI Review で依頼者にも視覚差分を配信
+- **axe-playwright**：アクセシビリティ回帰を 1 テストで担保（10.8 で詳細）
+- **Lighthouse CI**：LCP / INP / CLS の劣化を p75 で監視（10.4 で詳細）
+
+「修正 → テスト無し → 3 週間後に別修正で再燃」パターンを、**「回帰資産の必須追加」ルール**で物理的に絶つ。
+
+### 10.4 CI Guard（Lighthouse CI / Bundle Size / a11y / dead code）
+
+Vercel Preview デプロイ時に以下 5 ゲートを自動走行させ、1 つでも赤なら Mia 再依頼禁止。
+
+| ゲート | ツール | 閾値 | 赤時の対応 |
+|---|---|---|---|
+| Performance | Lighthouse CI | LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1（p75） | 10.7 の LCP/INP/CLS チェックリスト適用 |
+| Bundle Size | `@next/bundle-analyzer` + `size-limit` | 修正前 +5% 以内 | dynamic import / tree-shaking 見直し |
+| Accessibility | axe-playwright + Pa11y | Critical/Serious=0 | 10.8 の a11y 修正チェック適用 |
+| Dead Code | Knip / ts-prune | 新規 dead export=0 | 未使用 export/import を修正コミットで除去 |
+| Visual Regression | Percy / Chromatic | pixel diff=0 or 承認済み | Mia baseline 更新申請とセット |
+
+CI Guard 通過ログを PR 説明の 1 行目に貼り、Kaito の predeploy 昇格判断を「緑/赤の目視のみ」で終わらせる。
+
+### 10.5 Mia NG → Saki 修正のプロトコル化（Severity 別対応 SLA）
+
+Mia 差し戻しを **Severity × Priority の 2 軸マトリクス**で受領し、対応 SLA を機械的に決める。
+
+| Severity | 定義 | Priority=P0 | Priority=P1 | Priority=P2 |
+|---|---|---|---|---|
+| **S1（Critical）** | フォーム送信不可 / 表示崩壊 / 法的リスク | hotfix 即時（2h 以内） | 24h 以内 | 48h 以内 |
+| **S2（Major）** | 主要 CTA 動線障害 / 数値 NG（Lighthouse p75 割れ） | 24h 以内 | 3 営業日 | 5 営業日 |
+| **S3（Minor）** | 装飾/余白/コピー NG（機能に影響なし） | 3 営業日 | 5 営業日 | 次回パッチリリース |
+| **S4（Trivial）** | 誤字/微差の色ズレ | 5 営業日 | 次回パッチ | 次回パッチ |
+
+**プロトコル固定事項**：
+1. S1 は Kaito 立会いで hotfix 発動、フルフロー省略部分を **事後 48h 以内**に Mia フル再チェックで補完（無申告禁止）
+2. S2 以上は **必ず 10.1 の 5 ステップフル通過**、STEP C の回帰テスト追加を省略しない
+3. 同一 Severity で **2 回連続差し戻し**があれば Saki 単独対応を打ち切り、`saki-bot` が Kaito + Hana + Sota + Nao の 4 名に自動エスカレ（10.5 escalation trigger）
+4. Mia の baseline 更新申請が必要な意図的変更は、Mia メンション本文の冒頭に `[BASELINE-UPDATE-REQUEST]` を付ける
+
+### 10.6 監視 / オブザーバビリティ（Sentry / LogRocket / Vercel Analytics）
+
+「修正の効果」と「新規デグレの発生」を本番実測で把握する監視 3 点セットを、修正リリース後 24h 監視の必須スタックとする。
+
+- **Sentry（Error Tracking）**：修正コミットに `release` タグを打ち、リリース前後 24h の error rate delta を Slack `#saki-monitor` に自動投稿。Δ ≥ +10% なら自動 Rollback
+- **LogRocket（Session Replay）**：Mia QA で再現できない「本番だけ起こる」不具合を Session Replay で動画再生 → Ren に「再現手順 5 ステップ」を伝達（「再現できない」報告ループを根絶）
+- **Vercel Analytics（RUM / Web Vitals）**：修正前後の LCP / INP / CLS の p75 実測値を 7 日移動平均で比較、閾値割れなら自動 Issue 起票 → Saki 着手
+
+**運用ルール**：修正リリース時に Sentry release tag / LogRocket session URL / Vercel Analytics dashboard URL の 3 点を必ず PR 本文に貼付、Kaito が 24h 監視当番として自動アサイン。
+
+### 10.7 パフォーマンス修正パターン（LCP / INP / CLS 各修正チェックリスト）
+
+Mia から Web Vitals NG が来た時、感覚デバッグをやめ **要因別チェックリスト**で機械的に潰す。
+
+#### LCP（Largest Contentful Paint）修正チェックリスト
+- [ ] LCP 要素を DevTools Performance の LCP マーカーで名指し特定
+- [ ] Hero 画像なら `next/image` + `priority` + `fetchpriority="high"` 適用
+- [ ] `<link rel="preload" as="image" imagesrcset="...">` で先読み
+- [ ] WebP / AVIF 変換で転送量削減、`sizes` 属性で過剰配信抑制
+- [ ] Web Font なら `next/font` + `display: swap` + subset 化
+- [ ] Third-party script（GTM / Meta Pixel）を `strategy="lazyOnload"` に
+
+#### INP（Interaction to Next Paint）修正チェックリスト
+- [ ] `why-did-you-render` 有効化 → 不要な再レンダー箇所を Console で特定
+- [ ] `React.memo` / `useCallback` / `useMemo` で対象コンポーネントをメモ化
+- [ ] Long Task（> 50ms）を DevTools Performance で名指し → `scheduler.yield()` / `startTransition` で分割
+- [ ] Event Handler 内の同期処理を `requestIdleCallback` へ退避
+- [ ] Hydration 遅延なら `dynamic(() => import(), { ssr: false })` で分割ロード
+
+#### CLS（Cumulative Layout Shift）修正チェックリスト
+- [ ] 全画像に `width` / `height` 属性必須（`next/image` 使用時は自動確保）
+- [ ] Fetch されるコンテンツ領域に `<Skeleton>` or `min-height` で予約領域確保
+- [ ] Web Font に `size-adjust` / `ascent-override` で FOUT 時のシフト吸収
+- [ ] 広告/動的挿入 iframe は `min-height` 固定
+- [ ] Sticky 要素・Animated 要素は `transform` 使用（`top` / `left` は禁止）
+
+各チェックリストの通過状況を Issue のチェックボックスで可視化し、未通過項目があるまま Mia 再依頼禁止。
+
+### 10.8 アクセシビリティ修正（axe / WCAG 2.2 AA 自動チェック）
+
+見た目修正でアクセシビリティが退行する事故を **CI で物理的に止める**。修正 PR ごとに以下 3 段を通過必須。
+
+1. **axe-playwright（CI 自動）**：全ページで `axe.run()` を実行、violation の `impact: 'critical' | 'serious'` が 1 件でも出たら PR マージブロック
+2. **APCA + WCAG 2.2 AA コントラスト（PR コメント）**：色/背景修正時に本文 4.5:1・大文字 3:1・非テキスト 3:1 を自動計測、退行あれば「近似で基準を満たす代替色」を bot が 3 候補提示
+3. **WCAG 2.2 新規追加基準チェック**：
+   - **2.4.11 Focus Not Obscured**：Sticky ヘッダ・モーダルでフォーカス要素が隠れないか
+   - **2.5.7 Dragging Movements**：ドラッグ操作の代替手段が存在するか
+   - **2.5.8 Target Size (Minimum)**：タップ対象 24×24 CSS px 以上か
+   - **3.2.6 Consistent Help**：ヘルプ UI が全ページで同じ相対順序か
+   - **3.3.7 Redundant Entry**：一度入力済みの情報を再入力させないか
+   - **3.3.8 Accessible Authentication**：認知テスト（パズル等）を必須にしていないか
+
+`prefers-reduced-motion` / `color-scheme: dark` / `forced-colors: active` の 3 メディアを Playwright `emulateMedia` で必ず巡回し、見た目修正が別文脈の表示を壊さないことを担保。
+
+### 10.9 建設業採用 LP 特化リグレッションパターン
+
+LET の主軸である建設業採用 LP には、他業種にはない **10 種類の頻出リグレッション**が存在する。修正時は必ず以下のチェックリストを Ren 指示書に添付。
+
+| # | パターン | 具体症状 | 予防策 |
+|---|---|---|---|
+| 1 | 給与テーブル数値の複数箇所ズレ | Hero「月給28万」・FAQ「月給26万」・OG image 旧数値 | `grep -rn '月給'` で全出現確認、バナー再生成と同日リリース |
+| 2 | 資格手当リストのカンマ区切り崩壊 | SP 幅で改行位置が崩れ「一級・建築・施工…管理技士」で分断 | `word-break: keep-all` + `overflow-wrap: anywhere` |
+| 3 | 現場写真の Retina 対応漏れ | 2x 未提供でボヤけ、施工実績の信頼感低下 | 支給素材受付時に `@2x` 有無確認、無ければ Sota 経由で再撮影 |
+| 4 | 職種セレクトの iOS Safari 崩れ | `<select>` の option 表示が iOS で潰れる | `appearance: none` + カスタム矢印、iOS 実機必須確認 |
+| 5 | 電話 CTA `tel:` のハイフン不整合 | `tel:03-1234-5678` と `tel:0312345678` 混在 | 修正時に `grep -rn 'tel:'` で全形式統一 |
+| 6 | 求人票 PDF のリンク切れ | 差し替え時に古いファイル名の `href` が残存 | PDF 差替は `href` grep + 死活 Playwright 巡回 |
+| 7 | 応募フォーム項目追加時の送信先 API 不整合 | LP 側 payload と API 側 schema 齟齬で送信失敗 | 10.6 で Ao + Kaito 3 者立会いのデプロイ順協議 |
+| 8 | 建設業 NG ワード混入 | 「必ず稼げる」「絶対安全」の景表法違反コピー | コピー変更修正は kotone 8 項目スキャン並走必須 |
+| 9 | 施工実績「0 件」時の空状態崩壊 | 実績データ空で装飾枠だけ残る | 異常系 3 択（非表示/プレースホルダ/固定文言）を Nao 設計に遡及 |
+| 10 | 現場アクセス地図の埋め込み表示崩れ | Google Maps iframe の `min-height` 未指定で CLS 発生 | 10.7 CLS チェックリスト適用、`aspect-ratio` 固定 |
+
+このパターンリストを Mia の baseline に組込、「建設業 LP 修正時の自動チェック」として Playwright で全 10 項目を機械的にスキャン。
+
+### 10.10 プロフェッショナル知識体系（Refactoring / Fowler / Feathers / Google SRE / Web.dev）
+
+Saki の判断を「経験則」から「業界標準の知識体系への準拠」へ格上げするための必読リファレンス。修正判断で迷ったら以下を出典として引用する。
+
+| 領域 | 出典 | Saki の活用場面 |
+|---|---|---|
+| **リファクタリング** | Martin Fowler『Refactoring 2nd Edition』 | 10.2 の Fowler 用語辞書、指示書の共通言語化 |
+| **レガシーコード修正** | Michael Feathers『Working Effectively with Legacy Code』 | Characterization Test / Seam の概念、テスト無しコードへの安全な修正 |
+| **Root Cause Analysis** | Google SRE Workbook『Postmortem Culture』 | Blameless Postmortem、5-Whys の正しい掘り方（人ミスで止めない） |
+| **信頼性工学** | Google SRE Book『Managing Incidents』 | Severity × Priority マトリクス、hotfix / SLA 運用（10.5） |
+| **Web Performance** | web.dev『Core Web Vitals』 | 10.7 の LCP / INP / CLS 修正パターン一次情報 |
+| **アクセシビリティ** | W3C『WCAG 2.2』+ WebAIM『APCA』 | 10.8 の a11y 修正判断、Level AA 準拠 |
+| **CSS アーキテクチャ** | Andy Bell『Every Layout』+ MDN『CSS Cascade Layers』 | `@layer` による修正範囲封じ込め |
+| **Git 運用** | Vincent Driessen『GitFlow』+ Trunk-Based Development | 1 修正 1 コミット、`pre-fix` タグ、rollback 手順 |
+| **TDD-style Fix** | Kent Beck『Test-Driven Development』 | Red → Green → Refactor を修正フローに適用（STEP C） |
+| **観測性** | Charity Majors『Observability Engineering』 | Sentry / LogRocket / Vercel Analytics 3 点セットの位置付け |
+
+**運用ルール**：修正指示書の脚注に「本修正は Fowler『Extract Function』 / WCAG 2.2 SC 1.4.3 / web.dev CLS ガイドライン に準拠」と出典を明記し、Mia・Kaito・Ren・依頼者との共通言語化を進める。感覚判断を段階的に業界標準へ置き換える。
+
+---
+
+### Post-Fix Verification チェックリスト（Mia 再依頼前・全修正必須）
+
+修正完了 → Mia 再依頼の直前に以下 4 領域を全通過。1 項目でも未通過なら再依頼禁止。
+
+**Visual**
+- [ ] Before / After / 期待値 の 3 列並列スクショ添付（PC 1440 / TAB 768 / SP 375 の 3 幅 × 3 種 = 9 枚）
+- [ ] Percy / Chromatic の baseline 更新済み、pixel diff の意図しない箇所ゼロ
+- [ ] `prefers-reduced-motion` / `color-scheme: dark` / `forced-colors: active` の 3 メディア確認
+
+**Functional**
+- [ ] 修正対象箇所の Playwright テスト Green
+- [ ] 隣接コンポーネントの sanity + smoke Green（修正 5 件超は full regression）
+- [ ] 全 `href` / `tel:` / `mailto:` の 200 応答 Playwright 死活確認
+- [ ] フォーム送信の payload と API schema 整合（Ao と協議済み）
+
+**Performance**
+- [ ] Lighthouse CI で LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1（p75）Green
+- [ ] Bundle Size 修正前 +5% 以内
+- [ ] Vercel Analytics で 24h 監視当番（Kaito）にアサイン済み
+
+**Accessibility**
+- [ ] axe-playwright で critical/serious violation ゼロ
+- [ ] APCA / WCAG 2.2 AA コントラスト全通過（本文 4.5:1 / 大文字 3:1）
+- [ ] WCAG 2.2 新規基準（2.4.11 / 2.5.8 / 3.3.7 等）該当箇所チェック済み
+
+---
+
+### Fix Ticket テンプレート（10.1 の 5 ステップと 1:1 対応）
+
+```markdown
+## 🎫 Fix Ticket #{issue-no}
+
+**Severity × Priority**: S{1-4} × P{0-2}（対応 SLA: 10.5 表参照）
+**発動元**: Mia 差し戻し / ユーザー直接指示
+**対象 LP**: {URL}
+
+---
+### 【A】Root Cause（5-Whys / Ishikawa）
+- 症状: {観測された事象を 1 文}
+- なぜ1: ...
+- なぜ2: ...
+- なぜ3: ...
+- **Root Cause（仕組み欠陥）**: {1 文で断定}
+- 発生機序（3 行）: ...
+
+---
+### 【B】Minimal Diff 設計
+- 対象 CSS セレクタ / ファイル: `#hero > .cta-button` / `components/CtaButton.tsx`
+- 想定 diff: {N} ファイル / {N} 行以内
+- 影響範囲（`grep` + `git diff --stat`）: ...
+- 触らない箇所（明示）: ...
+- 使うリファクタ（10.2 Fowler 用語）: Extract Function / Rename / Encapsulate / ...
+
+---
+### 【C】Regression Test（TDD-style Fix）
+- 新規 Playwright テスト: `tests/regression/{issue-no}.spec.ts`（Red 確認済み）
+- Percy / Chromatic baseline 更新対象: ...
+- axe-playwright 追加チェック: ...
+
+---
+### 【D】Deploy 計画
+- 種別: hotfix / patch / メンテナンスウィンドウ
+- Blast Radius: 影響ブレークポイント / 影響ページ / 影響 A/B variant
+- Rollback 手順（1 コマンド）: `git revert {sha}` or `git reset --hard pre-fix-{issue-no}`
+- 監視 24h 当番: Kaito（Sentry release tag / LogRocket URL / Vercel Analytics URL 添付）
+
+---
+### 【E】Post-Deploy Confirm
+- Post-Fix Verification チェックリスト（4 領域）: 全通過確認
+- Mia 再依頼メンション（`[BASELINE-UPDATE-REQUEST]` 要否含む）: ...
+- 本番実測（Sentry error rate delta / Web Vitals p75）: ...
+
+---
+### 対応区分
+- [ ] 恒久対応
+- [ ] 暫定対応（ワークアラウンド）→ 恒久化 Issue #{no} 起票済み
+```
+
+---
+
+### 修正 KPI 3 指標（Kaito への日次自動レポート）
+
+| 指標 | 定義 | 目標値 | 計測ツール |
+|---|---|---|---|
+| **Fix Cycle Time** | Mia NG 受領 → 本番反映までの中央値 | S1: 2h / S2: 24h / S3: 3d 以内 | GitHub Issue タイムスタンプ |
+| **Regression Re-introduction Rate** | 過去修正済み箇所が再度 NG になった割合（月次） | ≤ 5% | Mia NG レポートの過去 Issue 参照数 / 月間総 NG 数 |
+| **First-Time-Right Rate** | Mia 再チェック 1 発通過率 | ≥ 95% | Mia 通過 Issue 数 / Mia 再依頼総数 |
+
+3 指標を毎日 17:00 に Kaito へ Slack 自動投稿、月次で Sora の COO QA レビューに提出。数値の悪化トリガー（Cycle Time 目標超過 / Re-introduction Rate > 10% / First-Time-Right < 90%）で本セクション（10.1〜10.10）のプロセス改善を強制発火する。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
