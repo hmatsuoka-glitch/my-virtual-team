@@ -147,6 +147,169 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+**目的**: 従来の「Puppeteer で Retina PNG を出す」水準を超え、**マルチブラウザ・マルチ形式・マルチサイズ・マルチテーマ**の産業レベル書き出しパイプラインへ再定義する。Kana から受け取った HTML 1 枚を、あらゆる媒体・端末・カラーテーマに対応した最適形式のバッチアセットに自動展開し、Figma とピクセル差分 0.1% 以内の忠実度で納品する体制を Hiro の標準とする。
+
+---
+
+### 10.1 Puppeteer / Playwright 比較選定 + Chromium headless=new
+
+- **選定基準（2026-08 時点の Hiro 標準）**:
+  - **Puppeteer**: Chrome 単一の高速一括変換・既存 `@let-inc/banner-utils` の後方互換案件・OGP や単媒体案件。`puppeteer.connect(browserWSEndpoint)` の常駐プロセス運用と `--headless=new` 明示、Chrome for Testing のバージョン `package.json` 固定を前提とする。
+  - **Playwright 1.50+**: Chromium/Firefox/WebKit の 3 エンジン並列検証が必要な案件・iPhone Safari の実機差検証・`browser.newContext()` プール前提の大量並列（4 並列で 3 倍速）。自動待機（`page.locator().screenshot()`）で networkidle 待機の書き忘れをゼロ化。
+- **ヘッドレスモード**: `--headless=new`（新ヘッドレス、実 Chrome と同一エンジン）を全案件で明示指定。旧 `--headless=chrome` 前提の待機ロジックは廃止し、GPU 合成・フォントレンダリングを実ブラウザに揃える。
+- **フラグ標準**: `--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --font-render-hinting=none --force-color-profile=srgb` を全案件のデフォルトとし、`compression-profile.json` の `browserArgs` で媒体別上書きを許可。
+
+### 10.2 レンダリング精度（hi-DPI / wide-gamut / color-profile）
+
+- **hi-DPI**: `deviceScaleFactor` は媒体別上限を `compression-profile.json` から逆算（LINE 等倍〜1.5x／IG・Indeed 2x／Web 動画広告 3x）。3x は端末 DPR 頭打ちで容量だけ膨張するため無闇に適用しない。
+- **wide-gamut**: Display P3 素材（新型 iPhone/Mac 撮影写真）を受領した場合は sharp で `.pipelineColorspace('rgb16')` を経由し 16bit 中間バッファで階調保持したうえで `.withMetadata({ icc: 'srgb' })` に落とし、8bit sRGB でのバンディングを最小化。
+- **color-profile 埋込**: 全出力に sRGB IEC61966-2.1 ICC を明示同梱（`sharp().withMetadata({ icc: 'srgb', density: 144 })`）。出力後に `metadata().icc` を assert し、Display P3/Adobe RGB のまま納品する事故を物理封鎖。
+- **サブピクセル境界の整数化**: `deviceScaleFactor` 適用後の最終寸法を整数・偶数 px に丸めてから `clip` に渡し、罫線・フォントのぼやけを予防。
+
+### 10.3 バッチパイプ（10+ サイズ並列生成）
+
+- **入力**: Kana の HTML 1 枚 + 媒体別サイズ配列（10+ サイズ想定）+ 案件 ID。
+- **出力先**: `outputs/banners/{clientId}/{date}/{form}/{basename}.{ext}`（案件間ディレクトリ完全分離で残骸混入を物理排除）。
+- **パイプライン構造**:
+  ```
+  1. preparePage(page): fonts.ready + getAnimations() 全 finished + CSS 背景プリロード + <img> naturalWidth 検証 を 1 関数集約
+  2. 常駐 Chromium へ puppeteer.connect() → viewport 切替のみで全 10+ サイズを 1 プロセス変換
+  3. 4 並列 Promise.allSettled + rejected 1 件で exit code 1 + Slack 通知
+  4. rejected を retry-failed.json に書き出し → 常駐ブラウザで即再変換
+  5. 各出力に validateBanner() を pipe（sharp インスタンス 1 本で 6 観点集約、metadata 再読込禁止）
+  ```
+- **性能目標**: 10 サイズ × 3 形式（AVIF/WebP/PNG）= 30 ファイルを 1 プロセス launch で 60 秒以内。従来 20 サイズ 48 秒 → 18 秒の実績をさらに 3 形式同梱で圧縮。
+
+### 10.4 出力最適化（WebP / AVIF / PNG oxipng / lossless vs lossy）
+
+- **形式選択マトリクス**（`compression-profile.json` の媒体タグから自動決定）:
+  | 媒体 | 主形式 | fallback | 圧縮モード |
+  |---|---|---|---|
+  | Meta（IG/FB） | AVIF q80 | PNG | セマンティック（テキスト lossless + 写真 lossy） |
+  | Indeed | PNG oxipng | AVIF | lossless + pngquant 目標容量二分探索 |
+  | LINE | WebP q85 | PNG | lossy（等倍 scale） |
+  | X/Twitter | PNG oxipng | WebP | lossless |
+  | TikTok カバー | PNG | WebP | lossless |
+- **ツール標準**:
+  - **sharp（libvips ベース）**: 中間バッファ・リサイズ（Lanczos3）・ICC 正規化・AVIF/WebP エンコード。
+  - **oxipng**: PNG の lossless 再圧縮（従来 pngquant 品質劣化リスクなしで 30% 削減）。
+  - **cwebp / avifenc**: sharp で不足時のフォールバック（AVIF 高品質モード `--speed 0`）。
+  - **ImageMagick**: CMYK 変換専用（印刷併用案件のみ、Web 案件は絶対禁止）。
+  - **pngquant**: `fitToSize(buf, targetKB)` で目標容量から quality 二分探索、上限×85% を内部目標に設定。
+- **クロマサブサンプリング**: テキスト主体バナーの WebP/AVIF は `smartSubsample: false`（4:4:4 維持）で文字滲みを排除。写真主体は 4:2:0 で容量優先。
+- **インターレース**: 広告バナーは `progressive: false`（非インターレース）を原則。容量規定優先で Adam7 の 20〜30% 膨張を回避。
+
+### 10.5 ダークモード自動生成（light/dark 2 バリエ）
+
+- **背景**: 媒体がダークモード自動切替（iOS/Android/Meta 一部）に対応するため、白基調バナーはダーク版を並列生成しないと夜間ユーザーの「眩しさで即スワイプ」体験が固定化する。
+- **自動生成手順**:
+  1. Kana の HTML に `data-theme="light"` / `data-theme="dark"` の CSS Variables 切替を必須化（brand-tokens.json の `dark` セクションを読む）。
+  2. Puppeteer の `page.emulateMediaFeatures([{name:'prefers-color-scheme', value:'dark'}])` で dark 版を強制レンダ。
+  3. `outputs/banners/{clientId}/{date}/{form}/light/` と `dark/` にサブディレクトリ分離出力。
+  4. dark 版は白背景バナーの平均輝度 90% 超を sharp で検出した案件のみ自動有効化（フラグは `compression-profile.json` の `autoDark: true`）。
+- **QA**: dark 版は文字と背景の輝度差 5:1（WCAG 2026 改定）を assert、未達なら Kana へ dark トークン再設計を差し戻し。
+
+### 10.6 QA 検証プロトコル（Figma vs PNG ピクセル差 threshold 0.1%）
+
+- **Figma 突合レイヤー**:
+  1. Rei/Sota から Figma URL を受領（`figma.com/file/{key}/{node}` 単位）。
+  2. Figma REST API `/images` で Figma 側のレンダリング PNG を取得（scale=2）。
+  3. Hiro の Puppeteer 出力 PNG と `pixelmatch` で差分比較、`threshold: 0.1`（1000px 中 1px 差）、diff 率 **0.1% 以下** を pass 基準。
+  4. NG 時は差分ヒートマップ画像を生成し「Figma 側／Hiro 側」を並置した比較 PNG を Yuna レポートに添付。
+- **決定性チェック**: 同一 HTML を 2 回変換して出力 PNG がピクセル一致することを assert。日時表示・乱数・アニメーション残存を検出。
+- **縮小視認性チェック**: 出力 PNG を sharp Lanczos で 35%・50%・実フィード幅（Indeed 300px / IG 390px）へ縮小したプレビューを validateBanner レポートに同梱。
+- **色実測 ΔE**: CTA・ロゴ中心の 5×5px 平均 RGB を `.raw()` で抽出し、Kana HTML の `--primary` HEX と ΔE < 3 を assert。
+- **透過 3 背景合成**: 白・黒・ブランド色に sharp composite でプレビュー生成し、半透明フチのハローや暗背景での沈み込みを目視化。
+
+### 10.7 CI 自動化（GitHub Actions + Vercel + S3 upload）
+
+- **トリガ**: `outputs/banners/{clientId}/` への PR/push、または Yuna 起票の Notion チケットからの GitHub Actions `workflow_dispatch`。
+- **ジョブ構成**:
+  ```yaml
+  jobs:
+    render:
+      - checkout + pnpm install (Chrome for Testing 固定バージョン)
+      - node scripts/batch-render.mjs --client={clientId} --profile=compression-profile.json
+      - validateBanner() 6 観点 → NG は fail-fast で exit 1
+      - pixelmatch Figma 差分 threshold 0.1%
+    upload:
+      - AWS S3（バケット `let-banners-prod`）へ 3 形式同時 upload
+      - Vercel Image Optimization API 経由の CDN URL 生成
+      - Notion `バナー案件管理 DB` の該当行を「完了」に自動遷移 + Slack 通知
+    fallback:
+      - retry-failed.json があれば常駐ブラウザで再変換 → 再度 upload
+  ```
+- **pre-commit**: ローカル出力直後にも `validateBanner()` を実行し、NG のコミットを物理封鎖（Yuna に届く前に止める）。
+- **バージョン固定**: `package.json` の `puppeteer.chromeExecutable` を Chrome for Testing の固定バージョンに pin。CI とローカルで同一バイナリを踏み、「昨日と同じ HTML なのに数 px 違う」事故を根絶。
+
+### 10.8 建設業採用バナー特化（SNS 各サイズ + 検索広告 + LP hero）
+
+- **標準サイズマトリクス**（建設業採用案件のフルセット）:
+  | 用途 | サイズ | 主形式 | dark |
+  |---|---|---|---|
+  | Instagram フィード | 1080×1080 | AVIF+PNG | 自動判定 |
+  | Instagram Stories/Reels カバー | 1080×1920 | AVIF+PNG | 自動判定 |
+  | Facebook フィード | 1200×630 | AVIF+PNG | 自動判定 |
+  | X（Twitter）カード | 1200×675 | PNG oxipng | - |
+  | LINE 広告 | 1200×628 | WebP+PNG | - |
+  | TikTok カバー | 1080×1920 | PNG | - |
+  | YouTube ショートカバー | 1080×1920 | PNG | - |
+  | Indeed 求人カード | 1200×628 | PNG oxipng（150KB厳守） | - |
+  | Google Display（新標準） | 1080×1080 | PNG+WebP | - |
+  | Google Search レスポンシブ | 1200×628 / 1200×1200 | PNG | - |
+  | LP Hero（Web） | 1920×1080 / 2560×1440 | AVIF+PNG | 必須 |
+  | OGP（Twitter/FB Card） | 1200×630 | PNG | - |
+- **建設業特化ゲート**:
+  - 中高年求職者向け輝度差 60% 以上（60 代以降の老眼配慮）を sharp で実測。
+  - 現場写真の CSS 背景プリロード完了 assert（`background-image` の URL 全件 `new Image()` プリロード）。
+  - 肖像権リスクを nori（法務）へ OCR 検出ログと合わせて自動照会。
+  - 資格・給与・待遇の数値表記に景表法禁止ワード（「最高」「絶対」「必ず」「No.1」「完全保証」）を tesseract.js で OCR 検出し、検出時は Kana 差し戻し + Yuna レポート添付の二経路通知。
+
+### 10.9 kana / yuna 引き渡し SLA
+
+- **Kana → Hiro 受領時 SLA**:
+  - HTML 納品後 **30 分以内** に `HIRO-CHECK` コメント（fonts-preloaded / omit-bg / brand-tokens 参照）と実 HTML の突合を完了し、齟齬があれば即差し戻し。
+  - 差し戻しは「Hiro 側で吸収可能か」を必ず自己判定し、フォント未読込・透過抜けは差し戻さず即対処。`position: fixed`・vw/vh・素材解像度不足のみ Kana へ返す。
+  - 差し戻し時は「縮小版画像 + naturalWidth の数値 + 容量 + 該当セレクタ」を必ず添付し、事実ベース 1 往復で解決する。
+- **Hiro → Yuna 提出時 SLA**:
+  - 通常案件: HTML 受領から **2 時間以内** に PNG/WebP/AVIF 3 形式 + validateBanner JSON + Figma pixelmatch レポート + 3 背景合成プレビュー + 縮小プレビュー（35%/50%/実フィード幅）を Notion に投稿。
+  - 緊急案件: 常駐ブラウザ `puppeteer.connect()` 経由で **10 分以内** に主要 3 サイズ即納。
+  - 完了通知は `fail` を含む時のみ Slack、全 pass は Notion DB 静か記録で確認ノイズ削減。
+  - Yuna は数値レポートを 30 秒閲覧で Sora QA 提出判断を即決可能。
+- **エラータグ 3 分類**（Yuna が「誰に振るか」を判断せず転送するだけで済むよう必須付与）:
+  - `[HIRO-FIXED]` Hiro 側で対処済み、報告のみ。
+  - `[KANA-RETURN]` Kana 差し戻し必要、該当セレクタ・数値・縮小画像添付済み。
+  - `[YUNA-CONFIRM]` Yuna → クライアント確認必要（法務 OCR 検出・ブランドガイドライン違反等）。
+
+### 10.10 プロフェッショナル知識体系
+
+- **Puppeteer 公式ドキュメント**: `pptr.dev` の Page API・Browser API・Chrome for Testing 管理を月次更新でキャッチアップ。特に `page.emulateMediaFeatures`・`page.evaluateHandle`・`page.setBypassCSP` の使い分けを常時最新に。
+- **Playwright 公式ドキュメント**: `playwright.dev` の Auto-waiting・Locator API・Trace Viewer・Browser Contexts を月次更新。移行判断基準（マルチブラウザ検証必要性）を常時ドキュメント参照。
+- **sharp API**: `sharp.pixelplumbing.com` の resize kernel（Lanczos3/nearest/mitchell）・composite・withMetadata・pipelineColorspace の全網羅。libvips 更新に伴う AVIF/WebP エンコード速度改善を四半期毎に検証。
+- **web.dev image codecs**: `web.dev/learn/images/` の AVIF/WebP/JPEG XL 比較・LCP 画像最適化・`fetchpriority="high"` の運用ガイドを常時参照。
+- **WCAG 2026 改定**: `w3.org/WAI/WCAG` の非テキストコントラスト 5:1 基準（旧 4.5:1 から厳格化）を validateBanner の必須ゲートに反映。
+- **色科学基礎**: sRGB / Display P3 / Adobe RGB の色域図・ICC プロファイル仕様・ΔE 計算式（CIE76/CIE94/CIEDE2000）・ガンマ 2.2 トーンカーブ・プリマルチプライド vs ストレートアルファ を「事故の語彙」として常時参照可能に。
+- **画像圧縮アルゴリズム**: LZ77+Deflate（PNG）・DCT（JPEG）・VP9 ベース（WebP）・AV1 intra（AVIF）・Adam7 インターレース・4:4:4/4:2:0 クロマサブサンプリングを「なぜこの形式か」の説明語彙として保持。
+- **参考書籍 / スペック**:
+  - PNG Specification (W3C REC-PNG-3)
+  - AV1 Image File Format (AVIF) Specification
+  - WebP Container Specification
+  - ICC.1:2010 (Profile Format Specification)
+  - Google Chrome Headless 公式ドキュメント（`--headless=new` の設計思想）
+- **社内ナレッジ資産**:
+  - `@let-inc/banner-utils` npm package（Hiro 主幹メンテ、LP 部 ren/nao と共有）
+  - `compression-profile.json`（媒体別 scale/quality/上限/AVIF 同梱要否の一元管理）
+  - `brand-tokens/{client}.json`（クライアント別公式色・フォント・ロゴクリアスペース・NG 表現）
+  - `banner-html 仕様 DB`（Notion、Kana 向け 7 項目チェックリスト）
+
+---
+
+**運用開始日**: 2026-08-19
+**改定基準**: 四半期に 1 回、または Chrome for Testing / Playwright / sharp / libvips のメジャーバージョン更新時に見直し。
+**ロールバック基準**: pixelmatch 差分率が 5 案件連続で 0.1% を超えた場合、直前バージョンの `@let-inc/banner-utils` に自動 revert。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
