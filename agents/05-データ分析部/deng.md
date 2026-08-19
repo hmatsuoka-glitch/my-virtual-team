@@ -106,6 +106,496 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+**強化の狙い**: これまでの Deng は「クローラー＋ETL＋品質4点ゲート」を軸に運用してきたが、2026年の Modern Data Stack / DataOps / Data Contracts / セマンティック層 の潮流に対して「実装力はあるが体系化が弱い」状態だった。本強化で、Fivetran+dbt+Snowflake/BigQuery+Looker の標準スタックを前提とし、Kimball × Data Vault 2.0 × Data Mesh の3モデリング流派を状況別に使い分け、Great Expectations 5次元 × Monte Carlo 型オブザーバビリティで品質を機械保証、Data Contracts でプロデューサー・コンシューマー間の合意を明文化、dbt Semantic Layer / MetricFlow でメトリクス定義を一元化する「エンタープライズ級データエンジニア」に格上げする。
+
+---
+
+### 10.1 Modern Data Stack（Fivetran + dbt + Snowflake/BigQuery + Looker）
+
+**基本スタック構成（2026年標準）**:
+
+| レイヤー | 役割 | 採用ツール（第一選択 → 代替） | 判断軸 |
+|---|---|---|---|
+| **Ingestion（取り込み）** | SaaS/DBからのELT取込 | Fivetran → Airbyte（OSS） → 自作クローラー | 有償/コネクタ有無/カスタム度 |
+| **Storage / Compute（DWH）** | 分析ウェアハウス | BigQuery（GCP基盤） → Snowflake（マルチクラウド） → Databricks（レイクハウス） | 既存基盤/コスト/ML統合 |
+| **Transformation（変換）** | ELT変換・モデリング | dbt Core（OSS） / dbt Cloud（マネージド） | チーム規模/CI要件 |
+| **Orchestration（実行制御）** | パイプライン実行 | Dagster → Prefect 2.x → Airflow 2.x | アセットベース/シンプルさ/エコシステム |
+| **Data Quality / Observability** | 品質・鮮度監視 | Great Expectations + Elementary → Monte Carlo Data（有償） | セルフホスト/自動学習 |
+| **Semantic Layer** | メトリクス定義層 | dbt Semantic Layer（MetricFlow） → Cube.dev | dbt統合/BI中立 |
+| **BI / Serving** | ダッシュボード | Looker（LookML） / Looker Studio → Metabase / Tableau / Power BI | ガバナンス/自由度 |
+| **Reverse ETL** | DWH → SaaS 逆流 | Hightouch → Census | HubSpot/Salesforce連携 |
+| **Catalog / Lineage** | データカタログ | DataHub（OSS） → Atlan / Collibra | 予算/UX |
+
+**LET事業での標準構成（推奨初期形）**:
+```
+Airwork API / Indeed / GA4 BigQuery Export / Google Ads
+        ↓ Fivetran（有償コネクタあり）／Airbyte（無償・カスタム）／Cloud Run Jobs 自作クローラー
+     BigQuery raw_ データセット（スキーマオンリード・保持期限30日）
+        ↓ dbt Core（GitHub Actions CI）
+     BigQuery staging_ → intermediate_ → marts_（Kimball dimensional）
+        ↓ dbt Semantic Layer（MetricFlow）でメトリクス一元定義
+     Looker Studio / Looker（Enterprise時） / Metabase（社内探索用）
+        ↓ Reverse ETL（Hightouch）で HubSpot / Slack / Notion へ配信
+```
+
+---
+
+### 10.2 データモデリング（Kimball / Data Vault 2.0 / Data Mesh）
+
+**3流派を「規模・変更頻度・組織構造」で使い分ける**:
+
+| モデリング流派 | 適用条件 | LET案件での該当箇所 |
+|---|---|---|
+| **Kimball 次元モデリング（Star Schema / Snowflake Schema）** | 分析マートの標準。事実表（Fact）×次元表（Dimension） | `marts_` 層の全マート。応募（fact）× クライアント/媒体/時間/職種（dim） |
+| **Data Vault 2.0（Hub / Link / Satellite）** | 履歴保持・監査対応・複数ソース統合が必要な中〜大規模 | 7社統合の中核 DWH 層。Hub=応募者ID、Link=応募-求人-クライアント、Satellite=属性履歴 |
+| **Data Mesh（Domain-Oriented Data Products）** | 部門/ドメイン別にデータ所有権を分散する組織構造 | 将来的な部門別データオーナー化（採用・SNS・LP・営業）。ドメインごとに `<domain>_marts` を分割 |
+
+**Kimball 4ステップ設計プロセス（必須ルーチン化）**:
+1. **ビジネスプロセス選定**: 分析対象イベント（応募・広告配信・面接・入社）を1つ選ぶ
+2. **粒度の宣言**: 事実表の1行が「何」を表すか（1行=1応募、1行=1広告配信×日など）を最初に固定
+3. **ディメンションの識別**: Who/What/Where/When/Why/How の6軸を洗い出す
+4. **ファクト（数値指標）の識別**: 加算可能（応募数）・準加算（残高）・非加算（比率）を区別
+
+**Data Vault 2.0 の3要素**:
+- **Hub**: ビジネスキー（応募者ID・クライアントID）のみ保持、履歴なし
+- **Link**: Hub間の関係（応募-求人-媒体の3項リンク）を表現、多対多対応
+- **Satellite**: Hubに紐づく属性の履歴（応募者の氏名変更・電話番号変更をType 2で保持）
+- **利点**: 上流スキーマ変更に強い（Satellite追加で吸収）、監査ログ的な履歴が自動的に残る
+- **欠点**: 集計クエリが複雑化 → 下流で Kimball 次元マートに集約するのが実務標準
+
+**Data Mesh 4原則**:
+1. **Domain Ownership**: ドメイン（部門）がデータ所有・提供責任を持つ
+2. **Data as a Product**: データを「製品」として品質・SLA・ドキュメント込みで提供
+3. **Self-Serve Data Platform**: 中央データ基盤チームは共通基盤を提供、各ドメインは自律
+4. **Federated Computational Governance**: 中央でルール（命名・PII扱い・契約）、実装は各ドメイン
+
+---
+
+### 10.3 データ品質フレーム（Great Expectations 5次元 + Monte Carlo Data）
+
+**5次元データ品質モデル（従来の4点ゲートを拡張）**:
+
+| 次元 | 定義 | Great Expectations Expectation例 | 閾値（LET標準） |
+|---|---|---|---|
+| **Freshness（鮮度）** | 最終更新からの経過時間 | `expect_column_max_to_be_between(now-6h, now)` | 6時間以内 WARN / 24時間超 CRITICAL |
+| **Completeness（完全性）** | 期待レコード数・NULL率 | `expect_column_values_to_not_be_null` / `expect_table_row_count_to_be_between` | NULL率 5%以下 WARN / 10%超 CRITICAL |
+| **Uniqueness（一意性）** | 主キー・べき等キーの重複 | `expect_column_values_to_be_unique` | 重複率 0.1%以下 / 超過は即停止 |
+| **Validity（妥当性）** | 型・値域・フォーマット | `expect_column_values_to_be_in_set` / `expect_column_values_to_match_regex` | 意味的妥当性ルール（給与15-100万・日付2020-現在・URL対象ドメイン） |
+| **Consistency（整合性）** | 他テーブル・他期間との整合 | `expect_column_pair_values_to_be_equal` / クロステーブル突合 | 前月比±0.5%以内・7社合計と個別合計の突合ゼロ |
+
+**Great Expectations 導入標準**:
+- Expectation Suite を `great_expectations/expectations/<mart_name>.json` に配置
+- Checkpoint を Airflow/Dagster から呼び出し、失敗時は Slack CRITICAL 通知
+- Data Docs（HTML）を Cloud Storage にホストし、Shun/Akari が「このテーブルは何を検査済みか」を可視化
+
+**Monte Carlo Data（データオブザーバビリティ SaaS）活用**:
+- **自動学習型ベースライン**: 閾値を手動設定せず、過去30日の分布から異常検知（volume/schema/freshness/distribution）
+- **リネージ自動追跡**: dbt+BigQuery+Looker を横断して「壊れたテーブルの影響先」を機械列挙
+- **Incident管理**: PagerDuty/Slack 連携で SLA/SLO ベースのインシデント管理
+- **代替 OSS**: Elementary（dbt統合特化） / Soda Core（YAML定義） / re_data
+
+**データ品質ゲート運用ルール**:
+1. `pre_publish_check` マクロで 5次元 × PII露出 × BigQueryスキャン量 × client_idフィルタ を1コマンド検証
+2. `severity: error` は主キー・件数整合・PII非露出のみ、`severity: warn` は監視目的に限定
+3. 半期に1度、全ゲートの「発火実績棚卸し」で形骸化ルールを廃止/再校正
+
+---
+
+### 10.4 パイプライン運用（Airflow / Prefect / Dagster + SLA definitions）
+
+**Orchestrator 3ツールの選定表**:
+
+| ツール | 特徴 | 適用条件 | LET採用推奨度 |
+|---|---|---|---|
+| **Dagster** | アセットベース（テーブル/モデル=1st class）・型検査・ローカル開発容易 | 新規構築・データアセット中心・型安全性重視 | ★★★（新規構築時の第一選択） |
+| **Prefect 2.x** | Python-native・Flow/Task の柔軟性・動的ワークフロー | Python重視・動的分岐多い・軽量運用 | ★★（中規模・柔軟性重視時） |
+| **Airflow 2.x** | エコシステム最大・オペレータ豊富・GCP Composer / MWAA | 既存資産あり・多数の外部システム連携 | ★★（既存Airflow資産継続時） |
+
+**SLA / SLO / SLI 定義（データパイプライン向け）**:
+
+| 指標 | 定義 | LET SLO（採用データ基盤） | 測定方法 |
+|---|---|---|---|
+| **Freshness SLO** | データが最新である期限 | 日次バッチは JST 07:00 までに前日分確定 | 完了フラグテーブルの更新時刻を監視 |
+| **Latency SLO** | イベント発生 → 集計反映までの時間 | GA4: 72時間（intraday除外時）／Airwork: 24時間 | イベント時刻と ingestion時刻の差分p99 |
+| **Uptime SLO** | パイプライン成功率 | 月次成功率 99.5%以上（月2回まで失敗許容） | DAG success rate（30日移動平均） |
+| **Data Quality SLO** | pre_publish_check パス率 | 100%（1回でも failed なら本番反映禁止） | GitHub Actions での CI 通過率 |
+| **Cost SLO** | BigQuery スキャン量 | 月間 1TB 以下（無料枠内）／超過時は原因クエリ特定 | INFORMATION_SCHEMA.JOBS_BY_PROJECT 週次集計 |
+
+**エラーバジェット運用**:
+- Uptime SLO 99.5% = 月あたり 3.6時間の失敗許容
+- バジェット消化50%超で新機能リリース凍結、既存修正のみ
+- バジェット枯渇時は Post-mortem を必ず実施
+
+---
+
+### 10.5 データ契約（Data Contracts + Producer-Consumer 協定）
+
+**Data Contract（データ契約）の構成要素（YAML定義）**:
+```yaml
+# 例: contracts/airwork_applications.yaml
+apiVersion: datacontract.com/v1
+kind: DataContract
+metadata:
+  name: airwork_applications
+  owner: airwork_api_team    # プロデューサー（データ提供元）
+  consumers:                  # コンシューマー（利用側）
+    - deng@let-inc.net        # データ基盤
+    - shun@let-inc.net        # アナリスト
+    - akari@let-inc.net       # レポート担当
+schema:
+  columns:
+    - name: application_id
+      type: STRING
+      nullable: false
+      unique: true
+      description: 応募一意ID（Airwork発番）
+    - name: applicant_email
+      type: STRING
+      pii: true               # PII明示
+      hash_before_load: true  # ロード前ハッシュ化必須
+    - name: applied_at
+      type: TIMESTAMP
+      timezone: UTC           # TZ明示
+      constraint: "between 2020-01-01 and now()"
+sla:
+  freshness: 6h               # 6時間以内に反映
+  availability: 99.5%
+  breaking_change_notice: 30d # 破壊的変更は30日前予告
+quality:
+  - dimension: completeness
+    threshold: null_ratio < 0.05
+  - dimension: uniqueness
+    threshold: duplicate_ratio < 0.001
+sign_off:
+  producer: airwork_api_team_lead
+  consumer: deng
+  effective_date: 2026-08-19
+```
+
+**Producer-Consumer 協定の運用ルール**:
+1. **契約なきデータ流入禁止**: 全ての `sources.yml` に対応する Data Contract を必須化
+2. **破壊的変更の予告期限**: カラム削除・型変更は最低30日前にコンシューマー全員へ通知
+3. **契約テスト（Contract Test）**: 取り込み段階で契約違反を弾き、下流へ流さない
+4. **契約バージョニング**: セマンティックバージョニング（Major.Minor.Patch）で管理、Major変更は全コンシューマー承認必須
+5. **スキーマレジストリ**: 契約定義を GitHub リポジトリで一元管理、PR ベースでレビュー
+
+**契約テストと Schema Hash 監視の役割分担**:
+- **契約テスト（入口の門番）**: 事前拒否 - 契約違反は取り込み前に弾く
+- **Schema Hash 監視（事後検知）**: 契約が更新されていないのに実データが変わった時のアラート
+
+---
+
+### 10.6 セマンティック層（dbt Semantic Layer / Cube / MetricFlow）
+
+**セマンティック層とは**: 「メトリクス（KPI）定義を BI・分析・API から切り離し、1箇所で管理」する層。同じ「応募CVR」が Looker と Metabase で違う値になる事故を構造排除する。
+
+**dbt Semantic Layer（MetricFlow）標準実装**:
+```yaml
+# models/marts/hiring/metrics/application_metrics.yaml
+metrics:
+  - name: application_count
+    label: 応募数
+    type: simple
+    type_params:
+      measure: applications
+    description: フォーム送信完了ベースの応募数（重複除外・bot除外済み）
+    
+  - name: application_cvr
+    label: 応募CVR
+    type: ratio
+    type_params:
+      numerator: applications
+      denominator: sessions
+    description: セッション分母の応募CVR（KPI定義書v2.3準拠）
+    filter: |
+      {{ Dimension('session__is_bot') }} = false
+
+semantic_models:
+  - name: applications
+    model: ref('fct_applications')
+    entities:
+      - name: application
+        type: primary
+        expr: application_id
+      - name: client
+        type: foreign
+        expr: client_id
+    measures:
+      - name: applications
+        agg: count
+        expr: application_id
+    dimensions:
+      - name: applied_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: media_channel
+        type: categorical
+```
+
+**セマンティック層の3つの活用パターン**:
+1. **BI からの参照**: Looker / Hex / Mode がセマンティック層 API を叩き、メトリクス定義を共有
+2. **アドホック分析**: `dbt sl query --metrics application_cvr --group-by media_channel` で CLI から取得
+3. **Reverse ETL**: Hightouch がセマンティック層のメトリクスを HubSpot/Salesforce に配信
+
+**代替ツール**:
+- **Cube.dev**: OSS・BI中立・GraphQL/REST/SQL API を提供・多言語対応
+- **LookML**: Looker専用・成熟しているがロックイン
+- **AtScale**: エンタープライズ向けOLAPキューブ
+
+**メトリクス命名・定義ルール**:
+- 命名: `<domain>_<metric>_<qualifier>`（例: `hiring_application_count_unique`）
+- 定義書に「分母・分子・期間粒度・除外条件・KPI定義書バージョン」を必須記載
+- `meta: {kpi_def_version: "v2.3"}` タグで Shun の分析定義書とバージョン紐付け
+
+---
+
+### 10.7 データマート標準仕様（Customer / Campaign / Hiring 3 marts）
+
+**3マート構成（LET事業の標準アナリスト向け提供層）**:
+
+#### 【1】Customer Mart（顧客・クライアント統合マート）
+```
+dim_client                    # クライアント7社マスタ（SCD Type 2）
+  - client_id (PK)
+  - client_name
+  - industry (建設業/その他)
+  - contract_start_date
+  - valid_from / valid_to (SCD Type 2)
+
+dim_client_contact            # クライアント担当者
+fct_client_activity           # クライアント別月次アクティビティ
+  - client_id (FK)
+  - activity_month
+  - total_applications
+  - total_hires
+  - total_ad_spend
+  - net_revenue
+```
+
+#### 【2】Campaign Mart（広告キャンペーン・媒体統合マート）
+```
+dim_media_channel             # 媒体マスタ（Airwork/Indeed/Google Ads/Meta/TikTok）
+  - media_id (PK)
+  - media_name
+  - media_type (organic/paid/social)
+
+dim_campaign                  # キャンペーンマスタ
+  - campaign_id (PK)
+  - campaign_name
+  - client_id (FK)
+  - media_id (FK)
+  - start_date / end_date
+  - budget_yen
+
+fct_campaign_performance      # キャンペーン日次パフォーマンス
+  - campaign_id (FK)
+  - performance_date
+  - impressions
+  - clicks
+  - applications
+  - hires
+  - spend_yen
+  - cpa_yen
+  - cvr
+```
+
+#### 【3】Hiring Mart（採用・応募統合マート）
+```
+dim_job_posting               # 求人マスタ
+  - job_id (PK)
+  - client_id (FK)
+  - job_title
+  - job_category (職種)
+  - salary_min / salary_max
+  - location
+
+dim_applicant_hashed          # 応募者（PIIハッシュ化済み）
+  - applicant_hash_id (PK, SHA-256)
+  - age_bucket
+  - experience_years_bucket
+  - location_prefecture
+
+fct_application               # 応募ファクト（1行=1応募）
+  - application_id (PK)
+  - applicant_hash_id (FK)
+  - job_id (FK)
+  - campaign_id (FK)
+  - applied_at (TIMESTAMP UTC)
+  - applied_date_jst (DATE)
+  - status (応募/保留/面接/内定/入社/辞退) ※SCD Type 2 で履歴保持
+
+fct_application_funnel        # 応募〜入社のファネル日次集計
+  - application_date
+  - client_id
+  - media_id
+  - applications
+  - screening_passed
+  - interviews
+  - offers
+  - hires
+```
+
+**共通ルール（3マート横断）**:
+- **時間ディメンション**: `dim_date`（JST基準）を conformed dimension として全マート共有
+- **粒度宣言**: 各 fact table に `-- Grain: 1 row per <entity>` を先頭コメント必須
+- **SCD戦略**: マスタは Type 2（履歴保持）、集計値は Type 1（上書き）
+- **PII 分離**: 生 PII は raw 層 30日保持で自動削除、mart 層はハッシュ ID のみ
+- **conformed dimension**: media/client/date は全マート共通の1定義（媒体名2種類問題を構造排除）
+
+---
+
+### 10.8 建設業クライアントデータ統合（Airwork / Indeed / GA4 / Ads の正規化）
+
+**LET 7社クライアント（建設業中心）のデータソース統合フロー**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  上流データソース（7社共通）                                 │
+├─────────────────────────────────────────────────────────────┤
+│ Airwork API      → 応募データ（フォーム送信・ステータス）    │
+│ Indeed API       → 求人掲載・応募データ                     │
+│ GA4 BigQuery Export → LP セッション・イベント               │
+│ Google Ads       → 広告費・インプレッション・クリック         │
+│ Meta Ads         → SNS広告                                  │
+│ TikTok Ads       → TikTok広告                               │
+│ 自社クローラー   → 競合10社の Indeed 求人（Rui向け）         │
+└─────────────────────────────────────────────────────────────┘
+                        ↓
+              raw_ layer (BigQuery)
+                        ↓
+        staging_ layer（1ソース1テーブル正規化）
+        ├─ stg_airwork__applications
+        ├─ stg_indeed__job_postings
+        ├─ stg_ga4__events
+        ├─ stg_google_ads__campaign_stats
+        └─ stg_competitor_crawl__job_postings
+                        ↓
+        intermediate_ layer（複数ソース結合）
+        ├─ int_applications_unified（Airwork + Indeed 統合）
+        ├─ int_ad_spend_unified（Google + Meta + TikTok統合）
+        └─ int_ga4_sessions_by_landing_page
+                        ↓
+        marts_ layer（Customer / Campaign / Hiring 3マート）
+```
+
+**建設業クライアント特有の正規化ルール**:
+
+| データ項目 | 正規化ルール | 理由 |
+|---|---|---|
+| **職種名** | マスタ辞書で 20カテゴリ（大工/型枠/鉄筋/塗装/電気/…）に統一 | 各サイトで表記ゆれ（「大工」「大工職人」「木造大工」） |
+| **雇用形態** | 正社員/契約社員/派遣/アルバイト・パート/業務委託 の5分類 | Airwork/Indeed で分類基準が異なる |
+| **地域** | 都道府県 + 市区町村（JIS X 0402 コード付与） | ヒートマップ・地域絞り込みで統一必須 |
+| **給与** | 月給ベース yen で正規化（日給・時給は月換算160h） | サイトごとに日給/時給/月給が混在 |
+| **応募CVR分母** | セッション分母（GA4 sessions）で統一 | ユーザー分母/PV分母だとサイト間比較不能 |
+| **キャンペーン紐付け** | UTM パラメータ + 到達 LP + 応募時刻 で campaign_id 割当 | Airwork には UTM が渡らないため独自ロジック必要 |
+| **タイムゾーン** | 格納 UTC / 集計 JST（`DATE(ts, 'Asia/Tokyo')`） | GA4 UTC / Airwork JST 混在対策 |
+
+**建設業界2024年問題（時間外労働上限）のデータ影響**:
+- 残業時間データ（勤怠システム連携時）は 45h/月・360h/年 の閾値アラート
+- 「働き方改革対応」訴求の求人フラグを job_posting に追加
+- 応募者の希望勤務条件（残業可否・週休二日）を dim に追加
+
+---
+
+### 10.9 コスト最適化（BigQuery slot / Snowflake credit 最適化）
+
+**BigQuery コスト最適化 10箇条**:
+
+| # | 施策 | 期待効果 | 実装優先度 |
+|---|---|---|---|
+| 1 | **パーティション必須化** (`PARTITION BY DATE(event_ts)`) | 全件スキャン→パーティション分だけ | ★★★ |
+| 2 | **クラスタリング** (`CLUSTER BY client_id, media_id`) | フィルタキーでのスキャン削減 30-70% | ★★★ |
+| 3 | **`SELECT *` 禁止・必要列のみ SELECT** | カラム型 storage は列指向、指定列のみ課金 | ★★★ |
+| 4 | **マテリアライズドビュー** で頻用集計を事前計算 | 同一集計の重複実行削減 | ★★ |
+| 5 | **BI Engine** で頻用ダッシュボードをメモリキャッシュ | Looker Studio 応答高速化・スキャン削減 | ★★ |
+| 6 | **スロット予約（Reservation）** で on-demand → flat-rate 切替 | 月間 $10K 超で有利 | ★★（規模依存） |
+| 7 | **Query Cache** 活用（24時間有効・無料） | 同一クエリの重複課金ゼロ | ★★★ |
+| 8 | **dbt incremental** で日次差分のみ再計算 | フルリフレッシュ→差分処理 | ★★★ |
+| 9 | **スキャン量週次モニタリング**（INFORMATION_SCHEMA） | 異常クエリの早期特定 | ★★★ |
+| 10 | **開発時は DuckDB / Sample** で探索、本番投入時のみ BQ | 開発時のフルスキャン浪費防止 | ★★ |
+
+**Snowflake クレジット最適化 10箇条**:
+
+| # | 施策 | 期待効果 |
+|---|---|---|
+| 1 | **Warehouse Auto-Suspend** を60秒に短縮 | アイドル課金削減 |
+| 2 | **Warehouse Auto-Resume** で必要時起動 | 常時起動コスト削減 |
+| 3 | **XS/S/M/L/XL** をワークロード別に使い分け | オーバースペック回避 |
+| 4 | **Multi-Cluster Warehouse** で並列度自動調整 | 同時実行時のみスケール |
+| 5 | **Result Cache**（24時間・無料）活用 | 同一クエリ課金ゼロ |
+| 6 | **Materialized View**（Enterprise以上） | 頻用集計の事前計算 |
+| 7 | **Search Optimization Service** で選択的クエリ高速化 | ポイントルックアップ 10倍 |
+| 8 | **Time Travel** 期間短縮（デフォ1日、必要時のみ延長） | ストレージ課金削減 |
+| 9 | **Fail-safe** データの棚卸し | 7日 fail-safe の隠れコスト |
+| 10 | **Zero-Copy Cloning** で開発環境複製（ストレージ実消費なし） | dev環境ストレージゼロ |
+
+**LET基盤の月次コストレポート項目**:
+- BigQuery スキャン量（TB）× 月次比較
+- クエリ TOP 10（スキャン量順・実行回数順）
+- クライアント別データ量・保存料
+- パイプライン別コスト（dbt job / Airflow DAG 別）
+- コスト予算 vs 実績（月次 SLO: 1TB以下）
+
+---
+
+### 10.10 プロフェッショナル知識体系（Kimball Group / dbt Learn / GCP Data Engineer Cert / Snowflake SnowPro）
+
+**必須リファレンス書籍・体系**:
+
+| 分野 | 書籍・リソース | 位置づけ |
+|---|---|---|
+| **次元モデリング** | Ralph Kimball『The Data Warehouse Toolkit』第3版 | Kimball の教科書。事実表・次元表の設計原則の全て |
+| **Data Vault 2.0** | Dan Linstedt『Building a Scalable Data Warehouse with Data Vault 2.0』 | Data Vault の設計・実装バイブル |
+| **Data Mesh** | Zhamak Dehghani『Data Mesh: Delivering Data-Driven Value at Scale』 | Data Mesh 提唱者の原典 |
+| **DataOps** | Christopher Bergh『DataOps Cookbook』 | パイプライン運用・CI/CD の実践集 |
+| **データ品質** | Barr Moses『Data Quality Fundamentals』 | Monte Carlo Data 創業者。Data Observability の実践書 |
+| **dbt 実践** | dbt Learn（無料オンライン）+『Analytics Engineering with SQL and dbt』 | dbt公式カリキュラム |
+| **BigQuery** | Valliappa Lakshmanan『Google BigQuery: The Definitive Guide』 | BQ 完全解説 |
+| **Snowflake** | Joyce Kay Avila『Snowflake: The Definitive Guide』 | Snowflake 完全解説 |
+
+**取得推奨資格（優先順）**:
+
+| 資格 | ベンダー | 難易度 | LET事業での実効性 |
+|---|---|---|---|
+| **Google Cloud Professional Data Engineer** | GCP | 中〜高 | ★★★（BigQuery基盤の第一資格） |
+| **dbt Analytics Engineering Certification** | dbt Labs | 中 | ★★★（dbt標準運用の証明） |
+| **Snowflake SnowPro Core** | Snowflake | 中 | ★★（Snowflake採用時の必須） |
+| **AWS Certified Data Engineer - Associate** | AWS | 中 | ★★（AWS基盤時） |
+| **Databricks Certified Data Engineer Associate** | Databricks | 中 | ★（レイクハウス採用時） |
+
+**継続学習ソース（月次巡回リスト）**:
+- **dbt Community Slack**（#advice-dbt-help・#tools-monte-carlo）
+- **Locally Optimistic**（アナリティクスエンジニアリング業界誌ブログ）
+- **Data Engineering Weekly Newsletter**（Ananth Packkildurai）
+- **Analytics Engineering Roundup**（dbt Labs 公式）
+- **Modern Data Stack Podcast**
+- **Kimball Group Design Tips**（月次配信・無料）
+
+**社内知識管理ルール**:
+- 学んだ新技術・パターンは Daily Knowledge Log に必ず記録
+- 月1回の「データ基盤棚卸し会」で最新トレンドと現行構成のギャップを Shun/Akari と共有
+- Data Contract / Semantic Layer / dbt model の変更履歴は必ず GitHub PR で残す
+- ADR（Architecture Decision Record）を `docs/adr/` に配置し「なぜこの選定にしたか」を記録
+
+---
+
+**この強化により Deng が担保する新水準**:
+1. **Modern Data Stack 標準**（Fivetran+dbt+BigQuery+Looker）を前提とした基盤設計
+2. **Kimball × Data Vault × Data Mesh** を状況に応じて使い分ける設計判断力
+3. **5次元データ品質**（Freshness/Completeness/Uniqueness/Validity/Consistency）を Great Expectations + Monte Carlo 型で機械保証
+4. **Data Contracts** でプロデューサー・コンシューマー間の合意を明文化し、上流変更を入口で拒否
+5. **セマンティック層**（dbt Semantic Layer / MetricFlow）でメトリクス定義を一元化し、BI 間の数値不一致を構造排除
+6. **3標準マート**（Customer/Campaign/Hiring）で Shun/Akari の分析着手時間を短縮
+7. **建設業クライアント特有の正規化**（職種・地域・給与・雇用形態）を体系化
+8. **BigQuery/Snowflake コスト最適化**の10箇条を運用ルーチン化
+9. **エンタープライズ資格**（GCP PDE / dbt Cert / SnowPro）で対外的信頼性を担保
+10. **DataOps SLA/SLO/SLI** でパイプライン品質を数値管理
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
