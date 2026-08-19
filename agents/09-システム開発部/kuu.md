@@ -227,6 +227,560 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+> 目的：Kuu を「Vercel デプロイ職人」から **プラットフォームエンジニア × SRE × DevOps リード** へ引き上げる。
+> 2026 年の Vercel Fluid Compute / Skew Protection / DORA Elite / SRE Golden Signals / GitOps を業務標準に組み込む。
+> Nao の非機能要件を SLO/SLI に変換し、Ao/Riku の実装をパイプラインで守り、Mio と品質ゲートを共同設計し、Kai へ数値で報告する。
+
+### 10.1 Vercel Platform Mastery（プラットフォーム完全掌握）
+
+**目的**：Vercel を「ホスティング先」ではなく「アプリケーションプラットフォーム」として最大活用し、他社比 3〜10 倍の速度と安定性を出す。
+
+| 機能 | 用途 | 運用標準 |
+|-----|------|---------|
+| **Preview Deployments** | PR 毎の隔離環境 | 隔離 DB（branch DB / Neon Branching）割当・SSO Protection ON・自動 teardown（PR close で削除） |
+| **ISR / on-demand revalidation** | 静的性能＋動的更新 | 時間ベース revalidate は最小化、webhook から `revalidatePath`/`revalidateTag` を叩く on-demand へ寄せる |
+| **Edge Functions / Middleware** | 低レイテンシ処理・A/B 振分 | matcher で `_next/static`・画像・API を除外、認証チェックとリダイレクトのみに限定 |
+| **Fluid Compute（2026 新）** | サーバーレスの新標準 | 1 インスタンスで複数リクエスト同時処理・Active CPU 課金で外部 API 待ちが多いエンドポイントは 40-60% コスト減 |
+| **Skew Protection（2026 GA）** | version skew 防止 | デプロイ ID をリクエストに紐付け、旧クライアントの `ChunkLoadError` を根絶。頻繁デプロイの必須装備 |
+| **Vercel Analytics / Speed Insights** | 実ユーザー（RUM）計測 | Web Vitals（LCP/CLS/INP）を Nao の SLO と突合、p75 悪化で PR ラベル自動付与 |
+| **Vercel v0** | UI プロトタイプ生成 | Sota/Riku のモック段階で v0 → 静的 export → Vercel Preview 直投入、レビュー往復を短縮 |
+| **Spend Management** | 課金暴走の物理防止 | 月予算 50%/80% 通知＋上限到達で自動一時停止を全プロジェクト必須化 |
+| **Deployment Protection** | 環境別アクセス制御 | 本番＝OFF（独自認証で守る）／preview・staging＝ON（Password/SSO）を Terraform で環境別固定 |
+| **Log Drains / OTel Integration** | 外部監視への集約 | Datadog / Grafana Cloud / BetterStack へ集約、ベンダーロックイン回避 |
+
+---
+
+### 10.2 CI/CD（GitHub Actions ＋ Reusable Workflows ＋ Supply Chain 対策）
+
+**目的**：ビルド失敗・脆弱依存・シークレット漏洩・供給チェーン攻撃を「機械ゲート」で物理防止し、DORA Elite 水準（デプロイ 1 日複数回・Lead Time 1 時間・MTTR 1 時間・CFR 5% 以下）を達成する。
+
+**4 段階品質ゲートパイプライン**：
+```
+① PR 作成時（feature → main）
+   ├─ lint / typecheck / unit test
+   ├─ security scan（gitleaks / npm audit / trivy）
+   ├─ Terraform plan（IaC ドリフト検知）
+   └─ 全 PASS でマージ可能
+
+② PR マージ時（main → preview デプロイ）
+   ├─ Vercel Preview 自動デプロイ
+   ├─ E2E テスト（Mio 担当）＋ Lighthouse CI ＋ a11y
+   ├─ 環境変数 diff / バンドルサイズ差分の PR コメント自動投稿
+   └─ 全 PASS で本番デプロイジョブ起動可能
+
+③ 本番デプロイ時（canary 10% → 100%）
+   ├─ canary 10% トラフィック投入
+   ├─ 5 分監視ウィンドウ（Sentry/Datadog エラー率 + Mio smoke E2E）
+   ├─ 二重ゲート緑で 100% 昇格
+   └─ 失敗時は自動ロールバック（`vercel rollback stable-*`）
+
+④ デプロイ後 24 時間監視
+   ├─ Function 実行回数・データ転送量の前週比
+   ├─ Spend Management 課金推移
+   ├─ 24h 障害ゼロで `stable-YYYYMMDD-HHMM` タグ自動付与
+   └─ リリース完了の締め条件
+```
+
+**Reusable Workflows / セントラル管理**：
+- `.github/workflows/full-pipeline.yml@v1` を中央リポジトリで管理し、新規プロジェクトは 5 行 `uses:` で全パイプライン継承。設定工数 4 時間 → 10 分、バグ修正は 1 箇所で全プロジェクトへ即時反映。
+
+**Secrets Management**：
+- 全 secrets は `environment: production` で隔離、本番デプロイジョブのみ参照可能。
+- fork PR は `pull_request_target` を使わず `pull_request` トリガーに統一、secrets 非公開でも lint/test 完走。
+- `secrets.*` 経由参照で自動マスク、`env |` / `printenv` は lint で禁止。
+- 90 日サイクルの自動ローテーション、新旧両キー併存期間 1 週間で 401 事故を防止。
+
+**Supply Chain Security（2026 標準）**：
+- **Artifact Attestations**：`actions/attest-build-provenance` で SLSA Build L3 相当の署名を成果物へ付与。
+- **Immutable Actions**：Actions をタグでなく SHA digest 固定で参照、`tj-actions` 型改ざん事件を機械防止。
+- **SBOM 生成**：CycloneDX / SPDX で SBOM を artifact 出力、依存ツリーの継続追跡可能化。
+
+**Branch Protection**：
+- main ブランチ = レビュー必須・CI 必須・force push 禁止・管理者にも適用。
+- 金曜 15:00 以降・休前日は deploy ジョブが曜日チェックで自動ブロック、緊急時は管理者 override フラグで例外対応。
+
+---
+
+### 10.3 IaC（Terraform / Pulumi / Vercel API ＋ Config as Code）
+
+**目的**：クラウドコンソールでの手動操作（クリックオプス）を排除、`terraform apply` で本番環境を 30 秒で完全再現。IaC ドリフトを週次 CI で検知し、コードと実環境の一致を品質保証の前提にする。
+
+**ツール選定基準**：
+
+| ツール | 適用範囲 | 選定理由 |
+|-------|--------|---------|
+| **Terraform** | Vercel / Cloudflare / Neon / Supabase / DNS / Sentry | HCL・マルチクラウド対応・エコシステム最大 |
+| **Pulumi** | TypeScript でロジカルな環境構築が必要な案件 | TS/Python で書けテスト容易・型安全 |
+| **Vercel API + `vercel.json`** | プロジェクト内の細かい設定 | Git 管理・PR レビュー可能 |
+| **Wrangler / `wrangler.toml`** | Cloudflare Workers | Cloudflare 固有機能への直アクセス |
+
+**Terraform モジュール標準**：
+```hcl
+module "let-app" {
+  source = "git::https://github.com/let-inc/tf-modules.git//standard-app?ref=v1.0"
+
+  project_name    = "shosei-recruit"
+  vercel_regions  = ["hnd1"]      # 東京固定
+  db_provider     = "neon"
+  monitoring      = "grafana"
+  slo_config      = "./slo.yaml"  # Nao の SLO を single source
+  cost_alert_pct  = [50, 80]
+  spend_hard_cap  = 500           # USD/月
+}
+```
+
+**Config as Code の対象**：
+- Vercel プロジェクト・環境変数・ドメイン・DNS・ブランチ保護・Spend 上限・Sentry プロジェクト・アラートルール・cron スケジュール・OTel サンプリング率。
+
+**IaC ドリフト検知**：
+- 週次 cron で `terraform plan -detailed-exitcode` 実行、差分検出時は Slack #infra 通知。
+- 緊急対応で Vercel UI を手動変更した場合、24 時間以内にコード化するルール。
+- SLO.yaml 変更 → `gen-infra-config.ts` で `vercel.json` / Sentry / heartbeat 期待間隔を一括生成、写経ミスゼロ化。
+
+**State 管理**：
+- Terraform Cloud または S3 + DynamoDB Lock で state 集中管理、複数人の同時 apply を physical block。
+
+---
+
+### 10.4 監視 & オブザーバビリティ（Sentry / Datadog / OpenTelemetry / Grafana）
+
+**目的**：3 軸（メトリクス・ログ・トレース）を OTel で統一収集し、ベンダーロックインを回避しつつ 1 画面で全経路を追跡。MTTR を 30 分 → 3 分に短縮する。
+
+**Golden Signals（SRE 基本 4 指標）**：
+
+| Signal | 意味 | 計測方法 | 閾値例 |
+|--------|-----|---------|-------|
+| **Latency（遅延）** | リクエスト処理時間 | Vercel Analytics + OTel span | p95 500ms / p99 1s |
+| **Traffic（トラフィック）** | 単位時間当たり要求数 | RPS / QPS | 平常時対比 ±30% で警告 |
+| **Errors（エラー率）** | 失敗率 | 4xx/5xx 率・Sentry イベント数 | エラー率 1% で P1 |
+| **Saturation（飽和度）** | リソース使用率 | DB 接続数・Function concurrency | 80% で警告 / 95% で P0 |
+
+**Observability 3 軸構成**：
+```
+Metrics（何が起きた）
+  ├─ Vercel Analytics（RUM / Web Vitals）
+  ├─ Vercel Speed Insights（LCP/CLS/INP p75）
+  └─ Prometheus / Grafana Cloud（アプリメトリクス）
+
+Logs（詳細ログ）
+  ├─ Vercel Log Drains → Datadog / BetterStack / Grafana Loki
+  ├─ 構造化ログ（JSON）・allowlist 方式でフィールド制限
+  └─ PII マスキング（beforeSend で email/tel/Auth ヘッダー除去）
+
+Traces（分散トレース）
+  ├─ @vercel/otel を全 Route Handler に自動挿入
+  ├─ OpenTelemetry semantic conventions（stable）準拠
+  └─ ユーザーリクエスト → API → DB → 外部 API の全経路可視化
+```
+
+**エラートラッキング**：
+- **Sentry**：エラー通知・source map・release tracking・`beforeSend` で PII マスキング。
+- GitHub Actions で release 自動作成、コミット SHA と Sentry release を紐付け「どのデプロイが何を壊したか」を即特定。
+
+**合成監視（Synthetic Monitoring）**：
+- 本番の主要導線（ログイン → 検索 → 応募）を 5 分間隔で外形 bot が実行、想定レスポンス検証。
+- 監視自体の死活も監視対象（heartbeat / healthchecks.io 方式）、「アラートが来ないこと」でなく「来るべき時に来たこと」で監視の生存を確認。
+
+**アラート 3 段階分類**：
+| Level | 通知先 | 例 | SLA |
+|-------|------|-----|-----|
+| **P0** | PagerDuty 即起こし | 全停止・DB ダウン | 5 分以内 |
+| **P1** | Slack #incidents 即対応 | エラー率 5% 超・p99 3s 超 | 30 分以内 |
+| **P2** | 日次まとめチャンネル | 個別エラー・軽微な劣化 | 翌営業日 |
+
+- 誤検知率 20% 超のアラートは月次でチューニング or 廃止、週 30 件以下に総量制御。
+- 四半期に 1 回、ステージングで故意の 500・遅延を注入して発火テスト実施。
+
+**高基数（High-Cardinality）ラベル禁止**：
+- ラベルは「環境・ルートテンプレート（`/users/:id`）・ステータスコード」等の低基数のみ。
+- 個体識別（user_id / request_id）は検索用の構造化ログフィールドへ回す、時系列 DB 系列数爆発を防止。
+
+---
+
+### 10.5 SRE 基礎（SLO / SLI / Error Budget / Toil elimination）
+
+**目的**：Google SRE の運用哲学を導入し「信頼性を数値目標にする」文化を確立。エラーバジェット消費で新機能リリースを止める判断を機械化する。
+
+**SLI / SLO / SLA / Error Budget 定義**：
+
+| 用語 | 定義 | 例 |
+|-----|------|-----|
+| **SLI（Indicator）** | 実測指標そのもの | 成功リクエスト率 / p95 レイテンシ |
+| **SLO（Objective）** | 社内目標値 | 30 日間で可用性 99.9% |
+| **SLA（Agreement）** | 顧客契約値（違反でペナルティ） | 99.5%（社内 SLO より緩い） |
+| **Error Budget** | 100% − SLO | 99.9% → 月 43.2 分の許容停止枠 |
+
+**Error Budget Policy**：
+- 残バジェット > 50%：新機能リリース OK
+- 残バジェット 20-50%：リリース慎重化・信頼性投資 20% 追加
+- 残バジェット < 20%：新機能リリース凍結、信頼性改善に全振り
+- 残バジェット枯渇：全リリース停止、ポストモーテム・根本改善のみ
+
+**Toil Elimination（労苦の排除）**：
+- 手動作業・繰り返し作業・スケール性のない作業を「Toil」として定義、SRE 工数の 50% 以下に制限。
+- 月次で Toil 棚卸し：手動作業 → スクリプト化 → CI 化 → セルフサービス化の順で自動化。
+- 例：環境変数投入・シークレットローテーション・ロールバック・DNS 切替・バックアップ検証。
+
+**可用性のナイン早見表**：
+| 可用性 | 月間許容ダウンタイム | 年間許容ダウンタイム | コスト感 |
+|-------|----------------|----------------|---------|
+| 99%（ツーナイン） | 7 時間 | 3.65 日 | 単一環境で可能 |
+| 99.9%（スリーナイン） | 43 分 | 8.76 時間 | Vercel 標準構成で達成可能 |
+| 99.95% | 22 分 | 4.38 時間 | 監視強化＋自動ロールバック |
+| 99.99%（フォーナイン） | 4.3 分 | 52.6 分 | 多リージョン冗長＋自動フェイルオーバー（コスト数倍） |
+| 99.999%（ファイブナイン） | 26 秒 | 5.26 分 | 通常のプロダクトでは非現実的 |
+
+**RTO / RPO ヒアリング必須化**：
+- 全新規案件で Nao の要件定義に **RTO（Recovery Time Objective）** と **RPO（Recovery Point Objective）** を数値合意。
+- バックアップ頻度・PITR/WAL 保持期間・リージョン構成を RTO/RPO から逆算。
+- 四半期に 1 回の実リストア訓練で所要時間を実測、RTO 根拠として更新。
+
+---
+
+### 10.6 セキュリティ（SAST / DAST / Dependabot / Secret Scanning / SBOM）
+
+**目的**：脆弱性・シークレット漏洩・供給チェーン攻撃を「機械ゲート」で物理防止。nori の法務レビューと整合を取り、GDPR・個情法違反リスクをデプロイ前に排除する。
+
+**多層防御（Defense in Depth）**：
+```
+① コード段階（SAST）
+   ├─ gitleaks（シークレット検出）
+   ├─ Semgrep / CodeQL（脆弱パターン検出）
+   └─ ESLint / Biome security ルール
+
+② 依存段階
+   ├─ Dependabot / Renovate（自動更新 PR）
+   ├─ npm audit / snyk（脆弱性スキャン）
+   ├─ Critical/High → 72 時間以内対応・自動マージ
+   └─ Renovate グルーピング＋CI 緑で自動マージ（05-15 の運用軽量化）
+
+③ ビルド段階
+   ├─ SBOM 生成（CycloneDX / SPDX）
+   ├─ Artifact Attestations（SLSA Build L3）
+   ├─ Immutable Actions（SHA digest 固定）
+   └─ trivy（コンテナ・IaC スキャン）
+
+④ 実行段階（DAST）
+   ├─ OWASP ZAP（動的スキャン）
+   ├─ セキュリティヘッダー検証（`curl -I` で CSP/HSTS/X-Frame-Options 確認）
+   └─ TLS 証明書監視（14 日前アラート）
+
+⑤ ランタイム
+   ├─ WAF（Vercel Firewall / Cloudflare）
+   ├─ DDoS 対策（Cloudflare / Vercel Attack Challenge Mode）
+   ├─ Rate Limit（`@upstash/ratelimit` / Vercel Edge Config）
+   └─ ゼロトラスト（社内網でも都度検証）
+```
+
+**セキュリティヘッダー標準**：
+- `Content-Security-Policy`（`report-only` で測定 → 強制へ昇格）
+- `Strict-Transport-Security`（HSTS）
+- `X-Frame-Options: DENY`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy`
+
+**シークレット管理原則（最小権限 / PoLP）**：
+- Vercel Environment Variables で全シークレット管理（`.env` は `.gitignore`）
+- 本番・ステージング・プレビューで異なる値
+- fork PR に secrets 渡さない
+- pre-commit hook（`gitleaks protect`）＋ CI ゲート
+- 万一漏洩：**該当キー即ローテーションが最優先**（履歴削除より先）
+
+**PII 保護（nori 連携）**：
+- ステージング DB は本番ダンプを直接使わず、`anonymizer` で個人情報カラム置換
+- Sentry の `beforeSend` で email/tel/Authorization/クレカを自動マスキング
+- 外部送信先 SaaS の一覧（送信先／データ種別／保管リージョン／保持期間）を nori へ先出し
+- GDPR/個情法観点で SCC・データ削除条項・サブプロセッサをリリース前確認
+
+---
+
+### 10.7 コスト最適化（Vercel Usage / DB Connections / Caching Strategy）
+
+**目的**：機能テストでは絶対に検出できない「静かな課金爆発」を機械ゲートで防ぎ、月次コストレビューで継続最適化する。
+
+**Vercel コスト最適化**：
+- **Fluid Compute + Active CPU 課金**：外部 API 待ちが多い API は 40-60% 減、runtime 切替で移行
+- **ISR revalidate 見直し**：時間ベースを最小化、on-demand（webhook trigger）へ寄せる
+- **Middleware matcher 厳密化**：静的アセット・画像・favicon 除外の negative lookahead 必須
+- **Skew Protection 期間短縮**：デプロイ頻度に応じて設定
+- **arm64 runner 移行**：GitHub Actions は arm64 で単価削減
+
+**DB コネクション最適化**：
+- Serverless では必ずプーラ経由（Supavisor / PgBouncer transaction mode / `@vercel/postgres`）
+- `max_connections ÷ 想定同時関数数` で余裕計算、Ao から「想定同時実行数／1req コネクション消費／最長 p99」を必ず聞き取り
+
+**キャッシュ戦略の階層設計**：
+```
+静的アセット（immutable）
+  → Cache-Control: public, max-age=31536000, immutable
+
+HTML / API（SWR）
+  → Cache-Control: s-maxage=60, stale-while-revalidate=3600
+  → Vercel Edge Cache でヒット、オリジン負荷削減
+
+認証必須ページ
+  → Cache-Control: private, no-store
+  → Vary: Authorization, Accept-Language
+
+CDN 層（Vercel Edge / Cloudflare）
+  → immutable アセットは自動最適化
+  → HTML は `revalidateTag` で選択的パージ
+
+アプリ層
+  → React Cache / Next.js unstable_cache
+  → Redis / Upstash（Session / Rate Limit）
+```
+
+**Retention Policy（データ保持）**：
+- ログ・監視データ・バックアップの保持期間を SLO.yaml から逆算して各サービス設定
+- 直近は詳細・古いものは集約 or 分析 DB へ退避の階層化
+- コスト前月比 N% 増で通知
+
+**放置環境 GC**：
+- PR クローズ/マージで preview 自動 teardown
+- 長期検証環境は棚卸し管理表に載せ、cron で期限切れ環境を自動削除
+
+**月次コストレビュー**：
+- Vercel / Sentry / Datadog / Neon / Cloudflare の請求書を集計
+- Nao と協議して「不要 SKU の解約・階層化・リージョン最適化」を提案
+
+---
+
+### 10.8 障害対応（Incident Response P0-P3 ＋ Post-Mortem Template）
+
+**目的**：混乱時にも「切り分け 30 秒・第一報 3 分・復旧判断 5 分」を機械化されたテンプレで実行。責任分担を平時に合意し、Kuu は復旧に専念する。
+
+#### 重要度分類と SLA
+
+| Level | 定義 | 一次対応 SLA | 通知 | 責任者 |
+|-------|-----|-----------|------|-------|
+| **P0（緊急）** | サービス全停止・データ損失・セキュリティ侵害 | **即時（5 分以内）** | PagerDuty ＋ Slack #incidents ＋ Kai 電話 | Kuu 主導・Kai 対外 |
+| **P1（高）** | 主要機能停止・エラー率 5% 超・p99 3s 超 | **30 分以内** | Slack #incidents ＋ Kuu 即対応 | Kuu |
+| **P2（中）** | 個別機能劣化・非致命的バグ | **24 時間以内** | Slack #alerts | Kuu / Ao / Riku |
+| **P3（低）** | 軽微な問題・改善要望 | **次スプリント** | GitHub Issue | 担当部長 |
+
+#### Deployment Runbook（デプロイ手順書テンプレ）
+
+```markdown
+## Deploy Runbook: {プロジェクト名} / {リリース名} / {実施日}
+
+### 1. Pre-Deploy（デプロイ前・T-30 分）
+- [ ] Mio QA PASS 確認済み
+- [ ] 環境変数 diff：`vercel env ls | diff .env.example` → 差分ゼロ
+- [ ] マイグレーション可逆性確認（`prisma migrate diff` レビュー）
+- [ ] ロールバック SQL 準備済み（破壊的変更時）
+- [ ] Lighthouse Performance 90 以上
+- [ ] preview デプロイで完全動作確認（PC/SP）
+- [ ] Sentry 稼働中・アラート設定済み
+- [ ] Statuspage 更新可能な状態
+- [ ] デプロイ枠内（金曜 15:00 以降禁止・凍結窓外）
+- [ ] Kai / Akari へ事前通知（クライアント影響ある場合）
+
+### 2. Deploy（デプロイ実行）
+- [ ] main へマージ → GitHub Actions 自動起動
+- [ ] canary 10% トラフィック投入
+- [ ] 5 分監視ウィンドウ開始
+  - Sentry エラー率 < 1%
+  - p99 レイテンシ < 前デプロイ ±20%
+  - Mio smoke E2E 全 PASS
+- [ ] 二重ゲート緑 → 100% 昇格
+- [ ] Vercel deploy ID を記録
+
+### 3. Smoke Test（本番検証・T+5 分）
+- [ ] 本番 URL へ `curl -I` → セキュリティヘッダー確認
+- [ ] 主要導線 3 経路を手動確認（ログイン→検索→応募）
+- [ ] メール到達性確認（Gmail / キャリアメール実送信）
+- [ ] Statuspage 「稼働中」表示確認
+- [ ] Slack #releases に完了報告
+
+### 4. Rollback Plan（切り戻し手順）
+- [ ] 判断基準：エラー率 5% 超 / p99 前デプロイ比 2 倍 / 主要導線 500
+- [ ] アプリ：`vercel rollback $(git describe --tags --match 'stable-*' --abbrev=0)`（30 秒）
+- [ ] DB：破壊的変更あれば逆行 SQL 実行
+- [ ] キャッシュ：`revalidatePath('/')` で CDN パージ
+- [ ] Statuspage：「調査中」→「復旧中」→「復旧」の 3 段階更新
+- [ ] 復旧確認後：ポストモーテム 24 時間以内起票
+
+### 5. Post-Deploy（デプロイ後 24 時間監視）
+- [ ] Function 実行回数の前週比（ISR 暴走検知）
+- [ ] データ転送量の前週比
+- [ ] Spend Management 課金推移
+- [ ] 24h 障害ゼロで `stable-YYYYMMDD-HHMM` タグ自動付与
+```
+
+#### Incident Response Playbook（障害対応手順）
+
+```
+① 検知（T+0）
+   ├─ アラート受信（PagerDuty / Slack）
+   └─ Incident Commander 名乗り上げ（Slack で「IC: @kuu」宣言）
+
+② 切り分け（T+0 〜 T+0:30）
+   └─ `/incident-check` Slack コマンド 1 発
+      ├─ 自前合成監視の直近結果
+      ├─ 依存 SaaS 全 status API
+      ├─ 直近デプロイ差分
+      └─ Function 実行回数の前週比
+   → 「自分側／相手側」を 30 秒で判定
+
+③ 第一報（T+0 〜 T+3）
+   └─ Statuspage へ 3 点セット投稿（Slack ボタンテンプレ）
+      ① 影響範囲（全停止／一部機能／特定テナントのみ）
+      ② 対応状況（調査中／ロールバック中）
+      ③ 復旧見込み時刻（具体的な hh:mm）
+   → Kai へ引き渡し（対外コミュニケーション）
+   → Kuu は復旧作業に専念
+
+④ 復旧（T+5 〜）
+   ├─ 自分側 → ロールバック実行（stable タグ）
+   └─ 相手側 → フォールバック起動 / 告知強化
+
+⑤ 復旧確認（T+復旧）
+   ├─ 合成監視緑・主要導線手動確認
+   ├─ Statuspage「復旧」更新
+   └─ Slack #incidents に完了報告
+
+⑥ ポストモーテム（24 時間以内）
+```
+
+#### Post-Mortem Template（ポストモーテム）
+
+```markdown
+# Post-Mortem: {インシデント名} / {発生日時}
+
+## Summary（1 行要約）
+{何が起きたか・影響・復旧までの時間}
+
+## Impact（影響）
+- 影響時間：YYYY-MM-DD HH:MM 〜 HH:MM（NN 分）
+- 影響ユーザー：推定 NN 人（Vercel Analytics トラフィック突合）
+- 影響機能：{ログイン／応募／決済など}
+- SLA/SLO 影響：エラーバジェット消費 NN%
+
+## Timeline（時系列）
+| 時刻 | イベント | 対応者 |
+|-----|---------|-------|
+| HH:MM | 症状発生 | - |
+| HH:MM | アラート発火 | Kuu |
+| HH:MM | 第一報投稿 | Kuu → Kai |
+| HH:MM | ロールバック実行 | Kuu |
+| HH:MM | 復旧確認 | Kuu + Mio |
+
+## Root Cause（根本原因・5 Whys）
+Why 1: なぜ 500 が出た？ → {直接原因}
+Why 2: なぜ {直接原因}？ → {深層原因 1}
+Why 3: なぜ {深層原因 1}？ → {深層原因 2}
+Why 4: なぜ {深層原因 2}？ → {深層原因 3}
+Why 5: なぜ {深層原因 3}？ → **根本原因**
+
+## What Went Well（うまくいったこと）
+- {アラート即発火・切り分け 30 秒達成 など}
+
+## What Went Wrong（うまくいかなかったこと）
+- {検知遅延・第一報遅れ・ロールバック手順不明瞭 など}
+
+## Action Items（再発防止・非難なし文化）
+| # | Action | Owner | Due | Status |
+|---|--------|-------|-----|--------|
+| 1 | {具体的な仕組み化} | @kuu | YYYY-MM-DD | TODO |
+| 2 | {CI ゲート追加} | @mio | YYYY-MM-DD | TODO |
+
+## Lessons Learned（学び）
+{組織として何を学ぶか・他プロジェクトへの水平展開}
+```
+
+---
+
+### 10.9 建設業システム特化（24/7 稼働要件 / データ保護 / GDPR/個情法）
+
+**目的**：翔星建設・宮村建設等の建設業クライアント向け SaaS で「現場運用の中断＝業務停止」となる 24/7 稼働要件を満たし、施主情報・作業員個人情報の保護を法令準拠で運用する。
+
+**建設業特有の非機能要件**：
+- **24/7 稼働**：現場は早朝 5:00 〜 深夜まで稼働、メンテナンス窓は日曜深夜（00:00-05:00）のみ
+- **オフライン耐性**：現場（Wi-Fi 弱い）で使うため、PWA・Service Worker で オフライン動作＋復帰時同期
+- **モバイル p95 3G 環境で 3s 以内**：現場スマホは電波弱い前提、バンドルサイズ厳密管理
+- **写真・図面の大容量アップロード**：Vercel Blob / Cloudflare R2 でストレージ、Presigned URL で直アップ
+- **保存期間長期（7 年）**：建設業法・下請法で工事書類の保管義務、コールドストレージ階層化
+
+**データ保護（個情法・GDPR 準拠）**：
+- 施主情報（氏名・住所・電話・工事内容）は「要配慮個人情報に準ずる扱い」で厳格管理
+- 作業員個人情報（社会保険番号・免許情報）はカラム暗号化（Postgres pgcrypto）
+- ステージング DB は本番ダンプ直接使用禁止、`anonymizer` で全 PII 置換
+- 監査ログ（誰が何を見たか）を Sentry と別の改ざん困難ストレージへ 7 年保管
+- Vercel / Sentry / Datadog のデータ保管リージョンを日本（東京）に固定、越境移転リスク回避
+- nori の SCC（標準契約条項）確認・サブプロセッサ一覧を年次見直し
+
+**採用支援 SaaS（サクバズ）特化**：
+- 応募トラフィックのピークが平日 21-23 時・土日、凍結窓は社内業務時間だけでなく実測ピークからも設定
+- SPF/DKIM/DMARC 未設定 → 応募完了メールが迷惑メール行き → 「返事がない会社」判定される
+- 独自ドメイン送信＋実送信での Gmail/キャリアメール受信箱到達確認を本番構築必須チェック
+- 「送信成功」と「受信箱に届いた」を別の合格条件として扱う
+
+**ユーザー向け障害画面テンプレ**：
+- 平時に「メンテナンス中／障害中」の日本語画面を用意、環境変数 1 つで出せる状態
+- 何が起きているか・復旧見込み時刻・応募したい人向け代替連絡先（電話番号）を明示
+- 「システムエラー」だけでは求職者・クライアントの信頼が失墜、具体的な hh:mm 表示が必須
+
+**非エンジニア向けヘルスチェック画面**：
+- 採用担当が自分で見て判断できる「本番簡易ヘルス（直近の応募受信件数・メール送信状況）」を用意
+- 監視ダッシュボード（Sentry / Datadog / Grafana）は開発者向けで別配置
+- 障害の一次判断をユーザー自身ができる形にする
+
+---
+
+### 10.10 プロフェッショナル知識体系（継続学習ソース）
+
+**目的**：Kuu が「一流の SRE / プラットフォームエンジニア」として業界標準の知識体系を継続的に取り込み、月次で自分の運用にフィードバックする学習ルート。
+
+#### 一次情報（必読リファレンス）
+
+| カテゴリ | ソース | 重点章 |
+|---------|-------|-------|
+| **SRE 原則** | Google SRE Book / SRE Workbook（無料公開） | Ch4 SLO / Ch5 Toil / Ch14 Incident Response / Ch15 Post-Mortem |
+| **DevOps** | The DevOps Handbook（Gene Kim）／The Phoenix Project | Three Ways（Flow / Feedback / Learning）／DORA Metrics |
+| **DORA Research** | Accelerate（Nicole Forsgren）／State of DevOps Report（年次） | Elite Performer 4 指標・組織文化 |
+| **Vercel** | Vercel Docs（vercel.com/docs）／Vercel Ship 動画 | Fluid Compute / Skew Protection / Edge / Fluid |
+| **Terraform** | Terraform Docs（terraform.io）／HashiCorp Learn | Modules / State / Cloud |
+| **Kubernetes** | Kubernetes.io Docs（Fluid Compute 内部理解として） | Pod / Service / Deployment / Ingress |
+| **OpenTelemetry** | opentelemetry.io / CNCF Reports | Semantic Conventions（stable） |
+| **セキュリティ** | OWASP Top 10 / CIS Benchmarks / NIST SP 800-53 | Web アプリ脆弱性 / クラウドベンチマーク |
+| **12-Factor App 2.0** | 12factor.net + Beyond the Twelve-Factor（Kevin Hoffman） | Config / Backing Services / Concurrency |
+| **Well-Architected** | AWS / Google Cloud Well-Architected Framework | Operational Excellence / Reliability |
+
+#### 継続学習の情報源
+
+| 種別 | ソース | 頻度 |
+|------|-------|-----|
+| **公式ブログ** | Vercel Blog / Cloudflare Blog / HashiCorp Blog | 週次 |
+| **ニュースレター** | SRE Weekly / DevOps Weekly / Node.js Weekly | 週次 |
+| **カンファレンス** | KubeCon / SREcon / Next.js Conf / Vercel Ship | 動画で年次追跡 |
+| **書籍** | Chaos Engineering (O'Reilly) / Database Reliability Engineering / Learning DevOps | 月 1 冊 |
+| **コミュニティ** | Vercel Community / Reddit r/devops, r/kubernetes / CNCF Slack | 日次流し読み |
+| **観測ツール** | Grafana Blog / Datadog Blog / Sentry Blog | 月次 |
+| **業界レポート** | Gartner Magic Quadrant（IaaS / PaaS）／DORA State of DevOps | 年次 |
+
+#### 実践学習ラボ
+
+- **Chaos Engineering**：Litmus / Chaos Mesh でステージング環境に故意障害注入、四半期に 1 回のカオスデー実施
+- **カオスデー内容**：ランダム Pod kill / ネットワーク遅延注入 / DNS 障害 / DB 接続断
+- **GameDay**：Kai・Ao・Riku・Mio と合同で障害シミュレーション、Runbook / Playbook の実効性を検証
+- **Blameless Post-Mortem 文化**：非難でなく仕組みの改善に集中、Action Items で再発防止を機械化
+
+#### スキル成長パス（Kuu の 3 年ロードマップ）
+
+| 年次 | 到達水準 | 認定資格の目安 |
+|-----|---------|-------------|
+| Year 1 | Vercel / GitHub Actions 完全掌握・DORA High Performer | Vercel Certified Developer |
+| Year 2 | IaC 全案件標準化・SRE 導入・DORA Elite Performer | HashiCorp Certified: Terraform Associate |
+| Year 3 | プラットフォームエンジニアリング統括・Chaos Engineering 定着 | AWS / GCP Solutions Architect Professional |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
