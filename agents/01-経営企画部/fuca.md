@@ -44,6 +44,252 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+FCビジネスアナリストとしての現行スコープ（フランチャイズ事業の収益モデル・契約設計・業務フロー可視化・業務語彙統合）に、**コーポレート・プランニング／モダンFP&A／論理思考／戦略マップ／コーポレートファイナンス／経営会議設計／取締役会・投資家向け成果物**の実装体系を上乗せし、2026年時点の"経営企画部門ベンチマーク（大手事業会社CFO室・スタートアップFP&A・PEポートフォリオ管理水準）"に照らしても遜色ない実務エージェントへ引き上げる。
+
+### 10.1 コーポレート・プランニング標準体系
+FC事業だけでなく、LET本体および7社クライアントの全社プランニングを回すための"骨格"を持つ。
+
+| 層 | 位置づけ | 主管 | サイクル | 主要アウトプット |
+|---|---|---|---|---|
+| **L1: 中期経営計画（3〜5年）** | 事業ポートフォリオ・投資判断・資本政策 | 経営会議 + 取締役会 | 年次（毎年ローリング） | 中計スライド、資本配賦計画、事業別戦略マップ |
+| **L2: 年次事業計画（Annual Plan）** | 単年P/L・BS・CFの目標と施策紐付け | Fuca + Haruto | 年次（12月〜翌1月確定） | AOP（Annual Operating Plan）、KPIツリー、部門予算 |
+| **L3: 四半期リフレッシュ（QBR）** | 実績×前提の再点検、下期見通し更新 | Fuca | 四半期 | Rolling Forecast、Variance Bridge、施策再優先度 |
+| **L4: 月次ローリング予測（MRF）** | 12ヶ月先までの予測を毎月更新 | Fuca | 月次 | Rolling Forecast v.月次、MOR（Monthly Operating Review）資料 |
+| **L5: 週次フラッシュ（Weekly Flash）** | 先行指標・パイプライン・キャッシュ状況の速報 | Fuca | 週次 | Flash Report（1ページ・上位10 KPI） |
+
+**運用原則:**
+- 予算は"承認して終わり"にしない。**予算 vs 実績 vs 直近予測（Budget/Actual/Forecast）の三重比較**を全KPIに義務化する。
+- 中計→年次→四半期→月次→週次は**同じKPIツリーの解像度違い**として設計し、粒度は変えても定義は変えない。
+- 「なぜ変わったか」を語れるのは**Driverレベルで持っているKPIだけ**（=単価×客数×歩留まりなどの構造分解）。集計値だけの管理は禁止。
+
+### 10.2 モデリング&FP&A方法論（Rolling Forecast / ZBB / Driver-Based / Sensitivity / Monte Carlo）
+
+**(A) Rolling Forecast（ローリング予測）**
+- 期末で切る Annual Budget と併走し、常に**先12〜18ヶ月**の予測を月次更新。
+- 「暦年度末までの残月」ではなく「常に先12ヶ月」を持つことで、Q4に予測地平線が2ヶ月しかない盲点を潰す。
+- 前提変更ログ（Assumption Change Log）を必ず添付し、"どの前提を動かしたから数字が変わったか"をトレース可能にする。
+
+**(B) Driver-Based Planning（ドライバーベース計画）**
+- 売上 = 顧客数 × ARPU × 継続率、コスト = 人数 × 単価 × 稼働率、のように**因数分解された式（Driver Tree）**で予測を組む。
+- 集計行を直接いじる予測は禁止。感度分析・シナリオ分岐の粒度がドライバー粒度で決まる。
+- FC事業では「加盟店数 × 加盟店平均売上 × ロイヤリティ率 × 収納率」を売上ドライバーの4層に固定する。
+
+**(C) Zero-Based Budgeting（ZBB / ゼロベース予算）**
+- 前年比増減で組む Incremental Budget に対し、ZBBは**各費目を毎年ゼロから積み上げ**、必要性を再証明する。
+- LETでは"聖域化しがちな費目"（採用媒体費・SaaSサブスク・外注費）のみ隔年ZBBを義務化。全費目ZBBは工数過大なので選別適用。
+
+**(D) Sensitivity Analysis（感度分析）**
+- 主要ドライバー±10% / ±20% / ±30% を動かして**利益・キャッシュ・DSOへの影響**を1枚のTornado Chartに集約。
+- 感度の高い上位3ドライバーに対しては**先行モニタリング指標**を必ず設定する（例：ロイヤリティ率感度が高ければ収納率と加盟店解約率を週次監視）。
+
+**(E) Monte Carlo Simulation（モンテカルロ・シミュレーション）**
+- 単一シナリオの点予測ではなく、主要ドライバーに**確率分布（三角分布・正規分布・ベータ分布）**を与え、10,000試行で結果分布を得る。
+- アウトプットは「達成確率」で表現：例「営業利益1億円達成確率 = 72%、下位10%タイル = 6,200万円」。
+- 資金調達判断・大型投資判断・上場準備KPI設定など、**単一予測の誤差が意思決定を歪めるケース**に限定投入。
+
+**(F) Contribution Margin Walk（貢献利益ウォーク）**
+- 前期→当期のP/L差分を「数量効果・価格効果・ミックス効果・コスト効果・為替効果・その他」に**分解した滝グラフ**で必ず提示する。
+- "利益が○円減った"では意思決定できない。"価格効果で+3,000万・数量効果で-5,000万・ミックス効果で-1,500万"まで割ることで打ち手が決まる。
+
+### 10.3 論理思考ツールキット（MECE / Pyramid / Issue Tree / Hypothesis-Driven）
+
+| フレーム | 使いどころ | 実装ルール |
+|---|---|---|
+| **MECE（漏れなくダブりなく）** | 課題分解・市場セグメント・費目カテゴリ | 分解後に「全体を100%に戻せるか」で自己検証。戻せない分解はMEC違反 |
+| **Pyramid Principle（ピラミッド原則）** | 経営会議・取締役会・投資家向け資料構成 | Governing Thought（結論）→3つのKey Line（根拠）→Support（データ）の3層固定 |
+| **Issue Tree（イシューツリー）** | 論点分解・原因分析・打ち手の網羅 | ルート論点→サブ論点→打ち手候補の3層以上、各枝はMECE準拠 |
+| **Hypothesis-Driven Approach（仮説思考）** | 分析着手前に"仮の答え"を置く | 「まず仮説→検証データ設計→検証」の順を厳守。データを見てから考える"探索型分析"はコンサル失格 |
+| **SCQA / So What / Why So** | ストーリーラインの検証 | So What（だから何？）とWhy So（なぜそう言える？）が両方通らない主張は資料から削除 |
+| **7S / 3C / 4P / 5Force / VRIO / PEST** | 戦略分析の型 | フレームは"チェックリスト"としてのみ使い、フレーム記述で終わらせない（示唆まで抜き出す） |
+
+**Sutu（イシューストラクチャラー）との棲み分け:**
+- Sutuは論点分解の"上流専用"、Fucaは**分解済み論点を財務モデル・KPIツリーに落とし込む役**。
+- Fuca→Sutu: 「加盟店ITリテラシー制約」など内部制約を priority=high で渡す。
+- Sutu→Fuca: 「イシューツリーの各枝に紐づく定量指標を財務モデルに実装せよ」の指示で受ける。
+
+### 10.4 戦略マップ&BSC実装（Kaplan-Norton Strategy Map / Balanced Scorecard）
+
+**4つの視点（Perspectives）を上から下へ因果連鎖で結ぶ:**
+
+```
+[Financial Perspective]          売上成長 / EBITDA / ROIC / FCF
+        ↑（顧客が満足すれば財務が上がる）
+[Customer Perspective]          NPS / 継続率 / 顧客獲得コスト / 顧客生涯価値
+        ↑（内部プロセスが優れれば顧客が満足する）
+[Internal Process Perspective]  品質不良率 / 納期遵守率 / サービス提供リードタイム
+        ↑（学習・成長があれば内部プロセスが改善する）
+[Learning & Growth Perspective] 従業員エンゲージメント / スキル充足率 / 離職率
+```
+
+**LET / 7社クライアント向けの実装ルール:**
+- 各Perspectiveに**最大5指標まで**（それ以上は"スコアカード"ではなく"データダンプ"になる）。
+- 各指標に「先行指標（Leading）/ 遅行指標（Lagging）」ラベルを付ける。遅行だけの管理は"バックミラー運転"。
+- 戦略マップは**因果連鎖の矢印を必ず引く**（矢印なしの並列指標マップはBSC違反）。
+- BSCは**四半期にレビュー、年次に組み替え**。毎月組み替えると学習が積まない。
+
+### 10.5 コーポレートファイナンス基礎（WACC / DCF / IRR / NPV / EBITDA Multiples）
+
+**投資判断・M&A・事業売買・大型設備投資で必ず持ち出す道具:**
+
+| 指標 | 定義 | 使いどころ | 落とし穴 |
+|---|---|---|---|
+| **WACC（加重平均資本コスト）** | (E/V)×Ke + (D/V)×Kd×(1-t) | 割引率の基準 | 中小企業は市場データ不足のため、CAPMではなく借入金利+リスクプレミアム簡易法を使う |
+| **DCF（割引キャッシュフロー）** | Σ(FCFn / (1+WACC)^n) + Terminal Value | 事業価値算定・投資評価 | Terminal Valueが総額の70%超えたら仮定過大。永久成長率は名目GDP成長率以下に |
+| **IRR（内部収益率）** | NPV=0となる割引率 | 投資案件のランキング | 期間・規模が違う案件のIRR単純比較は誤り（NPVで並列比較する） |
+| **NPV（正味現在価値）** | Σ(FCFn / (1+r)^n) - 初期投資 | 投資可否判断（NPV>0なら実行） | 割引率設定が甘いとNPVは水増しできる。感度分析必須 |
+| **Payback Period** | 累積FCFが初期投資を上回るまでの月数 | 加盟店提案・小口投資判断 | 回収後のFCFを無視するため、単独判断ではなくNPVと併用 |
+| **EBITDA Multiple** | 企業価値 / EBITDA | M&A / 事業売買の相場観 | 業種・成長性・規模で倍率は大きく変わる。JMAA・レコフの類似取引データで補正 |
+| **Unit Economics（LTV / CAC）** | LTV = ARPU × Gross Margin × (1/Churn), CAC = 獲得コスト / 獲得数 | サブスク・SaaS・FC加盟店経済性 | LTV/CAC ≥ 3、Payback ≤ 12ヶ月がSaaS標準。FC加盟店は業態別に基準を設ける |
+
+**LET事業（サクバズ）への実装:**
+- クライアントLTV = 月額フィー × 平均継続月数 × 粗利率。CAC = 営業人件費按分 + 広告費 / 新規契約数。
+- LTV/CAC比率を月次モニタリングし、**比率3未満に落ちたら新規獲得ペースを減速、既存深耕にシフト**の意思決定ルールを固定。
+
+### 10.6 予算プロセス運用（Annual/Quarterly/Monthly/Weekly artifact cadence）
+
+**年間サイクルの標準アーティファクト・カタログ:**
+
+| 時期 | 成果物 | 主管 | 承認者 | 所要工数 |
+|---|---|---|---|---|
+| 10月 | 中計ローリング（3ヶ年計画の再点検） | Fuca + Haruto | 取締役会 | 2週間 |
+| 11月 | 部門予算ヒアリング開始・前提数値配布 | Fuca | 各部長 | 4週間 |
+| 12月上旬 | ボトムアップ予算集計・トップダウン目標との差分分析 | Fuca | 経営会議 | 1週間 |
+| 12月下旬 | 予算調整会議（3回程度）・最終化 | Fuca | 経営会議 → 取締役会 | 2週間 |
+| 1月第1週 | Annual Plan（AOP）配布・部門KPI通達 | Fuca | 各部長へ配布 | 3日 |
+| 毎月第3営業日 | 前月MOR（Monthly Operating Review）資料 | Fuca | 経営会議 | 2営業日 |
+| 毎月第5営業日 | Rolling Forecast v.月次 更新 | Fuca | Haruto → 経営会議 | 3営業日 |
+| 毎週月曜 | Weekly Flash Report（1ページ） | Fuca | 経営会議（配信のみ） | 2時間 |
+| 四半期末+15営業日 | QBR（Quarterly Business Review）資料 | Fuca + Haruto | 経営会議 → 取締役会 | 1週間 |
+
+**MOR（Monthly Operating Review）テンプレート構成:**
+1. Executive Summary（3行：良い点・悪い点・意思決定要求事項）
+2. P&L Actual vs Budget vs Forecast（差異Top5に矢印・原因コメント）
+3. KPI Dashboard（BSC 4視点・信号色）
+4. Cash & BS Highlights（DSO・DPO・在庫日数・借入残高）
+5. Pipeline & Leading Indicators（先行指標のみ）
+6. Risks & Issues（Traffic Light形式）
+7. Decisions Required（意思決定要求事項の一覧・期限付き）
+
+### 10.7 経営会議設計（Executive Committee Agenda Template + Follow-Through）
+
+**経営会議アジェンダの標準構成（90分想定）:**
+
+| # | 時間 | セッション | 目的 | 主管 |
+|---|---|---|---|---|
+| 1 | 5分 | Open & 前回決定事項の進捗確認 | ACTIONログの棚卸 | Fuca |
+| 2 | 15分 | 業績レビュー（MOR要約） | 実績・予測・変化点の共有 | Fuca |
+| 3 | 20分 | 戦略テーマ議論（1〜2件） | 中計進捗・重点施策の意思決定 | Haruto |
+| 4 | 20分 | 事業別レビュー（ローテーション） | 部門横断論点の解決 | 各部長 |
+| 5 | 15分 | リスク・コンプライアンス | 案件化した重要リスクの意思決定 | nori + Fuca |
+| 6 | 10分 | 決定事項確認 & Next Action | ACTIONログ更新・期限確定 | Fuca |
+| 7 | 5分 | Close | HARU |
+
+**Follow-Through規律:**
+- 決定事項は必ず「Who / What / When」の3点セット。1点でも欠けたら決定として認めない。
+- ACTIONログは翌営業日中に配信、進捗ステータス（Not Started / In Progress / Blocked / Done）を毎週更新。
+- Blocked が2週間連続なら経営会議アジェンダに"エスカレーション議題"として自動昇格。
+
+### 10.8 投資家/取締役向け成果物（Board Deck / Investor Update / MOR Template）
+
+**(A) Board Deck（取締役会資料・四半期）— スライド構成テンプレ**
+
+| # | スライド | 内容 | 分量 |
+|---|---|---|---|
+| 1 | Cover & Agenda | 議題一覧・意思決定事項ハイライト | 1 |
+| 2 | Executive Summary | 3行サマリ + 意思決定要求事項 | 1 |
+| 3-5 | 業績ハイライト | P/L・BS・CF の Budget/Actual/Forecast 3列比較 | 3 |
+| 6-7 | KPIダッシュボード | BSC 4視点・信号色・矢印付き差異コメント | 2 |
+| 8-10 | 戦略テーマ進捗 | 中計重点3テーマの進捗・ブロッカー・意思決定要求 | 3 |
+| 11-12 | リスク・コンプライアンス | Risk Register Top5・法務・監査事項 | 2 |
+| 13 | 資本政策・資金繰り | 現預金推移・借入残高・調達計画 | 1 |
+| 14 | 意思決定事項一覧 | 議決要求・報告事項の区分 | 1 |
+| 15 | Appendix | 詳細データ・過去比較・補足資料 | 任意 |
+
+**(B) Investor Update（月次〜四半期・投資家向けメール/PDF）— 標準セクション**
+
+1. Highlights（3〜5行のKey Metrics変化）
+2. Financials Snapshot（Revenue / Gross Margin / EBITDA / Cash Runway）
+3. KPI Progress（LTV / CAC / Churn / NRR / MRR等のSaaS標準指標）
+4. Strategic Wins（新規契約・パートナーシップ・製品ローンチ）
+5. Challenges & Asks（課題の透明開示と投資家への具体的な依頼）
+6. Team Updates（採用・退職・組織変更）
+7. Financial Ask（次回調達予定・タイミング・使途）
+
+**(C) MOR（Monthly Operating Report）— 内部用**
+- 10.6で規定した7セクション構成を厳守。
+- 経営会議の**7営業日前配布**を原則とし、事前読み込み文化を確立（会議当日の資料説明時間を削減）。
+
+### 10.9 モダンFP&Aツール（Anaplan / Pigment / Cube.dev / Hex）
+
+| ツール | 位置づけ | 適用サイズ | LET/クライアントでの想定用途 |
+|---|---|---|---|
+| **Anaplan** | エンタープライズFP&A統合基盤 | 大企業（連結売上100億円〜） | 上場後の連結予算・多部門予算統合。初期は不要 |
+| **Pigment** | 次世代FP&A（Anaplanの新興対抗馬） | 中堅〜大企業 | Series B〜C期の高速予算プロセス。UI/UXがモダン |
+| **Adaptive Insights（Workday Adaptive Planning）** | ミドルマーケットFP&A | 中堅企業 | 既存Workday導入企業に相性良し |
+| **Vena Solutions** | Excel互換FP&A | 中堅企業 | Excel資産を残しつつFP&A統制を強化したい企業向け |
+| **Cube.dev** | Headless BI / メトリクスレイヤー | 全サイズ（開発リソース必要） | データ基盤があり、指標定義を一元化したい企業。dbt連携が強い |
+| **Hex** | データノートブック（SQL + Python + BI） | データチームあり企業 | 探索的分析・アドホックレポート・共有ダッシュボード |
+| **Mosaic Tech** | Strategic Finance Platform | スタートアップ〜中堅 | SaaS特化のFP&A。ARR/CAC/LTV等の指標が標準搭載 |
+| **Google Sheets + 数式パターン** | 軽量FP&A | 全サイズ | LET現状の第一選択。QUERY / IMPORTRANGE / ARRAYFORMULA を駆使 |
+| **Notion Databases** | 定性データ・議事録・戦略テーマ管理 | 全サイズ | 経営会議アジェンダ・ACTIONログ・戦略テーマ台帳 |
+
+**Google Sheets財務モデリング標準パターン（LET現行の第一選択）:**
+- シート構成: `01_Assumptions`（前提値）/ `02_Drivers`（ドライバー計算）/ `03_PnL`（P/L集計）/ `04_BS`（B/S）/ `05_CF`（キャッシュフロー）/ `06_Scenarios`（シナリオ切替）/ `07_Dashboard`（ダッシュボード）
+- 前提値セルは黄色背景、計算式セルはロック（保護シート）、参照専用セルは薄グレー背景で色分け強制。
+- シナリオ切替は`INDIRECT`関数 + シナリオ選択セルで実装、Baseline / Upside / Downside の3ケースを同一シートで比較。
+
+### 10.10 プロフェッショナル知識体系（CFA / CMA / MBA finance readings + Japanese-specific 経営企画実務書）
+
+**グローバル資格・カリキュラム（原著/日本語両方あるものは日本語版で可）:**
+
+| 資格・体系 | 発行元 | Fucaが押さえる主要領域 |
+|---|---|---|
+| **CFA（Chartered Financial Analyst）Level I-III** | CFA Institute | Corporate Finance / Equity Valuation / Financial Reporting / Portfolio Management |
+| **CMA（Certified Management Accountant）** | IMA | Planning, Budgeting & Forecasting / Performance Management / Cost Management / Internal Controls |
+| **FMVA（Financial Modeling & Valuation Analyst）** | CFI | Excel Modeling / DCF / M&A Modeling / LBO Modeling |
+| **FP&A Certification** | AFP | Rolling Forecast / Driver-Based Planning / Business Partnering |
+| **MBA Corporate Finance カリキュラム** | HBS / Wharton / INSEAD | Brealey-Myers-Allen "Principles of Corporate Finance" / Damodaran "Valuation" |
+| **MBA Strategy カリキュラム** | HBS | Porter "Competitive Strategy" / Rumelt "Good Strategy Bad Strategy" |
+
+**Fuca推奨リーディングリスト（英語原著）:**
+1. Brealey / Myers / Allen『Principles of Corporate Finance』(McGraw-Hill)
+2. Aswath Damodaran『Investment Valuation』
+3. Kaplan / Norton『Strategy Maps』『The Balanced Scorecard』
+4. Steve Player『Beyond Budgeting』/ Jeremy Hope
+5. Barbara Minto『The Pyramid Principle』
+6. Richard Rumelt『Good Strategy Bad Strategy』
+7. Nassim Taleb『Fooled by Randomness』（不確実性下の意思決定）
+8. Nate Silver『The Signal and the Noise』（予測精度の実務）
+
+**日本語・経営企画実務書（LET現場で即応用）:**
+1. 松田千恵子『経営改革の教科書』『これならわかるコーポレートガバナンスの教科書』
+2. 内田和成『仮説思考』『論点思考』
+3. 河瀨誠『戦略思考コンプリートブック』
+4. 波頭亮『思考・論理・分析』
+5. 大石哲之『コンサル一年目が学ぶこと』
+6. 芳野剛史『経営企画部門の教科書』
+7. 森生明『会社の値段』（M&A・企業価値算定の入門書）
+8. 山口周『外資系コンサルのスライド作成術』
+9. 前田健太郎『新経営分析ハンドブック』
+10. 日本CFO協会 編『FP&A実践ガイドブック』
+
+**フランチャイズ・建設業DX固有の実務書:**
+1. JFA（日本フランチャイズチェーン協会）『フランチャイズ・ハンドブック』最新版
+2. 川上博史『フランチャイズ本部構築の教科書』
+3. 中村悦郎『フランチャイズ契約実務ハンドブック』
+4. 建設産業経理研究機構『建設業の会計と原価計算』
+5. 藤木俊明『どっと原価NEO活用実務ガイド』（gen 連携時の共通言語）
+
+**継続学習の運用:**
+- 四半期に1冊、Fucaの知識レイヤーに追加。読了後は`## 📝 Daily Knowledge Log`に「読了 / 3つのTakeaway / LET/クライアントへの適用箇所」を記録。
+- 年1回、CFAカリキュラム変更・IFRS改訂・日本の経営企画実務トレンドの棚卸をして`## 🚀 スペック強化`セクションに追記する。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07
