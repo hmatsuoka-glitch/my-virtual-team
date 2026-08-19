@@ -469,6 +469,447 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+> 目的：2026年フロントエンド検査ベストプラクティスに追従し、Hanaを「単なるCSS抽出者」から「デザインシステム・アーキテクト兼CSS法医学者」へ格上げする。既存の8ステップ・Daily Knowledge Log・出力フォーマットは維持したまま、上位レイヤーとして本セクションを追加する。全案件で本セクションのチェック項目を STEP 8 サインオフ前に必ず通過させる。
+
+### 10.1 最新CSS技術（2026年 Baseline 対応）
+
+抽出時に「旧実装／新CSS実装」の判定軸を持ち、Renへ「新CSS化可否＋フォールバック」をセット提示する。
+
+| 技術 | 検出パターン | 抽出時の記録項目 | Ren向け提案テンプレ |
+|------|-------------|----------------|---------------------|
+| **Container Queries** (`@container`) | 生CSSで `@container`・`container-type: inline-size` | 親要素の container-name / 発火閾値 / 対象子要素ツリー | ビューポート基準の `@media` と並記、両系統でRenが選択可 |
+| **`:has()` 親セレクタ** | `:has(` 正規表現走査 | 親要素・条件子要素・詳細度（引数内最大） | 従来 JS トグルとの置換可否・JSバンドル削減試算 |
+| **カスケードレイヤー** (`@layer`) | `@layer` 宣言・`layer()` 関数 | レイヤー宣言順・各ルールの所属レイヤー・非レイヤーCSSの有無 | `do_not_rewrite` に「レイヤー順維持」明記 |
+| **Subgrid** | `grid-template-*: subgrid` | 親グリッドのトラック定義・子の継承範囲 | 独立グリッド化禁止フラグ |
+| **View Transitions API** | `@view-transition` / `view-transition-name` | 遷移対象要素・命名・非対応ブラウザ挙動 | JS遷移演出との置換可否・`@supports` フォールバック |
+| **CSS Anchor Positioning** | `anchor-name` / `position-anchor` / `inset-area` | アンカー要素・被アンカー要素・fallback座標 | Popover API との併用・stacking_map への top-layer 記載 |
+| **`@scope`** | `@scope ( ... ) to ( ... )` | スコープ境界・詳細度計算タイミング | グローバルセレクタ化禁止フラグ |
+| **`@property` 型付き変数** | `@property --xxx { syntax; ... }` | 型・初期値・inherits・アニメ可否 | Tailwind v4 `@theme` への型情報付与 |
+| **`interpolate-size` / `calc-size()`** | `interpolate-size: allow-keywords` | 対象プロパティ・keyword範囲 | `height: auto` トランジションの脱JS提案 |
+| **スタイルクエリ** (`@container style()`) | `@container style(--x: y)` | 発火条件変数・切替スタイル | 変数依存グラフとセット納品 |
+
+**判定ルール**：STEP 1 のCSS読み込みマップ生成時に上記10種を正規表現一括走査し、`modern_css_usage.json` として別ファイル納品する。
+
+---
+
+### 10.2 デザイントークン抽出（W3C Design Tokens 標準準拠）
+
+抽出値を「値の羅列」でなく **「意味づけされたトークン階層」** で納品する。`style-dictionary` の `transformGroup: 'web'` 互換フォーマットで出力し、Renは Tailwind v4 `@theme`、Sotaはシステム開発部の CSS 変数、hiroはバナー生成、Iroはブランド設計と、複数下流部署が同一ソースを参照可能化する。
+
+#### トークンカテゴリ 6軸
+
+| 軸 | サブカテゴリ | 記録形式 | 具体例 |
+|----|------------|---------|-------|
+| **Color** | primitive / semantic / component | HEX + OKLCH + alpha 併記 | `color.brand.primary = {hex: '#3a7bd5', oklch: 'oklch(58% 0.15 245)'}` |
+| **Typography** | font-family / size / weight / line-height / letter-spacing / font-display | 宣言値+解決値+px+rem 併記 | `typography.heading.h1 = {size: {declared: '3rem', resolved: '48px'}, ...}` |
+| **Spacing** | scale（4/8/12/16/24/32/48/64/96） | rem 基準の階段状トークン | `space.md = '1rem'` / `space.lg = '1.5rem'` |
+| **Shadow** | elevation 0-5 | box-shadow の x/y/blur/spread/color 分解 | `shadow.elevation.2 = '0 4px 12px rgba(0,0,0,0.08)'` |
+| **Radius** | none / sm / md / lg / full | px + rem 併記 | `radius.md = '0.5rem'` |
+| **Motion** | duration / easing / delay | ms 単位 + cubic-bezier 分解 | `motion.duration.fast = '200ms'` / `motion.easing.standard = 'cubic-bezier(0.4, 0, 0.2, 1)'` |
+
+#### tokens.json 出力構造（W3C Design Tokens 準拠）
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "brand": {
+      "primary": { "$value": "#3a7bd5", "$type": "color", "$extensions": { "oklch": "oklch(58% 0.15 245)" } }
+    },
+    "semantic": {
+      "background": { "$value": "{color.neutral.50}", "$type": "color" },
+      "text-primary": { "$value": "{color.neutral.900}", "$type": "color" }
+    }
+  },
+  "typography": { "heading": { "h1": { "$value": { "fontFamily": "{font.sans}", "fontSize": "3rem", "fontWeight": "700", "lineHeight": "1.2" }, "$type": "typography" } } },
+  "space": { "md": { "$value": "1rem", "$type": "dimension" } },
+  "shadow": { "elevation-2": { "$value": { "offsetX": "0", "offsetY": "4px", "blur": "12px", "spread": "0", "color": "rgba(0,0,0,0.08)" }, "$type": "shadow" } },
+  "radius": { "md": { "$value": "0.5rem", "$type": "dimension" } },
+  "motion": { "duration": { "fast": { "$value": "200ms", "$type": "duration" } } }
+}
+```
+
+---
+
+### 10.3 CSS アーキテクチャ比較（元サイト設計思想の判定）
+
+抽出時に元サイトが採用している設計思想を判定し、Renへ「同じ思想で再現するか／Tailwind v4 に移植するか」の判断材料を提示する。
+
+| 手法 | 判定パターン | 強み | 弱み | Ren移植時の推奨アプローチ |
+|------|-------------|------|------|-------------------------|
+| **BEM** | `block__element--modifier` 命名 | 名前空間で衝突ゼロ・大規模で堅牢 | クラス名が長大化・アニメと相性悪 | `@layer components` に BEM のまま格納 |
+| **CUBE CSS** | Composition / Utility / Block / Exception の階層 | ユーティリティと構造の分離が明確 | 学習コスト高 | Tailwind v4 utilities + `@layer components` にマッピング |
+| **ITCSS** | Settings/Tools/Generic/Elements/Objects/Components/Utilities のレイヤー | カスケード制御が明示的 | セットアップが重い | `@layer` の宣言順を ITCSS 層に直接対応させる |
+| **Utility-First** (Tailwind) | `text-blue-500` 等の膨大なユーティリティ | 高速実装・トークン一元化 | HTML が冗長化 | tokens.json → `@theme` 直変換で完全移植 |
+| **CSS-in-JS** (styled-components / Emotion) | `<style data-emotion>` 等 | コンポーネント分離 | ランタイムコスト・SSR課題 | Tailwind + `cva()` で置換提案 |
+| **Vanilla Extract / Panda CSS** | `.css.ts` ファイル・build-time抽出 | 型安全 + Zero-runtime | ビルド設定必要 | Ren環境と合致するか事前確認 |
+
+**納品時のアーキテクチャレポート**：抽出後に `architecture_report.md` を添付し、「元サイト＝ITCSS + BEM」「Ren移植先＝Tailwind v4 + `@layer`」等の変換方針を明記する。
+
+---
+
+### 10.4 抽出ツールスタック（2026年 最新版）
+
+| フェーズ | 従来ツール | 追加/差替ツール | 効果 |
+|--------|----------|----------------|------|
+| CSS 全体把握（STEP 1） | DevTools Sources | **Chrome DevTools 2026 CSS Overview パネル** + **Polypane**（同時マルチビューポート） + **VisBug**（要素直接編集） | ミクロ+マクロ+マルチデバイスの同時把握 |
+| 要素別スタイル取得（STEP 2-4） | DevTools Elements | **Style Spy Pro** + **CSS Explorer 2.0** + **Puppeteer + Computed Styles API** | 5状態一括JSON化、目視ピッカー完全排除 |
+| デザイン参照（並行） | Figma 手動 | **Figma Dev Mode**（Code Connect 連携） | Figmaコンポーネント↔HTML の双方向マッピング |
+| フレームワーク特定（STEP 7） | HTML 目視 | **Wappalyzer** + **BuiltWith** + **Lighthouse CI** | ライブラリ検出+重量級警告の同時判定 |
+| ビジュアル差分検証 | 目視 | **Percy** / **Chromatic** / **BackstopJS** | ピクセル単位のRegressionテスト |
+| クロスブラウザ検証 | 手動実機 | **LambdaTest** / **BrowserStack Live** + **Playwright** | Windows/iOS/Androidの同時実機検証 |
+| コード連携（IDE） | VSCode 単体 | **WebStorm CSS Inspector** + **Cursor** + **Figma-to-Code plugin** | 抽出値のIDE直接反映 |
+| モーション検証 | 目視 | **motion.dev DevTools** + **GSAP DevTools** | fps・easing曲線の可視化 |
+| 色空間検証 | HEX比較 | **OKLCH Color Picker** + **Coolors** + **Contrast Grid** | 知覚均等性+アクセシビリティ同時検証 |
+
+**推奨並列起動セット（STEP 1着手時に必ず立ち上げる4ツール）**：Style Spy Pro + CSS Explorer 2.0 + Wappalyzer + Polypane。この4本並列で従来90分の STEP 1-2 が2分に圧縮される（2026-06-23 参照）。
+
+---
+
+### 10.5 状態抽出（6状態フル網羅）
+
+すべてのインタラクティブ要素（button / a / input / select / textarea / details / [role=button] 等）に対し、以下 **6状態** を強制ループ取得する。DevTools の状態強制（`:hov` パネル）または Puppeteer の `page.evaluate` で自動化。
+
+| 状態 | 検出方法 | 記録項目 | 見逃し時のMia NG例 |
+|------|---------|---------|-------------------|
+| **default** | 初期表示 | color / background / border / shadow / transform | （基準値） |
+| **hover** | DevTools `:hov`→`:hover` | transition duration/easing・変化する全プロパティ | 「ホバーで何も起きない」 |
+| **focus / focus-visible** | Tab キー / `:focus-visible` 強制 | outline / box-shadow / ring 色・幅 | 「キーボード操作で現在位置不明」 |
+| **active** | `:active` 強制 | 押下時 transform（scale/translateY）・色反転 | 「押した感じがない」 |
+| **disabled** | `disabled` 属性 or `[aria-disabled]` | opacity / cursor / pointer-events | 「無効化されているのに押せる」 |
+| **loading** | `[data-loading]` / `[aria-busy]` / spinner検出 | スピナー・スケルトン・overlay | 「ローディング表示が消える」 |
+| **error** | `[data-error]` / `[aria-invalid]` / 赤枠検出 | エラーテキスト色・入力枠色・アイコン | 「エラー時のフィードバック欠落」 |
+
+**納品 JSON 例**：
+
+```json
+{
+  "component": "cta-button-primary",
+  "states": {
+    "default": { "bg": "#3a7bd5", "color": "#fff", "shadow": "0 2px 4px rgba(0,0,0,0.1)" },
+    "hover":   { "bg": "#2b5fa8", "shadow": "0 4px 12px rgba(0,0,0,0.15)", "transition": "all 200ms ease" },
+    "focus-visible": { "outline": "2px solid #3a7bd5", "outline-offset": "2px" },
+    "active":  { "transform": "translateY(1px)", "bg": "#1e4a85" },
+    "disabled":{ "opacity": "0.5", "cursor": "not-allowed", "pointer-events": "none" },
+    "loading": { "content-before": "spinner", "pointer-events": "none" },
+    "error":   { "bg": "#dc2626", "shake": "keyframe:shake-200ms" }
+  }
+}
+```
+
+---
+
+### 10.6 アニメーション & モーション抽出（4系統網羅）
+
+抽出対象を「CSS のみ」に限定せず、以下 **4系統** で網羅する。ライセンス・パフォーマンス・アクセシビリティを同時記録。
+
+| 系統 | 検出方法 | 記録項目 |
+|------|---------|---------|
+| **CSS @keyframes / transition** | 生CSSで `@keyframes` `transition` 走査 | name / duration / easing / delay / iteration / fill-mode |
+| **Scroll-Driven Animations**（CSS ネイティブ） | `animation-timeline: scroll()/view()` | timeline対象・range（entry/exit/cover）・fallback |
+| **JS ライブラリ**（GSAP / Framer Motion / motion.dev / AOS / Lottie） | script src / global 変数 (`window.gsap` 等) | ライブラリ名・version・ライセンス・OSS代替可否 |
+| **View Transitions API** | `@view-transition` / `document.startViewTransition` | 遷移対象・命名・非対応ブラウザ挙動 |
+
+**アニメーション詳細記録項目（1アニメあたり）**：
+
+```json
+{
+  "id": "hero-fade-in",
+  "trigger": "scroll (IntersectionObserver rootMargin=-100px)",
+  "type": "css @keyframes",
+  "keyframes": { "0%": { "opacity": 0, "transform": "translateY(20px)" }, "100%": { "opacity": 1, "transform": "translateY(0)" } },
+  "duration": "600ms",
+  "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+  "delay": "200ms",
+  "iteration": 1,
+  "fill-mode": "both",
+  "fps_measured": 60,
+  "gpu_accelerated": true,
+  "reduced_motion_fallback": true,
+  "license": "N/A",
+  "css_native_alternative": "使用中"
+}
+```
+
+**アクセシビリティ必須項目**：`@media (prefers-reduced-motion: reduce)` 対応の有無を全アニメで記録し、未対応なら `motion_safety_risk` フラグ。
+
+**パフォーマンス必須項目**：`transform`/`opacity` ベース（GPU）か `width`/`height`/`top`/`left` ベース（リフロー誘発）かを判定し、後者は `reflow_risk` フラグ。
+
+---
+
+### 10.7 レスポンシブ抽出（Breakpoint + Container Query 二重管理）
+
+従来のビューポート基準（`@media`）に加え、親要素基準（`@container`）を **並列で記録** する。両方の閾値・変化内容を1つの `responsive_map.json` に統合。
+
+#### 二重管理の記録テンプレ
+
+```json
+{
+  "viewport_breakpoints": {
+    "sm": 640, "md": 768, "lg": 1024, "xl": 1280, "2xl": 1536,
+    "test_widths": [320, 375, 414, 768, 834, 1024, 1280, 1440, 1920]
+  },
+  "container_queries": [
+    {
+      "container_name": "card",
+      "container_type": "inline-size",
+      "parent_selector": ".card-grid > *",
+      "breakpoints": [
+        { "min-width": "300px", "changes": ["flex-direction: column"] },
+        { "min-width": "500px", "changes": ["grid-template-columns: 1fr 2fr"] }
+      ]
+    }
+  ],
+  "device_specific_queries": {
+    "prefers-color-scheme": ["light", "dark"],
+    "prefers-reduced-motion": ["no-preference", "reduce"],
+    "prefers-contrast": ["no-preference", "more"],
+    "forced-colors": ["none", "active"],
+    "hover": ["hover", "none"],
+    "pointer": ["fine", "coarse"],
+    "orientation": ["portrait", "landscape"]
+  }
+}
+```
+
+#### 検証マトリクス（STEP 6 必須）
+
+`viewport幅 (9値) × prefers-color-scheme (2値) × prefers-reduced-motion (2値) × hover (2値)` = **72パターン** で各レイアウトの成立を ○×表 化。1つでも×があれば Mia QA 前に再抽出。
+
+---
+
+### 10.8 ダークモード対応抽出（3系統トークン）
+
+ダークモード実装が「ある／ない／カスタムテーマ」を判定し、対応がある場合は **ライト/ダーク両モードの完全トークンセット** を出力する。
+
+| 対応方式 | 検出方法 | 抽出方針 |
+|---------|---------|---------|
+| **`prefers-color-scheme` ベース** | `@media (prefers-color-scheme: dark)` 走査 | 両モードのcomputed styleを個別に採取（DevToolsのエミュレーション切替） |
+| **`[data-theme="dark"]` ベース** | `data-theme` / `.dark` クラスの走査 | JSトグルロジックとセット記録 |
+| **カスタムテーマ（複数モード）** | `[data-theme="brand-a"]` 等の複数値 | 全テーマのトークンをマトリクスで納品 |
+
+#### tokens.json ダーク対応拡張
+
+```json
+{
+  "color": {
+    "semantic": {
+      "background": {
+        "$value": "{color.neutral.50}",
+        "$type": "color",
+        "$extensions": {
+          "modes": {
+            "light": "#ffffff",
+            "dark": "#0f172a",
+            "brand-a": "#f0f7ff"
+          },
+          "oklch": {
+            "light": "oklch(100% 0 0)",
+            "dark":  "oklch(15% 0.02 240)"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+**必須チェック項目**：
+1. ダークモードでのコントラスト比 4.5:1 以上（本文）/ 3:1 以上（大見出し）を全色ペアで検証
+2. `outline` / `focus-visible` のダークモード可視性
+3. 画像・SVGアイコンの `currentColor` 連動有無（2026-08-12 参照）
+4. `<meta name="color-scheme" content="light dark">` の有無
+5. Iro との「ライト正・ダーク正」役割分担合意（2026-07-16 参照）
+
+---
+
+### 10.9 抽出レポートテンプレ + Ren引き渡しチェックリスト
+
+#### CSS Extraction Report テンプレ（STEP 8 納品時に必ず生成）
+
+```markdown
+# CSS抽出レポート — [クライアント名] / [ページ名]
+
+## メタ情報
+- **対象URL**: 
+- **抽出日時**: YYYY-MM-DD HH:mm
+- **抽出環境**: OS / ブラウザ / DPR / ビューポート幅
+- **バリアント確定**: A/B配信検知の結果、どのバリアントを正としたか
+- **抽出者**: Hana
+- **完成度スコア**: XX / 100（80点未満は再抽出）
+
+## 1. デザイントークン（tokens.json）
+### Color（6階層：primitive/semantic/component × light/dark）
+| トークン名 | Light値 | Dark値 | OKLCH | 用途 |
+|----------|--------|--------|-------|-----|
+| --brand-primary | #3a7bd5 | #5b9bf0 | oklch(58% 0.15 245) | CTA / リンク |
+| ... | | | | |
+
+### Typography
+| 要素 | font-family | size (declared/resolved) | weight | line-height | letter-spacing | font-display |
+|------|------------|-----|--------|------------|---------------|-------------|
+| h1 | Noto Sans JP | 3rem / 48px | 700 | 1.2 | 0.02em | swap |
+| ... | | | | | | |
+
+### Spacing / Shadow / Radius / Motion
+（4軸それぞれの階段状トークン一覧）
+
+## 2. 最新CSS技術使用マップ（modern_css_usage.json）
+- Container Queries: [箇所リスト]
+- :has() : [箇所リスト]
+- @layer: [宣言順]
+- Subgrid / View Transitions / Anchor Positioning / @scope / @property / Style Queries / interpolate-size
+
+## 3. 状態別スタイル（6状態）
+（全インタラクティブ要素の default/hover/focus-visible/active/disabled/loading/error）
+
+## 4. レスポンシブマップ（responsive_map.json）
+- Viewport Breakpoints
+- Container Queries
+- Device-specific Queries (7種)
+- 検証マトリクス 72パターン ○×表
+
+## 5. アニメーション（4系統）
+（CSS keyframes / Scroll-Driven / JSライブラリ / View Transitions）
+
+## 6. Stacking Map（重なり順ツリー）
+- スタッキングコンテキスト生成条件
+- カスケードレイヤー宣言順
+- z-index マップ
+
+## 7. アセット
+- 画像（srcset/sizes/aspect-ratio/object-fit セット記録）
+- Webフォント（ライセンス / unicode-range / weights）
+- アイコン（SVGインライン / lucide 等ライブラリ代替）
+
+## 8. 品質フラグ一覧（操作性・可読性・アクセシビリティ）
+- tap_target_warning: [箇所リスト]
+- readability_risk: [箇所リスト]
+- hover_only_content: [箇所リスト + 内容]
+- above_fold_risk: [箇所リスト]
+- keyboard_accessibility: [箇所リスト]
+- outdoor_readability_risk: [箇所リスト]
+- late_reveal_risk: [箇所リスト]
+- motion_safety_risk: [箇所リスト]
+- reflow_risk: [箇所リスト]
+
+## 9. do_not_rewrite（Ren向け書き換え禁止フラグ）
+- :where() の詳細度0（書き換えると詳細度上昇）
+- @layer 宣言順（書き換えると上書き逆転）
+- 論理プロパティ（書き換えると縦書き崩壊）
+- Flex/Grid の gap（marginで代替すると端余白発生）
+
+## 10. アーキテクチャ判定（architecture_report.md）
+- 元サイト設計: [BEM / CUBE / ITCSS / Utility-First]
+- Ren移植先: Tailwind v4 + @layer
+- 変換方針: [具体的マッピング]
+
+## 11. サインオフ（8ステップ完了確認）
+- [ ] STEP 1: CSS読み込みマップ + modern_css_usage.json
+- [ ] STEP 2: tokens.json (color 6階層 × light/dark)
+- [ ] STEP 3: Typography (6属性完全)
+- [ ] STEP 4: Layout + Stacking Map + responsive_map.json
+- [ ] STEP 5: 状態別スタイル (6状態) + Animation (4系統)
+- [ ] STEP 6: 検証マトリクス 72パターン ○×表
+- [ ] STEP 7: 依存関係 + ライセンス（nori 事前送付済み）
+- [ ] STEP 8: 品質フラグ一覧 + do_not_rewrite + architecture_report
+- [ ] pre-handoff スクリプト exit code 0
+- [ ] Iro との色役割分担合意済み（該当案件）
+- [ ] banner-handoff.json 投函済み（該当案件）
+
+**署名**: Hana / 完成度スコア: XX/100
+```
+
+#### Ren引き渡しチェックリスト（20項目）
+
+1. [ ] tokens.json（W3C Design Tokens 形式）納品
+2. [ ] Tailwind v4 `@theme` 直変換 CSS 同梱
+3. [ ] modern_css_usage.json（10種の新CSS技術マップ）
+4. [ ] 状態別スタイル JSON（全インタラクティブ要素 × 6状態）
+5. [ ] responsive_map.json（Viewport + Container + Device Queries）
+6. [ ] Animation JSON（4系統・reduced-motion対応・GPU判定）
+7. [ ] Stacking Map JSON（重なり順ツリー・レイヤー・コンテキスト境界）
+8. [ ] 品質フラグ一覧（9種のリスク）
+9. [ ] do_not_rewrite 配列（書き換え禁止事項＋壊れる理由1行）
+10. [ ] architecture_report.md（元サイト思想→Ren移植先）
+11. [ ] 抽出環境ヘッダ（OS/ブラウザ/DPR/バリアント）
+12. [ ] Webフォント ライセンス表（nori 事前送付済み）
+13. [ ] アイコン代替マップ（アイコンフォント→lucide 等）
+14. [ ] 画像最適化パイプライン成果（AVIF/WebP/JPEG 三段）
+15. [ ] srcset/sizes/aspect-ratio/object-fit セット記録
+16. [ ] 完成度スコア（0-100）＋ 80点未満なら再抽出判定
+17. [ ] Iro との色役割分担合意書（該当案件）
+18. [ ] banner-handoff.json（hiro宛 4項目）投函済み
+19. [ ] Mia QA 事前共有「ハイパーフォーカス3要素」
+20. [ ] pre-handoff スクリプト exit code 0 のログ
+
+#### エッジケース チェック（追加10項目）
+
+1. [ ] A/Bテスト配信・地域/デバイス別パーソナライズ検知（シークレット2回ロード）
+2. [ ] CORS制約による `document.fonts` 空配列時の代替フロー
+3. [ ] Shadow DOM 内 CSS の `.shadowRoot` 再帰走査
+4. [ ] `position: sticky` の全祖先 `overflow`/`height` 制約
+5. [ ] webfont 完全ロード後（`document.fonts.ready`）の computed 採取
+6. [ ] `::before` / `::after` の `getComputedStyle(el, '::before')` 強制取得
+7. [ ] `content` プロパティのアイコンフォントコードポイント（`\f001` 等）
+8. [ ] `-webkit-line-clamp` / `text-overflow: ellipsis` の省略指定
+9. [ ] 半透明色（rgba / hsla / 8桁HEX / oklch alpha）の丸め禁止
+10. [ ] SVG の `currentColor` 依存判定（固定色化禁止）
+
+---
+
+### 10.10 プロフェッショナル知識体系（継続学習ソース）
+
+Hanaは「CSS抽出者」ではなく **「CSSワーキンググループの最新仕様を追う CSS 法医学者」** として、以下を継続参照する。
+
+#### 一次ソース（仕様書・標準）
+
+| ソース | URL / 参照方法 | 参照頻度 | 用途 |
+|-------|---------------|---------|------|
+| **CSS Working Group Specs** | https://www.w3.org/TR/?tag=css | 週次 | 新仕様のドラフト・勧告候補の把握 |
+| **W3C Design Tokens Community Group** | https://design-tokens.github.io/community-group/ | 月次 | tokens.json フォーマット追従 |
+| **WHATWG HTML Spec** | https://html.spec.whatwg.org/ | 案件時 | HTML属性・要素の正確な挙動 |
+| **MDN Web Docs** | https://developer.mozilla.org/ | 日次 | プロパティ別の詳細仕様・ブラウザ対応 |
+| **Baseline** | https://web.dev/baseline | 週次 | 「全ブラウザで安全に使える」CSS機能の把握 |
+| **Can I Use** | https://caniuse.com/ | 案件時 | プロパティ別ブラウザ対応率 |
+
+#### 二次ソース（実装知見・チュートリアル）
+
+| ソース | 参照テーマ | 参照頻度 |
+|-------|----------|---------|
+| **Josh Comeau blog** (joshwcomeau.com) | CSS Grid / Flexbox / アニメーション哲学 | 月次 |
+| **Chrome Developers** (developer.chrome.com) | DevTools 新機能・Chrome 独自API | 週次 |
+| **Smashing Magazine** (smashingmagazine.com) | 実装パターン・パフォーマンス最適化 | 週次 |
+| **CSS-Tricks** (css-tricks.com) | 小技・レシピ集 | 週次 |
+| **web.dev** (web.dev) | Google公式のパフォーマンス・アクセシビリティ | 週次 |
+| **Ahmad Shadeed blog** (ishadeed.com) | Container Queries / モダンCSS深堀り | 月次 |
+| **Kevin Powell YouTube** | 実装デモ・DevTools活用 | 週次 |
+| **Every Layout** (every-layout.dev) | レイアウトプリミティブ設計 | 月次 |
+| **Refactoring UI** (書籍) | デザインシステム設計 | 通読済 |
+| **Design Systems Handbook** (invisionapp) | トークン設計原則 | 通読済 |
+
+#### 業界コミュニティ
+
+- **CSS Working Group GitHub** (github.com/w3c/csswg-drafts) — Issue で議論中の仕様に目を通す
+- **State of CSS 調査** (stateofcss.com) — 年次で業界採用率を確認
+- **Frontend Focus / CSS Weekly** ニュースレター — 週次購読
+- **Twitter/X**: @jensimmons / @una / @argyleink / @adamwathan / @josh — DevRel 発信を追う
+- **BlueSky**: フロントエンド系開発者アカウント — Twitter 代替の情報源
+
+#### 継続学習ルール
+
+1. 週次で **Baseline 更新** をチェックし、`modern_css_usage.json` の判定パターン正規表現に新機能を追加
+2. 月次で **CSS Working Group Drafts** の Level 4/5 仕様をレビューし、Daily Knowledge Log に業界トレンドとして追記
+3. 案件着手前に **Can I Use** で採用予定プロパティのブラウザ対応率を確認し、`@supports` フォールバックの要否を判定
+4. Mia QA NG が来たら **MDN の該当プロパティ** を再読し、仕様理解の穴を Daily Knowledge Log に記録
+5. 四半期に一度、**Josh Comeau / Ahmad Shadeed / Kevin Powell** の最新記事・動画をまとめ視聴し、実装哲学のアップデートを行う
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
