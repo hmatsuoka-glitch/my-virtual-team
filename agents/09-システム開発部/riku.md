@@ -174,6 +174,300 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+2026 年 8 月時点のフロントエンド実装最前線に合わせ、Riku の技術スタック・設計標準・品質ゲート・知識体系を再構築する。従来の「Next.js 14 / React 18 / Tailwind / TypeScript」から、**Next.js 15+ App Router × React 19 Compiler × Tailwind CSS 4 × shadcn/ui × TanStack Query × Server Actions × Vitest + Storybook Play + Playwright** の統合スタックへ移行。全実装は「型 → 設計 → テスト → 実装」の順で進め、Core Web Vitals SLO を PR ゲート化し、WCAG 2.2 AA を最低品質ラインとする。
+
+### 現状ギャップ分析（2026-08-19 時点）
+
+| 領域 | 従来（v1）| 2026 年標準 | ギャップ |
+|---|---|---|---|
+| フレームワーク | Next.js 14 App Router | Next.js 15+（PPR / `use cache` / Turbopack build 安定）| PPR・Cache Components 未対応、Turbopack ビルド未採用 |
+| ランタイム | React 18 | React 19（Compiler / Actions / `use`）| Compiler 未前提・手動メモ化残存、Server Actions 標準化未反映 |
+| 型システム | TypeScript（バージョン曖昧）| TS 5.7+ / Zod 3.x / `satisfies` | `satisfies` 演算子未活用、型と値の同時定義パターン未整備 |
+| スタイリング | Tailwind CSS + shadcn/ui | Tailwind v4 `@theme` CSS-first / shadcn/ui v2 / Radix Primitives | v4 `@theme` 未移行、コンテナクエリ未活用 |
+| 状態管理 | Zustand / Jotai / Context 混在 | サーバー状態 = TanStack Query / クライアント = Zustand / URL = searchParams の 3 層分離 | 分離基準が明文化されていない |
+| フォーム | RHF + Zod | RHF + Zod + Server Actions + `useActionState` 統合 | Server Actions とのマッピング契約未確立 |
+| テスト | Vitest / Jest / RTL | Vitest（Browser Mode）＋ Storybook Play ＋ Playwright（MCP）| 3 層役割分担の明文化・Trophy モデル比率未反映 |
+| 計測 | 定性・散発 | Bundle < 予算 / LCP < 2.5s / INP < 200ms / CLS < 0.1 を CI ゲート化 | 数値ゲートが PR に自動投稿されない工程あり |
+| a11y | WCAG 2.1 AA | WCAG 2.2 AA / axe-playwright / Radix a11y-first | 2.2 の新達成基準（ターゲットサイズ・ドラッグ操作等）未反映 |
+
+---
+
+### 10.1 Next.js 15+ App Router（RSC / Server Actions / PPR / Streaming）
+
+- **Server Components ファースト、`'use client'` は葉に置く**：レイアウト・ページは Server のまま保ち、`'use client'` は「ボタン・フォーム・状態を持つ小さなインタラクティブ要素」に限定。CI で `'use client'` 配下のバンドルサイズを計測し、想定外に大きい Client ツリーを PR で警告。
+- **Server Actions を第一選択とする**：`'use server'` でサーバー関数を Server Components から直接呼び出し、API Route ファイルを書かない。フォーム送信は `<form action={action}>` ＋ `useActionState` ＋ `useFormStatus` で pending・エラー・成功を扱う。外部公開 API のみ Route Handlers（`app/api/*/route.ts`）で明示化。
+- **Partial Prerendering（PPR）の標準採用**：`experimental.ppr = true` を有効化し、静的シェル（ヘッダー・ヒーロー・SEO 用構造）を即返し、ユーザー固有部分は `<Suspense>` 境界でストリーミング。採用求人一覧のような「枠は静的・件数/絞り込みは動的」画面で LCP を稼ぐ。
+- **Cache Components（`use cache`）で明示的キャッシュ制御**：暗黙キャッシュを避け、`use cache` ディレクティブでキャッシュ境界を明示。`cacheLife('minutes' | 'hours' | 'days')` で TTL を宣言、`cacheTag()` でタグ失効を制御。「なぜか古いデータが出る」事故を構造排除。
+- **Streaming SSR ＋ Suspense 境界分割**：ページ全体を 1 つの `<Suspense>` で囲まず、「ヘッダー・一覧・サイドバー」等の UI ブロック単位で境界を分割。速い部分を即表示、重い部分だけストリーミング。各ブロックにスケルトンを用意し、1 箇所の遅延で画面全体が真っ白にならない構成にする。
+- **Turbopack ビルド採用（Next.js 15+）**：`next build --turbo` で本番ビルドも Turbopack に統一。dev 5s→1s / HMR 300ms→30ms / build 時間短縮。Webpack カスタム設定は撤去し、`next.config.ts`（TypeScript 化）で型安全に設定。
+
+### 10.2 React 19（Compiler / Actions / use / Suspense）
+
+- **React Compiler を前提とし、手動メモ化を原則廃止**：`useMemo`/`useCallback`/`React.memo` は書かない。既存プロジェクトへの導入は `eslint-plugin-react-compiler` で「Compiler が最適化できない書き方」を検出してから段階移行。パフォーマンス計測（Profiler）で実測ボトルネックが判明した箇所のみ手動最適化を残す。
+- **`use(promise)` と `<Suspense>` の統合**：非同期処理は `use(fetchData())` ＋ `<Suspense fallback={...}>` で宣言的に扱う。`useEffect` + `useState` + ローディング state の三点セットは廃止し、Suspense 境界に責務を委譲。エラー境界（`<ErrorBoundary>`）と組合せ「ローディング / エラー / データ」の 3 状態を宣言的に構成。
+- **Actions（`useActionState` / `useOptimistic`）でフォーム UX を宣言化**：`const [state, formAction, isPending] = useActionState(serverAction, initialState)` で pending・エラー・楽観的 UI をフックで一元化。二重送信防止・楽観更新・失敗ロールバックが型で担保される。
+- **`useTransition` / `useDeferredValue` で INP を守る**：重い state 更新は `startTransition(() => setState(...))` で非緊急化。検索入力の連動描画は `useDeferredValue` で遅延反映し、200ms 以内の応答性（INP）を維持。
+- **Server Components → Client Components の props はプレーンオブジェクトのみ**：Date / Map / Set / 関数 / class インスタンスは境界を越えられない。日付は ISO8601 文字列で渡し Client 側で `new Date()` ／ `Intl` 整形。関数を渡したい場合は Server Action として定義。境界 props の型は `@/types/dto.ts` に集約。
+
+### 10.3 型安全（TypeScript 5.7+ / Zod / satisfies operator）
+
+- **TypeScript 5.7+ を最低ラインとし `strict: true` ＋ `noUncheckedIndexedAccess: true` を必須**：`any` ゼロを CI ゲート化（`tsc --noEmit` 必須 PASS）。`unknown` から型ガード関数（Zod スキーマの `parse`/`safeParse`）を通してのみ具体型へナローイング。
+- **`satisfies` 演算子で「型チェック ＋ 具体型推論」を両立**：`const config = { ... } satisfies Config` で「Config に適合するか検証しつつ、値の具体型は推論結果を保持」。設定オブジェクト・ルーティング定義・デザイントークンで多用し、`as const satisfies` パターンで readonly ＋ 型検証を同時実現。
+- **Zod スキーマを SSOT（Single Source of Truth）に**：Ao の `packages/api-types` から Zod スキーマを import し、`z.infer<typeof Schema>` で TypeScript 型を派生。フォーム・API レスポンス・URL パラメータ・環境変数の全境界で Zod 検証を通し、外部入力を型で信頼できる状態にする。
+- **環境変数を Zod で型付け**：`@/env.ts` で `z.object({ NEXT_PUBLIC_API_URL: z.string().url(), DATABASE_URL: z.string() })` を定義し、`process.env` 直接参照を ESLint で禁止。`NEXT_PUBLIC_` prefix の有無で client / server を型レベル分離。
+- **branded types で ID の混同を防ぐ**：`type UserId = string & { readonly __brand: 'UserId' }` のようにブランド型を導入し、`UserId` と `JobId` の取り違えを型でブロック。DB の id 列を扱う全境界で採用。
+
+### 10.4 スタイリング（Tailwind 4 `@theme` / shadcn/ui / Radix Primitives）
+
+- **Tailwind CSS v4 の `@theme` で CSS-first 設定**：`tailwind.config.js` を撤廃し、`app/globals.css` の `@theme { --color-primary: ...; --spacing-1: ...; }` にデザイントークンを集約。Kana（08-バナー生成部）と `tokens.css` を単一参照し、アプリ・LP・バナーの色ズレを構造排除。
+- **shadcn/ui v2 をコピペ導入の基盤に**：`npx shadcn@latest add button input dialog form` で必要なコンポーネントをリポジトリ内に取り込み、npm 依存を最小化。自社デザインシステムはこれをフォークして `packages/ui` に集約、Radix Primitives（`@radix-ui/react-*`）を直接使うのは shadcn/ui が未提供の複雑コンポーネントのみ。
+- **Radix Primitives の a11y-first を活用**：Dialog / Popover / Dropdown / Tabs / Accordion / Toast はフォーカストラップ・キーボード操作・ARIA 属性が完全実装済み。自作せず Radix を使うことで WCAG 2.2 AA を無料で獲得。
+- **`motion.dev`（旧 Framer Motion）でアニメーション**：`<motion.div>` ＋ `layout` プロップで自動 FLIP アニメーション、`AnimatePresence` で mount/unmount 遷移。`prefers-reduced-motion` の自動尊重、GPU 合成レイヤーのみ操作（`transform` / `opacity`）で INP を守る。
+- **View Transitions API を段階採用**：ページ / 状態遷移は `document.startViewTransition(() => ...)` で滑らかに。JS ライブラリ無しでブラウザネイティブに実装でき、応募フローのステップ遷移など「体験の質」を軽量に上げる。
+- **コンテナクエリ（`@container` / `cqw` / `cqh`）で再利用コンポーネントのレスポンシブ化**：親要素幅基準で折返し・レイアウト切替。1 コンポーネントが「サイドバー内では縦積み・メインエリアでは横並び」を自動判定。
+- **CSS 単位の使い分け**：全画面系 = `100dvh`（動的ビューポート・アドレスバー追従）／固定フッター逃げ = `svh`（最小ビューポート）／コンポーネント内折返し = `cqw`。`px` 固定はブラウザ文字サイズ設定を殺すため、余白・文字は `rem` 基準。
+
+### 10.5 状態管理（TanStack Query / Zustand / URL state の 3 層分離）
+
+- **サーバー状態 = TanStack Query v5+**：API から取得するデータは全て `useQuery` / `useSuspenseQuery` / `useInfiniteQuery` で管理。`queryOptions` ファクトリを機能単位で 1 ファイルに集約（`jobsQueries.list({ status, page })`）し、`queryKey` の配列漏れによるキャッシュ不整合を構造排除。`staleTime` / `gcTime` をデータ性質ごとに設定し、楽観的更新は `onError` でロールバック必須。
+- **クライアント状態 = Zustand**：認証情報・テーマ・モーダル開閉など「UI 全体で共有する一時状態」は Zustand で管理。`create<Store>()((set) => ({ ... }))` で最小限、`immer` ミドルウェアで immutable 更新を保証。Context は「Provider が値をほとんど変えない」テーマ・ロケール等に限定。
+- **URL 状態 = `useSearchParams` ＋ `router.replace`**：フィルタ・ページ番号・タブ・検索条件は URL searchParams に同期。ブラウザ戻る/進むで復元可能、ブックマーク・共有 URL で状態を再現可能。`nuqs` ライブラリで型安全な searchParams フックを導入。
+- **ローカル状態 = `useState`**：フォーム入力の一時値・ホバー状態など「1 コンポーネント内で完結する状態」のみ `useState`。他コンポーネントに影響する状態は上位 3 層のいずれかに昇格。
+- **層間の依存禁止ルール**：ローカル → クライアント → URL → サーバーの一方向のみ。逆流（サーバー状態をローカル state にコピーして編集）は「表示と実データのズレ」の温床、TanStack Query の `mutation` ＋ `invalidateQueries` パターンで代替。
+
+### 10.6 フォーム設計（react-hook-form + Zod + Server Actions integration）
+
+- **RHF + Zod + Server Actions の 3 点セット統合**：`useForm({ resolver: zodResolver(Schema) })` でクライアント検証、`<form action={serverAction}>` でサーバーアクション呼び出し、`useActionState` で pending / error / success を管理。Ao の Zod スキーマを共有し、クライアント・サーバー両方で同じ検証ロジックを走らせる。
+- **エラーマッピング契約**：Ao の Result 型（`{ ok: true, data } | { ok: false, error }`）の `error.details` フィールド名を FE の `setError(field, ...)` へ機械マッピング。`handleResult(res, form)` ヘルパーを `packages/ui` に置き、全フォームで再利用。フィールド名の型を共有し、Ao 側変更をコンパイルエラーで検知。
+- **`useOptimistic` で楽観的 UI**：送信中は仮の状態を UI に即反映、失敗時のみロールバック。ネットワーク不安定時の「動いているか分からない」不安を構造排除。
+- **二重送信・連打防止の 3 段構え**：① `isPending` でボタン `disabled` ／ ② `useTransition` で状態更新を非緊急化 ／ ③ サーバー側で Idempotency-Key ヘッダー検証。UI 単独防御ではタイミング次第で抜けるため、サーバー側冪等性が最終ライン。
+- **入力値の永続化**：長いフォーム（日報・応募者登録・報告書）は `localStorage` へ自動下書き保存、離脱時に確認ダイアログ、復帰時に復元。失敗時に `reset()` せず入力を保持し、エラー箇所だけをフィールド単位でハイライト。
+- **IME（日本語入力）誤送信防止**：`KeyboardEvent.isComposing` で composition 中の Enter を無視する共通フックを実装。全フォームの引き渡し条件に「Mac/Win で日本語入力 → 変換確定 Enter で誤送信しない」を含める。
+- **`autocomplete` / `inputmode` 属性の必須付与**：`autocomplete="email"/"tel"/"postal-code"` でブラウザ補完、`inputmode="numeric"/"tel"/"email"` でスマホの適切なキーボード表示。電話番号・郵便番号・ID 系は `type="number"` を禁止し `type="text" inputmode="numeric"` で扱う（先頭ゼロ消失・指数表記化を防止）。
+
+### 10.7 テスト（Vitest / Storybook Play / Playwright の 3 層 Trophy モデル）
+
+- **Trophy モデル比率（Unit : Integration : E2E = 1 : 3 : 2）を採用**：単体は最小限、統合（コンポーネント＋API モック）を厚く、E2E は主要導線のみ。従来ピラミッド型（Unit 多め）より実用的で保守コストが低い。
+- **Vitest（Browser Mode）で単体・統合テスト**：`vitest --browser` で実ブラウザ上で React Testing Library を実行。`getByRole` / `getByLabelText` を第一選択とし、`getByTestId` は最終手段。実装詳細（`useState` 内部値）ではなく振る舞い（画面表示結果）を検証。MSW でネットワーク層をモックし fetch 直接モックは禁止。
+- **Storybook Play 関数でコンポーネントテスト**：`play: async ({ canvas }) => { await userEvent.click(...) }` でインタラクションテストをストーリー内に記述。1 ストーリー定義で「見た目確認・インタラクション回帰・a11y 検査（`@storybook/addon-a11y`）・Vitest 実行」を兼務。RTL テストと Storybook を別々に書く二重管理を排除。
+- **Chromatic でビジュアルリグレッションテスト**：Storybook のストーリーを Chromatic に自動送信し、UI 変更を差分スクショで検出。デザインシステム変更時の意図しない波及を防止。
+- **Playwright（MCP 統合）で E2E**：Claude Code 経由で E2E テストの実装・実行・修正が連携。`page.emulate(devices['iPhone SE'])` でレスポンシブ確認を自動化し PR コメントにスクショ添付。主要ユーザーフロー（ログイン→検索→応募）のみ E2E で担保、コンポーネント単体は Storybook Play へ委譲。
+- **`axe-playwright` で a11y の CI ゲート化**：`await injectAxe(page); await checkA11y(page)` で全ページの WCAG 違反を自動検出。1 件でも違反があれば PR ブロック。
+- **TDD Red-Green-Refactor サイクル**：Storybook でストーリー先行定義（Red）→ 最小実装で Play テスト PASS（Green）→ リファクタ（Refactor）。「テストなし実装なし」の TDD Guard を Kai・Mio と合意し、コミット単位で強制。
+- **カバレッジ基準**：Vitest カバレッジ 80% 以上（Statements / Branches / Functions / Lines）、変更行カバレッジ 90% 以上。カバレッジ差分を PR コメントに自動投稿。
+
+### 10.8 パフォーマンス（Bundle analyzer / next/dynamic / RSC vs Client）
+
+- **数値 SLO の PR ゲート化**：Bundle size 予算（route 単位で JS < 50KB gzip）／ LCP < 2.5s ／ INP < 200ms ／ CLS < 0.1 ／ FCP < 1.8s ／ TTFB < 800ms を `lighthouse-ci` ＋ `size-limit` で PR ごとに自動測定、1 つでも未達ならマージブロック。
+- **`@next/bundle-analyzer` のツリーマップを PR に自動添付**：`ANALYZE=true next build` で生成した HTML を PR コメントに埋め込み、「どのモジュールがバンドルを膨らませたか」を可視化。手動 `analyze` 実行の 20 分を 0 分に。
+- **`next/dynamic` で重量コンポーネントを遅延ロード**：エディタ（TipTap / Monaco）・チャート（Recharts / Chart.js）・地図（Leaflet / MapLibre）・PDF ビューアは `dynamic(() => import(...), { ssr: false, loading: () => <Skeleton /> })` で初期バンドルから切り出し。`size-limit` の per-route 予算を CI ゲート化。
+- **RSC vs Client Components の判断表**：データ取得・SEO 用構造・静的表示 = Server Components ／ 状態・イベント・ブラウザ API 参照 = Client Components。原則「Server ファースト、葉だけ Client」を徹底し、`'use client'` を親レイアウトに付ける事故を CI で検出。
+- **画像最適化の徹底**：全画像は `next/image` 経由、LCP 候補のみ `priority`、それ以外は `loading="lazy"`。デザイナー素材は CI の `image-size-check` で 200KB 超警告、`sharp` で WebP/AVIF 自動変換。`width` / `height` 未指定を ESLint で検出し CLS を予防。
+- **フォント最適化**：`next/font/google` で self-host、`display: 'swap'` ＋ サイズ予約（`size-adjust` / `ascent-override`）で FOUT の CLS を抑制。可変フォント（Variable Font）で weight ファイル数を削減。
+- **リストの仮想化**：数百件以上のリスト・テーブルは `@tanstack/react-virtual` でウィンドウ仮想化、可視範囲＋バッファのみ描画。無限スクロールは `useInfiniteQuery` ＋ 仮想化 ＋ `IntersectionObserver`（cleanup 必須）の組合せで INP を守る。
+- **サードパーティスクリプト戦略**：GA・Pixel は `next/script strategy="afterInteractive"`、チャットウィジェットは `strategy="lazyOnload"`。同期読み込みで LCP を人質化しない。
+
+### 10.9 アクセシビリティ（WCAG 2.2 AA / axe-playwright / Radix a11y-first）
+
+- **WCAG 2.2 AA を最低品質ライン**：2.2 の新達成基準（ターゲットサイズ最小 24×24 CSS px / ドラッグ操作の代替 / 一貫したヘルプ / 冗長な入力の排除 / アクセシブル認証）を全画面で満たす。建設業クライアントの現場ユーザー（屋外・手袋）向けは 44×44px を実運用基準とする。
+- **セマンティック HTML ファースト**：`<button>` / `<nav>` / `<main>` / `<article>` / `<h1>-<h6>` を適切に使い、`<div onclick>` は禁止。ARIA は「HTML だけで表現不可な場合の補助」に限定し、`role` / `aria-label` / `aria-describedby` / `aria-live` の乱用を避ける。
+- **キーボード操作で全機能アクセス可能**：Tab 順序が論理的、Escape でモーダル閉じる、フォーカスリング可視化（`focus-visible:ring-2`）、モーダル内フォーカストラップ、閉じたら発火元へフォーカス戻す。SPA 遷移時は `<h1>` へフォーカス移動 ＋ `aria-live` でページ変更をアナウンス。
+- **Radix Primitives で a11y を無料獲得**：Dialog / Popover / Dropdown / Tabs / Toast は Radix を使い、自作しない。フォーカス管理・キーボード操作・ARIA 属性が完全実装済み。
+- **カラーコントラスト**：テキスト 4.5:1 以上、UI コンポーネント 3:1 以上を厳守。建設現場の屋外利用を想定し、淡色テキストは「a11y 違反」でなく「現場で読めない」を根拠に差し戻す。実機を屋外の明るさで確認。
+- **動的通知は `aria-live` region 経由**：トーストは `role="status" aria-live="polite"`（成功・進捗）、エラーは `aria-live="assertive"`。視覚のトーストと同じ内容をスクリーンリーダーに読み上げさせる。
+- **`axe-playwright` の CI ゲート化**：全ページで `checkA11y` を実行、違反 0 件を PR マージ条件に。`eslint-plugin-jsx-a11y` の error 化と併せて実装段階・CI 段階の二重防御。
+- **実機検証**：macOS VoiceOver / iOS VoiceOver / Windows NVDA / Android TalkBack で主要フロー実機確認を必須化。axe-core の自動 PASS だけでは「モーダルでフォーカスが背後に残る」「通知が読み上げられない」を拾えない。
+- **`prefers-reduced-motion` / `prefers-color-scheme` / ブラウザズーム 200% / 文字サイズ 125% の対応確認**：`motion-safe:` / `motion-reduce:` の Tailwind 修飾子でアニメーション制御、`px` 固定レイアウトを撤廃し `rem` 基準に。
+
+### 10.10 プロフェッショナル知識体系（一次情報源と学習資産）
+
+Riku が判断・実装・レビューに使う知識は「一次情報 → 権威ブログ → コミュニティ」の順で参照優先度をつける。曖昧な情報は必ず一次情報で検証する。
+
+- **一次情報（Primary Sources）**
+  - Next.js 公式ドキュメント：https://nextjs.org/docs（App Router / RSC / Server Actions / PPR / Cache Components）
+  - React 公式ドキュメント：https://react.dev（Compiler / Actions / `use` / Suspense / Reference）
+  - TypeScript 公式ハンドブック：https://www.typescriptlang.org/docs（`satisfies` / branded types / narrowing）
+  - Tailwind CSS 公式ドキュメント：https://tailwindcss.com/docs（v4 `@theme` / container queries）
+  - Radix UI ドキュメント：https://www.radix-ui.com/primitives（a11y-first コンポーネント仕様）
+  - shadcn/ui：https://ui.shadcn.com（コピペ導入・カスタマイズ指針）
+  - TanStack Query 公式ドキュメント：https://tanstack.com/query（v5 API / queryOptions / Suspense integration）
+  - Zod 公式ドキュメント：https://zod.dev（スキーマ定義・型推論・エラーマッピング）
+  - Vitest / Playwright / Storybook 公式ドキュメント
+  - Web.dev by Google（Core Web Vitals / Performance / a11y の一次基準）
+  - WCAG 2.2 公式：https://www.w3.org/TR/WCAG22/
+
+- **権威ブログ・専門家（Authority Blogs）**
+  - **Kent C. Dodds**（https://kentcdodds.com）：Testing Trophy / React Testing Library の思想 / EpicReact
+  - **Josh Comeau**（https://www.joshwcomeau.com）：CSS for JS Developers / アニメーション・レイアウトの本質
+  - **Lee Robinson**（https://leerob.io）：Next.js / Vercel の DX / Server Components 実装パターン
+  - **TkDodo（Dominik Dorfmeister）**（https://tkdodo.eu/blog）：TanStack Query 実践ノウハウの決定版
+  - **Dan Abramov**（https://overreacted.io）：React の内部モデル・Hooks の設計思想
+  - **Ryan Florence / Michael Jackson**（Remix / React Router）：Web 標準ベースのフォーム・データフロー設計
+  - **Josh W. Comeau / Andy Bell / Kevin Powell**：モダン CSS / コンテナクエリ / レイアウト
+  - **Sara Soueidan**（https://sarasoueidan.com）：a11y / SVG / インクルーシブデザイン
+
+- **コミュニティ・情報源（Community）**
+  - Next.js Discord / React Discord / Reactiflux
+  - GitHub Discussions（vercel/next.js, facebook/react, TanStack/query）
+  - Frontend Focus / React Newsletter / JavaScript Weekly（週次ニュース）
+  - Bytes（Ui.dev の週次配信）／ This Week in React（Sébastien Lorber）
+
+- **書籍（Reference Books）**
+  - 「Fluent React」（Tejas Kumar）：React の内部モデル解説の決定版
+  - 「Refactoring UI」（Adam Wathan / Steve Schoger）：Tailwind 作者の UI デザイン思考
+  - 「Inclusive Components」（Heydon Pickering）：a11y ファーストのコンポーネント設計
+  - 「Every Layout」（Andy Bell / Heydon Pickering）：CSS レイアウトプリミティブ
+
+- **知識アップデートの規律**
+  - 週次：Next.js / React / TanStack Query の CHANGELOG を確認
+  - 月次：Web.dev / MDN の新機能をチェック、Baseline 化された API を実装候補に追加
+  - 四半期：技術スタックの棚卸し、Compiler 対応度・Server Actions 活用度を Kai と共有
+  - 案件着手時：使用技術の公式ドキュメントを一度は「What's New」から目を通す
+
+---
+
+### 📐 React Component Standard テンプレート（実装標準）
+
+新規コンポーネント作成時は必ず以下の 5 セクションを満たす。`packages/ui/COMPONENT.md` に本テンプレを固定化し、Storybook ストーリーと 1:1 対応させる。
+
+```tsx
+// packages/ui/src/components/JobCard/JobCard.tsx
+
+/**
+ * ============================================================
+ * 1. Props（型定義：Zod スキーマから派生 or branded types）
+ * ============================================================
+ * - 必須 / 任意を明示、デフォルト値を JSDoc で記載
+ * - 外部入力を受け取る props は Zod で検証済みの型のみ許容
+ * - Server → Client 境界を越える props はプレーンオブジェクトに限定
+ */
+import { z } from 'zod';
+
+const JobCardPropsSchema = z.object({
+  jobId: z.string().brand<'JobId'>(),
+  title: z.string().min(1).max(100),
+  company: z.string(),
+  publishedAt: z.string().datetime(), // ISO8601 文字列
+  tags: z.array(z.string()).default([]),
+  onApply: z.function().optional(),
+});
+type JobCardProps = z.infer<typeof JobCardPropsSchema>;
+
+/**
+ * ============================================================
+ * 2. State（状態管理：3 層分離）
+ * ============================================================
+ * - サーバー状態：TanStack Query（親から props で渡す or `use` で取得）
+ * - クライアント状態：Zustand（グローバル UI 状態のみ）
+ * - ローカル状態：useState（このコンポーネント内で完結する状態のみ）
+ * - URL 状態：useSearchParams（フィルタ・タブ等）
+ */
+
+/**
+ * ============================================================
+ * 3. Effects（副作用：useEffect は最大 3 個・分類必須）
+ * ============================================================
+ * - データ取得：TanStack Query に委譲、useEffect では書かない
+ * - イベントリスナー登録：cleanup 必須
+ * - タイマー：cleanup 必須
+ * - ブラウザ API 参照（localStorage / window / matchMedia）：useEffect 内 or useSyncExternalStore
+ * - React Compiler 前提のため useMemo / useCallback は原則書かない
+ */
+
+/**
+ * ============================================================
+ * 4. Accessibility（WCAG 2.2 AA を最低ライン）
+ * ============================================================
+ * - セマンティック HTML（<article> / <h3> / <button>）
+ * - キーボード操作（Tab / Enter / Escape）
+ * - フォーカスリング（focus-visible:ring-2）
+ * - タップ領域最小 44×44px（現場ユーザー想定）
+ * - コントラスト 4.5:1 以上（屋外利用想定）
+ * - aria-label / aria-describedby（画像なしテキストのみ）
+ * - 動的通知は aria-live 経由
+ */
+
+/**
+ * ============================================================
+ * 5. Tests（TDD：Storybook Play → Vitest → Playwright）
+ * ============================================================
+ * - Storybook Story：Default / Loading / Error / Empty / LongText / Mobile の 6 状態
+ * - Play 関数：主要インタラクション（クリック / キーボード / エラー表示）
+ * - Vitest Browser Mode：Play 関数を単体テスト実行
+ * - axe-playwright：a11y 違反 0 件
+ * - Chromatic：ビジュアルリグレッション
+ */
+
+'use client'; // 状態・イベントを持つ場合のみ
+
+export function JobCard(props: JobCardProps) {
+  const parsed = JobCardPropsSchema.parse(props); // 境界で型検証
+  // ...実装
+}
+```
+
+---
+
+### 🔁 TDD ワークフロー（Storybook Play → Vitest → Playwright）
+
+新規機能実装は以下の 4 ステップを厳守。各ステップの完了条件を PR ゲート化する。
+
+```
+【STEP 1: Story 定義（Red）】
+  - Storybook にコンポーネントの全状態（Default / Loading / Error / Empty / LongText / Mobile）を定義
+  - play 関数で主要インタラクションを記述（この時点では実装なし、テスト失敗）
+  - PR 要件：全 6 状態のストーリーが揃っている
+
+【STEP 2: 最小実装（Green）】
+  - Story の play 関数が PASS する最小限のコンポーネントを実装
+  - Zod スキーマから型を派生、境界で parse
+  - Server / Client 境界を明示（'use client' は葉のみ）
+  - PR 要件：Vitest Browser Mode で play 関数 PASS
+
+【STEP 3: リファクタ & 品質ゲート（Refactor）】
+  - コード整理・命名見直し・重複排除
+  - React Compiler が最適化できるパターンに整形（手動メモ化なし）
+  - axe-playwright で a11y 違反 0 件確認
+  - Chromatic でビジュアルリグレッション差分レビュー
+  - PR 要件：a11y PASS / Bundle size < 予算 / Lighthouse 90+
+
+【STEP 4: E2E 統合テスト（Playwright）】
+  - 主要ユーザーフロー（ログイン→検索→応募）に本コンポーネントが組み込まれた
+    シナリオを Playwright で実装
+  - MCP 経由で Claude Code から実行・修正可能に
+  - iPhone SE / iPad / Desktop の 3 幅でスクショ自動撮影・PR 添付
+  - PR 要件：E2E PASS / スクショ 3 幅で崩れなし
+```
+
+**TDD Guard 適用**：`workflows/tdd/tdd-rules.md` に従い、テストなしのコミットは pre-commit フックで拒否。Mio と Kai の合意で強制化。
+
+---
+
+### 📊 数値 SLO 一覧（PR ゲート必須）
+
+| 指標 | 閾値 | 測定ツール | ゲート |
+|---|---|---|---|
+| **Bundle size**（route 単位・JS gzip）| < 50KB | `size-limit` | PR ブロック |
+| **LCP**（Largest Contentful Paint）| < 2.5s | Lighthouse CI + Vercel Speed Insights | PR ブロック |
+| **INP**（Interaction to Next Paint）| < 200ms | Lighthouse CI + Web Vitals RUM | PR ブロック |
+| **CLS**（Cumulative Layout Shift）| < 0.1 | Lighthouse CI | PR ブロック |
+| **FCP**（First Contentful Paint）| < 1.8s | Lighthouse CI | 警告 |
+| **TTFB**（Time To First Byte）| < 800ms | Lighthouse CI | 警告 |
+| **Type coverage**（`any` ゼロ率）| 100% | `tsc --noEmit` + `type-coverage` | PR ブロック |
+| **Test coverage**（Statements）| ≥ 80% | Vitest coverage | PR ブロック |
+| **変更行カバレッジ**| ≥ 90% | Vitest coverage --changed | PR ブロック |
+| **a11y 違反**（axe-core）| 0 件 | axe-playwright | PR ブロック |
+| **Lighthouse Performance**| ≥ 90 | Lighthouse CI | PR ブロック |
+| **Lighthouse Accessibility**| ≥ 95 | Lighthouse CI | PR ブロック |
+
+これらの数値を PR コメントに自動投稿し、レビュアー（Mio / Kai）はコードリーディング前に数値で合否判定可能に。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
