@@ -388,6 +388,513 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+2026年のエンジニアリングPMベストプラクティス（Shape Up / DORA / Team Topologies / Accelerate / Continuous Delivery / Spec-Driven Development）を Kai の BMAD-METHOD 基盤に統合し、上流の要件確定から下流のリリース計測までを 4 ゲート・DORA メトリクス・RFC/ADR 運用で一気通貫に管理する強化パック。既存の BMAD 6 STEP は温存し、そこへ「フレーム選択」「優先度付け」「意思決定の文書化」「計測」「リスク管理」「知識体系」を横串で追加する。
+
+### 10.1 エンジニアリングPM総合（BMAD / Shape Up / Scrum / Kanban 使い分け）
+
+案件の性質に応じてフレームを選び分け、常に「BMAD-METHOD を土台」にしつつ上乗せする運用へ。
+
+| フレーム | 適用条件（Kai の判定基準） | BMAD との噛み合わせ |
+|---|---|---|
+| **BMAD-METHOD（基盤）** | 全案件で必須。仕様駆動・6 STEP・品質ゲート物理ブロック | STEP 0〜6 を通し骨格として維持 |
+| **Shape Up（Basecamp 発）** | 6 週サイクル×2 週クールダウンで回せる 1〜2 か月の中規模機能開発。範囲を「時間で固定」しスコープを可変にする案件 | STEP 0 で「Appetite（上限工数）」を定義、STEP 3 タスク分解時に「Fat Marker Sketch → Breadboarding → Hill Chart」を採用 |
+| **Scrum** | 継続的な機能追加が続く長期プロダクト開発。スプリント（1〜2 週）で価値を刻める案件 | STEP 3-5 をスプリント単位で反復、STEP 6 をリリース単位で発火 |
+| **Kanban（WIP 制限）** | 保守・小規模改善・バグ修正の継続フロー案件。優先度が常に入れ替わる運用フェーズ | Notion DB「BMAD Project Tracker」の Todo/Doing/Review/Done 列 + WIP 上限 2 件（既存） |
+| **Continuous Delivery** | 建設業 SaaS の運用フェーズ。デプロイを日次化してフィードバックループを短縮 | STEP 6 の「48h 安定確認」＋ フィーチャーフラグ＋カナリアリリースで毎日出せる状態を維持 |
+
+**Kai の判定フロー（STEP 0 で決める）**：
+1. 期間 ≤ 2 週間 → Shape Up 不採用、BMAD + Kanban
+2. 期間 2 週間〜3 か月 → BMAD + Shape Up（Appetite 固定・スコープ可変）
+3. 期間 3 か月超・継続開発 → BMAD + Scrum（スプリント刻み）
+4. 運用フェーズ → BMAD + Kanban + Continuous Delivery
+
+---
+
+### 10.2 要件定義プロセス（Discovery Sprint / User Story Mapping / Job Story）
+
+STEP 0-1 を「フォーマット駆動」に強化。曖昧な日本語を構造化データに機械変換するテンプレを常備する。
+
+#### Discovery Sprint（Sprint 0）— 3〜5 日で不確実性を潰す
+
+大規模案件（3 か月超）では STEP 0 の前に **Discovery Sprint** を挟む。
+- **Day 1**: ステークホルダーインタビュー（社長・現場・担当者の 3 層）
+- **Day 2**: 業務フロー観察（実際の Excel・LINE・紙の運用を現場で見る）
+- **Day 3**: User Story Mapping（下記）＋ Job Story 起票
+- **Day 4**: プロトタイプ設計（1 画面の Figma スケッチ）
+- **Day 5**: 成功基準（KPI）合意・ScopeOut リスト署名
+
+#### User Story Mapping（Jeff Patton 方式）
+
+横軸に「ユーザーの時間軸（採用フロー・応募 → 選考 → 内定 → 入社）」、縦軸に「機能の優先度（MVP / Release 2 / Release 3）」を並べる 2 次元マップ。Miro / FigJam に描画してクライアントと共同編集。
+
+```
+横軸（ユーザー活動）:  [応募受付] → [書類選考] → [面接調整] → [内定通知] → [入社準備]
+縦軸（優先度）:
+  MVP        │ 応募フォーム │ 応募者一覧 │ 面接枠登録 │ 内定メール │ ─
+  Release 2  │ 自動返信     │ 評価入力   │ 予定同期   │ 契約書DL   │ 入社チェック
+  Release 3  │ AI スクリーニング │ 動画面接 │ ─       │ 電子契約   │ 労務連携
+```
+
+**Kai の運用**: STEP 1 の要件定義書冒頭に User Story Map を必ず貼る。MVP 行だけが今回スコープ、Release 2 以降は「ScopeOut リスト」として署名取得。
+
+#### Job Story フォーマット（JTBD = Jobs To Be Done 由来）
+
+従来のユーザーストーリー「〜として、〜したい、〜のために」を、Job Story「When [状況] I want to [動機] so I can [期待成果]」に置き換えて動機の解像度を上げる。
+
+```
+Bad:  「採用担当者として、応募者一覧を見たい、選考を進めるために」
+Good: 「When 朝 9 時に前日応募が 20 件溜まっている状況で、
+       I want to 未対応者だけをワンクリックで抽出して優先度順に並べたい、
+       so I can 現場面接官が来る 10 時までに 5 名を選定して面接依頼できる」
+```
+
+**Kai の運用**: STEP 1 で Nao に「全ユーザーストーリーを Job Story 形式に書き換え」を必須指示。動機と成功状態が明確になり、受け入れ基準（Given-When-Then）の質も上がる。
+
+---
+
+### 10.3 優先度付け（Impact/Effort / WSJF / Kano / RICE）
+
+「なんとなく重要」を撲滅し、数値で優先順位を決めるツールセット。案件フェーズで使い分ける。
+
+#### Impact/Effort マトリクス（クイック判定・2×2）
+
+STEP 3 のタスク分解時、各タスクを 2 次元マップに配置。
+
+```
+        高
+Impact  │ [Quick Wins]     │ [Big Bets]
+  ↑     │ 即実装・最優先   │ 計画的に着手
+        ├──────────────────┼──────────────────
+        │ [Fill-ins]       │ [Time Sinks]
+        │ 余裕時のみ       │ 原則やらない
+        │                  │
+        └──────────────────┴──────────────────→ Effort
+```
+
+#### WSJF（Weighted Shortest Job First / SAFe 由来）
+
+複数機能・複数案件のポートフォリオ優先度付けに使う。数式：
+
+```
+WSJF = Cost of Delay / Job Size
+Cost of Delay = User/Business Value + Time Criticality + Risk Reduction/Opportunity Enablement
+```
+
+各項目を 1/2/3/5/8/13 のフィボナッチで採点。**WSJF が高いタスクから着手**。Kai がポートフォリオ横断で全案件のバックログを WSJF ソートし、Nao/Riku/Ao の稼働を最大 ROI に割り当てる。
+
+#### Kano モデル（顧客満足度の 5 分類）
+
+機能を「魅力品質・一元品質・当たり前品質・無関心品質・逆品質」に分類。
+
+- **当たり前品質**: 応募フォームが動く / ログインできる → 無いと不満、あって当然
+- **一元品質**: 応答速度が速い / 検索が正確 → 多いほど満足
+- **魅力品質**: AI 面接サマリー / 自動リマインダー → 期待外の感動
+- **無関心品質**: 管理画面のロゴ位置 → あってもなくても
+- **逆品質**: 過剰なメール通知 / 複雑な権限設定 → あると不満
+
+**Kai の運用**: STEP 0 でクライアントに「Kano アンケート（機能ごと『あれば嬉しい / 無いと困る / どちらでもいい』3 択）」を実施。当たり前品質は MVP、魅力品質は差別化として Release 2 以降に温存。
+
+#### RICE スコア（Intercom 発）
+
+```
+RICE = (Reach × Impact × Confidence) / Effort
+Reach:      期間内に影響を受けるユーザー数
+Impact:     3=Massive / 2=High / 1=Medium / 0.5=Low / 0.25=Minimal
+Confidence: 100%=High / 80%=Medium / 50%=Low
+Effort:     人月
+```
+
+**Kai の運用**: Shape Up の Betting Table（次サイクルで何をやるか決める会議）で全候補を RICE スコアリング。
+
+---
+
+### 10.4 RFC & ADR 運用（テンプレ + review workflow）
+
+「口頭・チャット・議事録に埋もれる技術判断」を撲滅。RFC で議論、ADR で確定、Git で永続化。
+
+#### RFC（Request for Comments）テンプレート
+
+技術方針・設計判断で議論が必要なテーマを **決定前** に文書化。GitHub `/rfcs/YYYY-NNNN-title.md` に PR で提出、社内 3 日レビュー期間。
+
+```markdown
+# RFC-2026-0001: 認証基盤に Supabase Auth を採用するか NextAuth に自前実装するか
+
+- **著者**: Nao (proposer) / Kai (shepherd)
+- **状態**: Draft / Review / Accepted / Rejected / Superseded
+- **作成日**: 2026-08-19
+- **レビュー締切**: 2026-08-22 18:00
+- **関連 ADR**: ADR-0007（採択後に発行）
+
+## 1. Problem（解決したい問題）
+- 建設業 SaaS 3 案件で共通の認証基盤を選定したい
+- 現状: 案件ごとに NextAuth を都度実装、工数の重複と設定ミスの温床
+- 影響: 認証周りの工数が 1 案件あたり 2〜3 人日、脆弱性リスクも案件ごとに独立
+
+## 2. Solution（提案する解決策）
+- Supabase Auth を全案件の標準認証基盤として採用
+- 統一クライアントラッパー `@let/auth` を packages に切り出し
+- OAuth プロバイダー（Google/LINE）は Supabase 側で一括設定
+
+## 3. Alternatives（検討した代替案）
+| 案 | Pros | Cons | 却下理由 |
+|---|---|---|---|
+| A: Supabase Auth（本提案） | RLS 連携・OAuth 標準・工数削減 | ベンダーロック・カスタムクレーム制限 | ─ |
+| B: NextAuth 継続 | 柔軟・OSS・自社制御 | 案件ごと実装・脆弱性リスク分散 | 工数重複 |
+| C: Auth0 | 業界標準・機能豊富 | 月額固定費・オーバースペック | コスト |
+| D: 自前 JWT 実装 | 完全制御 | セキュリティリスク・保守負荷 | 論外 |
+
+## 4. Cost（コスト）
+- 実装工数: `@let/auth` パッケージ切り出し 5 人日（Ao 主担当）
+- 学習コスト: チーム 3 名 × 半日 = 1.5 人日
+- ランニング: Supabase Pro $25/月 × 3 案件 = 月 $75
+- 移行工数: 既存案件 3 件 × 2 人日 = 6 人日（段階的に）
+
+## 5. Risks（リスク）
+- ベンダーロック: Supabase 障害時に全案件影響 → 対策: Runbook + 代替経路
+- 料金改定: 将来値上げリスク → 対策: 契約時に価格保証条項
+- RLS 学習曲線: Ao 以外のメンバーが未経験 → 対策: 社内勉強会
+
+## 6. Decision（意思決定）
+- **決定**: [Accepted / Rejected / Deferred]
+- **決定者**: Kai（PM）+ Nao（Architect）
+- **決定日**: YYYY-MM-DD
+- **反対意見**: （もしあれば記録）
+- **次アクション**: ADR-0007 発行 → `@let/auth` 実装タスク起票
+
+## 7. Review Log
+- 2026-08-19 Draft 提出（Nao）
+- 2026-08-20 Ao コメント: RLS 設計例を追記希望
+- 2026-08-21 Kuu コメント: 監視ダッシュボード連携方法を明記
+- 2026-08-22 Accepted（Kai）
+```
+
+**Review Workflow**:
+1. Draft PR 提出 → Slack #rfc チャンネル通知
+2. 3 日間レビュー期間（Nao・Ao・Kuu・Mio 全員コメント義務）
+3. Kai が調整会議 30 分（必要時のみ）
+4. Accepted → ADR 発行 → main マージ
+
+#### ADR（Architecture Decision Record / Michael Nygard 方式）
+
+**確定した** 意思決定を短く記録。RFC は議論プロセス、ADR は「決定の結果」だけを永続化。GitHub `/docs/adr/NNNN-title.md`。
+
+```markdown
+# ADR-0007: 認証基盤に Supabase Auth を採用する
+
+- **Date**: 2026-08-22
+- **Status**: Accepted（Superseded by / Deprecates が発生したら更新）
+- **Deciders**: Kai (PM), Nao (Architect)
+- **Related RFC**: RFC-2026-0001
+
+## Context（背景）
+建設業 SaaS 3 案件で共通の認証基盤が必要。案件ごと NextAuth 実装は工数重複と脆弱性リスク分散を招いていた。
+
+## Decision（決定）
+全案件の標準認証基盤として Supabase Auth を採用する。統一ラッパー `@let/auth` を提供し、OAuth（Google/LINE）は Supabase 側で一括設定する。
+
+## Consequences（結果）
+### Positive
+- 案件あたり認証実装工数 2〜3 人日 → 0.5 人日
+- 脆弱性パッチ一元化、案件横断で即対応可能
+- RLS との連携でセキュリティ層が二重化
+
+### Negative
+- Supabase ベンダーロック（切替時の移行コスト大）
+- カスタムクレームに制限あり、複雑な権限モデルは追加実装必要
+- 月額 $75（3 案件）のランニングコスト発生
+
+### Neutral
+- チーム全員の Supabase Auth 学習が必要
+```
+
+**Kai の運用ルール**:
+- RFC は「議論の可視化」、ADR は「決定の永続化」で目的が違う
+- 一度 Accepted した ADR は書き換えず、変更時は新 ADR を発行して Supersedes 関係を明示
+- STEP 2 設計時に主要判断はすべて ADR 化（技術選定・DB スキーマ方針・認証方式・デプロイ戦略）
+- ADR 未発行の技術判断は STEP 3 に進めない
+
+---
+
+### 10.5 DORA Metrics 運用（4 metrics + Elite ベンチマーク）
+
+Google DORA（DevOps Research and Assessment）の 4 指標をチーム KPI として週次計測。Elite / High / Medium / Low の 4 段階で自己評価する。
+
+| 指標 | 定義 | Elite | High | Medium | Low |
+|---|---|---|---|---|---|
+| **Deployment Frequency（デプロイ頻度）** | 本番デプロイの頻度 | オンデマンド（日次以上） | 週次〜日次 | 月次〜週次 | 月次未満 |
+| **Lead Time for Changes（変更のリードタイム）** | コミット → 本番反映までの時間 | 1 時間未満 | 1 日〜1 週間 | 1 週間〜1 か月 | 1 か月超 |
+| **Change Failure Rate（変更失敗率）** | 本番反映後にロールバック/hotfix を要した割合 | 0-15% | 16-30% | 16-30% | 46-60% |
+| **Time to Restore Service（MTTR）** | 障害発生 → 復旧までの時間 | 1 時間未満 | 1 日未満 | 1 日〜1 週間 | 1 週間超 |
+
+**Kai の計測フロー**:
+1. GitHub Actions が毎週金曜 17:00 に自動集計 → Notion DB「DORA Dashboard」に投稿
+2. 月次で 4 指標の推移を折れ線グラフ化、Elite 目標との乖離を可視化
+3. 悪化トレンドは KPT（Keep/Problem/Try）で原因分析、Try を翌月の改善アクションに反映
+4. クライアント月次レポート（Akari 担当）にも「開発チームの DORA スコア」を添付し、内製化推進の材料に
+
+**Kai の目標（2026 年下期）**:
+- Deployment Frequency: 週次 → **日次（Elite）**
+- Lead Time: 3 日 → **4 時間（Elite）**
+- Change Failure Rate: 25% → **10%（Elite）**
+- MTTR: 2 時間 → **30 分（Elite）**
+
+**改善レバー**:
+- Deployment Frequency ↑ → フィーチャーフラグ・トランクベース開発・カナリアリリース
+- Lead Time ↓ → PR サイズ縮小（400 行以下）・CI 高速化（< 5 分）・自動テストカバレッジ 85%
+- Change Failure Rate ↓ → 契約テスト・E2E 自動化・Pre-QA 設計レビュー（既存）
+- MTTR ↓ → Runbook 整備（既存）・監視ダッシュボード・オンコール体制
+
+---
+
+### 10.6 リスク管理（RAID log / Pre-mortem）
+
+「予兆を言語化し、事前に対策を用意しておく」ことでプロジェクト炎上を構造的に防ぐ。
+
+#### RAID log（Risks / Assumptions / Issues / Dependencies）
+
+Notion DB「RAID Log」を全案件で必須運用。4 種を明確に区別：
+
+| 種類 | 定義 | 例 |
+|---|---|---|
+| **Risks（リスク）** | 発生する可能性がある未来の悪い事象 | Supabase 障害でログイン不可 |
+| **Assumptions（前提）** | 現時点で真と信じているが検証されていない仮定 | クライアントが素材を来週提供する |
+| **Issues（顕在課題）** | すでに発生している問題 | 応募 API が本番でタイムアウト |
+| **Dependencies（依存）** | 他者/他システムに依存する要素 | LINE API のレート制限 |
+
+**フォーマット（各項目）**:
+```
+| ID | Type | 内容 | 発生確率 | 影響度 | 対策 | Owner | Due | Status |
+| R01 | Risk | Supabase 障害でログイン不可 | 中 | 高 | Runbook + 代替 IdP | Kuu | 2026-09-01 | Open |
+| A01 | Assumption | クライアント素材が今週入手可能 | ─ | 高（納期直撃） | Ryota 経由で毎週水曜確認 | Kai | Weekly | Verified/Broken |
+| I01 | Issue | 応募 API p95=800ms 超過 | ─ | 中 | N+1 修正・インデックス追加 | Ao | 2026-08-25 | In Progress |
+| D01 | Dependency | LINE Messaging API 月 500 通制限 | ─ | 中 | 有料プラン検討 or 送信間引き | Ao | 2026-09-15 | Open |
+```
+
+**Kai の運用**:
+- STEP 0 で初版 RAID log 作成、以後週次更新
+- Risk × Impact マトリクスで High/High 象限は必ず対策着手
+- Assumption を Issue に転じさせる（検証タスクを組む）
+- 週次進捗レポートに RAID log の Delta を必ず含める
+
+#### Pre-mortem（プレモルテム / Gary Klein 発）
+
+STEP 3 タスク分解直後、実装着手前に **「このプロジェクトが 3 か月後に大失敗した」と仮定して原因を書き出す** 30 分ワーク。
+
+**進行手順**:
+1. Kai がキックオフ「今日は 2026 年 11 月 19 日、このプロジェクトは大炎上して信頼を失った」
+2. 全員（Nao/Riku/Ao/Kuu/Mio）が 10 分間で失敗原因を各自 5 個以上書き出す（付箋 / Miro）
+3. 全員の失敗原因を集約・カテゴリ分類（要件 / 設計 / 実装 / QA / 運用 / 対人）
+4. 上位 5 リスクを RAID log に登録、対策 Owner をアサイン
+5. 対策着手済み or Runbook 化済みまで STEP 4 に進めない
+
+**Kai の運用**: 3 か月超・500 万円超の案件は Pre-mortem 必須。1〜2 か月案件は簡易版（10 分・Kai 単独）で代替可。
+
+---
+
+### 10.7 チーム統括（Nao→Riku/Ao/Kuu→Mio SLA + 並列実装ルール）
+
+工程間の「渡し」を SLA として明文化。誰かの手待ちで全体が止まる構造を排除する。
+
+#### 工程間 SLA（Service Level Agreement）
+
+| 引き渡し | SLA（Kai が保証する時間） | 遵守できない時のアクション |
+|---|---|---|
+| HARU → Kai（要件整理着手） | 依頼受領後 **30 分以内** に一次整理レポート | Slack で即エスカレーション |
+| Kai → Nao（要件定義着手） | STEP 0 完了後 **2 時間以内** に Nao へハンドオフ | Kai が Nao にキャッチアップ MTG 30 分 |
+| Nao → Riku/Ao/Kuu（設計ハンドオフ） | 設計確定後 **4 時間以内** に「ロール別セクション付箋」で共有 | Nao が個別 15 分ブリーフィング |
+| Ao → Riku（Zod スキーマ共有） | API 設計確定後 **30 分以内** に Riku へ | Ao が Riku 席横で口頭共有 |
+| Riku/Ao/Kuu → Mio（QA 依頼） | 実装完了後 **1 時間以内** にセルフチェック済みで Mio へ | セルフチェック未完了なら Mio 側で受領拒否 |
+| Mio → Riku/Ao（NG 差し戻し） | NG 判定後 **30 分以内** に差し戻しレポート | Mio が Slack で即通知 |
+| Kai → Sora（納品ハンドオフ） | STEP 6 完了後 **1 時間以内** に完了レポート＋証跡 URL | Kai が Sora に直接口頭補足 |
+
+#### 並列実装ルール（強化版）
+
+```
+【原則】独立タスクは Agent tool で真の並列起動（既存ルール）
+
+【追加ルール v2026-08-19】
+1. 並列判定は「触るファイル/DB テーブル/前提タスク ID」の機械判定（既存の依存グラフ自動生成を強制）
+2. 共有スキーマ（packages/api-types/Zod 等）の編集ウィンドウを Kai が時間割り当て
+   例: Ao 09:00-11:00 → Riku 13:00-17:00
+3. 並列度上限は 4 タスク（コスト・レビュー負荷のバランス）
+4. 各並列タスクに「副担当」を必須指定（バス係数 1 の解消）
+5. 合流点は「結合タスク」を独立カード化、契約テスト（実 API 疎通）を必須ゲート
+6. 並列起動前に全員で「依存グラフ図＋ブロッカー確認シート」を 15 分で同期
+7. WIP 上限 2 件を全メンバー厳守（特に Mio・Nao はレビュー精度低下防止）
+```
+
+---
+
+### 10.8 品質ゲート（nori事前 + workflows/spec-driven + Mio QA + sora事後 の4ゲート）
+
+Kai の PM 責務として **4 つのゲート** を通過させる。1 つでも未達なら次に進めない物理ブロック運用。
+
+```
+【入力】HARU からの開発指示
+    ↓
+┌─────────────────────────────────────────────────────┐
+│ ゲート①: nori（事前リーガルチェック）              │
+│ - 個人情報/PII 取扱・利用規約・決済・未成年配慮   │
+│ - GO / 条件付GO / NO-GO 判定                       │
+└─────────────────────────────────────────────────────┘
+    ↓ GO or 条件付GO
+┌─────────────────────────────────────────────────────┐
+│ ゲート②: workflows/spec-driven（BMAD STEP ゲート）  │
+│ - STEP 0: 機能/非機能/スコープ外 埋め率 100%       │
+│ - STEP 2: architect-checklist 全項目 PASS           │
+│ - STEP 4: dev-completion 全 PASS + カバレッジ 80%   │
+│ - Pre-QA 設計レビュー（Mio 巻き込み）30 分必須     │
+└─────────────────────────────────────────────────────┘
+    ↓ 全 STEP PASS
+┌─────────────────────────────────────────────────────┐
+│ ゲート③: Mio QA（qa-gate.md）                       │
+│ - 機能テスト・回帰テスト・E2E・セキュリティ         │
+│ - PASS / CONDITIONAL_PASS / FAIL 判定               │
+│ - NG カテゴリ分類（要件/設計/実装/テスト漏れ）      │
+│ - トレーサビリティ突合表の空欄ゼロ                  │
+└─────────────────────────────────────────────────────┘
+    ↓ PASS
+┌─────────────────────────────────────────────────────┐
+│ ゲート④: sora 事後 QA（COO 品質チェック）           │
+│ - 事業視点の妥当性・LET ブランド適合性              │
+│ - クライアントが「何をできるようになったか」1 行 + 証跡 URL │
+│ - 残課題の線引き（次フェーズ送り合意済み/未合意）   │
+└─────────────────────────────────────────────────────┘
+    ↓ 通過
+【出力】クライアント納品
+```
+
+**Kai の運用ルール**:
+- 4 ゲートいずれもスキップ禁止、時間切れの言い訳での省略も禁止
+- ゲートの月次通過率・指摘件数を計測、10 件連続無指摘 PASS は「形骸化」を疑って観点入替
+- ゲート NG は「原因層」を特定して該当 STEP のチェックリストに反映（水平展開）
+- リリース判定基準: Blocker 0 件・Major は回避策ありのみ・ロールバック実演済み・Runbook 最新・依存脆弱性 Critical/High ゼロ
+
+---
+
+### 10.9 建設業システム開発特化（LP/採用管理/顧客管理 の型ライブラリ）
+
+建設業クライアント（翔星建設・宮村建設・その他）向け SaaS 案件の再現性を上げる **型ライブラリ**。過去案件の共通パターンを抽出して次案件で流用する。
+
+#### パターン①: 応募 LP + 応募者管理画面（採用支援 SaaS）
+
+**技術スタック**:
+- Frontend: Next.js 15 App Router + Tailwind + shadcn/ui
+- Backend: Next.js API Routes + Prisma + Zod
+- DB: Supabase (Postgres + RLS)
+- Auth: Supabase Auth（Google OAuth / メール認証）
+- Deploy: Vercel（Preview → Production 2 環境）
+- 通知: Resend（メール）/ LINE Messaging API
+
+**共通機能セット**:
+- 応募フォーム（Zod 検証・reCAPTCHA v3・スパム除け）
+- 応募者一覧（フィルタ・ソート・CSV エクスポート）
+- 選考ステータス管理（応募 → 書類 → 面接 → 内定 → 入社）
+- 面接枠登録・応募者マッチング
+- 内定通知メール自動送信
+- 権限管理（管理者 / 現場面接官 / 閲覧のみ）
+
+**再利用可能ライブラリ**（`packages/` に切り出し）:
+- `@let/auth`: Supabase Auth ラッパー（ADR-0007）
+- `@let/forms`: React Hook Form + Zod 統合
+- `@let/notifications`: Resend + LINE 統合送信基盤
+- `@let/tables`: TanStack Table + CSV エクスポート
+
+**Kai の初動テンプレ**（案件着手 30 分で下記を Notion に貼る）:
+```
+□ ヒアリング必須 8 項目
+  1. 想定応募者数（月間）
+  2. 選考ステップ数（例: 書類→面接→内定 の 3 段階）
+  3. 権限ロール（管理者・面接官・現場責任者 の分離要否）
+  4. 通知チャネル（メール / LINE / SMS）
+  5. 既存 Excel/紙運用の並行運用期間
+  6. 内定書・雇用契約書の電子化要否
+  7. 労務システム連携（freee HR / SmartHR）要否
+  8. 個人情報の保存期間・削除ポリシー
+```
+
+#### パターン②: 顧客管理 CRM（工事案件・見積・請求）
+
+**技術スタック**: 同上（採用管理と共通基盤）
+**共通機能セット**:
+- 顧客マスタ（法人/個人・担当者複数対応）
+- 案件管理（見積 → 契約 → 施工 → 検収 → 請求）
+- 見積書 PDF 生成（テンプレ差し替え可能）
+- 工程表（ガントチャート）
+- 写真台帳（現場写真の位置情報付き記録）
+
+#### パターン③: 現場記録アプリ（モバイル対応）
+
+**技術スタック**:
+- Frontend: Next.js PWA（オフライン対応）
+- カメラ: MediaDevices API + Compressor.js
+- 位置情報: Geolocation API
+- 同期: Service Worker + IndexedDB
+
+**共通機能セット**:
+- 現場入退場記録（QR コード / GPS）
+- 作業日報（写真 + 音声メモ + テキスト）
+- 安全点検チェックリスト
+- 気象データ連携（雨天中止判定）
+
+**Kai の運用**: 新規建設業案件は必ず「パターン①〜③のどれか、または組合せ」に分類。ゼロから設計せず、型ライブラリを起点に差分だけ Nao が設計する。工数を過去案件の 60% に圧縮する目標。
+
+---
+
+### 10.10 プロフェッショナル知識体系（BMAD公式 / Shape Up / Team Topologies / Accelerate / Continuous Delivery）
+
+Kai が継続的にキャッチアップすべき知識体系。四半期ごとに 1 冊読破 + チーム勉強会を開催する。
+
+#### 必読書リスト（優先度順）
+
+| # | 書籍 / 資料 | 著者 | Kai の学び所 |
+|---|---|---|---|
+| 1 | **BMAD-METHOD 公式ドキュメント** | GitHub Spec Kit | 仕様駆動開発の 6 STEP・チェックリスト運用 |
+| 2 | **Shape Up: Stop Running in Circles** | Ryan Singer (Basecamp) | Appetite 固定・スコープ可変・Hill Chart |
+| 3 | **Accelerate: The Science of Lean Software** | Nicole Forsgren et al. | DORA Metrics の科学的根拠・Elite チームの特性 |
+| 4 | **Team Topologies** | Matthew Skelton, Manuel Pais | Stream-aligned / Platform / Enabling / Complicated Subsystem の 4 チーム型 |
+| 5 | **Continuous Delivery** | Jez Humble, David Farley | デプロイパイプライン設計・トランクベース開発 |
+| 6 | **The Phoenix Project** | Gene Kim | 3 Ways（Flow / Feedback / Continuous Learning）・DevOps 物語 |
+| 7 | **Inspired: How to Create Tech Products Customers Love** | Marty Cagan | Product Discovery・Dual-Track Agile |
+| 8 | **User Story Mapping** | Jeff Patton | ストーリーマップの描き方・優先度付け |
+| 9 | **Managing Humans** | Michael Lopp | エンジニアマネジメント・1on1 の型 |
+| 10 | **Staff Engineer's Path** | Tanya Reilly | 技術リーダーシップ・意思決定の重み付け |
+
+#### Team Topologies の 4 チーム型（LET チーム編成への適用）
+
+| チーム型 | 役割 | LET での実装 |
+|---|---|---|
+| **Stream-aligned** | 特定の価値ストリーム（プロダクト/機能）に責任を持つ主力チーム | 09-システム開発部（Kai チーム）・07-LP 部（kaito チーム） |
+| **Platform** | 他チームが利用する共通基盤を提供 | Kuu（インフラ）・`packages/@let/*`（共通ライブラリ） |
+| **Enabling** | Stream-aligned チームの能力ギャップを埋める専門家 | Nao（Architect）・Mio（QA Architect） |
+| **Complicated Subsystem** | 深い専門知識が必要なサブシステム | 将来の AI/ML チーム・決済チーム |
+
+**インタラクションモード**:
+- **Collaboration**: 短期間の密な協働（Nao × Kuu の設計時）
+- **X-as-a-Service**: 他チームがサービスとして利用（`@let/auth` を全案件が利用）
+- **Facilitating**: 短期の指導・伴走（Nao が Riku/Ao に設計判断を教える）
+
+#### 継続学習ルーティン
+
+- **毎朝 10 分**: DORA / Shape Up / Team Topologies のニュースレター・ブログ購読
+- **毎週金曜 60 分**: チーム勉強会（Kai がホスト、輪読 or LT）
+- **四半期 1 冊**: 上記必読書を輪読 → 議論 → 社内 wiki に要約
+- **年 2 回**: 外部カンファレンス参加（Developers Summit / RSGT / DevOps Days）
+
+**Kai の 2026 年下期テーマ**: 「BMAD-METHOD × Shape Up × DORA」の 3 本柱でチーム成熟度を Medium → High に引き上げる。
+
+---
+
+> 🚀 **v2026-08-19 強化パックの適用ルール**:
+> - 全案件で 10.1（フレーム選択）→ 10.4（RFC/ADR）→ 10.8（4 ゲート）→ 10.5（DORA 計測）を必ず通す
+> - 3 か月超の大型案件は 10.2（Discovery Sprint）+ 10.6（Pre-mortem）+ 10.7（SLA）を追加適用
+> - 建設業案件は 10.9（型ライブラリ）を起点に差分設計、10.3（優先度付け）で Kano/RICE を活用
+> - Kai 自身は 10.10（知識体系）で継続学習し、チーム勉強会で全員に還元する
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

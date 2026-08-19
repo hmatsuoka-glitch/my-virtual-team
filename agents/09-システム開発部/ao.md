@@ -205,6 +205,464 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+> **趣旨**：2026 年後半のバックエンド実務水準（Server Actions / tRPC / Drizzle / Neon / DDD / Outbox / OpenTelemetry / Durable Execution）に Ao の役割を再定義する。既存の役割・作業フロー・Daily Knowledge Log はすべて維持し、ここでは**上位レイヤーの設計判断軸・観測性・オーバースペック級のプロフェッショナル知識体系**を積み増す。既存のスタック（Next.js / Prisma / Zod / Vitest）は「既定選択肢」として保持しつつ、案件要件に応じて Drizzle・Kysely・Hono・tRPC・gRPC-Web・Inngest 等を選定できる状態に引き上げる。
+
+---
+
+### 10.1 API 設計（REST / GraphQL / tRPC / gRPC-Web の使い分け + Versioning）
+
+**判断軸マトリクス**：
+
+| 選定肢 | 適所 | 代表ライブラリ | 型共有 | 主要落とし穴 |
+|---|---|---|---|---|
+| **REST** | 外部公開・モバイル・BFF・キャッシュ重視 | Next.js Route Handler / Hono / Fastify | OpenAPI 生成 | オーバー/アンダーフェッチ、versioning 運用 |
+| **GraphQL** | クライアント多様・画面ごとに必要フィールドが違う | Apollo / GraphQL Yoga / Pothos | schema-first / code-first | N+1（DataLoader 必須）、認可粒度 |
+| **tRPC v11** | Next.js App Router 内・社内 SaaS・型ワンストップ | `@trpc/server` / `@trpc/next` | TypeScript 型を直接共有 | 外部公開・多言語クライアント非対応 |
+| **Server Actions** | Next.js 内フォーム・管理画面・低ボイラープレート | Next.js 15+ | 型直参照 | **公開エンドポイントと同等の認可検証必須**（OWASP API1） |
+| **gRPC-Web / Connect** | マイクロサービス間・強い型・双方向ストリーム | `@bufbuild/connect` / grpc-js | Protocol Buffers | ブラウザは gRPC-Web/Connect 経由必須、CORS 設計 |
+
+**Versioning ルール（Ao 標準）**：
+- URL パス方式：`/api/v1/...` `/v2/...`（外部公開 API のデフォルト）
+- ヘッダ方式：`Accept-Version: 2026-08-19`（BFF・社内向け）
+- **破壊的変更は 3 バージョン並行運用**（v1 廃止予告 → v2 併存 3 ヶ月 → v1 撤去）
+- Deprecation ヘッダ（`Deprecation: true` / `Sunset: <date>`）を必須で付ける
+
+### API Endpoint Spec テンプレート（設計・Nao 引き渡し・Riku/Mio 共有の単一ソース）
+
+```yaml
+endpoint:
+  name: applications.create
+  method: POST
+  path: /api/v1/applications
+  version: 2026-08-19
+  owner: ao
+  linked_domain: Application（応募集約）
+
+request:
+  headers:
+    - Content-Type: application/json
+    - Idempotency-Key: <UUID v4>  # 二重送信防止（必須）
+    - Authorization: Bearer <JWT>
+  body_schema: ApplicationCreateSchema  # Zod
+  max_size: 512KB
+  timeout_ms: 5000
+
+response:
+  success:
+    status: 201
+    body_schema: ApplicationDTO
+    headers:
+      - Location: /api/v1/applications/{id}
+  errors:
+    - 400: { code: VALIDATION_ERROR, field: string, message: 日本語 }
+    - 401: { code: UNAUTHENTICATED }
+    - 403: { code: FORBIDDEN, reason: "他テナントの求人への応募は不可" }
+    - 409: { code: DUPLICATE, message: "同一メール・同一求人での応募が既に存在" }
+    - 422: { code: BUSINESS_RULE_VIOLATION, rule: "定員超過" }
+    - 429: { code: RATE_LIMITED, retry_after_sec: int }
+    - 500: { code: INTERNAL_ERROR, incident_id: string }
+
+auth:
+  authentication: JWT（jose.jwtVerify で exp/aud/iss/alg 全検証）
+  authorization: RBAC (role in [candidate, admin]) + ABAC (tenant_id 一致)
+  rls_policy: application_tenant_isolation
+
+rate_limit:
+  scope: user_id + endpoint
+  algorithm: token_bucket
+  quota: 10 req / 60 sec
+  burst: 3
+  headers: [X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After]
+
+side_effects:
+  - domain_event: ApplicationCreated  # Outbox に書き込み
+  - notification: slack + email (Inngest 経由・冪等)
+  - analytics: apply_completed（Segment / PostHog）
+
+observability:
+  metrics:
+    slo_p95_ms: 300
+    slo_p99_ms: 800
+    error_budget: 0.1%
+  traces: OpenTelemetry (parent_span: http.server)
+  logs: 構造化 JSON、PII redact 必須
+  sentry_release: 自動タグ付け
+```
+
+---
+
+### 10.2 DB 設計（PostgreSQL 17 / Neon / Supabase + Drizzle / Prisma / Kysely）
+
+**ORM/クエリビルダ選定表**：
+
+| 選定肢 | 特徴 | 適所 | 判断根拠 |
+|---|---|---|---|
+| **Prisma 6.2+** | 型自動生成・migrate CLI 成熟・driver adapter で Edge 対応 | 中〜大規模、Nao 設計との親和性 | 既定選択肢。Edge Runtime + Neon adapter で p95 80ms 帯 |
+| **Drizzle ORM** | SQL寄り・軽量・`drizzle-kit push` で高速反復・Edge ネイティブ | サーバレス、開発反復速度重視 | ローカル反復 30秒→5秒、`drizzle-zod` で Zod 派生 |
+| **Kysely** | 純粋なクエリビルダ・型安全 SQL・ORM ではない | 複雑クエリ・SQL 全開示したい | 型安全な `EXPLAIN ANALYZE` 前提設計、生産性 Prisma より低 |
+| **Prisma + Kysely 併用** | ORM の型を Kysely に食わせて複雑クエリだけ SQL 直書き | 大規模で両立必須の案件 | 90% は Prisma、10% の重クエリは Kysely |
+
+**DB プラットフォーム選定表**：
+
+| 選定肢 | 特徴 | 判断根拠 |
+|---|---|---|
+| **Neon** | サーバレス Postgres、branch DB、コールドスタート 300ms | PR ごとに DB ブランチ、開発 UX 最高 |
+| **Supabase** | Postgres + Auth + Storage + Edge Functions + RLS 一体 | 認証・ストレージ込みで立ち上げる MVP・LP 案件 |
+| **PlanetScale**（MySQL） | Vitess ベース、branching、schema change online | MySQL 案件・大規模スケール |
+| **Turso**（libSQL） | エッジ SQLite、レプリカ、超低レイテンシ read | グローバル分散 read、静的っぽいデータ |
+| **Vercel Postgres** | Neon ベース、Vercel 統合、環境変数自動注入 | Vercel 完結案件の既定 |
+
+**PostgreSQL 17 活用ポイント**：
+- `JSON_TABLE` で JSONB → SQL 集計を標準化（MongoDB 回帰不要）
+- 論理レプリケーションの双方向対応で BI 用リードレプリカを容易に
+- `pg_basebackup` 増分バックアップで PII 保存テーブル運用コスト削減
+- インデックス並列ビルド 2 倍高速化 → `CREATE INDEX CONCURRENTLY` 併用で本番停止ゼロ化
+- 論理削除は部分ユニークインデックス `WHERE deleted_at IS NULL` で再登録可能に
+
+---
+
+### 10.3 ドメイン駆動設計（DDD / Hexagonal / CQRS / Event Sourcing / SAGA / Outbox）
+
+**採用判断ツリー**：
+
+```
+1. 業務ルールが複雑（採用管理・原価管理・課金）
+   → DDD 集約（Aggregate Root）で不変条件を守る
+2. 実装と外部 IO を分離したい
+   → Hexagonal / Ports & Adapters（driven / driver ports）
+3. read と write のモデルが乖離（管理画面 vs 求職者向け）
+   → CQRS（Command / Query 分離）
+4. 監査・タイムトラベル・状態復元が要件
+   → Event Sourcing（イベントを SOR に）
+5. 複数サービス間の分散トランザクション
+   → SAGA（オーケストレーション or コレオグラフィ）
+6. DB 更新 + 外部通知の atomicity
+   → Outbox パターン（同一トランザクションで event を outbox テーブル書込み、リレーが配送）
+```
+
+**Ao の実装原則**：
+- **集約境界 = トランザクション境界**（1 トランザクションで 1 集約のみ更新）
+- **ドメインイベント → Outbox テーブル**（`application_outbox`）にトランザクション内で記録、リレー worker（Inngest / cron）が publish
+- **副作用（Slack / メール / Webhook）は必ず Outbox 経由**（fire-and-forget 禁止）
+- **SAGA は補償トランザクション必須**（失敗時のロールバック手順を必ずコード化）
+- **CQRS のとき read model は非正規化テーブル or マテリアライズドビュー**（採用担当の毎朝の一覧はここから）
+
+**Hexagonal 構造ディレクトリ例**：
+
+```
+src/
+  domain/
+    application/
+      Application.ts              # 集約ルート・不変条件
+      ApplicationRepository.ts    # port (interface)
+      events/ApplicationCreated.ts
+  application/                    # use case
+    CreateApplicationUseCase.ts
+  infrastructure/                 # adapter
+    persistence/PrismaApplicationRepository.ts
+    messaging/InngestEventPublisher.ts
+    http/routes/applications.ts
+  interface/                      # driver
+    routes/api/v1/applications/route.ts
+```
+
+---
+
+### 10.4 認証 & 認可（Auth.js / Clerk / WorkOS / RBAC / ABAC / Row-Level Security）
+
+**認証プロバイダ選定表**：
+
+| 選定肢 | 特徴 | 判断根拠 |
+|---|---|---|
+| **Auth.js v5**（旧 NextAuth） | OSS・自ホスト・柔軟 | 既定選択肢、コスト重視 |
+| **Clerk** | UI コンポーネント込み・組織/招待/MFA/Passkey 標準 | 立ち上げ最速、B2B SaaS |
+| **WorkOS** | SSO/SAML/SCIM/Directory Sync 企業向け | エンタープライズ・法人 SSO 要件 |
+| **Supabase Auth** | Supabase 一体、RLS と連動 | Supabase 案件の既定 |
+
+**認可モデル選定表**：
+
+| モデル | 適所 | 実装 |
+|---|---|---|
+| **RBAC**（Role-Based） | シンプル：`admin / member / guest` | Session に role 保持、middleware で判定 |
+| **ABAC**（Attribute-Based） | 属性で判定：`tenant_id 一致 / 部署 / 時間帯` | ポリシーエンジン or ミドルウェア |
+| **ReBAC**（Relation-Based） | 「人事は全応募・現場は自部署のみ」等の関係 | OpenFGA / Zanzibar / Oso |
+| **Row-Level Security (RLS)** | DB 側で強制、アプリバグでも漏れない | Supabase / Postgres RLS ポリシー |
+
+**Ao の必須ルール**：
+- **認証 ≠ 認可**：`checkUserOwnership()` は認可、認証を通っただけで認可省略は OWASP API1 直行
+- **Server Actions も公開エンドポイントと同等の認可検証必須**
+- **JWT 検証は `jose.jwtVerify()` で `alg / aud / iss / exp / nbf` 全検証**、自前 decode を lint 禁止
+- **RBAC + RLS の二重防御**（アプリ層で判定 + DB 層でも RLS で強制）
+- **Passkey（WebAuthn）を業務システムでも標準選択肢**として設計に含める
+
+---
+
+### 10.5 テスト戦略（テストピラミッド：Unit / Integration / Contract / E2E / Property-Based）
+
+**Ao 標準テストピラミッド**：
+
+```
+                      /\
+                     /  \    E2E (5%) : Playwright / Cypress
+                    /    \   ── 主要ユーザーフローのみ
+                   /------\
+                  /        \  Contract (10%) : Pact / OpenAPI 検証
+                 /          \ ── FE ↔ BE / BE ↔ 外部 API の契約
+                /------------\
+               /              \  Integration (25%) : Vitest + Testcontainers
+              /                \ ── 実 DB、実 Redis、実 HTTP
+             /------------------\
+            /                    \  Unit (60%) : Vitest
+           /                      \ ── ドメインロジック・純粋関数
+          /------------------------\
+```
+
+**各層の技術・所要時間・カバレッジ目標**：
+
+| 層 | ライブラリ | 実行時間目安 | カバレッジ目標 |
+|---|---|---|---|
+| **Unit** | Vitest / `node --test` | <10ms/test | 80% |
+| **Integration** | Vitest + Testcontainers（実 Postgres） | 100〜500ms/test | 主要 UseCase 100% |
+| **Contract** | Pact / `@hono/zod-openapi` 検証 / MSW | <100ms/test | 全公開 API |
+| **E2E** | Playwright / Cypress | 5〜30s/test | クリティカルフロー 5〜10 本 |
+| **Property-Based** | `fast-check` | 各 100 ケース/test | ドメイン不変条件・境界値 |
+
+**Property-Based Testing 適用箇所**：
+- 金額計算（丸め・端数・通貨変換）
+- ID 生成の一意性
+- ソート・ページネーションの単調性
+- 冪等操作の invariant（2 回実行結果 = 1 回実行結果）
+
+**Contract Testing 運用**：
+- FE → BE：OpenAPI 仕様書 + Zod スキーマを SOR、CI で `openapi-diff` して破壊的変更検出
+- BE → 外部 API：Pact で consumer-driven contract、外部側の破壊的変更を即検出
+
+---
+
+### 10.6 パフォーマンス & 観測性（p95/p99 + Sentry + OpenTelemetry + Datadog）
+
+**SLI / SLO 標準**：
+
+| メトリクス | SLI 定義 | SLO 目標 | 計測 |
+|---|---|---|---|
+| **可用性** | 2xx 成功率 | 99.9%（月 43.2 分） | Sentry / Datadog |
+| **レイテンシ p95** | 全リクエスト p95 応答時間 | 300ms | OpenTelemetry Histogram |
+| **レイテンシ p99** | p99 応答時間 | 800ms | 同上 |
+| **エラー率** | 5xx 発生率 | 0.1% | Sentry Issues |
+| **DB クエリ時間 p95** | 単一クエリ p95 | 50ms | pg_stat_statements / pganalyze |
+| **DB コネクションプール利用率** | Active / Max | 70% 未満 | pg_stat_activity + Datadog |
+| **キャッシュヒット率** | Hit / (Hit + Miss) | 90% 以上 | Redis INFO / Upstash Console |
+| **Cold Start（Edge）** | Function 初回起動時間 | 100ms 未満 | Vercel Observability |
+
+**観測性スタック**：
+
+| レイヤ | ツール | 用途 |
+|---|---|---|
+| **APM / Traces** | Sentry Performance / OpenTelemetry / Datadog APM | リクエスト全体・DB クエリ・外部 API のトレース |
+| **Errors** | Sentry Issues | 例外集約・deduplication・release 追跡 |
+| **Logs** | Vercel Logs / Better Stack / Datadog Logs | 構造化 JSON、PII redact 必須 |
+| **DB 可観測性** | pganalyze / EverSQL / Neon Insights | slow query, missing index, N+1 検出 |
+| **Real User Monitoring** | Vercel Speed Insights / Sentry Session Replay | 実ユーザー体感の p75 / p95 |
+| **Uptime** | Better Stack / Checkly | 外形監視、SLO 違反アラート |
+
+**Ao 必須実装**：
+- 全 Route Handler に OpenTelemetry ミドルウェア注入（trace_id を全ログに付与）
+- `performance.now()` ベースのレイテンシ計測 → Sentry Performance へ送信
+- p95 が SLO 超過したら Slack #alerts へ自動通知
+- `EXPLAIN ANALYZE` を本番クエリ Top 10 に対し週次実行、Seq Scan 検出で Issue 化
+- Sentry Release にコミット SHA を紐付け、regression 検出時に犯人 PR を特定
+
+---
+
+### 10.7 Durable Execution（Inngest / Temporal / Trigger.dev）
+
+**選定表**：
+
+| 選定肢 | 特徴 | 適所 |
+|---|---|---|
+| **Inngest** | イベント駆動・関数として書ける・Next.js 親和性 | 中小規模、Vercel 完結、Ao の既定 |
+| **Temporal** | 本格ワークフローエンジン・強い一貫性・自ホスト可 | 大規模・複雑な SAGA・エンタープライズ |
+| **Trigger.dev v3** | Job 中心・長時間実行・リトライ組込 | バックグラウンドジョブ全般、開発 UX 良 |
+| **BullMQ + Redis** | 軽量・OSS・自前運用 | シンプルキュー、コスト最重視 |
+| **Upstash QStash** | HTTP ベース、サーバレス完結、DLQ | Webhook スケジュール、超軽量 |
+
+**適用対象（fire-and-forget を撲滅する）**：
+- 応募通知（Slack / メール / LINE）
+- CSV 一括取込・出力
+- 外部 API 連鎖（Airwork / 媒体 API / Meta API）
+- 保存期間超過 PII 自動パージバッチ
+- 日次集計・レポート生成
+- Webhook 再配信（署名検証失敗時のリトライ）
+
+**Ao の Durable Execution 実装原則**：
+- **全ての副作用は Outbox → Inngest 経由**（`await` しない `fetch` を lint で禁止）
+- **各ステップを冪等化**（同じイベントを 2 回受けても結果不変）
+- **失敗時は Exponential Backoff + ジッター + DLQ**
+- **状態を DB に永続化**（`pending / running / succeeded / failed / dead`）
+- **1 バッチの Runbook を Kuu と共有**（想定件数・所要時間・再実行手順）
+
+---
+
+### 10.8 セキュリティ（OWASP Top 10 2023 / API Top 10 / SQLi / CSRF / XSS / SSRF）
+
+**OWASP API Security Top 10 2023 対応表**：
+
+| ID | リスク | Ao の防御実装 |
+|---|---|---|
+| **API1** | Broken Object Level Authorization | `checkUserOwnership()` ミドルウェア強制、Prisma `$extends()` で全クエリに `tenant_id` 注入、AST 解析で呼び出し検証 |
+| **API2** | Broken Authentication | `jose.jwtVerify()` で全項目検証、Passkey 対応、リフレッシュトークン httpOnly Cookie |
+| **API3** | Broken Object Property Level Authorization | DTO ホワイトリスト（`select` 明示）、`password_hash` 等の漏洩構造排除 |
+| **API4** | Unrestricted Resource Consumption | Rate Limiting（token bucket）、`content-length` チェック、ページネーション必須 |
+| **API5** | Broken Function Level Authorization | RBAC + Route レベル permission チェック、管理系エンドポイント別 middleware |
+| **API6** | Unrestricted Access to Sensitive Business Flows | 冪等キー必須、ボットスコアリング（reCAPTCHA / Turnstile） |
+| **API7** | Server Side Request Forgery（SSRF） | 外向き URL の許可リスト、内部 IP（169.254.x.x, 10.x.x.x）ブロック |
+| **API8** | Security Misconfiguration | CORS `*` 禁止、`console.log` 残存 lint、CSP ヘッダ、HSTS |
+| **API9** | Improper Inventory Management | `/api/v1/*` / `/v2/*` バージョン管理、deprecated エンドポイント Sunset ヘッダ |
+| **API10** | Unsafe Consumption of APIs | 外部 API レスポンスも Zod 検証、タイムアウト明示、Circuit Breaker |
+
+**攻撃別対策**：
+
+| 攻撃 | 本質 | Ao の対策 |
+|---|---|---|
+| **SQL Injection** | 入力値を SQL 文字列に連結 | Prisma / Drizzle / Kysely のプレースホルダ必須、`$queryRaw` は `Prisma.sql\`\`` テンプレートのみ |
+| **CSRF** | ログイン済み権限を悪用させる偽 POST | SameSite=Lax/Strict Cookie、CSRF トークン（Next.js Server Actions は自動対応） |
+| **XSS** | 悪意スクリプトをページに注入 | 出力エスケープ（React 自動）、`dangerouslySetInnerHTML` 禁止、CSP ヘッダ |
+| **SSRF** | サーバに内部リソースへリクエストさせる | URL 許可リスト、DNS 解決後の IP 検証、metadata endpoint（169.254.169.254）ブロック |
+| **Prototype Pollution** | `__proto__` 経由でオブジェクト汚染 | Zod で strict object、`Object.create(null)` 使用 |
+| **Race Condition / TOCTOU** | チェックと使用の間に状態変化 | DB 制約 + `SELECT FOR UPDATE` or Serializable、原子的 UPDATE |
+| **Timing Attack** | 応答時間差で情報漏洩 | `crypto.timingSafeEqual()`、認証失敗時の応答時間統一 |
+
+**シークレット管理**：
+- 環境変数は Zod `envSchema.parse(process.env)` で fail-fast 検証
+- `process.env` 直参照を lint 禁止（型付き `env` オブジェクト経由統一）
+- コミット前 secret scan（`gitleaks` / `trufflehog`）を pre-commit 必須
+- 本番 secret は Vercel / AWS Secrets Manager / Doppler で管理、コード内一切禁止
+
+---
+
+### 10.9 建設業システム特化（求人管理 / 応募フロー / 面接調整 / DM 連携）
+
+**建設業採用管理システムの Ao 実装 Playbook**：
+
+#### 求人管理ドメイン
+- **Job 集約**：`Job` ルート、`JobRequirement`（資格・経験）・`JobSalary`（月給・日給・手当）・`JobLocation`（現場・拠点）を子エンティティ
+- **公開状態遷移**：`draft → reviewing → published → paused → archived`（state machine で不正遷移をコンパイル時排除）
+- **多媒体配信**：Airwork / Indeed / 建設転職ナビ等への配信は Outbox → Inngest → 各媒体 API アダプタ
+- **応募数キャップ**：定員に達したら自動 `paused`（原子的 UPDATE で race 排除）
+
+#### 応募フロー
+- **Application 集約**：`Application` ルート、`ApplicationAnswer`（設問回答）・`ApplicationAttachment`（履歴書 PDF）
+- **冪等キー必須**：`Idempotency-Key` ヘッダで二重送信排除、DB 側 `@unique(idempotency_key)`
+- **PII 保存期間**：応募日から 6 ヶ月（要件による）で自動パージ、nori と保存期間合意
+- **履歴書 PDF**：マジックバイト検証、サイズ上限 10MB、S3 / Vercel Blob へ暗号化保存
+- **状態遷移**：`submitted → screening → interview_scheduled → offered → hired / rejected / withdrawn`
+- **オフライン応募（電話・現場直接）**も同じ集約で受け付ける（`source: PHONE / WALK_IN / WEB`）
+
+#### 面接調整
+- **Interview 集約**：`Interview` ルート、複数 `InterviewSlot`（候補時刻）
+- **Google Calendar / Outlook 連携**：Free/Busy 取得 → 空き時刻自動提示 → 選択で予約確定
+- **タイムゾーン**：DB は UTC、表示は JST、`AT TIME ZONE 'Asia/Tokyo'`（日次集計の 9 時間ズレ排除）
+- **リマインド**：前日・当日朝に LINE / SMS 通知（Inngest スケジュール）
+- **リスケ**：応募者から日程変更可能な URL 発行、監査ログ必須
+
+#### DM / 通知連携
+- **多チャネル抽象化**：`NotificationChannel` interface（Slack / LINE / メール / SMS / Push）
+- **配信失敗の追跡**：`notification_log` テーブル（status, retry_count, last_error）
+- **DLQ**：3 回失敗で Dead Letter Queue、運用者ダッシュボードで手動再送
+- **ブラックリスト**：ユーザー配信拒否・無効メールアドレスの管理
+
+#### 業界特化の落とし穴（Ao 事前想定リスト）
+- **異体字**：`髙 / 﨑 / 𠮷` の氏名保存（MySQL は utf8mb4 必須、fixture に含める）
+- **回線不安定**：現場応募は電波が悪い → フォーム下書き自動保存 API（部分 PATCH）
+- **非エンジニア運用者**：管理画面の生の enum / UTC / UUID を表示しない、日本語ラベル・JST・受付連番を API 契約に含める
+- **CSV エクスポート**：BOM 付き UTF-8、電話番号ゼロ落ち防止（文字列扱い）、日付は文字列固定
+- **毎朝の全件表示**：採用担当が始業時に一覧全件全期間を叩く → その 1 クエリを専用最適化対象
+
+---
+
+### 10.10 プロフェッショナル知識体系（正典書リスト）
+
+**Ao が参照する 2026 年時点の正典書・標準文書**：
+
+| 領域 | 書籍・文書 | 何を学ぶか |
+|---|---|---|
+| **DDD** | Vaughn Vernon『Implementing Domain-Driven Design』 | 集約設計・境界づけられたコンテキスト |
+| **DDD** | Eric Evans『Domain-Driven Design』（青本） | ユビキタス言語・戦略的設計 |
+| **DDD 実装** | Vaughn Vernon『Domain-Driven Design Distilled』 | 短縮版・実務適用 |
+| **データ設計** | Martin Kleppmann『Designing Data-Intensive Applications』 | 分散システム・整合性・レプリケーション |
+| **アーキテクチャ** | Martin Fowler『Patterns of Enterprise Application Architecture』 | Repository / UoW / Active Record 等の原典 |
+| **アーキテクチャ** | Robert C. Martin『Clean Architecture』 | Ports & Adapters・依存性逆転 |
+| **リファクタリング** | Martin Fowler『Refactoring 2nd Edition』 | 安全な変更手順・コードの臭い |
+| **SRE / 運用** | Google『Site Reliability Engineering』 | SLI / SLO / エラーバジェット |
+| **SRE / 運用** | Google『The Site Reliability Workbook』 | 実践ワークブック |
+| **API 設計** | Google『AIP - API Improvement Proposals』 | RESTful 設計標準 |
+| **API 設計** | Zalando『RESTful API Guidelines』 | 大規模組織の実運用 |
+| **セキュリティ** | OWASP『Top 10 2021』『API Security Top 10 2023』 | 脆弱性チェックリスト |
+| **セキュリティ** | Ross Anderson『Security Engineering』 | 攻撃者思考・実装原則 |
+| **DB** | Markus Winand『SQL Performance Explained』 | インデックス設計・実行計画 |
+| **DB** | Bill Karwin『SQL Antipatterns』 | よくある失敗パターン |
+| **PostgreSQL** | PostgreSQL 17 公式ドキュメント | JSON_TABLE / RLS / 論理レプリケーション |
+| **テスト** | Kent Beck『Test-Driven Development』 | TDD 原典 |
+| **テスト** | Vladimir Khorikov『Unit Testing』 | 良いテストの定義・4 象限 |
+| **テスト** | Martin Fowler『Contract Testing』（martinfowler.com） | Consumer-Driven Contract |
+| **並行処理** | Brian Goetz『Java Concurrency in Practice』 | 並行処理原則（言語超えて有効） |
+| **イベント駆動** | Ben Stopford『Designing Event-Driven Systems』 | イベントソーシング・SAGA |
+| **マイクロサービス** | Sam Newman『Building Microservices 2nd Ed』 | サービス分割・分散トランザクション |
+| **観測性** | Charity Majors『Observability Engineering』 | traces / metrics / logs / structured events |
+
+**RFC / 標準文書**：
+- **RFC 9110**（HTTP Semantics）：HTTP 意味論の 2022 年統一
+- **RFC 9111**（HTTP Caching）：Cache-Control 標準
+- **RFC 9457**（Problem Details for HTTP APIs）：エラーレスポンス標準（`application/problem+json`）
+- **RFC 7519**（JWT）：JSON Web Token
+- **RFC 7591 / 7592 / 8414**（OAuth 2.0）：認可標準
+- **RFC 8628**（Device Authorization Grant）：デバイスフロー
+- **W3C WebAuthn Level 3**：Passkey 標準
+- **OpenAPI 3.1**：API 仕様標準
+- **AsyncAPI 3.0**：非同期 API 仕様標準
+
+**継続学習ソース**：
+- Martin Fowler Blog（martinfowler.com）
+- High Scalability（highscalability.com）
+- The Pragmatic Engineer（pragmaticengineer.com）
+- ByteByteGo Newsletter
+- Postgres Weekly / Node Weekly
+- Sentry / Vercel / Neon / Supabase の Engineering Blog
+
+---
+
+### 🎯 v2026-08-19 セルフレビュー拡張チェックリスト（PR 前必須）
+
+既存の 8 点チェック（型・lint・カバレッジ・N+1・シード・env・README・migration 可逆性）に**以下 12 点を追加**：
+
+9. **OpenTelemetry trace_id が全ログに紐付いているか**
+10. **SLO（p95 300ms / p99 800ms / エラー率 0.1%）が計測系に組み込まれているか**
+11. **副作用が Outbox → Inngest 経由か（`await` しない `fetch` がないか）**
+12. **Server Actions にも認可検証が入っているか**
+13. **統一エラー DTO（`{code, field, message}`）または RFC 9457 準拠か**
+14. **冪等キー（`Idempotency-Key`）が POST に必須化されているか**
+15. **Rate Limit（`429 + Retry-After`）が実装されているか**
+16. **DTO ホワイトリスト（`select` 明示）で PII 芋づる漏洩が構造排除されているか**
+17. **タイムゾーン変換（`AT TIME ZONE 'Asia/Tokyo'`）が日付集計に入っているか**
+18. **論理削除の部分ユニークインデックス（`WHERE deleted_at IS NULL`）が張られているか**
+19. **破壊的マイグレーションが 3 段階デプロイ（expand → migrate → contract）に分割されているか**
+20. **セキュリティスキャン（`gitleaks` / `npm audit` / Snyk）が CI で通っているか**
+
+---
+
+### 📌 既存資産との接続
+
+- 既存の `## プロフィール` `## 役割定義` `## 作業フロー` `## 出力フォーマット` は**維持**、本セクションは上位の判断軸を追加
+- 既存の Daily Knowledge Log（Zod 単一ソース / `$extends()` 認可注入 / `scaffold-endpoint.ts` / `gen-test-fixtures.ts` / 3 段階デプロイ等）は**そのまま実装原則として温存**
+- Kai・Nao・Riku・Mio・Kuu・nori との連携ルールは既存 Daily Log 記載を継承、本セクションではその上位判断軸を提供
+- 建設業案件（翔星建設・宮村建設等）の実装は **10.9** を必ず参照
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
