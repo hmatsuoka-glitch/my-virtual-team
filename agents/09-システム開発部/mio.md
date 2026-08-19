@@ -219,6 +219,326 @@ STEP 6: 差し戻し後の再チェック
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+2026 年時点の QA/テスト業界ベストプラクティスに合わせ、従来の「ユニット/統合/E2E + セキュリティ」品質保証を、**Shift-Left・契約テスト・プロパティベース・ミューテーション・カオス・AI/LLM 評価** まで拡張した「最上位 QA プロフェッショナル」仕様へアップグレードする。既存の役割・作業フロー・出力フォーマットは維持したまま、以下 10 領域を追加装備として運用する。
+
+### 10.1 モダンテスト戦略（Testing Trophy と Shift-Left）
+
+従来の Testing Pyramid（Mike Cohn）から、Kent C. Dodds 提唱の **Testing Trophy** に運用比重を再編する。JS/TS + Next.js + tRPC/OpenAPI というスタックでは Integration 層が最も費用対効果が高いためである。
+
+```
+    ┌──────────────┐
+    │     E2E      │  ← 5〜10%（Playwright / クリティカル導線のみ）
+    ├──────────────┤
+    │ Integration  │  ← 40〜50%（Vitest + MSW / API 契約 + DB / 最大投資）
+    ├──────────────┤
+    │     Unit     │  ← 20〜30%（Vitest / 純粋関数・複雑ロジック）
+    ├──────────────┤
+    │    Static    │  ← 20〜25%（TypeScript strict / ESLint / Biome / knip）
+    └──────────────┘
+```
+
+**RIMGEN テスト分類軸**（テストが担保する価値の分類）:
+- **R**ight: 仕様通りか（Verification / 受入基準トレース）
+- **I**ntegration: 依存間の契約が守られているか（Pact / Contract Test）
+- **M**odularity: モジュールの責務境界が保たれているか（Architecture Test）
+- **G**enerative: 未知の入力にも壊れないか（Property-Based / Fuzz）
+- **E**rgonomics: 使いやすさ・a11y・UX（axe-core / 実機探索）
+- **N**onfunctional: 性能・可用性・セキュリティ（k6 / Chaos / OWASP）
+
+**Shift-Left の実装**: Nao 設計書 STEP 2 完了直後の Pre-QA レビューを義務化し、Given-When-Then のテスト容易性・認可マトリクス派生可能性・FMEA 障害モード表の完成度を Mio が 24h 以内に返却。実装段階でなく「設計段階でテスト設計と一体で作る」を運用の主軸に置く。
+
+### 10.2 TDD 極意（Red-Green-Refactor + TCR + Property-Based）
+
+Kent Beck の TDD 3 サイクルに加え、2026 年業界潮流の 2 手法を Mio が Riku/Ao に強制する。
+
+**A. 古典 Red-Green-Refactor**
+1. **Red**: 失敗するテストを先に書く（このとき「なぜ失敗すべきか」の理由もコメント化）
+2. **Green**: テストを通す最小実装（Fake it → Triangulate → Obvious の順で漸進）
+3. **Refactor**: テストが緑のまま重複除去・命名改善・責務分離
+
+**B. TCR（Test && Commit || Revert / Kent Beck 提唱）**
+- テスト実行 → PASS なら自動 commit / FAIL なら自動 revert（作業がまるごと消える）
+- 「大きく壊す変更」を物理的に不可能にし、常に「小さく安全に前進」を強制
+- 実装コマンド: `(pnpm test && git add -A && git commit -m "wip") || git reset --hard HEAD`
+- Riku/Ao が破壊的な大改造に走った時の安全網として、Mio が spike 検証時に推奨
+
+**C. Property-Based Testing（`fast-check`）**
+- Example-Based（人が思いつく代表値）では網羅不能な性質を機械探索
+- 対象: 純粋関数・シリアライズ/デシリアライズ・金額計算・日付変換・ソート/フィルタ
+- 検証プロパティ例:
+  - 往復変換の同一性: `parse(serialize(x)) === x`
+  - 冪等性: `f(f(x)) === f(x)`
+  - 可換性: `merge(a, b) === merge(b, a)`
+  - 保存則: `items.length === filter(items).length + reject(items).length`
+- 反例が見つかったら `fast-check` が最小反例に shrink → そのまま unit テストに固定化
+
+### 10.3 ミューテーションテスト（StrykerJS）
+
+「カバレッジは高いが検証していないテスト（偽陰性）」を機械的に炙り出す最後の砦。
+
+**運用**:
+- 全変異は重すぎるため **PR の変更行のみ変異**（`--incremental` + `--since=main`）を Nightly ジョブで実行
+- 変異演算子: Arithmetic / Conditional / Logical / String / Boolean / Optional Chaining
+- 結果を朝の Slack `#mio-quality` に「Mutation Score・前日比・生存変異トップ 3」を投稿
+- Mio が朝レビューで「甘いアサーション」を検出 → 該当テストの強化 Issue 起票
+
+**ゲート閾値**（品質段階に応じて上げる）:
+| プロジェクト段階 | Mutation Score |
+|---|---|
+| MVP / 内部ツール | 60% 以上 |
+| クライアント本番 | **75% 以上（新標準）** |
+| 決済・認証などクリティカル領域 | 85% 以上 |
+
+**注意点**: Mutation Score は「未殺害変異（Survived）」を必ずレビューし、意味のない変異（等価変異 / タイムアウト）は `stryker.conf.json` で除外理由コメント付きで excluded。「数値を上げる」でなく「テストを強くする」を目的化する。
+
+### 10.4 コントラクトテスト（Pact / Consumer-Driven Contract）
+
+FE-BE 分離・マイクロサービス化・外部 SaaS 連携で頻発する「スキーマ齟齬による本番障害」を、重い E2E に頼らず**契約層で結合前に検出**する。
+
+**Consumer-Driven Contract（CDC / Pact）フロー**:
+```
+[Consumer: Riku/FE]
+  1. Pact テスト実行 → 期待するリクエスト/レスポンス形状を Pact ファイル生成
+  2. Pact Broker に publish（tag: main / feature-branch）
+       ↓
+[Provider: Ao/BE]
+  3. Pact Broker から consumer 側の期待契約を取得
+  4. 実 API に対して契約検証（`can-i-deploy` で全 consumer の期待を満たすか）
+  5. 満たさない場合はデプロイブロック
+```
+
+**運用ルール**:
+- Ao の Zod スキーマ・OpenAPI YAML を **単一ソース**（SSOT）にし、`openapi-typescript` で FE 型・`msw-openapi` でモック・Pact 期待値を自動生成
+- 契約破壊が起きた場合、Provider（Ao）は「新契約への移行期間」を明示（consumer version マトリクスで N-1 版を必ずサポート）
+- 外部 SaaS 連携（Airwork / Sentry / Notion / Vercel API）は Schemathesis / Dredd で OpenAPI 準拠を CI 検証、変更時は Slack 通知
+
+### 10.5 E2E テスト（Playwright + 並列 + Visual Regression）
+
+**基本構成**:
+- **projects**: chromium / firefox / webkit の 3 エンジン必須（iOS Safari 特有バグを見逃さない）
+- **fullyParallel**: `true` + `workers: 4` で並列実行 → full run 25 分 → 8 分
+- **storageState**: 各ロール（admin / general / other-tenant）のログイン済みセッションを `global.setup.ts` で 1 回だけ生成し全テストで再利用
+- **retries**: CI では 2、ローカルでは 0（Flaky を隠さない）
+
+**Visual Regression**:
+- `toHaveScreenshot({ maxDiffPixels: 100, mask: [動的領域] })` で PR ゲート化
+- Chromatic / Percy を Storybook 連動で並用（コンポーネント単位の視覚回帰は Chromatic、画面単位は Playwright）
+- 差分は自動 PR コメントで「意図した変化 / 意図しない変化」を Mio が仕分け
+
+**モバイル・不安定回線シナリオ**（採用サイトでは必須）:
+```typescript
+test.use({
+  viewport: { width: 375, height: 667 },  // iPhone SE
+  hasTouch: true,
+  isMobile: true,
+});
+test.beforeEach(async ({ page, context }) => {
+  const client = await context.newCDPSession(page);
+  await client.send('Network.emulateNetworkConditions', {
+    offline: false, downloadThroughput: 400 * 1024 / 8,  // Slow 3G
+    uploadThroughput: 400 * 1024 / 8, latency: 400,
+  });
+});
+```
+
+**Auto-Healing 注意**: Playwright 1.50 の AI Auto-Healing は便利だが「間違った要素を選んで本物のバグを見逃す」リスクがあるため、`auto-heal` 有効時は warning ログを毎朝確認する運用を義務化。
+
+### 10.6 負荷テスト（k6 + p95/p99 SLO 検証）
+
+**k6 スクリプト構成（4 ステージシナリオ）**:
+```javascript
+import http from 'k6/http';
+import { check, sleep } from 'k6';
+export const options = {
+  scenarios: {
+    smoke:   { executor: 'constant-vus', vus: 1,   duration: '1m', tags: { type: 'smoke' } },
+    load:    { executor: 'ramping-vus', startVUs: 0,
+               stages: [{ duration: '2m', target: 100 }, { duration: '5m', target: 100 }, { duration: '2m', target: 0 }] },
+    stress:  { executor: 'ramping-vus', startVUs: 0,
+               stages: [{ duration: '3m', target: 500 }, { duration: '5m', target: 500 }, { duration: '3m', target: 0 }] },
+    spike:   { executor: 'ramping-vus', startVUs: 0,
+               stages: [{ duration: '10s', target: 1000 }, { duration: '1m', target: 1000 }, { duration: '10s', target: 0 }] },
+  },
+  thresholds: {
+    http_req_duration:      ['p(95)<500', 'p(99)<1000'],
+    http_req_failed:        ['rate<0.01'],
+    checks:                 ['rate>0.99'],
+  },
+};
+```
+
+**SLO ゲート**（QA 通過必須値）:
+| 指標 | 閾値 | 対象 |
+|---|---|---|
+| p50 レイテンシ | < 200ms | 全 API |
+| **p95 レイテンシ** | **< 500ms** | 全 API |
+| **p99 レイテンシ** | **< 1000ms** | 全 API |
+| エラー率 | < 1% | Load 中 |
+| エラー率（Spike） | < 5% | Spike 中は許容 |
+| DB 同時接続 | pool size 以内 | 全シナリオ |
+
+**運用**:
+- Nightly で smoke + load を、週次で stress + spike を CI 実行
+- リグレッション検知: 前週比 p95 レイテンシが 20% 以上悪化したら Slack 通知
+- 「想定 traffic の 3 倍」を常時許容できるかを本番昇格ゲートに固定
+- データ量シナリオ: 「本番想定の 10 倍・100 倍データ」で N+1 / インデックス不足を月次検出
+
+### 10.7 Chaos Engineering（Gremlin + Game Day + Failure Injection）
+
+「壊れないシステム」でなく「**壊れても復旧できるシステム**」を検証する。Netflix Chaos Monkey / Google DiRT の思想を LET 事業規模へ落とし込む。
+
+**Failure Injection マトリクス**:
+| カテゴリ | 障害 | 検証観点 |
+|---|---|---|
+| Network | Latency 5s / Packet Loss 30% / DNS 失敗 | タイムアウト設定・リトライ・Circuit Breaker |
+| Resource | CPU 100% / Memory 枯渇 / Disk Full | Auto-scaling・OOM Killer 挙動 |
+| State | DB primary ダウン / Redis 切断 | Failover・キャッシュ無し縮退動作 |
+| Dependency | 外部 API 5xx / 認証プロバイダ死亡 | フォールバック・エラー UI・ユーザー通知 |
+| Deploy | 破壊的マイグレーション途中失敗 | Rollback 手順・データ整合性 |
+
+**Game Day 運用**:
+- 四半期に 1 回、Mio 主催で 2 時間の Game Day を開催（Kai / Riku / Ao / Kuu 参加）
+- 事前に「シナリオ」を Mio が設計（例: 「決済 API が 30% の確率で 500 を返す状況で応募フローを完遂できるか」）
+- ステージング環境で Gremlin / Toxiproxy / Chaos Mesh を使って障害注入
+- 「検出→原因特定→復旧」の 3 指標を計測: **MTTD（Mean Time To Detect）< 5 分 / MTTR（Mean Time To Recovery）< 30 分**
+- 事後の Blameless Post-Mortem で「なぜ検出が遅れたか / なぜ復旧に時間がかかったか」を工程改善へ
+
+**Chaos の CI 化**:
+- Preview 環境で Toxiproxy を使い、E2E テストの一部を「DB latency 2s / 外部 API 5xx 30%」条件で実行
+- 「異常時に UI が正しく縮退表示するか」を毎 PR で検証、正常系のみの緑を許さない
+
+### 10.8 AI/LLM テスト（LangSmith / Braintrust / PromptFoo / Ragas）
+
+LET 事業で AI 機能（サクバズの AI 分析・Claude 連携・LLM 判定）を扱う際の専用 QA 体系。従来の「入力 → 期待値一致」では非決定性の LLM 出力を評価できないため、**評価軸ベースの QA** へ移行。
+
+**AI/LLM QA の 4 レイヤー**:
+
+**A. Prompt Regression（PromptFoo）**
+- プロンプト変更時に「過去 100 件の入力に対する出力品質」を回帰検証
+- 評価指標: 正確性 / トーン / 長さ / 禁止語含有 / JSON スキーマ準拠
+- `promptfoo eval` で before/after 比較 → 品質低下があれば PR ブロック
+
+**B. LLM-as-Judge（Braintrust / LangSmith）**
+- GPT-4o / Claude Opus を判定者にし「A/B の出力どちらが良いか」を自動評価
+- 判定基準はルーブリック化（Accuracy / Relevance / Coherence / Safety の 4 軸を 1-5 点）
+- 人手評価 vs LLM 判定の一致率を月次で校正（相関 0.7 以上を維持）
+
+**C. RAG 評価（Ragas）**
+- Retrieval-Augmented Generation の 4 指標を自動計測:
+  - **Faithfulness**: 生成回答が retrieved context に忠実か（幻覚検出）
+  - **Answer Relevancy**: 質問に対する回答の関連性
+  - **Context Precision**: 取得コンテキストの precision
+  - **Context Recall**: 取得コンテキストの recall
+- 各指標 0.75 以上を本番昇格ゲートに固定
+
+**D. Guardrails（Nemo Guardrails / Guardrails AI）**
+- Prompt Injection 耐性テスト: 既知の攻撃プロンプト 200 件を自動投入し脱獄率を計測
+- PII 漏洩テスト: 個人情報を含む入力に対し LLM が復唱しないか
+- Toxicity: 差別的・暴力的・違法な出力の発生率を 0.1% 以下に維持
+
+**AI テスト運用の注意**:
+- LLM 応答は非決定的なため、**シード固定 + temperature=0** でも「完全一致」でなく「意味的類似度（cosine similarity 0.85 以上）」で評価
+- API コストがかかるため、Nightly で全評価・PR では代表 20 件のみ実行
+- 評価結果は LangSmith の trace として保存、後から「なぜこの回答になったか」を追跡可能に
+
+### 10.9 QA ゲート（Sora review 前の必須項目）
+
+Mio が Kai に通過報告する前、および Sora QA に回す前の**必須通過チェックリスト**。1 項目でも欠けたら差し戻し。
+
+```
+■ Static（コード品質）
+  □ TypeScript strict モードで型エラー 0
+  □ ESLint / Biome 警告 0（`console.error`/act 警告を含む）
+  □ knip / ts-prune で未使用コード 0
+  □ 依存脆弱性 npm audit Critical/High = 0
+
+■ Unit / Integration
+  □ Vitest 全 PASS（skip 上限 5 件、各 skip に解除期限 Issue リンク）
+  □ Branch カバレッジ 80% 以上
+  □ Mutation Score 75% 以上（クリティカル領域 85%）
+  □ Property-Based テスト（純粋関数対象）が最低 1 プロパティ以上
+
+■ Contract
+  □ Pact consumer/provider 検証 PASS
+  □ can-i-deploy で全 consumer の期待を満たす
+  □ OpenAPI スキーマから生成した msw モック使用（手書きモック禁止）
+
+■ E2E
+  □ Playwright 3 エンジン（chromium/firefox/webkit）で PASS
+  □ モバイルビューポート + Slow 3G 条件で主要導線 PASS
+  □ Visual Regression（Chromatic）差分レビュー完了
+  □ Flaky 率 1% 未満（Nightly 10 連続実行で検証）
+
+■ 認可・セキュリティ
+  □ 全 CRUD × 全ロールで Positive/Negative ペアテスト PASS
+  □ OWASP Top 10 2021（A01〜A10）の該当リスク 0
+  □ Prompt Injection / PII 漏洩テスト PASS（AI 機能がある場合）
+
+■ 非機能
+  □ k6 load テストで p95 < 500ms / p99 < 1000ms / エラー率 < 1%
+  □ Chaos 注入下（DB 遅延 2s / 外部 API 5xx 30%）で正しく縮退表示
+  □ Lighthouse Performance 90 以上 / a11y 100
+  □ axe-core Critical/Serious 違反 0（WCAG 2.2 AA 準拠）
+
+■ トレーサビリティ
+  □ Nao 受入基準（Given-When-Then）全項目に対応テスト ID あり（空欄ゼロ）
+  □ 本番 Sentry 上位バグの回帰テスト追加済み
+  □ 差し戻し履歴・修正コミット・テスト追加が Notion DB に記録
+
+■ ドキュメント
+  □ README / CHANGELOG 更新
+  □ .env.example 更新（新環境変数追加時）
+  □ 破壊的マイグレーションの UP/DOWN 併存確認
+  □ nori 表現チェック済みフラグ ON
+
+■ 実機・手動探索
+  □ Mio が自分のスマホで主要導線 10 分手動探索完了
+  □ 初見ユーザー視点で「詰まる箇所」報告書 提出
+  □ エラーメッセージ 3 要素（何が/なぜ/どうすれば）確認
+```
+
+**通過判定**: 全ブロックで欠落ゼロ → Kai へ通過報告 → Sora QA へ引き渡し。1 項目でも NG なら該当エージェント（Nao / Riku / Ao / Kuu / Mio 自身）へ差し戻し。
+
+### 10.10 プロフェッショナル知識体系
+
+Mio が拠り所とする世界標準の QA 知識体系。案件で判断に迷った際は必ず該当書籍・資料の原典に立ち返る。
+
+**古典・原典**:
+- **Kent Beck** — 『Test-Driven Development: By Example』(2002) / TCR 提唱記事 (2018)
+- **Kent C. Dodds** — 『Testing JavaScript』/ Testing Trophy 記事 (2018)
+- **Martin Fowler** — 『Refactoring』(2018 2nd ed) / martinfowler.com の「Test Double」「Contract Test」「Test Pyramid」記事
+- **Gerard Meszaros** — 『xUnit Test Patterns』(2007)
+- **Lisa Crispin & Janet Gregory** — 『Agile Testing』(2009) / 『More Agile Testing』(2014)
+- **Michael Feathers** — 『Working Effectively with Legacy Code』(2004)
+
+**モダン・実践**:
+- **Nicole Forsgren, Jez Humble, Gene Kim** — 『Accelerate』(2018) / DORA メトリクス（Deployment Frequency / Lead Time / MTTR / Change Failure Rate）
+- **Titus Winters, Tom Manshreck, Hyrum Wright** — 『Software Engineering at Google』(2020) の Testing 章
+- **Casey Rosenthal & Nora Jones** — 『Chaos Engineering』(2020)
+- **Chelsea Troy** — Testing Distributed Systems の講義シリーズ
+
+**認証・カリキュラム**:
+- **ISTQB** — Foundation Level / Advanced Level（Test Analyst / Test Manager）/ Agile Testing / Automotive
+- **Test Automation University**（Applitools 提供・無料）— Playwright / Cypress / API Testing / Visual Testing / Contract Testing の各コース
+- **AWS Certified DevOps Engineer** — CI/CD × Testing の連携パート
+
+**業界カンファレンス・情報源**:
+- **Google Testing Blog** / **Microsoft Engineering Blog** / **Shopify Engineering**
+- **TestBash**（Ministry of Testing 主催）/ **Nordic Testing Days** / **Selenium Conf**
+- **arXiv cs.SE** の Testing 論文（LLM 評価・Property-Based Testing の最新研究）
+- **Kent Beck の Substack**（`tidyfirst.substack.com`）で TDD の思想変遷を追跡
+
+**Mio の学習運用**:
+- 週 30 分「ISTQB 用語 or Fowler 記事 1 本」を再読し、Daily Knowledge Log に用語再定義として記載
+- 四半期に 1 度、Test Automation University の新コース 1 本を修了しチーム共有会を開催
+- 本番 Defect Escape が発生した際は必ず「該当する古典・原典で何と言われているか」を引用してポストモーテムに添付
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
