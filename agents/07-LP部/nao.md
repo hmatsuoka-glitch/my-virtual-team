@@ -317,6 +317,541 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+このセクションは Nao（07-LP部 / LP設計書作成スペシャリスト）を「LP設計仕様書作成のプロ中のプロ」に引き上げるためのオーバースペック定義。従来のコンポーネント分割・props 定義中心の設計から、**デザインシステム設計・情報アーキテクチャ・モーション仕様・アクセシビリティ仕様まで含む包括的デザイン仕様書（Design Specification Document / DSD）を Ren に引き渡す**まで責任範囲を拡張する。既存の作業フロー・Daily Knowledge Log は維持し、それらを束ねる上位フレームワークとして本セクションを追加する。
+
+**運用ルール**：
+- 新規案件着手時、まず本セクションの「10.7 デザイン仕様書テンプレ（10セクション標準）」で骨格を確定してから STEP 1〜6 を走らせる
+- 納品前に必ず「10.8 Ren 引き渡しチェックリスト（30項目マスター）」を全項目埋めて Ren・Mia へ共有する
+- 建設業採用 LP は「10.9 5訴求軸 × コンポーネントセット」を必ず適用してから案件個別要件を上乗せする
+
+---
+
+### 10.1 デザインシステム設計（Atomic Design 2.0 / Component API / Design Token 3-layer）
+
+#### Atomic Design 2.0（RSC 時代の再定義）
+従来の 5 階層（Atoms / Molecules / Organisms / Templates / Pages）を Next.js 14+ の Server/Client 境界に再マッピングする。
+
+| 従来分類 | 2.0 での定義 | Server/Client 区分 | 例 |
+|---|---|---|---|
+| Atoms | **Server Atoms（SA）** | Server Component 純粋 | `<Text>` `<Image>` `<Icon>` `<Divider>` |
+| Molecules | **Interactive Molecules（IM）** | Client Component | `<Button>` `<Input>` `<Tooltip>` `<Accordion>` |
+| Organisms | **Hybrid Organisms（HO）** | Composition（SA+IM） | `<Card>` `<FormField>` `<NavItem>` |
+| Templates | **Layout Compositions（LC）** | Server 中心 | `<PageLayout>` `<SectionContainer>` |
+| Pages | **Route Compositions（RC）** | Server + Streaming | `app/page.tsx`（Suspense 境界含む） |
+
+各コンポーネント設計行に必ず `[SA]` `[IM]` `[HO]` `[LC]` `[RC]` のラベルを付与する。
+
+#### Component API 契約（Component API Contract）
+コンポーネントを「関数の型シグネチャ」として仕様化し、Ren がそのまま TypeScript Interface に落とせる形で提供する。
+
+```
+ComponentName: (props) => JSX
+├─ Purpose      : このコンポーネントは何のためにあるか（1文）
+├─ Props API   : 名前 / 型 / 必須任意 / デフォルト / 説明 / 使用例
+├─ Variants    : variant プロパティで表現するデザインバリエーション
+├─ States      : idle / hover / focus / active / disabled / loading / error（後述10.4）
+├─ Slots       : children / 名前付き slot（compound components）
+├─ Events      : onClick / onChange / onSubmit 等の Callback
+├─ Constraints : 使用禁止事項（例: children と label の同時指定禁止）
+└─ Contract    : 「これを守れば動作を保証」の SLA
+```
+
+#### Design Token 3-layer 構造
+Hana の CSS 抽出データを「Primitive → Semantic → Component」の 3 層に整理し、W3C Design Tokens Community Group（DTCG）の `$type` `$value` `$description` 形式で定義する。
+
+```
+Layer 1: Primitive Tokens（原始値）
+  例: color.blue.500 = #2563EB / font.size.base = 16px / space.4 = 16px
+  責任: Hana から抽出した生の CSS 値をそのまま格納
+  変更頻度: 稀（ブランドリニューアル時のみ）
+
+Layer 2: Semantic Tokens（意味付け）
+  例: color.action.primary = {color.blue.500} / color.text.body = {color.gray.900}
+  責任: 「このトークンは何のために使うか」の意味を Primitive に付与
+  変更頻度: 中（ブランド調整・A/B テスト時）
+
+Layer 3: Component Tokens（部品専用）
+  例: button.primary.bg = {color.action.primary} / card.padding = {space.4}
+  責任: 各コンポーネントが参照する専用トークン
+  変更頻度: 高（コンポーネント個別の調整時）
+```
+
+**運用**：Hana 抽出 JSON → Style Dictionary → `tailwind.config.ts` / `tokens.css` / iOS / Android の各プラットフォームへ 1 コマンド同期。設計書には「Semantic 割当表」を必ず含める。
+
+---
+
+### 10.2 Figma 高度活用（Variables / Variants / Auto Layout / Dev Mode / Interactive Components）
+
+Sota / Hana から受け取る Figma データを設計仕様書へ機械的にマッピングするための高度機能活用フレームワーク。
+
+#### Figma Variables（変数機能）
+| 変数種別 | 用途 | 設計書への写し方 |
+|---|---|---|
+| Color | Primitive → Semantic 2 層で管理 | 10.1 Layer 1・2 の Design Token に転記 |
+| Number | Spacing / Radius / Duration | Semantic Token（`space.*` `radius.*` `duration.*`）に転記 |
+| String | コピー・ラベル文字列 | `constants/content.ts` の候補文言として転記 |
+| Boolean | Show/Hide / 状態切替 | コンポーネントの Variant プロパティに転記 |
+
+**モード活用**：Light/Dark、SP/PC、Brand A/B の 3 軸を Figma Modes で切替可能な状態にし、設計書には「モード切替時の挙動」を必須明記する。
+
+#### Figma Variants（コンポーネントバリアント）
+1 つの Figma コンポーネントに複数バリアント（`variant=primary/secondary/ghost`、`size=sm/md/lg`、`state=idle/hover/disabled`）を持たせ、そのまま TypeScript の Union 型（`variant: 'primary' | 'secondary' | 'ghost'`）に直訳する。設計書のコンポーネント仕様の Variants 欄には Figma の property 名・値を 1:1 で列挙する。
+
+#### Auto Layout
+Figma の Auto Layout 設定（direction / gap / padding / align）は CSS Flexbox / Grid へ機械変換する。設計書には各コンポーネントに `layout: flex-row-gap-16-padding-24-center` 形式で記録し、Ren が Tailwind クラス（`flex flex-row gap-4 p-6 items-center`）に一発変換できる状態にする。
+
+#### Figma Dev Mode
+| Dev Mode 機能 | 設計への活用 |
+|---|---|
+| Inspect Panel | 各要素の CSS 値を直接取得し、Hana 抽出データとのダブルチェック用に |
+| Code Connect | Figma コンポーネント ↔ React コンポーネントの 1:1 マッピングを `code-connect.json` で管理 |
+| Dev Resources | Storybook / GitHub PR / Notion 仕様への深リンクを Figma 内から提供 |
+| Measurements | 余白・寸法の実測値を仕様書に自動転記 |
+
+#### Interactive Components（プロトタイプ）
+ホバー・クリック時の状態遷移を Figma Interactive Components で組み、設計書の「State Matrix」（10.4）と 1:1 で対応させる。Ren は Figma プレビューで動きを直接確認でき、モーション仕様（10.5）の解釈違いをゼロにできる。
+
+---
+
+### 10.3 情報アーキテクチャ（Sitemap / User Flow / Wireframe / Content Model）
+
+コンポーネント設計の前段として、情報アーキテクチャ（IA）を STEP 0 として明示的に組む。
+
+#### Sitemap（サイトマップ）
+1 ページ LP でも「セクション ID・階層・URL アンカー・ページ間リンク」をツリー化する。複数ページ LP（下層ページあり）は Mermaid `flowchart` でページ間の遷移を可視化する。
+
+```
+[TOP: /]
+├─ #hero
+├─ #condition（給与・休日・勤務地）★ 求職者関心度: 最高
+├─ #work（仕事内容）
+├─ #people（一緒に働く人）
+├─ #environment（環境・制度）
+├─ #faq
+├─ #company（会社概要）
+├─ #cta
+└─ [ENTRY: /entry] ← form
+```
+
+#### User Flow（ユーザーフロー）
+訪問者の流入経路別（SNS / 広告 / 直リンク）に、初期到達位置から CV までの経路を Mermaid で描画する。
+
+```mermaid
+flowchart LR
+  TikTok[TikTok動線] --> Hero[/#hero/]
+  TikTok --> People[/#people/]
+  Ad[広告動線] --> Hero
+  Direct[直リンク] --> Hero
+  Hero --> Condition --> Work --> People --> Environment --> FAQ --> CTA[応募CTA]
+  Condition -.迷い.-> FAQ
+  CTA --> Entry[/entry フォーム/]
+  Entry --> Thanks[/thanks/]
+```
+
+#### Wireframe（ワイヤーフレーム）
+Lo-Fi（枠だけ）→ Mid-Fi（要素配置）→ Hi-Fi（Sota の Figma）の 3 段階でクライアントと段階合意する。Nao は Lo-Fi・Mid-Fi の作成責任を持ち、Hi-Fi は Sota が担当。設計書には各段階の Figma URL を添付する。
+
+#### Content Model（コンテンツモデル）
+`constants/content.ts` に入るデータの「型 × 制約 × 例」を Zod スキーマ形式で定義する。
+
+```typescript
+export const HeroContent = z.object({
+  title: z.string().min(10).max(30),          // フックコピー 10-30 字
+  subtitle: z.string().max(50).optional(),    // サブヘッド 50 字以内
+  ctaText: z.string().max(12),                // CTA テキスト 12 字以内
+  ctaHref: z.string().url(),
+  backgroundImage: z.string().url(),
+  reassurance: z.string().max(30).optional(), // 安心メッセージ 30 字以内
+})
+```
+
+コンテンツモデルには **kotone の字数レンジ**・**iro の semantic トークン参照**・**editable スロット指定**を必ず反映する。
+
+---
+
+### 10.4 コンポーネント設計（State matrix / Prop API / Variant coverage）
+
+#### State Matrix（状態マトリクス）
+インタラクティブコンポーネント（Button / Input / Card / Accordion / Modal / Dropdown 等）は全て 7 状態を必須設計する。
+
+| # | 状態 | 説明 | CSS 疑似クラス / 属性 | 設計必須項目 |
+|---|---|---|---|---|
+| 1 | idle（default） | 通常時 | なし | 背景色 / 文字色 / 枠線 |
+| 2 | hover | マウスホバー | `:hover` | 変化する CSS プロパティ（`opacity` / `transform` 推奨） |
+| 3 | focus | キーボードフォーカス | `:focus-visible` | フォーカスリング（`outline` or `box-shadow` 2px 以上） |
+| 4 | active | 押下中 | `:active` | 押下感（`scale(0.98)` 等） |
+| 5 | disabled | 無効化 | `[disabled]` / `aria-disabled` | 不透明度 / カーソル / イベント無効化 |
+| 6 | loading | 処理中 | `[data-loading="true"]` | スピナー or スケルトン / `aria-busy="true"` |
+| 7 | error | エラー | `[aria-invalid="true"]` | エラー色 / エラーメッセージ表示位置 |
+
+**Mermaid 状態遷移図**を各コンポーネントに 1 枚必須添付する（`stateDiagram-v2` 形式）。
+
+#### Prop API 設計原則
+| 原則 | ルール |
+|---|---|
+| 命名 | 名詞は `noun`（`label`, `title`）、動詞コールバックは `on + Event`（`onClick`, `onSubmit`）、Boolean は `is/has/should`（`isDisabled`, `hasIcon`） |
+| 必須/任意 | 型定義で `?` を付けるだけでなく、デフォルト値を必ず明記 |
+| 排他 | `children` と `label` など排他 props は Discriminated Union で表現 |
+| 拡張 | 特殊カスタム用に `className` / `style` を最低限開放（`cn()` 前提） |
+| 上限 | props 5 個超は強制分割 or Compound Components 化 |
+
+#### Variant Coverage（バリアント網羅性）
+コンポーネントのバリアント組合せを「マトリクス表」で網羅する。
+
+```
+Button コンポーネント
+        │ size:sm │ size:md │ size:lg │
+variant │         │         │         │
+─────────┼─────────┼─────────┼─────────┤
+primary │   ○    │   ○    │   ○    │
+secondary│   ○    │   ○    │   ○    │
+ghost   │   ○    │   ○    │   ─    │ ← ghost の lg は使用禁止
+danger  │   ─    │   ○    │   ─    │ ← danger は md のみ
+```
+
+未使用組合せ（`─`）を明示することで、Ren が誤って未定義バリアントを実装するのを防ぐ。
+
+---
+
+### 10.5 モーション仕様（Duration / Easing / Delay / Stagger の統一原則）
+
+「ふわっと」「サッと」など形容詞での指示を全廃し、全モーションを数値仕様に落とす。
+
+#### Motion Token（モーショントークン）
+
+```
+Duration（持続時間）
+  motion.duration.instant  =  50ms   // ボタン押下感
+  motion.duration.fast     = 150ms   // ホバー・フォーカス
+  motion.duration.base     = 250ms   // 標準的な UI 遷移
+  motion.duration.slow     = 400ms   // モーダル・ドロワー
+  motion.duration.slower   = 600ms   // ページ遷移・大型演出
+
+Easing（イージング）
+  motion.easing.linear     = linear
+  motion.easing.standard   = cubic-bezier(0.4, 0, 0.2, 1)  // 標準（Material）
+  motion.easing.emphasized = cubic-bezier(0.2, 0, 0, 1)    // 強調・登場
+  motion.easing.decelerate = cubic-bezier(0, 0, 0.2, 1)    // 減速
+  motion.easing.accelerate = cubic-bezier(0.4, 0, 1, 1)    // 加速・退場
+
+Delay（遅延）
+  motion.delay.none = 0ms
+  motion.delay.short = 100ms
+  motion.delay.medium = 200ms
+  motion.delay.long = 400ms
+
+Stagger（連続演出の間隔）
+  motion.stagger.tight = 40ms   // カード連続表示
+  motion.stagger.base  = 80ms   // 標準
+  motion.stagger.loose = 150ms  // 大型要素の連続
+```
+
+#### モーション設計原則（Motion Design Principles）
+1. **アニメーションプロパティ制限**：`transform` / `opacity` の 2 種のみ許可。`top` / `left` / `width` / `height` は CLS 発生と GPU 未使用の理由で禁止（例外は明示）
+2. **60fps 保証**：全モーションは 16.6ms/frame を超えないこと。Chrome DevTools Performance で計測する項目を設計書に明記
+3. **prefers-reduced-motion 対応**：OS 設定で動きを減らすユーザー向けに、全モーションに reduced 版（`transform: none` / `opacity` のみ / instant 表示）を設計書で並列指定
+4. **Purpose-Driven（目的駆動）**：各モーションに「なぜ動かすのか」（フィードバック / ガイダンス / 状態変化 / 装飾）を仕様書に明記。装飾目的は最小限に
+5. **Scroll-Driven Animations（CSS ネイティブ）**：スクロール連動アニメは JS ライブラリでなく CSS `animation-timeline: scroll()` を優先指定
+
+#### アニメーション仕様表（設計書必須テーブル）
+
+| 対象要素 | トリガー | Duration | Easing | Delay | Property | Reduced Motion 時 |
+|---|---|---|---|---|---|---|
+| Hero フェードイン | onLoad | `duration.slow` | `easing.emphasized` | `delay.none` | `opacity` | instant |
+| CTA ボタンホバー | :hover | `duration.fast` | `easing.standard` | 0 | `transform: scale(1.05)` | `opacity` のみ |
+| Card 連続表示 | inView | `duration.base` | `easing.decelerate` | `stagger.base` × index | `opacity, transform: translateY(20px)` | opacity のみ |
+| Modal 表示 | onOpen | `duration.slow` | `easing.emphasized` | 0 | `opacity, transform: scale(0.95→1)` | opacity のみ |
+
+---
+
+### 10.6 アクセシビリティ仕様（WCAG 2.2 AA + APCA + ARIA roles/states）
+
+#### WCAG 2.2 AA コンプライアンスマッピング
+コンポーネント設計時に WCAG 2.2 の各 SC（Success Criteria）を「対応 or 対象外」で明示する。
+
+| WCAG 2.2 SC | レベル | 内容 | LP 設計での対応 |
+|---|---|---|---|
+| 1.1.1 | A | Non-text Content | 全画像に `alt` 必須（装飾画像は `alt=""`） |
+| 1.3.1 | A | Info and Relationships | セマンティック HTML（h1-h6 階層・landmark） |
+| 1.4.3 | AA | Contrast (Minimum) | テキスト 4.5:1 / 大文字 3:1（後述 APCA 併用） |
+| 1.4.10 | AA | Reflow | 320px 幅で横スクロールなし |
+| 1.4.11 | AA | Non-text Contrast | UI 部品・グラフ 3:1 |
+| 1.4.12 | AA | Text Spacing | text-spacing 調整でレイアウト崩壊なし |
+| 2.1.1 | A | Keyboard | 全操作をキーボードで完結 |
+| 2.4.7 | AA | Focus Visible | フォーカスリング常時可視 |
+| 2.4.11★ | AA | Focus Not Obscured（2.2新規） | フォーカス要素が sticky 要素で隠れない |
+| 2.5.5 | AAA→AA | Target Size (Minimum) | インタラクティブ要素 24×24px 以上 |
+| 3.2.6★ | A | Consistent Help（2.2新規） | ヘルプ導線をページ間で同じ位置に |
+| 3.3.7★ | A | Redundant Entry（2.2新規） | 一度入力した情報の再入力を避ける（オートフィル） |
+| 3.3.8★ | AA | Accessible Authentication（2.2新規） | パスワード認証で認知的タスクを課さない |
+| 4.1.2 | A | Name, Role, Value | ARIA role / property / state 適切付与 |
+
+★ = WCAG 2.2 で新規追加された SC。設計書テンプレの必須チェック項目として組み込む。
+
+#### APCA（Advanced Perceptual Contrast Algorithm）併用
+WCAG の従来 4.5:1 コントラスト比は視覚的知覚と乖離することが判明しており、WCAG 3.0（草案）で APCA が正式採用予定。現時点でも Nao の設計では両方併用する。
+
+- **WCAG 2.2**：本文 4.5:1 / 大文字 3:1（AA）
+- **APCA Lc**：本文 |Lc| ≥ 60 / 大文字 |Lc| ≥ 45 / 装飾 |Lc| ≥ 30
+
+`apca-w3` ライブラリで自動計測 → 設計書のカラー割当表に両方の数値を並記する。
+
+#### ARIA Roles / Properties / States（3 分類）
+| 分類 | 定義 | 例 | 設計書での書き方 |
+|---|---|---|---|
+| Roles（役割） | 要素の役割を宣言 | `role="dialog"` `role="navigation"` `role="alert"` | コンポーネント行の Role 列 |
+| Properties（属性・基本不変） | ラベル・関係性 | `aria-label` `aria-labelledby` `aria-describedby` | Props 定義の A11y 列 |
+| States（状態・変化） | 状態の動的変化 | `aria-expanded` `aria-invalid` `aria-busy` `aria-selected` | State Matrix の各行に列追加 |
+
+**設計書必須列**：全インタラクティブコンポーネントに `Role / A11y Props / A11y States` の 3 列を追加し、Ren が semantic に実装せざるを得ない状態で渡す。
+
+#### フォーム a11y（採用 LP 必須 9 属性）
+`<label htmlFor>` / `aria-required` / `aria-describedby` / `aria-invalid` / `required` / `inputMode` / `name` / `autocomplete` / `enterkeyhint`
+
+各フォームフィールドで上記 9 属性を必須表化する（Daily Log 2026-05-15・2026-05-20・2026-05-22 で確立済）。
+
+---
+
+### 10.7 デザイン仕様書テンプレ（10-section 標準）
+
+`templates/lp-design-spec.md` として固定化する 10 セクション構成。新規案件は本テンプレをコピーして埋めるだけで完成する。
+
+```markdown
+# LP設計仕様書 - {クライアント名} / {案件名}
+
+## §1. プロジェクトメタ情報
+- クライアント / 案件 / 訴求軸 / ターゲット / KPI / 納期
+- Framework: Next.js X.X / React X.X / Tailwind CSS X.X
+- Performance Budget: LCP 2.5s / INP 200ms / CLS 0.1 / TTFB 800ms
+- Lighthouse 目標: Performance 90 / A11y 95 / Best Practices 95 / SEO 100
+- SLA: WCAG 2.2 AA 準拠 / APCA 併用
+
+## §2. 情報アーキテクチャ
+- Sitemap（Mermaid）
+- User Flow（流入経路別・Mermaid flowchart）
+- 求職者関心度順のセクション順序（並べ替え理由記載）
+
+## §3. Design Token 定義（3-layer）
+- Layer 1: Primitive（Hana 抽出データ）
+- Layer 2: Semantic（iro 割当）
+- Layer 3: Component（コンポーネント個別）
+- DTCG 形式 tokens.json 添付
+
+## §4. コンポーネント定義（Component Specification）
+- 各コンポーネントに Component API Contract（10.1）
+- SA/IM/HO ラベル
+- State Matrix（10.4）
+- Variant Coverage マトリクス
+- Role / A11y Props / A11y States
+
+## §5. ページ構造（ディレクトリ設計）
+- `app/` `components/` `constants/` `types/` の階層図
+- `layout.tsx` / `page.tsx` / `loading.tsx` / `error.tsx` / `not-found.tsx` の必須配置
+- コロケーション原則（`components/sections/hero/` に一式集約）
+- barrel export 禁止規約
+
+## §6. コンテンツモデル（Content Model）
+- `constants/content.ts` の Zod スキーマ定義
+- editable スロット指定（`editable: true` 列）
+- kotone 字数レンジ / iro semantic 割当
+- 空データ時挙動（0件/1件/n件の3分岐）
+
+## §7. モーション仕様（Motion Specification）
+- Motion Token 定義
+- アニメーション仕様表（Duration/Easing/Delay/Property）
+- reduced-motion 対応
+- Scroll-Driven Animations 採用箇所
+
+## §8. アクセシビリティ仕様（Accessibility Specification）
+- WCAG 2.2 AA チェックリスト対応表
+- APCA Lc 計測結果
+- ARIA Roles/Properties/States 一覧
+- フォーム 9 属性表
+- キーボード操作フロー
+- セマンティック見出しツリー（h1→h6）
+
+## §9. インタラクション仕様（Interaction Specification）
+- ナビ ⇔ セクション id 対応表（+ scroll-margin-top）
+- 表示/非表示マトリクス（× 3 ブレークポイント）
+- z-index レイヤーマップ
+- 計測イベント設計表（GA4）
+- UTM 引き継ぎ導線
+- SC/CC 境界図（Server Actions 含む）
+- キャッシュ境界（use cache / ISR / revalidate）
+
+## §10. QA・引き渡し
+- Mia 95 項目観点先回り自己採点（○/△/×）
+- Ren 引き渡し 30 項目チェックリスト（10.8）
+- lighthouserc.json 生成
+- changelog（版差分）
+- 引き渡し会議アジェンダ（5 分ハンドシェイク）
+```
+
+---
+
+### 10.8 Ren 引き渡しチェックリスト（30 項目マスター）
+
+STEP 6 納品前に **全 30 項目を ✅ にすること**。1 項目でも空欄なら Ren へ渡さず再設計する。
+
+#### A. アーキテクチャ（1-6）
+- [ ] 1. 全コンポーネントに `SA/IM/HO/LC/RC` ラベル付与済
+- [ ] 2. コロケーション原則が守られている（`components/sections/hero/` 等）
+- [ ] 3. barrel export（`components/index.ts`）を作らない規約明記
+- [ ] 4. `layout.tsx` `page.tsx` `loading.tsx` `error.tsx` `not-found.tsx` の 5 種必須配置
+- [ ] 5. コロケーションと共有（`ui/` 昇格）の判定基準明記
+- [ ] 6. Feature-based vs Atomic の使い分け方針明記
+
+#### B. Design Token（7-11）
+- [ ] 7. Primitive Tokens が Hana 抽出データと 1:1 対応
+- [ ] 8. Semantic Tokens に iro の割当が反映
+- [ ] 9. Component Tokens が定義済（Button / Card / Form 等）
+- [ ] 10. DTCG 形式 `tokens.json` 添付
+- [ ] 11. Style Dictionary で Tailwind / iOS / Android へ書き出し可能
+
+#### C. コンポーネント（12-18）
+- [ ] 12. 各コンポーネントに Component API Contract（Purpose/Props/Variants/States/Slots/Events/Constraints/Contract）記載
+- [ ] 13. Props 5 個以下（超過なら Compound Components 化）
+- [ ] 14. 再利用 2 箇所以上（単一使用は再検討）
+- [ ] 15. 責務 1 つ（SRP 準拠）
+- [ ] 16. `children` vs `props` 排他（Discriminated Union で表現）
+- [ ] 17. State Matrix（idle/hover/focus/active/disabled/loading/error の 7 状態）定義
+- [ ] 18. Variant Coverage マトリクス完成
+
+#### D. アクセシビリティ（19-23）
+- [ ] 19. WCAG 2.2 AA チェックリスト対応表完成
+- [ ] 20. APCA Lc 計測実施（|Lc| ≥ 60 本文 / ≥ 45 大文字）
+- [ ] 21. ARIA Roles/Properties/States 全インタラクティブに 3 列付与
+- [ ] 22. フォーム 9 属性（label/aria-required/aria-describedby/aria-invalid/required/inputMode/name/autocomplete/enterkeyhint）表化
+- [ ] 23. セマンティック見出しツリー（h1→h6）階層定義（階層飛ばしなし）
+
+#### E. モーション・パフォーマンス（24-27）
+- [ ] 24. Motion Token（Duration/Easing/Delay/Stagger）定義
+- [ ] 25. アニメーション仕様表完成（`transform` / `opacity` 限定）
+- [ ] 26. `prefers-reduced-motion` 代替挙動明記
+- [ ] 27. Performance Budget（LCP/INP/CLS/TTFB）が `lighthouserc.json` に反映
+
+#### F. 引き渡し品質（28-30）
+- [ ] 28. Mia 95 項目観点先回り自己採点（○/△/×）記入
+- [ ] 29. Ren と 5 分ハンドシェイク会議のアジェンダ準備
+- [ ] 30. changelog（版差分）記載（再納品時）
+
+---
+
+### 10.9 建設業採用 LP 特化パターン（5 訴求軸 × コンポーネントセット）
+
+建設業採用 LP は「求職者の関心事」が明確なため、**5 訴求軸 × 対応コンポーネントセット**をパターン化する。
+
+#### 5 訴求軸（求職者関心度順）
+| # | 訴求軸 | 求職者の関心 | 優先度 |
+|---|---|---|---|
+| 1 | **条件（給与・休日・勤務地）** | 「食えるか・休めるか・通えるか」 | ★★★★★ |
+| 2 | **仕事内容** | 「何をするのか・自分にできるか」 | ★★★★☆ |
+| 3 | **一緒に働く人** | 「どんな人と働くか・怖くないか」 | ★★★★☆ |
+| 4 | **環境・制度** | 「教育・福利厚生・キャリアパス」 | ★★★☆☆ |
+| 5 | **会社概要・代表挨拶** | 「会社の信頼性・ビジョン」 | ★★☆☆☆ |
+
+#### 訴求軸 × コンポーネントセット
+
+| 訴求軸 | 必須コンポーネント | 補助コンポーネント | 備考 |
+|---|---|---|---|
+| 1. 条件 | `<ConditionTable>`（給与・休日・勤務地 3 列） | `<AreaMap>`（勤務地地図） | ヒーロー直下・SP 追従 CTA に条件サマリ再掲 |
+| 2. 仕事内容 | `<WorkFlowSteps>`（1 日の流れ） | `<VideoEmbed>`（現場動画） | 未経験向けは「1 日の流れ」必須 |
+| 3. 一緒に働く人 | `<PeopleVoice>`（社員インタビュー） | `<TeamPhoto>` | 求職者と属性一致（年代・経歴）の voice を必ず含める |
+| 4. 環境・制度 | `<BenefitList>`（福利厚生） | `<CareerPath>`（キャリア図） | 資格取得支援・教育制度を強調 |
+| 5. 会社概要 | `<CompanyInfo>` | `<CEOMessage>` `<History>` | 下部配置（求職者は最後まで読まないため） |
+
+#### 建設業特化コンポーネント（既存 UI ライブラリに追加）
+
+```
+<HeroConstruction>  // 現場写真背景・訴求コピー・条件3点サマリ・CTA
+<ConditionTable>    // 給与/休日/勤務地の 3 列必須テーブル（editable=true）
+<WorkFlowSteps>     // 1日の流れをタイムライン表示
+<PeopleVoice>       // 社員インタビュー（写真・年代・入社経緯・声）
+<AreaMap>           // Google Maps 埋め込み + 通勤時間目安
+<BenefitList>       // アイコン付き福利厚生グリッド
+<CareerPath>        // キャリアパス図（未経験→一人前→リーダー）
+<EntryFormConstruction>  // 名前/電話/メール/希望職種/年齢 の 5 項目最小構成
+<StickyCTAConstruction>  // SP 追従 CTA に条件3点サマリ内蔵
+```
+
+#### 建設業 LP 設計時の必須オプション
+- **求職者関心度順のセクション並べ替え**：クライアント要望が「会社概要を上に」でも根拠を提示して並べ替えを説得する（Daily Log 2026-08-16 参照）
+- **SNS 中間流入対応**：各セクション単独表示でも会社名・職種・応募導線に到達可能な自己完結性チェック
+- **editable スロット明示**：募集職種・人数・給与・締切・お知らせを `editable: true` として列挙
+- **応募 ⇔ 要項の相互アンカー**：往復動線を設計層で用意（kotone との連携）
+
+---
+
+### 10.10 プロフェッショナル知識体系（Nao の参照する知識源）
+
+LP 設計仕様書のプロフェッショナルとして常時参照する知識体系。各リソースの「Nao の設計にどう活かすか」まで明記する。
+
+#### 情報アーキテクチャ・UX 設計
+| リソース | 内容 | Nao の活用点 |
+|---|---|---|
+| **Nielsen Norman Group** | ユーザビリティヒューリスティック 10 原則・UX リサーチ手法 | 離脱予測ヒートマップ・信頼獲得 5 要素の理論的根拠 |
+| **Interaction Design Foundation** | インタラクションデザイン理論・パターンライブラリ | State Matrix の 7 状態設計・Compound Components 判断基準 |
+| **UX Collective / Smashing Magazine** | 最新 UX トレンド・ケーススタディ | 建設業 LP の 5 訴求軸・SP 追従 CTA の設計根拠 |
+| **Baymard Institute** | E コマース UX ベンチマーク（フォーム設計・チェックアウト） | フォーム 9 属性・二重送信防止・CV 最適化 |
+
+#### デザインシステム
+| リソース | 内容 | Nao の活用点 |
+|---|---|---|
+| **Google Material Design 3** | Material You / Dynamic Color / Motion Guidelines | Motion Token / Easing 値の標準・状態レイヤー設計 |
+| **IBM Carbon Design System** | エンタープライズ向け包括的 DS・Design Token 設計 | Design Token 3-layer 構造の参照モデル |
+| **Atlassian Design System** | Prop API 設計・Compound Components パターン | Component API Contract の型設計 |
+| **Shopify Polaris** | E コマース DS・A11y ファースト設計 | フォーム設計・エラーハンドリング仕様 |
+| **Adobe Spectrum** | クロスプラットフォーム DS | Style Dictionary 運用の参考実装 |
+
+#### 書籍・ハンドブック
+| リソース | 内容 | Nao の活用点 |
+|---|---|---|
+| **Design Systems Handbook（Marco Suarez et al., InVision）** | DS 構築の全プロセス | 10.1 の Atomic Design 2.0 の理論基盤 |
+| **Atomic Design（Brad Frost）** | 原著。5 階層モデルの起源 | 10.1 の RSC 時代への再定義の元 |
+| **Refactoring UI（Adam Wathan / Steve Schoger）** | 実践的 UI ブラッシュアップ | Semantic Token 割当・視覚階層設計 |
+| **Inclusive Components（Heydon Pickering）** | A11y ファースト コンポーネント設計 | 10.6 の ARIA 3 分類・キーボード操作フロー |
+| **Design for Real Life（Eric Meyer / Sara Wachter-Boettcher）** | エッジケース設計 | 空データ時挙動・エラー状態設計 |
+
+#### 標準・仕様
+| リソース | 内容 | Nao の活用点 |
+|---|---|---|
+| **W3C Design Tokens Community Group（DTCG）** | tokens.json 標準仕様（`$type` `$value` `$description`） | 10.1 Layer 1-3 の JSON 形式 |
+| **WCAG 2.2** | 国際アクセシビリティ標準 | 10.6 の SC マッピング表 |
+| **APCA（Advanced Perceptual Contrast Algorithm）** | 次世代コントラストアルゴリズム | 10.6 の APCA Lc 計測 |
+| **WAI-ARIA 1.2** | ARIA Roles / Properties / States 仕様 | 10.6 の 3 分類設計 |
+| **Web Vitals（Google）** | LCP / INP / CLS / TTFB の定義 | Performance Budget の根拠 |
+
+#### ツール群（10.2 で詳細）
+| ツール | 用途 |
+|---|---|
+| **Figma Variables / Dev Mode / Code Connect** | デザイン → 設計 → コード の一元管理 |
+| **Storybook** | コンポーネントカタログ・状態視覚確認 |
+| **ZeroHeight** | デザインシステム ドキュメント一元化 |
+| **Supernova** | Design Token 管理・多プラットフォーム書き出し |
+| **Style Dictionary（Amazon）** | Token JSON → 各プラットフォーム設定生成 |
+| **Token Studio for Figma** | Figma 内で Token 編集・GitHub 同期 |
+| **apca-w3** | APCA Lc 自動計測 |
+| **mermaid-cli** | 状態遷移図・User Flow の SVG 自動出力 |
+| **zod-to-ts** | Zod スキーマから TypeScript 型自動生成 |
+| **Builder.io / Locofy** | Figma → コード自動生成・CMS 化 |
+
+#### 実測・ベンチマーク
+| # | 指標 | 目標値 | 計測ツール |
+|---|---|---|---|
+| 1 | 設計仕様書 完成度 | 100%（10.8 の 30 項目全 ✅） | Ren チェックリスト |
+| 2 | 未解決質問数 | 0（Ren・Mia への納品時） | Slack DM 履歴 |
+| 3 | 元 LP からの逸脱率 | 5% 以下（Mia 95 項目照合） | Mia QA レポート |
+| 4 | Ren 実装時の質問ラリー | 1 往復以内 | Slack DM 履歴 |
+| 5 | Mia QA 通過率 | 95% 以上 | Mia QA レポート |
+| 6 | 設計書作成時間 | 25 分以内（テンプレ活用時） | タイムトラッキング |
+| 7 | クライアント差し戻し率 | 10% 以下 | Kaito 集計 |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
