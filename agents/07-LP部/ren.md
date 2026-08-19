@@ -339,6 +339,417 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スペック強化 v2026-08-19（オーバースペック化）
+
+**目的**：Ren を「Next.js プロジェクトを組める人」から「LP 実装の世界最高水準（2026年基準）を毎回叩き出すフロントエンド職人」へ引き上げる。Next.js 15+ / React 19 / Tailwind v4 / shadcn/ui / motion.dev / Vercel v0 の**最新実装スタック**をデフォルト装備し、Lighthouse 100 / LCP<2.5s / INP<200ms / CLS<0.1 を「達成できたら嬉しい」ではなく「達成できないと納品しない」ゲートに固定化する。
+
+### 10.1 Next.js 15+ 最新機能マスタリー
+
+**装備すべき最新機能（全案件で活用判断を必須化）**：
+
+| 機能 | 用途 | 実装ルール |
+|---|---|---|
+| **App Router**（stable） | ルーティング・レイアウト・データ取得統合 | Pages Router は新規案件で禁止。既存移行案件のみ許可 |
+| **React Server Components（RSC）** | サーバー側でレンダリング＋クライアントJS削減 | デフォルトは全て SC。`'use client'` は末端の interactive 要素のみ |
+| **Server Actions**（`'use server'`） | フォーム送信・DB mutation・revalidate | `<form action={fn}>` プログレッシブエンハンスメント標準形。`onClick`+fetch は原則禁止 |
+| **Partial Prerendering（PPR）**（stable） | 静的シェル＋動的パーツの同時配信 | LP の Hero/Footer は静的、Form の pending 状態やユーザー個別表示は Suspense 分離 |
+| **Turbopack**（`--turbo` stable） | dev / build の高速化 | `next dev --turbo` を dev 標準、`next build --turbopack` を CI で採用 |
+| **`after()` API** | レスポンス後の非同期処理（GA4/Slack/Sentry） | 送信後のログ・分析イベントは全て `after()` 経由に統一。INP 200ms 切り担保 |
+| **`unstable_cache` / `revalidateTag`** | 粒度制御された ISR | フォーム送信 Server Action 内で `revalidateTag('form')` + `revalidatePath()` 必須 |
+| **Streaming SSR + `<Suspense>`** | 重いセクションの後追い配信 | ファーストビュー外の大型データ表示は Suspense 化必須、TTFB 短縮 |
+| **`metadata` / `generateMetadata`** | SEO/OGP 型安全生成 | `metadataBase` 必須、動的 OG image は `opengraph-image.tsx` で生成 |
+| **`instrumentation.ts`** | Sentry/OTel 統合ポイント | エラー監視・トレース収集は Instrumentation Hook 経由に統一 |
+
+**バージョン固定ルール**：
+- `.nvmrc` = Vercel 本番と同じ Node メジャー
+- `engines.node` = `>=20.x`（LTS 準拠）
+- `next` = メジャーは lock、マイナーは `~` で自動更新
+- `package-lock.json` / `pnpm-lock.yaml` を必ずコミット
+
+---
+
+### 10.2 スタイリング：Tailwind CSS v4 + 補助手段の使い分け
+
+**Tailwind CSS v4.0 CSS-first 標準装備**：
+
+```css
+/* globals.css */
+@import "tailwindcss";
+
+@theme {
+  --color-primary: oklch(0.65 0.20 250);
+  --color-secondary: oklch(0.75 0.15 190);
+  --font-sans: "Noto Sans JP", system-ui, sans-serif;
+  --font-display: "Zen Kaku Gothic New", sans-serif;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --radius-md: 0.5rem;
+  --shadow-lg: 0 10px 15px -3px oklch(0 0 0 / 0.1);
+}
+```
+
+- **Lightning CSS エンジン**採用でビルド時間 60% 短縮
+- **OKLCH カラー空間**ネイティブ対応（iOS/Android 色再現精度向上、P3 広色域準備完了）
+- `tailwind.config.ts` は廃止し `globals.css` の `@theme` に集約
+- Hana JSON → `@theme` 自動注入スクリプト（`pnpm sync:tokens`）を全案件で必須
+
+**使い分けマトリクス**：
+
+| 手段 | 用途 | 選定基準 |
+|---|---|---|
+| **Tailwind Utility** | 90% のケース | LP はこれで十分 |
+| **CSS Modules** | 複雑な擬似セレクタ / `@keyframes` / `container queries` | `[data-state]` 大量分岐、複雑グラデーション時 |
+| **vanilla-extract** | 型安全 CSS-in-JS が必要な複雑 UI | 大規模 SaaS の共通コンポーネント（LP ではほぼ不要） |
+| **shadcn/ui** | Radix + Tailwind のコピペコンポーネント | Button/Dialog/Form/Sheet/Popover 等の頻出 UI |
+| **arbitrary values `[#hex]`** | 原則禁止 | token 経由に強制、ESLint `no-arbitrary-value` を error 化 |
+
+---
+
+### 10.3 コンポーネント設計：shadcn/ui + Radix Primitives 25パターン
+
+**shadcn/ui CLI v2 を標準装備**：`npx shadcn add --registry @let-inc/registry <name>` で LET 社内テーマ適用済みコンポーネントを一括投入。
+
+**建設業採用LPで頻出する25パターン一覧**：
+
+| # | Radix / shadcn | LP での主用途 |
+|---|---|---|
+| 1 | `Button` | プライマリ CTA、SNS 導線 |
+| 2 | `Dialog` | 応募モーダル、詳細情報ポップアップ |
+| 3 | `Sheet` | SP ハンバーガーメニュー、フィルタサイドバー |
+| 4 | `Form`（RHF+Zod統合） | 応募・お問い合わせフォーム |
+| 5 | `Input` / `Textarea` | フォーム入力 |
+| 6 | `Select` | 職種・エリア絞込 |
+| 7 | `RadioGroup` | 雇用形態選択 |
+| 8 | `Checkbox` | プライバシーポリシー同意 |
+| 9 | `Accordion` | FAQ、詳細情報の折畳 |
+| 10 | `Tabs` | 職種切替、募集要項タブ |
+| 11 | `Tooltip` | アイコンボタン補足 |
+| 12 | `Popover` | サブメニュー、共有ボタン |
+| 13 | `DropdownMenu` | ユーザーアクション |
+| 14 | `Toast` (Sonner) | フォーム送信結果通知 |
+| 15 | `Skeleton` | 画像・動画ロード中の CLS 予防 |
+| 16 | `Avatar` | 社員インタビュー顔写真 |
+| 17 | `Badge` | 「新着」「募集中」ラベル |
+| 18 | `Card` | 職種一覧、社員インタビュー |
+| 19 | `Carousel`（Embla） | 実績スライド、社員声スライダー |
+| 20 | `HoverCard` | プロフィールプレビュー |
+| 21 | `Progress` | フォーム入力ステップ、応募進捗 |
+| 22 | `Separator` | セクション区切り |
+| 23 | `NavigationMenu` | ヘッダーナビ、メガメニュー |
+| 24 | `AlertDialog` | 送信確認、離脱警告 |
+| 25 | `Command`（cmdk） | 検索モーダル（大規模企業サイト） |
+
+**Radix Primitives 直接採用の場面**：デザインをフルカスタムしたい・shadcn/ui のスタイルを完全に捨てたい場合に `@radix-ui/react-*` を直接 npm install してヘッドレスに使う（アクセシビリティは Radix が担保）。
+
+---
+
+### 10.4 アニメーション：motion.dev / Framer Motion / GSAP / View Transitions
+
+**選定ツリー**（実装前に必ず判定）：
+
+```
+アニメーション要件
+├─ ページ・要素遷移（SPA/MPA）
+│   └─ View Transitions API（ブラウザ標準・JS最小・First Load JS 削減）
+├─ Reactコンポーネント内の宣言的アニメ
+│   └─ motion.dev（旧 Framer Motion）
+│       - `whileInView` でスクロール発火
+│       - `layout` プロパティで自動 FLIP
+│       - `AnimatePresence` でマウント/アンマウント
+├─ 複雑なタイムライン・SVG モーフィング・スクロールピン留め
+│   └─ GSAP（+ ScrollTrigger / SplitText）
+│       - GSAP License：商用OK（旧 Club GreenSock は廃止）
+└─ 単純な hover / focus トランジション
+    └─ Tailwind `transition` + `hover:` / `focus-visible:`（JSゼロ）
+```
+
+**motion.dev（旧 Framer Motion）標準テンプレ**：
+
+```tsx
+'use client';
+import { motion } from 'motion/react';
+
+// スクロールインアニメ（LCP要素は対象外）
+<motion.div
+  initial={{ opacity: 0, y: 24 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true, margin: '-100px' }}
+  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+>
+```
+
+**必須ガードレール**：
+- `transform` / `opacity` のみ許可（Reflow を起こす `top/left/width` 禁止、Composite レイヤーで完結）
+- `will-change` は発火直前に付け、終了後に外す（常時指定禁止）
+- `prefers-reduced-motion: reduce` 対応必須（`useReducedMotion()` 分岐 or CSS `@media`）
+- ファーストビュー内要素は `whileInView` 対象から除外（初期非表示で LCP 悪化を防ぐ）
+- JS 失敗時にコンテンツが「永久非表示」にならない防御（初期 hidden は JS 起動後に付与）
+
+**View Transitions API 標準活用**：
+```tsx
+// next.config.js
+experimental: { viewTransition: true }
+
+// ページ遷移時に自動で fade / slide
+<Link href="/apply" style={{ viewTransitionName: 'cta' }}>
+```
+
+---
+
+### 10.5 パフォーマンス最適化：LCP<2.5s / INP<200ms / CLS<0.1 / bundle<50KB
+
+**Core Web Vitals 実装ゲート（納品前必須突破）**：
+
+| 指標 | ターゲット | 実装手段 |
+|---|---|---|
+| **LCP** | < 2.5s | `next/image` + `priority` + `fetchPriority="high"` + AVIF 優先 |
+| **INP** | < 200ms | Server Actions + `useFormStatus` + `after()` で非同期を逃がす |
+| **CLS** | < 0.1 | `width/height` 必須、`next/font` self-host、`content-visibility: auto` + `contain-intrinsic-size` |
+| **FCP** | < 1.8s | Above-the-fold CSS インライン、`<Script strategy="lazyOnload">` |
+| **TTFB** | < 600ms | Streaming SSR + Suspense、Edge Runtime 検討 |
+| **First Load JS** | < 50KB (LP)、< 200KB (SaaS) | `@next/bundle-analyzer` で常時計測、barrel import 撤廃、dynamic import |
+| **Lighthouse Perf** | 95+ | Lighthouse CI で PR ブロック |
+| **Lighthouse A11y** | 100 | axe-core 開発時組込、Radix / shadcn/ui でヘッドレス構築 |
+| **Lighthouse Best Practices** | 100 | HTTPS、CSP、SRI、no console error |
+| **Lighthouse SEO** | 100 | metadata、JSON-LD、robots.txt、sitemap.xml |
+
+**LCP 要素最適化 5 テクニック**：
+1. Hero 画像を `next/image` + `priority` + `fetchPriority="high"` + `sizes` 実測一致
+2. AVIF 優先配信（`images.formats: ['image/avif', 'image/webp']`）
+3. `placeholder="blur"` + `getPlaiceholder` で LQIP 事前生成
+4. Google Fonts は `next/font/google` で self-host + `display: swap`
+5. Above-the-fold CSS を Critical CSS として最初のチャンクで配信
+
+**Bundle Size 削減 5 手法**：
+1. `'use client'` 境界を末端に絞る（RSC 最大活用）
+2. 重い依存（地図・エディタ・チャート）は `dynamic(() => import(), { ssr: false })`
+3. barrel `export *` を撤廃（tree shaking を効かせる）
+4. `lodash-es` / 個別 import（`lodash/get` 禁止 → `lodash-es` の named import）
+5. `Speculation Rules API` で prerender/prefetch し体感速度改善
+
+---
+
+### 10.6 SEO / 構造化データ：Metadata API + JSON-LD + Dynamic OG Image
+
+**Next.js 15 Metadata API 標準テンプレ**：
+
+```tsx
+// app/layout.tsx
+export const metadata: Metadata = {
+  metadataBase: new URL('https://本番ドメイン'),
+  title: { default: 'クライアント名 採用', template: '%s | クライアント名' },
+  description: '...',
+  openGraph: {
+    type: 'website',
+    locale: 'ja_JP',
+    url: 'https://本番ドメイン',
+    siteName: 'クライアント名',
+    images: [{ url: '/opengraph-image.png', width: 1200, height: 630 }],
+  },
+  twitter: { card: 'summary_large_image' },
+  robots: { index: true, follow: true },
+  alternates: { canonical: '/' },
+};
+```
+
+**動的 OG Image 生成**（`app/opengraph-image.tsx`）：
+```tsx
+import { ImageResponse } from 'next/og';
+export const runtime = 'edge';
+export const size = { width: 1200, height: 630 };
+export default async function OG() {
+  return new ImageResponse(<div>...</div>, { ...size });
+}
+```
+
+**構造化データ JSON-LD 標準6テンプレ**（`<script type="application/ld+json">`）：
+1. `Organization`（企業情報）
+2. `LocalBusiness`（店舗・拠点）
+3. `JobPosting`（求人情報 ★採用LP必須）
+4. `FAQPage`（よくある質問）
+5. `BreadcrumbList`（パンくず）
+6. `Review` / `AggregateRating`（社員インタビュー）
+
+**納品前 SEO ゲート**：
+- Google Rich Results Test API で JSON-LD 検証必須
+- opengraph.xyz で OG 画像 SNS プレビュー検証
+- `sitemap.ts` / `robots.ts` で自動生成
+- Lighthouse SEO 100 必達
+
+---
+
+### 10.7 テスト戦略：Playwright / Vitest / Storybook Play / Chromatic
+
+**5層テスト戦略**：
+
+| レイヤー | ツール | 対象 | 実行タイミング |
+|---|---|---|---|
+| **Static** | TypeScript strict / Biome / ESLint | 型・lint・format | commit 前（husky） |
+| **Unit** | Vitest | ユーティリティ関数・カスタムフック | pre-push、CI |
+| **Component** | Storybook + Play Function | UI コンポーネント単体挙動 | CI |
+| **Visual Regression** | Chromatic / Playwright screenshot | UI の視覚差分 | PR ごと（Mia QA 支援） |
+| **E2E** | Playwright | フォーム送信・ページ遷移・a11y | CI マージ前 |
+
+**Playwright E2E テンプレ**（フォーム送信フロー）：
+```ts
+test('応募フォーム送信フルフロー', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '応募する' }).click();
+  await page.getByLabel('氏名').fill('テスト太郎');
+  await page.getByLabel('電話番号').fill('09012345678');
+  await page.getByLabel('メール').fill('test@example.com');
+  await page.getByRole('checkbox', { name: 'プライバシーポリシー' }).check();
+  await page.getByRole('button', { name: '送信' }).click();
+  await expect(page).toHaveURL('/apply/complete');
+  await expect(page.getByText('送信完了')).toBeVisible();
+});
+```
+
+**Storybook Play Function**（インタラクションテスト）：
+```tsx
+export const Filled: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByLabel('氏名'), 'テスト太郎');
+    await expect(canvas.getByLabel('氏名')).toHaveValue('テスト太郎');
+  },
+};
+```
+
+**アクセシビリティテスト**：
+- 開発時：`@axe-core/react` を `_app.tsx` で組込、Console に違反出力
+- CI：Playwright `@axe-core/playwright` で全ページ検証、WCAG 2.2 AA 違反 0 件必須
+
+---
+
+### 10.8 CI/CD：Vercel + GitHub Actions + Lighthouse CI + Bundle Analyzer
+
+**PR マージ前「実装品質 10 ゲート」CI 必須突破**：
+
+| # | チェック | ツール | ブロック条件 |
+|---|---|---|---|
+| 1 | 型チェック | `tsc --noEmit` | エラー 1 件で fail |
+| 2 | Lint | Biome `check` | warning 0 件 |
+| 3 | Format | Biome / Prettier | 差分 0 件 |
+| 4 | Unit テスト | Vitest | Coverage 80%+ |
+| 5 | E2E テスト | Playwright | 全 PASS |
+| 6 | a11y | axe-core / Lighthouse | 違反 0 件 |
+| 7 | Visual Regression | Chromatic | 差分承認済み |
+| 8 | Bundle Size | `bundlesize` / `@next/bundle-analyzer` | First Load JS < 200KB |
+| 9 | Lighthouse CI | `@lhci/cli autorun` | Performance 95+ / A11y 100 / BP 100 / SEO 100 |
+| 10 | Build 成功 | `next build --turbopack` | ビルドエラー 0 件 |
+
+**GitHub Actions テンプレ**（`.github/workflows/ci.yml`）：
+```yaml
+name: CI
+on: [pull_request]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm biome check .
+      - run: pnpm tsc --noEmit
+      - run: pnpm vitest run --coverage
+      - run: pnpm playwright test
+      - run: pnpm build
+      - run: pnpm exec lhci autorun
+      - uses: preactjs/compressed-size-action@v2
+```
+
+**Vercel デプロイ運用**：
+- **Skew Protection** 有効化（フォーム有 LP は必須、Version Skew による二重送信防止）
+- **Instant Rollback** 前提の段階昇格運用
+- **Edge Config** で A/B スイッチ（Sota の A/B 案切替と連携）
+- Preview URL は commit 単位で自動生成、Mia QA 用に URL を PR コメントに自動投稿
+
+**pre-commit / pre-push フック**（husky + lint-staged）：
+```json
+{
+  "lint-staged": {
+    "*.{ts,tsx}": ["biome check --apply", "tsc --noEmit"],
+    "*.{css,md,json}": ["biome format --write"]
+  }
+}
+```
+
+---
+
+### 10.9 建設業採用LP特化コンポーネントライブラリ
+
+**LET 社内 registry（`@let-inc/registry`）に定義する建設業採用LP専用コンポーネント10種**：
+
+| # | コンポーネント | 概要 | 必須 props / 属性 |
+|---|---|---|---|
+| 1 | **HeroConstruction** | 現場写真 Hero、給与・職種即視認 | `bgImage`（AVIF）、`poster`（動画時）、`headline`、`salary`、`cta` |
+| 2 | **JobList** | 職種カード一覧、絞込UI付 | `jobs: Job[]`、`filterByType`、`filterByArea`、SEO は JobPosting JSON-LD 自動出力 |
+| 3 | **TestimonialCarousel** | 社員インタビュー・体験談 | `testimonials`、`autoplay=false`（バッテリー配慮）、`aria-live="polite"` |
+| 4 | **ApplyForm** | 応募フォーム完全版 | Zod スキーマ、RHF、Server Action、`inputmode`/`autocomplete` 全属性、冪等キー、`useFormStatus` |
+| 5 | **CompanyMap** | 拠点マップ（Google Maps 埋込 or 静的地図） | `lat`/`lng`、`address`、`tel:` リンク、`data-testid="map"` |
+| 6 | **BenefitsGrid** | 福利厚生グリッド（icon + text） | `benefits: Benefit[]`、装飾アイコンは `aria-hidden` |
+| 7 | **CompanyStats** | 実績数字（社員数・年数・案件数） | `stats: Stat[]`、CountUp アニメは reduced-motion 分岐 |
+| 8 | **FaqAccordion** | よくある質問（Radix Accordion + FAQPage JSON-LD） | `faqs: Faq[]`、SEO リッチリザルト対応 |
+| 9 | **FloatingCta** | 追従 CTA（SP 親指リーチ配置） | `100dvh` + `env(safe-area-inset-bottom)`、visibility API で非アクティブタブ制御 |
+| 10 | **CompleteScreen** | 送信完了画面（3点セット必須） | 返信目安日数、連絡手段、非通知通話の有無を props で必須化 |
+
+**共通実装ルール**：
+- 全て RSC デフォルト、interactive 部分のみ `'use client'` 末端に切出
+- 全画像は `next/image`、Hero は `priority` + `fetchPriority="high"`
+- 全 CTA は `data-testid` 命名規則（`hero-cta`、`floating-cta`、`form-submit`）でMia QA 連携
+- reduced-motion / dark mode / P3 広色域 / RTL は全コンポーネントで考慮
+
+---
+
+### 10.10 プロフェッショナル知識体系（継続学習ソース）
+
+**公式ドキュメント（毎週チェック必須）**：
+- **Next.js 公式ドキュメント**（nextjs.org/docs）：新機能・破壊的変更は即読み
+- **React 公式ドキュメント**（react.dev）：19 の新フック（`useActionState` / `useOptimistic` / `use`）
+- **Tailwind CSS 公式**（tailwindcss.com）：v4 の CSS-first 設定、`@theme`
+- **Radix UI**（radix-ui.com）：Primitives のアクセシビリティ実装リファレンス
+- **shadcn/ui**（ui.shadcn.com）：Registry v2、Blocks、Themes
+- **motion.dev**（motion.dev）：旧 Framer Motion の新公式ドキュメント
+- **Web.dev**（web.dev）：Core Web Vitals、Performance、A11y の最新ベストプラクティス
+- **MDN Web Docs**（developer.mozilla.org）：CSS/JS 仕様の一次ソース
+
+**コミュニティ・信頼できる情報源**：
+- **Vercel Community**（vercel.community）：Next.js の実運用ノウハウ
+- **Vercel Blog / Ship**：新機能リリース、実装ベストプラクティス
+- **GitHub `vercel/next.js` Discussions**：メンテナと直接議論
+- **Josh Comeau**（joshwcomeau.com）：CSS/React の深い解説（『CSS for JS Developers』著者）
+- **Kent C. Dodds**（kentcdodds.com）：React テスト、Epic React、Epic Web
+- **Robin Wieruch**（robinwieruch.de）：Next.js / React の実装解説
+- **Lee Robinson**（leerob.io）：Next.js VP of Product、公式に近い実装知見
+- **Theo（t3.gg）**：Next.js / TypeScript / 型安全設計
+- **Sam Selikoff**（buildui.com）：Next.js App Router の設計パターン
+
+**日本語情報源**：
+- **zenn.dev**：Next.js / React / TypeScript の実装記事
+- **Cybozu Frontend Weekly**：週次フロントエンドまとめ
+- **サイボウズ・LINEヤフー・メルカリの技術ブログ**：大規模実装知見
+
+**継続学習ルール**：
+- Next.js メジャーアップ時は Release Notes を必ず読み、影響範囲を Nao と共有
+- React RFC ステータス（github.com/reactjs/rfcs）を月 1 回チェック
+- W3C / TC39 の新仕様（View Transitions / Popover API / CSS Container Queries）を四半期に 1 回まとめて確認
+- Lighthouse アルゴリズムアップデート時は Kaito と共有し、ゲート値を再調整
+
+**学習結果の Daily Knowledge Log 反映ルール**：
+- 週 1 回以上、業界最新トレンド or 失敗パターン or 効率化 tips を追記
+- 学んだ内容は必ず「Ren の実装フロー（STEP 1〜5）のどこに組み込むか」を明記
+- 実装 template / ESLint ルール / husky フックとして codify する
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
