@@ -516,3 +516,471 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - CSV出力（BOM付きUTF-8・ゼロ落ち防止・日付の文字列化）・冪等キー処理・エラーレスポンス整形は案件ごとに書かず共通ユーティリティ化する。実装時間より、現場で信頼を失ってからの修正コストの方が桁違いに高い
 - 性能改善は全エンドポイントを均すのでなく、採用担当が毎朝必ず叩く導線（応募一覧の全件・全期間表示）を名指しで特定し、そのクエリとインデックスだけに時間を投下する。体感評価はその1画面で決まる
 - Query Logging とスロークエリ閾値はステージング以降でなくローカル開発時から常時オンにする。N+1は書いた直後に気づけば数分の修正だが、リリース後に発覚すると調査から再デプロイまで丸ごと乗る
+
+---
+
+## 🚀 スペック強化 v2 — オーバースペック化（2026-08-20）
+
+### 現状スキル棚卸し
+
+| 層 | 到達済みの水準（v1 で確立） | 未踏 |
+|---|---|---|
+| API 実装 | Hono＋`@hono/zod-openapi` によるルート定義＝OpenAPI＝型の 3 同期、Zod 単一ソースから型／仕様書／FE バリデーション／fixture の 4 派生、`scaffold-endpoint.ts` で CRUD 一括生成（40 分→10 分）、統一エラー DTO `{code, field, message}` | API 契約の**後方互換ガバナンス**（破壊的差分の機械検知・廃止予告） |
+| DB | N+1 の CI 検出（`prisma-query-counter`）、分離レベル 4 段階の使い分け、楽観／悲観ロックとロック順序ポリシー、部分ユニークインデックス（`WHERE deleted_at IS NULL`）、cursor ページネーション＋tiebreaker、`{ increment: 1 }` アトミック更新、expand/contract 3 段階デプロイ、`CREATE INDEX CONCURRENTLY` | **DB 層のテナント分離（RLS）**、暗号化カラムの検索設計 |
+| セキュリティ | `checkUserOwnership()` のミドルウェア化＋`$extends()` 注入、`jose.jwtVerify()` の必須検証、Webhook 署名検証＋`event.id` 冪等、DTO ホワイトリスト、マジックバイト検証、`redact` ログマスク | **監査証跡（誰が・いつ・誰の PII を見たか）**、**PII のカラム暗号化・鍵管理** |
+| 整合性 | `$transaction()` 徹底、冪等キー、`P2002` 捕捉、resumable バッチ、Job Queue＋DLQ | **DB コミットと外部副作用の原子性（Outbox）** |
+| 運用 | 構造化ログ 3 点メタ（障害種別タグ／想定原因 Top3／一次対応コマンド）、`incident-snapshot.ts`、`envSchema.parse(process.env)` の fail-fast、p95 500ms 目安 | **SLO／エラーバジェット運用**、**本番データ量での負荷試験**、**相関 ID・分散トレース** |
+
+### 到達すべきベンチマーク
+
+- **OpenAPI 駆動**：仕様が単一ソースであるだけでなく、`oasdiff breaking` が CI で破壊的差分を 100% ブロックし、廃止は `Deprecation`／`Sunset` ヘッダーで 90 日以上予告される。
+- **N+1 検出**：1 リクエスト＝1〜2 SQL のローカル検出に加え、**本番相当データ量（応募 200 万件・7 テナント）**での k6 負荷試験が CI に載っている。
+- **トランザクション分離レベル**：分離レベルの選択に加え、**外部 I/O をトランザクション内に置かない**構造（Outbox）が既定になっている。
+- **冪等性キー**：概念だけでなく `Idempotency-Key` ヘッダー＋リクエストフィンガープリント一致検証＋レスポンス再生（TTL 24h）まで実装されている。
+- **レート制限**：429＋`Retry-After` に加え、テナント単位・プラン単位の配分と `RateLimit-*` ヘッダーが返る。
+- **監査ログ**：追記専用テーブル＋ハッシュチェーンで改ざん検知可能、PII 参照系アクション網羅率 100%。
+- **PII 暗号化・最小化**：AES-256-GCM のエンベロープ暗号化＋KMS 鍵管理＋`key_version` 併存、検索は blind index、取得項目は nori 査定済みで不要項目 0。
+- **インデックス設計**：`(tenant_id, created_at DESC, id DESC)` のようにテナント境界を先頭に置いた複合インデックス、Index Only Scan 成立の確認、月次パーティションでの肥大対策。
+
+### 特定されたスキルギャップと優先度
+
+| # | ギャップ | 事業インパクト | 即戦力度 | 優先度 |
+|---|---|---|---|---|
+| 1 | DB 層のマルチテナント分離（PostgreSQL RLS）が無く、アプリ層 `$extends()` のみに依存 | 極大（7 社の応募者 PII クロステナント漏洩＝契約解除・報告義務） | 高 | **S** |
+| 2 | 監査ログ（誰が・いつ・どの応募者 PII を閲覧／エクスポート／削除したか）が存在しない | 極大（内部不正の立証不能・クライアント監査要求に応答不能） | 高 | **S** |
+| 3 | PII が平文カラム保存、鍵管理・暗号化下の検索設計なし | 大（DB ダンプ流出＝即個人情報漏洩、暗号化していれば影響限定） | 中 | **A** |
+| 4 | DB コミットと外部副作用（Slack／メール／LINE 通知）の原子性が未担保 | 大（「応募は入ったが採用担当に通知されない」＝直接の機会損失） | 高 | **A** |
+| 5 | API 契約の破壊的変更を機械検知していない | 中（Riku／ren の FE と外部連携が無通告で壊れる） | 高 | **A** |
+| 6 | SLO・エラーバジェットが未定義、本番データ量の負荷試験なし | 中（1 万件シードで p95 良好→本番 200 万件で崩壊） | 中 | **B** |
+| 7 | 相関 ID・分散トレースが無く、問い合わせ由来の障害を追跡できない | 中（「昨日エラーが出た」の特定に数時間） | 高 | **B** |
+| 8 | 大規模テーブルのパーティショニング・アーカイブ設計なし | 中（audit_log／応募ログの肥大で VACUUM 遅延・バックアップ肥大） | 低 | C |
+| 9 | PITR リストア演習（RPO/RTO の実測）未実施 | 中（誤 UPDATE の論理破壊から戻せるかが未検証） | 低 | C |
+
+**優先度上位 7（#1〜#7）を v2 の新規習得スキルとして実装レベルで確立する。**
+
+---
+
+### 🔧 新規習得スキル
+
+#### 1. 【PostgreSQL RLS × Prisma `$extends()` の二重防壁マルチテナント分離】
+
+**なぜ必要か**：LET の採用管理は 7 社のクライアントが同一 DB を共有する。v1 の `$extends()` による `where: { userId: ctx.userId }` 自動注入は**アプリ層の善意**であり、`$queryRaw`・管理スクリプト・移行バッチ・Server Actions の直叩き・新設した別接続はすべて素通りする。クロステナント漏洩は 1 件で全 7 社の契約が飛ぶ事象であり、アプリ層だけに委ねてはいけない。
+
+**具体的手法**：
+1. 全テナント所属テーブルに `tenant_id uuid NOT NULL` を必須化し、複合インデックスの**先頭カラム**に置く。
+2. `ENABLE ROW LEVEL SECURITY` に加え `FORCE ROW LEVEL SECURITY`（テーブル所有者も対象化）を必須。`USING` と `WITH CHECK` を両方書く（読みだけでなく他テナントへの書き込みも遮断）。
+3. アプリは `SET LOCAL app.tenant_id` を**トランザクション内**で設定する。`SET LOCAL` はトランザクション終了で自動リセットされるため、PgBouncer の transaction pooling でも接続再利用による文脈漏れが起きない（セッション `SET` は厳禁）。
+4. `current_setting('app.tenant_id', true)` は未設定時 NULL → 比較が NULL → **0 件（fail-closed）**。設定漏れは「全件見える」ではなく「何も見えない」に倒れる。
+5. アプリ層の `$extends()` は撤去せず**残す**。RLS は最終防壁、`$extends()` は早期フィルタとインデックス活用のため。
+
+**判断基準・数値ライン**：
+- RLS 未適用のテナント所属テーブル **0 件**（CI で検査 SQL を実行し 1 件でも出たら fail）
+- クロステナントリークテストのカバレッジ **全エンドポイント×全リソース 100%**（他テナント ID 指定で 404 または 0 件）
+- `app.tenant_id` 未設定時の返却件数 **0 件**（fail-closed をテストで固定）
+- RLS 有効化によるレイテンシ増 **p95 +10ms 以内**（`tenant_id` 先頭の複合インデックス必須）
+
+**実務テンプレート**：
+```sql
+-- migrations/xxxx_enable_rls.sql
+ALTER TABLE applications ADD COLUMN tenant_id uuid NOT NULL;
+CREATE INDEX idx_applications_tenant_created
+  ON applications (tenant_id, created_at DESC, id DESC);  -- 一覧の既定ソートに一致
+
+ALTER TABLE applications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE applications FORCE  ROW LEVEL SECURITY;       -- 所有者も強制対象（忘れると無力化）
+
+CREATE POLICY tenant_isolation ON applications
+  USING       (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK  (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- CI ゲート：RLS 未適用テーブルの検出（結果 0 行が PASS 条件）
+SELECT c.relname FROM pg_class c
+  JOIN pg_namespace n ON n.oid = c.relnamespace
+ WHERE n.nspname = 'public' AND c.relkind = 'r'
+   AND c.relname IN ('applications','applicants','job_posts','audit_log')
+   AND (c.relrowsecurity IS FALSE OR c.relforcerowsecurity IS FALSE);
+```
+```ts
+// src/db/tenant.ts — 全 DB アクセスの唯一の入口
+export function withTenant<T>(tenantId: string, fn: (tx: PrismaTx) => Promise<T>): Promise<T> {
+  const id = z.string().uuid().parse(tenantId);           // SQL 文字列連結前に必ず UUID 検証
+  return prisma.$transaction(async (tx) => {
+    await tx.$executeRawUnsafe(`SET LOCAL app.tenant_id = '${id}'`); // LOCAL＝tx 終了で自動失効
+    return fn(tx);
+  });
+}
+// ESLint: src/db/tenant.ts 以外での `prisma.` 直参照を no-restricted-imports で禁止
+```
+```ts
+// tests/leak.spec.ts — 全リソースに自動展開するクロステナントリークテスト
+for (const r of ['applications', 'applicants', 'job_posts']) {
+  it(`${r}: 他テナントの行は 0 件`, async () => {
+    const rows = await withTenant(TENANT_B, (tx) => tx[r].findMany({ where: { id: seeded[r].tenantA_id } }));
+    expect(rows).toHaveLength(0);
+  });
+  it(`${r}: tenant 未設定なら 0 件（fail-closed）`, async () => {
+    expect(await prisma[r].findMany()).toHaveLength(0);
+  });
+}
+```
+
+**期待効果**：クロステナント漏洩を「レビューで気づく」から「DB が物理的に返さない」へ移行。認可漏れエンドポイントが 1 本混入しても被害ゼロ。クライアントのセキュリティ監査で「DB 層で分離」と回答可能になり、LET の受注要件を満たす。
+
+---
+
+#### 2. 【追記専用監査ログとハッシュチェーンによる改ざん検知】
+
+**なぜ必要か**：採用管理の PII は「見られたこと自体」が事故になる。v1 の構造化ログは障害対応用で、保存期間も改ざん耐性も検索性も監査要件を満たさない。「先月、うちの応募者データを誰が CSV 出力したか」というクライアントからの照会に答えられない状態は、7 社を預かる事業として致命的。
+
+**具体的手法**：
+1. `audit_log` を**追記専用**にする。アプリ用ロールから `UPDATE`／`DELETE` 権限を `REVOKE`（アプリが侵害されても過去ログを消せない）。
+2. 各行に `prev_hash` と `hash = sha256(prev_hash || 正規化 JSON)` を持たせ**ハッシュチェーン**化。週次バッチで全チェーンを再計算し不一致を検出。
+3. 監査ログの INSERT は**業務トランザクションと同一 `$transaction()`**に入れる。「業務は成功したが監査記録は失敗」という欠測を構造的に排除。
+4. 記録対象は「PII 参照系（個票閲覧・一覧全件表示・CSV エクスポート）／権限変更／削除／ログイン失敗／エクスポート」。`diff` には PII の生値を入れず**マスク値かハッシュ**のみ。
+5. `request_id`（スキル 7）を必ず持たせ、トレース・Sentry・構造化ログと突合可能にする。
+6. `occurred_at` の月次パーティション（`PARTITION BY RANGE`）で肥大化に備える。
+
+**判断基準・数値ライン**：
+- 監査対象アクション網羅率 **100%**（対象アクション定義を enum 化し、exhaustive check で漏れをコンパイルエラー化）
+- 監査書き込みによるレイテンシ増 **p95 +5ms 以内**
+- ハッシュチェーン検証 **週次実行・不一致 0 件**
+- 保存期間 **nori 合意値（既定 3 年）**、期限超過は月次パーティション単位で `DETACH`＋アーカイブ
+- 監査ログへの `UPDATE`／`DELETE` 権限を持つアプリロール **0**
+
+**実務テンプレート**：
+```sql
+CREATE TABLE audit_log (
+  id           bigserial   PRIMARY KEY,
+  occurred_at  timestamptz NOT NULL DEFAULT now(),
+  tenant_id    uuid        NOT NULL,
+  actor_id     uuid,                          -- NULL = システム実行（バッチ）
+  actor_role   text        NOT NULL,
+  action       text        NOT NULL,          -- applicant.view / applicant.export / role.change ...
+  target_type  text        NOT NULL,
+  target_id    text        NOT NULL,
+  diff         jsonb,                         -- PII は生値禁止（マスク値 or ハッシュ）
+  request_id   text        NOT NULL,          -- 相関 ID と突合
+  ip           inet,
+  prev_hash    bytea       NOT NULL,
+  hash         bytea       NOT NULL
+) PARTITION BY RANGE (occurred_at);
+
+REVOKE UPDATE, DELETE ON audit_log FROM app_user;   -- 追記専用の本体
+GRANT  INSERT, SELECT ON audit_log TO app_user;
+```
+```ts
+// src/audit/write.ts — 業務トランザクションと同一 tx で書く（引数で tx を強制受け取り）
+export async function audit(tx: PrismaTx, e: AuditEvent) {
+  const [{ hash: prev }] = await tx.$queryRaw<{ hash: Buffer }[]>`
+    SELECT hash FROM audit_log ORDER BY id DESC LIMIT 1`;
+  const prevHash = prev ?? Buffer.alloc(32);
+  const body = canonicalJson(e);                       // キー順を固定した正規化 JSON
+  const hash = createHash('sha256').update(prevHash).update(body).digest();
+  await tx.$executeRaw`INSERT INTO audit_log
+    (tenant_id, actor_id, actor_role, action, target_type, target_id, diff, request_id, ip, prev_hash, hash)
+    VALUES (${e.tenantId}, ${e.actorId}, ${e.actorRole}, ${e.action},
+            ${e.targetType}, ${e.targetId}, ${e.diff}, ${e.requestId}, ${e.ip}::inet, ${prevHash}, ${hash})`;
+}
+// 監査対象アクションは union 型で固定 → 新アクション追加時に記録漏れをコンパイルで検出
+type AuditAction = 'applicant.view' | 'applicant.list' | 'applicant.export'
+                 | 'applicant.delete' | 'role.change' | 'auth.failed';
+```
+
+**期待効果**：クライアントからの「誰が見たか」照会に SQL 1 本で回答（従来：回答不能）。内部不正の抑止と立証が可能になり、応募者 PII を扱う受注で監査要件を満たす。障害時も `request_id` で「業務ログ⇄トレース⇄監査」を横断追跡できる。
+
+---
+
+#### 3. 【PII のエンベロープ暗号化と blind index による検索可能化】
+
+**なぜ必要か**：v1 は「暗号化＝AES-256-GCM」という**用語の整理まで**で止まっており、実際の応募者の氏名・電話・住所・履歴書は平文カラムに入っている。DB ダンプ・バックアップ・リードレプリカのいずれかが流出した時点で即漏洩する。一方で単純に暗号化すると「電話番号で応募者を検索」が不可能になるため、検索設計と一体で導入しなければ運用が止まる。
+
+**具体的手法**：
+1. **エンベロープ暗号化**：KMS の CMK でテナント単位の DEK（データ暗号鍵）を暗号化保管。DEK はプロセス内 5 分キャッシュし、KMS 呼び出しをリクエスト毎に発生させない。
+2. 暗号化は**アプリ層**で行う（DB 関数だと鍵がクエリログ・`pg_stat_statements` に残る）。カラムは `*_ct`（暗号文）／`*_iv`／`*_tag`／`key_version` の 4 点セット。
+3. **blind index**：`HMAC-SHA256(pepper, normalize(値))` を別カラムに持たせ**完全一致検索のみ**を許容。正規化は日本語前提で NFKC＋電話は数字のみ抽出＋メールは小文字化。pepper は KMS 管理でアプリ環境変数に平文で置かない。
+4. **PII 最小化**：取得項目ごとに「採用判断に必要か」を nori と査定し、不要項目は**カラムごと作らない**。生年月日は年齢帯のみ、住所は市区町村までなど粒度を落とせないか設計時に必ず問う。
+5. **復号の局所化**：一覧 API は復号 0 回（マスク表示値カラム `name_masked = '山﨑 ○○'` を別途保持）。復号は個票取得・CSV エクスポート時のみで、両者は監査ログ対象（スキル 2）。
+6. **鍵ローテーション**：`key_version` 併存で新規書き込みのみ新鍵、既存はバッチで再暗号化。
+
+**判断基準・数値ライン**：
+- PII カラムの平文保存 **0 件**（対象：氏名・電話・メール・住所・生年月日・履歴書本文）
+- 一覧 API の復号回数 **0 回 / リクエスト**、暗号化・復号のオーバーヘッド **1 レコード 0.15ms 以内**
+- 鍵ローテーション **年 1 回 ＋ 漏洩疑い時は即時**、再暗号化バッチ完了までの許容期間 **14 日**
+- KMS 呼び出し **1 リクエストあたり 0 回**（DEK キャッシュ TTL 5 分）
+- 不要 PII 項目 **0**（nori 査定表に「利用目的」が書けない項目は実装しない）
+
+**実務テンプレート**：
+```ts
+// src/pii/crypto.ts
+const DEK_TTL_MS = 5 * 60_000;
+export async function encryptPii(tenantId: string, plain: string) {
+  const dek = await getDek(tenantId);                    // KMS decrypt → プロセス内 5 分キャッシュ
+  const iv = randomBytes(12);
+  const c = createCipheriv('aes-256-gcm', dek.key, iv);
+  const ct = Buffer.concat([c.update(plain, 'utf8'), c.final()]);
+  return { ct, iv, tag: c.getAuthTag(), keyVersion: dek.version };  // key_version 必須
+}
+export const blindIndex = (kind: 'phone' | 'email' | 'name', v: string) =>
+  createHmac('sha256', PEPPER[kind]).update(normalizeJa(kind, v)).digest();
+// normalizeJa: NFKC 正規化 → phone は \D 除去 → email は小文字化 → name は空白除去
+```
+```prisma
+model Applicant {
+  id          String  @id @default(uuid())
+  tenantId    String
+  phoneCt     Bytes   @map("phone_ct")
+  phoneIv     Bytes   @map("phone_iv")
+  phoneTag    Bytes   @map("phone_tag")
+  phoneBidx   Bytes   @map("phone_bidx")          // 検索はこの列に対する完全一致のみ
+  nameMasked  String  @map("name_masked")         // 一覧表示用（復号不要）
+  keyVersion  Int     @map("key_version")
+  @@index([tenantId, phoneBidx])                  // テナント境界を先頭に
+}
+```
+```ts
+// 検索：平文をそのまま WHERE に置かず blind index 経由（LIKE 部分一致は仕様として提供しない）
+const hit = await withTenant(tenantId, (tx) =>
+  tx.applicant.findFirst({ where: { phoneBidx: blindIndex('phone', input.phone) } }));
+```
+
+**期待効果**：DB ダンプ・バックアップ流出時の被害を「即漏洩」から「鍵がなければ復元不能」へ格下げ。復号箇所が個票・エクスポートの 2 経路に限定されるため監査対象も明確化。nori の PII 査定が設計工程に組み込まれ、リーガル差し戻しがゼロ化する。
+
+---
+
+#### 4. 【トランザクショナル Outbox による DB コミットと外部副作用の原子性担保】
+
+**なぜ必要か**：v1 で「応募 upsert 成功時に Slack／メール／LINE 通知を必須トリガー化」「fire-and-forget 禁止・Job Queue へ」と決めたが、**DB コミットとキュー投入の間の原子性**は未解決のまま。トランザクション内で通知を `await` すれば外部 API のハングがトランザクションを開いたまま接続を占有しロックを長期化させ、トランザクション外で投げれば「DB は入ったのにキュー投入前にプロセスが落ちて通知が消える」。採用担当の通知取りこぼしは直接の機会損失なので、この隙間を構造で塞ぐ。
+
+**具体的手法**：
+1. 業務データと**同一トランザクション**で `outbox` テーブルに行を INSERT する。これで「応募は保存されたがイベントが無い」状態が原理的に発生しない。
+2. worker が `FOR UPDATE SKIP LOCKED` でバッチ取得し外部送信。複数 worker が同じ行を掴まない。
+3. リトライは Exponential Backoff（`available_at = now() + 2^attempts * 5 秒`、上限 1 時間）＋最大 8 回、超過で `failed`＋DLQ＋`#incidents` 通知。
+4. 送信先には冪等キー（`outbox.id`）を渡し、二重送信を受信側で吸収させる（at-least-once 前提）。
+5. `pending` 滞留を監視。DB 書き込みは成功しているので「通知だけ止まっている」を無音にしない。
+
+**判断基準・数値ライン**：
+- DB 書き込みと外部副作用が同時に必要なユースケースの **100%** が Outbox 経由（トランザクション内 `fetch` を lint で禁止）
+- 通知到達率 SLO **99.9% / 24 時間**
+- `pending` 滞留 **5 分超でアラート**、`failed` 発生で即 Slack `#incidents`
+- worker 1 バッチ **20 件**、ロック保持 **60 秒**、最大リトライ **8 回（累計約 1 時間）**
+
+**実務テンプレート**：
+```sql
+CREATE TABLE outbox (
+  id             bigserial PRIMARY KEY,
+  tenant_id      uuid NOT NULL,
+  event_type     text NOT NULL,                  -- application.created / applicant.deleted
+  payload        jsonb NOT NULL,                 -- PII の生値は入れず ID 参照のみ
+  status         text NOT NULL DEFAULT 'pending',-- pending | succeeded | failed
+  attempts       int  NOT NULL DEFAULT 0,
+  available_at   timestamptz NOT NULL DEFAULT now(),
+  locked_until   timestamptz,
+  last_error     text,
+  created_at     timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_outbox_ready ON outbox (available_at) WHERE status = 'pending';
+```
+```ts
+// 業務側：同一トランザクションで INSERT（ここが原子性の本体）
+await withTenant(tenantId, async (tx) => {
+  const app = await tx.application.create({ data });
+  await tx.outbox.create({ data: { tenantId, eventType: 'application.created',
+                                   payload: { applicationId: app.id } } }); // PII は入れない
+  await audit(tx, { action: 'applicant.create', targetId: app.id, /* ... */ });
+});
+```
+```ts
+// worker：SKIP LOCKED でバッチ取得 → 送信 → 成否を永続化
+const jobs = await prisma.$queryRaw<Outbox[]>`
+  UPDATE outbox SET locked_until = now() + interval '60 seconds', attempts = attempts + 1
+   WHERE id IN (SELECT id FROM outbox
+                 WHERE status = 'pending' AND available_at <= now()
+                 ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 20)
+  RETURNING *`;
+for (const j of jobs) {
+  try {
+    await notify(j, { idempotencyKey: String(j.id), signal: AbortSignal.timeout(5000) });
+    await prisma.outbox.update({ where: { id: j.id }, data: { status: 'succeeded' } });
+  } catch (e) {
+    const backoffSec = Math.min(2 ** j.attempts * 5, 3600);
+    await prisma.outbox.update({ where: { id: j.id }, data: {
+      status: j.attempts >= 8 ? 'failed' : 'pending',
+      availableAt: new Date(Date.now() + backoffSec * 1000), lastError: String(e) } });
+  }
+}
+```
+
+**期待効果**：「応募は入っているのに採用担当に通知が飛んでいない」を構造的に根絶。外部 API のハングがトランザクションを巻き込まないため、通知先障害が応募 API のレイテンシに波及しない。送信履歴が DB に残るため、運用者が「届いたか」を台帳で自己確認できる。
+
+---
+
+#### 5. 【API 契約の後方互換ガバナンス（破壊的差分の CI 検知＋廃止予告）】
+
+**なぜ必要か**：v1 は「Zod から OpenAPI を自動生成」まで到達したが、**自動生成は破壊的変更も自動で反映してしまう**。フィールドの必須化・型変更・enum 値の削除が無警告で本番に出て、Riku の FE と ren の LP フォーム、クライアント側の外部連携が同時に壊れる。生成の自動化は、差分検知とセットでなければ危険度を上げるだけ。
+
+**具体的手法**：
+1. `oasdiff breaking` を CI 必須ゲートに置き、`main` の OpenAPI と PR の OpenAPI を比較して破壊的差分で **fail**。
+2. 破壊的変更が必要な場合は `/api/v1` と `/api/v2` を**併存**させ、v1 に `Deprecation`／`Sunset`／`Link: rel="successor-version"` ヘッダーを付与（RFC 8594 / 9745）。
+3. **非推奨エンドポイントの呼び出し数を週次計測**し、0 になるまで削除禁止。Sunset の 30 日前／7 日前に呼び出し元（Riku・ren・クライアント）へ通知。
+4. 契約テスト：OpenAPI から生成したモックサーバー（Prism）に対して FE のテストを回し、「FE の期待 ⇄ 仕様」のズレを BE 実装前に検出。
+5. 「非破壊」の定義を明文化：フィールド追加・任意フィールド追加・enum 値の追加（受信側 exhaustive check 済みが前提）は非破壊、それ以外は破壊。
+
+**判断基準・数値ライン**：
+- 破壊的差分の CI 検出率 **100%**（`--fail-on ERR`）
+- 新旧バージョン併存期間 **最低 90 日**、Sunset までに非推奨呼び出し **0 件**が削除条件
+- 廃止通知タイミング **Sunset の 30 日前・7 日前の 2 回**
+- OpenAPI と実装の乖離 **0**（生成物をコミットし、生成差分があるまま PR を通さない）
+
+**実務テンプレート**：
+```yaml
+# .github/workflows/api-contract.yml
+- name: 仕様を生成（Zod → OpenAPI）
+  run: pnpm gen:openapi && git diff --exit-code openapi.yaml   # 生成漏れ検出
+- name: 破壊的差分の検出
+  run: |
+    git show origin/main:openapi.yaml > /tmp/base.yaml
+    npx oasdiff breaking /tmp/base.yaml openapi.yaml --fail-on ERR
+- name: 契約テスト（Prism モック相手に FE テスト）
+  run: npx @stoplight/prism-cli mock openapi.yaml & pnpm test:contract
+```
+```ts
+// src/middleware/deprecation.ts — v1 のレスポンスに廃止予告を必ず付ける
+const SUNSET = new Date('2027-02-01T00:00:00Z');
+export function withDeprecation(res: Response) {
+  res.headers.set('Deprecation', 'Sun, 01 Nov 2026 00:00:00 GMT');
+  res.headers.set('Sunset', SUNSET.toUTCString());
+  res.headers.set('Link', '</api/v2/applications>; rel="successor-version"');
+  metrics.increment('api.deprecated_call', { path: '/api/v1/applications' }); // 週次で 0 を確認
+  return res;
+}
+```
+
+**期待効果**：無通告の破壊的変更が本番に到達しなくなり、Riku・ren・クライアント連携の突然死が消滅。廃止は計測付きの手続きになるため「消していいか分からない古い API」が残り続ける負債も解消する。
+
+---
+
+#### 6. 【SLO・エラーバジェット運用と本番データ量での k6 負荷試験】
+
+**なぜ必要か**：v1 の「p95 500ms」は**目安であって契約ではない**ため、超過時に何をするかが決まっていない。さらに負荷試験が無いまま「1 万件のシードで速い」を根拠にリリースしており、本番の応募 200 万件・7 テナントでは崩壊しうる。守るべき数値と、超えた時の行動を先に決める。
+
+**具体的手法**：
+1. SLI／SLO を導線ごとに定義。**採用担当が始業 9:00 に必ず叩く「応募一覧・全件・全期間」を最重要 SLO 対象**として名指しする。
+2. エラーバジェット（99.9%/30 日 ＝ 43.2 分）を定義し、**バーンレート多窓アラート**（1 時間で 14.4 倍＝即時対応、6 時間で 6 倍＝チケット化）を設定。
+3. バジェット消費が 50% を超えた月は**新機能より信頼性改修を優先**する運用ルールを Kai と合意。
+4. k6 で本番同等データ量（匿名化シード：応募 200 万件・7 テナント）に対し、朝ピークを模した `ramping-arrival-rate` シナリオを CI（nightly）で実行。閾値未達は PR マージ禁止。
+5. 容量計画：DB 接続数、Vercel Functions 同時実行数、想定 RPS の 3 倍でヘッドルームを確認。
+
+**判断基準・数値ライン**：
+- 応募 POST：可用性 **99.9% / 30 日**、p95 **300ms**、p99 **800ms**
+- 応募一覧 GET（全件・全期間）：p95 **500ms**、p99 **1200ms**（本番同等 200 万件時）
+- CSV エクスポート：**10 万件 60 秒以内**（超過時は非同期ジョブ化＋202 応答へ切替）
+- 負荷試験レート：**本番想定ピークの 3 倍**で SLO 維持
+- エラーバジェット消費 **50% 超で機能開発停止・信頼性優先**
+
+**実務テンプレート**：
+```js
+// k6/applications-list.js — 朝 9:00 の全件一覧ピークを再現
+export const options = {
+  scenarios: {
+    morning_peak: {
+      executor: 'ramping-arrival-rate', startRate: 5, timeUnit: '1s',
+      preAllocatedVUs: 60,
+      stages: [{ target: 30, duration: '2m' }, { target: 30, duration: '5m' }],
+    },
+  },
+  thresholds: {
+    'http_req_duration{endpoint:list}': ['p(95)<500', 'p(99)<1200'],
+    'http_req_failed': ['rate<0.001'],
+  },
+};
+export default function () {
+  http.get(`${__ENV.BASE}/api/v1/applications?period=all`, {
+    headers: { Authorization: `Bearer ${__ENV.TOKEN_TENANT_A}` },
+    tags: { endpoint: 'list' },
+  });
+}
+```
+```yaml
+# アラート定義（バーンレート多窓）
+- alert: ErrorBudgetBurnFast     # 1 時間で月次バジェットの 2% を消費 → 即ページ
+  expr: burn_rate_1h > 14.4 and burn_rate_5m > 14.4
+- alert: ErrorBudgetBurnSlow     # 6 時間で 5% 消費 → チケット化
+  expr: burn_rate_6h > 6 and burn_rate_30m > 6
+```
+
+**期待効果**：「速くしたい」が「SLO を守る／破ったら何をする」という運用契約に変わる。本番データ量での検証が CI に載るため、リリース後に初めて崩れる性能事故が消滅。Kai の優先順位判断（機能 vs 信頼性）にも客観的な数値根拠が入る。
+
+---
+
+#### 7. 【OpenTelemetry 分散トレーシングと相関 ID の全経路貫通】
+
+**なぜ必要か**：v1 は構造化ログに 3 点メタを載せるところまで到達したが、**リクエストを横断する識別子が無い**。採用担当からの「昨日の 15 時ごろエラーが出た」に対して、Sentry・Vercel ログ・DB スロークエリを別々に眺めて突き合わせるしかなく、特定に数時間かかる。スキル 2 の監査ログ、スキル 4 の Outbox とも同一キーで結べる状態にして初めて追跡が成立する。
+
+**具体的手法**：
+1. エッジ／middleware で `x-request-id` を発行（既存があれば継承）し、W3C Trace Context（`traceparent`）を外部呼び出しに伝播。
+2. **統一エラー DTO を `{code, field, message, requestId}` に 1 フィールド拡張**。ユーザー向け画面に「お問い合わせ番号」として表示し、問い合わせが来た瞬間に一意特定できるようにする（Riku と契約変更を合意 → スキル 5 の手続きに乗せる）。
+3. span 属性に `let.tenant_id`／`let.request_id`／`enduser.role` を付与。テナント別のレイテンシ比較が可能になる。
+4. Prisma instrumentation で SQL を子 span 化し、遅い 1 本を trace 上で即特定（N+1 も視覚的に露出する）。
+5. サンプリング：通常 **10%**、エラー発生・1 秒超のリクエストは **100%**（tail-based）。コストを抑えつつ知りたいものを取り逃さない。
+6. `request_id` を `audit_log`・`outbox`・構造化ログ・Sentry の 4 者すべてに持たせ、1 キーで横断検索可能にする。
+
+**判断基準・数値ライン**：
+- 全レスポンスに `x-request-id` 付与 **100%**、エラーレスポンスの `requestId` 欠落 **0**
+- 問い合わせ起点の該当リクエスト特定時間 **3 分以内**（従来：数時間）
+- サンプリング率 **通常 10% / エラー・1 秒超 100%**
+- トレース導入によるレイテンシ増 **p95 +5ms 以内**
+- `request_id` で突合可能なシステム **4 系統（ログ・トレース・監査ログ・Outbox）**
+
+**実務テンプレート**：
+```ts
+// middleware.ts
+export function middleware(req: NextRequest) {
+  const requestId = req.headers.get('x-request-id') ?? crypto.randomUUID();
+  const res = NextResponse.next({ request: { headers: withHeader(req.headers, 'x-request-id', requestId) } });
+  res.headers.set('x-request-id', requestId);          // 常に返す（問い合わせ番号になる）
+  return res;
+}
+```
+```ts
+// src/http/error.ts — 統一エラー DTO の拡張（v1 の {code, field, message} を維持しつつ追加）
+export function errorResponse(e: AppError, requestId: string) {
+  trace.getActiveSpan()?.setAttributes({ 'let.request_id': requestId, 'error.code': e.code });
+  return Response.json(
+    { code: e.code, field: e.field, message: e.userMessageJa, requestId },  // 画面に「お問い合わせ番号」として表示
+    { status: e.status, headers: { 'x-request-id': requestId } });
+}
+```
+```ts
+// instrumentation.ts — tail-based サンプリング相当（エラー・遅延は必ず残す）
+registerOTel({
+  serviceName: 'ats-api',
+  traceSampler: new ParentBasedSampler({ root: new TraceIdRatioBasedSampler(0.1) }),
+  spanProcessors: [new KeepIfErrorOrSlowProcessor({ slowMs: 1000 })],
+});
+```
+
+**期待効果**：「昨日エラーが出た」からリクエスト特定までが数時間から 3 分に短縮。テナント別レイテンシが可視化され、特定クライアントだけ遅い事象を検知可能に。監査ログ・Outbox と同一キーで結ばれ、障害調査とコンプライアンス照会の両方が同じ動線で処理できる。
+
+---
+
+### 🚫 新たに定義した NG パターン
+
+1. **NG：認可をアプリ層 `$extends()` だけに依存し、DB に RLS を張らない** — `$queryRaw`・移行スクリプト・Server Actions の直叩き・別接続はすべてアプリ層フィルタを素通りする。テナント所属テーブルに `ENABLE ROW LEVEL SECURITY` かつ `FORCE ROW LEVEL SECURITY` が無ければ PR を通さない。`FORCE` 忘れ（所有者ロールが素通り）も同じく NG。
+2. **NG：テナント文脈をセッション `SET`（`SET LOCAL` でない）で設定する** — PgBouncer の transaction pooling で接続が別リクエストに再利用され、**他テナントの文脈で実行される**。テナント設定は必ずトランザクション内 `SET LOCAL` に限定し、`SET app.tenant_id` の記述を grep で検出して禁止する。
+3. **NG：監査ログを通常のアプリケーションログに混ぜて標準出力へ流す** — 保存期間・改ざん耐性・検索性のすべてが監査要件に届かず、「誰が応募者 PII を見たか」に回答できない。監査は追記専用テーブル（`REVOKE UPDATE, DELETE`）＋ハッシュチェーン＋業務トランザクション同梱の 3 点セット以外は認めない。
+4. **NG：「暗号化した」と言いながら鍵をアプリの環境変数に平文で置き、鍵ローテーション手順が存在しない** — 鍵とデータが同じ侵害範囲にあるなら暗号化の意味が消える。KMS によるエンベロープ暗号化＋`key_version` 併存＋ローテーション手順書がセットでない実装は「暗号化済み」と呼ばない。blind index の pepper も同様に KMS 管理とする。
+5. **NG：DB トランザクション内で外部 API を `await` する** — 相手のハングがトランザクションを開いたまま接続とロックを占有し、無関係な応募 API まで巻き込んで詰まる。外部副作用は同一トランザクションでの `outbox` INSERT に置き換え、トランザクション内 `fetch`／`await notify()` を lint で禁止する。
+6. **NG：OpenAPI を「実装後に生成し直して上書き」し、破壊的差分を検知せずに公開する** — 自動生成は破壊的変更も自動で通してしまうため、差分検知の無い自動生成はむしろ危険度を上げる。`oasdiff breaking --fail-on ERR` を通さない仕様変更は本番に出さない。バージョン併存と `Sunset` 予告なしの旧エンドポイント削除も NG。
+7. **NG：相関 ID を発行せず、エラーレスポンスに識別子を返さない** — 「昨日エラーが出た」という問い合わせを追跡する手段が消え、ログ・トレース・監査ログが永久に結合できない。全レスポンスに `x-request-id`、全エラー DTO に `requestId` を必須とする。
+8. **NG：SLO を定義しないまま「速くする」を続ける／本番データ量なしで負荷試験を行う** — 1 万件のシードで p95 を測って合格としても、本番 200 万件・7 テナントでは崩壊する。守るべき数値・超過時の行動・本番同等データ量の 3 点が揃わない性能検証は根拠にしない。
+
+### 📈 強化後の到達水準
+
+- **テナント分離**：アプリ層 `$extends()` ＋ DB 層 RLS の二重防壁。認可漏れエンドポイントが 1 本混入しても DB が行を返さない。クロステナントリークテスト 100%・fail-closed をテストで固定。
+- **説明責任**：応募者 PII に対する参照・エクスポート・削除・権限変更が追記専用の監査ログにハッシュチェーン付きで残り、「先月誰が見たか」に SQL 1 本で回答。クライアントのセキュリティ監査に一次資料で応答できる。
+- **データ保護**：PII は KMS エンベロープ暗号化（AES-256-GCM）で保管され、blind index により運用（電話番号での検索）を止めずに DB ダンプ流出の被害を封じ込め。取得項目は nori 査定済みで不要 PII ゼロ。
+- **整合性**：DB コミットと外部通知が Outbox で原子化され、「応募は入ったが通知が飛ばない」が構造的に消滅。通知到達率 99.9%/24h を台帳で証明できる。
+- **契約**：破壊的 API 変更が CI でブロックされ、廃止は 90 日併存＋`Sunset` 予告＋呼び出し数 0 の確認という手続きになる。Riku・ren・外部連携の突然死ゼロ。
+- **性能**：本番同等 200 万件データでの k6 負荷試験が nightly CI に載り、SLO 違反はエラーバジェットのバーンレートで検知される。始業 9:00 の応募一覧という最重要導線が名指しで守られる。
+- **可観測性**：`request_id` 1 本でログ・トレース・監査ログ・Outbox の 4 系統を横断追跡。問い合わせ起点の障害特定が数時間から 3 分へ。
+- **総合**：v1 の「実装品質が高いバックエンドエンジニア」から、**7 社のクライアント PII を預かるマルチテナント SaaS の運用責任まで設計に織り込むバックエンドエンジニア**へ到達。残る C 優先度（大規模テーブルのパーティショニング／PITR リストア演習）は v3 の対象とし、audit_log の月次パーティションで先行着手済み。
