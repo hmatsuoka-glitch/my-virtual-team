@@ -471,7 +471,9 @@ Google for Jobs の掲載安定と媒体→LPの体験連続性を確保し、�
 - Nao の計測イベント設計表（2026-07-16参照）に、**セクション到達イベント**を追加依頼：`view_hero` / `view_benefit` / `view_evidence` / `view_requirements` / `click_cta_light`（LINE相談）/ `click_cta_apply`（正式応募）/ `form_start` / `form_submit`。
 - **3つのNOT診断マトリクス**で壁を特定し、打ち手を機械的に決める。
 - Microsoft Clarity のレコーディングで **rage click / dead click** を確認。CTA以外の要素（実績の数字や社員写真）が繰り返しクリックされていれば、そこは「詳細を知りたい」需要 → コピーの情報不足サイン。
-- **30日1サイクル**でレポート化し、勝ち／負けコピーをライブラリへ実績付きで還流（スキル6と接続）。shun へは「セクション到達率とCTA別クリック率」の2表だけを依頼し、分析部の工数を最小化する。
+- **30日1サイクル**でレポート化。shun へは「セクション到達率とCTA別クリック率」の2表だけを依頼し、分析部の工数を最小化する。
+- **`copy-library.yaml` へ実績付きで還流**：1コピー＝1レコード、呼び出しキーは3変数の複合キー（`construction_20s_inexperienced_pay`）。`layer`（headline/deck/subhead/cta/reassurance/micro/meta）を必ず持たせ、層を跨いだ流用を防ぐ。実績は**スキル3の3条件を満たしたテストのみ** `evidence: proven` で書き込み、満たさないものは `reference`（参考値）として選定ソート対象から外す。
+- **退役ルール**：①CVR下位20% ②法務検査から180日超 ③使用案件で nori NG が出た ④出典が2年以上前の数値を含む → いずれかで `status: retired`、検索結果に出さない。
 
 **判断基準・数値ライン**：
 | 指標 | 健全ライン | 下回った場合の診断 | 打ち手 |
@@ -483,6 +485,8 @@ Google for Jobs の掲載安定と媒体→LPの体験連続性を確保し、�
 | `form_start` → `form_submit` | **60%以上** | フォーム内マイクロコピー不足 | 項目数・placeholder例示・所要時間明示を見直し |
 | `click_cta_light` : `click_cta_apply` 比 | 概ね **6:4〜7:3** | lightが9割超 → 正式応募導線が遠い／applyが9割超 → 中関心層を取りこぼし | 2段階CTAの配置順を入替 |
 
+- ライブラリ由来率 **60%**（上限75%）。ただし **Hero は必ず案件固有の一次情報を1要素含める**。`evidence: proven` が全体の30%に達するまでは選定を「CVR順」でなく「法務検査日が新しい順」で行う。
+
 **実務テンプレート**：
 ```
 【コピー診断レポート（30日）】案件:◯◯建設 / 期間:2026-__-__ 〜 __-__ / セッション:____件
@@ -493,11 +497,23 @@ CTAクリック率（要項到達者ベース）___%（15%）／ form_start→su
 ■ 壁の特定（3つのNOT）: □第1(読まない) □第2(信じない) □第3(行動しない) □フォーム
 ■ Clarity 所見: rage click ___箇所 / dead click 対象要素: __________
 ■ 今サイクルの打ち手（1つに絞る）: ________________________________
-■ ライブラリ還流: 勝ちコピーID ______（CVR__%を追記）/ 退役候補ID ______
+
+# copy-library.yaml へ還流（勝ちコピー1件＝1レコード）
+- id: cons_20s_inexp_pay_h01
+  key: construction_20s_inexperienced_pay
+  layer: headline                  # 上限 headline25 / subhead15 / cta12 字
+  text: "未経験から月給28万。型枠の仕事、はじめませんか"   # chars: 23
+  target: {industry: 建設, age: 20s, exp: 未経験}
+  appeal_axis: [高待遇, 教育体制]
+  metrics: {sessions: 6120, cvr: 4.1, baseline_cvr: 3.0, p_value: 0.021}
+  evidence: proven                 # proven(統計3条件クリア) | reference(参考値)
+  legal_checked_at: "2026-05-28"   # +180日で再検査フラグ
+  numeric_sources: ["月給28万=2026Q1求人票"]
+  status: active                   # active | retired（+ retire_reason）
 ```
 
 **期待効果**：
-「なんとなくフックを直す」を廃し、離脱している壁だけを1サイクル1手で潰す運用になる。案件で閉じていた学びがライブラリに実績値付きで戻るため、案件数が増えるほど初稿の当たり率が上がる複利構造ができる。
+「なんとなくフックを直す」を廃し、離脱している壁だけを1サイクル1手で潰す運用になる。同時にコピーが「毎回の成果物」から**実績と検査日を持つ資産**へ変わり、負けコピーと期限切れコピーが自動的に流通から外れる。案件数が増えるほど初稿の当たり率が上がる複利構造ができる。
 
 ---
 

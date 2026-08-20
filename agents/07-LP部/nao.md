@@ -692,21 +692,16 @@ export const HERO = {
 現状は「SP 16px / PC 18px」を BP で切替える階段設計。BP 直前直後で文字と余白がガクッと飛び、実機幅の8割を占める中間幅（390〜820px）が誰も設計していない無法地帯になる。Mia の「SP で詰まって見える」指摘の大半はこれが原因で、BP を足して対処すると `sm:` `md:` `lg:` の3重記述が全部品に増殖する。
 
 **具体的手法**：
-1. 基準ビューポートを **375px（SP最小）/ 1440px（PC基準）** に固定する
-2. 各ステップの min/max px を決め、下式で clamp に変換する
-   - `slope = (max - min) / (1440 - 375)`
-   - `yIntersect = min - slope × 375`
-   - `clamp( {min}rem , {yIntersect/16}rem + {slope×100}vw , {max}rem )`
-3. スケール比は **SP=1.2（Minor Third）/ PC=1.25（Major Third）** の可変比とし、`--step--1`〜`--step-5` の8段で固定
-4. 余白も同式で `--space-3xs`〜`--space-3xl` を生成し、**4px グリッドに丸める**
-5. 生成した fluid token は Hana の `tokens.json` に `$type: "dimension"` で追記し、`style-dictionary` で Tailwind の `fontSize`/`spacing` に流し込む
+1. 基準ビューポートを **375px（SP最小）/ 1440px（PC基準）** に固定し、各ステップの min/max px を下式で clamp 化する
+   `slope = (max−min)/(1440−375)` ／ `yIntersect = min − slope×375` → `clamp({min}rem, {yIntersect/16}rem + {slope×100}vw, {max}rem)`
+2. スケール比は **SP=1.2（Minor Third）/ PC=1.25（Major Third）** の可変比とし `--step--1`〜`--step-5` の8段で固定
+3. 余白も同式で `--space-3xs`〜`--space-3xl` を生成し **4px グリッドに丸める**
+4. 生成した fluid token は Hana の `tokens.json` に `$type: "dimension"` で追記し、`style-dictionary` で Tailwind の `fontSize`/`spacing` へ流す
 
 **判断基準・数値ライン**：
-- font-size を px 直書きで BP 分岐した設計は **NG**（clamp 化率 100% が納品条件）
-- 本文の最小は **16px 未満禁止**（SP で iOS の自動ズームが発動する）
-- 見出しの max/min 比は **2.2 倍以内**（超えると PC で見出しだけ浮く）
+- font-size の px 直書き BP 分岐は **NG**（clamp 化率 100% が納品条件）／本文の最小は **16px 未満禁止**（SP で iOS 自動ズーム発動）
+- 見出しの max/min 比は **2.2 倍以内**（超えると PC で見出しだけ浮く）／行間は size 連動：本文 1.75 / 24px超 1.3 / 40px超 1.15
 - ブレークポイント総数：**3個 → 1個以下**を目標（残すのは「1カラム→2カラム」の構造変化のみ）
-- 行間は size 連動：本文 1.75 / 24px超の見出し 1.3 / 40px超 1.15
 
 **実務テンプレート**：
 ```css
