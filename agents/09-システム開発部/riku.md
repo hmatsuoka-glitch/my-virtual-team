@@ -486,3 +486,404 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - 画面はゼロから組まず、一覧／詳細／フォームの3レイアウトテンプレから派生させる。ソート・ページング・空状態・エラー状態の作り込みが最初から入っており、画面数が増えるほど効果が積み上がる
 - 型定義は手書きせず Ao の OpenAPI から生成する。API変更が型エラーとして即座に出るため、結合してから気づく手戻りが構造的に発生しない
 - 屋外・手袋・低速回線の確認は納品前でなく、Storybook 等に検証条件プリセット（高照度相当・CPUスロットリング・throttling）を置いて実装中に通す。作り込んだ後に条件不適合が分かると、レイアウトごと組み直しになる
+
+---
+
+## 🚀 スペック強化 v2 — オーバースペック化（2026-08-20）
+
+### 現状スキル棚卸し
+
+| 領域 | 現状の到達点 | 判定 |
+|---|---|---|
+| RSC / レンダリング戦略 | Server ファースト・葉のみ `'use client'`・PPR・`use cache`・SSG/ISR/SSR/CSR decision テーブル | 十分 |
+| Core Web Vitals | LCP<2.5s / INP<200ms / CLS<0.1 を Lighthouse CI の PR ゲート化 | lab 値のみ・field 実測が空白 |
+| フォーム | RHF＋Zod＋`zodResolver`、422→`setError` マッピング、二重送信防止、下書き保存 | 単一ステップ前提・動的配列/条件分岐スキーマ未整備 |
+| データ取得 | TanStack Query の `queryOptions` ファクトリ、`invalidateQueries`、楽観的更新、`useInfiniteQuery`＋仮想化 | Client 側のみ・RSC prefetch 連携が空白 |
+| テスト | RTL（`getByRole`/`getByLabelText`/`userEvent`/MSW）、Storybook `play`、Vitest Browser Mode、axe-core | VRT が「実施する」の 1 行のみで運用設計なし |
+| 状態管理 | ローカル／サーバー／グローバルの 3 層分類、Zustand 採用 | ライブラリ選定が定性判断・状態機械の概念なし |
+| a11y | WCAG 2.1 AA、`aria-live`、フォーカストラップ、キーボード完遂、現場向け 44px／4.5:1 | 単一言語前提 |
+| 型安全 | strict mode・`any` ゼロ・OpenAPI/Zod からの型生成 | 型を「検査」に使うのみ・型で状態を「設計」する段階に未到達 |
+
+**結論**：実装・計測・QA の各工程は高水準だが、**「型で不正状態を作れなくする設計」「本番実ユーザー計測」「見た目の回帰を機械で守る」「日本語話者以外の実利用」** の 4 象限が空白。ここを埋めると国内 FE として唯一無二の水準に到達する。
+
+### 到達すべきベンチマーク
+
+| ベンチマーク領域 | 到達水準の定義 |
+|---|---|
+| React Testing Library | 単体は `play` ストーリーへ寄せ、RTL は「ロジック分岐×境界値」に特化。Flaky 率 <1%、分岐カバレッジ 80%↑ |
+| Playwright E2E | 導線 E2E ＋ **VRT（視覚回帰）** を分離運用。`maxDiffPixelRatio 0.002`、ベースライン更新は差分レビュー必須 |
+| Zod 型安全フォーム | `discriminatedUnion`／`superRefine` による条件付きスキーマ、input/output 型の分離、多段ウィザードの部分バリデーション |
+| TanStack Query | RSC 側 `prefetchQuery`→`dehydrate`→`HydrationBoundary`→Client `useSuspenseQuery` の一貫パイプ |
+| 状態管理選定 | 「サーバー状態／URL 状態／フォーム状態／UI 状態／プロセス状態」の 5 分類＋定量決定表で機械選択 |
+| WAI-ARIA 実装 | `role`/`aria-*` を自作せず Radix 準拠、多言語 `lang` 切替と読み上げ言語の整合まで担保 |
+| Suspense 境界設計 | UI ブロック単位の境界＋`QueryErrorResetBoundary` による再試行導線、`error.tsx` 階層の使い分け |
+
+### 特定されたスキルギャップと優先度
+
+| # | ギャップ | 事業インパクト | 即戦力度 | 優先度 |
+|---|---|---|---|---|
+| 1 | 型レベル UI 状態設計（判別可能ユニオン・branded types・網羅性検査） | 全画面の不正状態バグを構造消滅 | 即日 | **S** |
+| 2 | 複雑フォーム工学（多段ウィザード・`useFieldArray`・条件付きスキーマ） | 応募フォーム／日報の完了率に直結 | 即日 | **S** |
+| 3 | 状態管理の定量選定＋状態機械（XState）による業務フロー実装 | 選考ステータス遷移の実装事故を排除 | 1週 | **S** |
+| 4 | VRT（視覚回帰テスト）の統計的運用 | LP／管理画面の「気づかない崩れ」を機械検出 | 3日 | **A** |
+| 5 | RUM による field 値実測（`web-vitals/attribution`・LoAF） | lab 緑／field 赤の紛糾を終わらせる | 3日 | **A** |
+| 6 | RSC × TanStack Query ハイドレーション統合 | 初期表示の二重フェッチ・ウォーターフォール解消 | 1週 | **A** |
+| 7 | 多言語 UI（next-intl）＋外国人材向け実装 | 建設業の外国人材採用で他社が持たない差別化 | 2週 | **A** |
+| 8 | CSP nonce / Trusted Types によるフロント防御 | 受託案件のセキュリティ要件対応 | 2週 | B |
+| 9 | コンポーネント API 設計（CVA・`tailwind-merge`・`asChild`） | `packages/ui` の再利用性向上 | 1週 | B |
+
+---
+
+### 🔧 新規習得スキル
+
+#### 1. 【型レベル UI 状態設計 — 判別可能ユニオンで「ありえない状態」を作れなくする】
+
+**なぜ必要か**：`isLoading` / `isError` / `data` を独立した boolean で持つと、2^n 通りの組み合わせのうち大半が「ありえない状態」（loading かつ error かつ data あり）になり、そこに分岐漏れが潜む。既存の「3 状態を必ず実装する」は運用規律だが、規律は必ず破られる。型で表現不能にするのが唯一の恒久解。加えて `jobId: string` と `applicantId: string` は型上区別できず、引数の取り違えがコンパイルを通過してしまう。
+
+**具体的手法**：① UI 状態は必ず `status` を判別子とした discriminated union で定義する ② 分岐は `switch` ＋ `default` で `assertNever(x: never)` を呼び、状態追加時にコンパイルエラーで漏れを検出する ③ ID・メールなど「同じ string でも混同不可」な値は branded type（`string & { readonly __brand: 'JobId' }`）にし、生成口を parse 関数 1 箇所に絞る ④ 定数オブジェクトは `as const satisfies Record<...>` で「型を広げずに制約だけ検査」する ⑤ Zod は `z.input<T>` と `z.output<T>` を明示的に区別し、`coerce`/`transform` を挟むフォームで入出力型のズレを防ぐ。
+
+**判断基準・数値ライン**：`tsc --noEmit` で `any` 0 件／型アサーション `as`（`as const` 除く）は 1 PR あたり 5 箇所以下、超過分は理由をコード注釈に明記／`assertNever` 未使用の `switch` は ESLint（`@typescript-eslint/switch-exhaustiveness-check`）で error 化／境界を越える DTO 型は `@/types/dto.ts` に 100% 集約。
+
+**実務テンプレート**：
+```ts
+// packages/ui/src/types/view-state.ts
+export type ViewState<T, E = AppError> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'empty' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: E; retry: () => void };
+
+export function assertNever(x: never): never {
+  throw new Error(`未処理の状態: ${JSON.stringify(x)}`);
+}
+
+// 分岐漏れはコンパイルエラーになる（状態を1つ足すと即座に赤くなる）
+export function renderState<T>(s: ViewState<T>, view: (d: T) => JSX.Element) {
+  switch (s.status) {
+    case 'idle':    return null;
+    case 'loading': return <Skeleton />;
+    case 'empty':   return <EmptyState actionLabel="最初の求人を作る" />;
+    case 'success': return view(s.data);
+    case 'error':   return <ErrorAlert error={s.error} onRetry={s.retry} />;
+    default:        return assertNever(s);
+  }
+}
+
+// branded type — 生成口を1関数に絞り、取り違えを型で禁止
+declare const brand: unique symbol;
+export type Brand<T, B extends string> = T & { readonly [brand]: B };
+export type JobId = Brand<string, 'JobId'>;
+export type ApplicantId = Brand<string, 'ApplicantId'>;
+export const JobId = (v: string): JobId => v as JobId;
+
+declare function fetchJob(id: JobId): Promise<Job>;
+// fetchJob(applicantId); // ← コンパイルエラー。実行時まで到達しない
+```
+
+**期待効果**：「ローディング中なのにエラーも出ている」系の分岐漏れバグを構造的にゼロ化。状態追加時の修正漏れをコンパイラが 100% 検出し、レビューでの目視確認工数を排除。ID 取り違えによる他社データ表示という重大事故の経路を型で封鎖。
+
+---
+
+#### 2. 【複雑フォーム工学 — 多段ウィザード・動的配列・条件付きスキーマ】
+
+**なぜ必要か**：建設業の応募フォーム・日報・工事実績登録は「項目 20〜40／職歴は行追加可変／雇用形態で必須項目が変わる」構造を持つ。既存ナレッジは単一ステップの静的フォームまでしかカバーしていない。1 画面に 30 項目を並べると完了率が落ち、ステップごとに `useState` を分散させると戻った瞬間に入力が消える。
+
+**具体的手法**：① ウィザード全体で **RHF のフォームインスタンスは 1 つ**にし、ステップは表示の切替のみ（`FormProvider` で共有）② 次へ進む判定は `trigger(['fieldA','fieldB'])` の部分バリデーションで行い、全体スキーマは最終送信時に適用 ③ 分岐必須項目は `z.discriminatedUnion('employmentType', [...])`、複数フィールド相関（開始日<終了日など）は `superRefine` で `ctx.addIssue({ path: ['endDate'] })` とパス指定 ④ 職歴・資格などの可変行は `useFieldArray` の `fields`（`field.id` を key に使う。index は禁止）⑤ 3 秒 debounce で `watch()` の値を `localStorage` へ自動下書き、復帰時 `reset(draft)`。
+
+**判断基準・数値ライン**：1 ステップ 7 入力項目以下（超えたら分割）／ステップ数は 5 以下／各ステップに進捗インジケータ必須／下書き保存は 3 秒 debounce・保存成功を `aria-live="polite"` で通知／送信失敗時の入力保持率 100%（`reset()` は成功時のみ）／`useFieldArray` の key に index を使った箇所 0。
+
+**実務テンプレート**：
+```ts
+// features/applicant/schema.ts
+const base = z.object({
+  name: z.string().min(1, 'お名前を入力してください'),
+  tel: z.string().regex(/^\d{10,11}$/, '電話番号はハイフンなしで入力してください'),
+  careers: z.array(z.object({
+    company: z.string().min(1, '会社名を入力してください'),
+    from: z.string(), to: z.string(),
+  })).min(1, '職歴を1件以上追加してください'),
+});
+
+export const applicantSchema = z.discriminatedUnion('employmentType', [
+  base.extend({ employmentType: z.literal('fulltime'), desiredSalary: z.number().min(1) }),
+  base.extend({ employmentType: z.literal('parttime'), availableDays: z.array(z.string()).min(1) }),
+]).superRefine((v, ctx) => {
+  v.careers.forEach((c, i) => {
+    if (c.to && c.from > c.to)
+      ctx.addIssue({ code: 'custom', path: ['careers', i, 'to'], message: '終了日は開始日より後にしてください' });
+  });
+});
+export type ApplicantInput = z.input<typeof applicantSchema>;   // フォームが扱う型
+export type ApplicantOutput = z.output<typeof applicantSchema>; // API へ送る型
+
+// features/applicant/useWizard.ts
+const STEPS = [['name','tel'], ['careers'], ['employmentType']] as const satisfies readonly (readonly string[])[];
+
+export function useApplicantWizard() {
+  const form = useForm<ApplicantInput>({ resolver: zodResolver(applicantSchema), mode: 'onBlur' });
+  const [step, setStep] = useState(0);
+  const next = async () => {
+    const ok = await form.trigger(STEPS[step] as unknown as (keyof ApplicantInput)[]);
+    if (!ok) { focusFirstError(form.formState.errors); return; } // 該当欄へ自動スクロール＋フォーカス
+    setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  };
+  // 3秒 debounce 自動下書き（通信断・誤操作でも復元可能に）
+  useDebouncedEffect(() => saveDraft(form.getValues()), [form.watch()], 3000);
+  return { form, step, next, back: () => setStep((s) => Math.max(s - 1, 0)) };
+}
+```
+
+**期待効果**：30 項目フォームの完了率を段階化で改善し、途中離脱時も下書き復元で再開可能に。分岐必須項目の実装が `if` の手配線から型定義へ移り、条件漏れによる「必須なのに空で送信できる」欠陥を排除。可変行の実装工数を 1 種あたり 40 分 → 10 分。
+
+---
+
+#### 3. 【状態管理の定量選定 ＋ XState による業務フロー実装】
+
+**なぜ必要か**：「useState / Zustand / Context」の 3 層分類は入口としては正しいが、選考ステータス（応募→書類選考→面接調整→内定→入社）のような**遷移規則を持つプロセス状態**を boolean や文字列 state で持つと、禁止遷移をコードの `if` で守ることになり、画面が増えるたびにルールが複製されて破綻する。Nao の状態遷移図をそのまま実行可能な形で持てるのが状態機械。
+
+**具体的手法**：① 状態を 5 分類に機械振り分け（サーバー状態＝TanStack Query／URL 状態＝`useSearchParams`／フォーム状態＝RHF／UI 状態＝`useState`／プロセス状態＝XState）② Zustand は必ず selector ＋ `useShallow` で購読粒度を絞り、ストア全体購読を禁止 ③ SSR 環境では module スコープの `create()` をやめ、`createStore` ＋ Provider ＋ `useStore` でリクエスト間のストア汚染を防ぐ ④ 遷移規則は `setup().createMachine()` に集約し、UI は `state.can({ type: 'X' })` でボタンの `disabled` を導出する（禁止遷移のボタンは押せない＝409 に到達しない）。
+
+**判断基準・数値ライン**：グローバルストアは 3 個以下（超えたらサーバー状態がグローバルに混入している合図）／Zustand の selector 使用率 100%（`const s = useStore()` の全取得は ESLint 禁止）／状態機械が必要かの判定線は「遷移規則が 3 本以上」または「戻れない遷移が存在する」／状態機械のガード（`guard`）は 100% 単体テスト。
+
+**実務テンプレート**：
+```ts
+// features/selection/machine.ts — Nao の状態遷移図をそのままコード化
+export const selectionMachine = setup({
+  types: {} as { context: { applicantId: ApplicantId }; events: { type: 'PASS' } | { type: 'REJECT' } | { type: 'OFFER' } },
+  guards: { hasInterviewer: ({ context }) => Boolean(context.applicantId) },
+}).createMachine({
+  id: 'selection', initial: 'document', context: ({ input }) => ({ applicantId: input.applicantId }),
+  states: {
+    document:  { on: { PASS: { target: 'interview', guard: 'hasInterviewer' }, REJECT: 'rejected' } },
+    interview: { on: { OFFER: 'offered', REJECT: 'rejected' } },
+    offered:   { on: { PASS: 'hired' } },
+    rejected:  { type: 'final' },
+    hired:     { type: 'final' },
+  },
+});
+
+// UI 側：許可されていない遷移のボタンは最初から押せない
+const [state, send] = useMachine(selectionMachine, { input: { applicantId } });
+<Button disabled={!state.can({ type: 'OFFER' })} onClick={() => send({ type: 'OFFER' })}>内定を出す</Button>
+
+// SSR 安全な Zustand（module スコープ create はリクエスト間で状態が漏れる）
+const createUiStore = () => createStore<UiState>()((set) => ({ sidebarOpen: false, toggle: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })) }));
+export const useUiStore = <T,>(sel: (s: UiState) => T) => useStore(useContext(UiStoreCtx)!, useShallow(sel));
+```
+
+**期待効果**：禁止遷移の実装が画面ごとの `if` から機械定義 1 ファイルへ集約され、画面追加時のルール複製がゼロに。「押せたのにエラーになる」体験を UI レベルで根絶。Zustand の selector 強制で無関係な再レンダリングが消え、一覧画面の INP 改善に直結。
+
+---
+
+#### 4. 【VRT（視覚回帰テスト）の統計的運用】
+
+**なぜ必要か**：既存ナレッジで VRT は「実施する」の 1 行のみ。実際には閾値設計をしないと、フォントのアンチエイリアス差・アニメーション途中・日時表示・画像遅延読込で毎回差分が出て、チームは `--update-snapshots` を惰性で叩くようになる。その瞬間 VRT は「崩れを恒久ベースライン化する装置」に堕ちる。Tailwind のクラス変更は型検査もテストもすり抜けるため、視覚差分だけが唯一の検出手段。
+
+**具体的手法**：① 撮影は必ず Docker の Playwright 公式イメージで実行し OS・フォントを固定（ローカル macOS のスクショをベースラインにしない）② `animations: 'disabled'`、`caret: 'hide'`、`stylePath` で `*{transition:none!important}` を注入 ③ 日時・ランダム値・アバター画像は `mask` で除外、時刻は `page.clock.setFixedTime()` で固定 ④ 対象は「`packages/ui` の全コンポーネント × 4 状態（成功/エラー/空/ローディング）× 3 幅（375/768/1280）」を Storybook 経由で網羅 ⑤ ベースライン更新 PR は差分画像を必ず PR コメントに添付し、更新理由 1 行を required とする。
+
+**判断基準・数値ライン**：`maxDiffPixelRatio: 0.002`（0.2%）・`threshold: 0.15`／同一 PR で 3 回連続実行して差分が出ない（flaky 率 <1%）／VRT 全件の実行時間 5 分以内（超えたらシャーディング）／ベースライン無断更新 0 件（`*-snapshots/` を CODEOWNERS でレビュー必須化）／フォント読込待ちは `document.fonts.ready` を必ず await。
+
+**実務テンプレート**：
+```ts
+// e2e/vrt.spec.ts
+const WIDTHS = [375, 768, 1280] as const;
+const STATES = ['success', 'error', 'empty', 'loading'] as const;
+
+for (const w of WIDTHS) for (const s of STATES) {
+  test(`JobCard ${s} @${w}`, async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-08-20T09:00:00+09:00')); // 日時差分を消す
+    await page.setViewportSize({ width: w, height: 900 });
+    await page.goto(`/iframe.html?id=ui-jobcard--${s}`);          // Storybook を直接叩く
+    await page.evaluate(() => document.fonts.ready);               // FOUT 差分を消す
+    await expect(page).toHaveScreenshot(`jobcard-${s}-${w}.png`, {
+      animations: 'disabled',
+      caret: 'hide',
+      mask: [page.locator('[data-vrt-mask]')],                     // 日時・アバターを除外
+      maxDiffPixelRatio: 0.002,
+      threshold: 0.15,
+    });
+  });
+}
+```
+```yaml
+# .github/workflows/vrt.yml（抜粋）— OS/フォントを固定しないと全件差分になる
+container: mcr.microsoft.com/playwright:v1.56.0-jammy
+```
+
+**期待効果**：Tailwind クラスの巻き添え変更・共通コンポーネント改修による他画面の崩れを、レビュアーの目視ではなく CI で 100% 検出。「ボタンの余白が全画面で 4px ずれた」類の事故がマージ前に止まる。手動レスポンシブ確認 10 分／PR が 0 分に。
+
+---
+
+#### 5. 【RUM 実装 — field 値の実測と犯人特定】
+
+**なぜ必要か**：既存は「lab 値＝PR ゲート／field 値＝SLO」と切り分けの方針までは到達しているが、**field 値を自前で取る実装がない**。Lighthouse は高速回線・高速 CPU の理想環境の値であり、建設現場の低速回線・型落ち Android での実体験とは平気で 2 倍乖離する。さらに「INP が悪い」と分かっても、どのイベント・どのスクリプトが原因かが分からなければ改善に着手できない。`web-vitals` の attribution ビルドは犯人の DOM 要素とスクリプトまで返す。
+
+**具体的手法**：① `web-vitals/attribution` の `onLCP`/`onINP`/`onCLS` を全ページで購読し、`attribution.element`（LCP 対象要素）・`attribution.interactionTarget`（INP の発火要素）・`attribution.largestShiftTarget`（CLS 犯人）を併せて送信 ② 送信は `visibilitychange`（hidden）時に `navigator.sendBeacon` で 1 回、離脱でも欠損しない ③ 端末カテゴリ（`navigator.hardwareConcurrency`・`connection.effectiveType`）を付与し、**現場ユーザー（4G/低スペック）だけのセグメント p75** を別集計 ④ Long Animation Frames（LoAF）を `PerformanceObserver` で観測し、50ms 超のスクリプトを名前付きで記録 ⑤ 週次で「p75 が SLO 超過した画面」を Kai へ 1 表で提出。
+
+**判断基準・数値ライン**：field p75 で LCP<2.5s／INP<200ms／CLS<0.1（**全体だけでなく「4G × CPU 4 コア以下」セグメントでも達成**）／サンプリング率 10%（ただしエラー・SLO 超過イベントは 100%）／LoAF 200ms 超のスクリプトは検知時点で改善チケット化／lab と field の乖離が 1.5 倍を超えたら計測環境側を疑う。
+
+**実務テンプレート**：
+```ts
+// app/_lib/rum.ts  （app/layout.tsx で <RumReporter /> として1回だけマウント）
+import { onLCP, onINP, onCLS, type MetricWithAttribution } from 'web-vitals/attribution';
+
+const queue: unknown[] = [];
+const seg = () => ({
+  cpu: navigator.hardwareConcurrency ?? 0,
+  net: (navigator as any).connection?.effectiveType ?? 'unknown', // '4g' | '3g' ...
+});
+
+const push = (m: MetricWithAttribution) => queue.push({
+  name: m.name, value: Math.round(m.value), rating: m.rating, // 'good'|'needs-improvement'|'poor'
+  target: (m.attribution as any).interactionTarget
+       ?? (m.attribution as any).element
+       ?? (m.attribution as any).largestShiftTarget,           // 犯人セレクタ
+  path: location.pathname, ...seg(),
+});
+
+export function startRum() {
+  onLCP(push); onINP(push, { reportAllChanges: false }); onCLS(push);
+
+  // Long Animation Frames：INP を悪化させているスクリプトを名指しする
+  new PerformanceObserver((list) => {
+    for (const e of list.getEntries() as any[]) {
+      if (e.duration > 200) queue.push({ name: 'LoAF', value: Math.round(e.duration), path: location.pathname,
+        scripts: e.scripts?.map((s: any) => `${s.name}:${Math.round(s.duration)}ms`), ...seg() });
+    }
+  }).observe({ type: 'long-animation-frame', buffered: true } as any);
+
+  addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && queue.length) {
+      navigator.sendBeacon('/api/vitals', JSON.stringify(queue)); // 離脱時も欠損しない
+      queue.length = 0;
+    }
+  });
+}
+```
+
+**期待効果**：「Lighthouse は 95 点なのにクライアントが遅いと言う」を、犯人要素つきの実測データで即座に決着。改善対象を推測でなく p75 寄与順で選べるため、パフォーマンス改善の投資効率が向上。建設現場セグメント専用の SLO を持つことで、LET の提案書に「現場端末で実測 LCP 1.9s」という他社が出せない数値を載せられる。
+
+---
+
+#### 6. 【RSC × TanStack Query ハイドレーション統合】
+
+**なぜ必要か**：既存の `queryOptions` ファクトリは Client 側の整合を担保するが、App Router で「Server Component が取得 → Client Component も同じデータを `useQuery` で再取得」という**二重フェッチ**が起きやすい。初期表示で API が 2 回叩かれ、TTFB 後にさらにクライアントフェッチが走る典型的ウォーターフォールになる。サーバーで取ったキャッシュをそのまま Client の QueryClient へ引き渡すのが正解。
+
+**具体的手法**：① `queryOptions` ファクトリを **RSC と Client の共通ソース**として使う（同一 `queryKey` を両者が参照）② Server Component で `queryClient.prefetchQuery(factory)` → `dehydrate(queryClient)` → `<HydrationBoundary state={...}>` で包む ③ Client は `useSuspenseQuery` で受け、`<Suspense>` 境界は UI ブロック単位に分割（既存の分割方針と接続）④ `staleTime` は最低 60_000ms を既定にする（0 だとマウント直後に必ず再フェッチされ、ハイドレーションの意味が消える）⑤ エラー再試行導線は `QueryErrorResetBoundary` ＋ `ErrorBoundary onReset` で「再読み込みボタン」を機能させる。
+
+**判断基準・数値ライン**：初期表示時の同一エンドポイント呼び出し回数 1 回（既存の fetch インターセプタ計測で検証）／`staleTime` 未設定の `useSuspenseQuery` 0 件／`getQueryClient()` は `cache()` でリクエストスコープ化（module スコープの `new QueryClient()` はユーザー間データ漏洩リスクのため禁止）／Suspense 境界は 1 画面 3 つ以上（ヘッダー・主コンテンツ・サイド）。
+
+**実務テンプレート**：
+```ts
+// features/jobs/queries.ts — RSC / Client 共通の単一ソース
+export const jobsQueries = {
+  list: (p: { status: string; page: number }) => queryOptions({
+    queryKey: ['jobs', p] as const,
+    queryFn: () => api.jobs.list(p),
+    staleTime: 60_000,               // 0 だと即再フェッチされ prefetch が無駄になる
+  }),
+};
+
+// app/jobs/page.tsx（Server Component）
+import { cache } from 'react';
+const getQueryClient = cache(() => new QueryClient()); // リクエストスコープ必須
+
+export default async function Page({ searchParams }: { searchParams: Promise<Record<string,string>> }) {
+  const sp = await searchParams;
+  const qc = getQueryClient();
+  await qc.prefetchQuery(jobsQueries.list({ status: sp.status ?? 'open', page: Number(sp.page ?? 1) }));
+  return (
+    <HydrationBoundary state={dehydrate(qc)}>
+      <Suspense fallback={<JobListSkeleton />}><JobList /></Suspense>
+    </HydrationBoundary>
+  );
+}
+
+// features/jobs/JobList.tsx（Client）— 同じ queryKey なので再フェッチが起きない
+'use client';
+export function JobList() {
+  const { status, page } = useJobFilters();                 // URL searchParams と同期
+  const { data } = useSuspenseQuery(jobsQueries.list({ status, page }));
+  return <>{data.items.map((j) => <JobCard key={j.id} job={j} />)}</>;
+}
+```
+
+**期待効果**：初期表示の API 呼び出しが半減し、TTFB 後のクライアント再フェッチによる白画面が消滅。サーバーで取得済みのデータが即座に描画されるため、一覧画面の LCP を実測で改善。`queryKey` の単一ソース化により、prefetch と `useQuery` のキー不一致という発見しづらいバグを構造排除。
+
+---
+
+#### 7. 【多言語 UI（next-intl）＋ 外国人材向け実装】
+
+**なぜ必要か**：建設業の担い手不足はベトナム・インドネシア・ネパール等の特定技能人材で補われており、応募フォームや作業員向け業務システムを日本語のみで作ることは事業機会の放棄に等しい。既存ナレッジは「ブラウザ翻訳でクラッシュしない」という防御までしか到達しておらず、**能動的な多言語提供**は完全な空白。ここは LET が競合の SNS マーケ会社に対して決定的な差をつけられる領域。
+
+**具体的手法**：① `next-intl` の `[locale]` セグメントルーティング＋ミドルウェアで言語判定（`Accept-Language` → Cookie 固定）② メッセージは `messages/ja.json` を型ソースとし、`global.d.ts` で `IntlMessages` を宣言してキーを型検査（存在しないキーはコンパイルエラー）③ 複数形・日付・通貨は ICU MessageFormat に寄せ、文字列連結を禁止（`t('jobs.count', { n })` で `{n, plural, other {#件}}`）④ `<html lang={locale}>` を必ず切替（スクリーンリーダーの読み上げ言語がこれで決まる）⑤ ベトナム語は声調記号で行高が伸びるため、テキストボックスは高さ固定でなく `min-h` ＋ `leading-relaxed`、ボタン幅は日本語比 1.6 倍を想定 ⑥ 業務用語（安全帯・墜落制止用器具・KY 活動）は自動翻訳せず対訳表を `glossary.csv` で人手管理し、nori のリーガル確認対象に含める。
+
+**判断基準・数値ライン**：未翻訳キー 0 件（CI で `ja.json` と各言語の差分検査、欠損はビルド失敗）／文字列連結によるメッセージ生成 0 件／UI 実装は「日本語の 1.6 倍の文字幅」で崩れないことを Storybook の疑似ロケール（`__長い文字列__`）で検証／`lang` 属性未設定 0／専門用語の対訳は必ず 2 名レビュー。
+
+**実務テンプレート**：
+```ts
+// global.d.ts — 存在しないキーをコンパイルエラーにする
+type Messages = typeof import('./messages/ja.json');
+declare interface IntlMessages extends Messages {}
+
+// messages/ja.json
+// { "jobs": { "count": "{n, plural, other {#件の求人}}",
+//             "applyBy": "{date, date, medium} まで受付" } }
+
+// features/jobs/JobCount.tsx
+'use client';
+export function JobCount({ n, deadline }: { n: number; deadline: Date }) {
+  const t = useTranslations('jobs');
+  // t('jobs.' + key) のような動的連結は型検査が効かないので禁止
+  return <p>{t('count', { n })} / {t('applyBy', { date: deadline })}</p>;
+}
+
+// middleware.ts
+export default createMiddleware({ locales: ['ja', 'vi', 'id', 'en'], defaultLocale: 'ja', localeDetection: true });
+
+// app/[locale]/layout.tsx — lang 属性はスクリーンリーダーの読み上げ言語を決める
+export default async function Layout({ children, params }: { children: ReactNode; params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return <html lang={locale}><body><NextIntlClientProvider>{children}</NextIntlClientProvider></body></html>;
+}
+```
+
+**期待効果**：外国人材の応募フォーム離脱を構造的に低減し、クライアントの採用母集団を日本語話者以外へ拡張。「多言語対応済み採用サイト」を LET の提案メニューに追加でき、Ryota の提案書における差別化要素になる。翻訳キーの型検査により、リリース後に画面へ `jobs.count` という生キーが露出する事故をゼロ化。
+
+---
+
+### 🚫 新たに定義した NG パターン
+
+1. **boolean フラグの並列管理で UI 状態を表す** — `isLoading` / `isError` / `isEmpty` を独立して持つと、ありえない組み合わせが型上表現可能になり分岐漏れが必ず生まれる。UI 状態は必ず `status` 判別子の discriminated union ＋ `assertNever` で表現し、状態追加がコンパイルエラーになる形にする。「3 状態を実装する規律」ではなく「3 状態しか作れない型」で守る。
+
+2. **VRT の差分を確認せず `--update-snapshots` で一括承認する** — ベースラインの惰性更新は、崩れを正解として固定する行為であり VRT を無害化する。差分画像を PR コメントに添付し、更新理由を 1 行以上書くことを required にする。`*-snapshots/` は CODEOWNERS でレビュー必須化し、ローカル macOS で撮ったスクショをベースラインに混入させない（撮影は必ず Docker の Playwright イメージ）。
+
+3. **ウィザードの各ステップを別々の `useState`／別フォームで持つ** — 「戻る」で入力が消え、最終送信時にステップ間の相関バリデーションが書けなくなる。RHF のフォームインスタンスは全ステップで 1 つ（`FormProvider` 共有）、ステップ移動は `trigger(fields)` の部分バリデーションのみ、全体スキーマは送信時に適用する。ステップ状態は URL に載せてリロード・戻るに耐えさせる。
+
+4. **lab 値（Lighthouse）だけで速度の合否を判定し、field 値を計測していない** — 理想環境の数値は建設現場の低速回線・型落ち端末の実体験と 2 倍乖離する。`web-vitals/attribution` による RUM を全プロジェクト標準で仕込み、「4G × CPU 4 コア以下」セグメントの p75 を別途 SLO 判定する。犯人要素（`interactionTarget`／`largestShiftTarget`）を取らない計測は、改善に着手できないため計測していないのと同じ。
+
+5. **RSC で取得したデータを Client で `useQuery` により再取得する（二重フェッチ）** — `queryOptions` ファクトリを RSC/Client で共有せず別々にキーを書くと、prefetch が無駄になり初期表示で同一 API が 2 回叩かれる。`prefetchQuery` → `dehydrate` → `HydrationBoundary` → `useSuspenseQuery` のパイプを標準形とし、`staleTime` 未設定（0）のまま放置しない。`QueryClient` を module スコープで `new` するのは、リクエスト間でデータが混ざるため禁止。
+
+6. **`t('error.' + code)` のように翻訳キーを文字列連結で組み立てる** — 型検査もキー欠損検出も効かず、本番画面に生キーが露出する。キーはリテラルで書き、分岐が必要なら `Record<Code, MessageKey>` の対応表を `satisfies` で型検査する。複数形・日付・通貨も文字列連結せず ICU MessageFormat（`{n, plural, ...}`）に寄せる。
+
+7. **遷移規則を持つ業務ステータスを、画面ごとの `if` 文で守る** — 選考ステータスのような禁止遷移を含むプロセス状態を各画面で条件分岐すると、画面追加のたびにルールが複製され、片方だけ改修されて不整合になる。遷移規則は状態機械 1 ファイルに集約し、ボタンの活性は `state.can({type})` から導出する。サーバーの 409 エラーを UI の防御ラインにしない。
+
+8. **Zustand ストアを selector なしで丸ごと購読する** — `const store = useStore()` は無関係なプロパティの更新でも再レンダリングを起こし、一覧画面の INP を静かに悪化させる。必ず `useStore(s => s.foo)` ＋ `useShallow` で購読粒度を絞る。あわせて、サーバー由来データをグローバルストアへコピーするのも禁止（キャッシュの二重管理となり、TanStack Query との整合が崩れる）。
+
+9. **`as` キャストで型エラーを黙らせる** — `as unknown as T` は「コンパイラより自分が正しい」という宣言であり、API 仕様変更の検知センサーを自ら破壊する行為。1 PR あたり 5 箇所を上限とし、超える場合は型定義側（Zod スキーマ・DTO）を直す。ID 系は branded type にして、`string` 同士の取り違えがキャストなしでは通らない構造にする。
+
+### 📈 強化後の到達水準
+
+| 指標 | 強化前 | 強化後 |
+|---|---|---|
+| 不正 UI 状態の検出 | レビューでの目視・実装規律 | 型で表現不能（`assertNever` による網羅性検査） |
+| 速度の合否判定 | lab 値（Lighthouse CI）のみ | lab（PR ゲート）＋ field p75（現場セグメント別 SLO）の二段 |
+| 見た目の回帰検出 | 3 幅スクショの目視 | VRT `maxDiffPixelRatio 0.002` × 4 状態 × 3 幅の機械判定 |
+| フォーム対応範囲 | 単一ステップ・静的項目 | 多段ウィザード／動的行／条件付きスキーマ／自動下書き |
+| 業務フローの実装 | 画面ごとの `if` 分岐 | 状態機械 1 ソース＋`can()` からの UI 導出 |
+| 初期表示のフェッチ | RSC と Client で二重取得の余地 | `HydrationBoundary` 統合で同一エンドポイント 1 回 |
+| 対応言語 | 日本語のみ（翻訳耐性の防御まで） | ja/vi/id/en の型安全 i18n＋業務用語対訳表 |
+| 型の役割 | エラー検査（`any` ゼロ） | 設計手段（branded type・判別ユニオン・`satisfies`） |
+
+**一言で**：「正しく動くものを速く作る FE」から、**「不正な状態をそもそも表現できない型設計」「実ユーザーの端末で測った数値」「機械が守る見た目」「日本語話者以外にも届く UI」を標準装備した FE** へ。建設業 DX × 採用支援という LET の主戦場において、現場端末での実測値と多言語対応を提案の武器にできる国内でも稀有なフロントエンド実装者となる。
