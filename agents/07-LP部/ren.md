@@ -669,6 +669,7 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - LINE/Instagram の in-app ブラウザ実機確認は別工程に切らず、実装完了の定義（DoD）に含める。確認依頼を出してから崩れの報告を受け取る経路は、往復と再デプロイの分だけ確実に遅い
 - Nao の editable スロットは個別に依頼が来てから対応せず、実装時に一括で CMS/props 化する。後付けのCMS化は該当箇所の周辺コードごと書き直しになり、まとめてやる場合の数倍かかる
 
+
 ---
 
 ## 🚀 スペック強化 v2 — オーバースペック化（2026-08-20）
@@ -677,48 +678,39 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 | 領域 | 現状の到達点 | 判定 |
 |---|---|---|
-| 画像最適化 | `next/image` 6属性強制（src/alt/width/height/priority/sizes）、AVIF、blur placeholder、`fill`＋relative親 | ✅ 十分 |
-| Hydration | 3大失敗パターン（Date.now/Math.random/localStorage）を ESLint で error 化 | ✅ 十分 |
-| `'use client'` 境界 | 末端限定ルール＋`boundary-leaf-only` lint、bundle-analyzer 実測 | ⚠️ 「どう分割するか」の設計手法が未定義 |
-| Tailwind | 任意値禁止・動的クラス禁止・`extend.colors`・v4 `@theme`・tokens.json 単一真実源 | ⚠️ コンテナクエリ未着手 |
-| Core Web Vitals | LCP 2.5s / CLS 0.1 / INP 200ms、Lighthouse 90〜95、bundlesize 200KB | ⚠️ 全てラボ計測。フィールド実測・INP 分解が未定義 |
-| キャッシュ | `revalidate` / `revalidateTag` / `revalidatePath` の3手法使い分け | ⚠️ PPR・`'use cache'` 未着手 |
-| a11y | axe-core 開発時常駐、フォーカストラップ、skip link、`aria-live`、44px タッチターゲット | ⚠️ 見出しアウトライン・landmark 構造が未定義 |
-| フォーム | Zod＋RHF非制御＋Server Action＋`after()`＋`useFormStatus`＋冪等キー | ✅ 十分 |
-| 日本語表現 | `text-wrap: balance` / `<wbr>` の使い分けを kotone と合意 | ⚠️ 組版・JPフォント予算が未定義 |
-| 障害耐性 | JS 失敗時のアニメフォールバック、no-js デフォルト表示 | ⚠️ ランタイムエラー時の白画面対策が未定義 |
-| CI ゲート | 9ゲート（Biome/tsc/vitest/axe/bundlesize/LHCI/VRT/E2E/use client） | ✅ 十分 |
+| 画像・Hydration・フォーム | `next/image` 6属性強制／Hydration 3大パターンを ESLint error 化／Zod＋RHF非制御＋Server Action＋`after()`＋冪等キー | ✅ 完成域 |
+| CI ゲート | 9ゲート（Biome・tsc・vitest・axe・bundlesize 200KB・LHCI・VRT・E2E・`use client` 検査） | ✅ 完成域 |
+| `'use client'` 境界 | 「末端限定」ルール＋`boundary-leaf-only` lint＋bundle-analyzer 実測 | ⚠️ 末端にできない時の**設計手法**が無い |
+| キャッシュ | `revalidate`／`revalidateTag`／`revalidatePath` の3手法 | ⚠️「いつ更新するか」のみ。**どこまで静的に返すか**が無い |
+| Core Web Vitals | LCP 2.5s／CLS 0.1／INP 200ms／Lighthouse 90〜95 | ⚠️ 全て**ラボ計測**。フィールド実測・INP 分解が無い |
+| a11y | フォーカストラップ・skip link・`aria-live`・44px | ⚠️ **部品単位のみ**。ページ全体の見出し／landmark 構造が無い |
+| 日本語・障害耐性・部品再利用 | `text-wrap: balance`／`<wbr>` 合意、JS 失敗時フォールバック、375/768/1280 固定 | ⚠️ 組版・JPフォント予算・例外時の白画面・コンテナクエリが空白 |
 
-**総括**：`next/image`・Hydration・フォーム・CI ゲートは既に国内トップ水準。一方で **①RSC の境界"設計"② フィールド実測 ③ 日本語組版 ④ 障害時の見え方** の4点が空白。ここを埋めると「壊れない・速い・日本語が美しい LP」で唯一無二になる。
-
----
+**総括**：守り（画像・Hydration・フォーム・CI）は国内トップ水準に到達済み。空白は **①配信構造 ②バンドル構造の設計 ③フィールド実測 ④日本語の質 ⑤例外時の見え方 ⑥部品の自律性** の6点。
 
 ### 到達すべきベンチマーク
 
-1. **Next.js App Router / PPR**：静的シェルを CDN から即返し、動的部分だけを Suspense ホールにする Partial Prerendering。`next build` の出力で対象ルートに `◐` が付くこと。
-2. **React Server Components**：クライアント JS を「触れる部分だけ」に限定する境界設計。`children` スロット（ドーナツパターン）で SC を CC の内側に保つ。
-3. **`next/image` 最適化**：既に到達済み。本節では扱わない（重複回避）。
-4. **Tailwind arbitrary value / variant**：任意値禁止は到達済み。次段は **コンテナクエリ**（`@container` + `@md:`）でセクションの再利用性を上げる段階。
-5. **Core Web Vitals 実装技法**：ラボ（Lighthouse）ではなく **フィールド p75**（CrUX / RUM）で LCP 2.5s・INP 200ms・CLS 0.1 を満たす。INP は「入力遅延 / 処理時間 / 描画遅延」に分解して原因特定できること。
-6. **Hydration error 回避**：到達済み。本節では「Hydration が壊れた時に何が見えるか」（error boundary）へ拡張。
-7. **セマンティック HTML**：h1 一意・見出しレベル飛ばしゼロ・landmark 網羅・`<section>` への到達可能名付与。axe violations 0 は通過点で、**支援技術で読んだときに LP の構造が伝わる**ことがゴール。
-
----
+- **App Router / PPR**：静的シェル（prelude）を CDN 即配信し、動的部分だけ Suspense ホール化。`next build` で対象ルートに `◐` が付くこと。
+- **RSC**：`children` スロット（ドーナツパターン）で SC を CC の内側に保ち、境界を越える値をシリアライズ可能なものだけに限定できること。
+- **Core Web Vitals 実装技法**：ラボではなく **フィールド p75** で達成し、INP を「入力遅延／処理時間／描画遅延」に分解して原因を一意に特定できること。
+- **Tailwind arbitrary value**：任意値禁止は到達済み。次段は **コンテナクエリ**（`@container`＋`@md:`）による部品の自律レイアウト。
+- **セマンティック HTML**：axe violations 0 は通過点。h1 一意・レベル飛び越しゼロ・landmark 網羅で、支援技術で読んで LP の構造が伝わること。
+- **Hydration error 回避**：予防は到達済み。次段は「壊れた時に何が見えるか」＝ error boundary への拡張。
 
 ### 特定されたスキルギャップと優先度
 
 | # | ギャップ | 事業インパクト | 即戦力度 | 優先度 |
 |---|---|---|---|---|
-| 1 | PPR ＋ `'use cache'` による静的シェル配信の未着手 | 大（TTFB 短縮＝広告流入 LP の直帰率に直結） | 中（要 Next バージョン確認） | **A** |
-| 2 | RSC 境界の"設計手法"不在（children スロット／シリアライズ可能 props／RSC ペイロード実測） | 大（First Load JS を構造的に削減） | 高（今日から適用可） | **A** |
-| 3 | INP のフィールド実測と3分解による原因特定 | 大（応募フォームの離脱に直結） | 高 | **A** |
-| 4 | セマンティック HTML の見出しアウトライン／landmark 設計 | 中（SEO＋a11y＋Mia 一発通過） | 高 | **A** |
-| 5 | 日本語組版実装（`auto-phrase` / `palt` / 禁則 / JPフォント転送予算） | 大（建設業 LP は日本語見出しが主訴求） | 高 | **B** |
-| 6 | ランタイムエラー時の白画面対策（`error.tsx` / `global-error.tsx` / `onRequestError`） | 大（エラー＝応募機会の完全喪失） | 高 | **B** |
+| 1 | PPR ＋ `'use cache'` による静的シェル配信の未着手 | 大（TTFB＝広告流入 LP の初速離脱に直結） | 中 | **A** |
+| 2 | RSC 境界の設計手法不在（children スロット／シリアライズ／ペイロード実測） | 大（First Load JS を構造的に削減） | 高 | **A** |
+| 3 | INP のフィールド実測と 3 分解 | 大（応募フォームの離脱に直結） | 高 | **A** |
+| 4 | 見出しアウトライン／landmark 設計 | 中（SEO＋a11y＋Mia 一発通過） | 高 | **A** |
+| 5 | 日本語組版＋JPフォント転送予算 | 大（建設業 LP は日本語見出しが主訴求） | 高 | **B** |
+| 6 | 例外時の白画面対策（`error.tsx`／`onRequestError`） | 大（白画面＝応募機会の完全喪失） | 高 | **B** |
 | 7 | コンテナクエリによるセクション再利用 | 中（改修コスト削減） | 中 | **B** |
-| 8 | サードパーティ埋め込みの遅延化（`@next/third-parties` / lite YouTube） | 中 | 中 | C（次期） |
+| 8 | サードパーティ埋め込みの遅延化（`@next/third-parties`／lite YouTube） | 中 | 中 | C（次期） |
 
-**今回習得：#1〜#7（7スキル）**
+**今回習得：#1〜#7**
 
 ---
 
@@ -726,50 +718,27 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 #### 1. 【PPR ＋ `'use cache'` による静的シェル分離】
 
-**なぜ必要か**：
-建設業の採用 LP は「会社紹介・仕事内容・待遇」の 95% が静的なのに、ヘッダーの「本日の募集職種」1箇所で `cookies()` / `headers()` / 動的 fetch を触った瞬間、ルート全体が Dynamic 判定になり TTFB が 200ms → 800ms に落ちる。既存ナレッジの `revalidate` 3手法は「いつ更新するか」の話で、「**どこまで静的に返すか**」を制御できていない。
+**なぜ必要か**：採用 LP は 95% が静的なのに、ヘッダーの「本日の募集職種」1箇所で `cookies()`／`headers()`／`no-store` fetch を触った瞬間ルート全体が Dynamic 化し、TTFB が 200ms→800ms に落ちる。既存の revalidate 3手法は「いつ更新するか」であり「どこまで静的に返すか」を制御できていない。
 
-**具体的手法**：
-1. `next.config.ts` で `experimental.ppr: 'incremental'`（または `cacheComponents: true`）を有効化。
-2. 静的化したいルートの `page.tsx` に `export const experimental_ppr = true` を宣言。
-3. 動的な部分（募集中職種・在庫・パーソナライズ）だけを `<Suspense fallback={...}>` で包む。→ 包んだ内側だけが「動的ホール」になり、外側（prelude）は静的 HTML として CDN から即配信される。
-4. 再利用したいデータ取得関数に `'use cache'` を付け、`cacheLife()` で寿命、`cacheTag()` で無効化キーを宣言。更新は既存の `revalidateTag()` に接続する。
-5. `next build` の出力凡例で対象ルートが `◐ (Partial Prerender)` になっているかを必ず目視確認する。`ƒ (Dynamic)` のままなら失敗。
+**具体的手法**：①`next.config.ts` で `experimental.ppr: 'incremental'` ②静的化するルートに `export const experimental_ppr = true` ③動的部分だけを `<Suspense>` で包む（内側だけが動的ホール、外側 prelude は静的 HTML として CDN 配信）④データ取得関数に `'use cache'`＋`cacheLife()`＋`cacheTag()` を付け、更新は既存の `revalidateTag()` に接続 ⑤`next build` の凡例で `◐ (Partial Prerender)` を目視確認（`ƒ` のままなら失敗）。
 
-**判断基準・数値ライン**：
-- 静的 prelude が HTML 全バイトの **90% 以上**（動的ホールは 10% 未満）
-- TTFB **200ms 以下**（Vercel Edge、日本リージョン）
-- 動的ホールの fallback は必ず Skeleton（空 fallback は 2026-05-24 の白画面 NG に該当）
-- `'use cache'` の `cacheLife`：LP 本文＝`'days'`、募集職種＝`'hours'`、フォーム完了数などの実数値＝`'minutes'`
+**判断基準・数値ライン**：静的 prelude が HTML 全バイトの **90% 以上**／TTFB **200ms 以下**／動的ホールの fallback は必ず Skeleton（空 fallback は白画面 NG）／`cacheLife` は LP 本文＝`'days'`・募集職種＝`'hours'`・実数値＝`'minutes'`。
 
 **実務テンプレート**：
-```ts
-// next.config.ts
-import type { NextConfig } from 'next';
-const nextConfig: NextConfig = {
-  experimental: { ppr: 'incremental' }, // 段階導入。全ルート適用は true
-};
-export default nextConfig;
-```
 ```tsx
 // app/(lp)/[client]/page.tsx
-import { Suspense } from 'react';
-import { getLpContent } from '@/lib/content';
-import { OpenPositions } from '@/components/OpenPositions';
-import { PositionsSkeleton } from '@/components/skeletons';
-
-export const experimental_ppr = true; // ← このルートを PPR 対象にする
+export const experimental_ppr = true;          // ← このルートを PPR 対象に
 
 export default async function Page({ params }: { params: Promise<{ client: string }> }) {
   const { client } = await params;
-  const content = await getLpContent(client); // 'use cache' 済み → prelude に入る
+  const content = await getLpContent(client);  // 'use cache' 済み → prelude に入る
   return (
     <main id="main">
-      <Hero {...content.hero} />           {/* 静的：CDN から即描画 */}
+      <Hero {...content.hero} />                            {/* 静的：CDN 即描画 */}
       <Suspense fallback={<PositionsSkeleton />}>
-        <OpenPositions client={client} />  {/* 動的ホール：ストリーミング */}
+        <OpenPositions client={client} />                   {/* 動的ホール */}
       </Suspense>
-      <Benefits {...content.benefits} />   {/* 静的 */}
+      <Benefits {...content.benefits} />                    {/* 静的 */}
     </main>
   );
 }
@@ -777,113 +746,66 @@ export default async function Page({ params }: { params: Promise<{ client: strin
 ```ts
 // lib/content.ts
 import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from 'next/cache';
-
 export async function getLpContent(client: string) {
   'use cache';
-  cacheLife('days');            // 寿命宣言
-  cacheTag(`lp-${client}`);     // revalidateTag(`lp-${client}`) で即時無効化
+  cacheLife('days');
+  cacheTag(`lp-${client}`);      // revalidateTag(`lp-${client}`) で即時無効化
   return fetchFromCms(client);
 }
 ```
-
-**期待効果**：TTFB 800ms → 200ms 以下。Hero が動的データに巻き込まれて遅延する構造事故を消し、広告流入 LP の初速離脱を削減。CMS 更新は `revalidateTag` 1発で即反映され、既存のキャッシュ3手法ナレッジと接続する。
+**期待効果**：TTFB 800ms→200ms 以下。Hero が動的データに巻き込まれる構造事故を消し、CMS 更新は既存の `revalidateTag` 1発で即反映。
 
 ---
 
 #### 2. 【RSC 境界設計 — children スロット（ドーナツパターン）とペイロード実測】
 
-**なぜ必要か**：
-既存ナレッジは「`'use client'` は末端だけ」というルールを持つが、**「末端にできない場合どうするか」の手法が無い**。アコーディオンやタブのように「インタラクティブな殻の中に重い静的コンテンツが入る」構造では、素直に書くと中身まで Client Component 化する。さらに致命的な誤解として、**`'use client'` ファイルから `import` した Server Component は Server Component として残らず、クライアントバンドルに巻き込まれる**。この事実を知らないと lint を通しても First Load JS は減らない。
+**なぜ必要か**：既存ルールは「`'use client'` は末端だけ」だが、**末端にできない場合の手法が無い**。アコーディオンやタブのように「インタラクティブな殻の中に重い静的コンテンツが入る」構造では中身まで CC 化する。さらに致命的な誤解として、**`'use client'` ファイルから `import` した Server Component は SC として残らずクライアントバンドルに巻き込まれる**。これを知らないと lint を通しても First Load JS は減らない。
 
-**具体的手法**：
-1. **ドーナツパターン**：インタラクティブな殻（CC）は `children: React.ReactNode` を受け取るだけにし、中身の SC は **親の Server Component 側で組み立てて children として渡す**。props 経由で渡された要素は既にサーバーでレンダリング済みなので、クライアントバンドルに入らない。
-2. **境界を越えられる値の把握**：文字列 / 数値 / boolean / null / 配列 / プレーンオブジェクト / Date / Map / Set / BigInt / TypedArray / Promise / `'use server'` 関数参照は越えられる。**通常の関数・クラスインスタンス・Symbol は越えられない**（実行時エラー）。渡したくなったら「サーバーで結果まで計算して値で渡す」か「Server Action にする」の二択。
-3. **実測**：`@next/bundle-analyzer` に加えて RSC ペイロード（Flight）を直接測る。`curl -s -H 'RSC: 1' <URL> | wc -c` でバイト数を取得。巨大な場合は「SC に大量の JSON をそのまま渡している」ことが原因。
-4. `import 'server-only'` を DB/秘匿ロジックのモジュール先頭に置き、CC から誤 import した瞬間にビルドを失敗させる（既存の env 漏洩対策の構造版）。
+**具体的手法**：①**ドーナツパターン**＝殻（CC）は `children: React.ReactNode` を受け取るだけにし、中身の SC は親の Server Component 側で組み立てて children として渡す（props 経由で渡された要素はサーバーでレンダリング済みなのでバンドルに入らない）②**境界を越えられる値**＝文字列/数値/boolean/null/配列/プレーンオブジェクト/Date/Map/Set/BigInt/TypedArray/Promise/`'use server'` 関数参照。**通常の関数・クラスインスタンス・Symbol は越えられない**（渡したくなったら「サーバーで結果まで計算して値で渡す」か「Server Action にする」）③RSC ペイロードを `curl -s -H 'RSC: 1' <URL> | wc -c` で実測 ④DB/秘匿ロジックの先頭に `import 'server-only'` を置き、CC からの誤 import をビルド失敗にする。
 
-**判断基準・数値ライン**：
-- **First Load JS：130KB（gzip）以下**（既存の bundlesize 200KB ゲートを LP 用に引き締め。超過は CI fail）
-- **RSC ペイロード：生 100KB 以下**（超過＝SC への props 過多）
-- `'use client'` を含むファイル数：全コンポーネント数の **20% 以下**
-- ドーナツ化の判定：CC の中に「イベントハンドラを持たない DOM が 30 行以上」あれば children スロットに切り出す
+**判断基準・数値ライン**：**First Load JS 130KB（gzip）以下**（既存 200KB ゲートを LP 用に引き締め、超過は CI fail）／**RSC ペイロード 生 100KB 以下**／`'use client'` を含むファイルは全体の **20% 以下**／CC 内に「ハンドラを持たない DOM が 30 行以上」あれば children スロットへ切り出す。
 
 **実務テンプレート**：
 ```tsx
 // components/Accordion.tsx  ← 殻だけが Client
 'use client';
-import { useState, useId } from 'react';
-
 export function Accordion({ title, children }: { title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   return (
-    <div className="border-b border-neutral-200">
+    <div className="border-b">
       <h3>
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={panelId}
-          onClick={() => setOpen((v) => !v)}
-          className="flex min-h-[44px] w-full items-center justify-between py-4 text-left"
-        >
-          {title}
-        </button>
+        <button type="button" aria-expanded={open} aria-controls={panelId}
+                onClick={() => setOpen(v => !v)} className="min-h-[44px] w-full text-left">{title}</button>
       </h3>
-      <div id={panelId} hidden={!open}>
-        {children /* ← サーバーでレンダリング済み。JS バンドルに入らない */}
-      </div>
+      <div id={panelId} hidden={!open}>{children}{/* ← SC のまま。JS に入らない */}</div>
     </div>
   );
 }
 ```
 ```tsx
-// app/(lp)/[client]/page.tsx  ← 中身は Server Component のまま
-import { Accordion } from '@/components/Accordion';
-import { FaqAnswer } from '@/components/FaqAnswer'; // SC（重い markdown 変換入り）
-
-export default async function Page() {
-  const faqs = await getFaqs(); // 'use cache'
-  return (
-    <section aria-labelledby="faq-heading">
-      <h2 id="faq-heading">よくあるご質問</h2>
-      {faqs.map((f) => (
-        <Accordion key={f.id} title={f.q}>
-          <FaqAnswer html={f.answerHtml} /> {/* SC のまま殻の中へ */}
-        </Accordion>
-      ))}
-    </section>
-  );
-}
+// app/(lp)/[client]/page.tsx  ← 中身は Server Component のまま殻へ渡す
+{faqs.map(f => (
+  <Accordion key={f.id} title={f.q}>
+    <FaqAnswer html={f.answerHtml} />   {/* 重い markdown 変換を含む SC */}
+  </Accordion>
+))}
 ```
 ```bash
-# 計測（納品前セルフ QA に追加）
-curl -s -H 'RSC: 1' https://<preview-url>/ | wc -c        # RSC ペイロード
-pnpm build | grep -E 'First Load JS'                       # 130KB 以下か
+curl -s -H 'RSC: 1' https://<preview-url>/ | wc -c   # RSC ペイロード（100KB 以下）
+pnpm build | grep 'First Load JS'                    # 130KB 以下
 ```
-
-**期待効果**：アコーディオン・タブ・モーダルを含む LP で First Load JS を 30〜60% 削減。既存の `boundary-leaf-only` ルールでは救えなかった「殻の中身」を構造的に SC 側へ戻し、TTI/INP を同時に改善する。
+**期待効果**：アコーディオン・タブ・モーダルを含む LP で First Load JS を 30〜60% 削減。`boundary-leaf-only` で救えなかった「殻の中身」を構造的に SC へ戻し、TTI/INP を同時改善。
 
 ---
 
 #### 3. 【INP のフィールド実測と 3 分解による原因特定】
 
-**なぜ必要か**：
-既存ナレッジの INP 200ms は **Lighthouse（ラボ）で見た値**であり、Lighthouse は INP を実測できない（TBT で代理計測している）。実訪問者の INP は端末・拡張機能・広告タグの影響を受け、ラボ値と 2〜3 倍乖離する。さらに「INP が悪い」と分かっても、**入力遅延 / 処理時間 / 描画遅延のどこが悪いのか**が分からなければ手が打てない。
+**なぜ必要か**：既存の INP 200ms は **Lighthouse（ラボ）の値**で、Lighthouse は INP を実測できない（TBT で代理計測）。実訪問者の INP は端末・広告タグの影響でラボ値と 2〜3 倍乖離する。さらに「INP が悪い」と分かっても、**入力遅延／処理時間／描画遅延のどこが悪いか**が不明では手が打てない。
 
-**具体的手法**：
-1. `next/web-vitals` の `useReportWebVitals` を Client Component 1枚（`app/web-vitals.tsx`）に置き、`layout.tsx` で読み込む。
-2. さらに `web-vitals/attribution` ビルドを併用し、INP の **`interactionTarget`（どの要素か）・`inputDelay`・`processingDuration`・`presentationDelay`** を取得して GA4 へ送る。
-3. 分解して打ち手を決める：
-   - `inputDelay > 50ms` → メインスレッドが長タスクで詰まっている。サードパーティタグを `next/script` の `lazyOnload` へ、初期化処理を分割。
-   - `processingDuration > 100ms` → ハンドラ内の処理が重い。緊急でない更新を `startTransition`、ループは `await scheduler.yield()` で分割。
-   - `presentationDelay > 50ms` → DOM が巨大 or レイアウト再計算。`content-visibility: auto`（既習）と仮想化を検討。
-4. 対象インタラクションは LP では 3 つに絞って重点監視：**送信ボタン / アコーディオン開閉 / ハンバーガー開閉**。
+**具体的手法**：①`next/web-vitals` の `useReportWebVitals` を Client Component 1枚に置き `layout.tsx` から読み込む ②`web-vitals/attribution` ビルドで INP の `interactionTarget`・`inputDelay`・`processingDuration`・`presentationDelay` を GA4 へ送出 ③分解して打ち手を決める：`inputDelay > 50ms` → 長タスクで詰まっている（サードパーティを `lazyOnload` へ）／`processingDuration > 100ms` → ハンドラが重い（`startTransition`・`scheduler.yield()`）／`presentationDelay > 50ms` → DOM 巨大・レイアウト再計算（`content-visibility: auto`）④LP の重点監視は **送信ボタン／アコーディオン開閉／ハンバーガー開閉** の 3 つに絞る。
 
-**判断基準・数値ライン**：
-- フィールド **p75 INP 200ms 以下**（社内目標 150ms）／ p75 LCP 2.5s 以下 ／ p75 CLS 0.1 以下
-- **Long Task（50ms 超）を初期表示 5 秒間でゼロ件**
-- 1つのイベントハンドラ内の同期処理は **50ms を超えたら必ず分割**
-- 計測サンプルが 100 セッション未満の段階では判定しない（統計的に無意味）
+**判断基準・数値ライン**：フィールド **p75 INP 200ms 以下（社内目標 150ms）**・p75 LCP 2.5s・p75 CLS 0.1／**Long Task（50ms 超）を初期表示 5 秒間でゼロ件**／1 ハンドラ内の同期処理が **50ms を超えたら必ず分割**／サンプル 100 セッション未満では判定しない。
 
 **実務テンプレート**：
 ```tsx
@@ -891,22 +813,16 @@ pnpm build | grep -E 'First Load JS'                       # 130KB 以下か
 'use client';
 import { useReportWebVitals } from 'next/web-vitals';
 import { onINP } from 'web-vitals/attribution';
-import { useEffect } from 'react';
 
 export function WebVitals() {
-  useReportWebVitals((m) => {
-    window.gtag?.('event', m.name, { value: Math.round(m.value), metric_id: m.id });
-  });
+  useReportWebVitals(m => window.gtag?.('event', m.name, { value: Math.round(m.value), metric_id: m.id }));
   useEffect(() => {
-    onINP(({ value, attribution: a }) => {
-      window.gtag?.('event', 'inp_attribution', {
-        value: Math.round(value),
-        target: a.interactionTarget,          // 例: "#apply-submit"
-        input_delay: Math.round(a.inputDelay),
-        processing: Math.round(a.processingDuration),
-        presentation: Math.round(a.presentationDelay),
-      });
-    });
+    onINP(({ value, attribution: a }) => window.gtag?.('event', 'inp_attribution', {
+      value: Math.round(value), target: a.interactionTarget,      // 例: "#apply-submit"
+      input_delay: Math.round(a.inputDelay),
+      processing: Math.round(a.processingDuration),
+      presentation: Math.round(a.presentationDelay),
+    }));
   }, []);
   return null;
 }
@@ -914,56 +830,28 @@ export function WebVitals() {
 ```ts
 // lib/yield.ts — 長いハンドラを分割する標準ユーティリティ
 export const yieldToMain = (): Promise<void> =>
-  'scheduler' in globalThis && 'yield' in (globalThis as any).scheduler
-    ? (globalThis as any).scheduler.yield()
-    : new Promise((r) => setTimeout(r, 0));
-
-// 使用例：50件以上の整形処理をハンドラ内でやる場合
-async function handleSubmit(items: Item[]) {
-  for (let i = 0; i < items.length; i++) {
-    normalize(items[i]);
-    if (i % 20 === 19) await yieldToMain(); // 20件ごとにメインスレッドを返す
-  }
-}
+  (globalThis as any).scheduler?.yield?.() ?? new Promise(r => setTimeout(r, 0));
+// 使用例：20 件ごとにメインスレッドを返す
+for (let i = 0; i < items.length; i++) { normalize(items[i]); if (i % 20 === 19) await yieldToMain(); }
 ```
-
-**期待効果**：Lighthouse 95 点なのに実ユーザーが「重い」と感じる乖離を可視化。原因が 3 分解で一意に特定でき、INP 改善の試行錯誤を「勘」から「計測駆動」に変える。応募フォーム送信の体感遅延起因の離脱を実測ベースで潰す。
+**期待効果**：Lighthouse 95 点なのに実ユーザーが「重い」と感じる乖離を可視化。INP 改善を勘から計測駆動に変え、送信ボタンの体感遅延起因の離脱を実測ベースで潰す。
 
 ---
 
 #### 4. 【セマンティック HTML アウトライン設計】
 
-**なぜ必要か**：
-既存の a11y ナレッジは「フォーカストラップ・skip link・`aria-live`・`aria-hidden`」と**部品単位**では手厚いが、**ページ全体の構造**（見出しの階層・landmark の配置）が定義されていない。複製案件では参考サイトが `<div>` だらけのことが多く、そのまま写すと axe は通っても「スクリーンリーダーで見出しジャンプすると意味が通らない LP」になる。Google の SEO 面でも見出し階層は主要な構造シグナル。
+**なぜ必要か**：既存の a11y は部品単位（フォーカストラップ・skip link・`aria-live`）では手厚いが、**ページ全体の構造**が未定義。複製案件は参考サイトが `<div>` だらけのことが多く、そのまま写すと axe は通っても「見出しジャンプで意味が通らない LP」になる。見出し階層は SEO の主要な構造シグナルでもある。
 
-**具体的手法**：
-1. **h1 はページに 1 個だけ**＝ LP のメインコピー（Hero の訴求文）。ロゴを h1 にしない。
-2. **見出しレベルを飛ばさない**（h2 → h4 禁止）。セクション見出しは h2、その内訳が h3。
-3. **landmark を 1 セットずつ**：`<header>` / `<nav>` / `<main id="main">` / `<footer>` は各 1。`<main>` は 1 ページ 1 個。
-4. **`<section>` には必ず到達可能名を付ける**：`aria-labelledby` で見出しの id を指す。名前のない `<section>` は landmark として扱われず、置く意味が消える（＝ただの div）。
-5. **募集要項は `<dl>`**：職種/給与/勤務地/雇用形態は定義リストで構造化。表組みが必要な場合のみ `<table>` に `<caption>` と `<th scope>` を付ける。
-6. `<time datetime="2026-09-01">`、事業所住所は `<address>`、電話は `<a href="tel:">`。
-7. 検証を CI に組み込む（下記スクリプト）。
+**具体的手法**：①**h1 はページに 1 個**＝ Hero の訴求コピー（ロゴを h1 にしない）②見出しレベルを飛ばさない（h2→h4 禁止）③landmark は `<header>`／`<nav>`／`<main id="main">`／`<footer>` を各 1 ④**`<section>` には必ず到達可能名**（`aria-labelledby` で見出しの id を指す）。名前のない `section` は landmark として扱われず、ただの div と同じ ⑤募集要項は `<dl>`（表が必要な場合のみ `<caption>`＋`<th scope>` 付き `<table>`）⑥`<time dateTime>`・`<address>`・`tel:` リンク ⑦検査を CI ゲート #10 として追加。
 
-**判断基準・数値ライン**：
-- `document.querySelectorAll('h1').length === 1`
-- 見出しレベルの飛び越し **0 件**
-- 名前のない `<section>` **0 件**
-- `<main>` 1個・`<nav>` に `aria-label`（複数ある場合は必須）
-- axe-core violations **0 件**（既存ゲートを構造ルールで補強）
+**判断基準・数値ライン**：`h1` **1 個**／見出しレベル飛び越し **0 件**／名前のない `<section>` **0 件**／`<main>` 1 個・複数 `<nav>` には `aria-label` 必須／axe violations **0 件**。
 
 **実務テンプレート**：
 ```tsx
-// app/(lp)/[client]/page.tsx の骨格
-<a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:z-header">本文へスキップ</a>
-<header>
-  <nav aria-label="グローバル">…</nav>
-</header>
+<a href="#main" className="sr-only focus:not-sr-only">本文へスキップ</a>
+<header><nav aria-label="グローバル">…</nav></header>
 <main id="main">
-  <section aria-labelledby="hero-h">
-    <h1 id="hero-h">未経験から、月給28万円。<wbr />現場が育てる型枠大工。</h1>
-  </section>
-
+  <section aria-labelledby="hero-h"><h1 id="hero-h">未経験から、月給28万円。</h1></section>
   <section aria-labelledby="req-h">
     <h2 id="req-h">募集要項</h2>
     <dl>
@@ -974,135 +862,76 @@ async function handleSubmit(items: Item[]) {
     </dl>
   </section>
 </main>
-<footer>…</footer>
 ```
 ```js
 // scripts/check-outline.mjs — Playwright で全プレビュー URL を検査（CI ゲート #10）
 const errors = await page.evaluate(() => {
-  const out = [];
-  const hs = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')];
-  if (hs.filter((h) => h.tagName === 'H1').length !== 1) out.push('h1 が 1 個ではない');
+  const out = []; const hs = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')];
+  if (hs.filter(h => h.tagName === 'H1').length !== 1) out.push('h1 が 1 個ではない');
   let prev = 0;
-  for (const h of hs) {
-    const lv = Number(h.tagName[1]);
-    if (prev && lv > prev + 1) out.push(`見出しレベル飛び越し: h${prev} → h${lv} (${h.textContent?.trim()})`);
-    prev = lv;
-  }
-  document.querySelectorAll('section').forEach((s) => {
-    if (!s.getAttribute('aria-labelledby') && !s.getAttribute('aria-label')) out.push('名前のない section');
-  });
+  for (const h of hs) { const lv = +h.tagName[1];
+    if (prev && lv > prev + 1) out.push(`レベル飛び越し h${prev}→h${lv}: ${h.textContent?.trim()}`); prev = lv; }
+  document.querySelectorAll('section').forEach(s => {
+    if (!s.getAttribute('aria-labelledby') && !s.getAttribute('aria-label')) out.push('名前のない section'); });
   if (document.querySelectorAll('main').length !== 1) out.push('main が 1 個ではない');
   return out;
 });
 if (errors.length) { console.error(errors); process.exit(1); }
 ```
-
-**期待効果**：Mia の a11y チェック一発通過に加え、見出し構造が検索エンジンに正しく伝わる。複製案件で参考サイトの div スープをそのまま写す事故を、CI で機械的に遮断できる。
+**期待効果**：Mia の a11y 一発通過に加え、見出し構造が検索エンジンに正しく伝わる。複製案件で div スープを写す事故を CI で機械的に遮断。
 
 ---
 
-#### 5. 【日本語組版実装 ＋ JP フォント転送予算】
+#### 5. 【日本語組版実装 ＋ JPフォント転送予算】
 
-**なぜ必要か**：
-既存ナレッジは `text-wrap: balance` と `<wbr>` の合意運用まで到達しているが、**日本語固有の組版制御**（文節改行・約物詰め・禁則）と、**日本語 Web フォントの転送量問題**が未定義。Noto Sans JP は 1 ウェイトで 4〜5MB あり、`next/font/google` で安易に読むと LCP が数秒悪化する。建設業 LP は「未経験歓迎／月給28万円」といった日本語見出しが主訴求なので、ここの品質差がそのままブランド印象になる。
+**なぜ必要か**：既存は `text-wrap: balance`／`<wbr>` の運用合意まで到達しているが、**日本語固有の組版制御**（文節改行・約物詰め・禁則）と **日本語 Web フォントの転送量**が未定義。Noto Sans JP は 1 ウェイト 4〜5MB あり、安易に読むと LCP が数秒悪化する。建設業 LP は日本語見出しが主訴求なので、ここの差がブランド印象に直結する。
 
-**具体的手法**：
-1. **見出しは `word-break: auto-phrase`**（文節単位で改行）＋ `text-wrap: balance`（行長均等化）。「未経験から、月給28万/円。」のような意味を壊す改行が消える。
-2. **本文は `line-break: strict`**（日本語の禁則を厳格適用）＋ `overflow-wrap: anywhere`（長い URL の突き抜け防止）。
-3. **`font-feature-settings: 'palt' 1`** で約物・かなを詰め、`letter-spacing: 0.02em` で密度を戻す。`text-spacing-trim: trim-start` で行頭の約物アキを除去。
-4. **フォント予算**：`next/font/google` の日本語フォントは `subsets` に日本語指定ができず preload が効かないため、**`preload: false` + `display: 'swap'` + `fallback` 明示**が実務解。ウェイトは **400 / 700 の 2 種まで**。可能なら見出し専用に **`next/font/local` でサブセット化した woff2** を用意する。
-5. `adjustFontFallback` / `size-adjust` によりフォールバック時の CLS を 0 に保つ。
+**具体的手法**：①見出しは **`word-break: auto-phrase`（文節改行）＋`text-wrap: balance`** で「月給28万/円。」のような意味を壊す改行を消す ②本文は **`line-break: strict`（禁則厳格）＋`overflow-wrap: anywhere`** ③**`font-feature-settings: 'palt' 1`**＋`letter-spacing: 0.02em`、`text-spacing-trim: trim-start` ④**フォント予算**：`next/font/google` の日本語フォントは `subsets` に日本語指定ができず preload が効かないため、**`preload: false`＋`display: 'swap'`＋`fallback` 明示**が実務解。ウェイトは **400/700 の 2 種まで**、見出しは `next/font/local` のサブセット woff2 を推奨 ⑤`adjustFontFallback`／`size-adjust` でフォールバック時 CLS を 0 に保つ。
 
-**判断基準・数値ライン**：
-- **日本語フォントの総転送量 300KB（gzip/woff2）以下**、ウェイトは 2 種まで
-- フォント差し替え起因の **CLS 0.00**
-- 見出しの **1 文字だけ次行に落ちる（孤立文字）を 0 件**（375px / 768px / 1280px の 3 幅で目視＋VRT）
-- 本文行長：**日本語 20〜30 文字/行**（`max-w-[38ch]` 前後）、行間 `leading-relaxed`（1.75）
+**判断基準・数値ライン**：**日本語フォント総転送 300KB（woff2）以下・2 ウェイトまで**／フォント差替起因の **CLS 0.00**／見出しの**孤立文字（1文字だけ次行）0 件**（375/768/1280 の 3 幅で VRT）／本文行長 **日本語 20〜30 文字/行**（`max-w-[38ch]`）・行間 1.75。
 
 **実務テンプレート**：
 ```ts
 // app/fonts.ts
-import { Noto_Sans_JP } from 'next/font/google';
-import localFont from 'next/font/local';
-
 export const bodyFont = Noto_Sans_JP({
-  weight: ['400', '700'],      // 2 ウェイトまで
-  subsets: ['latin'],          // 日本語グリフは subset 指定不可
+  weight: ['400', '700'],   // 2 ウェイトまで
+  subsets: ['latin'],       // 日本語グリフは subset 指定不可
   display: 'swap',
-  preload: false,              // 巨大ファイルの preload はむしろ有害
+  preload: false,           // 巨大ファイルの preload はむしろ有害
   fallback: ['Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', 'sans-serif'],
   variable: '--font-body',
 });
-
-// 見出し専用：使用文字だけをサブセット化した woff2（推奨）
-export const displayFont = localFont({
-  src: './_fonts/heading-subset.woff2',
-  display: 'swap',
-  variable: '--font-display',
-});
+export const displayFont = localFont({ src: './_fonts/heading-subset.woff2', display: 'swap', variable: '--font-display' });
 ```
 ```css
-/* app/globals.css （Tailwind v4 @theme と併用） */
-@theme {
-  --font-body: var(--font-body), sans-serif;
-  --font-display: var(--font-display), sans-serif;
-}
-
-:lang(ja) {
-  font-feature-settings: 'palt' 1;
-  letter-spacing: 0.02em;
-  text-spacing-trim: trim-start;
-}
-h1, h2, h3 {
-  word-break: auto-phrase;   /* 文節で改行（Chrome 119+）*/
-  text-wrap: balance;        /* 行長を均等化 */
-  line-break: strict;
-}
-p, li, dd {
-  line-break: strict;
-  overflow-wrap: anywhere;
-  max-width: 38ch;           /* 日本語 20〜30 文字/行 */
-}
+/* globals.css（Tailwind v4 @theme と併用） */
+:lang(ja) { font-feature-settings: 'palt' 1; letter-spacing: 0.02em; text-spacing-trim: trim-start; }
+h1, h2, h3 { word-break: auto-phrase; text-wrap: balance; line-break: strict; }
+p, li, dd { line-break: strict; overflow-wrap: anywhere; max-width: 38ch; }
 ```
-
-**期待効果**：見出しの不格好な折返しを CSS だけで解消し、kotone の `<wbr>` 手打ち工数を削減。日本語フォント起因の LCP 悪化（実測で 1.5〜2.5s 相当）を回避しつつ、印刷物に近い日本語組版で「作りが丁寧な会社」という印象を実装層で作る。
+**期待効果**：不格好な折返しを CSS だけで解消し kotone の `<wbr>` 手打ち工数を削減。日本語フォント起因の LCP 悪化（実測 1.5〜2.5s 相当）を回避しつつ、印刷物に近い組版で「作りが丁寧な会社」という印象を実装層で作る。
 
 ---
 
-#### 6. 【`error.tsx` / `global-error.tsx` / `onRequestError` による白画面ゼロ化】
+#### 6. 【`error.tsx`／`global-error.tsx`／`onRequestError` による白画面ゼロ化】
 
-**なぜ必要か**：
-既存ナレッジは「JS 失敗時もコンテンツが見える」「Hydration を壊さない」という**予防**は手厚いが、**それでも例外が出た時に訪問者に何が見えるか**が定義されていない。App Router は `error.tsx` が無いと最寄りの境界まで遡り、最悪ページ全体が空になる。求人 LP における白画面は「応募機会の完全喪失」であり、CV 直結の最大リスク。
+**なぜ必要か**：既存は「JS 失敗時もコンテンツが見える」「Hydration を壊さない」という**予防**は手厚いが、**それでも例外が出た時に訪問者に何が見えるか**が未定義。App Router は `error.tsx` が無いと最寄り境界まで遡り、最悪ページ全体が空になる。求人 LP の白画面は応募機会の完全喪失であり CV 直結の最大リスク。
 
-**具体的手法**：
-1. **全ルートセグメントに `error.tsx` を配置**（`'use client'` 必須、`error` と `reset` を受け取る）。
-2. **`app/global-error.tsx`** を用意（ルートレイアウト自体が落ちたケース。`<html>` / `<body>` を自前で書く必要がある）。
-3. **エラー画面にも訴求と導線を残す**：会社名・電話番号（`tel:` リンク）・「再読み込み」ボタンの 3 点を必ず置く。LET の LP は電話応募が一定割合あるため、**エラー時でも電話 CTA が生きている**ことを不変条件にする。
-4. **`instrumentation.ts` の `onRequestError`** でサーバー側例外を Sentry / Slack へ送出。クライアント側は `error.tsx` 内から送出。
-5. `app/not-found.tsx` も同様に電話 CTA 付きで用意。
-6. 検証：意図的に `throw new Error('QA')` を仕込んだ本番ビルドで、白画面にならないことを納品前に確認する。
+**具体的手法**：①`page.tsx` を持つ**全セグメントに `error.tsx`**（`'use client'` 必須、`error`／`reset` を受け取る）②ルートに **`global-error.tsx`**（`<html>`／`<body>` を自前で書く）と `not-found.tsx` ③**エラー画面にも訴求と導線を残す**＝社名・`tel:` リンク・再読み込みの 3 点。LET の LP は電話応募が一定割合あるため「例外時でも電話 CTA が生きている」を不変条件にする ④`instrumentation.ts` の **`onRequestError`** でサーバー例外を Slack/Sentry へ ⑤`throw new Error('QA')` を仕込んだ本番ビルドで白画面にならないことを納品前に確認。
 
-**判断基準・数値ライン**：
-- `error.tsx` 配置率 **100%**（`app/**/page.tsx` を持つ全セグメント）
-- **白画面時間 0 秒**（例外発生後も 1 フレーム以内にフォールバック UI）
-- エラー UI に含む必須 3 要素：**社名 / `tel:` リンク / 再試行ボタン**
-- サーバー例外の通知到達率 100%（`onRequestError` → Slack）
+**判断基準・数値ライン**：`error.tsx` 配置率 **100%**／**白画面時間 0 秒**（例外後 1 フレーム以内にフォールバック UI）／エラー UI の必須 3 要素＝**社名／`tel:` リンク／再試行**／サーバー例外の Slack 到達率 100%。
 
 **実務テンプレート**：
 ```tsx
 // app/(lp)/[client]/error.tsx
 'use client';
-import { useEffect } from 'react';
-
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  useEffect(() => { console.error(error); /* → Sentry.captureException(error) */ }, [error]);
+  useEffect(() => { Sentry.captureException(error); }, [error]);
   return (
     <main id="main" className="mx-auto flex min-h-[100dvh] max-w-[38ch] flex-col justify-center gap-6 px-6">
       <h1 className="text-2xl font-bold">ページを表示できませんでした</h1>
-      <p>お手数ですが、再読み込みをお試しください。お急ぎの方はお電話でも受け付けています。</p>
-      <a href="tel:0600000000" className="flex min-h-[56px] items-center justify-center rounded-lg bg-primary font-bold text-white">
-        電話で応募する（受付 9:00–18:00）
-      </a>
+      <p>お手数ですが再読み込みをお試しください。お急ぎの方はお電話でも受け付けています。</p>
+      <a href="tel:0600000000" className="flex min-h-[56px] items-center justify-center rounded-lg bg-primary font-bold text-white">電話で応募する（9:00–18:00）</a>
       <button type="button" onClick={reset} className="min-h-[44px] underline">再読み込み</button>
       {error.digest && <p className="text-xs text-neutral-500">エラーID: {error.digest}</p>}
     </main>
@@ -1111,50 +940,30 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
 ```
 ```ts
 // instrumentation.ts
-export async function onRequestError(
-  err: unknown,
-  request: { path: string; method: string; headers: Record<string, string> },
-  context: { routerKind: string; routePath: string; renderSource: string },
-) {
-  await fetch(process.env.SLACK_WEBHOOK_URL!, {
-    method: 'POST',
-    body: JSON.stringify({
-      text: `🚨 LP ランタイムエラー\npath: ${request.path}\nroute: ${context.routePath}\n${String(err)}`,
-    }),
-  });
+export async function onRequestError(err: unknown, req: { path: string }, ctx: { routePath: string }) {
+  await fetch(process.env.SLACK_WEBHOOK_URL!, { method: 'POST',
+    body: JSON.stringify({ text: `🚨 LP ランタイムエラー\npath: ${req.path} / route: ${ctx.routePath}\n${String(err)}` }) });
 }
 ```
-
-**期待効果**：本番例外が「白画面＝応募ゼロ」から「電話 CTA が生きた案内画面」に変わり、障害時の機会損失を最小化。Kaito の Instant Rollback 判断も Slack 通知起点で即時化する。
+**期待効果**：本番例外が「白画面＝応募ゼロ」から「電話 CTA が生きた案内画面」に変わる。Kaito の Instant Rollback 判断も Slack 通知起点で即時化。
 
 ---
 
 #### 7. 【コンテナクエリによるセクション再利用】
 
-**なぜ必要か**：
-既存のレスポンシブは 375 / 768 / 1280 の**ビューポート基準**に固定されている。だが LP のカードは「1カラム全幅」「2カラム内」「サイドバー内」で同じコンポーネントが使い回され、ビューポート幅が同じでも**要素の幅は違う**。結果 `md:grid-cols-2` を配置場所ごとに上書きする分岐が増え、複製案件の改修コストが膨らむ。
+**なぜ必要か**：既存のレスポンシブは 375/768/1280 の**ビューポート基準**に固定。だが LP のカードは「1カラム全幅」「2カラム内」「サイドバー内」で使い回され、ビューポート幅が同じでも**要素の幅は違う**。結果 `md:grid-cols-2` を配置場所ごとに上書きする分岐が増殖し、複製案件の改修コストが膨らむ。
 
-**具体的手法**：
-1. 再利用されるセクション/カードの親に `@container`（Tailwind v4）＝ `container-type: inline-size` を付与。
-2. 子は `@md:flex-row` のように **コンテナ基準のバリアント**でレイアウトを切り替える。名前付き（`@container/card` → `@md/card:`）で入れ子も安全。
-3. **`container-type: size` は使わない**（高さも封じるため、コンテンツ高が確定せず崩れる）。必ず `inline-size`。
-4. ビューポート基準（`md:` 等）は「ページ全体の骨格（コンテナ幅・段組数）」だけに限定し、**部品内部の分岐はすべてコンテナクエリ**に寄せる、という役割分担をルール化する。
+**具体的手法**：①再利用される部品の親に `@container`（＝`container-type: inline-size`）を付与 ②子は `@md:flex-row` のように**コンテナ基準のバリアント**で切替。名前付き（`@container/card` → `@md/card:`）で入れ子も安全 ③**`container-type: size` は使わない**（高さも封じるためコンテンツ高が確定せず崩れる）④ビューポート基準（`md:` 等）は**ページ骨格（コンテナ幅・段組数）だけ**に限定し、部品内部の分岐は全てコンテナクエリに寄せる役割分担をルール化。
 
-**判断基準・数値ライン**：
-- コンテナのブレークポイント：`@sm`(384px) / `@md`(448px) / `@lg`(512px) を部品用の標準セットとする
-- 部品コンポーネント内の **ビューポート基準バリアント（`sm:`/`md:`/`lg:`）を 0 個**にする
-- 改修時、同一部品の配置換えで **CSS 変更 0 行**で成立すること（受け入れ基準）
-- 非対応ブラウザ用に、コンテナクエリ未適用時でも 1 カラムで成立するデフォルトを必ず持つ
+**判断基準・数値ライン**：部品用の標準ブレークポイントは `@sm`(384px)／`@md`(448px)／`@lg`(512px)／部品コンポーネント内の**ビューポート基準バリアントを 0 個**／**配置換え時の CSS 変更 0 行**で成立すること（受け入れ基準）／未対応環境では 1 カラムで成立するデフォルトを必ず持つ。
 
 **実務テンプレート**：
 ```tsx
-// components/JobCard.tsx — 置き場所を問わず自律的にレイアウトを決める
 export function JobCard({ job }: { job: Job }) {
   return (
-    <article className="@container/card rounded-xl border border-neutral-200 p-5">
+    <article className="@container/card rounded-xl border p-5">
       <div className="flex flex-col gap-4 @md/card:flex-row @md/card:items-center">
-        <img src={job.image} alt="" width={320} height={200}
-             className="w-full rounded-lg @md/card:w-40" />
+        <img src={job.image} alt="" width={320} height={200} className="w-full rounded-lg @md/card:w-40" />
         <div className="flex-1">
           <h3 className="text-lg font-bold">{job.title}</h3>
           <dl className="mt-2 grid grid-cols-1 gap-1 text-sm @sm/card:grid-cols-2">
@@ -1167,55 +976,36 @@ export function JobCard({ job }: { job: Job }) {
   );
 }
 ```
-```css
-/* globals.css — 部品用コンテナブレークポイントの標準セット */
-@theme {
-  --container-sm: 24rem;  /* 384px */
-  --container-md: 28rem;  /* 448px */
-  --container-lg: 32rem;  /* 512px */
-}
-```
-
-**期待効果**：セクションの配置換え・2カラム化の要望に CSS 変更ゼロで対応でき、Sota のデザイン差替や Mia 差し戻し時の改修時間を短縮。部品単位の VRT（Storybook）も、コンテナ幅を変えるだけで全パターン検証できるようになる。
+**期待効果**：配置換え・2カラム化の要望に CSS 変更ゼロで対応でき、Sota のデザイン差替や Mia 差し戻し時の改修時間を短縮。Storybook の VRT もコンテナ幅を変えるだけで全パターン検証できる。
 
 ---
 
 ### 🚫 新たに定義した NG パターン
 
-1. **`'use client'` ファイルから Server Component を `import` して「SC のまま」と思い込む NG**：import した時点でクライアントバンドルに巻き込まれる。SC を CC の内側に置くときは **必ず `children`（または任意の ReactNode props）経由**で渡す。lint では検出しづらいため、CC のファイルに `import` されたコンポーネント数をレビュー観点に固定する。
-
-2. **LP ルートで `cookies()` / `headers()` / `no-store` fetch を Hero 側に混ぜ、ルート全体を Dynamic に落とす NG**：`next build` で `◐` が付かず `ƒ` のままなら失敗と判定する。動的要素は必ず `<Suspense>` の内側の子コンポーネントに閉じ込め、prelude を静的に保つ。
-
-3. **`<section>` を `aria-labelledby` / `aria-label` なしで乱用する NG＋ h1 複数 NG**：名前のない `section` は landmark にならず、`div` を使うのと変わらないうえに支援技術のノイズになる。ロゴを h1 にする実装も禁止（h1 は訴求コピー 1 個）。
-
-4. **日本語フォントを全ウェイト・`preload: true` で読み込む NG**：Noto Sans JP は 1 ウェイト数 MB。ウェイトは 400/700 の 2 種まで、`preload: false` + `display: 'swap'` + `fallback` 明示を標準とし、総転送 300KB を超えたら見出し専用サブセット woff2 に切り替える。
-
-5. **`error.tsx` を配置せずに納品する NG**：例外時に白画面になり、応募導線が完全に消える。`page.tsx` を持つ全セグメントに `error.tsx`、ルートに `global-error.tsx` と `not-found.tsx` を配置し、いずれも **社名 / `tel:` リンク / 再試行** の 3 点を含める。
-
-6. **`container-type: size` を指定する NG**：高さまで封じるためコンテンツ高が確定せず、セクションが潰れる/スクロールが暴れる。コンテナクエリは `inline-size`（Tailwind の `@container`）のみを使う。
-
-7. **INP をラボ値（Lighthouse / TBT）だけで合格判定する NG**：Lighthouse は INP を実測しない。フィールドの p75 と attribution（inputDelay / processing / presentationDelay）を取得しないまま「INP 200ms 達成」と報告しない。
-
-8. **1 つのイベントハンドラ内で 50ms を超える同期処理を回す NG**：`scheduler.yield()`（フォールバック `setTimeout 0`）で 20 件程度ごとにメインスレッドを返し、緊急でない state 更新は `startTransition` に包む。
-
-9. **境界を越えられない値（通常の関数・クラスインスタンス・Symbol）を SC → CC の props に渡す NG**：サーバーで結果まで計算して値で渡すか、`'use server'` の Server Action として渡す。
-
----
+1. **`'use client'` ファイルから Server Component を `import` して「SC のまま」と思い込む NG**：import した時点でクライアントバンドルに巻き込まれる。SC を CC の内側に置くときは必ず `children`（ReactNode props）経由で渡す。
+2. **LP ルートの Hero 側に `cookies()`／`headers()`／`no-store` fetch を混ぜ、ルート全体を Dynamic に落とす NG**：`next build` で `◐` が付かず `ƒ` のままなら失敗と判定し、動的要素は必ず `<Suspense>` の内側に閉じ込める。
+3. **`<section>` を `aria-labelledby`／`aria-label` なしで乱用する NG＋h1 複数 NG**：名前のない section は landmark にならず支援技術のノイズになる。ロゴを h1 にする実装も禁止（h1 は訴求コピー 1 個）。
+4. **日本語フォントを全ウェイト・`preload: true` で読む NG**：ウェイトは 400/700 の 2 種、`preload: false`＋`display: 'swap'`＋`fallback` 明示。総転送 300KB 超なら見出し専用サブセット woff2 に切替。
+5. **`error.tsx` 未配置で納品する NG**：例外時に応募導線が完全に消える。全セグメントに `error.tsx`、ルートに `global-error.tsx`／`not-found.tsx`、いずれも社名／`tel:`／再試行の 3 点を含める。
+6. **`container-type: size` を指定する NG**：高さまで封じてセクションが潰れる。コンテナクエリは `inline-size`（`@container`）のみ。
+7. **INP をラボ値（Lighthouse／TBT）だけで合格判定する NG**：Lighthouse は INP を実測しない。フィールド p75 と attribution を取らずに「INP 200ms 達成」と報告しない。
+8. **1 ハンドラ内で 50ms 超の同期処理を回す NG**：`scheduler.yield()`（フォールバック `setTimeout 0`）で 20 件ごとにメインスレッドを返し、緊急でない更新は `startTransition` に包む。
+9. **境界を越えられない値（通常の関数・クラスインスタンス・Symbol）を SC→CC の props に渡す NG**：サーバーで結果まで計算して値で渡すか、`'use server'` の Server Action として渡す。
 
 ### 📈 強化後の到達水準
 
 | 指標 | 強化前 | 強化後（新基準） |
 |---|---|---|
 | TTFB | 未定義（Dynamic 化で 800ms 事例あり） | **200ms 以下**（PPR prelude を CDN 配信） |
-| First Load JS | 200KB（bundlesize ゲート） | **130KB 以下**（gzip、CI fail） |
+| First Load JS | 200KB（bundlesize ゲート） | **130KB 以下**（gzip・CI fail） |
 | RSC ペイロード | 未計測 | **生 100KB 以下**（`curl -H 'RSC: 1'` で実測） |
 | `'use client'` ファイル比率 | ルールのみ（数値なし） | **全コンポーネントの 20% 以下** |
-| INP | ラボ 200ms | **フィールド p75 200ms 以下（社内目標 150ms）＋ 3 分解で原因特定可能** |
-| Long Task | 未定義 | **初期表示 5 秒間で 50ms 超ゼロ件** |
-| 見出し・landmark | axe violations 0 | **h1 一意 / レベル飛び越し 0 / 無名 section 0 / main 1 個**（CI ゲート #10） |
-| 日本語フォント | `next/font` 使用のみ | **総転送 300KB 以下・2 ウェイト・CLS 0.00・孤立文字 0** |
+| INP | ラボ 200ms | **フィールド p75 200ms 以下（目標 150ms）＋3 分解で原因特定可** |
+| Long Task | 未定義 | **初期表示 5 秒間で 50ms 超 0 件** |
+| 見出し・landmark | axe violations 0 | **h1 一意／レベル飛び越し 0／無名 section 0／main 1 個**（CI ゲート #10） |
+| 日本語フォント・組版 | `next/font` 使用のみ | **総転送 300KB 以下・2 ウェイト・CLS 0.00・孤立文字 0** |
 | 例外時の表示 | 未定義（白画面リスク） | **`error.tsx` 配置率 100%・白画面 0 秒・電話 CTA 生存** |
-| 部品の再利用性 | ビューポート基準の分岐が配置ごとに増殖 | **部品内のビューポート基準バリアント 0 個／配置換え時の CSS 変更 0 行** |
+| 部品の再利用性 | 配置ごとに分岐が増殖 | **部品内のビューポート基準バリアント 0 個／配置換え時 CSS 変更 0 行** |
 | CI ゲート | 9 ゲート | **11 ゲート**（＋#10 アウトライン検査、＋#11 RSC ペイロード／First Load JS 130KB） |
 
-**位置づけ**：`next/image`・Hydration・フォームの「守り」は既に完成域にあった。v2 では **①配信構造（PPR）② バンドル構造（RSC 境界設計）③ 実測（INP attribution）④ 日本語の質（組版・フォント予算）⑤ 障害時の見え方（error boundary）⑥ 部品の自律性（コンテナクエリ）** を獲得し、「速い LP を作れる」から **「なぜ速いかを数値で説明でき、壊れても応募が取れる LP を再現性高く量産できる」** 水準へ到達する。
+**位置づけ**：`next/image`・Hydration・フォームの「守り」は既に完成域だった。v2 では **①配信構造（PPR）②バンドル構造（RSC 境界設計）③実測（INP attribution）④日本語の質（組版・フォント予算）⑤例外時の見え方（error boundary）⑥部品の自律性（コンテナクエリ）** を獲得し、「速い LP を作れる」から **「なぜ速いかを数値で説明でき、壊れても応募が取れる LP を再現性高く量産できる」** 水準へ到達する。
