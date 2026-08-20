@@ -881,32 +881,28 @@ export const HERO = {
 ```css
 /* base/typography-ja.css — 全案件共通の組版ベース */
 :where(p, li, dd) {
-  max-inline-size: 34em;               /* 全角34字 */
-  line-height: 1.75;
-  letter-spacing: 0.02em;
-  word-break: normal;                   /* break-all 禁止 */
-  overflow-wrap: anywhere;              /* URL等のみ強制折返し */
-  line-break: strict;                   /* 禁則強化 */
-  text-wrap: pretty;                    /* 孤立行防止 */
+  max-inline-size: 34em;           /* 全角34字 */
+  line-height: 1.75; letter-spacing: 0.02em;
+  word-break: normal;              /* break-all 禁止 */
+  overflow-wrap: anywhere;         /* URL等のみ強制折返し */
+  line-break: strict;              /* 禁則強化 */
+  text-wrap: pretty;               /* 孤立行防止 */
 }
 :where(h1, h2, h3) {
-  line-height: 1.3;
-  letter-spacing: 0.03em;
-  font-feature-settings: "palt" 1;      /* 詰めは見出しのみ */
-  word-break: auto-phrase;              /* 文節で折る */
+  line-height: 1.3; letter-spacing: 0.03em;
+  font-feature-settings: "palt" 1; /* 詰めは見出しのみ */
+  word-break: auto-phrase;         /* 文節で折る */
   text-wrap: balance;
 }
 .job-title { word-break: auto-phrase; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 ```
-```markdown
 | 要素 | 想定字数(kotone) | 行長 | 最大行数 | 超過時 | 分割不能語の例 |
 |---|---|---|---|---|---|
 | Hero h1 | 18〜25字 | ー | SP3/PC2 | 短縮B案 | 一級建築施工管理技士 |
 | JobCard 職種名 | 8〜16字 | ー | 2 | line-clamp | 型枠大工（未経験・見習い可） |
 | 本文 | 60〜160字 | 34em | ー | 可変高さ許容 | 株式会社◯◯建設工業 |
-```
 
-**期待効果**：SP での不自然改行・カード高さ不揃い・「なんか読みにくい」というクライアント感覚指摘を設計層で根絶。日本語 LP 特有の品質差が出る領域で他社制作物と明確に差別化。kotone の字数レンジと組版規範が対になり、コピー差し替え耐性が完成する。
+**期待効果**：SP での不自然改行・カード高さ不揃い・「なんか読みにくい」というクライアント感覚指摘を設計層で根絶。kotone の字数レンジと組版規範が対になり、コピー差し替え耐性が完成する。
 
 #### 6. 【Form Friction Score（入力コストの定量設計）】
 

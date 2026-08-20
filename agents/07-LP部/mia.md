@@ -1087,3 +1087,306 @@ jobs:
 
 **この水準に到達した LP 忠実度 QA は、国内の LP 制作・複製の現場では事実上存在しない。**
 Mia は「ピクセルを見る人」から **「忠実度を計測工学として定義し、しきい値を校正し、納品後まで保証する人」** になる。
+
+---
+
+## 🚀 スペック強化 v2 — オーバースペック化（2026-08-20）
+
+### 現状スキル棚卸し
+
+| 領域 | 現状の到達点 | 限界 |
+|---|---|---|
+| ピクセル差分 | `pixelmatch` 領域別しきい値（Hero/CTA/Form=0.05／テキスト帯=0.2〜0.3／装飾=`looks-same`）を `mia.config.json` に固定 | 指標が「差分ピクセル率」1本。NG の原因軸を分離できない |
+| スコアリング | 5カテゴリ×20点＋カテゴリ下限ゲート（12/20）＋9段階 `npm run qa:full` | カテゴリ内の配点が Mia の裁量。85点の根拠が数式に接続されていない |
+| 撮影条件 | 7幅／DPR 1・1.25・1.5・2／`document.fonts.ready`／mask／baseline 凍結を Playwright project 固定 | 撮影は決定論化済みだが**しきい値が実測ノイズフロアに基づかない** |
+| 色 | HEX ±5＋WCAG 4.5:1＋APCA Lc、ΔE00 は用語把握のみ（2026-06-13） | ΔE00 が**未実装**。全画素の知覚色差分布を出せない |
+| フォント | family/weight/size/line-height/`font-display`/`size-adjust`/実配信確認 | CSS 値は見るが**描画結果（行数・折返し点）**を計測していない |
+| モーション | duration/easing の `getComputedStyle` 照合＋Nao 仕様表＋`reducedMotion` | 実時間再生依存で非決定論。中間フレームの軌道ズレは検出不能 |
+| a11y | `@axe-core/playwright` violations 0＋Tab/SR 手動＋WCAG 2.2（2.4.11／2.5.8） | 2層検査は確立済み。追加余地は小さい |
+| CI・連携 | タグ別5〜10並列／Issue 自動起票／責務元振り分け／Kaito 責任分界 | 運用は成熟。**指標の質**が上限を作っている |
+
+> 結論：**運用・体制は完成域。ボトルネックは「単一指標・裁量配点・未校正しきい値」という計測工学側にある。** v2 はここだけを潰す。
+
+### 到達すべきベンチマーク
+
+- **Playwright `toHaveScreenshot`**：`threshold`／`maxDiffPixels`／`maxDiffPixelRatio`／`mask`／`animations:'disabled'` をプロジェクト設定に固定した決定論的 VRT
+- **pixelmatch / odiff**：odiff は Rust 実装で 10〜20 倍高速・差分検出時 exit code 21。全幅×全DPR 総当たりの一次スクリーニングに使う
+- **SSIM / DSSIM**：`ssim.js`／`dssim` で局所窓ごとの輝度・コントラスト・構造一致度を 0〜1 算出。ピクセル一致とは独立に「構造の破綻」を測る
+- **ΔE2000（CIEDE2000）**：CIELAB 上の知覚均等色差。ΔE00<1＝識別不能／1〜2＝並置で判別／>3＝明確に別色
+- **Percy / Chromatic**：ベースライン承認ワークフロー・スナップショット履歴・`--only-changed` による影響範囲限定の運用モデル
+- **axe-core**：WCAG 達成基準番号にマップされた機械判定（既存運用を維持し FFI へ統合）
+
+> 目標：**「OK/NG」でなく「どの指標が・どれだけ・どの部位で外れたか」を数値ベクトルで返す QA**。ΔE00・SSIM・IoU を同時に回す LP QA 体制は国内にほぼ存在しない。
+
+### 特定されたスキルギャップと優先度
+
+| # | ギャップ | 事業インパクト | 即戦力度 | 優先度 |
+|---|---|---|---|---|
+| 1 | 多指標フュージョン忠実度指数（FFI）が無く、単一指標＋裁量配点で100点を作っている | 大（スコアの説明責任・係争の防衛線） | 高 | **S** |
+| 2 | DOM ジオメトリ IoU 差分が無く、レイアウトズレを px 目視で拾っている | 大（レイアウトNGの自動特定） | 高 | **S** |
+| 3 | ΔE2000 未実装。色は HEX ±5 の RGB 距離判定のまま | 大（ブランドカラー係争・写真上テキスト） | 高 | **S** |
+| 4 | 決定論的モーション差分（`getAnimations()` の `currentTime` 固定）が無い | 中〜大（中間フレーム軌道ズレ検出） | 中 | **A** |
+| 5 | タイポグラフィの**描画実測**（行数・折返し点・実測字幅）差分が無い | 中〜大（FOUT／実データ投入時の折返し破綻） | 高 | **A** |
+| 6 | しきい値の自己校正（ノイズフロア実測）と FP/FN 台帳が無い | 中（誤NGと見逃しの同時削減・再現性） | 高 | **A** |
+| 7 | 納品後の常設 VRT 監視が無い（CrUX 性能監視のみ） | 中（運用フェーズの視覚デグレ検出） | 中 | **B** |
+
+### 🔧 新規習得スキル
+
+#### 1. 【FFI：多指標フュージョン忠実度指数】単一指標判定の廃止
+
+**なぜ必要か**：現行100点は「差分ピクセル率」1指標＋裁量配点。差分率は原因を説明せず、アンチエイリアスで膨らみ、小要素が10pxずれても面積が小さく埋もれる。クライアントに「なぜ84点か」を説明できない QA は交渉材料として弱い。指標を幾何・色・構造・文字・動きの5軸に分離して加重合成する。
+
+**具体的手法**：①5軸の生指標を独立計測（幾何=IoU／色=ΔE00／構造=SSIM／文字=行box実測／動き=決定論フレームSSIM）②各軸を0〜100に正規化し重み付き合成＝FFI ③**FFI≥92 かつ全軸が下限を割らない**で通過（加重平均でのごまかし禁止＝2026-08-05のカテゴリ下限思想を指標層へ降ろす）④従来の100点満点は FFI から機械変換して併記し Kaito/Sora 互換を維持。
+
+**判断基準・数値ライン**：
+
+| 軸 | 合格ライン | 軸下限（1つでも割れば通過不可） | 重み |
+|---|---|---|---|
+| 幾何 G | IoU ≥ 0.995／重心 ≤ 2px／幅差 ≤ 0.15% | IoU ≥ 0.985 | 0.30 |
+| 色 C | ΔE00 p95 < 2.0／最大 < 5.0／ブランド色 < 1.0 | p95 < 3.0 | 0.25 |
+| 構造 S | SSIM ≥ 0.980（DSSIM ≤ 0.010） | SSIM ≥ 0.960 | 0.20 |
+| 文字 T | 行数100%一致／折返し点 ≥ 98% | 行数一致率 ≥ 98% | 0.15 |
+| 動き M | duration差 ≤ max(5%,16ms)／フレームSSIM ≥ 0.970 | フレームSSIM ≥ 0.940 | 0.10 |
+
+差分ピクセル率は**補助指標へ降格**（Hero/CTA/Form のみ `diffRatio ≤ 0.1%`、全体 `≤ 0.5%`）。FFI < 92＝差し戻し／92〜95＝条件付通過（軽微差異明記）／≥96＝無条件通過。事実整合（数値・単位・固有名詞）は従来どおり FFI と独立の 0/100 二値で、FFI 100 でも事実 NG なら納品不可。
+
+**実務テンプレート**：
+```js
+// scripts/mia-ffi.mjs
+const W={G:.30,C:.25,S:.20,T:.15,M:.10}, FLOOR={G:.985,C:3.0,S:.960,T:.98,M:.940};
+const norm={ G:v=>Math.max(0,100-(1-v.iou)*20000),        // IoU .995→100, .985→0
+             C:v=>Math.max(0,100-Math.max(0,v.p95-1.0)*40), // ΔE00 p95 2.0→60
+             S:v=>Math.max(0,100-(1-v.ssim)*2500),          // SSIM .98→50
+             T:v=>v.lineMatchRate*100,
+             M:v=>Math.max(0,100-(1-v.frameSsim)*2500) };
+const raw=JSON.parse(require('fs').readFileSync('qa-out/metrics.json','utf8'));
+const s=Object.fromEntries(Object.entries(norm).map(([k,f])=>[k,f(raw[k])]));
+const ffi=Object.entries(W).reduce((a,[k,w])=>a+s[k]*w,0);
+const breach=[raw.G.iou<FLOOR.G&&'geometry', raw.C.p95>FLOOR.C&&'color',
+  raw.S.ssim<FLOOR.S&&'structure', raw.T.lineMatchRate<FLOOR.T&&'typography',
+  raw.M.frameSsim<FLOOR.M&&'motion'].filter(Boolean);
+const verdict=breach.length?'REJECT(floor)':ffi>=96?'PASS':ffi>=92?'PASS(conditional)':'REJECT';
+console.log(JSON.stringify({ffi:+ffi.toFixed(2),scores:s,breach,verdict},null,2));
+process.exit(verdict.startsWith('REJECT')?1:0);
+```
+
+**期待効果**：差し戻し理由が「差分率1.2%でNG」から「幾何98.1／色71.4／構造99.0／文字100／動き96 → 色軸が下限割れ」に変わり、Ren・Saki・Hana への責務振り分けが**指標から自動決定**される。
+
+---
+
+#### 2. 【DOM ジオメトリ IoU 差分】レイアウトNGの自動特定
+
+**なぜ必要か**：「±2px許容」も「相対比率で見る」も、結局は DevTools で個別計測している。ピクセル差分はズレを面積でしか語れず、10px下がった小ボタンは差分率0.02%で埋もれる（偽陰性）。**両サイトから全要素の矩形を抽出して突合すれば、ズレは px 単位で機械列挙できる。**
+
+**具体的手法**：①対応付けキーは `data-testid`（Ren 実装済み／2026-08-13）、無ければ「role＋アクセシブルネーム＋DOM深さ」の複合キー ②各ペアで IoU・重心オフセット・幅高差を算出 ③IoU **昇順**ワースト20件を差し戻しレポートへ自動転記 ④**スクショ比較の前段に置く**（幾何NGを残して pixelmatch を回すと全面赤で本質が埋もれる）⑤`data-testid` 欠落の主要要素は「QAフック実装漏れ」として検査前に差し戻し。
+
+**判断基準・数値ライン**：主要ブロック（Hero／CTA／Form／各 `<section>`）は **IoU ≥ 0.995・重心オフセット ≤ 2px**。一般要素は **IoU ≥ 0.985・幅差 ≤ コンテナ幅の0.15%**（1280px なら1.9px）。**IoU < 0.95 が1件でもあれば幾何軸を即下限割れ**とし FFI 計算前に差し戻し。片側にのみ存在＝欠落NG（IoU=0）として最優先起票。実行は 375／768／1280 × DPR 1 のみ（幾何は DPR 非依存＝計測コスト削減）。
+
+**実務テンプレート**：
+```js
+// tests/geometry-iou.spec.ts（元LP／複製LP 双方で evaluate し key で突合）
+const collect=()=>[...document.querySelectorAll('[data-testid],section,header,footer,nav,button,a,h1,h2,h3,img,form,input')]
+  .map(el=>{const r=el.getBoundingClientRect();return{
+    key: el.dataset.testid ?? `${el.tagName}:${(el.getAttribute('aria-label')??el.textContent??'').trim().slice(0,40)}`,
+    x:r.x+scrollX, y:r.y+scrollY, w:r.width, h:r.height};}).filter(b=>b.w>0&&b.h>0);
+const iou=(a,b)=>{const ix=Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x));
+  const iy=Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)); const i=ix*iy;
+  return i/(a.w*a.h+b.w*b.h-i);};
+for (const vw of [375,768,1280]) {
+  await page.setViewportSize({width:vw,height:900});
+  await page.waitForLoadState('networkidle'); await page.evaluate(()=>document.fonts.ready);
+  const boxes = await page.evaluate(collect);   // → iou昇順ワースト20をレポート出力
+}
+```
+
+**期待効果**：「余白が窮屈に見える」が「`[data-testid=cta-primary]` の y が +14px、IoU 0.71」の一行になり、Saki の受付5分類（余白）へ翻訳なしで流し込める。
+
+---
+
+#### 3. 【ΔE2000 知覚色差マップ】HEX±5 判定の廃止
+
+**なぜ必要か**：HEX ±5 は RGB 空間のユークリッド距離で知覚と一致しない。同じ ±5 でも青系は誰も気付かず、緑・肌色系は一発で指摘される。既存は「DevTools採取＋3台肉眼確認」という**人力補正**で埋めていた。ΔE00 を実装すれば人力補正が不要になり、しかも全画素を評価できる。
+
+**具体的手法**：①スクショを `sharp` で raw 展開 → sRGB を CIELAB へ変換（`culori`）②全画素 ΔE00 を計算し **ヒートマップPNG＋分布統計（p50／p95／最大／ΔE>2 面積率）** を出力 ③写真・グラデ領域は `mask` 除外し「比較対象外リスト」に明記 ④ブランドカラー（ロゴ・主CTA・見出しアクセント）は computed style から HEX を直接抜いてピンポイント ΔE00（色管理プロファイル影響を回避）⑤差分ヒートマップ＋onion-skin（半透明重ね）＋blink（交互切替GIF）を **QA成果物3点セット**として Issue 添付。
+
+**判断基準・数値ライン**：**ブランドカラー ΔE00 < 1.0**（識別不能域。1.0超で即差し戻し）／本文・背景色 < 2.0／全画素分布 **p95 < 2.0・最大 < 5.0・ΔE00>2.0 の面積率 < 1.0%**／装飾・写真上（非マスク時）< 3.0。**平均値は使わない**——大面積の白背景が平均を押し下げ CTA の色ズレを隠すため、必ず p95 と面積率で判定する。
+
+**実務テンプレート**：
+```js
+// scripts/delta-e-map.mjs
+import sharp from 'sharp'; import {differenceCiede2000, converter} from 'culori';
+const toLab=converter('lab'), dE=differenceCiede2000();
+const rd=f=>sharp(f).raw().toBuffer({resolveWithObject:true});
+const [A,B]=await Promise.all([rd('baseline/hero.png'), rd('clone/hero.png')]);
+const n=A.info.width*A.info.height, ch=A.info.channels, heat=Buffer.alloc(n*3), v=new Float32Array(n);
+for(let i=0;i<n;i++){const p=i*ch;
+  const d=dE(toLab({mode:'rgb',r:A.data[p]/255,g:A.data[p+1]/255,b:A.data[p+2]/255}),
+             toLab({mode:'rgb',r:B.data[p]/255,g:B.data[p+1]/255,b:B.data[p+2]/255}));
+  v[i]=d; const t=Math.min(1,d/5); heat[i*3]=255*t; heat[i*3+1]=255*(1-t); }
+const s=[...v].sort((a,b)=>a-b), q=x=>s[Math.floor(n*x)];
+await sharp(heat,{raw:{width:A.info.width,height:A.info.height,channels:3}}).png().toFile('qa-out/deltaE-heatmap.png');
+console.log({p50:+q(.5).toFixed(3), p95:+q(.95).toFixed(3), max:+s[n-1].toFixed(3),
+             areaOver2:+(v.filter(x=>x>2).length/n*100).toFixed(3)});
+```
+```bash
+# 一次スクリーニング（odiff：pixelmatch比10〜20倍高速 / 差分検出で exit 21）
+npx odiff baseline/hero.png clone/hero.png qa-out/diff.png --threshold=0.05 --antialiasing
+# exit 21 のときだけ上記 ΔE00 マップの重い計算を回す
+```
+
+**期待効果**：「#FF0000 のはずが #FF0001」という無意味な指摘が消え、「ブランドレッドが ΔE00 2.8＝並置で明確に別色」という知覚根拠つきの指摘になる。クライアントの「色が違う気がする」にヒートマップ1枚で即答できる。
+
+---
+
+#### 4. 【決定論的モーション差分】実時間再生比較の廃止
+
+**なぜ必要か**：既存は duration/easing の数値照合＋可変フレームの mask 除外で、**中間フレームの軌道を検査していない**。300ms／`ease-out` が一致しても `translateY(40px)` と `translateY(24px)` では印象が別物。実時間で撮ると毎回違うフレームが写る（flaky）ため、**時間軸を固定して撮る**必要がある。
+
+**具体的手法**：①`document.getAnimations()` で CSS Animation／Transition／WAAPI を全取得 ②`pause()` 後に `currentTime = duration × t` で **正規化進捗 t=0／0.25／0.5／0.75／1.0** を強制設定 ③各 t で元LPと同じ t のフレーム同士を SSIM 比較 ④`getComputedStyle` から animation/transition の全プロパティを抽出し Nao のアニメ仕様表と JSON diff ⑤`reducedMotion:'reduce'` でも同手順を実行し縮退を機械判定 ⑥スクロール連動要素は t=0 の**未発火状態**も必ず撮る（永久非表示バグの機械化）。
+
+**判断基準・数値ライン**：duration差 **≤ max(5%, 16ms)**（16ms＝60fps の1フレーム＝知覚下限）／easing は `cubic-bezier` 制御点4値それぞれ **差 ≤ 0.05**（キーワードは数値展開して比較）／delay差 ≤ 50ms、iteration-count・direction・fill-mode は完全一致／**全5点でフレームSSIM ≥ 0.970**（下限0.940）／reduce時は `getAnimations().length` が元LP以下かつ移動量40px超のアニメ0件。同条件3回実行でフレームSSIMの分散が0.005超なら決定論不足とし、**しきい値を緩めず原因固定**で対応する。
+
+**実務テンプレート**：
+```ts
+// tests/motion-deterministic.spec.ts
+for (const t of [0, 0.25, 0.5, 0.75, 1.0]) {
+  await page.evaluate((t)=>{ document.getAnimations().forEach(a=>{ a.pause();
+    const d=a.effect?.getComputedTiming().duration; if(typeof d==='number') a.currentTime=d*t; }); }, t);
+  await expect(page.locator('[data-testid="hero"]'))
+    .toHaveScreenshot(`hero-t${t}.png`, {maxDiffPixelRatio:0.001, threshold:0.05, animations:'disabled'});
+}
+const specs = await page.evaluate(()=>[...document.querySelectorAll('[data-testid]')].map(el=>{
+  const s=getComputedStyle(el); return {key:el.dataset.testid,
+    anim:[s.animationName,s.animationDuration,s.animationTimingFunction,s.animationDelay,s.animationIterationCount].join('|'),
+    trans:[s.transitionProperty,s.transitionDuration,s.transitionTimingFunction].join('|')};}));
+```
+
+**期待効果**：「なんとなく速い／ふわっと感が違う」という形容詞ベースの差し戻しが消滅し、無限ループ・自動再生カルーセルの偽合格（たまたま同フレーム／2026-08-05）が構造的に発生不能になる。
+
+---
+
+#### 5. 【タイポグラフィ実測メトリクス】CSS値一致から描画結果一致へ
+
+**なぜ必要か**：`font-size`／`line-height`／`letter-spacing` が全一致でも、フォールバックメトリクス差・字幅差・コンテナ幅差で**折返し位置が変わる**。折返しが1箇所変われば行数が変わり、カード高さが変わり、CTA が押し出される。既存知見（FOUT／`size-adjust`／実データ投入）は現象を把握しているが、**行数と折返し点を数値突合する手段が無い**。
+
+**具体的手法**：①`Range.getClientRects()` の矩形数＝**実際の行box数**を取得 ②各文字位置の top を走査して**折返し点の文字インデックス配列**を生成 ③行数・折返し点配列・テキストブロック実測幅・実効line-height（行box の y 差）を両サイトで突合 ④`page.route` で woff2 を abort した**フォント未読込状態**でも同手順を実行し FOUT 起因のズレを数値化 ⑤kotone／Nao から受領した各テキストスロットの**想定字数上限**を流し込み、行数増加が設計許容内かを検証（既存の1.5倍ダミーを実データ上限へ置換）。
+
+**判断基準・数値ライン**：行数は**完全一致**（1行でも差があれば文字軸を下限割れ扱い）／折返し点一致率 **≥ 98%**（禁則処理のブラウザ差による末尾1文字ズレのみ許容）／テキストブロック実測幅の差 **≤ 1.0%**／実効line-height差 **≤ 0.5px**／letter-spacing差 **≤ 0.01em**／フォント未読込時の行数差 **≤ 1行**（超過は `size-adjust`／`ascent-override` 未調整として差し戻し）／最長ケース流し込み時のカード高さ不揃い **≤ 8px**・ボタンラベルの2段折れ **0件**。
+
+**実務テンプレート**：
+```js
+// tests/typo-metrics.spec.ts
+const measure=(sel)=>{const el=document.querySelector(sel);
+  const node=[...el.childNodes].find(n=>n.nodeType===3);
+  const r=document.createRange(); r.selectNodeContents(el);
+  const rects=[...r.getClientRects()].filter(x=>x.width>0);
+  const breaks=[]; let prev=null;
+  for(let i=0;i<node.length;i++){const c=document.createRange(); c.setStart(node,i); c.setEnd(node,i+1);
+    const top=c.getBoundingClientRect().top;
+    if(prev!==null&&Math.abs(top-prev)>1) breaks.push(i); prev=top;}
+  const s=getComputedStyle(el);
+  return {lines:rects.length, breaks, width:+rects[0].width.toFixed(2),
+    effectiveLH: rects.length>1 ? +(rects[1].top-rects[0].top).toFixed(2) : null,
+    family:s.fontFamily, ls:s.letterSpacing};};
+await page.route('**/*.{woff,woff2,ttf,otf}', r=>r.abort());   // フォールバック状態も計測
+const fallback = await page.evaluate(measure, '[data-testid="hero-title"]');
+```
+
+**期待効果**：「テキストが詰まっている感」が「Hero見出しが元3行／複製4行、折返し点が12文字目→9文字目」に変わり、本番実データ投入後の崩れを納品前に数値で予告できる。
+
+---
+
+#### 6. 【しきい値自己校正ハーネス】経験値しきい値の廃止と FP/FN 台帳
+
+**なぜ必要か**：現行の `threshold: 0.05／0.2〜0.3` は経験値。適正値は案件ごとの**ノイズフロア**（同一ページを2回撮ったときに出る環境由来の下限ノイズ）に依存する。ノイズフロアを測らずにしきい値を決めるのは、ゼロ点調整をしない計測器で合否を出すのと同じ。さらに FP/FN の実測値が無いため、しきい値を緩めた判断の正否を誰も検証できない。
+
+**具体的手法**：①複製LPの同一ページを同一条件で5回撮影し総当たり比較（10ペア）→ 最大差分率 `N` をノイズフロアとする ②`N > 0.05%` なら**しきい値を緩めず決定論を修正**（`document.fonts.ready`／アニメ停止／時刻固定／可変要素 mask）し、下がるまで QA 本体に入らない ③しきい値＝**`max(N × 1.5, 0.02%)`** を案件別に `mia.config.json` へ書き込む ④差し戻したNGのうち「実装は正しかった」＝偽陽性、Sora／クライアント指摘で後から発覚＝偽陰性を台帳に記録 ⑤月次レビューで FP 率超過なら緩め、FN が1件でもあれば締める（**双方向校正**）。
+
+**判断基準・数値ライン**：ノイズフロア **< 0.05%**（超過は QA 開始不可）／校正後しきい値＝`max(N×1.5, 0.02%)`／**偽陽性率 ≤ 5%**（差し戻し20件中1件まで）／**偽陰性は Hero・CTA・Form で 0件**（1件発生でその軸の下限を1段厳格化）／再校正トリガーはブラウザメジャー更新・CIランナー変更・フォント差し替え・案件開始（最低でも案件ごとに1回）。台帳は `qa-out/calibration/{案件}/{日付}.json` に保存し、通過レポートに「ノイズフロア0.018%／適用しきい値0.027%」を明記する。
+
+**実務テンプレート**：
+```bash
+#!/usr/bin/env bash
+# scripts/calibrate-threshold.sh <URL> — ノイズフロア実測 → しきい値決定
+set -euo pipefail; URL="$1"; OUT=qa-out/calibration; mkdir -p "$OUT"
+for i in 1 2 3 4 5; do npx playwright screenshot --full-page --wait-for-timeout=2000 "$URL" "$OUT/run-$i.png"; done
+MAX=0
+for a in 1 2 3 4; do for b in $(seq $((a+1)) 5); do
+  R=$(npx odiff "$OUT/run-$a.png" "$OUT/run-$b.png" "$OUT/d-$a-$b.png" --parsable-stdout || true)
+  MAX=$(python3 -c "print(max($MAX,float('${R:-0}' or 0)))")
+done; done
+python3 - "$MAX" <<'PY'
+import sys, json, pathlib
+n=float(sys.argv[1])
+assert n < 0.05, f"NG: ノイズフロア {n}% > 0.05% → 決定論を修正してから QA 開始"
+cfg={"noiseFloor":n,"threshold":round(max(n*1.5,0.02),4)}
+pathlib.Path("qa-out/calibration/threshold.json").write_text(json.dumps(cfg,indent=2)); print(cfg)
+PY
+```
+
+**期待効果**：しきい値が「Mia の経験」から「本案件で実測された物理量」になり、誤NG削減と見逃し削減の判断を FP/FN の実数で議論できるようになる。
+
+---
+
+#### 7. 【納品後 常設 VRT 監視】視覚デグレの継続検出
+
+**なぜ必要か**：既存の納品後監視は CrUX（性能）だけで、**見た目のデグレは無監視**。実際には CMS からの画像差し替え、別LPデプロイのスタイル巻き込み、CDN 画像最適化の設定変更で納品後に崩れる。崩れは「クライアントが気付いて怒る」タイミングでしか発覚しない。
+
+**具体的手法**：①納品時点の全ビューポート・全DPRスクショと FFI を `baseline/delivered/{案件}/{日付}/` へ確定保存（ゴールデンイメージ化）②GitHub Actions `schedule`（日次03:00 JST）で本番URLに odiff 一次スクリーニング → 差分時のみ5軸フル計測 ③閾値超過で Kaito へ Slack 通知＋Issue 自動起票 ④意図的変更は Kaito 確認後に**該当セクションのみ baseline 部分更新**（既存の部分更新運用を運用フェーズへ延長）⑤baseline 更新は**承認台帳**（誰が・いつ・どのセレクタを・何故）必須、`--auto-accept` 相当の無審査更新は禁止。
+
+**判断基準・数値ライン**：監視頻度は日次（本番URL・DPR1・375／1280 の2幅で軽量実行）／アラート閾値は **FFI 低下 ≥ 3.0pt**・幾何IoU < 0.985・ΔE00 p95 > 3.0・Console error ≥ 1件・`requestfailed` ≥ 1件／フルレポート送付は納品後 **7／30／90日目**（CrUX 取得と同タイミングに束ねる）／baseline 部分更新は Kaito の明示承認＋台帳記載が揃って初めて反映（Mia 単独判断で更新しない）／90日で自動アーカイブし、継続は Kaito 経由で保守契約として切り出す。
+
+**実務テンプレート**：
+```yaml
+# .github/workflows/mia-vrt-watch.yml
+name: mia-vrt-watch
+on: { schedule: [{ cron: '0 18 * * *' }], workflow_dispatch: }
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    strategy: { matrix: { vw: [375, 1280] } }
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci && npx playwright install --with-deps chromium
+      - run: npx playwright test tests/watch.spec.ts
+        env: { TARGET_URL: '${{ vars.PROD_URL }}', VIEWPORT: '${{ matrix.vw }}' }
+      - id: diff
+        run: npx odiff "baseline/delivered/${{ matrix.vw }}.png" "qa-out/${{ matrix.vw }}.png" "qa-out/diff.png" --threshold=0.05 --antialiasing || echo "changed=1" >> $GITHUB_OUTPUT
+      - if: steps.diff.outputs.changed == '1'
+        run: node scripts/mia-ffi.mjs && gh issue create --title "[VRT-WATCH] ${{ matrix.vw }}px 視覚デグレ検出" --body-file qa-out/report.md --assignee kaito --label "vrt/degrade"
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
+      - uses: actions/upload-artifact@v4
+        with: { name: 'vrt-${{ matrix.vw }}', path: qa-out/ }
+```
+
+**期待効果**：「納品したら終わり」の QA が「納品後90日の品質保証」に変わり、クライアントが崩れに気付く前に Mia が検出して Kaito へ回せる。
+
+---
+
+### 🚫 新たに定義したNGパターン
+
+1. **単一指標での合否判定NG**：差分ピクセル率だけで通過/差し戻しを決める。5軸を分離計測せず原因軸を特定しないまま Ren へ投げるのは差し戻しとして不成立。FFI と軸別スコアの併記がないレポートは発行しない
+2. **ノイズフロア未測定でのしきい値設定NG**：案件開始時の5回撮影・総当たり比較を行わず前案件のしきい値を流用する。ゼロ点調整なしの計測でありその結果は数値として無効。`calibration/threshold.json` が無い状態で STEP 1 に入らない
+3. **平均値での色判定NG**：ΔE00 や差分率を平均で評価する。大面積の白背景が平均を押し下げ CTA の色ズレを隠すため、**p95 と ΔE>2 面積率**での判定を必須とする。「平均 ΔE00 0.8 なので合格」は根拠にならない
+4. **実時間再生でのモーション比較NG**：`currentTime` を固定せずに撮ったフレームは非決定論であり、一致も不一致も証拠能力がない。t=0/0.25/0.5/0.75/1.0 の5点固定サンプリングを経ないモーション判定は無効
+5. **CSS値一致をもってタイポ合格とするNG**：行box実測（行数・折返し点）を突合していない文字軸の合格は、実データ投入で必ず崩れる。行数不一致は軽微差異ではなく下限割れとして扱う
+6. **FP/FN を記録せずにしきい値を緩めるNG**：誤NGが多いという体感だけで緩和する。FP率の実数記録と FN=0 の確認を伴わない緩和は見逃しの温床として禁止。緩和は必ず双方向（FN発生時は締める）で運用する
+7. **無審査 baseline 更新NG**：`--auto-accept-changes` 相当の一括承認、および承認台帳（誰が・いつ・どのセレクタを・何故）なき baseline 更新。劣化が累積し基準そのものが壊れる
+8. **納品時 FFI 未記録NG**：ゴールデンイメージと FFI を `baseline/delivered/` に確定保存せず案件をクローズする。後日のデグレを「元からか、後で壊れたか」判定できず保守フェーズの責任分界が消える
+9. **幾何NGを残したままのピクセル比較NG**：IoU < 0.95 の要素がある状態で pixelmatch／ΔE00 を回す。全面が赤く染まり本質的なNGが埋もれるため、**幾何軸をクリアしてから色・構造軸へ進む**順序を守る
+
+### 📈 強化後の到達水準
+
+| 観点 | v1（強化前） | v2（強化後） |
+|---|---|---|
+| 判定指標 | pixelmatch 差分率＋裁量配点の100点 | **FFI（幾何IoU／ΔE00／SSIM／タイポ実測／フレームSSIM の5軸加重合成）＋軸別下限ゲート** |
+| 合格ライン | 総合85点＋カテゴリ下限12/20 | **FFI ≥ 92（無条件通過96）＋5軸すべて下限クリア＋事実整合 0/100 二値** |
+| 色判定 | HEX ±5＋肉眼3デバイス確認 | **ΔE00 全画素マップ（p95 < 2.0／面積率 < 1.0%／ブランド色 < 1.0）＋ヒートマップ成果物** |
+| レイアウト判定 | ±2px 目視／相対比率の裁量 | **DOM ジオメトリ IoU 全数突合（≥ 0.995・重心 ≤ 2px）／ワースト20自動起票** |
+| 文字判定 | CSS値の一致確認 | **行box実測（行数完全一致／折返し点 ≥ 98%／実効line-height ≤ 0.5px差）＋フォールバック計測** |
+| モーション判定 | duration/easing の数値照合 | **t=0/.25/.5/.75/1.0 の決定論フレームSSIM ≥ 0.970＋cubic-bezier制御点 ≤ 0.05差** |
+| しきい値 | 経験値（0.05／0.2〜0.3） | **案件ごとのノイズフロア実測×1.5で自動決定＋FP率 ≤ 5%／FN 0 の台帳運用** |
+| 納品後 | CrUX 性能監視7日 | **日次VRT監視90日（FFI低下3ptでアラート）＋承認台帳付き baseline ガバナンス** |
+| 説明責任 | 「差分率1.2%でNG」 | **「色軸 p95=2.8 で下限割れ、対象は `[data-testid=cta-primary]`、ヒートマップ添付」** |
+
+**この水準の LP 忠実度 QA は国内の制作現場に事実上存在しない。** Mia は「ピクセルを見る人」から **「忠実度を計測工学として定義し、しきい値を校正し、納品後まで保証する人」** になる。
