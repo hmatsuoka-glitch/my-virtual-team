@@ -898,7 +898,7 @@ function baselineFor(tag) {                       // about:blank の iframe＝UA
     const f = document.createElement('iframe');
     f.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;border:0';
     document.body.append(f);
-    const d = f.contentDocument, el = d.appendChild(d.createElement(tag));
+    const d = f.contentDocument, el = d.createElement(tag); d.body.append(el);
     const cs = f.contentWindow.getComputedStyle(el), snap = {};
     for (let i = 0; i < cs.length; i++) snap[cs[i]] = cs.getPropertyValue(cs[i]);
     _base.set(tag, snap); f.remove();
@@ -937,25 +937,21 @@ function significantStyles(el) {                  // 340+ → 平均12〜30プ�
 ```js
 const REF = /var\(\s*(--[\w-]+)\s*(?:,\s*([^]*?))?\)/g;
 
-function varChain(el, name) {
+function varChain(el, name) {                       // [:root 定義, …上書き…, 実効値]
   const chain = [];
   for (let n = el; n; n = n.parentElement) {
-    const v = getComputedStyle(n).getPropertyValue(name).trim();
-    if (!v) continue;
-    if (!chain.length || chain[chain.length - 1].value !== v)
+    const v = getComputedStyle(n).getPropertyValue(name).trim(); if (!v) continue;
+    if (!chain.length || chain.at(-1).value !== v)
       chain.push({ node: cssPath(n), value: v, inline: !!n.style.getPropertyValue(name) });
   }
-  return chain.reverse();   // [:root 定義, …上書き…, 実効値]
+  return chain.reverse();
 }
-
-function refGraph(declText) {                       // 参照グラフ＋循環検出
-  const edges = {};
+function refGraph(declText) {                       // 参照グラフ＋循環検出（循環=guaranteed-invalid で無言消滅）
+  const edges = {}, seen = new Set(), stack = new Set(), cycles = [];
   for (const [, name, fb] of declText.matchAll(REF))
     (edges[name] ||= []).push(...[...(fb || '').matchAll(REF)].map(m => m[1]));
-  const seen = new Set(), stack = new Set(), cycles = [];
-  const dfs = k => { if (stack.has(k)) return cycles.push([...stack, k]);
-    if (seen.has(k)) return; seen.add(k); stack.add(k);
-    (edges[k] || []).forEach(dfs); stack.delete(k); };
+  const dfs = k => { if (stack.has(k)) return cycles.push([...stack, k]); if (seen.has(k)) return;
+    seen.add(k); stack.add(k); (edges[k] || []).forEach(dfs); stack.delete(k); };
   Object.keys(edges).forEach(dfs);
   return { edges, cycles };
 }
