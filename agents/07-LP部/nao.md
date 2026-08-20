@@ -730,25 +730,17 @@ export const HERO = {
 現状の a11y は ARIA 属性・見出し階層・アクセシブルネームまでで、これは WCAG 2.1 相当。2.2 の追加基準は **設計段階でしか担保できないものが大半**（タップ寸法・固定ヘッダーとフォーカスの干渉・再入力の廃止）で、実装後に Mia が見つけても構造変更になる。自治体・大手元請けの発注要件に「WCAG 2.2 AA 準拠」が入り始めており、準拠表が無いと入札段階で落ちる。
 
 **具体的手法**：
-1. コンポーネント仕様表に **`wcag22` 列**を追加し、該当基準番号と担保方法を記す
-2. 特に設計層でしか防げない 5 基準を全案件の必須チェックにする
-   - **2.5.8 Target Size (Minimum)**：クリック可能要素は 24×24 CSS px 以上、または隣接要素と 24px 以上離す
-   - **2.4.11 Focus Not Obscured**：sticky/fixed ヘッダーがフォーカス要素を隠さない
-   - **3.3.7 Redundant Entry**：同一プロセス内で同じ情報を2度入力させない（確認用メール再入力の廃止）
-   - **2.5.7 Dragging Movements**：スワイプ専用 UI にボタン代替を必ず添える
-   - **3.2.6 Consistent Help**：問い合わせ・電話導線を全ページで同一の相対位置に置く
-3. `scroll-padding-top` を `--header-h` 連動で `:root` に定義（既存の `scroll-margin-top` はアンカー用、2.4.11 はキーボード Tab 移動時の話で別物）
-4. フォーカスリングを token 化：`--focus-ring: 0 0 0 3px var(--color-focus)`、コントラスト比 3:1 以上
+1. コンポーネント仕様表に **`wcag22` 列**を追加し、設計層でしか防げない5基準を全案件の必須チェックにする
+   **2.5.8 Target Size**（24×24px 以上 or 24px 離す）／**2.4.11 Focus Not Obscured**（fixed ヘッダーがフォーカスを隠さない）／**3.3.7 Redundant Entry**（同一プロセスで2度入力させない）／**2.5.7 Dragging Movements**（スワイプ専用 UI にボタン代替）／**3.2.6 Consistent Help**（問合せ導線を全ページ同一位置）
+2. `scroll-padding-top` を `--header-h` 連動で `:root` 定義（既存の `scroll-margin-top` はアンカー用、2.4.11 は Tab 移動時の話で別物）
+3. フォーカスリングを token 化：`--focus-ring: 0 0 0 3px var(--color-focus)`、コントラスト比 3:1 以上
 
 **判断基準・数値ライン**：
-- タップターゲット：**最小 24×24px（AA 必達）/ 推奨 44×44px** ／ SP のフッタ固定 CTA は 48px 高
-- 隣接インタラクティブ要素の間隔：**8px 以上**（24px 未満の要素なら 24px 中心間距離）
+- タップターゲット：**最小 24×24px（AA 必達）/ 推奨 44×44px**、SP フッタ固定 CTA は 48px 高、隣接間隔 **8px 以上**
 - フォーカス表示：**太さ 2px 以上・コントラスト 3:1 以上**、`outline: none` 単独指定は禁止
-- 確認用入力欄（メール再入力・電話再入力）：**設計段階で 0 個**
-- 認証を伴う案件：パズル・文字転記型 CAPTCHA は不可、`autocomplete="one-time-code"` とペースト許可を必須
+- 確認用入力欄（メール・電話の再入力）：**設計段階で 0 個**／認証案件はパズル型 CAPTCHA 不可、`autocomplete="one-time-code"` とペースト許可を必須
 
 **実務テンプレート**：
-```markdown
 ### WCAG 2.2 AA 準拠表（設計書 必須セクション）
 | SC | 基準名 | 対象コンポーネント | 設計での担保方法 | 状態 |
 |---|---|---|---|---|
@@ -758,7 +750,6 @@ export const HERO = {
 | 3.2.6 | Consistent Help | Header / Footer | 電話CTAを全ページ右上固定 | ✅ |
 | 3.3.7 | Redundant Entry | ContactForm | 確認用メール欄を廃止（1回入力のみ） | ✅ |
 | 3.3.8 | Accessible Auth (Min) | ー | 認証なし案件のため N/A | N/A |
-```
 ```css
 :root { --header-h: 64px; scroll-padding-top: calc(var(--header-h) + var(--space-xs)); }
 :where(a, button, [role="button"], input, select) { min-block-size: 44px; min-inline-size: 44px; }
@@ -786,13 +777,11 @@ export const HERO = {
 | 想定 LOC | 30〜150 | 15 | 150超で半減、250超で0 |
 | import 数 | ≤8 | 10 | 9〜12で半減 |
 
-- **85点以上 = GO**（Ren へ渡してよい）／ **70〜84 = 条件付**（理由を注記して渡す）／ **69以下 = 再設計**
-- **過分割トリガー**（1つでも該当で統合候補）：想定 LOC < 20 ／ props ≤1 かつ再利用1箇所 ／ 単一の JSX 要素を返すだけ
-- **ページ総数上限**：`セクション数 × 4`（例：セクション9個の採用LP → 36個まで。超過は共有 UI の作りすぎを疑う）
-- **共有 UI 昇格条件**：`ui/` へ置くのは **異なる2セクション以上で使用**が確定したものだけ（1箇所なら `sections/{name}/` にコロケーション）
+- **85点以上 = GO** ／ **70〜84 = 条件付**（理由を注記して渡す）／ **69以下 = 再設計**
+- **過分割トリガー**（1つでも該当で統合候補）：想定 LOC < 20 ／ props ≤1 かつ再利用1箇所 ／ 単一 JSX 要素を返すだけ
+- **ページ総数上限** `セクション数 × 4`（セクション9個の採用LP → 36個まで）／**共有 UI 昇格**は異なる2セクション以上での使用確定時のみ（1箇所なら `sections/{name}/` にコロケーション）
 
 **実務テンプレート**：
-```markdown
 ### コンポーネント粒度スコア表（STEP 2 完了時に必ず埋める）
 | コンポーネント | props | 責務 | 再利用 | 深さ | LOC | import | 計 | 判定 |
 |---|---|---|---|---|---|---|---|---|
@@ -800,8 +789,8 @@ export const HERO = {
 | CTAButton     | 4 | 1 | 6          | 2 | 45  | 3 | 100 | GO |
 | JobCard       | 6 | 1 | 3          | 5 | 120 | 7 | 78  | 条件付：props 6 → variant 集約を検討 |
 | HeroBadge     | 1 | 1 | 1          | 1 | 12  | 1 | 60  | 再設計：過分割トリガー（LOC<20）→ Hero へ統合 |
+
 合計 22 / 上限 36（セクション9 × 4）✅
-```
 
 **期待効果**：分割不足と過分割の両方向を1表で検出。2026-04-29 の「細分化しすぎ」失敗を定量ゲートで根絶し、設計レビューを「感覚」から「点数」へ移行して Kaito/Sora への説明コストをゼロに。
 
@@ -819,17 +808,14 @@ export const HERO = {
 **判断基準・数値ライン**：
 - カードの必要最小幅：**テキストのみ 260px / 画像＋テキスト 300px / 横並び化の閾値 30rem(480px)**
 - `min()` で `100%` を併記しない `minmax` は禁止（375px 幅で横スクロールが出る）
-- Container Query 適用後の**メディアクエリ残存数：部品あたり 0 個**（残るならページレベルのみ）
-- 表示/非表示マトリクス（2026-07-03）は **ページレベル要素にのみ適用**し、部品内の再配置は CQ に委譲する
+- CQ 適用後の**メディアクエリ残存数：部品あたり 0 個**（残るならページレベルのみ）。表示/非表示マトリクス（2026-07-03）は**ページレベル要素にのみ適用**し、部品内の再配置は CQ に委譲する
 
 **実務テンプレート**：
 ```css
 /* セクション側：コンテナを宣言（必ず命名する） */
 .card-grid {
-  container-type: inline-size;
-  container-name: card-slot;
-  display: grid;
-  gap: var(--space-md);
+  container-type: inline-size; container-name: card-slot;
+  display: grid; gap: var(--space-md);
   grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
 }
 /* 部品側：画面幅ではなく「置かれた枠」に反応する */
@@ -839,12 +825,10 @@ export const HERO = {
   .job-card__title { font-size: clamp(1.125rem, 3cqi, 1.5rem); }
 }
 ```
-```markdown
 | 部品 | 配置される枠 | CQ/MQ | container-name | 閾値 | 必要最小幅 |
 |---|---|---|---|---|---|
 | JobCard | 3colグリッド / 2colサイドバー / SP1col | CQ | card-slot | 30rem | 280px |
-| Hero    | ページ直下・全幅のみ | MQ | ー | ー | ー |
-```
+| Hero | ページ直下・全幅のみ | MQ | ー | ー | ー |
 
 **期待効果**：`JobCardWide`/`Compact` 系の重複部品が消え粒度スコアの再利用点が満点化。BP 数 3→1（#1 と合わせて実質ゼロ）。Sota の下層ページ追加・サイドバー構成変更でも部品を触らず配置できる。
 
