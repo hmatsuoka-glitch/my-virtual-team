@@ -553,10 +553,9 @@ if 単発スライドのみ必要:
 | 4 | グラフ図種選択の科学的根拠・禁止則がない | 高（データ資料化トレンドの中核） | 3日 | A |
 | 5 | 投影/印刷を両立するL*階段パレットがない | 中〜高（官公庁・大手のアクセシビリティ要件化） | 3日 | A |
 | 6 | テーマ12色スロット・レイアウト命名の.potx規約がない | 高（組織資産化・Aoi監査の自動通過） | 1週 | A |
-| 7 | OOXMLジオメトリの自動リンターがない | 中（目視で不可能な1〜2pxズレの機械検出） | 1週 | B |
-| 8 | 縦型9:16リフロー規約がない | 中〜高（サクバズのSNS配布・チャット共有前提） | 1週 | B |
+| 7 | 縦型9:16リフロー規約がない | 中〜高（サクバズのSNS配布・チャット共有前提） | 1週 | B |
 
-**着手順**：1 → 2 → 3 → 4 → 5 → 6 → 8（7は6の完成後にスクリプト化）
+**着手順**：1 → 2 → 3 → 4 → 5 → 6 → 7（1〜3は同時着手可、6完成後に全テンプレへ一括反映）
 
 ---
 
@@ -774,54 +773,7 @@ distribute : .potx のみ（.pptx 配布禁止）
 
 ---
 
-#### 7. 【OOXMLジオメトリ・リンター（python-pptx で8ptスナップと実効ppiを実測）】
-**なぜ必要か**：既存の自動判定はグラフ5軸の空欄検出までで、**座標・サイズ・文字サイズという最も基本的な数値が未検査**。1〜2pt のズレはパラパラめくりテストの残像でしか見つからず、見つかった時には全頁の手直しになる。EMU（1pt = 12,700 EMU）で実測すれば、目視で不可能な精度の検品が1コマンドで終わる。
-
-**具体的手法**：出力直後・Aoi 提出前に必ず1回実行し、検出ゼロを確認してから提出する。
-- ①全図形の left/top/width/height が 8pt グリッドに乗っているか（許容 ±2pt）
-- ②スライド枠外・はみ出し（left<0 / top<0 / right>960pt / bottom>540pt）
-- ③文字サイズがタイプスケール8段（10/13/16/20/25/31/39/49）に含まれるか
-- ④画像の実効 ppi（元画素数 ÷ 配置インチ）が画面用150未満／印刷用300未満でないか
-- ⑤テキスト溢れ推定（全角換算文字数 × 0.5 × サイズ ÷ 枠幅 × 行送り > 枠高）
-
-**判断基準・数値ライン**：
-- グリッド逸脱 **0件**／枠外 **0件**／スケール外サイズ **0件**／実効ppi 150未満 **0件**（印刷転用案件は300未満0件）
-- リンター実行は **出力ごとに必ず1回**。実行ログを Aoi 提出物に添付する
-
-**実務テンプレート**：
-```python
-# geo_lint.py — 出力直後に必ず1回。EMU実測でグリッド逸脱と枠外を検出
-from pptx import Presentation
-from pptx.util import Emu
-PT, GRID, TOL = 12700, 8, 2                      # 1pt=12700EMU / 8ptグリッド / 許容±2pt
-SCALE = {10,13,16,20,25,31,39,49}
-prs = Presentation("out.pptx")
-W, H = prs.slide_width/PT, prs.slide_height/PT    # 期待 960 x 540 pt
-assert (round(W), round(H)) == (960, 540), f"スライド寸法違反: {W}x{H}pt"
-for i, s in enumerate(prs.slides, 1):
-    for sh in s.shapes:
-        for name, v in (("L",sh.left),("T",sh.top),("W",sh.width),("H",sh.height)):
-            if v is None: continue
-            pt = v/PT
-            if min(pt % GRID, GRID - pt % GRID) > TOL:
-                print(f"[grid] p{i} {sh.shape_type} {sh.name} {name}={pt:.1f}pt")
-        if sh.left is not None and (sh.left < 0 or (sh.left+sh.width)/PT > W + TOL):
-            print(f"[bleed] p{i} {sh.name} 枠外")
-        if sh.has_text_frame:
-            for p in sh.text_frame.paragraphs:
-                for r in p.runs:
-                    if r.font.size and round(r.font.size.pt) not in SCALE:
-                        print(f"[scale] p{i} {r.font.size.pt}pt 数列外: {r.text[:16]}")
-        if sh.shape_type == 13 and sh.width:      # PICTURE
-            ppi = sh.image.size[0] / (sh.width/PT/72)
-            if ppi < 150: print(f"[ppi] p{i} {sh.name} 実効{ppi:.0f}ppi")
-print("--- lint done ---")
-```
-**期待効果**：目視不能な1〜2ptズレを機械検出し、パラパラめくりテストでの発見（＝全頁手直し）を未然に潰す。セルフチェックの機械分担が8項目から**12項目**へ拡大し、目視は読了体験など機械化困難な領域に純化する。
-
----
-
-#### 8. 【16:9 → 9:16 リフロー規約（サクバズのSNS配布・チャット共有前提）】
+#### 7. 【16:9 → 9:16 リフロー規約（サクバズのSNS配布・チャット共有前提）】
 **なぜ必要か**：07-27 で「縦型・スマホ視聴前提スライドの需要増」をトレンドとして認識したが、**手法が未整備のまま**。LET は SNSマーケ×建設業採用支援であり、提案書ダイジェスト・採用ピッチの縦型配布は必ず来る。横型を一括縮小して縦にすると文字が下限を割り、既存の「スマホで拡大しないと読めない」失敗を再生産する。
 
 **具体的手法**：
