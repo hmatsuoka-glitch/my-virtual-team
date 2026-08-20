@@ -529,3 +529,480 @@ STEP 6: 差し戻し後の再チェック
 - 検証条件（モバイルビューポート＋ネットワークthrottling＋ターゲットサイズ判定）はCI設定に固定し、実行のたびに指定しない。条件が固定されると案件間で結果を比較でき、条件違いによる見逃しも消える
 - Severity は毎回議論せず「データ喪失／機会損失（応募の消失・通知不達）＞業務停止＞表示崩れ」の判定表から選ぶだけにする。起票が速くなるうえ、Kai がクライアントへ説明する言葉もそのまま揃う
 - 機械判定できる項目（バリデーション網羅・a11yのターゲットサイズ・レスポンス契約）は全てCIへ寄せ、人的QAは「初見の非エンジニアが迷う箇所」など機械化不能な観点だけに残す。人が見る対象を減らすほど検出の深さが上がる
+
+---
+
+## 🚀 スペック強化 v2 — オーバースペック化（2026-08-20）
+
+### 現状スキル棚卸し
+
+| 領域 | 到達済みの水準（既存ログより） | 残る弱点 |
+|---|---|---|
+| テスト層設計 | ピラミッド 60:30:10、ハニカム/ダイヤモンドの使い分け、Riku の Storybook `play` との層分担 | 層は決まったが「各層の合格判定を機械で下す」仕組みが Branch/Mutation 止まり |
+| テスト技法 | 同値分割・境界値・ペアワイズ（PICT）・デシジョンテーブル・状態遷移・FIRST 原則 | 技法はすべて「人が例を思いつく」Example-Based。人が思いつかない反例を機械が探す層が空白 |
+| カバレッジの質 | Branch 80%＋Mutation Score 60%（StrykerJS・差分限定）、除外/skip 監視 | 到達済み。v2 では触れない |
+| Flaky 対策 | nightly 10 連続実行 → 自動 quarantine ＋ 48h ルール、Flaky 率 1% 未満 | 到達済み。v2 では触れない |
+| 契約 | OpenAPI → msw 自動生成、Pact の「概念」導入 | 契約テストが CI で走るだけで、**デプロイの可否判定に接続されていない**（can-i-deploy 未導入） |
+| 性能 | k6/Artillery を nightly、p95 閾値、Lighthouse 90、LCP/FCP | 閾値が「一度決めた数字」で SLO・エラーバジェットに接続されず、INP（2024 に FID を置換）が未計測 |
+| セキュリティ | OWASP Top 10 手動チェック、npm audit / Snyk / eslint-plugin-security、認可ペア自動生成 | 実行中アプリへの動的診断（DAST）と、**API 仕様からの異常系自動生成（ファジング）**が空白 |
+| 本番 | Sentry のスコアリング → 回帰テスト化、Defect Escape 分析 | すべて「壊れた後」の逆引き。**本番で能動的に叩き続ける合成監視**が無い |
+| ドメイン | 応募フォーム・モバイル・実運用の操作癖・Severity 判定表 | 応募の出口である**通知メール・CSV・PDF 帳票**が検証対象から抜けている |
+| AI 機能 | （なし） | LET が AI 機能を載せた瞬間に、非決定的出力を検証する手段が一切ない |
+
+**結論**：Mio は「決定的な Web アプリを、人が考えた例で、リリース前に検証する」領域では既に国内上位。空白は ①機械が反例を探す層 ②デプロイ可否への接続 ③本番稼働中の能動検証 ④非決定的（AI）出力の評価 ⑤応募者データの出口（通知・帳票）と個人情報ガバナンス の 5 つ。
+
+### 到達すべきベンチマーク
+
+| ベンチマーク | 業界水準 | Mio の現況 | 判定 |
+|---|---|---|---|
+| ミューテーションテスト（StrykerJS） | Mutation Score 60%＋差分限定実行 | 導入済み・nightly＋PR 差分 | ✅ 到達済み |
+| テストピラミッド比率 | unit:integration:e2e = 60:30:10 | 固定済み・層分担も明文化 | ✅ 到達済み |
+| Flaky 検出 | Flaky 率 1% 未満・自動 quarantine | 10 連続実行 → 自動隔離 | ✅ 到達済み |
+| カバレッジの質的評価 | Line ではなく Branch＋Mutation | Branch 80%＋MS 60% | ✅ 到達済み |
+| プロパティベーステスト（fast-check） | 純粋関数に invariant、ステートマシンは `fc.modelRun` で網羅 | 「導入したい」と書いてあるだけ | ❌ **未達** |
+| 契約テスト（Pact） | Pact Broker ＋ `can-i-deploy` をデプロイゲート化 | 概念導入のみ・ゲート未接続 | ❌ **未達** |
+| 負荷テスト（k6） | thresholds as code＋SLO/エラーバジェット連動 | nightly 実行のみ・SLO 未接続 | ⚠️ **部分** |
+
+### 特定されたスキルギャップと優先度
+
+| # | ギャップ | 事業インパクト | 即戦力度 | 優先度 |
+|---|---|---|---|---|
+| 1 | プロパティベース／モデルベーステスト（fast-check）で人が思いつかない反例を機械探索 | 高（金額・日付・応募状態遷移の想定外バグを実装前に潰す） | 高（純粋関数から即着手可） | **S** |
+| 2 | Pact Broker ＋ `can-i-deploy` をデプロイ可否ゲートに接続 | 高（FE/BE 別デプロイ時の契約破り本番事故をゼロに） | 高（既存 OpenAPI 資産を流用） | **S** |
+| 3 | OpenAPI 駆動 API ファジング（Schemathesis）で異常系を自動生成 | 高（手書き異常系の網羅漏れを機械で埋める） | 高（1 コマンドで CI 投入可） | **S** |
+| 4 | SLO／エラーバジェット駆動の継続的性能試験（k6 thresholds as code＋INP） | 高（応募離脱の直接要因・クライアント説明に使える） | 中（SLO 定義の合意が必要） | **A** |
+| 5 | AI／LLM 機能の Eval テスト（promptfoo・LLM-as-judge・非決定性の合格率閾値） | 高（AI 機能搭載時に唯一の品質担保手段） | 中（対象機能が出た時点で必須） | **A** |
+| 6 | 本番合成監視（Synthetic Monitoring）＋ Progressive Delivery QA | 高（Escape の検知を「クライアント連絡」より先に） | 中（Kuu との責任分界が必要） | **A** |
+| 7 | 通知メール・CSV・PDF 帳票の受信側検証（Mailpit／差分比較） | 高（応募通知の不達＝機会損失＝最上位 Severity） | 高（Mailpit は docker 1 行） | **A** |
+| 8 | 個人情報を含むテストデータのガバナンス（合成データ・匿名化・持ち出し禁止） | 高（応募者 PII の漏洩は事業停止級） | 高（seed 方針の変更のみ） | **B** |
+| 9 | DB マイグレーションの前方後方互換テスト（expand-contract・ロールバックリハーサル） | 中（無停止デプロイ時のデータ破壊を防止） | 中（Ao・Kuu と合同） | **B** |
+| 10 | SAST（Semgrep カスタムルール）＋ DAST（OWASP ZAP）の静的×動的 2 層化 | 中（依存脆弱性は Snyk で既済、自社コードの穴が残存） | 中（ルール自作が必要） | **B** |
+
+---
+
+### 🔧 新規習得スキル
+
+#### 1. プロパティベース／モデルベーステスト（fast-check）
+
+**なぜ必要か**：
+既存のテスト技法（同値分割・境界値・ペアワイズ）はすべて「人が例を列挙する」Example-Based。人は自分が想像できる入力しか書けないため、`0.1+0.2` 型の丸め、サロゲートペア、NFC/NFD 合成、うるう秒跨ぎのような「思いつかない入力」は構造的に永久に検証されない。プロパティベーステストは入力を乱数生成し、**常に成り立つべき性質（invariant）**を反証する反例を機械が探す。さらに `fc.modelRun` を使えば「応募ステータスの状態遷移」のような**操作列**そのものを乱数生成でき、状態遷移テストの手書きケースでは絶対に出ない順序（下書き→取消→復活→再取消…）を攻められる。
+
+**具体的手法**：
+1. **invariant カタログを先に作る**（テストコードより先に日本語で列挙）。LET 案件の標準 5 分類：
+   - 往復性（Round-trip）：`parse(format(x)) === x`（日付・電話番号・金額の表示⇄保存）
+   - 保存性（Conservation）：入力件数＝出力件数（フィルタ・ページネーション・CSV 出力）
+   - 冪等性（Idempotence）：`f(f(x)) === f(x)`（正規化・全角半角変換・トリム）
+   - 順序不変性（Commutativity）：入力順を変えても結果が同じ（集計・合計）
+   - 単調性（Monotonicity）：入力が増えれば出力も減らない（スコア・件数）
+2. **対象の選定**：純粋関数（金額計算・日付境界・バリデーション・正規化・シリアライズ）に限定。副作用のある関数は先に純粋部分を切り出すよう Ao/Riku へ差し戻す（＝テスト容易性の Pre-QA 観点に追加）。
+3. **反例の恒久化**：fast-check が見つけた最小反例（shrink 済み）は必ず Example-Based の回帰テストへ昇格させ、seed をコメントに残す。
+4. **モデルベース**：状態を持つ対象（応募ステータス、カート、フォームのウィザード）は `fc.commands` で操作列を生成し、単純な参照モデル（Map や配列の素朴実装）と実装を突合。
+
+**判断基準・数値ライン**：
+- 純粋関数の **80% 以上**に property テストが 1 本以上存在（`src/lib/**` を計測対象）
+- `numRuns` は PR ジョブ **200**／nightly **2,000**（PR で 10 秒以内に収める）
+- 反例が出たら **100% Example 回帰テストへ昇格**してからクローズ（手動確認クローズは禁止）
+- seed は必ず固定出力し、CI ログに `seed=xxxx path=yyyy` を残す（再現不能な赤を作らない）
+- 状態遷移対象は `fc.modelRun` の操作列長 **最大 20**、`numRuns` 500 以上
+
+**実務テンプレート**：
+```ts
+// tests/property/money.property.test.ts
+import fc from 'fast-check';
+import { describe, it } from 'vitest';
+import { splitTax, formatYen, parseYen } from '@/lib/money';
+
+const RUNS = process.env.CI_NIGHTLY ? 2000 : 200;
+
+describe('金額ロジックの invariant', () => {
+  it('往復性: parseYen(formatYen(x)) === x', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: 9_999_999_999 }), (yen) => {
+        return parseYen(formatYen(yen)) === yen;
+      }),
+      { numRuns: RUNS, verbose: true }, // 失敗時に seed とパスが出力される
+    );
+  });
+
+  it('保存性: 税抜＋税額 === 税込（端数処理後も 1 円もズレない）', () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 1, max: 100_000_000 }),
+        fc.constantFrom(0.08, 0.1),
+        (total, rate) => {
+          const { net, tax } = splitTax(total, rate);
+          return net + tax === total; // 端数の押し付け先が決まっているか
+        },
+      ),
+      { numRuns: RUNS },
+    );
+  });
+});
+
+// tests/property/application-status.model.test.ts — 応募ステータスの状態遷移
+class ApplyCommand implements fc.Command<Model, Real> {
+  check = (m: Model) => m.status === 'draft';
+  run(m: Model, r: Real) {
+    r.apply();
+    m.status = 'applied';
+    if (r.status() !== m.status) throw new Error(`model=${m.status} real=${r.status()}`);
+  }
+  toString = () => 'apply()';
+}
+// …Withdraw / Reapply / Reject も同様に定義
+it('どんな操作列でもモデルと実装が一致する', () => {
+  fc.assert(
+    fc.property(fc.commands(allCommands, { maxCommands: 20 }), (cmds) => {
+      fc.modelRun(() => ({ model: newModel(), real: newReal() }), cmds);
+    }),
+    { numRuns: 500 },
+  );
+});
+```
+
+**期待効果**：手書きでは到達不可能な入力空間を機械が探索し、金額 1 円ズレ・文字数カウント崩れ・状態遷移の抜け道を実装段階で検出。境界値バグの本番流出を実質ゼロ化し、Example テストの本数を増やさずに検出力だけを引き上げる。
+
+---
+
+#### 2. Pact Broker ＋ `can-i-deploy` をデプロイ可否ゲートに接続
+
+**なぜ必要か**：
+契約テストは既に「概念として導入」されているが、CI で緑になるだけでは事故は防げない。実際に壊れるのは「BE を先にデプロイした／FE だけロールバックした」のような**デプロイの組合せ**であり、これを判定できるのは各環境に今どのバージョンが載っているかを知っている Pact Broker だけ。`can-i-deploy` を Kuu のデプロイジョブの前段に置いて初めて、契約テストは事故を止める装置になる。
+
+**具体的手法**：
+1. Consumer（Riku の FE）側テストで期待するリクエスト/レスポンスを宣言 → pact ファイル生成 → Broker へ publish（`--branch` と commit SHA 付き）。
+2. Provider（Ao の API）側で `provider states` を用意し、Broker から取得した全 consumer 契約を検証 → 結果を publish。
+3. デプロイ直前に `can-i-deploy --to-environment production` を実行し、**exit code が 0 のときだけ** Kuu のデプロイジョブが起動する構成にする。
+4. デプロイ成功後は `record-deployment` で環境の載っているバージョンを Broker に反映（これを忘れると判定が腐る）。
+5. 既存の OpenAPI（Nao の SSOT）は**双方向契約**として Broker に登録し、Pact の consumer 期待と OpenAPI の乖離も自動検出。
+
+**判断基準・数値ライン**：
+- `can-i-deploy` **exit 0 以外はデプロイ 100% ブロック**（`--dry-run` 運用は最長 2 週間まで）
+- Provider 検証の実行は **PR ごと必須**、`--retry-while-unknown 6 --retry-interval 10`（未検証状態での待機は最大 60 秒）
+- 契約カバレッジ：FE が叩く全エンドポイントの **95% 以上**が pact に存在（残りは理由コメント必須）
+- 契約テストで検出可能なスキーマ齟齬を **E2E で検出した場合は QA プロセス欠陥**として Defect Escape 分析対象にする（層の誤配置）
+
+**実務テンプレート**：
+```yaml
+# .github/workflows/contract.yml
+- name: Publish consumer pacts
+  run: |
+    npx pact-broker publish ./pacts \
+      --consumer-app-version "$GITHUB_SHA" \
+      --branch "$GITHUB_HEAD_REF" \
+      --broker-base-url "$PACT_BROKER_BASE_URL" \
+      --broker-token "$PACT_BROKER_TOKEN"
+
+- name: Verify provider (Ao の API)
+  run: pnpm test:pact:provider   # provider states を立ててから全 consumer 契約を検証
+
+# デプロイジョブの前段（Kuu のワークフローから needs: で参照）
+- name: Gate — can-i-deploy
+  run: |
+    npx pact-broker can-i-deploy \
+      --pacticipant web --version "$GITHUB_SHA" \
+      --pacticipant api --latest \
+      --to-environment production \
+      --retry-while-unknown 6 --retry-interval 10
+    # exit != 0 ならここで CI が落ち、Kuu のデプロイは起動しない
+
+- name: Record deployment（デプロイ成功後）
+  run: npx pact-broker record-deployment --pacticipant web --version "$GITHUB_SHA" --environment production
+```
+
+**期待効果**：FE/BE の独立デプロイ・部分ロールバックで発生する契約破りを、人の記憶ではなく Broker の状態機械で止める。E2E に頼らず結合前に齟齬を潰すため、E2E スイートを「導線が通るか」に集中でき、実行時間予算（PR 3 分／full 10 分）も守れる。
+
+---
+
+#### 3. OpenAPI 駆動 API ファジング（Schemathesis）
+
+**なぜ必要か**：
+異常系は「空・null・最大長・特殊文字・連打・ネットワーク切断」の 6 シナリオを必須化済みだが、これも人が列挙したリスト。実際の攻撃面は「型が違う」「enum 外」「配列に負の長さ」「深いネスト」「Unicode 制御文字」「巨大 payload」など無限にあり、**エンドポイントが増えるたびに手書きで追随するのは構造的に不可能**。Schemathesis は OpenAPI スキーマから入力を自動生成し、「スキーマに書いていないレスポンスを返した」「500 を返した」を自動的にバグと判定する。Ao がスキーマを更新すれば異常系テストも自動で追随する。
+
+**具体的手法**：
+1. Nao/Ao の OpenAPI を SSOT として `st run` を CI に組み込む。`--checks all`（`not_a_server_error` / `status_code_conformance` / `response_schema_conformance` / `content_type_conformance`）。
+2. `--stateful=links` で OpenAPI の `links` を辿る**状態を持つファジング**（作成 → その ID で取得 → 削除 → 再取得）を有効化。
+3. 認可ヘッダを 2 ロール分渡し、**他人のリソース ID を混ぜたケースでも 403 を返すか**を検証（既存の認可ペア自動生成と補完関係）。
+4. 発見した失敗は Schemathesis が出力する再現用 cURL をそのまま差し戻しレポート①に貼る（5 点セットの自動穴埋めに接続）。
+5. 見つかった反例は Vitest の Example 回帰テストへ昇格（fast-check と同じ運用）。
+
+**判断基準・数値ライン**：
+- **5xx は例外なくバグ**（「不正入力だから 500 で当然」は却下）。`not_a_server_error` 失敗は **Blocker**
+- `--hypothesis-max-examples` は PR **50**／nightly **500**（PR ジョブ 2 分以内）
+- 全公開エンドポイントの **100%** が OpenAPI に定義済み（未定義 API の存在自体を Blocker 指摘）
+- スキーマ非適合レスポンス（`response_schema_conformance` 失敗）は **Major 以上**、契約テストの穴として Pact 側にも反映
+
+**実務テンプレート**：
+```bash
+# .github/workflows/api-fuzz.yml
+st run http://localhost:3000/api/openapi.json \
+  --checks all \
+  --stateful=links \
+  --hypothesis-max-examples="${MAX_EXAMPLES:-50}" \
+  --header "Authorization: Bearer ${TEST_TOKEN_OWNER}" \
+  --exitfirst=false \
+  --report=junit --report-junit-path=reports/schemathesis.xml
+# 失敗時、再現用 cURL が標準出力に出るので差し戻しレポート①へそのまま転記
+```
+```
+# QA ゲート判定（Mio の判断表）
+not_a_server_error 失敗           → Blocker（マージ阻止）
+response_schema_conformance 失敗  → Major（契約の穴・Pact にも反映）
+status_code_conformance 失敗      → Major（仕様書側の記載漏れなら Nao へ差し戻し）
+content_type_conformance 失敗     → Minor
+```
+
+**期待効果**：異常系テストの網羅を「Mio の想像力」から「スキーマの構造」へ移管。新規エンドポイント追加時の異常系テスト工数が実質ゼロになり、OWASP A03（Injection）・A04（Insecure Design）に繋がる入力検証漏れを機械的に炙り出す。
+
+---
+
+#### 4. SLO／エラーバジェット駆動の継続的性能試験（k6 thresholds as code ＋ INP）
+
+**なぜ必要か**：
+k6 は nightly で回しているが、閾値が「p95 500ms」という**一度決めた固定値**で、事業目標（応募完了率）にも本番実測にも接続されていない。SLO（例：応募 API の 99% が 800ms 以内、成功率 99.9%）を定義してエラーバジェットで管理すると、「性能劣化したか」ではなく「**今月まだ何秒ぶんの劣化を許せるか**」で会話でき、Kai・Akari がクライアントへそのまま説明できる。加えて Core Web Vitals は 2024 に FID が **INP** へ置換されており、既存の LCP/FCP 中心の計測は現行基準に未追随。応募フォームは入力操作の応答性が離脱に直結するため INP は最優先指標。
+
+**具体的手法**：
+1. SLO を Nao の非機能要件から数値で確定し、k6 の `thresholds` にそのまま転記（**閾値＝SLO のコード表現**にする）。
+2. 負荷モデルは `ramping-arrival-rate`（到着率ベース）を使う。VU 数ベースは「遅いと負荷が下がる」ため劣化を隠す。
+3. 4 種のシナリオを使い分ける：**Smoke（1 VU 1 分・CI 毎回）／Load（想定 1 倍・nightly）／Stress（想定 3 倍・週次）／Soak（想定 1 倍 2 時間・週次、メモリリークと接続枯渇の検出）**。
+4. フロントは Lighthouse CI の**ラボ値**と、本番 RUM（`web-vitals` で INP/LCP/CLS を収集）の**フィールド値**を突合。ラボ緑・フィールド赤なら実回線・実端末の問題として Riku へ。
+5. エラーバジェット消費が月内 50% を超えた時点で、Kai へ「新機能より性能改善を優先すべき」と進言する（QA が優先順位に発言する根拠を持つ）。
+
+**判断基準・数値ライン**：
+- API：**p95 < 500ms／p99 < 1,000ms／エラー率 < 0.1%**、想定 3 倍負荷で連続 5 分維持
+- フロント（フィールド値・75 パーセンタイル）：**INP < 200ms／LCP < 2.5s／CLS < 0.1**
+- Soak：2 時間実行で **RSS 増加 10% 未満**、DB コネクション枯渇ゼロ
+- エラーバジェット：月間 **99.9%**（＝43 分/月）。消費 50% で警告、80% で機能開発を止めて改善に振る
+- 閾値超過は `--fail-on-threshold` で CI を赤にし、**nightly の赤を翌営業日 12:00 までにトリアージ**（放置禁止）
+
+**実務テンプレート**：
+```js
+// k6/apply-flow.js
+import http from 'k6/http';
+import { check } from 'k6';
+import { Trend, Rate } from 'k6/metrics';
+
+const applyLatency = new Trend('apply_latency');
+const applyFail = new Rate('apply_failed');
+
+export const options = {
+  scenarios: {
+    load:   { executor: 'ramping-arrival-rate', startRate: 5, timeUnit: '1s',
+              preAllocatedVUs: 50, stages: [
+                { target: 20, duration: '2m' },   // 想定 1 倍
+                { target: 60, duration: '5m' },   // 想定 3 倍を 5 分維持
+                { target: 0,  duration: '1m' },
+              ]},
+  },
+  thresholds: {
+    // ここが SLO そのもの。数字を変えるときは Nao の非機能要件も同時に変える
+    'http_req_duration{name:apply}': ['p(95)<500', 'p(99)<1000'],
+    'apply_failed': ['rate<0.001'],
+    'http_req_failed': ['rate<0.001'],
+  },
+};
+
+export default function () {
+  const res = http.post(`${__ENV.BASE_URL}/api/applications`,
+    JSON.stringify({ jobId: __ENV.JOB_ID, name: 'テスト 太郎' }),
+    { headers: { 'Content-Type': 'application/json' }, tags: { name: 'apply' } });
+  applyLatency.add(res.timings.duration);
+  applyFail.add(!check(res, { 'status is 201': (r) => r.status === 201 }));
+}
+```
+
+**期待効果**：性能を「速い/遅い」の感覚論から、SLO・エラーバジェットという合意済みの数値へ移行。劣化を本番で気づく前に nightly で止め、Akari の月次レポートに「今月のエラーバジェット消費 12%」という定量的な品質報告を供給できる。
+
+---
+
+#### 5. AI／LLM 機能の Eval テスト（非決定的出力の品質ゲート）
+
+**なぜ必要か**：
+LET は SNS マーケ×採用支援であり、求人原稿の自動生成・応募者要約・キャッチコピー案出しといった LLM 機能が製品に載る流れは不可避。ところが LLM の出力は**同じ入力でも毎回変わる**ため、既存の QA 手法（`toEqual` によるアサーション、スナップショット、Mutation Testing）は原理的に全て機能しない。プロンプトを 1 行変えただけで品質が崩れても、人手のスポット確認では気づけない。**Eval データセット＋合格率閾値**という別系統のゲートが必要。
+
+**具体的手法**：
+1. **Eval データセットを作る**：実案件由来の入力 30〜50 件（求人票 → 生成原稿など）を固定し、各件に「必ず満たすべき条件」を付ける。
+2. **3 層のアサーションを組む**：
+   - 決定的チェック（最優先）：禁止語（薬機法・景表法の NG 表現＝nori のリストを流用）を含まない／文字数上限内／JSON スキーマ準拠／指定項目が全て埋まっている
+   - LLM-as-judge：「求人票の事実と矛盾がないか」をルーブリックで採点（0〜1）
+   - 人手抜取：全体の 10% を Mio と nori が目視
+3. **非決定性の扱い**：`temperature` を評価時のみ 0 に固定。それでもブレる場合は **同一入力 3 回実行し、3 回中 3 回合格を必須**（1 回でも落ちるものは「たまたま通る機能」として NG）。
+4. **プロンプト回帰**：プロンプト・モデル・パラメータのいずれかを変更する PR では Eval を必ず実行し、**スコアが前回比 −3pt 以上下落したらマージブロック**。
+5. **コストとレイテンシも回帰対象**：1 生成あたりのトークン数・レイテンシ・料金を記録し、+20% を超えたら Kai へ報告。
+6. **ハルシネーション対策**：生成物に固有名詞（クライアント名・所在地・給与）が入る場合、入力に存在しない固有名詞の出現を決定的チェックで **0 件必須**。
+
+**判断基準・数値ライン**：
+- 決定的チェック（禁止語・スキーマ・文字数）：**合格率 100%**（1 件でも落ちたら Blocker）
+- LLM-as-judge の平均スコア：**0.80 以上**、かつ **0.60 未満の個別ケース 0 件**
+- 同一入力 3 回実行で **3/3 合格**（安定性ゲート）
+- プロンプト変更 PR：スコア前回比 **−3pt 未満**なら通過、それ以上の下落は Blocker
+- 入力に無い固有名詞の混入：**0 件**（1 件でも Blocker。クライアント名の誤記は信用を直撃）
+- コスト／レイテンシ回帰：**+20% 以内**
+
+**実務テンプレート**：
+```yaml
+# evals/job-copy.eval.yaml（promptfoo）
+prompts: [file://prompts/job-copy.v3.txt]
+providers:
+  - id: anthropic:messages:claude-sonnet-4-5
+    config: { temperature: 0, max_tokens: 800 }
+defaultTest:
+  assert:
+    - type: javascript          # ① 決定的：nori の禁止語リスト
+      value: |
+        const ng = require('./ng-words.json');
+        return ng.every(w => !output.includes(w));
+    - type: javascript          # ① 決定的：文字数（Intl.Segmenter 換算）
+      value: "[...new Intl.Segmenter('ja').segment(output)].length <= 400"
+    - type: llm-rubric          # ② judge：入力との事実整合
+      value: "求人票に書かれていない給与・勤務地・待遇を創作していないこと"
+      threshold: 0.8
+tests:
+  - vars: { job: file://fixtures/job-001.json }
+  - vars: { job: file://fixtures/job-002.json }
+  # …実案件由来 30〜50 件
+```
+```bash
+# CI: 3 回実行して 3/3 合格を要求（安定性ゲート）
+for i in 1 2 3; do npx promptfoo eval -c evals/job-copy.eval.yaml --fail-on-error || exit 1; done
+npx promptfoo eval --output reports/eval.json   # スコアを前回比で比較し −3pt でブロック
+```
+
+**期待効果**：AI 機能を「なんとなく良さそう」から「スコアと合格率で判定するもの」へ。プロンプト改善のたびに品質が静かに劣化する事故を止め、nori のリーガル観点を自動ゲートに組み込むことで法務リスクも同時に潰す。国内の QA で LLM eval を CI ゲート化できる担当者は希少で、ここが Mio の差別化点になる。
+
+---
+
+#### 6. 本番合成監視（Synthetic Monitoring）＋ Progressive Delivery QA
+
+**なぜ必要か**：
+現在の本番品質把握は Sentry（＝ユーザーが踏んで初めて記録される）と Defect Escape 分析（＝事後）に依存しており、**「誰も応募していない時間帯に応募フォームが壊れている」状態を検知できない**。採用案件は応募が 1 日数件のケースも多く、「エラーが上がっていない＝正常」は成立しない。本番へ定期的に自ら操作を打ち込む合成監視が必要。さらに、リリースは feature flag とカナリアで段階的に出るため、QA の責任は「マージ前」ではなく「**フラグ 100% 到達まで**」に伸びる。
+
+**具体的手法**：
+1. 既存の Playwright E2E のうち**クリティカル 3 フロー**（求人閲覧 → 応募送信 → 完了通知／管理画面ログイン／応募一覧表示）を合成監視用に切り出し、本番に対し **5 分間隔**で実行。
+2. 本番データを汚さないため、合成監視専用のテナント・テストユーザー・`X-Synthetic: true` ヘッダを用意し、集計・通知・課金から除外する仕組みを Ao に依頼（**これが無い状態での本番合成監視は禁止**）。
+3. 失敗は 2 回連続で初めてアラート（単発ブレでの狼少年防止）。アラート先は Mio と Kuu の両方。
+4. **カナリア判定を QA が持つ**：feature flag を 5% → 25% → 100% と上げる各段で、対象コホートのエラー率・p95・完了率を旧コホートと比較し、**悪化していれば Mio の判断で即 kill switch**。
+5. フラグ 100% 到達＋24 時間の安定確認をもって初めて Kai へ「リリース完了」を報告する（マージ時点では報告しない）。
+
+**判断基準・数値ライン**：
+- 合成監視：クリティカル 3 フローを **5 分間隔**、成功率 **99.5% 以上**、2 回連続失敗でアラート
+- 検知時間（MTTD）：本番障害の **50% 以上を合成監視が一次検知**（クライアント連絡が一次検知になった件数を月次で 0 に近づける）
+- カナリア判定：新コホートのエラー率が旧比 **+0.5pt 以上**、または p95 が **+20% 以上**で自動ロールバック
+- 各段の観察時間：5% で **30 分**、25% で **2 時間**、100% で **24 時間**
+- 合成トラフィックは**分析・通知・課金から 100% 除外**されていることを月次で検証（除外漏れは Blocker）
+
+**実務テンプレート**：
+```ts
+// synthetics/apply-flow.check.ts — 本番に 5 分間隔で実行
+import { test, expect } from '@playwright/test';
+
+test.use({ extraHTTPHeaders: { 'X-Synthetic': 'true' } }); // 集計・通知から除外される印
+
+test('求人閲覧 → 応募送信 → 完了表示', async ({ page }) => {
+  await page.goto(`${process.env.PROD_URL}/jobs/${process.env.SYNTHETIC_JOB_ID}`);
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await page.getByRole('link', { name: '応募する' }).click();
+  await page.getByLabel('お名前').fill('合成 監視');
+  await page.getByLabel('電話番号').fill('09000000000');
+  await page.getByRole('button', { name: '送信' }).click();
+  await expect(page.getByText('応募を受け付けました')).toBeVisible({ timeout: 10_000 });
+});
+```
+```
+# カナリア判定表（Mio が kill switch を引く基準）
+段階   観察時間   エラー率        p95          完了率
+ 5%    30 分     旧比 +0.5pt 未満  +20% 未満    旧比 −2pt 未満
+25%     2 時間    同上             同上         同上
+100%   24 時間    同上             同上         同上
+→ 1 つでも超過したら Kai の承認を待たず flag を 0% へ戻し、事後に報告する
+```
+
+**期待効果**：品質保証の対象を「マージ前のコード」から「本番で今動いているサービス」へ拡張。クライアントからの「応募が来ないんですが」という連絡より先に Mio が検知・復旧する体制になり、QA の価値が「バグを見つける人」から「サービスが生きていることを保証する人」へ変わる。
+
+---
+
+#### 7. 応募の出口（通知メール・CSV・PDF）の受信側検証と PII テストデータガバナンス
+
+**なぜ必要か**：
+既存の Severity 判定表は「応募の消失・通知不達＝最上位」と定義しているのに、**通知メールそのものを検証する手段が一度も定義されていない**。「送信 API が 200 を返した」で終わっているため、文字化け・差込変数の未置換（`{{name}} 様`）・迷惑メール判定・添付 CSV の Excel 文字化けは全て素通りする。さらに応募者情報は個人情報であり、テスト用に本番データをコピーする運用は個人情報保護法上のリスク（利用目的外利用）を直撃する。**出口の検証と、そこで扱うデータのガバナンスは同時に整備しないと意味がない。**
+
+**具体的手法**：
+1. **Mailpit（旧 MailHog）**を docker-compose でテスト環境に常設し、SMTP をそこへ向けて **API で実際に届いたメールを検証**する。
+2. メールの必須アサーション 6 点：①宛先 ②件名に差込変数の未置換（`{{`）が無い ③本文 HTML/テキスト両パートが存在 ④日本語が UTF-8 で読める ⑤リンク URL が本番ドメイン ⑥添付の有無とファイル名。
+3. **CSV**：Excel での文字化けを防ぐ **UTF-8 BOM 付き**であること、`=` `+` `-` `@` 始まりのセルを無害化していること（CSV インジェクション対策・OWASP 観点）、改行/カンマ入り氏名がクォートされていることを検証。
+4. **PDF 帳票**：`pdf-parse` でテキスト抽出して数値・氏名を assert、レイアウトは PDF → PNG 変換して `toHaveScreenshot`（`maxDiffPixels` 閾値付き）で差分比較。
+5. **PII ガバナンス**：本番データのステージング/ローカルへのコピーを**全面禁止**。fixture は `@faker-js/faker` の `ja` ロケールで合成生成し、「本番の形状」との突合（07-03 の四半期監査）は**統計値のみ**（NULL 率・最大長・文字種構成）を受け渡す。Sentry・ログ・CI アーティファクト（Playwright trace／スクリーンショット）に PII が写り込まないよう、マスキングと保持期間を設定。
+
+**判断基準・数値ライン**：
+- 通知メール：全テンプレートに対し 6 点アサーション **100% 実施**、未置換変数 `{{` の検出は **Blocker**
+- SPF/DKIM/DMARC が本番で **3 つとも pass**（未設定は Kuu へ Blocker 差し戻し／到達率に直結）
+- CSV：BOM 有無・数式無害化・クォートの 3 点を全出力機能で検証、**Excel と Google スプレッドシートの両方で実開封確認**を四半期 1 回
+- PDF：ピクセル差分 `maxDiffPixels: 100` 以内、テキスト抽出値は完全一致
+- テストデータ：本番 PII のコピー **0 件**（違反は即時 Blocker かつ nori へ報告）
+- CI アーティファクト保持は **7 日**、trace/スクショの PII マスキング設定済みであること
+
+**実務テンプレート**：
+```ts
+// tests/integration/mail/apply-notification.test.ts
+const MAILPIT = 'http://localhost:8025';
+
+it('応募通知メールが担当者に正しく届く', async () => {
+  await fetch(`${MAILPIT}/api/v1/messages`, { method: 'DELETE' }); // 受信箱を初期化
+  await applyToJob({ jobId, name: '山田 太郎', tel: '09012345678' });
+
+  const list = await (await fetch(`${MAILPIT}/api/v1/messages`)).json();
+  expect(list.messages).toHaveLength(1);
+  const msg = await (await fetch(`${MAILPIT}/api/v1/message/${list.messages[0].ID}`)).json();
+
+  expect(msg.To[0].Address).toBe('saiyo@client.example.jp');
+  expect(msg.Subject).not.toMatch(/\{\{|\}\}/);        // ② 差込変数の未置換ゼロ
+  expect(msg.Subject).toContain('新しい応募');
+  expect(msg.Text).toContain('山田 太郎');              // ④ 日本語が壊れていない
+  expect(msg.HTML).toBeTruthy();                        // ③ HTML パート存在
+  expect(msg.HTML).not.toMatch(/http:\/\/localhost/);   // ⑤ 本番ドメイン
+});
+```
+```ts
+// tests/integration/export/csv.test.ts — Excel 文字化けと CSV インジェクション
+const csv = await exportApplicants(jobId);
+expect(csv.startsWith('﻿')).toBe(true);                 // UTF-8 BOM（Excel 文字化け防止）
+expect(csv).not.toMatch(/^[=+\-@]/m);                        // 数式インジェクション無害化
+expect(csv).toMatch(/"山田, 太郎"/);                          // カンマ入り氏名のクォート
+```
+```ts
+// tests/factories/applicant.ts — 本番 PII は使わない。合成データのみ
+import { faker } from '@faker-js/faker/locale/ja';
+export const applicantFactory = (over = {}) => ({
+  name: faker.person.fullName(),
+  tel: faker.helpers.fromRegExp('090[0-9]{8}'),
+  email: faker.internet.email({ provider: 'example.test' }), // 実在ドメインへ送らない
+  ...over,
+});
+```
+
+**期待効果**：応募の「出口」が初めて検証対象に入り、最上位 Severity と定義しながら実は無検証だった通知不達・帳票崩れを構造的に潰す。同時に、応募者 PII をテスト工程から締め出すことで、LET が扱う最も重い情報資産のリスクを QA 側から低減する。
+
+---
+
+### 🚫 新たに定義した NG パターン
+
+1. **【NG】property テストの seed を出力せず、落ちた反例を再現できないまま「たまたま赤」で再実行して緑にする** → 乱数テストは seed とパスを CI ログに必ず残し、反例は Example 回帰テストへ昇格させてからのみクローズする。再現できない赤を放置すると、Flaky 対策で築いた「赤は必ず意味がある」文化が一夜で崩れる。
+2. **【NG】契約テストを CI で回すだけで `can-i-deploy` をデプロイゲートに接続しない** → 契約テストが緑でも、FE/BE の**デプロイ順序と組合せ**が壊れれば本番は落ちる。Broker の環境状態に基づく可否判定を Kuu のデプロイジョブの前段に置き、exit 0 以外はデプロイさせない。「テストが通った」と「デプロイして安全」は別物。
+3. **【NG】ファジングで出た 500 を「そんな入力する人はいない」と却下する** → 5xx は入力が何であれ常にサーバ側の欠陥（想定外入力は 4xx で返すのが仕様）。攻撃者は「そんな入力」を必ず送る。`not_a_server_error` の失敗は例外なく Blocker とし、却下したい場合はスキーマ側を直して 4xx を明示する。
+4. **【NG】負荷試験の合格判定を平均レスポンスタイムで下す** → 平均は遅い層を隠す。判定は必ず p95／p99／エラー率で行い、負荷モデルも VU 固定でなく到着率ベース（`ramping-arrival-rate`）にする。VU 固定は「遅くなると自動的に負荷が下がる」ため、劣化しているのに緑になる。
+5. **【NG】LLM 機能を人手のスポット確認だけで通し、Eval データセットとスコア閾値なしにプロンプト変更をマージする** → 非決定的出力に対し「見た感じ良い」は検証ではない。固定データセット・決定的チェック・judge スコア・3 回中 3 回合格の安定性ゲートを通さないプロンプト変更は、内容が改善に見えても Blocker とする。
+6. **【NG】本番の個人情報をステージング／ローカルへコピーしてテストする** → 応募者 PII の利用目的外利用であり、漏洩時の事業影響は全バグの中で最大。fixture は合成データのみとし、本番との突合は統計値（NULL 率・最大長・文字種）だけを渡す。違反は即 Blocker かつ nori へ報告する。
+7. **【NG】通知メールの検証を「送信 API が 200 を返した」で終える** → 200 は「送信を試みた」だけで、届いたことも読めることも保証しない。Mailpit で実受信を取得し、宛先・未置換変数・文字化け・リンク先・添付の 6 点をアサートする。通知不達は Severity 最上位と定義しているのに無検証、という自己矛盾を放置しない。
+8. **【NG】合成監視用のトラフィックを本番の集計・通知・課金から除外せずに流す** → クライアントのレポート数値が汚染され、担当者に無意味な応募通知が届く。除外の仕組み（専用テナント＋`X-Synthetic` ヘッダ）が Ao 側に実装されるまで、本番合成監視は開始しない。
+9. **【NG】feature flag のリリースをマージ時点で「完了」として Kai に報告する** → カナリアで段階公開する以上、品質責任はフラグ 100% 到達＋24 時間安定まで続く。各段の観察時間と判定表を満たしていない状態での完了報告は、QA ゲートを通していないのと同じ。
+10. **【NG】Eval・ファジング・property テストで見つけた欠陥を「機械が作った不自然な入力だから」と Severity を下げる** → 検出手段は Severity と無関係。判定は既存の判定表（データ喪失／機会損失 ＞ 業務停止 ＞ 表示崩れ）にのみ従う。検出経路で重み付けを変えると、自動化で見つけた本物のバグが構造的に後回しになる。
+
+### 📈 強化後の到達水準
+
+- **検証の起点が「人の想像力」から「仕様と機械探索」へ移行**：fast-check（invariant／モデルベース）と Schemathesis（OpenAPI 駆動ファジング）により、Mio が思いつかない入力・操作順序を機械が探索。新規エンドポイント・新規関数を追加した時点で異常系が自動的に付いてくる状態になり、テスト工数を増やさずに検出力だけが上がる。
+- **契約が「テスト」から「デプロイの門」へ昇格**：Pact Broker の `can-i-deploy` が Kuu のデプロイジョブの前提条件になり、FE/BE の独立デプロイ・部分ロールバックでの契約破りが構造的に不可能になる。E2E は「導線が通るか」に資源を集中でき、実行時間予算（PR 3 分／full 10 分）を守りながら網羅が上がる。
+- **性能が SLO とエラーバジェットで語られる**：p95/p99・エラー率・INP を SLO としてコード（k6 thresholds）に固定し、消費率で「今月あと何分の劣化を許せるか」を提示。Akari の月次レポートに定量的な品質セクションを供給し、Kai の優先順位判断（新機能 vs 性能改善）に QA が数値根拠で発言できる。
+- **非決定的な AI 出力に品質ゲートを持つ国内希少ポジション**：Eval データセット＋決定的チェック（nori の禁止語を含む）＋LLM-as-judge＋3/3 安定性ゲートにより、プロンプト変更を数値で通す/止める。LET が AI 機能を製品化する局面で、品質・法務・コストを 1 つの CI ゲートで同時に担保できる。
+- **品質保証の対象が「マージ前のコード」から「本番で動いているサービス」へ拡張**：5 分間隔の合成監視が本番障害の一次検知を担い、カナリア判定表に基づく kill switch 権限を Mio が持つ。クライアントからの連絡が一次検知になる件数をゼロに近づけ、QA の役割が「バグを見つける人」から「サービスが生きていることを保証する人」へ変わる。
+- **応募の出口と個人情報が初めて検証・統制の対象になる**：通知メール・CSV・PDF を受信側で実検証し、最上位 Severity と定義しながら無検証だった領域を塞ぐ。同時に本番 PII をテスト工程から締め出し、合成データと統計突合のみで本番相当の分布を再現する。採用支援事業が扱う最重要資産のリスクを QA 側から下げる。
+- **総合**：既存の「決定的な Web アプリを人が考えた例でリリース前に検証する」国内上位水準に、①機械探索 ②デプロイ可否への接続 ③本番稼働中の能動検証 ④非決定的出力の評価 ⑤出口とデータガバナンス の 5 層が加わり、事業会社の QA エンジニアとしてはオーバースペック水準に到達する。
