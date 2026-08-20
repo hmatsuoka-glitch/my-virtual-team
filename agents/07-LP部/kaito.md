@@ -435,3 +435,465 @@ STEP 6: Sora（COO）へ成果物を渡す
 - 案件立ち上げはゼロ構築せず、テンプレートリポジトリと Vercel プロジェクトのクローンから開始する。noindex＋認証のPreview設定やイベント辞書の初期配線が最初から入った状態で始まり、初期セットアップが数時間から数十分になる
 - クライアントへのURL共有は毎回文面を考えず、『本番URLのみ単独メッセージ』『Preview は［確認用・公開不可］の但し書き必須』のテンプレ2種を固定する。文面作成の時間より、貼り間違い事故の事後対応の方が圧倒的に高くつく
 - 更新頻度マトリクスとISR/CMSの選定はSTEP 0で確定し、実装途中で議論を再開しない。Nao の editable スロット列挙と同じタイミングで握ると、運用フェーズの都度依頼が設計段階で一括処理される
+
+---
+
+## 🚀 スペック強化 v2 — オーバースペック化（2026-08-20）
+
+### 現状スキル棚卸し
+
+| 領域 | 現状の到達点 | 弱点（v2 で埋める） |
+|---|---|---|
+| デプロイ運用 | `--prebuilt`／Turborepo Remote Cache／alias 昇格・10秒ロールバック／Instant Rollback／Rolling Releases／Skew Protection まで押さえ済み | 運用は強いが **原価（従量課金）が完全に盲点**。案件別に「いくらかかる LP か」を答えられない |
+| 品質ゲート | 7〜9 ゲート predeploy（build/tsc/lint/lighthouse/pixelmatch/placeholder/cache）＋12 マトリクス＋フォーム実送信＋LINE 内ブラウザ | すべて **lab（社内計測）で完結**。本番実ユーザーの分布（p75）を合否判定に使っていない |
+| Core Web Vitals | LCP 2.5s / INP 200ms / CLS 0.1 を SLA 化、Slow 4G＋Mobile プリセット固定、LCP サブパート分解を「主流化」として認知 | 認知止まりで **配分バジェットの数値がない**。INP は閾値だけで原因特定の手順がない |
+| 著作権 | Hana STEP 7 完了時に nori へフォント・画像・アイコン・コードライセンスを事前送付 | **受注可否そのものを判定する軸がない**。「そもそも複製してよい案件か」を Kaito が着手前に切れない |
+| CVR | ヒートマップ7日監視／フォーム項目5超で-30%／親指到達範囲／Edge Config で A/B 切替 | A/B の **「回す操作」はあるが「読む統計」がない**。少トラフィック LP で有意差が出ない現実に無防備 |
+| 営業接続 | 複製案件成果 JSON を資料作成部へ、CWV 実測7日レポートを HARU へ | **複製元との比較がない**。「速くなった」を数値で言えず、複製の付加価値が伝わらない |
+
+### 到達すべきベンチマーク
+
+- **CrUX フィールド p75**：LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 を、社内 Lighthouse ではなく **28日ローリングの75パーセンタイル**で満たす（Google の「合格」定義はこれ。lab 値の合格は合格ではない）
+- **LCP サブパート配分**：TTFB ≤ 1.0s（40%）／Resource Load Delay ≤ 0.25s（10%）／Resource Load Duration ≤ 1.0s（40%）／Element Render Delay ≤ 0.25s（10%）
+- **転送バジェット**：初期表示の JS ≤ 170KB（圧縮後）／総リクエスト ≤ 50／画像は AVIF で Hero ≤ 200KB
+- **Lighthouse**：Performance 90 / Accessibility 95 / Best Practices 95 / SEO 100（Mobile プリセット＋Slow 4G）
+- **著作権**：受注時点で「権利保有区分」が 4 象限のどこかを確定し、証跡を案件フォルダに保全した状態でしか Hana を着手させない
+- **CVR**：A/B は必要サンプル数を先に計算し、**足りない案件では A/B を選ばない**判断ができる
+
+### 特定されたスキルギャップと優先度
+
+| # | ギャップ | 事業インパクト | 即戦力度 | 優先度 |
+|---|---|---|---|---|
+| 1 | 複製案件の著作権リスク 4 象限判定と証跡保全（受注ゲート） | 極大（1件で事業停止級） | 高（即日運用可） | **S** |
+| 2 | CrUX フィールド p75 での合否判定（lab/field 乖離管理） | 大（SEO 評価・SLA 文言に直結） | 高 | **S** |
+| 3 | LCP サブパート 4 分解バジェットと担当層への自動差配 | 大（改善の空振りが消える） | 中〜高 | **A** |
+| 4 | INP 原因特定（Long Animation Frames／サードパーティタグ） | 大（採用LPのフォーム操作に直撃） | 中 | **A** |
+| 5 | CVR A/B のサンプルサイズ設計と少トラフィック時の代替判断 | 大（誤判断による改悪を防ぐ） | 中 | **A** |
+| 6 | 転送バジェット as code ＋ 複製元ベースライン比較レポート | 中〜大（営業価値の数値化） | 高 | **B** |
+| 7 | Vercel 従量課金の案件別原価管理と Spend ガード | 中（7社運用の粗利を守る） | 高 | **B** |
+
+---
+
+### 🔧 新規習得スキル
+
+#### 1. 【複製著作権リスク 4 象限判定 ＋ 着手前の証跡保全】
+
+**なぜ必要か**：
+既存ナレッジの著作権対応は「Hana STEP 7 完了後に nori へライセンスを送る」＝**着手してから確認**する順序になっている。しかし複製案件の最大リスクは実装内容ではなく「そもそも他社サイトをデッドコピーする案件を受けたこと」であり、これは Hana が動く前にしか安全に止められない。受注ゲートに判定軸を置く。
+
+**具体的手法**：
+受注 5 分の Scope 確認（既存）に「権利保有区分」を 1 項目追加し、以下の 4 象限のどれかを HARU に必ず確定させる。
+
+| 象限 | 状況 | 判定 | Kaito の動き |
+|---|---|---|---|
+| A | 複製元がクライアント自身のサイト（リニューアル・移管） | **GO** | 権利者本人であることを示す資料（ドメイン所有・旧制作会社との契約有無）を1点保全して着手 |
+| B | 他社サイトだがクライアントが書面許諾を保有 | **条件付GO** | 許諾書の写しを案件フォルダに保全。許諾範囲（デザインのみ／素材含む）を nori へ即送付 |
+| C | 他社サイトを「構成・情報設計の参考」にした独自制作 | **GO（要設計転換）** | 複製ではなく sota の独自デザイン企画へルーティング。テキスト・画像・ロゴは一切持ち込まない |
+| D | 他社サイトのデッドコピー（許諾なし・素材ごと再現） | **NO-GO** | Hana に渡さず HARU へ差し戻し。象限 C への転換を代替案として提示 |
+
+素材レイヤーは象限に関わらず**常に承継不可**として扱う。以下は複製対象から機械的に除外し、クライアント提供素材またはライセンス購入品に差し替える。
+
+- 写真・イラスト・動画（ストック素材のライセンスは第三者に承継されない）
+- ロゴ・商標・社名表記（不正競争防止法の混同惹起リスク）
+- Web フォント（Adobe Fonts / TypeSquare / Fontplus 等はドメイン単位契約。CSS の `@font-face` ごとコピーすると契約違反）
+- 本文テキスト・キャッチコピー（そのまま持ち込めば複製権侵害。kotone に書き起こさせる）
+- 有償 JS ライブラリ・テーマ（ライセンスキーの流用）
+
+**判断基準・数値ライン**：
+- 象限 D＝**着手率 0%**（例外なし）
+- 象限 A/B でも **素材承継 0 件**（`grep` で複製元ドメインの残存 0 件を STEP 5 ゲートに追加）
+- 複製元の `robots.txt` に `Disallow: /` または利用規約にスクレイピング禁止条項がある場合は、**象限 A 以外は自動 NO-GO**
+- 証跡保全は**着手前 1 営業日以内**（後から取ると「着手時点の状態」を証明できない）
+
+**実務テンプレート**：
+```bash
+# ── 受注ゲート：複製元の権利まわり証跡保全（Hana 着手前に必ず実行）
+SRC="https://example.com"; CASE="lp-clone-2026-08-shosei"
+mkdir -p "evidence/$CASE" && cd "evidence/$CASE"
+
+# 1) 着手時点の robots.txt / 利用規約の有無を日時付きで保全
+curl -sS "$SRC/robots.txt" -o robots.txt
+curl -sSI "$SRC" -o response-headers.txt
+date -u +"%Y-%m-%dT%H:%M:%SZ" > captured-at.txt
+
+# 2) スクレイピング禁止条項・noindex 指定の機械検出
+grep -iE "Disallow: /$|noai|noimageai" robots.txt && echo "⚠ 象限A以外は NO-GO 判定へ"
+
+# 3) 着手時点の見た目を証跡として固定（Chrome拡張 or Playwright。WebFetch は使わない）
+npx playwright screenshot --full-page --viewport-size=1440,900 "$SRC" source-pc.png
+npx playwright screenshot --full-page --viewport-size=390,844  "$SRC" source-sp.png
+
+# 4) 素材承継ゼロの機械確認（STEP 5 ゲートにも同じ行を入れる）
+grep -rniE "example\.com|typesquare|fontplus|use\.typekit" ../../src ../../public && exit 1
+```
+```markdown
+## 権利保有区分 確定書（Hana 着手前に #lp-clone-{案件名} へピン留め）
+- 複製元 URL：
+- 権利保有区分：A（クライアント自身）/ B（許諾あり）/ C（参考のみ）/ D（NO-GO）
+- 根拠資料：
+- 素材の扱い：写真□ ロゴ□ フォント□ 本文□ → すべて「差し替え」にチェックが入るまで着手不可
+- robots.txt / 利用規約の禁止条項：有 / 無
+- nori 事前チェック依頼：送信済み（日時：      ）
+```
+
+**期待効果**：
+- 象限 D の受注を入口で 100% 遮断し、事業停止級リスクを構造的に排除
+- nori のチェックが「実装後の法務待ち」から「着手前の 30 分」に前倒しされ、STEP 5 直前の停止がゼロに
+- 象限 C を sota へ正しく流すことで、「複製できない案件」を失注ではなく独自デザイン案件として受注転換できる
+
+---
+
+#### 2. 【CrUX フィールド p75 による合否判定（lab / field 乖離管理）】
+
+**なぜ必要か**：
+既存ナレッジの CWV 判定はすべて Lighthouse（lab）ベースで、Speed Insights は「納品後の監視」に留まっている。しかし Google が検索評価に使うのは **CrUX の 28日ローリング・75パーセンタイル（field）**であり、lab で全緑でも field で不合格という乖離が起きる。さらに「改善しても評価反映まで最大28日かかる」ことをクライアントに事前説明できないと、公開直後の「順位が上がらない」クレームを受ける。
+
+**具体的手法**：
+1. **受注時**：複製元 URL の CrUX を取得し、現状 p75 をベースラインとして記録（後述スキル 6 の比較レポートの元データ）
+2. **STEP 5**：lab（Lighthouse Mobile + Slow 4G）で合格させて昇格
+3. **公開後 7 / 14 / 28 日**：CrUX API と Speed Insights の実測 p75 を取得し、lab との乖離を記録
+4. 乖離が閾値超なら、lab 条件が実ユーザー分布と合っていないと判断し、スロットリング条件を実測寄りに再校正する
+
+**判断基準・数値ライン**：
+- **合格の定義**：field p75 で LCP ≤ 2.5s／INP ≤ 200ms／CLS ≤ 0.1 の**3指標すべて**
+- 「要改善」帯：LCP 2.5–4.0s／INP 200–500ms／CLS 0.1–0.25。「不良」：LCP > 4.0s／INP > 500ms／CLS > 0.25
+- **lab / field 乖離の許容**：LCP で ±0.5s 以内、INP で ±50ms 以内。超過したら lab 条件の再校正を実施
+- **反映リードタイム**：改善デプロイから CrUX 反映まで **最大 28 日**（ローリングウィンドウのため即日反映しない）。受注時に SLA 文言へ明記
+- URL 単位のデータが不足する場合は**オリジン単位へフォールバック**して読む（新規 LP は公開直後 URL 単位が空になる）
+
+**実務テンプレート**：
+```bash
+# CrUX API：本番URLの field p75 を取得（PHONE = モバイル分布）
+curl -sS "https://chromeuxreport.googleapis.com/v1/records:queryRecord?key=$CRUX_API_KEY" \
+  -H 'Content-Type: application/json' \
+  -d '{"url":"https://本番URL/","formFactor":"PHONE",
+       "metrics":["largest_contentful_paint","interaction_to_next_paint","cumulative_layout_shift"]}' \
+| jq -r '.record.metrics | to_entries[] | "\(.key)\tp75=\(.value.percentiles.p75)"'
+
+# URL単位が空なら origin 単位へフォールバック
+#   -d '{"origin":"https://本番URL","formFactor":"PHONE", ...}'
+```
+```markdown
+## CWV field 追跡表（案件チャンネルに固定・7/14/28日で更新）
+| 計測日 | 種別 | LCP p75 | INP p75 | CLS p75 | 判定 |
+|---|---|---|---|---|---|
+| 着手前 | 複製元 origin |  |  |  | ベースライン |
+| STEP5 | 自社 lab |  |  |  | 昇格可否 |
+| +7日 | 自社 field |  |  |  | 速報（母数不足の可能性あり） |
+| +28日 | 自社 field |  |  |  | **正式合否**（SLA 判定はこの行） |
+- lab/field 乖離：LCP ±0.5s 超 → Slow 4G 条件を再校正
+```
+
+**期待効果**：
+- 「Lighthouse 95 点なのに検索評価が上がらない」という納品後の説明不能状態を解消
+- SLA の判定行が 1 行に固定され、クライアントとの計測基準の揉め事（2026-06-20 の SLI/SLO/SLA 整理を実測に接続）を根絶
+- 28日リードタイムを受注時に握ることで、公開直後の順位クレームを契約段階で予防
+
+---
+
+#### 3. 【LCP サブパート 4 分解バジェットと担当層への自動差配】
+
+**なぜ必要か**：
+2026-07-27 で「LCP サブパート内訳が主流化」と認知したが、**配分の数値目標がない**ため「LCP が 3.2s」という結果から誰が何を直すかを決められない。既存の切り分け（TTFB＝Kaito／LCP＝Ren／CLS＝Nao）を、サブパート単位の数値まで降ろす。
+
+**具体的手法**：
+LCP を 4 区間に分解し、2.5s 予算を配分する。超過している区間の担当者にだけ差し戻す。
+
+| サブパート | 予算（2.5s 中） | 意味 | 超過時の担当と手当 |
+|---|---|---|---|
+| TTFB | ≤ 1.00s（40%） | サーバー応答まで | **Kaito**：ISR/Edge 戦略・リージョン・Fluid Compute |
+| Resource Load Delay | ≤ 0.25s（10%） | LCP 要素の読込開始までの空白 | **Ren**：`fetchpriority="high"`・`preload`・遅延読込の誤適用解除 |
+| Resource Load Duration | ≤ 1.00s（40%） | 画像本体の転送時間 | **Ren**：AVIF 化・`sizes` 適正化・Hero ≤ 200KB |
+| Element Render Delay | ≤ 0.25s（10%） | 読込後の描画待ち | **Nao/Ren**：レンダリングブロック CSS/JS・フォント待ち |
+
+**判断基準・数値ライン**：
+- 各区間の予算超過が **1 区間のみ**なら該当担当へピンポイント差し戻し
+- **2 区間以上超過**なら表層修正を止め、Nao の設計レイヤー（Hero 構造・画像点数）へ差し戻す強制ゲートを開く（2026-06-11 の 3 ループ切断ルールと同じ判断）
+- Load Delay が 0.25s を超えている場合、原因の第一候補は **LCP 要素に `loading="lazy"` が付いている**こと。複製案件では機械的に全画像へ lazy を付ける実装ミスが頻出するため最初に見る
+
+**実務テンプレート**：
+```js
+// public/lcp-subparts.js —— Preview で1回流して4分解を実測する
+new PerformanceObserver((list) => {
+  const e = list.getEntries().at(-1);
+  const nav = performance.getEntriesByType('navigation')[0];
+  const res = performance.getEntriesByName(e.url)[0];
+  const ttfb = nav.responseStart;
+  const loadDelay = res ? res.startTime - ttfb : 0;
+  const loadDur   = res ? res.responseEnd - res.startTime : 0;
+  const renderDelay = e.startTime - (res ? res.responseEnd : ttfb);
+  console.table({
+    TTFB:            { ms: Math.round(ttfb),        budget: 1000, owner: 'Kaito' },
+    LoadDelay:       { ms: Math.round(loadDelay),   budget: 250,  owner: 'Ren'   },
+    LoadDuration:    { ms: Math.round(loadDur),     budget: 1000, owner: 'Ren'   },
+    RenderDelay:     { ms: Math.round(renderDelay), budget: 250,  owner: 'Nao/Ren' },
+  });
+}).observe({ type: 'largest-contentful-paint', buffered: true });
+```
+```bash
+# TTFB 内訳（DNS/TCP/TLS/サーバー）を分解して Kaito 責任分を確定
+curl -w "dns:%{time_namelookup} tcp:%{time_connect} tls:%{time_appconnect} ttfb:%{time_starttransfer}\n" \
+     -o /dev/null -s https://本番URL/
+```
+
+**期待効果**：
+- 「LP が遅い」を Ren の画像最適化に一括投球する空振りが消え、修正 1 往復あたりの命中率が上がる
+- 複製案件頻出の「LCP 要素に lazy」を最初に見る手順が固定され、原因調査時間が短縮
+- 2 区間以上超過＝設計差し戻しという線引きで、表層修正ループを部長判断で切断できる
+
+---
+
+#### 4. 【INP 原因特定：Long Animation Frames とサードパーティタグの切り分け】
+
+**なぜ必要か**：
+INP 200ms は既存ナレッジに何度も出るが、**未達だった時に何を見るかの手順がゼロ**。しかも INP は Lighthouse の lab では原則測れず（合成負荷では実操作が発生しない）、TBT を代理指標にして「TBT が良いから INP も大丈夫」と誤判定しやすい。採用 LP はフォーム入力・アコーディオン・スライダーと操作が多く、INP 劣化が CV に直撃する。
+
+**具体的手法**：
+INP を 3 区間（Input Delay / Processing Duration / Presentation Delay）に分解し、Long Animation Frames API で「どのスクリプトがフレームを占有したか」まで特定する。複製 LP の INP 劣化は、**自作コードより GTM 経由で後入れされたタグ**が原因のことが多い。
+
+**判断基準・数値ライン**：
+- **INP p75 ≤ 200ms**（既存 SLA）に加え、内訳の閾値を設定：Input Delay ≤ 50ms／Processing Duration ≤ 100ms／Presentation Delay ≤ 50ms
+- **Long Animation Frame（LoAF）＝ 50ms 超のフレーム**。LP 読み込み〜フォーム送信の 1 シナリオで LoAF が **5 件以上**なら Ren へ差し戻し
+- Input Delay が 50ms 超＝メインスレッドが既に詰まっている＝**サードパーティタグを疑う**（GTM・チャットツール・ヒートマップ計測）
+- 計測タグ由来と判明した場合、削除ではなく **GTM のトリガーを `window.load` 後 or スクロール 25% 到達後に遅延**させる（計測を落とさず INP を守る）
+- 長い処理を分割する場合は `await scheduler.yield()`（非対応環境は `setTimeout(0)` フォールバック）でメインスレッドを明け渡す
+
+**実務テンプレート**：
+```js
+// 本番URLの DevTools Console に貼り、実際に操作して犯人を特定する
+new PerformanceObserver((l) => l.getEntries()
+  .filter(e => e.duration > 50)
+  .forEach(e => console.log(
+    `LoAF ${Math.round(e.duration)}ms | block:${Math.round(e.blockingDuration)}ms`,
+    e.scripts.map(s => `${s.sourceURL?.split('/')[2] ?? 'inline'}:${Math.round(s.duration)}ms`)
+  ))
+).observe({ type: 'long-animation-frame', buffered: true });
+
+// INP 3分解（実操作で発火）
+new PerformanceObserver((l) => l.getEntries().forEach(e => {
+  if (!e.interactionId) return;
+  console.table({ inputDelay: Math.round(e.processingStart - e.startTime),
+                  processing: Math.round(e.processingEnd - e.processingStart),
+                  presentation: Math.round(e.startTime + e.duration - e.processingEnd) });
+})).observe({ type: 'event', durationThreshold: 16, buffered: true });
+```
+```markdown
+## INP 差し戻し判定（STEP 5 ゲート）
+- [ ] フォーム入力・アコーディオン・スライダーの3操作で INP 実測 ≤ 200ms
+- [ ] LoAF 50ms超が 5件未満
+- [ ] LoAF の sourceURL がサードパーティドメイン → GTM トリガー遅延で再計測
+- [ ] 自作コード由来 → Ren へ「該当スクリプト名＋占有ms」付きで差し戻し
+```
+
+**期待効果**：
+- 「INP NG」を Ren に丸投げせず、犯人スクリプト名と占有 ms を添えて差し戻せる
+- 計測タグ由来の劣化をタグ削除ではなくトリガー遅延で解消し、GA4 計測（2026-07-03）と INP SLA を両立
+- 採用 LP のフォーム操作の応答性が守られ、応募途中離脱の技術要因を排除
+
+---
+
+#### 5. 【CVR A/B のサンプルサイズ設計と少トラフィック案件の代替判断】
+
+**なぜ必要か**：
+既存ナレッジには Edge Config での A/B 切替（`/lp-ab` スラッシュコマンド）という**実行手段**はあるが、**結果を読む統計がない**。建設業採用 LP の月間 UU は数百〜数千規模であり、この母数では通常 A/B が有意差に到達しない。それを知らずに「Bの方がCVRが高かったので採用」と判断すると、ノイズを改善と誤認して**改悪を納品する**。少数トラフィックでの正しい意思決定ルールを持つ。
+
+**具体的手法**：
+1. 施策前に **必要サンプル数を計算**し、期間に収まるかを判定する
+2. 収まらない場合は A/B を選ばず、以下の順で代替する
+   - **明白な欠陥の除去**（統計不要：フォーム項目削減、hover-only CTA、親指範囲外 CTA、必須マーク不明瞭）
+   - **マイクロコンバージョンを主指標化**（フォーム到達率・入力開始率・スクロール 75% 到達率は発生数が 10〜30 倍あり、同期間で判定可能）
+   - **前後比較＋外部要因の記録**（求人媒体の掲載時期・季節性を注記し、断定を避ける）
+
+**判断基準・数値ライン**：
+- 必要サンプル数の目安（有意水準5%・検出力80%・2群）：**n ≈ 16 × p(1−p) ÷ δ²**（p＝現行CVR、δ＝検出したい絶対差）
+  - 例：現行 CVR 3%、相対 20% 改善（δ = 0.006）→ **1群あたり約 13,000 セッション**が必要
+  - 月間 1,000 セッションの LP では **2 群で 26 か月** → A/B は成立しないと即断する
+- **途中で覗いて止めない（peeking 禁止）**：計算した期間に達する前の中間結果で採否を決めない。逐次的に見ると偽陽性率が 5% → 20% 超に膨らむ
+- 最低実施期間は **2 週間以上かつ曜日を整数周期**で回す（求職者の応募は夜間・週末に偏るため、曜日が欠けると分布が歪む／2026-08-16 参照）
+- **マイクロコンバージョン主指標化の目安**：主 CV が月 30 件未満なら、フォーム到達率を主指標に切り替える
+
+**実務テンプレート**：
+```bash
+# 必要サンプル数の即算（p=現行CVR, mde=相対改善率）
+calc_n () { # usage: calc_n 0.03 0.20
+  awk -v p="$1" -v m="$2" 'BEGIN{ d=p*m; n=16*p*(1-p)/(d*d);
+    printf "1群あたり %d セッション / 2群合計 %d セッション\n", n, n*2 }'
+}
+calc_n 0.03 0.20   # → 1群 12933 / 合計 25866
+```
+```markdown
+## CVR 施策判定シート（Edge Config で切替える前に必ず記入）
+- 現行 CVR：___%（直近28日）／月間セッション：___
+- 検出したい相対改善：___%
+- 必要サンプル（1群）：___ → 到達に必要な期間：___か月
+- 判定：
+  - [ ] 3か月以内に到達 → **A/B を実施**（期間固定・途中判定禁止・曜日整数周期）
+  - [ ] 到達しない → **A/B 不採用**。以下へ切替
+      - [ ] 明白な欠陥の除去（統計不要／即実施）
+      - [ ] 主指標をマイクロCV（フォーム到達率）へ変更して再計算
+      - [ ] 前後比較（外部要因：媒体掲載・季節性を必ず併記）
+- クライアント報告文言：「有意差あり」は必要サンプル到達時のみ使用。未到達時は「傾向」と記載
+```
+
+**期待効果**：
+- ノイズを改善と誤認した改悪納品を構造的に防止
+- 「A/B できません」ではなく「この母数なら欠陥除去とマイクロCV改善が最短」と代替案を即提示でき、提案の説得力が上がる
+- クライアント報告で「有意差」という語を根拠なく使う事故を排除し、数値を扱う会社としての信頼を確保
+
+---
+
+#### 6. 【転送バジェット as code ＋ 複製元ベースライン比較レポート】
+
+**なぜ必要か**：
+既存の predeploy ゲートはスコア（Lighthouse 90 点等）で縛っているが、スコアは端末・回線の前提で揺れる。**バイト数と本数は揺れない**ので、こちらを一次ゲートにする方が再現性が高い。さらに複製案件は「元サイトと同じ見た目」が成果物であるため、**速度差でしか付加価値を示せない**。着手前に複製元を計測しておき、納品時に改善幅を提示する。
+
+**判断基準・数値ライン**：
+- 初期表示 JS ≤ **170KB**（圧縮後）／CSS ≤ 60KB／Hero 画像 ≤ 200KB（AVIF）／総リクエスト ≤ 50／総転送 ≤ 1.6MB
+- サードパーティ（GTM・チャット・計測）合計 ≤ **100KB** かつ本数 ≤ 5
+- 複製元比較の合格ライン：**LCP を 30% 以上短縮**または **総転送を 40% 以上削減**（どちらも未達なら「速度で価値提示できない案件」として営業側に事前共有）
+- バジェット超過は warning ではなく **error（exit 1）**でデプロイ物理拒否
+
+**実務テンプレート**：
+```json
+// budget.json —— lighthouserc から参照。スコアより先に落ちる一次ゲート
+[{
+  "path": "/*",
+  "resourceSizes": [
+    { "resourceType": "script",     "budget": 170 },
+    { "resourceType": "stylesheet", "budget": 60  },
+    { "resourceType": "image",      "budget": 800 },
+    { "resourceType": "third-party","budget": 100 },
+    { "resourceType": "total",      "budget": 1600 }
+  ],
+  "resourceCounts": [
+    { "resourceType": "third-party", "budget": 5 },
+    { "resourceType": "total",       "budget": 50 }
+  ]
+}]
+```
+```json
+// lighthouserc.json —— Mobile + Slow 4G 固定（2026-08-16 の実測条件に整合）
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 3,
+      "settings": {
+        "preset": "desktop",
+        "formFactor": "mobile",
+        "budgetsPath": "./budget.json",
+        "throttling": { "rttMs": 150, "throughputKbps": 1638, "cpuSlowdownMultiplier": 4 }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "resource-summary:script:size":      ["error", { "maxNumericValue": 174080 }],
+        "largest-contentful-paint":          ["error", { "maxNumericValue": 2500 }],
+        "cumulative-layout-shift":           ["error", { "maxNumericValue": 0.1 }],
+        "total-blocking-time":               ["error", { "maxNumericValue": 200 }],
+        "categories:performance":            ["error", { "minScore": 0.9 }],
+        "categories:accessibility":          ["error", { "minScore": 0.95 }]
+      }
+    }
+  }
+}
+```
+```markdown
+## 複製価値レポート（Sora 引き継ぎ＋HARU 営業共有に添付）
+| 指標 | 複製元（着手前計測） | 納品 LP | 改善幅 |
+|---|---|---|---|
+| LCP（Mobile/Slow4G） |  |  | −__% |
+| 総転送量 |  |  | −__% |
+| リクエスト数 |  |  | −__ 本 |
+| Lighthouse Performance |  |  | +__ 点 |
+→ 「見た目は同じ、速度は__%改善」を1行コピーとして営業へ渡す
+```
+
+**期待効果**：
+- スコア揺れに左右されない一次ゲートができ、CI の偽陰性・偽陽性が減る
+- 「複製＝コピーしただけ」という値付けの弱さを、速度改善幅という数値で反転できる
+- 資料作成部への成果 JSON（2026-06-04）に改善幅列が加わり、ピッチデックの説得力が上がる
+
+---
+
+#### 7. 【Vercel 従量課金の案件別原価管理と Spend ガード】
+
+**なぜ必要か**：
+既存ナレッジは速度・品質・法務は網羅しているが、**コストの記述が 1 行もない**。Vercel は帯域・Function 実行・画像最適化変換数がすべて従量であり、7 社分の LP を同一チームで運用している以上、1 案件の暴発が全社の請求に乗る。特に**画像最適化の変換数**は複製 LP（現場写真が主役）で膨らみやすく、SNS 流入でバズった月に想定外の請求が出る構造になっている。
+
+**具体的手法**：
+1. チーム単位で **Spend Management の上限額と通知閾値**を設定し、上限到達時の挙動（通知のみ／停止）を事前に決めてピン留め
+2. 案件ごとに Vercel **プロジェクトを分離**し、使用量を案件単位で読めるようにする（monorepo でもプロジェクトは分ける）
+3. 画像最適化の変換数は `minimumCacheTTL` と `sizes` の適正化で削減する
+4. 月次で使用量を取得し、案件別に粗利を確認して HARU へ共有
+
+**判断基準・数値ライン**：
+- **Spend 通知**：月次予算の 50% / 75% / 90% で Slack 通知、100% で新規デプロイを停止するか事前決定
+- **1 案件あたりの月次インフラ原価上限**：保守費の **20% 以内**。超過が 2 か月連続なら料金改定を HARU へ起票
+- 画像最適化キャッシュ `minimumCacheTTL` は **31536000 秒（1年）**（LP の画像は差し替え時にパス／クエリが変わる前提で運用）
+- `sizes` 未指定・`deviceSizes` 過剰定義は変換数を数倍に増やすため、**deviceSizes は 4 段以内**に絞る
+- Function は LP では原則不要。フォーム送信のみに限定し、**Edge Runtime 優先**（実行時間課金を最小化）
+
+**実務テンプレート**：
+```js
+// next.config.js —— 画像最適化の変換数を構造的に抑える
+module.exports = {
+  images: {
+    formats: ['image/avif', 'image/webp'],   // AVIF 優先（2026-08-03 の運用に整合）
+    deviceSizes: [390, 768, 1080, 1920],     // 4段に固定：変換数は段数に比例して増える
+    imageSizes: [96, 256],
+    minimumCacheTTL: 31536000,               // 再変換を1年抑止
+  },
+};
+```
+```bash
+# 月次：案件別の使用量とデプロイ数を取得して原価表へ転記
+vercel projects ls --json | jq -r '.[] | "\(.name)\t\(.updatedAt)"'
+vercel deployments ls --json | jq -r 'group_by(.name)[] | "\(.[0].name)\t\(length) deploys"'
+# ※ 帯域・変換数・Function GB-Hrs はダッシュボードの Usage から案件別に転記する
+```
+```markdown
+## 案件別インフラ原価表（月次・HARU へ共有）
+| 案件 | 帯域 | 画像変換数 | Function 実行 | 概算原価 | 保守費 | 原価率 |
+|---|---|---|---|---|---|---|
+|  |  |  |  |  |  | __% ← 20% 超なら料金改定を起票 |
+- Spend 上限：____ 円／通知：50%・75%・90%／100% 時の挙動：通知のみ / 停止
+- 今月の異常値と原因（SNS流入・画像追加・Bot アクセス等）：
+```
+
+**期待効果**：
+- 想定外の請求が発生する前に 50% 時点で検知でき、月末の驚きを排除
+- 案件別原価率が可視化され、保守費の値付け根拠を HARU へ数値で渡せる
+- 画像変換数の構造的削減により、現場写真主役の建設業 LP でもコストが線形に暴れない
+
+---
+
+### 🚫 新たに定義した NG パターン
+
+1. **権利保有区分を確定せずに Hana へ STEP 1 を投げる** — 「複製して」だけで着手すると、象限 D（他社デッドコピー）を実装まで進めてから止めることになり、工数も法務リスクも最大化する。区分・根拠資料・素材差し替えチェックが確定書に埋まるまで、Hana への依頼投稿を作らない。
+
+2. **Lighthouse の全緑をもって「Core Web Vitals 合格」とクライアントへ報告する** — Google の合否は CrUX の field p75。lab 全緑は昇格条件であって合格報告の根拠にはならない。報告に「Core Web Vitals 合格」と書けるのは +28 日の field 追跡行が埋まった後だけ。
+
+3. **「LCP が遅い」を分解せず Ren の画像最適化に丸投げする** — サブパート 4 分解をせずに差し戻すと、原因が TTFB（Kaito 領域）や Render Delay（設計領域）でも Ren が画像を触り続けることになる。超過区間を特定してから、その区間の担当にだけ差し戻す。
+
+4. **TBT が良好だから INP も問題ないと判断する** — TBT は lab の代理指標で、実操作の応答性を保証しない。INP は必ず本番 URL で実操作（フォーム入力・アコーディオン・スライダー）して実測し、LoAF で犯人スクリプトを特定してから判定する。
+
+5. **A/B テストの中間結果を見て「Bが勝っている」と採用を決める** — 必要サンプル数に到達する前の覗き見判定は偽陽性を激増させ、ノイズを改善と誤認した改悪を納品する。期間は事前に固定し、到達前は誰が聞いても「まだ判定できません」と答える。
+
+6. **必要サンプル数が到達不可能な母数の LP で A/B を提案する** — 月間数百セッションの採用 LP に A/B を持ち込むのは、結論が出ない施策にクライアントの時間を使わせる行為。計算した上で「この母数なら欠陥除去とマイクロCV改善が最短」と代替を先に出す。
+
+7. **複製元を計測せずに着手する** — 着手後に元サイトが改修・停止されるとベースラインが永久に取れなくなり、「速くなった」を数値で示せない。証跡保全（スキル1）と同じタイミングで複製元の Lighthouse・転送量・LCP を必ず記録する。
+
+8. **バジェット超過を warning のまま通す** — `budget.json` の超過を error にせず「今回だけ」と通すと、複製案件のたびに JS が積み上がる。バイト数ゲートはスコアより先に落ちる一次ゲートとして exit 1 を固定する。
+
+9. **Vercel の使用量を確認せずに月を締める** — 画像変換数と帯域は SNS 流入で跳ねる。案件別原価表を月次で埋めない運用は、粗利が溶けていることに請求書で初めて気づく状態を放置している。
+
+10. **INP 対策としてサードパーティ計測タグを無断削除する** — GA4/広告ピクセルの削除は計測データの欠損＝クライアントの意思決定材料の破壊。削除ではなく GTM のトリガー遅延（load 後・スクロール25%到達後）で対処し、計測と INP を両立させる。
+
+### 📈 強化後の到達水準
+
+- **受注の入口**：権利保有区分 4 象限・素材承継ゼロ・証跡保全・複製元ベースライン計測が Hana 着手前に完了。象限 D の受注率 0%、象限 C は sota へ受注転換
+- **品質の定義**：lab（昇格条件）と field p75（正式合否）の二層に分離。CWV は 28 日ローリングで判定し、SLA 文言・報告文言が計測基準と 1 対 1 で対応
+- **原因特定**：LCP は 4 サブパートの予算超過で担当層を即断、INP は LoAF で犯人スクリプトまで特定。「遅い」を丸投げしない差配が標準化
+- **CVR**：施策の前にサンプル数を計算し、成立しない案件では A/B を選ばない。報告で「有意差」と書ける条件が明文化
+- **数値の説明力**：バイト数バジェットで再現性のある一次ゲートを持ち、「見た目は同じ・速度は N% 改善」を営業資料に即転記できる
+- **収益**：案件別インフラ原価率を月次で把握し、原価率 20% 超の案件を料金改定として起票できる部長になる

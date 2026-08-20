@@ -785,3 +785,387 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - tokens.json のキー体系（--brand- 接頭辞・OKLCH色空間・rem換算列）を全案件で固定し、Iro/Ren/hiro が同じキーを参照する。案件ごとにキー名を作ると下流3部署で読み替えが発生し、色が出ないNGの温床になる
 - 操作性・可読性フラグ（tap_target_warning / hover_only_content / outdoor_readability_risk / late_reveal_risk）は抽出完了後にまとめて立てず、該当STEPを見ている最中にその場で立てる。後から立てると該当箇所を探し直すコストが抽出本体と同程度かかる
 - 同一クライアントで複数LPを複製する案件は1本ずつ全STEPを回さず、共通トークン（色・フォント・余白・ロゴ）を先に1回確定してから、ページ固有の差分だけを抽出する。2本目以降のSTEP 2〜3がほぼ消える
+
+---
+
+## 🚀 スペック強化 v2 — オーバースペック化（2026-08-20）
+
+### 現状スキル棚卸し
+
+| 領域 | 現状の到達点 | 限界点（v2で突破する対象） |
+|---|---|---|
+| 値の取得 | `getComputedStyle()` 全要素一括ダンプ（Puppeteer `page.evaluate`）＋生CSSテキストの正規表現走査をペア実行 | 正規表現走査は**構造を持たない**。`@layer` の入れ子・ネスト記法展開後のセレクタ・`@scope` 境界を文字列から復元しており、取りこぼしが構造的に残る |
+| 出力量 | 全要素×全プロパティのJSONを納品 | ブラウザ既定値との差分を取らないため、意味のある宣言がノイズに埋もれる（1ページ数十MB） |
+| CSS変数 | `:root` の定義値・再代入セレクタ・`var()` フォールバックを依存グラフで記録 | **どの祖先の定義が実際に効いているか**の継承チェーンは未解決。`@property` の型・初期値・`inherits` も未取得 |
+| 色 | HEX＋OKLCH 併記、三重ピッカー照合、alpha 保持 | 一致/不一致が**目視の2値判定**。「どれだけ違うか」の距離が数値化されておらず、広色域（display-p3）も未対応 |
+| フォント | family全スタック・weight・unicode-range・`font-display`・可変軸・ライセンスを記録 | **フォールバック書体との寸法差（メトリクス）が未計測**。CLSの根本原因を Ren 側の実装問題として押し出している |
+| 条件付きCSS | `@media` / `@container` / `@supports` の**存在**を検出しフラグ化 | 条件の**解決テーブル**が無い。`cqw`等のコンテナ相対単位、`container-name` の解決先が未特定 |
+| 検証 | pre-handoff スクリプトで自己完結型10点チェック（exit code 1 ゲート） | 検証が**片側だけ**。複製版と元サイトを突き合わせる回帰diffが無く、「抽出漏れ率」を数値で言えない |
+
+### 到達すべきベンチマーク
+
+1. **CSSOM 完全走査**：`document.styleSheets` → `CSSRuleList` を再帰し、`CSSLayerBlockRule` / `CSSSupportsRule` / `CSSContainerRule` / `CSSScopeRule` / `CSSPropertyRule` / `CSSImportRule` を型判別して構造付きASTで保持。cross-origin シートの `SecurityError` も再取得で埋める。**ルール捕捉率 100%（unreadable 0件）**
+2. **有意プロパティ抽出**：UA既定値ベースラインとの差分のみを残し、納品JSONを **98%圧縮**しつつ情報量は非減少
+3. **カスタムプロパティ継承の完全再現**：任意の要素・任意の変数について「`:root`定義 → 途中の上書き → 実効値」の継承チェーンを復元。**未解決変数0・循環0**
+4. **フォント計測**：Canvas `TextMetrics` で x-height / ascent / descent / advance を実測し、`size-adjust` 等のディスクリプタでメトリクス互換フォールバックを自動生成。**CLS ≤ 0.02**
+5. **色の距離の定量化**：ΔE2000 でブランド色 **< 0.5**、主要色 **< 1.0**、装飾色 **< 2.0**
+6. **条件付きCSSの解決**：`@container` の解決先コンテナ特定と `cq*` 単位のpx換算（**誤差 ±0.5px**）、`CSS.supports()` による機能マトリクス自動生成
+7. **双方向回帰diff**：元サイト↔複製版の有意プロパティ一致率 **≥ 99.5%（抽出漏れ 0.5% 以下）**、矩形 IoU **≥ 0.98**
+
+### 特定されたスキルギャップと優先度
+
+| # | ギャップ | 事業インパクト | 即戦力度 | 優先度 |
+|---|---|---|---|---|
+| 1 | CSSOM 再帰走査による構造付きルールAST（正規表現走査の置換） | 高：`@layer`/`@scope`/ネスト起因の「効かない」NGを構造で根絶 | 即（Puppeteer既存パスに同居） | ★★★★★ |
+| 2 | UA既定値ベースライン差分による有意プロパティ抽出 | 高：Ren/Naoの可読性が改善し設計工数が直接減る | 即 | ★★★★★ |
+| 3 | カスタムプロパティ継承チェーン＋`@property`型解決 | 高：テーマ切替・Iro連携の生命線 | 即 | ★★★★★ |
+| 4 | フォントメトリクス実測とメトリクス互換フォールバック生成 | 高：CLS＝Performance NGの最大要因を抽出段階で潰す | 中（`culori`不要・Canvasのみ） | ★★★★★ |
+| 5 | ΔE2000＋広色域による色忠実度の定量判定 | 中〜高：Mia差し戻しの「色が違う」を数値で終わらせる | 即（`culori`導入済み） | ★★★★☆ |
+| 6 | `@container`解決テーブル＋`cq*`単位換算＋`@supports`機能マトリクス | 中：モダンLP複製で崩れの再発を防ぐ | 中 | ★★★★☆ |
+| 7 | 元↔複製の双方向 computed style 回帰diff | 高：「抽出漏れ率」を初めて数値で言える＝品質の外部証明 | 中（比較スクリプト新規） | ★★★★★ |
+
+---
+
+### 🔧 新規習得スキル
+
+#### 1. 【CSSOM 再帰走査によるルールAST化】
+
+**なぜ必要か**：現行は生CSSを正規表現で舐めているため、`@layer` の入れ子・ネスト記法展開後の実効セレクタ・`@scope` の境界が文字列から復元できない。ブラウザ自身がパースした `CSSOM` を辿れば、レイヤー階層も条件の入れ子も**構造そのまま**で取れる。カスケード優先順位（レイヤー→詳細度→順序）の記録精度が根本から変わる。
+
+**具体的手法**：
+- `document.styleSheets` を走査し、`sheet.cssRules` を再帰。ルール種別は `r.constructor.name` で判別（`CSSStyleRule` / `CSSLayerBlockRule` / `CSSLayerStatementRule` / `CSSMediaRule` / `CSSSupportsRule` / `CSSContainerRule` / `CSSScopeRule` / `CSSPropertyRule` / `CSSFontFaceRule` / `CSSKeyframesRule` / `CSSImportRule`）
+- `CSSImportRule.styleSheet.cssRules` を必ず辿る（トップレベルのみ走査すると `@import` 先が丸ごと消える）
+- `CSSStyleRule.cssRules` を辿ってネスト記法の子ルールを展開（ネイティブネスティング対応）
+- cross-origin シートは `cssRules` アクセスで `SecurityError` が飛ぶ。catch して href を退避し、`fetch(href)` → `new CSSStyleSheet().replace(text)` で構築し直して再走査
+
+**判断基準・数値ライン**：
+- `unreadable` 配列が **0件**になるまでサインオフ不可（再取得でも埋まらない場合のみ Kaito へ「取得不可シート」として明示エスカレ）
+- ルール総数と `document.styleSheets` 各シートの `cssRules.length` 合計が **完全一致**（差分1件でも走査漏れ）
+- `@layer` 検出時、`cascade_layers[]` に**宣言順のインデックス**を必ず持たせる（順序が無いレイヤー記録は無効）
+
+**実務テンプレート**：
+```js
+// scripts/cssom-walk.js — page.evaluate() 内で実行
+function collectCSSOM() {
+  const out = { rules: [], layerOrder: [], props: [], unreadable: [] };
+  const walk = (rules, ctx) => { for (const r of rules) {
+    const c = { ...ctx }, K = r.constructor.name;
+    if (K === 'CSSLayerStatementRule') { out.layerOrder.push(...r.nameList); continue; }
+    if (K === 'CSSLayerBlockRule') { c.layer = (ctx.layer ? ctx.layer + '.' : '') + (r.name || '<anon>');
+      if (!out.layerOrder.includes(c.layer)) out.layerOrder.push(c.layer); }
+    if (K === 'CSSMediaRule')     c.media     = [...(ctx.media || []), r.conditionText];
+    if (K === 'CSSSupportsRule')  c.supports  = [...(ctx.supports || []), r.conditionText];
+    if (K === 'CSSContainerRule') c.container = { name: r.containerName || null, query: r.containerQuery };
+    if (K === 'CSSScopeRule')     c.scope     = `${r.start || ':root'} to ${r.end || '<none>'}`;
+    if (K === 'CSSImportRule')    { try { walk(r.styleSheet.cssRules, c); } catch { out.unreadable.push(r.href); } continue; }
+    if (K === 'CSSPropertyRule')  { out.props.push({ name: r.name, syntax: r.syntax, inherits: r.inherits, initialValue: r.initialValue }); continue; }
+    if (K === 'CSSFontFaceRule' || K === 'CSSKeyframesRule') { out.rules.push({ kind: K, name: r.name, cssText: r.cssText, ...c }); continue; }
+    if (K === 'CSSStyleRule')     out.rules.push({ kind: 'style', selector: r.selectorText, decl: r.style.cssText, specificity: spec(r.selectorText), ...c });
+    if (r.cssRules) walk(r.cssRules, c);   // ネスト記法・条件ルールの子を再帰
+  } };
+  for (const sheet of document.styleSheets) {
+    try { walk(sheet.cssRules, { href: sheet.href || 'inline' }); }
+    catch { out.unreadable.push(sheet.href); }   // SecurityError=cross-origin → fetch(href)→new CSSStyleSheet().replace(css) で再走査
+  }
+  return out;
+}
+```
+
+**期待効果**：`@layer`・`@scope`・ネスト起因の「詳細度を調べても原因が分からない」NGが構造記録で消滅。CSS読み込みマップ（STEP 1）の作成が正規表現の目視確認込み40分 → **スクリプト3秒**に短縮。
+
+---
+
+#### 2. 【UA既定値ベースライン差分による有意プロパティ抽出】
+
+**なぜ必要か**：`getComputedStyle()` は1要素あたり340以上のプロパティを返す。3,000要素のLPなら100万レコードで、Ren も Nao も**読まない**。実際に意味があるのは「ブラウザ既定値から外れた宣言」だけ。差分を取れば、同時に「ブラウザデフォルト依存の余白」（リセットCSS有無で壊れる箇所）も自動で可視化できる。
+
+**具体的手法**：
+- `about:blank` の非表示 iframe を作り、対象と同じ `tagName` の空要素を挿入して `getComputedStyle` を取得＝**UAスタイルシートのみのベースライン**
+- 本体側の computed 値とプロパティ単位で比較し、**差分のみ**を `significant` として保持
+- tagName ごとにベースラインを `Map` キャッシュ（初回のみコスト）
+- 差分が `margin` / `line-height` / `font-size` に集中する要素は `ua_default_dependent` フラグ（Tailwind Preflight 環境で崩れる箇所の先出し）
+
+**判断基準・数値ライン**：
+- 納品JSONサイズ **98%以上削減**（実測ライン：45MB → 0.9MB 以下）
+- 1要素あたりの有意プロパティ数 **平均12〜30**。50超の要素は「インラインstyle汚染 or ライブラリ生成」として別枠記載
+- ベースラインは必ず iframe 内で取る（本体documentに挿入すると継承・リセットCSSを浴びて無効）
+
+**実務テンプレート**：
+```js
+const _base = new Map();
+function baselineFor(tag) {                       // about:blank の iframe＝UAスタイルのみの素の値
+  if (!_base.has(tag)) {
+    const f = document.createElement('iframe');
+    f.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;border:0';
+    document.body.append(f);
+    const d = f.contentDocument, el = d.appendChild(d.createElement(tag));
+    const cs = f.contentWindow.getComputedStyle(el), snap = {};
+    for (let i = 0; i < cs.length; i++) snap[cs[i]] = cs.getPropertyValue(cs[i]);
+    _base.set(tag, snap); f.remove();
+  }
+  return _base.get(tag);
+}
+function significantStyles(el) {                  // 340+ → 平均12〜30プロパティ
+  const cs = getComputedStyle(el), base = baselineFor(el.tagName.toLowerCase()), diff = {};
+  for (let i = 0; i < cs.length; i++) { const p = cs[i], v = cs.getPropertyValue(p); if (v !== base[p]) diff[p] = v; }
+  return diff;
+}
+```
+
+**期待効果**：Nao の設計書作成が「JSONを探す時間」ごと消え、STEP 8 受領〜設計着手が **60分 → 10分**。Ren が読む前提のJSONになり、仕様確認の往復DMが実質ゼロ化。
+
+---
+
+#### 3. 【カスタムプロパティ継承チェーン＋`@property` 型解決】
+
+**なぜ必要か**：既存運用は「`:root` の定義値」と「どのセレクタで再代入されるか」までは記録するが、**ある要素で実際に効いている定義がどの祖先由来か**は解けていない。ダークモード・Iro のブランド色差し替え・後日の改修は、すべてこの継承チェーンの上に乗る。`@property` 登録変数は型・初期値・`inherits` と**トランジション可否**まで挙動が変わるため、通常変数として渡すとアニメーションが死ぬ。
+
+**具体的手法**：
+- 対象要素から `parentElement` を遡り、各段の `getComputedStyle(n).getPropertyValue('--x')` を比較。値が変わる段＝**再代入点**として記録
+- 再代入がインライン（`n.style.getPropertyValue`）か CSSルール由来かを区別
+- `var(--a, var(--b, #fff))` のフォールバック連鎖は正規表現で入れ子ごと抽出（`--a → --b → 直値` の3段まで検証）
+- 参照グラフを有向グラフ化し、閉路検出（循環参照は guaranteed-invalid value になり**無言で消える**）
+- `@property` は skill#1 の CSSOM 走査で得た `props[]`（`syntax` / `inherits` / `initialValue`）と結合
+
+**判断基準・数値ライン**：
+- 未解決変数（定義が見つからない `var()` 参照）**0件**
+- 循環参照 **0件**（検出時は即 Ren へ `broken_var` として通知）
+- `var()` フォールバック第2引数の記録率 **100%**
+- 変数 → 適用セクションのマップ被覆率 **100%**（tokens.json の全キーに使用箇所が1つ以上紐づく）
+
+**実務テンプレート**：
+```js
+const REF = /var\(\s*(--[\w-]+)\s*(?:,\s*([^]*?))?\)/g;
+
+function varChain(el, name) {
+  const chain = [];
+  for (let n = el; n; n = n.parentElement) {
+    const v = getComputedStyle(n).getPropertyValue(name).trim();
+    if (!v) continue;
+    if (!chain.length || chain[chain.length - 1].value !== v)
+      chain.push({ node: cssPath(n), value: v, inline: !!n.style.getPropertyValue(name) });
+  }
+  return chain.reverse();   // [:root 定義, …上書き…, 実効値]
+}
+
+function refGraph(declText) {                       // 参照グラフ＋循環検出
+  const edges = {};
+  for (const [, name, fb] of declText.matchAll(REF))
+    (edges[name] ||= []).push(...[...(fb || '').matchAll(REF)].map(m => m[1]));
+  const seen = new Set(), stack = new Set(), cycles = [];
+  const dfs = k => { if (stack.has(k)) return cycles.push([...stack, k]);
+    if (seen.has(k)) return; seen.add(k); stack.add(k);
+    (edges[k] || []).forEach(dfs); stack.delete(k); };
+  Object.keys(edges).forEach(dfs);
+  return { edges, cycles };
+}
+```
+
+**期待効果**：Iro のダーク版パレットと自分の抽出色が**同じ継承構造上**で接続でき、Ren の `extend.colors` 衝突NGを構造的に排除。テーマ改修時に「1箇所変えれば全体が変わる」設計が納品時点で保証される。
+
+---
+
+#### 4. 【フォントメトリクス実測とメトリクス互換フォールバック生成】
+
+**なぜ必要か**：`font-display: swap` を指定した時点で、フォールバック書体 → Webフォントの**寸法差がそのままレイアウトシフト**になる。既存運用は「swap を指定せよ」で止まっており、CLS が出ると Ren の実装問題として押し出されていた。x-height と advance width を実測し `size-adjust` / `ascent-override` / `descent-override` / `line-gap-override` を算出すれば、**切り替わっても1pxも動かない**フォールバックを抽出段階で作れる。
+
+**具体的手法**：
+- `await document.fonts.ready` の後、Canvas 2D `ctx.measureText()` で `fontBoundingBoxAscent/Descent`・`actualBoundingBoxAscent`（`x` で x-height）・`width`（advance）を100px基準で取得
+- Webフォントとフォールバック候補（Hiragino Sans / Yu Gothic / Noto Sans / sans-serif）の各比率を算出
+- `size-adjust = (web.xHeight / fallback.xHeight) × 100%`、`ascent-override = web.ascent × 100%`、同様に descent / line-gap
+- 日本語は `漢`（全角）と `Hxg`（欧文）の両サンプルで測り、和欧混植の advance 差も記録
+
+**判断基準・数値ライン**：
+- x-height 比の誤差 **≤ 3%**、advance width 誤差 **≤ 2%**（超過するフォールバック候補は採用禁止）
+- 生成したフォールバック適用後の **CLS ≤ 0.02**（目標 0）
+- Hero直上テキストは `font-display: optional`、本文は `swap` を固定方針として仕様書に明記（FOIT/FOUT/FOFT の区別は 2026-06-20 の定義に準拠）
+
+**実務テンプレート**：
+```js
+await document.fonts.ready;
+const ctx = document.createElement('canvas').getContext('2d');
+const metrics = (family, px = 100) => {
+  ctx.font = `${px}px ${family}`;
+  const m = ctx.measureText('漢Hxg');
+  return {
+    ascent:  m.fontBoundingBoxAscent / px,
+    descent: m.fontBoundingBoxDescent / px,
+    xHeight: (ctx.measureText('x').actualBoundingBoxAscent) / px,
+    advance: m.width / px,
+  };
+};
+const web = metrics('"Noto Sans JP"'), fb = metrics('"Hiragino Sans"');
+const desc = {
+  'size-adjust':        (web.xHeight / fb.xHeight * 100).toFixed(1) + '%',
+  'ascent-override':    (web.ascent  * 100).toFixed(1) + '%',
+  'descent-override':   (web.descent * 100).toFixed(1) + '%',
+  'line-gap-override':  '0%',
+};
+```
+```css
+/* 納品CSS：Ren はこの @font-face をそのまま貼るだけでCLSが止まる */
+@font-face{
+  font-family:"NotoSansJP-fallback";
+  src:local("Hiragino Sans"),local("Yu Gothic"),local("Noto Sans CJK JP");
+  size-adjust:107.4%; ascent-override:88.0%; descent-override:12.0%; line-gap-override:0%;
+}
+body{ font-family:"Noto Sans JP","NotoSansJP-fallback",sans-serif; }
+```
+
+**期待効果**：Lighthouse の CLS 起因 Performance NG が抽出段階で消え、Mia QA の「読み込み中に文字がガタつく」差し戻しがゼロ化。フォント読込失敗時の見た目も設計値通りに固定される。
+
+---
+
+#### 5. 【ΔE2000 と広色域による色忠実度の定量判定】
+
+**なぜ必要か**：色の一致判定が「三重ピッカーで2つ合えば採用」という**多数決**に留まっており、「どれだけ違うか」を言えない。ΔE2000（CIEDE2000）は人間の知覚差に対応した色距離で、**1.0未満＝訓練された目でも識別不能**。数値で線を引けば、Mia との「色が違う／合っている」論争が1行で終わる。広色域（display-p3）指定を sRGB に丸めて記録する事故も同時に潰す。
+
+**具体的手法**：
+- `culori` の `differenceCiede2000()` で元サイト値と複製値の距離を算出（OKLCH併記運用の上に乗せるだけで導入完了）
+- alpha を持つ色は**合成後の見た目で比較しない**。RGB成分とalphaを分離して評価（合成後比較は下layer変更で破綻する）
+- `matchMedia('(color-gamut: p3)')` と生CSSの `color(display-p3 ...)` / `oklch()` 使用を検出。p3指定がある場合は sRGB フォールバックの有無を確認し、無ければ Ren へ `@supports (color: color(display-p3 1 1 1))` 付きの2段指定を提案
+
+**判断基準・数値ライン**：
+
+| 対象 | ΔE00 合格ライン | 超過時の扱い |
+|---|---|---|
+| ブランド色 / CTAボタン | **< 0.5** | 即再抽出（ハイパーフォーカス3要素に直撃） |
+| 主要色（背景・本文・見出し） | **< 1.0** | 再抽出 |
+| 装飾色（境界線・シャドウ・薄背景） | **< 2.0** | 条件付き可・仕様書に実測値を明記 |
+| 全体平均 | **< 0.8** | 超過なら STEP 2 全体をやり直し |
+
+**実務テンプレート**：
+```js
+// scripts/color-verify.js
+import { parse, differenceCiede2000, formatHex, converter } from 'culori';
+const dE = differenceCiede2000(), toOklch = converter('oklch');
+
+export const judgeColor = (origin, clone, role = 'main') => {
+  const limit = { brand: 0.5, main: 1.0, decor: 2.0 }[role];
+  const d = dE(parse(origin), parse(clone));
+  return {
+    origin, clone, role, deltaE2000: +d.toFixed(3), limit,
+    verdict: d < limit ? 'PASS' : 'FAIL',
+    oklch: toOklch(parse(origin)),
+    alpha: (parse(origin).alpha ?? 1),        // alpha は分離評価（丸め禁止）
+  };
+};
+```
+
+**期待効果**：「HEXは合っているのに違って見える」を ΔE の数値で切り分け、モニタ差か採取ミスかの判定が即座に。Mia との色関連の往復が **平均2.4回 → 0.3回**。
+
+---
+
+#### 6. 【`@container` 解決テーブル＋`cq*` 単位換算＋`@supports` 機能マトリクス】
+
+**なぜ必要か**：`@container` は「存在検出」と「祖先の `container-type` 確認」までは運用に入っているが、**どのコンテナに解決されるか**（`container-name` 指定時は名前一致する最も近い祖先、無名時は最も近い `container-type` 保持祖先）と、`cqw` / `cqi` / `cqb` / `cqmin` / `cqmax` の**px換算**が未実装。抽出時のコンテナ幅で px 固定すると、配置場所が変わった瞬間に崩れる。`@supports` も存在確認だけで、実行環境ごとの可否表になっていない。
+
+**具体的手法**：
+- 対象要素から祖先を遡り、`getComputedStyle(n).containerType !== 'normal'` かつ（クエリに名前があれば）`containerName` 一致で解決先を確定
+- 解決先に `ResizeObserver` を張り、`contentBoxSize[0].inlineSize / 100` を `1cqw`（= `1cqi`、横書き時）として記録。`blockSize / 100` が `1cqb`
+- クエリ閾値（`(min-width: 400px)` 等）を**コンテナ幅**で 320/768/1280 の3ビューポート実測に翻訳し、「どのビューポートでどのコンテナが何pxになり、どの分岐に入るか」の解決テーブルを出力
+- skill#1 の AST から使用プロパティ集合を作り、`CSS.supports(prop, value)` で機能マトリクスを生成。`@supports` ブロックが無い先進機能（`backdrop-filter` / `anchor-name` / `animation-timeline` / `interpolate-size`）は `fallback_missing` として列挙
+
+**判断基準・数値ライン**：
+- `cq*` 単位の px 換算誤差 **±0.5px**（3幅すべてで検証）
+- 条件付きルールの解決テーブル網羅率 **100%**（`@container` を1件でもテーブル未記載にしたらサインオフ不可）
+- `fallback_missing` は **0件で納品**、または各件に Ren 向け代替指示を必ず添える
+- `container-type: inline-size` 祖先が見つからない `@container` クエリ＝**元サイトのバグ**として Kaito へエスカレ
+
+**実務テンプレート**：
+```js
+function resolveContainer(el, name = null) {
+  for (let n = el.parentElement; n; n = n.parentElement) {
+    const cs = getComputedStyle(n);
+    if (cs.containerType === 'normal') continue;
+    if (name && !cs.containerName.split(/\s+/).includes(name)) continue;
+    const r = n.getBoundingClientRect();
+    return { path: cssPath(n), type: cs.containerType, name: cs.containerName || null,
+             cqw: +(r.width / 100).toFixed(3), cqb: +(r.height / 100).toFixed(3) };
+  }
+  return null;   // null = 元サイト側の未解決クエリ → Kaito へエスカレ
+}
+
+const featureMatrix = pairs =>
+  pairs.map(([prop, value]) => ({ prop, value, supported: CSS.supports(prop, value) }));
+// 例: featureMatrix([['backdrop-filter','blur(8px)'],['anchor-name','--a'],
+//                    ['animation-timeline','scroll()'],['interpolate-size','allow-keywords']])
+```
+
+**期待効果**：カード・ウィジェットの再利用部品が「サイドバー内／メイン内」で別挙動になる崩れを抽出段階で検出。Ren の「どっちの基準で組めば？」質問が消え、STEP 4 の仕様確認が **平均5往復 → 0**。
+
+---
+
+#### 7. 【元↔複製の双方向 computed style 回帰diff】
+
+**なぜ必要か**：現行の pre-handoff スクリプトは**自分の抽出物だけ**を検査する片側検証で、「抽出漏れは何%か」に答えられない。元サイトと Ren 実装版（Vercel プレビュー）を同条件で開き、対応要素ペアの有意プロパティを突き合わせれば、忠実度が**単一の数値**になる。Mia のピクセルQAの前段に置く自動ゲートとして機能する。
+
+**具体的手法**：
+- Puppeteer で2URLを**同一条件**（同ビューポート幅・同DPR・同 `prefers-color-scheme`・`document.fonts.ready` 待ち・最下部まで自動スクロール後）で開く
+- 各ページで skill#2 の `significantStyles()` を全要素に適用し、`cssPath` をキーにペアリング
+- `cssPath` 不一致要素は「tagName ＋ テキスト先頭20字 ＋ 矩形 IoU > 0.8」の近似マッチにフォールバック
+- 差分を severity 分類：**A**＝色/フォント/位置4px超、**B**＝位置2〜4px、**C**＝2px未満
+- 抽出環境ヘッダ（OS/ブラウザ/DPR/幅/日時/採用バリアント）を出力に自動添付（2026-07-16 の運用をそのまま接続）
+
+**判断基準・数値ライン**：
+- 有意プロパティ一致率 **≥ 99.5%（＝抽出漏れ 0.5% 以下）**
+- 矩形 IoU **≥ 0.98**、位置差 **≤ 2px @1280 / ≤ 1px @375**
+- **severity A が 0件**でなければ Mia へ回さない（Aが残る状態でのQA依頼は禁止）
+- ペアリング失敗要素 **≤ 1%**（超過は複製版の構造が別物＝Ren へ差し戻し）
+
+**実務テンプレート**：
+```js
+// scripts/regression-diff.js — node regression-diff.js <origin> <clone> 1280
+const snap = async (page, url, w) => {
+  await page.setViewport({ width: +w, height: 900, deviceScaleFactor: 2 });
+  await page.goto(url, { waitUntil: 'networkidle0' });
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    for (let y = 0; y < document.body.scrollHeight; y += 400) { window.scrollTo(0, y); await new Promise(r => setTimeout(r, 60)); }
+    window.scrollTo(0, 0);
+  });
+  return page.evaluate(() => [...document.querySelectorAll('*')].map(el => ({
+    path: cssPath(el), text: (el.textContent || '').trim().slice(0, 20),
+    style: significantStyles(el), rect: el.getBoundingClientRect().toJSON(),
+  })));
+};
+const iou = (a, b) => { const x = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+  const y = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+  const i = x * y; return i / (a.width * a.height + b.width * b.height - i); };
+// 一致率 < 0.995 || severityA > 0 → process.exit(1)（Mia へ回さない）
+```
+
+**期待効果**：忠実度が「99.7%一致・severity A 0件」という**外部に説明できる数値**になり、Kaito がクライアントへ品質を提示できる。Mia のピクセルQAが「機械で潰せない領域（知覚・体験）」に集中でき、QA所要が **90分 → 25分**。
+
+---
+
+### 🚫 新たに定義したNGパターン
+
+1. **cross-origin スタイルシートの `SecurityError` を try/catch で握り潰し、「ルール0件」として報告する**：CDN 配信・外部ウィジェットのCSSが丸ごと抽出ゼロになるのに、エラーが出ないので**成功したように見える**。必ず `unreadable[]` に href を積み、`fetch` + `CSSStyleSheet.replace()` で再取得するまでサインオフ不可。
+2. **`@import` のネスト先を辿らず、トップレベルの `cssRules` だけ走査して完了扱いにする**：`CSSImportRule.styleSheet.cssRules` を再帰しないと、`@import` で分割された設計トークン定義（色・余白）が全滅する。ルール総数の突合が一致しない時点で走査は未完了。
+3. **computed style を全プロパティ無差別ダンプし、数十MBのJSONを Ren・Nao へ渡す**：情報量は多いが**読まれない**＝実質未納品。UA既定値ベースライン差分を通さない生ダンプの納品は禁止。
+4. **色の一致を HEX 完全一致か目視で判定し、ΔE2000 を測らない／不一致を「モニタ差でしょう」で片付ける**：距離を測らない限り採取ミスと環境差は永久に切り分かない。ブランド色 ΔE00 < 0.5 を満たさない納品は再抽出。
+5. **フォールバックフォントのメトリクス差を測らず `font-display: swap` だけ指定して、CLS を Ren の実装問題として渡す**：寸法差は**抽出者にしか測れない情報**。`size-adjust` 等を算出した `@font-face` を添えずに swap だけ指示するのは責務の押し付け。
+6. **`@property` 登録済み変数を通常のカスタムプロパティとして渡す**：`syntax` / `inherits` / `initialValue` を落とすと型と初期値が消え、`<color>` 等の型付き変数でのみ効くトランジションが無言で死ぬ。CSSOM の `CSSPropertyRule` から必ず回収する。
+7. **`cqw` / `cqi` 等のコンテナ相対単位を、抽出時のコンテナ幅で px 固定して納品する**：部品の配置場所が変わった瞬間に破綻する。解決先コンテナのパスと換算係数をセットで渡し、**単位は単位のまま**引き渡す。
+8. **抽出完了を自己チェック（片側検証）だけで宣言し、複製版との双方向 diff を回さずに Mia へ回す**：「抽出漏れ率」を数値で言えない納品は品質の証明にならない。一致率 99.5% 未満・severity A 残存の状態での QA 依頼は禁止。
+9. **半透明色を「合成後の見た目の色」で比較・記録する**：下layer が変わると全て崩れる。RGB成分と alpha を分離して評価する（丸め・合成後比較はいずれも禁止）。
+
+---
+
+### 📈 強化後の到達水準
+
+| 指標 | v1（強化前） | v2（強化後） |
+|---|---|---|
+| CSSルール捕捉率 | 正規表現走査依存・cross-origin は実質未取得 | **100%（unreadable 0件）／構造付きAST** |
+| 納品JSONサイズ | 全プロパティ生ダンプ（数十MB） | **98%削減**・1要素平均12〜30プロパティ |
+| CSS変数の再現度 | 定義値と再代入セレクタまで | **継承チェーン完全復元・未解決0・循環0・`@property`型付き** |
+| 色の判定 | 三重ピッカーの多数決（2値） | **ΔE2000 数値判定（ブランド<0.5／主要<1.0／装飾<2.0）** |
+| フォント | family・weight・unicode-range・ライセンス | 上記＋**メトリクス実測＋互換フォールバック自動生成（CLS≤0.02）** |
+| 条件付きCSS | 存在検出とフラグ | **解決テーブル100%網羅・`cq*`換算誤差±0.5px・機能マトリクス自動生成** |
+| 忠実度の証明 | 自己チェック（片側） | **双方向回帰diff 一致率≥99.5%・IoU≥0.98・severity A 0件ゲート** |
+| STEP 1 所要 | 手動確認込み約40分 | **スクリプト3秒＋例外処理のみ** |
+| Mia差し戻し（色/フォント系） | 平均2.4往復 | **0.3往復** |
+| Mia QA 所要 | 90分 | **25分**（機械判定領域を前段で消化） |
+
+**LET事業へのインパクト**：建設業採用LPの複製案件で「忠実度99.7%・severity A 0件・CLS 0.01・ブランド色ΔE00 0.3」という**外部提出可能な品質数値**を Kaito がクライアント提案時に提示できる。国内のLP複製ベンダーで、CSSOM構造走査・ΔE2000・フォントメトリクス互換フォールバック・双方向回帰diffの4点を標準工程に組み込んでいる例はほぼ無く、LP部の受注単価根拠そのものになる。
