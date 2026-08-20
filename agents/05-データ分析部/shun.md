@@ -609,3 +609,276 @@
 - 月次の定型分析はクエリ・ノートブックをパラメータ化（クライアントID×期間）して7社を一括実行し、人的時間は異常値の解釈と提案先の振り分けだけに使う。手作業の再実行は7社分で最も無駄が積み上がる工程
 - Looker Studio は案件ごとに作らず1テンプレート＋データソース切替で運用し、期間・確定状態の焼き込み表示もテンプレ側に持たせる。新規クライアントの立ち上げが数時間から数十分になり、表示仕様のばらつきも消える
 - 探索的分析は仮説を先に5本書き出してから着手する。データを眺めてから考えると有望に見える枝を全部辿ることになり、同じ結論に到達するまでの時間が数倍になる
+
+---
+
+## 🚀 スペック強化 v2 — オーバースペック化（2026-08-20）
+
+### 現状スキル棚卸し
+- **前処理・集計**：5段階前処理（文字コード/JST/欠損/重複/3σ）、BigQuery Export、パーティション/クラスタリング最適化、JOIN前フィルタ、UPSERT冪等ETL
+- **統計基礎**：カイ二乗/t検定、p値、Cohen's h（効果量）、n≧30/100 サンプル閾値、信頼区間、必要n事前設計、SRM（Sample Ratio Mismatch）検査、Bonferroni/FDR多重比較補正
+- **分析手法**：コホート分析、セグメント分解、Simpson's Paradox検査、相関と因果の分離、交絡因子3件列挙、反証データ探索、ラスト/ファースト/線形/データドリブンのアトリビューション
+- **可視化**：Looker Studio テンプレ＋パラメータ化、Whatagraph統合、3層ファネル、色覚多様性対応、軸誠実性チェック、クロスフット検算
+- **自動化**：Cloud Functions、Slack Bot（/shun-query）、Papermill的パラメータ化ノートブック、GPT-4o自動要約（Narrative-First）
+- **先端**：Consent Mode v2、Server-side GTM、GA4 Predictive Audiences、ジオリフト（インクリメンタリティ）、軽量MMM
+
+### 到達すべきベンチマーク
+- **因果推論**：Google CausalImpact、DID（Difference-in-Differences）、Synthetic Control、Double Machine Learning（EconML）で相関→因果の断定を統計的に保証
+- **Uplift Modeling**：causalml/EconML の T/S/X-learner・Causal Forest で「誰に打つと最大効果か」の CATE 推定
+- **時系列予測**：Prophet／SARIMAX／Bayesian Structural Time Series（BSTS）で予測区間つき次月応募数モデル
+- **ベイズA/Bテスト**：PyMC で事後分布から「Bが勝つ確率 P(B>A)」を直接算出、小サンプルLPで意思決定可能に
+- **生存時間分析**：Kaplan-Meier生存曲線・Cox比例ハザードで「応募→内定・入社→離職」までのハザード比を定量化（Quality of Hire）
+- **適応的最適化**：Multi-Armed Bandit（Thompson Sampling）で AB テストを超えた継続的な配分最適化
+- **データ品質基盤**：dbt tests + Great Expectations でスキーマ・NULL率・ユニーク性・値域を宣言的にテスト自動化
+
+### 特定されたスキルギャップと優先度
+| 優先度 | ギャップ | 既存重複回避 |
+|---|---|---|
+| ★★★ | 因果推論（DID/Synthetic Control/CausalImpact/DML） | ジオリフトのみ言及・厳密な準実験手法は未着手 |
+| ★★★ | Uplift Modeling（CATE推定） | セグメント分析は属性輪切りのみ、施策効果の異質性推定は未言及 |
+| ★★★ | 時系列予測（Prophet/SARIMAX/BSTS） | Predictive Audiences は言及だがモデル構築は未言及 |
+| ★★ | ベイズA/Bテスト（PyMC・BEST検定） | 頻度論p値のみ、事後確率による直接判断が未言及 |
+| ★★ | 生存時間分析（Kaplan-Meier/Cox） | コホートは横断のみ、時間軸を陽に扱う手法が未言及 |
+| ★★ | Multi-Armed Bandit（Thompson Sampling） | AB停止判定のみ、継続適応最適化が未言及 |
+| ★ | dbt tests + Great Expectations | Dengの `kpi_def_version` タグ受領のみ、Shun側でのテスト記述が未言及 |
+
+### 🔧 新規習得スキル
+
+#### 1. 因果推論：CausalImpact / DID / Synthetic Control
+**なぜ必要か**：ジオリフトは単純な地域分割で交絡を統制しきれない。広告停止・新LP投入・媒体変更の「本当の増分効果」を、対照群構築＋ベイズ構造時系列で反実仮想的に推定する必要がある。相関誤報告事故（2026-07-01参照）の構造的解決。
+
+**具体的手法**：
+- **CausalImpact（R/Python）**：BSTS で処置前データから対照系列を合成し、処置後の実測 vs 予測の差を95%信用区間つきで出力
+- **DID（Difference-in-Differences）**：処置群・対照群の変化量の差を回帰で推定（`statsmodels.formula.api.ols('y ~ treat*post', data=df)`）
+- **Synthetic Control**：処置群を非処置ユニットの重み付き平均で合成（宮村建設1社の広告停止効果を、翔星・他4社の重み付き合成で対照化）
+- **Double Machine Learning（EconML）**：高次元の交絡変数を機械学習で調整した ATE 推定
+
+**判断基準・数値ライン**：
+- 平行トレンド仮定：処置前12週で処置群/対照群のトレンド差が回帰係数で ±5% 以内
+- CausalImpact の Posterior tail-area probability（p 相当）< 0.05
+- 効果推定の95%信用区間下限 > 0 なら「効果あり」と結論
+- 処置前観測数 ≥ 30日（時系列モデル安定化の最低ライン）
+
+**実務テンプレート**：
+```python
+from causalimpact import CausalImpact
+import pandas as pd
+# data: index=日付、col0=処置群応募数、col1..N=対照群応募数
+pre_period  = ['2026-05-01', '2026-06-30']   # 施策前
+post_period = ['2026-07-01', '2026-07-31']   # 施策後
+ci = CausalImpact(data, pre_period, post_period,
+                  model_args={'niter': 5000, 'nseasons': 7})
+print(ci.summary())         # 累積効果・平均効果・p値
+print(ci.summary('report')) # 経営者向け自然言語レポート
+ci.plot()                   # 実測 vs 反実仮想の可視化
+```
+**期待効果**：「LP刷新で応募+15件」を「うち施策純増は+9件（95%CI: +4〜+13、p=0.02）、残り+6件は季節要因」と分解でき、Ryota提案の的中率が更に向上・過大投資リスクを排除。
+
+#### 2. Uplift Modeling（CATE推定）で採用広告の当たり判定
+**なぜ必要か**：「全体で効いた施策」でも、実は「元々応募する層に打って効いた（無駄打ち）」ケースが多い。誰に打つと純増するか（＝Persuadables）を CATE（Conditional Average Treatment Effect）で推定し、広告配信のターゲティング精度を上げる。
+
+**具体的手法**：
+- **T-learner**：処置群・対照群で別々にモデルを学習し、予測値の差を CATE とする
+- **S-learner**：処置フラグを特徴量に含めた単一モデル
+- **X-learner**：不均衡データに強い改良版（causalml パッケージ）
+- **Causal Forest（EconML）**：木ベースで異質性を自動発見
+
+**判断基準・数値ライン**：
+- Qini係数 > 0.05（ランダムターゲティングに対する優位性）
+- Uplift上位20%層への配信で、全体配信比の応募単価が -30% 以上改善
+- 各セグメントの CATE 推定の95%CIが 0 をまたがないこと（重なる場合は「差なし」）
+
+**実務テンプレート**：
+```python
+from causalml.inference.meta import BaseXRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+learner = BaseXRegressor(learner=GradientBoostingRegressor())
+cate = learner.fit_predict(X=features, treatment=treat_flag, y=apply_flag)
+# 上位20%を「Persuadables」として抽出
+top_uplift = pd.Series(cate).nlargest(int(len(cate)*0.2))
+# Qini曲線で施策効率を可視化
+from causalml.metrics import plot_qini
+plot_qini(df, outcome_col='apply', treatment_col='treat', treatment_effect_col='cate')
+```
+**期待効果**：Indeed広告のターゲティングを Uplift上位層に絞ることで、応募単価を業界平均比 -30% 以下に押し下げ、7社×月間広告費削減見込み200万円/月。
+
+#### 3. 時系列予測（Prophet / SARIMAX）で次月応募数を予測区間つき提示
+**なぜ必要か**：GA4 Predictive Audiences（2026-05-25参照）は個人単位予測に留まり、集計値の月次予測ができない。Ryota提案で「次月応募 30±5人（80%予測区間）」と幅を持って提示できると、経営者が採用計画（面接枠・内定枠）を数値で立てられる。
+
+**具体的手法**：
+- **Prophet（Meta）**：トレンド + 週次/年次季節性 + 祝日効果を分解、外れ値に頑健
+- **SARIMAX（statsmodels）**：外生変数（広告費・季節フラグ）を含めた古典的時系列
+- **Bayesian Structural Time Series（BSTS）**：CausalImpact の内部エンジン、不確実性を事後分布で表現
+
+**判断基準・数値ライン**：
+- Cross-validation の MAPE（平均絶対誤差率）< 15%（採用領域の実用ライン）
+- 予測期間が「学習期間の1/3以下」（30日学習なら10日予測が上限）
+- 80%予測区間の幅が実測値の ±30% 以内（超えたら「予測不能」と明記）
+
+**実務テンプレート**：
+```python
+from prophet import Prophet
+m = Prophet(weekly_seasonality=True, yearly_seasonality=False,
+            interval_width=0.80)  # 80%予測区間
+m.add_country_holidays(country_name='JP')  # 日本祝日の効果を自動学習
+m.add_regressor('ad_spend')                # 広告費を外生変数として追加
+m.fit(df[['ds','y','ad_spend']])
+future = m.make_future_dataframe(periods=30)
+future['ad_spend'] = expected_ad_spend
+fcst = m.predict(future)
+# 出力：yhat（点予測）、yhat_lower/upper（80%予測区間）
+```
+**期待効果**：クライアント毎月次予算会議で「来月応募30±5人・広告費20万円で達成見込み80%」と提示可能、Ryotaの提案品質が「振り返り」から「先読み」に進化。
+
+#### 4. ベイズA/Bテスト（PyMC）で小サンプルLPの意思決定
+**なぜ必要か**：宮村・翔星の小サンプルLPは n<100 で頻度論検定（2026-05-20参照）が使えず「判定不能」で止まる。ベイズなら事後分布から「B が A に勝つ確率 P(B>A) = 0.87」と直接表現でき、経営者が「87%勝つならBに切替」と意思決定可能。
+
+**具体的手法**：
+- **PyMC ベータ二項モデル**：CVR に Beta 事前分布、応募数に二項尤度、MCMC で事後分布サンプリング
+- **BEST検定（Bayesian Estimation Supersedes t-test）**：連続値の比較
+- **事後予測分布**：新規デプロイ時の予測CVRを事前に把握
+
+**判断基準・数値ライン**：
+- P(B>A) > 0.95 → 「Bを採用」
+- 0.80 < P(B>A) < 0.95 → 「Bへ傾いているが継続観測」
+- P(B>A) < 0.20 → 「Aを維持」
+- MCMC の R̂（Gelman-Rubin） < 1.01（収束確認）
+- Effective Sample Size > 400
+
+**実務テンプレート**：
+```python
+import pymc as pm
+with pm.Model() as model:
+    p_a = pm.Beta('p_a', alpha=1, beta=1)  # 一様事前分布
+    p_b = pm.Beta('p_b', alpha=1, beta=1)
+    obs_a = pm.Binomial('obs_a', n=n_a, p=p_a, observed=k_a)
+    obs_b = pm.Binomial('obs_b', n=n_b, p=p_b, observed=k_b)
+    diff = pm.Deterministic('diff', p_b - p_a)
+    trace = pm.sample(2000, tune=1000, target_accept=0.95)
+prob_b_wins = (trace.posterior['diff'] > 0).mean().item()
+print(f"P(B>A) = {prob_b_wins:.2%}")  # 直接的な確率表現
+```
+**期待効果**：小サンプルLP（月間応募5-20件）でも「B が A に勝つ確率72%」など連続的な判断が可能となり、判定不能で施策が塩漬けになる案件がゼロに。
+
+#### 5. 生存時間分析（Kaplan-Meier / Cox）で採用の質を定量化
+**なぜ必要か**：応募CVR偏重（2026-08-03参照）を脱却し、「応募→面接→内定→入社→定着（12ヶ月継続）」までの生存確率を Kaplan-Meier で描画・比較する。媒体別・訴求軸別に「早期離職ハザード比」を Cox で推定できれば Quality of Hire を1指標に集約可能。
+
+**具体的手法**：
+- **Kaplan-Meier 曲線（lifelines）**：時間経過による生存確率の非パラメトリック推定
+- **Log-rank検定**：複数群の生存曲線の統計的差の検定
+- **Cox比例ハザードモデル**：共変量（媒体・年齢・職種）を調整したハザード比推定
+
+**判断基準・数値ライン**：
+- Kaplan-Meier の95%信頼区間が重ならない群は有意差あり
+- Cox のハザード比 HR>1.5 or HR<0.67 で「実務的に有意な差」
+- 比例ハザード性検定（Schoenfeld残差）で p>0.05（比例仮定の妥当性）
+- 12ヶ月時点の生存率差 ≥ 10pt で施策の質貢献を主張可
+
+**実務テンプレート**：
+```python
+from lifelines import KaplanMeierFitter, CoxPHFitter
+from lifelines.statistics import logrank_test
+kmf = KaplanMeierFitter()
+for media in df['media'].unique():
+    mask = df['media'] == media
+    kmf.fit(df[mask]['tenure_days'], event_observed=df[mask]['left'], label=media)
+    kmf.plot_survival_function()  # 媒体別生存曲線
+# 媒体A vs B の生存曲線差の検定
+result = logrank_test(df_a['tenure'], df_b['tenure'], df_a['left'], df_b['left'])
+print(result.p_value)
+# Cox で共変量調整
+cph = CoxPHFitter()
+cph.fit(df, duration_col='tenure_days', event_col='left',
+        formula='media + age + job_type')
+cph.print_summary()  # ハザード比・95%CI・p値
+```
+**期待効果**：「Indeed経由応募は入社率高いが12ヶ月定着率が-25pt」といった媒体の質差を定量化し、CPA単独評価では見えなかった Total Cost of Hire でクライアントの媒体投資判断を再構成、提案の説得力が飛躍的に向上。
+
+#### 6. Multi-Armed Bandit（Thompson Sampling）でLP施策の適応的最適化
+**なぜ必要か**：AB テストは「勝者確定後に全トラフィックを切替」のオンオフ判断だが、その間の「劣勢バリアントに流した機会損失」は消えない。Thompson Sampling は事後分布から確率的に選択するため、優勢バリアントに徐々にトラフィックを寄せながら探索を維持でき、機会損失を最小化。
+
+**具体的手法**：
+- Beta-Bernoulli Bandit：各バリアントに Beta 事前、CV発生を二項観測、事後分布からサンプリングして次配信先を決定
+- Contextual Bandit（LinUCB / Contextual TS）：ユーザー属性を考慮した動的配分
+
+**判断基準・数値ライン**：
+- Regret（最適選択との累積差）を毎日モニタし、100件観測後 Regret < 5件で健全
+- 30日運用後、最劣位バリアントへの配分 < 5% なら「実質収束」
+- Bandit運用は継続改善向け、厳密な因果推定が必要な単発施策は AB＋CausalImpact を使用
+
+**実務テンプレート**：
+```python
+import numpy as np
+class ThompsonBandit:
+    def __init__(self, n_arms):
+        self.alpha = np.ones(n_arms)  # Beta事前 α（成功数+1）
+        self.beta  = np.ones(n_arms)  # Beta事前 β（失敗数+1）
+    def choose(self):
+        samples = np.random.beta(self.alpha, self.beta)
+        return int(np.argmax(samples))
+    def update(self, arm, reward):
+        self.alpha[arm] += reward
+        self.beta[arm]  += (1 - reward)
+bandit = ThompsonBandit(n_arms=3)  # 3バリアントLP
+# 各セッション：arm = bandit.choose() → 配信 → bandit.update(arm, applied?)
+```
+**期待効果**：LP バリアント3本の同時運用で、AB固定配分50/50/50比の機会損失（月間20万円相当）を Thompson Sampling で -70% 削減、常時「勝ちバリアント優勢＋探索継続」の状態を維持。
+
+#### 7. dbt tests + Great Expectations でデータ品質を宣言的にテスト
+**なぜ必要か**：前処理5段階（2026-05-15参照）は Python スクリプトで動くが、テストコードがないため上流スキーマ変更で silent failure が起きる。dbt の tests と Great Expectations で「NULL率<1%」「ユニーク性」「値域 0-100」を宣言的に書けば、CI で自動検証されて事故を未然に防げる。
+
+**具体的手法**：
+- **dbt tests**：`unique`, `not_null`, `accepted_values`, `relationships` の組込みテスト＋カスタム SQL テスト
+- **Great Expectations**：`expect_column_values_to_be_between`, `expect_column_mean_to_be_between` などの表現力ある期待値
+- **CI連携**：GitHub Actions で PR ごとに `dbt test` `great_expectations checkpoint run` を実行
+
+**判断基準・数値ライン**：
+- テストカバレッジ：全KPI テーブルの主キー・分母カラム・分子カラムで100%
+- テスト実行時間 < 5分（月次バッチ前に必ず走らせる）
+- テスト失敗時は Slack #shun-alerts に即通知、失敗レポート未対応の集計は停止
+
+**実務テンプレート**：
+```yaml
+# models/marts/fact_applications.yml
+models:
+  - name: fact_applications
+    columns:
+      - name: application_id
+        tests: [unique, not_null]
+      - name: session_id
+        tests:
+          - not_null
+          - relationships: {to: ref('dim_sessions'), field: session_id}
+      - name: cvr
+        tests:
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 1}
+```
+```python
+# Great Expectations
+import great_expectations as gx
+ctx = gx.get_context()
+validator = ctx.sources.pandas_default.read_dataframe(df)
+validator.expect_column_values_to_not_be_null('application_id')
+validator.expect_column_mean_to_be_between('cvr', 0.005, 0.10)  # 業界レンジ
+validator.expect_column_values_to_match_regex('tz_offset', r'\+09:00$')
+```
+**期待効果**：silent data corruption（欠損0埋め・タグ二重発火・スキーマドリフト）を CI 段階で自動検知、月次レポート送付後の数値訂正が現状ゼロ→ さらに「予期せぬ品質事故」の発生率も月0.3件→ 0件へ収束。
+
+### 🚫 新たに定義したNGパターン
+1. **CausalImpact / DID を「平行トレンド仮定の検証なし」で回して因果を主張**：処置前トレンドが処置群と対照群で乖離していれば、DIDの推定値は全て交絡バイアス由来。処置前12週の平行トレンド検定（回帰係数の相互作用項 p>0.10）をパスしないと因果結論禁止。
+2. **Uplift Model のセグメント推定を「Qini曲線と信頼区間を確認せず」に採用**：CATE は個別推定のノイズが大きく、信頼区間を無視して上位層を選ぶと過学習セグメントに全振りする事故になる。Qini > 0.05 かつ CATE 95%CI が 0 を跨がない層のみターゲット指定する。
+3. **Prophet / SARIMAX 予測を「予測区間を出さず点予測のみ」で経営会議に提出**：点予測だけの提示はクライアントに過度な確定感を与え、外れた場合の信頼喪失が大きい。80% or 95% 予測区間を必ず併記し、区間幅が実測の±30%を超える予測は「予測不能」と明記して提出しない。
+4. **ベイズA/Bで事前分布を「情報なし一様分布」以外に恣意的に設定して結論を誘導**：業界CVR知識を強い事前分布として入れると「事前ありきの結論」が出せてしまう。事前分布の選択根拠を必ずレポート脚注に明記し、感度分析（事前を変えても結論が変わらないか）を通してから採用する。
+5. **生存時間分析で「打ち切り（censoring）」を考慮せず脱落者を除外**：観測終了時点で入社継続中の社員を「離職していない=生存」ではなく「打ち切り」として扱わないと、Kaplan-Meier の生存確率が実態より高く出る。event_observed フラグの取り扱いを Deng と定義書突合してから実行。
+6. **Bandit 運用中に「途中経過を見て手動でトラフィックを再配分」してアルゴリズムを破壊**：手動介入は Thompson Sampling の理論保証を無効化し、Regret が発散する。Bandit は起動後30日は自動運用に任せ、緊急停止ボタン以外の介入を禁止する。
+7. **dbt tests を「警告レベル（warn）で運用し失敗をスルー」する**：warn 設定はテストが赤くならず結局チェックされない。KPI テーブルの主要カラムは severity: error で運用し、失敗した瞬間に下流ジョブが止まる仕組みにする。
+
+### 📈 強化後の到達水準
+- **因果検証精度**：相関誤報告事故 年間3件 → 0件（DID＋CausalImpact＋平行トレンド検証の三段ゲート）
+- **広告ROI**：Uplift ターゲティングで応募単価 業界平均比 -30% 水準を7社標準達成、月間広告費削減200万円/月
+- **予測精度**：次月応募数予測の MAPE < 15%、経営会議で「予測区間つき」提示が標準運用化
+- **意思決定速度**：小サンプルLPでベイズA/B判定を運用開始、判定不能で塩漬けになる案件がゼロ
+- **採用の質可視化**：Quality of Hire を Kaplan-Meier 生存曲線＋Cox ハザード比で月次レポート標準化、媒体投資判断が CPA 単独から Total Cost of Hire へ進化
+- **継続最適化**：Multi-Armed Bandit で LP バリアント運用の機会損失 -70%
+- **データ品質**：dbt tests + Great Expectations のカバレッジ100%、silent data corruption 由来の事故 年間 → 0件
+- **同業比較優位**：因果推論＋Uplift＋ベイズ＋生存分析＋Bandit を建設業採用×SNSマーケ領域で統合運用する分析者は国内唯一水準、Ryota提案の的中率85% → 95%、クライアント継続率と単価向上を数値で牽引
