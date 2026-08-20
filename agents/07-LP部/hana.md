@@ -792,15 +792,15 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 ### 現状スキル棚卸し
 
-| 領域 | 現状の到達点 | 限界点（v2で突破する対象） |
-|---|---|---|
-| 値の取得 | `getComputedStyle()` 全要素一括ダンプ（Puppeteer `page.evaluate`）＋生CSSテキストの正規表現走査をペア実行 | 正規表現走査は**構造を持たない**。`@layer` の入れ子・ネスト記法展開後のセレクタ・`@scope` 境界を文字列から復元しており、取りこぼしが構造的に残る |
-| 出力量 | 全要素×全プロパティのJSONを納品 | ブラウザ既定値との差分を取らないため、意味のある宣言がノイズに埋もれる（1ページ数十MB） |
-| CSS変数 | `:root` の定義値・再代入セレクタ・`var()` フォールバックを依存グラフで記録 | **どの祖先の定義が実際に効いているか**の継承チェーンは未解決。`@property` の型・初期値・`inherits` も未取得 |
-| 色 | HEX＋OKLCH 併記、三重ピッカー照合、alpha 保持 | 一致/不一致が**目視の2値判定**。「どれだけ違うか」の距離が数値化されておらず、広色域（display-p3）も未対応 |
-| フォント | family全スタック・weight・unicode-range・`font-display`・可変軸・ライセンスを記録 | **フォールバック書体との寸法差（メトリクス）が未計測**。CLSの根本原因を Ren 側の実装問題として押し出している |
-| 条件付きCSS | `@media` / `@container` / `@supports` の**存在**を検出しフラグ化 | 条件の**解決テーブル**が無い。`cqw`等のコンテナ相対単位、`container-name` の解決先が未特定 |
-| 検証 | pre-handoff スクリプトで自己完結型10点チェック（exit code 1 ゲート） | 検証が**片側だけ**。複製版と元サイトを突き合わせる回帰diffが無く、「抽出漏れ率」を数値で言えない |
+| 領域 | 現状の到達点 → 限界点（v2で突破する対象） |
+|---|---|
+| 値の取得 | `getComputedStyle()` 全要素一括ダンプ＋生CSSの正規表現走査をペア実行 → 正規表現は**構造を持たず**、`@layer` 入れ子・ネスト展開後セレクタ・`@scope` 境界を文字列から復元しており取りこぼしが構造的に残る |
+| 出力量 | 全要素×全プロパティのJSONを納品 → ブラウザ既定値との差分を取らず、意味ある宣言がノイズに埋もれる（1ページ数十MB） |
+| CSS変数 | `:root` 定義値・再代入セレクタ・`var()` フォールバックを依存グラフ化 → **どの祖先の定義が効いているか**の継承チェーンが未解決、`@property` の型・初期値・`inherits` も未取得 |
+| 色 | HEX＋OKLCH 併記・三重ピッカー照合・alpha保持 → 一致/不一致が**目視の2値判定**で「どれだけ違うか」が数値化されておらず、広色域（display-p3）も未対応 |
+| フォント | family全スタック・weight・unicode-range・`font-display`・可変軸・ライセンス記録 → **フォールバック書体との寸法差が未計測**でCLSの根因を Ren 側の実装問題として押し出している |
+| 条件付きCSS | `@media`/`@container`/`@supports` の**存在**を検出しフラグ化 → **解決テーブル**が無く、`cqw`等の相対単位と `container-name` の解決先が未特定 |
+| 検証 | pre-handoff スクリプトで自己完結型10点チェック（exit code 1 ゲート） → 検証が**片側だけ**で、元サイトとの回帰diffが無く「抽出漏れ率」を数値で言えない |
 
 ### 到達すべきベンチマーク
 
@@ -873,8 +873,6 @@ function collectCSSOM() {
 
 **期待効果**：`@layer`・`@scope`・ネスト起因の「詳細度を調べても原因が分からない」NGが構造記録で消滅。CSS読み込みマップ（STEP 1）の作成が正規表現の目視確認込み40分 → **スクリプト3秒**に短縮。
 
----
-
 #### 2. 【UA既定値ベースライン差分による有意プロパティ抽出】
 
 **なぜ必要か**：`getComputedStyle()` は1要素あたり340以上のプロパティを返す。3,000要素のLPなら100万レコードで、Ren も Nao も**読まない**。実際に意味があるのは「ブラウザ既定値から外れた宣言」だけ。差分を取れば、同時に「ブラウザデフォルト依存の余白」（リセットCSS有無で壊れる箇所）も自動で可視化できる。
@@ -913,8 +911,6 @@ function significantStyles(el) {                  // 340+ → 平均12〜30プ�
 ```
 
 **期待効果**：Nao の設計書作成が「JSONを探す時間」ごと消え、STEP 8 受領〜設計着手が **60分 → 10分**。Ren が読む前提のJSONになり、仕様確認の往復DMが実質ゼロ化。
-
----
 
 #### 3. 【カスタムプロパティ継承チェーン＋`@property` 型解決】
 
@@ -959,8 +955,6 @@ function refGraph(declText) {                       // 参照グラフ＋循環�
 
 **期待効果**：Iro のダーク版パレットと自分の抽出色が**同じ継承構造上**で接続でき、Ren の `extend.colors` 衝突NGを構造的に排除。テーマ改修時に「1箇所変えれば全体が変わる」設計が納品時点で保証される。
 
----
-
 #### 4. 【フォントメトリクス実測とメトリクス互換フォールバック生成】
 
 **なぜ必要か**：`font-display: swap` を指定した時点で、フォールバック書体 → Webフォントの**寸法差がそのままレイアウトシフト**になる。既存運用は「swap を指定せよ」で止まっており、CLS が出ると Ren の実装問題として押し出されていた。x-height と advance width を実測し `size-adjust` / `ascent-override` / `descent-override` / `line-gap-override` を算出すれば、**切り替わっても1pxも動かない**フォールバックを抽出段階で作れる。
@@ -978,25 +972,16 @@ function refGraph(declText) {                       // 参照グラフ＋循環�
 
 **実務テンプレート**：
 ```js
-await document.fonts.ready;
+await document.fonts.ready;                        // ロード完了前の計測は全て無効
 const ctx = document.createElement('canvas').getContext('2d');
-const metrics = (family, px = 100) => {
-  ctx.font = `${px}px ${family}`;
+const metrics = (family, px = 100) => { ctx.font = `${px}px ${family}`;
   const m = ctx.measureText('漢Hxg');
-  return {
-    ascent:  m.fontBoundingBoxAscent / px,
-    descent: m.fontBoundingBoxDescent / px,
-    xHeight: (ctx.measureText('x').actualBoundingBoxAscent) / px,
-    advance: m.width / px,
-  };
-};
+  return { ascent: m.fontBoundingBoxAscent / px, descent: m.fontBoundingBoxDescent / px,
+           xHeight: ctx.measureText('x').actualBoundingBoxAscent / px, advance: m.width / px }; };
 const web = metrics('"Noto Sans JP"'), fb = metrics('"Hiragino Sans"');
-const desc = {
-  'size-adjust':        (web.xHeight / fb.xHeight * 100).toFixed(1) + '%',
-  'ascent-override':    (web.ascent  * 100).toFixed(1) + '%',
-  'descent-override':   (web.descent * 100).toFixed(1) + '%',
-  'line-gap-override':  '0%',
-};
+const desc = { 'size-adjust': (web.xHeight / fb.xHeight * 100).toFixed(1) + '%',
+  'ascent-override': (web.ascent * 100).toFixed(1) + '%',
+  'descent-override': (web.descent * 100).toFixed(1) + '%', 'line-gap-override': '0%' };
 ```
 ```css
 /* 納品CSS：Ren はこの @font-face をそのまま貼るだけでCLSが止まる */
@@ -1010,8 +995,6 @@ body{ font-family:"Noto Sans JP","NotoSansJP-fallback",sans-serif; }
 
 **期待効果**：Lighthouse の CLS 起因 Performance NG が抽出段階で消え、Mia QA の「読み込み中に文字がガタつく」差し戻しがゼロ化。フォント読込失敗時の見た目も設計値通りに固定される。
 
----
-
 #### 5. 【ΔE2000 と広色域による色忠実度の定量判定】
 
 **なぜ必要か**：色の一致判定が「三重ピッカーで2つ合えば採用」という**多数決**に留まっており、「どれだけ違うか」を言えない。ΔE2000（CIEDE2000）は人間の知覚差に対応した色距離で、**1.0未満＝訓練された目でも識別不能**。数値で線を引けば、Mia との「色が違う／合っている」論争が1行で終わる。広色域（display-p3）指定を sRGB に丸めて記録する事故も同時に潰す。
@@ -1021,36 +1004,22 @@ body{ font-family:"Noto Sans JP","NotoSansJP-fallback",sans-serif; }
 - alpha を持つ色は**合成後の見た目で比較しない**。RGB成分とalphaを分離して評価（合成後比較は下layer変更で破綻する）
 - `matchMedia('(color-gamut: p3)')` と生CSSの `color(display-p3 ...)` / `oklch()` 使用を検出。p3指定がある場合は sRGB フォールバックの有無を確認し、無ければ Ren へ `@supports (color: color(display-p3 1 1 1))` 付きの2段指定を提案
 
-**判断基準・数値ライン**：
-
-| 対象 | ΔE00 合格ライン | 超過時の扱い |
-|---|---|---|
-| ブランド色 / CTAボタン | **< 0.5** | 即再抽出（ハイパーフォーカス3要素に直撃） |
-| 主要色（背景・本文・見出し） | **< 1.0** | 再抽出 |
-| 装飾色（境界線・シャドウ・薄背景） | **< 2.0** | 条件付き可・仕様書に実測値を明記 |
-| 全体平均 | **< 0.8** | 超過なら STEP 2 全体をやり直し |
+**判断基準・数値ライン**：ブランド色/CTA **ΔE00 < 0.5**（超過は即再抽出＝ハイパーフォーカス3要素に直撃）／主要色（背景・本文・見出し）**< 1.0**（超過は再抽出）／装飾色（境界線・シャドウ・薄背景）**< 2.0**（条件付き可・実測値を仕様書明記）／全体平均 **< 0.8**（超過なら STEP 2 をやり直し）。
 
 **実務テンプレート**：
 ```js
 // scripts/color-verify.js
-import { parse, differenceCiede2000, formatHex, converter } from 'culori';
+import { parse, differenceCiede2000, converter } from 'culori';
 const dE = differenceCiede2000(), toOklch = converter('oklch');
 
 export const judgeColor = (origin, clone, role = 'main') => {
-  const limit = { brand: 0.5, main: 1.0, decor: 2.0 }[role];
-  const d = dE(parse(origin), parse(clone));
-  return {
-    origin, clone, role, deltaE2000: +d.toFixed(3), limit,
-    verdict: d < limit ? 'PASS' : 'FAIL',
-    oklch: toOklch(parse(origin)),
-    alpha: (parse(origin).alpha ?? 1),        // alpha は分離評価（丸め禁止）
-  };
+  const limit = { brand: 0.5, main: 1.0, decor: 2.0 }[role], d = dE(parse(origin), parse(clone));
+  return { origin, clone, role, deltaE2000: +d.toFixed(3), limit, verdict: d < limit ? 'PASS' : 'FAIL',
+           oklch: toOklch(parse(origin)), alpha: parse(origin).alpha ?? 1 };  // alpha は分離評価・丸め禁止
 };
 ```
 
 **期待効果**：「HEXは合っているのに違って見える」を ΔE の数値で切り分け、モニタ差か採取ミスかの判定が即座に。Mia との色関連の往復が **平均2.4回 → 0.3回**。
-
----
 
 #### 6. 【`@container` 解決テーブル＋`cq*` 単位換算＋`@supports` 機能マトリクス】
 
@@ -1070,7 +1039,7 @@ export const judgeColor = (origin, clone, role = 'main') => {
 
 **実務テンプレート**：
 ```js
-function resolveContainer(el, name = null) {
+function resolveContainer(el, name = null) {        // null = 元サイト側の未解決クエリ → Kaito へエスカレ
   for (let n = el.parentElement; n; n = n.parentElement) {
     const cs = getComputedStyle(n);
     if (cs.containerType === 'normal') continue;
@@ -1078,8 +1047,7 @@ function resolveContainer(el, name = null) {
     const r = n.getBoundingClientRect();
     return { path: cssPath(n), type: cs.containerType, name: cs.containerName || null,
              cqw: +(r.width / 100).toFixed(3), cqb: +(r.height / 100).toFixed(3) };
-  }
-  return null;   // null = 元サイト側の未解決クエリ → Kaito へエスカレ
+  } return null;
 }
 
 const featureMatrix = pairs =>
@@ -1089,8 +1057,6 @@ const featureMatrix = pairs =>
 ```
 
 **期待効果**：カード・ウィジェットの再利用部品が「サイドバー内／メイン内」で別挙動になる崩れを抽出段階で検出。Ren の「どっちの基準で組めば？」質問が消え、STEP 4 の仕様確認が **平均5往復 → 0**。
-
----
 
 #### 7. 【元↔複製の双方向 computed style 回帰diff】
 
@@ -1115,19 +1081,15 @@ const featureMatrix = pairs =>
 const snap = async (page, url, w) => {
   await page.setViewport({ width: +w, height: 900, deviceScaleFactor: 2 });
   await page.goto(url, { waitUntil: 'networkidle0' });
-  await page.evaluate(async () => {
-    await document.fonts.ready;
-    for (let y = 0; y < document.body.scrollHeight; y += 400) { window.scrollTo(0, y); await new Promise(r => setTimeout(r, 60)); }
-    window.scrollTo(0, 0);
-  });
+  await page.evaluate(async () => { await document.fonts.ready;   // フォント確定＋lazy要素を全展開
+    for (let y = 0; y < document.body.scrollHeight; y += 400) { scrollTo(0, y); await new Promise(r => setTimeout(r, 60)); } scrollTo(0, 0); });
   return page.evaluate(() => [...document.querySelectorAll('*')].map(el => ({
     path: cssPath(el), text: (el.textContent || '').trim().slice(0, 20),
-    style: significantStyles(el), rect: el.getBoundingClientRect().toJSON(),
-  })));
+    style: significantStyles(el), rect: el.getBoundingClientRect().toJSON() })));
 };
 const iou = (a, b) => { const x = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
-  const y = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
-  const i = x * y; return i / (a.width * a.height + b.width * b.height - i); };
+  const y = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)), i = x * y;
+  return i / (a.width * a.height + b.width * b.height - i); };
 // 一致率 < 0.995 || severityA > 0 → process.exit(1)（Mia へ回さない）
 ```
 
