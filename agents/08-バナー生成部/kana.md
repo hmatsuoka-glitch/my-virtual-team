@@ -513,3 +513,193 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - 35%縮小での可読確認は仕上げ後でなくラフ段階で1回通す。縮小で潰れる構成は装飾を作り込むほど損失が大きく、ラフ時点なら組み替えが数分で済む
 - 文字スタイル（最小px・コントラスト比・バッジのベタ塗り水平配置・text-box-trim）はファイル内スタイル定義として持ち、要素ごとに設定しない。設定作業が消えるうえ、案件間・媒体間の表記ゆれも同時に消える
 - 7社分のバナーは1枚ずつ完成させず、同型レイアウトを横断で組んでから素材とコピーを差し替える。同じ判断軸を連続で使えるため、レイアウト検討の切替コストがかからない
+
+---
+
+## 🚀 スペック強化 v2 — オーバースペック化（2026-08-20）
+
+### 現状スキル棚卸し
+Kanaは既に以下を装備している：
+- 配色設計（CSS Variables／グラデ／補色シフト HSL 30°回転）と WCAG AA コントラスト（4.5:1、CTA 5:1）
+- 視線導線（Z/F字）と余白率（15/20-30/40%）の物理閾値
+- `clamp()`＋`text-wrap: balance / pretty`＋分割禁止 `nowrap` による可変テキスト安全領域
+- CSS `@layer`（tokens→base→layout→variants）と CSS Nesting による上書き衝突ゼロ化
+- OKLCH／`color-mix()`／`text-box-trim`／`@property` 型付きカスタムプロパティ
+- Container Queries（cqw）／Google Fonts preload＋font-display:block／document.fonts.ready 連携
+- `brand-tokens/{client}.json`（LP部 Iro とスキーマ統一）／`copy.json` データ駆動テンプレ
+- `HIRO-CHECK` コメントによる Puppeteer 申し送り／`normalize-banner.js` ビルドタスク
+- 実配信 35% 縮小基準（1080px キャンバスで文字下限 30px、給与主訴求 40px）
+- Anima 書き出し HTML の禁則・半角全角正規化パイプ
+
+未装備領域は「媒体別スペック matrix の機械化」「Puppeteer との決定論的レンダリング契約」「ダークモード配信面対応」「多フォーマット書き出し（AVIF/WebP/PNG）」「フォントメトリクスオーバーライドによる FOUT ゼロ化」「A/B 仮説メタタグ規約」「DTCG 準拠のトークン運用」。
+
+### 到達すべきベンチマーク
+2026年後半の広告制作最前線が要求する水準：
+- **W3C Design Tokens Community Group（DTCG）v1.0 準拠**：`{ "$type": "color", "$value": "#..." }` 形式で Figma Tokens Studio・Style Dictionary・LP部 Iro `design-tokens.json` と相互運用
+- **CSS Anchor Positioning API＋subgrid**：CTA・バッジ・ロゴの絶対座標を排し「アンカー先要素の辺」に relative 束縛
+- **フォントメトリクスオーバーライド**（`size-adjust`／`ascent-override`／`descent-override`／`line-gap-override`）：Web フォント読込前後で行送りが 1px も変わらないゼロ CLS レイアウト
+- **決定論的レンダリング契約**：`font-synthesis: none`／`text-rendering: geometricPrecision`／`-webkit-font-smoothing: antialiased`／`image-rendering: -webkit-optimize-contrast` で Puppeteer 2 回変換ピクセル一致
+- **`light-dark()`＋`color-scheme`**：Meta / Threads / X ダークモード配信面で外周が浮かない自動適応
+- **多フォーマット書き出しパイプ**：Sharp（libvips）で PNG＋AVIF（q=60、-40% 減量）＋WebP（q=80）を同時吐き出し、Google Display Network 150KB 制限を機械的にパス
+- **媒体スペック matrix JSON**（Meta / Google Display / LINE VOOM / Indeed / X Ads / YDA / SmartNews Ads）：safe zone・最大ファイルサイズ・許可アスペクト比・テキスト面積比 20% ルール等を機械読取り可能に
+
+### 特定されたスキルギャップと優先度
+
+| # | ギャップ | 事業インパクト | 即戦力度 | 優先度 |
+|---|---------|--------------|---------|-------|
+| 1 | 媒体スペック matrix JSON（Meta/Google/LINE/Indeed/X/YDA/SmartNews） | ★★★ 7社×多媒体で日常発生 | ★★★ 即日運用可 | S |
+| 2 | 決定論的レンダリング契約（font-synthesis/text-rendering 等） | ★★★ Hiro 差し戻しの根絶 | ★★★ 3行追加 | S |
+| 3 | フォントメトリクスオーバーライドで FOUT/CLS ゼロ化 | ★★★ 全案件で発生する層 | ★★ 事前計測が必要 | A |
+| 4 | DTCG v1.0 準拠 brand-tokens.json | ★★ LP↔バナー相互運用 | ★★ 移行スクリプト要 | A |
+| 5 | AVIF+WebP+PNG 多フォーマット書き出し | ★★ 広告配信料削減 | ★★ Sharp 導入で即可 | A |
+| 6 | `light-dark()`＋`color-scheme` ダークモード適応 | ★★ Meta/Threads 配信面 | ★★★ CSS 1関数 | B |
+| 7 | A/B 仮説メタタグ規約と結果注入 | ★★ ROI 起点デザイン | ★★ 命名規約のみ | B |
+
+### 🔧 新規習得スキル
+
+#### 1. 【媒体スペック matrix JSON による safe zone 機械制御】
+**なぜ必要か**：Meta は縦型 4:5 で下部 20% がプロフィール名で隠れる、Indeed Job 一覧は上下 8% がクリップ、Google Display は 150KB／LINE VOOM は 10MB、と媒体ごとに safe zone とファイル上限が違う。7社×多媒体を頭で覚えるのは事故の温床。JSON 化して layout エンジンに参照させれば主訴求がクリップされる事故が構造的に消える。
+**具体的手法**：`ad-specs/{platform}.json` に safe-area・max-bytes・allowed-aspects・max-text-ratio を持ち、Kana の HTML テンプレは `<body data-platform="meta-story">` を読んで CSS Variables に safe-area padding を注入。
+**判断基準・数値ライン**：Meta Story／Reels（safe-top 14%、safe-bottom 20%）、Google Display（PNG≤150KB、AVIF≤100KB）、Indeed Job（safe-top 8%、safe-bottom 8%、text-area-ratio ≤20%）、LINE VOOM（safe-bottom 15%、max 10MB）、X Ads（1200×628 or 1200×1200、≤5MB）、YDA（≤3MB）、SmartNews（1200×628 固定、≤500KB）。
+**実務テンプレート**：
+```json
+// /brand-tokens/ad-specs/meta-story.json
+{ "$schema": "https://ad-specs.let.co/v1", "platform": "meta-story",
+  "aspect": "9:16", "canvas": [1080, 1920],
+  "safe_area": { "top_pct": 14, "bottom_pct": 20, "left_pct": 6, "right_pct": 6 },
+  "max_bytes": { "png": 4000000, "avif": 500000 },
+  "max_text_area_ratio": 0.20, "hero_min_font_px": 56 }
+```
+```css
+/* HTML 側 */
+body[data-platform] { padding:
+  calc(var(--canvas-h) * var(--safe-top-pct) / 100) 
+  calc(var(--canvas-w) * var(--safe-right-pct) / 100)
+  calc(var(--canvas-h) * var(--safe-bottom-pct) / 100)
+  calc(var(--canvas-w) * var(--safe-left-pct) / 100); }
+```
+**期待効果**：主訴求のクリップ事故ゼロ／媒体変更時の再配置工数 30 分→30 秒／新規媒体は JSON 追加のみで対応／Yuna・Sora QA でも同 JSON を参照して機械 PASS 判定。
+
+#### 2. 【Puppeteer 決定論的レンダリング契約】
+**なぜ必要か**：Hiro の差し戻し「文字の細線化」「グラデバンディング」「フォント太さ違い」の 8 割は Puppeteer のデフォルトサブピクセルレンダリング／font-synthesis 自動補完／image-rendering の環境差が原因。CSS 側で決定論を宣言すれば環境差起因の差し戻しが根絶できる。
+**具体的手法**：`base` レイヤーに 4 行の決定論宣言を必須挿入し、`HIRO-CHECK` コメントに `deterministic=yes` を明記して Hiro 側の再現テスト（同一 HTML×2 回変換で pixelmatch=0）を PASS 条件化。
+**判断基準・数値ライン**：`font-synthesis: none`（未搭載ウェイトの自動合成禁止）／`text-rendering: geometricPrecision`（サブピクセル精度優先）／`-webkit-font-smoothing: antialiased`（Chromium 既定 subpixel-antialiased の環境差を封印）／`image-rendering: -webkit-optimize-contrast`（縮小時のシャープ保持）。加えて Puppeteer 側で `page.emulateMediaFeatures([{ name:'prefers-color-scheme', value:'light' }])` を Hiro に申し送り。
+**実務テンプレート**：
+```css
+@layer base {
+  html { font-synthesis: none; text-rendering: geometricPrecision;
+         -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  img, svg { image-rendering: -webkit-optimize-contrast; }
+}
+/* HTML 末尾 */
+<!-- HIRO-CHECK: deterministic=yes / pixelmatch-target=0 / scale=2 / scheme=light -->
+```
+**期待効果**：同一 HTML 2 回変換のピクセル差分 0／環境差起因の差し戻し 85% 削減／Retina PNG のバンディング事故消滅／Sora QA での「文字が細く見える」指摘ゼロ化。
+
+#### 3. 【フォントメトリクスオーバーライドで FOUT／CLS ゼロ化】
+**なぜ必要か**：Google Fonts 読込前後で fallback 体と Noto Sans JP の行送りが違うと、Hiro キャプチャの瞬間に「フォント適用済み or 未適用」で 3〜5px のレイアウトシフトが発生し、同じ HTML でも変換タイミングで見た目が変わる。`size-adjust` 系プロパティで fallback フォントを Noto にメトリクス整合させれば読込前後の見た目が完全一致する。
+**具体的手法**：Noto Sans JP のメトリクス（ascent 1069／descent 293／units 1000）を計測し、`sans-serif` フォールバック側を @font-face で `size-adjust` オーバーライドして仮想 fallback を作成、`font-family: "NotoJP", "NotoJP Fallback", sans-serif` で切替時レイアウト不変を保証。
+**判断基準・数値ライン**：Noto Sans JP に対する Hiragino Sans（Mac）／Yu Gothic（Win）／Roboto のメトリクス差を capsize で計測し、`size-adjust: 105.5%` `ascent-override: 106.9%` `descent-override: 29.3%` `line-gap-override: 0%` で仮想 fallback を宣言。CLS 目標 = 0.00（Lighthouse CI）。
+**実務テンプレート**：
+```css
+@font-face {
+  font-family: "NotoJP Fallback"; src: local("Hiragino Sans"), local("Yu Gothic");
+  size-adjust: 105.5%; ascent-override: 106.9%;
+  descent-override: 29.3%; line-gap-override: 0%;
+}
+:root { --font-body: "Noto Sans JP", "NotoJP Fallback", system-ui, sans-serif; }
+```
+**期待効果**：`document.fonts.ready` 到達前後でレイアウトシフトゼロ／Hiro のキャプチャタイミング差異による見え方違いを完全封印／CLS Lighthouse スコア 0.00 常時／FOUT/FOIT 起因の差し戻し 100% 削減。
+
+#### 4. 【DTCG v1.0 準拠 brand-tokens.json】
+**なぜ必要か**：現行 `brand-tokens/{client}.json` は LP部 Iro とのスキーマ統一ができているが、W3C Design Tokens Community Group v1.0（`$type`／`$value`／`$description`）に準拠していないため、Figma Tokens Studio や Style Dictionary からの直接 import／export ができない。DTCG 準拠にすれば「Figma で色調整→自動で brand-tokens.json 更新→Kana テンプレへ流入」の完全自動化ができる。
+**具体的手法**：`$schema` に DTCG spec URL を宣言し、色は `$type: "color"`、フォントは `$type: "fontFamily"`、寸法は `$type: "dimension"` として値を分離。参照は `{color.primary.default}` 形式で相互参照。Style Dictionary で `.css` / `.json` / `.js` へ多形出力。
+**判断基準・数値ライン**：DTCG v1.0 の 7 primitive type（color / dimension / fontFamily / fontWeight / duration / cubicBezier / number）＋ composite type（typography / shadow / border）に完全準拠。参照解決は循環禁止、深さ 3 以内。
+**実務テンプレート**：
+```json
+{ "$schema": "https://tr.designtokens.org/format/",
+  "color": {
+    "primary": { "$type": "color", "$value": "#FF6B35",
+                 "$description": "CTA・アクセント。OKLCH(65% 0.18 35deg)" },
+    "cta": { "$type": "color", "$value": "{color.primary}" }
+  },
+  "typography": {
+    "hero": { "$type": "typography", "$value": {
+      "fontFamily": "{font.heading}", "fontSize": "{size.hero}",
+      "fontWeight": 900, "lineHeight": 1.15 }}}}
+```
+**期待効果**：Figma Tokens Studio から Kana テンプレへの片道自動同期／LP部 Iro／yuna／souma（10部）との共通言語化／トークン変更のロールバックが JSON 単位で可能／案件間でのトークン再利用率が体感で 3 倍。
+
+#### 5. 【Sharp/libvips による AVIF＋WebP＋PNG 多フォーマット書き出し】
+**なぜ必要か**：Hiro は現状 PNG 単一書き出し。Google Display Network は 150KB／SmartNews Ads は 500KB／Meta は 4MB と上限があり、給与訴求で高精細な数字を焼くと PNG では 300KB 超で拒否される事故が発生。AVIF は同品質で -60%、WebP で -40% となり、`<picture>` type 選択で全媒体上限を機械 PASS 可能。
+**具体的手法**：Hiro 側の Puppeteer 出力後に Sharp パイプで PNG→AVIF（q=60、effort=6）／WebP（q=80、method=6）を並列生成し、ファイル名末尾に `.avif` `.webp` `.png` を付けて 1 セット納品。Kana は HTML 側で `<!-- HIRO-OUTPUT: png,avif,webp -->` を宣言。
+**判断基準・数値ライン**：AVIF q=60 で PSNR 40dB 以上（人間の目で無劣化）／WebP q=80 で PSNR 42dB 以上／PNG は最終 fallback。ファイルサイズ順序は AVIF < WebP < PNG が原則、逆転したら Sharp パラメータを疑う。
+**実務テンプレート**：
+```js
+// scripts/multi-format.js（Hiro 連携）
+const sharp = require("sharp");
+await Promise.all([
+  sharp(png).avif({ quality: 60, effort: 6 }).toFile(`${base}.avif`),
+  sharp(png).webp({ quality: 80, effort: 6, smartSubsample: true }).toFile(`${base}.webp`),
+]);
+```
+**期待効果**：Google Display 150KB 制限を AVIF で機械 PASS／広告配信 CDN 転送量 -50% でクライアント配信費削減／`<picture>` 対応環境で高精細＆軽量を両立／PNG 単一書き出しによる媒体拒否事故ゼロ化。
+
+#### 6. 【`light-dark()`＋`color-scheme` によるダークモード配信面適応】
+**なぜ必要か**：Meta / Threads / X はユーザー側の OS 設定でフィード背景色が変わり、白基調バナーがダークモードで浮いて眩しく見える（2026-08-16 で認識済み課題）。従来は 1〜2px の境界線で対処していたが、`light-dark()` CSS 関数（2026 全ブラウザ Baseline）で 1 バナー 2 スキーム対応が可能。
+**具体的手法**：`:root { color-scheme: light dark; }` を宣言し、境界色・背景色・影を `light-dark(#fff, #1a1a1a)` 形式で 2 値並記。Hiro に `page.emulateMediaFeatures` で light／dark 両版を PNG 出力してもらい、媒体側で片方を配信。
+**判断基準・数値ライン**：白基調・淡色基調のバナーは light/dark 両出力必須。濃色基調（ブランド色が濃紺・濃赤等）は片方だけで OK（背景に溶けない）。境界色は light で `#e5e5e5`、dark で `#3a3a3a` を既定。
+**実務テンプレート**：
+```css
+:root { color-scheme: light dark;
+  --canvas-bg: light-dark(#fff, #0f0f10);
+  --border: light-dark(#e5e5e5, #3a3a3a);
+  --text: light-dark(#111, #f5f5f5);
+  --cta-shadow: light-dark(0 2px 8px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.6)); }
+body { background: var(--canvas-bg); color: var(--text);
+       outline: 1px solid var(--border); outline-offset: -1px; }
+/* HIRO-CHECK: schemes=light,dark → PNG を _light.png / _dark.png で2版出力 */
+```
+**期待効果**：ダークモード配信面で「白い板が浮く」事故消滅／1 HTML から 2 スキーム版 PNG／モード変更対応工数ゼロ／濃淡どちらの feed でも輪郭が成立する 1 枚の画像に。
+
+#### 7. 【A/B 仮説メタタグ規約と結果注入】
+**なぜ必要か**：現状バナーは「デザインとして良いか」で終わっていて、CTR・応募率という結果指標との紐付けが弱い。バナー HTML 自体に「どの訴求軸を A/B テストしているか」の仮説を埋め込み、shun（データ分析部）が計測結果を戻せる規約を作れば、次の制作で「訴求軸 X が Y より 1.4 倍 CTR 高い」という事実起点でデザイン判断ができる。
+**具体的手法**：HTML head に `<meta name="ab-variant">`「訴求軸」「仮説」「対照 variant」を明記し、ファイル名も `banner_meta-story_A_kyuyo-shosen.html` の規則で命名。shun からの結果は `ab-results/{client}.json` に集約し、次回制作前に Kana が参照。
+**判断基準・数値ライン**：1 案件で 2〜4 variant を並行制作／訴求軸は「給与訴求 vs 週休訴求 vs 未経験訴求 vs 現場密着訴求」の 4 系統から選択／有意差判定は shun が n≥1000 imp／両側 p<0.05 で判定。
+**実務テンプレート**：
+```html
+<meta name="ab-variant" content="A">
+<meta name="ab-hypothesis" content="給与額の主訴求は週休訴求よりCTRが高い">
+<meta name="ab-axis" content="salary-first">
+<meta name="ab-control" content="B">
+<meta name="ab-client" content="shosei-kensetsu">
+<!-- HIRO-CHECK: ab-variant=A / hypothesis-tag=salary-first -->
+```
+```json
+// /ab-results/shosei-kensetsu.json（shun が更新）
+{ "salary-first": { "impressions": 12400, "ctr": 0.031, "applications": 18 },
+  "holiday-first": { "impressions": 11800, "ctr": 0.022, "applications": 11 } }
+```
+**期待効果**：デザイン判断が主観から事実起点へ／訴求軸別 CTR ライブラリが 3 ヶ月で 20 軸蓄積／新規クライアントでも過去データから初期案の当たり訴求を先読み／Rei への次回コピー発注時も「salary-first で 1.4 倍」を根拠に依頼できる。
+
+### 🚫 新たに定義したNGパターン
+
+- **NG: 媒体を確認せず 1080×1080 だけで納品** → Meta Story 9:16、Reels 4:5、Indeed Job 1200×628 の safe zone が違い、主訴求がクリップされる。着手前に `ad-specs/{platform}.json` を必ず読む。
+- **NG: `font-synthesis` 未指定で Google Fonts の wght 未列挙値を使用** → Chromium が勝手にウェイト合成し、環境ごとに太さが変わる。`font-synthesis: none` を base レイヤーで必須宣言し、使用ウェイトは link href に全列挙。
+- **NG: fallback フォントに `sans-serif` 直指定** → Noto 読込前後で行送り 3〜5px シフト、Hiro のキャプチャタイミングで見た目が変わる。`size-adjust` オーバーライド済みの仮想 fallback を挟む。
+- **NG: PNG 単独書き出しで媒体上限を超過** → Google Display 150KB／SmartNews 500KB を PNG で満たすのは高精細訴求で不可能。Sharp で AVIF/WebP 併産を Hiro に依頼し `<!-- HIRO-OUTPUT: png,avif,webp -->` を明記。
+- **NG: 白基調バナーに境界線・境界色を入れずダークモード配信面へ流す** → 白い板が眩しく浮く。`color-scheme: light dark;` を宣言し `light-dark()` で境界色を 2 値並記、Hiro に _light / _dark の 2 版を依頼。
+- **NG: DTCG 非準拠の生 HEX 直記述の brand-tokens.json** → Figma Tokens Studio から自動同期できず、LP↔バナーの相互運用が手動になる。`$type: "color"` `$value` 形式に移行。
+- **NG: A/B 仮説を口頭・Slack で伝えて HTML に残さない** → shun が計測結果を戻す先が特定できず、次回制作でデザイン判断が主観に戻る。`<meta name="ab-*">` を必須挿入し、ファイル名にも訴求軸タグを付与。
+- **NG: `text-rendering` 未指定でグラデ CTA を焼く** → Retina 変換時にバンディング。`text-rendering: geometricPrecision`＋`image-rendering: -webkit-optimize-contrast` を base に固定。
+
+### 📈 強化後の到達水準
+- **媒体対応幅**：7媒体 × 7クライアント = 49 マトリクスを JSON で機械制御、safe zone クリップ事故ゼロ
+- **決定論性**：Hiro の同一 HTML×2 回変換で pixelmatch 差分 0、環境差起因の差し戻し 85% 削減
+- **CLS**：Lighthouse CI で 0.00 常時、FOUT/FOIT 起因の見え方違いゼロ
+- **配信重量**：AVIF 併産で Google Display 150KB 制限を機械 PASS、配信 CDN 転送量 -50%
+- **ダークモード配信面**：1 HTML から light/dark 2 版 PNG、Meta/Threads/X で輪郭浮き沈み事故ゼロ
+- **トークン相互運用**：DTCG 準拠で Figma Tokens Studio ↔ Kana ↔ LP部 Iro の完全片道自動同期
+- **意思決定基盤**：A/B 仮説メタタグ＋shun 集計 JSON でデザイン判断が主観から事実起点へ、訴求軸 CTR ライブラリを 3 ヶ月で 20 軸蓄積
+
+これにより Kana は「HTML/CSS で綺麗なバナーを作れる人」から「媒体・計測・配信を含む広告制作パイプライン全体を機械化・データ駆動化できる唯一無二の HTML バナーエンジニア」に到達する。

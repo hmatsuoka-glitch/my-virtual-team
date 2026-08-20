@@ -651,8 +651,7 @@ export const HERO = {
 |---|---|---|
 | コンポーネント分割 | props 5個超で強制分割／再利用2箇所／責務1つ／Compound／SRP・SoC の区別 | ✅ 定性ゲートは完備 |
 | Server/Client 境界 | SA/IM/HO ラベル、`ast-grep` 自動判定、Server Action・PPR・`use cache` | ✅ 業界水準以上 |
-| Design Token | DTCG `$type`/`$value`、primitive/semantic 2層、Style Dictionary 3PF同期 | ✅ 完備 |
-| 状態設計 | 6状態＋ empty state 3択＋ 0件/1件/n件分岐、Mermaid 状態遷移図 | ✅ 完備 |
+| Design Token / 状態設計 | DTCG `$type`/`$value`、primitive/semantic 2層、Style Dictionary 3PF同期、6状態＋empty state 3択 | ✅ 完備 |
 | 計測・運用 | GA4 イベント設計表、UTM 引き継ぎ、editable スロット、changelog 再納品 | ✅ 完備 |
 | a11y | ARIA role/property/state、フォーム9属性、見出し階層、アクセシブルネーム | ⚠️ WCAG 2.2 追加基準は未対応 |
 | レスポンシブ | BP別 表示/非表示マトリクス、モバイルファースト、Container Queries は1行言及のみ | ⚠️ 手法が BP 依存のまま |
@@ -682,8 +681,6 @@ export const HERO = {
 | 7 | サードパーティ script（GTM/チャット/地図）の予算配分が未定義 | 中（Budget が実効化しない） | 中 | ★7 |
 | 8 | Storybook stories を設計成果物にしていない／spec.yaml の機械可読 SSoT 化 | 中 | 低 | 見送り |
 
----
-
 ### 🔧 新規習得スキル
 
 #### 1. 【Fluid Typography / Fluid Space 設計（clamp() 数式化）】
@@ -708,14 +705,12 @@ export const HERO = {
 /* tokens/fluid.css — 375px→1440px 基準・4pxグリッド丸め済み */
 :root {
   /* type: min→max (px) */
-  --step--1: clamp(0.875rem, 0.846rem + 0.13vw, 0.9375rem); /* 14→15 注釈 */
   --step-0 : clamp(1rem,     0.956rem + 0.19vw, 1.125rem);  /* 16→18 本文 */
   --step-1 : clamp(1.125rem, 1.037rem + 0.38vw, 1.375rem);  /* 18→22 リード */
   --step-2 : clamp(1.375rem, 1.199rem + 0.75vw, 1.75rem);   /* 22→28 h3 */
   --step-3 : clamp(1.625rem, 1.317rem + 1.31vw, 2.25rem);   /* 26→36 h2 */
   --step-4 : clamp(1.75rem,  1.134rem + 2.63vw, 3.5rem);    /* 28→56 h1 */
   /* space */
-  --space-xs : clamp(0.5rem,  0.456rem + 0.19vw, 0.625rem); /*  8→10 */
   --space-md : clamp(1.5rem,  1.368rem + 0.56vw, 2rem);     /* 24→32 */
   --space-xl : clamp(3rem,    2.296rem + 3.00vw, 6rem);     /* 48→96 セクション間 */
   --section-gap: var(--space-xl);
@@ -839,12 +834,9 @@ export const HERO = {
 
 **具体的手法**：
 1. **行長を em で規定**（CJK は 1 全角 = 1em なので `max-inline-size: 34em` ≒ 34字）
-2. 折返しの既定を `word-break: normal` + `overflow-wrap: anywhere` に固定し、`break-all` の全体適用を禁止
-3. 禁則を `line-break: strict` で強化（小書き仮名・長音符を行頭に出さない）
-4. 見出しと職種名に **`word-break: auto-phrase`**（文節単位折返し）を指定し、意味の切れ目で折る
-5. `text-wrap`：見出し = `balance`（4行以下で有効）／本文 = `pretty`（末尾1語の孤立行を防ぐ）
-6. **`font-feature-settings: "palt" 1`（詰め）は見出しのみ**。本文に当てると字間が不均一になり可読性が落ちる
-7. 和欧混植：`letter-spacing` は見出し 0.02〜0.04em / 本文 0.02em、英数字主体の要素（電話番号・型番）は 0
+2. 折返しの既定を `word-break: normal` + `overflow-wrap: anywhere` に固定して `break-all` の全体適用を禁止し、禁則は `line-break: strict` で強化（小書き仮名・長音符を行頭に出さない）
+3. 見出しと職種名に **`word-break: auto-phrase`**（文節単位折返し）、`text-wrap` は見出し=`balance`（4行以下で有効）／本文=`pretty`（孤立行防止）
+4. **`font-feature-settings: "palt" 1`（詰め）は見出しのみ**（本文は字間が不均一になり可読性低下）。`letter-spacing` は見出し 0.02〜0.04em / 本文 0.02em、英数字主体（電話番号・型番）は 0
 
 **判断基準・数値ライン**：
 | 項目 | 設計値 | 逸脱時の症状 |
@@ -895,25 +887,19 @@ export const HERO = {
 4. 超過時は Kaito 経由でクライアントへ **「この項目を足すと Friction +2.0」** と定量提示して削減交渉
 
 **判断基準・数値ライン**：
-| フィールド種別 | 係数 | 備考 |
-|---|---|---|
-| 単一行テキスト（氏名等） | 1.0 | `autocomplete` 前提 |
-| ラジオ（3択以内） | 0.8 | select より低コスト |
-| select（4択以上） | 1.5 | SP でホイール操作が発生 |
-| 電話番号 | 1.5 | 心理抵抗込み |
-| 日付（生年月日） | 2.0 | SP のピッカーが重い |
-| 住所（分割4欄） | 4.0 | 郵便番号補完で 1.5 に圧縮可 |
-| 自由記述（志望動機等） | 2.5 | 最大の離脱要因 |
-| ファイル添付（履歴書） | 3.0 | SP では実質不可、後日メール導線へ逃がす |
+| 種別 | 係数 | 種別 | 係数 |
+|---|---|---|---|
+| ラジオ（3択以内） | 0.8 | 日付（生年月日・SPピッカーが重い） | 2.0 |
+| 単一行テキスト（氏名等） | 1.0 | 自由記述（志望動機・最大の離脱要因） | 2.5 |
+| select（4択以上） / 電話番号 | 1.5 | ファイル添付（SPで実質不可） | 3.0 |
+| 住所（分割4欄・郵便番号補完で1.5） | 4.0 | ー | ー |
 
-- **合計 ≤ 8.0** → 1画面完結（推奨）／ **8.1〜14.0** → 2ステップ＋progress／ **14.0 超** → 要削減（設計を通さずクライアント交渉）
+- **合計 ≤ 8.0** → 1画面完結（推奨）／ **8.1〜14.0** → 2ステップ＋progress／ **14.0 超** → 要削減（設計を通さず交渉）
 - **必須項目 5個以下**（採用LP の理想は 氏名／連絡先1つ／希望職種 の **3項目・Score 3.5**）
-- 3ステップ以上なら **stepper ＋ 残り所要時間表示**（「あと約30秒」）を必須
-- 確認用再入力欄は **0個**（WCAG 2.2 SC 3.3.7 と直結・#2 参照）
+- 3ステップ以上なら **stepper ＋ 残り所要時間表示**（「あと約30秒」）を必須／確認用再入力欄は **0個**（SC 3.3.7 直結）
 - 任意項目には必ず「任意」ラベルを表示（「必須」印だけの設計は SP で見落とされる）
 
 **実務テンプレート**：
-```markdown
 ### Form Friction 設計表（STEP 3 必須）
 | # | フィールド | 種別 | 係数 | 必須 | autocomplete | inputmode | C/U | 抵抗マイクロコピー |
 |---|---|---|---|---|---|---|---|---|
@@ -921,11 +907,10 @@ export const HERO = {
 | 2 | 電話番号 | tel | 1.5 | ✅ | tel | tel | U | 面接日程のご連絡のみに使用します |
 | 3 | 希望職種 | radio(3) | 0.8 | ✅ | ー | ー | U | ー |
 | 4 | ご質問 | textarea | 2.5 | 任意 | ー | text | C(字数) | 空欄のままでも応募できます |
-**合計 Friction Score = 5.8 → 1画面完結 ✅（上限 8.0）**
-削除交渉済み：生年月日(2.0)・住所(4.0)・履歴書添付(3.0) → 面接時取得へ移管、Score 14.8 → 5.8
-```
 
-**期待効果**：クライアントの項目追加要求に定量根拠で対抗でき、応募 CV を設計段階で守れる。「フォーム項目を減らしましょう」という提案が感覚論から数値提案に変わり、ryota/Kaito の商談材料としても機能する。
+**合計 5.8 → 1画面完結 ✅（上限 8.0）**／削除交渉済み：生年月日(2.0)・住所(4.0)・履歴書添付(3.0) を面接時取得へ移管し 14.8 → 5.8
+
+**期待効果**：クライアントの項目追加要求に定量根拠で対抗でき、応募 CV を設計段階で守れる。「項目を減らしましょう」が感覚論から数値提案に変わり、ryota/Kaito の商談材料としても機能する。
 
 #### 7. 【サードパーティスクリプト予算配分と facade 設計】
 
@@ -939,25 +924,12 @@ Performance Budget（LCP 2.5s / INP 200ms）は明記済みだが、**予算の�
 4. タグ追加のたびに Budget を再計算し、超過なら **Kaito 経由で「どれかを外す」交渉**をルール化
 
 **判断基準・数値ライン**：
-| 区分 | 予算（gzip 転送量） | メインスレッド占有 |
-|---|---|---|
-| 自社 First Load JS | ≤ 120KB | ー |
-| サードパーティ合計 | **≤ 100KB** | **≤ 250ms** |
-| サードパーティの INP 寄与 | ≤ 50ms | ー |
-
-| タグ種別 | strategy | 根拠 |
-|---|---|---|
-| 同意管理（CMP） | `beforeInteractive` | 計測より先に走る必要がある |
-| GA4 / GTM | `afterInteractive` | 初期描画をブロックしない |
-| チャットボット / MA | `lazyOnload` | 初期表示に不要 |
-| YouTube / Google Maps | **facade**（script でなく静止画置換） | 各 500KB〜、埋込1つで Budget 超過 |
-
-- facade 適用の閾値：**単体で 100KB 超、または iframe を伴う埋込は全て facade**
-- 地図は `<img>`（静止地図）＋「地図を開く」ボタン → 実体は別タブ or クリック時読込
-- サードパーティ追加時の判定：**追加後合計 > 100KB なら設計 NG**、Kaito へ「A を入れるなら B を外す」で返す
+- 予算：**自社 First Load JS ≤ 120KB** ／ **サードパーティ合計 ≤ 100KB（gzip）・メインスレッド占有 ≤ 250ms・INP 寄与 ≤ 50ms**
+- strategy 割当：同意管理(CMP)=`beforeInteractive` ／ GA4・GTM=`afterInteractive` ／ チャットボット・MA=`lazyOnload` ／ YouTube・Google Maps=**facade**
+- facade 適用の閾値：**単体で 100KB 超、または iframe を伴う埋込は全て facade**（地図は静止画＋「地図を開く」ボタン）
+- 追加時の判定：**追加後合計 > 100KB なら設計 NG**、Kaito へ「A を入れるなら B を外す」で返す
 
 **実務テンプレート**：
-```markdown
 ### サードパーティ予算表（設計書冒頭・Performance Budget と対で記載）
 | タグ | 用途 | 転送量(gzip) | strategy | 同意要否 | 判定 |
 |---|---|---|---|---|---|
@@ -965,17 +937,10 @@ Performance Budget（LCP 2.5s / INP 200ms）は明記済みだが、**予算の�
 | Meta Pixel | 広告計測 | 22KB | afterInteractive | 要 | ✅ |
 | Google Maps 埋込 | アクセス | 520KB | **facade** | 不要 | ⚠️ 静止画＋クリック読込で 8KB に |
 | チャットボット | 問合せ | 180KB | ー | ー | ❌ 予算超過 → Kaito 経由で見送り交渉 |
-**合計 78KB / 上限 100KB ✅**
-```
-```tsx
-// facade の設計指示（Ren 向け注記）
-// 地図は next/image の静止画 + onClick で dynamic import。初期ロードに iframe を含めない。
-// YouTube はサムネ(webp) + 再生ボタン、クリック後に <iframe> を挿入する。
-```
 
-**期待効果**：公開直前のタグ追加で Budget が破綻する事故を設計層で封じる。Mia の Lighthouse NG の外部要因を排除し、「タグを外せない」という交渉不能状態を「設計時に枠を提示済み」に変える。facade だけで LCP 1.0s 以上・TBT 300ms 以上の改善が見込める。
+**合計 78KB / 上限 100KB ✅**／facade 注記（Ren 向け）：地図は `next/image` 静止画＋`onClick` で dynamic import、YouTube はサムネ(webp)＋再生ボタンでクリック後に `<iframe>` 挿入。初期ロードに iframe を含めない
 
----
+**期待効果**：公開直前のタグ追加で Budget が破綻する事故を設計層で封じる。「タグを外せない」という交渉不能状態を「設計時に枠を提示済み」に変え、facade だけで LCP 1.0s 以上・TBT 300ms 以上の改善が見込める。
 
 ### 🚫 新たに定義したNGパターン
 
@@ -987,8 +952,6 @@ Performance Budget（LCP 2.5s / INP 200ms）は明記済みだが、**予算の�
 6. **サードパーティタグを予算枠なしで受け入れる設計**（「クライアント要望なので全部入れる」）→ 自社コードをいくら最適化しても Budget が一撃で破綻する。サードパーティ枠 100KB を設計書冒頭に明記し、超過するタグは facade 化するか Kaito 経由で見送り交渉に回す
 7. **確認用メールアドレス再入力欄を設計に含める**→ WCAG 2.2 SC 3.3.7（Redundant Entry）違反かつ Friction +1.0 で純粋な離脱要因。1回入力＋入力値の可視確認（マスクしない）で代替する
 8. **フォーム項目を Friction Score を計算せずクライアント要望のまま設計する**→ 志望動機（2.5）＋住所（4.0）＋履歴書添付（3.0）で Score 14 超の応募不能フォームが完成する。必ず採点し、8.0 超は設計を通さずクライアント交渉へ差し戻す
-
----
 
 ### 📈 強化後の到達水準
 
