@@ -579,21 +579,16 @@ python3 -c "import json;d=json.load(open('/tmp/lint.json'));m=[x for f in d for 
 **実務テンプレート**：
 ```bash
 #!/usr/bin/env bash
-# hidden-info-scan.sh <file.pptx|file.docx>
+# hidden-info-scan.sh <file.pptx|file.docx>  ※Souma出力版と最終納品版の2回実行
 set -eu; F="$1"; D=$(mktemp -d); unzip -qq "$F" -d "$D"
-echo "== 1. メタデータ（作成者・前案件名） =="
-grep -oE '<(dc:creator|cp:lastModifiedBy|dc:title)>[^<]*' "$D"/docProps/core.xml || true
-echo "== 2. 変更履歴・コメント残存 =="
-grep -rlE '<w:(ins|del) |<w:comment |<p:cm ' "$D" || echo "  なし"
-echo "== 3. 非表示スライド（show=\"0\"） =="
-grep -rl 'show="0"' "$D"/ppt/slides/ 2>/dev/null || echo "  なし"
-echo "== 4. トリミング画像（クロップ外に元データ残存） =="
-grep -rlo 'a:srcRect' "$D"/ppt/slides/ 2>/dev/null || echo "  なし"
-echo "== 5. PII・外部リンク =="
+echo "== 1.メタデータ =="; grep -oE '<(dc:creator|cp:lastModifiedBy|dc:title)>[^<]*' "$D"/docProps/core.xml || true
+echo "== 2.変更履歴・コメント =="; grep -rlE '<w:(ins|del) |<w:comment |<p:cm ' "$D" || echo "  なし"
+echo "== 3.非表示スライド =="; grep -rl 'show="0"' "$D"/ppt/slides/ 2>/dev/null || echo "  なし"
+echo "== 4.トリミング画像（元データ残存） =="; grep -rlo 'a:srcRect' "$D"/ppt/slides/ 2>/dev/null || echo "  なし"
+echo "== 5.PII・外部リンク =="
 grep -rhoE '[[:alnum:]._-]+@[[:alnum:].-]+\.[a-z]{2,}|0[0-9]{1,4}-[0-9]{1,4}-[0-9]{4}' "$D" | sort -u || true
 grep -rhoE 'TargetMode="External"[^>]*Target="[^"]+"' "$D"/*/_rels/* 2>/dev/null | sort -u || true
-echo "== 6. 他社名残留（クライアント辞書と照合） =="
-grep -rhoFf ./dict/other-clients.txt "$D" | sort -u || echo "  なし"
+echo "== 6.他社名残留 =="; grep -rhoFf ./dict/other-clients.txt "$D" | sort -u || echo "  なし"
 rm -rf "$D"
 ```
 
@@ -624,14 +619,12 @@ rm -rf "$D"
 | # | 該当箇所 | 引用数値 | 原典（一次） | 種別 | 調査実施年 | N数/母集団 | URL状態 | アーカイブ | 閲覧日 | 判定 |
 |---|---------|---------|------------|------|-----------|-----------|---------|-----------|--------|------|
 | 1 | P4 本文 | 建設業就業者 483万人 | 総務省「労働力調査」 | e-Stat統計表ID | 2025 | 全数推計 | 200 | 不要 | 08/20 | OK |
-| 2 | P7 グラフ | 市場規模 1,200億円 | 矢野経済研究所プレスリリース | PDF直リンク | 2024 | n=312社 | 200 | 取得済 | 08/20 | OK |
-| 3 | P9 本文 | 定着率 78% | ▲業界メディア記事（孫引き） | 一般URL | 不明 | 不明 | 301 | — | 08/20 | **NG:原典要** |
+| 2 | P9 本文 | 定着率 78% | ▲業界メディア記事（孫引き） | 一般URL | 不明 | 不明 | 301 | — | 08/20 | **NG:原典要** |
 ```
 ```bash
-# リンク健全性＋アーカイブ保全の一括実行
+# リンク健全性（リダイレクト先まで）＋アーカイブ保全の一括実行
 while read -r U; do
-  S=$(curl -o /dev/null -sIL -w '%{http_code} %{url_effective}' "$U")
-  echo "$S  <- $U"
+  curl -o /dev/null -sIL -w '%{http_code} %{url_effective}\n' "$U"
   curl -s -o /dev/null "https://web.archive.org/save/$U"   # スナップショット保全
 done < sources.txt
 ```
