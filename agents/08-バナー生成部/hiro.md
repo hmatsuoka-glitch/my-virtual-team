@@ -415,6 +415,499 @@ const banners = [
 ### 2026-07-27
 - **Chromeの新ヘッドレスモード（--headless=new）が既定化し、旧ヘッドレスとのレンダリング差異に注意が必要に**：従来の軽量ヘッドレスは非推奨化が進み、Puppeteerも実ブラウザと同一エンジンの新モードが標準。フォントレンダリング・GPU合成・CSS描画が実ブラウザに近づく一方、旧モード前提の待機ロジックやスクショ挙動が微妙に変わるため、`--headless=new`明示とChrome for Testing固定バージョン運用で「Chrome更新で出力がある日突然変わる」事故を予防する潮流
 - **AVIF入稿対応が主要広告媒体で拡大、同画質でPNG比40〜50%の容量削減が現実解に**：Metaなど大手媒体がAVIF入稿を受け付ける範囲を広げ、Indeedの厳しい容量上限（150KB）内でより高画質を積めるようになった。ブラウザ側のAVIFデコード対応も事実上ほぼ全環境に到達したため、`emit(buf, ['avif','png'])`のAVIF優先＋PNGフォールバック運用が「容量規定と画質の両立」の標準ハンドオフになりつつある
+
+---
+
+## 🚀 スペック強化 v2 — オーバースペック化（2026-08-20）
+
+### 現状スキル棚卸し
+
+| 領域 | 到達済みの水準 | 残っている弱点 |
+|---|---|---|
+| キャプチャ | `page.screenshot()` ＋ `clip` 等値 assert ＋ `deviceScaleFactor` 媒体別 config | Puppeteer 高レベル API のラッパ止まり。CDP を直接握っていないため透過・倍率・キャプチャ範囲の根治制御ができない |
+| 待機処理 | `preparePage()` に `document.fonts.ready` / `getAnimations().finished` / CSS 背景プリロード / `<img>` naturalWidth を集約 | 「読み込めたか」は見ているが「**実際にどのフォントで描画されたか**」「テキストが枠から溢れていないか」は未検証 |
+| 検証 | `validateBanner()` 6 観点（容量／解像度／ICC／ロゴクリアスペース／アルファ4ch／文字密度）＋ pixelmatch 回帰＋決定性チェック | 全て**幾何・メタデータ・完全一致**の検証。知覚品質（SSIM）と色覚多様性は未計測 |
+| 圧縮 | `fitToSize()` で目標KBから quality を二分探索、上限85%運用、AVIF/WebP/PNG の `emit()` 集約 | 探索の制約が**容量一軸のみ**。容量に収まっても知覚劣化した個体を止める制約が無い |
+| 実行基盤 | ブラウザプール／`puppeteer.connect` 常駐／`Promise.allSettled`／`retry-failed.json`／pre-commit＋CI 二段ゲート | 実行環境そのもの（Chrome バージョン・フォント・ネットワーク）が**ピン留めされておらず**、再現性が環境任せ |
+| 出力形式 | PNG / WebP / AVIF の静止画3形式 | 2026 標準の Micro-Animation バナーに対し「アニメを止めて静止画化」する退避しか持たず、**動く納品物を作れない** |
+| 用語基盤 | PNG-8/24/32・可逆/非可逆・ガンマ・プリマルチプライド・サブピクセル・ビット深度・Lanczos を整理済み | 用語は十分。次は**計測して数値で落とす**段階 |
+
+### 到達すべきベンチマーク
+
+- **キャプチャ制御**：`page.createCDPSession()` から `Page.captureScreenshot` / `Emulation.setDeviceMetricsOverride` / `Emulation.setDefaultBackgroundColorOverride` を直接叩き、透過・倍率・範囲を仕様として指定できる
+- **完全再現性**：Chrome for Testing のバージョン固定＋fontconfig 固定＋決定論起動フラグ＋時刻/乱数スタブで、**半年後の再変換がピクセル一致**する
+- **ネットワーク非依存**：外部リクエスト 0 件で全変換が完走する（アセットはローカル金庫から供給）
+- **テキスト物理検証**：`CSS.getPlatformFontsForNode` で実使用フォントを glyph 単位で取得し、フォールバック混入とオーバーフローを機械検出
+- **知覚品質の数値化**：SSIM 制約付きで圧縮パラメータを探索し、「容量内かつ知覚劣化なし」を両立
+- **モーション対応**：決定論的フレーム送りで APNG / animated WebP / MP4 を生成できる
+- **色覚多様性**：P型/D型シミュレーション下でも CTA が背景から分離していることを ΔE00 で保証
+
+### 特定されたスキルギャップと優先度
+
+| # | ギャップ | 事業インパクト | 即戦力度 | 優先度 |
+|---|---|---|---|---|
+| 1 | CDP 直叩きキャプチャ（透過・倍率・範囲の根治制御） | 高：透過3〜4段防御という対症療法を1行の仕様指定に置換、事故の根を絶つ | 即日 | ★★★★★ |
+| 2 | レンダリング環境の完全ピンニング（Chrome/フォント/時刻/乱数） | 高：Chrome 自動更新で全クライアントの出力が突然変わる事故を封鎖 | 2日 | ★★★★★ |
+| 3 | 実使用フォント＆テキストオーバーフローの実測 | 高：`fonts.check()` を通り抜ける豆腐・和欧混植・文字切れを唯一捕捉できる層 | 即日 | ★★★★★ |
+| 4 | SSIM 制約付き二軸圧縮最適化 | 高：`fitToSize` の容量一軸を知覚品質で拘束、「上限内なのに汚い」を消す | 1日 | ★★★★☆ |
+| 5 | オフライン決定論変換（アセット金庫＋リクエスト遮断） | 中〜高：深夜バッチのネット依存を排除、変換速度も p95 で 2.5 倍 | 2日 | ★★★★☆ |
+| 6 | モーションバナー生成（APNG/WebP-anim/MP4） | 高：CTR+38% の Micro-Animation 案件を Hiro 工程で内製化、外注不要に | 3日 | ★★★★☆ |
+| 7 | 色覚多様性（CVD）＋低照度視認の実測ゲート | 中〜高：建設業＝男性中心ターゲットで約5%が P/D 型、CTA 消失を物理検出 | 1日 | ★★★★☆ |
+| 8 | 納品マニフェスト（SHA-256）＋フォントライセンス台帳 | 中：承認版と配信版の同一性証明、有償フォント焼き込みの法務リスク遮断 | 1日 | ★★★☆☆ |
+
+---
+
+### 🔧 新規習得スキル
+
+#### 1. 【CDP 直叩きキャプチャ — `Page.captureScreenshot` を仕様として使う】
+
+**なぜ必要か**：
+`page.screenshot({ omitBackground: true })` は高レベルラッパで、内部的に背景色オーバーライドを一時適用しているだけ。だから HTML 側の `body { background }` に負けて白塗りになり、Hiro は「CSS 上書き＋`ensureAlpha()`＋`channels===4` assert」の3〜4段防御という対症療法を積み上げてきた。CDP の `Emulation.setDefaultBackgroundColorOverride` を明示的に握れば、**そもそも背景を持たないレンダリング面**を作れる。さらに `clip.scale` は `deviceScaleFactor` と独立した倍率指定なので、「論理サイズは媒体規定どおり・物理倍率だけ媒体別に可変」が1パラメータで表現できる。
+
+**具体的手法**：
+- `const client = await page.createCDPSession()` でセッション確立
+- `Emulation.setDeviceMetricsOverride` でビューポートと DPR を宣言（`page.setViewport` と等価だが同一レイヤーで完結）
+- 透過要求案件は `Emulation.setDefaultBackgroundColorOverride({ color: { r:0, g:0, b:0, a:0 } })`、不透明案件は同 API を **`color` 省略で解除**して媒体既定の白を明示的に焼く
+- `Page.captureScreenshot` の `captureBeyondViewport: false` を必ず明示（true だとレイアウト再計算が走り `position: sticky` 等がズレる）、`fromSurface: true` でコンポジット後の実描画面を取得、`optimizeForSpeed: false` で PNG エンコーダの手抜きを禁止
+- 返り値は base64 なので `Buffer.from(data, 'base64')` で sharp パイプへ直結（ディスク往復を挟まない）
+
+**判断基準・数値ライン**：
+- `clip` は `{ x:0, y:0, width: 論理幅, height: 論理高, scale: profile.scale }` で**整数 px 等値**（既存の clip 等値 assert を CDP 層に移設）
+- キャプチャ1枚あたり 400ms 以内（超過はページ側の待機処理が重い＝`preparePage` の見直し信号）
+- 透過案件：四辺1px のアルファ 255／0 が期待どおりかを `sharp().extract()` で assert（既存の縁検査と接続）
+- `captureBeyondViewport` を true にするのは**縦長フルページ検証用プレビューのみ**、納品変換では常に false
+
+**実務テンプレート**：
+```javascript
+// banner-utils/capture.js
+async function captureCDP(page, { width, height, scale, transparent }) {
+  const client = await page.createCDPSession();
+  await client.send('Emulation.setDeviceMetricsOverride', {
+    width, height, deviceScaleFactor: scale, mobile: false,
+  });
+  if (transparent) {
+    await client.send('Emulation.setDefaultBackgroundColorOverride', {
+      color: { r: 0, g: 0, b: 0, a: 0 },   // 背景面そのものを消す
+    });
+  } else {
+    await client.send('Emulation.setDefaultBackgroundColorOverride'); // 引数なし＝既定に戻す
+  }
+  await preparePage(page);                  // 既存の待機集約関数をそのまま利用
+  const { data } = await client.send('Page.captureScreenshot', {
+    format: 'png',
+    clip: { x: 0, y: 0, width, height, scale },
+    captureBeyondViewport: false,
+    fromSurface: true,
+    optimizeForSpeed: false,
+  });
+  await client.send('Emulation.clearDeviceMetricsOverride');
+  await client.detach();
+  return Buffer.from(data, 'base64');
+}
+```
+
+**期待効果**：
+透過事故の防御段数 4段 → 1段（仕様指定）に単純化。`clip` と DPR の責務分離で媒体別 scale 変更が config 1 値の書き換えで完結。ディスク往復排除で1枚あたり 60〜90ms 短縮。
+
+---
+
+#### 2. 【レンダリング環境の完全ピンニング — Chrome / フォント / 時刻 / 乱数】
+
+**なぜ必要か**：
+Hiro は「同一 HTML 2 回変換の決定性チェック」を持っているが、それは**同一プロセス内の再現性**しか見ていない。Chrome が自動更新された翌朝、fontconfig にフォントが1本増えた翌朝、`Date.now()` を使うバナーを回した翌朝には、承認済みバナーと違う PNG が黙って生成される。承認版と再変換版が別物になった時点で版管理が崩壊し、Yuna は「昨日と同じ HTML なのに出力が違う」を追えない。
+
+**具体的手法**：
+- **Chrome 固定**：`npx @puppeteer/browsers install chrome@<full-version>` でバージョンを明示取得し、`.puppeteerrc.cjs` に `cacheDirectory` を固定、`executablePath` を `browser.lock.json` に記録。CI とローカルと深夜バッチが同一バイナリを踏むことを起動時に assert
+- **フォント固定**：`/etc/fonts/local.conf` でフォントディレクトリを案件リポジトリ内 `fonts/` のみに限定し、`fc-list | sort | sha256sum` を「**フォント指紋**」として `env-fingerprint.json` に保存。指紋不一致で exit 1
+- **決定論起動フラグ束**：`--headless=new --force-color-profile=srgb --font-render-hinting=none --disable-font-subpixel-positioning --disable-lcd-text --hide-scrollbars --disable-gpu --run-all-compositor-stages-before-draw --disable-background-timer-throttling --disable-dev-shm-usage` を定数化して全スクリプトが同一束を使う
+- **時刻・乱数のスタブ**：`page.evaluateOnNewDocument()` で `Date.now` と `Math.random` を固定値に差し替え、`page.emulateTimezone('Asia/Tokyo')` を明示
+- **ゴールデン画像でのドリフト検知**：クライアントごとに代表1枚をゴールデンとして保存し、月次 cron で再変換 → pixelmatch 差分率が閾値超なら環境ドリフト警報
+
+**判断基準・数値ライン**：
+- フォント指紋 SHA-256：**完全一致必須**（1文字でも違えば変換中止）
+- ゴールデン差分率：**≤ 0.1%**（1080×1080 なら約 1,166px まで）。超過は Chrome/フォント更新の疑い
+- Chrome バージョン更新は**四半期1回の計画作業**とし、更新時は全クライアントのゴールデンを再ベースライン＋Yuna へ一報
+- 決定性チェックは「同一プロセス2回」に加え「**別プロセス・別日時で2回**」を月次で実施
+
+**実務テンプレート**：
+```javascript
+// banner-utils/env.js
+const { execSync } = require('child_process');
+const crypto = require('crypto');
+
+const DETERMINISTIC_FLAGS = [
+  '--headless=new', '--no-sandbox', '--disable-setuid-sandbox',
+  '--disable-dev-shm-usage', '--force-color-profile=srgb',
+  '--font-render-hinting=none', '--disable-font-subpixel-positioning',
+  '--disable-lcd-text', '--hide-scrollbars', '--disable-gpu',
+  '--run-all-compositor-stages-before-draw',
+  '--disable-background-timer-throttling',
+];
+
+function fontFingerprint() {
+  const list = execSync('fc-list : family style | sort').toString();
+  return crypto.createHash('sha256').update(list).digest('hex');
+}
+
+async function pinPage(page, { fixedNow = '2026-01-01T00:00:00+09:00' } = {}) {
+  await page.emulateTimezone('Asia/Tokyo');
+  await page.evaluateOnNewDocument((iso) => {
+    const t = new Date(iso).getTime();
+    Date.now = () => t;
+    const OrigDate = Date;
+    // new Date() を固定
+    // eslint-disable-next-line no-global-assign
+    Date = class extends OrigDate {
+      constructor(...a) { return a.length ? super(...a) : new OrigDate(t); }
+      static now() { return t; }
+    };
+    let seed = 42;
+    Math.random = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  }, fixedNow);
+}
+```
+
+**期待効果**：
+「Chrome 更新でバナーが変わる」事故を構造排除。承認版 PNG が半年後も再現でき、クライアント差し替え依頼時に**差分だけ**を作り直せる。Kana への誤差し戻し（実は環境起因）がゼロ化。
+
+---
+
+#### 3. 【実使用フォント＆テキスト物理検証 — `CSS.getPlatformFontsForNode`】
+
+**なぜ必要か**：
+既存の `document.fonts.check('700 16px "Noto Sans JP"')` は「そのフォントが**読み込めたか**」しか答えない。読み込めていても、CJK の一部字形・環境依存文字（㈱・髙・﨑）・絵文字は別フォントにフォールバックして描画されうる。また `fonts.ready` を通過しても、文字数が想定より多ければ枠から溢れて `overflow: hidden` で切れる。どちらも「PNG になってから目視で気づく」領域だった。CDP の `CSS.getPlatformFontsForNode` は**そのノードが実際に何のフォントで何グリフ描画したか**を返す唯一の手段。
+
+**具体的手法**：
+- `CSS.enable` → `DOM.getDocument` → `DOM.querySelectorAll` でテキストノードを持つ要素を列挙
+- 各 nodeId に `CSS.getPlatformFontsForNode` を投げ、`fonts: [{ familyName, glyphCount, isCustomFont }]` を集計
+- ブランド指定フォント（`brand-tokens/{client}.json` の `fonts`）に含まれない familyName の glyphCount を合算し、**フォールバック比率**を算出
+- 同時に `page.evaluate` で `scrollWidth - clientWidth` / `scrollHeight - clientHeight`、`el.getClientRects().length`（行数）、行頭禁則文字（、。」）を検査
+- 違反は「Hiro 側で吸収不可＝構造起因」なので既存の3分類タグの「Kana 差し戻しが必要」で返し、**必要な最小フォントサイズ・最大文字数を数値で添える**
+
+**判断基準・数値ライン**：
+- フォールバックグリフ比率：**≤ 0.5%**（実質 0。1件でも `isCustomFont: false` の日本語グリフが出たら fail）
+- オーバーフロー許容：**1px**（`scrollWidth - clientWidth > 1` で fail。サブピクセル丸め分のみ許容）
+- 見出し／CTA の行数：Yuna 指示書の想定行数と**完全一致**（1行想定が2行に折れたら fail）
+- 行頭禁則文字の出現：**0 件**
+- 検証は1枚あたり 200ms 以内（要素数 300 まで）
+
+**実務テンプレート**：
+```javascript
+// banner-utils/font-audit.js
+async function auditFonts(page, allowedFamilies) {
+  const client = await page.createCDPSession();
+  await client.send('DOM.enable'); await client.send('CSS.enable');
+  const { root } = await client.send('DOM.getDocument', { depth: -1 });
+  const { nodeIds } = await client.send('DOM.querySelectorAll', {
+    nodeId: root.nodeId, selector: 'h1,h2,h3,p,span,li,button,a,div',
+  });
+  let total = 0, fallback = 0; const detail = [];
+  for (const nodeId of nodeIds) {
+    let res; try { res = await client.send('CSS.getPlatformFontsForNode', { nodeId }); }
+    catch { continue; }
+    for (const f of res.fonts) {
+      total += f.glyphCount;
+      if (!allowedFamilies.includes(f.familyName)) {
+        fallback += f.glyphCount;
+        detail.push({ nodeId, family: f.familyName, glyphs: f.glyphCount });
+      }
+    }
+  }
+  const overflow = await page.evaluate(() =>
+    [...document.querySelectorAll('*')]
+      .filter(el => el.scrollWidth - el.clientWidth > 1 || el.scrollHeight - el.clientHeight > 1)
+      .map(el => ({ tag: el.tagName, cls: el.className,
+                    dx: el.scrollWidth - el.clientWidth,
+                    dy: el.scrollHeight - el.clientHeight })));
+  await client.detach();
+  const ratio = total ? fallback / total : 0;
+  return { pass: ratio <= 0.005 && overflow.length === 0, ratio, detail, overflow };
+}
+```
+
+**期待効果**：
+「㈱ が空白化」「見出しだけ游ゴシックで描画」「CTA の末尾3文字が切れている」を**PNG になる前**に検出。目視でしか見つからなかった字形事故がゼロ化し、Kana への差し戻しに「表示幅◯px に対し◯文字超過」という数値根拠が付く。
+
+---
+
+#### 4. 【SSIM 制約付き二軸圧縮最適化 — `fitToSize` の上位互換】
+
+**なぜ必要か**：
+既存 `fitToSize(buf, 150)` は「容量に収まる最大 quality」を返すが、**収まりさえすれば通す**設計。テキスト主体バナーや微妙なグラデを含む個体では、容量的には合格でも文字エッジが崩れ、バンディングが出る。「上限の 85% を内部目標に」という運用は容量側の安全余裕であって、知覚品質そのものを測ってはいない。SSIM（構造的類似度）を制約に加えると、探索が「容量 × 知覚品質」の二軸最適化になる。
+
+**具体的手法**：
+- 原本（無圧縮 PNG）と候補を `ssim.js` で比較し `mssim` を取得
+- **全体平均 SSIM だけでは局所劣化を見逃す**ため、画像を 32×32 タイルに分割して**タイル最小 SSIM**も算出（文字部分だけ崩れるケースを捕捉）
+- 二分探索の受理条件を「容量 ≤ 上限×0.85 **かつ** SSIM 制約充足」に変更
+- 両立不能なら quality をさらに下げるのではなく、**フォールバック階段**を降りる：① AVIF へ形式切替 → ② `chromaSubsampling: '4:4:4'` 維持のまま effort 上げ → ③ scale を 1 段下げる → ④ Kana へ「情報量削減（要素/文字数を減らす）」差し戻し
+- コンテンツ種別は自動判定：`sharp().stats()` の entropy が高い＝写真主体、低い＝テキスト/ベタ主体で閾値を切替
+
+**判断基準・数値ライン**：
+- テキスト主体バナー：**mssim ≥ 0.985 / タイル最小 SSIM ≥ 0.95**
+- 写真主体バナー：**mssim ≥ 0.970 / タイル最小 SSIM ≥ 0.92**
+- 容量：**媒体上限 × 0.85 以下**（既存基準を維持）
+- 探索反復：**≤ 7 回**（quality 0-100 の二分探索で十分）、1枚あたり探索時間 **≤ 1.5 秒**
+- 4段のフォールバックを降り切っても不合格なら **exit 1 で Yuna へ「Kana 差し戻しが必要」タグ通知**
+
+**実務テンプレート**：
+```javascript
+// banner-utils/fit-perceptual.js
+const sharp = require('sharp');
+const ssim = require('ssim.js').default;
+
+async function toImageData(buf) {
+  const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  return { data: new Uint8ClampedArray(data), width: info.width, height: info.height };
+}
+
+async function fitPerceptual(srcBuf, { maxKB, minMssim = 0.985, minTile = 0.95 }) {
+  const ref = await toImageData(srcBuf);
+  const targetBytes = maxKB * 1024 * 0.85;
+  let lo = 40, hi = 100, best = null;
+  for (let i = 0; i < 7 && lo <= hi; i++) {
+    const q = Math.floor((lo + hi) / 2);
+    const cand = await sharp(srcBuf)
+      .withMetadata({ icc: 'srgb' })
+      .png({ compressionLevel: 9, effort: 10, palette: true, quality: q, dither: 0.6 })
+      .toBuffer();
+    const { mssim } = ssim(ref, await toImageData(cand), { ssim: 'bezkrovny', windowSize: 8 });
+    const ok = cand.length <= targetBytes && mssim >= minMssim;
+    if (ok) { best = { buf: cand, q, mssim, kb: +(cand.length / 1024).toFixed(1) }; lo = q + 1; }
+    else if (cand.length > targetBytes) hi = q - 1;
+    else lo = q + 1;                       // 容量OK・SSIM不足なら品質を上げる方向
+  }
+  return best;   // null なら AVIF 切替 → scale 降格 → Kana 差し戻しの階段へ
+}
+```
+
+**期待効果**：
+「上限内なのに実配信で汚い」個体を圧縮工程で物理的に作れなくする。品質パラメータの手調整が完全消滅し、媒体再エンコード後の劣化クレームがゼロ化。`validateBanner()` に SSIM 値が乗ることで Yuna が知覚品質を数値で判定できる。
+
+---
+
+#### 5. 【オフライン決定論変換 — アセット金庫＋リクエスト遮断】
+
+**なぜ必要か**：
+現行は `waitUntil: 'networkidle2'` で Google Fonts 等を実際に取りに行く。つまり**深夜バッチの成否が外部 CDN の生死に依存**する。Google Fonts が遅延すればフォント未読込 PNG が出る（`fonts.check` で止まるが、その日の納品は落ちる）。さらに、CDN 側でフォントが微更新されれば出力が変わり、ギャップ2の再現性ピンニングも破綻する。外部依存をアセット金庫に固めれば、再現性・可用性・速度が同時に解決する。
+
+**具体的手法**：
+- **金庫作成モード**：`page.setRequestInterception(true)` で全リクエストを通過させつつ、レスポンスを `assets-lock/{sha256}.{ext}` に保存し、URL → ハッシュの対応を `assets-lock/manifest.json` に記録
+- **本番変換モード**：manifest にある URL は `request.respond({ status:200, contentType, body })` でローカル供給、**manifest に無い外部 URL は `request.abort()` して exit 1**（無断の新規外部依存を禁止）
+- `page.setCacheEnabled(false)` でキャッシュ由来の非決定性を排除、最終検証は `page.setOfflineMode(true)` で完走することを確認
+- 金庫の更新は「Kana がフォント/素材を変えた時のみ」の明示操作とし、更新時は差分を Yuna に一報（ギャップ2のゴールデン再ベースラインと同時実施）
+- `waitUntil` は `'domcontentloaded'` に落とせる（ネット待ちが消えるため）。待機は `preparePage()` の状態ベース待機のみで足りる
+
+**判断基準・数値ライン**：
+- 本番変換時の**外部リクエスト件数 = 0** を assert（1件でも fail）
+- 変換1枚の p95：**3.0秒 → 1.2秒**（networkidle 待ちの消滅分）
+- 金庫サイズは1クライアント **20MB 以内**（超過はフォントのサブセット化を Kana へ依頼）
+- 金庫の棚卸し：**90日ごと**に未参照アセットを削除
+
+**実務テンプレート**：
+```javascript
+// banner-utils/asset-vault.js
+const fs = require('fs'), path = require('path'), crypto = require('crypto');
+
+async function useVault(page, vaultDir, { record = false } = {}) {
+  const manifestPath = path.join(vaultDir, 'manifest.json');
+  const manifest = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath)) : {};
+  let external = 0;
+  await page.setCacheEnabled(false);
+  await page.setRequestInterception(true);
+  page.on('request', async (req) => {
+    const url = req.url();
+    if (url.startsWith('file://') || url.startsWith('data:')) return req.continue();
+    const hit = manifest[url];
+    if (hit) {
+      return req.respond({
+        status: 200, contentType: hit.type,
+        body: fs.readFileSync(path.join(vaultDir, hit.file)),
+      });
+    }
+    if (!record) { external++; console.error(`[VAULT-MISS] ${url}`); return req.abort(); }
+    req.continue();
+  });
+  if (record) {
+    page.on('response', async (res) => {
+      const url = res.url(); if (manifest[url] || !res.ok()) return;
+      const buf = await res.buffer().catch(() => null); if (!buf) return;
+      const type = res.headers()['content-type'] || 'application/octet-stream';
+      const ext = (type.split('/')[1] || 'bin').split(';')[0];
+      const file = `${crypto.createHash('sha256').update(buf).digest('hex').slice(0, 16)}.${ext}`;
+      fs.writeFileSync(path.join(vaultDir, file), buf);
+      manifest[url] = { file, type };
+      fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    });
+  }
+  return () => ({ external });
+}
+```
+
+**期待効果**：
+ネットワーク断・CDN 遅延でも深夜バッチが 100% 完走。`networkidle` 待ちの消滅で1枚あたり 1.8 秒短縮（20枚バッチで 36 秒）。フォント微更新による無自覚な出力変化を遮断し、ギャップ2の再現性を完成させる。
+
+---
+
+#### 6. 【モーションバナー生成 — 決定論フレームキャプチャ → APNG / animated WebP / MP4】
+
+**なぜ必要か**：
+2026年のバナー業界標準は「Static + Micro-Animation（CTR+38%）」。しかし Hiro の現行スキルは `getAnimations().finished` を待って**アニメを終わらせて静止画にする**方向にしか動かない。動く納品物が作れないため、Micro-Animation 案件は外注か Kana の手作業になっている。CDP の `Animation.setPlaybackRate` と Web Animations API の `currentTime` 手動代入を組み合わせれば、**任意の時刻 t の状態を正確に取り出す**フレーム送りが可能で、静止画変換パイプラインをそのまま流用して動画化できる。
+
+**具体的手法**：
+- `Animation.enable` → `Animation.setPlaybackRate({ playbackRate: 0 })` で自動再生を完全停止
+- 各フレームで `document.getAnimations().forEach(a => { a.currentTime = t })` を `page.evaluate` で代入 → CDP `Page.captureScreenshot`（スキル1）で取得 → `frames/%05d.png`
+- 30fps なら **t を 33.33ms 刻み**、CSS `animation-delay` を持つ要素も同一 timeline なので整合が取れる
+- `Emulation.setVirtualTimePolicy({ policy: 'pause' })` を併用すると setTimeout ベースの JS アニメも停止でき、確実性が上がる
+- ffmpeg で3形式へ：MP4（H.264 / `yuv420p` / 偶数解像度必須）、animated WebP、APNG
+- **ループ整合**：総尺をアニメ周期の整数倍にし、最終フレームと先頭フレームの pixelmatch 差分を検査してシームレスを保証
+- 静止画 fallback（1形式）は必ず同時出力し、既存の `emit()` 配列に `'mp4'` / `'webp-anim'` を足す形で統合
+
+**判断基準・数値ライン**：
+- 尺：**2〜6秒**（Meta 動画広告は最短1秒／最長30秒だが、フィード内バナーは3秒が最適）、フレームレート **30fps**
+- 容量：**MP4 ≤ 2MB／animated WebP ≤ 1MB／APNG は 1.5MB を超えたら不採用**（APNG は可逆で膨らむため実写含みでは選ばない）
+- ループ差分：先頭フレーム vs 最終フレームの pixelmatch **≤ 0.1%**
+- 生成時間：3秒×30fps＝**90フレームで 25秒以内**（ブラウザプール＋常駐接続前提）
+- **静止画 fallback（1フレーム目ではなく「訴求が完成した時刻 t_final」のフレーム）を必ずセット納品**
+
+**実務テンプレート**：
+```javascript
+// banner-utils/motion.js
+async function captureFrames(page, { width, height, scale, durationMs = 3000, fps = 30, outDir }) {
+  const client = await page.createCDPSession();
+  await client.send('Animation.enable');
+  await client.send('Animation.setPlaybackRate', { playbackRate: 0 });
+  await client.send('Emulation.setVirtualTimePolicy', { policy: 'pause' });
+  const step = 1000 / fps, n = Math.round(durationMs / step);
+  for (let i = 0; i < n; i++) {
+    const t = i * step;
+    await page.evaluate((tt) => {
+      document.getAnimations().forEach(a => { a.currentTime = tt; });
+    }, t);
+    const { data } = await client.send('Page.captureScreenshot', {
+      format: 'png', clip: { x: 0, y: 0, width, height, scale },
+      captureBeyondViewport: false, fromSurface: true,
+    });
+    require('fs').writeFileSync(`${outDir}/${String(i).padStart(5, '0')}.png`,
+      Buffer.from(data, 'base64'));
+  }
+  await client.detach();
+  return n;
+}
+```
+```bash
+# MP4（媒体入稿の主形式・偶数解像度必須）
+ffmpeg -y -framerate 30 -i frames/%05d.png \
+  -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
+  -c:v libx264 -pix_fmt yuv420p -crf 20 -movflags +faststart out.mp4
+
+# animated WebP（フィード表示・1MB 上限想定）
+ffmpeg -y -framerate 30 -i frames/%05d.png \
+  -c:v libwebp_anim -lossless 0 -q:v 82 -loop 0 out.webp
+
+# APNG（可逆・透過を保つ必要がある場合のみ）
+ffmpeg -y -framerate 30 -i frames/%05d.png -plays 0 -f apng out.png
+```
+
+**期待効果**：
+Micro-Animation 案件を Hiro 工程で内製化。CTR+38% の形式を外注ゼロ・追加コストゼロで提供でき、バナー生成部の提供メニューが「静止画3形式」から「静止画3形式＋モーション3形式」に拡張。決定論的フレーム送りなので**再変換で完全に同じ動画**が出る。
+
+---
+
+#### 7. 【色覚多様性（CVD）＋低照度視認の実測ゲート】
+
+**なぜ必要か**：
+LET の主戦場は建設業の採用支援＝**閲覧者の大半が男性**。日本人男性の約5%（20人に1人）が先天色覚異常（P型／D型）で、赤と緑、オレンジと黄緑の区別が困難。「赤い CTA ボタン × 緑がかった現場写真背景」は、輝度コントラスト 5:1 を満たしていても P型ユーザーには**背景に溶けて見える**。既存の輝度差・WCAG コントラスト検証は明度軸のみで、**色相由来の消失は原理的に検出できない**。sharp の `.recomb()` に色覚シミュレーション行列を渡せば、この盲点を数値で塞げる。
+
+**具体的手法**：
+- Machado et al. (2009) の severity 1.0 変換行列を `sharp().recomb(matrix)` に適用し、P型（1型2色覚）／D型（2型2色覚）のシミュレーション画像を生成
+- `brand-tokens/{client}.json` に記録された CTA 座標（またはロゴ bounding box 検出と同じ手法で自動検出）から、**CTA 中心 5×5px 平均色**と**CTA 外周 3px リング平均色**を `sharp().extract().raw()` で抽出
+- 通常／P型／D型の3条件それぞれで **CIEDE2000（ΔE00）** を算出
+- 併せて既存の輝度コントラスト比（5:1）も維持
+- 3枚のシミュレーション画像を `validateBanner()` レポートに同梱し、Yuna → クライアント説明の根拠資料にもする
+- 不合格時の差し戻し文言は「**色相ではなく明度差で分離してください**（例：CTA を濃色ベタ＋白文字に、背景側に暗いオーバーレイを重ねる）」と具体策込みで返す
+
+**判断基準・数値ライン**：
+- **ΔE00 ≥ 10**（通常／P型／D型の**3条件すべて**）。10 未満は「離れて見ると溶ける」領域
+- 輝度コントラスト比 **≥ 5:1**（既存基準を維持、色相ゲートと独立に判定）
+- 平均輝度 90% 超の白基調バナーは「ダーク版必要」フラグ（既存運用）に加え、**ダークモード合成プレビューも自動生成**
+- 中高年ターゲット案件（建設業求人）は文字と背景の輝度差 **≥ 60%**（既存基準）を維持
+- 検証時間：1枚 **≤ 300ms**（`recomb` は3×3行列積のみで軽量）
+
+**実務テンプレート**：
+```javascript
+// banner-utils/cvd.js
+const sharp = require('sharp');
+
+// Machado et al. 2009, severity 1.0
+const CVD = {
+  protan: [[0.152286, 1.052583, -0.204868],
+           [0.114503, 0.786281,  0.099216],
+           [-0.003882, -0.048116, 1.051998]],
+  deutan: [[0.367322, 0.860646, -0.227968],
+           [0.280085, 0.672501,  0.047413],
+           [-0.011820, 0.042940, 0.968881]],
+};
+
+async function meanRGB(buf, { left, top, width, height }) {
+  const { data } = await sharp(buf).extract({ left, top, width, height })
+    .removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  const n = data.length / 3, s = [0, 0, 0];
+  for (let i = 0; i < data.length; i += 3) { s[0] += data[i]; s[1] += data[i+1]; s[2] += data[i+2]; }
+  return s.map(v => v / n);
+}
+
+async function cvdGate(buf, ctaBox, ringBox, { minDeltaE = 10 } = {}) {
+  const variants = {
+    normal: buf,
+    protan: await sharp(buf).recomb(CVD.protan).png().toBuffer(),
+    deutan: await sharp(buf).recomb(CVD.deutan).png().toBuffer(),
+  };
+  const out = {};
+  for (const [name, b] of Object.entries(variants)) {
+    const dE = deltaE2000(rgb2lab(await meanRGB(b, ctaBox)),
+                          rgb2lab(await meanRGB(b, ringBox)));
+    out[name] = { deltaE: +dE.toFixed(2), pass: dE >= minDeltaE };
+  }
+  out.pass = Object.values(out).every(v => v.pass !== false);
+  return out;   // シミュ画像 3 枚は Yuna レポートに同梱
+}
+// 注：recomb は sRGB 空間で適用される近似。厳密判定が要る案件は raw 展開後に
+//     linearize（^2.4 逆ガンマ）→ 行列積 → 再ガンマの手順で行う
+```
+
+**期待効果**：
+建設業ターゲットの約5%に対して「CTA が見えない広告」を配信する事故を物理排除。応募率の底上げに直結し、シミュレーション画像がクライアントへの提案根拠（＝LET の差別化材料）にもなる。デザイン差し戻しが「なんとなく見づらい」から「P型 ΔE00 = 4.2 で不足」という数値会話に変わる。
+
+---
+
+### 🚫 新たに定義した NG パターン
+
+1. **Chrome を `latest` で走らせる**：`puppeteer` の自動ダウンロードに任せ、バージョンを `browser.lock.json` に固定していない。Chrome が更新された翌朝、承認済みバナーと違う PNG が黙って出る。**バージョン未固定の環境では変換スクリプトを起動しない**（起動時 assert で exit 1）。
+2. **`fullPage: true` を `clip` の代わりに使う**：`captureBeyondViewport` が働いてレイアウト再計算が走り、`position: sticky`／`vh` 指定要素がズレる。加えて出力サイズが媒体規定と一致しない。**納品変換では `captureBeyondViewport: false` ＋ 整数 px の `clip` 以外を禁止**（フルページは検証プレビュー専用）。
+3. **本番変換で外部 CDN へ実アクセスする**：Google Fonts を毎回取りに行く構成は、ネット断で落ち、CDN 側のフォント微更新で出力が変わる。**アセット金庫に無い外部 URL は `request.abort()` ＋ exit 1**。外部リクエスト件数 0 が本番変換の必要条件。
+4. **知覚指標なしで容量だけを見て quality を下げる**：`fitToSize` が「上限内」と言っても、文字エッジが崩れていれば不合格。**SSIM 制約（mssim ≥ 0.985 / タイル最小 ≥ 0.95）を満たさない出力を納品しない**。品質を下げ続けるのではなく形式切替 → scale 降格 → Kana 差し戻しの階段を降りる。
+5. **`document.fonts.check()` の true だけでフォント検証を終える**：読み込めていても実描画は別フォントにフォールバックしうる。**`CSS.getPlatformFontsForNode` のフォールバックグリフ比率 ≤ 0.5% を通さない出力は納品不可**。
+6. **色覚シミュレーション未実施で赤×緑の CTA を建設業案件に出す**：輝度コントラスト 5:1 は色相消失を検出しない。**P型／D型の ΔE00 ≥ 10 を満たさない配色は Kana へ差し戻す**（男性中心ターゲットでは必須ゲート）。
+7. **モーションバナーを「1フレーム目の screenshot」で代用する**：アニメ開始時点は訴求が未完成（テキストが opacity 0 等）。**静止画 fallback は必ず「訴求が完成した時刻 t_final」のフレームから作る**。またモーション納品時に静止画 fallback を欠くのも同様に禁止。
+8. **並列度を 4 固定のまま別スペックの環境で回す**：2 vCPU の CI で 4 並列にすると swap が発生して 3 倍遅くなり、逆に 8 コア機では遊ぶ。**並列度は `Math.max(2, Math.min(os.cpus().length - 1, 6))` で自動決定し、`page.metrics().JSHeapUsedSize` が 1.5GB を超えたらバックプレッシャーで新規投入を停止**する。
+9. **有償フォントを確認せず画像に焼き込む**：Web フォントのライセンスには「ラスタライズして配布する行為」が別条件のものがある。**`fonts.license.json` に各フォントの利用可否（Web埋込／画像焼込／商用広告）を台帳化し、未登録フォントの検出時は nori へエスカレーション**。
+
+### 📈 強化後の到達水準
+
+| 指標 | v1（現状） | v2（強化後） |
+|---|---|---|
+| 透過事故の防御方式 | CSS上書き＋`ensureAlpha()`＋assert の3〜4段の対症療法 | `Emulation.setDefaultBackgroundColorOverride` による1段の仕様指定 |
+| 再現性の保証範囲 | 同一プロセス内の2回変換 | Chrome/フォント/時刻/乱数/アセットを全ピン留め、**半年後・別マシンでもピクセル一致** |
+| フォント検証 | 「読み込めたか」（`fonts.check`） | 「**実際に何で描画されたか**」（glyph 単位、フォールバック比率 ≤ 0.5%） |
+| テキスト欠陥検出 | PNG 化後の目視 | 変換前に overflow 1px・行数・禁則を機械検出 |
+| 圧縮の判定軸 | 容量一軸（上限×0.85） | 容量 × SSIM の二軸（mssim ≥ 0.985 / タイル最小 ≥ 0.95） |
+| 外部依存 | Google Fonts 等へ毎回実アクセス | **外部リクエスト 0 件**、ネット断でもバッチ完走 |
+| 変換速度 p95 | 3.0 秒/枚 | **1.2 秒/枚**（networkidle 待ち消滅＋ディスク往復排除） |
+| 納品形式 | PNG / WebP / AVIF（静止画3） | 静止画3 ＋ MP4 / animated WebP / APNG（**モーション3**） |
+| 色の検証 | 輝度コントラスト 5:1・ΔRGB ±3 | ＋ P型/D型シミュレーション下の **ΔE00 ≥ 10**、シミュ画像3枚をレポート同梱 |
+| `validateBanner()` 観点数 | 6 観点 | **12 観点**（＋実使用フォント／overflow／SSIM／CVD ΔE00／環境指紋／外部リクエスト0） |
+
+**総括**：v1 は「幾何とメタデータを正しく揃える」水準に到達していた。v2 は ①CDP を直接握って**キャプチャを仕様として記述する**層、②環境まるごとをピン留めして**時間を超えて再現する**層、③SSIM と CVD で**人間の知覚を数値化する**層、④モーションという**新しい納品形態**の4つを追加した。結果として Hiro は「HTML を PNG にする人」から、**広告画像の物理品質を仕様・再現性・知覚・形式の4軸で保証するレンダリングエンジニア**になる。
 - **sharpの基盤libvips更新でAVIF/WebPエンコードが高速化、深夜バッチのボトルネックが変化**：従来AVIFはエンコードが遅く敬遠されたが、libvips系の最適化で書き出し時間が実用域に。PNG一択だった大量書き出しでもAVIF併産のコスト増が小さくなり、Hiroの3形式同時出力（AVIF/WebP/PNG）を媒体タグで必要分だけ出す設計が回しやすくなった
 - **Playwrightへの移行検討が画像化パイプラインでも話題に**：並列実行・トレース・自動待機の使い勝手からPlaywright採用が業界で増加。ただしバナー画像化の要件（deviceScaleFactor・clip・フォント待機・常駐ブラウザプール）はPuppeteerで完成済みのため、Hiroは移行の是非より「新ヘッドレス既定化＋AVIF拡大」への追従を優先すべき局面
 - 出力前に「サイズ・DPI・ファイル名規則」を自動検証してから納品フォルダへ置くと、規格外納品による差し戻しがゼロになり、Kana/Yunaの確認工数も減る
