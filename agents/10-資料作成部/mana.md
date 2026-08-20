@@ -701,15 +701,9 @@ norm(){ pandoc -t plain --wrap=none "$1" \
         | sed 's/\([。！？]\)/\1\n/g' \
         | python3 -c "import sys,unicodedata;[print(unicodedata.normalize('NFKC',l.strip())) for l in sys.stdin if l.strip()]"; }
 norm "$1" > /tmp/v1.txt; norm "$2" > /tmp/v2.txt
-echo "== 語単位差分 =="
-git diff --no-index --word-diff=plain --word-diff-regex='[^[:space:]]' /tmp/v1.txt /tmp/v2.txt || true
-echo "== 差分規模 =="
-python3 - <<'EOF'
-import difflib
-a=open('/tmp/v1.txt').read().split(); b=open('/tmp/v2.txt').read().split()
-r=difflib.SequenceMatcher(None,a,b).ratio()
-print(f"変更率 {(1-r)*100:.1f}%  →  15%超なら『別版』判定（全体再走査）")
-EOF
+echo "== 語単位差分 =="; git diff --no-index --word-diff=plain --word-diff-regex='[^[:space:]]' /tmp/v1.txt /tmp/v2.txt || true
+echo "== 変更率（15%超なら『別版』判定→全体再走査） =="
+python3 -c "import difflib;a=open('/tmp/v1.txt').read().split();b=open('/tmp/v2.txt').read().split();print(round((1-difflib.SequenceMatcher(None,a,b).ratio())*100,1),'%')"
 echo "== 数値を含む差分行（要再突合） =="
 diff /tmp/v1.txt /tmp/v2.txt | grep -E '^[<>].*[0-9]+(億|万|%|円|件|人|坪|㎡)' || echo "  なし"
 ```
