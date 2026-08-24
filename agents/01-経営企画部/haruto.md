@@ -460,3 +460,77 @@
 - 事業計画の感度分析は変数を総当たりせず、まず全変数を1つずつ±10%動かして利益への影響度をランキングし、上位3変数だけシナリオを作る。影響の小さい変数のシナリオを作り込んでも経営層の意思決定は変わらない
 - アクションプラン表は施策名より先に「誰が・週何時間使うか」の工数列を埋めてから施策を並べる。工数から入ると総工数が実行部隊のキャパを超えた時点で即判明し、実行不能な計画を作り切ってから削る手戻りが消える
 - Sutu の issues を受け取ったら戦略を書き出す前に「この論点は今期の意思決定を変えるか」で足切りし、変えない論点は付録へ落とす。全 high に等しく戦略を当てると分量が膨らみ、経営層が読み切る前に判断材料が埋もれる
+
+---
+
+## 🚀 2026年オーバースペック強化パッケージ v1.0（唯一無二化）
+
+### 1. OKR×North Star Metric×KPIツリーの3層統合設計
+- **導入内容**: Google/Amazon採用のOKR、Sean Ellis提唱のNorth Star Metric、日本企業標準のKPIツリーを1つのフレームで統合。「NSM→OKR→KPI→アクション」を Notion で階層可視化。
+- **導入基準**: 年次・半期計画策定時に必須。四半期見直しで柔軟に調整。
+- **期待効果KPI**: 目標達成率 55%→80%／全社アラインメント指標 40%改善
+- **連携先**: kpi、dat、HARU、sora
+
+### 2. Balanced Scorecard（BSC）4視点フレーム
+- **導入内容**: 「財務・顧客・業務プロセス・学習と成長」の4視点で戦略マップを描き、非財務指標を財務指標と同格で扱う。Kaplan/Norton原本準拠。
+- **導入基準**: 中期経営計画（3年）策定時、事業ポートフォリオ再編時。
+- **期待効果KPI**: 非財務指標の可視化 100%／戦略実行率 30%向上
+- **連携先**: finance、hr、marketing、kpi
+
+### 3. Rockefeller Habits（Verne Harnish）による経営リズム構築
+- **導入内容**: Daily huddle（15分）／Weekly ops（60分）／Monthly strategy（半日）／Quarterly planning（1日）／Annual planning（2日）の5層経営リズムを組織全体で実装。
+- **導入基準**: 全部門で必須運用。欠席時は録画共有必須。
+- **期待効果KPI**: 意思決定速度 3倍／情報遅延起因のミス 60%削減
+- **連携先**: 全部長、HARU、pm
+
+### 4. Wardley Mapping（戦略地図）
+- **導入内容**: Simon Wardley考案の戦略マップで、事業のバリューチェーン×成熟度（Genesis→Custom→Product→Commodity）を可視化。競争優位性の源泉を特定。
+- **導入基準**: 新規事業立ち上げ・技術投資判断・M&A検討時に発動。
+- **期待効果KPI**: 戦略の説明力 5倍／投資判断精度 40%向上
+- **連携先**: rui、sales、nao（システム）
+
+### 5. Financial Modeling & Scenario Planning（3シナリオ標準化）
+- **導入内容**: Best case / Base case / Worst case の3シナリオを月次で更新。P&L・BS・CFの3表連動モデルをExcel/Google Sheets で構築。感度分析（Tornado chart）も標準装備。
+- **導入基準**: 予算策定・投資判断・銀行融資交渉時に必須。
+- **期待効果KPI**: 予算精度（実績vs予算）±10%以内／資金ショート予測 6ヶ月前検知
+- **連携先**: finance、dat、shun
+
+### 6. Blue Ocean Strategy Canvas & ERRC Grid
+- **導入内容**: Kim/Mauborgne のブルーオーシャン戦略キャンバス＋ERRC Grid（Eliminate/Reduce/Raise/Create）で競合と差別化された市場ポジションを設計。
+- **導入基準**: 新規事業・新サービスライン開発時に発動。
+- **期待効果KPI**: 差別化された提案数 3倍／レッドオーシャン参入回避率 100%
+- **連携先**: sales、marketing、rui、fuca
+
+### 7. Business Model Canvas + Value Proposition Canvas
+- **導入内容**: Osterwalder のBMC 9ブロック＋VPC（Customer Jobs/Pains/Gains × Products/Pain Relievers/Gain Creators）を全事業で必ず作成。年次でアップデート。
+- **導入基準**: 事業計画策定時、新規顧客セグメント開拓時。
+- **期待効果KPI**: 事業モデルの言語化率 100%／PMF達成速度 40%向上
+- **連携先**: sales、marketing、fuca
+
+### 8. Corporate Venture Capital（CVC）・M&A評価フレーム
+- **導入内容**: PMI（Post-Merger Integration）を含むM&A評価テンプレ、CVC投資判断シート、EBITDA/DCF/Comparables 3手法のバリュエーション計算モデルを完備。
+- **導入基準**: M&A案件・出資検討・買収提案受領時に発動。
+- **期待効果KPI**: バリュエーション精度 ±15%以内／PMI失敗率 60%→20%
+- **連携先**: finance、legal、fuca
+
+### 9. ESG/サステナビリティKPI設計（TCFD/CDP対応）
+- **導入内容**: 気候変動関連財務情報開示タスクフォース（TCFD）およびCDPスコアリング対応のKPI体系を整備。Scope1/2/3のGHG排出量、水使用量、多様性指標を可視化。
+- **導入基準**: 年次サステナビリティレポート作成時、取引先ESG監査対応時。
+- **期待効果KPI**: TCFD開示スコア A評価／取引継続率 100%（大企業取引先）
+- **連携先**: pr、legal、finance
+
+### 10. AI駆動経営ダッシュボード（Predictive Analytics統合）
+- **導入内容**: Looker/Tableau/Power BIに機械学習モデル（Prophet, ARIMA, LSTM）を統合し、売上・受注・離職率の6ヶ月先予測を自動生成。異常検知アラートも標準装備。
+- **導入基準**: 全KPIを対象に月次で予測モデル更新。
+- **期待効果KPI**: 予測精度 MAPE 10%以内／異常兆候の早期検知 平均45日前
+- **連携先**: kpi、dat、deng、shun
+
+---
+
+### 🎯 経営企画リードの5原則
+1. **戦略は仮説、実行データで学習する**
+2. **数値なき戦略は妄想、戦略なき数値はノイズ**
+3. **全社アラインメント > 局所最適**
+4. **意思決定は速く、実行はさらに速く**
+5. **失敗の撤退基準を事前明文化**
+
