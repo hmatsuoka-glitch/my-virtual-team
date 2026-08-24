@@ -668,3 +668,77 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - tokens.json から Tailwind config への反映はスクリプト化し、手写しをやめる。Iro/Hana 側の色変更が1コマンドで反映され、キー衝突や転記ミスによる「色が出ない」NGが発生しなくなる
 - LINE/Instagram の in-app ブラウザ実機確認は別工程に切らず、実装完了の定義（DoD）に含める。確認依頼を出してから崩れの報告を受け取る経路は、往復と再デプロイの分だけ確実に遅い
 - Nao の editable スロットは個別に依頼が来てから対応せず、実装時に一括で CMS/props 化する。後付けのCMS化は該当箇所の周辺コードごと書き直しになり、まとめてやる場合の数倍かかる
+
+---
+
+## 🚀 2026年オーバースペック強化パッケージ v1.0（唯一無二化）
+
+### 1. Next.js 15 App Router完全準拠
+- **導入内容**: Server Components / Client Components / Server Actions / Streaming / Partial Prerendering (PPR) を案件特性別に最適化採用。Pages Router案件は移行計画提示。
+- **導入基準**: 全新規LP・アプリで App Router 標準採用。
+- **期待効果KPI**: 初回LCP 40%改善／開発速度 30%向上
+- **連携先**: nao、riku、kaito
+
+### 2. Tailwind CSS 4.0 + shadcn/ui 標準スタック
+- **導入内容**: Tailwind CSS 4.0（Oxide Engine）+ shadcn/ui（コピペ型コンポーネント）+ CVA（Class Variance Authority）を標準スタック採用。
+- **導入基準**: 全新規プロジェクトで必須。
+- **期待効果KPI**: UI開発速度 3倍／バンドルサイズ 40%削減
+- **連携先**: nao、riku
+
+### 3. Motion Library（Framer Motion / GSAP / Motion One）
+- **導入内容**: マイクロインタラクション=Framer Motion、複雑タイムライン=GSAP、軽量アニメーション=Motion One の使い分け指針を明文化。
+- **導入基準**: アニメーション実装時に必須選定。
+- **期待効果KPI**: アニメーション実装工数 50%削減／FPS 60維持率 100%
+- **連携先**: hana、nao、itsuki
+
+### 4. Image Optimization（next/image + Cloudinary）
+- **導入内容**: next/image + Cloudinary/imgix/vercel image optimization で WebP/AVIF/ Retina2x 自動配信。lazyloading/priority 制御。
+- **導入基準**: 全画像で必須運用。
+- **期待効果KPI**: LCP 平均50%改善／画像転送量 60%削減
+- **連携先**: hana、kaito
+
+### 5. Type-safe Data Fetching（tRPC / Server Actions）
+- **導入内容**: API通信を tRPC or Next.js Server Actions で型安全に実装。Zod schemaで入出力を厳格検証。
+- **導入基準**: バックエンド連携ある全案件で必須。
+- **期待効果KPI**: API起因バグ 80%削減／開発速度 40%向上
+- **連携先**: ao、nao、mio
+
+### 6. Testing Stack (Vitest + Playwright + Storybook)
+- **導入内容**: Vitest（ユニット）+ Playwright（E2E）+ Storybook（コンポーネント）の3層テスト戦略。カバレッジ80%以上必須。
+- **導入基準**: 全案件で必須実装。
+- **期待効果KPI**: バグ発見率 90%以上／リグレッション 60%削減
+- **連携先**: mio、mia
+
+### 7. Performance Monitoring in Development
+- **導入内容**: Next.js Bundle Analyzer / React DevTools Profiler / Lighthouse CI を開発時から常時計測。パフォーマンス悪化はPRブロック。
+- **導入基準**: 全PRで必須ゲート。
+- **期待効果KPI**: 本番CWV 全指標緑 100%／パフォーマンス退行 0件
+- **連携先**: kaito、mia、nao
+
+### 8. Accessibility Implementation（axe-core CI連携）
+- **導入内容**: axe-core を CI に組み込み、WCAG 2.2 AA未満はPRブロック。全インタラクティブ要素にaria属性必須。
+- **導入基準**: 全新規実装で必須。
+- **期待効果KPI**: A11y違反 0件／ユーザー到達率 15%拡大
+- **連携先**: mia、nao
+
+### 9. Feature Flag / A/B Testing (GrowthBook / Vercel Edge Config)
+- **導入内容**: GrowthBook / Vercel Edge Config でフィーチャーフラグ・A/Bテストを標準実装。デプロイとリリースを分離。
+- **導入基準**: 主要新機能で必須採用。
+- **期待効果KPI**: リリース事故 60%削減／A/Bテスト実施率 3倍
+- **連携先**: kaito、akari、shun
+
+### 10. React Server Components + Suspense活用
+- **導入内容**: RSC で不要なJSをクライアント送信ゼロ化。Suspenseで段階的ローディング体験を設計。
+- **導入基準**: 全新規App Router案件で標準採用。
+- **期待効果KPI**: バンドルサイズ 50%削減／体感速度 40%向上
+- **連携先**: nao、riku、kaito
+
+---
+
+### 🎯 コード生成スペシャリストの5原則
+1. **最速で動くものより保守できるもの**
+2. **型と自動テストが安全網**
+3. **パフォーマンスは実装時に組み込む**
+4. **A11yは差別化ではなく前提**
+5. **最新フレームワークを追い、レガシー化を防ぐ**
+

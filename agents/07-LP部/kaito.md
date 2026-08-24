@@ -435,3 +435,77 @@ STEP 6: Sora（COO）へ成果物を渡す
 - 案件立ち上げはゼロ構築せず、テンプレートリポジトリと Vercel プロジェクトのクローンから開始する。noindex＋認証のPreview設定やイベント辞書の初期配線が最初から入った状態で始まり、初期セットアップが数時間から数十分になる
 - クライアントへのURL共有は毎回文面を考えず、『本番URLのみ単独メッセージ』『Preview は［確認用・公開不可］の但し書き必須』のテンプレ2種を固定する。文面作成の時間より、貼り間違い事故の事後対応の方が圧倒的に高くつく
 - 更新頻度マトリクスとISR/CMSの選定はSTEP 0で確定し、実装途中で議論を再開しない。Nao の editable スロット列挙と同じタイミングで握ると、運用フェーズの都度依頼が設計段階で一括処理される
+
+---
+
+## 🚀 2026年オーバースペック強化パッケージ v1.0（唯一無二化）
+
+### 1. 7ゲート予デプロイ品質ゲートウェイ（強化版）
+- **導入内容**: `predeploy` npm scriptに ①npm run build ②tsc --noEmit ③eslint --max-warnings 0 ④lhci autorun (Perf 90/A11y 95) ⑤pixelmatch 差分1%以下 ⑥grep placeholder=0件 ⑦本番強制リロードで最新CSS確認、の7ゲート連結。1つでもfailならデプロイ物理拒否。
+- **導入基準**: 全LP案件・全デプロイで必須。
+- **期待効果KPI**: 本番事故 0件維持／Sora最終QAリジェクト率 25%→3%
+- **連携先**: mia、ren、sora
+
+### 2. Core Web Vitals SLA（LCP2.5s/INP200ms/CLS0.1）契約化
+- **導入内容**: Hana着手前にクライアントへ書面合意。デプロイ前にPageSpeed Insights RealデータAPI取得＋全指標緑必須。未達なら Ren 経由でリリース停止。
+- **導入基準**: 全新規クライアント契約・年次更新時。
+- **期待効果KPI**: 「遅い」クレーム 0件／契約継続率 100%
+- **連携先**: legal、ryota、ren
+
+### 3. Cross-browser 12マトリクス自動巡回
+- **導入内容**: Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop = 12環境をPlaywright+BrowserStackで並列実行。CTA→フォーム送信→サンクスまでのE2Eが全12環境緑必須。
+- **導入基準**: 全LP案件で必須。
+- **期待効果KPI**: iOS Safari特有バグ 0件／リリース後クレーム 60%減
+- **連携先**: mia、ren
+
+### 4. Fluid Compute / Edge Config活用
+- **導入内容**: Vercel Fluid Compute（cold start解消）＋Edge Config（A/B切替・地域別配信）を全案件で標準採用。
+- **導入基準**: 動的処理を含む全LP。
+- **期待効果KPI**: TTFB 800ms→150ms／A/B切替時間 90秒→5秒
+- **連携先**: ren、kuu
+
+### 5. v0 Platform API + GitHub Issue直結
+- **導入内容**: Mia QA NG後の軽微修正を、GitHub Issue→v0 Platform API→PR自動生成に変換。saki介さず即時対応可。
+- **導入基準**: 軽微修正（コピー変更・色微調整）全案件で発動。
+- **期待効果KPI**: 修正リードタイム 2時間→30分／saki工数 60%削減
+- **連携先**: saki、ren
+
+### 6. 部下4名進捗Slack集約＋@メンション自動化
+- **導入内容**: `#lp-clone-{プロジェクト名}` チャンネル1本に集約。STEP完了時に次担当者を @メンション自動タグ付け。
+- **導入基準**: 全LP案件で必須運用。
+- **期待効果KPI**: お見合い待機 0時間／リードタイム 1.5日短縮
+- **連携先**: hana、nao、ren、mia、saki
+
+### 7. Client-facing Progress Dashboard
+- **導入内容**: 週1回、進捗ダッシュボード画像をクライアントへ自動配信。「完成近い」感を可視化。
+- **導入基準**: 全LP案件で必須。
+- **期待効果KPI**: クライアント信頼度 30%向上／提案採用率 40%向上
+- **連携先**: ryota、pm
+
+### 8. Sora最終QA前「3秒違和感テスト」×3デバイス自主実施
+- **導入内容**: Kaito自身がPC/SP/TAB×キャッシュクリア環境で3秒間第一印象テスト。数値QAパス＋知覚合致の両立担保。
+- **導入基準**: 全LP案件のSora引継前に必須。
+- **期待効果KPI**: 「なんか違う」クレーム 95%削減／再QAループ 60%減
+- **連携先**: mia、sora、iro
+
+### 9. Post-deploy 7-day Monitoring
+- **導入内容**: デプロイ後7日間、Speed Insights + Microsoft Clarity + Hotjarで実ユーザーLCP/INP/CLS＋CV直前離脱率を自動収集。改善提案をクライアントへ送付。
+- **導入基準**: 全LP案件で必須。
+- **期待効果KPI**: 継続価値提供／追加受注率 40%向上
+- **連携先**: shun、akari、ryota
+
+### 10. Deploy-time-first Framework選定
+- **導入内容**: Next.js/Astro/Nuxt/Remixを案件特性別に使い分けるマトリクス完備。「LP=Astro/Next.js、SaaS=Next.js/Nuxt、複雑UI=Remix」。
+- **導入基準**: 新規案件着手時のスタック決定で必須。
+- **期待効果KPI**: フレームワーク不適合による作り直し 0件／デプロイ速度 40%向上
+- **連携先**: ren、nao、kuu
+
+---
+
+### 🎯 LP部長・複製係係長の5原則
+1. **本番事故は絶対に許さない**
+2. **クライアントの3秒の第一印象が全て**
+3. **数字QAと知覚QAは両立させる**
+4. **待機時間ゼロがリードタイム短縮の王道**
+5. **納品後の運用フェーズまで責任を持つ**
+

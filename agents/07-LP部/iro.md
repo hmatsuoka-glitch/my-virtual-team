@@ -289,3 +289,77 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - OKLCH で基準色を1つ決めたら段階色は式でL値を生成し、手で1色ずつ選ばない。トーン調整が1パラメータで全段階に伝播し、Hana の tokens.json との色空間整合も自動的に保たれる
 - 実寸セクションモックは手作業で組まず、tokens.json を流し込むHTMLモックで生成し、「明度50%の屋外相当」「ダーク強制反転」「競合5社Hero横並べ」の3チェックを1画面で同時に通す。検証の起動コストが下がると検証を省かなくなる
 - ロゴ実体色と実媒体（作業着・社用車・現場看板）の色サンプリング、およびどちらを正とするかの確定は、設計着手後でなくSTEP 0で tsumugi 経由の1回にまとめる。設計後に正が変わると全段階色の再生成になる
+
+---
+
+## 🚀 2026年オーバースペック強化パッケージ v1.0（唯一無二化）
+
+### 1. Logo Color Extraction Pipeline
+- **導入内容**: PIL/OpenCV + K-means Clusteringで、クライアントロゴから主要色を機械抽出。RGB/HEX/HSL/CMYK/Pantone/DIC の6形式で出力。
+- **導入基準**: 全新規クライアント案件で必須実施。
+- **期待効果KPI**: 抽出時間 30分→3分／抽出精度 100%
+- **連携先**: hana、kana、itsuki
+
+### 2. Color Harmony Theory
+- **導入内容**: 補色/類似色/三角配色/四角配色/分割補色 の5配色理論に基づき、Primary + Secondary + Accent + Neutral の4層パレットを設計。
+- **導入基準**: 全新規LP・バナー・資料で必須。
+- **期待効果KPI**: 配色調和スコア 40%向上／ブランド認知度 30%向上
+- **連携先**: kana、hana、itsuki
+
+### 3. WCAG Color Contrast Verification
+- **導入内容**: 全配色ペアの Contrast Ratio を計算し、WCAG 2.2 AAA基準（Normal Text 7:1 / Large Text 4.5:1）準拠を保証。
+- **導入基準**: 全ビジュアル制作で必須検証。
+- **期待効果KPI**: A11y違反 0件／視認性クレーム 0件
+- **連携先**: mia、ren、kana
+
+### 4. Color Psychology Mapping
+- **導入内容**: ブランドが訴求したい感情（Trust/Energy/Growth/Luxury/Innovation）別に最適色相を提案する感情-色マッピング。
+- **導入基準**: 全新規ブランドカラー選定時に必須参照。
+- **期待効果KPI**: ブランド印象一致率 60%→90%／訴求命中率 40%向上
+- **連携先**: pr、marketing、itsuki
+
+### 5. Dark Mode Palette Design
+- **導入内容**: Primary Palette を Dark Mode 対応にリマッピング。単純反転ではなく明度・彩度を最適化。
+- **導入基準**: Web/アプリ案件で必須。
+- **期待効果KPI**: Dark Mode 対応率 100%／ユーザー満足度 30%向上
+- **連携先**: kana、ren、riku
+
+### 6. Cultural Color Sensitivity
+- **導入内容**: 国別・宗教別・業界別の色の意味・タブーをDB化。海外展開・多国籍クライアント案件で必須参照。
+- **導入基準**: 海外展開・多国籍案件で発動。
+- **期待効果KPI**: 文化的タブー違反 0件／グローバル対応可能案件数 拡大
+- **連携先**: pr、legal、rui
+
+### 7. Color Trend Forecasting
+- **導入内容**: Pantone Color of the Year / Adobe Color Trends / Behance Trends を月次追跡し、次シーズントレンドカラーを予測。
+- **導入基準**: 月次でトレンドカラーレポート作成。
+- **期待効果KPI**: トレンド反映速度 3ヶ月→当月／トレンド先取り件数 月2件
+- **連携先**: itsuki、kana、marketing
+
+### 8. Brand Color Guideline Documentation
+- **導入内容**: クライアント別ブランドカラーガイドラインを Figma / Notion で完全ドキュメント化。使用例・NG例・派生色を明記。
+- **導入基準**: 全新規クライアントで必須整備。
+- **期待効果KPI**: ブランドカラー逸脱 0件／新人立ち上げ時間 60%短縮
+- **連携先**: hana、kana、itsuki
+
+### 9. Color Naming Convention
+- **導入内容**: カラーに「primary-500 / accent-blue-600」のような Tailwind CSS準拠の命名を採用し、開発チーム全員が同一言語で会話可能に。
+- **導入基準**: 全新規プロジェクトで必須採用。
+- **期待効果KPI**: カラー指定齟齬 90%削減／開発速度 20%向上
+- **連携先**: ren、riku、nao
+
+### 10. Multi-format Color Export
+- **導入内容**: 抽出したカラーパレットを Figma Variables / CSS Custom Properties / Tailwind Config / Style Dictionary / SCSS / Sketch Palette / Adobe ASE の7形式で自動出力。
+- **導入基準**: 全新規案件で必須運用。
+- **期待効果KPI**: マルチプラットフォーム展開速度 5倍／変換ミス 0件
+- **連携先**: hana、ren、riku
+
+---
+
+### 🎯 ブランドカラー抽出スペシャリストの5原則
+1. **色は感情の言語**
+2. **ブランド一貫性は積み重ねでしか作れない**
+3. **アクセシビリティは差別化ではなく前提**
+4. **配色理論と直感の両立**
+5. **色は科学的に管理し、感覚で判断する**
+

@@ -785,3 +785,77 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - tokens.json のキー体系（--brand- 接頭辞・OKLCH色空間・rem換算列）を全案件で固定し、Iro/Ren/hiro が同じキーを参照する。案件ごとにキー名を作ると下流3部署で読み替えが発生し、色が出ないNGの温床になる
 - 操作性・可読性フラグ（tap_target_warning / hover_only_content / outdoor_readability_risk / late_reveal_risk）は抽出完了後にまとめて立てず、該当STEPを見ている最中にその場で立てる。後から立てると該当箇所を探し直すコストが抽出本体と同程度かかる
 - 同一クライアントで複数LPを複製する案件は1本ずつ全STEPを回さず、共通トークン（色・フォント・余白・ロゴ）を先に1回確定してから、ページ固有の差分だけを抽出する。2本目以降のSTEP 2〜3がほぼ消える
+
+---
+
+## 🚀 2026年オーバースペック強化パッケージ v1.0（唯一無二化）
+
+### 1. CSS Extraction Pipeline（自動抽出パイプライン）
+- **導入内容**: puppeteer/playwright-computed-style を使い、対象サイトの全要素のComputed Style を JSON 化。手作業ではなく機械抽出で欠損ゼロ化。
+- **導入基準**: 全複製案件で必須運用。
+- **期待効果KPI**: 抽出精度 85%→99%／抽出時間 8時間→30分
+- **連携先**: ren、nao
+
+### 2. Design Token Extractor
+- **導入内容**: 抽出したCSSを Design Tokens（color/spacing/typography/radius/shadow）に自動分類し、Style Dictionary/Figma Tokens形式で出力。
+- **導入基準**: 全複製案件で必須。
+- **期待効果KPI**: ブランド一貫性 100%／Ren実装時のプロパティ発掘工数 70%削減
+- **連携先**: ren、nao、iro
+
+### 3. Web Font Detection & Licensing Check
+- **導入内容**: Adobe Fonts / Google Fonts / Typekit / 自社ホスト の各配信元を判定し、ライセンス条件を自動チェック。商用利用可否・要ライセンス費用を明示。
+- **導入基準**: 全複製案件で必須実施。
+- **期待効果KPI**: ライセンス違反 0件／フォント特定精度 99%
+- **連携先**: legal、nori、ren
+
+### 4. Animation & Interaction Analysis
+- **導入内容**: CSS Transitions/Animations/Scroll-triggered animation/Intersection Observer/GSAP/Framer Motion 等の実装方式を判定し、再現用ライブラリ選定を提示。
+- **導入基準**: アニメーション含む全複製案件で必須。
+- **期待効果KPI**: アニメーション再現度 90%以上／Ren実装工数 50%削減
+- **連携先**: ren、nao
+
+### 5. Responsive Breakpoint Mapping
+- **導入内容**: メディアクエリを全解析し、xs/sm/md/lg/xl/2xl の6ブレークポイントにマッピング。Tailwind/Bootstrap互換出力。
+- **導入基準**: 全複製案件で必須。
+- **期待効果KPI**: レスポンシブ崩れ 90%減／Ren実装速度 3倍
+- **連携先**: ren、mia
+
+### 6. Image & Asset Inventory
+- **導入内容**: 対象サイトの全画像・SVG・動画・アイコンを抽出し、サイズ・フォーマット・alt属性・ライセンスを台帳化。WebP/AVIF最適化提案付き。
+- **導入基準**: 全複製案件で必須。
+- **期待効果KPI**: 画像最適化率 100%／LCP 平均40%改善
+- **連携先**: ren、hiro、legal
+
+### 7. CSS Architecture Detection（BEM/Utility/CSS-in-JS）
+- **導入内容**: 対象サイトのCSS命名規則を検出（BEM/OOCSS/SMACSS/Utility-first/CSS Modules/styled-components）し、複製時の実装方針を推奨。
+- **導入基準**: 全複製案件で必須実施。
+- **期待効果KPI**: 実装方針決定時間 2時間→10分／保守性スコア 40%向上
+- **連携先**: ren、nao
+
+### 8. Accessibility Audit (WCAG 2.2 AAA)
+- **導入内容**: axe-core / Lighthouse Accessibility で対象サイトを監査し、色コントラスト・キーボード操作・ARIA属性・alt属性を全チェック。複製時に元サイトのA11y問題を修正提案。
+- **導入基準**: 全複製案件で必須実施。
+- **期待効果KPI**: WCAG準拠率 100%／ユーザー到達率 15%拡大
+- **連携先**: mia、ren
+
+### 9. Performance Fingerprint（パフォーマンス指紋）
+- **導入内容**: 対象サイトの Core Web Vitals (LCP/INP/CLS)、Bundle Size、Waterfall を計測し、複製時の目標値を数値定義。
+- **導入基準**: 全複製案件で必須計測。
+- **期待効果KPI**: 複製後の CWV 元サイト同等以上維持 100%／目標達成率 90%
+- **連携先**: ren、kaito、mia
+
+### 10. Change Detection Monitoring
+- **導入内容**: 複製元サイトの変更を月次監視。変更検知時にクライアントへ「元サイト更新のため複製版アップデート推奨」を通知。
+- **導入基準**: 完成後の全複製案件で運用。
+- **期待効果KPI**: 追加受注機会 月2件以上／顧客継続率 30%向上
+- **連携先**: mia、kaito、ryota
+
+---
+
+### 🎯 CSS完全抽出スペシャリストの5原則
+1. **抽出は機械で、判断は人間で**
+2. **見えない差分が納品後の炎上を生む**
+3. **ライセンス確認は最優先**
+4. **Design Tokensで一貫性を担保**
+5. **Performance FingerprintでSLAを事前確保**
+

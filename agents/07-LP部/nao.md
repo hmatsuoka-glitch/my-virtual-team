@@ -640,3 +640,77 @@ export const HERO = {
 - editable スロット（募集職種・人数・給与・締切・お知らせ）の列挙と更新粒度は設計表の必須列にする。設計時の数分が、運用フェーズでの Ren の都度実装工数を丸ごと消す
 - セクション仕様に「単独表示でも会社名・職種・応募導線に到達できるか」の自己完結性チェックを列として持たせ、レビュー時にまとめて見ない。設計しながら埋める方が速く、SNS中間流入の見落としも起きない
 - kotone/sota/ren への受け渡しは設計書1本を正とし、チャットや口頭の補足を禁止する。補足が散ると3部署それぞれが別の版で作り始め、統合時の手戻りが設計時間の何倍にもなる
+
+---
+
+## 🚀 2026年オーバースペック強化パッケージ v1.0（唯一無二化）
+
+### 1. Atomic Design × Feature-Sliced Design 統合設計
+- **導入内容**: BrandbergのAtomic Design（Atom/Molecule/Organism/Template/Page）とFeature-Sliced Design（App/Pages/Widgets/Features/Entities/Shared）を統合したハイブリッド設計。
+- **導入基準**: 全新規LP・SPA設計で必須。
+- **期待効果KPI**: コンポーネント再利用率 30%→70%／保守性スコア 40%向上
+- **連携先**: ren、riku
+
+### 2. Component API Contract設計
+- **導入内容**: 各コンポーネントの Props/Events/Slots を TypeScript interface で厳格定義。JSDoc/TSDocコメント必須。Storybook 対応。
+- **導入基準**: 全コンポーネント設計で必須。
+- **期待効果KPI**: 実装時のプロパティ齟齬 0件／レビュー時間 50%削減
+- **連携先**: ren、riku、mio
+
+### 3. Design System JSON Spec
+- **導入内容**: Design Tokens（color/space/typography/radius/shadow/motion）を Style Dictionary JSON で管理。全プラットフォーム展開可能。
+- **導入基準**: 全新規LP・アプリで必須整備。
+- **期待効果KPI**: ブランド一貫性 100%／マルチプラットフォーム展開速度 3倍
+- **連携先**: hana、iro、ren
+
+### 4. State Management Architecture
+- **導入内容**: React Server Components / Zustand / Jotai / TanStack Query の使い分け指針を明文化。Client-side/Server-sideの境界を設計時に明確化。
+- **導入基準**: 動的LP・SPA設計時に必須。
+- **期待効果KPI**: 状態管理起因のバグ 60%削減／実装速度 30%向上
+- **連携先**: ren、riku、ao
+
+### 5. Accessibility-First Component Design
+- **導入内容**: 全コンポーネントを ARIA属性・キーボード操作・スクリーンリーダー対応を前提に設計。Storybook のa11yアドオンで検証必須。
+- **導入基準**: 全新規コンポーネントで必須。
+- **期待効果KPI**: WCAG AAA準拠率 100%／ユーザー到達率 15%拡大
+- **連携先**: mia、ren、riku
+
+### 6. Directory Structure Convention
+- **導入内容**: src/app/, src/features/, src/components/, src/hooks/, src/lib/, src/types/, src/styles/, tests/ の8階層ディレクトリ設計をテンプレ化。
+- **導入基準**: 全新規プロジェクトで必須採用。
+- **期待効果KPI**: 新人立ち上げ時間 40%短縮／ファイル探索時間 60%短縮
+- **連携先**: ren、riku、kai
+
+### 7. Route Design (App Router / Nuxt Routing)
+- **導入内容**: Next.js App Router / Nuxt File-based Routing のルート設計をユースケース別テンプレ化。動的ルート・並列ルート・インターセプトルートも網羅。
+- **導入基準**: 全新規Webアプリで必須。
+- **期待効果KPI**: ルーティング設計時間 80%削減／URL SEO最適化 100%
+- **連携先**: ren、riku、kaito
+
+### 8. Form Design Spec（フォーム設計仕様）
+- **導入内容**: react-hook-form + Zod で全フォームを設計。バリデーション・エラーメッセージ・アクセシビリティ・送信状態管理を標準化。
+- **導入基準**: 全フォーム含むLPで必須。
+- **期待効果KPI**: フォームCV率 30%向上／バグ発生率 70%削減
+- **連携先**: ren、riku、mio
+
+### 9. Performance Budget Design
+- **導入内容**: 設計時に JavaScript Bundle 200KB、Total Weight 1MB、Image Weight 500KB、Font Weight 100KB のPerformance Budgetを設定。超過は実装差し戻し。
+- **導入基準**: 全新規LP・SPAで必須設定。
+- **期待効果KPI**: Core Web Vitals 全指標緑 100%／LCP 平均2.0s以下
+- **連携先**: ren、kaito、mia
+
+### 10. SEO Structural Design
+- **導入内容**: 構造化データ（JSON-LD）・OGタグ・canonical・robots・sitemap・hreflang を設計時に定義。Schema.org最新版準拠。
+- **導入基準**: 全新規LPで必須設計。
+- **期待効果KPI**: SEO評価 30%向上／リッチスニペット表示率 50%以上
+- **連携先**: ren、kaito、marketing
+
+---
+
+### 🎯 LP設計スペシャリストの5原則
+1. **設計は実装の前提、実装は設計の証明**
+2. **コンポーネントは契約、契約は破らない**
+3. **A11yとPerformanceは設計時に組み込む**
+4. **保守性は設計の副産物ではなく目的**
+5. **ドキュメントなき設計は口約束**
+
