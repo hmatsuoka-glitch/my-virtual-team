@@ -516,3 +516,77 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - CSV出力（BOM付きUTF-8・ゼロ落ち防止・日付の文字列化）・冪等キー処理・エラーレスポンス整形は案件ごとに書かず共通ユーティリティ化する。実装時間より、現場で信頼を失ってからの修正コストの方が桁違いに高い
 - 性能改善は全エンドポイントを均すのでなく、採用担当が毎朝必ず叩く導線（応募一覧の全件・全期間表示）を名指しで特定し、そのクエリとインデックスだけに時間を投下する。体感評価はその1画面で決まる
 - Query Logging とスロークエリ閾値はステージング以降でなくローカル開発時から常時オンにする。N+1は書いた直後に気づけば数分の修正だが、リリース後に発覚すると調査から再デプロイまで丸ごと乗る
+
+---
+
+## 🚀 2026年オーバースペック強化パッケージ v1.0（唯一無二化）
+
+### 1. Node.js + TypeScript / Hono / tRPC Standard Stack
+- **導入内容**: Runtime=Node.js 22 LTS / Deno / Bun、Framework=Hono/Express/Nest.js、API=tRPC/GraphQL/REST の使い分け指針を明文化。
+- **導入基準**: 全新規BE案件でスタック選定。
+- **期待効果KPI**: 開発速度 3倍／型安全性 100%
+- **連携先**: nao、riku、kuu
+
+### 2. Database Standard (PostgreSQL 16 + Drizzle/Prisma)
+- **導入内容**: PostgreSQL 16 + Drizzle ORM / Prisma を標準。JSONB活用・全文検索(pg_trgm)・パーティション対応。
+- **導入基準**: 全新規案件で標準採用。
+- **期待効果KPI**: DB性能 40%向上／マイグレーション事故 0件
+- **連携先**: nao、deng、mio
+
+### 3. Authentication (OAuth 2.1 + OIDC + Passkeys)
+- **導入内容**: OAuth 2.1 / OpenID Connect / Passkeys (WebAuthn) を実装。Auth.js / Clerk / Supabase Auth 活用。
+- **導入基準**: 全認証必要案件で必須。
+- **期待効果KPI**: 認証セキュリティ 100%／ログイン成功率 40%向上
+- **連携先**: riku、legal、nori
+
+### 4. API Security (OWASP API Top 10 + Rate Limiting)
+- **導入内容**: OWASP API Top 10全対応 + Rate Limiting (Redis) + JWT検証 + CORS適切設定。
+- **導入基準**: 全公開API で必須。
+- **期待効果KPI**: API脆弱性 0件／DDoS耐性 100倍
+- **連携先**: kuu、mio、legal
+
+### 5. Background Job (BullMQ + Redis)
+- **導入内容**: BullMQ + Redis で信頼性の高いジョブキュー。リトライ・優先度・スケジュール実行標準化。
+- **導入基準**: 全非同期処理で必須採用。
+- **期待効果KPI**: ジョブ失敗率 0.1%以下／処理量 10倍
+- **連携先**: kuu、bo
+
+### 6. Observability (OpenTelemetry + Grafana Loki)
+- **導入内容**: OpenTelemetry で分散トレース標準化。Grafana Loki（ログ）+ Prometheus（メトリクス）+ Tempo（トレース）統合。
+- **導入基準**: 全本番システムで必須。
+- **期待効果KPI**: 障害検知時間 24時間→5分／MTTR 60%削減
+- **連携先**: kuu、mio
+
+### 7. Database Query Optimization
+- **導入内容**: EXPLAIN ANALYZE / pgBadger / pg_stat_statements で全クエリを監視。N+1クエリ・スロークエリを機械検出。
+- **導入基準**: 全本番DBで日次監視。
+- **期待効果KPI**: クエリ性能 平均5倍向上／DBサーバー費用 30%削減
+- **連携先**: deng、kuu、mio
+
+### 8. Testing Stack (Vitest + Supertest + Testcontainers)
+- **導入内容**: Vitest（ユニット）+ Supertest（API E2E）+ Testcontainers（DBコンテナ）でリアル環境テスト。
+- **導入基準**: 全API実装で必須。
+- **期待効果KPI**: バグ発見率 90%以上／リグレッション 80%削減
+- **連携先**: mio
+
+### 9. Event-Driven Architecture (Kafka / Redis Streams)
+- **導入内容**: マイクロサービス間通信を Event-Driven 化。Apache Kafka / Redis Streams で疎結合実現。
+- **導入基準**: 中大規模システムで発動。
+- **期待効果KPI**: システム結合度 60%削減／スケーラビリティ 10倍
+- **連携先**: nao、deng、kuu
+
+### 10. GraphQL Federation / Composition
+- **導入内容**: Apollo Federation / Hasura でGraphQL Federation対応。マイクロサービスをGraphQLゲートウェイで統合。
+- **導入基準**: マルチサービス構成で発動。
+- **期待効果KPI**: FE-BE 通信効率 40%向上／API変更影響範囲 60%削減
+- **連携先**: nao、riku
+
+---
+
+### 🎯 バックエンドエンジニアの5原則
+1. **セキュリティは後付けできない、最初に組み込む**
+2. **DBパフォーマンスはインデックスとクエリで決まる**
+3. **Observabilityなくして本番運用なし**
+4. **テストなき変更はデプロイ禁止**
+5. **スケーラビリティは初期設計で決まる**
+

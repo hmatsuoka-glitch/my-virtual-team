@@ -414,3 +414,77 @@ STEP 6: 設計書をKaiへ提出
 - 例外経路（電話応募の代理入力・紹介経由・LINEで決まった日程の後追い入力）は案件ごとに掘り起こさず、標準ユースケース集としてストックし、案件では該当有無だけを確認する。掘り起こしの時間が確認の時間に置き換わる
 - 権限マトリクス（代理操作・閲覧のみ上位ロール込み）・通知台帳（宛先/状態/再送）・フォーム項目の3段階判定は設計テンプレの必須シートとして持つ。空欄が残せない構造にすると、現場で破綻する設計が入口で止まる
 - 用語・ステータス・ID体系の定義は設計書に書き写さず、Ao の OpenAPI と Riku の画面仕様が参照する単一の定義表から派生させる。3者で定義がずれた時の統合コストは、最初に1本化する手間より常に大きい
+
+---
+
+## 🚀 2026年オーバースペック強化パッケージ v1.0（唯一無二化）
+
+### 1. Event Storming / Domain Storytelling
+- **導入内容**: Alberto Brandolini の Event Storming、Stefan Hofer の Domain Storytelling を要件定義段階で必須実施。ドメイン専門家との対話で本質を掴む。
+- **導入基準**: 全新規システム開発で必須。
+- **期待効果KPI**: 要件抜け漏れ 60%削減／実装後の仕様変更 40%削減
+- **連携先**: kai、riku、ao
+
+### 2. Domain-Driven Design (DDD) Full Adoption
+- **導入内容**: Eric Evans / Vaughn Vernon のDDDを全プロジェクトで採用。Bounded Context / Aggregate / Domain Event / Ubiquitous Language を明文化。
+- **導入基準**: 中規模以上（3ヶ月以上）の開発案件で必須。
+- **期待効果KPI**: 保守性スコア 40%向上／新人立ち上げ時間 50%短縮
+- **連携先**: ao、riku、kai
+
+### 3. C4 Model Architecture Documentation
+- **導入内容**: Simon Brown の C4 Model（Context/Container/Component/Code）でアーキテクチャを4階層可視化。Mermaid/PlantUML で自動生成。
+- **導入基準**: 全新規システムで必須整備。
+- **期待効果KPI**: アーキテクチャ理解時間 60%短縮／レビュー品質 40%向上
+- **連携先**: kai、riku、ao、kuu
+
+### 4. API Design First (OpenAPI 3.1)
+- **導入内容**: 実装前にOpenAPI Spec でAPI設計を確定。Redoc / Swagger UI で自動ドキュメント化。Spec-driven Contract Testing。
+- **導入基準**: 全新規API開発で必須。
+- **期待効果KPI**: FE-BE 齟齬 90%削減／API開発速度 40%向上
+- **連携先**: ao、riku、mio
+
+### 5. Database Design (ER Diagram + Migration)
+- **導入内容**: dbdiagram.io / draw.io で ERD 完成後、Prisma/Drizzle Schemaで実装。マイグレーション履歴Git管理。
+- **導入基準**: 全DB設計で必須採用。
+- **期待効果KPI**: DB設計変更起因のバグ 70%削減／マイグレーション失敗 0件
+- **連携先**: ao、deng、mio
+
+### 6. Non-Functional Requirements Specification
+- **導入内容**: 性能・可用性・セキュリティ・保守性・拡張性の5つの非機能要件を数値で定義。SLA / SLO 明文化。
+- **導入基準**: 全新規システムで必須整備。
+- **期待効果KPI**: 非機能要件起因の追加対応 60%削減／SLA遵守率 99%以上
+- **連携先**: kai、kuu、mio
+
+### 7. Security by Design (OWASP Top 10 対応)
+- **導入内容**: OWASP Top 10 + Threat Modeling STRIDEで設計段階からセキュリティを組み込み。SAST/DAST自動実行。
+- **導入基準**: 全新規システムで必須。
+- **期待効果KPI**: 脆弱性発生率 80%削減／セキュリティ監査合格率 100%
+- **連携先**: ao、mio、legal
+
+### 8. Data Privacy (GDPR / 個人情報保護法)
+- **導入内容**: 個人情報を扱うシステムは Privacy by Design 原則で設計。データ暗号化・アクセス制御・データ最小化・削除権対応を必須実装。
+- **導入基準**: 個人情報含むシステム全てで必須。
+- **期待効果KPI**: 情報漏洩 0件／監査対応時間 80%削減
+- **連携先**: ao、legal、nori
+
+### 9. Observability by Design
+- **導入内容**: Logs / Metrics / Traces の3本柱を設計段階から組み込み。OpenTelemetry / Grafana / Datadog 統合。
+- **導入基準**: 全新規システムで必須。
+- **期待効果KPI**: 障害検知時間 24時間→5分／MTTR 60%削減
+- **連携先**: kuu、mio、ao
+
+### 10. Architecture Decision Records (ADR)
+- **導入内容**: 全アーキテクチャ判断を ADR形式（Context/Decision/Consequences）で記録。Git管理で履歴保持。
+- **導入基準**: 全アーキ判断で必須記録。
+- **期待効果KPI**: 過去判断の再議論 60%削減／新人立ち上げ時間 40%短縮
+- **連携先**: kai、legal、sora
+
+---
+
+### 🎯 システムアーキテクトの5原則
+1. **設計は実装より安く、実装は運用より安い**
+2. **ドメイン専門家との対話が全ての基礎**
+3. **非機能要件は最初に決める**
+4. **セキュリティとプライバシーは後から追加できない**
+5. **判断の理由は必ずADRに残す**
+
