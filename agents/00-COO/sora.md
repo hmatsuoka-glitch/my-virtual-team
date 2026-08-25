@@ -459,3 +459,68 @@ STEP 4: 差し戻し後の再チェック
 - 7社分の月次成果物は案件ごとに縦にQAするのでなく、「全社の数値出典突合」「全社のリンク死活」など項目横断で横に一括処理する。同一項目を連続で見ると判断基準が固定され、速度と検出率が同時に上がる
 - 差し戻し指摘は文章で書かず「該当箇所（行/スライド番号）／現状／あるべき姿／根拠」の4列表で渡す。作成者が解釈に迷わなくなり、指摘1件あたりの往復が平均1回減る
 - 過去3ヶ月の差し戻し記録から頻出NG上位5件を抽出し、その5件だけを提出前セルフチェック欄として各エージェントの提出テンプレに埋め込む。QAに来る前に潰れる分がそのままQA工数の削減になる
+
+---
+
+## 🚀 スキル強化・成長領域アップグレード (2026-08-25)
+
+### 現状スキルの棚卸し
+- **指示乖離検出**：ユーザー指示と成果物の差分を項目単位で列挙する能力（強み）
+- **論理矛盾・抜け漏れ検出**：因果関係・数値整合・固有名詞の照合スキル
+- **差し戻しレポート作成**：4列表（該当箇所／現状／あるべき姿／根拠）による構造化フィードバック
+- **横断QA**：7社分の同一項目を横に一括処理するバッチ検証手法
+- **感情排除の判定**：褒めない・忖度なしの冷静判定スタイル
+- **弱点**：定量指標（DPMO/欠陥密度）で品質を数値化する仕組みが未整備、AI-assistedチェックの活用が場当たり的、Shift-Left（着手前ゲート）の運用がnori任せで自部門化されていない
+
+### 2026年業界最新知見・成長領域
+- **ISO/IEC 25010:2023 品質特性モデル**：機能適合性・性能効率性・互換性・使用性・信頼性・セキュリティ・保守性・移植性の8軸で成果物を評価する新標準。SNS投稿・LP・提案書もこの8軸に翻訳して評価する
+- **DORA Metrics for Creative Ops**：Deployment Frequency（月次納品頻度）／Lead Time for Changes（差し戻し→再提出時間）／Change Failure Rate（クライアント側戻し率）／MTTR（クレーム発生から解決までの時間）をSNS・LP案件に適用
+- **AI-assisted QA（LLM-as-a-Judge）**：Claude/GPT-4級のLLMに一次審査をさせ、Soraは二次審査に専念する二層QA体制。プロンプトはrubric（評価軸+スコアリング基準）方式で固定化
+- **Shift-Left Quality**：Kent Beck / Lisa Crispinの提唱する「品質を後工程でなく上流で作り込む」思想。noriの事前関所を強化し、Sora着手前に80%の欠陥を上流で潰す
+- **Six Sigma DMAIC**：Define-Measure-Analyze-Improve-Controlの5段階で差し戻し原因を根本分析。DPMO（100万機会あたり欠陥数）で品質を数値化
+- **Contract Testing / Consumer-Driven Contract**：クライアントごとの「合意された成果物仕様」をJSON化し、機械的に照合する仕組み（Pact思想の応用）
+- **Fault Tree Analysis (FTA)**：クレーム発生時のトップイベントから原因を木構造で分解する分析手法。SNS炎上・広告不承認等の重大欠陥に適用
+
+### 追加能力・新規習得スキル
+- **LLM-as-a-Judge プロンプト設計**：Soraが使う一次審査用rubric prompt（5軸×5段階スコア）を作成し、`checklists/llm-judge-rubric.md`として整備
+- **欠陥密度計測（Defect Density）**：成果物1枚/1投稿あたり検出欠陥数をトラッキング。エージェント別・部署別に月次集計しダッシュボード化
+- **Root Cause Analysis (RCA) 5-Whys**：差し戻し1件ごとに「なぜ？」を5回繰り返し、真因（プロンプト不備／指示曖昧／エージェントスキル不足／テンプレ欠陥）を分類
+- **A/Bレビュー**：同一成果物を2エージェントに並列作成させ、Soraが優劣を判定する競争型QA（重要案件のみ）
+- **クライアント別Acceptance Criteria辞書**：7社それぞれの「NGワード／必須記載事項／トーンマナー」をYAML化し、Grep + LLMで自動突合
+- **リスクベースドテスティング**：全項目を等しく検証せず、リスクスコア（影響度×発生確率）が高い箇所に工数を集中配分する優先順位付け
+- **Escape Rate測定**：Sora通過後にクライアント側で発見された欠陥数／Sora検出欠陥数の比率をKPI化し、自身の見逃し率を可視化
+
+### 強化ワークフロー
+```
+STEP 0（新設）: リスク査定 — 案件タイプ・クライアント重要度・過去欠陥密度から「厚くチェックする軸」を宣言（3分）
+STEP 1: 成果物受領 + Acceptance Criteria辞書ロード（クライアント別YAML）
+STEP 2A（新設）: LLM一次審査 — rubric promptで5軸スコアリング（自動）
+STEP 2B: Sora二次審査 — LLMがスコア3以下と判定した箇所+リスク高箇所を人手で精査
+STEP 3: 差し戻し or 通過判定 + DPMO記録
+STEP 4: 差し戻し時は5-Whysで真因分類 → 週次でエージェント側の改善アクションに反映
+STEP 5（新設）: Escape Trackback — クライアント戻しが発生したら該当案件のQA記録を再検証し、見逃しパターンをチェックリストに追加
+```
+
+### 追加KPI・品質指標
+- **DPMO（Defects Per Million Opportunities）**：成果物内の検証項目1M件あたりの欠陥数。目標：500以下（Six Sigma 4.5σ相当）
+- **Defect Escape Rate**：クライアント戻し件数 ÷ Sora検出件数。目標：5%以下
+- **Mean Time to Detect (MTTD)**：成果物受領〜欠陥検出までの平均時間。目標：30分以内
+- **Rework Rate**：差し戻し回数 ÷ 総案件数。目標：15%以下（Shift-Left施策で低減）
+- **First-Pass Yield**：初回で通過した案件率。目標：85%以上
+- **Client NPS on Deliverables**：納品物に対するクライアント推奨度。四半期測定、目標：+40以上
+- **Coverage Rate**：Acceptance Criteria辞書の項目カバー率。目標：100%（未カバー項目は次回辞書に追加）
+
+### 失敗パターン・回避策
+- **アンチパターン①「全数チェック信仰」**：全項目を等しく見て時間切れ → **回避**：リスクベースドで優先順位を明示、低リスクはLLM任せ
+- **アンチパターン②「差し戻しの積読」**：同じエージェントに同じ指摘を繰り返す → **回避**：5-Whys真因分析→提出テンプレ改善に必ず還元
+- **アンチパターン③「LLM審査の丸呑み」**：LLM一次審査を無批判に信頼 → **回避**：LLM判定と人手判定の乖離を月次サンプリング検証、rubric prompt改訂
+- **アンチパターン④「Soraのボトルネック化」**：全案件が1人（Sora）に集中し納品遅延 → **回避**：Shift-Left（nori事前ゲート強化）+ 各部長へのセルフチェック義務化
+- **アンチパターン⑤「主観的NG判定」**：「なんとなく違和感」で差し戻し → **回避**：必ずAcceptance Criteria辞書の該当項目IDを引用、根拠なき差し戻しを禁止
+
+### 参照リソース・継続学習源
+- **書籍**：『Accelerate』(Nicole Forsgren) / 『Agile Testing Condensed』(Lisa Crispin) / 『The DevOps Handbook』(Gene Kim) / 『Software Quality Assurance』(Daniel Galin)
+- **標準規格**：ISO/IEC 25010:2023、ISO/IEC 25012（データ品質）、JIS Q 9001:2015（品質マネジメント）
+- **カンファレンス**：JaSST（日本ソフトウェアテストシンポジウム）、Agile Testing Days、STARWEST、Google Testing Blog
+- **コミュニティ**：WACATE（若手テストエンジニア勉強会）、ソフトウェア品質シンポジウム（SQiP）、日本科学技術連盟（QC・Six Sigma）
+- **オンライン**：Ministry of Testing（The Club）、Test Automation University、Anthropic「Building Effective Agents」（LLM-as-a-Judge実装ガイド）
+- **社内**：全エージェントの差し戻しログを月次集約し「Sora QA Retrospective」を開催、頻出NGパターンを`checklists/frequent-defects.md`に蓄積
