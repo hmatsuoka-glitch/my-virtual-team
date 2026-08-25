@@ -785,3 +785,83 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - tokens.json のキー体系（--brand- 接頭辞・OKLCH色空間・rem換算列）を全案件で固定し、Iro/Ren/hiro が同じキーを参照する。案件ごとにキー名を作ると下流3部署で読み替えが発生し、色が出ないNGの温床になる
 - 操作性・可読性フラグ（tap_target_warning / hover_only_content / outdoor_readability_risk / late_reveal_risk）は抽出完了後にまとめて立てず、該当STEPを見ている最中にその場で立てる。後から立てると該当箇所を探し直すコストが抽出本体と同程度かかる
 - 同一クライアントで複数LPを複製する案件は1本ずつ全STEPを回さず、共通トークン（色・フォント・余白・ロゴ）を先に1回確定してから、ページ固有の差分だけを抽出する。2本目以降のSTEP 2〜3がほぼ消える
+
+---
+
+## 🗂️ 現状棚卸し（2026-08-25 時点・自己診断）
+
+- **強み**：8STEP抽出フローが確立し、色・フォント・アニメ・レスポンシブ・依存関係まで一貫して構造化データ（tokens.json / banner-handoff.json）で下流（Nao/Ren/hiro/Iro）へ渡せている。
+- **強み**：疑似要素`content`・SVG`currentColor`・alpha保持・font-familyフォールバック・入力デバイス別クエリなど、Daily Knowledge Logで採り漏れパターンを継続的に潰し込んでいる。
+- **強み**：`outdoor_readability_risk` / `late_reveal_risk` / `hover_only_content` / `tap_target_warning`など、忠実度と実用性を切り分けるフラグ体系が整備済み。
+- **弱み**：Container Queries・`@container` / Cascade Layers（`@layer`）/ CSS Nesting / Anchor Positioning / Subgrid など2025-2026の新CSS機能を抽出対象に組み込めていない。既存記法変換で拾うと構造情報を失う。
+- **弱み**：抽出はcomputed styleダンプへ移行済みだが、Core Web Vitals（LCP/INP/CLS）実測とCSS由来ボトルネック（重いbackdrop-filter・巨大フォント・レイアウトシフト）の紐付けが弱い。
+- **弱み**：Tailwind v4（CSS-first config / `@theme`）・W3C Design Tokens仕様への準拠が案件ごとにブレる。tokens.jsonの独自形式のまま止まっている。
+- **弱み**：Chrome DevTools MCP・Web-Vitals JS等の自動化ツールを人手抽出の一部にしか使えておらず、STEP 1〜7を機械実行→人はフラグ付けだけ、という理想形に到達していない。
+
+## 📡 2026年 最新フロントエンド知見（抽出フローへの取り込み方針）
+
+- **Chrome DevTools MCP**：ヘッドレスChromeを介したCSSOM/コンピューテッドスタイル/カバレッジ/パフォーマンストレースをMCP経由で機械取得できる。STEP 1〜2・4〜6の目視作業を自動化し、人はフラグ付けと例外判断のみに集中。
+- **Web-Vitals（LCP/INP/CLS/TTFB/FCP）**：抽出時に元サイトのCore Web Vitalsを計測し、CSS由来のボトルネック（LCP画像未最適化・巨大Webフォント・backdrop-filterのINP悪化・CLS原因のaspect-ratio欠落）を仕様データに同梱する。
+- **Container Queries（`@container` / `container-type` / `cqw`/`cqi`単位）**：親要素基準のレスポンシブ。従来の`@media`ブレークポイントだけ採ると複製版で崩れる箇所が出るため、STEP 6の対象に追加する。
+- **Cascade Layers（`@layer reset, base, tokens, components, utilities, overrides`）**：優先度の意図をレイヤーで明示。STEP 1のCSS読み込みマップに`@layer`宣言順と各ルールの所属レイヤーを記録し、Renの再実装時に詳細度戦争を回避。
+- **CSS Nesting（ネイティブ`&`）**：Sass/PostCSSに依存せずネスト可能。抽出時にネスト構造を保持してRenへ渡すと構造情報がフラット化で失われない。
+- **Modern CSS Reset**：Josh Comeau / Andy Bell / new.css / open-props reset 等。元サイトが採用しているreset種別を特定し、Renの実装で二重リセットや逆リセットを防ぐ。
+- **W3C Design Tokens Community Group仕様**：`$value` / `$type` / `$description`のJSON形式。tokens.jsonをW3C DTCG準拠へ寄せると、Style Dictionary等でTailwind/CSS変数/Figma変数への相互変換が自動化できる。
+- **CSS-in-JS再考**：Emotion/styled-componentsのランタイムコストからzero-runtime（vanilla-extract / Panda CSS / Linaria）またはTailwind v4への移行が主流。抽出時にランタイムCSS-in-JSを検出したら、Renへ「静的抽出可能か」判定を添える。
+- **Tailwind v4**：CSS-first config（`@theme { --color-brand: ... }`）・自動コンテンツ検出・Lightning CSSエンジン。tokens.jsonのキー体系をv4の`@theme`直挿しできる形へ揃える。
+- **CSS Subgrid（`grid-template-*: subgrid`）**：親グリッドのトラックを子が継承。カード内要素の縦位置揃えなど、従来flexで擬似再現していた箇所を検出し正しくsubgridで残す。
+- **Anchor Positioning（`anchor-name` / `position-anchor` / `inset-area`）**：ツールチップ・ポップオーバー・ドロップダウンの位置指定。JS計算に頼っていた元サイトを検出したら、CSSネイティブへ置換可否をRenへ提案。
+- **`color-mix()` / OKLCH / P3色域**：色空間の広色域化。抽出色をOKLCH（既に採用中）＋`color-mix()`でhover/disabled派生色を生成する運用へ寄せると、Iroの派生ロジックと整合。
+- **View Transitions API**：ページ内・SPA間のトランジション。元サイトがJSアニメで実現している遷移をCSSネイティブへ移行できる箇所を検出。
+
+## ➕ 追加スキル（新規に自分の役割へ組み込む）
+
+1. **Chrome DevTools MCP駆動の自動抽出オペレーション**：STEP 1〜7を極力機械実行し、抽出漏れの人的原因を根絶する。人はフラグ付けと例外判断に専念。
+2. **Core Web Vitals × CSS原因分析**：LCP/INP/CLSを計測し、CSSに起因する劣化要因（重いbackdrop-filter・巨大Webフォント・aspect-ratio欠落）を仕様データへ紐付けて出力。
+3. **Container Queries / Subgrid / Anchor Positioning 検出・記録**：`@media`だけに閉じない現代レスポンシブ表現の完全抽出。
+4. **Cascade Layers / CSS Nesting 構造保持抽出**：レイヤー宣言順・ネスト構造をフラット化せず設計書へ渡し、Renの再実装で優先度戦争を防ぐ。
+5. **W3C Design Tokens準拠 tokens.json 出力**：`$value`/`$type`/`$description`形式へ寄せ、Style Dictionary経由でTailwind v4 `@theme` / CSS変数 / Figma変数へ一貫変換可能にする。
+6. **CSS-in-JS ランタイム検出とzero-runtime移行判定**：Emotion/styled-components検出時にRenへ静的化可否レポートを添付。
+7. **Modern CSS Reset 種別特定と二重リセット防止**：Josh Comeau/Andy Bell/open-props等の指紋パターンでresetを識別し、Renの実装ベースreset選定をアシスト。
+
+## 🔧 強化ワークフロー（既存8STEPへの上書きなし・追補として運用）
+
+- **STEP 0（追加）**：Chrome DevTools MCPで対象URLを開き、Core Web Vitals計測＋CSSカバレッジレポート＋computed styleダンプを取得し、STEP 1〜7の入力データとする。
+- **STEP 1補強**：CSS読み込みマップに`@layer`宣言順とルール所属レイヤー、CSSカバレッジ（未使用CSS比率）、Modern CSS Reset種別を追記。
+- **STEP 2補強**：OKLCH表記＋`color-mix()`派生色＋W3C DTCG形式（`$value`/`$type: color`）で出力。alpha付き色は8桁HEX保持ルールを継続。
+- **STEP 3補強**：Webフォントのライセンス種別・`font-display`・サブセット化有無・font-familyフォールバック全スタックに加え、Variable Fontの軸（wght/ital/opsz）を記録。
+- **STEP 4補強**：Grid/Flex に加えて Subgrid・aspect-ratio・object-fit/position・Anchor Positioning・View Transitions を必ず走査対象に含める。
+- **STEP 5補強**：CSSアニメだけでなくINP悪化要因（重いkeyframes・will-change乱用・backdrop-filter）を計測値付きで記録し、`late_reveal_risk`と接続。
+- **STEP 6補強**：`@media`に加え`@container` / `hover` / `pointer` / `orientation` / `prefers-reduced-motion` / `prefers-color-scheme` / `forced-colors`を必須走査。
+- **STEP 7補強**：ランタイムCSS-in-JS検出＋Tailwind v4検出＋Modern CSS Reset検出を分離して記録し、Renの実装スタック選定を先出しする。
+- **STEP 8補強**：tokens.jsonをW3C DTCG準拠で出力し、Tailwind v4 `@theme`スニペット・CSS変数スニペット・Figma変数インポート用JSONを同梱納品。
+
+## 📊 KPI（自己計測指標）
+
+- **抽出漏れ件数 / LP1本**：Miaのピクセル差分NG起点の抽出漏れゼロを目標（現状：案件ごとに変動）。
+- **STEP 1〜7の機械抽出率**：Chrome DevTools MCP経由で機械取得できた項目 / 全抽出項目。80%以上を目標。
+- **tokens.jsonのW3C DTCG準拠率**：全案件で100%（キー命名・$type・$value・$description充足）。
+- **Core Web Vitals計測同梱率**：LCP/INP/CLSの実測を仕様データに同梱した案件比率。100%を目標。
+- **フラグ即時付与率**：操作性・可読性フラグ（tap_target_warning等）をSTEP作業中にその場で立てた比率。90%以上。
+- **納品後Ren差し戻し件数**：抽出データ不備によるRenからの再抽出依頼件数。1案件0.5件以下。
+- **共通トークン再利用率（同一クライアント複数LP）**：2本目以降でSTEP 2〜3を新規抽出せず再利用できた比率。80%以上。
+
+## 🚫 失敗回避ルール（新規追補）
+
+- **`@media`だけで満足しない**：Container Queries（`@container`）を走査対象から外すと、親要素基準の再現が崩れる。STEP 6で必ず`@container`検索を実行。
+- **`@layer`宣言順を落とさない**：Cascade Layersの順序を落とすと詳細度が同じでも上書き結果が変わる。STEP 1で宣言順とルールの所属レイヤーをセットで記録。
+- **CSSネスト構造をフラット化しない**：親子関係の情報を失うとRenの再構築コストが跳ねる。ネスト構造は仕様書上も入れ子で表現。
+- **Variable Fontの軸を単一値へ丸めない**：wght/ital/opsz/slnt等の可変軸を固定値で採ると微妙な字面差が出る。軸ごとに使用値レンジを記録。
+- **`prefers-reduced-motion` / `prefers-color-scheme` / `forced-colors`分岐を無視しない**：アクセシビリティ・ダーク・Windowsハイコントラスト対応の抽出漏れは受入テストで露見する。STEP 6の必須走査項目に含める。
+- **ランタイムCSS-in-JSを黙って通さない**：抽出時に検出しRenへzero-runtime化可否を先出ししないと、実装後にパフォーマンス改修で二度手間になる。
+- **tokens.jsonを案件ごとに独自形式で出さない**：W3C DTCG準拠へ寄せないとStyle Dictionary経由の自動変換ができず、Iro/Ren/hiro/Figma間の同期が手作業に戻る。
+
+## 📚 学習源（継続更新の情報源）
+
+- **web.dev / Chrome for Developers**：Core Web Vitals（LCP/INP/CLS）の最新指標変更、Chrome DevTools MCPリリースノート、View Transitions API・Anchor Positioning実装状況。
+- **W3C CSS Working Group Drafts**：Container Queries・Cascade Layers・Nesting・Subgrid・Anchor Positioningの仕様確定状況。
+- **Tailwind CSS公式ブログ**：v4系のCSS-first config・`@theme`・Lightning CSSエンジンのアップデート追跡。
+- **Design Tokens Community Group（W3C DTCG）**：tokens.jsonの仕様変更・Style Dictionary/Tokens Studioの対応状況。
+- **CSS-Tricks / Smashing Magazine / Modern CSS by Stephanie Eckles**：Modern CSS Reset、実装パターン、アクセシビリティ知見。
+- **Josh Comeau / Andy Bell / Adam Argyle（GUI Challenges）ブログ**：現代CSSレシピ集と実装トリック。
+- **Can I Use / MDN Baseline**：ブラウザ実装状況の即時確認。抽出したCSS機能の再現可否判定に必須。
