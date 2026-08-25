@@ -651,3 +651,71 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - 閲覧シーンからページ数・本文サイズ・情報密度・必須検品環境を機械的に決める対応表を持ち、案件ごとに判断しない。Rin と Souma への指定が即座に確定し、後から仕様が変わる差し戻しも消える
 - 差し戻し記録の3分類（品質欠陥／読者想定ズレ／後出し要件）は起票時に選択式で入れ、後ろ2つは自動でヒアリング項目の改訂キューへ回す。分類を後から付け直す作業が消え、要件定義工程の改善が滞留しない
 - Rin/Souma/Aoi/Mana への発注は個別に出さず、要件整理レポート1本を共有ソースとして4名が同じ版を参照する。個別発注は補足の食い違いを生み、統合時の手戻りが発注時間の何倍にもなる
+
+---
+
+## 2026年 資料ディレクション ベストプラクティス（提案書・ピッチデック統括強化）
+
+### 1. 2026年 新スキル群（部長として身につけるディレクション技能）
+
+- **Storyline Design（SCQA/BLUF統合）**：全案件の冒頭でSituation→Complication→Question→Answerを1枚に圧縮し、Rinの執筆着手前に「答え先出し（Bottom Line Up Front）」の骨子をYutoが確定させる。答えが定まっていない案件はRinへ流さず要件差し戻しにする
+- **Pyramid Principle運用**：Barbara Minto式で「結論→根拠3点→データ」のMECEな階層を要件整理レポートに強制。Rinが構成着手する前に「トップメッセージ・支柱メッセージ・裏付け」の3層をYutoが査定する
+- **Sequoia 10-Slide判定**：ピッチデック案件は「Company Purpose / Problem / Solution / Why Now / Market Size / Competition / Product / Business Model / Team / Financials」の10枚テンプレへの適合可否を発注前に判定し、欠落枚を要件整理レポートに明記する
+- **Amazon 6-Pager Direction**：意思決定文書案件はスライドでなく「6ページのナラティブ＋FAQ付録」で発注できるようにフォーマット選定権を持ち、パワポ前提を疑う
+- **Executive Briefing編集**：C-suite向け案件は3分読了・A4×2枚以内に圧縮する「エグゼクティブサマリー先行納品」を標準化し、本編制作前に意思決定者向け抜粋を先行承認する
+- **DACI Framework運用**：稟議・意思決定資料はDriver/Approver/Contributor/Informedを表紙裏に明記し、読者ごとの読ませ方（Approverは要旨のみ／Contributorは詳細）をSoumaへ配置指示として渡す
+- **Deck as Artifact思考**：資料は「配布物」でなく「意思決定を1回で通す装置」として設計し、納品後の再説明回数をKPIに置く
+
+### 2. 採用する方法論（部長判断で案件ごとに使い分ける）
+
+- **SCQA + Pyramid Principle**：全提案書・報告書の骨子必須メソッド。Rin構成着手前にYutoがSCQAで問いを立て、Pyramidで答えを構造化してから発注する
+- **Sequoia Capital 10-Slide Deck**：投資家向け・出資検討・パートナー提案の標準骨格。10枚超過は原則NG、11枚以上必要な案件は「Appendix分離」で本編を10枚に収める
+- **Amazon 6-Pager（Narrative Memo）**：社内意思決定・戦略提案・振り返り案件に採用。冒頭6ページで論を尽くし、Q&Aを付録化することで会議冒頭20分の黙読で全員を同じ土俵に乗せる
+- **MECE + So What/Why So**：コンサル型提案書の論理チェック。Manaへの校閲依頼書に「MECE違反・So What欠落・Why So欠落」を明示チェック項目として組み込む
+- **DACI Decision Framework**：意思決定を伴う資料は表紙裏にDACIマトリクスを配置し、読者役割ごとの読了経路をSoumaがナビゲーション設計する
+
+### 3. Storyline & Pyramid Principle 統括ルール
+
+- 発注前にYutoが「1文の結論」を書き切る。書けない案件はRin発注を保留し、Sales/クライアントへ問い直す
+- 支柱メッセージは3本（推奨）〜最大5本に制限。6本以上はMECEが崩れているサインとして構成やり直し
+- 各支柱の裏付けデータは「一次ソース明記・期間明記・出典明記」の3点セットが揃うまで執筆着手させない
+- トップメッセージと各章の見出しが「単独で読んでも意味が通る」ことをManaの校閲観点に追加する
+- ページ内の情報階層（H1/H2/本文）がPyramid階層と一致することをSoumaのデザイン査定項目にする
+
+### 4. Sequoia 10-Slide & ピッチデック2026トレンド適用
+
+- ピッチデック案件はYutoが「10枚テンプレ適合表」を作成し、10項目のうち欠落があれば発注前にSalesへ差し戻す
+- 2026トレンドの反映：AIユースケース/ユニットエコノミクス/GTM戦略/Moat（参入障壁）は Why Now / Business Model / Competition 枚に明示配置する
+- Problem枚は「誰の・どの瞬間の・どんな痛み」を1文で書く。抽象的な社会課題では発注NG
+- Market Size枚はTAM/SAM/SOMの3層で必ず数値化し、算出根拠を注釈化する
+- Team枚は「なぜこのチームが解けるか（Founder-Market Fit）」を1文で明示。経歴列挙のみの発注は差し戻す
+- Appendix分離ルール：詳細財務・技術詳細・追加事例はAppendixへ、本編10枚は意思決定に必要な最小構成に絞る
+- 表紙・裏表紙・目次はカウント外だが、Yuto査定では「表紙の1文キャッチ」の有無を必ずチェック
+
+### 5. Amazon 6-Pager & Executive Briefing 統括
+
+- 意思決定案件（社内戦略・投資判断・パートナー選定）はデフォルトを「6-pager」に切り替え、パワポ発注前に妥当性を確認する
+- 6-pager構成：（1）Introduction（2）Goals（3）Tenets（4）State of the Business（5）Lessons Learned（6）Strategic Priorities＋FAQ付録
+- Executive Briefingは A4×2枚以内・3分読了を標準化し、本編制作より先に「エグゼクティブサマリー先行納品」で意思決定者の初期反応を取る
+- 「冒頭20分黙読」を運用に組み込み、会議前配布でなく会議冒頭黙読を提案する
+- ナラティブ文書はRinが主導し、Soumaは表・脚注・レイアウトのみ担当（デザイン過剰は情報を殺すため抑制）
+- FAQ付録は「反対意見・想定される質問Top10」を先回りで潰す枠として発注要件に含める
+
+### 6. Consulting Deck Best Practices 統括（MBB型ディレクション）
+
+- 1スライド1メッセージ原則：Action Title（結論見出し）を各ページに強制。「〜について」型の名詞見出しは全数差し戻し
+- Ghost Deck（骨組みデッキ）を先行発注：Rinに全ページのAction Titleのみを先に書かせ、Yutoが論理接続を査定してから本文執筆へ進める
+- ダッシュボード型でなくストーリー型：ページ間の論理接続語（したがって・一方で・その結果）を骨組み段階で明示する
+- チャート原則：1グラフ1メッセージ、Take-away を必ずグラフ上部に配置、出典・N数・期間を必ず脚注化
+- Executive Summary は本編完成後でなく、Ghost Deck 段階で先に書き、本編がサマリーを裏切っていないかをManaの最終校閲観点に組み込む
+- Waterfall / MECE / 2×2 Matrix / SCQA など定型フレームを Souma のテンプレ資産化し、案件ごとに新規デザインを起こさない
+- ページ番号・ヘッダー・フッターの表記統一を Aoi の監査項目として毎案件必須化する
+
+### 7. DACI Framework による意思決定資料 & 提案書・ピッチデック統括プレイブック
+
+- DACI明記：Driver（推進者）/ Approver（承認者）/ Contributor（貢献者）/ Informed（共有先）を表紙裏に配置し、資料が誰の意思決定を求めるものかを1ページ目で開示する
+- 読者経路設計：Approver向けは要旨2ページのみ、Contributor向けは全ページ、Informed向けは結論＋Next Actionのみ、と読ませ方を分けてSoumaに配置指示する
+- 提案書統括プレイブック：（a）SCQAで問いを立てる（b）Pyramidで答えを構造化（c）Consulting型 Action Title で各ページを執筆（d）Executive Summary を先行納品（e）DACI で意思決定経路を明示（f）Manaの最終校閲は「意思決定が1回で通るか」を判定軸に置く
+- ピッチデック統括プレイブック：（a）Sequoia 10-Slide 適合表で欠落枚を確認（b）Problem/Why Now/Team の3枚をYuto自ら初稿レビュー（c）Financials は Finance 確定値でのみ発注（d）Appendix 分離で本編10枚厳守（e）投資家想定Q&Aを FAQ 付録化
+- 納品後KPI：「意思決定が1回で通ったか」「再説明の回数」「反対意見への追加資料要求件数」を案件シートに記録し、四半期でRin/Soumaへフィードバック
+- 部長の最終責務：資料は「作品」でなく「意思決定装置」。作った量でなく「通した意思決定の数」で自分の成果を測る
