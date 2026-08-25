@@ -529,3 +529,53 @@ STEP 6: 差し戻し後の再チェック
 - 検証条件（モバイルビューポート＋ネットワークthrottling＋ターゲットサイズ判定）はCI設定に固定し、実行のたびに指定しない。条件が固定されると案件間で結果を比較でき、条件違いによる見逃しも消える
 - Severity は毎回議論せず「データ喪失／機会損失（応募の消失・通知不達）＞業務停止＞表示崩れ」の判定表から選ぶだけにする。起票が速くなるうえ、Kai がクライアントへ説明する言葉もそのまま揃う
 - 機械判定できる項目（バリデーション網羅・a11yのターゲットサイズ・レスポンス契約）は全てCIへ寄せ、人的QAは「初見の非エンジニアが迷う箇所」など機械化不能な観点だけに残す。人が見る対象を減らすほど検出の深さが上がる
+
+---
+
+## 🧪 2026年 QA・テスト最新プラクティス統合（v2026.08）
+
+### 1. モダンテストランナー刷新（Vitest 3.x を基盤に）
+- **Vitest 3.x を全プロジェクトの標準テストランナーに固定**：Jest からの完全移行を推奨。ESM ネイティブ・Vite との設定共有・並列実行の速さで CI 時間 40〜60% 短縮。`vitest --changed` で差分実行、`--project` でモノレポ複数パッケージを並列実行
+- **Vitest Browser Mode（experimental → stable）を UI コンポーネントテストの標準に**：jsdom の擬似 DOM ではなく、実ブラウザ（Playwright driver）で `@testing-library/react` を実行。CSS 依存・スクロール・フォーカスなど jsdom で拾えない挙動を検出
+- **`vitest --coverage --coverage.provider=v8` で Istanbul より高速な V8 カバレッジ収集**：計装コストをほぼゼロ化し、カバレッジ計測ありの CI でも実行時間ペナルティ ≤ 10%
+- **`describe.concurrent` / `it.concurrent` をデフォルトに、DB 書き込み系のみ `sequential`**：I/O 待ちのテストが並列化され、統合テストスイートの実行時間が 3〜5 倍高速化
+- **`expect.poll()` と `vi.waitFor()` で「時間依存の非同期テスト」を Flaky ゼロ化**：`setTimeout` / `sleep` を全面禁止、条件成立まで poll する形に統一。CI Flaky 率 1% 未満を維持
+- **`vitest-mock-extended` で型安全なモックを強制**：Prisma Client・外部 API クライアントのモックを型定義から自動生成、実装変更時にモック側のコンパイルエラーで検出
+
+### 2. Playwright MCP × E2E 自動化の次世代化
+- **Playwright MCP サーバーを Mio 専用ツールとして常時起動**：ブラウザ操作・スクリーンショット・DOM スナップショットを LLM から直接指示可能。「新規機能の E2E テストひな型を Mio が対話的に生成 → 保存」のフローを標準化
+- **`page.route()` × MSW ハンドラ共有で「フロント E2E とバック統合テストが同じモック定義」**：ハンドラをパッケージ化して両方で `import` することで、契約ズレによる本番事故を構造的にゼロ化
+- **Playwright の `trace: 'on-first-retry'` と Sharding（`--shard=1/4`）を CI 標準に**：失敗時の再現映像・タイムライン・ネットワークログを自動保存、Riku への差し戻しレポートに `trace.zip` を必ず添付
+- **Visual Regression は `toHaveScreenshot()` + `maxDiffPixels` 閾値運用**：フォント差・アンチエイリアシング差を許容ピクセル数で吸収、意図しない UI 変更のみを検出
+- **`page.getByRole()` を第一選択に、`getByTestId` は最後の手段**：a11y ロールベースのセレクタで書くことで、テスト自体が a11y ゲートを兼ねる
+
+### 3. 契約テスト・型駆動 QA（Zod / OpenAPI / Pact）
+- **Zod スキーマを「API 契約の Single Source of Truth」化**：Nao の設計書 → Zod スキーマ → OpenAPI 生成（`zod-to-openapi`）→ フロント型（`z.infer`）まで一気通貫。Ao / Riku のズレを型段階で検出
+- **`msw` のハンドラも Zod スキーマから自動生成**：モックレスポンスが契約に違反したら CI で赤くなる仕組みを構築、「モックは通るが本番は落ちる」問題を撲滅
+- **バックエンドは `zod` バリデーションを handler の第一行に固定**：受信データを必ず `schema.parse()` で通し、境界値テストの網羅性を型システムに委譲
+- **Pact / Contract Testing を BFF ↔ 外部 API の境界に導入**：Airwork API・indeed API など外部依存には Consumer Driven Contract を書き、契約変更を PR で検出
+
+### 4. TDD Guard 完全準拠フロー（Kent Beck 2026 リブート版）
+- **TDD Guard を pre-commit / CI 両方で必須化**：`vitest --run --reporter=verbose` の結果を parse し「テストなしでプロダクションコード変更」があれば commit をブロック。Riku / Ao の TDD 逸脱を仕組みで防止
+- **Kent Beck の「Tidy First?」原則に沿って PR を分割**：構造変更（Refactor）と振る舞い変更（Feature）を別 PR に強制、レビュー観点が混線せず QA 判定が高速化
+- **Red-Green-Refactor の各フェーズを commit メッセージ prefix で明示**：`red:` / `green:` / `refactor:` を規約化し、`git log --grep='^red:'` で TDD 遵守率を可視化
+- **`test.todo()` を「まだ書いていないテスト」の予約席として活用**：Nao の受入基準を先に `test.todo('...')` で全件並べ、Riku / Ao の実装進捗と対応付ける
+
+### 5. 高度なテスト手法（Mutation / Property-Based / Fuzz）
+- **Stryker Mutator を月次で全リポジトリに走らせ、Mutation Score 60% 以上を維持**：カバレッジ 80% でも Mutation Score が低ければ「通っているだけのテスト」を検出。ビジネスロジック層に重点適用
+- **`fast-check` による Property-Based Testing を境界値バグ検出の主力に**：`fc.assert(fc.property(fc.string(), (s) => ...))` の形式で、Unicode 結合文字・サロゲートペア・ゼロ幅スペースなど手書きで思いつかない入力を自動生成
+- **Fuzz Testing（`jazzer.js`）を認証・パース系エンドポイントに常設**：JWT パーサー・CSV アップロード・JSON body 受け口など攻撃面が広い箇所に自動 fuzz を CI 週次実行
+- **Snapshot Testing は「AST スナップショット」に限定、UI スナップショットは Visual Regression に一本化**：スナップショット肥大化と `--u` 濫用を防ぐ
+
+### 6. テストピラミッド vs Testing Trophy（Kent C. Dodds 2026）
+- **フルスタック Next.js プロジェクトは「Testing Trophy」構成を採用**：Static（TypeScript + ESLint + Zod）> Integration（RTL + MSW）> Unit（純粋関数）> E2E（Playwright）の順で投資比重。統合テスト厚めが 2026 年の主流
+- **`@testing-library/react` の「Implementation Details を書かない」原則を Riku に強制**：`getByRole` / `getByLabelText` を優先、`container.querySelector` や snapshot での DOM 構造依存を PR でブロック
+- **MSW（Mock Service Worker）v2 系を統合テストの標準 HTTP モックに**：ネットワーク層でモックすることで、`fetch` / `axios` / `ky` などクライアントライブラリ変更に非依存
+- **統合テスト（RTL + MSW）を「ユニットの 2 倍書く」ガイドラインを Kai と合意**：ハンドラ関数単体ではなく「フォーム入力 → API 呼び出し → 画面反映」の 1 セットを 1 テストに
+
+### 7. テスト実行効率・観測性の最適化
+- **CI で Turborepo `--filter=[HEAD^1]` × Vitest `--changed` を組合せた「差分テスト」を default に**：全テスト実行は nightly のみ、PR 時は変更影響範囲のみで平均 CI 時間 8分 → 90秒
+- **Istanbul / V8 カバレッジを Codecov へ送信し、PR ごとに「変更行カバレッジ 90% 以上」をゲート化**：全体カバレッジではなく差分行カバレッジをブロック条件にする（既存負債に足を引っ張られない）
+- **Flaky テスト検出を `vitest --retry=2 --reporter=json` の結果解析で自動化**：2 回目で PASS したテストを quarantine ラベル自動付与 → GitHub Issue 自動起票 → 48 時間 SLA
+- **Sentry / OpenTelemetry の本番エラーを Vitest の regression test にフィードバック**：本番で発生したエラーの stack top を関数名で拾い、その関数のテストが不足していれば `test.todo` を自動生成
+- **Playwright / Vitest の実行トレースを PR 上に artifact として自動アップロード**：レビュアーがローカル再現不要でトレースを開けるようにし、差し戻しループを 1〜2 回削減

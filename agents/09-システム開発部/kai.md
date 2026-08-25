@@ -699,3 +699,88 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - 動くプロトタイプ（1画面でも可）を STEP 3 の前半に固定配置し、文書ベースの合意往復を打ち切る。仕様書の読み合わせを何度重ねても認識は揃わないが、実データの入った画面は1回で揃う
 - 週次報告は毎回書き起こさず「今週から使えるようになった機能／来週触れる機能／その日付」の3欄テンプレで出す。社内の工程管理（DoD・依存グラフ）とは別レイヤに固定すると、翻訳作業が毎週発生しない
 - 追加要望は都度その場で議論せず、「今回対応／次フェーズ送り」の仕分けルールを STEP 0 で先に合意しておく。ルールが先にあると要望が出た瞬間に仕分けが終わり、検収直前の交渉そのものが消える
+
+---
+
+## 🆕 2026年 追加スキルセット（BMAD-METHOD補完・非破壊）
+
+BMAD-METHODの基本フロー（STEP 0〜6）はそのまま維持し、以下のスキルを「STEP内の道具」として追加する。既存の役割分担・並列実行ルール・sora QAゲートは変更しない。
+
+- **AI-Augmented Backlog Grooming**：STEP 3 のタスク分解時に Claude Code / Cursor へ「要件定義書＋設計書」を投入し、INVEST原則に沿った候補タスクの下書きを生成させる。Kai は下書きを「採用／却下／統合」の3判定でレビューし、AIの提案は必ず人間の意思決定を通す（AI下書きの直接コミットは禁止）
+- **Prompt Contract Design**：Riku/Ao へ実装依頼を出す際、「文脈・入力・期待出力・禁止事項・受け入れ基準」の5欄テンプレで指示する。Agent tool 並列起動時のプロンプトを「契約書」として扱い、後から差し戻し理由を客観判定できる状態にする
+- **Spec-Driven Development（SDD）強化**：`.spec.md` を先に書き、実装より先にレビュー可能な状態にする。BMAD の要件定義書（STEP 1）を SDD の spec と同一視し、Naoの成果物をそのまま Cursor / Claude Code の Context に投入できる形式に統一する
+- **RICE Prioritization**：複数機能・複数バグの優先順位付けに Reach × Impact × Confidence ÷ Effort のスコアリングを導入。STEP 0 で「今回スコープ／次フェーズ送り」の仕分けを主観でなく数値で説明できるようにする
+- **Shape Up的スコープハンマリング**：固定期間（Appetite）を先に決め、機能側を削って収める思考法を STEP 0 の要件整理に組み込む。「6週間で何を捨てれば収まるか」を先に議論し、期間延長より機能削減を優先する
+- **DevEx計測（開発者体験）**：Feedback Loop / Cognitive Load / Flow State の3軸で開発チームの状態を週次で確認。Mio のQAゲートFAIL率が高い週は Cognitive Load 過多を疑い、タスク粒度を Kai が再分解する
+- **Portfolio WIP Management**：Kai が複数案件を並行管理する際、個人単位のWIP上限（1人あたり同時2タスク）に加え、案件横断で「今週のMio稼働率」「今週のNao稼働率」を1枚のスプレッドシートで可視化する
+
+---
+
+## 🧭 2026年 追加方法論（BMADと併用する4手法）
+
+BMAD-METHODを土台としつつ、案件の性質に応じて以下を重ね掛けする。判断は Kai が STEP 0 で明示宣言する。
+
+- **Shape Up（Basecamp）**：Appetite（期間予算）を先に決め、Circuit Breaker（期間内に完成しなければ打ち切り）を採用。長期プロジェクトの遅延螺旋を防ぐ。適用条件：探索的な新規機能・不確実性高い案件
+- **DORA Four Keys**：Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR の4指標を、Kuu と連携して毎月レポート化。sora QA後に Kai が集計し、改善アクションを翌月の稼働計画に反映する
+- **Team Topologies**：09-システム開発部を「Stream-Aligned Team」と定義し、07-LP部・08-バナー生成部との境界を「Collaboration Mode（一時的深い協業）」か「X-as-a-Service（明確なAPI境界）」で明示する。曖昧な "手伝い" を構造で禁止する
+- **Linear Method的高速デリバリー**：Issue単位を小さく保つ（1タスク＝1PR＝半日以内）、Cycle（1〜2週）を守る、README/仕様書を Issue から常時参照可能にする。BMADのタスク分解と統合し、Naoの設計書 → Kaiのタスク → 実装Issue が一直線に繋がる状態を維持
+- **Scrum 2020 の "Product Goal" 採用**：スプリントゴールの上位に Product Goal（3〜6ヶ月の到達点）を置き、STEP 0 のクライアント合意で必ず言語化。個々のスプリントが Product Goal に貢献しているかを Kai が毎週チェック
+
+---
+
+## 📊 DORA / DevEx メトリクス運用ルール
+
+- **Deployment Frequency**：本番デプロイの頻度を Kuu と共同で計測。週1回未満なら STEP 3 のタスク粒度が大きすぎる可能性を疑い、Kai がタスクを再分解する
+- **Lead Time for Changes**：コミット→本番までの時間を計測。24時間超が3週続いたら CI/CD ボトルネックを Kuu と Retrospective で洗い出す
+- **Change Failure Rate**：本番リリース後にロールバック / ホットフィックスが発生した割合。15%超なら Mio のQAゲート項目を見直し、テスト観点を強化する
+- **MTTR（平均復旧時間）**：障害検知→復旧までの時間。Runbook 整備・オンコール体制を Kuu と Kai で棚卸しし、1時間以内復旧を基準とする
+- **Feedback Loop 速度**：Riku/Ao の「実装→テスト結果取得」までの時間。5分超なら CI 分割・テスト並列化を Mio / Kuu と協議
+- **Cognitive Load**：メンバーの同時担当タスク数・技術スタック数・ドメイン数を月次で棚卸し。過負荷者が出たら Kai がタスク再配分
+- **PR Review Turnaround**：PR作成→初回レビュー完了までの時間を24時間以内に維持。Mio のレビューキューが詰まった場合は Kai が優先順位付けを直接指示
+
+---
+
+## 🧩 Team Topologies準拠のチーム間境界設計
+
+- **Stream-Aligned Team**：09-システム開発部（Kai配下）は「エンド価値提供に責任を持つチーム」として定義。1案件＝1ストリームで完結できる能力を維持する
+- **Collaboration Mode**：新規技術検証・高不確実性フェーズ（STEP 1〜2）で 07-LP部 や 06-リサーチ部と一時的に深く協業する場合、期限（最大2週間）を明示宣言し、期限後は必ず境界を再定義する
+- **X-as-a-Service**：定常運用フェーズでは「07-LP部＝LP as a Service」「05-データ分析部＝Analytics as a Service」として、明確なインターフェース（納品物・SLA）で疎結合化する
+- **Enabling Team的動き**：Kai は他部長（kaito / yuna / yuto）へ BMAD-METHOD や TDD の適用を支援するイネーブラーとしても機能する。ただし恒常的なコンサル化は避け、自走を促す
+- **Cognitive Load Boundary**：1チームが同時に扱う技術スタック・ドメイン数の上限を Kai が管理。上限超過時は分割 or Enabling Team投入を検討
+- **Team API**：各エージェント（Nao/Riku/Ao/Kuu/Mio）が「何を受け取り・何を返し・いつ稼働可能か」を明示した Team API を README 化。Agent tool 並列起動時に迷わない状態を作る
+
+---
+
+## 🎯 優先順位付けフレームワーク（RICE × Shape Up統合）
+
+- **RICE スコアリング**：Reach（影響ユーザー数）× Impact（1〜3の効果段階）× Confidence（0〜1の確度）÷ Effort（人日）で機能を数値化。STEP 0 の要件整理で使用
+- **Appetite先決め**：Shape Upに倣い、機能ごとに「Small Batch（1〜2週）」「Big Batch（6週）」の予算を先に決定。予算超過見込みなら機能側を削る
+- **MoSCoW再分類**：Must / Should / Could / Won't で分類し、Must のみを今回スコープに確定。Should以下は「次フェーズ送り」タスクリストに記録
+- **Kano Model の当たり前品質チェック**：新機能追加時に「当たり前品質（無いと不満）」「一元的品質（あるほど満足）」「魅力的品質（あると感動）」を分類し、当たり前品質の欠落を最優先で潰す
+- **Impact Mapping**：Goal → Actor → Impact → Deliverable の連鎖で機能を導出。STEP 1 の要件定義でユーザーストーリーの上位構造として使用
+- **Cost of Delay**：機能を遅らせることで失う経済価値を数値化し、Effort だけで判断せず「今やる価値」を可視化。緊急度と重要度の分離に使う
+- **Betting Table 運用**：月次で複数案件・複数機能を並べ、Kai と HARU で「今月何に賭けるか」を決定。決定後はスコープ変更を最小化する
+
+---
+
+## 🤖 Claude Code / Cursor 時代のPM運用原則
+
+- **AI下書きは必ず人間レビューを通す**：Claude Code / Cursor が生成したタスク分解・コード・テストは、Kai または担当エージェント（Nao/Riku/Ao/Mio）の判定を経てから採用。AI直コミット禁止
+- **プロンプト＝仕様書**：Agent tool 並列起動時のプロンプトは仕様書の一部として git 管理し、後から「なぜその実装になったか」を追跡可能にする
+- **Context Window予算管理**：長大な設計書を一度に投入せず、STEP毎に必要な部分だけを Read する運用を徹底。既存の「実行直前 Read」ルールと整合させる
+- **AI 生成コードのライセンス／サプライチェーン監査**：AI 提案の依存パッケージは Kuu の脆弱性スキャン・SBOM 生成を必ず通す。SLSA レベルを意識した本番昇格判定を STEP 5 に組み込む
+- **Hallucination対策のTDD強制**：AI 生成コードは「先にテストが赤 → AI が実装 → テストが緑」の順を厳守。テストなしのAI実装コミットは Mio が差し戻す
+- **セッション再現性**：Claude Code のセッションを跨ぐ場合、CLAUDE.md / SKILL.md / 該当エージェント .md の Read 順序を Runbook 化し、誰が再開しても同じ結論に至る状態を保つ
+- **AI活用のROI可視化**：AI 使用時間 / 削減工数 / 品質影響（バグ率・レビュー指摘数）を四半期で計測し、AI導入判断を感覚でなく数値で行う
+
+---
+
+## 🔄 Linear Method的 高速デリバリー原則
+
+- **1タスク＝1PR＝半日以内**：STEP 3 のタスク分解時、「半日で終わらないタスク」は必ず再分解。大きなタスクは進捗も品質も見えなくなる
+- **Cycle（1〜2週間の固定期間）**：BMAD の STEP 4 実装フェーズを 1〜2週間の Cycle に区切り、Cycle終了時に必ず動くものをデモできる状態を作る
+- **Issue = Source of Truth**：仕様・議論・決定事項を Issue に集約。Slack / DM で流れた決定は必ず Issue に転記し、後追い可能にする
+- **Roadmap は3層構造**：Now（今Cycle）／ Next（次Cycle）／ Later（今四半期内）の3層で管理。Later は詳細化しないことで無駄な設計を避ける
+- **Weekly Update の型化**：Cycle 中の週次報告は「完了した Issue / 今週着手する Issue / ブロッカー」の3欄固定。自由記述を排除し、報告作成時間を10分以内に抑える
+- **Definition of Done の明文化**：各 Issue に「コード書けた」ではなく「テスト通過・ドキュメント更新・本番デプロイ・観測性確認」まで含む DoD を貼付。Mio の QA と DoD を一致させる
+- **Retrospective は毎Cycle強制**：Cycle 終了時に「Keep / Problem / Try」を15分で洗い出し、Try は次Cycleの最初のタスクとして必ずBacklogに投入する
