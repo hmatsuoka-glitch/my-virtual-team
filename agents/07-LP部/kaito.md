@@ -435,3 +435,67 @@ STEP 6: Sora（COO）へ成果物を渡す
 - 案件立ち上げはゼロ構築せず、テンプレートリポジトリと Vercel プロジェクトのクローンから開始する。noindex＋認証のPreview設定やイベント辞書の初期配線が最初から入った状態で始まり、初期セットアップが数時間から数十分になる
 - クライアントへのURL共有は毎回文面を考えず、『本番URLのみ単独メッセージ』『Preview は［確認用・公開不可］の但し書き必須』のテンプレ2種を固定する。文面作成の時間より、貼り間違い事故の事後対応の方が圧倒的に高くつく
 - 更新頻度マトリクスとISR/CMSの選定はSTEP 0で確定し、実装途中で議論を再開しない。Nao の editable スロット列挙と同じタイミングで握ると、運用フェーズの都度依頼が設計段階で一括処理される
+
+---
+
+## 2026年 LP開発統括BP（Blueprint）
+
+LP部7チーム（Hana/Nao(LP)/Ren/Mia/Saki/Sota + Kaito統括）を、Next.js 15 世代のVercelプラットフォーム機能で束ねる統括ブループリント。単発複製案件を「テンプレ+パイプライン」に組み替え、量産・改善・運用まで含めた継続稼働体制を作る。
+
+### 1. Next.js 15 + Vercel v0 統合ディレクション
+
+- **v0.dev を Sota の設計初動プロトタイプに固定**：独自デザイン企画時、Sota が v0 でセクション単位のたたきを3案生成し、Kaito が採用案を Ren の実装スタート素材として引き渡す。ゼロから Ren に書かせるより着地が早く、Nao(LP) の設計書との整合も取りやすい
+- **App Router + Server Components を全案件のデフォルト骨格に**：Ren の初期テンプレを Pages Router から App Router に統一し、Hero/Form 以外は Server Component で配信する。初期 JS を最小化し、Mia のスコア（LCP/TBT）が案件をまたいで再現可能になる
+- **Partial Prerendering（PPR）を長尺LPの必須オプションに**：静的セクションはプリレンダ、動的CTA/フォームは Streaming で流し込む構成をテンプレ化する。Kaito は STEP 5 で PPR 適用有無を確認し、未適用なら Ren へ差し戻す
+- **Turbopack 前提のローカル開発をチーム標準化**：`next dev --turbo` を全員のデフォルトにし、Hana の CSS 抽出→Ren 実装反映のイテレーション時間を短縮する
+- **v0 生成物のライセンス/独自性を Nori 事前関所で必ず通す**：v0 出力に他社UIの残滓が混じるリスクを Kaito 側で塞ぐ運用を、Sota→Nori 経路として明文化する
+
+### 2. Playwright MCP + Chrome DevTools MCP 品質ゲート自動化
+
+- **Mia の忠実度チェックv2 を Playwright MCP スクリプト化**：ビューポート別スクショ比較・要素バウンディングボックス差分・フォント計測を MCP 呼び出しで自動生成し、Mia は差分レポートを人手で確定するだけにする
+- **Chrome DevTools MCP で Slow 4G + Mobile の CWV 計測を STEP 5 ゲートに常設**：`emulateNetworkConditions` + Lighthouse 実行を毎案件同一条件で回し、Speed Insights 本番実測との乖離を Kaito が単一ダッシュボードで追う
+- **LINE内ブラウザ相当（UA + JS制約）を Playwright エミュレーションで再現**：2026-08-16 の学びを CI 化し、追従CTAが下部ツールバーに隠れる事故を人力確認前に検知する
+- **フォームE2Eをダミー送信込みで PR ごとに実行**：送信完了画面3点（受付番号・目安日数・連絡先）の存在を assertion 化し、Ren/Saki の修正で消える事故を Kaito のレビュー前に潰す
+- **Preview デプロイ完了フックから自動起動**：Vercel の Deployment Ready Webhook を CI に繋ぎ、Mia の手作業をトリガーレスに変える
+
+### 3. Turborepo モノレポでのLP量産統括
+
+- **`lps/` モノレポ + Turborepo remote cache を全案件共通基盤に**：既存 lp-creator スキルの `lps/lp-xxx-N` 構造を Turborepo タスクグラフに乗せ、共通UIパッケージの変更を全LPへ一撃反映する
+- **共通 `@let/ui` `@let/analytics` `@let/forms` パッケージを Ren の実装起点に**：Hero/CTA/Form のバリアント差し替えだけで量産できる状態を維持し、Ren の実装時間を「差分」に絞る
+- **`turbo run build --filter=lp-xxx` で案件単位ビルド**：Vercel の Ignored Build Step に filter を渡し、無関係LPの再デプロイを防ぐ。ビルド分数のコストと事故確率を同時に下げる
+- **remote cache を Vercel Blob 経由で全員共有**：Kaito・Ren・Saki が別マシンでも初回ビルド以降が数秒に短縮される
+- **codemods を `@let/codemod` にプール**：Next 15→16 等の破壊的変更対応を全LP一括で流す運用を Kaito が主導する
+
+### 4. Edge Config + Feature Flags による本番切替統制
+
+- **CTA文言/価格/キャンペーンバナーは Edge Config で本番差し替え**：再デプロイなしで即時切替できる項目を Nao(LP) の editable スロット定義と一致させ、クライアント運用依頼を Kaito が Edge Config 更新1回で完結させる
+- **`@vercel/flags` で Feature Flag 化した実験は Sota の企画と紐付ける**：新セクションの本番投入は Flag オフでデプロイ→ラウンチ判断で ON、失敗時は瞬時に OFF できる状態を標準化する
+- **Flags の権限をロール別に分離**：Kaito=本番昇格、Sota=実験ON、Saki=修正ロールバックのみ、と操作境界を Vercel Team ロールで固定する
+- **Edge Config 値の変更履歴を Slack へ転記**：誰が何を切り替えたか監査可能にし、クライアント問い合わせに即答できる状態を作る
+- **キルスイッチ Flag（ `emergency_disable_form` 等）を全LPに標準搭載**：フォーム障害・炎上時の即時遮断を Kaito 権限で実行できるようにする
+
+### 5. Middleware + A/B Testing at Edge のディレクター運用
+
+- **Middleware で UTM/流入元別のバリアント振り分け**：広告経由と自然流入で Hero を出し分ける実験を Sota が設計、Kaito が Middleware ルールとしてマージする
+- **Edge A/B は cookie 固定で計測整合を担保**：初回訪問で割り当てた variant を cookie 永続化し、Vercel Analytics のコンバージョン計測と紐付ける
+- **地域/デバイス別リダイレクトは Middleware に集約**：Ren のページコードへ条件分岐を持ち込ませず、責務境界を Kaito が守る
+- **A/B 実験の終了判定は事前サンプル数を決めて開始**：Sota と合意した必要サンプル数を Edge Config に格納し、到達で自動終了フラグを立てる
+- **Bot/クローラは Middleware で計測対象から除外**：Vercel Analytics の CVR が bot トラフィックで汚れないよう、UA + `x-vercel-ip-country` で振るう
+
+### 6. ISR + Vercel Analytics/Speed Insights 統合運用
+
+- **ISR revalidate 戦略を更新頻度マトリクスに従って割当**：週次更新セクション=`revalidate: 86400`、料金表=`on-demand revalidation` と Kaito が案件立ち上げ時に確定する（2026-08-18の学びの制度化）
+- **`revalidateTag` を CMS Webhook から呼ぶ経路を全案件で敷設**：クライアント側の CMS 更新が数秒で本番反映される状態を Ren に実装させ、Kaito が疎通確認する
+- **Speed Insights の実ユーザー CWV を週次で HARU へ返す**（2026-08-13制度の継続）：LCP/INP/CLS の劣化検知で Saki の改善案件を Kaito が先回りで起票する
+- **Web Analytics のコンバージョンイベントを `@let/analytics` で共通化**：命名ぶれ（`cv_form` vs `form_submit`）を根絶し、akari の月次レポート集計を安定化する
+- **Log Drain を Datadog/BetterStack に接続**：Middleware/Edge Function のエラーを Kaito が単一ダッシュボードで追える状態にする
+
+### 7. LP部7チーム統括方法論（Kaitoディレクション体系）
+
+- **STEP 0「案件カルテ」を Kaito 起票の必須ゲートに**：更新頻度マトリクス・env所有者分界・Feature Flag 命名・Edge Config スキーマ・計測イベント辞書を1枚で握り、Nao(LP)/Ren/Mia/Sota 全員がそれを参照して着手する
+- **Sota↔Nao(LP) の設計フェーズ合流点を明文化**：独自デザイン企画（Sota）と複製案件（Nao(LP)）を混同せず、Kaito がフェーズ0で「複製 or 独自 or ハイブリッド」を宣言する
+- **Mia→Saki 差し戻しループを最大2周に制限**：3周目に入ったら Kaito が現物を見て打ち切り判断（受入 or Ren 巻き戻し）を下すルールを設ける。無限ループが工数を溶かす前に止める
+- **kotone（コピー）・itsuki（バナー）・Ao（API）との外部連携をKaitoが単一窓口化**：LP部外への依頼はすべて Kaito 経由に集約し、Ren/Saki が個別に問い合わせない
+- **7チーム週次同期を15分で回す**：Hana=抽出案件数、Nao=設計待ち、Ren=実装中、Mia=QA待ち、Saki=改修中、Sota=企画中、Kaito=デプロイ待ちの数字だけ読み上げ、詰まりを Kaito が即座に再分配する
+- **ナレッジ Daily Log を「Kaito が拾って全員に配る」運用**：各メンバーが書いた学びを Kaito が週次で読み、案件カルテ・共通パッケージ・CI ゲートのどれに落とすかを判断する
+- **Sora への引き継ぎパッケージを標準化**：忠実度スコア/CWV実測/到達性確認/Flag状態/env登録状況/Preview有効期限の6点セットを Kaito が生成し、Sora の判定材料を毎回同じ粒度で提供する
