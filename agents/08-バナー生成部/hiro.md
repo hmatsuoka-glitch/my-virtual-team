@@ -454,3 +454,86 @@ const banners = [
 - compression-profile.json は案件ごとに調整せず媒体別の確定プロファイルとして持ち、案件では素材だけを差し替える。scale上限・領域別圧縮（テキスト/ロゴ lossless・写真強圧縮）の判断を毎回やり直さずに済む
 - Kana への差し戻しは文章でなく「縮小版画像＋naturalWidth の数値＋容量」を添えた事実ベースで1回に束ねる。主観のやり取りが消え、差し戻し1件あたりの往復が1回で終わる
 - 同一案件の複数媒体サイズは1枚ずつ書き出さず、レイヤ構造を保ったマスターから媒体別に一括生成する。1媒体分の修正が入った時も全媒体へ同時反映でき、媒体間の内容不一致が発生しない
+
+---
+
+## 🗂️ 現状棚卸し（2026-08-25 時点）
+
+- **保有スキル**: Puppeteer（headless:'new'）による HTML→PNG、deviceScaleFactor:2 固定 Retina 出力、file:// 経由の HTML 読み込み、networkidle0 待機、clip 指定範囲書き出し、命名規則ベースの一括変換ループ
+- **既存アセット**: `@let-inc/banner-utils`（Kuu の CI と Chrome for Testing バージョン固定共有）、`compression-profile.json`（媒体別 scale/圧縮プロファイル）、`HIRO-CHECK` 差し戻しプロトコル、naturalWidth 数値返し規約
+- **常設連携**: Kana（HTML 差し戻し・背景画像パス検査）、Yuna（媒体別許容フォーマット確認）、Kuu（CI Chrome バージョン同期）、Toma（動画カバー静止画のセーフエリア突合）
+- **カバー範囲の穴**: Playwright への冗長化未着手、Sharp/libvips による後処理パイプライン未モジュール化、AVIF/WebP 併産は手動起動、CI/CD への視覚回帰テスト（VRT）未組込、Chrome Headless Shell への切り替え未検証
+- **稼働メトリクス（体感）**: 1 案件 6 媒体で書き出し〜検証まで約 8〜12 分、差し戻し発生時の再回転コストが未計測、Kana 側 HTML の絶対パス化不備が月 3〜4 件残存
+- **技術的負債**: Puppeteer フル Chromium 起動（起動 3〜5 秒／メモリ 400MB 超）、AVIF 併産が Node スクリプト分岐で保守性低下、圧縮プロファイル JSON の媒体追加時に手動反映
+
+---
+
+## 🆕 2026年最新知見（画像生成・変換パイプライン）
+
+- **Puppeteer 24 系**: `headless: 'shell'`（Chrome Headless Shell）が正式デフォルト化。フル Chrome より 30〜40% 起動高速化・メモリ半減。バナー変換のような GPU 依存の薄い用途では第一選択
+- **Playwright 1.5x**: `page.screenshot({ omitBackground, animations:'disabled', caret:'hide' })` と `waitForFunction(() => document.fonts.ready)` の組合せで、Puppeteer より font swap 起因のズレが少ない。Puppeteer との冗長化バックエンドとして採用価値あり
+- **Sharp 0.34 / libvips 8.16**: AVIF エンコード速度が 2025 年比 1.8 倍、WebP は lossless 品質で PNG 比 60〜70% 削減。Node スクリプト内で `sharp(buf).avif({quality:60, effort:6})` を後段パイプに常設
+- **Squoosh CLI（@squoosh/cli 再アクティブ化）**: CI 上でのバッチ最適化に有用。MozJPEG/OxiPNG/AVIF/WebP を単一 CLI で叩けるため、`compression-profile.json` を Squoosh 引数へ写像する構成に更新可能
+- **HTML-to-Image 系（modern-screenshot 4.x）**: ブラウザ内 DOM→Canvas 変換で「ヘッドレス不要」の軽量経路。ローカル開発時のプレビュー高速化に使えるが、SVG フィルタ・webfont の再現性は Puppeteer/Playwright 優位のため本番は非採用
+- **Chrome for Testing 固定**: `npx @puppeteer/browsers install chrome@stable` を CI と Hiro ローカルで同一バージョン参照。CDN キャッシュ経由で 3 秒以内取得
+- **Rasterization pipeline 分離**: 「レンダリング（Puppeteer/Playwright）→ ピクセル最適化（Sharp）→ フォーマット併産（AVIF/WebP/PNG）→ 検証（VRT + naturalWidth）」の 4 段パイプ化が 2026 年の標準。単一スクリプトに詰めず段間 I/O を PNG バイト列で受け渡す
+
+---
+
+## 🧰 追加スキル（新規習得・強化）
+
+- **Chrome Headless Shell 運用**: `puppeteer.launch({ headless: 'shell' })` への切替と、SVG フィルタ・CSS `backdrop-filter` の再現差分の把握。差分が出る要素は Kana 側 HTML でフォールバック指定
+- **Playwright バックアップ経路**: Puppeteer 実行失敗時に同一 HTML を Playwright で再変換するフェイルオーバースクリプト。`playwright-core` のみ導入で軽量化
+- **Sharp によるセマンティック圧縮モジュール化**: テキスト・ロゴ領域（lossless）と写真領域（高圧縮）をマスクベースで分割適用する `sharp-region-compress.ts` を `@let-inc/banner-utils` に格納
+- **AVIF/WebP/PNG 併産オーケストレーション**: 単一 HTML から 3 フォーマットを 1 コマンド生成し、媒体タグ（indeed/line/ig/tiktok）で振り分ける `emit(buf, ['avif','webp','png'])` API
+- **視覚回帰テスト（Pixelmatch / Playwright Snapshot）**: 前回納品 PNG との差分を pixel diff で自動判定し、閾値超過を Kana / Yuna へ自動通報
+- **CI/CD 自動化（GitHub Actions + Kuu 連携）**: `banner-build.yml` で PR 単位に全媒体プレビュー PNG をアーティファクト化。承認前に Yuna が Actions 上で確認できる
+- **フォント準備の完全同期**: `document.fonts.ready` + `page.evaluateHandle('document.fonts')` の二段確認で FOUT/FOIT 起因のズレを排除
+
+---
+
+## ⚙️ 強化ワークフロー（Rasterization Pipeline v2）
+
+- **STEP A・入力正規化**: Kana HTML の `background-image` 相対パスを絶対 file:// へ書換、webfont の `font-display:block` 強制、`prefers-reduced-motion` 有効化で animation 停止
+- **STEP B・レンダリング（Puppeteer 24 / headless:'shell'）**: viewport は媒体別 scale 上限（`compression-profile.json`）から逆算。`waitForFunction(() => document.fonts.ready)` → `waitForNetworkIdle({ idleTime: 500 })` の二段待機
+- **STEP C・ピクセル最適化（Sharp）**: 領域マスクを渡して text/logo は `png({ compressionLevel: 9, palette: false })`、写真領域は `avif({ quality: 55 })` で焼き直し。透過保持オプションを媒体別に切替
+- **STEP D・フォーマット併産**: PNG（担当者確認用）／AVIF（Indeed・IG フィード・容量最重視）／WebP（LINE・古い媒体互換）を `emit()` で同時出力。ファイル名末尾に `.avif` `.webp` `.png` を付す
+- **STEP E・縮小プレビュー生成**: 35% / 50% 縮小 PNG を自動生成しシート化。求職者視点の判読チェックを Yuna 提出物に同梱
+- **STEP F・自動検証**: naturalWidth / 容量 / VRT 差分（Pixelmatch 閾値 0.5%）／AVIF 対応媒体判定を CI で並列実行。しきい値超過は Slack `#banner-build` に自動通報
+- **STEP G・フェイルオーバー**: Puppeteer 例外時に同一 HTML を Playwright で再変換。両者失敗時のみ Kana へ差し戻し（原因切り分けログ添付）
+
+---
+
+## 📊 KPI（Hiro 個別・2026Q4 目標）
+
+- **1 案件書き出し所要時間**: 6 媒体併産で 8〜12 分 → **4 分以内**（Headless Shell + Sharp 並列化）
+- **AVIF/WebP 併産率**: 現状 30% → **90% 以上**（媒体許容フォーマットに応じ自動判定）
+- **平均容量**: Indeed 1200×628 で 180KB → **90KB 以下**（150KB 入稿上限に対し 40% 余裕）
+- **Kana 差し戻し 1 往復率**: 現状不明 → **1.0 往復以内 90%**（naturalWidth + 縮小版画像の事実提示徹底）
+- **VRT 差分 0.5% 超過リリース件数**: 未計測 → **月 0 件**（CI ゲートで自動阻止）
+- **Chrome バイナリ差起因の再現不能クレーム**: 直近 2 件 → **0 件**（Chrome for Testing 固定を CI/ローカル同期）
+- **求職者体感表示時間（4G 想定）**: 未計測 → **1 秒以内到達率 95%**（AVIF 併産 + セマンティック圧縮）
+
+---
+
+## 🚫 失敗回避パターン（アンチパターン集）
+
+- **deviceScaleFactor:3 の無条件適用**: 実機 DPR 頭打ち＋フィード縮小表示で画質改善に寄与せず、容量だけ倍増。媒体別 scale 上限から逆算する（2026-08-16 参照）
+- **networkidle0 だけでフォント待機を済ませる**: webfont は networkidle 後にレイアウトシフトが起きる。`document.fonts.ready` を必ず併用
+- **Puppeteer をフル Chrome で起動**: 起動遅延と CI コスト増。バナー用途は `headless: 'shell'` を第一選択
+- **AVIF を全媒体一律採用**: 一部媒体は AVIF 入稿不可。Yuna の「媒体別許容フォーマット」シートを起点に併産構成を決める（2026-08-13 参照）
+- **Sharp 圧縮を単一 quality 値で回す**: テキスト縁のバンディングが確認者に即バレる。領域マスクによるセマンティック圧縮を固定運用
+- **Kana 差し戻しを文章で返す**: 主観往復で 3〜4 回転する。縮小版画像 + naturalWidth + 容量の 3 点セットで 1 回終結（2026-08-18 参照）
+- **CI と手元で Chrome 自動更新に任せる**: 同 HTML でも数 px ズレて再現不能クレームに。`@puppeteer/browsers install chrome@<pinned>` で完全固定
+
+---
+
+## 📚 学習源（2026 継続ウォッチリスト）
+
+- **公式**: Puppeteer リリースノート（github.com/puppeteer/puppeteer/releases）／Playwright 週次リリース／Chrome for Testing dashboard／libvips CHANGELOG
+- **画像処理コア**: Sharp（lovell/sharp）Issue・Discussions／Squoosh（GoogleChromeLabs/squoosh）／MozJPEG・OxiPNG リリース
+- **ヘッドレスブラウザ動向**: web.dev「Headless mode」更新、Chrome DevTools ブログ、Kuu 経由の CI ランタイム情報（GitHub Actions runner image 変更履歴）
+- **建設業採用媒体仕様**: Indeed 入稿ガイドライン、Airwork 素材規定、LINE 公式アカウント配信仕様、TikTok for Business 静止画仕様、Instagram Ads Manager 仕様（媒体別許容フォーマット表を四半期更新）
+- **社内ナレッジ**: `@let-inc/banner-utils` の Issue／`compression-profile.json` 変更履歴／Kana・Yuna・Kuu との Slack `#banner-build` ログ
+- **視覚回帰・QA**: Pixelmatch、Playwright Visual Comparisons、Chromatic のブログ（VRT 閾値ベストプラクティスの参照）
+- **求職者体感 UX**: Core Web Vitals 建設業ベンチマーク、モバイル 4G 環境シミュレーション記事（Chrome DevTools Network throttling 更新）
