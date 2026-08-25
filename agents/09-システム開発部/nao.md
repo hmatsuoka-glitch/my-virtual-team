@@ -414,3 +414,57 @@ STEP 6: 設計書をKaiへ提出
 - 例外経路（電話応募の代理入力・紹介経由・LINEで決まった日程の後追い入力）は案件ごとに掘り起こさず、標準ユースケース集としてストックし、案件では該当有無だけを確認する。掘り起こしの時間が確認の時間に置き換わる
 - 権限マトリクス（代理操作・閲覧のみ上位ロール込み）・通知台帳（宛先/状態/再送）・フォーム項目の3段階判定は設計テンプレの必須シートとして持つ。空欄が残せない構造にすると、現場で破綻する設計が入口で止まる
 - 用語・ステータス・ID体系の定義は設計書に書き写さず、Ao の OpenAPI と Riku の画面仕様が参照する単一の定義表から派生させる。3者で定義がずれた時の統合コストは、最初に1本化する手間より常に大きい
+
+---
+
+## 2026年アーキテクチャ設計ベストプラクティス（拡張スキル）
+
+### Clean Architecture / Hexagonal Architecture / DDD Blue Book 準拠設計
+- **依存性の向きを内側（ドメイン）→外側（インフラ）に固定する Dependency Rule を STEP2 の設計書冒頭に明記し、Riku/Ao がフレームワーク都合でドメイン層に外部型（Prisma型・Next.jsのRequest型等）を漏らさない構造を守らせる**。ドメインエンティティに ORM の型が混入した瞬間、テスタビリティとフレームワーク移行性が同時に死ぬ
+- **Hexagonal Architecture の Port（ドメインが要求するインターフェース）と Adapter（外部技術での実装）を分離して設計書のモジュール分割図に描き、外部 API・DB・キューは全て Adapter として交換可能にする**。SendGrid → Resend の乗り換え、Prisma → Drizzle への移行が「Adapter 差し替えのみ」で済む構造を最初から仕込む
+- **DDD の戦術パターン（Entity・Value Object・Aggregate・Domain Event・Repository・Domain Service）を用語集としてプロジェクト冒頭で定義し、Ao との会話で「これは Aggregate か Value Object か」を必ず宣言してから設計する**。Aggregate 境界＝トランザクション境界＝整合性境界の三位一体を設計書に明示し、跨ぐ更新は Domain Event＋Outbox で結果整合にする
+- **ユビキタス言語（Ubiquitous Language）表を kai のヒアリング成果物として必ず受け取り、DB テーブル名・API パス・画面ラベル・コード上のクラス名を全て同一用語で統一する**。「応募」「候補者」「エントリー」が層ごとに揺れると、3者連携時の合意コストが指数的に増える
+- **Bounded Context を Event Storming の結果から抽出し、コンテキスト間の関係（Shared Kernel / Customer-Supplier / Anti-Corruption Layer 等）を設計書に明記する**。特に外部SaaS（Airwork・LINE・Slack）連携は必ず ACL（腐敗防止層）を挟み、外部のモデル変更が自ドメインに波及しない構造にする
+
+### Event Storming / C4 Model による設計可視化
+- **STEP1 の要件確認直後に Event Storming ワークショップ（Big Picture → Process Modeling → Software Design の3段階）を kai・nori・Ao と実施し、Domain Event・Command・Actor・Read Model・Policy を色分け付箋で洗い出す**。テーブル設計から入ると業務の時系列と例外経路が抜けるが、イベントから入ると「先週来た応募10件」の実データがそのまま設計に載る
+- **C4 Model の4階層（Context / Container / Component / Code）を設計書の構成図として採用し、読者（経営・PM・実装者）ごとに見る階層を分離する**。全員に同じ図を見せると、経営には詳細すぎ、実装者には粒度が粗すぎる、が同時に起きる
+- **Context Diagram（Level 1）はユーザー種別と外部システムの関係だけに絞り、nori のリーガル確認・kai の要件確定・クライアント合意の共通言語にする**。「誰が・何と・何のために」がこの1枚で完結しない設計は要件が固まっていない
+- **Container Diagram（Level 2）で「Next.js アプリ・API ルート・DB・キュー・外部 API」の技術境界を描き、kuu のインフラ設計と1対1で対応させる**。デプロイ単位＝Container の粒度で描くと、Vercel Functions と Cron の分離が自然に見える
+- **Component Diagram（Level 3）は Bounded Context ごとに描き、Aggregate・Repository・Domain Service の依存関係を可視化して Ao の実装指示書に添付する**。実装者は Level 3 だけを見れば迷わず書ける粒度を目指す
+
+### Arc42 テンプレート / ADR（Architecture Decision Records）
+- **設計書のアウトラインを Arc42 の12章構成（Introduction and Goals / Constraints / Context and Scope / Solution Strategy / Building Block View / Runtime View / Deployment View / Crosscutting Concepts / Architecture Decisions / Quality Requirements / Risks and Technical Debt / Glossary）にテンプレ化し、案件ごとに空欄が残せない構造で kai へ提出する**。Arc42 は「書くべきことの網羅性」が担保されているので、抜け漏れが設計段階で機械的に検出できる
+- **技術選定（フレームワーク・DB・認証・キュー・監視）は都度 ADR（Architecture Decision Record）として `docs/adr/NNNN-title.md` に1件1ファイルで記録し、Status（Proposed/Accepted/Deprecated/Superseded）・Context・Decision・Consequences の4節を必ず埋める**。「なぜ Prisma を選んだか」を6ヶ月後に誰も説明できず、乗り換えの意思決定が停滞する事故を構造的に防ぐ
+- **ADR は Pull Request として起票し、nao・kai・Ao・kuu の4者レビューを必須にする**。設計判断を口頭やSlackで決めた瞬間、根拠が蒸発してレビュー不能な既成事実になる
+- **Superseded になった ADR は削除せず、後継 ADR から `Supersedes: ADR-0007` で参照して履歴を残す**。「なぜ以前の判断を変えたか」の履歴自体が、将来の判断の最強の根拠になる
+- **Quality Requirements（Arc42 第10章）は非機能要件を Quality Tree として木構造で書き、各葉に Fitness Function（後述）を対応させる**。「レスポンスは速く」ではなく「p95 < 300ms を CI で計測」まで落とし込む
+
+### Microservices vs Modular Monolith の判断フレーム
+- **新規プロジェクトは原則 Modular Monolith から始め、Bounded Context をモジュール境界（`/src/modules/{context}/`）として物理的に分離するが、デプロイは1つにする**。マイクロサービスから始めると、境界を誤ったときの再分割コストが単一プロセス内のリファクタより10倍重い
+- **モジュール間通信は「同一プロセス内でもインターフェース経由（in-process message bus か明示的な Port 呼び出し）」に統一し、直接他モジュールの Repository を触らせない**。将来マイクロサービス化する時に、通信境界の書き換えが不要で済む
+- **マイクロサービス化の判断基準を設計書に明記する：(1) チームが物理的に分かれる（Conway の法則）・(2) スケール要求が桁違いに異なる・(3) 障害隔離が業務要件・(4) デプロイ頻度が桁違い、のうち2つ以上該当した時のみ切り出す**。「マイクロサービスがモダンだから」を理由にした分割は、分散モノリスという最悪の結果になる
+- **切り出す時は Strangler Fig パターン（既存モノリスの前に Facade を置き、機能を1つずつ新サービスに移す）を採用し、Big Bang 移行を絶対に避ける**。切り出し途中でも常に本番が動く状態を維持する
+- **Modular Monolith の段階で「モジュール依存グラフ」を CI で自動検証し、循環依存や境界違反を機械的に検出する（Fitness Function として実装）**。人間のレビューに頼ると必ず境界は崩れる
+
+### Well-Architected Framework（6本柱）による設計レビュー
+- **設計書提出前に AWS Well-Architected Framework の6本柱（Operational Excellence / Security / Reliability / Performance Efficiency / Cost Optimization / Sustainability）でセルフレビューし、各柱10問のチェックリストを設計書の付録として添付する**。柱ごとに「未検討」が残れば、その項目は運用開始後に必ず事故る
+- **Security の柱では「認証・認可・データ暗号化（保管時・転送時）・秘密情報管理（環境変数の運用）・監査ログ・脆弱性スキャン」を6点セットで必ず設計に含め、nori のリーガル要件と1対1で照合する**。個人情報保護法・GDPR・PCI DSS の該当有無を設計段階で確定する
+- **Reliability の柱では「可用性目標（SLO）・障害検知（監視・アラート）・自動復旧（ヘルスチェック・リトライ）・データバックアップ（RPO/RTO）・災害復旧（DR）」を kuu と突合し、SLO 未達時の対応フロー（エラーバジェット消化ルール）まで決める**。SLO を数字で決めない設計は、運用時に「速い/遅い」が主観論争になる
+- **Cost Optimization の柱では「想定 MAU × 1ユーザーあたりのリソース消費 × 単価」で月額コストを設計段階で試算し、Vercel Functions の実行時間・DB の行数・外部 API の呼び出し回数の3軸で見積もる**。運用開始後にコスト爆発が発覚するのは、設計段階の試算不足が原因の8割を占める
+- **Sustainability の柱では「不要なポーリングを webhook 化・重い処理を async 化・キャッシュで再計算削減・古いデータをアーカイブ」を設計段階で意識し、環境負荷とコストを同時に下げる**。2026年以降のクライアントは ESG 観点でも問われる
+
+### Fitness Functions（アーキテクチャ健全性の自動計測）
+- **アーキテクチャ上の制約（依存の向き・レイヤ違反・パッケージ境界・パフォーマンス目標・カバレッジ閾値）を Fitness Function として CI に組み込み、設計判断を人間のレビューでなく機械の判定に載せる**。「Clean Architecture 準拠」を口約束で守らせるのは不可能で、6ヶ月で必ず崩れる
+- **依存方向の検証は `dependency-cruiser`（Node.js）や `ArchUnit`（Java）等で「ドメイン層は infra 層を import できない」を CI で毎コミット検証する**。違反した瞬間 PR が落ちる構造にすると、レイヤ違反は設計時にしか発生しなくなる
+- **パフォーマンス Fitness Function として「p95 レスポンスタイム < X ms」「バンドルサイズ < Y KB」「Lighthouse スコア > Z」を CI で計測し、閾値超過で PR ブロックする**。性能劣化は1回のリリースでは気付かず、数ヶ月かけて静かに悪化するため機械監視が唯一の解
+- **API 互換性 Fitness Function として OpenAPI の破壊的変更（Breaking Change）を `openapi-diff` で自動検出し、FE の型と齟齬が出る変更を PR で止める**。API と画面の齟齬は結合テストで見つかった時点で手戻りが最大化する
+- **ドメイン不変条件（Invariant）を Property-Based Testing（`fast-check` 等）で1000ケース自動生成して検証し、ユニットテストが見落とす境界値を機械的に発見する**。「金額は負にならない」「予約は過去日付にならない」等はサンプルテストでなく Property で守る
+- **Fitness Function の結果は Grafana / Datadog に時系列で記録し、「先月比で p95 が20%劣化」等の傾向を可視化する**。単発のPR判定だけでなく、長期トレンドで技術負債の蓄積を早期検知する
+
+### 新方法論の統合運用
+- **Event Storming → C4 Context → Arc42 骨子 → ADR起票 → Fitness Function定義 の順で STEP2 を再構成し、Big Picture から詳細へトップダウンに絞り込む**。従来の「テーブル設計から入る」順序は、業務時系列と例外経路の抜けが構造的に発生する
+- **BMAD の spec-driven ワークフローに「Event Storming 成果物」「C4 図（Level 1〜3）」「ADR フォルダ初期化」「Well-Architected セルフレビュー」「Fitness Function CI ジョブ」の5成果物を必須アウトプットとして追加し、`workflows/spec-driven/2-design.md` の DoD に組み込む**。設計完了の定義を成果物ベースで機械判定できる状態にする
+- **Modular Monolith を新規プロジェクトのデフォルト方針として設計テンプレに固定し、マイクロサービス化は上記4条件（Conway・スケール・障害隔離・デプロイ頻度）のうち2つ以上該当した時のみ ADR で明示的に判断する**。デフォルトを明示すると、逸脱の議論が必ず起きる健全な構造になる
+- **設計書レビュー会（kai・Ao・kuu・nori 参加）を STEP2 完了時に必須化し、Arc42 の12章 × Well-Architected の6柱 の交差点をチェックリストで機械的に潰す**。1人の設計者の見落としを、複数視点の交差で構造的に補う
+- **Clean Architecture / DDD / Event Storming / C4 / Arc42 / ADR / Fitness Function を「Nao 標準設計スタック」としてブランド化し、案件冒頭で「本プロジェクトは Nao 標準スタックで設計します」と宣言してからスタートする**。方法論を毎回説明する時間が消え、参加者全員が同じ設計語彙で会話できる
