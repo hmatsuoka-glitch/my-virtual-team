@@ -253,3 +253,24 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - クライアントへの確認依頼は「一通り見てください」でなく、論点3点をOK/NGで返してもらうテンプレ文で送る。担当者の意思決定コストが下がり、確認リードタイムが数日から当日〜翌日に縮む
 - 数字↔出典突合表（LP・広告・既存媒体掲載の3面）はSTEP 0で1枚作り、kotone/nao/ren/hiro が全員そこを参照する。各部署が個別にクライアントへ数字を確認する往復が消え、面の不一致も構造的に起きない
 - STEP 0のキックオフ1回で、Ao との自動返信の有無・Iro とのロゴ色/実媒体色のどちらを正とするか・Kaito との更新頻度マトリクスをまとめて確定させる。部署別に順次確認すると各所の着手が待ちで数日ずつ後ろにずれる
+
+### 2026-08-25
+
+#### 新スキル：2026年LP制作ツールチェーン統括
+- **Figma AI（First Draft / Make Designs）で建設業LPのHero構成を初稿30分化**：iroのカラーとkotoneの見出し3案をプロンプトに投入してFigma AIに初稿ワイヤーを生成させ、sotaの企画時間を「ゼロから」ではなく「AI初稿の調整」に転換する。tsumugiは初稿プロンプトのテンプレ管理者となり、業種プロンプト（建設・採用・BtoB）を`templates/figma-ai-prompts/`に資産化
+- **Figma Dev Mode + Code Connect で design → ren 実装の指示ロス削減**：sota確定デザインをDev Modeで開き、design-tokens.jsonと連動したCSS変数コードスニペットを ren へ渡す運用に切り替え。ren の「この余白は何px？」問い合わせがゼロになり、Mia QAの余白NG差し戻しも構造的に消える
+- **Vercel v0 でLP骨格プロトタイプを1時間で用意**：クライアント承認前の「動くプロトタイプ」をv0でReact/Tailwind出力させ、静的モックより意思決定を高速化。tsumugiはv0プロンプトに iro トークン・kotone Hero文言・sota Hero構図を注入するプロンプトフォーマットを保有
+- **Framer / Webflow AI をコンペ提案の高速モック用途に限定運用**：本番実装はNext.jsに一本化しつつ、コンペ・提案フェーズのモック提示にFramer AIサイト生成を活用。クライアント商談の場で URL 共有して即体感してもらい、静止画提案の温度感ギャップを埋める
+- **Motion（旧Framer Motion）+ Lottie の使い分け判断をtsumugiが一次決定**：Motionは「スクロール連動・入場アニメ」用途、Lottieは「Hero象徴イラスト・成功アニメ」用途と役割分担し、ren に「どちらを使うか」を毎回議論させない。建設業LPでは重機・現場の動きをLottieで軽量表現、テキスト・数字カウントアップをMotionで実装
+- **Design-to-Code パイプラインの起点責任をtsumugiに集約**：Figma AI → Dev Mode → v0 → ren 実装の一連ハンドオフで、どのフェーズから始めるか（AI初稿 / 既存資産流用 / ゼロベース）をtsumugiが案件着手時に1回で決める。フェーズ選択のブレによる巻き戻し（AI初稿使うつもりで人手着手して重複）を排除
+- **AIアシステッドLPの著作権・学習データ由来リスクの一次審査**：Figma AI / v0 / Framer AI生成のUI要素・イラストは norigate 前にtsumugiが「他社サイトからの直輸入と誤認される要素がないか」を目視確認。特に建設業アイコン・イラストは業界内で酷似素材が多く、AI生成のまま公開すると競合誤認クレームの温床
+
+#### 方法論：2026年LP品質向上メソッド
+- **「初稿はAI、磨きは人」原則の徹底**：Figma AI・v0の初稿を人が磨く前提でスケジュール設計する（AI 30分 + sota磨き 90分 = 従来sotaゼロベース 180分 の30%削減）。AI初稿をそのまま提案しない・AI初稿を捨ててゼロから作らない、の両極端を禁止
+- **Motion Preferences（prefers-reduced-motion）対応をSTEP 0要件化**：建設業採用LPは高年齢層閲覧も想定するため、`prefers-reduced-motion: reduce` 環境では Motion / Lottie を停止する実装をren着手前に指示。要件段階で決めておかないと ren が「アニメリッチ版のみ」で実装し、後から差し込むと全JSX修正の手戻り
+- **Design Token 3層構造（Primitive / Semantic / Component）の運用移行**：iroが抽出するHEXをPrimitive層、`--color-cta-primary`等の役割名をSemantic層、`--button-primary-bg`等をComponent層に整理して`design-tokens.json`に格納。Figma変数・Tailwind config・v0プロンプトが同じトークン名を参照するため、色変更が1箇所で全反映
+
+#### 建設業LP特化の運用ルール
+- **建設業クライアントは「重機・現場・職人」写真の権利確認をSTEP 0で必須化**：AI生成イラストで代替する場合もFigma AIの生成物が実在建機に酷似していないかtsumugiが目視、疑わしければLottieの抽象アイコンに置換をsotaへ指示
+- **建設業LPのMotionは「派手さより信頼感」原則**：入場アニメは fade + 8px上昇のみに限定、回転・跳ねる動きは職人層の閲覧違和感を招くため禁止。ren着手前にtsumugiがMotion仕様書の1行目に明記
+- **Vercelプレビュー URL をクライアント確認に使う際は BASIC 認証必須**：v0プロトタイプ・Vercelプレビューを商談で共有する場合、未公開LPのSEO事故（インデックス）を防ぐため kuu / kaito と連携して認証ゲートを設ける
