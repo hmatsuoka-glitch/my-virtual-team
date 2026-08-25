@@ -310,3 +310,75 @@
 - 同じ抽出依頼が2回来たクエリは、その時点でビュー化・スケジュールクエリ化して依頼そのものを消す。単発対応を続けると同じ質問が毎月戻り、依頼対応が基盤整備の時間を食い潰す
 - 集計ロジックはLooker Studio側に書かず dbt の中間モデルへ集約する。BI側に定義が散ると1つの定義変更が全ダッシュボードの手直しに波及し、Shun/Akari 間で数値が食い違う原因にもなる
 - 重複・NULL・分母ゼロ・件数急変のデータ品質テストをパイプラインに組み込み、失敗時は自動で下流へ通知する。「数字がおかしい」の照会対応は発生後の調査が最も高くつくため、検出を上流へ寄せるほど総工数が下がる
+
+---
+
+## 2026 データ基盤モダナイゼーション標準スタック（建設業採用データ向け）
+
+- **dbt Core + BigQuery を Airwork/Indeed/GA4/求人媒体データ統合の中核に据える**：sources.yml で7社×媒体別のraw層を定義し、staging→intermediate→marts の3層構造でクライアント別マートを分離。Ryota/Akari のクライアント別レポートに必要な粒度差（媒体別CVR・職種別応募数・エリア別歩留まり）をmartsレイヤーで吸収し、Shun分析の再利用性を最大化する
+- **BigQuery Scheduled Queries を Airflow/Cloud Composer 相当の軽量代替として活用**：7社分の小規模ETLはCloud Composer運用コスト（月4万円〜）が過剰なため、Scheduled Queries + Cloud Functions で足りる領域は積極採用。障害通知だけ Cloud Monitoring → Slack にルーティングし、月額コストを1/10に抑える
+- **DuckDB + Motherduck を Shun/Akari のアドホック分析サンドボックスに配置**：BigQueryへの探索クエリ乱発でスキャン料金が月10万円超過した実績があるため、直近3ヶ月分のパーケットスナップショットをDuckDBに落として Shun のローカル探索を無料化。本番集計は BigQuery、探索は DuckDB の二層運用でコスト▲70%
+- **Metabase セルフホスト + Looker Studio の役割分離**：社内探索・ダッシュボード試作は Metabase（無料・OSS）、クライアント配信は Looker Studio という配布経路の分離により、社内ライセンス費ゼロで実験可能性を最大化。Ryota からクライアント確定後のみ Looker Studio へ昇格させる
+- **Semantic Layer（dbt Semantic Layer / Cube.js）でKPI定義の一元管理**：Shun/Akari/Dat が「応募CVR」「歩留まり率」を各自SQL化して定義が乖離する事故を、Semantic Layer で `metric: application_cvr` として一元定義。Looker Studio・Metabase・Slack Bot 全てが同じ定義を参照し「数値の食い違い」を構造的にゼロ化
+- **Reverse ETL（Hightouch / Census）で分析結果を Airwork / HubSpot へ書き戻す**：Shun が算出した「応募確度スコア」「離脱リスクスコア」を、Reverse ETL で Airwork の応募者タグ・HubSpotのリードスコアに自動反映。分析→現場アクションの断絶を解消し、Ryota が手作業でスコア転記する工数（月8時間）をゼロ化
+- **Iceberg / Delta Lake 形式でのオープンテーブル化を検討**：BigQuery独自形式ロックインを回避し、将来のSnowflake/Databricks併用や社外パートナー共有に備え、raw層データは GCS 上のIceberg形式で保持。移行コストを事前に構造的に下げておく
+
+---
+
+## Data Contracts（データ契約）による上流変更事故ゼロ化
+
+- **契約定義YAMLを上流アプリ担当（Kai/Nao/Riku/Ao）とDeng間で必須合意化**：`schema.yaml` に「カラム名・型・NULL可否・意味・SLA（更新頻度）・破壊的変更時の通知先」を明記し、上流のAPI/DB変更は契約更新PR経由でのみ可能とする。Kai の09-システム開発部とデータ基盤の間に「契約」という明示的な境界面を置く
+- **契約違反時の自動パイプライン停止＋Slack CRITICAL通知**：スキーマハッシュ監視（2026-06-03 参照）を契約定義の期待値と突合し、契約外の変更を検知したら該当パイプラインを自動停止して下流汚染を予防。Shun/Akariが「知らないうちに数値がずれていた」事故を構造的に排除
+- **契約は「破壊的変更（Breaking）」「後方互換変更（Additive）」を明示分類**：カラム追加は Additive として自動許容、カラム削除・型変更・意味変更は Breaking として上流アプリのリリース前レビュー必須。契約更新PRにDengの承認レビューを必須化しGitHub CODEOWNERSで強制
+- **契約テストをCI/CDに組み込み、上流アプリのデプロイをブロック**：Kai の09-システム開発部のCI に「dbt source freshness + 契約テスト」を必須ジョブとして組み込み、契約違反があるPRはマージ不能に。事故発生後の後追い対応から、事故発生前の構造防止へシフト
+- **契約バージョンを SemVer で管理し、下流の追従猶予期間を明示**：`schema_version: 2.1.0` として管理し、Major変更（Breaking）時は「30日の並行提供期間」を契約で保証。Shun/Akari/Dat の下流分析コード改修に十分な猶予を与え、無理な即日対応による品質低下を予防
+
+---
+
+## Product Analytics ツール導入（LP/求職者行動分析の深化）
+
+- **PostHog セルフホスト導入でLPの離脱ポイントを秒単位で可視化**：GA4だけでは追いきれない「フォーム入力途中離脱」「スクロール深度別滞在時間」「rageクリック」等のマイクロ行動をPostHog（OSS・セルフホスト無料）で収集。Kaito/Ren の LP改善サイクルを「勘」から「行動データ根拠」へ転換
+- **Amplitude/Mixpanel の無料枠を採用ファネル分析に活用**：月次イベント10M件までは無料のため、7社×応募ファネル（LP到達→フォーム開始→中断→完了→面接予約→採用確定）の詳細分析を Amplitude で構築。Akari の月次レポートに「離脱要因ランキングTop5」を自動掲載
+- **セッションリプレイ（PostHog Session Replay）で応募中断の実映像を Kaito/Mia へ提供**：離脱率が高いLPの実際のユーザー操作動画を Kaito/Mia の LP改善会議で共有し、「入力欄が小さい」「バリデーションエラーが分かりにくい」等の定性課題を可視化。CVR改善のヒット率を大幅向上
+- **コホート分析で「初回応募→再応募/紹介」の追跡を7社別に実施**：Shun のLTV分析材料として、応募者コホート別の再応募率・紹介経由率を PostHog Cohorts で自動集計。建設業採用の長期リピート特性（工期完了後の再エントリー）を数値化してRyotaの提案書に活用
+- **A/Bテスト基盤（PostHog Feature Flags / Optimizely）で LP バリエーションの効果検証を高速化**：Kaito/Ren の LP改修時に、旧版と新版を50/50配信して統計的有意差をPostHogで自動判定。Shun のSRM検査（Shun 2026-08-12参照）を組み合わせて計測起因ノイズを除外した純粋な効果検証を実現
+
+---
+
+## Causal Inference（因果推論）データ提供パイプライン
+
+- **Microsoft DoWhy / EconML 向けの「処置・共変量・アウトカム」テーブルを標準化**：Shun の因果推論分析用に、`treatment`（施策実施フラグ）・`covariates`（媒体・地域・職種・季節・応募日時等の共変量）・`outcome`（応募CVR/採用達成率）を1テーブルに整形したマートを提供。分析着手までの前処理を90%削減
+- **傾向スコアマッチング用の共変量バランステーブルを事前計算**：処置群と対照群の共変量分布の偏り（Standardized Mean Difference）を dbt モデルで事前算出し、Shun がマッチング前にバランス確認できる状態で提供。因果推論の妥当性を上流で担保
+- **差分の差分法（DiD）用の並行トレンド確認用時系列テーブルを整形**：施策実施前の複数期間の平行トレンド性をShunが検証できるよう、日次・週次・月次の3粒度でパネルデータ形式に整形。建設業採用の季節性（3月・9月ピーク）を考慮した並行トレンド前提の妥当性検証を支援
+- **合成統制法（Synthetic Control）用の候補プール自動生成**：施策未実施のクライアント6社を対照候補としたパネル構造をShun向けに提供。7社中1社に導入した施策の因果効果を、合成された対照群との比較で推定可能な状態にする
+- **因果推論結果の再現性担保のためのスナップショット保存**：Shun の因果推論分析実行時のデータスナップショット（BigQuery table snapshot）を自動取得し、90日間保存。Ryota からクライアントに提示した因果推論数値を、後日再現・検証可能な状態で保持
+
+---
+
+## Data Observability（データ可観測性）5柱の実装
+
+- **Freshness（鮮度）監視**：dbt source freshness + Monte Carlo/Elementary で「Airwork取り込みが6時間以上更新なし」等をCRITICALアラート化。Akari の月次レポート着手時に「昨日のデータが最新か」を意識せず信頼できる状態を担保
+- **Volume（件数）監視**：日次件数の前日比±30%超・週次件数のZ-score±3σ超を自動検知。競合クロール件数の急変（Rui向け）や応募数の急落（Ryota/Akari向け）を上流で拾い、原因調査を待たずに下流へ「調査中」通知を先出し
+- **Schema（スキーマ）監視**：契約定義との差分（カラム追加・削除・型変更）を毎日ハッシュ比較でCRITICAL検知。契約管理と組み合わせ、上流アプリの無告知変更を100%捕捉
+- **Distribution（分布）監視**：主要カラムのNULL率・カテゴリ分布・数値分布（中央値・IQR）の日次変化を KL Divergence で監視。GA4の計測タグ二重発火（2026-07-01参照）等の静かな汚染を分布のズレとして検知
+- **Lineage（系統）可視化**：dbt docs + OpenLineage で「Airworkテーブル → staging → mart → Looker Studioタイル」の依存関係を全社共有可能にし、Ryota からクライアントに提示するKPIの出所を1クリックで説明できる状態を維持。Data Contracts と組み合わせて上流変更の影響範囲を事前算出
+
+---
+
+## Reverse ETL / Operational Analytics（分析結果の現場還元）
+
+- **Hightouch / Census で Shun 分析結果を Airwork の応募者タグへ自動反映**：「応募確度High/Middle/Low」「離脱リスク★★★」等のスコアを、Reverse ETL で Airwork の応募者管理画面のタグとして書き戻し、Ryota/Akari のクライアント現場で即時活用可能化。分析→アクションの断絶を解消
+- **Slack Bot経由の日次インサイト配信を全担当者へ自動プッシュ**：Ryota/Akari/Shun/Rui 各担当の管掌KPIの前日比・週次比・異常値TOP3を、毎朝8:00に個人DMで自動配信。ダッシュボードを能動的に見に行かなくても異常検知できる「Push型」データ運用を標準化
+- **クライアントSlack Connect にKPIボットを配置し、質問即応可能化**：クライアント側Slackに「今週の応募数は？」等の自然言語質問に自動回答するBotを配置し、Ryota への問い合わせを平準化。Metabase Ask/Looker AI と組み合わせて社外向けセルフサービスBIを実現
+- **Google Sheets 連携で Akari の月次レポート原稿を自動生成**：dbt marts の月次集計結果を Google Sheets に自動書き出し、Akari が「数値のコピペ」から「解釈と示唆の記述」に集中できる状態を提供。月次レポート作成時間を8時間→2時間に短縮
+- **クライアント向けAPIエンドポイント提供で「データ受け渡し」のPDF/Excel化を廃止**：一部の大手クライアントには BigQuery Data Transfer や Cloud Run API 経由で直接データ提供し、月次のPDFレポート添付作業を廃止。Ryota の運用工数を大幅削減しつつ、クライアント側の内部BIツールへ直接連携可能化
+
+---
+
+## AI/LLM 活用データ基盤（Text-to-SQL / RAG / Vector DB）
+
+- **BigQuery Vertex AI 統合で Text-to-SQL を社内標準化**：Ryota/Akari が「先月の翔星建設の職種別応募数を出して」と自然言語で聞くだけで、Vertex AI が dbt semantic layer 経由で SQL 生成・実行・結果返却。SQL書けない担当者もセルフBIが可能に
+- **RAG基盤（BigQuery + Vertex AI Embeddings）でクライアント過去レポートの検索可能化**：Ryota/Akari の過去2年分のクライアント月次レポート・提案書をベクトル化し、「昨年同時期の翔星建設への提案内容」を自然言語検索可能化。提案書作成時の過去参照が10分→30秒に短縮
+- **求人票テキスト分析用のEmbeddingパイプラインを構築**：7社の求人票を Vertex AI Embeddings でベクトル化し、類似求人クラスタリング・競合求人との差分分析・応募者検索クエリとのマッチ度算出をRui/Shun分析素材として提供。建設業界特有の職種名揺れ（型枠大工・型枠工・型枠職人）を意味ベースで統合
+- **Vector DB（pgvector / BigQuery VECTOR_SEARCH）で応募者過去実績の類似度検索**：新規応募者に対し「過去に採用成功した類似プロファイル応募者」を意味検索で提示し、Ryotaのクライアント面談準備を支援。個人情報は事前ハッシュ化＋アクセス制御で保護
+- **LLM出力のデータ品質チェックをdbtテストに組み込み**：AI生成の分析結果・要約・タグを本番投入する前に、「事実整合性チェック」「PII混入検査」「幻覚検出」を dbt test 化。LLMの誤出力がクライアント配信物に混入する事故を構造的に予防
