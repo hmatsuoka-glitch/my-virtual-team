@@ -640,3 +640,73 @@ export const HERO = {
 - editable スロット（募集職種・人数・給与・締切・お知らせ）の列挙と更新粒度は設計表の必須列にする。設計時の数分が、運用フェーズでの Ren の都度実装工数を丸ごと消す
 - セクション仕様に「単独表示でも会社名・職種・応募導線に到達できるか」の自己完結性チェックを列として持たせ、レビュー時にまとめて見ない。設計しながら埋める方が速く、SNS中間流入の見落としも起きない
 - kotone/sota/ren への受け渡しは設計書1本を正とし、チャットや口頭の補足を禁止する。補足が散ると3部署それぞれが別の版で作り始め、統合時の手戻りが設計時間の何倍にもなる
+
+---
+
+## 2026年フロントエンド設計ベストプラクティス（LP複製設計への適用）
+
+以下は2026年のフロントエンド設計潮流を、LP複製・LP独自デザイン案件の「設計層」に取り込むための追補。既存の作業フロー・出力フォーマットを置き換えるものではなく、STEP 1〜6 の各工程に上乗せする設計観点・語彙・成果物として運用する。
+
+### Component Architecture 2026（コンポーネント責務分離の設計方針）
+
+- **Presentational / Container / Boundary の三層で設計書に責務を書き分ける**：見た目のみのPresentational、データ取得・状態を持つContainer、Server/Client境界を持つBoundaryの3層を設計表の列として明示し、Ren が実装時に責務を判断せず設計値の通り分けられる状態にする
+- **Compound Component パターンを設計段階で採用可否判断**：Tabs / Accordion / Card群など内部構造を露出させる必要があるコンポーネントは `<Card><Card.Header/><Card.Body/></Card>` のCompound形で設計書に記載し、props数の膨張と render prop の乱用を設計層で回避する
+- **Headless UI 抽象化ライン**：挙動（フォーカス管理・キーボード操作・ARIA）は Headless 層（Radix/React Aria準拠）、見た目は元LPのCSS忠実再現、の2層で設計書に分離。挙動をゼロから書き起こす設計はしない
+- **Slots API による差し込み設計**：Hero・Section の可変領域を `children` 一本槍でなく `title` / `media` / `actions` の名前付きslotで設計し、複製元LPの構成違いや A/Bバリエーションを props 追加なしで受けられる状態にする
+- **Prop drilling 3階層超過は Context / Zustand へ引き上げる設計判断を設計書に明記**：階層数を実測し、超過箇所は設計書の「状態境界」欄に理由付きで記載する
+
+### Atomic Design 2.0（Cells / Molecules-lite 再定義）
+
+- **旧 Atoms/Molecules/Organisms の3層を Tokens / Elements / Cells / Blocks / Pages の5層に再編して設計書に採用**：Molecules がヒト依存で肥大化する問題を、責務の狭い Cells（例：Price表示Cell、CTAボタンCell）と業務単位の Blocks（例：料金プランBlock、応募フォームBlock）で分離する
+- **Cells は「1目的1コンポーネント」の粒度で設計**：役割説明が「〜と〜」と接続詞を含んだ時点で Cells を分割する規約を設計書のレビュー観点に入れる
+- **Blocks は Section 単位と1対1対応**：Nao の STEP 1（セクション洗い出し）と Atomic Design 2.0 の Blocks 層を同期させ、設計書のツリーで Section = Block の対応を自明にする
+- **Templates は廃止し Pages 直下で Blocks を配置**：Next.js App Router の `layout.tsx` が Templates 役割を吸収するため、二重管理になる Templates 層は設計書から落とす
+
+### Design Tokens W3C準拠（tokens.json / Style Dictionary パイプライン）
+
+- **W3C Design Tokens Community Group仕様（DTCG）準拠の `tokens.json` を設計成果物に加える**：Hana の CSS 抽出値を primitive tokens として `tokens.json` に格納し、Style Dictionary で Tailwind config / CSS variables / iOS / Android へ多重出力できる基盤を設計層で用意する
+- **primitive / semantic / component の3層 tokens を設計書で分離定義**：`color.blue.500`（primitive）→ `color.cta.default`（semantic）→ `button.primary.background`（component）の3層で、複製元のブランド差替が semantic 1層の付け替えで済む状態にする
+- **token 参照は必ずエイリアス経由**：component 層は semantic を、semantic は primitive を参照する規約を設計書に明記し、Ren が primitive を直接 component から呼ぶのを禁止する
+- **Tailwind v4 の `@theme` ディレクティブと tokens.json の同期方針を設計書に記載**：どちらが source of truth かを案件毎に決め、両方を手編集する事故を設計段階で防ぐ
+- **token 命名は BEM でも Bootstrap でもなく DTCG 命名規約に統一**：`$` prefixで参照、`.` セパレータでネスト、複製案件横断で命名が揺れない状態にする
+
+### Storybook 8 駆動設計（isolation-first documentation）
+
+- **設計書と並行して Storybook 8 の story ファイル雛形を Nao が発行**：Ren が実装後に story を書く順序でなく、設計段階で `Hero.stories.tsx` の props バリエーション表を設計書に添付し、Ren は雛形の空欄を埋める作業に落ちる
+- **各コンポーネントの状態バリエーション（default / hover / loading / error / empty / long-text）を story として設計書で列挙**：Mia のQAが Storybook 単位で走れる状態にする
+- **Interactions テスト（play function）で受入基準を設計書に埋め込む**：CTA クリックで所定のイベントが飛ぶ、フォームがバリデーションを出す等の受入条件を Storybook の play で表現する仕様として設計書に記載
+- **Autodocs で props 表を自動生成する前提の TypeScript 型定義**：設計書の props 表を JSDoc コメント付きで型定義に落とすルールにし、二重管理を発生させない
+- **Chromatic ビジュアル回帰テストの基準スナップショットを設計段階で撮る対象コンポーネントを指定**：全部でなく「複製忠実度がクリティカルな Hero / CTA / 料金表」に絞る指定を設計書で行う
+
+### CSS-first Architecture（Tailwind v4 / @layer / CSS Nesting / :has()）
+
+- **Tailwind v4 の CSS-first configuration（`@theme` in CSS）を採用する案件は設計書で明示**：JS config を持たず全て CSS で完結する構成の場合、utility 拡張・カスタムトークンの定義場所を設計書で確定する
+- **`@layer base / components / utilities` の3層を設計書のスタイル階層として採用**：Hana の CSS 抽出結果を `@layer components` に落とし、上書きの優先度を設計段階で決めておく
+- **Native CSS Nesting を前提とした記述規約**：Sass に頼らない Native Nesting で書く前提を設計書に記載し、Ren がビルドツール依存の書き方に流れるのを防ぐ
+- **`:has()` セレクタによる親スタイリング可否を設計書で判断**：フォームバリデーション時の親コンテナ色変更等、`:has()` で JS を減らせる箇所を設計段階で特定する
+- **Container Queries を Media Queries に優先する設計判断**：SectionやCardが親幅に応じてレイアウトを変える箇所は `@container` で設計書に定義し、ページ幅依存のブレークポイント設計から脱する
+- **CSS Cascade Layers `@layer` で3rd party CSS の優先度を設計層で制御**：埋め込み外部ウィジェット（チャットボット・カレンダー）の CSS が LP を上書きする事故を、設計時のレイヤ順で先回り防止
+
+### Server Components / Islands / Streaming 境界設計
+
+- **RSC (React Server Components) / Client Component 境界を設計書のコンポーネント表の必須列にする**：`"use client"` の付与判断を Ren に委ねず、設計段階で SC/CC 区分と理由（インタラクション有無・useState/useEffect 依存・ブラウザAPI依存）を確定する
+- **Islands Architecture（Astro/Qwik的境界）を採用する案件では Island 単位を設計書で列挙**：LP 全体を SSG で静的化し、CTA フォーム・カルーセル・アコーディオンのみ Island として hydrate する構成を設計段階で決める
+- **Streaming SSR の `<Suspense>` 境界と loading.tsx の配置を設計書に記載**：どのセクションがどの粒度で streamin されるか、初期HTMLに含める範囲と後追いする範囲を設計層で確定する
+- **Partial Prerendering (PPR) 対応可否を案件受注時に判定**：Next.js 15+ の PPR を使う場合、静的シェルと動的hole の境界を設計書で明示し、Kaito との受注仕様と整合させる
+- **Server Actions の呼び出し境界を設計書のフォーム仕様表に記載**：応募フォーム・問い合わせフォームの送信を Server Action で行うか API Route で行うかの判断を設計段階で確定する
+
+### Progressive Enhancement / Resilience by Design
+
+- **JS 無効環境での最低動作水準を設計書に明記**：応募CTAの `<a href>` フォールバック、フォームの `<form action>` フォールバック、カルーセルの縦スクロール退行など、JS が落ちても応募と閲覧が完結する退行仕様を設計層で用意する
+- **ネットワーク低速・失敗時の UI 退行を設計書の各セクションに定義**：画像遅延・fetch失敗のfallback表示、offline時のキャッシュ挙動を設計段階で決め、Ren が正常系だけ実装するのを防ぐ
+- **`prefers-reduced-motion` / `prefers-color-scheme` / `prefers-contrast` の3つのユーザ設定に対する挙動を設計書に必須列として持つ**：アクセシビリティを Mia の受入時に発見するのでなく、設計時に決めておく
+- **Core Web Vitals（LCP/INP/CLS）の目標値を設計書の Performance Budget に記載**：LCP要素の特定と `fetchpriority="high"` 指定、INP の主要インタラクション、CLSの寸法予約を設計段階で確定する
+- **View Transitions API を使うページ遷移・要素遷移箇所を設計書で指定**：フォールバック（未対応ブラウザでの通常遷移）も併記し、Ren の実装ばらつきを設計層で吸収する
+- **障害耐性：3rd party スクリプト（GTM/計測タグ/チャット）の読み込み失敗時の LP 挙動を設計書に定義**：本体機能が 3rd party に依存しない構造を設計段階で保証する
+
+### 設計方法論（LP複製設計に採用する4つのアプローチ）
+
+- **Contract-first Component Design**：コンポーネントの props 型定義（TypeScript interface）と Storybook stories を「契約」として先に確定し、実装と QA がその契約に対して並列に走れる状態を設計層で作る。実装完了後に型を後付けする順序を禁止する
+- **Layered Token Governance**：primitive / semantic / component の3層 tokens を、それぞれ「誰が変更権を持つか」まで設計書に記載する（primitive=Hana抽出値、semantic=Nao/iro、component=Ren実装時）。複製案件のブランド差替・A/B展開時に変更範囲が予測可能になる
+- **Boundary-Driven Architecture**：Server/Client 境界、Static/Dynamic 境界、hydration Island 境界、キャッシュ境界の4種類の境界を設計書で先に引き、コンポーネント配置を境界に対して決める。責務分割より境界設計を上位に置く
+- **Documentation-as-Design（設計書=Storybook=型定義の三位一体運用）**：設計書の props 表、Storybook stories、TypeScript 型定義を別々に書かず、単一の source（設計書の props 定義）から生成・派生させる。三者の乖離を「同期作業」で埋めるのでなく、乖離が発生しない構造で持つ
