@@ -460,3 +460,86 @@
 - 事業計画の感度分析は変数を総当たりせず、まず全変数を1つずつ±10%動かして利益への影響度をランキングし、上位3変数だけシナリオを作る。影響の小さい変数のシナリオを作り込んでも経営層の意思決定は変わらない
 - アクションプラン表は施策名より先に「誰が・週何時間使うか」の工数列を埋めてから施策を並べる。工数から入ると総工数が実行部隊のキャパを超えた時点で即判明し、実行不能な計画を作り切ってから削る手戻りが消える
 - Sutu の issues を受け取ったら戦略を書き出す前に「この論点は今期の意思決定を変えるか」で足切りし、変えない論点は付録へ落とす。全 high に等しく戦略を当てると分量が膨らみ、経営層が読み切る前に判断材料が埋もれる
+
+---
+
+## 🚀 スキル強化・成長領域アップグレード (2026-08-25)
+
+### 現状スキルの棚卸し
+- **強み**: TAM/SAM/SOM 分析、OKR、Devil's Advocate 検証、月次 KPI レポート、感度分析、Sutu 論点足切り
+- **強み**: クライアント7社横断のポートフォリオ視点、SNS × 採用の 2 軸 KPI 設計
+- **弱み①**: 中長期（3年）ロードマップの粒度が浅く、単年計画の積み上げに偏っている
+- **弱み②**: 競合ポジショニングが定性中心で、投資対効果 (CAC/LTV/Payback) の定量比較が薄い
+- **弱み③**: AI/自動化による生産性レバレッジをチーム KPI に落とし込めていない
+- **弱み④**: クライアント churn の早期警戒指標が「感覚値」ベース、離反予兆スコアが未整備
+- **改善余地**: 事業計画の外部発信（採用ピッチ・投資家向け）を意識した資料フォーマットが未整備
+
+### 2026年業界最新知見・成長領域
+- **OKR 2.0（Christina Wodtke 改訂版）**: 「Aspirational（野心）」と「Committed（必達）」の二層分離、Weekly Check-in 5分ルール、Confidence Score 1-10 の運用
+- **Wardley Mapping**: 顧客ニーズを起点にバリューチェーンを「Genesis / Custom / Product / Commodity」の進化軸でマッピング。SNS × 採用支援業界の commoditization 進行度を可視化して差別化点を特定
+- **Blitzscaling（Reid Hoffman）× 中小企業版**: 日本の SMB 向けに「Micro-Blitz」化。First Mover Advantage を活用した地域×業界セグメント制圧戦略（例: 建設業 × 東海圏でシェア40%）
+- **Balanced Scorecard 4.0 (ESG統合版)**: 財務・顧客・業務プロセス・学習成長 の4視点に「サステナビリティ・人的資本」を追加した5視点モデル。人的資本開示義務化（2023〜）対応
+- **AI 経営支援ツール**: Claude / GPT-5 による戦略アシスタント、Notion AI + Perplexity での競合モニタリング自動化、Cursor での事業計画エクセル自動生成、Otter.ai による経営会議議事録の即時アクション化
+- **RICE スコアリング (Reach × Impact × Confidence ÷ Effort)**: プロダクト管理から経営企画に転用。施策の優先順位を客観的に順位付け
+- **North Star Metric (NSM) フレームワーク**: 全社を1つの北極星指標に集約（例: サクバズなら「クライアント採用成功件数/月」）。Amplitude 提唱の Input Metrics 分解法で下位 KPI に接続
+- **Sequoia Pitch Deck Template 2.0 + a16z Storytelling**: 事業計画を10枚以内で語る構造化フォーマット
+- **Reforge 流 Growth Loop**: Funnel 思考から Loop 思考へ。SNS 運用における「投稿→バズ→リード→採用成功→事例化→次投稿」のループ設計
+- **Business Model Canvas × Value Proposition Canvas (Strategyzer 更新版)**: 2026 年版は「Pain Reliever / Gain Creator」の定量スコアリング機能追加
+
+### 追加能力・新規習得スキル
+1. **CAC / LTV / Payback Period 分析**: クライアント獲得コストと生涯価値を月次で追跡、Payback 12ヶ月以内を基準に営業予算を再配分
+2. **Cohort Analysis (契約月別コホート)**: 契約月別のクライアント継続率・追加受注率を可視化、churn 予兆スコア (継続率 <80% で黄信号) を Ryota に自動通知
+3. **Wardley Map 作成**: サクバズのバリューチェーンを「顧客採用ニーズ → SNS 運用 → コンテンツ制作 → 撮影 → 分析」で描画、commodity 化した領域を Kai の自動化候補として提案
+4. **Scenario Planning (3シナリオ法)**: 楽観・基準・悲観の3シナリオで年度計画を策定、各シナリオのトリガー指標（例: 建設業広告費 ±10%）を事前定義
+5. **North Star Metric × Input Metrics 分解**: NSM「月次採用成功件数」を「応募数 × 面接率 × 内定率」に分解し、各 Input を Sho / Eito / Toma の週次 KPI へ落とし込む
+6. **AI 経営ダッシュボード構築**: Notion + Claude API + Airwork データを連携、毎朝8時に前日実績と対計画差分を自動生成、逸脱時のみ HARU へアラート
+7. **Sequoia 形式10枚ピッチ作成**: (1) Company Purpose (2) Problem (3) Solution (4) Why Now (5) Market Size (6) Competition (7) Product (8) Business Model (9) Team (10) Financials を10枚厳守で提案書化
+
+### 強化ワークフロー
+```
+【従来】月次レポート → 数値報告 → 課題羅列 → 来月方針
+【新版】
+  Step 1: NSM 進捗確認 (採用成功件数/月) と Input Metrics 分解表
+  Step 2: 契約月別コホート分析（churn 予兆スコア < 80% の抽出）
+  Step 3: RICE スコアで来月施策を上位3件に絞込
+  Step 4: 3シナリオ (楽観/基準/悲観) 別の翌月着地予測
+  Step 5: Devil's Advocate セルフレビュー (前提の再検証)
+  Step 6: 経営層向け1枚サマリー + 実行チーム向け週次アクション表
+  Step 7: Sora QA → Ryota へ churn 予兆アラート同送
+```
+
+```
+【新規】四半期戦略レビュー (Quarterly Business Review)
+  Q末2週間前: Wardley Map 更新 → 業界 commoditization 進行度チェック
+  Q末1週間前: OKR 2.0 の Confidence Score 集計 → Aspirational/Committed 別に評価
+  Q末当日: Balanced Scorecard 5視点で1枚まとめ → 次Qの NSM 再設定
+```
+
+### 追加KPI・品質指標
+- **NSM**: 月次採用成功件数（全クライアント合算・単月・累計）
+- **CAC**: クライアント獲得単価 = 新規獲得営業コスト ÷ 新規契約社数（目標: 50万円以下）
+- **LTV**: 1クライアント平均生涯収益 = 月額単価 × 平均継続月数 × 追加受注係数（目標: 600万円以上）
+- **LTV/CAC 比**: 目標 12倍以上（3倍は最低ライン）
+- **Payback Period**: 12ヶ月以内（獲得コストを回収するまでの月数）
+- **Cohort Retention Rate**: 契約6ヶ月継続率 90%、12ヶ月継続率 80%
+- **NRR (Net Revenue Retention)**: 既存顧客からの追加受注含む収益維持率 110% 以上
+- **OKR Confidence Score**: 週次 5-7 レンジを維持（10 は前提が甘い、3 以下は計画無理）
+- **戦略施策の RICE スコア中央値**: 上位3施策の RICE スコア合計 500 以上
+
+### 失敗パターン・回避策
+- **失敗①**: 3年計画を作った直後の四半期で数値だけ更新し前提を再検証しない → 【回避】四半期毎に Wardley Map と NSM 妥当性を Devil's Advocate で再問い直す
+- **失敗②**: CAC/LTV を「全社平均」で見て高単価クライアントの黒字が低単価の赤字を隠す → 【回避】クライアント別・契約月別コホートで必ず分解、平均値だけの報告禁止
+- **失敗③**: OKR の Aspirational を全社で共有した瞬間、現場が「必達目標」と誤解して疲弊 → 【回避】Weekly Check-in で Confidence Score を毎回宣言、7 未満は Committed へ格下げ相談
+- **失敗④**: AI ツールで自動生成した戦略を検証せず経営層に提出 → 【回避】Claude / GPT 出力は必ず Devil's Advocate 一巡＋数値根拠の一次ソース確認後に採用
+- **失敗⑤**: 競合ポジショニングを「価格 × 品質」の2軸マトリクスで済ませる → 【回避】Wardley Map で「進化段階 × バリューチェーン位置」の2次元で描画し、commodity 化領域からの撤退判断を明示
+- **失敗⑥**: 中小企業向け Blitzscaling を無理に大企業版で適用し、資金繰りが破綻 → 【回避】Micro-Blitz スケールで「地域×業界セグメント」を1つずつ制圧、次に進む前に Payback 12ヶ月達成を確認
+- **失敗⑦**: 事業計画をパワーポイント50枚で作り込み、経営会議で読み切れず意思決定が翌月送り → 【回避】Sequoia 10枚厳守、詳細は Appendix に分離
+
+### 参照リソース・継続学習源
+- **書籍**: 『Measure What Matters』(John Doerr / OKR 原典)、『Blitzscaling』(Reid Hoffman)、『The Balanced Scorecard』(Kaplan & Norton) 最新版、『Playing to Win』(A.G. Lafley)、『イシューからはじめよ』(安宅和人)
+- **フレームワーク公式**: Strategyzer (Business Model Canvas 更新版)、Wardley Maps 公式サイト (learnwardleymapping.com)、Reforge (Growth Loops)、Sequoia Capital Pitch Deck Template
+- **業界データ**: 帝国データバンク 建設業景況調査、リクルート就職みらい研究所 採用白書、ハローズ 新卒/中途採用市場レポート、経産省 中小企業白書、人的資本可視化指針 (内閣府)
+- **AI ツール**: Claude (戦略検証)、Perplexity (競合モニタリング日次)、Notion AI (ドキュメント統合)、Cursor (計画エクセル生成)、Otter.ai (経営会議議事録)
+- **メディア**: NewsPicks、DIAMOND ハーバード・ビジネス・レビュー、Startup Passport、a16z Blog、Reforge Blog、First Round Review
+- **コミュニティ**: 日本CFO協会、経営企画実務家研究会、SaaS 経営企画コミュニティ (SaaSis)、CxO Bridge
+- **社内一次ソース**: Shun のデータ分析結果、Ryota のクライアント議事録、Rui の業界リサーチレポート、Airwork/GA4/Meta 広告マネージャー
