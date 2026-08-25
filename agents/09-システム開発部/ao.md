@@ -516,3 +516,59 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - CSV出力（BOM付きUTF-8・ゼロ落ち防止・日付の文字列化）・冪等キー処理・エラーレスポンス整形は案件ごとに書かず共通ユーティリティ化する。実装時間より、現場で信頼を失ってからの修正コストの方が桁違いに高い
 - 性能改善は全エンドポイントを均すのでなく、採用担当が毎朝必ず叩く導線（応募一覧の全件・全期間表示）を名指しで特定し、そのクエリとインデックスだけに時間を投下する。体感評価はその1画面で決まる
 - Query Logging とスロークエリ閾値はステージング以降でなくローカル開発時から常時オンにする。N+1は書いた直後に気づけば数分の修正だが、リリース後に発覚すると調査から再デプロイまで丸ごと乗る
+
+### 2026-08-25 — 2026年バックエンドBP追補
+
+#### 新スキル（2026年最新スタック対応）
+- **Node.js 22 LTS + TypeScript 5.5 の型ストリップ / 標準テストランナー活用**：`node --test`と型ストリップ機能の成熟でVitest依存を縮小可能。Next.js API Routes / Route Handler の実行時と揃えて依存を最小化し、サプライチェーン攻撃面を減らす。ただしVitestの`describe/it/mock`エルゴノミクスは依然強力なため、E2E寄りは標準ランナー、単体は Vitest の使い分けを既定にする
+- **Hono on Cloudflare Workers / Bun / Deno のマルチランタイム対応**：Next.js Route Handler 外の高頻度・低レイテンシ API（Webhook 受信・エッジ配信の応募カウンタ等）は Hono を採用。Vercel Edge Runtime との互換を維持しつつ、後日のマルチクラウド移行余地を残す。Next.js が主なら Route Handler 継続で問題なし、切り出し判断は「レイテンシ要件 <50ms」または「Vercel 外配置の必要性」で行う
+- **tRPC v11 + Zod v4 の型安全RPC**：BFF層（Next.js App Router 内で Server Component から呼ぶ内部 API）は tRPC で書き、Riku 側で `useQuery`/`useMutation` を型付きで消費させる。OpenAPI が必要な外部公開 API とは分離し、内部 API では OpenAPI 生成の手間を省く
+- **Drizzle ORM の SQL寄り実装で複雑クエリ対応**：Prisma は CRUD と型安全マイグレの標準を維持しつつ、集計・ウィンドウ関数・複雑JOINを含むレポート系（akari の月次レポート・shun のダッシュボード）は Drizzle または生 SQL + `@databases/pg-typed` で書く。ORM の抽象化コストと SQL の可読性のトレードオフを機能単位で判断
+- **PostgreSQL 17 の増分バックアップ / VACUUM改善を前提にした運用設計**：`pg_basebackup --incremental` を kuu と組み合わせ、PII 保存テーブルの保存期間管理を自動化。論理削除の部分ユニークインデックス（`WHERE deleted_at IS NULL`）や `INCLUDE` 句を積極活用してインデックスサイズを抑える
+- **Passkey / WebAuthn 実装（simplewebauthn/server）**：採用管理システムの担当者ログインはパスキー標準対応。フィッシング耐性が高くパスワード漏洩リスクをゼロ化。フォールバックとしてマジックリンク（メール認証）を残し、パスワード認証は新規実装しない
+- **OpenFGA / Cedar による宣言的認可**：ロール×リソース×CRUDの権限マトリクス（Nao 提供）を OpenFGA のスキーマに変換し、コード内の `if (user.role === 'admin')` 散在をゼロ化。Mio の認可ペアテスト（自分200・他人403）は同じスキーマから自動派生
+
+#### 方法論（アーキテクチャ・設計パラダイム）
+- **Clean Architecture / Hexagonal Architecture の Next.js App Router 適用**：`app/api/**` の Route Handler は「アダプタ層」に留め、ビジネスロジックは `src/domain/`・ユースケースは `src/application/`・DB 実装は `src/infrastructure/` に分離。Prisma / Drizzle の差し替え、tRPC / REST の両対応がテスト容易性を維持したまま可能になる
+- **Domain-Driven Design（DDD）の集約単位で境界設計**：応募（Application）と求人（Job）と選考プロセス（Screening）を独立した集約として定義し、Prisma スキーマの外部キー貫通で「気付いたら全部つながって整合性責務が曖昧」を防ぐ。Nao の ER 図レビュー時に集約境界を明示化する
+- **CQRS（Command Query Responsibility Segregation）の部分適用**：書き込み（Command）は正規化された Prisma モデル、読み取り（Query）は集計・非正規化された Materialized View or Redis キャッシュから返す。応募一覧の全件・全期間表示（毎朝の重要導線）は Query 側を専用最適化し、Command 側の書き込みパスに影響させない
+- **Event Sourcing の選考履歴適用**：応募ステータス変更（応募→書類選考→一次面接→内定）を Event Store に追記型で保存し、現在ステータスは投影（Projection）で計算。監査ログ要件（誰がいつステータスを変えたか）と選考プロセス改善分析（どの段階で離脱が多いか）を同一データ基盤で満たす
+- **Ports & Adapters テスト戦略**：ドメインロジックのユニットテストは Prisma / Redis / 外部 API を全てモックせず、Port インターフェース（`IApplicationRepository` 等）に対する fake 実装で高速化。Mio の TDD Guard と併せて「実装差し替えでテストが壊れない」を担保
+
+#### 2026年バックエンド技術スタック（推奨マトリクス）
+- **一般的な採用管理 SaaS 系（Vercel + Postgres）**：Next.js 15 Route Handler + Prisma 6 + PostgreSQL 17（Supabase / Neon）+ Redis（Upstash）+ NextAuth v5 / Clerk。既定はこの構成
+- **高頻度 Webhook / エッジ配信系**：Hono on Cloudflare Workers + Neon serverless driver + Upstash Redis。応募通知の一次受け・LP 経由の応募カウンタ等
+- **内部管理画面 BFF**：Next.js App Router + tRPC v11 + Prisma。外部公開 API 不要のクライアント案件で採用
+- **大規模・複雑集約系**：Clean Architecture 徹底 + Drizzle（複雑クエリ）+ Kafka（イベント配信）+ Event Sourcing。将来的なマイクロサービス分割余地を残す
+- **リアルタイム系**：Next.js + Pusher / Ably / Supabase Realtime（WebSocket 自前実装は避ける）
+
+#### アーキテクチャ・実装パターン
+- **リポジトリパターン + Unit of Work**：Prisma の `$transaction` を Unit of Work として抽象化し、複数テーブル更新を集約単位でトランザクション保証。Server Actions からの呼び出しでも一貫性を担保
+- **CQRS + Read Model キャッシュ**：Query 側は Redis / Vercel KV に非正規化 Read Model を保存し、Command 側のイベント発火で無効化。応募一覧・ダッシュボードのレスポンスを100ms以下に維持
+- **Saga パターン（外部連携の分散トランザクション）**：Airwork API・Indeed API・メール送信を跨ぐ処理は Saga で補償トランザクション定義。1つが失敗しても部分状態で放置しない
+- **Outbox パターン（イベント発行の信頼性担保）**：DB 更新と外部通知（メール・Slack）を同一トランザクションで Outbox テーブルに書き込み、別プロセスで配信。fire-and-forget を根絶
+- **Circuit Breaker（外部API連携の障害隔離）**：Airwork / Indeed など外部 API 障害時に自システムが引きずられないよう `opossum` 等でサーキットブレーカ実装
+
+#### パフォーマンス最適化（Next.js / Vercel 環境特化）
+- **Route Handler の `runtime = 'edge'` 適用判断**：Prisma を使う API は Node.js Runtime 継続、認証チェックのみ・軽量集計のみのエンドポイントは Edge Runtime に移行して p50/p95 を半減
+- **Prisma driver adapters（`@prisma/adapter-neon` / `@prisma/adapter-pg`）の採用**：Rust エンジン同梱を止め、Vercel のコールドスタート時間を短縮。サーバレス環境の接続プール枯渇を Neon / Supabase の serverless driver で回避
+- **Vercel KV / Upstash Redis のキャッシュ階層設計**：TTL付きキャッシュ（求人一覧・マスタデータ）・ロックキャッシュ（冪等キー・レート制限カウンタ）・セッションキャッシュを名前空間分離。誤って全キーを flush して障害化を防ぐ
+- **PostgreSQL の `EXPLAIN (ANALYZE, BUFFERS)` 常時運用**：CI で毎朝叩く導線（応募一覧の全件・全期間表示）の実行計画を自動チェックし、Seq Scan / 想定外の Hash Join が出たら CI Fail
+- **Streaming Response（Server-Sent Events）採用**：AI 生成系・長時間集計 API は Route Handler の Streaming 対応で TTFB を短縮。Riku 側で `EventSource` 消費できるよう連携
+
+#### セキュリティ強化（OWASP API Security Top 10 対応）
+- **API1: Broken Object Level Authorization 対策**：Prisma の `$extends()` で全クエリに `WHERE ownerId = currentUser.id` を強制注入。Server Actions・tRPC・REST の全経路で `checkUserOwnership()` を通過必須
+- **API2: Broken Authentication 対策**：Passkey（WebAuthn）を第一選択にし、パスワード認証を新規実装しない。既存パスワード運用は Argon2id + ペッパーで保存し、bcrypt からの移行計画を kuu と合意
+- **API4: Unrestricted Resource Consumption 対策**：全 Route Handler にレート制限（Upstash Ratelimit）+ ペイロードサイズ上限（`bodyParser.sizeLimit`）+ タイムアウト（`export const maxDuration = 10`）を既定適用
+- **API8: Security Misconfiguration 対策**：`envSchema.parse(process.env)` を起動時に fail-fast 実行し、未設定環境変数で本番起動を止める。CORS / CSP / HSTS を Next.js `headers()` で集中管理し個別 API での上書きを禁止
+- **PII 暗号化・トークン化の徹底**：氏名・電話番号・履歴書 PDF URL 等の PII は AES-256-GCM でカラム暗号化、または Vault / AWS KMS でトークン化。ログ出力時は自動マスキング（`pino` + `redact` オプション）
+- **監査ログ（Audit Log）の全 Command 適用**：応募ステータス変更・権限変更・データエクスポート等の全 Command 操作を独立テーブルに記録し、担当者ごとの操作履歴を Nori のコンプライアンスレビューで即時取得可能に
+
+#### Next.js / Vercel 実装連携ルール（既存フローに追加）
+- **Server Actions は公開 API と同格で扱う**：フォーム送信元 Server Action にも `checkUserOwnership()`・Zod バリデーション・レート制限を通過必須とし、Riku の form 実装レビュー時に Ao が認可コード有無を確認
+- **Route Handler と Server Actions の使い分け原則**：外部から叩かれる公開 API・Webhook 受信は Route Handler、内部フォーム送信・Server Component からの Mutation は Server Actions。混在時は Nao の設計書で明示
+- **Prisma Client の singleton 化を徹底**：`lib/prisma.ts` で `globalThis.prisma` パターン適用し、開発時のホットリロードで接続プールを枯渇させない。Vercel Preview 環境でも同一パターンを維持
+- **Middleware での認証チェック二段構え**：Next.js `middleware.ts` でセッション有無の粗いチェック、Route Handler / Server Action 内で細かい認可チェック。Middleware だけを頼らない
+- **`revalidatePath` / `revalidateTag` の適用単位を Nao の設計書で定義**：Server Actions からのキャッシュ無効化は「どのタグを無効化するか」を設計段階で決め、実装時に散らばらせない。riku の Server Component が空データを返す事故を防ぐ
+- **Vercel Cron / Vercel Queue の採用**：バッチ処理（毎朝の集計・週次レポート生成）は Vercel Cron、非同期ジョブ（メール送信・外部 API 連携）は Vercel Queue（または Inngest / Trigger.dev）。自前 setInterval / node-cron は禁止
+- **環境変数命名規則の統一（`NEXT_PUBLIC_` プレフィックス誤用防止）**：クライアント露出禁止の秘密（DB URL・API シークレット）に `NEXT_PUBLIC_` を絶対に付けない。CI で `NEXT_PUBLIC_.*_SECRET` パターンを禁止 lint
