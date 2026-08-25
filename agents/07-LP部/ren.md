@@ -668,3 +668,52 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - tokens.json から Tailwind config への反映はスクリプト化し、手写しをやめる。Iro/Hana 側の色変更が1コマンドで反映され、キー衝突や転記ミスによる「色が出ない」NGが発生しなくなる
 - LINE/Instagram の in-app ブラウザ実機確認は別工程に切らず、実装完了の定義（DoD）に含める。確認依頼を出してから崩れの報告を受け取る経路は、往復と再デプロイの分だけ確実に遅い
 - Nao の editable スロットは個別に依頼が来てから対応せず、実装時に一括で CMS/props 化する。後付けのCMS化は該当箇所の周辺コードごと書き直しになり、まとめてやる場合の数倍かかる
+
+---
+
+## 🚀 2026年フロントエンド実装ベストプラクティス（Next.js 15 App Router / React 19 時代）
+
+### Next.js 15 App Router × React 19 実装スタック
+- **Next.js 15.x + React 19 を LP 標準スタックに固定**：`app/` ディレクトリ・Server Components 既定・`use client` は最小限（フォーム・アニメーション・スクロールトリガーのみ）。Pages Router の新規採用は禁止し、既存 Pages 案件は破壊せずそのまま維持しつつ、新規 LP は必ず App Router で着手する
+- **React 19 の `useActionState` / `useFormStatus` / `useOptimistic` をフォーム実装の第一選択に**：問い合わせフォーム・応募フォームは `useActionState(action, initialState)` でエラー/成功状態を Server Action と一体化し、`useFormStatus` の `pending` で送信中UIを制御。従来の `useState` + `onSubmit` パターンは新規実装で使わない
+- **`use()` フックで Suspense 内の Promise/Context を同期的に扱う**：Server Component から渡した Promise を Client Component で `use(promise)` して展開し、`await` を待たずに `<Suspense>` フォールバックへ即描画する。データ取得の直列化を避ける
+- **React Compiler（Babel プラグイン）を新規 LP で既定 ON**：`useMemo`/`useCallback`/`React.memo` の手書きを廃止し、Compiler に最適化を任せる。設計書で「メモ化してください」の指示が来ても Compiler 前提で「不要」を返し、可読性を優先する
+- **Turbopack を `next dev --turbo` で常用、本番ビルドも Turbopack へ段階移行**：ローカル起動 3秒以内・HMR 300ms 以内を DoD にし、`webpack` に依存する古いローダーを新規実装で持ち込まない
+
+### Server Actions / Server Components 実装ルール
+- **フォーム送信は Server Actions を第一選択、`route.ts` は外部連携のみ**：`'use server'` を付けた関数を `<form action={...}>` に直接渡し、CSRF・シリアライズ・型付けを Next 標準に任せる。`fetch('/api/...')` + `route.ts` の実装は、外部システム（Airwork/LINE Bot 等）向けの Webhook 受け口だけに限定する
+- **`allowedOrigins` を本番 + Vercel Preview 両ドメインで登録**（2026-08-13 Ao 連携の続き）：`next.config.js` の `experimental.serverActions.allowedOrigins` に本番/プレビュー/ステージング全ドメインを列挙し、Server Action の Origin ブロックによる「フォームが押しても無反応」を実装時点で潰す
+- **`revalidatePath` / `revalidateTag` で ISR キャッシュを明示更新**：CMS 連携 LP では Action 内で `revalidateTag('lp-content')` を呼び、再デプロイ不要で更新が反映される導線を Nao の設計と揃える
+- **Server Component から Client Component への props はシリアライズ可能な値のみ**：関数・Date インスタンス・Map/Set は渡さない。Date は ISO 文字列、関数は Server Action として渡す。ビルド時エラーを防ぐ
+
+### Partial Prerendering (PPR) & Suspense ストリーミング設計
+- **静的シェル + 動的アイランドの Partial Prerendering を LP の標準構成に**：Hero・機能紹介・実績など静的部分はプリレンダ、フォーム状態・ログイン状態・A/B バリアントなど動的部分だけ `<Suspense>` で囲みストリーミング配信。TTFB を CDN エッジ速度まで引き下げる
+- **`<Suspense fallback={<Skeleton />}>` を全 fetch 境界に配置**：Skeleton は shadcn/ui の `<Skeleton>` を使用し、CLS ゼロの寸法一致プレースホルダを Nao の設計段階で寸法込みで受け取る
+- **`loading.tsx` と `error.tsx` を全ルートに配置**：ルートごとに骨格 Skeleton とエラー境界を配置し、ネットワーク遅延・API エラーで白画面が出る経路を消す
+- **Route Groups `(marketing)` / `(app)` でレイアウト分離**：LP 側は Marketing Layout（ヘッダー簡素・CTA固定）、管理画面は App Layout（サイドバー・認証必須）に分ける。共通レイアウトに LP 固有 CSS が漏れる事故を防ぐ
+
+### Tailwind v4 / shadcn/ui / Radix UI コンポーネント戦略
+- **Tailwind v4 の CSS-first 設定（`@theme` ディレクティブ）に完全移行**：`tailwind.config.ts` の JS 設定を廃止し、`app/globals.css` に `@theme { --color-primary: oklch(...); }` を書く。Iro/Hana の tokens.json から `@theme` ブロックを自動生成するスクリプトを共通化し、手写しをやめる（2026-08-18 の続き）
+- **shadcn/ui + Radix UI をコンポーネント基盤に固定**：Dialog・Popover・Accordion・Select は自作せず shadcn/ui の CLI で追加し、Tailwind の `@theme` トークンで見た目だけ差し替える。アクセシビリティ（フォーカストラップ・キーボード操作・aria）を Radix に委譲し、Mia のA11y差し戻しを構造的に減らす
+- **`class-variance-authority` (cva) と `tailwind-merge` でバリアント管理を一元化**：ボタン・カードの `variant`/`size` は cva で定義し、`cn(...)` ヘルパで衝突を解消。バリアント地獄を回避する
+- **`text-wrap: balance` と `<wbr>` の使い分けを kotone と事前合意して実装**（2026-08-13 続き）：見出しは `text-wrap: balance` を第一選択、SP で意味の切れ目を強制したい場合のみ `<wbr>` を明示。両方が同じ場所に入る二重管理を防ぐ
+
+### v0 / Playwright MCP / 実装高速化ツールチェーン
+- **Vercel v0 を「初回スキャフォールド専用」として使い、最終コードはコピペせず参照のみ**：v0 生成コードはトークンハードコード・独自クラス・非セマンティック HTML を含むため、参考にしつつ shadcn/ui + Tailwind v4 トークンで書き直す。v0 の出力を無検査で本番投入しない
+- **Playwright MCP でブラウザ実機確認を実装ループに組み込む**：ローカル起動後、Playwright MCP で「LINE WebView UA」「iPhone 15 Pro」「Pixel 8」「iPad Mini」の4端末スクリーンショットを実装後に自動取得し、Mia 送付前に Ren 側で目視差分を潰す（2026-08-16 の続き）
+- **`@next/bundle-analyzer` で LP ページの JS バンドルを可視化**：Client Component が肥大化した箇所を特定し、`dynamic(() => import(...), { ssr: false })` で遅延読み込みへ切り替える。LP 単一ページで 200KB gzip を超えたら Kaito・Mia へ即報告
+- **`playwright.config.ts` に `webServer` を書いて CI で自動起動**：ローカルと CI で同一の実機確認フローを走らせ、「ローカルは通ったが CI で落ちる」を排除
+
+### パフォーマンス予算 & Core Web Vitals 実装ゲート
+- **LCP 2.0秒 / INP 150ms / CLS 0.05 を実装時 DoD として自己計測**：Chrome DevTools の Performance Insights + Vercel Speed Insights で計測し、超えた場合は納品前に Ren 側で解消。Mia の Lighthouse 差し戻しを事前に消す
+- **Hero 画像は `next/image` の `priority` + `sizes` + `fetchPriority="high"` を必須セット化**：LCP 要素の遅延読み込みは禁止。`priority` 未指定の Hero 画像はレビュー時にリジェクト対象
+- **フォントは `next/font/local` で self-host、`display: swap` + `preload: true`**：Google Fonts の CDN 直リンクは CLS リスクとサードパーティ依存で禁止。`variable` フォントを 1 ファミリーに絞る
+- **`next/script` の `strategy` を用途別に厳格運用**：計測タグは `afterInteractive`、チャットウィジェットは `lazyOnload`、`beforeInteractive` は原則使用禁止。サードパーティ JS で TBT を悪化させない
+- **画像は AVIF > WebP > JPEG の順で `next/image` に委譲**、動画 Hero は `preload="none"` + `poster` を必須（2026-08-16 続き）
+
+### 既存ファイル非破壊 & セーフアップグレード運用
+- **既存 LP（Pages Router / 旧 Tailwind v3）は上書き改修せず、新機能追加は App Router 側に切り出す**：安定稼働している LP に v4/App Router を強制移行しない。案件ごとに移行判断を Kaito と合意してから着手する
+- **`package.json` の Next/React バージョンは案件ごとに固定、`^`/`~` で自動アップを起こさない**：`npm ci` 前提で `package-lock.json` を必ずコミット。Vercel ビルドで意図しないマイナー更新が入って崩れる事故を防ぐ
+- **共通コンポーネント（フォーム・固定CTA・完了画面）は `packages/lp-kit` 相当のディレクトリに切り、案件間コピペを廃止**（2026-08-18 続き）：改修は 1 箇所で完結し、既存案件は明示的にバージョン参照する。無自覚な破壊的変更を構造的に防ぐ
+- **`.env.example` を必ず同梱、シークレットは Vercel Environment Variables で管理**：`.env.local` をコミットしない Git hook を CI で強制。既存案件のシークレット構成に触らない
+- **メジャーアップグレード（Next 15→16 等）は Preview ブランチで 1 案件先行検証してから他案件へ横展開**：全案件一斉更新は禁止。既存資産の非破壊を最優先し、Kaito のロールバック運用（2026-08-03 kaito）と接続する
