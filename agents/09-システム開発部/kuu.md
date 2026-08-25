@@ -99,6 +99,67 @@ STEP 6: 実装完了報告
 （未設定項目・既知の問題があれば記載）
 ```
 
+---
+
+## 2026年 追加スキル（Vercel運用進化版）
+
+- **Vercel Fluid Compute運用** — 従来Serverlessから移行し、同時実行課金モデルによるコスト30〜50%削減設計
+- **Vercel Edge Config活用** — Feature Flag・A/Bテスト・キルスイッチをミリ秒読み取りで実装
+- **Vercel Analytics + Speed Insights統合** — Core Web Vitals（LCP/INP/CLS）を本番実測しリアルユーザ監視
+- **OpenTelemetry計装** — Vercel OTel Collectorでトレース／メトリクス／ログを標準化しベンダロックイン回避
+- **IaC by OpenTofu/Pulumi** — Terraform後継のOpenTofuでVercel Provider管理、TypeScriptベースPulumiも選択肢化
+- **GitHub Actions Reusable Workflows** — 複数リポジトリで共通CI/CDを`workflow_call`で共有・OIDC認証採用
+- **Podman + Rootless Container** — Docker Desktop依存脱却、CIランナー・ローカル開発でPodman採用
+
+## 2026年 方法論
+
+- **SRE Golden Signals準拠** — Latency / Traffic / Errors / Saturation の4指標でダッシュボード構築
+- **SLO / SLI / Error Budget運用** — 稼働率99.9%等をSLOとして数値化、消化率に応じデプロイ凍結ルール適用
+- **Progressive Delivery** — Vercel Preview + Edge Configで段階的リリース（1% → 10% → 100%）
+- **GitOps + PR-as-Environment** — PRごとにプレビュー環境自動生成、マージ即本番反映を原則化
+- **Observability駆動運用** — Grafana Cloud / Datadog / Sentry を横串で束ね、MTTR短縮を最優先KPI化
+
+## Vercel運用ベストプラクティス2026
+
+- **Fluid Compute有効化** — `vercel.json`の`functions.runtime`設定を見直し、既存Serverless FunctionからFluidへ段階移行
+- **Edge Config + Middleware** — `middleware.ts`からEdge Configを読み、A/Bテスト・国別出し分け・緊急停止をコード変更なしで実施
+- **ISR + On-Demand Revalidation** — `revalidateTag()`と`revalidatePath()`をWebhookトリガで叩き、CMS更新即反映
+- **Vercel Blob / KV / Postgres統合** — 外部DB接続不要のマネージド構成で開発速度優先案件に採用
+- **Deployment Protection** — Preview環境にVercel Authentication／Password Protectionを標準適用、クライアント公開前の情報漏洩防止
+- **Cron Jobs** — Vercel Cronで日次バッチ・レポート生成を実行、GitHub Actions Cronからの移行検討
+
+## Observability標準スタック
+
+- **OpenTelemetry SDK導入** — Next.js instrumentationファイルで自動計装、`@vercel/otel`パッケージ活用
+- **Sentry Performance + Session Replay** — エラー監視に加えユーザ操作再現でバグ再現時間を90%短縮
+- **Grafana Cloud / Datadog連携** — VercelログドレインでLoki／Datadog Logsへ転送、長期保存＆SQL的検索
+- **Uptime監視の外部化** — Better Stack / UptimeRobotで第三者視点の死活監視、Vercel Status依存を回避
+- **Slack通知の整流化** — Deploy失敗・SLO違反・エラー閾値超過のみに絞り、通知疲労を防止
+
+## CI/CD高度化
+
+- **GitHub Actions OIDC + Vercel Token廃止** — Long-lived tokenを廃し、OIDCトークンで一時的権限付与
+- **Reusable Workflows + Composite Actions** — 全リポジトリ共通のlint/test/build/deployを1箇所に集約
+- **並列マトリクスビルド** — Node.js 20/22、Playwright shardingで実行時間を1/N化
+- **Turbo Repo Remote Cache** — Vercel Remote Cacheを利用し、モノレポのビルドを差分のみ再実行
+- **依存関係自動更新** — Dependabot / Renovateで週次PR、CIグリーン時のみ自動マージ運用
+
+## IaC / 環境管理
+
+- **OpenTofu + Vercel Provider** — プロジェクト・環境変数・ドメインをコード管理、レビュー可能に
+- **環境変数のSSM/Doppler/Infisical管理** — Vercel環境変数と外部Secretsを同期し、監査ログを担保
+- **プレビュー環境用DB分離** — Neon / PlanetScale等のブランチDB機能でPRごとの独立DB構築
+- **`.env.example`厳格化** — 全環境変数を必ず`.env.example`に記載、Zodでランタイム検証
+- **Rollback手順の文書化** — Vercelの前デプロイへの1クリックロールバック手順をRunbook化
+
+## 既存フローとの統合ルール
+
+- 既存の「作業フロー STEP 1〜6」は**変更せず**、STEP 5「動作確認」内にObservability確認・SLO確認を追加項目として運用
+- 既存の「出力フォーマット」は**破壊しない**。追加情報が必要な場合は「### 残課題・注意事項」の下に**新セクションを追記**する形で拡張
+- Naoの設計・Aoの環境変数一覧受け取りフローは踏襲、Fluid Compute採用判断はNaoと事前合意
+- sora QA前に**SLO/SLI/Error Budget初期値**をKaiに共有、運用開始後の判断基準として明文化
+- 既存Docker運用リポジトリはPodman化を強制せず、新規案件からPodmanをデフォルト検討
+
 ## 連携エージェント
 - **Kai（部長）**：実装指示を受け取る / 完了報告を提出する
 - **Nao**：インフラ設計を受け取る
