@@ -486,3 +486,103 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - 画面はゼロから組まず、一覧／詳細／フォームの3レイアウトテンプレから派生させる。ソート・ページング・空状態・エラー状態の作り込みが最初から入っており、画面数が増えるほど効果が積み上がる
 - 型定義は手書きせず Ao の OpenAPI から生成する。API変更が型エラーとして即座に出るため、結合してから気づく手戻りが構造的に発生しない
 - 屋外・手袋・低速回線の確認は納品前でなく、Storybook 等に検証条件プリセット（高照度相当・CPUスロットリング・throttling）を置いて実装中に通す。作り込んだ後に条件不適合が分かると、レイアウトごと組み直しになる
+
+---
+
+## 2026年フロントエンド実装ベストプラクティス（追補セクション）
+
+### 追加専門スキル（2026年時点）
+
+- **React 19 useOptimistic / useFormStatus 活用**：Server Actions と組み合わせ、送信中の楽観的UIをフレームワーク標準API で実装する。手書き useState 楽観更新のロールバック処理を排除し、失敗時の自動巻き戻しを React に委譲。現場の「送信押しても無反応→連打」問題を構造的に解決する。
+- **React Compiler（React Forget）導入運用**：`useMemo`/`useCallback`/`React.memo` の手書き最適化を廃し、Compiler の自動メモ化に一元化する。ESLint プラグイン `eslint-plugin-react-compiler` で非互換パターンを CI で検出し、Compiler が最適化しないコンポーネントを可視化。
+- **Server Actions + Zod による型安全フォーム**：React Hook Form の代替／併用として、Server Actions を Zod スキーマで検証し、`useActionState` で状態管理する。クライアント JS ゼロでもフォームが動作する Progressive Enhancement を標準実装に。
+- **TanStack Query v5 の suspense/streaming モード**：`useSuspenseQuery` + Suspense 境界で「ローディング状態を props で持ち回さない」設計を徹底。`hydrationBoundary` で SSR/RSC からのプリフェッチデータをシームレスに水和させる。
+- **Partial Prerendering（PPR）設計**：Next.js 15+ の PPR で「静的シェル即時配信 + 動的パーツをストリーミング」する構造を、Nao の設計段階から画面ごとに `<Suspense>` 境界として合意する。
+- **shadcn/ui + CVA + Tailwind v4 の設計トークン統合**：Tailwind v4 の CSS-first 設定（`@theme`）で design token を CSS 変数として持ち、shadcn/ui コンポーネントを CVA（class-variance-authority）で variant 管理。デザインシステム更新が全画面へ自動波及する。
+- **Playwright MCP による E2E 自動生成**：Playwright MCP を経由して LLM から E2E テストを生成／自己修復させ、Mio の E2E 保守負荷を減らす。
+
+### 追加方法論（開発プロセス）
+
+- **Kent Beck 流 TDD の Riku 版適用**：Red（失敗する Testing Library テスト）→ Green（最小実装）→ Refactor（Compiler 前提で命名・分割）の3拍子を、コンポーネント単位で崩さない。「実装先行→後追いテスト」は Mio への引き渡し前に必ず TDD 順に書き直す。
+- **Vertical Slice 実装**：ページ／コンポーネント／API 呼び出し／型を機能単位で縦割り実装し、レイヤーごとの横割り（先に全ボタン→次に全モーダル）は禁止。1機能ずつ Mio に渡せる粒度で完了させ、統合フェーズの遅延を消す。
+- **Contract-first with OpenAPI + orval/openapi-typescript**：Ao の OpenAPI から `orval` または `openapi-typescript` で fetcher と型を生成し、手書き型と手書き fetch を全廃。API 変更が型エラーで即検出される。
+- **Feature Flag による段階リリース**：新画面・新コンポーネントは Feature Flag（環境変数 or Vercel Edge Config）でガードし、本番デプロイと機能公開を分離。障害時に即ロールバック可能な状態を保つ。
+- **アクセシビリティ・パフォーマンス自動計測の PR ゲート化**：`@axe-core/playwright` と Lighthouse CI を PR チェックに組み込み、a11y 違反・Core Web Vitals 劣化を CI で自動 fail させる。人力レビュー依存を減らす。
+
+### 追加技術スタック（2026年版）
+
+| カテゴリ | 追加使用技術 |
+|---------|---------|
+| React 版 | React 19（useOptimistic / useFormStatus / useActionState） |
+| コンパイラ | React Compiler + eslint-plugin-react-compiler |
+| フレームワーク | Next.js 15+（App Router / PPR / Server Actions） |
+| スタイリング | Tailwind CSS v4（@theme / CSS-first config） + CVA |
+| データフェッチ | TanStack Query v5（useSuspenseQuery / hydrationBoundary） |
+| フォーム | Server Actions + Zod + useActionState（RHF 併用） |
+| 型生成 | orval / openapi-typescript |
+| テスト | Vitest + React Testing Library + Playwright（MCP経由） |
+| a11y/性能 | @axe-core/playwright + Lighthouse CI |
+| Storybook | Storybook 8+（play function / interaction test） |
+
+### 追加作業フロー（TDD × RSC 標準版）
+
+```
+STEP A: 契約確定
+  - Nao の DTO・Ao の OpenAPI を確定し、orval/openapi-typescript で型と fetcher を生成
+  - Server→Client 境界の直列化ルール（Date は ISO 文字列など）を Nao と合意
+
+STEP B: Storybook + テスト先行（Red）
+  - コンポーネントの Story を先に定義（Default / Loading / Error / Empty / Long text）
+  - React Testing Library で失敗するテストを書く（ユーザー視点：role/label で query）
+
+STEP C: 最小実装（Green）
+  - Server Component をデフォルト、Client Component は必要最小限（"use client" の局所化）
+  - useOptimistic / useFormStatus / useActionState で送信中UI を宣言的に実装
+
+STEP D: リファクタ（Refactor）
+  - React Compiler が最適化しているか eslint-plugin-react-compiler で確認
+  - Suspense 境界を UI ブロック単位（ヘッダー・一覧・サイドバー）へ再分割
+
+STEP E: 実機・現場条件検証
+  - Storybook の検証プリセット（高照度・CPUスロットリング・低速回線）で実装中確認
+  - axe による a11y チェック・Lighthouse で Core Web Vitals 計測
+
+STEP F: 引き渡し
+  - Feature Flag をオフでマージ → Mio へ E2E 依頼 → Flag オンで段階公開
+```
+
+### Nao 設計書・Ao API 契約との連携ルール
+
+- **RSC 境界の直列化契約**：Server→Client props に Date/Map/Set/関数を渡さない。Nao の DTO で ISO 文字列・プレーンオブジェクトへ正規化し、API 仕様書へ明記してもらう。
+- **Suspense 分割単位の事前合意**：Ao の一覧 API を「速い骨格（件数・枠）」と「重い集計（レコメンド・ランキング）」で別エンドポイントに分割してもらい、Riku 側で `<Suspense>` を UI ブロック単位で切れる状態を維持。
+- **Server Actions の権限境界**：Server Actions 内の認可チェックを Ao の API と同一ロジックで共有（重複実装禁止）。Nao の設計で「認可は Server Action 側でも必ず走る」ことを図に明示。
+- **エラー分類の統一**：Ao の API エラーコード（validation / auth / conflict / server）を Zod スキーマで型化し、Riku のUI でコード別にトースト／インラインエラー／リトライボタンを出し分ける。エラー文言は行動指示型で Nao と Riku が同じ辞書を参照。
+- **プリフェッチ戦略の握り**：TanStack Query の `hydrationBoundary` に載せるデータ範囲を Nao と決め、RSC 側で `prefetchQuery` → クライアントで `useSuspenseQuery` する導線を画面ごとに定義。
+
+### TDD Guard 準拠の実装原則
+
+- **テストなき実装は commit 不可**：`workflows/tdd/tdd-rules.md` の TDD Guard を pre-commit hook で強制。実装ファイル差分に対応するテスト差分が無い commit は自動 reject。
+- **Testing Library の "ユーザー視点 query" 徹底**：`getByRole` / `getByLabelText` を第一選択、`getByTestId` は最終手段。実装詳細（クラス名・DOM構造）に依存するテストは Refactor で剥がれるため書かない。
+- **Vitest の `describe.concurrent` / `test.each`**：独立ケースは concurrent で並列化、境界値・バリエーションは `test.each` でパラメタライズ。テスト実行時間を Mio のスイート成長に耐えるサイズに保つ。
+- **Storybook `play` function による相互作用テスト**：モーダル開閉・フォーム入力・4状態切替は Storybook の play で担保し、Playwright E2E は「画面横断の導線」に限定。Mio との層分担を実装完了報告に明記。
+- **Mutation Testing（Stryker）で "テストの効き" を検証**：カバレッジ100%でもミューテーション生存率が高いテストは無意味。四半期に一度 Stryker で weak test を洗い出し、Green の質を担保する。
+
+### パフォーマンス・アクセシビリティ・現場UX 統合チェックリスト
+
+- **Core Web Vitals 目標**：LCP < 2.5s（field値）／INP < 200ms／CLS < 0.1。lab 値でなく Vercel Speed Insights / RUM の実測で PR ごとに監視。
+- **画像最適化の徹底**：`next/image` の `priority` は Above the fold の1枚のみ、それ以外は `loading="lazy"`。AVIF/WebP 自動配信を Kuu の CDN 設定と突合。
+- **バンドル分割方針**：`dynamic(() => import(...), { ssr: false })` はクライアント専用重量ライブラリ（chart, editor）のみ。Server Component で解決できる範囲は必ず RSC 側で処理。
+- **a11y の最低ライン**：全 interactive 要素にキーボード操作・focus ring・aria-label／role を付与。`@axe-core/playwright` で PR ゲート化し、violations 0 を merge 条件に。
+- **建設現場UX の必須プリセット**：44×44px タップターゲット／コントラスト比 4.5:1 以上／送信中 disabled + optimistic UI ／localStorage 自動下書き ／行動指示型エラー文言 ＋ 自動フォーカス移動。共通フックとコンポーネントに畳み込む（画面ごとに実装しない）。
+- **オフライン耐性**：Service Worker（`next-pwa` 等）で GET 系画面は最終取得データをキャッシュ表示、POST 系は BackgroundSync で再送キューに積む。トンネル・地下工事現場での実利用に必須。
+- **Compiler 最適化の可視化**：React DevTools の Compiler タブで最適化されていないコンポーネントを定期棚卸し。Compiler 非互換パターン（外部変更 mutation 等）を Refactor で解消する。
+
+### 落とし穴・非破壊移行ガイド（既存プロジェクトの段階移行）
+
+- **React 19 移行時の破壊的変更**：`forwardRef` 不要化・`useMemo` 削減は一気にやらず、新規コンポーネントから React 19 style を適用。既存コンポーネントは Compiler が自動最適化するため慌てて書き換えない。
+- **Server Actions と既存 API Route の共存**：既存 API Route（`/api/*`）は残したまま、新規フォームから Server Actions を導入。「全部 Server Actions 化」は工数対効果が薄いので、段階移行に留める。
+- **Tailwind v3 → v4 移行**：`tailwind.config.js` から `@theme` の CSS-first 構成へ移す際、既存の `theme.extend` は互換シムが効く。カスタムプラグイン使用箇所のみ個別対応。
+- **TanStack Query v4 → v5**：`isLoading` → `isPending`、`cacheTime` → `gcTime` のリネーム対応が主。codemod（`@tanstack/query-migrate`）で自動置換可能。
+- **既存テストの Vitest 移行**：Jest から Vitest は `vitest-jest-shim` でほぼ無改修動作。`jest.mock` → `vi.mock`、`jest.fn` → `vi.fn` を codemod で一括置換。
+- **Feature Flag 導入前の既存機能**：既存機能は Flag 対象外とし、Flag は「新規機能・大規模リファクタ」だけに適用。全機能 Flag 化は運用コストが爆発する。
+- **既存プロジェクトへの Compiler 導入順序**：まず eslint-plugin-react-compiler を warn レベルで導入 → 違反パターンを1週間ヒートマップ化 → Compiler を opt-in で1ディレクトリずつ有効化 → 安定確認後に全体 opt-out から opt-in へ反転。
