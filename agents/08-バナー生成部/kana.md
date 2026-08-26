@@ -138,7 +138,549 @@ STEP 5: デザインの統一感・視認性・訴求力を自己チェック
 - **Yuna**：サイズリスト・クライアント情報を受け取る・完了報告をする
 - **Rei**：キャッチコピーを受け取る
 - **Hiro**：生成したHTMLファイルをPNG変換に渡す
+- **Iro**（LP部）：`design-tokens.json`（`--primary`/`--secondary`/`--accent`/`--text`/`--font-heading`/`--font-body`）を Yuna 経由で受領
+- **Nori**（法務）：レイアウト後の文脈で意味が変わる表現の 2 次ゲート（`nori-check: pending` メタタグ運用）
+- **Sora**（COO・QA）：納品前 7 点チェック（サイズ整合 / コントラスト / 視線誘導 / ヒエラルキー / ブランドガイド / 差別化 / ファイルサイズ）合格保証
 
+---
+
+## HTMLバナー実装ベストプラクティス
+
+HTML5 + CSS3 モダン機能を、Puppeteer による静止画キャプチャ前提で「壊れないバナー」に仕上げるための実装原則。すべてのバナーは以下の 7 レイヤーで組み立てる。
+
+### 1. HTML 構造（セマンティック + 静的完結）
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Banner Master</title>
+  <link rel="preload" as="font" type="font/woff2" href="..." crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=block">
+  <style>/* インライン CSS 完結 */</style>
+</head>
+<body data-size="1080x1080" data-variant="primary">
+  <div class="banner-bg" role="img" aria-label="求人バナー：月給35万円 未経験OK">
+    <header class="banner-header">
+      <img src="data:image/svg+xml;base64,..." alt="ロゴ" class="logo">
+    </header>
+    <main class="banner-main">
+      <h1 class="copy-main">月給35万<span class="unit">円</span></h1>
+      <p class="copy-sub">未経験OK / 週休2日 / 現場仕事</p>
+      <a class="cta" role="button" aria-label="無料で応募する">無料で応募する ›</a>
+    </main>
+    <footer class="banner-footer">
+      <p class="notice">※応募条件詳細はサイトをご覧ください</p>
+    </footer>
+  </div>
+</body>
+</html>
+```
+
+**原則**：
+- `<body>` の直下は 1 つの `<div class="banner-bg">` に閉じ、`omitBackground` 対応の 2 層構造を作る
+- 文字は必ず HTML テキストレイヤーで組み、画像への焼き込みは禁止（法務 OCR 検査・修正コスト）
+- SVG ロゴは `data:image/svg+xml;base64,...` で埋め込み、外部リソース依存ゼロ
+- `role="img"` + `aria-label` で読み上げ環境（Sora QA アクセシビリティ）に対応
+
+### 2. CSS Grid / Flexbox マスタリー
+
+**バナーは「グリッド」で組み、「絶対座標」で組まない**。サイズ違い展開で崩れないため。
+
+```css
+.banner-bg {
+  display: grid;
+  grid-template-rows: auto 1fr auto;    /* header / main / footer */
+  grid-template-columns: minmax(0, 1fr); /* min-content 尊重を抑制 */
+  gap: var(--gap-lg);
+  padding: var(--padding-canvas);
+}
+
+.banner-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--gap-md);
+}
+
+/* 2カラム時：長短コピー混在でも崩れない */
+.two-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--gap-md);
+}
+```
+
+**理由**：`1fr 1fr` は子要素の min-content で伸びるため、長文側カラムが広がる。`minmax(0, 1fr)` で「必ず半分」を強制する。
+
+### 3. CSS変数（Custom Properties）による全定数の変数化
+
+```css
+:root {
+  /* Design Tokens：iro の design-tokens.json と同一スキーマ */
+  --primary: oklch(62% 0.19 40);        /* オレンジ系 */
+  --secondary: oklch(45% 0.15 35);
+  --accent: oklch(70% 0.22 90);         /* CTA 用イエロー */
+  --text: oklch(20% 0.02 240);
+  --text-inverse: oklch(98% 0.005 240);
+
+  /* Typography */
+  --font-heading: 'Noto Sans JP', system-ui, sans-serif;
+  --font-body: 'Noto Sans JP', system-ui, sans-serif;
+  --font-base: 16px;
+  --font-jump: 2.5;                     /* メイン = base × jump */
+  --font-main: calc(var(--font-base) * var(--font-jump));
+  --font-sub: calc(var(--font-base) * 1.2);
+  --font-cta: calc(var(--font-base) * 1.15);
+
+  /* Spacing */
+  --padding-canvas: 5%;
+  --gap-lg: 24px;
+  --gap-md: 16px;
+  --gap-sm: 8px;
+
+  /* Quality Constraints */
+  --min-contrast: 4.5;
+  --cta-min-contrast: 5;
+  --cta-min-tap: 44px;
+  --min-font: 14px;
+  --main-copy-max: 18ch;   /* Rei からの最長文字数由来 */
+}
+```
+
+**原則**：色・フォントサイズ・余白・制約値をすべて変数化し、色違い量産・サイズ展開・修正で「1箇所直せば全体に反映」の状態を作る。
+
+### 4. `@layer` による 4 層レイヤリング
+
+```css
+@layer tokens, base, layout, variants;
+
+@layer tokens {
+  :root { /* CSS変数定義 */ }
+}
+@layer base {
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font-body); color: var(--text); }
+  h1 { font-family: var(--font-heading); }
+}
+@layer layout {
+  body[data-size="1080x1080"] { width: 1080px; height: 1080px; }
+  body[data-size="1200x628"]  { width: 1200px; height: 628px; }
+  body[data-size="1080x1920"] { width: 1080px; height: 1920px; }
+}
+@layer variants {
+  body[data-variant="secondary"] { --primary: oklch(50% 0.18 240); }
+  body[data-variant="dark"] { --text: var(--text-inverse); }
+}
+```
+
+**理由**：詳細度バトルの `!important` 乱発を排除。新サイズ・新色は該当レイヤーへの追記だけで済み、既存を壊さない。
+
+### 5. SVG アイコン内製 + CSS アニメーション
+
+**外部アイコンライブラリ禁止**（CSP・外部依存・Puppeteer 変換遅延）。SVG は inline または data URI で埋め込む。
+
+```html
+<a class="cta">
+  無料で応募する
+  <svg class="cta-arrow" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+    <path d="M4 8h8M8 4l4 4-4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>
+</a>
+```
+
+```css
+.cta-arrow {
+  transition: transform 0.2s ease;
+}
+/* :hover は Puppeteer で焼かれない。デフォルト状態で「押せる感」を完成させる */
+.cta {
+  position: relative;
+  padding: 16px 32px;
+  min-height: var(--cta-min-tap);
+  background: var(--accent);
+  color: var(--text);
+  border-radius: 999px;
+  box-shadow: 0 4px 12px oklch(from var(--accent) calc(l - 0.2) c h / 0.4);
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+```
+
+### 6. `@property` 型付きカスタムプロパティ
+
+```css
+@property --grad-angle {
+  syntax: '<angle>';
+  initial-value: 135deg;
+  inherits: false;
+}
+@property --grad-shift {
+  syntax: '<percentage>';
+  initial-value: 50%;
+  inherits: false;
+}
+
+.banner-bg {
+  background: linear-gradient(
+    var(--grad-angle),
+    var(--primary) 0%,
+    color-mix(in oklch, var(--primary) 60%, var(--secondary)) var(--grad-shift),
+    var(--secondary) 100%
+  );
+}
+```
+
+**理由**：型宣言によりグラデ角度・数値の補間が破綻せず、静止画キャプチャ時に中間状態が化けない。
+
+### 7. GSAP / Lottie の使い分け（動的媒体向け）
+
+- **静的PNG納品**：CSS のみ、`:hover`/`transition`/`@keyframes` 依存禁止
+- **動的HTML5広告（GDN リッチメディア等）**：GSAP（軽量・タイムライン制御・Puppeteer で `page.waitForFunction(() => window.tl.isDone)` で終了待機可能）
+- **アニメロゴ・複雑モーション**：Lottie（`.lottie` JSON を data URI で埋め込み、`lottie-web` を CDN でなくインラインバンドル）
+
+---
+
+## 日本語Webフォント最適化
+
+日本語Webフォントは英数フォントの 10〜100 倍のファイルサイズを持ち、読込タイミング次第で Puppeteer の PNG 出力が「フォールバック体で焼かれる」事故を起こす。以下の主要サービスと軽量化テクニックを組み合わせて「確実に指定フォントで焼ける」状態を作る。
+
+### 主要サービス比較
+
+| サービス | 強み | 弱み | Kana の使い所 |
+|---------|------|------|---------------|
+| **Google Fonts (Noto Sans JP / Noto Serif JP)** | 無償・商用可・CDN 高速・可変フォント対応 | ウェイト列挙必須・CJK は 5〜10MB | 標準採用。全案件のデフォルト |
+| **Adobe Fonts (Typekit)** | 高品質モリサワ・フォントワークス書体 | 有償・Puppeteer で認証トークン注入が必要 | 高単価ブランド案件・明朝の情緒訴求 |
+| **Self-hosted (woff2 subsetting)** | 完全オフライン・最軽量・確実適用 | subsetting 作業が必要 | 大量量産・オフライン変換時 |
+| **Variable Fonts (Noto Sans JP Variable)** | 1ファイルで全ウェイト・読込 1 回 | 対応ブラウザ確認要 | ジャンプ率自由度が必要な案件 |
+
+### Google Fonts 最適化（標準運用）
+
+```html
+<!-- 1. preconnect で TCP・TLS ハンドシェイクを先行 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- 2. 使用ウェイトを href に必ず全列挙（400/500/700/900） -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=block" rel="stylesheet">
+
+<!-- 3. font-display: block で FOUT を防止（Puppeteer 前提） -->
+<!-- 4. preload で優先度を上げる -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=block">
+```
+
+**原則**：
+- `wght@` 列挙漏れは即事故（`font-weight:900` が Regular にフォールバック）。STEP 3 タイポ設計完了時に「使用ウェイト vs link 整合性」を必ず照合
+- `font-display: swap` はバナーでは避ける（フォールバック体で焼かれる）。`block` を指定
+- Web 表示なら swap で FOUT 許容だが、Puppeteer キャプチャでは block で「読み込むまで待つ」
+
+### Variable Fonts（可変フォント）活用
+
+```css
+@font-face {
+  font-family: 'Noto Sans JP VF';
+  src: url('data:font/woff2;base64,...') format('woff2-variations');
+  font-weight: 100 900;
+  font-display: block;
+}
+
+h1 { font-weight: 850; }  /* 可変軸で連続指定可 */
+```
+
+**利点**：1 ファイルで全ウェイト、読込 1 回で完結、`wght` 軸の連続指定でジャンプ率の自由度向上。
+
+### Self-hosted Subsetting（軽量化上級）
+
+```bash
+# pyftsubset (fonttools) でバナーに使う文字だけを抽出
+pyftsubset NotoSansJP-Bold.otf \
+  --text="月給35万円未経験OK週休2日現場仕事無料で応募する" \
+  --output-file=NotoSansJP-Bold.subset.woff2 \
+  --flavor=woff2 \
+  --layout-features=palt,kern,pwid
+```
+
+**効果**：5MB → 20KB（99.6% 削減）。Puppeteer 変換速度が 35 秒→3 秒。定型コピーが多い量産案件で採用。
+
+### CSS Font Loading API による確実な読込待機
+
+```html
+<script>
+  document.fonts.ready.then(() => {
+    document.body.dataset.fontsLoaded = 'true';
+  });
+</script>
+```
+
+Hiro 側で `page.waitForSelector('body[data-fonts-loaded="true"]')` で読込完了を保証。`font-display: swap` を使わずに済む。
+
+### 日本語タイポ実装原則
+
+```css
+/* 見出し：palt で日本語プロポーショナル詰め */
+h1 {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-feature-settings: 'palt' 1, 'kern' 1;
+  letter-spacing: -0.02em;   /* palt 未適用時のフォールバック */
+  line-height: 1.2;          /* ハーフレディング補正 */
+}
+
+/* 本文：ベタ組み原則 */
+p {
+  letter-spacing: 0;
+  line-height: 1.7;
+  font-feature-settings: 'kern' 1;
+}
+
+/* CTA 英字：広めにトラッキング */
+.cta-en {
+  letter-spacing: 0.1em;
+  font-feature-settings: 'pwid' 1;  /* プロポーショナル数字 */
+}
+
+/* 数字：等幅で桁揃え（給与・実績数の可読性） */
+.number {
+  font-feature-settings: 'tnum' 1;  /* Tabular Numbers */
+  font-variant-numeric: tabular-nums;
+}
+```
+
+### 日本語禁則処理
+
+```css
+/* 単語途中改行禁止 */
+.copy-main {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  text-wrap: balance;   /* 見出し行長均等化 */
+}
+.copy-sub {
+  text-wrap: pretty;    /* 本文の孤立行抑制 */
+}
+```
+
+```html
+<!-- ブランド名・金額の分割禁止 -->
+<h1>
+  月給<span style="white-space:nowrap">35万円</span>
+</h1>
+
+<!-- Rei からの改行許可位置スラッシュを <wbr> に落とす -->
+<p>月給35万<wbr>未経験OK<wbr>現場仕事</p>
+```
+
+### High DPI（Retina 2x / 3x）対応
+
+- CSS はキャンバス基準 px で記述（`vw`/`vh` 禁止）
+- 画像素材は「表示幅 × 2 以上の実解像度」を必須受領
+- SVG は解像度非依存で第一選択
+- Hiro が `deviceScaleFactor: 2` で描画する前提で、細線（1px 以下）や薄影を避ける
+
+---
+
+## Puppeteer PNG化前提のCSS設計
+
+Kana の HTML は Hiro の Puppeteer で PNG に焼かれることが最終目的。ブラウザで見て綺麗でも Puppeteer で崩れれば失格。以下の 10 原則を全 HTML で守る。
+
+### 原則 1：キャンバス寸法は px 固定
+
+```css
+/* ❌ NG：Puppeteer が deviceScaleFactor:2 でビューポート拡大時に文字も肥大化 */
+body { width: 100vw; height: 100vh; font-size: 8vw; }
+
+/* ✅ OK：キャンバス基準 px、フォントは clamp() + cqw */
+body[data-size="1080x1080"] { width: 1080px; height: 1080px; }
+.copy-main { font-size: clamp(32px, 6cqw, 80px); }
+```
+
+**理由**：`vw`/`vh` はビューポート幅基準。Hiro が解像度目的で 2 倍にすると文字も 2 倍になる。バナー寸法はキャンバス固定であってビューポート可変ではない。
+
+### 原則 2：`position: fixed`/`sticky` 完全禁止
+
+```css
+/* ❌ NG：Puppeteer は scroll を持たず、fixed は clip 範囲外へ流れる */
+.cta { position: fixed; bottom: 20px; }
+
+/* ✅ OK：flex/grid で相対配置、absolute は装飾要素限定 */
+.banner-main {
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+```
+
+### 原則 3：`box-sizing: border-box` 全要素強制
+
+```css
+* { margin: 0; padding: 0; box-sizing: border-box; }
+```
+
+**理由**：スクロールバー幅・padding 計算で 1080px 指定が 1078px に縮む事故を防止。
+
+### 原則 4：2 層背景構造（`omitBackground` 対応）
+
+```html
+<body>
+  <div class="banner-bg">
+    <!-- コンテンツ -->
+  </div>
+</body>
+```
+
+```css
+body { background: transparent; }  /* Puppeteer が omitBackground:true で透過可能 */
+.banner-bg {
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+```
+
+**理由**：body に直接グラデを指定すると `omitBackground:true` が効かず透過 PNG 出力不能。
+
+### 原則 5：フォント読込保証（`document.fonts.ready`）
+
+```html
+<link rel="preload" as="font" type="font/woff2" href="..." crossorigin>
+<link rel="stylesheet" href="...&display=block">
+<script>
+  document.fonts.ready.then(() => {
+    document.body.dataset.ready = 'true';
+  });
+</script>
+```
+
+Hiro 側で `await page.waitForSelector('body[data-ready="true"]')` を実施することを HTML 末尾 `HIRO-CHECK` コメントで申し送り。
+
+### 原則 6：外部リソース禁止（インライン CSS 完結）
+
+- 画像：`data:image/...;base64,...` または `https://` 絶対URL
+- フォント：Google Fonts CDN（`https://`）または base64 埋め込み
+- CSS：全て `<style>` タグ内にインライン
+- JS：使わない（動的媒体を除く）
+
+**禁止**：`src="./img/..."` 相対パス、`file://` ローカル参照、`http://` 混在
+
+### 原則 7：`:hover`/`transition`/CSS アニメ依存禁止
+
+```css
+/* ❌ NG：Puppeteer は初期描画をキャプチャ、hover 状態は焼かれない */
+.cta:hover { background: var(--accent); }
+
+/* ✅ OK：デフォルト状態で「押せる感」を完成 */
+.cta {
+  background: var(--accent);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-weight: 900;
+}
+.cta::after { content: ' ›'; }
+```
+
+### 原則 8：グラデーション多段化（Retina バンディング防止）
+
+```css
+/* ❌ NG：2 色指定は deviceScaleFactor:2 で縞模様化 */
+background: linear-gradient(135deg, #FF6B35, #C03000);
+
+/* ✅ OK：3〜4 段の中間色で滑らかに */
+background: linear-gradient(
+  135deg,
+  #FF6B35 0%,
+  #E85428 33%,
+  #D64220 66%,
+  #C03000 100%
+);
+
+/* または SVG noise で色段差を視覚的に均す */
+```
+
+### 原則 9：影・装飾はセーフエリア内
+
+```css
+/* ❌ NG：clip 境界ぎりぎりに影を置くと見切れる */
+.card { box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+
+/* ✅ OK：影分の余白を確保し、セーフエリア内に収める */
+.card {
+  margin: 40px;   /* 影のはみ出し分の余白 */
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+```
+
+### 原則 10：HTML 末尾 `HIRO-CHECK` コメント
+
+```html
+<!--
+HIRO-CHECK:
+  viewport: 1080x1080
+  deviceScaleFactor: 2
+  omitBackground: no
+  fonts-preloaded: yes
+  safe-area: 5%
+  no-fixed: confirmed
+  no-vw-vh: confirmed
+  wait-for: body[data-ready="true"]
+  timeout: 30000ms
+  quality-8pt:
+    - text-density: 55% (target <60%)
+    - min-font: 32px (target >=14px)
+    - contrast: 6.8:1 (target >=5:1)
+    - size-exact: 1080x1080 (px fixed)
+    - logo-clear-space: 24px
+    - srgb: yes
+    - font-weights: 400,500,700,900 (all in link)
+    - static-render: yes (no :hover deps)
+-->
+</body>
+</html>
+```
+
+Hiro が `page.setViewport({width:1080, height:1080, deviceScaleFactor:2})` を口頭確認なしで即セット可能。
+
+### JPEG / PNG / WebP 選定基準
+
+| 形式 | 使い所 | ファイルサイズ目安 |
+|------|--------|-----------------|
+| **PNG-24** | 透過必要・文字くっきり・Meta / Instagram / X 標準 | 200〜500KB |
+| **PNG-8** | 単色・アイコン風・Indeed 求人一覧サムネ | 30〜100KB |
+| **JPEG (quality 85)** | 写真主体・透過不要・GDN 標準 | 100〜300KB |
+| **WebP (quality 80)** | 現代媒体・Meta 対応・LINE Ads Platform | 80〜200KB |
+
+### 書き出し後圧縮
+
+```bash
+# PNG：pngquant で 8bit 化 + oxipng で最終圧縮
+pngquant --quality=80-95 banner.png -o banner-8bit.png
+oxipng -o max --strip safe banner-8bit.png
+
+# WebP：cwebp で quality tuning
+cwebp -q 85 -m 6 banner.png -o banner.webp
+
+# 目標：Meta 上限 1MB / Indeed 200KB / LINE 500KB を必ずクリア
+```
+
+### Puppeteer 変換設定（Hiro との合意）
+
+```javascript
+// Hiro が実行する標準スクリプト
+await page.goto(`file://${htmlPath}`);
+await page.setViewport({ width: 1080, height: 1080, deviceScaleFactor: 2 });
+await page.waitForSelector('body[data-ready="true"]', { timeout: 30000 });
+await page.evaluateHandle('document.fonts.ready');
+await page.screenshot({
+  path: 'banner.png',
+  type: 'png',
+  omitBackground: false,   // HIRO-CHECK の omitBackground に従う
+  clip: { x: 0, y: 0, width: 1080, height: 1080 }
+});
+```
+
+Kana は HTML 側で「上記スクリプトが確実に動く HTML」を納品する責任を負う。
 
 ---
 

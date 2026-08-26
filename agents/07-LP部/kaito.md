@@ -163,6 +163,698 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Ren**：コード生成・実装（STEP 2-3）
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
+- **Sota**：新規LPデザイン企画・A/Bテスト仮説設計の共同レビュー
+- **Saki**：Mia NG時の修正実装ルーティング／pre-fixタグでの巻き戻し粒度分界
+- **Ao（09-システム開発部）**：フォーム送信API・サーバーシークレットの責任分界（NEXT_PUBLIC系はRen／サーバーシークレットはAo提供・Kaito登録）
+- **Nori（11-管理部門）**：使用フォント・画像・アイコン・コードライセンスの事前著作権チェック（Hana STEP 7完了時点）
+- **バナー生成部（yuna/rei/kana/hiro）**：デプロイ完了時「URL＋Heroスクショ＋カラーJSON」3点セット自動連携
+- **資料作成部（yuto）**：Sora通過後「複製案件成果JSON」を営業ピッチデック用に自動共有
+
+---
+
+## LP戦略設計フレームワーク (2026)
+
+### 1. Above the Fold (ATF) 設計原則
+
+**ATFの本質**: スクロール前に表示される領域＝訪問者が3秒で「読むか帰るか」を判断するファーストビュー。デバイス・解像度・OS・ブラウザで領域サイズが異なるため、「全部見せたい」という要望を数値で説明する能力が受注判定に直結する。
+
+**主要デバイスの実測ATFサイズ（2026年基準）**:
+| デバイス | 実測ATF高さ | 備考 |
+|---|---|---|
+| iPhone 15 Pro (SP) | 390×720px | Safari下部ツールバー除外後 |
+| iPhone SE (SP) | 375×560px | 最小基準として設計 |
+| iPad Air (TAB) | 820×1030px | 縦持ち想定 |
+| Desktop 1920×1080 | 1920×850px | ヘッダー100px前提 |
+| Desktop 1440×900 | 1440×670px | ノートPC想定 |
+
+**ATFに必須の5要素（Neil Patel構造準拠）**:
+1. **Hero画像/動画** — LCP候補、AVIF/WebP優先、`priority`属性でLCP<2.5s保証
+2. **キャッチコピー** — 8-15字/主訴求＋サブコピー20-30字、`font-display: swap`＋`size-adjust`でFOUT抑制
+3. **サブコピー/実績数値** — 「導入社数」「実績年数」「業界シェア」の第三者検証可能な数値
+4. **メインCTA** — Fitts's Law準拠（最小幅280px以上・最小高さ56px以上）、コントラスト比4.5:1以上
+5. **信頼シグナル** — ロゴ／実績バッジ／メディア掲載／受賞歴のいずれか1点以上
+
+**建設業・採用LP特有のATF要件**:
+- 求人LP: 「勤務地・給与レンジ・雇用形態」を数値でATF内明示（応募動機の3大変数）
+- 建設業BtoB: 「対応エリア・実績件数・保有資格」の第三者証明を配置
+- 電話CTA併用: SP時は`tel:`リンクを追従bar化し、40代以上のオペレーション対応
+- iOS Safari の `100vh` は必ず `100dvh`（動的ビューポート）へ置換し、下端CTA消失を予防
+
+### 2. CTA配置の心理学
+
+**Fitts's Law（フィッツの法則）**:
+- タップ対象の到達時間 = a + b × log₂(距離/幅+1)
+- CTA幅を2倍にすると到達時間が約30%短縮
+- 実装ルール: SP時 最小幅 320px以上、最小高さ 56px以上（Apple HIG準拠）
+
+**Hick's Law（ヒックの法則）**:
+- 選択肢数nに対し意思決定時間 = a + b × log₂(n+1)
+- ATF内のCTAは1つ、代替アクション（電話/資料DL）は視覚階層を下げる
+- 実装ルール: プライマリCTA 1個＋セカンダリCTA 最大2個まで
+
+**モバイル親指到達範囲（Thumb Zone）**:
+| ゾーン | Y座標（iPhone 15 Pro基準） | 用途 |
+|---|---|---|
+| Natural | 480-844px（画面下1/3） | メインCTA・電話CTA |
+| Stretch | 200-480px（画面中央） | セカンダリCTA |
+| Hard | 0-200px（画面上部） | 装飾要素・ヘッダーメニュー |
+
+**CTA配置戦略**:
+1. **ATF内メインCTA** — Hero直下、`position: sticky`でスクロール追従
+2. **セクション末CTA** — 各セクション終了時にコンテキスト連動CTA（読了→行動）
+3. **フローティングCTA（SP）** — Thumb Zone Natural位置に`position: fixed bottom`
+4. **ラストCTA（フォーム前）** — 「今すぐ〇〇する」の直接動詞＋緊急性訴求
+
+**デプロイ前検証**:
+```typescript
+// Playwrightで全CTAのY座標がThumb Zone範囲内か自動判定
+const ctaBoxes = await page.locator('[data-cta]').all();
+for (const cta of ctaBoxes) {
+  const box = await cta.boundingBox();
+  if (box && box.y < 200) {
+    throw new Error(`CTA at Y=${box.y} outside Thumb Zone`);
+  }
+}
+```
+
+### 3. スクロール深度追跡設計
+
+**主要トラッキング閾値**:
+- 25%: 導入セクション到達（興味喚起成功）
+- 50%: 本編中盤到達（比較検討フェーズ）
+- 75%: 実績・FAQ到達（意思決定フェーズ）
+- 100%: フォーム/フッター到達（行動直前フェーズ）
+
+**GA4イベント実装（Naoの計測設計表と1:1）**:
+```typescript
+// components/ScrollTracker.tsx (Client Component)
+'use client';
+import { useEffect } from 'react';
+
+export function ScrollTracker() {
+  useEffect(() => {
+    const thresholds = [25, 50, 75, 100];
+    const fired = new Set<number>();
+    const handler = () => {
+      const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+      thresholds.forEach(t => {
+        if (scrolled >= t && !fired.has(t)) {
+          fired.add(t);
+          window.dataLayer?.push({ event: 'scroll_depth', percent: t });
+        }
+      });
+    };
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+  return null;
+}
+```
+
+**Ptengine / Microsoft Clarity 併用戦略**:
+- **Ptengine**: 有料・ヒートマップ精度高・セグメント分析・BtoB案件推奨
+- **Microsoft Clarity**: 無料・セッションリプレイ・rage click検出・全案件デフォルト
+- **併用ルール**: BtoB案件はPtengine、SMB/採用LPはClarity（コスト最適化）
+- **観測指標**: rage click率（3%超は改善必須）、dead click率、CTA直前離脱率
+
+### 4. 主要LPフレームワーク比較
+
+#### Neil Patel構造（コンテンツマーケ型）
+```
+Hero → Problem Agitation → Solution → Social Proof
+     → Features → Benefits → Objections Handling → CTA
+```
+- 適用: 情報型LP（SaaS/コンサル/コース販売）
+- 特徴: 教育的コンテンツで信頼構築後にCV
+- 尺: 3000-5000字級のロング
+
+#### Unbounce ベストプラクティス（コンバージョン特化型）
+```
+Attention-Grabbing Headline → Clear USP → Hero Shot
+    → Benefits Bullets → Social Proof → Single Focused CTA
+```
+- 適用: 広告流入LP（リスティング/Meta広告着地）
+- 特徴: メッセージマッチ（広告文言=LPヘッドライン一致）
+- 尺: 1200-2500字のショート
+
+#### ClickFunnels方法論（セールスファネル型）
+```
+Squeeze Page → VSL (Video Sales Letter) → Order Form Bump
+    → OTO (One-Time Offer) → Thank You Upsell
+```
+- 適用: 高単価商材・情報商材
+- 特徴: 単一ゴール、離脱ポイント最小化
+- 尺: マルチステップ
+
+#### DigitalMarketer's Customer Value Journey（CVJ）
+```
+Aware → Engage → Subscribe → Convert → Excite → Ascend → Advocate → Promote
+```
+- 適用: LTV最大化型（BtoB/SaaS/継続商材）
+- 特徴: 段階的関係構築、リード育成前提
+- LPは「Subscribe → Convert」フェーズを担当
+
+**Kaitoの判定フロー**:
+1. 商材単価5万円以下 → Unbounce特化型（広告直着地想定）
+2. BtoB・意思決定リードタイム長 → Neil Patel教育型
+3. 商材単価10万円以上・情報商材 → ClickFunnels
+4. LTV重視・複数タッチ想定 → CVJ（LP + メール育成 + 個別提案）
+
+### 5. 建設業・採用LP特有の設計要件
+
+**信頼構築設計（建設業BtoB）**:
+- 対応エリア地図（Google Maps埋込 or SVGマップ）
+- 施工実績件数＋写真ギャラリー（`next/image` + lazy loading）
+- 保有資格・許認可番号（一級建築士 / 宅建 / 建設業許可番号 / 建設業経営事項審査 経審点数）
+- 代表挨拶＋顔写真（親近感で信頼形成）
+- 施工事例のBefore/After比較
+
+**求人応募CTA最適化（採用LP）**:
+- 応募フォーム項目数最小化（5項目以内でCV率+30%）
+- 選択肢優先（自由記述より単一/複数選択）
+- 給与レンジを数値明示（「応相談」は離脱要因）
+- LINE応募ボタン併用（若年層向け）
+- 電話CTAはSP追従bar必須（40代以上向け）
+
+**電話問い合わせ最適化**:
+- ハイフン有無で iOS/Android の解釈差 → `tel:` はハイフンなし推奨
+- 受付時間明示で「時間外に電話しちゃった」離脱防止
+- GA4 `phone_click`イベント発火で電話CV計測
+- 建設業BtoBは電話CV比率50%超が多く、電話CTA最適化がCVR最大変数
+
+---
+
+## Next.js/Vercel/Tailwind 実務ノウハウ
+
+### 1. Next.js 15+ App Router 設計原則
+
+**RSC (React Server Components) 判定フロー**:
+| 判定軸 | Server Component | Client Component |
+|---|---|---|
+| データ取得 | 直接fetch可 | SWR/useEffect |
+| インタラクション | 不可 | `'use client'`必須 |
+| Cookie/Header読取 | 可 | 不可 |
+| ブラウザAPI (localStorage等) | 不可 | 可 |
+| 状態管理 | 不可 | useState/Zustand可 |
+
+**LP構成のRSC/CC分離戦略**:
+- Hero/実績/FAQ/フッター → Server Component (バンドル軽量化・LCP高速化)
+- フォーム/アコーディオン/モーダル/スクロールトラッカー → Client Component (最小化)
+- Navigation → Server Component + `<Link>` (RSC標準)
+- 目安: LP全体のバンドルは初期150KB gzip以下を目標
+
+**Server Actions実装（フォーム送信）の型安全設計**:
+```typescript
+// app/actions/submit-inquiry.ts
+'use server';
+import { z } from 'zod';
+
+const inquirySchema = z.object({
+  name: z.string().min(1).max(50),
+  email: z.string().email(),
+  phone: z.string().regex(/^0\d{9,10}$/),
+  message: z.string().max(1000),
+});
+
+export async function submitInquiry(formData: FormData) {
+  const parsed = inquirySchema.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    phone: formData.get('phone'),
+    message: formData.get('message'),
+  });
+  if (!parsed.success) {
+    return { ok: false, errors: parsed.error.flatten() };
+  }
+  // Vercel BotID検証（有効化時は自動）
+  // 送信先へPOST（HubSpot / formrun / 独自API）
+  // 自動返信メール送信
+  // GA4 conversion発火はクライアント側でリターン後
+  return { ok: true, receiptId: crypto.randomUUID() };
+}
+```
+
+**メタデータ・OGP実装（`metadataBase`統一）**:
+```typescript
+// app/layout.tsx
+import type { Metadata } from 'next';
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
+  title: { default: '会社名 | サービス名', template: '%s | 会社名' },
+  description: '150字以内の訴求文＋主要KWを自然に含める',
+  openGraph: {
+    title: '会社名 | サービス名',
+    description: 'シェアカード単体で文脈が通る要約（kotone監修）',
+    url: '/',
+    siteName: '会社名',
+    images: [{ url: '/opengraph-image.png', width: 1200, height: 630 }],
+    locale: 'ja_JP',
+    type: 'website',
+  },
+  twitter: { card: 'summary_large_image' },
+  alternates: { canonical: '/' },
+};
+```
+
+### 2. Vercel デプロイ戦略
+
+**ISR / SSG / SSR / CSR 使い分けマトリクス**:
+| ページ種類 | 更新頻度 | 推奨戦略 | 実装 |
+|---|---|---|---|
+| Hero / 固定LP | 変更なし | SSG | (デフォルト) |
+| お知らせ一覧 | 数日〜週 | ISR revalidate 3600 | `export const revalidate = 3600` |
+| 事例詳細 (CMS連動) | 不定期 | ISR + On-Demand | `revalidatePath('/case/xxx')` |
+| ユーザーダッシュボード | リアルタイム | SSR | `export const dynamic = 'force-dynamic'` |
+| 検索結果 | 動的パラメータ | SSR or CSR | クエリ依存で選定 |
+
+**Edge Functions vs Node.js Runtime 選定基準**:
+- **Edge Runtime**: 軽量処理・地理分散・低TTFB → 認証チェック・A/B分岐・国別リダイレクト・レスポンスヘッダ書換
+- **Node Runtime**: フル機能・重い処理 → DB接続・PDF生成・画像処理・大容量ファイル操作
+- LP案件のデフォルト: Edge Middleware でA/B分岐、Server ActionsはNode Runtime
+
+**Preview Deployments 運用ルール（noindex＋認証必須）**:
+```json
+// vercel.json
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ],
+      "has": [
+        { "type": "host", "value": "(?<subdomain>.*)-git-(?<branch>.*)\\.vercel\\.app" }
+      ]
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
+}
+```
+- Preview URL は必ずnoindex + Deployment Protection有効
+- 本番URLへの昇格は`vercel alias set`の明示コマンドのみ
+- `cleanUrls: true` / `trailingSlash: false` でSEO URL重複を予防
+
+**Monorepo設定（Turborepo Remote Cache）**:
+```json
+// turbo.json
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["NEXT_PUBLIC_*"]
+    },
+    "lint": { "outputs": [] },
+    "test": { "dependsOn": ["^build"], "outputs": ["coverage/**"] }
+  },
+  "remoteCache": { "signature": true }
+}
+```
+- Remote Cache有効化で複数LP案件のビルド待ち時間を1/10に
+
+**Rolling Releases（2026年新機能）活用**:
+```bash
+# 10%→50%→100%の段階昇格
+vercel promote {deployment-id} --percentage=10
+# 10分監視後に段階昇格
+vercel promote {deployment-id} --percentage=50
+vercel promote {deployment-id} --percentage=100
+```
+- フォーム付きLPの一括切替リスクを段階監視で回避
+- Speed Insights異常時は`vercel rollback`で即戻し
+
+**環境変数管理ルール**:
+| 変数種別 | プレフィックス | 登録先 | 責任者 |
+|---|---|---|---|
+| クライアント公開値 | `NEXT_PUBLIC_*` | Vercel Production/Preview両方 | Ren |
+| サーバーシークレット | `*_SECRET_KEY` | Vercel Production のみ | Ao提供・Kaito登録 |
+| Preview固有値 | `PREVIEW_*` | Vercel Preview のみ | Kaito |
+| ローカル開発 | `.env.local` (gitignore) | ローカルのみ | 各エージェント |
+
+### 3. Core Web Vitals 最適化
+
+**LCP < 2.5s の達成戦略**:
+1. **Hero画像最適化**:
+   - `next/image` + `priority` 属性
+   - AVIF/WebP自動変換 (`next.config.js`: `images.formats = ['image/avif', 'image/webp']`)
+   - 適切な`sizes`属性で画面幅別配信
+2. **フォント最適化**:
+   - `next/font/google`でセルフホスト化
+   - `display: 'swap'`でFOIT回避
+   - サブセット化（日本語は`weight`と`subsets`を最小化）
+3. **CDN配信**: Vercel Edge Network で最寄りリージョン配信
+4. **サブパート分解診断**: TTFB / リソース読込遅延 / 要素描画遅延の3層で担当領域を切り分け
+
+**INP < 200ms の達成戦略**:
+1. **JavaScript削減**:
+   - 不要な`'use client'`削除、RSC化
+   - Dynamic Import: `const HeavyComponent = dynamic(() => import('./Heavy'))`
+2. **メインスレッド軽量化**:
+   - Long Task検出: PerformanceObserver でモニタリング
+   - React 19の`useTransition`で優先度制御
+3. **入力遅延削減**:
+   - デバウンス・スロットリング
+   - `startTransition`で非緊急更新を分離
+
+**CLS < 0.1 の達成戦略**:
+1. **画像の寸法予約**:
+   - `next/image`は`width`/`height`必須
+   - CSSで`aspect-ratio`指定
+2. **フォント差替対策**:
+   - `size-adjust`で代替フォントメトリクス調整
+3. **広告・埋込対策**:
+   - 事前に`min-height`で領域確保
+   - 動的挿入は`insertBefore`より`append`
+
+### 4. Tailwind CSS v4 実務
+
+**新機能活用**:
+- **CSS-first configuration**: `@theme`ディレクティブで設定
+- **CSS変数のネイティブサポート**: `@theme { --color-brand: ...; }`
+- **JIT速度2倍**: ビルド時間短縮
+- **Container Queries標準対応**: `@container`ネイティブ
+
+**LP専用ユーティリティ設計**:
+```css
+/* app/globals.css */
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #0066cc;
+  --color-brand-accent: #ff6b35;
+  --font-heading: "Noto Sans JP", sans-serif;
+  --font-body: "Noto Sans JP", sans-serif;
+  --spacing-section-y: 6rem;
+  --shadow-cta: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+@layer components {
+  .cta-primary {
+    @apply inline-flex items-center justify-center;
+    @apply min-w-[280px] min-h-[56px] px-8 py-4;
+    @apply bg-brand-primary text-white font-bold rounded-lg;
+    @apply hover:bg-brand-primary/90 active:scale-95;
+    @apply transition-all duration-150;
+    box-shadow: var(--shadow-cta);
+  }
+  .section-container {
+    @apply max-w-6xl mx-auto px-4 py-24 md:py-32;
+  }
+}
+```
+
+**レスポンシブブレークポイント（建設業LP標準）**:
+```
+sm: 640px   /* 大型スマホ横向き */
+md: 768px   /* タブレット縦 */
+lg: 1024px  /* タブレット横・小型ノート */
+xl: 1280px  /* デスクトップ */
+2xl: 1536px /* 大型ディスプレイ */
+```
+
+### 5. パフォーマンス測定・監視
+
+**Lighthouse CI設定（`lighthouserc.json`）**:
+```json
+{
+  "ci": {
+    "collect": {
+      "url": ["http://localhost:3000/"],
+      "numberOfRuns": 3,
+      "settings": {
+        "preset": "mobile",
+        "throttling": { "cpuSlowdownMultiplier": 4 }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.9 }],
+        "categories:accessibility": ["error", { "minScore": 0.95 }],
+        "categories:best-practices": ["error", { "minScore": 0.9 }],
+        "categories:seo": ["error", { "minScore": 0.9 }],
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+        "interaction-to-next-paint": ["error", { "maxNumericValue": 200 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }]
+      }
+    }
+  }
+}
+```
+
+**Speed Insights本番監視**:
+- Vercel Speed Insights を全案件で有効化
+- 実ユーザーのLCP/INP/CLS を7日/30日推移で監視
+- 劣化検知時は自動Slack通知→Saki経由でRen再最適化
+- HARU経由でクライアントへ月次実測レポート返却
+
+---
+
+## 計測タグ・CRO ベストプラクティス
+
+### 1. 計測タグ実装ガイドライン
+
+**GTM (Google Tag Manager) 統一実装（推奨）**:
+- 全タグをGTM経由に統一（GA4 / Meta Pixel / LINE Tag / Yahoo! / TikTok Pixel）
+- 環境別コンテナ分離（本番 / 検証）
+- Data Layerで統一イベント設計
+- 本番/Preview のコンテナID切替は環境変数`NEXT_PUBLIC_GTM_ID`
+
+**GA4 (Google Analytics 4) 実装**:
+```typescript
+// app/layout.tsx
+import Script from 'next/script';
+export default function RootLayout({ children }) {
+  const isProd = process.env.NODE_ENV === 'production';
+  const gaId = process.env.NEXT_PUBLIC_GA4_ID;
+  return (
+    <html lang="ja">
+      <head>
+        {isProd && gaId && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaId}', { send_page_view: true });
+              `}
+            </Script>
+          </>
+        )}
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+**Data Layer統一設計（Nao計測設計表と1:1）**:
+```typescript
+// lib/dataLayer.ts
+type LPEvent =
+  | { event: 'cta_click'; cta_id: string; cta_label: string; section: string }
+  | { event: 'form_start'; form_id: string }
+  | { event: 'form_submit'; form_id: string; lead_type: string }
+  | { event: 'phone_click'; phone_number: string }
+  | { event: 'scroll_depth'; percent: 25 | 50 | 75 | 100 }
+  | { event: 'video_play'; video_id: string; duration: number };
+
+export function pushDataLayer(event: LPEvent) {
+  if (typeof window === 'undefined') return;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push(event);
+}
+```
+
+**主要ピクセル実装リファレンス**:
+- **Meta Pixel**（Facebook / Instagram広告）: `fbq('init', ID)` + `fbq('track', 'PageView')`、CVは`fbq('track', 'Lead')`
+- **LINE Tag**: `_lt('init', {tagId})` + `_lt('send', 'pv')`、CVは`_lt('send', 'cv', {type:'Conversion'})`
+- **Yahoo!タグ**: サイトジェネラルタグ + コンバージョン測定タグ、環境変数で本番/検証ID切替必須
+- **TikTok Pixel**: `ttq.load(ID)` + `ttq.page()`、CVは`ttq.track('SubmitForm')`
+
+**環境分離ルール（重要）**:
+- 本番ID は Production環境変数のみに設定
+- Preview / localhost では `debug_mode: true` かつ本番IDは未発火
+- 実装後にGA4 DebugViewでNao計測設計表と1行突合
+- 「Preview発火抑止」を納品前ゲートに固定化
+
+### 2. A/Bテスト設計
+
+**Vercel Edge Config によるA/B分岐**:
+```typescript
+// middleware.ts
+import { NextResponse } from 'next/server';
+import { get } from '@vercel/edge-config';
+
+export async function middleware(request: Request) {
+  const url = new URL(request.url);
+  if (url.pathname === '/') {
+    const testConfig = await get<{ split_ratio: number }>('hero_ab_test');
+    const variant = Math.random() < (testConfig?.split_ratio ?? 0.5) ? 'B' : 'A';
+    const response = NextResponse.rewrite(new URL(`/variant-${variant}`, request.url));
+    response.cookies.set('ab_variant', variant, { maxAge: 60 * 60 * 24 * 30 });
+    return response;
+  }
+}
+```
+
+**GTM経由の実験実装**:
+- Google Optimize廃止後はGTM + カスタムJSで実装
+- 割当はEdge Config / Cookie / localStorage のいずれか
+- GA4のユーザープロパティに`ab_variant`を記録し分析
+
+**Optimizely / VWO（エンタープライズ案件）**:
+- Optimizely: 統計的有意性の自動判定・多変量テスト対応
+- VWO: ヒートマップ・セッションリプレイ統合
+- 判定: 単一要素A/B → GTM + Edge Config、多変量・パーソナライズ → Optimizely
+
+**A/Bテスト設計の必須要素**:
+1. **仮説**: 「〇〇を△△に変更するとCVRが×%改善する」
+2. **プライマリメトリクス**: CVR / フォーム完了率 / 電話CV率
+3. **セカンダリメトリクス**: 直帰率 / スクロール深度 / セッション時間
+4. **サンプルサイズ**: 統計的有意性のため片側最低1000CV
+5. **実験期間**: 最低7日（曜日変動吸収）、最大30日
+6. **判定基準**: p < 0.05 かつ 95%信頼区間
+
+**建設業・採用LP案件でよくあるA/B仮説**:
+- 給与レンジ数値明示 vs 「応相談」 → CV率+35%（数値明示勝ち）
+- フォーム項目5 vs 8 → 完了率+42%（5項目勝ち）
+- 電話CTA追従bar有 vs 無 → 電話CV率+120%（追従bar勝ち）
+- LINE応募併用 vs フォームのみ → 20代応募数+180%（LINE併用勝ち）
+
+### 3. ヒートマップ・行動分析
+
+**Microsoft Clarity（無料・全案件推奨）**:
+- セッションリプレイ、ヒートマップ、rage click、dead click検出
+- GDPR準拠設定（IP匿名化・Cookie同意）
+- 導入はheadタグに1スニペット追加のみ
+
+**Ptengine（BtoB案件推奨）**:
+- ヒートマップ精度が高い
+- セグメント分析（新規/リピート、流入元別）
+- コンバージョンファネル可視化
+
+**観測すべきKPI**:
+| 指標 | 閾値 | 改善アクション |
+|---|---|---|
+| Rage click率 | 3%以下 | 動作不明確なUI修正 |
+| Dead click率 | 5%以下 | クリック不可要素の削除 |
+| CTA直前離脱率 | 30%以下 | CTAコピー・フォーム項目再検討 |
+| フォーム完了率 | 60%以上 | 項目削減・入力補助追加 |
+| 平均スクロール深度 | 60%以上 | ATF訴求強化・コンテンツ精査 |
+
+**Sora通過後7日間のCRO運用**:
+- Clarity/Ptengineで「CTA直前離脱率 / フォーム途中離脱率」を自動収集
+- クライアントへ「次回改善提案」レポートをKaito主導で送付
+- 納品後の継続価値提供で受注率向上
+
+### 4. フォーム最適化
+
+**フォームツール選定基準**:
+- **HubSpot Forms**（BtoBリード獲得）: CRM統合、Progressive Profiling対応、埋込より API連動で自由レイアウト
+- **formrun**（SMB・使いやすさ重視）: ノーコード編集、Kanbanリード管理、Slack通知連携
+- **Typeform**（会話型フォーム）: 1問1画面で完了率+40%、分岐ロジック対応、高単価商材のリードクオリファイ
+
+**フォーム最適化チェックリスト**:
+1. **項目数**: 5項目以内（追加1項目でCV率-7%）
+2. **必須マーク**: `*`を項目名の直後に配置（後配置は視認性低下）
+3. **プレースホルダ**: ヒント文言、value代替禁止（アクセシビリティ違反）
+4. **バリデーション**:
+   - リアルタイム検証（onBlur推奨）
+   - 電話番号はハイフン有無許容（正規表現緩和）
+   - メールは形式のみチェック（存在確認は送信時）
+5. **プログレスバー**: 3ステップ以上のフォームは進捗表示必須
+6. **オートフィル対応**: `autocomplete`属性を正確設定
+7. **エラーメッセージ**: 具体的（「〇〇が不足しています」）
+8. **送信ボタン**: 「送信」より「無料で相談する」等の行動促進コピー
+9. **完了画面3要素**:
+   - 受付番号または受付日時
+   - 返信の目安日数
+   - 返信が来ない場合の連絡先
+10. **送信の実体テスト**: STEP 5でダミー応募を送信し、受信先（メール/CRM/スプレッドシート）に実データ到達を確認するまで納品完了にしない
+
+### 5. SEO for LP
+
+**Title / Meta Description**:
+- Title: 30-35字、主要KW前寄せ、`<会社名> | <サービス名>`パターン
+- Description: 100-120字、CTR最大化のベネフィット訴求
+- Nao計測設計表と一致確認
+
+**Structured Data (Schema.org) 建設業/採用LP用**:
+- 建設業: `LocalBusiness` + `Service`
+- 採用LP: `JobPosting`（求人リッチリザルト対象・給与レンジ・雇用形態・勤務地必須）
+- BtoBサービス: `Organization` + `Service`
+
+**OGP検証（opengraph.xyz）**:
+- Facebook / X (Twitter) / LinkedIn の3プレビュー必須確認
+- og:image は絶対URL（`metadataBase`必須）
+- 1200×630pxで文字焼込み時は主要要素をセーフエリア（1120×550）内配置
+- kotoneのog:descriptionとバナー部のOG imageを1枚のシェアカードとして突合してからデプロイ
+
+**Canonical URL 設計**:
+- 全ページで自己参照canonical必須
+- パラメータ付きURLは基本パスへ集約
+- SP/PC分離時は`<link rel="alternate" media="only screen and (max-width: 640px)">`
+
+**robots.txt / sitemap.xml**:
+- Preview環境は`Disallow: /`
+- 本番はsitemap.xml必須（Next.jsの`app/sitemap.ts`で動的生成）
+- 複製元LPの`Disallow: /`引継ぎ事故を予防するため、STEP 5でrobots.txt必須確認
+
+**セキュリティヘッダ4点（納品必須）**:
+```json
+// vercel.json
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "DENY" }
+      ]
+    }
+  ]
+}
+```
+
+### 6. CRO（Conversion Rate Optimization）実践
+
+**CRO改善サイクル**:
+```
+現状分析 (GA4/Clarity) → 仮説設計 → A/Bテスト
+    → 結果分析 → 勝者本番化 → 次仮説へ
+```
+
+**改善優先度マトリクス**:
+| インパクト | 実装難易度 | 優先度 |
+|---|---|---|
+| 高 | 低 | ★★★ (即実装) |
+| 高 | 高 | ★★ (計画実装) |
+| 低 | 低 | ★ (時間あれば) |
+| 低 | 高 | 実装しない |
+
+**建設業・採用LP特化CROティップス**:
+- **信頼シグナル多層化**: ロゴ + 受賞歴 + 口コミ + 施工事例で3層以上
+- **フォーム前CTA強化**: 「1分で完了」「30秒で無料相談」等の心理障壁削減
+- **電話CV優先**: 40代以上の建設業BtoB案件は電話CV比率50%超が多い
+- **LINE応募併用**: 20代求職者にはフォームよりLINE友だち追加でCV率+80%
+- **モバイルファースト厳守**: 建設業求人LPの90%がSPアクセス
+- **求職者アクセス時間帯**: 21-23時・移動中の低速回線に集中するため、Slow 4G スロットリング条件でのLighthouse測定を標準化
+
+**継続改善提案SLA**:
+- 納品後7日/30日でCWV実測レポートをHARU経由でクライアント返却
+- CVR低下検知時は48時間以内にA/B改善案を提案
+- 月次でヒートマップ分析レポートを納品
+
+---
 
 ## 📝 Daily Knowledge Log
 

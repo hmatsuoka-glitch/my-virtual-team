@@ -944,6 +944,625 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## Visual Regression Testing ツール比較・設定
+
+### ツール選定マトリクス（案件特性別の最適配分）
+
+| ツール | 得意領域 | 苦手領域 | ライセンス | 案件推奨 |
+|--------|---------|---------|----------|---------|
+| **Playwright `toHaveScreenshot`** | ページ全画面 / コンポーネント VRT、シンプルな絶対差分、CI 統合が容易 | 知覚差分・AI 判定なし、大規模プロジェクトでのベースライン管理は自前 | OSS（Apache 2.0） | 中小 LP・スタートアップ案件・PoC |
+| **pixelmatch** | 純粋なピクセル絶対差分、Node.js 組込、しきい値の細かい制御 | ページ全体を扱うランナーがない、レンダリングは別途 | OSS（ISC） | Playwright と組合せて低レイヤ判定 |
+| **Resemble.js** | ブラウザ内で動く差分計算、色成分別の比較、ignoreAntialiasing / ignoreColors オプション | パフォーマンスは劣る、CI 統合は自前 | OSS（MIT） | ブラウザ側でリアルタイム差分表示 |
+| **looks-same** | DSSIM ベースの知覚差分、`ignoreAntialiasing` / `ignoreCaret` が実装済 | 差分の可視化は弱い、コミュニティ小 | OSS（MIT） | 装飾帯・グラデーションの知覚判定 |
+| **Percy（BrowserStack）** | クラウドでのベースライン管理、レスポンシブスナップショット、Slack/GitHub 統合、AI 差分検出 | 有料、月額 $99〜、スナップショット数課金 | 商用 SaaS | 中〜大規模案件、複数クライアント並行 |
+| **Chromatic** | Storybook 連携が最強、コンポーネント単位 VRT、TurboSnap で変更部品のみ検証 | Storybook 前提、ページ全体の VRT には不向き | 商用 SaaS（無料枠あり） | Storybook 運用のあるプロダクト・デザインシステム |
+| **BackstopJS** | ローカル完結、Docker で環境固定、CSS セレクタ単位のシナリオ | ドキュメントが古い、UI がレガシー | OSS（MIT） | オフライン検証・機密案件・レガシーサイト |
+| **Applitools Eyes** | AI Visual による意図変更検出、Ultrafast Grid で 100+ ブラウザ並列、Root Cause Analysis | 高価（エンタープライズ料金）、学習コスト | 商用 SaaS | 大企業・グローバル案件・複数ブランド |
+| **Reg-Suit** | Git ベースのレポート、S3/GCS 保存、日本製で日本語ドキュメント充実 | 独自コマンド体系、大規模チーム向けの機能は薄い | OSS（MIT） | 国内スタートアップ・GitHub 中心の運用 |
+| **Argos CI** | GitHub Check Runs 統合、無料枠が広い、Percy 代替として台頭 | 新興、実績はまだ少ない | 商用 SaaS（無料枠あり） | GitHub Actions 中心のモダンチーム |
+
+### `mia.config.json` 標準設定サンプル（領域別しきい値）
+
+```json
+{
+  "$schema": "https://let-inc.net/schemas/mia.config.v2.json",
+  "project": {
+    "name": "shosei-lp-clone-v3",
+    "baseline": "baseline/2026-08-26/",
+    "output": "output/mia-report/"
+  },
+  "viewports": [
+    { "name": "sp-xs",   "width": 320,  "height": 568,  "deviceScaleFactor": 2 },
+    { "name": "sp-s",    "width": 375,  "height": 812,  "deviceScaleFactor": 2 },
+    { "name": "sp-m",    "width": 390,  "height": 844,  "deviceScaleFactor": 3 },
+    { "name": "sp-l",    "width": 414,  "height": 896,  "deviceScaleFactor": 2 },
+    { "name": "tb-s",    "width": 768,  "height": 1024, "deviceScaleFactor": 2 },
+    { "name": "tb-m",    "width": 820,  "height": 1180, "deviceScaleFactor": 2 },
+    { "name": "pc-s",    "width": 1024, "height": 768,  "deviceScaleFactor": 1 },
+    { "name": "pc-m",    "width": 1280, "height": 800,  "deviceScaleFactor": 1 },
+    { "name": "pc-l",    "width": 1440, "height": 900,  "deviceScaleFactor": 1.25 },
+    { "name": "pc-xl",   "width": 1920, "height": 1080, "deviceScaleFactor": 1.5 }
+  ],
+  "regions": {
+    "hero":      { "selector": "[data-region='hero']",      "engine": "pixelmatch", "threshold": 0.05, "maxDiffPixelRatio": 0.005 },
+    "cta":       { "selector": "[data-region='cta']",       "engine": "pixelmatch", "threshold": 0.05, "maxDiffPixelRatio": 0.005 },
+    "form":      { "selector": "[data-region='form']",      "engine": "pixelmatch", "threshold": 0.05, "maxDiffPixelRatio": 0.005 },
+    "textBand":  { "selector": "[data-region='text-band']", "engine": "pixelmatch", "threshold": 0.25, "maxDiffPixelRatio": 0.02 },
+    "decorative":{ "selector": "[data-region='decorative']","engine": "looks-same", "tolerance": 5,    "ignoreAntialiasing": true },
+    "footer":    { "selector": "footer",                    "engine": "looks-same", "tolerance": 8,    "ignoreAntialiasing": true }
+  },
+  "masks": [
+    "[data-dynamic='cookie-banner']",
+    "[data-dynamic='chat-widget']",
+    "[data-dynamic='ab-test']",
+    "time[datetime]",
+    "[data-testid='current-timestamp']"
+  ],
+  "gates": {
+    "categoryFloor": { "layout": 12, "color": 12, "font": 11, "animation": 8, "responsive": 12 },
+    "overallPass": 85,
+    "hardBlockOnFailure": ["a11y-critical", "hydration-error", "form-e2e", "console-error", "horizontal-scroll"]
+  },
+  "a11y": {
+    "engine": "@axe-core/playwright",
+    "wcag": ["wcag2a", "wcag2aa", "wcag22aa"],
+    "rules": {
+      "color-contrast": { "enabled": true, "impact": "serious" },
+      "target-size":    { "enabled": true, "impact": "serious" }
+    },
+    "manualChecks": ["keyboard-only", "screen-reader", "focus-visible", "landmark-order"]
+  },
+  "performance": {
+    "engine": "lhci",
+    "assertions": {
+      "categories:performance":  ["error", { "minScore": 0.9 }],
+      "categories:accessibility":["error", { "minScore": 0.9 }],
+      "categories:best-practices":["error", { "minScore": 0.9 }],
+      "categories:seo":          ["error", { "minScore": 0.9 }],
+      "largest-contentful-paint":["error", { "maxNumericValue": 2500 }],
+      "interaction-to-next-paint":["error", { "maxNumericValue": 200 }],
+      "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+      "server-response-time":    ["error", { "maxNumericValue": 800 }]
+    },
+    "throttling": { "cpu": 4, "network": "Slow 4G" }
+  },
+  "reporting": {
+    "githubIssue": { "enabled": true, "assignee": "saki", "labels": ["mia-ng", "priority:auto"] },
+    "slack": { "channel": "#lp-qa", "mentionOnFailure": ["@saki", "@ren"] },
+    "banner": { "channel": "#banner-creation", "mentionOnImageDiff": ["@hiro"] }
+  }
+}
+```
+
+### Playwright `toHaveScreenshot` の標準テストテンプレート
+
+```typescript
+// tests/vrt/hero.spec.ts
+import { test, expect } from '@playwright/test';
+import miaConfig from '../../mia.config.json';
+
+test.describe('@vrt @hero Hero セクション VRT', () => {
+  for (const vp of miaConfig.viewports) {
+    test(`hero at ${vp.name} (${vp.width}x${vp.height} DPR ${vp.deviceScaleFactor})`, async ({ page }) => {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'no-preference' });
+      await page.goto(process.env.TARGET_URL!, { waitUntil: 'networkidle' });
+      await page.evaluate(() => document.fonts.ready);
+      await page.waitForTimeout(500); // 安定化待機
+      const hero = page.locator("[data-region='hero']");
+      await expect(hero).toHaveScreenshot(`hero-${vp.name}.png`, {
+        threshold: miaConfig.regions.hero.threshold,
+        maxDiffPixelRatio: miaConfig.regions.hero.maxDiffPixelRatio,
+        mask: miaConfig.masks.map((s) => page.locator(s)),
+        animations: 'disabled',
+      });
+    });
+  }
+});
+```
+
+### pixelmatch + looks-same 2 段運用の判定スクリプト
+
+```javascript
+// scripts/mia-diff.js
+const fs = require('fs');
+const { PNG } = require('pngjs');
+const pixelmatch = require('pixelmatch');
+const looksSame = require('looks-same');
+
+async function judge(baseline, current, region) {
+  const img1 = PNG.sync.read(fs.readFileSync(baseline));
+  const img2 = PNG.sync.read(fs.readFileSync(current));
+  const { width, height } = img1;
+  const diff = new PNG({ width, height });
+
+  if (region.engine === 'pixelmatch') {
+    const numDiffPixels = pixelmatch(img1.data, img2.data, diff.data, width, height, {
+      threshold: region.threshold,
+      includeAA: false,
+    });
+    const ratio = numDiffPixels / (width * height);
+    fs.writeFileSync(`diff-${region.name}.png`, PNG.sync.write(diff));
+    return { pass: ratio <= region.maxDiffPixelRatio, ratio, numDiffPixels };
+  }
+
+  if (region.engine === 'looks-same') {
+    const { equal, diffImage } = await looksSame(baseline, current, {
+      tolerance: region.tolerance,
+      ignoreAntialiasing: true,
+      ignoreCaret: true,
+    });
+    if (!equal) await diffImage.save(`diff-${region.name}.png`);
+    return { pass: equal };
+  }
+}
+```
+
+### AI 差分エンジンの導入判断基準
+
+| 症状 | 導入すべきツール | 理由 |
+|------|----------------|------|
+| フォント差・アンチエイリアスで偽 NG が月 20 件超 | Applitools Eyes / Percy AI | 「意図変更」と「バグ」を AI 分類し偽陽性 80% 削減 |
+| Storybook 運用があり部品別に検証したい | Chromatic + TurboSnap | 変更影響コンポーネントのみ再判定、CI 時間 5 倍高速化 |
+| クライアントが「Chrome 以外」でしか見ない | Applitools Ultrafast Grid | 100+ ブラウザ / OS を 1 リクエストで並列判定 |
+| Vercel Preview を活用し PR ごとに VRT したい | Argos CI + Vercel | GitHub Check Runs 統合、無料枠で PR ごと差分自動生成 |
+| 完全オフライン / 機密案件 | BackstopJS + Docker | クラウド送信ゼロ、社内ネットワーク内で完結 |
+
+---
+
+## クロスブラウザ/デバイス検証SOP
+
+### 3 段階検証マトリクス（Playwright → BrowserStack → クライアント環境）
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  Stage 1: Playwright device profiles（1 次スクリーニング）       │
+│  → 目的: 全ブラウザで基本動作を高速一括検証                     │
+│  → 環境: Chromium / WebKit / Firefox + iPhone / iPad / Pixel   │
+│  → 時間: 10 分以内（並列 10 workers）                            │
+├────────────────────────────────────────────────────────────────┤
+│  Stage 2: BrowserStack Live 実機（2 次確認）                    │
+│  → 目的: iOS Safari / Android Chrome 特有バグの物理検出        │
+│  → 環境: iPhone 15 / iPhone SE / Pixel 8 / Galaxy S24 実機     │
+│  → 時間: 30 分（手動 + Automate 併用）                          │
+├────────────────────────────────────────────────────────────────┤
+│  Stage 3: クライアント確認端末（3 次最終確認）                  │
+│  → 目的: 承認者の画面で崩れがないか物理保証                     │
+│  → 環境: Kaito 経由でヒアリングした機種・OS・ブラウザ           │
+│  → 時間: 15 分（BrowserStack で該当環境を再現）                 │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### Stage 1: Playwright `playwright.config.ts` の標準設定
+
+```typescript
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests',
+  fullyParallel: true,
+  workers: process.env.CI ? 10 : 4,
+  reporter: [['html'], ['json', { outputFile: 'mia-result.json' }]],
+  use: {
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    launchOptions: {
+      args: ['--font-render-hinting=none', '--disable-skia-runtime-opts'],
+    },
+  },
+  projects: [
+    // デスクトップ 4 ブラウザ
+    { name: 'chromium-1440',     use: { ...devices['Desktop Chrome'],   viewport: { width: 1440, height: 900 } } },
+    { name: 'chromium-1920-1.5', use: { ...devices['Desktop Chrome HiDPI'], viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1.5 } },
+    { name: 'webkit-1440',       use: { ...devices['Desktop Safari'],   viewport: { width: 1440, height: 900 } } },
+    { name: 'firefox-1440',      use: { ...devices['Desktop Firefox'],  viewport: { width: 1440, height: 900 } } },
+    { name: 'edge-1440',         use: { ...devices['Desktop Edge'], channel: 'msedge', viewport: { width: 1440, height: 900 } } },
+
+    // モバイル / タブレット
+    { name: 'iphone-15-pro',     use: { ...devices['iPhone 15 Pro'] } },
+    { name: 'iphone-se',         use: { ...devices['iPhone SE'] } },
+    { name: 'iphone-landscape',  use: { ...devices['iPhone 15 Pro landscape'] } },
+    { name: 'pixel-8',           use: { ...devices['Pixel 8'] } },
+    { name: 'galaxy-s24',        use: { ...devices['Galaxy S24'] } },
+    { name: 'ipad-air',          use: { ...devices['iPad (gen 11)'] } },
+    { name: 'ipad-pro-11',       use: { ...devices['iPad Pro 11'] } },
+
+    // 特殊モード
+    { name: 'reduced-motion',    use: { ...devices['Desktop Chrome'], reducedMotion: 'reduce' } },
+    { name: 'dark-mode',         use: { ...devices['Desktop Chrome'], colorScheme: 'dark' } },
+    { name: 'forced-colors',     use: { ...devices['Desktop Chrome'], forcedColors: 'active' } },
+    { name: 'zoom-200',          use: { ...devices['Desktop Chrome'], viewport: { width: 720, height: 450 } } }, // 200% 相当
+  ],
+});
+```
+
+### Stage 2: BrowserStack Automate の実機マトリクス
+
+```yaml
+# browserstack.yml
+platforms:
+  # iOS Safari（最重要：iOS 特有バグ検出）
+  - deviceName: iPhone 15 Pro
+    osVersion: '17.5'
+    browserName: safari
+  - deviceName: iPhone 15
+    osVersion: '17.0'
+    browserName: safari
+  - deviceName: iPhone SE 2022
+    osVersion: '16.0'
+    browserName: safari
+  - deviceName: iPad Pro 12.9 2022
+    osVersion: '17.0'
+    browserName: safari
+
+  # Android Chrome（普及率最大）
+  - deviceName: Google Pixel 8
+    osVersion: '14.0'
+    browserName: chrome
+  - deviceName: Samsung Galaxy S24
+    osVersion: '14.0'
+    browserName: chrome
+  - deviceName: Samsung Galaxy A54
+    osVersion: '13.0'
+    browserName: chrome
+
+  # Windows（クライアント業務環境）
+  - os: Windows
+    osVersion: '11'
+    browserName: Edge
+    browserVersion: latest
+  - os: Windows
+    osVersion: '10'
+    browserName: Chrome
+    browserVersion: latest
+  - os: Windows
+    osVersion: '11'
+    browserName: Firefox
+    browserVersion: latest
+
+  # macOS
+  - os: OS X
+    osVersion: Sonoma
+    browserName: Safari
+    browserVersion: '17.0'
+```
+
+### iOS Safari 特有バグ検出チェックリスト（10 項目）
+
+| # | バグパターン | 検出方法 | 修正指示例 |
+|---|-------------|---------|----------|
+| 1 | `100vh` でアドレスバー分はみ出し | 初期表示で CTA が画面外に押し出される | `100vh` → `100dvh` / `100svh` |
+| 2 | `position: fixed` がスクロール時にチラつく | 動画撮影で確認 | `transform: translateZ(0)` で GPU 化 |
+| 3 | `-webkit-overflow-scrolling: touch` 未指定でスクロール硬い | 実機でモーダル内スクロール確認 | 明示指定 |
+| 4 | `input[type='date']` のスタイル反映されない | 実機フォームで表示確認 | カスタム UI or ネイティブ受容 |
+| 5 | `backdrop-filter: blur()` が効かない | Safari 18 未満で確認 | `-webkit-backdrop-filter` プレフィックス |
+| 6 | `gap` プロパティが Flexbox で古 iOS 未対応 | iOS 14 で確認 | margin フォールバック |
+| 7 | 動画自動再生に `muted` `playsinline` 必須 | 実機で動画セクション確認 | 両属性追加 |
+| 8 | `svh` / `dvh` 単位が iOS 15.4 未満で未対応 | iOS 15.0 実機で確認 | `@supports` フォールバック |
+| 9 | `:has()` セレクタが iOS 15.4 未満で未対応 | iOS 15.0 実機で確認 | JS フォールバック |
+| 10 | bfcache から復帰時にフォーム状態消失 | 別ページ→戻るで確認 | `pageshow` イベントで復元 |
+
+### 非整数 DPR（Windows 125%/150%）検証 SOP
+
+Windows PC の既定スケーリングは 125% / 150% が最頻値。この非整数 DPR で以下を必須検証：
+
+1. `border: 1px solid` が箇所によって描画される / されない不安定さ
+2. アイコンフォント / SVG のにじみ
+3. `background-image` の位置ズレ（DPR × サブピクセル演算）
+4. `transform: translateX(50%)` の中央揃えが 0.5px ズレる
+5. `object-fit: cover` の切り出し位置が微妙にずれる
+
+```typescript
+// tests/dpr/non-integer.spec.ts
+for (const dpr of [1, 1.25, 1.5, 2]) {
+  test(`DPR ${dpr} で 1px ボーダーが全箇所描画される`, async ({ page }) => {
+    await page.emulate({ deviceScaleFactor: dpr });
+    await page.goto(process.env.TARGET_URL!);
+    const borders = await page.$$eval('[data-check="border"]', (els) =>
+      els.map((el) => window.getComputedStyle(el).borderTopWidth)
+    );
+    for (const b of borders) expect(parseFloat(b)).toBeGreaterThan(0);
+  });
+}
+```
+
+### ダークモード / ハイコントラスト / prefers-reduced-motion 検証
+
+```typescript
+test.describe('環境設定バリエーション QA', () => {
+  test('OS ダークモードで本文が読める', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.goto(process.env.TARGET_URL!);
+    // dark 未対応なら color-scheme: light only の明示があること
+    const colorScheme = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).colorScheme
+    );
+    expect(colorScheme === 'dark' || colorScheme === 'light only').toBeTruthy();
+  });
+
+  test('Windows ハイコントラストで背景画像消失時も本文読める', async ({ page }) => {
+    await page.emulateMedia({ forcedColors: 'active' });
+    await page.goto(process.env.TARGET_URL!);
+    // 背景画像に埋め込まれた文字が消えていないか
+    const heroText = page.locator('[data-region="hero"] h1');
+    await expect(heroText).toBeVisible();
+  });
+
+  test('prefers-reduced-motion で自動再生アニメが停止', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto(process.env.TARGET_URL!);
+    const animations = await page.evaluate(() =>
+      document.getAnimations().map((a) => a.playState)
+    );
+    expect(animations.every((s) => s === 'paused' || s === 'finished')).toBeTruthy();
+  });
+});
+```
+
+---
+
+## アクセシビリティ・パフォーマンス検証チェックリスト
+
+### WCAG 2.2 AA 達成基準チェックリスト（Mia 必須 30 項目）
+
+| 番号 | 達成基準 | 検証方法 | 自動/手動 | 差し戻し優先度 |
+|------|---------|---------|----------|--------------|
+| 1.1.1 | 非テキストコンテンツ（alt） | axe-core + 手動レビュー | 両方 | Critical |
+| 1.3.1 | 情報及び関係性（見出し階層・landmark） | axe-core + a11y ツリー比較 | 両方 | Serious |
+| 1.3.2 | 意味のある順序 | Tab キー順・DOM 順の一致 | 手動 | Serious |
+| 1.3.4 | 表示の向き（縦横両対応） | Playwright landscape テスト | 自動 | Moderate |
+| 1.3.5 | 入力目的の特定（autocomplete） | axe-core | 自動 | Moderate |
+| 1.4.1 | 色の使用（色のみで情報伝達しない） | 手動レビュー | 手動 | Serious |
+| 1.4.3 | コントラスト（最低）4.5:1 | axe-core + APCA 補助判定 | 自動 | Critical |
+| 1.4.4 | テキストのサイズ変更 200% | ブラウザズーム 200% スクショ | 自動 | Serious |
+| 1.4.5 | 文字画像 | 手動レビュー（画像埋込文字の禁止） | 手動 | Moderate |
+| 1.4.10 | リフロー（横スクロール禁止） | scrollWidth > clientWidth 検出 | 自動 | Critical |
+| 1.4.11 | 非テキストのコントラスト 3:1 | axe-core（UI 部品・図形） | 自動 | Serious |
+| 1.4.12 | テキストの間隔 | 間隔調整時の折返し破綻検証 | 自動 | Moderate |
+| 1.4.13 | ホバー又はフォーカスで表示されるコンテンツ | 手動レビュー（ツールチップ dismissable） | 手動 | Moderate |
+| 2.1.1 | キーボード | Tab のみで全操作到達 | 手動 | Critical |
+| 2.1.2 | キーボードトラップなし | Tab で無限ループしないこと | 手動 | Critical |
+| 2.1.4 | 文字によるショートカット | 単一キーショートカットの無効化オプション | 手動 | Moderate |
+| 2.2.1 | タイミング調整可能 | セッションタイムアウトの延長機能 | 手動 | Serious |
+| 2.2.2 | 一時停止、停止、非表示 | カルーセル・自動再生の停止ボタン | 手動 | Serious |
+| 2.3.3 | インタラクションによるアニメーション | prefers-reduced-motion 対応 | 自動 | Serious |
+| 2.4.1 | ブロックスキップ（skip link） | Tab 最初のリンクで確認 | 手動 | Moderate |
+| 2.4.3 | フォーカス順序 | Tab 順の論理性 | 手動 | Serious |
+| 2.4.4 | リンクの目的（コンテキスト内） | 手動レビュー（「こちら」禁止） | 手動 | Moderate |
+| 2.4.6 | 見出し及びラベル | 手動レビュー（説明的） | 手動 | Moderate |
+| 2.4.7 | フォーカスの可視化 | focus-visible スクショ | 自動 | Critical |
+| 2.4.11 | フォーカスの非隠蔽（WCAG 2.2 新） | 固定ヘッダーで焦点隠れないこと | 手動 | Serious |
+| 2.5.5 | ターゲットのサイズ（拡張、AAA） | 48×48px 推奨 | 自動 | Moderate |
+| 2.5.8 | ターゲットサイズ（最低、WCAG 2.2 新） | 24×24px 下限 | 自動 | Serious |
+| 3.1.1 | ページの言語（lang 属性） | axe-core | 自動 | Serious |
+| 3.2.2 | 入力時（コンテキスト変更なし） | フォーカス移動で送信しないこと | 手動 | Moderate |
+| 3.3.1 | エラーの特定 | 送信失敗時のエラー表示 | 手動 | Serious |
+| 4.1.2 | 名前、役割、値（ARIA） | axe-core + アクセシブルネーム比較 | 両方 | Critical |
+
+### axe-core 自動スキャン標準テンプレート
+
+```typescript
+// tests/a11y/axe.spec.ts
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+test.describe('@a11y axe-core WCAG 2.2 AA スキャン', () => {
+  test('全ページで violations 0 件', async ({ page }) => {
+    await page.goto(process.env.TARGET_URL!);
+    await page.evaluate(() => document.fonts.ready);
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
+      .disableRules([]) // 全ルール適用
+      .analyze();
+
+    // Critical / Serious を優先で GitHub Issue 起票
+    const critical = results.violations.filter((v) => v.impact === 'critical');
+    const serious = results.violations.filter((v) => v.impact === 'serious');
+
+    if (critical.length > 0) {
+      // 即差し戻し
+      console.error('Critical violations:', JSON.stringify(critical, null, 2));
+    }
+    expect(critical).toHaveLength(0);
+    expect(serious).toHaveLength(0);
+  });
+});
+```
+
+### キーボード操作手動レビュー SOP（Mia が実施する 8 ステップ）
+
+```
+STEP 1: Tab キーだけでページ最上部からフッターまで全 CTA・リンク・フォームに到達できるか
+STEP 2: 到達時に focus-visible のアウトラインが視認可能か（コントラスト 3:1 以上）
+STEP 3: Shift+Tab で逆順にも移動できるか
+STEP 4: Enter / Space で CTA が発火し、Space でチェックボックスが切り替わるか
+STEP 5: 矢印キーでラジオ・タブ・カルーセルが操作できるか
+STEP 6: Esc でモーダル・ドロップダウンが閉じるか
+STEP 7: モーダル open 時にフォーカスがモーダル内にトラップされるか
+STEP 8: モーダル close 時にフォーカスが元の起動要素に戻るか
+```
+
+### スクリーンリーダー手動レビュー SOP（VoiceOver / NVDA / TalkBack）
+
+| SR | 起動方法 | 主要ショートカット | Mia 検証項目 |
+|----|---------|-----------------|-------------|
+| VoiceOver (macOS) | ⌘+F5 | VO+A（全読上）/ VO+U（ローター） | 見出し階層・landmark・リンク一覧 |
+| VoiceOver (iOS) | 設定 > アクセシビリティ | 1 本指スワイプ / ローター回転 | フォームラベル・ボタン役割 |
+| NVDA (Windows) | Ctrl+Alt+N | Insert+Space / H（見出し移動） | 見出し・テーブル・フォームモード |
+| TalkBack (Android) | 設定 > ユーザー補助 | 2 本指スワイプ / ローカルコンテキストメニュー | タッチ探索・ジェスチャー |
+| ナレーター (Windows) | Win+Ctrl+Enter | Caps+M / スキャンモード | Edge との整合性確認 |
+
+### Core Web Vitals 検証チェックリスト
+
+| 指標 | 目標値（Good） | 要改善（Needs Improvement） | 悪い（Poor） | Mia 合否 |
+|------|--------------|---------------------------|-------------|---------|
+| LCP（Largest Contentful Paint） | ≤ 2.5s | 2.5s〜4.0s | > 4.0s | ≤ 2.5s で合格 |
+| INP（Interaction to Next Paint） | ≤ 200ms | 200ms〜500ms | > 500ms | ≤ 200ms で合格 |
+| CLS（Cumulative Layout Shift） | ≤ 0.1 | 0.1〜0.25 | > 0.25 | ≤ 0.1 で合格 |
+| TTFB（Time to First Byte） | ≤ 800ms | 800ms〜1800ms | > 1800ms | ≤ 800ms で合格 |
+| FCP（First Contentful Paint） | ≤ 1.8s | 1.8s〜3.0s | > 3.0s | 参考値 |
+| TBT（Total Blocking Time） | ≤ 200ms | 200ms〜600ms | > 600ms | 参考値 |
+
+### Lighthouse CI（`lhci autorun`）標準設定
+
+```javascript
+// lighthouserc.js
+module.exports = {
+  ci: {
+    collect: {
+      url: [
+        process.env.TARGET_URL,
+        `${process.env.TARGET_URL}/contact`,
+        `${process.env.TARGET_URL}/thanks`,
+      ],
+      numberOfRuns: 3,
+      settings: {
+        preset: 'desktop',
+        throttlingMethod: 'devtools',
+        throttling: {
+          cpuSlowdownMultiplier: 4,
+          rttMs: 150,
+          throughputKbps: 1600, // Slow 4G
+        },
+        emulatedFormFactor: 'mobile',
+        onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
+      },
+    },
+    assert: {
+      assertions: {
+        'categories:performance':      ['error', { minScore: 0.9 }],
+        'categories:accessibility':    ['error', { minScore: 0.9 }],
+        'categories:best-practices':   ['error', { minScore: 0.9 }],
+        'categories:seo':              ['error', { minScore: 0.9 }],
+        'largest-contentful-paint':    ['error', { maxNumericValue: 2500 }],
+        'interaction-to-next-paint':   ['error', { maxNumericValue: 200 }],
+        'cumulative-layout-shift':     ['error', { maxNumericValue: 0.1 }],
+        'server-response-time':        ['error', { maxNumericValue: 800 }],
+        'total-blocking-time':         ['warn',  { maxNumericValue: 200 }],
+        'first-contentful-paint':      ['warn',  { maxNumericValue: 1800 }],
+        'unused-javascript':           ['warn',  { maxNumericValue: 40000 }],
+        'unused-css-rules':            ['warn',  { maxNumericValue: 20000 }],
+      },
+    },
+    upload: {
+      target: 'temporary-public-storage',
+    },
+  },
+};
+```
+
+### CrUX API による Field Data 監視（納品後 7 日間）
+
+```javascript
+// scripts/crux-monitor.js
+async function checkFieldData(url) {
+  const res = await fetch('https://chromeuxreport.googleapis.com/v1/records:queryRecord', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      url,
+      metrics: [
+        'largest_contentful_paint',
+        'interaction_to_next_paint',
+        'cumulative_layout_shift',
+        'experimental_time_to_first_byte',
+      ],
+      formFactor: 'PHONE',
+    }),
+  });
+  const data = await res.json();
+  const lcp = data.record.metrics.largest_contentful_paint.percentiles.p75;
+  const inp = data.record.metrics.interaction_to_next_paint.percentiles.p75;
+  const cls = data.record.metrics.cumulative_layout_shift.percentiles.p75;
+
+  // Lab との乖離検出
+  const labLcp = 2000; // Mia 通過時の Lab 値
+  const drift = (lcp - labLcp) / labLcp;
+  if (drift > 0.2) {
+    // Kaito 経由で即改修 Issue 起票
+    await createGitHubIssue({
+      title: `[Field Drift] LCP Lab ${labLcp}ms → Field ${lcp}ms (+${(drift*100).toFixed(1)}%)`,
+      assignee: 'kaito',
+      labels: ['field-data-drift', 'priority:high'],
+    });
+  }
+}
+```
+
+### 差分レポート出力 SOP（GitHub Issue 自動起票フォーマット）
+
+```markdown
+## Mia QA NG レポート — {案件名}
+
+**検証日時**: 2026-08-26 14:30 JST
+**総合スコア**: 78 / 100（合格ライン 85）
+**判定**: ❌ 差し戻し（レイアウトカテゴリ下限 12/20 割れ）
+
+### カテゴリ別スコア
+
+| カテゴリ | 得点 | 下限 | 判定 |
+|---------|------|------|------|
+| レイアウト   | 10/20 | 12 | ❌ |
+| カラー       | 18/20 | 12 | ✅ |
+| フォント     | 15/15 | 11 | ✅ |
+| アニメーション | 10/12 | 8  | ✅ |
+| レスポンシブ | 15/20 | 12 | ✅ |
+| a11y         | 10/13 | -  | ⚠️ Serious 3 件 |
+
+### NG 詳細（優先度 × 難易度マトリクス）
+
+| # | セレクタ | 現状値 | 期待値 | 優先度 | 難易度 | 責務元 | スクショ |
+|---|---------|-------|-------|--------|--------|--------|--------|
+| 1 | `#hero > .btn-primary` | `background: #FF0001` | `#FF0000` | High | Low | Hana 再抽出 | [diff-hero.png] |
+| 2 | `.faq-section` | 未実装 | 8 項目 accordion | High | High | Nao 設計 | [expected-faq.png] |
+| 3 | `nav > .menu` | Tab で到達不能 | tabindex="0" | Critical | Low | Ren 実装 | - |
+
+### 再検査範囲（Mia 指定）
+
+- **範囲**: sanity + smoke（修正 2 件、レイアウト変更なし）
+- **想定所要**: 5 分
+- **担当**: @saki → @ren（実装）/ @hana（再抽出）
+
+### 参考データ
+
+- `pixelmatch` 差分 PNG: [attached]
+- `axe-core` violations JSON: [attached]
+- `lhci` レポート: https://storage.googleapis.com/lighthouse-infrastructure...
+- Playwright trace: [trace.zip]
+```
+
+### 9 段階品質ゲート（`npm run qa:full` で一括実行）
+
+```bash
+# package.json scripts
+"qa:full": "concurrently -k -s all -n vrt,a11y,perf,console,form 'npm:qa:vrt' 'npm:qa:a11y' 'npm:qa:perf' 'npm:qa:console' 'npm:qa:form'",
+"qa:vrt":     "playwright test --grep '@vrt'",
+"qa:a11y":    "playwright test --grep '@a11y'",
+"qa:perf":    "lhci autorun",
+"qa:console": "playwright test --grep '@console'",
+"qa:form":    "playwright test --grep '@form-e2e'",
+"qa:report":  "node scripts/mia-aggregate.js && node scripts/mia-issue.js"
+```
+
+| ゲート # | 検査項目 | 合格基準 |
+|---------|---------|---------|
+| 1 | pixelmatch 厳格判定（Hero/CTA/Form） | threshold 0.05 で差分率 0.5% 以下 |
+| 2 | looks-same 知覚判定（装飾帯） | tolerance 5 で equal |
+| 3 | axe-core violations | Critical / Serious 0 件 |
+| 4 | キーボード操作 | Tab で全 CTA 到達 |
+| 5 | スクリーンリーダー | VoiceOver で見出し階層読上 |
+| 6 | Lighthouse CI 4 カテゴリ | 全カテゴリ 90+ |
+| 7 | Console error / requestfailed | 0 件（Hydration 含む） |
+| 8 | 構造化データ | Google Rich Results Test PASS |
+| 9 | フォーム E2E | 送信 → サンクス → 自動返信 → GA4 発火 |
+
+**判定ルール**: 9 ゲート中 1 つでも fail なら総合スコア 85 点以上でも自動で 84 点減点し差し戻し。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -183,6 +183,491 @@ STEP 4: Miaへ再チェック依頼
 - **Kaito**：修正フロー全体の進行管理を報告する
 - **ユーザー**：直接指示を受け取る（パターン2）
 
+## CSS/JS デバッグ技法詳細
+
+「効かないCSS」「予期せぬ再レンダリング」「本番だけ壊れる」を秒単位で特定するための実務テクニック集。
+
+### 1. CSS が効かない時の切り分けフロー（Chrome DevTools 深堀り）
+
+```
+【STEP 1】Computed タブで「実際に効いている値」を確認
+  - Elements → Computed → target property をクリック
+  - 「Rendered via」で優先されているセレクタを特定
+  - 期待値と異なる場合 → STEP 2 へ
+
+【STEP 2】Styles タブで「Specificity（詳細度）」を確認
+  - セレクタの右横の「(a,b,c)」表示で詳細度を目視
+  - 詳細度で負けている場合 → セレクタを強化するか `@layer` で階層明示
+  - 詳細度で勝っているのに効かない → STEP 3 へ
+
+【STEP 3】Cascade Layers（@layer）の順序を確認
+  - Styles → 該当プロパティ横の「Layer: theme」等の表記を確認
+  - `@layer base, theme, utilities;` の宣言順で「後宣言 > 先宣言」
+  - Layer順を意図的に組み替えるか、無所属レイヤーへ移動
+
+【STEP 4】継承（Inherited from）を確認
+  - Styles タブ下部の「Inherited from ...」で親要素の値を継承していないか
+  - 親側で `color: red` が指定されて子で効かないケースが典型
+
+【STEP 5】Rendering タブで「Layout Shift Regions」表示
+  - Rendering → Layout Shift Regions ON で青いフラッシュ範囲を可視化
+  - CLS の犯人要素を目視特定
+
+【STEP 6】AI Assistance パネル（Chrome DevTools 134+）
+  - 要素右クリック → 「Ask AI」で「なぜこの margin が効いていないか」を Gemini が解析
+  - DOM ツリー全体を解析して「継承元・上書き要因・詳細度競合」を30秒で回答
+```
+
+### 2. JavaScript エラーの根本原因特定
+
+| 症状 | 使用ツール | 特定手順 |
+|-----|----------|---------|
+| 本番のみ Hydration Error | Sentry Session Replay | Replay 動画で「クリック→エラー」の再現手順を5ステップで抽出 |
+| Uncaught Error 発生元不明 | Source Maps + Sources パネル | Sentry → Source Map 適用 → 元の TS ファイル・行番号で特定 |
+| 不要な再レンダリング（INP劣化） | why-did-you-render + React DevTools Profiler | development で `whyDidYouRender` 有効化、Console に列挙 |
+| 特定ブラウザのみ動かない | BrowserStack + Feature Detection | `caniuse-lite` で対応状況確認、polyfill or fallback 実装 |
+| ネットワーク起因の遅延 | Network パネル + Slow 3G スロットリング | Waterfall で TTFB / Content Download / Waiting を分解 |
+| Memory Leak | Memory パネル + Heap Snapshot 差分 | 3回スナップショット取得 → Comparison で増加オブジェクト特定 |
+| Long Task（>50ms） | Performance パネル | 記録 → 赤い三角の Long Task をクリック → Call Tree でボトルネック特定 |
+
+### 3. レスポンシブバグ修正の実務パターン
+
+```
+【SP で崩れる典型パターンと対処】
+
+① 横スクロール発生
+  → `overflow-x: hidden` は対症療法。原因は `min-width` 超過要素
+  → DevTools → Rendering → Scroll bottleneck で発生要素を特定
+  → 対処：`max-width: 100%` + `word-break: break-word` + 画像 `max-width: 100%`
+
+② タップターゲット小さすぎ（iOS Guidelines 44×44pt / Android 48×48dp 未満）
+  → DevTools → Rendering → Touch target を ON で赤枠可視化
+  → 対処：`min-height: 44px; min-width: 44px;` + `padding` 追加（visual size は変えずに hit area 拡大）
+
+③ フォーム入力で画面ズーム（iOS Safari 特有）
+  → 原因：input の font-size が 16px 未満（15px以下だと iOS が自動ズーム）
+  → 対処：`input, textarea, select { font-size: 16px; }` 最低保証
+
+④ Position Fixed が iOS で崩れる
+  → 原因：`transform` 親要素があると `position: fixed` が親基準になる（Safari バグ）
+  → 対処：親の `transform` を外すか、fixed 要素を DOM ツリー最上位へ移動
+
+⑤ 100vh で iOS のツールバー分ずれる
+  → 対処：`100vh` → `100dvh`（Dynamic Viewport Height）に置換
+  → フォールバック：`min-height: 100vh; min-height: 100dvh;` の順で書く
+
+⑥ Grid / Flex の折り返しが SP で崩壊
+  → `flex-wrap: wrap` + `flex: 1 1 min(100%, 300px)` で自動折り返し
+  → Grid は `grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))` で応答
+```
+
+### 4. アニメーション滑らかさ修正（60fps 維持）
+
+| NG パターン | GOOD パターン | 理由 |
+|-----------|-------------|------|
+| `top` / `left` でアニメ | `transform: translate()` | GPU レイヤー化、CPU レイアウト回避 |
+| `width` / `height` でアニメ | `transform: scale()` | 同上、Composite Only になる |
+| `box-shadow` でアニメ | 疑似要素 `::after` を用意し `opacity` 切替 | shadow 再計算はコスト高 |
+| `setInterval(fn, 16)` | `requestAnimationFrame(fn)` | ブラウザ描画タイミングと同期、タブ非表示時停止 |
+| `will-change: transform` 常時付与 | 直前に付けアニメ後外す | 常時付与はメモリ肥大化・逆に遅くなる |
+| `filter: blur()` を頻繁に変更 | `backdrop-filter` + 静的 opacity | filter 再計算は GPU でも重い |
+
+**INP（Interaction to Next Paint）改善の実務ルール**：
+- 200ms 超のイベントハンドラは `requestIdleCallback` か `setTimeout(fn, 0)` で分割
+- React では `useTransition` + `startTransition` で優先度を下げる
+- 大きなリストは `react-window` / `@tanstack/react-virtual` で仮想化
+- 画像 `decoding="async"` + `loading="lazy"` を必須化（Above the fold のみ eager）
+
+### 5. Form UX 修正チェックリスト
+
+```
+【必須修正項目】
+□ input の font-size >= 16px（iOS ズーム防止）
+□ `inputmode="numeric"` / `"email"` / `"tel"` / `"decimal"` 指定でキーボード最適化
+□ `autocomplete="name"` / `"email"` / `"tel"` / `"street-address"` で自動入力対応
+□ `enterkeyhint="next"` / `"send"` で Enter キー表示最適化
+□ `<label for="xxx">` で label と input を関連付け（タップ拡大 + スクリーンリーダー対応）
+□ エラーメッセージは `aria-describedby` で input と関連付け
+□ 送信ボタンは disabled でなく loading 状態表示（連打防止 + UX 良好）
+□ フォーム全体を `<form>` でラップし、Enter で送信可能に
+□ Autofill 検出（`:autofill` 疑似クラス）でスタイル調整
+□ タッチターゲット 44×44pt 以上
+```
+
+### 6. Cross-browser polyfill 判定フロー
+
+```
+【判定手順】
+① caniuse.com で対象 API のブラウザ対応状況確認
+② サポート対象ブラウザリスト（ryota 定義：Chrome/Safari/Edge 各最新2バージョン + iOS Safari 15+）と照合
+③ 非対応ブラウザが 5% 超なら polyfill 検討、5% 未満なら Feature Detection + Fallback
+
+【典型 polyfill】
+- IntersectionObserver → `intersection-observer` package（iOS 12 未満対応）
+- `:has()` → JavaScript フォールバック（Firefox 121未満）
+- Container Queries → `container-query-polyfill`（Safari 15 未満）
+- View Transitions API → CSS transition フォールバック
+
+【非 polyfill・Progressive Enhancement 選択】
+- CSS `subgrid` → 通常 `grid` にフォールバック
+- CSS `:where()` `:is()` → セレクタを分割記述
+- `@scope` → BEM 命名で回避
+```
+
+## Mia差し戻し対応SOP
+
+Mia からの NG レポート受領から Mia 再チェック依頼までの標準作業手順（Standard Operating Procedure）。
+
+### 全体フロー（6フェーズ）
+
+```
+Phase 1: 差分レポート受領・構造化（受領後10分以内）
+     ↓
+Phase 2: 原因特定・根本原因分析（受領後30分以内）
+     ↓
+Phase 3: 修正指示書作成・Ren 引き渡し（原因特定後15分以内）
+     ↓
+Phase 4: Ren 修正実装（Ren 担当）
+     ↓
+Phase 5: セルフ QA 10項目実行（Ren 完了後即実施）
+     ↓
+Phase 6: Mia 再チェック依頼（セルフ QA 通過後即実施）
+```
+
+### Phase 1: 差分レポート受領・構造化
+
+```
+【所要時間】受領後10分以内
+
+【入力】
+- Mia からの GitHub Issue（NG レポート）
+- Mia 撮影 Before スクショ（現状）
+- Mia が期待する After スクショ（Hana / Sota 仕様）
+
+【作業】
+① `gh issue view {issue番号} --json body` で本文を取得
+② Claude API へ投げて「セレクタ / 現状値 / 期待値 / 推奨修正手法 / 修正タイプ」の5列テーブル自動生成
+   → 修正指示作成時間 5分→30秒に短縮
+③ 修正タイプを「CSS調整 / JS修正 / HTML再構造化 / 設計変更」の4分類でタグ付け
+④ Severity × Priority マトリクスで着手順を決定
+⑤ Hana / Sota / Ren に「修正対象 / 影響範囲 / 仕様遡及要否」を10分以内にスレッド共有
+
+【出力】
+- 構造化された修正タスク一覧（Markdown テーブル）
+- 影響範囲事前通知メッセージ（Hana / Sota / Ren 宛）
+```
+
+### Phase 2: 原因特定・根本原因分析
+
+```
+【所要時間】受領後30分以内（Phase 1 完了から20分）
+
+【判断フロー】
+├─ 同一箇所1回目の NG
+│    → 表層修正で対応（CSS値・文言・画像差替）
+│
+├─ 同一箇所2回目の NG
+│    → Hana 抽出データを `diff` し、rem/px 単位誤り等の仕様データ問題を疑う
+│    → Hana へ「仕様再抽出が必要か」を確認
+│
+└─ 同一箇所3回目の NG
+     → `saki-bot` が自動で Kaito+Hana+Sota+Nao の4名に同時エスカレ
+     → 5 Whys で root cause 分析（「人のミス」で止めず「仕組みの欠陥」まで掘る）
+     → 「Hana 仕様再抽出 / Sota 再提案 / Nao 設計変更」のどれが必要か強制再検討
+
+【デバッグツール使い分け】
+- CSS が効かない → Chrome DevTools Computed + Cascade Layers 確認
+- JS エラー → Sentry Session Replay で本番再現 + Source Maps で発生元特定
+- パフォーマンス劣化 → Lighthouse CI + Performance パネル + why-did-you-render
+- レスポンシブ崩れ → BrowserStack + 実機3台（iPhone SE / 15 Pro / iPad mini）
+
+【出力】
+- 根本原因レポート（表層 or 仕様データ or 設計）
+- 修正方針決定（局所修正 or トークン修正 or 設計差し戻し）
+```
+
+### Phase 3: 修正指示書作成・Ren 引き渡し
+
+```
+【所要時間】原因特定後15分以内
+
+【指示書必須項目】
+1. 対象 CSS セレクタ（例：`#hero > .cta-button`）
+2. 現状値 + 期待値（HEX / rem / px 単位まで具体化）
+3. 修正タイプ分類（CSS / JS / HTML / 設計）
+4. 参考画像（Before / After / Hana仕様値の3枚並列）
+5. 修正スコープ宣言（「この箇所のみ、他要素には触らない」を明記）
+6. リグレッション注意点（過去 NG 項目・影響範囲）
+7. 想定修正行数（`gh pr diff main --stat` で事前計算）
+8. コミット分離ルール（1タスク=1コミット、コミットメッセージに Issue No. 記載）
+9. AI 補完用コンテキスト（Cursor Cmd+K で一発生成できる JSON）
+10. HEX + Figma Variables URL + CSS 変数名の3点セット
+
+【引き渡し方法】
+- 新規 Issue でなく Mia の元 Issue にチェックリスト追加コメントで Ren アサイン
+- Ren が同 Issue 内で `#hero-button: ✅ #FF0000 修正完了` とチェック
+- 修正履歴・再チェック・通過が全て1スレッドに集約
+```
+
+### Phase 4: Ren 修正実装（Ren 担当）
+
+```
+【Ren の実装ガイドライン】
+- 着手前に `git tag pre-fix-{issue番号}` で切り戻し点確保
+- 作業ブランチ切り出し（main 直修正絶対禁止）
+- 1タスク=1コミット、コミットメッセージ `fix(issue-{番号}): {内容}`
+- 実装中に想定行数を超過したらスコープ拡大アラート → Saki へ即報告
+- 実装完了時は同スレッドで完了通知（Saki が次アクションに即移行できる）
+```
+
+### Phase 5: セルフ QA 10項目実行
+
+```
+【所要時間】Ren 完了後即実施（`pnpm selfqa:full` 単一コマンドで25分→4分に短縮）
+
+【10項目チェックリスト】
+① 修正対象セレクタの数値再確認（Computed タブで実効値確認）
+② `git diff` 確認（想定外の変更が含まれていないか）
+③ `npm run build` 成功（本番ビルドエラーなし）
+④ Biome `check` 0 warnings（`biome check --apply`）
+⑤ `tsc --noEmit` ゼロエラー（型エラーなし）
+⑥ PC（1440）/ SP（375）/ TAB（768）の3スクショ撮影
+⑦ Lighthouse CI 再計測（LCP / INP / CLS の退行なし）
+⑧ ビジュアルリグレッションスナップショット（Percy / Chromatic / reg-suit）
+⑨ 過去 NG 項目の再確認（Mia が指摘した過去項目が再発していないか）
+⑩ Before/After 並列スクショを Issue に添付
+
+【自動化パイプライン】
+`pnpm selfqa:full` で `concurrently` 並列実行、結果サマリを Slack へ自動投稿
+→ Mia 再差し戻し率 80% 削減を維持
+```
+
+### Phase 6: Mia 再チェック依頼
+
+```
+【所要時間】セルフ QA 通過後即実施
+
+【依頼メッセージテンプレ】
+```
+@mia 再チェック依頼
+
+**修正完了 Issue**: #{番号}
+**対象セクション**: {セクション名}
+**修正内容**: {簡潔サマリ}
+**Before/After スクショ**: <添付>
+**セルフ QA 結果**: ✅ 10項目通過
+**再検査範囲指定への回答**: {sanity+smoke / full regression のどちらを実施したか}
+**申し送り事項**:
+  - ユーザー指示による意図的変更: {あり / なし}
+  - baseline 更新要否: {あり / なし}
+  - 影響ゲート宣言: pixelmatch / WCAG / Lighthouse LCP のうち影響するもの
+```
+
+【ユーザー指示による意図的変更がある場合】
+- Mia の baseline 更新申請とセットで渡す
+- 「意図的変更である旨 / 対象セレクタ / 新しい期待値 / baseline 該当箇所更新の許可」を必ず記載
+- Mia が基準を更新してから再チェックに入れる状態にする
+```
+
+## リグレッション防止テクニック
+
+「直した箇所以外が壊れる」「以前直した箇所が再度 NG になる」を物理的に防ぐための仕組み集。
+
+### 1. ビジュアルリグレッションテスト（VRT）
+
+| ツール | 用途 | Saki の使い分け |
+|--------|------|--------------|
+| Percy（BrowserStack） | ページ全体・コンポーネント単位のピクセル差分 | Vercel Preview に自動連携、PR毎に自動撮影・差分表示 |
+| Chromatic（Storybook） | Storybook 上のコンポーネント単体VRT | ボタン・カード等の再利用コンポーネント修正時 |
+| reg-suit | セルフホストの軽量VRT | 案件専用インフラで運用する場合 |
+| Playwright + pixelmatch | カスタムシナリオでの差分検出 | 特定インタラクション後の状態を比較したい場合 |
+| BackstopJS | 実案件で手軽に導入したい場合 | 小規模 LP の 5-10 シナリオでの VRT |
+
+**VRT 運用ルール**：
+- 修正 PR 毎に自動撮影（GitHub Actions で `chromatic --exit-zero-on-changes`）
+- 差分検出時は Mia レビュー必須（自動 approve 禁止）
+- baseline は Mia が明示的に更新した時のみ差し替え
+- 差分閾値：0.1%（それ以上は Mia 手動判定）
+
+### 2. Lighthouse CI 差分監視
+
+```
+【設定】lighthouserc.js
+module.exports = {
+  ci: {
+    collect: {
+      numberOfRuns: 3,
+      settings: { preset: 'desktop' }
+    },
+    assert: {
+      assertions: {
+        'categories:performance': ['error', { minScore: 0.9 }],
+        'categories:accessibility': ['error', { minScore: 0.95 }],
+        'largest-contentful-paint': ['error', { maxNumericValue: 2500 }],
+        'interaction-to-next-paint': ['error', { maxNumericValue: 200 }],
+        'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }]
+      }
+    },
+    upload: { target: 'temporary-public-storage' }
+  }
+};
+
+【運用】
+- 修正 PR 毎に GitHub Actions で `lhci autorun` 実行
+- 3回計測の中央値で判定（1回だけの計測はブレるため）
+- LCP / INP / CLS が退行したら PR マージ禁止
+- Mobile / Desktop 両方で計測（Mobile は 4G スロットリング）
+```
+
+### 3. 1タスク=1コミット + `pre-fix` タグ運用
+
+```
+【着手前】
+git tag pre-fix-{issue番号}
+git push origin pre-fix-{issue番号}
+
+【修正中】
+git checkout -b fix/{issue番号}-{短い説明}
+（1タスクごとに commit 分離）
+git commit -m "fix(issue-{番号}): {内容} - Task 1/3"
+git commit -m "fix(issue-{番号}): {内容} - Task 2/3"
+git commit -m "fix(issue-{番号}): {内容} - Task 3/3"
+
+【切り戻しが必要になった時】
+（全体切戻し）
+git reset --hard pre-fix-{issue番号}
+
+（単発タスクのみ取消）
+git revert {該当コミットSHA}
+
+【メリット】
+- 「No.3 だけ元に戻して」に revert 1コマンドで対応
+- 過去修正の巻き戻し事故を物理予防
+- Mia 差し戻し時に「どの修正で NG になったか」を1コミット単位で特定可能
+```
+
+### 4. `git rebase` 禁止・`git merge --no-ff` 必須
+
+```
+【NG フロー】
+git rebase main（過去修正が upstream で消える事故）
+
+【GOOD フロー】
+git merge --no-ff main（マージコミットが残り、履歴が線形保持）
+
+【CI 強制チェック】
+GitHub Actions で `git log --first-parent` を必須実行
+rebase された PR は自動 reject
+```
+
+### 5. `grep` による文言修正の全網羅
+
+```
+【手順】
+① 修正着手前に `grep -rn "旧文言" src/` で全出現箇所洗い出し
+② メタ情報（`<meta description>` / `<title>` / OG image alt / structured data）も含める
+③ 対象 N 箇所一覧を修正指示書に添付
+④ Ren が全 N 箇所を修正したことを完了報告時に明示
+
+【典型的な取りこぼし箇所】
+- Hero セクションのメインコピー
+- フッターの会社情報
+- FAQ の Q&A 内文言
+- `<meta description>` / `<title>`
+- OG image / Twitter Card の alt テキスト
+- structured data（JSON-LD）内の値
+- 画像に焼き込まれた文字（バナー生成部と連携必須）
+- お問い合わせフォームのプレースホルダ
+- Confirm / Thanks ページの文言
+- メール自動返信の本文
+```
+
+### 6. Storybook + Vitest による単体高速確認
+
+```
+【設定】
+- Storybook 8.5 + Vitest 統合で `npx storybook test` 1コマンド
+- Play 関数でインタラクションテスト、Chromatic で VRT 同時起動
+
+【運用】
+- 修正対象が Button / Card / Form 等の単体コンポーネントの場合
+- ページ全体を起動せず `npm run storybook -- --ci --quiet` で対象 story だけ起動
+- 修正→確認ループ時間を 90秒→15秒に短縮
+- Mia 再依頼前のセルフチェックを高速化
+```
+
+### 7. Chrome DevTools MCP 統合（2026年新標準）
+
+```
+【機能】
+- Claude Code から Chrome DevTools を直接操作
+- 修正 PR プレビュー URL を自動で開き、対象要素の Computed / Layers / Coverage を取得
+- Console Error / Warning を自動収集
+- Performance トレースを自動記録
+
+【Saki の活用例】
+① Ren の修正完了報告を受領
+② Chrome DevTools MCP で Vercel Preview を自動オープン
+③ 対象セレクタの Computed 値を取得し、期待値と自動突合
+④ 差分なしなら自動で Mia メンション、差分ありなら Saki 手動確認
+→ セルフ QA 時間を さらに 4分→90秒に短縮
+```
+
+### 8. 予防ルールへの昇格
+
+```
+【昇格判断】
+同じ型の修正（CTA コントラスト割れ・余白詰まり・NG ワード混入）が2回以上発生
+    ↓
+個別修正で閉じずに以下のどれで再発を止めるかを Kaito へ提案：
+- ESLint / stylelint ルール化（コード段階で検出）
+- Nao 設計テンプレへの追記（設計段階で予防）
+- kotone NG リスト追加（コピー段階で予防）
+- Hana 抽出チェックリスト強化（仕様データ段階で予防）
+- Mia QA 観点追加（QA 段階で確実に検出）
+
+【実例】
+- CTA の WCAG コントラスト割れ 3件 → stylelint プラグイン `stylelint-a11y` 導入
+- 「No.1」等の景表法 NG ワード検出 2件 → kotone の NG 辞書に追加
+- 画像 width/height 未指定による CLS 2件 → ESLint `jsx-a11y/alt-text` + custom rule 導入
+- rem/px 混在による Hana 抽出誤り 3件 → Hana 抽出チェックリストに「単位統一確認」追加
+```
+
+### 9. `prefers-reduced-motion` / ダークモード退行検査
+
+```
+【Playwright emulateMedia でセルフ QA に常設】
+test('reduced motion で静止', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto(url);
+  // アニメが停止していることをスクショで確認
+});
+
+test('ダークモード宣言が壊れていないか', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto(url);
+  // color-scheme: light 固定の宣言が退行していないか
+});
+```
+
+### 10. リグレッション指標の可視化ダッシュボード
+
+```
+【KPI 定義】
+- Mia 再差し戻し率：目標 5% 以下（月次計測）
+- 修正一発成功率：目標 95% 以上（PR毎に計測）
+- 平均修正リードタイム：受領→本番反映 4時間以内
+- 本番デグレ発生件数：目標 0件（週次計測）
+- 同一箇所ループ回数：目標 平均 1.2回以下
+- セルフ QA 通過率：目標 100%（未通過での Mia 依頼はゼロ）
+
+【計測方法】
+- GitHub Issue のラベル `mia-nc-{n}回目` から自動集計
+- Sentry の本番エラー件数から本番デグレ検知
+- Vercel Analytics + Lighthouse CI 履歴から性能退行検知
+- 毎週 Kaito へ自動レポート、月次で Sora QA へ提出
+```
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
