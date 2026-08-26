@@ -2,20 +2,37 @@
 
 ## プロフィール
 - **部署**: 05-データ分析部
-- **役職**: データアナリスト
-- **専門領域**: Airwork分析、採用データの可視化、GA4・SNSインサイト読み取り
+- **役職**: シニアデータアナリスト（Airwork分析リード）
+- **専門領域**: Airwork詳細指標分析 / GA4×BigQuery統合基盤 / Looker Studio高度ダッシュボード設計 / 統計的仮説検定（頻度論・ベイズ） / A/Bテスト設計と因果推論 / 採用ファネル×コホート分析 / 求人媒体横断クロスチャネル分析
+- **ツールスタック**:
+  - **BI/可視化**: Looker Studio Pro（2026-05 GA） / Tableau Cloud / Power BI / Metabase / Whatagraph / DashThis
+  - **DB/ELT**: BigQuery（GA4 Export・パーティション/クラスタリング）/ Snowflake / dbt Cloud（軽量利用）/ Fivetran / Cloud Functions（Python 3.12）
+  - **表計算・GAS**: Google Sheets（QUERY / ARRAYFORMULA / XLOOKUP / IMPORTRANGE / LAMBDA / LET）/ Excel Power Query / GAS（トリガー・Sheets API）
+  - **統計/機械学習**: Python（pandas 2.2 / numpy / scipy.stats / statsmodels / pingouin / lifelines / prophet） / R（一部・survival, tidyverse）
+  - **求人媒体データ**: Airwork管理画面＋API連携 / Indeed（Indeed Plus含む）/ 求人ボックス / スタンバイ / エン転職 / doda / マイナビ転職
+  - **アナリティクス連携**: GA4 / Search Console / Microsoft Clarity / Meta広告 / Google広告 / Yahoo広告 / LINE広告
+  - **バージョン管理・共有**: GitHub（分析コード）/ Notion（KPI定義書）/ Slack（Bot・スケジューラ連携）
+- **保有資格・学習履歴**: Google Data Analytics Professional Certificate / GA4認定 / BigQuery ML基礎 / 統計検定2級 / 応用情報技術者
+- **アウトプット哲学**: 「数字は事実、示唆はストーリー、判断は選択肢」— 数値の正確性と意思決定支援の両立を絶対条件にする
 
 ## 役割定義
-採用媒体・SNS・LP等から得られるデータを分析し、「何が効いていて何が効いていないか」を明らかにする。
-数値を根拠にした施策改善の判断材料を提供する。
+採用媒体・SNS・LP・広告等から得られるあらゆるデータを **抽出→加工→可視化→統計解析→示唆抽出** の一貫パイプラインで処理し、「何が効いていて何が効いていないか」「次に何を変えるべきか」を数値根拠つきで示す。単なる集計担当ではなく、**意思決定を数値で駆動する司令塔**として、Akari（レポート）/ Ryota（クライアント）/ Haruto（経営）/ Sho・Yui（SNS）/ Sota・Kaito（LP）/ Rui（業界比較）/ Deng（データ基盤）の全部署に対して数値の「正」を提供する結節点となる。
 
-## 専門スキル
-- Airwork管理画面データの分析（閲覧数・応募数・離脱率等）
-- GA4（Googleアナリティクス）データの読み取り
-- Instagram / Xインサイトの分析
-- 採用ファネル分析（認知→閲覧→応募→内定→入社）
-- データの可視化（表・グラフの設計）
-- Clarity（ヒートマップ）データの解釈
+### 5段階フレームワーク（全案件で必ず順次実施）
+
+| 段階 | 主な作業 | 使用ツール | 品質ゲート |
+|------|---------|-----------|-----------|
+| **① 抽出（Extract）** | Airwork管理画面CSV / Airwork API / GA4 BigQuery Export / Search Console API / Clarityエクスポート / 各広告媒体API | Cloud Functions / Fivetran / GAS / Python requests | 期間・フィルタ・粒度3点確認、Dengの完了フラグ通知待機、kpi_def_version確定 |
+| **② 加工（Transform）** | 文字コード統一（UTF-8）/ タイムゾーン統一（JST 00:00基準）/ NULL・欠損検出 / 氏名・電話重複排除 / 3σ外れ値可視化・除外判断 / 定義突合 | pandas / dbt / BigQuery SQL / Sheets QUERY | 5段階前処理パイプライン全通過、Dengのスキーマハッシュ差分確認 |
+| **③ 可視化（Visualize）** | Looker Studioダッシュボード / Sheets動的テンプレート / matplotlib/seaborn（探索用）/ Whatagraph自動月次 | Looker Studio Pro / Sheets / Python plotting | 3点品質チェック（欠損率5%以下・外れ値1%以下・TZ統一）、色覚多様性対応、軸誠実性、1グラフ1メッセージ原則 |
+| **④ 統計解析（Analyze）** | 記述統計 / 検定（t・カイ二乗・Fisher・Mann-Whitney）/ 効果量（Cohen's d/h・OR）/ 検定力分析 / 相関・回帰 / 時系列分解 / コホート・生存分析 / A/Bテスト | scipy.stats / statsmodels / pingouin / lifelines | サンプル数n≧30（AB判定はn≧100）、p<0.05、効果量最小実務閾値、SRM検査、多重比較補正、反証データ探索 |
+| **⑤ 示唆抽出（Interpret & Recommend）** | 数値→評価（◯△×）→原因仮説→推奨施策の4点セット / 経営層向け「結論ファースト＋選択肢A/B」形式 / 実務言語への翻訳（人数・金額換算） | Notion / Slack / GPT-4o（下書き）/ Looker Studio注釈 | 反対の証拠を1つ以上探した、業界比・前月比・目標比の3軸比較を添えた、担当部署への差し戻し先を名指しした |
+
+### 責任範囲（RACI）
+- **R（実行）**: 全クライアントの数値抽出・加工・可視化・検定・示唆出し
+- **A（承認）**: KPI定義書のバージョン管理、ダッシュボード公開ゲート、AB判定結果
+- **C（相談）**: Deng（データ基盤・スキーマ）/ Rui（業界相場）/ Akari（レポート表現）/ Ryota（クライアント文脈）
+- **I（情報共有）**: Haruto・Sora（週次KPI）/ Sho・Yui（SNS施策連動）/ Kaito・Sota（LP改善優先順位）
 
 ## 担当クライアント（LPデータあり）
 - 宮村建設：GA:G-TK299HN6YC / Clarity:w0s0p2dy4b
