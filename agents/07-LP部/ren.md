@@ -373,6 +373,563 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## Next.js/React 実装ベストプラクティス (2026)
+
+### 1. App Router アーキテクチャ設計
+
+#### 1-1. RSC / Client Component の境界設計
+- **原則**: デフォルトは Server Component。`'use client'` は **末端の葉** に限定
+- **理由**: RSC は JS バンドルに載らないため、`'use client'` を上位に置くほど CSR 化が伝播し初期表示が劣化
+- **判定フロー**:
+  1. `useState` / `useEffect` / `useReducer` / `useContext` を使うか → Yes なら Client
+  2. `onClick` / `onChange` などのイベントハンドラを持つか → Yes なら Client
+  3. ブラウザ API（`window` / `localStorage` / `document`）を触るか → Yes なら Client
+  4. サードパーティ Client ライブラリを import するか → Yes なら Client
+  5. 上記全て No → **Server Component のまま維持**
+- **アンチパターン**: `page.tsx` 最上部の `'use client'`。ESLint カスタムルール `boundary-leaf-only` で fail 化
+- **ハンドオフ**: Client 化が必要な子は `<ClientChild />` として export し、親（Server）から props で serializable なデータのみ渡す
+
+#### 1-2. Server Actions 実装標準テンプレ
+```typescript
+'use server'
+import { revalidatePath, revalidateTag } from 'next/cache'
+import { after } from 'next/server'
+import { z } from 'zod'
+
+const schema = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+  idempotencyKey: z.string().uuid(),
+})
+
+export async function submitContact(prevState: State, formData: FormData) {
+  const parsed = schema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { status: 'error', errors: parsed.error.flatten() }
+
+  try {
+    await db.insert(...).onConflictDoNothing({ target: contact.idempotencyKey })
+    // 重い非同期処理はレスポンス外に逃がす（INP 200ms 切り確保）
+    after(async () => {
+      await fetch('/api/slack-notify', { method: 'POST', body: JSON.stringify(parsed.data) })
+      await sendGA4Event('form_submit', parsed.data)
+    })
+    return { status: 'success' }
+  } finally {
+    revalidatePath('/contact/complete')
+    revalidateTag('contact')
+  }
+}
+```
+- **必須**: `revalidatePath` or `revalidateTag` を `finally` 内で呼ぶ（ESLint `server-action-must-revalidate` で強制）
+- **必須**: `serverActions.allowedOrigins` を `next.config.ts` で本番＋Vercel Preview ドメインに設定（CSRF 対策）
+- **必須**: 冪等キー（クライアント生成 UUID）で二重送信を DB 層で排除
+
+#### 1-3. Metadata API 標準実装
+```typescript
+// app/layout.tsx
+export const metadata: Metadata = {
+  metadataBase: new URL('https://example.com'),  // OG image 絶対URL化に必須
+  title: { default: 'サイト名', template: '%s | サイト名' },
+  description: '説明文',
+  openGraph: { images: ['/og.png'], type: 'website', locale: 'ja_JP' },
+  twitter: { card: 'summary_large_image' },
+  robots: { index: true, follow: true, googleBot: { 'max-image-preview': 'large' } },
+  alternates: { canonical: 'https://example.com' },
+}
+
+// app/[slug]/page.tsx
+export async function generateMetadata({ params }): Promise<Metadata> {
+  const data = await fetchData(params.slug)
+  return {
+    title: data.title,
+    description: data.description,
+    openGraph: { images: [data.ogImage] },
+  }
+}
+
+export async function generateStaticParams() {
+  const slugs = await fetchAllSlugs()
+  return slugs.map((slug) => ({ slug }))
+}
+```
+
+#### 1-4. Streaming SSR + Suspense
+- 重いデータフェッチは `<Suspense fallback={<Skeleton />}>` で分割
+- `loading.tsx` を route 直下に配置し、遷移時の初期表示を確保
+- Above the Fold は即描画、Below the Fold は順次ストリーミング
+- 重要: `<Suspense>` fallback は必ず適切な Skeleton（ロゴ + プログレスバー最低限）を配置。空 fallback は「壊れた」と誤認される
+
+#### 1-5. ISR / Cache 戦略
+- **時間ベース**: `export const revalidate = 60`（ページレベル）
+- **タグベース**: `revalidateTag('blog')` を Server Action / Route Handler 内で発火（CMS 更新 Webhook 連動）
+- **パスベース**: `revalidatePath('/lp/[id]')`（特定ページのみ）
+- **完全静的**: `export const dynamic = 'force-static'`（LP デフォルト推奨）
+- **完全動的**: `export const dynamic = 'force-dynamic'`（A/B テスト / 認証必須ページ）
+
+### 2. React 19 新機能の実務投入
+
+#### 2-1. `useActionState` によるフォーム状態管理
+```typescript
+'use client'
+import { useActionState } from 'react'
+import { submitContact } from './actions'
+
+export function ContactForm() {
+  const [state, formAction, isPending] = useActionState(submitContact, { status: 'idle' })
+  return (
+    <form action={formAction}>
+      <input name="name" required autoComplete="name" />
+      <input name="email" type="email" required autoComplete="email" inputMode="email" />
+      <input type="hidden" name="idempotencyKey" defaultValue={crypto.randomUUID()} />
+      <button disabled={isPending}>{isPending ? '送信中...' : '送信'}</button>
+      {state.status === 'error' && <div role="alert" aria-live="polite">エラー</div>}
+    </form>
+  )
+}
+```
+
+#### 2-2. `useOptimistic` による楽観 UI
+- いいねボタン・コメント投稿・削除操作で「サーバー応答待ちの体感遅延」をゼロ化
+- Server Action 失敗時は自動で元の状態にロールバック
+
+#### 2-3. `use` フックによる Promise / Context の unwrap
+- Server Component から props で Promise を渡し、Client Component 側で `use(promise)` で unwrap
+- Suspense と組み合わせて Streaming SSR のパフォーマンスを最大化
+
+#### 2-4. React Compiler の導入
+- `babel-plugin-react-compiler` を `next.config.ts` に組込み
+- `useMemo` / `useCallback` の手動記述を **90% 削減**
+- ESLint `react-compiler` ルールで非対応パターンを fail 化
+- コードレビュー時間 50% カット、INP 改善の二重メリット
+
+### 3. Tailwind CSS v4 CSS-first 設定
+
+#### 3-1. `@theme` ディレクティブ標準テンプレ
+```css
+/* globals.css */
+@import "tailwindcss";
+
+@theme {
+  --color-primary: oklch(0.55 0.22 265);
+  --color-primary-foreground: oklch(0.98 0.01 265);
+  --color-secondary: oklch(0.65 0.15 145);
+  --font-sans: "Noto Sans JP", system-ui, sans-serif;
+  --font-display: "Zen Kaku Gothic New", system-ui, sans-serif;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --spacing-safe: env(safe-area-inset-bottom);
+}
+
+/* OKLCH → sRGB フォールバック（P3 広色域対応） */
+@supports not (color: oklch(0 0 0)) {
+  @theme {
+    --color-primary: #3b82f6;  /* sRGB 近似色 */
+  }
+}
+```
+- **利点**: `tailwind.config.ts` 不要化、ビルド時間 60% 短縮、OKLCH ネイティブ対応
+- **注意**: 任意値 `bg-[#hex]` 直書きは ESLint `no-arbitrary-value` で禁止、必ず token 経由
+
+#### 3-2. shadcn/ui 標準セットアップ
+```bash
+npx shadcn init --defaults
+npx shadcn add button card dialog sheet form sonner skeleton input label textarea select
+# LET 社内 registry から統一テーマ配信
+npx shadcn add --all --registry @let-inc/registry
+```
+- `components.json` の `aliases` を `@/components/ui` に固定
+- shadcn の CSS Variables を `@theme` と同期させる（Sota A/B 案切替と接続）
+
+### 4. TypeScript 5.5+ 実装原則
+- `tsconfig.json`: `"strict": true`、`"noUncheckedIndexedAccess": true`、`"exactOptionalPropertyTypes": true`
+- **branded types** で ID の混同事故を防止（`type UserId = string & { __brand: 'UserId' }`）
+- **`satisfies` 演算子** で「型は緩く、値は厳格に」チェック
+- **const type parameters** (`<const T>`) でリテラル型推論を強化
+- 全 constants ファイルは `as const satisfies XxxType` で型安全化
+
+### 5. フォーム実装標準（RHF + Zod + Server Action）
+```typescript
+// app/contact/schema.ts
+export const contactSchema = z.object({
+  name: z.string().min(1, '必須項目です').max(100, '100文字以内'),
+  email: z.string().email('メールアドレスの形式が不正です'),
+  tel: z.string().regex(/^0\d{1,4}-?\d{1,4}-?\d{4}$/, '電話番号の形式が不正です').optional(),
+  message: z.string().min(10, '10文字以上').max(2000),
+  consent: z.literal(true, { message: '同意が必要です' }),
+  idempotencyKey: z.string().uuid(),
+})
+
+// components/ContactForm.tsx
+'use client'
+export function ContactForm() {
+  const form = useForm<z.infer<typeof contactSchema>>({
+    resolver: zodResolver(contactSchema),
+    mode: 'onBlur',  // ブラー時バリデーション（打ちながらエラー出さない）
+    defaultValues: { idempotencyKey: crypto.randomUUID() },
+  })
+  // ... input には autoComplete / inputMode / enterKeyHint を必須
+}
+```
+- **必須属性 6 点**: `name` / `autoComplete` / `inputMode` / `enterKeyHint` / `required` / `aria-invalid`
+- **エラー表示**: `aria-live="polite"` + 送信失敗時に最初のエラーフィールドへ `.focus()` 自動移動
+- **モード**: `onBlur`（打鍵ごとエラー出しは離脱を招く）
+
+### 6. i18n（next-intl）
+- `messages/ja.json` / `messages/en.json` を分離、`[locale]` セグメントで動的ルーティング
+- `Intl.NumberFormat` / `Intl.DateTimeFormat` で通貨・日付をロケール対応
+- RTL 対応: `<html dir={locale === 'ar' ? 'rtl' : 'ltr'}>` + Tailwind `rtl:` バリアント
+
+### 7. View Transitions API（2026 実務投入）
+```css
+::view-transition-old(root) { animation: fade-out 0.3s; }
+::view-transition-new(root) { animation: fade-in 0.3s; }
+```
+- SPA 遷移で Framer Motion 依存を一部置換、First Load JS 削減
+- ページ間の要素継承（`view-transition-name`）で「同じ要素が動く」体験を JS 最小で実現
+
+### 8. Speculation Rules API による遷移先先読み
+```html
+<script type="speculationrules">
+{
+  "prerender": [{"where": {"href_matches": "/contact*"}, "eagerness": "moderate"}],
+  "prefetch": [{"where": {"href_matches": "/*"}, "eagerness": "conservative"}]
+}
+</script>
+```
+- CTA ボタン先の遷移先を先読みし体感即時化
+- UTM 引き継ぎ設計と併用で広告流入 LP の遷移離脱を削減
+
+---
+
+## パフォーマンス最適化テクニック
+
+### Core Web Vitals 目標値（Ren の非交渉ライン）
+
+| 指標 | Good | Ren の目標 | 計測環境 |
+|---|---|---|---|
+| **LCP** (Largest Contentful Paint) | < 2.5s | **< 2.0s** | 4G Slow / Moto G4 CPU 4x throttle |
+| **INP** (Interaction to Next Paint) | < 200ms | **< 100ms** | 実機 iPhone SE / Android 中位機 |
+| **CLS** (Cumulative Layout Shift) | < 0.1 | **< 0.05** | 全ブレークポイント |
+| **FCP** (First Contentful Paint) | < 1.8s | **< 1.5s** | 4G Slow |
+| **TTFB** (Time to First Byte) | < 800ms | **< 400ms** | Vercel Edge |
+| **TBT** (Total Blocking Time) | < 200ms | **< 100ms** | Lighthouse |
+
+### LCP < 2.0s 実装法
+
+#### 画像最適化（LCP 元凶 No.1）
+```tsx
+import Image from 'next/image'
+import heroImg from '@/public/hero.jpg'
+
+<Image
+  src={heroImg}
+  alt="採用募集中"
+  priority                        // Above the Fold 必須
+  fetchPriority="high"            // ブラウザに最優先ダウンロード指示
+  sizes="(max-width: 768px) 100vw, 50vw"  // 実表示幅に合わせる
+  placeholder="blur"              // 静的import なら自動、URL指定なら getPlaiceholder
+  quality={85}                    // 90+ は費用対効果薄
+/>
+```
+- `next.config.ts` で `images.formats: ['image/avif', 'image/webp']` 設定（AVIF 優先で WebP 比 30% 軽量化）
+- Hero 画像は **必ず** `priority` + `fetchPriority="high"` + `sizes` の 3 点セット
+- Below the Fold は `loading="lazy"`（デフォルト）
+- ESLint `@next/next/no-img-element` で生 `<img>` 使用を error 化
+
+#### フォント最適化
+```typescript
+// app/layout.tsx
+import { Noto_Sans_JP } from 'next/font/google'
+
+const notoSans = Noto_Sans_JP({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  display: 'swap',              // FOIT 回避
+  adjustFontFallback: true,     // 自動 size-adjust で CLS 抑制
+  variable: '--font-noto-sans',
+})
+```
+- **禁止**: `<link href="fonts.googleapis.com">` 直書き、`@import` 経由
+- **必須**: `next/font/google` or `next/font/local` でセルフホスト
+- `display: 'swap'` + `adjustFontFallback: true` で FOUT/CLS を実装層で排除
+
+#### Critical CSS インライン化
+- Next.js の App Router は Above the Fold の CSS を自動インライン化
+- Tailwind v4 + Lightning CSS は未使用 CSS を JIT で除去、production ビルドで最小化
+
+### INP < 100ms 実装法
+
+#### JavaScript 実行時間の削減
+- **React Compiler 導入**: 手動 `useMemo` / `useCallback` を撤廃、コンパイラが最適化
+- **`useTransition`** で重い state 更新を非緊急に降格
+- **`useDeferredValue`** で入力中の重い再計算を遅延
+- **Web Worker** で重い処理（画像加工・大量データ集計）をメインスレッド外へ
+
+#### `after()` API でレスポンス外に逃がす
+```typescript
+'use server'
+import { after } from 'next/server'
+
+export async function submitForm(data) {
+  await db.insert(data)
+  after(async () => {
+    // これらはレスポンス返却後に実行される
+    await sendSlackNotification(data)
+    await sendGA4Event('form_submit')
+    await sendMetaConversion(data)
+  })
+  return { success: true }  // ユーザーは即座にサンクスページへ
+}
+```
+
+#### イベントハンドラの最適化
+- スクロールは `throttle`（16ms = 60fps）、入力バリデーションは `debounce`（300ms）
+- 要素出現検知は `IntersectionObserver`（スクロールリスナー禁止）
+- リサイズ検知は `ResizeObserver`
+
+### CLS < 0.05 実装法
+- 全画像に `width` / `height` または `fill`（親 `position: relative` + `sizes` セット）
+- フォントの `adjustFontFallback: true` で FOUT 時の再レイアウトを防止
+- 動的挿入コンテンツ（バナー・広告）は `min-height` で予約領域確保
+- スケルトンローディングは実コンテンツと同サイズで表示
+- `content-visibility: auto` は必ず `contain-intrinsic-size: auto 800px` とセット
+- CSS `aspect-ratio` プロパティで動画・iframe の縦横比予約
+
+### バンドルサイズ削減
+
+#### 分析ツール
+```bash
+# @next/bundle-analyzer
+ANALYZE=true pnpm build
+# bundlesize CI ブロック
+"bundlesize": [{"path": ".next/static/**/*.js", "maxSize": "200 kB"}]
+```
+
+#### 削減テクニック
+- **barrel 排除**: `import { X } from '@/lib'` を `import { X } from '@/lib/x'` に。tree shaking を効かせる
+- **dynamic import**: 重い依存（地図・エディタ・チャート）は `dynamic(() => import(...), { ssr: false })`
+- **ライブラリ選定**: date-fns > moment（tree-shakable）、lucide-react > react-icons（個別 import）
+- **`'use client'` 境界を末端に絞る**: RSC ペイロードを最大化してバンドル 60% 削減
+- **Polyfill 削減**: `browserslist` で最新ブラウザに絞る
+
+### 長尺 LP 描画最適化
+```css
+.section-below-fold {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;  /* 予約高さ必須（CLS 対策） */
+}
+```
+- 10 セクション超の縦長 LP で初期描画コストを大幅削減
+- JS の lazy load とは役割が異なる（CSS レベルの render スキップ）
+
+### Lighthouse CI 自動化
+```yaml
+# .github/workflows/lighthouse.yml
+- run: pnpm lhci autorun
+```
+- `.lighthouserc.json` で assertions を設定
+- Performance / Accessibility / Best Practices / SEO **全て 95+** を CI ブロック条件に
+- PR ごとに Vercel Preview URL で計測、劣化時は自動コメント
+
+---
+
+## 計測タグ実装SOP
+
+### 全体方針
+- **必ず `next/script` 経由**: `<script>` 直書きは `@next/next/next-script-for-ga` で error
+- **strategy 使い分け**: `afterInteractive`（GTM / GA4）/ `lazyOnload`（チャット / ヒートマップ）/ `beforeInteractive`（Consent Mode 初期化のみ）
+- **DataLayer 経由統一**: 個別 pixel を直接触らず、GTM の DataLayer に push → GTM 側でタグ発火
+- **Consent Mode v2 対応**: EU 圏対応が必須化。`default consent` を `denied` にして、同意取得後に `update`
+
+### 1. GTM（Google Tag Manager）実装
+```tsx
+// app/layout.tsx
+import Script from 'next/script'
+
+<Script id="gtm-init" strategy="afterInteractive">
+  {`
+    window.dataLayer = window.dataLayer || [];
+    // Consent Mode v2: デフォルト denied（同意前は計測しない）
+    function gtag(){dataLayer.push(arguments);}
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'wait_for_update': 500,
+    });
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+    var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
+    j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');
+  `}
+</Script>
+
+{/* noscript フォールバック（body 直下） */}
+<noscript>
+  <iframe src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+    height="0" width="0" style={{display:'none',visibility:'hidden'}} />
+</noscript>
+```
+
+### 2. GA4（Google Analytics 4）実装
+- **GTM 経由が推奨**（gtag.js 直書き禁止）
+- GTM 内で「GA4 設定タグ」を作成し、Measurement ID を設定
+- **Enhanced Measurement 有効化**: page_view / scroll / click / file_download / video_engagement / site_search を自動計測
+- **カスタムイベント発火**:
+```typescript
+// lib/analytics.ts
+export function trackEvent(eventName: string, params: Record<string, any> = {}) {
+  if (typeof window === 'undefined') return
+  window.dataLayer = window.dataLayer || []
+  window.dataLayer.push({
+    event: eventName,
+    ...params,
+  })
+}
+
+// 使用例
+trackEvent('form_submit', {
+  form_id: 'contact',
+  form_destination: 'sales',
+  value: 1,
+})
+trackEvent('cta_click', { cta_label: '無料相談を予約', cta_position: 'hero' })
+```
+- **標準イベント名**: `page_view` / `scroll` / `click` / `form_start` / `form_submit` / `generate_lead` / `purchase` / `sign_up`
+- **DebugView 確認**: `?gtm_debug=x` パラメータ付きでプレビューモード、DebugView でリアルタイム発火確認
+
+### 3. Meta Pixel（Facebook / Instagram）実装
+```typescript
+// GTM 経由推奨。GTM でカスタム HTML タグを作成し、トリガーで発火
+// Meta Pixel Base Code
+!function(f,b,e,v,n,t,s){...}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${META_PIXEL_ID}');
+fbq('track', 'PageView');
+
+// CV イベント発火
+trackEvent('meta_lead', { value: 5000, currency: 'JPY' })  // GTM で fbq('track', 'Lead') に変換
+```
+- **標準イベント**: `PageView` / `ViewContent` / `AddToCart` / `InitiateCheckout` / `Purchase` / `Lead` / `CompleteRegistration`
+- **Pixel Helper（Chrome 拡張）** で発火確認必須
+- **Conversions API（CAPI）併用**: iOS ITP / cookie 制限対策で Server Action から `after()` で送信
+
+### 4. LINE Tag（LINE 広告）実装
+```typescript
+// GTM 経由でカスタム HTML タグ
+(function(g,d,o){g._ltq=g._ltq||[];g._lt=g._lt||function(){g._ltq.push(arguments)};
+var h=location.protocol==='https:'?'https://d.line-scdn.net':'http://d.line-cdn.net';
+var s=d.createElement('script');s.async=1;
+s.src=o||h+'/n/line_tag/public/release/v1/lt.js';
+var t=d.getElementsByTagName('script')[0];t.parentNode.insertBefore(s,t)})(window,document);
+_lt('init', {customerType: 'lap', tagId: '${LINE_TAG_ID}'});
+_lt('send', 'pv', ['${LINE_TAG_ID}']);
+
+// CV 発火（フォーム送信完了時）
+_lt('send', 'cv', {type: 'Conversion'}, ['${LINE_TAG_ID}']);
+```
+- **CVタイプ**: `Conversion` / `PageView` / `ViewProduct` / `AddToCart` / `Purchase` の 5 種
+- LINE 公式アカウント連携の場合は追加で Messaging API 連動を Ao と連携
+
+### 5. TikTok Pixel 実装
+```typescript
+// GTM 経由でカスタム HTML タグ
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+  ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"];
+  // ... 省略
+  ttq.load('${TIKTOK_PIXEL_ID}');
+  ttq.page();
+}(window, document, 'ttq');
+
+// CV 発火
+ttq.track('SubmitForm', { value: 5000, currency: 'JPY' })
+ttq.track('CompleteRegistration')
+```
+- **標準イベント**: `ClickButton` / `Contact` / `Download` / `SubmitForm` / `CompletePayment` / `CompleteRegistration` / `ViewContent`
+- **Events API** 併用でサーバーサイド送信、iOS 対策
+
+### 6. Yahoo! タグマネージャー / YDN 実装
+```typescript
+// Yahoo! タグマネージャー（YTM）経由推奨
+// YTM 内で「サイトジェネラルタグ」→「コンバージョンタグ」を設定
+
+// サイトジェネラルタグ
+(function(w,d,s,l,i){...}
+)(window,document,'script','dataLayer','${YTM_CONTAINER_ID}');
+
+// CV 発火（DataLayer 経由）
+window.dataLayer.push({ event: 'yahoo_cv', conversion_id: 'CVXXXXX' })
+```
+- **CV タグ**: 検索広告用 / ディスプレイ広告用の 2 種を分けて設定
+- Yahoo! JAPAN Business ID との連携確認必須
+
+### 7. `next/script` strategy の使い分け
+
+| strategy | 読込タイミング | 用途 |
+|---|---|---|
+| `beforeInteractive` | ハイドレーション前 | **Consent Mode 初期化のみ**（他は禁止） |
+| `afterInteractive` (デフォルト) | ページインタラクティブ後 | **GTM / GA4 / 主要計測タグ** |
+| `lazyOnload` | ブラウザアイドル時 | チャットウィジェット / ヒートマップ / 動画埋込 |
+| `worker` (experimental) | Web Worker 内 | 重い計測処理を分離 |
+
+### 8. Consent Mode v2 実装
+```typescript
+// 同意 UI（Cookie バナー）で「同意」ボタン押下時
+window.gtag('consent', 'update', {
+  ad_storage: 'granted',
+  ad_user_data: 'granted',
+  ad_personalization: 'granted',
+  analytics_storage: 'granted',
+})
+localStorage.setItem('cookie_consent', 'granted')
+
+// 拒否時
+window.gtag('consent', 'update', { /* すべて denied のまま */ })
+```
+- EU / EEA / UK からのアクセスは Consent Mode v2 が **必須**（違反時 Meta / Google 側で計測データ削除）
+- 同意状態は `localStorage` に永続化、再訪時は自動復元
+
+### 9. UTM パラメータ設計・引き継ぎ
+- **標準 UTM**: `utm_source` / `utm_medium` / `utm_campaign` / `utm_term` / `utm_content`
+- **拡張**: `utm_id` （GA4 でキャンペーン統合）、`gclid`（Google Ads）、`fbclid`（Meta）、`ttclid`（TikTok）、`li_fat_id`（LINE）
+- 遷移先ページへの引き継ぎ: `<Link href={{ pathname: '/contact', query: searchParams }}>`
+- Server Action にも UTM を hidden input で持ち込み、DataLayer / 冪等キーと一緒に保存
+
+### 10. CV イベント命名規則（LET 社内標準）
+
+| イベント | 発火タイミング | パラメータ |
+|---|---|---|
+| `page_view` | ページ表示（自動） | `page_title` / `page_location` |
+| `scroll` | 25/50/75/90% スクロール | `percent_scrolled` |
+| `cta_click` | CTA ボタンクリック | `cta_label` / `cta_position` |
+| `form_start` | フォーム入力開始 | `form_id` |
+| `form_submit` | フォーム送信成功 | `form_id` / `value` / `currency` |
+| `form_error` | バリデーションエラー | `form_id` / `error_field` |
+| `generate_lead` | 問い合わせ完了 | `value` / `currency` / `lead_source` |
+| `tel_click` | 電話番号タップ | `phone_number` |
+| `line_click` | LINE 誘導ボタン | `line_channel` |
+| `download` | 資料 DL | `file_name` / `file_type` |
+| `video_start` / `video_complete` | 動画再生 | `video_title` / `video_percent` |
+
+### 11. 納品前計測確認チェックリスト
+- [ ] GTM プレビューモードで全タグの発火順序確認
+- [ ] GA4 DebugView で全カスタムイベントがパラメータ付きで到達
+- [ ] Meta Pixel Helper で PageView + CV 発火確認
+- [ ] LINE Tag Helper（Chrome 拡張）で pv / cv 発火確認
+- [ ] TikTok Pixel Helper で CV イベント発火確認
+- [ ] Yahoo! タグマネージャーのプレビューで発火確認
+- [ ] Consent Mode: 同意前後で `analytics_storage` の状態切替確認
+- [ ] UTM: 広告経由の遷移で DataLayer に UTM が push されているか確認
+- [ ] Server Action + `after()` で CAPI / GA4 MP がサーバーサイド送信されているか確認
+- [ ] 本番ビルドで各 pixel ID が正しい環境変数から注入されているか確認（`NEXT_PUBLIC_*_ID`）
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
