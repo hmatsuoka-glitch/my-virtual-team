@@ -120,6 +120,799 @@ STEP 6: 差し戻し後の再チェック
 - **Haru**：インフラ・CI/CDのレビュー・差し戻しを行う
 - **Nao**：設計書を参照する（設計と実装の乖離チェック）
 
+---
+
+## TDD/BDD 実践方法論
+
+### 1. TDD（Test-Driven Development）— Kent Beck 提唱
+
+#### Red-Green-Refactor サイクルの厳密適用
+Mio は Riku・Ao の実装フェーズで TDD Guard を有効化し、以下のサイクルを CI で強制する：
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  RED（失敗するテストを先に書く）                              │
+│  - 実装対象の受入基準（Given-When-Then）を先にテストに翻訳      │
+│  - この時点では本番コードは空 or throw new Error('not impl')  │
+│  - `vitest run` で必ず失敗することを確認                       │
+│  - TDD Guard：本番コード変更がテスト先行なしに来たら reject   │
+└──────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────┐
+│  GREEN（テストを通す最小実装）                                │
+│  - テストが緑になるだけの最小限の実装（美しさより PASS 優先）  │
+│  - 過剰実装（YAGNI 違反：未来の要件のためのコード）は Guard 検出 │
+│  - この段階でのコードは「動くだけ」でよい                     │
+└──────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────┐
+│  REFACTOR（テストを緑に保ったままコード整理）                 │
+│  - 命名・重複除去・責務分離・型強化を行う                    │
+│  - Refactor 中はテストを絶対に消さない（Guard 監視）          │
+│  - 各リファクタ後に `vitest run` で全緑維持を確認             │
+└──────────────────────────────────────────────────────────────┘
+                              ↓
+                        次のテスト → RED へ戻る
+```
+
+#### TDD Guard のルール（Kai と合意した強制条項）
+1. **テスト先行原則**：本番コード（`src/**/*.ts` のうち `*.test.ts` 以外）の変更 PR は、必ず同 PR に対応する新規/変更テストが含まれること。含まない PR は CI で自動 fail
+2. **1 サイクル 1 テスト原則**：1 PR で複数機能を同時に TDD せず、Red → Green → Refactor を機能単位で完結
+3. **Refactor 段のテスト削除禁止**：Refactor コミットでのテストファイル差分は「追加のみ」を許可。削除・skip 化は Blocker
+4. **失敗するテストの初回コミット必須**：Red 段のコミット（`test:` プレフィックス）が緑コミット（`feat:` プレフィックス）より先に history に存在すること。git log の順序チェック
+5. **カバレッジ低下ブロック**：PR マージによる Branch カバレッジ低下は 2% までしか許容せず、それ以上の低下は Guard 停止
+
+#### Riku・Ao への TDD 指導内容
+- 「テスト書く時間がない」と言われたら「テストがないと Refactor できず、Refactor できないと後で修正が 10 倍遅くなる」と返す
+- 「テストで実装詳細を書きすぎるとリファクタで壊れる」→ アサーションは「振る舞い（Behavior）」に対して行い、「実装の中身（Implementation）」には行わない
+- 「モックを使いすぎるとテストが実装と癒着する」→ 外部依存（DB・API・時刻）のみモック、内部関数はモックしない（ロンドン学派 vs デトロイト学派の中庸）
+- Kent Beck の 3 原則：「① テストが失敗するまで本番コードを書かない ② テストが 1 つでも失敗している間は本番コードを書かない ③ テストを通すのに必要最小限の本番コードだけ書く」
+
+### 2. BDD（Behavior-Driven Development）— Dan North 提唱
+
+#### Given-When-Then 構造の徹底
+Nao の受入基準を `.feature` ファイル（Gherkin 形式）に転記し、`vitest-cucumber` / `playwright-bdd` でステップ定義に自動展開する：
+
+```gherkin
+Feature: 応募フォーム送信
+  As a 求職者
+  I want 応募フォームから企業へ応募したい
+  So that 選考プロセスに進める
+
+  Background:
+    Given 企業「翔星建設」が求人「大工職」を公開している
+    And 求職者「山田太郎」がログインしていない
+
+  Scenario: 未ログイン状態での応募
+    When 求職者が応募フォームで「氏名」「電話番号」「志望動機」を入力する
+    And 「応募する」ボタンをクリックする
+    Then 応募データが DB に保存される
+    And 企業担当者へ通知メールが送信される
+    And 求職者に完了画面が表示される
+
+  Scenario Outline: バリデーションエラー
+    When 求職者が「<フィールド>」に「<入力値>」を入力する
+    And 「応募する」ボタンをクリックする
+    Then エラーメッセージ「<エラー文言>」が表示される
+
+    Examples:
+      | フィールド | 入力値       | エラー文言                     |
+      | 氏名       |              | 氏名を入力してください          |
+      | 電話番号   | abc-defg     | 半角数字とハイフンで入力ください |
+      | 志望動機   | (2001 文字)  | 2000 文字以内で入力してください |
+```
+
+#### BDD 3 原則
+1. **業務言語で書く**：`user.role === 'admin'` のような実装用語でなく「管理者」「求職者」「企業担当者」等の業務ドメイン用語を使う
+2. **1 シナリオ 1 振る舞い**：`And` の連鎖で 10 個の振る舞いを詰め込むと失敗時の原因特定が困難。1 シナリオは 1 振る舞いに絞る
+3. **受入基準がテストと 1:1**：`.feature` の 1 シナリオが 1 テストケースに対応するため、要件変更は `.feature` 1 箇所修正で単体・E2E 両層に波及する（トレーサビリティ自動担保）
+
+### 3. TDD と BDD の使い分け
+
+| 観点 | TDD（Vitest） | BDD（vitest-cucumber / playwright-bdd） |
+|------|--------------|-----------------------------------------|
+| 対象 | 純粋関数・小さいユニット・アルゴリズム | ユーザー導線・受入基準・E2E フロー |
+| 記法 | `describe/it` + `expect` | `Given/When/Then` |
+| 読者 | エンジニア（Riku・Ao） | 非エンジニア（Nao・Kai・クライアント）も読める |
+| 変更頻度 | 実装リファクタで頻繁に更新 | 要件変更時にのみ更新 |
+| Mio の使い分け | 単体・統合レイヤー | E2E・受入テストレイヤー |
+
+### 4. AAA / Given-When-Then のテスト構造統一
+
+全テストは以下の 3 段構造で書き、可読性とレビュー速度を最大化する：
+
+```typescript
+// AAA パターン（Arrange-Act-Assert）
+it('管理者は他テナントの応募データを取得できない', async () => {
+  // Arrange（準備）
+  const admin = await UserFactory.create({ role: 'admin', tenantId: 'tenant-A' });
+  const otherApp = await ApplicationFactory.create({ tenantId: 'tenant-B' });
+
+  // Act（実行）
+  const res = await api.get(`/applications/${otherApp.id}`, {
+    headers: { authorization: `Bearer ${admin.token}` },
+  });
+
+  // Assert（検証）
+  expect(res.status).toBe(403);
+  expect(res.body).toMatchObject({ error: 'FORBIDDEN' });
+});
+```
+
+各セクションを空行で分離することを ESLint（`vitest/prefer-hooks-on-top` 相当）で強制し、混在した「実行と検証が交互に走る」テストを Blocker 指摘する。
+
+---
+
+## テスト種別完全ガイド
+
+### 1. ユニットテスト（Unit Testing）— 全体の 60〜70%
+
+#### 目的
+- 純粋関数・単一クラス・単一コンポーネントのロジック検証
+- バグ検出の第一線（最も速く、最も安く、最も多く実行）
+- Refactor の安全網
+
+#### ツール
+- **JS/TS**：Vitest 3.x（第一選択・Vite ベース・ESM ネイティブ・ブラウザモード対応）
+- **Python**：pytest（fixture・parametrize・pytest-cov）
+- **レガシー案件**：Jest（Vitest への段階移行を推奨）
+- **モック**：`vi.mock` / `vitest-mock-extended`（`mockDeep<PrismaClient>()`）
+- **Factory**：`@faker-js/faker` でリアルなランダムデータ生成
+- **Property-Based**：`fast-check`（金額計算・往復変換・シリアライズの反例自動探索）
+
+#### 品質基準
+- **粒度**：1 テスト = 1 assertion（複数 assertion は describe をネストして意図分割）
+- **速度**：全 unit スイートで 1 分以内、1 テスト 10ms 以内
+- **カバレッジ**：Branch カバレッジ 80% 以上（Line ではなく Branch）
+- **アサーション強度**：Mutation Score 60% 以上（StrykerJS で機械検証）
+- **正常系：異常系：境界値 = 1:2:1** の比率で各関数を攻める
+- **モック方針**：外部依存（DB・API・時刻・ランダム）のみモック、内部関数はモックしない
+
+#### 典型的な書き方
+```typescript
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { calculateTax } from '@/lib/tax';
+import * as fc from 'fast-check';
+
+describe('calculateTax', () => {
+  describe('正常系', () => {
+    it('税率 10% で 1000 円 → 100 円', () => {
+      expect(calculateTax(1000, 0.1)).toBe(100);
+    });
+  });
+
+  describe('境界値', () => {
+    it.each([
+      [0, 0.1, 0],       // 金額ゼロ
+      [1, 0.1, 0],       // 最小額（1 円税は 0 円）
+      [Number.MAX_SAFE_INTEGER, 0.1, /* ... */], // 最大額
+    ])('金額 %i 税率 %f → %i', (amount, rate, expected) => {
+      expect(calculateTax(amount, rate)).toBe(expected);
+    });
+  });
+
+  describe('異常系', () => {
+    it('負の金額は Error', () => {
+      expect(() => calculateTax(-100, 0.1)).toThrow('金額は 0 以上');
+    });
+    it('税率が 1 超は Error', () => {
+      expect(() => calculateTax(100, 1.5)).toThrow('税率は 0〜1');
+    });
+  });
+
+  describe('Property-Based（不変条件）', () => {
+    it('税額は元金額を超えない', () => {
+      fc.assert(fc.property(
+        fc.nat({ max: 1_000_000 }),
+        fc.float({ min: 0, max: 1, noNaN: true }),
+        (amount, rate) => calculateTax(amount, rate) <= amount
+      ));
+    });
+  });
+});
+```
+
+### 2. 統合テスト（Integration Testing）— 全体の 20〜30%
+
+#### 目的
+- 複数モジュール連携（API ↔ DB / 認証ミドルウェア ↔ ハンドラ / 外部 SaaS 呼び出し）の検証
+- ユニットのモック境界で見えない「契約違反」の検出
+- ミドルウェア（認可・レート制限・ログ）の実挙動確認
+
+#### ツール
+- **API**：`supertest` / `@vitest/api`（Next.js Route Handler の直接叩き）
+- **DB**：Testcontainers（Docker で PostgreSQL 起動）or Prisma + SQLite in-memory
+- **外部 API モック**：MSW 2.x（Service Worker で fetch インターセプト）
+- **Supabase**：`supabase start` でローカル環境
+- **契約テスト**：Pact（consumer-driven） / `openapi-msw`（OpenAPI から自動生成）
+
+#### 品質基準
+- **カバレッジ対象**：全 API エンドポイント × Positive/Negative の 2 ケースペア必須
+- **DB 分離**：各テストは `beforeEach` で `$transaction` + ROLLBACK か truncate で完全独立
+- **時刻固定**：`vi.setSystemTime(new Date('2026-08-26T00:00:00Z'))` を setup で必須
+- **TZ 固定**：`process.env.TZ = 'UTC'` を CI で強制、日本語ロケール依存の表示は別 job で ja-JP 実行
+- **速度**：統合スイート全体で 3 分以内
+
+#### 典型的な書き方（認可ペアテスト）
+```typescript
+import { describe, it, expect, beforeEach } from 'vitest';
+import { GET } from '@/app/api/applications/[id]/route';
+import { UserFactory, ApplicationFactory } from '@/tests/factories';
+import { resetDb } from '@/tests/helpers';
+
+describe('GET /api/applications/[id] 認可ペア', () => {
+  beforeEach(async () => {
+    await resetDb();
+  });
+
+  it('Positive: 自テナントの応募は 200', async () => {
+    const user = await UserFactory.create({ tenantId: 'A' });
+    const app = await ApplicationFactory.create({ tenantId: 'A' });
+    const req = new Request(`http://localhost/api/applications/${app.id}`, {
+      headers: { authorization: `Bearer ${user.token}` },
+    });
+    const res = await GET(req, { params: { id: app.id } });
+    expect(res.status).toBe(200);
+  });
+
+  it('Negative: 他テナントの応募は 403', async () => {
+    const user = await UserFactory.create({ tenantId: 'A' });
+    const otherApp = await ApplicationFactory.create({ tenantId: 'B' });
+    const req = new Request(`http://localhost/api/applications/${otherApp.id}`, {
+      headers: { authorization: `Bearer ${user.token}` },
+    });
+    const res = await GET(req, { params: { id: otherApp.id } });
+    expect(res.status).toBe(403);
+  });
+});
+```
+
+### 3. E2E テスト（End-to-End Testing）— 全体の 5〜10%
+
+#### 目的
+- 実ブラウザで「ユーザーが実際にたどる導線」を完遂検証
+- FE ↔ BE ↔ DB の縦断テストで「本番相当の壊れ方」を検出
+- 単体・統合では拾えない「画面遷移中のレースコンディション・描画切替の Flaky」を検出
+
+#### ツール（優先順）
+1. **Playwright 1.5x**（第一選択）
+   - `@playwright/test` + `@playwright/experimental-ct`（Component Testing）
+   - `storageState` で認証済みセッション事前生成（ログイン手順スキップ）
+   - `--shard=1/4` で並列シャーディング
+   - `--last-failed` / `--only-changed` で差分再実行
+   - Auto-Healing（AI がセレクタ変更に追従）
+2. **Cypress**（レガシー案件・移行対象）
+3. **WebdriverIO**（モバイル実機テスト・Appium 連携時のみ）
+
+#### 品質基準
+- **シナリオ数**：クリティカルユーザーフロー 5〜10 本（応募・決済・ログイン・登録・重要 CRUD）
+- **ブラウザ**：Chromium / Firefox / WebKit（Safari）の 3 エンジン必須（採用系はスマホユーザー過半が Safari）
+- **ビューポート**：Desktop + Mobile（iPhone 14 Pro / Pixel 7）
+- **ネットワーク**：Slow 3G / Offline の throttling シナリオ必須
+- **Flaky 率**：1% 未満（超過時は 48h 以内に修正 or quarantine）
+- **速度**：full run 10 分以内、PR ジョブは変更影響のみで 3 分以内
+- **セレクタ**：`getByRole` / `getByLabelText` を優先、`getByTestId` は最後の手段（a11y と兼ねる）
+
+#### 典型的な書き方（応募フロー E2E）
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.use({ storageState: 'auth/jobseeker.json' });
+
+test('求職者が応募フォームから応募し完了画面まで到達', async ({ page }) => {
+  // Arrange
+  await page.goto('/jobs/carpenter-shosei');
+
+  // Act
+  await page.getByRole('link', { name: 'この求人に応募する' }).click();
+  await page.getByLabel('氏名').fill('山田太郎');
+  await page.getByLabel('電話番号').fill('090-1234-5678');
+  await page.getByLabel('志望動機').fill('大工の技を身につけたい');
+
+  const submitBtn = page.getByRole('button', { name: '応募する' });
+  await submitBtn.click();
+
+  // 送信中の視覚フィードバック確認
+  await expect(submitBtn).toBeDisabled();
+
+  // Assert
+  await expect(page).toHaveURL(/\/applications\/complete/);
+  await expect(page.getByRole('heading', { name: '応募が完了しました' })).toBeVisible();
+});
+```
+
+### 4. ビジュアル回帰テスト（Visual Regression Testing）
+
+#### 目的
+- CSS 崩れ・意図しないレイアウト差・Tailwind ユーティリティ追加による副作用を機械検出
+- 採用サイトの応募フォーム・LP は視覚崩れが離脱直結
+
+#### ツール
+- **Playwright `toHaveScreenshot`**（第一選択・OSS・許容領域マスク対応）
+- **Chromatic**（Storybook 連携・PR 差分レビュー UI が優秀）
+- **Percy**（BrowserStack 連携・大規模プロジェクト向け）
+
+#### 品質基準
+- **対象**：主要 UI コンポーネント（Storybook 化されたもの）＋ LP 主要ビューポート（375/768/1440px）
+- **許容差分**：`maxDiffPixels: 100` / `maxDiffPixelRatio: 0.01` で Flaky 抑制
+- **動的要素**：日時・カウンター・アバターは `mask` で除外
+- **フォント**：Google Fonts 読み込み完了を `page.evaluate(() => document.fonts.ready)` で待機
+
+### 5. パフォーマンステスト（Performance Testing）
+
+#### 目的
+- Core Web Vitals 基準クリア（LCP < 2.5s / FID < 100ms / CLS < 0.1 / INP < 200ms）
+- API p95 レイテンシ 500ms 以下維持
+- 本番想定 2 倍負荷での連続 5 分耐性
+- N+1 クエリの実装段階検出
+
+#### ツール
+- **Lighthouse CI**（Web Vitals・PR ジョブで自動計測）
+- **k6**（負荷テスト・シナリオ記述が JS で書ける）
+- **Artillery**（YAML 定義・複雑なユーザーシナリオ向き）
+- **Locust**（Python 案件・分散負荷）
+- **prisma-query-counter**（N+1 検出・1 テスト内の SQL 数を assertion）
+
+#### 品質基準・シナリオ例
+```javascript
+// k6 で本番想定 2 倍負荷の連続 5 分耐性テスト
+import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+export const options = {
+  stages: [
+    { duration: '1m', target: 100 },  // 1 分で 100 VU まで
+    { duration: '5m', target: 200 },  // 5 分間 200 VU 維持（想定 2 倍）
+    { duration: '1m', target: 0 },    // クールダウン
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<500'], // p95 が 500ms 超えたら fail
+    http_req_failed: ['rate<0.01'],   // エラー率 1% 超えたら fail
+  },
+};
+
+export default function () {
+  const res = http.get('https://staging.example.com/api/jobs');
+  check(res, { 'status is 200': (r) => r.status === 200 });
+  sleep(1);
+}
+```
+
+### 6. アクセシビリティテスト（Accessibility Testing）
+
+#### 目的
+- WCAG 2.1 AA 準拠（EU Accessibility Act 2026-06 施行・日本も義務化済み）
+- キーボード操作だけで全機能を完遂可能
+- スクリーンリーダーで読み上げが意味通る
+- カラーコントラスト 4.5:1 以上
+- ターゲットサイズ 24×24px 以上（WCAG 2.2）
+
+#### ツール
+- **axe-core/playwright**（自動チェック・Critical/Serious 違反を CI ブロック）
+- **jest-axe**（単体テスト内で axe を実行）
+- **eslint-plugin-jsx-a11y**（実装段階で違反を防止）
+- **Lighthouse a11y スコア**（PR ジョブで 90+ 必須）
+- **手動：NVDA / VoiceOver**（実機での読み上げ確認・四半期に 1 回）
+
+#### 品質基準
+```typescript
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+test('応募フォーム画面の a11y チェック（Critical/Serious ブロック）', async ({ page }) => {
+  await page.goto('/apply');
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+
+  const critical = results.violations.filter(
+    v => v.impact === 'critical' || v.impact === 'serious'
+  );
+  expect(critical).toEqual([]);
+});
+
+test('キーボードだけで応募完了まで到達可能', async ({ page }) => {
+  await page.goto('/apply');
+  await page.keyboard.press('Tab');  // 氏名入力欄へ
+  await page.keyboard.type('山田太郎');
+  await page.keyboard.press('Tab');
+  // ... 全フィールドを Tab 移動で埋める
+  await page.keyboard.press('Enter'); // 送信
+  await expect(page).toHaveURL(/complete/);
+});
+```
+
+### 7. セキュリティテスト（Security Testing）
+
+#### 目的
+- OWASP Top 10 2021 全カテゴリの機械チェック
+- 依存ライブラリ脆弱性の継続監視
+- 認可・認証・暗号化・入力検証の実装段階検証
+
+#### ツール
+- **Snyk**（依存脆弱性・OSS ライセンス・IaC 設定・Critical/High はマージブロック）
+- **npm audit**（`--audit-level=high` を CI 必須ゲート化）
+- **Dependabot**（週次自動 PR で依存更新）
+- **OWASP ZAP**（動的スキャン・staging 環境で nightly 実行）
+- **eslint-plugin-security**（実装段階で脆弱性パターン検出）
+- **Semgrep**（カスタムルールで社内固有パターン検出）
+- **Pentera / HackerOne AI**（AI ペネトレーションテスト・2026 業界標準）
+
+#### OWASP Top 10 2021 対応チェックリスト
+| コード | カテゴリ | 対応テスト |
+|--------|----------|-----------|
+| A01 | Broken Access Control | 全 CRUD × 認可ペアテスト（Positive/Negative）自動生成 |
+| A02 | Cryptographic Failures | HTTPS 強制・機密データの平文保存禁止（Snyk IaC） |
+| A03 | Injection（SQL/XSS/コマンド） | Prisma パラメータ化必須・React 自動エスケープ・CSP ヘッダー |
+| A04 | Insecure Design | Nao 設計段階での脅威モデリング（STRIDE） |
+| A05 | Security Misconfiguration | 環境変数チェック・不要ポート閉鎖・エラーメッセージのスタックトレース隠蔽 |
+| A06 | Vulnerable Components | Snyk / npm audit / Dependabot 週次 |
+| A07 | Authentication Failures | パスワード強度・レート制限・MFA・セッション管理 |
+| A08 | Data Integrity Failures | CI パイプラインの署名検証・依存ロックファイル整合性 |
+| A09 | Logging Failures | Sentry・Datadog で全 5xx / 認可失敗をログ |
+| A10 | SSRF | 外部 URL fetch の allowlist 化・内部 IP ブロック |
+
+### 8. Mutation Testing（変異テスト）
+
+#### 目的
+- カバレッジ 100% でも「アサーションが弱いテスト」を機械検出
+- 「通っただけ」テストを Mutation Score で炙り出す
+- 07-11 の偽陰性（バグがあるのにテスト緑）の根絶
+
+#### ツール
+- **StrykerJS**（JS/TS 案件・第一選択）
+- **Mutant**（Python 案件）
+- **PIT**（Java 案件）
+
+#### 品質基準
+- **Mutation Score 60% 以上**を QA ゲート必須条件化
+- **実行タイミング**：PR ごとの全実行は遅すぎるため（10 分超）nightly ジョブに隔離
+- **差分限定**：PR の変更ファイルのみ変異させる `--incremental` 運用で数分に圧縮
+- **結果通知**：朝の Slack `#mio-quality` に「Mutation Score・前日比・甘いテスト 3 件」を自動投稿
+
+### 9. Contract Testing（契約テスト）
+
+#### 目的
+- FE-BE 間のスキーマ齟齬を結合前に検出
+- 重い E2E に頼らず、契約層でスキーマ違反を潰す
+- 手書きモックの陳腐化リスクをゼロ化
+
+#### ツール
+- **Pact**（Consumer-Driven Contract の第一選択）
+- **openapi-msw**（OpenAPI から MSW モック自動生成）
+- **@stoplight/prism**（OpenAPI スキーマから mock サーバー起動）
+- **Schemathesis**（OpenAPI から property-based テスト自動生成）
+
+#### 運用フロー
+```
+Ao の OpenAPI スキーマ更新
+    ↓
+CI で openapi-msw が自動でモック再生成
+    ↓
+FE 単体テストで新モックが自動注入
+    ↓
+契約違反があれば FE テストが即 fail
+    ↓
+Mio が「Ao の仕様変更 → FE 未対応」を PR コメントで指摘
+```
+
+### 10. Fuzz Testing（ファズテスト）
+
+#### 目的
+- 想定外の入力による crash / 例外を機械探索
+- 特に外部入力を受け取る API・パーサー・アップロード処理で必須
+
+#### ツール
+- **fast-check**（Property-Based Testing の一環として活用）
+- **AFL++**（バイナリ・C/C++ 案件）
+- **Jazzer.js**（JS/TS のカバレッジガイド付きファズ）
+
+#### 適用箇所
+- CSV / Excel アップロードのパース処理
+- URL パラメータ・クエリ文字列のバリデーション
+- 画像アップロードのメタデータ処理
+
+---
+
+## テスト品質メトリクス・CI統合
+
+### 1. 品質メトリクス階層
+
+#### レベル 1：カバレッジ指標（必要条件）
+| 指標 | 目標値 | ツール | 意味 |
+|------|--------|--------|------|
+| Line Coverage | 80% 以上 | `vitest --coverage` | 実行された行の割合（最も甘い指標） |
+| Branch Coverage | 80% 以上 | `vitest --coverage` | if/三項/論理演算子の真偽両方通過（推奨主指標） |
+| Function Coverage | 90% 以上 | `vitest --coverage` | 呼び出された関数の割合 |
+| Statement Coverage | 80% 以上 | `vitest --coverage` | 実行された文の割合 |
+
+**注意**：カバレッジ 100% でも品質を意味しない。`if (a && b)` を `a=true` で通せば行は 100% だが分岐は 50%。「通っただけ」テストを Mutation Score で補完する。
+
+#### レベル 2：アサーション強度指標（十分条件）
+| 指標 | 目標値 | ツール | 意味 |
+|------|--------|--------|------|
+| Mutation Score | 60% 以上 | StrykerJS | 変異体が検出された割合（アサーション強度） |
+| Assertion Density | 1 テスト 1〜3 assertion | Custom lint | 1 テストのアサーション数（多すぎると意図不明） |
+| 異常系ケース比率 | 正常:異常:境界 = 1:2:1 | Custom counter | ハッピーパス偏重を防止 |
+
+#### レベル 3：信頼性指標（運用条件）
+| 指標 | 目標値 | ツール | 意味 |
+|------|--------|--------|------|
+| Flaky Rate | 1% 未満 | 独自ダッシュボード | 同一テストの日替り PASS/FAIL 率 |
+| Test Duration（PR） | 3 分以内 | GitHub Actions | PR ジョブの実行時間 |
+| Test Duration（Full） | 10 分以内 | GitHub Actions | main マージ後の full run 時間 |
+| Skip 件数 | 5 件以下 | Custom counter | `test.skip` / `it.todo` の累積 |
+
+#### レベル 4：要件検証指標（本質条件）
+| 指標 | 目標値 | ツール | 意味 |
+|------|--------|--------|------|
+| 受入基準トレーサビリティ | 100% | `.feature` ↔ テスト ID 突合 | 全受入基準にテストが存在 |
+| Defect Escape Rate | 5% 未満 | 本番 Sentry ÷ 全検出 | 本番流出バグの割合 |
+| MTTR（平均修正時間） | 1 日以内 | GitHub Issue | バグ検出から修正クローズまで |
+
+### 2. GitHub Actions CI 構成（並列化テンプレ）
+
+```yaml
+name: Quality Gate
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Job 1: 静的解析（最速・1 分以内）
+  static-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tsc --noEmit
+      - run: pnpm eslint . --max-warnings 0
+      - run: pnpm prettier --check .
+
+  # Job 2: ユニットテスト（変更影響のみ・30 秒以内）
+  unit-test:
+    runs-on: ubuntu-latest
+    needs: static-check
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: pnpm/action-setup@v3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm vitest run --changed origin/main --coverage
+      - uses: codecov/codecov-action@v4
+
+  # Job 3: 統合テスト（Testcontainers で PostgreSQL 起動・3 分以内）
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: static-check
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm prisma migrate deploy
+      - run: pnpm vitest run --config vitest.integration.config.ts
+        env:
+          DATABASE_URL: postgres://postgres:test@localhost:5432/test
+          TZ: UTC
+
+  # Job 4: E2E テスト（Playwright shard 並列・4 並列で 3 分以内）
+  e2e-test:
+    runs-on: ubuntu-latest
+    needs: [unit-test, integration-test]
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4]
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm playwright install --with-deps ${{ matrix.browser }}
+      - run: pnpm playwright test --project=${{ matrix.browser }} --shard=${{ matrix.shard }}/4
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-${{ matrix.browser }}-${{ matrix.shard }}
+          path: playwright-report/
+
+  # Job 5: a11y チェック（axe-core・Critical/Serious のみブロック）
+  a11y-check:
+    runs-on: ubuntu-latest
+    needs: e2e-test
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm playwright test --grep '@a11y'
+
+  # Job 6: セキュリティスキャン（Snyk + npm audit）
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: static-check
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm audit --audit-level=high
+      - uses: snyk/actions/node@master
+        with:
+          args: --severity-threshold=high
+
+  # Job 7: Lighthouse CI（Web Vitals）
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: e2e-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: |
+            https://preview-${{ github.event.pull_request.number }}.vercel.app
+          budgetPath: ./lighthouse-budget.json
+
+  # Job 8: 最終ゲート（全 Job の PASS を確認）
+  quality-gate:
+    runs-on: ubuntu-latest
+    needs: [static-check, unit-test, integration-test, e2e-test, a11y-check, security-scan, lighthouse]
+    steps:
+      - run: echo "All quality gates passed"
+```
+
+### 3. Nightly ジョブ（重い検証を隔離）
+
+```yaml
+name: Nightly Quality Analysis
+
+on:
+  schedule:
+    - cron: '0 18 * * *'  # 毎日 JST 3:00
+
+jobs:
+  # 全 E2E を 10 連続実行して Flaky 検出
+  flaky-detection:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          for i in {1..10}; do
+            pnpm playwright test --reporter=json > run-$i.json || true
+          done
+      - run: node scripts/detect-flaky.js
+      - name: Auto-quarantine flaky tests
+        run: node scripts/quarantine.js
+
+  # Mutation Testing（差分限定・数分）
+  mutation-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm stryker run --incremental
+      - name: Notify Slack
+        run: node scripts/notify-mutation-score.js
+
+  # 負荷テスト（本番想定 2 倍・5 分耐性）
+  load-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: grafana/k6-action@v0.3
+        with:
+          filename: tests/load/scenarios.js
+
+  # OWASP ZAP 動的スキャン
+  security-dynamic-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: zaproxy/action-baseline@v0.10
+        with:
+          target: https://staging.example.com
+```
+
+### 4. テストレポート統合
+
+#### レポート形式
+- **JUnit XML**：GitHub Actions の PR コメント自動投稿（`dorny/test-reporter`）
+- **Playwright HTML Report**：`actions/upload-artifact` でアーカイブ、failure 時のみ
+- **Allure**：クロスプロジェクト集約が必要な大規模案件で採用
+- **Codecov / Coveralls**：カバレッジ推移の可視化
+- **Sentry**：本番エラーとテスト失敗を統合トラッキング
+
+#### Notion DB 自動投稿（Akari 向け週次品質メトリクス）
+```typescript
+// scripts/push-metrics-to-notion.ts
+import { Client } from '@notionhq/client';
+
+const notion = new Client({ auth: process.env.NOTION_TOKEN });
+
+async function pushWeeklyMetrics() {
+  const metrics = await gatherMetrics(); // GitHub Actions API + Sentry API から集計
+
+  await notion.pages.create({
+    parent: { database_id: process.env.NOTION_QUALITY_DB_ID! },
+    properties: {
+      Week: { title: [{ text: { content: `Week ${metrics.week}` } }] },
+      'Branch Coverage': { number: metrics.branchCoverage },
+      'Mutation Score': { number: metrics.mutationScore },
+      'Flaky Rate': { number: metrics.flakyRate },
+      'Sentry Errors': { number: metrics.sentryErrors },
+      'a11y Violations': { number: metrics.a11yViolations },
+      'Escape Rate': { number: metrics.escapeRate },
+    },
+  });
+
+  // Slack 1 行通知
+  await slack.chat.postMessage({
+    channel: '#akari-reports',
+    text: `週次品質メトリクス更新完了：Branch ${metrics.branchCoverage}% / Mutation ${metrics.mutationScore}% / Flaky ${metrics.flakyRate}%`,
+  });
+}
+```
+
+### 5. Defect Escape 分析（本番流出バグの逆引き）
+
+#### 分析フロー
+```
+本番 Sentry でバグ検出
+    ↓
+Mio が Escape 分析シートに記入
+    ├─ どの層で捕まえるべきだったか？（unit / 統合 / E2E / 手動探索）
+    ├─ なぜ既存テストで捕まえられなかったか？（テスト不足 / モック過多 / 境界値欠落 / 認可ペア欠落 等）
+    └─ どんな追加テストで防げるか？
+    ↓
+該当層に再発防止テストを追加（Retest ではなく Regression）
+    ↓
+Mutation Testing で新テストのアサーション強度を検証
+    ↓
+バグ票クローズ（再発防止テスト ID を必須記載）
+```
+
+#### Escape Rate 計算式
+```
+Escape Rate = 本番検出バグ数 ÷ (本番検出 + QA 検出 + 開発時検出)
+```
+月次で 5% 未満を維持。5% 超えたら QA プロセス自体の見直しを Kai に提言。
+
+### 6. Kai への通過報告テンプレート（強化版）
+
+```
+## Mio — QA 通過報告 [Week 34 / 2026-08-26]
+
+### 対象
+- PR #123: 応募フォーム認可強化（Riku・Ao 共同実装）
+- ブランチ: feat/apply-auth
+- Commit: abc1234
+
+### 品質ゲート結果
+| 指標 | 目標 | 実測 | 判定 |
+|------|------|------|------|
+| Branch Coverage | 80% | 87.3% | PASS |
+| Mutation Score | 60% | 72.1% | PASS |
+| Flaky Rate | 1% | 0.3% | PASS |
+| 受入基準トレーサビリティ | 100% | 100% (12/12) | PASS |
+| a11y Critical 違反 | 0 | 0 | PASS |
+| OWASP Top 10 | 全 PASS | 全 PASS | PASS |
+| Lighthouse Performance | 90+ | 94 | PASS |
+| API p95 レイテンシ | 500ms | 320ms | PASS |
+| 負荷テスト（本番 2 倍・5 分） | 耐久 | 耐久 | PASS |
+
+### テスト実装
+- Unit: 47 件（+12 新規）
+- Integration: 18 件（+6 新規、認可ペア 6 セット）
+- E2E: 5 件（+2 新規、モバイル / デスクトップ両対応）
+- Visual Regression: 3 件（+1 新規）
+
+### Defect Escape 分析
+- 該当なし（今週の本番流出ゼロ）
+
+### 判定
+全項目クリア → Kai（部長）へ通過報告
+Kuu の本番昇格ジョブへ引き渡し可
+```
 
 ---
 

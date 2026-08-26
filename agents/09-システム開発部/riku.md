@@ -186,6 +186,799 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## Next.js/React ベストプラクティス (2026)
+
+### 1. Next.js 15+ App Router 設計原則
+
+#### 1.1 ディレクトリ構造の意思決定
+```
+app/
+├── (marketing)/          # Route Group：URL に現れない論理グループ（マーケサイト系）
+│   ├── layout.tsx        # マーケ専用ヘッダー・フッター
+│   ├── page.tsx          # トップ（SSG 推奨）
+│   └── pricing/page.tsx  # 価格ページ（SSG）
+├── (app)/                # Route Group：認証必須の業務システム
+│   ├── layout.tsx        # 認証ガード＋サイドバー
+│   ├── dashboard/
+│   │   ├── page.tsx      # SSR or CSR
+│   │   ├── loading.tsx   # ページ全体の骨組み
+│   │   ├── error.tsx     # ErrorBoundary
+│   │   └── @analytics/   # Parallel Route（並列スロット）
+│   │       └── page.tsx
+│   └── jobs/
+│       ├── page.tsx      # 一覧（ISR revalidate 60）
+│       ├── [id]/
+│       │   ├── page.tsx  # 詳細（SSR）
+│       │   └── @modal/(.)apply/  # Intercepting Route：モーダル差し込み
+│       └── new/page.tsx  # 作成フォーム（Server Actions）
+├── api/                  # Route Handler（外部公開 API のみ）
+│   └── webhooks/[provider]/route.ts
+├── layout.tsx            # ルートレイアウト（Providers 集約）
+├── not-found.tsx         # 404
+└── global-error.tsx      # 最上位エラー
+```
+
+**決定基準**:
+- **Route Groups `(...)`** — URL 構造を変えずに layout を分けたい時
+- **Parallel Routes `@slot`** — 1 ページに複数の独立スロット（ダッシュボード・チャット等）
+- **Intercepting Routes `(.)path`** — モーダル差し込み（`/photos/1` を `/feed` 上で開く）
+- **Route Handler `app/api/*/route.ts`** — 外部公開 API・Webhook 受信・非 Next.js クライアントからの呼出のみ。内部呼出は Server Actions を優先
+
+#### 1.2 レンダリング戦略 Decision テーブル
+| ページ種別 | 推奨戦略 | 実装例 | 理由 |
+|---|---|---|---|
+| マーケ・ブログ・LP | SSG | `export const dynamic = 'force-static'` | 更新頻度低・SEO 最重要・CDN 配信で無料 |
+| 商品/求人詳細 | ISR（60〜3600s） | `fetch(url, { next: { revalidate: 60 }})` | 更新頻度中・SEO 重要・SSG の高速性＋鮮度 |
+| ダッシュボード（ユーザー固有） | SSR or CSR | `export const dynamic = 'force-dynamic'` | 認証必須・毎回最新・SEO 不要 |
+| 管理画面（内部ツール） | CSR | `'use client'`＋ TanStack Query | 更新頻繁・SEO 完全不要・インタラクション主体 |
+| ハイブリッド（枠は静的・中身動的） | PPR（Partial Prerendering） | `experimental_ppr = true` | 骨組み即配信＋動的部分ストリーム＝ LCP 最速 |
+
+#### 1.3 Server Components / Client Components 境界設計
+**原則**: 「Server Components ファースト、`'use client'` は葉に近い最小単位」
+
+```tsx
+// ❌ 悪い例：ページ全体を Client 化してバンドル肥大
+'use client'
+export default function Page() {
+  const [count, setCount] = useState(0)
+  return <div>...大量の静的コンテンツ...<button onClick={() => setCount(c => c+1)}>+</button></div>
+}
+
+// ✅ 良い例：静的部分は Server・ボタンだけ Client
+// app/page.tsx（Server Component）
+import { Counter } from './counter'
+export default async function Page() {
+  const data = await db.query(...)  // Server で DB 直接アクセス
+  return <div>...大量の静的コンテンツ...<Counter initial={data.count} /></div>
+}
+// app/counter.tsx（Client Component）
+'use client'
+export function Counter({ initial }: { initial: number }) {
+  const [count, setCount] = useState(initial)
+  return <button onClick={() => setCount(c => c+1)}>{count}</button>
+}
+```
+
+**境界チェックリスト**:
+- Server→Client の props は Date/Map/Set/関数を含めない（プレーン値のみ）
+- 日付は ISO 文字列で渡し、Client 側で `new Date()` / `Intl` 整形
+- 関数を渡したい場合は Server Action（`'use server'`）として定義
+- `'use client'` を親レイアウトに付けない（子孫全てが Client 化してバンドル爆発）
+- 境界ファイル冒頭に `// boundary: server -> client` コメントを必ず記載
+
+#### 1.4 Server Actions パターン
+```tsx
+// app/jobs/actions.ts
+'use server'
+import { z } from 'zod'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+
+const CreateJobSchema = z.object({
+  title: z.string().min(1).max(100),
+  description: z.string().min(10),
+  salary: z.coerce.number().positive(),
+})
+
+export async function createJob(prevState: unknown, formData: FormData) {
+  const parsed = CreateJobSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) {
+    return { ok: false, fieldErrors: parsed.error.flatten().fieldErrors }
+  }
+  const job = await db.job.create({ data: parsed.data })
+  revalidatePath('/jobs')
+  redirect(`/jobs/${job.id}`)
+}
+
+// app/jobs/new/page.tsx
+'use client'
+import { useActionState } from 'react'
+import { useFormStatus } from 'react-dom'
+import { createJob } from '../actions'
+
+export default function NewJobPage() {
+  const [state, formAction] = useActionState(createJob, null)
+  return (
+    <form action={formAction}>
+      <input name="title" aria-invalid={!!state?.fieldErrors?.title} />
+      {state?.fieldErrors?.title && <p role="alert">{state.fieldErrors.title[0]}</p>}
+      <SubmitButton />
+    </form>
+  )
+}
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return <button disabled={pending}>{pending ? '送信中...' : '作成'}</button>
+}
+```
+
+### 2. React 19 新機能の実践活用
+
+#### 2.1 `use` フック（条件付き Promise/Context 解決）
+```tsx
+// ❌ 従来：useEffect + useState で非同期を扱う
+function Comments({ postId }: { postId: string }) {
+  const [comments, setComments] = useState(null)
+  useEffect(() => { fetch(`/api/posts/${postId}/comments`).then(r => r.json()).then(setComments) }, [postId])
+  if (!comments) return <Spinner />
+  return <ul>{comments.map(c => <li key={c.id}>{c.text}</li>)}</ul>
+}
+
+// ✅ React 19：use + Suspense で宣言的に
+function Comments({ commentsPromise }: { commentsPromise: Promise<Comment[]> }) {
+  const comments = use(commentsPromise)  // Promise を直接解決
+  return <ul>{comments.map(c => <li key={c.id}>{c.text}</li>)}</ul>
+}
+// 親で <Suspense fallback={<Spinner />}><Comments commentsPromise={fetchComments(id)} /></Suspense>
+```
+
+#### 2.2 `useOptimistic` で楽観的 UI
+```tsx
+'use client'
+import { useOptimistic } from 'react'
+import { deleteJobAction } from './actions'
+
+function JobList({ jobs }: { jobs: Job[] }) {
+  const [optimisticJobs, addOptimistic] = useOptimistic(
+    jobs,
+    (state, deletedId: string) => state.filter(j => j.id !== deletedId)
+  )
+  return optimisticJobs.map(job => (
+    <li key={job.id}>
+      {job.title}
+      <form action={async (formData) => {
+        addOptimistic(job.id)  // UI 即反映
+        await deleteJobAction(formData)  // 裏で API 実行
+      }}>
+        <input type="hidden" name="id" value={job.id} />
+        <button>削除</button>
+      </form>
+    </li>
+  ))
+}
+```
+
+#### 2.3 `useTransition` / `useDeferredValue` で INP 改善
+```tsx
+'use client'
+import { useState, useTransition, useDeferredValue } from 'react'
+
+function SearchableList({ items }: { items: Item[] }) {
+  const [query, setQuery] = useState('')
+  const deferredQuery = useDeferredValue(query)  // 重い絞り込みを遅延
+  const [isPending, startTransition] = useTransition()
+  const filtered = items.filter(i => i.name.includes(deferredQuery))
+  return (
+    <>
+      <input value={query} onChange={e => {
+        startTransition(() => setQuery(e.target.value))  // 入力自体は即反映・絞り込みは非緊急
+      }} />
+      {isPending && <span aria-live="polite">絞り込み中...</span>}
+      <ul>{filtered.map(i => <li key={i.id}>{i.name}</li>)}</ul>
+    </>
+  )
+}
+```
+
+### 3. TypeScript 5.5+ 実践パターン
+
+#### 3.1 `satisfies` で型推論を保ちつつ制約
+```tsx
+// ❌ 型注釈だと具体的な型情報が失われる
+const colors: Record<string, string> = { primary: '#3b82f6', secondary: '#10b981' }
+colors.primary.toUpperCase()  // string としか分からない
+
+// ✅ satisfies で「制約は満たすが具体的な型は保つ」
+const colors = { primary: '#3b82f6', secondary: '#10b981' } satisfies Record<string, string>
+colors.primary  // '#3b82f6' というリテラル型として使える
+```
+
+#### 3.2 `const` type parameter でリテラル型推論
+```tsx
+function createRoute<const T extends string>(path: T): { path: T } {
+  return { path }
+}
+const r = createRoute('/jobs/[id]')  // { path: '/jobs/[id]' } リテラル型
+```
+
+#### 3.3 Template Literal Types でルート型安全
+```tsx
+type Route =
+  | '/'
+  | '/jobs'
+  | `/jobs/${string}`
+  | '/dashboard'
+  | `/dashboard/${string}`
+
+function navigate(to: Route) { router.push(to) }
+navigate('/jobs/123')  // OK
+navigate('/typo')      // ❌ 型エラー
+```
+
+### 4. Tailwind CSS v4 CSS-first 設定
+
+```css
+/* app/globals.css */
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #eff6ff;
+  --color-primary-500: #3b82f6;
+  --color-primary-900: #1e3a8a;
+  --font-display: "Inter Variable", ui-sans-serif, system-ui;
+  --breakpoint-3xl: 1920px;  /* カスタムブレイクポイント */
+  --spacing-xs: 0.125rem;
+  --radius-card: 0.75rem;
+}
+
+/* コンテナクエリ */
+@container (min-width: 640px) {
+  .card { grid-template-columns: 1fr 2fr; }
+}
+```
+
+### 5. shadcn/ui＋Radix 採用の理由と使い方
+- **理由**: ① npm 依存でなくソース取り込み型（ロックインなし）② Radix ベースでフォーカス管理・キーボード操作・ARIA 完備 ③ Tailwind ベースで自社デザインシステムに畳める ④ `npx shadcn@latest add button dialog form` で 30 秒導入
+- **使い方**: 初期構築で `Button` `Input` `Form` `Dialog` `DropdownMenu` `Toast` `Tabs` `Table` を一括導入、後は `packages/ui` で自社カスタマイズ
+
+---
+
+## TDD実践ワークフロー
+
+### 1. Red-Green-Refactor サイクルの厳守
+
+TDD Guard（`workflows/tdd/tdd-rules.md`）に従い、以下のサイクルを **1 機能単位（コンポーネント / 関数 / カスタムフック）** で回す。
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ 🔴 Red: 失敗するテストを書く（実装なし＝当然 fail）      │
+│    ↓                                                     │
+│ 🟢 Green: テストを通す最小限のコードを書く（美しさ無視）│
+│    ↓                                                     │
+│ 🔵 Refactor: 重複除去・命名改善・可読性向上（tests 緑維持）│
+│    ↓                                                     │
+│ 次の機能へ（サイクル継続）                               │
+└─────────────────────────────────────────────────────────┘
+```
+
+**絶対原則**:
+- テストなしで実装コードを書き始めない
+- Red フェーズを飛ばして Green に行かない（テストが最初から通ってしまう = テストが機能を検証していない証拠）
+- Refactor 中に新機能を追加しない（テストは緑のまま構造改善のみ）
+
+### 2. Vitest + React Testing Library の実践例
+
+#### 2.1 Red フェーズ：失敗するテストを書く
+```tsx
+// components/__tests__/JobCard.test.tsx
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi } from 'vitest'
+import { JobCard } from '../JobCard'
+
+describe('JobCard', () => {
+  const mockJob = {
+    id: 'job-1',
+    title: 'フロントエンドエンジニア',
+    salary: 6000000,
+    company: '株式会社LET',
+    isFavorite: false,
+  }
+
+  it('求人タイトル・給与・会社名を表示する', () => {
+    render(<JobCard job={mockJob} onFavorite={vi.fn()} />)
+    expect(screen.getByRole('heading', { name: 'フロントエンドエンジニア' })).toBeInTheDocument()
+    expect(screen.getByText('¥6,000,000')).toBeInTheDocument()
+    expect(screen.getByText('株式会社LET')).toBeInTheDocument()
+  })
+
+  it('お気に入りボタンをクリックすると onFavorite が呼ばれる', async () => {
+    const user = userEvent.setup()
+    const onFavorite = vi.fn()
+    render(<JobCard job={mockJob} onFavorite={onFavorite} />)
+    await user.click(screen.getByRole('button', { name: /お気に入りに追加/ }))
+    expect(onFavorite).toHaveBeenCalledWith('job-1')
+  })
+
+  it('isFavorite=true の時、ボタンラベルが「お気に入りから削除」になる', () => {
+    render(<JobCard job={{ ...mockJob, isFavorite: true }} onFavorite={vi.fn()} />)
+    expect(screen.getByRole('button', { name: /お気に入りから削除/ })).toBeInTheDocument()
+  })
+})
+```
+→ この時点で `JobCard` が存在しないので **fail する**（Red）。
+
+#### 2.2 Green フェーズ：最小限の実装
+```tsx
+// components/JobCard.tsx
+export function JobCard({ job, onFavorite }: {
+  job: { id: string; title: string; salary: number; company: string; isFavorite: boolean }
+  onFavorite: (id: string) => void
+}) {
+  const label = job.isFavorite ? 'お気に入りから削除' : 'お気に入りに追加'
+  return (
+    <article>
+      <h3>{job.title}</h3>
+      <p>¥{job.salary.toLocaleString('ja-JP')}</p>
+      <p>{job.company}</p>
+      <button onClick={() => onFavorite(job.id)} aria-label={label}>{label}</button>
+    </article>
+  )
+}
+```
+→ テスト全緑（Green）。ここで止まらず Refactor へ。
+
+#### 2.3 Refactor フェーズ：構造改善
+```tsx
+// components/JobCard.tsx
+import { formatJPY } from '@/lib/format'
+import { Card, CardHeader, CardBody } from '@/packages/ui/card'
+import { FavoriteButton } from './FavoriteButton'
+
+type Job = { id: string; title: string; salary: number; company: string; isFavorite: boolean }
+
+export function JobCard({ job, onFavorite }: { job: Job; onFavorite: (id: string) => void }) {
+  return (
+    <Card as="article">
+      <CardHeader>
+        <h3 className="text-lg font-semibold">{job.title}</h3>
+      </CardHeader>
+      <CardBody>
+        <p className="text-2xl font-bold">{formatJPY(job.salary)}</p>
+        <p className="text-sm text-muted-foreground">{job.company}</p>
+        <FavoriteButton
+          isFavorite={job.isFavorite}
+          onClick={() => onFavorite(job.id)}
+        />
+      </CardBody>
+    </Card>
+  )
+}
+```
+→ テスト依然全緑・構造改善完了。次の機能へ。
+
+### 3. TDD の粒度と対象
+
+| 対象 | TDD 適用 | 理由 |
+|---|---|---|
+| ビジネスロジック（関数・カスタムフック） | ✅ 必須 | 純粋関数はテスト容易・回帰価値高い |
+| コンポーネント（ユーザー入力・状態遷移あり） | ✅ 必須 | 振る舞いの契約を守る |
+| 静的表示コンポーネント（Presentational） | ⚠️ Storybook で回帰 | 単純な JSX にテスト冗長 |
+| Server Actions | ✅ 必須（Integration） | 副作用があるためテスト価値最高 |
+| ページ（app/*/page.tsx） | ⚠️ E2E で担保 | 統合の観点は Playwright が適切 |
+
+### 4. React Testing Library の 6 大原則
+1. **ユーザー視点クエリ優先**: `getByRole` > `getByLabelText` > `getByPlaceholderText` > `getByText` > `getByTestId`（最終手段）
+2. **実装詳細をテストしない**: `useState` の内部値でなく画面表示結果を検証
+3. **非同期は `findBy*` + `waitFor`**: `setTimeout` 禁止
+4. **ユーザー操作は `userEvent`**: `fireEvent` より実ブラウザに近い
+5. **MSW でネットワークモック**: `fetch` 直接モックは禁止
+6. **1 テスト = 1 振る舞い**: `it` の中で複数の期待を書かない
+
+### 5. MSW（Mock Service Worker）でネットワーク層モック
+```tsx
+// test/setup/msw.ts
+import { setupServer } from 'msw/node'
+import { http, HttpResponse } from 'msw'
+
+export const server = setupServer(
+  http.get('/api/jobs', () => HttpResponse.json({
+    ok: true,
+    data: [{ id: 'j1', title: 'FE Engineer', salary: 6000000, company: 'LET' }],
+  })),
+  http.post('/api/jobs', async ({ request }) => {
+    const body = await request.json()
+    if (!body.title) return HttpResponse.json({ ok: false, error: 'title required' }, { status: 422 })
+    return HttpResponse.json({ ok: true, data: { id: 'j2', ...body } })
+  }),
+)
+
+// vitest.setup.ts
+import { beforeAll, afterEach, afterAll } from 'vitest'
+import { server } from './test/setup/msw'
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+afterEach(() => server.resetHandlers())
+afterAll(() => server.close())
+```
+
+### 6. E2E テスト（Playwright）
+```tsx
+// e2e/apply-job.spec.ts
+import { test, expect } from '@playwright/test'
+
+test('求人詳細から応募フォームを送信すると完了画面へ遷移する', async ({ page }) => {
+  await page.goto('/jobs/job-1')
+  await expect(page.getByRole('heading', { name: /フロントエンドエンジニア/ })).toBeVisible()
+  await page.getByRole('button', { name: '応募する' }).click()
+  await page.getByLabel('氏名').fill('松岡 秀人')
+  await page.getByLabel('メールアドレス').fill('h.matsuoka@let-inc.net')
+  await page.getByLabel('電話番号').fill('09012345678')
+  await page.getByRole('button', { name: '送信' }).click()
+  await expect(page).toHaveURL(/\/jobs\/job-1\/apply\/complete/)
+  await expect(page.getByRole('heading', { name: '応募が完了しました' })).toBeVisible()
+})
+
+test('キーボード操作のみで応募フォームを送信できる（a11y）', async ({ page }) => {
+  await page.goto('/jobs/job-1/apply')
+  await page.keyboard.press('Tab')  // 氏名フィールドへ
+  await page.keyboard.type('松岡 秀人')
+  await page.keyboard.press('Tab')
+  await page.keyboard.type('h.matsuoka@let-inc.net')
+  await page.keyboard.press('Tab')
+  await page.keyboard.type('09012345678')
+  await page.keyboard.press('Tab')  // 送信ボタン
+  await page.keyboard.press('Enter')
+  await expect(page).toHaveURL(/\/complete/)
+})
+```
+
+### 7. Trophy Model（2026年新標準）でのテスト配分
+```
+       /  E2E  \       ← 少数（画面横断の主要導線のみ、10%）
+      /--------\
+     / Integration \   ← 最多（コンポーネント＋API モック、60%）
+    /------------\
+   /   Unit      \    ← 中程度（純粋関数・カスタムフック、20%）
+  /  Static Types \   ← 全コード（TypeScript strict、10%）
+ /----------------\
+```
+（従来のピラミッド型より Integration を厚くする 2026 の実務標準）
+
+### 8. TDD Guard 遵守チェックリスト
+- [ ] 実装ファイルを開く前にテストファイルを作った
+- [ ] テストを 1 つ書いて `npm test` で fail を確認した（Red）
+- [ ] 通す最小限のコードだけ書いた（Green）
+- [ ] リファクタしてもテストが緑のままである（Refactor）
+- [ ] カバレッジ 80% 以上（`vitest --coverage`）
+- [ ] `getByTestId` は 5% 未満（`getByRole` / `getByLabelText` 中心）
+
+---
+
+## パフォーマンス・a11y・テスト完全ガイド
+
+### 1. パフォーマンス実装ガイド
+
+#### 1.1 Core Web Vitals SLO（PR ゲート必須）
+| 指標 | 良好 | 改善余地 | 悪い | 実装対策 |
+|---|---|---|---|---|
+| **LCP**（最大要素描画） | < 2.5s | 2.5〜4.0s | > 4.0s | `next/image` + `priority`、PPR、Server Components |
+| **INP**（全操作応答性） | < 200ms | 200〜500ms | > 500ms | `startTransition` / `useDeferredValue`、非同期化 |
+| **CLS**（レイアウトずれ） | < 0.1 | 0.1〜0.25 | > 0.25 | `width`/`height` 指定、`next/font` サイズ予約 |
+| **FCP**（初回描画） | < 1.8s | 1.8〜3.0s | > 3.0s | SSG/ISR、フォント最適化 |
+| **TTFB**（初回バイト） | < 800ms | 800〜1800ms | > 1800ms | Edge Runtime、CDN、DB クエリ最適化 |
+
+#### 1.2 画像最適化パターン
+```tsx
+import Image from 'next/image'
+import heroImg from '@/public/hero.png'  // ローカルは静的 import で最速
+
+// LCP 候補（ファーストビューのヒーロー画像）
+<Image src={heroImg} alt="採用サイトのメインビジュアル" priority sizes="100vw" />
+
+// リスト画像（ビューポート外は自動 lazy）
+{jobs.map(job => (
+  <Image
+    src={job.thumbnail}
+    alt={`${job.title}の求人サムネイル`}
+    width={320}
+    height={180}
+    sizes="(max-width: 640px) 100vw, 320px"
+    // loading="lazy" と decoding="async" はデフォルト
+  />
+))}
+```
+
+**チェックリスト**:
+- [ ] LCP 候補にのみ `priority`（過剰付与で逆に LCP 悪化）
+- [ ] `width`/`height` または `fill`+`aspect-ratio` 必須（CLS 防止）
+- [ ] `sizes` でレスポンシブ画像出し分け
+- [ ] 200KB 超の画像は CI で警告、`sharp` で WebP/AVIF 自動変換
+- [ ] デコラティブ画像は `alt=""`、意味のある画像は説明的 alt
+
+#### 1.3 バンドルサイズ最適化
+```tsx
+// 重量級ライブラリを遅延読み込み
+import dynamic from 'next/dynamic'
+
+const Editor = dynamic(() => import('@/components/RichEditor'), {
+  ssr: false,  // Client のみ
+  loading: () => <EditorSkeleton />,
+})
+
+const Chart = dynamic(() => import('recharts').then(mod => mod.LineChart), {
+  loading: () => <ChartSkeleton />,
+})
+```
+
+**PR ゲート**:
+```yaml
+# .github/workflows/size-limit.yml
+- run: pnpm size-limit --json > size.json
+# size-limit.config.js
+module.exports = [
+  { path: '.next/static/chunks/pages/_app-*.js', limit: '150 kB' },
+  { path: '.next/static/chunks/main-*.js', limit: '80 kB' },
+]
+```
+
+#### 1.4 フォント最適化
+```tsx
+// app/layout.tsx
+import { Inter, Noto_Sans_JP } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',        // FOUT で描画開始、CLS 防止
+  variable: '--font-inter',
+})
+const noto = Noto_Sans_JP({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-noto',
+  weight: ['400', '700'],  // 使う weight のみ
+})
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="ja" className={`${inter.variable} ${noto.variable}`}>
+      <body className="font-sans">{children}</body>
+    </html>
+  )
+}
+```
+
+### 2. アクセシビリティ実装ガイド（WCAG 2.2 AA）
+
+#### 2.1 セマンティック HTML 優先
+```tsx
+// ❌ 悪い例：div の onclick
+<div onClick={handleSubmit} className="cursor-pointer">送信</div>
+
+// ✅ 良い例：button で全部無料
+<button type="submit" onClick={handleSubmit}>送信</button>
+```
+→ `<button>` は「Tab フォーカス・Enter/Space で発火・スクリーンリーダーが『ボタン』と読み上げ」を無料で得る。
+
+#### 2.2 フォーカス管理（Tab 順序・Escape・focus-visible）
+```tsx
+// フォーカスリング可視化（Tailwind）
+<button className="focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+  送信
+</button>
+
+// モーダルのフォーカストラップ（Radix Dialog が自動対応）
+import * as Dialog from '@radix-ui/react-dialog'
+<Dialog.Root>
+  <Dialog.Trigger asChild><button>開く</button></Dialog.Trigger>
+  <Dialog.Portal>
+    <Dialog.Overlay />
+    <Dialog.Content>  {/* 開いたら最初の要素へフォーカス自動移動 */}
+      <Dialog.Title>応募確認</Dialog.Title>
+      <Dialog.Description>この求人に応募しますか？</Dialog.Description>
+      <Dialog.Close asChild><button>キャンセル</button></Dialog.Close>
+      <button onClick={handleApply}>応募する</button>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>
+{/* Escape で自動閉じ・Tab 循環・閉じたら発火元へフォーカス戻る */}
+```
+
+#### 2.3 ARIA 属性の適切な使用
+```tsx
+// 動的通知
+<div role="status" aria-live="polite">{status}</div>  {/* 成功・進捗 */}
+<div role="alert" aria-live="assertive">{error}</div>  {/* エラー */}
+
+// ラベル関連付け
+<label htmlFor="email">メールアドレス</label>
+<input id="email" type="email" aria-describedby="email-help email-error" required />
+<span id="email-help">例：sample@let-inc.net</span>
+{fieldError && <span id="email-error" role="alert">{fieldError}</span>}
+
+// 展開可能な要素
+<button aria-expanded={isOpen} aria-controls="menu">メニュー</button>
+<ul id="menu" hidden={!isOpen}>...</ul>
+```
+
+#### 2.4 フォームの完全 a11y チェックリスト
+- [ ] `<label htmlFor>` で全入力にラベル関連付け
+- [ ] `autocomplete="email/tel/name/postal-code"` でブラウザ補完
+- [ ] `inputmode="numeric/tel/email"` でスマホキーボード最適化
+- [ ] 必須項目に `required` + `aria-required="true"`
+- [ ] エラーは `aria-invalid="true"` + `aria-describedby` でメッセージ関連付け
+- [ ] 送信中は `disabled` + `aria-busy="true"`
+- [ ] 送信結果を `role="status"` / `role="alert"` で通知
+- [ ] IME 変換中の Enter 誤送信を `isComposing` で防止
+
+#### 2.5 コントラスト・カラーユニバーサル
+- テキスト: 4.5:1 以上（AA）／ 7:1 以上（AAA）
+- UI コンポーネント（ボタン境界等）: 3:1 以上
+- 建設現場・屋外利用を想定するクライアントは実機を屋外の明るさで確認
+- 色だけで情報を伝えない（アイコン・テキスト併記）
+
+#### 2.6 `prefers-reduced-motion` 対応
+```tsx
+// Tailwind
+<div className="motion-safe:animate-bounce motion-reduce:animate-none">...</div>
+
+// CSS
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+```
+
+### 3. テスト実装完全ガイド
+
+#### 3.1 テスト種別の使い分け
+| テスト種別 | ツール | 対象 | 実行頻度 |
+|---|---|---|---|
+| **Unit** | Vitest | 純粋関数・カスタムフック・utility | 毎コミット |
+| **Component** | Vitest + RTL | UI コンポーネント（振る舞い） | 毎コミット |
+| **Integration** | Vitest + RTL + MSW | 複数コンポーネント連携 | 毎コミット |
+| **Storybook `play`** | Storybook + Vitest Browser Mode | ビジュアル回帰 + インタラクション | 毎コミット |
+| **E2E** | Playwright | 主要ユーザーフロー | PR / main push |
+| **Visual Regression** | Playwright + Percy/Chromatic | UI 差分 | PR |
+| **Accessibility** | axe-core/playwright | a11y 違反検出 | PR |
+| **Performance** | Lighthouse CI | Core Web Vitals | PR |
+
+#### 3.2 カスタムフックのテスト
+```tsx
+// hooks/__tests__/useLocalStorage.test.ts
+import { renderHook, act } from '@testing-library/react'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { useLocalStorage } from '../useLocalStorage'
+
+describe('useLocalStorage', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('初期値を返す', () => {
+    const { result } = renderHook(() => useLocalStorage('key', 'default'))
+    expect(result.current[0]).toBe('default')
+  })
+
+  it('値を設定すると localStorage に保存される', () => {
+    const { result } = renderHook(() => useLocalStorage('key', 'default'))
+    act(() => result.current[1]('updated'))
+    expect(result.current[0]).toBe('updated')
+    expect(localStorage.getItem('key')).toBe('"updated"')
+  })
+})
+```
+
+#### 3.3 Server Actions のテスト
+```tsx
+// app/jobs/__tests__/actions.test.ts
+import { describe, it, expect, vi } from 'vitest'
+import { createJob } from '../actions'
+import { db } from '@/lib/db'
+
+vi.mock('@/lib/db', () => ({ db: { job: { create: vi.fn() }}}))
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+vi.mock('next/navigation', () => ({ redirect: vi.fn() }))
+
+describe('createJob Server Action', () => {
+  it('必須項目不足時にフィールドエラーを返す', async () => {
+    const formData = new FormData()
+    formData.set('title', '')
+    const result = await createJob(null, formData)
+    expect(result).toEqual({ ok: false, fieldErrors: expect.objectContaining({ title: expect.any(Array) }) })
+  })
+
+  it('正常データで DB 保存 + キャッシュ再検証を実行する', async () => {
+    const formData = new FormData()
+    formData.set('title', 'FE Engineer')
+    formData.set('description', '10 文字以上の説明文です')
+    formData.set('salary', '6000000')
+    ;(db.job.create as any).mockResolvedValue({ id: 'j1' })
+    await createJob(null, formData)
+    expect(db.job.create).toHaveBeenCalledWith({
+      data: { title: 'FE Engineer', description: '10 文字以上の説明文です', salary: 6000000 }
+    })
+  })
+})
+```
+
+#### 3.4 Storybook `play` 関数でインタラクションテスト
+```tsx
+// components/JobCard.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react'
+import { userEvent, within, expect } from '@storybook/test'
+import { JobCard } from './JobCard'
+
+const meta = { component: JobCard } satisfies Meta<typeof JobCard>
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {
+  args: { job: { id: 'j1', title: 'FE Engineer', salary: 6000000, company: 'LET', isFavorite: false }, onFavorite: () => {} },
+}
+
+export const FavoriteInteraction: Story = {
+  args: { ...Default.args, onFavorite: () => alert('お気に入り') },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const button = canvas.getByRole('button', { name: /お気に入りに追加/ })
+    await userEvent.click(button)
+    await expect(button).toHaveAttribute('aria-pressed', 'true')
+  },
+}
+
+export const EmptyState: Story = { args: { ...Default.args, job: null as any }}
+export const LoadingState: Story = { args: { ...Default.args, isLoading: true } as any }
+export const ErrorState: Story = { args: { ...Default.args, error: 'データ取得失敗' } as any }
+```
+
+#### 3.5 CI パイプライン設定例
+```yaml
+# .github/workflows/ci.yml
+name: CI
+on: [pull_request]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tsc --noEmit                      # 型チェック
+      - run: pnpm eslint . --max-warnings=0         # Lint（警告ゼロ強制）
+      - run: pnpm vitest run --coverage             # Unit + Component
+      - run: pnpm playwright test                   # E2E
+      - run: pnpm size-limit                        # バンドルサイズ
+      - run: pnpm build && pnpm lhci autorun        # Lighthouse CI
+      - uses: actions/upload-artifact@v4
+        with: { name: reports, path: coverage/ lhci/ }
+```
+
+### 4. Riku PR 引き渡し前セルフレビュー 12 項目チェックリスト
+
+- [ ] **TypeScript strict mode で `any` ゼロ**（`pnpm tsc --noEmit` PASS）
+- [ ] **ESLint 警告ゼロ**（`@next/next/*` `react-hooks/exhaustive-deps` `jsx-a11y/*` を error 化）
+- [ ] **Vitest カバレッジ 80% 以上**（`getByRole` / `getByLabelText` 中心・`getByTestId` は 5% 未満）
+- [ ] **Storybook 5 状態ストーリー完備**（Default / Loading / Error / Empty / Interactive）
+- [ ] **Server/Client Components 境界が `'use client'` で明示**（Client ツリー最小化）
+- [ ] **Lighthouse Performance 90 以上**（LCP < 2.5s / INP < 200ms / CLS < 0.1）
+- [ ] **バンドルサイズ差分が `size-limit` 内**（PR コメントに自動投稿）
+- [ ] **axe-core 違反ゼロ**（`axe-core/playwright` の CI 自動チェック）
+- [ ] **キーボード操作のみで主要フロー完遂可能**（実機で Tab / Enter / Escape 確認）
+- [ ] **VoiceOver 読み上げで意味が通る**（macOS で実機確認）
+- [ ] **レスポンシブ 3 幅 OK**（iPhone SE 375px / iPad 768px / Desktop 1280px＋Playwright 自動スクショ）
+- [ ] **環境変数が `.env.example` に追加済み**（`NEXT_PUBLIC_` プレフィックスの正誤含む）
+
+### 5. パフォーマンス・a11y・テストの Mio 引き渡しパック
+実装完了 PR に必ず添付：
+1. **`data-testid` 一覧**（コンポーネントごと、Mio の RTL/E2E の参照キー）
+2. **Storybook ストーリー URL**（5 状態：Default / Loading / Error / Empty / Interactive）
+3. **主要ユーザーフロー Loom 動画**（30 秒、UI の意図と操作感を音声で解説）
+4. **axe-core レポート**（違反ゼロを CI アーティファクトで提出）
+5. **Lighthouse スコア＋バンドル差分**（PR コメント自動投稿）
+6. **PC/SP スクショ**（Playwright `devices` プリセットで 3 幅自動撮影）
+7. **キーボード操作動画**（Tab / Enter / Escape で主要フロー完遂を録画）
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

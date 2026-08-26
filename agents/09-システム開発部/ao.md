@@ -126,6 +126,760 @@ STEP 6: 実装完了報告
 - **Haru**：環境変数・DB接続情報を渡す
 - **Mio**：テスト・コードレビューを依頼する
 
+---
+
+## API設計・実装ベストプラクティス
+
+### 1. スタック選定判断フレームワーク（要件→技術のマッピング）
+
+| 要件 | 第一選択 | 理由 | 代替 |
+|------|---------|------|------|
+| Next.js 内の社内ツール・管理画面 | Server Actions | 型自動・ボイラープレートゼロ・RSC 統合 | Route Handler（外部呼び出しがある場合） |
+| 外部公開 REST API（モバイル・SPA・SaaS 連携） | Next.js Route Handler + `@hono/zod-openapi` | Zod→OpenAPI 単一ソース、Swagger UI 同梱 | Hono（Cloudflare Workers / Bun）、Express（レガシー保守） |
+| TypeScript 同一 monorepo の FE/BE | tRPC v11 | End-to-End 型安全、REST/GraphQL の中間 | Server Actions（Next.js 完結時） |
+| 複数クライアントで柔軟なクエリ（管理画面＋モバイル＋外部連携） | GraphQL（Apollo Server / Yoga） | クライアント側でフィールド選択、単一エンドポイント | REST + BFF |
+| 高スループット・低レイテンシ・型付きバイナリ | gRPC | Protocol Buffers、双方向ストリーム | REST + Protobuf |
+| Edge / Global Low Latency | Hono on Cloudflare Workers | 起動 10ms、グローバル分散 | Next.js Edge Runtime |
+| リアルタイム双方向通信 | WebSocket（`ws`）／Server-Sent Events | 常時接続・push 通知 | Pusher / Ably（マネージド） |
+
+**判断軸**: 「呼び出し元が Next.js のみ→Server Actions、外部あり→REST/tRPC、多様なクライアント→GraphQL、リアルタイム→WS/SSE」
+
+### 2. RESTful 設計 8 原則（Ao 実装規約）
+
+1. **リソース指向 URL**: 動詞禁止（❌ `/api/getUser` → ✅ `/api/users/:id`）、複数形統一（`/users`, `/orders`）、階層は 2 段まで（`/users/:id/orders`）
+2. **HTTP メソッドの意味論**: GET（取得・安全・冪等）／POST（作成・非冪等）／PUT（全置換・冪等）／PATCH（部分更新・冪等推奨）／DELETE（削除・冪等）
+3. **ステータスコード厳密化**: 200 OK / 201 Created（+ Location ヘッダ）/ 204 No Content / 400 Bad Request（バリデーション）/ 401 Unauthorized（未認証）/ 403 Forbidden（認可 NG）/ 404 Not Found / 409 Conflict（重複）/ 422 Unprocessable（意味的エラー）/ 429 Too Many Requests（+ Retry-After）/ 500 Internal Server Error / 503 Service Unavailable
+4. **統一エラー DTO**: `{ code: string, field?: string, message: string, details?: object }` を全エラーで返却、`code` は `USER_NOT_FOUND` 等の SCREAMING_SNAKE、`message` はユーザー向け日本語
+5. **ページネーション**: 一覧は cursor 方式標準（`(created_at DESC, id DESC)` 複合カーソル）、offset は件数固定管理用途のみ、`{ items, nextCursor, hasMore }` 統一形状
+6. **フィルタ・ソート**: `?filter[status]=active&sort=-created_at`（RFC 6570 準拠）、ソートは `-` 接頭辞で降順、DoS 防止に許可カラムをホワイトリスト化
+7. **バージョニング**: URL パス方式（`/api/v1/users`）を第一選択、破壊的変更時のみ v2 追加、v1 は最低 6 ヶ月サポート
+8. **冪等性キー**: POST 系に `Idempotency-Key` ヘッダ必須化（クライアント生成 UUID）、24 時間キャッシュで二度目は同結果返却、決済・注文・応募で必須
+
+### 3. OpenAPI 単一ソース運用（Zod → 4 派生）
+
+```
+              ┌───────────────────────┐
+              │  Zod スキーマ（1 箇所） │
+              └───────────┬───────────┘
+                          │
+        ┌─────────────────┼─────────────────┬──────────────────┐
+        ▼                 ▼                 ▼                  ▼
+  z.infer<T>       zod-to-openapi     zodResolver         zod-mock
+  TypeScript 型    OpenAPI 3.1        FE バリデーション    テスト fixture
+  （BE 内で使用）  （Swagger UI）      （Riku 使用）        （Mio 使用）
+```
+
+- `@hono/zod-openapi` の `createRoute({ method, path, request, responses })` で「ルート定義 = OpenAPI 仕様 = TypeScript 型」を 1 コードに統合
+- 設計確定 30 分以内に `/doc` URL を Riku へ共有 → FE/BE 並列実装率 100%、API 待ちブロッキング構造排除
+- スキーマ変更時は `pnpm gen` 1 コマンドで 4 派生を再生成、手動同期工数 30 分/エンドポイント→0 分
+- Mio 引き渡し時は `@anatine/zod-mock` で正常系/異常系 fixture を自動生成、テスト準備 30 分→2 分
+
+### 4. Route Handler 実装テンプレート（Ao 標準）
+
+```typescript
+// app/api/applications/route.ts
+import { z } from 'zod'
+import { withAuth, withRateLimit, withValidation } from '@/lib/middleware'
+import { prisma } from '@/lib/prisma'
+
+const CreateApplicationSchema = z.object({
+  jobId: z.string().uuid(),
+  fullName: z.string().min(1).max(100),  // .max() 境界制約必須
+  email: z.string().email().max(255),
+  phone: z.string().regex(/^0\d{9,10}$/),
+  resume: z.string().max(10_000),
+}).strict()  // 未知フィールド拒否（Mass Assignment 防止）
+
+export const POST = withRateLimit({ limit: 5, window: '1m' })(
+  withAuth(  // 認証ミドルウェア
+    withValidation(CreateApplicationSchema)(  // Zod バリデーション
+      async ({ body, user, idempotencyKey }) => {
+        // 冪等キー確認（二重送信防止）
+        const existing = await prisma.idempotencyRecord.findUnique({
+          where: { key: idempotencyKey }
+        })
+        if (existing) return Response.json(existing.response, { status: existing.status })
+
+        // トランザクションで応募＋通知＋冪等記録を atomic 化
+        const result = await prisma.$transaction(async (tx) => {
+          const application = await tx.application.create({
+            data: { ...body, userId: user.id },
+            select: { id: true, receiptNumber: true, createdAt: true }  // DTO ホワイトリスト
+          })
+          await tx.notification.create({ data: { type: 'APPLIED', userId: user.id } })
+          await tx.idempotencyRecord.create({
+            data: { key: idempotencyKey, response: application, status: 201 }
+          })
+          return application
+        }, { isolationLevel: 'ReadCommitted', maxWait: 5000, timeout: 10000 })
+
+        return Response.json(result, { status: 201 })
+      }
+    )
+  )
+)
+```
+
+**規約**:
+- ミドルウェア関数合成（withRateLimit → withAuth → withValidation → handler）
+- Zod は `.strict()` で未知フィールド拒否
+- 全 string に `.max()` 境界制約
+- `select` で DTO ホワイトリスト（`password_hash` 芋づる漏洩防止）
+- 副作用は `$transaction` で atomic 化
+
+### 5. エラーハンドリング階層設計
+
+```typescript
+// lib/errors.ts
+export class AppError extends Error {
+  constructor(
+    public code: string,
+    public statusCode: number,
+    public userMessage: string,  // ユーザー向け日本語
+    public details?: object
+  ) { super(userMessage) }
+}
+
+export class ValidationError extends AppError {
+  constructor(field: string, message: string) {
+    super('VALIDATION_ERROR', 422, message, { field })
+  }
+}
+
+export class AuthzError extends AppError {
+  constructor() {
+    super('FORBIDDEN', 403, 'この操作を実行する権限がありません')
+  }
+}
+
+export class NotFoundError extends AppError {
+  constructor(resource: string) {
+    super(`${resource.toUpperCase()}_NOT_FOUND`, 404, `${resource}が見つかりません`)
+  }
+}
+
+// グローバルエラーハンドラー
+export function handleError(err: unknown): Response {
+  if (err instanceof AppError) {
+    return Response.json({
+      code: err.code, message: err.userMessage, ...err.details
+    }, { status: err.statusCode })
+  }
+  // 未知のエラーはスタックトレースを本番で返さない
+  Sentry.captureException(err)
+  return Response.json({
+    code: 'INTERNAL_ERROR',
+    message: '予期しないエラーが発生しました。時間をおいて再度お試しください'
+  }, { status: 500 })
+}
+```
+
+### 6. 外部 API 呼び出しの防御実装
+
+```typescript
+// 全外部呼び出しの共通ラッパ
+export async function fetchWithGuard<T>(
+  url: string,
+  options: RequestInit & { timeout?: number; retries?: number } = {}
+): Promise<T> {
+  const { timeout = 5000, retries = 3, ...init } = options
+
+  return await pRetry(
+    async () => {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), timeout)
+      try {
+        const res = await fetch(url, { ...init, signal: controller.signal })
+        if (res.status === 429) {
+          const retryAfter = Number(res.headers.get('Retry-After') ?? 10)
+          throw new pRetry.AbortError(`Rate limited, retry after ${retryAfter}s`)
+        }
+        if (res.status >= 500) throw new Error(`Upstream 5xx: ${res.status}`)
+        if (res.status >= 400) throw new pRetry.AbortError(`Client error: ${res.status}`)
+        return await res.json()
+      } finally { clearTimeout(timer) }
+    },
+    {
+      retries,
+      factor: 2,  // Exponential backoff（100→200→400ms）
+      minTimeout: 100,
+      randomize: true,  // ジッター ±20%
+    }
+  )
+}
+```
+
+**必須事項**:
+- タイムアウト明示（`AbortSignal.timeout` or 手動 controller）
+- Exponential backoff + ジッター
+- 4xx はリトライ禁止、5xx / 429 のみリトライ
+- Circuit Breaker（`opossum`）で連続失敗 5 回→30 秒遮断
+- Sentry に「リトライ発生率」を計測指標として送信
+
+### 7. Webhook 実装セキュリティチェックリスト
+
+- [ ] 署名検証必須（`stripe.webhooks.constructEvent(rawBody, sig, secret)`）
+- [ ] `raw body` を保持（`JSON.parse` は検証後）
+- [ ] 冪等キー（`event.id`）で重複処理防止
+- [ ] タイムスタンプ検証（5 分以上古いイベントは拒否＝リプレイ攻撃防止）
+- [ ] 処理は 3 秒以内に応答（重い処理はキュー退避＋ 200 即返却）
+- [ ] 失敗時のリトライ戦略（Stripe は自動リトライあり、独自 Webhook は DLQ）
+- [ ] 全 Webhook イベントを `webhook_events` テーブルに監査ログ保存
+
+### 8. 長時間処理の非同期パターン
+
+```
+[同期 API]                          [非同期 API]
+  POST /api/reports                   POST /api/reports  → 202 Accepted { jobId }
+      ↓                                    ↓
+    5 秒処理                          Queue に投入（BullMQ / Trigger.dev / Inngest）
+      ↓                                    ↓
+    200 OK                            Worker が処理（数分〜数時間）
+                                           ↓
+                                    完了時に Webhook or SSE で通知
+                                    GET /api/jobs/:id で状態取得
+                                    （queued / running / succeeded / failed）
+```
+
+**判断基準**: Vercel Functions `maxDuration` (10s Hobby / 60s Pro / 900s Enterprise) を超える処理は必ず非同期化。Riku とは実装前に「202 レスポンス型／状態取得 endpoint／status 列挙／再試行動線」の契約を握る。
+
+---
+
+## DB設計・パフォーマンス最適化
+
+### 1. スキーマ設計原則（正規化 × 非正規化のトレードオフ）
+
+- **原則: 第 3 正規形（3NF）** — 推移的従属を排除、更新異常を防止
+- **例外: 意図的な非正規化** — 参照頻度が極端に高い集計値はカウンターキャッシュ化（例: 投稿の `likes_count`）、書き込み時にトリガ or アプリ層で更新
+- **アクセスパターン先行設計** — ユーザーの操作フロー順（企業検索→企業詳細→応募）に依存関係を揃え、Riku の UI 実装で余計なロジックを発生させない
+- **命名規約**: テーブル名は snake_case 複数形（`applications`）、カラムは snake_case（`created_at`）、主キーは `id`（UUID v7 推奨、時系列ソート可能）、外部キーは `<table>_id`
+- **共通カラム**: 全テーブルに `id`, `created_at`, `updated_at`, `deleted_at`（論理削除採用時）を必須化、Prisma の `@@map` で命名変換
+
+### 2. インデックス設計（B-Tree / Hash / GIN / GiST 使い分け）
+
+| 型 | 用途 | 例 |
+|----|------|-----|
+| **B-Tree**（デフォルト） | 範囲検索・等価検索・ORDER BY | `WHERE created_at > '2026-01-01'`, `ORDER BY email` |
+| **Hash** | 等価検索専用（B-Tree より高速だが範囲不可） | `WHERE id = 123` の高頻度アクセス |
+| **GIN** | 全文検索・配列・JSONB | `tsvector` 全文検索、`WHERE tags @> ARRAY['react']` |
+| **GiST** | 地理空間（PostGIS）・全文検索の代替 | `ST_Distance(location, point)` |
+| **BRIN** | 大規模時系列テーブル（ソート順が物理配置と一致） | ログテーブルの `created_at` |
+
+**複合インデックス設計原則**:
+- クエリの WHERE 句最頻出順で並べる（`(user_id, created_at DESC)` は「等価条件→範囲条件」順）
+- カバリングインデックス活用: `INCLUDE (status, amount)` で SELECT カラムも含め、テーブル本体を読まずに済ませる（EXPLAIN で「Index Only Scan」が合図）
+- `EXPLAIN ANALYZE` で Seq Scan / Index Scan / Bitmap Heap Scan を必ず確認、Seq Scan が走るテーブルは即 Issue 化
+- 部分インデックス（PostgreSQL）: `CREATE INDEX ... WHERE deleted_at IS NULL` で論理削除済み行を除外、サイズ 1/3
+- カーディナリティ考慮: 高カーディナリティ列（email）ほどインデックスが効く、低カーディナリティ列（性別）単独は非推奨
+
+### 3. マイグレーション運用（3 段階デプロイ・破壊的変更検出）
+
+**破壊的変更の判定**:
+- `DROP COLUMN` / `DROP TABLE` / `ALTER TYPE`（型変換）／NOT NULL 追加（既存 NULL データあり）／UNIQUE 追加（既存重複あり）
+- CI で `prisma migrate diff --from-empty --to-schema-datamodel` を毎 PR 実行、検出時は `breaking-change` ラベル自動付与
+
+**3 段階デプロイ（expand / migrate / contract）**:
+```
+① Expand（拡張）
+  - NULL 許容で新カラム追加（`ALTER TABLE users ADD COLUMN new_col TEXT`）
+  - アプリ側は旧カラム＋新カラム両方を書き込み
+  - 既存 read は旧カラムを参照
+
+② Migrate（データ移行）
+  - バックフィルバッチ実行（1000 行ずつ、スリープ挟む）
+  - 完了後、read も新カラムに切り替え
+
+③ Contract（縮小）
+  - 旧カラム削除 or NOT NULL 制約追加
+  - 各ステップ間に 1 日以上の安定期間、ロールバック可能性を担保
+```
+
+**インデックス追加の注意**:
+- 本番テーブルへの `CREATE INDEX`（非 CONCURRENT）はテーブル全体を長時間ロック → デプロイ中実質ダウン
+- 必ず `CREATE INDEX CONCURRENTLY` を使用（PostgreSQL）、実行時間を事前見積もり
+- MySQL は Percona Toolkit の `pt-online-schema-change` or `gh-ost` 使用
+
+**ロールバック SQL 併存**:
+- 全マイグレーションに UP / DOWN SQL をペアで作成
+- ロールバック手順を Runbook 化して Kuu と共有
+
+### 4. N+1 検出・防止（Prisma / Drizzle）
+
+**検出**:
+- ローカル開発時に Prisma `log: ['query']` を常時有効化、SQL 数を console 確認
+- `prisma-query-counter` を Vitest セットアップに組込、1 テスト内で発行 SQL 数が想定超過なら fail
+- 本番は pganalyze で slow query Top10 を週次レビュー
+
+**防止**:
+- `findMany` に必ず `include` or `select` を明示（`select` 単独 ESLint カスタムルールで警告）
+- 複雑なジョインは `$queryRaw` で 1 クエリに集約
+- DataLoader パターンで request 内バッチング（GraphQL 必須、REST でも複数リソース集約時に有用）
+- 一括投入は `createMany` or バッチ `$transaction`、ループ内 `create` は禁止（`Promise.all` でも危険）
+
+**目標**: 1 リクエスト = 1〜2 SQL を上限ルール化
+
+### 5. トランザクション設計（分離レベル・ロック戦略）
+
+| 分離レベル | 特徴 | 用途 |
+|-----------|------|------|
+| READ UNCOMMITTED | ダーティリード許容（最弱） | 統計値の概算表示 |
+| READ COMMITTED | PostgreSQL/Oracle デフォルト、ノンリピータブルリード発生 | 一般的な CRUD |
+| REPEATABLE READ | MySQL InnoDB デフォルト、ファントムリード発生 | レポート集計 |
+| SERIALIZABLE | 最強、性能犠牲 | 在庫減算・残枠管理・決済 |
+
+**Prisma 実装例**:
+```typescript
+await prisma.$transaction(async (tx) => {
+  const stock = await tx.product.findUnique({
+    where: { id: productId },
+    select: { stock: true }
+  })
+  if (stock.stock <= 0) throw new AppError('OUT_OF_STOCK', 409, '在庫切れです')
+  await tx.product.update({
+    where: { id: productId, stock: { gt: 0 } },  // 条件付き更新
+    data: { stock: { decrement: 1 } }  // アトミック更新
+  })
+  await tx.order.create({ data: { productId, userId } })
+}, {
+  isolationLevel: 'Serializable',
+  maxWait: 5000,   // ロック待機上限
+  timeout: 10000,  // トランザクション実行上限
+})
+```
+
+**ロック戦略の使い分け**:
+- **悲観ロック（`SELECT ... FOR UPDATE`）**: 確実に競合する処理（在庫減算・残席管理・ポイント消費）、他者を待たせる
+- **楽観ロック（`version` カラム）**: 稀な同時編集（管理画面のプロフィール編集）、`UPDATE ... WHERE version = :old` の affected rows で衝突検出、0 なら再試行
+- **デッドロック防止**: ロック取得順を「常に主キー昇順」等で全社統一、`ORDER BY id FOR UPDATE` で順序強制
+
+### 6. コネクションプール管理（サーバーレス特有の落とし穴）
+
+**問題**: Vercel Functions は関数毎に Prisma Client が独立生成 → 同時実行数 × 接続数で DB max_connections を瞬時に超過 → 「Too many connections」で全リクエスト 500
+
+**対策**:
+```env
+# DATABASE_URL に接続数制限を明示
+DATABASE_URL="postgresql://...?connection_limit=1&pool_timeout=10"
+```
+
+- 外部 Pooler 経由必須化: PgBouncer（Transaction mode）／Neon Pooler／Supabase Pooler／Prisma Accelerate
+- 本番デプロイ前に `pg_stat_activity` で同時接続数上限を確認
+- Vercel Functions の最大同時実行数 ×（1 + バッファ）が DB max_connections 内に収まる設計
+- Serverless では `new PrismaClient()` を毎回作らず、モジュールスコープでシングルトン化
+
+### 7. PostgreSQL / MySQL / Supabase 使い分け
+
+| 要件 | 推奨 | 理由 |
+|------|------|------|
+| 一般的な業務 SaaS（採用管理・CRM・EC） | **PostgreSQL**（Supabase / Neon / RDS） | JSONB / 部分インデックス / RLS / GIN 全文検索 / トランザクション DDL |
+| 高スループット読み書き（SNS・掲示板） | MySQL / TiDB | InnoDB の書き込み性能、レプリケーション成熟 |
+| リアルタイム DB + 認証 + Storage 一体運用 | **Supabase** | Postgres + Auth + Realtime + Storage + Edge Functions が統合 |
+| Edge / Serverless 前提 | Neon / PlanetScale | ブランチ機能・自動スケール・従量課金 |
+| 分析・BI 用途 | ClickHouse / BigQuery / Snowflake | 列指向・大規模集計 |
+
+**Supabase RLS（Row Level Security）活用**:
+```sql
+-- 応募者は自分の応募のみ参照可能
+CREATE POLICY "Users see own applications"
+  ON applications FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- 採用担当は自社の応募のみ参照可能
+CREATE POLICY "Recruiters see company applications"
+  ON applications FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM company_members
+      WHERE company_id = applications.company_id
+      AND user_id = auth.uid()
+    )
+  );
+```
+
+RLS で DB 層に認可を寄せると、アプリ層のバグでも他ユーザーデータが漏れない二重防御になる。
+
+### 8. キャッシュ戦略（Redis / Vercel KV / Upstash）
+
+**レイヤ設計**:
+```
+[Browser]
+  ↓ HTTP Cache（Cache-Control ヘッダ）
+[CDN / Vercel Edge Cache]
+  ↓
+[Application Cache（Redis）]
+  ↓
+[Database]
+```
+
+**Redis 使用の必須ルール**:
+- TTL 必須（`SET key value EX 3600`）、TTL なし `SET` を ESLint カスタムルールで警告
+- ヘルパー関数 `cache.set(key, value, ttlSeconds)` で TTL 引数を必須化
+- `maxmemory-policy: allkeys-lru` に設定、TTL 漏れでも LRU で自動削除
+- 月次で `MEMORY USAGE` 上位キーを監視
+
+**キャッシュ無効化の 3 戦略**:
+1. **TTL ベース**: シンプル、古いデータを最大 TTL 秒許容
+2. **明示的無効化**: mutation 時に `cache.del(key)` or `revalidateTag()`、実装漏れリスクあり
+3. **バージョニング**: `user:123:v5` のようにキーにバージョン埋込、更新時にバージョン加算
+
+**Next.js `revalidateTag` / `revalidatePath` パターン**:
+```typescript
+// キャッシュ付き取得
+const applications = await unstable_cache(
+  async (userId) => prisma.application.findMany({ where: { userId } }),
+  ['applications'],
+  { tags: [`user:${userId}:applications`], revalidate: 3600 }
+)(userId)
+
+// mutation 時に無効化
+await prisma.application.create({ data })
+revalidateTag(`user:${userId}:applications`)
+```
+
+### 9. パフォーマンス測定・監視
+
+**ローカル開発時**:
+- `EXPLAIN ANALYZE` で全 slow query（>100ms）を確認
+- Prisma Query Log で N+1 検出
+- `vitest --watch` で常時テストランナー、実装→テスト→結果確認を 3 秒サイクル化
+
+**ステージング / 本番**:
+- Sentry Performance で全 API の p95 送信、500ms 超は Slack 自動通知
+- pganalyze で slow query Top10 週次レビュー、Index 提案を自動取得
+- OpenTelemetry で分散トレース、外部 API 呼び出しのボトルネック可視化
+
+**SLO 定義例**:
+- p95 レイテンシ ≤ 500ms（採用担当が「反応がある」と感じる閾値）
+- エラー率 ≤ 0.1%（1000 リクエスト中 1 件以下）
+- 可用性 ≥ 99.9%（月間ダウンタイム 43 分以下）
+
+---
+
+## 認証・認可・セキュリティ実装
+
+### 1. 認証（Authentication）実装パターン
+
+**方式の使い分け**:
+
+| 方式 | 用途 | ライブラリ |
+|------|------|-----------|
+| **OAuth 2.1 / OIDC**（Google / GitHub / Slack） | SaaS ログイン | NextAuth.js / Clerk / Supabase Auth |
+| **Magic Link**（メール認証） | パスワードレス・低頻度利用 | Supabase Auth / Resend |
+| **Passkey（WebAuthn）** | 業務システム・高セキュリティ | @simplewebauthn/server |
+| **JWT + Refresh Token** | モバイルアプリ・SPA | jose / jsonwebtoken |
+| **Session Cookie** | 従来型 Web アプリ | iron-session / lucia-auth |
+| **API Key** | サーバー間通信・外部連携 | 独自実装（bcrypt でハッシュ化保存） |
+
+**JWT 実装の必須事項**:
+```typescript
+import { jwtVerify, createRemoteJWKSet } from 'jose'
+
+const JWKS = createRemoteJWKSet(new URL('https://auth.example.com/.well-known/jwks.json'), {
+  cacheMaxAge: 600_000,  // 10 分キャッシュ
+})
+
+const { payload } = await jwtVerify(token, JWKS, {
+  algorithms: ['RS256'],       // ホワイトリスト（`alg: none` 攻撃防止）
+  audience: 'my-api',           // 想定オーディエンス検証
+  issuer: 'https://auth.example.com',
+  // exp, nbf は自動検証
+})
+```
+
+**NG パターン**:
+- `jwt.decode()` だけで信頼（署名未検証）→ 認可バイパス
+- `alg: 'none'` を許容 → 誰でも任意トークン生成可能
+- Refresh Token を localStorage 保存 → XSS で盗まれる
+- Access Token を long-lived（1 週間等）→ 漏洩時のリスク増大
+
+**推奨**:
+- Access Token: 15 分〜1 時間、Refresh Token: 7〜30 日 + rotation
+- Refresh Token は httpOnly + Secure + SameSite=Strict Cookie に保存
+- ログアウト時は Refresh Token を DB から失効（revoke list）
+- 鍵ローテーション想定で JWKs エンドポイントから公開鍵取得＋キャッシュ
+
+### 2. 認可（Authorization）実装パターン
+
+**用語の厳密区別**:
+- **認証（Authentication）**: 「誰か」を確認（ログイン・JWT 検証）
+- **認可（Authorization）**: 「その操作を許すか」を確認（リソース所有者チェック・ロール判定）
+
+**認可漏れ = OWASP API1（Broken Object Level Authorization）**、最頻出脆弱性
+
+**実装方式**:
+
+| 方式 | 用途 | 例 |
+|------|------|-----|
+| **RBAC**（Role-Based） | ロール単位の権限（admin / editor / viewer） | 管理画面 |
+| **ABAC**（Attribute-Based） | 属性ベース（部署・地域・時間帯） | 大企業の複雑な権限 |
+| **ReBAC**（Relationship-Based） | 関係性ベース（OpenFGA / Zanzibar） | 「人事は全応募・現場は自部署のみ」 |
+| **RLS**（Row Level Security） | DB 層で強制 | Supabase / PostgreSQL |
+| **ACL**（Access Control List） | リソースごとの権限リスト | ファイル共有 |
+
+**認可ミドルウェア化（Ao 標準）**:
+```typescript
+// lib/middleware/checkOwnership.ts
+export function checkOwnership(getResourceUserId: (params: any) => Promise<string>) {
+  return async (req: Request, params: any, user: User) => {
+    const resourceUserId = await getResourceUserId(params)
+    if (resourceUserId !== user.id && !user.roles.includes('admin')) {
+      throw new AuthzError()  // 403 Forbidden
+    }
+  }
+}
+
+// 使用例
+export const GET = withAuth(
+  checkOwnership(async ({ id }) => {
+    const app = await prisma.application.findUnique({ where: { id }, select: { userId: true } })
+    if (!app) throw new NotFoundError('application')
+    return app.userId
+  })(async ({ params }) => {
+    return Response.json(await prisma.application.findUnique({ where: { id: params.id } }))
+  })
+)
+```
+
+**Prisma `$extends()` によるグローバル認可注入**:
+```typescript
+// lib/prisma.ts
+export const prisma = new PrismaClient().$extends({
+  query: {
+    $allModels: {
+      async $allOperations({ operation, args, query, model }) {
+        const ctx = getContext()
+        if (['findMany', 'findFirst', 'findUnique', 'update', 'delete'].includes(operation)) {
+          args.where = {
+            ...args.where,
+            deletedAt: null,  // ソフトデリート
+            userId: ctx.userId,  // 認可
+          }
+        }
+        return query(args)
+      }
+    }
+  }
+})
+```
+
+**認可のセキュリティレビュー原則**:
+- URL パラメータの `:id` が現在ログインユーザーの所有物か、Zod バリデーション前に確認
+- リストエンドポイントの `WHERE user_id = :currentUserId` を必ず適用
+- CI で「全 Route Handler に `checkOwnership` 呼び出しがあるか」を AST 解析で検証
+- 認可ペアテスト（自分 200・他人 403）を Vitest で必須網羅
+
+### 3. OWASP API Security Top 10 2023 対策
+
+| # | 脆弱性 | Ao 実装対策 |
+|---|--------|-----------|
+| **API1** | Broken Object Level Authorization | 全エンドポイントに `checkOwnership()` ミドルウェア、`$extends()` グローバル注入、CI AST 解析 |
+| **API2** | Broken Authentication | `jose.jwtVerify()` 必須クレーム検証、Refresh Token rotation、Rate Limit on login |
+| **API3** | Broken Object Property Level Authorization | Zod `.strict()` で未知フィールド拒否、`select` で DTO ホワイトリスト、Mass Assignment 防止 |
+| **API4** | Unrestricted Resource Consumption | ページネーション必須、Rate Limit、`content-length` チェック、`maxDuration` 設定 |
+| **API5** | Broken Function Level Authorization | ロール判定を関数単位で実装、admin エンドポイントを分離 |
+| **API6** | Unrestricted Access to Sensitive Business Flows | 決済・応募・退会は Rate Limit + 冪等キー + audit log |
+| **API7** | Server Side Request Forgery（SSRF） | 外向き URL の許可リスト、内部 IP（127.0.0.1 / 10.x / 169.254.x）ブロック |
+| **API8** | Security Misconfiguration | CORS `*` 禁止、`console.log` 禁止（ESLint）、本番はスタックトレース非返却 |
+| **API9** | Improper Inventory Management | OpenAPI ドキュメント自動生成で全 API 可視化、旧 API 廃止スケジュール明記 |
+| **API10** | Unsafe Consumption of APIs | 外部 API レスポンスも Zod で検証、タイムアウト＋ Circuit Breaker |
+
+### 4. 入力バリデーション・サニタイズ
+
+**Zod スキーマの必須ルール**:
+- 全 string に `.max()` 境界制約（10MB POST 防止）
+- 全 array に `.max()` 要素数上限
+- 全 number に `.min().max()` 範囲制約
+- `.strict()` で未知フィールド拒否（Mass Assignment 防止）
+- HTML を含む可能性のある入力は DOMPurify でサニタイズ後保存
+
+**SQL Injection 防止**:
+- ORM 経由の parameterized query 必須（Prisma / Drizzle は自動）
+- 生 SQL は `$queryRaw` の tagged template（`$queryRaw\`SELECT * FROM users WHERE id = ${id}\``）
+- 文字列連結 SQL は絶対禁止（ESLint カスタムルールで検出）
+
+**XSS 防止**:
+- React / Next.js はデフォルト自動エスケープ、`dangerouslySetInnerHTML` は要レビュー
+- Content Security Policy（CSP）ヘッダ設定
+- Cookie に `HttpOnly` + `Secure` + `SameSite=Lax` 必須
+
+**CSRF 防止**:
+- SameSite=Lax Cookie（デフォルト保護）
+- 変更系操作は POST/PUT/DELETE のみ、GET は副作用なし
+- 追加でトークン方式（Double Submit Cookie）を管理画面で採用
+
+**SSRF 防止**:
+- 外部 URL fetch は許可リスト（`allowedHosts: ['api.stripe.com']`）
+- 内部 IP レンジ（127.0.0.0/8, 10.0.0.0/8, 169.254.0.0/16）を必ずブロック
+- DNS rebinding 攻撃防止に IP アドレス直接指定を拒否
+
+**ファイルアップロード**:
+- サイズ上限を Route Handler 冒頭で `content-length` チェック
+- マジックバイト（先頭数バイト）で実 MIME 判定
+- 許可拡張子・MIME のホワイトリスト（`image/jpeg`, `image/png`, `application/pdf`）
+- 保存ファイル名はサーバー生成 UUID（パストラバーサル防止）
+- ウイルススキャン（ClamAV / Cloudflare R2 の scan）を必要に応じて実施
+
+### 5. 秘密管理（Secret Management）
+
+**環境変数管理**:
+- `.env.example` に全必須キーを空値で記載、コミット時に `[env]` プレフィックス
+- Zod で起動時バリデーション（fail-fast）
+- 参照は型付き `env` オブジェクト経由、`process.env.X` 直参照を ESLint で禁止
+
+```typescript
+// lib/env.ts
+import { z } from 'zod'
+
+const envSchema = z.object({
+  DATABASE_URL: z.string().url(),
+  NEXTAUTH_SECRET: z.string().min(32),
+  STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
+  STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
+  REDIS_URL: z.string().url(),
+})
+
+export const env = envSchema.parse(process.env)  // 起動時失敗
+```
+
+**シークレットローテーション**:
+- API キー・DB パスワードは 90 日ごとにローテーション
+- 旧鍵と新鍵の並行運用期間（1〜7 日）を設ける
+- Vercel Environment Variables / AWS Secrets Manager / GCP Secret Manager 使用
+
+**秘密漏洩検出**:
+- `gitleaks` を pre-commit hook に組込
+- GitHub Secret Scanning（有効化必須）
+- ログ出力時は `redact` ライブラリでマスク（`password`, `token`, `secret`, `key` を含む key を自動除外）
+
+### 6. Rate Limiting 実装
+
+**アルゴリズムの使い分け**:
+
+| 方式 | 特徴 | 用途 |
+|------|------|------|
+| **Token Bucket** | バースト許容、一定速度で補充 | 応募 API の連打防止（短時間 5 回、1 分回復） |
+| **Leaky Bucket** | 平滑化、超過分は捨てる | 外部 API 呼び出しの流量制御 |
+| **Fixed Window** | 時間枠ごとにカウント（境界で瞬間 2 倍問題） | 単純な用途 |
+| **Sliding Window** | 直近 N 秒を滑らかに集計 | 高精度な制限 |
+
+**実装例（Upstash + Vercel）**:
+```typescript
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(5, '1 m'),  // 5 req/min
+  analytics: true,
+})
+
+export async function withRateLimit(req: Request, key: string) {
+  const { success, limit, remaining, reset } = await ratelimit.limit(key)
+  if (!success) {
+    return Response.json(
+      { code: 'RATE_LIMITED', message: 'しばらく待って再度お試しください' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)),
+          'X-RateLimit-Limit': String(limit),
+          'X-RateLimit-Remaining': String(remaining),
+        }
+      }
+    )
+  }
+}
+```
+
+**制限単位の選択**:
+- ログイン: IP 単位（ブルートフォース対策）
+- 一般 API: ユーザー ID 単位（ログイン済み）＋ IP 単位（未ログイン）
+- 外部 API 連携: API キー単位
+
+**必須事項**:
+- 429 レスポンスに `Retry-After` ヘッダ必須（リトライストーム防止）
+- 制限超過メッセージはユーザー向け日本語
+- 制限値を環境変数化（本番と開発で調整可能に）
+
+### 7. 監査ログ（Audit Log）実装
+
+**記録すべきイベント**:
+- 認証: ログイン成功／失敗、ログアウト、パスワード変更、Passkey 登録
+- 認可: 権限昇格、ロール変更、admin 操作
+- データ変更: 個人情報の read/write、削除操作、一括操作
+- セキュリティ: Rate Limit 超過、不正アクセス試行、Webhook 署名検証失敗
+
+**スキーマ設計**:
+```prisma
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String   // "LOGIN_SUCCESS", "APPLICATION_DELETE" 等
+  resource   String?  // "application:uuid"
+  ipAddress  String?
+  userAgent  String?
+  metadata   Json?    // 追加情報（差分・理由等）
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}
+```
+
+**運用**:
+- 監査ログテーブルは append-only（UPDATE / DELETE 禁止、DB 権限で強制）
+- 保存期間は法定要件に従う（個人情報 3 年、金融 7 年 etc.）
+- 定期的な S3 / Glacier アーカイブ、DB 上は 90 日保持
+- 異常検知（同一 IP からの大量失敗、深夜の admin 操作等）を Slack 通知
+
+### 8. PII（個人情報）取扱いの実装原則
+
+**設計段階で nori（法務）と合意すべき事項**:
+- 保存期間（応募者データは 3 年 / 退会後 1 年 等）
+- 削除フロー（本人請求・退会・保存期間超過）
+- 関連データのカスケード方針（物理削除 vs 論理削除）
+- 第三者提供の有無・目的
+- 利用規約・プライバシーポリシーへの反映
+
+**実装**:
+- 削除 API（本人請求対応）を必ず実装
+- 保存期間超過の自動パージバッチを実装
+- PII カラムは AES-256-GCM で暗号化保存（`pgcrypto` or アプリ層暗号化）
+- パスワードは bcrypt（cost 12）or argon2id でハッシュ化（暗号化ではない）
+- ログに PII を出力しない（`redact` で氏名・電話・メール・住所を自動マスク）
+- レスポンスは DTO ホワイトリストで PII フィールドを制御
+
+**用語の厳密区別**（レビュー時の必須確認）:
+- **ハッシュ化**: 不可逆（パスワード）、bcrypt / argon2id
+- **暗号化**: 鍵で可逆（PII 保存）、AES-256-GCM
+- **エンコード**: 誰でも可逆（base64）、秘匿性ゼロ
+
+「パスワードを暗号化保存」は誤り（ハッシュ化が正）、「base64 で暗号化」はセキュリティ対策にならない。
+
+### 9. セキュリティテスト・監査
+
+**Ao 実装段階での自動テスト**:
+- 認可ペアテスト（自分 200 vs 他人 403）を全エンドポイントで Vitest 網羅
+- SQL Injection ペイロード（`' OR '1'='1`, `'; DROP TABLE users;--`）を Zod でリジェクト確認
+- XSS ペイロード（`<script>alert(1)</script>`）を出力エスケープ確認
+- JWT 改ざん・期限切れ・`alg: none` 攻撃を全てリジェクト確認
+
+**CI 自動チェック**:
+- OWASP API Top 10 の主要項目を AST 解析＋ grep で機械検出
+- `gitleaks` で秘密漏洩検出
+- `npm audit` / Snyk で依存脆弱性検出
+- Semgrep で SAST（Static Application Security Testing）
+
+**Mio への引き渡し時**:
+- 認可ペアテスト用の 2 アカウント（自分・他人）を必ず fixture 同梱
+- 異常系再現手順（401/403/422/500 を意図的に発生させる方法）を Markdown で提供
+- セキュリティ観点のテストケースを危険な境界（TZ 境界、冪等キー重複、race condition、論理削除カスケード）で名指し申告
+
+**本番運用時**:
+- Sentry で全例外を捕捉、認可エラー（403）の急増を Slack 通知
+- 監査ログの異常パターンを日次バッチで検出
+- 年 1 回のペネトレーションテスト実施
+- SOC 2 / ISO 27001 準拠案件では継続的コンプライアンス監視
 
 ---
 

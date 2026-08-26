@@ -155,6 +155,439 @@ STEP 6: 設計書をKaiへ提出
 - **Ao**：バックエンド実装指示を渡す
 - **Haru**：インフラ設計を渡す
 
+## アーキテクチャ設計方法論
+
+### 1. C4 モデル（Simon Brown）による階層描画
+
+C4 モデルはアーキテクチャ図の「ズームレベル」を Context → Container → Component → Code の 4 層で明示する記法。ステークホルダーごとに見せる層を切り替えることで、経営層・PM・実装者・保守者が「同じ図から違う情報を引き出す」設計ドキュメントを実現する。
+
+- **Level 1: System Context Diagram**（システムコンテキスト図）
+  - 「このシステムは誰が使い、外部の何と連携するか」を 1 枚で示す
+  - 登場人物: システム本体（1 個の四角）／ユーザーロール（人型）／外部システム（別四角）
+  - 目的: 経営層・クライアントへの説明、業務スコープ合意
+  - LET 事例: 採用管理 SaaS ⇄ Airwork API ／ SendGrid ／ Slack ／ Stripe ／ Google Analytics
+
+- **Level 2: Container Diagram**（コンテナ図）
+  - 「システム内部を物理的な実行単位（Web App / API / DB / Job Worker）で分割」して描画
+  - 各コンテナに技術スタック（Next.js 15 / Node.js / PostgreSQL 17）を明記
+  - 目的: 技術選定の合意、インフラ設計（Kuu）への橋渡し
+  - コンテナ間の通信プロトコル（HTTPS / gRPC / SQL / Queue）も矢印に明記
+
+- **Level 3: Component Diagram**（コンポーネント図）
+  - 「1 つのコンテナ内をモジュール（DDD の Bounded Context 単位）で分割」して描画
+  - 例: API コンテナ内を「求人管理 / 応募管理 / 通知 / 認証」の 4 モジュールに分割
+  - 目的: 実装者（Riku / Ao）への役割分担、コード配置の設計
+
+- **Level 4: Code Diagram**（コード図）
+  - クラス図・シーケンス図レベル。通常は自動生成（IDE / TypeDoc）で十分、手書きは重要箇所のみ
+  - Nao の設計書では Code 図は原則描かず、Component 図までを人手で作り、Code 図は as-built で自動派生
+
+**Nao の運用ルール**: 設計書必須図＝ Context + Container + Component の 3 枚。C4-PlantUML or Mermaid で記述しバージョン管理する。
+
+### 2. DDD（ドメイン駆動設計）戦略・戦術パターン
+
+**戦略パターン（アーキテクチャレベル）**:
+- **Ubiquitous Language（ユビキタス言語）**: 業務用語を PM・実装・DB カラム名まで統一。「応募者」と「候補者」を混在させない
+- **Bounded Context（境界づけられたコンテキスト）**: 業務ドメインを明確な境界で分割。1 コンテキスト＝ 1 モジュール＝ 1 チーム自律の原則
+- **Context Map（コンテキストマップ）**: コンテキスト間の関係を型で明示
+  - Shared Kernel（共有カーネル）: 2 コンテキストが共通コードを共有
+  - Customer-Supplier（顧客-供給者）: 下流が上流に要求を伝達可能
+  - Conformist（順応者）: 下流が上流モデルを無条件受容
+  - Anticorruption Layer（腐敗防止層 / ACL）: 外部システム連携時に自ドメインを守る変換層
+  - Open Host Service / Published Language: 外部公開 API とその契約
+- **Core Domain / Supporting Subdomain / Generic Subdomain**: コアドメイン（差別化領域）に最優先で投資、汎用領域は SaaS 購入 or OSS 採用で工数節約
+
+**戦術パターン（コード実装レベル）**:
+- **Entity（エンティティ）**: ID で同一性を持つオブジェクト（応募者・求人）
+- **Value Object（値オブジェクト）**: 値の等価性で判定、不変（住所・金額・期間）
+- **Aggregate（集約）**: 一貫性の境界。1 トランザクション＝ 1 集約更新の原則、集約ルートを経由してのみ内部にアクセス
+- **Repository（リポジトリ）**: 集約の永続化を隠蔽するインターフェース
+- **Domain Service（ドメインサービス）**: 単一エンティティに属さない業務ロジック（応募マッチング）
+- **Domain Event（ドメインイベント）**: 業務上意味のある出来事（`ApplicationSubmitted`）を通知、集約間の疎結合連携に使う
+
+**Nao の適用ルール**: 中規模採用系（LET 現状）では「求人管理 / 応募管理 / 選考管理 / 通知」の 4 Bounded Context を切り、集約境界＝トランザクション境界を厳守。集約をまたぐ更新は Domain Event + Outbox パターンで結果整合化。
+
+### 3. アーキテクチャスタイル選定マトリクス
+
+| スタイル | 適用範囲 | メリット | デメリット | LET 適用判断 |
+|---|---|---|---|---|
+| **モノリス** | 小規模・チーム 3 人以下・PoC | 単一デプロイ・デバッグ容易・分散問題ゼロ | スケール制約・技術ロックイン・大規模で保守困難 | 初期 PoC のみ |
+| **モジュラーモノリス** | 中規模・チーム 5-20 人・LET 現状 | モノリスの単純さ＋モジュール境界の明確化・将来分割可能 | モジュール境界の規律が必要・ビルド時間増 | **★ LET 標準解** |
+| **マイクロサービス** | 大規模・チーム 20 人超・完全自律 | チーム自律・独立デプロイ・技術選択自由 | 分散トランザクション・運用負荷激増・デバッグ困難 | 20 人超フェーズで検討 |
+| **サーバーレス（FaaS）** | スパイク対応・非同期処理・イベント駆動 | インフラ管理不要・自動スケール・従量課金 | コールドスタート・実行時間制限・ベンダーロックイン | Vercel Functions で API 層に採用 |
+| **イベント駆動（EDA）** | 非同期処理多い・複数システム連携 | 疎結合・スケール容易・障害隔離 | 因果関係追跡困難・結果整合の複雑さ・順序保証課題 | 通知・媒体連携・分析連携で採用 |
+
+**Nao の判定基準（2026 年更新）**:
+1. **チーム規模で第一次判定**: 5 人以下 → モジュラーモノリス／ 5-20 人 → モジュラーモノリス＋部分マイクロサービス／ 20 人超 → マイクロサービス検討
+2. **変更頻度で第二次判定**: 高頻度変更＋独立デプロイ要求＝分割候補、低頻度＝統合維持
+3. **業界トレンド反映（2025-2026）**: Shopify・Stripe・Amazon Prime Video が「マイクロサービス → モノリス回帰」を公式発表。運用負荷・分散トランザクション・デバッグ困難が理由。LET は過剰分割を避けモジュラーモノリスを堅持
+
+### 4. モノリス vs マイクロサービス トレードオフ 8 軸評価
+
+| 評価軸 | モノリス優位 | マイクロサービス優位 |
+|---|---|---|
+| **開発初速** | ○ 単一リポジトリ・ローカル起動即座 | × 環境構築・サービス間認証設定が重い |
+| **デプロイ独立性** | × 全機能同時デプロイ | ○ サービス単位デプロイ・ダウンタイムゼロ |
+| **スケーラビリティ** | △ 垂直＋水平（全体） | ○ サービス単位で水平スケール |
+| **技術選択自由度** | × 単一スタック強制 | ○ サービス毎に最適言語・DB 選択可 |
+| **チーム自律性** | × 全員が同じコードベース調整 | ○ サービス＝チーム所有で完全自律 |
+| **運用複雑度** | ○ 監視・デプロイ・ログが単純 | × k8s / Service Mesh / 分散トレース必須 |
+| **障害隔離** | × 1 バグで全体停止 | ○ サービス単位で障害封じ込め |
+| **データ整合性** | ○ 単一 DB・ACID トランザクション | × 分散トランザクション・Saga パターン必須 |
+
+### 5. Event Storming（イベントストーミング）による要件抽出
+
+Alberto Brandolini が提唱した「業務ドメインを付箋で可視化する」ワークショップ手法。Nao は Kai との要件擦り合わせで FigJam / Miro に以下の色分けで並べる：
+
+- **オレンジ付箋（Domain Event）**: 業務上意味のある出来事。過去形で記述。「応募が登録された」「書類選考に進んだ」「内定が出た」
+- **青付箋（Command）**: ユーザーがトリガーする操作。命令形で記述。「応募を登録する」「面接日程を設定する」
+- **黄付箋（Actor）**: コマンドを実行する人・システム。「応募者」「採用担当者」「Airwork API」
+- **ピンク付箋（External System）**: 外部連携先。「SendGrid」「Slack」「Stripe」
+- **紫付箋（Policy）**: 「〜が起きたら〜する」の業務ルール。「応募登録されたら担当者に Slack 通知する」
+- **緑付箋（Read Model）**: 画面表示用データ集約。「応募一覧」「候補者ダッシュボード」
+- **赤付箋（Hotspot）**: 疑問点・矛盾点。要ヒアリング
+
+**Nao の運用**: Event Storming で並べた付箋は、そのまま「Aggregate 候補（イベント群のまとまり）」「Bounded Context 境界（色の塊）」「ER 図の下書き」に機械変換する。文章要件から ER 図を起こす工程（2 時間）が付箋列からの変換（30 分）に短縮。
+
+### 6. ADR（Architecture Decision Record）テンプレート
+
+主要な設計判断は必ず ADR で 1 枚残す。Nao の標準テンプレ：
+
+```markdown
+# ADR-XXX: [決定事項の要約]
+
+## Status
+Proposed / Accepted / Deprecated / Superseded by ADR-YYY
+
+## Context
+- 何を決めなければならないか
+- 制約条件（技術・予算・時間・チームスキル）
+- 関係するステークホルダー
+
+## Decision Drivers
+- 優先すべき評価軸（性能・保守性・コスト・チーム習熟度）
+
+## Considered Options
+- Option A: [説明] — Pros / Cons
+- Option B: [説明] — Pros / Cons
+- Option C: [説明] — Pros / Cons
+
+## Decision
+- 採用する選択肢と選定理由
+
+## Consequences
+- Positive: 得られるメリット
+- Negative: 受け入れるトレードオフ
+- 想定される将来リスクと対策
+
+## References
+- 参考にした資料・ベンチマーク・議事録
+```
+
+**Nao の運用**: `docs/adr/` に連番で保存、設計書からリンク。「なぜ Prisma でなく Drizzle か」「なぜ cursor 方式か」「なぜモジュラーモノリスか」など主要判断を全て記録し、後任・将来の自分が「これは変えてよい設計か」を判断可能な状態にする。
+
+---
+
+## DB/API/認証設計ベストプラクティス
+
+### 1. DB 設計 20 チェックポイント
+
+**スキーマ設計**:
+1. **主キー戦略**: 外部公開 ID は UUID v7（時系列ソート可＋推測不可）または ULID 必須。内部 bigint と公開 UUID の 2 軸を持つ
+2. **共通カラム 4 種必須**: `id` / `created_at` / `updated_at` / `deleted_at`（論理削除）を全テーブルに標準セクション化
+3. **時刻カラムは `TIMESTAMPTZ` + UTC 統一**: サーバー TZ 変更・海外ユーザー対応で不整合を防ぐ
+4. **列挙型は `enum` 型 or マスタ FK**: `VARCHAR` 自由文字列は表記ゆれの温床
+5. **金額は `DECIMAL(12,0)` or integer（円単位）**: `FLOAT` は消費税計算で 1 円ズレ発生
+6. **NULL 許容とデフォルト値を全カラムで確定**: 「あとで決める」を残さない
+
+**アクセスパターン先行設計**:
+7. **主要検索クエリ Top 5 を列挙**: WHERE / ORDER BY / JOIN の組み合わせを事前に想定
+8. **複合インデックス設計＋左端プレフィックス則**: `(tenant_id, status, created_at DESC)` のように順序を意図的に設計
+9. **`EXPLAIN ANALYZE` で Seq Scan 検出**: 想定クエリを設計段階で走らせ Index Scan を確認
+10. **N+1 排除**: 1:N の N 側を都度クエリする設計を排除、`include`/`select` 必須仕様化
+
+**整合性・並行制御**:
+11. **外部キー制約と `ON DELETE` の挙動明示**: CASCADE / SET NULL / RESTRICT を選択
+12. **トランザクション分離レベル選択**: 「読んで判断して書く」処理は SERIALIZABLE or 楽観ロック（version カラム）or 悲観ロック（SELECT FOR UPDATE）
+13. **状態遷移の禁止遷移リスト**: 全ステータスカラムに「許可遷移の有向グラフ＋禁止時の 409」を設計書に明記
+14. **1 トランザクションで触るテーブル数 5 以下**: デッドロック確率を抑える
+
+**横断ポリシー**:
+15. **マルチテナント設計**: `tenant_id` NOT NULL ＋複合インデックス ＋ RLS（Row Level Security）で DB 側強制
+16. **論理削除の統一**: Prisma `$extends` ミドルウェアで全モデル横断適用
+17. **監査ログ・イベントログの物理分離**: OLTP（業務 DB）と OLAP（分析 DB）を責務分離、BigQuery / ClickHouse 連携
+
+**スケーラビリティ**:
+18. **想定最大レコード数明記**: ページネーション方式（offset vs cursor）を機械選択の根拠に
+19. **パーティション設計**: 時系列大量データ（ログ・イベント）は月次パーティション＋古い月の DROP 可能化
+20. **サーバーレス接続プール**: Vercel + Postgres は PgBouncer / Supabase Pooler / Prisma Accelerate 必須、接続モード（transaction vs session）を設計書に記載
+
+### 2. API 設計ベストプラクティス（REST + OpenAPI）
+
+**REST 成熟度モデル遵守（Level 2 以上）**:
+- **URL は名詞ベース**: `/users/:id` ○ vs `/getUser?id=1` ×
+- **HTTP メソッドのセマンティクス遵守**:
+  - GET: 冪等・参照のみ・キャッシュ可
+  - POST: 非冪等・新規作成・副作用あり
+  - PUT: 冪等・全置換
+  - PATCH: 部分更新（JSON Patch RFC 6902 or Merge Patch RFC 7396）
+  - DELETE: 冪等・削除
+- **ステータスコードの正確使用**:
+  - 200 OK / 201 Created / 202 Accepted / 204 No Content
+  - 400 Bad Request（バリデーション）／ 401 Unauthorized（認証）／ 403 Forbidden（認可）／ 404 Not Found ／ 409 Conflict（状態衝突）／ 422 Unprocessable Entity ／ 429 Too Many Requests
+  - 500 Internal Server Error ／ 502 Bad Gateway ／ 503 Service Unavailable ／ 504 Gateway Timeout
+
+**エラーレスポンス統一（Problem Details for HTTP APIs / RFC 7807 準拠）**:
+```json
+{
+  "type": "https://api.example.com/errors/validation",
+  "title": "Validation Failed",
+  "status": 400,
+  "code": "VALIDATION_ERROR",
+  "message": "メールアドレスの形式が正しくありません",
+  "action": "email フィールドを確認してください",
+  "details": {
+    "field": "email",
+    "constraint": "format"
+  },
+  "instance": "/applications/123",
+  "trace_id": "abc123..."
+}
+```
+
+**バージョニング戦略**:
+- URL prefix（`/v1/`, `/v2/`）: 実装単純・キャッシュ容易・推奨
+- Accept ヘッダー（`application/vnd.api.v1+json`）: RESTful だが実装複雑
+- クエリパラメータ（`?version=1`）: 非推奨
+
+**ページネーション**:
+- **Offset-based**: `?page=2&limit=20` — 小規模（1 万件未満）・page 番号表示要件あり
+- **Cursor-based**: `?cursor=xxx&limit=20` — 大規模（1 万件以上）・無限スクロール・パフォーマンス優先
+- 全レスポンスに `X-Total-Count` / `Link` ヘッダー（RFC 5988）で next/prev 提供
+
+**冪等性・レート制限**:
+- **Idempotency-Key ヘッダー**: 決済・通知など副作用 POST に必須。24h 保持・同キーで重複時は同レスポンス返却
+- **Retry-After / X-RateLimit-Limit / X-RateLimit-Remaining / X-RateLimit-Reset**: 429 応答時に必須
+
+**スキーマファースト（OpenAPI 3.1 + Zod）**:
+- 設計段階で OpenAPI スキーマ確定 → 実装（`@hono/zod-openapi`）・型（`openapi-typescript`）・モック（Prism / msw）・契約テスト（Dredd / Schemathesis）を全自動派生
+- Ao の実装雛形・Riku の TS 型・Mio のモックが 1 スキーマから同時派生、設計書とコードの乖離が物理的に発生不能化
+
+### 3. GraphQL / gRPC / tRPC 選択基準
+
+| プロトコル | 適用範囲 | メリット | デメリット |
+|---|---|---|---|
+| **REST + OpenAPI** | 外部公開 API・媒体連携 | 業界標準・キャッシュ容易・ツール豊富 | Over-fetching / Under-fetching |
+| **GraphQL** | 複数クライアント・柔軟なデータ取得 | 必要なフィールドのみ取得・型安全 | N+1 リスク（DataLoader 必須）・キャッシュ複雑 |
+| **gRPC** | サービス間通信・高パフォーマンス | Protobuf 型安全・双方向ストリーミング・低レイテンシ | ブラウザ直接不可（gRPC-Web 必要）・デバッグ困難 |
+| **tRPC** | 社内 FE-BE（TypeScript 統一） | 型直結・スキーマ生成不要・DX 最強 | TypeScript 限定・外部公開不向き |
+
+**Nao の判定**: 内部 FE-BE = tRPC（社内向け）、外部公開・媒体連携 = OpenAPI（契約固定）、サービス間 = gRPC（必要時のみ）の 3 層構成が中規模の標準解。
+
+### 4. 認証・認可設計（OAuth 2.1 / OIDC / JWT / RBAC / ABAC）
+
+**認証（AuthN）と認可（AuthZ）の分離**:
+- 認証 = 誰か（401）／認可 = 何をしてよいか（403）を層で完全分離
+- ミドルウェアで認証 → コントローラで認可、の順序を厳守
+
+**OAuth 2.0 / 2.1 / OIDC の区別**:
+- **OAuth 2.0**: 本来「認可の委譲」プロトコル。アクセストークン＝ API 呼び出し権限
+- **OAuth 2.1**: 2.0 の Best Current Practice 統合版（PKCE 必須・Implicit Flow 廃止・Refresh Token Rotation 推奨）
+- **OIDC (OpenID Connect)**: OAuth 2.0 上に ID トークン（JWT）を載せた「認証」レイヤー。「Google ログイン」は厳密には OIDC
+
+**トークン管理**:
+- **JWT（ステートレス）**:
+  - Pros: スケーラビリティ高・DB アクセス不要
+  - Cons: 失効制御が複雑（発行後の即時失効不可）
+  - 対策: 短命 Access Token（5-15 分）+ 長命 Refresh Token（7-30 日）+ Refresh Token Rotation
+  - **署名検証必須**: `alg: none` 攻撃防止、公開鍵取得は JWKS エンドポイントから
+- **サーバーセッション（ステートフル）**:
+  - Pros: 即時失効可・情報漏洩時に一括ログアウト
+  - Cons: Redis 等の共有ストア必須・スケール制約
+  - 対策: HttpOnly / Secure / SameSite=Lax 属性必須
+
+**認可モデル選定**:
+- **RBAC（Role-Based Access Control）**: ロール（admin / editor / viewer）ベース。シンプル・実装容易・小〜中規模向け
+- **ABAC（Attribute-Based Access Control）**: 属性ベース（ユーザー属性・リソース属性・環境属性）。柔軟・複雑な業務ルール表現可能
+- **ReBAC（Relationship-Based Access Control）**: 関係ベース（Google Zanzibar / OpenFGA）。「このドキュメントを共有された人」のような関係表現
+- **PBAC（Policy-Based Access Control）**: ポリシーベース（OPA / Cedar）。宣言的ポリシーで動的制御
+
+**Nao の運用**:
+- 中規模採用系（LET 現状）= RBAC + 属性で「所属拠点」フィルタ（簡易 ABAC）
+- 権限マトリクス（ロール × リソース × CRUD）を Google Sheets で作り、CSV から認可ミドルウェア定義と認可テスト仕様を両生成
+- Ao の実装は表を Single Source として `@casl/ability` or 自作ミドルウェアで生成、Mio の認可ペアテスト（自分 200・他人 403）も同表から派生
+
+**パスキー（WebAuthn / FIDO2）**:
+- パスワードレス認証の業界標準（Apple / Google / Microsoft 全対応）
+- フィッシング耐性・生体認証・端末バインド
+- 2026 年時点で新規 SaaS 設計時の第一選択候補、Nao の設計書に「パスキー対応の要否」を必須検討項目化
+
+---
+
+## セキュリティ・可観測性設計
+
+### 1. STRIDE 脅威モデリング
+
+Microsoft が開発した脅威分類フレームワーク。主要コンポーネント（認証・API・DB・外部連携）ごとに 6 種の脅威を体系的に検討する。
+
+| 脅威 | 意味 | 対策例 |
+|---|---|---|
+| **S** poofing（なりすまし） | 他ユーザー・他システムを装う | 認証強化（MFA / パスキー）・相互 TLS・API キー管理 |
+| **T** ampering（改ざん） | データ・通信内容の書き換え | HTTPS 必須・署名検証（HMAC / JWT）・DB 監査ログ・チェックサム |
+| **R** epudiation（否認） | 「やっていない」と主張される | 監査ログ・改ざん検知（append-only log）・タイムスタンプ・電子署名 |
+| **I** nformation Disclosure（情報漏洩） | 権限外情報が見える | 認可制御・データ暗号化（at rest / in transit）・ログ内 PII マスキング |
+| **D** oS（サービス妨害） | 過負荷でサービス停止 | レート制限・WAF・CDN・オートスケール・サーキットブレーカー |
+| **E** levation of Privilege（権限昇格） | 一般ユーザーが管理権限取得 | 認可の厳格化・最小権限原則・SQL Injection 対策・IDOR 対策 |
+
+**Nao の運用**: 設計書に「STRIDE 表」セクションを必須化。主要コンポーネント（認証層・API 層・DB 層・外部連携層・ファイルストレージ層）× 6 脅威 = 30 セルを埋め、DREAD でリスク評価（Damage / Reproducibility / Exploitability / Affected Users / Discoverability の 5 軸 × 各 10 点）。高リスク（合計 35 点以上）は必ず対策を実装計画に組み込む。
+
+### 2. OWASP Top 10 (2021) 対策
+
+Web アプリセキュリティの業界標準リスクリスト。Nao の設計書に「OWASP Top 10 対策チェック」セクションを必須化。
+
+1. **A01: Broken Access Control（アクセス制御不備）**
+   - 対策: 認可の一元化（ミドルウェアで強制）・IDOR 対策（所有権チェック）・RBAC/ABAC の網羅テスト
+2. **A02: Cryptographic Failures（暗号化の失敗）**
+   - 対策: TLS 1.3 必須・パスワードは Argon2id / bcrypt でハッシュ・PII は AES-256-GCM で暗号化・秘密情報は Vercel Env / Secrets Manager
+3. **A03: Injection（インジェクション）**
+   - 対策: パラメータ化クエリ必須（ORM 使用）・入力バリデーション（Zod）・出力エスケープ（React 標準）・NoSQL Injection / OS Command Injection 対策
+4. **A04: Insecure Design（安全でない設計）**
+   - 対策: STRIDE 脅威モデリング・セキュア・バイ・デザイン・攻撃ツリー分析
+5. **A05: Security Misconfiguration（セキュリティ設定ミス）**
+   - 対策: 最小限のデフォルト設定・不要なポート/機能無効化・エラー詳細を本番で隠蔽・セキュリティヘッダー（CSP / HSTS / X-Frame-Options）
+6. **A06: Vulnerable Components（脆弱な依存関係）**
+   - 対策: `npm audit` / `pnpm audit` / Snyk / Dependabot 自動化・SBOM 管理
+7. **A07: Identification and Authentication Failures**
+   - 対策: パスキー / MFA・セッション管理厳格化・レート制限（ブルートフォース対策）
+8. **A08: Software and Data Integrity Failures**
+   - 対策: サブリソース完全性（SRI）・署名付きコンテナ・CI/CD パイプライン保護
+9. **A09: Security Logging and Monitoring Failures**
+   - 対策: 構造化ログ・SIEM 連携・異常検知アラート・侵入検知（IDS）
+10. **A10: Server-Side Request Forgery (SSRF)**
+    - 対策: URL 検証・内部ネットワーク隔離・許可リスト方式・メタデータサービスへのアクセス禁止
+
+### 3. セキュリティヘッダー標準セット
+
+Nao の設計書で全 Next.js プロジェクトに `next.config.js` の headers 設定として必須化する項目：
+
+- **Strict-Transport-Security**: `max-age=63072000; includeSubDomains; preload`（HTTPS 強制）
+- **Content-Security-Policy**: `default-src 'self'; script-src 'self' 'nonce-xxx'; ...`（XSS 対策）
+- **X-Frame-Options**: `DENY`（クリックジャッキング対策）
+- **X-Content-Type-Options**: `nosniff`（MIME スニッフィング防止）
+- **Referrer-Policy**: `strict-origin-when-cross-origin`（リファラー漏洩防止）
+- **Permissions-Policy**: `camera=(), microphone=(), geolocation=()`（不要 API 無効化）
+- **Cross-Origin-Opener-Policy**: `same-origin`（Spectre 対策）
+- **Cross-Origin-Embedder-Policy**: `require-corp`（クロスオリジンリソース保護）
+
+### 4. 可観測性 3 本柱（Logs / Metrics / Traces）
+
+Google SRE / OpenTelemetry の標準的な設計指針。設計書に「可観測性設計」セクションを必須化。
+
+**構造化ログ（Structured Logging）**:
+- JSON 形式で `timestamp / level / message / request_id / user_id / trace_id / span_id` を必ず含む
+- PII は自動マスキング（メール・電話・住所）
+- ログレベル: TRACE / DEBUG / INFO / WARN / ERROR / FATAL を用途別に運用
+- 集約: Vercel Log Drains → Datadog / Grafana Loki / BigQuery
+- 相関 ID（request_id）を全ログに伝播、1 リクエストの全ログを追跡可能化
+
+**メトリクス（Metrics）**:
+- **RED メソッド（Rate / Errors / Duration）**: リクエストベースサービス向け
+  - Rate: リクエスト数/秒
+  - Errors: エラー率（%）
+  - Duration: レイテンシ（p50/p95/p99）
+- **USE メソッド（Utilization / Saturation / Errors）**: リソースベース
+  - Utilization: 使用率（CPU / メモリ / DB 接続）
+  - Saturation: 飽和度（キュー長・待ち行列）
+  - Errors: エラー数
+- **Golden Signals（Google SRE）**: Latency / Traffic / Errors / Saturation
+- 収集: Prometheus / Datadog / Vercel Analytics
+
+**分散トレーシング（Distributed Tracing）**:
+- OpenTelemetry SDK で全リクエストにトレース ID を採番、サービス間で伝播（`traceparent` ヘッダー / W3C Trace Context）
+- 各処理を Span として計測（DB クエリ・外部 API 呼び出し・キャッシュヒット）
+- 可視化: Jaeger / Tempo / Datadog APM で「どのリクエストのどのステップが遅いか」を即特定
+
+### 5. SLO / SLI / エラーバジェット設計
+
+Google SRE の Site Reliability Engineering 手法。「100% を目指さない」代わりに「意図的な信頼性目標」を数値で合意する。
+
+**SLI（Service Level Indicator）**: 実測する指標
+- API 可用性 = (成功リクエスト数 / 全リクエスト数) × 100
+- レイテンシ = p95 応答時間
+- スループット = リクエスト/秒
+- エラー率 = (5xx レスポンス数 / 全リクエスト数) × 100
+
+**SLO（Service Level Objective）**: 目標値
+- 可用性 SLO = 99.9%（月間ダウンタイム許容 43.2 分）
+- レイテンシ SLO = p95 < 500ms
+- エラー率 SLO = < 0.1%
+
+**エラーバジェット**: 100% - SLO = 許容される失敗量
+- 可用性 99.9% → エラーバジェット 0.1% = 月 43.2 分
+- バジェット消費が早ければ機能開発を止め信頼性改善に投資
+
+**Nao の運用**: 設計書に `SLO.yaml` 必須ファイル化。p95 レイテンシ・可用性・RTO/RPO・同時接続数・データ保持期間を列挙、`TODO` 残留は CI で設計 PR をブロック。クライアントとの数値合意も YAML の diff レビューで完結。Kuu のインフラ設定生成（cron・アラート閾値・heartbeat）と Mio の合否判定基準の共通ソースにする。
+
+### 6. レジリエンス設計パターン
+
+**サーキットブレーカー（Circuit Breaker）**:
+- 外部依存の連続失敗を検知し、一定時間リクエストを遮断（Fail-Fast）
+- 3 状態: Closed（正常）→ Open（遮断中）→ Half-Open（試行）
+- 実装: `opossum` (Node.js) / Polly (.NET) / Resilience4j (Java)
+
+**バルクヘッド（Bulkhead）**:
+- 船の隔壁のように、リソース（スレッド・接続プール）を機能ごとに分離
+- 1 機能の障害が他機能に波及しない構造
+- 実装: 機能別 DB 接続プール分離・別プロセス化
+
+**タイムアウト**:
+- 全外部呼び出しに必ずタイムアウト設定（デフォルト無限は禁止）
+- 段階的タイムアウト: DB クエリ 5s / 外部 API 10s / 全体 30s
+
+**リトライ（Exponential Backoff + Jitter）**:
+- 失敗時に指数関数的に待機時間を増やす（1s → 2s → 4s → 8s）
+- Jitter（ランダム性）で thundering herd 回避
+- 冪等な操作のみリトライ可、非冪等は Idempotency-Key で保護
+- 最大回数（3-5 回）＋ DLQ（失敗キュー）へフォールバック
+
+**Outbox パターン**:
+- DB 書き込みとイベント発行の原子性保証
+- 同一トランザクションで outbox テーブルへ書き、CDC / ポーリングで after-commit 配信
+- 分散システムの「片方だけ成功」を構造排除
+- 実装: Debezium (CDC) / Inngest / Trigger.dev
+
+**Saga パターン**:
+- 分散トランザクションを「補償トランザクション」の連鎖で実現
+- Choreography（イベント駆動）vs Orchestration（中央制御）の 2 方式
+- 例: 予約 → 決済 → 通知の 3 ステップで決済失敗時に予約キャンセルの補償実行
+
+### 7. パフォーマンスエンジニアリング
+
+**負荷テスト設計（k6 / JMeter / Gatling）**:
+- **Smoke Test**: 最小負荷で基本動作確認（VU=1、1 分）
+- **Load Test**: 通常想定負荷で性能確認（VU=100、10 分）
+- **Stress Test**: 限界負荷で破綻点発見（VU=1000、30 分）
+- **Spike Test**: 急激な負荷変動でオートスケール検証（VU=10 → 500 → 10、5 分）
+- **Soak Test**: 長時間負荷でメモリリーク検出（VU=100、8 時間）
+
+**多層キャッシュ戦略**:
+- **CDN キャッシュ**（Vercel Edge / Cloudflare）: 静的アセット・SSG ページ
+- **アプリキャッシュ**（Redis / KV）: セッション・レート制限カウンタ・DB クエリ結果
+- **DB キャッシュ**（PostgreSQL shared_buffers）: 頻繁アクセスデータのメモリ保持
+- **ブラウザキャッシュ**（Cache-Control ヘッダー）: 画像・CSS・JS
+- **Stale-While-Revalidate**: 古い値を返しつつ裏で更新、UX と鮮度の両立
+
+**N+1 排除設計**:
+- Prisma `include`/`select` を API 設計書に必須明記
+- DataLoader（GraphQL）でバッチング・キャッシング
+- `EXPLAIN ANALYZE` 結果を設計書に併載
+
+**データベース最適化**:
+- インデックス設計（B-Tree / GIN / GiST / BRIN）
+- パーティション分割（範囲・リスト・ハッシュ）
+- 読み取り専用レプリカ分離（OLTP / OLAP 責務分離）
+- マテリアライズドビュー（重い集計クエリの事前計算）
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
