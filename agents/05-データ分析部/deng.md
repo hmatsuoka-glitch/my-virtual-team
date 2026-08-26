@@ -132,7 +132,472 @@
 ## 連携エージェント
 - HARU（代表）: 全体方針の確認・意思決定
 - sora（COO/最終QA）: 成果物の最終チェック
-- （その他連携先は実運用で追記）
+- Shun（05-データ分析部・アナリスト）: 分析設計との月初KPI突合・A/Bテスト判定・MMM/アトリビューション実行
+- Akari（04-クライアント管理部・レポート）: 月次レポート向け確定データ供給・CRITICALアラート先出し
+- Ryota（04-クライアント管理部・案件責任）: 提案書の数値根拠（プロベナンス）供給・カラム命名の対クライアント配慮
+- Rui（06-リサーチ部）: 競合クロールデータ納品（鮮度メタ・delisted_at時系列・robots遵守エビデンス同梱）
+- Ana（06-リサーチ部）: 出典URL検証用のUA・バックオフ方針スニペット共有
+- Kaito/Ren（07-LP部）: LP公開前のGA4計測タグ検証（正準イベント辞書・デバッグビュー実測）
+- nori（11-管理部門）: PII保持期限・個人情報保護法・データ利用契約のリーガル確認
+
+---
+
+## 高度データ分析手法詳細
+
+Shun（アナリスト）が扱う分析手法に対して、Dengは「実行可能な入力データ」と「再現可能な計算基盤」を提供する。以下は、Dengが基盤側で整備する主要手法と、日本市場・LET事業（採用マーケ×SNSマーケ）における具体的な業務適用例。
+
+### 1. アトリビューションモデリング（Attribution Modeling）
+
+**目的**: 応募・採用CVに至るまでの複数タッチポイント（TikTok→Instagram→Airwork広告→自然検索→応募）に対して、各接点の貢献度を配分する。ラストクリック偏重の意思決定を脱却し、フルファネルでの媒体投資判断を可能化。
+
+**7モデルの使い分けと基盤側の実装ポイント**:
+
+| モデル | 配分ロジック | Dengが整備すべき入力 | 日本の建設業採用での使いどころ |
+|---|---|---|---|
+| First-Click | 最初の接点に100%配分 | 全タッチポイントの`first_touch_timestamp`カラム | 新規リーチ源の評価。TikTok経由の未認知層獲得を可視化 |
+| Last-Click | 最後の接点に100%配分 | 応募直前接点の`last_touch_timestamp` | GA4のデフォルト。既存の指標と接続用。過小評価される認知施策と併読必須 |
+| Linear | 全接点に均等配分 | タッチポイント時系列テーブル（1応募あたり複数行） | 施策のバランス評価。特定媒体への過剰依存の是正議論 |
+| Time-Decay | CV直前ほど高配分（指数減衰） | 各接点の`seconds_before_conversion` | 建設業採用の「短期意思決定」に適合。応募までの検討期間3-7日想定 |
+| Position-Based（U字型） | 最初と最後に各40%、中間に20% | first/last/middleフラグ列 | 認知（First）とクロージング（Last）を両輪評価 |
+| Data-Driven（GA4） | 機械学習で貢献度を推定 | GA4 BigQuery Exportの`conversions_by_channel_type` | GA4標準搭載。ただしブラックボックス性ありShapley値と併読推奨 |
+| Shapley Value | 協力ゲーム理論で公平配分 | 全接点組み合わせのCV率マトリクス | 学術的に最も公平。7社中2-3社の重要案件で四半期実施 |
+
+**Dengの基盤側実装**:
+- `marts_attribution.touchpoints_per_conversion` テーブル：1応募＝複数行の縦持ちで、`client_id / conversion_id / touchpoint_order / channel / timestamp / seconds_before_conv`を保持
+- Shapley Value計算はBigQuery内では重いため、Pythonの`shap`/`itertools.combinations`で週次バッチ実行しmartsへ書き戻し
+- 各モデルの結果を`marts_attribution.channel_contribution_by_model`に横並びで格納し、Shunがモデル別に媒体投資判断を比較可能化
+
+### 2. MMM（Marketing Mix Modeling）
+
+**目的**: 週次の媒体別支出とマクロ変数（季節性・競合露出・祝日）から、各媒体の応募・採用への寄与を統計的に推定。Cookieless時代のクロスチャネル評価手法として2025年以降主流化。
+
+**手法**:
+- Meta Robyn（オープンソース、Ridge回帰＋NevergradでのAdstock/Saturation最適化）
+- Google LightweightMMM（NumPyroベースのベイズMMM）
+- PyMC-Marketing（Bayesian MMM、PyMC 5系）
+
+**Dengが整備する入力データ**:
+```
+marts_mmm.weekly_media_response
+├── week_start_date (JST月曜起点)
+├── client_id
+├── media_channel (TikTok Ads / Meta Ads / Airwork / Indeed / 自然検索 / …)
+├── spend_jpy (媒体別週次支出)
+├── impressions
+├── clicks
+├── applications (KPI: 応募数)
+├── hires (KPI: 採用数)
+├── control_var_holiday_days (週内祝日数)
+├── control_var_competitor_index (Rui納品の競合クロールから算出)
+└── control_var_seasonality (建設業採用の季節性指数: 3-4月ピーク・8月谷)
+```
+
+**注意点**:
+- Adstock（残効効果）とSaturation（逓減効果）のハイパーパラメータは媒体特性で分ける（TikTokは短期残効・Indeed求人は長期残効）
+- 最低52週（1年）のデータが必要。7社中5社は満たすが、新規2社は「業界横断ベースライン」で補完
+- MMMは「因果の証明」ではなく「相関の統計的推定」。因果推論（後述DID/PSM）と併読必須
+
+### 3. Uplift Modeling（介入増分効果モデリング）
+
+**目的**: 「広告配信によって、配信しなければ応募しなかった層」だけを特定する。全応募者への配信ではなく、「反応する人だけに配信」してCPA最適化。
+
+**4モデル**:
+- **S-Learner**: 単一モデルで処置フラグを特徴量として扱う。実装簡単、精度低め
+- **T-Learner**: 処置群・対照群それぞれで別モデル学習、差分をUplift推定
+- **X-Learner**: T-Learnerに残差を使った補正を加えた発展形。不均衡データに強い
+- **Causal Forest**（EconML / grf）: ランダムフォレストで個別因果効果推定。実務での標準
+
+**Dengが整備するテーブル**:
+```
+marts_uplift.user_treatment_panel
+├── user_id (ハッシュ化済み)
+├── treatment (0=非配信, 1=配信)
+├── outcome_applied (0=非応募, 1=応募)
+├── covariate_age_bucket
+├── covariate_prefecture
+├── covariate_past_engagement_score
+├── covariate_device_type
+└── covariate_time_of_day
+```
+
+**注意点**:
+- 処置群と対照群の共変量分布が偏ると推定バイアス→PSM（後述）で事前バランス化
+- Uplift上位20%セグメントへの配信でCPA -30%が経験則。実装時は必ずランダム化検証で妥当性確認
+
+### 4. 時系列予測（Forecasting）
+
+**目的**: 応募数・広告CPA・媒体反応の将来値予測。予算配分・広告出稿計画・採用充足時期予測に活用。
+
+**手法とDengの選定基準**:
+
+| 手法 | 特徴 | Dengの適用場面 |
+|---|---|---|
+| Prophet | 季節性・祝日・トレンド分解が直感的。外れ値に強い | 7社標準。建設業採用の年次季節性（3-4月/8月）を`holidays`引数で明示 |
+| ARIMA / SARIMA | 古典的統計。定常性検定必須 | Prophetで説明できない短期変動の検証用 |
+| ETS（指数平滑） | 短期予測に強い。トレンド・季節性・レベルを個別モデル化 | 週次予算リバランスの短期補正 |
+| LSTM / Transformer | 長期依存・多変量対応 | データ2年以上蓄積後の高度予測。現時点は評価段階 |
+| Prophet + XGBoost残差学習 | Prophetの残差をXGBoostで学習しハイブリッド化 | 精度要求が高い翔星建設・宮村建設で試験導入 |
+
+**Dengのテーブル設計**:
+- `marts_forecast.daily_kpi_history`（過去2年分の日次実績、休業日フラグ・キャンペーンフラグ・競合指数付き）
+- `marts_forecast.predictions`（予測値・80%/95%信頼区間・モデル名・実行日を保持し、実測との事後突合で精度追跡）
+
+### 5. Cohort分析・RFM分析・LTV算出
+
+**Cohort分析**: 応募月別に応募者の後続行動（面接進出率・内定率・入社率・定着率）を追跡。媒体別・LP別・キャンペーン別のコホートを縦持ちで管理。
+
+**RFM分析**:
+- Recency（最終応募からの経過日数）
+- Frequency（過去12ヶ月の応募回数）
+- Monetary（採用時の想定人件費 or 紹介手数料）
+- 5×5×5=125セグメントを`NTILE(5) OVER(...)` で自動分類
+
+**LTV**: 採用単価（CPA）÷ 定着率で「1採用あたり実質価値」を算出。建設業は入社後3ヶ月定着率が採算分岐点。
+
+---
+
+## SQL/BigQuery ベストプラクティス集
+
+Dengが日次業務で使う高頻度パターン集。dbtモデル・スケジュールクエリ・アドホック分析の全てで踏襲する。
+
+### 1. Window関数（分析関数）の実務パターン
+
+**移動平均・累計・前日比を1クエリで**:
+```sql
+SELECT
+  date,
+  client_id,
+  applications,
+  -- 7日移動平均
+  AVG(applications) OVER (
+    PARTITION BY client_id
+    ORDER BY date
+    ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+  ) AS ma7,
+  -- 月初累計
+  SUM(applications) OVER (
+    PARTITION BY client_id, DATE_TRUNC(date, MONTH)
+    ORDER BY date
+  ) AS mtd_cumulative,
+  -- 前日比
+  applications - LAG(applications, 1) OVER (
+    PARTITION BY client_id ORDER BY date
+  ) AS day_over_day_diff,
+  -- 前週同曜日比
+  SAFE_DIVIDE(
+    applications,
+    LAG(applications, 7) OVER (PARTITION BY client_id ORDER BY date)
+  ) - 1 AS wow_ratio
+FROM marts.daily_kpi
+```
+
+**ランキング系の使い分け**:
+- `ROW_NUMBER()`: 同値でも一意番号（重複排除・最新1件抽出のQUALIFY句で必須）
+- `RANK()`: 同値は同順位・次を飛ばす（応募者ランキングで同点処理）
+- `DENSE_RANK()`: 同値は同順位・次は連続（媒体別CVRの階層分類）
+- `NTILE(n)`: n分位分割（RFM分析のスコアリング）
+
+**QUALIFY句での最新レコード抽出**:
+```sql
+SELECT * FROM staging.applications
+QUALIFY ROW_NUMBER() OVER (
+  PARTITION BY application_id ORDER BY updated_at DESC
+) = 1
+```
+サブクエリ不要で読みやすく、MERGEのUSING側重複排除（2026-08-12参照）の標準パターン。
+
+### 2. CTE（WITH句）と再帰CTE
+
+**多段CTEで意図を明示**:
+```sql
+WITH
+raw_events AS (
+  SELECT * FROM `project.dataset.events_*`
+  WHERE _TABLE_SUFFIX BETWEEN '20260801' AND '20260831'
+),
+sessionized AS (
+  SELECT
+    user_pseudo_id,
+    event_timestamp,
+    SUM(CASE WHEN event_name = 'session_start' THEN 1 ELSE 0 END)
+      OVER (PARTITION BY user_pseudo_id ORDER BY event_timestamp) AS session_id
+  FROM raw_events
+),
+conversions AS (
+  SELECT user_pseudo_id, session_id, MIN(event_timestamp) AS conv_time
+  FROM sessionized WHERE event_name = 'application_submit'
+  GROUP BY 1, 2
+)
+SELECT * FROM conversions
+```
+
+**再帰CTE（組織階層・タッチポイント順序）**:
+```sql
+WITH RECURSIVE touchpoint_chain AS (
+  SELECT user_id, touchpoint_id, next_touchpoint_id, 1 AS depth
+  FROM touchpoints WHERE is_first = TRUE
+  UNION ALL
+  SELECT t.user_id, t.touchpoint_id, t.next_touchpoint_id, c.depth + 1
+  FROM touchpoints t
+  JOIN touchpoint_chain c ON t.touchpoint_id = c.next_touchpoint_id
+  WHERE c.depth < 10
+)
+SELECT * FROM touchpoint_chain
+```
+
+### 3. PIVOT / UNPIVOT
+
+**縦→横（PIVOT）: 媒体別CVRのクロス表**:
+```sql
+SELECT * FROM (
+  SELECT date, channel, cvr FROM marts.channel_cvr_daily
+)
+PIVOT (SUM(cvr) FOR channel IN ('tiktok', 'meta', 'airwork', 'indeed'))
+```
+
+**横→縦（UNPIVOT）: Airwork多列レポートの正規化**:
+```sql
+SELECT * FROM airwork_raw
+UNPIVOT (value FOR metric IN (impressions, clicks, applications, hires))
+```
+
+### 4. パーティション設計とクラスタリング
+
+**設計三原則**:
+1. **時系列テーブルは必ず`PARTITION BY DATE(event_timestamp)`**（日次パーティション）
+2. **マルチテナントは`CLUSTER BY client_id`を第1キーに**（7社絞り込みが最頻）
+3. **クエリのWHERE句はパーティション列を先頭に置く**（先頭でないとプルーニングが効かないケースあり）
+
+```sql
+CREATE TABLE `marts.applications` (
+  application_id STRING,
+  client_id STRING,
+  event_timestamp TIMESTAMP,
+  channel STRING,
+  ...
+)
+PARTITION BY DATE(event_timestamp, 'Asia/Tokyo')
+CLUSTER BY client_id, channel
+OPTIONS (
+  partition_expiration_days = 1095,
+  require_partition_filter = TRUE
+)
+```
+
+`require_partition_filter = TRUE` は全件スキャン事故の構造排除。無料枠1TB/月の予防（2026-06-12参照）で必須設定。
+
+### 5. コスト最適化テクニック
+
+**チェックリスト**:
+- `SELECT *` 禁止（列指向DBなのでカラム指定でスキャン量削減）
+- `WHERE` にパーティション列を必ず入れる（`_PARTITIONTIME` or `DATE(event_timestamp)`）
+- 大テーブル同士のJOINは事前にWHERE絞り込みしてからJOIN
+- `COUNT(DISTINCT x)` → `APPROX_COUNT_DISTINCT(x)`（誤差±2%で数倍高速）
+- パーセンタイル → `APPROX_QUANTILES(x, 100)[OFFSET(50)]`（中央値）
+- HLL++ で複数期間のユニークユーザー合算：`HLL_COUNT.MERGE(sketch)`
+- マテリアライズドビュー（`CREATE MATERIALIZED VIEW`）で頻用集計を事前計算
+- スケジュールクエリのdry-run（`--dry_run`）でスキャン量事前確認
+
+### 6. ARRAY / STRUCT / UNNEST（GA4 Export標準パターン）
+
+**GA4の`event_params`から特定パラメータ抽出**:
+```sql
+SELECT
+  event_timestamp,
+  event_name,
+  (SELECT value.string_value FROM UNNEST(event_params)
+   WHERE key = 'page_location') AS page_location,
+  (SELECT value.int_value FROM UNNEST(event_params)
+   WHERE key = 'engagement_time_msec') AS engagement_msec
+FROM `project.analytics_XXX.events_*`
+WHERE _TABLE_SUFFIX BETWEEN '20260801' AND '20260831'
+  AND event_name = 'page_view'
+```
+
+サブクエリ形式で1イベント1行を維持。`UNNEST`後に`WHERE`で絞ると多重展開の落とし穴（2026-06-24参照）を回避。
+
+### 7. MERGE文の安全な書き方
+
+```sql
+MERGE marts.applications T
+USING (
+  SELECT * FROM staging.applications_delta
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY application_id ORDER BY updated_at DESC
+  ) = 1
+) S
+ON T.application_id = S.application_id
+WHEN MATCHED AND S.updated_at > T.updated_at THEN
+  UPDATE SET status = S.status, updated_at = S.updated_at
+WHEN NOT MATCHED THEN
+  INSERT (application_id, client_id, status, updated_at)
+  VALUES (application_id, client_id, status, updated_at)
+```
+
+### 8. dbtパターン集
+
+- `{{ ref('model') }}` でモデル間依存を明示（リネージ自動生成）
+- `{{ source('raw', 'table') }}` で外部データソース宣言（freshness監視付き）
+- `incremental` モデルには必ず `unique_key` と `on_schema_change: 'sync_all_columns'` を指定
+- `tests: [not_null, unique, accepted_values, relationships]` を主要カラムに必須付与
+- `severity: error` を主キー・件数整合・PII非露出テストに強制（2026-08-05参照）
+- macro化：`{{ jst_date(col) }}` `{{ pii_hash(col) }}` `{{ pre_publish_check() }}`
+
+---
+
+## ML/因果推論の実務適用パターン
+
+「相関」ではなく「因果」を意思決定に使うために、Dengは因果推論用のクリーンなパネルデータを提供する。以下は主要手法と、LET事業（7社の採用マーケ）における実装パターン。
+
+### 1. A/Bテスト統計の厳密運用
+
+**Dengが基盤側で担保する項目**:
+
+**① SRM（Sample Ratio Mismatch）検査用データ整備**
+- variant割当ログを`event_id`単位で一意化（重複割当排除）
+- bot/社内IP除外フラグ列を必ず付与
+- カイ二乗検定で観測比 vs 期待比の乖離を検出
+
+```sql
+SELECT
+  variant, COUNT(*) AS n,
+  COUNT(*) / SUM(COUNT(*)) OVER () AS observed_ratio,
+  0.5 AS expected_ratio
+FROM staging.ab_test_assignments
+WHERE experiment_id = 'exp_2026_08_lp_variant'
+  AND is_bot = FALSE AND is_internal_ip = FALSE
+GROUP BY variant
+```
+
+**② 多重比較補正のためのメタデータ**
+- Bonferroni: α/k（k=検定数）で有意水準を厳しく
+- Benjamini-Hochberg（FDR制御）: 探索的分析で採用
+- Holm: 段階的補正、Bonferroniより検出力高い
+- Dengはテーブルに `experiment_id / metric_name / hypothesis_count` を持たせ、Shunが補正を実装可能に
+
+**③ 逐次検定（Sequential Testing）用データ供給**
+- Optional Stopping問題を回避するmSPRT（mixture Sequential Probability Ratio Test）用に、日次スナップショットで累積ではなく増分を提供
+- ベイジアンA/Bテスト用に事前分布パラメータをexperiment_configテーブルで管理
+
+**④ 検出力分析（Power Analysis）用の履歴データ**
+- 過去実験の効果量分布・分散推定値を`marts_ab.historical_effect_sizes`で保持
+- Shunが新実験設計時にサンプルサイズ計算を再現可能
+
+### 2. 差分の差分法（DID: Difference-in-Differences）
+
+**目的**: 「あるクライアントで施策A実施→他クライアントとの差分の時系列変化」で因果効果を推定。ランダム化できない現場（クライアントの全社導入など）の標準手法。
+
+**Dengのテーブル設計**:
+```
+marts_causal.did_panel
+├── entity_id (client_id or user_id)
+├── period (日次・週次)
+├── treated (0/1: 処置群フラグ)
+├── post (0/1: 施策後フラグ)
+├── outcome (KPI: 応募数・CVRなど)
+└── covariates (媒体構成・季節・地域)
+```
+
+**並行トレンド仮定の事前検証**:
+- 施策前12週間の`treated`群と対照群のトレンド線を回帰で比較
+- 交互作用項の係数が有意でない = 並行トレンド成立
+- 検証結果をNotionに保存し、DID実行前の必須ゲート化
+
+### 3. 傾向スコアマッチング（PSM: Propensity Score Matching）
+
+**目的**: 共変量分布が偏った処置群・対照群を「傾向スコア（処置される確率）」で疑似ランダム化。
+
+**Dengが提供する共変量パネル**:
+- 年齢層・都道府県・過去エンゲージメントスコア・デバイス・応募履歴・時間帯・季節
+- 数値・カテゴリ両方を含む正規化済みテーブル
+
+**Python実装（DoWhy）用のクエリ**:
+```sql
+SELECT
+  user_id,
+  is_treated,
+  outcome_applied,
+  age_bucket, prefecture, device_type,
+  past_engagement_score, hour_of_day, day_of_week
+FROM marts_causal.psm_panel
+WHERE experiment_id = 'ig_ad_2026_q3'
+```
+
+**Common Support / Overlap の事前検証**:
+- 傾向スコアのヒストグラムで処置群・対照群の重なりを確認
+- 極端に重ならない領域（p<0.05 or p>0.95）はマッチング対象外
+- 検証SQLを`views.psm_overlap_check`として提供
+
+### 4. Instrumental Variable（操作変数法）
+
+**目的**: 未観測交絡因子がある場合、「処置に影響するが結果に直接影響しない外生変数」で因果効果を推定。
+
+**LET事業での例**:
+- 処置: TikTok広告配信
+- 結果: 応募数
+- 交絡: 求職意欲（未観測）
+- IV候補: 天候（悪天候日にTikTok視聴時間↑、直接応募には影響しない仮説）
+
+**Dengの提供データ**:
+- 外部データ（気象庁API・祝日カレンダー・地域イベント）を`marts_iv.external_variables`に統合
+- IV妥当性検証用の相関マトリクスを月次で自動更新
+
+### 5. Synthetic Control Method
+
+**目的**: 単一の処置群（例: 翔星建設1社での新施策）に対し、複数の対照候補（他6社）の加重平均で「もし施策しなかった場合」の反事実を作る。
+
+**Dengのテーブル**:
+```
+marts_causal.synth_control_input
+├── donor_pool_client_id (対照候補: 施策未実施の6社)
+├── treated_client_id (処置クライアント)
+├── period
+├── outcome (応募数)
+└── predictors (過去KPI・媒体構成・季節性)
+```
+
+**Python実装（`SparseSC` / `pysyncon`）用にワイド形式で提供**。
+
+### 6. Uplift Modelingの実装フロー
+
+**Dengが用意するend-to-endパイプライン**:
+
+1. **データ準備**: `marts_uplift.user_treatment_panel`（処置フラグ・アウトカム・共変量）
+2. **PSMで共変量バランス化**（前述）
+3. **モデル学習**: EconMLの`CausalForestDML`をCloud Run Jobs（GPU不要、CPU 4vCPU）で週次実行
+4. **CATE（Conditional Average Treatment Effect）予測**: 個別ユーザーごとのUplift推定値をmartsに書き戻し
+5. **セグメント配信**: Uplift上位20%セグメントを広告配信ツール（Meta/TikTok Ads API）へ日次同期
+
+**注意点**:
+- Positivity仮定（全ての共変量値で処置確率0<p<1）を`psm_overlap_check`で毎回検証
+- SUTVA（Stable Unit Treatment Value Assumption）：処置ユーザーが対照ユーザーに影響しないか、SNS拡散のあるTikTokでは特に検証必要
+
+### 7. Bayesian A/B Testing
+
+**目的**: 従来のp値ベースの検定では扱いにくい「実験途中での意思決定」「事前知識の反映」を可能に。
+
+**Dengが提供するデータと基盤**:
+- 事前分布（Prior）を管理する`marts_ab.priors`テーブル（過去実験の効果量分布）
+- 日次スナップショット（累積ではなく増分）で逐次更新可能
+- PyMC / Stanでの実装用にvariant別・時系列別データを縦持ち提供
+
+**ベイズ的意思決定の指標**:
+- P(B > A) の事後確率（例: 「Bが優れている確率95%以上で採用」）
+- Expected Loss（採用ミスの期待損失）を意思決定閾値化
+
+### 8. Causal AI ツール（2026年トレンド）
+
+| ツール | 用途 | Dengの適用場面 |
+|---|---|---|
+| Microsoft DoWhy | 因果効果の推定・仮定検証を4ステップで統一 | DID/PSM/IVの標準実行フレーム |
+| Uber CausalML | Uplift Modeling特化 | S/T/X-Learner・Causal Forest |
+| EconML（Microsoft） | 因果推論の機械学習実装 | Causal Forest・Double ML・DRLearner |
+| PyMC / NumPyro | ベイズ推論全般 | Bayesian A/B・階層モデル・MMM |
+| Meta Robyn | MMM実装 | 週次媒体別ROI推定 |
+
+**Dengの基盤側標準化**:
+- 全ツール共通で「因果グラフ（DAG）をNotionに図示 → 仮定の可視化 → 検証SQL」の順で運用
+- 因果効果推定結果は`marts_causal.effect_estimates`に統一格納し、モデル名・仮定・95%信頼区間・実行日を必ず記録
 
 ---
 

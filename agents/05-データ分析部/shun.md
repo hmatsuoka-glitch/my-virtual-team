@@ -82,7 +82,476 @@
 - Akari（レポート作成）：分析データをレポートに反映
 - Haruto（経営企画）：KPI達成状況の戦略への反映
 - Ryota（クライアント管理）：分析結果のクライアントへの報告サポート
+- Rui（リサーチ）：業界相場・競合ベンチマークとの突合
+- Deng（データ基盤）：スキーマ変更・kpi_def_version・完了フラグ通知
+- Sho / Yui（SNS）：SNSインサイトとGA4流入の粒度統一・バズ検証
+- Kaito / Sota / Hana（LP）：Clarityデッドクリック・マイクロファネル差し戻し
 
+---
+
+## エアワーク詳細指標体系（2026）
+
+### 1. Airwork管理画面の指標カテゴリ全体像
+
+Airwork（ats.rct.airwork.net）は 2026年5月アップデートで「経路別CVRダッシュボード」「保留中ステータス」が標準実装されており、以下の5カテゴリ×計21指標を全クライアントで統一集計する。
+
+#### ① 表示・露出系（Impression / View）
+| 指標 | 定義 | 集計単位 | 分母/分子 | 注意点 |
+|------|------|---------|-----------|--------|
+| 求人閲覧数（PV） | 求人詳細ページの総表示回数 | 日次・週次・月次 | ページビュー | 重複ロード含む・Bot除外必須 |
+| ユニーク閲覧数（UU） | ユニーク訪問者ベース閲覧数 | 日次・月次 | Cookie/User-ID単位 | Airworkの Cookie 有効期限は30日 |
+| 求人一覧表示数 | 検索結果一覧への露出 | 日次 | インプレッション | 検索順位・キーワードとセット分析 |
+| CTR（一覧→詳細） | 求人閲覧数 ÷ 求人一覧表示数 | 週次 | % | 5%未満はタイトル・給与欄要改善 |
+
+#### ② 応募系（Application）
+| 指標 | 定義 | 集計単位 | 分母/分子 | 注意点 |
+|------|------|---------|-----------|--------|
+| 応募完了数（マクロCV） | 応募フォーム送信完了数 | 日次・月次 | 件数 | 電話タップは別カウント（マイクロCV） |
+| 応募CVR（PVベース） | 応募完了数 ÷ 求人閲覧数 | 月次 | % | 業界平均：建設1.5-2.5%、IT 3-5% |
+| 応募CVR（UUベース） | 応募完了数 ÷ ユニーク閲覧数 | 月次 | % | PVベースより1.5-2倍高く出る |
+| 応募単価（CPA） | 広告費 ÷ 応募完了数 | 月次 | 円 | 建設業界平均 5,000-15,000円 |
+| 平均閲覧時間 | 詳細ページ滞在秒数の中央値 | 週次 | 秒 | 平均でなく中央値で見る（外れ値対策） |
+
+#### ③ 質・後段ファネル系（Quality / Funnel）※Airwork 2026-05 新規
+| 指標 | 定義 | 集計単位 | 注意点 |
+|------|------|---------|--------|
+| 保留中率 | 保留中ステータス ÷ 応募完了数 | 月次 | 2026-05 新規追加。クライアント別の運用定義要確認 |
+| 面接進出率 | 一次面接進出 ÷ 応募完了数 | 月次 | 「面接」定義がクライアントで異なる（書類選考含む/含まない）|
+| 内定率 | 内定 ÷ 応募完了数 | 月次 | 応募〜内定の1-2ヶ月タイムラグをコホートで見る |
+| 辞退率 | 辞退 ÷ 内定 | 月次 | 給与・立地・入社日交渉のどこで折れたか要ヒアリング |
+| 定着率（3ヶ月/6ヶ月） | 継続在籍 ÷ 入社 | 四半期 | 早期離職率の裏返し。QoH（Quality of Hire）の中核指標 |
+
+#### ④ 経路・チャネル系（Attribution）※Airwork 2026-05 標準搭載
+| 指標 | 定義 | 注意点 |
+|------|------|--------|
+| 経路別閲覧数 | Indeed / 自社LP / SNS / 直接検索 別のPV | Indeed Plus経由はIndeedとAirwork両方でカウントされる二重計上問題あり |
+| 経路別応募数 | 各経路からの応募完了数 | 重複排除フィルタ必須 |
+| 経路別CVR | 経路別応募数 ÷ 経路別閲覧数 | 経路ごとにベンチマークが異なるため単純比較しない |
+| 経路別CPA | 経路別広告費 ÷ 経路別応募数 | 分子の費用範囲（掲載料のみ/運用費込み）を統一定義してから比較 |
+
+#### ⑤ 求職者属性系（Demographics）
+| 指標 | 定義 | 注意点 |
+|------|------|--------|
+| 年齢構成 | 応募者の10歳刻み年齢分布 | 建設業は40-50代中心、ITは20-30代中心 |
+| 性別構成 | 応募者の性別分布 | 個人情報保護のため集計値のみ扱う |
+| 居住地分布（都道府県） | 応募者の居住地 | 通勤圏（車30分・電車1時間）を軸に商圏分析 |
+| 職務経験年数 | 業界経験年数の分布 | 未経験可求人と経験者求人でCVRが逆転することあり |
+
+### 2. Airwork API連携（2026年時点）
+
+- **公式API**: 2025年後半に「求人管理API」「応募データAPI」が段階的に開放。エンドポイント例：`/api/v1/jobs`、`/api/v1/applications`
+- **認証**: OAuth 2.0（クライアント資格情報フロー）、アクセストークン有効期限3600秒
+- **レート制限**: 60リクエスト/分・10,000リクエスト/日
+- **推奨実装**: Cloud Functions（Python 3.12 + requests）で日次 05:00 JST に自動取得 → BigQuery `airwork_raw.applications_YYYYMMDD` パーティションテーブルへUPSERT
+
+### 3. 他媒体との比較（クロスチャネル分析）
+
+| 媒体 | データ取得手段 | 応募定義の癖 | CVR業界平均 | 特記事項 |
+|------|-------------|-------------|------------|---------|
+| **Airwork** | 管理画面CSV + API | フォーム送信＝応募 | 建設1.5-2.5% | Indeed Plus連携時のダブルカウント注意 |
+| **Indeed** | Indeed for Employers CSV / API | クリック課金＋応募完了の2系統 | 建設2-3% | 「気になる」ボタン誤カウント頻発、応募完了フィルタ必須 |
+| **求人ボックス** | 管理画面CSV（API未提供） | 電話問合せも応募扱い | 建設1-2% | 電話CVを別集計する運用に統一 |
+| **スタンバイ** | CSV手動DL | フォーム送信のみ | 建設1-2% | Yahoo傘下・シニア層に強い |
+| **エン転職** | 管理画面レポート | スカウト返信も応募扱い | IT 2-4% | スカウトCVは別カウントで正味CVR算出 |
+| **doda** | パーソルキャリア担当経由 | フォーム送信＋電話 | IT 3-5% | 担当営業経由のためデータ鮮度に遅延あり |
+| **マイナビ転職** | 管理画面CSV | フォーム送信 | 全般2-4% | 20代中心・第二新卒層 |
+
+### 4. クロスチャネル統合分析パイプライン
+```
+[各媒体API/CSV] → [Cloud Storage] → [Cloud Functions（前処理5段階）]
+   → [BigQuery staging.channel_apps_YYYYMMDD]（媒体別RAW）
+   → [dbt model: fact_applications_unified]（分母定義統一・重複排除・JST変換）
+   → [Looker Studio: 媒体横断ファネルダッシュボード]
+```
+
+**統合の要**：媒体ごとに「応募」の定義が異なるため、dbt model 側で `application_type ∈ {form_submit, phone_tap, scout_reply}` を明示的にフラグ化し、レポート集計時にどの type を含めるかを切り替え可能にする。
+
+---
+
+## Looker Studio / Sheets / BigQuery 高度テクニック集
+
+### 1. Google Sheets 実務関数リファレンス
+
+#### 集計・抽出系
+```
+=QUERY(A:H, "SELECT B, SUM(D) WHERE C='応募完了' AND D>0 GROUP BY B ORDER BY SUM(D) DESC LABEL SUM(D) '応募数'", 1)
+```
+→ SQLライクな集計をSheets内で。ピボットより柔軟で `WHERE` `GROUP BY` `PIVOT` `ORDER BY` `LIMIT` が使える。
+
+```
+=ARRAYFORMULA(IF(A2:A="", "", IFERROR(B2:B/C2:C, 0)))
+```
+→ CVR列を1セルで全行一括計算。手コピー不要でパフォーマンスも向上。
+
+#### 参照・照合系
+```
+=XLOOKUP(検索キー, 検索範囲, 戻り範囲, "該当なし", 0, 1)
+```
+→ VLOOKUPの上位互換。左右方向自由、完全一致デフォルト、見つからない時の値指定可。
+
+```
+=IMPORTRANGE("スプレッドシートID", "AirworkRaw!A:Z")
+```
+→ 別ブックのデータをリアルタイム参照。Deng管理のマスタを Shun 側で参照する定型パターン。
+
+#### 高度関数（LAMBDA / LET）
+```
+=LET(
+  応募数, SUM(B2:B100),
+  閲覧数, SUM(A2:A100),
+  cvr, IFERROR(応募数/閲覧数, 0),
+  IF(cvr < 0.015, "×要改善", IF(cvr < 0.025, "△平均", "◯優秀"))
+)
+```
+→ 中間変数を名前付けして式の可読性を確保。複雑なCVR判定ロジックをネストせず記述。
+
+```
+=MAP(A2:A100, LAMBDA(x, IF(x>PERCENTILE(A:A, 0.99), "外れ値", "正常")))
+```
+→ 3σ的な外れ値ラベリングを1セルで実行。前処理パイプラインの下書きに便利。
+
+### 2. Google Apps Script（GAS）基礎パターン
+
+```javascript
+// 定期実行：毎朝6時にBigQuery集計 → Sheets転記 → Slack通知
+function dailyPipeline() {
+  const jobConfig = {
+    query: {
+      query: `SELECT client_id, SUM(applications) AS total
+              FROM \`project.dataset.fact_applications_unified\`
+              WHERE date = CURRENT_DATE('Asia/Tokyo') - 1
+              GROUP BY client_id`,
+      useLegacySql: false
+    }
+  };
+  const queryResults = BigQuery.Jobs.query(jobConfig, 'project-id');
+  const sheet = SpreadsheetApp.openById('SHEET_ID').getSheetByName('daily');
+  sheet.getRange(2, 1, queryResults.rows.length, 2)
+    .setValues(queryResults.rows.map(r => [r.f[0].v, r.f[1].v]));
+  UrlFetchApp.fetch('https://hooks.slack.com/services/...', {
+    method: 'post',
+    payload: JSON.stringify({ text: `本日の応募集計完了：${queryResults.rows.length}社` })
+  });
+}
+```
+→ Cloud Scheduler + Cloud Functions が使えないクライアント環境で GAS トリガー（時間ベース・スプレッドシート開閉時）で代替。
+
+### 3. Looker Studio 高度テクニック
+
+#### 計算フィールド定石集
+```
+# 前月比（動的期間）
+CASE
+  WHEN 前月応募数 = 0 THEN NULL
+  ELSE (当月応募数 - 前月応募数) / 前月応募数
+END
+
+# ステータス色分け（条件付き書式との連動）
+CASE
+  WHEN CVR < 0.015 THEN "×要改善"
+  WHEN CVR < 0.025 THEN "△平均"
+  ELSE "◯優秀"
+END
+
+# 業界比較（Ruiのマスタと結合）
+(自社CVR - 業界平均CVR) / 業界平均CVR
+```
+
+#### パラメータ化テンプレート
+- **クライアントID・GA4プロパティID・Airworkスプレッドシートを Report-level Parameter** で切替可能に
+- 新規クライアント追加時は「複製 → パラメータ差替」で 1社90分 → 7分（2026-05-19 実績）
+- 更に Whatagraph 統合で 5社一括 3分（2026-05-26 実績）
+
+#### データブレンド（BLEND）注意点
+- Airwork（Sheets） × GA4（BigQuery）を `date` + `client_id` でブレンドする際、**JOIN タイプは LEFT OUTER JOIN 推奨**（GA4側に欠損があってもAirwork行を残す）
+- ブレンドの最大10テーブル制限あり
+- 集計後のブレンドは重い → BigQueryビュー側で事前結合した方が高速
+
+#### Explorer機能
+- Looker Studio Pro（2026-05 GA）の「Gemini AI インサイト」で自然言語問い合わせが可能に
+- ただし Simpson's Paradox や交絡は AI が見落とすため、**AI 下書き → 人が反証データ探索で検証** の二段運用必須
+
+### 4. BigQuery 高度SQL
+
+#### パーティション + クラスタリング（コスト90%削減）
+```sql
+CREATE TABLE `project.dataset.fact_applications_unified`
+PARTITION BY DATE(application_datetime)
+CLUSTER BY client_id, channel
+AS SELECT ...;
+
+-- クエリ時は必ずパーティション句を先頭に
+SELECT client_id, channel, COUNT(*) AS apps
+FROM `project.dataset.fact_applications_unified`
+WHERE DATE(application_datetime) BETWEEN '2026-08-01' AND '2026-08-31'  -- パーティション
+  AND client_id = 'miyamura'  -- クラスタリング
+GROUP BY 1, 2;
+```
+
+#### ウィンドウ関数（前期比・移動平均・順位）
+```sql
+SELECT
+  date,
+  applications,
+  LAG(applications, 30) OVER (ORDER BY date) AS apps_30d_ago,
+  AVG(applications) OVER (ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS ma7,
+  RANK() OVER (PARTITION BY DATE_TRUNC(date, MONTH) ORDER BY applications DESC) AS daily_rank_in_month
+FROM `project.dataset.daily_applications`;
+```
+
+#### GA4 BigQuery Export 定石
+```sql
+-- ユーザー単位のセッション集約
+SELECT
+  user_pseudo_id,
+  COUNT(DISTINCT (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_id')) AS sessions,
+  COUNTIF(event_name = 'form_submit') AS applications
+FROM `project.analytics_XXXX.events_*`
+WHERE _TABLE_SUFFIX BETWEEN '20260801' AND '20260831'
+GROUP BY user_pseudo_id;
+```
+
+#### MERGE によるUPSERT（冪等性確保）
+```sql
+MERGE `project.dataset.staging_apps` AS T
+USING (SELECT * FROM `project.dataset.new_batch_20260826`) AS S
+ON T.application_id = S.application_id
+WHEN MATCHED THEN UPDATE SET T.status = S.status, T.updated_at = CURRENT_TIMESTAMP()
+WHEN NOT MATCHED THEN INSERT ROW;
+```
+→ 再実行しても重複せず、ETLの冪等性を担保（2026-05-12 事故防止）。
+
+#### スケジュールクエリで月次集計自動化
+- BigQuery コンソール → 「クエリのスケジュール」→ 月初 05:00 JST（cron: `0 5 1 * *`）に設定
+- 結果を宛先テーブル `monthly_summary_${run_date|"%Y%m"}` に書き出し → Looker Studio が参照
+
+### 5. dbt basics（軽量利用パターン）
+
+- `dbt_project.yml` で `models/staging/`（RAW）→ `models/marts/`（BI用）の2層構造
+- `meta: { kpi_def_version: "v2.3", owner: "shun" }` タグを model に付与し、定義変更を追跡（Deng連携）
+- `tests` で `not_null`, `unique`, `accepted_values`, `relationships` を宣言してデータ品質を CI 化
+- `dbt docs generate` で分析基盤のドキュメント自動生成、Ryota・Akariが参照可能に
+
+---
+
+## 統計解析テクニック（採用データ実用版）
+
+採用データは「n が小さい」「季節性が強い」「複数チャネルが交絡する」という3重苦を持つ。以下は宮村・翔星等の実運用で使う検定手法と落とし穴チェック。
+
+### 1. 記述統計（Descriptive Statistics）
+
+| 統計量 | 使いどころ | 注意点 |
+|--------|----------|--------|
+| 平均（mean） | 分布が正規に近く外れ値が少ない時 | 1件の外れ値で数値が大きく動く（2026-04-29） |
+| 中央値（median） | 滞在時間・応募日数など歪んだ分布 | LP滞在時間は必ず median + p90 で報告 |
+| 分位数（p25/p50/p75/p90） | 分布の広がりを見る時 | Clarity平均滞在の代替に p90 を使う |
+| 標準偏差（SD）・変動係数（CV=SD/mean） | ばらつきを比較する時 | CV は単位に依存しないので媒体間比較に便利 |
+| 四分位範囲（IQR） | 外れ値の境界判定（1.5×IQR基準） | 3σ より頑健、少数nでも使える |
+
+### 2. 統計的仮説検定
+
+#### 2群比較（AB テスト）
+| 検定 | データ型 | Python実装 | 使用場面 |
+|------|---------|-----------|---------|
+| **独立2標本 t検定** | 連続量・正規分布・等分散 | `scipy.stats.ttest_ind(a, b)` | 滞在時間のAB比較（正規性・等分散を事前確認） |
+| **Welch t検定** | 連続量・分散が不等でもOK | `scipy.stats.ttest_ind(a, b, equal_var=False)` | 実務ではこちらを推奨（等分散仮定を外せる） |
+| **Mann-Whitney U 検定** | 連続量・ノンパラメトリック | `scipy.stats.mannwhitneyu(a, b)` | 分布が歪んでいる時、外れ値に頑健 |
+| **カイ二乗検定（独立性）** | カテゴリ×カテゴリ | `scipy.stats.chi2_contingency(table)` | 応募数のAB比較（フォーム送信/離脱の2値） |
+| **Fisher's exact test** | カテゴリ×カテゴリ・小サンプル | `scipy.stats.fisher_exact(table)` | 各セル5未満のとき（宮村LP等の小規模） |
+| **比率のZ検定** | 2群のCVR比較 | `statsmodels.stats.proportions_ztest([x1,x2], [n1,n2])` | 大サンプルCVR比較（n≧100両群） |
+
+#### 3群以上の比較
+| 検定 | データ型 | 実装 |
+|------|---------|------|
+| **一元配置分散分析（One-way ANOVA）** | 連続量・3群以上 | `scipy.stats.f_oneway(a, b, c)` |
+| **Kruskal-Wallis 検定** | ノンパラメトリック3群以上 | `scipy.stats.kruskal(a, b, c)` |
+| **Tukey HSD（多重比較）** | ANOVA後の事後検定 | `statsmodels.stats.multicomp.pairwise_tukeyhsd()` |
+
+#### 多重比較補正（Bonferroni / FDR）
+```python
+from statsmodels.stats.multitest import multipletests
+pvals = [0.01, 0.03, 0.04, 0.20, 0.35]
+reject, pvals_corr, _, _ = multipletests(pvals, alpha=0.05, method='fdr_bh')
+```
+→ 10媒体×複数セグメントを個別検定する時、偽陽性を抑える（2026-08-12 失敗パターン対応）。
+
+### 3. 効果量（Effect Size）— 統計的有意 ≠ 実務的有意
+
+| 指標 | 用途 | 計算式 | 判断基準 |
+|------|------|--------|---------|
+| **Cohen's d** | 平均差（連続量） | (M1-M2) / pooled_SD | 0.2=小 / 0.5=中 / 0.8=大 |
+| **Cohen's h** | 比率差（CVR等） | 2·arcsin(√p1) − 2·arcsin(√p2) | 0.2=小 / 0.5=中 / 0.8=大 |
+| **Odds Ratio（OR）** | 2×2表の関連度 | (a·d)/(b·c) | 1=関連なし / >1.5=中程度 |
+| **相対リスク（RR）** | 群間の発生率比 | p1/p2 | 実務的直感に近い |
+| **η²（イータ二乗）** | ANOVAの効果量 | SS_between / SS_total | 0.01=小 / 0.06=中 / 0.14=大 |
+
+```python
+# Cohen's h の実装例（採用CVR比較）
+import numpy as np
+def cohens_h(p1, p2):
+    return 2 * (np.arcsin(np.sqrt(p1)) - np.arcsin(np.sqrt(p2)))
+# 例：CVR 2.0% vs 2.6% → h ≈ 0.041（実務的には非常に小さい）
+```
+
+### 4. 検定力分析（Power Analysis）— サンプルサイズ設計
+
+```python
+from statsmodels.stats.power import NormalIndPower, tt_ind_solve_power
+
+# CVR 2.0% → 2.5% を α=0.05, 検定力=0.8 で検出するのに必要なn
+effect_size = cohens_h(0.020, 0.025)  # ≈ 0.034
+n_required = NormalIndPower().solve_power(
+    effect_size=effect_size, alpha=0.05, power=0.8, ratio=1.0, alternative='two-sided'
+)
+# → 各群約 13,600 セッションが必要（宮村LPで到達に半年）
+```
+
+**α（有意水準・第1種の過誤）**・**β（第2種の過誤）**・**効果量**・**必要n** の4者は相互に決まる（2026-07-11 参照）。小サンプルLPで「差なし」の結論を出す時は必ず検定力を併記し、「検出力不足で見逃した可能性」を明示する。
+
+### 5. A/Bテスト設計の完全チェックリスト
+
+1. **仮説の事前登録**（何を検証するか、期待効果量、必要n、判定日を事前記録）
+2. **サンプルサイズ計算**（上記検定力分析、最低実務効果量から逆算）
+3. **ランダム化の実装確認**（クッキー・User-IDベース、リダイレクト漏れゼロ）
+4. **SRM検査（Sample Ratio Mismatch）**：割当実測比を `chi2_contingency` で検定、p<0.001なら結果破棄
+5. **AA テスト事前実施**（同一Aパターンを2群に割ってCVR差がゼロを確認）
+6. **peeking 禁止**（判定日まで途中経過で確定しない、2026-06-03 参照）
+7. **判定**：p<0.05 かつ Cohen's h ≧ 実務閾値 かつ n≧設計値 の3条件AND
+8. **結果報告**：「有意性あり / 効果量：応募月+4件相当 / 必要n充足：◯」の定型3行
+
+### 6. ベイズ vs 頻度論
+
+| 観点 | 頻度論（scipy.stats） | ベイズ（PyMC・単純ベータ二項） |
+|------|---------------------|------------------------------|
+| 結論の表現 | 「偶然この差が出る確率は5%未満」 | 「Bが優れている確率は95%」（直感的） |
+| 途中経過の判定 | peeking禁止（判定日固定必須） | 事後確率が随時更新されOK |
+| 事前情報の活用 | 使えない | 事前分布として組み込める |
+| 実装コスト | 低（1関数） | 中（MCMC or 共役分布計算） |
+| **採用データでの推奨** | AB テスト・月次比較 | 小サンプル・過去データが豊富な時 |
+
+```python
+# ベイズAB（ベータ二項共役）簡易実装
+from scipy.stats import beta
+# 事前分布：Beta(1,1) = 一様
+a_alpha, a_beta = 1 + 5, 1 + 40 - 5   # A群: 40試行中5成功
+b_alpha, b_beta = 1 + 8, 1 + 35 - 8
+# 事後分布からサンプリングして P(B>A) を推定
+n_sim = 100_000
+p_b_gt_a = (beta.rvs(b_alpha, b_beta, size=n_sim) > beta.rvs(a_alpha, a_beta, size=n_sim)).mean()
+# → 0.82 = Bが優れている確率82%（頻度論の p=0.21 と対比すると解釈が明確）
+```
+
+### 7. 回帰分析（Regression）
+
+#### 線形回帰（連続量の予測）
+```python
+import statsmodels.api as sm
+X = sm.add_constant(df[['ad_spend', 'sessions', 'weekday_flag']])
+model = sm.OLS(df['applications'], X).fit()
+print(model.summary())  # 係数・p値・R²・VIF確認
+```
+
+#### ロジスティック回帰（応募CVR の要因分解）
+```python
+from statsmodels.formula.api import logit
+model = logit('applied ~ ad_channel + landing_page + device + session_duration', data=df).fit()
+# オッズ比 = exp(係数) で解釈：「スマホは PC より応募オッズが1.4倍」
+```
+
+#### 多重共線性（VIF）チェック
+```python
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+vif = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+# VIF > 10 の変数は多重共線性あり → 変数削除 or 主成分回帰へ
+```
+
+### 8. 相関分析と交絡因子
+
+| 相関係数 | 用途 | 実装 |
+|---------|------|------|
+| **Pearson** | 連続量・線形関係 | `scipy.stats.pearsonr(x, y)` |
+| **Spearman** | 順位相関・非線形もOK | `scipy.stats.spearmanr(x, y)` |
+| **Kendall's τ** | サンプル小・外れ値に頑健 | `scipy.stats.kendalltau(x, y)` |
+| **偏相関（Partial）** | 第3変数を統制した相関 | `pingouin.partial_corr(data, x, y, covar)` |
+
+**相関≠因果**（2026-05-13, 2026-07-01 参照）。相関を発見したら必ず：
+1. 交絡因子（第3変数）を3つ以上列挙
+2. 偏相関で交絡を統制した係数を計算
+3. 時間的先行性を確認（原因は結果より前に動くか）
+4. AB テスト or ジオリフト（2026-08-03 参照）で因果検証
+
+### 9. 時系列分析
+
+```python
+# STL分解：トレンド・季節性・残差に分離
+from statsmodels.tsa.seasonal import STL
+result = STL(df['daily_apps'], period=7).fit()  # 週次季節性
+result.plot()
+# → トレンドで施策効果、季節性で曜日・月次パターン、残差で異常検知
+```
+
+- **移動平均（MA）**：n日移動平均で日次ノイズを平滑化、営業日数差の影響を除去（2026-06-03）
+- **前年同月比（YoY）**：計測開始12ヶ月未満は算出不能（2026-06-17）
+- **Prophet**：Facebook製の予測ライブラリ、休日効果・トレンド変化点を自動検出、GA4 Predictive Audiences の補完に
+
+### 10. コホート分析
+
+```python
+# コホートテーブル（応募月×経過月）
+cohort = df.groupby([df['apply_month'], df['tenure_months']])['user_id'].nunique().unstack()
+retention = cohort.divide(cohort[0], axis=0)  # 応募月時点を1として正規化
+# → ヒートマップで「4月応募者の3ヶ月後定着率」等を可視化
+```
+
+- 応募→内定→入社→3ヶ月定着→6ヶ月定着 の各段階を時間軸で追跡
+- 単月セグメントと異なり、採用プロセスの1-2ヶ月ラグを吸収できる（2026-06-20 参照）
+- Quality of Hire（採用の質、2026-08-03）指標の中核
+
+### 11. RFM分析（採用領域への転用）
+
+求人媒体からの応募者を以下3軸でセグメント：
+- **Recency**：最終応募からの日数（新規/リピート判定）
+- **Frequency**：総応募回数（本気度の指標）
+- **Monetary**：想定入社時の年収レンジ or 想定LTV
+
+→ 5段階×3軸=125セグメントに分類、上位セグメントに面接工数を集中投下する運用設計。
+
+### 12. LTV / CAC 計算（採用領域）
+
+```
+採用LTV = 平均在籍月数 × 月次貢献利益（or 月給×利益率）
+採用CAC = (広告費 + 制作費 + 運用工数費 + 面接工数費) / 採用人数
+LTV/CAC 比 = 3以上が健全、1未満は赤字採用
+
+# DCF調整（3年以上の長期）
+DCF_LTV = Σ (月次利益_t / (1 + r/12)^t)  # r=年10%割引率が採用領域の標準
+```
+→ 「単純LTV：500万円 / DCF調整後：420万円」の2値併記（2026-05-16）で経営判断精度向上。
+
+### 13. GA4×Search Console×Airwork の3層統合分析
+
+```
+[Search Console] 検索クエリ・掲載順位・CTR
+    ↓ page_path で JOIN
+[GA4] LP到達 → セッション → エンゲージメント → CV
+    ↓ user_pseudo_id で JOIN（Cookieが取れる範囲）
+[Airwork] 応募完了 → 面接 → 内定
+```
+→ 「どの検索キーワードから来たユーザーが最終的に内定まで至ったか」を BigQuery で追跡可能。SEO施策の ROI を採用ゴールまで貫通で評価。
+
+### 14. 統計解析のアウトプット定型フォーマット
+
+```
+【AB判定結果：LPファーストビュー改善】
+- サンプル: A群 n=1,240 / B群 n=1,285（SRM検査 p=0.42 → OK）
+- CVR: A 2.1% (26件) vs B 2.7% (35件)
+- 検定: カイ二乗 χ²=0.89, p=0.34
+- 効果量: Cohen's h = 0.041（実務閾値0.05未満）
+- 必要n: 各群13,600（未充足）
+- 判定: 【❌ 効果なし】p>0.05 かつ 効果量・n共に不足
+- 推奨アクション: テスト継続 or 改善幅の大きい別案へ切替
+- 反証チェック: 期間中の広告費同水準、Sotaの他施策なし → 交絡なし
+```
 
 ---
 
