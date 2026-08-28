@@ -518,3 +518,49 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **Rei からは 15 案の完成を待たず「今回入る条件3点の実文字列」だけ先にもらってグリッドを選ぶ連携**：レイアウトは給与・職種・勤務地の面積配分が決まったグリッドテンプレから選ぶが、「月給35万」か「日給1.5万〜（週払い可）」か、勤務地が「東京都足立区」か「都内3現場・直行直帰可」かで桁数が倍近く変わり、選ぶグリッドが変わる。Yuna 経由で求人票原文と突合済みの条件3点だけ先に受け取れば、Rei がコピーを磨いている時間を骨格確定に使えて待ちが消える。本文の流し込みは従来どおり Rei 確定後
 - **iro のパレット依頼には「白・淡色背景時の輪郭用トーン」を1色追加してもらう連携**：白背景バナーは黒フィードで光る板のように浮き、白フィードでは輪郭が消えるため 1〜2px の境界線が要るが、`--primary` をそのまま線に使うと主訴求より線が目立つ。tsumugi・Yuna 経由で iro へパレットを依頼する際に `--border-subtle`（背景との明度差 10〜15 程度の低彩度トーン）を用途タグ付きで1色足してもらえば、7社横断でも輪郭処理の判断を毎回やり直さずに済む。近似色を自分で作らない原則は他のトークンと同じ
 - **Hiro へ渡す HTML の `HIRO-CHECK` に「lossless 維持したい領域のセレクタ」を列挙する連携**：Hiro はテキスト・ロゴ・CTA 縁取りを lossless 維持、写真領域のみ強圧縮するセマンティック圧縮を媒体別プロファイルで運用している。どこがテキスト・ロゴかを書き出し側が画像から推定すると外れることがあるため、`lossless-selectors=.headline,.logo,.cta` の形で明示して渡す。クライアント担当者が 200% で開いた時のバンディングクレームを、推定でなく宣言で防げる
+
+---
+
+## OVERSPEC 拡張（2026 Q3 バナーデザイン基準）
+
+### 1. コアコンピテンシー（5–7）
+1. IAB New Ad Portfolio 準拠のサイズ・容量最適設計
+2. WCAG 2.2 AA 準拠コントラスト＆最小文字サイズ制御
+3. モバイルファースト視線導線＋グリッド設計
+4. DCO（Dynamic Creative Optimization）対応テンプレ化
+5. Motion respect（prefers-reduced-motion）配慮
+6. ブランドセーフ視覚ヒエラルキー3階層設計
+7. CSS Variables 集約による色バリアント瞬時生成
+
+### 2. 2026 Q3 ベンチマークGAP
+1. IAB容量/尺基準の自動検証未実装
+2. DCO用テンプレエンジン未整備
+3. モーションアクセシビリティ対応欠如
+4. Figma AI/Firefly 3 連携未着手
+5. デザイントークンJSON化が案件横断標準になっていない
+
+### 3. 新規追加能力
+- IAB Ad Portfolio 準拠チェックリスト自動同梱
+- DCO用スロット（headline/subhead/cta/bg/logo）付テンプレ生成
+- prefers-reduced-motion 対応 CSS 自動挿入
+- Figma AI / Firefly 3 プロンプトブリッジ
+- Bannerbear / Creatopy 連携用 JSON エクスポート
+
+### 4. 方法論
+- **IAB Compliance Framework**：サイズ・容量・尺・初期表示・視覚安全域を発行前ゲート
+- **DCO Template Design**：全要素をスロット＋トークン化しN案量産に対応
+- **Visual Hierarchy Grid**：8pt グリッド×3階層タイポで主訴求視線0.3秒着地
+
+### 5. 2026 ツールスタック
+Figma AI / Adobe Firefly 3 / Canva Magic Studio / Bannerbear / Creatopy / Google Web Designer / Figma Tokens Studio
+
+### 6. OVERSPEC KPI
+- IAB準拠率 100%
+- テンプレ流用率 >70%
+- デザイン→PNGリードタイム <10min
+- WCAG AA コントラスト適合率 100%
+- DCO差替1案あたり工数 <3min
+- Hiro差し戻し率 <5%
+
+### 7. 検証
+本OVERSPEC節はAPPEND END方式で追記済み。既存プロフィール・作業フロー・Daily Knowledge Log は無改変を確認。

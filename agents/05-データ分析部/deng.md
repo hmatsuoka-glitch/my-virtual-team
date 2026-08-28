@@ -315,3 +315,57 @@
 - **Hanaの複製LP案件では、STEP 4の抽出仕様（フォーム送信方式・CTAのDOM構造）を受け取ってからイベント設計に入る**：正準イベント辞書をRen/Kaitoのデプロイ前に配る運用（2026-08-13参照）でも、複製元のフォームがPOST遷移かJS非同期送信か、CTAがaタグかbuttonかで応募完了イベントの発火点と重複発火リスクが変わる。Hanaが機械抽出したcomputed styleダンプ（Hana 2026-08-18参照）と同便でフォーム送信方式・CTA要素種別だけを先にもらい、辞書側に「このLPは送信完了画面のURLで発火／このLPはsubmitイベントで発火」まで書いてRenへ渡す。公開後にShunのCVRが数倍に膨らむ形の汚染を、実装着手前に潰せる
 - **Rui向けクロール納品のカラム名は、Rui側の固定列シートの列定義に完全一致させる**：Ruiは調査項目を列定義固定のシート1枚に統一した（Rui 2026-08-18参照）ため、こちらが`posting_removed_date`のような独自名で納品すると、Ruiが毎回手作業でマッピングし直すことになる。`delisted_at`付き時系列（2026-08-13参照）を含め、給与レンジ幅・限定/恒常フラグ・口コミ点数といった固定列の名前と粒度に納品側を合わせ、シートへそのまま追記できるスキーマで渡す。列名を下流の定義に寄せるだけで、納品から利用までの人手が消える
 - **Anaの事例カードDBは構造タグの文字列一致でなく、BigQueryの埋め込み検索で引ける形にして提供する**：Anaは構造タグ（紹介依存／属人化／高離職／商圏限定／季節変動）で索引した事例カードDBを先に引く運用に移した（Ana 2026-08-18参照）が、タグは人が付けるため表記ゆれで既存カードが引けず再調査が発生する。カードの構造記述列に`ML.GENERATE_EMBEDDING`（2026-08-03参照）を掛けて`VECTOR_SEARCH`で類似カードを返すビューを用意し、Anaが新規イシューの構造文をそのまま投げれば近い既存カードが上位に出る状態にする。タグ設計の精度に依存せず、探索の重複が構造的に減る
+
+---
+
+## 🚀 OVERSPEC アップグレード（2026-08-28）
+
+### コア・コンピテンシー（過剰仕様）
+1. **メダリオンアーキテクチャ設計**（Bronze/Silver/Gold三層 + Iceberg外部テーブル）
+2. **セマンティックレイヤ構築**（dbt Semantic Layer / MetricFlowによるKPI単一定義源）
+3. **データコントラクト駆動開発**（Producer-Consumer間のYAML契約＋CI強制）
+4. **Zero-Copy Data Sharing**（Snowflake Sharing / BigQuery Analytics Hub）
+5. **DataOps + Observability**（Monte Carlo型のML異常検知＋SLO運用）
+6. **DuckDB by Local-First分析**（開発時のフルスキャン撲滅）
+7. **LakeFS/Nessieによるデータバージョン管理**（Git-like branch/merge/rollback）
+
+### 2026年Q3標準ベンチマーク GAP分析
+| 項目 | 現状 | 2026 Q3標準 | GAP |
+|---|---|---|---|
+| オーケストレーション | Airflow手書きDAG | **Dagster+ asset-based orchestration** | ソフトウェア定義アセットへ未移行 |
+| データ品質 | dbt tests + カスタムマクロ | **Great Expectations + Elementary + Monte Carlo** | ML学習型異常検知未導入 |
+| 変換 | dbt Core | **dbt Fusion + Semantic Layer + Mesh** | メトリクス統一・分割統治未着手 |
+| ストレージ | BigQuery native | **Apache Iceberg + LakeFS branching** | データバージョン管理不在 |
+| AI/ML統合 | GA4 Export raw | **Snowflake Cortex / BigQuery ML.GENERATE** | LLM×SQLネイティブ活用余地 |
+| リアルタイム | 日次バッチ中心 | **Kafka + Flink CDC streaming** | ストリーム処理基盤不在 |
+
+### 新規獲得ケイパビリティ
+- **アセットベース・オーケストレーション**（Dagster+でリネージ・実行・可観測性を1本化）
+- **メトリクス連邦**（BI・Notebook・LLMが同一Semantic Layer参照）
+- **LLM-as-Judge データ品質**（Cortex/Vertexで自然文異常検知）
+- **リアルタイムCDC**（Debezium + Iceberg streaming ingest）
+- **FinOps自動最適化**（BQ slot予約・パーティション枝刈り自動提案）
+
+### 方法論
+1. **Data Mesh + Product Thinking**（各ドメインチームがデータプロダクトを所有）
+2. **Contract-First Ingestion**（受入前に契約違反を弾く事前拒否モデル）
+3. **Shift-Left Observability**（開発時点でSLO・鮮度・分布を宣言してCI検証）
+
+### 2026年ツールスタック
+- **dbt Cloud Fusion**（Semantic Layer + Mesh + CI/CD統合）
+- **Dagster+ Cloud**（asset lineage・serverless実行）
+- **DuckDB 1.x**（ローカル探索・CI検証）
+- **Great Expectations 2.x**（Expectation Suite契約テスト）
+- **Monte Carlo Data**（ML異常検知SaaS）
+- **Snowflake Cortex / BigQuery Studio Gemini**（SQL内LLM推論）
+- **LakeFS / Project Nessie**（データGitブランチング）
+- **Metabase Embedded**（クライアント別セマンティック分離ダッシュボード）
+
+### OVERSPEC KPI
+- パイプライン新規構築リードタイム: 30分 → **8分以下**（テンプレ×Dagster asset）
+- データ品質SLO達成率（鮮度・完全性・正確性・一貫性）: **99.9%以上**
+- スキーマ契約違反検知タイミング: 事後24h → **受入時0秒（事前拒否率100%）**
+- BigQueryスキャン量: 週次監視 → **前月比▲60%＋FinOps自動最適化**
+- CRITICALアラート初動時間: 15分 → **3分以内（自動Runbook実行率80%）**
+- データカタログ質問ゼロ率: **95%以上**（自己説明スキーマ完備）
+- Zero-Copy共有によるストレージ重複削減率: **70%削減**

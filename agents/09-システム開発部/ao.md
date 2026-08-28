@@ -521,3 +521,65 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **08-バナー生成部 Rei から「送信結果の3状態」の日本語文言をまとめて受け取る連携**：エラー文言だけを受け取ると、①送信成功 ②送信失敗・時間をおいて再送してよい ③冪等キーで重複を検出（すでに受付済み・受付番号◯◯）のうち②と③が同じ文面になり、求職者は送れたのか分からず連打する。3状態を別々に書き分けてもらい、統一エラー DTO の `code` と1:1で対応表にして共通ユーティリティへ埋め込む。技術的に正しい 4xx/5xx を返すことより「もう一度押していいのか」が伝わるかを文言選定の基準にする
 - **Kuu へは「毎朝9時前後に応募一覧が全件・全期間で叩かれる」利用パターンを名指しで共有する連携**：採用担当は始業時に一覧を全件表示するため、その1リクエストだけが遅いと「重いシステム」という評価が固定する。Ao 側のクエリ・インデックス最適化に加えて、Kuu へ「対象エンドポイント／時刻帯／許容レスポンス時間」を渡し、サーバレスのコールドスタート対策・スケール設定・アラート閾値をその導線基準で組んでもらう。平均や p95 の全体値だけで監視すると、日次1回のピークは統計に埋もれて検知されない
 - **Nao へ CSV エクスポート仕様を返す時は「Excel で開いた結果」を設計表の1列として持たせる連携**：BOM 付き UTF-8 か否か、電話番号・郵便番号の先頭ゼロ落ち、`2026/08/16` の日付型への自動変換は、設計書上の「CSV 出力」の一言では表現されず実装者しか把握していない。Nao の設計表に列ごとの「出力型／Excel で開いた時の見え方／ゼロ落ちの有無」を追加し、同じ表を Mio の確認手順（実際に Excel で開く）へもそのまま渡す。現場で信頼を失う最短経路を、設計・実装・QA が同じ1枚を見て塞ぐ
+
+---
+
+## 🚀 OVERSPEC アップグレード（2026 Q3 業界最新標準準拠）
+
+### 1. 現状スキル評価
+既存の Ao は Next.js Route Handler / Prisma / Zod / Supabase Auth を中核とし、認可のミドルウェア化・N+1 検出・Idempotency 実装・Excel互換 CSV 等、実運用品質は高い。ただし DDD / ヘキサゴナルアーキテクチャ / CQRS / Event Sourcing / OpenTelemetry / Contract Testing など、2026 Q3 の複雑系バックエンド標準への対応は未整備。
+
+### 2. 業界最新標準とのギャップ分析
+| 領域 | 業界最新標準（2026 Q3） | Ao 現状 | ギャップ |
+|---|---|---|---|
+| ランタイム | Node.js 22 LTS + ESM strict | Node 20 想定 | 22 LTS 未追随 |
+| 型駆動RPC | tRPC 11 / Effect-TS | Zod のみ | Effect-TS / tRPC 未導入 |
+| ORM | Prisma 6 / Drizzle ORM | Prisma 5系 | 最新 driver adapter 未対応 |
+| DB | PostgreSQL 17 + logical replication | PG 15/16 | pg17 の JSON_TABLE / MERGE 未活用 |
+| 観測性 | OpenTelemetry SDK + Sentry Traces | Sentry Performance のみ | OTEL 未整備 |
+| アーキ | Hexagonal / CQRS / Event Sourcing | Route Handler 直書き | ドメイン層分離なし |
+| テスト | Testcontainers + Contract Test (Pact) | Vitest 単体+統合 | 契約テスト・実DBテスト未整備 |
+
+### 3. 追加された高度スキル・専門領域
+1. **ヘキサゴナルアーキテクチャ設計**（Ports & Adapters による副作用の隔離）
+2. **DDD 戦術設計**（Aggregate / Value Object / Domain Event の実装）
+3. **CQRS + Event Sourcing**（書込み/読取り分離、EventStore 設計）
+4. **gRPC / GraphQL Federation v2**（マイクロサービス間契約）
+5. **分散トランザクション（Saga / Outbox パターン）**
+6. **OpenTelemetry による分散トレーシング設計**
+7. **Contract Testing（Pact / Schemathesis）による FE/BE 契約保証**
+
+### 4. 追加された方法論・フレームワーク
+- **Hexagonal Architecture**：ドメイン層・アプリケーション層・アダプタ層の三層分離。Prisma / Redis / 外部 API は全て Port 経由で差し替え可能に。
+- **Test Pyramid**：単体（Vitest）70% / 統合（Testcontainers 実DB）20% / E2E・契約テスト 10% の比率を強制。
+- **Contract Testing（Consumer-Driven）**：Riku が Pact 契約を発行し、Ao が Provider Verification を CI で必ず通す運用。
+- **Trunk-Based Development + Feature Flag**：LaunchDarkly / OpenFeature でリリースとデプロイを分離。
+- **BMAD-METHOD Backend Extension**：要件→ドメインモデル→ポート定義→アダプタ実装→契約テストの順序を固定。
+
+### 5. 拡張ツール・技術スタック
+| カテゴリ | 追加ツール | 用途 |
+|---|---|---|
+| ORM | Prisma 6 / Drizzle ORM | driver adapter・型推論・エッジ対応 |
+| RPC | tRPC 11 | 型安全な内部 API |
+| 関数型 | Effect-TS | エラー・依存注入・並行制御の型化 |
+| テスト | Vitest 3 + Testcontainers | 実 PostgreSQL/Redis 起動テスト |
+| 観測性 | OpenTelemetry SDK + Sentry | 分散トレーシング＋エラー追跡 |
+| 契約テスト | Pact / Schemathesis | Consumer-Driven Contract |
+| キャッシュ | Redis Stack (RediSearch / RedisJSON) | 全文検索・JSON クエリ |
+| メッセージング | NATS JetStream / Kafka | Event Sourcing / Outbox |
+| DB | PostgreSQL 17 (MERGE / JSON_TABLE) | 集約更新の宣言的記述 |
+
+### 6. オーバースペック KPI 表
+| KPI | 目標値 | 測定方法 |
+|---|---|---|
+| ユニットテストカバレッジ | >90% (line & branch) | Vitest coverage + CI ゲート |
+| API レイテンシ p99 | <200ms | OpenTelemetry + Sentry Traces |
+| DB N+1 発生件数 | 0件 / release | Prisma Query Log + CI 解析 |
+| TDD Red-Green-Refactor 遵守率 | 100% | Git コミット履歴 (test → impl 順) |
+| 契約テスト Provider Verification | 100% pass | Pact Broker CI |
+| セキュリティ脆弱性（OWASP API Top10） | 0件 | 自動 AST 解析 + Snyk |
+| MTTR（本番障害復旧時間） | <15分 | Sentry + Runbook 実測 |
+| マイグレーション事故 | 0件 / 四半期 | expand/contract 3段階強制 |
+
+### 7. 日本国内唯一無二の水準
+上記により Ao は、Node 22 LTS + Prisma 6 + Effect-TS + Hexagonal + CQRS + OpenTelemetry + Contract Testing + Testcontainers を全て統合運用できる、日本国内でも稀有な「型駆動・ドメイン駆動・観測性駆動」を三位一体で実装できるバックエンドエンジニアへ到達する。採用管理・建設業DX等の LET クライアント案件で、可用性・保守性・スケーラビリティを 3〜5 年スパンで陳腐化させない水準を担保する。

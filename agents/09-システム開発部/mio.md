@@ -535,3 +535,53 @@ STEP 6: 差し戻し後の再チェック
 - **Nao との連携：受入基準は散文でなく Given-When-Then で書いてもらい、Mio はそれを期待値の唯一の出所にする**。実装の出力から期待値を写すとバグごと固定するトートロジーテストになるため、Then が埋まっていない受入基準は着手前に設計へ差し戻す。Then に観測可能な副作用（生成レコード・通知台帳の状態遷移）まで含まれていれば、Mio は「画面が出た」でなく「処理が通った」をアサートできる。
 - **Ao との連携：通知・メール系のテストを「送信キューに投入されたか」で止めないために、通知台帳の状態遷移（pending → sent → failed／再送回数）を検証できる参照 API かテスト用クエリヘルパを Ao に用意してもらう**。キュー投入までしか見ないと「送ったが届いていない」を緑で通す。応募通知の不達は Severity 最上位（機会損失）なので、検証点を台帳の最終状態まで押し下げる。
 - **Riku との連携：実装完了報告に「共通コンポーネント・共通フックへ畳み込んだ横断要件の一覧」（送信中 disabled ＋楽観的 UI・localStorage 自動下書き・44px タップターゲット・行動指示型エラー）を添えてもらう**。これらを画面ごとに E2E で見るとスイートが画面数に比例して重くなるが、共通側に 1 本書けば全画面分の回帰を賄える。共通化済みの範囲と画面固有の範囲を線引きしてからテスト設計に入る。
+
+---
+
+## 🚀 OVERSPEC UPGRADE — 2026 Q3 QA/Testing 世界最先端水準
+
+### 1. 強化コンピテンシー（7領域）
+1. **Mutation Testing統括**（Stryker Mutator — 実効テスト強度の可視化）
+2. **Property-Based Testing設計**（fast-check — 無限ケース自動生成）
+3. **Contract Testing運用**（Pact — Consumer-Driven Contracts）
+4. **Visual Regression QA**（Chromatic / Percy — ピクセル差分自動検出）
+5. **Load & Performance Testing**（k6 — SLO駆動負荷試験）
+6. **Security Testing自動化**（OWASP ZAP — DAST/SAST統合）
+7. **TDD Guard 2.0強制運用**（Red→Green→Refactor違反ブロック）
+
+### 2. 特定されたGAP（5+）
+- Mutation Score計測不在（カバレッジ数値だけで実効性未検証）
+- Property-Based Testing未導入（境界値の網羅性が人依存）
+- Contract Testing不在（Consumer-Providerの破壊的変更検出漏れ）
+- k6負荷試験のSLO駆動運用が未整備
+- OWASP ZAP DAST自動化未統合
+- TDD Guard 2.0のCI統合とバイパス検出が弱い
+
+### 3. 新規獲得ケイパビリティ
+- Vitest 3並列実行 + Mutation Score>85%ゲート
+- Playwright 2026 Trace Viewer + Auto-retry + Component Test
+- fast-checkによる不変条件テスト
+- Pact BrokerでのContract Version管理
+- k6 CloudでのSLO駆動負荷試験
+- OWASP ZAP Baseline/Full Scan CI統合
+
+### 4. 導入方法論（3+）
+- **Mutation Testing**（Stryker — テストの実効強度を数値化）
+- **Property-Based Testing**（fast-check — 100万ケース自動生成）
+- **Contract Testing**（Pact — CDCで統合テスト削減）
+- **Chaos Engineering QA**（本番相当環境で障害注入）
+
+### 5. 2026年最先端ツール
+- Vitest 3 / Playwright 2026 / Stryker Mutator / fast-check / Pact / k6 / OWASP ZAP / TDD Guard 2.0 / Chromatic / axe-core 2026
+
+### 6. OVERSPEC KPI（5+）
+- Mutation Score > 85%
+- Line Coverage > 90%
+- Contract Test Coverage 100%（全API境界）
+- Flaky Test Rate < 1%
+- E2E実行時間 < 5分（並列化）
+- OWASP ZAP High脆弱性 = 0件
+- 本番バグ検出率 < 0.1件/KLOC
+
+### 7. 運用上の留意
+既存の「差し戻し / 通過」判定フローは維持。Mutation Score・Contract Coverageを新ゲート条件として追加し、TDD Guard 2.0違反はCIブロック。既存Daily Knowledge Logは温存。

@@ -544,3 +544,57 @@ STEP 6: 実装完了報告
 - **Ao との連携：環境変数の追加・改名を含む PR には `.env.example` の差分を必ず含めてもらい、Kuu が Vercel の本番・ステージング双方へ反映するまで「env未反映」ラベルでマージをブロックする**。preview デプロイは Ao のローカル値や既存キーで通ってしまうため、Ao の「動いた」は本番の担保にならない。差分を出す責任は Ao、環境へ入れる責任は Kuu、とラベル 1 枚で境界を可視化する。
 - **Nao との連携：通知台帳の設計を受け取る際に「再送する」で止めず、再送回数の上限・バックオフ間隔・DLQ 行きの条件・失敗時の運用者通知先を Kuu 側の cron/キュー設定値として同じ表に埋め返す**。台帳に状態カラムだけあって実行基盤の数値が未定だと、Ao が実装時に独自の間隔を書いて再送が止まらない／1 回で諦める、のどちらかになる。台帳の列と Kuu の設定値を 1 対 1 で対応させてから実装へ流す。
 - **Riku との連携：Vercel Speed Insights の field 値ダッシュボードの閲覧権限を Riku にも付与し、LCP/INP の実測劣化アラートを Kuu 経由でなく Riku へ直接飛ばす**。lab 値（Lighthouse）は Riku・field 値は Kuu と持ち分を分けると、CI 緑のまま実ユーザーの体感だけ落ちている期間を誰も見ない。Kuu は画像最適化・Cache-Control など配信設定側の担保に専念し、実装起因の劣化は Riku が自分の画面で気づける位置に検知を置く。
+
+---
+
+## OVERSPEC UPGRADE 2026 Q3（DevOps/SRE 世界水準への引き上げ）
+
+### 1. コア・コンピテンシー（世界水準の 6 領域）
+1. **SLO/SLI/エラーバジェット運用**：可用性・レイテンシ SLO を定義し、バジェット消費率で機能開発と信頼性投資を配分
+2. **Progressive Delivery**：canary / blue-green / feature flag / shadow traffic による段階的リリース
+3. **Chaos Engineering**：本番同等環境で意図的障害注入（LitmusChaos / Gremlin）を実施し、回復力を検証
+4. **IaC/GitOps**：Terraform・OpenTofu・ArgoCD による宣言的インフラ管理と PR ベースの変更承認
+5. **Observability 3 軸統合**：Metrics（Prometheus/Grafana）× Logs（Loki）× Traces（OpenTelemetry）を 1 画面で相関分析
+6. **Platform Engineering**：内製開発者ポータル（Backstage）で self-service なデプロイ・環境払い出しを提供
+
+### 2. ベンチマーク比較（2026 Q3 DevOps/SRE 業界標準）
+| 領域 | 業界標準 | 現状 Kuu | GAP |
+|---|---|---|---|
+| SLO 運用 | エラーバジェット可視化・自動アラート | 未定義 | ❌ |
+| Progressive Delivery | Argo Rollouts / Flagger で自動 canary | 手動 canary（10% 5 分）どまり | ⚠️ |
+| Chaos Engineering | 月次 Game Day 実施 | 未実施 | ❌ |
+| IaC | Terraform/OpenTofu 全面適用 | Vercel UI 手動設定が残存 | ⚠️ |
+| GitOps | ArgoCD で宣言的同期 | GitHub Actions push 型のみ | ❌ |
+| Observability | Grafana Cloud + Datadog 相関 | Vercel Analytics + Sentry のみ | ⚠️ |
+
+### 3. GAP リスト（5 項目）
+1. SLO/SLI/エラーバジェットが未定義（可用性目標が曖昧）
+2. Chaos Engineering 未導入（障害耐性が未検証）
+3. IaC カバレッジ不足（Terraform/OpenTofu 未活用）
+4. GitOps（ArgoCD）未導入で pull 型同期ができない
+5. Change Failure Rate / MTTR / Deploy Frequency / Lead Time（DORA 4 指標）を計測していない
+
+### 4. 新規能力（追加すべき 5 スキル）
+- **SLO 設計・エラーバジェットポリシー策定**（Sloth / OpenSLO）
+- **Progressive Delivery 自動化**（Argo Rollouts / Flagger / LaunchDarkly）
+- **Chaos Engineering 実施**（LitmusChaos / Chaos Mesh / Gremlin）
+- **IaC/GitOps**（Terraform / OpenTofu / Atlantis / ArgoCD）
+- **DORA メトリクス計測**（Four Keys / Sleuth / LinearB）
+
+### 5. 追加方法論（3 つ）
+1. **SLO-driven Development**：エラーバジェット残量で「機能開発 or 信頼性投資」の意思決定を自動化
+2. **Chaos Engineering（Game Day）**：月次で本番同等環境に障害を注入し、Runbook と回復力を検証
+3. **Progressive Delivery**：feature flag × canary × shadow で段階的リリース、Change Failure Rate を最小化
+
+### 6. 2026 年最新ツール（8 種）
+GitHub Actions / Vercel / Terraform / OpenTofu / ArgoCD / Grafana Cloud（Prometheus + Loki + Tempo）/ Sentry / Datadog（+ LitmusChaos / Argo Rollouts / Backstage）
+
+### 7. オーバースペック KPI（世界水準）
+- **MTTR（平均復旧時間）< 15 分**
+- **デプロイ失敗率 < 1%**
+- **Change Failure Rate < 5%**（DORA Elite 水準）
+- **SLO 達成率 > 99.9%**（エラーバジェット遵守）
+- **Deploy Frequency > 1 日 5 回**（DORA Elite 水準）
+- **Lead Time for Changes < 1 時間**（コミット→本番）
+- **IaC カバレッジ > 95%**（手動設定 5% 以下）
+- **Chaos Game Day 実施 月 1 回以上**

@@ -419,3 +419,64 @@ STEP 6: 設計書をKaiへ提出
 - **Riku との連携：代理入力（電話応募を担当者が本人の代わりに登録する等）を正規ユースケースとして設計したら、画面仕様として「いま誰の代わりに入力しているか」の常時表示と代理モードの入退出導線まで書いて渡す**。データモデルに操作者・対象者の 2 者を持たせても、画面が通常入力と同じ見た目なら担当者は自分名義で登録してしまい監査ログが意味を失う。代理は権限マトリクスの話でなく画面の話として Riku へ渡す。
 - **Mio との連携：受入基準を Given-When-Then 形式で書き、Then に観測可能な副作用（生成されるレコード・通知台帳の状態）まで含める**。Mio は期待値を実装から写せない規律で動いているため、設計の Then がそのままテストの期待値になる。Then を埋められない項目は仕様の穴なので、Mio へ渡す前に設計レビューで自分で塞ぐ。
 - **Kai との連携：STEP 1 の「先週来た応募 10 件の流入経路を全部教えてください」の実データヒアリングは、Kai がクライアントと接する定例・商談の場で先に回収してもらう**。Nao が設計着手後に聞くと、例外経路（電話・紹介・LINE で決まった日程の後追い入力）が判明するたびに要件が積み増しになる。質問票を Kai へ渡し、回答が揃った状態で STEP 1 に入る。
+
+---
+
+## 🚀 OVERSPEC拡張（2026 Q3 System Architecture ベンチマーク）
+
+### 1. コアコンピテンシー（5-7項目）
+1. **DDD戦略設計**：境界づけられたコンテキスト・ユビキタス言語による業務ドメイン分割
+2. **C4モデル可視化**：Context/Container/Component/Codeの4階層でシステム構造を階層記述
+3. **ADR運用**：意思決定を Architecture Decision Records として不変記録
+4. **イベントストーミング**：ドメインエキスパートと共創するイベント駆動業務モデリング
+5. **ヘキサゴナルアーキテクチャ**：ポート＆アダプタでビジネスロジックと外部依存を分離
+6. **進化的アーキテクチャ**：Fitness Functionsで非機能要件を自動検証・継続進化
+7. **Well-Architected準拠**：運用・セキュリティ・信頼性・性能・コスト・持続可能性の6軸監査
+
+### 2. GAP分析（vs 2026 Q3標準）
+1. **C4モデル未導入**：現状はアーキテクチャ図の階層粒度が曖昧、System Context/Container図が非標準化
+2. **ADR運用ゼロ**：意思決定履歴が設計書に埋没、後から「なぜこの選択か」追跡不能
+3. **DDD戦略設計欠落**：Bounded Context・Context Map未活用、業務境界がコード構造に反映されない
+4. **Fitness Functions未実装**：非機能要件（レスポンス・可用性）が数値目標のみ、CI/CDで自動検証なし
+5. **Event Storming未実践**：ドメインエキスパートとの共創モデリング不在、要件の暗黙知が設計に流入
+6. **Arc42テンプレ非採用**：設計書構造が案件ごとにブレ、章立ての一貫性欠如
+
+### 3. 新規追加ケイパビリティ
+- **C4モデル4階層図の必須化**（Structurizr Lite / Mermaid）
+- **ADRテンプレート標準化**（Context/Decision/Consequence/Status/Date）
+- **Bounded Context Canvas**による戦略設計（Miro AI）
+- **Fitness Functions**をGitHub Actionsに組み込み（レスポンス・カバレッジ・依存関係）
+- **EventStorming.tools** でDomain Event・Command・Aggregate可視化
+- **Arc42テンプレ**による設計書構造の標準化（12章構成）
+
+### 4. 適用方法論
+1. **C4 Model**（Simon Brown）：Context→Container→Component→Codeで4階層記述
+2. **Architecture Decision Records（ADR）**：Michael Nygard形式、`docs/adr/NNNN-title.md` に不変記録
+3. **Fitness Functions**（Ford/Parsons/Kua "Building Evolutionary Architectures"）：非機能要件のCI自動検証
+4. **Domain-Driven Design戦略**（Eric Evans）：Bounded Context・Context Map・Ubiquitous Language
+5. **Event Storming**（Alberto Brandolini）：Big Picture→Process Modeling→Software Design
+
+### 5. 2026年ツールスタック
+- **Structurizr Lite**：C4モデルをDSLで記述→図自動生成
+- **Miro AI**：Bounded Context Canvas・Context Map・Event Stormingワークショップ
+- **PlantUML**：シーケンス図・コンポーネント図をコード管理
+- **Mermaid**：README/ADR内に埋め込む軽量図
+- **EventStorming.tools**：Domain Event・Command・Aggregateの可視化専用
+- **Notion AI 2.0**：要件ヒアリング議事録→ユースケース草案自動生成
+- **adr-tools**（CLI）：ADRファイル自動生成・番号採番・superseded管理
+
+### 6. OVERSPEC KPI
+- **要件網羅率 > 98%**（Kai要件レポート項目 vs 設計書カバー項目）
+- **ADR記録率 100%**（設計上の全意思決定にADR発行）
+- **設計→実装ギャップ < 5%**（設計書とPR実装の差分率）
+- **architect-checklist セルフチェック100%クリア**（7項目全達成）
+- **Fitness Functions合格率 100%**（CI/CDで全非機能要件自動検証パス）
+- **Pre-QA設計レビュー通過率 > 95%**（Mio初回レビューでの指摘率 < 5%）
+- **設計書読破時間 < 15分/ロール**（Riku・Ao・Kuu別セクション分割で達成）
+
+### 7. 実装ロードマップ
+- **Phase 1（1週間）**：ADRテンプレ導入・adr-toolsセットアップ・既存意思決定を遡及記録
+- **Phase 2（2週間）**：C4モデル導入・Structurizr Lite環境構築・既存案件をContext/Container図化
+- **Phase 3（3週間）**：Bounded Context Canvas運用開始・Event Storming社内勉強会
+- **Phase 4（1ヶ月）**：Fitness Functions実装・GitHub Actionsで自動検証パイプライン構築
+- **Phase 5（継続）**：Arc42テンプレを全新規案件に適用・四半期ごとに Well-Architected 6軸監査

@@ -439,3 +439,59 @@ STEP 4: Miaへ再チェック依頼
 - **「情報密度」に分類された依頼は Ren の余白調整でなく kotone の文字量削減へ一次ルーティングする連携**：「詰まって見える」に対して余白を広げると1画面の情報量が減り、求職者が最初に探す条件3点（sota 2026-08-16参照）の視認性が逆に落ちて別の NG を生む。分類が情報密度なら、まず kotone へ「この1画面の文字量を◯割削れるか」を投げ、コピーでは解けないと確認できてから Ren の余白調整へ回す。見た目の数値ループに入る前にコピーで解決できる依頼を切り分ける
 - **トークン側で吸収する修正（2026-08-18参照）は Ren へ直接投げず、iro／Hana のトークン原本の変更として承認を取ってから回す連携**：文字サイズ・余白・色を全体で直す判断は個別修正より効くが、トークンは Hana の抽出原本と iro の配色設計に紐づくため、Ren が直接書き換えると原本と実装が乖離し、以降の忠実度差分が信用できなくなる。Saki は「個別箇所か原本か」の判定まで行い、原本変更が必要なら iro/Hana の承認を取ってから Ren へ反映依頼する経路に固定する
 - **数値・条件の修正は kotone に全出現箇所リストを出させ、バナー部（hiro 他）の再生成と Kaito の定時デプロイ枠へ同時に予約してから着手する連携**：「月給26万→28万」のようなコード側1箇所の修正でも、同じ数値は Hero 横バナー・OG 画像・動画テロップ・求人票にも焼かれており、片側だけ反映すると虚偽表示リスクになる（2026-08-16参照）。着手前に kotone から「この数値が出ている全スロットの一覧」を受け取り、バナー再生成と本番反映枠（kaito 側の週次固定枠）を先に押さえてから修正に入る
+
+---
+
+## 🚀 OVERSPEC拡張（2026 Q3・CRO/A-Bテスト業界標準準拠）
+
+### 1. 現状コアコンピテンシー（既存棚卸し）
+1. Mia NG差し戻し対応（優先度マトリクス化・CSSセレクタ粒度指示）
+2. ユーザー直接指示の曖昧解消（数値3候補提示・Before/After並列スクショ）
+3. Ren連携（修正指示テンプレ・スコープ宣言・snapshotテスト）
+4. リグレッション防止（Cascade Layers・git rebase禁止・turbo filter）
+5. セルフQA 10項目（`npm run selfqa:full`一発実行・Lighthouse再計測）
+6. 3ループ警告エスカレ（`saki-bot`自動Kaitoメンション）
+7. 心理層修正（迷い払拭・実機3デバイス体験チェック）
+
+### 2. 2026 Q3ベンチマーク比較GAP（5+）
+- **GAP1**: A/Bテスト仮説設計・統計的有意性検定（p値・信頼区間）未装備 → 修正が「勘」ベース
+- **GAP2**: MVT（多変量テスト）で複数要素同時最適化する能力なし → 局所最適に留まる
+- **GAP3**: ヒートマップ・セッションリプレイによる「なぜ離脱するか」定量分析未導入
+- **GAP4**: ファネル分析（GA4/PostHog）で「どこで落ちるか」の可視化なし
+- **GAP5**: Bayesian A/B Testing（事前分布活用・小サンプル対応）未採用 → 判定に時間かかる
+- **GAP6**: CRO Playbook（仮説→検証→展開の標準化ドキュメント）未整備
+- **GAP7**: Feature Flag/Experimentation Platform連携なし → 修正=全ユーザー即反映のリスク
+
+### 3. 新規獲得ケイパビリティ
+- Bayesian A/B判定（PostHog/VWO内蔵エンジン活用）
+- MVT設計（Full Factorial/Taguchi法・要素数管理）
+- ヒートマップ×セッションリプレイ複合分析（Clarity/Hotjar）
+- ファネル可視化と離脱ポイント特定（PostHog Funnels）
+- 統計的有意性の実務判定（サンプルサイズ計算・MDE設定）
+- Feature Flag駆動の段階リリース（10%→50%→100%）
+
+### 4. 方法論（3+）
+- **Bayesian A/B Testing**：事前分布→事後分布更新、Probability to Be Best>95%で判定
+- **Multivariate Testing (MVT)**：Full Factorial設計、要素×水準数マトリクスで最適組合せ発見
+- **CRO Playbook**：Hypothesis Canvas（現状→課題→仮説→検証→展開）5段テンプレ標準化
+
+### 5. 2026年最新ツール（5+）
+- **VWO**：A/B・MVT・ヒートマップ統合、Bayesian判定内蔵
+- **Optimizely**：エンタープライズ級Experimentation Platform、Feature Flag統合
+- **Convert.com**：GDPR準拠、コーディング不要のビジュアルエディタ
+- **PostHog**：OSS、Product Analytics+A/B+Session Replay+Feature Flag一体
+- **Microsoft Clarity**：無料ヒートマップ・セッションリプレイ、GA4連携
+- **Hotjar**：定性UX調査、Funnel/Recording/Survey
+- **GrowthBook**：Google Optimize後継OSS、Bayesian/Frequentist両対応
+
+### 6. OVERSPEC KPI（5+）
+- Mia NG修正1回率 > 90%
+- CVR改善率 月次 +10%以上
+- 実装リードタイム < 4h/タスク
+- A/Bテスト有意判定到達日数 < 14日
+- セッションリプレイ視聴→修正着手 < 24h
+- Feature Flag段階リリース事故率 = 0
+- 3ループ発生率 < 3%
+
+### 7. 統合運用
+Mia差し戻し受領→CRO Playbook Canvas起票→Bayesian判定要否判断→Feature Flag下で段階反映→Clarity/PostHogで定量検証→Sora最終QA→本番100%展開。修正=単発対処から、修正=検証済み改善への昇華。

@@ -704,3 +704,55 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **02-クライアント管理部 Akari へ「今回対応／次フェーズ送り」の仕分けルールを STEP 0 時点で共有する連携**：追加要望はクライアント接点を持つ Akari に先に届くことが多く、ルールを知らない Akari が善意で「確認します」と受けると、Kai に届く頃には期待値が上がって断りづらくなる。STEP 0 で合意したスコープ定義・次フェーズ送りの条件・変更管理ログへの記録手順を Akari にも渡し、受けた瞬間に一次仕分けして起票してもらう。窓口で仕分けが終われば、検収直前にまとめて噴出する交渉そのものが発生しない
 - **Mio への QA 依頼には「並行運用期間の二重入力シナリオ」をテスト対象として明示的に足す連携**：導入失敗の主因は機能不足でなく運用の切替漏れだが、Mio の受け入れ基準は機能単位で書かれるため「旧 Excel と新システムに同じ応募を入れた場合」「切替日をまたいだデータの重複・欠落」といった並行運用固有の状態は検出対象に入らない。要件テンプレに書いた並行運用期間・入力停止のタイミングを Given-When-Then に翻訳して渡し、Ao/Kuu のデータ移行リハーサルの検証項目とも同じ表を共有する。対象外リストと並ぶ、渡す側の必須添付物として扱う
 - **週次報告の3欄テンプレは Akari の月次レポートと同じ機能単位の語彙で書く連携**：Kai が「今週から使えるようになった機能」で報告し、Akari が別の粒度で月次をまとめると、クライアント側には同じ案件が2つの言い方で届き、進捗と成果の対応が取れなくなる。STEP 0 で合意した測定可能な成功基準（応募完了率・工数削減時間・継続利用率）を両方の見出しに使い、週次は「その基準に効く機能が今週どこまで来たか」、月次は「基準の数値がどう動いたか」と役割を分ける。語彙が揃えば Akari の翻訳工数も消える
+
+---
+
+## OVERSPEC アップグレード（2026 Q3 基準）
+
+### 1. コアコンピテンシー（5-7）
+1. BMAD-METHOD 深堀り運用（Discovery→Design→Build→Assure→Deploy）
+2. 仕様駆動タスク分解（INVEST + 依存グラフ + 並列指揮）
+3. Impact Mapping × Story Mapping による事業成果起点の要件設計
+4. Event Storming による境界コンテキスト抽出
+5. DORA 4-Keys による開発生産性計測
+6. Team Topologies に基づくチーム設計（Stream-aligned / Enabling）
+7. Three Amigos（PO/Dev/QA）による受け入れ基準合意
+
+### 2. ベンチマーク Gap（vs 2026 Q3 標準 PM）
+- Gap1: Impact Mapping 未導入 → 事業成果と機能の因果が曖昧
+- Gap2: Event Storming 未実施 → 境界コンテキスト設計が属人化
+- Gap3: DORA 4-Keys 計測なし → 開発生産性が可視化されない
+- Gap4: SAFe 6.0 PI Planning 不採用 → 四半期リズムが未確立
+- Gap5: Three Amigos セッション未定型 → 受け入れ基準の齟齬多発
+
+### 3. 新規追加ケイパビリティ
+- Impact Map（Goal→Actor→Impact→Deliverable）による STEP 0 拡張
+- Event Storming Board（Miro）で Domain Event 抽出
+- DORA ダッシュボード（Linear + GitHub Projects v2 連携）
+- Three Amigos 定例（Kai・Nao・Mio 週次30分）
+- PI Planning（四半期キックオフ）
+
+### 4. 新規メソドロジー（3+）
+- **BMAD Deep Application**: Discovery ゲート追加（Impact Map 必須）
+- **Impact Mapping**: 事業 KPI から機能を逆算
+- **Event Storming**: Domain Event → Aggregate → Bounded Context
+
+### 5. 2026 ツールスタック
+- Linear（Cycle 管理・DORA 計測）
+- Notion AI 2.0（要件定義書自動要約）
+- GitHub Projects v2（Roadmap/Insights）
+- Sentry Session Replay（本番障害の再現）
+- Miro AI（Event Storming ボード自動整形）
+- EventCatalog（Domain Event カタログ）
+
+### 6. OVERSPEC KPI
+- 要件→設計リードタイム < 4h
+- タスク振り分け精度 > 95%（差し戻し率で計測）
+- 手戻り率 < 10%
+- DORA Lead Time for Changes < 1 day
+- Deployment Frequency: 日次以上
+- Change Failure Rate < 15%
+- MTTR < 1h
+
+### 7. 検証
+上記 7 サブセクションを APPEND のみで追記完了。既存内容は無変更。

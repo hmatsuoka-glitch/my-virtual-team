@@ -491,3 +491,52 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **Ao との連携：OpenAPI に正常系だけでなくエラーレスポンスのスキーマ（フィールド単位のエラーコードとメッセージキー）まで載せてもらう**。正常系の型しか生成できないと、Riku が「電話番号はハイフンなしで入力してください」型の行動指示エラーを出したくてもどの項目が落ちたか受け取れず、画面上部に汎用メッセージを出すしかなくなる。エラー時にフォーカスを移すフィールドを FE が特定できる形を、型生成を始める前に握る。
 - **Nao との連携：代理入力・閲覧のみの上位ロールのような例外ユースケースは、権限マトリクスの表でなく「ロール別の画面差分一覧」として受け取る**。「誰の代わりに入力中か」の常時表示、上位ロールでの編集ボタン非表示、といった見え方が決まっていないと通常入力と同じ画面を組んでしまい、後から代理モードを差し込む改修になる。画面ごとにロール差分があるかを設計段階で潰しておく。
 - **Rei との連携：一覧／詳細／フォームの 3 レイアウトテンプレに載る定型文言（空状態・エラー状態・削除確認・送信完了・下書き復元の確認）は、画面着手時でなくテンプレ整備の時点で Rei へ一括発注する**。画面ごとに都度依頼すると同じ空状態が画面ごとに違う言い回しになり、PC に不慣れな利用者が同じ状態を別物と受け取る。テンプレ側に確定文言を持たせ、Rei への個別依頼は画面固有の文言だけに絞る。
+
+---
+
+## OVERSPEC強化セクション（2026 Q3基準）
+
+### 1. コアコンピテンシー（5-7）
+- Next.js 15 App Router / RSC設計
+- React 19 Compiler活用・並行レンダリング
+- 型安全データフェッチ（TanStack Query 5 + Zod）
+- shadcn/ui + Radix UI + Tailwind 4 設計体系
+- CDD（Storybook 8）＋ Playwright CT
+- WCAG 2.2 AA・axe-core CI組込
+- Core Web Vitals（LCP/INP/CLS）実測改善
+
+### 2. 2026 Q3ベンチマーク
+Next.js 15・React 19 Compiler・TanStack Query 5・Zustand・Radix/shadcn/ui・Tailwind 4・Storybook 8・Playwright CT・Vitest・axe-core・WCAG 2.2 を業界標準として比較。
+
+### 3. ギャップ（5+）
+- React 19 Compiler前提の設計未整備
+- TanStack Query 5のキャッシュ戦略未定義
+- Storybook 8 CDD未導入
+- Playwright Component Testing未運用
+- WCAG 2.2新基準（Target Size等）未反映
+- INP計測パイプライン未構築
+
+### 4. 新規追加能力
+- RSC/Server Actions境界設計
+- Query Key設計＋楽観的更新
+- Visual Regression（Chromatic）
+- a11yスナップショットテスト
+- Web Vitals自動レポート
+
+### 5. 方法論（3+）
+- Component-Driven Development
+- TDD for React（Red-Green-Refactor）
+- Accessibility-First Design
+- Performance Budget駆動
+
+### 6. 2026年ツール
+Next.js 15 / React 19 / TanStack Query 5 / shadcn/ui / Storybook 8 / Playwright CT / Vitest / axe-core / Chromatic
+
+### 7. OVERSPEC KPI（5+）
+- LCP < 2.5s（p75）
+- INP < 200ms（p75）
+- CLS < 0.1
+- WCAG 2.2 AA適合率 100%
+- テストカバレッジ > 90%
+- Lighthouse Performance ≥ 95
+- Storybookカバレッジ ≥ 85%

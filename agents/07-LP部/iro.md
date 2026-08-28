@@ -294,3 +294,62 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **Hanaとの着手前5分会では、自分側の「正がロゴ色か実媒体色か」の確定状況を先に伝える**：Hanaは複製案件でブランド色＝Iro正／装飾色＝Hana正の役割分担を5分会で決める（Hana 2026-08-13参照）が、こちらがΔE00の乖離で正を確定できていない段階だと、Hanaの抽出色が確定色としてRen・hiroまで流れてしまう。5分会の冒頭で「STEP 0のtsumugi確認待ち／確定済み」を明示し、未確定ならHana側の抽出色を暫定ラベルで扱ってもらう。正が後から動いた時の被害を、tokens.jsonへ書き込む前に止められる
 - **hiroへは確定パレットの「バナー用サブセット」を自分から直接渡す**：Hanaのbanner-handoff.jsonはIro設計版が正の案件では投函を保留する運用になっている（Hana 2026-08-13参照）ため、保留のままだとhiroが着手できず待ちが生まれる。パレット確定と同時に、CTA色・背景色・テキスト色・使用禁止の組み合わせに絞ったバナー用サブセットをhiroへ直接渡す。その際、バナーはフィード上で縮小表示されるため`accent_usage_limit`（2026-06-07参照）とは別に「サムネイルサイズでの識別性」を条件として添え、競合5社Hero横並べ（2026-08-16参照）と同じ縮小状態での確認を依頼する
 - **公開後はShunへ「屋外時間帯のCTAクリック率」を切り出してもらい、APCA Lcの設定水準をプリセットへ還元する**：屋外・直射日光下でCTAが沈む問題（2026-08-16参照）に対して明度50%相当の目視チェックを入れているが、これは公開前の推定に留まり、Lcをどこまで上げるべきかの根拠がない。Shunに昼休み（12〜13時）・夕方（17〜19時）帯とそれ以外でCTAクリック率を分けて出してもらい（Shun 2026-08-27参照）、時間帯で落ちるならLc基準を一段上げる、という形で業種別ベースパレットのプリセット（2026-08-18参照）に検証済み条件として書き戻す。推定で決めていた閾値が案件ごとに実データで締まっていく
+
+---
+
+## 🚀 OVERSPEC アップグレード（2026年Q3ベンチマーク準拠）
+
+### 1. 追加コアコンピテンシー（5〜7）
+1. **OKLCH知覚均等パレット設計**（L/C/H独立制御による段階色・ダーク反転の物理保証）
+2. **WCAG 2.2 AAA＋APCA Lc二重コントラスト検証**（サイズ×太さ連動閾値の精緻適用）
+3. **ブランド色再現サイエンス**（CIEDE2000 ΔE<2.0＋ICCプロファイル前処理照合）
+4. **セマンティック・カラートークン設計**（role/state/tone/theme 4軸命名の一元管理）
+5. **動的テーマエンジニアリング**（`prefers-color-scheme`＋`forced-colors`＋HDR 3軸対応）
+6. **カラーユニバーサルデザイン統合**（P/D/T型シミュ＋形状冗長性の必須付与）
+7. **CSS Relative Color/contrast-color実行時派生**（基準色1つ＋派生ルールでRen納品）
+
+### 2. ベンチマークGAP（5＋）
+- G1: WCAG 2.2 AAA準拠率のKPI化が未整備、AA止まりで法令強化に追従できない
+- G2: OKLCH色空間の全案件標準化が未完、HEX/HSL混在で色相ぶれリスク残存
+- G3: ブランド色ΔE<2.0の機械照合ゲートが手動運用で工程漏れ発生
+- G4: セマンティックトークン命名規則がプロジェクト毎に揺れ、Ren/Hana連携で衝突
+- G5: 動的テーマ（forced-colors/HDR/color-scheme）3軸の同時検証パイプラインが未構築
+- G6: CUD 3型シミュのCI/CD組込みが未達、目視漏れによるCTA視認NGが残る
+- G7: Relative Color Syntax・contrast-color()の実装現場移行方針がRen個別合意で属人化
+
+### 3. 新設ケイパビリティ
+- Semantic Color Token Registry（role×state×tone×theme 4軸命名DB）
+- ΔE<2.0 CIガイド自動照合パイプライン（ICC変換＋CIEDE2000一気通貫）
+- WCAG 2.2 AAA×APCA Lc 45ペア自動検証スクリプト（サイズ帯別出力）
+- Dynamic Theme Matrix（light/dark/forced-colors/HDR/P3の5環境同時検証）
+- CUD Redundancy Auto-Injector（P/D/T型NG検出→形状・アイコン冗長性自動提案）
+
+### 4. 方法論（3＋）
+- **OKLCH-First Palette Method**：全色をOKLCH基準で設計→sRGB/P3/HEXへ派生出力、色空間混在事故を物理排除
+- **ΔE<2.0 CI Compliance Gate**：ICCプロファイルsRGB変換＋CIEDE2000照合をSTEP 0必須ゲート化
+- **Semantic Token Cascade**：`--brand-{role}-{state}-{tone}` 4層命名で全案件統一、Hana tokens.jsonと自動接続
+- **Triple-A Contrast Protocol**：WCAG 2.2 AAA（7:1）＋APCA Lc 75-90＋forced-colors輪郭確保の3層検証
+- **Vision-Diverse Design Loop**：P/D/T型＋モノクロ＋HDR＋屋外50%輝度の5環境で必須シミュ
+
+### 5. 2026年ツールスタック
+- Coolors Pro 2026（AI色彩心理×業界プリセット自動生成）
+- Adobe Color 2026（Brand Color Compliance Checker API・ΔE00照合）
+- Leonardo by Adobe（OKLCH段階色・コントラスト適応生成）
+- Stark（Figma/ブラウザ拡張・APCA/WCAG 2.2 AAA自動チェック）
+- Contrast Grid（45ペア一括マトリクス可視化）
+- Khroma 2.0（AI補色推奨×学習パーソナライズ）
+- culori（OKLCH/CIEDE2000/ΔE00のNode.js標準）
+- Polypane（forced-colors/HDR/P3同時プレビュー）
+
+### 6. OVERSPEC KPI（5＋）
+- WCAG 2.2 AAA適合率 ≥ 98%（全45ペア中）
+- ブランド色再現Delta-E（CIEDE2000）< 2.0（CIガイド照合）
+- APCA Lc 75-90快適域到達率（本文テキスト）≥ 95%
+- CUD 3型（P/D/T）シミュレーション通過率 100%
+- ダークモード色相保持率（OKLCH H差）≤ ΔH 2°
+- 屋外50%輝度環境CTA視認合格率 ≥ 100%
+- パレット提案リードタイム ≤ 3分（プリセット起点差分調整）
+- CI逸脱による全パレット再設計発生率 = 0件/月
+
+### 7. 検証
+本OVERSPEC追記は既存プロフィール・作業フロー・Daily Knowledge Logを一切改変せず末尾追記のみで完結。2026年Q3 Web/LPカラー業界ベンチマーク（OKLCH色空間標準化／WCAG 2.2 AAA＋APCA二重検証／CIEDE2000ブランド色再現／セマンティックトークン／動的テーマ／CUD統合）と整合。

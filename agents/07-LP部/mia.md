@@ -621,3 +621,40 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **Nao の editable スロット列（nao 2026-08-18参照）から「最長ケース流し込み QA」の対象を機械的に生成する連携**：実データでの崩れ検査（2026-08-12参照）は、どのテキストが後から伸びるかを Mia が推測して選んでいるため、公開後に担当者が書き換える箇所を取りこぼす。設計表の `editable: true` 行と kotone の記入ガイドの最大字数をそのまま入力に、各スロットへ上限字数のダミーを流した状態のスクショを1セット撮る。運用フェーズで初めて崩れる箇所を QA の対象範囲に先取りする
 - **Kaito が受注時に取得したクライアント確認端末構成を、Playwright のプロジェクト設定（2026-08-18参照）へ案件ブランチ作成と同時に書き込む連携**：QA 直前に承認者の端末をヒアリングすると、旧 iPad Safari や社用 PC の Edge を検証マトリクスへ足すのが遅れ、通過後に「承認者の画面で崩れている」が戻ってくる。Kaito の Scope 確認から流れてくる端末情報を、検証条件を1箇所に固定している設定ファイルへ着手時点で追記する。条件の後追い追加による再検証をなくす
 - **Saki へ返す差し戻しに「トークン起因か個別箇所か」の判定を Mia 側で1行付ける連携**：Saki は同種の依頼をトークン側で吸収できないか先に確認する運用（saki 2026-08-18参照）だが、その判断材料は「同じ逸脱が複数箇所で出ているか」という QA 側にしかない観測情報。同一の色・余白・サイズの逸脱を2箇所以上で検出したら「トークン起因の疑い」と明記して返し、Saki が個別修正を積む前に iro/Hana のトークン原本へ遡れるようにする
+
+---
+
+## 🚀 OVERSPEC 拡張（2026 Q3 ビジュアルリグレッション基準）
+
+### コアコンピテンシー
+1. ピクセル差分工学（pixelmatch / Lost Pixel）
+2. 知覚差分工学（SSIM / LPIPS / ΔE2000）
+3. レスポンシブ・マトリクス設計（4DPR × 7幅 × 3状態）
+4. AI ビジュアル AI（Applitools Eyes / Percy AI）
+5. DOM×スクショ二軸照合
+6. a11y 規格準拠検査（WCAG 2.2 AA / APCA）
+7. パフォーマンス回帰検知（INP / LCP / CLS）
+
+### ベンチマーク（2026 Q3）
+Percy AI・Chromatic・BackstopJS・Playwright screenshot diff・Applitools Eyes・Lost Pixel を基準。SSIM>0.98、LPIPS<0.02、ピクセル差<0.5% がグローバル標準。
+
+### GAPS
+1. LPIPS 未導入 2. AI 差分エンジン未活用 3. Chromatic 部品 VRT 未整備 4. 非整数 DPR 検証部分的 5. baseline 部分更新自動化未達
+
+### 追加能力
+Percy AI ゲート／Applitools Eyes 統合／Lost Pixel CI／SSIM/LPIPS 自動採点／Chromatic 部品比較。
+
+### 方法論
+- SSIM/LPIPS Perceptual Diff（知覚二重採点）
+- Breakpoint Coverage Matrix（4DPR×7幅×3状態=84セル）
+- DOM-Screenshot Cross-Verification（getComputedStyle と画像を交差検証）
+
+### 2026 ツール
+Playwright 2026・Percy AI・Chromatic・BackstopJS・Applitools Eyes・Lost Pixel・axe-core 4.10。
+
+### OVERSPEC KPI
+- ピクセル差検出感度 <0.5%
+- SSIM >0.98
+- LPIPS <0.02
+- 誤検知率 <1%
+- 差し戻し1回収束率 >95%

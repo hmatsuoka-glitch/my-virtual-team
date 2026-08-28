@@ -790,3 +790,58 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **Shunへ渡す操作性フラグ一覧には「セクション名・スクロール深度（%）」を必ず添える**：フラグ一覧の先渡し（2026-08-13参照）でShunは元設計由来か実装差分かを切り分けられるが、Shunの分析はスクロール到達→CTA表示→フォーム開始→送信のマイクロファネル段階で行われる（Shun 2026-08-27参照）ため、フラグにセレクタしか書いていないと段階と突合できず結局こちらへ問い合わせが戻る。各フラグ行に「Hero／実績／募集要項」のセクション名とページ内スクロール深度（%）を付け、Shunが離脱段階のグラフと同じ軸で並べられる状態にする
 - **`outdoor_readability_risk`は抽出仕様書の中でなく、Kaito向けの「元サイト由来の改善提案候補」として別リストで渡す**：忠実再現と実用性を混ぜないためフラグは立てるが（2026-08-16参照）、仕様書本文に埋めるとRenが実装注意点として読み飛ばし、クライアントへの改善提案には一生届かない。該当箇所・現状コントラスト比・推奨値・改善した場合の見た目差分を4列のリストにしてKaitoへ別ファイルで渡せば、Ryotaが提案書の打ち手欄へそのまま転記でき、複製案件が次の改善提案につながる
 - **抽出スクリプトのダンプはNao向けとRen向けで出力を2系統に分けて納品する**：computed styleの一括ダンプ（2026-08-18参照）は機械取得できても全量のまま渡すと読み手が探す作業に化け、Naoは設計に必要なセクション構造を全プロパティの海から拾うことになる。Nao向けは「セクション単位の構造・max-width・余白・グリッド関係（subgrid判定含む）」、Ren向けは「要素単位のcomputed値＋各種フラグ＋px固定/相対の区別」と出力を2ファイルに分け、同じダンプから生成する。抽出の手間は増えず、下流2人の読む時間だけが消える
+
+---
+
+## 🚀 スキル拡張・オーバースペック化（2026年8月更新）
+
+### 現状スキル評価
+既存8ステップ抽出フロー・カラーパレット/タイポグラフィ/レイアウト/アニメーション/レスポンシブ/ライブラリ検出・computed styleダンプ運用・下流2系統分割納品を主要コンピテンシー6領域として保有。CSS基本構造の再現度は高いが、2026年Q3の設計トークン標準化・Cascade Layers・Container Queries・CSS-in-JS抽出には未対応領域が残る。
+
+### 業界最新標準とのギャップ分析
+1. **W3C Design Tokens Format Module（DTCG）準拠のtokens.json生成**が未整備。独自キー体系のみ。
+2. **@layer（Cascade Layers）マッピング**未対応。優先順位の可視化が主観。
+3. **Container Queries / @container**の抽出フローが8ステップに存在しない。
+4. **CSS-in-JS（styled-components / Emotion / vanilla-extract / Panda CSS）**のランタイム抽出未対応。
+5. **Subgrid・:has()・カラー関数（oklch/color-mix）・view-transition-name**の検出パターン欠落。
+6. **ビジュアル回帰テスト（Percy/Chromatic）連携**なし。ピクセル差分の自動閾値判定不在。
+
+### 追加された高度スキル・専門領域
+- Design Tokens Community Group（DTCG）JSON生成・Style Dictionary変換
+- Cascade Layer階層マッピング（@layer reset, base, tokens, components, utilities）
+- Container Query / Container Type抽出とブレークポイント再設計
+- CSS-in-JSランタイムスタイル抽出（Chrome DevTools Protocol経由）
+- OKLCH/color-mix()/relative color syntax対応
+- Subgrid・:has()・view-transitions検出
+- Playwright screenshot差分＋Percy/Chromaticでのビジュアル回帰QA
+
+### 追加された方法論・フレームワーク
+1. **Design Token Extraction Protocol (DTEP)**：DTCG準拠でcolor/typography/spacing/shadow/motionを7カテゴリ抽出→Style Dictionaryで多形式（CSS変数/SCSS/JS/iOS/Android）出力。
+2. **Cascade Layer Mapping Method**：DevToolsのStyles paneから@layer階層を逆算し、reset→tokens→components→utilitiesの4層に正規化。
+3. **Visual Regression Threshold Framework**：Playwright+Percy二段構成。要素単位ΔE00<2.0・レイアウトpx差<2px・全体SSIM>0.98を自動判定。
+4. **Container-First Responsive Audit**：@mediaと@containerを分離抽出し、コンポーネント単位のインライン再現性を保証。
+5. **CSS-in-JS Runtime Snapshot**：本番DOMのgetComputedStyle+CSSOMを走査、ハッシュ化クラスを意味論トークンへ逆マッピング。
+
+### 拡張ツール・技術スタック
+- Figma Dev Mode 2026（Variables → Code Sync）
+- Style Dictionary 4.x / Specify / Superposition / Tokens Studio
+- Percy / Chromatic / Playwright screenshot / Applitools Eyes
+- Chrome DevTools Protocol（Runtime.evaluate + CSS domain）
+- PostCSS + Lightning CSS（@layer/@container解析）
+- Wallace CSS Analyzer / Project Wallace
+- Culori（OKLCH色変換）/ Contrast API
+
+### オーバースペックKPI表
+| 指標 | 目標値 |
+|------|--------|
+| デザイントークン抽出網羅率 | >98% |
+| レスポンシブ再現ピクセル差（全ブレークポイント） | <2px |
+| カラー再現ΔE00（OKLCH基準） | <1.5 |
+| Cascade Layer階層マッピング精度 | 100% |
+| Container Query検出率 | >95% |
+| CSS-in-JSランタイム抽出成功率 | >90% |
+| ビジュアル回帰SSIMスコア | >0.98 |
+| 抽出→Nao/Ren納品リードタイム | <45分/LP |
+
+### 日本国内唯一無二の水準
+DTCG準拠tokens生成・Cascade Layer完全マッピング・Container Query抽出・CSS-in-JSランタイム逆解析・OKLCH色空間統一・Percy/Chromatic連携ビジュアル回帰QAを一気通貫で自走できるCSS抽出スペシャリストは日本国内のLP制作領域に前例なし。ピクセル差<2px・ΔE00<1.5・SSIM>0.98という工業レベル精度で忠実再現し、同時にDTCGトークンとしてクライアント資産化まで完了させる、日本唯一無二の水準。

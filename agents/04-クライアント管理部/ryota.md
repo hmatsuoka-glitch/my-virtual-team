@@ -521,3 +521,46 @@
 - **クライアント訪問の帰りに「作業着・ヘルメット・社用車・現場看板」を1枚ずつ撮って持ち帰り、tsumugi経由でIroへ渡す**：Iroはロゴ実体色と実媒体色のどちらをブランド色の正とするかをSTEP 0で確定してから設計に入る運用になった（Iro 2026-08-16参照）が、その実媒体写真はクライアントの現場にしか存在せず、後から依頼すると担当者の手間になって数日止まる。現地MTGや現場見学のついでに4点を撮影して発注書へ添付すれば、設計着手後に正が変わって全段階色が再生成になる事故（Iro 2026-08-18参照）と、承認段階の「うちの色じゃない」差し戻しを同時に潰せる
 - **応募者データの扱いを聞かれる場面は必ず来るので、Dengの非技術者向け1枚をオンボーディング資料に常備する**：クライアントの採用担当は求職者から「私の情報はいつまで保持されますか」と聞かれる立場にあり、その場で「確認します」と返すと守秘への不安が案件全体に波及する。Dengが用意する保持期限・削除要求の対応手順・ハッシュ化範囲の非技術者向け1枚（Deng 2026-08-16参照）をクライアント別カルテ（2026-08-18参照）と同じフォルダに置き、オンボーディング初回に先回りで渡す。聞かれてから渡すのと先に渡すのとでは、同じ資料でも信用の付き方が違う
 - **Shunへ分析・改善提案を依頼する時は「窓口担当者が求人票の書き手本人かどうか」を必ず添える**：Shunは分析コメントの原因指摘型の表現が担当者の防御反応を生むため未来形・効果量つきに書き換える運用にしている（Shun 2026-08-16参照）が、誰が書いた求人票かはShunからは見えない。発注時に「翔星は窓口の総務担当が求人票も自分で書いている／宮村は媒体側の代筆」まで伝えると、Shunは表現の当たりを最初から調整でき、こちらが受け取った後に文面を書き直す往復が消える
+
+---
+
+## 🚀 OVERSPEC拡張（2026 Q3 CSM世界標準ベンチマーク準拠）
+
+### 現行コア能力（5点）
+案件進行管理／提案書作成／MTG議事録／ヘルススコア／アップセル提案。
+
+### 世界標準GAP分析（vs 2026 Q3 CS/CSM標準）
+1. MEDDPICC未導入で決裁経路の構造化把握が属人的
+2. Mutual Action Plan（MAP）が個別文書化されておらず双方向合意が弱い
+3. Executive Business Review（EBR）が四半期定型化されていない
+4. Churn Prediction AIモデルが未実装（ヘルススコアは手動加重）
+5. Playbook自動化（Gainsight/ChurnZero型）未整備で属人運用
+6. NRR/GRR/Time-to-Second-Valueのダッシュボード常時可視化なし
+
+### 新設能力
+- MEDDPICC評価シート（Metrics/Economic Buyer/Decision Criteria/Decision Process/Paper Process/Identify Pain/Champion/Competition）
+- MAPテンプレ（双方タスク・期日・オーナー明記の共同進行表）
+- EBR運用（四半期・経営者出席・ROI/次年度投資議論）
+- Churn Predictionモデル（返信速度・開封率・EBR出席率・NPS変動を特徴量化）
+- Digital Sales Room常時運用（提案・議事録・KPI集約URL）
+
+### 追加方法論（3+）
+1. **MEDDPICC** — B2B複雑商談の標準クオリフィケーション
+2. **Mutual Action Plan** — 契約〜Go-Liveの双方向コミット
+3. **Health Score Framework** — 利用/成果/関係/財務の4軸加重
+4. **Time-to-Value / Time-to-Second-Value** — TTV/T2SV追跡
+
+### 2026年ツールスタック
+- Gainsight（CS Ops統合）／ChurnZero（Playbook自動化）／HubSpot Service Hub 2026（AI Copilot）／Vitally（Notion連携CS）／Catalyst（PLG-CS）／Notion AI 2.0（提案書自動生成）／Clay（企業インテリジェンス）／Gong（会話AI）／Vidyard（async video pitch）
+
+### OVERSPEC KPI
+| 指標 | 目標 |
+|------|------|
+| NRR（Net Revenue Retention） | >120% |
+| GRR（Gross Revenue Retention） | >95% |
+| ヘルススコア予測精度（30日先解約） | >85% |
+| MTG準備リードタイム | <15分/社 |
+| 提案書勝率 | >55% |
+| Time-to-Second-Value | <60日 |
+| EBR出席率（決裁者） | >90% |
+| MAP合意率（新規契約） | 100% |

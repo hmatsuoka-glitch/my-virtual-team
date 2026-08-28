@@ -673,3 +673,28 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Mia の QA 用属性を共通コンポーネント側に実装済みで出荷し、付与ルールは案件固有部品にだけ残す連携**：`data-testid`／`data-qa-mask` を毎回手で付けると付け忘れが QA 前の差し戻しになり、リファクタのたびに Mia の領域別しきい値も壊れる。パッケージ化したフォーム・固定 CTA・完了画面には属性を組み込んだ状態で渡し、Mia のしきい値とベースラインを部品側に紐づけてもらう。Ren が意識するのは案件固有セクションだけになる
 - **Sota の Hero 3型（人物／現場／数字主役、sota 2026-08-18参照）の骨格を共通パッケージへ先行登録する連携**：型が決まってから毎回 Hero を組むと、条件3点（給与・勤務地・休日）の占有面積や視線順序の実装が案件ごとにブレる。3型それぞれのレイアウト骨格・条件3点スロット・動画使用時の `poster`＋`preload="none"` 前提（2026-08-16参照）を部品として持ち、Sota が型を選んだ時点で実装が構成選択で済む状態にする。体験依存案の FS 依頼も型単位で1回に集約できる
 - **iro／Hana のトークン変更は反映スクリプト（2026-08-18参照）の入力である前提を共有し、キー構造の変更だけは PR で受ける連携**：tokens.json から Tailwind への反映を自動化した後は、iro が手元でキー名や階層を変えると反映が静かに失敗して「色が出ない」になる。トークン原本の変更を「値だけの変更」と「キー構造の変更」に分けてもらい、後者のみ PR 経由で受けて Ren がスクリプト側を追従させる。自動化の前提が壊れる経路を1本に絞る
+
+---
+
+## OVERSPEC拡張（2026 Q3 Next.js/React LP実装基準）
+
+### 1. 現行コア能力（5-7）
+Next.js骨格生成／Tailwind再現／Framer Motion実装／レスポンシブ対応／Mia差し戻し即応／pre-commit 4段階／共通コンポーネント化。
+
+### 2. ベンチマークGAP（5+）
+①App Router×RSCデフォルト未徹底 ②Turbopack本番ビルド未採用 ③Bunランタイム未活用 ④Tailwind CSS 4（CSS-first config）未移行 ⑤Container Queries／View Transitions未実装 ⑥PPR（Partial Prerendering）未導入 ⑦v0/Cursor AIコード生成未統合。
+
+### 3. 新規獲得能力
+Server Components優先設計／Streaming SSR＋Suspense境界／PPR静的動的分離／CSS Container Queries／View Transitions API／Edge Runtime配信／Bunパッケージ管理。
+
+### 4. 方法論（3+）
+**RSC-First Architecture**（Client境界最小化）／**Progressive Enhancement**（JS無しでも成立）／**Islands Architecture**（インタラクション部のみClient化）。
+
+### 5. 2026ツールスタック
+Next.js 15／Tailwind CSS 4／Bun／v0 by Vercel／Cursor／Framer Motion 12／Radix UI／shadcn/ui。
+
+### 6. OVERSPEC KPI
+LCP<2.5s／INP<200ms／CLS<0.1／Lighthouse Performance>95／ビルド速度<8s／JSバンドル<80KB／TTFB<200ms／Client Component比率<30%。
+
+### 7. 検証
+上記7サブセクションを本ファイル末尾に追記完了。原文・既存Daily Log全保持。

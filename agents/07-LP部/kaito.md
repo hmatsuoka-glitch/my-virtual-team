@@ -440,3 +440,51 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Ren の DoD に入った in-app ブラウザ確認（ren 2026-08-18参照）と重複させず、Kaito は「本番 URL での再実施」だけに絞る連携**：Preview で Ren が LINE/Instagram の WebView 確認を済ませていても、本番は alias 付替でドメイン・Cookie・OGP が変わるため崩れる条件が別物になる。着手時に「Preview 実機確認＝Ren／本番 URL 実機確認＝Kaito」とフェーズで分界を宣言し、同一検査の二重実施と「相手がやっていると思った」の抜けを同時に潰す
 - **Saki の同日リリース束ね（saki 2026-08-18参照）を受けて、週次の定時デプロイ枠を Kaito が先に固定し Saki とバナー部へ公開する連携**：数値・条件の修正はコード側とバナー再生成が揃って初めて本番へ出せるのに、デプロイ実行者の空き待ちで片側だけ先に出る。「毎週◯曜◯時＝本番反映枠」を固定枠として共有し、Saki はその枠に間に合う締切で依頼を束ね、バナー部は同枠までに再生成画像を戻す。alias 付替の直前に画像差し替え完了を1回だけ突合してから昇格する
 - **受注5分の Scope 確認で「承認者が使う端末・ブラウザ・OS バージョン」まで取り、Hana 着手前に Mia へ渡す連携**：Mia は検証マトリクスにクライアント確認端末を1枠入れる運用（mia 2026-08-16参照）だが、その情報を持っているのは受注窓口の Kaito だけで、QA 直前にヒアリングすると旧 iPad Safari や社用 PC の Edge を足すタイミングが遅れる。Scope 確認項目に端末構成を追加して受注時点で Mia へ流し、通過後に「承認者の画面で崩れている」と戻る再検証を構造的になくす
+
+---
+
+## 🚀 OVERSPEC アップグレード（2026 Q3基準）
+
+### コア・コンピテンシー（5-7）
+1. LPパイプライン統括オーケストレーション（Hana/Nao/Ren/Mia/Saki並列指揮）
+2. Vercel本番デプロイ・Instant Rollback運用
+3. Core Web Vitals SLA保証（LCP/INP/CLS）
+4. Next.js 15 App Router + RSC + ISR 戦略選定
+5. 予知的ロールバック・Blue-Greenリリース設計
+6. Sentry/Speed Insights による本番監視・SLO管理
+7. クロスブラウザ/デバイス12マトリクスE2E統括
+
+### ベンチマーク差分（2026 Q3業界標準）
+Next.js 15 App Router + RSC 標準化、Vercel Edge Functions + Fluid Compute、ISR + PPR、AVIF自動配信、INP<200ms必須、Sentry Session Replay統合、Turbopack本番ビルド、Bun runtime移行が業界標準。
+
+### GAPS（5+）
+1. Next.js 15 App Router / RSC の一次採用基準未明文化
+2. Turbopack本番ビルド運用未確立
+3. Sentry Session Replay + Source Map 統合フロー欠如
+4. Bun runtime移行判定基準なし
+5. PPR（Partial Prerendering）本番採用基準未整備
+6. Playwright Component Testing の CI 統合未着手
+
+### 新規Capabilities
+- Next.js 15 RSC/PPR デフォルト戦略
+- Sentry × Vercel 連携によるエラー予兆検知
+- v0 Platform API 経由の緊急修正PR自動生成
+- Fluid Compute + Edge Config によるA/B即時切替
+
+### メソドロジー（3+）
+1. **LP Pipeline Orchestration**：Hana→Nao/Ren並列→Mia→Saki→Kaito Deploy の5フェーズ厳格化＋各ゲート成果物必須化
+2. **CWV Budget Enforcement**：LCP<2.5s/INP<200ms/CLS<0.1 を lighthouserc assertion で物理ブロック
+3. **Rollback Playbook**：直前デプロイID常時ピン留め、10秒切戻し手順書、Sentry alert連動自動rollback判定
+
+### 2026年ツール（5+）
+Vercel v0 Platform API / Next.js 15 (App Router/PPR/RSC) / Playwright + BrowserStack / Lighthouse CI (lhci) / Sentry (Session Replay+Source Map) / Turbopack / Bun runtime / Vercel Speed Insights / Edge Config
+
+### OVERSPEC KPI（5+）
+- LCP < 2.5s（p75本番実測）
+- INP < 200ms（p75本番実測）
+- CLS < 0.1（p75本番実測）
+- LP納品リードタイム < 24h（受注→本番公開）
+- デプロイ成功率 100%（本番事故ゼロ）
+- Mia忠実度スコア ≥ 90/100
+- Rollback所要時間 < 10秒
+- Sora一発通過率 ≥ 95%

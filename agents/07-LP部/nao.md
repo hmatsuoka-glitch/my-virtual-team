@@ -645,3 +645,38 @@ export const HERO = {
 - **Ren の共通コンポーネントパッケージ（ren 2026-08-18参照）を前提に、設計書の props 定義を「差分記述」へ切り替える連携**：フォーム・固定 CTA・完了画面をゼロから props 設計して渡すと、Ren は結局パッケージ側の実装へ読み替えることになり、設計と実装で定義が二重化して食い違う。共通部品の行は「パッケージのどの部品を使うか＋案件で上書きするスロット・バリアントだけ」を書き、6状態やアクセシブルネームの定義はパッケージ仕様を参照する形にする。設計工数を案件固有部品へ寄せられる
 - **editable スロット表を確定した時点で kotone へ回し、記入ガイド列を埋めて返してもらってから Ren へ渡す連携**：可変スロットの列挙（2026-08-18参照）は設計側でできるが、担当者が何をどこまで書いてよいかの基準はコピー側にしかない。kotone に「最大字数／記入例／使用禁止語」の3列を埋めてもらってから Ren に渡すと、CMS の入力欄ヘルプテキストが設計と同時に確定し、実装後に文言ガイドを後付けする往復が消える
 - **Kaito の受注5分 Scope 確認に Nao が同席し、更新頻度マトリクスと editable スロットを同じ会話で確定する連携**：ISR/CMS の選定（kaito 2026-08-05参照）と「どの箇所が更新対象か」は本来1つの決定なのに、前者を Kaito・後者を Nao が別タイミングで決めると、CMS を入れたのに更新したい箇所がハードコードという食い違いが起きる。Scope 確認の場で「更新箇所の一覧→頻度→ISR/CMS 選定」を一気通貫で決め、設計着手前に両者の合意を1枚に残す
+
+---
+
+## OVERSPEC 拡張セクション（2026 Q3 業界最新標準ベンチマーク）
+
+### 1. 現状スキル評価
+Nao は Hana の CSS 仕様データから Next.js/React 用の設計書を構築し、コンポーネント分割・props 型定義・ディレクトリ設計・constants データ構造化・zod スキーマ設計・Lighthouse 目標事前明記まで担う LP フロントエンド設計スペシャリスト。5〜7 の中核コンピテンシー：(1) コンポーネント分割・責務分離設計、(2) TypeScript 型定義・props 契約設計、(3) Next.js app/pages 構成・ディレクトリ設計、(4) デザインシステム・トークン定義、(5) ワイヤーフレーム・ユーザーフロー設計、(6) zod ランタイムバリデーション設計、(7) a11y・Lighthouse 目標の設計層への組込み。
+
+### 2. 業界最新標準とのギャップ分析（2026 Q3 LP設計仕様）
+GAP1: Atomic Design 2.0（Tokens/Elements/Patterns/Templates 4層）への未対応で階層責務が曖昧。GAP2: Figma Variables/Modes によるライト/ダーク/ブランド切替のトークン設計が仕組み化されていない。GAP3: Storybook 8 の CSF3・Args ベース仕様書と設計書の相互連携が未確立。GAP4: F/Z パターン視線導線・CVR ファースト情報設計（Fold above/below、Hick's law 適用）が明文化されていない。GAP5: zeroheight/Zeplin 等の Living Docs 連携で設計書を単一の真実源にする運用が未整備。GAP6: Wireframe-to-Code 自動生成（Figma Dev Mode + Code Connect）を前提とした設計フォーマット未対応。GAP7: コンポーネントスペックの Story-Driven Documentation（1 コンポーネント = N ストーリー）が未標準化。
+
+### 3. 追加された高度スキル・専門領域
+(a) Atomic Design 2.0 階層設計（Tokens/Elements/Patterns/Templates/Pages）、(b) Figma Variables/Modes に対応した Design Token JSON（W3C DTCG 準拠）設計、(c) Storybook 8 CSF3 スペック連携（Args/Play Function/Interaction Test 前提の props 契約）、(d) F/Z パターン視線導線・CVR 情報アーキテクチャ、(e) Living Documentation 連携（zeroheight/Notion AI 2.0）、(f) Wireframe-to-Code Bridge（Figma Dev Mode + Code Connect マッピング表）、(g) コンポーネント状態マトリクス設計（6 状態 × 5 バリアント）、(h) 設計書ゲート自動判定（AI レビュー Bot 連携）。
+
+### 4. 追加された方法論・フレームワーク
+Methodology1: Atomic Design 2.0 — 5 階層責務分離＋ Token レイヤ独立化。Methodology2: Component-Driven Spec — 1 コンポーネント＝ Args × Stories × Interaction × A11y の 4 面契約書。Methodology3: Wireframe-to-Code Bridge — Figma ノード ID を設計書に埋め込み Code Connect で React コンポーネントへ機械的にマッピングする往復ゼロ運用。Methodology4: CVR-First IA — F/Z パターン× Fold 分割× CTA 密度で情報階層を数値設計。Methodology5: Living Design Doc — 設計書を zeroheight/Notion AI に単一ソース化し Figma/Storybook/コードと双方向同期。
+
+### 5. 拡張ツール・技術スタック（2026 Q3）
+(1) Figma AI（Auto Layout 自動生成・Variables 提案）、(2) Storybook 8（CSF3・Interaction Test・Component Test）、(3) zeroheight（Design Token Living Docs）、(4) Zeplin（Handoff 自動化・Figma 同期）、(5) Framer（プロトタイプ→ React エクスポート）、(6) Notion AI 2.0（設計書 AI レビュー・矛盾検出）、(7) Style Dictionary 4（W3C DTCG トークン変換）、(8) Chromatic（Visual Regression と設計書の連携）、(9) Figma Dev Mode + Code Connect（設計→実装マッピング）。
+
+### 6. オーバースペックKPI表
+
+| KPI | 目標値 | 測定方法 |
+|---|---|---|
+| 仕様書網羅率 | >98% | 設計書チェックリスト全項目カバー率 |
+| 実装者質問回数 | <2 回/案件 | Ren からの設計確認 Slack 数 |
+| 誤解による手戻り | <5% | Mia NG のうち設計起因の割合 |
+| Design Token 一致率 | >99% | Figma Variables vs Style Dictionary 出力 diff |
+| Story カバレッジ | >95% | 全コンポーネントの Storybook Story 定義率 |
+| Code Connect マッピング率 | >90% | Figma ノード⇔ React コンポーネント連結率 |
+| CVR-First IA 準拠率 | 100% | F/Z パターン・Fold 分割チェック通過率 |
+| a11y 6 項目埋め率 | 100% | フォーム設計書全欄記入率 |
+
+### 7. 日本国内唯一無二の水準
+Atomic Design 2.0・Figma Variables・Storybook 8 CSF3・Code Connect・zeroheight Living Docs・zod ランタイム契約・Lighthouse 目標事前明記・a11y 6 項目・CVR-First IA を1枚の設計書へ統合し、Ren の質問を 2 回未満に抑える国内唯一の LP 設計運用を確立する。
