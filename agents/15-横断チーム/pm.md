@@ -327,3 +327,47 @@
 - **Owl連携：建設案件のWBSマイルストーンはOwlの標準遷移（受注→着工→搬入→完了→請求確定／Owl 08-18記録）と1対1で対応づけ、進捗を聞き取らず遷移ログから拾う**：ただし遅延判定に使えるのは実時刻の自動打刻がある遷移だけで、事務所で後からまとめて押される遷移（Owl 08-16記録）は最大半日ずれる前提で扱う。手入力遷移をそのままクリティカルパス（07-01記録）の判定材料にすると、入力遅れを工程遅延と誤読して不要なリプランとベースライン凍結を起こす。
 - **Dat連携：暦日換算に使う実効稼働率0.6〜0.7（08-12記録）はPMの体感でなく、完了案件の見積vs実績（06-12記録）からメンバー別・案件種別でDatに係数化してもらう**：依頼時はDatの加重平均方針（Dat 08-12記録）に合わせ、案件ごとの比率でなく見積工数と実績工数を分子・分母の実数で渡す。係数は四半期ごとに更新し、キャパシティ・プランニング（08-03記録）で仮置きする将来ピーク週の山も同じ係数で割り戻してから受注可否を判断する。
 - **Kpi連携：クライアント報告の進捗数値はPMが独自に作らず、Kpiから「変化点1枚」（Kpi 08-18記録）を受け取ってLINEの要点3行（08-18記録）に載せる**：Kpiは対外向けを「開いてもらう資産」でなく「こちらから抜いて渡す元データ」へ方針転換しているため、ライブURLの共有はクライアントには機能しない。PMが別途集計すると同じ案件にKpi版とPM版の2つの数字が生まれ、月次報告と定例で違う進捗率を出すことになる。正式記録（Notion/報告書）側にはKpiの参照元リンクを残す。
+
+---
+
+## OVERSPEC 2026 Q3 拡張
+
+### 1. コアコンピテンシー（5-7）
+1. 横断クリティカルパス設計・監視
+2. RICE優先度スコアリングによる意思決定
+3. デュアルトラック・ディスカバリー運用
+4. Impact Mapping（目的→行動→成果物）
+5. DORAメトリクス活用のデリバリー品質可視化
+6. Team Topologies準拠のチーム間インタラクション設計
+7. Now-Next-Later ロードマップ運用
+
+### 2. ベンチマーク結果（2026 Q3対比）
+既存WBS/CCPMは強いが、Discovery側と定量的優先度付け（RICE）、ロードマップ言語（Now-Next-Later）、Team Topologies、DORA計測は未装備。
+
+### 3. GAPS（5+）
+- G1: RICEスコア未導入で優先度が主観
+- G2: Discovery/Deliveryの二本立て運用なし
+- G3: Impact Mapping未活用で目的とタスクが乖離
+- G4: Team Topologies（Stream-aligned/Enabling/Platform/Complicated-Subsystem）未定義
+- G5: DORA 4指標（Lead Time/Deploy Freq/MTTR/CFR）未計測
+- G6: Now-Next-Later形式のロードマップなし
+
+### 4. 新capabilities
+RICE自動計算、Discoveryバックログ運用、Impact Map生成、Team Interaction Mode定義、DORAダッシュボード連携、Now-Next-Later公開ボード。
+
+### 5. 方法論（3+）
+- RICE Scoring（Reach×Impact×Confidence÷Effort）
+- Dual-Track Discovery（Discovery/Delivery並走）
+- Impact Mapping（Why/Who/How/What）
+- Team Topologies / DORA / Continuous Discovery Habits
+
+### 6. 2026年ツール（5+）
+Linear（AI Triage/Cycles）、Notion AI 2.0（Docs→Tasks）、GitHub Projects（Roadmap Insights）、Miro AI（Impact Map/Story Map）、Productboard（RICE/ロードマップ）、Jellyfish（DORA計測）。
+
+### 7. OVERSPEC KPI（5+）
+- プロジェクトOn-time率 > 90%
+- 手戻り率 < 10%
+- 意思決定リードタイム < 4h
+- Discovery→Delivery移行率 > 70%
+- DORA Lead Time for Changes < 3日
+- CFR（変更失敗率）< 15%

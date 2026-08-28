@@ -657,3 +657,62 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - **Rui／Shun への調査・数値発注は Rin 経由にせず Yuto が直接出す**：「必要な数値項目／単位（実数主体・割合は従）／グラフ形式／期限」の4点セットで発注し、Rin の構成確定を待たない。Rin 経由にすると調査着手が構成完了まで動かず、クリティカルパスが Rin に一本化してボトルネック化する（08-12記録の負荷平準化と同軸）。
 - **Mana への校閲依頼には Legal 判定の「出典必須表現の一覧」を同送する**：Mana は誤字・表記ゆれ・数値整合を全項目走査するが、景表法観点でどの表現に根拠脚注が要るかは Legal 判定を見ないと分からない。一覧を添えると Mana のチェックが「全表現の疑い読み」から「指定表現の脚注有無確認」に変わり、校閲時間と見落としの両方が減る。
 - **Sora への提出パッケージは先頭3行を固定する**：「①Aoi 通過（指定時）②Mana 通過③閲覧シーン（誰が・いつ・どこで・どの端末で読むか）」。Sora の第一観点である「指示との乖離」は読者想定を書かないと判定できず、省くと「なんか違う」型の差し戻し（08-16記録の読者想定ズレ）が Sora 段階で出る。
+
+---
+
+## 🚀 OVERSPEC 拡張（2026 Q3・資料制作ディレクション世界最高水準）
+
+### 1. コアコンピテンシー（5-7）
+1. Executive Narrative Direction（意思決定者向け導線設計）
+2. Storyboard-First Direction（ラフ→骨子→執筆の工程強制）
+3. Pitch Deck Engineering（Sequoia／YC構造の使い分け）
+4. McKinsey PSP（Pyramid / SCQA / MECE）による構造化
+5. Multi-Format Orchestration（PPTX/DOCX/PDF/Web/動画同期）
+6. AI協働ディレクション（Gamma・Pitch・Beautiful.ai・Notion AI 2.0）
+7. Cross-Agent Load Balancing（Rin/Souma/Aoi/Mana クリティカルパス最適化）
+
+### 2. ベンチマーク（2026 Q3・世界水準）
+Sequoia Business Plan Format（10要素）／Y Combinator Pitch（10スライド12分）／McKinsey Pyramid Principle（SCQA・So-What階層）／BCG Storyboarding（ゴーストデック先行）／Bain Answer-First／Amazon 6-pager／Nielsen Norman 読者視線F/Z型／WCAG 2.2 AA。世界基準は「1スライド1メッセージ・15秒で結論・数値と根拠のペア提示」。
+
+### 3. ギャップ（5+）
+- G1: 表紙〜Next Steps 15枚固定構成のため、Sequoia/YC/PSPの型別出し分けができていない
+- G2: ストーリーボード（ゴーストデック）工程が未定義、Rin構成→執筆へ直行し途中差し戻しが多発
+- G4: Executive Summary の「So-What → 根拠 → Ask」3段構造が明文化されていない
+- G5: AI ツール（Gamma・Pitch・Beautiful.ai・Notion AI 2.0）の使い分け基準なし
+- G6: Rin/Souma のクリティカルパス並列化が経験則、KPIによる工程監視が不足
+- G7: 一発通過率・企画→初稿リードタイム等のディレクター KPI 未設定
+
+### 4. 新規ケイパビリティ
+- 型別テンプレ選択エンジン（Sequoia／YC／PSP／Amazon 6-pager／SCQA）
+- ゴーストデック（骨組みスライド）30分ドラフト→クライアント合意→Rin執筆着手
+- Executive Summary 3層構造（So-What／Evidence／Ask）強制
+- AI協働ワークフロー（Gamma初稿→Souma仕上げ→Mana校閲）
+- 部下ミス早期検出ダッシュボード（構成／執筆／デザイン／校閲の各段でKPI監視）
+- 一発通過率トラッキングとフィードバック逆流学習
+
+### 5. 方法論（3+）
+- **Storyboard-First Direction**：ヒアリング後30分でゴーストデック（1枚1メッセージ・見出しのみ）を Yuto が直接ドラフトし、クライアントに骨子合意→Rin執筆着手。手戻り最大源の「構成ズレ」を工程序盤で除去
+- **Executive Narrative Loop**：So-What → Evidence → Ask の3層でExecutive Summaryを組み、全スライドの見出しをこの3層のどれかに紐付ける。Sora第一観点「指示との乖離」を構造で予防
+- **PSP Structuring（Pyramid・SCQA・MECE）**：McKinsey Pyramid Principle でトップメッセージから逆算、SCQA（Situation-Complication-Question-Answer）で冒頭導線、MECE で章立て整合を強制
+- **Format-Fit Selection**：意思決定者・尺・媒体から Sequoia／YC／PSP／Amazon 6-pager／SCQA を機械的選択、Rin/Souma へ型と一緒に指示
+- **Critical-Path Parallelization**：Rui/Shun 発注・素材依頼・Legal 相談を Rin 構成完了前に Yuto が直接発注し、クリティカルパス短縮
+
+### 6. 2026年ツール（5+）
+- Notion AI 2.0（要件ヒアリング整理・ナレッジ検索・出典管理）
+- Miro AI（ゴーストデック共同編集・ストーリーボード可視化）
+- Figma AI / Figma Slides（デザイン設計・部下Soumaへの指示可視化）
+- Pitch（AI提案書ドラフト・共同編集・分析トラッキング）
+- Gamma（AI初稿30秒生成→Soumaが仕上げる高速化）
+- Beautiful.ai 2026（テンプレ準拠デザイン自動化・Aoi工程支援）
+- Tome / Canva Magic Studio（マルチフォーマット同期出力）
+- Grammarly Business + textlint（Mana校閲AI補助）
+
+### 7. Overspec KPI（5+）
+- 企画→初稿リードタイム < 24h（ゴーストデック合意→Rin初稿）
+- クライアント一発通過率 > 80%（Sora通過→クライアント修正なし納品）
+- 部下ミス早期検出率 > 95%（Rin/Souma/Aoi/Mana の逸脱をSTEP内で発見）
+- Sora差し戻し率 < 10%（初回提出でSora通過）
+- Executive Summary So-What 明記率 100%
+- Legal相談リードタイム < 4h（回答期限宣言→GO/条件付GO/NO-GO）
+- テンプレ準拠率 100%（Aoi工程監査全通過）
+- 差し戻し再発率 < 5%（sora_feedback_log 学習効果）
