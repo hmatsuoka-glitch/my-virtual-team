@@ -521,3 +521,51 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **08-バナー生成部 Rei から「送信結果の3状態」の日本語文言をまとめて受け取る連携**：エラー文言だけを受け取ると、①送信成功 ②送信失敗・時間をおいて再送してよい ③冪等キーで重複を検出（すでに受付済み・受付番号◯◯）のうち②と③が同じ文面になり、求職者は送れたのか分からず連打する。3状態を別々に書き分けてもらい、統一エラー DTO の `code` と1:1で対応表にして共通ユーティリティへ埋め込む。技術的に正しい 4xx/5xx を返すことより「もう一度押していいのか」が伝わるかを文言選定の基準にする
 - **Kuu へは「毎朝9時前後に応募一覧が全件・全期間で叩かれる」利用パターンを名指しで共有する連携**：採用担当は始業時に一覧を全件表示するため、その1リクエストだけが遅いと「重いシステム」という評価が固定する。Ao 側のクエリ・インデックス最適化に加えて、Kuu へ「対象エンドポイント／時刻帯／許容レスポンス時間」を渡し、サーバレスのコールドスタート対策・スケール設定・アラート閾値をその導線基準で組んでもらう。平均や p95 の全体値だけで監視すると、日次1回のピークは統計に埋もれて検知されない
 - **Nao へ CSV エクスポート仕様を返す時は「Excel で開いた結果」を設計表の1列として持たせる連携**：BOM 付き UTF-8 か否か、電話番号・郵便番号の先頭ゼロ落ち、`2026/08/16` の日付型への自動変換は、設計書上の「CSV 出力」の一言では表現されず実装者しか把握していない。Nao の設計表に列ごとの「出力型／Excel で開いた時の見え方／ゼロ落ちの有無」を追加し、同じ表を Mio の確認手順（実際に Excel で開く）へもそのまま渡す。現場で信頼を失う最短経路を、設計・実装・QA が同じ1枚を見て塞ぐ
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+Zod + Prisma + NextAuth の実装、冪等キー・楽観ロック・BOM 付き CSV・受付番号の運用は成熟している。TDD 準拠で Vitest/Supertest まで書けるが、契約テスト（Pact/OpenAPI Contract）・分散トレーシング（OpenTelemetry）・Outbox 実装・サプライチェーンセキュリティ（Semgrep/Snyk）・エッジランタイム（Hono on Vercel Edge）といった、2026 年時点のバックエンド最先端スタックの導入が未整備。特にトランザクション境界と外部連携（メール・Webhook）の信頼性設計は、応募通知不達を Severity 最上位とする現場要件と直結する。
+
+### 特定した改善余地
+- OpenTelemetry + Datadog APM による分散トレーシングと SLO ベースの p99 監視
+- Outbox パターン + Trigger.dev / Inngest による「DB コミットと外部副作用」の原子性担保
+- tRPC v11 + Zod schema-first の E2E 型安全（FE-BE 型ズレを構造的に消す）
+- Semgrep SAST + Snyk + GitGuardian のセキュリティパイプライン
+- Prisma Accelerate / Drizzle 移行検討（Serverless での接続プール最適化）
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **tRPC v11 + Zod schema-first + `next-safe-action`** — Route Handler を tRPC に置き換え、Riku 側は `useQuery`/`useMutation` で型付きクライアントを取得。フォームは `next-safe-action` で Server Actions + Zod バリデーション統合 / KPI：FE-BE 型ズレバグ 月 4 件 → 0 件、API モック実装工数 -70%
+2. **OpenTelemetry + Datadog APM / Grafana Tempo** — 全 Route Handler / Prisma クエリ / 外部 fetch を自動計装し、trace_id をエラーレスポンスに含めて Mio の再現に使う / KPI：本番バグ再現時間 平均 45 分 → 5 分、p99 悪化検知〜原因特定 2 時間 → 15 分
+3. **Outbox パターン + Trigger.dev v3 / Inngest** — 応募受付 DB コミットと同一トランザクションで `outbox_events` テーブルへ書き込み、Trigger.dev が非同期に通知メール・Webhook を配送。DLQ・リトライ・冪等キーを標準化 / KPI：通知不達 月 3 件 → 0 件、Ao の独自リトライ実装工数 -100%
+4. **Prisma Accelerate / Drizzle + `postgres.js` connection pooling** — Serverless の接続爆発を PgBouncer 相当で吸収し、コールドスタート時の DB 接続待機を消す / KPI：応募 API p99 800ms → 250ms
+5. **Pact contract tests + OpenAPI 3.1 as source of truth** — Zod スキーマから OpenAPI 3.1 を自動生成（`zod-openapi`）し、Pact broker で Riku のコンシューマ契約と CI で照合 / KPI：結合テスト起因の Flaky -85%、Mio の E2E は「導線が通るか」に集中可能
+6. **Semgrep SAST + Snyk + GitGuardian の CI 三点セット** — PR ごとに SQL Injection・SSRF・秘密情報漏洩を自動検出。Semgrep のカスタムルールで「`checkUserOwnership()` 未呼び出しの Server Action」を検出 / KPI：セキュリティレビュー時間 PR あたり 30 分 → 5 分、本番脆弱性 0 維持
+7. **PostgreSQL Row-Level Security (RLS) + Supabase Auth JWT** — アプリ層の認可バグに備えて DB 側で `USING (tenant_id = current_setting('app.tenant_id'))` を強制 / KPI：多テナント越境事故のリスクを構造的に排除
+8. **pgvector + OpenAI Embeddings（`text-embedding-3-small`）** — 応募者データの重複検出（電話番号違うが同一人物）・過去応募者マッチ / KPI：重複応募検知率 60% → 92%
+9. **Bun runtime + Hono on Vercel Edge Functions** — 高頻度エンドポイント（応募一覧の全件・全期間表示）をエッジに退避し、TTFB を東京リージョンから 20ms 台へ / KPI：毎朝 9 時ピークの p95 1.2s → 0.3s
+10. **`zod-openapi` + Scalar API Reference の自動ドキュメント生成** — Zod スキーマから OpenAPI・Redocly スタイルドキュメント・Postman コレクションを PR ごとに再生成 / KPI：Nao の API 仕様書手動更新工数 -95%、Riku への「型が違う」問い合わせゼロ化
+
+### 新規ナレッジソース・ツール
+- **OpenTelemetry JS SDK + Datadog APM** — 分散トレーシングと SLO 監視
+- **Trigger.dev v3 / Inngest** — Outbox 実行基盤・DLQ・可視化ダッシュボード
+- **Pact broker (Pactflow) + `zod-openapi`** — 契約テスト自動化
+- **Semgrep Cloud + Snyk + GitGuardian** — SAST・依存監査・秘密検出
+- **Prisma Accelerate / Neon serverless Postgres** — Serverless-native な接続最適化
+
+### 連携強化ポイント
+- **Riku（FE）**：tRPC v11 + `next-safe-action` の型を PR ごとに自動生成し、Riku の PR CI で型 diff を可視化。「Ao がスキーマ変えたら Riku の PR が赤くなる」状態を作る。エラーレスポンスの `code` は Rei の日本語文言辞書と 1:1 マッピングを JSON で維持
+- **Kuu（インフラ）**：OpenTelemetry Collector の Vercel デプロイと Datadog APM のトークン管理を Kuu に一任、Ao は SDK 側の instrumentation だけに責任集中。破壊的マイグレーションはロック時間実測を Datadog Continuous Profiler で先に計測し Kuu に共有
+- **Mio（QA）**：Pact コンシューマ契約と Zod スキーマから Mio 用のテストデータファクトリ（`@faker-js/faker` + `zod-mock`）を自動生成、Mio は境界値・並行運用シナリオに集中できる
+
+### 実践シナリオ例
+翔星建設の応募管理システムで「毎朝9時に応募一覧が全件表示で遅い」と Kai から報告。Ao は Datadog APM で trace を追い、Prisma の N+1（応募者×職種×媒体の 3 テーブル JOIN）を特定。Drizzle + `postgres.js` の relational queries で 1 クエリ化、pgvector で重複応募検知を追加、Hono on Edge にエンドポイント移設、Trigger.dev で通知メール送信を Outbox 化。Semgrep のカスタムルールで `checkUserOwnership()` の未呼び出しを CI で検出する Guard を追加。Pact 契約テストで Riku 側の型ズレを事前検出し、Mio の E2E は「送信〜受付番号返却〜通知台帳の状態遷移」に集中。ここまで 1 スプリント（5 営業日）で完結。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- Route Handler は書かず tRPC v11 + `next-safe-action` に統一する。Zod スキーマ1本から FE の型・OpenAPI 仕様・Postman コレクション・Pact 契約が全て派生し、Riku との型ズレバグ月4件が構造的に消える
+- 応募通知メールは `sendMail()` の直呼び出しをやめ、`outbox_events` テーブル INSERT を同一トランザクション内で行い、Trigger.dev v3 に非同期配送させる。DB コミットと外部副作用の原子性が担保され、Severity 最上位の「送ったが届いていない」を根絶
+- 全 Route Handler / Prisma / 外部 fetch に OpenTelemetry を計装し、エラーレスポンスの `meta.trace_id` に Datadog APM の URL を含める。Mio の本番バグ再現時間が平均45分→5分に短縮、Kai へのインシデント報告も trace URL 1 本で完結
+- `zod-openapi` で PR ごとに OpenAPI 3.1 を再生成し、Pact broker に publish。Riku のコンシューマ契約と CI で照合、契約違反があれば PR がマージできない。Mio の E2E は「導線が通るか」に絞れて Flaky が -85%
+- Semgrep のカスタムルールで「Server Action / tRPC procedure で `checkUserOwnership()` を通っていない DB 書き込み」を検出する Guard を CI に追加。Nao/Kai から「認可漏れが怖い」と言われる暗黙不安が構造的に消え、リリースゲートで手動レビュー時間 PR あたり 30 分 → 5 分

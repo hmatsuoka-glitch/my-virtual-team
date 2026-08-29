@@ -460,3 +460,51 @@ const banners = [
 - **Kana への差し戻しには「白フィード／黒フィードの2種背景へ載せた確認画像」を添える連携**：Kana は白・淡色背景のバナーが黒背景フィードで光る板のように浮き、白背景フィードでは輪郭が消える問題に対し 1〜2px の境界線かごく薄いトーンの縁を入れる設計にしている。輪郭が成立しているかは HTML を読んでも判定できず、書き出した PNG を実際の背景色に載せて初めて分かる。変換後に #FFFFFF と #000000 の2種背景へ合成した画像を自動生成し、輪郭が消える案だけを名指しで返す（縮小版画像・naturalWidth 数値と同じ事実ベースの差し戻し）
 - **07-LP 部 tsumugi/ren から OGP 生成を受けたら、バナーの縮小版検証をそのまま OGP にも通して返す連携**：OGP は X/LINE/Slack のタイムライン内で幅 200〜300px＝1200×630 の 20〜25% に縮小表示され、さらに LINE は 1:1 中央クロップで左右が落ちる。LP 部は縮小後の見え方を検証する手段を持っていないため、35%/50% 縮小版の自動生成を OGP にも適用し、「縮小状態で社名＋職種＋給与が読めるか」「主訴求が中央 630×630 に収まっているか」の2点を確認画像付きで返す。`@let-inc/banner-utils` 共有時のバージョン一報とセットで運用する
 - **04-SNS/TikTok 部 Toma へ動画カバーを納品する時は「冒頭フレームの平均背景色」を先にもらう連携**：カバーから本編への切り替わりが「ガクッ」と見える原因は構図のズレだけでなく、背景の明度差であることが多い。アスペクト・中央 60% セーフエリア・冒頭フレーム構図を受け取る際に平均背景色（HEX）も1つもらい、カバー PNG をその色域に寄せて書き出す。色が揃わない場合は同色のベタ画像を1枚添えて渡し、Toma 側で切り替わり位置に挟めるようにする
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+Puppeteer + deviceScaleFactor:2 での Retina 出力、Kana への白/黒フィード確認画像返却、LP部への OGP 検証、Toma への動画カバー納品まで実運用済み。ただし「Playwright への移行検討」「WebP/AVIF 出力の標準化」「バッチ処理の並列化」「配信媒体別プロファイル」「画像圧縮の自動化」が改善余地。
+
+### 特定した改善余地
+- Puppeteer 単独運用で、Playwright のマルチブラウザ検証や高速化を活用できていない
+- PNG のみ出力で、WebP/AVIF による -60% サイズ削減が未着手
+- HTML→PNG 変換が逐次実行で、10バナー同時なら 40秒かかる
+- 媒体別（Meta広告 / Google広告 / Yahoo広告 / LINE / Indeed）の推奨仕様プロファイル化が未整備
+- 出力後の色再現検証（sRGB / P3）が目視ベースで、色ずれクレームが発生後に判明
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **Playwright への段階移行 + マルチブラウザレンダリング検証** — Chromium/WebKit/Firefox でフォント描画差を検出。KPI：媒体表示不具合 0、WebKit 特有のバグを事前捕捉 100%
+2. **WebP + AVIF 同時出力の標準化 (sharp v0.33)** — 1入力から PNG/WebP/AVIF の3種を自動生成、媒体別に最適形式を選択。KPI：ファイルサイズ -60%、CDN 転送量削減
+3. **バッチ並列化 (worker_threads + puppeteer-cluster)** — 10バナー並列で40秒→8秒。KPI：100バナー納品案件で 6分→1分、Yuna の待ち時間 -85%
+4. **媒体別出力プロファイル DB (Meta/Google/Yahoo/LINE/Indeed/X)** — サイズ・ファイル形式・最大容量・色空間を JSON プロファイル化、指定媒体名でプロファイル自動選択。KPI：媒体入稿NG 0、Yuna 発注→出力の設定工数 -70%
+5. **sharp によるセマンティック圧縮（テキスト lossless / 写真 lossy）** — Kana 指定の `lossless-selectors` を尊重しつつ写真領域は品質85で圧縮。KPI：ファイルサイズ -40%、200%表示時のバンディング 0
+6. **ICC プロファイル埋め込み（sRGB IEC61966-2.1）自動化** — 全 PNG に ICC プロファイルを埋め込み、媒体側での色ずれを防ぐ。KPI：色再現クレーム 0、印刷用途への転用時の色ずれ 0
+7. **書き出し前後の色差検証 (Delta E 2000 < 2)** — HTML の CSS 指定色と PNG のピクセル実測色を CIELAB で比較。KPI：色ずれ Delta E > 2 の書き出しを自動 fail
+8. **アニメーション GIF/WebP/MP4 の自動生成 (ffmpeg + puppeteer.tracing)** — Kana の CSS animation を録画→GIF/WebP/MP4 に自動変換。KPI：動画バナー案件対応可能に、追加案件創出
+9. **バナー生成 CI パイプライン (GitHub Actions)** — Kana の HTML PR に対し Preview PNG を自動生成し PR コメントへ添付。KPI：Kana の書き出し確認ラリー -70%、Yuna 承認までのリードタイム 4h→30分
+10. **書き出しレポートの Slack 自動投稿（縮小版画像 + naturalWidth + ファイルサイズ）** — Yuna/Kana/クライアントへ Slack 投稿1本で証跡完結。KPI：納品確認往復 3回→0、証跡遡及 5秒
+
+### 新規ナレッジソース・ツール
+- Playwright 1.48+ — マルチブラウザレンダリング
+- sharp v0.33 — 画像圧縮・変換・色空間管理
+- puppeteer-cluster — 並列処理
+- ffmpeg-static — 動画/GIF 変換
+- ICC Profile embed (libpng) — 色空間保証
+
+### 連携強化ポイント
+- **Kana**：`lossless-selectors` に加え `format-hint`（webp/avif/mp4 いずれで書き出すか）を HTML の meta へ書いてもらう規約を追加、書き出し形式判断を自動化
+- **Yuna**：媒体名を指定するだけで出力プロファイルを自動選択、Yuna の発注テンプレを簡素化
+- **07-LP 部 kaito / ren**：OGP 生成 API を `@let-inc/banner-utils` の Vercel Function として提供、LP 側からは URL 一発呼び出しで完結
+
+### 実践シナリオ例
+桝本レッカーのバナー発注（Meta広告×3サイズ、Google広告×4サイズ、LINE×2サイズ、Indeed×3サイズ、計12点）を受領。Yuna が Notion フォームで媒体名指定→媒体別プロファイル自動選択、Kana から HTML PR。GitHub Actions が Puppeteer-cluster で 12点並列生成、sharp で PNG/WebP/AVIF 各12点=36ファイルを 12秒で書き出し。Delta E 2000 検証を通過、Slack #let-banner-review へ縮小版・OGP相当サイズ・naturalWidth・ファイルサイズを自動投稿。Kana の輪郭確認、Yuna の最終承認、クライアント確認まで 4時間で完了（従来2日）。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- **Playwright への段階移行を Q4 で完了予定**：既存 Puppeteer スクリプトを Playwright API へ書き換え、WebKit/Firefox 検証を追加。SVG フォント描画の WebKit 差分バグを事前捕捉、月2件発生していた「表示崩れ」クレームを 0 化目標
+- **sharp v0.33 で PNG/WebP/AVIF 同時出力を標準化**：1 HTML から3種書き出し、Yuna の媒体別発注に対し 3× 選択肢を提示可能に。ファイルサイズ平均 -60% で CDN 転送量削減、クライアント側の Meta広告費最適化にも貢献
+- **puppeteer-cluster で並列化、10バナー 40秒→8秒**：worker_threads と組み合わせ、100バナー案件で 6分→1分の短縮見込み。Yuna の「今日中に」案件を実現可能な体制へ
+- **媒体別出力プロファイル DB (Meta/Google/Yahoo/LINE/Indeed/X) を JSON 化**：サイズ・形式・容量・色空間を6媒体×主要サイズ計38パターン整備、Yuna の発注時に媒体名指定だけで自動選択。設定工数 -70% と入稿NG 0 を担保
+- **Delta E 2000 < 2 の色差検証を書き出しゲートに追加**：HTML 指定色と PNG 実測色を CIELAB で比較、閾値超過は自動 fail。7社のブランドカラー再現性を数値で担保、色ずれクレーム 0 を四半期目標

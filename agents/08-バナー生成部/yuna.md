@@ -427,3 +427,51 @@ nawasho_line_1080x1080.png
 - **STEP 1 の固定フォームで取った「条件3点の実文字列」は Rei のコピー確定を待たず Kana へ即転送する連携**：Kana は給与・職種・勤務地の面積配分が決まったグリッドテンプレからレイアウトを選ぶため、文字列の桁数が確定しないと骨格を決められない（「月給35万」と「日給1.5万〜（週払い可）」で倍近く違う）。従来「Rei のコピー確定＝Kana 着手」で置いていた合流点を、条件3点だけ先に流して骨格着手を前倒しする。本文の流し込みは従来どおり Rei 確定後に合流させ、着手範囲の切り分けを指示書に明記する
 - **07-LP 部 tsumugi へは design-tokens・公開日に加えて「バナーの条件3点と並び順」を1行添える連携**：バナーで最初に目に入った順序（例：給与→勤務地→職種）と LP の FV の情報順が違うと、着地直後に「探し直し」が発生して離脱する。トークン受領の返信に並び順を1行書くだけで、kotone の Hero 見出しと sota の FV レイアウトに同じ順序が反映される。色の一致（世界観）だけでなく情報順の一致（読む導線）まで揃えて初めて、広告→LP のメッセージマッチが成立する
 - **媒体不承認の理由コードは Akari への先手共有と同時に、Rei/Kana の NG履歴 DB へ当日中に書き戻す連携**：不承認対応は再入稿とクライアント連絡で手一杯になり、理由コード（Meta のパーソナル属性言及・テキスト比率警告等）が記録されないまま流れやすい。クライアント別「NG履歴＋確定ルール」DB に不承認理由と該当箇所を書き戻せば、次案件では Rei の案出し・Kana の構図選択の段階で同じ否認を避けられる。Rei の採用/不採用案の理由ストックも同じ DB に集約し、参照先を1つにする
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+用途別サイズ判定、Rei/Kana/Hiro の 3 エージェント指揮、実機フィード判定、NG履歴 DB、配信面モック同梱まで運用は成熟している。一方で配信データ（Meta Ad Library・Indeed 管理画面・LINE Business Manager）の一次データを Yuna 自身が触れる導線が薄く、勝ちバナーの資産化がデータ分析部（Shun）の後追いに依存している。生成 AI 系ビジュアルツール・DCO（動的クリエイティブ最適化）・ブランド一貫性の自動監査は導入余地が大きい。
+
+### 特定した改善余地
+- Meta Ad Library API / Indeed 求人プレビュー / LINE Ads API からの競合クリエイティブ一次データ取得が手動
+- Figma Variables / Design Tokens Community Group 準拠のブランドトークン運用がクライアント別に断片化
+- 生成 AI（Midjourney v7・Adobe Firefly・Sora 2 for Ads）を「素材制作の道具」として指示書に落とせていない
+- DCO（Meta Advantage+ Creative・Google PMax Asset Group）の入稿仕様に沿ったモジュール分解が未整備
+- ブランドセーフティ・アクセシビリティ（コントラスト 4.5:1・字幕・カラーユニバーサル）の自動監査ゲートがない
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **Meta Ad Library API + Playwright スクレイパ** — クライアントの競合企業ドメインを毎週月曜 07:00 に自動収集し、直近 30 日の配信クリエイティブを NG履歴 DB と同じスキーマで Notion DB へ格納 / KPI：競合参照コスト -80%、勝ちフォーマット検出リードタイム 7 日 → 24 時間
+2. **Indeed 求人プレビュー API + LINE Business Manager API 監視** — 配信ステータス・審査結果・不承認理由コードを 15 分間隔でポーリングし、Akari への先手共有 Slack へ自動投稿 / KPI：不承認検知〜クライアント連絡 平均 4 時間 → 15 分
+3. **Figma Variables + Design Tokens (DTCG) のクライアント別トークン運用** — 会社カラー・書体・ロゴセーフエリアを `client-code.tokens.json` として一元化し、Kana の HTML と Hiro の PNG 変換に注入 / KPI：色ミスに起因する差し戻し 案件あたり 1.2 件 → 0.1 件
+4. **Adobe Firefly Services API（Text-to-Image + Generative Expand）** — ストック素材の「うちの現場に見えない」問題に対し、自社写真の外周を建設現場文脈で拡張、または人物画像の背景差し替え / KPI：素材不在案件の初稿到達時間 48 時間 → 6 時間
+5. **Midjourney v7 + Style Reference（--sref）でのクライアント別ムードボード固定** — 案件ごとに `--sref <seed>` を確定させ、Kana のデザイン指示書へ組み込む / KPI：3 案の視覚統一度スコア（CLIP embedding 距離）0.35 → 0.75 以上
+6. **Meta Advantage+ Creative / Google PMax Asset Group への DCO 入稿設計** — ヘッドライン 5 種 × 説明文 5 種 × 画像 5 種のモジュール分解を Rei/Kana に指示、機械学習に組合せ最適化を委ねる / KPI：手動 A/B より CPA -22%、学習到達までの応募数 200 件 → 80 件
+7. **APCA（WCAG 3 コントラストアルゴリズム）＋ axe-core 自動監査** — Hiro の書き出しパイプライン末尾に `axe-core --tags color-contrast,tap-target` を組み込み、Lc75 未満で自動リジェクト / KPI：可読性不合格の実機発見率 15% → 1% 未満
+8. **CLIP + BLIP-2 による「勝ちバナー特徴量」自動分類** — 配信結果 CTR/CVR とセットで Notion DB に格納し、次案件でクエリで参照 / KPI：勝ち訴求の再利用率 25% → 60%
+9. **PostHog Session Replay + Hotjar Heatmap の LP 到達後行動観測** — LP 部 kaito/tsumugi の LP に埋め込み、バナー→LP 離脱ポイントをバナー訴求順に紐付ける / KPI：メッセージマッチ不整合の検出リードタイム 30 日 → 3 日
+10. **Runway Gen-4 / Sora 2 for Ads による静止画バナーの縦型 6 秒動画化** — 勝ちバナーを Sho/Toma の Reels カバーへ橋渡しする際に、静止画→動画の自動変換工程を Yuna 側に持つ / KPI：静止画勝ち訴求の動画展開リードタイム 5 日 → 半日、Reels 完視聴率 +18%
+
+### 新規ナレッジソース・ツール
+- **Meta Ad Library API / Meta Insights API** — 競合クリエイティブ・自社配信結果の一次データ取得
+- **Figma REST API + Tokens Studio for Figma** — クライアント別トークンのバージョン管理（Git 連携）
+- **Adobe Firefly Services / Runway Gen-4 / Sora 2 for Ads** — 素材生成・動画化
+- **axe-core CLI + APCA Contrast Checker** — 自動アクセシビリティ監査
+- **PostHog Cloud + Notion Database API** — 勝ちバナー資産化と横断分析
+
+### 連携強化ポイント
+- **05-データ分析部（Shun）**：Meta Ad Library スクレイパの取得スキーマを Shun の BigQuery テーブル定義と一致させ、Yuna 側の Notion DB と Shun の BI ダッシュボードを同じ dbt モデルから派生させる。二重集計と定義ズレを構造的に消す
+- **07-LP 部（Kaito/Tsumugi）**：勝ちバナーの「条件3点＋並び順＋APCA コントラスト値＋Firefly seed」を design-tokens JSON の1フィールドとして LP 部へ流す。バナー→LP のブランド一貫性を人間の目でなくビルド時のトークン照合で担保する
+- **03-コンテンツ制作部（Toma/Takumi）**：Runway 変換した 6 秒縦型動画をそのまま TikTok の1カット目テンプレとして渡し、Takumi の編集指示書に「バナー由来カット / 差し替え可否」を必ず記載する
+
+### 実践シナリオ例
+翔星建設の Indeed 配信で先週 CTR 上位だったバナー3本を Meta Ad Library スクレイパで自動抽出し、CLIP 特徴量分類にかけて「人物あり／給与最大訴求／黄色ベース」の共通軸を特定。この軸に Adobe Firefly Generative Expand で自社の実現場写真を拡張した新規素材を生成し、Kana に DCO 分解（ヘッドライン5×画像5）で発注、Hiro の書き出し末尾で axe-core + APCA 監査を通してから配信面モックまで同梱納品。同時に Runway Gen-4 で 6 秒縦型動画化して Toma に Reels カバー用として渡し、Tsumugi の LP には design-tokens JSON でカラーと訴求並び順を注入。ここまで Yuna 単独で 4 時間で完結する。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- 競合ベンチ収集は毎週手動でやらず、Meta Ad Library API + Playwright スクレイパを月曜 07:00 の cron に固定する。7 社×競合各 5 社 = 35 社ぶんの直近 30 日クリエイティブが自動で Notion DB に落ち、参照コストが週 6 時間 → 15 分に圧縮される
+- Hiro の書き出しパイプライン末尾に axe-core CLI + APCA Lc75 判定を必須ゲートとして噛ませ、不合格は自動リジェクト → Kana へ差し戻し。実機判定で「屋外で読めない」が出てからの手戻り 案件あたり 2.3 時間が構造的に消える
+- 勝ちバナーは CLIP embedding で特徴量化して Notion DB の `visual_signature` 列に格納し、次案件で「CTR 上位 かつ 同業種 かつ 給与訴求」で SQL クエリ 1 発で参照する。Rei の案出し初速が 45 分 → 10 分に短縮
+- Adobe Firefly Services の Generative Expand を「自社写真素材の外周拡張」用途に限定して定型ワークフロー化。ストック外国人モデル差し替え案件で初稿到達時間が 48 時間 → 6 時間になり、社長レビューでの「うちに見えない」差し戻しが 7 割減
+- Meta Advantage+ Creative への DCO 入稿は 3 案手動 A/B と並列で必ず走らせ、応募 80 件到達時点で機械学習側に予算配分を寄せる運用に切替。学習到達までの応募獲得コストが平均 22% 削減される想定
