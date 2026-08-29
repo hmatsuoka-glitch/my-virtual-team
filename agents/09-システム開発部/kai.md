@@ -704,3 +704,51 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **02-クライアント管理部 Akari へ「今回対応／次フェーズ送り」の仕分けルールを STEP 0 時点で共有する連携**：追加要望はクライアント接点を持つ Akari に先に届くことが多く、ルールを知らない Akari が善意で「確認します」と受けると、Kai に届く頃には期待値が上がって断りづらくなる。STEP 0 で合意したスコープ定義・次フェーズ送りの条件・変更管理ログへの記録手順を Akari にも渡し、受けた瞬間に一次仕分けして起票してもらう。窓口で仕分けが終われば、検収直前にまとめて噴出する交渉そのものが発生しない
 - **Mio への QA 依頼には「並行運用期間の二重入力シナリオ」をテスト対象として明示的に足す連携**：導入失敗の主因は機能不足でなく運用の切替漏れだが、Mio の受け入れ基準は機能単位で書かれるため「旧 Excel と新システムに同じ応募を入れた場合」「切替日をまたいだデータの重複・欠落」といった並行運用固有の状態は検出対象に入らない。要件テンプレに書いた並行運用期間・入力停止のタイミングを Given-When-Then に翻訳して渡し、Ao/Kuu のデータ移行リハーサルの検証項目とも同じ表を共有する。対象外リストと並ぶ、渡す側の必須添付物として扱う
 - **週次報告の3欄テンプレは Akari の月次レポートと同じ機能単位の語彙で書く連携**：Kai が「今週から使えるようになった機能」で報告し、Akari が別の粒度で月次をまとめると、クライアント側には同じ案件が2つの言い方で届き、進捗と成果の対応が取れなくなる。STEP 0 で合意した測定可能な成功基準（応募完了率・工数削減時間・継続利用率）を両方の見出しに使い、週次は「その基準に効く機能が今週どこまで来たか」、月次は「基準の数値がどう動いたか」と役割を分ける。語彙が揃えば Akari の翻訳工数も消える
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+BMAD-METHOD の 5 STEP フロー・Agent tool による真の並列起動・checklists によるゲート管理は運用として成熟している。要件テンプレ・週次報告テンプレ・変更管理ログ・並行運用期間の必須化まで構造化済。一方で、DORA Four Keys / SPACE フレームによる開発生産性の定量観測、ADR（Architecture Decision Records）による意思決定の履歴化、C4 Model / EventStorming による共通理解、リスク調整型バックログ（RICE + Kano）による優先順位の言語化が未整備。BMAD の PM ロールとしては、「進捗管理」から「継続的デリバリー管理」への進化余地が大きい。
+
+### 特定した改善余地
+- DORA Four Keys（Deploy Frequency / Lead Time / MTTR / Change Failure Rate）の可視化が無い
+- ADR の運用が個人メモに留まり、リポジトリ内の `docs/adr/` に体系化されていない
+- RICE / MoSCoW / Kano による優先順位付けの共通言語が無く、追加要望の仕分けが Kai の勘に依存
+- Value Stream Mapping（VSM）による工程内の待ち時間・手戻り時間の可視化がない
+- BMAD の Prompt-as-Config（`.bmad-core/config.yaml`）の運用と、AI エージェント間の状態受け渡しの構造化
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **DORA Four Keys 自動計測（`dora-team/fourkeys` on Vercel + BigQuery）** — GitHub Actions のデプロイイベント・Sentry の障害イベントを BigQuery に流し、Looker Studio で四半期ごとに Elite / High / Medium / Low を判定 / KPI：Deploy Frequency 週 1 → 日 1、Lead Time 5 日 → 1 日、MTTR 4 時間 → 30 分
+2. **ADR（Architecture Decision Records）+ MADR 4.0 テンプレ** — 技術選定・スコープ変更・破壊的マイグレーション判断を `docs/adr/NNNN-title.md` に必ず記録、PR で承認 / KPI：技術判断の再議論時間 -70%、新規参画者のキャッチアップ 5 日 → 2 日
+3. **RICE スコアリング + Kano モデル** — 追加要望の「今回対応／次フェーズ送り」判定を Reach × Impact × Confidence / Effort で数値化、Kano で「魅力品質／一元品質／当たり前品質」を分類 / KPI：要望仕分けの判断時間 30 分 → 3 分、クライアント合意時間 -60%
+4. **C4 Model + Structurizr Lite** — システム全体を Context / Container / Component / Code の 4 階層で図解、Nao の設計書と Kai の要件整理の橋渡し / KPI：Nao-Kai 間の設計レビュー往復 3 回 → 1 回
+5. **EventStorming（Big Picture / Process Modeling / Software Design）** — STEP 1 の要件整理を Miro でイベントストーミング化し、クライアント（社長・総務）と一緒にドメインイベントを付箋で並べる / KPI：例外経路の初回抽出率 40% → 90%
+6. **Value Stream Mapping (VSM) + Cycle Time Analytics（Linear Insights）** — STEP 1〜5 の各工程の Lead Time / Cycle Time / 待ち時間を可視化、ボトルネックを毎週特定 / KPI：Nao の設計待ち時間 -50%、Mio の QA 差し戻し往復 -40%
+7. **BMAD-METHOD `.bmad-core/config.yaml` + Story File 標準化** — 各エージェントへの発注を Markdown の Story File（受け入れ基準 + 対象外リスト + 参照設計）で標準化、Agent tool の prompt に必ず添付 / KPI：エージェント間の指示ズレ 月 5 件 → 0 件
+8. **Linear + GitHub Projects v2 + Slack Workflow の統合** — Linear Issue から自動でブランチ・PR テンプレを生成し、Story File と紐付け。DORA イベントを Slack `#dev-metrics` に自動投稿 / KPI：進捗確認時間 週 2 時間 → 15 分
+9. **プロンプトエンジニアリング：Chain-of-Verification / Self-Consistency for BMAD** — nao の設計、mio の QA 判定に「別視点で 2 回検証」プロンプトを組み込み、幻覚・見落としを構造的に抑制 / KPI：Mio 通過後の本番バグ 月 2 件 → 0.3 件
+10. **ChatOps + `/kai plan|handoff|status|risk` スラッシュコマンド** — Slack から Kai の司令塔機能を直接呼び出し、Story File 生成・エージェント並列起動・週次報告出力を自動化 / KPI：Kai 自身の管理業務時間 週 8 時間 → 2 時間
+
+### 新規ナレッジソース・ツール
+- **DORA Four Keys ダッシュボード（BigQuery + Looker Studio）** — 開発生産性の四半期観測
+- **Structurizr Lite（Docker 単体で起動）+ MADR 4.0 テンプレ** — アーキテクチャと意思決定の可視化・履歴化
+- **Miro EventStorming テンプレ + Kano モデル分類シート** — ドメイン理解と要望仕分け
+- **Linear Insights + Cycle Time Analytics** — VSM と Lead Time 可視化
+- **BMAD-METHOD 公式ドキュメント + `bmadcode/bmad-method` GitHub** — 最新の Story File / Agent Handoff プロトコル
+
+### 連携強化ポイント
+- **Nao（アーキテクト）**：STEP 2 の設計レビューを C4 Model の Container 図＋ADR ドラフトの 2 点セットで受け取り、Kai が RICE で優先順位を付ける前提を整える。EventStorming で抽出した Domain Event と設計書のエンドポイントの 1:1 マッピングを必ず添付
+- **Akari（月次レポート）**：STEP 0 で合意した測定可能な成功基準（応募完了率・工数削減時間・継続利用率）を DORA Four Keys と並べて Looker Studio に同居させ、Kai の週次と Akari の月次が同じダッシュボードから派生する構造にする
+- **Mio（QA）**：Story File に「対象外リスト」だけでなく「並行運用シナリオ（旧 Excel × 新システムの二重入力）」と「Chain-of-Verification 検証観点」を Given-When-Then で列挙して渡す
+
+### 実践シナリオ例
+翔星建設から「面接日程調整機能を追加してほしい」と Akari 経由で要望が入る。Kai は Slack で `/kai plan 面接日程調整` を実行、テンプレから RICE スコアリングシートと Kano 分類が起動。Reach（採用担当 4 名・応募者月 80 名）× Impact（工数削減 3h/週）× Confidence（0.7）/ Effort（8 人日）= 21 と算出、Kano で「魅力品質」に分類し「次フェーズ送りだが優先度高」と判定。ADR-0042 に判断根拠を記録、EventStorming で「面接候補日提示 → 応募者選択 → カレンダー連携 → 通知」の Domain Event を抽出し Nao へ C4 Container 図の発注、Story File を生成して Ao/Riku/Kuu へ Agent tool で並列起動。完了時に DORA Four Keys ダッシュボードに Deploy Frequency +1 が自動反映、週次報告テンプレの「今週から使えるようになった機能」欄に日付付きで自動転記。ここまで Kai の手動作業は 20 分。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- 追加要望の仕分けは勘でなく RICE × Kano で数値化する。Slack `/kai rice` コマンドで入力補助を出し、判定時間が 30 分 → 3 分に短縮。クライアントへの説明も「Reach 4 名・Impact 3h/週削減・Effort 8 人日で RICE=21、他要望との相対順位で第3位」と言えるため合意が速い
+- DORA Four Keys を BigQuery + Looker Studio で自動集計し、週次報告の末尾に「今週の Deploy Frequency / Lead Time / MTTR」を数値で添える。開発チームの動きが可視化されて経営会議の材料になり、Kai の説明工数が -60%
+- STEP 2 の設計レビューは C4 Container 図と ADR ドラフトの 2 点セットで受け取る運用に固定。散文の設計書での往復 3 回が 1 回に減り、Nao の待ち時間も -50%
+- BMAD-METHOD の Story File（受け入れ基準 + 対象外リスト + 並行運用シナリオ + Chain-of-Verification 観点）を Agent tool の prompt に必ず添付する。エージェント間の指示ズレ月 5 件が構造的に 0 に、Mio 通過後の本番バグも 2 件 → 0.3 件
+- STEP 1 のクライアントヒアリングは Miro EventStorming テンプレを画面共有で使い、社長・総務に付箋を貼ってもらう形式に切替。例外経路（電話応募・紹介・LINE 日程調整）の初回抽出率が 40% → 90% に上がり、設計後の要件追加による手戻りが構造的に減る
