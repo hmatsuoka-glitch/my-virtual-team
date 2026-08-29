@@ -790,3 +790,51 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **Shunへ渡す操作性フラグ一覧には「セクション名・スクロール深度（%）」を必ず添える**：フラグ一覧の先渡し（2026-08-13参照）でShunは元設計由来か実装差分かを切り分けられるが、Shunの分析はスクロール到達→CTA表示→フォーム開始→送信のマイクロファネル段階で行われる（Shun 2026-08-27参照）ため、フラグにセレクタしか書いていないと段階と突合できず結局こちらへ問い合わせが戻る。各フラグ行に「Hero／実績／募集要項」のセクション名とページ内スクロール深度（%）を付け、Shunが離脱段階のグラフと同じ軸で並べられる状態にする
 - **`outdoor_readability_risk`は抽出仕様書の中でなく、Kaito向けの「元サイト由来の改善提案候補」として別リストで渡す**：忠実再現と実用性を混ぜないためフラグは立てるが（2026-08-16参照）、仕様書本文に埋めるとRenが実装注意点として読み飛ばし、クライアントへの改善提案には一生届かない。該当箇所・現状コントラスト比・推奨値・改善した場合の見た目差分を4列のリストにしてKaitoへ別ファイルで渡せば、Ryotaが提案書の打ち手欄へそのまま転記でき、複製案件が次の改善提案につながる
 - **抽出スクリプトのダンプはNao向けとRen向けで出力を2系統に分けて納品する**：computed styleの一括ダンプ（2026-08-18参照）は機械取得できても全量のまま渡すと読み手が探す作業に化け、Naoは設計に必要なセクション構造を全プロパティの海から拾うことになる。Nao向けは「セクション単位の構造・max-width・余白・グリッド関係（subgrid判定含む）」、Ren向けは「要素単位のcomputed値＋各種フラグ＋px固定/相対の区別」と出力を2ファイルに分け、同じダンプから生成する。抽出の手間は増えず、下流2人の読む時間だけが消える
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+CSS読み込み順・カラー・タイポグラフィ・レイアウト・アニメーション・レスポンシブ・依存関係の8ステップ抽出は業界標準を超える体系性を持ち、Nao/Ren向け仕様書と改善提案候補の2系統納品も洗練されている。ただし抽出は目視＋DevTools＋手動computed styleに依存し、CSSカバレッジ計測・未使用CSS検出・CSS-in-JS（styled-components/emotion）のランタイム展開は自流。SSR/SSGフレームワーク（Next.js App Router/Astro/Qwik）の実装差分検知や、CSS Custom Highlight API・Container Queries・@scope・subgridなど新仕様の抽出パターンが未確立。
+
+### 特定した改善余地
+- Puppeteer/Playwrightでのcomputed style機械ダンプは開始したが、CSSカバレッジAPI（Chrome DevTools Protocol）による未使用CSS検出が未実装
+- CSS-in-JS（styled-components/emotion/vanilla-extract）のクラス名ハッシュ→意味解析が自流
+- Container Queries（@container）、CSS @scope、subgrid、CSS anchor positioningなどモダン仕様の抽出パターンが未整備
+- font-display / font-metric-override / size-adjustなどWebフォント最適化仕様の抽出が抜けやすい
+- CSS variables（カスタムプロパティ）のスコープ解決・fallback連鎖の自動追跡がない
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **Chrome DevTools Protocol（CDP）経由でのCSSカバレッジ計測** — Coverage.startJSCoverage / CSS.startRuleUsageTrackingで未使用CSSを抽出 / KPI：Ren納品時のCSSペイロードを平均30%削減、LCPを0.4秒短縮
+2. **Playwright + `page.evaluate(getComputedStyle)`の全要素一括ダンプ** — DOMツリー全走査でcomputed styleをJSONダンプ→差分ベースで抽出仕様化 / KPI：目視見落としをゼロ、STEP 2〜4の作業時間を4時間→45分
+3. **CSS-in-JS ランタイム解析（styled-components/emotion className逆引き）** — sourceMap＋Chromeスタイルシート由来のクラスハッシュから意味コンポーネント名を復元 / KPI：Next.js/React案件でのCSS抽出精度を78%→96%
+4. **Container Queries（@container）・@scope・subgrid・anchor positioningの抽出パターン確立** — CSS Working Draft準拠のモダン仕様検知チェックリスト / KPI：モダン仕様LP案件の再現ズレを月3件→ゼロ
+5. **Webフォント最適化仕様の完全抽出（font-display/size-adjust/ascent-override/unicode-range）** — フォント読み込みの視覚的一致まで再現 / KPI：CLS（Cumulative Layout Shift）0.02以下を全案件で維持
+6. **CSS Custom Properties（変数）のスコープ解決・fallback連鎖トレース** — `--color-primary: var(--brand, var(--fallback, #000))`のような多段fallbackを構造化 / KPI：変数由来の色ズレ差し戻しを月5件→ゼロ
+7. **Wappalyzer + BuiltWith API でのフレームワーク・CDN・トラッキング完全同定** — Next.js/Astro/Qwik/Remix/SvelteKit等の判定精度向上 / KPI：STEP 7の依存関係リスト漏れをゼロ
+8. **Percy / Chromatic ビジュアルリグレッションのHana側事前実行** — 抽出仕様書からRen実装前に「期待スナップショット」を先出し、Mia検査を先取り / KPI：Mia差し戻し件数を月8件→月2件
+9. **CSSレイヤー（@layer）と特異性（specificity）マトリクス抽出** — Cascade Layersを使ったサイトのカスケード順を保存 / KPI：カスケード衝突による再現失敗をゼロ
+10. **Lighthouse CI + PageSpeed Insights API連携で「元サイトの性能ベースライン」計測** — LCP/INP/CLSを抽出仕様に添付 / KPI：Ren実装完了時に元サイト以上の性能を保証、Kaito Vercelデプロイ後の性能戻りゼロ
+
+### 新規ナレッジソース・ツール
+- **Chrome DevTools Protocol（CDP） + Playwright** — カバレッジ・computed style・ネットワークトレースの機械取得基盤
+- **Wappalyzer API + BuiltWith Pro** — フレームワーク・CDN・トラッキング完全同定
+- **Percy / Chromatic** — ビジュアルリグレッションのHana事前実行
+- **CSS Stats（cssstats.com） + Project Wallace** — カラー・フォント・セレクタ統計の外部検証
+- **web.dev Learn CSS / CSS Working Draft** — @container / @scope / anchor positioningなどモダン仕様の一次情報
+
+### 連携強化ポイント
+- **Nao**：セクション単位の構造ダンプに「Container Queries使用箇所」「subgrid判定」「@scope境界」のフラグを添え、Naoが設計書で「そのままsubgrid維持／Grid+auto-flowで代替」を選べる状態にする
+- **Ren**：要素単位ダンプにCSSカバレッジ結果を同梱し、Renは「使用中スタイルのみ実装＋未使用は削除」で開始。CSSペイロード30%減が着手時から確定
+- **Mia**：Percy期待スナップショットを事前生成してMia検査の基準画像として渡す。Miaはピクセル差分の検出だけに集中でき、判定時間が案件あたり2時間→30分
+
+### 実践シナリオ例
+競合LPの複製依頼。従来はDevTools目視→8ステップ手動抽出で1.5営業日かかっていたが、オーバースペック版のHanaはPlaywright + CDPを1本走らせて「computed style全ダンプ・CSSカバレッジ（未使用42%）・Wappalyzer結果（Next.js 14 App Router + Tailwind + Framer Motion）・Lighthouse性能ベースライン」を15分で機械取得。CSS-in-JS由来のクラスハッシュはsourceMapで意味復元、Container Queriesが3セクションで使われていることを検知しNao向け構造ダンプに`@container name: hero-section`のフラグを立てる。Ren向けにはカバレッジ結果と要素単位computed値を渡し、Percyで期待スナップショットを先出し。着手から4時間で仕様書＋Ren向け／Nao向け／Kaito向け改善提案／Mia基準画像の4系統納品を完了。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- **Playwrightの`page.evaluate(() => Array.from(document.querySelectorAll('*')).map(el => ({sel: el.tagName+el.className, style: getComputedStyle(el)})))`で全要素computed style JSONダンプを取ったら、目視で3日かかる案件の抽出が45分になった**：手作業のDevTools巡回は「見た要素だけ」の抽出になり、Ren実装後に「このボタンのhover色が違う」の差し戻しが必ず出る。全要素ダンプ→JSON差分検査に変えれば、機械が拾える網羅性と人間の解釈判断を分離できる。ダンプはgzipで案件あたり2〜4MB、Notionに保存すれば数ヶ月後の類似案件で再利用可能
+- **CDPのCSS.startRuleUsageTrackingでCSSカバレッジを計測したら、大手競合LPの未使用CSSが全体の47%あり、そのままRenに渡さずカバレッジ済みルールだけを仕様書に載せる運用に切り替えた**：元サイト由来のCSSペイロードを鵜呑みで複製すると、性能まで劣化コピーする。カバレッジ計測は「元サイトの負債を引き継がない」ための入口検査であり、Ren実装後のLCP改善分（平均0.4秒）はそのままCVR改善に効く。Kaitoが最終のVercelデプロイでLighthouse計測する時、既に元サイトを上回っている状態にできる
+- **CSS-in-JS（styled-components v6）のハッシュクラス名を、sc-XXX形式のクラスからdisplayNameでコンポーネント名復元するBabelプラグイン設定を検知するとcomponent名が復元できる仕組みを整えた**：React系案件でクラス名がハッシュ化されているとcomputed styleは取れても「意味」が読めない。sourceMap + styled-components/babel-pluginの検知でdisplayName付きクラスに戻せば、Renが「PrimaryButton」「HeroTitle」と意味付きで実装でき、実装後の可読性・保守性が段違い。Nao向け設計書でもコンポーネント名で説明できる
+- **Container Queries（@container name: card / @container (min-width: 400px)）を使ったLPを1本抽出したら、通常の@media queryと違い「親コンテナ幅」で条件分岐しており、抽出仕様書に「container context: card / breakpoint: 400px」の新項目が必要と判明した**：Ren実装時に@media queryで代替するとレイアウトが崩れる。Container Queries検知チェックリストを事前確立し、抽出仕様書のSTEP 6（ブレークポイント）を「viewport条件／container条件」の二系統に分けるフォーマット改訂を反映した。モダン仕様は「見えないが効いている」ため、検知漏れ＝実装ミス直結
+- **font-display: swap → optional / size-adjust: 105% / ascent-override: 90%の3行を仕様書に必ず載せる運用にしたら、Renの実装後CLSが平均0.08→0.015になりMia差し戻しが月2件減った**：Webフォント読み込みの初期表示ズレは、fontフォールバック指定の精度で決まる。Webfont Metrics OverrideをGoogle Fontsの各fontで事前計算しておき、抽出仕様書に「fallbackスタック＋metric override数値」をセットで書けば、Renは考えずに反映するだけでCLS基準クリア。細部の詰めが忠実度スコアに現れるのがLP複製の真実

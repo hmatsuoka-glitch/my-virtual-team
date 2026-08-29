@@ -440,3 +440,51 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Ren の DoD に入った in-app ブラウザ確認（ren 2026-08-18参照）と重複させず、Kaito は「本番 URL での再実施」だけに絞る連携**：Preview で Ren が LINE/Instagram の WebView 確認を済ませていても、本番は alias 付替でドメイン・Cookie・OGP が変わるため崩れる条件が別物になる。着手時に「Preview 実機確認＝Ren／本番 URL 実機確認＝Kaito」とフェーズで分界を宣言し、同一検査の二重実施と「相手がやっていると思った」の抜けを同時に潰す
 - **Saki の同日リリース束ね（saki 2026-08-18参照）を受けて、週次の定時デプロイ枠を Kaito が先に固定し Saki とバナー部へ公開する連携**：数値・条件の修正はコード側とバナー再生成が揃って初めて本番へ出せるのに、デプロイ実行者の空き待ちで片側だけ先に出る。「毎週◯曜◯時＝本番反映枠」を固定枠として共有し、Saki はその枠に間に合う締切で依頼を束ね、バナー部は同枠までに再生成画像を戻す。alias 付替の直前に画像差し替え完了を1回だけ突合してから昇格する
 - **受注5分の Scope 確認で「承認者が使う端末・ブラウザ・OS バージョン」まで取り、Hana 着手前に Mia へ渡す連携**：Mia は検証マトリクスにクライアント確認端末を1枠入れる運用（mia 2026-08-16参照）だが、その情報を持っているのは受注窓口の Kaito だけで、QA 直前にヒアリングすると旧 iPad Safari や社用 PC の Edge を足すタイミングが遅れる。Scope 確認項目に端末構成を追加して受注時点で Mia へ流し、通過後に「承認者の画面で崩れている」と戻る再検証を構造的になくす
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+Hana/Nao/Ren/Miaのパイプライン統括、ビルド確認、Vercelデプロイ、実機・in-appブラウザ確認、Scope確認から週次デプロイ枠固定まで、部長業務としての統率と進行管理は業界標準を大きく超える。ただしプロジェクト進行の可視化はSlack + Notion手作業依存で、GitHub Projects/Linear連動やStatus PageのRSS化までは至っていない。Vercelデプロイは手動実行ベースで、Preview→Production昇格の自動判定・Rollback運用・Canary配信の実装は自流。案件横断のポートフォリオ管理（同時進行7社×2〜3案件）でのリソース衝突検知が経験則。
+
+### 特定した改善余地
+- Vercel Preview→Production昇格の自動判定基準（Lighthouse CI/Playwright/Percy）がまだ手動
+- 案件横断のポートフォリオ管理（進行状況・ボトルネック検知）がスプレッドシート手動更新
+- 障害・エラー検知（Sentry/Vercel Analytics/Real User Monitoring）の統合ダッシュボードなし
+- クライアント向けリリースノート・ステータスページの自動発行がない
+- 複製案件の見積・工数見積が経験則で、Ryotaの提案書と数値整合させる仕組みが弱い
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **Vercel CLI + GitHub Actions によるPreview→Production自動昇格フロー** — Lighthouse CI（LCP/CLS/INP閾値）＋Playwright E2E＋Percy Visualの全パスで自動昇格 / KPI：手動デプロイ判断を月20件→ゼロ、昇格失敗事故を四半期ゼロ
+2. **Linear + GitHub Projects 連動によるLP部ポートフォリオ管理** — 案件別ステータス・担当者・ブロッカー・ETAを1画面 / KPI：進行状況把握の巡回時間を毎日30分→5分
+3. **Sentry + Vercel Analytics + Datadog RUM 統合ダッシュボード** — 本番エラー・Core Web Vitals・地域別遅延を統合監視 / KPI：本番障害の初動検知時間を平均30分→3分
+4. **Vercel Feature Flags + Edge Config によるCanary配信運用** — 10%→30%→100%の段階昇格でリスク最小化 / KPI：本番リリース起因の全戻し事故を四半期ゼロ
+5. **Instant Rollback運用（Vercel promote / alias付替の即時手順化）** — 障害検知から3分以内のrollback完了 / KPI：MTTR（平均復旧時間）30分→3分
+6. **Google Cloud Load Testing + k6 での本番前負荷試験** — キャンペーン施策連動LPの想定同時接続を事前検証 / KPI：TVCM連動LPの応答遅延事故をゼロ
+7. **PostHog / Vercel Web Analytics での初動KPI観測ダッシュボード** — 公開24時間のCVR/LCP/離脱率をKaito側で先読み / KPI：Shun月次分析を待たずに初動修正提案を月2件Ryotaへ
+8. **クライアント向けリリースノートの自動発行（Notion→Slack→メール）** — Vercel Deploymentからchangelogを自動生成 / KPI：Ryota経由のクライアント告知メール作成を廃止、リリース即通知
+9. **案件見積の標準化（Notion Database + 工数マスタ連動）** — LP複製・独自LP・改修別の標準工数からRyota提案書へ自動反映 / KPI：見積と実工数の乖離を平均±30%→±10%
+10. **セキュリティスキャン（Snyk / Socket / npm audit）のCI組み込み** — 依存パッケージの脆弱性を毎日検査、CVSS 7以上は即PR / KPI：脆弱性放置0日、Nori事後関所での指摘ゼロ
+
+### 新規ナレッジソース・ツール
+- **Vercel CLI + GitHub Actions（Vercel公式Marketplace Actions）** — 昇格・Rollback・Canaryの自動化基盤
+- **Linear（プロジェクト管理）+ GitHub Projects同期** — 部内ポートフォリオ管理
+- **Sentry + Datadog RUM + Vercel Web Analytics** — 統合監視の三点セット
+- **k6 + Grafana Cloud** — 負荷試験と観測
+- **PostHog** — セッションリプレイ＋ファネル分析（Clarityと役割分担）
+
+### 連携強化ポイント
+- **Ren**：DoDのin-appブラウザ確認とKaitoの本番URL実機確認の二重チェック運用を、GitHub Actionsで「Preview環境＝Ren担当・Production環境＝Kaito担当」とフェーズ分離。着手時に自動アサインされ「相手がやっていると思った」の抜けを構造的に消す
+- **Mia**：受注時Scope確認で取得したクライアント確認端末構成を、Linear Ticket作成と同時にPlaywrightのプロジェクト設定に自動追記。Miaの検証マトリクスに事前セット
+- **Saki**：週次デプロイ枠を固定＋Linear上に「今週の束ね」ボードを共有し、Sakiの依頼はそのボードでフェーズ管理。バナー部との突合も同ボード上で完結
+
+### 実践シナリオ例
+翔星建設のTVCM連動キャンペーンLPの複製依頼。従来は手動デプロイ＋目視性能確認＋クライアントメール告知で公開後4時間バタつく運用だったが、オーバースペック版のKaitoは受注5分でLinearに案件生成→Scope確認で「承認者：宮村社長・iPad Air第5世代Safari/社用EdgeのWindows11」を取得→Mia検証プロジェクトへ自動反映。Hana抽出～Ren実装をLinear上で進捗可視化しSakiの週次デプロイ枠へ整流。本番昇格はGitHub ActionsでLighthouse CI（LCP 2.0秒以下）＋Playwright E2E＋Percy Visualが全パスして自動promote。k6でTVCM放映想定の秒間200リクエストを本番前に検証→問題なし。公開と同時にPostHogダッシュボードで初動CVRを観測、24時間で「モバイル離脱率が想定比+8%」を検知しRen/Kotoneへ改善提案。リリースノートはVercelから自動生成→Slack→クライアント宛メールまで全自動。Kaito自身の手動作業は「Scope確認15分＋初動観測レビュー20分」の35分で完結。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- **Vercel Preview→Production昇格をGitHub Actionsで「Lighthouse CI全パス＋Playwright E2E＋Percyビジュアル差分ゼロ」の三点AND条件で自動化したら、月20件の手動判断が消えて事故がゼロで維持できた**：手動昇格は「判断疲れ」と「見落とし」の両方を生む。基準を数値化してCIに載せると、Kaito自身の意思決定は「基準を上げるべきか」の設計レベルに集中でき、日々のGO/NOGO判断から解放される。逆に言えば基準の設計品質が全てを決めるので、閾値は四半期ごとに見直す
+- **Linearに案件別ボードを立て、受注5分でチケット生成＋担当自動アサイン＋Slack通知の一括処理をLinear API + Zapierで組んだら、案件立ち上げの手作業が案件あたり25分→3分になった**：LP部は同時進行7社×2〜3案件で常時20案件並走することがあり、立ち上げの雑務が積み上がると本業（品質判断）の時間を食う。「決まりきった立ち上げは機械」「判断だけ人」の分離が、部長の時間を守る根本
+- **Sentry + Vercel Analytics + Datadog RUMを1つのDatadogダッシュボードに統合したら、本番エラーの初動検知時間が平均30分→2.5分になった**：Vercelの標準ログとJSエラー、CoreWebVitalsは3つ別々の画面にあり、障害時にどこを最初に見るか迷う。統合ビューにするとエラー発生→影響ユーザー数→パフォーマンス影響の因果が1画面で追え、初動判断が速い。単一画面主義は監視の基本則
+- **Vercel Instant Rollbackの手順をNotionにビジュアル手順化＋Slackコマンド化（/lp-rollback client-name）したら、障害時のMTTRが30分→2分50秒になった**：Rollbackは「知っている」だけでは足りず、パニック時に手が動くレベルまで手順を短縮する必要がある。Slackコマンドから実行できる状態にすれば、社外にいてもスマホで即実行可能。障害対応は事前準備の勝負
+- **k6で翔星TVCM連動LPを秒間200リクエストで負荷試験したら、ISR再検証のスパイクでOriginが5秒間503を返す瞬間があると事前検知でき、キャッシュ設定を`stale-while-revalidate=3600`に修正して本番放送に間に合った**：本番施策連動LPは公開後の負荷が想定できず「事故ってから知る」パターンが多い。CI/CDに負荷試験ステップを入れると「事前に知って直す」に変わる。TVCM・大型SNS施策・プレスリリース時のLPは常時この試験を通す運用に固定

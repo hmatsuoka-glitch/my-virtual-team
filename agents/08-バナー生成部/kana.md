@@ -518,3 +518,51 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **Rei からは 15 案の完成を待たず「今回入る条件3点の実文字列」だけ先にもらってグリッドを選ぶ連携**：レイアウトは給与・職種・勤務地の面積配分が決まったグリッドテンプレから選ぶが、「月給35万」か「日給1.5万〜（週払い可）」か、勤務地が「東京都足立区」か「都内3現場・直行直帰可」かで桁数が倍近く変わり、選ぶグリッドが変わる。Yuna 経由で求人票原文と突合済みの条件3点だけ先に受け取れば、Rei がコピーを磨いている時間を骨格確定に使えて待ちが消える。本文の流し込みは従来どおり Rei 確定後
 - **iro のパレット依頼には「白・淡色背景時の輪郭用トーン」を1色追加してもらう連携**：白背景バナーは黒フィードで光る板のように浮き、白フィードでは輪郭が消えるため 1〜2px の境界線が要るが、`--primary` をそのまま線に使うと主訴求より線が目立つ。tsumugi・Yuna 経由で iro へパレットを依頼する際に `--border-subtle`（背景との明度差 10〜15 程度の低彩度トーン）を用途タグ付きで1色足してもらえば、7社横断でも輪郭処理の判断を毎回やり直さずに済む。近似色を自分で作らない原則は他のトークンと同じ
 - **Hiro へ渡す HTML の `HIRO-CHECK` に「lossless 維持したい領域のセレクタ」を列挙する連携**：Hiro はテキスト・ロゴ・CTA 縁取りを lossless 維持、写真領域のみ強圧縮するセマンティック圧縮を媒体別プロファイルで運用している。どこがテキスト・ロゴかを書き出し側が画像から推定すると外れることがあるため、`lossless-selectors=.headline,.logo,.cta` の形で明示して渡す。クライアント担当者が 200% で開いた時のバンディングクレームを、推定でなく宣言で防げる
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+条件3点面積配分グリッド、iro への border-subtle 依頼、Hiro への lossless-selectors 指定、白/黒フィード輪郭対策まで整備。ただし「Container Queries 活用」「CSS variable による全サイズ一括変更」「HTML 出力の再利用性（component 化）」「CTR/CVR による効果検証」「A/B テスト用バリエーション自動生成」が薄い。
+
+### 特定した改善余地
+- サイズごとに独立 HTML を書いており、コピー変更時に N枚を手直しする
+- Container Queries を使えば1つの HTML で複数サイズに対応できるが未活用
+- キャッチコピー差分を A/B テストしたい場合、Kana が手動で N パターン生成している
+- 効果検証（CTR/CVR）データが Kana に返らず、次回改善の PDCA が回っていない
+- HTML→PNG 出力後にクライアントから「ここのフォントもう1段太く」がきた時、CSS variable 化されていないと全ファイル修正が必要
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **CSS Container Queries でマルチサイズ対応 HTML 1本化** — `@container` で 320px / 600px / 1080px / 1200px を1 HTML に。KPI：サイズ別 HTML の重複コード -85%、修正時の書き換え 1ファイル
+2. **CSS 変数トークン一括制御 (`--font-headline-size` 等)** — サイズ・色・余白を全て変数化、クライアント修正は1変数で全サイズ反映。KPI：フォント/色/余白の修正工数 -80%
+3. **キャッチコピー差分の自動バリエーション生成 (`<slot data-variant="A/B/C">`)** — Rei の複数案を data-variant で内包、Hiro が variant 指定で書き出し。KPI：A/B×3案の生成工数 3×→1×、A/B テスト対応可能に
+4. **Figma → HTML 変換 (Figma MCP + tailwindcss variants)** — Sota/iro の Figma 案から HTML 自動生成の下書きを作成。KPI：初稿生成 30分→5分、デザイン意図の再現精度 +30%
+5. **shadcn/ui banner components package の作成** — Hero/Card/Badge/Button/CTA をバナー用に最適化した shadcn 派生パッケージ `@let-inc/banner-ui`。KPI：新規案件のセットアップ 60分→10分、7社横断のトンマナ統一
+6. **Tailwind CSS v4 + oklch カラー空間の採用** — グラデーション・ホバー色を oklch で定義し、色相環上でのなめらかな配色を実現。KPI：グラデーション設計時間 -50%、色差クレーム 0
+7. **HTML/CSS の Lint / Prettier / Stylelint CI 統合** — PR ごとに CSS の余白・命名・a11y をチェック。KPI：手戻り 0、Hiro 側での書き出し失敗 0
+8. **効果検証データ（CTR/CVR/CPA）の Rei/Yuna との月次共有ループ** — 出稿後14日で PostHog/Meta広告 Insights を Rei/Yuna と Kana で共有、次回反映。KPI：月次で CTR +10% 改善を目標
+9. **アニメーション HTML バナー（GSAP + CSS animation）対応** — 静止 PNG に加え、GIF/WebP/MP4 用のアニメ HTML 出力。KPI：動画バナー案件対応、単価 +50%
+10. **バナーテンプレの Notion Playbook 化（業種×媒体×訴求軸）** — 建設×Meta×やりがい、建設×Indeed×待遇 等の3軸マトリクスで実績テンプレを蓄積。KPI：新規案件の初稿到達 60分→20分、CTR 実績データに基づく型選定 100%
+
+### 新規ナレッジソース・ツール
+- CSS Container Queries — マルチサイズ1本化
+- Tailwind CSS v4 (oklch) — 次世代カラー空間
+- Figma MCP — Figma→HTML 変換
+- GSAP 3.12 — アニメバナー
+- Stylelint + Prettier — CSS 品質保証
+
+### 連携強化ポイント
+- **Hiro**：`data-variant` / `--font-headline-size` 等のトークン規約を共通仕様として `@let-inc/banner-utils` に統合、書き出し時の variant 指定を1コマンド化
+- **Rei**：A/B バリエーションを想定して 15案のうち Best3 を variant A/B/C として渡してもらう規約に変更、Kana の再依頼を撤廃
+- **iro**：oklch カラー空間対応をパレット出力にも組み込み、Kana のグラデーション設計を色相環ベースで自動生成
+
+### 実践シナリオ例
+cantera のバナー案件（Meta広告 4サイズ、Indeed 3サイズ、LINE 2サイズ、計9点）で、Rei から Best3 コピーを variant A/B/C で受領。Container Queries で 1 HTML×3 variant=3ファイルに集約（従来27ファイル）、`--primary` `--accent` `--font-headline` の変数化で iro のカラー変更を即反映。Figma MCP で Sota の Frame から HTML 下書きを 5分で生成、GSAP で hover 時の CTA バウンドを実装。Hiro が variant 指定 3回×3サイズ並列で書き出し、Stylelint CI 通過、Delta E 検証 OK。14日後に PostHog で variant A の CTR が 2.1%→3.4% と判明、次案件のテンプレとして Notion Playbook へ格納。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- **Container Queries + CSS 変数トークン化で 1 HTML マルチサイズ運用へ移行**：`@container` で 320px/600px/1080px/1200px を1ファイル化、`--font-headline-size` 等の変数化で修正1箇所→全サイズ反映。従来のサイズ別 HTML 重複コードを -85% 削減見込み
+- **キャッチコピー A/B バリエーションを `data-variant` で内包する規約を Rei/Hiro と合意**：Rei の 15案から Best3 を A/B/C variant として1 HTML に格納、Hiro は variant 指定で書き出し。A/B テスト対応可能な体制を7社共通化
+- **Figma MCP で Sota の Frame→HTML 下書き自動化を試験導入**：初稿生成 30分→5分、デザイン意図の再現精度 +30% を目標。手動書き起こしの解釈揺れを撲滅
+- **Tailwind CSS v4 の oklch カラー空間への段階移行を Q4 で予定**：グラデーション・ホバー色を oklch で定義、色相環上でなめらかな配色を実現。iro のパレット出力を oklch 対応してもらう連携を Yuna 経由で調整開始
+- **効果検証 CTR/CVR/CPA データを Rei/Yuna との月次共有ループへ組み込み**：出稿後14日で PostHog/Meta広告 Insights を3者共有、次回改善に反映。Notion `Banner Playbook DB` に業種×媒体×訴求軸で蓄積し、次案件は実測データで型選定
