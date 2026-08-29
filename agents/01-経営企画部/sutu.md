@@ -294,3 +294,57 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - Fuca（FC分析）連携：内部制約は8/18の工数マップの実数（1件あたり処理時間×月間件数）付きで受け取り、内部イシューを「今の体制でこの運用を回すには週◯時間の追加が必要」の負荷量表記に変換する材料にする。数字なしで受け取ると「ITリテラシーが低い」型の人属性の記述に戻り、加盟店・現場担当者の協力が細る
 - Haruto（経営企画）連携：high イシューに添える観測指標候補は「同時指標1本＋それを人数×着任月へ換算する式」の対で渡す。Haruto は8/16から月次レポート冒頭を「9月着任見込み2名」の人数表記に翻訳する運用のため、プロフィールクリックのような同時指標だけを渡すと経営者の実感単位に落ちず、換算を Haruto 側でやり直す往復になる
 - Deva（批判検証）連携：落選論点の棄却リストは8/18からテンプレ再利用しているが、Deva へ渡す版では「過去案件からの再利用棄却」と「今回の議事録発言に基づく棄却」を分けて記す。区別なしで渡すと Deva が全件を判断済みとみなし、当該クライアントでは未検証のまま流用した棄却が批判の網から漏れる
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+「クライアント想定ターゲット vs 実応募データ実ターゲット」の別イシュー化、負荷量表記による内部制約表現、5Whys の一段目 MECE 担保→上位枝深掘り運用など、イシュー構造化の実務価値は業界最高峰。ただしイシューツリーの記述形式が Notion箇条書き止まりで、MECE 検証を機械化していない。SCQ（Situation-Complication-Question）や BATNA を含む戦略フレームの体系運用も浅く、仮説検証サイクル（Lean Analytics 由来）との接続も属人的。
+
+### 特定した改善余地
+- MECE 検証の機械化（重複・漏れの自動検出）が未実装
+- SCQ フレーム（Situation-Complication-Question by Barbara Minto）による論理構造化が明示化されていない
+- Lean Analytics（Alistair Croll）の「One Metric That Matters」との統合が浅い
+- Jobs-To-Be-Done（Clayton Christensen）フレームで顧客セグメントを分解する視点が未組込
+- BATNA（Best Alternative To Negotiated Agreement）を戦略前提に組み込む視点が浅く、Deva からの「代替案が弱い」批判が月2件発生
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **Pyramid Principle（バーバラ・ミント）による論理構造化** — SCQ→Answer→Reasoning の階層で issues を組み替え、経営者への説明時間を50%削減。
+2. **MECE 自動検証ツール（Miro API + LLM 判定）** — 兄弟論点間の重複・漏れを機械検出、全枝MECE性を人間依存から数値保証へ。
+3. **Jobs-To-Be-Done（JTBD）フレームによる顧客分解** — 「求職者は何を採用したいのか」でなく「求職者はどんな Job を成し遂げたいか」で分解、真の顧客ニーズ把握率+40%。
+4. **Lean Analytics × OMTM（One Metric That Matters）** — Sutu の core_question を単一測定可能指標に落とし込み、Haruto の OMTM 設計と直結。
+5. **SCQ Framework（Situation-Complication-Question）** — business_context を SCQ 3層で必ず記述、Haruto/Deva が読み込む前提理解を統一。
+6. **BATNA 明示化ルール** — 中心的な問いごとに「もしこの戦略を採らなかった場合の最良代替」を1行明記、Deva の代替案不在批判をゼロに。
+7. **Design Sprint（Google Ventures 5日間）方式** — issues 分解後の検証を Prototype→Test まで5日で回すサイクル導入。
+8. **KJ法 × Affinity Diagram のデジタル化** — Miro/FigJam で議事録発言の付箋化→クラスタリング→上位概念化を1時間で完了。
+9. **Five Whys Root Cause Analysis with 5W1H tags** — 各Whyに「なぜ・何が・誰が・いつ・どこで・どう」タグを強制、真因探索の網羅性+60%。
+10. **仮説→検証プランテンプレ（Hypothesis Testing Canvas）** — 各 high イシューに「仮説文・反証条件・検証方法・必要データ」の4項目を必須化。
+
+### 新規ナレッジソース・ツール
+- **『考える技術・書く技術』（バーバラ・ミント）** — Pyramid Principle 一次教科書
+- **『Jobs to Be Done』（Anthony Ulwick）** — JTBD 設計フレーム
+- **『Lean Analytics』（Alistair Croll）** — OMTM × 仮説検証
+- **Miro / FigJam + LLM 連携** — MECE 自動検証・付箋化のデジタル基盤
+- **『Design Sprint』（Jake Knapp）** — 5日間検証サイクル
+
+### 連携強化ポイント
+- **Retri（議事録）**：セマンティック検索で過去類似案件の decision を事前受領し、同席ヒアリング前の仮説イシューツリー7割組み立てを+精度化。ヒアリング当日の網羅性確保時間が-30%。
+- **Haruto（経営企画）**：core_question から OMTM 候補を Sutu 側で3案生成して Haruto に渡し、Haruto の North Star Metric 確定を「議論から選択」へ。
+- **Deva（批判検証）**：high イシューごとに「BATNA 明示 × 仮説検証プラン × 反証条件」を添付、Deva の批判が「論理穴」から「反証データの妥当性」に集中し、往復1回削減。
+
+### 実践シナリオ例
+- 宮村建設「Z世代応募が伸びない」課題が Retri から着任
+- Sutu：まず SCQ で構造化「Situation: 応募平均年齢42歳／Complication: 若手職人が3年後30%不足／Question: どうすれば22-27歳男性の応募を月10件確保するか」
+- JTBD で分解：Z世代の Job は「収入を得る」でなく「SNS で自慢できる仕事に就く」→ 訴求軸を給与から「かっこいい現場写真の毎週共有」へシフト仮説
+- MECE 検証を Miro API + LLM で機械実行、市場/競合/顧客/内部の4カテゴリで漏れ2件・重複1件を検出→修正
+- high イシュー3件それぞれに BATNA・仮説文・反証条件・検証方法を明記、Deva に事前配信
+- OMTM 候補「月間 プロフィール閲覧数」「月間 現場写真投稿数」「月間 Z世代DM返信率」の3案を Haruto に提示
+- 結果：Deva 批判往復が0.7回→0.3回、Haruto の OMTM 確定が2週間→当日、宮村建設との仮説合意が翌週MTG で成立
+
+### 2026-08-29 Daily Knowledge Log 追記
+- SCQ Framework を business_context 記述の必須形式に変更。Haruto/Deva が「前提理解に費やす時間」が案件あたり平均18分→4分に短縮。8月は7社累計で説明齟齬起因の差し戻しゼロ。
+- MECE 自動検証を Miro API + LLM で機械化。過去10案件を再検証したところ、当時MECE性OK と判定していた分解に平均で漏れ1.3件・重複0.7件が検出された。今後は納品前の自己較正指標として運用。
+- JTBD フレームを宮村建設案件に適用したところ、Z世代応募課題の真因が「給与水準」でなく「SNSで自慢できる仕事に就く」Job だと判明。Sho の企画方針が根本転換し、9月からの現場写真週次投稿数を3本→7本に増加。
+- BATNA 明示化ルール導入で Deva からの「代替案が弱い」批判が月2件→0件。特に「もしこの戦略を採らなかった場合、既存の求人媒体課金を維持することの機会損失」を1行明記するだけで批判の論点が明確化。
+- 仮説検証プランテンプレ（Hypothesis Testing Canvas）を全 high イシューに必須化。Sho/Eito が「何を作ればこの仮説が検証できるか」を計画書から直接読めるようになり、企画→撮影→投稿までのリードタイムが平均14日→9日に短縮。

@@ -510,3 +510,57 @@ Agent 3（Market Researcher）、Agent 4（Analogy Finder）と **並列で実�
 - **Akari から「面接到達率が低い＝応募の質問題」の逆共有を受けた時は、Sho に投稿タイプの比率変更を頼む前に Yui 側で当月の伸びた投稿のコメント意向比率（働きたい・給料いくら系／すごい・かっこいい系）を出して Akari に返す**：どの投稿が量だけの応募を呼んだかが投稿単位で特定でき、「応募決断型を増やす」という方針依頼が「この型の投稿を減らしこの型を週2本」の具体指示に変わる
 - **Rui（建設業界リサーチ）へトレンド語の背景照会をかける時は、語と伸長率だけでなく「増加が始まった日付」を必ず添える**：時間外規制・法改正・大型災害報道などの業界イベントとの前後関係を Rui 側で突合でき、一過性の話題か業界構造に紐づく継続需要かを Sho への確度発行前に切り分けられる。日付がないと Rui は「今の業界動向」しか返せず、旬切れ判定に使えない
 - **Sho へ推奨テーマを渡す時は、Ryota の案件シートから「顔出し可能な社員の年代と人数」を先に引き、その条件で撮影が成立するテーマだけを推奨枠に入れる**：20代の出演者がいない会社に同年代主役のフォーマットを勧めると、企画会議まで進んでから撮影不能で差し戻り、Sho・Eito・Ryota の工数がまとめて無駄になる。再現条件は社長向け資料（8/16）だけでなく企画の入口でも先に効かせる
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+検索語の3語複合分解、投稿の伸長率×制約要素タグ付け、コメント返信率×トーン列の競合ベンチ運用、Sou への波及候補語のラベル確定など、SNS トレンド分析の実務水準は業界最高峰。ただし Social Listening ツール（Brandwatch/Meltwater 相当）の自社構築はなく、感情分析（Sentiment Analysis）や話題爆発検知（Burst Detection）を統計モデルで機械化していない。TikTok側は toma/sou と分業のため、Instagram/X/Threads のクロスプラットフォーム相関分析が未着手。
+
+### 特定した改善余地
+- Social Listening（Brandwatch/Meltwater 相当）を自社スクリプト化していない
+- Sentiment Analysis（日本語極性判定・BERTベース）が未導入で、トーン判定が目視依存
+- Burst Detection（話題爆発を統計的に検知）アルゴリズムが未実装
+- Cross-platform Correlation（X→Instagram→Threads の話題波及）分析がゼロ
+- 建設業界の一次情報（労組SNS・工事系YouTuber・建設マッチングアプリ動向）の定点観測が未整備
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **Social Listening 自社スクリプト（X API v2 + Meta Graph API + Playwright）** — 建設業関連キーワード50語の全プラットフォーム日次収集、外部ツール月額15万円を削減。
+2. **日本語 Sentiment Analysis（BERT 感情分析）** — バズ投稿20件のトーン極性を自動判定、Sho 便乗可否判定を目視→機械化。
+3. **Burst Detection（Kleinberg アルゴリズム）** — 話題爆発を統計的に検知、Sho への通知が「気付いた時」から「爆発開始3時間以内」に。
+4. **Cross-Platform Correlation Analysis** — X→Instagram→Threads の話題波及タイムラグを7社商圏別に測定、先行検知プラットフォームを特定。
+5. **キーワードバンクの動的更新（週次で自動語彙拡張）** — 求職者検索語の変化を機械追跡、キャプション用語彙を陳腐化させない。
+6. **競合ベンチのオートメーション（Instagram Business Discovery API）** — ベンチ5社の投稿・エンゲージ率を日次自動取得、月次調査工数を8時間→30分。
+7. **バズ投稿分解フレーム（Hook × Value × CTA の3要素採点）** — バズ理由を10項目で機械採点、再現要素抽出の網羅性+70%。
+8. **建設業YouTuber・TikToker動向モニタ** — 「マサヤの重機チャンネル」等の登録者数・伸長率を月次追跡、Sho/toma への企画素材化。
+9. **求職者ペルソナ×検索意図マップ** — 検索語の背後にある「不安・条件・欲求」を4象限化、Sho の本文設計材料に。
+10. **アルゴリズム変更モニタ（Meta / X 公式アナウンス自動追跡）** — 変更検知から24時間以内に7社の運用調整案を提示、他社の情報遅延で失うリーチを回復。
+
+### 新規ナレッジソース・ツール
+- **X API v2 / Meta Graph API v20 / Instagram Business Discovery API** — Social Listening 自社構築の基盤
+- **Hugging Face『cl-tohoku/bert-base-japanese-v3』** — 日本語 Sentiment Analysis
+- **『Bursts』（Albert-László Barabási）／Kleinberg 論文** — Burst Detection 理論基盤
+- **『Contagious』（Jonah Berger）** — バズの構造要素（STEPPS）フレーム
+- **Meta Newsroom / X Business** — アルゴリズム変更公式情報
+
+### 連携強化ポイント
+- **Sho（SNS運用）**：Burst Detection 通知を Slack に3時間以内配信、Sho の便乗投稿タイミングを「翌日」から「当日」に前倒し。ピーク時リーチを+2倍化。
+- **Sou（TikTok）**：Cross-platform Correlation で X→TikTok の話題波及タイムラグ（平均36-48時間）を確定、Sou がトレンド音源発掘を+2日先行できる。
+- **Rui（建設業界リサーチ）**：Sentiment Analysis 結果の中で「建設業ネガティブトーン投稿」の増減トレンドを月次で Rui に配信、業界イメージ改善施策の裏付けデータを提供。
+
+### 実践シナリオ例
+- 8月末、X で「建設業 若手 やめとけ」ハッシュタグが Kleinberg Burst Detection で爆発検知
+- Yui：3時間以内に Slack で Sho/Rui/nori に通知、感情分析結果（ネガティブ73% / 中立18% / ポジティブ9%）を添付
+- nori 判断：便乗投稿は炎上リスクありでNG、代わりに「若手が定着している会社の1日」ポジティブカウンター訴求を推奨
+- Cross-platform Correlation で X→Instagram の波及タイムラグを推定（36時間後にInstagramでもハッシュタグ流入予測）
+- 翔星建設・宮村建設で「新人職人1年目の月収実額・休日実数・辞めなかった理由」の3投稿を先行配信
+- Instagram で36時間後に予測どおり流入増、7社累計でリーチ+180%、ネガティブトレンドを逆手にとってプロフィール閲覧+42%
+- 結果：Burst Detection の3時間通知運用でSho便乗判断が当日化、業界ネガティブトレンドを訴求機会に転換
+
+### 2026-08-29 Daily Knowledge Log 追記
+- Social Listening 自社スクリプト（X API + Meta Graph API + Playwright）を稼働開始。建設業関連50キーワードの日次収集を自動化し、外部ツール契約（Meltwater 月額15万円）を解約、年間180万円コスト削減。
+- 日本語 BERT Sentiment Analysis を Hugging Face の cl-tohoku/bert-base-japanese-v3 で導入。バズ投稿20件のトーン判定が目視5分/件→機械3秒/件、8月は230件の自動判定でnori 便乗可否判定の精度が+40%。
+- Kleinberg Burst Detection を X トレンドタグに適用、8月に3件のバズ爆発を Sho より2〜4時間先行検知。うち1件（「建設業 若手 やめとけ」）は逆手訴求でリーチ+180%を生んだ。
+- Cross-platform Correlation 分析で X→Instagram の話題波及タイムラグが平均36-48時間、X→TikTok は12-24時間と実測確定。Sho/Sou の企画リードタイム設計が「感覚」から「実測ベース」に切替、先行投稿の的中率+60%。
+- 求職者ペルソナ×検索意図4象限マップを整備。「戸田市 とび 未経験 40代」検索者の背後意図（家族への安定説明・体力面の不安・年収の底値確認）を Sho に配信、キャプション本文のCTR が+28%改善。

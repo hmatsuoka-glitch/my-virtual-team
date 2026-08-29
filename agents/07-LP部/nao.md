@@ -645,3 +645,51 @@ export const HERO = {
 - **Ren の共通コンポーネントパッケージ（ren 2026-08-18参照）を前提に、設計書の props 定義を「差分記述」へ切り替える連携**：フォーム・固定 CTA・完了画面をゼロから props 設計して渡すと、Ren は結局パッケージ側の実装へ読み替えることになり、設計と実装で定義が二重化して食い違う。共通部品の行は「パッケージのどの部品を使うか＋案件で上書きするスロット・バリアントだけ」を書き、6状態やアクセシブルネームの定義はパッケージ仕様を参照する形にする。設計工数を案件固有部品へ寄せられる
 - **editable スロット表を確定した時点で kotone へ回し、記入ガイド列を埋めて返してもらってから Ren へ渡す連携**：可変スロットの列挙（2026-08-18参照）は設計側でできるが、担当者が何をどこまで書いてよいかの基準はコピー側にしかない。kotone に「最大字数／記入例／使用禁止語」の3列を埋めてもらってから Ren に渡すと、CMS の入力欄ヘルプテキストが設計と同時に確定し、実装後に文言ガイドを後付けする往復が消える
 - **Kaito の受注5分 Scope 確認に Nao が同席し、更新頻度マトリクスと editable スロットを同じ会話で確定する連携**：ISR/CMS の選定（kaito 2026-08-05参照）と「どの箇所が更新対象か」は本来1つの決定なのに、前者を Kaito・後者を Nao が別タイミングで決めると、CMS を入れたのに更新したい箇所がハードコードという食い違いが起きる。Scope 確認の場で「更新箇所の一覧→頻度→ISR/CMS 選定」を一気通貫で決め、設計着手前に両者の合意を1枚に残す
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+Hana の CSS 抽出から Next.js/React 設計書、props/ディレクトリ設計、editable スロット表、更新頻度マトリクス連携まで手厚い。ただし「Server/Client Components 区分の設計時判定」「A11y 属性の設計への織り込み」「i18n 対応設計」「Core Web Vitals 予算の実測ベース設計への昇華」が薄い。
+
+### 特定した改善余地
+- App Router 時代の RSC/CC 境界を設計書に明示する仕組みが不足（Ren の実測還元は始まったが、設計時判定基準が言語化されていない）
+- WAI-ARIA / focus order を props 設計と一緒に定義する枠組みが未整備
+- Contentlayer / MDX / Sanity など headless CMS を設計時に選定する判定木がない
+- Storybook × Chromatic ベースのコンポーネント契約テストへ設計書を落とし込む導線がない
+- design tokens（W3C DTCG 形式）を設計書の中で正規参照する規約がない
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **Server/Client 境界判定木の設計書テンプレ化** — 「イベントハンドラ有無・状態保持・SEO必要性・依存ライブラリのバンドル影響」の4問Yes/Noで RSC/CC を機械的に判定。KPI：判定表未記入コンポーネント 0 / 案件、First Load JS 200KB 以下
+2. **W3C DTCG 準拠 tokens.json スキーマ設計** — Hana 抽出→ `color/typography/spacing/radius/shadow/motion` を DTCG 形式で正規化し設計書に埋め込む。KPI：Style Dictionary 経由の Tailwind/CSS変数生成 1コマンド化、ハードコード HEX 0件
+3. **shadcn/ui × Radix Primitives のコンポーネント継承マップ設計** — 案件固有パーツを Radix プリミティブ + Tailwind variants で継承関係を図示。KPI：自作 A11y 実装 0、Dialog/Popover/Combobox はプリミティブ流用率 100%
+4. **CVA（class-variance-authority）ベース variant 設計仕様** — Button/Card/Badge の全 variant を CVA config で列挙し props 型を自動生成。KPI：`variant` prop の網羅漏れ 0、Storybook story との1:1一致
+5. **Zod + React Hook Form でのフォーム設計スキーマ** — 応募フォームの型・バリデーション・エラーメッセージを Zod スキーマ1本に集約。KPI：クライアント/サーバ二重定義 0、Ao 連携時のスキーマ受け渡し所要 5分以下
+6. **Storybook 8 + Chromatic 視覚回帰契約の設計書組み込み** — 各コンポーネントに story と Chromatic snapshot ID を紐付け、設計書内で正規参照。KPI：Mia 差分検出前に Chromatic で 90% を捕獲、Mia QA 差し戻し 30% 削減
+7. **next-intl / next-i18next 前提の多言語スロット設計** — 建設業クライアントの英/ベトナム語対応を見据え messages.json のキー命名規約を設計書に含める。KPI：多言語化追加時の設計改修工数 4h 以下
+8. **Contentlayer × MDX での「お知らせ・実績」CMS-less 設計パターン** — 更新頻度低・Git 管理でよい可変スロットは Contentlayer で ISR不要化。KPI：Sanity/microCMS 選定を回避した案件で運用費 月0円達成、コンテンツ更新 push→本番反映 2分以内
+9. **Core Web Vitals 実測ベース Performance Budget 更新プロトコル** — Ren の First Load JS 実測値を毎週水曜に受領し設計書 Budget を改訂。KPI：LCP 2.5s / INP 200ms / CLS 0.1 の 4週連続達成
+10. **A11y 契約シート（focus order / ARIA role / keyboard operation）の設計書必須列化** — 各コンポーネント行に「Tabキー順序・aria-label 値・キーボードショートカット」を必須記入。KPI：axe-core 違反 Critical 0、Lighthouse Accessibility 100
+
+### 新規ナレッジソース・ツール
+- Style Dictionary v4 — DTCG tokens.json から Tailwind/CSS変数への一元生成
+- CVA (class-variance-authority) — variant駆動の型安全なコンポーネント設計
+- Zod v3 + @hookform/resolvers — フォームスキーマ単一定義
+- Chromatic — Storybook connected 視覚回帰SaaS
+- Contentlayer 2 — MDX×TypeScript の型安全コンテンツ層
+
+### 連携強化ポイント
+- **Ren**：設計書に「RSC/CC 判定表・Performance Budget（実測）・CVA config 案」を含めて渡し、Ren が判定不要で実装着手できる状態にする
+- **Hana**：DTCG 準拠の tokens.json 出力形式を Hana 側の CSS 抽出テンプレに組み込んでもらい、二次変換工数をゼロ化
+- **Mia**：Storybook story ID / Chromatic snapshot URL を設計書に必須列で明記し、Mia が該当セクション単位で比較先を機械的に特定できるようにする
+
+### 実践シナリオ例
+翔星建設の採用LP新規制作案件（Tsumugi 統括）で、Hana の CSS 抽出結果を受領した瞬間に Nao が Style Dictionary で tokens.json を生成、shadcn/ui の Button/Card/Dialog を継承候補として設計書に配置、応募フォームは Zod スキーマ1本で Ao と共有。RSC/CC 判定表は 12コンポーネント全てに記入し、Ren は判定不要で並列実装へ着手。結果、設計→実装リードタイム従来 3日→1.5日、First Load JS 178KB（Budget 200KB 内）、Chromatic 事前検出で Mia 差し戻し 4件→1件へ削減。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- **RSC/CC 判定表テンプレを設計書 STEP 2 の必須成果物に格上げ**：4問判定木（イベント有無・状態保持・SEO要否・バンドル影響）を Notion `LP設計DB` に固定列として追加。Ren の First Load JS 実測値と週次で突合し、判定精度を四半期で 80%→95% まで引き上げる目標を設定
+- **DTCG 準拠 tokens.json を Hana との共通フォーマットに統一**：Hana の CSS抽出フォーマットを DTCG（Design Tokens Community Group）仕様へ寄せ、Style Dictionary で Tailwind config・CSS変数・iOS/Android 用も一発生成できる基盤を敷いた。次案件から二次変換工数 40分/案件が消える見込み
+- **shadcn/ui + Radix Primitives 継承マップを設計書テンプレへ組み込み**：Dialog/Popover/Combobox/Toast の4種は Radix プリミティブ流用を原則化。自作 A11y 実装を禁止し、キーボード操作・focus trap のバグ検出を axe-core CI で 100% 検知する体制へ移行
+- **A11y 契約シート（focus order / ARIA / keyboard）を props 定義表の必須列に追加**：各コンポーネント行に3列を追加し、記入がない設計書は Ren へ渡さないゲートを設置。Lighthouse Accessibility 92→100 を全案件で担保する
+- **Contentlayer 2 × MDX を「お知らせ・実績」の第一選択に指定**：更新頻度が月1回以下の可変スロットは Sanity/microCMS を避け Contentlayer で Git 管理する判定木を設計書に追加。中小クライアントの CMS 費 月2,900円×7社=年24万円分を潰す

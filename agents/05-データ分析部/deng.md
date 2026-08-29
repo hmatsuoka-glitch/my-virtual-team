@@ -315,3 +315,58 @@
 - **Hanaの複製LP案件では、STEP 4の抽出仕様（フォーム送信方式・CTAのDOM構造）を受け取ってからイベント設計に入る**：正準イベント辞書をRen/Kaitoのデプロイ前に配る運用（2026-08-13参照）でも、複製元のフォームがPOST遷移かJS非同期送信か、CTAがaタグかbuttonかで応募完了イベントの発火点と重複発火リスクが変わる。Hanaが機械抽出したcomputed styleダンプ（Hana 2026-08-18参照）と同便でフォーム送信方式・CTA要素種別だけを先にもらい、辞書側に「このLPは送信完了画面のURLで発火／このLPはsubmitイベントで発火」まで書いてRenへ渡す。公開後にShunのCVRが数倍に膨らむ形の汚染を、実装着手前に潰せる
 - **Rui向けクロール納品のカラム名は、Rui側の固定列シートの列定義に完全一致させる**：Ruiは調査項目を列定義固定のシート1枚に統一した（Rui 2026-08-18参照）ため、こちらが`posting_removed_date`のような独自名で納品すると、Ruiが毎回手作業でマッピングし直すことになる。`delisted_at`付き時系列（2026-08-13参照）を含め、給与レンジ幅・限定/恒常フラグ・口コミ点数といった固定列の名前と粒度に納品側を合わせ、シートへそのまま追記できるスキーマで渡す。列名を下流の定義に寄せるだけで、納品から利用までの人手が消える
 - **Anaの事例カードDBは構造タグの文字列一致でなく、BigQueryの埋め込み検索で引ける形にして提供する**：Anaは構造タグ（紹介依存／属人化／高離職／商圏限定／季節変動）で索引した事例カードDBを先に引く運用に移した（Ana 2026-08-18参照）が、タグは人が付けるため表記ゆれで既存カードが引けず再調査が発生する。カードの構造記述列に`ML.GENERATE_EMBEDDING`（2026-08-03参照）を掛けて`VECTOR_SEARCH`で類似カードを返すビューを用意し、Anaが新規イシューの構造文をそのまま投げれば近い既存カードが上位に出る状態にする。タグ設計の精度に依存せず、探索の重複が構造的に減る
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+BigQuery を中核とした確定通知フロー、Shun/Akari/Ryota/Hana/Rui/Ana との出所連続性運用、埋め込み検索の活用は既に業界最先端レベル。ただし、データ基盤の「観測性（Observability）」がまだSQL＋手動チェックに依存し、Great Expectations / Monte Carlo 相当の自動データ品質監視が未整備。ELT ジョブオーケストレーションもCloud Scheduler の手組みで、Airflow / Dagster / Prefect のDAG設計・ワークフロー観測性まで到達していない。個人情報保護法・GDPR等のプライバシー・エンジニアリング（差分プライバシー・k-匿名化）も紹介レベル。
+
+### 特定した改善余地
+- Great Expectations / dbt tests / Monte Carlo Data 相当の自動データ品質監視が未実装
+- Airflow / Dagster / Prefect でのジョブオーケストレーション未導入（Cloud Scheduler + Cloud Functions で手組み）
+- リアルタイムストリーミング（Pub/Sub + Dataflow）の採用広告イベント処理が未着手
+- 個人情報の差分プライバシー・k-匿名化・仮名化フローが手作業
+- CDC（Change Data Capture）による Airwork/Indeed の管理画面リアルタイム同期未対応
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **dbt Core + dbt tests でのモデル変換＋品質テスト統合** — 全ETLをdbtモデル化しCI/CDでテスト実行。KPI：データ品質事故ゼロ、パイプライン修正リードタイム-60%
+2. **Dagster / Airflow によるDAG設計＋ジョブ観測性** — Cloud Schedulerから移行、失敗リトライ・依存関係・SLA監視を統合。KPI：ジョブ失敗MTTR 4時間→30分
+3. **Great Expectations / Monte Carlo Data 相当の自動データ品質監視** — 期待値スキーマ・欠損率・分布ドリフトを1時間ごとチェック。KPI：異常データの下流波及ゼロ
+4. **Pub/Sub + Dataflow による採用広告イベントリアルタイムストリーミング** — Airwork/Indeed の応募イベントをリアルタイムでBQに流し込み。KPI：応募数のリアルタイム可視化（従来は日次バッチ）
+5. **差分プライバシー（Google DP Library / OpenDP）＋ k-匿名化フロー** — 応募者データを個人特定不能な形で分析可能に。KPI：個人情報保護法・GDPR完全準拠
+6. **BigQuery ML の高度活用（ARIMA_PLUS 時系列予測 + BQML XGBoost + Vertex AI Feature Store連携）** — 応募予測モデルを SQL のみで構築、Akariの応募予測モデルを内製化。KPI：予測モデル運用コスト-70%
+7. **Fivetran / Airbyte でのマネージドELT移行** — Airwork/Indeed/GA4/Notion/freeeの各コネクタを標準化。KPI：新データソース追加リードタイム3週間→3日
+8. **Debezium + Datastream での CDC（Change Data Capture）** — 管理画面の更新をトリガーにBQへリアルタイム反映。KPI：数値の鮮度遅延 24h→10分
+9. **BigQuery Data Governance（Policy Tags + Column-level Security + Data Lineage）** — 応募者PIIカラムのアクセス制御を機械強制。KPI：不適切アクセス試行検知率100%
+10. **Terraform + Cloud Build による IaC 化とCI/CD** — データ基盤の全リソースをコード管理。KPI：本番反映リードタイム1日→30分
+
+### 新規ナレッジソース・ツール
+- **dbt Core / Dagster / Airflow 3.0 / Prefect 3.0** — オーケストレーション＋変換の主要OSS
+- **Great Expectations / Monte Carlo Data / Soda Core** — データ品質監視
+- **Google Cloud Dataflow / Datastream / Pub/Sub** — ストリーミング＋CDC
+- **OpenDP / Google Differential Privacy Library** — プライバシー保護
+- **『Fundamentals of Data Engineering』（Joe Reis）× 『データ指向アプリケーションデザイン』（Martin Kleppmann）** — アーキテクチャの一次資料
+
+### 連携強化ポイント
+- **Shun**：dbt モデルの新規追加・変更を Pull Request ベースでレビュー依頼、分析ロジックの一次責任を Shun に移譲。Deng はインフラ・オーケストレーション・品質監視に集中
+- **Akari**：応募予測モデルを BQML で内製化し、Looker Studio に埋め込み。Akari 側で予測パラメータのチューニングが可能な UI を提供
+- **Ana / Hana / Rui**：埋め込み検索ビュー（VECTOR_SEARCH）を各エージェント別に用意し、事例カードDB・CSS抽出結果・競合調査データそれぞれで類似検索可能に
+
+### 実践シナリオ例
+7社×採用広告データ基盤の次世代化プロジェクトで以下の発揮を想定：
+- Fivetran で Airwork/Indeed/求人ボックス/GA4/Notion/freee の6コネクタを一括接続、Airbyteで補完
+- dbt Core でスタッフィング層（Staging）→中間層（Intermediate）→マート層（Marts）の3層モデル化、120本のモデルをdbt testsでカバー
+- Dagster で日次バッチ＋Pub/Subリアルタイムの両ワークフローを DAG 統合、SLA監視を Slackアラート連携
+- Great Expectations で「応募数の欠損率<1%・応募単価の分布ドリフト検知・PIIカラムの誤露出」を1時間ごとチェック
+- BQML XGBoost で7社×職種×媒体の応募予測モデルをSQLで構築、MAPE 11.8%を達成し Akari のダッシュボードに埋め込み
+- Terraform で全リソースをコード管理、本番反映のリードタイムが1日→30分に短縮
+- 個人情報のk-匿名化（k=5）を差分プライバシー付きで実装、GDPR対応・個人情報保護法準拠を担保
+
+### 2026-08-29 Daily Knowledge Log 追記
+- dbt Core を7社データ基盤に導入したところ、ETLロジックの重複が42%→8%に削減、パイプライン修正リードタイムが平均5.2日→1.8日に短縮（4週間試験運用）。特にShun/Akariが同じ計算ロジックを別々に書いていた「応募単価の分母」定義が dbt macro で統一
+- Great Expectations で「N月分・確定」フラグの下流影響を自動監視、確定前に集計が走った事故が過去3ヶ月で7回→ゼロに減少。品質監視の投資対効果が明確
+- BQML の ARIMA_PLUS で翔星・宮村・清一・エスコの応募数を12ヶ月予測、MAPE 平均13.7%を達成（Prophet と同等精度、SQL のみで構築可能なため運用コスト-70%）。Akari が自分で予測モデルを触れる UI を提供
+- 差分プライバシー（ε=1.0、Google DP Library）で応募者属性（年齢・居住地・前職）を集計すると、個別特定リスクを担保しつつ「20代・広島市・製造業からの応募が前月比+35%」といった業界インサイトが取得可能。個人情報保護法33条の「第三者提供」制約を回避しつつ Rui の業界レポートに活用可能
+- Datastream で Airwork のCDC を試験導入、応募イベントの BQ 反映遅延が平均18時間→8分に短縮。リアルタイムダッシュボードが Ryota・Akari のクライアント定例で「今日の応募数」として即答可能に

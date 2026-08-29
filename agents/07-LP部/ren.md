@@ -673,3 +673,51 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Mia の QA 用属性を共通コンポーネント側に実装済みで出荷し、付与ルールは案件固有部品にだけ残す連携**：`data-testid`／`data-qa-mask` を毎回手で付けると付け忘れが QA 前の差し戻しになり、リファクタのたびに Mia の領域別しきい値も壊れる。パッケージ化したフォーム・固定 CTA・完了画面には属性を組み込んだ状態で渡し、Mia のしきい値とベースラインを部品側に紐づけてもらう。Ren が意識するのは案件固有セクションだけになる
 - **Sota の Hero 3型（人物／現場／数字主役、sota 2026-08-18参照）の骨格を共通パッケージへ先行登録する連携**：型が決まってから毎回 Hero を組むと、条件3点（給与・勤務地・休日）の占有面積や視線順序の実装が案件ごとにブレる。3型それぞれのレイアウト骨格・条件3点スロット・動画使用時の `poster`＋`preload="none"` 前提（2026-08-16参照）を部品として持ち、Sota が型を選んだ時点で実装が構成選択で済む状態にする。体験依存案の FS 依頼も型単位で1回に集約できる
 - **iro／Hana のトークン変更は反映スクリプト（2026-08-18参照）の入力である前提を共有し、キー構造の変更だけは PR で受ける連携**：tokens.json から Tailwind への反映を自動化した後は、iro が手元でキー名や階層を変えると反映が静かに失敗して「色が出ない」になる。トークン原本の変更を「値だけの変更」と「キー構造の変更」に分けてもらい、後者のみ PR 経由で受けて Ren がスクリプト側を追従させる。自動化の前提が壊れる経路を1本に絞る
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+Next.js/React/TypeScript/Tailwind、Framer Motion/GSAP、レスポンシブ実装は堅い。共通コンポーネントパッケージ化・トークン反映スクリプト・QA属性の部品側実装まで前進した。ただし「Edge Runtime 最適化」「Server Actions × フォーム」「Partial Prerendering」「Bundle 分析の日常運用」「Playwright/Vitest の実装セット化」が薄い。
+
+### 特定した改善余地
+- Next.js 15 の Partial Prerendering / React Compiler の設計採用が個別最適で止まっている
+- Server Actions + useActionState でのフォーム実装ノウハウが未整備（Ao へ全部投げる形になっている）
+- Turbopack ビルド運用の統一設定がない
+- Bundle Analyzer の実行が案件末期のみで、実装中に First Load JS が肥大するまで気付かない
+- Playwright の E2E テンプレートが案件横断で共通化されていない
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **Next.js 15 Partial Prerendering (PPR) 実装標準化** — 静的部分と動的部分を1ページ内で共存させ Suspense 境界を実装で切る。KPI：TTFB 200ms 以下、動的部分ロード中の CLS 0
+2. **React Compiler (RC) 有効化＋メモ化棚卸し** — RC で自動メモ化に移行し useMemo/useCallback を撤去。KPI：手書きメモ化 -80%、レンダリング数 30% 削減
+3. **Server Actions × useActionState でフォーム実装** — 応募フォームを Server Actions 1本に集約、progressive enhancement で JS 無効でも動作。KPI：JS 無効環境での送信成功率 100%、フォーム FE コード -40%
+4. **Turbopack + `next build --turbo` 統一運用** — 全案件で Turbopack をビルドに採用、ビルド設定を `next.config.ts` で共通化。KPI：本番ビルド時間 平均 60% 削減
+5. **@next/bundle-analyzer の実装中日次実行 CI 化** — PR ごとに bundle size diff を PR コメントへ出す GitHub Actions を敷く。KPI：First Load JS 増加 +10KB 超で自動 fail、事後発見 0
+6. **Playwright + @playwright/test の共通 E2E テンプレ** — 「トップ表示・応募フォーム送信・404ページ」の3シナリオを全案件で流す。KPI：初期セットアップ 15分、Mia QA 前バグ捕捉 +25%
+7. **Vitest + Testing Library でのコンポーネントユニットテスト常設** — CVA variant を全網羅する snapshot と、フォームバリデーションの Zod スキーマテスト。KPI：主要コンポーネントカバレッジ 80%以上
+8. **Lighthouse CI + web-vitals ライブラリでの本番実測ループ** — Vercel Analytics だけでなく Lighthouse CI をプルリクごとに実行し LCP/INP/CLS を PR コメントへ。KPI：LCP 悪化 PR は自動ブロック、regression 0
+9. **`next/font` + `next/image` 徹底運用マニュアル化** — `<img>` 直書き禁止・Google Fonts 直リンク禁止をルール化し ESLint プラグインで検知。KPI：CLS 由来 LCP 悪化 0
+10. **Vercel Edge Middleware での A/B・国別出し分け実装** — Sota のデザイン A/B 案を Edge Middleware で 50/50 出し分け、Vercel Analytics に variant タグ付与。KPI：施策リリース所要 30分、統計的有意判定まで平均 7日
+
+### 新規ナレッジソース・ツール
+- Partial Prerendering (Next.js 15) — 静動混在ページの標準アーキ
+- React Compiler — 手書きメモ化撤去
+- Playwright 1.48+ — E2E 統一
+- @next/bundle-analyzer / next-bundle-analyzer-plugin — Bundle CI
+- unlighthouse — 全ページ Lighthouse 一括計測
+
+### 連携強化ポイント
+- **Nao**：RSC/CC 判定表・Zod スキーマ・CVA config を設計書内で正規に受け取り、実装時の判定コストをゼロ化。First Load JS の実測値は毎週水曜 Nao へ返す
+- **Mia**：Playwright の snapshot・Chromatic 連携を Ren 側で組み込み、Mia の目視工数を 30% 削減
+- **Kuu / Kaito**：Turbopack ビルド設定と Vercel Analytics タグ規約を共通化し、案件間で設定を書き直さない
+
+### 実践シナリオ例
+宮村建設 LP の複製案件で、Nao から DTCG tokens.json と RSC/CC 判定表を受領し即実装着手。Server Actions で応募フォームを実装、Playwright E2E 3シナリオを CI に組み込み、Lighthouse CI で LCP 2.1s / INP 145ms / CLS 0.03 を PR 段階で担保。@next/bundle-analyzer が First Load JS 189KB を Slack へ通知、Turbopack ビルドで従来 47秒→18秒に短縮。Mia 差し戻しは Chromatic 事前検出により 0件で完了、Kaito のデプロイ枠に予定通り着地。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- **Partial Prerendering を Next.js 15 案件の第一選択に格上げ**：Hero を静的、応募フォーム部分のみ動的で Suspense 境界を切る実装テンプレを共通パッケージへ格納。TTFB 平均 340ms→180ms を7社横断で狙う
+- **React Compiler を全案件でデフォルトオン化**：`experimental.reactCompiler: true` を next.config.ts の共通プリセットに追加、手書き useMemo/useCallback を段階的に撤去（既存案件は3ヶ月で移行）。レンダリング数の実測 30% 削減見込み
+- **@next/bundle-analyzer を PR ごとに GitHub Actions で実行し diff コメントを自動投稿**：First Load JS +10KB 超過 PR を自動ブロック。従来「デプロイ後にサイズ肥大に気付く」ループを潰し、事後 dynamic import 化のやり直し工数を月 8h 削減
+- **Playwright E2E 共通テンプレ（トップ表示・応募送信・404）を LP 部リポジトリ template ブランチへ格納**：新規案件で `pnpm create @let-inc/lp` すると 15分で CI まで整う。Mia QA 前のバグ捕捉率 25% 上昇を目標
+- **Server Actions + useActionState への段階移行を Ao と合意**：応募フォームの progressive enhancement を Ren 側で受け持ち、Ao はメール送信・DB 保存に集中。JS 無効環境（低速回線・古端末）での送信成功率 100% を担保、建設現場からの応募取りこぼしをゼロへ
