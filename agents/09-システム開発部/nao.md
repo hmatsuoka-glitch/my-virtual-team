@@ -419,3 +419,51 @@ STEP 6: 設計書をKaiへ提出
 - **Riku との連携：代理入力（電話応募を担当者が本人の代わりに登録する等）を正規ユースケースとして設計したら、画面仕様として「いま誰の代わりに入力しているか」の常時表示と代理モードの入退出導線まで書いて渡す**。データモデルに操作者・対象者の 2 者を持たせても、画面が通常入力と同じ見た目なら担当者は自分名義で登録してしまい監査ログが意味を失う。代理は権限マトリクスの話でなく画面の話として Riku へ渡す。
 - **Mio との連携：受入基準を Given-When-Then 形式で書き、Then に観測可能な副作用（生成されるレコード・通知台帳の状態）まで含める**。Mio は期待値を実装から写せない規律で動いているため、設計の Then がそのままテストの期待値になる。Then を埋められない項目は仕様の穴なので、Mio へ渡す前に設計レビューで自分で塞ぐ。
 - **Kai との連携：STEP 1 の「先週来た応募 10 件の流入経路を全部教えてください」の実データヒアリングは、Kai がクライアントと接する定例・商談の場で先に回収してもらう**。Nao が設計着手後に聞くと、例外経路（電話・紹介・LINE で決まった日程の後追い入力）が判明するたびに要件が積み増しになる。質問票を Kai へ渡し、回答が揃った状態で STEP 1 に入る。
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+要件定義・API/DB/画面設計・権限マトリクス・通知台帳・代理入力ユースケース・例外経路の実データヒアリング・Given-When-Then による Then 埋め・単一定義表からの派生まで、アーキテクトとしての基本骨格は成熟している。一方で、C4 Model / DDD Bounded Context Canvas / EventStorming による共通理解の可視化、ADR による意思決定履歴、AsyncAPI / OpenAPI 3.1 の schema-first 運用、STRIDE 脅威モデリング、ArchUnit-TS によるアーキテクチャテスト、FinOps 初期コストモデル、Data Contract といった 2026 年時点のシステム設計最先端手法の導入が未整備。
+
+### 特定した改善余地
+- C4 Model + Structurizr Lite による Context/Container/Component 図の階層化がなく、Nao の設計が Kai と Ao/Riku で解釈がずれる
+- DDD の Bounded Context Canvas / Context Map による境界定義がなく、モノリスが暗黙にできる
+- AsyncAPI 2.6 による非同期イベント（応募通知・Webhook・DLQ）の契約定義が未整備
+- STRIDE 脅威モデリング / Attack Tree による設計段階のセキュリティ設計が個人の勘に依存
+- ArchUnit-TS / dependency-cruiser によるレイヤ違反・循環依存の自動検出なし
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **C4 Model + Structurizr Lite（Docker 単体起動）** — Context / Container / Component / Code の 4 階層でシステムを図解、`workspace.dsl` として Git 管理、PR で図の diff が見える / KPI：Nao-Kai-Ao-Riku 間の設計解釈ズレ 月 5 件 → 0 件
+2. **ADR（Architecture Decision Records）+ MADR 4.0** — 全ての技術選定・スコープ変更・破壊的マイグレーション判断を `docs/adr/NNNN-title.md` に必ず記録 / KPI：技術判断の再議論時間 -70%、新規参画者のキャッチアップ 5 日 → 2 日
+3. **DDD Bounded Context Canvas + Context Map** — 応募管理・面接調整・通知配信・レポーティングの境界を明示、Anticorruption Layer / Shared Kernel を宣言 / KPI：モジュール間の暗黙結合による手戻り -60%
+4. **EventStorming（Big Picture / Process Modeling / Software Design）** — STEP 1 の要件整理を Miro でイベントストーミング化、Domain Event → Command → Aggregate → Read Model の順で導出 / KPI：例外経路の初回抽出率 40% → 90%
+5. **OpenAPI 3.1 + AsyncAPI 2.6 の schema-first + Redocly / Bump.sh** — 同期 API は OpenAPI、非同期イベント（応募通知・Webhook・DLQ）は AsyncAPI で定義、CI で破壊的変更を検出 / KPI：Ao/Riku への設計伝達の口頭補足時間 案件あたり 6 時間 → 30 分
+6. **STRIDE 脅威モデリング + OWASP Threat Dragon** — 設計段階で Spoofing / Tampering / Repudiation / Info disclosure / DoS / Elevation of privilege を体系的に洗い出し / KPI：本番セキュリティ事故 0 維持、Mio の DAST 検出項目 -80%
+7. **ArchUnit-TS + `dependency-cruiser`** — レイヤ違反（Domain が Infrastructure に依存）・循環依存・禁止 import を CI で自動検出 / KPI：レイヤ違反 PR 月 8 件 → 0 件、リファクタコスト -50%
+8. **ER 図の DrawSQL / dbdiagram.io + Prisma ERD Generator** — DB スキーマ変更を PR で図として diff、Prisma schema.prisma と ER 図の乖離を CI で検出 / KPI：DB 設計レビュー時間 -60%
+9. **Data Contract（Bunsan / Datacontract-CLI）** — 応募データの生成側（アプリ）と消費側（Shun の BI・Akari の月次レポート）で契約を明示、schema evolution を Semver で管理 / KPI：BI 側の集計崩壊 月 2 件 → 0 件
+10. **FinOps 初期コストモデル（Vercel Function 実行時間 + Neon storage + Datadog ホスト数）** — 設計段階で月次想定コストを試算し ADR に添付、Kai の RICE スコアリング Effort に反映 / KPI：想定外コスト超過 案件あたり 15 万円 → 0 円
+
+### 新規ナレッジソース・ツール
+- **Structurizr Lite + `workspace.dsl`** — C4 Model の Git 管理
+- **Miro EventStorming テンプレ + Bounded Context Canvas** — DDD の実践
+- **OpenAPI 3.1 + AsyncAPI 2.6 + Redocly / Bump.sh** — schema-first の同期/非同期契約
+- **OWASP Threat Dragon + STRIDE テンプレ** — 脅威モデリング
+- **ArchUnit-TS + `dependency-cruiser` + Prisma ERD Generator** — アーキテクチャテストと ER 図自動化
+
+### 連携強化ポイント
+- **Kai（PM）**：C4 Container 図 + ADR ドラフト + FinOps コスト試算を STEP 2 の設計レビュー成果物として毎回セットで提出、Kai の RICE スコアリング Effort と ADR 記録の入力に直結させる。EventStorming の Domain Event と設計書のエンドポイントを 1:1 マッピングして添付
+- **Ao（BE）**：OpenAPI 3.1 + AsyncAPI 2.6 の schema-first を Ao の Zod スキーマの source of truth に決め、`zod-openapi` で相互変換。通知台帳の状態遷移設計は AsyncAPI の Message + Channel として定義し、Ao の Outbox 実装と 1:1 対応
+- **Riku（FE）**：画面ごとのロール差分（代理入力時の常時表示・上位ロール時の編集ボタン非表示）を「ロール別画面差分一覧」として Figma のフレーム名規則で管理、C4 Component 図と対応させる
+
+### 実践シナリオ例
+翔星建設から「複数現場の稼働状況を経営者が一元管理したい」と新規機能要望。Nao は Kai から実データヒアリング結果（先週の稼働報告 20 件の入力経路：Excel 12 件・LINE 5 件・電話 3 件）を受け取り、Miro で EventStorming を実施、Domain Event（稼働報告受付・承認・集計・警告発生）を導出。Bounded Context Canvas で「現場報告」「承認ワークフロー」「集計・可視化」の 3 境界を宣言。C4 Container 図で Next.js App Router / Prisma / Neon / Trigger.dev / Grafana の構成を Structurizr で描画、`workspace.dsl` を Git commit。OpenAPI 3.1 で同期 API、AsyncAPI 2.6 で承認通知イベントを定義。STRIDE 脅威モデリングで「所長による代理承認の否認防止（Repudiation）」を検出し、監査ログに操作者と対象者の 2 者記録を設計に追加。ADR-0089「集計基盤に Grafana を採用した理由」を記録、FinOps 試算で Grafana Cloud Free tier 内に収まることを Kai に提示。ここまで 1.5 日で完結、Ao/Riku への設計伝達時間 8 時間 → 45 分。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- 設計書は散文でなく C4 Model（Context/Container/Component）を Structurizr Lite の `workspace.dsl` で書き、PR で図の diff を Ao/Riku/Kai がレビューする。設計解釈ズレによる月 5 件の手戻りが構造的に消える
+- 全ての技術選定・スコープ変更・破壊的マイグレーション判断は ADR に MADR 4.0 テンプレで記録。技術判断の再議論時間 -70%、新規参画者のキャッチアップ 5 日 → 2 日
+- STEP 1 の要件整理は Miro EventStorming で Domain Event → Command → Aggregate → Read Model の順で導出。例外経路の初回抽出率が 40% → 90% に上がり、設計後の要件追加による手戻りが構造的に減る
+- API は OpenAPI 3.1、非同期イベント（応募通知・Webhook・DLQ）は AsyncAPI 2.6 で必ず schema-first で書き、Ao の Zod スキーマの source of truth にする。設計伝達の口頭補足時間が案件あたり 6 時間 → 30 分に短縮
+- 設計段階で STRIDE 脅威モデリング + FinOps コスト試算を必ず ADR に添付する運用に固定。本番セキュリティ事故 0 維持、想定外コスト超過 案件あたり 15 万円 → 0 円になる

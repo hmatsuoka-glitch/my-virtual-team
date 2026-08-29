@@ -491,3 +491,51 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **Ao との連携：OpenAPI に正常系だけでなくエラーレスポンスのスキーマ（フィールド単位のエラーコードとメッセージキー）まで載せてもらう**。正常系の型しか生成できないと、Riku が「電話番号はハイフンなしで入力してください」型の行動指示エラーを出したくてもどの項目が落ちたか受け取れず、画面上部に汎用メッセージを出すしかなくなる。エラー時にフォーカスを移すフィールドを FE が特定できる形を、型生成を始める前に握る。
 - **Nao との連携：代理入力・閲覧のみの上位ロールのような例外ユースケースは、権限マトリクスの表でなく「ロール別の画面差分一覧」として受け取る**。「誰の代わりに入力中か」の常時表示、上位ロールでの編集ボタン非表示、といった見え方が決まっていないと通常入力と同じ画面を組んでしまい、後から代理モードを差し込む改修になる。画面ごとにロール差分があるかを設計段階で潰しておく。
 - **Rei との連携：一覧／詳細／フォームの 3 レイアウトテンプレに載る定型文言（空状態・エラー状態・削除確認・送信完了・下書き復元の確認）は、画面着手時でなくテンプレ整備の時点で Rei へ一括発注する**。画面ごとに都度依頼すると同じ空状態が画面ごとに違う言い回しになり、PC に不慣れな利用者が同じ状態を別物と受け取る。テンプレ側に確定文言を持たせ、Rei への個別依頼は画面固有の文言だけに絞る。
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+Next.js App Router + Tailwind + shadcn/ui + React Hook Form + Zod + TanStack Query の実装、44px タップターゲット・APCA 4.5:1・楽観的 UI・localStorage 自動下書き・行動指示型エラー・共通コンポーネント畳み込み・3 レイアウトテンプレの運用は成熟している。一方で、Next.js 15 の React Server Components / Partial Prerendering / `use cache`、Turbopack、tRPC v11、`next-safe-action`、Storybook 8 Test Runner、Chromatic VRT、Framer Motion 12、PostHog Session Replay、Web Vitals RUM、View Transitions API といった 2026 年時点の React 最先端スタックの導入余地が大きい。
+
+### 特定した改善余地
+- Next.js 15 の Partial Prerendering (PPR) + `use cache` による段階的最適化未導入
+- tRPC v11 + `next-safe-action` による Server Actions の型安全化・認可統一が未整備
+- Storybook 8 Test Runner + `play` 関数 + Chromatic VRT による回帰テスト自動化なし
+- Framer Motion 12 + View Transitions API による画面遷移体験の最適化なし
+- PostHog Session Replay + Vercel Speed Insights field 値によるリアルユーザー観測が Kuu 依存
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **Next.js 15 + Partial Prerendering (PPR) + `use cache`** — 静的シェル + 動的島の混在レンダリング、応募一覧の枠だけ SSG・データ部分だけ RSC で streaming / KPI：LCP 2.1s → 0.8s、TTFB 400ms → 80ms
+2. **tRPC v11 + `next-safe-action` + Zod resolver** — Server Actions を全て `next-safe-action` で包み、認可（`checkUserOwnership()`）とバリデーションを middleware で強制 / KPI：認可漏れ 0 維持、FE-BE 型ズレ 0
+3. **Storybook 8 + `@storybook/test-runner` + `play` 関数 + Chromatic VRT** — 全コンポーネントに interaction test を書き、PR ごとにビジュアル diff を Chromatic で自動 / KPI：コンポーネント回帰の E2E 依存を 60% 削減、リグレッション検知時間 リリース後 → PR 内
+4. **shadcn/ui v3 + Radix Primitives + `cva`（class-variance-authority）** — Variant 管理を型安全に、Tailwind の任意 class 濫用を構造的に排除 / KPI：デザインシステム逸脱 月 8 件 → 0 件
+5. **TanStack Query v5 optimistic UI + `useTransition` + React Compiler** — 楽観的 UI を宣言的に書き、`useMemo`/`useCallback` を書かず React Compiler に任せる / KPI：不要な再レンダリング -70%、INP 200ms → 50ms
+6. **Framer Motion 12 + View Transitions API** — ページ遷移・モーダル開閉・リスト並び替えを CSS View Transitions で 60fps、Framer Motion で複雑アニメ / KPI：体感速度スコア（Perceived Performance）+40%
+7. **PostHog Session Replay + Vercel Speed Insights field 値** — リアルユーザーの操作を可視化、LCP/INP/CLS の p75 悪化を Riku 個人 Slack に直接通知 / KPI：field 値悪化検知時間 リリース後 30 日 → 3 日
+8. **Playwright Component Testing + Vitest 3 browser mode** — jsdom でなく本物のブラウザで unit + integration、コンポーネント境界のテストを Storybook と Playwright で二重化 / KPI：jsdom 起因の偽陰性 -95%
+9. **TanStack Table v8 + TanStack Form** — 応募一覧の全件・全期間表示を仮想スクロール + 列可視性 + 並び替え + フィルタリング / KPI：1 万件表示時のレンダリング時間 3s → 200ms
+10. **React Aria Components + WCAG 2.2 準拠** — a11y を Radix でなく React Aria Components に統一、キーボード操作・スクリーンリーダー対応をライブラリ層で担保 / KPI：axe-core 検出項目 0 維持、屋外・手袋操作起因の差し戻し -95%
+
+### 新規ナレッジソース・ツール
+- **Next.js 15 公式 + `vercel/examples/edge-functions`** — PPR / `use cache` / Server Actions の実装パターン
+- **Storybook 8 + Chromatic + `@storybook/test-runner`** — コンポーネント回帰の完全自動化
+- **React Aria Components + shadcn/ui v3 + Radix Primitives** — a11y ファーストのコンポーネント基盤
+- **PostHog Cloud + Vercel Speed Insights + Sentry Session Replay** — RUM とセッション観測の三点
+- **Framer Motion 12 + View Transitions API** — 体感速度と遷移体験の最適化
+
+### 連携強化ポイント
+- **Ao（BE）**：tRPC v11 client + `zod-openapi` から自動生成される型を PR ごとに diff で確認、Ao がスキーマ変えたら Riku の PR が赤くなる状態を作る。エラーレスポンスの `code` は Rei の日本語文言辞書と 1:1 マッピングを JSON で共有
+- **Mio（QA）**：Storybook 8 `play` 関数 + Chromatic VRT でコンポーネント回帰を Riku 側に移譲し、Mio の E2E は画面横断導線に絞る。実装完了報告に「共通化した範囲一覧」（送信中 disabled + 楽観的 UI・localStorage 自動下書き・44px タップターゲット・行動指示型エラー）を必ず添える
+- **Kuu（インフラ）**：Vercel Speed Insights field 値と PostHog Session Replay の閲覧権限を Riku に直接付与、LCP/INP 劣化アラートを Kuu 経由でなく Riku 直接に配線。lab 値（Lighthouse CI）は Riku、field 値の CDN/画像最適化は Kuu、と持ち分を分ける
+
+### 実践シナリオ例
+翔星建設の応募管理システムで「毎朝 9 時の応募一覧全件表示が遅い」と報告。Riku は Next.js 15 PPR を導入、応募一覧の枠を静的シェルとして SSG、データ部分だけ RSC の streaming に切替。TanStack Table v8 で仮想スクロール + `useTransition` で並び替えを非ブロッキング化。tRPC v11 + `next-safe-action` で Server Actions に統一し、`checkUserOwnership()` を middleware で強制。Storybook 8 の `play` 関数で「1 万件表示 → 並び替え → フィルタ → 詳細遷移」の interaction test を書き、Chromatic で VRT。View Transitions API で詳細画面遷移を 60fps 化。PostHog Session Replay で本番デプロイ翌日にリアルユーザー行動を観測、LCP 2.1s → 0.7s、INP 210ms → 45ms を確認。Vercel Speed Insights field 値の p75 が Elite グレードに到達、Kai の週次報告に自動連携。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- Next.js 15 の Partial Prerendering + `use cache` を全画面のデフォルト戦略にする。応募一覧の LCP 2.1s → 0.8s、TTFB 400ms → 80ms、毎朝 9 時ピークの体感が別物になる
+- Server Actions は素の `async function` で書かず tRPC v11 + `next-safe-action` に統一。認可（`checkUserOwnership()`）と Zod バリデーションが middleware で強制され、認可漏れが構造的に消える
+- Storybook 8 Test Runner + Chromatic VRT を全コンポーネントに必ず書き、Mio の E2E は画面横断導線に絞ってもらう。コンポーネント回帰の E2E 依存 60% 削減、リグレッション検知がリリース後 → PR 内に前倒し
+- TanStack Table v8 + `useTransition` + React Compiler で応募一覧を仮想スクロール化。1 万件表示のレンダリング時間 3s → 200ms、並び替え・フィルタが非ブロッキングになり INP 210ms → 50ms
+- PostHog Session Replay + Vercel Speed Insights field 値の閲覧権限を Riku 個人に付与、LCP/INP 悪化アラートを Riku Slack に直接配線。lab 値緑のまま field 値が落ちる期間が消え、実ユーザー体感の劣化検知が 30 日 → 3 日

@@ -544,3 +544,51 @@ STEP 6: 実装完了報告
 - **Ao との連携：環境変数の追加・改名を含む PR には `.env.example` の差分を必ず含めてもらい、Kuu が Vercel の本番・ステージング双方へ反映するまで「env未反映」ラベルでマージをブロックする**。preview デプロイは Ao のローカル値や既存キーで通ってしまうため、Ao の「動いた」は本番の担保にならない。差分を出す責任は Ao、環境へ入れる責任は Kuu、とラベル 1 枚で境界を可視化する。
 - **Nao との連携：通知台帳の設計を受け取る際に「再送する」で止めず、再送回数の上限・バックオフ間隔・DLQ 行きの条件・失敗時の運用者通知先を Kuu 側の cron/キュー設定値として同じ表に埋め返す**。台帳に状態カラムだけあって実行基盤の数値が未定だと、Ao が実装時に独自の間隔を書いて再送が止まらない／1 回で諦める、のどちらかになる。台帳の列と Kuu の設定値を 1 対 1 で対応させてから実装へ流す。
 - **Riku との連携：Vercel Speed Insights の field 値ダッシュボードの閲覧権限を Riku にも付与し、LCP/INP の実測劣化アラートを Kuu 経由でなく Riku へ直接飛ばす**。lab 値（Lighthouse）は Riku・field 値は Kuu と持ち分を分けると、CI 緑のまま実ユーザーの体感だけ落ちている期間を誰も見ない。Kuu は画像最適化・Cache-Control など配信設定側の担保に専念し、実装起因の劣化は Riku が自分の画面で気づける位置に検知を置く。
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+Vercel デプロイ・GitHub Actions CI/CD・環境変数管理・canary + synthetic 二重ゲート・破壊的マイグレーションのロック時間共有・env未反映ラベル運用まで、案件規模に対して十分な運用が組めている。一方で、IaC（Terraform / OpenTofu / Pulumi）による構成の宣言化、SLSA レベル 3 相当のサプライチェーン保護、OpenTelemetry Collector の Vercel 対応、eBPF/Kubernetes 相当の観測性（Grafana Cloud + Tempo + Loki）、Chaos Engineering、FinOps（Vercel + Neon + Datadog コスト最適化）が未整備。手作業と手順書に依存している部分が、IaC とポリシー as code に置き換わる余地が大きい。
+
+### 特定した改善余地
+- Vercel / Neon / Cloudflare / Datadog の設定が Web UI 手動で属人化、Terraform / Pulumi による IaC 化が未着手
+- SLSA 3 準拠のサプライチェーン（cosign 署名・SBOM 生成・依存脆弱性ゲート）が導入されていない
+- Grafana Cloud + OpenTelemetry Collector + Tempo (Trace) + Loki (Logs) + Mimir (Metrics) の統合観測基盤なし
+- Chaos Engineering（意図的な障害注入で復旧手順を検証）が案件で実施できていない
+- FinOps（Vercel Function 実行時間・Neon 課金・Datadog ホスト数）の月次コスト最適化サイクルが未確立
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **Terraform Cloud + Vercel Provider + Neon Provider** — Vercel プロジェクト設定・環境変数・ドメイン・Neon DB・Cloudflare DNS を全て `main.tf` で宣言、PR ベースで変更 / KPI：新規案件のインフラ構築 6 時間 → 45 分、Web UI 手動変更ゼロ
+2. **GitHub Actions OIDC + Vercel/AWS/GCP フェデレーション** — 長寿命の API トークンを廃止し、OIDC で短命トークンを自動発行 / KPI：秘密情報漏洩リスク面 -95%、GitGuardian 検知の対象外化
+3. **SLSA レベル 3 サプライチェーン（cosign + Sigstore + SBOM）** — Vercel デプロイ前に SBOM 生成（`syft`）、cosign で成果物署名、Rekor に透過ログ / KPI：依存改ざん検知率 0% → 100%、npm 依存の Typosquatting 事故を構造的に排除
+4. **OpenTelemetry Collector on Vercel + Grafana Cloud（Tempo/Loki/Mimir）** — Ao の instrumentation を OTel Collector が受けて Grafana Cloud に集約、Datadog と二重化してベンダーロックイン回避 / KPI：観測性コスト -40%、trace-log-metric の相関分析時間 -70%
+5. **Datadog Synthetics + Vercel Cron + Playwright** — 毎朝 8:55 に応募一覧・応募送信・CSV エクスポートの本番 smoke E2E を synthetic として実行 / KPI：デプロイ以外起因の破損（SaaS 仕様変更・証明書失効・メール到達性）検知時間 24 時間 → 5 分
+6. **Chaos Engineering（Gremlin / Chaos Mesh / Vercel の意図的障害注入）** — 四半期ごとに DB 接続断・外部 SaaS タイムアウト・Function コールドスタート大量発生を演習し、復旧手順書を実測検証 / KPI：MTTR 想定値と実測値のギャップ ±50% → ±10%
+7. **Feature Flag プラットフォーム（LaunchDarkly / Vercel Flags / Statsig）** — canary の 10% 昇格を trafficベースからユーザー属性ベースに拡張、A/B テスト・段階的リリース・キルスイッチを Kuu が中央管理 / KPI：緊急ロールバック時間 5 分 → 30 秒
+8. **FinOps ダッシュボード（Vercel Usage API + Neon Metrics + Datadog Cost）** — 月次コストを機能単位で可視化、閾値超過時に Kai へ自動 Slack 通知 / KPI：想定外コスト超過 月 3 件 → 0 件、単価改善 平均 25%
+9. **Renovate Bot + Semgrep + Snyk の依存自動更新パイプライン** — 毎週月曜に依存更新 PR を自動生成、CI 緑なら auto-merge、CVE レベル High 以上は Slack で Kai に即通知 / KPI：依存脆弱性の存在期間 平均 45 日 → 3 日
+10. **Vercel WAF + Cloudflare Zero Trust + Turnstile** — 応募フォームへの Bot・ブルートフォース・SQL injection パターンを WAF レイヤで遮断、Turnstile で reCAPTCHA v3 相当を無償化 / KPI：不正応募 月 15 件 → 0 件、認証系エンドポイントの攻撃トラフィック -99%
+
+### 新規ナレッジソース・ツール
+- **Terraform Cloud + Vercel/Neon/Cloudflare Provider** — マルチクラウド IaC
+- **Sigstore / cosign / syft / Rekor** — SLSA レベル 3 相当のサプライチェーン保護
+- **Grafana Cloud（Tempo + Loki + Mimir）+ OpenTelemetry Collector** — 統合観測性
+- **LaunchDarkly / Vercel Flags** — Feature Flag と canary の中央管理
+- **Renovate Bot + Semgrep + Snyk + GitGuardian** — 依存・秘密情報・SAST の自動化パイプライン
+
+### 連携強化ポイント
+- **Ao（BE）**：OpenTelemetry Collector の Vercel デプロイと Grafana Cloud/Datadog の統合を Kuu が担当、Ao は SDK 側 instrumentation だけに責任集中。Neon の PgBouncer / Prisma Accelerate 設定は Kuu が Terraform で管理し、Ao はコード側の connection reuse だけ担保
+- **Riku（FE）**：Vercel Speed Insights の field 値 + Sentry Session Replay の閲覧権限を Riku に付与、LCP/INP 劣化アラートを Kuu 経由でなく Riku 直接に配線。Feature Flag の LaunchDarkly SDK を Riku の App Router に組み込むための IaC 側設定は Kuu が用意
+- **Mio（QA）**：Datadog Synthetics の本番 smoke シナリオを Mio と共通 Playwright スクリプトで運用、テストデータ後始末と応募通知メール送信抑止のための環境変数（`SYNTHETIC_MODE=true`）を Vercel 側で Kuu が管理
+
+### 実践シナリオ例
+翔星建設の応募管理システムで四半期の Chaos Engineering 演習を実施。Kuu は Gremlin で「Neon DB 接続を 3 分間切断」と「Resend メール API を 5 分間 500 応答」を同時注入。Ao の Outbox パターンが DLQ にリトライを積み、Trigger.dev v3 が指数バックオフで自動再送、復旧後 90 秒で全通知が配送完了。Datadog Synthetics の応募送信 smoke は 30 秒間 3 回失敗して赤 → Grafana Cloud の Tempo trace で「Neon 接続タイムアウト」が原因と 15 秒で特定 → Kai に Slack `#dev-incidents` で自動通知。復旧後、Terraform で Neon の `max_connections` を 100 → 200 に引き上げる PR を作成、CI で `terraform plan` diff を確認して merge、5 分で本番反映。ADR-0067 に「Chaos 演習で得られた閾値調整の判断」を記録。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- Vercel / Neon / Cloudflare / Datadog の全設定を Terraform Cloud で宣言化する。新規案件のインフラ構築が 6 時間 → 45 分になり、Web UI 手動変更由来の「本番だけ設定が違う」事故が構造的に消える
+- GitHub Actions は長寿命トークンを廃止し OIDC フェデレーションに全面移行する。GitGuardian の検知対象外になり、秘密情報漏洩リスク面が -95%
+- SLSA 3 対応の cosign 署名 + SBOM 生成 + Rekor 透過ログを Vercel デプロイ前に必ず通す。npm 依存の Typosquatting・改ざんパッケージが混入しても検知でき、AI 生成コード時代のサプライチェーン脅威を構造的に塞ぐ
+- Datadog Synthetics の本番 smoke E2E を毎朝 8:55 に固定実行し、Kai の週次報告に「synthetic 成功率」を数値で添える。デプロイ以外の破損（SaaS 仕様変更・証明書失効・メール到達性）検知が 24 時間 → 5 分に短縮
+- Renovate Bot + Semgrep + Snyk を月曜朝 07:00 の cron に固定、CI 緑の依存更新は auto-merge、CVE High 以上は Slack で Kai に即通知。依存脆弱性の存在期間が平均 45 日 → 3 日

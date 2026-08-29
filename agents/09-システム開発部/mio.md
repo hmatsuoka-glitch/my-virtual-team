@@ -535,3 +535,51 @@ STEP 6: 差し戻し後の再チェック
 - **Nao との連携：受入基準は散文でなく Given-When-Then で書いてもらい、Mio はそれを期待値の唯一の出所にする**。実装の出力から期待値を写すとバグごと固定するトートロジーテストになるため、Then が埋まっていない受入基準は着手前に設計へ差し戻す。Then に観測可能な副作用（生成レコード・通知台帳の状態遷移）まで含まれていれば、Mio は「画面が出た」でなく「処理が通った」をアサートできる。
 - **Ao との連携：通知・メール系のテストを「送信キューに投入されたか」で止めないために、通知台帳の状態遷移（pending → sent → failed／再送回数）を検証できる参照 API かテスト用クエリヘルパを Ao に用意してもらう**。キュー投入までしか見ないと「送ったが届いていない」を緑で通す。応募通知の不達は Severity 最上位（機会損失）なので、検証点を台帳の最終状態まで押し下げる。
 - **Riku との連携：実装完了報告に「共通コンポーネント・共通フックへ畳み込んだ横断要件の一覧」（送信中 disabled ＋楽観的 UI・localStorage 自動下書き・44px タップターゲット・行動指示型エラー）を添えてもらう**。これらを画面ごとに E2E で見るとスイートが画面数に比例して重くなるが、共通側に 1 本書けば全画面分の回帰を賄える。共通化済みの範囲と画面固有の範囲を線引きしてからテスト設計に入る。
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+Playwright / Vitest / RTL / MSW ベースの実装、モバイルビューポート + throttling 固定、実運用由来境界ケース常設スイート、Severity 判定表、Given-When-Then 起票、契約テスト境界と E2E 境界の分離まで、TDD 準拠 QA としての基本骨格は完成している。一方で、Storybook 8 の Test Runner + interaction test + VRT、Playwright Component Testing、Chromatic ビジュアルリグレッション、mutation testing（Stryker）、DAST（OWASP ZAP）、load testing（k6）、a11y 自動監査（axe-core + APCA + WCAG 2.2）、AI 支援テスト生成（Playwright MCP・自己修復セレクタ）といった 2026 年時点の QA 最先端スタックの導入が未整備。
+
+### 特定した改善余地
+- Storybook 8 Test Runner による interaction test + Chromatic での VRT がなく、コンポーネント回帰は Riku 依存
+- Mutation Testing（Stryker）による「テストの品質検証」が導入されていない
+- DAST（OWASP ZAP）・SAST（Semgrep）・k6 load testing の CI 組込みなし
+- Playwright MCP + AI 支援による E2E テスト自動生成・自己修復セレクタが未活用
+- WCAG 2.2 / APCA コントラスト / タップターゲット 24×24 の自動監査が axe-core だけに依存
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **Playwright 1.50+ + trace viewer + AI 自己修復セレクタ** — `data-testid` + `getByRole` を優先し、変更検知時は AI で類似セレクタに自動フォールバック、trace は失敗時のみ保存 / KPI：E2E Flaky 率 8% → 1%、失敗原因特定時間 20 分 → 3 分
+2. **Storybook 8 + `@storybook/test-runner` + Chromatic VRT** — 全コンポーネントに `play` 関数で interaction test を書き、Chromatic で PR ごとにビジュアル diff / KPI：コンポーネント回帰の E2E カバレッジ移譲 60%、E2E 実行時間 12 分 → 4 分
+3. **Vitest 3 browser mode + `@vitest/coverage-v8`** — jsdom でなく本物のブラウザで unit + integration を実行、coverage を Codecov に自動 upload / KPI：jsdom 起因の偽陽性 -90%、coverage 閾値ゲート 80% 維持
+4. **Pact + Pactflow contract tests** — Ao の Zod スキーマから生成した OpenAPI と Riku のコンシューマ契約を Pact broker で照合、CI で契約違反時に PR ブロック / KPI：FE-BE 型ズレ起因のバグ検出時期を「E2E」から「PR CI」へ前倒し、Mio の E2E は導線に集中
+5. **Stryker Mutator（mutation testing）** — テストコード自体の品質を Mutation Score で数値化、80% 未満のモジュールは PR ブロック / KPI：本番バグ検出漏れ 月 2 件 → 0.3 件、テストが「書いてあるだけ」の状態を構造的に排除
+6. **OWASP ZAP CLI + Semgrep + Snyk の DAST/SAST/依存監査** — nightly build で本番相当環境に ZAP を回し、XSS/SQLi/認証バイパスを実攻撃で検出 / KPI：セキュリティ脆弱性の存在期間 平均 30 日 → 2 日
+7. **k6 Cloud + Grafana K6 dashboard** — 応募送信・応募一覧全件表示・CSV エクスポートを nightly で 100 VU / 5 分負荷、p95 レスポンス閾値を SLO と連動 / KPI：本番負荷起因の障害 四半期 2 件 → 0 件
+8. **axe-core + APCA Contrast + WCAG 2.2 タップターゲット監査** — Playwright の各シナリオ末尾で `@axe-core/playwright` を実行、Lc75 未満 / 24×24px 未満 / ARIA 属性欠落を自動検出 / KPI：a11y バグ検出リードタイム リリース後 → PR 内、屋外・手袋操作起因の差し戻し -95%
+9. **testcontainers + Neon branching で本番相当統合テスト** — PR ごとに Neon の DB ブランチを自動作成、本番マイグレーションを適用した状態で統合テスト、マージ後にブランチ削除 / KPI：DB 起因の統合バグ 月 3 件 → 0.2 件
+10. **Datadog Test Optimization + Test Impact Analysis** — 変更影響を受けるテストだけを実行し、Flaky テスト自動隔離、実行結果を trace と紐付け / KPI：CI 実行時間 22 分 → 6 分、Flaky quarantine 判定時間 30 分 → 自動
+
+### 新規ナレッジソース・ツール
+- **Playwright MCP + Chromatic + Storybook 8 Test Runner** — E2E + VRT + interaction test の三位一体
+- **Stryker Mutator + Codecov + SonarCloud** — テスト品質と coverage の可視化
+- **OWASP ZAP + Semgrep Cloud + Snyk + Trivy** — DAST/SAST/依存/コンテナの全方位セキュリティ
+- **k6 Cloud + Grafana K6 dashboard** — Load testing と SLO 連動
+- **Datadog Test Optimization + Test Impact Analysis** — テスト実行の最適化
+
+### 連携強化ポイント
+- **Ao（BE）**：Pact コンシューマ契約と Zod スキーマから Mio 用のテストデータファクトリ（`@faker-js/faker` + `zod-mock`）を自動生成してもらい、Mio は境界値・並行運用・冪等キー重複・楽観ロック 409 に集中。通知台帳の状態遷移（pending → sent → failed / 再送回数）を検証できる参照 API を Ao が用意
+- **Riku（FE）**：Storybook 8 の `play` 関数でコンポーネント回帰を Riku 側に移譲し、Mio の E2E は画面横断導線に絞る。共通コンポーネント・フックへ畳み込んだ横断要件（送信中 disabled + 楽観的 UI・localStorage 自動下書き・44px タップターゲット）の一覧を実装完了報告に必ず添えてもらう
+- **Kuu（インフラ）**：Playwright の本番 smoke E2E を Datadog Synthetics の nightly + canary ゲートに組み込み、Flaky quarantine 判定と PR preview の teardown 猶予（起票済み不具合は 72 時間保持）を Kuu と運用ルール化
+
+### 実践シナリオ例
+翔星建設の応募管理システムで新機能「面接日程調整」を Riku/Ao が実装完了。Mio は Playwright MCP + AI 自己修復セレクタで「候補日提示 → 応募者選択 → カレンダー連携 → 通知」の E2E を 15 分で生成、Chromatic で Storybook の VRT を並列実行。Pact 契約テストが Zod スキーマから自動生成された OpenAPI と照合して PR CI 内で緑を確認。Stryker で mutation score 82% を確認し、80% 閾値ゲート通過。axe-core + APCA が「候補日ボタンのタップターゲット 22×22px」を検出 → Riku へ差し戻し（Severity=データ喪失/機会損失 に次ぐ「業務停止」判定、手袋で押せないため）。修正後、k6 Cloud で 100 VU / 5 分負荷を実行、p95 320ms で SLO 400ms 内を確認。OWASP ZAP nightly で「候補日 API に認証バイパスの試行が通らない」ことを実攻撃で検証。ここまで Mio の手動作業は 40 分、CI 実行時間は Test Impact Analysis で 6 分。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- E2E は Playwright MCP + AI 自己修復セレクタに切替、失敗時のみ trace 保存する運用に統一。Flaky 率 8% → 1%、失敗原因特定時間 20 分 → 3 分に短縮
+- コンポーネント回帰は Storybook 8 Test Runner + Chromatic VRT に移譲し、Mio の E2E は画面横断導線に絞る。E2E 実行時間 12 分 → 4 分、Riku 側でも実装中に回帰が見える
+- Stryker mutation testing を CI に組み込み、mutation score 80% 未満のモジュールは PR ブロック。「テストが書いてあるだけ」で本番バグを見逃す状態が構造的に消え、本番バグ検出漏れが月 2 件 → 0.3 件
+- axe-core + APCA Lc75 + タップターゲット 24×24px を Playwright の各シナリオ末尾で自動監査。屋外・手袋操作起因の差し戻しがリリース後 → PR 内に前倒しされ、-95% 削減
+- Pact 契約テストで FE-BE 型ズレを PR CI で検出する層に落とし、Mio は境界値・並行運用シナリオ・冪等キー重複・楽観ロック 409 の検証に集中。Test Impact Analysis で CI 実行時間が 22 分 → 6 分

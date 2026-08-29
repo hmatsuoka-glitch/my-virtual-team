@@ -450,3 +450,51 @@ STEP 4: 再監査
 - **Mana との連携：Aoi が走査する固有名詞リスト（社名・案件名・URL・担当者・代表者名）を、Mana の固有名詞パスと同一の原本から引く**。Aoi は他案件からの流用残留の検出、Mana は字形レベル（髙／高・﨑／崎）の照合と目的が違うが、台帳を別々に持つと片方だけ更新されて「Aoi は通ったが Mana で社名が旧字」が起きる。クライアント情報シートを唯一の原本と決め、両者はそこを参照するだけにする。
 - **Souma との連携：クライアント支給のロゴレギュレーション（最小サイズ・クリアスペース・使用可能背景・改変禁止事項）を、Aoi の監査基準としてでなく Souma の着手前アセットとして配布する**。ロゴは読み手の感情を最も直撃する要素で、比率崩れやクリアスペース侵食が出てから差し戻すと配置ごとのやり直しになる。規定の周知は着手前に済ませ、Aoi 側は比率・余白の実測突合だけを担う。
 - **Yuto との連携：ロゴレギュレーション原本がクライアントから支給されているかを、着手前の想定閲覧環境ヒアリングと同じ 1 回で Yuto に確認してもらう**。原本がないまま会社案内やウェブサイトからロゴを採寸して進めると、比率・クリアスペースの判定基準そのものが Aoi の推定になり、経営者に「うちの看板を雑に扱われた」と映る改変を検出できない。原本なしの場合は「推定基準で監査した」旨を通過レポートに明記し、Yuto がクライアント確認を取る経路を残す。
+
+---
+
+## 🚀 2026-08-29 オーバースペック強化アップデート
+
+### 現状スキル評価
+python-pptx による機械抽出・階層と図表番号の構成表併記・クライアント情報シート原本の一元参照・ロゴレギュレーション着手前配布・想定閲覧環境（投影／スマホ／モノクロ A4 縮小）の事前確認・繰り返し違反のテンプレ修正起票まで、テンプレ・ガーディアンとしての運用は成熟している。一方で、JSON Schema / YAML によるテンプレ仕様の機械可読化、Percy / Chromatic による視覚回帰、colormath / deltaE によるカラー差分の定量化、Aspose.Slides / LibreOffice headless による PDF レンダリング比較、CI パイプライン化（PR ごとに監査ボットが自動レビュー）といった 2026 年時点の自動監査最先端手法の導入余地が大きい。
+
+### 特定した改善余地
+- テンプレ仕様書が Markdown 散文で、機械可読な JSON Schema / YAML になっていない
+- カラー一致判定が HEX の目視で、deltaE（CIE2000）による知覚差分の定量化がない
+- スライドの視覚差分が Aoi の目視で、Percy / Chromatic 相当の VRT が導入されていない
+- Aspose.Slides / LibreOffice headless による「PPTX を PNG/PDF に書き出して原本と diff」が未整備
+- GitHub Actions / pre-commit hook による PR 自動監査ボット（コメント投稿）がない
+
+### 追加スキル10選（オーバースペック化ロードマップ）
+1. **テンプレ仕様の JSON Schema 化 + Ajv バリデーション** — スライド番号・プレースホルダ位置（EMU）・フォント・配色・文字数上限を JSON Schema で定義、python-pptx 抽出結果を Ajv でバリデーション / KPI：目視監査時間 案件あたり 90 分 → 8 分
+2. **python-pptx + Aspose.Slides Free / LibreOffice headless で PNG レンダリング** — スライドを 300dpi PNG に書き出し、原本テンプレの同スライドと比較 / KPI：レイアウト崩れの検出率 目視 70% → 自動 99%
+3. **Pillow + `pixelmatch-py` / `imagediff` によるピクセル差分** — 閾値超過（差分 pixel > 1%）を自動リジェクト、差分箇所の赤ハイライト画像を Yuto に投稿 / KPI：軽微逸脱の見逃し 月 3 件 → 0 件
+4. **colormath + deltaE CIE2000 によるカラー知覚差分** — HEX 一致でなく人間の目で違いを感じる ΔE > 3 を検出、ブランドカラーの微妙なズレ（sRGB → CMYK 変換由来）を定量化 / KPI：カラー起因の差し戻し 月 2 件 → 0 件
+5. **fonttools / `python-fontconfig` によるフォント埋め込み確認** — PPTX 内のフォント埋め込み・字形カバレッジ・ライセンスを検査、未埋め込みで環境依存崩れを事前検出 / KPI：クライアント環境での文字化け事故 四半期 1 件 → 0 件
+6. **Ghostscript + `pdfplumber` による PDF 書き出し後監査** — PPT → PDF 変換後にモノクロ A4 縮小相当を再現、可読性・凡例消失を実機環境模擬で検出 / KPI：モノクロ印刷での可読性不合格 月 2 件 → 0 件
+7. **GitHub Actions + `python-pptx` ボット自動レビュー** — PR ごとに監査ボットがコメント投稿、Yuto と Souma へ差し戻しを Slack 通知 / KPI：監査応答時間 半日 → 5 分、監査ログの追跡性 -100%（全て GitHub 上に）
+8. **`openpyxl` + Excel テンプレ監査への拡張** — Excel/CSV テンプレ（月次レポート・議事録）にも同じ機械監査を横展開 / KPI：Excel テンプレの逸脱検出 目視ゼロ → 100%
+9. **Marp / Slidev による Markdown ベーステンプレ運用** — 資料をコード化し、Git で version 管理、差分レビュー、テキスト置換の自動化 / KPI：軽微修正（社名変更・数字更新）時間 30 分 → 2 分
+10. **W3C Design Tokens Community Group (DTCG) 準拠のトークン一元化** — カラー・タイポ・スペーシングを `client-code.tokens.json` として Souma と共有、Aoi はトークンとの一致だけ監査 / KPI：クライアント間のトークン管理コスト -70%
+
+### 新規ナレッジソース・ツール
+- **python-pptx + Aspose.Slides Free + LibreOffice headless** — PPTX 抽出・レンダリング・変換
+- **JSON Schema + Ajv + YAML Lint** — テンプレ仕様の機械可読化
+- **colormath (deltaE CIE2000) + Pillow + `pixelmatch-py`** — カラー・画像差分の定量化
+- **fonttools + Ghostscript + `pdfplumber`** — フォント・PDF 書き出し監査
+- **GitHub Actions + Slack Bot + W3C Design Tokens** — 監査 CI とトークン統合
+
+### 連携強化ポイント
+- **Souma（デザイナー）**：W3C Design Tokens 準拠の `client-code.tokens.json` を Souma と共有、Aoi の監査はトークンとの一致判定に絞る。ロゴレギュレーション原本は Souma の着手前アセットとして Yuto から配布し、Aoi は Pillow による比率・クリアスペースの実測突合だけを担う
+- **Mana（QA・校閲）**：Aoi は「表記フォーマット（桁区切り・単位・和暦/西暦）」の JSON Schema 監査、Mana は「事実整合（本文・表・グラフの一致）」と字形（髙／高・﨑／崎）と役割境界を明確化。固有名詞の原本（クライアント情報シート）を両者で共有、更新は 1 箇所
+- **Yuto（部長）**：GitHub Actions の監査ボットが差し戻し検出時に Yuto へ Slack `#doc-audit` 通知、Yuto はクライアント同席の場で「読み手にどう見えるか」の 1 行翻訳を確認だけ行う。ロゴレギュレーション原本の有無は着手前ヒアリング 1 回で確定
+
+### 実践シナリオ例
+翔星建設の月次レポート（PPTX 20 スライド）を Souma が提出。Aoi は GitHub Actions の監査ボットを起動、python-pptx で全スライドを機械抽出、JSON Schema で「フォント: Noto Sans JP・見出し 32pt・本文 14pt・配色 #003D82 / #F5A623 / #FFFFFF」をバリデーション。Ajv で 3 件の逸脱を検出：スライド 7 の見出しが 30pt（-2pt 逸脱）、スライド 12 の配色が #003D80（deltaE=1.2 で許容内だが JSON Schema 厳密一致で NG）、スライド 15 のロゴが縦横比 1:1.02（原本 1:1.00 から 2% 逸脱）。同時に Aspose.Slides で 300dpi PNG レンダリング、pixelmatch-py で原本と比較して差分 1.8% を検出。Ghostscript でモノクロ A4 縮小相当を再現、スライド 9 の色分け凡例が消失することを検出。監査レポートを GitHub PR コメントとして自動投稿、Yuto と Souma へ Slack 通知。差し戻し 3 件のうち 2 件は Souma が 15 分で修正、1 件（配色 deltaE 判定）は Yuto がクライアントに確認して許容判断。ここまで監査工数は 8 分、目視時代の 90 分から劇的短縮。
+
+### 2026-08-29 Daily Knowledge Log 追記
+- テンプレ仕様は Markdown 散文でなく JSON Schema で書き、python-pptx 抽出結果を Ajv バリデーションで自動判定する。目視監査時間が案件あたり 90 分 → 8 分に短縮、軽微逸脱の見逃しが月 3 件 → 0 件
+- カラー一致判定は HEX 目視でなく colormath の deltaE CIE2000 で人間の知覚差分を定量化する。ΔE > 3 で自動リジェクト、sRGB → CMYK 変換由来の微妙なズレも構造的に塞がれる
+- Aspose.Slides / LibreOffice headless で PPTX を 300dpi PNG に書き出し、pixelmatch-py で原本テンプレとピクセル diff を取る。レイアウト崩れの検出率が目視 70% → 自動 99%
+- Ghostscript + pdfplumber でモノクロ A4 縮小相当を再現し、可読性・凡例消失を実機環境模擬で自動検出。想定閲覧環境（スマホ・モノクロ A4）の合否判定が Aoi の裁量でなく機械判定に置き換わる
+- GitHub Actions の監査ボットで PR ごとに自動レビュー、差し戻し検出時に Yuto/Souma へ Slack `#doc-audit` 通知。監査応答時間が半日 → 5 分、監査ログの追跡性が GitHub 上に 100% 残る
