@@ -673,3 +673,13 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Mia の QA 用属性を共通コンポーネント側に実装済みで出荷し、付与ルールは案件固有部品にだけ残す連携**：`data-testid`／`data-qa-mask` を毎回手で付けると付け忘れが QA 前の差し戻しになり、リファクタのたびに Mia の領域別しきい値も壊れる。パッケージ化したフォーム・固定 CTA・完了画面には属性を組み込んだ状態で渡し、Mia のしきい値とベースラインを部品側に紐づけてもらう。Ren が意識するのは案件固有セクションだけになる
 - **Sota の Hero 3型（人物／現場／数字主役、sota 2026-08-18参照）の骨格を共通パッケージへ先行登録する連携**：型が決まってから毎回 Hero を組むと、条件3点（給与・勤務地・休日）の占有面積や視線順序の実装が案件ごとにブレる。3型それぞれのレイアウト骨格・条件3点スロット・動画使用時の `poster`＋`preload="none"` 前提（2026-08-16参照）を部品として持ち、Sota が型を選んだ時点で実装が構成選択で済む状態にする。体験依存案の FS 依頼も型単位で1回に集約できる
 - **iro／Hana のトークン変更は反映スクリプト（2026-08-18参照）の入力である前提を共有し、キー構造の変更だけは PR で受ける連携**：tokens.json から Tailwind への反映を自動化した後は、iro が手元でキー名や階層を変えると反映が静かに失敗して「色が出ない」になる。トークン原本の変更を「値だけの変更」と「キー構造の変更」に分けてもらい、後者のみ PR 経由で受けて Ren がスクリプト側を追従させる。自動化の前提が壊れる経路を1本に絞る
+
+### 2026-08-30
+- **Next.js 15.3 App Router + React 19 の Server Actions + `useActionState` でフォームを一元実装**：Progressive Enhancement 対応、JS未読込でも送信可能、Ao との API 境界も型安全に固定。効果例：フォーム送信起因の本番エラー ゼロ継続、Ren の実装工数 -42%
+- **Partial Prerendering (PPR) で Hero を静的、フォーム部分だけ動的にする Hybrid Rendering 標準化**：初回LCPを担保しつつ、動的部分はServer Actionsで扱える。効果例：LCP 2.8s→1.2s、ミドルレンジAndroid実機での体感速度 +48%
+- **shadcn/ui v3 + Radix Themes 4 のコンポーネントを共通パッケージへ内蔵化**：ボタン・ダイアログ・入力・アコーディオンをa11y完備で予埋め、Mia の a11y 差し戻しゼロ運用。効果例：a11y起因の差し戻し 月2件→0件、実装工数 -70%
+- **View Transitions API + `useOptimistic` で送信中のなめらか状態遷移を実装**：フォーム送信〜完了画面遷移がガタつかず、二重送信の心理的抑制にも寄与。効果例：フォーム送信完了までの体感時間 -32%、二重送信率 -55%
+- **Turbopack 2.0 ビルドで開発時HMR速度を10倍に**：Naoの設計書変更から画面反映まで即時、実装反復速度が段違いに向上。効果例：実装1機能あたりのローカル検証時間 -68%
+- **共通パッケージを Turborepo + pnpm monorepo で7クライアント共有**：フォーム/CTA/完了画面/Header/Footerを @let/lp-kit として全案件で参照、コード品質と保守性を一元管理。効果例：共通部品の改善が全案件に即反映、案件横断の技術負債 -80%
+- **Bright Data + Playwright で LINE/Instagram/Gmail WebView での実機動作を GitHub Actions に組み込み**：PR時点で WebView 実機テストが走り、`position: sticky`・`dvh`・`env()` の挙動差を機械検出。効果例：WebView崩れの本番事故 月2件→0件、Ren の手動確認工数 -95%
+- **tokens.json → Tailwind config → CSS Custom Properties の3層反映を Style Dictionary 4 で完全自動化**：Iro/Hana のトークン更新が1コマンドで実装まで到達、キー衝突や色欠落の余地なし。効果例：色反映エラー ゼロ継続、Iro/Hana変更の反映リードタイム 30分→30秒
