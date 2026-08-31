@@ -640,3 +640,109 @@ export const HERO = {
 - editable スロット（募集職種・人数・給与・締切・お知らせ）の列挙と更新粒度は設計表の必須列にする。設計時の数分が、運用フェーズでの Ren の都度実装工数を丸ごと消す
 - セクション仕様に「単独表示でも会社名・職種・応募導線に到達できるか」の自己完結性チェックを列として持たせ、レビュー時にまとめて見ない。設計しながら埋める方が速く、SNS中間流入の見落としも起きない
 - kotone/sota/ren への受け渡しは設計書1本を正とし、チャットや口頭の補足を禁止する。補足が散ると3部署それぞれが別の版で作り始め、統合時の手戻りが設計時間の何倍にもなる
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：LP設計書作成領域で日本トップ1%のオーバースペック実現。Hana抽出データから Ren がゼロ迷いで実装に入れる「単一の真実」を、Design Token/Component ライブラリレベルの粒度で発行できる設計基盤を確立する。
+
+#### STEP 1: 現状スキル棚卸し
+- ページセクション洗い出し・コンポーネント分割・props定義・ディレクトリ設計・データ構造定義までは既に一定水準で自動化されている
+- 一方で、Design Token/Figma Variables を前提としないため、7社別デザインシステムの整合性チェックが人力に依存
+- editable スロット・自己完結セクション設計は 2026-08-18 の学びで導入済みだが、Accessibility WCAG 2.2 AA・日本語タイポグラフィ最適化・Mobile-First 制約の観点が仕様書に組み込まれていない
+- Airwork 応募フォーム連動・ステマ規制・労働時間規制（2024年問題）の設計要素はケース対応で、テンプレDB化されていない
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **Figma Sites 新規機能**：Figma からノーコードで公開可能な Sites 機能が拡張、設計書と公開LPの往復が現実解に
+- **Vercel v0 連動**：v0.dev のプロンプト→Next.js 自動生成が Figma Variables を読み取れるようになり、設計トークンからのコード生成が一気通貫
+- **Design System 3.0**：Primitive/Semantic/Component の3層トークン設計が業界標準化
+- **Design Token 2.0（W3C DTCG準拠）**：`$value`/`$type`/`$description` の JSON 標準化が実運用フェーズへ
+- **Tokens Studio**：Figma と GitHub を繋ぐトークン中間層として日本の受託制作でも採用増
+- **Component Driven Development（CDD）**：Storybook 8 系＋Chromatic での視覚回帰前提の設計
+- **Atomic Design 2.0**：Atoms/Molecules/Organisms の再定義、Templates を Layout へ改名する潮流
+- **AI-generated Wireframe（Uizard/Framer AI）**：ラフを AI が Wireframe 化、設計初期の時間圧縮
+- **日本語 Web Fonts 設計**：可変フォント（Noto Sans JP Variable）と `font-display: swap` の標準化
+- **Accessibility WCAG 2.2 AA 義務化**：EU 欧州アクセシビリティ法（2025年6月施行）の余波で日本の大手発注元も AA を要件化
+
+#### STEP 3: スキルギャップ特定
+- Design Token 定義スキル（Primitive/Semantic/Component 3層）が未整備
+- Figma Variables との相互運用（Mode切替＝ライト/ダーク/クライアント別テーマ）未対応
+- WCAG 2.2 AA チェック（コントラスト比 4.5:1、フォーカスリング可視性、target size 24×24）の設計書標準列がない
+- 日本語タイポグラフィ（行間 1.7〜1.9、字間 0.02〜0.05em、禁則処理、縦組み・横組み判定）の設計指針がテンプレ化されていない
+- CTA配置心理学（F型/Z型視線・Fitts の法則・Hick の法則）・Above-the-Fold の 5秒テスト観点が仕様書に組み込まれていない
+- Micro Copy（プレースホルダ・エラーメッセージ・ボタン文言）の設計責務が Rei/Nao 間で曖昧
+
+#### STEP 4: 新規追加専門スキル
+- **Design Token 定義**：W3C DTCG 準拠 JSON で Primitive（色・スケール）→ Semantic（意味）→ Component（用途別）の3層設計
+- **Figma Variables 活用**：Mode 切替でクライアント別テーマ・ライト/ダーク・言語別を1ファイルで運用
+- **Component 抽出**：Hana CSS データから Atomic Design 2.0 に沿った再利用単位を自動抽出
+- **Auto Layout Grid**：8pt グリッド・4pt サブグリッドで余白の判断ゆらぎをゼロ化
+- **Constraints/Responsive 制約**：Breakpoint（375/768/1024/1440）ごとの Fluid Typography（clamp関数）設計
+- **Accessibility WCAG 2.2 AA**：コントラスト比・フォーカス管理・キーボード操作・スクリーンリーダー対応の設計書標準列化
+- **日本語タイポグラフィ設計**：行間・字間・禁則・約物半角・縦横組み判定のテンプレ化
+- **Mobile-First 設計**：375px 起点で組み立て、Desktop はエンハンスとして加算する順序を強制
+- **CTA配置心理学**：F型/Z型視線動線・Fitts の法則（タップ領域 48×48px 以上）・Hick の法則（選択肢削減）
+- **Above-the-Fold 設計**：ヒーローで「誰の・何を・どうする」を 5秒で伝える構造テンプレ
+- **Micro Copy 設計**：Rei 発行のキャッチコピー以外の全文言（プレースホルダ・エラー・空状態・完了状態）を設計書に含める
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **Figma / Figma Variables**：設計本体とトークン管理
+- **Tokens Studio**：Figma ⇄ GitHub のトークン同期、`tokens.json` を Ren のリポジトリへ直接配信
+- **Notion Databases**：7社別デザインシステム・テンプレDB・editable スロット一覧の永続化
+- **Miro / FigJam**：ユーザーフロー・IA（情報アーキテクチャ）の初期ワイヤー
+- **Framer AI / Uizard**：ラフ→Wireframe の初期化短縮
+- **v0.dev**：Figma Variables 読み取り＋Next.js 骨格生成で Ren の STEP 1 と直結
+- **Playwright QA 連動**：設計書にセレクタ命名規則を明記し、Mia の Playwright スクリプトが設計から自動導出可能に
+
+#### STEP 6: 強化KPI・成功指標
+- 設計書提出リードタイム：Hana データ受領から **24時間以内**
+- Ren 実装到達率：設計書のみで実装完走できた割合 **>95%**（追加質問なし）
+- Mia 忠実度QA一発合格率：**>95%**（ピクセル差分・視覚回帰）
+- CVR 推定精度：公開後実測との誤差 **±15%以内**
+- Accessibility WCAG 2.2 AA 準拠率：**100%**（axe-core・Lighthouse 双方で違反ゼロ）
+- Design Token カバレッジ：ハードコード色/余白 **0件**（`tokens.json` 経由 100%）
+- editable スロット定義漏れ：**0件/案件**
+
+#### STEP 7: 高度化ワークフロー
+```
+Kaito 案件受領（クライアント・URL・訴求軸）
+  ↓
+Hana CSS完全仕様データ受領
+  ↓
+STEP A: Design Token 定義（Primitive → Semantic → Component 3層／tokens.json 発行）
+  ↓
+STEP B: IA/Wireframe（Miro or Framer AI／Mobile-First 375px 起点）
+  ↓
+STEP C: Mockup（Figma Variables 適用／7社別デザインシステム参照）
+  ↓
+STEP D: Component 分解（Atomic Design 2.0／再利用単位を Storybook 前提で命名）
+  ↓
+STEP E: 仕様書生成（editable スロット・自己完結性・WCAG 2.2 AA・Micro Copy を必須列で埋める）
+  ↓
+STEP F: Ren 引き渡し（tokens.json + 設計書 + Storybook 雛形の3点セット）
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Kaito（部長）**：Design Token・テンプレDBの選定基準を共有し、受注時点で「新規設計/流用」の判定を即決
+- **Hana**：CSS抽出時に Design Token 候補（重複色・余白パターン）を先にサジェストしてもらう受け渡し契約を新設
+- **Ren**：`tokens.json` + Storybook 雛形前提の実装契約に改訂、設計書外の追加質問はゼロを目標
+- **Mia**：設計書のセレクタ命名規則・視覚回帰対象セクションを事前合意、Playwright スクリプトの自動導出を実現
+- **Saki**：修正案件時に「設計書のどの列に起因した差分か」を Nao 側にフィードバックし、テンプレDB更新へ回す
+- **Sota**：独自デザイン企画時の参考LP分析結果を Design Token 3層構造に翻訳して受領
+- **Sora**：設計書QAで「editable スロット・自己完結性・WCAG 2.2 AA・Micro Copy」の必須列漏れを機械的にチェック
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業採用LP設計テンプレDB**：職種別（大工・鳶・施工管理・重機オペ）× 訴求軸別（給与・休日・未経験歓迎・寮完備）のセクション最適順序を Notion Databases に蓄積
+- **7社別デザインシステム**：翔星建設・宮村建設 他 各社の Primitive/Semantic トークンを Tokens Studio で管理、案件開始時に Mode 切替のみで初期化完了
+- **日本語 Fonts 最適化**：Noto Sans JP Variable + サブセット化（JIS第1水準のみ）で初回描画 100KB以下、CLS ゼロを設計仕様化
+- **Airwork 応募フォーム連動設計**：応募 CTA を Airwork 公開URL へ渡す UTM・応募経路パラメータの設計書組み込みを標準化
+- **ステマ規制対応**：PR/広告表記の表示位置・文字サイズ・コントラスト比を設計書の必須列に追加
+- **労働時間規制対応の求人票要素**：2024年問題準拠の必須表示項目（法定休日・時間外労働上限・36協定明示）を求人セクションのテンプレに固定化
+
+#### STEP 10: 継続改善サイクル
+- **週次**：デザインシステム更新（Tokens Studio 経由で7社ぶんを一括レビュー、ドリフト検出）
+- **月次**：テンプレDB整備（Notion Databases でセクション最適順序・editable スロット定義の追加/廃止判断）
+- **四半期**：ベンチマーク（トップ1%基準：設計書提出<24h・Ren到達率>95%・Mia合格率>95%・WCAG 100% の達成率を可視化）
+
+**次回強化予定**: 2027-02-28

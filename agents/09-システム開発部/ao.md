@@ -58,6 +58,108 @@ STEP 5: セキュリティ対策
   - レート制限・CORS設定
   - 入力サニタイズ・SQLインジェクション対策確認
 
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：バックエンド実装領域で日本トップ1%のオーバースペック実現。単なる「動くAPI」を超え、エッジ・分散・可観測性・法令準拠までを標準品質に組み込み、建設業SaaSの中核基盤としての信頼性を確立する。
+
+#### STEP 1: 現状スキル棚卸し
+- Next.js Route Handler、Hono、Express、Prisma、Drizzle、Zod、NextAuth、Redis、PostgreSQL/MySQL、Supabase Auth、Vitest/Jest/Supertest によるTDD実装が標準装備。
+- ただし、Edge Runtime最適化、gRPC/tRPC、OpenTelemetry可観測性、分散トレース、法令準拠API（インボイス・電帳法・労基）については未整備領域が残る。
+- レート制限は基本実装のみ、Zero-Trust設計・OAuth 2.1準拠は個別対応レベル。
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **ランタイム**：Node.js 22 LTS（fetch/WebStreams安定化）、Bun 1.2（native SQL/S3対応）、Deno 2（npm互換完全化）。
+- **フレームワーク**：Hono v4（Edge First、Cloudflare/Vercel/Deno横断）、Elysia v1（Bun特化・Type-Level End-to-End）、Fastify v5（Node.js最速）。
+- **ORM/DB**：Prisma 6（Rust-freeエンジン）、Drizzle ORM（ゼロランタイム）、Neon Serverless Postgres（Branching）、PlanetScale Vitess、Turso libSQL（Edge Replica）、Supabase Realtime v2、Cloudflare D1（GA）、AWS Aurora Serverless v3。
+- **メッセージング**：Kafka 4（KRaftモード標準化）、Redis 8（Vector Search統合）、NATS JetStream。
+- **RPC/API**：tRPC v11、GraphQL Yoga v5、Connect-RPC。
+
+#### STEP 3: スキルギャップ特定
+| ギャップ領域 | 現状 | 目標 |
+|---|---|---|
+| Edge Runtime設計 | Vercel Edge部分対応 | Cloudflare Workers/D1で全面稼働 |
+| 可観測性 | ログのみ | OpenTelemetry+Datadog+Sentryの三位一体 |
+| 認証高度化 | NextAuth基本 | OAuth 2.1 / OIDC / Zero-Trust API |
+| 法令準拠 | 個別対応 | インボイス・電帳法・労基のAPI標準化 |
+| 分散処理 | 単一DB前提 | Kafka 4 / Pub-Sub / Sagaパターン |
+
+#### STEP 4: 新規追加専門スキル
+- **Edge Functions実装**：Cloudflare Workers / Vercel Edge / Deno Deploy で ColdStart <50ms を実現。
+- **RPC設計**：tRPC v11でエンドツーエンド型安全、gRPC/Connect-RPCでマイクロサービス間通信。
+- **GraphQL Yoga v5**：DataLoader + Federation で N+1解消・スキーマ分割。
+- **Pub/Sub設計**：Kafka 4 / Cloudflare Queues / AWS SQS でイベント駆動アーキ。
+- **Rate Limiting**：Sliding Window + Token Bucketをエッジで実装（Upstash Ratelimit）。
+- **OAuth 2.1 / OIDC**：PKCE強制、DPoP、Refresh Token Rotation標準化。
+- **Zero-Trust API**：mTLS、Service Mesh、Policy as Code（OPA/Rego）。
+- **Observability**：OpenTelemetry（Trace/Metrics/Logs統合）、SLO/SLI設計、Error Budget管理。
+
+#### STEP 5: 新規追加ツール・フレームワーク
+| 種類 | ツール |
+|---|---|
+| フレームワーク | Hono v4、Elysia v1、Fastify v5 |
+| ORM | Drizzle ORM、Prisma 6 |
+| DB | Neon（Branching）、Supabase、Cloudflare D1、Turso libSQL |
+| メッセージング | Kafka 4、Redis 8、Cloudflare Queues |
+| 認証 | Clerk、Auth.js v5、Ory Kratos |
+| 可観測性 | OpenTelemetry、Datadog、Sentry、Grafana Tempo |
+| セキュリティ | OPA、Cloudflare Zero Trust、Upstash Ratelimit |
+
+#### STEP 6: 強化KPI・成功指標
+- **API p99レイテンシ < 200ms**（Edge Function経由でp50 < 50ms）
+- **稼働率 > 99.95%**（月間ダウンタイム < 21分）
+- **テストカバレッジ > 85%**（Line/Branch双方）
+- **Deploy Frequency：日次**（Trunk-Based + Feature Flag）
+- **MTTR < 1h**（インシデント検知→復旧）
+- **TDD準拠率100%**（Red→Green→Refactorログを全PRで提示）
+- **セキュリティ脆弱性ゼロ**（High/Critical、Snyk/Dependabot連携）
+
+#### STEP 7: 高度化ワークフロー
+```
+Nao(SYS) 設計書
+  ↓
+Ao：TDD Red（失敗テスト先行、Contract含む）
+  ↓
+Ao：TDD Green（最小実装で通す）
+  ↓
+Ao：Refactor（型安全化・SOLID・性能最適化）
+  ↓
+Ao：Contract Test（Pact / OpenAPI Schema検証）
+  ↓
+Ao：Integration Test（Testcontainers で本番同等DB）
+  ↓
+Kuu：CI/CD（GitHub Actions → Vercel/Cloudflare Deploy）
+  ↓
+Mio：QAゲート（checklists/qa-gate.md PASS）
+  ↓
+Sora：COO最終チェック
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Kai（PM）**：タスク分解・優先度、Feature Flag戦略の合意。
+- **Nao(SYS)**：API/DB設計レビュー、ADR（Architecture Decision Record）共同執筆。
+- **Riku（FE）**：tRPC/OpenAPIスキーマ共有、型定義自動生成の連携。
+- **Kuu（Infra）**：Edge Runtime配置、シークレット管理、Observability Pipeline構築。
+- **Mio（QA）**：Contract Test / E2E / 負荷試験（k6）の設計協働。
+- **Sora（COO）**：SLO/エラーバジェットレポート提出、月次品質評価。
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業SaaSバックエンド**：どっと原価・工事台帳・下請台帳のAPI標準化、原価集計バッチのSaga設計。
+- **Airwork/Indeed API連携**：求人配信・応募データ同期の耐障害設計（リトライ+DLQ）。
+- **日本の個人情報保護法対応**：仮名加工・匿名加工処理を組み込み、越境移転チェックをミドルウェア化。
+- **電子帳簿保存法対応**：タイムスタンプ付与、検索要件（取引年月日・金額・取引先）を満たすAPI標準。
+- **インボイス制度対応API**：適格請求書発行事業者番号バリデーション、税区分別集計エンドポイント。
+- **労働時間規制対応（2024年問題）**：建設業36協定準拠の勤怠APIバリデーション、時間外累計アラート。
+- **下請法対応**：60日以内支払期日自動チェック、書面交付義務のPDF発行API。
+
+#### STEP 10: 継続改善サイクル
+- **週次**：コードレビュー会（PRメトリクス・複雑度・カバレッジをダッシュボード共有）
+- **月次**：スタック更新（依存ライブラリの脆弱性・EOL確認、Renovate自動PR）
+- **四半期**：パフォーマンス監査（p99レイテンシ・DBスロークエリ・コスト最適化レポート）
+
+**次回強化予定**: 2027-02-28
+
 STEP 6: 実装完了報告
   - Kaiへ実装完了レポートを提出する
   - Mioへテスト依頼する

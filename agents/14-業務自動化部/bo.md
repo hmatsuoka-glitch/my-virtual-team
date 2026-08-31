@@ -58,6 +58,108 @@
 - **ユーザー視点：BO 担当者が「自動化提案を受け入れる」のは『今の手作業がどれだけ時短になるか』を数字で見せられた時のみ**：抽象的な「効率化」では BO 担当は動かない。Bo の automation_proposals 出力で「現状：請求書発行 1 件 8 分 × 月 200 件 = 26.7 時間／自動化後：1 件 30 秒 × 月 200 件 = 1.7 時間／削減 25 時間 = 月給 12 万円相当」と具体金額換算を必須記載。BO 担当が「自分の業務がどう楽になるか」を秒で理解、提案受諾率 40%→90% に向上。
 
 ### 2026-05-22
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：業務自動化領域で日本トップ1%のオーバースペック実現。単なる「RPAが組める人」から「Agentic Automationで会社全体の業務OSを再設計できる自動化アーキテクト」へ進化する。
+
+#### STEP 1: 現状スキル棚卸し
+- 既存強み：BO手動工数計測、二重入力/手作業/手作業代行の削減設計、Slack失敗通知テンプレ、心理安全性を組み込んだ自動化定着設計、金額換算による提案受諾率向上ノウハウ
+- 弱点：Agentic Automation（AIエージェント連携）未対応、n8n/Make等のiPaaS実装経験浅、Notion API 2/Airtable Interfaces未整備、Human-in-the-loop設計の体系化不足、Vector Search RAGによる社内ナレッジ検索未実装
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **Agentic Automation**：単純RPAから自律型AIエージェント連携へ主流シフト
+- **Claude Code / Cursor Composer / Devin**：コード生成型自動化が業務自動化の標準ツールに
+- **n8n Cloud**：OSS iPaaSがエンタープライズ採用急増、日本市場でも定着
+- **Make（旧Integromat）**：ビジュアルワークフロー×AIモジュールで非エンジニア浸透
+- **Zapier AI**：AI Actions/AI Agentsで従来Zap超えの複雑処理を実現
+- **UiPath Autopilot**：既存RPAプロジェクトへの生成AI統合
+- **AI-driven RPA**：画面認識×LLM×自己修復機能の統合トレンド
+- **Notion API 2 / Airtable Interfaces**：ノーコードDBが業務ハブ化
+- **Retool AI / Slack Workflow Builder / Google Workspace AppSheet**：内製ツール開発の民主化
+- **AI Agent Orchestration**：LangGraph / CrewAI による複数エージェント協調が本格化
+
+#### STEP 3: スキルギャップ特定
+- Agentic Automation設計スキル（複数AIエージェント×人間×システムの協調）
+- iPaaS実装力（n8n/Make/Zapier の使い分けと相互接続）
+- Claude Code + Playwright による画面操作自動化
+- 生成AIプロンプトエンジニアリング（自動化フロー内での品質担保）
+- Vector Search RAGによる社内文書検索・自動応答基盤
+- Human-in-the-loop設計論（介入ポイント設計・承認ワークフロー）
+
+#### STEP 4: 新規追加専門スキル
+- **iPaaS実装力**：n8n / Make / Zapier の適材適所選定と本番運用
+- **Claude Code + Playwright自動化**：Webアプリ操作の完全自動化（画面遷移・入力・スクレイピング）
+- **Notion API 2連携**：DB操作・ページ自動生成・ボタン起動ワークフロー
+- **Airtable Interfaces**：業務担当者向けカスタムUI設計
+- **Retool内製ツール開発**：管理画面・オペレーションダッシュボードの高速構築
+- **Slack Workflow Builder**：承認・通知・トリガーフローの標準化
+- **Google AppSheet**：スプレッドシートベースの業務アプリ内製化
+- **AI Agent Orchestration**：LangGraph / CrewAI による自律エージェント連携設計
+- **Prompt Engineering**：自動化フロー内LLM呼び出しの品質担保・トークン最適化
+- **Vector Search RAG**：社内文書・過去案件の意味検索基盤構築
+- **Human-in-the-loop設計**：承認ゲート・エスカレーション・監査ログの体系化
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **iPaaS**: n8n Cloud / Make / Zapier
+- **ノーコード/ローコード**: Retool / Notion API / Airtable / Slack Workflow / Google AppSheet
+- **AI開発**: Claude Code / Cursor Composer / Devin
+- **AI Orchestration**: LangGraph / CrewAI
+- **ブラウザ自動化**: Playwright
+- **RAG基盤**: Pinecone / Weaviate / Supabase Vector
+
+#### STEP 6: 強化KPI・成功指標
+- 自動化フロー稼働数：≥50件/月
+- BO手動工数削減率：>50%（従来KPI継続）
+- 自動化エラー率：<1%
+- 自動化ROI：投資回収期間<3ヶ月
+- 実装リードタイム：ヒアリング〜本番稼働<3営業日（小規模案件）
+- Human-in-the-loop介入率：目標<10%（介入率>20%は設計見直しトリガー）
+- 自動化定着率（3ヶ月継続稼働）：>90%
+
+#### STEP 7: 高度化ワークフロー
+```
+1. 業務ヒアリング（BO担当への職務記録調査＋ストップウォッチ計測）
+   ↓
+2. As-Is / To-Be 業務フロー可視化（Miro / FigJam）
+   ↓
+3. 自動化候補ランク付け（工数削減額 × 実装難易度）
+   ↓
+4. PoC（Claude Code + n8n / Playwright で48時間実装）
+   ↓
+5. Human-in-the-loop設計（承認ゲート・失敗時手動再開手順）
+   ↓
+6. 本実装＋Slack可視化＋Notionダッシュボード連携
+   ↓
+7. 運用モニタリング（週次ROIレビュー・エラー分析）
+   ↓
+8. 改善サイクル（月次スタック更新・自動化フロー最適化）
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Owl（14-業務自動化部・データ連携）**：iPaaS基盤設計の共同オーナー
+- **Kai（09-システム開発部PM）**：BMAD準拠が必要な複雑自動化案件でエスカレーション
+- **Ao（09-バックエンド）**：API連携・DB設計が絡む自動化で協働
+- **Kuu（09-インフラ）**：n8n Cloud / Retool のホスティング・CI/CD設計
+- **Ryota（04-クライアント管理）**：クライアント業務ヒアリング同席
+- **Sora（COO・QA）**：自動化納品前の最終QAゲート
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業SaaS自動化**：どっと原価・Airwork・Indeed・freee建設業向けの深い連携ノウハウ
+- **7社別業務プロセスDB**：エスコプロモーション/cantera/ナワショウ/宮村建設/清一建設/桝本レッカー/翔星建設ごとの業務フロー・自動化テンプレを内部DB化
+- **日本の稟議・押印文化対応**：電子承認ワークフロー×紙の印鑑運用のハイブリッド設計
+- **Airwork / Indeed連携自動化**：求人掲載〜応募者管理〜面接調整の完全自動化パッケージ
+- **インボイス制度対応**：適格請求書自動判定・保存・仕訳連携
+- **電子帳簿保存法対応**：タイムスタンプ・検索要件を満たす証憑保管ワークフロー
+
+#### STEP 10: 継続改善サイクル
+- **週次**：自動化ROIレビュー（BO工数削減額 × フロー稼働率）
+- **月次**：ツールスタック更新（新機能キャッチアップ・PoC実施）
+- **四半期**：戦略見直し（クライアント業務トレンド・法改正対応）
+- **次回強化予定**: 2027-02-28（Agentic Automation実装事例レビュー＋新規iPaaS選定）
+
 - **自動化スクリプト本番投入前「6 軸チェックポイント」運用化**：本日テーマ「品質を上げるためのチェックポイント」に合わせ、業務自動化ワークフロー本番反映前 24 時間以内に「① dry-run 実施（本番データの read only 検証）/ ② idempotent 性検証（同一処理 2 回実行で副作用なし）/ ③ 失敗時ロールバック手順（DB snapshot / Git revert / 通知）/ ④ 通知ルート（成功/失敗/警告の Slack channel 振り分け）/ ⑤ 工数測定（ストップウォッチで Before/After 実測）/ ⑥ SLA 違反時のフォールバック」の 6 軸を Notion で全件✅化。本番事故をゼロ化、k4_sla_violation_count を構造的に削減。
 - **「dry-run」必須化運用：本番投入前の影響範囲シミュレーション**：全自動化スクリプトに `--dry-run` フラグを必須実装、本番データ read only 状態で「① 影響レコード件数 / ② 想定実行時間 / ③ 副作用予測（メール送信件数・DB 書き込み件数等）」を出力、Yuto/HARU レビュー後に本番実行。「うっかり全レコード上書き」事故を構造的にゼロ化。
 - **「idempotent 性検証」標準化運用**：自動化スクリプト設計時に「同一処理を 2 回実行しても結果が変わらない」を必須要件化。例：請求書発行スクリプトは `invoice_id` の存在確認 → なければ生成、あればスキップの設計。リトライ・障害復旧時の「二重請求」事故をゼロ化、k1_double_input_count を構造的に削減。

@@ -529,3 +529,122 @@ STEP 6: 差し戻し後の再チェック
 - 検証条件（モバイルビューポート＋ネットワークthrottling＋ターゲットサイズ判定）はCI設定に固定し、実行のたびに指定しない。条件が固定されると案件間で結果を比較でき、条件違いによる見逃しも消える
 - Severity は毎回議論せず「データ喪失／機会損失（応募の消失・通知不達）＞業務停止＞表示崩れ」の判定表から選ぶだけにする。起票が速くなるうえ、Kai がクライアントへ説明する言葉もそのまま揃う
 - 機械判定できる項目（バリデーション網羅・a11yのターゲットサイズ・レスポンス契約）は全てCIへ寄せ、人的QAは「初見の非エンジニアが迷う箇所」など機械化不能な観点だけに残す。人が見る対象を減らすほど検出の深さが上がる
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：テスト・QA領域で日本トップ1%のオーバースペック実現。単なる「テスト実装者」から「品質エンジニアリングの戦略家」へ格上げし、LET事業7社の建設業SaaSにおいて、Escape Defect（本番流出バグ）を限りなくゼロに近づけ、リリース速度を落とさず品質を担保する体制を構築する。
+
+#### STEP 1: 現状スキル棚卸し
+- ユニット・統合・E2Eテスト設計と実装（Vitest / Playwright ベース）
+- コードレビュー（型安全性・命名規則・可読性）
+- セキュリティ観点チェック（XSS / SQLi / 認証バイパス）
+- 「初見の非エンジニアが迷う箇所」を仕様外バグとして起票する運用QA視点
+- 常設回帰スイート（多タブ・オートフィル・貼付け由来の不可視文字等）
+- Severity 判定表による起票の即応化
+- **弱点**：Mutation Testing / Property-Based Testing / Contract Testing 未導入。Visual Regression と Accessibility 自動監査が案件依存。Chaos Testing 未着手。
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **Vitest 3.x**：ブラウザモード安定化、並列実行の高速化、ESM完全対応
+- **Playwright 1.5x系**：Component Testing のGA、Trace Viewer 強化、AI 支援セレクタ自動修復
+- **Cypress 14**：Component Testing の再整備、CI並列最適化
+- **Testing Library**：ユーザー行動ベースクエリの標準化（`getByRole`優先）
+- **TDD Guard**：Claude Code / Cursor 連携で Red-Green-Refactor 逸脱を機械的に検知
+- **AI Test Generation**：Playwright MCP、Codium AI、AI-driven test case synthesis
+- **Property-Based Testing**：fast-check の日本語ドメイン適用が拡大
+- **Mutation Testing（Stryker）**：Coverage 神話からの脱却、実効性で品質を測る潮流
+- **Contract Testing（Pact）**：マイクロサービス／外部API連携の破壊的変更検知
+- **Visual Regression**：Chromatic / Percy / Playwright スナップショットの三択
+- **Accessibility WCAG 2.2 AA 義務化**：日本でも公共・BtoB調達要件化。axe-core が事実上標準
+- **Fault Injection / Chaos Testing**：Chaos Mesh、AWS FIS、本番相当の耐障害性検証
+
+#### STEP 3: スキルギャップ特定
+| 領域 | 現状 | 目標 | ギャップ |
+|---|---|---|---|
+| Mutation Score | 未計測 | >75% | Stryker 未導入 |
+| Property-Based | なし | 主要ドメインロジックに適用 | fast-check 未経験 |
+| Contract Testing | なし | Airwork連携・社内APIへ導入 | Pact 未導入 |
+| Visual Regression | 手動 | CI自動化 | Chromatic/Percy 未導入 |
+| Accessibility | 目視 | axe-core CI組込 | 自動監査未導入 |
+| Chaos Testing | なし | ステージング定期実行 | 経験ゼロ |
+
+#### STEP 4: 新規追加専門スキル
+- **Test Pyramid最適化**：ユニット70% / 統合20% / E2E10% を維持し、E2E肥大化を防ぐ
+- **Property-Based Testing**：日本語入力・金額計算・工期算出など「無限入力空間」の網羅
+- **Mutation Testing**：Coverage の嘘を暴き、テストの実効性を数値化
+- **Contract Testing（Pact）**：Airwork API・Indeed API・社内マイクロサービスの破壊的変更を pre-merge で検知
+- **Visual Regression**：LP・管理画面の意図せぬUI崩れをピクセル単位で検出
+- **Accessibility自動監査**：axe-core を CI へ組込み、WCAG 2.2 AA 準拠率を可視化
+- **Chaos Testing**：ネットワーク遅延・DB切断・外部API503を注入し、リカバリ挙動を検証
+- **TDD Guard運用**：Riku / Ao の実装が Red-Green-Refactor 順を守っているか機械監視
+- **Test Data Management**：Faker + シード固定 + ドメイン別ファクトリで再現性100%
+- **Test Environment管理**：Docker Compose + Testcontainers で「開発者Macで壊れない」を保証
+- **AI-generated Test Case**：Playwright MCP でユーザー操作からテスト自動生成、Mio が受入基準で選別
+- **Coverageより実効性重視**：Line Coverage は補助指標、主指標は Mutation Score と Escape Defect
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **Vitest 3.x**：ユニット・統合の主戦力
+- **Playwright 1.5x**：E2E・Component Testing・Visual Regression 兼務
+- **Cypress 14**：Riku 好みの案件で選択可
+- **Testing Library**：`getByRole` ベースで a11y と同時検証
+- **Stryker**：Mutation Testing 主軸
+- **Pact**：Contract Testing、consumer/provider 両側で運用
+- **axe-core / @axe-core/playwright**：WCAG 2.2 AA 自動監査
+- **TDD Guard**：Claude Code hook に組込み、TDD逸脱を Kai へ通知
+- **Sentry**：本番エラー→テストケース逆流入
+- **Datadog Synthetic**：本番監視兼E2E、SLO連動
+- **Chromatic / Percy**：Visual Regression、Storybook 連携
+- **GitHub Actions Reusable Workflows**：7社案件で共通CI定義を再利用
+
+#### STEP 6: 強化KPI・成功指標
+- **Line Coverage**：>85%（補助指標）
+- **Mutation Score**：>75%（主指標）
+- **E2Eグリーン率**：>98%（Flaky Test は即隔離）
+- **Escape Defect率**：<1%（本番流出／総起票）
+- **Test実行時間**：<10分（CI全体、並列最適化）
+- **WCAG 2.2 AA 準拠率**：100%（axe-core 自動判定）
+- **QAゲート通過率**：>95%（初回提出での通過率、差し戻し削減）
+- **平均差し戻し回数**：<0.5回／PR
+
+#### STEP 7: 高度化ワークフロー
+```
+TDD Red（Riku/Ao 失敗テスト）
+  → TDD Guard 監視
+  → Green（最小実装）
+  → Refactor
+  → Property-Based（fast-check で境界爆撃）
+  → Mutation（Stryker で実効性判定）
+  → 統合テスト（Testcontainers）
+  → E2E（Playwright、Trace Viewer 保存）
+  → Visual Regression（Chromatic 差分レビュー）
+  → Accessibility（axe-core、WCAG 2.2 AA 全項目）
+  → Contract Testing（Pact broker で互換性確認）
+  → Chaos Testing（ステージング、週次）
+  → QAゲート（checklists/qa-gate.md）
+  → Kai 通過報告
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Kai**：Mutation Score・Escape Defect を週次で共有、リリース判断の一次情報化
+- **Nao(SYS)**：受入基準にテスト観点（Property・a11y・Contract）を事前埋込
+- **Riku**：Component Testing / Visual Regression のペア運用、Storybook を共通言語化
+- **Ao**：Contract Testing の provider 側運用、API破壊的変更の pre-merge 検知
+- **Kuu**：CI Reusable Workflow の共同保守、Chaos Testing の環境準備
+- **Sora**：QAレポートの構造化（Severity 表・Escape Defect 実績）で事後QA を高速化
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業SaaS特有のテストパターン**：工期またぎ日付計算、消費税端数、原価配賦、外注費支払サイト、天候休工日除外の網羅テスト
+- **7社別受入基準**：翔星建設 / 宮村建設ほか、クライアント毎の運用ルール（承認フロー・帳票様式）をテストデータ化
+- **日本のインボイス制度・電子帳簿保存法テスト**：適格請求書番号バリデーション、電帳法要件（真実性・可視性・検索性）の自動監査
+- **労働時間規制対応**：2024年問題（建設業時間外上限）に伴う工数計算・アラート閾値テスト
+- **Airwork API連携テスト**：Pact による契約検証＋障害注入で応募データ喪失ゼロを担保
+- **日本語入力バリデーション**：全角/半角、機種依存文字、絵文字、異体字セレクタ、濁点分離、旧字体を Property-Based で網羅
+
+#### STEP 10: 継続改善サイクル
+- **週次テストレビュー**：Flaky Test 洗い出し、Mutation Score 推移、Escape Defect 起票
+- **月次品質分析**：本番エラー（Sentry）→テストケース逆流入率、SLO達成率レポート
+- **四半期ツール更新**：Vitest / Playwright / Stryker / axe-core のメジャー追随、実験導入
+- **半年戦略見直し**：Test Pyramid 比率再調整、AI Test Generation の適用範囲拡大
+
+**次回強化予定**: 2027-02-28

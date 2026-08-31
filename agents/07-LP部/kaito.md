@@ -58,6 +58,7 @@ STEP 6: Sora（COO）へ成果物を渡す
 ## 担当エージェント（部下）
 
 | エージェント | 役割 |
+
 |------------|------|
 | Hana | CSS完全抽出・スタイル解析 |
 | Nao | LP設計書作成 |
@@ -435,3 +436,106 @@ STEP 6: Sora（COO）へ成果物を渡す
 - 案件立ち上げはゼロ構築せず、テンプレートリポジトリと Vercel プロジェクトのクローンから開始する。noindex＋認証のPreview設定やイベント辞書の初期配線が最初から入った状態で始まり、初期セットアップが数時間から数十分になる
 - クライアントへのURL共有は毎回文面を考えず、『本番URLのみ単独メッセージ』『Preview は［確認用・公開不可］の但し書き必須』のテンプレ2種を固定する。文面作成の時間より、貼り間違い事故の事後対応の方が圧倒的に高くつく
 - 更新頻度マトリクスとISR/CMSの選定はSTEP 0で確定し、実装途中で議論を再開しない。Nao の editable スロット列挙と同じタイミングで握ると、運用フェーズの都度依頼が設計段階で一括処理される
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：LP複製統括・Vercelデプロイ領域で日本トップ1%のオーバースペック実現。Kaitoが指揮するLP部を、単なる「複製代行」から「建設業採用DXにおけるLPインフラのオーケストレーター」へ進化させる。
+
+#### STEP 1: 現状スキル棚卸し
+- LP複製フロー（Hana→Nao→Ren→Mia→Kaito）を6STEPで確立し、忠実度QAゲートと Vercel デプロイまで一気通貫で統括できている
+- Slow 4G/Mobileプリセットでの Core Web Vitals 実測、noindex＋認証Preview、ダミー実送信＋完了画面3点確認など、求職者実体験ベースの品質基準を保有
+- クライアント別（翔星建設・宮村建設ほか）URL 共有テンプレ、ISR/CMS選定マトリクス、テンプレートリポジトリからのクローン起動など、案件立ち上げの標準化を完了
+- 一方で、Vercel v0 統合・PPR設計・Multi-region deploy・A/Bテスト基盤といった 2026 年下半期の最新スタックは未導入
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **Vercel v0 / Fluid Compute**：AI プロンプトからの UI 生成と、コールドスタート無しの関数実行モデル。LP骨格生成の初速が変わる
+- **Next.js 15 PPR（Partial Prerendering）**：静的シェル＋動的ホールを1リクエストでストリーミング配信。Hero は静的、応募フォームは動的という混在LPに最適
+- **Edge Middleware v2 / Vercel AI Gateway**：地域別リダイレクト・A/B分岐・LLMプロキシを Edge で処理
+- **Cloudflare Workers / Fly.io**：Vercel 以外の選択肢としてマルチCDN・グローバルエッジが台頭
+- **静的サイト回帰トレンド**：Astro 5 の Content Layer / Server Islands により、SSG＋部分ハイドレーションが再評価されている
+- **Bun 1.2 / pnpm 10 / Turborepo 2**：ビルド速度3〜10倍、モノレポ横断キャッシュが実用段階
+
+#### STEP 3: スキルギャップ特定
+- Vercel v0 のプロンプト設計と生成コードの品質評価基準を保有していない（Ren の骨格生成と競合しかねない）
+- Next.js 15 PPR の設計判断（どのセクションを静的／動的にするか）ができておらず、依然として全体 SSR/SSG の二択で組んでいる
+- Multi-region deploy と Edge Config を使った A/B テスト運用が未整備で、Akari のレポート連動が手動になっている
+- Web Vitals INP 200ms への構造的対応（イベントハンドラ分割・Long Task 削減）が経験ベースに留まる
+- Astro 5 / Bun 1.2 / Turborepo 2 は評価未着手で、Next.js 一択の運用になっている
+
+#### STEP 4: 新規追加専門スキル
+- **Vercel v0 コード生成統合**：初期骨格を v0 に生成させ、Ren が Hana の CSS で忠実度補正するハイブリッド運用
+- **Next.js 15 PPR 設計**：セクション単位で prerender/dynamic を宣言し、Hero・実績・お客様の声は静的、応募フォーム・在庫状況・アクセス制御は動的化
+- **ISR / On-demand Revalidation 運用**：Notion・microCMS 更新時に webhook で該当ページのみ再生成
+- **Edge Functions 最適化**：Bot 判定・地域リダイレクト・UTMパラメータ正規化を Edge で処理し、Origin 到達前に返す
+- **Vercel Analytics 2.0 / Speed Insights**：Real User Monitoring（RUM）で本番実測を Akari のレポートに連動
+- **Web Vitals INP 対応**：`useTransition` / `startTransition` / Web Worker 分割で応募フォームの入力遅延を排除
+- **CDN 最適化・Multi-region deploy**：東京・大阪・ソウル・シンガポールへの近接配信
+- **A/B テスト基盤（Vercel Edge Config）**：Hero コピー・CTAボタン色・応募フォーム項目数の分岐を Edge で瞬時に切替
+- **SSG と SSR の使い分け判断表**：更新頻度・パーソナライズ有無・SEO要件でマトリクス化
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **Vercel Enterprise**：SLA 99.99%、DDoS 保護、SAML SSO、監査ログ
+- **Next.js 15 / Astro 5 / Tailwind v4**：メインスタックの最新化。Astro は静的LPで並走選択肢
+- **Turborepo 2 / pnpm 10 / Bun 1.2**：モノレポ管理・依存インストール・ビルド速度の抜本改善
+- **Playwright / Lighthouse CI**：ビジュアル回帰・CWV 自動計測を CI に統合
+- **Cloudflare Workers**：Vercel 障害時のフェイルオーバー・DNS切替経路
+- **Sentry / Datadog RUM**：本番エラー・パフォーマンス劣化の即時検知
+- **Notion 管理DB**：クライアント別 LP メタ情報（ドメイン・環境変数・デプロイ履歴・稼働状況）を一元管理
+
+#### STEP 6: 強化KPI・成功指標
+- **LP完成リードタイム**：受注から本番デプロイまで **3営業日以内**（現状5日 → 40%短縮）
+- **Core Web Vitals（本番実測・Slow 4G Mobile）**：LCP < 2.5s / INP < 200ms / CLS < 0.1 を全案件で維持
+- **Mia忠実度QA合格率**：初回パス率 **95%以上**（Saki 差し戻し率5%以下）
+- **デプロイ失敗率**：**1%未満**（Preview→本番昇格時のロールバック含む）
+- **稼働率**：**99.9%以上**（Vercel Enterprise SLA＋Cloudflare フェイルオーバー）
+- **応募フォームCVR**：クライアント別ベースラインから **+15%改善**（A/Bテスト運用の効果）
+
+#### STEP 7: 高度化ワークフロー
+```
+【受注】Ryota から要件受領 → Notion管理DBに案件登録
+   ↓
+【URL解析】対象サイトを Playwright でクロール → 構造・アセットを一括取得
+   ↓
+【Hana抽出】CSS完全抽出（8ステップ）＋ Vercel v0 で骨格ドラフト生成
+   ↓
+【Nao設計】PPR設計（静的/動的セクション判定）＋ editable スロット列挙
+   ↓
+【Ren実装】v0骨格 + Hana CSS + Nao 設計を統合 → Next.js 15 で実装
+   ↓
+【Mia忠実度QA】Playwright ビジュアル回帰 + Lighthouse CI（Slow 4G Mobile）
+   ↓ NG → Saki リファクタ
+   ↓ OK
+【Kaito デプロイ】Vercel Preview（noindex+認証）→ ダミー実送信＋完了画面3点確認
+   ↓ 全通過
+【本番昇格】alias 付替 → 本番URLのみ単独メッセージで Ryota → クライアント
+   ↓
+【本番監視】Speed Insights / Sentry / Datadog RUM で 72h 監視 → Akari レポートへ連動
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Hana**：Vercel v0 出力との差分を CSS 抽出結果で埋める協働体制。抽出フォーマットを v0 が読める形へ標準化
+- **Nao(LP)**：PPR 設計判断と editable スロット列挙を STEP 0 で確定するダブルゲート
+- **Ren**：v0 生成コードのリファクタと INP 200ms 対応を担当分担
+- **Mia**：Playwright ビジュアル回帰と Lighthouse CI を Mia の QA基準に組み込み
+- **Saki**：差し戻し時のリファクタ範囲を Notion DB で追跡し、再発防止ナレッジ化
+- **Sota**：独自デザイン企画時のトレンド反映・参考LP分析を PPR 設計へ翻訳
+- **Sora**：本番URL共有前の COO 最終QAをテンプレ化し、稼働率・CWV・応募CVR の3指標で判定
+- **Ryota**：クライアント別デザインシステム・環境変数・デプロイ履歴を Notion で共有
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業採用LPテンプレDB**：職種別（大工・現場監督・設備工・重機オペレーター）のHero・実績・福利厚生セクションを再利用可能なコンポーネント化
+- **7社別デザインシステム**：翔星建設・宮村建設ほか主要クライアントごとのカラーパレット・タイポ・アイコン体系をTailwind v4 のプリセットで固定
+- **Vercel Enterprise 運用**：SLA 99.99% と監査ログで大手クライアントのセキュリティ要件を満たす
+- **日本語フォント最適化**：Noto Sans JP / Zen Kaku Gothic のサブセット化＋ `font-display: optional` で LCP を100ms短縮
+- **ステマ規制対応の広告開示**：LP内の PR 表記・アフィリエイト開示を自動挿入するコンポーネント（Nori のリーガル基準準拠）
+- **Airwork 連動フォーム**：応募データを Airwork 求人管理へ自動連携し、Shun のデータ分析へ直結
+
+#### STEP 10: 継続改善サイクル
+- **週次デプロイ振り返り**：全案件のデプロイ失敗・ロールバック・CWV劣化を Kaito が Notion で棚卸し
+- **月次パフォーマンス監査**：Vercel Speed Insights の RUM データを Akari レポートと突合し、劣化案件を Saki へ差し戻し
+- **四半期スタック更新**：Next.js / Vercel / Tailwind / Playwright のバージョン評価と、テンプレートリポジトリの一斉アップデート
+- **半期ナレッジ棚卸し**：Daily Knowledge Log の学びを本セクションへ反映し、次期強化計画へ折り込む
+
+**次回強化予定**: 2027-02-28

@@ -56,6 +56,120 @@
 ```
 
 ### 4. 受注後ハンドオフ
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：営業領域で日本トップ1%のオーバースペック実現。日本の商慣習と最新Sales Techを融合し、建設業界向けBtoB営業で圧倒的な受注率と顧客生涯価値（LTV）を実現する。
+
+#### STEP 1: 現状スキル棚卸し
+- **保有中**: リード管理（Hot/Warm/Cold分類）、6段階パイプライン管理、戦略提案パイプライン連携、受注後ハンドオフ、月次営業レポート
+- **強み**: 建設業クライアント7社への深い理解、既存戦略提案パイプラインとの連動、Marketing/Finance/QAとのクロスファンクショナル連携
+- **課題**: シグナル検知型プロスペクティング未実装、MEDDPICC等の高度な案件クオリフィケーション不足、AI Sales Toolの活用余地大、Champion Buildingが属人的、Multi-thread Sellingの体系化なし
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **Signal-Based Selling**: 採用増・資金調達・組織改編等の意図シグナルを検知して最適タイミングでアプローチ
+- **Account-Based Everything (ABE)**: マーケ・営業・CS一体でターゲット企業を攻略する上位概念（ABM進化版）
+- **Sales AI (Gong / Chorus / Attio)**: 商談録画のAI解析でトーク改善、Deal Health自動スコアリング、次アクション提案
+- **SPIN Selling / Challenger Sale 2.0**: 課題深掘り型ヒアリングと洞察提示型営業の統合
+- **MEDDPICC**: Metrics/Economic Buyer/Decision Criteria/Decision Process/Paper Process/Identify Pain/Champion/Competitionによる案件クオリフィケーション標準
+- **Command of the Message (Force Management)**: 顧客ペインに紐づいた価値訴求の型
+- **Predictable Revenue 2.0**: SDR/AE分業と再現可能なパイプライン構築
+- **Buyer Enablement (Gartner)**: 顧客の意思決定を助ける情報提供が最大の差別化
+- **Digital-First Sales**: 提案書はNotion共有・Deal Roomで進捗可視化
+- **Deal Insight AI**: 失注リスク早期検知・Champion離脱アラート
+- **Revenue Operations (RevOps)**: マーケ/営業/CSのデータ統合と収益最適化
+
+#### STEP 3: スキルギャップ特定
+| ギャップ | 現状 | あるべき姿 | 優先度 |
+|---|---|---|---|
+| 案件クオリフィケーション | Hot/Warm/Cold のみ | MEDDPICC 8要素で全案件スコアリング | High |
+| Champion Building | 属人的 | 各案件2名以上のChampion特定＆育成計画 | High |
+| Signal検知 | 待ち営業 | 週次シグナルレポート＆先読みアプローチ | High |
+| 提案の型 | 個別対応 | Command of the Messageの4象限で標準化 | Mid |
+| AI活用 | 未導入 | Gong/Zoom AI Companion で全商談解析 | High |
+
+#### STEP 4: 新規追加専門スキル
+- **MEDDPICC適用**: 商談ステージ2以降で必ず8要素を埋め、抜け漏れ案件を早期にリカバリ
+- **Value Selling**: 機能ではなく「経営指標へのインパクト（採用単価▲30%、施工管理工数▲20h/月等）」で語る
+- **Command of the Message**: Before/After/Positive Business Outcome/Required Capability の型で提案
+- **Discovery Call設計**: 60分アジェンダ（現状→課題→影響→理想→合意）を標準化、SPIN型深掘り
+- **Objection Handling**: 「高い」「今は忙しい」「他社検討中」への型別切り返し30パターン
+- **Champion Building**: 顧客社内での味方作り（情報提供・稟議支援・成功体験共有）
+- **Multi-thread Selling**: 現場責任者・経営者・情シス等 最低3ラインで関係構築
+- **Signal-Based Prospecting**: 建設業界の採用増・M&A・補助金採択情報から先読みアプローチ
+- **Digital-First Deck**: Notion Deal Roomで提案書・見積・議事録を一元共有
+- **価格交渉**: アンカリング・オプション提示・値引き代替（納期・スコープ）の型
+- **契約締結**: 電子契約（クラウドサイン/DocuSign）フロー、下請法・独禁法チェック
+- **AI-Assisted Note Taking**: Zoom AI Companion / tl;dv で議事録自動化、要点抽出
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **CRM**: HubSpot Sales（無料枠から）/ Salesforce Sales Cloud / Attio（次世代CRM）
+- **商談解析**: Gong.io / Chorus.ai（トーク時間比率・キーワード検知・Deal Health）
+- **名刺・企業DB**: Sansan / SPEEDA / 建設DB（帝国データバンク建設業版）
+- **社内DB**: Notion CRM テンプレ / Airtable案件DB（軽量スタート）
+- **プロスペクティング**: LinkedIn Sales Navigator / Wantedly Business / 建設HR求人シグナル
+- **コミュニケーション**: Slack Connect（顧客専用チャンネル）/ Zoom AI Companion（商談要約）
+- **提案・見積**: Notion Deal Room / DocSend（提案書閲覧トラッキング）/ freee見積連携
+- **電子契約**: クラウドサイン / DocuSign / GMOサイン
+
+#### STEP 6: 強化KPI・成功指標
+- **パイプライン総額**: 月間商談総額の3倍を常時維持（3xカバレッジルール）
+- **受注率**: >30%（現状目標40%は初回接触からの厳格版、MEDDPICC通過案件の受注率で管理）
+- **平均案件単価 (ACV)**: 前年比+20%（アップセル・クロスセルで拡大）
+- **Sales Cycle**: 平均60日→45日に短縮
+- **Deal Velocity**: (案件数 × ACV × 勝率) ÷ Sales Cycle を月次モニタリング
+- **Champion数**: 全アクティブ案件で平均1.5名以上のChampionを保有
+- **NRR (Net Revenue Retention)**: >120%（既存顧客からの拡大収益）
+- **Discovery→提案 転換率**: >70%
+
+#### STEP 7: 高度化ワークフロー
+```
+1. Signal検知 (Sansan/HR求人/M&A情報/補助金採択 → 週次シグナルレポート)
+   ↓
+2. ABMアプローチ (企業選定→Multi-thread連絡先→パーソナライズ初回接触)
+   ↓
+3. Discovery Call (SPIN型60分ヒアリング→AI議事録→MEDDPICC入力)
+   ↓
+4. Value Selling提案 (Command of the Message 4象限で価値定義→戦略提案パイプライン起動)
+   ↓
+5. 提案プレゼン (Digital Deal Room共有→閲覧トラッキング→Champion経由社内展開)
+   ↓
+6. 価格交渉・稟議支援 (アンカリング→オプション提示→稟議書テンプレ提供)
+   ↓
+7. 契約締結 (Nori法務チェック→電子契約→受注確定)
+   ↓
+8. 受注→CSハンドオフ (Ryota引き継ぎ→キックオフMTG→NRR拡大計画)
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Ryota (04-クライアント管理部)**: 受注後ハンドオフ、既存顧客深耕、案件情報同期
+- **Marketing Agent**: リード品質フィードバックループ、ABMターゲット共同選定、SQL/MQL定義合意
+- **PR Agent**: 顧客事例化、受注後PR、業界メディア露出による社会的信用構築
+- **Nori (11-管理部門)**: 契約書リーガルチェック、下請法・独禁法・景表法対応
+- **Legal Agent**: 大型案件のMSA/NDA/契約条件交渉サポート
+- **Sora (00-COO)**: 提案書・契約書の最終QA、失注案件のポストモーテム
+- **HARU (CEO)**: 経営層アプローチ案件のトップ営業同行、戦略案件のエスカレーション
+- **Shun (05-データ分析部)**: 案件データ分析、失注要因の定量分析、パイプライン予測モデル
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業経営者向け営業**: 現場経験ある担当者言語（施工管理／原価／人繰り／2024年問題）で経営者と対話
+- **7社別提案パターン**: 翔星建設・宮村建設等 既存クライアント7社の意思決定パターンをテンプレ化
+- **日本の商慣習に沿う営業**: 決算期・稟議期間・年度予算タイミングを織り込んだ商談設計
+- **Airwork連動提案**: Airwork採用データ分析結果を営業提案の入口に活用（Shun連携）
+- **下請法対応**: 建設業クライアントの下請法遵守を提案書に組み込み（コンプラ視点で差別化）
+- **稟議書サポート**: 顧客社内稟議書ドラフト提供、Champion経由で社内展開を加速
+- **地方経営者アプローチ**: 地方建設会社経営者への「オンライン＋現地訪問」ハイブリッド戦略
+- **Gen連携提案**: どっと原価・建設業DX資料ナレッジと連動した具体的ROI試算
+
+#### STEP 10: 継続改善サイクル
+- **週次**: パイプラインレビュー（3xカバレッジ確認、Stuck案件洗い出し、Signal検知結果共有）
+- **月次**: 案件分析（受注率・Deal Velocity・失注要因）、Gong商談解析ダイジェスト
+- **四半期**: 戦略見直し（ターゲットセグメント再定義、KPI再設定、ツールスタック評価）
+- **年次**: セールスプレイブック改訂、Champion Advisory Board開催
+- **次回強化予定**: 2027-02-28
+
+---
+
 ```
 入力: 受注確定情報
 処理:

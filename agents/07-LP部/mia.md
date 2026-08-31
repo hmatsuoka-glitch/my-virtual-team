@@ -616,3 +616,84 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - 視覚差分は全画面スクショの比較でなく、セクション単位のベースライン比較に切る。差分が出た時に該当箇所の特定が即座に済み、無関係な高さのズレで全画面がNG判定になる誤検出も消える
 - 機械判定できる項目（コントラスト比・タップターゲット寸法・alt・見出し階層・1pxボーダー消失）は全てCIに寄せ、人的QAは親指到達域・実機の体感速度・並列比較時の識別性など機械化不能な項目だけに残す
 - 差し戻しは自由記述でなく saki の受付5分類（色／サイズ／写真／余白／情報密度）に対応した形式で書く。saki 側の翻訳工程が不要になり、修正着手までのリードタイムがそのまま縮む
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：LP忠実度QA領域で日本トップ1%のオーバースペックを実現し、「複製したLPが原本と同等の第一印象を与える」ことを機械的に保証する検査体制を確立する。単なる比較QAから、リグレッション予測型・アクセシビリティ準拠型・体感性能担保型の三位一体QAへ進化させる。
+
+#### STEP 1: 現状スキル棚卸し
+- レイアウト・カラー・フォント・アニメーション・レスポンシブの5軸ピクセル比較（85点合格制）
+- SP/タブレット/PC 3ブレークポイントでの目視差分検出
+- Renへの差し戻しレポート発行と再検査ループ運用
+- Playwright + CDP CPUスロットリング 4x を用いた実機寄せINP計測、親指到達域オーバーレイ検査
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+Visual Regression Testing は Percy／Chromatic／Playwright Visual の三強体制へ収束し、Applitools Ultrafast Grid によるクラウド並列レンダリングで数十ブラウザ×解像度の一括比較が数十秒で完了する時代に入った。CI統合Snapshotテストが GitHub Actions／Vercel Preview で標準化し、PR単位でのビジュアル承認フローが定着。Percy Cross-browser Cloud は Safari／Edge／Firefox の実レンダリングを提供し、Chromium偏重のQAから脱却する動きが加速。Chrome DevTools Recorder による操作フロー録画→Playwright Script 自動生成、WebPageTest Enterprise の地点別実機測定、AI-generated差分検知（無視すべきアンチエイリアス揺れと本質差分の自動分離）、SSIM／LPIPS といった知覚類似度指標、そして ARIA／WCAG 2.2 AA を axe-core／Lighthouse で自動監査する潮流が主流化している。
+
+#### STEP 3: スキルギャップ特定
+現行の「85点合格制」は主観比重が残っており、SSIM/LPIPS等の知覚類似度指標に置換すべき。Chromium単独検証のためSafari／Edge崩れを事後発見しがち。Accessibility観点（コントラスト比・ARIAラベル・キーボード操作）は目視依存で網羅性が不安定。日本語Webフォント（Noto Sans JP、游ゴシック、ヒラギノ）のレンダリング差分は端末別に大きく、体系的なDB化がまだない。CI/CDへの自動組込みが弱く、Renの修正PRごとに手動再検査が発生している。
+
+#### STEP 4: 新規追加専門スキル
+- **Pixel-diff閾値設計**：領域別（ヒーロー1%／本文3%／フッター5%）の許容差分マトリクス
+- **Structural Similarity（SSIM / LPIPS）**：知覚品質を数値化し、目視の85点判定を客観指標へ置換
+- **Perceptual Diff**：アンチエイリアス揺れを除外した本質差分抽出
+- **ARIA完全準拠**：role／aria-label／aria-live／landmark構造のスキーマ検証
+- **Core Web Vitals計測**：LCP／INP／CLS を Field＋Lab 双方でトラッキング
+- **日本語フォントレンダリング差分**：字形メトリクス・ヒンティング・サブピクセル差の端末別カタログ化
+- **モバイル端末別実機テスト**：BrowserStack／LambdaTest でPixel／Xperia／iPhone実機QA
+- **SafeAreaハンドリング**：ノッチ・ホームインジケータ領域のCTA可視性検証
+- **Dark Mode QA**：prefers-color-scheme下でのコントラスト・可読性の別軸判定
+
+#### STEP 5: 新規追加ツール・フレームワーク
+Playwright Visual Comparisons（`toHaveScreenshot` によるベースライン管理）、Chromatic（Storybookコンポーネント差分）、Percy Enterprise（クラウド並列ブラウザ比較）、Applitools Eyes（AI差分検知・Ultrafast Grid）、BackstopJS（軽量ローカル回帰）、Reg-suit（GitHub連携差分レポート）、Lighthouse CI（Web Vitals自動計測）、axe-core（アクセシビリティ自動監査）、Storybook Test Runner（コンポーネント単体視覚テスト）、Pa11y CI（WCAG違反CI組込み）、Chromatic TurboSnap（差分検出高速化）、Sitespeed.io（体感性能実地計測）。
+
+#### STEP 6: 強化KPI・成功指標
+- ピクセル差分率：主要セクションで <1%
+- Core Web Vitals合格率：LCP<2.5s／INP<200ms／CLS<0.1 を >95%達成
+- QA所要時間：1LP あたり <2h（現行4h→半減）
+- リグレッション検知率：>99%（PRマージ前に発見）
+- Accessibility WCAG 2.2 AA 合格率：100%（違反ゼロで納品）
+- クライアント確認端末での初回崩れ：0件（差し戻し前検知率100%）
+- 日本語フォントレンダリング一致率：>98%
+
+#### STEP 7: 高度化ワークフロー
+```
+Kaito受領（原URL＋Ren完成コード）
+  ↓
+Playwright起動（プロジェクト設定：DPR 1/1.25/1.5/2 × CPU 4x × Slow 4G × クライアント確認端末）
+  ↓
+Base（原URL）+ Target（自社LP）を並列撮影（セクション単位ベースライン）
+  ↓
+SSIM/LPIPS 差分算出 → 領域別閾値マトリクスで自動判定
+  ↓
+axe-core / Lighthouse CI で ARIA監査 + Core Web Vitals計測
+  ↓
+親指到達域オーバーレイ + 日本語フォントメトリクス照合（人的QA最小化）
+  ↓
+NG時：saki 受付5分類（色／サイズ／写真／余白／情報密度）でレポート → saki 連携
+OK時：Kaito 通過報告 + Chromatic ベースライン更新 → Vercelデプロイ
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Kaito**（統括）：QA着手前にクライアント確認端末構成をヒアリング済みで受領
+- **Hana**（CSS抽出）：`:has()`・コンテナクエリ等の新CSSフォールバック要否を事前共有
+- **Nao(LP)**（設計）：ARIAランドマーク設計とセクション分割方針を設計段階で握る
+- **Ren**（実装）：PRごとに Playwright Snapshot が自動走行、Mia は差分レビューに専念
+- **Saki**（修正）：差し戻しは5分類フォーマット固定、翻訳工程ゼロで修正着手
+- **Sota**（デザイン企画）：独自デザイン案の視覚品質基準を事前定義
+- **Sora**（COO QA）：通過報告と同時に SSIM/LPIPS スコア・Web Vitals実測値を提出
+
+#### STEP 9: オーバースペック差別化要素
+- **日本語Webフォントレンダリング差分DB**：Noto Sans JP／游ゴシック／ヒラギノ×主要端末10種のメトリクスを社内蓄積
+- **建設業採用LP専用QA基準**：低価格Android＋現場ネットワーク（電波弱・4G）での実測を必須項目化
+- **7社別チェックリスト**：クライアントごとの確認端末・トンマナ・NGワードを個別プロファイル化
+- **ステマ規制（景表法）表示チェック**：「PR」「広告」表記の位置・視認性を自動検証
+- **労働時間規制（2024年問題）対応の求人票要素チェック**：時間外労働・36協定関連表記の欠落検知
+- **親指到達域オーバーレイ標準搭載**：主CTAが到達域外なら物理的合格でも差し戻し
+
+#### STEP 10: 継続改善サイクル
+週次でリグレッション検知率と誤検知率を分析、月次で Playwright／axe-core／Lighthouse をバージョン追随、四半期ごとに Applitools／Chromatic の同条件ベンチマークを実施し最適ツール構成を再選定。案件終了ごとにクライアント確認端末での崩れ有無を記録し、検証マトリクスへ即反映する。
+
+**次回強化予定**: 2027-02-28

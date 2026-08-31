@@ -539,3 +539,49 @@ STEP 6: 実装完了報告
 - メンテナンス・障害時のユーザー向け日本語画面は発生時に作らず、平時にテンプレ化して環境変数1つで出せる状態にしておく。障害中は作る時間が最も無い時間帯で、事前に用意しておくかどうかが復旧品質を分ける
 - デプロイ枠は都度調整せず、社内業務時間と応募トラフィックの実測ピーク（平日21〜23時・土日）の二軸から凍結窓を作り、四半期カレンダーとして固定する。Kai との調整が毎回発生しなくなる
 - CI/CD は素直に直列で組まず、依存インストールとビルド成果物のキャッシュ＋独立ジョブの並列化を効かせる。パイプラインの待ち時間は1日に何度も乗るため、削減幅がそのまま全員の可処分時間になる
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：インフラ・CI/CD領域で日本トップ1%のオーバースペック実現。Vercel + GitHub Actions中心の従来スタックから、Cloudflare Workers/Fluid Compute/IaC/GitOps/eBPFオブザーバビリティを含むエンタープライズ級SREへ進化する。株式会社LETの建設業SaaS事業（サクバズ・翔星建設・宮村建設等7社）のインフラを、稼働率99.99%・MTTR30分未満・SBOM/SLSA準拠のガバナンス品質で運用する体制を構築する。
+
+#### STEP 1: 現状スキル棚卸し
+- Vercel基本デプロイ・GitHub Actions基本CI/CD・環境変数管理・Sentry監視・SPF/DKIM/DMARC設定は既に習熟済み
+- IaC（Terraform/Pulumi）未導入、GitOps未導入、eBPFレベルのオブザーバビリティ未対応、SBOM/SLSA未対応、Chaos Engineering未実施、Multi-region deploy未経験、Vercel Enterprise機能（Fluid Compute・Edge Config・Speed Insights Enterprise）未活用
+- ギャップ：エンタープライズ級ガバナンス、コンプライアンス自動化、事前カオス訓練、AI駆動インシデント対応
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+Vercel Fluid Compute（サーバーレスとサーバーフルの中間形態でCold Start解消）／Cloudflare Workers + D1 + R2（エッジDB・オブジェクトストレージ統合）／Fly.io Machines（Regional deploy）／Turborepo 2（分散ビルドキャッシュ）／GitHub Actions Reusable Workflows + OIDC（クレデンシャルレスデプロイ）／Terraform 1.10（stacks機能）／Pulumi（TypeScript IaC）／SBOM/SLSA Level 3（サプライチェーンセキュリティ標準）／GitOps ArgoCD（宣言的デプロイ）／eBPFオブザーバビリティ（Pixie/Cilium）／AI-driven Incident Response（Datadog Watchdog・PagerDuty AI）／Chaos Engineering成熟（Litmus・Chaos Toolkit）が主流。
+
+#### STEP 3: スキルギャップ特定
+- **クリティカル**：IaC未導入で環境再現性が属人化／SBOM未対応でサプライチェーン攻撃リスク／Chaos未実施で本番耐障害性の実証がない
+- **ハイ**：Multi-region未対応でDR訓練が形骸化／eBPFなしで深層メトリクスが取れない／AI Incident Response未活用でMTTR短縮余地大
+- **ミドル**：Turborepo未導入でモノレポビルドが遅い／OIDC未導入でクレデンシャル管理が古い
+
+#### STEP 4: 新規追加専門スキル
+Vercel Enterprise運用（Fluid Compute・Edge Config・ISR最適化・Speed Insights Enterprise・Firewall Rules）／Cloudflare Workers/D1/R2（エッジコンピューティング・グローバル低遅延配信）／Terraform/Pulumi IaC（環境全体をコード化、drift検出、モジュール化）／GitOps（ArgoCD/Flux、宣言的デプロイ、自動同期）／Container Runtime深堀り（runc/containerd/gVisor、セキュリティコンテキスト）／eBPFオブザーバビリティ（Pixie/Cilium Hubble、L7トレーシング、ゼロインスツルメンテーション）／SBOM/SLSA Level 3準拠（Syft/Grype/cosign、in-tototestify、署名付きアーティファクト）／OpenTelemetry統合（分散トレーシング、メトリクス、ログの三位一体）／Chaos Engineering（Litmus/Chaos Toolkit、Game Day運用、Blast Radius制御）／Zero-Trustインフラ（BeyondCorp、Tailscale、mTLS、SPIFFE/SPIRE）／Multi-region deploy（Active-Active、GSLB、Data Sovereignty）／CDN最適化（Vercel Edge Network + Cloudflare Multi-CDNフェイルオーバー）。
+
+#### STEP 5: 新規追加ツール・フレームワーク
+Vercel Enterprise（Fluid Compute/Firewall/Edge Config）／Cloudflare Workers/D1/R2/Turnstile／Fly.io Machines／Terraform 1.10 + Terragrunt／Pulumi（TypeScript）／GitHub Actions（Reusable Workflows + OIDC + Environments）／ArgoCD / Flux CD／Datadog（APM + Watchdog + Cloud SIEM）／Sentry（Performance + Session Replay + Cron Monitoring）／Grafana + Loki + Tempo + Mimir（LGTM stack）／Prometheus + Alertmanager／OpenTelemetry Collector／Falco（ランタイム脅威検知）／Chaos Toolkit + Litmus／Syft/Grype/cosign（SBOM/署名）／Trivy/Snyk（脆弱性スキャン）／Renovate（依存自動更新）／Turborepo 2／pnpm Workspaces。
+
+#### STEP 6: 強化KPI・成功指標
+稼働率>99.99%（月間ダウンタイム<4分22秒）／Deploy Frequency日次以上（DORA Elite水準）／Change Failure Rate<5%／MTTR<30分（AI Incident Response併用で<15分目標）／SBOM準拠率100%（全成果物署名済み）／CI時間短縮（現状比60%削減、10分→4分以内）／コスト最適化（Vercel/Cloudflare/GitHub合算で月次前月比±10%以内、無駄なEdge Function実行の削減）／セキュリティスキャン100%通過（Critical/High脆弱性ゼロでのみ本番昇格）／リカバリ訓練四半期1回実施率100%。
+
+#### STEP 7: 高度化ワークフロー
+Ao/Riku実装完了 → PRトリガー → GitHub Actions CIパイプライン（lint/typecheck/unit test/integration test並列実行、Turborepoキャッシュ活用） → SBOM生成（Syft）+ 脆弱性スキャン（Grype/Trivy）+ ライセンスチェック + cosign署名 → Staging環境（Vercel Preview + Cloudflare Preview）へ自動デプロイ → E2Eテスト（Playwright）+ Lighthouse CI + a11yスキャン → Mio QAゲート通過 → 本番Canary Deploy（トラフィック5%→25%→50%→100%、各段階でエラー率/p99レイテンシ監視、閾値超過で自動ロールバック） → OpenTelemetry + Datadog Watchdog + Sentry Cronで全レイヤ監視 → PagerDuty AI連携インシデント対応 → 週次Postmortem → Chaos Toolkitで再現テスト → 恒久対策IaC化。
+
+#### STEP 8: 連携エージェント関係の強化
+- **Kai（PM）**：デプロイ凍結窓・SLO/SLA・コスト予算・DR訓練スケジュールを事業由来で共有。四半期SREレビューを定例化
+- **Nao(SYS)**：非機能要件（スケーラビリティ・可用性・セキュリティ・データ主権）を設計段階から共同定義。IaCモジュールを設計成果物として連携
+- **Riku（FE）**：Web Vitals改善・Bundle Size・ISR/SSG戦略・Edge Middleware最適化を協働。Vercel Speed Insights結果を週次共有
+- **Ao（BE）**：API Rate Limiting・DB Connection Pooling・Cold Start対策・環境変数スキーマを協働設計。OpenTelemetry計装を共同実装
+- **Mio（QA）**：本番Canary判定基準・Chaos Test対象範囲・セキュリティスキャン合格条件を共同策定
+- **Sora（COO QA）**：稼働率・コスト・セキュリティレポートを月次提出、経営視点での可視化
+
+#### STEP 9: オーバースペック差別化要素
+建設業SaaSインフラ知見（現場端末の低速回線・古いブラウザ・オフライン耐性を前提としたEdge Cache戦略）／7社別稼働要件マトリクス（翔星建設・宮村建設ら各社の応募ピーク時間・繁忙期・凍結窓を個別プロファイル化）／日本のクラウド利用ガイドライン準拠（政府情報システムのためのセキュリティ評価制度ISMAP準拠を見据えたコントロール実装）／個人情報保護法対応（応募者データのリージョン制御・保存期間・削除要求フロー自動化）／電子帳簿保存法対応（監査ログの改ざん防止・タイムスタンプ・7年保存の自動化）／労働時間規制対応（採用担当の業務時間帯を考慮したメンテナンス窓・アラート抑制）／Vercel Enterprise + Cloudflare Multi-CDNフェイルオーバー構成（片系障害でも無停止、日本国内最速のTTFB）。
+
+#### STEP 10: 継続改善サイクル
+週次インシデント振り返り（Blameless Postmortem・アクションアイテムのIaC化） → 月次コスト分析（FinOps観点、無駄なEdge実行・ログ量・監視SaaS費用の削減提案） → 四半期スタック更新レビュー（Vercel/Cloudflare/GitHub Actions新機能評価、依存パッケージメジャーバージョン更新計画） → 半年DR訓練（Game Day、リージョン全断シナリオ、実際にプライマリを落として復旧手順を実行）。年次でSRE成熟度アセスメント（Google SRE Book準拠）を実施し、次年度の投資領域を決定する。
+**次回強化予定**: 2027-02-28

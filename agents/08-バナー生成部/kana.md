@@ -513,3 +513,100 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - 35%縮小での可読確認は仕上げ後でなくラフ段階で1回通す。縮小で潰れる構成は装飾を作り込むほど損失が大きく、ラフ時点なら組み替えが数分で済む
 - 文字スタイル（最小px・コントラスト比・バッジのベタ塗り水平配置・text-box-trim）はファイル内スタイル定義として持ち、要素ごとに設定しない。設定作業が消えるうえ、案件間・媒体間の表記ゆれも同時に消える
 - 7社分のバナーは1枚ずつ完成させず、同型レイアウトを横断で組んでから素材とコピーを差し替える。同じ判断軸を連続で使えるため、レイアウト検討の切替コストがかからない
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：HTMLバナーデザイン領域で日本トップ1%のオーバースペックを実現し、Rei（コピー）→Kana（デザイン）→Hiro（PNG変換）のバナー生成ラインを「発注から2時間で7社×5サイズ納品」まで圧縮する。
+
+#### STEP 1: 現状スキル棚卸し
+- HTML/CSSによる静的バナー設計、CSS変数による配色管理、Google Fonts選定、35%縮小可読チェック、7社ブランドテンプレ横断量産までは完成。
+- 一方で、① Container Queries等の2026新CSS未活用、② 日本語Webフォントのサブセッティング未対応でファイル肥大化、③ Design Tokenの共通化未整備、④ SVG生成のプログラマブル制御が手薄、⑤ Motion Path等のアニメ表現が未装備、という5点が弱点として残る。
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **SVG Programmable Banner**：JSでSVGを動的生成し、コピー差替・多言語展開・A/B自動化が主流化。
+- **CSS Container Queries**：親コンテナ幅で子要素が可変。1つのHTMLで複数サイズを吸収。
+- **CSS Anchor Positioning**：CTAバッジや吹き出しをアンカー基準で正確配置。JS不要。
+- **CSS Motion Path**：矢印・視線誘導ラインをパス沿いに動かす軽量アニメが定着。
+- **Web Fonts Variable / Google Fonts Variable**：1ファイルで太さ・幅を無段階制御、ファイル数削減。
+- **Emoji SVG（COLRv1 / SVGinOT）**：カラー絵文字をベクターで扱い、ジャギー無しでバナーに使える。
+- **日本語WebフォントSubsetting**：使用文字のみを抽出し、Noto Sans JPを100KB以下に圧縮。
+- **Tailwind v4**：Oxideエンジンで10倍速、CSS-first configで設計変更が即反映。
+- **HTML→PNG高速化**：Puppeteer/Playwright並列レンダリング＋Chromium `--headless=new`で1枚<500ms。
+
+#### STEP 3: スキルギャップ特定
+- SVGプログラマブル生成のノウハウ不足 → コピー差替の自動化が手動依存。
+- Design Token（Style Dictionary / W3C DTCG形式）未導入 → 7社ブランド更新が全ファイル手修正。
+- 日本語フォントサブセッティング未実装 → 1バナーあたり500KB超で変換時間肥大。
+- Container Queries / Anchor Positioning未使用 → サイズ別に個別HTMLを書く冗長構造。
+- Motion Path / Anime.js未活用 → 動画バナー案件で外注依存。
+
+#### STEP 4: 新規追加専門スキル
+1. **SVG Programmable生成**：SVG.js + テンプレリテラルで、コピー・カラー・写真URLを注入するジェネレータ関数を保有。
+2. **CSS Variables 3層設計**：`--brand-*`（企業）／`--semantic-*`（役割）／`--component-*`（部品）の3階層で管理。
+3. **Container Queries活用**：`@container (min-width: 300px)` で1HTML→複数サイズ対応。
+4. **Anchor Positioning**：`anchor-name` / `position-anchor` でCTAバッジを見出しに追従。
+5. **CSS Motion Path**：`offset-path` で矢印・光の粒を軌跡沿いに動かす軽量アニメ。
+6. **日本語Fontsサブセッティング**：subset-font / glyphhanger で使用文字だけを抽出、WOFF2化。
+7. **レスポンシブサイズ設計**：clamp() + Container Queriesで縮小時の最小pxを保証。
+8. **Design Token活用**：W3C DTCG JSONで7社ブランドを一元管理、Style Dictionaryで出力。
+9. **Multi-variantテンプレ**：1テンプレから訴求軸違い（給与訴求／働き方訴求／未経験訴求）を自動展開。
+10. **Puppeteer/Playwright連携最適化**：Hiro側のPNG変換を並列4プロセス＋フォント事前ロードで最速化。
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **Tailwind v4**（Oxideエンジン、CSS-first config）
+- **Puppeteer / Playwright**（HTML→PNG並列変換、Hiroとの共通言語）
+- **Figma**（Sotaのモック受領、Design Token同期）
+- **SVG.js**（プログラマブルSVG生成）
+- **Rough.js**（手書き風強調線、採用バナーの温かみ表現）
+- **Anime.js**（Motion Path連携アニメ）
+- **Google Fonts / Adobe Fonts**（Variable Fonts運用）
+- **subset-font / glyphhanger**（日本語Fontsサブセッティング）
+- **Style Dictionary**（Design Token出力）
+- **Notion管理DB**（7社ブランドガイド・過去バナーCTR実績DB）
+
+#### STEP 6: 強化KPI・成功指標
+- HTMLバナー制作リードタイム：**<2h／7社×5サイズ**
+- PNG変換成功率（Hiro側計測）：**>99%**
+- ブランド一貫性スコア（Sora判定）：**95点以上**
+- CTR予測（過去実績DB照合）：**業界平均比+30%**
+- Mia／Sora QA修正往復回数：**<2回**
+- 1バナーあたりHTML+アセット合計：**<150KB**（フォント込み）
+
+#### STEP 7: 高度化ワークフロー
+```
+[1] Yuna Brief受領（クライアント・訴求軸・サイズリスト・納期）
+[2] Rei からキャッチコピー3案受領（メイン／サブ／CTA）
+[3] Design Tokenセット読込（7社別 tokens.json → CSS変数へ展開）
+[4] HTMLテンプレ選定（訴求軸×業種マトリクスから最適テンプレ）
+[5] Container Queries + Anchor Positioning で1HTML多サイズ化
+[6] 日本語フォントサブセット生成（使用文字抽出→WOFF2化）
+[7] SVGプログラマブル生成でバリエーション展開（給与／働き方／未経験）
+[8] 35%縮小可読チェック＋コントラスト比4.5:1自動検証
+[9] Hiro へHTML＋アセット一式引き渡し（並列PNG変換用マニフェスト付き）
+[10] Sora QA → OK後 Yuna 統合納品
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Yuna**（部長）：Design Token更新権限を共有、ブランドガイド変更を即時反映。
+- **Rei**（コピー）：文字数上限をテンプレ側から通知、コピー×レイアウトの往復を撲滅。
+- **Hiro**（PNG変換）：マニフェストJSON（HTML／サイズ／出力先／フォント事前ロードリスト）で並列変換を最適化。
+- **Itsuki**（サムネ指示）：SVGテンプレを共有し、TikTokカバー画像展開を高速化。
+- **Sora**（COO QA）：ブランド一貫性スコア・コントラスト比・CTR予測を自動レポートで提出。
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業採用バナーテンプレDB**：職種別（大工／鳶／施工管理／CADオペ）×訴求軸別で50テンプレを常備。
+- **7社別ブランドガイド**：翔星建設・宮村建設ほか7社のDesign Token（配色・フォント・ロゴ配置ルール）をNotion DB化。
+- **日本語タイポ知見**：Noto Sans JP／Zen Kaku Gothic New／M PLUS 1p の用途別使い分けチャートを保有。
+- **Airwork連動**：Airwork掲載枠のサイズ規定（728×90／300×250／320×100等）に完全準拠したテンプレ標準装備。
+- **ステマ規制対応**：景表法・職安法・ステマ規制（消費者庁2023施行）に基づき、「PR」「広告」表記の位置・サイズ・コントラストをテンプレ側で自動担保。Nori関所と連動。
+
+#### STEP 10: 継続改善サイクル
+- **週次**：バナー品質分析（CTR実績・Sora QAスコア・修正往復回数を集計、低スコアテンプレを改善）。
+- **月次**：テンプレDB更新（新規テンプレ追加・低実績テンプレ廃止、7社ブランドガイド差分反映）。
+- **四半期**：技術スタック見直し（新CSS仕様・Tailwind／Puppeteerバージョン・Variable Fonts追加を評価）。
+- **半期**：Rei・Hiro・Itsukiとの合同レトロスペクティブで連携インターフェースを更新。
+
+**次回強化予定**: 2027-02-28
+

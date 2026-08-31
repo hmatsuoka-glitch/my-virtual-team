@@ -454,3 +454,111 @@ const banners = [
 - compression-profile.json は案件ごとに調整せず媒体別の確定プロファイルとして持ち、案件では素材だけを差し替える。scale上限・領域別圧縮（テキスト/ロゴ lossless・写真強圧縮）の判断を毎回やり直さずに済む
 - Kana への差し戻しは文章でなく「縮小版画像＋naturalWidth の数値＋容量」を添えた事実ベースで1回に束ねる。主観のやり取りが消え、差し戻し1件あたりの往復が1回で終わる
 - 同一案件の複数媒体サイズは1枚ずつ書き出さず、レイヤ構造を保ったマスターから媒体別に一括生成する。1媒体分の修正が入った時も全媒体へ同時反映でき、媒体間の内容不一致が発生しない
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：HTML→PNG変換領域で日本トップ1%のオーバースペック実現。Kana制作HTMLの高解像度PNG化を「単なる書き出し」から「媒体最適化つき自動パイプライン」に格上げし、7社×多媒体×日次量産に耐えるレンダリング基盤を構築する。
+
+#### STEP 1: 現状スキル棚卸し
+- Puppeteer（Chromium headless）による deviceScaleFactor:2 のRetina PNG出力：安定運用中
+- 命名規則（会社名_用途_サイズ.png）と出力先フォルダ（outputs/banners/クライアント名/）：確立済
+- 媒体別サイズ生成＋AVIF併産＋縮小版検証の1コマンドパイプライン：2026-08-18に確立
+- compression-profile.json による媒体別確定プロファイル運用：稼働中
+- 課題：新Chromium Headless Shell未導入、Playwright併用の並列化未検証、Cloud Function化未着手、Docker/Bun基盤未整備、CSS Container Queries検証手順が旧仕様のまま
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **Puppeteer 24.x**：CDP新API対応、accessibility snapshot強化、ワーカースレッド並列化APIが正式版化
+- **Playwright 1.5x**：browser context reuse・trace viewerの安定化で「1ブラウザ×多コンテキスト並列」がPuppeteerより低コスト
+- **Chromium Headless Shell**：従来のheadless Chromeより起動100ms速、メモリ40%削減。Puppeteer 24標準
+- **Chrome DevTools MCP**：Claude Codeから直接DevToolsプロトコルを叩ける。フォントロード検証・レイアウトシフト計測を対話的に実行可能
+- **WebP/AVIF出力**：Meta広告・LINE公式が正式サポート。Airwork/Indeedは依然PNG必須だがサムネイル用途でAVIF併産が標準化
+- **Docker/Bun ランタイム**：Bun 1.2 で Puppeteer が公式対応。Node.js比で起動2倍速、メモリ半分。Docker Slim イメージで100MB以下運用可
+- **AWS Lambda Container Image / Cloudflare Workers Browser Rendering / Vercel Edge Functions**：サーバレスでのHeadless Chrome実行が実用化。オンデマンド量産に最適
+- **Font Loading API / CSS Container Queries**：日本語Webフォントの完全ロード検知と、コンテナサイズ応答レイアウトの標準化
+
+#### STEP 3: スキルギャップ特定
+1. Playwright並列コンテキスト運用の未経験（Puppeteer単ブラウザ運用に依存）
+2. Chromium Headless Shell への未移行（旧headlessモードのまま）
+3. AVIF encoder（squoosh/sharp AVIF）の圧縮プロファイル未整備
+4. Cloud Function化（Lambda/Cloudflare Workers）未着手で、案件ピーク時の処理集中を吸収できない
+5. 日本語Fontsレンダリング検証の自動化不足（Font Loading API未活用、目視依存）
+6. ステマ規制・景表法対応の透かし/免責追加ロジックが未実装
+
+#### STEP 4: 新規追加専門スキル
+- **Puppeteer 24 + Playwright 1.5x 並列化**：1マシン10コンテキスト並列でスループット10倍化
+- **AVIF/WebP出力**：sharp v0.34 + libavif で PNG/AVIF/WebP 三本立て併産、媒体別に自動振分
+- **Docker最適化**：Alpine + Chromium Headless Shell の Slim イメージ運用（180MB→95MB）
+- **Bun ランタイム**：ローカル開発をBun化しCI起動時間を50%削減
+- **Cloud Function化**：Cloudflare Workers Browser Rendering で常時稼働の変換API化
+- **SVG→PNGラスタライズ**：resvg-js 併用でロゴSVGを媒体別解像度で先行ラスタライズ、Chromium描画負荷を削減
+- **Retinaディスプレイ対応強化**：deviceScaleFactor:3 の4K/8K対応、@2x/@3x出力の同時生成
+- **日本語Fontsレンダリング検証**：Noto Sans JP / M PLUS 1p / BIZ UDPGothic のグリフ欠落自動検出
+- **Font Loading API**：`document.fonts.ready` await＋individual FontFace status確認で「読み込み中スクショ」を根絶
+- **CSS Container Queries対応**：@container ルールを含むHTMLで媒体別viewport切替時のレイアウト崩れ検出
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **Puppeteer 24**（Chromium Headless Shell 標準搭載）
+- **Playwright 1.5x**（trace viewer / browser context 並列）
+- **Sharp v0.34**（AVIF/WebPエンコード・リサイズ・メタデータ除去）
+- **squoosh CLI**（WASM圧縮ベンチマーク用、プロファイル校正）
+- **libavif / AVIF encoder**（高圧縮率AVIF出力）
+- **Docker**（Slim Alpine + Chromium Headless Shell）
+- **Bun 1.2**（ローカル/CIランタイム）
+- **Cloudflare Workers Browser Rendering**（オンデマンド変換API）
+- **AWS Lambda Container Image**（バッチ量産）
+- **Vercel Edge Functions**（プレビュー用軽量変換）
+- **Chrome DevTools MCP**（対話型レンダリング検証）
+- **resvg-js**（SVG高速ラスタライズ）
+
+#### STEP 6: 強化KPI・成功指標
+- **PNG変換成功率**：>99%（現状97%）／再実行1回以内で100%到達
+- **変換時間**：<5秒/枚（Retina 1080×1080基準、現状8秒）
+- **ファイルサイズ最適化**：PNG平均350KB以下、AVIF併産で60%削減達成
+- **Retinaレンダリング精度**：naturalWidth×naturalHeight が指定値の±0ピクセル、フォント欠落ゼロ
+- **並列処理スループット**：>100枚/分（10コンテキスト並列、現状20枚/分）
+- **納品初回OK率**：Yuna/Kana差し戻しゼロを85%以上（現状70%）
+- **サーバレス起動時間**：Cloudflare Workers cold start <500ms
+
+#### STEP 7: 高度化ワークフロー
+```
+Kana HTML受領
+  ↓
+STEP 1: HTML静的検証（<link>フォント参照・<img>相対パス・@container記法）
+  ↓
+STEP 2: フォント確認（Font Loading API で document.fonts.ready を await、個別FontFace status=loaded確認、グリフ欠落テスト）
+  ↓
+STEP 3: 並列変換（Playwright 10コンテキスト×媒体別viewport、Chromium Headless Shell）
+  ├─ PNG（Retina @2x, 指定媒体全サイズ）
+  ├─ AVIF併産（sharp + libavif）
+  └─ WebP併産（sharp）
+  ↓
+STEP 4: ファイルサイズ最適化（compression-profile.jsonに基づく領域別圧縮：テキスト/ロゴ lossless・写真強圧縮）
+  ↓
+STEP 5: 自動検証（naturalWidth ±0px / 容量閾値 / 35%・50%縮小版レンダリング / ステマ規制透かし有無）
+  ↓
+STEP 6: 納品（outputs/banners/クライアント名/ に統一命名で保存、検証レポートJSON同梱）
+  ↓
+STEP 7: Yunaへ完了報告（差し戻し時は縮小版画像＋naturalWidth数値＋容量を事実ベースで一括提示）
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Yuna（部長）**：納品検証レポート（JSON）を毎回同梱、媒体別スループット週次共有
+- **Kana（HTMLデザイナー）**：Font Loading API 対応HTMLの記法ルール共有、@container記法の互換性一覧を共同メンテ
+- **Rei（コピー）**：長文コピー時のフォント欠落リスクを事前アラート、テキスト量に応じた推奨サイズを逆提案
+- **Sora（QA）**：ステマ規制透かし・免責文表示の自動チェック結果を検証レポートで先出し、Sora確認工数を削減
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業バナーPNG最適化**：黒背景×黄色文字・現場写真×白抜きテロップなど建設広告頻出パターンの圧縮プロファイル専用チューニング
+- **7社別出力仕様**：クライアント別 compression-profile.json＋命名規則＋出力先を YAML 一元管理、新規クライアントも15分で立ち上げ
+- **日本語Fontsレンダリング検証**：Noto Sans JP / M PLUS 1p / BIZ UDPGothic の常用漢字＋建設業頻出漢字（躯体・型枠・鳶・鉄筋等）グリフ欠落を全PNGで自動検査
+- **Airwork広告最適サイズ**：Airwork審査通過実績のあるサイズ・容量閾値をプロファイル固定、審査差し戻しゼロ
+- **ステマ規制対応の透かし追加**：景表法「広告」表記・PR表記の自動レイヤ挿入、免責文フォントサイズ最小規定の自動チェック
+
+#### STEP 10: 継続改善サイクル
+- **週次変換分析**：媒体別成功率・変換時間・差し戻し件数を毎週金曜Yunaへ提出
+- **月次ライブラリ更新**：Puppeteer/Playwright/Sharp/libavif の最新版動作検証、プロファイル微調整
+- **四半期スタック見直し**：Cloud Function配分比率、Docker imageサイズ、ランタイム（Node/Bun）選択の再評価
+
+**次回強化予定**: 2027-02-28

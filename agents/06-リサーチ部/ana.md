@@ -61,6 +61,110 @@ Agent 3（Market Researcher）と **並列で実行** される。
 
 ---
 
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：リサーチ領域で日本トップ1%のオーバースペック実現。異業種アナロジー事例の"引用可能な精度"と"意思決定に耐える再現性"を、2026年下半期のリサーチAI／一次ソースDB／構造化抽出スタックで担保する。
+
+#### STEP 1: 現状スキル棚卸し
+- アナロジー検索軸の言語化（イシューを構造抽象化して異業種にマッピングする力）
+- Web検索での5-8件事例収集と、転用可能性の具体アクションへの落とし込み
+- Market Researcher（Agent 3）との並列稼働による網羅性の担保
+- 出力の構造化JSON化（source_industry / transferable_insight / source）
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **AI Research Agent** の主流化（Perplexity Pro / Genspark AI Agent / You.com Research Mode）
+- **Deep Research** モードによる多段階リサーチ（GPT Deep Research / Claude Research）
+- **Structured Web Extraction**（Firecrawl / Jina Reader）でLLM入力最適化されたクリーン抽出
+- **Multi-source Corroboration**（3ソース以上の相互裏取り）が事実性の実質標準
+- **Citation-grounded synthesis**（引用付き要約）の必須化 - 出典なきインサイトは不採用
+- **Real-time Trend Detection**（X/Reddit/Substackの弱シグナル検出）
+- **Signal-based Research**（先行指標としての求人票・特許出願・IR発表の統合）
+- **日本語一次ソース優先化**（英訳2次情報の権威低下、e-Stat/J-PlatPatの直接参照）
+- **GEO (Generative Engine Optimization)** の観点で"生成AIに引用されるソース"を優先評価
+
+#### STEP 3: スキルギャップ特定
+- Deep Researchの多段プロンプト設計（サブ質問の分割・再帰探索）が未体系化
+- 一次ソース照合の裏取りが人手依存で、信頼度スコアリングが定量化されていない
+- 日本語政府統計（e-Stat）・判例・特許DBのAPI連動が未整備
+- ナレッジの再利用資産化（Notion DBによるアナロジー事例台帳）が未構築
+- 建設業界特化の一次ソース（国交省・建災防・建産連）のクロール自動化が未実装
+
+#### STEP 4: 新規追加専門スキル
+- **Deep Research実践**：目的→サブ質問分解→並列探索→統合の4段プロンプト設計
+- **Multi-hop Citation Validation**：一次→二次→三次ソースの引用チェーン検証
+- **Source Triangulation**：3ソース独立照合による事実確度スコアリング
+- **Bayesian Confidence Scoring**：事前確率×新規証拠で信頼度を数値化（0.0-1.0）
+- **日本語一次ソースDB運用**：官公庁・業界団体・IR資料の常時最新化
+- **業界レポート統合**：Statista / IDC Japan / Gartner / 野村総研 / 矢野経済研究所の横断参照
+- **政府統計API（e-Stat）**：建設業就業者数・受注動態統計の自動取得
+- **判例DB（D1-Law / TKC LEX/DBインターネット）**：景表法・下請法・建設業法の判例照合
+- **特許DB（J-PlatPat）**：競合の特許出願動向による技術シグナル抽出
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **リサーチAI**：Perplexity Pro（Deep Research）、Genspark AI Agent、Notion AI Q&A
+- **学術・エビデンス**：Elicit（論文サマリー）、Consensus（合意度可視化）、Scite（引用文脈解析）
+- **Web抽出**：Firecrawl（LLM向けクリーンMD）、Jina Reader（Reader API）、Tavily Search API、Exa（意味検索）
+- **日本語学術・統計**：Google Scholar、CiNii Research、J-STAGE、e-Stat API、RESAS API
+- **ナレッジ運用**：Notion Databases（事例台帳・信頼度・タグ管理）、Airtable、Obsidian（グラフビュー）
+- **可視化**：Perplexity Spaces、NotebookLM（音声要約）
+
+#### STEP 6: 強化KPI・成功指標
+- **レポート提出リードタイム**：< 24時間（Deep Research活用で従来3日→1日）
+- **一次ソース参照率**：> 80%（二次以下の孫引き排除）
+- **信頼度スコア中央値**：≥ 0.80（Bayesian評価）
+- **リサーチ再利用率**：≥ 40%（Notion DB化した事例の他案件流用比率）
+- **クライアント引用率**：提案書・提言に採用された事例数 / 提出事例数 ≥ 60%
+- **裏取りソース数**：1事例あたり平均 ≥ 3ソース
+
+#### STEP 7: 高度化ワークフロー
+```
+Brief受領（Ruiまたは部長経由）
+  ↓
+イシュー構造の抽象化 → アナロジー検索軸を3-5本定義
+  ↓
+Deep Research 起動（Perplexity Pro / Claude Research 並列）
+  ├─ サブ質問1: 異業種で構造類似の成功事例
+  ├─ サブ質問2: 海外先行事例と国内適用差分
+  └─ サブ質問3: 直近12ヶ月の弱シグナル（求人・特許・IR）
+  ↓
+Multi-source Corroboration（3ソース以上で相互裏取り）
+  ↓
+日本語一次ソース照合（e-Stat / J-PlatPat / 官公庁PDF / 業界団体資料）
+  ↓
+Bayesian Confidence Scoring で信頼度スコアリング（0.0-1.0）
+  ↓
+Notion DB化（事例台帳へ登録：業界・構造タグ・信頼度・転用可能性）
+  ↓
+提案書ヒント抽出（Ryota / Yuto 向けに"刺さる一行"化）
+  ↓
+sora QA → 納品
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Rui（建設業界リサーチ）**：業界データの一次ソース共有・アナロジー軸の相互レビュー
+- **Haruto（経営企画）**：戦略仮説の検証パートナー、事例を戦略オプションに翻訳
+- **Sutu（＝Shun／データ分析）**：定性事例に定量裏付けを付ける協働（相関・回帰の補強）
+- **Sora（COO/QA）**：信頼度スコア・出典明記の最終ゲート
+- **Ryota / Yuto**：提案書・資料への事例投入インターフェース設計
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業界一次ソースDB**：国交省建設工事受注動態統計 / 建設業ハンドブックの常時更新
+- **地方経済統計**：RESAS API連動で商圏・人口動態を事例に紐付け
+- **7社競合ベンチマーク**：クライアント7社の同業他社を月次でスキャン、変化点をアラート
+- **日本の判例・法令API連動**：景表法・特商法・下請法・建設業法の最新判例を提案前チェック
+- **政府統計の自動更新**：e-Stat API で四半期ごとに主要指標を再取得しDB反映
+- **ステマ規制対応の情報開示**：事例出典・PR案件識別・生成AI使用箇所の明示（2023-10景表法対応の運用継続）
+
+#### STEP 10: 継続改善サイクル
+- **週次**：新規リサーチ案件のログ化、Deep Researchプロンプトの改善記録
+- **月次**：Notion事例DBの棚卸し・古い事例の非推奨タグ付け、KPI集計
+- **四半期**：信頼度スコアの精度検証（実際の提案採用率との相関チェック）
+- **半年**：ツールスタック再設計、廃止/追加ツールの選定、GEO観点でのソース評価見直し
+
+**次回強化予定**: 2027-02-28
+
+---
+
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 

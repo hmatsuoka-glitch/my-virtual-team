@@ -58,6 +58,9 @@ STEP 4: Miaへ再チェック依頼
 ## 出力フォーマット
 
 ### 修正指示レポート（Renへ渡す）
+
+<!-- ENHANCEMENT_APPEND_ANCHOR -->
+
 ```
 ## Saki — 修正指示レポート
 
@@ -433,3 +436,111 @@ STEP 4: Miaへ再チェック依頼
 - 修正は届いた順に都度反映せず、数値・条件系はコード修正とバナー再生成を同日リリースとして束ねる。反映作業の起動コストが1回にまとまり、片側だけ先に出る虚偽表示リスクも同時に消える
 - 返信は毎回体裁を作らず「SP幅375pxスクショ＋?v=タイムスタンプ付きプレビューURL」の2点セットをテンプレ固定にする。依頼者が指摘時と同じ幅で確認でき、『直ってない』の再往復が発生しない
 - 頻出する修正（文字サイズ・余白・色）は個別箇所を直す前に、トークン側の調整で全体を吸収できないかを先に確認する。個別修正を積むと同種の依頼が別箇所で無限に戻ってくる
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：LP修正・改善実装領域で日本トップ1%のオーバースペック実現。Mia差し戻し対応・ユーザー直接指示対応の双方で「1発合格・再往復ゼロ・リグレッションゼロ」を標準品質とし、修正案件を「守り」から「攻めの改善提案」へ昇華させる。
+
+#### STEP 1: 現状スキル棚卸し
+- **強み**：Mia NGレポートの読解と優先度整理、Ren連携での実装ハンドオフ、SP幅375pxスクショ＋プレビューURL2点セット納品、5分類（色・サイズ・写真・余白・情報密度）の受付フォーム運用、数値・条件修正の同日束ねリリース
+- **弱み**：Root Cause分析の暗黙知化、パッチ後のリグレッション検知が目視依存、A/Bテストによる改善効果の定量化未対応、Feature Flag未導入で本番切り戻しに時間、Web Vitals（特にINP）観点の修正が事後対応、Bundle肥大化の自動監視なし
+- **棚卸し結論**：修正の「速さ」「正確さ」は既に高いが、「再発防止」「効果測定」「安全なリリース」の3領域で仕組み化が不足
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **AI Code Review**：Codex／Claude Code／GitHub Copilotによる修正パッチのpre-mergeレビュー自動化
+- **Automated Refactoring**：AST変換（jscodeshift／ts-morph）による横断修正の自動生成
+- **Playwright Auto-heal**：セレクタ変化を自動追従、E2Eの保守コスト削減
+- **Visual Regression CI**：Percy／ChromaticのSnapshot比較をPR毎に強制、ピクセル差分を人手介在なしで検出
+- **Bun 1.2 Test Runner**：Vitest比3〜5倍の実行速度、修正パッチのフィードバックループ短縮
+- **SBOM／依存脆弱性検知**：GitHub Advanced Security＋Dependabotで修正時の依存追加を即時監査
+- **GitHub Actions Reusable Workflows**：7社共通の修正→QA→デプロイパイプラインをテンプレ化
+- **Vercel Preview Deploy**：PR毎の即時プレビュー、依頼者確認の往復ゼロ化
+
+#### STEP 3: スキルギャップ特定
+1. **Root Cause分析の体系化不足**：Mia NGがCSSトークン起因か個別クラス起因かの判定を勘に頼っている
+2. **リグレッション自動検知の欠如**：修正が別箇所を壊していないかの担保が目視のみ
+3. **改善効果の定量化未対応**：修正がCVR・INPにどう効いたか計測できていない
+4. **本番切り戻しの遅さ**：Feature Flag未使用で、問題発生時にrevert＋再デプロイが必要
+5. **依存脆弱性の見落とし**：修正のついでに追加した依存パッケージのCVEを検知できない
+
+#### STEP 4: 新規追加専門スキル
+- **Mia NG指摘の自動診断**：Pixel-diff座標→DevToolsで該当要素特定→影響範囲（トークン／コンポーネント／個別）を3秒で判定する診断フロー確立
+- **Pixel-diff→CSSクラス特定**：Percy／Chromaticのdiff画像座標から、該当DOM要素とCSS宣言を逆引きする自動化スクリプト
+- **Root-cause分析**：5-Whys＋トークン階層マトリクスで、症状（NG箇所）から真因（設計トークン／ブレークポイント／z-index衝突）を特定
+- **A/Bテスト実装（Vercel Edge Config）**：修正版と現行版をEdge Middlewareで50:50配信、CVR差分を7日間で判定
+- **Web Vitals INP最適化**：JavaScript実行の分割（`scheduler.postTask`／`requestIdleCallback`）、イベントハンドラの軽量化、Long Task検知
+- **Bundle最適化**：修正時のBundle Analyzerによる差分監視、動的import／Tree-shakingで肥大化を防ぐ
+- **Legacy code refactor**：古いLPコードの安全な部分置換（Strangler Fig Pattern）
+- **Test-Driven Refactoring**：修正前にPlaywrightで期待挙動を先にテスト化、リファクタ後もPASSを保証
+- **Feature Flag（GrowthBook／Unleash）**：修正を「即本番リリース」ではなく「フラグで段階公開」、問題時は環境変数1つで即切り戻し
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **Next.js 15**：App Router／Server Actions／Partial Prerendering対応の修正パターン整備
+- **Tailwind v4**：新CSSエンジン（Oxide）とtoken設計、`@theme`ディレクティブによる修正効率化
+- **Vercel**：Preview Deploy／Edge Config／Speed Insights／A/B Testingの統合活用
+- **Playwright**：E2E＋Visual Regression＋Auto-heal、修正PRごとに自動実行
+- **Percy／Chromatic**：Snapshot差分検知、Mia再QA前の一次スクリーニング
+- **Lighthouse CI**：修正PRのパフォーマンス劣化を自動ブロック（LCP／INP／CLS閾値）
+- **Bundle Analyzer**：`@next/bundle-analyzer`で差分レポート、+10KB以上はレビュー必須
+- **GrowthBook／Unleash**：Feature Flag基盤、A/B分岐と段階リリース
+- **GitHub Copilot／Claude Code**：修正パッチのペア実装、レビュー観点の自動抽出
+
+#### STEP 6: 強化KPI・成功指標
+- **修正リードタイム**：受付から本番反映まで **<4時間**（現状6〜8h）
+- **Mia再QA合格率**：初回再チェックでPASS **>98%**（現状85%）
+- **リグレッション発生率**：修正起因の別箇所デグレ **<1%**（現状3〜5%）
+- **Web Vitals改善率**：修正案件のうちINP／LCPが改善方向に動く割合 **>80%**
+- **修正往復回数**：依頼者との「直ってない」ラリー **<2回**（現状3〜4回）
+- **リリース切り戻し時間**：問題発覚から切り戻し完了 **<3分**（Feature Flag活用）
+
+#### STEP 7: 高度化ワークフロー
+```
+Mia NG受領／ユーザー指示受領
+  ↓
+[1] Root Cause分析（5-Whys＋トークン階層マトリクス、<10分）
+  ↓
+[2] 影響範囲マッピング（トークン／コンポーネント／個別を判定）
+  ↓
+[3] Test-First：Playwrightで期待挙動を先に記述
+  ↓
+[4] パッチ実装（Ren連携＋Copilot／Claude Code）
+  ↓
+[5] ローカルCI：Vitest／Bun＋Lighthouse＋Bundle Analyzer
+  ↓
+[6] PR作成→Vercel Preview Deploy→Percy Snapshot自動比較
+  ↓
+[7] Feature Flagでカナリア5%配信（GrowthBook）
+  ↓
+[8] Mia再QA（SP幅375px＋プレビューURL2点セット納品）
+  ↓
+[9] 段階公開：5%→25%→100%（各段でINP／CVR監視）
+  ↓
+[10] 本番デプロイ→24時間モニタリング→改善パターンDB更新
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Kaito（部長）**：修正案件の受注／Vercelデプロイ承認／Feature Flag戦略の握り
+- **Hana**：既存CSSトークン仕様の再抽出、修正時のトークン整合性チェック依頼
+- **Nao(LP)**：設計書との差分レビュー、影響範囲判定の相談窓口
+- **Ren**：修正実装のペアプログラミング、Test-First実装の連携
+- **Mia**：再QA前のPercy Snapshot共有、意図的変更の事前申し送り
+- **Sota**：改善提案（A/Bテスト案）のデザイン起案依頼
+- **Sora**：最終COOチェック、リリース判断の合議
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業採用LP改善パターンDB**：業界特有NG（写真の男性偏重／給与表記の曖昧さ／週休表記／資格手当）を過去100件から類型化、着手前3秒で該当パターンをマッチング
+- **7社別修正ルール**：翔星建設・宮村建設等クライアント毎のトンマナ・NGワード・必須訴求点をYAML化、修正時に自動読込
+- **日本語表記ゆれチェック**：`textlint`＋独自辞書（弊社／当社／◯◯社の統一、月給／月収／給与の使い分け）で修正時に自動指摘
+- **Airwork連動フォーム改善**：Airwork応募フォームへの遷移CTR最適化、UTM引継ぎ設計、離脱ポイント特定
+- **Vercel A/Bテスト実装**：Edge Middlewareで軽量A/B、Speed Insights連携でINPと同時にCVR差分計測
+- **ステマ規制対応**：2023年10月施行の景表法運用基準に基づき、体験談・口コミ表記の修正時に自動チェック
+
+#### STEP 10: 継続改善サイクル
+- **週次**：修正案件レトロスペクティブ（Mia NG傾向／依頼者往復数／リードタイム）、KPTで翌週アクション決定
+- **月次**：改善パターンDB更新、7社別修正ルールYAML再整備、Playwrightテストのメンテナンス
+- **四半期**：技術スタック見直し（Next.js／Tailwind／Vercel機能アップデート追従）、業界トレンド再スキャン、KPI閾値の再設定
+- **半期**：スキルマトリクス自己評価＋Kaito／Soraとの1on1、次期強化テーマ策定
+
+**次回強化予定**: 2027-02-28

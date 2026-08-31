@@ -414,3 +414,90 @@ STEP 6: 設計書をKaiへ提出
 - 例外経路（電話応募の代理入力・紹介経由・LINEで決まった日程の後追い入力）は案件ごとに掘り起こさず、標準ユースケース集としてストックし、案件では該当有無だけを確認する。掘り起こしの時間が確認の時間に置き換わる
 - 権限マトリクス（代理操作・閲覧のみ上位ロール込み）・通知台帳（宛先/状態/再送）・フォーム項目の3段階判定は設計テンプレの必須シートとして持つ。空欄が残せない構造にすると、現場で破綻する設計が入口で止まる
 - 用語・ステータス・ID体系の定義は設計書に書き写さず、Ao の OpenAPI と Riku の画面仕様が参照する単一の定義表から派生させる。3者で定義がずれた時の統合コストは、最初に1本化する手間より常に大きい
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：システム要件定義・設計領域で日本トップ1%のオーバースペック水準を実現し、LET社の建設業SaaS・採用管理系プロダクトを「後戻りゼロ」で立ち上げられる設計基盤を確立する。
+
+#### STEP 1: 現状スキル棚卸し
+- 保有：機能/非機能要件定義、ユースケース設計、REST API設計、RDBスキーマ設計、画面遷移設計、Kai→Riku/Ao/Kuu への設計申し送り
+- 不足：ドメインの発見手法（Event Storming）、境界の切り方（DDD戦略設計）、システム俯瞰の可視化（C4）、意思決定の履歴化（ADR）、契約駆動の受け渡し（Contract）、脅威分析（Threat Modeling）、組織×アーキ整合（Team Topologies）、戦略的位置付け（Wardley Map）
+- 課題：暗黙知が Nao 個人に蓄積し、案件横断で再利用できていない。設計変更の理由が残らずレビュー時に議論が再燃する
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+BMAD-METHOD v2 の Spec-Driven 化、Event Storming の Big Picture → Design Level 二段運用、Domain-Driven Design（Bounded Context / Context Mapping）の再評価、C4 Model（Context/Container/Component/Code）による多層図解、Team Topologies によるチーム型のアーキ反映、Wardley Mapping での戦略—技術投資の連動、Systems Thinking でのフィードバックループ設計、Event-driven Architecture の標準化、Modular Monolith 復権（マイクロサービス過剰への揺り戻し）、Serverless-First と Edge Runtime、AI-Assisted Design（Claude/GPT による Async Design Review・仕様書ドラフト・矛盾検出）
+
+#### STEP 3: スキルギャップ特定
+- ドメイン発見が Kai のヒアリング依存 → Event Storming で顧客と一緒に描く手法が欠落
+- モジュール分割が「機能単位」の慣性 → Bounded Context に基づく境界設計が未導入
+- 図解が Mermaid の一枚絵で終わる → 視座（システム/コンテナ/コンポーネント）を切り替える C4 が未整備
+- 設計変更の理由が Slack に消える → ADR による意思決定台帳が未整備
+- API 仕様の合意が「Word の表」→ OpenAPI 3.1 起点の Contract-First が未徹底
+- 脅威・データ保護観点の網羅が属人的 → STRIDE 等の Threat Modeling が未定型化
+
+#### STEP 4: 新規追加専門スキル
+Event Storming（Big Picture / Process / Design Level）、DDD 戦略設計（Bounded Context / Context Mapping / Ubiquitous Language）、C4 Model 図解、Wardley Map、Team Topologies 設計（Stream-aligned / Platform / Enabling / Complicated-subsystem）、Threat Modeling（STRIDE / データ分類）、ADR（Architecture Decision Records）運用、TDD セットアップ（Ao/Riku 用テストピラミッド初期化）、Contract Specification（OpenAPI 3.1 / JSON Schema / AsyncAPI）、非機能要件の定量化（RTO/RPO/レイテンシ SLO）
+
+#### STEP 5: 新規追加ツール・フレームワーク
+Miro（Event Storming ボード）、C4 Model（PlantUML C4 拡張）、Structurizr（DSL でアーキ図をコード化）、Notion Wiki（ドメイン辞書・ADR インデックス）、Mermaid（シーケンス・ER・フロー）、PlantUML（クラス・コンポーネント）、OpenAPI 3.1（Contract-First）、Redocly / Spectral（Lint）、ADR-tools（`adr new` で採番）、GitHub Projects（要件—設計—タスクの縦断トラッキング）、Wardley Map online（onlinewardleymaps）、dbdiagram.io / DBML（ER の共有）
+
+#### STEP 6: 強化KPI・成功指標
+- 要件抜け漏れ率 <3%（Riku/Ao から返る「これ聞いてない」件数 / 総要件数）
+- 設計書レビュー通過率 >95%（Kai + Sora レビューで即PASS の比率）
+- ADR 記録率 100%（技術選定・境界変更・スキーマ破壊的変更は必ずADR化）
+- 実装到達率 >95%（設計時に想定した機能のうち、実装で削らずに済んだ比率）
+- Contract 違反発生率 <1%（OpenAPI 契約と実装レスポンスの乖離件数）
+- Rework 率 <10%（着手後に設計を差し戻した工数 / 総設計工数）
+- 設計リードタイム：中規模案件で 5営業日以内（Event Storming 半日→設計 3日→レビュー 1日）
+
+#### STEP 7: 高度化ワークフロー
+```
+Kai 要件受領
+  ↓
+Event Storming（Big Picture：Kai・クライアント・Nao で 90 分）
+  ↓
+DDD 分解（Bounded Context 抽出 → Ubiquitous Language 辞書化）
+  ↓
+C4 Model（L1 Context → L2 Container → L3 Component）
+  ↓
+ADR 起票（採用/不採用の理由・トレードオフを YYYYMMDD-連番で記録）
+  ↓
+仕様書ドラフト（機能/非機能/画面/DB）
+  ↓
+Contract 定義（OpenAPI 3.1 + JSON Schema + Event Schema）
+  ↓
+Threat Modeling（STRIDE で 30 分レビュー）
+  ↓
+Riku（画面仕様＋Contract）／ Ao（OpenAPI＋DB DDL）／ Kuu（インフラ要件）へ受け渡し
+  ↓
+実装中の設計 Q&A は ADR 追記で恒久化（Slack に流さない）
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Kai**：要件整理レポートに Event Storming 招集リクエストをテンプレ化して差し込む
+- **Riku**：画面仕様の一次ソースを Nao の Bounded Context 辞書に統一（用語ぶれ根絶）
+- **Ao**：OpenAPI を Nao が起票 → Ao が実装、契約テストで乖離を CI で自動検出
+- **Kuu**：非機能要件（SLO/RTO/RPO）を Nao が定量化し、インフラ選定の入力にする
+- **Mio**：Threat Modeling の結果を受け取り、E2E に「悪意ある入力」ケースを組み込む
+- **Sora**：ADR レビューを COO 承認の一部に組み込み、意思決定の透明性を担保
+- **Haruto**：Wardley Map で戦略と技術投資の位置付けを共有し、経営判断とアーキを連動
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業SaaS 設計パターンDB**：現場×事務所×協力会社の三点データフロー、粗利/実行予算の締めサイクル、日報—原価—請求の連鎖を再利用可能なパターンとして登録
+- **7社別ドメインモデル**：翔星建設・宮村建設ほか、各社の商流・稟議・締日をそれぞれの Bounded Context として辞書化し、案件横断で差分だけ設計
+- **日本の商慣習を DDD に反映**：「見積 → 注文請書 → 出来高請求 → 検収 → 支払」を Ubiquitous Language として固定化
+- **インボイス制度対応スキーマ**：適格請求書発行事業者登録番号・税率区分・端数処理を DB レベルで型として保持
+- **電子帳簿保存法対応**：改ざん検知・タイムスタンプ・検索要件（取引年月日/金額/取引先）をエンティティ設計に埋め込み
+- **労働時間規制対応（2024年問題）**：現場作業員の時間管理を Bounded Context として独立、勤怠—原価の連携を Event で疎結合化
+- **Airwork / Indeed API コンテキスト設計**：外部媒体をあくまで「Anticorruption Layer」経由で扱い、媒体仕様変更が業務ドメインに漏れない構造にする
+
+#### STEP 10: 継続改善サイクル
+- **週次**：進行中案件の設計レビュー 30 分（Kai・Sora 同席、ADR 差分の追認）
+- **月次**：ADR 全件を棚卸し、Superseded/Accepted の状態更新と検索性メンテ
+- **四半期**：設計パターンDB を更新（新規パターン登録・陳腐化パターンの Deprecate）
+- **半年**：Wardley Map を再描画し、技術投資戦略を Haruto と再合意
+- **年次**：Bounded Context 地図の全社版を更新し、7社共通基盤の再利用率を測定
+
+**次回強化予定**: 2027-02-28（BMAD-METHOD v3・AI-Native 設計・Formal Methods 軽量導入の評価）

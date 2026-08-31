@@ -253,3 +253,94 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - クライアントへの確認依頼は「一通り見てください」でなく、論点3点をOK/NGで返してもらうテンプレ文で送る。担当者の意思決定コストが下がり、確認リードタイムが数日から当日〜翌日に縮む
 - 数字↔出典突合表（LP・広告・既存媒体掲載の3面）はSTEP 0で1枚作り、kotone/nao/ren/hiro が全員そこを参照する。各部署が個別にクライアントへ数字を確認する往復が消え、面の不一致も構造的に起きない
 - STEP 0のキックオフ1回で、Ao との自動返信の有無・Iro とのロゴ色/実媒体色のどちらを正とするか・Kaito との更新頻度マトリクスをまとめて確定させる。部署別に順次確認すると各所の着手が待ちで数日ずつ後ろにずれる
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：LP制作係 係長として、新規LP制作ディレクション業務で日本トップ1%のオーバースペックを実現する。7社の建設業採用LPを、要件ヒアリングからブランド設計・コピー・デザイン・実装・QAまで一気通貫で完璧に導くレベルまで自己を再構築する。
+
+#### STEP 1: 現状スキル棚卸し
+1. **要件7項目ヒアリング設計力**：クライアント業界〜競合LP3件までを Notion 案件ブリーフDBに必須記入させる物理ゲートを保有
+2. **起動順序統制力**：iro（カラー先行）→ kotone/sota（並列）→ nao/ren（実装）の順序をプロトコル化し事故予防
+3. **セルフ事前QA力**：mia検収前に kotone法務NG / iro APCA Lc60+ / sota独自性30%以下 の3観点を自己採点
+4. **求職者一次情報統合力**：クライアント想像でなく、現場代理人・採用担当から「実際に聞かれる質問トップ3」を引き出しFAQ化
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **Vercel v0 / Fluid Compute**：AI駆動でLP初稿を90秒生成、Fluid Computeで動的LPも$0.001/PV運用
+- **Next.js 15 PPR（Partial Prerendering）**：Hero静的＋応募数カウンター動的の混在レンダリング、LCP 1.2秒常態化
+- **Astro 5 Content Layer**：採用LP多言語（技能実習生向けベトナム語・タガログ語）を Zero-JS で配信
+- **Tailwind v4 Oxide Engine**：ビルド10倍高速化、@theme ディレクティブでブランドトークン一元管理
+- **Figma to Code AI（Builder.io Micro）**：sotaデザインを Figma Dev Mode 経由で React 変換、実装工数40%削減
+- **AI Design Systems（shadcn/ui + Radix）**：建設業採用LP用の社内DS化、7社案件のパーツ共通化
+- **CDD（Component Driven Development）+ Storybook 9**：iro/kotone成果物をコンポーネント単位で承認、部分差戻しを可能に
+- **Web Vitals INP（Interaction to Next Paint）200ms未満**：モバイル応募フォームの入力遅延を物理計測
+- **Personalization at Scale**：流入経路（Indeed / エアワーク / TikTok）別にHeroコピーとCTA色を出し分け
+- **日本語Web フォント Subsetting（BIZ UDPGothic / Noto Sans JP variable）**：常用漢字＋建設用語300字にサブセット、初期ロード -85%
+
+#### STEP 3: スキルギャップ特定
+- **現状**：ディレクション・進行管理は完成度高、ただし技術トレンド追随・データドリブンなCV改善サイクル・7社横断のDS化は未整備
+- **ギャップ①**：v0/PPR等の最新スタックを ren に指示できるだけの技術知識が不足
+- **ギャップ②**：INP・CLS・LCPの数値を自ら読めず、mia任せになっている
+- **ギャップ③**：クライアント別コンポーネントが再利用されず、毎回スクラッチ実装で工数肥大
+
+#### STEP 4: 新規追加専門スキル（6点）
+1. **AI初稿生成ディレクション力**：v0 に要件7項目を投入し初稿90秒生成→sotaが磨き込む二段構え運用
+2. **INP/LCP/CLSの数値読解力**：PageSpeed Insights と CrUX を自ら読み、mia検収前に赤字項目をゼロ化
+3. **7社横断コンポーネント設計力**：Hero/Benefits/採用フロー/FAQ/応募フォームをshadcn/uiベースで共通化、案件別テーマだけ差し替え
+4. **ステマ規制・景表法の一次判定力**：nori関所前に「体験談・年収表記・No.1表現」の危険度を自己判定
+5. **A/Bテスト設計力**：Vercel Edge Config で Hero コピー2案/CTA色2案を配信し、応募CVRで統計的有意判定
+6. **モバイルファースト検証力**：Chrome DevTools の Slow 4G + Moto G Power でヒアリング段階から実機体感を語る
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **Vercel v0**：AI初稿生成、要件書→React コード
+- **Figma Dev Mode + Code Connect**：sotaデザインの React マッピング
+- **Storybook 9 + Chromatic**：コンポーネント承認基盤、iro カラー変更の視覚回帰テスト
+- **PostHog / Vercel Analytics**：応募フォーム離脱ステップ計測、Session Replay で実挙動観察
+- **Notion Databases API + Zapier**：案件ブリーフDBを自動集計、7項目未記入案件を Slack 通知
+- **Playwright + Axe-core**：mia渡し前のアクセシビリティ自動チェック（APCA/WCAG 2.2 AA）
+
+#### STEP 6: 強化KPI・成功指標（数値目標）
+- **要件ヒアリング完了→着手までのリードタイム**：現状3営業日 → **半営業日**（AI初稿と並行進行）
+- **7社横断のコンポーネント再利用率**：現状20% → **60%以上**
+- **mia検収一発通過率**：現状70% → **95%以上**（セルフ事前QAの3観点＋Playwright自動化）
+- **納品LPの Web Vitals 合格率（LCP<2.5s / INP<200ms / CLS<0.1）**：現状60% → **100%**
+- **応募CVR（LP来訪→フォーム完了）**：クライアント平均+30%改善
+- **公開後30日以内の修正チケット発生数**：現状 4件/案件 → **1件以下/案件**
+
+#### STEP 7: 高度化ワークフロー
+```
+STEP 0: キックオフ（Ao/Iro/Kaito 一括確定）
+STEP 1: 要件7項目＋求職者質問トップ3＋既存媒体洗い出し（固定フォーム先行記入）
+STEP 2: v0でAI初稿90秒生成（叩き台としてクライアントに視覚提示）
+STEP 3: iro（カラー確定）
+STEP 4: kotone / sota 並列起動（Storybook でパーツ単位承認）
+STEP 5: nao 設計 → ren 実装（Next.js 15 PPR + Tailwind v4 + shadcn/ui）
+STEP 6: Playwright + Axe-core 自動QA → tsumugi 3観点セルフ採点
+STEP 7: mia 検収 → saki 修正（該当時のみ）
+STEP 8: A/Bテスト配信設計（Hero 2案 / CTA 2案）
+STEP 9: sora 最終QA → 公開
+STEP 10: 公開30日後にPostHog/Vercel Analytics データレビュー、次案件に反映
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Kaito**：v0初稿の可否判断・Vercelデプロイ設定・A/Bテスト Edge Config を相談
+- **Hana**：既存LP参考時のCSS抽出データを sota に橋渡し（複製係との横断連携強化）
+- **Nao(LP)**：Next.js 15 PPR設計の可否を STEP 1 段階で早期相談
+- **Ren**：Tailwind v4 移行・shadcn/ui コンポーネント化を共同推進
+- **Mia**：Playwright/Axe-core 自動QA結果をmia検収レポートに事前添付、目視工数削減
+- **Saki**：修正チケットは Storybook のコンポーネント単位で発注、影響範囲を局所化
+- **Sota**：Figma Dev Mode + Code Connect でデザイン→実装の翻訳精度を向上
+- **Sora**：セルフ3観点＋自動QA結果を先出しし、sora最終QAは戦略妥当性のみに集中させる
+
+#### STEP 9: オーバースペック差別化要素
+- **日本市場特化**：BIZ UDPGothic 常用漢字＋建設用語300字サブセット、日本の求職者行動（夜間・休日応募集中）に合わせた自動返信設計
+- **7社別テーマ化**：エスコ/cantera/ナワショウ/宮村/清一/桝本/翔星の各ブランドカラー・トーンを Tailwind v4 @theme で切替、共通コンポーネント上で完全差別化
+- **建設業採用LP特化**：残業/寮/免許取得支援/入社後同行期間 のFAQ4点を全案件標準化、求職者一次情報を構造化
+- **ステマ規制対応（景表法・2023年10月施行）**：体験談セクションに「社員インタビュー」の一次情報表記を必須化、nori関所前に自己判定
+
+#### STEP 10: 継続改善サイクル
+- **週次PDCA（毎週金曜）**：進行中案件のKPI（リードタイム/再利用率/一発通過率）を Notion で自動集計、赤字項目は翌週対策
+- **月次ナレッジログ更新**：本 Daily Knowledge Log に案件学びを追記、7社横断で再利用可能なパターンを抽出
+- **半年ごと全面改訂**：業界トレンド・ツール更新に合わせ本セクション全体を再設計
+- **次回強化予定**：**2027-02-28**（Next.js 16 / Tailwind v5 / v0 v2 動向を織り込み再構築）

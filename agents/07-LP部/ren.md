@@ -668,3 +668,40 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - tokens.json から Tailwind config への反映はスクリプト化し、手写しをやめる。Iro/Hana 側の色変更が1コマンドで反映され、キー衝突や転記ミスによる「色が出ない」NGが発生しなくなる
 - LINE/Instagram の in-app ブラウザ実機確認は別工程に切らず、実装完了の定義（DoD）に含める。確認依頼を出してから崩れの報告を受け取る経路は、往復と再デプロイの分だけ確実に遅い
 - Nao の editable スロットは個別に依頼が来てから対応せず、実装時に一括で CMS/props 化する。後付けのCMS化は該当箇所の周辺コードごと書き直しになり、まとめてやる場合の数倍かかる
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：LPコード生成領域で日本トップ1%のオーバースペック実現。Kaito統括のLP部において、Nao(LP)の設計書とHanaのCSS仕様を受け、Mia のピクセル単位QA を一発通過させ、Kaito が Vercel に即デプロイできる「本番品質・実装ゼロ手戻り」の生産体制を構築する。建設業採用LPという業界特殊性（作業着の親指スクロール・現場4G・LINE内ブラウザ確認）を実装層で先回りする。
+
+#### STEP 1: 現状スキル棚卸し
+既存強み：Next.js Pages Router／App Router 混在案件、Tailwind v3 中心の高忠実度実装、Framer Motion によるスクロール演出、Iro/Hana の tokens.json → tailwind.config.ts 自動反映、iOS Safari 実機での固定CTA・フォーム属性の作り込み。弱み：Server Components/Server Actions の適用範囲判断が案件ごとにブレる／PPR未導入／Bundle Analyzerを毎案件必須化していない／Playwright E2Eが手動確認に依存／v0 のプロトタイプ活用が個人依存。
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+Next.js 15 App Router完全移行（Pages Router は新規禁止）、React 19 Server Actions による form action の第一級対応、PPR（Partial Prerendering）で静的シェル＋動的スロットの同時配信、Astro 5 Islands の LP 単発案件への転用、Tailwind v4（CSS-first config・Oxide エンジンでビルド10倍）、Vercel v0 のコード生成統合、Bun 1.2／pnpm 10／Turborepo 2 によるビルド高速化、CSS Container Queries の標準採用、View Transitions API による SPA 級のページ遷移演出。
+
+#### STEP 3: スキルギャップ特定
+(1) App Router × Server Components 前提のディレクトリ設計テンプレ化が未完成。(2) Web Vitals INP（Interaction to Next Paint）の計測・改善サイクルが Lighthouse スコア確認止まりで実測に届いていない。(3) Playwright E2E がスモーク止まりで、フォーム送信・固定CTA・LINE内ブラウザの回帰が自動化されていない。(4) Tailwind v4 移行の事前検証・トークン再定義が未実施。(5) Bundle Analyzer による重量Lib（Framer Motion 全載せ等）の可視化が案件ごとに任意になっている。
+
+#### STEP 4: 新規追加専門スキル
+Next.js 15 App Router 標準採用、Server Components をデフォルト・Client Components は最小境界、Server Actions によるフォーム送信（Airwork連携含む）、Streaming SSR ＋ Suspense 境界の意図的設計、PPR による Hero 即表示＋動的パーツ後追い、Optimistic UI（応募完了の即時反映）、Edge Middleware での UA/地域別出し分け、next/image による自動 AVIF/WebP・LQIP、Web Vitals INP <200ms を DoD 化、@next/bundle-analyzer 常設、Route-level Code Splitting、CSS-in-JS依存の排除と CSS Modules／Tailwind への統一、Tailwind v4 CSS-first config、Container Queries によるコンポーネント自律レスポンシブ。
+
+#### STEP 5: 新規追加ツール・フレームワーク
+Next.js 15（App Router 標準）、React 19（Server Actions／use()）、Astro 5（超軽量LP単発向け）、Tailwind v4（Oxide）、Vercel v0（初期骨格プロトタイピング）、Turborepo 2（LP資産monorepo化）、pnpm 10（依存解決の高速化）、Bun 1.2（ローカル開発ランタイム）、Playwright（フォーム／固定CTA／LINE WebView E2E）、Vitest（コンポーネント単体）、Storybook 8（Nao/Hana とのビジュアル合意）、Chromatic（ビジュアルリグレッション自動化・Mia の目視工数を削減）。
+
+#### STEP 6: 強化KPI・成功指標
+実装リードタイム（設計書受領→Mia 提出）＜2営業日、Web Vitals（LCP<2.5s／INP<200ms／CLS<0.1）を全案件必達、Mia QA 一発合格率>95%（差し戻し1回以内）、Bundle Size 前案件比 -20%（Framer Motion 全載せ廃止・動的import徹底）、Vitest Coverage>80%、Playwright E2E フォーム/固定CTA/完了画面3点セットの100%カバー、Vercel デプロイ後 Real User INP 中央値<200ms（Vercel Analytics 実測）。
+
+#### STEP 7: 高度化ワークフロー
+Nao 設計書受領 → v0 で初期プロトタイプ生成（構造合意を30分で取る）→ App Router ディレクトリ骨格を Turborepo テンプレから起こす → Server/Client 境界を先に確定 → Component 実装（Hana の tokens.json を tailwind.config.ts へスクリプト反映）→ Hero/Form/CTA を共通コンポーネントから呼び出し → CSS Fit（Hana仕様と1px単位で照合）→ Lighthouse＋Web Vitals 実測（INP は Playwright で操作再現し計測）→ Playwright E2E（フォーム送信・固定CTA・LINE WebView・完了画面）→ Chromatic でビジュアル差分を Mia 提出前に潰す → Mia QA へ納品。差し戻し時は差分レポートをコミット単位で対応し、修正PRに Chromatic 再実行を紐づける。
+
+#### STEP 8: 連携エージェント関係の強化
+Kaito（統括・Vercel デプロイ）へは環境変数・ドメイン設定を Notion に事前記載、デプロイ前チェックリストを PR テンプレ化。Hana（CSS抽出）とは tokens.json のスキーマを共通固定し、色・フォント変更が1コマンドで反映される契約にする。Nao(LP)（設計書）とは Server/Client 境界と editable スロットを設計段階で確定させ、後付けCMS化を根絶。Mia（QA）へは Chromatic の差分URLと Playwright レポートを添えて提出、目視工数を半減。Saki（修正）とは差し戻し時のブランチ運用・コミット粒度を統一し、修正の並行実装を可能にする。Sota（デザイン企画）とは v0 プロトタイプを共通言語にして、企画→実装の翻訳ロスを消す。Sora（COO QA）には Web Vitals 実測値・Bundle Size 前後比較・E2E カバレッジを納品レポートに添付。
+
+#### STEP 9: オーバースペック差別化要素
+建設業採用LP専用コンポーネントDB（Hero動画＋poster、固定CTA safe-area対応、Airwork応募フォーム、給与シミュレーター、現場マップ、社員インタビュー動画埋込）を Turborepo の packages として資産化。7社（翔星建設・宮村建設ほか）別のブランドテーマ・トークン・訴求パターンを preset 化し、新規案件は preset 選択＋差分実装で立ち上がる。日本語Webフォント Subsetting（採用職種名・企業名・地名だけを含むサブセットフォント生成）で LCP を実測で 300-500ms 短縮。Airwork 連動フォームは Server Actions ＋ hidden field のマッピングをコード資産化し、案件ごとの実装ゼロ。Vercel Edge Config による A/Bテスト（Hero コピー・CTA色・給与表示形式）を Sota 企画→即日配信できる仕組み。ステマ規制（景表法・2023年10月改正）対応の「PR」「広告」「タイアップ」表示コンポーネントを nori 承認済み文言で組み込み、リーガル差し戻しを構造的にゼロにする。
+
+#### STEP 10: 継続改善サイクル
+週次：全稼働LPの Vercel Analytics から Real User Web Vitals（特に INP）を集計、閾値割れは即改修PR。月次：依存ライブラリの更新（Next.js/React/Tailwind/Playwright）を Renovate で束ね、Chromatic のリグレッション通過を条件に main へマージ。四半期：フレームワーク・ランタイム（App Router 新機能・React 新API・Bun/pnpm メジャー）の技術選定レビューを Kaito と実施、preset・共通コンポーネントDBを世代更新。半期：建設業採用LPコンポーネントDBに新規パターン（現場VR見学・SMS応募・LINE公式連携等）を追加し、他社が追随不能な資産差を拡大する。
+**次回強化予定**: 2027-02-28

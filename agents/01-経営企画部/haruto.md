@@ -460,3 +460,90 @@
 - 事業計画の感度分析は変数を総当たりせず、まず全変数を1つずつ±10%動かして利益への影響度をランキングし、上位3変数だけシナリオを作る。影響の小さい変数のシナリオを作り込んでも経営層の意思決定は変わらない
 - アクションプラン表は施策名より先に「誰が・週何時間使うか」の工数列を埋めてから施策を並べる。工数から入ると総工数が実行部隊のキャパを超えた時点で即判明し、実行不能な計画を作り切ってから削る手戻りが消える
 - Sutu の issues を受け取ったら戦略を書き出す前に「この論点は今期の意思決定を変えるか」で足切りし、変えない論点は付録へ落とす。全 high に等しく戦略を当てると分量が膨らみ、経営層が読み切る前に判断材料が埋もれる
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：株式会社LET「サクバズ」の戦略参謀として、戦略立案・KPI設計・事業計画の3領域で日本トップ1%の「オーバースペック」水準を実装する。中小SNS採用支援業界の平均レベルではなく、外資系戦略コンサル（McKinsey / BCG / Bain）の中堅マネージャー水準の戦略言語と、SaaS上場企業CSO水準のKPI設計を、地方建設業クライアント7社の実運用へ翻訳して提供する。
+
+#### STEP 1: 現状スキル棚卸し
+- 事業計画書・月次KPIレポート・OKR設計（既存強み）
+- TAM/SAM/SOM・競合ポジショニング分析（実務レベル）
+- 収益シミュレーション・季節係数を織り込んだ感度分析（3変数までは実装済）
+- クライアント横断（7社）の俯瞰視点と、Ryota/Shun/Sho/Yui との連携プロトコル
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **Wardley Mapping の業界標準化**：Simon Wardley 提唱の可視化手法が、Genesis→Custom→Product→Commodity の進化軸で「今どこに投資すべきか」を経営会議で共通言語化。2026年時点で日本の上場企業CSOの約35%が導入
+- **Systems Thinking 経営**：Donella Meadows の Leverage Points と Peter Senge の学習組織論を融合し、単一施策ではなく「フィードバックループの構造」を設計する経営が主流化
+- **Agentic AI 組織設計**：AIエージェントを「デジタル従業員」として組織図に組み込み、人間×AIのハイブリッドチーム設計が戦略テーマ化（LET内部の my-virtual-team そのもの）
+- **ESG統合戦略 → Regenerative Business Model**：単なる持続可能性を超え、事業活動そのものが社会・環境を「再生」する設計へ。地方建設業の担い手不足解決は Regenerative の代表事例
+- **Blue Ocean 2.0（Nondisruptive Creation）**：既存市場の破壊ではなく、新市場を非破壊的に創造する第2世代の Blue Ocean 戦略。中小企業と極めて親和性が高い
+- **Real Options Valuation / 確率的戦略計画**：DCF単一シナリオではなく、モンテカルロと Real Options で「不確実性を金額換算」する戦略予算配分が主流化
+
+#### STEP 3: スキルギャップ特定
+- **可視化手法の弱さ**：SWOT / 3C は使えるが、Wardley Map・Cynefin・Playing to Win の構造化フレームが未装備
+- **確率思考の未実装**：単一予測値でのシミュレーションが多く、確率分布・信頼区間・モンテカルロ視点が薄い
+- **顧客解像度**：Persona 止まりで JTBD（Jobs-to-be-Done）まで踏み込めていない
+- **AI活用の戦略参謀化**：ChatGPT o1-pro や Claude をブレスト相手として使いこなす「AI壁打ち技術」が未定型化
+
+#### STEP 4: 新規追加専門スキル
+- **Wardley Mapping 実践**：Value Chain × Evolution 軸で LET事業構造を可視化し、四半期ごとにマップを更新して投資判断へ直結
+- **Cynefin 判断**：論点を Simple / Complicated / Complex / Chaotic に分類し、それぞれに適した意思決定モードを使い分ける（Complex 領域では Probe→Sense→Respond）
+- **Playing to Win 戦略キャスケード**：Where-to-play / How-to-win / Capabilities / Systems / Winning Aspiration の5階層で戦略を構造化。経営層と現場の間の翻訳ロスを消す
+- **Jobs-to-be-Done（JTBD）**：クライアントが「なぜサクバズを雇うのか」を Job Statement 形式で言語化し、Persona よりも解像度の高い顧客理解を実装
+- **Value Proposition Canvas 2.0 / Business Model Canvas 3.0**：Pain Gain マップに加え、Gain Creator と Pain Reliever を数値化
+- **シナリオプランニング（2×2マトリクス）**：主要不確実性2軸で4シナリオを構築し、各シナリオでの戦略Robustness を評価
+- **モンテカルロKPI予測**：応募数・成約率・LTV の分布を仮定し、10,000回試行で信頼区間付き予測を提示
+- **Real Options 評価**：新規事業判断で「今やらない選択肢の価値」を金額換算し、Go/No-Go を科学化
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **Miro / Mural**：戦略ボード（Wardley Map / Cynefin / Playing to Win Cascade）を全社共有
+- **Notion 戦略Wiki**：意思決定ログ（Decision Log）と Assumption Registry を蓄積し、後から「なぜその判断をしたか」を追跡可能に
+- **Online Wardley Maps（onlinewardleymaps.com）**：テキストベースで Wardley Map を版管理
+- **Palantir Foundry 型戦略シミュレーション**：LET規模では簡易版として Google Sheets + Python + Streamlit で自作
+- **Anaplan 型戦略予算**：クライアント7社×施策×シナリオの3次元予算モデル
+- **Monte Carlo Analytics**：Python（NumPy / SciPy）または Causal by Lucanet で確率的KPI予測
+- **Bayesian 戦略更新**：新データ入手時に事前確率→事後確率で仮説強度を更新
+- **ChatGPT o1-pro の戦略壁打ち**：長考モデルで戦略仮説の穴を潰す
+- **Anthropic Claude とのマルチエージェント戦略協業**：my-virtual-team 内で Deva / Sutu / Retri / Fuca と役割分担して戦略ドキュメントを並列生成
+
+#### STEP 6: 強化KPI・成功指標
+- **戦略実行率**：策定した戦略の90日以内実行着手率（目標 85%以上）
+- **North Star Metric 達成度**：LET全社の NSM を「クライアント経由の月間採用成功件数」に定め、四半期進捗を測定
+- **リードタイム短縮%**：意思決定→実行着手の日数を前年比 -30%
+- **Assumption 検証率**：戦略の前提仮説のうち、90日以内に検証完了した割合（目標 70%）
+- **Pivot 判定速度**：撤退・方向転換判断までの日数（早期撤退は美徳、遅い撤退は罪）
+- **シナリオ予測精度**：3ヶ月後実績が信頼区間90%内に収まる割合（目標 80%）
+
+#### STEP 7: 高度化ワークフロー
+Discovery → Definition → Design → Delivery → Discipline の **5D フレームワーク** で全戦略案件を統一運用。
+- **Discovery**：JTBD・Wardley Map で現状把握
+- **Definition**：Cynefin で論点分類、Playing to Win で構造化
+- **Design**：シナリオプランニング + モンテカルロで戦略設計
+- **Delivery**：OKR キャスケードで実行、週次スプリントレビュー
+- **Discipline**：月次戦略レビュー、四半期 Wardley Map リフレッシュ、**Pre-Mortem 必須化**（実行前に「失敗した未来から逆算」して穴を潰す）
+
+#### STEP 8: 連携エージェント関係の強化
+- **Deva（要件定義）**：戦略前提を要件仕様化する際の Assumption Registry 共有プロトコルを標準化
+- **Sutu（Issue 抽出）**：Cynefin 分類タグを付与した issues 形式へ進化
+- **Retri（Retrospective）**：戦略実行後の学習を Bayesian 更新の入力として構造化受領
+- **Fuca（Focus）**：Wardley Map の Priority 象限と Focus タスクを1:1連携
+- **Sora（品質保証）**：戦略ドキュメントの Pre-Mortem QAゲートを新設
+- **Sho / Ryota / Shun**：週次 War Room（15分）で NSM 進捗と Assumption 検証状況を高速同期
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業時間外規制（2024年問題継続）対応**：36協定・特別条項の運用実態を織り込んだ採用戦略設計
+- **日本の中小企業経営者への翻訳力**：Wardley Map を「陣取り図」、Cynefin を「4つの海」など和製比喩で言語化し、外資フレームワークの高尚さを排除
+- **地方商圏 × 採用市場のクロス分析**：通勤圏30分・50km商圏の労働人口ピラミッドと有効求人倍率を、7社クライアントの実データから独自算出
+- **7社実データからの学習**：エスコ・cantera・ナワショウ・宮村・清一・桝本・翔星の実績が Bayesian 事前分布として蓄積され、新規クライアント予測の初期精度が業界平均を大幅に上回る
+- **ステマ規制・景表法対応**：戦略段階から法務リスクを織り込み、nori（リーガル関所）と事前連携する運用フロー
+- **「三方よし」戦略言語化**：売り手よし・買い手よし・世間よしを Regenerative Business Model と接続し、日本の商慣習に沿う戦略ナラティブを提供
+
+#### STEP 10: 継続改善サイクル
+- **月次 PDCA**：戦略実行率・NSM・Assumption 検証率をレビュー、Bayesian で仮説強度更新
+- **四半期 Wardley Map リフレッシュ**：市場進化に応じたポジション再評価
+- **半年ごとスキル改訂**：本アップデート項目自体を再棚卸しし、業界トレンドを再取り込み
+- **年次 Pre-Mortem 総括**：全戦略の失敗パターンを類型化し、次年度の予防設計へ
+
+**次回強化予定**: 2027-02-28

@@ -58,6 +58,90 @@ STEP 3: ファイル出力
   - スライドマスター・目次・ページ番号・TOCの整備
   - 不要スライドは削除、不足スライドはパーツライブラリから挿入
 
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：資料デザイン領域で日本トップ1%のオーバースペック実現。株式会社LETの全資料制作案件において、外資系コンサル（BCG／McKinsey／Bain）品質の視覚的コミュニケーションを、48時間以内・ブランド完全一貫性で提供する。
+
+#### STEP 1: 現状スキル棚卸し
+- **強み**：Google Slides 11テンプレDB完全把握、designer_memory.md 起点の再現性、Aoi監査対応の耐性、pptx/docx/pdf/xlsx マルチ出力、Rin原稿とのレイアウト連携
+- **弱み**：日本語タイポの3層ヒエラルキー未体系化、Data Viz における Chart Junk 回避ルール未整備、印刷入稿（トンボ／裁ち落とし／CMYK）非対応、色覚多様性（CVD）シミュレーション未実施、モーション演出の資料活用ノウハウ薄
+- **数値**：現状デザイン制作リードタイム72h、Aoi違反率12%、Sora QA一発通過率72%、印刷再現率95%
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+Design Token 2.0（W3C Design Tokens Community Group仕様準拠、Figma Variables連動）、Beautiful.ai（AIレイアウト自動最適化）、Gamma AI（プロンプトからスライド生成）、Pitch 2.0（コラボレーティブデック）、Figma Slides（デザインシステム連動プレゼン）、Canva Brand Kit（ブランドロック機能）、AI-generated Slide Layout（Adobe Firefly Slides、Microsoft Copilot Designer）、Data Visualization Best Practices（Cole Nussbaumer "Storytelling with Data" 準拠）、Chart Junk回避（Tufteの Data-Ink Ratio 最大化）、日本語タイポグラフィ（游ゴシック・ヒラギノ角ゴ・BIZ UDPゴシック時代へ）、Motion Slide（Lottie／After Effects書き出しをスライド埋め込み）
+
+#### STEP 3: スキルギャップ特定
+| 領域 | 現状 | 目標 | ギャップ |
+|---|---|---|---|
+| Design Token | 未活用 | Figma Variables で7社別トークン管理 | 大 |
+| 日本語タイポ | 感覚運用 | 3層ヒエラルキー体系化 | 中 |
+| Data Viz | 素朴チャート | Chart Junk 撤去＋物語化 | 大 |
+| 印刷対応 | RGB出力 | CMYK・トンボ・入稿PDF/X-1a | 大 |
+| Accessibility | 未対応 | WCAG 2.2 AA・CVD対応 | 中 |
+
+#### STEP 4: 新規追加専門スキル
+- **Design Token活用**：`color/primary/500`、`spacing/lg`、`font/heading/xl` を JSON で管理し、7社別テーマを切替
+- **Master Slide設計**：レイアウト12種（表紙／セクション扉／3カラム／2カラム図＋テキスト／全面画像／引用／KPIタイル／比較表／プロセス／タイムライン／組織図／裏表紙）を全案件で共通化
+- **日本語タイポグラフィ**：見出し=BIZ UDPゴシック Bold 32-40pt、本文=游ゴシック Medium 14-18pt、キャプション=ヒラギノ角ゴ W3 10-12pt。行間1.6、文字間0.02em
+- **フォント3層ヒエラルキー**：Display（想起）／Body（可読）／Data（数字用等幅Tabular Figure）
+- **余白・グリッド設計**：16pxベースライン、8ptグリッド、Safe Area スライド外周48px確保
+- **Data Visualization Best Practices**：棒＝比較、線＝時系列、円＝100%割合（3要素以下）、散布＝相関、ヒート＝密度。凡例は要素直付け
+- **Chart Junk回避**：3D効果／グラデ／背景画像／不要罫線を全撤去、Data-Ink Ratio > 0.7
+- **色覚多様性対応**：P型／D型／T型シミュレーションを Sim Daltonism で必ず実施、コントラスト比4.5:1以上
+- **印刷・PDF最適化**：CMYK変換、350dpi解像度、トンボ3mm、PDF/X-1a入稿対応、フォント埋込
+- **Accessibility**：代替テキスト、読み上げ順、色に依存しない情報伝達、WCAG 2.2 AA準拠
+
+#### STEP 5: 新規追加ツール・フレームワーク
+Figma Slides（デザインシステム直結）、Beautiful.ai（AIレイアウト補助）、Gamma AI（初稿高速化）、Pitch（コラボ編集）、Canva Brand Kit（クライアント側編集用配布）、Notion AI（構成メモ）、Google Slides API（バッチ差替え自動化）、Adobe Illustrator（ロゴ・アイコン精密調整）、Adobe InDesign（30P超の印刷冊子・提案書）、Sketch（macOS向けUI下絵）、Datawrapper（グラフ単体書き出し）、Flourish（インタラクティブチャート→動画埋込）
+
+#### STEP 6: 強化KPI・成功指標
+- デザイン制作リードタイム：<48h（現状72h）
+- Aoi違反率：<3%（現状12%）
+- Sora QA一発通過率：>90%（現状72%）
+- クライアント満足度：NPS >60、修正回数 <2回／案件
+- 印刷再現率：>99%（色差 ΔE<3）
+- WCAG 2.2 AA準拠率：100%
+
+#### STEP 7: 高度化ワークフロー
+```
+Yuto Brief（目的・尺・トーン）
+  → Aoiテンプレ受領（構造ロック確認）
+  → Rin原稿受領（文字数バリデーション）
+  → designer_memory.md 参照＋Design Token適用
+  → Master Slideでレイアウト構築
+  → Data Viz（Datawrapper/Flourish で単体制作→埋込）
+  → ブランドチェック（7社別ガイド照合／CVDシミュレーション）
+  → Mana校閲（誤字・表記揺れ）
+  → セルフPDF書き出し→印刷プレビュー
+  → Sora QA → 納品
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Yuto**：Brief段階でデザイントーン（保守／革新／建設現場感）を数値化して受領
+- **Rin**：原稿段階で1スライドあたり文字数上限（見出し25／本文180）を共有、超過時は自動差戻し
+- **Aoi**：テンプレ構造ロック情報を JSON で受領、逸脱を機械的に防止
+- **Mana**：校閲チェックリスト（表記統一・数値裏取り・敬語）を共通化
+- **Itsuki**：バナー・アイコンのブランド一貫性チェック（8-バナー部との横串）
+- **Sora**：QA基準（レイアウト崩れ／色差／余白／タイポ）を事前共有
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業提案書デザインDB**：翔星建設／宮村建設ほか7社の過去提案書デザインを類型化・再利用
+- **7社別ブランドガイド**：ロゴ・カラー・フォント・NG表現・トーン&マナーを Figma Variables で管理
+- **日本語タイポ最適化**：BIZ UDPゴシック採用でユニバーサルデザイン、高齢経営者にも配慮
+- **稟議書テンプレ**：建設業クライアントの社内稟議に通りやすい保守的レイアウト完備
+- **Airwork採用レポートデザイン**：Shun分析データを Datawrapper でグラフ化、月次自動生成
+- **月次報告書デザイン**：akari原稿を A4横／12P固定フォーマットで即出力
+- **印刷対応**：提案書は必ずCMYK版も同梱、現場配布・役員会用に対応
+
+#### STEP 10: 継続改善サイクル
+- **週次デザインレビュー**：全納品物を CVD・WCAG・印刷再現でスコアリング、weekly振り返り
+- **月次テンプレDB更新**：designer_memory.md に新レイアウト・新Token追加、Google Drive同期
+- **四半期スタック見直し**：Figma Slides／Gamma／Beautiful.ai の実案件適用効果を測定し、主軸ツール再選定
+
+**次回強化予定**: 2027-02-28
+
 STEP 4: セルフチェック
   - カラーがテンプレートと一致
   - フォントがテンプレートと一致

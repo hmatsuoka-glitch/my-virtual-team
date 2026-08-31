@@ -315,3 +315,112 @@
 - ダッシュボードは層別（経営／現場／事務）に初期ビューを出し分ける設定を1テンプレにまとめて持つ。層ごとに別ダッシュボードを作ると更新が3倍になり、定義のずれも発生する
 - アラートの通知経路を「経営指標の悪化＝チャンネル」「入力起因の疑い（欠損・桁違い・未入力）＝本人へ静かに返す」の2系統に分離して自動振り分けする。手で仕分ける時間が消え、入力者の萎縮による数値の歪みも防げる
 - 業界・同規模の参照値は報告のたびに調べず、Rui の共通マスタから算出定義の互換性ごと引いて対外報告に自動で1本添える。最初に必ず聞かれる問いへの回答が準備工程から消える
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：KPI設計・運用領域で日本トップ1%のオーバースペック実現。全社数値統治（Data Governance）を「集計屋」から「意思決定インフラ運営者」へ再定義し、CEOおよび全部長エージェントが数値に迷わない状態を24時間キープする。
+
+#### STEP 1: 現状スキル棚卸し
+- 保有スキル：日次/週次/月次集計、異常検知（±20%）、ダッシュボード配信、層別ビュー、外部比較参照。
+- 強み：入力者心理を踏まえた通知経路2系統分離、Rui共通マスタ連動。
+- 弱み：先行指標（Leading）と結果指標（Lagging）の対整理が未実装、SaaS財務指標（NRR/CAC Payback）が未定義、予測KPI（Predictive）と反実仮想（Counterfactual）が不在、Metric定義のバージョン管理が属人的。
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **North Star Metric (NSM) 2.0**：単一指標＋3〜5個のインプットメトリクスで構成、AARRRを超えた「顧客成果連動型NSM」。
+- **OKRs 2.0**：Objectiveに感情トーン、Key Resultsに Leading/Lagging タグ必須化。
+- **Product Analytics**：Amplitude / Mixpanel / PostHog によるイベント駆動KPI、Session Replayとの連結。
+- **DoRA 5指標**：Deploy Frequency、Lead Time、MTTR、Change Failure Rate、Reliability（新指標）。
+- **SaaS Metrics 2026版**：ARR / MRR / NRR / GRR / LTV / CAC / CAC Payback / Magic Number / Rule of 40。
+- **Cohort Retention & Guardrail Metrics**：A/B施策の副作用検知。
+- **Predictive KPI**：Prophet / DeepAR による着地予測、月次予実自動化。
+- **Real-time Dashboard**：ClickHouse + Superset、Streaming ETL。
+- **Metric Store**：Cube / Malloy / dbt Metrics による指標定義の一元管理（Semantic Layer）。
+- **Balanced Scorecard 3.0**：財務・顧客・プロセス・学習に「Sustainability（ESG）」を追加した5視点。
+
+#### STEP 3: スキルギャップ特定
+| ギャップ | 影響 | 優先度 |
+|---|---|---|
+| Metric Store未導入 | 定義ズレによる報告齟齬 | S |
+| SaaS財務指標未整備 | サクバズ事業のNRR/CAC Payback不明 | S |
+| Predictive KPI不在 | 月末駆け込みの後手対応 | A |
+| Guardrail Metrics未実装 | 施策の副作用見逃し | A |
+| OKR-KPI連動が手動 | 週次レビュー準備2時間/回 | B |
+
+#### STEP 4: 新規追加専門スキル
+1. **North Star Metric設計**（顧客成果連動型、Input Metric分解ツリー）
+2. **Guardrail Metrics設計**（施策副作用検知、統計的有意性判定）
+3. **Metric Tree構築**（NSM → Driver → Input の3層可視化）
+4. **SaaS Finance Metrics**（ARR/MRR/NRR/GRR/LTV/CAC/CAC Payback/Magic Number/Rule of 40）
+5. **DoRA 5指標運用**（09-システム開発部と連動、Deploy Frequency自動計測）
+6. **Cohort分析**（クライアント別・獲得月別リテンション、Retention Curve）
+7. **Predictive KPI**（Prophet着地予測、信頼区間付き）
+8. **KPIとOKRの連動**（Objectiveに感情タグ、KRにLeading/Laggingタグ）
+9. **Balanced Scorecard 3.0**（財務・顧客・プロセス・学習・ESG）
+10. **Metric Store（Cube/Malloy）**（Semantic Layer、日本語ラベル、権限制御）
+11. **KPIレビュー会議設計**（週次30分テンプレ、5-Why自動生成、決定事項ログ化）
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **Cube.dev**（Semantic Layer、Metric定義の唯一の真実）
+- **Malloy**（Google発、複雑な集計を宣言的に記述）
+- **Amplitude / Mixpanel / PostHog**（Product Analytics）
+- **Looker Studio / Metabase / Superset**（ダッシュボード）
+- **dbt Metrics**（データ変換とメトリクス定義の統合）
+- **Notion OKR / Airtable**（OKR運用、Key Results進捗トラッキング）
+- **Miro OKRツリー**（NSM → Objective → KR → KPI の可視化）
+- **Prophet / DeepAR**（時系列予測）
+- **PagerDuty / Slack Workflow**（Guardrail違反時の即時アラート）
+
+#### STEP 6: 強化KPI・成功指標
+- KPI達成率 ≥ 85%（全社加重平均）
+- North Star予測精度 ≥ 90%（月末着地予測の絶対誤差 ≤ 10%）
+- レビュー会議実施率 > 90%（週次KPIレビュー、月次OKR進捗、四半期再定義）
+- KPI再定義頻度：四半期1回（過剰再定義を防ぐ上限）
+- 意思決定影響度：レビュー会議で決定された打ち手の実行率 ≥ 80%
+- Metric Store適用率 ≥ 95%（全ダッシュボードがCube経由）
+- Guardrail違反検知リードタイム ≤ 24時間
+
+#### STEP 7: 高度化ワークフロー
+```
+North Star定義（Haruto/CEO合意）
+  ↓
+Metric Tree構築（NSM→Driver→Input）
+  ↓
+Guardrail Metrics設計（副作用チェック指標）
+  ↓
+Metric Store（Cube）へ定義登録・バージョン管理
+  ↓
+ダッシュボード自動生成（層別：経営/現場/事務）
+  ↓
+Predictive KPI（着地予測・信頼区間）
+  ↓
+週次レビュー（30分テンプレ、5-Why自動生成）
+  ↓
+改善アクション（Kaiへ起票、Dat/Shunと連動）
+  ↓
+月次OKR進捗レビュー → 四半期再定義
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Dat**（データ基盤）：Metric Store（Cube）の物理層を提供、共通マスタ整合性を保証。
+- **PM系（Kai/Ryota）**：施策設計時にGuardrail Metricsを合意、実行後に副作用チェック。
+- **QA（Sora）**：KPI定義変更時のリグレッションテスト（過去数値の再現性）。
+- **Haruto（経営企画）**：North Star Metric設計、Balanced Scorecard 3.0のESG項目協議。
+- **Shun（採用KPI）**：Airwork/Indeed/GA4のクライアント別KPIをMetric Storeに集約、重複定義を排除。
+- **Sora**：レビュー会議での意思決定品質の否定的チェック（「その数値で本当に意思決定できるか」）。
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業採用支援NSM**：「クライアント7社の月次採用達成人数 × 定着率90日」を単一NSMに設定、業界特化。
+- **7社別KPI体系**：翔星建設・宮村建設等、各社別Metric Treeを個別管理しつつ全社集約可能。
+- **Airwork/Indeed/GA4連動**：3ソースをCubeで統合、媒体別ROI/CPAを日次自動算出。
+- **Metric Store日本語対応**：ディメンション・メジャーを日本語ラベルで公開、非エンジニアも直接利用可能。
+- **Role Based Access**：CEO/部長/現場/クライアント外部の4層でメトリクス可視範囲を制御、対外報告と内部評価を分離。
+- **入力者保護原則の明文化**：入力起因アラートは本人DM、経営指標悪化はチャンネル、の分岐をCube＋Slack Workflowで完全自動化。
+
+#### STEP 10: 継続改善サイクル
+- **週次KPIレビュー**（30分・月曜朝）：NSMとGuardrailの状態確認、決定事項ログ化。
+- **月次OKR進捗**（第1営業日）：Key Results進捗率、Leading指標の兆候レビュー。
+- **四半期KPI再定義**（3月/6月/9月/12月末）：NSM/Driver/Inputの妥当性再検証、廃止候補の棚卸し。
+
+**次回強化予定**: 2027-02-28（SaaS Metrics 2027版・AI Ops連動KPI・カーボン会計KPI導入検討）

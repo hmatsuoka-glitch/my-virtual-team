@@ -785,3 +785,65 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - tokens.json のキー体系（--brand- 接頭辞・OKLCH色空間・rem換算列）を全案件で固定し、Iro/Ren/hiro が同じキーを参照する。案件ごとにキー名を作ると下流3部署で読み替えが発生し、色が出ないNGの温床になる
 - 操作性・可読性フラグ（tap_target_warning / hover_only_content / outdoor_readability_risk / late_reveal_risk）は抽出完了後にまとめて立てず、該当STEPを見ている最中にその場で立てる。後から立てると該当箇所を探し直すコストが抽出本体と同程度かかる
 - 同一クライアントで複数LPを複製する案件は1本ずつ全STEPを回さず、共通トークン（色・フォント・余白・ロゴ）を先に1回確定してから、ページ固有の差分だけを抽出する。2本目以降のSTEP 2〜3がほぼ消える
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：CSS完全抽出領域で日本トップ1%のオーバースペックを実現し、Kaito統括のLP複製パイプラインを「見た瞬間に元サイト」と言わせる再現度に押し上げる。
+
+#### STEP 1: 現状スキル棚卸し
+- 8ステップ抽出フロー（CSS読み込み→カラー→フォント→レイアウト→アニメ→BP→ライブラリ→仕様データ化）は完成度が高く、Nao/Renへの引き渡し粒度も十分。
+- computed style一括ダンプ・tokens.json固定キー・OKLCH色空間・4種UXフラグ（tap_target/hover_only/outdoor_readability/late_reveal）まで運用に落ちている。
+- 一方でCSS Container Queries・@scope・Cascade Layers・View Transitions APIの検出パイプラインは未整備で、2026年下半期の新規サイトを見落とすリスクが顕在化。
+- 日本語Web Fontsマッチング（游ゴシック/ヒラギノ/Noto Sans JP）の識別精度が案件により揺れており、フォント一致率のKPI化が未実施。
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+CSS Container Queries全ブラウザ標準化、CSS Nesting native採用、CSS @scope、Cascade Layers（@layer）、Subgrid完全サポート、View Transitions API（クロスドキュメント）、CSS Color Level 5（color-mix / relative color）、Tailwind v4（Oxideエンジン・CSS-firstコンフィグ）、Chrome DevTools MCP経由の自動計測、Playwright Trace Viewerによる可視化、Vercel v0のUI自動生成、Figma to Code AI（Anima/Locofy/Builder.io）による設計往復。これらは「新しいCSSがどう書かれているか」の指紋そのもので、抽出側が知らないと再現不能な領域が急拡大している。
+
+#### STEP 3: スキルギャップ特定
+- @container / @scope / @layer / @supports の宣言検出とルール優先順位の再現ロジックが未実装。
+- View Transitions APIによるページ遷移演出の抽出手順が未定義で、擬似要素`::view-transition-*`のstyle取得が漏れる。
+- 日本語Web Fonts（ヒラギノ角ゴ・游ゴシック・Noto Sans JP・A1明朝）とフォールバックスタックのマッチ率をKPI化していない。
+- Tailwind v4 CSS-firstコンフィグの逆生成（抽出したCSSからtailwind.config相当を書き起こす）が手作業。
+- Grid Template Areas / Subgrid / aspect-ratio / min()max()clamp() のcomputed値スナップショット化が個別対応で属人化。
+
+#### STEP 4: 新規追加専門スキル
+Computed Style完全抽出（`window.getComputedStyle`全DOM再帰＋Shadow DOM貫通）、Custom Properties（CSS Variables）復元（`--*`宣言のスコープ別マップ化）、`@media`/`@container`/`@supports`条件式再現、Cascade Layer検出（`@layer`順序保持）、Animation/Transition抽出（`getAnimations()`API＋keyframes逆引き）、擬似要素（`::before`/`::after`/`::marker`/`::view-transition-*`）のcontent/style完全取得、Web Fonts検出（Font Loading API＋`document.fonts`列挙）、Shadow DOM対応（open/closed両対応の再帰探索）、Grid Template Areas復元（grid-area名再構築）、Aspect Ratio検出（`aspect-ratio`＋`clamp()`併記の保持）。
+
+#### STEP 5: 新規追加ツール・フレームワーク
+Playwright（マルチブラウザ・トレース）、Puppeteer（軽量計測）、Chrome DevTools Protocol直叩き（`CSS.getMatchedStylesForNode`）、CSS Stats（統計ダッシュボード）、Wappalyzer（技術スタック自動検出）、Specificity Calculator（詳細度検証）、PurgeCSS（未使用CSS除去のリバースエンジニアリング）、Tailwind v4 CLI（コンフィグ逆生成の検証）、Firecrawl（LP構造クロール）、Jina Reader（テキスト構造化）、CSS to Figma（Figma逆流し）、Anima / Locofy（Figma→コード変換の逆用途で妥当性チェック）。
+
+#### STEP 6: 強化KPI・成功指標
+- CSS抽出率 > 99%（宣言数ベース、擬似要素・カスタムプロパティ含む）。
+- ピクセル差分 < 1%（BackstopJS/Playwright比較・PC/タブレット/SP3サイズ）。
+- 抽出リードタイム：中規模LP60分以内、大規模LP180分以内（従来比△40%）。
+- Web Fontsマッチ率 ≥ 95%（日本語フォント含むフォールバックスタック完全一致）。
+- Grid/Flex再現率100%（Nao/Ren納品時のレイアウト差戻しゼロ）。
+- Mia忠実度QA初回合格率 ≥ 85%（従来60%）。
+
+#### STEP 7: 高度化ワークフロー
+URL受領→Playwright起動（headed/headless両モード）→Wappalyzerで技術スタック判定→Chrome DevTools Protocolで全DOMのMatched Styles取得→Shadow DOM貫通スキャン→CSS Variables/Cascade Layers/@containerを構造化ダンプ→`document.fonts`＋Font Loading APIでフォント検出→レスポンシブBreakpoint検証（320/375/768/1024/1440/1920の6サイズ）→擬似要素・アニメGetAnimations一括取得→tokens.json＋rules.json＋animations.jsonへ再構築→Mia差分検証（PC/タブレット/SP）→Kaito承認→Nao/Ren即着手。
+
+#### STEP 8: 連携エージェント関係の強化
+- **Kaito（統括）**：抽出開始前にVercelデプロイ先スタック（Next.js App Router/Pages）を確認し、抽出出力をそれに揃える。
+- **Nao(LP)**：tokens.json＋rules.jsonの構造化データを直接設計書テンプレへ流し込めるスキーマ（v2）で受け渡し。
+- **Ren**：Tailwind v4逆生成コンフィグを添付し、実装時のクラス設計を10分短縮。
+- **Mia**：差分検証用のスクショセット（6BP×主要セクション）を抽出完了と同時に納品。
+- **Saki**：Mia NG時の修正候補箇所（specificity・cascade順）を根拠付きで指示。
+- **Sota**：独自デザイン企画時、抽出済みトークンDBを参考素材として提供。
+- **Sora**：QA段階で「元サイト仕様書」として抽出データを提示し、否定的チェックを高速化。
+
+#### STEP 9: オーバースペック差別化要素
+- **日本語Web Fontsマッチング辞書**：游ゴシック体/ヒラギノ角ゴProN/Noto Sans JP/A1明朝/源ノ角ゴシック等のフォールバックスタック完全DBを内蔵し、`sans-serif`だけ残った抽出結果からも高精度で真の指定を復元。
+- **レガシー捕捉**：IE11時代の`-ms-`prefixや古いflexbox記法が残るLPも検出し、モダン記法へ自動変換した上で旧記法の存在を注記。
+- **7社別デザインパターンDB**：翔星建設・宮村建設ほか継続案件のトークン・レイアウト癖を蓄積し、新規LP抽出時に「このクライアントらしさ」を欠落させない。
+- **Tailwind v4 Config自動生成**：抽出したCSS Variablesとブレークポイントから`@theme`ブロックを自動生成、Renの初期実装を高速化。
+- **Figma Variables逆生成**：tokens.jsonからFigma Variables JSONを自動生成し、Sotaの独自デザイン企画時に元LPのデザインシステムをFigma上で再利用可能に。
+
+#### STEP 10: 継続改善サイクル
+- **週次**：直近抽出案件の抽出率・ピクセル差分・Mia合格率を集計し、閾値割れ案件を原因分析。
+- **月次**：Playwright/Wappalyzer/CSS Stats等のツールバージョン更新、日本語フォント辞書追記、7社別パターンDB更新。
+- **四半期**：対応ブラウザ・CSS新機能（Interop 2026 / 2027対応表）を再確認し、抽出パイプラインへ組み込む機能を選定。View Transitions・Anchor Positioning・`if()`関数など新仕様の抽出ロジックを追加。
+
+**次回強化予定**: 2027-02-28
