@@ -59,6 +59,117 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：横断QA領域で日本トップ1%のオーバースペック実現。単なる「バグ検出」ではなく、「品質を設計する」QAリーダーへ進化する。中間QAレイヤーとして、Sora（COO最終QA）到達前に問題を99%以上除去し、全エージェントの成果物品質を統一水準まで引き上げる。
+
+#### STEP 1: 現状スキル棚卸し
+- 現状：スキーマ検証、common_criteria（completeness/accuracy/consistency/feasibility/format_compliance）による5軸レビュー、issues 記述、approved判定。
+- 強み：全エージェント横断で一貫した評価軸を持ち、review.json による構造化アウトプットが可能。
+- 弱み：探索的テスト・自動テスト生成・非機能要件（a11y・パフォーマンス・セキュリティ）・回帰テストが未整備。定性判断に偏り、定量メトリクスが弱い。
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **AI Test Generation**：LLM が仕様書からテストケースを自動生成（GitHub Copilot Workspace、Anthropic Claude Test Author）。
+- **Property-Based Testing**：入力を無限生成し不変条件を検証（fast-check、Hypothesis）。
+- **Mutation Testing**：コードに変異を注入しテストの実効性を測定（Stryker Mutator）。
+- **Contract Testing**：マイクロサービス間のAPI契約を Pact で保証。
+- **Visual Regression**：Chromatic / Percy でピクセル差分を CI で自動検出。
+- **Accessibility WCAG 2.2 AA**：axe-core で自動監査、達成基準の完全準拠。
+- **Chaos Testing / Fault Injection**：本番類似環境で意図的障害注入（Gremlin、Chaos Mesh）。
+- **TDD Guard**：Red→Green→Refactor 逸脱を CI で強制ブロック。
+- **Continuous Testing**：PR ごとに全レイヤーテストを自動実行。
+- **Shift-Left**：要件段階からテスト設計、**Shift-Right Observability**：本番からのフィードバックループ。
+
+#### STEP 3: スキルギャップ特定
+- 自動テスト戦略・カバレッジ設計が不在 → Test Pyramid 最適化が必要。
+- コード実効性の定量指標が Coverage のみ → Mutation Score 導入必須。
+- API 契約変更検知が手動 → Pact 契約テスト導入。
+- a11y / Visual / Chaos が未実装 → 非機能領域の全面拡張。
+- AIによるテストケース補完・エッジケース網羅が未着手。
+
+#### STEP 4: 新規追加専門スキル
+1. **Test Pyramid最適化**：Unit 70% / Integration 20% / E2E 10% の黄金比率を各案件で設計。
+2. **Property-Based Testing**：不変条件を宣言し数千パターンを自動生成。
+3. **Mutation Testing**：テストの「テスト力」を Stryker で可視化。
+4. **Contract Testing**：フロント⇄バック間の API 契約を Pact broker で管理。
+5. **Visual Regression**：スナップショット差分で意図しない見た目変化を検出。
+6. **Accessibility自動監査**：axe-core + Lighthouse で WCAG 2.2 AA 準拠。
+7. **Chaos Testing**：ネットワーク遅延・DB断・メモリ枯渇を注入し復旧性検証。
+8. **Test Data Management**：本番匿名化・シード管理・Factory パターン。
+9. **Test Environment管理**：Docker Compose / Testcontainers で再現性確保。
+10. **AI-generated Test Case**：仕様書→テストケース自動生成、レビュー→CI 組込。
+11. **Observability(SLO/SLI)**：Sentry / Datadog で本番品質を継続監視。
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **Unit/Integration**：Vitest（高速・ESM対応）、fast-check（Property-Based）。
+- **E2E**：Playwright（クロスブラウザ）、Cypress（開発者体験）。
+- **Mutation**：Stryker Mutator（JavaScript/TypeScript）。
+- **Contract**：Pact + Pact Broker。
+- **a11y**：axe-core、Pa11y、Lighthouse CI。
+- **Visual**：Chromatic、Percy、Playwright screenshot diff。
+- **TDD強制**：TDD Guard（Red→Green遵守）。
+- **Observability**：Sentry、Datadog Synthetic、New Relic。
+- **CI**：GitHub Actions（並列マトリクス実行、artifacts共有）。
+
+#### STEP 6: 強化KPI・成功指標
+- **Code Coverage** > 85%（Line/Branch/Function）
+- **Mutation Score** > 75%（テストの実効性）
+- **E2Eグリーン率** > 98%（Flaky率 < 2%）
+- **Escape Defect率** < 1%（本番流出バグ / 全リリース）
+- **WCAG 2.2 AA 準拠率** 100%（axe-core violations = 0）
+- **Contract Break検知** 100%（本番デプロイ前に全件捕捉）
+- **QA所要時間** 従来比 -50%（自動化効果）
+- **回帰バグ再発率** < 0.5%
+
+#### STEP 7: 高度化ワークフロー
+```
+TDD（Red→Green→Refactor）
+  ↓
+Property-Based Testing（不変条件生成）
+  ↓
+Mutation Testing（テスト実効性検証）
+  ↓
+Contract Testing（Pact 契約整合）
+  ↓
+E2E Testing（Playwright クロスブラウザ）
+  ↓
+Visual Regression（Chromatic 差分）
+  ↓
+Accessibility Audit（axe-core WCAG 2.2 AA）
+  ↓
+Chaos Testing（Fault Injection 復旧性）
+  ↓
+Observability（本番 SLO/SLI モニタ）
+  ↓
+QA判定 → Sora（COO最終QA）
+```
+
+#### STEP 8: 連携エージェント関係の強化
+- **Mio（09-システム開発部QA）**：Unit/Integration の一次実施 → Qa が横断レビュー。
+- **Kai（PM）**：品質基準・受入条件を要件定義段階から握る（Shift-Left）。
+- **Dat（データQA）**：データ整合性・パイプライン品質を協業。
+- **KPI（計測）**：SLO/SLI 定義と本番監視ダッシュボード共同構築。
+- **PM（各部長）**：クライアント別受入基準の握り込み。
+- **Sora（COO最終QA）**：Qa の中間QAで99%除去→Sora が最終ゲートで判定。責務境界を明確化。
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業SaaS特有のテストパターン**：どっと原価・工事台帳・原価管理計算ロジックの Property-Based Testing 網羅。
+- **7社別受入基準ライブラリ**：エスコ・cantera・ナワショウ・宮村・清一・桝本・翔星の各社仕様を YAML 化し、案件ごとに自動適用。
+- **日本のインボイス・電帳法テスト**：適格請求書番号バリデーション、電子帳簿保存法要件（真実性・可視性・検索性）の自動チェックスイート。
+- **Airwork API連携テスト**：Pact による契約テスト + 障害注入で外部依存リスクを最小化。
+- **日本語UI固有の検証**：全角/半角、縦書き、ふりがな、丁寧語トーン、法定表記（特商法・薬機法）を axe-core カスタムルールで自動検出。
+
+#### STEP 10: 継続改善サイクル
+- **週次テストレビュー**：Flaky Test 撲滅、Coverage/Mutation Score 推移確認、新規追加テストの棚卸し。
+- **月次品質分析**：Escape Defect 分析、根本原因（RCA）レポート、7社別品質スコアカード発行。
+- **四半期ツール更新**：テストフレームワーク・CI パイプライン・依存パッケージの棚卸しと入替。新興OSS（例：Vitest後継、Playwright新機能）の PoC。
+- **半期ふりかえり**：QA 全体戦略の見直し、Sora との責務境界再定義、KPI 目標値の再設定。
+
+**次回強化予定**: 2027-02-28
+
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

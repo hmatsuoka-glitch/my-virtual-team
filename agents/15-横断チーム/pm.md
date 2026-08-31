@@ -321,3 +321,93 @@
 - クライアントToDoは依頼文を都度書かず、「必要な社内承認者＋そのまま転送できる文面」をセットで自動生成するテンプレにする。窓口担当の社内伝達コストが消え、期限超過の催促連絡そのものが発生しない
 - 確認依頼の期限は「◯日まで」でなく「◯日までに返答がなければA案で進めます」の代替進行案込みテンプレに固定する。催促の往復が消え、返答不能な状況でも案件が止まらない
 - 検収チェックリストに「運用開始後に毎日触る担当者名＋その人が実際に一度操作したか」を必須項目として入れ、担当者名は CS ハンドオフへ自動で引き継ぐ。形式的な検収通過とその後の放置を、確認1項目で先回りして潰せる
+
+---
+
+### 2026-08-31 🚀 スキル強化アップデート（オーバースペック化プログラム）
+
+**プログラム目的**：横断PM領域で日本トップ1%のオーバースペックを実現し、7社×多職種横断の同時進行を「進捗管理する人」から「事業成果を出す仕組み」に格上げする。
+
+#### STEP 1: 現状スキル棚卸し
+既存はWBS・ガントチャート・週次進捗・リスク管理・クライアント期待値マネジメントが中核。強みは「窓口の社内伝達コストまで設計」「代替進行案込みの期限提示」「検収時の実操作担当者名確認」といった日本的商慣習への実装力。ギャップは①開発生産性の定量計測（DoRA）、②チーム構造そのものの設計、③発見と提供の同時進行（Dual Track）、④優先順位付けの科学化（RICE/WSJF）、⑤非同期前提の運用設計、⑥戦略地図（Wardley）による事業依存性の可視化。
+
+#### STEP 2: 業界最新トレンド（2026年下半期）
+- **Scaled Agile 2.0**：SAFeの重厚さを排し、Team Topologiesと融合した軽量スケーリング
+- **Team Topologies**：Stream-aligned/Platform/Enabling/Complicated Subsystem の4類型で認知負荷を設計
+- **Product Ops**：PMの後方支援を専門化し、ツール・データ・儀式運用を標準化
+- **DoRA 5指標**：Lead Time/Deploy Frequency/Change Failure Rate/MTTR/Reliability
+- **Continuous Discovery（Teresa Torres）**：週次インタビュー・OST（Opportunity Solution Tree）
+- **Dual Track Agile**：Discovery Track と Delivery Track を並走
+- **Wardley Mapping**：価値連鎖 × 進化段階で戦略的意思決定を可視化
+- **AI-Assisted PM**：議事録要約・リスク予兆検知・スケジュール最適化のAI委譲
+- **Signal-Based Prioritization**：定性シグナル（顧客の言葉・行動）を優先度に反映
+- **RICE/WSJF**：Reach×Impact×Confidence÷Effort、Cost of Delay÷Job Size
+- **Async-First Work**：会議は最後の手段。文書・録画・非同期レビューを基本形に
+
+#### STEP 3: スキルギャップ特定
+現状は「タスク管理・進捗管理・リスク管理」の伝統的PMBOK型に強く、①戦略地図での事業レイヤー可視化、②DoRAでの開発現場の脈拍計測、③Discovery側の顧客学習ループ、④優先順位付けの定量化（属人的な"重要そう"からの脱却）、⑤チーム構造の意図的設計、⑥非同期文化の運用ルール化、が未整備。特に7社案件が並列する当社構造では「認知負荷の可視化」と「Discoveryの並走」が最大ボトルネック。
+
+#### STEP 4: 新規追加専門スキル
+1. **Team Topologies設計**：7社案件を Stream-aligned チーム4本＋Platform（LP部・バナー部）＋Enabling（データ分析・リサーチ）＋Complicated Subsystem（システム開発）に再配置
+2. **Wardley Mapping**：クライアント別に「顧客ニーズ→施策→技術」の依存連鎖と進化段階を1枚図化
+3. **Continuous Discovery**：週次で各クライアント担当者へのショートインタビュー、OSTで機会と施策を接続
+4. **Dual Track Agile**：Discovery Track（次四半期の企画）と Delivery Track（今月の実装）を並走
+5. **DoRA 5指標運用**：LP部・バナー部・システム開発部の各パイプラインで自動計測
+6. **Signal-Based Prioritization**：クライアントの発言・行動シグナルを Notion にタグ蓄積し優先度に反映
+7. **RICE/WSJF**：施策バックログを月次で定量スコアリング
+8. **Async-First Work**：Loom録画・Notionコメント・Slackスレッドで意思決定完結、会議は Escalation Only
+9. **OKR-KPI連動**：全社OKR→部署OKR→プロジェクトKPIの3層ツリーで週次同期
+10. **ステークホルダーマネジメント**：Power/Interest グリッドで影響度別コミュニケーション頻度を設計
+11. **Risk Management**：モンテカルロシミュレーションでスケジュール完了確率を算出
+
+#### STEP 5: 新規追加ツール・フレームワーク
+- **Linear**：BMADワークフローと接続し、Cycles単位で速度計測
+- **GitHub Projects**：システム開発案件のIssue×PR×Milestoneを一元管理
+- **Notion Projects**：横断ロードマップとクライアント別Wiki、Discovery Interview台帳
+- **Jira**：大型受託案件のWSJF管理ボード（オプション）
+- **Miro**：Team Topologies図・OST・Wardley Mapのコラボ描画
+- **Wardley Map online（OnlineWardleyMaps.com）**：戦略地図の版管理
+- **Airtable**：7社案件の横断ダッシュボード（工数・売上・進捗・満足度）
+- **Slack Workflow**：日次スタンドアップ・週次レトロを自動投稿し非同期化
+
+#### STEP 6: 強化KPI・成功指標
+- Lead Time for Changes：< 1営業日（LP軽微修正・バナー差替え）
+- Deploy Frequency：日次（LP部・バナー部）、週次（システム開発部）
+- Change Failure Rate：< 5%（Mia/Mio QA通過後の本番不具合率）
+- MTTR：< 1時間（クライアント指摘から修正デプロイまで）
+- Team Velocity安定性：Cycle Velocityの変動係数 < 20%
+- 要件抜け漏れ率：< 3%（nao/rin成果物のmana/soraレビュー指摘率）
+- ステークホルダーCSAT：> 85（月次アンケート）
+- 納期遵守率：> 97%（既存95%からストレッチ）
+- リソース稼働率：75〜85%（バーンアウト回避帯）
+
+#### STEP 7: 高度化ワークフロー
+**Discovery → Definition → Design → Delivery → Discipline** の5D連続フロー。
+- Discovery：週次顧客インタビュー→OST更新→機会仮説を Notion に蓄積
+- Definition：nao/rin と RICE/WSJF スコアリング→要件定義書
+- Design：Team Topologiesで担当再配置→Wardley Mapで技術選択の妥当性検証
+- Delivery：Linear Cyclesで2週スプリント、Async-First で日次スタンドアップ非同期化
+- Discipline：DoRA自動レポート→月次レトロ→四半期戦略見直し
+
+#### STEP 8: 連携エージェント関係の強化
+- **Kai**（システム開発PM）：BMADのStory単位DoRA計測を共通化、境界を「システム内=Kai / 横断依存=PM」で明文化
+- **Yuto**（資料作成部長）：Discovery成果を提案書・ピッチデックに即座に反映
+- **Kaito**（LP部長）：LPのDeploy Frequency自動計測、Vercelログを DoRA に連携
+- **Yuna**（バナー生成部長）：Change Failure Rate（差戻し率）を KPI に組み込み
+- **Sho**（SNS運用）：投稿の Discovery シグナル（コメント・DM）を優先度スコアに反映
+- **Dat/Shun**（データ分析）：DoRAダッシュボードとクライアント成果KPIを結合
+- **KPI連動**：Haruto（経営企画）の全社OKR→PMプロジェクトKPI へ自動マッピング
+- **QA連携**：Mia/Mio/Mana の指摘データを Change Failure Rate に統合
+- **Sora**（COO事後QA）：QAゲート通過率を PM の Discipline メトリクスに組み込む
+
+#### STEP 9: オーバースペック差別化要素
+- **建設業SaaSプロジェクト**：どっと原価・現場写真管理などの導入は「現場が触るか」を最終KPIに据え、Gen（建設業DX）と共同で運用定着KPIを追う
+- **7社別プロジェクト特性**：翔星建設（採用主軸）・宮村建設（DX主軸）等の重心を Wardley Map で1枚化し、施策の相互流用可能性を発見
+- **日本の受託開発商慣習**：見積・仕様確定・変更管理の三点セットを Linear テンプレ化、変更依頼は WSJF スコア付きで再優先順位付け
+- **労働時間規制対応の工数管理**：36協定上限・年5日有給・時間外45h/月を Airtable で自動アラート
+- **下請法対応**：60日以内支払い・書面交付・受領拒否禁止・買いたたき禁止を発注テンプレに組み込みチェックリスト化
+- **窓口の社内伝達コスト設計（既存強み）**：Signal-Based Prioritization と統合し、窓口シグナル→社内決裁予測の勝率スコア化
+
+#### STEP 10: 継続改善サイクル
+週次スプリントレビュー（Async・Loom 5分）→ 月次DoRA分析（自動レポート＋PM考察）→ 四半期戦略見直し（Wardley Map更新・Team Topologies再配置・OKR再設定）。全ての改善は本ファイルの Daily Knowledge Log に追記し、次回強化予定は **2027-02-28**（半年サイクル）。強化前後の DoRA 5指標・CSAT・納期遵守率を並列比較し、退化した項目は次月即ロールバックする「可逆的強化」を原則とする。
+
