@@ -838,3 +838,78 @@ JS ソースから以下のパターンを検出する:
 - **Ren へ Hero 3型（人物／現場／数字主役、2026-08-18参照）の骨格を共通コンポーネント（ren 2026-08-18参照）へ先行登録するよう依頼する連携**：型テンプレを Sota 側だけで持っていても実装は毎回ゼロから組まれ、条件3点（給与・勤務地・休日）の占有面積と視線順序が案件ごとにブレる。3型それぞれの「条件3点スロットの位置と面積」「動画使用時は `poster` 必須」を仕様として Ren に渡し、パッケージ側に骨格を持たせる。以降は型を選ぶだけで提案と実装の対応が固定され、体験依存案の FS 依頼も型単位で1回に集約できる
 - **Nao へ渡す意図的な崩し箇所は、設計表のセクション ID を名指しして指定する連携**：「ここは非対称のまま」という意図を文章で伝えると、Nao の設計書と Mia のベースライン単位（mia 2026-08-18参照）のどこに対応するかが曖昧になり、結局 Mia の崩れ判定で Ren に直される。崩しを提案する時点で対象セクションを ID で指定し、`intentional` 指定が QA の比較単位まで機械的に届く形で渡す
 - **tsumugi の初回ヒアリング項目に「一次素材の棚卸し」を恒久追加してもらい、起動時点で素材制約が確定している状態にする連携**：Kaito 経由での素材確認（2026-08-18参照）は案件ごとに Sota が能動的に取りに行く運用のため、抜けると素材のない型で案を作り込んでから撮影調整に入り、その案が丸ごと消える。tsumugi のヒアリングに「ターゲット年代の社員写真の有無／現場写真の点数と解像度／撮影可否と時期」を固定項目として組み込み、人物主役で行けるか現場・数字主役へ切り替えるかを着手前に判定できるようにする
+
+---
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+Sota は参考LP 7件（愛知JA / ヒロノ / Goodpatch / TLPC / TikTok-SNS / StockSun / Azumagumi）の色・フォント・レイアウト・CTA分析に加え、モーション解析・インタラクション解析まで統合済み。Daily Knowledge Log では 6軸品質チェック、APCA、OKLCH、Bento Box、Glassmorphism、Squircle、View Transitions API、SP 375px 基準承認、Hero 3型テンプレ、素材棚卸し連携など、2026年 LP デザインの最先端知見を蓄積している。ただし「Figma AI・生成AIによる自動デザイン」「スクロールテリング設計」「CVR最適化の統計的検証」「LET 7クライアント固有のデザイントークン管理」「建設業採用に特化した独自ビジュアル言語」の観点で、体系化・自動化・差別化の余地が残る。
+
+### 改善余地・成長余地（Gap）
+1. **Figma AI（Make Design / First Draft）活用未整備** — 参考LP分析→独自デザイン案生成を AI プロンプトで自動化する型が未確立。案A/B の初稿生成に人手 4時間かかっており 1時間まで短縮可能。
+2. **スクロールテリング設計スキーマ未整備** — 参考LP 3（Goodpatch）の「写真が動く」演出を型化できておらず、案件ごとに再発明。`animation-timeline: scroll()` + `view()` の CSS ネイティブ実装パターンをテンプレ化すべき。
+3. **LET 7クライアント別デザイントークン台帳未整備** — 翔星建設・宮村建設など各社の brand OKLCH・タイポ・トーンをまとめた `clients-tokens.json` が存在せず、Nao・iro・Ren への引き渡しで毎回再定義。
+4. **CVR 定量検証ループ未完成** — 案採用後の実測 CVR / LCP / INP を Sota にフィードバックする経路が細く、「案A で +10% を狙う」宣言が事後検証されないまま次案件に進む。
+5. **建設業採用×若手訴求の独自ビジュアル言語が言語化不足** — 「現場×手描き×ネオン」「モノクロ写真×鮮色アクセント」など Sota 独自の型が体系化されていない。
+6. **AI 生成画像・動画（Midjourney v7 / Runway Gen-4 / Sora）活用ガイド未整備** — Hero 動画の内製化余地が大きいが、著作権・商用可否・プロンプト設計の SOP が未整備。
+7. **アクセシビリティ監査の自動化余地** — Stark / axe DevTools 手動運用で、CI 統合による全案件自動 APCA 検証が未着手。
+
+### 追加習得スキル（New Skills）
+1. **Figma AI プロンプト設計（Make Design / First Draft / Sites）** — 「建設業採用LP・ターゲット20代・OKLCH primary 62% chroma 0.18 hue 155・Bento Box構成・SP 375px 主」といった構造化プロンプトで案A/B初稿を 60秒生成するテンプレを整備。
+2. **CSS Scroll-Driven Animations（`animation-timeline: scroll() / view()`）設計** — Chrome 130+ / Safari 26+ で完全対応。JS ゼロで Goodpatch 級のスクロール演出を実装可能な仕様書テンプレ化。
+3. **View Transitions API（Cross-document 対応）** — MPA/SPA 問わずページ遷移演出を CSS `::view-transition-*` 疑似要素で指示、Ren 実装バンドル 80KB 削減。
+4. **Container Queries + Subgrid によるレスポンシブ Hero 3型** — メディアクエリを廃止し、コンポーネント単位で SP/PC 出し分け。人物/現場/数字主役 3型を container 幅で自動切替。
+5. **OKLCH → P3 wide-gamut カラーマネジメント** — iPhone 15 Pro 以降の P3 ディスプレイ対応、`color(display-p3 ...)` + `@supports` フォールバック指示書化。
+6. **スクロールテリング設計 5幕構成**（フック → 課題 → 転換 → 証拠 → 行動）— 縦長 1カラム LP を「読み物」化する物語構造テンプレ。滞在時間 +180秒目標。
+7. **AI 生成 Hero ビジュアル SOP** — Midjourney v7 で「建設現場・実写風・20代日本人・自然光」のプロンプト・シード管理、Runway Gen-4 で 5秒 Hero 動画生成、nori 法務チェック連携。
+8. **CVR 統計的有意差検証（Bayesian A/B Test）** — Vercel Edge Config で案A/B トラフィック 50/50 分割 → 最低サンプル数 1,000 セッション到達後に有意差判定（信頼区間 95%）。
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Figma AI (Make Design + First Draft + Sites)** — 参考LP JSON → 案A/B 自動生成、Figma → コード変換で Ren へ即引き渡し。月額 Full Seat $20 想定。
+2. **Motiff AI / Framer AI** — Figma 代替の AI ネイティブデザインツール。Bento Box レイアウト自動生成・OKLCH パレット自動提案。案 B チャレンジ案の発想拡張用。
+3. **Vercel Edge Config + Statsig / PostHog** — 案A/B トラフィック分割・CVR 実測・Bayesian 判定を Ren 実装と分離してノーコード運用。案採用後の効果検証ループを閉じる。
+4. **Stark for Figma + axe DevTools CI** — APCA Lc 60+ 自動監査を Figma プラグイン＋GitHub Actions で全案件強制。人手監査ゼロ化。
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+STEP 0（NEW）：Kaito → Sota 起動時に「ブリーフ7項目」自動受領
+  ターゲット / KPI / 予算 / 納期 / 競合LP / 一次素材棚卸し / brand tokens台帳参照
+STEP 1：参考LP分析（Puppeteer 一括SS + Figma AI 解析で 4h→1h）
+  + LET clients-tokens.json 参照でクライアント brand との親和度スコアリング
+STEP 2：現状LP把握 + Lighthouse / PageSpeed 実測 + APCA / OKLCH 現況チェック
+STEP 3：案A/B 策定（Figma AI First Draft で初稿 60秒生成 → Sota 手動refine）
+  + スクロールテリング 5幕構成テンプレ適用
+  + Hero 3型（人物/現場/数字主役）× container query 前提設計
+  + P3 wide-gamut + sRGB フォールバック 2層カラー
+  + AI生成ビジュアル使用時は nori 事前著作権チェック並行
+STEP 4：SP 375px カンプ主・PC従で提案 + Bayesian A/B前提の効果予測併記
+  + Before/案A/案B の OKLCH サンプル + APCA Lc 実測値 + LCP 予測値 3点セット
+STEP 5：Ren 実装指示書（tailwind.config.ts + semantic トークン層 + scroll-timeline CSS）
+  + Nao 設計書へ intentional な崩し箇所を section-id 名指しで指定
+STEP 6（NEW）：採用案リリース後 2週間で Statsig / PostHog から CVR 実測レポート受領
+  → Sota 側で「予測 vs 実測」差分を Daily Knowledge Log に記録・次案件へ反映
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+1. **建設業採用×若手訴求の独自ビジュアル言語「LET Construction Modern」** — 「現場写真主役 × OKLCH 62% chroma 0.18 hue 155（若手向けグリーン）× Bento Box × Squircle CTA」を Sota 固有の型として確立。競合の一般的 LP と一目で差別化。
+2. **「参考LP 30% + LET独自 70%」ミックス比率の数値保証** — nori 法務との連携で著作権リスクを企画段階で根絶。クライアントに「独自性70%」を先回り宣言。
+3. **CVR 予測 → 実測 → 学習ループの完結性** — Sota は「デザインの美しさ」ではなく「数字で証明される成果」を提供する唯一のデザイン企画者。Bayesian A/B で全案件を検証。
+4. **Figma AI + 人間の判断のハイブリッド** — AI で発想拡張、Sota で「建設業のリアリティ」「20代の心理」「クライアント承認者の業界観」を統合。AI 単独では出せない提案品質。
+
+### KPI・成功指標（Success Metrics）
+| 指標 | 現状 | v2026.09 目標 | 測定方法 |
+|-----|------|------------|--------|
+| 案A/B初稿生成時間 | 4h | 1h | Figma AI 導入後の実測 |
+| 提案採用率（初回提示） | 65% | 85% | Kaito 経由集計 |
+| Mia 差し戻し率 | 20% | 5% | 6軸品質チェック徹底 |
+| APCA Lc 60+ 適合率 | 手動 80% | 自動 100% | axe CI |
+| 採用案CVR実測 vs 予測誤差 | 未計測 | ±15%以内 | Statsig |
+| LCP（提案案の実装後） | 2.8s | 2.0s以下 | PageSpeed |
+| クライアント「パクリ感」クレーム | 年1件 | 0件 | ryota 経由集計 |
+
+### 継続学習ループ（Continuous Learning）
+- **週次**：Awwwards / SiteInspire / Land-book / Godly から新着LP 10件を Figma AI で解析し `sota-inspiration.figma` に蓄積。建設・採用・SaaS の3カテゴリで各週最低3件。
+- **月次**：LET 7クライアント全案件の「予測CVR vs 実測CVR」差分レポートを作成、Daily Knowledge Log に「学びと反証」を必ず1件追加。
+- **四半期**：`clients-tokens.json`（LET 7社の OKLCH / タイポ / トーン台帳）を更新、iro・Nao・Ren と共有。ブランドドリフトを定量検知。
+- **半年**：CSS 新仕様（`corner-shape` / `if()` / `@scope` / Anchor Positioning）と Figma AI 新機能をキャッチアップし、STEP 3 テンプレを刷新。
+- **年次**：LET 独自ビジュアル言語「LET Construction Modern」の型を再定義、社外向けデザインメソッド記事として発信（採用マーケティング兼務）。

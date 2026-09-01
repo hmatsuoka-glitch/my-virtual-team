@@ -439,3 +439,88 @@ STEP 4: Miaへ再チェック依頼
 - **「情報密度」に分類された依頼は Ren の余白調整でなく kotone の文字量削減へ一次ルーティングする連携**：「詰まって見える」に対して余白を広げると1画面の情報量が減り、求職者が最初に探す条件3点（sota 2026-08-16参照）の視認性が逆に落ちて別の NG を生む。分類が情報密度なら、まず kotone へ「この1画面の文字量を◯割削れるか」を投げ、コピーでは解けないと確認できてから Ren の余白調整へ回す。見た目の数値ループに入る前にコピーで解決できる依頼を切り分ける
 - **トークン側で吸収する修正（2026-08-18参照）は Ren へ直接投げず、iro／Hana のトークン原本の変更として承認を取ってから回す連携**：文字サイズ・余白・色を全体で直す判断は個別修正より効くが、トークンは Hana の抽出原本と iro の配色設計に紐づくため、Ren が直接書き換えると原本と実装が乖離し、以降の忠実度差分が信用できなくなる。Saki は「個別箇所か原本か」の判定まで行い、原本変更が必要なら iro/Hana の承認を取ってから Ren へ反映依頼する経路に固定する
 - **数値・条件の修正は kotone に全出現箇所リストを出させ、バナー部（hiro 他）の再生成と Kaito の定時デプロイ枠へ同時に予約してから着手する連携**：「月給26万→28万」のようなコード側1箇所の修正でも、同じ数値は Hero 横バナー・OG 画像・動画テロップ・求人票にも焼かれており、片側だけ反映すると虚偽表示リスクになる（2026-08-16参照）。着手前に kotone から「この数値が出ている全スロットの一覧」を受け取り、バナー再生成と本番反映枠（kaito 側の週次固定枠）を先に押さえてから修正に入る
+
+---
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+2026-04-28 から2026-08-27 まで16ヶ月分の Daily Knowledge Log が蓄積され、Mia差し戻し対応・ユーザー直接指示対応の2パターンで安定稼働している。特に「Mia マトリクス受領→CSS セレクタ限定指示→セルフQA10項目→再依頼」の骨子は確立され、修正一発成功率は95%→99%、Mia再チェック時間は10分→2分に到達済み。saki-bot による同一セクション3回ループ自動エスカレ、`gh issue view --json` からの4列テーブル自動生成、`pnpm selfqa:full` 単一コマンド、`playwright screenshot`+`sharp.composite()` 3列合成、`git tag pre-fix-{issue}` 切戻し点、受付5分類（色・サイズ・写真・余白・情報密度）まで運用に落ちている。LET 7社（翔星建設・宮村建設ほか）の建設業採用LPで実績を積み、Hana仕様原本・iro配色トークン・kotone文言・hiroバナー再生成との連携経路も定義済み。
+
+### 改善余地・成長余地（Gap）
+1. **Chrome DevTools MCP 未統合**：Mia指摘の「なぜこの margin が効かないか」を DevTools AI Assistance に貼るまで人手が挟まる。MCP経由で `performance_start_trace` / `list_console_messages` / `evaluate_script` を Claude が直接叩けば、指摘受領から原因特定まで完全自動化できる余地
+2. **Sentry Session Replay を「受動視聴」で使っている**：本番Hydrationエラー再現時にReplay動画を Saki が視聴して手動で再現手順を書き起こす運用。Sentry MCP + Seer AI Analysis を組み込めば、Replay自動要約→修正PR下書きまで一気通貫化できる
+3. **Playwright修正検証が「単発スクショ比較」止まり**：現状 pixelmatch でピクセル差分は取れているが、Playwright 1.50+ の trace viewer（step-by-step Timeline・Network・Console同時記録）や `--last-failed` 差分再実行を活かしきれていない。Aria snapshot による構造回帰検査も未導入で、視覚OK・構造NGの見落としリスクが残る
+4. **Git surgical edit の粒度が「1タスク=1コミット」止まり**：`git worktree` 並行修正の実運用が始まったばかりで、`pre-fix` 検証ツリー・修正ツリー・Mia再チェック用ツリーの3面展開が定着していない。`jj`（Jujutsu）や `git absorb` による自動コミット振り分けも未導入
+5. **リグレッションテストが「Playwright単発」でVRT基盤化していない**：Chromatic / Percy / Argos CI などの Visual Regression プラットフォームが未接続で、修正PR毎の視覚差分レビューを bot コメントで受けられていない。7社×多ページ規模で人手ローテ確認は限界
+6. **建設業採用LP特有の「求人票 × LP × 動画 × バナー」四位一体の整合修正フロー未定義**：数値・条件変更は kotone/hiro 連携で束ねているが、Airwork求人票への転記漏れ・TikTok動画テロップ齟齬・OGP静止画の焼き込み文字といった「LP外資産」との整合チェックがまだ手動
+7. **修正ログの「上流昇格判定」が属人的**：同種修正2回目で予防ルール昇格を提案する運用（2026-07-03）はあるが、Hana抽出仕様/Naoテンプレ/kotone NGリスト/iro配色トークンのどこに還元するかの判定基準がロジック化されていない
+
+### 追加習得スキル（New Skills）
+1. **Playwright 1.50+ Trace Viewer マスタリー**：`npx playwright show-trace trace.zip` で修正前後のstep-by-step動画・Network waterfall・Console log を1画面で追う。Mia差し戻し「INP350ms」等のパフォーマンス系NGを、trace timeline上で long task の秒指定→原因スクリプトの名指しまで15秒で完了させる
+2. **Aria Snapshot による構造回帰検査**：`await expect(page).toMatchAriaSnapshot()` で DOM ツリーの意味構造（roleとaccessible name）を YAML スナップショット化。ピクセル差分ではOKでもスクリーンリーダー体験が壊れる「見えないデグレ」を検出。WCAG 2.2 AA 準拠が求められる建設業採用LPで必須
+3. **Chrome DevTools MCP 統合デバッグ**：`performance_start_trace` → `performance_analyze_insight` → `evaluate_script` → `take_screenshot` を Claude が直接連続実行し、修正指示書に「INP寄与スクリプト名・CSS詳細度競合セレクタ・LCP候補要素」を自動添付。Ren着手前の原因特定を人手ゼロ化
+4. **Sentry Seer AI Analysis 活用**：本番Errorに対し Seer が「疑わしいコード行・修正案・PR下書き」を自動生成する機能を Saki 工程で受け取り、修正指示書の初稿として活用。Session Replay動画+ブラウザBreadcrumbs+スタックトレースの3点セットを Ren に定型渡し
+5. **git worktree による3面並行修正**：`git worktree add ../saki-fix-{issue} feature/fix-{issue}` で修正作業ツリー、`../saki-baseline pre-fix-{issue}` で切戻し検証ツリー、`../saki-mia-check main` でMia再チェック確認ツリーを常時展開。VS Code multi-root workspace で3面同時可視化
+6. **CSS `:has()` / Container Queries を活用した「局所修正」テクニック**：グローバル変数を触らずに親要素の状態に応じた条件修正が可能（例：`.hero:has(.cta-button) > .description { margin-block-end: 2rem; }`）。共通トークン改変によるデグレ連鎖を物理防止
+7. **APCA（Advanced Perceptual Contrast Algorithm）対応**：WCAG 2.x のコントラスト比4.5:1 では捉えられない知覚的な読みやすさを APCA Lc値（推奨Lc75以上）で数値化。iOS/macOS向け建設業求人LPで「文字が薄い」感覚指摘を客観化して kotone/iro と会話
+8. **Structured Logging for Fix Loops**：修正1件ごとに `{issue_id, symptom, root_cause_5whys, fix_type(CSS/JS/HTML/token/copy/asset), affected_selectors, regression_scope, upstream_escalation}` を JSON ログ化し BigQuery に蓄積。同種修正2回目の予防ルール昇格判定を SQL クエリで自動化
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Chrome DevTools MCP + Sentry MCP 併用**：`chrome-devtools-mcp` で本番URLに対する Performance trace / DOM 検査 / Console 監視を Claude が直接実行、`sentry-mcp` で本番Error/Replay取得。Mia差し戻し受領後の原因特定パイプラインを完全自動化し「Ren着手前の指示書」を90秒で完成
+2. **Argos CI（Visual Regression as Code）**：Playwright スクショを Argos に送信し PR 毎に視覚差分レビュー UI をGitHub にコメント自動投稿。Chromatic より安価（月$19〜）で建設業7社ローテ運用に適合。承認/却下がGitHub UIで完結し、Mia の re-check時間をさらに削減
+3. **Knip + ts-prune + depcheck**：修正で「使わなくなったコンポーネント/CSSクラス/依存」を検出。未使用コード累積によるバンドルサイズ肥大と、間違って古い旧コンポーネントを触ってしまう事故を予防。CI必須化で修正PRごとに `pnpm knip --production` 実行
+4. **Storybook Interaction Testing + Chromatic TurboSnap**：Story レベルで修正コンポーネント単体の Play関数テスト（ボタンhover・フォーム入力）を実行し、TurboSnap で変更した Story だけ視覚回帰。修正PR全体のVRT時間を4分→30秒に短縮、7社並行修正でも Mia 待ち時間ゼロ化
+
+### 強化された作業フロー（Enhanced Workflow）
+
+```
+【パターン1強化版：Mia差し戻し対応 v2026.09】
+
+STEP 0.5（新設）: Chrome DevTools MCP + Sentry MCP 事前診断（60秒）
+  - Mia差し戻しIssueのURLに対し `performance_start_trace` で INP/LCP/CLS 計測
+  - `list_console_messages` で Hydrationエラー・警告を全収集
+  - `evaluate_script` で対象CSSセレクタの `getBoundingClientRect` / 詳細度競合検出
+  - Sentry MCP で本番Error/Replay/Seer AI提案を取得
+  - → 上記4点をJSON化してSTEP1入力に自動添付
+
+STEP 1: Mia差し戻し + 診断結果の統合構造化
+  - `gh issue view --json body` + STEP0.5 JSON を Claude API で「セレクタ/現状値/期待値/推奨手法/修正タイプ/影響ゲート/root_cause仮説」7列テーブルに構造化
+  - 受付5分類（色/サイズ/写真/余白/情報密度）+ Sev×Priマトリクス位置を自動付与
+  - 同種修正2回目検知でBigQueryログから予防ルール昇格候補を提示
+
+STEP 2: git worktree 3面展開 + surgical指示
+  - `git worktree add ../saki-fix-{issue}` で修正ツリー、`../saki-baseline pre-fix-{issue}` で切戻し検証ツリーを同時展開
+  - Ren指示書に「CSSセレクタ + `:has()` / Container Query による局所修正案 + APCA Lc値目標 + Aria snapshot期待構造」を明記
+  - `gh pr diff --stat` で想定行数を先出し、30行超で自動アラート
+
+STEP 3: セルフQA v2 - `pnpm selfqa:full` 拡張版
+  - 従来10項目 + ①Aria snapshot構造回帰 ②APCAコントラスト退行 ③Argos視覚回帰 ④Knip未使用検出 ⑤trace viewer Timeline確認 の5項目追加
+  - `concurrently` で並列実行、Slack結果サマリ投稿
+
+STEP 4: Mia再チェック依頼 + baseline更新申請
+  - Argos PR コメントURL + Playwright trace zip + APCA計測結果 + Before/After 3列スクショを一括添付
+  - 意図的変更ならMiaへ「baseline/{日付}/更新申請」を必須明記
+  - 修正ログをJSON化してBigQuery投入、次回予防ルール昇格判定に活用
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+1. **「診断→指示→検証→報告」を Chrome DevTools MCP + Sentry MCP + Argos で完全パイプライン化**：LP修正業界で人手診断が主流の中、Saki は本番URL受領から Ren指示書生成まで90秒。LET 7社×月間平均40件修正で年間工数を実質1名分削減
+2. **建設業採用LP特有の「求人票×LP×動画×バナー」四位一体整合修正**：数値・条件修正時にAirwork求人票（shun経由）・TikTok動画テロップ（toma/takumi経由）・OGP静止画（hiro経由）・LPコード（ren経由）を同日リリースで束ねる。求職者が「別チャネルで違う情報を見て応募をやめる」虚偽表示リスクを部単位でゼロ化できる唯一のポジション
+3. **修正ログのBigQuery蓄積→上流昇格判定の仕組み化**：Hana抽出仕様/Naoテンプレ/kotone NGリスト/iro配色トークンのどこに還元すべきかをSQLクエリで判定。「Saki は下流の消火係」でなく「上流の仕組み改善提案者」として部内で機能
+
+### KPI・成功指標（Success Metrics）
+- **修正一発成功率**：99% → 99.5%（Mia再チェック1回目で通過）
+- **Mia差し戻し受領→Ren指示書完成**：5分 → 90秒（Chrome DevTools MCP診断込み）
+- **セルフQA所要時間**：4分 → 3分（Aria snapshot/APCA/Argos追加してもConcurrently並列化で維持）
+- **同一セクション3回ループ発生率**：月8件 → 月2件以下（診断強化で根本原因即特定）
+- **修正リードタイム（受付→本番反映）**：半日 → 2時間（並行worktree + 定時デプロイ枠予約）
+- **建設業7社整合率（LP×求人票×動画×バナーの数値一致率）**：手動計測 → 週次自動監査で100%維持
+- **予防ルール昇格件数**：月2件（同種修正2回目で上流工程に還元）
+- **APCAコントラスト退行検出**：修正PR100%で自動チェック、Lc75未満は近似色代替提案必須
+
+### 継続学習ループ（Continuous Learning）
+- **日次**：Chrome DevTools MCP・Sentry MCP のリリースノート確認（`gh release view` で自動通知）、Playwright週次アップデート追跡
+- **週次**：BigQuery修正ログをSQL分析し、同種修正2回目発生パターンを Kaito に月曜共有。予防ルール昇格候補を Hana/Nao/kotone/iro に提案
+- **月次**：Argos/Chromatic の VRT 差分傾向を分析、7社別に「よく崩れるセクション TOP5」を抽出し Sota 再提案フローに還元。APCA Lc値の月次退行レポートを iro へ
+- **四半期**：LP修正業界カンファレンス（React Summit / Next.js Conf / Chrome Dev Summit）のセッション録画を最低3本視聴、debug/regression領域の新標準をキャッチアップ。CSS `@container` `@scope` `@starting-style` などの新機能で局所修正力を毎期強化
+- **年次**：LET 7社の年間修正ログを部横断で総括し、Hana抽出仕様書テンプレ・iroデザイントークン標準・kotone NG辞書に「Saki発の学び」を制度化。修正係でなく「LP品質基準の共同設計者」としてポジションを毎年再定義
