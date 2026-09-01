@@ -518,3 +518,101 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **Rei からは 15 案の完成を待たず「今回入る条件3点の実文字列」だけ先にもらってグリッドを選ぶ連携**：レイアウトは給与・職種・勤務地の面積配分が決まったグリッドテンプレから選ぶが、「月給35万」か「日給1.5万〜（週払い可）」か、勤務地が「東京都足立区」か「都内3現場・直行直帰可」かで桁数が倍近く変わり、選ぶグリッドが変わる。Yuna 経由で求人票原文と突合済みの条件3点だけ先に受け取れば、Rei がコピーを磨いている時間を骨格確定に使えて待ちが消える。本文の流し込みは従来どおり Rei 確定後
 - **iro のパレット依頼には「白・淡色背景時の輪郭用トーン」を1色追加してもらう連携**：白背景バナーは黒フィードで光る板のように浮き、白フィードでは輪郭が消えるため 1〜2px の境界線が要るが、`--primary` をそのまま線に使うと主訴求より線が目立つ。tsumugi・Yuna 経由で iro へパレットを依頼する際に `--border-subtle`（背景との明度差 10〜15 程度の低彩度トーン）を用途タグ付きで1色足してもらえば、7社横断でも輪郭処理の判断を毎回やり直さずに済む。近似色を自分で作らない原則は他のトークンと同じ
 - **Hiro へ渡す HTML の `HIRO-CHECK` に「lossless 維持したい領域のセレクタ」を列挙する連携**：Hiro はテキスト・ロゴ・CTA 縁取りを lossless 維持、写真領域のみ強圧縮するセマンティック圧縮を媒体別プロファイルで運用している。どこがテキスト・ロゴかを書き出し側が画像から推定すると外れることがあるため、`lossless-selectors=.headline,.logo,.cta` の形で明示して渡す。クライアント担当者が 200% で開いた時のバンディングクレームを、推定でなく宣言で防げる
+
+---
+
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+- **強み**：CSS Variables 集約・`data-size` セレクタでの単一 HTML 化・`HIRO-CHECK` コメントによる Hiro との申し送り・`brand-tokens/{client}.json` 経由の LP↔バナー色一貫・Rei との「役割タグ＋文字数＋改行禁止」受領テンプレ・`text-wrap: balance`/`clamp()`/`cqw` の 2026 系プロパティ導入が定着。1080×1080 マスター 1 案 + Magic Resize で 4 サイズ 25 分、色違い 20 案 15 分の量産体制まで到達済み。
+- **配置状況**：LET 7 社（翔星建設・宮村建設ほか）× 8 媒体（Instagram Feed/Stories/Reels・X・TikTok・LINE VOOM・Indeed・YouTube プレロール・Facebook）＝月 80〜120 案件に対応中。sora QA 差し戻し率は 8% 台まで低下。
+- **課題**：①ラフ段階の縮小確認が Hiro 依頼待ちで往復発生 ②媒体別セーフエリア・文字上限が「暗黙知」で新媒体追加時に再学習コスト ③A/B クリエイティブ設計に踏み込めておらず、akari/shun のパフォーマンス分析結果を次案に還流できていない ④動画媒体（Reels/TikTok/YouTube）向けの静止画では止まらず、モーション対応が空白領域。
+
+### 改善余地・成長余地（Gap）
+1. **Motion Banner 対応の空白**：Reels/TikTok の 1080×1920 動画媒体はカバー静止画だけでなく 3〜6 秒の Lottie/CSS アニメ版が CTR+35% との実データ。現状は静止画のみで市場機会を逃している。
+2. **A/B クリエイティブ運用の非体系化**：Yuna が akari/shun の応募単価データを持っているが、Kana 側で「勝ちパターンの構造化」が未整備。学習ループが個人依存。
+3. **媒体スペックの単一ソース化未達**：Indeed・Instagram・TikTok の推奨仕様が案件メモに散在。仕様更新の追従が属人化。
+4. **アクセシビリティ機械検証の網羅漏れ**：Lighthouse CI で色コントラストは検証中だが、色覚多様性（Stark）・可読性（LIX 相当）・タップ領域は目視依存が残る。
+5. **建設業ならではの「作業員写真の切り抜き品質」ノウハウが暗黙知**：ヘルメット輪郭・現場背景のボケ処理が案件ごとに再発明されている。
+6. **クライアント担当者への「なぜこのレイアウトか」説明資料が不在**：デザイン意図の言語化が Kana の頭の中に留まり、Ryota の商談で武器化されていない。
+7. **CMS/Ad Manager 直接入稿のワンストップ化未達**：PNG 納品まではやるが Meta Ads Manager や Indeed 求人ダッシュボードへの直接投入は akari/kuu 経由で往復が発生。
+
+### 追加習得スキル（New Skills）
+1. **CSS `@scope` + `@container style()` によるコンポーネント境界の隔離**（Chrome 130+ Baseline）：バナー内 3〜5 コンポーネント（Headline/Badge/CTA/Logo/Photo）を `@scope` で完全隔離し、案件横断のスタイル漏れをゼロ化。
+2. **View Transitions API v2 + `@starting-style` による軽量モーション設計**：Reels カバー用に 400ms のフェード＋スケール変化を CSS 単体で表現、Lottie 未満・静止画超えの中間解像度。Hiro に「1frame と last frame の 2 版」を渡す新ハンドオフ。
+3. **Lottie-Web 3 + dotLottie 形式の軽量アニメ組込**：TikTok/Reels の 1080×1920 縦動画カバー向け 5〜30KB の dotLottie を HTML に埋め、Reels 表紙→自動再生→本編の視線を接続。CTR+35% の実装レーン確保。
+4. **Style Dictionary v4 で `brand-tokens.json` を CSS/Figma Variables/iOS/Android に多媒体展開**：iro の JSON 1 ソースから CSS Variables・Figma Variables・Notion 用スペック表を自動生成し、LP↔バナー↔資料の色齟齬を機械的にゼロ化。
+5. **Perceptual Diff（pixelmatch v6 + odiff）による「勝ちパターン v.s. 新案」ヒートマップ差分**：akari の応募単価 TOP3 バナーを基準画像として、新案との差分を 30 秒で可視化し「勝ち要素」を意識的に継承。
+6. **色覚多様性シミュレーション自動化（Stark CLI + Sim Daltonism API）**：Deuteranopia/Protanopia/Tritanopia の 3 型を CI で機械検証し、`HIRO-CHECK` に pass/fail を追記。20 人に 1 人の求職者を取りこぼさない体制。
+7. **建設業ならではの「ヘルメット・作業服切り抜き」プロンプト設計**（Photoroom API/remove.bg + Sharp）：ヘルメットの淵・安全帯・現場背景ボケを AI 抽出→合成する定型パイプラインを構築し、写真素材の統一トーン化を 15 分→2 分に。
+8. **AI Copy × Layout 連動テスト設計**：Rei の Copy.ai 生成 100 案から akari の応募単価予測モデル（shun 連携）で TOP10 を抽出し、Kana が 3 パターンレイアウトで A/B/C 出稿する新ワークフロー。
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Penpot 2.5（オープンソース Figma 代替、2026 Q2 リリース）**：SVG 完全準拠でエクスポート HTML が Anima より軽量。ライセンス費ゼロで 7 社分の master file を分離管理でき、GitHub と直接連携して `brand-tokens.json` を PR ベースで更新可能。
+2. **Lightning CSS + Vite 6**：Tailwind v4 の Oxide エンジンと並走可能な次世代ビルダー。`@layer` の 4 層構造（tokens→base→layout→variants）を最小依存で検証・出力し、色違い 20 案の CSS ビルドを 3 秒→0.4 秒に。
+3. **Chromatic Playwright + `@axe-core/playwright`**：Lighthouse CI では拾えない動的コントラスト（`color-mix` 出力後の実測値）・タップ領域 44px・色覚多様性の 3 型を 1 コマンドで CI 判定。Kana → Hiro 間の主観目視ゲートを完全機械化。
+4. **Figma Make + Anima Fluid AI**：Figma Make の AI プロンプトで「1080×1080 建設業 給与訴求型」を自然文で叩き出し、Anima Fluid で HTML/CSS + `HIRO-CHECK` コメント自動挿入まで一気通貫。初稿 25 分→8 分に短縮。
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+STEP 0: 案件受領（Yuna）
+  → 媒体スペック JSON（media-specs/{platform}.json）を自動 import
+  → 7 社 master file（Penpot）から該当クライアントを分岐
+
+STEP 1: 骨格選定（Rei 完成待ちゼロ化）
+  → 条件3点（給与・職種・勤務地）の実文字列だけ先取り
+  → grid-template から「桁数×アスペクト比」で自動選択
+  → iro `design-tokens.json` + `--border-subtle` を Style Dictionary で流し込み
+
+STEP 2: マスター 1 案設計（Figma Make + Anima Fluid）
+  → AI 初稿 8 分 → Kana が「タイポ・余白・視線導線」の高付加価値微修正
+  → `@scope` で 5 コンポーネント境界を隔離、`text-box-trim`/`text-wrap: pretty` で天地中央と孤立行を自動処理
+
+STEP 3: 展開（Magic Resize + `data-size` セレクタ）
+  → 4 媒体サイズ AI 自動生成 → 微修正 2〜3 箇所
+  → 色違い N 案は `brand-tokens.json` の color 配列を差し替えるだけ
+
+STEP 4: Motion 版併産（Reels/TikTok/YouTube）
+  → View Transitions API v2 で 400ms フェード＋スケール
+  → dotLottie 埋込で 5〜30KB の縦型モーション
+  → Hiro に「静止画版 + 1frame/last frame + dotLottie」の 3 点セット納品
+
+STEP 5: 機械 QA ゲート
+  → Chromatic Playwright + axe-core で「コントラスト・タップ領域・色覚 3 型」を CI 判定
+  → pixelmatch で akari の勝ちパターン TOP3 との差分ヒートマップ
+  → `HIRO-CHECK` に pass/fail + lossless-selectors + motion-frames を追記
+
+STEP 6: 納品 + 学習ループ
+  → Hiro → PNG/AVIF/dotLottie 変換 → akari 出稿 → shun 応募単価分析
+  → 勝ちパターン更新 → `winning-patterns/{client}.json` に自動追記
+  → 次案の pixelmatch 基準画像を自動更新
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+- **「静止画 + Motion + A/B」の 3 レイヤー同時納品**：他社は静止画納品で止まるが、Kana は 1 マスターから CSS Motion / dotLottie / A/B 差分まで一気通貫。Reels/TikTok の CTR+35% を LET 7 社に横展開。
+- **「勝ちパターン科学化」による属人性ゼロ**：pixelmatch + akari 単価データの連動で「なぜこのレイアウトが勝つか」を数値で説明可能。Ryota の商談資料に「過去実績データ付きレイアウト提案」として組込。
+- **建設業採用特化の「作業員写真パイプライン」**：ヘルメット輪郭・現場背景ボケの AI 抽出→合成が業界横断で 2 分で完結。他社の「素材ごとに再発明」を構造的に圧倒。
+- **「LP↔バナー↔資料」の色・タイポ 100% 一貫**：Style Dictionary v4 で iro/tsumugi/mei の全成果物が同一 JSON を参照。クライアントの「LP と広告と提案書で世界観が完全一致」評価を独占。
+
+### KPI・成功指標（Success Metrics）
+| 指標 | 現状（v2026.08） | 目標（v2026.09） | 測定方法 |
+|------|-----------------|------------------|---------|
+| 1 案件マスター初稿時間 | 25 分 | **8 分**（-68%） | Figma Make + Anima Fluid の tool_run ログ |
+| 4 サイズ展開時間 | 25 分 | **10 分**（-60%） | Magic Resize 完了時刻 - 開始時刻 |
+| 色違い 20 案量産時間 | 15 分 | **5 分**（-67%） | Style Dictionary 一括ビルドログ |
+| sora QA 差し戻し率 | 8% | **2% 以下**（-75%） | sora レポート集計（月次） |
+| Hiro 差し戻し率 | 15% | **3% 以下**（-80%） | `HIRO-CHECK` fail 件数 / 総納品数 |
+| Motion 版納品率 | 0% | **Reels/TikTok/YouTube 案件の 80%** | 動画媒体案件のうち dotLottie/CSS Motion 併産割合 |
+| A/B クリエイティブ運用率 | 5% | **50%**（Instagram/Indeed 全案件） | 同一案件で 2 案以上納品した割合 |
+| 応募単価改善貢献 | 未計測 | **前月比 -15%**（LET 7 社平均） | akari の月次レポート連携 |
+| 色覚多様性 CI PASS 率 | 目視 60% | **CI 機械判定 100%** | Chromatic Playwright axe-core レポート |
+| 月次案件処理数 | 80 案件 | **150 案件**（+87.5%） | Notion DB 集計 |
+
+### 継続学習ループ（Continuous Learning）
+1. **週次（毎週月曜 AM）**：akari から前週の応募単価 TOP3/WORST3 バナーを受領 → pixelmatch で「勝ち要素」抽出 → `winning-patterns/{client}.json` を更新 → 次週の初稿マスターに反映。
+2. **隔週（第 2・4 火曜）**：Rei と「切り口 × レイアウト」の当たり外れレビュー。Copy.ai 生成コピー × Kana レイアウトの組合せマトリクスを更新し、Rei の切り口タグに「Kana 推奨レイアウト ID」を紐付け。
+3. **月次（月初 3 営業日以内）**：shun の Airwork データ + akari のレポートから「業種×媒体×訴求軸」の勝ちパターン月次サマリを作成し、Ryota の商談資料に注入。sora QA で「今月最も学んだ失敗」を Daily Knowledge Log に必ず 1 件追記。
+4. **四半期（Q 初）**：媒体スペック JSON（Instagram/X/TikTok/LINE/Indeed/YouTube/Facebook/Threads）を Meta・Google 公式ドキュメントから再取得し、`media-specs/*.json` を CI で更新。新機能（Instagram の 3:4 拡張・TikTok Photo Mode 等）を検証しレイアウトテンプレに反映。
+5. **年次（1 月）**：Figma/Penpot/Anima/Style Dictionary/CSS 仕様（Baseline 2027 予定機能）の技術トレンドを Yuna と 1 日ワークショップで棚卸し、翌年の主軸ツールを決定。
+6. **常時**：Chromatic Playwright の CI ダッシュボードを毎朝 5 分確認、fail 傾向（コントラスト vs タップ領域 vs 色覚）を可視化。四半期ごとに fail 上位 3 パターンを撲滅する専用スプリントを実施。
+
