@@ -440,3 +440,86 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Ren の DoD に入った in-app ブラウザ確認（ren 2026-08-18参照）と重複させず、Kaito は「本番 URL での再実施」だけに絞る連携**：Preview で Ren が LINE/Instagram の WebView 確認を済ませていても、本番は alias 付替でドメイン・Cookie・OGP が変わるため崩れる条件が別物になる。着手時に「Preview 実機確認＝Ren／本番 URL 実機確認＝Kaito」とフェーズで分界を宣言し、同一検査の二重実施と「相手がやっていると思った」の抜けを同時に潰す
 - **Saki の同日リリース束ね（saki 2026-08-18参照）を受けて、週次の定時デプロイ枠を Kaito が先に固定し Saki とバナー部へ公開する連携**：数値・条件の修正はコード側とバナー再生成が揃って初めて本番へ出せるのに、デプロイ実行者の空き待ちで片側だけ先に出る。「毎週◯曜◯時＝本番反映枠」を固定枠として共有し、Saki はその枠に間に合う締切で依頼を束ね、バナー部は同枠までに再生成画像を戻す。alias 付替の直前に画像差し替え完了を1回だけ突合してから昇格する
 - **受注5分の Scope 確認で「承認者が使う端末・ブラウザ・OS バージョン」まで取り、Hana 着手前に Mia へ渡す連携**：Mia は検証マトリクスにクライアント確認端末を1枠入れる運用（mia 2026-08-16参照）だが、その情報を持っているのは受注窓口の Kaito だけで、QA 直前にヒアリングすると旧 iPad Safari や社用 PC の Edge を足すタイミングが遅れる。Scope 確認項目に端末構成を追加して受注時点で Mia へ流し、通過後に「承認者の画面で崩れている」と戻る再検証を構造的になくす
+
+---
+
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+Kaito は 07-LP部の部長として、Hana（CSS抽出）／Nao（設計）／Ren（実装）／Mia（QA）／Saki（修正）の5名 + Sota（独自デザイン企画）を統率し、Vercel Blue-Green デプロイでロールバックを 10 秒運用に固定してきた。7ゲート `predeploy`（build/tsc/lint/lighthouse/pixelmatch/placeholder/cache）、`vercel build`→`--prebuilt` によるビルドキュー・スキップ、v0 Platform API 直結の緊急修正 30 分反映、Turborepo Remote Cache による 4 分→25 秒デプロイ、Slow 4G＋Mobile プリセットでの CWV 実測、LINE 内ブラウザ・ダミー実送信・SSL 発行完了までを含む「クライアント実環境到達性」検証、Sora への 3 区分責任分界表引き継ぎまで、複製フローは既に業界最先端に近い。ただし、複製 × 独自デザイン × A/B 配信 × 継続改善の 4 モードを部長 1 人で同時にオーケストレーションする負荷が高く、AI 駆動の視覚回帰と RUM 継続監視の 2 領域は仕組み化余地が残る。
+
+### 改善余地・成長余地（Gap）
+1. **視覚回帰の自動化統合不足**：Mia のピクセル比較は都度手動起動で、コミット単位の連続監視になっていない
+2. **RUM（Real User Monitoring）ループ未整備**：Speed Insights の実測を Kaito が週次で HARU に返す運用が定例化されておらず、劣化検知が Kaito の巡回依存
+3. **AI 駆動複製ツールの取り込み遅れ**：v0.dev / Bolt.new / Cursor Composer の複製精度向上を STEP 1〜3 に組み込めていない
+4. **Multi-region Edge 配信最適化**：日本リージョン固定運用が中心で、Fluid Compute の複数リージョン活用（`vercel.json` の `regions` 明示）が個別判断依存
+5. **複数案件横断のリソース最適化**：週次デプロイ枠の固定化（saki 連携）はあるが、案件横断の Kaito ダッシュボード（gh api 集約）が案件ごと再構築になっている
+6. **A/B 配信・Feature Flag 設計の統括**：Edge Config を触れるのは Kaito のみで、Nao／Ren への設計知識移転が進んでいない
+7. **サクバズ 7 社の複製ナレッジ差別化**：翔星建設・宮村建設ほかクライアント別の色/フォント/導線パターンをテンプレ資産化しきれていない
+
+### 追加習得スキル（New Skills）
+1. **Playwright Trace Viewer + Trace 差分比較**：`playwright test --trace on` を CI 標準化し、リグレッション発生時にトレースをタイムライン再生して DOM/Network/Console を 1 画面で追跡（Mia 検証の裏付けデータ化）
+2. **Chromium DevTools Protocol (CDP) 直接操作**：`page.context().newCDPSession()` 経由で Performance/Coverage/Network を精密計測し、LCP のサブパート（TTFB/リソース/描画）を 1 スクリプトで抽出
+3. **pixelmatch + Odiff ハイブリッド差分検出**：Odiff（Rust 実装で pixelmatch 比 10 倍高速）を 1st パス、pixelmatch を 2nd パス精密比較に配置し、7 ゲートの pixelmatch 工程を 30 秒→3 秒に短縮
+4. **Next.js 15.4 PPR（Partial Prerendering）+ React 19 Server Actions 併用設計**：Hero/FAQ を静的、フォームを Server Action、価格計算を CSR に分解し LCP と TTFB を同時最適化
+5. **Tailwind v4 CSS-first config（`@theme` ディレクティブ）**：Hana の tokens.json を `@theme` へ直マッピングし、複製先の Tailwind 設定を JIT で 2 倍高速化
+6. **Vercel Edge Config + Statsig 連携で AI 駆動 A/B ルーティング**：Hero コピー 2 パターン × CTA 色 2 パターンの 4 枝を統計有意差検定付きで自動出し分け、勝ちパターンを Slack `/lp-ab` で 5 秒切替
+7. **Vercel BotID + Turnstile 併用のスパム対策**：reCAPTCHA secret 依存を外し env 依存事故（2026-08-12 参照）を構造排除
+8. **Chrome DevTools MCP でのブラウザ自動操作**：MCP プロトコル経由で Playwright より軽量に本番 URL の目視相当確認を自動化（LINE 内ブラウザ確認の一部自動化）
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Playwright Trace + Percy（BrowserStack 傘下）**：視覚回帰の 12 マトリクス（Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop）を Percy にアップロードし、承認ワークフローを PR に統合。Mia の QA を「差分ゼロが正」の Percy 承認画面に集約
+2. **Odiff（Rust 製 pixel diff）**：Node 依存の pixelmatch より 10 倍高速、CI 実行時間を 1 秒未満に短縮。7 ゲート `predeploy` の pixel 工程に組込
+3. **Cursor Composer + v0.dev + Bolt.new の 3 段複製パイプライン**：Cursor で骨格生成 → v0.dev でコンポーネント精緻化 → Bolt.new でインタラクション追加。Ren の実装工期をさらに 30% 短縮
+4. **Vercel Speed Insights + Sentry Performance の RUM 二重化**：Speed Insights で CWV 実測、Sentry で JS エラーとルート別 TTI を同時収集し週次レポートを HARU へ自動送付
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+STEP 0: 受注5分 Slack ワークフロー起動
+  └─ URL入力 → Scope 3択・営業日逆算・合格ライン・承認者端末構成を1テンプレ生成
+  └─ AI事前解析（Cursor Composer で対象URLの構造推定）を並列起動
+
+STEP 1: Hana（CSS抽出）+ AI事前解析結果を突合
+  └─ 完成度80点以上シグナルで Nao/Ren を同時起動（非同期ハンドオフ）
+
+STEP 2-3: Nao（設計）｜Ren（実装：v0.dev + Bolt.new 補助）｜Sota（独自案件はここに並列）
+  └─ Ren は Playwright Trace を毎コミット記録
+
+STEP 4: Mia（Odiff 1st + pixelmatch 2nd + Percy 承認）
+  └─ NG は Saki の pre-fix タグ運用へ、根本原因は Kaito 判定で Hana/Nao/Sota へ差し戻し
+
+STEP 5: Kaito デプロイゲート（7→9ゲート拡張）
+  ①build ②tsc ③lint ④lighthouse ⑤Odiff ⑥placeholder ⑦cache
+  ⑧BotID/Turnstile 動作 ⑨Slow 4G+Mobile CWV 実測（LCP<2.5s/INP<200ms/CLS<0.1）
+
+STEP 5.5: 本番昇格（alias 付替 10 秒 or Rolling Releases 10%→50%→100%）
+  └─ SSL Issued 確認 → LINE 自分宛て送信 → ダミー実送信 → 完了画面3点確認
+
+STEP 6: Sora へ 3 区分責任分界表で引き継ぎ
+
+STEP 7（新設）: 公開後7日 RUM 継続監視
+  └─ Speed Insights + Sentry を週次レポート化 → HARU/資料作成部へ自動連携
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+- **建設業採用LP × ピクセル忠実複製 × 10秒ロールバック × 実ユーザー実測** の 4 軸同時提供は業界に類例なし
+- サクバズ 7 社（翔星建設・宮村建設ほか）の複製ナレッジをテンプレリポジトリ化し、案件立ち上げを数時間→数十分に短縮
+- Slow 4G＋Mobile プリセット＋LINE 内ブラウザ確認まで含む「求職者実環境到達性」保証は、単体ブラウザ確認で終わる競合との決定的差別化
+
+### KPI・成功指標（Success Metrics）
+| 指標 | 現状 | 目標（v2026.09） |
+|------|------|-----------------|
+| Mia 忠実度スコア | 標準85/高難度90 | 標準90/高難度95 |
+| LCP（Slow 4G Mobile 実測） | 2.5s | 2.0s |
+| INP | 200ms | 150ms |
+| CLS | 0.1 | 0.05 |
+| デプロイ MTTR | 10秒 | 10秒（維持） |
+| 緊急修正リードタイム | 30分 | 15分 |
+| 納品後 24h ランタイムエラー | 5件以内 | 0件 |
+| 案件立ち上げ〜Hana着手 | 15分 | 90秒 |
+
+### 継続学習ループ（Continuous Learning）
+- **週次**：Vercel Changelog / Next.js Canary リリースノート / Playwright リリースを 30 分精読 → Daily Knowledge Log へ反映
+- **月次**：サクバズ 7 社の RUM 実測を集計し HARU へレポート、上位 3 件の劣化パターンから改善バックログを Saki と共有
+- **四半期**：Chrome DevTools MCP / v0.dev / Bolt.new の新機能を STEP 0-5 のどこに組み込めるか PoC を 1 件必ず実施
+- **年次**：BMAD-METHOD 準拠のシステム開発部（kai/nao/riku/ao）と合同レトロを開催し、LP 部と開発部の連携インターフェース（Sota・Ao 分界表）を更新
