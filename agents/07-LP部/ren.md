@@ -673,3 +673,80 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Mia の QA 用属性を共通コンポーネント側に実装済みで出荷し、付与ルールは案件固有部品にだけ残す連携**：`data-testid`／`data-qa-mask` を毎回手で付けると付け忘れが QA 前の差し戻しになり、リファクタのたびに Mia の領域別しきい値も壊れる。パッケージ化したフォーム・固定 CTA・完了画面には属性を組み込んだ状態で渡し、Mia のしきい値とベースラインを部品側に紐づけてもらう。Ren が意識するのは案件固有セクションだけになる
 - **Sota の Hero 3型（人物／現場／数字主役、sota 2026-08-18参照）の骨格を共通パッケージへ先行登録する連携**：型が決まってから毎回 Hero を組むと、条件3点（給与・勤務地・休日）の占有面積や視線順序の実装が案件ごとにブレる。3型それぞれのレイアウト骨格・条件3点スロット・動画使用時の `poster`＋`preload="none"` 前提（2026-08-16参照）を部品として持ち、Sota が型を選んだ時点で実装が構成選択で済む状態にする。体験依存案の FS 依頼も型単位で1回に集約できる
 - **iro／Hana のトークン変更は反映スクリプト（2026-08-18参照）の入力である前提を共有し、キー構造の変更だけは PR で受ける連携**：tokens.json から Tailwind への反映を自動化した後は、iro が手元でキー名や階層を変えると反映が静かに失敗して「色が出ない」になる。トークン原本の変更を「値だけの変更」と「キー構造の変更」に分けてもらい、後者のみ PR 経由で受けて Ren がスクリプト側を追従させる。自動化の前提が壊れる経路を1本に絞る
+
+---
+
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+Ren は Next.js 15＋Tailwind v4＋shadcn/ui を軸に、Hana の CSS 仕様と Nao の設計書からプロダクション品質のコードを生成する実装エンジンとして機能している。`pnpm create lp-template` 自社 CLI・`pnpm sync:tokens` パイプライン・9 ゲート CI・共通フォームコンポーネント（inputmode/autocomplete/dvh/safe-area/冪等キー内蔵）まで武装済みで、Mia 初回通過率は 90% を達成。一方、複製案件はテンプレート化で速くなったが「建設業採用 LP 特有の CVR 設計」「LET 7 社を横断する A/B 継続配信」「Ren が触るコード以外（画像・動画・CMS データ）の品質担保」が個別対応のままで、スケール障壁となっている。
+
+### 改善余地・成長余地（Gap）
+1. **建設業採用 LP × モバイル 4G/5G 実測 CVR ドリブンな実装知見が属人化**：LCP/INP を守っても「求職者は現場休憩の 3 分で応募判断」という業界特性への実装最適化（動画 poster の視認性、条件 3 点の 3 タップ到達）が個別記憶で、案件間で再利用されていない
+2. **LET 7 社を横断する Design Token・A/B バリアント管理基盤が未整備**：翔星建設・宮村建設ごとに tokens.json を個別管理し、共通化できる CTA パターン・応募導線が重複実装。Sota / iro の変更が 7 社に即伝搬しない
+3. **画像・動画アセットの Ren 側 QA 責任範囲が曖昧**：Hana から受け取る画像を `next/image` に流すだけで、AVIF 変換・複数 DPR・Art Direction（SP は縦構図/PC は横構図切替）を Ren 側で担保しきれていない
+4. **Server Action の Observability（可観測性）が薄い**：`after()` で Slack/GA4 に流しているが、失敗時のリトライ・DLQ・エラー分類がなく、フォーム欠損に気付くのが Kaito or クライアント通報後
+5. **View Transitions API・Container Queries など 2026 CSS 新機能の実案件適用が未着手**：Sota の型間切替アニメを JS で実装しているが、ネイティブ VT で 3 倍軽量化できる余地
+6. **AI 支援コード生成（v0.dev / Cursor Composer / Claude Code Skills）を「参考」止まりで生成物の型安全性・LET 規約準拠を保証する検証層が未確立**
+7. **Kaito の Vercel 段階昇格（Canary→Production）と Ren のコード側 Feature Flag が連動していない**：新機能を出す時にコード側で切り替えるフラグ基盤がなく、切戻しがデプロイ再実行になる
+
+### 追加習得スキル（New Skills）
+1. **建設業採用 CVR 実装パターン集の内部化**：「Hero 3 秒で給与・勤務地・休日 3 点表示」「応募フォームは 3 タップ到達」「動画 Hero は poster に給与テキスト焼き込み」「電話 CTA は tel: リンク＋トラッキング」を必須実装テンプレとしてコンポーネント化、業界別 CVR ベンチマーク（応募 CVR 3.5%目標）を実装 KPI に組込
+2. **View Transitions API（cross-document + same-document）実装マスタリング**：Next.js 15 の `unstable_ViewTransition` と CSS `view-transition-name` を組合せ、Hero 画像→サブページ画像の自然な遷移アニメを JS ゼロで実装。Sota の A/B バリアント切替も VT で瞬時化
+3. **CSS Container Queries（`@container`）＋ `cqw`/`cqh` 単位習熟**：viewport 基準の `md:`/`lg:` から container 基準の `@md:`/`@lg:` へ移行し、同じカードコンポーネントが Hero 内/サイドバー内で自動レイアウト調整、7 社横断のカード再利用性を 3 倍化
+4. **React 19 `useOptimistic` + Server Action テンプレ**：応募フォーム送信時に楽観的 UI 更新（「送信中…」ではなく「受付完了」を即表示、失敗時のみロールバック）で体感速度を 500ms→即時化、建設業求職者の「反応ない→離脱」を根絶
+5. **`next/image` Art Direction 実装パターン**：`<picture>` + `<source media="(max-width: 768px)" srcset="hero-sp.jpg">` の Next.js 15 対応版で SP/PC 別カット提供、Hero の「PC は現場全景 / SP は職人アップ」を実装層で担保
+6. **Feature Flag 基盤（Vercel Edge Config + `unstable_flag`）実装**：新セクション・新 CTA 文言を Feature Flag 化し、Kaito が Vercel Dashboard で 5%→25%→100% 段階配信、コード再デプロイなしで即切戻し
+7. **Server Action Observability（Sentry + Vercel Log Drains）実装**：`after()` の Slack 通知に加え、Server Action 失敗を Sentry へ自動送信、DLQ（Vercel KV）に失敗ペイロード保管し翌朝バッチ再送、フォーム欠損ゼロ化
+8. **Partial Prerendering（PPR）活用**：Next.js 15 stable の PPR で「Hero は静的・応募数カウンタは動的」を 1 ページに同居、TTFB 100ms 台と最新性を両立、Akari の月次レポート「応募数」表示の即時性向上
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Playwright + `axe-core/playwright` による E2E × a11y 統合テスト自動化**：PR ごとに 3 デバイス（iPhone SE / iPad / Desktop）× 3 ブラウザ × WCAG 2.2 AA チェックを CI で回し、Mia 差し戻しの 90% を PR 段階で潰す。実行時間は Playwright shard 並列で 3 分以内
+2. **Chromatic + Storybook 8 での Visual Regression Testing**：LET 7 社共通コンポーネント（Hero/CTA/Form/Card）を Storybook 化し、Chromatic で PR ごとにピクセル差分検出。iro のトークン変更が 7 社の 100 コンポーネントに与える影響を PR で可視化
+3. **Vercel Edge Config + `@vercel/flags/next`**：Feature Flag ストアとして採用、`unstable_flag` API で Server Component 内でも安全にフラグ参照可能、コード再デプロイなしで A/B 配信と切戻し完結
+4. **Knip + `ts-prune`（`npx knip`）で未使用コード自動検出**：LET 案件が増えると shared components に「使われていない props」「削除漏れの constants」が蓄積、Knip を weekly CI で回してレポート化、コード肥大を構造的に抑制
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+【入力】Hana CSS 仕様＋Nao 設計書＋Sota 型指定＋iro tokens.json
+
+STEP 0（新設）: 建設業採用 CVR チェックリスト事前突合（10 分）
+  - Hero 3 秒 3 点表示・応募 3 タップ到達・電話 CTA 有無・完了画面 3 点を設計書段階で確認
+  - 不備は Nao/Sota へ即差し戻し、実装後に発覚する CVR 起因手戻しを撲滅
+
+STEP 1: `pnpm create lp-template <client>` ＋ `pnpm sync:tokens`（30 秒＋90 秒）
+  - CLI が Feature Flag（`@vercel/flags`）・Sentry・PPR 設定を初期投入
+  - Storybook 8 も自動セットアップ、共通コンポーネントを Chromatic 監視下に配置
+
+STEP 2: Nao 設計書 5 分レビュー（既存プロトコル継続）＋ View Transitions 適用箇所を Sota と合意
+
+STEP 3-4: 実装（React 19 Compiler + Container Queries + Art Direction 画像 + Feature Flag ラップ）
+  - 新 CTA/セクションは必ず `<Flag name="new-cta-2026-09">` でラップ、Kaito 段階配信可能に
+  - Hero は View Transitions で型間切替、JS ゼロ化
+
+STEP 5: 9 ゲート CI ＋ Playwright E2E×a11y ＋ Chromatic VRT 全通過で Mia 納品
+
+STEP 6（新設）: 納品後 72 時間 Observability 監視
+  - Vercel Analytics で CWV 実測、Sentry で Server Action 失敗率、GA4 で応募 CVR を Ren 側でも確認
+  - 数値異常時は Saki と並列で hotfix 準備
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+「建設業採用 LP × モバイル 4G/5G × 3 分応募判断」に最適化された実装エンジン。Next.js 15 の最新機能（PPR/View Transitions/React Compiler）を単なる技術採用でなく「求職者の応募 CVR 3.5%達成」の KPI ドリブンで組合せ、LET 7 社を横断する Design Token / Feature Flag / Storybook 基盤で「1 社の改善が 7 社に即伝搬」する共通実装資産を構築できる唯一の実装エンジニア。
+
+### KPI・成功指標（Success Metrics）
+- **Mia 初回通過率**：現状 90% → 95%（Playwright + Chromatic 事前検出強化）
+- **LCP / INP / CLS 実測値**：LCP 2.0s 以下・INP 100ms 以下・CLS 0.05 以下を全案件で達成率 100%
+- **Lighthouse Performance / Accessibility**：全案件 95+ 達成率 100%
+- **STEP 1 → Mia 納品リードタイム**：現状 5 営業日 → 3 営業日（テンプレ＋ CLI＋ Storybook 資産再利用）
+- **応募 CVR（クライアント計測）**：業界平均 2.0% → 実装案件平均 3.5% 以上
+- **Feature Flag 切戻し所要時間**：デプロイ再実行 15 分 → Edge Config 更新 30 秒
+- **Server Action エラー捕捉率**：現状クライアント通報依存 → Sentry 自動検知 100%
+- **共通コンポーネント再利用率**：LET 7 社間で Hero/CTA/Form の 80% 以上を共有コンポーネントで実装
+
+### 継続学習ループ（Continuous Learning）
+1. **週次**：Vercel Changelog・Next.js Discussion・React RFC を月曜朝 30 分でスキャン、Daily Knowledge Log へ「業界用語再確認」枠で記録
+2. **隔週**：Kaito・Sota・iro との 30 分同期会で「LET 7 社横断で共通化すべき実装パターン」を 1 個決定し Storybook へ登録
+3. **月次**：Akari の月次レポートから「応募 CVR 上位 / 下位 3 社」の実装差分を Ren が analyze、成功パターンをテンプレへ逆輸入
+4. **四半期**：Playwright / Chromatic / Sentry の false positive を棚卸し、Mia と QA 精度をチューニング。BMAD の workflows/ 更新にも反映
+5. **半期**：外部（Vercel Ship・Next.js Conf・shadcn 公式）のカンファレンスキャッチアップ、業界最新事例を Sota・Sota・nao と共有し設計から実装まで一貫更新

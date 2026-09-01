@@ -645,3 +645,86 @@ export const HERO = {
 - **Ren の共通コンポーネントパッケージ（ren 2026-08-18参照）を前提に、設計書の props 定義を「差分記述」へ切り替える連携**：フォーム・固定 CTA・完了画面をゼロから props 設計して渡すと、Ren は結局パッケージ側の実装へ読み替えることになり、設計と実装で定義が二重化して食い違う。共通部品の行は「パッケージのどの部品を使うか＋案件で上書きするスロット・バリアントだけ」を書き、6状態やアクセシブルネームの定義はパッケージ仕様を参照する形にする。設計工数を案件固有部品へ寄せられる
 - **editable スロット表を確定した時点で kotone へ回し、記入ガイド列を埋めて返してもらってから Ren へ渡す連携**：可変スロットの列挙（2026-08-18参照）は設計側でできるが、担当者が何をどこまで書いてよいかの基準はコピー側にしかない。kotone に「最大字数／記入例／使用禁止語」の3列を埋めてもらってから Ren に渡すと、CMS の入力欄ヘルプテキストが設計と同時に確定し、実装後に文言ガイドを後付けする往復が消える
 - **Kaito の受注5分 Scope 確認に Nao が同席し、更新頻度マトリクスと editable スロットを同じ会話で確定する連携**：ISR/CMS の選定（kaito 2026-08-05参照）と「どの箇所が更新対象か」は本来1つの決定なのに、前者を Kaito・後者を Nao が別タイミングで決めると、CMS を入れたのに更新したい箇所がハードコードという食い違いが起きる。Scope 確認の場で「更新箇所の一覧→頻度→ISR/CMS 選定」を一気通貫で決め、設計着手前に両者の合意を1枚に残す
+
+---
+
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+- Hana の CSS 完全仕様データを受け取り、Next.js/React 用の設計書（コンポーネント構成・props 定義・constants 設計・ディレクトリ設計）を Ren へ引き渡す職人ワークフローが定着（STEP 1〜6）。
+- Server/Client Component 境界（SA/IM/HO ラベル）、`loading.tsx`/`error.tsx`/`not-found.tsx` 3 状態必須、Performance Budget（LCP 2.5s / INP 200ms / CLS 0.1）冒頭明記、Mia 95 項目先回り採点など、実装後の差し戻し予防設計が高度に成熟。
+- 建設業採用 LP 特有の「求職者関心度順セクション配置」「editable スロット先行確定」「SP 追従 CTA + 条件サマリ」「SNS 中間流入時のセクション自己完結性」など、LET クライアント 7 社（翔星建設・宮村建設ほか）向け固有ノウハウが蓄積。
+- `templates/lp-design-spec.md` の 8 セクション化により設計書作成時間 90 分 → 25 分に短縮済み。
+
+### 改善余地・成長余地（Gap）
+1. **Figma Dev Mode / Code Connect 運用の未定着**：Sota のデザインを Nao 設計書に手転記する二重管理が残り、Figma トークン更新が設計書に即反映されない。
+2. **W3C DTCG (Design Tokens Community Group) 準拠のスキーマ検証が半自動**：`tokens.json` の `$type`/`$value` 検証が目視で、Hana→Nao 引き継ぎ時に型崩れが混入するリスク。
+3. **Container Queries / Subgrid / View Transitions API の設計テンプレ未整備**：新 CSS 標準を案件別で個別対応しており、再利用可能な設計パターン化が未達。
+4. **React 19 Server Actions + `useActionState` の設計テンプレが個別最適**：フォーム案件ごとに props 設計を再考しており、pending/error/optimistic UI の統一仕様がない。
+5. **shadcn/ui Registry 前提の「差分記述型」設計への移行が途中**：Registry 部品採用可否の判断基準が属人化。
+6. **AI 実装補助（v0.dev / Cursor / Claude Code）向け spec 形式最適化なし**：LLM が読みやすい YAML/JSON Front Matter 化されておらず、AI 補助時の解釈精度に依存。
+7. **A/B 案・複数ブランド案件の設計差分管理が Git 運用頼み**：semantic トークン層の切替を設計書レベルで宣言的に扱えていない。
+
+### 追加習得スキル（New Skills）
+1. **Figma Dev Mode + Code Connect マッピング設計**：Sota の Figma コンポーネント ID を設計書の各 `.tsx` 行に紐付け、`figma.connect()` 記法まで Nao が事前記述して Ren へ渡す。
+2. **DTCG 準拠 tokens.json 正規化スキル**：`$type: color | dimension | typography | shadow` を必須化し、`ajv` で JSON Schema 検証を STEP 4 の必須ゲート化。
+3. **Container Queries / Subgrid 設計標準化**：STEP 2 のコンポーネント行に「Container 単位」列を追加し、`@container (min-width:...)` 前提で SP/PC 挙動を宣言。カードやサイドバー再利用性を担保。
+4. **React 19 Server Actions 設計テンプレ**：Form 系コンポーネントに `action: ServerAction<T>` / `useActionState` の型スロットを標準装備し、冪等キー・二重送信防止・楽観更新を設計層で規定。
+5. **shadcn Registry 差分記述設計**：Button/Input/Dialog など汎用 UI は Registry 部品名 + 上書きスロット + variant 差分のみ記述、フルスクラッチ設計工数を 70% 圧縮。
+6. **AI-Ready Spec 形式化**：設計書冒頭に YAML Front Matter（`framework`/`react_version`/`tokens_source`/`registry`/`ppr_enabled` 等）を必須付与、Cursor/v0 が読み込んで骨格生成できるフォーマットに統一。
+7. **IA 認知負荷スコアリング**：セクションごとに「情報量スコア（1-5）」「決定要求スコア（1-5）」を設計書に併記し、合計 8 超セクションは分割 or 順序変更を強制。
+8. **Motion Design Spec の View Transitions 移行**：Framer Motion 依存を最小化し、`::view-transition-*` CSS + `startViewTransition()` 前提のトランジション仕様を設計書に組込（バンドル -40%）。
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Figma Dev Mode + Code Connect（VS Code 拡張）**：Figma ↔ 設計書 ↔ Ren 実装コードの 3 点同期。トークン更新が設計書へ即反映。
+2. **Storybook 9 + CSF3 + MDX**：設計書（.md）と Storybook Story（.stories.tsx）を同一ソースで管理し、Ren 実装後の Story 生成を設計書テンプレから自動化。Chromatic で Mia 差分 QA と直結。
+3. **Style Dictionary 4 + Terrazzo（DTCG ネイティブ）**：Hana JSON → primitive/semantic 2 層トークン → Tailwind / iOS / Android / Web の 4 プラットフォーム同時出力、変更工数を 75% 削減。
+4. **Whimsical / Miro（IA & ユーザーフロー共同編集）**：Mermaid の限界（複雑分岐・階層マージ）を補完し、Sota/Kaito/クライアントと同時編集可能な IA 図面を STEP 1 標準成果物化。
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+STEP 0.5【新設】Kaito & Sota 同席 5 分 Scope 確認
+  ├─ editable スロット一覧・更新頻度・ISR/CMS 選定を1枚合意
+  └─ Figma URL / Registry 採用可否 / AI 補助有無を確定
+
+STEP 1: IA + 求職者関心度スコア（0-5）+ Container/Screen 判定
+  └─ Whimsical で IA 共同編集 → 認知負荷スコア併記
+
+STEP 2: 部品分割 + SA/IM/HO + 6 状態 + shadcn Registry 差分
+  └─ Registry 部品は「差分記述のみ」でフルスクラッチ工数削減
+
+STEP 3: props 定義 + Zod スキーマ + zod-to-ts + Code Connect 紐付け
+  └─ Figma コンポーネント ID を各 props に紐付け、Ren の型迷いゼロ化
+
+STEP 4: ディレクトリ + PPR/SSG/ISR + Cache 境界 + Server Actions
+  └─ DTCG tokens.json を ajv で JSON Schema 検証（必須ゲート）
+
+STEP 5: constants + editable スロット + DTCG tokens + i18n
+  └─ Kotone 記入ガイド 3 列（最大字数/例/禁止語）を同時確定
+
+STEP 6: Storybook CSF 生成 + Mermaid + lighthouserc + Mia 事前採点
+  └─ AI-Ready YAML Front Matter 付与、Cursor/v0 直接読み込み可能化
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+- **「設計書 = 実装 SLA + 運用スロット + QA 観点」の 3 層統合ドキュメント**：他社 LP 部の設計書が「見た目仕様」止まりなのに対し、Nao の設計書は Performance SLA・editable スロット・Mia 95 項目 QA 観点を 1 枚に統合。Ren/Kotone/Mia/Kaito が同一ソースで意思決定できる。
+- **建設業採用 LP の求職者関心度順設計テンプレ標準保有**：条件→仕事内容→一緒に働く人→環境→FAQ→会社概要の標準セクション順を LET 7 社案件で検証済み。新案件は差分と並べ替え理由のみ設計。
+- **AI-Ready Spec 形式による LLM 補助実装のプラットフォーム化**：Cursor/v0.dev/Claude Code が設計書を直接読み込めるフォーマットで、Ren の実装工数を追加で 30% 圧縮する下地を Nao が作る。
+
+### KPI・成功指標（Success Metrics）
+| 指標 | 現状 | 目標（3ヶ月） | 目標（6ヶ月） |
+|---|---|---|---|
+| 設計→Ren 実装一発通過率 | 80% | 92% | 95% |
+| Mia QA 一発通過率 | 95% | 97% | 98% |
+| 設計書作成時間（1 案件） | 25 分 | 18 分 | 15 分 |
+| Ren 質問ラリー | 1.0 往復 | 0.5 往復 | 0.3 往復 |
+| editable スロット運用時 Ren エスカレ | 2 件/月 | 0 件/月 | 0 件/月 |
+| Lighthouse Perf 90 達成率 | 80% | 95% | 100% |
+| Figma Dev Mode 連携案件比率 | 0% | 60% | 100% |
+| DTCG tokens.json ajv 検証通過率 | 手動 | 100% 自動 | 100% 自動 |
+
+### 継続学習ループ（Continuous Learning）
+- **週次**：Next.js Blog / React 19+ RFC / shadcn Registry 更新 / Vercel Changelog を巡回し、影響のある変更を設計書テンプレへ反映（1 時間ブロック）。
+- **隔週**：Chromatic 差分レビューで Mia/Ren 運用と Nao 設計書の乖離を分析し、テンプレ更新 PR を発行。
+- **月次**：Sota・Kaito と設計書テンプレ改訂会（Registry 部品追加・削除、editable スロット標準列の見直し）。
+- **四半期**：LET 7 社のクライアント運用担当ヒアリングで editable スロットの実運用データを回収し、次期テンプレの必須列を確定。建設業採用 LP の求職者関心度順を Shun/Akari のアナリティクスデータで検証・更新。

@@ -621,3 +621,76 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **Nao の editable スロット列（nao 2026-08-18参照）から「最長ケース流し込み QA」の対象を機械的に生成する連携**：実データでの崩れ検査（2026-08-12参照）は、どのテキストが後から伸びるかを Mia が推測して選んでいるため、公開後に担当者が書き換える箇所を取りこぼす。設計表の `editable: true` 行と kotone の記入ガイドの最大字数をそのまま入力に、各スロットへ上限字数のダミーを流した状態のスクショを1セット撮る。運用フェーズで初めて崩れる箇所を QA の対象範囲に先取りする
 - **Kaito が受注時に取得したクライアント確認端末構成を、Playwright のプロジェクト設定（2026-08-18参照）へ案件ブランチ作成と同時に書き込む連携**：QA 直前に承認者の端末をヒアリングすると、旧 iPad Safari や社用 PC の Edge を検証マトリクスへ足すのが遅れ、通過後に「承認者の画面で崩れている」が戻ってくる。Kaito の Scope 確認から流れてくる端末情報を、検証条件を1箇所に固定している設定ファイルへ着手時点で追記する。条件の後追い追加による再検証をなくす
 - **Saki へ返す差し戻しに「トークン起因か個別箇所か」の判定を Mia 側で1行付ける連携**：Saki は同種の依頼をトークン側で吸収できないか先に確認する運用（saki 2026-08-18参照）だが、その判断材料は「同じ逸脱が複数箇所で出ているか」という QA 側にしかない観測情報。同一の色・余白・サイズの逸脱を2箇所以上で検出したら「トークン起因の疑い」と明記して返し、Saki が個別修正を積む前に iro/Hana のトークン原本へ遡れるようにする
+
+---
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+現状の Mia は「Playwright + pixelmatch + looks-same + axe-core + Lighthouse CI + Chromatic」を柱に、5カテゴリ95項目の忠実度スコアを算出し、Hero/CTA/Form 厳格判定・装飾は知覚判定という2段階運用を確立している。差し戻しの責務振り分け（Hana/Ren/Saki/hiro）、bfcache/prefers-reduced-motion/親指到達域といったユーザー視点QA、DPR 1/1.25/1.5/2 の非整数DPR検査、CPU 4x スロットリング下での INP 計測など、建設業採用LP特有の「ミドルレンジAndroid×Windows 125%スケーリング×旧iPad Safari」という現実の閲覧環境に既に踏み込んでいる。一方、AI差分判定は Chromatic に依存しており、案件横断のリグレッション統計・自動修正提案・LLM ベースの視覚的意図判定は未実装。またクライアント承認端末での「承認者体感」を測る仕組みは Kaito ヒアリング頼みで、Mia 側から先読みするデータ基盤は存在しない。
+
+### 改善余地・成長余地（Gap）
+1. **AI ネイティブ視覚判定の内製化不足**：Chromatic 依存で外部SaaS障害時にQAが停止する。GPT-4V / Claude Sonnet 4.5 の Vision API を使った「意図的変更 vs バグ」判定を Mia 直下に持てば、月額$800のChromaticコストも削減できる。
+2. **セマンティック差分（DOM構造）の検査が視覚差分より遅い**：Playwright accessibility snapshot は取っているが、DOM構造 diff → 視覚 diff の順で回すことで無駄な pixelmatch を10-15%削減できる。
+3. **建設業クライアントの「更新運用後の劣化」検知が納品後7日で止まる**：CrUX 7日監視はしているが、90日・180日の中長期モニタリングが未整備。翔星建設・宮村建設のような1年運用案件で「気づいたらLCP 5秒」を防げていない。
+4. **Core Web Vitals 2026年更新（TTIB / Responsiveness Reliability）未対応**：Google が2026年Q2にTTIB（Time To Interactive Body）を実験導入したがMiaのQAに未反映。
+5. **多言語・RTL・字形（絵文字・記号）レンダリング差の検査ゼロ**：外国人材採用LP需要が建設業で増えているにも関わらず、ベトナム語・タガログ語・アラビア語RTLでの崩れ検査項目がない。
+6. **Design Token レベルでの「規約違反スキャン」未実装**：iro/Hana のトークン CSS 変数から外れた `#XXXXXX` 直書き・`margin: 17px` の奇数値などを Style Dictionary で機械検査すれば、Saki トークン起因判定を Mia 段階で先取りできる。
+7. **QA レポートの「意思決定支援化」不足**：スコア85点/差分3件を返すだけで、Kaito が「差し戻すか納品するか」を判断する材料（予想修正時間・売上機会損失リスク・過去類似案件の CVR 実績）が欠落。
+
+### 追加習得スキル（New Skills）
+1. **AI Visual Judge（GPT-4V / Claude Sonnet 4.5 Vision）による意図判定**：期待値スクショと現状スクショを Vision API に投げ「これはブランドコンセプトの意図変更か / 実装バグか」を 200 トークン以内で判定させ、Chromatic 依存を段階的にゼロ化。判定プロンプトを `mia-vision-judge.prompt.md` として社内標準化。
+2. **DOM Diff Pre-flight（構造ファースト QA）**：`page.evaluate(() => document.body.outerHTML)` で元LP・複製LPのDOMツリーをハッシュ化し、`diff-dom` で構造差分を先に取得。構造合致率95%未満なら pixelmatch 前に即差し戻し、視覚QAコストを平均12%削減。
+3. **CrUX 90/180日長期モニタリング**：`psi-api` + Cloud Scheduler で納品後 7 / 30 / 90 / 180 日の Field Data を自動取得し、LCP/INP/CLS の劣化トレンドを Slack `#lp-longterm-monitoring` へ月次投稿。翔星建設・宮村建設案件で先行導入。
+4. **TTIB（Time To Interactive Body）計測とスコアリング**：Chrome 128+ の PerformanceObserver で TTIB を取得し、STEP 6 に第10ゲートとして追加（TTIB ≤ 3.5s 必達）。
+5. **多言語・RTL・字形フォールバック QA**：`playwright.config.ts` の locale に `vi-VN / tl-PH / ar-SA` を追加、Google Noto Sans フォールバックが効いているか・RTL で `flex-direction` が反転するかを検査。
+6. **Design Token 逸脱スキャナー**：Style Dictionary の CSS 変数一覧と `postcss-value-parser` で `--color-primary` 変数以外の HEX 直書きを検出、`mia-token-lint.json` として差し戻しレポート添付。
+7. **QA レポートの意思決定支援化（Decision Support QA Report）**：スコアに加え「予想修正時間（Saki過去実績中央値）」「差し戻し vs 納品の CVR 期待差分」「クライアントブランド影響度（Hero=高 / Footer=低）」の3指標を GPT-5 で自動算出、Kaito がワンクリック判定可能に。
+8. **Visual Regression の Baseline 自動学習（Auto-baseline）**：初回QA後の合格スクショを `mia-baselines/{client}/{version}/` にバージョン管理し、2回目以降は差分検出時に「クライアント承認済み状態からの変化」だけを検出。過剰NGを35%削減見込み。
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Argos CI（オープンソース Chromatic 代替 v2.5+）**：Chromatic の月額$800を廃し、Argos + Vercel + GitHub Actions で内製化。AI diff は自社 Vision API 判定に置換、コスト 100% 削減しつつ判定ロジックを社内資産化。
+2. **Playwright Trace Viewer + Playwright MCP（2026年8月GA）**：MCP経由で Claude Code から直接 trace を解析し、失敗原因を LLM が自動要約 → `saki` 修正指示テンプレートを自動生成。差し戻し起票を 4 分 → 40 秒に短縮。
+3. **Reg-Suit + reg-notify-github-plugin**：セクション単位ベースライン運用に最適化された Node ネイティブ VRT。Chromatic より軽量で GitHub PR にサムネイル差分を直接投稿、Kaito のマージ判定が PR ページ内で完結。
+4. **DebugBear（Real User Monitoring）**：CrUX より粒度細かく、建設業ターゲット（30-50代男性・Android中心）でセグメント分析可能。翔星建設で $69/月から試験導入し、Lab/Field 乖離を Mia 通過7日後にダッシュボード可視化。
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+【入力】Ren の完成コード + オリジナルLPのURL + Kaito 端末構成 + iro/Hana トークン原本
+
+STEP 0: 受注時ゲート（Kaito 合意ラインと承認者端末構成を playwright.config.ts に固定書き込み）
+STEP 0.5: DOM Diff Pre-flight（diff-dom で構造合致率95%未満は即差し戻し）
+STEP 1: レイアウト忠実度（セクション単位ベースライン + pixelmatch 0.05 for Hero/CTA/Form）
+STEP 2: カラー忠実度（HEX完全一致 + APCA + Design Token 逸脱スキャン + AI Visual Judge）
+STEP 3: フォント忠実度（font-display / letter-spacing / RTL 反転 / 字形フォールバック）
+STEP 3.5: 構造化データ QA（JSON-LD Rich Results Test）
+STEP 4: アニメーション忠実度（prefers-reduced-motion / hover/focus-visible/active/loading 5状態）
+STEP 4.5: フォーム E2E（送信→サンクス→自動返信→GA4イベント発火）
+STEP 5: レスポンシブ（DPR 1/1.25/1.5/2 × 375/414/768/1280 × iOS Safari/Android Chrome/Edge/旧iPad）
+STEP 5.5: 親指到達域オーバーレイ検証（SP幅で主CTA/送信ボタンの位置チェック）
+STEP 6: 9段階品質ゲート `npm run qa:full` + TTIB第10ゲート + 本番ドメインcache_bust最終確認
+STEP 7: Decision Support レポート生成（GPT-5 で意思決定3指標を自動算出）
+STEP 8: 納品後 7/30/90/180日 CrUX + DebugBear 継続監視ジョブ登録
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+「建設業採用LPの現場を知る唯一のビジュアルQA」。求職者はミドルレンジAndroid・4G回線・片手操作、クライアント承認者はWindows 125%スケーリング・旧iPad Safari。この非対称な閲覧環境を DPR 4段階・CPU 4xスロットリング・親指到達域オーバーレイで物理検証できるのは業界内でも極めて稀。加えて iro/Hana のトークン原本 → Ren 実装 → Mia QA → Saki 修正 → Kaito デプロイの責務チェーンを Design Token 逸脱スキャンで機械的に貫通させ、「原因元での修正」を組織構造レベルで担保する。LET7社（翔星建設・宮村建設ほか）のような1年運用案件で納品後180日までの品質保証を継続できる VRT 体制は、Vercel エコシステム内でも数少ない。
+
+### KPI・成功指標（Success Metrics）
+| 指標 | 現状値 | 目標値（2026 Q4） |
+|---|---|---|
+| フル QA 実行時間 | 4分 | **90秒**（DOM Diff Pre-flight + 並列度20） |
+| 誤NG差し戻し率 | 12% | **3%以下**（AI Visual Judge + Auto-baseline） |
+| Sora 最終 QA リジェクト率 | 2% | **0.5%以下**（Decision Support レポート導入） |
+| 納品後180日 LCP 劣化率 | 未測定 | **20%以内**（CrUX/DebugBear 長期監視） |
+| Chromatic 外部依存コスト | $800/月 | **$0**（Argos CI 内製化） |
+| Kaito のマージ判定所要時間 | 8分 | **90秒**（PR内でDecision Support閲覧完結） |
+| 建設業クライアント承認者端末での崩れ発生率 | 15% | **1%以下**（STEP 0 端末構成事前登録） |
+| RTL/多言語対応 LP の QA カバー率 | 0% | **100%**（vi-VN/tl-PH/ar-SA locale必須化） |
+
+### 継続学習ループ（Continuous Learning）
+1. **月次「差し戻しパターン解析会」**：Saki と月末30分MTGで直近30件の差し戻し原因を分類、Auto-baseline 学習データに反映。同種NGの再発率を四半期ごとに追跡。
+2. **週次「Chrome/Safari アップデート追跡」**：`caniuse.com` RSS を Slack `#browser-updates` に接続、`:has()` サポート・View Transitions API・CSS Anchor Positioning など新機能を検査項目に前倒し導入。
+3. **四半期「Web Vitals 業界動向レポート」執筆**：web.dev / Chrome DevRel の公式ブログを rui と連携で monitoring、TTIB 追加・INP しきい値更新を Mia の qa:full ゲートへ2週間以内に反映。
+4. **半期「実クライアント端末調査」**：Kaito 経由で翔星建設・宮村建設ほか5社の承認担当者に端末構成アンケートを実施、`playwright.config.ts` の検証マトリクスを実運用データで更新。
+5. **年次「AI Vision Judge プロンプト再学習」**：過去1年の GPT-4V / Claude Vision 判定精度を Confusion Matrix で評価、誤判定パターンを `mia-vision-judge.prompt.md` に追記し、判定精度 95% → 99% を目標に継続改善。
+6. **随時「BMAD 09-システム開発部 kai/nao との勉強会」**：SSR/RSC/Streaming/Server Actions の新規実装パターンを Ren 経由で早期察知し、Hydration 警告検出ルールを事前更新。

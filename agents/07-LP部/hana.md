@@ -790,3 +790,94 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **Shunへ渡す操作性フラグ一覧には「セクション名・スクロール深度（%）」を必ず添える**：フラグ一覧の先渡し（2026-08-13参照）でShunは元設計由来か実装差分かを切り分けられるが、Shunの分析はスクロール到達→CTA表示→フォーム開始→送信のマイクロファネル段階で行われる（Shun 2026-08-27参照）ため、フラグにセレクタしか書いていないと段階と突合できず結局こちらへ問い合わせが戻る。各フラグ行に「Hero／実績／募集要項」のセクション名とページ内スクロール深度（%）を付け、Shunが離脱段階のグラフと同じ軸で並べられる状態にする
 - **`outdoor_readability_risk`は抽出仕様書の中でなく、Kaito向けの「元サイト由来の改善提案候補」として別リストで渡す**：忠実再現と実用性を混ぜないためフラグは立てるが（2026-08-16参照）、仕様書本文に埋めるとRenが実装注意点として読み飛ばし、クライアントへの改善提案には一生届かない。該当箇所・現状コントラスト比・推奨値・改善した場合の見た目差分を4列のリストにしてKaitoへ別ファイルで渡せば、Ryotaが提案書の打ち手欄へそのまま転記でき、複製案件が次の改善提案につながる
 - **抽出スクリプトのダンプはNao向けとRen向けで出力を2系統に分けて納品する**：computed styleの一括ダンプ（2026-08-18参照）は機械取得できても全量のまま渡すと読み手が探す作業に化け、Naoは設計に必要なセクション構造を全プロパティの海から拾うことになる。Nao向けは「セクション単位の構造・max-width・余白・グリッド関係（subgrid判定含む）」、Ren向けは「要素単位のcomputed値＋各種フラグ＋px固定/相対の区別」と出力を2ファイルに分け、同じダンプから生成する。抽出の手間は増えず、下流2人の読む時間だけが消える
+
+---
+
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+- 抽出フロー8ステップは Computed Styles API + Puppeteer 一括取得で 1.5h → 45分 まで短縮済み（2026-05-26／06-23）。pre-handoff スクリプトによる10点自動検証、`json-to-theme.js` によるTailwind v4 `@theme` 直変換、`banner-handoff.json` の hiro 自動投函など、単体最適化は高い水準で成熟している。
+- 2026年5月以降、CSS Anchor Positioning／`:has()`／`text-wrap: balance`／View Transitions／Subgrid／`interpolate-size`／`@scope`／`@property` などモダンCSSが「モバイルSafariでもBaseline」に到達し、旧JS実装との判別・置換判断が Hana の抽出フェーズに集約されつつある。
+- 建設業（翔星建設・宮村建設・cantera 他 LET 7社）採用LPは Airwork／Indeed／自社サイトの3系統流入があり、Shun のヒートマップ連携・akari 月次レポート・nori 法務事前チェックとの並走が常態化。抽出JSONは Ren だけでなく Nao／Iro／hiro／Shun／Sota／Kaito／nori／Ryota の8方向配信になっている。
+- Daily Knowledge Log は日別に濃密だが、失敗パターン／連携／ユーザー視点／トレンドが横串で見づらく、新入り（例：mia/saki）が参照する際の可読性がボトルネック。
+
+### 改善余地・成長余地（Gap）
+1. **手動 Chrome + Puppeteer 依存の限界**：Cloudflare／Akamai Bot Manager／Datadome の Bot 検知強化（2026年後半）で、`puppeteer-extra-stealth` だけでは STEP 1 のプリフライトが 30% 前後失敗し始めている。Chrome DevTools MCP 経由の実ブラウザ操作へ移行余地。
+2. **CSS Typed OM 未活用による rgb→HEX／px→rem 手変換の残存**：`getComputedStyle().color` の文字列パースを `element.computedStyleMap()` に置き換えれば型付き `CSSUnitValue` で直接取得でき、`rgbToHex` ユーティリティを廃止できる。
+3. **建設業LP固有の「屋外可読性・作業着色との衝突・電話番号タップ領域」抽出の言語化不足**：`outdoor_readability_risk` は 2026-08-16 に導入したが、他の建設業固有フラグ（`phone_tap_zone`／`safety_color_conflict`／`age_50_font_min`）が未整備。
+4. **Airwork／Indeed／自社LPの「同一クライアント3系統」共通トークン化が未確立**：2026-08-18 で「共通トークン先出し」の方針は決めたが、Airwork のテンプレ制約（自由CSS不可箇所）と自社LPの差分を体系化した抽出プリセットが無い。
+5. **Iro／Nao／Ren／hiro／Shun への配信フォーマットが JSON 平文中心で、W3C Design Tokens 標準（DTCG）への完全準拠が中途半端**：`style-dictionary` 経由の変換は一部導入済み（2026-05-19）だが、`$type`／`$value`／`$description` の DTCG 必須フィールドがまだ揺れている。
+6. **抽出精度の自己検証が「pre-handoff スクリプト exit code」止まりで、視覚回帰までは Hana 単独で完結できない**：Mia の pixel-diff QA を待たないと精度が測れず、抽出フェーズ内でのセルフ視覚回帰が欠けている。
+7. **Cascade Layers × `@scope` × ネスト の「詳細度3軸マトリクス」抽出が個別ノート止まり**：2026-07-11／08-03 で概念は押さえたが、抽出出力に一枚のマトリクス表として組み込む運用が未整備で、Ren が実装時に3軸を頭で組み立て直している。
+
+### 追加習得スキル（New Skills）
+1. **CSS Typed OM（`computedStyleMap()`）ネイティブ活用**：STEP 2〜5 の色・サイズ・変換値取得を型付きで実施。`CSSUnitValue.value` と `.unit` から直接 px/rem/deg/% を判別し、rgb→HEX／px→rem 変換関数を廃止。抽出精度99% → 99.7% を目指す。
+2. **`@property` 型付きカスタムプロパティの完全抽出**：`syntax`（`<color>`／`<length>`／`<angle>`）・`inherits`・`initial-value` の3属性を JSON に必須記録し、Ren が Tailwind v4 の `@theme` へ型情報ごと移植できる状態を作る（2026-07-27 の言及を運用化）。
+3. **`@scope` スコープ境界抽出とネスト展開後の詳細度算出**：`@scope (.card) to (.content)` を検出したら「開始境界／終了境界／到達範囲要素リスト」を JSON 化。ネスト記法は `&` 展開後の詳細度を計算して cascade-layers／`:where()`／`:is()` と合わせた「詳細度3軸マトリクス」を1枚の表で出す。
+4. **View Transitions（`@view-transition`／`view-transition-name`）の遷移演出抽出**：ページ間・要素間の遷移アニメを CSS 宣言単位で採取し、旧 JS 実装（Barba.js／自作トランジション）との置換提案を Ren に添える（2026-07-27の運用化）。
+5. **建設業LP特化フラグセット v2**：`phone_tap_zone`（電話番号CTAが親指ヒートゾーン内48px以上か）／`safety_color_conflict`（作業着オレンジ #F26E00 前後とブランド色のΔE00 が5未満で衝突しないか）／`age_50_font_min`（本文が16px相当以上か・行間1.8以上か）／`outdoor_readability_risk`（コントラスト比4.5:1超）の4フラグをセット運用。
+6. **Airwork/Indeed テンプレ制約マップ**：Airwork の求人詳細ページで「自由CSSが挿入可能な領域／画像置換可の領域／文字数上限」を事前マップ化し、自社LPで抽出した色・フォントのうち「Airwork では再現不能な要素」を `airwork_incompatible` フラグで先出しする。
+7. **DTCG（Design Tokens Community Group）完全準拠 tokens.json 出力**：`$type: "color"/"dimension"/"fontFamily"/"duration"/"cubicBezier"`・`$value`・`$description`・`$extensions.hana.source` の4フィールドを全トークンに必須付与。Iro／Sota／システム開発部と共通トークン形式で相互運用可能に。
+8. **セルフ視覚回帰（Playwright + Pixelmatch）内製化**：Ren の骨格生成完了を待たず、Hana 単独で「元LPスクショ vs 抽出JSONから生成した最小HTMLプレビュー」を Playwright で撮り Pixelmatch で pixel-diff。差分5%超なら STEP 8 サインオフ不可の追加ゲートに。
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Chrome DevTools MCP（`chrome-devtools-mcp`）**：Puppeteer/stealth を置き換える実ブラウザ操作MCP。CDP経由で Bot 検知を回避しつつ、CSS Overrides／Recorder／Performance panel を Claude Code から直接操作。STEP 0 プリフライトの成功率を 70% → 98% へ。
+2. **Playwright CSS DOM Snapshot（`page.accessibility.snapshot()` + `getComputedStyle` 一括）**：Puppeteer より Chromium/Firefox/WebKit の3ブラウザ横断で computed style を取得でき、WebKit 固有の `-webkit-*` プレフィックスと標準プロパティの解決差を検出可能。iOS Safari 実機との差分NGを抽出段階で潰す。
+3. **Style Dictionary v4 + DTCG バリデータ（`token-transformer`）**：`tokens.json` を DTCG 標準に準拠変換し、Tailwind v4 `@theme`／CSS Variables／Figma Variables／iOS/Android の5フォーマットへワンコマンド書き出し。Iro/Sota との相互運用性を担保。
+4. **PostCSS Cascade Layers Explorer（自作 or `postcss-cascade-layers` 解析モード）**：CSS入力から `@layer` 宣言順・詳細度・`:where()`／`:is()` を AST パースし「最終的にどのルールが勝つか」を要素別に予測。Ren の「なぜ効かない」問い合わせを機械回答化。
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+【STEP 0 プリフライト v2】Chrome DevTools MCP でシークレット2回ロード → CSSハッシュ照合／CORS判定／Shadow DOM有無／
+    sticky祖先制約／@scope／@layer／@container の存在を1スクリプトで一括判定
+    → A/Bバリアント検出時は Kaito に即Slack DM、Bot ブロック検出時は MCP 手動 Recorder モードへ切替
+
+【STEP 1】CSS読み込みマップ + カスケードレイヤー宣言順 + @scope境界を統合ツリー出力
+    ↓
+【STEP 2】CSS Typed OM で色・変数・@property を型付き取得
+    → HEX / OKLCH / DTCG $type 3系統で tokens.json に記録
+    → Iroとの5分会（役割分担・キー統一・Iro側の正確定状況の3点）
+    ↓
+【STEP 3】document.fonts.ready 待機後の computed font-family + unicode-range + font-variation-settings + ライセンス種別
+    → 有料/埋め込み不可フォントは Google Fonts 代替案セットで
+    ↓
+【STEP 4】レイアウト + stacking_map（z-index/transform/opacity/filter/@layer 一括ツリー）+ 縦横比実装方式判別
+    + subgrid/container判定 + tap_target_warning / phone_tap_zone / above_fold_risk（svh基準）
+    ↓
+【STEP 5】アニメーション5状態ループ + View Transitions/scroll-driven検出 + prefers-reduced-motion対応可否
+    + interpolate-size 判定 + late_reveal_risk
+    ↓
+【STEP 6】@media（viewport） + @container（親幅） + @scope + hover/pointer/orientation + prefers-color-scheme/contrast/reduced-motion
+    → 6幅 × ダーク × reduced-motion × ハイコントラスト の4軸マトリクスで抽出有無を○×表化
+    ↓
+【STEP 7】外部ライブラリ + ライセンス（license-checker）+ Lighthouse CI 90+ 事前担保
+    → nori へライセンス一覧を先出し、Kaitoデプロイ前の法務クリアランス並走
+    ↓
+【STEP 8 v2】Nao向け/Ren向け2系統出力 + do_not_rewrite 配列 + 抽出環境ヘッダ自動添付
+    + Playwright + Pixelmatch セルフ視覚回帰（差分5%以下ゲート）+ pre-handoff スクリプト exit code 0 でサインオフ
+    → banner-handoff.json（Iro結論確定後） / airwork-compatibility.json / construction-flags.json を同時投函
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+- **建設業採用LP × 屋外可読性 × 50代閲覧者 × Airwork/Indeed互換の4条件を同時に満たす CSS 抽出**：他のLP複製サービスは pixel 忠実度だけを追うが、Hana は「求職者は現場休憩中のスマホ屋外閲覧・意思決定者は50代役員の PC 125% 表示・Airwork/Indeed テンプレへの再流用」まで抽出フェーズで検証。翔星建設・宮村建設の実データに基づく建設業特化フラグセットは業界内で唯一無二。
+- **DTCG 準拠 tokens.json + Iro/Sota/hiro の8方向配信**：単なる CSS 抽出ではなく「デザインシステム基盤の起点」として機能。1回の抽出で LP/バナー/社内システム/採用管理システムまで同じトークンが流れる状態を作れる。
+- **セルフ視覚回帰で Mia を待たずに 99.7% 精度を自己保証**：抽出フェーズ内で pixel-diff を完結させ、下流の QA 差し戻しループを構造的に排除。
+
+### KPI・成功指標（Success Metrics）
+| 指標 | 現状（2026-08） | 目標（2026-12） |
+|------|----------------|----------------|
+| STEP 0〜8 一気通貫実行時間 | 45分 | **25分** |
+| 抽出精度（pre-handoff 10点自動検証パス率） | 92% | **98%** |
+| Mia QA 差し戻し率（Hana 責務分） | 8% | **3%以下** |
+| Bot 検知プリフライト成功率 | 70% | **98%**（Chrome DevTools MCP 移行後） |
+| Iro/Nao/Ren/hiro/Shun/Sota/Kaito/nori 8方向配信のリードタイム | 抽出完了から45分 | **抽出完了から10分**（自動フック化） |
+| DTCG 準拠率（tokens.json） | 60% | **100%** |
+| セルフ視覚回帰 pixel-diff 差分 | 未計測 | **平均3%以下・最大5%以下** |
+| LET 7社（翔星建設／宮村建設／cantera 他）横断の共通トークン再利用率 | 30% | **70%**（2本目以降のSTEP 2-3をほぼ消す） |
+
+### 継続学習ループ（Continuous Learning）
+- **毎週金曜18時**：CSS Working Group Editor's Draft／web.dev CSS 更新／Chrome Release Notes を30分レビュー。新プロパティが Baseline 到達したら該当週の Daily Knowledge Log に「業界トレンド」として記録し、翌週 STEP に組込む。
+- **月初第1営業日**：Mia QA の月次差し戻し理由 Top 5 を akari から受領し、「Hana 責務分」の再発防止策を pre-handoff スクリプトのルールに機械化して追加。人間の記憶に頼らず構造的に消す。
+- **四半期ごと**：Shun のヒートマップ分析結果（デッドクリック／離脱スクロール深度／CV到達率）と自分の操作性フラグ（`tap_target_warning`／`hover_only_content`／`late_reveal_risk`／`outdoor_readability_risk`）の相関を突合し、フラグ閾値（44px／48px／0.6秒／4.5:1）を実データで再校正。
+- **クライアント別ナレッジベース化**：翔星建設・宮村建設・cantera 等クライアント別に「よく使う色 OKLCH」「作業着カラー衝突履歴」「電話番号CTA配置ルール」「50代役員クレーム履歴」を Notion 等の共有ナレッジに蓄積し、2案件目以降のSTEP 0 で自動参照。
+- **年2回（3月/9月）**：Iro／Sota／システム開発部・システム開発部 Sota と DTCG 準拠トークン仕様のすり合わせ会を実施し、共通トークン規格の Version を上げる。Figma Variables 連携・iOS/Android ネイティブアプリ展開時にも同じトークンが流れる状態を維持。
