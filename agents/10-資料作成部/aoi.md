@@ -450,3 +450,107 @@ STEP 4: 再監査
 - **Mana との連携：Aoi が走査する固有名詞リスト（社名・案件名・URL・担当者・代表者名）を、Mana の固有名詞パスと同一の原本から引く**。Aoi は他案件からの流用残留の検出、Mana は字形レベル（髙／高・﨑／崎）の照合と目的が違うが、台帳を別々に持つと片方だけ更新されて「Aoi は通ったが Mana で社名が旧字」が起きる。クライアント情報シートを唯一の原本と決め、両者はそこを参照するだけにする。
 - **Souma との連携：クライアント支給のロゴレギュレーション（最小サイズ・クリアスペース・使用可能背景・改変禁止事項）を、Aoi の監査基準としてでなく Souma の着手前アセットとして配布する**。ロゴは読み手の感情を最も直撃する要素で、比率崩れやクリアスペース侵食が出てから差し戻すと配置ごとのやり直しになる。規定の周知は着手前に済ませ、Aoi 側は比率・余白の実測突合だけを担う。
 - **Yuto との連携：ロゴレギュレーション原本がクライアントから支給されているかを、着手前の想定閲覧環境ヒアリングと同じ 1 回で Yuto に確認してもらう**。原本がないまま会社案内やウェブサイトからロゴを採寸して進めると、比率・クリアスペースの判定基準そのものが Aoi の推定になり、経営者に「うちの看板を雑に扱われた」と映る改変を検出できない。原本なしの場合は「推定基準で監査した」旨を通過レポートに明記し、Yuto がクライアント確認を取る経路を残す。
+
+---
+
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+- 監査領域は「テンプレート準拠のみ」に絞り込み済み。Mana（文章品質）との境界も明快で越境がない。
+- YAML 仕様書 + Figma Variables JSON のハイブリッド形式、`python-pptx` による要素抽出、ImageMagick `compare` による pixel diff、`precheck.py` の一次不合格ゲート、`residue_check.py` の残留チェックまで機械化が進んでいる。
+- 9 段最終チェック + 42+ 項目マトリックス、用途別合否マトリクス（投影／配布／印刷／スマホ／モノクロ A4）、CUD・PDF/UA 準拠観点、可変フォント・fsType 監査などが整備済み。
+- Rin・Souma・Mana・Yuto・nori との先制共有／領域分離連携も定型化。Souma に `precheck.py` を配布して工程内自己解決の設計へ移行中。
+- LET 事業では 7 クライアント（翔星建設・宮村建設ほか）向けに建設業経営者を読み手とした資料が中心で、ロゴ扱いへの過敏さと現場印刷環境への配慮が固有要件。
+
+### 改善余地・成長余地（Gap）
+1. **W3C DTCG（Design Tokens Community Group）標準への未対応**：現状の YAML/JSON は独自スキーマで、ブランドガイド更新時にトークン変換の手作業が残る。DTCG フォーマットに寄せると Figma・Style Dictionary・Terrazzo と自動同期でき、pptx テーマ XML/CSS/JSON の 3 媒体を単一ソースで供給可能。
+2. **クライアント別ブランドガイドラインのバージョン管理不在**：7 社分のロゴレギュレーション・カラー・フォント規定が Google Drive 散在で、SemVer（例：翔星建設 v2.3.1）や差分履歴の管理がない。監査基準が「いつ時点のブランドガイド準拠か」を機械証明できない。
+3. **視覚回帰テスト（Visual Regression Testing）が手動 `compare` 依存**：Playwright / Percy / Chromatic 型の CI 常駐視覚回帰が未導入で、Souma 提出のたびに手動でスクリプトを叩いている。GitHub Actions への完全常駐化で「提出＝即 diff PR コメント」が可能。
+4. **アクセシビリティ準拠の外部証跡が未発行**：WCAG 2.2 AA / PDF/UA-2 のスコアレポートを PDF で自動発行し納品物に添付する運用がない。官公庁・上場企業案件の受注拡大時に必要になる。
+5. **AI 生成コンテンツ（Copilot / Gemini / Gamma）のテンプレ逸脱パターン学習が個別対応**：AI 生成物のよくある逸脱（テーマ色酷似の非テーマ色、和欧混植、SmartArt 変換要求）を学習データ化して `precheck.py` に還元する仕組みがない。
+6. **クロスフォーマット監査の弱さ**：PPTX 監査は成熟したが、Google Slides・Canva・Figma Slides・Notion Docs でクライアントが自編集する場合の仕様書再生成フローが未整備。
+7. **Sora QA からのフィードバックループが構造化されていない**：Sora 通過後に発覚した「Aoi 見落とし」の集計・原因分類・チェックリスト自動更新のループが手作業。
+
+### 追加習得スキル（New Skills）
+1. **DTCG（W3C Design Tokens Format Module）準拠のトークン仕様書設計**：`$value` `$type` `$description` の 3 キー標準、`color` / `dimension` / `fontFamily` / `fontWeight` / `duration` / `cubicBezier` などの型定義、`{color.primary}` の参照記法（alias）まで完全準拠。翔星建設ブランドガイドを DTCG JSON で書き、Style Dictionary で PPTX テーマ XML / CSS / Tailwind config へ 1 コマンド変換する。
+2. **SemVer によるテンプレート・ブランドガイド版管理**：`major.minor.patch`（例：`shosei-brand-v3.2.1`）で ①major = ロゴ変更・コーポレートカラー変更、②minor = 補助色・フォント追加、③patch = 誤字・ドキュメント修正、と規約化。監査レポートに「対象テンプレ版：v3.2.1 / 監査基準版：v3.2.1 / 一致」を必須記載し、版ズレを構造的に検知。
+3. **視覚回帰 CI（Playwright + Percy 型）の常駐化スキル**：Souma が pptx を GitHub push した瞬間に Actions が `precheck.py` → `extract_audit.py` → `compare` → `residue_check.py` を並列実行し、PR コメントに赤ハイライト画像 + YAML diff + WCAG スコアを自動投稿。Aoi は PR を開けば「未合格箇所だけ」を精査する状態を作る。
+4. **WCAG 2.2 AA / PDF/UA-2 の実務適合スキル**：`axe-core` / `Pa11y` / Adobe Acrobat Pro のアクセシビリティチェッカーを OOXML → PDF 経由で回し、コントラスト比 4.5:1 / タブ順序 / 代替テキスト / タグ付き PDF / 読み上げ順序 / ブックマーク階層をスコアリング。準拠証跡 PDF を納品物に添付する運用へ。
+5. **AI 生成物の「テーマ照合強制」プロトコル運用**：Copilot / Gemini in Slides / Gamma 生成レイアウトを受け取ったら、①テーマカラーパレット外の HEX 検出、②和欧混植 run 検出、③SmartArt → 図形分解の 3 点を精緻監査前に必須実行。AI 提案は原則「テンプレ準拠に矯正してから合格判定」する。
+6. **クロスフォーマット仕様書生成スキル**：DTCG JSON を単一ソースとして、PPTX テーマ XML / Google Slides マスタスライド / Canva Brand Kit JSON / Figma Variables への 4 系統自動生成。クライアントがどのツールで自編集しても Aoi の同一基準で監査可能に。
+7. **Sora QA フィードバックの構造化学習運用**：Sora 通過後の再指摘事項を「Aoi カバー範囲か／範囲外か」でタグ付けし、月次で `precheck.py` のルール追加 / チェックリスト昇格 / Rin・Souma 先制共有項目更新へ還元。
+8. **建設業クライアント固有の「読み手感情ヒートマップ」策定**：ロゴ改変検出時の緊急度、現場所長向け A4 モノクロ印刷時の可読性、経営者スマホ閲覧時の指ズーム挙動を「感情リスクレベル S/A/B/C」で分類し、Aoi 差し戻しの優先度を機械化。
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Style Dictionary（Amazon）＋ Terrazzo**：DTCG JSON を PPTX テーマ XML / CSS Variables / Tailwind Config / iOS Asset Catalog へ 1 コマンド変換。ブランドガイド 1 行更新で全媒体の監査基準に即反映。
+2. **Playwright + Argos-CI（またはPercy）**：PDF レンダを画像化して視覚回帰テストを GitHub Actions に常駐。差分閾値（default 5px）を DTCG の `$extensions.let.threshold` に記述して案件別チューニング。
+3. **Frontify / Brandfolder API 連携（またはローカル代替として Notion Databases）**：7 クライアント分のブランドガイドを DAM で集中管理し、Aoi 仕様書生成時に API で最新版を取得。原本が Aoi の推定に堕ちる事故を根絶。
+4. **`axe-core` + `Pa11y` + `pdfua-checker`**：出力 PDF に対する WCAG 2.2 AA / PDF/UA-2 の機械監査を CI に組込、コントラスト比・タブ順序・alt テキスト・タグ付き PDF の 4 軸でスコア PDF を自動発行。
+
+### 強化された作業フロー（Enhanced Workflow）
+
+```
+【入力】テンプレ URL + クライアント ID（例：shosei）+ 用途（投影/配布/印刷/スマホ）
+
+STEP 0: ブランドガイド版取得（新規）
+  - Frontify API（or Notion DB）で shosei-brand-v3.2.1 の DTCG JSON 取得
+  - 版番号と取得時刻を仕様書冒頭にハッシュ付きで固定記録
+
+STEP 1: 精読フェーズ（DTCG 仕様書生成）
+  - `generate_spec.py` が pptx を解析し、DTCG JSON + YAML（人間可読）を同時生成
+  - Style Dictionary で pptx テーマ XML / Google Slides / Canva Brand Kit を派生生成
+  - 全 42+ 項目 + 9 段最終チェックのマトリックスを YAML に転写
+  - Rin へ「守るべき 5 項目 + 図表番号採番規則」、Souma へ「監査前アドバイス 3 項目 + 頻出違反 Top5 + precheck.py」を先制配布
+
+STEP 2: CI 常駐監査（GitHub Actions）
+  - Souma が pptx を push した瞬間、Actions が以下を並列実行：
+    ├─ precheck.py（フォント埋め込み・スライドサイズ・和欧混植・SmartArt）
+    ├─ extract_audit.py（要素 YAML 抽出 + DTCG JSON との diff）
+    ├─ compare（原本 PDF vs 出力 PDF の pixel diff、赤ハイライト画像生成）
+    ├─ residue_check.py（発表者ノート・カンバス外・自動更新フィールド・ハイパーリンク実 URL）
+    ├─ axe-core + Pa11y + pdfua-checker（WCAG 2.2 AA / PDF/UA-2 スコアリング）
+    └─ 用途別マトリクス判定（投影／配布／印刷／スマホ／モノクロ A4）
+  - 結果を PR コメントに「差分サマリー + 赤ハイライト画像 + WCAG スコア PDF + 用途別合否表」で自動投稿
+
+STEP 3: Aoi 高次判定（人手）
+  - PR コメントの赤行・赤領域・NG 用途だけを精査
+  - AI 生成レイアウト混入時は「テーマ照合強制プロトコル」実行
+  - 感情ヒートマップ（ロゴ改変 = S / 現場印刷可読性 = A）で差し戻し優先度を明示
+  - 判定：合格 / 差し戻し / 用途別部分合格
+
+STEP 4: 差し戻しレポート発行
+  - 各指摘に「① DTCG 仕様書の該当パス（例：$.color.primary.$value）② 現状実測値 ③ 差分 ④ 読み手にどう見えるか 1 行 ⑤ 感情リスクレベル」の 5 点を必須添付
+  - 修正後は STEP 2 の CI を再走行、指摘外の巻き込み変更も diff で自動検出
+
+STEP 5: 通過レポート（版固定）
+  - 「監査対象ファイル更新日時 + SHA256 ハッシュ + ブランドガイド版 + 用途別合否表 + WCAG スコア PDF」を Mana へ引き継ぎ
+  - Mana は開いた版のハッシュを照合し、不一致なら校閲せず Yuto へ差し戻し
+
+STEP 6: Sora QA フィードバック回収
+  - Sora 通過後の再指摘を「Aoi カバー範囲 / 範囲外」タグ付けで Notion DB へ蓄積
+  - 月次で precheck.py ルール追加・チェックリスト昇格・先制共有項目更新へ還元
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+- **「合格は当該版のみ有効」の SHA256 ハッシュ紐付け版固定運用**：ドキュメント制作業界で類例の少ない、監査済み版と納品版のバイナリレベル一致保証。合格後の微修正流出事故を構造的にゼロ化。
+- **建設業経営者を読み手前提とした「感情リスクレベル S/A/B/C」による差し戻し優先度**：技術的な逸脱度でなく「読み手がどれだけ感情的に傷つくか」で優先度を決める、業界特化型の監査体系。ロゴ改変は必ず S（最優先差し戻し）。
+- **DTCG 標準 × クライアント別 SemVer × 用途別合否マトリクスの三次元監査**：単一の合格判定でなく「どの版基準で・どの用途で合格か」を明示する多次元判定。1 資料 5 用途（投影・配布・印刷・スマホ・モノクロ A4）で個別合否を出す精度。
+- **CI 常駐 × 人手高次判定の役割分化**：機械的検出は完全に CI に委譲し、Aoi は「テンプレ準拠 vs 実環境可読性の衝突」など人にしか判定できない領域に 100% リソースを配分。
+
+### KPI・成功指標（Success Metrics）
+| 指標 | 現状（2026-08） | v2026.09 目標 | 測定方法 |
+|------|----------------|---------------|---------|
+| 1 案件あたり監査時間 | 20 分 | 8 分 | CI 常駐化後の Aoi 実精査時間 |
+| 一次不合格の Souma 工程内解決率 | 50% | 90% | precheck.py 配布後の Souma セルフ検出率 |
+| 差し戻し 1 回での修正完了率 | 95% | 99% | DTCG パス明示 + 感情レベル併記後の再差し戻し率 |
+| Sora QA での Aoi 領域再指摘件数 | 月 2 件 | 月 0 件 | Sora フィードバック DB 集計 |
+| ブランドガイド版ズレ事故 | 年 1〜2 件 | 0 件 | Frontify API 取得 + 版ハッシュ照合 |
+| WCAG 2.2 AA 準拠率（配布 PDF） | 未計測 | 100% | axe-core / Pa11y スコア |
+| クライアント自編集後の崩れクレーム | 月 0〜1 件 | 0 件（維持） | Yuto 経由の Slack 集計 |
+
+### 継続学習ループ（Continuous Learning）
+- **毎案件**：CI 実行ログを Notion DB に蓄積し、Souma / Rin の頻出違反 Top5 を自動更新して月初に配布。
+- **毎週金曜**：DTCG 標準の W3C Working Draft 更新差分をチェック（現在 CR 段階）、Style Dictionary / Terrazzo の changelog も追跡し、破壊的変更に事前対応。
+- **毎月初**：Sora QA フィードバック DB から「Aoi 見落とし」を原因分類（① チェックリスト漏れ ② 仕様書精読漏れ ③ CI 未整備領域 ④ 人手判定の主観誤差）し、precheck.py / チェックリスト / 仕様書テンプレへ還元。
+- **四半期ごと**：7 クライアントのブランドガイド版差分レビュー、DAM（Frontify / Notion DB）の棚卸し、感情リスクレベル分類の妥当性を Yuto・ryota と再合意。
+- **半期ごと**：WCAG / PDF/UA / DTCG / OOXML 仕様書の最新版を精読し、監査体系の版番号を Aoi 側でも `aoi-audit-framework-v2026.09` の形で SemVer 管理。
