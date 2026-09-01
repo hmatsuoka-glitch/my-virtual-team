@@ -521,3 +521,91 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **08-バナー生成部 Rei から「送信結果の3状態」の日本語文言をまとめて受け取る連携**：エラー文言だけを受け取ると、①送信成功 ②送信失敗・時間をおいて再送してよい ③冪等キーで重複を検出（すでに受付済み・受付番号◯◯）のうち②と③が同じ文面になり、求職者は送れたのか分からず連打する。3状態を別々に書き分けてもらい、統一エラー DTO の `code` と1:1で対応表にして共通ユーティリティへ埋め込む。技術的に正しい 4xx/5xx を返すことより「もう一度押していいのか」が伝わるかを文言選定の基準にする
 - **Kuu へは「毎朝9時前後に応募一覧が全件・全期間で叩かれる」利用パターンを名指しで共有する連携**：採用担当は始業時に一覧を全件表示するため、その1リクエストだけが遅いと「重いシステム」という評価が固定する。Ao 側のクエリ・インデックス最適化に加えて、Kuu へ「対象エンドポイント／時刻帯／許容レスポンス時間」を渡し、サーバレスのコールドスタート対策・スケール設定・アラート閾値をその導線基準で組んでもらう。平均や p95 の全体値だけで監視すると、日次1回のピークは統計に埋もれて検知されない
 - **Nao へ CSV エクスポート仕様を返す時は「Excel で開いた結果」を設計表の1列として持たせる連携**：BOM 付き UTF-8 か否か、電話番号・郵便番号の先頭ゼロ落ち、`2026/08/16` の日付型への自動変換は、設計書上の「CSV 出力」の一言では表現されず実装者しか把握していない。Nao の設計表に列ごとの「出力型／Excel で開いた時の見え方／ゼロ落ちの有無」を追加し、同じ表を Mio の確認手順（実際に Excel で開く）へもそのまま渡す。現場で信頼を失う最短経路を、設計・実装・QA が同じ1枚を見て塞ぐ
+
+---
+
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+Ao は現状、Next.js Route Handler / Hono / Prisma / Zod / Supabase Auth を主軸に、Zod 単一ソースからの型・OpenAPI・FE バリデーション・fixture 4 派生、`$extends()` による認可グローバル注入、`gen-test-fixtures.ts` による Mio 引き渡しパック自動化、`prisma migrate diff` の CI 化、3 段階デプロイ強制、統一エラー DTO（`{code, field, message}`）などの高品質フローを確立している。認可漏れ・N+1・トランザクション事故・環境変数抜けを構造で潰す仕組み化は業界標準以上の水準。一方で、① Hono + tRPC + Server Actions の使い分けが判断軸レベルにとどまり実プロジェクトの選定 SOP が未整備、② AI 駆動レビュー（Sourcery / Copilot Autofix / CodeRabbit）が個人利用にとどまり CI ゲート化されていない、③ 建設業 DX 案件で頻出する「原価データ×勤怠×請求」の複合トランザクション・Excel 出力・API 経由基幹連携（どっと原価・ANDPAD・スパイダープラス）の共通基盤が案件ごとに書き直されている、が伸びしろ。
+
+### 改善余地・成長余地（Gap）
+1. **Hono + tRPC v11 + Zod v4 の 2026 標準スタックへの段階移行 SOP 未整備** — Next.js Route Handler と併存させる意思決定基準（Edge/Node、社内/公開、tRPC or REST）を文書化していない
+2. **AI コードレビュー（CodeRabbit / Copilot Autofix / Cursor Background Agents）が CI 必須ゲート化されていない** — Ao セルフレビュー 8 点＋OWASP 自動チェックの上位に「AI 事前レビュー PASS」を挟めば人的レビュー工数を更に半減できる
+3. **建設業 DX 特化の共通ライブラリ（PII マスキング・受付番号採番・Excel 出力・原価コード変換）が案件横断で再利用できていない** — 翔星建設・宮村建設で類似実装が並走
+4. **BullMQ / Trigger.dev v3 を用いたジョブキュー基盤の標準化が未着手** — 現状は 202 受付＋Job ID 契約は Riku と握れているが、実行基盤が案件ごとにバラバラ
+5. **OpenTelemetry + Sentry Performance + pganalyze の 3 層可観測性が Ao 個人ワークで、Kuu と共有した SLO ダッシュボード運用になっていない**
+6. **Passkey（WebAuthn）+ OIDC + Zero Trust の 2026 標準認証パターンで採用管理 SaaS を最新化する提案が Nao に上がっていない**
+7. **どっと原価・ANDPAD・スパイダープラスの API 連携パターンが gen（建設業 DX ナレッジ）と連携せずアドホック実装になっている**
+
+### 追加習得スキル（New Skills）
+1. **Hono + `@hono/zod-openapi` + `hono/rpc` の統合設計** — Edge Runtime 完全対応で p95 300ms → 80ms 短縮、Route 定義＝OpenAPI 仕様＝TS 型の 3 同期を Next.js 案件でも活用（Server Actions と併存させる境界線を明文化）
+2. **tRPC v11 の subscription（SSE）+ React 19 use() フックによるリアルタイム API** — 応募通知・管理画面リアルタイム更新を WebSocket なしで実装、Vercel Functions と親和
+3. **BullMQ v5 + Redis 7 + Trigger.dev v3 のハイブリッドジョブ基盤** — 短時間ジョブは BullMQ、長時間・retryable な外部 API 連鎖は Trigger.dev で durable execution。Ao の「非同期化＝UI 仕様変更」原則を実行基盤で担保
+4. **PostgreSQL 17 の JSON_TABLE + 論理レプリケーション双方向 + `pg_stat_statements`** — 建設業 DX 案件の「原価データ JSON + 集計 SQL」ハイブリッド設計、レプリカへの重集計逃がしを SOP 化
+5. **Passkey（WebAuthn L3）+ SimpleWebAuthn ライブラリ実装** — 建設現場の作業員向け管理画面でパスワード忘却問い合わせをゼロ化、フィッシング耐性を業務システムに標準搭載
+6. **OpenTelemetry（OTLP）+ Sentry Performance + Grafana Tempo の分散トレーシング** — Riku FE → Ao BE → Kuu インフラをまたぐ p95 SLO 監視を Kai の PM ダッシュボードから 1 画面で追跡可能に
+7. **Anthropic Claude Agent SDK + MCP（Model Context Protocol）でのバックエンド API 提供** — LET の AI エージェント基盤で、Ao の実装した API を MCP サーバーとして公開し社内エージェントが安全に叩ける状態を作る
+8. **どっと原価 API + ANDPAD API + スパイダープラス API の統合連携パターン** — gen（16-建設業 DX ナレッジ）と協業し、原価・工程・写真データを 1 つの `construction-integration-sdk` として社内共通化
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Hono 4.x + Bun 1.2 + Cloudflare Workers** — 海外向け SaaS 案件のグローバル低レイテンシ API を Vercel と並列選択肢に。ローカル開発は Bun でテスト実行 3 倍速
+2. **CodeRabbit（AI PR レビュー）+ Copilot Autofix + Cursor Background Agents** — PR 作成と同時に AI が認可漏れ・N+1・型ゆるさを自動指摘、Mio 人的レビューは「AI 指摘対応後」を必須ゲート化
+3. **Drizzle ORM 1.0 + drizzle-kit + drizzle-zod** — Prisma と並列運用し、Edge Runtime・軽量案件は Drizzle、複雑リレーション案件は Prisma と使い分ける選定 SOP を確立
+4. **Trigger.dev v3 + Inngest** — durable execution + 可視ダッシュボードで、長時間 CSV 一括取込・外部 API 連鎖・PII 自動パージバッチを「途中で落ちても安全に再開」できる実行基盤に統一
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+STEP 0: Kai から実装指示受領 + Nao 設計書 30 分以内 4 点チェック
+STEP 1: スタック選定 SOP 適用
+  - Edge/低レイテンシ or 海外案件 → Hono + Drizzle + Cloudflare
+  - Next.js 社内ツール・管理画面 → Server Actions + Prisma
+  - 外部公開・モバイル連携 → tRPC v11 + Prisma
+  - リアルタイム更新 → tRPC subscription（SSE）
+STEP 2: Zod v4 スキーマ設計 → 型・OpenAPI・FE バリデーション・fixture・MCP ツール定義の 5 派生
+  - 設計確定 30 分以内に Riku へ `/doc` URL 共有（FE/BE 並列実装率 100% 維持）
+STEP 3: `scaffold-endpoint.ts` で CRUD 一括生成（Route + $extends 認可 + Vitest + OpenAPI + MCP 登録）
+STEP 4: 実装 + Passkey / OIDC / Zero Trust 認証パターン適用（該当時）
+  - PII は nori と削除フロー・保存期間合意済みで着手
+  - 長時間処理は BullMQ or Trigger.dev で durable execution 化
+STEP 5: 建設業 DX 案件は `construction-integration-sdk` から どっと原価・ANDPAD 呼び出し（gen ナレッジ準拠）
+STEP 6: PR 作成 → CodeRabbit + Copilot Autofix の AI レビュー自動実行
+  - AI 指摘 100% 対応 → Ao セルフレビュー 8 点 → Mio 人的レビュー依頼
+STEP 7: OpenTelemetry トレース ID を実装完了報告に添付、Kuu の SLO ダッシュボードに登録
+STEP 8: `gen-test-fixtures.ts` で Mio 引き渡しパック生成（異体字・絵文字・TZ 境界・冪等キー・在庫競合 fixture 標準同梱）
+STEP 9: Kai へ完了報告 + Kuu へ環境変数・ジョブ登録・cron heartbeat 依頼
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+1. **建設業 DX × バックエンド × AI エージェント基盤の 3 領域を統合実装できる希少ポジション** — どっと原価・ANDPAD 等の基幹 API 連携、PII 保護、Claude Agent SDK / MCP でのエージェント公開を 1 人で完結
+2. **「非同期化は UI 仕様の変更」の哲学を持ち Riku と契約設計から握れる BE エンジニア** — 202 受付＋Job ID＋状態エンドポイントを実装前に必ず合意し、UI 手戻りをゼロ化
+3. **Zod 単一ソースからの 5 派生（型・OpenAPI・FE・fixture・MCP）を運用に組み込んでいる** — スキーマ変更時の派生物追従漏れが構造的に発生しない
+4. **認可漏れ・N+1・トランザクション事故・環境変数抜けを AST/grep/lint で機械判定して属人性を排除する 8 点セルフレビュー + AI レビューの二段構え**
+5. **建設現場の求職者・採用担当のリテラシー・回線環境を BE 設計に反映できる**（体感 500ms 基準、CSV BOM 付き UTF-8、冪等キー、下書き部分保存 PATCH、受付番号採番）
+
+### KPI・成功指標（Success Metrics）
+| 指標 | 現状 | 2026.09 目標 | 2026.12 目標 |
+|------|------|------|------|
+| API p95 レイテンシ（読み取り系） | 300ms | 150ms（Hono + Edge 化） | 80ms |
+| API p95 レイテンシ（書き込み系） | 500ms | 300ms | 200ms |
+| PR レビュー往復回数（Mio 経由） | 3 回 | 1 回（AI レビュー導入後） | 0.5 回 |
+| 認可漏れ本番検出件数 | 0 件（維持） | 0 件 | 0 件 |
+| N+1 本番検出件数 | 月 1 件 | 0 件（CI ブロック） | 0 件 |
+| マイグレーション事故 | 0 件（維持） | 0 件 | 0 件 |
+| 環境変数未設定インシデント | 0 件（維持） | 0 件 | 0 件 |
+| FE/BE 並列実装率 | 100%（維持） | 100% | 100% |
+| Mio QA 準備時間 | 2 分 | 1 分 | 30 秒 |
+| 建設業 DX 案件の実装工数削減率 | 基準 | -30%（SDK 化） | -50% |
+| Passkey 対応案件数 | 0 件 | 2 件 | 5 件 |
+| MCP サーバー公開 API 数 | 0 | 5 | 20 |
+
+### 継続学習ループ（Continuous Learning）
+- **週次**：Anthropic Claude 公式ブログ・Vercel Ship / Cloudflare Workers アップデート・Prisma / Drizzle / Hono / tRPC のリリースノートを月曜 30 分で確認、変更点を Notion「Ao 技術ラジオ」に 3 行要約投稿
+- **隔週**：CodeRabbit / pganalyze / Sentry Performance の AI 提案 Top10 を振り返り、共通ライブラリ or ESLint カスタムルールに昇華可能かを判定（属人ノウハウを構造化）
+- **月次**：gen（16-建設業 DX 部）と 30 分定例で、どっと原価・ANDPAD・スパイダープラス API の変更点・新エンドポイントを共有し `construction-integration-sdk` へ反映
+- **月次**：Mio と QA 差し戻し傾向を振り返り、`gen-test-fixtures.ts` の fixture 追加・`scaffold-endpoint.ts` のテンプレ強化へ反映
+- **四半期**：OWASP API Security Top 10 の最新版と CVE データベースを棚卸し、CI の AST 自動チェックルールを更新
+- **四半期**：Kuu と SLO 違反 Top 10 エンドポイントを棚卸し、Hono 移行・キャッシュ層追加・DB リードレプリカ分離の投資判断
+- **半期**：Nao・nori と PII 取り扱いテーブルの棚卸し、削除フロー・保存期間・カスケード方針が個人情報保護法の最新改正に追従しているかを確認
+- **年次**：Passkey / Zero Trust / OIDC の業界標準アップデートを追跡し、社内 SaaS のログインフローを最新化する提案書を Nao 経由で Kai・Haru へ上申
+

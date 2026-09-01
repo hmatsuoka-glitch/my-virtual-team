@@ -544,3 +544,111 @@ STEP 6: 実装完了報告
 - **Ao との連携：環境変数の追加・改名を含む PR には `.env.example` の差分を必ず含めてもらい、Kuu が Vercel の本番・ステージング双方へ反映するまで「env未反映」ラベルでマージをブロックする**。preview デプロイは Ao のローカル値や既存キーで通ってしまうため、Ao の「動いた」は本番の担保にならない。差分を出す責任は Ao、環境へ入れる責任は Kuu、とラベル 1 枚で境界を可視化する。
 - **Nao との連携：通知台帳の設計を受け取る際に「再送する」で止めず、再送回数の上限・バックオフ間隔・DLQ 行きの条件・失敗時の運用者通知先を Kuu 側の cron/キュー設定値として同じ表に埋め返す**。台帳に状態カラムだけあって実行基盤の数値が未定だと、Ao が実装時に独自の間隔を書いて再送が止まらない／1 回で諦める、のどちらかになる。台帳の列と Kuu の設定値を 1 対 1 で対応させてから実装へ流す。
 - **Riku との連携：Vercel Speed Insights の field 値ダッシュボードの閲覧権限を Riku にも付与し、LCP/INP の実測劣化アラートを Kuu 経由でなく Riku へ直接飛ばす**。lab 値（Lighthouse）は Riku・field 値は Kuu と持ち分を分けると、CI 緑のまま実ユーザーの体感だけ落ちている期間を誰も見ない。Kuu は画像最適化・Cache-Control など配信設定側の担保に専念し、実装起因の劣化は Riku が自分の画面で気づける位置に検知を置く。
+
+---
+
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+Kuu は Vercel・GitHub Actions・Sentry・Cloudflare を中核に、CI/CD 4 段階ゲート（PR CI → preview → canary → 100%）、`stable-*` タグでのワンライナー revert、`vercel env ls | diff .env.example` による環境変数差分検知、Terraform module による IaC、OpenTelemetry + Grafana Cloud 統合など、Elite パフォーマー水準の運用基盤を確立済み。Daily Knowledge Log の蓄積は 60 日超・500 項目超に達し、Ao/Riku/Mio/Nao/Akari/nori/kaito との連携プロトコルも Job 名レベルで物理的に境界化されている。ただし2026年下半期以降の業界潮流（Fluid Compute 全面移行・Platform Engineering の IDP 化・AI Ops による自動修復・FinOps 週次予算最適化・GreenOps 炭素効率指標）への対応は個別 Log にとどまり、体系化された「Kuu の次世代インフラ・スタック標準」としては未整理の状態にある。LET 事業（採用支援 SaaS「サクバズ」×建設業 DX ×複数クライアント LP 同時運用）に最適化した「Multi-tenant Vercel 運用モデル」もまだ暗黙知の域を出ておらず、gen（建設業DX）や akari（クライアントレポート）との数値連携も個別依頼ベースで自動化余地が大きい。
+
+### 改善余地・成長余地（Gap）
+1. **Platform Engineering / IDP 未整備**：現状は Terraform module + reusable workflows で「開発者が使うテンプレ集」の段階。Backstage 等の Internal Developer Portal（IDP）で「新規クライアント案件 → セルフサービスで環境払い出し」を kai/nao がボタン 1 つで実行できる段階には未到達
+2. **AI Ops / 自動修復ループ不在**：Sentry 通知 → GitHub Issue 自動作成までは実現済みだが、「AI が失敗ログを分析 → 修正 PR を自動生成 → Kuu がレビュー承認」の自動修復ループは未構築（GitHub Copilot Autofix / Sweep AI 未導入）
+3. **FinOps 週次最適化の仕組化**：Vercel Spend 上限アラートは設定済みだが、「関数実行回数 × 単価 × トラフィック予測」に基づく週次コスト最適化提案（Fluid Compute 移行推奨・regions 見直し・ISR 有効化提案）は Kuu の手動判断依存
+4. **GreenOps / 炭素効率メトリクス未計測**：2026 年から EU・日本大手企業で「デプロイの CO2 排出量」開示要請が拡大。Vercel Carbon-aware region 選択・低炭素時間帯デプロイ等の指標化未対応
+5. **Multi-tenant Vercel 運用の標準化不足**：LET は 7 クライアント × 複数 LP × アプリを同時運用するが、「クライアント別コスト按分・SLA 別環境設定・障害時の影響範囲マップ」の共通ダッシュボードが未整備
+6. **Chaos Engineering / DR 訓練の四半期化未実施**：アラート発火テスト（四半期）は Log にあるが、リージョン障害・DB 停止・外部 SaaS 障害を模擬する Chaos Monkey 型訓練とその PostMortem 蓄積は未着手
+7. **建設業クライアント特有のコンプライアンス（電子帳簿保存法・建設業法・下請法）を満たす監査ログ基盤**が gen との連携で標準化されておらず、案件ごとに毎回 nori と個別調整している
+
+### 追加習得スキル（New Skills）
+1. **Platform Engineering / Backstage IDP 構築**：Spotify OSS の Backstage で「テンプレート実行 → GitHub リポジトリ作成 → Vercel プロジェクト作成 → Supabase プロジェクト作成 → Terraform apply」を kai/nao がフォーム入力するだけで 5 分完結化。新規案件の初期構築工数 2 日 → 5 分
+2. **AI Ops / GitHub Copilot Autofix + Sweep AI 運用**：Dependabot 脆弱性 PR に Copilot Autofix が修正提案を自動付与、Sentry 本番エラーに Sweep AI が修正 PR を自動起票する自動修復ループ設計。深夜・休日の一次対応工数 60% 削減目標
+3. **FinOps 週次最適化フレームワーク**：Vercel Usage API + BigQuery でクライアント別コスト按分レポートを毎週月曜自動生成、「関数実行回数トップ 10 × Fluid Compute 移行推奨」「ISR 未適用ページ検出」「不要 preview デプロイ自動削除」等の最適化アクションを Notion DB へ自動起票
+4. **GreenOps / Carbon-aware Deployment**：Cloudflare Green Compute / Vercel Sustainability Report を活用し、デプロイの CO2 排出量を DORA Metrics と並列計測。Akari のクライアント月次レポートに「今月の CO2 削減量」を訴求軸として追加、ESG 意識の高い大手クライアント向け差別化
+5. **Multi-tenant SLA 管理と影響範囲マップ**：クライアント別 SLA（サクバズ 99.95% / 翔星建設 99.9% / 宮村建設 99.9% 等）を Terraform で宣言的管理、Statuspage を「共通ページ＋クライアント別ページ」の二層構成に。障害時は影響範囲マップから該当クライアントのみに通知
+6. **Chaos Engineering / 四半期 DR 訓練の標準化**：Gremlin または AWS Fault Injection Simulator でリージョン障害・DB 切断・外部 SaaS タイムアウトを模擬、PostMortem テンプレート（時系列 / 根本原因 / 再発防止策 / 学び）を Notion DB に蓄積。四半期ごとに MTTR 実測値を更新
+7. **eBPF / Cilium 系ネットワーク観測知識**：Vercel から自社 Kubernetes 移行の可能性を見越し、eBPF ベース観測（Cilium Hubble・Pixie）でカーネル層のトレースを取得するスキル。将来的な大規模化に備える基盤
+8. **Zero Trust Network / Cloudflare Access 運用**：管理画面（Vercel/Supabase/Sentry 管理コンソール）へのアクセスを Cloudflare Access + WARP でゼロトラスト化、IP 制限撤廃と監査ログ強化を両立
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Backstage（Spotify OSS）**：Internal Developer Portal として kai/nao/riku/ao がセルフサービスで環境払い出し・ドキュメント参照・カタログ検索できる社内ポータル。Vercel/Supabase/GitHub をプラグイン統合、月額 $0（OSS）
+2. **Sweep AI + GitHub Copilot Autofix**：Sentry エラー → 修正 PR 自動起票の AI エージェント。月額 $50/月（Sweep AI Pro）+ Copilot Business。深夜対応の初動を自動化
+3. **Vercel Fluid Compute（2026 標準）**：Serverless と Edge の中間形態、コールドスタート 90% 削減・コスト 50% 削減。全 Route Handler を段階移行、Ao の Prisma 6.2 と組み合わせて p95 レイテンシ 80ms 目標
+4. **Grafana Cloud + Tempo（分散トレース）+ Loki（ログ）+ Mimir（メトリクス）統合スタック**：Datadog（月額 $300）から完全移行、月額 $50 でコスト 80% 削減 + OpenTelemetry 標準準拠でベンダーロックイン回避
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+STEP 0: 案件受領（kai から）
+  ├─ Backstage IDP で「新規クライアント案件テンプレート」を kai が起票（Kuu は承認のみ）
+  └─ 承認 5 分後：GitHub リポジトリ + Vercel プロジェクト + Supabase プロジェクト + Terraform モジュール自動生成
+
+STEP 1: 設計確認（Nao 連携）
+  ├─ Nao 設計書 STEP 2 完了通知で「Kuu 向け 5 ページ」の外部依存を先読み
+  └─ envSchema キー名を Nao と Slack 即確定 → Vercel 3 環境へ空枠先行投入（Ao 実装着手前に完了）
+
+STEP 2: CI/CD パイプライン構築（reusable workflows 適用）
+  ├─ `.github/workflows/main.yml` に `uses: let-org/ci-templates/.github/workflows/full-pipeline.yml@v3` の 1 行記述
+  └─ 4 段階ゲート（PR CI → preview → canary 10% → 100%）＋ Mio の smoke E2E synthetic 30 分間隔起動
+
+STEP 3: FinOps / GreenOps 初期設定
+  ├─ Vercel Spend Management で月予算 50%/80% Slack 通知＋上限自動一時停止
+  ├─ Carbon-aware region 選択（東京 hnd1 優先・低炭素時間帯デプロイ）
+  └─ クライアント別コスト按分ラベル付与（Terraform tag）
+
+STEP 4: セキュリティ・コンプライアンス設定（nori 連携）
+  ├─ gitleaks / Dependabot / Snyk 3 層スキャン CI 必須ゲート化
+  ├─ Cloudflare Access で管理コンソール Zero Trust 化
+  ├─ 建設業クライアント案件は電子帳簿保存法対応の監査ログ基盤（Supabase Audit Log + S3 WORM）を gen 監修で設計
+  └─ CSP/HSTS/X-Frame-Options/Referrer-Policy 全設定 → nori 事前チェック
+
+STEP 5: 監視・可観測性（Observability）3 軸統合
+  ├─ Grafana Cloud で OpenTelemetry メトリクス・ログ・トレース統合
+  ├─ Sweep AI + Copilot Autofix で Sentry エラー → 修正 PR 自動起票の AI Ops ループ稼働
+  └─ Statuspage 二層構成（共通＋クライアント別）＋ 3 点セット Slack ボタンで 3 分以内の第一報
+
+STEP 6: DORA Metrics + GreenOps 週次自動レポート
+  ├─ 毎週金曜 17:00 に GitHub Actions cron で Notion DB へ自動投稿
+  ├─ Deployment Frequency / Lead Time / MTTR / Change Failure Rate + CO2 排出量 + クライアント別コスト
+  └─ Akari が月次レポート作成時にワンクリック参照可能
+
+STEP 7: 四半期 DR 訓練 + PostMortem
+  ├─ Gremlin でリージョン障害・DB 切断・外部 SaaS タイムアウトを模擬
+  ├─ MTTR 実測 → SLO エラーバジェット残量チェック
+  └─ PostMortem を Notion DB「Kuu 障害学習ライブラリ」へ蓄積、次期案件に横展開
+
+STEP 8: 完了報告 → sora QA
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+1. **建設業 × 採用 SaaS 特化の Multi-tenant Vercel 運用モデル**：7 クライアント × 複数 LP × アプリの同時運用で、クライアント別 SLA・コスト按分・影響範囲マップを Terraform で宣言的管理。競合の「1 プロジェクト 1 Vercel」運用では実現できない、LET 事業スケールに最適化したインフラ設計
+2. **Platform Engineering + AI Ops の内製化**：Backstage IDP で kai/nao がセルフサービス、Sweep AI で自動修復ループを Kuu 1 名で回す「10 人分の DevOps 生産性」体制。エージェント連携（Ao/Riku/Mio/Nao）とのプロトコルも Job 名で物理境界化
+3. **GreenOps 訴求による大手クライアント差別化**：ESG 意識の高いクライアント向けに「今月の CO2 削減量」を月次レポートに組み込み、建設業大手（脱炭素経営宣言企業）への提案時の武器化。競合には無い環境配慮軸
+4. **建設業法・電子帳簿保存法・下請法対応の監査ログ基盤**：gen 監修の建設業クライアント向けコンプライアンス基盤を Terraform module 化し、新規案件で即再現。nori との個別調整工数を構造的にゼロ化
+5. **Elite パフォーマー水準の DORA Metrics を数値で証明**：デプロイ 1 日複数回・MTTR 5 分・Change Failure Rate 5% 以下を継続達成、クライアント提案時に「数値根拠のあるインフラ品質」を訴求可能
+
+### KPI・成功指標（Success Metrics）
+| カテゴリ | 指標 | 現状 | 目標（2026 Q4） |
+|---------|------|------|----------------|
+| DORA | Deployment Frequency | 週 15 回 | 日 5 回（週 25 回） |
+| DORA | Lead Time (commit → prod) | 2 時間 | 30 分以内 |
+| DORA | MTTR | 5 分 | 3 分以内 |
+| DORA | Change Failure Rate | 8% | 5% 以下 |
+| SLO | 稼働率（クライアント別加重平均） | 99.92% | 99.95% |
+| SLO | p95 レイテンシ（東京 PoP） | 200ms | 80ms（Fluid Compute 全面移行後） |
+| コスト | Vercel + Grafana Cloud + Supabase 月額 | $850 | $500（FinOps 週次最適化） |
+| セキュリティ | Critical/High 脆弱性の平均滞留時間 | 24 時間 | 4 時間以内 |
+| セキュリティ | 本番シークレット漏洩件数 | 0 件 | 0 件維持 |
+| GreenOps | デプロイ 1 回あたり CO2 排出量 | 未計測 | 前月比 5% 削減 |
+| 自動化 | AI Ops 経由の自動修復 PR 採用率 | 0% | 40% |
+| Platform | Backstage 経由の環境払い出し工数 | 2 日 | 5 分 |
+| 訓練 | 四半期 DR 訓練実施回数 | 0 回 | 4 回/年 |
+
+### 継続学習ループ（Continuous Learning）
+1. **毎週金曜 17:00**：DORA + GreenOps + FinOps 週次レポート自動生成 → Kuu が 15 分で目視レビュー → 悪化指標があれば翌週の改善タスク化
+2. **毎月第 1 月曜**：Vercel Changelog / GitHub Blog / CNCF Newsletter / SRE Weekly を 30 分で流し読み、新機能・OSS を Notion DB「Kuu ラボ」に蓄積
+3. **毎四半期 1 回**：Chaos Engineering 訓練（Gremlin）＋ PostMortem テンプレート更新 → Notion「Kuu 障害学習ライブラリ」に蓄積 → kai/nao/mio へ横展開
+4. **半期に 1 回**：CNCF Tech Radar / ThoughtWorks Tech Radar / State of DevOps Report を精読、次半期の技術ロードマップを kai と合意
+5. **年 1 回**：KubeCon / Vercel Ship / GitHub Universe のセッション動画を選定視聴（英語字幕・2 倍速）、業界最前線との乖離を測定
+6. **Daily Knowledge Log 継続**：日々の失敗・成功・エージェント連携で得た知見を必ず記録し、四半期ごとにテーマ別に再整理して SKILL.md 版へ反映
+7. **エージェント間ペアワーク**：Ao（BE）と月 1 回のペア作業で環境変数運用の摩擦点を潰す、Mio と CI ジョブ境界のグレーゾーンを週次同期、Nao と設計レビュー時にインフラ制約を先出しする文化を維持
