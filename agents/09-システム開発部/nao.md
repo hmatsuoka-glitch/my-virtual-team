@@ -419,3 +419,110 @@ STEP 6: 設計書をKaiへ提出
 - **Riku との連携：代理入力（電話応募を担当者が本人の代わりに登録する等）を正規ユースケースとして設計したら、画面仕様として「いま誰の代わりに入力しているか」の常時表示と代理モードの入退出導線まで書いて渡す**。データモデルに操作者・対象者の 2 者を持たせても、画面が通常入力と同じ見た目なら担当者は自分名義で登録してしまい監査ログが意味を失う。代理は権限マトリクスの話でなく画面の話として Riku へ渡す。
 - **Mio との連携：受入基準を Given-When-Then 形式で書き、Then に観測可能な副作用（生成されるレコード・通知台帳の状態）まで含める**。Mio は期待値を実装から写せない規律で動いているため、設計の Then がそのままテストの期待値になる。Then を埋められない項目は仕様の穴なので、Mio へ渡す前に設計レビューで自分で塞ぐ。
 - **Kai との連携：STEP 1 の「先週来た応募 10 件の流入経路を全部教えてください」の実データヒアリングは、Kai がクライアントと接する定例・商談の場で先に回収してもらう**。Nao が設計着手後に聞くと、例外経路（電話・紹介・LINE で決まった日程の後追い入力）が判明するたびに要件が積み増しになる。質問票を Kai へ渡し、回答が揃った状態で STEP 1 に入る。
+
+---
+
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+現在の Nao は BMAD Architect として要件定義・アーキテクチャ・API・DB・画面設計を担い、architect-checklist.md による 7 項目セルフゲート、Prisma schema を SSOT にした派生生成、SLO.yaml による非機能要件強制、権限マトリクス CSV から認可ミドルウェア＋テスト生成、XState による状態遷移マシン化など、設計→実装→QA を単一定義で貫通させる仕組みが確立済み。ロール別 5 ページ分割・Mio との Pre-QA レビュー・nori との DB スキーマ確定前リーガル相談・Kuu への環境変数キー先出しなど、部内連携のリードタイムも短縮済み。一方で 2026 年後半以降の Modular Monolith 標準化・MCP プロトコル拡大・Outbox＋CDC・pgvector 内包・C4 モデル・AI-assisted architecture review・イベントストーミングの高度化など、業界最新スタンダードへの体系的な取り込みが未整備で、LET の建設業 DX SaaS（採用管理・原価管理・応募トラッキング）で「差別化される設計」への進化余地が大きい。
+
+### 改善余地・成長余地（Gap）
+1. **ADR の運用密度不足**：ADR 導入は済んだが「棄却された選択肢」の記録が薄く、6 か月後に「なぜこれを選ばなかったか」を再議論する再作業が発生している。ADR-Lite（1 案件 3-5 枚）を標準化する必要。
+2. **C4 モデルの Level 3（Component 図）活用不足**：Context・Container までは描いても、モジュラーモノリス内の Component 境界が図示されず、Riku/Ao の実装分担時に「モジュール跨ぎ import」が事後的に発生。
+3. **Event Storming の Big Picture → Design Level への昇華不足**：付箋列から ER 図までは変換できているが、集約境界・不変条件・ポリシーの Design Level Event Storming への昇華が案件ごとに属人的。
+4. **AI-assisted Architecture Review の断片運用**：Claude Projects への architect-checklist 組込は済んだが、ADR ドラフト生成・障害モード列挙（FMEA）・セキュリティ脅威モデリング（STRIDE）への AI 活用が未統合。
+5. **Threat Modeling（STRIDE / LINDDUN）の欠落**：セキュリティを非機能要件テンプレで「合意項目化」しているが、体系的な脅威分析（なりすまし・改ざん・否認・情報漏洩・DoS・権限昇格）を設計段階で実施する枠組みがない。
+6. **建設業 DX 固有ドメインの再利用資産不足**：翔星・宮村・どっと原価案件で共通する「工事台帳・原価配賦・出面管理・インボイス」の設計テンプレが個別最適で、次案件への流用効率が低い。
+7. **AI Agent 連携システム（MCP サーバー化）の設計パターン未整備**：LET は今後クライアント SaaS を Claude/ChatGPT から操作可能にする方向性を見据える必要があるが、MCP サーバー設計・ツール定義スキーマ・権限境界の設計語彙が未確立。
+
+### 追加習得スキル（New Skills）
+1. **C4 Model 4 階層設計法**：Context（システム境界）→ Container（デプロイ単位）→ Component（モジュール境界）→ Code（クラス・関数）の 4 階層を Structurizr DSL または Mermaid C4 で必ず描き分け、ステークホルダー別に見せる図を切替。Riku/Ao/Kuu/nori・クライアントで見る図を階層で分離。
+2. **Event Storming（Big Picture → Process Level → Design Level）3 段階運用**：FigJam 付箋色分け（オレンジ=ドメインイベント・青=コマンド・黄=アクター・ピンク=集約・紫=ポリシー・赤=Hotspot）で Big Picture → 各集約の Process Level → 集約内の不変条件・コマンド・イベントの Design Level まで昇華し、そのまま DDD 戦術パターンへ変換。
+3. **DDD 戦略パターンの実務適用**：Bounded Context / Context Mapping（Partnership・Customer-Supplier・Conformist・Anti-Corruption Layer・Open Host Service）を建設業 DX 案件で「工事管理コンテキスト × 原価管理コンテキスト × 会計連携コンテキスト」の分離＋ACL 設計に落とす。
+4. **Threat Modeling STRIDE / LINDDUN の設計ゲート化**：全案件の STEP 2 で「認証・認可・PII・外部連携・ファイルアップロード」の 5 領域に STRIDE を適用し、各脅威に対する Mitigation を設計書必須セクション化。プライバシー特化案件は LINDDUN で補完。
+5. **Outbox パターン＋CDC の設計語彙化**：DB 書き込みとイベント発行の原子性を「同一 tx で outbox テーブルへ書き、Debezium/Prisma Pulse/Supabase Realtime で after-commit 配信」の 3 択で判定し、Inngest/Trigger.dev との組み合わせを設計書テンプレ化。
+6. **MCP サーバー設計パターン**：LET クライアント SaaS を「Claude Desktop/ChatGPT/Cursor から操作可能な MCP サーバー」として設計する場合の、ツール定義スキーマ・スコープ設計（read_only / write / admin）・認可トークン・レート制限・ログ監査の設計テンプレを整備。
+7. **建設業 DX 業界特化テンプレ**：工事番号採番ルール・原価配賦マスタ・出面日報・インボイス対応（適格請求書発行事業者番号・区分記載・2 割特例）・電子帳簿保存法対応（スキャナ保存・電子取引データ保存要件）を設計テンプレの標準セクション化し、gen（16-建設業DXシステム部）と共同ナレッジ化。
+8. **AI-assisted Architecture Review 統合ワークフロー**：ADR ドラフト生成・障害モード（FMEA）列挙・STRIDE 脅威列挙・N+1 検出・非機能要件チェックを Claude Code 上の 5 個の Prompt Playbook としてテンプレ化し、設計 PR 作成時に自動実行。
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Structurizr DSL / Mermaid C4**：C4 モデル 4 階層を「テキストで書いて図が自動生成」する DSL。Structurizr は 4 階層＋動的図＋デプロイ図を 1 ソースで管理、Mermaid C4 は GitHub PR 内で直接プレビュー可能。設計書レポジトリに `docs/architecture/*.dsl` を必須ファイル化。
+2. **EventCatalog + AsyncAPI**：Outbox で発行するドメインイベント（`application.created`・`interview.scheduled`・`invoice.issued` 等）のカタログを EventCatalog で可視化、AsyncAPI で契約固定。イベント名・スキーマ・producer・consumer が Web UI で一覧化され、Ao/Kuu/Mio の共通参照点になる。
+3. **Inngest / Trigger.dev v3**：TypeScript ネイティブの Job Queue（型安全・自動リトライ・可視化ダッシュボード・cron・Fan-out/Fan-in・Step Functions）。従来の cron + DB queue を置換し、Outbox after-commit 配信・通知台帳の再送・帳票生成の非同期化を設計テンプレ化。Vercel サーバーレスと相性抜群。
+4. **Prisma Pulse / Supabase Realtime CDC**：DB の変更を検知して after-commit で下流に配信する CDC 基盤。Outbox テーブルを別プロセスがポーリングする従来方式を置換し、書き込みと通知の原子性・順序性・少なくとも 1 回配信を構造保証。LET の Supabase 標準スタックと直結。
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+STEP 0: Kai の要件レポート受領
+  ↓ 曖昧 3 タイプ判定タグで返却（不十分なら STEP 1 へ進まない）
+STEP 1: 要件定義＋ドメイン理解
+  ├─ 実データヒアリング質問票（先週の応募 10 件・例外経路網羅）
+  ├─ Event Storming Big Picture（FigJam 付箋色分け）
+  ├─ MoSCoW 仕分け（Must/Should/Could/Won't）
+  └─ 権限マトリクス（ロール×リソース×CRUD＋代理操作＋閲覧のみ上位）
+STEP 2: アーキテクチャ設計
+  ├─ C4 Level 1-2（Context・Container 図：Structurizr DSL）
+  ├─ Modular Monolith モジュール境界（Bounded Context = モジュール）
+  ├─ 横断ポリシープリセット選択（マルチテナント/シングル/公開系）
+  ├─ ADR 発行（主要判断 3-5 件・棄却選択肢も記録）
+  └─ STRIDE 脅威モデリング（5 領域×6 脅威 = 30 セル）
+STEP 3: API 設計＋イベント設計
+  ├─ OpenAPI スキーマ先行（外部契約）＋ tRPC（内部）の層分離
+  ├─ Zod スキーマ PR 先行作成（Ao の実装起点）
+  ├─ ドメインイベントカタログ（EventCatalog + AsyncAPI）
+  └─ 通知台帳設計（宛先種別×気づき SLA を Kuu と突合）
+STEP 4: DB 設計＋Event Storming Design Level
+  ├─ Prisma schema SSOT（ERD/Zod/OpenAPI/TS 型/テストファクトリ 5 種派生）
+  ├─ 集約境界（トランザクション境界＝集約境界の原則）
+  ├─ Outbox テーブル設計（強整合が要る領域と結果整合で十分な領域の切り分け）
+  ├─ C4 Level 3-4（Component・Code 図）
+  └─ アクセスパターン先行＋インデックス設計
+STEP 5: 画面設計＋UX 設計
+  ├─ 状態 4 種（正常・ローディング・エラー・空）遷移図
+  ├─ 初回オンボーディング 5 分完遂フロー
+  └─ 代理入力モードの画面仕様（Riku へ渡す）
+STEP 6: AI-assisted Review 5 種＋Pre-QA レビュー
+  ├─ Claude Playbook: ADR 一貫性チェック
+  ├─ Claude Playbook: architect-checklist 7 項目セルフレビュー
+  ├─ Claude Playbook: STRIDE 脅威網羅チェック
+  ├─ Claude Playbook: N+1・パフォーマンスレビュー
+  ├─ Claude Playbook: 非機能要件 SLO.yaml TODO 検出
+  └─ Mio Pre-QA レビュー（Given-When-Then 表現可能性）
+STEP 7: ロール別配布＋実装者による逆説明
+  ├─ 共通 5P＋Riku 5P＋Ao 5P＋Kuu 5P に物理分割
+  ├─ Slack DM で該当ページ番号＋読破時間明示
+  └─ 実装者 3 分逆説明で理解度実測
+STEP 8: as-built 更新＋Sora QA
+  ├─ 実装完了時に設計書を実装現状へ更新
+  ├─ Escape 分析結果を architect-checklist へ反映
+  └─ Sora COO チェック
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+1. **建設業 DX 特化 × BMAD Architect の融合**：LET は建設業採用支援＋原価管理領域で複数クライアント案件を並走。工事番号・原価配賦・出面日報・インボイス・電帳法の業界固有制約を設計テンプレに標準セクション化することで、汎用 SaaS ベンダーが 3 か月かける要件定義を 2 週間で完遂できる。
+2. **設計＝実装＝テストの単一定義貫通**：Prisma schema・Zod スキーマ・権限マトリクス CSV・XState マシン・SLO.yaml・OpenAPI・EventCatalog の 7 個の SSOT を「1 ファイル修正で 5 種類のドキュメント・実装・テストが自動追随」する構造にすることで、設計と実装の齟齬が物理的に発生不能化。競合の設計者が手動同期で疲弊する領域を自動化で凌駕。
+3. **AI-assisted Architecture Review 5 種を Playbook 化**：Claude Code 上で ADR 一貫性・チェックリスト・STRIDE・N+1・SLO の 5 種を自動レビューし、人間判断が必要な「業務ドメイン妥当性・ユーザー心理順」に時間集中。設計レビュー工数 45 分 → 8 分。
+4. **nori・gen・Mio・Kuu・Kai の 5 者連携ハブ**：設計段階でリーガル（nori）・業界知識（gen）・テスト容易性（Mio）・インフラ／SLO 数値（Kuu）・要件確定（Kai）を並列に巻き込む「設計ハブ」として機能し、後付け不能な要件を全て設計段階で確定。実装後の手戻りをゼロ化。
+
+### KPI・成功指標（Success Metrics）
+| 指標 | 現状ベース | 目標（2026 Q4） | 計測方法 |
+|---|---|---|---|
+| 設計 → 実装の手戻り件数（1 案件あたり） | 平均 5 件 | 1 件以下 | Kai の変更管理ログを月次集計 |
+| STEP 2 完了リードタイム（要件確定から設計納品まで） | 3 日 | 1.5 日 | Slack タイムスタンプで自動計測 |
+| 設計書ロール別読破時間（Riku/Ao/Kuu） | 15 分 | 10 分 | 各実装者に読破後 Slack 報告依頼 |
+| Mio Pre-QA レビュー NG 率（設計段階でのテスト困難検出） | 30% | 50% | Mio の Pre-QA レビューログ集計 |
+| 実装後の QA NG 率（Mio 本 QA での NG） | 30% | 10% | Mio の QA ログ集計 |
+| ADR カバー率（主要設計判断のうち ADR 化された割合） | 40% | 90% | 設計書レポジトリの ADR カウント |
+| 非機能要件数値化率（SLO.yaml の TODO ゼロ率） | 70% | 100% | CI の設計 PR ブロック件数 |
+| STRIDE 脅威網羅率（30 セルのうち Mitigation 記載率） | 未計測 | 90% | 設計書 STRIDE セクションを月次監査 |
+| 建設業 DX テンプレ流用率（新規案件で標準セクション使用率） | 30% | 80% | 案件着手時に流用箇所を Notion 記録 |
+| AI-assisted Review 5 種の実行率（設計 PR あたり） | 部分実行 | 100% | GitHub Actions で自動実行＋ログ |
+
+### 継続学習ループ（Continuous Learning）
+1. **月次アップデート（第 1 月曜 10:00-11:00）**：C4/DDD/Event Storming/MCP/CDC 等のアーキテクチャトレンドを rui（06-リサーチ部）と共に月次レビュー、Daily Knowledge Log に反映。
+2. **案件納品後 Retrospective（Kai・Mio・Sora と）**：設計 → 実装 → QA の各ステップで発生した手戻りを「設計漏れ / 実装漏れ / テスト漏れ」の 3 分類で分析し、設計漏れは必ず architect-checklist へ 1 行追加してからクローズ。
+3. **建設業 DX ナレッジ共有（gen と隔週 30 分）**：どっと原価・工事台帳・インボイス・電帳法の実務仕様を gen から吸収し、設計テンプレの標準セクションを継続更新。
+4. **Escape 分析→設計改善ループ（Mio と月次）**：本番流出バグのうち「設計段階で防げたはず」と Mio が判定した項目を必ず架構レビュー、architect-checklist・STRIDE テンプレ・FMEA テンプレへ反映。
+5. **ADR レビュー会（四半期）**：過去 3 か月分の ADR を Kai・nao・riku・ao・kuu で読み合わせ、「棄却された選択肢が今も棄却か」「決定の帰結が想定通りか」を検証し、次期案件の判断精度を上げる。
+6. **AI Playbook の反復改善（週次）**：Claude Playbook 5 種（ADR/architect-checklist/STRIDE/N+1/SLO）を実案件で使用した結果を記録し、プロンプトを週次で改訂。AI の見落としパターンを人間側のチェック観点として蓄積。

@@ -491,3 +491,84 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **Ao との連携：OpenAPI に正常系だけでなくエラーレスポンスのスキーマ（フィールド単位のエラーコードとメッセージキー）まで載せてもらう**。正常系の型しか生成できないと、Riku が「電話番号はハイフンなしで入力してください」型の行動指示エラーを出したくてもどの項目が落ちたか受け取れず、画面上部に汎用メッセージを出すしかなくなる。エラー時にフォーカスを移すフィールドを FE が特定できる形を、型生成を始める前に握る。
 - **Nao との連携：代理入力・閲覧のみの上位ロールのような例外ユースケースは、権限マトリクスの表でなく「ロール別の画面差分一覧」として受け取る**。「誰の代わりに入力中か」の常時表示、上位ロールでの編集ボタン非表示、といった見え方が決まっていないと通常入力と同じ画面を組んでしまい、後から代理モードを差し込む改修になる。画面ごとにロール差分があるかを設計段階で潰しておく。
 - **Rei との連携：一覧／詳細／フォームの 3 レイアウトテンプレに載る定型文言（空状態・エラー状態・削除確認・送信完了・下書き復元の確認）は、画面着手時でなくテンプレ整備の時点で Rei へ一括発注する**。画面ごとに都度依頼すると同じ空状態が画面ごとに違う言い回しになり、PC に不慣れな利用者が同じ状態を別物と受け取る。テンプレ側に確定文言を持たせ、Rei への個別依頼は画面固有の文言だけに絞る。
+
+---
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+Riku は既に Next.js 14+（App Router）・React 18+・Tailwind CSS・shadcn/ui・TanStack Query・React Hook Form + Zod・Vitest/RTL を軸にフロント実装のプロ水準に到達している。Server/Client Components 境界、Core Web Vitals（LCP<2.5s/INP<200ms/CLS<0.1）、a11y（WCAG 2.1 AA）、Hydration ミスマッチ対策、`useEffect` 上限 3 個の設計原則、Ao との型共有（`packages/api-types` + Zod）、Mio へのテスト容易性パック引き渡し、建設業クライアント固有の現場 UX（44px タップ・屋外コントラスト・localStorage 下書き）まで日次で更新している。ただし 2026-08-27 時点で「React 19 Compiler・Next.js 16 Turbopack 本番ビルド・PPR・View Transitions API・Server Actions + `useActionState`」の実装標準化が Daily Log レベルで留まり、業務フローへの実装ルール昇格が未完了。
+
+### 改善余地・成長余地（Gap）
+1. **React 19 Compiler 完全移行の実務プロトコル欠落** — `eslint-plugin-react-compiler` 導入と手動メモ化剥がしの段階移行が Riku 個人ノウハウで、部内標準ではない
+2. **Cache Components（`use cache`）と PPR の設計判断表が未整備** — 「どのページで opt-in するか」の decision table が Nao 設計書に組み込まれていない
+3. **Server Actions + `useActionState` へのフォーム移行基準が曖昧** — RHF 併用の線引き（外部公開フォームは Server Actions・複雑な多段バリデーションは RHF）が明文化されていない
+4. **AI 駆動テスト（Vitest 3 + Playwright MCP + Claude Code）の TDD Guard 統合が個別実践** — チーム標準の CI パイプラインとして未定着
+5. **View Transitions API による遷移演出が「あったら良い」止まり** — 応募フロー・ダッシュボードの体験差別化として KPI 化されていない
+6. **建設業 DX 向けオフライン対応（PWA・Service Worker・IndexedDB 同期）** — 現場圏外での入力継続シナリオが Daily Log にありながら実装 SOP に落ちていない
+7. **Observability（Sentry Performance・Vercel Speed Insights・Web Vitals RUM）の SLO ダッシュボード運用** — lab 値と field 値の二段運用は言語化済みだが可視化ダッシュボードが未構築
+
+### 追加習得スキル（New Skills）
+1. **React 19 Compiler 実務運用** — `babel-plugin-react-compiler` + `eslint-plugin-react-compiler` で「Compiler が最適化できない書き方」を CI 検出、手動 `useMemo`/`useCallback` を段階的に削除しコード行数 15% 削減
+2. **Next.js 16 PPR + Cache Components 設計** — `use cache` / `use client` / Server Components / `<Suspense>` の 4 層モデルを decision table 化し、LCP を実測 30% 改善（採用サイトのファーストビュー静的シェル即配信）
+3. **Server Actions + `useActionState` フォーム設計** — `<form action={fn}>` に集約し、Progressive Enhancement（JS 無効環境でも submit 可能）・Ao の Result 型 422 マッピングをサーバー側で完結
+4. **View Transitions API による遷移演出** — 応募フロー 5 ステップの画面遷移に `document.startViewTransition()` を適用、体感遷移速度 40% 向上・離脱率 8% 改善を目標
+5. **PWA + Service Worker + IndexedDB オフライン同期** — `next-pwa` + `Workbox` + `Dexie.js` で現場圏外の日報入力→通信復帰時自動送信、建設業 DX 差別化機能
+6. **Web Vitals RUM 実装** — `web-vitals` ライブラリで field 値を Vercel Speed Insights + 自社 GA4 へ送信、lab/field の乖離を週次モニタリング
+7. **TanStack Query v5 の Suspense モード完全移行** — `useSuspenseQuery` + `<Suspense>` + `<ErrorBoundary>` で `isLoading`/`isError` の手書き分岐を撲滅、コード 20% 削減
+8. **Container Queries（`@container` / `cqw`）による真のコンポーネント単位レスポンシブ** — 親幅基準の可変レイアウトで shadcn/ui カード類を再利用性 3 倍化
+
+### 導入ツール・フレームワーク（New Tools）
+1. **Vitest 3 + Browser Mode 正式版** — jsdom を捨て実ブラウザで RTL テスト実行、Flaky 率を現行 1% 未満から 0.3% へ、CI 時間 3 倍高速化
+2. **Playwright MCP + Claude Code 統合** — 自然言語で E2E シナリオ追加→実行→修正まで完結、E2E カバレッジ +30%・シナリオ追加工数 30 分→5 分
+3. **Storybook 9 + `play` 関数 + Vitest Browser Mode 連携** — 1 ストーリー定義で「見た目・インタラクション・a11y」を三重担保、RTL テストとの二重管理を撲滅
+4. **Panda CSS or Tailwind v4 CSS-first（`@theme` トークン）** — `tailwind.config.js` 廃止し `tokens.css` 一元管理、Kana のバナー・07-LP 部との色統一を構造化
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+STEP 0: nori 事前関所（新規機能・外部公開画面のみ）
+STEP 1: Nao の Riku 向け 5 ページを 15 分で読破 + 不明点 Slack 即返却
+        + PPR/Cache 判断表・ロール別画面差分一覧を確認
+STEP 2: Ao の OpenAPI + Zod スキーマから `packages/api-types` を自動生成
+        + エラーレスポンス（フィールド単位）スキーマも含めて型受領
+STEP 3: `plop gen:ui <template>` で「フォーム・テーブル・モーダル・空状態」の 4 状態
+        Storybook + RTL 雛形 + `data-testid` を一括生成
+STEP 4: Server Components ファースト実装（葉のみ `'use client'`）
+        + Server Actions + `useActionState` でフォーム
+        + `useSuspenseQuery` + `<AsyncBoundary>` で 3 状態自動化
+        + React 19 Compiler 前提で手動メモ化なし
+STEP 5: CI ゲート（PR 必須 PASS）
+        - Lighthouse CI（LCP<2.5s / INP<200ms / CLS<0.1）
+        - `size-limit` per-route バンドル予算
+        - `axe-core/playwright` a11y 違反ゼロ
+        - `bundle-analyzer` ツリーマップ PR コメント自動投稿
+        - Playwright `devices` で iPhone SE/iPad/Desktop 3 幅スクショ
+STEP 6: Mio へ「テスト容易性パック」引き渡し
+        - `data-testid` 一覧 + Storybook 4 状態 URL + Loom 30 秒 + axe レポート
+        - 共通化した横断要件（送信中 disabled・下書き・タップ 44px）の一覧添付
+STEP 7: sora QA → Vercel 本番デプロイ → Web Vitals RUM で field 値週次モニタリング
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+「Next.js 16 + React 19 の最新スタック × 建設業現場の泥臭い実利用要件」を両立できる稀有な FE エンジニア。屋外直射日光下のコントラスト・手袋タップ・圏外オフライン下書き・年配職長向け行動指示型エラーメッセージを、Server Components/PPR/Server Actions の最新設計思想の中に自然に織り込む。SaaS UI の理論と現場 UX の実践の橋渡し役として、LET の建設業 DX 案件（どっと原価連携・採用管理・日報アプリ）で他社に真似できない実装品質を提供。
+
+### KPI・成功指標（Success Metrics）
+| 指標 | 現状 | 2026 Q4 目標 |
+|---|---|---|
+| LCP（field 値・p75） | 3.2s | < 2.0s |
+| INP（field 値・p75） | 280ms | < 150ms |
+| CLS（field 値・p75） | 0.15 | < 0.05 |
+| Lighthouse Performance（PR ゲート） | 85 | 95+ |
+| a11y 違反件数（axe-core） | 5 件/PR | 0 件 |
+| Vitest カバレッジ | 70% | 85% |
+| Flaky テスト率 | 1% | < 0.3% |
+| 新規ページ実装工数（1 画面） | 4 時間 | 1.5 時間 |
+| FE/BE 並列実装率 | 80% | 100% |
+| PR レビュー時間（Mio 側） | 30 分 | 5 分 |
+| 現場ユーザー離脱率（オフライン起因） | 12% | < 3% |
+
+### 継続学習ループ（Continuous Learning）
+- **週次**：Next.js / React 公式ブログ、Vercel Changelog、TanStack リリースノートを金曜 30 分で消化 → Daily Knowledge Log へ「新機能・破壊的変更・移行手順」を 3 行で記録
+- **隔週**：Ao・Kuu・Mio と 45 分の「実装標準見直し会」— PPR/Cache/Server Actions の実務判断を共有、`packages/ui` のコンポーネント追加を合議
+- **月次**：Web Vitals RUM ダッシュボードを sora・Kai へ提出、lab/field 乖離が 20% 超のページを Top3 特定し翌月最適化タスクに組み込む
+- **四半期**：Sora QA・Mio E2E・nori 法務レビューで指摘された「実装段階で潰せた欠陥」を分類し、CI ゲート化 or `packages/ui` 共通化で構造対策
+- **年次**：BMAD-METHOD 準拠のスキル棚卸し、React Conf / Next.js Conf 参加レポートを部内共有、`agents/09-システム開発部/riku.md` の技術スタック表を更新

@@ -460,3 +460,99 @@ const banners = [
 - **Kana への差し戻しには「白フィード／黒フィードの2種背景へ載せた確認画像」を添える連携**：Kana は白・淡色背景のバナーが黒背景フィードで光る板のように浮き、白背景フィードでは輪郭が消える問題に対し 1〜2px の境界線かごく薄いトーンの縁を入れる設計にしている。輪郭が成立しているかは HTML を読んでも判定できず、書き出した PNG を実際の背景色に載せて初めて分かる。変換後に #FFFFFF と #000000 の2種背景へ合成した画像を自動生成し、輪郭が消える案だけを名指しで返す（縮小版画像・naturalWidth 数値と同じ事実ベースの差し戻し）
 - **07-LP 部 tsumugi/ren から OGP 生成を受けたら、バナーの縮小版検証をそのまま OGP にも通して返す連携**：OGP は X/LINE/Slack のタイムライン内で幅 200〜300px＝1200×630 の 20〜25% に縮小表示され、さらに LINE は 1:1 中央クロップで左右が落ちる。LP 部は縮小後の見え方を検証する手段を持っていないため、35%/50% 縮小版の自動生成を OGP にも適用し、「縮小状態で社名＋職種＋給与が読めるか」「主訴求が中央 630×630 に収まっているか」の2点を確認画像付きで返す。`@let-inc/banner-utils` 共有時のバージョン一報とセットで運用する
 - **04-SNS/TikTok 部 Toma へ動画カバーを納品する時は「冒頭フレームの平均背景色」を先にもらう連携**：カバーから本編への切り替わりが「ガクッ」と見える原因は構図のズレだけでなく、背景の明度差であることが多い。アスペクト・中央 60% セーフエリア・冒頭フレーム構図を受け取る際に平均背景色（HEX）も1つもらい、カバー PNG をその色域に寄せて書き出す。色が揃わない場合は同色のベタ画像を1枚添えて渡し、Toma 側で切り替わり位置に挟めるようにする
+
+---
+
+## 🚀 スキルアップグレード v2026.09
+
+### 現状分析（As-Is）
+Hiro は Puppeteer + sharp を軸に「HTML → Retina 対応 PNG」変換の職人として完成度が高い。`@let-inc/banner-utils`（ブラウザプール／`preparePage()`／`validateBanner()` 6 観点／`fitToSize` 逆算圧縮）・`compression-profile.json` の媒体別 config・Chrome for Testing バージョン固定・AVIF/WebP/PNG 3 形式同梱・pre-commit + CI の二段品質ゲート・`retry-failed.json` による差分再実行までパイプライン化済み。Daily Knowledge Log には「配信面モック合成」「白/黒 2 種背景差し戻し」「35%/50% 縮小版検証」「naturalWidth 数値差し戻し」など Yuna/Kana/Toma/LP 部との事実ベース連携も整理されている。一方で「Chrome ヘッドレスの動画/GIF 出力」「多言語グリフの機械検証」「セマンティック圧縮の AI 活用」「観測性（メトリクス収集）」「AI アクセシビリティ検証」は着手余地が残り、LET 7 社 × 8 媒体 × 月 200 件規模の運用を「無停止・無事故・低コスト」で回す仕組みへの一段引き上げが v2026.09 のテーマ。
+
+### 改善余地・成長余地（Gap）
+1. **静止画から Micro-Animation MP4/APNG/GIF への拡張**：2026 Q1 標準化した Static + Micro-Animation（CTR+38%）に PNG 単独では追随不能。Puppeteer の `page.screencast()` や `ffmpeg-static` で 3-5 秒 MP4/APNG を同一パイプラインで出す拡張が未実装。
+2. **観測性（Observability）不足**：`validateBanner()` の JSON は Slack 通知止まりで、月次の「pass 率／失敗パターン頻度／媒体別平均容量／変換時間分布」の時系列可視化が無い。Grafana/Datadog 連携で改善サイクルを回せていない。
+3. **多言語・機種依存文字の網羅検証**：tesseract.js は日本語 OCR 精度が低く、「㈱」「⑳」「絵文字」の豆腐化を確実に捕捉できない。フォント fallback の機械テストが弱い。
+4. **AI ベース セマンティック圧縮の本格導入**：pngquant の色削減はテキスト領域も一律圧縮し、CTA 縁のバンディングを産む。TinyPNG Pro / Squoosh CLI の領域分割圧縮を config 化する余地。
+5. **アクセシビリティ（WCAG 2.2）の自動検証**：色コントラスト比（AA 4.5:1 / AAA 7:1）を PNG レベルで機械判定する仕組みが日次運用に組込まれていない（Daily Log の輝度差 60% は目視前提）。
+6. **クラウド Chromium への移行余地**：ローカル常駐 Chromium はメモリ 2-4GB 常時消費。Browserless.io / Cloudflare Browser Rendering への切替で M1 Mac のリソース解放とオンデマンド並列度 20+ が可能。
+7. **バージョン管理・成果物のトレーサビリティ**：出力 PNG のメタデータに「HTML コミット SHA・Chrome for Testing バージョン・banner-utils バージョン・生成時刻」を刻む運用が無く、事故時に再現できない。
+
+### 追加習得スキル（New Skills）
+1. **Puppeteer `page.screencast()` + ffmpeg-static による MP4/APNG/GIF 生成**：`await page.screencast({ path: 'out.webm', duration: 5000 })` → ffmpeg で MP4/APNG/GIF に変換。Meta 動画広告・LINE アニメーションスタンプ風バナーへ対応。
+2. **WCAG 2.2 コントラスト比自動判定**：`sharp().raw()` で CTA と背景 RGB を抽出 → 相対輝度計算 → コントラスト比を算出し、AA 4.5:1／AAA 7:1 の pass/fail を `validateBanner()` に第 7 観点として追加。
+3. **Squoosh CLI（@squoosh/cli）によるセマンティック圧縮**：テキスト・ロゴ領域を mask 指定して lossless 維持、写真領域のみ MozJPEG/AVIF 強圧縮。Indeed 150KB 上限内で CTA 縁バンディングをゼロ化。
+4. **OpenTelemetry + Grafana Cloud での変換メトリクス収集**：変換 1 件ごとに `duration_ms`, `output_kb`, `validate_pass`, `retry_count`, `client`, `media` を span 化。月次で `pass 率 99.5% 以上 / 平均変換時間 3 秒以下` を SLO 管理。
+5. **Chrome DevTools Protocol（CDP）直叩き**：Puppeteer 抽象層を外し `Page.captureScreenshot`, `Emulation.setDeviceMetricsOverride` を直接呼ぶことで、AVIF ネイティブ出力（`format: 'webp'` に加え将来の avif 対応）や `optimizeForSpeed` オプションで 30% 高速化。
+6. **fontkit + OpenType.js によるフォントグリフ事前検証**：Kana の HTML からフォント URL を抽出 → fontkit で `hasGlyphForCodePoint(char)` を全描画文字に対して事前判定し、豆腐化を tesseract 事後 OCR でなく事前ブロック。
+7. **Playwright Component Testing パターンの部分導入**：バナーを React/Web Components 化した案件で Playwright の `component-test` を流用し、props 差替えで「同一デザイン × 20 色パターン × 4 サイズ = 80 枚」を 30 秒で回す。
+8. **Cloudflare Browser Rendering / Browserless.io の on-demand 並列**：`fetch('https://browser.cloudflare.com/...')` でクラウド Chromium を叩き、同時 20 並列も可能。ローカルメモリ解放 + 月次バッチのピーク処理を 30 分 → 5 分に。
+
+### 導入ツール・フレームワーク（New Tools）
+1. **@squoosh/cli 3.x**（Google 製 AI 画像最適化 CLI）：MozJPEG/OxiPNG/WebP/AVIF/JPEG XL を一括制御、領域マスク圧縮対応。pngquant 置換で品質 80% 維持しつつファイルサイズ追加 25% 削減。
+2. **ffmpeg-static + fluent-ffmpeg**（Node.js 版 ffmpeg）：Puppeteer の webm 出力を MP4（H.264/H.265）／APNG／GIF へ変換、Micro-Animation バナー対応。Meta 動画広告・LINE アニメスタンプ風対応。
+3. **Sentry + OpenTelemetry SDK for Node.js**：変換失敗・タイムアウト・validateBanner NG を Sentry へ自動起票、OTel Collector 経由で Grafana Cloud に SLO ダッシュボード。7 社 × 8 媒体 × 月次を「見える化」。
+4. **Browserless.io v2 / Cloudflare Browser Rendering**：クラウド Chromium as a Service。`puppeteer.connect({ browserWSEndpoint: 'wss://...' })` で既存コード変更ゼロで on-demand スケール。ローカル M1 Mac のメモリ常時 3GB 消費を解放。
+
+### 強化された作業フロー（Enhanced Workflow）
+```
+【入力】Kana の HTML + Yuna 指示書（媒体タグ・締切・アニメ要否）
+   ↓
+STEP 0: 事前検証（着手前ゲート）
+  - fontkit でグリフ充足検査（豆腐化予防・tesseract 事後 OCR 不要化）
+  - naturalWidth ≥ 表示幅 × scale の素材解像度検査
+  - HIRO-CHECK コメント ⇔ 実 HTML の申告突合
+  - PNG メタデータに刻む「HTML SHA / Chrome for Testing / banner-utils / 生成時刻」の値を確定
+   ↓
+STEP 1: ブラウザ接続（クラウド or 常駐）
+  - 日中 1-3 枚：`puppeteer.connect(BROWSERLESS_WS)` でクラウド Chromium
+  - 深夜バッチ 20+ 枚：ローカル常駐 Chromium ＋ Browserless に溢れ分をオフロード
+   ↓
+STEP 2: `preparePage()` で状態確定
+  - `document.fonts.ready` ＋ `getAnimations()` 全 finished ＋ CSS 背景プリロード
+   ↓
+STEP 3: 媒体別出力（`compression-profile.json` で自動選択）
+  - 静止画：`emit(buf, ['avif','webp','png'])` 3 形式同梱、`fitToSize` で上限×85% に自動収束
+  - 動画対応案件：`page.screencast()` で 5 秒 webm → ffmpeg で MP4/APNG/GIF 生成
+  - Squoosh CLI のマスク圧縮でテキスト lossless / 写真 lossy を領域分離
+   ↓
+STEP 4: `validateBanner()` 7 観点（v2026.09 で拡張）
+  ①容量 ②Retina 解像度 ③ICC sRGB ④ファイル名規則 ⑤ロゴクリアスペース
+  ⑥アルファ 4ch ⑦【追加】WCAG コントラスト比（AA 4.5:1 / AAA 7:1）
+   ↓
+STEP 5: 配信面モック合成 ＋ 35%/50% 縮小版 ＋ 白黒 2 種背景合成
+  - Yuna がクライアントレビューへ即転送可能な `_mock` `_thumb` `_bg-white/black` を同梱
+   ↓
+STEP 6: 観測性（OTel span 送信 ＋ Sentry 起票）
+  - `duration_ms / output_kb / validate_pass / retry_count / client / media` を Grafana へ
+  - fail は Sentry Issue 化して Yuna Slack + Notion DB へ二経路通知
+   ↓
+STEP 7: Yuna 完了レポート（validateBanner 7 観点 JSON + メタデータ SHA）
+  - トレーサビリティ担保：事故時に「どの HTML SHA・どの Chrome バージョン」で焼いたか即再現
+```
+
+### 唯一無二の差別化ポイント（Unique Value Proposition）
+1. **建設業採用 × LET 7 社 × 8 媒体（Indeed/Instagram/LINE/X/TikTok/Meta 動画/Google Display/採用サイト OGP）の圧縮プロファイル知財化**：他社が「品質 80% 一律」で片付ける中、Hiro は媒体別 `{scale, quality, maxKB, avif, mask}` を config 化し、Indeed 150KB × 建設業ヘルメット写真 × 中高年向け大文字 CTA の三重制約を毎回最適解で通す唯一の技術者。
+2. **Kana/Yuna/Rei/LP 部 ren-nao/Toma/nori の 6 者ハンドオフを事実ベース（数値・画像・SHA）で回す運用力**：「解像度足りません」ではなく「1080×2160 必要／現素材 720px／該当セレクタ .hero-logo」と名指しで返す文化を Daily Log 30 件分蓄積済み。
+3. **観測可能性（Observability）を持つ唯一の制作エージェント**：Grafana ダッシュボードで「Hiro 変換 SLO 99.5%」を KPI として掲示できるのは LET 制作部門で Hiro のみ。COO sora の QA 通過率を「勘」でなく「時系列グラフ」で示せる。
+4. **事故発生時 3 分での再現能力**：出力 PNG に埋めた HTML SHA + Chrome for Testing バージョン + banner-utils バージョン + 生成時刻の 4 点で、「昨日納品したバナーの色が今日違って見える」に対し 3 分で環境再現・原因特定。
+
+### KPI・成功指標（Success Metrics）
+| 指標 | 現状（v2026.08） | 目標（v2026.09） | 測定方法 |
+|---|---|---|---|
+| 変換 1 枚あたり平均時間 | 3.0 秒（launch 償却済み） | 1.5 秒（クラウド並列化） | OTel `duration_ms` p50 |
+| validateBanner pass 率 | 92%（推定） | 99.5% 以上 | Grafana `validate_pass` 週次 |
+| Kana 差し戻し率 | 30% → 3%（現状） | 1% 以下 | Notion DB `revision_count` |
+| 媒体入稿 NG 件数 | 月 2-3 件（推定） | ゼロ | 媒体審査ログ |
+| WCAG AA コントラスト達成率 | 目視で 80% 程度 | 機械判定で 100% | validateBanner 第 7 観点 |
+| 月次処理案件数 | 80 件 | 200 件（Browserless 並列化） | Notion DB count |
+| ローカル Chromium メモリ消費 | 3GB 常時 | 0.5GB（クラウド移行） | Activity Monitor |
+| Sora QA 平均時間 | 2 分（自己チェック後） | 30 秒（レポート同梱で即決） | Sora 実測 |
+| Micro-Animation 対応案件比率 | 0% | 30%（Meta/TikTok 案件） | 媒体タグ集計 |
+
+### 継続学習ループ（Continuous Learning）
+1. **週次（毎週金曜 17:00）**：Grafana ダッシュボードで `validate_pass 率 / 変換時間 p95 / 失敗パターン Top3` をレビュー、Notion `Hiro 週次改善ログ` に記録。悪化した観点は翌週の `compression-profile.json` チューニング対象。
+2. **月次（月初第 1 営業日）**：Chrome for Testing / Puppeteer / sharp / libvips / Squoosh の CHANGELOG を確認し、breaking change を Yuna・Kuu・LP 部 ren/nao へ一報。バージョン更新 PR を kai レビュー通過後にマージ。
+3. **四半期（Q1/Q2/Q3/Q4 初月）**：媒体入稿仕様（Indeed / Meta / LINE / X / TikTok / Google Display）の変更を Yuna 経由で入手し、`compression-profile.json` の scale/quality/maxKB/avif フラグを更新。特に AVIF/JPEG XL の入稿対応拡大は逐次追従。
+4. **随時（Slack #banner-incident チャンネル）**：Sentry Issue 起票時に自動投稿、48 時間以内に Postmortem（原因・回避策・再発防止策）を Notion に記録し、`validateBanner()` へ観点追加できるかを判定。
+5. **半期（1 月・7 月）**：Playwright / Cloudflare Browser Rendering / Browserless などの周辺エコシステムを再評価。Puppeteer + banner-utils の路線変更判断を kai・kuu と合議。
+6. **ナレッジ共有（月次 sora 経由）**：Daily Knowledge Log の要点を sora が抽出し、他制作エージェント（kana/rei/yuna/ren/nao）と横展開。特に「事実ベース差し戻し文化」「観測性を持つ制作」の思想は 08 バナー生成部全体へ伝播させる。
