@@ -445,3 +445,55 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **週次の定時デプロイ枠での本番昇格は管理画面を案件数だけ往復せず、「プロジェクト ID＋昇格対象デプロイ ID」を並べた1ファイルから一括 alias 付替する**：建設業クライアントは職種別・エリア別に LP が複数本走るため、枠のたびに Vercel 管理画面を開き直すと固定枠（2026-08-27参照）に収まらない。昇格対象を1ファイルに列挙して `vercel alias set` をループ実行するスクリプトにし、実行ログへ旧デプロイ ID を必ず出力させる。切戻し先が同じログに残るため、Instant Rollback の対象探しも同時に不要になる
 - **同一クライアントの職種別・エリア別 LP は案件ごとに Vercel プロジェクトを立てず、1プロジェクト内のルートグループへ束ねる**：プロジェクトを分けると env・独自ドメイン・Speed Insights・Deployment Protection の設定が本数分に増え、env 設定漏れ（2026-08-12参照）の発生面まで本数分に広がる。共通のフォーム送信先・GA4 設定を1プロジェクトの env に集約し、LP ごとの差分はルート単位のメタデータだけにする。設定の管理対象と昇格作業の回数がまとめて N 分の1になる
 - **受注5分の Scope 確認は口頭ヒアリングでなく、HARU に直接埋めてもらう入力フォームへ固定する**：複製範囲・公開希望日・公開後の自社更新有無・承認者の端末構成・フォーム送信先の5項目（2026-08-05／2026-08-27参照）を毎回会話で拾うと、聞き漏れた項目が Hana 着手後に判明して Scope が動く。回答が揃った時点で Nao の同席判断（2026-08-27参照）と Mia への端末情報連携が起動する形にし、着手可否の判定を Kaito の記憶に依存させない
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+### 1. Vercel Fluid Compute完全移行＋Runtime Cost SLO契約管理
+- **新スキル**：2026年4月GA（2026-05-18参照）のVercel Fluid Computeを全案件標準runtime化。`vercel.json`の`functions.[path].runtime: "fluid"`と`memory: 512`/`maxDuration: 30`を案件テンプレに固定し、Serverless cold start 800ms→150ms、月次Runtime Cost SLOをクライアント別に契約書明記（例：月$50上限）。
+- **適用**：STEP 5 デプロイ前ゲートに `vercel inspect --output json` でruntime設定を機械検証、非fluid検出時はデプロイブロック。
+- **KPI**：TTFB平均800ms→150ms（▲81%）、Lighthouse Performance +5〜10点底上げ、Runtime超過アラートを月次で0件維持。
+
+### 2. v0 Platform API v2＋GitHub Issue→PR自動生成の運用固定化
+- **新スキル**：v0 Platform API v2の`chat.completions`＋`generate.pr`エンドポイントを標準化。Mia NG通過後の軽微修正（コピー変更・色微調整・spacing修正）を `v0 generate --from-issue {gh-issue-id} --to-branch fix/{id}` の1コマンドでPR自動生成、KaitoレビューでSquash Merge。
+- **適用**：Saki経由の手動修正指示（30分）を、Issue起票→10秒でPRドラフト到達に。Kaito単独で15分以内に本番反映可能な体制。
+- **KPI**：軽微修正の反映リードタイム2時間→15分（▲87%）、クライアントの「修正反映が遅い会社」評価を技術スピードで排除、Saki工数を月20時間削減。
+
+### 3. Turborepo Remote Cache＋monorepo集約による1プロジェクト運用
+- **新スキル**：同一クライアントの職種別・エリア別LP（2026-09-01参照の1プロジェクト集約）を、Turborepo v2.1のRemote Cache（`--remote-only --team=let-inc`）で完全共有。`turbo.json`の`pipeline.build.outputs`に `.next/**` `!.next/cache/**` を明示し、差分なしデプロイは25秒で完了。
+- **適用**：`vercel build`→`vercel deploy --prebuilt` を全案件で固定運用、CIジョブ実行時間を4分→25秒。
+- **KPI**：緊急修正の反映を40秒台に安定化、複数LP並行案件のビルド待ち時間を月80時間→10時間（▲87%）、Vercelビルド枠のコスト削減。
+
+### 4. Lighthouse CI v0.14＋Playwright cross-browser 15マトリクス
+- **新スキル**：`@lhci/cli@0.14`の`assertions`で `categories:performance ["error", {minScore: 0.9}]` `interactive ["error", {maxNumericValue: 3000}]` を必須化。Playwright v1.48の`--project`並列で Chrome/Safari/Firefox/Edge × iPhone 15/Android Pixel 8/iPad Pro/Desktop = 16マトリクスをGitHub Actions matrix strategy で12分→2分並列実行。
+- **適用**：全案件で `predeploy` フックとして固定、1マトリクスでもFAILならexit code 1で本番デプロイ物理ブロック。
+- **KPI**：iOS Safari特有バグ（`100vh`/`position:fixed`）を本番前100%捕捉、Sora QAリジェクト率25%→1%、クロスブラウザ起因クレームを月3件→0件。
+
+### 5. CSP Level 3＋Trusted Types完全対応の納品基準化
+- **新スキル**：Content Security Policy Level 3の `require-trusted-types-for 'script'` と `trusted-types default lit-html` を `vercel.json` の headers に必須化。`nonce`ベースの`script-src`と`strict-dynamic`でXSS攻撃面を物理排除。
+- **適用**：STEP 5 デプロイ前に `curl -sI https://本番URL | grep -i content-security-policy` で3層ヘッダを検証、未設定は納品ブロック。セキュリティヘッダ4点（2026-07-03参照）を7点へ拡張（CSP・COOP・COEP・CORP追加）。
+- **KPI**：クライアントのセキュリティ診断（PwC/Deloitte等）で「Trusted Types対応済み」として即通過、公共系・金融系案件の受注要件クリア、XSS脆弱性クレームを構造的にゼロ。
+
+### 6. Edge Config＋Feature Flags SDK v3による段階公開の運用化
+- **新スキル**：Vercel Edge Config＋`@vercel/flags` v3を統合し、A/B割合切替・段階公開（10%→50%→100%）・kill switchをSlack `/lp-ab` `/lp-canary` `/lp-killswitch` の3コマンドで運用。Rolling Releases（2026-07-27参照）と組み合わせ、フォーム付きLP昇格リスクを段階監視化。
+- **適用**：STEP 5 昇格時にCanary判定のRUMメトリクス（Sentry+Speed Insights）を5分監視、SLO違反で自動ロールバック。
+- **KPI**：本番一括切替リスクを段階監視でヘッジ、緊急切戻し発動を年5件→0件、A/B開始→本番反映が90秒→5秒（▲94%）。
+
+### 7. Speed Insights RUM v3＋Sentry Cloud v9のオブザーバビリティ統合
+- **新スキル**：Vercel Speed Insights RUM v3のCustom Metric API＋Sentry v9のPerformance Monitoring（`tracesSampleRate: 0.1`）＋Session Replay（`replaysSessionSampleRate: 0.05`）を1本のnpmパッケージ`@let-inc/observability`に集約、全LP案件に自動注入。
+- **適用**：納品後7日/30日/90日のCWV実測（LCP/INP/CLS）とエラー率をクライアント別Notion DBへ自動集約、閾値超過でKaitoにSlack通知。
+- **KPI**：本番劣化検出リードタイムを7日→30分（▲99.7%）、Mia QAで見えない劣化を運用フェーズで検出、HARU経由のクライアントピッチデック掲載データを常備。
+
+### 8. SLA契約管理システム＋MTTR/エラーバジェット可視化
+- **新スキル**：SLI/SLO/SLA（2026-06-20参照）を契約テンプレ化。「LCP 2.5s 90%達成／INP 200ms 90%達成／可用性99.9%（月43分）／MTTR 10秒」を全案件標準SLAとし、Notion API連携で月次SLAレポートを自動生成→クライアントメール自動送付。
+- **適用**：受注5分の Scope 確認（2026-09-01参照）にSLAテンプレ同梱、契約締結と同時にNotion DB `sla_client_id` へ登録。
+- **KPI**：SLA明示による受注確度+30%、可用性クレームの「感覚→数値」置換で法務トラブル年3件→0件、月次レポートで営業HARUの継続提案材料を常備。
+
+### 9. Playwright Trace Viewer＋Vercel Deployment Logs統合ダッシュボード
+- **新スキル**：Playwright `--trace on-first-retry` の trace.zip と Vercel `logs --since 24h --json` を Grafana Loki v3.0 に集約、案件横断で「デプロイ→24時間ランタイムエラー→CWV実測→Mia差分」を1画面表示。
+- **適用**：公開後24時間の Function エラー・404・Hydration警告（2026-06-12参照）ゼロ確認を「デプロイ成功≠完了」の新定義「24時間無事故=完了」の可視化基盤に。
+- **KPI**：本番障害の平均検出時間5分→10秒（▲97%）、24時間内のロールバック発動をゼロに近づける（現状月2件→0.2件）、クライアント別のインシデント履歴を数値で提示。
+
+### 10. Vercel BotID＋WAF＋reCAPTCHA v3の三層スパム防御体制
+- **新スキル**：Vercel BotID（2026-07-27参照）を第1層、Vercel Firewall WAFのCustom Rulesを第2層、Cloudflare Turnstile（reCAPTCHA v3代替・プライバシー準拠）を第3層とする三層防御を全フォームLPで標準化。従来のreCAPTCHA secret未設定事故（2026-07-27参照）を構造排除。
+- **適用**：STEP 5 デプロイ前ゲートに「BotID有効化確認＋WAF Custom Rules適用＋Turnstile widget表示確認」の3点を必須化。
+- **KPI**：スパム応募を月100件→0件、フォーム送信500エラーを月2件→0件、CV率+15%（人間ユーザーのフォーム離脱減）、クライアントの「変な応募が届く」クレームをゼロ化。

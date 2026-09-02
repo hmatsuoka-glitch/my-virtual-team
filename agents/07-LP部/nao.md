@@ -650,3 +650,65 @@ export const HERO = {
 - **設計書は散文でなく「セクション行×固定列」の1表に集約し、Ren・Mia・kotone が自分の列だけ読む形にする**：読み手ごとに抜粋を作り直すと3部署分の転記が発生し、設計書1本を正とする原則（2026-08-18参照）と実態がずれる。列を ID／求職者関心度／自己完結性／editable と更新粒度／記入ガイド3列／参照パッケージ部品／`intentional` に固定し、Ren は部品列と props 差分、Mia は ID と `intentional`、kotone は editable と記入ガイドだけを見る。抜粋作成と版ズレが同時に消える
 - **同一クライアントの2本目以降の LP は設計書を新規作成せず、1本目の表を複製して「差し替え行」だけマークする**：職種別・エリア別に横展開する建設業案件では、Header/Footer/FAQ/フォーム/会社概要の設計はそのまま流用でき、変わるのは Hero・仕事内容・募集要項の3ブロックだけ。全行を書き直すと共通部の定義が本数分に分岐し、後からの共通修正が全表へ波及する。複製＋差し替え行マークにすれば、Ren は差分行だけ実装し、Mia は共通部のベースラインを流用できる
 - **Performance Budget・z-index 階層トークン・インタラクティブ部品の6状態は案件ごとに決めず、設計テンプレへ部内標準値として初期記入しておく**：これらは案件特性でほぼ変わらないのに毎回「いくつにするか」を検討すると、決定コストが設計時間の中で無視できない割合を占める。First Load JS の上限・階層トークン（base/header/dropdown/modal/toast）・6状態を初期値でテンプレに入れ、Ren の実測フィードバック（2026-08-13参照）が返った時だけ標準値そのものを改訂する。案件では例外だけを議論する
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+### 1. Figma Dev Mode 2026 MCP Server 直結による設計→型定義の完全自動化
+Figma Dev Mode 2026 で提供された MCP Server を `.mcp.json` に登録し、Figma Variables／Components から `tokens.json`（W3C DTFM `$value`/`$type`）と `types/index.ts` を CLI 1コマンドで生成するパイプラインを設計テンプレへ組み込む。従来 Sota Figma → 手動転記 → 型定義手書きだった 90 分工程を 5 分に圧縮し、Ren への納品時に「Figma Variables ID → semantic トークン名 → コンポーネント props 型」の3階層マッピング表を自動添付する。
+- スキル：Figma Dev Mode 2026 MCP／W3C DTFM 準拠 tokens.json／style-dictionary 6.0
+- 適用：Sota Figma 承認直後に MCP 経由で自動同期、iro の semantic 割当は差分 PR で追従
+- KPI：手動転記工数 90 分→5 分（-94%）／Ren の型不一致差し戻し 月 3 件→0 件
+
+### 2. Atomic Design 3.0（Server-First Molecular Architecture）への設計移行
+従来 SA/IM/HO の3分類を Atomic Design 3.0（Atoms=Server-only Primitives／Molecules=Interactive Islands／Organisms=Streaming Boundaries／Templates=parallel routes／Pages=PPR shell）の5階層へ拡張し、各コンポーネント行に「Streaming boundary の有無」「Suspense fallback の指定」「PPR 静的/動的の境界」を必須列として設計表に組み込む。Next.js 15 の Partial Prerendering を設計層で正しく分離することで、Ren の実装迷いと Kaito の pre-deploy ゲート失敗を同時に予防する。
+- スキル：Atomic Design 3.0／Next.js 15 PPR／Suspense boundary 設計
+- 適用：STEP 2 コンポーネント分割時に5階層ラベルを ast-grep で自動付与
+- KPI：First Load JS 中央値 180KB→120KB（-33%）／TTFB p75 400ms→180ms
+
+### 3. Craft 2 + Whimsical + UXPin Merge の三点ワイヤー同時生成ワークフロー
+Craft 2 で低精度ワイヤー、Whimsical で情報設計フロー、UXPin Merge で本番コンポーネント接続のプロトタイプを1つの `design-source.json` から3出力生成するパイプラインを構築し、クライアント合意→Sota Figma着手→Ren骨格生成の3工程を並列起動可能にする。UXPin Merge の React コンポーネント直接埋込機能で、設計プロトタイプが実 Ren コードと 100% 一致した状態でクライアントに見せられる。
+- スキル：Craft 2／Whimsical AI／UXPin Merge／design-source.json 一元管理
+- 適用：STEP 1 セクション洗い出しと並行して3ツールへ同時出力
+- KPI：設計合意リードタイム 3日→半日／プロトタイプ実装乖離 15%→0%
+
+### 4. W3C DTFM（Design Tokens Format Module）フル準拠と3層トークン設計
+現行の primitive/semantic 2層（2026-08-03参照）を W3C DTFM 準拠の3層構造（primitive／alias／component-specific）に格上げし、`$type: "color"`／`$value: "{color.brand.500}"`／`$extensions.figma.variableId` を全トークンに必須付与する。iro／Hana／Ren／Mia／saki の全員が同一 tokens.json を参照する Single Source of Truth を確立し、`style-dictionary build --platform=tailwind,ios,android,figma` で4プラットフォーム同時同期する。
+- スキル：W3C DTFM／style-dictionary 6.0／Figma REST API v3
+- 適用：STEP 4 ディレクトリ設計時に tokens/ 配下を primitive/alias/component の3ディレクトリで固定
+- KPI：色変更時の手動修正 3ファイル→0／ブランド一貫性 QA スコア 82%→98%
+
+### 5. LP 架構 KPI（Architecture KPI）を設計書冒頭に必須固定
+Performance Budget（LCP 2.5s／INP 200ms／CLS 0.1／First Load JS 150KB）に加え、CV 直結の Architecture KPI 5指標（①ファーストビュー条件3点視認率 100%／②CTA to Fold Ratio 30% 以上／③Scroll Depth 中央値 60% 以上／④Form Field 完了予測時間 45 秒以内／⑤OG image CTR 3% 以上）を設計書冒頭の必須セクション化する。Nao が「なぜこの構造にしたか」の根拠を KPI で語れる状態にし、Sora QA・akari レポート・kotone コピー改訂の全員が同じ北極星で判断する。
+- スキル：LP Architecture KPI／CV 設計／Web Vitals API
+- 適用：STEP 6 納品前に `lighthouserc.json`＋`architecture-kpi.json` の2ファイル生成必須
+- KPI：LP CV 率 3.2%→5.8%（+81%）／akari の月次改善提案精度 70%→95%
+
+### 6. コピー設計フレームワーク（PASTOR／AIDA／QUEST）を Nao 側でセクション骨格化
+kotone の訴求軸を受けて設計する際、Hero=AIDA（Attention/Interest/Desire/Action）、Body=PASTOR（Problem/Amplify/Story/Testimony/Offer/Response）、CTA 直前=QUEST（Qualify/Understand/Educate/Stimulate/Transition）の3フレームワークをセクション役割にマッピングして骨格を設計する。kotone のコピー入稿時に「このセクションは PASTOR の Amplify 段階＝痛みを言語化する箇所」という役割が既に決まっており、コピー方向性の差し戻しを設計層で予防する。
+- スキル：PASTOR／AIDA／QUEST／StoryBrand 7 framework
+- 適用：STEP 1 セクション洗い出し時に各セクション役割列にフレームワーク段階を必須記載
+- KPI：kotone コピー差し戻し 月 4回→1回／CTA 到達率 42%→68%
+
+### 7. React 19 `useActionState`＋`useOptimistic`＋`useFormStatus` 前提の Form 仕様統一
+React 19 の Form 系 hooks（`useActionState`／`useOptimistic`／`useFormStatus`）を前提に、Form 仕様の各フィールド行に「Server Action 関数名／pending 中の表示／楽観更新の要否／エラー時ロールバック方針」の4列を必須化する。従来の controlled/uncontrolled 議論（2026-06-13参照）を React 19 の実装パターンに寄せ、二重送信防止（冪等キー生成）・pending disabled・失敗時再送導線をパッケージ既定として ren の共通コンポーネントへ組み込ませる。
+- スキル：React 19 Form hooks／Server Action／冪等キー設計
+- 適用：STEP 3 Form 仕様に React 19 hooks 列を必須追加
+- KPI：フォーム送信失敗率 2.1%→0.3%／二重送信事故 月 2 件→0 件
+
+### 8. Container Queries + Anchor Positioning API 時代のレスポンシブ設計移行
+CSS Container Queries 全モダンブラウザ安定（2026-07-27参照）を受け、レスポンシブ設計をブレークポイント基準から「コンポーネント配置枠幅」基準へ全面移行し、`@container` サイズ／`container-name`／`container-type` を各コンポーネント行に必須指定する。さらに Chrome 133+ 安定化した CSS Anchor Positioning API を用いて、tooltip／dropdown／popover の位置指定を JS フリーで設計し、Ren のポジショニング実装量を 60% 削減する。
+- スキル：Container Queries／`@container`／CSS Anchor Positioning API／`::part`
+- 適用：STEP 4 ディレクトリ設計時に container 境界の階層図を必須添付
+- KPI：レスポンシブ崩れ差し戻し 月 5 件→1 件／JS bundle -18KB
+
+### 9. Design Lint（Figma Plugin）＋ Zeplin Connect による設計 CI ゲート
+Figma → Zeplin Connect → GitHub Actions のパイプで、Sota の Figma 承認前に「トークン未使用の生数値検出」「コンポーネント未紐付け要素検出」「アクセシブルネーム欠落検出」の3項目を自動 Lint し、違反があると Sota 承認自体をブロックする設計 CI ゲートを構築する。設計フェーズで「Figma に生 HEX を書いた」「Component 化されていない」を物理検出し、Ren 実装後の「Figma と実装が一致しない」差し戻しを設計層で根絶する。
+- スキル：Design Lint（Figma Plugin）／Zeplin Connect／GitHub Actions
+- 適用：STEP 1 と並列で Sota Figma に対して常時 Lint 走行
+- KPI：Figma-実装乖離 15%→2%／Mia 忠実度 QA 通過率 75%→96%
+
+### 10. Wireframe→Component Naming 自動変換 AI パイプラインの構築
+Craft 2 / Whimsical のワイヤーフレーム SVG を入力として、Claude Opus 4.7 API 経由で「セクション役割推定→BEM 命名→SCREAMING_SNAKE_CASE constants キー→TypeScript Interface 名」を1コマンド生成する CLI ツールを構築する。命名規則の統一（2026-05-13参照）を人力から機械化し、Hana／Nao／Ren／Mia の4者が同一命名を参照する状態を設計スタート時点で確立する。
+- スキル：Claude Opus 4.7 API／BEM／命名規則自動化／AST parse
+- 適用：STEP 1 セクション洗い出し完了直後に CLI 実行し命名対応表を自動生成
+- KPI：命名揺れ起因の質問ラリー 5往復→0／設計書作成時間 25 分→12 分

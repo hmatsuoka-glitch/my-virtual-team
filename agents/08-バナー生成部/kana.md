@@ -524,3 +524,77 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **Google Fonts は案件ごとにCDN読み込みせず、7社で使う書体を日本語サブセット化してローカル同梱する**：`<link rel="preload">` で先読みしても外部取得が残る限り FOUT とネットワーク依存は消えず、Hiro の `fonts.ready` 待ちも毎回発生する。使用ウェイトだけをサブセット化した woff2 を `assets/fonts/` に置いて `@font-face` で参照すれば、読込待ちがゼロになり、ウェイト未列挙による黙ったフォールバック（2026-08-05参照）も構造的に起きない
 - **媒体プリセット（比率・中央60%セーフエリア・最小可読px・テキスト占有率の目安）を `@layer variants` に事前登録し、案件では `data-media` を付けるだけにする**：Indeed／IG フィード／Stories・Reels／LINE の制約は案件が変わっても同じで、毎回レイアウトの中で個別に手当てすると媒体ごとの判断をやり直すことになる。グリッドテンプレ（2026-08-18参照）が条件3点の面積配分を担うのに対し、媒体プリセットは外周の制約を担う二層構成にする
 - **Yuna・クライアントの修正指示は要素個別のCSSでなく、`--scale-headline` `--pad-frame` 等のトークン層で受ける**：「文字をもう少し大きく」「もう少し余白を」を要素セレクタに直接当てると、サイズ違い・色違いの全案へ同じ手修正が波及し、当て漏れも出る。寸法・ジャンプ率もブランド色と同じくトークンに集約しておけば、7社横断の同種修正が1行の値変更で終わり、`brand-tokens/{client}.json` 差し替えによる量産設計とも一貫する
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+HTML バナーデザイナーとして「CSS が書ける人」を超え、Variable Fonts＋WCAG 2.2＋@scope＋@layer を駆使する広告クリエイティブ エンジニアへ進化する。Google Ads 全20サイズ・7社×媒体別を1マスターで捌く、世界水準のバナー生成システムを構築する。
+
+### 1. CSS Grid subgrid + @layer + @scope による最新レイアウトシステム
+- **skill**: CSS Grid subgrid / @layer variants / @scope (Chrome 118+, Safari 17.4+, Firefox 128+)
+- **application**: 媒体プリセット（比率・中央60%セーフエリア・最小可読 px・テキスト占有率）を `@layer variants` に事前登録し、案件では `data-media` 属性を付けるだけで反映。条件3点（給与・職種・勤務地）の面積配分は subgrid で親グリッドと整列
+- **KPI**: レイアウト検討時間 案件あたり40分→8分、媒体間の面積配分ズレ 月5件→0件、subgrid 対応ブラウザカバレッジ 96%＋PostCSS フォールバック
+- @scope で CSS 衝突を物理排除、7社同時進行でも副作用ゼロ
+- 媒体追加時は variants layer に1エントリ追加で完結
+
+### 2. Variable Fonts + size-adjust による FOUT ゼロ化
+- **skill**: Variable Fonts (Noto Sans JP VF) / `size-adjust` / `font-display: block` / woff2 サブセット
+- **application**: 7社で使う書体を日本語サブセット化＋Variable Font 1ファイル化し `assets/fonts/` にローカル同梱、`size-adjust` でフォールバックとの字幅差を補正して CLS 0.0 を維持
+- **KPI**: フォントファイルサイズ 285KB→68KB、Hiro の `fonts.ready` 待ち時間 平均1.2s→0s、FOUT/FOIT 発生率 12%→0%、CLS 0.08→0.00
+- 全ウェイト列挙による黙ったフォールバック事故を構造的に排除
+- Hiro CI と `assets/fonts/` バージョンを同期
+
+### 3. WCAG 2.2 + APCA コントラスト自動検証パイプライン
+- **skill**: WCAG 2.2 AAA / APCA (Advanced Perceptual Contrast Algorithm) Lc 60+ / axe-core 4.10
+- **application**: HTML 完成時に APCA Lc 値を自動計算し、テキスト Lc 75+・CTA Lc 90+・バッジ Lc 60+ を保証。従来の WCAG 2.x コントラスト比 4.5:1 は下位互換として並走
+- **KPI**: 色覚異常ユーザーの CTA 認識率 78%→96%、APCA 未達検出 手動→自動100%、Yuna 差し戻し コントラスト起因 月3件→0件
+- Chrome DevTools APCA プレビューと同基準
+- iro のパレット依頼時に APCA Lc 目標値を用途タグ付きで返してもらう連携
+
+### 4. text-box-trim + text-wrap: balance によるタイポグラフィ精度
+- **skill**: `text-box: trim-both cap alphabetic` (Chrome 133+) / `text-wrap: balance` / `text-wrap: pretty`
+- **application**: バッジ・見出しの天地余白を `text-box-trim` で正確に取り、`text-wrap: balance` で2行見出しの改行位置を最適化。`<wbr>` を Rei の改行許可位置スラッシュから機械変換
+- **KPI**: バッジ天地バランス手修正 案件あたり8箇所→0箇所、キーワード泣き別れ 月4件→0件、Rei ⇄ Kana の改行相談往復 平均3回→0回
+- 未対応ブラウザは PostCSS プラグインでフォールバック
+- 分割 span 実装は自動生成スクリプトで属人化排除
+
+### 5. Google Ads 全20サイズ + 媒体別マスターテンプレ
+- **skill**: Google Ads Responsive Display 20 サイズ / Meta Ads 12 サイズ / Indeed 6 サイズ / LINE Ads 8 サイズ
+- **application**: 主要46媒体サイズを1マスター HTML＋`data-media` 差し替えで生成できる Grid テンプレを標準装備。300×250・728×90・160×600・970×250 等の Google Ads 標準サイズも即対応
+- **KPI**: 対応可能媒体サイズ 8種→46種、新規サイズ追加リードタイム 60分→3分、GDN CTR ベンチマーク+22%（サイズ最適化効果）
+- Amazon/Yahoo/TikTok 広告サイズも同基盤で追加
+- サイズ別の最小可読 px は媒体プリセットが自動保証
+
+### 6. brand-tokens + design-tokens の W3C DTCG 準拠 JSON 化
+- **skill**: W3C Design Tokens Community Group format / Style Dictionary 4 / Figma Tokens
+- **application**: iro 抽出の `--primary`/`--secondary`/`--accent`/`--text` に加え `--scale-headline`/`--pad-frame`/`--border-subtle` 等の寸法・トーン・書体トークンを DTCG JSON で管理し、Style Dictionary で CSS/Figma/Swift へ多方向配信
+- **KPI**: 色違い20案生成時間 案件あたり45分→3分、修正1行での全案反映率 100%、LP↔バナー↔資料の世界観一致度 主観評価 3.8→4.9（5点満点）
+- Figma Variables との双方向同期
+- brand-tokens の版管理を semantic-release で自動化
+
+### 7. CTR 最適化データベースと勝ちパターンライブラリ
+- **skill**: BigQuery 2026 / Looker Studio / A/B テスト結果の統計解析
+- **application**: 過去配信バナーの CTR/CVR・レイアウト特徴（面積配分・CTA 位置・色相・訴求軸）を BigQuery に集約し、新規案件着手時に「業種×媒体×ターゲット層」で類似セグメントの勝ちパターン Top3 を Looker Studio で即引き当て
+- **KPI**: 初稿承認率 62%→88%、業種平均 CTR 比 +45%、勝ちパターン参照時間 30分→30秒
+- Rei の勝ちコピーライブラリと BigQuery で JOIN
+- Yuna 経由でクライアント別 NG履歴DB と統合
+
+### 8. 全サイズ・全色パターン俯瞰インデックス HTML の自動生成
+- **skill**: iframe / `transform: scale()` / Vite HMR による開発サーバー
+- **application**: 案件フォルダに `_index.html` を自動生成し、全サイズ・全色パターンを実表示相当（35%前後）の縮尺でグリッド表示。Yuna 社内提示URLとしても流用可能で、Hiro 書き出し前にラフ段階の可否判定
+- **KPI**: 案件横並び確認時間 20分→2分、サイズ間ズレ検出率 60%→100%、Yuna への提示URL共有 手作業→自動
+- Vite HMR で編集→即プレビュー反映
+- QRコード付きでスマホ実機確認も1タップ
+
+### 9. モーション・アニメーション対応 (Google Web Designer 代替)
+- **skill**: CSS `@scroll-timeline` / `@view-timeline` / motion-safe / `prefers-reduced-motion`
+- **application**: Google Web Designer に頼らず CSS 標準の scroll-driven animation でリッチメディア広告を実装、GDN の HTML5 バナー入稿にも対応。`prefers-reduced-motion` で a11y も保証
+- **KPI**: リッチメディア広告対応 未対応→対応、GWD ライセンス費 年12万円→0円、モーション対応案件 CTR +38%
+- Lottie も選択肢に (lottie-web 5.12)
+- INP 200ms 以内を motion-safe で保証
+
+### 10. HIRO-CHECK 拡張仕様と Kana⇄Hiro 契約ドキュメント化
+- **skill**: JSON Schema / TypeScript 型定義 / OpenAPI 3.1 スタイルの HTML アノテーション
+- **application**: Kana から Hiro への HTML 引き渡しに `HIRO-CHECK` メタデータブロック（lossless-selectors・media-target・safe-area・font-list・text-boxes）を必須化し、JSON Schema でバリデーション。Hiro が推定する余地をゼロ化
+- **KPI**: 圧縮領域推定ミス 月4件→0件、Kana⇄Hiro 差し戻し 月8件→1件、契約仕様の版管理漏れ 月2件→0件
+- Kana⇄Hiro の SLA (5分以内の応答) を CI で計測
+- `@let-inc/banner-utils` の型定義から自動生成

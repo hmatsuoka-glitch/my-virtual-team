@@ -796,3 +796,59 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **4種のフラグは立てた瞬間にセクション名とスクロール深度が自動で入る形にし、後からの追記をやめる**：フラグはその場で立てる（2026-08-18参照）運用にしても、Shunが離脱段階と突合するために要求するセクション名・スクロール深度（2026-08-27参照）を後で足すと、該当箇所を探し直すコストが抽出本体と同程度かかる。抽出スクリプト側で要素のoffsetTopからページ内深度（%）と直近の見出しテキストを取得してフラグ行へ自動で埋め、人が書くのは判断理由の一文だけにする。Shunのマイクロファネル軸へそのまま並ぶ状態で納品できる
 - **同一クライアントの複数LP案件は、共通トークン確定モードとページ差分モードの2実行に分けてスクリプトを回す**：共通トークン（色・フォント・余白・ロゴ）を先に1回確定してからページ固有の差分だけを抽出する（2026-08-18参照）方針を、目視の判断でなくスクリプトの実行モードとして固定する。1回目は全ページを横断して同一値のプロパティだけを`tokens.json`へ吸い上げ、2回目以降は共通トークンと一致しない値だけを差分として出力する。「これは共通か固有か」を人が判断する工程が消え、2本目以降の納品物が差分リストだけになる
 - **フォントのライセンス判定は毎回調べず、提供元・可否・代替の判定表を持って突き合わせるだけにする**：有料・埋め込み不可フォントの確認（2026-08-05参照）を案件ごとに調べると、建設業サイトで頻出する同じ和文フォントを何度も調べ直すことになる。提供元（Google/Adobe/自社ホスト/有料）・ライセンス種別・Web埋め込み可否・近似Google Fonts代替を1行に持つ判定表を蓄積し、STEP 3で採ったfont-familyを突き合わせて表にない場合だけ調査を起こす。Renへのライセンス先出し（2026-08-13参照）が、抽出と同じタイミングで完了する
+
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+CSS完全抽出を、Framer / Wix Studio / Webflow の Reverse Engineering 部門トップ水準へ引き上げる10項目。抽出の網羅性・精度・下流への手渡し品質を機械化する。
+
+### 1. Playwright 1.50 headless + `getComputedStyle` 全DOM ダンプの自動化
+- **新スキル/知識**：Playwright 1.50 の Chromium ヘッドレスで対象ページを開き、`document.querySelectorAll('*')` 全要素の `getComputedStyle` を JSON でダンプ。CDP経由で `Runtime.evaluate` を並列実行し全ビューポート（375/768/1440/1920px）を1コマンドで採取。
+- **日常活用**：STEP 2〜6の手動確認を全廃、抽出時間の8割を機械化。人的判断はフラグ立てと例外処理のみに集中（2026-08-18参照を強化）。
+- **KPI**：抽出時間 1LP 4h→30分／転記漏れ ゼロ化／レスポンシブ差分の見落とし ゼロ化。
+
+### 2. W3C Design Tokens Format Module + Style Dictionary 4.0 で tokens.json を標準化
+- **新スキル/知識**：W3C Design Tokens Community Group の Draft Spec（2026-Q1版）に準拠した `tokens.json` を生成、Style Dictionary 4.0 で Tailwind Config / CSS Variables / iOS(SwiftUI) / Android(XML) の4形式へ同時出力。
+- **日常活用**：Iro（ブランド色）／Ren（実装）／hiro（バナー生成）が同一トークン参照。案件横断のトークン再利用が可能。
+- **KPI**：トークン参照ズレ由来の色NG ゼロ化維持／新規案件のトークン初期構築 2h→10分。
+
+### 3. OKLCH 色空間統一 + `culori` 4.0 でΔE00差分と代替色算出を自動化
+- **新スキル/知識**：CSS Color Module Level 4 の `oklch()` に統一し、`culori` 4.0 で ΔE00計算・darkモード反転・WCAG 2.2 / APCA Lc の両基準でコントラスト自動判定。屋外可読性は APCA Lc≥60 を採用ゲート化。
+- **日常活用**：`outdoor_readability_risk` フラグ（2026-08-27参照）を自動生成、改善提案の推奨色をΔE00で最小差分探索。
+- **KPI**：屋外可読性NG 検出率 100%／代替色提案時間 30分→30秒。
+
+### 4. CSS Container Queries + `@property` + Subgrid の抽出対応（2026年主流仕様）
+- **新スキル/知識**：CSS Container Queries（Safari 16+/Chrome 105+ 全ブラウザ対応済）・`@property` カスタムプロパティ型定義・`grid-template-rows: subgrid` の使用箇所を抽出フェーズで検出。Nao向けの構造ファイルへ `container_query_target` として明記。
+- **日常活用**：Container Queries を Media Queries と誤検知するミスをゼロ化。Nao / Renが2026年仕様に沿った実装判断ができる。
+- **KPI**：Container Queries検出漏れ ゼロ化／Ren実装後のレイアウト崩れ 月2件→ゼロ化。
+
+### 5. Figma Dev Mode 2.0 MCP経由でデザインファイル併存時の突合を自動化
+- **新スキル/知識**：クライアントがFigma原本を持つ案件では Figma MCP 経由でDev Mode の `get_variable_defs` / `get_design_context` を取得し、抽出したCSSトークンとΔE00で照合。差異があればFigmaを正としてIroへエスカレ。
+- **日常活用**：LP複製案件でも原本Figmaがある場合は「原本→CSS抽出→差分」の3層構造で仕様確定。原本と実装のズレゼロを担保。
+- **KPI**：原本ズレ由来のNG ゼロ化／Figma併存案件の仕様確定リードタイム 2日→半日。
+
+### 6. Tailwind CSS 4.0 + Lightning CSS 1.28 で抽出結果の Tailwind Config を自動生成
+- **新スキル/知識**：Tailwind CSS 4.0 の `@theme` ディレクティブと Lightning CSS 1.28 の AST 解析で、抽出した色・フォント・余白・シャドウを `tailwind.config.ts` の `theme.extend` へ自動書き出し。カスタムプラグイン `hana-tokens-plugin` を作成。
+- **日常活用**：Renの初期セットアップの Tailwind Config 手書きを廃止。抽出完了と同時に Config が納品される。
+- **KPI**：Ren初期セットアップ時間 2h→10分／Tailwind Config起因のクラス名ミスマッチ ゼロ化。
+
+### 7. View Transitions API + `@starting-style` の抽出対応（2026年主流アニメーション）
+- **新スキル/知識**：View Transitions API（`document.startViewTransition`）・`@starting-style` によるエントリーアニメの使用箇所を検出、Nao / Renへ「JS/CSS どちらの制御か」を明記して渡す。GSAP / AOSと混在する場合は優先順位も記録。
+- **日常活用**：モダンアニメ仕様の見落としをゼロ化。`late_reveal_risk` フラグ（2026-08-16参照）判定にも活用。
+- **KPI**：View Transitions見落とし ゼロ化／Ren実装後のアニメーション再現度 90%→99%。
+
+### 8. axe-core 4.10 + APCA Contrast の二段アクセシビリティ監査を抽出時同時実行
+- **新スキル/知識**：抽出スクリプト内で `axe-core` 4.10 と APCA Contrast Checker を同時実行し、WCAG 2.2 AA違反・APCA Lc不足を全要素で自動検出。Kaito向け「改善提案候補リスト」（2026-08-27参照）へ自動連携。
+- **日常活用**：忠実再現と改善提案の分離ワークフロー（2026-08-16参照）を機械化。Ryota提案書への打ち手転記が完全自動化。
+- **KPI**：アクセシビリティ違反の検出率 100%／改善提案リスト生成時間 30分→即時。
+
+### 9. `wappalyzer` API 2026版 + `builtwith` の技術スタック検出強化
+- **新スキル/知識**：Wappalyzer API と BuiltWith API を並列実行し、CMS・Framework・CDN・A/B testing tool（Optimizely / VWO）・Cookie Consent Tool（OneTrust）まで検出。Web Almanac 2025 の統計と照合し「主流かレガシーか」を判定。
+- **日常活用**：技術スタック検出（STEP 7）の網羅性向上。レガシー技術は「代替提案付き」でKaitoへ申し送り。
+- **KPI**：技術スタック検出網羅率 60%→95%／レガシー技術の代替提案率 30%→100%。
+
+### 10. 抽出成果物の CI/CD 化：GitHub Actions + Turborepo 2.0 で下流連携を機械化
+- **新スキル/知識**：`hana-extract` リポジトリを GitHub Actions で回し、tokens.json / tailwind.config.ts / fragments.md / accessibility-report.md / dependencies.json をアーティファクトとして公開。Turborepo 2.0 のキャッシュで再実行を10秒以内に。
+- **日常活用**：Nao / Ren / Iro / hiro が同じCIアーティファクトを参照。ローカル手渡しの往復ゼロ化。バージョン管理も Git tag で対応。
+- **KPI**：納品リードタイム 1日→30分／版ズレ起因のNG ゼロ化／再抽出の実行時間 30分→10秒。

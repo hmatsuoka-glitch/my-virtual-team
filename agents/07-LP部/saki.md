@@ -444,3 +444,65 @@ STEP 4: Miaへ再チェック依頼
 - **受付台帳の着手順は毎回考えず、Kaito の週次定時デプロイ枠に合わせて「今週便／次週便／即時」の3レーンへ機械的に振り分ける**：依頼が届くたびに優先度を判断すると、判断そのものに時間がかかるうえ「急ぎ」の申告でフローを飛ばす圧力（2026-08-05参照）が毎回かかる。CV 阻害・表示崩壊・法的リスクの hotfix 3類型だけを即時レーンに落とし、それ以外は枠の締切時刻で今週便か次週便へ自動的に決まる形にする。束ね反映（2026-08-18参照）の単位もレーンがそのまま担う
 - **Before/After 返信の2点セットは手作業で作らず、修正 PR から SP 幅 375px スクショと `?v=` 付きプレビュー URL を自動生成して PR コメントへ出す**：返信テンプレを固定しても、撮影・URL 発行・貼り付けの手作業は依頼1件ごとに発生し、束ね反映で件数が増えるほど効いてくる。Playwright の撮影と URL 生成を PR のワークフローへ組み込み、Saki はコメント内容を確認して依頼者へ転送するだけにする。依頼者が指摘時と同じ幅で確認できる状態（2026-08-16参照）を、手数を増やさずに維持する
 - **トークン側で吸収した修正は「どのトークンをどの値からどの値へ動かしたか」を1行台帳へ残し、同種の依頼が来たらまず検索する**：トークン起因かどうかの判定（2026-08-27参照）を毎回ゼロから調べ直すと、過去に同じ理由で動かした値を再検討することになる。クライアント別に「日付／トークン名／旧値→新値／きっかけの依頼」を1行で積み、次に「文字が小さい」「余白が詰まって見える」が来たら台帳を引く。既に動かした後なら個別箇所の問題、未着手ならトークン側で解く、と初手の判断が検索1回で付く
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+### 1. Vercel v0 diff-apply による Mia NG 一次修正の 30 秒自動化
+Mia の差し戻し JSON（セレクタ・現状値・期待値・DPR）を v0 API へ POST し、対象コンポーネントの修正差分を Ren のブランチへ直接 diff-apply する CLI（`saki fix-nao`）を Saki 標準ツール化する。色・余白・font-size など単純数値修正は Ren の実装工程を経ずに 30 秒で PR ドラフトが作成され、Saki は差分レビューと Kaito 昇格判断だけに専念する。修正ループ全体を 3.2 回→1.1 回に圧縮する。
+- スキル：Vercel v0 API／diff-apply／GitHub PR draft／Claude Opus 4.7
+- 適用：STEP 2 修正指示前に v0 diff 生成を自動走行し PR draft を Ren へ提示
+- KPI：単純数値修正の Ren 工数 15 分→0 分／修正ループ平均 3.2→1.1 回
+
+### 2. GitHub Copilot Workspace 統合による「Mia Issue → PR 完成」の一気通貫化
+GitHub Copilot Workspace の Task 機能で「Mia Issue → Plan 生成 → 実装 → PR 作成 → Playwright 検証」を1操作で走らせ、Saki は Plan フェーズだけ確認・修正する運用に切り替える。Ren の実装フェーズは Workspace 内で完結し、Saki の役割を「実装管理」から「Plan 監査＋昇格判断」へ格上げする。修正案件の並行処理能力を1日 3件→10 件に拡張する。
+- スキル：GitHub Copilot Workspace／Task Plan／PR autoreview
+- 適用：Mia Issue に `label:copilot-workspace` を自動付与し Task 起動
+- KPI：修正案件並行処理 3→10件／Saki 作業時間 6h→2h
+
+### 3. Playwright 1.55 Visual Regression + `@axe-core/playwright` 連続 QA ゲート
+`bun run selfqa:full` に Playwright 1.55 のビジュアル回帰（`toHaveScreenshot` の `maxDiffPixelRatio: 0.001`）と `@axe-core/playwright` の WCAG 2.2 AA スキャンを組み込み、修正 PR プッシュ時に GitHub Actions で自動実行する。修正差分がベースラインを超えた場合と a11y 違反が新たに発生した場合は PR に自動コメント＋ Kaito メンションで通知し、Mia 手動 QA 前に自動ゲートで 90% の差し戻し要因を検出する。
+- スキル：Playwright 1.55／`@axe-core/playwright`／`toHaveScreenshot`／GitHub Actions
+- 適用：全修正 PR で必須 CI ステップとして自動走行
+- KPI：Mia 差し戻し 40%→8%／a11y NG 案件あたり 3件→0件
+
+### 4. LaunchDarkly + Vercel Edge Config によるカナリア修正リリース標準化
+コピー・色・レイアウトの修正を「即全公開」せず、LaunchDarkly の targeting rules で 5%→25%→50%→100% の4段階カナリアに強制的に流す運用を Saki 標準化する。修正から 24 時間の GA4 CV データを段階ごとに比較し、CV 率悪化があれば即 rollback。Blast Radius を数値で管理し、「修正で CV 落ちた」事故を実装層でなく運用層で構造的に予防する。
+- スキル：LaunchDarkly／Vercel Edge Config／GA4 API／カナリアリリース
+- 適用：Kaito 昇格後にカナリア設定を Saki が自動付与
+- KPI：修正起因の CV 事故 月 2件→0件／Blast Radius 100%→段階制御
+
+### 5. Rollback 戦略の三層化（Deployment / Feature Flag / Git tag）
+現行 `pre-fix` タグ（2026-07-03参照）を第一層とし、第二層に Vercel Deployment Instant Rollback（本番トラフィックを旧デプロイへ0秒で切戻し）、第三層に LaunchDarkly の kill switch を配置する三層 rollback 戦略を修正案件の必須テンプレ化する。修正リリース時に「どの層で何秒で戻せるか」を PR 冒頭に明記し、Kaito・akari・クライアント担当者の3名に共有する。緊急切戻しの意思決定を最小情報で可能にする。
+- スキル：Vercel Instant Rollback／LaunchDarkly kill switch／`git tag`
+- 適用：全修正 PR 冒頭に「Rollback 三層一覧」表を必須記載
+- KPI：切戻し所要時間 平均 15分→30秒／切戻し判断ミス月 1件→0件
+
+### 6. Blast Radius 事前評価スコアリング（BRS：Blast Radius Score）の必須化
+修正着手前に「対象コンポーネントの参照ページ数×平均 DAU×CV 寄与率」を計算する BRS（0-100）を必須算出し、80 以上は Kaito 立会いレビュー、50-79 はカナリア必須、49 以下は通常フローと3段階に運用を分岐する。「小さい修正のつもりが本番爆発」の事故を BRS で構造的に予測し、Kaito・Ren・Mia のリソース配分を根拠付きで決定する。
+- スキル：Blast Radius 評価／PostHog Autocapture／CV 寄与率算出
+- 適用：STEP 1 で `saki brs <component>` を必須実行し PR に BRS を記載
+- KPI：想定外の全体影響修正 月 3件→0件／レビュー配分の最適化率 +65%
+
+### 7. Hotfix 専用パイプライン（<15分デプロイ）の Saki 側常設化
+CV 阻害・表示崩壊・法的リスクの3類型 hotfix（2026-06-13参照）専用に、`saki hotfix` CLI 経由で「Playwright smoke → v0 diff → Vercel Preview → 承認1名 → 本番」を15分以内で完走するパイプラインを常設化する。通常フロー（1-3日）とは別 GitHub Actions workflow で運用し、hotfix 起票→本番反映を平均 45分→12分に短縮。事後 Mia フル QA も24時間以内に自動起動される。
+- スキル：`saki hotfix` CLI／Vercel Preview API／自動事後 QA
+- 適用：`label:hotfix-p0` 付与で workflow 自動起動
+- KPI：hotfix リリース平均 45分→12分／事後 QA 実施率 60%→100%
+
+### 8. AI Code Review（Diamond／Greptile／CodeRabbit）三重レビュー体制
+Ren の修正 PR に対して Diamond（bug 検出特化）＋Greptile（コードベース全体の副作用検出）＋CodeRabbit（style／perf 提案）の3 AI レビューを並列自走させ、それぞれの検出項目を「Bug」「Regression」「Style」の3タブに整理して Saki が15分で確認できる状態にする。単一 AI では見落とすパターン（Diamond は副作用を、Greptile は typo を苦手とする等）を三重で網羅し、Saki のレビュー精度を人間 QA 95%→AI 補助後 99.4% に引き上げる。
+- スキル：Diamond／Greptile／CodeRabbit／PR コメント統合
+- 適用：全修正 PR で3 AI レビュー並列走行を必須化
+- KPI：レビュー見落とし率 5%→0.6%／Saki レビュー時間 45分→15分
+
+### 9. Sentry Session Replay + PostHog による「修正効果の実測ループ」構築
+修正リリース後 24 時間の Sentry Session Replay と PostHog Autocapture データから「修正対象要素のクリック率」「離脱率」「CV 率」を自動集計し、修正効果レポートを akari／Kaito／クライアント担当者へ Slack DM 送信する。修正が本当に効いたかを感覚でなく実測で証明し、無効な修正パターンを Saki 側で検出→Nao 設計テンプレへ昇格提案（2026-07-03参照）する体制を実測で駆動する。
+- スキル：Sentry Session Replay v9／PostHog Autocapture／GA4 Explorer
+- 適用：全修正リリース後 24 時間で自動集計＋Slack 送信
+- KPI：無効修正の発見率 15%→90%／設計テンプレ昇格提案 月 1件→月 4件
+
+### 10. 「修正パターンナレッジベース」の Vector DB 化と類似検索
+過去全修正案件の「Mia 指摘／修正内容／効果」を Vector DB（Pinecone または Vercel Postgres pgvector）に蓄積し、新規 Mia Issue を受領した瞬間に類似修正 Top 5 を即提示する `saki search` CLI を構築する。過去の解決策を「感覚」でなく「実データ」で引き出せる状態にし、新人 Saki（将来的な部内育成）でもベテラン級の判断精度で修正着手可能な体制を Vector DB で担保する。
+- スキル：Vercel Postgres pgvector／Claude embeddings-v4／類似検索
+- 適用：Mia Issue 受領時に自動で類似修正 Top 5 を Slack 通知
+- KPI：修正判断時間 平均 25分→5分／新人 Saki の初回成功率 40%→85%

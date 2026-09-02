@@ -678,3 +678,65 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **STEP 2 の骨格生成は手打ちせず、Nao の設計表から空コンポーネント・props 型・6状態スタブ・QA 属性を生成するスクリプトで出す**：設計表がセクション行×固定列（nao 2026-09-01参照）で機械可読になるため、ファイル生成・型定義・idle/hover/focus/disabled/loading/error のスタブ・`data-testid` 付与までは人が書く必要がない。生成後に Ren が書くのは中身のマークアップとロジックだけになり、設計と実装の定義ズレも生成の時点で構造的に起きなくなる
 - **職種別・エリア別の横展開 LP は、差分がコピーと画像だけならコンポーネントを複製せず content JSON の差し替えで作る**：建設業クライアントの施工管理／型枠／鉄筋 LP はレイアウトが同一でテキストと写真しか変わらないことが多く、ページごとに複製すると1箇所の修正が本数分に増える。文言・画像パス・条件3点を content JSON へ外出しして1実装で回し、kotone の会社共通ブロックと職種固有ブロックの分割（kotone 2026-09-01参照）とファイル境界を揃える
 - **画像・動画の最適化指定は都度判断せず、Hero／セクション／アイコンの3用途ラッパーを用意して用途を選ぶだけにする**：`priority`・`sizes`・`fill`・AVIF・`poster`＋`preload="none"` の組み合わせを毎回考えると、`sizes` 無指定（2026-08-12参照）や Hero 動画の黒画面（2026-08-16参照）が忘れた箇所にだけ再発する。Hero ラッパーは `priority`＋`sizes` 必須・動画時は `poster` 必須、セクションは遅延読込＋`sizes` 既定、アイコンは SVG 強制、と用途ごとに正解を固定する
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+### 1. Next.js 15 App Router × React 19 Server Components 全面採用と Streaming SSR 最適化
+Next.js 15 の Partial Prerendering（PPR）と React 19 の Server Components/Server Actions を前提に、`app/(marketing)/page.tsx` を PPR shell として静的骨格を配信し、フォーム・パーソナライズ要素だけを Suspense boundary で streaming する構造をデフォルトにする。Nao の SA/IM/HO 5階層ラベルを `ast-grep` で自動検出して境界配置を提案する CLI（`ren check-boundaries`）を Ren 標準ツールへ組み込み、`'use client'` の乱用を実装層で機械的に予防する。
+- スキル：Next.js 15 PPR／React 19 Server Components／`ast-grep`／Turbopack 2.0
+- 適用：STEP 1 骨格生成時に `experimental.ppr: 'incremental'` を必須設定
+- KPI：First Load JS 中央値 180KB→100KB／TTFB p75 400ms→150ms／LCP 2.8s→1.6s
+
+### 2. Tailwind CSS 4.0 `@theme` × Oxide エンジン × Container Queries 標準運用
+Tailwind CSS 4.0 の CSS-in-CSS 化に完全対応し、`tailwind.config.ts` を廃止して `app/globals.css` の `@theme` ブロックに W3C DTFM 準拠 tokens.json を CLI で流し込む構成をデフォルト化する。Oxide エンジン採用でビルド時間を 45秒→3秒に短縮し、`@container` クエリを Card／Section／Hero の全再利用部品へ標準採用する。Nao の設計表 `container-name`／`container-type` 列を実装に1対1マッピングする ESLint ルール `require-container-name` を導入する。
+- スキル：Tailwind CSS 4.0／Oxide／`@theme`／`@container`
+- 適用：STEP 1 骨格生成時に tailwind.config.ts を削除し globals.css へ移行
+- KPI：ビルド時間 45s→3s（-93%）／CSS bundle 92KB→41KB
+
+### 3. Radix UI 2 + shadcn/ui + Motion 12（旧 Framer Motion）による Headless 実装統一
+shadcn/ui のコピペ設置型部品（2026-07-27参照）を社内 GitHub Packages（`@let/ui`）としてバージョン固定配布し、Modal／Dialog／Accordion／Popover は Radix UI 2 プリミティブに強制、アニメーションは Motion 12（旧 Framer Motion、名称変更）の Layout Animations と View Transitions API 併用に統一する。div ボタン風の a11y 事故（2026-08-05参照）を実装層で物理禁止し、パッケージ既定で WAI-ARIA `role`/`aria-*`/フォーカストラップを内蔵する。
+- スキル：Radix UI 2／shadcn/ui／Motion 12／View Transitions API
+- 適用：全 LP 案件で `@let/ui` バージョン固定依存を必須化
+- KPI：a11y 差し戻し 月 6 件→0 件／アニメ実装工数 案件あたり 4h→1h
+
+### 4. Bun 1.2 + Biome 2.0 + Turborepo 3.0 による開発サイクル物理最適化
+package manager を pnpm から Bun 1.2 へ移行し、ネイティブ TypeScript 実行と 3倍速の依存インストールを標準化する。Biome 2.0（Prettier 完全互換 + import sorter 統合）で lint／format／organize imports を1コマンド化し、Turborepo 3.0 の Remote Cache を Vercel Edge Config と接続して CI 全体時間を 4 分→30 秒に圧縮する。修正ループの物理制約を実装層から除去し、1日の修正着地回数を 3→10 件へ拡張する。
+- スキル：Bun 1.2／Biome 2.0／Turborepo 3.0／Vercel Remote Cache
+- 適用：全案件 `package.json` の packageManager を `bun@1.2` に固定
+- KPI：`bun install` 45s→8s／CI 4分→30秒／HMR 900ms→120ms
+
+### 5. View Transitions API 全面採用によるページ遷移体験の一段引き上げ
+Next.js 15 の `unstable_ViewTransition` コンポーネントを全 LP のヘッダーナビ・アンカー遷移・モーダル開閉に標準採用し、SPA 風の滑らかな遷移体験を JS 追加ゼロで実現する。Motion 12 の layout animation との併用パターンを部内テンプレ化し、`prefers-reduced-motion` 時は自動 fallback。CSS の `view-transition-name` を Nao の設計表 semantic 命名と1対1マッピングし、遷移する要素の識別を設計層で確定させる。
+- スキル：View Transitions API／`view-transition-name`／`unstable_ViewTransition`
+- 適用：STEP 4 アニメ実装時に全遷移箇所へ VT 適用を必須検討
+- KPI：ページ遷移体感速度 +40%／`prefers-reduced-motion` 対応漏れ 0
+
+### 6. Server Actions × 冪等キー × Vercel Skew Protection の Form 三重防御標準化
+共通フォーム部品（2026-08-27参照）を React 19 `useActionState`＋`useOptimistic`＋`useFormStatus` フル活用に更新し、クライアント生成 UUID の冪等キーヘッダ・Vercel Skew Protection の `x-deployment-id`・Server Action の `revalidateTag` 明示指定を三重防御として `@let/ui/Form` の既定挙動へ内蔵する。Version Skew 起因の送信失敗と二重応募を実装層で構造的にゼロ化し、案件ごとの合意事項を初期構成へ前倒しする。
+- スキル：React 19 Form hooks／Vercel Skew Protection／`revalidateTag`／crypto.randomUUID
+- 適用：全 Form 有 LP でパッケージ既定＋Vercel プロジェクト初期設定に有効化
+- KPI：送信失敗率 2.1%→0.1%／二重応募 月 2 件→0 件／CV 損失 -12%
+
+### 7. Playwright 1.55 + Chromatic 12 + Percy による三層ビジュアル回帰網
+`bun run test:visual` 単一コマンドで Playwright（機能スモーク）＋Chromatic（Storybook ビジュアル）＋Percy（本番同等プレビューの pixel diff）の3層を並列実行する体制を構築し、Mia 再依頼前の Ren セルフ QA を「10 分の網羅網」に固定化する。3層で発見される問題領域が異なるため（動線／単体表示／実 LP 統合）、Mia の QA 差し戻し原因の 90% を Ren 段階で自己検出できる。
+- スキル：Playwright 1.55／Chromatic 12／Percy／`concurrently`
+- 適用：Mia 再依頼前セルフ QA の必須ステップとして `bun run test:visual` を組込
+- KPI：Mia 差し戻し率 40%→8%／Ren 修正ループ平均 3.2 回→1.4 回
+
+### 8. React Compiler（旧 forget）自動最適化 × why-did-you-render 常時計測
+Next.js 15 で正式安定化した React Compiler を全 LP でデフォルト有効化し、`useMemo`／`useCallback`／`React.memo` の手動記述を廃止する。同時に development モードで `@welldone-software/why-did-you-render` を有効化し、意図しない再レンダリング発生時に Console へ即警告を出す運用を pre-commit hook で強制する。INP 350ms 超えの実装をローカル段階で物理検出し、Mia の INP QA 差し戻しを根本予防する。
+- スキル：React Compiler／why-did-you-render／React DevTools Profiler
+- 適用：`next.config.ts` に `experimental.reactCompiler: true` を必須設定
+- KPI：INP p75 280ms→110ms／手動最適化コード 案件あたり 45行→0
+
+### 9. Vercel Edge Middleware × Feature Flag × A/B テスト実装の Ren 標準化
+Vercel Edge Config を用いた feature flag（`vercel/flags` SDK）を全 LP 案件でデフォルト有効化し、コピー・色・レイアウトの A/B テストをコード変更なしで運用可能にする。フラグ定義は kotone・sota・saki の3者が Edge Config UI から編集でき、Ren のデプロイを介さずクライアントが CTA コピーを差し替えられる状態にする。Middleware でユーザーバケット判定→レスポンスヘッダー付与→GA4 event 発火まで自動化する。
+- スキル：Vercel Edge Config／`vercel/flags` SDK／Middleware／Edge Runtime
+- 適用：STEP 1 骨格生成時に `middleware.ts` を必須配置
+- KPI：A/B テスト実装工数 案件あたり 6h→0h／実験サイクル 週1→日1
+
+### 10. Sentry Session Replay + PostHog Autocapture の本番実測ループ構築
+Sentry Session Replay（v9）でエラー発生時の実ユーザー操作を動画再生可能にし、PostHog Autocapture でクリック・スクロール・入力の全イベントを自動記録する。akari のレポート・saki の修正依頼を「感覚」でなく「本番実測データ」ベースにする体制を Ren の初期構成に埋め込み、Nao の Architecture KPI（Scroll Depth／CTA 到達率／Form 完了予測時間）と接続する。実測が改善提案の根拠になる状態を、実装層で保証する。
+- スキル：Sentry Session Replay v9／PostHog Autocapture／Web Vitals API
+- 適用：STEP 1 骨格生成時に Sentry+PostHog SDK 初期化を必須組込
+- KPI：本番エラー原因特定時間 平均 3日→30 分／改善提案の実測根拠率 30%→98%

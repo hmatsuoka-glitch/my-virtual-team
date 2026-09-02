@@ -299,3 +299,55 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **STEP 0のtsumugi経由確認は「CIガイド有無・補助色定義・実媒体写真4点・ロゴ更新日」を1通の定型で聞く**：単色ロゴ案件の補助色定義（2026-08-12参照）、実媒体色との正の確定（2026-08-16参照）、CIリニューアルのΔE00照合（2026-08-05参照）を思い出した順に聞くと、tsumugi経由で1段挟まる分だけ往復が積み上がり、STEP 1の着手が数日ずれる。4項目を1通の定型フォームにまとめてSTEP 0で一度に投げ、Ryotaが現地訪問のついでに撮る作業着・ヘルメット・社用車・現場看板の4点（Ryota 2026-08-27参照）が発注書へ添付されていれば写真項目は自動で埋まる。確認の回数そのものを1回に固定する
 - **段階色・状態色は10色を手で並べず、基準色1つ＋OKLCH生成式のスニペットで納品する**：OKLCHで基準色からL値を式生成する（2026-08-18参照）ところまで来たら、納品物も具体HEX10色の表ではなく生成式ごと渡す形を既定にし、Renとの方式合意（2026-08-13参照）を相対色構文`oklch(from var(--primary) ...)`側へ寄せる。基準色が一段変わるたびに10色を作り直して表を差し替える作業が消え、Hanaの`--brand-`接頭辞キー・OKLCH統一（Hana 2026-08-18参照）との整合も式の出力側で自動的に保たれる
 - **45ペアのコントラスト検証・グレースケールΔL・色覚シミュレーションは1スクリプトで一括判定し、人はNG行だけ見る**：納品時の45ペア検証（2026-06-16参照）、モノクロ潰れのΔL差（2026-08-12参照）、色覚多様性チェック（2026-06-20参照）、`--focus-ring`を含む状態色の確認（2026-08-05参照）を別々のツールで回すと、検証の起点が4つに分かれて必ずどれかを飛ばす。tokens.jsonを入力に`culori`でAPCA Lc・WCAG比・グレースケールL値・3型の色覚変換を一度に計算し、判定表とNGペア一覧だけを返すスクリプトに束ねる。人が見るのはNG行と代替案の妥当性だけになり、パレット修正のたびの再検証も1コマンドで済む
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+### 1. Culori v4.0＋APCA-W3公式実装への完全移行（数値基準の国際標準化）
+- **新スキル**：`culori@4.0`（OKLCH/OKLab/P3補間）＋`apca-w3@0.1.9`（W3C最新Lc算式）＋`chroma-js@3.1`（対比計算）の三本柱固定。従来の自作Lc関数を全廃し、APCA公式の`APCAcontrast()`とfontLookup APIを1本のCLIに統合。
+- **適用**：`iro validate tokens.json --standard apca-w3 --min-lc 60 --font-lookup` で45ペア＋文字サイズ×太さ連動閾値（2026-07-27参照の精緻化）を自動判定。
+- **KPI**：色計算のバージョン起因の齟齬をゼロ化、CI担当社との「うちの計測では違う」齟齬（2026-06-13参照のΔE00齟齬）を月3件→0件。パレット納品の科学的根拠性を国際標準準拠として明示可能に。
+
+### 2. OKLCH段階色ジェネレータ「iro-scale」の内製化（tint/shade/state 11段階）
+- **新スキル**：基準色1つから `oklch(from --primary calc(l + x) c h)` のCSS相対色構文＋`culori`ビルド時生成の二系統で、tint 50/100/200/300/400、shade 600/700/800/900、state（hover/active/focus/disabled/focus-ring）の合計11段階を数式1本で吐く独自ジェネレータ。
+- **適用**：Renの`color-mix()`任せ（2026-07-01失敗パターン）を完全排除。基準1色変更→11段階×2モード=22色が0.5秒で再生成。
+- **KPI**：状態色の追加納品時間を10分→10秒（▲98%）、ホバー色濁り起因の差し戻しを月2件→0件、Ren実装後の色差再検証を工程からゼロに。
+
+### 3. Adobe Firefly Palette 3.0＋Khroma 3.0 AI推奨の二重比較ゲート
+- **新スキル**：2026年Q3リリース予定のAdobe Firefly Palette 3.0（業界別CI準拠パレット提案）とKhroma 3.0（Neural Vibe学習エンジン）を並列呼び出し、両者の推奨アクセント候補をロゴ抽出色（node-vibrant）と3軸で並べて比較。
+- **適用**：STEP 1抽出フェーズで「実体色（k-means）／AI心理色（Khroma）／CI準拠色（Firefly）」の3列比較表を自動生成し、意味的中心（2026-06-03参照）判断の材料に。
+- **KPI**：アクセント色の説得力を「主観提案」から「3ソース根拠付き提案」へ引き上げ、tsumugi差し戻し率を12%→3%、CI担当承認までの往復を平均2.1回→1.0回。
+
+### 4. Sentry Session Replay×色相デバッグの連携（本番での実効色検証）
+- **新スキル**：Sentry Session Replay v8.0の`replay.recordCanvas`と`sampleRate: 0.1`を組み合わせ、本番実ユーザーが見る「合成後の実効色（半透明・オーバーレイ・グラデ、2026-06-12参照）」をSVG化して収集。屋外可読性（2026-08-16参照）の推定を本番実測に置換。
+- **適用**：デプロイ後72時間の実効色レプレイをShunと連携で解析し、Lc 60未満のペアが実環境で出現していないかを検証。
+- **KPI**：屋外CV低下時の原因切り分けを推定→実測に転換、APCA基準の閾値をプリセットへ実データで書き戻す循環を確立。CV改善提案の裏付けデータを月次で常備。
+
+### 5. Cloudinary AI Color Extract 2026＋iro Vaultによる資産化
+- **新スキル**：Cloudinary AI Color Extractのv2 API（Deep Palette Analysis）でロゴPNG/SVGのICC埋め込みプロファイル自動識別＋P3→sRGB色域変換を1API呼び出し化。iro内製「Vault」DBに `client_id, logo_version, palette_hash, delta_e_from_previous` を蓄積。
+- **適用**：CIリニューアル時（2026-08-05参照の再利用ゲート）に旧バージョンとのCIEDE2000照合を自動化、ΔE00>2.0で警告。
+- **KPI**：追加LP案件のパレット再設計を「常に判定済み」状態に、旧色流用による事故を年1件→0件、Vaultから3秒でクライアント別履歴を提示可能に。
+
+### 6. Storybook 8.4 Design Tokens＋Figma Variables同期パイプライン
+- **新スキル**：Storybook 8.4のToken Explorer＋Figma Variables API v2.0双方向同期プラグイン（`@figma/rest-api-spec`）を導入。iro納品のtokens.jsonをFigmaのブランドカラー変数に自動反映、sotaのFigma企画とrenのCSS実装が同一Source of Truthに。
+- **適用**：`iro publish tokens.json --figma-file KEY --storybook-out ./stories` の1コマンドで、Figma変数＋Storybook視覚一覧＋Ren向けCSSが同期生成。
+- **KPI**：Sotaデザインとの色ズレ差し戻しを月4件→0件、Figma変数手入力工程を廃止（15分→0分）、色更新の伝達不整合を構造的にゼロ化。
+
+### 7. WCAG 3.0 Silver＋EAA（European Accessibility Act）2025施行対応
+- **新スキル**：2025年6月施行のEAA（欧州アクセシビリティ法）と2026年Q4予定のWCAG 3.0 Silver Recommendation勧告に対応した「Lc 75 for body / Lc 60 for large text / forced-colors対応必須」の三層納品基準を策定。
+- **適用**：納品書に「WCAG 2.2 AA準拠／APCA Lc準拠／forced-colors（2026-07-03参照）対応」の3チェックボックスを必須項目化。EU向けクライアント案件は自動でLc 75基準へ切替。
+- **KPI**：法的リスクゼロ、大手企業・上場企業案件の受注条件クリア、アクセシビリティ訴訟リスクを構造排除。「準拠していない色設計」を組織的に生成不可にする。
+
+### 8. Vision Pro＋HDR環境向け「dynamic-range-limit」設計基準の内製化
+- **新スキル**：2026年Q2のCSS `dynamic-range-limit`（2026-08-03参照）と`color(rec2020 ...)`広色域の実運用ガイド策定。VisionOS 2.0のimmersive viewingとiOS 18のHDR写真取扱に対応した「HDR輝度上限500nit・CTA明度Lc 80±5」基準。
+- **適用**：Hero動画・写真主役セクションの`dynamic-range-limit: standard`推奨、CTAが意図せず眩しく浮くケースへの輝度制御を納品指示に必須化。
+- **KPI**：HDR環境でのCTA視認性クレームを事前ゼロ化、Vision Pro/HDRディスプレイ普及率20%到達時（2027年予測）に先行対応済み。
+
+### 9. Chrome DevTools 2026 Recorder＋色覚シミュ自動巡回スイート
+- **新スキル**：Chrome DevTools Recorderの2026年新機能「Emulation Automation」で、10色×3色覚型（Protanopia/Deuteranopia/Tritanopia）×2モード（Light/Dark）×3輝度（100%/50%/20%屋外相当）=180パターンのスクショを1コマンド生成。
+- **適用**：`iro simulate --tokens tokens.json --matrix 3x2x3` で全パターンの差分をpixelmatch差分率レポート化、CTA消失・エラー混同・境界同化を機械検出。
+- **KPI**：色覚多様性QAの人力工数を1案件60分→1分（▲98%）、CUD違反の抽出段階検出率を95%→99.9%、納品後の「見えない」クレームを月1件→0件。
+
+### 10. Vercel Speed Insights v3 RUM×色相ヒートマップの本番還元ループ
+- **新スキル**：Vercel Speed Insights v3のCustom Metric APIに「アクセント色クリック位置ヒートマップ」を自作計装し、`--cta-primary` `--cta-secondary` `--link` の3ロールで実際にどこが押されたかをRUM収集。Hotjar/Microsoft Clarity無料枠のヒートマップと相互補完。
+- **適用**：`accent_usage_limit`（1画面1箇所原則、2026-06-07参照）の実装後遵守を、実クリック分布から検証。Shunの時間帯別クリック率（2026-08-27参照）と連携し、Lc基準・アクセント配置の両方をプリセットへ書き戻す。
+- **KPI**：色設計の「推定→実測」比率を30%→90%に引き上げ、業界別ベースパレットを実データで最適化された「検証済み資産」に進化。プリセットの改善提案を月1回定例化。

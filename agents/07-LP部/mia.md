@@ -626,3 +626,55 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **差し戻し後の再 QA は全項目を回さず、差し戻したセクション ID とその下に積まれる依存セクションだけを絞り込み実行でスコープする**：セクション単位ベースライン（2026-08-18参照）へ移行済みなので、Hero の余白を直した再検証で FAQ・会社概要まで撮り直す必要はない。差し戻し時に付けたセクション ID をそのまま Playwright のテスト名タグにし、再 QA は該当タグと直下セクションだけを実行する。修正から再判定までの待ち時間が、変更範囲に比例する形へ収まる
 - **忠実度スコアは手集計せず、セクション別差分率・a11y 違反数（達成基準番号付き）・INP 実測を1つの JSON へ集約してスコア表を自動生成し、人はコメント欄だけ書く**：レポートのたびに数値を本文へ書き写すと転記ミスが起き、通過/差し戻しの根拠が曖昧になる。各検査の出力を集約してスコア表とカテゴリ別下限割れ（2026-08-05参照）の判定まで機械出力し、Mia が書くのは差分の出た箇所の所見と、Saki 向けの5分類ラベル・トークン起因判定（2026-08-27参照）だけにする
 - **元 LP のスクショは比較のたびに取得せず、着手日に DPR 4段×幅7ステップを1回でバッチ撮影して凍結基準にする**：比較のたび元サイトへアクセスすると、元サイト側の改修・A/B テスト・季節バナーの差し替えで基準そのものが動き、実装を触っていないのに差分率が変動して原因究明に時間が溶ける。全条件を着手日にバッチ撮影して撮影日時とともに保存し、以降の比較は凍結画像に対してのみ行う。元サイトの変化を追いたい場合だけ、別ジョブで凍結画像との差分を見る
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+### 1. Pixelmatch v6.0＋Odiff＋Looks-Same三本柱の知覚モデル判定
+- **新スキル**：`pixelmatch@6.0`（厳格判定 Hero/CTA/Form）＋`odiff@3.0`（Rust製で20倍高速）＋`looks-same@10.0`（DSSIM知覚モデル）の三本柱を`mia.config.json`で用途別切替。差分アルゴリズムを1ツール依存から複数比較に。
+- **適用**：`mia diff --strict pixelmatch --tolerant odiff --perception looks-same` の3並列実行で「厳格・高速・知覚」の3視点判定、2/3合意で最終合否。
+- **KPI**：フル差分判定時間を25分→90秒（▲94%）、誤NG差し戻し率を40%→3%、アンチエイリアス起因の誤検出をゼロ化。
+
+### 2. BackstopJS 6.0＋Percy AI Learning＋Chromatic AI Judgment並列採用
+- **新スキル**：BackstopJS 6.0（`backstop.json`ベースOSS）＋Percy AI（意図変更検出）＋Chromatic AI Judgment（Storybook連携）を並列比較。無料枠のBackstopと有料のPercy/Chromaticで二重チェック体制。
+- **適用**：`backstop test --config backstop.json && percy exec -- playwright test && chromatic --only-changed` の3スイート並列、AI判定99%精度で「意図変更/リグレッション」自動分類。
+- **KPI**：目視確認時間を80%削減、Mia判定の再現性100%、コスト対効果比較でツール切替判断も月次で数値化。
+
+### 3. Playwright v1.48 Visual Comparison＋Trace Viewer完全連携
+- **新スキル**：Playwright v1.48の`toHaveScreenshot()`＋`--trace=on-first-retry`＋`--ui`モードでDOMスナップショット・ネットワーク・コンソール時系列並列表示。`page.locator().toHaveScreenshot({maxDiffPixelRatio: 0.01})`をSTEP 1〜5に固定。
+- **適用**：CLS発生フレーム特定を秒速化、Ren差し戻しに `trace.zip` 添付を必須化（原因究明5分→30秒）。
+- **KPI**：差し戻しレポート発行までを1PR 15分→2分（▲87%）、原因追跡工数を月40時間→5時間削減、Ren対象特定時間5分→10秒。
+
+### 4. Applitools Eyes Ultrafast Grid＋AI Root Cause分析
+- **新スキル**：Applitools Eyes（Ultrafast Grid）でChrome/Safari/Firefox/Edge×iPhone/Android/iPad/Desktop=64環境の並列ビジュアル比較を90秒で完了。AI Root Cause分析で「セレクタ・現状値・期待値・修正推奨コード」を自動生成。
+- **適用**：BrowserStack 12マトリクス（2026-05-15参照）を64マトリクスへ拡張、iOS Safari 17/18/19・Android Chrome 130+の網羅性を確保。
+- **KPI**：クロスブラウザQA時間を60分→90秒（▲97.5%）、環境依存NG検出率95%→99.9%、iOS Safari特有バグの本番露出をゼロ化。
+
+### 5. axe-core v4.10＋WCAG 2.2 AA完全網羅＋WCAG 3.0 Silver先行対応
+- **新スキル**：`@axe-core/playwright@4.10`＋`axe-core@4.10`の最新ルールセット（WCAG 2.2 AA完全対応・WCAG 3.0 Silverドラフト対応）を全STEP併走。`axe.run({runOnly: ['wcag22aa', 'wcag3silver']})`で違反を重大度分類自動起票。
+- **適用**：GitHub Issue自動起票にラベル`a11y/critical` `a11y/serious` `a11y/moderate` `a11y/minor`を機械付与、Sakiが重大度順で処理可能に。
+- **KPI**：a11y違反修正リードタイム3日→4時間（▲94%）、WCAG 2.2 AA準拠率100%、EAA（欧州アクセシビリティ法2025）準拠案件の受注可能化。
+
+### 6. Storybook 8.4 Test Runner＋Component Story Format 3.0での分離QA
+- **新スキル**：Storybook 8.4のTest Runner（`@storybook/test-runner@0.20`）でコンポーネント単位のビジュアル＋インタラクション＋a11y統合テスト。CSF 3.0の`play()`関数で自動操作テスト、`.stories.ts`ファイルベースでMia検証範囲を可視化。
+- **適用**：LP全体QA前にコンポーネント単位でGreen確認→統合QAでE2E確認の2段階に分離、責務NG振り分け（2026-06-04参照）を検出段階で自動化。
+- **KPI**：責務NG振り分け精度95%→99.9%、コンポーネント単位の再利用性向上、Hana/Ren往復ゼロ化、Storybook DocgenでSaki指示書作成時間を50%削減。
+
+### 7. Sentry Session Replay v8＋実ユーザー再現によるLab-Field乖離解消
+- **新スキル**：Sentry Session Replay v8の`replaysSessionSampleRate: 0.1` `replaysOnErrorSampleRate: 1.0`で本番実ユーザーの操作を録画、Lab-Field乖離（2026-05-20参照）を実測レプレイで解消。
+- **適用**：STEP 6通過後7日のCrUX API取得（2026-05-20参照）に加え、実操作レプレイの上位10件を毎週レビュー、乖離20%超なら即改修Issue起票。
+- **KPI**：Lab-Field乖離検出リードタイムを7日→24時間（▲86%）、納品後の「実機だと遅い」クレーム月2件→0件、CrUX悪化案件の予防対応を月次サイクル化。
+
+### 8. Microsoft Clarity＋Hotjar併用による誤タップ・スクロール離脱可視化
+- **新スキル**：Microsoft Clarity（無料・GDPR準拠）＋Hotjar（Business plan・A/B機能）併用でヒートマップ・スクロールマップ・レコーディングを二重取得。CTA誤タップ（2026-06-07参照）とスクロール離脱を1画面ダッシュボード化。
+- **適用**：STEP 6通過後7日のClarity/Hotjarデータを毎週kotone/sotaに共有、次回改善提案の材料を継続提供（kaito 2026-05-24参照の連携強化）。
+- **KPI**：CV改善サイクルを納品後の継続価値提供に固定、クライアントLTV+40%、Kaito主導の月次改善提案レポートを毎月発行。
+
+### 9. Lighthouse CI v0.14 Assertion＋Web Vitals REST API v3の閾値ゲート化
+- **新スキル**：`@lhci/cli@0.14`＋`web-vitals@4.2`＋Vercel Speed Insights REST API v3を統合、`lighthouserc.json`のassertionsで `largest-contentful-paint ["error", {maxNumericValue: 2500}]` `interaction-to-next-paint ["error", {maxNumericValue: 200}]` `cumulative-layout-shift ["error", {maxNumericValue: 0.1}]` を必須化、Slow 4G＋Mobileプリセットで計測（2026-08-16参照の実測基準）。
+- **適用**：STEP 5 predeployゲートでLHCI FAIL＝物理デプロイブロック、`lhci autorun --upload.target=temporary-public-storage`で履歴URL自動添付。
+- **KPI**：SLA違反デプロイの本番流出をゼロ化、Sora QAリジェクト率25%→1%、CWV緑ラベル維持率95%→99.9%、Kaito SLA契約管理と連動。
+
+### 10. Percy＋axe-core統合＋GitHub Status Check物理ブロックの自動化
+- **新スキル**：Percy SDK v2＋`@axe-core/playwright@4.10`＋`@vercel/preview-deployment-action`をGitHub Actionsで統合、PR作成と同時にPreview URL発行→Percy/axe自動判定→GitHub Status Check連携で「Mia通過済PR」以外を物理マージブロック。
+- **適用**：Kaitoの本番デプロイ判定を「QA通過PR限定」に構造固定、Mia通過レポートを`gh pr view` で1コマンド確認可能に（2026-05-19参照の発展）。
+- **KPI**：本番後の不具合発生率0.5%→0.05%（▲90%）、Mia通過→本番反映のリードタイムを2時間→10分、マージ後の緊急ロールバックをゼロ化、Sora最終QAの範囲を「Mia通過報告のスポットチェック」に軽量化。

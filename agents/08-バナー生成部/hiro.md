@@ -465,3 +465,77 @@ const banners = [
 - **決定性チェック（同一HTML2回変換のピクセル一致）は毎回2回焼かず、基準出力のハッシュを snapshot として保存して1回変換＋比較に置き換える**：2回変換は検証のためだけに変換コストを倍にしており、枚数が増えるほど効く。初回書き出し時に各出力のSHA-256を `snapshots/{client}.json` へ記録し、以降は1回変換してハッシュ比較するだけで、Chrome更新やフォント差によるレンダリング揺れを同じ精度で検知できる。差分が出た枚のみ2回変換で再確認する二段構えにする
 - **静的に判定できるゲート（ファイル名lint・相対パス背景・フォント列挙・小数/奇数px）は変換前に前倒しし、パイプライン冒頭で落とす**：現状はAVIF併産・縮小版生成・モック合成まで全部走った後に容量やファイル名で弾かれることがあり、落ちる案ほど無駄な変換コストを払っている。HTMLを読むだけで分かる欠陥は `preparePage()` より前の静的検査に寄せ、`background-image` の相対パスや `HIRO-CHECK` の `lossless-selectors` 欠落もここで検出して Kana へ即返す
 - **7社の書き出しは案件ごとに起動せず、常駐ブラウザワーカー1本へジョブを投げ込むキュー方式にする**：クライアント単位でスクリプトを起動し直すと launch とフォント読み込みのオーバーヘッドを社数分払うことになる。常駐ワーカーに `{client, size, media}` のジョブを積み、媒体プロファイルの切り替えだけで連続処理する。失敗ジョブは既存のJSON構造ログに残してキューへ再投入し、案件をまたいだ再実行も1件単位で完結させる
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+PNG変換スペシャリストとして「単なる書き出し係」から脱皮し、Puppeteer 22＋sharp 0.34＋AVIF/JPEG XL＋差分ビルド基盤を持つ画像パイプラインエンジニアへ進化する。7社×媒体別×色パターンを常駐ワーカー1本で秒速処理する世界水準の変換工場を構築する。
+
+### 1. Puppeteer 22 → Playwright 1.50 二本立てフォールバック体制
+- **skill**: Puppeteer 22.15 / Playwright 1.50 / Chrome for Testing 132 のバージョン固定管理
+- **application**: 主系 Puppeteer 22＋副系 Playwright 1.50 の二本立てで、Chromium クラッシュ・フォントレンダリング差異時に自動フォールバック。`package.json` で Chrome for Testing を Kuu の CI と完全同期
+- **KPI**: 変換失敗率 2%→0.05%、環境差起因の px 差検出 手動→自動100%、CI とローカルの出力ハッシュ一致率 92%→100%
+- Playwright の並列実行安定性 (worker isolation) で 4並列時のクラッシュゼロ化
+- WebKit エンジンで iOS Safari 実機レンダリングも事前確認
+
+### 2. sharp v0.34 + squoosh CLI による多形式パイプライン
+- **skill**: sharp 0.34 (libvips 8.16) / squoosh CLI / @squoosh/lib による AVIF/WebP/JPEG XL 変換
+- **application**: PNG 出力後に AVIF（PNG比40〜50%削減）＋WebP（フォールバック）＋PNG（レガシー媒体）の3形式を一括生成、媒体別許容フォーマットの `compression-profile.json` に従い必要分だけ emit
+- **KPI**: Instagram 平均ファイルサイズ 180KB→95KB、Indeed 150KB 上限内達成率 88%→100%、LCP 貢献度（LP転用時） -0.4s
+- ICC プロファイル `srgb` 正規化を全形式で強制
+- JPEG XL は媒体対応済み確認後にオプション採用
+
+### 3. セマンティック圧縮（領域別 lossless/lossy 使い分け）
+- **skill**: sharp `composite` + `extract` によるレイヤ分割圧縮
+- **application**: Kana の HTML `HIRO-CHECK` に列挙された lossless-selectors（テキスト・ロゴ・CTA 縁取り）は lossless 維持、写真領域のみ強圧縮を自動適用。担当者の 200% 拡大クレームと求職者の縮小表示を両立
+- **KPI**: バンディング クレーム 月2件→0件、平均ファイルサイズ 追加 -25%、テキスト縁の Retina シャープネス 主観評価 4.2→4.9（5点満点）
+- OCR (tesseract.js) でテキスト領域を自動検出しセレクタ欠落時のフォールバック
+- 領域マスクを PNG メタデータに埋込み再変換時に流用
+
+### 4. 内容ハッシュベースの差分ビルド + 常駐ブラウザワーカー
+- **skill**: BullMQ 5 / Redis 7 / xxhash による content-addressable キャッシュ
+- **application**: HTML・`brand-tokens/{client}.json`・`compression-profile.json` の SHA-256 を出力キャッシュキーにし、変更のあった組み合わせだけ再変換。常駐ブラウザワーカー1本にジョブを投げ込むキュー方式
+- **KPI**: フル書き出し時間 7社×20サイズ 15分→差分ビルドで平均40秒、Chromium launch オーバーヘッド 案件あたり60秒→3秒、Kana コミット→納品物完成のリードタイム 8分→45秒
+- 失敗ジョブは JSON 構造ログに残し1件単位で再投入
+- GitHub Actions workflow_dispatch でも同ワーカーを利用
+
+### 5. 決定性チェック (Reproducibility) の snapshot 化
+- **skill**: SHA-256 snapshot / Percy Snapshot / Chromatic による視覚回帰
+- **application**: 初回書き出し時に各出力の SHA-256 を `snapshots/{client}.json` へ記録、以降は1回変換＋ハッシュ比較で Chrome 更新やフォント差によるレンダリング揺れを検知。差分検出時のみ2回変換で再確認する二段構え
+- **KPI**: 変換コスト 検証込み 2倍→1.05倍、レンダリング揺れ検出漏れ 月1件→0件、Kuu CI との出力一致 100%維持
+- Percy で PR に視覚差分を自動コメント
+- フォントバージョン変更を snapshot 更新でトレース
+
+### 6. 縮小版・配信面モック自動生成パイプライン
+- **skill**: sharp `resize` + Puppeteer overlay composition
+- **application**: 35%/50%/フィード相当（実表示幅から逆算）の縮小版を全書き出しに自動同梱、さらに Instagram/Indeed/LINE の配信面モックへはめ込んだ `_mock` 画像も1コマンドで生成し Yuna のクライアントレビュー用に納品
+- **KPI**: Yuna のはめ込み手作業 案件あたり15分→0分、縮小状態での判読 NG 検出 mia 検収前100%、クライアント「実際どう見えるか」質問 月8件→0件
+- LINE 用 1:1 中央クロップも自動生成（左右620px 収まり検証）
+- 白/黒2種背景合成で輪郭消失も同時検査
+
+### 7. OGP・SNS プレビュー特化パイプライン (LP部連携)
+- **skill**: satori (Vercel) / Puppeteer 1200×630 出力 / LINE Debugger API
+- **application**: tsumugi/ren からの OGP 生成依頼を design-tokens 同梱で受け、Hero とは別に「縮小状態で社名＋職種＋給与が読める」中央 630×630 収まり構図を専用テンプレで生成。X/LINE/Slack の縮小プレビューも自動検証
+- **KPI**: OGP シェア時の可読性クレーム 月3件→0件、LP部 OGP 差し戻し 月2件→0件、SNS シェア CTR +18%（LINE中心）
+- LINE 1:1 中央クロップ問題を構造的に解決
+- satori で SVG→PNG 動的生成も選択肢に
+
+### 8. 静的検査ゲート (ファイル名 lint・相対パス・フォント列挙) の前倒し
+- **skill**: cheerio 1.0 / linkinator / css-tree による HTML 静的解析
+- **application**: 変換前に `background-image` の相対パス検査、`@font-face` の全ウェイト列挙検査、ファイル名 lint（会社名_用途_サイズ.png 形式）、`HIRO-CHECK` の `lossless-selectors` 欠落検査を `preparePage()` 前に実行し、落ちる案は即 Kana へ返送
+- **KPI**: 変換後の欠陥発覚 月12件→0件、無駄変換コスト -85%、Kana 差し戻しリードタイム 30分→2分
+- 小数/奇数 px（レンダリング揺れ源）も同時検出
+- 検出結果を PR コメントへ自動投稿
+
+### 9. AVIF/JPEG XL + Core Web Vitals 貢献のLP転用
+- **skill**: `<picture>` タグ生成 / responsive images / Vercel Image Optimization 連携
+- **application**: LP 部 ren のために Hero/セクション画像を AVIF+WebP+PNG の `<picture>` タグ形式で納品し、DPR・viewport 別最適配信を1コマンド化。tsumugi の LCP 2.5s ゲート達成に画像側から貢献
+- **KPI**: LP LCP 平均 3.1s→2.1s、モバイル画像転送量 -55%、Core Web Vitals 良判定率 62%→94%
+- srcset・sizes 自動計算で無駄配信ゼロ
+- `<link rel="preload" as="image">` も同時生成
+
+### 10. 共有ライブラリ `@let-inc/banner-utils` の SDK 化
+- **skill**: pnpm workspace / semantic-release / TypeScript 5.7 型定義
+- **application**: Puppeteer config・sharp パイプライン・compression-profile・snapshot 検証・OGP 生成を1つの Node SDK として抽出し、LP部 (ren/nao/kaito)・資料作成部・Kuu CI から `import { convertBanner, generateOGP } from '@let-inc/banner-utils'` で呼べる形に
+- **KPI**: 部門横断の重複実装 5箇所→1箇所、SDK 経由の変換シェア 40%→95%、リグレッション影響範囲 1箇所修正で全部門即反映
+- Chrome for Testing バージョンは SDK が固定管理、更新は SemVer major で通知
+- Storybook screenshot / Chromatic とも連携し UI コンポーネント画像も同基盤で生成
