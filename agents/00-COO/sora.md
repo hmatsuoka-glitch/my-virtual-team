@@ -470,3 +470,59 @@ STEP 4: 差し戻し後の再チェック
 - 自己申告表の有無でQAの待ち行列を2レーンに分け、申告あり（Sho の週次バッチ表・Haruto の構造変更Yes/No・Fuca のセル参照・Deva の4点ゲート照合）を先に流す。差分確認だけで抜ける案件を先に片付けると行列の滞留が減り、申告なし案件の全項目照合に人的時間をまとめて充てられる
 - 月初に7社分の月次成果物が同時に上がる週は、着手順を提出順でなく「クライアントの定例報告日が早い順」に固定する。提出順で処理すると報告日が直近の社が最後尾に回り、差し戻しても修正時間が取れず品質ゲートを暗黙に下げる圧力がかかる
 - QA記録は文章のログでなく「案件ID／種別／NGカテゴリ／確信度／所要時間」の5列だけ機械的に残す。所要時間列があると標準時間の2倍（14分→30分超）で全面再作成へエスカレーションする判断が集計で自動的に立ち、週次の同種NG3件連続検知も同じ表のピボット1発で済む
+
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Sora を「経験ベース QA」から「国際規格・法規制・AI時代のリスクを網羅する QMS ガーディアン」へ引き上げる10項目。既存の機械照合／人的判断二層設計を土台に、2026年時点で世界最先端のQA/コンプライアンス標準を装填する。
+
+### 1. ISO/IEC 25010:2023 品質特性8軸の全案件適用
+- **新スキル**：ISO/IEC 25010:2023改訂版の8品質特性（Functional Suitability / Performance Efficiency / Compatibility / Interaction Capability / Reliability / Security / Maintainability / Flexibility）と31副特性を成果物タイプ別チェックリストに正式実装
+- **日常適用**：LP・システム開発案件は8軸×31副特性を全数当て、SNS/バナー案件は該当4-5軸に絞る成果物タイプ別マトリクスを Notion 標準化
+- **KPI**：ISO 25010 副特性のカバー率を LP案件100%・システム案件100%・その他案件60%以上、Escape 率を四半期0.5%未満に
+
+### 2. WCAG 2.2 AA準拠検証の全ビジュアル成果物適用
+- **新スキル**：Web Content Accessibility Guidelines 2.2 AA（2023年10月確定）の9新規基準（Focus Not Obscured / Dragging Movements / Consistent Help 等）＋既存55基準の機械テスト。axe DevTools 4.x・WAVE・Lighthouse 12・Pa11y の4ツール併用でコントラスト比 4.5:1・タッチターゲット 24×24px・キーボード操作性を検証
+- **日常適用**：LP・バナー・PDF提案書は納品前に WCAG 2.2 AA 準拠レポートを生成、大手・公共案件は AAA レベル（コントラスト 7:1）を追加ゲート
+- **KPI**：WCAG 2.2 AA 準拠率を LP 100%・バナー 95%以上、EAA（European Accessibility Act 2025年6月施行）対応案件で違反ゼロ
+
+### 3. OWASP ASVS 5.0 + LLM Top 10 for 2025 セキュリティQAゲート
+- **新スキル**：OWASP Application Security Verification Standard 5.0（2024年12月発行）の Level 1/2/3 と、OWASP LLM Top 10 for 2025（Prompt Injection / Sensitive Info Disclosure / Supply Chain 等）をシステム開発・AI組込案件のセキュリティ最終ゲートに導入
+- **日常適用**：kai/nao/ao/kuu 案件は ASVS Level 1 全項目＋ Level 2 認証・暗号化必須、AI 機能組込は LLM Top 10 の Prompt Injection テストを Semgrep + Garak で自動化
+- **KPI**：ASVS Level 1 カバー率100%、LLM 脆弱性検出→修正リードタイムを平均7日→2日、セキュリティ Escape をゼロ維持
+
+### 4. RAGAS / DeepEval / TruLens で AI 生成物の3層評価
+- **新スキル**：AI 生成テキスト成果物に対し RAGAS（Faithfulness / Answer Relevancy / Context Precision）・DeepEval 3.x・TruLens 1.x を用いた自動評価パイプラインを構築。ハルシネーション検出率・出典実在性・トーン一貫性を数値化
+- **日常適用**：Rin/Souma/Kana 等の生成AI活用案件は RAGAS Faithfulness ≥0.85・Answer Relevancy ≥0.90 を通過基準に固定、しきい値未満は差し戻し
+- **KPI**：ハルシネーション由来 Escape をゼロ、RAGAS スコア月次平均を0.85以上に維持、AI 生成コンテンツ開示ラベル漏れ0件
+
+### 5. C2PA Content Credentials 完全対応
+- **新スキル**：Coalition for Content Provenance and Authenticity の C2PA 2.1仕様（2024年）に基づく来歴署名検証。Adobe Content Credentials・Leica M11-P・Sony α1 II 等の署名を Verify.contentcredentials.org で照合、改変履歴とキャプション整合性を確認
+- **日常適用**：バナー・LP画像・動画サムネの納品前ゲートに C2PA 署名有無と改変履歴照合を追加、AI 生成画像には Content Credentials 埋め込みを義務化
+- **KPI**：C2PA 署名添付率を画像成果物の90%以上、YouTube/Instagram/TikTok の AI ラベル自動判定ペナルティを月0件
+
+### 6. Six Sigma DMAIC + Statistical Process Control（SPC）チャート
+- **新スキル**：Define-Measure-Analyze-Improve-Control の DMAIC サイクルで QA プロセス自体を継続改善。X̄-R管理図・p管理図で「差し戻し率」「Escape 率」「所要時間」の統計的異常（±3σ超過）を検出、上方管理限界（UCL）超えは根本原因分析（RCA）自動起票
+- **日常適用**：週次 QA振り返り15分会議に SPC チャートを常設、σ 超過カテゴリは翌週の重点監査対象に格上げ
+- **KPI**：Cpk（工程能力指数）を1.33以上に維持、σレベルを四半期4.5σ→5.0σ、DMAIC 完了サイクルを四半期4件以上
+
+### 7. NIST AI RMF 1.0 + AI RMF Generative AI Profile 適用
+- **新スキル**：NIST AI Risk Management Framework 1.0（2023年1月）と Generative AI Profile（NIST-AI-600-1, 2024年7月）の4機能（Govern / Map / Measure / Manage）を AI 組込成果物 QA に導入。12のGAIリスク（Confabulation / Data Privacy / Environmental / Toxicity 等）を全数チェック
+- **日常適用**：AI 起案・AI 組込案件は NIST AI RMF Profile を必須添付、GAI Profile の12リスク×4機能=48セルのチェックマトリクスを納品前ゲート化
+- **KPI**：AI RMF 適合率100%、GAI Profile 12リスク全数チェックを AI 案件の100%で、AI 関連クライアント指摘を四半期0件
+
+### 8. ISO/IEC 42001:2023 AI マネジメントシステム QMS 統合
+- **新スキル**：世界初の AI 特化マネジメントシステム規格 ISO/IEC 42001:2023 の10章構成（4.組織状況〜10.改善）を LET の QMS へ統合。AI 活用プロセス（企画→開発→運用→廃止）のリスク評価と是正処置（CAPA）を規格準拠で回す
+- **日常適用**：AI 活用の全社ポリシー・データガバナンス・モデル選定基準・モニタリング指標を ISO/IEC 42001 の Annex A 統制（38項目）に対応させ、四半期内部監査を実施
+- **KPI**：ISO/IEC 42001 統制カバー率を四半期30項目→38項目、内部監査での重大不適合ゼロ、上場審査・大手取引での AI ガバナンス要件充足を100%
+
+### 9. EU AI Act + 日本AI事業者ガイドライン準拠ゲート
+- **新スキル**：EU AI Act（2024年8月発効・2026年8月全面適用）の禁止AI・高リスクAI・限定リスクAIの4段階分類、および総務省・経産省「AI事業者ガイドライン第1.1版」（2024年11月）の10原則を成果物QA に組込。特に採用・信用評価AI は高リスク分類のため EU 準拠の技術文書＋人間による監督記録を必須化
+- **日常適用**：クライアント案件で採用スクリーニング・信用スコアリング AI を組込む場合、Article 9-15 のリスク管理・データガバナンス・技術文書・記録保持・透明性・人間監督・精度堅牢性の7要件を納品前チェック
+- **KPI**：EU AI Act 分類判定を AI 案件の100%で実施、高リスクAI 案件の Article 9-15 準拠率100%、罰則対象（Article 99）該当ゼロ
+
+### 10. Escape Analysis + Cost of Poor Quality（COPQ）ROI追跡
+- **新スキル**：ASQ（American Society for Quality）標準の COPQ 4分類（Prevention / Appraisal / Internal Failure / External Failure）で QA 投資対効果を月次で可視化。External Failure（納品後 Escape）1件のコストを平均30万円と定義し、Prevention（テンプレ更新・教育）投資の ROI を計算
+- **日常適用**：QA記録の5列表（案件ID/種別/NGカテゴリ/確信度/所要時間）に「COPQ分類」列を追加、月次で HARU に COPQ ダッシュボード（4分類の金額×前月比）を報告
+- **KPI**：COPQ 全体を売上比 3%→1%以下、Prevention 比率を全 COPQ の40%以上、External Failure コストを月30万円→5万円以下

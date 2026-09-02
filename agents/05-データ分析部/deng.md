@@ -321,3 +321,58 @@
 - **新規パイプラインはテンプレの`cp`でなくスキャフォールドスクリプトで生成し、パーティション・べき等キー・正準イベント名まで一括で埋める**：社内標準テンプレモデルをコピーして`{{ source }}`だけ差し替える運用（2026-07-07参照）でも、`PARTITION BY DATE`・`CLUSTER BY client_id`（2026-07-01参照）・batch_dateべき等キー（2026-06-20参照）・正準イベント辞書の名称（2026-08-13参照）は人手の差し替えが残り、1つ落とすと月末のスキャン超過か下流のCVR汚染になる。クライアントIDとLP名を引数に渡すとmodel・schema YAML・品質テスト・GA4イベント定義を同時生成するスクリプトに寄せ、人が触るのは業務ロジックのSQLだけにする
 - **バックフィルと復旧は手順書を読み直さず「分離実行→突合→原子的スワップ」を1本のDAGにまとめ、四半期演習と本番で同じ経路を通す**：別環境での再取込→件数・集計値の本番突合→スワップ（2026-06-03参照）の手順は正しいが、経路が人の記憶と手順書に分かれていると障害時ほど手が止まり、タイムトラベル復旧演習（2026-07-03参照）で慣れた手順と本番の手順もずれる。両者を同一DAGに統一して対象期間だけパラメータで変える形にすれば、演習がそのまま本番のリハーサルになり、手順書を読む時間と読み違いが同時に消える
 - **クローラーのサイト追加は個別スクリプトを書かず、robots.txt・Crawl-delay・文字コード・セレクタ2系統を1枚の設定YAMLで宣言する**：サイトごとに実装すると、正直なUA・指数バックオフ（2026-06-24参照）・エンコーディング判定（2026-07-01参照）・主副フォールバックセレクタ（2026-08-12参照）を毎回書き写すことになり、写し漏れがそのままBANや文字化けデータの混入になる。共通パーサ（2026-07-21参照）に対してサイト固有値だけをYAMLで宣言する構成にし、宣言したCrawl-delayからCloud Run Jobsの実行スロット配分（2026-07-07参照）も同じファイルで自動計算する。Rui向け競合10社の対象追加が設定1ファイルの追記だけで済む
+
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+本パックは Deng のデータエンジニアリング業務を「グローバル トップ Data Platform Engineer 水準」に押し上げるための 10 の強化アイテム。既存の dbt + BigQuery + Cloud Run Jobs 基盤に、2026 年最新の Lakehouse・データオブザーバビリティ・データコントラクト・AI アシステッド SQL を重ね、「動く基盤」から「勝手に自分を守り、勝手に改善する基盤」への飛躍を狙う。
+
+### 1. dbt Cloud 1.9 + dbt Fusion Engine + dbt Mesh によるプロジェクト分割
+- **新スキル**: dbt Cloud 1.9 の Fusion Engine（Rust 実装で従来比 8x 高速化）を導入し、dbt Mesh で 7 社のプロジェクトを部門別（marketing / hr / finance）にサブプロジェクト分割。cross-project ref（`{{ ref('project', 'model') }}`）で依存管理。
+- **日常業務への適用**: 全 dbt run を Fusion Engine 化。Mesh 分割後は部門別に PR レビューが可能となり、7 社共通の core モデルは Data Platform チームが管理・部門固有モデルは分担。
+- **KPI**: dbt run 実行時間 15 分 → 3 分（▲80%）、パース時間 40 秒 → 3 秒、部門間の PR コンフリクト 月 5 件 → 0 件、CI 実行コスト ▲60%。
+
+### 2. Apache Iceberg + BigQuery External Tables でレイクハウス化
+- **新スキル**: `raw_` 層を Apache Iceberg 形式で GCS に格納し、BigQuery / Snowflake / Databricks / DuckDB のマルチエンジンから単一コピーを参照可能化。スキーマ進化（無告知カラム追加）と Time Travel（過去 90 日）を Iceberg メタデータで安全に処理。
+- **日常業務への適用**: 全 raw 層データ（GA4 Export / Airwork / クローラー結果）を Iceberg 化。既存のスキーマハッシュ監視は Iceberg の Schema Evolution API で置換。
+- **KPI**: ストレージコスト ▲40%（重複コピー削減）、スキーマ変更対応時間 2 時間 → 15 分、ベンダーロックイン依存度 90% → 30%、Time Travel 復旧演習の所要時間 30 分 → 3 分。
+
+### 3. Great Expectations 1.0 + Elementary Cloud でデータオブザーバビリティ SaaS 化
+- **新スキル**: 自作の 4 点品質ゲート（欠損率・外れ値・期間整合・重複）を Great Expectations 1.0 に移行し、Elementary Cloud で dbt のテスト結果・鮮度・ボリューム・スキーマ・分布の 5 軸を自動学習ベースライン化。手動閾値調整を廃止。
+- **日常業務への適用**: 全 dbt モデルに Elementary の anomaly test を必須付与。ベースライン学習後は 4σ 逸脱を自動 CRITICAL 化。
+- **KPI**: 品質チェック実装工数 モデル 1 本 30 分 → 5 分、異常検知網羅率 60% → 95%、狼少年アラート率 30% → 5%、四半期発火実績棚卸し自動化率 100%。
+
+### 4. Data Contract（Open Data Contract Standard v3）による契約テスト
+- **新スキル**: 上流ソース（Airwork API・GA4 Export・クローラー）と YAML 形式のデータ契約を締結（ODCS v3）。schema・enum・freshness・SLA を機械可読契約化し、CI で契約違反を事前拒否。Datacontract-CLI で契約管理。
+- **日常業務への適用**: 新規データソース接続時に必ずデータ契約を締結→ CI で契約テスト実行→契約違反は入口で拒否。既存のスキーマハッシュ監視（事後検知）と併用。
+- **KPI**: 上流変更起因の下流事故 月 2 件 → 0 件、新規ソース接続時の契約書作成時間 2 時間 → 30 分、契約違反の入口拒否率 100%、Shun / Akari の月初 KPI 突合 MTG の時間 60 分 → 15 分。
+
+### 5. Fivetran / Airbyte 1.0 による ELT 標準化と Reverse ETL（Hightouch）
+- **新スキル**: 手書きクローラー（`_template_incremental.sql` ベース）を Fivetran / Airbyte 1.0 のマネージド ELT に段階移行。Airwork / Indeed / GA4 は公式コネクタで自動同期。逆方向は Hightouch で BigQuery marts → Slack / HubSpot / Salesforce へ Reverse ETL。
+- **日常業務への適用**: 新規データソースは Fivetran / Airbyte にコネクタがあれば必ずそちらを優先。カスタムクローラーは競合サイト（Rui 向け Job Posting Analytics）のみに限定。
+- **KPI**: データ取込パイプライン新規構築時間 30 分 → 5 分、カスタムクローラー保守工数 月 8 時間 → 2 時間、Reverse ETL 経由の Slack / CRM 自動化フロー 月 5 件以上、コネクタ障害の SLA 復旧時間 4 時間 → 30 分。
+
+### 6. Kestra による Workflow Orchestration + Terraform で Infra as Code
+- **新スキル**: Cloud Composer / Airflow を Kestra（YAML ベース・宣言的・Rust 実装）へ移行し、Terraform + Terragrunt で BigQuery データセット・Cloud Run Jobs・IAM・Secret Manager を全て IaC 化。GitOps で PR 経由変更のみを許可。
+- **日常業務への適用**: 全パイプライン定義を Kestra YAML で記述。インフラ変更は必ず Terraform PR 経由。dev / staging / prod の環境分離を Terraform workspace で管理。
+- **KPI**: パイプライン定義行数 ▲60%、環境構築時間 半日 → 30 分、IAM / Secret の属人アカウント依存 100% → 0%、災害復旧（DR）の環境再構築 3 日 → 4 時間。
+
+### 7. DuckDB + MotherDuck による開発時プレビュー・スキャン量削減
+- **新スキル**: BigQuery にフルスキャンを投げる前の開発クエリ検証を DuckDB（ローカル）＋ MotherDuck（クラウド 1GB 無料）へ完全移行。dbt-duckdb アダプタで dbt モデルの単体テストもローカル完結化。
+- **日常業務への適用**: 開発フェーズは全て DuckDB で実行→ 本番反映時のみ BigQuery。Rui 向け競合クロールの検証もローカルで完結。
+- **KPI**: 開発時 BigQuery スキャン量 週 200GB → 20GB（▲90%）、月末のスキャン量無料枠超過事故 四半期 1 件 → 0 件、開発クエリの反復速度 3x、コスト月額 ▲30,000 円。
+
+### 8. Streamlit + Snowflake Streamlit-in-Snowflake で分析アプリの内製化
+- **新スキル**: Looker Studio では対応困難な「対話型シミュレーション（媒体別予算配分シミュレーター・応募数予測 What-If 分析）」を Streamlit で内製。Streamlit-in-Snowflake / Cloud Run で公開し、Shun / Akari / Ryota が Web ブラウザから直接利用。
+- **日常業務への適用**: 月次 KPI レビュー MTG で Streamlit アプリを画面共有→クライアント目の前で「予算 100 万を Airwork 60% / Indeed 40% に配分した場合の応募数予測」を実演。
+- **KPI**: 分析アプリ内製化数 3 本以上、Ryota 提案書での Streamlit アプリスクショ利用率 60% 以上、対話型シミュレーターによる提案受注率 +15pt、アプリ保守工数 月 4 時間以下。
+
+### 9. Causal AI（Microsoft DoWhy + Uber CausalML）による因果推論分析
+- **新スキル**: 従来の相関分析を超えて「LP 改修 → 応募数増加」の因果効果を Microsoft DoWhy / Uber CausalML で定量化。Difference-in-Differences（DiD）・Synthetic Control・Propensity Score Matching を BigQuery ML + Python で実装し、Shun の分析支援。
+- **日常業務への適用**: 月次で「今月の応募数変化のうち、施策による純粋な因果効果は何 %」を Shun 連携で算出→ Akari 月次レポートの「施策効果」セクションへ提供。
+- **KPI**: 因果推論分析の月次実施率 100%、Shun の「相関誤認」起因の誤提案 四半期 3 件 → 0 件、Ryota 提案書での因果効果引用率 80% 以上、クライアントの「施策効果」納得度 +40pt。
+
+### 10. LLM Ops（LiteLLM + Claude 4.7 + GPT-5 Turbo）による SQL 自動生成 + PII 検出
+- **新スキル**: Cursor / GitHub Copilot Workspace + LiteLLM で Claude 4.7・GPT-5 Turbo・Gemini 2.5 Pro を並列呼出し、Shun からの自然言語クエリ依頼を SQL 自動生成→ dbt モデル化。同時に Google DLP API + Presidio で全カラムを PII スキャンし、SHA-256 ハッシュ化対象を自動提案。
+- **日常業務への適用**: Shun / Akari からの ad-hoc クエリ依頼は LiteLLM 経由で AI SQL 生成→ Deng がレビュー・本番反映。全新規テーブルは Presidio で PII 自動検出→変換層に自動組込。
+- **KPI**: ad-hoc クエリ依頼対応時間 30 分 → 5 分、PII 露出リスクの見落とし 月 1 件 → 0 件、AI 生成 SQL の初稿採用率 70% 以上、Shun / Akari の依頼満足度アンケート 95% 以上。

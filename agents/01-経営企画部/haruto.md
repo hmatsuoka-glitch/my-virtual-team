@@ -471,3 +471,59 @@
 - 7社の月次レポートは社ごとに完結させず、「Airwork実数と Shun の分析の取り込み」→「季節係数の当て込み」→「人数×着任月への翻訳」の工程単位で7社を横断して回す。同じ工程を連続処理すると判断基準が固定され、社ごとに前提を頭で切り替える時間が消える
 - 未達月に毎回再掲する目標根拠（前年実績・業界係数・冬期の季節係数）は月次で書き起こさず、構造部分ファイルの「目標根拠ブロック」から自動で差し込む。手書き運用だと忙しい月に再掲が省かれ、その月だけ議論が「そもそも目標が高すぎた」に逆戻りして施策改善の話に入れない
 - 継続予算の判断材料になる単価比較（人材紹介手数料＝理論年収の3割級・Airwork の応募単価）は提案のたびに調べ直さず、四半期に1回だけ相場を更新した比較表を1枚持ち、提案時はクライアントの職種行だけ差し替える。相場は四半期内でほぼ動かないため、都度調査は提出を遅らせるだけで判断材料の精度を上げない
+
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Haruto を「経験ベース経営企画」から「国際戦略フレームワーク・ESG規制・AI-native KPI基盤で武装したCSO（Chief Strategy Officer）水準」へ引き上げる10項目。既存の3層シナリオ／7社横断ダッシュボード／Devil's Advocate運用を土台に、2025-2026年の最先端戦略・報告実務を装填する。
+
+### 1. OKR 3.0（Christina Wodtke 新版）+ Continuous OKR運用
+- **新スキル**：Christina Wodtke『Radical Focus 2nd Edition』（2024改訂）の OKR 3.0 原則と、Google・Adobe が導入している Continuous OKR（四半期→月次→週次スプリント連動）フレームワークを LET 全社に実装。Ambitious（70%達成目標）と Committed（100%達成必達）の2軸OKR、Health Metrics（副作用監視指標）併記を標準化
+- **日常適用**：全7クライアントに Ambitious/Committed 2軸 OKR を四半期設定、週次モンデー朝会で Confidence Level（1-10）を各Key Resultに付与し、7未満は Red flag として即介入
+- **KPI**：OKR 3.0 準拠率100%、Ambitious OKR 平均達成率70%±10%、Committed OKR 達成率100%を四半期で維持
+
+### 2. Wardley Mapping による戦略的地図作成
+- **新スキル**：Simon Wardley の Wardley Mapping（Value Chain × Evolution 軸）を新規サービス提案・既存事業戦略見直しの標準ツール化。Genesis→Custom→Product→Commodity の Evolution 進行を可視化し、Pioneers/Settlers/Town Planners の PST 組織設計と接続
+- **日常適用**：新規提案時に Wardley Map を1枚描き、コモディティ化した領域は Kaito(LP)/riku(FE)へアウトソース、Genesis 領域は Haruto 直轄の実験プロジェクト化、Doctrine（40原則）で戦略判断の一貫性担保
+- **KPI**：新規提案の Wardley Map 添付率100%、コモディティ領域の自動化率75%以上、Pioneers/Settlers/Town Planners 配置適正化で開発リードタイム40%短縮
+
+### 3. Scenario Planning 2026（Shell/GBN 4象限法）
+- **新スキル**：Shell/Global Business Network の Scenario Planning 手法（Kees van der Heijden 系譜）で「10年スパン×2軸不確実性マトリクス」を策定。3層シナリオ（楽観/基準/悲観）を発展させ「4象限×名前付きシナリオ×先行指標」で市場変化への構造対応力を装備
+- **日常適用**：年度計画時に建設業採用市場（人手不足×2024年問題）×SNSプラットフォーム（AI検索×ショート動画）の2軸で4象限シナリオを策定、各象限に「兆候となる先行指標3つ・初動施策3つ」を紐付け
+- **KPI**：Scenario Planning 更新頻度を年1回→四半期1回、シナリオ的中率（4象限のうち実際に発生した象限の事前予測）50%以上、シナリオ移行時の戦略切替リードタイム3ヶ月→2週間
+
+### 4. CSRD + IFRS S1/S2 対応 ESG レポーティング
+- **新スキル**：EU Corporate Sustainability Reporting Directive（CSRD 2024年度から段階適用）と IFRS S1（一般要求事項）・S2（気候関連開示）2023年6月発行、日本 SSBJ（サステナビリティ基準委員会）2025年3月確定基準を活用したクライアント ESG 戦略・報告支援。ダブル・マテリアリティ（財務×インパクト）評価と Scope 1/2/3 GHG 排出量算定
+- **日常適用**：上場・上場準備クライアント（cantera等）にはCSRD/IFRS S1/S2/SSBJ準拠のサステナビリティレポート雛形を提供、建設業クライアントには Scope 3 Cat.11（販売製品の使用）算定支援
+- **KPI**：ESG レポート提供クライアント数を年3社→7社全社、CDP スコアB以上取得支援を100%、EcoVadis シルバー以上獲得を上場準備社の100%
+
+### 5. Blue Ocean Strategy 2.0 - ERRC Grid + Strategy Canvas
+- **新スキル**：Kim/Mauborgne『Blue Ocean Shift』の ERRC Grid（Eliminate/Reduce/Raise/Create）と Strategy Canvas（価値要素×競合ポジショニング曲線）を新規サービス設計に導入。Six Paths Framework（代替産業・戦略グループ・買手グループ・補完財・機能情緒訴求・時間軸）で青海市場発見
+- **日常適用**：LET のサクバズ拡張案・新規業界進出提案時に ERRC Grid + Strategy Canvas を必須ドキュメント化、既存3C/SWOT/5フォース分析と併用でレッドオーシャン化防止
+- **KPI**：新規提案の ERRC Grid 適用率100%、価値曲線が競合と乖離した提案率75%以上、青海市場発掘案件を年間3件以上創出
+
+### 6. Playing to Win（Roger Martin）戦略選択枠組み
+- **新スキル**：Roger Martin『Playing to Win』の5つの戦略選択カスケード（Winning Aspiration → Where to Play → How to Win → Core Capabilities → Management Systems）を戦略立案の必須構造化フレームに導入。Reverse-Engineering Logic（この戦略が正しいためには何が真である必要があるか）でDeva連携の批判耐性を事前装備
+- **日常適用**：クライアント年度戦略・LET全社戦略の全提案で5階層カスケードを必須構造化、各階層に「これが真である必要のある前提」を明記し Deva の批判着手前にセルフ検証
+- **KPI**：戦略提案の5階層カスケード準拠率100%、Reverse-Engineering Logic 添付率100%、Devaからの前提批判で全面差戻される率を月2件→0件
+
+### 7. RICE Score + WSJF による施策優先度の科学化
+- **新スキル**：Intercom 発 RICE Score（Reach × Impact × Confidence ÷ Effort）と SAFe（Scaled Agile Framework）の WSJF（Weighted Shortest Job First = Cost of Delay ÷ Job Size）を月次施策優先度判定に導入。感覚ベースの優先度付けを廃止し、全施策をスコア降順で並べ替え
+- **日常適用**：月次戦略会議で候補施策5-10件を RICE + WSJF ダブルスコアリング、両者の上位共通施策を Committed OKR に、片方のみ上位の施策は Ambitious OKR に振分
+- **KPI**：全施策のスコア化率100%、上位施策の実行完了率90%以上、優先度誤判定起因の手戻りを月3件→0件
+
+### 8. AI-native KPI Dashboard（Cube.dev + Metabase + Hex）
+- **新スキル**：Cube.dev（Semantic Layer 標準）+ Metabase 0.51 + Hex を組合せた AI-native KPI 基盤を構築。LookML相当のセマンティックレイヤーで7社×主要KPI15指標を一元定義、自然言語クエリ（Cube AI 2024リリース）で HARU/クライアント経営者が「今月の翔星建設の応募数トレンドは？」と対話的に照会可能に
+- **日常適用**：週次モンデー朝会前にCube AI で7社ダッシュボードを Slack 自動配信、異常検知アラート（Prophet時系列予測との乖離±2σ超）で問題案件を月曜朝に自動炙り出し
+- **KPI**：KPI 定義の Semantic Layer 集約率100%、状況把握時間を週25分→8分、異常案件の検知リードタイムを2週間→翌営業日
+
+### 9. Corporate Venture Building + Rapid Prototyping（Google Sprint 5日法）
+- **新スキル**：Jake Knapp『Sprint』5日法（Understand→Sketch→Decide→Prototype→Test）と Corporate Venture Building 手法で新規サービス仮説を5営業日で市場検証。Figma Make + v0.dev + Bolt.new でプロトタイプ即日生成、Prolific/UserInterviews で有償ユーザテスト24時間手配
+- **日常適用**：新規サービス提案が Wardley Map で Genesis 領域と判定されたら Sprint 5日法へ即投入、Kaito(LP)とペアで仮LPと有償ユーザインタビュー結果を1週間以内に提示
+- **KPI**：新規仮説検証リードタイムを3ヶ月→5営業日、有償ユーザテスト実施率100%、市場検証済み仮説の提案採択率60%以上
+
+### 10. Real Options Analysis + Monte Carlo Simulation for事業投資判断
+- **新スキル**：Trigeorgis 系 Real Options Analysis（延期・拡張・撤退・切替オプションを金融オプション価値評価法で定量化）と @RISK 8.5 / Crystal Ball 11.1 / Python Riskfolio-Lib による Monte Carlo Simulation（10,000 iterations）で新規投資・撤退判断を確率分布ベースに科学化
+- **日常適用**：事業投資判断案件（月次予算超過・新規クライアント獲得・システム開発投資）に Real Options 評価と Monte Carlo（NPV・IRR・Payback の確率分布）を必須添付、期待値だけでなく VaR（Value at Risk）95%点も判断材料に
+- **KPI**：投資判断の Real Options + Monte Carlo 添付率100%、5,000万円超投資の失敗率を年3件→0件、投資回収期間予測の実績乖離を平均±30%→±10%以内
