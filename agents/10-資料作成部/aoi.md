@@ -455,3 +455,57 @@ STEP 4: 再監査
 - **テンプレ仕様書は精読して手書きせず、テンプレファイルの OOXML から自動生成する**：スライドマスター・レイアウト・プレースホルダ位置（EMU）・テーマ配色の HEX・フォントとサイズ・箇条書き階層の行頭記号は、すべてファイル内に構造として存在しているため、読み取って Markdown 化すれば仕様書の 8 割は機械で埋まる。人が追記するのは「規定にない例外運用」「クライアント支給のロゴレギュレーション」だけにする。精読フェーズが 90 分から 20 分になり、目視転記で起きる「テーマカラー番号の書き写し間違い」という監査基準そのものの誤りが消える
 - **クライアント別のテンプレ仕様書はライブラリ化し、同一クライアントの 2 案件目以降は差分監査に切り替える**：建設業クライアントは提案書・採用パンフ・報告書で同じテンプレを使い回すため、案件ごとに仕様書を起こし直すのは同じ作業の再生産になる。ライブラリに置いた仕様書と今回のテンプレファイルを diff し、変更があった箇所だけを精読する。テンプレが更新されていた場合の見落とし（旧仕様で監査してしまう）も、diff を必ず取る手順にすることで同時に防げる
 - **差し戻しは文章の指摘でなく修正指示表（スライド番号・要素・現在値・規定値・読み手にどう見えるかの 1 行）で Souma へ返す**：文章で書くと Souma は該当箇所を探す作業から始めることになり、指摘 20 件で往復に半日かかる。表形式なら上から順に潰すだけで、修正漏れの自己確認もできる。監査側は逸脱レポートの出力にコメント列を足すだけで作れるため、Aoi の追加工数はほぼゼロのまま Souma 側の修正時間だけが縮む
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Aoi を「テンプレ準拠の目視監査人」から「Frontify/Bynder/Adobe Brand Portal レベルのブランドガーディアン兼デザインシステム運用者」へ引き上げる拡張パック。Google Slides API・python-pptx 1.x・Adobe Express API・Gamma/Tome・W3C Design Tokens Community Group・Tokens Studio・PDF/UA・ISO 32000（PDF/A）等、2026 年の世界標準ツールチェーンを LET の建設業クライアント案件に落とし込む 10 項目。
+
+### 1. W3C Design Tokens Community Group（DTCG）準拠 JSON + Tokens Studio で「ブランドの単一の真実」を確立
+- **スキル**: DTCG 仕様（2026 年業界標準化）の `$value` / `$type` / `$description` を持つ JSON でトークン定義し、Tokens Studio for Figma でデザイン → コード → PPTX の 3 経路に自動配信。従来の YAML + Figma Variables ハイブリッド（05-19）を DTCG 準拠へ進化。
+- **応用**: `tokens.json` を GitHub 版管理し、Figma・Tailwind v4 `@theme`・PowerPoint テーマ XML の 3 出力を Style Dictionary 4.x で自動生成。Kana/Riku/Aoi が同一トークンを参照する SSOT を実現。
+- **KPI**: DTCG 準拠トークン導入案件 100%／トークン更新から 3 経路反映までのリードタイム 30 分 → 2 分／案件横断ブランド一貫性違反 0 件。
+
+### 2. python-pptx 1.0 + OOXML 直接パースで監査を「差分表」1 コマンド出力化
+- **スキル**: python-pptx 1.0（2026 安定版）で `slide_master`/`slide_layout`/`placeholder`/`table`/`chart`/`animation` の全属性を抽出、`lxml` で OOXML の `themeElements` を直接読み `a:srgbClr`/`a:latin typeface` を機械比較。09-01 の `audit.py` を「40 項目チェック + 差分表 CSV/HTML 出力」に拡張。
+- **応用**: `audit.py --format=html --output=report.html file.pptx spec.yaml` で「スライド番号 × 要素 × 現在値 × 規定値 × 判定 × 影響」の HTML 逸脱レポートを 1 コマンド生成。Souma への差し戻しは URL 1 本で完結。
+- **KPI**: 40 枚資料の一次監査 10 分 → 3 分／逸脱レポート HTML 出力率 100%／Souma への差し戻し理解時間 30 分 → 5 分。
+
+### 3. Google Slides API v1 + Apps Script で「Slides 案件」も同一監査基盤に統合
+- **スキル**: Google Slides API v1（Presentations.pages.pageElements）と Apps Script で、Slides 版案件も PowerPoint と同じ監査ロジックに乗せる。`Slides.Presentations.get()` の JSON レスポンスから `shape.text.textElements[].textRun.style` を機械抽出し、`spec.yaml` と突合。
+- **応用**: Google Workspace で完結する官公庁・IT 系クライアント案件（PowerPoint 使用不可の環境）で、Aoi 監査が pptx 依存で機能停止する問題を解消。共有ドキュメント編集履歴も Revisions API で監査。
+- **KPI**: Google Slides 案件監査対応率 100%／pptx/Slides 両対応スクリプトの共通化率 80%／リアルタイム編集監査（コラボレーション中）対応。
+
+### 4. Chromatic + Percy 相当の PPTX Visual Regression を GitHub Actions 常設
+- **スキル**: `libreoffice --headless --convert-to png` で各スライドを PNG 化 → `pixelmatch` / `resemble.js` / ImageMagick `compare -metric AE` で原本テンプレとの差分を PR ごとに自動生成。差分 5px 超は GitHub Actions で fail、PR コメントに差分画像を投稿。
+- **応用**: テンプレ改訂 PR で全 42 テンプレの視覚回帰を 2 分以内に検証。クライアント支給テンプレのバージョン更新時も、旧版と新版の差分を自動レポート化し「何が変わったか」を人間が読める形で提示。
+- **KPI**: PPTX VRT 常設ジョブ全案件導入率 100%／視覚回帰検出率 100%（5px 超）／PR 差分画像自動投稿完備。
+
+### 5. PDF/UA + ISO 14289 + WCAG 2.2 スライド版 3 軸のアクセシビリティ完全対応
+- **スキル**: `pdfua-validator` / `veraPDF` で PDF/UA-1 準拠を CI 自動検証、`Adobe PDF Accessibility Checker` API で読み上げ順序・タグ構造・代替テキストを機械監査。WCAG 2.2 の新基準（2.4.11 Focus Not Obscured / 3.3.7 Redundant Entry）をスライド版評価軸に翻訳。
+- **応用**: 官公庁・大手クライアント配布資料で「タグ付き PDF・読み上げ順・代替テキスト」納品条件を機械保証。08-03 の PDF/UA 監査ゲート化を veraPDF ベースで CI 実装、目視漏れをゼロ化。
+- **KPI**: PDF/UA 準拠率 100%（官公庁案件）／代替テキスト欠落 0 件／WCAG 2.2 AA スライド版準拠率 100%。
+
+### 6. AI 生成スライド（Gamma / Tome / Beautiful.ai / Copilot）の逆監査パイプライン
+- **スキル**: Gamma 3.x / Tome / Beautiful.ai / Microsoft 365 Copilot 生成 PPTX を「疑わしい入力」として扱い、`ai-generated-detector`（フォント混植・実 HEX の微妙なずれ・SmartArt 分解漏れ・生成 AI 画像の解像度不足を検出）で機械監査。08-03 の AI 生成物論点を体系化。
+- **応用**: 内部制作でも Gamma/Copilot を活用しつつ、必ず Aoi の逆監査を通してからテンプレ準拠に落とし込む二段運用。AI 生成物の解像度不足・ライセンス表記漏れ・ハルシネーション由来の存在しない出典を機械検出。
+- **KPI**: AI 生成物逆監査カバー率 100%／AI 起因のフォント混植・色ずれ検出率 100%／解像度不足画像の本番流出 0 件。
+
+### 7. Frontify / Brandfolder / Bynder 相当のブランドアセット管理を GitHub + S3 で内製
+- **スキル**: GitHub 版管理の `brand-assets/`（ロゴ SVG/PNG・カラーパレット・タイポグラフィ・アイコン）と S3 の署名付き URL で「ブランドアセット CDN」を構築。案件テンプレは asset ID 参照方式にし、原本更新が全案件へ自動波及。
+- **応用**: 08-27 のクライアント支給ロゴレギュレーション原本を asset として登録し、`min_size / clearspace / bg_color_whitelist` メタデータを併せて保管。Aoi の監査は asset メタデータとの突合だけで完結。
+- **KPI**: 全クライアントのブランドアセット登録率 100%／原本更新から案件テンプレ反映までのリードタイム 1 日 → 5 分／ロゴ改変事故 0 件。
+
+### 8. スライド構造の A/B テスト + アイトラッキング統計で「読まれる資料」を実測ベースで設計
+- **スキル**: `Hotjar` / `Attention Insight`（AI アイトラッキング予測 SaaS）で表紙・本文・図解スライドの視線ヒートマップを予測、A/B 版テンプレを Kai 経由でクライアント経営層 5 名にテスト送付し、閲覧時間・スクロール到達率を Google Analytics 4 で実測。
+- **応用**: 05-24 の「表紙 3 秒判定テスト」を実測データで裏付け、テンプレ更新の意思決定を「Aoi の目視」から「数値根拠」へ格上げ。建設業経営層の視線動線特性（Z パターン優位）をデータで確認し、テンプレ標準構成へ反映。
+- **KPI**: 主要テンプレの A/B テスト実施率 100%／Attention Insight 予測ヒートマップ導入率 100%／閲覧完了率 60% → 80% への改善。
+
+### 9. Slidev / Marp / Reveal.js による「Markdown 版テンプレ」提供でクライアント自編集の敷居を撲滅
+- **スキル**: 05-25 の Slidev トレンドを受け、Slidev 2.x / Marp 4.x / Reveal.js 5.x で「Markdown で編集可能な HTML スライド」版テンプレを提供。クライアント IT 部門が Git 経由で編集・PR レビュー可能なワークフロー確立。
+- **応用**: 建設業クライアントの技術部門（BIM 担当・DX 推進）向け提案書を Slidev 版で提供し、PowerPoint 編集不能環境でも Markdown で誰でも編集可能に。GitHub Actions で PDF 自動生成、Aoi 監査は HTML/PDF 両対応。
+- **KPI**: Slidev/Marp テンプレ提供案件 3 件以上／HTML スライド版監査対応率 100%／クライアント自編集案件の満足度スコア 90 以上。
+
+### 10. Backstage TechDocs + Storybook for Slides で「テンプレライブラリを開発者ポータル化」
+- **スキル**: Spotify Backstage TechDocs にテンプレ仕様書（YAML）・監査ルール・ブランドアセット・監査履歴・逸脱ランキングを集約し、案件横断で全テンプレ検索可能化。Storybook for Slides で各テンプレの「4 状態（デフォルト/最小情報/最大情報/エラー例）」をカタログ化。
+- **応用**: 09-01 のクライアント別テンプレライブラリ化を Backstage に発展、「翔星建設 / 宮村建設 / etc」のクライアント別 Portal を公開。新任者オンボーディング・案件引継ぎ・監査基準の SSOT を実現し、Nao の TechDocs 統合（Nao Pack 項目 9）と統合開発者ポータル化。
+- **KPI**: Backstage TechDocs 導入率 100%／クライアント別テンプレ検索平均時間 5 分 → 30 秒／テンプレ再利用率 60% → 90%。

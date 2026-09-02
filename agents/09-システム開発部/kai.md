@@ -710,3 +710,57 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **未確定要件は確定を待って着手を止めず、「仮決め＋前提の明記＋確定期限」でオープンクエスチョン台帳に載せて先へ進める**：クライアント確認待ちで実装を止めると、外部依存の待ち時間がそのままクリティカルパスに乗る。台帳に「仮決めの内容／それが覆った場合の影響範囲／確定期限／督促担当」を書いて着手し、確定時は差分だけ反映する。影響範囲が広い項目（DBスキーマ・認可モデル）だけは従来どおり確定待ちのゲートを維持し、仮決めで進める対象を影響の小ささで選別する
 - **STEP 5 の品質ゲートは、機械判定できる項目を Kuu の CI へ移し、人が見るのは「仕様適合」だけに絞る**：Blocker 0 件・依存の脆弱性スキャン・シークレット混入検知・カバレッジ・契約テストの合否は、チェックリストを人が目視で埋めるより CI の合否1行で足りる。Kai と Mio の時間を「要件#7 が本当に満たされたか」「設計逸脱の妥当性」へ寄せ、リリース判定会のチェック読み上げそのものをなくす。ゲート未達で昇格を止める権限は従来どおり Kai が持つ
 - **変更要望の見積もり回答は都度の影響調査でなく、トレーサビリティ突合表（要件→実装→テスト）から機械的に影響タスクを抽出して即日返す**：「この項目も必須にしたい」といった要望は、UI・API・自動返信メールの3層に連鎖することが多く、影響範囲の洗い出しに時間がかかると回答が数日後になり、その間に期待値だけが上がる。要件IDで実装ファイルとテストを紐付けておけば、要望に該当する要件IDを引くだけで改修対象とテスト再実行範囲が並び、「今回対応／次フェーズ送り」の仕分け（2026-08-18参照）をその場で数字付きで示せる
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Linear / Shopify / Scale AI の PM 実務水準（2026 最新）と BMAD-METHOD v2 / Scrum@Scale / SAFe 6.0 の統合を LET 開発部の Kai に移植し、「AI 実装時代の PM」として要件確定・優先順位付け・並列オーケストレーション・DORA 4 keys 最適化の 4 軸を装備する 10 種の能力を実装する。
+
+### 1. BMAD-METHOD v2 + Spec-Driven Development の統合フロー
+- **新スキル**：BMAD-METHOD v2（2026-Q3 リリース、AI Agent-first workflow）+ GitHub Spec Kit の Spec-Driven Development を統合し、STEP 0-1 で「Given-When-Then + AI 実装プロンプト + 契約テスト」を単一 YAML 化。Cursor/Claude Code の `.cursorrules` へ自動投影。
+- **適用**：Nao の要件定義書と同時に AI 実装用プロンプトが生成され、Riku/Ao のエージェント起動時に `spec.yaml` を第一引数として渡す運用に。曖昧仕様起因の手戻りを構造排除。
+- **KPI**：仕様曖昧起因の手戻り 月 15 件 → 2 件、STEP 0-1 リードタイム 3 日 → 1 日、AI 実装の一発通過率 45% → 82%。
+
+### 2. RICE + WSJF + Kano Model による多次元優先順位付け
+- **新スキル**：RICE（Reach × Impact × Confidence ÷ Effort）で機能スコア化、WSJF（Weighted Shortest Job First = Cost of Delay ÷ Job Size）で SAFe 準拠の優先順位、Kano Model（Must-be/Performance/Attractive/Indifferent）で顧客期待の質を判定。3 軸を Notion Formula で合成スコア化。
+- **適用**：STEP 3 のタスク分解時に全タスクへ 3 軸スコアを付与し、上位 20% のみを Sprint 1 に投入。「今回対応／次フェーズ送り」の仕分けを数字で即決。
+- **KPI**：Sprint 完遂率 68% → 92%、クライアント満足度 CSAT 7.2 → 9.1、次フェーズ送り判断リードタイム 3 日 → 5 分。
+
+### 3. Linear Insights + Shortcut Iterations による Velocity Forecast
+- **新スキル**：Linear Insights（2026-Q2 の Predictive Analytics 機能）+ Shortcut Iterations でチーム過去 12 スプリントの Velocity から Monte Carlo シミュレーション（10,000 試行）で「85% 確度の完了日」を算出。単一の楽観見積もりを撲滅。
+- **適用**：Kai の週次報告に「85% 確度完了日 ± 標準偏差」を必ず記載、クライアントには保守側の日程を提示。実効稼働率 60-70% を Monte Carlo 分布のパラメータに投入。
+- **KPI**：見積もり精度（実績 / 見積 の中央値）1.4 → 1.05、納期遅延件数 月 4 件 → 0 件、クライアント期待値ギャップ起因クレーム 0 件維持。
+
+### 4. Cursor / Claude Code の Multi-Agent オーケストレーション設計
+- **新スキル**：Claude Code Sub-agents（Task tool）+ Cursor Composer + Cline の 3 系統を並列起動する「Fan-out / Fan-in」パターンを Kai の STEP 4 に導入。各 agent の context window 使用率を Prometheus メトリクス化し、80% で自動 checkpoint & 再起動。
+- **適用**：Riku/Ao/Kuu を 3 並列起動する現行運用に加え、各 agent 内でさらに 2-3 sub-agent を fan-out（例：Ao 配下に「API 実装」「マイグレーション」「テスト」）、合流点で Kai が結合レビュー。
+- **KPI**：実装リードタイム 5 日 → 1.5 日（3.3 倍）、並列 agent 数 3 → 9、context window オーバーフロー起因の再実行 週 5 回 → 0 回。
+
+### 5. DORA 4 Keys + SPACE Framework の継続計測
+- **新スキル**：Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR の DORA 4 keys を GitHub API + Vercel API + Sentry API から自動収集し Grafana 12 でダッシュボード化。加えて SPACE（Satisfaction / Performance / Activity / Communication / Efficiency）で開発者体験を四半期計測。
+- **適用**：週次 Kai 報告に DORA 数値を必ず添付、Elite 水準（Deploy 日次以上・Lead Time 1 時間以内・Change Failure 15% 未満・MTTR 1 時間以内）を目標化。SPACE 低下時は Sprint Retrospective で原因深掘り。
+- **KPI**：Deployment Frequency 週 3 → 日次 5 回、Lead Time 5 日 → 4 時間、Change Failure Rate 22% → 8%、MTTR 4 時間 → 45 分。
+
+### 6. Scrum@Scale + Nexus によるマルチチーム統括（7 社案件同時進行）
+- **新スキル**：Scrum@Scale の Scaled Daily Scrum（SDS）を LET 7 社案件横断で毎朝 9:30 に 15 分実施、Nexus の Integration Team として Kai + Mio + Sora が「合流点の依存解消」を専任担当。Cross-team dependency board を Linear Roadmap で可視化。
+- **適用**：翔星建設・宮村建設・エスコプロ等の複数クライアント案件が同一メンバー（Nao/Ao/Riku）を取り合う状況で、Portfolio Kanban で WIP 上限 2 案件を強制、超過は即エスカレーション。
+- **KPI**：メンバー間タスク競合ブロック 週 8 件 → 1 件、全社案件納期遵守率 78% → 96%、案件横断のコミュニケーションコスト 週 6 時間 → 1.5 時間。
+
+### 7. Notion Projects 2.0 + Slack Canvas + Loom の非同期ハンドオフ
+- **新スキル**：Notion Projects 2.0（2026-06 Timeline / Workload view）+ Slack Canvas（相互編集可能ドキュメント）+ Loom（3 分ビデオメモ）を「非同期ファースト」で組み合わせ、同期会議を撤廃。DoD 達成報告は 3 行 + Loom 60 秒動画で完結。
+- **適用**：Kai の定例 MTG（週 3 回 × 60 分）を全廃し、非同期テンプレへ移行。同期は「合流点レビュー」のみ月 2 回に集約。
+- **KPI**：会議時間 週 4.5 時間 → 週 30 分（9 倍削減）、意思決定リードタイム 平均 2 日 → 4 時間、メンバー Deep Work 時間 週 12 時間 → 週 28 時間。
+
+### 8. Cost of Delay（CoD）+ Real Options 理論の投資判断
+- **新スキル**：Cost of Delay（機能遅延による機会損失を円/週で定量化）+ Real Options 理論（実装を「オプション購入」と捉え、確度低い機能は minimal spike で価値検証）を STEP 0 に導入。曖昧要件は「オプション」として先送り可能な設計を Nao へ指示。
+- **適用**：追加要望が来た瞬間に「CoD = X 円/週、実装コスト Y 円」の即算出でクライアント合意、Real Options で「今フル実装 / spike 検証のみ / 次フェーズ送り」の 3 択を数字で提示。
+- **KPI**：追加要望の合意リードタイム 3 日 → 30 分、無償追加対応時間 月 20 時間 → 3 時間、案件粗利率 32% → 48%。
+
+### 9. GitHub Copilot Workspace + Devin による Autonomous Development Layer
+- **新スキル**：GitHub Copilot Workspace（Issue → PR 自動生成）+ Devin（Cognition Labs の autonomous agent）を STEP 3-4 の定型実装（CRUD / マイグレーション / テストコード雛形）に投入し、Riku/Ao は「レビューと難所実装」に集中。Kai は Devin の実行計画をレビュー承認する新責務を担う。
+- **適用**：定型 API 実装（CRUD 5 エンドポイント）は Devin 起動で 1 時間内完了、Riku/Ao はビジネスロジックと E2E テストに集中。Kai の承認ゲートを Notion + Slack Approval で 10 分以内に。
+- **KPI**：定型実装工数 週 20 時間 → 2 時間、Riku/Ao の高付加価値タスク時間比率 40% → 82%、Sprint 内実装本数 12 → 30。
+
+### 10. Sprint Retrospective の AI Sentiment Analysis（Miro AI + Claude）
+- **新スキル**：Miro AI（Retrospective template 自動要約）+ Claude Opus 4.7 API でチーム発言の Sentiment Analysis を実施し「不満の芽」を早期検出。過去 12 スプリントの Action Item 完遂率を追跡し、未完 Action は自動再掲。
+- **適用**：Sprint 終了後の Retrospective を Miro AI で 15 分完結（従来 60 分）、Claude が Sentiment Score < 0.6 のトピックを Kai に直接エスカレーション。心理的安全性の劣化を数字で検知。
+- **KPI**：Retrospective 時間 60 分 → 15 分、Action Item 完遂率 45% → 88%、チーム eNPS（Employee Net Promoter Score）+22 → +58。

@@ -537,3 +537,37 @@ if 単発スライドのみ必要:
 - **縦（9:16）・横（16:9）の二形態は書き出し後に作り直さず、着手時に両方のマスタを立てて同一プレースホルダ名で組む**：SNS 配布・チャット共有が前提の案件（07-27記録）で横版の完成後に縦を起こすと、実質2本作ることになる。先に器を2つ用意しておけば、テキスト・図版の流し込みが1回で済む。
 - **図版の部品化は「3案件で2回以上出た構図」だけに絞る**：フロー・比較・タイムライン・体制図・ファネルの部品ライブラリ（08-18記録）は効果が大きいが、1回きりの図まで部品化すると整備コストを回収できない。出現頻度を基準にして、部品棚が肥大して探す時間の方が長くなる状態を防ぐ。
 - **フォント埋め込み・PDF 書き出し・軽量化・`precheck.py` はページ単位で回さず、全ページ確定後に一括で1回だけ実行する**：作業途中で都度走らせると同じ処理を何度も繰り返すことになる。代表3枚での3環境検品（08-18記録）とは目的が違い、こちらは確定後の機械処理としてまとめるのが最短。
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Souma を「PPTX/DOCX 出力担当」から、Figma AI Actions（2026）× PowerPoint Copilot × Google Slides Gems × Gamma 2 × Tome × Beautiful.ai を統べ、Presentation Zen 原則（Garr Reynolds）と Nancy Duarte『Resonate』の対比構造を実装レイヤで具現化する「プレゼンテーションアーキテクト」へ引き上げる。60-30-10 配色律・Serif/Sans-serif 使い分け・Kern/Tracking/Leading の 3 大タイポ制御を全案件へ適用する。
+
+### 1. Figma AI Actions × PPTX 双方向同期ワークフロー
+Figma AI Actions（2026 GA）を用いて `Figma → PPTX` のワンクリック書き出しを標準化し、デザインの真実源を Figma に一本化する。クライアント別テーマ（`brand-shosei.figma` 等）を Figma Variables で管理し、`Design Tokens W3C Community Group` 仕様の JSON をエクスポートして PowerPoint テーマ（.thmx）と Google Slides テーマへ自動反映。Figma 側の変更は Slack Webhook で通知され、案件フォルダの `theme-sync.log` に差分記録。KPI：ブランド逸脱スライドゼロ、テーマ更新の全案件反映を 1 日以内、テーマ差分検出遅延を 15 分以内。
+
+### 2. Presentation Zen × Nancy Duarte Resonate の実装ガイドライン
+Garr Reynolds『Presentation Zen』の「1 スライド 1 メッセージ・余白 40%・視線誘導 Z パターン」と Nancy Duarte『Resonate』の Sparkline（What is / What could be の対比）を実装 SOP 化し、`design-doctrine.md` として `designer_memory.md` の付録に配置。各案件でヒーロースライド（Big Idea）は文字サイズ 60pt 以上・視覚支配率 70% 以上・S.T.A.R. Moment 要件（Something They'll Always Remember）を満たしているかチェックリストで検証。KPI：Big Idea スライド滞留時間（Docsend）30 秒以上、Zen 原則違反スライド 5% 以下、Sparkline 対比構造を提案書 100% に埋め込む。
+
+### 3. 60-30-10 配色律 × WCAG 2.2 AAA コントラスト検証
+`design-doctrine.md` の配色ルールを「主色 60% / 副色 30% / 強調 10%」に固定し、クライアント別 HEX 5 色を `palette-{client}.json` で管理。W3C の APCA（Advanced Perceptual Contrast Algorithm）で Lc 75 以上（本文）／ Lc 90 以上（見出し）を全ページ検証し、赤緑色覚多様性シミュレーション（Deuteranopia / Protanopia / Tritanopia）を `precheck.py` に組み込む。KPI：WCAG 2.2 AAA 準拠率 100%、色覚多様性違反ゼロ、クライアントレビューでの配色差戻し率 5% 未満。
+
+### 4. Serif / Sans-serif × Kerning・Tracking・Leading の 3 大タイポ制御
+和文は本文＝Noto Sans JP（14pt / Leading 1.6）／見出し＝Noto Serif JP Bold（32pt / Tracking -20）、英文本文は Inter（12pt）／見出し＝Playfair Display（40pt / Tracking -25）を基本とし、`typography-spec.md` に固定。プレゼンは可読性優先で Sans-serif、報告書・契約書は権威演出で Serif 見出しを採用。Kerning（字間微調整）はロゴ・タイトル・Big Idea スライドで手動 100% 実施、Tracking は本文 0・見出し -20〜-25、Leading は本文 1.6・見出し 1.2 を基準値化。KPI：タイポ規則逸脱ゼロ、可読性スコア（jReadability v3 補正）＋10pt、経営層向け報告書の権威印象評価 85% 以上。
+
+### 5. PowerPoint Copilot × Gamma 2 × Tome × Beautiful.ai の使い分けマトリクス
+案件タイプ別に「初動生成 AI」を固定し、`ai-tool-matrix.md` で運用する。提案書（BtoB 20 スライド超）＝ PowerPoint Copilot（社内テーマ準拠＋クライアントロゴ自動配置）、ピッチデック（10 スライド以内・投資家向け）＝ Tome（ストーリー骨格特化）、SNS 配布用縦型（9:16）＝ Gamma 2（生成後 Figma へ移送）、リアルタイム提案（商談中共同編集）＝ Beautiful.ai。初動 AI の生成物を Souma が Figma へ吸い上げてブランド適合を仕上げる 2 段階運用。KPI：初動生成時間を 3h → 30 分、AI ツール選択の判断迷いゼロ、初稿完成日数を 5 日 → 2 日。
+
+### 6. Google Slides Gems × 共有プレゼンテーション自動化
+Google Workspace 上で Gemini for Workspace の Gems（カスタム AI 助手）機能を活用し、「翔星建設用プレゼンGem」「宮村建設用提案Gem」等をクライアント別に配置。プロンプトに社名・案件タイプ・スライド枚数を入れると、`designer_memory.md` 準拠のスライド骨格を自動生成。Google Slides API で `theme.thmx` を強制適用し、Apps Script による目次自動更新・ページ番号一括修正を実装。KPI：クライアント別 Gem 稼働率 100%、Google Slides 案件の初期生成時間を 45 分 → 8 分、目次・ページ番号のズレ事故ゼロ。
+
+### 7. Design Tokens 統合による Figma × Slides × Docs × Email テンプレの一貫性
+Design Tokens W3C 仕様（`.tokens.json`）で「Color / Typography / Spacing / Shadow / Border Radius」を単一定義し、Style Dictionary v4 で Figma Variables / PowerPoint テーマ / Google Slides マスタ / HTML メールテンプレの 4 出力を自動生成する `token-pipeline` を構築。クライアント別（let-inc, shosei, miyamura）のトークンを Git 管理し、PR マージで全媒体へ即時反映。KPI：媒体間ブランド不整合ゼロ、トークン更新から全媒体反映まで 30 分以内、四半期あたりのブランド逸脱事故ゼロ。
+
+### 8. アクセシビリティ完全対応（Alt Text / Reading Order / Contrast）
+全出力 PPTX に対して「① 全画像 Alt Text（Azure Cognitive Services Computer Vision で自動生成 → 手動校正）／② Reading Order（読み上げ順序の目視検証）／③ Color Contrast（APCA Lc 75 以上）／④ フォント埋め込み（Noto Sans/Serif JP 必須）」の 4 点を `accessibility-check.py` で自動検証。JIS X 8341-3:2016 準拠を全案件で保証し、監査ログを PDF 化して Sora 提出時に同送。KPI：アクセシビリティ違反ゼロ、大手クライアント（採用支援・公共案件）の要件充足率 100%、Alt Text 生成時間を 30 分 → 5 分。
+
+### 9. Motion / Transition の意図設計（Apple Keynote Magic Move 原則）
+無意味なアニメーションを排除し、意図のあるモーションのみ許可する運用へ。Keynote Magic Move / PowerPoint Morph の使用条件を「① 前後スライドで同一要素が変形する場合／② データの経時変化を示す場合／③ 因果関係を可視化する場合」の 3 条件に限定し、`motion-policy.md` で明文化。装飾目的のフェード・回転・スピンは全禁止。KPI：モーション使用件数を平均 15/デッキ → 4/デッキ、モーション意図の説明可能率 100%、経営層アンケート「動きが邪魔にならなかった」肯定率 90% 以上。
+
+### 10. `precheck.py v2` — 出力前 15 項目自動検査＋差分レポート
+出力前の機械検査を 15 項目へ拡張：フォント埋め込み／画像 dpi（150 以上）／画像圧縮率／Alt Text 有無／Reading Order／APCA コントラスト／色覚多様性／マスタ整合／目次・ページ番号・図表番号整合／リンク死活／プレースホルダ残置（`{{...}}` 検出）／機種依存文字（NFKC 差分）／フォントフォールバック回避／スライド比率（16:9 / 9:16）／ファイルサイズ（100MB 以下）。実行後に `precheck-report.html` を生成し Aoi・Mana へ配布。KPI：出力後の物理的欠陥ゼロ、Aoi 差戻し率を 25% → 5%、`precheck` 実行時間を 45 秒以内。

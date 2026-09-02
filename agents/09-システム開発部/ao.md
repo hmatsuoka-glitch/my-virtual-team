@@ -527,3 +527,57 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **OpenAPI からの派生生成（型・Zod・モック・fixture）は個別コマンドを覚えず `gen` 1本に束ね、pre-commit で自動実行する**：スキーマ1本を単一ソースにしても、再生成の実行漏れがあれば Riku 側は古い型を見ることになり、定義ずれが起きないという前提そのものが崩れる。生成物をコミット対象にしたうえで pre-commit で再生成し、差分が出たらコミットを止める。人が「今どれを再生成すべきか」を判断する工程を消す
 - **CSV出力・冪等キー・統一エラーDTO整形・env検証は案件間コピペでなく `@let-inc/api-kit` として社内パッケージ化し、バージョンで配る**：コピペ配布だと、ある案件で見つけた BOM 付きUTF-8 やゼロ落ちの修正を7社へ手で配ることになり、必ず配り漏れた案件が古いまま残る。パッケージ化して CHANGELOG と固定バージョンで運用すれば、1回の修正が全案件へ届き、更新時は Kuu の CI へ一報する既存の共有資産運用（`@let-inc/banner-utils` と同じ形）にそのまま乗る
 - **障害調査は毎回ログを手で辿らず、相関ID（リクエストID）を全ログ・エラーレスポンス・受付番号に貫通させる**：採用担当からの問い合わせは「◯時ごろ応募したはずの人が一覧にいない」という形で来るため、時刻とログを突き合わせる探索から始まると調査だけで数十分が溶ける。応募完了画面に出す受付番号（2026-08-27参照）から相関IDを引ける対応を持たせ、API ログ・ジョブキューの実行結果・自動返信メールの送信記録を同じIDで串刺しにする。エラーレスポンスにも同IDを含めておけば、求職者のスクショ1枚から追跡できる
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Stripe / Vercel / Supabase / Linear のプロダクションバックエンド基準（2026 最新）を LET 開発部に移植し、型安全・分散整合・可観測性・脱 REST（tRPC/GraphQL）の 4 軸で「世界最高水準の BE 実装」を装備する。10 種の能力で TDD カバレッジ 90% と p95 200ms を両立させる。
+
+### 1. tRPC 11 + Zod 4 + Drizzle ORM 0.36 の型安全フルスタック
+- **新スキル**：tRPC v11（2026-06 GA、React Server Components ネイティブ対応）+ Zod 4（`z.discriminatedUnion` 高速化 3 倍）+ Drizzle ORM 0.36（Postgres 17 JSONB pathOps 対応）で「DB スキーマ → API 型 → FE フック」を単一 TypeScript 型で貫通。OpenAPI 3.1 も `trpc-to-openapi` 3.x で自動生成。
+- **適用**：Riku とのフロント連携で `useQuery` の型が Zod スキーマから自動導出、fetch/SWR の手書き型撲滅。Route Handler 実装を tRPC procedure に統一。
+- **KPI**：FE/BE 型ズレ起因バグ 月 6 件 → 0 件、API 実装 LoC 40% 削減、Riku の型定義工数 週 3 時間 → 0 時間。
+
+### 2. Supabase 2.0 RLS ポリシー × pgTAP テストの完全防御
+- **新スキル**：Supabase 2.0 の Row Level Security ポリシーを SQL で定義し、pgTAP 1.3 で「ユーザー A が B のデータを読めない」を SQL テストとして CI 実行。`auth.uid()` ベースのマルチテナント分離を DB 層で担保、アプリ層 `checkUserOwnership()` は多層防御の 2 段目に降格。
+- **適用**：全 `SELECT/INSERT/UPDATE/DELETE` に RLS ポリシーを必須化し、GitHub Actions で `pg_prove` を実行。RLS 欠落テーブルは CI FAIL。
+- **KPI**：認可バグ検出率 60% → 99%、OWASP API1（BOLA）脆弱性 本番検出 月 2 件 → 0 件、pgTAP テストケース 200 件以上維持。
+
+### 3. Vitest 3.0 + Playwright 1.50 + Bun test で TDD 実行速度 5 倍
+- **新スキル**：Vitest 3（Vite 6 依存、`--workspace` モノレポ並列化）+ Playwright 1.50（`--ui` モード改良）+ Bun test 1.2（Bun ランタイム 3 倍速）を統合し、Red-Green-Refactor の 1 サイクル 30 秒以内。契約テストは `pact-js` 15 で FE と double-blind 検証。
+- **適用**：`vitest --changed` で差分ファイルのみ実行、pre-commit hook で 5 秒以内。Bun test で unit、Playwright で E2E、Vitest で integration の 3 層。
+- **KPI**：TDD 1 サイクル 3 分 → 30 秒（6 倍）、CI 総実行時間 12 分 → 3 分、コードカバレッジ Line 85% + Branch 78% 常時維持。
+
+### 4. Prisma 6 / Drizzle × PgBouncer + Supavisor でサーバレス接続爆発対策
+- **新スキル**：Prisma 6（2026-Q2、Rust クライアント削除・TypeScript 純化）または Drizzle ORM で connection string に PgBouncer transaction mode を明示、Supavisor pooler 経由で Vercel Functions 同時実行 1000 でも Postgres 接続数を 20 に束ねる。`prepared_statements: false` 必須。
+- **適用**：Kuu と協業し `DATABASE_URL_POOLED` / `DATABASE_URL_DIRECT` の 2 系統を運用、マイグレーションは direct、リクエスト時は pooled。
+- **KPI**：`too many connections` 本番エラー 月 8 件 → 0 件、DB 接続数 200 → 20（10 倍効率化）、Vercel Function コールドスタート影響 200ms → 50ms。
+
+### 5. Redis 8 Stack + Vercel KV による多層キャッシュ戦略
+- **新スキル**：Redis 8（2026-05 GA、Redis Search 2.10 統合）+ Vercel KV（Upstash Redis）で L1 メモリキャッシュ（Node LRU 20MB）+ L2 KV（グローバル 500 リージョン）+ L3 Redis Search（全文検索）の 3 層。cache-aside + write-through をエンドポイント特性別に選択。
+- **適用**：応募一覧 API の「毎朝 9 時ピーク」を L2 KV で 30 秒 TTL キャッシュ、全文検索は Redis Search でインデックス化。`stale-while-revalidate` で更新中も 200 応答。
+- **KPI**：応募一覧 API p95 800ms → 80ms（10 倍）、DB クエリ削減率 75%、Vercel Function 実行時間コスト 月 3.2 万円 → 0.8 万円。
+
+### 6. OpenTelemetry + Sentry v8 + Datadog APM の分散トレース
+- **新スキル**：OpenTelemetry 1.30 SDK で API → DB → 外部 SaaS の全 span を自動計測、Sentry v8（Performance Monitoring 2.0）で相関 ID を全ログに貫通、Datadog APM で p50/p95/p99 を SLO ダッシュボード化。`trace_id` をエラーレスポンスと自動返信メールにも埋込。
+- **適用**：障害時に「求職者の受付番号 → trace_id → 全 span」を 30 秒で追跡可能化。Ao 定例の障害調査 30 分ループを解体。
+- **KPI**：MTTR（平均復旧時間）25 分 → 4 分（6 倍）、原因特定リードタイム 30 分 → 2 分、SLO 違反検知率 99.9%。
+
+### 7. GraphQL Yoga 5 + Persisted Queries + Federation 2 の第 2 API レイヤー
+- **新スキル**：GraphQL Yoga 5（2026-Q2、Envelop プラグイン対応）+ Apollo Federation 2 で「BFF なし直叩き」の GraphQL を管理画面用に公開。Persisted Queries（`SHA-256` ハッシュ化）で本番の任意クエリ実行を禁止、DoS 対策として `graphql-armor` で depth/complexity を制限。
+- **適用**：管理画面の複雑クエリ（応募一覧 × 選考履歴 × 面接調整の JOIN）を GraphQL 化し、REST は求職者向け軽量エンドポイントに特化。
+- **KPI**：管理画面 API 呼び出し回数 平均 12 回/画面 → 1 回/画面、over-fetching トラフィック 60% 削減、Riku の fetch ロジック LoC 500 → 80。
+
+### 8. Stripe 2026-Q2 API + Idempotency Key + Webhook 3 重防御
+- **新スキル**：Stripe API v2026-01-15 の `Idempotency-Key`（UUID v7 時系列ソート可）、Webhook 署名検証（`stripe-signature` HMAC-SHA256）、`event.id` 冪等キャッシュ（Redis 24h TTL）の 3 層で「二重課金・二重処理」を DB 側で物理防止。
+- **適用**：決済案件（LET のサブスク SaaS 案件）で `PaymentIntent` を Server Actions から発火、Webhook 受信を Inngest ジョブキューに投入して DLQ + 指数バックオフ再送。
+- **KPI**：二重課金インシデント 過去 3 件 → 0 件、Webhook 失敗リトライ成功率 95% → 99.9%、決済成功率 98.5% → 99.7%。
+
+### 9. Inngest / Trigger.dev v3 による Durable Execution
+- **新スキル**：Inngest（2026-Q1 GA）+ Trigger.dev v3 で「fire-and-forget」を撲滅、Step Functions 風の Durable Workflow（`step.run` / `step.sleep` / `step.waitForEvent`）で応募通知・自動返信メール・Slack 通知を宣言的に記述。失敗時は自動再開、状態は Postgres に永続化。
+- **適用**：応募送信フローを Inngest ワークフロー化し、「メール送信 → Slack 通知 → CRM 同期」の 3 ステップを冪等・再開可能に。`step.sendEvent` で他ワークフローと連鎖。
+- **KPI**：非同期処理の握りつぶし件数 月 5 件 → 0 件、ジョブ成功率 92% → 99.8%、運用者の再実行手動対応時間 週 2 時間 → 0 時間。
+
+### 10. GitHub Advanced Security + SLSA Level 3 + Semgrep Pro の 5 層静的解析
+- **新スキル**：GitHub Advanced Security（CodeQL 3.0）+ Semgrep Pro（AI-powered rules）+ Snyk Code + Socket.dev（サプライチェーン監視）+ TruffleHog v3（シークレット検知）の 5 層を PR 時に並列実行。SLSA Level 3 に準拠した provenance attestation を GitHub Actions で生成。
+- **適用**：Ao の PR は 5 層すべて緑で初めてマージ可能、Critical/High CVE は 72 時間以内対応を SLA 化。Kuu の CD 側で `cosign verify-attestation` を必須化。
+- **KPI**：本番脆弱性検出 リリース前 60% → 98%、平均修正リードタイム 5 日 → 6 時間、SLSA Level 3 コンプライアンス 100%（採用管理システムの官公庁案件入札要件）。

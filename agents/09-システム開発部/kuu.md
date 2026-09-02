@@ -549,3 +549,57 @@ STEP 6: 実装完了報告
 - **環境変数の 3 環境投入は Vercel UI の手作業をやめ、`.env.example` の差分を入力にした一括同期スクリプトへ寄せる**：Ao の PR が持ってきた `.env.example` の追加行を読み、開発/ステージング/本番へ `vercel env add` をループで流し、最後に `vercel env ls` の diff で環境間ズレを検証するところまで 1 コマンドにする。キーが 40 個を超える案件では UI 投入に 20 分＋打ち間違いの再デプロイが常態化していたが、スクリプト化で 2 分＋タイプミス起因の本番 500 がゼロに。手で写す工程が残っている限り、env 未設定の本番事故は確率で必ず起きる
 - **モノレポの Vercel プロジェクトには `ignoreCommand` を必ず入れ、無関係な変更での preview ビルドを起動前に打ち切る**：`git diff --quiet HEAD^ HEAD -- .` 相当の判定を各プロジェクトの Ignored Build Step に置き、翔星建設の LP だけを直した PR で他クライアントの LP と管理画面がビルドされる状態を止める。案件が増えるほど 1 PR あたりのビルド本数が線形に増えてビルド時間とコストの両方を食うため、クライアント案件を同一チームに集約する運用では初期構築時の必須設定として扱う
 - **Sentry のリリース登録とソースマップ添付を CD の必須ステップにし、障害調査の初動から「読めないスタックトレース」を消す**：`sentry-cli releases new/set-commits/finalize` と `sourcemaps upload` をデプロイジョブに組み込み、issue からコミットとデプロイ ID まで一直線で辿れる状態にする。未設定だと本番エラーが minify 済みの行番号で届き、該当箇所の特定だけで 30 分溶かしたうえ「どのデプロイから出始めたか」も分からない。設定は初回 15 分で、以後すべての障害の初動が数分短縮される投資対効果の高い一手
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Netflix / Datadog / HashiCorp のプロダクション SRE 基準（2026 最新）を LET インフラ部に移植し、IaC / Progressive Delivery / Observability / FinOps / Zero-Trust の 5 軸を Kuu に装備する 10 種の能力を実装。Elite DORA 4 keys 水準（Deploy 日次 5 回・Lead Time 1 時間以内・Change Failure 10% 未満・MTTR 15 分以内）を恒常達成する。
+
+### 1. Terraform 1.10 + Pulumi 3.140 の IaC 完全移行
+- **新スキル**：Vercel Terraform Provider 3.x + Supabase Terraform Provider 1.x + Cloudflare 5.x で「Vercel Project + DNS + Env Vars + Supabase + Sentry」を 1 リポジトリの `.tf` に集約。Pulumi 3.140（2026-Q2、Automation API 3.0）で TypeScript IaC を Riku/Ao とも共有可能に。
+- **適用**：新規案件立ち上げ時に `terraform apply` 1 コマンドで全環境構築、UI 手作業を撲滅。`terraform plan` を PR 必須ゲート化。
+- **KPI**：新規案件インフラ構築 3 時間 → 8 分（22 倍）、UI 手動起因の設定ミス 月 6 件 → 0 件、環境間ドリフト検知率 100%。
+
+### 2. Vercel Preview Deploy × Namespace 化 × Argo Rollouts の Progressive Delivery
+- **新スキル**：Vercel の Preview Deploy を Kubernetes 1.32 + Argo Rollouts 1.8 で拡張し、Canary（5% → 25% → 100%）+ Blue-Green + Feature Flags（LaunchDarkly / Statsig）を組み合わせた Progressive Delivery を全案件標準化。SLO ベース自動ロールバック（error rate > 1% で即戻し）。
+- **適用**：本番デプロイを「Canary 5%・5 分監視 → 25%・10 分 → 100%」の 3 段階に強制、Sentry Performance と統合して p95 劣化 20% 超で自動ロールバック。
+- **KPI**：Change Failure Rate 22% → 6%、本番障害の平均影響時間 25 分 → 2 分、Deploy Frequency 週 3 → 日次 5 回。
+
+### 3. OpenTelemetry Collector + Datadog + Grafana 12 の三位一体 Observability
+- **新スキル**：OpenTelemetry Collector v0.115（2026-06）で Metrics/Logs/Traces を単一 pipeline に統合し、Datadog（APM）+ Grafana 12（可視化）+ Loki 3（ログ）へ fan-out。SLO は Sloth（Prometheus SLO generator）で YAML 定義し、Error Budget 消費率をリアルタイム監視。
+- **適用**：全 API に自動計測（`@opentelemetry/instrumentation-http` 等 15 個）、trace_id を Ao の受付番号・自動返信メールにも貫通。Grafana Alert で「Error Budget Burn Rate > 10x」を Slack 即通知。
+- **KPI**：MTTR 45 分 → 8 分（5.6 倍）、SLO 遵守率 97.5% → 99.9%、監視 SaaS コスト（Datadog）月 8 万円 → 4 万円（high-cardinality 撲滅）。
+
+### 4. GitHub Actions + Nx Cloud + Turbo による CI 高速化（サブ 60 秒）
+- **新スキル**：GitHub-hosted arm64 larger runner（8 vCPU）+ Nx Cloud（分散キャッシュ）+ Turborepo 2.4（`--filter=...[origin/main]` 影響範囲判定）+ `dorny/paths-filter` で「変更 package のみビルド」。マージクイーン（`merge_queue`）で衝突自動解決。
+- **適用**：モノレポ全体を Nx workspace 化し、LP 1 本の修正 PR は 40 秒、全体変更でも 3 分以内。pre-commit で `turbo run lint --filter=...` を 5 秒以内実行。
+- **KPI**：CI 実行時間 平均 9 分 → 平均 90 秒（6 倍）、CI コスト 月 3 万円 → 8,000 円、Lead Time for Changes 4 時間 → 45 分。
+
+### 5. SLSA Level 3 + Sigstore Cosign + SBOM 生成の Supply Chain Security
+- **新スキル**：SLSA Level 3 準拠の Build Provenance を GitHub Actions で生成、Sigstore Cosign v2.4 で container/artifact に署名、CycloneDX 1.6 で SBOM（Software Bill of Materials）を毎ビルド発行。Vercel Function 起動時に `cosign verify-attestation` 必須化。
+- **適用**：Ao の全 PR に SBOM 差分を PR コメントで自動投稿、脆弱性 CVE 発生時は SBOM から影響案件を 30 秒特定。官公庁案件（建設業 DX）の入札要件を満たす。
+- **KPI**：CVE 影響範囲特定 4 時間 → 30 秒、サプライチェーン攻撃検知率 100%、SLSA Level 3 認証 100%（政府調達案件対応）。
+
+### 6. Sentry v8 + PostHog + LogRocket による Frontend Observability
+- **新スキル**：Sentry v8（Session Replay 2.0、Performance Monitoring 統合）+ PostHog 1.190（Product Analytics + Feature Flags）+ LogRocket（DOM 再生）を Riku と共同運用。Error → Session Replay → User Journey → Feature Flag 状態を 1 画面で相関表示。
+- **適用**：本番エラー発生時に「該当ユーザーの操作 30 秒前からの画面録画 + console log + network」を自動再生、Riku がデバッグ 5 分以内。
+- **KPI**：フロントエンドバグ再現時間 45 分 → 3 分（15 倍）、Session Replay 起点の Bug Report 発見率 25% → 82%、ユーザー起因の問い合わせ「操作方法が分からない」月 12 件 → 2 件。
+
+### 7. Cloudflare Workers + Vercel Edge Config によるグローバル低レイテンシ配信
+- **新スキル**：Cloudflare Workers 2026 + Vercel Edge Config（グローバル 500 リージョン、5ms 以内 read）で「A/B テスト振り分け・feature flag・地域別 redirect」を Edge で処理。Origin 到達前に応答完了、CDN cache と組み合わせて日本国内 p50 15ms。
+- **適用**：Yuna の Multi-Armed Bandit 配信比率を Edge Config に格納、リクエスト到達時に 5ms で振り分け決定。管理画面の feature flag も Edge で即時反映。
+- **KPI**：グローバル p50 レスポンス 180ms → 25ms（7 倍）、A/B テスト振り分けオーバーヘッド 40ms → 3ms、CDN Cache Hit Rate 62% → 91%。
+
+### 8. FinOps + Vercel Usage API + AWS Cost Explorer の月次コスト最適化
+- **新スキル**：Vercel Usage API + Supabase Usage API + Datadog Usage API + Cloudflare Analytics API を Metabase 0.52 で日次集計し、「案件別コスト」を FinOps ダッシュボード化。異常検知（Rob Prophet 予測モデル、前月比 30% 超）で自動 Slack 通知、Rightsizing 提案。
+- **適用**：月初 1 日に前月コスト × 案件粗利をクロス集計、akari/ryota に「赤字案件」を即報告。Kuu が月次 Rightsizing MTG で削減施策提案（低頻度 API を Cloudflare Workers へ移管等）。
+- **KPI**：インフラ総コスト 月 28 万円 → 18 万円（36% 削減）、案件別粗利可視化率 100%、予期しないコスト急騰件数 月 3 件 → 0 件。
+
+### 9. Zero-Trust Network + Cloudflare Access + Tailscale による社内 VPN 廃止
+- **新スキル**：Cloudflare Access（BeyondCorp 準拠）+ Tailscale 1.80（WireGuard ベース）で従来 VPN を全廃、ステージング環境・DB 管理画面へのアクセスを SSO（Google Workspace）+ 端末証明書 + 位置情報の 3 要素認証で保護。SSH は Tailscale SSH で完全排除。
+- **適用**：Ao/Riku/Mio の全メンバーに端末証明書を配布、ステージング URL は `staging.let-inc.dev` として Cloudflare Access 経由のみアクセス可。SSH キー管理を撲滅。
+- **KPI**：VPN 起因のインシデント 月 4 件 → 0 件、SSO 準拠率 100%、ステージング URL 誤アクセス（クローラー等）月 200 件 → 0 件。
+
+### 10. Chaos Engineering + Litmus 3 + AWS FIS の障害注入訓練
+- **新スキル**：Litmus Chaos 3.10 + AWS Fault Injection Service（FIS）+ Gremlin で「Postgres 接続断・Vercel Function timeout・Sentry ダウン・SMTP 停止」の 8 種類の障害を月次で本番類似環境に注入、Runbook の実効性を検証。GameDay を四半期に 1 回開催。
+- **適用**：Chaos Monkey スケジュールをステージング環境で毎週金曜 14:00 自動実行、Runbook 未整備の障害モードは Kai + Nao と協業で FMEA 表化。
+- **KPI**：想定外障害での MTTR 90 分 → 12 分、Runbook カバー率 60% → 98%、Chaos 検出済み隠れバグ 累計 25 件 → 事前修正、実本番障害件数 月 2 件 → 0 件。

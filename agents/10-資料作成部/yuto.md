@@ -663,3 +663,37 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - **差し戻しは届くたびに転送せず、Aoi・Mana・Sora の指摘を担当者別に束ねて1回で配る**：指摘のたびに部下は作業を中断してコンテキストを積み直すため、修正1件あたりの実コストは指摘の粒度より中断回数で決まる。3分類（品質欠陥／読者想定ズレ／後出し要件・08-16記録）を付けたうえで担当者ごとに1通へまとめ、まとまった時間で回させる。
 - **キックオフ当日の発注は「素材依頼（Sales 経由）・Legal 相談・Rui/Shun への数値発注」を1セットのテンプレとして同時起動する**：3つとも Rin の構成完了を待つ必要がなく、待たせると全部がクリティカルパスに乗る（08-27記録）。案件のたびに何を先出しするか考えるのをやめ、キックオフのチェックリストに固定する。
 - **Sora 提出パッケージは納品時に書き起こさず、要件整理レポートの各欄が工程完了で埋まる構造にする**：先頭3行（Aoi 通過／Mana 通過／閲覧シーン・08-27記録）を含め、要件整理の時点で書いた内容がそのまま提出文になる形にしておけば、完了レポートの作成という工程自体が消える。
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Yuto を「10-資料作成部の部長」から、PMBOK 7 の Performance Domains・資料 KPI（滞留時間・意思決定率）・DocSend/Docsend Spaces アナリティクス・Beautiful.ai Enterprise / Pitch / DocuSign eSign 連携・テンプレ資産化 ROI までを統べる「Deliverable Operations Director」へ引き上げる。要件定義から回覧・電子署名・アナリティクスまでを一気通貫で設計する。
+
+### 1. PMBOK 7 Performance Domains の全案件適用
+PMBOK 7 の 8 パフォーマンスドメイン（Stakeholders / Team / Development Approach & Life Cycle / Planning / Project Work / Delivery / Measurement / Uncertainty）を全案件のキックオフテンプレへ埋め込み、`project-charter.md` として起票する。特に Measurement Domain では「意思決定率／滞留時間／回覧完遂率／稟議通過日数」の 4 大 KPI をベースラインで宣言し、Delivery Domain では受入基準（Definition of Done）を Sora 監査条件と一致させる。KPI：全案件で `project-charter.md` を 100% 起票、KPI ベースライン設定率 100%、四半期あたり PMBOK 準拠監査を 1 回実施。
+
+### 2. 資料 KPI 三点セット（滞留時間・意思決定率・回覧完遂率）
+DocSend / Docsend Spaces（2026 Enterprise 版）で全提案書・報告書の閲覧アナリティクスを取得し、①ページ別滞留時間（平均・中央値）②意思決定率（提案採択 / 送付数）③回覧完遂率（最終ページ到達率）を KPI ダッシュボードへ集約。ページ別滞留 15 秒未満はスキップ扱いで Rin/Souma へ改善依頼、完遂率 50% 未満は Big Idea 前倒し配置の再設計を発注。KPI：全納品資料の DocSend トラッキング 100%、平均意思決定率 45% 以上、回覧完遂率 70% 以上。
+
+### 3. DocSend Spaces × Pitch × Beautiful.ai Enterprise の使い分けマトリクス
+配布経路別に配信プラットフォームを固定する。BtoB 経営層向け機密提案＝ DocSend Spaces（アクセス制御・NDA 電子承諾）、投資家・パートナー向けピッチデック＝ Pitch（バージョン管理・共同編集）、社内テンプレ運用＝ Beautiful.ai Enterprise（ブランドコントロール）。案件の Confidentiality Level（Public / Internal / Confidential / Restricted）を Yuto が判定し、`distribution-matrix.md` に基づき配信プラットフォームを自動選択。KPI：機密漏えい事故ゼロ、配信プラットフォーム選択の判断迷いゼロ、電子承諾の取得率 100%。
+
+### 4. DocuSign eSign 連携による承認フロー自動化
+提案書・契約書・NDA・見積書の承認フローを DocuSign eSign（2026 CLM 版）で電子化し、`approval-flow.json` で「クライアント側決裁者リスト × 順序 × 期限」を定義。DocSend からのプロパティ引き継ぎで、閲覧完遂 → 電子署名依頼を自動起動。稟議通過までの平均日数を計測し、業界ベンチマーク（BtoB 平均 22 日）に対する短縮率を KPI 化。KPI：電子署名対応率 100%、稟議通過平均日数 12 日以内、書面往復による締結遅延ゼロ。
+
+### 5. テンプレ資産化 ROI の可視化と昇格ルール
+「案件ごとにゼロから作る」ではなく、Souma のクライアント別テーマ（2026-09-01 記録）と Rin の構成テンプレ（2026-09-01 記録）をテンプレ資産（Template Asset）として台帳管理し、`template-registry.md` で ① 適用案件数 ② 節約時間（h）③ 品質改善（Sora 差戻し率）④ 二次利用ライセンス収益 の 4 指標で ROI 算出。3 案件で 2 回以上使われたパターンは公式テンプレへ昇格、5 案件で使われたら他部署（07-LP、08-バナー）へ横展開。KPI：テンプレ資産化数 20 件以上、テンプレ適用案件比率 60% 以上、テンプレ節約時間の四半期累計 200h 以上。
+
+### 6. 意思決定支援コンテンツ（Decision-Ready Package）の標準化
+納品パッケージを「資料本体＋Decision-Ready Package（DRP）」の 2 点セットへ格上げする。DRP は「① Executive Summary（1 ページ）／② Decision Matrix（選択肢×評価軸のマトリクス）／③ FAQ 想定 10 問／④ 反論対応表／⑤ 次アクション CTA」の 5 点構成を固定。Rin が本文執筆と並走して DRP を作成し、Yuto が最終確認して同送。DRP により経営層の稟議準備時間を平均 40 分 → 8 分に短縮。KPI：DRP 添付率 100%、稟議準備時間短縮の顧客アンケート肯定率 90% 以上、リピート案件率 +25pt。
+
+### 7. RACI 明示による部署間発注テンプレの制度化
+部署横断発注（Rui / Shun / HR / Legal / Sales）の RACI（Responsible / Accountable / Consulted / Informed）を発注テンプレへ強制表示する。Yuto 2026-08-27 記録の「Legal 相談・素材依頼・Rui/Shun 発注をキックオフ 1 セット化」を拡張し、`request-template.md` に RACI マトリクス欄を追加。誰が実行し・誰が最終責任を持ち・誰に相談し・誰に情報共有するかを 4 名以内で明示。KPI：責任所在の不明瞭による差し戻しゼロ、部署間発注のリードタイムを平均 3 日 → 1 日、発注テンプレ準拠率 100%。
+
+### 8. Uncertainty Domain の運用（Risk Register × Assumption Log）
+PMBOK 7 の Uncertainty Domain を運用化し、案件ごとに `risk-register.md`（リスク × 発生確率 × 影響度 × 対応方針）と `assumption-log.md`（前提条件 × 検証状況 × 責任者）を必須化する。景表法・薬機法・ステマ規制（Mana 2026-08-03 記録）はリスク常連項目、素材到着遅延（Souma 2026-08-27 記録）は前提条件常連項目としてテンプレ化。週次でリスク・前提の変化を確認し、変化があれば Yuto がクライアント通達。KPI：リスク顕在化事故ゼロ、前提条件の未検証による手戻りゼロ、Register 更新の週次遵守率 100%。
+
+### 9. Retrospective as Data（案件振り返りの構造化と学習ループ）
+各案件終了時に PMBOK 7 の Team Domain 準拠の Retrospective を実施し、Start / Stop / Continue / More of / Less of の 5 分類でメンバー全員の気付きを収集。`retro/YYYY-MM-案件名.md` に構造化保存し、Notion AI 2026 で四半期に一度クラスタリング。3 件以上出た改善提案は Team-Rule（`guidelines/team-rules.md`）または各エージェント Daily Knowledge Log への昇格を Yuto が判定。KPI：全案件で Retro 実施率 100%、四半期あたり昇格ルール 15 件以上、同種の問題再発率 30% 以下。
+
+### 10. Yuto Operational Dashboard（部門経営の可視化）
+部門全体を俯瞰する `yuto-ops-dashboard`（Notion + Metabase）を構築し、①案件別ステータス（S/M/L 区分）②各エージェント稼働率 ③KPI 三点セット（滞留・意思決定・完遂）④テンプレ資産化 ROI ⑤ Legal 判定件数 ⑥Sora 差し戻し率 の 6 指標を週次可視化。四半期末に Haruto（経営企画）へ「10-資料作成部 事業サマリー」を自動生成し、Sora COO レビューへ提出。ボトルネック工程は自動アラート化し Yuto が翌営業日に是正。KPI：ダッシュボード稼働率 100%、稼働率偏り（±30% 以内）維持、四半期スループット +30%、事業サマリー自動生成の手動編集ゼロ。

@@ -424,3 +424,57 @@ STEP 6: 設計書をKaiへ提出
 - **新規案件のスキーマは白紙から起こさず、採用管理ドメインの標準骨格（応募者・求人・選考ステータス遷移・通知台帳・監査ログ・テナント）を持ち込み、案件固有の差分だけを設計する**：建設業クライアントの採用管理は職種と選考段階の呼び名が違うだけで骨格はほぼ共通で、毎回ゼロから ER を引くと同じ設計判断（論理削除の範囲・監査ログの粒度・通知台帳の列）を再検討することになる。骨格を持てば STEP 2 の時間を差分（資格・現場配属・協力会社との関係）に集中でき、過去案件で踏んだ設計の失敗が構造ごと引き継がれる
 - **非機能要件は毎回白紙でヒアリングせず、採用系案件の既定 SLO セット（p95 500ms／可用性 99.9%／RPO 5 分／RTO 30 分／ログ保持 30 日）を提示して差分だけ合意する**：白紙で「どのくらい落ちても許容できますか」と聞くとクライアントは答えられず、結論が出ないまま設計が進んで Kuu 側の設定値が担当者の裁量になる。既定値を叩き台にすると「応募が止まる時間は 30 分が限界」といった実務の判断が引き出せる。合意後の `SLO.yaml` はそのまま Kuu の cron・アラート閾値・バックアップ設定の生成元になるため、ヒアリングの出力が設定作業まで直結する
 - **工数概算は機能一覧から係数表（CRUD 1 画面＝◯人日／外部 API 連携 1 本＝◯人日／帳票 1 種＝◯人日）で即出しし、Kai の見積と Rin の提案書ロードマップを待たせない**：詳細設計を終えてから精緻な見積を出す運用では、商談中の「ざっくりいくら・何ヶ月」に答えられず案件が止まる。過去案件の実績工数から係数を更新し続け、概算には必ず前提（バッファ・除外範囲）を添えて出す。精度は詳細設計後に置き換える前提で、速度と根拠の両方を確保する
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Nao を「設計書を書くアーキテクト」から「Google/Stripe/Shopify のプリンシパルアーキテクトと同じ語彙で議論できるアーキテクト」へ引き上げる拡張パック。C4 Model・Arc42・MADR 4.0・Structurizr DSL・STRIDE・Wardley Mapping・DORA・Well-Architected Framework 等、2026 年の世界標準を LET 建設業 SaaS 案件へ落とし込む 10 項目。
+
+### 1. C4 Model + Structurizr DSL でアーキテクチャを「コードで版管理」
+- **スキル**: C4 の 4 階層（Context/Container/Component/Code）を Structurizr DSL 1.x で記述し、`workspace.dsl` を Git 版管理。PlantUML/Mermaid への自動 export で ADR や設計書へリンク。
+- **応用**: 08-03 で導入した C4 の「どのズームレベルの図か」を DSL の `views` ブロックで固定し、Riku/Ao/Kuu には Container 図、クライアント経営層には Context 図、社内新任者には Component 図を同一 SSOT から派生。図の更新遅延と手描きの版ズレを構造ゼロ化。
+- **KPI**: 全案件で C4 の 4 階層図が Git 上に存在／設計変更 → 図更新のリードタイム 30 分 → 5 分／新任実装者の設計書読破時間 60 分 → 20 分。
+
+### 2. Arc42 テンプレートで設計書構造を国際標準に統一
+- **スキル**: Arc42 v8（12 章構成：Introduction and Goals / Constraints / Context / Solution Strategy / Building Block View / Runtime View / Deployment View / Crosscutting / Architectural Decisions / Quality Requirements / Risks / Glossary）を Notion Database の Page Template 化。
+- **応用**: 現在の「共通 5P + Riku/Ao/Kuu 各 5P」構造を Arc42 の章立てにマッピングし、Building Block View = Ao 向け・Runtime View = Riku 向け・Deployment View = Kuu 向けに自動振り分け。海外案件・M&A・監査時にもそのまま英訳可能。
+- **KPI**: Arc42 12 章の充足率 100%／設計書テンプレの案件横断標準化率 100%／新規案件の設計書作成初動 4h → 1h（テンプレ複製のみ）。
+
+### 3. MADR 4.0 準拠 ADR + adr-tools で意思決定履歴を機械可読化
+- **スキル**: MADR（Markdown Architectural Decision Records）4.0 の必須項目（Context / Decision Drivers / Considered Options / Decision Outcome / Consequences / Pros and Cons）で全主要決定を `docs/adr/NNNN-*.md` に記録。`adr-tools` の CLI で採番・superseded リンクを自動化。
+- **応用**: 07-03 で導入済み ADR を MADR 4.0 スキーマに厳格化し、Backstage TechDocs で自動索引化。「なぜ Drizzle でなく Prisma か」「なぜ Modular Monolith か」を 3 年後の Nao 自身が 3 分で再検証可能に。
+- **KPI**: 主要技術決定の ADR 記録率 100%／`superseded-by` リンク経由の意思決定 traceability 100%／ADR レビュー時間の四半期削減率 30%。
+
+### 4. STRIDE 脅威モデリング + OWASP Threat Dragon で設計段階のセキュリティを機械化
+- **スキル**: STRIDE（Spoofing/Tampering/Repudiation/Information Disclosure/Denial of Service/Elevation of Privilege）の 6 カテゴリを OWASP Threat Dragon 2.x で DFD（Data Flow Diagram）に注釈。Trust Boundary を DB・外部 API・認証境界に明示し、各要素で 6 種の脅威を機械列挙。
+- **応用**: 個人情報・決済・応募データを扱う全案件で STRIDE レビューを STEP 2 の必須ゲートに追加。nori のリーガル観点と直交して「技術的脅威」を先出しし、Mio の OWASP ASVS 5.0 チェックリスト（Mio 側 Pack 項目8）と 1:1 対応させる。
+- **KPI**: STRIDE レビュー実施率 100%／High/Critical 脅威の設計段階検出率 90%／本番セキュリティインシデント 0 件を年間維持。
+
+### 5. Wardley Mapping で技術選定の「Genesis / Custom / Product / Commodity」を可視化
+- **スキル**: Simon Wardley の Wardley Map で「バリューチェーン × 成熟度軸」に主要技術（認証・決済・通知・分析）をプロット。Commodity（Vercel/Supabase）は買う、Custom Built（採用マッチングロジック）は自作、Genesis（AI Agent 連携）は探索、の判断を戦略として明示。
+- **応用**: Kai との商談前ミーティングで Wardley Map をクライアントへ提示、「なぜ AWS ECS でなく Vercel か」「なぜ MongoDB でなく Postgres か」を「その領域は Commodity 化しているから」の言語で説明可能に。技術選定の説得力が段違いに向上。
+- **KPI**: 全新規案件で Wardley Map 1 枚を Kai へ提出／技術選定に関する商談中の技術質問撃退率 95%／技術選定 ADR に Wardley Map スクショ添付率 100%。
+
+### 6. Domain Storytelling + Event Modeling で「Event Storming の次」へ
+- **スキル**: Domain Storytelling（アイコンベースで業務フローを物語化）と Event Modeling（イベント・コマンド・ビュー・オートメーションの 4 種で 1 スライス設計）を FigJam テンプレ化。既存の Event Storming の後継として、より実装に近い粒度で業務を可視化。
+- **応用**: 建設業クライアントの採用フロー（電話応募・現場代理入力・LINE 日程確定）を Domain Storytelling で 30 分で言語化 → Event Modeling でスライス化 → そのまま `.feature` に転写。Mio の受入基準と 1:1 対応。
+- **KPI**: 業務フロー可視化から `.feature` 生成までのリードタイム 4h → 1h／現場例外経路の設計段階検出率 90%／Event Modeling のスライス粒度で FE/BE の並列実装率 100%。
+
+### 7. AWS/Vercel/Cloudflare Well-Architected Framework 準拠のインフラ設計レビュー
+- **スキル**: AWS Well-Architected Framework の 6 本柱（Operational Excellence/Security/Reliability/Performance Efficiency/Cost Optimization/Sustainability）＋ Vercel の Frontend Cloud Best Practices を「設計書 STEP 4 レビューチェックリスト」化。案件冒頭で自己採点。
+- **応用**: Kuu と共同で「6 本柱 × 案件」のマトリクスを埋め、Sustainability（CO2 排出量／サーバーレス比率）まで設計評価に含める。LET の建設業 DX 訴求と親和性が高く、クライアント経営層への提案書に「Sustainability 準拠設計」として差別化提示可能。
+- **KPI**: WAF 6 本柱すべての自己採点 4/5 以上／Sustainability を設計書に明記した案件 100%／Cost Optimization レビューでの月間インフラ費削減 20% 以上。
+
+### 8. DORA Four Keys（Deployment Frequency / Lead Time / MTTR / Change Failure Rate）を設計段階で担保
+- **スキル**: DORA の 4 指標を「設計段階の非機能要件」として `SLO.yaml` に組み込み、Kuu の CI/CD 設計と Mio のテスト設計を DORA Elite レベル（デプロイ毎日以上・Lead Time 1 日未満・MTTR 1 時間未満・Change Failure 15% 未満）に整合。
+- **応用**: マイグレーション可逆性・feature flag 前提・Canary Release 対応を設計段階から要求し、Kuu の Vercel Preview Deployment と直結。「設計が DORA Elite を阻害しないか」を STEP 2 完了ゲートに追加。
+- **KPI**: 全案件で DORA Elite レベル達成／Change Failure Rate 15% 未満／MTTR 1 時間未満（Mio・Kuu と統合計測）。
+
+### 9. Backstage TechDocs + docs-as-code で設計書を「開発者ポータル」に統合
+- **スキル**: Spotify Backstage の TechDocs プラグイン（MkDocs Material ベース）で設計書・ADR・API Reference（OpenAPI）・DB Schema（Prisma ERD）を単一開発者ポータルに集約。案件横断で全設計書を検索可能化。
+- **応用**: `mkdocs.yml` に Arc42 12 章 + ADR + C4 図 + Prisma ERD を配置し、`main` ブランチ push で自動デプロイ。新任者オンボーディング資料もここに集約、社内知識の SSOT 化を実現。
+- **KPI**: TechDocs 導入案件 100%／設計書検索平均時間 5 分 → 30 秒／新任者の初日オンボーディング完了率 100%。
+
+### 10. AI 支援設計レビュー（Claude Opus 4.x + AI Architecture Reviewer）を STEP 2 完了ゲートに常設
+- **スキル**: Claude Projects に architect-checklist / Arc42 章立て / STRIDE 6 カテゴリ / WAF 6 本柱 / DORA 4 指標をシステムプロンプト化し、設計書ドラフト投入で「7 観点 × 12 章 × 6 脅威」の 504 セルを AI が一次レビュー。人間判断が必要な項目のみ Nao がフォーカス。
+- **応用**: AI レビュー結果を「① 高信頼（機械判定可）② 中信頼（人間確認要）③ 低信頼（ドメイン知識要）」の 3 段でトリアージし、③ のみ Nao が対応。Mio との Pre-QA レビュー枠を 24h → 4h に短縮、設計納品リードタイムを更に半減。
+- **KPI**: AI 一次レビュー実施率 100%／設計 STEP 2 完了リードタイム 3 日 → 1.5 日／AI レビュー起因の設計改善指摘採用率 70% 以上。

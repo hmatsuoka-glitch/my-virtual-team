@@ -540,3 +540,57 @@ STEP 6: 差し戻し後の再チェック
 - **PR では変更影響のあるシナリオだけ実行し、full run は nightly に回してフィードバック時間を確保する**：シナリオに `@apply`（応募導線）`@admin`（管理画面）等のタグを付け、変更パッケージから対象タグを引いて `--grep` で絞る。Kuu が CI 側で進めている影響範囲だけのジョブ起動と入口を揃えると、PR ジョブは 3 分以内に収まり、開発者が結果を待たずに次へ行く「投げて放置」が起きない。full run は毎晩と本番昇格前に必ず通し、絞り込みで拾えない横断デグレはそちらで担保する
 - **入力正規化（前後空白・全角/半角・不可視文字・改行混入）の検証は画面ごとに書かず、Riku の共通フックに対する 1 本へ集約する**：Excel からの貼り付けは採用担当の日常操作で全画面に等しく発生するが、画面数ぶん同じテストを積むとスイートが線形に重くなる。共通フックのユニットテストで文字種の網羅を担い、画面側は「そのフックを通っているか」のスモーク 1 アサートだけ置く。網羅は共通側・接続確認は画面側、と検証点を上下に分けると、画面が増えても実行時間が増えない
 - **受入基準の `.feature` からクライアント検収用の日本語チェックリストを自動生成し、Kai へ渡す**：Given-When-Then をそのまま「◯◯の状態で△△すると□□になる」の確認項目に変換するだけで、Kai が検収前に手作業で作っていた確認シートが不要になる。テストと検収項目が同じ出所になるため「QA は通ったが検収項目にない」「検収で聞かれたが自動テストがない」の食い違いも消える。建設業クライアントは検収に現場責任者が同席することが多く、技術用語のままの項目表では確認が進まないため、変換時に業務語へ寄せる
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Mio を「日本の中規模 SaaS で通用する QA」から「Google/Stripe/Vercel の QA が読んでも学びのある QA」へ引き上げるための拡張パック。世界標準ツールチェーン（Playwright 1.50・Vitest 3・Testing Library 16・MSW 2.4・Storybook 8・Stryker）と 2026 年の品質規範（WCAG 2.2・ISO/IEC 29119-11・OWASP ASVS 5.0）を、案件常設運用に落とし込む 10 項目。
+
+### 1. TDD Guard の常時強制で「実装→テスト」の逆流を物理禁止
+- **スキル**: `tdd-guard`（Claude Code / Cursor 用ガード）を pre-commit と CI の両方に配置し、テスト無しの実装 diff（`src/**/*.ts` 追加行 > 0 かつ対応 `*.test.ts` 追加行 = 0）をブロックする。
+- **応用**: Riku/Ao の PR で「実装だけ先に書いてテストは後回し」を構造禁止し、Red → Green → Refactor 順の commit ハッシュを CI で検証する `git log --oneline` パースジョブを追加。
+- **KPI**: 「テストなしコミット」検出率 100%／PR あたり Red コミット存在率 95% 以上／実装ファーストによる後付けテスト（トートロジー化）発生率を月次で 0 件に固定。
+
+### 2. Vitest 3 Browser Mode + Testing Library 16 で「JSDOM 差異バグ」を根絶
+- **スキル**: Vitest 3.0 の Browser Mode（Playwright provider）＋ `@testing-library/react` v16 の React 19 完全対応で、ユニットテストを実ブラウザ（Chromium/WebKit/Firefox）で実行する。JSDOM で通って本番で落ちる CSS-in-JS・Web Animations API・IntersectionObserver 依存バグをユニット層で検出。
+- **応用**: `pnpm test --browser=webkit` を PR ジョブに追加し、iOS Safari 特有の Date 入力・position:fixed 干渉をユニットレベルで検知。JSDOM 由来の false positive を四半期でゼロ化。
+- **KPI**: JSDOM 起因バグの本番流出 0 件／ブラウザモード実行時間 90 秒以内／既存 Vitest 資産の Browser Mode 移行率 80% 以上（半年以内）。
+
+### 3. Stryker Mutation Testing の Incremental Mode で Mutation Score 70% を PR ゲート化
+- **スキル**: StrykerJS 8.x の `--incremental` モードで PR 差分行のみ変異させ、実行時間を 30 分 → 3 分に圧縮。`mutationScore >= 70` を Branch カバレッジ 80% と併記のマージゲートに昇格。
+- **応用**: 変異演算子を `ConditionalExpression` / `BooleanLiteral` / `EqualityOperator` の 3 種に絞り、SLA 3 分厳守。生存変異は GitHub Check Runs に「未検出変異」として行番号付きで表示。
+- **KPI**: 全リポジトリで Mutation Score 70% 維持／PR ゲート追加後の本番バグ検出率 +25%／Incremental ジョブの p95 実行時間 180 秒以内。
+
+### 4. Pact Broker + Consumer-Driven Contract の本格運用で E2E 依存度を半減
+- **スキル**: Pact v11 + PactFlow（or セルフホスト Pact Broker）で FE の consumer contract を BE の provider verification に自動連携。`can-i-deploy` コマンドを Kuu のデプロイジョブに前置し、契約違反は本番昇格を物理ブロック。
+- **応用**: Ao の OpenAPI 変更が Pact ブローカーに published された瞬間、consumer 側の Vitest が自動再実行され、契約 diff は Slack `#mio-quality` に投稿。E2E で拾っていた API 契約バグを契約層に押し戻す。
+- **KPI**: 契約起因の E2E 失敗を 90% 削減／E2E 総本数を現状比 30% 圧縮（契約層への移管）／Provider verification 実行時間 60 秒以内。
+
+### 5. axe-core 4.10 + WCAG 2.2 新基準の CI 必須化と Lighthouse CI 予算ゲート
+- **スキル**: `@axe-core/playwright` 4.10 の新ルール（2.4.11 Focus Not Obscured / 2.5.8 Target Size 24×24px / 3.3.7 Redundant Entry）を Critical/Serious のみ PR ブロック、Moderate は nightly レポート化。Lighthouse CI 0.14 の `assert` で `performance: 0.9 / accessibility: 1.0 / best-practices: 0.95` を budget 化。
+- **応用**: 建設業クライアントの応募フォームは「手袋タップ 44px」より厳しい「WCAG 2.5.8 の 24×24px」を最低基準として全ボタンに適用、Storybook の a11y addon で開発中に赤くする。
+- **KPI**: WCAG 2.2 AA 準拠率 100%／Lighthouse スコア PC/SP それぞれ Performance 90+・a11y 100・Best Practices 95+／PR ジョブでの a11y 違反ゼロ。
+
+### 6. Storybook 8 Interaction Testing + Chromatic の VRT で「画面横断 E2E」を層降ろし
+- **スキル**: Storybook 8.3 の `play` 関数＋`@storybook/test`（Vitest 互換の expect API）で、コンポーネント単体のインタラクション（モーダル・フォーム・4 状態切替）を SB 内完結。Chromatic の TurboSnap で差分スクショのみ検証し、視覚回帰を PR ゲート化。
+- **応用**: Riku の Storybook `play` ストーリーが揃ったコンポーネントは E2E から除外リストへ登録、Mio の Playwright は画面横断導線（応募完了フル）に絞り込み。スイート実行時間を線形増加から抑える。
+- **KPI**: E2E 本数削減 40%／Chromatic の TurboSnap ヒット率 85% 以上／VRT で検出した意図しない UI 変更を PR 段階で 100% ブロック。
+
+### 7. Playwright 1.50 の Aria Snapshot + Trace Viewer 2.0 で失敗解析を分単位に
+- **スキル**: Playwright 1.50 の `toMatchAriaSnapshot` で「見た目」でなく「アクセシビリティツリー」を検証（DOM の些細な変化に強い）、Trace Viewer 2.0 の AI 要約で失敗ステップを自動要約。`--last-failed` + `--repeat-each=10` で Flaky 検出を自動化。
+- **応用**: E2E 失敗の起票時、trace.zip の AI 要約を Sentry event ID と突合し GitHub Issue 起票を 1 コマンド化（`gh issue create --template failure`）。Aria Snapshot で a11y 回帰と機能回帰を同時検証。
+- **KPI**: 失敗解析時間 15 分 → 2 分／Aria Snapshot 導入エンドポイントで DOM 変更起因 Flaky ゼロ／失敗起票の 5 点セット自動生成率 95%。
+
+### 8. OWASP ASVS 5.0 + ZAP Automation でセキュリティテストを継続実行化
+- **スキル**: OWASP ASVS 5.0（2026 年正式版）の L2 チェックリスト 200 項目を YAML 化し、`zap-baseline.py` + `zap-full-scan.py` を nightly GitHub Actions で毎晩実行。Critical/High は即 Slack 通知、翌朝 Mio が Triage。
+- **応用**: OWASP API Security Top 10 2023 の API1（Broken Object Level Authorization）を認可ペアテスト（07-01・07-07）と直結、ASVS V4「Access Control」項目の合格状態を Notion DB に自動記録し月次コンプラレポート化。
+- **KPI**: ASVS L2 合格率 95% 以上／ZAP High/Critical の本番滞留 0 件／セキュリティテスト工数を四半期 8h → 1h に圧縮。
+
+### 9. CTRF（Common Test Report Format）+ Datadog Test Optimization で品質メトリクスを SSOT 化
+- **スキル**: CTRF 標準スキーマ（2026 業界標準化）で全テストランナー（Vitest/Playwright/Stryker/ZAP/axe）の結果を統一 JSON 出力し、Datadog Test Optimization（or Trunk Flaky Tests）に集約。Flaky ランキング・実行時間トレンド・所有者別失敗率を可視化。
+- **応用**: 週次金曜 17:00 の Akari 向け品質メトリクス投稿（Notion DB）を Datadog ダッシュボードのスクショ自動 export に置換、定性報告から「実測トレンド」への完全移行。テストのオーナーシップ（`@mio` タグ）を CTRF 拡張フィールドで管理。
+- **KPI**: 全ランナーの CTRF 出力率 100%／Flaky Top10 を四半期で 80% 解消／週次品質レポート作成工数 30 分 → 0 分（自動投稿）。
+
+### 10. Property-Based Testing（fast-check 4.x）+ AI Hallucination Test で AI 生成コードを別軸検証
+- **スキル**: fast-check 4.x の Model-Based Testing（状態遷移機械の乱数攻撃）で応募ステータス遷移・金額計算・日付境界を性質検証。加えて AI 生成コード PR には `ai-hallucination-detector`（架空 API 呼び出し・存在しない import 検出）を pre-commit で強制。
+- **応用**: Riku/Ao が Claude Code / Cursor で生成したコードの PR に「AI 生成率タグ」を付け、生成率が 50% 超なら Mutation Score 80% 以上を追加ゲート化。fast-check は Ao の金額・在庫・冪等キー系ロジックに常設。
+- **KPI**: Property-Based Testing 常設エンドポイント 20 本以上／AI ハルシネーション由来の存在しない API 呼び出し検出率 100%／AI 生成コードの本番流出バグ 0 件を四半期維持。

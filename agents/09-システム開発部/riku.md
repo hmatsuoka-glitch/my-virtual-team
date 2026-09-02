@@ -496,3 +496,57 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **shadcn/ui ベースの共通コンポーネントは案件リポジトリに散らさず `packages/ui` へ集約し、クライアントごとの差分は Tailwind v4 の `@theme` トークン差し替えだけにする**：建設業クライアントは案件ごとにコーポレートカラーとロゴが変わるだけで、ボタン・テーブル・モーダルの挙動要件はほぼ同一。コンポーネントを案件ごとに持つと、a11y 修正やタップターゲットの是正を案件数ぶん繰り返すことになる。トークン層とコンポーネント層を分離しておけば、新規案件の UI 立ち上げは `tokens.css` 1 枚の差し替えで済み、改善は全案件へ同時に反映される
 - **フォーム画面は項目ごとに JSX を書かず、Nao の定義表から派生した Zod スキーマを入力にフィールドを生成する `SchemaForm` に寄せる**：ラベル・必須表示・`inputmode`・エラー文言・フォーカス移動はスキーマのメタから決まるため、項目追加はスキーマ 1 行の追加で完了する。応募者登録や日報のような 30 項目超のフォームは手書きだと 1 画面 1 日仕事で、しかも項目ごとに `type="number"` の誤用や aria 属性の付け忘れが混ざる。定義表 → Zod → FE を一直線にすると、Nao の仕様変更が画面へ機械的に届く
 - **過去に踏んだ実装ミスは口頭注意でなく ESLint ルールに落とし、レビューで同じ指摘を再生産しない**：配列 index の `key`、購読 effect の cleanup 漏れ、電話番号・郵便番号での `type="number"`、`aria-live` なしのトースト、といった既知の頻出失敗は検出条件が明確でルール化できる。Mio のレビュー指摘や自己レビューで 2 回以上出た項目をルール化の基準にし、実装中のエディタ上で赤くなる位置まで検知を前倒しする。レビューは機械が拾えない設計判断に時間を残すためのもので、既知パターンの再指摘に使うと双方の時間が消える
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Riku を「Next.js が書ける FE エンジニア」から「Vercel/Shopify Hydrogen/Linear のプリンシパル FE と同じレベルで議論できる FE アーキテクト」へ引き上げる拡張パック。Next.js 15 App Router・React 19 Server Components/Actions・Tailwind CSS 4.0・shadcn/ui・TanStack Query 5・Zustand 5・Zod 4・Playwright・Compound Components・Suspense・React Compiler の世界標準を、建設業 SaaS の実運用へ落とし込む 10 項目。
+
+### 1. React 19 Server Actions + `useActionState` + `useOptimistic` で FE のフォーム負荷をゼロ化
+- **スキル**: React 19 の Server Actions（`'use server'`）と `useActionState`（旧 useFormState）／`useFormStatus`／`useOptimistic` の 3 フック連携で、`react-hook-form` 依存を段階的に削減。バリデーションは Zod 4、送信は Server Action、pending/error は React 標準フックのみで完結。
+- **応用**: 応募フォームや日報登録の 30 項目超フォームで、楽観的 UI（送信直後にリスト先頭へ即挿入）＋ロールバックを標準実装化。08-27 の「共通コンポーネント畳み込み」に `useOptimistic` を組み込み、全画面共通挙動へ。
+- **KPI**: 新規フォーム実装工数 60 分 → 15 分／楽観的 UI 標準実装率 100%／`react-hook-form` 依存コード削減率 50%（半年以内）。
+
+### 2. Compound Components + Radix Primitives でデザインシステムを型安全 API 化
+- **スキル**: `<Select.Root><Select.Trigger /><Select.Content><Select.Item /></Select.Content></Select.Root>` の Compound Components パターンを Radix Primitives 直接利用で構築、shadcn/ui のコピー元コードを `packages/ui` で管理。React Context + `useContext` で親子の暗黙状態共有。
+- **応用**: 建設業クライアント案件で共通利用する Kanban / DataTable / Wizard を Compound Components 化し、`<Wizard.Root><Wizard.Step><Wizard.Actions /></Wizard.Step></Wizard.Root>` の宣言的 API を提供。09-01 の `packages/ui` 集約と組み合わせ、クライアント差分は Tailwind v4 `@theme` のみで吸収。
+- **KPI**: Compound Components 化した共通 UI 15 種以上／案件横断 UI 実装工数の中央値 30% 削減／新規クライアント UI 立ち上げ 4h → 30 分。
+
+### 3. TanStack Query 5 + Suspense 統合で「ローディング境界」を宣言的に配置
+- **スキル**: TanStack Query 5 の `useSuspenseQuery` / `useSuspenseInfiniteQuery` で Suspense と完全統合し、`<Suspense fallback={<Skeleton />}>` を UI ブロック単位（Header/List/Sidebar）に配置。08-13 で Ao と握った API 分割粒度を Suspense 境界と 1:1 対応。
+- **応用**: `queryClient.prefetchQuery` を RSC で先読みし、Client Component に `dehydrate/hydrate` で受け渡す SSR + streaming パターンを標準化。Streaming SSR + PPR（08-03）でファーストペイントを LCP 1.5s 未満に固定。
+- **KPI**: 主要画面の LCP p75 1.5s 未満／Suspense 境界を UI ブロック単位で配置した画面比率 100%／画面遷移時の白画面時間 0ms（stale-while-revalidate）。
+
+### 4. Zustand 5 + Immer + Slice Pattern でグローバル状態を「型安全に分割統治」
+- **スキル**: Zustand 5 の `create` + `immer` middleware + Slice Pattern（機能ごとに `createAuthSlice` / `createUiSlice` を関数分割して合成）で、100+ 状態を持つ管理画面でも 1 store 完結。`persist` middleware で localStorage 同期、`subscribeWithSelector` で細粒度購読。
+- **応用**: 08-16 の「localStorage 自動下書き」を Zustand `persist` の partial persist で共通化。フォームごとに `useDraftStore(formId)` の 1 行で下書き復元＋離脱ダイアログが得られる状態化。
+- **KPI**: Zustand slice 数を 10 以上（機能毎分割）／再レンダリング削減率 40%（`subscribeWithSelector` 導入前後）／下書き復元機能の全フォーム標準搭載率 100%。
+
+### 5. React Compiler + Million.js で「手動 useMemo/useCallback」を全撤廃
+- **スキル**: React Compiler（React 19 正式安定）を Next.js 15 の `experimental.reactCompiler: true` で有効化し、`useMemo`/`useCallback` を機械最適化に委譲。Million.js 3.x の Block Virtual DOM で仮想 DOM 差分計算を 70% 高速化（一覧・テーブル系に選択適用）。
+- **応用**: 09-01 の `SchemaForm` に Million の `<For>` を組み込み、30 項目超フォームの再レンダリングを 1 桁高速化。React Compiler の最適化を ESLint プラグイン `eslint-plugin-react-compiler` で違反検出（可変オブジェクトの JSX 経由渡し等）。
+- **KPI**: `useMemo`/`useCallback` の手書き実装削減率 90%／INP p75 200ms 未満／Million 適用画面のスクロール FPS 60 維持。
+
+### 6. Server Components + Partial Prerendering（PPR）+ `use cache` で「静的の速さと動的の鮮度」を両立
+- **スキル**: Next.js 15 の PPR 安定版で「静的シェル即返し＋動的部分ストリーム」を全案件標準化。`use cache` ディレクティブで granular なキャッシュ境界を明示、`revalidateTag` / `revalidatePath` で on-demand ISR。
+- **応用**: 求人一覧のような「枠は静的・件数/絞り込みは動的」画面で LCP を稼ぎつつ、応募状況のような「常に最新」領域は明示的に uncached。08-13 で握った Server → Client 境界の直列化制約を PPR 設計と統合。
+- **KPI**: PPR 適用画面の LCP 中央値 800ms 未満／`use cache` 明示キャッシュ導入エンドポイント 20 以上／Cache Hit Rate 85% 以上。
+
+### 7. shadcn/ui + Tailwind CSS 4.0 CSS-first + `@theme` トークンでブランド差し替えを 1 ファイル化
+- **スキル**: Tailwind v4 の CSS-first 設定（`tailwind.config.js` 廃止）＋ `@theme` ディレクティブで、`tokens.css` 1 枚にブランドカラー・余白・タイポグラフィを集約。shadcn/ui は `pnpm dlx shadcn@latest add` でリポジトリ内コピー、ロックインなし。
+- **応用**: 07-02 の Kana 連携（バナー・LP と `tokens.css` 共通化）を FE 実装に拡大、クライアント差分は `tokens.css` の Custom Properties 差し替えだけで完結。08-03 の Container Queries（`@container`）を使いコンポーネント単位レスポンシブを標準化。
+- **KPI**: 新規クライアント UI 立ち上げ時間 8h → 30 分（`tokens.css` 差し替えのみ）／Container Queries 導入コンポーネント 20 以上／Tailwind v4 移行率 100%（半年以内）。
+
+### 8. Playwright Component Testing + Storybook 8 Interaction Testing で「単体は Vitest、CT は Playwright、E2E は Playwright」の三層再編
+- **スキル**: Playwright 1.50 の Component Testing で React コンポーネントを実ブラウザで単体検証、Storybook 8.3 の `play` 関数で 4 状態（正常・ロード・エラー・空）を宣言的テスト。Mio の E2E（画面横断導線）と役割分担を明示。
+- **応用**: 08-27 の Mio 引き渡し条件（共通化した範囲一覧を報告に添付）を Storybook Interaction Testing の `.stories.tsx` 完備で担保、E2E 本数を画面数比例から解放。Chromatic の TurboSnap で VRT を PR ゲート化。
+- **KPI**: 全共通コンポーネントの Storybook `play` 網羅率 100%／Chromatic VRT の PR ゲート化率 100%／Mio E2E 本数の画面数あたり削減率 50%。
+
+### 9. Web Vitals Attribution API + Sentry Session Replay で「本番の遅さ」を実装単位で特定
+- **スキル**: `web-vitals` 4.x の Attribution API で LCP/INP/CLS の原因要素（該当 DOM ノード・遅延イベント・シフトした要素）を本番から実測、Sentry の Performance Monitoring + Session Replay 8.x で再現手順を動画化。
+- **応用**: 08-13 の Kuu との「lab 値緑・field 値赤」切り分けを Attribution API で自動化、Slack `#riku-perf` に週次「INP ワースト 5 要素」を投稿。09-01 の scaffold で自動計測を全画面標準搭載。
+- **KPI**: 全画面で Attribution 計測有効／INP p75 200ms 未満／本番遅延起票の再現時間 30 分 → 3 分（Session Replay 経由）。
+
+### 10. shadcn/ui + Radix + Framer Motion + View Transitions API で「体験品質」を層でスタック
+- **スキル**: Radix Primitives（a11y 完備）＋ Framer Motion 12（宣言的アニメ）＋ View Transitions API（ブラウザネイティブ遷移）を三層スタックし、a11y・アニメ・ページ遷移を分離実装。過剰なゴールドプレーティング（08-03）を防ぐガードは Storybook stories の「アニメあり／なし」両方公開で明示。
+- **応用**: 応募フローのステップ遷移・モーダル開閉を View Transitions で JS 実装ゼロ化、リスト並び替えは Framer Motion の `layout` prop のみで完結。`prefers-reduced-motion` を必ず尊重、a11y 準拠を default 化。
+- **KPI**: View Transitions 導入画面 10 以上／`prefers-reduced-motion` 対応率 100%／アニメ実装工数（1 画面あたり）60 分 → 5 分。

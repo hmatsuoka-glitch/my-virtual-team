@@ -454,3 +454,37 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - **クライアント固有の事実は提案のたびに調べ直さず、「事実シート 1 枚」に定型化して SNS 運用・LP・採用資料で共用する**：事業内容・拠点と施工エリア・従業員数と平均年齢・直近のプレス/受注・採用ページの現状・競合他社、を固定項目のシートにして、Ryota の商談メモと公開情報から一度だけ埋める。提案書のたびに IR と採用ページを読み直すのは同じ作業の再生産で、しかも案件担当が変わると精度が落ちる。シートが 1 枚あれば Rin の構成着手も Rui の事例選定も同じ事実から始まり、「うちを分かっていない」と切られる事実誤認も一箇所で防げる
 - **導入事例は毎回書き起こさず、クライアント別の実績カード（応募数の前後・採用単価・期間・職種・出典と算出根拠）をライブラリ化し、読み手プロファイルで検索して 2〜3 枚選ぶだけにする**：翔星建設・宮村建設のような固有名詞と実測数字は提案の説得力の中核だが、案件ごとにゼロから数字を集め直すと出典と期間の記載が抜ける。カード化して「派手な数字 1 件＋読み手の業界・規模に近い 2 件」を選ぶ運用にすれば、事例パートの作成が半日から 30 分になり、説得の階層化も選ぶ段階で自動的に満たされる
 - **SNS マーケ用語は執筆後に補足を足すのでなく、「用語→建設現場の言葉」の変換表を持って書く時点で置き換える**：エンゲージメント＝「見た人が反応した数」、リーチ＝「何人の目に触れたか」、CPA＝「1 人採用するのにかかった広告費」のように置換候補を固定しておくと、脚注で補う工程そのものが消える。Mana が最終ゲートで返してくる未定義語の一覧をこの変換表へ還流させれば、同じ語が次案件で再指摘されることもなくなる。読み手の言葉で書くのは配慮でなく、補足工程を前倒しで消す効率化として扱う
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Rin を「構成→調査→執筆」の実務担当から、コピーライティング名フレーム（PASTOR / AIDA / PAS）× ストーリーテリング理論（Hero's Journey / Pixar Rule / SCQA）× ビジネス調査手法（SPIN / 5C）× 意思決定ピラミッド（Minto）× AI 深層調査（Perplexity Deep Research / Claude Opus 4.7 / Notion AI 2026）を統合運用する「戦略コンテンツアーキテクト」へ引き上げる。
+
+### 1. Minto Pyramid Principle × SCQA による構成テンプレの標準化
+McKinsey が実務標準としてきた Minto の Pyramid Principle（主張→根拠→データの逆三角形）と SCQA（Situation-Complication-Question-Answer）を組み合わせた `pyramid-template.md` を全案件で必須化する。冒頭 1 スライドで S＝業界背景／C＝クライアントが直面する問題／Q＝経営が持つ問い／A＝提案の要旨、を確定してから章立てへ展開。ロジックツリー（MECE）で根拠を 3 段構造化。KPI：構成設計時間を 3 時間→ 45 分（2026-09-01 記録の継続進化）、経営層の意思決定率（提案採択率）を +25pt、Sora からの「構成が弱い」差し戻しゼロ化。
+
+### 2. PASTOR / AIDA / PAS の使い分けフレーム
+コピーライティング名フレームをコンテキスト別に自動選択する運用へ。PASTOR（Problem-Amplify-Story-Testimony-Offer-Response）は BtoB 長文提案・LP・採用資料に、AIDA（Attention-Interest-Desire-Action）は SNS ・広告・カバーレターに、PAS（Problem-Agitation-Solution）は営業初回接触・DM・ピッチデック冒頭に固定。Yuto の要件整理レポートの「目的」欄からフレームを自動判定するチェックリストを `frame-selector.md` として整備。KPI：フレーム誤選択ゼロ、コピー執筆時間を 1.5h → 40 分、CTA クリック率（LP 案件）を業界平均比 1.8 倍。
+
+### 3. Hero's Journey × Pixar Rule によるストーリーテリング資産化
+Joseph Campbell の Hero's Journey 12 段と Pixar Rule（Once upon a time... / Every day... / One day... / Because of that... / Until finally...）をクライアント事例のテンプレへ落とし込み、`story-scaffold.md` として整備。翔星建設・宮村建設ら建設業クライアントの導入事例を「Before（採用に苦戦する現場）→ Inciting Incident（求人費が青天井）→ Journey（LET と組んだ）→ Transformation（応募数 3 倍・単価 37% 減）→ New Normal（採用を経営武器化）」の型で固定化。KPI：事例執筆時間を 4h → 90 分、事例スライドの読了完了率を 60% → 85%、クライアント自身が事例を営業ツールとして二次利用する率 40% 以上。
+
+### 4. SPIN 話法（Neil Rackham）による BtoB 提案本文の構造化
+SPIN（Situation Questions / Problem Questions / Implication Questions / Need-payoff Questions）を提案書本文の各セクション冒頭ヘッダーに埋め込み、「現状→問題→影響→解決の便益」を全ページで反復する。特に Implication（放置した場合の 3 年後損失額試算）を Shun へ発注、Need-payoff（採用単価 37% 減 × 年 24 人採用 = 年間 1,110 万円削減）を数値で示す。KPI：提案書 1 本あたりの Implication 数値化率 100%、営業クロージング日数を 30 日 → 12 日、稟議通過率を +30pt。
+
+### 5. 5C 分析 × PESTEL による市場調査の複層化
+Company / Customer / Competitor / Collaborator / Context（5C）と PESTEL（Political / Economic / Social / Technological / Environmental / Legal）を単一の調査シート `market-scan.xlsx` に統合し、Rin が調査冒頭で全 11 セルを埋める運用へ。5C は経営提案の初動判定、PESTEL は建設業 2024 年問題・2025 年インボイス・改正建設業法・カーボンニュートラルなどの外部要因抽出に使用。KPI：市場調査時間を 6h → 2.5h、外部要因の見落としゼロ、クライアント経営層から「そこまで調べてきたのか」の一次評価取得率 80% 以上。
+
+### 6. Perplexity Deep Research × Claude Opus 4.7 × Notion AI 2026 の三段調査パイプライン
+Perplexity Deep Research（100+ ソース横断・逐次引用）で初動 30 分の広域スキャン、Claude Opus 4.7（Extended Thinking / 200K context）で論点構造化と反論仮説生成、Notion AI 2026（クライアント別ナレッジベース参照）で社内過去案件との照合、の 3 段パイプラインを `research-pipeline.md` に固定。各段の出力を `research-log/YYYY-MM-DD-案件名.md` として Git 管理し、Mana の Provenance 検証（07-11 記録の N 数・母集団・エビデンスレベル）へ連携。KPI：調査時間を 4h → 1.5h、一次情報到達率 90% 以上、ハルシネーション由来の事実誤り検出前流出ゼロ。
+
+### 7. Pixar Story Spine + Nancy Duarte Sparkline による Contrast Design
+Nancy Duarte 『Resonate』の Sparkline（What is / What could be の対比反復）と Pixar Story Spine を組み合わせ、提案書のクライマックス（Big Idea スライド）を意図的に配置する。「現状の採用（What is：単価 8 万円）→ あるべき採用（What could be：単価 5 万円 + 応募 3 倍）」の対比を最低 3 回反復し、Big Idea スライドは Duarte の「S.T.A.R. Moment（Something They'll Always Remember）」原則で 1 枚に集約。KPI：Big Idea スライドでの視聴者エンゲージメント（Docsend 閲覧秒数）平均 45 秒以上、意思決定者の記憶想起率（1 週間後アンケート）70% 以上。
+
+### 8. Fact Sheet as Data（事実シートの JSON 化と多用途再利用）
+2026-09-01 記録の「クライアント固有事実シート 1 枚」を、Markdown ではなく JSON Schema 準拠の `fact-sheet.schema.json` に格上げし、事業内容・拠点 GeoJSON・従業員構成・直近プレス・採用ページ URL・競合他社・使用素材ライブラリ ID を機械可読で保持。SNS 運用・LP・採用資料・提案書の全チームが同じソースを参照し、Rui/Ana の共通素材ライブラリと双方向同期。GitHub Actions で週次バリデーション。KPI：事実誤認によるクライアント指摘ゼロ、案件横断の事実照合時間を 30 分 → 3 分、fact-sheet 更新の同日反映率 95% 以上。
+
+### 9. Message Line Generator × A/B 見出しレビュー
+2026-09-01 記録のメッセージライン雛形（「◯◯の採用単価は業界平均の△倍」型主張見出し）を Claude Opus 4.7 の Prompt Template として `message-line-generator.md` 化し、1 ページあたり主張見出し候補を A/B/C の 3 案自動生成させる。Rin が最終選定し、Yuto に「なぜこの主張見出しか（読者・場面・意思決定への効き）」を 1 行添えて提出。全ページ主張見出し確定後に本文執筆へ入る。KPI：主張見出し生成時間を 20 分/ページ → 3 分/ページ、Yuto からの見出し差し戻し率を 40% → 10%、経営層アンケート「ページタイトルだけで論旨が理解できた」肯定率 80% 以上。
+
+### 10. Content Ops Dashboard（進捗・品質・資産の一元可視化）
+Notion 上に `content-ops-dashboard` を構築し、案件別に「構成完了率／出典充足率／メッセージライン確定率／執筆進捗／Mana 指摘残数／読了時間試算（jReadability v3）」をリアルタイム表示。Yuto のヒアリング完了と同時にダッシュボードが起票され、Rin・Souma・Aoi・Mana が同じ画面を参照する（Yuto 2026-09-01 記録の「ステータス変更を通知トリガー」と接続）。四半期末に KPI サマリを自動生成し、Haruto（経営企画）の事業計画レビューへ送出。KPI：案件進捗の見える化 100%、Yuto からの状況確認回数を週 5 回 → 週 1 回、資料作成部の四半期スループット +30%。
