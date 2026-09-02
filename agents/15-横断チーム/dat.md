@@ -339,3 +339,59 @@
 - **効率化テクニック：比率指標は集計の途中で割らず、分子・分母を持ち回ったまま最後に割る形をサマリーテーブルの既定スキーマにする**。CVR・応募単価・粗利率を各日・各案件で先に割ってしまうと、下流で全体値を出す時に「比の平均」（08-12記録）へ落ちるうえ、期間や対象を変えるたびに生ログへ戻ることになる。サマリーテーブル（06-16記録）に必ず分子・分母カラムを残しておけば、加重平均が既定で成立し、期間・クライアント・チャネルの切り口変更が再集計なしのGROUP BY差し替えだけで済む
 - **効率化テクニック：採用支援分析の出力テンプレ冒頭に「面接以降の歩留まり実数が取れるか」の分岐を置き、取れない案件は過去案件の歩留まり中央値による試算版テンプレへ自動で倒す**。着任見込み人数と時期（08-16記録）を主指標に据えた以上、歩留まりが取得不能（08-27記録）と分かるのが着手後だと、経営報告の直前に主指標が空いて作り直しになる。分岐を着手前チェックの1項目にし、試算版には「過去n案件の中央値による試算・実績ではない」の確度ラベル（06-07記録）を自動付与する形にすると、前提確認と限界明記が同じ操作で片付く
 - **効率化テクニック：他エージェントからの定型依頼（Pmの実効稼働率係数・Kpi向け参照値の定義互換4点セット）は都度分析せず、四半期バッチで先に出して置き場に貼っておく**。Pmは完了案件の見積vs実績からメンバー別・案件種別の係数を四半期ごとに求め（08-27記録）、Kpiは対外報告のたびに参照値の互換性判定（08-27記録）を要求してくる。どちらも依頼が来てから掘ると待たせるうえ、依頼のたびに抽出条件が微妙にずれる。定期バッチの成果物を単一のlookup（06-16記録）に置き、依頼は「取りに来てもらう」形にすると往復自体が消える
+
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+dbt Cloud 1.9／Dagster 1.9／Cube.dev のセマンティックレイヤーと、DoWhy/EconML/lifelines の因果推論・生存時間分析、DataHub 0.14 のデータカタログを前提にした2026年の横断データアナリストを、7社横断・SSOT・因果検証まで一貫して支える水準へ押し上げる10項目。既存の統一辞書・4ゲート横展開判断・意思決定3型テンプレの上に、モダンデータスタックと因果推論・生存時間分析の武器を積む。
+
+### 1. dbt Cloud 1.9 + dbt Semantic Layer によるメトリクス SSOT の実装
+- **スキル**：dbt 1.9 の `metrics` / MetricFlow 定義、`--target` 別 CI、dbt-osmosis によるドキュメント自動生成
+- **応用**：data_dictionary.json（05-27記録）を dbt semantic layer の Metric 定義へ移し、税込/税抜・月次/累計・stock/flow 区分をコード化。BI・SQL・AI（Text-to-SQL／08-03記録）が同じ定義を参照する状態を実装レベルで固定
+- **KPI**：同名異定義起因の乖離指摘 = 0件/四半期、メトリクス定義の PR レビュー通過リードタイム 3日→1日
+
+### 2. Dagster 1.9 + Prefect 3 でのパイプライン Software-Defined Assets 化
+- **スキル**：Dagster Assets / Sensors / Auto-materialize、Prefect 3 の Flow / Task / Deployment、`@asset_check` によるデータ品質ゲート
+- **応用**：週次/月次/四半期分析（定期分析セクション）を Dagster Assets として宣言し、上流断絶時の下流自動グレーアウト（Kpi 06-03記録同思想）と backfill 制御（07-03記録）を Software-Defined Assets の Freshness Policy で実装
+- **KPI**：欠損データを気づかず集計する事故 = 0件/月、パイプライン rerun 手動工数 -70%
+
+### 3. Great Expectations 1.0 / Soda Core 3.3 によるデータ品質 CI 常設化
+- **スキル**：GX 1.0 の Expectation Suite・Data Docs、Soda Core の Soda Checks Language (SodaCL)、Freshness/Volume/Distribution/Schema の4本柱
+- **応用**：fan-out assert（06-12記録）・toyデータ期待値一致（07-03記録）・行膨張検出（06-26記録）を Expectation として宣言化し、CI パイプラインの必須ゲートに常駐。第三者再実行の再現性（06-26記録）を Data Docs へ自動記録
+- **KPI**：品質ゲート通過率100%（未通過は納品ブロック）、通過後の下流検出バグ = 0件/月
+
+### 4. DoWhy 0.11 + EconML 0.15 による因果推論の実務標準化
+- **スキル**：DoWhy の identify → estimate → refute 4ステップ、EconML の DML / Causal Forest、Synthetic Control（causalpy 0.4）
+- **応用**：07-01記録の DID 純効果と 08-03記録の合成コントロール法を DoWhy + causalpy で標準化。08-05記録のドナープール汚染チェック（プレ期間 RMSPE 報告）を refute ステップに組み込み、A/B が組めない7社横断施策の純効果を推定
+- **KPI**：施策効果検証で因果検証（相関→因果への昇格）を通過した割合 = 80%以上、経営横展開後の空振り施策 -60%
+
+### 5. lifelines 0.29 / scikit-survival 0.23 での生存時間分析による LTV 精緻化
+- **スキル**：Kaplan-Meier 推定・Cox 比例ハザードモデル、打ち切りデータの正しい扱い、Concordance Index による評価
+- **応用**：粗利ベース LTV × 割引現在価値（06-20記録）の継続率部分を生存曲線から導出（08-03記録）。08-05記録の打ち切り除外・満期埋め禁止を lifelines KaplanMeierFitter で正しく処理し、CS の解約分類コード（08-27記録）を Cox 回帰の共変量に組込
+- **KPI**：LTV 予測の Concordance Index 0.75以上、外挿部分と観測期間の区別記載率 = 100%
+
+### 6. Cube.dev 1.0 / Malloy 0.14 セマンティックモデリングと BI 分離
+- **スキル**：Cube.dev の Data Modeling / Access Control、Malloy の nest / query 記述、Lightdash 0.14 との連携
+- **応用**：AI に生 SQL を書かせずセマンティックレイヤー経由のみ集計させる 08-03記録のガードレール設計を Cube.dev で実装し、Kpi のダッシュボード・Dat の探索的分析・Text-to-SQL AI の全てが同じ Cube 定義を参照する
+- **KPI**：AI 生成集計の誤値検出率 = 100%（メトリクスストア経由外のAI集計を CI で禁止）、指標定義変更の全下流反映リードタイム 1日→即時
+
+### 7. DataHub 0.14 / OpenMetadata 1.5 によるリネージ可視化とインパクト分析
+- **スキル**：DataHub の Lineage / Glossary / Data Contract、OpenMetadata の Data Quality Test、column-level lineage
+- **応用**：KPI 定義変更の 5部門影響レビュー（Kpi 05-27記録）を DataHub column-level lineage で自動化し、Dat 側の分析成果物 → 下流ダッシュボード → 対外報告の依存グラフを可視化。断絶点（06-17記録）・断面不一致（Qa 06-17記録）の影響範囲を機械抽出
+- **KPI**：定義変更影響範囲の特定時間 3時間→10分、リネージ網羅率 = 全指標の100%
+
+### 8. papermill + Quarto 1.5 + Evidence.dev 34 でのパラメータ化レポート統合基盤
+- **スキル**：papermill によるノートブック実行、Quarto の parameterized reports、Evidence.dev の SQL-first BI、Marimo 0.9 のリアクティブノートブック
+- **応用**：06-16記録のパラメータ化ノートブック運用を Quarto + Evidence へ拡張し、7社分の月次レポートを1コマンドで確定 HTML / PDF / ライブダッシュボード の3形式で生成。抽出条件・パラメータ・データ鮮度を成果物メタデータに自動同梱（06-26記録の再現性チェック充足）
+- **KPI**：月次レポート作成リードタイム 6時間→1時間、成果物の再現性チェック通過率 = 100%
+
+### 9. LLM-as-a-Judge + Confident AI DeepEval 3.0 での分析成果物の品質評価
+- **スキル**：DeepEval 3.0 の LLM 評価メトリクス、RAGAS 0.2 の Faithfulness / Answer Relevancy、複数モデル合議設計
+- **応用**：07-27記録の LLM-as-a-Judge を Dat 成果物の「結論と根拠の整合」「因果主張の妥当性」評価に応用し、Qa の内部整合照合（Qa 07-01記録）と併走。08-05記録の複数モデル合議＋人手キャリブレーション（Qa 08-05記録）を DeepEval のカスタムメトリクスで実装
+- **KPI**：分析レポートの LLM 評価スコア 0.85 以上、人手キャリブレーション一致率 = 90%以上
+
+### 10. Modal 0.64 / Coiled 1.0 + Polars 1.10 / DuckDB 1.1 での大規模並列集計
+- **スキル**：Modal のサーバーレス関数、Coiled の Dask 分散、Polars 1.10 の Lazy API、DuckDB 1.1 の Iceberg / Parquet 直接クエリ
+- **応用**：CTE 分割＋materialize（06-16記録）を DuckDB + Polars で高速化し、7社横断の月次集計を秒単位で回す。papermill パラメータ化（06-16記録）と組み合わせ7社分ノートブックを Modal で並列実行（10並列）し、四半期分析（3ヶ月ぶんの集計）を分単位で完了
+- **KPI**：横断集計クエリの平均実行時間 3分→15秒、四半期分析ジョブ完了時間 4時間→10分

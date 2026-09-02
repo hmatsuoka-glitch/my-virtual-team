@@ -251,3 +251,59 @@
 - **キックオフでの「正常系／異常系の線引き」議論を毎回ゼロからやらず、建設案件で実測頻度の高い変更（納期変更・数量変更・分割発送・追加工事）は標準遷移モデルに正常系として最初から載せておく**：案件側の判断を「使う／使わない」のチェックだけに落とすと、設計会議で毎回同じ議論を繰り返さずに済む。Datへの頻度実測（08-05/08-27記録）で正常系へ昇格した経路は案件の遷移表でなくモデル側へ還元し、次案件が同じ発見をやり直さないようにする。変更遷移の必須3点（変更種別＋概算金額＋一言・08-18記録）もモデル側の既定として持つ。
 - **SLA閾値・営業日カレンダー・人間待ちの絶対タイムアウト（07-01記録）は工程ごとに手で置かず、標準遷移モデルの工程IDに紐づく既定値から自動適用する**：新規クライアントは実測が貯まるまで閾値を引けず、その期間だけSLA監視が空白になるのが実務上の穴。まず既定値で監視を立ち上げ、Datの実測分布（リードタイム基準・07-02記録）が貯まった工程だけ変動係数ベースの自動再計算（07-07記録）で上書きする。工程IDを共通化しておくと、7社ぶんの閾値を個別管理せずモデル1箇所の更新で揃う。
 - **現場向けの操作説明は案件ごとに作文せず、遷移表の「現場1タップ遷移」列から自動生成する**：生成するのは、画面ラベル（顧客向け表示ラベルとは別の現場語・06-07記録）／押すタイミング／押した結果どこへ何が送られるか（08-16記録の事務員視点）の3点だけの1枚。説明資料を手作りすると、遷移を1つ足すたびに資料だけ古くなり、現場は迷って事務所まとめ入力に戻る。入力が半日遅れると滞留監視（07-03記録）の数字がそのまま嘘になるため、遷移表を直せば説明も直る構造にしておく。
+
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+Temporal 1.24／Restate 1.2／Zeebe 8.5 世代の Durable Execution と、Sagas・Outbox・CloudEvents 1.0 を前提にした2026年の受注ワークフロー設計者を、標準遷移モデル（受注→着工→搬入→完了→請求確定）の上で「壊れないことが機械的に証明できる」水準へ押し上げるための10項目。既存の状態遷移表・5大異常系パス・SLA運用の資産を活かしつつ、可観測性・形式検証・エージェンティック実装まで一気通貫で対応する。
+
+### 1. Temporal 1.24 / Restate 1.2 への実装移譲と Owl 側の設計成果物の再定義
+- **スキル**：Durable Execution 前提の Workflow / Activity 分離、`workflow.sleep` / `continueAsNew` / Signals / Queries の使い分け設計
+- **応用**：SLAタイマー永続化・再起動時復元・人間待ちの絶対タイムアウト（07-01記録）を自前実装せず Temporal Workflow に委譲。Owl は「どの Signal で状態が動くか」「どの Query で現在状態を返すか」の契約定義に集中し、実装 Boへは Temporal Workflow スタブ（TypeScript SDK 1.11 / Go SDK 1.28）ベースで引き渡す
+- **KPI**：Durable Execution 委譲後の SLAタイマー消失事故 = 0件/四半期、Owl→Bo 引き渡し後の実装手戻り工数 -60%（月次計測）
+
+### 2. XState v5 + Stately Studio による状態機械のビジュアル形式化と CI 検証
+- **スキル**：XState v5 の parallel/history/final states・Actor Model 設計、Stately Studio でのシミュレーション・型生成
+- **応用**：PlantUML＋CSV 二重管理（09-01記録）を XState 定義ファイル1本に統一し、Stately Studio でシミュレーション再生／`@xstate/graph` で到達不能・デッドエンド・ガード網羅を CI 検証（06-12記録の機械検証を SDK 化）
+- **KPI**：状態遷移レビュー往復回数 3回→1回、到達不能・デッドエンド検出漏れ = 0件（CI 通過率100%）
+
+### 3. TLA+ / Alloy 6 による Saga・補償イベントの形式検証
+- **スキル**：TLA+ PlusCal での並行イベント・補償ペア・ピボット地点のモデル化、Alloy 6 での不変条件検証
+- **応用**：受注→発注→出荷→請求確定の Saga と補償イベント（06-11記録）を TLA+ で仕様化し、TLC モデル検査で「請求確定後にキャンセルが到達可能」等の不整合をリリース前に発見。ピボット地点（06-20記録）を不変条件（Invariant）として記述
+- **KPI**：本番の状態不整合起因障害 = 0件/半期、形式検証で発見した設計欠陥 3件以上/四半期（早期発見指標）
+
+### 4. AsyncAPI 3.0 + CloudEvents 1.0 でのイベント契約 SSOT 化
+- **スキル**：AsyncAPI 3.0 の operations/channels 分離、CloudEvents 1.0 の `id`/`source`/`type`/`subject`/`time` 設計、Schema Registry（Confluent 7.7）連携
+- **応用**：dedup キー・シーケンス番号採番規約（07-16記録）を AsyncAPI 3.0 スキーマで固定し、送信元（自社Webhook・発注先EDI・Peppol／08-03記録）ごとに `source` を分離。CloudEvents 1.0 の複合キー（source+id+time）で 08-05記録のID衝突を構造的に防ぐ
+- **KPI**：イベントスキーマ違反による受信側エラー = 0件/月、AsyncAPI 契約テスト カバレッジ 100%（全 operation・全 channel）
+
+### 5. Outbox Pattern + Debezium 3.0 + Kafka Transactions によるアトミック配信
+- **スキル**：Transactional Outbox 実装、Debezium 3.0 の CDC 設定、Kafka 3.8 のトランザクション API（EOS）
+- **応用**：状態遷移とイベント発火を単一トランザクションで確定し、Debezium で Outbox テーブルを Kafka へ配信。at-least-once＋受信側 dedup（06-24記録）を「送信抜け 0」まで底上げし、二重発注・二重請求（08-12記録）を送信側でも冪等キー（06-24記録）付与
+- **KPI**：状態遷移とイベント配信の不整合 = 0件/四半期、外部副作用の二重実行 = 0件/月
+
+### 6. OpenTelemetry 1.36 + Grafana Tempo / Loki による E2E ワークフロー可観測性
+- **スキル**：OpenTelemetry Traces / Logs / Metrics の三点計装、W3C Trace Context 伝搬、Tempo TraceQL / Loki LogQL
+- **応用**：Order → PurchaseOrder → Shipment の遷移を1本の trace_id で貫き、SLA違反発火（05-22記録）の CRITICAL アラートに Grafana Tempo の該当スパンリンクを自動添付。SLO ベースの誤警報防止（06-24記録）を Grafana Alerting のヒステリシスで実装
+- **KPI**：SLA違反アラートの原因特定リードタイム 30分→3分、trace 網羅率 = 全遷移の100%
+
+### 7. dbt-based プロセスマイニング + Celonis / PM4Py で設計外経路の自動検知
+- **スキル**：PM4Py 2.7 での alpha/heuristic miner、Celonis EMS の Process Explorer、conformance checking
+- **応用**：08-03記録のプロセスマイニング標準装備を dbt モデル＋PM4Py で自前実装し、実イベントログから実遷移パスを再構成。設計上使われないはずの経路・想定外滞留（07-03記録）を週次自動レポート化し、月◯件超は Datへ頻度実測依頼（08-27記録）を自動起票
+- **KPI**：設計外経路の検知遅延 14日→3日、正常系昇格判断のリードタイム -50%
+
+### 8. Chaos Toolkit + LitmusChaos 3.0 によるワークフロー障害注入テスト
+- **スキル**：Chaos Toolkit の experiment 記述、LitmusChaos の pod/network/dns 障害注入、GameDay 運営
+- **応用**：Durable Execution 環境（項目1）に対し「Worker 突然停止／DB 一時切断／Kafka broker 落ち／時計スキュー」を月次注入し、SLAタイマー永続化（06-17記録）・カナリアリリース自動ロールバック（06-16記録）が実測で機能するか検証
+- **KPI**：GameDay 実施回数 12回/年、注入シナリオ発見の潜在欠陥 4件以上/年
+
+### 9. OPA (Open Policy Agent) + Rego によるロール×遷移権限の外部化
+- **スキル**：OPA 0.68 の Rego ポリシー記述、Conftest による CI 検証、Envoy/Istio 連携
+- **応用**：ロール×遷移権限マトリクス（07-03記録）を Rego で外部化し、AdminOverride（08-12記録）・ピボット越え遷移の実行権限を組織変更時に本番デプロイなしで即反映（08-12記録の失敗パターン恒久対応）
+- **KPI**：承認者交代時の本番デプロイ回数 12回/年→0回、越権遷移事故 = 0件
+
+### 10. LangGraph 0.2 / CrewAI 0.60 エージェンティック・ワークフローと機械ガードの併走
+- **スキル**：LangGraph 0.2 の StateGraph、CrewAI のロール定義、GuardrailsAI 0.5 での出力検証、Temporal Activity としての LLM 呼び出しラッピング
+- **応用**：08-03記録のエージェンティック・ワークフロー実装フェーズに対応し、LLM判断ステップ（例：異常系分岐のルーティング）を Temporal Activity としてラップ。返す遷移候補を到達可能ガード（07-01記録）＋ピボット地点マーキング（06-20記録）＋GuardrailsAI で三重検証してから状態機械へ適用
+- **KPI**：LLM由来の不正遷移試行数 vs 実際に到達した数 = 100% ブロック、エージェンティック分岐の運用工数 -70%

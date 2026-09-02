@@ -333,3 +333,37 @@
 - **効率化テクニック：人日→暦日の換算は都度計算せず、Datが四半期更新するメンバー別・案件種別の実効稼働率係数（08-27記録）を換算式に埋め込んでWBSの日付を自動生成する**。10人日＝10営業日と引く楽観換算（08-12記録）を毎回手で割り戻すと、係数の記憶違いと並行案件の差し引き忘れが同時に起きる。キャパシティ・プランニング（08-03記録）で仮置きする将来ピーク週の山にも同じ係数を自動適用すれば、受注可否の判断とWBSの日付が同一の前提で動き、受注段階の安請け合いも構造的に減る
 - **効率化テクニック：クライアント向け報告は「正式記録＋LINE要点3行」の2形式を1操作で出し、要点部分はKpiの変化点1枚をそのまま差し込むだけにする**。PM側で数字を抜き直すとKpi版とPM版の2つの進捗率が生まれ（08-27記録）、月次報告と定例で違う数字を出す事故に化ける。テンプレのスロットにKpiの出力を貼るだけの形にすると、宮村建設・翔星建設のように決裁者がLINEしか開かない相手（08-16記録）への到達手段を確保しながら、報告作成が転記1回に圧縮される
 - **効率化テクニック：検収チェックリストは案件ごとに項目を組まず、「毎日触る担当者名」「その担当者が正常系を一度操作したか」「同じ担当者が停止操作を一度試したか」を常設3項目として固定し、担当者名はCSハンドオフへ自動転記する**。自動化案件では停止操作の未確認が異常時の致命傷になる（08-27記録）が、案件ごとにチェックリストを起こすと正常系の確認だけが残りやすい。常設項目にしておけば検収の設計時間がゼロになり、運用定着の予兆（08-16記録）と未クローズリスクの移管（08-13記録）も同じ1枚で片付く
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+横断PMを「進捗管理者」から「確率的意思決定者」へ進化させる。PMBOK 7 Performance Domains・SAFe 6.0・Team Topologies・Monte Carlo予測・Flow Metricsを実装し、7社横断のクリティカルパスとキャパシティを常時最適化する世界標準の運用体系を装備する。
+
+### 1. PMBOK 7 Performance Domains完全準拠のWBS雛形刷新
+現行の規模別テンプレ（S/M/L・05-26記録）を、PMBOK 7版の8 Performance Domains（Stakeholders / Team / Development Approach and Life Cycle / Planning / Project Work / Delivery / Measurement / Uncertainty）で再構築する。従来のPMBOK 6の10 Knowledge Areasから「知識」でなく「成果」に軸を移した最新枠組みで、各ドメインごとに「目的・活動・成果指標・チェックリスト」を1画面で持つ。ハンドオフ4点セット（06-12記録）・QCD固定辺宣言（06-24記録）・ゲート/デリバラブル/マイルストーン区別（06-20記録）は各ドメインに紐付けて配置し、キックオフ時点で8ドメイン全て✅化を必須ゲートにする。**KPI: 8ドメイン網羅率100%／キックオフ後の抜け漏れ起因手戻り工数 月10h以下**。
+
+### 2. Team Topologies + Cognitive Load Scoreによるチーム設計の科学化
+7社横断の担当アサインを、Team Topologies（Matthew Skelton / Manuel Pais）の4種チーム型（Stream-aligned / Platform / Enabling / Complicated-subsystem）で分類し、各メンバーに「認知負荷スコア（Intrinsic + Extraneous + Germane）」を割り当てる。1メンバーの合計スコア≤7（Cognitive Load Limit 2026版）を維持し、超過時は自動でチーム分割・Enabling Team投入を提案する。並行案件数だけでなく「異なる技術ドメイン数」「クライアント文脈切替頻度」も負荷として計上する。**KPI: 認知負荷スコア≤7維持率95%以上／バーンアウト起因の稼働離脱ゼロ件/四半期**。
+
+### 3. Monte Carlo納期予測（10,000試行）で確率分布ベース意思決定へ
+三点見積（PERT・06-20記録）の分散を用いて、Monte Carlo Simulation（Python: `simpy` / `numpy` で10,000試行）で納期の確率分布を算出する。「◯月◯日納品」の単一点回答をやめ、P50（中央値）/P80（推奨コミット）/P95（安全ライン）の3点でクライアント・HARUに提示する。リプラン時もベースライン凍結（07-03記録）と併せて確率分布を再計算し、「先月P80で◯月末→今月P80で◯月中旬」の変化点を可視化する。単一点見積の学生症候群（06-03記録）を確率分布で構造的に排除する。**KPI: Monte Carlo予測P80と実績の乖離±5日以内90%／確率分布提示の商談適用率100%**。
+
+### 4. Linear AI Triage + Motion + Reclaim統合による自律スケジューリング
+Linear（AI Triage・自動優先度判定）、Motion（AI駆動カレンダー自動再配置）、Reclaim（Habit Blocking / Smart Meetings）の3ツールを連携し、日次のタスク割当・カレンダー最適化を80%自動化する。エージェンティックPM（08-03記録）の実装として、AIが横断リソース競合を検知したら人手承認ゲート（08-05記録）を挟んで再配置を提案・実行する。稼働率のガードレールはKpi連携（07-02記録）と接続し、90%超過を検知したら自動でMotionが翌週へタスクを繰り越す。**KPI: PMの日次調整工数 月20h→月4h（80%削減）／AI提案の人手承認率85%以上**。
+
+### 5. SAFe 6.0 PI Planning四半期運用でロードマップ同期
+Scaled Agile Framework 6.0（2026-03最新版）のProgram Increment Planning（8-12週サイクル）を7社横断の全社ロードマップ同期に導入する。四半期初にDependency Board（依存関係マップ・07-21記録の全社版）を1枚描き、部署間・案件間の全依存線を可視化してPI Objectivesにコミットする。Business Value 1-10でクライアント案件を格付けし、Weighted Shortest Job First（WSJF）で優先順位を機械算出する。ART Sync（Agile Release Train Sync）を隔週で運用し、PI Risk（ROAM: Resolved / Owned / Accepted / Mitigated）を全社ビューで管理する。**KPI: PI Objectives達成率85%以上／依存起因の手戻り工数 PI比10%以下**。
+
+### 6. Flow Metrics（Cycle Time / WIP / Throughput）でボトルネック検知
+Kanban Flow Metricsを標準計測項目として実装する。Cycle Time（タスク着手→完了の実時間）・Work In Progress（同時進行タスク数）・Throughput（週次完了タスク数）を7日移動平均でダッシュボード化し、Little's Law（Cycle Time = WIP / Throughput）でボトルネックを機械検出する。WIP上限を部署別に設定し、超過時は新規タスク投入を自動ブロックする。従来の進捗% vs サブタスク離散カウント（06-03記録）の議論を、統計的な流量指標へ昇華させる。**KPI: Cycle Time P85 5日以内／WIP超過アラート発火 週1件以下／Throughput変動係数≤0.3**。
+
+### 7. Risk-Adjusted Backlog（EMV法）で確率的リスク優先順位
+リスク管理の「上位3件集中」（06-22記録）を、Expected Monetary Value（EMV = 発生確率 × 影響金額）で数値化する。全リスクにEMV（円換算）を付与し、EMV降順でRisk-Adjusted Backlogを毎週再計算する。対応策4択（スコープ削減/納期交渉/リソース追加/品質緩和・07-01記録）にも各々のEMV削減効果を試算し、投資対効果（Risk ROI = EMV削減 / 対応コスト）で選定する。トリガー・発動時アクション・発動判断者（08-12記録）はEMV上位10件に事前定義を必須化する。**KPI: EMV上位10件の事前対応策定義率100%／リスク発現時の対応着手時間 平均24h→4h**。
+
+### 8. Notion Projects + Timeline View標準化で7社横断ガント統合
+Notion Projects（2026-04リリースの新機能）とTimeline View、Formula 2.0を組み合わせ、7社横断のガントを1枚のダッシュボードに統合する。依存線（Predecessor Relations）・担当者フィルタ・クリティカルパス自動ハイライト・フリーフロート色分け（06-13記録）を1画面で切替可能にする。メンバー軸ガント（07-01記録）と案件軸ガントをタブ切替で並置し、横断クリティカルパスを常時検知する。Notion AIで「今週のリスク要約」「来週のクライアント確認待ちタスク」を自動生成する。**KPI: 全社ガント統合率100%／横断クリティカルパス検知漏れゼロ件/月**。
+
+### 9. DAD（Disciplined Agile Delivery）Delivery Lifecyclesで案件特性別運用
+Project Management Institute認定のDisciplined Agile Delivery（DAD）の6種Delivery Lifecyclesから、案件特性に応じてAgile（Scrum）/ Lean（Kanban）/ Continuous Delivery / Exploratoryを使い分ける。SNS運用の継続案件はContinuous Delivery、システム開発はAgile、LP複製はLean、新規事業検証はExploratoryを標準割当とする。QCD鉄の三角形（06-20記録）の固定辺選択とDAD Lifecycle選択を1つの意思決定として統合し、キックオフ時に「本案件のDelivery Lifecycle」を宣言する。**KPI: Lifecycle適合率90%以上（振り返りで判定）／Lifecycle不整合起因の運用摩擦 月2件以下**。
+
+### 10. PM Excellence Score（品質KPI）月次計測で継続改善ループ
+PMの品質を4軸のPM Excellence Scoreで月次スコアリングする：①納期遵守率（P80コミット基準・95%以上）、②見積乖離±20%以内率（タスク種別別・80%以上）、③リプラン回数（案件あたり月2回以下）、④バーンアウト警告発火数（認知負荷スコア超過・ゼロ件）。各軸の実績を`/agents/project_manager/excellence_score_{YYYY-MM}.json`に記録し、Kpi連携（07-02記録）でCEOダッシュボードへ配信する。3ヶ月連続で軸別基準未達なら該当ドメイン（PMBOK 7・上記1）を強制レビューする。**KPI: PM Excellence Score総合85点以上維持／3ヶ月連続未達ドメインゼロ**。

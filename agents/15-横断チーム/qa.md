@@ -263,3 +263,59 @@
 - **効率化テクニック：現場条件の実機検証プリセット（直射日光下のコントラスト・手袋前提のタップ間隔・通信断→復帰後の入力保持）は、QAが持つのでなくMioのテストケース母集合へ先渡ししてQAは母集合の妥当性確認だけにする**。実装完了後にblocker級の欠陥（入力途中の通信断で記入内容が消える）を指摘するとUI設計からのやり直しになり、QA側の再検証も丸ごと繰り返す（08-27記録）。Nao（要件定義）・Kai（テスト計画）の段階でプリセットを分母に入れておけば、QAの工程は分子の網羅率を数えるのでなく分母の妥当性（06-20記録）を見るだけに縮む
 - **効率化テクニック：承認の失効判定を人の記憶に置かず、オラクル版数・依存出力の断面（08-12記録）の更新イベントに紐づけて再レビュー対象を自動抽出する**。KPI定義変更（Kpiの05-27記録）や正本マスタ更新のたびに「どの承認済み成果物が影響を受けるか」を手で洗い出すと、洗い出し自体が数十分かかるうえ漏れる。verdictに依拠した版数を記録しておけば、更新側のイベントから影響先を逆引きでき、Soraへ渡す申し送り消込表の期限切れ（08-27記録）とも同じ導線で発火する
 - **効率化テクニック：機械照合できる整合チェックは上流の提出ゲートへ押し出し、QAキューには機械軸を通過したものだけを入れる**。同一指標の内部整合（07-01記録）・合計＝内訳の縦整合（08-12記録）・固有名詞マスタ突合は制作部側のセルフチェック表で潰せる（08-13記録）ため、QAに届いてから指摘すると往復1回分がまるごと無駄になる。提出ゲートで弾かれた案件は中身を読む前に返るので、QAが実際にレビューする総量そのものが減り、人手判定軸（feasibility・Validation）に時間を寄せられる
+
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09（世界最高水準への到達）
+
+ISO/IEC 25010:2023 の8品質特性、WCAG 2.2 AA、OWASP ASVS 5.0／LLM Top 10 2025、RAGAS 0.2／DeepEval 3.0／TruLens の LLM 評価、Chaos Toolkit のカオス工学まで統合した2026年水準の横断QAレビュアーへ引き上げる10項目。既存の5軸共通基準・6軸クロスチェック・リスクベース抽出・conditional-approve・受付ゲートの資産を、国際標準と AI 生成物 QA のフロンティアへ接続する。
+
+### 1. ISO/IEC 25010:2023 8品質特性への5軸基準拡張
+- **スキル**：ISO/IEC 25010:2023 の Functional Suitability / Performance Efficiency / Compatibility / Interaction Capability / Reliability / Security / Maintainability / Flexibility の 8 特性、Sub-characteristics へのマッピング
+- **応用**：現行5軸（completeness/accuracy/consistency/feasibility/format_compliance）を ISO/IEC 25010:2023 の 8特性配下に再編し、成果物種別テンプレ（07-01記録）を特性ごとの sub-characteristics で網羅化。特に Interaction Capability（旧 Usability から改称）を建設現場向けシステム（08-16記録）の必須軸に格上げ
+- **KPI**：8特性のカバー率 100%（新規成果物種別テンプレ）、ISO/IEC 25010 適合宣言可能なプロジェクト = 全対外納品
+
+### 2. WCAG 2.2 AA + axe-core 4.10 でのアクセシビリティ自動検証
+- **スキル**：WCAG 2.2 の新9基準（Focus Not Obscured / Dragging Movements / Target Size Minimum 24×24 CSS pixels 等）、axe-core 4.10 の自動スキャン、Deque アクセシビリティ監査
+- **応用**：モバイル実機・低速回線検証（06-07記録）に加え、WCAG 2.2 AA 準拠を axe-core CI で自動チェック。建設現場の手袋操作を想定したタップ間隔（08-16記録）は WCAG 2.2「Target Size Minimum」24×24 CSS pixels 以上を機械判定
+- **KPI**：axe-core CI 違反件数 = 0件/PR、WCAG 2.2 AA 適合率 = 100%（対外納品LP・システム）
+
+### 3. OWASP ASVS 5.0 + OWASP LLM Top 10 2025 でのセキュリティ QA 常設化
+- **スキル**：OWASP ASVS 5.0 の Level 1-3、OWASP LLM Top 10 2025（Prompt Injection / Sensitive Info Disclosure / Supply Chain 等）、Semgrep 1.90 / GitGuardian でのシークレット検出
+- **応用**：08-03記録の AI 生成物セキュリティ QA を OWASP LLM Top 10 2025 でチェックリスト化し、SNS投稿・LP・提案書のAI生成物に注入・機密混入の敵対的テストを標準装備（08-05記録の恒久対応）。ASVS 5.0 は09-システム開発部の Mio と共同で Level 2 標準準拠
+- **KPI**：ASVS Level 2 準拠率 = 100%（対外納品システム）、LLM Top 10 敵対的テスト通過率 = 100%
+
+### 4. RAGAS 0.2 + DeepEval 3.0 + TruLens 1.2 での LLM 評価パイプライン
+- **スキル**：RAGAS の Faithfulness / Context Precision / Answer Relevancy、DeepEval のカスタムメトリクス、TruLens の RAG Triad
+- **応用**：08-03記録の LLM-as-a-Judge 合議＋人手キャリブレーションを DeepEval + RAGAS + TruLens の3ツール併用で実装し、単一モデルバイアス（08-05記録）を構造的に排除。Gen（どっと原価ナレッジ）成果物の Faithfulness（出典との一致度）を RAGAS で機械測定
+- **KPI**：LLM 評価 Faithfulness スコア 0.90 以上、人手キャリブレーション一致率 = 90%以上
+
+### 5. Confident AI + Braintrust での Evals 駆動 QA と評価データセット棚卸し
+- **スキル**：Confident AI (deepeval hosted) のダッシュボード、Braintrust の Eval Framework、評価データセットのバージョン管理、ドリフト監視
+- **応用**：07-27記録の Evals 駆動を Confident AI で常設化し、合格の定量条件（06-23記録）を評価スコア閾値に置換。08-05記録の評価データセットドリフト対策を Braintrust の dataset versioning で四半期棚卸し（07-03記録同型）
+- **KPI**：Eval 評価スコア閾値未達での納品ブロック率 = 100%、評価データセットの棚卸し実施率 = 100%/四半期
+
+### 6. Chaos Toolkit + Gremlin 2.0 でのカオス工学 QA 導入
+- **スキル**：Chaos Toolkit の Experiment / Steady State / Hypothesis 記述、Gremlin 2.0 の Attack Library、Netflix Chaos Monkey 思想
+- **応用**：clean 環境再現チェック（06-24記録）を Chaos Toolkit で機械化し、依存ファイル削除・キャッシュ無し・ネットワーク遅延を注入して成果物のロバスト性を検証。Owl の GameDay（Owl の Overspec）と連動し、ワークフロー障害注入時の QA 側検証も同基盤
+- **KPI**：clean 環境再現失敗の本番流出 = 0件/四半期、Chaos 注入シナリオ数 20以上/四半期
+
+### 7. Pact 15 / Postman Contracts での Contract Testing 導入
+- **スキル**：Pact 15 の Consumer-Driven Contract、Postman Contracts / Schemathesis、OpenAPI 3.1 / AsyncAPI 3.0 との統合
+- **応用**：エージェント間クロスチェック（05-22記録）を Contract Testing に発展させ、Sales/Marketing/Dat/PM の出力を Producer-Consumer Contract として Pact Broker で管理。断面不一致（06-17記録）を契約バージョンで機械判定し、Owl の AsyncAPI 契約（Owl の Overspec）と統合
+- **KPI**：エージェント間契約テスト カバレッジ = 100%、契約破壊起因の下流事故 = 0件/半期
+
+### 8. Semgrep 1.90 + Trivy 0.55 + Snyk での成果物セキュリティスキャン自動化
+- **スキル**：Semgrep のカスタムルール、Trivy のコンテナ/IaC/シークレット/依存関係スキャン、Snyk の SCA、CodeQL 2.19
+- **応用**：LP・システム系成果物の受付ゲート（06-23記録）に Semgrep + Trivy + Snyk を CI 統合し、脆弱性 CVE High/Critical・機密情報混入・依存ライブラリ既知脆弱性を機械判定。09-システム開発部の Mio との共同運用
+- **KPI**：CVE High/Critical の本番混入 = 0件、シークレット検出漏れ = 0件/月
+
+### 9. escape rate ダッシュボード + DORA Metrics 応用
+- **スキル**：DORA Metrics（Deployment Frequency / Lead Time / MTTR / Change Failure Rate）の QA 応用（05-25記録）、escape rate の本番テレメトリ計測（08-03記録）、Grafana ダッシュボード
+- **応用**：見逃し率（escape rate／06-12記録）を Grafana ダッシュボードで月次可視化し、5軸ごとの網目分析を自動生成。DORA Metrics の Change Failure Rate を QA 通過後の下流障害率として測定し、QA プロセス自体の改善サイクルへフィードバック
+- **KPI**：escape rate 3%以下（月次）、Change Failure Rate 15%以下（DORA Elite 水準）
+
+### 10. Playwright 1.48 + Percy / Chromatic での Visual Regression Testing 自動化
+- **スキル**：Playwright 1.48 の Auto-waiting / Component Testing、Percy のビジュアル diff、Chromatic の Storybook 統合、Applitools Eyes
+- **応用**：LP・帳票の現行帳票との出力見比べ（08-16記録）を Percy/Chromatic で自動化し、項目・並び・端数処理の pixel-perfect 一致を CI 判定。08-18記録の実機検証プリセット（現場条件）を Playwright の Device Emulation で再現し、直射日光下のコントラスト・タップ間隔・通信断→復帰後の入力保持を自動テスト
+- **KPI**：Visual Regression 検出漏れ = 0件/リリース、帳票非再現による feasibility 差し戻し = 0件/納品
