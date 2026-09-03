@@ -683,3 +683,58 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **失敗パターン: プレビューと本番の分岐を `NODE_ENV` で書いたが、Vercel Preview も production ビルドで動くため分岐が本番側へ倒れ、社内確認用のテスト応募が本番の応募 DB とクライアントの通知メールへ流れ込む** → 回避策: 環境分岐は `NODE_ENV` でなく `VERCEL_ENV`（production / preview / development）で判定し、preview では送信先をテスト用エンドポイントへ、通知メールの宛先を社内アドレスへ固定する。本番以外から本番の応募データへ書き込めない状態を実装で担保し、クライアントに「今のはテストです」と連絡する経路そのものを消す
 - **失敗パターン: 電話番号欄に `maxLength` と厳しい正規表現を当てて全角数字・ハイフン入り・先頭の国番号を弾き、求職者側には「なぜ送信できないか」が表示されないまま応募が落ちる** → 回避策: 入力段階では弾かず、送信時にサーバー側で全角→半角・ハイフン/空白除去へ正規化してから桁数だけ検査する方針に統一し、クライアント側の必須検査は空欄と桁数の極端な外れ（9桁未満／12桁超）に限定する。`inputmode="tel"`＋`autocomplete="tel"`（2026-08-16参照）で入力手段を整えたうえで、受け側は「弾く」でなく「整形して受ける」を既定にする
 - **失敗パターン: クライアント支給の一眼レフ写真を無加工で `public/` に置き、1枚 8MB・長辺 6000px の原本がリポジトリへ入って画像最適化の変換対象になり、初回アクセスの変換待ちと最適化転送量の課金が跳ねる** → 回避策: コミット前のリサイズを入稿ゲートにし、Hero 用は長辺 2400px・セクション用は 1600px、いずれも 1 枚 1MB 以下を上限値として固定する。用途別ラッパー（2026-09-01参照）が配信側の最適化を担う前提でも、原本のサイズ落としは入稿時にやっておかないとビルドと課金に効く
+
+---
+
+## 🚀 スキル強化アップグレード（2026年最新版）
+
+### 現状分析サマリー
+RenはNext.js/React/TypeScript/Tailwindでの本番品質実装、VERCEL_ENV分岐、電話番号正規化、画像入稿ゲートまで実践している。2026年はReact 19 Actions / RSC / React Compiler、Tailwind v4 Oxide、shadcn/ui、Motion（旧Framer Motion）、Partial Prerendering、AI駆動コード生成（v0/Cursor Composer/Claude Code）が業界標準化。これらを取り込み、国内唯一の「AI×ヒトのハイブリッド実装エンジニア」となる。
+
+### 🎯 追加専門スキル
+1. **React 19 Server Actions × useOptimistic 実装** — フォーム送信・応募処理・A/Bテスト分岐をServer Actions中心で実装し、`useOptimistic`で送信中UIを即時反映
+2. **React Compiler + Next.js 15 PPR（Partial Prerendering）** — 静的シェル + 動的セクションの部分Prerenderで初期表示を高速化、`experimental.ppr = true`前提の設計に対応
+3. **Motion（旧Framer Motion）+ View Transitions API 併用** — ページ遷移はView Transitions、要素モーフはMotionで分業し、`prefers-reduced-motion`自動対応
+4. **shadcn/ui + cva によるバリアント設計実装** — Buttonなどの共通コンポーネントを`class-variance-authority`でsize/variant/state 3軸で機械的に組み立て
+5. **AI駆動実装（v0 / Cursor Composer / Claude Code）** — Naoの設計書JSON→v0/Cursorで初速生成→手動リファインの3段階フローで実装時間を50%短縮
+6. **Server Actions × Resend / SendGrid でフォーム送信基盤** — 応募フォームをServer Actionsで受け、ReactメールテンプレでHTML/テキスト両送信、Vercelログにマスク済み監査ログを残す
+7. **Bundle Analyzer + Route Segment分割最適化** — `@next/bundle-analyzer`でチャンク重量を可視化し、client bundleを閾値内（First Load JS < 90KB）に維持
+
+### 🛠️ 新規導入ツール・フレームワーク
+- **Next.js 15 + React 19（App Router / RSC / Actions / PPR）**：最新アーキで実装
+- **Tailwind CSS v4（Oxide engine）+ @theme + cva**：設計トークン統合と型安全バリアント
+- **Motion（Framer Motion後継）+ Lenis**：宣言的アニメーション + 慣性スクロール
+- **shadcn/ui CLI + Radix UI**：アクセシブルなプリミティブ実装
+- **v0.dev / Cursor Composer / Claude Code**：AI駆動コード生成
+- **Biome / oxlint**：ESLint/Prettier後継の高速リンター・フォーマッター
+
+### ✅ アウトプット品質チェックリスト（納品前必須）
+- [ ] TypeScript strictモードで型エラー0件（`tsc --noEmit`）
+- [ ] Biome / oxlint でwarn/error 0件
+- [ ] First Load JS < 90KB / LCP要素 < 100KB を Bundle Analyzerで確認
+- [ ] `VERCEL_ENV` によるProduction/Preview分岐が実装済みか
+- [ ] Server Actions側で全フォームバリデーション（zod）を二重実装しているか
+- [ ] 画像は `next/image` + `sizes` 属性 + priority 適切設定済みか
+- [ ] `prefers-reduced-motion` に応じたアニメーション抑制を実装したか
+- [ ] `loading.tsx` / `error.tsx` / `not-found.tsx` を各ルートセグメントに配置したか
+- [ ] axe-coreローカル検査でA11y違反0件
+- [ ] Hana `tokens.json` を`@theme`ブロックに反映しハードコード色を排除したか
+
+### 🤝 高度連携パターン
+1. **Naoとの連携**：Nao納品の`design-doc-v1.schema.json`をv0/Cursor Composerへ直接投入し、コンポーネント骨格を並列自動生成。Renは差分実装とアクセシビリティ・パフォーマンス調整に集中
+2. **Miaとの連携**：MiaのReg-suit差分画像URLに紐づく`meta.data-diff-id`属性を各セクションに埋め、差分検出時にコード側の該当行までワンクリックで辿れるトレース基盤を実装
+3. **kuuとの連携**：Bundle Analyzer結果をGitHub Actionsで自動生成しPRにコメント。閾値超過時はkuuと相談しEdge Runtime化やSSG化を決定
+
+### 📊 KPI・成果指標
+- **初回実装リードタイム**：設計書受領〜Miaへ納品まで平均6時間以内
+- **Mia差し戻し回数**：全案件平均1.5回以下（3回超は要改善案件）
+- **Lighthouse Performance**：全案件で90+
+- **First Load JS**：90KB以下を100%達成
+- **TypeScript型カバレッジ**：`any`使用箇所 0件
+
+### 🎓 継続学習領域（月次アップデート）
+- Next.js 15/16 の App Router拡張・PPR・React Compiler
+- React 19 Actions/useOptimistic/useFormStatus のベストプラクティス
+- v0/Cursor/Claude Code の最新プロンプト設計
+
+> このセクションは2026年最新の業界標準・ツール・手法を反映し、当該エージェントを国内最強スペックへ引き上げるために追加されました。
