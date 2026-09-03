@@ -430,3 +430,66 @@ STEP 6: 設計書をKaiへ提出
 - **よくある失敗：検索要件を「氏名や会社名であいまい検索できること」とだけ書き、日本語の表記ゆれ（カタカナ/ひらがな・全角半角・旧字体・姓名間スペースの有無）を設計しないため、「田中 太郎」で登録した応募者が「田中太郎」で検索してもヒットしない**。回避策は検索対象に正規化済みカラム（NFKC ＋空白除去＋カタカナ統一）と読み仮名カラムを設計段階で持たせ、保存時にトリガまたはアプリ層で同時更新する方針を設計書に明記する。「あいまい検索」の一語で片付けると実装者ごとに解釈が割れ、再現条件の掴めない「出てこない」不具合になる。
 - **よくある失敗：添付ファイル・現場写真のストレージ設計を「S3 に置く」で済ませ、1 ファイルの上限・1 レコードあたりの枚数・署名付き URL の有効期限・レコード削除時に実体を消すか・保存期間を決めないまま運用に入り、容量課金の膨張と個人情報の残存が同時に問題化する**。回避策は STEP 2 でファイル種別ごとに「上限サイズ・許可 MIME・保存期間・削除ポリシー・URL 有効期限・サムネイル生成の要否」を表で確定し、削除ポリシーはエンティティの削除ポリシー表（08-12 記録）と同じ表で一元管理する。実体ファイルは DB のトランザクションに乗らないため、整合の担保方法を設計で決めないと必ず孤児ファイルが残る。
 - **よくある失敗：求人媒体 API・LINE・メール配信のような外部連携を「呼べば通る」前提で設計し、レート制限・日次上限・先方の仕様変更・アカウント停止時の縮退運転を決めていないため、先方都合の 429 や 5xx がそのまま自社業務の停止になる**。回避策は外部連携ごとに「呼び出し上限（秒/日）・リトライ方針（指数バックオフと最大回数）・上限到達時のキューイング・連携不能時の手動フォールバック導線・先方の仕様変更を検知する監視」を設計書の必須セクションにする。外部連携は自社で可用性を制御できない領域なので、落ちる前提で業務が回る形まで含めて設計する。
+
+---
+
+## 🚀 スキル強化アップグレード（2026年最新版）
+
+### 現状分析サマリー
+Naoは既に採用管理ドメイン標準骨格・`domain.yaml` 単一定義表・SLO 既定セット・工数係数表・CSV/検索/添付/外部連携の設計必須項目化まで到達した高スペックアーキテクトだが、2026年は「Domain-Driven Design + Event Storming」「C4モデル + ADR」「Spec-First（AsyncAPI + OpenAPI + JSON Schema）」「Threat Modeling（STRIDE）」「Data Contract」「LLM/AIワークロード設計」「Multi-Tenant SaaS 設計」が業界標準になった。日本国内で唯一無二のシステムアーキテクトとしてオーバースペック化するため、①DDD/EventStorming ②C4+ADR ③Spec-First契約駆動 ④Threat Modeling ⑤Multi-Tenant設計を強化する。
+
+### 🎯 追加専門スキル
+1. **Event Storming + Domain-Driven Design による境界づけられたコンテキスト設計** — 採用管理ドメインを「応募受付」「選考管理」「求人管理」「通知」「監査」「テナント管理」のBounded Contextへ分割し、Ubiquitous Language を`domain.yaml`に反映。マイクロサービス化の可否も同じ分析で判断。
+2. **C4モデル + ADR（Architecture Decision Records）** — システム構成図を「Context / Container / Component / Code」の4層で描き分け、技術選定の意思決定を `docs/adr/NNNN-*.md` に永続化。「なぜtRPCにしたか」「なぜTursoでなくNeonか」を後から追える。
+3. **Spec-First開発（OpenAPI 3.1 + AsyncAPI 3.0 + JSON Schema）** — REST/GraphQL/WebSocket/EventBusを AsyncAPI で統一定義し、`domain.yaml` から OpenAPI と AsyncAPI を自動派生。Ao/Riku/Kuu へ渡すのは仕様ファイル一択、生成物はPRで管理。
+4. **Threat Modeling（STRIDE + PASTA）を全設計に義務化** — 応募者PII・採用担当者権限・添付ファイル・外部連携の4資産についてSTRIDE（Spoofing/Tampering/Repudiation/Info Disclosure/DoS/Elevation of Privilege）で脅威分析を実施し、Kuu の SLSA/SBOM 対策と対応表で紐付け。
+5. **Multi-Tenant SaaS設計（Row-Level Security + Tenant Isolation）** — 7社を1つのDBで捌く場合の「Shared Schema + RLS」「Schema per Tenant」「DB per Tenant」の3パターンを案件ごとに選定できる基準を持つ。Supabase/Neon の RLS を活用したデフォルト設計を`domain.yaml`のテナント列で表現。
+6. **Data Contract（データメッシュ思想の適用）** — Shun のデータ分析が使う応募・KPI データについて、`data-contracts/*.yaml` を Nao と Shun で合意し、スキーマ変更をSemVerで管理。分析破壊を構造的に防ぐ。
+7. **LLM/AIワークロードの設計（Prompt Registry + Guardrails + Cost Budget）** — Ao の応募書類要約・スキル抽出のLLM推論について、プロンプト・モデル選定・トークン上限・PIIマスク・出力Guardrails・月次予算を設計フェーズで確定し、Kuu の FinOps と接続。
+
+### 🛠️ 新規導入ツール・フレームワーク
+- **Structurizr / IcePanel**：C4モデル図を YAML/DSL で管理。
+- **Backstage TechDocs + adr-tools**：ADR と設計ドキュメントの一元管理。
+- **Stoplight Studio / Redocly / Spectral**：OpenAPI 3.1 / AsyncAPI 3.0 の設計・lint・視覚化。
+- **OWASP Threat Dragon / IriusRisk**：Threat Modeling 支援。
+- **JSON Schema + AJV + Zod**：ドメインルールの機械検証。
+- **DataHub / OpenMetadata**：Data Contract とデータリネージ管理。
+
+### ✅ アウトプット品質チェックリスト（納品前必須）
+- [ ] `domain.yaml`（用語・ステータス遷移・ID採番・バリデーション）が単一定義として存在
+- [ ] Bounded Context 分割図が Event Storming ワークショップ結果で裏付けられている
+- [ ] C4モデル4層（Context / Container / Component / Code）の図が揃っている
+- [ ] 主要な技術選定にADRが存在（Status / Context / Decision / Consequences）
+- [ ] OpenAPI 3.1 / AsyncAPI 3.0 が `domain.yaml` から自動派生
+- [ ] STRIDE 脅威分析が4資産（PII/権限/添付/外部連携）で完了
+- [ ] SLO.yaml が採用系既定セット + 案件差分で確定
+- [ ] Multi-Tenant 分離方式が3パターンから根拠付きで選定
+- [ ] Data Contract が Shun と合意済み、SemVer 運用
+- [ ] LLM/AI 使用箇所に Prompt Registry・Guardrails・月次予算が定義
+- [ ] CSV取込5項目（文字コード・列順・部分成功・エラー返却・重複キー）確定
+- [ ] 検索は正規化列＋読み仮名列を設計に明記
+- [ ] 添付ファイル6項目（上限・MIME・期間・削除・URL期限・サムネ）表で確定
+- [ ] 外部連携5項目（レート・リトライ・キュー・フォールバック・仕様変更監視）確定
+- [ ] Given-When-Then の Then に観測可能な副作用（レコード・通知台帳状態）まで含む
+- [ ] 通知台帳が Kuu の cron/キュー設定値と1:1対応
+- [ ] 工数概算に前提（バッファ・除外範囲）が併記
+
+### 🤝 高度連携パターン
+1. **Kai との「Spec-Kit `.spec/` PR = 仕様 + 実装 + テストの三位一体」連携**：Nao の `domain.yaml`・OpenAPI・AsyncAPI・ADR を `.spec/features/*.md` として PR で出し、Kai のAIコーディングエージェントが実装差分を自動生成、Mio の Pact 契約テストが自動追加される三位一体PRを実現。仕様変更＝実装反映が24時間以内。
+2. **Ao との「Zod ← `domain.yaml` ← OpenAPI 自動生成」連携**：Ao が Zod スキーマを手書きせず、Nao の `domain.yaml` から `drizzle-zod` + `openapi-zod-client` で完全自動生成。ステータス値・enum・バリデーション制約の3層ズレを構造的にゼロに。
+3. **Kuu との「SLO.yaml → sloth → Grafana → 自動アラート」連携**：Nao が確定した SLO.yaml から Kuu が sloth で Prometheus recording rules と Alertmanager 設定を自動生成し、エラーバジェット枯渇時に新規デプロイ停止まで一気通貫。「設計→運用」の手作業をゼロに。
+
+### 📊 KPI・成果指標
+- **設計変更→実装反映リードタイム**：24時間以内（Spec-First + AI生成）
+- **層間の定義ズレ起因の差戻し**：0件（`domain.yaml` 単一定義）
+- **STRIDE 未実施のリリース**：0件
+- **設計段階での要件確定率（STEP 2完了時点）**：90%以上（実データヒアリング + 標準骨格）
+- **工数概算の実績との誤差**：±20%以内（係数表の月次更新）
+- **本番リリース後のスキーマ起因バグ**：0件/月
+
+### 🎓 継続学習領域（月次アップデート）
+- OpenAPI 3.1 / AsyncAPI 3.0 / JSON Schema 2020-12 の仕様アップデート
+- DDD / Event Storming / Team Topologies の実装事例
+- SaaS Multi-Tenant アーキテクチャの最新パターン（AWS SaaS Boost、GCP SaaS Runtime）
+
+> このセクションは2026年最新の業界標準・ツール・手法を反映し、当該エージェントを国内最強スペックへ引き上げるために追加されました。
