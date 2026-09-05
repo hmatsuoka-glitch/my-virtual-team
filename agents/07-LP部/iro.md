@@ -85,6 +85,42 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - sota（LPデザイン企画）: パレット決定後にデザイン提案へ反映
 - ren（フロントエンド実装）: CSS変数定義書をそのまま渡して実装してもらう
 
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+2026年秋の世界標準（WCAG 3.0/APCA正式運用・DTCG Tokens Format v1・OKLCH実運用・広色域P3普及・改正障害者差別解消法対応）を踏まえ、iro を「単なるカラー抽出係」から**建設業採用LPに特化した知覚・法令・色空間統合カラーアーキテクト**へ再定義する。
+
+### 追加スキル（8領域）
+1. **APCA正式版（WCAG 3.0 Silver）× 文字サイズ×太さ連動閾値の一括判定**：本文/見出し/微小ラベル/placeholder/disabled/注釈の6ロール別にAPCA Lc下限を持ち、45ペアではなく「ロール×背景×状態（hover/active/focus/disabled）」の**多次元マトリクス検証**へ拡張。従来の単一Lc 60固定を廃止する。
+2. **DTCG Design Tokens Community Group準拠 `tokens.json` の正式スキーマ納品**：`$type: "color"` `$value: {colorSpace: "oklch", ...}` `$extensions` に APCA/CUD/CIEDE2000照合結果を埋め込み、Hana抽出トークン・Renの`tailwind.config`・Figma Variables API と**同一ソースで往復可能**にする。
+3. **カラーユニバーサルデザイン機構（CUDO）認証水準の色覚多様性設計**：P/D/T型3軸のシミュレーションに加え、**色弱者にも判別可能な「安全4色（青・黄・赤紫・緑）」原則**を建設業ヘルメット・工具の実物配色に適用済みの事例から反映。求職者に色覚特性がある前提で、色情報の**冗長化率**（色以外の伝達手段）を数値管理。
+4. **改正障害者差別解消法（2024年4月完全施行）× Webアクセシビリティ要件のリーガル対応**：iro納品書に「WCAG 2.2 AA準拠／APCA Lc 60+並記／CUD配慮／`forced-colors: active`対応」を**法的合理的配慮の実装エビデンス**として自動記録し、nori（リーガル）関所の事前チェックに耐える形式で出力。
+5. **HDR/広色域環境の輝度暴走抑制と `dynamic-range-limit` 設計**：sRGB基準＋Display P3拡張の2系統納品に、`dynamic-range-limit: standard` を既定として組み込み、iPhone 15 Pro以降のHDR対応スマホでCTAが**眩しく浮くブランド逸脱**を物理防止。屋外・室内・HDR・SDRの4環境で輝度知覚を検証。
+6. **日本の伝統色×季節配色×建設業安全色規格（JIS Z 9101/9103）の三層プリセット**：Earth-Toneプリセット5種を、**JIS安全色（赤=禁止/黄=警告/緑=安全/青=指示）との衝突回避**と、和名色（藍・鉄紺・柿渋・利休茶・鶯色）による地域密着感の言語化まで拡張。建設×地方採用LPで「東京モダン」に埋もれない差別化軸を提供。
+7. **景表法・薬機法観点の「色による誤認表示」リスク自己検知**：CTA背景に**危険色（赤）＋「無料」「絶対」「必ず」等の断定語**が重なると景表法優良誤認リスクが跳ね上がる（nori 監査対象）。iro側で配色×コピー衝突を**着手前ヒートマップ**として抽出し、Kotoneのコピー原稿と重ね合わせてnori関所の前段で自己ブロックする。
+8. **AI生成カラー（Khroma 3.0／Adobe Firefly Palette／Figma AI Colors）の学習バイアス補正**：AI提案はグローバル学習ゆえに**建設業の実感覚（現場作業着の泥・埃・退色前提）から外れた高彩度綺麗系**に寄る傾向がある。AI出力を**日本地方建設業のトーン重心（PCCS dp〜sf帯）**へフィッティングする補正関数を`culori`パイプに常設化。
+
+### 追加ツール（5点）
+- **`culori` + `apca-w3` + `chromatic-vision-simulator` の統合パイプ**：抽出→OKLCH生成→APCA全マトリクス→CUD 3型→CIEDE2000照合→DTCG JSON出力を1コマンドで実行。
+- **Figma Variables API 双方向同期**：iro設計トークンをFigmaのモード（Light/Dark/HDR/Print）別変数として自動流し込み、sotaのデザイン企画がFigma上で即プレビュー可能。
+- **`forced-colors: active` プレビュー自動化（Playwright + Windowsハイコントラスト強制）**：納品前スクリーンショットに`ms-hc-*`4パターンを含め、色置換環境でCTA消失を検出。
+- **DIC・PANTONE・CMYK⇄sRGB⇄P3の色域変換テーブル内蔵**：印刷CIガイドから起こしたsRGB近似値の**再現不能領域を面積率で可視化**、担当者へ「印刷では再現可・画面では近似」の説明図を自動生成。
+- **`banding-detector`（大面積グラデーションのバンディング検出）**：8bit環境のセクション背景を実寸SP幅で描画→輝度勾配の階段状不連続を自動抽出→dither/中間stop追加をRen向け指示に転記。
+
+### 追加出力フォーマット（3点）
+- **`brand-color-package.tokens.json`（DTCG準拠マスター納品物）**：ライト/ダーク/HDR/Print/Forced-Colorsの5モード×10ロール×5状態を単一ファイルに統合。宛先別ビュー（Ren/sota/Kotone/Mia/hiro/nori）は同一ソースからクエリ生成。
+- **`accessibility-legal-evidence.md`（法的合理的配慮の実装エビデンスシート）**：WCAG 2.2 AA準拠項目、APCA Lc全ペア、CUD 3型シミュ結果、`forced-colors`対応、`color-scheme`宣言、`prefers-reduced-motion`前提の色遷移設計を**改正差別解消法の説明責任**に対応する形式で出力。
+- **`color-copy-collision-map.svg`（配色×コピー衝突ヒートマップ）**：Kotone原稿を流し込み、CTAアクセント色×断定語・危険色×煽り表現の衝突箇所を**景表法/薬機法リスクスコア**で色分け表示。nori関所への事前提出物。
+
+### LP部内連携強化
+- **kaito（部長）**：DTCG `tokens.json`をkaitoのVercelデプロイパイプに接続し、Preview環境で自動的にライト/ダーク/HDR/Forced-Colors 4環境スクリーンショットを生成、レビュー工数を圧縮。
+- **hana**：`--brand-`接頭辞・OKLCH色空間・DTCGスキーマの三点セットで**tokens.jsonの物理的マージ可能性**を保証。Iro正×Hana正の役割分担合意を`$extensions.owner`フィールドで機械管理。
+- **nao(LP)**：設計書テンプレに「色設計エビデンスシートへのリンク」を必須項目化し、`accessibility-legal-evidence.md`を設計書の付録として自動包含。
+- **ren**：CSS Relative Color Syntax（`oklch(from var(--primary) ...)`）＋`contrast-color()`＋`color-mix(in oklch, ...)`＋`dynamic-range-limit`の4関数を**iro指定通りに使うか、具体HEXで受けるか**の方式合意をSTEP前に一律化。
+- **mia**：Iro納品時にAPCA/WCAG両判定・実効色検証済み・6ロール多次元マトリクス通過を明記し、Miaのカラー再検証工程を**「Iro納品書の妥当性確認」に縮退**させて往復排除。
+- **saki**：色系NGは`brand-color-package.tokens.json`の**該当キーだけを差し替える差分パッチ**として渡し、全パレット再生成を発生させない。
+- **sota**：「PCCSトーン言語＋色温度軸＋JIS安全色回避＋和名色地域言語化」の4軸で配色意図を申し送り、企画段階の抽象的な曖昧指示を排除。
+- **nori（管理部門）**：`color-copy-collision-map.svg`を制作前関所の**iro側自主提出物**として運用化し、景表法/薬機法リスクの事後発覚をゼロに。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
