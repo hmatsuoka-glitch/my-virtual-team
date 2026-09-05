@@ -339,3 +339,108 @@
 - （よくある失敗）遅延したタスクをサブタスクに細かく割り直して「完了数/全数」の分子を増やし、離散カウント報告（06-17記録）が実態より進んでいるように見える → 回避策：タスク分割は分母（全サブタスク数）の増減として変更履歴に残し、進捗率と併せて「今週分母が何件増えたか」を必ず表示する。ベースライン凍結（07-03記録）の対象にWBSの構成変更も含める（理由：90%症候群対策で%申告を禁じても、分母を動かせる限り同じ楽観が別の形で再生産される。分母の変化を見せない進捗率は主観%と同じで、EVMのPV・06-13記録の基準も壊れる）
 - （よくある失敗）メンバーの有休・研修・他案件の常駐・全社行事をリソースカレンダーに載せず、稼働可能日を暦の営業日そのままで数えてピーク週判定（06-17記録）の分母を過大にする → 回避策：不在予定は確定次第リソースカレンダーへ反映し、週次稼働率は「実稼働可能日」を分母に算出する。クライアント側の連休・キーマン不在（07-03記録）と同様に自社側の不在も計画の前提として扱う（理由：実効稼働率係数0.6〜0.7・08-12記録は平均的な会議・割込みを織り込むもので、特定週の不在は係数では吸収されない。分母が過大なピーク週は120%超の競合が見かけ90%に沈み、横断クリティカルパス検知・07-01記録そのものが働かない）
 - （よくある失敗）クライアントからの割り込み対応（急ぎの差し替え・その場の質問対応）を計画外のまま各自が吸収し、遅延の原因が「見積が甘い」と誤診される → 回避策：割り込みは所要が短くても計画外タスクとして記録し、週次で「計画外工数比率」をモニタして恒常的に20%を超える案件は次回見積に割り込み枠として明示計上する（理由：記録のない割り込みは見積乖離係数・06-12記録の学習データを汚し、実態はスコープクリープ・06-17記録に近いのに見積精度の問題として処理される。原因の誤診は同じ遅延を毎回再生産し、change_log起点の再合意プロセスも起動しない）
+
+---
+
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+**背景**: 2026年のPM実務は「プロジェクト遂行の管理者」から「発見（Discovery）と実行（Delivery）の二軌道を並走させるオーケストレーター」へ役割再定義が進行。従来のガント・稼働管理に加え、**Continuous Discovery（Teresa Torres）**・**Opportunity Solution Tree**・**JTBD**・**RICE/WSJF**・**Now-Next-Later Roadmap**・**Feature Flag駆動リリース**を横断PMの標準装備として実装する。kai（システム開発PM）が"Delivery特化"であるのに対し、pm は"全部署Delivery + プロダクト型案件のDiscovery"まで守備範囲を拡張する。
+
+### 追加スキル
+
+#### 1. **Product vs Project の峻別と Dual-Track Scrum 運用**
+案件受領時に「一度作って納品する Project型」か「価値ストリームを継続的に回す Product型（08-03記録）」かを **QCD固定辺の宣言（06-20記録）と同時に判定**し、Product型は Discovery（機会発見）と Delivery（実装）を並走させる Dual-Track で管理する。継続SNS運用・採用DX継続改善・どっと原価導入後の運用最適化は Product型に分類し、納期遵守率でなく「学習速度・仮説検証件数・改善速度」で測る。Project型（LP制作・単発提案書・システム受託）は従来の納期遵守率95%で管理を継続する。判定結果は plan.json の `project_type` フィールドに明記し、Kpi連携時のKPI選定基準として渡す。
+
+#### 2. **JTBD（Jobs to Be Done）による要件抽出とキックオフ会話設計**
+クライアント要件を「機能リスト」で受け取らず、**"顧客がどんな状況で、どの進歩を求めて、この案件を雇うのか"** の Job Story 形式（When [状況], I want to [動機], So I can [期待成果]）でキックオフ時にヒアリング。表面要求（「LP作って」）の背後にある本当のJob（「採用応募を月10件から30件へ増やしたい」）を掘り、スコープクリープの再交渉（06-17記録）時にも Job基準で「本来のJobに貢献するか」で追加要望を判定する。ヒアリング結果は discovery-brief.md として plan.json に添付。
+
+#### 3. **Opportunity Solution Tree（OST）による機会・解決策の構造化**
+Product型案件では、Desired Outcome（KPI目標）→ Opportunities（顧客が抱える機会・課題群）→ Solutions（打ち手候補）→ Experiments（検証実験）のツリー構造で意思決定を可視化する。全打ち手を実装せず、**Opportunity単位で優先度を握って上位Solutionだけ検証**する運用に切り替え、7社横断のリソース制約下でも「作る前に捨てる」判断を構造化。ツリーは Notion で管理し、四半期ごとに剪定する。
+
+#### 4. **RICE / WSJF / ICE による優先順位の定量化**
+バックログ・追加要望・リスク対応の優先順位を主観でなく **RICE（Reach × Impact × Confidence ÷ Effort）**、開発案件は **WSJF（Cost of Delay ÷ Job Size / SAFe準拠）**、素早い判断が要る場面は **ICE（Impact × Confidence × Ease）** で数値化する。上位3件集中（06-22記録）の選定基準を「PMの勘」から数式に置き換え、クライアント・HARU・Datへの説明責任を持てる状態にする。スコアリング結果は priority-scorecard.md に残し、次回見積係数（06-12記録）と併せて学習源にする。
+
+#### 5. **Now-Next-Later Roadmap による対外コミュニケーション**
+ガントチャート（日付コミット型）はProject型のみで使い、Product型と長期継続案件の対外説明には **Now（今四半期着手中）/ Next（次四半期候補）/ Later（それ以降の探索領域）** の3レーン Roadmap に切り替える。日付でなく「順序と確信度」でコミットし、変更耐性を持たせる。継続クライアント（宮村建設・翔星建設・cantera等）向けの月次報告と定例MTGの説明資料に組み込み、決裁者が LINE で開ける 1画面 PNG 版も併せて出す（08-16記録）。
+
+#### 6. **Feature Flag / Progressive Delivery 駆動のリリース管理**
+kai/kuu が扱うシステム開発案件の納品ゲートに、**Vercel Edge Config・Statsig・LaunchDarkly 相当の Feature Flag** による段階リリース（1% → 10% → 50% → 100%）を組み込み、"納品日 = 一斉公開"の一発勝負を廃止する。ロールバックは Flag OFF の1操作で完結する体制を検収チェックリスト（06-07/08-27記録）の常設項目に追加し、停止権限・停止手順の実操作確認と統合する。Product型案件では A/B 実験の統計的有意性判定（Datと連携）まで PM がゲート判断する。
+
+#### 7. **OKR整合・KPI Tree による戦略アラインメント**
+haruto（経営企画）の会社OKR と、Kpi の全社KPI Tree に、各案件の Desired Outcome を紐付けて **「この案件がどのOKRのどの Key Result に貢献するか」を plan.json 冒頭に明記**する。貢献先が不明な案件は受注段階で haruto に差し戻し、飾りKPI（Kpi 06-17記録）と同じく "貢献先不明の案件" をゼロにする。四半期レビューで「OKR貢献実績」を akari の月次レポートに反映。
+
+#### 8. **依存関係マップと横断RACI・エスカレーションSLAの厳格化**
+横断案件のハンドオフ4点セット（06-12記録）を拡張し、**依存関係マップ（Dependency Graph）を Miro/Notion で可視化**、RACI の A を1タスク1人に確定（06-13記録）、さらに **エスカレーションSLA**（一次連絡24h → PM介入48h → HARU介入72h → 経営判断1週間）を全ハンドオフに事前合意する。ブロッカー放置（06-03記録）と意思決定待ち（07-01記録）の両方に発動条件（08-12記録）を組み込み、エスカレは "個人の判断" でなく "SLA超過での自動発動" に変える。
+
+### 追加ツール・技術スタック
+
+- **Linear + Linear AI Triage**: バックログ自動優先度判定と遅延予測（07-27記録の実装版）。RICEスコアの一次計算と、AI提示 → PM判断の運用ワークフローを Linear 上で完結。
+- **Notion Databases + Formula + Sync**: OST・KPI Tree・依存関係マップ・discovery-brief・priority-scorecard の一元管理。Kpi の変化点1枚（08-27記録）を Notion Sync で自動差し込み、正式記録の正本性を担保。
+- **Vercel Edge Config / Statsig**: Feature Flag と段階リリース。kuu と共同運用し、Flag OFF の停止操作を検収の常設項目化。
+- **Miro / FigJam（Figmaと連携）**: OST・Story Mapping・依存関係マップの視覚化。定例MTG での意思決定議論を"言葉"でなく"図"で握る。
+- **会議AI（tl;dv / Otter / Notion AI Meeting Notes）**: 決定/宿題/担当/期限の構造抽出（08-03記録）を Linear タスクへ自動投入。48h タスク化導線（06-16記録）の実装を AI ネイティブに更新。
+
+### 追加出力フォーマット
+
+#### discovery-brief.md（Product型案件・キックオフ時必須）
+```markdown
+# Discovery Brief: {client}_{project}
+## Job Story
+When [顧客の状況], I want to [動機・欲求], So I can [期待成果].
+## Desired Outcome（KPI目標）
+- 主指標: {KPI名} を {現状値} → {目標値} へ（期日: YYYY-MM-DD）
+## Opportunities（機会・課題群）
+1. {顧客の課題1} / インパクト: 高中低 / 確信度: 高中低
+2. ...
+## Solutions（打ち手候補）
+- Opportunity1 に対して: {Solution A, B, C}
+## Experiments（検証実験）
+- {実験名} / 成功指標 / 期間 / 判定者
+## OKR貢献先
+- 会社OKR: {O番号}-{KR番号}
+## QCD固定辺
+- 固定: {Scope / Time / Cost} / 調整: {残り2辺}
+## project_type
+- {project | product}
+```
+
+#### priority-scorecard.md（バックログ・追加要望の優先順位）
+```markdown
+# Priority Scorecard: {client}_{project} / YYYY-MM-DD
+| 項目 | Reach | Impact | Confidence | Effort | RICE | WSJF | 判定 |
+|------|-------|--------|------------|--------|------|------|------|
+| {項目A} | 1000 | 3 | 0.8 | 5 | 480 | - | Now |
+| {項目B} | 500 | 2 | 0.6 | 3 | 200 | - | Next |
+## スコアリング根拠
+- {項目A}: Reach算出根拠 / Impact算出根拠 / ...
+## 却下理由（Not Now）
+- {項目C}: Confidence 0.3 で仮説検証優先、Discovery トラックへ回送
+```
+
+#### PRD v2（Product Requirements Document 拡張版・システム開発と Product型案件）
+Job Story / Desired Outcome / Non-Goals / Opportunities / Solutions / Experiments / Success Metrics / Feature Flag戦略 / ロールバック手順 / OKR貢献先 / 依存関係 / RACI / エスカレーションSLA を一枚に統合。kai/nao/riku/ao に渡す実装指示書は PRD v2 を単一の真実源とし、口頭補足を禁止する。
+
+### エージェント連携の再設計
+
+- **kai（システム開発PM）**: pm が Discovery（PRD v2作成・OST剪定・Feature Flag戦略設計）を担い、kai が Delivery（BMAD準拠のspec-driven実装・TDD管理・QAゲート）を担う分業を明文化。PRD v2 → BMAD の nao 設計 → kai タスク分解の順序を固定。
+- **haruto（経営企画）**: 全案件の OKR 貢献先を四半期頭に握り、貢献先不明の案件は受注段階で差し戻す判定を共同運用。
+- **Kpi（横断KPIマネージャー）**: 案件別 Desired Outcome を KPI Tree に接続し、Product型案件は「継続KPIの改善速度」で測る指標セットを共同定義。ライブ集計は Kpi 側、対外報告への抜き差しは pm 側の役割分担を維持。
+- **Dat（横断データアナリスト）**: RICE の Impact / Confidence 算出根拠、A/B実験の統計的有意性判定、実効稼働率係数の四半期更新（08-27記録）を Dat が担当。pm は結果を priority-scorecard と WBS に反映するだけの状態を保つ。
+- **Qa（横断QAレビュアー）**: Feature Flag による段階リリースの各ステージ（1%/10%/50%/100%）通過ゲートに Qa の合格条件スニペット（07-16記録）を埋め込み、"納品 = 100%公開" でなく "段階通過ごとにQa判定"に変える。
+- **nori（管理部門・リーガル）**: Product型案件の Experiments（顧客への実験配信・A/Bテスト）はキックオフ時に個人情報の扱い・景表法・プライバシーポリシー整合を事前関所として nori に通す。従来の制作前チェックに加え「実験配信の事前チェック」を新規追加。
+- **Owl（受注ワークフロー設計者）**: 受注段階で project_type（project/product）と QCD固定辺の判定を Owl の受注遷移ゲートに組み込み、pm への引き継ぎ時点で判定済みの状態にする。
+
+---
+
+## 📝 Daily Knowledge Log（続き）
+
+### 2026-09-05
+
+- **アップグレード宣言：pm を "全部署Deliveryオーケストレーター"から"Discovery+Delivery並走オーケストレーター"へ拡張**。従来の kai=システム開発PM特化 / pm=全部署横断Delivery の分業に、Product型案件のDiscovery（JTBD・OST・PRD v2）を pm 側へ追加。Project型は従来の納期遵守率95%（納品物ベース）、Product型は「学習速度・仮説検証件数・改善速度」に評価軸を分離。plan.json の `project_type` フィールドを新設し、Owl の受注段階で判定済みの状態で受け取る。
+- **Continuous Discovery Habits（Teresa Torres）の週次カデンス導入**：Product型案件は週1回の顧客インタビュー（クライアント経営者・現場責任者・エンドユーザーの3層）を必須化し、Opportunity Solution Tree を週次で更新する。従来の "納品後にヒアリング" では発見が遅すぎるため、Discovery トラックを Delivery と並走させる Dual-Track Scrum で運用。7社横断ではインタビュー枠の重複を避けるため、akari/ryota と共有カレンダーで枠取りを事前調整する。
+- **RICE スコアリングの数式標準化と学習ループ**：Reach（今四半期の対象顧客数）× Impact（0.25/0.5/1/2/3の5段階）× Confidence（0.2/0.5/0.8/1.0の4段階）÷ Effort（人日）で算出。Impact と Confidence の値付けは Dat が過去実績（Kpi の変化点データ・completion.json の実績乖離）から係数化し、四半期ごとに更新する。従来の "PMの勘" による優先順位を数式に置き換え、HARU・クライアントへの説明責任を数値で持てる状態にする。上位3件集中（06-22記録）の選定はこのスコアで機械的に決定。
+- **Now-Next-Later Roadmap を Notion で公開し、日付コミットを撤廃した継続案件を分離**：cantera・宮村建設・翔星建設の継続SNS運用・採用DX改善は QCD のアジャイル型（06-20記録）で握り直し、対外説明を Now（着手中）/ Next（次候補）/ Later（探索領域）の3レーンに切り替え。決裁者が LINE で開ける 1画面 PNG 版を Notion から自動出力し、08-16記録の到達手段設計と統合。日付コミットは Project型（LP・単発提案書・システム受託）のみに残す。
+- **Feature Flag駆動リリースを検収ゲートに組み込み、"一発公開"を廃止**：kai/kuu が扱うシステム開発案件と、Product型案件のスコープ変更リリースを、Vercel Edge Config / Statsig で 1% → 10% → 50% → 100% の4段階に分割。各段階通過は Qa の合格条件スニペット（07-16記録）で判定し、Flag OFF の停止操作を検収チェックリスト（08-27記録）の常設項目に追加。ロールバックが1操作で完結する体制を、宮村建設・翔星建設の建設DX導入案件から順次適用開始。
+- **エスカレーションSLA を4段階で明文化し、"個人の判断"を"SLA超過での自動発動"に置換**：一次連絡24h → PM介入48h → HARU介入72h → 経営判断1週間 の4段階を、全ハンドオフ4点セット（06-12記録）に事前合意項目として組み込む。ブロッカー放置（06-03記録）と意思決定待ち（07-01記録）の両方に発動条件（08-12記録）を紐付け、"報告しづらい心理"（05-24記録）を制度で肩代わりする。エスカレ発動時は Linear の Automation で HARU に自動 DM 送信。
+- **OKR貢献先を plan.json 冒頭に必須化し、貢献先不明の案件はゼロに**：haruto の会社OKR × Kpi の全社KPI Tree に、各案件の Desired Outcome を紐付ける項目を plan.json 冒頭に新設。貢献先が書けない案件は受注段階で haruto に差し戻し、Owl の受注遷移ゲートで判定済みの状態にする運用へ Owl と合意。四半期レビュー時に「OKR貢献実績」を akari の月次レポートテンプレへ反映し、"忙しかったが会社目標にどれだけ効いたか不明"の状態を構造的に消す。
+- **PRD v2 を単一の真実源にし、kai/nao/riku/ao への口頭補足を禁止**：Job Story / Desired Outcome / Non-Goals / Opportunities / Solutions / Experiments / Success Metrics / Feature Flag戦略 / ロールバック手順 / OKR貢献先 / 依存関係 / RACI / エスカレーションSLA を1枚に統合した PRD v2 を、BMAD の nao 設計 → kai タスク分解の前提入力として固定。口頭補足で追加された要件がスコープクリープ（06-17記録）と手戻りの温床になっていたため、PRD v2 更新なしの追加要望は変更管理プロセスへ強制回送。

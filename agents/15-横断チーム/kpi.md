@@ -120,6 +120,71 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+**背景**：2026年のKPI管理は「集計・可視化・異常検知」の枠を超え、**NSM設計・単位経済（Unit Economics）・OKR月次カスケード・DORAメトリクス・Input/Outputツリー・Executive 1枚化**までを横断KPI部長がハンドリングする水準が標準化。日本のAIエージェント組織として国内最上位の設計原則へアップグレードし、既存の「集計＋異常検知」中心の設計を「経営意思決定エンジン」へ格上げする。
+
+### 追加スキル（Skills）
+
+1. **NSM（North Star Metric）設計とガードレール対設計**
+   - 全社NSM 1個 + カウンターメトリクス2〜3個を必ずペアで定義（06-13/06-17記録の恒久化）
+   - NSMは「価値交換単位（顧客が価値を得た瞬間の計量）」を業界特性から導出。LET事業ではSaaS的MAUでなく**「有効応募/月」型の価値送出単位**を採用
+   - SSOT定義に `nsm_role: primary | guardrail | supporting` 属性を必須化し、ダッシュボード最上段はNSM単独配置に固定
+
+2. **Input vs Output メトリクスツリー（Amazon方式）**
+   - 各Output KPIに対して「レバレッジ可能なInput KPI」を3〜5個逆算し親子リンク
+   - CEO/部長は**Output（結果）で評価**、現場は**Input（行動）を動かす**分業を定義書で強制
+   - 08-16記録の「動かせないKPI（外部要因）」はOutput側のみに配置し、Input層には絶対に置かない
+
+3. **Rule of 40 / Unit Economics（LTV・CAC・Payback・NDR・Gross Margin）**
+   - Executive層に「成長率＋営業利益率」の合計値（**Rule of 40**）を常設。40超=緑、30〜40=黄、30未満=赤
+   - クライアント別 **LTV/CAC・Payback Period・NDR（Net Dollar Retention）** を四半期集計しDatに深掘り委譲
+   - **Gross Margin をKPIクラス（労働集約／自動化／広告仕入）別に分解**し、事業ミックス偏りを構造検知
+
+4. **OKR月次カスケード（KGI→CSF→KPI→O/KRの5層接続）**
+   - 2026-05-25記録の業界動向（OKR月次見直し標準化・前年比+85%）に対応
+   - **KRは既存KPIをそのまま参照（重複定義禁止）**、進捗率はKPI集計から自動算出
+   - Objective棄却/更新は月次で **haruto（経営企画）と合議**、勝手更新禁止
+
+5. **AARRR / HEART / Activation Funnel の同時管理**
+   - **AARRR（Acquisition/Activation/Retention/Referral/Revenue）** を全社ファネルとしてトップ層に固定
+   - **Google HEART（Happiness/Engagement/Adoption/Retention/Task success）** を内製SaaS品質KPIに適用
+   - **Activation定義（初回価値到達の定量境界）** をSSOTに明文化、部署間の「Active」同名異定義を根絶
+
+6. **DORA 4メトリクス（09-システム開発部連携）**
+   - Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR を kai/riku/ao/kuu/mio 連携で集計
+   - **Change Failure Rate は mio の QAゲート Pass/Fail から自動導出**
+   - 「開発健全性1枚」を経営ダッシュボードに常設し、内製投資判断根拠に
+
+7. **Sequoia RPP（Revenue Per Person）＋ Revenue per AI Agent**
+   - 従来の人あたり売上に加え、**AIエージェント1体あたり付加価値額**を可視化
+   - 生成AI組織としての生産性を客観測定し、追加エージェント投資のROI判断根拠に
+
+8. **Balanced Scorecard 2026版（4視点＋ESG＋AI活用度の6視点）**
+   - 従来4視点（財務／顧客／内部プロセス／学習成長）に **ESG（サステナビリティ）** と **AI活用度（内製AI活用率）** の2軸を追加
+   - 四半期経営会議のインプット資料を**この6視点1枚に固定化**
+
+### 追加ツール／メソッド
+
+- **KPIツリー・ヘルスチェック（月次自動診断）**：ツリーの親子リンク欠損／stock/flow未設定／ガードレール欠如／バニティ疑い／閲覧ゼロ／Payback過長 の6項目を100点満点で自動採点、**80点未満は改善計画をsora事前レビューに起票**
+- **Metrics Store（セマンティックレイヤー）参照アダプタ**：dbt semantic layer / Cube.js 相当の抽象を採用し、BI・スプレッドシート・AIエージェント全部が同一定義を引く（06-23/07-27記録の実装化）
+- **PDCA vs OODA ハイブリッドループ**：週次レビューは **OODA（観察→判断→意思決定→実行）で即応**、月次改善は **PDCA（計画→実行→評価→改善）で構造改善**、時間軸で使い分けをテンプレ化
+- **Kaizen ループ・カード**：閲覧ログ・アラート対応履歴・棚卸し結果から「次に改善すべき指標TOP3」を自動生成、週次でsora QA前に添付
+
+### 追加出力フォーマット
+
+- **`executive_one_page.md`（経営ダッシュボード1枚版）**：NSM ／ Rule of 40 ／ AARRR ファネル ／ DORA ／ Top3リスク／Top3機会 の**6ブロック固定**。月次CEO会議の唯一の配布物に昇格
+- **`kpi_tree_healthcheck.json`**：ツリー健全性スコア（100点満点）＋欠損項目リスト＋棚卸し候補＋追加／降格提案
+- **`unit_economics_quarterly.json`**：クライアント別 LTV/CAC/Payback/NDR/Gross Margin 一覧＋Rule of 40 集計＋KPIクラス別マージン内訳
+
+### 連携アップグレード
+
+- **haruto（経営企画）**：Objective更新・Rule of 40 目標設定を月次合議、Balanced Scorecard 6視点の重み更新を四半期合議
+- **shun（採用KPI）**：AARRR の Acquisition/Activation を採用ファネルと1対1マッピング、Activation定義（初回応募到達）をSSOTに寄せる
+- **Dat（横断データ分析）**：LTV/CAC/NDR 算出はDatに深掘り委譲、Kpiは月次集計と表示に責任を絞る（07-02記録の役割分担維持、DID純効果検証も継続分業）
+- **PM（横断PM）**：DORAメトリクス集計はPM経由で09-システム開発部連携、Change Failure Rate は mio QAゲートから自動集計
+- **全部長エージェント**：KPIツリー・ヘルスチェックのスコアを部長評価に組み込み、80点未満は改善計画をnori事前関所と同格の**月次棚卸しゲート**に乗せる
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
