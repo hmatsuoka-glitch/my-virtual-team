@@ -655,3 +655,66 @@ export const HERO = {
 - **失敗パターン: 応募フォームの入力項目をクライアントの「あると助かる情報」で決め、志望動機・自己PR・希望勤務地・保有資格・通勤手段まで並べて12項目のフォームを設計し、スマホで入力する求職者が途中離脱する** → 回避策: フォーム仕様に「必須は氏名・電話の2項目、任意を足しても合計5項目まで」を上限値として書き、採用担当が「これが無いと面接を組めない」と即答できない項目は削除するか、自動返信メール・折返し電話での回収へ回す。項目の要否は担当者の希望でなく面接設定の可否で判定し、増やしたい要望は「応募後アンケート」として設計上の置き場を別に用意する
 - **失敗パターン: 設計書のブレークポイントを Tailwind 既定（sm 640 / md 768 / lg 1024）で書き、Hana が実測した元 LP の切替点（例 960px）と食い違い、Ren が近い既定クラスへ丸めた結果 900px 前後の中間幅だけレイアウトが崩れて Mia の QA で初めて発覚する** → 回避策: Hana の実測ブレークポイントと既定値の差が 32px 以上ある場合は `theme.screens` のカスタム値として設計書に定義し、既定へ丸める場合も「実測 960px → md(768) へ丸めた／理由」を設計表の該当行に残す。中間幅の崩れを QA でなく設計時の数値決定で潰す
 - **失敗パターン: 追従ヘッダーがあるのにアンカー遷移先の `scroll-margin-top` を設計せず、固定 CTA から募集要項へ飛んだ瞬間に見出しがヘッダーの下へ隠れ、求職者がどのセクションに着地したか分からないまま戻ってしまう** → 回避策: 固定ヘッダー高さを SP/PC 別の共通レイアウト値として設計書冒頭に置き、アンカー対象セクションの行に `scroll-margin-top = ヘッダー高 + 16px` を設計値として記入する。要項⇄CTA の相互アンカー（2026-08-16参照）を設計する以上、リンクの有無だけでなく着地位置の数値まで設計側が持つ
+
+---
+
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+**目的**：2026 年の LP 設計は「セクション組み立て屋」ではなく「情報設計（IA）・視線設計・法令要件・構造化データ・CMS 戦略を横断する LP アーキテクト」であることが必須。従来 STEP 1〜6 は「実装のための設計」に留まっていたが、本セクションで**訪問者心理・SEO・法令・運用可変性を設計層に組込む「オーバースペック LP 設計」**へ引き上げる。
+
+### 🎯 新規スキル 6 本
+
+1. **LP 情報アーキテクチャ（IA）設計スキル**：セクション順を単に並べるのではなく、①訪問者の**意思決定ジャーニー**（認知→興味→比較→決断→行動）②**F パターン/Z パターン視線マップ**（PC は F、SP は縦 Z）③**離脱予測ヒートマップ**の 3 軸で IA を先に確定。STEP 1 の前段に「STEP 0: IA 設計」を新設し、各セクションに `journey_stage`（awareness/consideration/decision/action）と `gaze_priority`（primary/secondary/tertiary）を必須付与。Sota のデザイン企画・Kotone のコピー配置がこの IA を参照する。
+
+2. **Atomic Design 2.0 × Feature-based ハイブリッド設計スキル**：2026 年標準の「共有 UI は Atomic（atoms/molecules）・セクションは feature-based コロケーション・データ取得層は RSC container」の 3 層構造を設計書に明記。粒度判定表（再利用 2 箇所以上＝atomic 昇格 / 単発＝feature 局所配置 / fetch あり＝RSC container）を STEP 2 の必須成果物化。
+
+3. **セクションレベル・デザインシステム（Section DS）構築スキル**：Hana の primitive tokens とは別に「セクション単位のセマンティック仕様」（Hero=1200px×高さ 640px 予約・CTA=48px 高さ×primary 色・Testimonial=カード 3 列 grid）を Section DS 表として独立ドキュメント化。案件をまたいで再利用でき、Sota の A/B 案・Kotone の訴求差替が Section DS の差分記述で済む状態にする。
+
+4. **JobPosting / Organization 構造化データ（JSON-LD）設計スキル**：採用 LP の必須要件として `JobPosting`（`title` / `hiringOrganization` / `jobLocation` / `baseSalary` / `employmentType` / `datePosted` / `validThrough`）と `Organization`（`name` / `logo` / `address` / `sameAs`）の JSON-LD スキーマを STEP 5 で必須設計。Google for Jobs / Indeed 連携で自然流入 +30% を狙う。Nori 法務の職業安定法明示要件（賃金・就業時間・社会保険）と 1:1 対応表化。
+
+5. **Headless CMS 戦略判定スキル**：STEP 0 の Scope 確認時に「更新頻度マトリクス × 編集者リテラシー × 予算」で **Contentful / Sanity / microCMS / Notion Headless / ハードコード** の 5 択から最適解を判定。editable スロット表（2026-08-16）を CMS スキーマ設計へ変換し、Ao とスキーマ整合を STEP 3 前に確定。
+
+6. **モバイルファースト・ブレークポイント設計スキル**：Hana 実測 BP を絶対起点に、SP(360-430)→タブレット(768-834)→PC(1280-1920) の 3 段階で `theme.screens` カスタム定義。Container Queries を採用する部品（Card / Sidebar / Testimonial）と Media Queries を採用するレイアウト（Header / Grid）を仕様表で分離。SP 流入 70% の採用 LP で最初から SP 詰めが最適化された状態を設計層で担保。
+
+### 🛠️ 導入ツール 4 種
+
+- **Whimsical / FigJam 3.0**：STEP 0 の IA 設計と視線フロー可視化で使用。ユーザーストーリー→セクションブロック→CTA 導線を 15 分で図化し tsumugi/Sota と共有。
+- **Style Dictionary 4.x + DTCG 準拠 tokens.json**：Hana JSON → primitive/semantic 2 層 → Tailwind/iOS/Android/Section DS の 4 出力に 1 コマンド同期。
+- **Zod + zod-to-ts + JSON-LD Validator**：STEP 3 で `types/index.ts`・STEP 5 で `structured-data.json` を同時自動生成、Schema.org 準拠のバリデーションまで CLI 1 発。
+- **Playwright + axe-core + Lighthouse CI**：STEP 6 納品前に設計書の Performance Budget と a11y 期待値を実測ベースラインとして測定し、Mia の QA へ「設計時実測値」として先渡し。
+
+### 📄 新規出力フォーマット 2 種
+
+1. **設計書テンプレ v2（`templates/lp-design-spec-v2.md`）**：既存 8 セクション + 新規 5 セクション（IA マップ / 視線フロー図 / Section DS 表 / 構造化データ設計 / CMS 戦略判定）= **13 セクション固定スケルトン**。案件冒頭に「ペルソナ分岐（未経験 20 代 / 経験者 30 代 / 事務・女性）」の分岐選択欄を配置し、選択と同時に IA テンプレが自動確定する構造。
+2. **Section DS 表（`section-ds.tsv`）**：`section_id` / `journey_stage` / `gaze_priority` / `layout_pattern` / `atomic_composition` / `sc_cc_boundary` / `editable_slots` / `structured_data_type` / `a11y_role` / `perf_budget_lcp` / `intentional_deviation` の 11 列固定 TSV。Ren・Mia・Kotone・Sota・Iro が各自の列だけ読む形で共有。
+
+### 🤝 連携アップデート
+
+- **Kaito**：Scope 確認 5 分ミーティングに Nao 同席、IA 分岐選択 + CMS 戦略判定 + Perf Budget を同席で確定。
+- **Hana**：`tokens.json` を DTCG 準拠で受領、primitive 層直結。
+- **Ren**：Section DS 表の `atomic_composition` 列を実装契約として運用、差分行のみ実装。
+- **Mia**：`section_id` × `intentional_deviation` 列で QA しきい値を機械判定。
+- **Saki**：再発パターンを Section DS 表の新列として恒久追記して次案件から予防。
+- **Sota**：Figma Auto Layout の frame 名を `section_id` と 1:1 一致、命名突合工数ゼロ。
+- **Iro**：semantic トークン割当を Section DS の `color_token` 列へ直接反映。
+- **Kotone**：`editable_slots` 列の記入ガイド 3 列（最大字数 / 記入例 / 禁止語）を担当。
+- **Nori（新規）**：JSON-LD の `baseSalary` `employmentType` `jobLocation` を職業安定法明示 4 要件（業務内容・契約期間・試用期間・就業場所）と対応表化、STEP 5 完了時に自動レビュー依頼。
+- **Gen（新規）**：建設業案件で「建設業許可番号」「主任技術者要件」を JSON-LD `Organization.description` に組込む場合の記載監修。
+
+### ⚠️ 追加ガードレール
+
+- **景表法 mockup review**：STEP 5 でクライアント原稿の「業界 No.1」「日本一」「最安」等の優良誤認表現を Nori へ自動エスカレーション、根拠資料の有無を設計書に `evidence_ref` 列で明記。
+- **URL slug SEO**：`/recruit/[job-slug]` の slug 命名を STEP 4 で英小文字ハイフン区切り・50 文字以内・重複禁止の 3 ルールで固定、日本語 URL エンコード事故を予防。
+- **sitemap.xml / robots.txt**：全 route に対して sitemap 掲載可否と robots 指示を Section DS 表の `seo_index` 列で管理、`thanks` `preview` 系の noindex 漏れをゼロ化。
+
+---
+
+### 2026-09-05
+- **STEP 0 「IA 設計フェーズ」新設で設計フロー全体が 6 → 7 STEP に拡張**：従来 STEP 1 の「ページセクション洗い出し」を実施する前に、訪問者の意思決定ジャーニー（awareness→consideration→decision→action）と F/Z 視線マップを Whimsical で 15 分で図化する工程を必須化。ペルソナ分岐（未経験 20 代／経験者 30 代／事務・女性）と組み合わせ、セクション順が「合意された IA」から演繹的に決まる状態にする。Sota のデザイン企画・Kotone のコピー配置がこの IA を参照するため、上流の合意形成が下流全体の手戻りを構造的にゼロ化
+- **JobPosting / Organization JSON-LD の設計書必須化で Google for Jobs 自然流入設計を STEP 5 に組込む**：採用 LP の必須要件として `JobPosting`（`title` / `hiringOrganization` / `jobLocation` / `baseSalary` / `employmentType` / `datePosted` / `validThrough`）と `Organization`（`name` / `logo` / `address` / `sameAs`）を JSON-LD で設計書に定義。Nori の職業安定法明示 4 要件（業務内容・契約期間・試用期間・就業場所）と 1:1 対応表化することで、法令準拠と SEO 最適化を同一データ構造で満たす。従来「実装後に SEO 担当が後付け」だった構造化データを設計層で確定
+- **Section DS 表（11 列固定 TSV）を新規成果物として STEP 2 と STEP 6 に必須組込**：`section_id` / `journey_stage` / `gaze_priority` / `layout_pattern` / `atomic_composition` / `sc_cc_boundary` / `editable_slots` / `structured_data_type` / `a11y_role` / `perf_budget_lcp` / `intentional_deviation` の 11 列を Section DS 表として独立ドキュメント化。Ren・Mia・Kotone・Sota・Iro が「自分の列だけ読む」形で共有でき、設計書 1 本を正とする原則（2026-08-18）が実装フェーズで機械的に運用可能に。抜粋作成の版ズレを構造的に排除
+- **Atomic Design 2.0 × Feature-based ハイブリッド設計判定スキルを STEP 2 の必須成果物化**：粒度判定表（再利用 2 箇所以上＝atomic 昇格／単発＝feature 局所配置／fetch あり＝RSC container）を STEP 2 で作成必須化し、共有 UI（Button/Input）は Atomic・セクション（Hero/Features）は feature-based コロケーション・データ取得層は RSC container の 3 層で分離。Ren が「全部 atomic に置く」「全部 feature に置く」の両極端を選ぶ迷いを設計層で解消し、変更影響範囲を予測可能な状態で実装へ渡す
+- **Headless CMS 戦略判定スキルを STEP 0 Kaito 同席時に実行し editable スロット表と一気通貫で確定**：更新頻度マトリクス × 編集者リテラシー × 予算の 3 軸で Contentful / Sanity / microCMS / Notion Headless / ハードコードの 5 択から最適解を判定。editable スロット表（2026-08-16）を CMS スキーマ設計へそのまま変換し、Ao とスキーマ整合を STEP 3 前に確定。従来「CMS 選定と editable スロットが別タイミング」だった食い違い（2026-08-27）を、Kaito・Nao 同席の Scope 5 分で構造的に解消
+- **モバイルファースト・ブレークポイント設計スキルで SP 起点設計を全案件標準化**：Hana 実測 BP を絶対起点に、SP(360-430)→タブレット(768-834)→PC(1280-1920) の 3 段階を `theme.screens` カスタム定義。Container Queries を採用する部品（Card / Sidebar / Testimonial）と Media Queries を採用するレイアウト（Header / Grid）を仕様表で明確分離。SP 流入 70% の建設業採用 LP で「PC 基準で設計→SP 縮小で密集」（2026-08-03）が起きる構造欠陥を、設計の出発点変更でゼロ化
+- **景表法 mockup review フローの STEP 5 組込で優良誤認表現の Nori 自動エスカレーション化**：クライアント原稿の「業界 No.1」「日本一」「最安」「最高品質」等の優良誤認表現を STEP 5 で機械検出し、Nori へ自動エスカレーション。根拠資料の有無を設計書に `evidence_ref` 列で明記し、根拠なしの表現は Ren 実装前に代替案を Kotone へ差戻し。従来「Sora QA 段階で発覚→設計書からやり直し」だった手戻りを、設計層で構造的に予防
+- **URL slug SEO / sitemap.xml / robots.txt の 3 ガードレールを Section DS 表 `seo_index` 列で一元管理**：`/recruit/[job-slug]` の slug 命名を英小文字ハイフン区切り・50 文字以内・重複禁止の 3 ルールで STEP 4 に固定、日本語 URL エンコード事故を予防。全 route に対して sitemap 掲載可否と robots 指示を Section DS 表の `seo_index` 列で管理し、`thanks` `preview` 系の noindex 漏れをゼロ化。Ren が独断で slug を決めて後から SEO 担当が全 URL 変更を要求する事故を、設計層で完全予防
