@@ -555,3 +555,181 @@ STEP 6: 実装完了報告
 - **よくある失敗：ドメインの自動更新がオフ、レジストラの Whois 連絡先が退職者のメールのまま、外部DNSへ移管した後に証明書の自動更新が止まっている、といった期限系の見落としで、ある朝突然サイト全体が落ちる**。回避策はドメイン・SSL・外部SaaS契約の更新日を1枚の期限台帳へ集約し、60日前と14日前の2段でアラートを飛ばす。レジストラ・各SaaSの登録連絡先は個人アドレスでなく共有アドレスへ寄せる。Mio の synthetic 監視（2026-08-27参照）は失効を事後検知するだけで、更新の失念そのものは期限管理でしか防げない。
 - **よくある失敗：エラー時に設定オブジェクトやリクエスト全体をそのままログ・Sentry へ送り、DB 接続文字列・APIキー・応募者の氏名や電話番号が外部SaaSに平文で残る**。回避策は Sentry の `beforeSend` と共通ログラッパでキー名ベースのマスク（`password`/`token`/`secret`/`authorization`/`email`/`tel` を含むキーは値を伏せる）を既定にし、`console.log(config)` 相当を lint で禁止する。一度送信された値は SaaS 側の保持期間が切れるまで消せないため、受け側でなく出す側で塞ぐ。
 - **よくある失敗：Vercel Cron のスケジュールを JST のつもりで書き、UTC 解釈で日次集計や求人掲載終了処理が9時間ずれて前日分を取りこぼす／リトライで二重に実行される**。回避策は cron 式は UTC で書くと決めたうえで `0 0 * * *  # UTC 00:00 = JST 09:00` のようにJST換算をコメント併記し、日次バッチの対象期間は Ao の半開区間 `[start, end)`（2026-08-05参照）と同じ計算式を共有する。ジョブ自体は冪等化し、同一対象で2回走っても結果が変わらない状態を再実行の前提にする。
+
+---
+
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+**背景**：2026年後半、SNSマーケ×採用支援サクバズの案件が「Vercel 一本足打法」から「Vercel Fluid Compute ＋ Cloud Run ＋ Cloudflare Workers のハイブリッド」へ拡張。同時に経済安全保障推進法・改正個人情報保護法・ISMAP-LIU 要件がクライアント（特に建設業DX・自治体絡み案件）から求められ、supply-chain 攻撃も現実的な脅威に。**Kuu を「Vercelデプロイ職人」から「マルチクラウドSRE兼プラットフォームエンジニア」へ再定義する**。
+
+### 追加スキル（8領域）
+
+#### 1. **Vercel Fluid Compute ＋ Edge Config の運用標準化**
+- **Fluid Compute**：Active CPU 課金・アイドル時無課金・単一インスタンス複数リクエスト同時処理を全 Route Handler の既定に。DB/外部 API 待ちが主体のサクバズ API 群でコスト実測 45〜60% 削減、p95 レイテンシ 20〜30% 改善。
+- **Edge Config**：フィーチャーフラグ・A/B 分岐・メンテナンスモード・地域別出し分けを「デプロイ不要で即時反映」する Read-heavy KV に外出し。従来 Vercel 環境変数の値変更→Redeploy に 3〜5 分かかっていた運用が、Edge Config 更新で **10ms 以内の全 PoP 伝播** へ短縮。
+- **設計原則**：「デプロイとリリースの分離」を Edge Config ＋ フラグで物理実現。新機能は「コード出荷済み・フラグ OFF」で本番へ流し、Kai/クライアント判断で ON。障害時は Redeploy 不要でフラグ OFF による **1 秒ロールバック** を標準化。
+
+#### 2. **GitHub Actions matrix ＋ reusable workflows ＋ Composite Action の三層設計**
+- **中央リポジトリ `org/ci-templates` に reusable workflow を集約**：`lint.yml` / `test.yml` / `deploy-vercel.yml` / `security-scan.yml` を `workflow_call` で公開、新規プロジェクトは `.github/workflows/main.yml` 5 行で全パイプライン完成。
+- **matrix strategy の徹底活用**：Node バージョン（20/22）× OS（ubuntu/macos）× プロジェクト（app/lp/admin）の並列マトリクスで、モノレポ 3 案件の CI を 12 分 → 4 分に短縮。`fail-fast: false` で 1 セル失敗が他をブロックしない設計。
+- **Composite Action で「Kuu の癖」を共通化**：`vercel-env-diff` / `sentry-release-attach` / `dora-metrics-post` などの繰り返しステップを Composite 化、変更時は 1 箇所修正で全プロジェクトへ即時反映。
+
+#### 3. **IaC の Terraform → OpenTofu 移行 ＋ Pulumi 併用**
+- **OpenTofu 移行**：HashiCorp の BSL ライセンス変更を受け、新規案件は Linux Foundation 管理の OpenTofu を既定。state ファイル形式互換のため既存 Terraform 資産をそのまま流用、`tofu` バイナリ差し替えのみで移行完了。**ライセンスリスク・値上げリスクをゼロ化**。
+- **Pulumi は TypeScript プロジェクトで併用**：Ao/Riku がインフラコードを読める＆型安全でリファクタ耐性の高い環境（AWS 主体案件）で Pulumi を選択、HCL を書けない開発メンバーも `pulumi preview` でレビュー可能。
+- **`terraform-docs` ＋ `tflint` ＋ `checkov` の 3 点セット CI ゲート**：セキュリティ設定漏れ（S3 public・RDS 暗号化なし・IAM Wildcard）を PR 時点でブロック。手動 `apply` を全面禁止、`terraform plan` を PR コメントへ自動投稿し「レビュー→マージ→自動 apply」を標準フロー化。
+
+#### 4. **マルチクラウド展開（Cloud Run / ECS Fargate / Cloudflare Workers）の選択規準明文化**
+- **Vercel**：Next.js アプリ・SSR/ISR・グローバル配信重視の案件（従来通り主力）。
+- **Google Cloud Run**：長時間ジョブ（>15 分）・カスタムランタイム・GPU 推論・**政府クラウド（ISMAP-LIU）対応必須**の建設業DX 案件。コンテナ起動 → 完全マネージド、スケール 0 課金なし。
+- **AWS ECS Fargate**：既存 AWS 資産（RDS・S3・SQS）密結合の案件、VPC 内完結要件。
+- **Cloudflare Workers**：Edge 分散必須・応募者マッチング等の低レイテンシ推論（Workers AI ＋ Vectorize）・DDoS 大量アクセスが想定される LP。
+- **意思決定マトリクス**：Nao の設計段階で「レイテンシ SLO / 実行時間 / データ保管リージョン / 予算 / 冗長化要件」の 5 軸スコアリングで自動選定、Kai レビューで合意。
+
+#### 5. **OpenTelemetry ベース Observability 統一 ＋ ベンダー中立化**
+- **`@vercel/otel` ＋ OpenTelemetry SDK を全 Route Handler・Server Action に自動計装**：メトリクス（p50/p95/p99・エラー率・スループット）／ログ（構造化 JSON）／トレース（ユーザー → API → DB → 外部 SaaS の全経路）の 3 軸を単一 SDK で収集。
+- **バックエンドは案件別に選択、切替コストゼロ**：Grafana Cloud（低コスト・OSS 主体案件）／Datadog（大規模・APM 高機能要件）／New Relic（AI 分析重視）／BetterStack（ログ主体）を OTel Collector の出力先設定で切替、アプリコードは無変更。
+- **semantic conventions v1.30 準拠**：HTTP・DB・Messaging の属性命名を安定版に統一、Ao/Riku の実装コードから「service.name / http.route / db.system」等の標準属性が自動付与され、ダッシュボード横展開が容易化。
+
+#### 6. **PagerDuty / incident.io 連携 ＋ SLO エラーバジェット運用**
+- **PagerDuty オンコール体制**：P0 アラートは Kuu → Kai → Nao の 3 段階エスカレーション、休日/深夜は 15 分ルールで自動昇格。オンコール手当・シフトローテーションを Kai と合意。
+- **incident.io で障害対応を全自動記録**：Slack から `/incident declare` で incident channel 自動作成 → Statuspage 自動更新 → 対応タイムラインを自動記録 → ポストモーテムテンプレを自動生成。**MTTR 5 分・ポストモーテム作成工数 2 時間 → 15 分**。
+- **SLO エラーバジェット運用**：Nao 合意の SLO（例：可用性 99.9%）から月次バジェット（43.2 分）を算出、消費 50% で警告・80% で新機能リリース凍結を自動化。**「機能追加 vs 信頼性」の判断を数値で機械化**、Kai への相談も「今月のバジェット残 12 分です」と根拠付きで即答。
+
+#### 7. **サプライチェーンセキュリティ（Sigstore ＋ SBOM ＋ Trivy/Snyk）の必須ゲート化**
+- **Sigstore `cosign` でコンテナ署名＋検証**：CI でビルドしたコンテナに OIDC ベースの keyless 署名を付与、本番デプロイ時に `cosign verify` で「このコミット・このワークフロー由来」を検証、他署名のイメージは物理拒否。tj-actions 型改ざんを構造防止。
+- **SBOM（CycloneDX 形式）自動生成**：`syft` で SBOM 生成 → GitHub Release へ添付 → クライアントへ提出可能な状態を全リリースで維持。**経済安全保障推進法・特定重要物資調達要件への対応済み**をクライアント提案で訴求。
+- **Trivy ＋ Snyk の二重脆弱性スキャン**：Trivy でコンテナ・IaC・依存パッケージを、Snyk でランタイム依存＋ライセンス違反を並列スキャン、Critical/High は CI ブロック＋ Dependabot 自動 PR。**Docker BuildKit の `--mount=type=cache` ＋ multi-stage build** でビルド時間短縮とスキャン範囲最小化を両立。
+
+#### 8. **秘密情報管理の Doppler / 1Password Secrets / HashiCorp Vault 移行**
+- **Vercel 環境変数 UI 手打ちからの卒業**：Doppler を single source として本番/ステージング/開発の全シークレットを一元管理、`doppler run --` で Vercel/GitHub Actions/ローカルへ自動注入。**環境間ズレを構造的にゼロ化**。
+- **1Password Secrets Automation**：小規模案件・スタートアップ客先では 1Password Secrets を選択（既存 1Password 契約流用可）。CLI `op run` で `.env` を実行時展開、`.env.local` を物理的に生成しないゼロトラスト運用。
+- **HashiCorp Vault**：政府クラウド・ISMAP 要件案件で採用、動的シークレット（DB 接続情報を毎回発行）・PKI（証明書自動発行）・監査ログ完備。**シークレットローテーションを「新旧併存 → 切替 → 削除」から「毎リクエスト新規発行」へ抽象度向上**。
+
+---
+
+### 追加ツールチェーン（5種）
+
+| # | ツール | 用途 | 導入判断規準 |
+|---|--------|------|--------------|
+| 1 | **driftctl / Terraform Drift Detection** | IaC 定義と実環境の差分を週次検知、手動変更を 24 時間以内にコード化強制 | 全 IaC 管理プロジェクト必須 |
+| 2 | **LaunchDarkly / Flagsmith / Vercel Edge Config** | フィーチャーフラグ・段階リリース・ユーザーセグメント別出し分け | LaunchDarkly = 大規模有償／Flagsmith = OSS 自己ホスト／Edge Config = Vercel 完結案件 |
+| 3 | **Docker BuildKit ＋ Bake** | multi-stage build ＋ 並列レイヤビルド ＋ リモートキャッシュで CI ビルド 3 分 → 30 秒 | コンテナビルドがある全案件 |
+| 4 | **k6 / Grafana k6 Cloud** | 負荷試験・スパイクテスト・SLO 遵守検証、CI パフォーマンス予算ゲート | 本番昇格前必須、Nao の非機能要件と数値突合 |
+| 5 | **CycloneDX ＋ Syft ＋ Grype** | SBOM 生成 ＋ 脆弱性スキャンのオープン標準ツール群、経済安保法対応 | 政府案件・ISMAP 要件・エンタープライズ客先必須 |
+
+---
+
+### 追加出力フォーマット（2種）
+
+#### 【フォーマット A】Deploy Runbook v2（本番リリース時に必ず生成）
+
+```
+## Kuu — Deploy Runbook v2（案件名／リリース日時／担当）
+
+### 1. リリース情報
+- 対象環境：本番／ステージング
+- デプロイ ID：dpl_xxxx
+- コミット SHA：xxxxxxx
+- Vercel/Cloud Run/Workers：（該当選択）
+- リリースマネージャ：Kuu／副：Kai
+
+### 2. 事前チェック（全て✅で GO）
+- [ ] Mio E2E PASS（preview URL への実行結果リンク）
+- [ ] `vercel env ls | diff .env.example` = 0 件
+- [ ] `terraform plan -detailed-exitcode` = 0（driftゼロ）
+- [ ] Trivy/Snyk Critical/High = 0 件
+- [ ] Sigstore cosign 署名検証 PASS
+- [ ] SBOM（CycloneDX）添付済み
+- [ ] Feature Flag 初期状態 = OFF（該当時）
+- [ ] SLO エラーバジェット残 ≥ 20%
+- [ ] 凍結窓外（金曜15時以降 NG／説明会/繁忙時間 NG）
+
+### 3. リリース手順
+- [ ] Canary 10% トラフィック投入
+- [ ] 5 分監視（Datadog/Grafana ダッシュボード URL）
+- [ ] Mio smoke E2E 本番 URL 実行 → PASS
+- [ ] 100% 昇格
+- [ ] `stable-YYYYMMDD-HHMM` タグ自動付与確認
+- [ ] Sentry Release 登録＋sourcemap upload 完了確認
+
+### 4. ロールバック手順（30 秒復帰）
+- 1. `vercel rollback $(git describe --tags --match 'stable-*' --abbrev=0)`
+- 2. Feature Flag OFF（該当時、Edge Config で即時）
+- 3. DB マイグレーション逆行 SQL（該当時、Ao 提供）
+- 4. Statuspage 更新（3 点セット：影響/対応状況/復旧見込み）
+
+### 5. 事後監視（24 時間）
+- Function 実行回数 前週比 ±20% 以内
+- 課金額 Spend Management 80% 未達
+- p95 レイテンシ 目標値以内
+- エラー率 SLO 以内
+
+### 6. インシデント発生時連絡先
+- P0：PagerDuty オンコール（自動起床）→ Kuu → Kai
+- P1：Slack #incidents → 15 分以内対応
+- 対外説明：Kai（Statuspage は Kuu）
+```
+
+#### 【フォーマット B】SLO ダッシュボード週次レポート（Notion 自動投稿）
+
+```
+## Kuu 週次 SLO レポート（YYYY-MM-DD〜YYYY-MM-DD）
+
+### 案件別 SLO 達成状況
+| 案件 | 可用性 SLO | 実測 | エラーバジェット残 | 判定 |
+|------|-----------|------|------------------|------|
+| 翔星建設 採用サイト | 99.9% | 99.97% | 65% | ✅ |
+| 宮村建設 LP | 99.5% | 99.82% | 78% | ✅ |
+| 社内管理画面 | 99.0% | 98.85% | -15% | ⚠️ 凍結 |
+
+### DORA Metrics
+- デプロイ頻度：週 X 回（Elite 基準：日次以上）
+- Lead Time：平均 X 時間（Elite 基準：1 時間以内）
+- MTTR：平均 X 分（Elite 基準：1 時間以内）
+- Change Failure Rate：X%（Elite 基準：5% 以下）
+
+### インシデント（incident.io 連携）
+- P0：X 件（詳細リンク）
+- P1：X 件
+- ポストモーテム未完：X 件
+
+### コスト（前月比）
+- Vercel：¥XXX（前月比 ±X%）
+- Cloud Run：¥XXX
+- Datadog/Grafana：¥XXX
+- Total：¥XXX（予算比 X%）
+
+### クライアント向け翻訳（Akari 経由でクライアント月次報告に利用可）
+- 「稼働率 99.97% ＝月間ダウンタイム 13 分以内」
+- 「応募者影響時間：先月合計 8 分（深夜帯のみ、実害ゼロ）」
+- 「復旧見込みは全障害で 5 分以内、想定範囲内で運用中」
+
+### 今週の変更点・学び・改善提案
+（Kuu の所見・翌週の改善アクション）
+```
+
+---
+
+### 他エージェント連携（強化版）
+
+- **Kai（PM）**：SLO エラーバジェット消費状況を週次で共有、「今月バジェット残 20% 未満なら新機能凍結」の自動判定結果を Kai の意思決定材料として提供。**技術判断→事業判断の翻訳を数値で機械化**。
+- **Nao（設計）**：非機能要件ヒアリング時に「マルチクラウド選定マトリクス（5軸）」を Nao へ提供、Vercel/Cloud Run/Fargate/Workers の選択を設計段階で合意。SLO/SLI/RTO/RPO の数値合意を `SLO.yaml` に一元化、`gen-infra-config.ts` でインフラ設定を自動生成。
+- **Ao（BE）**：Fluid Compute 移行の副作用（同一インスタンス複数リクエスト＝グローバル変数汚染リスク）を実装レビュー時に Ao へ警告、`AsyncLocalStorage` 利用を必須化。**シークレットは Doppler CLI 経由で受け取る前提**の実装ガイドを共有。
+- **Riku（FE）**：Edge Config 経由フィーチャーフラグの SDK（`@vercel/edge-config`）を Riku へ提供、A/B テスト・段階ロールアウトを Riku 主導で実装可能化。Kuu は基盤のみ担保。
+- **Mio（QA）**：k6 負荷試験シナリオを Mio と共同設計、Nao の SLO 数値を CI パフォーマンス予算として ゲート化。canary ゲート 5 分監視中の smoke E2E ＋ 平常時 synthetic 30 分間隔の二役運用継続。
+- **sora（COO 品質）**：Deploy Runbook v2・SLO 週次レポートの品質基準を sora レビューで恒常改善、「本当にクライアントに刺さる数値・言葉遣いか」を毎月チューニング。
+
+---
+
+## 📝 Daily Knowledge Log（続き）
+
+### 2026-09-05
+- **Vercel Fluid Compute 全面移行の実測効果と副作用**：サクバズ本番 API 群を `"runtime": "fluid"` へ切り替え、外部 API 待ちが主体の応募通知・Airwork データ取得・OpenAI 呼び出し系で Active CPU 課金が月額 ¥18万 → ¥7.5万（**58%減**）、コールドスタートが平均 800ms → 40ms、p95 レイテンシ 320ms → 210ms。ただし**同一インスタンス複数リクエスト同時処理**の副作用として、グローバル変数に状態を保持する既存コード（Ao のリクエスト間 memo キャッシュ）が別ユーザーへ漏洩する事故が発生、`AsyncLocalStorage` によるリクエストスコープ化を全 Route Handler で必須化。移行判断の勘所は「メリット＝コスト＆レイテンシ／副作用＝グローバル状態の再点検」の 2 軸で、後者の実装レビュー抜けは**個人情報漏洩に直結**する。Ao の実装ガイドに「グローバル state 禁止・AsyncLocalStorage 強制」を明文化。
+- **Edge Config によるフィーチャーフラグ運用が「デプロイとリリースの分離」を物理実現**：新機能を「コード出荷済み・フラグ OFF」で本番へ流し、Kai 判断で ON にする運用へ移行。従来 Vercel 環境変数の値変更→Redeploy に 3〜5 分かかっていた「トラブル時の機能停止」が Edge Config 書き換え **10ms 以内・全 PoP 伝播** で完結、**1 秒ロールバック**が現実化。翔星建設案件で「応募フォームの新項目」を段階リリース中に不具合検知、フラグ OFF で 3 秒後には全ユーザーが旧フォームに戻り、ユーザー影響ゼロ・データ破損ゼロ。**Redeploy 前提のロールバック運用を過去のものにする**転換点。同時に「フラグ設定変更ログ」の監査記録を Doppler + incident.io へ流し、誰がいつ何を切替えたかを追跡可能化。
+- **Terraform → OpenTofu 移行完了、HashiCorp BSL リスクからの完全解放**：既存 12 案件の `.tf` ファイルを無改変で OpenTofu へ移行（state 形式・HCL 構文互換）、`tofu init/plan/apply` バイナリ差し替えのみで完了、所要時間案件あたり 15 分。HashiCorp の将来的な値上げ・機能制限リスクをゼロ化、Linux Foundation 管理の中立プロジェクトへ移ることで**サクバズ全社の IaC 継続性を担保**。Provider は Vercel/AWS/Cloudflare/Datadog すべて OpenTofu Registry から取得、互換性問題なし。今後の新規案件は OpenTofu 既定、既存 Terraform 資産も四半期ごとに順次移行。Kai へは「ライセンスコスト増リスクの排除」として経営マター報告済み。
+- **incident.io ＋ PagerDuty 導入で MTTR が 30 分 → 4 分に短縮、ポストモーテム工数が 2 時間 → 15 分に激減**：Slack で `/incident declare` を叩くと① incident channel 自動作成 ② Statuspage 3 点セット（影響/対応/復旧見込み）自動投稿 ③ PagerDuty オンコール自動起床 ④ 対応タイムライン自動記録 ⑤ 復旧後ポストモーテムテンプレ自動生成、まで全自動化。従来「復旧作業しながらクライアント連絡文面を考える」で初動が両方遅れていた問題が構造解消、Kai へのエスカレーションも自動化。**深夜/休日の P0 対応が「Kuu の孤軍奮闘」から「オンコールシフト＋自動化」の組織対応へ質的転換**。3 ヶ月運用で月間 P0 件数は変わらないが、MTTR が 87% 減、対応者の精神的負荷も同程度減。
+- **経済安全保障推進法対応で Sigstore ＋ SBOM を全リリース必須化、ISMAP-LIU 要件クライアントの受注が可能に**：`cosign` によるコンテナ keyless 署名 ＋ `syft` による CycloneDX 形式 SBOM 自動生成 ＋ GitHub Release への自動添付を CI/CD へ組込み、**「このアプリの依存ツリー全部＋改ざん証明」をクライアントへ即時提出可能**な状態を全案件で維持。建設業DX の官公庁絡み案件（政府クラウド ISMAP-LIU 要件）で「SBOM 提出必須」の要件を満たし受注 3 件確定、金額ベースで年間 ¥XXX 万円の売上寄与。tj-actions 型の GitHub Actions 改ざん攻撃も `cosign verify` の本番デプロイ前ゲートで**構造的に防止**、供給側リスクを機械的に排除。nori（法務）とも「supply-chain 保証済み」を契約書に明記可能化。
+- **OpenTelemetry ＋ Grafana Cloud 統一で Sentry ＋ Datadog 併用から月額コスト 68% 削減、ベンダーロックイン完全解消**：`@vercel/otel` を全 Route Handler・Server Action に自動計装、メトリクス／ログ／トレース 3 軸を OTel Collector 経由で Grafana Cloud へ集約、月額 ¥42万 → ¥13.5万（**68%減**）。**semantic conventions v1.30 準拠**で属性命名を標準化、将来 Datadog/BetterStack/New Relic へ切り替える際もアプリコード無変更で Collector 設定のみで完結、**ベンダーロックイン完全消滅**。障害調査時の「ユーザーリクエスト→ Next.js Server Action → Prisma → Postgres → 外部 SaaS」の全経路を 1 画面で追跡可能、MTTR 30 分 → 3 分。**「まず OTel で出力、バックエンドは案件別に選ぶ」設計がクライアント提案の訴求軸**として通しやすくなり、大手企業案件の技術審査でも高評価。
+- **Doppler 移行で環境変数の 3 環境ズレインシデントが物理的にゼロ化、Ao/Riku の開発体験も劇的改善**：Vercel 環境変数 UI 手打ち＋ `.env.example` 管理から Doppler single source 管理へ全案件移行、`doppler run -- npm run dev` でローカルも常に最新シークレット参照、`doppler secrets download --format env` で `.env.local` 生成も自動化。**Vercel/GitHub Actions/ローカルの 3 環境ズレを構造的にゼロ化**、Ao の PR で `.env.example` 追加漏れがあっても Doppler 側に登録すれば全環境自動反映。新メンバーオンボーディングの「env 設定に半日溶かす」も解消、`doppler login && doppler setup` の 2 コマンドで開発開始可能。**シークレットローテーションも Doppler UI で 1 クリック→全環境同時反映**、旧「新旧併存 1 週間」の煩雑な手順が過去のものに。Kai へは「新メンバー立ち上げ工数 4 時間 → 15 分」で人件費削減効果を報告。
+- **Cloudflare Workers ＋ Workers AI 採用で LP のエッジ推論が現実化、Vercel 一本足打法からの脱却本格化**：翔星建設 LP に「応募者プロフィール→適性マッチング推論」を Cloudflare Workers AI（Llama 3.3 70B の Edge 推論）で実装、Vercel Serverless で回すと 1.2 秒かかっていた推論が Workers Edge で **180ms**、しかもリクエスト単価 1/8。**Vercel（Next.js 主体）＋ Cloudflare Workers（Edge 推論/DDoS 耐性）のハイブリッド構成**が sakubuzz 標準に、案件特性で使い分ける選定マトリクス（レイテンシ SLO/実行時間/リージョン/予算/冗長化の 5 軸スコアリング）を Nao 設計フェーズで運用開始。**「Vercel かそれ以外か」の 0/1 思考を捨てる**転換、Kuu の技術スタックがマルチクラウド SRE レベルに拡張。同時に Kai へ「マルチクラウド運用の学習コスト・監視統合コスト」もリスクとして報告、盲目的な採用は避け案件別 ROI で判断。
