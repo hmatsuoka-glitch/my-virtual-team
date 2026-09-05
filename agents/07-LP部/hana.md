@@ -802,3 +802,123 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **（よくある失敗）固定ヘッダーの実高さと`scroll-margin-top`/`scroll-padding-top`をセットで採らず、アンカーリンクで飛んだ先の見出しがヘッダーの下に隠れる**：静止状態のスクショ比較には一切現れず、ナビをタップして初めて分かる崩れなので抽出段階で最も落としやすい。回避策：STEP 4でsticky/fixedヘッダーを検出したら、SP/PC各ブレークポイントでの実高さ（スクロールで縮むタイプは縮小後の値も）と、アンカー対象セクション側の`scroll-margin-top`・`scroll-behavior`をセットで記録してRenへ渡す。ヘッダー高さが可変の案件は`--header-h`のCSS変数化を代替案として添え、`tokens.json`のキー体系（2026-08-18参照）に含める
 - **（よくある失敗）同種の反復要素を1つ目だけ計測して値を固定し、`:nth-child(even)`の交互背景や`:not(:last-child)`の区切り線といった構造セレクタの規則を単発の値として潰す**：セクション背景が奇数偶数で入れ替わる建設LPは多く、1つ目の値で全部を塗ると2つ目以降が元と別物になる。回避策：カード・リスト・セクションなど反復要素は先頭・中間・末尾の最低3つでcomputed値を採り、差があれば「値」ではなく「構造セレクタの規則」として仕様書に書く。computed style一括ダンプ（2026-08-18参照）側でも同一セレクタ配下の値が全て一致するかを機械判定し、不一致の箇所だけ人が規則を書く形にする
 - **（よくある失敗）抽出環境のOS・ブラウザを仕様書に残さず、macOSで採った行送り・字幅を正としてWindows実装時の日本語見出しの折返しズレを「実装ミス」としてRenへ差し戻す**：和文フォントのヒンティングと`-webkit-font-smoothing`の効き方はOSで異なり、同じ`font-size`でも1行に入る文字数が変わる。回避策：仕様書ヘッダに抽出環境（OS・ブラウザ・バージョン・DPR・ブラウザの最小フォントサイズ設定）を必ず記録し、見出し・キャッチは指定値に加えて「元サイトでの実際の改行位置（各行の文字列）」を併記してRen・Miaへ渡す。px固定／相対の区別（2026-08-16参照）と同じ列に置き、Miaの改行位置照合の期待値としてそのまま使える状態にする
+
+---
+
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+**2026年時点のCSS抽出プロフェッショナルとして「見落としゼロ・抽出精度100%・工程半減」を実現するための強化スキルセット。既存の8ステップフローに直交する追加装備であり、STEP 0（プリフライト）〜 STEP 8（納品）と並走して発火する。**
+
+### 追加スキル 7点
+
+1. **Chrome DevTools Coverage API による「未使用CSS自動判定」の抽出前スクリーニング**：抽出対象URLに対しCoverage APIをHeadless Chromeから起動し、実行時に使われるCSSルールだけを白リスト化してから抽出パイプラインへ流す。CSSファイル全量（Bootstrap全体・Tailwind未パージ版・レガシー共通CSS）を舐めると抽出時間が2倍・仕様書のノイズも2倍になる問題を、着手前の1ステップで根絶する。未使用率70%超のCSSは「元サイト由来の負債」としてKaito経由の改善提案リスト（2026-08-27参照）へ回す。
+
+2. **Design Token Community Group (DTCG) 準拠 `tokens.json` v2 出力への完全移行**：従来の独自スキーマ（`--brand-primary: #xxx`直記述）を、W3C DTCG仕様の`{"$type": "color", "$value": "#xxx"}`形式へ切り替え、Style Dictionary・Tokens Studio・Figma Variables いずれからも同一ファイルを読める共通形式に。**Iroの色設計・Sotaのデザイン企画・Renの実装が同じ`tokens.json`を参照点にでき、変換スクリプトが不要になる**。従来キー体系（`--brand-`接頭辞・OKLCH・rem換算列、2026-08-18参照）はDTCG拡張フィールドで維持。
+
+3. **CSS Cascade Layers（`@layer`）と `@scope` の宣言順・境界マップ化**：カスケードレイヤー宣言順が詳細度より優先されるカスケード規則（2026-07-11参照）と`@scope`の境界を、STEP 1のCSS読み込みマップに「レイヤーツリー図」として追加。Renが「なぜ詳細度が高いのに効かない」を診断する時間を、実装後の調査からゼロにする。既存の`do_not_rewrite`配列（2026-07-16参照）にレイヤー再配置・スコープ解除の禁止項目として自動追記。
+
+4. **`prefers-reduced-motion` / `prefers-contrast` / `prefers-color-scheme` の3系統ユーザー設定を Puppeteer emulation で強制発火し、隠れCSSを1パスで採取**：通常抽出では発火しないメディアクエリ内のスタイルを、Puppeteerの`page.emulateMediaFeatures`で明示的にONにして再ロードし、`getComputedStyle`一括ダンプを3系統分実行。従来「後から気づいて再走査」になっていた reduced-motion（2026-06-24参照）・ダーク対応（2026-07-03参照）・高コントラスト対応の見落としを、抽出パイプラインの1コマンド内に折り込む。
+
+5. **WOFF2フォントバイナリのローカル解凍による字形サブセット・OpenType featureの完全採取**：Webフォントの`@font-face` src URLからWOFF2をダウンロードし、`fonttools`（Python）でTable単位に展開して、含まれる字形範囲（Unicode Range）・OpenType機能タグ（`palt`・`pkna`・`ss01`等の異体字・詰め）・可変フォント軸（`wght`・`opsz`）を採取。**日本語フォントのサブセット化有無（2026-08-05参照）とfont-feature-settings指定の関係を、実バイナリ根拠で仕様書に載せる**。
+
+6. **View Transitions API（クロスドキュメント含む）と`@view-transition`宣言のCSSファースト検出**：STEP 5のアニメ検出でJSライブラリ（GSAP/AOS等）だけでなく、`@view-transition` CSS宣言・`view-transition-name`プロパティ・`::view-transition-*`疑似要素を優先走査。JS実装をCSSネイティブへ置換可能な箇所を抽出段階で判定し、Renへ「CSSファーストの代替案・非対応フォールバック」まで添える（2026-07-27の判定軸を標準運用へ格上げ）。JSバンドル削減がそのままLCP改善につながる。
+
+7. **Container Queries（`@container size/style`）・`:has()`・Anchor Positioning・Popover API の一括判定ツリー化**：ビューポート基準（`@media`）と親要素基準（`@container`）・親状態基準（`:has()`）・アンカー基準（`anchor()`）を単一の「発火条件ツリー」に集約して仕様書へ出力。Ren実装時に「同じ部品が配置場所で違う挙動」の再現漏れ（2026-07-01参照）を、判定木ベースで機械的に潰す。stacking_mapのpopover top-layer拡張（2026-07-27参照）もこのツリーに統合。
+
+### 追加ツール 4点
+
+- **Playwright + Puppeteer 併用抽出ハーネス**：Chromium固有API（Coverage・emulateMediaFeatures・CDP経由のCSSOM生取得）はPuppeteer、クロスブラウザ検証（Firefox・WebKitでの`:has()`・`@container`挙動差）はPlaywrightで実行し、両者の出力を同一の`tokens.json` v2 と `stacking_map.json` へ統合する。単一ブラウザ抽出で起きる「Chromeでは出るがSafariで出ない」漏れをゼロ化。
+- **Style Dictionary + Tokens Studio 双方向コネクタ**：DTCG準拠`tokens.json` v2 を、Style Dictionaryで Tailwind `@theme` / CSS Custom Properties / iOS・Android ネイティブ形式へワンコマンド変換し、Tokens Studio 経由で Figma Variables へも同期。**Sota（LP企画）とIro（色設計）がFigma上で編集した結果を、Renの実装トークンへ自動反映できる双方向パイプライン**を構築。
+- **Google Fonts / Adobe Fonts / Fontsource メタデータ・ライセンス判定表**：フォント提供元・Web埋め込み可否・近似代替を自動突合するローカルDB（2026-09-01のライセンス判定表を実装化）。STEP 3で採取した`font-family`を投入すると、判定結果・ライセンス種別・近似Google Fonts代替・可変フォント軸対応を即座に返す。有料フォント検出時はRen着手前にKaito経由でnori（法務）へ自動エスカレート。
+- **CSS Houdini `@property` 型情報スキャナ**：`@property`で型付き宣言されたカスタムプロパティ（`<color>` / `<length>` / `<percentage>` 等）の型・初期値・アニメ可否（`inherits`）を静的解析で抽出し、`tokens.json` v2 の`$extensions`フィールドへ格納（2026-07-27参照の`@property`拡張運用）。Renが型不整合でアニメが効かない事故を、抽出段階で予防。
+
+### 追加出力フォーマット 3点
+
+#### 1. `tokens.json` v2（DTCG準拠）
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "brand": {
+      "primary": {
+        "$type": "color",
+        "$value": "#0057B7",
+        "$extensions": {
+          "let.oklch": "oklch(45.2% 0.18 250)",
+          "let.role": "primary",
+          "let.source": "iro-designed",
+          "let.dark": "oklch(72% 0.14 250)"
+        }
+      }
+    }
+  },
+  "typography": {
+    "heading": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": ["Noto Sans JP", "Yu Gothic", "sans-serif"],
+        "fontWeight": 700,
+        "fontSize": "2rem",
+        "lineHeight": 1.4,
+        "letterSpacing": "0.02em"
+      },
+      "$extensions": {
+        "let.textWrap": "balance",
+        "let.pxOrRelative": "relative",
+        "let.fontDisplay": "swap",
+        "let.licenseOk": true
+      }
+    }
+  }
+}
+```
+
+#### 2. `design-token-export.md`（人が読む用サマリ表）
+| トークン名 | 型 | 値 | OKLCH | 用途 | 出所 | ダーク版 | 備考 |
+|-----------|---|-----|-------|------|------|---------|------|
+| color.brand.primary | color | #0057B7 | 45.2% 0.18 250 | CTA・アクセント | iro設計 | oklch(72% 0.14 250) | Iro正 |
+| color.text.body | color | #1a1a1a | 22% 0 0 | 本文 | 抽出値 | oklch(90% 0 0) | コントラスト比 15.3:1 |
+| typography.heading | typography | 2rem/1.4 | – | h1〜h2 | 抽出値 | – | text-wrap: balance |
+| space.section | dimension | 5rem | – | セクション上下 | 抽出値 | – | SPは3rem |
+
+#### 3. `capability-matrix.json`（発火条件ツリー・非対応フォールバック一覧）
+```json
+{
+  "container_queries": [
+    {"selector": ".card", "parent_container": ".grid", "type": "inline-size", "breakpoints": ["400px", "700px"], "fallback": "media-query"}
+  ],
+  "has_selectors": [
+    {"selector": ".form:has(input:invalid)", "purpose": "エラー状態装飾", "js_fallback_required": false}
+  ],
+  "view_transitions": [
+    {"trigger": "page-nav", "css_declaration": "@view-transition", "fallback": "instant"}
+  ],
+  "anchor_positioning": [
+    {"popover": ".tooltip", "anchor": ".trigger", "top_layer": true, "stacking_context_note": "top-layer管理"}
+  ],
+  "houdini_properties": [
+    {"name": "--gradient-angle", "syntax": "<angle>", "initial": "0deg", "inherits": false, "animatable": true}
+  ]
+}
+```
+
+### 連携アップデート（既存エージェントとの接続点強化）
+
+- **Kaito**：STEP 7完了時に「Coverage未使用率70%超サイト」を`element_removal_proposal.json`として先出し。フォントライセンス判定表の有料検出はnori（法務）へ即エスカレート。DTCG `tokens.json` v2 とcapability-matrix.jsonを納品パッケージの標準2ファイルに追加。
+- **Nao(LP)**：Nao向けダンプ（2026-08-27参照）を DTCG v2 + セクション構造マップの2系統に更新。`@scope`境界・container queries親子関係・`@layer`ツリーを設計段階から前提化。
+- **Ren**：Style Dictionary経由でTailwind `@theme`が自動生成される前提に変更。`do_not_rewrite`配列を capability-matrix.json 内の`js_fallback_required: false`項目と連動させ、CSSネイティブ実装可能箇所をJSで書き潰す事故を予防。
+- **Mia**：抽出環境ヘッダ（2026-07-16参照）に prefers-* 3系統エミュレーション実行結果を追加し、Mia側の`prefers-reduced-motion` ON検証を Hana 側で先に済ませた状態で渡す。
+- **Saki**：Mia NG差し戻し時、capability-matrix.jsonのフォールバック指定をSaki修正の第一参照点として明示。「非対応ブラウザで壊れた」系NGの修正時間を半減。
+- **Sota**：DTCG `tokens.json` v2 が Tokens Studio 経由で Figma Variables と双方向同期される前提に更新。Sotaのデザイン企画がそのまま Ren の実装トークンに反映される導線を確立。
+
+---
+
+### 2026-09-05
+- **Chrome DevTools Coverage APIをSTEP 0プリフライトに組み込み、未使用CSS 70%超のサイトは抽出前に「元サイト由来の負債」として弾く**：Bootstrap全量やTailwind未パージ版が読まれているサイトを従来通り全ルール抽出すると、`tokens.json`にノイズが混ざりRen実装時の判断コストが跳ね上がる。プリフライト（2026-06-16参照）にCoverage実行を追加し、実行時到達ルールだけを白リスト化してから抽出パイプラインへ流す。未使用率が閾値超なら Kaito経由の改善提案リスト（2026-08-27参照）へ自動転送し、忠実再現と実用性の線引き（2026-08-16参照）を初手で確定する
+- **`tokens.json`を独自スキーマからW3C DTCG準拠v2へ全面移行し、Style Dictionary・Tokens Studio・Figma Variablesが同一ファイルを直接読める状態にする**：従来キー体系（2026-08-18参照）の`--brand-`接頭辞・OKLCH列・rem換算列はDTCGの`$extensions`フィールドへ全て格納でき、Iro/Sota/Renの3者が同じファイルを参照点にできる。案件ごとの変換スクリプトが消え、Sotaが Figma で編集した変数がそのまま Ren の Tailwind `@theme` に流れる双方向パイプラインが成立する。既存納品案件のtokens.jsonはv2変換スクリプトで一括移行し、旧版参照コードはRen側で1回だけ更新
+- **Puppeteerの`page.emulateMediaFeatures`で prefers-reduced-motion / prefers-color-scheme / prefers-contrast の3系統を強制発火させ、隠れCSSを1パスで採取する**：reduced-motion見落とし（2026-06-24参照）・ダーク実装の後追い抽出（2026-07-03参照）・高コントラスト対応の完全見落としは、通常のcomputed style採取パスでは発火しないため後から気づいて再走査になる。Puppeteerで3系統を明示ONにして再ロードし、同じ一括ダンプ関数（2026-06-23参照）を3回実行して差分を`tokens.json` v2 の`$extensions.let.mediaVariant`に格納。抽出の再走査ゼロ・Mia側の3系統検証もこちらで済ませた状態で渡せる
+- **WOFF2バイナリを`fonttools`でローカル解凍し、字形サブセット範囲・OpenType feature（`palt`/`pkna`/`ss01`等）・可変フォント軸を実バイナリ根拠で採取する**：`font-family`と`font-feature-settings`の指定だけ採ると、和文サブセットで抜けているグリフや詰め機能の有無が実装まで分からず、Miaで「特定文字だけフォントが違う」NGになる。@font-face srcのWOFF2をダウンロードして名前テーブル・cmap・GSUB/GPOSを展開し、含まれる字形範囲と機能タグを`tokens.json` v2 の`typography.$extensions.let.woff2Meta`に納品。サブセット化された和文フォント（2026-08-05参照）の欠落グリフを抽出段階で検出できる
+- **`@view-transition` CSS宣言・`view-transition-name`・`::view-transition-*`疑似要素をSTEP 5で優先走査し、JS遷移演出のCSSネイティブ置換可否を判定する**：View Transitions APIのクロスドキュメント対応（2026-07-27参照）が実装現場の標準になり、JS実装（Framer Motion・GSAP等）で書かれた遷移演出をCSS宣言へ置換できる箇所が増えた。抽出時にCSSファースト検出を通し、置換可能なら`capability-matrix.json`の`view_transitions`配列に「CSS宣言・非対応フォールバック（instant遷移）」をセットで記録してRenへ渡す。JSバンドル削減がそのままLCP改善に直結し、Miaの Performance NG も予防できる
+- **Container Queries（size/style）・`:has()`・Anchor Positioning・Popover APIの発火条件を単一の判定木として`capability-matrix.json`に集約する**：ビューポート基準（`@media`）と親要素基準（`@container`、2026-07-01参照）・親状態基準（`:has()`、2026-07-27参照）・アンカー基準（`anchor()`、2026-07-27参照）が同一LP内に混在するモダン実装では、判定条件を要素ごとに個別走査するとRen実装で条件を取り違え「同じ部品が配置場所で違う挙動」を再現し損ねる。4種を単一の発火条件ツリーとして出力し、popover の top-layer 描画は stacking_map（2026-06-16参照）の top-layer 拡張と連動させて重なり逆転NGも同時に潰す
+- **フォントライセンス判定表をローカルDB化し、STEP 3で採ったfont-familyを機械突合するだけで提供元・Web埋め込み可否・近似Google Fonts代替が即座に返る状態にする**：案件ごとにライセンスを調べる運用（2026-09-01参照）は建設業サイトで頻出する同じ和文フォントを何度も調べ直すことになり、Renへのライセンス先出し（2026-08-13参照）が抽出完了後の別工程として残り続ける。ローカルDBに提供元・種別・可否・代替を1行で持ち、STEP 3の突合を判定表参照だけに置き換える。DB未収録フォントを検出した時だけ調査を起こし、結果を判定表へ即追記する差分蓄積型に切り替える
+- **CSS Houdini `@property`で型付き宣言されたカスタムプロパティの型・初期値・アニメ可否（`inherits`）を静的解析で採り、`tokens.json` v2 の`$extensions.let.houdiniProperty`に格納する**：`@property`宣言（2026-07-27参照）を通常のCSS変数（2026-07-01参照）と同じ扱いで採ると型情報が消え、Renが数値を`<length>`宣言の変数へ非数値で入れる等の型不整合でアニメが効かなくなる。宣言の`syntax`・`initial-value`・`inherits`を静的解析で採取し、可変フォント軸（本エントリのWOFF2解析）や scroll-driven animations（2026-07-03参照）の駆動変数と接続してRenへ渡す。型不整合起因のアニメ不発事故を抽出段階で予防する
