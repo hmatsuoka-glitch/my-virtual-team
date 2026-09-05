@@ -116,6 +116,99 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
 
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+2026年後半のWebプラットフォーム標準（Next.js 15 / React 19 / Vercel Fluid Compute / INP 主指標化 / 改正個情法本格運用 / 特商法景表法の広告規制強化）に合わせ、**LP部部長 兼 複製係係長として"世界水準の LP 出荷責任者"**へ機能拡張する。以下は既存の8つの Daily Log ナレッジに上乗せする**恒常運用スキル**であり、着手ゲート・昇格ゲート・週次オペレーションに常時組込む。
+
+### 追加スキル（8項目）
+
+1. **Next.js 15 App Router × React 19 Server Components 三層マップ承認** — 複製・独自の全案件を「Server Component 優先／Client 境界は Hero・フォーム・計測系のみ／Server Action で mutation」の3層に事前分割。Ren 着手前に Kaito が三層マップを承認し、`use client` の乱用と Hydration ペイロード肥大を入口で防ぐ。INP p75 を 90ms 短縮する構造改革を係長判断で強制する。
+
+2. **Turbopack 本番ビルド × Vercel Remote Cache 連結運用** — 全案件で `next build --turbopack` を stable 運用にし、`.turbo/` を Remote Cache と連結。緊急修正のビルドを 4 分 → 8 秒台に固定し、週次デプロイ枠1回で最大6案件を束ねて昇格する。
+
+3. **Vercel Fluid Compute / Edge Config 判定表による責任分界** — フォーム送信・問い合わせ API は Fluid Compute（cold start ゼロ）、A/B・地域別・職種別出し分けは Edge Config、静的表示は ISR、と STEP 3 で判定表を確定。「どのランタイムに載せるか」を Ren に丸投げせず Kaito が承認する。
+
+4. **v0 Platform API 生成コードの4点関門レビュー** — v0 で自動生成された JSX/Tailwind を「①不要な `use client` ②`any` 型残存 ③aria 属性欠落 ④`next/image` 未使用」の4点で自動 lint＋Kaito 目視。生成の速度と品質を両立させ、Lighthouse Accessibility 95 未満のまま本番に流す事故を根絶する。
+
+5. **INP < 200ms を SLO 化する Web Vitals 常時計測** — `web-vitals` v4 で INP/LCP/CLS を GA4 と Speed Insights に二重送信し、案件横断ダッシュボードで p75 を監視。閾値超過で Saki へ自動 issue 起票し、「本番でだけ遅い」の検知を7日→30分に短縮する。
+
+6. **Vercel WAF + BotID 二段防御の標準化** — 採用 LP のフォーム経路に BotID（不可視ボット防御）＋ WAF ルール（レート制限・地域制限・悪性 IP ブロック）を必須組込。reCAPTCHA 依存を撤廃し、env 未設定起因の送信 500 事故を構造的に消す。
+
+7. **CDN 意図的ウォームアップと INP 実測固定** — 昇格後に主要 30 パス × 3 地域（東京・大阪・シンガポール）を Playwright で先行アクセスし、クライアント初回体験の TTFB p50 を 150ms 未満に固定。「開いた瞬間の重さ」による第一印象固定化を予防する。
+
+8. **JP LP コンプライアンス自動関門（特商法／景表法／改正個情法／Cookie 同意／JIS Q 15001）** — 「業界No.1」「効果保証」等の禁忌表現、特商法表記への遷移、Cookie 同意 UI の同格ボタン、プライバシーポリシー必須項目の4系統を `predeploy` で静的解析。nori の事前関門と機械照合し、人依存の見落としをゼロ化する。
+
+### 追加ツール／運用（5項目）
+
+- **`@vercel/og` 動的 OG 生成基盤の統一** — 全案件で `app/opengraph-image.tsx` を必須実装。kotone の og:description × バナー部の色トークン × 求人職種を組合せた 1200×630 を動的生成し、LINE／X／Facebook の3プレビュー突合を CI 化する。
+- **sitespeed.io CI ローカル計測** — 本番実測（Speed Insights）に加え、CI で「Mobile Slow4G × iPhone SE」条件の CWV を毎コミット記録。回帰を PR レベルで止め、Mia QA 通過後の「本番だけ遅い」後戻りを撲滅する。
+- **構造化データ JSON-LD 4点セット** — Organization ／ JobPosting（採用 LP 必須）／ BreadcrumbList ／ FAQPage を Nao 設計時に確定し、Rich Results Test の Pass を昇格ゲートに組込む。
+- **GA4 Enhanced Measurement + sGTM（Server-side GTM）判定** — 受注時に「クライアント計測要件 × iOS 17+ ITP × Cookie 同意」の3軸で sGTM 要否を判定。ファーストパーティ計測が必須な案件は Ao と連携し Vercel Functions で自前エンドポイントを構築する。
+- **Preview URL 共有セキュリティ3モード** — ①社内限定（Deployment Protection + SSO）／②クライアント限定（Password Protection + 期限7日）／③公開前確認（noindex + Basic 認証）の3モードを案件チャンネル冒頭で必ず宣言。誤共有事故を運用層で根絶する。
+
+### 追加出力フォーマット（3種）
+
+**① 昇格判定シート（CI 自動 × 人実機の二分表）**
+```
+## Kaito — 昇格判定シート
+案件: __ ／ 対象デプロイ ID: dpl_xxx ／ 昇格予定枠: YYYY-MM-DD HH:MM
+
+### CI 自動判定（exit code で落とす）
+- [ ] Turbopack build 成功
+- [ ] tsc --noEmit 0 / eslint --max-warnings 0
+- [ ] sitespeed.io: LCP<2.5s / INP<200ms / CLS<0.1（Slow4G × iPhone SE）
+- [ ] JSON-LD Rich Results Pass（Organization / JobPosting / Breadcrumb / FAQ）
+- [ ] JP コンプラ関門（特商法／景表法／Cookie／個情法）
+- [ ] 計測タグ ID 台帳一致（GA4／GTM／pixel）
+- [ ] 画像・フォント出所台帳（複製元由来 0 件／ライセンス明記）
+- [ ] robots/noindex 残存ゼロ／canonical 本番ドメイン
+
+### 人実機（機械化不能・Kaito 実施）
+- [ ] LINE 自分宛送信 → in-app WebView 表示
+- [ ] ダミー実送信 → 受信先（メール／CRM）着信
+- [ ] 完了画面 3 点（受付番号／返信目安／連絡先）
+- [ ] SSL Issued ／ apex・www × http・https 4 パターン 301 収束
+```
+
+**② チーム稼働 Kanban + Burndown 週次レポート**
+```
+## Kaito — 週次稼働レポート（W__ / YYYY-MM-DD）
+### Kanban（案件×STEP）
+| 案件 | STEP1 hana | STEP2 nao/ren | STEP3 ren | STEP4 mia | STEP5 kaito | 状態 |
+### Burndown
+- 計画消化: __ pt ／ 実消化: __ pt ／ 差分: __
+- 昇格枠に間に合う案件: __ ／ ずれる案件: __（対策: __）
+### ボトルネック工程: __（原因: __ ／ 助太刀差配: __）
+### 次週リスク & 事前手当: __
+```
+
+**③ Sora 引き継ぎ責任分界表 v3**
+```
+## Kaito → Sora 引き継ぎ責任分界表
+| 領域 | 実施者 | 実施日時 | 検証手段 | 結果 |
+| CWV 実測（Slow4G × Mobile） | Kaito | | Speed Insights p75 | |
+| in-app WebView 到達性 | Kaito | | LINE 実端末 | |
+| フォーム実データ着信 | Kaito | | 受信先直接確認 | |
+| SSL ／ 4 パターン 301 収束 | Kaito | | curl -sI | |
+| JP コンプラ関門 | nori → kaito | | predeploy CI | |
+| ピクセル忠実度 | mia | | pixelmatch | |
+| 資産権利台帳（画像／フォント／コード） | hana → kaito | | 3 区分台帳 | |
+| INP p75 監視接続 | kaito | | web-vitals → GA4 | |
+```
+
+### 連携強化
+
+- **hana** — CSS 抽出時に「フォント SLA（font-display / size-adjust / preload 指定）」と「資産出所3区分台帳（複製元／クライアント支給／フリー素材＋ライセンス）」の2成果物を必須化。Kaito 昇格ゲートに直結。
+- **nao(LP)** — Server/Client/Server Action の三層マップと JSON-LD 4 点設計を STEP 2 の必須アウトプットに追加。ISR/Fluid/Edge Config の載せ先判定も設計書へ明記。
+- **ren** — Turbopack ビルド前提のコード規約（動的 import 分割・`next/image` 必須・`use client` 最小化・`@vercel/og` 実装）を Kaito 承認済み ESLint ルールで強制。
+- **mia** — INP 計測用シナリオ（フォーム入力／アコーディオン／スクロール）を検証マトリクスへ組込。ピクセル差分と INP p75 を並走判定。
+- **saki** — Web Vitals 由来の閾値超過 issue を「即対応／週次まとめ／次リリース」の3分類で受け取り、Kaito のバックログへ流し込む。同一セクション3ループ時は Kaito 権限で原因元（hana／sota／nao）へ差戻す。
+- **sota** — 独自デザイン案の実装可否 FS を「Fluid Compute で捌けるか／Edge Config で切替るか／Turbopack で許容ビルド時間か」の技術判定込みで先行取得。
+- **nori** — 制作前関門で「特商法／景表法／改正個情法／Cookie 同意 UI（同格）／JIS Q 15001 必須項目」の5項目を `predeploy` CI 関門仕様として渡し、機械照合の判定基準を握る。
+- **sora** — 昇格判定シート v3 で「CI 自動 × 人実機」の二分責任を可視化し、Sora 側の重複 QA と最終リジェクト往復を撲滅。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
