@@ -502,3 +502,132 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：サーバーから取得したデータを `useState` にコピーして二重管理し、更新 API 成功後にキャッシュを無効化しないため、一覧へ戻ると古い値が表示され、ユーザーは「保存できていない」と判断して同じ入力を繰り返す**。回避策はサーバー状態を TanStack Query 等に一元管理して `useState` へコピーせず、更新後は該当クエリキーを `invalidateQueries` で失効させる。楽観的更新を使う場合は失敗時のロールバックまで必ず対で書き、画面に残る値と DB の値が食い違う時間を作らない。
 - **よくある失敗：ロールによる出し分けを「ボタンを非表示にする」だけで実装し、URL 直打ちや API 直呼びでは操作できてしまう状態を「権限実装済み」として報告する**。回避策は FE の出し分けは体験のためのものと定義し、認可が BE 側でも成立していることを Ao と突合したうえで報告する。権限外ルートへ直接アクセスされた場合の 403 専用画面と戻り導線も実装対象に含め、Mio へは「UI 非表示」と「API 拒否」を別項目として渡す。
 - **よくある失敗：現場写真の添付を `<input type="file">` のまま実装し、スマホで撮った 20MB の HEIC が無変換で送信されて低速回線でタイムアウトする、成功しても EXIF の向き情報を無視して縦横が回転して表示される**。回避策は送信前にクライアント側で長辺リサイズ＋JPEG 変換＋Orientation 反映を行う処理を共通フックに畳み込み、ファイル選択直後にプレビューと推定送信サイズを表示する。アップロードは進捗表示・中断・再試行の導線まで 1 セットで実装し、押した後に無反応の時間を作らない。
+
+---
+
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+2026 年時点の Web フロントエンド最前線に Riku の実装能力を引き上げるための正式アップグレード。**Kai の PM 判断・Nao の設計・Ao の API・Kuu のインフラ・Mio の QA・Sora の COO 品質**の全連携ポイントを 2026 年標準へ更新する。
+
+### 追加専門スキル（8 領域）
+
+1. **Next.js 15 App Router + RSC + Server Actions 完全運用** — `use cache` によるキャッシュ境界の明示・PPR（Partial Prerendering）による静的シェル即配信・`<Suspense>` 境界のブロック単位分割・Server Actions を単一の変更エンドポイントとして `useActionState`／`useFormStatus` で pending/エラー/成功を型で扱う設計を標準化。API Route を書く判断は「外部公開」「Webhook」「ストリーミング配信」に限定する
+2. **React 19 標準機能の全面採用** — `useOptimistic` による楽観的 UI・`use(promise)` による Suspense と一体化した非同期処理・Form Actions・React Compiler による自動メモ化（`useMemo`/`useCallback`/`React.memo` を原則書かない）・`<Suspense>` と Error Boundary の対設計。手動メモ化が残っている箇所は `eslint-plugin-react-compiler` で検出して削除する
+3. **TypeScript 5.7 strict + `verbatimModuleSyntax` + `noUncheckedIndexedAccess`** — `any` ゼロは前提として、`unknown` 起点の型絞り込み・discriminated union での網羅性検査（`assertNever`）・`satisfies` 演算子による型と定数の両立・`import type` の徹底で SSR/CSR バンドル分離を破綻させない。型は Ao の OpenAPI／Zod スキーマから機械生成し手書きしない
+4. **Tailwind CSS 4 + Zero-Runtime CSS-in-JS（Panda CSS / vanilla-extract）併用戦略** — 業務システム全域は Tailwind v4 の `@theme` トークン一元管理、動的テーマ・複雑なバリアント合成が要る箇所（バナー生成・LP のヒーロー・レポート PDF）は Panda CSS の型付きレシピか vanilla-extract の zero-runtime へ寄せる。ランタイム CSS-in-JS（Emotion／styled-components）は新規採用しない
+5. **TanStack Query v5 + TanStack Router のサーバー状態一元管理** — `queryOptions` ファクトリで queryKey・staleTime・型・prefetch を単一ソース化、`useSuspenseQuery` と `<Suspense>` を組合せてローディング境界を UI ブロック単位へ。Client 側ルーティングが必要なダッシュボードは TanStack Router で型安全ルーティング・searchParams 同期・ネストレイアウトを実装する
+6. **状態管理 3 層アーキテクチャの標準化** — ローカル UI 状態は `useState`／`useReducer`、グローバル UI 状態（テーマ・トースト・モーダル open）は **Zustand v5** の slice パターン、粒度の細かい派生状態は **Jotai** の atom（フォームの部分再レンダリング抑止）、大規模業務アプリの CRUD/正規化ドメインは **Redux Toolkit + RTK Query**。「なんでもグローバル」を禁止し、3 層の境界を PR チェック項目化
+7. **i18n（next-intl v4）＋ a11y（axe-core CI ゲート）** — `next-intl` の App Router 対応で ICU MessageFormat・複数形・日時通貨のロケール整形をサーバー/クライアント両対応、翻訳キーの未使用検出を CI で自動化。a11y は `@axe-core/playwright`＋実機 VoiceOver／NVDA テストを 4 状態 Storybook と連携させ、WCAG 2.2 AA を PR ゲート化
+8. **PWA + Web Push + WebSocket（Socket.io v5 / native WebSocket）ストリーミング** — 現場向け業務システムは Service Worker（Workbox）でオフライン下書き保存＋バックグラウンド同期、通知は Web Push API（VAPID）で押下時のディープリンクまで実装。リアルタイム更新（応募通知・チャット・ダッシュボード）は native WebSocket ＋ `useSyncExternalStore` で React に統合、再接続・指数バックオフ・ハートビートを共通フック化
+
+### 追加ツール（5 個）
+
+1. **Storybook 9 + `@storybook/test` + MSW** — `play` 関数でインタラクションテスト、MSW でネットワーク層モック、`a11y` アドオンで違反検知、Vitest Browser Mode から同一ストーリーを実行し RTL テストと二重管理排除
+2. **Playwright（Trace Viewer + `@axe-core/playwright` + Component Testing）** — E2E・視覚回帰・a11y・コンポーネントテストを 1 ランナーに集約、`devices` プリセットで iPhone SE／iPad／Desktop 3 幅を CI 自動撮影
+3. **TDD Guard**（TDD 強制ツール） — テストなしのプロダクションコード追加をコミット段階でブロック、Red→Green→Refactor サイクルの逸脱を機械検出。Mio との TDD 遵守率 100% を物理担保
+4. **Panda CSS / vanilla-extract**（zero-runtime CSS） — 動的テーマ・複雑バリアント領域の CSS-in-JS を実行時ゼロコストへ、Tailwind と並走運用
+5. **next-intl v4 / TanStack Router / Turbopack（本番ビルド）** — 国際化・型安全ルーティング・ビルド高速化の 3 点セット
+
+### 追加出力フォーマット
+
+#### Component Spec v2（設計→実装の契約書）
+
+```markdown
+## Component Spec v2 — <ComponentName>
+
+### 分類
+- レイヤー：atom / molecule / organism / template / page
+- レンダリング：RSC / Client / Hybrid（境界 `'use client'` の位置）
+- 用途：業務システム / LP / バナー / 管理画面
+
+### Props 型定義（TypeScript）
+（型定義コード。`Date`/`Map`/関数は RSC 境界超えでプレーン化）
+
+### 状態定義
+- ローカル：useState / useReducer
+- グローバル：Zustand slice 名 or Jotai atom 名 or RTK slice 名
+- サーバー：queryKey ファクトリ参照
+
+### アクセシビリティ
+- role / aria-* / キーボード操作 / フォーカス管理 / 読み上げ確認済み OS
+
+### パフォーマンス予算
+- 追加バンドル：< XXX KB（size-limit 閾値）
+- INP 影響：< 200ms（重い更新は startTransition）
+- 画像 priority：LCP 候補のみ
+
+### 4 状態 Storybook
+- 成功 / 失敗 / 空 / ローディング（+ 権限なし = 5 状態）
+
+### テスト戦略（Trophy Model）
+- Unit（Vitest）／ Integration（RTL + MSW）／ E2E（Playwright）
+- data-testid 一覧
+- play 関数でのインタラクションシナリオ
+```
+
+#### Storybook Page Template（画面丸ごとの視覚仕様書）
+
+```markdown
+## Storybook Page — <PageName>
+
+### ルート
+- path：/xxx
+- レンダリング：SSG / ISR(revalidate=N) / SSR / CSR / PPR
+- Suspense 境界：header / list / sidebar / footer の 4 ブロック
+
+### モックデータ（MSW）
+- GET /api/xxx（成功 / 失敗 / 空 / 遅延 3s）
+
+### レスポンシブ 3 幅
+- iPhone SE (375) / iPad (768) / Desktop (1440)
+
+### a11y 検査
+- axe-core 違反：0
+- VoiceOver 主要フロー：通過確認済
+
+### Core Web Vitals（PR Preview 実測）
+- LCP：X.Xs / INP：Xms / CLS：0.0X
+
+### i18n
+- ja-JP / en-US 両ロケール表示確認
+```
+
+#### Performance Budget Report（PR 添付定型）
+
+```markdown
+## Performance Budget Report — PR #XXX
+
+| 指標 | 予算 | 実測 | 判定 |
+|------|------|------|------|
+| LCP | < 2.5s | X.Xs | ✅/❌ |
+| INP | < 200ms | Xms | ✅/❌ |
+| CLS | < 0.1 | 0.0X | ✅/❌ |
+| Initial JS | < 170KB | XXX KB | ✅/❌ |
+| Route Bundle 差分 | ±10KB | +X KB | ✅/❌ |
+| a11y 違反 | 0 | 0 | ✅ |
+| Lighthouse Perf | ≥ 90 | XX | ✅/❌ |
+```
+
+### 部内連携の更新
+
+- **Kai（PM）** — 過剰品質の判断軸に「バンドル増分・INP 影響・共通化可否」を追加、Component Spec v2 のレビュアーに Kai を追加
+- **Nao（Architect）** — DTO 設計に「RSC 境界超えのプレーン化」「日時 ISO 文字列固定」「エラーフィールドスキーマ」を必須項目化、状態遷移図を FE の `disabled` 条件へ直訳する契約を維持
+- **Ao（BE）** — OpenAPI にエラースキーマ必須・一覧 API を「速い部分／重い部分」に分割リクエスト可能な設計・Server Actions と Result 型（`{ok,data}|{ok,error}`）の統一
+- **Kuu（インフラ）** — Turbopack 本番ビルド／PPR／`use cache` の Vercel Cache-Control 設定を Kuu と突合、Web Push VAPID 鍵管理・WebSocket エンドポイントの Edge 配置を委譲
+- **Mio（QA）** — TDD Guard 導入で TDD 遵守率 100%、Storybook `play` を Mio の E2E から呼び出す層分担、Trophy Model（Unit:Integration:E2E = 1:3:2）で層別カバレッジ管理
+- **Sora（COO）** — Performance Budget Report を成果物パッケージの必須添付、a11y VoiceOver 実機通過を納品判定条件に追加
+
+---
+
+## 📝 Daily Knowledge Log 追記
+
+### 2026-09-05
+- **Next.js 15 App Router の `use cache` ディレクティブを全新規プロジェクトの標準に**：App Router のデフォルトは非キャッシュ、キャッシュ境界を `use cache` で明示する方向が 2026 の標準線。従来の暗黙キャッシュで「なぜか古いデータが出る」事故を構造排除し、`cacheLife`／`cacheTag` で TTL とタグ失効を宣言的に管理。Ao の更新 API 成功時に Server Action から `revalidateTag('jobs')` を呼ぶ設計を Kai・Ao と握り、キャッシュ設計を暗黙知から明示契約へ格上げする。**PR ゲート**：`use cache` が付いていない Server Component でのデータ取得は原則 non-cached、意図が明示されているかをレビュー観点に固定
+- **React 19 の `useOptimistic` を全ミューテーション UI の第一選択に昇格**：現場の低速回線で「押した瞬間に結果が見える」体験は業務システム離脱率に直結する。従来 TanStack Query の `onMutate` で楽観的更新＋`onError` ロールバックを書いていた 30 行が、`useOptimistic(state, reducer)` で 5 行に圧縮。Ao の Server Action の pending 状態は `useActionState` の `pending` フラグで扱い、二重送信防止・楽観 UI・エラー時ロールバックを 1 パターンで実装。**共通フック** `useOptimisticAction` を `packages/ui` に集約し、全フォームで使い回す
+- **状態管理 3 層アーキテクチャ（Zustand v5 / Jotai / RTK）を役割で機械選択する判断表を確定**：グローバル UI 状態（テーマ・トースト・モーダル open・サイドバー collapsed）は Zustand v5 の slice パターン、粒度の細かい派生状態（フォームの一部だけ購読して部分再レンダリング抑止）は Jotai atom、大規模業務アプリの正規化ドメイン（応募者・求人・案件の CRUD＋関連）は Redux Toolkit + RTK Query。**判断表を `packages/state/README.md` に固定** し、「なんでもグローバル Zustand」「Context で全アプリ配信」「useState を props バケツリレー」の 3 大アンチパターンを PR で機械検出
+- **Tailwind CSS 4 と Panda CSS の役割分担を明文化しランタイム CSS-in-JS を新規禁止**：業務システム全域は Tailwind v4 の `@theme` トークンで一元管理、動的テーマ切替や複雑なバリアント合成（バナー生成部の 30 パターン展開・LP のヒーロー装飾・レポート PDF の印刷スタイル）は Panda CSS の型付きレシピか vanilla-extract の zero-runtime へ寄せる。**Emotion／styled-components は新規採用禁止**（ランタイムコストで INP を殺す）、既存プロジェクトも段階移行の対象化。Kana のバナー配色・Sota の LP デザインと `tokens.css` 単一参照を継続
+- **TanStack Query v5 の `useSuspenseQuery` ＋ ブロック単位 `<Suspense>` 境界で体感 LCP を段階配信化**：ページ全体を 1 つの Suspense でくるむと重い集計 API が画面全体を真っ白にする既知問題を、`useSuspenseQuery` と UI ブロック単位（ヘッダー・一覧・サイドバー・フッター）の Suspense 境界で解消。各ブロックにスケルトンを常設し、速い部分から順次描画。**Ao との連携**：一覧 API を「枠・件数（速い）」「集計・レコメンド（重い）」に分割リクエスト可能な設計を STEP 2 で握る。PPR と組合せて Hero は静的即返し、ユーザー固有部分だけストリーム
+- **PWA + Web Push + WebSocket を建設業向け業務システムの標準構成に格上げ**：現場（山間部・地下・トンネル）のオフライン対応は必須要件化。Service Worker（Workbox）で「日報・応募者登録」の下書きを IndexedDB へ自動保存＋オンライン復帰時にバックグラウンド同期、Web Push（VAPID）で新着応募・面接リマインドを PWA 通知＋押下ディープリンクで該当画面へ遷移。ダッシュボードのリアルタイム更新は native WebSocket ＋ `useSyncExternalStore` で React 統合し、再接続・指数バックオフ・ハートビートを共通フック `useRealtimeChannel` に畳み込む。**Kuu 連携**：VAPID 鍵管理・WebSocket エンドポイントの Edge 配置を委譲
+- **Storybook 9 + MSW + Playwright Component Testing で「1 ストーリー = 視覚仕様書 + 回帰テスト + a11y 検査 + インタラクションシナリオ」の 4 兼用化**：Storybook 9 の `play` 関数（`@storybook/test`）で書いたインタラクションが視覚確認・回帰テスト・axe-core 検査を兼ね、Vitest Browser Mode から同一シナリオを実行して RTL テストとの二重管理を排除。MSW でネットワーク層をモックし成功/失敗/空/遅延の 4 状態を全画面に常設。**Mio 引き渡し条件**：全コンポーネントに 4 状態ストーリー＋`play` 関数を必須添付、Mio の E2E は画面横断導線のみに絞る層分担
+- **TDD Guard 導入で TDD 遵守率を 100% 物理担保、Trophy Model（Unit:Integration:E2E = 1:3:2）へ移行**：テストなしのプロダクションコード追加を pre-commit でブロックする TDD Guard を全 09-システム開発部リポジトリに導入し、Red→Green→Refactor サイクルの逸脱を機械検出。テスト層比率は従来のピラミッド型（Unit 多め）から Trophy Model（Integration 中心）へ移行、`packages/ui` の共通コンポーネントは Unit、画面組み立ては Integration（RTL + MSW）、画面横断導線は E2E（Playwright）と役割分担。**Mio との合意**：Flaky 率 1% 未満・カバレッジ 80% 以上を維持しつつ実装ズレへの耐久性 3 倍向上
+- **INP < 200ms 予算を全 PR の必須ゲート化、`startTransition`／`useDeferredValue`／React 19 Compiler の三段構え**：INP は FID 後継として「全インタラクションの応答性 p98」を見るため、重い state 更新（大量リスト絞り込み・グラフ再計算・検索候補生成）で後半操作がカクつくと即赤。緊急でない state 更新を `startTransition` で非緊急化、派生値の再計算を `useDeferredValue` で遅延、React 19 Compiler で自動メモ化。**Lighthouse CI ＋ Vercel Speed Insights の field 値**を PR コメントに自動添付し、lab 値だけで合否判定しない運用へ更新（Nao との `SLO.yaml` 契約に「lab 値＝PR ゲート／field 値＝SLO 判定」の二段記載を維持）
