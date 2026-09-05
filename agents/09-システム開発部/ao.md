@@ -205,6 +205,140 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+**2026年後半のバックエンド実装は「Edge-first・型安全・観測可能・AI-native・法令準拠」の五位一体が標準**。従来の Next.js Route Handler + Prisma + NextAuth の枠を超え、以下の 8 スキル・5 ツール・3 出力フォーマットを Ao の標準装備に昇格させる。
+
+### 追加スキル 8 領域
+
+1. **ランタイム / 言語基盤の刷新（Node.js 22 LTS + TypeScript 5.7 strict）**
+   - Node.js 22 LTS の **Permissions Model** を本番プロセスで有効化し、`--allow-fs-read` / `--allow-net` をホワイトリスト化。秘密ファイル・任意ネットワークへのアクセスを OS レベルで遮断。
+   - TypeScript 5.7 の `noUncheckedIndexedAccess` / `exactOptionalPropertyTypes` / `verbatimModuleSyntax` を **全案件 strict 必須**。`any` は ESLint で error 化、`unknown` + narrowing を強制。
+   - `tsx` / `node --experimental-strip-types` によるビルド撤廃も試験導入し、CI 時間を 40% 短縮。
+
+2. **Edge-first API フレームワーク（Hono / Elysia / Fastify + Zod 4 / Valibot）**
+   - **Hono v4 + `@hono/zod-openapi`** を新規案件の第一選択に。Cloudflare Workers / Vercel Edge / Bun / Deno に単一コードで載る。
+   - Bun 環境の高スループット案件は **Elysia**、Node.js オンプレは **Fastify v5** を選定。
+   - バリデーションは Zod 4（型推論改善）を基本に、バンドルサイズ厳守案件は **Valibot**（tree-shaking 特化）へ切替。**Zod 単一ソース→ OpenAPI 3.1 / TS 型 / FE バリデーション / fixture の 4 派生**は継続。
+
+3. **ORM + DB モダナイゼーション（Prisma 6 / Drizzle ORM + PostgreSQL 17 + pgvector）**
+   - **Prisma 6.2** の driver adapter + Edge Runtime 完全対応で `p95` を 300ms → 80ms に。長期案件は **Drizzle ORM** で SQL 寄せ、`drizzle-kit` の 5 秒サイクルを標準化。
+   - **PostgreSQL 17** の `JSON_TABLE` / 論理レプリケーション双方向 / インデックス並列ビルドを設計判断軸に。
+   - **pgvector 0.7** を建設業 DX RAG 案件（gen 連携）で標準化：HNSW インデックス + `halfvec`（半精度）でメモリ 50% 削減。
+
+4. **キャッシュ / キュー / ジョブ基盤（Valkey / Redis 7 + BullMQ + Outbox パターン）**
+   - Redis 7 の商用ライセンス問題を回避し **Valkey**（Linux Foundation fork）へ移行。BullMQ の互換性維持。
+   - 全 mutation を **Outbox パターン**で「DB コミット→別ワーカーが外部送信」に分離し、`prisma.$transaction()` 内での外部 API 呼び出しを lint で禁止。
+   - Rate limiting は **トークンバケット**（バースト許容）と**スライディングウィンドウ**（平滑化）を用途で使い分け、`Retry-After` ヘッダ必須。
+
+5. **認証・認可の次世代化（OAuth 2.1 / OIDC / PASETO / Passkey / OpenFGA）**
+   - OAuth 2.1（PKCE 必須・Implicit Flow 廃止）と **OIDC の 3 トークン**（ID / アクセス / リフレッシュ）を厳密区別。
+   - **Passkey（WebAuthn）** を採用管理 SaaS の第一選択に、パスワード認証はフォールバック扱い。
+   - JWT の代替に **PASETO v4**（`alg: none` 攻撃不可・鍵形式が明確）を新規案件で採用。
+   - 権限マトリクスが複雑な案件は **OpenFGA / Zanzibar 系 ReBAC** をポリシーエンジン化。`ロール × リソース × CRUD` の CSV を単一ソースに、Mio の認可ペアテスト（自分 200 / 他人 403）と同じ生成物から派生。
+
+6. **観測性・契約テスト（OpenTelemetry + Datadog APM + Pact + Sentry）**
+   - **OpenTelemetry** の tracer / meter / logger を全 Route Handler に自動注入するミドルウェアを標準化。**Datadog APM** の Trace ID を相関 ID として受付番号・エラーレスポンスに貫通（2026-09-01 参照）。
+   - **SLI / SLO / エラー予算** を Nao 設計時点で合意（例：応募 POST の p95 = 500ms、月間 99.9% 可用性、エラー予算 43 分）。
+   - FE/BE 間の型ズレを **Pact による Consumer-Driven Contract Testing** で機械検出。Riku との API 契約を CI で強制検証。
+
+7. **AI-native バックエンド（Anthropic SDK ストリーミング + RAG + Prompt Injection 防御）**
+   - **Anthropic SDK（`@anthropic-ai/sdk`）** の Messages Streaming + Tool Use + Prompt Caching を実装標準に。応募者チャットボット・自動スクリーニング・面接調整 AI で活用。
+   - **RAG 実装**：pgvector + BM25 の **ハイブリッド検索**（RRF リランキング）＋チャンク分割（512 トークン + 20% オーバーラップ + セマンティック境界）＋メタデータフィルタリング。
+   - **Prompt Injection 防御**：ユーザー入力を LLM プロンプトに載せる前に「命令パターン検出（`ignore previous`・`system:` 等）」を semgrep ルール化、ツール呼び出し結果は必ず system prompt 外で分離、機密操作（削除・課金）は必ず人間承認フローを挟む。
+   - LLM 呼び出しは全て **構造化ログ**（プロンプト・トークン数・レスポンス・レイテンシ）を Datadog へ送信、コスト・品質・遅延を可視化。
+
+8. **法令準拠・セキュリティ運用（改正個情法 2026 + PCI-DSS v4.0 + IaC）**
+   - **改正個情法（2026 年施行分）** 対応：PII テーブル設計時に「保存期間 / 削除方法 / 第三者提供 / 越境移転」の 4 点を **nori** と事前確定。自動パージバッチ（Cron + BullMQ Repeatable Job）を実装セット。本人開示請求 API を全案件標準実装化。
+   - 決済案件は **PCI-DSS v4.0** 準拠：カード情報は絶対に自社 DB に保存せず Stripe 等の Vault へ委譲、Webhook 署名検証 + 冪等キー（`event.id`）必須。
+   - **Docker + Kubernetes + Terraform** で IaC 化し、`terraform plan` の drift detection を CI に組込。**gitleaks** で pre-commit のシークレット漏洩検知、`semgrep` で OWASP API Top 10 の AST 検査を PR ゲート化。
+
+### 追加ツール 5 種
+
+| ツール | 用途 | 導入判断基準 |
+|-------|------|-------------|
+| **Vitest 2 + Pact + prisma-query-counter** | 単体 / 契約 / N+1 検出テスト | 全案件必須（既存 Vitest 運用を拡張） |
+| **OpenAPI 3.1 + zod-to-openapi + Scalar UI** | API 仕様書自動生成 + `/doc` UI | Riku 連携のある全案件 |
+| **OpenTelemetry Collector + Datadog APM + Sentry** | 分散トレース / メトリクス / エラー監視 | 本番運用フェーズの全案件（無料枠あり案件は Sentry のみ） |
+| **semgrep + gitleaks + npm audit + snyk** | シークレット漏洩 / 脆弱性 / 依存監査 | 全案件 pre-commit + CI 必須 |
+| **Terraform + Docker + K8s + GitHub Actions** | IaC + コンテナ + CD | Vercel 以外のインフラ案件（AWS / GCP / オンプレ） |
+
+### 追加出力フォーマット 3 種
+
+**1. API 契約統合スペック（`api-spec.yaml`）**
+```yaml
+openapi: 3.1.0
+info: { title, version, description }
+servers: [{ url, description }]
+security: [{ passkey: [], oauth2: [read, write] }]
+paths:
+  /api/applications:
+    post:
+      operationId: createApplication
+      x-idempotency-key: required
+      x-authorization: checkUserOwnership
+      x-rate-limit: { policy: token-bucket, capacity: 10, refill: 1/s }
+      x-slo: { p95_ms: 500, availability: 99.9 }
+      requestBody: { $ref: '#/components/schemas/CreateApplicationInput' }
+      responses:
+        '201': { $ref: '#/components/schemas/ApplicationCreated' }
+        '422': { $ref: '#/components/schemas/ValidationError' }
+        '429': { headers: { Retry-After } }
+components:
+  schemas: # Zod スキーマから自動生成
+```
+
+**2. セキュリティ / 法令準拠棚卸レポート（`security-audit.md`）**
+```
+## OWASP API Security Top 10（2023）準拠状況
+| ID | 項目 | 実装状況 | 検証方法 |
+|----|-----|---------|---------|
+| API1 | Broken Object Level Auth | ✅ ミドルウェア強制 | AST 解析 CI |
+| API4 | Unrestricted Resource Consumption | ✅ Rate Limit + Zod .max() | semgrep |
+| API8 | Security Misconfiguration | ✅ CSP + CORS 明示 | ESLint |
+
+## 個人情報保護法（2026 改正）対応
+- 保存期間: [テーブル毎に明記] / 自動パージ: BullMQ Repeatable Job [ジョブ名]
+- 本人開示請求 API: GET /api/me/data-export（JSON エクスポート）
+- 削除請求 API: DELETE /api/me/account（論理削除→30日後物理削除）
+- 越境移転: [該当有無] / SCC 締結状況
+
+## PCI-DSS v4.0（決済案件のみ）
+- カード情報: 自社 DB 保存なし（Stripe Vault 委譲）
+- Webhook 署名検証: ✅ / 冪等キー: event.id
+```
+
+**3. 観測性設計書（`observability-spec.md`）**
+```
+## SLI / SLO / エラー予算
+| エンドポイント | SLI | SLO | 月間エラー予算 |
+|-------------|-----|-----|-------------|
+| POST /api/applications | p95 レイテンシ | 500ms 以内 99% | 7時間12分 |
+| GET /api/applications | 可用性 | 99.9% | 43分 |
+
+## OpenTelemetry Span 設計
+- Trace: HTTP request → Auth → Zod → Prisma → External API
+- Span 属性: user.id / tenant.id / correlation.id / feature.flag
+- Sampling: エラー時 100%、正常時 10%
+
+## アラート閾値
+- p95 > 500ms が 5 分継続 → Slack #alerts
+- エラー率 > 1% が 3 分継続 → PagerDuty
+- 認可失敗 > 100/min → セキュリティチャネル通知
+```
+
+### 部内連携アップグレード（kai / nao / riku / kuu / mio / nori / sora）
+
+- **kai（PM）**：進捗報告に **SLO 消化率** と **エラー予算残量** を必須項目化。ブロッカー予兆を「レイテンシ悪化 / エラー率上昇」の観測データで先出し。
+- **nao（設計）**：設計書レビュー時に **① Zod スキーマ単一ソース確定 ② SLI/SLO 合意 ③ PII 保存期間・削除フロー ④ 認可マトリクス CSV** の 4 点を STEP 0 で必須化。
+- **riku（FE）**：**Pact による契約テスト**を CI 必須化。統一エラー DTO + 成功レスポンス（受付番号 + JST 日時）を着手前 30 分以内に `/doc` URL で共有。Server Actions / tRPC v11 も認可注入必須。
+- **kuu（インフラ）**：**Terraform / K8s / OpenTelemetry Collector** 設定を GitHub Actions 経由で共同管理。破壊的マイグレーションは `prisma migrate diff` + ロック時間実測を PR 添付。
+- **mio（QA）**：**Pact Consumer / Provider テスト**を Vitest 統合。認可ペア + 異体字 + TZ 境界 + 冪等キー重複 + Outbox 送信失敗の 5 種を `gen-test-fixtures.ts` に標準同梱。
+- **nori（法務）**：**PII 扱い / 決済 / AI 生成物**を含む全案件で STEP 0 事前レビュー必須。改正個情法・PCI-DSS・特商法・著作権を用語（ハッシュ化 / 暗号化 / エンコード / 認証 / 認可）レベルで揃える。
+- **sora（QA ゲート）**：納品前チェックリストに **OpenAPI 3.1 準拠 / SLO 定義 / 個情法対応 / OWASP Top10 / Pact 契約テスト PASS / OTel 計装** の 6 項目を追加。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
