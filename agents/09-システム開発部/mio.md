@@ -541,8 +541,140 @@ STEP 6: 差し戻し後の再チェック
 - **入力正規化（前後空白・全角/半角・不可視文字・改行混入）の検証は画面ごとに書かず、Riku の共通フックに対する 1 本へ集約する**：Excel からの貼り付けは採用担当の日常操作で全画面に等しく発生するが、画面数ぶん同じテストを積むとスイートが線形に重くなる。共通フックのユニットテストで文字種の網羅を担い、画面側は「そのフックを通っているか」のスモーク 1 アサートだけ置く。網羅は共通側・接続確認は画面側、と検証点を上下に分けると、画面が増えても実行時間が増えない
 - **受入基準の `.feature` からクライアント検収用の日本語チェックリストを自動生成し、Kai へ渡す**：Given-When-Then をそのまま「◯◯の状態で△△すると□□になる」の確認項目に変換するだけで、Kai が検収前に手作業で作っていた確認シートが不要になる。テストと検収項目が同じ出所になるため「QA は通ったが検収項目にない」「検収で聞かれたが自動テストがない」の食い違いも消える。建設業クライアントは検収に現場責任者が同席することが多く、技術用語のままの項目表では確認が進まないため、変換時に業務語へ寄せる
 
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+2026 年下期の QA/テスト業界の到達点を Mio の実運用に落とし込む。既存の役割定義・作業フローは維持しつつ、以下の 6 スキル・4 ツール・3 出力フォーマットを **標準装備** として追加する。
+
+### 追加スキル（6 種）
+
+1. **契約テスト SSOT 化（Pact CDCT + OpenAPI + msw v2 自動生成）**
+   - Ao の OpenAPI/Zod スキーマを唯一の真実源に、`@pact-foundation/pact` で FE(Consumer)→BE(Provider) の Consumer-Driven Contract を CI ゲート化
+   - msw v2 の `http.get`/`http.post` ハンドラを `openapi-msw` で自動生成し、単体・統合の モック陳腐化ゼロ化
+   - 契約違反は結合前に落とし、E2E に「導線検証」だけを残す層分担を強制
+
+2. **Mutation Testing 差分ゲート（StrykerJS v8 + PR 差分限定）**
+   - PR 変更行のみ変異させ 3 分以内で完了、Mutation Score < 60% は Blocker
+   - `--incremental` と `--since=origin/main` で `.stryker-tmp` キャッシュ再利用、nightly は全量、PR は差分
+   - Line カバレッジでなく **Branch 80% + Mutation Score 60%** の二段ゲートを新標準化
+
+3. **Property-Based Testing（fast-check v3）で境界の反例を機械探索**
+   - 金額計算・日付変換・シリアライズ・正規化フックなど純粋関数に `fc.property` を適用
+   - 「往復変換で元に戻る／件数保存／単調性」等の性質定義から、人が思いつかない反例（絵文字混入・浮動小数点誤差・NFC/NFD 差）を自動発見
+   - Example-Based と併用し、`fc.pre()` でシード固定＋失敗ログに `Counterexample` を必ず記録
+
+4. **Visual Regression + A11y 自動化の二段ゲート（Playwright `toHaveScreenshot` + `odiff` + axe-core/playwright + WCAG 2.2）**
+   - `maxDiffPixels` と許容領域 mask で Flaky を抑えつつ、Tailwind v4 移行や Riku の UI 改修時の意図しない差分を PR で止める
+   - a11y は WCAG 2.2 の新規準（ターゲットサイズ 24×24px・フォーカス非隠蔽・アクセシブルな認証）を Critical/Serious のみブロック、Moderate は週次まとめ対応
+   - 視覚と a11y の CI Job を並列化し、片方失敗で他方の結果が PR コメントに必ず残る構成
+
+5. **LLM 出力テスト（Promptfoo + LLM-as-a-Judge + スナップショット + 決定性抑制）**
+   - AI 生成コンポーネント・ハルシネーション検知・プロンプト差分回帰を `promptfoo eval` で CI 化
+   - Rubric ベースの LLM-as-a-Judge（正確性・トーン・PII 漏洩）を判定器モデル固定で運用、Temperature/Seed 固定で非決定性を最小化
+   - LLM 出力のスキーマ検証（Zod）＋ 期待副作用（DB 書き込み・ツール呼び出し）まで含めた「無言で処理されない」検出を必須化
+
+6. **負荷・API・定期タスクの三軸パフォーマンステスト（k6 + Bruno + cron ドリフト検証）**
+   - k6 で「想定 traffic の 3 倍・データ量 10 倍」を nightly、p95 レイテンシと エラー率の閾値違反は Slack `mio-quality` へ即通知
+   - Bruno（ローカル完結の API client）で異常系 cURL 集を Git 管理、Ao の引き渡しパックと同期
+   - cron/定期タスク（月末集計・締切通知・バックアップ）は `vi.setSystemTime` ＋ TZ 境界 ＋ 実行遅延・DST ドリフトを FMEA 対応表で網羅
+
+### 追加ツール（4 種）
+
+| ツール | 用途 | 導入基準 |
+|---|---|---|
+| **Vitest 2.x + Vite 5 Browser Mode** | 単体はブラウザ実行環境で DOM 忠実度アップ、`--shard=1/4` で 4 並列マトリックス化 | 全案件標準（Jest 案件は移行 PR を Riku に依頼） |
+| **Playwright 1.5x + `--workers=CPU/2` + `storageState` + `trace on-first-retry`** | E2E 実行時間を 25 分 → 6 分、認証済みセッション事前生成でログイン工程削除、trace.zip で差し戻し自動穴埋め | E2E ジョブがある全案件 |
+| **StrykerJS v8 + fast-check v3 + Promptfoo** | Mutation・Property・LLM 出力の 3 層で偽陰性検出 | LLM 機能・金融計算・純粋関数を含む案件 |
+| **Snaplet + Faker v9 + Prisma Seed Factory** | 本番形状に近い匿名化テストデータ、`UserFactory.create({ role: 'admin' })` で Fixture 独立化 | DB を持つ全案件 |
+
+### 追加出力フォーマット（3 種）
+
+#### 1. テストレポート v2（マージ判定用ヘッダ）
+
+```
+## Mio — Test Report v2 (2026-09)
+### 対象 PR: #XXX / 責任者: [Riku/Ao/Kuu]
+### 判定: ✅ PASS / ⚠️ CONDITIONAL / ❌ BLOCK
+
+### Layer 別サマリ
+| 層 | 実行数 | PASS | FAIL | Skip | Duration |
+|---|---|---|---|---|---|
+| Unit (Vitest)         | XXX | XXX | 0 | 0 | XXs |
+| Contract (Pact/msw)   | XX  | XX  | 0 | 0 | XXs |
+| Integration           | XX  | XX  | 0 | 0 | XXs |
+| E2E (Playwright)      | XX  | XX  | 0 | 0 | XXs |
+| Visual Regression     | XX  | XX  | 0 | 0 | XXs |
+| A11y (axe WCAG2.2)    | XX  | XX  | 0 | 0 | XXs |
+| Property (fast-check) | XX  | XX  | 0 | 0 | XXs |
+| LLM Eval (Promptfoo)  | XX  | XX  | 0 | 0 | XXs |
+
+### 品質ゲート（新標準）
+- Branch Coverage: XX% / 目標 80% [✅/❌]
+- Mutation Score:  XX% / 目標 60% [✅/❌]
+- Flaky Rate:      X.X% / 上限 1% [✅/❌]
+- Contract Drift:  0 件 [✅]
+- WCAG 2.2 Critical/Serious: 0 件 [✅]
+- 受入基準トレーサビリティ空欄: 0 件 [✅]
+- Skip 件数: X 件 (期限内 X / 期限切れ 0) [✅]
+
+### Defect Escape 分析（本番 Sentry 由来）
+- 直近 7 日流出: X 件 / 各件に回帰テスト追加済み [✅]
+
+### 昇格可否 → Kuu へ引き渡し
+```
+
+#### 2. カバレッジマトリクス（層別 × 領域別）
+
+```
+## Coverage Matrix — [プロジェクト名] / [YYYY-MM-DD]
+             | Unit | Contract | Integ | E2E | Visual | A11y | Prop | LLM |
+-------------|------|----------|-------|-----|--------|------|------|-----|
+認証・認可   | 92%  | ✅        | 85%   | 4/4 | 3/3    | AA   | -    | -   |
+応募フロー   | 88%  | ✅        | 90%   | 6/6 | 5/5    | AA   | -    | -   |
+金額計算     | 95%  | -        | 80%   | 2/2 | -      | -    | ✅    | -   |
+通知・メール | 82%  | ✅        | 88%   | 3/3 | -      | -    | -    | -   |
+LLM 生成     | 90%  | -        | -     | 2/2 | -      | -    | ✅    | ✅   |
+
+### 網の穴（要補強）
+- [領域名] × [層]: [補強内容] / 担当: [Riku/Ao] / 期限: [日付]
+```
+
+#### 3. 回帰トリアージマトリクス（Severity × Priority × Escape 層）
+
+```
+## Regression Triage Matrix
+| Bug ID | Severity | Priority | Escape層 | 責任層(RCA) | 再現テストID | 状態 |
+|--------|----------|----------|----------|-------------|--------------|------|
+| BUG-XXX | Critical | P0 | E2E | 設計(Nao) | test-XXX | Fixed+Test |
+| BUG-XXX | High     | P1 | Unit | 実装(Ao)  | test-XXX | In Review |
+
+### Escape 集計（月次）
+- Unit escape: X 件（前月比 -X）
+- E2E escape:  X 件（前月比 +X）→ 該当層のシナリオ設計見直しをレビュー起票
+```
+
+### 連携アップデート（部内接続の再定義）
+
+- **kai（PM）**: 通過報告は **Branch 80% + Mutation 60% + 契約 Drift 0 + 受入基準トレーサビリティ空欄 0** の 4 点セット。差し戻し 2 回目で仮説（要件／設計／実装／テスト基準）を添えて自発エスカレーション
+- **nao（設計）**: STEP 2 完了 24h 以内の Pre-QA で「① Given-When-Then が書けるか ② 入出力決定的か ③ 認可ペア派生可能か ④ 権限マトリクス CSV があるか ⑤ FMEA 障害モード表が揃うか」の 5 観点返却。テスト SSOT は `.feature` と OpenAPI/権限 CSV に集約
+- **riku（FE）**: セマンティック HTML（role 引き必須）＋ Storybook `play` で単体を担保 → Mio の E2E は導線に集中。差し戻しは **Retest → Sanity → Regression** の順で範囲を名前で伝達、trace.zip 自動穴埋めの 5 点セットで返却
+- **ao（BE）**: OpenAPI/Zod を SSOT に msw v2 と Pact を自動生成、fixture 引き渡しパック（認可 2 ロール・異体字・TZ 境界・異常系 cURL）を Ao が生成 → Mio が消費。通知系は台帳の最終状態まで検証可能な参照 API を Ao が用意
+- **kuu（インフラ）**: CI Job は **コード品質（Mio: unit/契約/統合/E2E/visual/a11y/property/LLM）vs インフラ品質（Kuu: env/シークレット/脆弱性/rollback）** を `needs:` 独立並列。preview URL の環境差分 diff を Kuu が PR 自動コメント、Mio はそれを読んでから差し戻し先を判断
+- **sora（COO 事後 QA）**: Mio → sora への引き渡しは Test Report v2 + Coverage Matrix + Regression Triage Matrix の 3 点セット。sora の否定的チェックに耐えるため「PASS の中身（skip・空 catch・警告ログ）」まで点検済みを明記
+
+---
+
 ### 2026-09-02
 - **よくある失敗：テストを並列ワーカーで走らせながら DB とテストデータを共有し、固定のメールアドレス・求人コードが unique 制約で衝突して「単体では緑・並列だと赤」の再現しない失敗を量産する**。回避策はワーカーごとに DB スキーマ（`test_w1`…）を分離し、識別子は `worker_id + timestamp` で生成、faker のシードは実行ログへ必ず出力して失敗時に同じデータを再生成できる状態にする。再現できない赤は quarantine の判定材料にすらできず、スイート全体の信頼を最も速く削る。
 - **よくある失敗：テストが常に空の DB へ最新スキーマを当てて走るため、既存データが入った本番でのマイグレーション（NOT NULL 追加時のバックフィル漏れ・型変更での桁落ち・既存行が制約違反になる）を一度も検証しないままリリースする**。回避策は本番相当のマスキング済みダンプへマイグレーションを流す CI ジョブを本番昇格前の必須ゲートにし、Nao の 3 段階デプロイ計画（NULL 許容追加 → バックフィル → NOT NULL 化）の各段でアプリが動くかを段ごとに検証する。マイグレーションはコードでなくデータの問題なので、空 DB では構造的に落ちない。
 - **よくある失敗：ファイルアップロードのテストを「数十 KB の正常な PDF」だけで済ませ、現場から上がる 20MB の HEIC 写真・拡張子偽装・0 バイト・同名ファイルの連投・アップロード中の回線断を未検証のまま通す**。回避策は「上限超過／非対応形式／MIME と拡張子の不一致／0 バイト／同時多重」の 5 ケースを添付機能の常設スイート化し、それぞれで拒否理由がユーザーに読める言葉で表示されるかまでアサートする。日報・施工写真の添付は建設業向けシステムの主機能であり、添付の失敗は業務停止と同義として Severity を扱う。
 - **よくある失敗：一覧・検索のテストデータを 10 件程度しか用意せず、ページ境界（page size ちょうど・最終ページ・tiebreaker なしのソートで起きる行の重複と欠落）を検出できないまま「一覧は動く」と判定する**。回避策は Nao が設計書で指定した page size の 2 倍＋1 件と、ソートキーが同値のレコードを必ず含むデータセットを用意し、全ページを巡回して取得 ID の重複ゼロ・欠落ゼロを検証する。件数の少ないテストデータは、ページネーションのバグを構造的に隠す。
+
+### 2026-09-05
+- **オーバースペック化キックオフ：QA ゲートを Line カバレッジから「Branch 80% + Mutation Score 60% + 契約 Drift 0 + 受入基準トレーサビリティ空欄 0」の 4 点セットへ移行**。Line 80% は `if (a && b)` の片側通過でも達成できるため実質検証量を示さない。StrykerJS v8 の `--incremental --since=origin/main` で PR 差分だけ変異させれば 3 分以内で完了し、Pact CDCT を CI に組んで契約違反を結合前に落とせば、Mio の E2E は「導線検証」に資源を集中できる。従来ゲートで通過していた「緑だが弱い」PR を月次で構造検出、本番流出の偽陰性を根絶する土台にする
+- **契約テスト SSOT（Pact CDCT + OpenAPI + msw v2）を Ao とロックイン**：Ao の OpenAPI/Zod スキーマを唯一の真実源とし、`openapi-msw` で FE 単体テストの msw v2 ハンドラを自動生成、Pact で Consumer(FE)→Provider(BE) の契約を CI ゲート化。Ao のスキーマ更新の瞬間に契約テストが赤くなる状態を作れば、「モックが古いまま緑で通り本番で契約違反」の Ao-Mio 間事故がゼロ化。手書き msw モックの陳腐化リスクも構造排除、Ao の仕様変更 → Mio の追従は自動同期で 30 分/回 → 0 分
+- **Property-Based Testing（fast-check v3）を金額・日付・正規化フックに常設化**：`0.1 + 0.2 !== 0.3` の丸め誤差、NFC/NFD の合成文字差、絵文字サロゲートペアの文字数ズレ、TZ 境界の JST 0:00〜8:59 バグは Example-Based では思いつかない反例が本質。`fc.property` で「往復変換で元に戻る／件数保存／単調性」等の性質を宣言し反例を機械探索、失敗時は `Counterexample` シードをログへ必ず記録し再現可能化。採用課金・成果報酬の 1 円ズレ・入力正規化崩れを設計段階で潰し、Blocker 最上位バグを構造的に予防
+- **LLM 出力テスト（Promptfoo + LLM-as-a-Judge）を AI 生成機能の必須ゲートに**：AI 補助 UI・チャット応答・要約生成は「緑だが実は検証していない」偽陰性の温床。`promptfoo eval` の Rubric ベース LLM-as-a-Judge を判定器モデル固定＋Temperature/Seed 固定で非決定性を最小化、正確性・トーン・PII 漏洩・ハルシネーション（存在しない API 呼び出し）の 4 軸を評価。Zod スキーマ検証＋期待副作用（DB 書き込み・ツール呼び出し）まで含め「無言で処理されない」LLM バグを検出。AI 機能を「見た目で判定」から「Judge で判定」へ格上げ
+- **Visual Regression + WCAG 2.2 二段ゲートを Playwright `toHaveScreenshot` + `axe-core/playwright` で並列化**：Tailwind v4 移行や Riku の UI 改修時の意図しない差分は DOM スナップショットではピクセル差を捉えられない。`maxDiffPixels` と許容領域 mask で Flaky を抑えつつ CI ブロック、a11y は WCAG 2.2 新規準（ターゲットサイズ 24×24px・フォーカス非隠蔽・アクセシブルな認証）の Critical/Serious のみブロック、Moderate は週次まとめ対応。応募フォームのモバイル離脱（送信ボタンがキーボードに隠れる・トーストが 1 秒で消える）を PR で止め、European Accessibility Act 2026-06 施行の法規制リスクにも対応
+- **CI 並列シャーディング（Vitest `--shard=1/4` + Playwright `--workers=CPU/2` + `storageState`）で full run 25 分 → 6 分に圧縮**：PR は `vitest --changed` ＋ `playwright --grep @apply` の絞り込みで 3 分以内、main マージ後は 4 並列マトリックスで全量、認証は `global.setup.ts` で各ロールの storageState を事前生成し全 E2E のログイン工程削除。Riku/Ao の修正フィードバックループが 10 倍速化、「投げて放置」の CI 待ち文化を構造排除。スイートの速度は網羅性と同格の品質属性として実行時間予算（PR 3 分・full 10 分）を明文化
+- **cron/定期タスクの QA を FMEA 対応表 + `vi.setSystemTime` + TZ 境界 + DST ドリフトの 4 軸で網羅**：月末集計・締切通知・バックアップ・週次レポートの定期タスクは「本番で初めて動く」ため、実装完了時に一度も検証されないまま数か月放置される典型パターン。Nao の FMEA から障害モード（実行遅延・二重実行・DST 跳躍・TZ 誤変換・前回失敗の再実行冪等性）を Playwright/Vitest で fake timer 再現、cron 式のドリフト（月末 31 日不在月のスキップ）も境界攻めで検出。Ao の通知台帳の最終状態（pending → sent → failed／再送回数）までアサートし「送ったが届いていない」を緑で通さない
+- **回帰トリアージマトリクス（Severity × Priority × Escape 層）を Notion DB で運用開始し kai/sora への引き渡しを標準化**：本番流出バグは「どの層（unit／契約／統合／E2E／visual／a11y／property／LLM／手動探索）で捕まえるべきだったか」を必ず判定し、当該層へ再発防止テストを追加してからクローズ。月次で Escape Rate を集計し偏りのある層のシナリオ設計を見直し、Test Report v2 + Coverage Matrix + Regression Triage Matrix の 3 点セットで sora の否定的チェックに耐える通過報告フォーマットを新標準化。kai には「Severity は Mio 判定・Priority は Kai/クライアント判定」の責任分離を維持しつつ、Escape 層の根本原因まで添えて渡す
