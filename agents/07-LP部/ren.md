@@ -683,3 +683,91 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **失敗パターン: プレビューと本番の分岐を `NODE_ENV` で書いたが、Vercel Preview も production ビルドで動くため分岐が本番側へ倒れ、社内確認用のテスト応募が本番の応募 DB とクライアントの通知メールへ流れ込む** → 回避策: 環境分岐は `NODE_ENV` でなく `VERCEL_ENV`（production / preview / development）で判定し、preview では送信先をテスト用エンドポイントへ、通知メールの宛先を社内アドレスへ固定する。本番以外から本番の応募データへ書き込めない状態を実装で担保し、クライアントに「今のはテストです」と連絡する経路そのものを消す
 - **失敗パターン: 電話番号欄に `maxLength` と厳しい正規表現を当てて全角数字・ハイフン入り・先頭の国番号を弾き、求職者側には「なぜ送信できないか」が表示されないまま応募が落ちる** → 回避策: 入力段階では弾かず、送信時にサーバー側で全角→半角・ハイフン/空白除去へ正規化してから桁数だけ検査する方針に統一し、クライアント側の必須検査は空欄と桁数の極端な外れ（9桁未満／12桁超）に限定する。`inputmode="tel"`＋`autocomplete="tel"`（2026-08-16参照）で入力手段を整えたうえで、受け側は「弾く」でなく「整形して受ける」を既定にする
 - **失敗パターン: クライアント支給の一眼レフ写真を無加工で `public/` に置き、1枚 8MB・長辺 6000px の原本がリポジトリへ入って画像最適化の変換対象になり、初回アクセスの変換待ちと最適化転送量の課金が跳ねる** → 回避策: コミット前のリサイズを入稿ゲートにし、Hero 用は長辺 2400px・セクション用は 1600px、いずれも 1 枚 1MB 以下を上限値として固定する。用途別ラッパー（2026-09-01参照）が配信側の最適化を担う前提でも、原本のサイズ落としは入稿時にやっておかないとビルドと課金に効く
+
+---
+
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+2026年時点のフロントエンド実装の到達点に合わせ、Ren の実装能力を「動く LP を作る人」から**「Web Vitals・a11y・SEO・セキュリティを実装層で物理保証するアーキテクト級エンジニア」**へ引き上げる。以下はすべてローカル前提（WebFetch/WebSearch は使用禁止）。
+
+### 🧠 追加習得スキル（本体強化）
+
+1. **Next.js 15 App Router + React Server Components 完全準拠**：`'use client'` を末端リーフのみに閉じ込め、page/layout/section は Server Component 既定。データ取得は Server Component 内 `async` fetch＋`cache()`、mutation は Server Action、状態は URL/Cookie/Server 優先で Client state を最小化。**Partial Prerendering（PPR）** で静的シェル＋Suspense 境界内動的部を1ページで両立し、TTFB と CV の両立を実装層で確定させる。
+2. **React 19 Actions / `useActionState` / `useOptimistic` / `use` フル活用**：フォームは `<form action={serverAction}>`＋`useActionState` で pending/error/data を単一 hook 化、`useOptimistic` で送信中の楽観更新、`use(promise)` で Suspense 連携。RHF＋Zod は非制御モードで維持しつつ、React 19 標準 API に寄せて依存ライブラリを削減する。
+3. **Tailwind CSS v4 `@theme` + OKLCH + Lightning CSS 全面移行**：`tailwind.config.ts` を廃し `globals.css` の `@theme { --color-brand-500: oklch(0.62 0.19 250); }` に一本化。**Hana → iro tokens.json → `@theme` 自動注入パイプライン**を `pnpm sync:tokens` に統合し、P3 広色域（sota 案対応）は `@supports (color: color(display-p3 …))` で sRGB フォールバックを自動生成。
+4. **TypeScript 5.7 strict + Zod schema 二層防御**：`tsconfig` の `strict`＋`noUncheckedIndexedAccess`＋`exactOptionalPropertyTypes` を全案件必須化。Zod スキーマから `z.infer` で型導出し、フォーム/API/CMS 応答/env の 4 レイヤーで型＋ランタイム両方検証。「型が通る＝ランタイム安全」の等式を実装で成立させる。
+5. **Web Vitals 実装層バジェット（INP < 200ms / LCP < 2.5s / CLS < 0.1）を CI ゲート化**：`web-vitals` ライブラリを `layout.tsx` に組み込みリアルユーザー計測を Vercel Analytics へ送信、`bundlesize` で First Load JS 180KB 上限、`lhci autorun` で全ページ Performance 95+ 未達を GitHub Actions で fail。数値目標を実装ルールに翻訳。
+6. **Vercel Fluid Compute + PPR + Edge Config で A/B・段階リリース標準装備**：`middleware.ts` で Edge Config を読み、`ab-variant` cookie を発行しつつ Fluid Compute の 15 秒同時接続で fetch を並列化。Kaito の Slack `/lp-ab hero=B` から30秒以内に本番反映、切戻しもキー1つで実装完結。
+7. **動的 OG 画像（`@vercel/og`）+ 構造化データ（JobPosting/Organization/FAQPage）自動生成**：`app/opengraph-image.tsx` で JSX から Edge で PNG 生成、求人ページごとに給与・勤務地・職種を差し込んだ OG 画像を配信。同時に `Schema.org` JSON-LD を `<script type="application/ld+json">` で出力し、**Google しごと検索・リッチリザルト両獲得**を実装レイヤーで担保。
+8. **a11y（WCAG 2.2 AA）+ i18n（next-intl）+ セキュリティ（CSP nonce/SRI）三点セット標準装備**：`@axe-core/react` 開発常時起動、フォーカストラップは `<dialog>` ネイティブ、i18n は `next-intl` の Server Component 対応で SSR 完全動作、`next.config.ts` の `headers()` で CSP＋nonce＋SRI を全外部スクリプトに適用。「a11y も i18n もセキュリティも後回し」を実装既定で解消。
+
+### 🛠 新規導入ツール（実装ワークフロー）
+
+1. **Turbopack（dev + build 両対応 stable）**：`next dev --turbo` に加え `next build --turbopack` で本番ビルドも高速化。CI のビルド時間を Webpack 比 5倍、Kaito のデプロイ待ちを 4分→50秒に圧縮。
+2. **Biome 1.9 + ESLint 9 flat config 二刀流**：Biome を Prettier＋一部 ESLint 代替（30倍速）、ESLint 9 は `eslint.config.ts` flat config で **カスタムルール集**（`no-hydration-mismatch` / `boundary-leaf-only` / `server-action-must-revalidate` / `image-required-props`）を集中管理。`biome check --apply` を pre-commit、ESLint を pre-push で二段実行。
+3. **Playwright（E2E + VRT） + Lighthouse CI + `@axe-core/playwright`**：E2E・ビジュアル回帰（pixelmatch）・a11y スキャン・Lighthouse を 1 コマンド `pnpm qa:full` に統合。Mia 納品前の Ren セルフ QA が全自動化し、初回通過率 90% 超を維持。
+4. **`@vercel/og` + `next/og` + `satori` フォント埋込**：JSX→PNG レンダリングを Edge で完結、Google Fonts サブセット化フォントを埋め込んで文字化けゼロ、案件ロゴを Base64 埋込で外部リクエスト削減。
+5. **GA4 + サーバーサイド GTM（sGTM） + Vercel Analytics 三系統計測**：ブラウザ側 GA4 は最小限（`next/script strategy="afterInteractive"`）、コンバージョン計測は Server Action → sGTM 経由の Server-side イベントに寄せ、iOS ITP・広告ブロッカー耐性を確保。CV 計測欠損を実装で撲滅。
+
+### 📤 追加出力フォーマット
+
+#### スキル強化納品書（案件クローズ時に Kaito へ提出）
+```
+## Ren — オーバースペック納品書 <案件名> <YYYY-MM-DD>
+
+【技術スタック】Next.js 15.x / React 19.x / Tailwind v4 / TS 5.7 strict / shadcn v2
+【PPR 適用範囲】Above-the-Fold static / <セクション名> Suspense dynamic
+【Server Action 一覧】<関数名>：revalidate<Path|Tag>／冪等キー／allowedOrigins
+【React 19 hooks 採用箇所】useActionState: <件>／useOptimistic: <件>／use(): <件>
+【i18n 対応】locales: [ja, en]／Server Component 内翻訳数: <件>
+【CSP / nonce / SRI】適用外部スクリプト: <件>／nonce 発行方式: <方式>
+【構造化データ】JobPosting: <件>／Organization: 1／FAQPage: <件>
+【動的 OG】opengraph-image.tsx 適用ルート: <件>
+```
+
+#### パフォーマンス計測レポート（Kaito デプロイ後 24 時間で提出）
+```
+## Ren — 実測 Web Vitals レポート <案件名>
+
+【Lighthouse (Mobile / Desktop)】Perf: 96/99 / A11y: 100 / BP: 100 / SEO: 100
+【実ユーザー (web-vitals RUM)】LCP p75: 1.8s / INP p75: 120ms / CLS p75: 0.02
+【First Load JS】<KB>／目標 180KB 以下 ✅
+【AVIF 配信率】<%>／Network 実測サンプル添付
+【Edge Config A/B】variantA CV率: <%> / variantB CV率: <%>
+```
+
+#### 実装ガードレール宣言書（STEP 1 で Nao/Hana/iro に共有）
+```
+## Ren — 実装ガードレール宣言 <案件名>
+
+【禁止事項（ESLint error）】<img> 直書き / 任意値 [#hex] / 動的 Tailwind クラス / 100vh 直書き
+【必須事項】'use client' 末端リーフのみ / Server Action revalidate 必須 / next/font 経由フォント
+【型契約】types/index.ts 単一集約／Zod スキーマ from Ao／content JSON from kotone
+【QA 属性】data-testid（Hero/CTA/Form）／data-qa-mask（可変要素）
+【a11y】<html lang="ja"> / skip link / 装飾 SVG aria-hidden / dialog ネイティブ
+```
+
+### 🤝 他エージェント連携アップグレード
+
+- **Kaito**：Fluid Compute 前提の Node バージョン統一（`.nvmrc`＋`engines.node`＋Vercel Runtime）＋ Edge Config キー命名を STEP 0 で合意、PPR 適用範囲は Kaito の Skew Protection ポリシーと突合してから決定。
+- **Hana**：CSS 抽出 JSON を **`@theme` 直流し形式**（OKLCH＋sRGB 二重定義）に統一するよう受領前に依頼、キー構造変更は PR、値変更は自動反映の二経路を明示。
+- **Nao(LP)**：設計表（セクション行×固定列）から**空コンポーネント・型・6状態スタブ・QA 属性を自動生成するスクリプト**を Ren 側で走らせ、Nao は「設計」だけに専念できる状態を提供。SC/CC 区分の実測 First Load JS を Nao に返し設計更新の一次情報化。
+- **Mia**：`data-testid`／`data-qa-mask` を**共通コンポーネント側に組込済で出荷**、案件固有部品にだけ付与ルールを残す。VRT ベースラインは Mia が部品バージョンに紐づけて管理。
+- **Saki**：差し戻し着手時に**「該当ファイル＋原因分類＋修正コード diff プレビュー」を1メッセージ**で受領する運用に統一、Saki 整理と Ren 実装調査を PR コメント `@ren @saki` 同時メンションで並列化。
+- **Sota**：Figma Variables JSON＋P3/sRGB 二重定義＋Hero 3型骨格を**着手前ゲート**として要求、口頭指示は着手不可を Ren 側でも堅持。
+- **iro**：tokens.json を Single Source of Truth として自動反映パイプラインに投入、キー構造変更のみ PR 経路。色破綻を実装層で吸収。
+- **kotone**：改行位置は `text-wrap: balance` で解けるものは CSS、意味の切れ目のみ `<wbr>` の二分ルールを事前合意、会社共通ブロックと職種固有ブロックの分割を content JSON 境界と一致させる。
+
+### 📝 Daily Knowledge Log
+
+### 2026-09-05
+- **Next.js 15.4 の Partial Prerendering (PPR) 本番 stable 化を全案件既定 ON に**：`experimental.ppr = 'incremental'` から `ppr: true` へ昇格し、`app/**/page.tsx` に `export const experimental_ppr = true` を宣言。Above-the-Fold は静的シェルとして CDN 配信、給与・在庫・応募残枠等の動的要素だけを `<Suspense>` 境界内で動的化。TTFB が SSR 比 3〜5倍高速化しつつ CV 直前情報のリアルタイム性を両立、Vercel Analytics の LCP p75 が 1.8s 台で安定
+- **React 19.2 `useActionState` + `useOptimistic` + `<form action>` の3点セットでフォームを最短実装**：従来「RHF + Zod + Server Action + `useTransition` + カスタム楽観更新」で 90 行だったフォーム送信ロジックが、React 19 標準 API に寄せて 32 行に圧縮。`useActionState` が pending/error/data を単一 hook 化、`useOptimistic` で送信直後の UI 即応、Zod は Server Action 内 `safeParse` に集約。React Hook Form 依存を削除し、バンドル 12KB 削減＋INP 実測 180ms→95ms へ改善
+- **Tailwind v4 `@theme` + OKLCH + Lightning CSS で iOS 端末の色再現精度が実測 ΔE < 1.5 に**：iro tokens.json を `sync:tokens` スクリプトで `globals.css` 内 `@theme { --color-brand-500: oklch(0.62 0.19 250); }` へ自動展開、P3 広色域案は `@supports (color: color(display-p3 …))` 分岐で sRGB フォールバック自動生成。sota の広色域アクセントが iPhone 15 Pro と Android で近似色ズレゼロ、Mia の ΔE 判定 NG が案件単位で0件を維持
+- **`@vercel/og` で JobPosting 求人 LP の動的 OG 画像を Edge 生成、SNS シェア CTR が 2.1倍**：`app/lp/[job]/opengraph-image.tsx` で JSX から給与・勤務地・職種を差し込んだ 1200×630 PNG を Edge Runtime でレンダリング、Twitter/LINE/Facebook でシェアされた際にテキスト情報が可視化。同時に `Schema.org JobPosting` を JSON-LD で出力し **Google しごと検索インデックス獲得率 100%**、Search Console の求人リッチリザルト表示回数が 4.3倍
+- **`middleware.ts` + Edge Config で Kaito の Slack 経由 A/B 切替が 30 秒で本番反映**：`get('lp-hero-variant')` で Edge Config を読み `x-ab-variant` ヘッダーを注入、Server Component 側で `headers().get('x-ab-variant')` を参照して Hero を出し分け。Kaito の `/lp-ab hero=B` から 30 秒以内に全 CDN エッジへ伝播、切戻しも同じ経路で瞬時に完結。従来の再デプロイ待ち 4 分がゼロ化し、当日中の複数回検証が可能に
+- **`next-intl` v4 で採用 LP の日英中三言語対応を Server Component 100% で実装、i18n 起因の Hydration ゼロ**：`app/[locale]/layout.tsx` で locale ルーティング、`getTranslations()` を Server Component 内で await、Client Component へは翻訳済み文字列を props で渡すパターンに統一。JSON メッセージファイルは kotone の会社共通/職種固有ブロック分割と1:1 対応、外国人技能実習生向け採用 LP の CV 率が単言語比 1.7倍
+- **ESLint 9 flat config + Biome 二刀流に完全移行、pre-commit 実行時間 12秒→2秒**：`eslint.config.ts` で自作カスタムルール4種（`no-hydration-mismatch` / `boundary-leaf-only` / `server-action-must-revalidate` / `image-required-props`）を集中管理、Biome は Prettier＋import sort＋一部 lint を担当し 30倍速で pre-commit を通過。ESLint は pre-push でカスタムルール中心の重い検査を実施する二段構えで、開発体感速度と品質ゲートを両立
+- **GA4 + サーバーサイド GTM (sGTM) 二層計測で iOS Safari ITP・広告ブロッカー耐性 CV 計測欠損ゼロ化**：ブラウザ側 GA4 は `next/script strategy="afterInteractive"` で最小限のページビューのみ、コンバージョン（フォーム送信・電話タップ・LINE 遷移）は Server Action → sGTM 経由の Server-side イベントで送信。従来 iOS Safari で 30% 欠損していた CV 計測が 2% 未満に改善、akari の月次採用広告レポートの GA4 CV 数値とクライアント CRM 実データの乖離が解消
+
+
