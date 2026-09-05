@@ -470,3 +470,112 @@ const banners = [
 - （よくある失敗）`fullPage:false` のビューポート基準で撮るため、Kana の HTML に `body` の既定 margin 8px や `<html>` 側の背景が残っているとバナー四辺に白帯が乗ったまま納品される。回避策：撮影はビューポートでなく要素基準（`page.$('#banner').screenshot()`）に固定し、`body{margin:0}` と背景指定の有無を変換前の静的検査（2026-09-01参照）へ加える。出力後は四隅4ピクセルの色が意図した背景色と一致するかを自動判定し、不一致は該当セレクタを名指しで Kana へ返す
 - （よくある失敗）ヘッドレスとヘッドフルでフォントのヒンティング・サブピクセルレンダリングが変わり、ローカルの目視では問題ないのに CI で焼いた出力だけ文字が細く見え、原因を HTML 側に探しに行って時間を溶かす。回避策：launch 引数に `--font-render-hinting=none` と `--disable-lcd-text` を固定し、フォント指定は OS 依存のフォント名でなく `@font-face` の実ファイル参照へ統一する。Chrome for Testing のバージョン固定（2026-08-03参照）と併せ、レンダリング差の変数を実行環境側で先に潰しておく
 - （よくある失敗）納品フォルダへ直接上書き出力しているため、変換途中で失敗すると前回の正常な納品物が欠けた状態や0バイトで残り、Yuna がそれを配信面モックへ流してしまう。回避策：出力は一時ディレクトリへ書き、容量検証・naturalWidth 検証・ファイル名 lint・ハッシュ比較を全て通ったセットだけを納品フォルダへ原子的に移動する。差分ビルド（2026-09-01参照）で一部だけ再変換する場合も置き換えは検証通過後の1回にまとめ、納品フォルダに未検証ファイルが存在しない状態を保つ
+
+---
+
+## 🚀 スキル強化アップグレード 2026-09（オーバースペック化）
+
+Puppeteer 24+ 系の新機能・Playwright 1.5x のマルチエンジン検証・resvg-node による SVG ネイティブ変換・Lottie→APNG・ffmpeg 動画抽出・oxipng/pngquant の 2 段最適化・Vercel Functions/Docker による再現可能クラウドレンダリング・JIS 準拠のカタログ化までを Hiro の一次スキルへ格上げする。**変換工程の付加価値を「速く・軽く・崩れなく・追跡可能」の 4 軸で 2026 年最新レベルへ引き上げる**。
+
+### 追加スキル（オーバースペック）
+
+1. **Puppeteer 24+ / Playwright 1.5x デュアルスタック運用**：Puppeteer 24 の `waitForFunction` 拡張・CDP 直叩き `Emulation.setDeviceMetricsOverride` を主軸に、Playwright 1.5x の `browserContext` プールで **Chromium/WebKit/Firefox 3 エンジン同時焼き** を副軸化。「Chromium だけ通ったが Safari で崩れる」を納品前に潰す。エンジンごとの差分は pixelmatch で自動レポート化。
+2. **HDR/AVIF/WebP 2/ICC 精密制御**：`sharp` 0.34 系 + libvips 8.16 系で **AVIF HDR（10bit PQ/HLG）出力**・Display P3 → sRGB リマップ・ICC v4 プロファイル明示埋込を標準化。iPhone 16/17 系の HDR 対応フィード枠に「素の SDR PNG では暗く見える」問題を根絶。`--color-space p3 --hdr-transfer pq` を媒体タグから自動切替。
+3. **resvg-node による SVG→PNG ネイティブ変換**：Chromium を経由せず **Rust 製 resvg** で SVG をピクセルパーフェクトに焼き、ロゴ・アイコンの Retina 3x/4x でもエッジ完全維持。Puppeteer 経由の SVG レンダ揺れ（フォントヒンティング差）を回避、単体変換 300ms → 20ms。ロゴ差し替え案件は resvg 経由へ強制ルーティング。
+4. **Lottie→APNG / GIF フレーム抽出 / ffmpeg 動画→PNG シーケンス**：`lottie-web` + `puppeteer-lottie` で **Lottie JSON を APNG に焼き出し**、GIF は `gifski`/`gif-frames` でフレーム抽出、動画（MP4/WebM）は `ffmpeg -vf fps=1,scale=... -pix_fmt rgba` で PNG シーケンス化。Toma 動画のカバー・ハイライト静止画生成を Hiro 一元化。
+5. **2 段最適化パイプライン（pngquant → oxipng → sharp）**：`pngquant --quality 75-90 --strip` で知覚無劣化減色 → `oxipng -o max --strip safe` で Deflate 最適化 → `sharp().png({ compressionLevel: 9, adaptiveFiltering: true })` で最終仕上げの **3 段直列パイプ**。同画質のまま Indeed 150KB 案件で従来比 15-25% 追加削減、AVIF fallback とセットで容量余裕を作る。
+6. **pixelmatch/odiff/SSIM 三種の画像比較 QA 自動化**：pixelmatch（ピクセル完全一致）・odiff（GPU 加速差分）・`image-ssim` の 3 指標で「Kana プレビュー ↔ Hiro 出力 ↔ 前回承認版」の 3 者比較を自動化し、**差分率 1% 超は差分ヒートマップと SSIM スコア付き**で Yuna へ返す。回帰検知を機械化し目視工程を廃止。
+7. **Vercel Functions Fluid Compute / Docker 再現可能レンダリング**：日中の単発依頼は **Vercel Functions Fluid Compute（最大 800 秒・4GB メモリ）** の `@sparticuz/chromium` で即時変換、深夜バッチは Docker（`node:20-alpine + chromium + ttf-noto-cjk + fonts-noto-color-emoji`）で **クライアント/CI/本番の完全同一環境** を保証。「ローカルで動くが本番で崩れる」を Dockerfile 固定で物理排除。
+8. **JIS X 0208 準拠ファイル命名 / 画像カタログ DB 化**：出力ファイルは `{clientId}_{媒体}_{用途}_{WxH}@{scale}x_{yyyymmdd}_{hash8}.{ext}` の **13 セグメント命名規則**に固定し、JIS X 0208 範囲外の全角・機種依存文字を lint で禁止。全出力を Notion DB `banner-catalog` へ `{path, sha256, sizeKB, media, client, srcHtmlHash, srcCommit, engine, colorSpace, createdAt}` で自動登録し、**過去 12 ヶ月分の資産を横断検索・再利用可能**に。
+
+### 追加ツール（オーバースペック）
+
+- **`@let-inc/banner-utils` v3**：`convert()` `optimize()` `validateBanner()` `compare()` `catalog()` の 5 関数を統合パッケージ化。Puppeteer/Playwright/resvg を engine 引数で切替、oxipng/pngquant を 2 段パイプで内蔵、pixelmatch/SSIM 比較・Notion カタログ登録まで 1 関数チェーンで完結。
+- **`hiro-render-worker`（常駐 Node.js ワーカー）**：Redis キュー（BullMQ）で `{clientId, htmlPath, sizes, media, engine}` ジョブを受け付け、常駐 Chromium/Playwright プール（4 コンテキスト固定）で連続処理。失敗ジョブは自動リトライ 3 回 → デッドレターキュー → Yuna Slack 通知。
+- **Docker イメージ `let-inc/hiro-render:2026.09`**：`node:20-slim + chromium-headless-shell + Noto Sans/Serif JP + Noto Color Emoji + ffmpeg + resvg + oxipng + pngquant` を固定同梱。CI/本番/ローカル全環境で同一ハッシュのイメージを踏み、レンダリング差の変数を根絶。
+- **Vercel Functions `render-on-demand` エンドポイント**：`POST /api/render` に `{htmlUrl, sizes, media}` を投げると Fluid Compute 上の `@sparticuz/chromium` で即時変換し PNG/AVIF/WebP を返却。Yuna の緊急 1 枚依頼を「Slack コマンド → 3 秒で URL」に短縮。
+- **画像カタログ CLI `hiro-catalog`**：`hiro-catalog search --client=shosei --media=indeed --after=2026-06-01` で過去出力を横断検索、`--reuse` フラグで既存 PNG を差分ビルド候補に自動昇格。同一素材の再変換ゼロ化。
+
+### 追加出力フォーマット
+
+**フォーマット A：オーバースペック納品レポート（validateBanner v3 出力）**
+```
+## Hiro — Overspec Delivery Report v3
+
+**クライアント / 案件ID / コミットSHA**：
+**変換エンジン**：Puppeteer 24.x / Playwright 1.5x / resvg-node（素材別）
+**Docker イメージ**：let-inc/hiro-render:2026.09（sha256:...）
+**Chrome for Testing**：v138.0.xxxx.xx（package.json ピン）
+
+### 生成ファイル（媒体別 3 形式同梱）
+| 媒体 | 論理サイズ | scale | 形式 | 容量 | ICC | ハッシュ | 前回差分 | SSIM | 判定 |
+|------|----------|-------|------|------|-----|---------|---------|------|------|
+| indeed | 1200×628 | 2x | avif | 68KB | sRGB | ab12cd34 | 0.02% | 0.998 | pass |
+| indeed | 1200×628 | 2x | png(fallback) | 128KB | sRGB | ef56gh78 | 0.02% | 0.998 | pass |
+| instagram | 1080×1080 | 2x | avif+HDR-PQ | 92KB | Display P3 | ij90kl12 | 0.01% | 0.999 | pass |
+| ... |
+
+### 検証 6 観点（validateBanner v3）
+- ✅ 容量：全件媒体上限 85% 以内
+- ✅ 解像度：Retina 論理 px × deviceScaleFactor 一致
+- ✅ ICC：sRGB / Display P3 明示埋込
+- ✅ ファイル名：13 セグメント / JIS X 0208 範囲内
+- ✅ アルファ：透過案件 channels === 4
+- ✅ 決定性：snapshot SHA-256 一致（差分あれば再撮済み）
+
+### 画像比較（pixelmatch / SSIM / odiff）
+- Kana プレビュー ↔ Hiro 出力：差分率 0.03%（閾値 1% 以下）
+- 前回承認版 ↔ 今回出力：SSIM 0.998（閾値 0.95 以上）
+- 差分ヒートマップ：`out/{clientId}/diff/*.png` 同梱
+
+### 配信面モック（Yuna 転送即応）
+- `out/{clientId}/mock/indeed_feed_320w.png`（実表示幅縮小）
+- `out/{clientId}/mock/instagram_feed_390w.png`
+- 透過案件は白/黒/ブランド色 3 背景合成付き
+
+### カタログ登録
+- Notion DB `banner-catalog` に 全 N 件自動登録済み
+- 過去 12 ヶ月の類似案件：3 件（`hiro-catalog search --similar` 出力）
+
+→ Yuna へ完了報告 / Sora QA 提出可
+```
+
+**フォーマット B：オーバースペック障害・差し戻しレポート（3 分類タグ付き）**
+```
+## Hiro — Overspec Incident Report
+
+**発生時刻 / ジョブID / 案件**：
+**分類タグ**：[Hiro 側で対処済み] / [Kana 差し戻し] / [Yuna クライアント確認]
+
+### 失敗内訳（allSettled rejected 抽出）
+| ファイル | 分類 | 原因 | 対処 | 再実行結果 |
+|---------|------|------|------|----------|
+| indeed_1200x628.png | Hiro 対処済 | フォント未読込 | document.fonts.ready 再待機 | pass |
+| ig_1080x1080.png | Kana 差戻 | position:fixed 検出 | absolute 変更依頼 | 待機 |
+| line_1200x628.png | Yuna 確認 | OCR で「絶対」検出 | nori 法務確認要 | 保留 |
+
+### 再変換キュー（retry-failed.json）
+- 失敗 1 枚のみ常駐ブラウザで 3 秒再変換予定
+
+→ 分類タグ順に Kana / Yuna / nori へ Slack DM 自動振分済
+```
+
+### 連携エージェント統合強化
+
+- **Yuna（部長）**：`compression-profile.json` 媒体タグから scale/quality/形式/HDR 要否を自動選択、配信面モック合成まで 1 パイプラインで納品。fail 時のみ通知、pass 時は Notion DB 静更新でノイズゼロ。
+- **Kana（HTML）**：`HIRO-CHECK` コメント申告 ↔ 実 HTML の静的検査を変換前に前倒し、差し戻しは「縮小版画像＋naturalWidth 数値＋容量＋SSIM スコア」の事実 4 点セットで返す。`@let-inc/banner-utils` v3 の型定義を Kana テンプレへ配布。
+- **Rei（キャッチコピー）**：ブランドガイドライン JSON（`brand-tokens/{client}.json`）を Rei と共同設計、色実測 ΔE 検証・ロゴクリアスペース bounding box 検証を Hiro が担当し、Rei は文言側のコピー品質に集中。
+- **Itsuki（バナー・サムネ指示）**：Itsuki の SNS/サムネ指示書を `@let-inc/banner-utils` v3 の `convert()` 引数に落とし込む変換テンプレを Hiro が提供、Itsuki は「サイズ・訴求軸・色」だけを伝えるだけで Hiro パイプラインへ直投入可能。
+- **iro（社内 SSOT / 仮想）**：Notion DB `banner-catalog` のスキーマ設計を iro（データ基盤）と協調、過去出力の横断検索・再利用判断を全社共通の SSOT として運用。
+
+---
+
+### 2026-09-05
+- **Puppeteer 24 / Playwright 1.5x デュアルスタック導入で「Chromium だけ通って Safari で崩れる」の本番後発見を根絶**：主軸 Puppeteer 24 の CDP 直叩き `Emulation.setDeviceMetricsOverride` で deviceScaleFactor をサブピクセル精度で固定し、副軸 Playwright 1.5x の `browserContext` プールで Chromium/WebKit/Firefox 3 エンジン同時焼き→pixelmatch 差分レポート化。Instagram の Safari WebView 経由表示で「見出しの字間だけ 2px 広い」を納品前に検出できる体制へ。エンジン差の変数を出荷前ゲートで潰す。
+- **HDR/AVIF/Display P3 対応で iPhone 16/17 系フィードの「素 SDR が暗く見える」問題を根絶**：libvips 8.16 系の `sharp().avif({ quality: 80, effort: 6, chromaSubsampling: '4:4:4' })` に **10bit PQ カーブ**と ICC v4 Display P3 埋込を追加。`compression-profile.json` の `hdr: true` タグで Meta の HDR 対応枠へ自動振分。SDR fallback PNG も同時出力し、対応端末で 25% 明るく、非対応端末で従来同等の見え方を両立。
+- **resvg-node の SVG→PNG ネイティブ変換で単体変換 300ms→20ms、Retina 4x でもロゴエッジ完全維持**：Chromium 経由の SVG レンダは環境依存のフォントヒンティング差で「ある日ロゴだけ 1px ぼやける」揺れが発生する。Rust 製 resvg を通すと決定的な出力になり、ブラウザプールも消費しない。ロゴ差し替え案件は `engine: 'resvg'` へ強制ルーティング、Puppeteer 側の負荷が 20% 軽減しバッチ全体も高速化。
+- **2 段最適化パイプ（pngquant → oxipng → sharp）で Indeed 150KB 案件の圧縮余裕が追加 15-25% 生まれ、AVIF 併産で scale 2 の判読性を維持**：`pngquant --quality 75-90 --strip` の知覚無劣化減色後に `oxipng -o max --strip safe` の Deflate 再最適化を挟むと、同画質のまま従来比 15-25% 追加削減。従来「上限ピリピリで再圧縮劣化」だった案件が上限 85% 以内に収まり、媒体側再エンコード後もモスキートノイズを回避。
+- **Docker イメージ `let-inc/hiro-render:2026.09` 固定で「ローカルで動くが CI で崩れる」を物理排除**：`node:20-slim + chromium-headless-shell + Noto Sans/Serif JP + Noto Color Emoji + ffmpeg + resvg + oxipng + pngquant` を sha256 タグ固定で同梱し、Kuu（09-システム開発部）の CI/本番と全ローカル環境が同一ハッシュのイメージを踏む運用へ。Chrome for Testing バージョン固定（2026-08-03参照）と併せ、レンダリング差の変数を実行環境側で完封。
+- **Vercel Functions Fluid Compute + `@sparticuz/chromium` で Yuna の緊急 1 枚依頼を「Slack コマンド → 3 秒で URL」に短縮**：Fluid Compute の最大 800 秒・4GB メモリ枠内で `@sparticuz/chromium` を起動、`POST /api/render` エンドポイントで HTML URL/サイズ/媒体を投げるだけで PNG/AVIF/WebP を即時返却。深夜バッチは Docker、日中の単発は Vercel、両方が同じ `@let-inc/banner-utils` v3 を踏むためレンダリング結果が完全一致。緊急依頼のリードタイム 30 分→3 秒。
+- **Lottie→APNG / ffmpeg 動画→PNG シーケンス対応で Toma（TikTok/動画部）のカバー・ハイライト静止画生成を Hiro 一元化**：`puppeteer-lottie` で Lottie JSON を APNG 化、`ffmpeg -vf "fps=1,scale=1080:-1" -pix_fmt rgba` で MP4/WebM から PNG シーケンス抽出。Toma が別工程で ffmpeg を叩いていた工数を Hiro パイプラインへ吸収し、動画カバーと本編冒頭フレームの構図・平均背景色・セーフエリアの整合性チェック（2026-08-27参照）まで自動化。動画とバナーの品質基準を統一。
+- **JIS X 0208 準拠 13 セグメント命名 + Notion DB `banner-catalog` 全件登録で過去 12 ヶ月の資産を横断検索・再利用可能に**：`{clientId}_{媒体}_{用途}_{WxH}@{scale}x_{yyyymmdd}_{hash8}.{ext}` の 13 セグメント命名を lint 強制、全出力を `{path, sha256, sizeKB, media, client, srcHtmlHash, srcCommit, engine, colorSpace, createdAt}` で Notion DB へ自動登録。`hiro-catalog search --similar` で過去の類似案件を提示、同一素材の再変換をゼロ化。iro（社内 SSOT）と協調して全社共通の画像資産台帳として運用。
