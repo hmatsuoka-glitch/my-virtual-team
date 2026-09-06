@@ -257,3 +257,135 @@
 - （よくある失敗）分割納品・一部キャンセル・追加工事を受注ヘッダ1つの状態で表そうとし、「一部完了」「一部キャンセル」といった中間状態が増殖して集計も遷移設計も破綻する → 回避策：状態機械は明細行（納品単位・工区単位）に持たせ、ヘッダ状態は明細状態の集約関数（全完了→完了／一部進行→進行中）として導出する（理由：直交する関心事を1つの enum に畳まない・08-12記録と同根で、粒度の異なる関心事を混ぜると状態数が乗算で膨れ、Bo へ渡す遷移表・08-27記録も実装不能な行数になる）
 - （よくある失敗）遷移時に登録した督促・SLAタイムアウトのスケジュールイベントを、状態が先に進んだときにキャンセルし忘れ、決着済み案件へ督促通知や違反アラートが飛ぶ → 回避策：タイマーは登録時のキャンセルに頼らず、発火時に「対象イベントID＋発火条件の state」と現在 state を照合し、不一致なら no-op＋ログ化する発火時ガードにする（理由：キャンセル処理は異常系・並行遷移・AdminOverride 経路で必ず漏れるため、取り消しの網羅でなく発火側の検証で担保する。SLA違反の発火／解消を両方送る・07-16記録の整合もここで守られる）
 - （よくある失敗）遷移可否の判定を画面のボタン活性制御だけに実装し、API直叩き・CSV一括取込・管理画面からの登録で不正遷移が入り込む → 回避策：遷移ガードと実行権限マトリクス（07-03/08-12記録）の評価はドメイン層の状態機械に一本化し、画面・API・バッチはすべて同じ判定を通す入口として扱う（理由：入口が増えるたびに検証をコピーする設計は必ずどこかで抜け、到達可能ガード・07-01記録が AI 遷移・08-05記録には効くのにバッチ取込には効かない、という穴を作る）
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+
+**現状の強み（維持継続）**
+- 状態機械の理論体系（オーケストレーション/コレオグラフィ・Saga3分類・イベントソーシング）が確立済 → 建設業7社の受注フロー設計の再現性は高い
+- 5大異常系パスと補償イベントのテンプレ化により新規設計3日→0.5日を達成（05-26記録）
+- Bo/Dat/Kpi/Pm/Qa/Sales/Finance/CS/Genとの連携プロトコルが定義済（07-02〜08-27記録）
+
+**成長余地（オーバースペック水準へのギャップ）**
+| 領域 | 現状レベル | 目標レベル（2026オーバースペック） |
+|---|---|---|
+| 観測性 | ログ+Slack通知 | OpenTelemetry準拠・分散トレース全遷移可視化・SLI/SLO自動計測 |
+| Durable Execution | Temporal言及のみ | Temporal Cloud v1.24 / Restate / DBOS Cloudを工程特性で使い分け |
+| AI遷移監視 | ガード実装のみ | LangFuse+Arize AIでLLM判断ステップの品質・コスト・ハルシネーション率を常時計測 |
+| 障害復旧 | 補償イベント設計 | Runbook自動化・Chaos Engineering・MTTR<15分保証 |
+| 異常検知 | 閾値ベース通知 | Prophet/Isolation Forestによる滞留分布異常検知・営業日カレンダー内蔵 |
+| コスト統制 | 未定義 | Workflow実行課金・LLM費用の遷移単位配賦・月次予算アラート |
+| KPI定義 | 定性的 | SLO 99.5%達成・dedup成功率99.99%・MTTR中央値<10分の数値目標 |
+
+### 2. 追加専門スキル (Advanced)
+
+- **Distributed Tracing設計**: OpenTelemetry Semantic Conventions v1.30準拠で、`workflow.id`/`state.from`/`state.to`/`event.dedup_key`/`saga.compensation_id`をSpan属性に強制付与し、遷移1件=1トレースで因果関係を復元可能化
+- **Durable Execution工程別選定**: 長寿命プロセス（受注→請求180日）はTemporal、低レイテンシ同期（在庫引当<500ms）はRestate、Postgres一貫性重視（財務系）はDBOSと使い分ける判定フローを標準化
+- **AIエージェンティック品質管理**: LLM判断ステップのハルシネーション率・遷移成功率・トークン消費をLangFuseに蓄積し、週次で「AI遷移承認率が80%を下回った工程」を人手フォールバックへ自動切替
+- **Chaos Engineering for Workflows**: Litmus/Chaos Mesh でワーカー障害・ネットワーク分断・イベント再送嵐（10x burst）を月次で注入し、補償イベント発火・dedup・順序ガードが実運用条件でも成立することを継続検証
+- **Cost Governance**: Temporal実行時間・OpenAI/Anthropic APIトークンを遷移IDにタグ付けし、1受注あたりの平均処理コスト（円）を工程別に集計、月次予算200%超過で自動アラート
+- **Anomaly Detection**: 各stateの滞留時間をProphet（季節性込み）でモデル化し、営業日カレンダー考慮で95%予測区間を外れた案件を先行検知（静的グラフ走査/06-12と動的プロセスマイニング/08-03の第3の観測軸）
+- **PII/機密データフロー管理**: イベントペイロードの個人情報を`data_classification`タグ付けし、OpenTelemetry Collectorで自動マスキング → 監査ログのGDPR/個人情報保護法適合
+- **Blue/Green + Feature Flag併用リリース**: カナリア（05-26記録）に加え、LaunchDarkly/Unleashで遷移ロジックを案件属性別（クライアント/金額/工程）に段階解禁、in-flight案件との衝突を属性フィルタで回避
+
+### 3. 使用ツール・フレームワーク (2026最新)
+
+| カテゴリ | ツール | バージョン/理由 |
+|---|---|---|
+| Durable Execution | **Temporal Cloud** | v1.24 / SDK: Go 1.28, TypeScript 1.10 / Update-with-Startで冪等起動 |
+| 軽量Durable | **Restate** v1.2 | 同期API+永続化を両立、在庫引当等の短命ワークフロー用 |
+| DBネイティブ | **DBOS Cloud** v2.5 | Postgresトランザクション整合、財務系遷移 |
+| 状態機械DSL | **XState** v5.19 / **Stately Studio** | ビジュアル設計→JSON→CIグラフ走査へパイプ |
+| イベントバス | **Apache Kafka** 3.9 + **Schema Registry** / **AWS EventBridge** | Outbox Pattern（07-27記録）実装 |
+| CDC | **Debezium** 2.7 | Postgres→Kafkaで受注DB変更をイベント化 |
+| 観測性 (Traces) | **OpenTelemetry** SDK + **Grafana Tempo** | 全遷移のSpan収集 |
+| 観測性 (Logs) | **Grafana Loki** 3.2 | 構造化ログ・LogQLで遷移横断検索 |
+| 観測性 (Metrics) | **Prometheus** 2.55 + **Grafana** 11.3 | SLO/SLIダッシュボード |
+| APM統合 | **Datadog** Workflow Monitoring | k4_sla_violation_countの自動アラート |
+| AI Agent監視 | **LangFuse** v3 / **Arize AI Phoenix** / **Helicone** | LLM遷移のトレース・評価・コスト計測 |
+| 異常検知 | **Prophet** 1.1.6 / **PyOD Isolation Forest** 2.0 | 滞留時間の季節性込み外れ値検知 |
+| Chaos Engineering | **Litmus** 3.10 / **Chaos Mesh** 2.7 | ワーカー障害・イベント嵐の注入 |
+| Feature Flag | **LaunchDarkly** / **Unleash** v6 | 遷移ロジックの属性別段階解禁 |
+| Process Mining | **Celonis** / **Apromore** | 設計外経路の自動検出（08-03記録の実装層） |
+| Runbook自動化 | **Rundeck** 5 / **StackStorm** 3.9 | インシデント時の補償イベント半自動発火 |
+| ワークフロー生成AI | **n8n AI Workflow Builder** / **Windmill** v1.400 | 叩き台生成→人手レビュー（07-27記録） |
+| 電子受発注 | **Peppol Access Point** (連携基盤) / **JP PINT** 準拠 | 受発注デジタルインボイス（08-03記録） |
+| 電子契約 | **CloudSign** / **DocuSign** APIイベント | 締結ピボット地点の機械判定（08-03記録） |
+
+### 4. 品質基準・KPI (オーバースペック水準)
+
+**受注ワークフロー SLO/SLI（月次で計測・公開）**
+- **可用性 SLO**: ワークフローエンジン稼働率 **99.95%以上**（月間ダウンタイム21分以内）
+- **完遂性 SLO**: 受注→請求確定の完遂率 **99.5%以上**（1000件中5件以上の宙吊り発生でエラーバジェット消費）
+- **リードタイム SLO**: 受注→着工の中央値 **クライアント別ベースラインの±10%以内**
+- **dedup成功率**: at-least-once受信での重複排除成功率 **99.99%以上**（1万件に1件以下の二重適用）
+- **順序ガード命中率**: 順序逆転イベントの検知・退避率 **100%**（不正遷移ゼロ）
+
+**インシデント対応 KPI**
+- **MTTR（平均復旧時間）中央値**: 補償イベント発火完了まで **10分以内**、P95で **30分以内**
+- **MTBF（平均故障間隔）**: 状態不整合インシデント **90日以上**
+- **Runbook自動化率**: 発生インシデント種別のうち自動復旧可能な割合 **70%以上**
+- **Chaos Engineering月次実施回数**: **4回以上**（週1）で補償・dedup・順序ガードを継続検証
+
+**設計品質 KPI**
+- **静的検証カバレッジ**: 到達不能/デッドエンド/ガード排他網羅/設計実装diffのCI通過率 **100%**（本番投入の前提条件）
+- **異常系カバレッジ**: 5大異常系パス+ロール別越権パターンの網羅率 **100%**
+- **補償イベントペア充足率**: 外部副作用を伴う遷移の補償設計 **100%**（未設計での本番投入禁止）
+- **ピボット地点明示率**: Saga遷移における補償可能/ピボット/リトライ可能の3分類明示 **100%**
+- **人間待ちタイムアウト設定率**: 全人間待ちステートに絶対タイムアウト設定 **100%**
+
+**コスト KPI**
+- **1受注あたり平均処理コスト**: 目標 **20円以内**（Temporal実行+LLM+観測性の合算）、月次で工程別集計
+- **LLM遷移コスト率**: 全受注コストに占めるLLM費用 **15%以内**
+- **予算超過アラート**: 月間予算の80%到達で警告、120%で自動絞り込み
+
+**AIエージェンティック品質 KPI**
+- **AI遷移承認率**: LLM判断で提案された遷移がガードを通過する率 **90%以上**
+- **ハルシネーション率**: 到達不能状態への遷移要求発生率 **0.1%以下**
+- **AIコスト対効果**: AI導入前後で人手判断時間削減率 **50%以上**
+
+### 5. 上位アウトプット強化テンプレート
+
+**A. 統合ワークフロー設計書 v2**
+`agents/order_workflow_designer/design_v2/` 配下に以下をワンセット生成：
+1. `state_machine.puml` (PlantUML) / `state_machine.csv` (05-26/09-01記録の列拡張版)
+2. `transition_matrix.csv`：列=遷移ID/from/to/イベント/ガード/実行ロール/自動打刻区分/ピボット判定/補償イベントID/ロールバックSQL/顧客向けラベル/現場ラベル/schema_version/data_classification
+3. `saga_map.json`：3分類（compensatable/pivot/retriable）と外部副作用列挙
+4. `slo_sli.yaml`：工程別SLO/SLI・エラーバジェット消費率・営業日カレンダーID
+5. `otel_semantic_conventions.yaml`：Span属性強制付与ルール
+6. `chaos_scenarios.yaml`：月次カオス実験計画
+7. `bo_handoff_package.md`：Bo実装即着手パッケージ（07-07記録の完全版）
+
+**B. Incident Runbook テンプレート**
+```yaml
+incident_id: INC-YYYYMMDD-NNN
+severity: [SEV1|SEV2|SEV3]
+detection: [Datadog Alert / LangFuse Anomaly / Prophet Outlier]
+affected_workflow: <workflow_id>
+affected_states: [<state_ids>]
+compensation_ready: [Yes / Manual]
+runbook_url: <Rundeck job URL>
+mttr_target: 10min
+rollback_sql: <path>
+post_mortem_due: <date+7d>
+```
+
+**C. Post-mortem 5-Why + Blameless テンプレート**
+- タイムライン（検知→エスカレーション→補償発火→復旧）を分単位で記録
+- 5Why分析で構造的原因（設計/実装/運用/連携）を特定
+- Chaos Engineeringテストへの反映アクション必須
+- MTTR実測値をSLOダッシュボードに反映
+
+**D. LET建設業採用支援コンテキスト適合**
+- 建設クライアント7社（エスコ/cantera/ナワショウ/宮村/清一/桝本/翔星）の受注フローには「見積→契約→着工→搬入→完了→請求」の建設業標準遷移（08-18記録）を既定モデルとして採用
+- Gen（16-建設業DXシステム部）連携で建設業法・下請法上の書面交付義務・電子契約要件を締結ピボットの発火条件に組込
+- 採用広告案件（akari/ryota連携）の受注フローは短寿命（納品まで30日）なのでRestate採用、原価管理案件は長寿命（180日）でTemporal Cloud採用の使い分け
+- クライアント経営者向けKPI（08-16記録）は Kpi経由で「滞留日数→立替金の寝かせ日数（円）」への金額換算を月次レポート（akari）に自動連携
+
+**E. 継続改善ループ**
+- 週次: LangFuse+Datadog Anomaly Detection のシグナルを review、AI遷移承認率<90%の工程を人手フォールバック化
+- 月次: Chaos Engineering 4回実施、Prophet モデル再学習、SLO達成状況を経営報告
+- 四半期: プロセスマイニング（Celonis）で設計外経路を Dat 頻度実測依頼、正常系昇格候補を標準モデルへ還元
