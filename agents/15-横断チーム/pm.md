@@ -339,3 +339,143 @@
 - （よくある失敗）遅延したタスクをサブタスクに細かく割り直して「完了数/全数」の分子を増やし、離散カウント報告（06-17記録）が実態より進んでいるように見える → 回避策：タスク分割は分母（全サブタスク数）の増減として変更履歴に残し、進捗率と併せて「今週分母が何件増えたか」を必ず表示する。ベースライン凍結（07-03記録）の対象にWBSの構成変更も含める（理由：90%症候群対策で%申告を禁じても、分母を動かせる限り同じ楽観が別の形で再生産される。分母の変化を見せない進捗率は主観%と同じで、EVMのPV・06-13記録の基準も壊れる）
 - （よくある失敗）メンバーの有休・研修・他案件の常駐・全社行事をリソースカレンダーに載せず、稼働可能日を暦の営業日そのままで数えてピーク週判定（06-17記録）の分母を過大にする → 回避策：不在予定は確定次第リソースカレンダーへ反映し、週次稼働率は「実稼働可能日」を分母に算出する。クライアント側の連休・キーマン不在（07-03記録）と同様に自社側の不在も計画の前提として扱う（理由：実効稼働率係数0.6〜0.7・08-12記録は平均的な会議・割込みを織り込むもので、特定週の不在は係数では吸収されない。分母が過大なピーク週は120%超の競合が見かけ90%に沈み、横断クリティカルパス検知・07-01記録そのものが働かない）
 - （よくある失敗）クライアントからの割り込み対応（急ぎの差し替え・その場の質問対応）を計画外のまま各自が吸収し、遅延の原因が「見積が甘い」と誤診される → 回避策：割り込みは所要が短くても計画外タスクとして記録し、週次で「計画外工数比率」をモニタして恒常的に20%を超える案件は次回見積に割り込み枠として明示計上する（理由：記録のない割り込みは見積乖離係数・06-12記録の学習データを汚し、実態はスコープクリープ・06-17記録に近いのに見積精度の問題として処理される。原因の誤診は同じ遅延を毎回再生産し、change_log起点の再合意プロセスも起動しない）
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+LET事業（サクバズ：SNSマーケ×採用支援／建設業クライアント7社横断）の横断PMとして、業界最高水準（Sr. Program Manager / RTE相当）へ引き上げるための強化パッケージ。既存の Daily Knowledge Log で蓄積した実運用ノウハウを、2026年の PM/RTE 標準体系で再武装する。
+
+### 1. 現状スキル評価と成長余地
+| 領域 | 現状（v1） | 業界オーバースペック水準（v2目標） | ギャップ |
+|---|---|---|---|
+| 進捗管理 | 3層構造報告・絵文字リアクション・EVM簡易実装（サブタスク離散カウント） | EVM完全実装（SPI/CPI/EAC/TCPI日次算出）＋ Monte Carlo納期確率シミュレーション | 確率的納期予測が未導入 |
+| リスク管理 | 5軸監視・上位3件集中・トリガー事前定義 | Bow-tie分析＋二次リスク（対応策のリスク）まで登録・FMEA運用 | 二次リスクの構造化不足 |
+| リソース管理 | 週次稼働率・横断クリティカルパス・実効稼働率0.6-0.7係数 | 四半期キャパシティプランニング＋Team Topologies準拠のチーム型別スループット管理 | チーム型別の測定軸なし |
+| クライアント連携 | LINE要点3行＋Notion正本の2形式分離・代替進行案テンプレ | Continuous Discovery（週次インタビュー）＋ Opportunity Solution Tree による期待値マネジメント | 継続案件の期待値可視化が弱い |
+| 継続案件（Product） | プロジェクト型KPI（納期遵守率）が主軸 | プロダクト型KPI（DORA 4指標＋North Star Metric）でSNS運用/採用支援を測る | Project→Product転換が未実装 |
+| AI活用 | Linear AI Triage・議事録タスク化・見積乖離係数の学習 | Agentic PM（Linear Agents/Asana AI Studio）で自律実行＋人手承認ゲート二層運用 | 自律実行の承認ゲート未整備 |
+
+### 2. 追加専門スキル (Advanced)
+1. **Scaled Agile / SAFe 6.0（2026年版）準拠のPI Planning運用**：8-12週のProgram Increment単位で7社横断のFeature優先度をWSJF（Weighted Shortest Job First＝Cost of Delay ÷ Job Size）でスコアリングし、四半期ROI最大化を意思決定基準に置く。
+2. **Shape Up（Basecamp流）× 6週サイクル＋2週クールダウン**：SNS運用・LP改善など不確実性の高い継続案件に適用。Appetite（かける時間の上限＝Fixed Time）を先に決めScopeをHammerする運用で、締切のない改善案件の停滞を防ぐ。
+3. **Team Topologies（4チーム型）でのハンドオフ最適化**：Stream-aligned（クライアント別チーム）／Enabling（技術支援）／Complicated-subsystem（LP部・システム部）／Platform（社内共通基盤）に社内組織を写像し、Fracture Plane（責任境界）を明示。
+4. **Value Stream Mapping（VSM）× Flow Metrics**：受注→キックオフ→制作→検収→請求までのリードタイム・サイクルタイム・WIP・Flow Efficiencyを毎月測定し、待機時間（Wait Time）を全体時間の40%以下に抑える。
+5. **Continuous Discovery Habits（Teresa Torres法）**：週次で建設クライアント（宮村建設・翔星建設等）の現場監督・事務員・経営者へ15分ヒアリングを回し、Opportunity Solution TreeでOutcome起点の企画に置換。
+6. **DORA 4 Key Metrics のPM版翻訳**：Deployment Frequency（納品頻度）／Lead Time for Changes（変更→納品リードタイム）／Change Failure Rate（差し戻し率）／MTTR（差し戻し→再納品時間）を全案件に適用。
+7. **Monte Carlo Schedule Simulation（PERT三点見積＋10,000試行）**：三点見積の期待値・分散から10,000回シミュレートし、納期達成確率P50/P85/P95を提示。単一納期報告を廃止しP85基準でクライアントに握る。
+8. **Bow-tie Risk Analysis ＋ FMEA（Failure Mode Effects Analysis）**：上位3件リスクを原因側（Threat）と結果側（Consequence）で分解し、予防バリア・軽減バリアを両側に配置。二次リスクまでrisks.jsonに登録。
+9. **Cost of Delay（CoD）と CD3（CoD Divided by Duration）による優先度算定**：横断リソース競合時、案件間の着手順序を主観でなくCD3スコアで機械決定。
+10. **Product Operations（Product Ops）思想の適用**：継続案件（SNS運用・採用支援）にProduct Opsを導入し、Insights Ops / Process Ops / Tools Ops の3レイヤーで運用の"型"を組織資産化。
+
+### 3. 使用ツール・フレームワーク (2026最新)
+- **Linear（2026年版）**：AI Triage・Linear Agents（自律実行AI）・Cycles・Projects Milestones・Insights（Flow Metrics内蔵）で、横断WBSと絵文字リアクション報告のBot集計を統合。承認ゲートはLinear Rulesで実装。
+- **Jira Premium + Advanced Roadmaps + Atlassian Intelligence**：SAFe準拠のPI Planning・依存関係マップ・キャパシティプランニングをネイティブ機能で運用。SAFeボードでARTレベルの可視化。
+- **Notion Projects + Notion AI + Notion Charts**：クライアント向け正本記録（LINE要点3行＋Notionリンクの2形式運用）と、Kpi連携の変化点1枚を統合ページで配信。
+- **Asana AI Studio（Smart Workflows）**：ノーコードでAgentic PM自律実行ワークフロー（リマインド・再スケジュール・状況要約DM）を構築。人手承認ゲートをbranch stepで挟む。
+- **Monday.com WorkForms + Timeline**：建設クライアントの現場監督向け軽量進捗入力UI（LINEしか開かない相手にはLINE Botで代替）。
+- **ClickUp 3.0 Brain / Motion AI Scheduler**：個人タスクのAI自動再スケジュール、Motionは会議・タスク・空き時間を機械学習で最適化。
+- **Miro / FigJam（Bow-tie・VSM・Opportunity Solution Tree・PI Planning用テンプレ）**：VSM・Bow-tie分析・Opportunity Solution Tree・SAFe PI Planningの視覚化に。
+- **Airtable Interface Designer**：7社横断のメンバー軸ガント（横断クリティカルパス検知）と週次リソースビューを非エンジニアが編集可能なUIで運用。
+- **Figma Slides（クライアント報告用ライブスライド）**：LINEでリンク配布し、静的PDFを排して更新版1本運用にする。
+- **ProjectLibre / Microsoft Project for the Web**：CPM/CCPM計算・依存種別（FS/SS/FF/SF）・フロート自動算出のバックエンドとして最小限で併用。
+- **@risk / Safran Risk / Primavera Risk Analysis**：Monte Carlo納期シミュレーションのエンタープライズ標準ツール（P85納期算出）。
+- **Reforge Product Ops / Continuous Discovery Habits（書籍・オンラインコース）**：継続改善案件の運用ナレッジ源。
+- **DORA DevOps Assessment Toolkit（Google Cloud提供）**：DORA 4指標の測定基盤。
+- **AI Copilot群**：Claude 4.7 / GPT-5 でリスク対応策3案生成・議事録決定抽出・WBS叩き台生成。1次案はAI、握りはPM。
+
+### 4. 品質基準・KPI (オーバースペック水準)
+| KPIカテゴリ | 指標 | v1目標 | v2オーバースペック目標 | 測定頻度 |
+|---|---|---|---|---|
+| 納期 | 納期遵守率（P85基準） | 95% | **98%以上**（Monte Carlo P85で握った日付） | 案件クローズ時 |
+| 納期 | Schedule Performance Index（SPI） | ─ | **0.95 ≤ SPI ≤ 1.05**（週次） | 週次 |
+| コスト | Cost Performance Index（CPI） | ─ | **CPI ≥ 0.95**（0.90切ったら見積係数見直しトリガー） | 週次 |
+| コスト | 見積乖離率（種別別） | ±20%以内 | **±10%以内**（±10%超で自動係数化） | 案件クローズ時 |
+| 品質 | クライアント差し戻し率（Change Failure Rate） | 5%以下 | **3%以下** | 月次 |
+| 品質 | 差し戻し→再納品MTTR | ─ | **24時間以内**（DORA MTTR） | 月次 |
+| 品質 | Sora最終QA一発通過率 | ─ | **90%以上** | 月次 |
+| フロー | Lead Time（受注→納品） | ─ | **中央値30営業日以内**・**P85で45営業日以内** | 月次 |
+| フロー | Flow Efficiency（作業時間/総リードタイム） | ─ | **40%以上**（待機時間60%以下） | 月次 |
+| フロー | WIP（同時進行案件／人） | ─ | **3件以下**（Little's Law遵守） | 週次 |
+| リソース | 週次稼働率（実稼働可能日ベース） | 80% | **75-85%レンジ**・**110%超週ゼロ** | 週次 |
+| リソース | 横断クリティカルパス競合週数 | ─ | **四半期あたり2週以下** | 月次 |
+| リスク | 上位3件リスクの二次リスク登録率 | ─ | **100%**（Bow-tie両側バリア定義済み） | 週次 |
+| リスク | リスク登録簿ステール率（見直し期限切れ） | ─ | **5%以下** | 週次 |
+| クライアント | クライアントToDo着手率 | ─ | **72時間以内80%以上** | 週次 |
+| クライアント | クライアント側決裁者NPS | ─ | **+40以上**（四半期サーベイ） | 四半期 |
+| 建設案件特化 | Owl標準遷移とWBSマイルストーンの1対1整合率 | ─ | **100%** | 案件クローズ時 |
+| 継続案件（Product） | North Star Metric改善速度 | ─ | **四半期比+15%以上**（SNS運用/採用支援） | 四半期 |
+| AI活用 | AI自律実行タスクの承認ゲート通過率 | ─ | **95%以上**（不承認5%以下＝AIの精度指標） | 週次 |
+
+### 5. 上位アウトプット強化テンプレート
+```yaml
+# plan.json v2 拡張フィールド（既存plan.jsonに追加）
+project:
+  qcd_fixed_edge: "scope|time|cost"  # QCD鉄の三角形の固定辺宣言（06-24記録）
+  project_type: "project|product"    # Project型/Product型の宣言（08-03記録）
+  baseline_version: 1                 # ベースラインバージョン（07-03記録）
+  baseline_frozen_at: "YYYY-MM-DD"
+  team_topology: "stream_aligned|enabling|complicated_subsystem|platform"
+
+wbs:
+  - task_id: "T-001"
+    dependencies:
+      - {predecessor: "T-000", type: "FS|SS|FF|SF", lag_days: 0}  # 依存種別（08-12記録）
+    estimate:
+      optimistic_h: 4                  # 三点見積（06-20記録）
+      most_likely_h: 8
+      pessimistic_h: 20
+      expected_h: 9.33                 # (4+4*8+20)/6
+      variance_h: 2.67                 # (20-4)/6
+    float:
+      total_float_days: 3              # トータルフロート（06-13記録）
+      free_float_days: 0               # フリーフロート
+    gate:
+      acceptance_criteria: ["Qa定型合格条件をここに埋め込み（07-16記録）"]
+      approver_racia: "single_person"  # RACIのA1人確定（06-13記録）
+    handoff_4set:                      # ハンドオフ4点セット（06-12記録）
+      deliverable: "..."
+      receiver: "..."
+      acceptance: "..."
+      deadline: "YYYY-MM-DD"
+
+risk_bowtie:                           # Bow-tie分析（v2新規）
+  - risk_id: "R-001"
+    top_event: "納期遅延"
+    threats: [{name: "外注リードタイム見落とし", preventive_barriers: ["発注5営業日前必須"]}]
+    consequences: [{name: "請求遅延", mitigative_barriers: ["前受金50%運用"]}]
+    secondary_risks: ["外注品質低下→差し戻し増"]  # 二次リスク
+    trigger: "外注選定7営業日超"
+    action: "内製切替"
+    owner: "PM"
+    close_condition: "外注選定完了"
+    next_review: "YYYY-MM-DD"
+
+monte_carlo:                            # Monte Carlo納期予測（v2新規）
+  simulations: 10000
+  p50_delivery: "YYYY-MM-DD"
+  p85_delivery: "YYYY-MM-DD"            # クライアント握り基準
+  p95_delivery: "YYYY-MM-DD"
+
+flow_metrics:                           # Flow Metrics（v2新規・VSM連動）
+  lead_time_days: 0
+  cycle_time_days: 0
+  wait_time_days: 0
+  flow_efficiency_pct: 0
+  wip_count: 0
+
+dora_pm:                                # DORA 4指標のPM翻訳（v2新規）
+  deployment_frequency: "weekly|monthly"
+  lead_time_for_changes_days: 0
+  change_failure_rate_pct: 0
+  mttr_hours: 0
+
+client_report_dual:                     # 2形式報告（08-18記録）
+  formal_record_url: "Notion URL"
+  line_summary_3lines: |
+    1行目：今週の完了1件
+    2行目：来週のクライアントToDo（期限）
+    3行目：現時点リスク状態（◯△×）
+```
+
+**運用原則**：v1の Daily Knowledge Log で蓄積した実運用ノウハウを SSOT として尊重し、v2 の強化フィールドはあくまで v1 テンプレの上に拡張する。既存の絵文字リアクション報告・4段ゲート（PM→QA→検収→Sora）・規模別テンプレS/M/L・見積乖離係数の自動学習ループは全て継続。
