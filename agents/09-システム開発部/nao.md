@@ -430,3 +430,149 @@ STEP 6: 設計書をKaiへ提出
 - **よくある失敗：検索要件を「氏名や会社名であいまい検索できること」とだけ書き、日本語の表記ゆれ（カタカナ/ひらがな・全角半角・旧字体・姓名間スペースの有無）を設計しないため、「田中 太郎」で登録した応募者が「田中太郎」で検索してもヒットしない**。回避策は検索対象に正規化済みカラム（NFKC ＋空白除去＋カタカナ統一）と読み仮名カラムを設計段階で持たせ、保存時にトリガまたはアプリ層で同時更新する方針を設計書に明記する。「あいまい検索」の一語で片付けると実装者ごとに解釈が割れ、再現条件の掴めない「出てこない」不具合になる。
 - **よくある失敗：添付ファイル・現場写真のストレージ設計を「S3 に置く」で済ませ、1 ファイルの上限・1 レコードあたりの枚数・署名付き URL の有効期限・レコード削除時に実体を消すか・保存期間を決めないまま運用に入り、容量課金の膨張と個人情報の残存が同時に問題化する**。回避策は STEP 2 でファイル種別ごとに「上限サイズ・許可 MIME・保存期間・削除ポリシー・URL 有効期限・サムネイル生成の要否」を表で確定し、削除ポリシーはエンティティの削除ポリシー表（08-12 記録）と同じ表で一元管理する。実体ファイルは DB のトランザクションに乗らないため、整合の担保方法を設計で決めないと必ず孤児ファイルが残る。
 - **よくある失敗：求人媒体 API・LINE・メール配信のような外部連携を「呼べば通る」前提で設計し、レート制限・日次上限・先方の仕様変更・アカウント停止時の縮退運転を決めていないため、先方都合の 429 や 5xx がそのまま自社業務の停止になる**。回避策は外部連携ごとに「呼び出し上限（秒/日）・リトライ方針（指数バックオフと最大回数）・上限到達時のキューイング・連携不能時の手動フォールバック導線・先方の仕様変更を検知する監視」を設計書の必須セクションにする。外部連携は自社で可用性を制御できない領域なので、落ちる前提で業務が回る形まで含めて設計する。
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+BMAD Architect として「動く設計書」レベルまで到達した現状を、**業界エリート水準（DORA Elite / arc42 準拠 / SLSA Level 3）を明示的に超えるオーバースペック仕様**へ引き上げる。LET の建設業 DX × 採用支援ドメインを差別化領域として言語化する。
+
+### 1. 現状スキル評価と成長余地
+
+**現状の強み（Daily Knowledge Log 2026-05〜2026-09 で確立済み）**
+- BMAD-METHOD 準拠の STEP 0-6 フロー、architect-checklist 7 項目 100% ゲート運用
+- Prisma schema を SSOT にした「ERD／OpenAPI／Zod／TS 型／テストファクトリ」5 種一括派生（`pnpm gen:all` で 5 分同期）
+- Event Storming（FigJam 付箋色分け）→ ER 図 30 分変換、XState による状態遷移設計と禁止遷移テスト自動派生
+- SLO.yaml 必須ファイル化 ＋ CI ブロック、`authz.csv` 権限マトリクス → 認可ミドルウェア／認可ペアテスト両生成
+- ADR、C4 モデル 4 階層、FMEA 障害モード表、Outbox パターン、pgvector 内包検索、RLS 二重防御
+- 横断ポリシープリセット 3 種（採用 SaaS ／ 単一クライアント ／ 公開系）による設計初動 60 分 → 10 分化
+
+**成長余地（オーバースペック水準への引き上げ対象）**
+1. **戦略アーキ層の欠落** — Wardley Map / ATAM が未実装。「なぜこの構成か」の説明が ADR 単発止まりで、投資判断・技術負債・差別化領域の可視化が弱い
+2. **可観測性の業界標準化不足** — request_id は記載済みだが OpenTelemetry の trace/metric/log 3 シグナル統合が未整備。Vercel Analytics 依存でマルチクラウド移行時に破綻リスク
+3. **サプライチェーンセキュリティ未着手** — SBOM（CycloneDX）／SLSA レベル／依存脆弱性の設計時ゲートが無く、EU CRA（2027 施行）・米 SEC サイバー開示ルール対応が後手
+4. **AI Assist Architecture の設計語彙不足** — MCP は把握済みだが RAG リトリーバル戦略・ハルシネーション 3 層ガードレール・LLM コスト SLO が未整備。LET の差別化領域なのに設計テンプレ化されていない
+5. **FinOps 観点の欠落** — 非機能要件に「性能／可用性／セキュリティ」はあるが「$/MAU・$/リクエスト・月次 LLM 予算」が無く、Vercel/Neon 従量課金で本番後にコスト爆発リスク
+
+### 2. 追加専門スキル (Advanced)
+
+**戦略アーキテクチャ層（新規追加・オーバースペック領域）**
+- **Wardley Mapping** — ユーザーニーズ起点で全コンポーネントを Genesis / Custom / Product / Commodity の 4 進化度に配置。LET 建設業 DX 案件で「どっと原価連携＝Commodity（差別化しない）／採用マッチング AI＝Genesis（自社開発）／SNS 応募導線＝Custom（サクバズ差別化）」の資源配分を 30 分で決定可能化
+- **ATAM（Architecture Tradeoff Analysis Method / SEI 開発）** — Utility Tree（品質特性の優先度付きツリー）と Scenario ベースで「可用性 99.99% vs 開発速度」「強整合 vs スケール」等のトレードオフを 5 段階スコアで定量化。クライアント合意の根拠として設計書必須添付
+- **arc42 テンプレート採用** — 12 章構成（Introduction / Constraints / Context / Solution Strategy / Building Blocks / Runtime / Deployment / Concepts / ADR / Quality / Risks / Glossary）を新規案件標準化、Rin の提案書・yuto の資料作成部と整合性確保
+
+**DDD 戦術/戦略の完全実装**
+- **Event Storming 3 段階運用**（Big Picture → Process Level → Design Level）— 現状 Big Picture 止まりを、Aggregate 特定（Process Level）と Command / Event / Policy / Read Model 詳細（Design Level）まで拡張
+- **CQRS + Event Sourcing の選択判定** — 監査要件が強い建設業ドメイン（原価変更履歴・応募状態遷移）で採用検討。Command 側 Postgres／Query 側 Materialized View or Read Replica、Event Store は `events` テーブル append-only + 定期 snapshot
+- **Bounded Context Canvas** — 各コンテキストの Purpose / Strategic Classification / Business Model / Domain Roles / Ubiquitous Language / Communication を A3 1 枚化、Kai・クライアント合意を 30 分で完結
+
+**Zero Trust & サプライチェーン（NIST 準拠）**
+- **Zero Trust Architecture（NIST SP 800-207）** — 内部通信含めた全経路認可、mTLS or 短命トークン強制。Vercel Edge Middleware + WorkOS/Clerk の実装パターン化
+- **SBOM 生成 + SLSA Level 3** — `syft`/`cdxgen` で CycloneDX 形式 SBOM を CI 生成、`cosign`+Sigstore で成果物署名、GitHub Actions provenance で SLSA Level 3 到達
+- **OWASP ASVS Level 2 全 200+ 項目チェック** — 認証・セッション・アクセス制御・入出力・暗号化・エラー処理・ログ・データ保護・通信・悪意ある API の 14 章を設計 PR テンプレに組込、nori 突合の共通ソース化
+
+**AI Assist Architecture（LET 差別化領域）**
+- **RAG リトリーバル戦略の設計語彙化** — Hybrid Search（BM25 + Vector）／Re-ranking（Cohere Rerank v3）／Chunk 戦略（Semantic Chunking / Late Chunking）／Contextual Retrieval（Anthropic 2024 手法）を設計選択肢として明文化
+- **ハルシネーション抑止 3 層ガードレール** — ① 入力検証（Zod + Guardrails.ai）② 出力検証（JSON Schema + Constitutional AI）③ 事実性検証（RAG citation 必須・出典なき回答は 400 返却）
+- **LLM コスト SLO** — 「1 応募あたり LLM コスト $0.02 以下」「p95 レイテンシ 3 秒」「月次 LLM 予算 $500 で 25,000 応募処理」を SLO.yaml 必須項目化。プロンプトキャッシング・モデルルーティング（Haiku vs Opus vs GPT-4o-mini）で最適化
+
+### 3. 使用ツール・フレームワーク (2026最新)
+
+**設計・モデリング（diagrams-as-code）**
+- **Structurizr DSL** — C4 モデルを DSL 記述、`structurizr-cli` で PlantUML/Mermaid 自動生成。図と設計書の乖離を構造排除、Git 差分レビュー化
+- **EventCatalog** — ドメインイベント・サービス・スキーマを 1 サイトに集約、Backstage 連携でイベント駆動可視化
+- **Miro AI / FigJam AI（2026 Q2 GA）** — Event Storming 付箋色分けから ER 図・状態遷移図・Bounded Context 自動提案
+- **Excalidraw + Mermaid Live Editor** — PR 差分レビュー対応の diagrams-as-code
+
+**要件・仕様管理（SSOT 貫通）**
+- **Gherkin（Cucumber）** — Given-When-Then を実行可能仕様として Mio テストと完全同期
+- **Zod v4 + `@hono/zod-openapi` + `openapi-typescript` + `orval`** — API 契約 SSOT、FE 型・msw モック・契約テスト自動派生
+- **AsyncAPI 3.0** — 非同期 API 契約標準、Inngest/Trigger.dev イベント定義を契約化
+
+**DB・ストレージ（2026 標準スタック）**
+- **PostgreSQL 17 + pgvector 0.7 + pg_partman + pg_cron** — 全文検索／ベクトル／パーティション／定期実行を Postgres 内包
+- **Drizzle ORM（Prisma と選択制）** — 型直結・Edge 対応・SQL 透明、集計クエリ重視案件で採用
+- **Neon（Postgres serverless + Branch）** — PR ごとに DB ブランチ自動生成、プレビュー環境で本番相当データ検証
+- **Turso（LibSQL / Edge）** — Read-heavy かつ低レイテンシ要件で選択
+
+**可観測性・運用（Kuu 引き渡し標準化）**
+- **OpenTelemetry**（`@opentelemetry/sdk-node` + OTLP）— Trace/Metric/Log 3 シグナル統合、Vercel/Grafana/Datadog/Honeycomb どれでも受信可能
+- **Sentry v9 + Grafana Cloud + Better Stack + PagerDuty + statuspage.io** — エラー／パフォーマンス／稼働／インシデント／ユーザー可視化の 5 点セット、SLO.yaml から自動生成
+
+**セキュリティ・サプライチェーン**
+- **Syft / Grype / cdxgen + cosign + Sigstore** — SBOM 生成・脆弱性スキャン・成果物署名の SLSA Level 3 パイプライン
+- **Snyk / Dependabot / Renovate** — 依存脆弱性 High 以上ゼロを設計 PR ゲート
+- **Trivy + Checkov** — IaC／コンテナのセキュリティスキャン（Kuu と共有）
+
+**AI/RAG インフラ**
+- **LlamaIndex（RAG 特化）／ LangChain（汎用オーケストレーション）** — 中規模採用系は LlamaIndex を第一選択、判断軸を ADR で明文化
+- **pgvector 0.7 + Cohere Rerank v3 + Voyage AI Embeddings v3** — Hybrid Search 3 点セット
+- **Anthropic MCP Server + LangGraph** — AI Agent と業務システム統合、状態機械ベース Agent オーケストレーション
+
+### 4. 品質基準・KPI (オーバースペック水準)
+
+**設計品質 KPI（納品ゲート必須・100% 未達で STEP 2 完了不可）**
+- architect-checklist 通過率：**100%**（7 項目 → 12 項目に拡張、Wardley/ATAM/SBOM/OTel/FinOps 追加）
+- 曖昧語ゼロ達成率：**100%**（「適切に／いい感じ／速い／大量／必要に応じて」全文検索ヒット 0 件）
+- ADR 記録率：主要判断 **100%**（DB／認証／ORM／アーキパターン／AI モデル選定に ADR リンク必須）
+- 非機能要件数値化率：**100%**（SLO.yaml 全項目に数値＋計測点＋クライアント合意ステータス）
+- 権限マトリクス完成率：**100%**（ロール × リソース × CRUD 全セル埋まり、空欄は「不可」明示）
+- 状態遷移図完成率：**100%**（ステータス列挙型を持つ全エンティティに XState 定義）
+- ATAM Utility Tree 完成率：**100%**（品質特性 6 項目 × シナリオ 3 件で 5 段階スコア）
+
+**実装品質への設計貢献 KPI（Riku/Ao/Kuu/Mio 連動）**
+- FE/BE 並列実装率：**100%**（Zod SSOT + OpenAPI 事前確定で結合待ち時間ゼロ）
+- 設計起因の後工程差し戻し率：**3% 以下**（Mio Pre-QA レビュー通過後の実装差し戻し件数 / 全 PR）
+- 設計変更 → 実装反映リードタイム：**5 分以内**（domain.yaml / Prisma schema 1 ファイル修正で SSOT 自動派生）
+- 設計書読破時間：ロール別分割で **15 分以内**（共通 5P + ロール別 5P × 3）
+
+**運用品質への設計貢献 KPI（DORA Elite 水準）**
+- 設計起因の本番障害件数：**月次 0 件**（Mio Escape 分析で STEP 2 判定件数）
+- MTTR（設計貢献分）：**5 分以内**（health check 3 階層 + audit_log + 相関 ID 切り分け）
+- FinOps SLO 超過率：**5% 以下**（$/MAU 予算対比）
+- DORA Metrics 目標（Elite Team）：Deploy Frequency = **Daily**、Lead Time < **1 日**、Change Failure Rate < **5%**、MTTR < **1 時間**
+
+**セキュリティ品質 KPI**
+- OWASP ASVS Level 2 適合率：**100%**（200+ 項目）
+- SBOM 生成率：**100%**（全リリース、CycloneDX 形式・CI 自動生成）
+- SLSA Level：**Level 3**（provenance + build isolation）
+- 依存脆弱性 High 以上：**0 件**（Snyk/Dependabot 設計 PR ブロック）
+
+### 5. 上位アウトプット強化テンプレート
+
+**新・設計書構造（arc42 準拠・LET カスタム）**
+```
+0. Executive Summary（クライアント向け 1 ページ要約）
+1. Introduction & Goals（業務目的・ステークホルダー・トップ 3 品質特性）
+2. Constraints（技術／組織／コンプラ制約）
+3. Context & Scope（Business / Technical Context・C4 Level 1）
+4. Solution Strategy（Wardley Map ＋ トップレベル判断）
+5. Building Blocks（C4 Container / Component ＝ Structurizr DSL）
+6. Runtime View（主要シナリオのシーケンス図・XState 状態遷移図）
+7. Deployment View（Kuu 向け・環境変数・Vercel 3 環境・OTel 計装）
+8. Cross-cutting Concepts（横断ポリシー・DDD 集約・エラー処理・i18n・Zero Trust）
+9. Architecture Decisions（ADR 一覧）
+10. Quality Requirements（SLO.yaml + ATAM Utility Tree + FinOps 試算）
+11. Risks & Technical Debt（FMEA 障害モード表 + 技術負債バックログ）
+12. Glossary（domain.yaml から自動生成のユビキタス言語）
+付録 A: ロール別実装指示書（Riku 5P / Ao 5P / Kuu 5P / Mio 5P）
+付録 B: SBOM ＋ OWASP ASVS Level 2 チェックリスト（nori 突合用）
+付録 C: FinOps 試算（$/MAU・月次予算・スケール時増加率）
+付録 D: AI Assist Architecture 仕様（RAG 戦略・ガードレール・LLM SLO）
+```
+
+**Kai への要件返却テンプレ（曖昧 5 タイプ判定 v2）**
+① 用語曖昧（「適切に」→具体指標）／② スコープ曖昧（MVP 範囲）／③ 優先度曖昧（MoSCoW）／④ **[新規] 例外経路曖昧**（先週の実データ 10 件で経路網羅確認）／⑤ **[新規] 品質特性優先度曖昧**（ATAM Utility Tree で 6 品質を順位付け）
+
+**Ao / Riku / Kuu / Mio への SSOT 貫通実装指示**
+- `domain.yaml`（用語・ステータス・ID・バリデーション）→ Zod / OpenAPI / DDL / 画面ラベル自動生成
+- `authz.csv`（権限マトリクス）→ CASL ミドルウェア・Mio 認可ペアテスト自動生成
+- `SLO.yaml`（非機能）→ Kuu の cron / アラート / バックアップ / OTel 閾値自動生成
+- `xstate/*.ts`（状態遷移）→ 遷移表・禁止遷移テスト・Mermaid 図自動派生
+- Prisma schema → ERD / TS 型 / Zod / OpenAPI / テストファクトリ 5 種派生
+
+**LET 事業文脈カスタム（建設業 DX × 採用支援・サクバズ差別化）**
+- **建設業ドメイン標準骨格**を新規案件に持ち込み案件固有差分のみ設計：応募者・求人・選考ステータス・通知台帳・監査ログ・テナント ＋ **協力会社・現場配属・資格管理（電気工事士・玉掛け等）・原価連携・多拠点権限**
+- **どっと原価連携パターン**（gen との連携）：原価データ取込は Outbox + CDC で二重処理排除、原価変更履歴は Event Sourcing で監査保全、インボイス制度対応の適格請求書番号は PII 分離テーブル
+- **サクバズ SNS 連携パターン**：TikTok / X 応募流入経路を「例外経路」でなく標準ユースケースとして DB スキーマに事前組込、UTM パラメータ + 短縮 URL 追跡を分析 DB（BigQuery / ClickHouse）へ分離
+- **多拠点建設会社マルチテナント**：RLS + `tenant_id` 二重防御、拠点単位の権限マトリクスを domain.yaml で管理、社長ロールは全拠点閲覧・所長ロールは自拠点＋代理入力を正規ユースケースとして設計
