@@ -338,3 +338,101 @@
 - **失敗パターン: コンペ案件で提示順・選定会議の日程・出席者を確認せずに提示日を受け入れ、1番手で提示して他社に比較の基準値だけ提供する当て馬になる** → 回避策: 与件の鮮度再確認（07-03記録）の4点に「何社比較か／自社の提示順／選定会議の日付と出席者」の3問を足し、1番手が避けられない場合は選定会議の前営業日に補足1枚（想定質問への回答・比較で確認すべき観点）を差し込む。提案の中身と同じくらい、読まれる順番と選定会議への近さが採否を動かす。
 - **失敗パターン: 契約書の自動更新条項と解約通知期限（更新月の◯ヶ月前）を営業が把握しておらず、更新提案を通知期限の後に持ち込んで条件変更もアップセルも次年度送りになる** → 回避策: 受注 handoff 時に「更新月」と「解約通知期限日」をパイプラインへ登録し、既存深耕の60日前フォロー（06-17/06-26記録）の起点を暦上の更新月でなく通知期限日から逆算して立てる。通知期限は Legal が持つ契約情報であり営業の記憶に置かず、handoff の空欄不可項目へ加える。
 - **失敗パターン: 先方の窓口が異動・退職して新担当に代わったことを定例で把握せず、導入経緯を知らない新担当が更新時期に「何のための費用か分からない」と判断して解約になる** → 回避策: 四半期定例（06-17記録）の冒頭で出席者の変化を確認し、新担当が入った時点で「導入の背景・当初の課題・これまでの成果」の3点サマリーとカルテの社内呼称・NGワード（07-03/08-18記録）を渡し直す。マルチスレッド（06-17記録）は接点を増やす話で、交代した相手への文脈の再引き継ぎは別工程として設計する。
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+- **強み（現状で80点超）**: BANT/MEDDIC/SPIN/ヨミ管理の使い分け（06-13）、ARPU/LTV/CAC/NRRの計数把握（06-20）、失敗パターン蓄積（60件超）、Otter→Notion自動化、handoff同時起票（07-07）、支払構成3種の粗利影響事前判定（09-01）。中堅営業マネージャーの平均水準は超えている。
+- **成長余地①: MEDDIC → MEDDPICC への進化**: 現行はMEDDIC 6軸だが、2026年グローバル標準は **Paper Process（契約・法務プロセス）＋Competition（競合軸）** を足した8軸のMEDDPICC。月額50万円超・複数部門承認の大型案件で、Legal（08-13/08-27記録）連携タイミングを見積依頼時点から逆算できる。
+- **成長余地②: 営業手法の理論体系化不足**: SPIN話法は導入済みだが、**Challenger Sale（Teach-Tailor-Take Control）**・**Command of the Message（Force Management）**・**Sandler Submarine（7ステップ）**・**Value Selling Framework** の使い分け軸が未整備。案件規模・業種・購買心理で手法を切り替える設計が甘い。
+- **成長余地③: SDR/AE分業＋ABM未導入**: 現状はSales単独で全プロセスを担うが、2026年B2B主流は **SDR（Sales Development Rep：初回接点・BANT確認）＋AE（Account Executive：商談〜クロージング）＋CSM（Customer Success Manager：既存深耕）** の分業。特に建設業のリファラル比率上昇（08-03記録）局面では、ABM（Account-Based Marketing）で狙い撃ちする設計が必要。
+- **成長余地④: Conversation Intelligence未活用**: Otter議事録は使うが、**Gong.io / Chorus / Salesloft Rhythm** レベルの「トピック分析・センチメント検知・トーカーレシオ・競合言及検知」による商談品質の定量分析が未実装。営業スキル改善サイクルが属人的。
+- **成長余地⑤: シグナル営業（Intent Data）の体系化**: 07-27/09-01で公開シグナル検知に触れているが、**Bombora / 6sense / ZoomInfo Intent / Sales Navigator Buyer Intent** の購買意欲データ連携が未設計。「状況が変わる月」検知が手動運用に留まる。
+
+### 2. 追加専門スキル (Advanced)
+- **MEDDPICC 8軸フレームワーク運用**: Metrics / Economic Buyer / Decision Criteria / Decision Process / **Paper Process（契約・法務・調達プロセス）** / Identify Pain / Champion / **Competition（競合認識・差別化根拠）**。月額50万円超は必須運用、Paper Processは Legal 08-13連携（インボイス・SLA・特約）の受注前判定時点で埋める。
+- **Challenger Sale（Teach-Tailor-Take Control）**: 建設業採用担当者へ「業界の隠れコスト（採用単価の真実・離職率と現場稼働の相関）」を先に教えて相手の世界観を書き換えるTeach、決裁者/現場ごとにメッセージをTailor、価格議論を避けずTake Control で主導権を握る。バイヤーイネーブルメント時代（08-03記録）の主流手法。
+- **Command of the Message（Force Management）**: 「Before / After / Required Capabilities / Metrics / Proof Points」の5要素で提案を構造化。SPINで引き出した顧客発言を、この5要素テンプレに機械的に配置し、社内突破用1枚サマリー（06-07記録）の設計原理として採用。
+- **Sandler Submarine（7ステップ）**: Bonding→Up-Front Contract→Pain→Budget→Decision→Fulfillment→Post-Sell。特に **Up-Front Contract（商談冒頭で目的・時間・終わり方を合意）** は認識合わせメール（07-03記録）の商談内版として、その場で口頭合意を取る。
+- **Value Selling Framework**: 課題の金額インパクト（Pain × Frequency × Cost）を先に握り、価格でなくROI議論へ引き戻す（06-24記録の値引き回避）。効果試算は前提の出所・幅（06-26記録）を明記し、Value Realization Plan（受注後の成果実現計画）として handoff（07-07）に含める。
+- **ABM（Account-Based Marketing）実行**: LET重点10社を「Tier1（月100万円超・年間深耕）／Tier2（月50万円・拡張余地）／Tier3（新規開拓ターゲット）」に3層分類し、Tier別にコンテンツ・接点頻度・支給リソースを設計。Marketing 08-13連携（MQL非受諾理由返し）で ABM ターゲット精度を上げる。
+- **SDR/AE/CSM分業モデル設計**: 1名運用でも「役割スイッチ」で疑似分業化。午前SDR時間帯（初回接点・BANT確認）、午後AE時間帯（既存商談クロージング）、週次CSM時間帯（既存深耕・NRR施策）と役割を時間で切って集中する。将来の増員時にそのまま分業配置へ移行できる。
+- **Signal-Based Selling（インテント営業）**: 公開シグナル（採用募集再開・拠点拡大・SNS再開・代表交代／09-01記録）に加え、**プレスリリース検知（PR TIMES RSS）／求人票変化（Airwork/Indeed のクローリング）／建設業許可の更新月（国土交通省 公開データ）** を自動監視し、Notion DB へシグナル発火リストを流し込む。手動で失注リストを眺める運用を廃止。
+- **Multi-Channel Sequencing（マルチチャネル追客）**: 見込み客1件に対し「電話→メール→LinkedIn/Wantedly DM→動画メッセージ（Loom）→SMS」の順で7営業日以内に5接点を機械的に組み、Salesloft/Outreach 相当のケイデンスを Notion + Gmail テンプレで再現。初回接触1時間以内（05-27記録）＋7営業日で5接点の二段構え。
+- **Deal Desk運用（大型案件の交渉統制）**: 月額50万円超の案件は、Sales単独決裁でなく Finance（粗利判定）＋ Legal（契約条項）＋ PM（実現可能性）＋ Sora（QA）による Deal Desk 4名レビューを必須化し、値引き・特約・SLAの3項目を交渉前にレビュー通過させる。
+
+### 3. 使用ツール・フレームワーク (2026最新)
+- **CRM（Customer Relationship Management）**:
+  - **HubSpot Sales Hub Enterprise**（推奨・LET規模想定）：AI予測受注確度・Sequences・Playbooks標準搭載、月$150/席
+  - **Salesforce Sales Cloud + Einstein GPT**：Enterprise標準、$165/席。大型案件・多部門連携時
+  - **Zoho CRM Plus**：$57/席、コスパ最優先時の代替
+- **Conversation Intelligence（商談録音・分析）**:
+  - **Gong.io**：$1,600/席/年、商談録音の自動文字起こし・センチメント分析・競合言及検知・トーカーレシオ（顧客発話比率60%目標）・Deal Warnings
+  - **Chorus by ZoomInfo**：$1,200/席/年、Salesforceネイティブ連携が強い
+  - **Salesloft Rhythm**：AI推奨アクションの自動優先度付け
+- **Sales Engagement / Cadence（アウトバウンド自動化）**:
+  - **Apollo.io**（05-25記録済）：$99/席、コンタクトDB 2.75億件・メール自動送信・Sequences
+  - **Outreach.io**：$130/席、大型組織のマルチチャネルケイデンス
+  - **ZoomInfo SalesOS + Intent**：企業インテントデータ購入時
+- **AI Sales Copilot**:
+  - **Salesforce Einstein Copilot**：商談要約・次アクション提案・メール下書き
+  - **Microsoft Copilot for Sales**：Dynamics/Salesforce連携＋Teams商談自動議事録
+  - **Gong AI**：Ask Anything機能で過去商談を自然言語検索
+- **Meeting Intelligence（議事録・分析）**:
+  - **Otter.ai Business**（05-26記録済）：$20/席、日本語対応
+  - **tl;dv** / **Fireflies.ai**：無料枠あり、Notion連携が強い
+- **Proposal / eSign**:
+  - **PandaDoc** / **DocuSign CLM**：見積・提案書テンプレ管理＋電子署名＋開封トラッキング（相手のどのページで何秒見たかを可視化）
+- **Intent / Signal Data**:
+  - **6sense** / **Bombora** / **ZoomInfo Intent**：購買意欲シグナル
+  - **LinkedIn Sales Navigator**（月$99）：組織変化・役職異動アラート
+- **フレームワーク統合表**:
+  | シーン | 使用フレームワーク |
+  |---|---|
+  | 初回ヒアリング | SPIN（S→P→I→N） + Sandler Up-Front Contract |
+  | 案件与件整理（〜50万円） | BANT |
+  | 案件与件整理（50万円〜） | MEDDPICC 8軸 |
+  | 提案書設計 | Command of the Message 5要素 |
+  | 競合との差別化 | Challenger Sale（Teach-Tailor-Take Control） |
+  | 効果訴求・値引き回避 | Value Selling（Pain × Frequency × Cost） |
+  | 大型案件・複雑交渉 | Deal Desk 4名レビュー |
+  | 既存深耕・NRR向上 | ABM 3層 + CSM時間帯運用 |
+
+### 4. 品質基準・KPI (オーバースペック水準)
+- **パイプライン健全性（Pipeline Coverage Ratio）**: 月次売上目標に対し **加重パイプラインが 3.0倍以上**（業界平均2.0倍）。3倍未満は上流のリード獲得を Marketing へエスカレーション。
+- **受注率（Win Rate）**: 提案提示以降 **40%以上**（現ミッション水準）／MEDDPICC 8軸全埋め案件は **55%以上**（未埋め案件との差分でスキル効果を計測）。
+- **平均商談期間（Sales Cycle）**: 新規は **45日以内**（現目標60日を短縮）／既存アップセルは **21日以内**。ステージ滞留14日超で自動黄色警告（05-26記録の運用強化）。
+- **ヨミ精度（Forecast Accuracy）**: 月初 A ヨミ着地額 vs 月末実績の乖離 **±10%以内**。乖離±20%超は翌月に MEDDPICC 埋め直しを義務化。
+- **初回返信リードタイム**: 問い合わせ受領 **5分以内（オンライン営業時間内）／30分以内（時間外）**。1時間以内で7倍CVR（05-27記録）の上位基準として設定。
+- **商談録音カバレッジ**: 全商談の **95%以上を録音＋Otter要約実施**。Gong導入時は **トーカーレシオ 顧客発話 55〜65%**（営業が喋りすぎ＝失注シグナル）。
+- **提案書送付ゲート（機械照合）**: 前クライアント名残存 grep ヒット件数 **ゼロ件**、見積三点検算（縦計・横計・本文一致）**100%完了**、ROI試算の前提出所注記 **100%明記**。1項目でも欠落は送付不可。
+- **handoff空欄ゼロ率**: 受注確定当日 **100%起票、4枠（決裁者名／支払サイト／スコープ確定版／特記事項）＋更新月／解約通知期限日／クライアント側作業担当者名の追加3枠 全埋め必須**。
+- **既存深耕KPI**: NRR（Net Revenue Retention） **110%以上**、月次チャーンレート（金額ベース）**2%以下**、更新月60日前フォロー実施率 **100%**、四半期定例出席率 **95%以上**。
+- **CAC / LTV健全性**: **LTV/CAC ≧ 3.0**、CAC回収期間 **≦ 12ヶ月**（06-20記録の再確認基準）、リファラル比率 **パイプライン新規の30%以上**（08-03記録の潮流に対応）。
+- **決裁者接点率（Champion Rate）**: 提案フェーズ以降の案件で **決裁者本人と1回以上直接接点があった案件が90%以上**。窓口シングルスレッド案件（06-17失敗パターン）はゼロ。
+- **失注分析網羅率**: 全失注案件で **5大要因（価格/スコープ/納期/信頼/競合）＋自由記述の複数選択 100%記録**、月次で Marketing/PM/Yuto/Legal へフィードバックループ **100%実行**。
+
+### 5. 上位アウトプット強化テンプレート
+- **MEDDPICC Deal Sheet（deal_meddpicc.json）**:
+```json
+{
+  "client": "クライアント名", "deal_value": 0, "close_date": "YYYY-MM-DD",
+  "M_metrics": {"kpi": "採用単価", "before": 0, "after_target": 0, "source": "貴社ヒアリング/推定"},
+  "E_economic_buyer": {"name": "", "title": "", "direct_contact_count": 0},
+  "D_decision_criteria": ["価格", "導入負荷", "実績", "..."],
+  "D_decision_process": {"stages": [], "approval_layers": 0, "est_days": 0},
+  "P_paper_process": {"contract_review_needed": true, "sla_required": false, "invoice_reg_no_confirmed": true},
+  "I_identify_pain": {"pain_original_quote": "顧客発言原文", "cost_of_inaction_yen": 0},
+  "C_champion": {"name": "", "why_they_win_if_we_win": ""},
+  "C_competition": {"competitors": [], "our_differentiator_evidence": []},
+  "yomi": "A/B/C/ネタ", "probability": 0.8, "weighted_value": 0,
+  "next_action": {"who": "", "what": "", "when": "YYYY-MM-DD"}
+}
+```
+- **Command of the Message 提案書骨子**: (1) Before（現状の Pain と放置コスト・顧客原文引用） / (2) After（3〜12ヶ月後の到達状態・数値） / (3) Required Capabilities（LETが提供する能力） / (4) Metrics（成果測定指標と測定タイミング） / (5) Proof Points（業種・規模酷似の他社事例＋失敗談／06-07記録の3点セット）
+- **Multi-Threading Map（意思決定関係者マップ）**: 決裁者／窓口／利用部門／経理／情シスの5役割ごとに、氏名・役職・関心事・反対想定理由・現状の接点回数を1枚で可視化。08-27記録の Yuto 発注時点で提案書制作要件として渡す。
+- **Mutual Action Plan（相互アクション計画）**: 受注までの残タスクを「LET側／クライアント側／期日／完了条件」の4列で相互合意し、商談ごとに更新。06-17記録の「次の1ステップ合意」の書面版。
+- **QBR（Quarterly Business Review）テンプレート**: 四半期定例（06-17記録）用。前四半期の成果数値（応募数・採用充足・広告CPA・ROI）／達成度／未達要因／次四半期の新規課題／アップセル候補／紹介依頼の切り出し、を A4 3ページで固定。NRR向上（08-03記録）の中核ドキュメント。
+- **Sora 提出前セルフQAチェックリスト（sales_output_qa.md）**: (1) MEDDPICC 8軸埋まっているか (2) 提案書の前クライアント名 grep ゼロ件確認済みか (3) 見積三点検算完了か (4) 決裁者接点あるか (5) Mutual Action Plan 合意済みか (6) handoff 7枠全埋めか (7) 失注時5大要因記録の準備あるか。7項目全 ✅ を Sora 提出条件にする。
