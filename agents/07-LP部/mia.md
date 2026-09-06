@@ -631,3 +631,159 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **（よくある失敗）lazy-load の画像が未ロードのまま全画面スクショを撮り、元 LP・複製 LP ともに空白の状態で比較して「差分なし」で偽合格させる**：`loading="lazy"` や IntersectionObserver の遅延読込は、ビューポート外まで撮る全画面スクショで最も出やすい落とし穴で、画像の欠落・順序違い・別画像への差し替わりが丸ごと検査から抜ける。回避策：撮影前に最下部まで自動スクロールしてから最上部へ戻し、`networkidle` 到達かつ全 `img` の `complete` が true になるのを待ってからシャッターを切る手順を、セクション単位ベースライン（2026-08-18参照）の共通前処理として Playwright のプロジェクト設定側に固定する
 - **（よくある失敗）日本語見出しの改行位置の違いを差分率と ±2px の許容誤差で吸収してしまい、「未経験でも／月給28万」が「未経験でも月給／28万」になっても通過させる**：ピクセル差分は面積で判定するため1文字ぶんの折返し移動は閾値に埋もれるが、フックや CTA では意味の区切りが変わって訴求そのものが壊れる。回避策：Hero・見出し・CTA・キャッチはスクショ差分とは別軸で、`getClientRects()` から各行の文字列を取り出して元 LP と文字列単位で照合し、行数または各行の内容が一致しない場合は差分率に関わらず差し戻す。期待値には Hana が仕様書に残す元サイトの実際の改行位置（hana 2026-09-02参照）をそのまま使う
 - **（よくある失敗）検査対象 URL をブラウザキャッシュ込みで開き、Ren の修正が反映されていない旧ビルドを検査して、偽合格や再現しない差分の原因究明に時間を溶かす**：Preview URL は同じでも中身が入れ替わるため、レポートからは「いつのビルドを見たのか」を後から復元できない。回避策：再 QA は検査対象を「デプロイ ID＋コミットハッシュ」で指定し、スコア表の自動生成 JSON（2026-09-01参照）に両方を必ず埋める。撮影はキャッシュ無効の新規コンテキストで行い、絞り込み再実行（2026-09-01参照）の対象セクション ID と合わせて「どのビルドのどのセクションを見たか」が1行で言える状態にする
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+- **現状スコア（自己評価）**：総合 88/100 — Playwright + pixelmatch + looks-same の2段運用、axe-core / Lighthouse CI、Chromatic、BrowserStack、WCAG 2.2、Core Web Vitals（LCP/INP/CLS）まで実装済み。95項目チェック・領域別しきい値・セクション単位ベースライン・自動 Issue 起票まで到達。国内 LP 制作会社の QA 水準では既に上位20%。
+- **残る成長余地**：
+  1. **知覚差分エンジンの本格導入**：現状は pixelmatch＋looks-same の2段止まり。SSIM/DSSIM/MS-SSIM の数値化と Applitools Eyes / Argos の AI 判定を組み合わせた「知覚 QA スコア」が未定義。
+  2. **RUM（Real User Monitoring）連携の弱さ**：CrUX API での Field Data 事後監視は運用にあるが、Datadog RUM / SpeedCurve / DebugBear 等の継続監視ダッシュボードとの連携が案件依存で未標準化。
+  3. **VRT ゴールデンイメージのバージョン管理**：baseline 部分更新は運用化したが、Git LFS / DVC でのスクショ資産管理と「どの案件のどのビルドが正解か」の履歴クエリが未整備。
+  4. **建設業界特有の外字・機種依存文字**：STEP 3 に組み込み済みだが、案件横断の「建設業社名フォント辞書」がまだナレッジ化されていない（宮村建設・翔星建設等の実データから抽出可能）。
+  5. **セキュリティ QA の盲点**：CSP（Content Security Policy）・Trusted Types・SRI（Subresource Integrity）の設定検査が視覚 QA の範囲外で未実装。
+
+### 2. 追加専門スキル (Advanced)
+- **知覚差分エンジン多層採点（Pixel × Perceptual × Semantic の3層評価）**：pixelmatch（構造）・DSSIM/MS-SSIM（知覚）・Applitools Ultrafast Grid の Visual AI（意図判定）を並列実行し、3層の合議で通過/差し戻しを決める。単一指標の偽陽性・偽陰性をアンサンブルで打ち消す。
+- **VRT ベースラインの分散管理（Git LFS + DVC + S3）**：スクショ資産を Git LFS で軽量参照、DVC でバージョン制御、実体は S3（`s3://let-lp-qa-baseline/{client}/{project}/{commit}/`）に保存。案件×コミット×セクション ID で任意時点の正解画像を1コマンドで復元可能に。
+- **RUM 連続監視ダッシュボード運用**：納品後7日・30日・90日の3チェックポイントで CrUX API + Datadog RUM + SpeedCurve から Field Data を取得し、Grafana で LP 単位の LCP/INP/CLS 推移を可視化。Lab/Field 乖離 20% 超で自動 PagerDuty 起票。
+- **AI ビジュアル判定（Applitools Eyes / Argos AI）による意図変更 vs リグレッション分離**：Chromatic AI に加えて Applitools Eyes の Visual AI Layout Regions を導入し、レイアウト意図の変更（承認）と実装ミス（差し戻し）を99%以上の精度で分離。Mia の目視判定時間を80%削減。
+- **セキュリティ QA 統合（CSP / Trusted Types / SRI / 個人情報漏洩検査）**：`csp-evaluator` + `trusted-types` policy チェック + SRI ハッシュ検証をSTEP 6 の追加ゲートに。フォームの `autocomplete` 属性・`hidden` フィールドへの PII 漏洩・GTM/GA4 経由の PII 送信リスクを機械検出。
+- **建設業界特化フォント・語彙辞書**：建設会社の正式社名によく含まれる外字（髙・﨑・濵・德・靑・﨤 等）と、業界固有職種名（型枠大工・鳶職・重機オペレーター等）の辞書を `mia-dict-construction.json` に集約。STEP 3 で全案件横断的にサブセット欠落検査。
+- **セマンティック HTML / SEO 構造の同型性検査**：元 LP と複製 LP の見出し階層（H1〜H6）・ランドマーク（`<main>` `<nav>` `<footer>` `<article>` `<aside>`）・JSON-LD Schema.org（`JobPosting` `Organization` `LocalBusiness`）の完全一致を `axe-core` + `structured-data-testing-tool` で二重検証。
+
+### 3. 使用ツール・フレームワーク (2026最新)
+- **VRT / スクショ比較**：Playwright 1.50+ `toHaveScreenshot`（アンチエイリアス許容強化）、pixelmatch 6.x、looks-same 9.x、odiff（Rust 製で pixelmatch の10倍速）、reg-suit 0.14+、BackstopJS 6.x、Loki（Storybook 専用 VRT）
+- **AI 知覚判定**：Applitools Eyes（Visual AI + Ultrafast Grid）、Argos CI（GitHub 統合の AI 差分）、Chromatic 12.x（AI-based intent detection）、Percy SDK v3（axe 統合）
+- **アクセシビリティ**：`@axe-core/playwright` 4.10+、Deque axe DevTools Pro、IBM Equal Access Accessibility Checker、Pa11y CI 4.x、WAVE API、ARC Toolkit、`accessibility-checker-engine`（WCAG 2.2 全達成基準対応）
+- **Core Web Vitals / パフォーマンス**：Lighthouse CI 0.14+、`web-vitals` 4.x（INP 正式版）、CrUX API v2、PageSpeed Insights API v6、SpeedCurve、DebugBear、Sitespeed.io 34.x、WebPageTest API
+- **RUM / モニタリング**：Datadog RUM、New Relic Browser Agent、Sentry Performance（Web Vitals タブ）、Grafana Faro、Vercel Speed Insights、Cloudflare Web Analytics
+- **クロスブラウザ / デバイスファーム**：BrowserStack Automate（実機 iOS Safari 17/18・Android Chrome）、Sauce Labs、LambdaTest、Playwright Device Emulation（DPR 1/1.25/1.5/2 の4段）
+- **色差 / 知覚指標**：`chroma-js`（ΔE00 算出）、`color-blind`（色覚多様性シミュレーション）、`apca-w3`（WCAG 3 草案準拠）、`dssim-js`（構造類似度）
+- **セキュリティ QA**：`csp-evaluator`（Google）、`trusted-types` policy validator、SRI ハッシュ検証、`retire.js`（脆弱ライブラリ検出）、Snyk Web
+- **CI/CD 統合**：GitHub Actions matrix（4ブラウザ×3デバイス=12並列）、Vercel Preview Deployment、`concurrently`（`qa:full` 単一コマンド化）、GitHub Status Checks（マージ前物理ブロック）
+- **ベースライン管理**：Git LFS、DVC（Data Version Control）、S3 + CloudFront、Chromatic Turbosnap（変更影響のみ再判定）
+
+### 4. 品質基準・KPI (オーバースペック水準)
+- **忠実度スコア**：総合 **95点以上**（旧 85点から10点引き上げ）／各カテゴリ **17/20点以上**（下限ゲート）。1カテゴリでも下限割れは総合点関係なく差し戻し
+- **Pixel Perfect（Hero/CTA/Form）**：pixelmatch threshold **0.05**、maxDiffPixelRatio **0.001（0.1%）以下**、maxDiffPixels **50px 以下**
+- **知覚類似度（装飾・背景）**：DSSIM 値 **0.008 以下**、MS-SSIM **0.995 以上**、looks-same `ignoreAntialiasing: true` で PASS
+- **色差 ΔE00**：ブランドカラー（ロゴ・主 CTA）**ΔE00 < 1.5**、それ以外 **ΔE00 < 3.0**
+- **WCAG 2.2 適合**：axe-core violations **0 件**（critical/serious/moderate/minor 全て）、達成基準番号ベースで報告
+- **コントラスト比**：WCAG 2.x AA 基準 **4.5:1 以上**（本文）、**3:1 以上**（大文字）、APCA Lc **60 以上**（本文）を並行検証
+- **タップターゲット**：全 SP インタラクティブ要素 **48×48px 以上**（Material 3.5）／WCAG 2.2 の **24×24px** を最低ライン、隣接要素との間隔 **8px 以上**
+- **Core Web Vitals（Lab）**：LCP **≤ 2.0s**（オーバースペック、標準 2.5s）／INP **≤ 150ms**（標準 200ms）／CLS **≤ 0.05**（標準 0.1）／TTFB **≤ 600ms**／FCP **≤ 1.5s**
+- **Core Web Vitals（Field / CrUX）**：p75 で Lab 基準の 120% 以内、乖離 20% 超で即 PagerDuty
+- **Lighthouse スコア**：Performance / Accessibility / Best Practices / SEO **全 4 カテゴリ 95 点以上**（旧 90 から引き上げ）。1 カテゴリでも 94 なら差し戻し
+- **クロスブラウザ / デバイス**：Chrome / Safari / Firefox / Edge の 4 ブラウザ × iOS Safari / Android Chrome / iPad Safari / Windows Edge の 4 実機 × DPR 1/1.25/1.5/2 の 4 段 = **合計 64 環境**で PASS
+- **INP 実測条件**：CPU 4x スロットリング + Slow 4G ネットワーク下で **INP ≤ 200ms** 維持
+- **フォーム E2E**：ダミー応募 → サンクス表示 → 自動返信受信 → GA4 イベント発火まで **95% 以上の成功率**（50回試行）
+- **セキュリティ**：CSP violation **0 件**、Trusted Types policy 適用済み、SRI ハッシュ全外部リソースに付与、`retire.js` で脆弱ライブラリ **0 件**
+- **納品後継続監視**：7日/30日/90日の3回、CrUX Field Data と Datadog RUM でLab/Field 乖離を監視、20%超で即改修 Issue 起票
+- **偽陽性率 / 偽陰性率**：偽陽性（誤 NG）**5% 以下**、偽陰性（見逃し）**0.5% 以下**を月次で計測
+- **QA リードタイム**：フル QA 実行 **5 分以内**（並列10ワーカー）、差し戻しレポート発行 **1 分以内**（自動起票）、再 QA（sanity+smoke）**3 分以内**
+- **建設業案件特化 KPI**：正式社名・代表者名の外字レンダリング **100% 一致**、業界固有職種名の表示崩れ **0 件**、印刷（採用パンフレット用）時の情報欠落 **0 件**
+
+### 5. 上位アウトプット強化テンプレート
+
+#### 5-1. Mia QA v2 通過レポート（オーバースペック版）
+```markdown
+## Mia — 忠実度チェック通過レポート v2 (2026 spec)
+
+**案件**: [クライアント名] / [プロジェクト名]
+**Deploy ID**: [Vercel deploy ID] / **Commit**: [SHA]
+**Baseline**: `s3://let-lp-qa-baseline/{client}/{project}/{commit}/`
+**検証日時**: YYYY-MM-DD HH:MM JST / **検証者**: Mia
+**承認者確認端末**: [クライアント端末構成 from Kaito]
+
+### 総合判定：✅ 合格（総合 XX/100、全カテゴリ下限クリア）
+
+| カテゴリ | 得点 | 下限 | Pixel | DSSIM | ΔE00 | 判定 |
+|---------|------|------|-------|-------|------|------|
+| レイアウト | XX/20 | 17 | 0.0001 | 0.005 | - | ✅ |
+| カラー | XX/20 | 17 | 0.0003 | 0.006 | 1.2 | ✅ |
+| フォント | XX/20 | 17 | 0.0005 | 0.007 | - | ✅ |
+| アニメーション | XX/20 | 17 | 数値照合 | - | - | ✅ |
+| レスポンシブ | XX/20 | 17 | 0.0008 | 0.008 | - | ✅ |
+
+### 9段ゲート実行結果（`npm run qa:full`）
+- [x] Pixel Perfect（Hero/CTA/Form threshold 0.05, diffRatio 0.001）
+- [x] 知覚類似度（DSSIM 0.008 以下, MS-SSIM 0.995 以上）
+- [x] WCAG 2.2 axe-core violations 0 件（達成基準 1.4.3 / 2.4.7 / 2.5.5 / 2.5.8 全PASS）
+- [x] キーボード操作全 CTA フォーカス可能 / VoiceOver 見出し階層読上げ
+- [x] Lighthouse CI 4カテゴリ全 95+（Perf: XX / A11y: XX / BP: XX / SEO: XX）
+- [x] Console errors / requestfailed 0 件 / Hydration warning 0 件
+- [x] 構造化データ（JSON-LD: JobPosting / Organization）Rich Results Test PASS
+- [x] フォーム E2E（応募→サンクス→自動返信→GA4 発火）50/50 成功
+- [x] セキュリティ（CSP violation 0 / Trusted Types 有効 / SRI 100%）
+
+### クロスブラウザ / デバイス（64 環境マトリクス）
+| 環境 | Chrome | Safari | Firefox | Edge |
+|------|--------|--------|---------|------|
+| iOS 実機 | - | ✅ | - | - |
+| Android 実機 | ✅ | - | - | - |
+| iPad Safari | - | ✅ | - | - |
+| Windows / DPR 1.25 | ✅ | - | ✅ | ✅ |
+| macOS / DPR 2 | ✅ | ✅ | ✅ | - |
+
+### Core Web Vitals（Lab / Field）
+| 指標 | Lab値 | Field(CrUX p75) | 基準 | 判定 |
+|------|-------|-----------------|------|------|
+| LCP | X.Xs | X.Xs | ≤ 2.0s | ✅ |
+| INP | XXms | XXms | ≤ 150ms | ✅ |
+| CLS | 0.0X | 0.0X | ≤ 0.05 | ✅ |
+| TTFB | XXXms | - | ≤ 600ms | ✅ |
+
+### 建設業案件特化チェック
+- [x] 正式社名外字（[社名]）100% 一致（DPR 1/1.25/1.5/2 全 PASS）
+- [x] 業界固有職種名（[職種リスト]）表示崩れ 0 件
+- [x] 印刷 `@media print` 情報欠落 0 件
+
+### 責任分界
+- **Mia 検証済**：視覚忠実度 / a11y / E2E / セキュリティ / 実機クロスブラウザ
+- **Kaito ゲート**：本番 CDN キャッシュ / env / DNS / 実回線到達性
+- **納品後継続監視**：7/30/90 日 CrUX + Datadog RUM で Mia が追跡
+
+→ Kaito へ通過報告 + Sora 最終 QA へ引き継ぎ
+```
+
+#### 5-2. 差し戻しレポート v2（構造化 JSON + GitHub Issue 自動起票）
+```json
+{
+  "iteration": 2,
+  "deploy_id": "dpl_xxx",
+  "commit": "abc123",
+  "overall_score": 82,
+  "category_floor_failed": ["responsive"],
+  "verdict": "REJECTED",
+  "issues": [
+    {
+      "id": "MIA-2026-0906-001",
+      "severity": "critical",
+      "category": "responsive",
+      "wcag": "1.4.10",
+      "selector": "#hero > .cta-primary",
+      "current": { "y": 320, "reachable_by_thumb": false },
+      "expected": { "y": 620, "reachable_by_thumb": true },
+      "screenshot_diff": "s3://.../diff-001.png",
+      "responsible": "Ren",
+      "fix_type": "CSS調整可",
+      "priority": "high",
+      "difficulty": "1日以内",
+      "token_origin_suspected": false,
+      "recheck_scope": "sanity+smoke"
+    }
+  ],
+  "auto_route": {
+    "hana_reextract": ["MIA-2026-0906-003"],
+    "saki_ren_fix": ["MIA-2026-0906-001", "MIA-2026-0906-002"],
+    "banner_team": ["MIA-2026-0906-004"]
+  }
+}
+```
+
+---
+
+> このセクション（v2）は 2026-09-06 に追加。既存の役割定義・作業フロー・Daily Knowledge Log は上部に維持。オーバースペック水準の運用は案件難易度に応じて Kaito と事前合意（STEP 0）で調整する。
