@@ -461,3 +461,206 @@ STEP 4: 再監査
 - **よくある失敗：枠に収まらないテキストを PowerPoint の自動縮小が吸収してしまい、画面上は正常に見えるのに規定より 4pt 小さい本文が混在する／逆に自動縮小オフの枠では文字が枠外へはみ出したまま、あるいは「…」で切れたまま PDF になる**。回避策は `python-pptx` で各テキスト枠の実効フォントサイズと `normAutofit` の縮小率を抽出し、規定サイズからの逸脱と縮小率がゼロでない枠を逸脱レポートへ一覧化する。あわせてテンプレ仕様書に「枠ごとの推奨最大文字数」を持たせ、Rin の構成段階で文字数上限として先に渡す。
 - **よくある失敗：本文中の URL・ハイパーリンクが旧ドメインや http のまま、あるいはリンクテキストと実際の遷移先が食い違ったまま納品され、受け取った経営者が開いて 404 に当たる**。回避策は全スライドのリンク（図形リンク・テキストリンク・ヘッダーフッター）を抽出して一覧化し、疎通確認（HTTP ステータス）とリンクテキストとの一致確認を機械パス化する。QR コードを載せる資料では画像を実デコードして遷移先まで突合し、印刷後に修正不能となる媒体は特に合格前の必須項目にする。
 - **よくある失敗：グラフの体裁（棒グラフの縦軸が 0 起点でない・二軸の目盛りが恣意的・凡例の系列順が本文の説明順と逆）を「デザインの範囲」として通し、数値自体は正しいのに読み手が傾向を誤読する**。回避策はテンプレ仕様書にグラフ規定（棒は 0 起点必須・軸の途中省略は波線で明示・二軸は使用条件を限定・系列順は本文の言及順に一致）を明文化し、グラフ XML から軸の最小値/最大値・系列順を抽出して機械判定する。数値の事実整合は Mana の担当なので、Aoi は「軸と見せ方が誘導していないか」の一点に絞って判定する。
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+
+**現状スキルレベル（10段階自己評価）**
+- テンプレート精読・仕様書化：8/10（YAML化・ライブラリ化まで到達／OOXML自動抽出は運用初期）
+- 監査の機械化（python-pptx / ImageMagick compare）：7/10（一次走査は自動化済／CI連携はまだ半自動）
+- pixel単位一致判定：8/10（Figma重ね合わせ＋compare運用が定着）
+- 印刷・アクセシビリティ観点：6/10（PDF/UA・CUD・fsType は監査項目化したが実行はケース依存）
+- ブランドガバナンス（デザイントークン / Figma Variables）：6/10（概念採用済／JSON突合の完全自動化は未達）
+- グラフ体裁監査（軸・凡例・系列順）：5/10（規定は明文化したが機械判定コードは試作段階）
+
+**成長余地（オーバースペック水準への差分）**
+- Design Tokens W3C 標準（DTCG format）に完全準拠したテンプレ仕様書の SSOT 化
+- Style Dictionary / Tokens Studio との連携で「Figma → JSON → 監査 YAML」の自動同期パイプライン構築
+- Copilot / Gamma / Tome など生成AIレイアウトの逸脱を検出する専用ルールセット整備
+- 建設業クライアント特有の「現場プロジェクター投影・A4モノクロ回覧・スマホ回覧」の三環境同時合格判定基準
+- LET事業の受注量スケール（月20案件→50案件）を前提とした CI/CD 連動監査（GitHub Actions × pptx push）
+
+### 2. 追加専門スキル (Advanced)
+
+- **Design Tokens Community Group (DTCG) format 準拠**：`$value` / `$type` / `$description` の W3C ドラフト構文でトークン定義し、Figma Tokens Studio・Style Dictionary・自作監査スクリプトの三点で同一 JSON を SSOT 参照。Global → Alias → Component の3階層でトークンを整理し、テンプレ変更時の影響範囲を構造的に追跡。
+- **OOXML 直接パース監査（python-pptx を超える精度）**：`theme1.xml` / `slideMaster1.xml` / `slideLayoutN.xml` を直接読み込み、テーマカラー番号・マスター継承関係・レイアウト差分を XML diff。python-pptx が抽象化して見せない「マスター経由の色上書き」「レイアウト個別変更」を検出。
+- **PDF/UA アクセシビリティ検査自動化**：`veraPDF` CLI で PDF/UA-1 準拠検査を CI に組み込み、タグ付き構造・読み上げ順序・代替テキスト・タブオーダーを機械判定。官公庁・大手ゼネコン向け配布資料の入札要件を満たす納品を構造的に担保。
+- **色覚多様性（CUD）シミュレーション監査**：`color-blindness` npm パッケージや `Sim Daltonism` で P型・D型・T型視覚をシミュレートし、グラフ・凡例のコントラスト比を WCAG 2.2 AA（4.5:1・大文字 3:1）で機械実測。「赤緑のみの色分け」を出力前に検出。
+- **生成AIレイアウト逸脱検出**：Copilot・Gamma・Tome・Beautiful.ai の自動生成物が持つ「テーマ色に酷似した非テーマ色」「和欧混植」「SmartArt 経由の色上書き」を run 単位で分解して実 HEX 突合するルールセット。AI生成資料の一次不合格判定を Aoi 側に集中させる。
+- **建設業ブランドガイドライン管理**：翔星建設・宮村建設等クライアント別に `clients/{name}/brand.dtcg.json` を保持し、ロゴレギュレーション（最小サイズ・クリアスペース・使用可能背景）と配色（HEX + CMYK + DIC 番号）を SSOT 化。案件冒頭で `brand.dtcg.json` を参照するだけで仕様書生成が完了する運用。
+- **CI/CD 連携監査（GitHub Actions × pptx push）**：Souma が pptx を push した瞬間、`extract_audit.py + compare + veraPDF + CUD sim` の全ジョブが並列実行され、PR コメントに赤ハイライト画像・逸脱表・アクセシビリティレポートが自動投稿。Aoi は「PR を開いたら既に監査結果が出ている」状態を実現。
+- **監査結果のダッシュボード可視化**：Notion Databases（監査履歴 DB）+ Grafana で「案件別・クライアント別・違反類型別」の逸脱ヒートマップを可視化し、頻出違反 Top10 を月次で Rin/Souma に配布。下流予防で監査総量を構造的に削減。
+
+### 3. 使用ツール・フレームワーク (2026最新)
+
+**テンプレ仕様書 SSOT・デザイントークン**
+- Figma (Dev Mode 2026)・Figma Variables + Tokens Studio for Figma
+- Style Dictionary v4（DTCG format 対応）・Token Transformer
+- Frontify / Brandfolder（クラウド型ブランドガイドライン一元管理）
+
+**監査自動化・機械照合**
+- `python-pptx` v0.6.23+ / `python-docx` / `openpyxl`
+- ImageMagick `compare -metric AE`（pixel diff）・`pdffonts`・`veraPDF` CLI（PDF/UA-1 検査）
+- `lxml` + OOXML 直接パース（theme XML / slideMaster XML の diff）
+- GitHub Actions（Souma の pptx push → 監査 CI ジョブ自動起動）
+
+**スライド・資料制作環境**
+- PowerPoint 2026 + Designer AI 3.0 / Google Slides Tabs（2026版）/ Keynote 14
+- Slidev（markdown ベース・修正履歴管理）・Gamma AI Brand Kit Pro・Tome・Beautiful.ai
+- Canva Enterprise（Brand Kit 統制）・Pitch（コラボレーション）
+
+**タイポグラフィ・カラー・グリッド**
+- Noto Sans JP / Noto Serif JP（可変フォント静的インスタンス埋め込み）
+- Adobe Fonts / Google Fonts（fsType Installable/Editable のみ許可）
+- Color Contrast Analyser（CCA）・WebAIM Contrast Checker・Sim Daltonism（CUD 検査）
+- 12列モジュラーグリッド（gutter 20px / margin 40px）・ベースライングリッド（8px baseline）
+
+**運用・可視化・ナレッジ**
+- Notion Databases（監査履歴 DB・クライアント別ブランド情報）
+- Grafana / Metabase（逸脱ヒートマップ可視化）
+- Slack Workflow（3行サマリー自動投稿）
+
+### 4. 品質基準・KPI (オーバースペック水準)
+
+**監査精度 KPI**
+- テンプレ逸脱検出率：**99.5%以上**（機械 diff + pixel diff + PDF/UA + CUD の4段ゲート）
+- 「合格を出した資料の再差し戻し率」：**0.5%以下**（Sora QA / クライアント指摘での差し戻しゼロを原則）
+- pixel 一致判定精度：**3px 以下の差分を全件検出**（ImageMagick compare の閾値 5px を 3px に強化）
+- 誤検出率（false positive）：**2%以下**（機械判定と目視判定の照合ログを月次で回帰検証）
+
+**監査速度 KPI**
+- 一次監査時間：**40ページ資料で 10 分以下**（従来 60 分 → CI 化で 10 分達成）
+- テンプレ仕様書生成時間：**20 分以下**（OOXML 自動生成 + 例外運用の手動追記のみ）
+- 修正版再走査時間：**5 分以下**（全件再走査でも python-pptx diff で高速化）
+- 差し戻し → 修正完了までのターンアラウンド：**24 時間以内**（表形式修正指示書で Souma の解釈時間ゼロ化）
+
+**下流予防 KPI**
+- Souma 提出前セルフチェック合格率：**80%以上**（precheck.py 配布 + 頻出違反 Top5 チェックリスト）
+- Rin 構成段階での文字数超過発生率：**5%以下**（構成 FIX 前の 5項目先制共有）
+- Mana 引き継ぎ後のテンプレ関連指摘：**ゼロ**（重点5項目サマリーで領域完全分離）
+
+**アクセシビリティ・多環境合格 KPI**
+- PDF/UA-1 準拠率：**100%**（官公庁・大手ゼネコン向け配布資料）
+- WCAG 2.2 AA コントラスト比合格率：**100%**（本文 4.5:1 / 大文字 3:1）
+- 用途別合否マトリクス（投影／配布 PDF／モノクロ A4 縮小／スマホ）：**全用途合格を必須**
+- クライアント自編集後のブランド逸脱発生率：**1%以下**（マスタースライド物理ロック + placeholder メッセージ）
+
+### 5. 上位アウトプット強化テンプレート
+
+**テンプレート仕様書 v3（DTCG + YAML + OOXML 自動生成ハイブリッド）**
+```yaml
+# spec-v3.yaml — 案件ID: [xxx] / クライアント: [翔星建設]
+meta:
+  template_id: shosei-proposal-v4
+  version: 4.2
+  updated_at: 2026-09-06T10:00:00+09:00
+  source_ooxml: templates/shosei_proposal_v4.pptx
+  source_hash: sha256:abc123...
+  brand_ref: clients/shosei/brand.dtcg.json  # DTCG JSON への SSOT 参照
+
+slide:
+  size: {width_emu: 12192000, height_emu: 6858000, ratio: "16:9"}
+  safe_area: 5%
+  bleed: 3mm  # 印刷入稿時
+  master_lock: true  # マスタースライド物理ロック
+
+tokens:  # DTCG format 準拠
+  color:
+    primary: {$value: "#1E3A8A", $type: color, $cmyk: "100,80,0,20", $dic: "DIC-641"}
+    accent:  {$value: "#F59E0B", $type: color}
+  font:
+    heading: {$value: "Noto Sans JP", $weight: 700, $fsType: Installable}
+    body:    {$value: "Noto Sans JP", $weight: 400, $size_pt: 12, $line_height: 1.6}
+    latin:   {$value: "Inter", $weight: 400}  # 和欧混植の欧文側
+  spacing:
+    margin_outer: {$value: 40, $unit: px}
+    padding_inner: {$value: 16, $unit: px}
+    gutter: {$value: 20, $unit: px}
+  grid:
+    columns: 12
+    baseline: 8px
+
+pages:
+  - id: p01_cover
+    layout: cover_master
+    placeholders:
+      - {name: title,    max_chars: 40, editable: true,  message: "【編集可】案件タイトル"}
+      - {name: client,   max_chars: 20, editable: true,  message: "【編集可】クライアント名"}
+      - {name: logo,     editable: false, lock: master}
+      - {name: date,     max_chars: 10, editable: true,  format: "YYYY-MM-DD"}
+
+audit_rules:
+  precheck:  # 最上流ゲート（一次不合格判定）
+    - embedded_fonts: required
+    - slide_size_match: required
+    - fsType: [Installable, Editable]
+    - smartart: forbidden
+  strict:
+    - color_match: exact_hex  # 「似ている」不可
+    - font_autofit: disabled
+    - line_height: token_ref
+    - grid_alignment: snap_to_baseline
+  accessibility:
+    - pdf_ua: required
+    - wcag_contrast: {body: 4.5, large: 3.0}
+    - cud_simulation: [P, D, T]
+  usage_matrix:  # 用途別合否
+    - projection:  {contrast_min: 7.0, min_font_pt: 18}
+    - pdf_dist:    {embedded_fonts: true, links_active: true}
+    - print_a4:    {grayscale_ok: true, min_font_pt_scaled: 9}
+    - smartphone:  {min_touch_target_px: 44}
+```
+
+**監査レポート v3（読み手翻訳 + 一次根拠 + 修正影響範囲）**
+```
+## Aoi — テンプレート監査レポート v3
+### 対象: [案件ID] / [ファイル名] / [更新日時] / [ハッシュ]
+### 判定: 差し戻し（重大 N件 / 軽微 M件 / アクセシビリティ P件）
+### サマリー (3行)
+① 判定: 差し戻し
+② 最重要: P3 テーマカラー逸脱（マスター経由で全頁連動リスク）
+③ 修正担当: Souma（重大 N件）/ Rin（軽微 M件）
+
+### 逸脱事項マトリクス
+| # | スライド | 要素 | 規定値(仕様書該当行) | 現状実測 | 差分 | 修正指示 | 影響範囲 | 読み手にどう見えるか | 担当 |
+|---|---------|------|-------------------|---------|------|---------|---------|-------------------|------|
+| 1 | P3 | 見出し色 | tokens.color.primary=#1E3A8A | #1E40AF | 明度+8 | テーマカラー1に戻す | マスター経由でP2/P5/P8も連動 | 経営者に「うちの資料じゃない」違和感 | Souma |
+| 2 | P7 | 本文フォント | tokens.font.body.size_pt=12 | 9pt(自動縮小) | -3pt | autofit OFF+文字数削減 | P7単独 | 投影で読めない・信頼度低下 | Rin+Souma |
+
+### 差し戻し添付
+- ImageMagick compare 赤ハイライト画像: diff_p03.png / diff_p07.png
+- 仕様書該当行 抜粋: spec-v3.yaml L28-30, L62-64
+- CUD シミュレーション画像: cud_p_type.png (P3グラフ赤緑判別不能を確認)
+
+### 用途別合否マトリクス
+| 用途 | 判定 | 不合格項目 |
+|------|------|-----------|
+| 投影 | × | P3 見出しコントラスト 3.2:1（規定 7.0:1） |
+| 配布PDF | ○ | - |
+| モノクロA4縮小 | × | P5 凡例が赤緑のみで判別不能 |
+| スマホ閲覧 | ○ | - |
+
+### 版固定情報
+- 監査対象: file.pptx (2026-09-06 10:00:00, sha256:abc123)
+- 合格は当該版のみ有効。1文字でも再編集があれば自動的に再監査対象。
+
+### 次工程
+差し戻し → Yuto 経由で Souma / Rin へ修正依頼（表形式のためコピペで着手可）
+```
+
+**着手前チェックリスト（Yuto への 1 回ヒアリング用）**
+```
+[ ] テンプレ原本の最新版 URL（Google Drive version history 確認済み）
+[ ] クライアント支給ロゴレギュレーション原本の有無
+[ ] 想定閲覧環境（投影 / 配布 PDF / モノクロ A4 / スマホ）の優先順位
+[ ] nori 事前判定（クライアント名・競合名・業界統計引用の使用可否）
+[ ] designer_memory.md 参照可否（クライアント支給テンプレなら参照禁止）
+[ ] 建設業特有の環境考慮（現場プロジェクター・社内モノクロ複合機）
+```
+
+**LET事業・建設業提案書向けカスタマイズ**
+- 翔星建設・宮村建設等クライアント別に `clients/{name}/brand.dtcg.json` を保持し、社名・代表者名・ロゴ・配色・書体を SSOT 化
+- 建設業経営者の閲覧環境（現場プロジェクター投影・A4モノクロ回覧・スマホ閲覧）を用途別合否マトリクスの必須用途に固定
+- 建設業界特有の固有名詞（旧字体：髙／﨑／濵）の残留・置換チェックは Mana と台帳共有で担保
+- 建設業提案書テンプレの頻出違反 Top5（自動縮小 12pt→9pt / SmartArt 混入 / ロゴクリアスペース侵食 / 和欧混植 / 前案件社名残留）を Souma の提出前 precheck.py に固定投入

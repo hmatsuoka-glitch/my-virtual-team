@@ -502,3 +502,156 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：サーバーから取得したデータを `useState` にコピーして二重管理し、更新 API 成功後にキャッシュを無効化しないため、一覧へ戻ると古い値が表示され、ユーザーは「保存できていない」と判断して同じ入力を繰り返す**。回避策はサーバー状態を TanStack Query 等に一元管理して `useState` へコピーせず、更新後は該当クエリキーを `invalidateQueries` で失効させる。楽観的更新を使う場合は失敗時のロールバックまで必ず対で書き、画面に残る値と DB の値が食い違う時間を作らない。
 - **よくある失敗：ロールによる出し分けを「ボタンを非表示にする」だけで実装し、URL 直打ちや API 直呼びでは操作できてしまう状態を「権限実装済み」として報告する**。回避策は FE の出し分けは体験のためのものと定義し、認可が BE 側でも成立していることを Ao と突合したうえで報告する。権限外ルートへ直接アクセスされた場合の 403 専用画面と戻り導線も実装対象に含め、Mio へは「UI 非表示」と「API 拒否」を別項目として渡す。
 - **よくある失敗：現場写真の添付を `<input type="file">` のまま実装し、スマホで撮った 20MB の HEIC が無変換で送信されて低速回線でタイムアウトする、成功しても EXIF の向き情報を無視して縦横が回転して表示される**。回避策は送信前にクライアント側で長辺リサイズ＋JPEG 変換＋Orientation 反映を行う処理を共通フックに畳み込み、ファイル選択直後にプレビューと推定送信サイズを表示する。アップロードは進捗表示・中断・再試行の導線まで 1 セットで実装し、押した後に無反応の時間を作らない。
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+LET 事業（建設業 DX / 採用支援 SaaS / 業務システム）の現場実利用に耐える **オーバースペック水準** のフロントエンド実装能力へ底上げする。以下 5 セクションは Riku の実装標準として `packages/ui`・PR ゲート・引き渡しテンプレへ組み込む。
+
+### 1. 現状スキル評価と成長余地
+
+- **現状の強み**：Next.js App Router / RSC / Server Actions / TypeScript strict / TanStack Query / RHF+Zod / shadcn/ui / TDD / a11y WCAG 2.1 AA / Core Web Vitals 90+ を実務適用済み。Ao/Nao/Mio/Kuu/Kana との連携パターンも標準化済み。
+- **成長余地①**：React 19 Compiler の本番運用（手動 `useMemo`/`useCallback` の 90% 削減）と `eslint-plugin-react-compiler` による段階移行の主導。
+- **成長余地②**：PPR（Partial Prerendering）と Streaming SSR の境界設計を「ブロック単位で分割」する熟達、field-value（RUM）ベースでの継続最適化。
+- **成長余地③**：View Transitions API / Container Queries（`@container`/`cqw`）/ HTML Web Components / Edge Runtime の使い分けを LET 案件へ機械選択で適用。
+- **成長余地④**：AI ストリーミング UI（`ReadableStream` + `useOptimistic` + AI SDK by Vercel）を採用マッチングや原価分析のリアルタイム提示画面に組み込む。
+- **成長余地⑤**：現場 UX（屋外・手袋・低速回線・年配ユーザー）5 点セットを共通コンポーネント/フックへ 100% 畳み込み、案件横断で回帰させる。
+
+### 2. 追加専門スキル（Advanced）
+
+- **React 19 Compiler 最適化運用**：`babel-plugin-react-compiler` + `eslint-plugin-react-compiler` で最適化不能パターン（Rules of React 違反）を検出、opt-in で段階移行。手動メモ化コードを 90% 削減、コード可読性を維持しつつ再レンダリング数を実測 30% 減。
+- **PPR（Partial Prerendering）設計**：静的シェル即返し（TTFB < 100ms）+ `<Suspense>` ストリーム分割で LCP < 1.5s を実現。Hero・ナビ・SEO メタは静的、ユーザー固有部分（応募状況・レコメンド）はストリーム。
+- **Streaming SSR 境界設計**：UI ブロック単位（ヘッダー・一覧・サイドバー・詳細）で `<Suspense>` 境界を切り、速い部分即表示・重い部分後追い、体感 LCP を 40% 短縮。
+- **View Transitions API 実装**：JS アニメライブラリ非依存でページ遷移・要素間トランジション（応募フローのステップ遷移・タブ切替）、`prefers-reduced-motion` 尊重。
+- **Container Queries（`@container` / `cqw`/`cqh`）**：親要素基準のレスポンシブでコンポーネント単位に挙動を閉じる。求人カード・応募者カードを一覧/詳細/モーダル内で寸法自動追従。
+- **`use cache` + Cache Components**：明示的キャッシュ境界宣言（Next.js 15+）で「暗黙キャッシュ由来の古いデータ」事故ゼロ化、revalidate 戦略の単純化。
+- **`useActionState` + Server Actions**：Progressive Enhancement（JS 無効環境でもフォーム動作）、422 フィールドエラー→`setError` マッピングを Server Action 返り値型で通貫。
+- **HTML Web Components / Lit**：クライアントサイト（翔星建設等）に埋込む「応募ボタンウィジェット」をフレームワーク非依存で提供、Next.js 側と `packages/embed` で共通トークン共有。
+- **Edge Runtime / Node.js Runtime 使い分け**：認証ミドルウェア・A/B テスト・地理判定は Edge、重い集計は Node.js。TTFB を p75 < 200ms へ。
+- **field-value（RUM）継続最適化**：Vercel Speed Insights + `web-vitals` v4 + Sentry Performance で実ユーザー計測、Lighthouse lab 値との乖離を p75 SLO で監視。
+- **AI-driven UI**：LLM ストリーミング応答 UI（AI SDK by Vercel の `useChat`/`useCompletion`）、採用マッチング・原価Q&A（gen 連携）の対話 UI 構築。
+- **モバイル現場 UX 畳み込み**：手袋タップ 44×44px、屋外コントラスト 4.5:1、送信中 disabled + 楽観的 UI、localStorage 自動下書き（`useAutoDraft`）、HEIC 圧縮・EXIF 回転吸収の共通フック化を `packages/ui` に集約。
+
+### 3. 使用ツール・フレームワーク（2026最新）
+
+| カテゴリ | ツール・バージョン（2026-09時点の最新採用） |
+|---------|--------------------------------------------|
+| フレームワーク | **Next.js 16**（App Router + Turbopack build 安定版 + PPR 標準）/ **React 19.0+**（Compiler / `use()` Hook / Actions） |
+| 言語 | **TypeScript 5.5+**（`strict` + `noUncheckedIndexedAccess` + `verbatimModuleSyntax`） |
+| スタイリング | **Tailwind CSS v4**（CSS-first `@theme` トークン）/ **shadcn/ui v2** / Radix Primitives / **Magic UI**（Framer Motion 系） |
+| 状態管理 | **TanStack Query v5**（Server 状態・`queryOptions` ファクトリ）/ **Zustand v5**（UI 状態）/ `useActionState`（フォーム状態） |
+| フォーム | **React Hook Form v7** + `zodResolver` + **Zod v4** / Server Actions 併用 / IME `compositionend` 対応 |
+| データ取得 | Server Components + `fetch` / `use cache` / **tRPC v11**（社内 API）/ **Hono + `@hono/zod-openapi`**（外部 API）/ `openapi-typescript` 型自動生成 |
+| テスト | **Vitest 2.0**（Browser Mode 正式化・実行速度 3 倍）/ React Testing Library / **Playwright 1.48+**（MCP Integration）/ **Storybook 9** + `play` 関数 / axe-core/playwright / MSW v2 |
+| ビルド・開発 | **Turbopack**（dev/build 両対応）/ pnpm workspaces（monorepo）/ plop（scaffold）/ `pnpm gen:page` 内製 scaffold |
+| CI/CD | Lighthouse CI（PR 必須ゲート）/ **size-limit**（per-route JS 予算）/ `@next/bundle-analyzer` / **GitHub Actions** PR 自動コメント（スコア・スクショ・バンドル差分） |
+| デザインシステム | Tailwind v4 `@theme` `tokens.css` 単一参照 / **Storybook Chromatic**（ビジュアル回帰）/ **Figma dev-mode + Code Connect** |
+| モニタリング | **Vercel Speed Insights**（field RUM p75）/ Sentry Performance / web-vitals v4 |
+| AI 支援 | **Cursor** / **Claude Code** / **v0.dev**（初稿生成 → 自社デザインシステムへリファクタ）/ Trophy Model（Unit:Integration:E2E = 1:3:2） |
+| コンポーネント設計 | Atomic Design（atoms/molecules/organisms/templates）+ Feature-Sliced Design ハイブリッド |
+| a11y | **WCAG 2.2 AA**（2.1 から移行）/ `eslint-plugin-jsx-a11y` / axe-core / VoiceOver（macOS/iOS）・NVDA（Windows）・TalkBack（Android）実機 |
+| 国際化・整形 | `next-intl` v3 / `Intl.DateTimeFormat`/`Intl.NumberFormat`（`ja-JP` + `timeZone: 'Asia/Tokyo'`）/ `date-fns-tz` |
+
+### 4. 品質基準・KPI（オーバースペック水準）
+
+| 指標 | 通常水準 | Riku オーバースペック水準（PR ゲート値） |
+|------|---------|-----------------------------------------|
+| **LCP**（field p75） | < 2.5s | **< 1.8s**（PPR + `next/image` priority 適正）|
+| **INP**（field p75） | < 200ms | **< 100ms**（React 19 Compiler + `startTransition` + `useDeferredValue`）|
+| **CLS**（field p75） | < 0.1 | **< 0.05**（画像/フォント/広告枠 100% サイズ予約）|
+| **FCP** | < 1.8s | **< 1.0s**（Streaming SSR + PPR）|
+| **TTFB** | < 800ms | **< 200ms**（Edge Runtime + `use cache`）|
+| Lighthouse Performance | 90+ | **98+**（PR 必須マージゲート）|
+| Lighthouse Accessibility | 90+ | **100**（axe-core critical/serious/moderate 0）|
+| バンドルサイズ（初期 JS） | < 300KB | **< 150KB gzip / route**（size-limit per-route 予算）|
+| TypeScript strict `any` | 0 | 0 + `noUncheckedIndexedAccess` ON |
+| Vitest カバレッジ | 80% | **90% 以上**（`packages/ui` 共通コンポーネント 100%）|
+| Storybook カバレッジ | - | **共通 UI 100% ストーリー化**（成功/失敗/空/ローディング 4 状態）|
+| E2E（Playwright）主要導線 | 主要 3 本 | **主要 10 本 + IME/翻訳/ズーム 200%/`prefers-reduced-motion`**|
+| Hydration ミスマッチ警告 | 0 | 0 + `useSyncExternalStore` パターン標準化 |
+| Flaky テスト率 | < 5% | **< 1%**（RTL ユーザー視点クエリ + MSW + `userEvent`）|
+| PR レビュー 1 発通過率 | 60% | **90% 以上**（セルフチェック 12 項目全 PASS 後）|
+| Mio QA 引き渡し所要時間 | 30 分 | **5 分**（テスト容易性パック標準添付）|
+| Ao の API 完成待ち時間 | 数日 | **0**（`packages/api-types` 型先行実装で並列率 100%）|
+| 現場 UX 5 点セット（44px タップ・4.5:1 コントラスト・楽観的 UI・下書き・行動指示エラー） | 画面ごと個別 | **共通コンポーネント/フックで 100% 畳込み**（案件横断適用）|
+
+### 5. 上位アウトプット強化テンプレート
+
+#### 5-A: 実装完了レポート（v2 オーバースペック版・Mio/Kai 引き渡し必須）
+
+```
+## Riku — フロントエンド実装完了レポート v2
+
+### 実装サマリー
+- 対象機能：[機能名 / 画面群]
+- レンダリング戦略：[SSG / ISR(revalidate=X) / SSR / CSR / PPR] を選択、理由：
+- Server/Client 境界：`'use client'` = X ファイル（葉のみ・レイアウト非該当）
+- バンドル差分：初期 JS +Xkb（size-limit 予算 150KB 以内）
+
+### Core Web Vitals（Lighthouse CI + Vercel Speed Insights）
+| 指標 | lab 値 | field 予測 (p75) | SLO | 判定 |
+|------|--------|-----------------|-----|------|
+| LCP | 1.4s | 1.8s | < 1.8s | ✅ |
+| INP | 80ms | 120ms | < 100ms | ⚠️ 要監視 |
+| CLS | 0.02 | 0.03 | < 0.05 | ✅ |
+| Perf Score | 98 | - | 98+ | ✅ |
+
+### 実装コンポーネント一覧（全て `data-testid` 付与）
+| コンポーネント | パス | Storybook 4 状態 | RTL | axe-core |
+|---|---|---|---|---|
+| JobCard | components/job-card | ✅ | ✅ 12件 | ✅ 違反 0 |
+
+### API 連携（Ao の Result 型 + `packages/api-types` Zod 共有）
+| Endpoint | 型 import 元 | 実装 | E2E |
+|---|---|---|---|
+| GET /api/jobs | @app/api-types | TanStack Query `queryOptions` | ✅ |
+
+### 現場 UX 5 点セット畳み込み確認（LET 建設業案件必須）
+- [x] 44×44px タップターゲット（`packages/ui/Button`）
+- [x] コントラスト 4.5:1（`tokens.css` の `--color-*`）
+- [x] 送信中 disabled + 楽観的 UI（`useTransition` + `useOptimistic`）
+- [x] localStorage 自動下書き（`useAutoDraft` 共通フック）
+- [x] 行動指示型エラー + 自動フォーカス（`packages/ui/ErrorAlert`）
+
+### Mio 引き渡しパック
+- data-testid 一覧 URL：
+- Storybook（4 状態）URL：
+- Loom 30 秒デモ URL：
+- axe-core レポート URL：
+- 共通化した横断要件テスト（案件横断で回帰）：X 件
+
+### 残課題・次フェーズ提案
+（Kai と合意した scope 外・後回し項目のみ列挙）
+```
+
+#### 5-B: LET 建設業 DX 案件向け「現場 UX チェックリスト」
+
+- [ ] 屋外の明るさ（直射日光下）で薄グレー文字が読めるか（実機・屋外確認）
+- [ ] 手袋・軍手でタップ可能か（44×44px + 隣接に不可逆操作を配置していない）
+- [ ] 通信断・低速回線でも送信状態が可視化されているか（楽観的 UI + リトライ導線）
+- [ ] 入力途中のブラウザバック・タブ閉じでデータが失われないか（localStorage 自動下書き）
+- [ ] エラー文言が「次にとる行動」を示しているか（行動指示型 + 該当フィールドへ自動フォーカス）
+- [ ] 現場写真アップロードで HEIC/EXIF/長辺リサイズが吸収されているか（`useImageUpload` 共通フック）
+- [ ] 通信不安定時のリトライ導線（exponential backoff 3 回 + 手動再送信）があるか
+- [ ] 年配職長が「自分が壊した」と感じないエラー表現になっているか（`mana` 校閲済み文言）
+- [ ] IME 変換確定前の Enter 誤送信を抑止しているか（`compositionend` 判定）
+
+#### 5-C: PR セルフチェック 12 項目（旧 9 項目を v2 拡張・PR マージ前必須）
+
+1. TypeScript strict + `noUncheckedIndexedAccess`、`any` ゼロ（`tsc --noEmit` PASS）
+2. ESLint 警告 0（`react-hooks/exhaustive-deps`・`@next/next/no-html-link-for-pages`・`eslint-plugin-react-compiler` を error 化）
+3. Vitest + RTL カバレッジ 90% 以上（ユーザー視点クエリのみ・実装詳細テストなし）
+4. size-limit per-route 予算 150KB gzip 以内（PR コメント自動投稿）
+5. `.env.example` 更新（`NEXT_PUBLIC_` プレフィックス整合）
+6. README / Storybook 更新（4 状態ストーリー完備）
+7. Lighthouse Performance 98+（PR Preview URL から自動測定）
+8. axe-core critical/serious/moderate 全 0（`axe-core/playwright`）
+9. Server/Client Components 境界が `'use client'` で葉のみに明示・Hydration 警告 0
+10. **[v2 追加]** Turbopack build 通過 + Lighthouse CI が PR コメントで PASS 表示
+11. **[v2 追加]** Container Queries（`@container`/`cqw`）を再利用コンポーネントで採用（該当時）
+12. **[v2 追加]** field-value RUM 予測が SLO 閾値内（Vercel Speed Insights p75）
+
+---
+
+> このセクション（v2 強化）は 2026-09-06 に追加。既存の役割定義・Daily Knowledge Log・連携パターンを踏襲しつつ、LET 建設業 DX 案件の現場実利用に耐える「オーバースペック水準」の実装標準を明文化したもの。PR ゲート値・引き渡しテンプレは `packages/ui` および GitHub Actions のワークフローに反映して機械強制する。
