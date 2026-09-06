@@ -270,3 +270,135 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - （よくある失敗）ドメイン・DNS の編集権限が旧制作会社や広告代理店側にあることを公開直前に知り、レコード追加やサブドメイン発行の依頼往復で公開日が飛ぶ。回避策：STEP 0 の確認項目に「ドメイン取得先／DNS 編集権限の保持者／サブドメイン発行の可否／SSL の扱い」を固定で加え、権限が他社にある場合は着手と同時にレコード追加依頼を並走させる。公開2週間前までにテスト用サブドメインで DNS 書き込みが通っていなければ、その時点で公開日を再設定する判断基準にする
 - （よくある失敗）GA4・Google 広告・Search Console の権限付与を後回しにしたまま公開し、計測タグは載っているのに実データを見る権限が無く、公開当日24時間レビュー（2026-09-01参照）が実施できない。回避策：STEP 0 で「GA4 プロパティの編集者権限／Google 広告のアカウントリンク／Search Console の所有権」の3点を1通の権限依頼としてまとめて出し、クライアント側の実際の管理者が誰かまで確定させる。付与が間に合わない場合は自社プロパティを併設し、後から本番プロパティへ計測を接続できる構成で公開する
 - （よくある失敗）納品後にクライアントが求人票や他媒体の条件だけを更新し、LP の給与・休日が旧条件のまま取り残されて、求職者の突き合わせ（2026-08-16参照）で不信を招く。回避策：納品時に Saki の修正受付フォームを採用担当へ直接渡し、「条件を変えたら LP も直す」窓口をクライアント側担当者1名に固定する。加えて賃上げ・初任給改定が動く4月と10月に条件突合の定期確認を予約し、数字↔出典突合表（2026-08-05参照）を年2回更新する運用にする
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 現状スキル評価と成長余地
+- **強み（現状の到達水準）**: 要件7項目ヒアリング / iro・kotone・sota 並列起動テンプレ / 3秒テスト＋差し戻しマトリクス / 法務2レーン（景表法・雇用関連法）事前チェック / 数字↔出典突合表 / design-tokens.json による08-バナー生成部との世界観同期。ここまでは「制作ディレクター」として満点水準
+- **成長余地①（戦略層）**: CVR仮説の言語化とA/B実験設計が現場勘依存で、統計的仮説検定（p値・最小検出可能効果・必要サンプル数）まで踏み込めていない → **Growth Design（実験設計・学習ループ）を統括業務に昇格**
+- **成長余地②（計測層）**: GA4イベント設計を ren 任せにしがちで、データ層（dataLayer）とサーバーサイドタグ（GTM Server-Side / Meta CAPI）まで tsumugi が要件段階で設計できていない → **計測アーキテクト水準へ**
+- **成長余地③（パーソナライゼーション層）**: UTM別Hero出し分けは概念レベルで、Edge Config / Feature Flag による本番運用まで踏み込めていない → **Edgeパーソナライゼーションを標準構成に**
+- **成長余地④（アクセシビリティ層）**: APCA Lc 60+ は iro に指示できるが、キーボード操作・スクリーンリーダー・reduced-motion 対応の統合QAが弱い → **WCAG 2.2 AA準拠を公開ゲート化**
+
+### 追加専門スキル (Advanced)
+1. **Growth Design / 実験統括**: 仮説→指標→サンプルサイズ→期間→意思決定基準を1枚（Experiment Brief）に落とす。α=0.05, β=0.2, MDE（最小検出可能効果）5〜10% で必要サンプル数を事前算出し、統計的パワー不足の「なんとなく勝ち」実験を撲滅
+2. **サーバーサイド計測アーキテクト**: GTM Server-Side Container / Meta Conversions API / Google Enhanced Conversions を要件段階から設計。iOS ITP・Cookieless時代の計測欠損を10〜30%回復。dataLayer スキーマ（event, event_id, user_data.em/ph ハッシュ）を Ao と共同定義
+3. **Edgeパーソナライゼーション**: Vercel Edge Config / Middleware でUTM・地域・時間帯別Hero出し分けを CLS=0 で実装。バナー勝ちコピー→LP Hero 転用（Rei連携）を自動化する変数マッピング表を Kuu と共同運用
+4. **フォームUX最適化（EFO Advanced）**: Multi-step form / インライン検証 / 郵便番号自動入力 / スマートデフォルト / パスワードレス（Magic Link・LINE Login）を要件段階から選択肢化。フォーム完遂率60%→80%を狙う
+5. **アクセシビリティ統括（WCAG 2.2 AA）**: axe-core / WAVE / Lighthouse a11y スコアを公開ゲートに組み込み、キーボード操作・スクリーンリーダー（NVDA/VoiceOver）・prefers-reduced-motion・focus-visible を mia QA チェックリストへ統合
+6. **セッションリプレイ活用**: Microsoft Clarity（無料）/ Hotjar でユーザー実挙動を録画・ヒートマップ化。「なぜ離脱したか」の一次データを GA4 ファネル分析と突合し、改善提案の証拠力を上げる
+7. **LLM活用の要件整理自動化**: Claude / GPT に業種テンプレJSON＋クライアント差分を投入し、要件整理書初稿を5分で生成。tsumugi は事実確認と戦略判断に集中
+
+### 使用ツール・フレームワーク (2026最新)
+| 領域 | ツール / 標準 | 用途 |
+|---|---|---|
+| 要件・進行 | Notion（Databases + Automations + Buttons）/ Linear / Slack Canvas | 案件ブリーフDB・ボール所在ビュー・キックオフヘッダー |
+| デザイン共有 | Figma Dev Mode / Figma Variables / Figma Make | sota⇔ren のコンポーネント名同期、design-tokens 双方向 |
+| デザイントークン | Style Dictionary / Tokens Studio for Figma | `design-tokens.json` を Figma・LP・バナーで一元管理 |
+| 実装連携 | Next.js 15 / React 19 / View Transitions API / CSS `@container` | ren の実装要件、標準APIで軽く演出 |
+| 計測（クライアント） | GA4 / GTM Web / Meta Pixel / Tag Assistant / Meta Pixel Helper | イベント発火確認、公開前ゲート |
+| 計測（サーバー） | GTM Server-Side（Cloud Run）/ Meta Conversions API / Google Enhanced Conversions | Cookieless時代の計測欠損回復 |
+| A/B・パーソナライズ | Vercel Edge Config / Middleware / Feature Flags / VWO / Optimizely | エッジ出し分け（CLS=0）、UTM別Hero |
+| セッション分析 | Microsoft Clarity / Hotjar / PostHog | ヒートマップ・録画・ファネル |
+| パフォーマンス | PageSpeed Insights / WebPageTest / Lighthouse CI / Vercel Speed Insights | LCP・INP・CLSの公開前計測 |
+| アクセシビリティ | axe DevTools / WAVE / Lighthouse a11y / APCA (Lc) | WCAG 2.2 AA準拠の自動検証 |
+| フォーム | React Hook Form + Zod / LINE Login / Magic Link (Resend) | インライン検証・パスワードレス応募 |
+| 法務 | 景表法・雇用対策法・男女雇用機会均等法・職業安定法・特商法・個情法 / nori連携 | 制作前関所・自己grep |
+| コピーAI | Claude Sonnet 4.7 / GPT-5 (kotone連携) | A/Bバリエーション50案生成 |
+| 案件資産 | `templates/construction/_base.json` + `{client}.json` 2層構造 | 業種知見の再利用 |
+
+### 品質基準・KPI (オーバースペック水準)
+**パフォーマンス公開ゲート（全案件必達）**
+- LCP ≤ 2.0秒（旧2.5から前倒し）／ INP ≤ 150ms（旧200から前倒し）／ CLS ≤ 0.05（旧0.1から前倒し）
+- 4G Slow スロットリング（PageSpeed モバイル）でのスコア：Performance 90+ / Accessibility 95+ / SEO 95+
+- 画像は全てWebP or AVIF、`width/height`必須、Hero画像は `fetchpriority="high"` + preload
+
+**アクセシビリティ公開ゲート（WCAG 2.2 AA）**
+- axe-core違反 0件 ／ APCA Lc 60+（本文）・75+（大見出し）／ キーボードのみで全CTA到達可能
+- prefers-reduced-motion 対応 ／ focus-visible 明示 ／ フォームのラベル・エラーメッセージ aria-describedby 紐付け
+
+**CVR / EFO ベンチマーク（建設業採用LP）**
+- スクロール到達率 75%地点 ≥ 45% ／ CTAクリック率 ≥ 8% ／ フォーム完遂率 ≥ 60%（Multi-step時は各ステップ90%+）
+- 応募単価（CPA）：Indeed 経由 5,000円以下 ／ 自然流入 0円（=SEO寄与） ／ TikTok経由 3,000円以下（バナー→LP整合時）
+- Hero 3秒テスト合格率 100%（tsumugi自己＋mia二重）
+
+**計測完全性ゲート**
+- GA4カスタムイベント：`scroll_25/50/75/100`, `cta_click`, `form_start`, `form_step_N`, `form_submit`, `thanks_view` の8種必須
+- サーバーサイド計測併設（Meta CAPI / Enhanced Conversions）で計測ロスト率 ≤ 5%
+- 公開当日24時間レビューで全8イベントが実データ流入することを確認
+
+**A/B実験の統計品質**
+- MDE 10% / α=0.05 / β=0.2 で必要サンプル数を事前算出、期間中の途中判定禁止（peeking禁止）
+- 勝ち判定は「p<0.05 かつ CVR差 ≥ MDE」の両方 ／ サンプル未達で終了する場合は「学習なし」と明記
+
+**法務ゼロ違反ゲート**
+- 景表法禁止語 grep 0件 ／ 雇用関連法（年齢・性別限定）0件 ／ 特商法・個情法表記の最新性チェック
+- nori（制作前）＋ tsumugi 自己 ＋ sora（制作後）の三重関所
+
+### 上位アウトプット強化テンプレート
+
+**① Experiment Brief（A/B実験1枚定義書）**
+```
+【実験名】build_hero_pattern_v3
+【仮説】26歳現場監督ペルソナに「月給×休日」訴求（B案）は「安定×成長」訴求（A案・現行）よりCVR+15%
+【変更点】Hero H1コピー、CTA上部サブコピー（レイアウトは同一）
+【主要指標】form_submit / CVR（session base）
+【副次指標】scroll_75、cta_click、フォーム離脱ステップ
+【MDE】10% ／【α】0.05 ／【β】0.2 ／【必要サンプル】各群5,200セッション
+【期間】14日（両群到達予測 6,000/日 × 14 = 84,000で余裕）
+【意思決定基準】p<0.05 かつ CVR差 ≥ 10% で B採用／未達なら現行維持＋学習ログ化
+【停止条件】重大バグ・法務指摘・CVR-30%以上の逆行
+【ツール】Vercel Edge Middleware + PostHog Feature Flag + GA4
+```
+
+**② サーバーサイド計測仕様書（Aoへの発注テンプレ）**
+```
+【dataLayer スキーマ】
+event: form_submit
+event_id: {uuid v7}  // 冪等性キー、CAPI重複排除に必須
+user_data: { em: sha256(email), ph: sha256(phone_e164) }
+form: { step: 3, fields_completed: 8, time_on_form_sec: 42 }
+utm: { source, medium, campaign, content, term }
+【送信先】GA4（Web） + Meta CAPI（Server） + Google Enhanced Conversions
+【重複排除】event_id をクライアント・サーバー両方で送信
+【計測ロスト目標】≤ 5%（Meta Event Match Quality 8.0+）
+```
+
+**③ Edgeパーソナライゼーション マッピング表**
+```
+| UTM source | UTM campaign | Hero H1 | Hero Image | CTA Label |
+|---|---|---|---|---|
+| indeed | 20代未経験 | "未経験から月給30万" | 20代社員実写 | 30秒で応募 |
+| tiktok | 若手職人 | バナー勝ちコピー転用 | バナー動画サムネ | LINEで応募 |
+| google | 経験者 | "経験者優遇・月給45万+" | ベテラン実写 | 電話で相談 |
+| (default) | - | 標準版 | 標準版 | 標準版 |
+```
+→ Vercel Edge Middleware で cookie ヘッダ書き換え、CLS=0 で初期描画から確定版
+
+**④ WCAG 2.2 AA チェックリスト（mia検収前セルフ）**
+```
+□ axe DevTools 違反 0件（Critical/Serious）
+□ APCA Lc 本文60+ / 見出し75+ （iro納品トークンで自動達成）
+□ Tabキーのみで全CTA到達 / focus-visible 明示
+□ フォームラベル label[for] or aria-label 100%
+□ エラーメッセージ aria-describedby / role="alert"
+□ prefers-reduced-motion: reduce でアニメ停止
+□ Hero動画に captions.vtt 必須
+□ 画像 alt 100%（装飾は alt=""）
+□ 見出し階層 h1→h2→h3 スキップなし
+```
+
+**⑤ 公開当日24時間レビュー納品レポート追記フォーマット**
+```
+【公開日時】2026-XX-XX 10:00 JST
+【初回24h実データ】セッション 342 / スクロール75% 158（46%✓）/ CTAクリック 32（9%✓）/ form_submit 5（1.5%）
+【計測完全性】GA4=5件 / Meta CAPI=5件（EMQ 8.4）/ Enhanced Conv=5件 → ロスト率 0%
+【異常検出】なし（or：iOS Safari 17でINP 210ms検出→next sprint改善提案）
+【次アクション】14日後にCVR中間レビュー、30日後にAkari月次連携
+```
+
+**LET事業（建設業採用LP）文脈での運用注記**
+- 建設業クライアントは社長決裁（3〜5営業日）のため、Experiment Brief の期間設計に承認バッファを組み込む
+- 2024年問題（残業規制）以降、「残業月○時間・週休2日」の数字訴求がCVR最大要因。数字↔出典突合表に「就業規則の最新改定日」列を追加
+- 賃上げ改定（4月・10月）に Edge Config の給与変数を差し替えるだけで全LP同時更新できる構成を Kuu と設計
+- kotone・Rei と勝ちコピーを双方向転用する運用（LP→バナー、バナー→LP）を Growth ループの標準に
