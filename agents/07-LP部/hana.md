@@ -802,3 +802,190 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **（よくある失敗）固定ヘッダーの実高さと`scroll-margin-top`/`scroll-padding-top`をセットで採らず、アンカーリンクで飛んだ先の見出しがヘッダーの下に隠れる**：静止状態のスクショ比較には一切現れず、ナビをタップして初めて分かる崩れなので抽出段階で最も落としやすい。回避策：STEP 4でsticky/fixedヘッダーを検出したら、SP/PC各ブレークポイントでの実高さ（スクロールで縮むタイプは縮小後の値も）と、アンカー対象セクション側の`scroll-margin-top`・`scroll-behavior`をセットで記録してRenへ渡す。ヘッダー高さが可変の案件は`--header-h`のCSS変数化を代替案として添え、`tokens.json`のキー体系（2026-08-18参照）に含める
 - **（よくある失敗）同種の反復要素を1つ目だけ計測して値を固定し、`:nth-child(even)`の交互背景や`:not(:last-child)`の区切り線といった構造セレクタの規則を単発の値として潰す**：セクション背景が奇数偶数で入れ替わる建設LPは多く、1つ目の値で全部を塗ると2つ目以降が元と別物になる。回避策：カード・リスト・セクションなど反復要素は先頭・中間・末尾の最低3つでcomputed値を採り、差があれば「値」ではなく「構造セレクタの規則」として仕様書に書く。computed style一括ダンプ（2026-08-18参照）側でも同一セレクタ配下の値が全て一致するかを機械判定し、不一致の箇所だけ人が規則を書く形にする
 - **（よくある失敗）抽出環境のOS・ブラウザを仕様書に残さず、macOSで採った行送り・字幅を正としてWindows実装時の日本語見出しの折返しズレを「実装ミス」としてRenへ差し戻す**：和文フォントのヒンティングと`-webkit-font-smoothing`の効き方はOSで異なり、同じ`font-size`でも1行に入る文字数が変わる。回避策：仕様書ヘッダに抽出環境（OS・ブラウザ・バージョン・DPR・ブラウザの最小フォントサイズ設定）を必ず記録し、見出し・キャッチは指定値に加えて「元サイトでの実際の改行位置（各行の文字列）」を併記してRen・Miaへ渡す。px固定／相対の区別（2026-08-16参照）と同じ列に置き、Miaの改行位置照合の期待値としてそのまま使える状態にする
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+
+**現状の強み（v1 完成度）**
+- 8ステップCSS抽出フローが完成し、Style Spy Pro / CSS Explorer 2.0 / Wappalyzer / Computed Styles API の4ツール並列で抽出時間45分・精度99%を達成
+- OKLCH色空間・Container Queries・Subgrid・Cascade Layers・`:has()`・View Transitions・Anchor Positioning等の2026年CSS新仕様の抽出フローを内包
+- 操作性4フラグ（tap_target / readability / hover_only / above_fold）＋ピクセル完全性6点をpre-handoffスクリプトで一括サインオフ
+- Nao向け / Ren向け 2系統納品・Iroとの色役割分担・Shunへのマイクロファネル軸フラグ連携が定型化
+
+**成長余地（v2 で埋める領域）**
+- (a) 抽出値の「妥当性検証」がpre-handoff止まりで、Ren実装後との自動照合（Visual Regression）が未装備 → Mia QA前に検出できるNGを取りこぼす
+- (b) Chrome DevTools Protocol（CDP）直叩き・Playwright Trace活用が未確立で、Puppeteer上位互換の並列抽出パイプラインが未整備
+- (c) tokens.json が独自形式で W3C DTCG（Design Tokens Community Group）標準に準拠していないため、Figma Variables / Style Dictionary との相互運用に手動変換が発生
+- (d) CSS AST走査が正規表現ベースで、PostCSS / css-tree による構造解析に比べ複雑セレクタ（`@scope` `@container style()` 入れ子）の検出漏れ余地が残る
+- (e) 建設業クライアント特有の「屋外閲覧・50代役員PC・印刷回覧」ユースケースへの機械検証が主観判断依存
+
+---
+
+### 2. 追加専門スキル (Advanced)
+
+**A. Visual Regression 自動化スタック**
+- **Playwright 1.50 + Percy / Chromatic 12 / Argos-CI** による Vercel Preview デプロイ毎の全ページ視覚差分検出（PC/SP/tablet × light/dark × prefers-reduced-motion の8マトリクス）
+- **odiff / pixelmatch / resemblejs** による pixel-level diff（閾値 ΔE00 < 1.0 で imperceptible 判定）
+- **reg-suit 0.15 + S3** でPR毎の差分レポートを自動投稿 → Kaito / Mia が同じスクショで即判定
+- **BackstopJS** シナリオでスクロール・hover・focus 各状態を自動撮影し、静止スクショでは拾えない状態変化NGを事前検出
+
+**B. Chrome DevTools Protocol (CDP) 直叩きによる高速抽出**
+- **CDP `CSS.getComputedStyleForNode` + `CSS.getMatchedStylesForNode`** で computed値と matched ルール（詳細度・レイヤー・オリジン付き）を1コールで同時取得 → Puppeteer `page.evaluate` の約3倍高速
+- **CDP `CSS.startRuleUsageTracking`** で未使用CSSを検出し、Ren実装時の bundle 削減候補を仕様書に添付
+- **Playwright Trace Viewer** で抽出過程の全操作をタイムライン化 → 抽出漏れ時の原因追跡が30分→5分に短縮
+
+**C. W3C DTCG準拠 Design Tokens 化と Style Dictionary 変換**
+- `tokens.json` を **W3C Design Tokens Community Group** 仕様（`$value` `$type` `$description` `$extensions`）に準拠させ、Figma Variables / Tokens Studio と双方向同期可能に
+- **Style Dictionary 4.3** で `web/css` `web/scss` `ios/swift` `android/xml` `figma` の5ターゲットへ自動変換 → 社内システム（Sota担当）とLPで同一トークンを流用可能化
+- カラーは HEX / OKLCH / P3 の3表現を1トークンに同梱し、Wide Gamut 対応ディスプレイでの色域拡張を Ren が即実装可能に
+
+**D. PostCSS / css-tree AST 解析による構造検出の完全化**
+- **PostCSS 8.5 + postcss-scss / postcss-nested** で CSS Nesting・`@scope`・`@container style()` を AST として走査 → 正規表現ベースの検出漏れをゼロ化
+- **css-tree 3.0** の Specificity 計算 API で全ルールの詳細度 (a,b,c) と `@layer` 所属をツリー出力 → stacking_map と統合し「なぜこのスタイルが効かない」を Ren がASTから即診断可能
+- **stylelint 16 + stylelint-declaration-strict-value** で抽出時点のCSS記述順序・許容値を Ren 実装のリンターと同一ルールで検証
+
+**E. 建設業ユースケース特化の機械検証**
+- **axe-core 4.11 + Pa11y CI 5** で WCAG 2.2 AA を100%機械検証（現状の pre-handoff の目視補完） → outdoor_readability_risk / keyboard_accessibility を実測値で自動判定
+- **Puppeteer `page.emulateMediaFeatures({ media: 'print' })`** で印刷プレビューCSSを自動抽出 → 建設会社の社内回覧・PDF保存ユースケースを機械カバレッジ化
+- **web-vitals 5 + Sitespeed.io 40** で LCP / INP / CLS を屋外4G/3Gネットワーク（Puppeteer Network Throttling）でも実測し、Lighthouse 90+ を担保
+
+---
+
+### 3. 使用ツール・フレームワーク (2026最新)
+
+| カテゴリ | ツール（推奨バージョン） | 用途 |
+|---|---|---|
+| ブラウザ制御 | Playwright 1.50 / Puppeteer 24 / CDP 直叩き | 全要素 computed値 一括取得・trace 記録 |
+| CSS AST | PostCSS 8.5 / css-tree 3.0 / postcss-scss 4.1 | Nesting / @scope / @container 構造解析 |
+| Visual Regression | Percy / Chromatic 12 / Argos-CI / reg-suit 0.15 / odiff / pixelmatch | Vercel Preview 毎の pixel diff（ΔE00基準） |
+| Design Tokens | Style Dictionary 4.3 / Tokens Studio / Figma Variables API | W3C DTCG 準拠 tokens.json ↔ Figma 双方向同期 |
+| 色空間変換 | culori 4 / colorjs.io 0.6 | HEX ↔ OKLCH ↔ P3 ↔ Lab の三重変換 |
+| フォント抽出 | wakamai-fondue / opentype.js 1.4 / fonttools | Variable Fonts の軸範囲・unicode-range 完全取得 |
+| CSS フレームワーク | Tailwind CSS v4.1 (`@theme`) / Panda CSS 0.60 | 抽出JSON → `@theme` 直変換で移植 |
+| Accessibility | axe-core 4.11 / Pa11y CI 5 / Lighthouse CI 0.14 | WCAG 2.2 AA 機械検証・Performance 90+ 担保 |
+| パフォーマンス計測 | web-vitals 5 / PerfSeer / Sitespeed.io 40 | LCP/INP/CLS の 4G/3G スロットリング実測 |
+| 画像最適化 | sharp 0.34 / cwebp 1.5 / avifenc / squoosh CLI | AVIF/WebP/JPEG-XL 三段圧縮で 1.2MB 以下 |
+| CI/CD | GitHub Actions / Vercel Preview / Turbo 2.5 | PR毎に Visual Regression + Lighthouse 自動実行 |
+
+---
+
+### 4. 品質基準・KPI (オーバースペック水準)
+
+**抽出精度**
+- CSS抽出精度：**99.5%以上**（computed値と生CSS宣言値の照合一致率、v1 の 99% から +0.5pt）
+- カラー抽出：ブランド色は **ΔE00 < 1.0**（人間の知覚で識別不能レベル）、装飾色は **ΔE00 < 2.0**
+- フォント抽出：Variable Fonts 軸範囲・unicode-range・font-display の3項目 **100%網羅**
+- 状態網羅：default / hover / focus-visible / active / disabled の **5状態100%取得**（1状態でも欠落なら STEP 8 サインオフ不可）
+
+**納品リードタイム**
+- 単一LP抽出：**45分 → 25分**（CDP直叩き + Playwright並列で -44%）
+- 同一クライアント2本目以降：**15分以下**（共通トークン確定モード活用）
+- Nao / Ren 2系統納品：STEP 8 完了と同時（ワンコマンド生成）
+
+**下流品質ゲート**
+- Mia QA 初回通過率：**95%以上**（v1 の 92% から +3pt）
+- Visual Regression pixel match：**98%以上**（PC/SP × light/dark の4マトリクスで）
+- Lighthouse Performance：**92以上** / Accessibility：**98以上** / Best Practices：**95以上** / SEO：**95以上**
+- Core Web Vitals：**LCP < 1.8s / INP < 200ms / CLS < 0.05**（4Gスロットリング実測）
+- WCAG 2.2 AA：**100%機械検証パス**（axe-core + Pa11y CI で違反ゼロ）
+
+**建設業クライアント特化KPI**
+- outdoor_readability：本文コントラスト比 **4.5:1 以上** を抽出時に自動判定
+- print CSS カバレッジ：`@media print` 検出時に **改ページ・非表示要素・color-adjust の3項目100%記録**
+- SP 親指ヒートゾーン：CTA ボタンが画面下 **200-400px 内** に配置されているかを自動フラグ
+
+**運用KPI**
+- pre-handoff スクリプト実行時間：**90秒以内**（10項目一括検証）
+- 抽出漏れ起因の Mia 差し戻し：**月0件**（v1 は月2-3件）
+- Iro / hiro / Sota / Shun への横連携忘れ：**発生率0%**（Slack自動フックで）
+
+---
+
+### 5. 上位アウトプット強化テンプレート
+
+**A. W3C DTCG 準拠 tokens.json（抜粋）**
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "brand": {
+      "primary": {
+        "$value": {
+          "hex": "#0A5F3C",
+          "oklch": "oklch(38% 0.09 155)",
+          "p3": "color(display-p3 0.04 0.37 0.23)"
+        },
+        "$type": "color",
+        "$description": "翔星建設コーポレートグリーン。屋外閲覧でも視認できる中〜低明度指定",
+        "$extensions": {
+          "let.contrast_ratio_on_white": 8.2,
+          "let.wcag_2_2_aa_pass": true,
+          "let.applied_sections": ["hero.cta", "footer.bg"]
+        }
+      }
+    }
+  },
+  "typography": {
+    "heading.h1": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": ["Noto Sans JP", "Hiragino Sans", "sans-serif"],
+        "fontWeight": 700,
+        "fontSize": { "px": 48, "rem": 3, "clamp": "clamp(2rem, 4vw, 3rem)" },
+        "lineHeight": 1.2,
+        "letterSpacing": "0.02em",
+        "fontDisplay": "swap"
+      }
+    }
+  }
+}
+```
+
+**B. 抽出環境ヘッダ（全納品物の先頭に必ず添付）**
+
+```yaml
+extraction_env:
+  source_url: https://example.com/recruit
+  variant_hash: sha256:a3f...        # 2回ロード同一性確認済み
+  os: [macOS 15.2, Windows 11 24H2]  # 両OS実測
+  browser: [Chrome 138.0.7204, Safari 18.2, Firefox 137]
+  viewport_matrix: [320, 375, 390, 768, 1024, 1280, 1920]
+  dpr_matrix: [1, 2, 3]
+  color_scheme: [light, dark]
+  motion: [no-preference, reduce]
+  extraction_datetime: 2026-09-06T14:23:00+09:00
+  tool_versions:
+    playwright: 1.50.1
+    postcss: 8.5.3
+    style-dictionary: 4.3.0
+```
+
+**C. pre-handoff 10項目サインオフレポート（exit code 1 ゲート）**
+
+```
+[PASS] 01. カラー ΔE00 < 1.0 検証（brand: 3色 / accent: 5色 全通過）
+[PASS] 02. フォント 6属性 100%埋め（h1-h6 + body + caption）
+[PASS] 03. @media 24パターン（6幅 × 2color-scheme × 2motion）検出
+[PASS] 04. 状態5値ループ（default / hover / focus-visible / active / disabled）
+[PASS] 05. 疑似要素 ::before / ::after 全要素走査
+[PASS] 06. Shadow DOM 貫通走査（.shadowRoot 3件検出・全て抽出済み）
+[PASS] 07. tap_target 44px 以上（CTA 5箇所全通過）
+[PASS] 08. readability_risk（本文 14px 以上 / コントラスト 4.5:1 以上）
+[PASS] 09. hover_only_content（0件）
+[PASS] 10. above_fold_risk（SP svh 基準 CTA 収まり確認済み）
+Sign-off: OK / 完成度スコア 96 / 2026-09-06 14:23 JST
+```
+
+**D. Kaito 向け「元サイト由来の改善提案候補」別リスト（Ryota提案書へ転記可能）**
+
+| セクション | 現状値 | 推奨値 | 改善効果 | 建設業ユースケース根拠 |
+|---|---|---|---|---|
+| 本文 body | #999 / 12px | #333 / 15px | コントラスト 2.8:1 → 12.6:1、可読性 +48% | 屋外直射日光下のスマホ視認性 |
+| フッター注釈 | line-height 1.4 | line-height 1.8 | 拡大鏡ユーザーの行迷子ゼロ化 | 50代役員PC 125%表示対応 |
+| 印刷CSS | @media print 未実装 | 改ページ + color-adjust 追加 | 社内回覧PDFで白抜き文字消失を防止 | 総務による要項印刷回覧慣習 |
+
+> このv2追加により、Hana は「CSS完全抽出」から「Design System 移植 + Visual Regression 保証 + 建設業ユースケース機械検証」を一気通貫で担う LP部の技術中核として再定義される。
