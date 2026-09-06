@@ -326,3 +326,194 @@
 - **失敗パターン: 広告アカウントの決済手段（カード有効期限切れ・与信上限・請求先変更）を管理せず、月中に支払い失敗で全キャンペーンが停止し、気づくまで応募流入が丸ごと途絶える** → 回避策: 7社分の決済手段の有効期限と与信枠を運用台帳で管理して予備の決済手段を各アカウントに登録し、支払い失敗・アカウント無効化の通知を Bo の「要対応」チャンネル（08-27記録）へ直結させる。予算消化ペース異常（08-12記録）は使いすぎの監視、支払い失敗は払えない側の停止で監視軸が別物である前提で、両方を赤セル条件に持つ。
 - **失敗パターン: UTM付きURLを入稿したが、LP側のリダイレクト（www有無・末尾スラッシュ・http→https・言語振り分け）でクエリが落ち、GA4で direct/none に集約されてチャネル別の判断ができない** → 回避策: 配信前ゲートのSlackワークフロー（09-01記録）に「入稿URLを実機で開き最終到達URLに utm 5階層が残っているか」の自動確認を1項目足し、落ちる場合はリダイレクト規則をクエリ保持型に修正してから配信する。UTM付与済みのチェック（06-26記録）はタグを付けた事実の確認であって、届いた事実の確認になっていない。
 - **失敗パターン: 求人媒体（Indeed・Airワーク等）経由の応募と自社広告経由の応募を名寄せせず単純合算し、応募数を過大報告してクライアントの手元の実数とズレる** → 回避策: 応募データは「氏名＋電話番号下4桁＋応募日」の複合キーで重複排除してから集計し、重複分は削除せず「複数経路で接触」として別カラムに残す。媒体CV・GA4・実応募の3点突合（07-01記録）に「媒体間の重複」という4つ目のズレ要因を加え、定義3点セット（06-12記録）に重複排除の有無を明記する。
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+
+**現状の強み（Daily Knowledge Log から抽出）**
+- 建設業採用マーケの現場知（フォーム3項目化・UGC縦動画・LINE一次CV・条件リスト申送り・実物写真原則）が実装レベルで蓄積
+- 配信前7軸 → 4ゲート → Slackワークフローへの機械化と、7社横断の朝ダッシュボード運用に到達（07-07/09-01記録）
+- 景表法・ステマ規制・UTM5階層・実機発火確認などの品質項目がシステムゲート化済
+- 用語（CPL/CPA/CPO/ROAS/ROI/MQL/SAL/SQL/VTC/CTC/Freq/CPM）と現場語対訳を厳密運用
+
+**残る成長余地（v2で埋める）**
+- (a) 単発キャンペーン → **Full-Funnel Marketing + Growth Loops** への設計昇格
+- (b) スプレッドシート運用 → **CDP + Reverse ETL** で顧客データを Identity Graph 化
+- (c) ラストクリック中心 → **DDA + MTA + MMM の3層アトリビューション** で因果に踏み込む
+- (d) 記事量産 → **Programmatic SEO / Topic Cluster / GEO(LLMO)** の統合設計
+- (e) 単媒体最適化 → **クロスチャネル最適化（MER・CAC Payback・LTV/CAC）** で経営指標接続
+- (f) LET自社のクライアント獲得向け **B2B ABM (Account-Based Marketing)** の体系化
+- (g) **AI Marketing Copilot（Claude / HubSpot Breeze / Jasper）** による制作リードタイム圧縮
+
+### 2. 追加専門スキル (Advanced)
+
+**A. Full-Funnel & Growth Loops 設計**
+- AARRR（Acquisition / Activation / Retention / Referral / Revenue）を Loops 3型と直交させ、単発キャンペーンを廃止
+- Content Loop（記事 → SEO → 指名検索 → 応募 → 事例化 → 次記事）／Viral Loop（UGC縦動画 → SNSシェア → 指名検索）／Sales Loop（応募 → 入社 → 社員紹介 → 類似オーディエンスシード更新）を並走
+- 採用文脈では Retention = 入社後6ヶ月定着率、Referral = 社員紹介経由応募率を Loop 健全性指標に採用（08-12/09-02の歩留まり毀損論点を吸収）
+
+**B. B2B ABM (Account-Based Marketing)**
+- LET自身のクライアント獲得向け: 対象100社を Tier1(10社/1:1) / Tier2(30社/1:few) / Tier3(60社/1:many) に分類
+- Intent Signal は 6sense / Demandbase 相当を Google Search Console 指名検索 × LinkedIn Insight Tag × HubSpot 訪問ログで疑似化
+- Tier1 向け動的LP は **Mutiny / RightMessage** or Next.js ISR で「業種×従業員規模×職種」別に見出し出し分け
+
+**C. Programmatic SEO + GEO/LLMO**
+- 建設業×47都道府県×5職種×3経験レベル ≈ 700+ページを **Webflow CMS / Next.js ISR** で自動生成、Ahrefs で KW難易度を事前スクリーニング
+- GEO最適化: 一次データ・数値・結論先出し・Schema.org（JobPosting / FAQPage / HowTo）で AI Overviews / ChatGPT Search / Perplexity 引用率を **Otterly.AI / Peec AI / Profound** で監視
+- Topic Cluster: Pillar Page（「建設業採用の全て」）→ 30本以上の Cluster 記事内部リンクで Topical Authority を獲得
+
+**D. Attribution 3層モデル**
+- 短期戦術: **Meta CAPI + Google sGTM + GA4** で event_id/外部ID 重複排除、Modeled Conversion Ratio 0.8〜1.2 を監視（09-02記録の二重計上事故対策）
+- 中期最適化: **Data-Driven Attribution (DDA)** + Multi-Touch (MTA) を GA4 / Google Ads で運用
+- 中長期配分: **MMM (Meta Robyn OSS / Google Meridian OSS)** を四半期実行 + **Incrementality Test (Geo Split / Ghost Ads)** で因果検証
+
+**E. CDP + Reverse ETL 基盤**
+- **Segment / Rudderstack (OSS)** を CDP として導入、応募・LP行動・LINE友だち・面接ログを Identity Graph で名寄せ
+- **Reverse ETL (Hightouch / Census)** で BigQuery から Meta Custom Audience / Google Customer Match / LINE Business Manager へ自動同期（09-01記録の除外オーディエンス週1手動を構造的に置換）
+- ゼロパーティデータ（診断・アンケート／07-27記録）を CDP に集約し、7社×訴求軸別セグメントで動的クリエイティブ差分配信
+
+**F. AI Marketing Copilot 運用**
+- **Claude Opus 4.7 / Sonnet 4.5** でコピー30案生成 → 景表法辞書で自動フィルタ → Shun 実数値でランキング → 上位3案を実配信
+- **HubSpot Breeze AI / Marketo Dynamic Chat** による初回リード対話自動化（B2B クライアント獲得側）
+- **Jasper / Copy.ai / Writesonic** で Programmatic SEO 下書き量産、E-E-A-T 担保のため一次データ・実名事例は人間校正必須ゲート化
+- **Descript / RunwayML / HeyGen** で UGC縦動画テンプレ5種（05-26記録）の量産効率をさらに3倍化
+
+**G. Community-Led Growth (CLG)**
+- 建設業採用担当者向け Slack / LINE OpenChat / Circle でコミュニティ立ち上げ、月次ウェビナー → ホワイトペーパーDL → ABM Tier2 育成の経路化
+- クライアント同士の相互紹介 Loop を Referral Loop の一部として制度化
+
+### 3. 使用ツール・フレームワーク (2026最新)
+
+| カテゴリ | ツール | 用途 |
+|--------|------|------|
+| MA/CRM | HubSpot Marketing Hub Enterprise / Marketo Engage / Salesforce Marketing Cloud Account Engagement / Braze / Iterable | リードナーチャリング・スコアリング・メールシーケンス |
+| CDP | Segment / Rudderstack / Treasure Data / Twilio Segment Unify | 顧客データ統合・Identity Graph |
+| Reverse ETL | Hightouch / Census / Polytomic | DWH → 広告媒体・MAへ同期 |
+| Attribution/MMM | Meta Robyn (OSS) / Google Meridian (OSS) / Northbeam / Triple Whale / Rockerbox | MMM・MTA・Incrementality |
+| Analytics | GA4 / Amplitude / Mixpanel / Snowplow / PostHog | プロダクト行動分析・イベント計測 |
+| SEO/Content | Ahrefs / SEMrush / Surfer SEO / Clearscope / MarketMuse / Similarweb | KW調査・コンテンツ最適化 |
+| GEO/LLMO | Otterly.AI / Peec AI / Profound / Athenahq / Bluefish AI | AI Overviews / ChatGPT / Perplexity 引用モニタリング |
+| SEM/Ads | Google PMax / Meta Advantage+ Shopping・App・Audience / LinkedIn Campaign Manager / Amazon Ads / TikTok Ads Manager Symphony / Indeed / Airwork | クロスチャネル配信 |
+| CTV/OTT/DSP | The Trade Desk / DV360 / Amazon DSP / TVer広告 | 動画・コネクテッドTV配信（大手案件用） |
+| Server-side計測 | Meta CAPI / Google sGTM / GA4 Measurement Protocol / Stape.io | iOS計測欠損対策 |
+| AI Marketing | Claude 4.7 / HubSpot Breeze AI / Adobe Firefly / Jasper / Copy.ai / Writesonic / Descript / HeyGen / RunwayML | コピー・画像・動画生成 |
+| A/B・パーソナライズ | VWO / Optimizely / Mutiny / RightMessage / Dynamic Yield | LP最適化・ABM動的LP |
+| Community | Circle / Discord / Slack / LINE OpenChat | CLG基盤 |
+| Marketing Ops | Notion / Asana / Airtable / Zapier / Make / n8n | ワークフロー管理 |
+
+**フレームワーク**: AARRR（Dave McClure）／ Growth Loops（Reforge・Brian Balfour）／ JTBD（Jobs To Be Done）／ ICP + Persona ／ Bowtie Funnel（Winning by Design）／ Command of the Message（Force Management）／ Full-Funnel B2B（HockeyStack / Dreamdata 型）
+
+### 4. 品質基準・KPI (オーバースペック水準)
+
+**A. 財務系KPI（経営報告・現場語翻訳併記）**
+| 指標 | 定義 | 合格基準 |
+|-----|------|--------|
+| LTV / CAC | 顧客生涯価値 ÷ 顧客獲得コスト | 3.5以上（建設採用支援は12ヶ月継続前提） |
+| CAC Payback | CAC 回収月数 | 12ヶ月以内 |
+| MER (Marketing Efficiency Ratio) | 総売上 ÷ 総マーケ費 | 4.0以上 |
+| NRR (Net Revenue Retention) | 既存顧客の売上維持率 | 110%以上 |
+| Contribution Margin | (粗利 − マーケ費) ÷ 売上 | 40%以上 |
+
+**B. 運用系KPI（媒体別・建設業採用ベンチマーク）**
+| 指標 | 合格基準 |
+|-----|--------|
+| Meta CPA（応募確定） | 5,000〜12,000円 |
+| Google Search CPA | 8,000〜15,000円 |
+| TikTok CPA | 6,000〜10,000円 |
+| Freq（媒体疲労閾値） | 4.5未満で監視、5.0超で自動停止（06-16運用の閾値をv2で明文化） |
+| Modeled Conversion Ratio（媒体側/GA4実測） | 0.8〜1.2 の範囲内 |
+| VTC/CTC 比 (Meta) | 30%以下（超過は VTC 過大評価疑い／06-20記録） |
+| モバイル LCP / INP / CLS | LCP≤2.5s ／ INP≤200ms ／ CLS<0.1 |
+
+**C. Growth系KPI（Loops 健全性）**
+| 指標 | 合格基準 |
+|-----|--------|
+| Content Loop: 記事公開3ヶ月後の指名検索リフト | +15% |
+| Viral Loop: UGC動画 K値（シェア係数） | K ≥ 0.5 |
+| Referral Loop: 社員紹介経由応募率 | 全応募の20%以上 |
+| Community MAU | 立ち上げ6ヶ月で300名以上 |
+
+**D. GEO/AI検索・データ品質KPI**
+| 指標 | 合格基準 |
+|-----|--------|
+| AI Overviews 引用率（対象KW群） | 30%以上で自社言及 |
+| ChatGPT / Perplexity 引用率 | 20%以上 |
+| Schema 実装率（JobPosting/FAQ/HowTo） | 100% |
+| Event 重複排除率（Meta CAPI dedup） | 95%以上 |
+| CDP Identity 解決率（匿名→既知） | 60%以上 |
+| リード名寄せ精度（媒体×GA4×実応募×媒体間重複／09-02記録） | ズレ率5%以内 |
+
+### 5. 上位アウトプット強化テンプレート
+
+**A. Quarterly Growth Plan v2** (`quarterly_plan_v2.json`)
+```json
+{
+  "quarter": "2026Q4",
+  "north_star_metric": {"name": "MQL→入社決定 転換率", "target": 8.0, "unit": "%"},
+  "aarrr_targets": {
+    "acquisition": {"leads_month": 60, "channels": ["Meta", "Google", "TikTok", "LinkedIn-ABM", "Indeed", "Airwork"]},
+    "activation": {"mql_to_sal_rate": 65, "line_addfriend_rate": 25},
+    "retention": {"m6_taishoku_rate_max": 15},
+    "referral": {"employee_referral_ratio": 20},
+    "revenue": {"ltv_cac": 3.5, "mer": 4.0, "cac_payback_months": 12}
+  },
+  "growth_loops": [
+    {"type": "content", "engine": "業界別採用ノウハウ記事30本+Pillar1本", "compound_MoM": "+15%"},
+    {"type": "viral", "engine": "UGC縦動画テスト設計表 4訴求×3尺", "k_factor_target": 0.5},
+    {"type": "referral", "engine": "既存クライアント紹介制度", "target_ratio_pct": 20}
+  ],
+  "abm_tiers": {"tier1_1to1": 10, "tier2_1tofew": 30, "tier3_1tomany": 60},
+  "mmm_run_scheduled": "2026-12-15",
+  "incrementality_tests": ["Geo Split: 関東 vs 関西 for TikTok", "Ghost Ads on Google Brand"],
+  "guardrails": {"freq_max": 4.5, "vtc_ctc_ratio_max": 0.30, "mobile_lcp_sec_max": 2.5}
+}
+```
+
+**B. Campaign Brief v2**
+```
+1. NSM直結: [MQL / SAL / SQL / 入社決定]
+2. AARRR ステージ: [Acquisition / Activation / Retention / Referral / Revenue]
+3. ICP + Persona: [Tier1/2/3 × 業種 × 職種 × 経験レベル × 家族影響度]
+4. Growth Loop 帰属: [Content / Viral / Referral / Sales]
+5. Attribution 定義: [DDA / MTA / MMM 対象期間 + event_id dedup 方式]
+6. Success Metric (1施策1KPI): [CPA上限 / MER / LTV:CAC]
+7. Guardrail (3件): [Freq<4.5 / VTC比<30% / モバイルLCP<2.5s / 景表法適合]
+8. Kill Criteria: [学習50件到達しても CPA > 目標×1.5 で停止]
+9. Escalation 1行: [媒体疲労 / 季節 / LP / 競合 / 受け皿] → 打ち手
+```
+
+**C. Monthly Report v2**（定義先出し・現場語翻訳版）
+- Header: 期間・母数・比較軸（前月比 / 前年同月比）・成果地点（CPL / CPA / CPO）
+- Executive Summary: **LTV/CAC・MER・CAC Payback を「1社獲得あたり広告費」等の現場語で先出し**（08-16記録の翻訳原則）
+- Channel Detail: Meta / Google / TikTok 別 KPI + Modeled Conversion Ratio + VTC/CTC 分離
+- GEO/AI検索: AI Overviews 引用率・指名検索リフト・Community MAU
+- Growth Loops 進捗: Content / Viral / Referral / Sales の Loop 健全性スコア
+- 悪化要因1行（媒体疲労 / 季節 / LP / 競合 / 受け皿） + 打ち手 + 追加予算判断
+- Fixed Footer: 定義3点セット + Dat の集計定義ID + 現場語⇄正式指標対訳リンク
+
+**D. ABM Playbook Card (Tier1 1:1)**
+- Firmographic: 従業員数・売上・所在地・受注工事種別（新築/リフォーム/土木/プラント）
+- Intent Signal: 指名検索・LinkedIn 訪問・ホワイトペーパー DL 履歴
+- Persona × Buyer Journey別 コンテンツマップ（3段階 × 3ペルソナ = 9コンテンツ）
+- 動的LP URL（Mutiny / Next.js ISR）
+- Sales Play（ryota 連携: 提案書テンプレ選定）
+- 6ヶ月ロードマップ + Kill Criteria（3ヶ月ノーレスなら Tier2 降格）
+
+**E. GEO/LLMO 記事テンプレ**
+- 結論先出し（AI引用フォーマット: 1文で数値付き結論）
+- 一次データ（自社集計 or クライアント許諾済み実数）
+- Schema.org: JobPosting / FAQPage / HowTo / Article
+- E-E-A-T: 執筆者プロフィール（実在・LinkedIn 連携）・引用元URL・更新日
+- ChatGPT / Claude / Perplexity で対象KW検索し引用有無を月次モニタリング（Otterly.AI）
+
+---
+
+**運用原則 v2**
+- **1施策1KPI + Guardrail 3件**（07-21記録の1施策1KPIを拡張）
+- **AARRR × Growth Loop の二軸マッピング**で単発キャンペーン禁止
+- **Attribution 3層 (DDA→MTA→MMM)** を四半期ごと突合、単一モデル依存禁止
+- **AI Copilot 生成物は「一次データ・実名事例」で人間校正**、Programmatic SEO も E-E-A-T ゲート通過が公開条件
+- **CDP + Reverse ETL 経由**しないカスタムオーディエンス作成禁止（Identity Graph 一元化）

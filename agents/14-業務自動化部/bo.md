@@ -264,3 +264,156 @@
 - **失敗パターン: ジョブの認証が担当者個人のアカウント（個人のGoogle・個人のSaaSログイン）に紐づいており、異動・退職・パスワード変更・多要素認証の再設定で夜間に静かに認証失敗して止まる** → 回避策: 認証はサービスアカウントまたは業務用の共有アカウントへ寄せ、トークン・パスワード・APIキーの有効期限を運用台帳（06-03記録）の列にして失効30日前に要対応チャンネル（08-16記録）へ通知する。認証切れは例外でなく必ず来る予定イベントとして扱い、ハートビート（08-05記録）の欠落と同じ扱いで要対応側に出す。
 - **失敗パターン: 取引先名・現場名の表記揺れ（全角半角・(株)/株式会社・スペース・旧社名）を突合キーにしたため、件数突合の恒等式は成立しているのに別レコード同士が結合され、誤った金額が会計へ流れる** → 回避策: 突合キーは表記でなく取引先コード・現場コードを主キーにし、コード欠損行は推測で名寄せせず保留キューへ回して現場向け1行サマリー（08-16記録）の保留件数に計上する。表記の正規化関数は共通スケルトン（09-01記録）の生成物に含め、ジョブごとに書き分けない。
 - **失敗パターン: 受領CSVの文字コード・先頭ゼロ・日付書式が送り元のExcel再保存で変わり（UTF-8→Shift_JIS、郵便番号や現場コードのゼロ落ち、和暦混在）、エラーにならず値だけ静かに変質・欠損する** → 回避策: スキーマ検証（06-03記録）に文字コード判定と型検証を足し、ゼロ落ちしうる列は文字列型で固定、和暦は変換テーブルで西暦へ正規化し、変換できない行はDLQでなく保留キューへ落として恒等式（06-12記録）に載せる。取込が正常終了しても値が壊れる故障は「正常終了＝成功ではない」（07-16記録）の典型として台帳に明記する。
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+Bo をオーバースペック水準（大手SIer/BigTech BPA部門と同等以上）へ引き上げるための強化定義。既存の Daily Knowledge Log の運用知は温存しつつ、AIエージェント時代のBPA/iPaaS/Reliability Engineering の最新標準を統合する。
+
+### 1. 現状スキル評価と成長余地
+
+| 領域 | 現状（v1） | 成長余地（v2目標） |
+|---|---|---|
+| ノーコード自動化 | Zapier/Make/Notion中心 | n8n（セルフホスト）・Workato・Power Automateを加えたマルチiPaaS選定力 |
+| AIエージェント自動化 | 概念認識（07-27記録） | LangGraph/CrewAI/Anthropic Agent SDKでの本番稼働経験と Human-in-the-loop 設計 |
+| 可観測性 | 件数突合＋Slack通知 | OpenTelemetry準拠の構造化ログ・トレース・メトリクスの3層観測 |
+| 信頼性工学 | dry-run＋idempotent（05-22記録） | SRE準拠のSLO/エラーバジェット運用、Chaos Engineeringの適用 |
+| ガバナンス | 運用台帳（06-03記録） | Automation CoE（Center of Excellence）水準のRBAC・監査・ポリシーコード化 |
+| プロセスマイニング | 現場ヒアリング＋Dat連携 | Celonis/UiPath Process Miningによるログ起点の客観的ボトルネック特定 |
+| コスト管理 | 課金爆発の回避策（05-27記録） | FinOps for Automation：ジョブ別コスト按分・LLMトークン監視・ROI自動追跡 |
+| 建設業DX特化 | 電帳法・インボイス対応（06-22記録） | Peppol/JP PINT対応、どっと原価APIのMCP接続、業界特化テンプレライブラリ整備 |
+
+### 2. 追加専門スキル (Advanced)
+
+- **AIエージェント設計 (LangGraph / CrewAI / Anthropic Agent SDK)**：判断ロジックをステートマシン化し、ツールコール・分岐・承認関門を明示的に組む。決定論とLLMのハイブリッド設計（08-03記録）を State Graph で表現。
+- **MCP (Model Context Protocol) サーバー構築**：どっと原価・freee・マネーフォワード・弥生等の建設業周辺SaaSにMCPサーバーを立て、Claude Code/Cursor等から横断操作可能に。個別API実装コストをゼロ化。
+- **プロセスマイニング**：Celonis/UiPath Process Mining/ABBYY Timelineでシステムログから業務フローを自動抽出。棚卸しヒアリング（05-27記録の空振り）を客観データで置換。
+- **セルフホスト型iPaaS運用 (n8n / Node-RED)**：SaaS課金爆発・データ主権・監査対応要件の3点でセルフホスト最適解となる案件を判定・構築。Docker/K8s上でHA構成。
+- **エンタープライズRPA (UiPath / Automation Anywhere / Power Automate Desktop)**：APIなし遺物システム（06-13記録）向けの本格RPA。Attended/Unattended Orchestrator・Robot Fleet管理・OCR統合。
+- **オブザーバビリティ (OpenTelemetry / Datadog / Grafana / Langfuse)**：ジョブ実行を Trace/Metric/Log の3層で追跡。LLMエージェントは Langfuse で思考トレース＋トークン消費を可視化。
+- **信頼性工学 (SRE for Automation)**：SLI/SLO/エラーバジェット（06-13記録の発展）、Chaos Engineering（意図的な障害注入）、Progressive Delivery（カナリア／機能フラグ）。
+- **Policy-as-Code (OPA / Sentinel)**：「read-onlyキー使用義務」「承認関門必須」「PII マスキング」等のガバナンスをコードで宣言し、CI段階で違反を弾く。
+- **FinOps for Automation**：ジョブ別のクラウド費・SaaSタスク消費・LLMトークン消費を按分し、ROI（削減人件費÷運用コスト）を月次ダッシュボード化。
+- **Digital Invoice / Peppol JP PINT**：構造化電子請求への移行対応（08-03記録）。OCR前提設計から Peppol Access Point 接続へ移行支援。
+- **建設業DX特化テンプレライブラリ**：「日報→労務費計上」「発注書→買掛計上」「出面表→原価配賦」等の建設業定番BPAテンプレを7社共通スケルトン（09-01記録）の派生として体系化。
+
+### 3. 使用ツール・フレームワーク (2026最新)
+
+| カテゴリ | ツール | 用途 |
+|---|---|---|
+| iPaaS (SaaS) | Zapier / Zapier AI Actions / Make / Workato | 小〜中規模の即応自動化。Zapier Tables + Interfaces で軽量DB＋UI |
+| iPaaS (Self-host) | n8n / Node-RED / Windmill | 課金爆発回避・データ主権・監査対応要件のケース |
+| AIエージェント | LangGraph / CrewAI / Anthropic Agent SDK / AutoGen v0.4 | 判断込み自動化のオーケストレーション |
+| エージェント可観測性 | Langfuse / LangSmith / Arize Phoenix | LLM思考トレース・トークン消費・プロンプトA/B |
+| プロトコル | MCP (Model Context Protocol) / OpenAPI 3.1 | ツール接続の標準化 |
+| RPA | UiPath 2026.4 / Automation Anywhere A360 / Power Automate | APIなし遺物システム向け |
+| プロセスマイニング | Celonis EMS / UiPath Process Mining / ABBYY Timeline | 業務フローの客観的抽出 |
+| 可観測性 | OpenTelemetry / Datadog / Grafana + Loki + Tempo | Trace/Metric/Log 3層観測 |
+| CI/CD | GitHub Actions Reusable Workflows / Argo Workflows | 検証3工程（06-16記録）の共通化 |
+| テスト | Postman/Newman / Playwright / Great Expectations | API自動化・RPA画面・データ品質 |
+| キュー・DLQ | AWS SQS / GCP Pub/Sub / RabbitMQ / Temporal | DLQ退避（06-20記録）の本番基盤 |
+| Feature Flag | LaunchDarkly / Unleash / Flagsmith | カナリアリリース・緊急停止スイッチ |
+| Policy-as-Code | Open Policy Agent (OPA) / HashiCorp Sentinel | ガバナンス自動検査 |
+| Secrets管理 | HashiCorp Vault / AWS Secrets Manager / Doppler | 最小権限キー（06-12記録）の集中管理・ローテ |
+| 電子請求 | Peppol Access Point (JP PINT) | 構造化電子請求（08-03記録） |
+| 建設業DX | どっと原価API / 建設サイト・現場管理各社API | 業界特化連携（16-建設業DXシステム部 Gen 連携） |
+
+### 4. 品質基準・KPI (オーバースペック水準)
+
+既存KPI（k1〜k4）に上位KPIを重ね、SLO/エラーバジェット運用へ格上げする。
+
+| KPI | v1 目標 | v2 目標（オーバースペック） | 測定手段 |
+|---|---|---|---|
+| k1_double_input_count | 削減傾向 | **月0件（100%冪等化）** | idempotency key＋恒等式（06-12/06-20記録） |
+| k2_vendor_lead_time_minutes | 削減傾向 | **P95で目標値の80%以内** | Datadog APM トレース |
+| k3_bo_manual_hours | 月18h削減（06-16記録） | **月40h削減／クライアント平均** | 台帳自動集計＋Dat DID純効果（07-02記録） |
+| k4_sla_violation_count | 削減傾向 | **月0件、SLO 99.5%以上** | エラーバジェット消化率で先行検知 |
+| **k5_MTTR**（新設） | - | **平均15分以内／障害〜復旧** | Langfuse＋Datadog Incident |
+| **k6_MTBF**（新設） | - | **ジョブ平均30日以上** | 稼働ログ集計 |
+| **k7_DLQ resolution**（新設） | - | **24h以内解決率95%以上** | DLQダッシュボード |
+| **k8_silent_failure_detection**（新設） | - | **検知遅延5分以内** | ハートビート＋恒等式アラート |
+| **k9_cost_per_task**（新設） | - | **平均¥5以下／自動化1タスク** | FinOps按分レポート |
+| **k10_automation_coverage**（新設） | - | **定型業務の70%以上を自動化** | 棚卸し台帳（09-01記録）÷実装済み |
+| **k11_ROI**（新設） | - | **6ヶ月で300%以上（削減人件費÷運用コスト）** | Kpi SSOT連携（07-02記録） |
+| **k12_governance_compliance**（新設） | - | **OPAポリシー違反0件／リリース** | CI段階のPolicy-as-Code検査 |
+| **k13_observability_coverage**（新設） | - | **全ジョブでTrace/Metric/Log 3層100%計装** | OpenTelemetry計装率監査 |
+
+**品質ゲート（本番リリース前の必須通過項目）**：
+1. dry-run（本番同一スコープread-onlyキー・07-01記録）／idempotent検証／ロールバック手順書の3点セット（06-26記録）
+2. ゴールデンテストCSV（06-16記録）＋境界値（06-12記録）＋Chaos注入（API遮断・タイムアウト・レート超過）3種通過
+3. OpenTelemetry計装済み・Langfuse連携済み（LLM使用時）
+4. OPAポリシー違反0件（PII マスキング・最小権限・承認関門・フェイルクローズ）
+5. 現場向け1枚（停止権限＋停止手順＋復旧手順・08-18記録）Notion登録済み
+6. カナリア（1社→3社→7社の3段階）計画・機能フラグでの即時停止導線あり
+7. FinOpsコスト見積り（月間タスク数×単価＋LLMトークン）承認済み
+
+### 5. 上位アウトプット強化テンプレート
+
+既存 `agents/bo_automation_specialist/output.json` を拡張する v2 スキーマ：
+
+```json
+{
+  "meta": {
+    "week": "YYYY-Www",
+    "reporter": "Bo",
+    "kpi_ssot_version": "kpi-def-2026-09"
+  },
+  "weekly_metrics": {
+    "k1_double_input_count": 0,
+    "k2_vendor_lead_time_minutes_p95": 0,
+    "k3_bo_manual_hours": 0,
+    "k4_sla_violation_count": 0,
+    "k5_mttr_minutes": 0,
+    "k6_mtbf_days": 0,
+    "k7_dlq_resolution_rate": 0.0,
+    "k8_silent_failure_detection_minutes": 0,
+    "k9_cost_per_task_jpy": 0,
+    "k10_automation_coverage_pct": 0.0,
+    "k11_roi_pct": 0.0,
+    "k12_policy_violations": 0,
+    "k13_observability_coverage_pct": 0.0,
+    "slo_error_budget_burn_rate": 0.0
+  },
+  "automation_proposals": [
+    {
+      "target": "翔星建設｜請求書発行→売上計上→入金消込",
+      "current_state": { "hours_per_month": 26.7, "manual_steps": 12, "exception_rate_pct": 3.5 },
+      "future_state": { "hours_per_month": 1.7, "manual_steps": 1, "exception_rate_pct": 0.5 },
+      "impact": { "hours_saved_per_week": 5.75, "jpy_saved_per_year": 1440000, "fte_freed": 0.1 },
+      "effort_estimate": "M",
+      "architecture": { "type": "hybrid", "tools": ["n8n", "MCP:dot-genka", "LangGraph"], "human_in_the_loop": "月次締め承認1点" },
+      "risk": { "reversibility": "reversible", "blast_radius": "1社", "canary_plan": "1社→3社→7社" },
+      "sre": { "slo_target_pct": 99.5, "expected_mttr_minutes": 10, "chaos_tests": ["api_down", "rate_limit", "timeout"] },
+      "finops": { "monthly_cost_jpy": 4500, "roi_pct_at_6m": 320 },
+      "compliance": ["電帳法", "インボイス", "PII_masking"]
+    }
+  ],
+  "hr_redeployment_suggestions": [
+    { "person": "翔星建設｜事務◯◯さん", "freed_hours_per_month": 25, "reassignment": "現場写真整理・採用面談同席", "retention_narrative": "月末残業0h化により離職リスク低下" }
+  ],
+  "governance": {
+    "policy_violations": [],
+    "opa_bundle_version": "v2026.09",
+    "audit_trail_storage": "追記専用（BigQuery / S3 Object Lock）"
+  },
+  "observability": {
+    "otel_instrumented_jobs_pct": 100,
+    "langfuse_traces_last_7d": 0,
+    "heartbeat_missing_jobs": []
+  },
+  "roadmap": {
+    "next_quarter_targets": [
+      "Peppol Access Point 接続で建設業3社の受領請求構造化",
+      "Celonis Trial で7社横断のボトルネック可視化",
+      "全ジョブのOPAポリシー適用100%"
+    ]
+  }
+}
+```
+
+**LET事業（建設業採用支援・サクバズ）文脈調整**：
+- 建設業クライアント7社の共通業務（請求／原価／労務／出面／日報）を「業界特化テンプレライブラリ」として体系化し、新規社の立ち上げをマスタCSV差し替え＋ウィザード（07-07記録）で2h以下に固定
+- 削減効果の説明は「削減時間」でなく「事務担当◯◯さんの月末残業が◯時間減った／その人しかできなかった作業を2人で回せる」の属人性・離職リスク軸へ翻訳（08-16記録の建設業経営者向け言語化を必須テンプレ化）
+- どっと原価・電帳法・インボイス・2024年問題の制度値は Gen（16-建設業DXシステム部）から時点更新を受け、マスタCSVに外出し（08-13記録）
+- サクバズの採用支援業務（Airwork運用・応募対応・面談調整）についても本強化フレームを適用し、採用オペレーションのBPA化を通じてクライアント提供価値を差別化
