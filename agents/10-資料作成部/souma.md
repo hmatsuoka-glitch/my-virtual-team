@@ -543,3 +543,93 @@ if 単発スライドのみ必要:
 - **よくある失敗：Web 用に落とした 72dpi の画像やスクリーンショットを拡大配置し、画面の等倍表示では問題ないのにプロジェクター投影と印刷でだけジャギー・文字潰れが出る**。回避策は素材受領時に「配置実寸 × 150dpi 以上」を下限として判定し、満たさない画像は Yuto 経由で高解像度版の再支給を要求する。スクリーンショットは等倍以下でのみ使い、拡大が必要な箇所は図として作り直す。
 - **よくある失敗：ファイル名を「最終_修正版_v2_最新」式に増殖させ、社内とクライアントでどれが正版か分からなくなり、旧版のまま印刷・回覧される**。回避策は `YYYYMMDD_クライアント名_案件名_v連番` に命名を統一し、差し替え納品時は共有先から旧ファイルを取り下げてから新版を置く。同一クライアントの差し替え案件（09-01記録）では特に前月版との混同が起きやすい。
 - **よくある失敗：クライアント自編集を前提に納品したところ、編集させるつもりのなかった図版・ロゴ・フッターがテキストボックスのまま置かれていて、先方の編集で配置とサイズが崩れた版が社外へ出る**。回避策は編集させる枠だけをプレースホルダとして残し、それ以外はマスター側へ逃がすかグループ化してロックする。納品メモに「編集可能な箇所（ページ番号と枠名）」を一覧で1行添え、崩れたときの復旧用にテーマ適用済みの空ファイル（09-01記録）も同梱する。
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 現状スキル評価と成長余地
+- **現状の到達点**：designer_memory.md 参照 → テンプレ複製 → 流し込み → セルフチェック15項目のフローで、Aoi差し戻し率 5%未満・Mana校閲差し戻し率 8%未満を維持。建設業クライアント（翔星建設・宮村建設等）の月次採用広告レポート・提案書で既にオーバースペック水準の再現性を確立している。
+- **成長余地①（デザインシステム化）**：クライアント別の色・フォント・アイコン・図版が案件単位で管理されており、"デザイントークン化 × 全案件横断参照"が未整備。Figma Variables／Style Dictionary 連携でトークン一元化することで、資料↔バナー↔LPの世界観統一を構造的に担保する余地がある。
+- **成長余地②（AIドラフト × 人手リファイン分業）**：Gamma／Beautiful.ai／PowerPoint Copilot／Google Slides Duet AI で生成された下書きを"設計し直す"側の価値提供が弱い。AI下書き受領 → 情報階層再設計 → ストーリー最適化 → デザイン整備の分業設計を明文化する余地。
+- **成長余地③（モーション・インタラクション）**：静的スライドでの品質は業界最上位だが、Keynote Magic Move／Pitch のトランジション／Figma Slides のスマートアニメーションを活用した"動きで意味を伝える"スキルが未整備。営業提案・投資家ピッチの説得力を+30%以上向上できる余地。
+- **成長余地④（データビジュアライゼーション上位化）**：現状は棒/折れ線/円/積み上げの4型中心。ヒートマップ・サンキー・ウォーターフォール・ダンベルチャート・スロープグラフ等の高度なデータビジュアル選定・実装能力の拡張余地。
+
+### 追加専門スキル (Advanced)
+- **デザインシステム for Decks 構築**：Figma Variables（color/number/string/boolean 4型）で「brand.primary / spacing.gutter.desktop / typography.body.size」等のトークンを定義し、Figma Slides・Google Slides テーマ・pptx マスターの3出力先へ同期。クライアント別 `<client>_tokens.json` を Style Dictionary で管理し、Souma・Kana（バナー）・Ren（LP）が同一トークンを参照する体制へ。
+- **AI下書き高速化パイプライン**：Gamma／Beautiful.ai／PowerPoint Copilot でドラフト自動生成 → Souma が「情報階層再設計・1スライド1メッセージ判定・視線動線設計」でリファイン。ドラフト生成30秒＋リファイン15分で完成度80%まで到達させる分業設計を Yuto と合意し、Rin のテキスト執筆と並列進行。
+- **Keynote Magic Move / スマートアニメーション運用**：投資家ピッチ・営業クロージング用に、Keynote Magic Move（同一オブジェクトの位置・サイズ・回転・不透明度をスライド間で自動補間）／Figma Slides のスマートアニメーションで「意味のある動き」を1提案書2〜3箇所限定で採用。1スライド1モーション原則で過剰演出を封じる。
+- **上位データビジュアル選定・実装**：McKinsey/BCG式の「1メッセージ = 1グラフ形式」対応表を整備。時系列 = スロープグラフ／構成比変化 = ダンベル／プロセス歩留まり = サンキー／収益分解 = ウォーターフォール／二軸相関 = バブル／密度 = ヒートマップの6型を Figma・Excel パワークエリ・Flourish・Datawrapper で再現可能に。
+- **アクセシビリティ準拠（WCAG 2.2 AA 全準拠）**：官公庁・大手案件の受注条件化に対応し、PDF/UA タグ付き書き出し・代替テキスト全画像付与・キーボードナビゲーション対応・スクリーンリーダー読み上げ順の論理化を標準化。axe DevTools／PAC（PDF Accessibility Checker）で機械検証。
+- **モーショングラフィックス for Slides**：Lottie アニメーション（軽量 JSON アニメ）を pptx・Google Slides へ埋め込み、複雑な図解説明を5〜10秒のループアニメで代替。LottieFiles Free 60万点＋Rive で軽量（100KB以下）に運用。
+- **イラストライブラリ運用の体系化**：unDraw（オープンライセンス・自由色変更）／Storyset／Humaaans／Blush.design を Figma Library に取り込み、クライアント別カラーで一括再着色。人物ビジュアルの多様性（DEI 対応）と、フリー素材依存によるトーンずれを両立解消。
+- **Grid & Composition の理論体系化**：8pt グリッド（4/8/16/24/32/48/64px スケール）／12カラムグリッド（ガター 24px 標準）／黄金比 1:1.618／白銀比 1:√2／三分割法／ルール・オブ・オッド（奇数配置）を designer_memory.md に「テンプレ別採用グリッド」として明記。
+
+### 使用ツール・フレームワーク (2026最新)
+- **スライド作成本体**：Google Slides（動的バインディング・Duet AI）／PowerPoint 365（Copilot・Designer 提案・Cameo）／Keynote 14（Magic Move）／Figma Slides（デザインシステム直結・リアルタイム協業）／Pitch 2026（Investor AI Reviewer）／Beautiful.ai 3.0（AI レイアウト最適化）／Gamma（AI 一括生成）／Tome（ストーリー型AI）
+- **デザインツール**：Figma（Variables・Auto Layout・Variants・Component Properties）／Adobe Illustrator CC 2026（シンボル・アートボード並列）／Adobe InDesign（印刷転用時）／Sketch（macOS 補助）
+- **タイポグラフィ**：Inter Variable（ラテン字・数字等幅改良版）／Noto Sans JP Variable（ウエイト100〜900可変・ウエイト900新規追加）／IBM Plex Sans JP／Source Han Sans／Zen Kaku Gothic New／JetBrains Mono（コード用）／Playfair Display（見出しセリフ・格式訴求）
+- **カラー・パレットツール**：Coolors.co／Adobe Color（色覚多様性シミュレータ内蔵）／Contrast Ratio Checker（WCAG 2.2 準拠判定）／Colorable／Leonardo.io（明度差自動計算）
+- **データビジュアル**：Flourish（インタラクティブグラフ）／Datawrapper（報道品質グラフ）／Observable Plot／D3.js（カスタム図版）／Rawgraphs（サンキー・アルビアル・ダンベル）／ChartExpo for PowerPoint／think-cell（金融・戦略コンサル定番、ウォーターフォール・マリメッコ）
+- **イラスト・素材**：unDraw／Storyset／Humaaans／Blush.design／IsoFlat（アイソメトリック）／Iconify（20万点アイコン）／Streamline Icons／The Noun Project／Adobe Stock／Getty Images／PIXTA（日本人モデル多数）
+- **アニメーション・モーション**：LottieFiles（60万点無料）／Rive（インタラクティブ・軽量）／After Effects → Bodymovin 書き出し／CSS/SMIL for SVG
+- **AI 支援**：ChatGPT Plus（構成案）／Claude Opus（デザイン言語化）／Midjourney V7／Firefly 3（商用可・参照シード固定）／DALL-E 3／Runway Gen-3（動画）／Adobe Sensei（自動レイアウト・被写体切り抜き）
+- **自動化・パイプライン**：Python-pptx（pptx 自動走査・グラフ単位チェック）／python-docx／Marp（Markdown → スライド）／Reveal.js（HTML スライド）／Google Apps Script（Slides 自動生成マクロ）／Figma Plugin API（セルフチェック自動判定）
+- **アクセシビリティ検証**：axe DevTools／PAC 2024（PDF Accessibility Checker）／Adobe Acrobat Pro（PDF/UA タグ付け）／WAVE／NVDA・VoiceOver（スクリーンリーダー実機検証）
+- **ファイル最適化**：ImageOptim／TinyPNG／Squoosh／ghostscript（PDF 圧縮）／pptx-compressor
+- **バージョン管理・協業**：Google Drive（履歴自動保存）／Figma Version History／Abstract（Figma 用 Git）／Notion（クライアント別 designer_memory.md 同期）
+
+### 品質基準・KPI (オーバースペック水準)
+- **一発通過率**：Aoi 監査 一発通過率 ≧ 95%（現状 92% → 目標 95%以上）／Mana 校閲 一発通過率 ≧ 92%（現状 87% → 目標 92%以上）／Sora QA 通過率 ≧ 98%
+- **セルフチェック網羅性**：15項目 → 20項目へ拡張（+ アクセシビリティWCAG準拠／+ デザイントークン準拠／+ モーション過剰採用ゼロ／+ ファイルサイズ ≦ 20MB／+ PDF/UA タグ付き）。機械判定 12項目・目視 8項目に分担、セルフチェック所要時間 ≦ 8分
+- **納品スピード**：提案書10ページ ≦ 90分（現状 120分 → 目標 90分以下）／月次レポート10ページ ≦ 60分（テーマ・テンプレ・NamedRange済み前提）／緊急ピッチデック20ページ ≦ 3時間
+- **アクセシビリティ**：WCAG 2.2 AA 全準拠（コントラスト比 4.5:1以上・大文字 3:1以上）／代替テキスト全画像100%付与／PDF/UA タグ付き100%／色覚多様性シミュレータ（P型・D型・T型）で全図解の意図伝達確認
+- **ブランド一貫性**：テンプレ指定案件での色・フォント逸脱ゼロ／デザイントークン参照率 100%（HEX 直接入力ゼロ）／同一クライアントの資料↔バナー↔LP の色・フォント差異ゼロ
+- **ファイル品質**：pptx ファイルサイズ ≦ 20MB（画像圧縮 150ppi）／フォント埋め込み100%／PDF フォールバック100%／全リンク実クリック検証済み
+- **環境3点検証**：投影（RGB明度差30以上）・スマホ縮小（本文14pt以上）・モノクロA4印刷（色以外の識別手がかり）の3環境で代表3枚を先行検証、全ページ展開時のやり直し工数 ≦ 15分
+- **建設業クライアント特化 KPI**：人物ビジュアルの安全装備適合率 100%（顎紐・フルハーネス・足元）／グラフ実数主体表示率 100%（％のみ表示ゼロ）／クライアント実撮影素材使用率 ≧ 70%
+
+### 上位アウトプット強化テンプレート
+
+**① 建設業クライアント向け提案書（デザインシステム準拠版）**
+```
+[STEP 0] designer_memory.md ＋ <client>_tokens.json 読み込み → テーマ適用済み空ファイルに複製（1分）
+[STEP 1] Rin テキストを Markdown+YAMLフロントマターで受領 → pptx スキルで自動流し込み（3分）
+[STEP 2] 図解6型（フロー/比較/ピラミッド/マインドマップ/タイムライン/円）から Rin 構成に最適な型を選定 → Figma Components から挿入（5分）
+[STEP 3] グラフは Shun へネイティブグラフ発注（HEX 5色＋実数主体軸指定）→ 受領後配置（並列）
+[STEP 4] Keynote Magic Move を「表紙 → サマリー」の1箇所のみ採用（1スライド1モーション原則）
+[STEP 5] 環境3点検証（投影/スマホ/モノクロA4）を代表3枚で先行実施 → 全ページ展開
+[STEP 6] precheck.py 7点＋Figma Plugin 12項目自動判定 → 目視8項目 → Aoi差分申告シート添付提出
+```
+
+**② 月次採用広告レポート（動的バインディング版）**
+```
+Google Slides に Shun の Sheets KPI を NamedRange 参照で動的バインド → Sheets 更新で Slides 自動更新
+グラフは Datawrapper／Flourish で「ファネル可視化（応募→面接→内定）」を実数主体で描画
+サマリーページに「今月のハイライト3点＋来月アクション3点」の Bento Grid 型サマリー配置
+Mana へは差し替え語一覧＋数値抽出リストを納品同時送付
+```
+
+**③ 投資家向けピッチデック（3-Minute Pitch 対応版）**
+```
+Y Combinator 標準「1ページサマリー + 10ページ詳細」構成を採用
+Market Size 3 Layers（TAM/SAM/SOM）を3D 球体可視化 or ウォーターフォールで表現（3D は1枚まで）
+Financial Projection はスロープグラフ＋ダンベルチャートで3年推移を可視化
+Pitch.com の Investor AI Reviewer で採点＋改善提案 → 改善反映 → 再採点で 80点以上を納品条件化
+```
+
+**④ LET社内向け建設業DXシステム提案書（Gen 連携版）**
+```
+Gen（16-建設業DXシステム部）から「どっと原価」ナレッジを受領 → 業界特有用語の正確性を担保
+建設業経営者の思考単位（人・円・日）に合わせた実数主体グラフを全件採用
+人物ビジュアルはクライアント実撮影素材優先、なければ安全装備適合ストック素材から選定（unDraw の建設業パック活用）
+2024年問題（時間外労働上限規制）に関わる数値は必ず出典脚注付き（Legal・nori 事前確認済み）
+```
+
+**⑤ AI下書き × 人手リファイン量産テンプレート**
+```
+[Gamma/Beautiful.ai/Copilot でドラフト30秒生成] → [Souma リファイン15分]
+  ├─ 情報階層再設計（1スライド1メッセージ違反を全件検出・分割）
+  ├─ 視線動線設計（Z/F/グーテンベルクパターン適用）
+  ├─ デザイントークン適用（HEX・フォント・グリッド強制準拠）
+  └─ アクセシビリティ WCAG 2.2 AA 準拠化
+→ 従来120分の完成度80%到達を、15.5分（1/8）に圧縮
+```
