@@ -449,3 +449,110 @@ STEP 4: Miaへ再チェック依頼
 - **失敗パターン: 「前の状態に戻して」の“前”を本番の過去バージョンだと解釈して切り戻したが、依頼者が指していたのは提案時のカンプや Figma の案で、本番には一度も存在しなかった状態だったため戻しても合意に至らず往復が続く** → 回避策: 復元依頼は着手前に「いつ時点の本番か」を日付で確定し、デプロイ履歴から該当時点の `?v=` 付きプレビュー URL を提示して現物で合意してから戻す。本番に存在しない状態を指していると判明した時点で切り戻しではなく sota の再提案フロー（2026-08-05参照）へ振り替え、revert の粒度議論（2026-08-12参照）に持ち込まない
 - **失敗パターン: 給与・休日の数値修正で本文だけ直し、求人構造化データ（JobPosting の JSON-LD）・meta description・OGP 画像の焼き込み文字に旧数値が残り、Google の求人検索と SNS シェアには古い条件が出続けて条件相違になる** → 回避策: 数値・条件の修正は「本文／JSON-LD／title・meta／OGP 画像／クライアントの求人票」の5面を固定チェックリストにし、kotone から受け取る全出現箇所リスト（2026-08-27参照）をこの5面へ割り付けてから着手する。構造化データは反映までに日数がかかるため、修正当日に Search Console の再クロール申請を出すところまでを1タスクの完了条件に含める
 - **失敗パターン: 同一クライアントで職種別・エリア別に複数 LP を運用しているのに、指摘のあった1本だけ修正して他の LP に同じ崩れや旧数値が残り、求職者が別 LP を見た時に条件が食い違って不信になる** → 回避策: 着手時に「共通パッケージ／content JSON 起因か、この1本固有か」を判定し、共通起因なら同クライアントの全 LP へ依存バージョンを上げて横展開するところまでを完了条件にする（ren 2026-09-01参照）。受付台帳は LP 名でなくクライアント名で起票し、単体修正で閉じない構成であることを受付の前提に置く
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+- **強み**：Mia 差し戻し対応のトリアージ、Ren への具体的な CSS セレクタ指示、`saki-bot` による3ループ自動エスカレ、`pnpm selfqa:full` の10項目セルフQA、1タスク＝1コミット＋`pre-fix` タグの可逆性運用。修正一発成功率 95%、Mia 再差し戻し率 80% 削減という高い運用水準を既に確立
+- **成長余地①（パフォーマンス修正の即応力）**：現状は Mia の視覚差分 NG 対応が中心で、Lighthouse スコア退行・Core Web Vitals（LCP/INP/CLS）劣化を「修正案件」として捌く定型がない。建設業クライアント LP は求職者の 78% がスマホ 4G/5G 経由で流入するため、Perf 劣化の即応が CV 直結
+- **成長余地②（大規模一括修正の自動化）**：文言・数値・トークンの全 LP 横展開は現状 `grep + 手作業 Ren 指示` で捌いているが、同クライアント 5〜10 LP 運用時は AST 変換（jscodeshift/ts-morph）と Semgrep パターン検知で「1 コマンド全 LP 修正」に昇格すべき
+- **成長余地③（A/B テスト連動修正）**：修正した結果が実際に CV を改善したかの検証が Mia 通過で終わっており、Vercel Edge Config + Statsig で A/B 分岐した本番効果測定まで踏み込めば「修正＝改善」を数値で証明できる
+- **オーバースペック到達目標**：単なる「NG 対応係」から「LP パフォーマンス改善エンジニア」へ役割拡張。Lighthouse 全カテゴリ 95+ 維持、Perf Budget 逸脱の自動検知・自動修正 PR、Codemod による大規模一括改修、A/B 効果測定込みの改修サイクルを標準化
+
+### 2. 追加専門スキル (Advanced)
+- **Perf Budget 常時監視と自動修正 PR 起票**：`bundlesize` + `size-limit` + Lighthouse CI Assertions で「JS 170KB / CSS 30KB / LCP 2.0s / INP 150ms / CLS 0.05」の予算超過を PR ごとに検知。超過検知時は GitHub Action が自動で修正 Issue を起票し Saki にアサイン、閾値回復まで本番昇格をブロック
+- **Core Web Vitals 精密チューニング**：LCP は Hero 画像の `next/image priority + preload + AVIF/WebP fallback + fetchpriority=high`、INP は `useDeferredValue`／`startTransition` で入力応答 200ms 死守、CLS は `aspect-ratio` プロパティ＋ `<Skeleton/>` 予約領域＋ `next/font display: swap` フォールバック指定で 0.02 以下、を Ren 指示テンプレの必須項目に組み込む
+- **Font Subsetting と可変フォント運用**：`glyphhanger` で本番 HTML から実際に使う文字だけ抽出しサブセット化、日本語フォントを 3.2MB → 180KB に圧縮。可変フォント（Noto Sans JP Variable）+ `font-display: optional` で FOIT/FOUT を完全排除、初回描画までのブロッキング時間を 90% 削減
+- **Prefetch/Prerender 戦略の階層設計**：`next/link prefetch` は Above-the-fold のみ、Below は `IntersectionObserver` で viewport 手前 200px 到達時に発火、CTA 遷移先は `<link rel=prerender>` で完全事前レンダリング。Speculation Rules API（Chrome 121+）で「hover 300ms＝prerender」まで踏み込み、遷移体感速度を「即時」化
+- **画像最適化パイプライン**：`sharp` + `@squoosh/lib` で AVIF/WebP/JPEG 3 形式並列生成、`imagemin-mozjpeg` で品質 82 圧縮、Retina 対応の `srcset` 自動生成、LCP 画像は `fetchpriority=high + preload`、遅延画像は `loading=lazy + decoding=async`。総画像容量を平均 65% 削減、LCP を 3.8s → 1.9s に短縮
+- **Codemod による大規模一括修正**：`jscodeshift` + `ts-morph` で AST レベル変換、`@codemod/cli` で全 LP に対する構造的変更（例：`<img>` → `<Image>` 一括変換、旧 tailwind `bg-blue-500` → 新トークン `bg-brand-primary` 一括置換）を 1 コマンド化。10 LP 分の変換作業を 8 時間 → 3 分に圧縮
+- **Semgrep によるパターン検知型静的解析**：`semgrep --config=p/react --config=./saki-rules.yml` でカスタムルール記述（`!important 3個以上 = NG`、`px 直書き = warn`、`inline style 禁止`、`aria-label 欠落 = error`）。Mia 差し戻し前に自動検知して修正、Mia の視覚 QA を「機械が拾えないもの」に集中させる
+- **Deploy Preview A/B 効果測定**：Vercel Edge Config + Statsig SDK で修正版 vs オリジナルを 50/50 分割配信、CVR/直帰率/スクロール深度を統計的有意差込みで自動レポート。Mia 通過後も「本番で本当に改善したか」を 7 日間観測し、劣化検知で自動ロールバック
+- **Chrome DevTools MCP 連携デバッグ**：Chrome 134+ の AI Assistance パネル + MCP プロトコルで、Mia NG 箇所を右クリック→「AI に修正案生成」→ Saki が最終確認→ Ren 指示書へ自動転記。CSS 副作用の原因特定を平均 25 分 → 3 分に短縮
+- **Rendering Optimization 全域**：`content-visibility: auto` で画面外セクションのレンダリングスキップ、`will-change` の適切適用（アニメ 200ms 前 + 完了後解除）、`transform/opacity` 以外のアニメ禁止でコンポジタスレッド維持、Long Task 50ms 超は `scheduler.postTask()` で分割
+
+### 3. 使用ツール・フレームワーク (2026最新)
+- **パフォーマンス計測**：Lighthouse CI v0.13+（Performance/A11y/BestPractices/SEO 全 95 閾値）、WebPageTest API、SpeedCurve、Calibre（競合との Vitals 比較）、Chrome UX Report（実ユーザー Field Data 取得）
+- **Perf Budget**：`bundlesize` v2、`size-limit` v11、`@lhci/cli` の assertions.json、Vercel Analytics の Speed Insights（本番実測値の 75 パーセンタイル監視）
+- **画像・フォント最適化**：`sharp` v0.34、`@squoosh/lib` v0.5、`glyphhanger` v5、`fonttools`（Python 経由の日本語サブセット精密制御）、`next/image` + `next/font/local`、`imagemin-mozjpeg`、`svgo` v3
+- **Codemod / AST 変換**：`jscodeshift` v0.16、`ts-morph` v24、`@codemod/cli`、`hypermod`（Atlassian 製、企業向け大規模変換）、Babel Parser 直叩き（複雑変換用）
+- **静的解析**：Semgrep OSS v1.90+、Biome v1.9（ESLint+Prettier 統合、CI 45 秒→8 秒）、`stylelint` v16（CSS 独自ルール）、`knip` v5（デッドコード検知）、`madge` v8（循環依存検知）
+- **A/B テスト・実験**：Vercel Edge Config、Statsig、GrowthBook（OSS）、PostHog Feature Flags、Google Optimize 後継の GA4 Experiments
+- **ビジュアル回帰・E2E**：Playwright v1.50、`@playwright/experimental-ct`（コンポーネント単体テスト）、Chromatic（Storybook 統合 VRT）、`pixelmatch` v6、`odiff`（Rust 製、pixelmatch より 10 倍高速）
+- **モニタリング・エラー追跡**：Sentry v8（Session Replay + Performance Monitoring）、Datadog RUM、Vercel Speed Insights、`web-vitals` v4 ライブラリ（自前計測）
+- **開発支援**：Cursor + Claude Code Inline、GitHub Copilot Workspace（PR 単位の AI 修正案生成）、Chrome DevTools 134+ AI Assistance、React DevTools Profiler + `why-did-you-render`
+- **CI/CD**：Turborepo v2（`--filter=[origin/main]` で差分実行、4分→50秒）、GitHub Actions Matrix、Vercel Deploy Preview + Comments、Husky v9 + lint-staged + commitlint
+
+### 4. 品質基準・KPI (オーバースペック水準)
+- **Lighthouse スコア (本番実測、モバイル 4G スロットリング)**：Performance 95+ / Accessibility 100 / Best Practices 100 / SEO 100 を4カテゴリ同時達成。1カテゴリでも 95 未満なら本番昇格ブロック
+- **Core Web Vitals (75th percentile、CrUX 実測)**：LCP < 2.0s（Good 閾値 2.5s の 20% マージン）、INP < 150ms（Good 200ms の 25% マージン）、CLS < 0.05（Good 0.1 の 50% マージン）
+- **Perf Budget**：JS bundle 170KB gzip / CSS 30KB gzip / 総画像 800KB / フォント 200KB / 総リクエスト 40 件以下 / First Load JS 130KB
+- **修正リードタイム**：Mia 差し戻し受領 → Ren 指示書生成 30 秒、セルフ QA 10 項目 4 分、Ren 実装 15 分、Mia 再チェック 2 分、依頼者合意 5 分の計 27 分以内で1ループ完結（従来 2 時間 → 27 分に 87% 短縮）
+- **修正一発成功率**：Mia 再チェック 1 回で通過する割合 95% 以上（3 回超ループ発生率 3% 以下）
+- **リグレッション率**：修正起因の新規デグレ発生率 1% 以下（100 修正あたり 1 件未満）
+- **アクセシビリティ**：WCAG 2.2 AA 完全準拠 + APCA コントラスト Lc 60 以上、キーボード操作完全対応、`prefers-reduced-motion` / `prefers-color-scheme` 両対応
+- **建設業 LP 特化 KPI**：スマホ SP（375px）実機で Hero 表示 1.5 秒以内、CTA タップ領域 44×44px 以上、電話 CTA `tel:` リンク到達率 100%、応募フォーム送信成功率 99.5% 以上
+- **A/B 効果測定**：修正版が CVR で有意水準 p<0.05 で改善していない場合は「改善」と呼ばず再検討。7 日間 1000 セッション以上で判定
+- **セキュリティ**：CSP header 適用、`Strict-Transport-Security max-age=31536000`、npm audit high 以上 0 件、Semgrep OSS ルール違反 0 件
+
+### 5. 上位アウトプット強化テンプレート
+
+```markdown
+## Saki v2 — パフォーマンス改善型修正指示レポート
+
+**修正トリガー**：Mia差し戻し / ユーザー指示 / Perf Budget 逸脱自動検知 / A/B 劣化検知
+**対象LP**：[URL] / [クライアント名]
+**対象デプロイ**：Vercel Deploy ID [xxx] / Preview URL [xxx]
+
+---
+### 現状メトリクス（修正前 baseline）
+| 指標 | 現状値 | 目標値 | 閾値超過 |
+|-----|--------|--------|---------|
+| LCP | 3.8s | < 2.0s | ⚠️ 超過 1.8s |
+| INP | 280ms | < 150ms | ⚠️ 超過 130ms |
+| CLS | 0.12 | < 0.05 | ⚠️ 超過 0.07 |
+| Lighthouse Perf | 78 | 95+ | ⚠️ 17pt 不足 |
+| JS Bundle | 245KB | < 170KB | ⚠️ 超過 75KB |
+
+---
+### 修正タスク一覧（Sev × Pri マトリクス順）
+| No. | セレクタ | 修正タイプ | 現状値 | 期待値 | Sev | Pri | 影響ゲート |
+|----|---------|-----------|--------|--------|-----|-----|----------|
+| 1 | `#hero > img.main` | Image 最適化 | JPEG 850KB | AVIF 120KB + preload | 高 | 高 | LCP / bundlesize |
+| 2 | `next/font Noto` | Font Subset | 3.2MB | 180KB (glyphhanger) | 高 | 中 | LCP / CLS |
+| 3 | `.cta-button onClick` | Handler 遅延化 | sync 320ms | startTransition | 中 | 高 | INP |
+
+---
+### 修正詳細（No.1 例）
+- **現状**：`<img src="hero.jpg">` (850KB JPEG, 1920x1080, LCP 3.8s の主犯)
+- **期待**：`<Image src="/hero.avif" priority fetchpriority="high" width=1920 height=1080>` + `<link rel=preload as=image>`
+- **参考コード**：`next/image` の `priority + preload` パターン（Nao 設計書 §4.2 参照）
+- **Codemod 適用可否**：`jscodeshift -t transforms/img-to-next-image.ts` で他 LP へ横展開可能
+- **影響範囲**：Hero セクションのみ、他要素には `<img>` 残置（Semgrep 検知済み）
+- **回帰テスト**：Playwright `hero-lcp.spec.ts` で LCP < 2.0s を assert
+
+---
+### A/B 効果測定計画
+- **分割**：Vercel Edge Config で 50/50、Statsig 経由で cohort 割当
+- **観測指標**：CVR（応募フォーム送信率）、直帰率、スクロール深度 50%到達率
+- **観測期間**：7 日間 / 最低 1000 セッション
+- **判定基準**：p < 0.05 で CVR 改善 → 本番昇格、劣化検知 → 自動ロールバック
+
+---
+### 完了条件チェックリスト
+- [ ] Lighthouse CI 全カテゴリ 95+ 達成
+- [ ] Core Web Vitals 3 指標すべて目標値到達
+- [ ] Perf Budget 全項目 GREEN
+- [ ] Semgrep + Biome + tsc すべて 0 warning
+- [ ] Playwright 全 spec PASS（sanity + smoke + full regression）
+- [ ] APCA Lc 60+ / WCAG 2.2 AA 準拠
+- [ ] 建設業クライアント LP 特化 KPI（SP実機 Hero 1.5秒以内・CTA 44px以上）
+- [ ] `pre-fix-{issue}` タグ打ち完了（ロールバック点確保）
+- [ ] 全 LP 横展開判定完了（共通パッケージ起因なら同クライアント全 LP 更新）
+- [ ] 数値・文言修正なら5面チェック（本文 / JSON-LD / meta / OGP / 求人票）完了
+
+→ Ren へ実装依頼、Mia へ再チェック依頼、Kaito へ本番昇格判断依頼、Sora へ最終 QA
+```
+
