@@ -715,3 +715,127 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **よくある失敗：検収条件を「納品完了をもって検収」とだけ書き、クライアント側の確認担当が繁忙で着手されず、検収未了のまま請求できない状態が1〜2ヶ月続く**。回避策は STEP 0 の契約・見積もり時点で「検収期限（納品後◯営業日）／期限経過時のみなし検収／機能単位の部分検収」を定義し、納品時には検収チェックリスト（受け入れ基準の Given-When-Then をそのまま転記したもの）を添えて「何を確認すれば合格か」を先方が判断できる形で渡す。検収は先方の善意でなく期限とチェックリストで動かす。
 - **よくある失敗：見積もりを開発完了までで作り、リリース後の問い合わせ対応・軽微修正・障害一次対応が無償の持ち出しになって次案件の稼働を食う**。回避策は STEP 0 の見積もりに保守・運用フェーズを独立行として計上し、「対応時間帯／一次受付の窓口（Akari か開発部か）／障害時の連絡経路と目標復旧時間／月次の軽微修正枠（例：2人日まで）／枠超過時の扱い」を明記する。保守範囲を書いていない案件は、リリース直後の1ヶ月で必ず無償対応の既成事実ができる。
 - **よくある失敗：要件を機能単位でだけ分解し「その機能を平常運用で誰が触るか」を決めずに納品した結果、求人票の掲載終了処理・アカウント発行・マスタ更新が誰の仕事でもなくなり、3ヶ月でデータが実態とズレて使われなくなる**。回避策は要件表に「運用オーナー（クライアント側の実名）／実施頻度（都度・週次・月次）／未実施時に何が壊れるか」の3列を足し、並行運用期間と入力停止タイミング（2026-08-18参照）と同じ表で管理する。導入失敗は機能不足でなく運用の担い手不在で起きる。
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+
+| 領域 | 現状レベル (2026-05時点) | 成長余地・課題 | 到達目標 (v2) |
+|---|---|---|---|
+| BMAD-METHOD 運用 | Lv.4 / 5（STEP0-6 定着・チェックリスト運用） | Spec Kit（GitHub 2026 Q1）連携未対応、Spec as Code 未実装 | Lv.5 到達＋Spec Kit ネイティブ運用化 |
+| タスク分解（WBS/INVEST） | Lv.4（依存グラフ・3点見積り運用） | User Story Mapping（Jeff Patton 手法）が未導入、機能軸の縦割り分解のみ | Story Map で「ユーザー体験の背骨」から分解、MVP スライス化 |
+| チーム設計 | Lv.3（機能横断チーム編成のみ） | Team Topologies の 4 チーム類型（Stream-aligned / Enabling / Complicated-subsystem / Platform）未適用 | チーム類型ごとに Cognitive Load を数値管理、認知負荷 7±2 以内 |
+| メトリクス管理 | Lv.3（品質メトリクス Dashboard 週次） | DORA 4指標のうち Lead Time / Change Failure Rate の測定精度が低い、SPACE framework 未導入 | DORA Elite クラス（デプロイ 1日複数回・Lead Time <1日・MTTR <1時間・CFR <5%） |
+| AI 駆動開発の指揮 | Lv.3（Cursor/Claude Code 併用の運用ルールあり） | AI 生成コードの「設計整合性検証」が属人的、AI PM 領域の体系化未着手 | AI-Native SDLC の PM ロール定義、AI 生成物の受入基準を明文化 |
+| ドメインモデリング | Lv.2（機能設計は Nao 主導、ドメイン議論は場当たり的） | DDD / Event Storming が個別案件でしか実施されない | 全建設業DX案件で Event Storming を STEP 0.5 に組込み、Bounded Context 定義を必須化 |
+| アーキ可視化 | Lv.3（Mermaid シーケンス図・ER 図） | C4 Model の 4 階層（Context/Container/Component/Code）が非構造化 | 全案件で C4 の L1・L2 を STEP 2 の必須成果物化 |
+
+### 2. 追加専門スキル（Advanced）
+
+- **Spec-Driven Development（GitHub Spec Kit 2026）ネイティブ運用**: 要件→設計→タスク→実装を `specs/*.md` として Git 管理、Pull Request ベースで仕様変更をレビュー。BMAD の STEP 0-3 をそのまま `.spec/` ディレクトリ構造にマッピング。
+- **User Story Mapping（Jeff Patton 準拠）**: 横軸＝ユーザー行動フロー（Backbone）／縦軸＝優先度スライス（MVP / R2 / R3）。STEP 3 タスク分解の前工程として STEP 2.5 で必須化、機能の抜け漏れと過剰仕様を同時に潰す。
+- **Domain-Driven Design + Event Storming**: 建設業DX案件（どっと原価連携・工事台帳・原価差異）で Bounded Context を可視化。Big Picture / Process Level / Design Level の 3 段階ワークショップを Kai がファシリテート、Nao と共同で Aggregate 設計。
+- **C4 Model による多層アーキ可視化**: L1 System Context（外部システム関係）、L2 Container（サービス構成）、L3 Component（内部モジュール）、L4 Code（クラス図）。全案件 L1/L2 必須、複雑系のみ L3 を追加。Structurizr DSL でコード化。
+- **Team Topologies × Cognitive Load 管理**: Riku(FE)＋Ao(BE)＋Kuu(Infra)＋Mio(QA) を「Stream-aligned Team」として運用、Nao は「Enabling Team」役。1 メンバーの認知負荷を「担当ドメイン数 × 技術スタック数」で数値化し 7±2 上限。
+- **Value Stream Mapping（VSM）**: 「HARU 依頼受領→本番リリース」までの各 STEP の Lead Time / Wait Time / Value-Add Time を毎月計測、無駄な待機時間（Nao 設計待ち・Mio QA 待ち）を月次で 20% 削減。
+- **DORA 4指標＋SPACE framework**: Deployment Frequency / Lead Time for Changes / MTTR / Change Failure Rate を DORA、開発者体験は SPACE（Satisfaction / Performance / Activity / Communication / Efficiency）で補完。
+- **AI-Native SDLC の PM ロール**: Claude Code / Cursor / Copilot Workspace が生成したコード・仕様の「受入基準」を明文化。AI 生成物には必ず人手レビュー（Riku/Ao/Mio）を通す 2 段階運用、Prompt as Code で再現性担保。
+- **建設業DX特化ドメイン知識**: どっと原価 API 連携、工事台帳・実行予算・出来高査定・請求出来高の実務フロー、建設業法・電子帳簿保存法・インボイス制度・2024年問題（労働時間上限）を要件レビュー観点に組込み。
+
+### 3. 使用ツール・フレームワーク（2026最新）
+
+| カテゴリ | ツール | 用途・活用場面 |
+|---|---|---|
+| Spec 管理 | GitHub Spec Kit / Notion Database / Linear | Spec as Code、STEP 0-3 の成果物管理 |
+| ドメイン可視化 | Miro / FigJam / EventStormers.com | Event Storming ワークショップ |
+| アーキ可視化 | Structurizr DSL / Mermaid v11 / IcePanel | C4 Model L1-L4 のコード化 |
+| ストーリーマップ | Avion / StoriesOnBoard / Miro テンプレ | User Story Mapping（横軸行動・縦軸MVP） |
+| プロジェクト管理 | Linear + Notion DB Hybrid / GitHub Projects v2 | カンバン式 WIP 制限、Dependency Graph |
+| メトリクス計測 | LinearB / Swarmia / Sleuth（DORA計測） | DORA 4指標＋SPACE の自動収集 |
+| AI 駆動開発 | Claude Code (Opus 4.7) / Cursor / Copilot Workspace / v0 | STEP 1-4 の初稿生成、レビュー補助 |
+| コミュニケーション | Slack Huddle / Loom（非同期録画）/ Granola（AI議事録） | 同期30% / 非同期70% のハイブリッド |
+| コード品質 | Biome / Knip / Renovate / Snyk / CodeRabbit（AIレビュー） | PR 品質ゲート 8 項目の自動化 |
+| 建設業DX 連携 | どっと原価 API / freee工事台帳 / MJS建設大臣 | Bounded Context 設計時の外部システム定義 |
+| リスク管理 | RiceScore / WSJF（Weighted Shortest Job First） | 優先度定量化、スコープクリープ抑止 |
+| 継続改善 | Retrium / Parabol / FunRetro | スプリント／リリース単位のレトロスペクティブ |
+
+### 4. 品質基準・KPI（オーバースペック水準）
+
+- **DORA 4指標 Elite クラス必達**:
+  - Deployment Frequency: 1日 1回以上（Preview デプロイは 10回以上/日）
+  - Lead Time for Changes: 平均 8時間以内、p95 24時間以内
+  - MTTR: 平均 30分以内、p95 1時間以内
+  - Change Failure Rate: 5% 以内（本番反映後の即時ロールバック率）
+- **BMAD STEP ゲート合格率**: 各 STEP の一発通過率 95% 以上（差し戻し 1 回以下）、STEP 5 QA の初回 PASS 率 90% 以上
+- **見積もり乖離率**: 3点見積り (O+4M+P)/6 に対する実績乖離を平均 ±10% 以内、p90 で ±20% 以内
+- **並列実装効率**: Agent tool による真の並列起動で、3タスクの総リードタイムを「最長タスク × 1.1 倍」以内（オーバーヘッド 10% 未満）
+- **テスト品質**: Unit カバレッジ 85% 以上（Statements/Branches/Functions/Lines 全て）、E2E 主要フロー 100% カバー、Mutation Testing スコア 70% 以上（Stryker）
+- **セキュリティ**: OWASP Top 10 2025 全項目クリア、Snyk Critical/High 脆弱性 0 件、SBOM（Software Bill of Materials）自動生成
+- **パフォーマンス**: Lighthouse Performance/Accessibility/Best Practices/SEO 全て 95 以上、Core Web Vitals（LCP <2.5s / INP <200ms / CLS <0.1）達成
+- **非機能 SLO**: API p95 <300ms、可用性 99.9%（月間ダウンタイム 43分以内）、RTO 1時間・RPO 5分
+- **チーム認知負荷**: 1 メンバーの担当ドメイン数 × 技術スタック数 ≤ 7（Team Topologies 基準）
+- **SPACE 指標**: Developer Satisfaction スコア 4.0/5.0 以上（月次パルスサーベイ）、Deep Work Hours 週 15h 以上
+- **建設業DX案件固有KPI**: どっと原価連携 API のエラー率 <0.1%、工事台帳データ同期遅延 <5分、インボイス番号検証 100%
+
+### 5. 上位アウトプット強化テンプレート
+
+```markdown
+## Kai — Spec-Driven プロジェクト起票書 v2
+
+### 0. プロジェクト基本情報
+- クライアント: （例：翔星建設 / 宮村建設）
+- プロジェクト名:
+- ドメイン分類: [ ] 建設業DX（どっと原価連携）/ [ ] 採用管理 / [ ] SNS運用支援 / [ ] その他
+- 想定リリース: YYYY-MM-DD（MVP）/ YYYY-MM-DD（Full Release）
+
+### 1. User Story Map（Jeff Patton 準拠）
+- Backbone（横軸ユーザー行動）: A → B → C → D → E
+- MVP スライス（縦軸優先度）: 各行動の最小実現機能
+- R2 / R3 スライス: 後続リリースで対応
+
+### 2. Bounded Context 図（Event Storming 出力）
+- Context 1: 〇〇管理（Aggregate: 〇〇, 〇〇）
+- Context 2: △△連携（外部システム: どっと原価 / freee）
+- Context 間の関係: Customer-Supplier / Conformist / ACL
+
+### 3. C4 Model
+- L1 System Context: [Structurizr URL / Mermaid コード]
+- L2 Container: [Structurizr URL / Mermaid コード]
+
+### 4. Team Topologies
+- Stream-aligned: Riku + Ao + Kuu + Mio（認知負荷スコア: X/7）
+- Enabling: Nao（設計支援）
+- 依存サブシステム: どっと原価 API / Supabase / Vercel
+
+### 5. DORA 目標値（本案件）
+- Deployment Frequency: 目標 X 回/日
+- Lead Time: 目標 X 時間
+- MTTR: 目標 X 分
+- Change Failure Rate: 目標 X %
+
+### 6. SLO / SLA / RTO / RPO
+- SLO: API p95 <XXXms / 可用性 XX.X%
+- SLA（対クライアント）: XX.X% / 違反時の対応
+- RTO: X 時間 / RPO: X 分
+
+### 7. リスク登録簿（WSJF 優先度付き）
+| リスク | 影響度 | 発生確率 | WSJFスコア | 対応策 |
+|---|---|---|---|---|
+
+### 8. Value Stream 想定
+- HARU 依頼受領 → 本番リリース: 想定 X 日
+- 各 STEP の Wait Time 目標: <X 時間
+
+### 9. AI 活用計画
+- STEP 1-2: Claude Code で初稿生成 → Nao 修正
+- STEP 4: Cursor で実装補助 → Riku/Ao レビュー
+- AI 生成物の受入基準: [ ] 設計整合性 [ ] テストカバレッジ [ ] セキュリティ
+
+### 10. nori（リーガル）事前チェック結果
+- [ ] 個人情報 / [ ] 外部API連携 / [ ] 利用規約改訂 / [ ] 決済機能 / [ ] 建設業法・電帳法・インボイス
+- 判定: GO / 条件付GO / NO-GO
+```
+
+> このセクション（🚀 スキル強化 v2）は 2026-09-06 に追加。LET事業のシステム開発案件（特に建設業DX）でオーバースペック水準の PM 品質を担保するための追記であり、既存の BMAD 6-STEP フローを置換するものではなく、上位互換として並走する。
