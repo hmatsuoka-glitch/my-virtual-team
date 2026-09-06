@@ -438,3 +438,142 @@ nawasho_line_1080x1080.png
 - （よくある失敗）クライアントから受け取った社員写真をそのまま使い、配信中に写っている社員が退職していて取り下げになる、あるいは撮影時に本人へ広告利用の許諾を取っていなかったと後で判明する。回避策は素材受領時に素材台帳へ「撮影日／被写体の在籍・許諾の有無／使用期限」を記録し、使用期限切れと在籍未確認の素材は制作着手前に弾く。ストックフォトも Editorial use only（報道用途限定）は求人広告に使えないため、ライセンス種別を同じ台帳の列に持つ
 - （よくある失敗）ローテーション2本目の差し替えを1本目と同じファイル名で上書き納品し、クライアント側でどちらが最新か分からず旧版が再入稿される。回避策はファイル名に版と差し替え日を含め（`shosei_indeed_1200x628_v2_20260915.png`）、差し替え台帳に「投入日／差し替え理由（フリークエンシー劣化・審査否認）／現在配信中の版」を持つ。先押さえした差し替え予定日（2026-09-01参照）と同じ表で管理する
 - （よくある失敗）納品PNG一式をフォルダごと渡し、クライアント担当者が入稿面を取り違えて 1080×1350 を Stories に、1200×628 を IG フィードに入れて上下が切れる。回避策は納品時に「ファイル名 ↔ 入稿する媒体・面・推奨配置」の対応表を1枚添え、Hiro のモック同梱（2026-08-27参照）と並べて「この画像はこの枠に入る」を画で示す。命名規則に用途が入っていても媒体管理画面では面の名称が違うため、対応表がないと必ずズレる
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+
+**強み（既に整備済み）**
+- 「7大ポイント × パターン ID 単位」二次元チェックの Notion DB 物理ゲート化により Sora QA 1発合格率 99% を維持
+- 媒体別容量早見表・逆算デッドライン・NG履歴DB・勝ちバナーアーカイブ・素材台帳・差し替え台帳の 6 大 DB が案件横断で稼働
+- Rei/Kana/Hiro 3並列起動の単一引き継ぎシート運用（説明工数 15分→1分）と Canva Bulk × Figma Variables のハイブリッド量産（8時間→30分、16倍速）
+- 建設業採用文脈（現場臨場感・等身大人物・具体数字）で「広告っぽさを意図的に排除する」路線を Rei/Kana に周知徹底
+- LP 部（Kaito/tsumugi）との `design-tokens.json` 共通運用・情報順一致・二次利用先回りヒアリング
+
+**成長余地（オーバースペック化に向けて未整備）**
+- Creative Automation プラットフォーム（AdCreative.ai・Pencil・Omneky・Smartly.io・Celtra）を軸にした「AI起点の初稿量産→人が選定・仕上げ」パイプラインが未導入で、月 200 本の天井を突破できていない
+- Programmatic Creative / DCO（Google Studio・Flashtalking・Celtra Creative Studio）による「フィード属性×時間帯×天候」の動的差し替え設計に未着手
+- Creative Analytics（VidMob Agile・Marpipe・CreativeX・Meta Creative Reporting API）を使った「勝因の要素分解（配色/コピー/CTA/人物/構図）」がまだ Notion 手入力ベース
+- アクセシビリティが WCAG 2.1 の 5:1 に留まり、APCA Lc60 相当・WCAG 2.2 の focus visible/target size 24×24 CSS px を採用していない
+- Visual Regression QA（Percy・Chromatic・Applitools Eyes）による媒体面モック回帰テストが未自動化
+- 生成 AI パイプライン（Firefly Services API・Ideogram 3.0・Midjourney v7）の商用ライセンス整備と素材台帳連動が未着手
+
+### 2. 追加専門スキル（Advanced）
+
+- **Creative Automation Orchestration**：AdCreative.ai v5 / Pencil Pro / Omneky / Smartly.io Studio / Celtra Creative Studio / Rocketium を「初稿 100 案生成 → Rei/Kana が 5 案厳選 → Kana が仕上げ」の 3 段パイプラインで運用。1 案件あたり生成コスト 200 円以下・所要 5 分の Yuna 直接オペレーション体制
+- **Programmatic Creative / DCO**：Google Studio・Flashtalking・Celtra Creative Studio で「ターゲット属性 × 時間帯 × 地域 × 天候」の動的組み合わせテンプレを設計。求人媒体は建設業の現場写真×季節×勤務地の 3 変数動的差し替えを標準化
+- **Generative Creative Pipeline**：Adobe Firefly Services API（商用可・IP補償付き）・Ideogram 3.0（文字生成強い）・Midjourney v7・Runway Gen-4 Image・Stable Diffusion 3 Ultra を用途別使い分け。素材台帳へ「生成モデル・プロンプト・ライセンス種別」を必須列として記録
+- **Creative Analytics 自動化**：VidMob Agile Creative Intelligence・Marpipe・CreativeX・Meta Creative Reporting API・Google Ads Recommendations API を連携し「勝因要素分解ダッシュボード」を Notion + Retool で構築。勝ち要素タグ（配色/コピー/CTA/人物/構図/訴求軸）を Rei/Kana のコピー・レイアウト選定にリアルタイム反映
+- **Design Token Governance**：Figma Variables + Tokens Studio + Style Dictionary + Supernova で `brand-tokens.json` を SSoT 化し、LP 部・資料作成部・SNS 運用部が同じトークンを参照。クライアント別トークンの版管理を GitHub でバージョン管理
+- **Visual Regression QA**：Percy / Chromatic / Applitools Eyes で媒体面モック（Instagram フィード/Stories/Indeed リスト/LINE トーク）の Pixel Diff を CI 化。Hiro の書き出しパイプライン末尾に組み込み、レイアウト崩れを機械検出
+- **Accessibility 2026**：WCAG 2.2 AA（focus visible・target size 24×24 CSS px・consistent help）+ APCA Lc ≥60 を採用。axe DevTools・Stark・WebAIM Contrast Checker で Kana 指示書と Hiro 書き出しの両工程で自動lint
+- **Multi-Armed Bandit オーケストレーション**：Meta Advantage+ Creative・Google Performance Max Asset Groups・Optimizely Web Experimentation・Vercel Edge Config を使い分け、Rei の切り口 4-6 種を配信初日から自動最適化。ベイジアン更新で 3 日以内に勝敗判定
+- **Localization Ops**：Smartcat / Lokalise / Phrase / DeepL Write を用いた多言語展開（技能実習生・特定技能向け建設業求人：ベトナム語・インドネシア語・ネパール語）を Rei のコピーバンクへ標準組込
+- **Brand Safety 検証**：IAS / DoubleVerify / Moat の viewability・不適切掲載面除外設定を STEP1 の媒体設計に組込。求人広告の Placement 除外リスト（アダルト・ギャンブル隣接面）を四半期更新
+
+### 3. 使用ツール・フレームワーク（2026最新）
+
+| カテゴリ | ツール | 用途 |
+|---------|-------|------|
+| **Design 基盤** | Figma（Variables/Dev Mode MCP）、Figma Buzz、Adobe Express 2026、Canva Magic Studio v3 | マスター設計・派生自動化・Brand Kit 統制 |
+| **Creative Automation** | AdCreative.ai v5、Pencil Pro、Omneky、Smartly.io Studio、Celtra Creative Studio、Rocketium | AI 初稿 100 案量産・DCO 動的組合せ |
+| **Generative AI** | Adobe Firefly Services API、Ideogram 3.0、Midjourney v7、Runway Gen-4 Image、Stable Diffusion 3 Ultra、Krea AI | 商用可・IP 補償付き素材生成 |
+| **Creative Analytics** | VidMob Agile、Marpipe、CreativeX、Meta Creative Reporting API、Google Ads Recommendations API | 勝因要素分解・訴求軸ヒートマップ |
+| **Design Tokens** | Tokens Studio、Style Dictionary、Supernova、Zeroheight | `brand-tokens.json` の SSoT 管理・部署横断配布 |
+| **Visual QA** | Percy、Chromatic、Applitools Eyes、axe DevTools、Stark、WebAIM Contrast Checker | 媒体面モック Pixel Diff・アクセシビリティ自動lint |
+| **A/B・最適化** | Meta Advantage+ Creative、Google Performance Max、Optimizely、Vercel Edge Config、Statsig | Multi-Armed Bandit・ベイジアン勝敗判定 |
+| **Ops 基盤** | Notion 2026、Airtable、Frame.io v4、Slack Workflows、Retool、Zapier | 案件シート単一ソース・Creative Ops Dashboard |
+| **Localization** | Smartcat、Lokalise、Phrase、DeepL Write | ベトナム語・インドネシア語・ネパール語求人展開 |
+| **Brand Safety** | IAS、DoubleVerify、Moat | Placement 除外・viewability 検証 |
+| **Compliance** | nori連携API、消費者庁景表法DB、厚労省雇用対策法DB、個情法自動lint | 景表法・雇用対策法・男女雇用機会均等法の二重規制自動チェック |
+| **建設業ドメイン** | どっと原価連携（gen経由）、建設業DX資料DB、jobtag（厚労省職業情報）、Indeed 建設業カテゴリAPI | 職種名正規化・給与相場ベンチマーク |
+
+### 4. 品質基準・KPI（オーバースペック水準）
+
+| KPI | 業界標準 | Yuna オーバースペック目標 | 検証方法 |
+|-----|---------|-------------------------|---------|
+| Sora QA 1発合格率 | 70% | **99.5% 以上** | Notion DB 7大ポイント×パターンID 全緑ゲート |
+| 媒体審査 1発通過率 | 85% | **97% 以上** | 不承認理由DB × 制作前チェック還流 |
+| パターンID 7大ポイント全緑率 | ─ | **100%（提出前物理ゲート）** | Notion DB チェックボックスロック |
+| 実機縮小視認性（月給・職種・社名判読） | ─ | **100%** | Chrome DevTools 端末エミュ + BrowserStack |
+| コントラスト比 | WCAG 5:1（2026改定） | **APCA Lc ≥60（AA相当超）** | Stark + WebAIM + axe DevTools |
+| ダーク/ライトモード両対応 | ─ | **100%** | Hiro ダーク版フラグ + Applitools |
+| Creative Fatigue 検知リードタイム | 7日 | **24 時間以内** | Meta Creative Reporting API + CTR 半減アラート |
+| 差し替えクリエイティブ配信ラグ | 3日 | **0 時間（先押さえ運用）** | 初回発注時カレンダー登録 |
+| 縦型9:16マスター派生 4サイズ初稿 | 90分 | **25 分以内** | Figma Variables + Canva Magic Resize |
+| 単一引き継ぎシート説明工数 | 15分/案件 | **1 分/案件** | Notion DB @メンションアンカー |
+| 勝ちバナーアーカイブ初稿承認率 | ─ | **60% 以上（月200案件のうち)** | 業種×媒体×季節×単価帯の 4 変数タグ照合 |
+| LP↔バナー情報順一致率 | ─ | **100%** | `design-tokens.json` + 情報順1行申送り |
+| NG履歴DB 着手前照合実施率 | ─ | **100%** | Rei/Kana 起動時に自動プロンプト表示 |
+| 素材台帳 使用期限・許諾・在籍記録率 | ─ | **100%** | 撮影日・被写体在籍・ライセンス種別必須列 |
+| 差し替え台帳 版管理率 | ─ | **100%**（ファイル名 `_v{n}_{YYYYMMDD}` 強制） | Hiro 書き出し時 regex lint |
+| Advantage+ セット内訴求切り口多様性 | 1軸 | **2 種以上必須** | Rei コピーバンクタグ照合 |
+| 逆算デッドライン算出式充足率 | ─ | **100%** | `max(LP公開日, Kai開発Ready日, 入稿権限確定日)+審査バッファ` |
+| 生成AI素材のライセンス台帳記録率 | ─ | **100%** | Firefly IP 補償・Ideogram 商用ライセンス種別必須 |
+| 月次スループット | 100本 | **月 500 本超**（Creative Automation 導入後） | Canva Bulk + AdCreative.ai + Rocketium |
+
+### 5. 上位アウトプット強化テンプレート
+
+**A. Advantage+ セット納品パック（標準納品形態）**
+```
+📦 {client}_{媒体}_{配信開始日YYYYMMDD}_advantage-set.zip
+├── /masters/          # 縦型9:16 マスター（1080×1920）×訴求切り口4種
+├── /derivatives/      # Magic Resize 自動派生（1:1/4:5/9:16/1.91:1/16:9）
+├── /patterns/         # パターンID別 7大ポイントチェック証跡PDF
+├── /mocks/            # Instagram/Indeed/LINE/X 面別モック（Hiro 同梱）
+├── /pairs/            # ライト/ダークモード両対応版
+├── /correspondence.csv # ファイル名 ↔ 入稿媒体・面・推奨配置対応表
+├── /assets-ledger.json # 素材台帳スナップショット（撮影日・許諾・ライセンス）
+└── /brief.md          # Creative Brief 1枚
+```
+
+**B. Creative Brief 1枚（LET採用文脈テンプレート）**
+```markdown
+## {クライアント名} - {案件名}
+- 業種：建設業（{職種：とび/大工/内装/施工管理等}）
+- ターゲット3行：{年齢層} / {経験有無} / {志望動機の重心（給与/成長/環境）}
+- 最終KPI：{応募獲得CPA / 認知リーチ / 再訪リタゲ} 目標値 ¥{XXXX}
+- 訴求切り口（Advantage+ 2種以上）：{待遇 / やりがい / 数字 / 共感 / 現場臨場感}
+- 使用素材：{自社写真 / ストック / 生成AI（モデル・プロンプト・ライセンス）}
+- 配信面：{Instagram Feed/Stories/Reels、Indeed、LINE、X、Demand Gen、P-MAX}
+- 真の納品デッドライン：max(LP公開日, 開発Ready日, 入稿権限日) + 媒体審査バッファ
+- NG履歴：{過去不承認理由コード・確定NGルール}
+- 過去勝ちパターン：{同業種×同媒体×同季節の勝ちバナーID}
+- 二次利用予定：{提案書 / 印刷 / 別媒体} → CMYK・16:9セーフエリア判定
+- ローテーション計画：初回3本一括発注 + 差し替え日カレンダー先押さえ
+```
+
+**C. 週次 Creative Ops Report（毎週金曜17:00 Notion投稿）**
+```
+## Yuna 週次 Creative Ops Report ({YYYY-MM-DD})
+- 今週納品本数：{単位} 本（クライアント別内訳）
+- 媒体別配信開始日：{Meta/Indeed/LINE/X/Demand Gen/P-MAX}
+- 審査通過率：{XX%}（不承認 {n} 件・理由コード内訳）
+- Creative Fatigue 検知：{n} 件（24h以内差し替え実施率）
+- 差し替え実施件数：{n} 件（先押さえカレンダー vs 緊急）
+- NG履歴DB 更新件数：{n} 件
+- Sora QA 1発合格率：{XX%}
+- 素材台帳 使用期限アラート：{n} 件（期限切れ7日前警告）
+- 次週着手予定：{クライアント×媒体×本数}
+- 素材待ち案件と督促状況：{待機理由・督促先・見込み日}
+```
+
+**D. 月次 Creative Intelligence Report（データ分析部連携）**
+```
+## {YYYY-MM} Creative Intelligence Report
+1. 勝ちパターン分析（配色/コピー軸/CTA配置/人物/構図の要素分解）
+   - VidMob Agile / Marpipe / CreativeX の要素貢献度スコア
+2. 訴求切り口ヒートマップ（業種×媒体×季節×職種の4次元）
+3. 媒体別 CTR/CPA/CVR/ROAS 実績と業界ベンチマーク比較
+4. Creative Fatigue 曲線（本数×日数×CTR減衰率）
+5. アトリビューション定義別内訳（CTC/VTC/データドリブン）
+6. 次月推奨ローテーション計画（初回一括発注リスト + 差し替え日カレンダー）
+7. 勝ちバナーアーカイブ更新（勝因タグ：業種×媒体×季節×単価帯）
+```
+
+**E. モック同梱パッケージ（Hiro 書き出しパイプライン末尾）**
+- 各バナーPNG に対応する面別モック（IG フィード縮小・Stories 実寸・Indeed リスト・LINE トーク・X タイムライン）を `_mock.png` 付きで自動生成
+- クライアントレビュー時は「単体原寸 + 面別モック + 対応表」の3点セットで提示、承認取得は Slack/メール文面 + 版数記録を Notion 案件レコードに紐付け
+
