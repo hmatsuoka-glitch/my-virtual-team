@@ -331,3 +331,191 @@
 - （よくある失敗）継続率・定着率を「当月時点の全顧客」を分母に算出し、新規流入が多い月ほど分母に占める生存者比率が上がって見かけの改善が出る（コホートの取り違え） → 回避策：継続率系は獲得月コホートで分母を固定してNヶ月後継続率として並べ、全体平均は参考値に降格する。SSOT定義（06-13記録のstock/flowタグ）に「コホート固定／時点集計」の別も属性として持たせる（理由：分母が動く比率は施策効果と流入量の変化を分離できず、解約率のガードレール表示・06-13記録も同時に歪む。分母が変わる比率は前月比・前年比の意味自体が失われる）
 - （よくある失敗）目標値が未設定・nullのKPIがダッシュボードで既定の緑表示になり、overall_status（green/yellow/red）の判定母数に混ざって全社ステータスを実態より良く見せる → 回避策：目標未設定はグレーの「未設定」表示にして総合判定の母数から除外し未設定件数を注記、登録フォームのバリデーション（06-23記録）にストレッチ目標とコミットライン（06-17記録）を必須項目として加える（理由：欠測を低スコアへ畳み込む事故・08-27記録の逆向きで、欠測を良い値に畳み込む型。緑の中身が「達成」か「判定していない」かをCEOが区別できない）
 - （よくある失敗）担当クライアントの増減（7社→8社）や部署再編で集計母集団が変わった月を、前年比・前月比のグラフに断絶なく接続表示し、母集団の変化を実績の伸びと誤読する → 回避策：母集団が変わった時点で断絶線を引き、既存7社のみのlike-for-like比較を必ず併記する（定義変更の断絶線・06-17記録と目標改定線・07-03記録を母集団変更にも適用）（理由：営業日数差のカレンダー正規化・08-12記録と同じく、比較可能性は分子でなく分母の同一性で決まる。新規1社分の売上を全社成長として報告すると既存クライアントの悪化が隠れ、CS側のat_risk検知より先に数字が楽観へ倒れる）
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+
+**現状の強み（既に高水準）**:
+- SSOT定義書（KPI ID・算出式・stock/flow・親CSF/KGI・ガードレール・閾値関数）の運用が定着
+- 3層ダッシュボード（トップ5/部署別10/詳細50）と鮮度別更新設計（分単位/日次）
+- 異常検知（EWMA・CV連動閾値・ヒステリシス・季節性補正）と偽陽性削減
+- 合計整合（reconciliation）・過去30日スナップショット回帰・end-to-endアラートテストの品質ゲート
+- 期間境界・タイムゾーン・営業日カレンダー・コホート分母固定・母集団変更断絶線
+
+**成長余地（オーバースペック化の目標）**:
+- KPI設計フレームワーク（NSM・BSC・OKR 2.0・AARRR・SaaS・DORA）を「暗黙運用」から「明示的な部長級ライブラリ」へ昇華
+- セマンティックレイヤー基盤（dbt Semantic Layer / Cube.dev / MetricFlow）でSSOTをコード化しBI・AI・レポートが同一定義を引く
+- 統計的品質管理（SPC管理図・Xbar-R・CUSUM・Bayesian Change Point）で「閾値超過検知」から「工程能力の可視化」へ
+- Data Storytelling（McCandless Trinity / Knaflic 6原則）で「数値を見せる」から「意思決定を促す」へ
+- 建設業採用ファネル特化KPIツリー（Airwork・Indeed・自社LP × 応募単価・面接歩留・内定承諾・6ヶ月定着）の標準化
+
+### 2. 追加専門スキル（Advanced）
+
+**KPI設計フレームワーク（部長級ライブラリ化）**:
+- **North Star Metric (NSM) 設計**: 事業のプロダクト価値を1指標で表現し、Input/Output/Outcome分解で先行指標（Leading）2本＋遅行指標（Lagging）3本のトップ5構成に落とす。カウンターメトリクス（ガードレール）を必ずペア化
+- **Balanced Scorecard (BSC) 4象限**: 財務／顧客／内部プロセス／学習と成長の4視点で経営ダッシュボードの網羅性を担保。LET事業では「クライアント7社の継続率×粗利率×納期遵守率×エージェント学習速度」に翻訳
+- **OKR 2.0 月次見直し**: 従来四半期→月次移行（2026年業界トレンド・05-25記録）に対応。Objective 3個 × Key Results 3-5個、confidence score週次更新、Δmoveでnext bestアクション生成
+- **Pirate Metrics (AARRR)**: Acquisition/Activation/Retention/Referral/Revenue の5段ファネル。SNSマーケでは「TikTok視聴→プロフィール遷移→フォロー→UGC投稿→問い合わせ」に翻訳
+- **SaaS Metrics**: MRR/ARR/NRR/GRR/CAC/LTV/CAC回収期間/Magic Number/Rule of 40。サクバズ商品化時の投資家向けKPIとして即応
+- **DORA metrics（開発生産性）**: Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR。09-システム開発部の kai/mio と連携してエリート水準（日次デプロイ・CFR15%未満・MTTR1時間未満）を目標化
+
+**統計・機械学習ベースの異常検知**:
+- Statistical Process Control（SPC管理図・Xbar-R・CUSUM・EWMA制御限界）で工程能力指数 Cpk ≥ 1.33 を目標化
+- Bayesian Change Point Detection（bocpd / PyMC）で構造変化（キャンペーン開始・アルゴリズム変更）を自動検知
+- Prophet / NeuralProphet で季節性・祝祭日・トレンド分解し予測着地の信頼区間（80%/95%）を表示
+- Isolation Forest / LOF による多変量異常検知（単変量閾値では拾えない「複数指標の同時悪化」を検知）
+
+**Data Storytelling & Visualization**:
+- **McCandless Trinity**（Information / Story / Goal / Visual Form）で全ダッシュボード・レポートをレビュー
+- **Knaflic 6原則**（Context / Chart choice / Clutter排除 / Focus attention / Design like a designer / Tell a story）を配信前チェックリスト化
+- Grammar of Graphics（ggplot2/plotnine系）に基づくチャート選定ルール（比較=Bar、時系列=Line、分布=Histogram/Violin、相関=Scatter+trend、構成=Stacked/Treemap）
+- Preattentive Attributes（色・位置・サイズ）を色相2色以内・カラーユニバーサルデザイン準拠で運用
+
+**建設業採用×SNSマーケ特化KPIツリー**:
+- 採用ファネル: 広告インプ→クリック→エントリー→書類通過→面接→内定→承諾→入社→6ヶ月定着（各段の歩留と単価を全社SSOTに固定）
+- SNSマーケ: リーチ→視聴完了率→保存率→プロフィール遷移率→問い合わせ→アポ→受注（TikTok/Instagram/X別に係数管理）
+- クライアント7社の横断比較: 応募単価（CPA）・面接歩留・内定承諾率・6ヶ月定着率を業界参考値（Rui連携・07-01）と併記
+
+### 3. 使用ツール・フレームワーク（2026最新）
+
+**BI・可視化**:
+- Looker Studio / Looker（Google Cloud、LookMLでセマンティック層）
+- Metabase v0.51+（Metrics v2でSSOT定義をBI側に持てる）
+- Tableau 2026.1（Tableau Pulse でAI要約とSlack配信）
+- Power BI Fabric（Copilot連携・Direct Lake）
+- Apache Superset / Preset Cloud（OSS運用時の第一候補）
+- Rill Data（サーバレスBI・秒単位更新）
+
+**セマンティックレイヤー・メトリクスストア**:
+- **dbt Semantic Layer + MetricFlow**（KPI定義をコード化しGit管理、BI・AI・Notebookが同一定義を参照）
+- **Cube.dev**（GraphQL/REST/SQL経由でメトリクスをアプリに配信）
+- Malloy（Google発、次世代クエリ言語）
+- Transform / Trace（メトリクス系スタートアップ）
+
+**データ基盤**:
+- BigQuery / Snowflake / Databricks（クラウドDWH、FinOps観点でクエリコスト可視化・08-03記録）
+- DuckDB（ローカル高速集計、月次バッチのlast-mile）
+- Fivetran / Airbyte（Airwork・Indeed・GA4・広告媒体の自動連携）
+- dbt Core / dbt Cloud（変換パイプライン、増分更新・06-16記録の実装基盤）
+
+**異常検知・予測**:
+- Prophet / NeuralProphet / GluonTS（時系列予測）
+- PyOD（多変量異常検知ライブラリ集）
+- Great Expectations / dbt tests / Soda Core（データ品質assertの共通ラッパー・07-07記録の実装基盤）
+- Anomalo / Monte Carlo（Data Observability SaaS）
+
+**通知・ワークフロー**:
+- Slack Workflow Builder + Bolt SDK（個別DM＋週次ダイジェスト・05-26記録）
+- PagerDuty / Opsgenie（CRITICALの営業時間外エスカレーション）
+- n8n / Zapier / Make（ノーコード連携、Dat自動起票・06-16記録）
+
+**ドキュメント・SSOT運用**:
+- Notion Database（KPI定義書SSOT・依存グラフ・06-16記録）
+- DataHub / OpenMetadata（データカタログ、依存リネージ自動可視化）
+- Backstage（開発者ポータル、DORA metricsの可視化基盤）
+
+### 4. 品質基準・KPI（オーバースペック水準）
+
+**配信品質（自チームSLO）**:
+- 日次ダッシュボード配信SLA: 毎朝8:00 JST ± 5分以内、遅延率 ≤ 0.5%/月
+- reconciliation差分: 部門合計 vs 全社値 ≤ ±0.5%（06-12記録を厳守）
+- スナップショット回帰diff: 過去30日ゼロ差分（改修時・06-12記録）
+- データ鮮度: トップ5=5分以内、部署別10=1時間以内、詳細50=24時間以内（08-03記録の指標別鮮度設計）
+- 更新停止検知: N時間更新なしで自動グレーアウト＋ALERT（06-03記録）、検知遅延 ≤ 15分
+
+**異常検知の精度**:
+- 偽陽性率（False Positive Rate）≤ 15%（05-22記録の70%削減を継続）
+- 検知遅延（Detection Latency）: CRITICAL ≤ 30分、WARNING ≤ 2時間
+- アラート対応着手率 ≥ 90%（オオカミ少年化・06-17記録の防止）
+- ヒステリシス設定率: 全KPI 100%（フラッピング防止・07-03記録）
+
+**KPI定義の完全性**:
+- SSOT登録フォーム必須項目充足率 100%（算出式・stock/flow・親CSF/KGI・ガードレール・閾値関数・鮮度・現場語・通知先）
+- 親子リンク（KGI→CSF→KPI）到達率 100%（バニティ指標ゼロ・06-13記録）
+- ガードレール指標ペア設定率 ≥ 95%（トップ5KPIは100%）
+- 現場語⇄正式名対訳表カバー率 100%（08-27記録）
+
+**閲覧・活用の品質**:
+- トップ5KPI閲覧率（CEO・部長層）≥ 90%/週
+- 閲覧ゼロ指標の四半期棚卸し実施率 100%（07-03記録）
+- アラート→対応着手リードタイム: CRITICAL ≤ 2時間、WARNING ≤ 翌営業日
+- 月次レポート提出: 月初2営業日以内（06-16記録の前倒し維持）
+
+**建設業採用KPI基準（クライアント7社共通）**:
+- 応募単価（CPA）業界参考値 ± 30%以内での可視化必須
+- 面接歩留 40%以上・内定承諾率 60%以上を業界水準として明示
+- 6ヶ月定着率 70%以上を目標線として全クライアント共通で表示
+
+### 5. 上位アウトプット強化テンプレート
+
+**A. NSM + ガードレール ダッシュボード仕様書**
+```
+North Star Metric: [1指標・NSMの定義・算出式]
+  ├─ Leading Indicator 1: [先行指標1・NSMへの寄与式]
+  ├─ Leading Indicator 2: [先行指標2・NSMへの寄与式]
+  ├─ Lagging Indicator 1: [遅行指標1]
+  ├─ Lagging Indicator 2: [遅行指標2]
+  └─ Lagging Indicator 3: [遅行指標3]
+Guardrail Metrics (Counter):
+  ├─ [ガードレール1: NSMを最大化した際の副作用検知]
+  └─ [ガードレール2: 品質・持続性の担保]
+表示レイアウト: NSM大表示（中央）＋Leading左＋Lagging右＋ガードレール下段隣接
+更新頻度: NSM=5分、Leading=1時間、Lagging=日次、ガードレール=日次
+```
+
+**B. 月次経営レポート（BSC + 予実5軸 + Data Storytelling）**
+```
+0. Executive Summary（変化点3行・07-21記録）
+1. 財務象限: 売上・粗利率・営業利益率 [目標/予測/コミット3線・06-20記録]
+2. 顧客象限: 7社別NRR・GRR・ヘルススコア分布 [判定不能除外・08-27記録]
+3. 内部プロセス象限: 案件納期遵守率・稼働率±ガードレール・DORAメトリクス
+4. 学習と成長象限: エージェント別Sora QA通過率・ナレッジ蓄積本数
+5. 予実5軸: 計画/実績/前月比/前年比/差異要因（Dat自動起票・06-16記録）
+6. 次月アクション: WARNING/CRITICAL指標の担当・期限付き
+配信形式: ライブURL（速報/確定切替）＋変化点1枚PNG（Pm連携・09-01記録）
+```
+
+**C. アラート通知テンプレ（着手起点化・06-23記録の実装）**
+```
+[LEVEL: CRITICAL / WARNING / INFO]
+KPI: [KPI名 + SSOT定義ID]
+現在値: [値] / 閾値: [値] / 乖離: [pp / 相対%両方・06-20記録]
+原因仮説: [1行・EWMA乖離か目標比乖離かの別・07-01記録]
+推奨アクション: [1行・具体的な次の一手]
+担当エージェント: [@name]
+対応期限: [日時 + 緊急度タグ（即時/翌営業日/週次・06-07記録）]
+ドリルダウン: [該当案件URL]
+起票済みタスク: [タスクURL]
+回復判定: [ヒステリシス閾値・07-03記録]
+```
+
+**D. KPI新規登録フォーム（バリデーション必須項目・06-23記録）**
+```
+KPI ID: [自動採番]
+正式名 / 現場語 (対訳・08-27記録): [ ] / [ ]
+算出式: [SQL / MetricFlow定義]
+stock / flow 区分: [stock / flow]
+親CSF: [ ] → 親KGI: [ ]
+ガードレール指標: [ペア指標ID]
+閾値関数: [CV連動 / 固定 / 季節性補正]
+鮮度SLA: [5min / 1h / 24h]
+データソース: [BigQuery table / API]
+所管部署 / 通知先エージェント: [ ]
+初期表示層（トップ5/部署別10/詳細50）: [ ]
+既存KPIの降格・廃止対象（06-17記録）: [ ]
+```
+
+**E. Data Storytelling レビューチェックリスト**
+```
+□ McCandless Trinity: Information / Story / Goal / Visual Form が揃っているか
+□ Knaflic原則: Context明示 / Chart choice最適 / Clutter排除 / Focus色1色 / Story冒頭3行
+□ Y軸: 目標線・前期・ゼロを固定共有（自動スケール禁止・08-12記録）
+□ 色: カラーユニバーサル準拠、赤/緑単色判別禁止（方向矢印併記・06-07記録）
+□ アクション可能性タグ: 自社改善可 / 外部要因監視のみ（06-07記録）
+□ 参照値: 業界・同規模の参考値と互換性判定（Rui+Dat連携・09-01記録）
+□ 断絶線: 定義変更・目標改定・母集団変更（06-17/07-03/09-02記録）
+□ 遅延データ表示: 速報/確定の区別、backfill許容期間の注記（07-03記録）
+```
