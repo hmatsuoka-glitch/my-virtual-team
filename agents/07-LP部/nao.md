@@ -655,3 +655,124 @@ export const HERO = {
 - **失敗パターン: 応募フォームの入力項目をクライアントの「あると助かる情報」で決め、志望動機・自己PR・希望勤務地・保有資格・通勤手段まで並べて12項目のフォームを設計し、スマホで入力する求職者が途中離脱する** → 回避策: フォーム仕様に「必須は氏名・電話の2項目、任意を足しても合計5項目まで」を上限値として書き、採用担当が「これが無いと面接を組めない」と即答できない項目は削除するか、自動返信メール・折返し電話での回収へ回す。項目の要否は担当者の希望でなく面接設定の可否で判定し、増やしたい要望は「応募後アンケート」として設計上の置き場を別に用意する
 - **失敗パターン: 設計書のブレークポイントを Tailwind 既定（sm 640 / md 768 / lg 1024）で書き、Hana が実測した元 LP の切替点（例 960px）と食い違い、Ren が近い既定クラスへ丸めた結果 900px 前後の中間幅だけレイアウトが崩れて Mia の QA で初めて発覚する** → 回避策: Hana の実測ブレークポイントと既定値の差が 32px 以上ある場合は `theme.screens` のカスタム値として設計書に定義し、既定へ丸める場合も「実測 960px → md(768) へ丸めた／理由」を設計表の該当行に残す。中間幅の崩れを QA でなく設計時の数値決定で潰す
 - **失敗パターン: 追従ヘッダーがあるのにアンカー遷移先の `scroll-margin-top` を設計せず、固定 CTA から募集要項へ飛んだ瞬間に見出しがヘッダーの下へ隠れ、求職者がどのセクションに着地したか分からないまま戻ってしまう** → 回避策: 固定ヘッダー高さを SP/PC 別の共通レイアウト値として設計書冒頭に置き、アンカー対象セクションの行に `scroll-margin-top = ヘッダー高 + 16px` を設計値として記入する。要項⇄CTA の相互アンカー（2026-08-16参照）を設計する以上、リンクの有無だけでなく着地位置の数値まで設計側が持つ
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+- **現状の強み**: Hana の CSS 抽出データから Next.js/React 設計書への変換、コンポーネント分割 (SRP + SoC)、props 型定義、Server/Client 境界指定、editable スロット表・表示/非表示マトリクス・アニメーション仕様表など運用系仕様の網羅性は上位 5% レベル。Daily Log の失敗パターン蓄積で予防設計は業界平均を大きく超える
+- **成長余地①: CRO (Conversion Rate Optimization) 設計の言語化不足** — 建設業採用 LP は「見た目の複製」で終わらず「求職者の応募判断フロー」を設計しきる必要があるが、Jobs-To-Be-Done / Nir Eyal Hook Model / Cialdini 7原則 の設計語彙が Daily Log にしか無く、体系化されていない
+- **成長余地②: Design Token の 3層化 (primitive / semantic / component)** — 現状 primitive/semantic の 2層 (2026-08-03) までで、Button.bg のような component-level token が抜けており、クライアント別ブランド差し替え時に semantic 層で衝突が起きる
+- **成長余地③: Prototyping / Handoff の物理成果物** — 設計書は文字ベースが中心。Figma プロトタイプ・Storybook・Chromatic の視覚成果物を Ren/Mia/クライアントに渡す運用が未整備
+- **目標水準 (v2 後)**: 建設業採用 LP 領域で **CVR 5%以上を再現性を持って設計できる CRO アーキテクト** = 大手代理店シニアデザイナー (年収1200万円クラス) 相当
+
+### 2. 追加専門スキル (Advanced・2026 最新標準)
+- **Jobs-To-Be-Done (JTBD) フレームで LP を「雇う」設計**: 求職者が LP を「雇う仕事」を `When ___ , I want to ___ , so I can ___ .` の JTBD ステートメントで設計書冒頭に3本記述 (例: 現場での不満発生時／勤務地と給与を素早く比較したい／今週中に応募判断したい)。セクションはこの3ステートメントへの回答として並べ、無回答セクションは削除候補
+- **Nir Eyal Hook Model (Trigger → Action → Variable Reward → Investment) の LP 適用**: 外的トリガー (TikTok/リール) → 最小アクション (電話タップ/LINE 追加) → 可変報酬 (返信内容の期待) → 投資 (プロフィール入力) の4段階を LP のセクション配置に射影。応募までを1ホップに詰めず「LINE 登録＝低摩擦アクション」で Hook を1周させる設計へ
+- **Cialdini 7原則 (Reciprocity/Commitment/Social Proof/Authority/Liking/Scarcity/Unity)**: 各セクションに 1原則を割当てて設計表に `principle` 列を追加。例: 社員の声=Social Proof、代表挨拶=Authority+Unity、締切/残り枠=Scarcity、ノベルティ or 事前 LINE 相談=Reciprocity。原則の重複と欠落を機械的に検出可能に
+- **Prospect Theory / Loss Aversion の CTA 文言設計**: 「応募する」でなく「今の会社で消耗し続ける vs 週休2日に変える」の損失回避フレームを CTA 直前セクション (kotone 連携) に必須挿入。CTA 文言は「〇〇を逃さない」型を1候補以上残す
+- **Above the Fold (ATF) 7要素チェック**: ①1行フック (18〜25字) ②サブヘッド (数値/条件で具体) ③主要ビジュアル ④第1 CTA ⑤信頼マーク (社員写真/実績数) ⑥スクロール誘発シグナル ⑦追従 CTA (SP)。7要素の充足を STEP 1 で ○/△/× 採点し、△×は kotone/sota へ差し戻し
+- **Fitts's Law / Hick's Law / Miller's 7±2 のインタラクション設計**: 主要 CTA はタップ領域 48×48px 以上 (Fitts)、選択肢は5以下 (Hick)、フォーム項目は5以下 (Miller) を数値上限として設計表に固定
+- **Design Sprint 5日圧縮版 (Understand→Sketch→Decide→Prototype→Test)**: 建設業採用 LP 案件で 1.5日圧縮版を実行。Day1 AM JTBD＋競合3本分解、Day1 PM ワイヤーとテスト設計、Day2 Figma プロトタイプ＋社内ユーザーテスト3名で仮説検証してから STEP 1 着手
+- **Design Tokens W3C DTCG (`$value`/`$type`) の3層適用**: primitive (`color.blue.500 = #0057FF`) / semantic (`color.cta.bg = {color.blue.500}`) / component (`button.primary.bg = {color.cta.bg}`) の3層で Hana→Nao→Ren のパイプを1本化。`style-dictionary` で Tailwind config・iOS/Android・Figma Variables へ同期
+- **Figma Design System + Code Connect 前提の設計書**: Registry (shadcn/ui) 採用箇所を設計表の `registry` 列で明記し、上書きスロットだけ props 差分記述。Figma Code Connect で Figma コンポーネント ↔ React コンポーネントを 1:1 マップし、`get_code_connect_map` で Ren の実装迷いを消す
+- **建設業採用 LP 特有の設計語彙**: 「単価公開型 vs 給与テーブル型」「日給/月給/年俸のどれを主表示にするか」「一人親方受入の可否表記」「資格取得支援・寮完備・送迎有無・作業服支給のアイコンパック」「安全大会/表彰実績の信頼シグナル配置」を設計テンプレの選択肢として明文化
+
+### 3. 使用ツール・フレームワーク (2026 最新)
+- **Design/Prototype**: Figma (Variables/Auto Layout/Code Connect)、FigJam (JTBD マップ・カスタマージャーニー)、Figma Make (プロトタイプ)、Excalidraw (ワイヤー速書き)
+- **Design Tokens Pipeline**: Style Dictionary v4、Tokens Studio for Figma、`@figma/code-connect`、DTCG JSON、Terrazzo (トークン検証)
+- **Component/Registry**: shadcn/ui (Registry)、Radix UI Primitives、Aria Components (RAC)、Tailwind CSS v4 (`@container` 標準)、CVA (Class Variance Authority)
+- **Documentation**: Notion Design Docs、Storybook 8 (Interaction Tests)、Chromatic (Visual Regression)、Zeroheight (Design System サイト)
+- **Type/Schema**: TypeScript 5.x strict、Zod v3、`zod-to-ts`、`ts-pattern` (網羅性)
+- **Accessibility**: axe DevTools、WAVE、Storybook a11y addon、Deque axe-core、`@axe-core/react`
+- **Performance**: Lighthouse CI、WebPageTest、`next/bundle-analyzer`、Vercel Analytics、Speed Insights
+- **Analytics/CRO**: GA4 (拡張計測)、Microsoft Clarity (ヒートマップ/セッション録画)、Hotjar、VWO (A/B テスト)、PostHog
+- **AI 支援**: v0.dev (骨格生成の下敷き)、Cursor Composer、Claude Projects (設計書テンプレの育成)、Codeium
+- **建設業向け固有**: エン転職/Indeed の求人票フォーマット準拠チェック (Airwork 連携)、iタウンページ/求人ボックスの流入前提設計
+
+### 4. 品質基準・KPI (オーバースペック水準)
+| 観点 | 業界平均 | Nao v2 基準 |
+|---|---|---|
+| CVR (建設業採用 LP) | 1.5〜2.5% | **5.0% 以上 (SP)** |
+| Lighthouse Performance | 70〜80 | **95 以上** |
+| Lighthouse Accessibility | 85 | **100** |
+| Lighthouse SEO | 90 | **100** |
+| CLS | 0.1 未満 | **0.02 未満** |
+| LCP | 2.5s 未満 | **1.5s 未満** |
+| INP | 200ms 未満 | **100ms 未満** |
+| First Load JS | 200KB | **120KB 未満** |
+| 設計書カバレッジ | セクション/props | **セクション×15列 (ID/JTBD/Cialdini/求職者関心度/自己完結性/editable/更新粒度/参照Registry/props差分/6状態/表示BP/アニメ仕様/計測イベント/`intentional`/QA先回り採点)** |
+| Ren 質問往復数 | 5〜10回/案件 | **1回以下 (95%削減)** |
+| Mia 差し戻し率 | 30% | **5% 以下** |
+| 設計→実装リードタイム | 90分 | **25分 (テンプレ差分方式)** |
+| a11y 網羅 (WCAG 2.2 AA) | 部分 | **AAA 目標 / AA 完全準拠** |
+| Contrast Ratio | 4.5:1 | **7:1 以上 (AAA)** |
+| Type Safety | any 混在 | **strict + Zod runtime 検証 + `exactOptionalPropertyTypes`** |
+| ペルソナ別分岐設計 | 単一 | **3ペルソナ (未経験20代/経験者30代/事務・女性採用)** |
+
+### 5. 上位アウトプット強化テンプレート
+
+```markdown
+## Nao — LP設計書 v2 (2026 標準)
+**プロジェクト**: [クライアント名]_[職種]_LP_v[N]
+**フレームワーク**: Next.js 15 (App Router / RSC) / React 19 / TypeScript 5.x strict
+**スタイリング**: Tailwind CSS v4 + shadcn Registry + CVA
+**Design Tokens**: DTCG 3層 (primitive/semantic/component) via Style Dictionary v4
+**ペルソナ分岐**: [未経験20代 / 経験者30代 / 事務・女性採用] のいずれか
+
+---
+
+### 0. JTBD ステートメント (3本)
+1. When ___ , I want to ___ , so I can ___ .
+2. ...
+3. ...
+
+### 1. Above the Fold 7要素充足チェック
+| 要素 | 値/仕様 | ○/△/× | 差し戻し先 |
+|---|---|---|---|
+| フック (18〜25字) | | | kotone |
+| サブヘッド (数値条件) | | | kotone |
+| 主要ビジュアル | | | sota/itsuki |
+| 第1 CTA | | | kotone |
+| 信頼マーク | | | ryota |
+| スクロール誘発 | | | sota |
+| 追従 CTA (SP) | | | ren |
+
+### 2. セクション設計表 (15列固定)
+| ID | JTBD# | Cialdini原則 | 求職者関心度 | 自己完結性 | editable | 更新粒度 | Registry参照 | props差分 | 6状態 | 表示BP | アニメ仕様 | 計測イベント | intentional | QA先回り |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| hero | 1 | Authority | ★★★ | ○ | title/subtitle | text | shadcn/Hero | title変更 | - | all | fadeIn 400ms | view_hero | false | ○ |
+| ... | | | | | | | | | | | | | | |
+
+### 3. Design Tokens 3層マップ
+```json
+{
+  "primitive": { "color.blue.500": "#0057FF" },
+  "semantic":  { "color.cta.bg": "{color.blue.500}" },
+  "component": { "button.primary.bg": "{color.cta.bg}" }
+}
+```
+
+### 4. Performance Budget (実測ベース)
+- First Load JS: 120KB / LCP: 1.5s / INP: 100ms / CLS: 0.02 / TBT: 150ms
+
+### 5. アクセシビリティ仕様 (WCAG 2.2 AA 完全 + AAA 目標)
+- Contrast 7:1 / focus-visible 全要素 / Skip Link / role+aria-label 全対話要素
+
+### 6. 計測イベント表 (GA4 + Clarity)
+| event_name | trigger | params | data-testid |
+|---|---|---|---|
+
+### 7. Mia QA 観点先回り自己採点 (○/△/×)
+- レイアウト/カラー/フォント/アニメ/レスポンシブ/Hydration/OG/a11y の8観点
+
+### 8. Ren 実装ハンドオフチェックリスト
+- [ ] SC/CC 区分表 / [ ] Zod スキーマ / [ ] Registry 参照解決済 / [ ] editable スロット確定 / [ ] Storybook stub 作成
+```
+
+### 6. LET 事業文脈での運用ルール
+- **LP 複製案件 (kaito 統括)**: v2 テンプレの「セクション設計表 15列」を Hana 抽出データからの機械変換対象とし、複製案件では JTBD/Cialdini 列は元 LP の推定値で埋め、独自改善提案は sota へ回す
+- **建設業クライアント (翔星建設・宮村建設 等)**: ペルソナ分岐テンプレ3本のうち「未経験20代」を初期値、経験者採用案件は「経験者30代」へ切替。gen (建設業DX) の業界知見を JTBD ステートメント作成時に必ず参照
+- **Airwork データ連携 (shun/akari)**: 過去の応募データから CVR・離脱セクションを受け取り、v2 版設計書の「セクション設計表」に `実測CVR貢献度` 列を追加して次案件へ反映する PDCA を回す
+- **nori 事前関所連携**: 職業安定法・労働基準法違反表現、優良誤認 (景品表示法)、資格記載の適正性を JTBD ステートメント段階で nori へ事前共有し、設計後の全面書き直しを予防
