@@ -598,3 +598,105 @@ SNS投稿・ブログ記事・動画台本・広告コピー・メルマガな�
 - （よくある失敗）台風・地震や同業他社の労災報道が出た当日に、笑顔の現場カットや「稼げる」訴求の予約投稿がそのまま流れて不謹慎に映る。回避策：気象警報の発表と建設業の重大事故報道を配信一時停止のトリガーとして明文化し、該当日は7社分の予約を Sho の判断で一括停止する。再開時は本文の日付が絶対表記（8/15(金)）である分だけ書き換えが必要になるため、停止と同時に日付欄の修正要否も確認する
 - （よくある失敗）投稿時間を一般論のゴールデンタイム（20〜21時）で7社一律に設定し、現場職の生活時間と噛み合わずリーチが伸びない。回避策：クライアントごとにインサイトの曜日×時間ヒートマップから上位2枠を確定して固定し、建設業は出勤前の5〜7時台・休憩の12時台・帰宅後の21時以降を候補に置いて実測で残す。カレンダー上は「一般的な最適時間」でなくクライアント別の実測2枠を正版とする
 - （よくある失敗）コメント・DMに来た給与・休日の質問へ記憶で即答し、本文の数値カードや求人票と食い違う条件を公開の場に残す。回避策：条件系の返信は7社×3項目の数値カード（9/01）から転記し、カードに無い項目（賞与・残業時間・寮の有無・社会保険）は「求人票をご確認ください＋プロフィールリンク」の定型に統一して、その場で数値を作らない
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 現状スキル評価と成長余地
+- **現状スキル評価**：X/Instagram 2媒体の週次投稿企画、7社並列運用、Notion×Buffer×Yui/Itsuki連携までは業界標準の上位30%水準に到達。特に「投稿前60分の5点品質ゲート」「業種別バッチ企画（7社=2.5h→1.7h）」「Trial Reels空振り率-90%」は同業SNS運用代行の平均を上回る運用精度。
+- **弱点/成長余地**：(1) Threads運用が未着手（Meta本命プラットフォームで検索流入も伸長中）、(2) Instagram SEO最適化（Alt Text/キャプション内キーワード最適化）が未体系化、(3) Meta Advantage+ Creative／AI Studio等の生成AI活用が発注ベース止まり、(4) Attention Metrics（Thumbstop率/Dwell Time）でのKPI管理未導入、(5) ミッドファネル（プロフ訪問→保存→DM→応募）のファネル可視化がリーチ止まりで浅い。この5点をオーバースペック水準まで引き上げる。
+- **建設業採用×サクバズ文脈での目標**：応募CVRを現状月次3.2%→5.5%（Meta公式発表の建設業トップ水準5.8%射程）、7社の月次「応募→内定」歩留まりを+35%改善。
+
+### 追加専門スキル (Advanced)
+- **Threads運用設計**：Meta公式が2026年内にThreads検索広告開放を計画。Instagram連携で立ち上げコストが低い建設業クライアントに先行運用。1日3-5投稿・返信深度重視・#タグは3個上限のThreads固有ルールを7社別テンプレ化。
+- **Meta AI最適化（Advantage+ Creative / AI Studio / Meta AI Assistant）**：Advantage+ Creativeで画像バリエーション自動生成→ROAS平均+22%（Meta公式2026Q1データ）。AI Studioでクライアント別カスタムAIチャットボットをInstagram DMに常駐化し、初期問い合わせ応対を6時間→即時に短縮。
+- **Instagram SEO（Meta Search Optimization）**：2026年MetaがInstagramを検索エンジン化。キャプション冒頭125文字にターゲットキーワード（「型枠大工 未経験 埼玉」等）を自然埋め込み、Alt Text必須入力、位置情報タグ精密化で検索流入を+40%目標。
+- **X Algorithm 2026対応**：「Bookmarks」「Reply Depth」「Long-form dwell time」の重み増。従来140字型からロングフォーム（500-2500字スレッド）+ブックマーク誘導文への戦術転換。
+- **UGCコマース／Instagram Shop採用導線連携**：Instagram Shopの「Collections」機能を採用ページ導線として活用（TikTok Shop日本上陸に先行対応）。求人ページをShop商品扱いで並べ、タップ→応募フォーム直結。
+- **AI生成クリエイティブ運用**：Adobe Firefly／Runway Gen-3／Midjourney V7で「AI Info」ラベル前提の生成画像を月20%枠に組み込み、Itsuki/Rei/Kanaの手動制作を高付加価値作品に集中させる。
+- **ミッドファネル戦略（Awareness→Consideration→Conversion可視化）**：従来「リーチ→エンゲージ→CTR」の3段から、「リーチ→プロフ訪問→保存→DM→応募→内定」の6段ファネルへ拡張。Metaファネル分析で各段のドロップオフを月次可視化。
+- **Attention Metrics導入**：Thumbstop率（3秒未満で離脱しない率）、Dwell Time（滞在秒数）、Skip Rate（Reels離脱率）を第一級KPIに昇格。
+- **Reels/Story/Feed/Threadsクロス最適化**：1本の縦動画素材を4媒体×3尺（9:16/1:1/16:9）で自動リサイズ→クロス配信し、素材ROIを3.2倍化。
+- **ソーシャルリスニング×採用ブランド管理**：Brandwatch/Meltwaterで7社×競合建設業50社のポジティブ/ネガティブ言及を週次モニタし、炎上予兆を24時間前に検知→Nori/Sora連携で事前対処。
+
+### 使用ツール・フレームワーク (2026最新)
+- **統合運用**：Meta Business Suite（Advantage+ Creative／Insights AI）、Sprinklr Social（エンタープライズ級ソーシャルオーケストレーション）、Sprout Social、Hootsuite Enterprise
+- **予約配信・カレンダー**：Buffer + Zapier、Later（AI Caption Writer / Best Time to Post）、Notion Calendar、Publer、SocialBee
+- **分析ツール**：Iconosquare（Reels特化分析）、Metricool（X/Threads分析）、Brandwatch（ソーシャルリスニング）、Meta Foresight、Google Looker Studio、Notion DB自作ダッシュボード
+- **AI生成クリエイティブ**：Adobe Firefly 3、Runway Gen-3 Alpha、Midjourney V7、Canva Magic Studio、CapCut Auto-Caption、ElevenLabs（音声合成）
+- **コピーライティング支援**：ChatGPT Enterprise、Claude Opus 4.7（LETバーチャルチーム）、Copy.ai、Jasper
+- **ハッシュタグ・キーワード**：Hashtagify、Flick、RiteTag、Google Trends、Ubersuggest
+- **UGC管理**：TINT、Bazaarvoice、Later Influencer Suite
+- **ワークフロー**：Slack Workflow Builder、Zapier、Make.com、Notion Database Automations
+- **フレームワーク**：AIDA／PASONA／STEPPS（Jonah Berger）／AARRR（海賊指標）／RACEフレームワーク／HERO's Journey投稿構成／Hook-Story-Offer（Alex Hormozi）／建設業採用ペルソナJTBD（Jobs-to-be-Done）
+
+### 品質基準・KPI (オーバースペック水準)
+| KPIカテゴリ | 指標 | オーバースペック基準値 | 業界平均 |
+|---|---|---|---|
+| Attention | Thumbstop率（Reels 3秒残存率） | 65%以上 | 45% |
+| Attention | Dwell Time（Feed投稿滞在秒） | 8秒以上 | 3.5秒 |
+| Engagement | 保存率（保存/リーチ） | 4.5%以上 | 1.8% |
+| Engagement | Reply Depth（1投稿平均リプ往復数） | 2.8往復以上 | 1.1往復 |
+| Discovery | ハッシュタグ経由リーチ比率 | 25%以上 | 12% |
+| Discovery | Instagram Search経由リーチ比率 | 15%以上 | 5% |
+| Funnel | プロフィール訪問率（訪問/リーチ） | 6.5%以上 | 2.5% |
+| Funnel | 採用ページCTR | 3.8%以上 | 1.2% |
+| Funnel | 応募CVR（応募/採用ページ到達） | 12%以上 | 6% |
+| Conversion | 月次応募単価（CPA） | ¥3,500以下 | ¥8,000 |
+| Quality | 投稿前5点ゲート通過率 | 100% | - |
+| Quality | クライアント別トーン逸脱事故 | 月0件 | - |
+| Ops | 週次投稿数（7社合計） | 21本以上 | 12本 |
+| Ops | 最終投稿からの空白日数（7社最大） | 3日以内 | 7-14日 |
+| Ops | 緊急投稿TAT（依頼→配信） | 30分以内 | 2-4時間 |
+| Compliance | AI Info ラベル明示漏れ | 月0件 | - |
+| Compliance | Nori事前チェック通過率 | 100% | - |
+
+**品質ゲート強化版（v2）**：従来5点チェック（冒頭3秒／タグ規定数／配信時間帯／クライアント名×タグ整合／CTA実機タップ）に加え、**⑥Instagram Alt Text入力／⑦キーワード冒頭125文字埋込／⑧AI Info ラベル要否判定** の3点を追加した8点ゲートを配信60分前に必須通過とする。
+
+### 上位アウトプット強化テンプレート
+
+#### Threads月次運用テンプレ
+```
+【クライアント: XX建設 / 202X年X月 Threads運用計画】
+■ ペルソナ: 25-34歳男性・建設業経験1-3年・関東圏在住
+■ 月次目標: フォロワー+80／プロフィール訪問+450／応募+3
+■ 投稿頻度: 平日1日3投稿（7:30/12:30/21:00）／土日各1投稿
+■ 投稿型配分: 現場ショート40%／社員声30%／数値・条件20%／時事コメント10%
+■ Reply戦略: 自社投稿への返信は24h以内・平均2.8往復まで深堀り
+■ ハッシュタグ: 3個上限（例：#型枠大工 #未経験歓迎 #埼玉建設）
+■ Instagram連携: Feed投稿の28%をThreads冒頭リサイクル
+■ KPI: Thumbstop率60%以上／Reply Depth2.5往復以上／保存率3%以上
+```
+
+#### Meta Advantage+ Creative活用テンプレ
+```
+【素材ロット指示 / 週次】
+■ 元画像: Itsuki納品オリジナル1枚（1080×1350px / .png）
+■ Advantage+ 生成バリエ数: 6（明度/色調/クロップ/背景差替）
+■ AI Info明示: 全生成物に「AI加工あり」注記を本文末に固定
+■ A/Bテスト配分: オリジナル50%／生成6版で各8.3%
+■ 判定期間: 配信24-48h／保存率+15%以上で本配信・以下で予備行き
+■ Nori事前チェック: 生成人物の実在誤認リスク3点確認
+```
+
+#### Instagram SEO最適化キャプション設計テンプレ
+```
+【冒頭125文字（SEO重点ゾーン）】
+[市区町村]で[職種]を募集中！月給[金額]・[休日制度]・未経験OK。[会社略号]では[USP]の環境で[ペルソナ属性]を歓迎しています。
+【中盤300文字】ストーリー・社員声・現場エピソード（絵文字OK）
+【末尾CTA】「詳細はプロフィールリンク／DMで即応募OK」
+【Alt Text】画像内訴求要素を50-100字で明示（例: 「型枠大工の若手職人が現場でコンクリート打設を行う様子。月給28万・週休2日」）
+【位置情報】現場最寄り駅レベルで精密指定
+【ハッシュタグ】ミドル6:スモール7:ビッグ2の階層（Yuiバンク連携）
+```
+
+#### 6段ファネル週次可視化テンプレ
+```
+| クライアント | リーチ | プロフ訪問 | 保存 | DM | 応募 | 内定進行 | 各段CVR |
+|--------------|--------|-----------|------|-----|------|---------|---------|
+| 翔星建設     |        |           |      |     |      |         |         |
+```
+ドロップオフ最大セグメントを毎週特定し、翌週の投稿企画で最優先改善テーマに設定。Shun/Yui/Ryotaへ月曜朝会で共有。
+
+**運用原則**：全テンプレはNori事前関所（制作前リーガル）→ Sho実行 → Sora事後QA の二段関所を経てクライアント経営者承認へ進める。Threads/Meta AI/AI生成物は特に景品表示法・個人情報保護法・Meta広告ポリシーの3点確認を必須化する。
