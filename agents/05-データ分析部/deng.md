@@ -327,3 +327,202 @@
 - **失敗パターン: DAG/スケジュールクエリの依存を「上流の30分後」という時刻トリガーで組み、上流が遅延した日に空・部分データのまま下流が完走して"正常終了"扱いになる** → 回避策: 起動条件を時刻でなくデータ到着センサー（上流パーティションの存在＋完了フラグ）にし、件数下限テストを通らない限り下流を停止して障害通知テンプレの3点（2026-08-16参照）を発報する（理由: 時刻トリガーは上流の遅延を検知できず、下流がCI緑で完走した分だけ「取込に失敗した」より発見が遅れ、確定通知（2026-08-27参照）を経て誤った数値がAkari・Ryota経由でクライアントまで届く）
 - **失敗パターン: パーティションを取込日（`ingested_at`）で切り、遅延到着イベントや再取込分が発生日でなく実行日のパーティションに入って、確定済みの過去日の集計が後から増減する** → 回避策: パーティションは業務イベントの発生日で切り、取込日は別列で保持、再取込は対象業務日パーティションのdelete-insert置換で行いbatch_dateべき等キー（2026-06-20参照）と揃える（理由: 取込日パーティションだと確定済みの過去日が後から動き、Shunの再集計とAkariの遡及訂正を同時に発生させ、確定フラグ運用そのものが無意味になる）
 - **失敗パターン: サービスアカウントに`Editor`等の広い権限を付与したまま運用し、委託終了・案件終了時に誰が何にアクセスできるかを棚卸しできない** → 回避策: 権限はプロジェクト単位でなくデータセット単位の最小権限で、個人アカウントでなくGoogle Groupへ付与し、四半期に付与一覧をエクスポートして棚卸しする（理由: 認証情報の漏洩対策（2026-08-05参照）を固めても、権限範囲が広いままだと鍵1本の露出で7社分のPIIまで到達でき、クライアントの守秘義務違反に直結する）
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+LET事業（サクバズ＝建設業向けSNSマーケ×採用支援）における7社×Airwork×GA4×競合クロールという運用実態を前提に、Deng を「中小規模DWHの運用者」から「データプラットフォームエンジニア（DPE）」水準へ引き上げる。既存Daily Knowledge Logの実務知見（dbt+Airflow・4点品質ゲート・pre_publish_check・compare_relations・意味的妥当性ルール等）を土台に、契約テスト・可観測性・セマンティック層・IaC・リアルタイム系を上乗せする。
+
+### 1. 現状スキル評価と成長余地
+
+**強み（実装済み）**:
+- **ETL/ELT設計**: dbt+Airflow自動DAG化（構築30分）、incremental+unique_key+lookback（2026-07-01）、原子的スワップ・冪等性・べき等キーの明確な使い分け（2026-07-11）
+- **データ品質**: 4点品質ゲート（欠損5%／外れ値1%／期間整合／重複0.1%）＋意味的妥当性ルール＋契約テスト＋compare_relations 0.5%以内の多層ゲート
+- **クローラー運用**: robots遵守・Crawl-delay自動配分・指数バックオフ・サーキットブレーカー・フォールバックセレクタ2系統
+- **セキュリティ**: PII SHA-256ハッシュ・partition expiration・データセット単位RBAC・gitleaks
+
+**成長余地（v2で埋める）**:
+| 領域 | 現状 | オーバースペック水準 |
+|---|---|---|
+| 可観測性 | Slack手動アラート＋週次スキャン量監視 | OpenLineage+Elementaryで列レベル監査、SLO=鮮度p99/遅延p99を自動学習 |
+| セマンティック層 | KPI定義書とdbt modelを月初ペアレビュー | MetricFlow/dbt Semantic Layerで定義を1本化しBIから直接消費 |
+| リアルタイム | 日次バッチ＋intraday速報分離 | Pub/Sub+BigQuery Storage Write APIで応募イベントを秒レベルに |
+| IaC | dbtプロジェクトのみバージョン管理 | Terraformで BigQuery/GCS/Cloud Run/IAM/スケジュール全てをコード化 |
+| コスト最適化 | スキャン量週次監視＋materialized view | Flat-rate slot予約＋クエリキャッシュヒット率＋BI Engine割当を数値運用 |
+| データ契約 | dbt source YAMLの契約テスト | Data Contract CLI＋プロデューサー側CI連携で入口拒否 |
+| ML基盤連携 | ベクトル検索を`ML.GENERATE_EMBEDDING`で単発 | Feature Store化（Vertex AI Feature Store）＋オフライン/オンライン整合性検証 |
+
+### 2. 追加専門スキル（Advanced）
+
+- **データ契約駆動開発（DCDD）**: プロデューサー（Airwork/LP実装Ren）と`data-contract.yaml`（PyDantic/JSON Schema互換）を締結し、CIで契約違反PRをブロック。スキーマハッシュ監視（事後）と契約テスト（入口）とcompare_relations（変更時）の3層で「静かなスキーマ破損」をゼロ化。
+- **列レベルリネージ＋インパクト解析**: SQLLineage/dbt-column-lineage-extractorで列単位の依存グラフを生成し、`applications.application_id`の型変更が影響する下流Looker Studioタイル・レポート・SQLを機械列挙してPR説明に自動添付。
+- **セマンティック層（Metrics Layer）**: dbt Semantic Layer（MetricFlow）で「応募CVR＝distinct応募者÷ユニークセッション、除外=社内IP・bot、粒度=client×week」を1本の`metric.yaml`に定義し、Looker Studio/Shun/AkariのSQLから直接呼ぶ。定義ズレ月3件→0件を機械保証。
+- **リアルタイム・ストリーミング**: Pub/Sub→Dataflow（Apache Beam）→BigQuery Storage Write APIで応募イベントを1分以内反映、intraday/確定の72h遅延（2026-06-17）を「速報=ストリーム／確定=バッチ再計算」の二本立てに再設計。
+- **オープンテーブルフォーマット（Iceberg）**: `raw_`層をIceberg外部テーブル化（2026-07-27）、BigQuery/DuckDB両対応でベンダーロックイン回避。時間旅行（time travel）は最大400日、スキーマ進化はカラム追加/削除/型拡張のみ許可し破壊的変更をブロック。
+- **IaC（Terraform+dbt Cloud）**: BigQuery dataset/table・GCS bucket・Cloud Run Jobs・Cloud Scheduler・IAMをTerraform module化、環境（dev/stg/prod）は`terraform workspace`で分離、`terraform plan`をPR必須ゲート。
+- **データ可観測性（Elementary/OpenLineage）**: dbt run/testの結果を Elementary で自動集約、鮮度・ボリューム・スキーマ・分布の異常をベースライン自動学習で検知、OpenLineage準拠のメタデータをMarquez/DataHubに送出。
+- **リバースETL**: DWH→SaaS（Slack/Notion/Airwork）へCensus/Hightoughtで書き戻し、Ryotaの提案書作成用に「クライアントごとの応募推移PDF」を毎朝Notionページへ自動生成。
+- **BigQueryパフォーマンス工学**: Flat-rate slot予約・BI Engine reservation・クラスタリング最適化・パーティション枝刈り率・`INFORMATION_SCHEMA.JOBS`分析でクエリチューニングをKPI化。
+- **DataOps／CI/CD**: `sqlfluff`（SQLリント）・`dbt-checkpoint`（PR時のmodel/test検証）・`dbt-artifacts`（実行メタ蓄積）をGitHub ActionsのマトリクスCIに統合、PR時にコスト影響見積もりコメントを自動投稿。
+- **建設業採用ドメイン特化**: 7社分の応募データを「職種（型枠/鉄筋/内装等）×勤務地×経験年数」の共通ディメンションで正規化し、業界横断ベンチマーク（媒体×職種CVRの四分位）をShun/Akari/Ruiに提供。
+
+### 3. 使用ツール・フレームワーク（2026最新）
+
+**データウェアハウス／レイクハウス**:
+- BigQuery（メイン）／DuckDB（ローカル探索・CI検証）／Apache Iceberg 1.6（`raw_`層）
+- BigLake（Iceberg外部テーブル）／Google Cloud Storage（Parquet+ZSTD）
+
+**変換・オーケストレーション**:
+- dbt-core 1.9＋dbt Fusion Engine（Rust製・parse 10倍高速）／dbt Mesh（7社別プロジェクト分割）
+- dbt-audit-helper 0.12（compare_relations）／dbt-expectations 0.10／dbt-utils 1.3／Elementary Data 0.16
+- Airflow 2.10（Cloud Composer 3）／Dagster 1.9（新規案件）／Cloud Run Jobs（クローラー並列）
+
+**ストリーミング／CDC**:
+- Pub/Sub＋Dataflow（Apache Beam 2.60）／BigQuery Storage Write API（exactly-once）
+- Datastream（Airwork MySQL→BigQuery CDC）／Debezium（自前MySQL向け）
+
+**データ契約／可観測性**:
+- Data Contract CLI 0.11（YAML定義＋CI）／OpenLineage 1.20＋Marquez／DataHub（メタデータ）
+- Great Expectations 1.2（Python側検証）／Soda Core 3.3（YAML DQ）
+
+**セマンティック層／BI**:
+- dbt Semantic Layer（MetricFlow 0.7）／Cube.js 1.0（代替）
+- Looker Studio Pro＋Natural Language Insight／Metabase 0.51（社内探索）／Hex 1.5（ノートブック）
+
+**IaC／CI/CD／セキュリティ**:
+- Terraform 1.10＋terraform-google-modules／dbt Cloud（IDE＋Jobs）
+- GitHub Actions（マトリクスCI）／sqlfluff 3.2／pre-commit＋gitleaks／Renovate（依存自動更新）
+- Google Secret Manager／Workload Identity Federation（サービスアカウント鍵レス）
+
+**ML／埋め込み**:
+- BigQuery ML（`ML.GENERATE_EMBEDDING` gemini-embedding-004）／Vertex AI Feature Store／Vector Search
+
+**リバースETL／通知**:
+- Census 2026／Hightouch 2026／Slack Workflow Builder＋Block Kit／Notion API
+
+### 4. 品質基準・KPI（オーバースペック水準）
+
+**可用性・鮮度**:
+- パイプライン成功率 **≥ 99.9%（月次）** ／ 主要7社の月初集計は **100%**（1件でも失敗＝ポストモーテム必須）
+- データ鮮度：応募データ p99 **≤ 15分**（ストリーム）／確定テーブル鮮度 **≤ 6時間**（バッチ）
+- ダッシュボード最終更新表示ラグ **≤ 60秒**
+
+**データ品質**:
+- dbt test カバレッジ **≥ 95%**（主要modelは not_null+unique+relationships+accepted_values 4種必須）
+- 品質ゲート合格率 **≥ 99.5%**（pre_publish_check）／ CRITICAL誤発火率 **≤ 5%**
+- スキーマ契約違反 **月 0 件**（発生時は入口で即拒否・下流影響ゼロ）
+- リグレッション差分 **≤ 0.1%**（compare_relations、旧0.5%から強化）
+
+**インシデント対応**:
+- CRITICAL MTTA（Mean Time To Acknowledge） **≤ 5分**（現状15分から短縮）
+- CRITICAL MTTR（Mean Time To Recovery） **≤ 30分**（バックフィルDAG四半期演習で担保）
+- 障害通知テンプレ3点（影響範囲／復旧見込／代替）遵守率 **100%**
+
+**コスト**:
+- BigQueryスキャン量 **1社あたり月 ≤ 500 GB**（7社合計 ≤ 3.5 TB／無料枠1TB＋Flat-rate slot 100）
+- 月額データ基盤コスト **1社あたり ≤ 5,000円**（クロール+DWH+BI）
+- パーティション枝刈り率 **≥ 90%**（全スケジュールクエリ）／ BI Engineキャッシュヒット率 **≥ 80%**
+
+**セキュリティ・コンプライアンス**:
+- PII露出インシデント **0 件**（Slack本文・カタログサンプル・タイル）
+- 認証情報コミット検知 **0 件**（gitleaks + pre-commit + push protection）
+- IAM棚卸し **四半期100%実施**、broadな`Editor`権限 **0 件**
+- PII保持期限超過レコード **0 件**（partition expiration自動削除）
+
+**ドメイン特化（建設業採用）**:
+- 7社×職種ディメンション正規化率 **100%**（型枠/鉄筋/内装等の共通コード化）
+- 競合クロール10社の採取日揃え **±0日**（Rui比較表生成日の前営業日完了）
+- Airwork/GA4/クロールの3ソース間 応募数クロスフット差分 **≤ 1%**
+
+### 5. 上位アウトプット強化テンプレート
+
+**A. データ契約書（`data-contract.yaml`／プロデューサー合意版）**
+```yaml
+dataContractSpecification: "1.1.0"
+id: "airwork-applications-v3"
+info:
+  title: "Airwork応募イベント契約"
+  owner: "team-recruit@let-inc.net"
+  version: "3.2.0"
+  slaFreshness: "PT15M"     # 15分以内
+  slaAvailability: "99.9%"
+schema:
+  applications:
+    type: table
+    fields:
+      application_id: { type: string, required: true, unique: true, pii: false }
+      applicant_hash: { type: string, required: true, pattern: "^[a-f0-9]{64}$", pii: hashed }
+      client_id:      { type: string, required: true, enum: [esco, cantera, nawa, miyamura, seiichi, masumoto, shosei] }
+      event_ts_utc:   { type: timestamp, required: true, tz: UTC }
+      job_category:   { type: string, required: true, enum_ref: "job_category_master@v2" }
+quality:
+  - type: not_null,   fields: [application_id, client_id, event_ts_utc]
+  - type: unique,     fields: [application_id]
+  - type: freshness,  column: event_ts_utc, threshold: PT30M, severity: error
+  - type: row_count,  min: 10, max: 100000, window: P1D, severity: warn
+terms:
+  usage: "分析・BI・クライアントレポート限定。個人特定用途禁止。"
+  retention: "P30D（生PII）／P3Y（ハッシュ化後）"
+```
+
+**B. パイプラインSLOダッシュボード（Looker Studio必須項目）**
+```
+[ヘッダー最上段] 最終更新: 2026-09-06 08:47 JST（12分前） / 状態: HEALTHY
+[SLO 4タイル] 鮮度p99: 12分 (SLO ≤15分) ✓ / 遅延p99: 45秒 (≤60秒) ✓ /
+              成功率: 99.94% (≥99.9%) ✓ / 品質ゲート合格率: 99.8% ✓
+[コスト] 当月スキャン量: 2.1 TB / 3.5 TB budget (60%消化・進捗67%線内)
+[インシデント] MTTA当月平均: 4分12秒 / オープン中: 0件
+[下部] 全KPIタイルにツールチップで source / kpi_def_version / freshness を常時露出
+```
+
+**C. インパクト分析レポート（PR自動投稿・列レベル）**
+```
+## dbt PR インパクト分析
+変更ファイル: models/marts/applications_daily.sql
+影響を受ける下流:
+  - Looker Studio: 「応募推移(全社)」タイル3枚、「CVR分解」タイル2枚
+  - dbt models: mart_cvr_by_media (直接), mart_monthly_report (間接)
+  - 利用者: Shun(月次), Akari(週次), Ryota(提案書)
+compare_relations 結果: 直近90日 差分 0.03% (≤0.1% ✓)
+コスト影響: +12MB/day スキャン増 (許容範囲内)
+契約適合: airwork-applications-v3 ✓ / kpi_def_version: 2026.09.01
+推奨レビュアー: @shun (KPI定義owner) / @sora (最終QA)
+```
+
+**D. 建設業採用ドメインマート（`marts_construction_recruit.yaml`）**
+```yaml
+version: 2
+models:
+  - name: mart_apply_by_job_category
+    description: "7社×職種（型枠/鉄筋/内装/土工/重機/現場監督/施工管理/事務）×週次の応募・CVR"
+    meta:
+      owner: deng
+      kpi_def_version: "2026.09.01"
+      slo_freshness: "PT6H"
+      pii: false
+      construction_domain: true
+    columns:
+      - name: client_id
+        tests: [not_null, accepted_values: {values: [esco, cantera, ...]}]
+      - name: job_category_code
+        tests: [not_null, relationships: {to: ref('dim_job_category'), field: code}]
+      - name: apply_count_uniq
+        description: "名寄せ後ユニーク応募数（同一applicant_hash内で最新1件）"
+```
+
+**E. 障害通知テンプレ（Slack Block Kit・3点固定）**
+```
+:rotating_light: CRITICAL / airwork-applications パイプライン
+① 影響範囲: client_id=shosei の 2026-09-05 分（応募12件が未取込）
+② 復旧見込: 09:30 JST（バックフィルDAG実行中・進捗60%）
+③ それまでの代替: 前日9/4分は利用可 / 9/5分は暫定利用不可
+下流影響: Akari月次(9/10着手予定・待機不要) / Shun週次(9/8着手・9:30以降で可)
+担当初動: @deng 対応中 / @sora QA待機 / Akari・Shun・Ryotaは通常通り
+kpi_def_version: 2026.09.01 / incident_id: INC-2026-0906-01
+```
+
+**運用ルール（v2適用）**:
+- 上記A〜Eテンプレは `templates/data-engineering/` に配置し、新規案件着手時に必ず`cp`から始める（2026-07-07のテンプレ運用を制度化）
+- 全deliverableに`kpi_def_version`と`data_contract_id`を必須メタとして刻印（Shun→Akari→Ryota→クライアントの出所連続性を機械担保）
+- 品質基準・KPIは月次でsora QAレポートに実測値を提出、SLO未達は翌月のポストモーテム対象
