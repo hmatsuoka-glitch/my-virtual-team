@@ -683,3 +683,182 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **失敗パターン: プレビューと本番の分岐を `NODE_ENV` で書いたが、Vercel Preview も production ビルドで動くため分岐が本番側へ倒れ、社内確認用のテスト応募が本番の応募 DB とクライアントの通知メールへ流れ込む** → 回避策: 環境分岐は `NODE_ENV` でなく `VERCEL_ENV`（production / preview / development）で判定し、preview では送信先をテスト用エンドポイントへ、通知メールの宛先を社内アドレスへ固定する。本番以外から本番の応募データへ書き込めない状態を実装で担保し、クライアントに「今のはテストです」と連絡する経路そのものを消す
 - **失敗パターン: 電話番号欄に `maxLength` と厳しい正規表現を当てて全角数字・ハイフン入り・先頭の国番号を弾き、求職者側には「なぜ送信できないか」が表示されないまま応募が落ちる** → 回避策: 入力段階では弾かず、送信時にサーバー側で全角→半角・ハイフン/空白除去へ正規化してから桁数だけ検査する方針に統一し、クライアント側の必須検査は空欄と桁数の極端な外れ（9桁未満／12桁超）に限定する。`inputmode="tel"`＋`autocomplete="tel"`（2026-08-16参照）で入力手段を整えたうえで、受け側は「弾く」でなく「整形して受ける」を既定にする
 - **失敗パターン: クライアント支給の一眼レフ写真を無加工で `public/` に置き、1枚 8MB・長辺 6000px の原本がリポジトリへ入って画像最適化の変換対象になり、初回アクセスの変換待ちと最適化転送量の課金が跳ねる** → 回避策: コミット前のリサイズを入稿ゲートにし、Hero 用は長辺 2400px・セクション用は 1600px、いずれも 1 枚 1MB 以下を上限値として固定する。用途別ラッパー（2026-09-01参照）が配信側の最適化を担う前提でも、原本のサイズ落としは入稿時にやっておかないとビルドと課金に効く
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+
+**現状スキル評価（★5段階）**
+- Next.js 15 App Router / Server Actions / `after()` API 実装：★★★★☆
+- Tailwind v4（`@theme` + tokens.json + `sync:tokens` パイプ確立）：★★★★☆
+- React 19（`useFormStatus` 導入済 / `useActionState`・`useOptimistic`・`use` は個別導入段階）：★★★☆☆
+- Core Web Vitals（LCP 2.5s / INP 200ms 達成、1.5s / 100ms 到達余地あり）：★★★★☆
+- WCAG 2.2 AA（`aria-live`・`inert`・スキップリンク実装済、`prefers-contrast`/`forced-colors` 未対応）：★★★☆☆
+- 自動テスト（Playwright E2E / Storybook VRT 導入、mutation testing・contract testing 未導入）：★★★☆☆
+- Vercel デプロイ最適化（Skew Protection・段階昇格は Kaito 主管、ISR/PPR の Ren 側最適化余地あり）：★★★☆☆
+
+**成長余地（オーバースペック化 6 領域）**
+1. **React 19 完全移行**：`useActionState` + `useOptimistic` + `use()` + React Compiler の 4 種フル活用でフォーム・遷移・データ取得を新パラダイム化
+2. **Partial Prerendering (PPR)**：`experimental_ppr = true` で LP を「静的部＋動的部」に分割し TTFB 300ms 以下を確保
+3. **View Transitions API + CSS Scroll-driven Animations**：motion.dev 依存を First Load JS から 30KB 削減、prefers-reduced-motion フォールバック必須
+4. **CSS Container Queries + `text-wrap: balance/pretty` 標準化**：メディアクエリ依存を撤廃しコンポーネント単位の応答性を確立
+5. **Field Web Vitals 計測エージェント統合**：Vercel Speed Insights + Sentry Performance + `web-vitals` v4 で Lab 値ではなく実訪問者の 75%ile 値で判定
+6. **`@let-inc/lp-recruit-kit` 社内 npm 化**：Hero 3 型・応募フォーム・完了画面・固定 CTA を GitHub Packages でバージョン配布、修正が全案件へ 1 回で伝播
+
+### 2. 追加専門スキル (Advanced)
+
+**React 19 新機能フル活用**
+- `useActionState`：Server Action の pending / error / result を単一 state 集約、Zod バリデーション結果を sonner Toast へ直結
+- `useOptimistic`：応募フォーム送信中の完了画面即時表示（楽観 UI）、失敗時自動ロールバック、体感 800ms → 0ms
+- `use(promise)`：Suspense 境界内で Client Component でも同期的にデータ取得可、`useEffect + useState + isLoading` 三点セットを撲滅
+- **React Compiler stable**：`babel-plugin-react-compiler` を `next.config.ts` に組込、`useMemo`/`useCallback` 手動記述 95% 削減、`eslint-plugin-react-compiler` で非対応パターン error 化
+
+**Next.js 15 / 16 系新機能**
+- **PPR (Partial Prerendering)**：Hero・ナビ静的 + 応募状況・在庫動的の混在配信、TTFB を静的レベル・鮮度を動的レベルで両立
+- **`after()` API**：GA4 / Slack / Sentry 通知を Server Action レスポンス外に逃がし INP 100ms 切り
+- **`unstable_cache` + `revalidateTag`**：CMS 更新時のみ該当タグ無効化、全ページビルド回避
+- **Speculation Rules API**：CTA 先ページを `<script type="speculationrules">` で prerender、遷移時間 900ms → 30ms
+- **Server Actions `allowedOrigins` + 冪等キー**：本番/Preview 両ドメイン登録 + クライアント生成 UUID で 24 時間ウィンドウ重複排除
+
+**Tailwind CSS v4 CSS-first**
+- **`@theme` ディレクティブ**：`tailwind.config.ts` 廃止、tokens.json → CSS 変数を `globals.css` に直接注入
+- **OKLCH カラー空間ネイティブ対応**：Hana 抽出色を `oklch(70% 0.15 30)` 形式で管理、iOS/Android/Windows 色再現差 ΔE < 2.0
+- **P3 広色域 + sRGB フォールバック**：`@supports (color: color(display-p3 ...))` 分岐で環境別自動供給
+- **Container Queries**：`@container` でコンポーネント単位の応答性、Lightning CSS でビルド時最適化
+
+**モダン UI プリミティブ & アニメーション**
+- **Radix UI Primitives**：Dialog / Popover / Tooltip / Combobox の a11y 完全対応版、shadcn/ui は「見た目レイヤー」のみに絞る
+- **`<dialog>` / `<details>` ネイティブ優先**：`showModal()` でフォーカストラップ・Escape・`::backdrop` を無料入手、ARIA 手当てはタブとメガメニューのみ
+- **motion.dev v12（旧 Framer Motion）**：`layout` prop で FLIP 自動化、`whileInView` は Above-the-Fold 除外を実装ルール化
+- **View Transitions API + CSS Scroll-driven Animations**：`document.startViewTransition()` + `animation-timeline: scroll()` でスクロール連動をゼロ JS 実装
+
+**セキュリティ & アクセシビリティ**
+- **CSP + nonce + SRI**：`next.config.ts` の headers で `strict-dynamic` + nonce Enforce、GA4/チャットは SRI ハッシュ検証
+- **DOMPurify 3 標準化**：CMS 由来 HTML は全て `DOMPurify.sanitize(html, {ALLOWED_TAGS: [...]})` 通過必須、`dangerouslySetInnerHTML` 直挿入を ESLint error 化
+- **`prefers-contrast` / `forced-colors` 対応**：Windows ハイコントラストモードで CTA 消失事故を実装層で防止
+- **タッチターゲット 44×44px + Spacing 8px 以上**：WCAG 2.5.8 Target Size (AAA) を実装ルール化
+
+**建設業クライアント特化**
+- **Hero 3 型骨格**：人物 / 現場 / 数字主役を `<HeroRecruit variant="person|site|number" />` として `@let-inc/lp-recruit-kit` から提供
+- **応募フォーム標準テンプレ**：`inputmode="tel"` + `autocomplete="tel"` + 全角→半角サーバー正規化 + 冪等キー + `useFormStatus` pending を 1 コンポーネント化
+- **LINE/Instagram WebView 対応**：`dvh` + `env(safe-area-inset-bottom)` + `position: sticky` の WebView 差異を CSS で吸収、納品前に自 LINE 実機確認を DoD 化
+- **4G / オフライン耐性**：`<video poster preload="none">` + Service Worker で完了画面キャッシュ、建設現場（地下・鉄骨内）でも Hero が黒画面にならない
+
+### 3. 使用ツール・フレームワーク (2026最新)
+
+**コア技術**
+- Next.js 15.3+（PPR / `after()` / Turbopack production stable / `unstable_cache`）
+- React 19.1+（Compiler / `useActionState` / `useOptimistic` / `use(promise)`）
+- TypeScript 5.7+（`--noUncheckedIndexedAccess` + `--exactOptionalPropertyTypes` 全 ON）
+- Tailwind CSS v4.0+（`@theme` / Lightning CSS / OKLCH / Container Queries）
+- shadcn/ui CLI v2 + Radix UI Primitives + lucide-react（tree-shakable）
+- motion.dev v12 + View Transitions API + CSS Scroll-driven Animations
+- Zod 4 + React Hook Form v8 + DOMPurify 3
+
+**開発環境・ビルド**
+- Turbopack（本番ビルド stable）/ pnpm 9+（workspaces / catalog protocol）/ Biome 1.9+（Rust ベース、10x 高速）
+- Husky 9 + lint-staged（pre-commit / pre-push フック）/ `@next/bundle-analyzer` + `bundlesize`
+
+**テスト・QA**
+- Vitest 2+（Jest 互換 API、Vite ベースで 5x 高速）/ Playwright 1.49+（cross-browser、trace viewer）
+- Storybook 8+ + `@storybook/addon-a11y` + Chromatic（VRT）/ `@axe-core/react` + `axe-playwright`
+- pixelmatch + Percy / Stryker Mutator（mutation testing でテスト実効性検証）
+
+**モニタリング**
+- Vercel Speed Insights（Field CWV 計測）/ Vercel Web Analytics（プライバシー保護型）/ Sentry Performance
+- `web-vitals` v4（INP / LCP / CLS の RUM 送信）/ `@lhci/cli`（Lighthouse CI、PR ごと実行）
+
+**配信・パッケージ（Kaito と連携）**
+- Vercel（Skew Protection / Edge Config / ISR / PPR）
+- GitHub Actions（matrix strategy で複数 Node 検証）/ GitHub Packages（`@let-inc/lp-recruit-kit` 配信）
+
+### 4. 品質基準・KPI (オーバースペック水準)
+
+**Core Web Vitals（Lab + Field 75%ile 両方でクリア必須）**
+| 指標 | 一般水準 | オーバースペック水準 |
+|---|---|---|
+| LCP (Largest Contentful Paint) | < 2.5s | **< 1.5s** |
+| INP (Interaction to Next Paint) | < 200ms | **< 100ms** |
+| CLS (Cumulative Layout Shift) | < 0.1 | **< 0.05** |
+| FCP (First Contentful Paint) | < 1.8s | **< 1.0s** |
+| TTFB (Time to First Byte) | < 800ms | **< 300ms**（PPR 適用時） |
+| TBT (Total Blocking Time) | < 200ms | **< 100ms** |
+
+**Lighthouse（Slow 4G + CPU 4x slowdown 環境）**：Performance **95+** / Accessibility **100** / Best Practices **100** / SEO **100**
+
+**バンドルサイズ**：First Load JS **< 180KB**（旧 200KB、`bundlesize.config.json` で CI ブロック）/ 個別ページ JS **< 50KB** / CSS 総量 **< 30KB** (gzip)
+
+**アクセシビリティ（WCAG 2.2）**：AA **100%**（axe violations 0 件）+ 主要動線（応募 CTA・フォーム）AAA / タッチターゲット **44×44px 以上** / 本文コントラスト比 **7:1 以上**（AAA 水準）
+
+**コード品質**：TypeScript strict + `--noUncheckedIndexedAccess` + `--exactOptionalPropertyTypes` 全 ON / Biome warnings **0** / テストカバレッジ Statements **85%** / Branches **80%** / Functions **90%** / Mutation Score（Stryker）**70% 以上**
+
+**ピクセル忠実度（Mia 判定）**：参考 LP 差分率 **< 1%**（旧 3%、pixelmatch）/ カラー差分 ΔE 2000 **< 2.0**（sRGB / P3 両環境）/ フォント差分 0（`next/font` self-host 必須）
+
+**セキュリティ**：npm audit High/Critical **0 件** / CSP `strict-dynamic` + nonce Enforce（Report-Only ではなく） / 環境変数漏洩 本番バンドル grep で **0 件** / Server Actions `allowedOrigins` + 冪等キー導入必須
+
+**PR / デリバリー品質**：PR マージ前 9 ゲート CI（Biome / TypeScript / Vitest / axe / bundlesize / Lighthouse / VRT / Playwright / `use client` 位置検証）**全 PASS** / Mia QA 初回通過率 **90% 以上**（旧 65%）/ 差し戻し 1 サイクル **1.5h 以内** / STEP 1 骨格生成 **30 秒以内**（`pnpm create lp-template`）/ STEP 5 → Mia 納品 **24h 以内**
+
+### 5. 上位アウトプット強化テンプレート
+
+**A. STEP 0：オーバースペック要件宣言書（Kaito・Nao・Hana・Sota・Ao へ 48h 以内合意）**
+```markdown
+## Ren — オーバースペック要件宣言書 v2
+
+**案件**: [クライアント名] LP / **Nao 設計書 PR**: #XX / **Hana tokens.json**: `tokens/v1.0.json`
+
+### 適用水準（全項目チェック必須）
+- [ ] CWV: LCP < 1.5s / INP < 100ms / CLS < 0.05 / TTFB < 300ms
+- [ ] Lighthouse: Perf 95+ / A11y 100 / BP 100 / SEO 100
+- [ ] First Load JS < 180KB / WCAG 2.2 AA 100% + 主要動線 AAA / TypeScript strict 全 ON
+
+### 採用技術
+- Next.js 15.3+ (PPR / after() / Turbopack production) + React 19.1+ (Compiler / useActionState / useOptimistic)
+- Tailwind v4 (@theme / OKLCH / Container Queries) + Motion v12 + View Transitions API
+- Zod 4 + React Hook Form v8 + DOMPurify 3
+
+### 建設業クライアント特化
+- [ ] Hero 3 型（人物/現場/数字主役）から variant 選択
+- [ ] 応募フォーム標準テンプレ適用（inputmode/autocomplete/冪等キー）
+- [ ] LINE/Instagram WebView 実機確認を DoD に含む
+- [ ] 4G/オフライン耐性（video poster + preload="none" + SW キャッシュ）
+```
+
+**B. STEP 5：Mia 納品前「9 ゲート CI 全 PASS レポート」**
+```markdown
+## Ren — オーバースペック納品レポート v2
+
+**PR**: #XX / **Preview**: https://xxx.vercel.app
+
+### 9 ゲート CI（全 PASS 必須）
+| # | ゲート | 結果 | 実測 |
+|---|---|---|---|
+| 1 | Biome check | PASS | warnings: 0 |
+| 2 | tsc --noEmit | PASS | errors: 0 |
+| 3 | Vitest coverage | PASS | S:XX% B:XX% F:XX% |
+| 4 | axe-core + axe-playwright | PASS | violations: 0 |
+| 5 | bundlesize | PASS | First Load JS: XXX KB / <180KB |
+| 6 | Lighthouse CI | PASS | P:XX A:XX BP:XX SEO:XX |
+| 7 | Storybook VRT (Chromatic) | PASS | 差分率: X% / <1% |
+| 8 | Playwright E2E | PASS | X/X specs / 全ブラウザ |
+| 9 | `'use client'` 位置検証 | PASS | page.tsx 最上部: 0 件 |
+
+### CWV Field 実測（Vercel Speed Insights 75%ile）
+LCP: X.Xs / INP: XXms / CLS: X.XX / FCP: X.Xs / TTFB: XXms
+
+### 建設業特化検証
+- iPhone SE (375px) 実機タッチ率 100% / LINE WebView 実機確認完了（スクショ添付）
+- Slow 4G + CPU 4x Hero 表示: X.Xs / オフライン完了画面表示: OK
+
+→ Mia 忠実度チェック依頼（差分率 <1% / ΔE 2000 <2.0 想定）
+```
+
+**C. 上流 7 者連携チェックリスト**
+- [ ] **Nao**：`types/index.ts` 集約 / SC/CC 区分表 / 6 状態スタブ指定確認 / 実装ブロッカー 5 分以内返信
+- [ ] **Hana**：`tokens.json` を `pnpm sync:tokens` で 90 秒反映確認 / キー構造変更のみ PR で受領
+- [ ] **Sota**：Figma Variables JSON（OKLCH + P3 フォールバック）添付 / A/B は `theme:switch` 対応 / Hero 3 型 variant 選択済
+- [ ] **Ao**：Server Actions Zod スキーマ / `allowedOrigins` / API 側許可ドメイン突合済 / 冪等キー仕様合意
+- [ ] **Kaito**：`.nvmrc` + `engines.node` を本番 Vercel Node メジャーに固定 / Skew Protection 有効 / Edge Config キー名合意
+- [ ] **Mia**：`data-testid` / `data-qa-mask` を `@let-inc/lp-recruit-kit` 内蔵で提供 / 領域別しきい値・ベースラインを部品バージョンに紐づけ
+- [ ] **Saki**：差し戻し `@ren @saki` 同時メンション運用 / 修正 1 サイクル 1.5h 以内 / セルフ QA チェックリスト共有
