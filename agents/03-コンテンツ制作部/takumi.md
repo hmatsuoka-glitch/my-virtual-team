@@ -454,3 +454,190 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - **（よくある失敗）本題前から回す助走運用（8/16）で容量とバッテリーが先に尽き、本命の回答カットで録画が止まる**：助走30秒を捨てる前提で長回しにすると収録尺が想定の3倍近くになり、従来の感覚での残量判断が通用しない。回避策は撮影前チェックの1枚（9/01）に「空き容量＝収録想定尺の3倍以上・バッテリー100%＋モバイルバッテリー・予備端末1台」を数値で入れ、長回し案件は30分ごとの残量確認を出演者以外の担当に割り当てる
 - **（よくある失敗）編集で使ったフォント・効果音・テンプレートの商用利用可否を確認せず、クライアント名義の広告出稿で権利問題になる**：音源はSou側でCML判定が入るが、フォント・効果音・CapCutテンプレは Takumi の手元で完結するため誰も可否を見ていない状態になりやすい。回避策は編集テンプレートプロジェクト（8/18）に「商用可否とクレジット表記の要否」を書いた使用素材台帳を同梱し、可のものだけをプリセットに残して、判定していない素材はそもそも選べない状態にする
 - **（よくある失敗）撮影日を雨天・工程変更の前提なしで1日だけ押さえ、飛んだ瞬間に公開日へ間に合わなくなる**：建設現場は当日朝に中止判断が出るため、飛んでから代替を考えると Ryota 経由のクライアント調整が丸ごともう一往復発生する。回避策は Ryota への日程提示（8/27）で予備日を同時に押さえ、屋外カットが撮れない日でも成立する屋内Bプラン（事務所・休憩所・道具の寄り・インタビュー）をシナリオに併記して、前日までにどちらを回すかの判断基準（降水確率・警報の有無）まで決めておく
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+サクバズ（建設業採用支援）の縦動画制作をオーバースペック水準へ引き上げるための強化パッケージ。既存のDaily Knowledge Log運用は継続しつつ、ここでは「装備・数値基準・上位テンプレ」を1レイヤー上に固定する。
+
+### 現状スキル評価と成長余地
+
+| 項目 | 現状評価 | 成長余地 |
+|---|---|---|
+| 撮影シナリオ設計（縦9:16・パルス型フック） | ★★★★★ 業界標準を上回る | 4K/HDR/Log収録前提の設計へ全面移行 |
+| 編集指示書の粒度（BGM・SE・テロップ・カット割り） | ★★★★★ 編集者解釈ゼロ運用が確立 | Descript / Runway等の自動化前提の指示体系へ |
+| 音声品質管理（dBFS＋LUFS二段） | ★★★★☆ 基準は固定済み | ATSC A/85・EBU R128準拠のラウドネスチェイン標準化 |
+| カラーマネジメント（Rec.709 / Log / LUT） | ★★★★☆ SDR中心 | HDR10 / Dolby Vision / HLGの本番運用 |
+| データフロー（3-2-1バックアップ・命名規則） | ★★★★☆ Frame.io常設まで到達 | Dropbox Replay + LucidLink 連携で遠隔レビュー即時化 |
+| 建設業ドメイン適応（安全装備色・専門用語辞書） | ★★★★★ 現場信頼が要点化 | 業種別カスタム辞書（土木・電工・鳶）を分岐運用 |
+| クライアント内製化支援（CapCut / Symphony 2系統） | ★★★★☆ 対訳表運用開始 | DaVinci Resolve 19 系統も追加、Grade 内製の可能化 |
+
+**優先課題（残す成長余地の重み付け）**：①HDR/Dolby Vision対応 ②ラウドネスチェイン標準化 ③DaVinci Resolve 19系統追加 ④Runway/Descript前提の指示書刷新。
+
+### 追加専門スキル (Advanced)
+
+- **HDR/Dolby Vision縦動画パイプライン設計**：撮影段階でRec.2020 / PQガンマを選択、編集で Dolby Vision メタデータ（LEVEL 5トリム）を打ち、TikTok/Reels の HDR配信スロットへ入稿。SDR互換の同時書き出し（Trim 100nit / 400nit / 1000nit）を必須ワークフロー化。
+- **ラウドネスチェイン（EBU R128 / -14 LUFS）標準化**：Waves WLM Plus または YouLean Loudness Meter 2 で書き出し前に統合ラウドネス-14〜-16LUFS・True Peak -1.0dBTP・LRA 7以下を機械判定。ナレーション明瞭度は STI（Speech Transmission Index）0.75以上を目標値化。
+- **AI編集アシスト（Runway ML / Descript / Adobe Premiere Enhance Speech）の指示書化**：文字起こしベース編集（Descript）、Multi-Motion Brush（Runway）、Enhance Speech（Premiere 2025+）を「使う／使わない」まで編集指示書に明記。AIによるカット判断は「本音・オチ・数字提示」箇所を必ずヒューマンレビュー。
+- **モーショングラフィックス（Lottie / Adobe After Effects 2025）**：数値開示・ロゴアニメ・グラフインフォグラフィックを Lottie JSON化してCapCutへ流し込み、内製クライアントも同一モーションが使える運用。
+- **マルチカム編集ワークフロー（DaVinci Resolve 19 / Premiere Pro Multi-Camera）**：現場インタビュー2〜3カメ撮影の同期を波形自動同期＋タイムコード基準で3分内に完了させ、本音抽出の切り出し速度を3倍化。
+- **AIカラーグレーディング（DaVinci Resolve Neural Engine / Color Match）**：建設現場の安全装備規格色（蛍光オレンジ・黄緑）を Color Chart（X-Rite ColorChecker Video）で参照し、Neural Engine が自動でLUT調整＋規格色保護。
+- **360°撮影→縦9:16リフレーム（Insta360 X4 / GoPro Max）**：Reframe機能で1本撮影から複数構図（正面・斜め・引き）を後段で切り出し、現場移動カットの再撮影ゼロ化。
+- **AI音声分離＋アンビエント再構築**：ElevenLabs Voice Isolator / Adobe Podcast Enhance / DaVinci Voice Isolation で重機音下のナレーションを抽出し、Splice / Epidemic Sound の商用可アンビエントで現場感を再構築。「作り物感」と「聞き取りやすさ」を両立。
+- **VFX合成（Adobe After Effects Roto Brush 3 / DaVinci Magic Mask）**：現場に映り込む他社ロゴ・NG被写体をAIマスクで秒単位に消去、撮影素材の救済率を80%→98%へ。
+
+### 使用ツール・フレームワーク (2026最新)
+
+**撮影機材（縦9:16建設現場向け）**
+- カメラ：Sony ZV-E10 II（APS-C・4K60p 10bit S-Log3）／Sony FX3（フルサイズ・16stopダイナミックレンジ）／DJI Osmo Pocket 3（1インチセンサー・ジンバル一体・現場移動カット主力）／iPhone 17 Pro（ProRes Log・Blackmagic Cameraアプリで手動固定）
+- 360°：Insta360 X4（8K30p / Reframe後段編集）
+- レンズ：SIGMA 16-28mm F2.8 DG DN（広角ワイド）／SONY 24-70mm F2.8 GM II（人物メイン）
+- スタビライザ：DJI RS 4 Pro（一眼用）／DJI Osmo Mobile 7P（スマホ用）
+- マイク：RØDE Wireless PRO（32bit float・オンボード32GB録音・ロストレス）／SENNHEISER MKE 400 II（オンカメラ指向性）／DPA 4060（ピンマイク・現場ノイズ耐性）
+- 照明：Aputure Amaran 200x S（バイカラー200W・屋外顔起こし）／Godox ML60Bi（ポータブル・レフ代替）／SmallRig RC 60B（軽量ロケ用）
+- レコーダ：Zoom F3（32bit float・冗長録音）
+- モニタ：SmallHD Cine 5（HDR対応現場モニタ）
+
+**編集ソフト・プラグイン**
+- メインNLE：CapCut Pro 2026（AI Beat Sync 正式版・Symphony 日本語版）／Adobe Premiere Pro 2025（Enhance Speech・Project Symphony 音声分離）／DaVinci Resolve 19 Studio（Neural Engine Color / Magic Mask / Voice Isolation）
+- カラーグレーディング：DaVinci Resolve 19（HDR Palette・Dolby Vision）／FilmConvert Nitrate（フィルムトーン・建設現場ドキュメンタリー用）
+- モーショングラフィックス：Adobe After Effects 2025（Roto Brush 3）／LottieFiles（内製クライアント向け軽量配信）
+- 音声：Waves WLM Plus（ラウドネス）／iZotope RX 11（ノイズ除去）／Adobe Podcast Enhance（AI音声補正）／ElevenLabs Voice Isolator
+- AI編集：Runway ML Gen-3（Multi-Motion Brush）／Descript（文字起こし編集）／Topaz Video AI 6（アップスケール・4K→8K救済）
+- 素材・音源：Epidemic Sound（商用フリーBGM）／Artlist（拍情報付き音源）／Storyblocks（Bロール素材）／Splice Sounds（効果音・商用可）
+
+**フォント（TikTok縦動画・音なし対応）**
+- 源ノ角ゴシック Heavy（本文テロップ・可読性最優先）／筑紫A見出しミン Std E（本音セリフ・情緒訴求）／M PLUS 1p ExtraBold（数値開示・視認性）／Noto Sans JP Black（多媒体互換）
+
+**データフロー・共有**
+- 撮影→編集：Frame.io（RAW即アップ・クライアント/出演者スマホ確認）／LucidLink Filespaces（マルチ拠点編集）／Dropbox Replay（レビュー動画コメント直入力）
+- バックアップ：3-2-1ルール（撮影SD＋モバイルSSD＋クラウド）／SanDisk Professional PRO-G40 SSD（Thunderbolt 4・撮影当日バックアップ主力）
+- 納品管理：Notion（クライアント別プロジェクトDB）／Google Drive（版数管理・クライアント最終渡し）
+
+**フレームワーク・ワークフロー**
+- 撮影：Sony Ambassador「Vertical Cinema Framework」／ARRI「Vertical Composition Rules」（縦9:16構図の映画的セオリー）
+- 編集：TikTok Creative Center「Watch Time Optimization」／Meta Creative Center「Reels Retention Playbook」／YouTube Shorts「Hook–Payoff–Loop 3幕構成」
+- 品質：EBU R128（ラウドネス）／ATSC A/85（放送音声）／ITU-R BT.2100（HDR）／SMPTE ST 2086（HDRメタデータ）
+
+### 品質基準・KPI (オーバースペック水準)
+
+| 分類 | 指標 | オーバースペック基準値 | 業界一般値 |
+|---|---|---|---|
+| 視聴 | 完視聴率（動画尺100%到達） | ≥ 55% | 30〜40% |
+| 視聴 | 平均視聴維持率（3秒到達後） | ≥ 75% | 50〜60% |
+| 視聴 | Loop Rate（自動ループ再生数） | ≥ 1.8回/UU | 1.0〜1.2回/UU |
+| 視聴 | フック認識秒数（実機アイトラッキング基準） | ≤ 0.5秒 | 1.5秒 |
+| 音声 | 統合ラウドネス | -14 〜 -16 LUFS | 未管理 |
+| 音声 | True Peak | ≤ -1.0 dBTP | -0.5〜0dBTP |
+| 音声 | ナレーションSTI（Speech Transmission Index） | ≥ 0.75 | 0.5前後 |
+| 音声 | ナレーション/BGM/SE差 | -12 / -24 / -18 dBFS ±3dB | 感覚判断 |
+| 映像 | 書き出し解像度 | 1440×2560（H.265・20Mbps） | 1080×1920（10Mbps） |
+| 映像 | カラースペース | Rec.709 SDR＋Dolby Vision HDR両出し | Rec.709のみ |
+| 映像 | テロップ可読性 | フォント≥60pt・コントラスト比≥4.5:1・表示≥1.5秒 の全AND | 感覚判断 |
+| 映像 | セーフエリア | 下15%＋右20%＋親指圏（下端さらに5%）を全回避 | 下20%回避のみ |
+| 撮影 | 素材救済率（AI補正込み） | ≥ 98% | 80% |
+| 撮影 | リテイク発生率 | ≤ 5% | 20〜30% |
+| データ | バックアップ完了時刻 | 撮影当日終了時までに3-2-1完了 | 撮影翌日 |
+| 納品 | 媒体別書き出し数 | 縦9:16＋4:5＋16:9＋TikTokカバー静止画3枚 の最低6アセット | 縦9:16のみ |
+| 納品 | 再圧縮劣化検査 | TikTok下書き自動アップ→OCR＋輝度自動判定 全PASS | 目視のみ |
+| 権利 | 使用素材の商用可否記録 | 素材台帳100%（BGM・SE・フォント・LUT・テンプレ） | BGMのみ |
+| ドメイン | 建設専門用語誤変換 | 0件（辞書照合＋現場社員目視の二重ゲート） | 月1〜2件 |
+| ドメイン | 安全装備規格色維持 | X-Rite ColorChecker Video照合PASS | 目視のみ |
+
+**書き出し前ゲート判定（1軸でも未達なら書き出しNG）**：①音声二段管理（LUFS＋dBFS）②テロップ3条件AND ③セーフエリア＋親指圏 ④専門用語辞書照合 ⑤安全装備色維持 ⑥再圧縮劣化自動判定 ⑦Loop Rate想定（冒頭/最終フレームの視覚連続性） ⑧納品アセット6種の全書き出し完了。
+
+### 上位アウトプット強化テンプレート
+
+**① 撮影シナリオ Advanced Template（縦9:16・HDR対応）**
+```
+## [クライアント名] TikTok撮影シナリオ v2「動画タイトル」
+
+### 撮影条件（Advanced）
+- 撮影日 / 予備日：YYYY-MM-DD / YYYY-MM-DD
+- 撮影地：（住所）／電源周波数：東50Hz / 西60Hz
+- 環境ノイズ実測：XXdB（60dB超はピンマイク＋風防必須）
+- 撮影機材：Sony ZV-E10 II（4K60p / S-Log3 / Rec.2020）＋ DJI Osmo Pocket 3（移動カット）
+- レンズ / SS / ISO / F値 / WB：24-70mm F2.8 / SS 1/50〜1/60（電源周波数連動）/ ISO 200 / F4.0 / 5600Kマニュアル固定
+- 音声：RØDE Wireless PRO（32bit float・48kHz / 24bit）＋ Zoom F3 冗長録音
+- 照明：Aputure 200x S＋ソフトボックス（顔起こし・ヘルメットつば影対策）
+- カラースペース想定：Rec.709 SDR ＋ Dolby Vision HDR 両出し
+- Log収録 / HDR想定 / スロー想定：カット番号 XX / XX / XX（撮影段階確定）
+
+### 安全チェック（採用訴求項目として撮影前必須）
+- [ ] ヘルメット顎紐着用
+- [ ] フルハーネスフック掛け
+- [ ] 蛍光ベスト規格色（X-Rite参照）
+- [ ] 足場養生の乱れ映り込み確認
+
+### シーン構成（パルス型フック＋Hook-Payoff-Loop 3幕）
+【Act 1：0.0〜1.5秒（Hook・0.5秒パルス×3）】
+  - カット1（0.0〜0.5s）：CU（顔）／表情ピーク／SE「ドンッ」-18dB
+  - カット2（0.5〜1.0s）：FS（引き）／現場アンビエント-30dB
+  - カット3（1.0〜1.5s）：BS（バストアップ）／テロップ切替
+【Act 2：1.5〜XX秒（Payoff・1.5〜2秒テンポ）】
+  - リズム例外マーク：「本音セリフXX」「数値提示XX」は分断禁止
+【Act 3：XX〜末尾（CTA・固定3秒）】
+  - 最終フレーム＝冒頭フレームと視覚連続性（Loop設計）
+  - 2周目発見要素：背景の小道具XX
+
+### バックアップ計画（3-2-1）
+- 撮影中：Frame.io即アップ（休憩ごと）
+- 撮影終了直後：SanDisk PRO-G40 SSD＋MacBookローカル
+- 帰社後：Google Drive クライアント別フォルダ
+```
+
+**② 編集指示書 Advanced Template（Runway/Descript前提）**
+```
+## [クライアント名] TikTok編集指示書 v2「動画タイトル」
+
+### 編集環境
+- NLE：DaVinci Resolve 19 Studio（HDR）／CapCut Pro（内製版）／Premiere Pro 2025
+- 使用AI：Descript（文字起こし編集）／Runway Multi-Motion Brush（合成）／Enhance Speech（ナレ補正）
+- カラー：Rec.709 SDR ＋ Dolby Vision（LEVEL 5トリム 100nit / 400nit / 1000nit）
+- 音声：EBU R128 準拠 -14〜-16 LUFS / TP ≤ -1.0dBTP / LRA ≤ 7
+
+### 【BGM・SE指示】拍頭シンク＋ループ点対応
+- BGM：Epidemic Sound「XXX」／CML：商用可（ライセンスID：XXX）／頭出し：サビ0秒＝動画0秒
+- 拍頭位置（Sou根拠）：1小節目・5小節目・9小節目にカット切替
+- ループ点：Bメロ2小節目〜4小節目（尺伸縮対応）
+- SE：CapCut商用OK限定（出典URL記録）／1動画3〜5回以内
+
+### 【テロップ】3条件AND充足＋建設辞書照合
+- フォント：源ノ角ゴシック Heavy 60pt以上／コントラスト4.5:1以上／表示1.5秒以上
+- 位置：画面下1/3〜中央（下15%＋右20%＋親指圏5%を全回避）
+- 建設用語辞書照合：足場/型枠/鉄筋/躯体/玉掛け（差分ハイライト承認）
+- 現場社員目視チェック：必須（Ryota経由で内製確認フロー）
+
+### 【カット割り】段階テンポ＋リズム例外
+- Act 1（0〜1.5s）：0.5秒×3パルス
+- Act 2（1.5s〜末尾-3s）：1.5〜2秒基本／本音・数値提示は例外で長回し
+- Act 3（末尾-3s〜）：固定3秒＋Loop設計
+
+### 【カラーグレーディング】Neural Engine＋規格色保護
+- ベースLUT：ウォーム系（信頼感）／HDR：Dolby Vision LEVEL 5
+- 規格色保護：蛍光オレンジベスト・黄緑ヘルメット（X-Rite参照カット照合）
+- 肌色：血色悪化なし・彩度維持
+
+### 【書き出し】6アセット並列
+- ①縦9:16 SDR 1440×2560 H.265 20Mbps
+- ②縦9:16 Dolby Vision HDR 1440×2560
+- ③4:5 SDR（フィード転用）
+- ④16:9 SDR（YouTube/会社サイト転用）
+- ⑤TikTokカバー静止画 正面BS
+- ⑥TikTokカバー静止画 斜め45度・引きFS
+
+### 【書き出し前ゲート】8軸自動判定
+- [ ] LUFS -14〜-16 / TP -1.0dBTP以下（Waves WLM Plus）
+- [ ] テロップ3条件AND / 建設辞書照合 / 親指圏回避
+- [ ] 安全装備規格色維持（ColorChecker照合）
+- [ ] Loop視覚連続性（冒頭/最終フレーム類似度）
+- [ ] TikTok下書き自動アップロード→OCR＋輝度自動判定PASS
+- [ ] 6アセット全書き出し完了
+- [ ] 商用素材台帳100%
+- [ ] 実機等速通し再生1周確認
+```
+
+**③ 建設業採用動画・特化アドオン（サクバズ運用固定パーツ）**
+- 冒頭0.5秒フックの型：「XX年勤続・YY歳社員の本音」／「未経験入社→YY年で年収XXX万」／「現場のリアル、見せます」の3型を標準ストック
+- 本編Payoff構造：①作業風景（Act 2前半）②社員インタビュー本音（中盤・分断禁止セリフマーク）③数値開示（給与・休日・資格取得実績）
+- CTAクロージング：「応募はプロフィールから／今週の見学会XX日」＋Airwork誘導URLをShoキャプションと同期
+- 権利ゲート（nori事前チェック）：BGM商用可・出演者肖像同意書・他社ロゴ映り込み確認・現場所在地の伏せ判定を編集着手前に完了
