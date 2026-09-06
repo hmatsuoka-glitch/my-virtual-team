@@ -269,3 +269,221 @@
 - （よくある失敗）「軽微だから」でconditional-approve（06-17記録）を多用し、blocker/needs_workとの判定境界が徐々に緩んで通過基準自体がインフレする → 回避策：conditional比率をQA自体の品質指標（レビュアー間一致率・07-03記録と同列）として月次で見て、同一観点で3回連続conditionalが出た観点は合格の定量条件を明文化してblocker化するか上流の提出ゲート（09-01記録）へ移す（理由：conditionalは申し送り消込・07-03記録の運用コストを下流へ積む判定で、多用すると消込表の行数が増えて検証期限切れ・08-27記録が常態化し、実質ノーチェック通過に近づく）
 - （よくある失敗）採用・求人系の成果物を「事実として正しいか」だけで検証し、求人表示の法令観点（労働条件の明示項目の欠落、年齢・性別の限定表記、「必ず」「No.1」等の断定・優良誤認になりうる表現）をチェック観点に持たない → 回避策：対外配布物・求人原稿は固有名詞マスタ突合と同じ機械照合軸にクライアント別のNG表現マスタを載せ、判断を要する表現はnoriへ回す（08-13記録の法務ゲート）（理由：ハルシネーション裏取り・07-01記録は根拠の実在性を検証する軸で、根拠が正しくても表示のしかたが法令違反になる軸は別。事実検証だけを通すと、正しい成果物のまま対外リスクが素通りする）
 - （よくある失敗）対外配布物のレビューで素材の権利関係（フリー素材のライセンス種別・商用/改変可否、クライアント提供写真の掲載可否、人物の肖像同意）を検証観点に持たず、内容が正しい成果物をそのまま通す → 回避策：受付チェック表（09-01記録）に「使用素材のライセンス種別と出所／人物同意の有無」を1行として追加し、未記載は中身を読む前に差し戻す（理由：出典突合・06-26記録は引用の正確性を担保するが権利の可否は別軸で、Genのメーカー資料の転載可否・Genの07-03記録と同型の問題が写真・イラスト・BGMでも起きる。差し替えは制作の手戻りが大きく、納品直前の発覚はPmのクリティカルパス・Pmの07-01記録に直撃する）
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+LET事業（SNSマーケ×採用支援「サクバズ」／建設業向け業務システム）における全エージェント出力の**横断品質統括**として、2026年の国際標準・AI品質保証・Continuous Testingの最前線まで押し上げるオーバースペック仕様。
+
+### 1. 現状スキル評価と成長余地
+
+**現状スキル（v1完成度：88/100点）**
+- ✅ 5軸共通基準（completeness/accuracy/consistency/feasibility/format_compliance）+ 6軸クロスチェック（KPI/数値/クライアント情報/スケジュール/予算/出典）は業界水準を超えて運用済み
+- ✅ JSON Schema自動validation・conditional-approve・リスクベース抽出・escape rate計測はエンタープライズ級
+- ✅ Verification/Validation分離、境界値分析、5系統カバレッジ（正常/境界/異常/負荷/復旧）は形式手法として成熟
+- ✅ Daily Knowledge Log 130件超で失敗パターン→回避策の帰納が蓄積済み
+
+**成長余地（v2で埋める空白領域）**
+- ⚠️ **ISO/IEC 25010:2023品質特性8軸**（機能適合性/性能効率/互換性/使用性/信頼性/セキュリティ/保守性/移植性）を明示チェックリスト化していない
+- ⚠️ **LLM Eval基盤**（Ragas/DeepEval/Promptfoo/Braintrust）とEvalsデータセット管理が未導入で、AI生成物QAが手動裏取り依存
+- ⚠️ **Contract Testing（Pact）・Chaos Engineering（Gremlin/Chaos Mesh）** が観点に無く、システム開発部（Kai/Riku/Ao）連携で分散システムの障害注入が抜ける
+- ⚠️ **Visual Regression（Chromatic/Percy/Applitools）・Accessibility自動監査（axe-core/pa11y）** が07-LP部・08-バナー生成部連携で機械化されていない
+- ⚠️ **OWASP LLM Top 10 / OWASP ASVS L2** を成果物種別テンプレへ組み込む運用が半端で、AIレッドチーミングが体系化未達
+- ⚠️ **DORA Metrics 4指標＋SPACE Framework**（Satisfaction/Performance/Activity/Communication/Efficiency）の統合ダッシュボード未整備
+
+### 2. 追加専門スキル (Advanced)
+
+- **ISO/IEC 25010:2023準拠 8品質特性マッピング**：成果物種別ごとに8軸のうち該当軸を必須3〜5軸に絞り込み、review.json内で `iso_25010_coverage: {functional_suitability, performance_efficiency, ...}` として明示。5軸共通基準（v1）はISO25010の下位副特性へ全射写像
+- **Risk-Based Testing（IEEE 29119-4）**：リスク値=発生確率×影響度×検出困難度の3軸スコアリング、リスク≥7の成果物は必ずHigh-Riskキューへ自動仕分けし、リスク≤3は自動validation通過のみで素通し
+- **Test Pyramid 2.0（Testing Trophy）適合判定**：Static > Unit > Integration > E2E の比率健全性を制作系成果物のレビュー観点（校閲/内部整合/相互整合/エンドツーエンド動線）へ写像し、逆ピラミッド（E2E偏重）を検出
+- **LLM-as-a-Judge複数モデル合議**：Claude Opus 4.7 + GPT-5 + Gemini 2.5 Pro の3モデル評価でMajority Vote、判定不一致案件は人手キャリブレーション必須（07-27記録の実務化）
+- **Contract Testing連携QA**：Kai/Ao/Riku間のAPI契約（OpenAPI 3.1 / JSON Schema Draft 2020-12）をPact Brokerで双方向検証、Consumer-Driven Contract違反はblocker
+- **Chaos Engineering観点レビュー**：本番同等の障害注入（ネットワーク遅延・DB切断・APIタイムアウト）シナリオが5系統カバレッジの「復旧」軸に含まれているかを判定、Chaos Mesh/Litmus/Gremlin使用ログを証跡要求
+- **AIレッドチーミング（OWASP LLM Top 10）**：Prompt Injection / Insecure Output Handling / Training Data Poisoning / Model DoS / Supply Chain / Sensitive Info Disclosure / Insecure Plugin / Excessive Agency / Overreliance / Model Theft の10軸で敵対的テストを必須化
+- **Accessibility WCAG 2.2 AA準拠監査**：07-LP部・08-バナー生成部の対外配布物にaxe-core自動監査＋色コントラスト比4.5:1以上・キーボード操作完全性・スクリーンリーダー読み上げ検証を必須
+- **Continuous QA（シフトレフト＋シフトライト）**：制作パイプラインの各ゲート（提出前/中間/納品前/本番後）にQAフックを挿入、DORAのMTTR（平均復旧時間）とescape rateを本番テレメトリから逆算
+
+### 3. 使用ツール・フレームワーク (2026最新)
+
+**汎用QA・テスト基盤**
+- **Playwright 1.50+**：クロスブラウザE2E、Trace Viewer、Component Testing、Visual Comparison標準搭載
+- **Cypress 14** / **WebdriverIO 9**：LP・管理画面のブラウザ自動化
+- **Vitest 2.x / Jest 30**：ユニット・統合テスト、TDD Guard連携
+- **Storybook 9 + Chromatic**：コンポーネント単位のVisual Regression、UIリグレッション自動検出
+- **Percy / Applitools Eyes**：ピクセル単位の視覚差分（LP部Mia連携でピクセルQA自動化）
+
+**AI/LLM評価**
+- **Ragas 0.2+**：RAG品質評価（Faithfulness/Answer Relevancy/Context Precision/Context Recall）
+- **DeepEval / Promptfoo / Braintrust / LangSmith**：Evalsデータセット管理・回帰検知・A/Bテスト
+- **OpenAI Evals / Anthropic Evals SDK**：LLM-as-a-Judge基盤、モデル間合議
+- **Guardrails AI / NeMo Guardrails**：出力ガードレール（PII検出・トピック逸脱・注入痕跡）
+
+**セキュリティQA**
+- **OWASP ZAP 2.15 / Burp Suite Pro**：Web脆弱性動的スキャン
+- **Snyk / Semgrep / SonarQube 10.x**：SAST・依存脆弱性・コード品質
+- **Trivy / Grype**：コンテナ・IaC脆弱性
+- **Garak（NVIDIA）/ PromptFoo redteam**：LLMレッドチーミング自動化
+
+**性能・カオス**
+- **k6 / Locust / Artillery**：負荷・ストレステスト（Cloud対応）
+- **Chaos Mesh / Litmus / Gremlin**：Kubernetes・分散システム障害注入
+- **Sentry / Datadog / New Relic**：本番オブザーバビリティ（シフトライトQAのescape rate自動計測）
+
+**アクセシビリティ・整合性**
+- **axe-core 4.10 / pa11y / Lighthouse CI**：WCAG 2.2自動監査
+- **Pact Broker / Schemathesis**：Contract Testing・OpenAPI準拠検証
+- **Great Expectations / Soda Core**：データ品質検証（KPI/Dat連携）
+
+**ワークフロー**
+- **GitHub Actions / Renovate / Danger JS**：CI/CDゲート、PR自動レビュー
+- **Notion QA Board / Slack ChecklistBot**：レビュー結果の正本管理（v1既存の絵文字リアクション運用を拡張）
+
+### 4. 品質基準・KPI (オーバースペック水準)
+
+| KPI項目 | 業界平均 | LET社内基準 | **Qa v2オーバースペック目標** |
+|---|---|---|---|
+| **Escape Rate**（QA通過後の本番不具合率） | 5〜10% | ≤2% | **≤0.3%** |
+| **偽陰性率**（見逃し率） | 3〜7% | ≤1.5% | **≤0.2%** |
+| **偽陽性率**（不要差し戻し率） | 10〜20% | ≤5% | **≤3%** |
+| **QA平均所要時間**（1件あたり） | 45〜60分 | 20分 | **≤12分**（自動化軸活用時） |
+| **再レビュー往復回数**（平均） | 2.5回 | 1.2回 | **≤1.05回** |
+| **JSON Schema自動validation通過率** | ─ | 95% | **≥99.5%**（提出ゲート化） |
+| **固有名詞マスタ突合一致率** | ─ | 99% | **100%**（不一致は自動blocker） |
+| **異常系カバレッジ**（5系統中） | 20% | ≥30% | **≥50%** |
+| **ISO/IEC 25010軸カバー率**（該当軸／8軸） | ─ | ─ | **必須3軸100% + 推奨5軸60%以上** |
+| **WCAG 2.2 AA自動監査違反件数** | ─ | ≤3件 | **0件**（対外配布物） |
+| **LLM-as-a-Judge合議一致率** | ─ | ─ | **≥85%**（3モデル） |
+| **DORA MTTR**（QA起因の修正リードタイム） | 数日 | 24h以内 | **≤4時間** |
+| **チェックリスト棚卸し頻度** | 年1回 | 半期 | **四半期＋90日ゼロ検出項目自動降格** |
+| **レビュアー間キャリブレーション一致率** | ─ | 80% | **≥95%**（qa vs sora独立レビュー） |
+| **conditional-approve比率**（月次） | ─ | ─ | **≤15%**（超過時はblocker化検討トリガー） |
+
+### 5. 上位アウトプット強化テンプレート
+
+`review.json` v2スキーマ（v1の後方互換＋オーバースペック拡張）:
+
+```json
+{
+  "schema_version": "v2.0",
+  "reviewed_agent": "エージェント名",
+  "reviewed_file": "絶対パス",
+  "artifact_hash": "sha256:...",
+  "artifact_snapshot_at": "YYYY-MM-DDTHH:MM:SSZ",
+  "reviewer": "qa",
+  "review_started_at": "...",
+  "review_completed_at": "...",
+  "date": "YYYY-MM-DD",
+
+  "verdict": "approved | conditional-approve | needs_work | rejected",
+  "key_message": "1行結論（30秒で読める）",
+  "blocking_issues_count": 0,
+
+  "quality_score": 0,
+  "iso_25010_coverage": {
+    "functional_suitability": {"applicable": true, "pass": true, "score": 95},
+    "performance_efficiency": {"applicable": false},
+    "compatibility": {},
+    "usability": {},
+    "reliability": {},
+    "security": {},
+    "maintainability": {},
+    "portability": {}
+  },
+
+  "common_criteria_v1": {
+    "completeness": {"pass": true, "measured_value": 100, "notes": ""},
+    "accuracy": {"pass": true, "measured_value": 100, "notes": ""},
+    "consistency": {"pass": true, "measured_value": 100, "notes": ""},
+    "feasibility": {"pass": true, "measured_value": 100, "notes": ""},
+    "format_compliance": {"pass": true, "measured_value": 100, "notes": ""}
+  },
+
+  "cross_check_6axis": {
+    "kpi_definition": {"pass": true, "oracle_ref": "kpi-def-v3.2"},
+    "numeric_integrity": {"pass": true},
+    "client_master_match": {"pass": true, "match_rate": 1.0},
+    "schedule_alignment": {"pass": true},
+    "budget_alignment": {"pass": true},
+    "citation_integrity": {"pass": true}
+  },
+
+  "coverage_5systems": {
+    "normal": {"rate": 1.0, "sample_count": 20},
+    "boundary": {"rate": 0.85, "sample_count": 12},
+    "abnormal": {"rate": 0.55, "sample_count": 8},
+    "load": {"rate": 0.7, "sample_count": 5},
+    "recovery": {"rate": 0.6, "sample_count": 3}
+  },
+
+  "ai_generated_content_qa": {
+    "hallucination_check": {"executed": true, "primary_sources_verified": 12},
+    "owasp_llm_top10": {
+      "prompt_injection": "pass",
+      "sensitive_info_disclosure": "pass",
+      "overreliance": "conditional"
+    },
+    "llm_judge_consensus": {
+      "models": ["claude-opus-4.7", "gpt-5", "gemini-2.5-pro"],
+      "agreement_rate": 0.92,
+      "human_calibration": true
+    }
+  },
+
+  "risk_score": {"probability": 3, "impact": 4, "detectability": 2, "total": 24},
+  "review_scope_declaration": "full | diff-limited | retest-only | retest+regression",
+
+  "verified_scope": ["観点1", "観点2", "..."],
+  "unverified_scope": ["未検証範囲を明示"],
+  "assumptions": ["前提条件"],
+  "residual_risks": ["残存リスク"],
+
+  "issues": [
+    {
+      "severity": "blocker | major | minor",
+      "priority": "P0 | P1 | P2",
+      "category": "correctness | consistency | security | accessibility | legal | performance",
+      "description": "問題の説明",
+      "location": "該当箇所（行番号・スライド番号等）",
+      "oracle_reference": "照合したオラクル",
+      "recommendation": "改善提案",
+      "acceptance_criteria": "合格の定量条件（再提出時の機械判定用）"
+    }
+  ],
+
+  "feedback_4segments": {
+    "strengths": ["良い点3行"],
+    "quick_wins": ["30分で直せる軽微"],
+    "critical_fixes": ["リリース前必須"],
+    "next_iteration": ["次回改善案"]
+  },
+
+  "conditional_approve_conditions": [
+    {"item": "整合性は依存出力揃い次第", "verifier": "sora", "deadline": "YYYY-MM-DD", "status": "pending"}
+  ],
+
+  "audit_trail": {
+    "approver": "qa",
+    "approved_at": "...",
+    "oracle_versions": {"kpi_def": "v3.2", "client_master": "v2026-09-01"},
+    "auto_expire_on": ["kpi_def_change", "client_master_update"],
+    "slack_thread": "https://..."
+  },
+
+  "approved": true
+}
+```
+
+**LET事業ドメイン特化テンプレート補強**
+- **建設業採用支援**：求人原稿は労働条件明示（労基法15条）・年齢/性別限定表記NG・優良誤認表現NG・NG表現マスタ突合を `client_master_match` 拡張軸へ組込
+- **建設業DXシステム**：現場条件プリセット（直射日光下コントラスト・手袋タップ・通信断復帰）を `coverage_5systems.recovery` の分母に固定
+- **AI生成成果物**（SNS投稿・LP・提案書）：`ai_generated_content_qa` セクション必須、ハルシネーション裏取り＋OWASP LLM Top 10＋LLM-as-a-Judge 3モデル合議
+- **クライアント7社**：`cross_check_6axis.client_master_match` は7社台帳との文字列完全一致でmatch_rate=1.0以外はblocker
+- **Sora最終QA連携**：verdict/key_message/blocking_issues_countを先頭3項目に固定配置し、Soraが10秒で最終判断着手可能に
+
+**運用ゲート順序（オーバースペック標準）**
+1. 提出前ゲート：schema自動validation + 固有名詞マスタ完全一致 + 3点サマリー添付 + 出典・改訂日記載 → 未達は中身読まず自動差し戻し
+2. 中間QA（qa）：ISO 25010該当軸 + 5軸共通 + 6軸クロス + 5系統カバレッジ + AI生成物QA + WCAG監査
+3. 法務ゲート（nori）：対外配布物・AI生成物・素材権利
+4. 最終QA（sora）：verdict/key_message/blocking_issues_countの3点サマリー + 申し送り消込表（合格の定量条件・検証期限付き）
+5. 本番後（シフトライト）：Sentry/Datadog連携でescape rate自動計測 → 漏れた不具合は5軸へ即項目追加
