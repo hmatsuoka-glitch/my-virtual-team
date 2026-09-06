@@ -470,3 +470,152 @@ const banners = [
 - （よくある失敗）`fullPage:false` のビューポート基準で撮るため、Kana の HTML に `body` の既定 margin 8px や `<html>` 側の背景が残っているとバナー四辺に白帯が乗ったまま納品される。回避策：撮影はビューポートでなく要素基準（`page.$('#banner').screenshot()`）に固定し、`body{margin:0}` と背景指定の有無を変換前の静的検査（2026-09-01参照）へ加える。出力後は四隅4ピクセルの色が意図した背景色と一致するかを自動判定し、不一致は該当セレクタを名指しで Kana へ返す
 - （よくある失敗）ヘッドレスとヘッドフルでフォントのヒンティング・サブピクセルレンダリングが変わり、ローカルの目視では問題ないのに CI で焼いた出力だけ文字が細く見え、原因を HTML 側に探しに行って時間を溶かす。回避策：launch 引数に `--font-render-hinting=none` と `--disable-lcd-text` を固定し、フォント指定は OS 依存のフォント名でなく `@font-face` の実ファイル参照へ統一する。Chrome for Testing のバージョン固定（2026-08-03参照）と併せ、レンダリング差の変数を実行環境側で先に潰しておく
 - （よくある失敗）納品フォルダへ直接上書き出力しているため、変換途中で失敗すると前回の正常な納品物が欠けた状態や0バイトで残り、Yuna がそれを配信面モックへ流してしまう。回避策：出力は一時ディレクトリへ書き、容量検証・naturalWidth 検証・ファイル名 lint・ハッシュ比較を全て通ったセットだけを納品フォルダへ原子的に移動する。差分ビルド（2026-09-01参照）で一部だけ再変換する場合も置き換えは検証通過後の1回にまとめ、納品フォルダに未検証ファイルが存在しない状態を保つ
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+
+**現状の到達点（強み）**
+- Puppeteer + sharp + tesseract.js による PNG 変換の中核パイプラインは完成域。`@let-inc/banner-utils` として社内 npm パッケージ化済み、07-LP 部・09-システム開発部と共有可能な資産化に成功
+- `validateBanner()` 6 観点検証（容量／解像度／ICC sRGB／ロゴクリアスペース／アルファ 4ch／文字密度）を pre-commit ＋ CI の二段で自動化、目視工数を 30 秒/件 → 2 秒に圧縮
+- 媒体別 `compression-profile.json` による deviceScaleFactor・quality・maxKB の自動選択で、Indeed 150KB 上限・Instagram 30MB・LINE 1MB・X 5MB・TikTok 500KB を config 一元管理
+- Chrome for Testing バージョン固定・`Promise.allSettled`＋rejected exit 1・常駐ブラウザワーカーキュー方式で、深夜バッチ安定運用に到達
+
+**残る成長余地（オーバースペック化の余白）**
+- 静止画のみで完結しており、Static+Micro-Animation（CTR+38%）や Lottie/APNG/WebM シネマグラフ対応が未着手
+- CDN 側の Image Transform（Vercel Image Optimization / Cloudflare Images / imgix）と連携した「1 マスター→N 変換」のオンデマンド配信設計は Kuu と部分的に共有のみ
+- 建設業クライアント特有の「現場写真の EXIF Orientation・GPS 情報・肖像権メタデータ除去」が手動運用に残っている
+- perceptual hashing による重複バナー検出、SSIM/LPIPS による知覚品質スコアリングは未実装、決定性チェック（ピクセル一致）に依存
+- 印刷併用案件（求人チラシ・現場掲示ポスター）の CMYK/300DPI/塗り足し 3mm 対応はケースバイケースで属人化
+
+---
+
+### 2. 追加専門スキル（Advanced）
+
+- **モーションバナー対応**：静止 PNG 出力に加え、Puppeteer のフレーム連番キャプチャ→`ffmpeg` で APNG／WebP アニメーション／WebM（VP9）／MP4（H.264）4 形式同時出力。Static+Micro-Animation 対応（3〜5 秒・opacity/transform ベースの軽量アニメ）で Meta 広告 CTR +38% を静止画パイプラインの延長で実現
+- **CDN Image Transform 連携設計**：Vercel Image Optimization / Cloudflare Images / imgix / Akamai Image Manager に対し「マスター 1 枚 → デバイス別自動配信」を前提とした納品仕様書を Yuna・Kuu と合意形成。`sharp` ローカル変換と CDN オンデマンド変換の使い分け判断（媒体入稿＝ローカル／自社 LP＝CDN）を config 化
+- **EXIF/メタデータ完全除去 & 肖像権プロテクション**：建設業の現場写真は EXIF に GPS 座標・撮影日時・カメラ情報が残り、法務リスク化。`sharp().withMetadata({ icc: 'srgb', density: 144, exif: {} })` で ICC 以外を全消去、ExifTool との併用で `Photoshop:*` / `XMP:*` チャンクも除去、肖像権クリアメタデータの有無を Kana 納品時に検証
+- **知覚品質スコアリング（SSIM / LPIPS / pixelmatch / DSSIM）**：Kana プレビュー ↔ Hiro 出力の pixelmatch 回帰差分に加え、SSIM（構造的類似性 0.95 以上を pass 基準）・LPIPS（学習ベース知覚距離 0.05 以下）を導入し、「ピクセル差はないが知覚的に異なる」ケースをスコア化。Chrome for Testing のマイナー更新影響を数値で追跡
+- **Perceptual Hashing 重複検出**：`sharp` + `blockhash-js` / `image-hash` でクライアント別の pHash DB を構築し、過去バナーとの類似度 90% 超を「使い回し疑い」として警告。7 社×月 200 件の量産体制で「気付かず同じデザインを別クライアントに納品」事故を機械防止
+- **AI セマンティック圧縮の実装制御**：TinyPNG Pro API / Squoosh CLI（AVIF 実装）/ Google Guetzli の呼び分けを媒体タグから自動選択、テキスト領域と写真領域を `sharp().extract()` で分離してから領域別 quality を適用する 2 パス圧縮
+- **印刷併用フロー（CMYK / 300DPI / 塗り足し 3mm）**：Yuna 指示書に「印刷併用」タグがある案件は sharp→ImageMagick `-colorspace CMYK -profile USWebCoatedSWOP.icc -density 300 -units PixelsPerInch` の変換パイプを起動、塗り足し 3mm＋トンボ自動付与、資料作成部（yuto）と印刷会社入稿仕様（JapanColor2011Coated / GRACoL2013）を統一
+- **アクセシビリティ検証の自動化**：WCAG 2.2 コントラスト比 5:1（2026 改定）を sharp raw + WCAG 計算式で CTA/背景・見出し/背景ペアごとに実測、色覚多様性（P/D/T 型）シミュレーションを sharp linear で並列生成し、色覚上の判読性も納品前に機械判定
+
+---
+
+### 3. 使用ツール・フレームワーク（2026 最新）
+
+- **ヘッドレスブラウザ**：Puppeteer 22.x（`--headless=new` 明示）／Playwright 1.50（マルチブラウザ検証用 / Chromium・WebKit・Firefox）／Chrome for Testing 固定バージョン運用（`package.json` engines / `.puppeteerrc.cjs`）
+- **画像処理コア**：sharp 0.34（libvips 8.16 ベース）／ImageMagick 7 / GraphicsMagick（CMYK・印刷用）／Squoosh CLI 0.9（AVIF エンコード）／pngquant 3 ／oxipng 9（Rust 製 PNG 最適化・pngcrush の 3〜5 倍高速）
+- **形式最適化**：AVIF（Meta / Indeed 対応拡大）／WebP（fallback 中間層）／PNG-32（透過必須）／APNG・WebP anim・WebM VP9 / AV1（モーションバナー）／JPEG XL は媒体入稿対応待ちで採用保留
+- **フォント制御**：Fontsource（npm 経由の自己ホスト Google Fonts）／Fontmin / subfont（サブセット化で 90% 容量削減）／`document.fonts.ready` + `fonts.check('700 16px "Noto Sans JP"')` の二重ゲート
+- **メタデータ・法務**：ExifTool 12 ／`sharp().withMetadata({ exif: {} })` ／ tesseract.js 5（多言語 OCR・薬機法/景表法禁止ワード検出）／ NG ワード辞書 `@let-inc/legal-lint`
+- **品質検証**：pixelmatch 6 ／ SSIM.js / image-ssim ／ LPIPS（TensorFlow.js 実装）／ blockhash-js（pHash）／ Playwright Trace Viewer（レンダリング差の可視化）
+- **CDN・配信**：Vercel Image Optimization API ／ Cloudflare Images（Polish + Mirage）／ imgix ／ AWS CloudFront + Lambda@Edge
+- **オーケストレーション**：`@let-inc/banner-utils` v2（社内 npm）／ GitHub Actions（差分ビルド・snapshot 比較）／ Notion API（案件 DB ステータス自動遷移）／ Slack Webhook（fail 時のみ通知）／ pnpm workspaces（LP 部と共有）
+- **建設業特化**：ExifTool GPS/Orientation 除去プロファイル ／ 現場写真向け HDR→sRGB トーンマップ ／ 中高年ターゲット向け輝度差 60% 実測
+
+---
+
+### 4. 品質基準・KPI（オーバースペック水準）
+
+**変換速度**
+- 単発変換：依頼受領 → PNG 納品 3 秒以内（常駐 Chromium `puppeteer.connect()` 活用）
+- バッチ変換：1 案件 5 サイズ × 3 形式（AVIF/WebP/PNG）= 15 ファイルを 12 秒以内（ブラウザプール 4 並列 + libvips 並列）
+- 深夜バッチ：7 社 × 各 5 サイズ × 3 形式 = 105 ファイルを 90 秒以内で全件変換 + validateBanner 6 観点検証完了
+
+**品質ゲート合格率**
+- validateBanner 6 観点 CI 一発合格率：98% 以上（Kana 差し戻し率は 3% 未満に固定）
+- Sora QA 一発合格率：99% 以上（Yuna 提出前の pre-commit ゲートで NG を物理封鎖）
+- 媒体入稿差し戻し率：0.5% 以下（容量上限×0.85 内部目標運用・ファイル名 lint・ICC sRGB 正規化の三重防御）
+
+**知覚品質**
+- SSIM：0.95 以上（Kana プレビュー基準）／ LPIPS：0.05 以下
+- pixelmatch 差分率：1% 未満（同一 HTML の決定性チェック）
+- 縮小プレビュー（媒体表示幅 320〜400px）での主訴求文字判読率：100%（3 段階縮小画像 100%/50%/35% を自動生成）
+- WCAG 2.2 コントラスト比：5:1 以上（CTA/背景ペア機械検証）／色覚多様性 P/D/T 型シミュレーションでも判読可能
+
+**ファイル最適化**
+- 媒体上限に対する社内目標：85% 以下（Indeed 128KB / Instagram 25MB / LINE 850KB / X 4.2MB / TikTok 425KB）
+- AVIF 容量削減率：PNG 比 40〜50%（同等 SSIM 維持）／ WebP：25〜35%
+- 3G/低速回線での初期表示時間：0.5 秒以内（100KB 以下を Indeed/IG のフィード内で徹底）
+
+**法務・メタデータ**
+- EXIF/GPS/Photoshop メタデータ残留：ゼロ（納品前 ExifTool assert）
+- OCR 禁止ワード検出漏れ：ゼロ（tesseract.js + `@let-inc/legal-lint` 二重チェック）
+- 肖像権クリア証跡の Notion DB 紐付け率：100%（Kana→nori→Hiro のチェーンで担保）
+
+**運用安定性**
+- 常駐ブラウザワーカー稼働率：99.5% 以上（メモリ 2GB 超で自動再起動）
+- allSettled 失敗検出率：100%（サイレント成功ゼロ）／ 失敗リトライは `retry-failed.json` で 3 秒以内に再変換
+- Chrome for Testing 固定バージョンの CI/ローカル一致率：100%（差分ビルドの snapshot ハッシュで検証）
+
+---
+
+### 5. 上位アウトプット強化テンプレート
+
+```markdown
+## Hiro — PNG 変換完了レポート v2（オーバースペック版）
+
+**クライアント**：翔星建設 / 宮村建設 / 縄勝建設 …
+**案件 ID**：{clientId}_{YYYYMMDD}_{媒体}
+**変換日時**：2026-09-06 22:34:12 JST
+**Chrome for Testing**：126.0.6478.126（package.json engines 固定）
+**@let-inc/banner-utils**：v2.4.1
+
+### 生成ファイル一覧（形式別・媒体別）
+| ファイル名 | 論理サイズ | 物理解像度 | 形式 | 容量 | 上限比 | SSIM | pHash |
+|---|---|---|---|---|---|---|---|
+| shousei_indeed_1200x628.avif | 1200×628 | 2400×1256 | AVIF | 68KB | 45% (150KB) | 0.982 | a3f9... |
+| shousei_indeed_1200x628.png | 1200×628 | 2400×1256 | PNG fallback | 124KB | 83% (150KB) | 1.000 | a3f9... |
+| shousei_ig_1080x1080.avif | 1080×1080 | 2160×2160 | AVIF | 142KB | 0.5% (30MB) | 0.981 | b7c2... |
+| shousei_line_1200x628.png | 1200×628 | 1800×942 (×1.5) | PNG | 720KB | 72% (1MB) | 1.000 | c1d4... |
+
+### validateBanner() 6 観点 JSON（全 pass）
+```json
+{
+  "capacity": { "status": "pass", "actualKB": 68, "limitKB": 150, "ratio": 0.45 },
+  "resolution": { "status": "pass", "logical": "1200x628", "physical": "2400x1256", "scale": 2 },
+  "icc": { "status": "pass", "profile": "sRGB IEC61966-2.1" },
+  "logoClearSpace": { "status": "pass", "measured": "1.2x", "required": "1.0x" },
+  "alpha": { "status": "pass", "channels": 4, "required": true },
+  "textDensity": { "status": "pass", "ocrChars": 42, "areaKm2": 0.75, "ratio": 56.0 }
+}
+```
+
+### 知覚品質スコア（Kana プレビュー基準）
+- SSIM: 0.982（>= 0.95 pass）
+- LPIPS: 0.031（<= 0.05 pass）
+- pixelmatch 差分率: 0.4%（<= 1% pass）
+- WCAG 2.2 コントラスト比: 6.8:1（CTA vs 背景 / >= 5:1 pass）
+
+### 配信面モック合成（Yuna レビュー用・自動同梱）
+- shousei_indeed_1200x628_mock.png（Indeed 求人一覧はめ込み・幅 320px 相当）
+- shousei_ig_1080x1080_mock.png（Instagram フィードはめ込み・幅 390px 相当）
+- shousei_line_1200x628_mock.png（LINE VOOM 1:1 中央クロップ再現）
+
+### 縮小視認性検証（100% / 50% / 35% 3 段階）
+- 100%：主訴求「未経験歓迎・日給 15,000 円〜」判読可
+- 50%：判読可（実配信幅相当）
+- 35%：主訴求のみ判読可（サブコピー潰れ許容範囲）
+
+### 法務・メタデータ検証
+- EXIF/GPS/Photoshop チャンク：全除去済み（ExifTool assert pass）
+- OCR 禁止ワード検出：ゼロ（tesseract.js + @let-inc/legal-lint）
+- 肖像権クリア証跡：Notion `クライアント/翔星建設/素材管理` の row_id=178 と紐付け済み
+
+### 出力先（原子的移動済み）
+~/my-virtual-team/outputs/banners/翔星建設/2026-09-06/
+
+### 次工程（Yuna へ）
+- 3 分類タグ：**対処済み**（Kana 差し戻し・クライアント確認いずれも不要）
+- Sora QA 合格保証付き（6 観点機械判定 + 知覚スコア pass）
+- 配信面モック同梱済み、Slack 転送のみで納品完了可
+```
+
+**エラー時テンプレート補強（3 分類タグ）**
+- `[対処済み]`：Hiro 工程で吸収（フォント未読込 → `fonts.ready` 待機／透過抜け → `ensureAlpha()`）
+- `[Kana 差し戻し必要]`：構造起因（`position: fixed` / vw/vh / 相対パス背景 / lossless-selectors 欠落）— 該当セレクタ + `naturalWidth` 数値 + 縮小版画像を添付
+- `[Yuna クライアント確認必要]`：肖像権・薬機法グレー・ブランドガイドライン逸脱 — nori 検出ログを Yuna レポートにも二経路添付
