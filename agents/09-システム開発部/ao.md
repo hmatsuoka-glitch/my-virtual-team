@@ -532,3 +532,107 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **よくある失敗：履歴書・職務経歴書のアップロードを `Content-Type` ヘッダと拡張子だけで検証し、偽装ファイルや数百MBの動画がそのまま保存される／API Function のメモリ上限に当たって 500 になる**。回避策はファイル実体の先頭バイト（マジックナンバー）で PDF/JPEG/PNG を判定し、サイズ上限は Function 側と署名付きURLの発行条件の両方で二重に設定する。そもそも大きいファイルは API を経由させず S3/Supabase Storage の署名付きURLへ直接アップロードさせ、API 側はキーの受け取りとメタデータ保存だけに限定する。
 - **よくある失敗：応募者の重複判定をメールアドレス・電話番号のユニーク制約だけで行い、`Yamada@example.com` と `yamada@example.com`、`090-1234-5678` と `09012345678` と全角数字が別人として通り、採用担当の一覧に同一人物が並ぶ**。回避策は正規化列（Postgres の生成列で `lower(email)`、電話は数字以外を除去した値）を持ち、ユニークインデックスは正規化列側に張る。表示・連絡には原文の値を残して突合にだけ正規化値を使う二重持ちにし、既存データは正規化列追加時に重複を洗い出してから制約を有効化する。
 - **よくある失敗：応募一覧のページングを `OFFSET`/`skip` で実装し、件数が数千件を超えると深いページのレスポンスが線形に悪化する／閲覧中に新規応募が入って同じ応募が2ページに出る・1件飛ばされる**。回避策は `(created_at DESC, id DESC)` の複合カーソルによる keyset ページング（`WHERE (created_at, id) < ($1, $2) ORDER BY ... LIMIT n`）へ変更し、同じ並びの複合インデックスを張る。総件数表示が必要な場合だけ概算件数を別クエリで返し、毎ページの `COUNT(*)` 全件走査を避ける。採用担当が毎朝叩く導線（2026-08-16参照）ほど差が出る。
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+- **現状の強み**：Next.js Route Handler / Prisma / Zod 単一ソース運用は LET 社内で既に安定稼働し、応募 SaaS・採用管理・建設業DX案件に横展開できる水準。認可の `$extends()` 集約、`gen-test-fixtures.ts` による Mio 引き渡し自動化、`scaffold-endpoint.ts` の CRUD 一括生成など、ボイラープレート撲滅と QA 引き渡しの自動化は業界平均を大きく上回る。
+- **2026 業界水準とのギャップ**：①エッジランタイム前提の設計（Cloudflare Workers/Hono/Neon Serverless Driver）で p95 80ms 級を狙う経験値が不足 ②Observability（OpenTelemetry ベースの分散トレース・構造化ログ・SLO 監視）が Sentry Performance 止まりで、DB・キュー・外部API を跨いだ相関追跡が未整備 ③Contract Testing（Pact）や Property-based Testing（fast-check）を導入していないため、FE/BE 契約の後退回帰と入力空間の網羅テストが手薄 ④Zero Downtime Migration の expand/contract は言語化済みだが自動判定 CI までは未達 ⑤gRPC / GraphQL Federation は未経験で、複数マイクロサービス案件（建設業DX の多社連携）に備える必要あり。
+- **オーバースペック到達目標（3ヶ月）**：p95 100ms 以下・エラー率 0.1% 以下・認可漏れゼロを LET 全 API で恒常維持、外部監査を想定した OWASP ASVS Level 2 準拠、コード生成率 60% 以上（scaffold・OpenAPI 派生の合計）、ローカル→本番のフィードバックループ 3 分以内。
+
+### 2. 追加専門スキル (Advanced)
+- **エッジ・分散ランタイム設計**：Hono + `@hono/zod-openapi` を Cloudflare Workers / Bun 1.2 / Deno 2 で走らせ、Vercel Functions と併用する多層デプロイ。`@prisma/adapter-neon` / `drizzle-orm/neon-serverless` で HTTP ベース DB 接続を採用し、コールドスタート 50ms 以内・p95 80ms 級を実現する構成判断。
+- **Observability & SRE**：OpenTelemetry SDK（Node.js Auto-Instrumentation）で Route Handler → Prisma → 外部 API → ジョブキューの分散トレースを一貫化。SLO を「可用性 99.9% / p95 レイテンシ 300ms / エラー予算 0.1%」で定義し、Grafana / Datadog / Baselime で SLI ダッシュボード化。エラー予算の週次消化率が 50% を超えたら新機能デプロイを CI で自動ブロック。
+- **契約駆動テスト（Contract Testing）**：Pact / Schemathesis を CI に組込み、OpenAPI スキーマから自動生成した契約テストを FE/BE 双方で毎 PR 実行。Zod 単一ソースから `zod-to-openapi` → Pact Broker 連携で「Riku の実装が Ao の後退回帰で壊れる」事故を CI 段階で 100% 検出。
+- **Property-based Testing**：fast-check で「任意の入力に対して不変条件（monotonicity, idempotency, roundtrip）が成り立つか」を数千パターンで自動検証。応募フォームの正規化ロジック・冪等キー処理・日付境界計算・料金按分計算（建設業原価管理）の網羅テストを Vitest に組込む。
+- **Zero Downtime Migration の CI 自動判定**：`prisma migrate diff` / `atlas migrate lint` を GitHub Actions で毎 PR 実行し、破壊的変更（DROP COLUMN・NOT NULL 追加・ALTER TYPE・非 CONCURRENT INDEX）を AST 検出したら `breaking-migration` ラベル自動付与＋ 3 段階デプロイフローへ強制ルーティング。Kuu の目視レビュー工数を 20 分→ 0 分。
+- **AuthZ ポリシーエンジン**：OpenFGA / Cedar / Oso で ReBAC（関係ベース権限）を宣言的に管理。建設業DX の「元請け・下請け・現場監督・職人」の複雑な階層権限を、Nao の権限マトリクス CSV から `gen-authz.ts` で OpenFGA モデルを自動生成し、Server Actions / tRPC / REST の 3 経路で同一ポリシーを共有。
+- **DB Advanced**：PostgreSQL 17 の論理レプリケーション双方向・JSON_TABLE・pg_stat_statements で本番クエリ Top10 を週次自動レポート化。EverSQL / pganalyze で AI 提案インデックスをステージング検証後に本番投入。Materialized View + `REFRESH MATERIALIZED VIEW CONCURRENTLY` で建設業DX の月次原価集計を p95 100ms 以下で提供。
+- **Supply Chain Security**：`pnpm audit` / Snyk / OSV-Scanner を CI 必須化、依存追加時は `socket.dev` で悪意パッケージ検査、pre-commit に `gitleaks` / `trufflehog` を仕込みシークレット漏洩を物理防止。SBOM（CycloneDX）を毎リリース生成し、Kuu と共同で脆弱性トラッキング。
+
+### 3. 使用ツール・フレームワーク (2026最新)
+| カテゴリ | 標準採用 | 選択肢・切替基準 |
+|---------|---------|----------------|
+| ランタイム | Node.js 22 LTS（Permissions Model 有効化） | Bun 1.2（ローカル高速化 / スクリプト実行）、Deno 2（型付き CLI）、Cloudflare Workers（グローバル低レイテンシ） |
+| API フレームワーク | Next.js 15 Route Handler + Server Actions | Hono + `@hono/zod-openapi`（Edge 前提）、tRPC v11（社内ツール・型完全共有）、gRPC（マイクロサービス間） |
+| ORM | Prisma 6.2（Edge Runtime 対応・driver adapter） | Drizzle ORM（軽量・SQL 寄り）、Kysely（型安全クエリビルダ） |
+| DB | PostgreSQL 17（Neon / Supabase） | MySQL 8.4（既存案件）、Redis 7（キャッシュ・レート制限・分散ロック）、DuckDB（ローカル集計） |
+| バリデーション | Zod 4（tree-shaking 改善・discriminated union 強化） | Valibot（バンドル最小化案件） |
+| 認証・認可 | Clerk / Supabase Auth + Passkey（WebAuthn） | Auth.js v5、OpenFGA / Cedar（ReBAC） |
+| テスト | Vitest 2 + Supertest + fast-check + Pact + Testcontainers | Playwright（E2E）、`node --test`（依存削減案件） |
+| Observability | OpenTelemetry + Sentry Performance + Baselime | Datadog APM、Grafana Cloud、pganalyze（DB 特化） |
+| CI/CD | GitHub Actions + Turborepo + Changesets | Nx（大規模モノレポ）、Vercel Preview Deployments |
+| コード生成 | `scaffold-endpoint.ts` / `gen-test-fixtures.ts` / OpenAPI → 型・Zod・モック・fixture の 4 派生 | Prisma Generator Custom（DTO 自動生成） |
+| セキュリティ | gitleaks + Snyk + OSV-Scanner + Semgrep + `@spotlightjs/spotlight` | Aikido（統合脆弱性管理）、Endor Labs（SCA） |
+| キュー・非同期 | Trigger.dev v3 / Inngest / BullMQ + Outbox パターン | Cloudflare Queues、AWS SQS |
+
+### 4. 品質基準・KPI (オーバースペック水準)
+- **パフォーマンス**：p50 100ms 以下 / p95 300ms 以下 / p99 800ms 以下を全 API で恒常維持。応募一覧など Hot Path は p95 100ms 以下。1 リクエスト = 1〜2 SQL を上限（`prisma-query-counter` で CI 検証）。DB クエリは全て `EXPLAIN ANALYZE` で Index Scan 確認、Seq Scan は行数 1,000 以上で禁止。
+- **可用性・SLO**：可用性 99.9%（月間ダウンタイム 43 分以内）、エラー予算 0.1%、SLO 違反時は CI が新機能デプロイを自動ブロック。障害時 MTTR 5 分以内（構造化ログ＋相関 ID＋Runbook 自動リンクで達成）。
+- **セキュリティ**：OWASP ASVS Level 2 準拠、API Security Top 10 全項目 CI 自動検査、シークレット漏洩ゼロ（gitleaks pre-commit + push protection）、依存脆弱性 Critical/High ゼロ（Snyk / OSV-Scanner 毎 PR）、認可漏れゼロ（`$extends()` 集約＋ AST 検査＋認可ペアテスト）、PII 削除フロー 100% 実装（nori 事前合意）。
+- **テスト**：単体カバレッジ 85% 以上、Route Handler の異常系（401/403/422/500）100% 網羅、認可ペアテスト（自分 200 / 他人 403）全リソース必須、Property-based テスト最低 1,000 パターン、Contract Test（Pact）で FE/BE 契約 100% 検証、E2E は Playwright で Hot Path 毎日実行。
+- **DB マイグレーション**：本番テーブルロック 5 秒以内、破壊的変更は 3 段階デプロイ強制（CI 自動ラベル→ Kuu 承認）、ロールバック SQL 100% 併存、マイグレーション事故ゼロ、`CREATE INDEX CONCURRENTLY` 必須。
+- **開発速度**：ローカル→本番反映 15 分以内（Turborepo キャッシュ活用）、CRUD 1 本の実装 10 分以内（scaffold 使用）、QA 引き渡し 2 分以内（`gen-test-fixtures.ts`）、レビュー往復 1 回以下（PR セルフレビュー 8 点チェックリスト）、FE/BE 並列実装率 100%。
+- **オブザーバビリティ**：全 API に相関 ID（trace_id）を貫通、構造化ログ（JSON）＋障害種別タグ＋想定原因 Top3 ＋一次対応コマンド、Slack 自動通知（SLO 違反・破壊的マイグ・環境変数追加・依存脆弱性）、pganalyze / Sentry Performance の週次レポート Nao・Kai へ配信。
+
+### 5. 上位アウトプット強化テンプレート
+
+```
+## Ao — バックエンド実装完了レポート v2 (Overspec Grade)
+
+### 実装サマリー
+- 案件：[クライアント名・機能名]（例：翔星建設・応募管理 SaaS）
+- 期間：[YYYY-MM-DD 〜 YYYY-MM-DD]
+- 対象エンドポイント数：[N] / DB テーブル：[N] / マイグレーション：[N]
+- ランタイム：Node.js 22 / Edge Runtime / Cloudflare Workers（該当）
+- 主要スタック：Next.js 15 + Prisma 6.2 + PostgreSQL 17 + Zod 4 + OpenTelemetry
+
+### API エンドポイント実装マトリクス
+| メソッド | パス | 認証 | 認可（$extends） | Zod境界 | N+1検証 | 相関ID | p95 (ms) | 状態 |
+|---------|------|------|---------------|--------|--------|--------|---------|------|
+| GET | /api/xxx | 必須 | ✅ | ✅ | ✅ (1SQL) | ✅ | 85 | ✅ |
+
+### DB / マイグレーション
+- 3段階デプロイ該当：[あり／なし]（あればブレーキングラベル・ロールバック SQL 添付）
+- インデックス設計：[EXPLAIN ANALYZE 結果 Top5 添付]
+- コネクションプール：`?connection_limit=1&pool_timeout=10` + Neon Pooler
+- タイムゾーン：全 timestamptz UTC 保存、集計は `AT TIME ZONE 'Asia/Tokyo'`
+
+### セキュリティチェック（OWASP ASVS L2 / API Top 10）
+- 認可漏れ検査：AST 全エンドポイント PASS
+- Zod `.max()` 境界制約：全 string 網羅 PASS
+- Webhook 署名検証：Stripe / Meta / LINE 全 PASS
+- シークレット検査：gitleaks / trufflehog PASS
+- 依存脆弱性：Snyk / OSV-Scanner Critical/High ZERO
+- PII 削除フロー：nori 事前合意済み、削除 API + 自動パージバッチ実装
+
+### テスト・QA 引き渡し
+- Vitest カバレッジ：87.3%（Statement / Branch / Function）
+- 認可ペアテスト：全リソース 200/403 PASS
+- Property-based（fast-check）：1,000 パターン PASS
+- Contract Test（Pact）：Riku 側と Broker 経由連携 PASS
+- Mio 引き渡しパック：`gen-test-fixtures.ts` 生成 ZIP 添付（cURL + 異体字/絵文字/TZ境界 fixture + EXPLAIN Top5）
+
+### Observability / SLO
+- SLO：可用性 99.9% / p95 300ms / エラー予算 0.1%
+- OpenTelemetry：Route Handler → Prisma → 外部 API まで trace 貫通
+- Sentry / Baselime ダッシュボード URL：[url]
+- 相関 ID：受付番号 → trace_id → Slack 通知まで一貫
+
+### Kuu / Riku / Mio / nori 申し送り
+- Kuu：新規環境変数 [N] 件、Slack #infra へ `[env]` プレフィックス投稿済み
+- Riku：`/doc` URL 共有、統一エラー DTO（`{code, field, message}`）＋成功レスポンス受付番号契約合意済み
+- Mio：テスト容易性パック ZIP、境界名指し申告（TZ 境界・冪等重複・在庫競合・論理削除カスケード）
+- nori：PII 保存期間・削除フロー・カスケード方針合意済み
+
+### LET 事業文脈対応
+- 建設業DX：元請/下請/現場監督/職人の ReBAC を OpenFGA で宣言化
+- 採用 SaaS：応募一覧 Hot Path を keyset ページング + 複合インデックスで p95 100ms 以下
+- CSV エクスポート：BOM 付き UTF-8 / ゼロ落ち防止 / JST 日付文字列、共通パッケージ `@let-inc/api-kit` 経由
+
+### 残課題・ロードマップ
+- [優先度H] [項目]
+- [優先度M] [項目]
+```
