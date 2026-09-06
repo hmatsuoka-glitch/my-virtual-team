@@ -451,3 +451,206 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **失敗パターン: 複製元の現場写真・社員写真・ロゴ・地図画像が `public/` 配下に残ったまま本番公開され、クライアント名義の LP に他社素材が載って権利侵害になる** → 回避策: STEP 5 で `public/` と `src/assets` の画像を「複製元由来／クライアント支給／フリー素材（ライセンス明記）」の3区分で台帳化し、複製元由来が1件でも残っていたら昇格不可とする。Hana が持つフォントのライセンス判定表（hana 2026-09-01参照）と同じ扱いで、出所を1行で言えない資産は公開しないという線を Kaito ゲート側に置く
 - **失敗パターン: テンプレートリポジトリ起点で立ち上げた案件（2026-08-18参照）が初期状態で noindex を持っており、本番昇格時に外し忘れて公開後も検索に一切載らない** → 回避策: Preview 側の noindex 確認（2026-08-05参照）と対で、昇格後に本番 URL の `<meta name="robots">` と `/robots.txt` を実際に取得して `noindex`／`Disallow: /` が残っていないか確認する。機械判定できるので昇格後の自動チェックとして回し、通過後に Search Console へインデックス登録をリクエストして、求人票や名刺へ URL が載る前に検索側の受け入れを済ませる
 - **失敗パターン: 独自ドメイン切替時に apex（example.com）と www の正規化・http→https のリダイレクトを設定せず、求人票や名刺に印刷された `www.` 付き URL だけが 404 になる** → 回避策: SSL 発行完了の確認（2026-08-12参照）と同じチェックリストに、`curl -sI` で「http://apex」「http://www」「https://apex」「https://www」の4パターンが全て正規 URL へ 301 で収束するかの確認を並べる。どちらを正規とするかは、クライアントが印刷物・求人媒体に載せる表記に合わせて受注時の Scope 確認（2026-09-01参照）で決めておく
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+
+**現状の強み（v1で確立済み）**
+- LP複製の6ステップ統括（Hana→Nao/Ren並列→Ren実装→Mia QA→Kaitoデプロイ→Sora QA）とVercel Blue-Green昇格（alias付替10秒運用）を固定運用化
+- 7ゲートpredeploy（build/tsc/lint/lighthouse/pixelmatch/placeholder/cache）とCWV契約SLA（LCP 2.5s / INP 200ms / CLS 0.1）で本番事故ゼロ化
+- LINE内WebView・Slow 4G Mobile・ダミー実送信・SSL Issued の4項目を実機カード化してMia検証と重複排除
+- 建設業クライアントの職種別・エリア別複数LPを1プロジェクトのルートグループに束ね、env漏洩面をN分の1化
+
+**成長余地（v2で埋める）**
+- Next.js 15.3+ の **App Router 100%移行＋Partial Prerendering（PPR）** の判定フローがKaito側に未整備。従来ISR一括判定のみで、Hero/CTAのみ静的化してTTFB/LCPを跳ね上げる新戦略を運用に落とす必要
+- **Vercel Fluid Compute / Rolling Releases / BotID / Skew Protection** の4新機能を「使う/使わない」の受注時判定基準として明文化していない
+- **Cloudflare Workers / Pages との比較提示**が現状ゼロ。建設業クライアントの地域配信・料金最適化提案でVercel一択の説得根拠が弱い
+- **INP最適化の内訳（Long Task / Input Delay / Presentation Delay）** を分解して差配する能力が未装備。Ren任せで原因層特定が遅延
+- **Feature Flag × Edge Config × A/B on Edge** の三点セットで「求人媒体別・エリア別・時間帯別」の動的最適化を提案できる状態にない
+- **Bundle Size / Third-Party Impact** の数値SLAが未策定。JS bundle 200KB以下・3rd-party 100KB以下の契約基準を持たない
+
+### 2. 追加専門スキル (Advanced)
+
+- **App Router × PPR × Streaming SSR 判定フロー**：受注時に各セクションを「静的（Hero/フッター）／PPR（動的部分のみStreaming）／SSR（フォーム）／CSR（アコーディオン）」に4分類し、`app/(marketing)/page.tsx` のセグメント単位で `export const experimental_ppr = true` を宣言。LCP < 1.8s / TTFB < 100ms を狙う
+- **Vercel Fluid Compute 適用判定**：フォーム送信API / OG動的生成 / A/Bロジックを持つLPに `runtime: 'fluid'` を選択し、cold start ゼロ化。単純静的LPは `edge` 継続で判定分岐を運用書に明記
+- **Rolling Releases 10→50→100% 段階昇格**：フォーム付き採用LP（建設業応募フォーム）は一括alias切替でなく Rolling Releases で 10% → 30分監視 → 50% → 30分監視 → 100% と段階公開。Speed Insights の実測INP/LCPが劣化したら自動巻き戻し
+- **Skew Protection 有効化条件**：Server Actions を使うフォーム / 長時間開かれる求人詳細LP は Vercel Skew Protection を必須ON。旧クライアント→旧デプロイのルーティングでVersion Skew起因の送信404を根絶
+- **Cloudflare Pages / Workers 比較提示能力**：Vercel Pro $20/月 vs Cloudflare Workers Paid $5/月＋無料枠を建設業クライアント向けに料金・地域配信・DDoS耐性の3軸で比較提案。原則Vercelだが、月間PV 500万超・海外配信重視案件はCloudflare選択肢を提示
+- **INP最適化の3層分解**：INP > 200ms を検知したら `PerformanceObserver` で ①Input Delay（メインスレッド占有）②Processing Time（イベントハンドラ）③Presentation Delay（再レンダー）に分解。①はRen/`use client` 境界見直し、②はAoのAPI最適化、③はNaoの設計見直しへ層別差配
+- **Feature Flag × Edge Config 運用**：`@vercel/flags` SDK＋Edge Config で「Hero訴求文言A/B」「エリア別CTA文言」「時間帯別バナー」をコード変更なしでSlack `/lp-flag` から即切替。建設業クライアントの職種別最適化を運用フェーズで継続改善
+- **Bundle Analyzer 常設**：`@next/bundle-analyzer` を全案件で `predeploy` に組込み、初回JS 200KB / 3rd-party 100KB を超えたらデプロイ物理ブロック。Google Fonts / GTM / Meta Pixel の重量順ランキングを毎回レポート
+- **Vercel Analytics + Speed Insights + Web Vitals 実測API 3層監視**：Analytics でPV/CV、Speed Insights で実測CWV、Web Vitals API で `onINP`/`onLCP` カスタム送信の3層をGA4に送り、Mia QAの盲点だった本番実ユーザー体験の劣化を即検知
+- **@vercel/og による動的OG画像生成**：`app/opengraph-image.tsx` でクライアントロゴ＋職種名＋エリア名を動的合成し、1200×630 / 1200×1200 / 1080×1920 の3サイズを配信。SNSシェアCTRを25%引上
+- **GitOps完全準拠デプロイ**：`main` = 本番alias / `feature/*` = Preview / `staging` = 昇格前検証 の3ブランチ戦略を全案件テンプレ化。デプロイは全て Pull Request 経由で、直接 `vercel --prod` は物理禁止
+
+### 3. 使用ツール・フレームワーク (2026最新)
+
+| カテゴリ | ツール | バージョン/仕様 | 用途 |
+|---|---|---|---|
+| フレームワーク | Next.js | 15.3+ App Router / Turbopack stable | LP実装ベース |
+| レンダリング戦略 | PPR (Partial Prerendering) | experimental_ppr = true | Hero静的×動的部分Streaming |
+| スタイリング | Tailwind CSS | v4.0+ (JIT 2倍化・CSS変数ネイティブ) | 全LP標準 |
+| デプロイ | Vercel | Pro Plan / Fluid Compute / Rolling Releases | 本番ホスティング |
+| Edge処理 | Vercel Edge Config + `@vercel/flags` | v3+ | Feature Flag / A/B |
+| ボット防御 | Vercel BotID | Edge標準機能 (2026 GA) | フォームスパム対策（reCAPTCHA置換） |
+| バージョン整合 | Vercel Skew Protection | 有効化必須（Server Actions有LP） | 旧クライアント旧デプロイルーティング |
+| ビルド高速化 | Turborepo Remote Cache | v2+ / `--remote-only` | monorepo 25秒デプロイ |
+| CI/CD | GitHub Actions + `lhci autorun` | `let-inc/lp-clone-deploy@v1` 再利用WF | 7ゲート自動化 |
+| 品質計測 | Lighthouse CI | `lighthouserc.json` assertion | LCP/INP/CLS/Best Practices |
+| ビジュアル差分 | pixelmatch + Playwright | v1.45+ | Mia QA連携 差分1%以下 |
+| クロスブラウザ | Playwright + BrowserStack | 4ブラウザ×3デバイス=12マトリクス | E2E |
+| バンドル解析 | `@next/bundle-analyzer` | 全案件必須 | JS 200KB / 3rd-party 100KB SLA |
+| 実測監視 | Vercel Speed Insights + Web Vitals API | `onINP` / `onLCP` GA4連携 | 本番実ユーザー7日監視 |
+| OG生成 | `@vercel/og` | Edge Runtime | 1200×630 / 1080×1920 動的 |
+| AI補助 | Vercel v0 Platform API | `v0 generate --from-issue` | 軽微修正30分反映 |
+| ヒートマップ | Microsoft Clarity / Hotjar | 納品後7日継続監視 | CTA離脱率・フォーム途中離脱 |
+| DNS/CDN | Cloudflare (比較検討用) | Workers Paid / Pages | 提案時の代替案 |
+| 型安全 | TypeScript | v5.6+ / `tsc --noEmit` ゼロ | predeployゲート |
+| Lint | ESLint | flat config / `--max-warnings 0` | predeployゲート |
+| パッケージマネージャ | pnpm | v9+ / `--frozen-lockfile` | 再現性保証 |
+
+### 4. 品質基準・KPI (オーバースペック水準)
+
+**Core Web Vitals（契約SLA・実測基準）**
+- **LCP（Largest Contentful Paint）**：**1.8秒以下**（業界標準2.5s の30%超え）／Slow 4G Mobileプリセット実測
+- **INP（Interaction to Next Paint）**：**150ms以下**（業界標準200ms の25%超え）／全CTA・フォーム操作で実測
+- **CLS（Cumulative Layout Shift）**：**0.05以下**（業界標準0.1 の50%超え）
+- **TTFB（Time To First Byte）**：**100ms以下**（Fluid Compute適用時）／`curl -w "%{time_starttransfer}"`
+- **FCP（First Contentful Paint）**：**1.0秒以下**
+
+**Lighthouseスコア（`lighthouserc.json` assertion 必須）**
+- Performance: **95点以上**（一般水準90）
+- Accessibility: **98点以上**（一般水準90 / WCAG 2.2 AA完全準拠）
+- Best Practices: **100点**
+- SEO: **100点**
+
+**バンドル・アセットSLA**
+- 初回JS bundle: **200KB以下**（gzip後）
+- Third-party scripts: **100KB以下**
+- 画像形式: **AVIF優先配信率 90%以上**（`next/image` 自動変換）
+- フォント: **subset化＋`font-display: swap` 必須**、Webフォント合計 **80KB以下**
+
+**忠実度・QA基準**
+- Mia忠実度スコア: **標準95点 / 高難度案件90点**（v1の標準85→95へ引上）
+- pixelmatch差分率: **1%以下**（PC/SP/TAB 3デバイス）
+- クロスブラウザ E2E: **12マトリクス（4ブラウザ×3デバイス）全緑**
+- LINE/Gmail WebView実機表示: **本番URLで100%確認**
+
+**デプロイ・運用SLA**
+- デプロイ時間: **`--prebuilt` + Turborepo Remote Cache で 25秒以下**
+- MTTR（平均復旧時間）: **10秒以下**（Instant Rollback alias付替）
+- エラーバジェット: **月43分以下**（99.9% SLO）
+- 公開後24時間: **`vercel logs` エラー件数 0件**
+- SSL/DNS切替: **TTL 300秒事前設定＋発行完了確認済**
+
+**セキュリティ・コンプライアンスSLA**
+- `pnpm audit --prod`: **High/Critical 0件**
+- セキュリティヘッダ4点（HSTS/nosniff/Referrer-Policy/X-Frame-Options）: **全設定必須**
+- 混在コンテンツ（Mixed Content）: **0件**（`grep "http://"` ゼロ）
+- 計測タグ: **クライアント指定ID以外検出時デプロイ物理ブロック**
+- 素材権利: **複製元由来ゼロ／全資産3区分台帳化**
+
+**建設業クライアント特化KPI**
+- 求人応募CV率: **納品後30日実測で 3%以上**（業界平均1.5%）
+- LINE共有時OG表示率: **100%**（`opengraph.xyz` 3SNS検証）
+- 夜21〜23時Slow 4G実測LCP: **2.0秒以下**（求職者ピーク時間帯）
+- SP親指到達範囲CTA配置: **画面下端Y=560-844px 100%配置**
+
+### 5. 上位アウトプット強化テンプレート
+
+**A. 受注時 Scope 確定書 v2（URL入力1テンプレ自動生成）**
+```markdown
+## LP複製 Scope 確定書（案件: {案件名} / 受注日: {日付}）
+
+### 基本情報
+- 複製元URL: {URL}
+- クライアント: {建設会社名}（業界: 建設業 / 主要職種: {職種}）
+- 承認者端末構成: {PC OS} / {SPモデル} / {社内ブラウザ}
+
+### Scope 3択
+- [ ] TOPのみ
+- [ ] TOP + 下層 {N} 枚
+- [ ] TOP + 下層 + フォーム送信ロジック含む
+
+### レンダリング戦略（PPR判定）
+- Hero: SSG / PPR / SSR / CSR → {判定}
+- 求人一覧: SSG / PPR / SSR / CSR → {判定}
+- フォーム: SSG / PPR / SSR / CSR → {判定}
+- 更新頻度マトリクス: 静的 / ISR(revalidate={N}s) / CMS連携
+
+### 契約SLA（クライアント合意）
+- LCP < 1.8s / INP < 150ms / CLS < 0.05 / TTFB < 100ms
+- Lighthouse Performance 95 / Accessibility 98
+- Mia忠実度合格ライン: {標準95 / 高難度90}
+
+### 納期逆算（営業日換算）
+- 公開希望日: {日付}（−0）
+- 社内レビュー日: {日付}（−2営業日）
+- Mia QA完了: {日付}（−3営業日）
+- Ren実装完了: {日付}（−5営業日）
+- Hana着手: {日付}（−8営業日）
+
+### フォーム送信先・計測ID
+- 送信先: {メール / CRM / スプレッドシート}
+- GA4: {G-XXXXXXX} / GTM: {GTM-XXXXX} / Meta Pixel: {ID}
+- 自動返信: {要 / 不要} / 通知先: {アドレス}
+
+### DNS・独自ドメイン
+- 独自ドメイン: {domain}
+- Apex/www 正規化: {apex / www}
+- 公開日−2営業日: HARU経由でTTL 300秒化依頼
+```
+
+**B. デプロイ完了レポート v2（Sora引き継ぎ強化版）**
+```markdown
+## Kaito — LP複製デプロイ完了レポート v2
+
+### 3区分責任分界表
+| 区分 | 検証者 | 実施項目 | 実施日時 | 結果 |
+|---|---|---|---|---|
+| Mia検証済み範囲 | Mia | 忠実度・pixelmatch・12マトリクス | {日時} | ✅ {スコア} |
+| Kaitoゲート範囲 | Kaito | Slow 4G Mobile CWV実測 | {日時} | LCP {X}s / INP {X}ms / CLS {X} |
+| Kaitoゲート範囲 | Kaito | LINE WebView実機表示 | {日時} | ✅ |
+| Kaitoゲート範囲 | Kaito | ダミー実送信→着信確認 | {日時} | ✅ {送信先} |
+| Kaitoゲート範囲 | Kaito | SSL Issued + 4パターン301収束 | {日時} | ✅ |
+| クライアント実環境 | クライアント | 業務回線・社用PC到達性 | {日時} | ✅ |
+
+### ハイパーフォーカス4要素（初見3秒判定）
+- ヘッダー位置: ✅ / フォント太さ: ✅ / ボタン色: ✅ / 余白感: ✅
+- 残存軽微差異: {N件}（3件以上ならSaki先行修正済）
+
+### 契約SLA達成状況
+- LCP: {実測}s / 目標 1.8s → {✅/⚠️}
+- INP: {実測}ms / 目標 150ms → {✅/⚠️}
+- CLS: {実測} / 目標 0.05 → {✅/⚠️}
+- Lighthouse: Perf {X} / A11y {X} / BP {X} / SEO {X}
+- Bundle: 初回JS {X}KB / 3rd-party {X}KB
+
+### 昇格・切戻し情報
+- 昇格方式: Rolling Releases 10→50→100% / Blue-Green一発 → {選択}
+- 現本番デプロイID: {ID}
+- 直前正常デプロイID（切戻し先）: {ID}
+- Skew Protection: {ON / OFF}
+- Feature Flag状態: {変数名: 値}
+
+### 公開後24h監視項目
+- `vercel logs --since 24h` エラー件数: 0件目標
+- Speed Insights 実測CWV: 日次Slack自動投稿
+- Clarity/Hotjar CTA離脱率: 7日継続監視
+```
+
+**C. 建設業クライアント向け提案書 補強セクション（yuto連携用）**
+```markdown
+## 技術差別化ポイント（Kaito提供）
+
+### なぜサクバズの複製LPは他社と違うのか
+1. **求職者ピーク時間帯（夜21-23時Slow 4G）実測LCP 2.0秒以下**を契約SLAで保証
+2. **12ブラウザ×デバイスマトリクスE2E**でLINE/Instagram WebViewまで自動検証
+3. **Rolling Releases段階昇格**で応募フォーム付きLPも安全公開
+4. **Feature Flag運用**で職種別・エリア別・時間帯別の訴求文言をコード変更なし即切替
+5. **納品後7日CWV実測レポート**を自動生成し次回改善提案の材料化
+```
+
