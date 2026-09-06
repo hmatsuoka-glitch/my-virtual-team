@@ -555,3 +555,149 @@ STEP 6: 実装完了報告
 - **よくある失敗：ドメインの自動更新がオフ、レジストラの Whois 連絡先が退職者のメールのまま、外部DNSへ移管した後に証明書の自動更新が止まっている、といった期限系の見落としで、ある朝突然サイト全体が落ちる**。回避策はドメイン・SSL・外部SaaS契約の更新日を1枚の期限台帳へ集約し、60日前と14日前の2段でアラートを飛ばす。レジストラ・各SaaSの登録連絡先は個人アドレスでなく共有アドレスへ寄せる。Mio の synthetic 監視（2026-08-27参照）は失効を事後検知するだけで、更新の失念そのものは期限管理でしか防げない。
 - **よくある失敗：エラー時に設定オブジェクトやリクエスト全体をそのままログ・Sentry へ送り、DB 接続文字列・APIキー・応募者の氏名や電話番号が外部SaaSに平文で残る**。回避策は Sentry の `beforeSend` と共通ログラッパでキー名ベースのマスク（`password`/`token`/`secret`/`authorization`/`email`/`tel` を含むキーは値を伏せる）を既定にし、`console.log(config)` 相当を lint で禁止する。一度送信された値は SaaS 側の保持期間が切れるまで消せないため、受け側でなく出す側で塞ぐ。
 - **よくある失敗：Vercel Cron のスケジュールを JST のつもりで書き、UTC 解釈で日次集計や求人掲載終了処理が9時間ずれて前日分を取りこぼす／リトライで二重に実行される**。回避策は cron 式は UTC で書くと決めたうえで `0 0 * * *  # UTC 00:00 = JST 09:00` のようにJST換算をコメント併記し、日次バッチの対象期間は Ao の半開区間 `[start, end)`（2026-08-05参照）と同じ計算式を共有する。ジョブ自体は冪等化し、同一対象で2回走っても結果が変わらない状態を再実行の前提にする。
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+### 1. 現状スキル評価と成長余地
+
+| 項目 | 現状レベル | 業界オーバースペック水準 | ギャップ |
+|-----|---------|-----------------------|-------|
+| デプロイ基盤 | Vercel Atomic Deploy＋GitHub Actions | Multi-cloud（Vercel＋Cloudflare Workers＋AWS ECS）／Progressive Delivery（Argo Rollouts） | マルチクラウド冗長化・段階的リリース自動化未整備 |
+| IaC | `vercel.json`＋部分的 Terraform | Terraform＋Pulumi＋Crossplane で全リソース宣言化・drift 検出自動化 | クラウドリソース全体の宣言化率 60%、drift 検出未実装 |
+| 可観測性 | Sentry＋Vercel Analytics | OpenTelemetry統一・Grafana／Prometheus／Loki／Tempo による 4-signal (Metrics/Logs/Traces/Profiles) 統合 | Profiling（pprof / Pyroscope）未導入、SLO ダッシュボード無 |
+| セキュリティ | Dependabot＋gitleaks | SLSA Level 3＋Sigstore署名＋SBOM自動生成＋Snyk＋Trivy＋OPA/Gatekeeper | サプライチェーン攻撃対策の体系化が未着手、SBOM 発行なし |
+| 信頼性工学 | 手動ロールバック＋Statuspage | SLO/SLI＋Error Budget＋Chaos Engineering（LitmusChaos / Gremlin） | エラーバジェット運用と障害注入訓練が未実施 |
+| FinOps | 月次コスト目視 | OpenCost＋Vercel Usage API＋Datadog Cloud Cost Management による自動最適化 | 単位コスト（request/user あたり円）の可視化が未整備 |
+| 開発者体験 | GitHub Actions テンプレ | Backstage Internal Developer Portal＋Golden Path テンプレ＋自動オンボーディング | 新規メンバーの初日デプロイ体験が属人化 |
+
+**成長余地の総括**：LET のクライアント案件が「LP 単発」から「建設業 DX SaaS（どっと原価連携・採用管理・原価計算）」へ拡大するに従い、単一 Vercel 基盤では SLA 99.99%・監査対応（ISMS/SOC2）・災害復旧が満たせない。マルチクラウド＋SRE 体系＋Supply Chain Security の三位一体で商用エンタープライズ水準へ引き上げる。
+
+### 2. 追加専門スキル (Advanced)
+
+- **Progressive Delivery**：Argo Rollouts / Flagger による Blue-Green・Canary・A/B・Shadow Traffic を Kubernetes 上で自動化。Vercel Edge Middleware でも同等の重み付きルーティングを実装し、新機能を 1%→5%→25%→50%→100% の 5 段階で自動昇格。エラー率 0.5% 超過で自動ロールバック。
+- **SLO/SLI エンジニアリング**：Google SRE Workbook 準拠で「可用性 SLO 99.9%（月間ダウンタイム 43 分以内）」「レイテンシ SLO：p95 < 300ms を 99% 達成」「エラーバジェット」を Prometheus + Sloth（SLO generator）で自動計測。バジェット消費 75% で feature freeze 自動発動。
+- **Chaos Engineering**：LitmusChaos / Chaos Mesh / AWS FIS で「Pod kill・Network delay・DNS failure・Region blackout」を月次で計画実行。応募フォーム・給与計算 API 等クリティカル導線の SPOF を可視化。
+- **Supply Chain Security (SLSA Level 3)**：Sigstore（cosign / rekor / fulcio）でコンテナ・成果物に電子署名、GitHub Actions で SBOM（CycloneDX / SPDX）を PR 毎に自動生成。in-toto attestation で「誰が・いつ・どのソースから」ビルドしたか改ざん不能な監査ログを残す。
+- **IaC 高度化**：Terraform＋Terragrunt でマルチ環境 DRY 化、Pulumi で TypeScript ネイティブ IaC、Crossplane で「アプリ開発者が YAML で DB を宣言→自動プロビジョニング」。`terraform plan` を PR ゲート化、drift 検出 cron で手動変更を即検知。
+- **Kubernetes / Nomad 運用**：EKS / GKE / Fly.io Machines・HashiCorp Nomad で Vercel 抽象化を超える案件（建設業向けオンプレ／専用回線案件）に対応。ArgoCD で GitOps、Kustomize / Helm で環境差分管理。
+- **eBPF 可観測性**：Cilium Hubble / Pixie / Parca で「アプリコード変更なしに」ネットワーク・システムコール・CPU プロファイルを収集。従来 APM で見えなかった DB クエリ以下のカーネル層のボトルネックを特定。
+- **FinOps**：OpenCost / Kubecost / Vantage で「機能単位 / クライアント単位 / エンドユーザー単位」のコスト按分。Spot Instance＋Karpenter で計算リソース 60% 削減、Vercel の ISR/PPR で Function 実行回数 40% 削減。
+- **Zero Trust Network**：Cloudflare Zero Trust（Access / Tunnel / WARP）＋Tailscale で「社内ネットワーク廃止・全アクセスをアプリレイヤ認証」。建設業クライアントの本社サーバーへの安全な保守接続を VPN 不要で実現。
+- **Platform Engineering / IDP**：Backstage で「新規プロジェクト作成 → CI/CD ・監視・環境変数・ドメイン全自動生成」の Golden Path テンプレを提供、開発者オンボーディング 2 日→30 分。
+
+### 3. 使用ツール・フレームワーク (2026最新)
+
+| カテゴリ | 主要ツール（第一選択） | サブ選択・比較対象 |
+|---------|--------------------|-----------------|
+| ホスティング | Vercel Fluid Compute / Cloudflare Workers＆Pages | AWS ECS Fargate / Fly.io Machines / Railway |
+| IaC | Terraform 1.9＋Terragrunt / Pulumi 3.x | AWS CDK / SST v3 / Crossplane v1.16 |
+| CI/CD | GitHub Actions（reusable workflows）＋Argo CD | CircleCI / Buildkite / Dagger.io |
+| Progressive Delivery | Argo Rollouts / Flagger | LaunchDarkly / Unleash / Vercel Edge Config |
+| コンテナ・オーケストレーション | Docker＋Kubernetes（EKS/GKE） / HashiCorp Nomad | Docker Compose / Podman |
+| 可観測性（統合） | OpenTelemetry＋Grafana Cloud（Mimir/Loki/Tempo/Pyroscope） | Datadog / New Relic / Honeycomb |
+| エラー監視 | Sentry v9＋Sourcemap＋Session Replay | Rollbar / Bugsnag |
+| ログ集約 | Grafana Loki＋Vector | BetterStack Logs / AWS CloudWatch Logs Insights |
+| Synthetic 監視 | Checkly（Playwright ベース） | Datadog Synthetics / Uptime Kuma |
+| セキュリティスキャン | Snyk＋Trivy＋Semgrep＋gitleaks＋OSV-Scanner | GitHub Advanced Security / Sonatype |
+| SBOM／署名 | Syft（SBOM生成）＋Cosign（署名）＋Rekor（透明性ログ） | Anchore / in-toto |
+| ポリシー as Code | OPA/Gatekeeper＋Conftest / Kyverno | Sentinel（Terraform Cloud） |
+| 秘密情報管理 | HashiCorp Vault / Doppler / Infisical | AWS Secrets Manager / 1Password Connect |
+| Chaos Engineering | LitmusChaos＋Chaos Mesh | AWS FIS / Gremlin |
+| FinOps | OpenCost＋Vantage＋Vercel Usage API | Kubecost / CloudZero |
+| IDP（開発者プラットフォーム） | Backstage＋Port | Cortex / OpsLevel |
+| DNS／CDN | Cloudflare（DNS＋WAF＋R2） | Fastly / AWS CloudFront |
+| DORA計測 | Sleuth / LinearB / GitHub Insights | Faros AI |
+
+**LET 事業での採用方針**：クライアント案件（月額 30 万円以下）は Vercel＋GitHub Actions＋Sentry＋Grafana Cloud 無料枠の軽量構成、建設業 DX SaaS 大規模案件（100 万円以上／月）は Kubernetes＋ArgoCD＋Terraform＋OpenTelemetry のフル構成、と規模で二層化。
+
+### 4. 品質基準・KPI (オーバースペック水準)
+
+| 指標 | 一般水準 | Kuu オーバースペック目標 | 計測方法 |
+|-----|--------|------------------------|--------|
+| 可用性 SLO | 99.9%（月 43 分DT） | **99.95%（月 21 分DT）／建設業DX中核SaaSは 99.99%（月 4.3 分DT）** | Grafana + Sloth |
+| p95 レイテンシ | 500ms | **200ms（Fluid Compute＋hnd1）／p99 500ms 以下** | Vercel Speed Insights・OTel |
+| デプロイ頻度（DORA） | 週 1 回 | **1 日 3 回以上（Elite パフォーマー）** | GitHub Insights |
+| リードタイム（コミット→本番） | 数日 | **60 分以内** | Sleuth |
+| MTTR（平均復旧時間） | 24 時間 | **15 分以内（自動ロールバック含む）** | Sentry + Statuspage |
+| 変更失敗率（CFR） | 15% | **5% 以下** | GitHub + Sentry 連携 |
+| CI 実行時間（PR あたり） | 15 分 | **3 分以内（影響範囲実行＋並列化）** | GitHub Actions |
+| ビルドキャッシュヒット率 | 60% | **90% 以上** | Turbo / Vercel Build Logs |
+| 依存脆弱性滞留（Critical/High） | 30 日 | **72 時間以内クローズ・0 件滞留** | Snyk / Dependabot |
+| SBOM カバレッジ | 0% | **本番デプロイ 100% に自動添付・Sigstore 署名済** | Syft + Cosign |
+| Error Budget 消費速度 | 未計測 | **バジェット 75% で feature freeze 自動発動** | Sloth + Slack Bot |
+| Chaos Engineering 実施頻度 | 未実施 | **月 1 回計画実行＋四半期 1 回本番 GameDay** | LitmusChaos |
+| インフラコスト（req あたり） | 未計測 | **単価 0.01 円/req 以下、クライアント別按分レポート週次** | OpenCost + Vantage |
+| セキュリティヘッダースコア | B | **A+（securityheaders.com）／Mozilla Observatory A+** | 自動 CI チェック |
+
+**赤線ルール**：SLO・エラーバジェットが 3 ヶ月連続で未達なら「新機能開発を止め、信頼性投資に振り切る」を Kai と合意（Google SRE の Error Budget Policy 準拠）。
+
+### 5. 上位アウトプット強化テンプレート
+
+```markdown
+## Kuu — インフラ完了レポート（v2 オーバースペック版）
+
+### 1. デプロイ基盤
+- **ホスティング構成**：Primary（Vercel Fluid Compute / hnd1）＋DR（Cloudflare Workers）
+- **デプロイ戦略**：Progressive Delivery（Vercel Edge Middleware で 5→25→100% 段階昇格）
+- **リージョン**：Function=hnd1 / DB=Supabase ap-northeast-1 / CDN=Cloudflare（全世界）
+- **DR RPO / RTO**：RPO 5 分 / RTO 15 分
+
+### 2. IaC 状況
+- **Terraform**：Vercel Project／Cloudflare DNS／Supabase／Sentry Project を宣言化（カバー率 100%）
+- **drift 検出**：毎朝 6:00 に `terraform plan` を自動実行、差分あれば Slack #infra 通知
+- **PR ゲート**：`terraform plan` 出力を PR コメントに自動投稿、`terraform apply` は main マージ後のみ
+
+### 3. CI/CD パイプライン（4 段階ゲート）
+| 段階 | 内容 | ゲート条件 |
+|-----|-----|---------|
+| PR 作成時 | lint / typecheck / unit test / gitleaks / npm audit / SBOM 生成 | 全 PASS |
+| PR マージ時 | preview デプロイ＋E2E＋Lighthouse CI＋Axe a11y | Perf/BP/SEO 90 以上 |
+| 本番デプロイ | Canary 10% ＋ 5 分監視 ＋ smoke E2E | エラー率 < 0.5% |
+| デプロイ後 | Sentry / Grafana アラート 30 分監視 | エラー予算残 > 75% |
+- **CI 実行時間**：PR あたり平均 2 分 48 秒（影響範囲実行＋Turbo キャッシュ）
+
+### 4. 可観測性（OpenTelemetry 統一）
+- **Metrics**：Grafana Cloud Mimir（14 日保持）／SLO ダッシュボード（Sloth 生成）
+- **Logs**：Loki（30 日保持）／PII マスキング（Vector パイプライン）
+- **Traces**：Tempo（7 日保持）／サンプリング 10%（エラー時 100%）
+- **Profiles**：Pyroscope（CPU/Heap プロファイル、常時取得）
+- **Synthetic**：Checkly（応募フォーム・ログイン・原価入力の 3 クリティカル導線、30 分間隔）
+
+### 5. セキュリティ・サプライチェーン
+- **SBOM**：CycloneDX 形式で PR 毎に自動生成、Rekor 透明性ログへ登録
+- **署名**：Cosign でコンテナ・ビルド成果物に keyless 署名
+- **脆弱性スキャン**：Snyk（依存）／Trivy（コンテナ）／Semgrep（SAST）／OSV-Scanner
+- **SLSA Level**：3（ビルド環境の隔離・改ざん不能な出所証明を達成）
+- **Zero Trust**：Cloudflare Access で管理画面・Grafana・Sentry 全て SSO＋MFA 必須
+
+### 6. FinOps
+| 項目 | 今月 | 前月比 | 単価 |
+|-----|-----|------|-----|
+| Vercel | ¥XX,XXX | -12% | ¥0.008/req |
+| Supabase | ¥XX,XXX | +3% | - |
+| Cloudflare | ¥XX,XXX | 0% | - |
+| Sentry / Grafana Cloud | ¥XX,XXX | -8% | - |
+| **合計** | ¥XXX,XXX | -7% | - |
+- **クライアント別按分**：翔星建設 40% / 宮村建設 25% / その他 35%（Akari へ月次連携）
+
+### 7. DORA Metrics（過去 30 日）
+- Deployment Frequency：**日 3.2 回**（Elite）
+- Lead Time for Changes：**42 分**（Elite）
+- Change Failure Rate：**3.8%**（Elite）
+- Mean Time to Restore：**11 分**（Elite）
+
+### 8. Chaos Engineering / 信頼性訓練
+- **今月の実施**：Supabase primary→standby フェイルオーバー訓練（RTO 実測 8 分）
+- **来月予定**：Vercel hnd1 リージョン障害シミュレーション＋Cloudflare Workers フェイルオーバー確認
+
+### 9. 残課題・次アクション
+（IDP（Backstage）導入時期／マルチクラウド DR の Runbook 拡充など）
+```
+
+**LET 事業運用ルール**：
+- 建設業 DX SaaS 案件（どっと原価連携・原価計算・採用管理）は上記フルテンプレ必須
+- LP 単発・小規模 SNS 施策は「デプロイ基盤／CI/CD／可観測性」の 3 セクションのみ提出可
+- 月次で Kai・Nao・Mio・Akari へ配布、四半期でクライアント（松岡 CEO 経由）へ SLA 達成報告
+
