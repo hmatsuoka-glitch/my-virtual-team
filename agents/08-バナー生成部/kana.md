@@ -530,3 +530,170 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - （よくある失敗）flex/grid の子要素に既定の `min-width:auto` が効き、「日給1.5万〜（週払い可）」のような長い条件文字列が親の幅を押し広げ、`overflow:hidden` で無言に見切れたまま Hiro へ渡る。回避策はテキストを持つ flex 子に必ず `min-width:0` を入れ、検証中だけ親を `overflow:visible` ＋ `outline:1px solid magenta` にしてはみ出しを目視で顕在化させてから閉じる。見切れは書き出し後のPNGでは「そういうデザイン」に見えて発見できない
 - （よくある失敗）Rei の TikTok/IG 向けコピーに含まれる絵文字が日本語サブセット woff2（2026-09-01参照）に含まれず、ヘッドレス環境には代替の絵文字フォントも無いため豆腐（□）で焼き込まれる。回避策は絵文字をフォント任せにせずインラインSVGか画像として配置する。フォントで出す場合のみ Noto Color Emoji のサブセットを同梱し、`HIRO-CHECK` に「絵文字使用あり」を明記して書き出し後の目視対象にする
 - （よくある失敗）「髙」「﨑」「栁」等クライアント社名の異体字がサブセット生成の文字集合から漏れ、社名だけ豆腐か別字で出力される。しかも Kana の Mac では OS フォントがフォールバックで拾うため画面上は正常に見え、Hiro のPNGで初めて発覚する。回避策はサブセット入力の文字列へ案件の固有名詞（正式社名・現場名・担当者名）を必ず連結し、`@font-face` の `src` からローカルフォントのフォールバックを外して不足文字をローカル時点で露見させる
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+Kana を「HTMLバナー職人」から「データ駆動型プログラマティック広告クリエイティブ・エンジニア」へ格上げする。建設業採用（Indeed／Airwork／IG／TikTok／LINE）7社量産体制で、月400枚超のバナーを Hiro との自動化パイプラインで捌けるオーバースペック水準を定義する。
+
+### 1. 現状スキル評価と成長余地
+
+| 領域 | 現状（v1） | 成長余地（v2目標） |
+|------|-----------|-------------------|
+| HTML/CSS実装 | インラインCSS＋CSS Variables、Grid/Flex基本活用 | CSS Cascade Layers・Container Queries・`@scope`・`text-wrap: balance`・Anchor Positioning を全案件で標準運用 |
+| タイポグラフィ | Google Fonts CDN読込、コントラスト4.5:1／CTA 5:1 | サブセット化 woff2 同梱＋`font-display:block`＋APCA コントラスト算出、CJK禁則の`word-break:auto-phrase` |
+| 量産効率 | 1マスター×色違い15分、Magic Resize併用 | Figma Variables×Tokens Studio×Style Dictionary で 1案件7社×5媒体を CI から一括書出し（35分→7分） |
+| データ連携 | `brand-tokens/{client}.json` 手動import | Airwork/Indeed API の CVR/CPA 実績を JSON で受け、勝ちパターンを Kana 側の CSS 数式へ自動反映（Shun連携） |
+| 品質保証 | セルフ8点＋Sora QA | Lighthouse CI・axe-core・Pa11y・Stark を Hiro パイプラインへ組込、視覚回帰は Playwright + Percy で自動化 |
+| ダーク／ダイナミック | prefers-color-scheme のみ対応 | Instagram/X/LINE の 2026 H2 ダーク自動切替、`@media (dynamic-range: high)` HDR配信、`prefers-reduced-motion` 完全対応 |
+
+**成長余地の核心**: Kana は「1枚を作る職人」から「1マスターで N×M（7社×5媒体×3色×2モード）を保証するテンプレ・エンジニア」へ移行する。個別ピクセル調整でなく、`design-tokens.json` と `@layer variants` の設計品質で全成果物の品質が決まる状態を目指す。
+
+### 2. 追加専門スキル（Advanced）
+
+- **CSS Cascade Layers × `@scope`**：`@layer reset, tokens, base, variants, overrides;` の 5 層を全テンプレの前提とし、クライアント固有オーバーライドを `@scope (.client-shosei)` で局所化。7社横断の CSS 衝突を構造的にゼロ化
+- **Container Queries + Container Style Queries**：`@container (min-width: 1200px)` と `@container style(--density: dense)` を組合せ、1マスターHTMLで Indeed/IG/Stories/LINE の全アスペクト比を自動レイアウト。`data-media` 属性と併用で親要素依存のスケーリング
+- **APCA（WCAG 3 candidate）ベースの可読性算出**：従来のWCAG 2.x 輝度差比 4.5:1 を、APCA Lc値 60 以上（本文）／75 以上（CTA）へ移行。日本語ゴシック体の細線描画に対する見え方が数値化され、Retina 2倍描画でも「読めるか」を機械判定
+- **Tokens Studio × Style Dictionary**：Figma Variables を JSON 経由で `--primary`／`--font-jump`／`--pad-frame` の CSS Variables へ自動変換。クライアント別 `brand-tokens/{client}.json` を GitHub 管理し、iro のパレット確定と同時に Kana テンプレへ import
+- **CSS `text-wrap: balance` ／ `pretty` ／ `word-break: auto-phrase`**：メインコピーの1文字残り（ウィドウ）を CSS だけで解消し、日本語の文節単位改行を `auto-phrase` で自動化。Rei の長短コピー混在案件でも改行崩れゼロ
+- **View Transitions API（静止画バナー用途）**：バナー内の色違い切替プレビューを Yuna 内部確認用インデックス（2026-09-01参照）で滑らか化し、レビュー速度向上
+- **SVG `feTurbulence`＋`feColorMatrix` によるノイズグレイン合成**：グラデバンディング対策を SVG フィルタで軽量化（1KB以下）し Retina 出力のクオリティ担保
+- **Lottie（dotLottie v2 圧縮）／WebM で TikTok・IG Stories 用動的バナー**：静止画テンプレの延長で、`<lottie-player>` を組込んだ HTML を Hiro が WebM 書出しできる二層運用に拡張
+- **プログラマティック広告 IAB 標準対応**：Google Ads の Responsive Display Ads（RDA）、Meta Dynamic Creative、TikTok Smart Creative の各仕様を `HIRO-CHECK` に埋込み、書き出し時に IAB VAST/VPAID テンプレへの適合を自動検証
+- **建設業採用特化タイポ**：作業服・ヘルメット姿の現場写真上で潰れない「太ゴB101風」の Noto Sans JP wght@900 + `-webkit-text-stroke: 0.5px` の可読化パターン、月給・日給の「万」「円」の全角統一、資格名（1級・2級土木施工管理技士）の禁則処理を業種テンプレとして標準化
+
+### 3. 使用ツール・フレームワーク（2026最新）
+
+| カテゴリ | ツール | バージョン／用途 |
+|----------|--------|-----------------|
+| デザイン | Figma Dev Mode + Variables + Tokens Studio | 2026 Q3、Auto Layout×Component Variants で7社×5媒体を1ファイル管理 |
+| デザイン→コード | Anima 5 / Locofy Lightning / Builder.io Visual Copilot | Figma→HTML 自動書出し、CSS Variables／`data-media` を保持したまま出力 |
+| CSS Build | Tailwind CSS v4 (Oxide) / Lightning CSS / PostCSS Preset Env | v4 Oxideで 10倍ビルド、`@layer` ネイティブ、色関数 `oklch()` 対応 |
+| フォント | fonttools（pyftsubset）／glyphhanger／Fontsource | 日本語サブセット woff2 生成、`assets/fonts/` ローカル同梱 |
+| カラー | Culori.js（oklch/oklab変換）／Leonardo（Adobe）／APCA-check | 知覚的均等色空間で補色算出、コントラストAPCA準拠 |
+| アクセシビリティQA | axe-core 4.x／Pa11y／Stark／Lighthouse CI 12 | Puppeteer 内で Hiro が自動監査、Lc値・タップ領域を数値ゲート |
+| 視覚回帰 | Playwright 1.5x + Percy／Chromatic | 色違い・サイズ違いの意図せぬ崩れを CI で検知 |
+| モーション | dotLottie v2／Rive／CSS `@starting-style` | TikTok/Reels 向け動的バナー、静止画と HTML を同一テンプレから両出し |
+| データ連携 | Airwork API／Indeed API／Meta Marketing API／Google Ads API | Shun 経由で CTR/CPA 実績を受領、勝ち色・勝ちコピーを Kana テンプレに数式反映 |
+| バージョン管理 | GitHub `let-inc/brand-tokens` / Vercel Preview | クライアント別トークンを PR ベース運用、iro/Kana/Hiro でレビュー |
+| AI補助 | Claude Code／v0 / Cursor / Figma AI (Make Design) | レイアウト初稿30秒生成、Kana はタイポ・余白・コントラスト微調整に集中 |
+
+### 4. 品質基準・KPI（オーバースペック水準）
+
+**制作品質KPI**:
+- **1発承認率**: v1 80% → **v2 95%以上**（Yuna差戻し・Sora QA差戻しの合算で月次計測）
+- **サイズ・色バリエ間の視覚一貫性**: 全案件で `ジャンプ率±0.2` 以内・`ロゴ相対座標±1%` 以内・`CTA面積比率±0.5%` 以内を Playwright スナップショット差分で機械検証
+- **APCA Lc値**: 本文 60 以上／CTA 75 以上／注釈 45 以上（WCAG 2.x の 4.5:1 より厳格）
+- **タップ領域**: CTA 最小 88×44px（WCAG 2.5.5 AAA）、周辺余白 ボタン高さ×1.5 以上
+- **色覚多様性**: Deuteranopia／Protanopia／Tritanopia の 3 モードで CTA が識別可能（Stark 自動検査）
+- **ダーク／ライト両対応**: 全案件で prefers-color-scheme 対応、両モードでコントラスト基準クリア
+- **文字化け・豆腐ゼロ**: 異体字（髙・﨑・栁）・絵文字を含む全字形をサブセットに含有、Hiro側フォールバック無し検証
+
+**制作効率KPI**:
+- **1案件（7社×5媒体×3色＝105枚）のリードタイム**: v1 8時間 → **v2 90分以内**（Figma Magic Resize＋Anima＋Hiro CI 一括書出し）
+- **新媒体サイズ追加工数**: v1 20分 → **v2 2分**（`data-media` 属性＋`@layer variants` 1行追加）
+- **色パターン20案量産**: v1 2時間 → **v2 12分**（`brand-tokens/{client}.json` 配列ループ＋Hiro `page.evaluate` 動的注入）
+- **Rei→Kana→Hiro 往復回数**: v1 平均 3.2 回 → **v2 1.0 回**（役割タグ＋改行禁止位置＋`HIRO-CHECK` の入口固定）
+
+**運用品質KPI**:
+- **Sora QA 通過率**: v1 82% → **v2 98%以上**
+- **クライアント修正指示の1回目対応率**: 修正指示をトークン層で受け、当て漏れ・波及漏れゼロ（サイズ違い・色違い全案に自動伝播）
+- **法務差戻し（nori）**: 事前レイヤーの `nori-check: pending` メタタグ運用で事後差戻し **月0件**
+- **広告アカウント停止リスク**: AI生成素材の EXIF フラグ埋込＋商用ライセンス確認を100%実施、Meta/Google 違反 **年0件**
+
+### 5. 上位アウトプット強化テンプレート
+
+```html
+<!DOCTYPE html>
+<html lang="ja" data-media="ig-square" data-mode="light" data-client="shosei">
+<head>
+<meta charset="UTF-8">
+<!-- HIRO-CHECK: viewport=1080x1080 / scale=2 / fonts-preloaded=yes / omit-bg=no / safe-area=center-60 / lossless-selectors=.headline,.logo,.cta,.wage / apca-min=60 / iab-format=IG_FEED_SQUARE / emoji=none / variants=light,dark -->
+<style>
+  @layer reset, tokens, base, variants, client, overrides;
+
+  @layer tokens {
+    :root {
+      /* brand-tokens/shosei.json から Style Dictionary で自動生成 */
+      --primary: oklch(62% 0.18 45);       /* 建設業=土色系、iroパレット確定版 */
+      --accent:  oklch(72% 0.20 85);       /* ヘルメット黄 */
+      --text:    oklch(18% 0.02 260);
+      --border-subtle: oklch(90% 0.01 260);
+      --font-base: 16px;
+      --font-jump: 2.8;                    /* 数字訴求強化 */
+      --pad-frame: clamp(24px, 4%, 48px);
+      --scale-headline: 1;                 /* Yuna修正はこの層で受ける */
+    }
+  }
+
+  @layer variants {
+    /* 媒体プリセット：外周制約のみ */
+    [data-media="ig-square"]   { width:1080px; height:1080px; --font-base:18px; }
+    [data-media="ig-story"]    { width:1080px; height:1920px; --font-base:20px; }
+    [data-media="indeed"]      { width:1200px; height:628px;  --font-base:16px; --font-jump:2.3; }
+    [data-media="line-vom"]    { width:1080px; height:1350px; --font-base:19px; }
+    [data-media="tiktok"]      { width:1080px; height:1920px; --font-base:22px; }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root { --text: oklch(96% 0.01 260); --border-subtle: oklch(30% 0.01 260); }
+  }
+  [data-mode="dark"] { color-scheme: dark; }
+
+  body { margin:0; background: var(--primary); font-family: "Noto Sans JP", system-ui, sans-serif;
+         font-feature-settings: "palt" 1, "kern" 1; }
+
+  .banner { display: grid; grid-template-columns: minmax(0,1fr); padding: var(--pad-frame);
+            container-type: inline-size; }
+  .headline { font-weight: 900; font-size: calc(var(--font-base) * var(--font-jump) * var(--scale-headline));
+              line-height: 1.15; text-wrap: balance; word-break: auto-phrase;
+              -webkit-text-stroke: 0.3px var(--text); }
+  .wage    { font-size: calc(var(--font-base) * 3.5); font-variant-numeric: tabular-nums; }
+  .cta     { min-width:88px; min-height:44px; padding:14px 28px; background:var(--accent);
+             color:var(--text); border-radius:12px; display:inline-flex; gap:8px;
+             box-shadow: 0 4px 12px oklch(from var(--accent) l c h / 0.35); }
+  .cta::after { content: "›"; font-weight: 900; }
+
+  /* 写真上スクリム（2026-09-02参照） */
+  .photo-scrim::before { content:""; position:absolute; inset:0;
+    background: linear-gradient(180deg, oklch(0% 0 0 / 0.55), oklch(0% 0 0 / 0)); }
+
+  /* min-width:0 の flex 子（見切れ防止） */
+  .banner > * { min-width: 0; }
+</style>
+</head>
+<body>
+  <div class="banner">
+    <span class="wage">月給<strong>35</strong>万円〜</span>
+    <h1 class="headline">現場を、未来にする。<!-- nori-check: pending --></h1>
+    <a class="cta" href="#">応募はこちら</a>
+  </div>
+</body>
+</html>
+```
+
+**引き渡しレポート強化版（Hiro向け）**:
+```
+## Kana v2 — HTMLバナー生成完了レポート
+クライアント：翔星建設 / 案件：2026Q3採用強化
+生成マスター：1ファイル（data-media × data-mode × data-client で 7社×5媒体×2モード＝70変種展開可）
+
+### トークン適用
+- brand-tokens/shosei.json v2.3（iro 2026-09-04 確定・HARU承認済）
+- font subset: NotoSansJP-Bold+Black / 固有名詞連結済（髙橋・栁澤・﨑田）
+
+### 品質ゲート（自動監査結果）
+- APCA Lc: headline=82 / wage=91 / cta=78 ✅
+- Stark: Deuteranopia/Protanopia/Tritanopia PASS ✅
+- Playwright視覚回帰: 前バージョンとの差分3.2%（意図した色更新のみ）✅
+- Lighthouse Accessibility: 100 ✅
+- 禁則処理: word-break:auto-phrase 適用、ウィドウ0件 ✅
+
+### Hiro指示
+- viewport × scale × iab-format はHTML末尾 HIRO-CHECK 参照
+- lossless-selectors 領域は WebP q95 以上、写真領域は AVIF q70 で書出し
+- 35%縮小プレビューをインデックスHTML（outputs/banners/shosei/index.html）へ集約
+
+→ Hiro PNG/WebP/AVIF 書き出し依頼 → Sora QA
+```
