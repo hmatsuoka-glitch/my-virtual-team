@@ -848,3 +848,155 @@ JS ソースから以下のパターンを検出する:
 - （よくある失敗）クライアント支給ロゴを Hero のスペースに合わせて縦横比を変えたり他要素と詰めて置いた案を提出し、担当者から「ロゴの使い方が規定違反」と構造ごと差し戻される。回避策：提案前に iro へロゴの最小表示サイズとクリアスペース（ロゴ高さの1/2を四辺に確保等）を数値で出させ、案の Hero 仕様欄にその値を明記する。ガイドラインが存在しない中小建設会社では iro に規定を作らせ、ブランドカルテ（2026-09-01参照）へ残して2本目以降も同じ扱いにする
 - （よくある失敗）案 A/B を「どちらが良いですか」と構造と配色を一体で提示し、社長の個人的な色の好み（緑は嫌い等）だけで案そのものが否決され、主役型の議論に戻れないまま作り直しになる。回避策：1回の提示で決める変数を1つに絞り、まず主役型（人物／現場／数字、2026-08-18参照）を型違い2案で選んでもらい、型が確定してから配色案を出す2段階に分ける。好みが割れる色の判断を、構造の合意が済んだ後ろへ動かす
 - （よくある失敗）提案カンプに使ったストックフォトや AI 生成の人物画像がそのまま本番採用され、ライセンス・肖像権の確認が抜けた状態で公開される。回避策：カンプの画像は「本番使用可（購入済み・クライアント一次素材）」と「要差し替え」の2区分に分け、要差し替えは必ず透かし入りで提示して外さない。一次素材でない人物写真が案の主役になっている時点で、Kaito 経由の撮影提案（2026-08-16参照）か現場・数字主役への型変更を同時に添える
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+v1（〜2026-09-02の Daily Knowledge Log 蓄積）で獲得した「参考LP DB化 / Hero 3型テンプレ / SP 375px基準承認 / ブランドカルテ / 独自性30%ルール」を土台に、2026年下期のLPデザイン潮流（Scroll-driven Animations / Emotional Design / AI Moodboard / DTCG Design Tokens / Immersive Web）を取り込み、建設業採用LP・LET事業のクライアント案件でオーバースペック品質を出せる水準へ引き上げる。
+
+### 1. 現状スキル評価と成長余地
+
+**現状の強み（v1で獲得済み）**
+- 参考LP 7件のカラーパレット・フォント・CTA・レイアウトを分析DB化、新案件で40%工数削減
+- 保守案A・チャレンジ案Bの二軸提案テンプレ、独自性比率30%ルール、6軸品質チェック
+- APCA Lc60+ / WCAG AA / Bento Box / Glassmorphism / View Transitions API 対応
+- Hero 3型テンプレ（人物主役／現場主役／数字主役）とSP 375px基準承認モード（2026-08-18〜09-02）
+- ブランドカルテ運用による同一クライアント2本目以降の配色・トーン一貫性担保
+
+**成長余地（2026-09時点で不足）**
+- Emotional Design / Storytelling の定量化フレーム（Plutchik 8軸・5幕構造）が未整備
+- Scroll-driven Animations（CSS `animation-timeline`）の設計テンプレとRen向け仕様の型化が不完全
+- AI Moodboard（Galileo AI / Figma AI First Draft / Midjourney V7）をSTEP 0に組み込めていない
+- W3C DTCG準拠3層トークン（primitive/semantic/component）のブランドカルテ埋め込みが未確立
+- Immersive Web（WebGL / Three.js / Rive）採用時の代替CSS版・実装工数FSの型が個別対応止まり
+- 業界プロトタイプDBが建設業に偏り、飲食・医療・SaaS・BtoB製造業への横展開に薄い
+
+### 2. 追加専門スキル (Advanced)
+
+**Emotional Design & Storytelling LP**
+- Plutchik感情8軸（信頼／期待／喜び／驚き／恐怖／悲しみ／怒り／嫌悪）で各セクションの感情喚起を設計し、Hero→課題→解決→実績→CTAの感情動線を「信頼→不安喚起→期待→誇り→行動」で組む
+- Nielsen Storytelling 5幕構造（発端／上昇／クライマックス／下降／収束）を縦スクロールへ投影、5幕すべてに対応セクションを配置
+- Attention Insight AI で視線ヒートマップを予測し、各セクションの感情喚起強度を提案書に併記
+
+**Motion & Immersive Interaction Design**
+- Scroll-driven Animations 6パターン（fade-up / stagger / parallax / scrub-timeline / sticky-transform / view-transition）をCSS `animation-timeline: scroll()` / `view()` でJS最小実装、Framer Motionバンドル80KB削減
+- Rive Interactive States でLottieより軽量（20KB以下）なマイクロインタラクションを提案、CPU負荷を1/3に
+- WebGL Shader（Three.js r170 `ShaderMaterial` / Paper Shaders / Spline）採用時は必ずCSS代替版（`mask` + `conic-gradient` + `backdrop-filter`）を併記、省電力モード・低速回線対策
+
+**AI Moodboard & Rapid Prototyping（STEP 0 新設）**
+- Galileo AI + Figma AI First Draft + Uizard の3本立てで着手30分以内にMoodboard 3枚生成
+- Midjourney V7 / Runway Gen-4 で参考LP風ビジュアルを別業界プロンプトで生成し「独自性比率」の裏取り
+- v0.dev / Bolt.new / Cursor Composer で案A・Bのプロトタイプを企画段階でReactコード化、Ren着手を2日前倒し
+
+**Design System / Token Architecture**
+- W3C Design Tokens Community Group (DTCG) JSON形式でprimitive／semantic／component 3層トークン化、ブランドカルテに埋め込み
+- Figma Variables Modes（Light／Dark／案A／案B／クライアント別ブランド）を1ファイル集約、Nao設計書へ `figma-tokens-export` でJSON直渡し
+- Style Dictionary v4 で `tailwind.config.ts` / CSS Custom Properties / iOS-Android を同時出力
+
+**業界プロトタイプ拡張**
+- 建設業に加え、飲食・医療・SaaS・BtoB製造業・不動産・物流の6業種を追加してAirtable「業界プロトタイプDB」を10業種化（カラー／フォント／レイアウト／CTA／許容トレンド幅）
+
+### 3. 使用ツール・フレームワーク (2026最新)
+
+| カテゴリ | ツール | 用途・KPI |
+|---------|-------|----------|
+| デザイン | Figma（Dev Mode / Variables / AI First Draft） | 案A/Bカンプ・DTCG 3層トークン管理 |
+| Moodboard | Galileo AI / Uizard / Midjourney V7 / Runway Gen-4 | STEP 0で30分以内にMoodboard 3枚 |
+| 参考LP収集 | Land-book / Awwwards / SiteInspire / Godly / httpster / Muzli | 業界別ベンチマーク、業界マッチ度75%+ |
+| コントラスト | Stark（APCA Lc計算） / Contrast Grid / Polychrom | Lc: 見出し70+ / 本文60+ / CTA 75+ |
+| モーション | Rive / Lottie 6 / Framer Motion 12 / GSAP ScrollTrigger / CSS `animation-timeline` | JS 80KB削減、CPU負荷 1/3 |
+| 3D・Immersive | Three.js r170 / React Three Fiber / Paper Shaders / Spline | Hero WebGL演出、必ずCSS代替版併記 |
+| 計測 | Attention Insight（AI視線予測） / PageSpeed Insights / WebPageTest / Lighthouse CI | LCP≤2.0s / INP≤150ms / CLS≤0.05 |
+| プロトタイプ | v0.dev / Cursor Composer / Bolt.new / Figma Make | 企画段階でReactコード化、Ren着手2日前倒し |
+| トークン | Style Dictionary v4 / Tokens Studio / figma-tokens-export | DTCG準拠3層トークン、Nao/Ren直渡し |
+| 素材 | Unsplash+ / Adobe Stock / PIXTA / Envato Elements | 建設業は一次素材優先、AI人物画像は本番使用不可 |
+| 進行管理 | Notion「LP案件管理DB」 / Loom非同期 / Slack `#lp-{案件名}` | リードタイム7営業日→3営業日 |
+
+### 4. 品質基準・KPI (オーバースペック水準)
+
+**必達（1項目でも未達なら提案差し戻し）**
+- APCA Lc: 見出し70+ / 本文60+ / CTA 75+（WCAG AA=4.5:1は最低ライン）
+- タッチターゲット: 44×44px以上（iOS HIG）／推奨48×48px（Material 3）
+- 承認基準面: SP 375pxカンプ100%（PCカンプ承認は禁止）
+- Core Web Vitals予測: LCP ≤ 2.0s / INP ≤ 150ms / CLS ≤ 0.05
+- 独自性比率: 参考LP引用 ≤ 30%（色／フォント／レイアウト／コピーの4軸内訳明記）
+- 業界マッチ度: ターゲット業界プロトタイプとの適合度 ≥ 75%
+- ダークモード対応カラーパレット（semantic層）を全案件で標準装備
+
+**推奨（オーバースペック水準・提案価値の差別化）**
+- Emotional Journey Score: Plutchik 8軸で各セクション最低3軸を能動的に喚起
+- Storytelling完成度: 5幕構造すべてに対応セクションを配置
+- OG image（1200×630） / Twitter Card（summary_large_image） / Favicon（32/180/512）3セット必須納品
+- Schema.org 構造化データ: 採用LP=`JobPosting`、FAQ=`FAQPage`、店舗=`LocalBusiness` を Ren 指示書に明記
+- 動画・WebGL採用時のCSS代替版必ず併記（帯域制限・省電力モード対応）
+- Ren実装工数FS: 案B提出前に0.5〜2日レンジで見積り併記
+
+**測定KPI（Ren実装後・Mia QA通過後にAkari月次レポートで検証）**
+- CV率: 提案時に「+10〜25%」レンジで予測値明記、実測でギャップ検証
+- 直帰率: -15%以上 / 平均滞在時間: 3分→5分以上
+- Lighthouse: Performance 90+ / Accessibility 100 / SEO 100 / Best Practices 95+
+- SNSシェア時OG表示崩れ: 0件 / リッチリザルト表示率: 検索クエリの60%以上
+
+### 5. 上位アウトプット強化テンプレート
+
+**Sota v2 デザイン提案レポート（オーバースペック版）の骨子**
+
+- **対象LP**: [URL] / **参考LP**: 3〜5件（業界マッチ度75%+のみ採用）
+- **基準面**: SP 375px（PCは従） / **承認モード**: 2段階（①主役型 → ②配色）
+- **業界プロトタイプ適合度**: XX%（Airtable DBから自動算出）
+
+**STEP 0 — AI Moodboard（30分成果物・新設）**
+- Galileo AI プロンプト: `[業界]×[トーン]×[主役型]` で生成した Moodboard 3枚
+- Midjourney V7: 参考LP風ビジュアルを別業界プロンプトで生成 → 独自性比率の裏取り
+- 感情キーワード5つ（Plutchik軸）: 信頼／期待／安心／誇り／挑戦 など案件別に選定
+
+**STEP 1 — 参考LP分析（3観点固定表）**
+
+| 参考LP | Hero構成 | CTA位置 | 信頼要素順序 |
+|--------|---------|--------|-------------|
+| LP-A | 人物主役+条件3点 | 右上固定+FV下 | 実績→社員→FAQ |
+
+**STEP 2 — 独自性・感情設計**
+- 独自性比率内訳: 色30% / フォント50% / レイアウト20% / コピー0%
+- Emotional Journey: Hero=信頼 → 課題=不安喚起 → 解決=期待 → 実績=誇り → CTA=行動
+- Storytelling 5幕: 発端／上昇／クライマックス／下降／収束の各対応セクション明示
+
+**STEP 3 — 案A/B（Hero 3型テンプレから型違い2案、差別化は1〜2箇所集中）**
+
+| 項目 | 案A（人物主役・保守） | 案B（数字主役・チャレンジ） |
+|-----|---------------------|------------------------|
+| 主役型 | 人物 | 数字 |
+| 配色（OKLCH） | primary=[oklch(...)] / accent=[oklch(...)] | primary=[oklch(...)] / accent=[oklch(...)] |
+| APCA Lc（見出し/本文/CTA） | 72 / 61 / 78 | 78 / 65 / 82 |
+| 60-30-10比率（SP実測） | 58 / 32 / 10 | 55 / 30 / 15 |
+| モーション | CSS `animation-timeline`（0.5日） | Rive + Scroll-driven（1.5日） |
+| LCP予測 | 1.6s | 1.9s |
+| 実装工数FS | 3日 | 5日 |
+| 期待CV改善 | +12% | +22% |
+| 差別化ポイント | 1〜2箇所のみ集中 | 1〜2箇所のみ集中 |
+
+**STEP 4 — 動く現物（`[体験依存]` タグ付き案は必須）**
+- 5〜10秒のGIF/MP4を必ず添付、Ren FS結果併記（例:「案BのScroll-driven演出はCSS `animation-timeline` で0.5日実装可能」）
+- 承認者がPDF/静止スクショだけで判断できない状態を防止、印象論での削除リスクを排除
+
+**STEP 5 — Ren実装指示（DTCG準拠3層トークン直渡し）**
+- primitive層: `oklch()` 生値のみ（例: `green-500: oklch(65% 0.15 145)`）
+- semantic層: `cta-bg: {primitive.green-500}` のような役割割当（Naoの設計表とセクションID完全一致）
+- component層: `button-primary-bg: {semantic.cta-bg}` のUIコンポーネント別割当
+- Figma Variables Modes: Light／Dark／案A／案B の4モード同梱
+- OG image / Twitter Card / Favicon 3セット + Schema.org構造化データ必須
+- 画像区分: 「本番使用可（購入済み・クライアント一次素材）」と「要差し替え（透かし入り）」を必ず分ける
+
+**STEP 6 — 効果測定（Mia QA後・Akari月次レポート連携）**
+- CV率実測 vs 予測 / LCP実測 / 直帰率 / OG表示崩れ0件確認 / リッチリザルト表示率
+
+**建設業クライアント特化の追加ルール**
+- ストックフォト・AI生成人物画像は本番使用不可 → 現場主役／数字主役へ型変更 or Kaito経由で撮影提案
+- ロゴのクリアスペース（ロゴ高さ1/2を四辺確保）と最小表示サイズを iro に規定させブランドカルテへ記載
+- 給与・勤務地・休日の3点はHero内スクロールなしで視認可能、視線順序を仕様欄に明示
+- 「きれいすぎる採用LP」は逆効果 → 一次素材（実在の現場・実在の社員）を主役化
+- 案A/Bの提示は「①主役型 → ②配色」の2段階、個人的な色の好みで構造ごと否決される事故を防止
+
+---
+
