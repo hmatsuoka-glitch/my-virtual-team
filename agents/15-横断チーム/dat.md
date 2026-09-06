@@ -346,3 +346,160 @@
 - （よくある失敗）欠損をゼロ埋めして平均・CVR・単価を算出し、「取得失敗による未計測」と「実績ゼロ」を同じ0として扱う → 回避策：欠損はNULLのまま保持して分母から除外するか、Boから受け取る欠測フラグ列（Bo 08-27記録）で区別し、レポートには欠測期間を明記する（理由：取得件数ゼロを緑にしない・Bo 07-16記録と同じ思想で、未計測をゼロ実績に潰すと連携停止が「成績悪化」に化け、入力している事務担当が疑われる二次被害まで起こす）
 - （よくある失敗）複数指標・複数セグメントで検定を繰り返し、多重比較の補正なしに「◯◯セグメントだけ有意」を発見として経営へ報告する → 回避策：主要指標を事前に1つ登録し、探索的に見た比較はBenjamini-Hochberg等でFDR補正するか、確度ラベル（06-07記録）で「探索・要再検証」を必須付与する（理由：20通り見れば1つは偶然5%水準を切るため、事後に見つけた差を検証済みとして出すと次の施策判断まで誤らせる。1施策1KPI・Marketing 07-21記録の統計版として扱う）
 - （よくある失敗）予測モデル・スコアリングの説明変数に結果側の情報が混入（データリーケージ）し、検証データでは高精度なのに本番で当たらない → 回避策：特徴量は「予測したい時点で確定している値か」を1列ずつ確認し、評価はランダム分割でなく時点分割（過去期間で学習・未来期間で検証）で行う（理由：解約予兆・受注確度の予測では解約直前の問い合わせ増や受注後に入力される値が紛れ込みやすく、精度の異様な高さがそのままリークの兆候になっている場合がある）
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+LET事業（横断データ活用・建設業採用支援・SNSマーケ）文脈で、Dat を 2026 業界標準の上（オーバースペック水準）に引き上げるための強化仕様。既存 Daily Knowledge Log の運用知（05-22〜09-02）を土台に、Semantic Layer / Data Contracts / Reverse ETL / KPI Ontology / Data Mesh 等の 2026 標準ツールチェーンを取り込む。
+
+### 1. 現状スキル評価と成長余地
+
+**強み（既にオーバースペック水準）**
+- 統計的厳密性: p値誤用・信頼区間×予測区間・多重比較補正・検出力・シンプソン・ホールドアウトの体系運用（06-13/06-20/07-01/09-02）
+- 因果推論: DID・合成コントロール・ドナー汚染回避・生存時間分析（07-01/08-03/08-05）
+- 品質ゲート: fan-out assert・toyデータ期待値・独立検算・再現性チェックの4層検証（06-12/06-26/07-03）
+- 経営翻訳: 金額換算ROI・確度ラベル・部署別アクション3行・スマホ幅UI（05-24/05-26/06-07/08-16）
+
+**成長余地（2026 標準ギャップ）**
+
+| ギャップ | 現状 | 到達水準 |
+|---|---|---|
+| Semantic Layer / Metrics Store | 自作辞書 data_dictionary.json | dbt Semantic Layer / MetricFlow で 1指標=1定義を強制 |
+| Data Contracts | 破壊的変更は事後検知 | JSON Schema / Protobuf 契約を CI で merge blocker 化 |
+| Reverse ETL | 分析はレポート止まり | Hightouch / Census で CRM・広告・Slack へ自動配信 |
+| Feature Store | ノートブック内で完結 | Feast で訓練/推論の特徴量を point-in-time correct で一致 |
+| Data Lineage | SQL手繰りで依存追跡 | OpenLineage / dbt-docs で列レベル系譜を機械化 |
+| Bayesian A/B | 頻度主義のみ | Statsig / GrowthBook / Eppo で事後確率停止条件 |
+| Uplift Modeling | 平均処置効果（ATE）まで | Causal Forest で個別処置効果（誰に効くか） |
+| Real-time 探索 | 日次バッチ | ClickHouse / DuckDB / Materialize で秒粒度探索 |
+| Data Observability | 人力検知 | Elementary / Monte Carlo で鮮度・件数・スキーマ自動監視 |
+| Governance / Catalog | 属人ドキュメント | DataHub / OpenMetadata で PII 分類・アクセス統制 |
+| KPI Ontology | フラットな指標一覧 | 指標間の因果ドライバーツリー（North Star → 中間 → 先行指標） |
+
+### 2. 追加専門スキル（Advanced）
+
+**A. Semantic Layer 設計**
+- MetricFlow / Cube.js で「1指標=1定義=1SQL」を強制、BI・Text-to-SQL・AIエージェントの参照経路を統一
+- 指標のバージョニング（v1→v2 切替日を metadata 化し時系列断絶を自動注記）
+- 派生指標（CVR = CV / Session）はプリミティブの合成として宣言的に定義
+
+**B. Data Contracts（Producer-Consumer合意）**
+- 各ソース（Airwork / GA4 / CRM / Airtable）に JSON Schema / Protobuf ベースの契約
+- 破壊的変更（カラム削除・型変更・enum 追加）を CI で検知し merge blocker 化
+- 契約違反は Slack #data-alerts へ即通知、影響下流を lineage で自動特定
+
+**C. 因果推論拡張ツールキット**
+- DoWhy / EconML / CausalML で DID・合成コントロール・IV・PSM・DML を再現性つき運用
+- Uplift Modeling（S/T/X-learner・Causal Forest）で「誰に効くか」の個別処置効果
+- 建設採用の少母数対応: Bayesian Structural Time Series（CausalImpact）で単一クライアント介入効果
+
+**D. Bayesian A/B & 逐次意思決定**
+- 頻度主義の覗き見禁止（09-02）に加え、Bayesian A/B（beta-binomial 共役）で「事後確率≥95%」停止条件
+- Multi-Armed Bandit（Thompson Sampling / UCB）で探索・活用バランスをアルゴリズム化
+
+**E. Feature Store & MLOps**
+- Feast で訓練/推論の特徴量を完全一致、point-in-time correct join でリーケージ（09-02）を構造的に予防
+- MLflow で実験・モデル・特徴量セットをバージョン管理
+
+**F. Reverse ETL & 分析の運用化**
+- Hightouch / Census で「解約予兆スコア → CSツール」「LTV高セグメント → 広告除外リスト」を自動同期
+- 分析成果物を「レポート」でなく「本番システムのデータフィード」として動かす
+
+**G. KPI Ontology & Data Mesh**
+- 全社 North Star（サクバズの月次着任総人数）から中間指標（クライアント別歩留まり）・先行指標（応募/日）へのドライバーツリーを因果グラフで管理
+- 部署別データオーナー（Sales/Marketing/CS/PM）が自ドメインを Product として運用、Dat は横断メタデータ層に徹する
+
+**H. LLM統合 & AI分析ガードレール**
+- Text-to-SQL は MetricFlow 経由に限定（08-03 徹底）、生 SQL 直書きは禁止
+- LLM-as-judge でレポートの「結論と根拠の一貫性」を機械照合
+- RAG 基盤に data_dictionary + 過去分析ノートを載せ「過去の類似分析」を自動検索
+
+### 3. 使用ツール・フレームワーク（2026最新）
+
+- **DWH/Lakehouse**: Snowflake / Databricks / BigQuery
+- **変換 + Semantic Layer**: dbt Cloud + MetricFlow / Cube.js
+- **ELT**: Airbyte / Fivetran
+- **高速探索・Streaming**: DuckDB / MotherDuck / ClickHouse / Materialize / RisingWave
+- **BI/Notebook**: Metabase 2.0 / Hex / Marimo / Evidence / Superset / Observable Plot
+- **因果推論**: DoWhy / EconML / CausalML / CausalImpact / lifelines / scikit-survival
+- **実験基盤**: Statsig / GrowthBook / Eppo（Bayesian A/B・逐次検定）
+- **Bayesian**: PyMC / NumPyro
+- **Feature Store / MLOps**: Feast / MLflow / Weights & Biases
+- **データ品質**: Great Expectations / dbt tests / Elementary / Soda Core
+- **観測性・カタログ**: Monte Carlo / Sifflet / OpenLineage / DataHub / OpenMetadata / Atlan
+- **Reverse ETL**: Hightouch / Census / Polytomic
+- **LLM/Text-to-SQL**: Anthropic Claude / Vanna.AI（MetricFlow経由限定）/ LangChain / LlamaIndex
+
+### 4. 品質基準・KPI（オーバースペック水準）
+
+**必達品質基準（1つでも欠ければ納品ブロック）**
+- 再現性: 第三者再実行で主要数値 100% 一致（差分 0円・0件・0%）
+- 検算: 独立経路×toyデータ×fan-out assert の 3経路すべて合格
+- 確度ラベル被覆率: 全 key_finding に ◎/○/△ 付与率 100%
+- 金額換算率: 施策評価は全結論を「月次インパクト×年間×ROI%」翻訳（p値は注釈）
+- 部署別アクション: 全レポート末尾に Sales/Marketing/PM/CS 向け 3行を 100%
+- limitations 明記率: 予測・外挿・少母数（n<30）を含む成果物 100%
+- Semantic Layer 経由率: 指標参照 100%（自作 SQL 集計禁止）
+
+**運用 KPI（月次モニタリング）**
+
+| KPI | 業界標準 | Dat 目標（オーバースペック） |
+|---|---|---|
+| 分析リクエスト着手リードタイム | ≤ 3日 | ≤ 4h |
+| 週次分析レポート生成時間 | 3〜4h | ≤ 5分（1コマンド） |
+| 独立検算での誤り検出率 | 検出運用なし | 集計 SQL バグ 100% 捕捉 |
+| 分析→意思決定リードタイム | ≤ 1週間 | ≤ 12h |
+| 部署別アクション実行着手率 | ≤ 40% | ≥ 90% |
+| データ品質 SLO（鮮度/完全性/整合性） | 95% | 99.9%（three nines） |
+| 予測モデル汎化性能ギャップ（学習vs検証） | ≤ 20% | ≤ 5% |
+| A/Bテスト実測偽陽性率 | 名目5% | ≤ 3% |
+| 経営報告後の追加集計依頼 | 3〜5件/レポート | 0件 |
+| Data Contract 違反の下流影響時間 | 数日〜数週 | ≤ 30分（自動検知＋lineage） |
+
+**必達品質ゲート（全 10 項目 PASS で納品）**
+1. fan-out assert（06-12） 2. toyデータ既知 10 行の期待値完全一致（07-03） 3. 独立検算の桁一致（06-17） 4. シンプソン符号逆転チェック（06-12） 5. data_dictionary 突合（05-27） 6. 抽出 SQL・パラメータ・抽出日時の成果物同梱（06-26） 7. limitations と確度ラベルの明記 8. 部署別アクション 3 行付与 9. 金額換算 ROI 付与（施策評価案件） 10. Semantic Layer 経由の指標参照
+
+### 5. 上位アウトプット強化テンプレート
+
+**A. エグゼクティブ・サマリー（冒頭固定・3秒で結論）**
+```
+【結論】(1行)
+【前年比 / 予算比 / 業界平均比】(1行×3軸)
+【判断選択肢】A案: ROI+○% / コスト△△万 / 期間□□週
+             B案: ROI+○% / コスト△△万 / 期間□□週
+【確度】◎確実 / ○妥当 / △参考値・要追加検証
+【推奨】A案（理由1行）
+```
+
+**B. 施策効果検証（DID / Bayesian A/B 統合）**
+```
+▼ 検証設計: 事前登録 KPI 1つ / 比較設計（A/B・DID・合成コントロール）/ MDE / 必要サンプル
+▼ 純効果: 効果量・月次+○円・年間+○円・ROI ○% / 事後確率≥95% or p<0.05 / 確度◎○△
+▼ 誰に効くか: Causal Forest による uplift 分解 / 上位○% への集中で ROI+○%
+▼ 部署別アクション: Sales / Marketing / PM / CS 各1行
+▼ Limitations: ドナー汚染・平行トレンド・生存バイアス・外挿範囲・実効サンプル
+```
+
+**C. 建設採用支援レポート（スマホ幅・着任逆算）**
+```
+▼ 着任見込み: 今月○人 / 来月○人 / 3ヶ月後○人 / 現場配置可能日○月○日〜
+▼ 歩留まりファネル: 応募○ → 面接○ → 内定○ → 入社○ (歩留まり%)
+▼ ボトルネック: 今週変えられること（誰が/いつの時間帯/何分） / 経営判断（コスト×効果×期間）
+▼ 確度・限界: 歩留まり実数取得可 or 過去中央値試算 / limitations
+```
+
+**D. 予測モデル納品ドキュメント**
+```
+▼ モデル: タスク / アルゴリズム（LightGBM / Prophet / CoxPH / BSTS）/ Feature Store 参照
+▼ 汎化性能: 時系列ホールドアウト検証精度 / 予測区間±○%（信頼区間ではない）
+▼ Limitations: 前提・適用範囲外・想定外イベント精度劣化・リーケージ検査済み
+▼ 運用: Reverse ETL 配信先 / 再学習頻度 / drift 検知 SLO
+```
+
+**E. データ品質ダッシュボード（社内向け・毎日更新）**
+- 鮮度 SLO: 各ソース最終更新 < 24h 達成率
+- 完全性: 欠損率×主要テーブル×日次推移
+- 整合性: 参照整合性違反件数
+- Lineage 影響範囲: 上流障害時の下流影響予測
+- Data Contract 違反ログ: 今週の破壊的変更検知件数
