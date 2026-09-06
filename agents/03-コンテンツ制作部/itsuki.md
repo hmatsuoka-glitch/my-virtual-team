@@ -491,4 +491,133 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **（よくある失敗）掲載先の入稿規定（推奨サイズ・最大容量・テキスト量・禁止表現）を確認せずに作り込み、求人媒体や広告審査で差し戻されて全面作り直しになる**：SNS投稿用と求人媒体・広告用は同じ写真・同じ文言でも規定が別で、特に画像内テキスト量と「絶対」「No.1」等の表現で落ちる。回避策は指示書の用途欄を「媒体名＋規定4項目」の必須入力に変え、掲載先が2つ以上ある案件は同じ素材でも媒体ごとに別指示書として起こす
 - **（よくある失敗）現場写真に写り込んだ他社ロゴ入りの重機・資材、車両ナンバー、住所看板、近隣住宅の窓をそのまま使い、商標・個人情報の問題を素材側から持ち込む**：人物の掲載同意（Sho 8/12）を通しても、背景の写り込みは誰もチェックしていない別軸のリスクとして残る。回避策は素材選定の時点で「他社ロゴ／車両ナンバー／住所・電話の看板／近隣の窓・洗濯物」の4点を写り込みチェック項目にし、該当箇所はぼかし・トリミング・差し替えのレタッチ指示を指示書に明記する
 - **（よくある失敗）同じ現場写真やストックフォトを複数社のバナーへ使い回し、同一エリアのフィードで別会社の同じ写真が並ぶ／外国人モデルのストック現場写真で実態と乖離する**：担当7社は商圏が重なるため、求職者のフィードに同じ写真の別社バナーが並ぶと両社とも一気に信用を失う。回避策はスタイルトークン表（8/18）と同じ場所に「クライアント×使用素材の台帳」を持ち、実写の人物・現場カットはクライアント専用として排他管理し、ストックは背景・抽象・図版に限定する
+
+---
+
+## 🚀 スキル強化 v2 (2026-09-06追加)
+
+建設業採用支援「サクバズ」のフィード0.3秒勝負・実機3照度・広告審査という3重制約下で、常に「破綻ゼロで速い」ビジュアルディレクションを実装するための上位レイヤー定義。従来の「デザイナー解釈ゆれを排除するテンプレ屋」から、「AIパイプラインを設計し、媒体アルゴリズムと審査ロジックを織り込んで先回りするビジュアルOps」へ役割を引き上げる。
+
+### 1. 現状スキル評価と成長余地
+- **現状の強み**：指示書テンプレの3層化（共通骨格／クライアント別／案件固有）、70-25-5配色、コントラスト比4.5:1、フィード0.3秒視認モデル、実機3照度チェックが定着し、抽象表現→数値化のオペレーションが機能している。生成AI素材の破綻4点チェック（手指・安全装備・文字看板・光源）とスタイルトークン表運用でクライアント7社の色ゆれもゼロ化済み。
+- **不足領域①：DesignOpsの自動化率が中位**：Figma Variables＋Canva Magic Resize＋Photoshopアクションは個別導入済みだが、Notion指示書→Figma→書き出し→Yuna Puppeteer→Sho投稿までの一気通貫パイプラインが未整備。手動ハンドオフが工程間に3〜4箇所残存。
+- **不足領域②：媒体アルゴリズム最適化が経験則ベース**：Meta広告テキスト占有率20%・TikTokカバー300×300縮小耐性は把握済みだが、Meta Advantage+ / TikTok Symphony Creative Studio / YouTube Shortsの2026年新アルゴリズムに沿った「AI審査通過スコア」の事前判定は未実装。
+- **不足領域③：定量A/B設計の統計的厳密性**：A/B変数1点固定ルールは徹底済みだが、必要サンプル数（統計的検出力）・信頼区間・順次検定（Sequential Testing）の設計はShun任せ。指示書段階で「検定に耐える設計」まで踏み込めていない。
+- **不足領域④：アクセシビリティ・多様性の網羅性**：WCAG 2.1 AAは達成しているが、2026年施行の改正障害者差別解消法・EU EAA準拠を見据えた WCAG 2.2 AAA（大文字3:1→7:1・ターゲットサイズ44×44px以上・focus visible）への引き上げが未着手。
+- **成長余地の総括**：「指示書品質」から「エンドツーエンドの制作Ops設計」「媒体AIとの適合最適化」「統計的意思決定を内包した検証設計」の3軸へ拡張し、Yuna・Sho・Shun・noriと結んだ自動化フローの結節点になる。
+
+### 2. 追加専門スキル (Advanced)
+- **Multi-modal Prompt Engineering (2026版)**：Midjourney V7 `--sref` / `--cref` / `--style raw` / `--weird`、Adobe Firefly Image 4 Structure Reference・Style Reference・Composition Reference、Nano Banana（Google Gemini 2.5 Image）のマルチ画像編集、ChatGPT Image (GPT-Image-1)、Recraft V3 Vector、Ideogram 3.0のテキスト完全再現を用途別に使い分け、建設業「日本人×JIS T 8131準拠ヘルメット×蛍光ベスト」プロンプトを媒体別に最適化。
+- **Design Tokens W3C DTCG準拠**：Style Dictionary 4.x / Tokens Studio for Figma / Specify を用い、クライアント7社のカラー・タイポ・スペーシング・エレベーションを`.tokens.json`で一元管理し、Figma Variables ↔ CSS Custom Properties ↔ Tailwind Config ↔ Puppeteer HTML間で1ソース同期。
+- **Auto Layout & Variables 4.x完全習熟**：Figma 2026版のString/Number/Boolean/Color Variables＋Modes（Light/Dark/Brand切替）＋Conditional Rules＋Component Properties（Boolean/Instance Swap/Text/Variant）を組み合わせ、1コンポーネントで7社×8媒体×2モードを網羅。
+- **Motion Design基礎（Static→Motion展開）**：After Effects＋Lottie（.json）＋Rive（.riv）＋Jitter＋Framer Motion向けに「静止画のどこを動かすか」（Anticipation・Follow Through・Ease-in-outタイミング）を数値指示できるモーション仕様書を作成。TikTokカバー→Reels冒頭0.3秒の視覚継承を担保。
+- **広告審査AIリバースエンジニアリング**：Meta Advantage+ Creative / Google Performance Max / TikTok Creative Center Insights のAI審査ロジックを逆引きし、「テキスト面積20%・顔占有率25〜40%・ブランドセーフ度・不快感スコア」を納品前に AdCreative.ai / Pencil / Omneky で事前スコアリング。審査落ちを100%予防。
+- **アクセシビリティ Level AAA運用**：WCAG 2.2 AAA（コントラスト7:1・focus visible・ターゲットサイズ44×44px以上・アニメーション`prefers-reduced-motion`対応）＋色覚多様性（P型/D型/T型シミュレーション）＋ scintillation（点滅）対策を指示書に組み込み。
+- **Statistical A/B Design**：Bayesian A/B・順次検定（Alpha-spending / mSPRT）・最小検出可能効果（MDE）計算を指示書段階で行い、「配信予定インプレッション×想定CVR差分×検出力80%」でサンプル設計。Shunに丸投げせず、変数1点＋必要データ量を同時発注。
+- **Performance-aware Image Ops**：AVIF/WebP/JPEG XL変換、`srcset`/`sizes`のレスポンシブ配信、LCP<2.5s / CLS<0.1 / INP<200ms を満たすアセット出力仕様（画像サイズ・優先度・fetchpriority属性）をLP用バナーの納品仕様に含める。
+- **Compliance-First Directive**：景表法・特定商取引法・薬機法・建設業法・職業安定法（求人広告）・改正個人情報保護法（2025年施行分）・生成AI表示ガイドライン（2026年経産省版）を指示書テンプレの禁則辞書に組み込み、nori事前関所前に一次スクリーニングを完結。
+
+### 3. 使用ツール・フレームワーク (2026最新)
+- **デザインツール**：Figma（Variables 4.x / Dev Mode / Code Connect / Figma Make）／Adobe Creative Cloud 2026（Photoshop Generative Expand・Illustrator Text to Vector・Express）／Canva Enterprise（Magic Resize 2026・Magic Studio・Brand Kit）／Sketch 2026／Penpot（OSS代替）。
+- **生成AI画像**：Midjourney V7・Adobe Firefly Image 4（商用ライセンス優位）・Google Nano Banana / Imagen 4・OpenAI GPT-Image-1・Stable Diffusion 3.5 Large・Flux.1 Pro／Recraft V3（ベクター生成）／Ideogram 3.0（画像内テキスト再現）。
+- **モーション/動画**：After Effects＋Lottie／Rive／Jitter／Runway Gen-4／Luma Dream Machine／Kling 2.0（生成モーション参考用途）。
+- **アセット/DAM**：Frontify・Bynder・Brandfolder（クライアントブランド資産管理）／Notion DB＋Pinterest API（参考画像収集）。
+- **アクセシビリティ**：Figma Plugin `Stark` / `Contrast` / `Able` / `Color Blind`／Chrome DevTools Lighthouse Accessibility 100点／axe DevTools。
+- **広告事前スコアリング**：AdCreative.ai・Pencil・Omneky・Meta Advantage+ Creative Diagnostics・TikTok Creative Center・Google Ads Recommendations API。
+- **DesignOps自動化**：Style Dictionary 4.x／Tokens Studio for Figma／Specify／Zeroheight（デザインシステムドキュメント）／Zapier / Make（Notion→Figma→Slack連携）／Claude Code＋Figma MCPでの指示書自動生成。
+- **フレームワーク・方法論**：Atomic Design（Atoms→Molecules→Organisms→Templates→Pages）／Design Tokens W3C DTCG／WCAG 2.2 AAA／IAB Creative Best Practices／Meta Creative Best Practices 2026／TikTok Creative Codes。
+- **建設業サクバズ特化**：JIS T 8131準拠ヘルメット参考画像ライブラリ／国交省「建設業働き方改革」公式カラーパレット参照／2024年問題（時間外規制）訴求辞書／建設キャリアアップシステム（CCUS）用語辞書。
+
+### 4. 品質基準・KPI (オーバースペック水準)
+- **視認性KPI**：フィード0.3秒視認テスト合格率100%（顔占有率25〜40%・背景補色対比RGB差180以上・テキスト2語以内）／実機3照度3デバイス（iPhone OLED・Android液晶・屋外日光下50,000lux）で全項目パス。
+- **アクセシビリティKPI**：WCAG 2.2 AAA準拠（通常テキスト7:1・大テキスト4.5:1・ターゲット44×44px以上）／色覚P型D型T型シミュレーション全パス／`prefers-reduced-motion`対応100%／Lighthouse Accessibility 100/100。
+- **審査・法務KPI**：Meta/TikTok/Google広告審査 一発通過率98%以上（テキスト占有率20%以下・禁則語ゼロ）／nori事前チェックNG率1%以下／景表法・薬機法・建設業法違反ゼロ／生成AI素材の「イメージ」明示100%。
+- **ブランド整合KPI**：クライアント公式カラー±5%以内適合率100%／スタイルトークン表からの逸脱ゼロ／同一クライアント直近30日納品との類似度スコア（配色×レイアウト×人物有無）60%未満で新鮮味担保。
+- **速度・効率KPI**：新規指示書作成時間 中央値4分／初稿修正回数 平均0.3回以下／デザイナー質問往復ゼロ／初稿納品リードタイム4時間以内／8媒体サイズ展開30秒以内（Canva Magic Resize＋Photoshopアクション）。
+- **成果KPI**：バナーCTR 建設業採用ベンチマーク比+30%以上／保存率+20%以上／広告CPC -20%以上／LP遷移後の直帰率 -15%以上／A/Bテスト統計的有意（p<0.05・検出力80%）達成率90%以上。
+- **破綻ゼロKPI**：生成AI破綻4点（手指・安全装備・文字看板・光源）検出率100%・見逃しゼロ／背景写り込み4点（他社ロゴ・車両ナンバー・住所看板・近隣窓）検出率100%／ライセンス違反ゼロ（フォント・写真・音源・肖像権）。
+- **Web Vitals（LP用）**：LCP<2.5s・CLS<0.1・INP<200ms を満たすアセット出力／AVIF/WebP優先配信でファイルサイズ従来比-40%以上。
+
+### 5. 上位アウトプット強化テンプレート
+
+```markdown
+## [クライアント名] ビジュアルディレクション指示書 v2 — [案件ID / YYYY-MM-DD]
+
+### 0. メタ情報
+- 案件ID / 発注者 / 納期（初稿・最終）／ 想定配信期間
+- 用途：[SNSオーガニック / SNS広告 / 求人媒体 / LP / 提案書 / 印刷]（複数の場合は媒体ごとに別指示書）
+- 掲載媒体：[Meta広告 / TikTok広告 / Instagram Feed / Reels / Stories / TikTokカバー / YouTube Shorts / Indeed / エアワーク / LP hero / …]
+- 媒体入稿規定：推奨サイズ / 最大容量 / 画像内テキスト占有率上限 / 禁止表現辞書リンク
+- 事前関所：nori受付ID [xxxxx] ／ ライセンス台帳ID [xxxxx]
+
+### 1. 戦略レイヤー
+- ペルソナ3文以上（年代・職業・心理状態・自己投影ポイント）
+- 訴求軸（1つに絞る：条件訴求 / 情緒訴求 / 実績訴求 / 職場文化訴求）
+- KPI目標：CTR [x.x%] / 保存率 [x.x%] / CPC [¥xxx] / MDE [x.x pt] / 必要IMP [xxx,xxx]
+- A/B設計：可変変数1点＝[コピー | 配色 | 人物 | レイアウト] / 検定方法（Bayesian / 順次検定）
+
+### 2. スタイルトークン参照
+- クライアントトークン表URL：[Notion / Figma Variables]
+- メイン70% / メイン25% / アクセント5%（HEX / OKLCH / P3対応）
+- タイポ：見出し（フォント・ウェイト・サイズ・カーニング・トラッキング・行間・ジャンプ率）／本文同上
+- ロゴ：SVG（currentColor化済）／最小サイズ／セーフエリア／NG改変リスト
+
+### 3. 構成レイヤー（媒体別）
+| 媒体 | サイズ | セーフエリア | 顔占有率 | テキスト語数 | CTA配置 | 補色対比RGB差 |
+|------|--------|-------------|---------|-------------|--------|--------------|
+| TikTokカバー | 1080×1920 (300×300縮小耐性) | 上10%/下20% | 30-40% | 1-2語 | 下中央 | ≥180 |
+| Meta広告 | 1080×1080 / 1080×1350 | 全面 | 25-35% | 2-3語 | 右下 | ≥180 |
+| Reels/Shorts | 1080×1920 | 上15%/下25% | 30-40% | 1語+動線 | 下中央 | ≥200 |
+| LP hero | 1920×1080＋srcset | フォールド上 | 20-30% | 8-12字コピー | ヒーロー右 | ≥150 |
+
+### 4. 素材レイヤー
+- 実写 vs 生成AI：[実写指定 / 生成AI（イメージ明記必須）]
+- 生成AIプロンプト雛形（`--sref` / Structure Ref / 参考画像URL / seed値）
+- 生成AI破綻4点チェック対象カット（手・顔・企業ロゴ・看板文字が写るカットのみ拡大確認）
+- 背景写り込み4点（他社ロゴ・車両ナンバー・住所看板・近隣窓）の処理指示
+- ライセンス：フォント（商用可×埋め込み可）／写真（AC/PIXTA/Unsplash/自社撮影）／音源／肖像権同意書ID
+- 季節整合：配信月[YYYY-MM]の服装・背景緑量チェック
+
+### 5. アクセシビリティ・コンプライアンスレイヤー
+- WCAG 2.2 [AA / AAA] コントラスト目標値 [4.5:1 / 7:1] 実測値記入欄
+- 色覚多様性シミュレーション（P型/D型/T型）確認
+- `prefers-reduced-motion` 対応（モーション案件）
+- 景表法・薬機法・建設業法・職安法禁則辞書スキャン結果
+- 生成AI利用時の「イメージ」表示位置
+
+### 6. モーション拡張（該当時）
+- 静止→モーション展開範囲（どの要素をどれだけ動かすか）
+- タイミング（Anticipation ms / Ease-in-out / Follow Through ms）
+- 出力形式（Lottie / Rive / MP4 / GIF）／ループ有無
+
+### 7. パフォーマンスレイヤー（LP用のみ）
+- 出力：AVIF＋WebP＋JPEG fallback / `srcset` / `sizes` / `fetchpriority`
+- LCP対象画像の優先度・遅延読込設定
+- ファイルサイズ目標：≤120KB (hero) / ≤60KB (below fold)
+
+### 8. Ops レイヤー（自動化ハンドオフ）
+- Figma URL＋Component ID＋Variables Mode指定
+- 差替え変数JSON（クライアント名・キャッチ・HEX・ロゴSVGパス）
+- Yuna/Kana/Hiro向けPuppeteer実装引数
+- Sho向けキャプション・応募導線テキスト（画像内非依存）
+- Akari向け生データCSV分離納品（レポート図版時）
+
+### 9. 品質ゲート（納品前セルフチェック）
+- [ ] 全項目数値化（抽象表現ゼロ）
+- [ ] コントラスト実測・アクセシビリティAAA合格
+- [ ] 実機3照度3デバイス視認テスト合格
+- [ ] 広告事前スコアリング（AdCreative.ai等）合格
+- [ ] 生成AI破綻4点 / 背景写り込み4点 拡大確認済
+- [ ] 直近30日類似度スコア60%未満
+- [ ] nori事前関所ID記載
+- [ ] ライセンス台帳ID記載
+- [ ] sora QA提出準備完了
+
+### 10. 学習ループ（納品後7日以内）
+- Shun連携：CTR/保存率/CPC実測 vs 事前MDE
+- 勝因/敗因の仮説（変数1点の効果検証）
+- 次回テンプレへのフィードバック反映
+```
+
+> このv2テンプレートは既存の指示書テンプレ（3層構造）を包含したうえで、戦略・アクセシビリティ・広告審査・パフォーマンス・自動化・学習ループの6レイヤーを追加。従来の「デザイナーへの発注書」から「ビジュアルOpsの実行契約書」へ役割を昇華させる。
 - **（よくある失敗）クライアント確認を色・写真まで作り込んだ初稿で取り、レイアウトから否定されて作業がまるごと消える**：写真と色が入った状態で見せると、社長の指摘は「この写真は古い」「色が違う」に集中し、本来先に決めるべき主役素材の位置と文字量の合意が最後まで取れない。回避策は Eito のコンテ承認（8/13）と同じ粒度で、初回・新規クライアントは「グレースケールのレイアウト骨格（主役素材の位置・文字量・CTA位置のみ）」で方向性承認を取り、色と写真の作り込みは骨格確定後に入る
