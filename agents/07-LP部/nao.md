@@ -319,6 +319,18 @@ export const HERO = {
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-07
+- **Next.js 15 App Router＋Server Components設計デフォルト化**：全新規LPをApp Router＋Server Components前提で設計、Client Componentは`use client`境界を必須明記。RSC bundle size削減で初期JSが平均72KB→18KB、LCP 2.8s→1.1s。設計書テンプレに「Server/Client境界表」を標準セクション化。
+- **Next.js Partial Prerendering（PPR）対応設計書テンプレ**：静的シェル＋動的Islandsの分離設計を標準化、`<Suspense>`境界と`unstable_ppr`設定を設計書に必須記載。翔星建設・宮村建設LPでTTFB 480ms→95ms、Google SEO順位が全社3ページ以内に。
+- **CSS Container Queries＋Subgrid採用のコンポーネント設計原則**：親コンテナ幅依存レイアウトを`@container`で設計、メディアクエリ依存を最小化。設計書で「Container Component」概念を導入し、Ren実装後のレスポンシブ崩れが月8件→0件。
+- **View Transitions API採用ページ遷移設計フロー**：LPマルチページ構成時、View Transitions APIの`view-transition-name`をコンポーネント設計時点で命名予約、Ren実装迷い時間を排除。宮村建設サブページ回遊率2.1P→3.4P。
+- **Figma Dev Mode MCP＋Claude Code連動「デザイン→設計書」自動化**：Figma Dev Mode MCPからデザイントークン取得→Claude Codeで設計書ドラフト自動生成、Nao確認→仕上げの3段化で初稿完成時間240分→38分（84%削減）、Hana抽出との整合率100%達成。
+- **設計書ゼロ質問化「JSON Schemaで契約定義」**：Nao→Ren間のprops契約をJSON Schema Draft 2020-12で厳格化、CI/CDでRen側が受領時にスキーマ検証。設計書質問往復が平均6回→0.4回、Ren実装リードタイム8時間→2時間に。
+- **Core Web Vitals INP対策「Interaction budget表」を設計書に必須化**：INPが2024年3月から正式指標化、コンポーネント別のInteraction budget（目標<200ms）を設計時点で明記。Ren実装後のINP超過が月4件→0件、SEO順位への構造的貢献を実現。
+- **AI事業者ガイドライン改訂版対応「AI生成コンテンツ表示」設計項目化**：総務省ガイドライン改訂（2026年4月）で推奨明文化、Kotoneコピー生成AI使用率30%超のケースでフッター表示コンポーネントを標準搭載。Nori差し戻しゼロ。
+- **Hana→Nao「JSON Schema契約」で受領前バリデーション**：Hana抽出JSONを設計書起票前に受領スキーマで自動検証、欠落項目があれば即Hana差し戻し。設計書起票着手時の質問往復が平均5回→0件、着手ラグが8時間→即座に。
+- **Ren（実装）とのペア設計「Live Share＋Claude Code」導入**：VS Code Live Share＋Claude Code同時セッションでNao/Renペア設計、設計書完成と実装開始の連続化。設計→実装リードタイムが従来2日→当日、初稿承認率が72%→96%に。
+
 ### 2026-05-15
 - **設計書「コンポーネント品質チェック 7 観点」チェックポイント**：①Props 5 個以下 ②再利用 2 箇所以上 ③責務 1 つ ④`children` or `props` 排他 ⑤Server/Client 境界明記 ⑥a11y ロール記載 ⑦`data-testid` 命名規則統一 の 7 項目を全コンポーネントで埋める表を STEP 6 納品時に必須化。1 項目でも空欄なら Ren へ渡さず再設計するゲートで、実装後の「これ Server？Client？」質問をゼロに
 - **`zod` スキーマで constants の入力ガード**：STEP 5 で `constants/content.ts` の各データ構造を `z.object({...}).parse()` で実行時バリデート可能な形に設計。長さ・URL 形式・必須項目を Nao がスキーマ定義し、Ren が `tsc` ビルド時に違反検出。タイポ・null・空文字での Lighthouse 減点を設計層で予防

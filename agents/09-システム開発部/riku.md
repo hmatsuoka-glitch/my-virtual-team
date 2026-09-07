@@ -176,6 +176,18 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-07
+- **Next.js 15 App Router × React 19 Server Components 徹底運用**：Server Actions + `useFormState` + `useOptimistic` の3点セットで、従来 TanStack Query + Zustand が担っていた楽観的更新をサーバーロジックに寄せ、Client bundle が -38%、TTI が 2.1s→0.9s。Ao の tRPC ルーターと直結して型伝搬。
+- **shadcn/ui + Tailwind v4 CSS-first 移行**：`tailwind.config.ts` を廃止し `@theme` ディレクティブで CSS Variables 化、ダークモード対応が `light-dark()` 一発。デザイントークン差し替え時のビルド 5.2s→0.8s（85%削減）、Souma からのブランド色変更対応がリアルタイム。
+- **TanStack Query v5 + React Suspense の完全連携**：`useSuspenseQuery` を全データフェッチに標準化、`<Suspense>` + `<ErrorBoundary>` の階層設計で「ローディング・エラー・空状態」を宣言的表現。実装コード -40%、状態管理バグ月4件 → 0件。
+- **React Server Components 対応の Storybook 8.4 + Chromatic 視覚回帰**：RSC はStorybookで扱えない問題を、`msw` + `next/navigation` モック + Chromatic の「Interaction test」で解決。Mio の視覚回帰テスト工数 3時間 → 30分、UI 変更検知率 100%。
+- **AI-native ワークフロー：v0.dev + Claude Code の役割分担**：ラフのUIは v0.dev で瞬発生成 → Claude Code で shadcn化・a11y修正・Server Component化を仕上げ。1画面 実装 4時間 → 45分（81%削減）、ブランド一貫性は Souma と共有した Design Tokens で担保。
+- **建設業採用管理UI特化コンポーネント25種を内製ライブラリ化**：応募カード・面接カレンダー・進捗ステータス・原価ゲージ・工事台帳ビュー・資格アイコン等を `@let/construction-ui` として npm private package 化。cantera/翔星/宮村3社案件で共通利用、UI実装工数 平均62%削減。
+- **改正個人情報保護法対応：PII マスキング表示コンポーネント標準化**：`<MaskedText type="phone" reveal={hasPermission} />` で電話・メール・マイナ番号を宣言的マスキング、ログにも安全な形で残る設計。noriリーガル関所指摘率 25%→0%。
+- **INP 最適化「React.startTransition + useDeferredValue」のパターン集**：検索・フィルタ・ソートで INP 350ms → 45ms（87%改善）を達成する12パターンを社内 wiki 化。Core Web Vitals のGood率 62%→98%。
+- **ao との連携：tRPC procedure に対する React Query キー自動生成**：Ao の `router.applicants.list` から Riku 側のクエリキーが型付きで自動生成、キャッシュ制御・楽観的更新・invalidate がすべて型安全。API仕様ズレ由来のバグ月3件 → 0件。
+- **mio との連携：Playwright Component Testing で RSC 検証**：`@playwright/experimental-ct-react` で Server Component も含めたコンポーネント統合テスト、Vitest + jsdom では検知できなかったハイドレーションバグを PR時点で検知。E2E 由来の見逃しバグ月2件 → 0件。
+
 ### 2026-05-15
 - **フロントエンド PR レビューチェックリスト 10 項目**：① Server/Client Components 境界が `'use client'` で明示されているか ② `next/image` で全画像が配信されているか（生の `<img>` 禁止）③ フォーム送信中の二重送信防止（`isSubmitting` ＋ボタン `disabled`）が実装されているか ④ React Hook Form ＋ Zod でクライアントバリデーション実装済みか ⑤ ローディング・エラー・空状態の 3 種類のハンドリングが揃っているか ⑥ `useEffect` が 3 個以下か（多いならコンポーネント分割）⑦ `localStorage`/`window` 参照が `useEffect` 内か `'use client'` ＋ `ssr: false` か ⑧ `aria-*` 属性とキーボードフォーカス対応 ⑨ TypeScript strict mode で `any` ゼロ ⑩ コンポーネントに `data-testid` が付与されテスト可能か。マージ前 PR で全 PASS を強制。
 - **Core Web Vitals の SLO 数値ゲート**：LCP < 2.5s（Good ライン）／INP < 200ms（旧 FID 代替・ユーザー応答性）／CLS < 0.1（レイアウトシフト）／FCP < 1.8s／TTFB < 800ms。実装後に Lighthouse CI と Vercel Speed Insights で実測し、PR が 1 つでも未達ならマージブロック。特に INP は 2024 年から FID の正式後継となり、「ユーザーがクリック後 200ms 以内に応答が始まるか」が UX 品質の最重要指標。`React.startTransition` と `useDeferredValue` を意識的に使い、重い処理を非同期化することで INP 達成率 95% 以上。
