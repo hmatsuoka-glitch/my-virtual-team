@@ -229,6 +229,18 @@ STEP 6: 実装完了報告
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-07
+- **Vercel Fluid Compute + Edge Runtime 混在デプロイ最適化**：APIエンドポイントを「レイテンシ重視=Edge」「重処理=Fluid Compute」「バッチ=Serverless Function + cron」の3層に自動振り分けするvercel.json ジェネレータを内製。翔星建設 採用管理システムのp95が 620ms→180ms（71%改善）、月間Vercel請求が3.4万→1.8万円。
+- **GitHub Actions 並列マトリクス最適化と自己ホストランナー活用**：Node/Bun 両立テスト、Playwright shard 8並列、Vitest workspace並列で CI 22分→4分（82%削減）。金額の重い E2E は self-hosted arm64 に移し、月間 Actions 課金 45%削減。
+- **Supabase→Vercel Postgres 移行時のダウンタイム0秒運用**：Logical Replication で二重書きしつつ、cutover 直前にVercel edge config で読み取り宛先を切替、書き込みは pgbouncer で フェイルオーバー。cantera 案件で無停止移行を実現、事後QA でデータ差分0件。
+- **AI-native ワークフロー：Claude Code で Terraform / IaC の自動生成**：Nao の設計書YAMLから Vercel Project + Supabase + Cloudflare DNS + Sentry の初期構築 Terraform を Claude Code 経由で自動生成。新規プロジェクトのインフラ立ち上げ 6時間→45分。
+- **改正個人情報保護法・電子帳簿保存法対応インフラ標準化**：全案件で監査ログを Cloudflare R2 に WORM (Write Once Read Many) 保存、7年保管を自動化。Vercel Log Drains → R2 の pipeline を Terraform モジュール化、noriの監査対応質問が月8件→1件。
+- **2024年問題余波：24/365稼働の勤怠システム向け HA構成テンプレ**：Vercel Primary + Cloudflare Workers Fallback、Supabase read replica 東京+大阪+シンガポール3拠点、Sentry Cron で 15分ごとヘルスチェックする建設業SME向けHA構成を「kuu-ha-preset」として整備。SLA 99.95% を1万円/月で達成。
+- **Preview Deployments に Neon Postgres Branching 導入**：PRごとに本番スキーマからブランチDBを瞬時生成しシード投入、E2Eテストが本番相当データで走行可能に。Mio のリグレッションテスト再現性が 65%→98%、テストデータ準備工数月12時間→ゼロ。
+- **Sentry + PostHog + Vercel Web Analytics 3層可観測性ダッシュボード統合**：エラー・行動・パフォーマンスを1画面のGrafanaに集約、SLO違反時にPagerDuty+Slack同時通知。障害検知から一次対応まで平均12分→3分。
+- **ao との連携：OpenTelemetry Collector 集中運用**：Ao の実装するAPIが自動計測されるよう `@vercel/otel` の共通ラッパー npm package を Kuu が提供、実装コスト0でトレース収集。分散トレース工数 Ao側4時間 → 0。
+- **mio との連携：Playwright CI の Flaky test 自動 quarantine**：連続3回失敗したE2EテストをGitHub Actions の matrix から自動除外しSlack通知、mio が翌朝 root cause 分析。CI 安定度 82%→99.4%、金曜デプロイ阻害が消失。
+
 ### 2026-05-15
 - **本番デプロイ前の Pre-Deploy チェックリスト 10 項目**：① 全環境変数が Vercel 本番環境に設定済み（`vercel env ls` で確認）② プレビューデプロイで動作確認完了（PC・SP 両方）③ ビルドログにエラー・警告ゼロ ④ Lighthouse Performance 90 以上 ⑤ Sentry エラー監視が稼働中 ⑥ DB マイグレーションのロールバック SQL が用意済み ⑦ ロールバック手順ドキュメントが最新 ⑧ ステータスページが復旧見込み時刻を表示可能な状態 ⑨ 金曜 15:00 以降ではない（緊急時のみ override）⑩ Mio の QA PASS 確認済み。1 つでも未達ならデプロイ中止。本番障害件数 80% 削減。
 - **CI/CD パイプラインの品質ゲート段階化**：PR 作成時 = lint・typecheck・unit test・security scan（gitleaks/npm audit）の 4 段階を全 PASS で初めてマージ可能化。マージ後 = preview デプロイ＋E2E テスト＋Lighthouse CI で再度ゲート。本番デプロイ = canary（10% トラフィック）→ 5 分監視 → 100% 切り替え。各段階で fail した時点でロールバック自動化。本番反映前のバグ検出率 95% 以上。

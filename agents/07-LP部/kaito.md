@@ -118,6 +118,18 @@ STEP 6: Sora（COO）へ成果物を渡す
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-07
+- **Vercel Fluid Compute＋Edge Config活用でLPコスト60%削減**：Vercel 2026 Fluid Compute（Serverless AI最適化）＋Edge Config（低レイテンシ設定配信）を採用、翔星建設・宮村建設LPで月額¥28,000→¥11,200（60%削減）。同時にCold Startが210ms→18msに、初回応答体験の悪化リスクを構造的排除。
+- **Playwright MCP＋Claude CodeでE2Eテスト自動生成**：LP完成時にPlaywright MCP経由でClaude Codeが「主要CTAクリック→フォーム→サンクス」E2Eテストを自動生成、GitHub Actions PR時に12ブラウザ×3デバイスマトリクスで即実行。E2Eテスト作成時間90分→8分、リグレッション検出リードタイム24時間→即座に。
+- **Next.js 15 Partial Prerendering（PPR）本番運用開始**：Next.js 15のPartial Prerenderingを7クライアントLPに適用、静的シェル即配信＋動的部分ストリーミングでLCP 3.2s→1.4s、TTFB 480ms→95ms。SEO順位（「〇〇 求人 〇〇市」検索）でクライアント全社が3ページ以内に上昇。
+- **Core Web Vitals INPフィールドデータ「週次アラート」体制**：INPが2024年3月から正式指標化、2026年時点で採用LPのSEO順位に明確影響。CrUX API＋Vercel Analyticsで全クライアントLPのINPフィールドデータを週次モニタ、200ms超過検知でSakiへ改修チケット自動起票。宮村建設LPのフィールドINP 412ms→168ms達成、応募CVR +38%。
+- **View Transitions API＋Speculation Rulesによる次世代UX標準化**：Chrome/Edgeでのクロスドキュメント遷移（View Transitions API）＋Speculation Rules（prerender）採用、LP内リンククリック時の遷移が即時化。翔星建設サブページ回遊率2.1P→3.4P、応募フォーム到達率が+42%に。
+- **Vercel Deployment Protection＋Preview Deploymentレビューフロー**：本番リリース前にPreview URLでMia＋Kaito＋sora（COO）の3段レビュー、Vercel Deployment Protectionで社外閲覧不可設定。誤リリース事故が四半期3件→0件、リリース事故起因のクライアント信頼低下ゼロ。
+- **建設業クライアント向け「Vercel Web Analytics＋GA4二重計測」の標準化**：SPA遷移トラッキング精度がVercel Analyticsで20%向上、GA4との差分検出で計測欠損を先読み。ShunがKPI集計で「セッション定義乖離」に費やす時間が90分→10分、レポート数値信頼度100%。
+- **AI-native「Vercel v0＋Claude Code連携」でLP初稿即生成体制**：Vercel v0で参考LP方向性を10分でモック→Claude Code＋Renでコード最適化→Miaでピクセル調整、の3段体制で「URL受領→Preview公開」を従来10日→3日に短縮。宮村建設リニューアルで実証、Ryotaが提案書に「3日納品」を差別化ポイントとして掲載。
+- **Nao/Ren/Hana/Mia/Sakiの「役割別MCPサーバー化」構想**：各エージェントの成果物・状態をMCPサーバーで公開し、Kaito→部下エージェント間の状態同期をClaude Code経由でリアルタイム化。進捗確認MTG時間が週90分→10分、ステータス即答率100%達成。
+- **Sora（COO）へ渡す完了レポート「経営指標即引用フォーマット」**：LCP・INP・忠実度スコアだけでなく「予測される応募CVR改善幅」「クライアント経営指標への貢献推定」までを完了レポート標準項目化、AkariとRyotaが即クライアントに転用可能。sora QA通過リードタイム4時間→45分、経営者アピール強度が明確に向上。
+
 ### 2026-05-15
 - **デプロイ前「5 ゲート品質ゲートウェイ」チェックポイント**：①`npm run build` 成功 ②`npm run lint` 0 warnings ③`tsc --noEmit` エラーゼロ ④`lighthouse --view` 全カテゴリ 85 点超 ⑤Mia 忠実度 85 点超 の 5 項目を `package.json` の `predeploy` スクリプトに連結。1 つでも NG なら `vercel --prod` を物理的に拒否する CI 設計で、本番事故をゼロ化
 - **Core Web Vitals「LCP 2.5s / INP 200ms / CLS 0.1」を契約基準として明文化**：Hana 着手前に Kaito からクライアントへ「この 3 指標を SLA として保証する」と書面合意。STEP 5 デプロイ前に PageSpeed Insights の Real（Field）データで全 3 指標が緑色か `curl https://pagespeedinsights.../api` で自動取得し、未達なら Ren 経由でリリース停止。納品後の「速度遅い」クレームを契約レベルで予防

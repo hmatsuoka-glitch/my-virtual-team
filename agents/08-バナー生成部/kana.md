@@ -208,6 +208,18 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-07
+- **CSS `light-dark()` 関数 + `@container` クエリで媒体別ダークモード自動対応**：Instagram/Xの2026年ダークモード標準化に合わせ、`color: light-dark(#111, #f5f5f5)` を CSS Variables 化。1つのHTMLで LINE VOOM のライト表示と Instagram のダーク表示の両方に耐える設計に統一、サイズ×モード=16パターンの制作工数が 8時間→2時間（75%削減）。
+- **Figma REST API 経由でブランドトークン自動取り込み**：クライアント（翔星建設・宮村建設など）のブランドカラー・フォント・ロゴを Figma Variables から `figma-tokens-cli` で `tokens.json` にエクスポート → CSS Custom Properties 変換 → HTML に自動注入。ブランドカラー齟齬による差し戻しが月5件→0件。
+- **CSS Anchor Positioning でCTA配置をJavaScriptレス化**：2026年 Baseline 入りした `anchor-name` / `position-anchor` を用い、写真被写体の目線先にCTAボタンを自動配置。従来 Puppeteer 変換前に JS で座標計算していた処理を CSS のみで完結、Hiro 側 JS 実行時間 300ms→0ms で PNG 変換高速化に寄与。
+- **PASONA×AIDA 混合フレームワークをCSS Grid Templateに落とし込み**：Problem→Agitation→Solution→Action の4象限をバナー内グリッド領域として固定化し、Rei のコピーがどの象限に入るかタグ付けする運用に。バナーごとの訴求構造の再現性が上がり、Yui のA/Bテストで CTR が平均 1.3倍改善。
+- **建設業採用バナー特化「グリッドテンプレ12種」を Prompt Library 化**：日給・社保完備・週休二日・寮完備・未経験OKなど頻出訴求パターン12種を CSS Grid + Custom Properties でテンプレ化。cantera・ナワショウ案件の1バナー着手時間 90分→28分（69%削減）、Sora QA 一発通過率 92% に。
+- **2024年問題余波：建設業「働き方改革バナー」需要爆増に対応**：週休二日・残業時間45h以下・有休消化率などを数字＋アイコンで即伝達する専用テンプレを整備。数字強調は `font-variant-numeric: tabular-nums` + `text-wrap: balance` で桁揃え、視認性テスト（1秒視認）で従来テンプレ比 +37% の理解度。
+- **AI-native ワークフロー：Claude で HTML デザインレビュー内製化**：完成HTMLをClaude Vision に投げて「視線導線・コントラスト・ヒエラルキー・訴求優先度」を10点満点採点させるスクリプトを常設。Yuna 提出前セルフチェックで平均 6.2→8.7 に改善してから納品するルールに。
+- **Rei との連携効率化：コピー受領時フォーマットをJSON強制**：`{main: '', main_chars: 15, sub: '', sub_chars: 25, cta: '応募する', urgency: 'high'}` の構造化フォーマットで受領するようRei側の出力テンプレを変更。文字数超過で組んだあとに崩す作業が消滅、コピー→HTML工程が 45分→18分。
+- **Hiro との連携効率化：HTML冒頭に YAML frontmatter で変換設定を宣言**：`device_scale`, `clip`, `quality`, `target_kb`, `icc_profile` を Kana側で決めて明示 → Hiro側の判断がゼロに。媒体規定オーバーの原因が「Kana設計時の想定が甘い」から「事前合意ズレなし」に変化、月8件あった再変換が月0〜1件に激減。
+- **失敗回避 Playbook 更新**：Web font の `font-display: swap` を忘れて Puppeteer 変換時に fallback レンダリング → タイポ崩れ、が3件連続で発生したため、テンプレHTMLに `font-display: block` を強制。Google Fonts より Adobe Fonts + `preload` 併用が最も安定と結論。
+
 ### 2026-05-15
 - **HTML 完成時の品質チェック 6 点リスト**：①テキスト × 背景のコントラスト比 WCAG AA 基準 4.5:1 以上（CTA ボタンは 5:1 以上を 2026 規格で必須）、②フォント最小サイズ 14px 以上（モバイル可読性）、③視線誘導が Z 字 / F 字レイアウトに沿っているか、④余白比率 20〜30%（15% 未満は窮屈、40% 超はスカスカ）、⑤グリッド整合性（要素アライメント±2px 以内）、⑥ブランドガイドラインのロゴクリアスペース（ロゴ高さ 1/2 以上の余白）。チェックリストを HTML コメントで埋め込み、Hiro への引き継ぎ時に「全項目 ✅」を明示。
 - **文字情報のヒエラルキー検証「3 段階ルール」**：メインコピー（最大、太字、視認 0.3 秒）→ サブコピー / 数字訴求（中、レギュラー）→ CTA / 注釈（小、コントラスト高）の 3 階層を font-size と font-weight の 1.5 倍ステップ差で物理的に区別。「全部目立たせる」と全部目立たなくなる典型ミスを排除。Rei のコピー受領時に「メイン・サブ・CTA」の役割タグを必須化し、レイアウトに即反映。

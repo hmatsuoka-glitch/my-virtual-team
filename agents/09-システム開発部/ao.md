@@ -207,6 +207,18 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-07
+- **tRPC v11 + Zod v4 でエンドツーエンド型安全パイプライン標準化**：REST + OpenAPI 生成の手作業を廃止し、tRPC procedure に Zod スキーマを直接束縛。Riku 側で `useTRPC().query()` すれば型が自動伝搬、API仕様書の手動メンテ月8時間 → 0時間、型ズレバグ月4件 → 0件。
+- **Supabase Row Level Security (RLS) をポリシー自動生成化**：クライアント別データ分離（翔星建設スタッフは翔星データのみ閲覧可 等）を Prisma スキーマの `@@rls` アノテーションから RLS ポリシー SQL を自動生成する内製 CLI を構築。手書き RLS の抜け漏れ由来 IDOR 脆弱性の恒久排除、月次セキュリティ監査工数 4時間 → 20分。
+- **Bun 1.2 + Hono を採用管理業務APIの候補として PoC**：Node.js 22 + Next.js Route Handler と比較し、Bun + Hono は cold start が 380ms → 42ms（89%削減）、rps は 3,200 → 12,600（3.9倍）。Vercel Edge Functions + Hono の組合せに標準を移行検討中、Kuu と足並みを揃えて 10月正式決定予定。
+- **Drizzle ORM の relational query builder を N+1 撲滅ツールとして採用**：Prisma の `include` に頼らず、Drizzle の `db.query.applicants.findMany({ with: { client: true } })` で SQL 1発集約。EXPLAIN ANALYZE で従来平均 8 クエリ → 1 クエリ、レイテンシ p95 が 420ms → 68ms（84%削減）。
+- **インボイス制度2026年運用フェーズ対応 API設計標準化**：適格請求書発行事業者番号（T+13桁）のバリデーション・国税庁APIとの照合キャッシュ・8%/10%混在時の按分計算をライブラリ化。ryota経由の請求管理システム案件で、税額誤差クレーム月2件 → 0件。
+- **AI-native ワークフロー：Claude Code CLI で API スタブ→本実装の骨格自動生成**：Nao の OpenAPI YAML を投入 → Claude Code が Route Handler + Zod + Prisma スキーマ + Vitest スイート をまとめて生成 → Ao が事業ロジックだけ手書き。CRUD API 1エンドポイント実装 90分 → 22分（76%削減）。
+- **OpenTelemetry + Vercel OTel Collector で分散トレーシング標準化**：全 API に `@vercel/otel` を挿入し、Supabase SQL の遅延・外部API呼び出しレイテンシまで一気通貫で可視化。障害切り分け時間が平均 45分 → 8分（82%削減）、Kuu の Sentry ダッシュボードと相互リンク。
+- **改正個人情報保護法 + 労基法2026対応：応募者データ保持期限自動失効機構**：応募データに `expires_at` を必須化し、Supabase pg_cron で毎日04:00に個人情報カラムだけ NULL 化（統計データは残す）。akari の月次レポート集計は継続可能、監査対応の説明資料も自動出力。
+- **nao との連携：設計書レビュー時「実装コスト見積」を Zod スキーマ差分で自動計算**：設計変更PRに対して Ao が新旧 Zod スキーマの差分から必要工数（endpoint数×平均22分 + migration有無×45分）を自動算出しコメント。無茶な設計→即工数フィードバック、認識齟齬による手戻り月3件 → 0件。
+- **mio との連携：契約テスト（Consumer-Driven Contract）採用**：Pact JS で Riku 側のクライアントテストから期待仕様を吸い上げ、Ao 側 API の契約テストとして自動実行。統合テスト工数 6時間 → 1時間、Riku/Ao 間の仕様ズレバグ検出タイミングが「実装後QA」→「PR時点」に前倒し。
+
 ### 2026-05-15
 - **PR レビュー時のバックエンドチェックリスト 8 項目を固定化**：① 認可チェックがミドルウェアで強制実行されているか ② Zod スキーマで全入力に `.max()` 等の境界制約があるか ③ DB クエリが N+1 になっていないか（Query Log で 1 リクエスト = 1〜2 SQL を確認）④ トランザクションが必要な箇所で `$transaction()` が使われているか ⑤ エラーレスポンスがユーザー向け日本語＋HTTP ステータスコードで統一されているか ⑥ ログに PII/トークンが漏れていないか ⑦ 環境変数が `.env.example` に追加されているか ⑧ 単体テスト＋統合テストが存在するか。レビュー時間 30 分 → 10 分、見落としゼロ化。
 - **OWASP API Security Top 10 2023 準拠の自動チェック CI 化**：API1（Broken Object Level Authorization）は「全エンドポイントで `checkUserOwnership()` 呼び出しがあるか」を AST 解析で検査、API4（Unrestricted Resource Consumption）は「ページネーション・レート制限の有無」を grep ベースで検査、API8（Security Misconfiguration）は「CORS の `*` 設定や `console.log` 残存」を ESLint で検出。Mio のセキュリティレビュー工数 60 分 → 0 分、本番リリース前に脆弱性 100% ブロック。

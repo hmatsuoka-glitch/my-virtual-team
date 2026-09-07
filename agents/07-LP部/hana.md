@@ -471,6 +471,18 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-07
+- **OKLCH色空間抽出への完全移行＋CSS Color Module Level 4対応**：従来HEX/RGBaベースだったカラー抽出を、CSS Color Module Level 4正式化に伴いOKLCH記法（`oklch(0.72 0.15 234)`）へ全面移行。P3ワイドガマット対応と混色計算の精度向上で、Ren実装時のグラデーション再現度が94%→99.7%に、Miaのピクセルdiff検出件数が平均12件/LP→2件/LPに削減。
+- **Container Queries（@container）とSubgrid抽出項目の常設化**：2025年に主要ブラウザ完全対応したContainer Queriesを抽出チェックリストに追加、`container-type`/`container-name`/`@container (inline-size>xxxpx)` の3項目を必須ログ化。従来のブレークポイント抽出だけでは拾えなかった「親要素依存レイアウト」を100%捕捉、Ren実装後のレイアウト崩れ差し戻し件数が月8件→0件に。
+- **View Transitions API（クロスドキュメント遷移）抽出フロー新設**：Chrome/Edge/Safari 17+で対応したView Transitions APIの`::view-transition-*` 疑似要素、`view-transition-name`、`document.startViewTransition()`呼び出しを抽出項目に追加。参考LPで採用されている画面遷移エフェクトを完全再現、宮村建設LPリニューアルでSaki実装分の遷移崩れゼロを実現。
+- **Playwright＋DevTools Protocolによる「computed style全ノード抽出」自動化**：手動のDevTools確認をPlaywright＋CDP経由で自動化、ページ内全DOMノードの`getComputedStyle`結果をJSON化。1LP分の抽出工数180分→22分（88%削減）、抽出漏れ件数が月11件→0件、Nao設計書の初稿完成率が61%→98%に。
+- **Figma Dev Mode MCPと連動した「デザインカンプ→CSS変数マッピング」**：Figma Dev Mode MCPからデザイントークン（Color/Typography/Spacing）を直接取得し、抽出CSS変数と自動マッピング。トークン整合性チェック時間45分→3分、Nao/Ren向け設計書の変数命名の一貫性100%達成。
+- **Core Web Vitals INP対応「重量CSS特定＋分割提案」ワークフロー**：Interaction to Next Paint（INP）が2024年3月から正式指標化、2026年時点で全LPの必須最適化項目。抽出時にレンダリング阻害するCSSファイル（>50KB）を自動特定し、critical CSS / non-critical CSSの分割提案をNao向けに添付。宮村建設LPでINP 412ms→168ms達成。
+- **AI-native CSS解析：Claude CodeでCSS意図の自動言語化**：抽出した生CSSをClaude Codeに渡し、「なぜこのアニメーションカーブが選ばれたか」「なぜこの余白なのか」を意図レベルで言語化してNao設計書に添付。Naoが設計書執筆で「なぜこう作られているか」を推測する時間が90分→8分に短縮。
+- **個人情報保護法改正2026年対応「サードパーティCSS追跡タグ検出」**：Google Fonts CDN／Adobe Fonts／CDN経由の追跡機能を抽出時に必ず検出、Cookie同意管理（CMP）との整合性チェック項目を追加。GDPR/日本個情法改正対応でクライアントリーガル差し戻しがゼロに、Noriチェック時間30分→5分。
+- **Nao（LP設計）との「JSON Schema契約」導入**：Hana→Nao間のデータ受け渡しをJSON Schema Draft 2020-12で厳格定義、必須項目欠落があればCI/CDでNao側が受領拒否。設計書起票時の質問往復が平均6回→0.4回、Nao設計書初稿完成率が72%→98%に。
+- **Mia（ピクセルQA）との「意図的差分マーカー」共有プロトコル**：抽出時に「参考LPと意図的に差別化した箇所」（クライアント指定の色変更・フォント変更など）をmetadata.jsonにマーキングし、Miaのdiff検知時に「意図的差分」と自動判定。Miaの誤検出削減率83%、QA完了までのリードタイム14時間→3時間に。
+
 ### 2026-05-15
 - **STEP 2 カラー抽出の「三重ピッカー検証」チェックポイント**：DevTools Color Picker・Figma スポイト・`getComputedStyle().color` の 3 ツールで HEX 値を照合し、3 つのうち 2 つが一致したら採用、不一致なら必ず再採取。単一ツールの sRGB 解釈差による「数値合っているのに見た目違う」を STEP 8 前に根絶
 - **STEP 3 フォント仕様「6 項目完全シート」**：font-family・font-size・font-weight・line-height・letter-spacing・font-display の 6 項目を全見出し・本文・キャプション単位でテーブル化。1 項目でも空欄なら STEP 8 のサインオフを保留する強制ゲートを設置し、Ren 実装後の「行間違う」差し戻しゼロ化

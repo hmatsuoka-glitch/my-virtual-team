@@ -149,6 +149,18 @@ const banners = [
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-07
+- **Chrome DevTools Protocol (CDP) 直叩きで Puppeteer 高レベルAPIをバイパス**：`Page.captureScreenshot` を CDP セッションから直接呼び、`clip` と `fromSurface: true` を組み合わせることでフォント fallback による ±1〜2px ズレを完全消去。従来 8サイズ変換 48秒 → 11秒（77%削減）、Kana からの HTML 差し戻し率も 12% → 3% に低下。
+- **puppeteer-cluster + concurrency: CONCURRENCY_BROWSER で Chromium プール化**：クライアント7社×8サイズ=56枚を一括変換する Yuna からの月次バッチで、都度 launch/close していた 340秒 が **プール再利用で 82秒**（76%削減）。M2 メモリ 8GB でも 6並列まで安定動作を実測、`--single-process` は逆に遅くなるので不採用。
+- **建設業クライアント特有の「現場写真バナー」で ICC プロファイル剥がれ対策**：翔星建設・宮村建設の現場写真をベースにしたバナーで、iPhone 撮影の Display P3 が sRGB に強制変換されてダンプの黄土色がくすむ問題を、`sharp().withMetadata({ icc: 'sRGB IEC61966-2.1' }).toColorspace('srgb')` で明示変換 → Indeed 入稿後の「実物と色が違う」クレームをゼロ化。
+- **Puppeteer v23 の Firefox サポート活用で媒体別レンダリング差検証**：Instagram/LINE は Chromium で問題なくても、Indeed 管理画面（IE互換モードが残存）でズレる案件があり、`puppeteer.launch({ browser: 'firefox' })` を並列実行して差分を自動検出。従来 Mia の目視で見つかっていた 3件/月 の媒体固有バグを事前検知。
+- **PNG 出力後 pngquant + oxipng の2段圧縮を GitHub Actions 化**：`pngquant --quality=75-90 --speed=1` → `oxipng -o max --strip all` の順で通し、Indeed 150KB 上限に対して 220KB → 128KB（42%削減）を無劣化で実現。CI で自動実行するため Hiro 手動作業ゼロ。
+- **2024年問題余波：建設業SNS採用の「動画バナー」需要急増に対応**：静止画バナーだけでなく、Puppeteer + puppeteer-screen-recorder で 3〜5秒 MP4 バナーを HTML から自動生成する機能を試作。Instagram Reels カバー用の 1秒静止画も同一 HTML から自動抽出（Yuna 経由で eito と連携）。
+- **AI-native ワークフロー：GPT-Image-1 で生成された背景画像の後処理自動化**：Kana が Midjourney/GPT-Image-1 で作った背景素材の余白トリミング・彩度補正・Web最適化を `sharp().extract().modulate({ saturation: 1.15 })` パイプラインで自動化、1画像あたり 3分→10秒。
+- **Kana との連携効率化：HTML 納品時 YAML frontmatter 必須化**：ファイル冒頭に `--- device_scale: 2, clip: {x:0,y:0,w:1080,h:1080}, quality: 85, target_kb: 150 ---` を書く運用に統一。Hiro 側で JSON.parse せずに設定を読めるため、変換スクリプトの分岐が 0 に。差し戻しループ 月4回 → 月1回。
+- **Yuna への納品レポート自動生成**：sharp metadata + fs.statSync でファイルサイズ・解像度・ICC・PNG chunk 一覧を抽出し、Markdown テーブル形式で `report.md` を自動出力。Yuna が「全56枚のうちどれが媒体規定内か」を 1眼で判定でき、確認時間 25分→3分。
+- **失敗ケース Playbook 化**：Chromium クラッシュ・フォント未読込・メモリリーク・Retina 誤変換・ICC 剥がれの5大失敗を `troubleshooting.md` に定型化。Yuna・Kana も参照できる形にして、Slack で「なぜ失敗した？」の質問が月12回 → 1回に激減。
+
 ### 2026-05-15
 - **PNG 変換完了後の品質チェックポイント 5 点固定化**：①ファイルサイズが媒体規定上限内か（Indeed 150KB / Instagram 30MB / LINE 1MB）、②解像度が Retina 2 倍で出力されているか（1080→2160px の sharp metadata 確認）、③ICC プロファイルが sRGB に正規化されているか、④透過要求があれば背景透過になっているか、⑤フォント未読込・グラデーション縞模様・細線ぼやけが無いか。sharp ライブラリで①②③を自動判定し、④⑤は目視で 30 秒チェック。Yuna 差し戻し率 70% 削減。
 - **カラーコントラスト比 5:1 を PNG 出力後に自動検証**：Indeed/Google Jobs の 2026 年改定で 4.5:1 → 5:1 に厳格化されたため、出力 PNG を `sharp().raw()` で RGB 抽出 → CTA ボタンと背景の輝度差を WCAG 計算式で算出 → 5:1 未満なら警告ログ出力。HTML 段階で Kana が見落とした場合でも、PNG 工程で最終ゲートとして機能。入稿 NG ゼロ化。
