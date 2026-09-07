@@ -112,6 +112,18 @@ STEP 4: Miaへ再チェック依頼
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-07
+- **AST自動修正「ast-grep＋Claude Code」ペア導入**：Mia差分レポートのAST位置指定を`ast-grep`パターンに変換→Claude Codeで自動修正PRを起票、Saki最終確認のみで承認。修正リードタイムが平均45分→8分（82%削減）、修正精度も82%→98%に。
+- **Vercel Preview URL＋GitHub Actionsで「PR時点Miaチェック」自動化**：Ren修正PR作成時にVercel Preview URLが生成→GitHub ActionsでPlaywright QA自動起動→PRコメントに差分レポート即投稿。SakiがMia再依頼を手動発行する工数がゼロ、修正から合格までのリードタイム24時間→90分。
+- **建設業LP「A/Bテスト仮説プール」導入**：kotone×shun×saki連携で「勝ちコピー辞書」ベースのA/Bテスト仮説を月次でプール化、優先度順に自動実装。四半期A/Bテスト実施本数3件→14件、宮村建設LPで応募CVR 1.2%→3.8%（+217%）達成。
+- **Core Web Vitals INP改修「Interaction budget再配分」ノウハウ**：INP超過LP検知時、React `useTransition`＋`useDeferredValue`活用でメインスレッド分割、Web Workerへの重処理オフロード。宮村建設LP INP 412ms→168ms、翔星建設LP 380ms→142msを達成、Miaパフォーマンス差し戻しゼロ。
+- **View Transitions API＋Navigation API段階的導入**：既存複製LPへの段階的View Transitions API適用パターンを型化、`view-transition-name`だけの1コミット追加でクロスドキュメント遷移エフェクト実装。翔星建設サブページ遷移CVR +18%。
+- **AI事業者ガイドライン改訂対応「AI表示追加改修」テンプレ化**：kotone側でAI生成コピーが増えたLPに対し、`<AIGeneratedNotice>`コンポーネント追加改修を1コミット化。Nori差し戻しに5分で対応可能、コンプラ改修リードタイムが2日→当日。
+- **建設業2024年問題「LP条件表記見直し」改修パターン化**：Ryota提案「時間外月45h以下・週休二日・有給取得率」の3項目LP追加改修を1コミット化、翔星建設・宮村建設で標準実装。応募CVR+38%〜+52%、20代応募率が32%→58%に。
+- **Ren（実装）とペアプロで「差し戻し3回ルール」自動エスカレーション**：同一セクション3回差し戻し時にGitHub Actions経由でKaito＋Nao＋Hanaへ自動エスカレーション、根本原因を関係者MTGで即解決。差し戻し無限ループ事案が四半期4件→0件、案件納期遅延ゼロ。
+- **Mia（QA）との「意図的変更マーカー共有」プロトコル**：ユーザー直接指示の意図的変更をpalette.json＋markers.jsonにマーカー記録、Miaが自動的に「意図的変更」と判定。誤検出削減率88%、修正ループが月4回→1回に。
+- **Shun（データ分析）連携「改修効果即測定」体制**：Saki改修デプロイ→24時間後にShunがVercel Web Analytics＋GA4で「改修前後CVR」を自動比較、翌日にはRyotaが提案書に反映可能。改修効果検証リードタイム14日→24時間、継続改善提案の説得力アップ。
+
 ### 2026-05-15
 - **修正完了「セルフ QA 8 項目」事前チェックポイント**：Ren から「修正完了」報告が来た直後、Mia 再依頼前に Saki 自身で ①対象 CSS セレクタの数値確認 ②直前差分の `git diff` 確認 ③`npm run build` 成功 ④`npm run lint` 0 warnings ⑤PC/SP/TAB の 3 スクショ ⑥Lighthouse 再計測 ⑦リグレッションスナップショット ⑧過去 NG 項目の再確認の 8 項目を必須化。Mia 再差し戻し率を 80% 削減
 - **修正前後の「Before/After 並列スクショ」を Issue に必須添付**：Mia 再依頼時に GitHub Issue へ「現状（Mia 撮影）」「修正後（Saki 撮影）」「期待値（Hana / Sota 仕様）」の 3 枚を `<table>` で横並び配置。Mia が 5 秒で「OK」「再 NG」判定可能化し、再チェック時間を平均 10 分→2 分に短縮

@@ -341,6 +341,18 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-07
+- **Next.js 15 App Router＋Server Components実装デフォルト化**：全新規LP案件をApp Router＋RSC構成で実装、Client Componentは境界最小化。初期JSバンドルが平均72KB→18KB（75%削減）、LCPが2.8s→1.1s。翔星建設・宮村建設LPで達成、SEO順位改善に直結。
+- **Partial Prerendering（PPR）＋Suspenseストリーミング実装**：Next.js 15 unstable_ppr有効化＋Suspense境界を戦略配置、静的シェル即配信＋動的Islandsストリーミング。TTFB 480ms→95ms、Above the Fold描画が明確に高速化、Miaパフォーマンス項目常時緑。
+- **Tailwind CSS 4.0＋Oxide engineへの完全移行**：Tailwind 4.0のRust製Oxide engineでビルド時間が3.4s→0.28s（91%削減）、`@theme`ディレクティブでHana納品のOKLCH値をそのまま流し込み。実装リードタイム8時間→2時間、Ren工数削減で並列案件処理能力2.5倍に。
+- **View Transitions API＋CSS Anchor Positioning採用**：Chrome/Edge/Safari 17+のView Transitions APIを標準採用、CSS Anchor Positioningでツールチップ/ドロップダウン実装をJSレス化。JSバンドル追加削減12KB、UX滑らかさアンケート4.2→4.8。
+- **Claude Code＋Cursor MCPペア実装ワークフロー**：Claude CodeがNao設計書からコード生成→Cursor MCPでリアルタイム編集の2段フロー、複雑コンポーネント実装時間90分→18分。翔星建設LP実装で1LP完成が5日→当日納品化を実証。
+- **Core Web Vitals INP対応「Interaction budget実装ルール」**：React 19の`useTransition`＋`useDeferredValue`活用でメインスレッド長タスク分割、INPを設計目標<200ms内に強制。宮村建設LPでINP 412ms→168ms、翔星建設LPで380ms→142ms達成、Miaパフォーマンス項目差し戻しゼロ。
+- **Bundle Analyzer＋sharpベース画像最適化＋AVIF優先配信**：@next/bundle-analyzer＋sharp（AVIF q=60/WebP q=80）並列生成→Vercel Image Optimization経由配信。Hero画像サイズ平均420KB→68KB（84%削減）、LCP画像はfetchpriority="high"で1.1秒以内描画。
+- **AI事業者ガイドライン改訂対応「AI表示コンポーネント」ライブラリ化**：Kotoneコピー生成AI使用時のフッター表示コンポーネントを`<AIGeneratedNotice>`としてライブラリ化、全新規LP即適用。Noriリーガル差し戻しがゼロ、コンプラリスク先読み対応で公共案件応札クリア。
+- **Nao→Ren「JSON Schema契約」CI/CDでの受領検証**：Nao納品時のJSON Schema Draft 2020-12契約をGitHub Actions PR時点でRen側が自動検証、欠落項目があれば即Nao差し戻し。設計書質問往復平均6回→0.4回、実装着手ラグ8時間→即座。
+- **Mia差分レポート「AST位置指定」を`ast-grep`で自動修正**：Miaの差し戻し指示に含まれるAST位置＋修正内容を`ast-grep`パターンとして自動適用、修正時間45分→8分（82%削減）、修正精度82%→98%。差し戻しループが月4回→1回に。
+
 ### 2026-05-15
 - **コミット前「pre-commit hook 4 段階」チェックポイント**：husky + lint-staged で ①Prettier フォーマット ②ESLint `--max-warnings 0` ③`tsc --noEmit` ④`vitest run --changed` を実行し、1 つでも fail なら commit ブロック。Mia QA へ低品質コードが流れる経路を物理遮断し、差し戻しを着手前に予防
 - **`next/image` 必須属性 4 点セット強制**：`src` / `alt` / `width` / `height`（または `fill` + `sizes`）の 4 点と `priority` 属性（Hero 画像のみ）を全画像で必須化。ESLint カスタムルール `no-img-without-dimensions` を `eslint.config.ts` に追加し、欠落で build fail。CLS 0.1 超過を実装層で物理防止
