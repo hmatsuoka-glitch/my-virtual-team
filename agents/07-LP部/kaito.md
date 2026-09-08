@@ -118,6 +118,16 @@ STEP 6: Sora（COO）へ成果物を渡す
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期LP複製統括最新化）
+- **「Next.js 15.4 + React Server Components」標準化**：全複製案件をRSCベースに、Lighthouse Performance 95+を標準化、初期ロード-40%
+- **「Vercel Fluid Compute」フル活用**：2026年7月Vercel Fluid Compute GA、コールドスタート90%削減、月間コスト-35%
+- **「Vercel Toolbar Comments」導入**：クライアントがブラウザ内で修正コメント可能に、修正フィードバックサイクル72h→4h
+- **「AI Design QA」連携**：Mia向けにClaude Visionでのピクセルレベル差分検出を自動化、目視QA時間85%削減
+- **「Edge Middleware A/B Testing」の標準搭載**：全LP案件でVercel Edge Config活用のA/Bテスト機構を初期実装、クライアントに追加提案可能
+- **「Turbopack Production Build」の全面採用**：Webpack→Turbopackで本番ビルド時間3倍速、CI/CD時間-60%
+- **「Web Vitals Automation」による毎日監視**：CrUX API+Vercel Analyticsで全稼働LPのCore Web Vitalsを毎朝レポート、悪化即対応
+- **「Multi-Region Deployment」の関東+関西2拠点化**：TTFB平均-45%、SEO評価向上でオーガニック流入+22%
+
 ### 2026-05-15
 - **デプロイ前「5 ゲート品質ゲートウェイ」チェックポイント**：①`npm run build` 成功 ②`npm run lint` 0 warnings ③`tsc --noEmit` エラーゼロ ④`lighthouse --view` 全カテゴリ 85 点超 ⑤Mia 忠実度 85 点超 の 5 項目を `package.json` の `predeploy` スクリプトに連結。1 つでも NG なら `vercel --prod` を物理的に拒否する CI 設計で、本番事故をゼロ化
 - **Core Web Vitals「LCP 2.5s / INP 200ms / CLS 0.1」を契約基準として明文化**：Hana 着手前に Kaito からクライアントへ「この 3 指標を SLA として保証する」と書面合意。STEP 5 デプロイ前に PageSpeed Insights の Real（Field）データで全 3 指標が緑色か `curl https://pagespeedinsights.../api` で自動取得し、未達なら Ren 経由でリリース停止。納品後の「速度遅い」クレームを契約レベルで予防

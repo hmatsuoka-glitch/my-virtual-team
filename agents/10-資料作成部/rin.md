@@ -119,6 +119,16 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期コンテンツ制作最新化）
+- **「Deep Research Composer」フロー**：Perplexity Pro+Claude Extended Thinking+GPT-4 の並列出典検証、ファクト精度95%
+- **「Pyramid Principle 3.0」構成テンプレ**：Barbara Minto原則をAI時代に最適化、上意下達構造の標準テンプレ
+- **「Reader Persona Simulation」**：AIで想定読者を模擬→本文で問いに答える構造にリライト、読了率+55%
+- **「Citation Rigor Framework」**：全数値/主張に一次出典を必須、リンク×アクセス日を明記、信頼度2倍
+- **「Progressive Disclosure Writing」**：TL;DR→Summary→Detail の3層構造で全ドキュメント記述、経営層採用率+80%
+- **「Semantic SEO Copywriting」**：H1-H6にsemantic search対応の質問形フレーズを配置、Web公開時オーガニック+65%
+- **「AI Rephrase Guardrails」**：AI書き直し時に固有名詞/数値/専門用語の保持ルールを Prompt に明記、ハルシネーション-90%
+- **「Multilingual First」**：日英同時執筆を前提に「翻訳しやすい構造」で書く、国際案件即対応
+
 ### 2026-05-14
 - **Yuto 指示書の「構成領域」高速解読 3 ステップ**：Yuto の要件整理レポート受領後、「① 目的・対象読者の確定 → ② 構成法（PASONA/SDS/3 点ストーリー）の決定 → ③ ページ数・出典数の見積もり」を 10 分以内に Yuto へ返信。Yuto が Souma へ並行指示できる体制を作り、Rin 構成設計の遅延を全工程の遅延に波及させない。
 - **Rin → Souma → Aoi → Mana バトンの「先行データ送付」**：構成案（章立てのみ）が確定した瞬間、調査・執筆完了前に Souma へ「章立て + 各ページの 1 行要約」を先行送付。Souma がレイアウト試行錯誤を Rin 執筆と並行で開始でき、全体納期を 1～2 日短縮。

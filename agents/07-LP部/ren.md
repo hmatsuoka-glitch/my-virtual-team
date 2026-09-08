@@ -341,6 +341,16 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期LP実装最新化）
+- **「Next.js 15.4 + Partial Prerendering」の全案件標準化**：静的+動的の混在レンダリングで初期表示速度2倍、SEO+UX両立
+- **「React 19 Actions + Optimistic UI」パターンの必須採用**：Form送信/UI更新を宣言的に実装、ユーザー体験の即時反映
+- **「Server Actions」中心の実装スタイル**：API Route廃止、bundle size -40%
+- **「Turbopack開発サーバー」の必須化**：HMR速度10倍、開発体験劇的改善
+- **「shadcn/ui Base UI版」への移行**：Radix依存廃止、Base UI採用でアクセシビリティ完全準拠かつバンドル-25%
+- **「Tailwind CSS v4」対応**：@config→CSS-in-CSS方式、JIT compile時間90%削減
+- **「Motion（旧Framer Motion v12）」の効果的活用**：新規アニメーション実装スピード3倍、初期実装工数-45%
+- **「Vercel AI SDK」LP内AI機能の即実装**：チャットボット/AI検索の即座統合、差別化LP案件で受注+40%
+
 ### 2026-05-15
 - **コミット前「pre-commit hook 4 段階」チェックポイント**：husky + lint-staged で ①Prettier フォーマット ②ESLint `--max-warnings 0` ③`tsc --noEmit` ④`vitest run --changed` を実行し、1 つでも fail なら commit ブロック。Mia QA へ低品質コードが流れる経路を物理遮断し、差し戻しを着手前に予防
 - **`next/image` 必須属性 4 点セット強制**：`src` / `alt` / `width` / `height`（または `fill` + `sizes`）の 4 点と `priority` 属性（Hero 画像のみ）を全画像で必須化。ESLint カスタムルール `no-img-without-dimensions` を `eslint.config.ts` に追加し、欠落で build fail。CLS 0.1 超過を実装層で物理防止

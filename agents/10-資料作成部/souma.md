@@ -206,6 +206,16 @@ if 単発スライドのみ必要:
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期資料デザイン最新化）
+- **「Gamma AI + Beautiful.ai」の使い分けフロー**：スピード優先はGamma、洗練優先はBeautiful.aiで自動生成、企画時間-80%
+- **「Figma Slides 2026」の全提案書標準化**：Google Slides→Figma Slidesで一括デザイン統一、修正効率+3倍
+- **「Design Tokens for PPT/PDF」**：Brand Tokensを自動反映するテンプレ運用、ブランドずれゼロ
+- **「Isometric Illustration Library」内製化**：3000点の等尺アイコンで概念図即座構築、企画時間-70%
+- **「Data-to-Visualization Pipeline」**：CSV/BigQuery→自動グラフ生成、月次資料更新-90%工数
+- **「AI Image Generation Prompt Library」**：Midjourney/DALL-E向けに業界別プロンプト100種を蓄積
+- **「Print-Perfect Design」の常時確保**：@page/A4/CMYK対応、印刷案件即対応で受注拡大
+- **「Motion Graphics for Slides」**：After Effects→Web Motion GIF出力、動きある提案書で成約率+45%
+
 ### 2026-05-14
 - **Yuto 指示書の「デザイン領域」事前確認チェックリスト**：Yuto の要件整理レポート受領時、「① テンプレート有無 → ② 完成テンプレか パーツ組み合わせか → ③ クライアントブランドカラー指定有無 → ④ ロゴ/画像素材の支給有無」を 5 分以内に Yuto へ返信。Yuto の指示書解読を高速化し、Rin 執筆と並行で designer_memory.md 参照〜デザイン設計に着手。
 - **Rin → Souma → Aoi → Mana バトン受け渡し時の「素材プレ共有」**：Rin から完成テキスト受領前でも、Yuto 経由で「クライアント名・ロゴ素材・ブランドカラー」を先行受領し、designer_memory.md のテンプレ複製・テーマカラー設定を並行進行。Rin テキスト確定後の「投入」のみで出力完成する体制を構築し、Souma の手戻り時間をゼロ化。

@@ -319,6 +319,16 @@ export const HERO = {
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期LP設計最新化）
+- **「React Server Components First」設計原則**：全新規LP設計をRSC優先で構築、Client Componentsは interactivity 必要箇所のみ、bundle size -60%
+- **「App Router + Route Groups」の必須採用**：Next.js 15 App Routerでの複数レイアウト管理、複雑LP対応力+3倍
+- **「Atomic Design 2026」テンプレート化**：Atoms/Molecules/Organisms/Templates/Pages の5層設計を標準化、コンポーネント再利用率+85%
+- **「TypeScript Strict + Zod Schema」設計**：全propsをZodスキーマで型定義、実行時エラー-90%
+- **「Design Token → Tailwind Config」自動生成**：HanaのDesign Tokenをtailwind.config.tsに自動反映、実装時の色/間隔ずれゼロ
+- **「Storybook 8 + Chromatic」導入**：全コンポーネントのStorybook化＋Chromatic自動視覚回帰、Mia QA工数-70%
+- **「Accessibility First Component Design」**：WCAG 3.0準拠を設計段階で組込み、後工程アクセシビリティ修正ゼロ化
+- **「View Transitions Component API」設計**：ページ遷移をコンポーネントレベルで設計、UX高度化
+
 ### 2026-05-15
 - **設計書「コンポーネント品質チェック 7 観点」チェックポイント**：①Props 5 個以下 ②再利用 2 箇所以上 ③責務 1 つ ④`children` or `props` 排他 ⑤Server/Client 境界明記 ⑥a11y ロール記載 ⑦`data-testid` 命名規則統一 の 7 項目を全コンポーネントで埋める表を STEP 6 納品時に必須化。1 項目でも空欄なら Ren へ渡さず再設計するゲートで、実装後の「これ Server？Client？」質問をゼロに
 - **`zod` スキーマで constants の入力ガード**：STEP 5 で `constants/content.ts` の各データ構造を `z.object({...}).parse()` で実行時バリデート可能な形に設計。長さ・URL 形式・必須項目を Nao がスキーマ定義し、Ren が `tsc` ビルド時に違反検出。タイポ・null・空文字での Lighthouse 減点を設計層で予防

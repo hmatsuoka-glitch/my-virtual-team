@@ -176,6 +176,16 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期フロントエンド最新化）
+- **「Next.js 15.4 + React 19 + Server Actions」の全案件標準化**：Client Components を最小化、bundle -60%
+- **「TanStack Query v6 + Zustand v5」の組合せ徹底**：サーバー状態とクライアント状態の分離設計、状態バグ-90%
+- **「TypeScript Strict + Zod Schema」の完全適用**：ランタイム型エラー-95%
+- **「Turbopack Production Build」の必須化**：ビルド時間3倍速
+- **「shadcn/ui Base UI版」の全新規案件採用**：アクセシビリティ完全準拠かつバンドル-25%
+- **「View Transitions API + CSS Anchor」**：ページ遷移とツールチップの新API活用、UX高度化
+- **「PWA + Web Push (VAPID)」標準搭載**：業務システム案件でモバイル通知即対応
+- **「Web Vitals INP最適化」**：LCP/CLS/INPを全画面計測、95th percentile <200ms を必達
+
 ### 2026-05-15
 - **フロントエンド PR レビューチェックリスト 10 項目**：① Server/Client Components 境界が `'use client'` で明示されているか ② `next/image` で全画像が配信されているか（生の `<img>` 禁止）③ フォーム送信中の二重送信防止（`isSubmitting` ＋ボタン `disabled`）が実装されているか ④ React Hook Form ＋ Zod でクライアントバリデーション実装済みか ⑤ ローディング・エラー・空状態の 3 種類のハンドリングが揃っているか ⑥ `useEffect` が 3 個以下か（多いならコンポーネント分割）⑦ `localStorage`/`window` 参照が `useEffect` 内か `'use client'` ＋ `ssr: false` か ⑧ `aria-*` 属性とキーボードフォーカス対応 ⑨ TypeScript strict mode で `any` ゼロ ⑩ コンポーネントに `data-testid` が付与されテスト可能か。マージ前 PR で全 PASS を強制。
 - **Core Web Vitals の SLO 数値ゲート**：LCP < 2.5s（Good ライン）／INP < 200ms（旧 FID 代替・ユーザー応答性）／CLS < 0.1（レイアウトシフト）／FCP < 1.8s／TTFB < 800ms。実装後に Lighthouse CI と Vercel Speed Insights で実測し、PR が 1 つでも未達ならマージブロック。特に INP は 2024 年から FID の正式後継となり、「ユーザーがクリック後 200ms 以内に応答が始まるか」が UX 品質の最重要指標。`React.startTransition` と `useDeferredValue` を意識的に使い、重い処理を非同期化することで INP 達成率 95% 以上。

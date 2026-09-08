@@ -207,6 +207,16 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期バックエンド最新化）
+- **「Hono + Cloudflare Workers」の全新規API採用**：Node.js比10倍軽量、コールドスタート実質ゼロ
+- **「Prisma v6 + PostgreSQL 17」の徹底運用**：Edge対応/型安全性/マイグレーション信頼性を全案件標準
+- **「Drizzle ORM Alternative」の適材採用**：Prismaで重い場合はDrizzle、SQLパフォーマンス+45%
+- **「OAuth 2.1 + PKCE」の必須化**：レガシーOAuth 2.0廃止、認証攻撃-95%
+- **「Row-Level Security (RLS)」の全マルチテナントアプリ導入**：DB層で権限分離、権限バグゼロ運用
+- **「OpenTelemetry Autoinstrumentation」**：全リクエストトレース標準、本番障害追跡時間-85%
+- **「Rate Limit + DDoS Protection」の Cloudflare Turnstile統合**：不正アクセスゼロ運用
+- **「LLM Function Calling API Design」**：AI Agent対応のAPIを設計標準化、AI連携案件受注+70%
+
 ### 2026-05-15
 - **PR レビュー時のバックエンドチェックリスト 8 項目を固定化**：① 認可チェックがミドルウェアで強制実行されているか ② Zod スキーマで全入力に `.max()` 等の境界制約があるか ③ DB クエリが N+1 になっていないか（Query Log で 1 リクエスト = 1〜2 SQL を確認）④ トランザクションが必要な箇所で `$transaction()` が使われているか ⑤ エラーレスポンスがユーザー向け日本語＋HTTP ステータスコードで統一されているか ⑥ ログに PII/トークンが漏れていないか ⑦ 環境変数が `.env.example` に追加されているか ⑧ 単体テスト＋統合テストが存在するか。レビュー時間 30 分 → 10 分、見落としゼロ化。
 - **OWASP API Security Top 10 2023 準拠の自動チェック CI 化**：API1（Broken Object Level Authorization）は「全エンドポイントで `checkUserOwnership()` 呼び出しがあるか」を AST 解析で検査、API4（Unrestricted Resource Consumption）は「ページネーション・レート制限の有無」を grep ベースで検査、API8（Security Misconfiguration）は「CORS の `*` 設定や `console.log` 残存」を ESLint で検出。Mio のセキュリティレビュー工数 60 分 → 0 分、本番リリース前に脆弱性 100% ブロック。

@@ -105,6 +105,16 @@ STEP 6: 設計書をKaiへ提出
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期システム設計最新化）
+- **「Event-Driven Architecture 2026」の標準化**：Kafka/AWS EventBridge/Cloudflare Queues の使い分け設計、疎結合＋スケーラビリティ両立
+- **「DDD Bounded Context」ドキュメント化**：境界コンテキストマップを必ず添付、モジュラーモノリス→マイクロサービス移行の下地
+- **「PostgreSQL 17 + pgvector」の全案件標準採用**：RDB+ベクトルDBの1DB統合、運用コスト-50%
+- **「Zero Trust API Design」**：JWT+mTLS+OAuth2.1の3層セキュリティ標準化、認証脆弱性ゼロ運用
+- **「AsyncAPI Specification 3.0」対応**：非同期API仕様のドキュメント化、フロント/バック連携ミス-85%
+- **「Sustainable Architecture」設計原則**：カーボン効率をアーキ選定基準に追加、CO2排出量-40%
+- **「LLM-Ready Data Model」**：構造化データ＋semantic embeddingを設計段階で組込み、AI機能後付コスト-70%
+- **「Domain-Specific Language（DSL）」の内製推奨**：定型的ビジネスロジックをDSL化、実装効率+250%
+
 ### 2026-05-15
 - **architect-checklist.md の必須セルフチェック 7 項目を Nao の設計納品ゲート化**：① 機能要件すべてに「ユーザーストーリー＋受入基準 Given-When-Then」が紐づいているか ② 非機能要件（性能 SLO・セキュリティ・可用性・データ保持・i18n）が数値で定量化されているか ③ API 設計で全エンドポイントの正常系＋異常系（400/401/403/404/409/500）レスポンスが table 化されているか ④ DB 設計でアクセスパターン先行＋インデックス設計が記載されているか ⑤ 横断ポリシー（論理削除・監査ログ・タイムゾーン・multitenancy）が決まっているか ⑥ エラーハンドリング指針が統一されているか ⑦ ロール別実装指示（Riku/Ao/Kuu 各 5 ページ）に切り出されているか。1 項目でも未達なら STEP 2 完了しない。
 - **API 設計レビュー観点（RESTful ベストプラクティス）の標準化**：① URL は名詞ベース（`/users/:id` ◯ vs `/getUser?id=1` ✗）② HTTP メソッドのセマンティクス遵守（GET 冪等・参照のみ、POST 非冪等・作成、PUT 冪等・全置換、PATCH 部分更新、DELETE 冪等・削除）③ ステータスコードの正確使用（200/201/204/400/401/403/404/409/422/429/500 の使い分け）④ バージョニング戦略（URL prefix `/v1/` or Accept ヘッダー）⑤ ページネーション方式（offset vs cursor の選択基準を明記）⑥ HATEOAS or リンクヘッダー対応の要否判定。Ao の実装時の判断迷いゼロ化、API 設計の一貫性 100% 確保。

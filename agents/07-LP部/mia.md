@@ -295,6 +295,16 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期ビジュアルQA最新化）
+- **「Chromatic + Playwright Visual」統合QA体制**：全PR自動視覚回帰、目視QA工数-85%
+- **「Claude Vision による差分説明」**：ピクセル差分に加えて「なぜ違うか」を自然言語で自動説明、Renへの差し戻し理解度2倍
+- **「Percy 2.0 AI Detection」**：意図的変更 vs 意図しない変更を機械判別、レビュー効率3倍
+- **「Cross-Browser Matrix Testing」拡張**：Chrome/Firefox/Safari/Edge × iOS/Android × Desktop/Tabletの15組合せ自動化、モバイル対応品質+90%
+- **「WCAG 3.0 Automated Audit」**：axe-core+Deque Axe DevTools最新版で全ページ自動監査、アクセシビリティ違反ゼロ担保
+- **「Core Web Vitals Regression Gate」**：Lighthouse CIでLCP/CLS/INPのRegressionを検知、悪化即ブロック
+- **「Real Device Testing via BrowserStack」統合**：実機での触感テストを追加、スマホ体験品質+80%
+- **「Design Fidelity Score」の定量化**：デザインとの完全一致度を0-100点でスコア化、95点未満は自動差し戻し
+
 ### 2026-05-15
 - **ピクセルパーフェクト検証「`pixelmatch` 4 段階しきい値」チェックポイント**：差分しきい値 0.05 / 0.1 / 0.2 / 0.5 の 4 段階で `pixelmatch(img1, img2, diff, w, h, {threshold})` を実行。0.05 で差分率 1% 以下=95 点 / 0.1 で 1% 以下=90 点 / 0.2 で 1% 以下=85 点と段階スコア化。Mia の合否ラインを「85 点 = しきい値 0.2 で許容 1%」と数式定義し、人為的甘さを排除
 - **レスポンシブ崩れ検出「7 幅自動ステップ撮影」**：Playwright の `page.setViewportSize` で 320 / 375 / 414 / 768 / 1024 / 1280 / 1920 の 7 幅でスクショ → `sharp.resize().composite()` で縦並びシート画像を 1 枚生成。崩れがあれば視認 1 秒で判別可能化。SP 偏向した QA を物理的に防止

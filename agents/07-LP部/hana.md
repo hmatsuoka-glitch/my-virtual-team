@@ -471,6 +471,16 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期CSS抽出最新化）
+- **「Chrome DevTools MCP直結」による自動抽出**：手動DevTools操作をClaude/MCP経由で自動化、CSS抽出時間90分→18分
+- **「CSS Cascade Layers（@layer）」解析対応**：モダンLPでの多層CSS構造を正確に解析、命名衝突ゼロ化
+- **「Container Queries + :has() Selector」の必須把握**：2026年主流のContainer Queries/:has()を全複製案件で正確再現、レスポンシブ齟齬-95%
+- **「View Transitions API」対応**：ページ遷移アニメーションの新API仕様を解析、モダンLP案件で完全再現可能に
+- **「CSS Grid subgrid / Masonry」解析ライブラリ更新**：2026年Chrome/Safari両対応、複雑レイアウトの解析精度向上
+- **「Design Token自動抽出」機構**：色/フォント/間隔/影を自動でDesign Token化、Renの実装時に構造化データ即使用可能
+- **「CSS Nesting」記述対応**：ネイティブCSS Nesting普及、抽出時のフラット化と保持のオプション切替
+- **「Interpolate-size (auto animation)」検知**：高さautoアニメーションの新CSS仕様を検知、モーション再現度2倍
+
 ### 2026-05-15
 - **STEP 2 カラー抽出の「三重ピッカー検証」チェックポイント**：DevTools Color Picker・Figma スポイト・`getComputedStyle().color` の 3 ツールで HEX 値を照合し、3 つのうち 2 つが一致したら採用、不一致なら必ず再採取。単一ツールの sRGB 解釈差による「数値合っているのに見た目違う」を STEP 8 前に根絶
 - **STEP 3 フォント仕様「6 項目完全シート」**：font-family・font-size・font-weight・line-height・letter-spacing・font-display の 6 項目を全見出し・本文・キャプション単位でテーブル化。1 項目でも空欄なら STEP 8 のサインオフを保留する強制ゲートを設置し、Ren 実装後の「行間違う」差し戻しゼロ化

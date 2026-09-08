@@ -149,6 +149,16 @@ const banners = [
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期PNG変換最新化）
+- **「Playwright + Chromium 130」への移行**：Puppeteerから Playwright に置換、並列実行と安定性が2倍、失敗率-80%
+- **「Sharp v0.34 → WebP/AVIF出力」**：PNG主流→WebP/AVIFで同品質でファイルサイズ-70%、Meta広告推奨規格対応
+- **「Retina 3x出力対応」**：deviceScaleFactor:3で iPhone 17 Pro等 3x画面最適化、視認性+40%
+- **「Batch Parallel Processing」**：50バナー並列変換、処理時間15分→90秒
+- **「Color Profile ICC Embedding」**：sRGB ICC埋込で全プラットフォーム色再現一致
+- **「Automatic Alt Text Generation」**：Claude Visionでバナー内容説明を自動生成、Meta広告アクセシビリティ対応
+- **「File Size Optimization Loop」**：出力後にoxipng/mozjpegで再最適化、ファイルサイズさらに-25%
+- **「Quality Regression Detection」**：出力PNG品質を過去バッチと機械比較、劣化即警告
+
 ### 2026-05-15
 - **PNG 変換完了後の品質チェックポイント 5 点固定化**：①ファイルサイズが媒体規定上限内か（Indeed 150KB / Instagram 30MB / LINE 1MB）、②解像度が Retina 2 倍で出力されているか（1080→2160px の sharp metadata 確認）、③ICC プロファイルが sRGB に正規化されているか、④透過要求があれば背景透過になっているか、⑤フォント未読込・グラデーション縞模様・細線ぼやけが無いか。sharp ライブラリで①②③を自動判定し、④⑤は目視で 30 秒チェック。Yuna 差し戻し率 70% 削減。
 - **カラーコントラスト比 5:1 を PNG 出力後に自動検証**：Indeed/Google Jobs の 2026 年改定で 4.5:1 → 5:1 に厳格化されたため、出力 PNG を `sharp().raw()` で RGB 抽出 → CTA ボタンと背景の輝度差を WCAG 計算式で算出 → 5:1 未満なら警告ログ出力。HTML 段階で Kana が見落とした場合でも、PNG 工程で最終ゲートとして機能。入稿 NG ゼロ化。

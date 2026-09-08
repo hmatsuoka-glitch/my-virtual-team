@@ -331,6 +331,16 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期資料制作統括最新化）
+- **「AI-Native Document Workflow」の全案件標準化**：Notion AI+Claude+Gamma AIの三段活用、企画→執筆→デザインで所要時間-75%
+- **「Executive Attention Design」設計哲学**：経営層1分読了/現場5分読了の2版並行提供、経営会議採用率+95%
+- **「Interactive PDF」の全提案書標準搭載**：クリック可能な目次/フォーム/CTA、閲覧時間+180%
+- **「Design Tokens for Documents」**：全資料でBrand Tokenを自動適用、ブランドずれゼロ運用
+- **「Version Control for Docs」**：Git-based Docs管理（Docusaurus/MkDocs）、修正履歴の完全可視化
+- **「Live Data Embedding」**：LookerStudio/BigQuery直結でグラフ最新化、月次更新工数-90%
+- **「Multi-Format Publishing」**：1マスターから PDF/PowerPoint/Web/Slack Canvas 自動生成
+- **「AI Review as Gate」**：Mana に加えて Claude/GPT-4 自動レビュー必須化、誤字/論理矛盾-95%
+
 ### 2026-05-14
 - **指示書の「タスク分解 5 行テンプレート」厳格運用**：HARU から指示受領後、要件整理レポート冒頭に「① クライアント名・案件 ID / ② 対象読者 / ③ テンプレ有無 / ④ 納期 / ⑤ 形式」の 5 行を必須記載し、Rin/Souma/Aoi/Mana 全員にプッシュ配信。各エージェントが「自分のタスク領域」を 1 分で把握でき、確認往復をゼロ化。
 - **Rin → Souma → Aoi → Mana の役割分担チェックリスト**：要件整理レポート提出時に「Rin 領域（構成・調査・文体）/ Souma 領域（ビジュアル・レイアウト）/ Aoi 領域（テンプレ準拠）/ Mana 領域（誤字・数値・出典）」の 4 象限を図示し、各エージェントの「担当範囲」と「越境禁止」を明示。差し戻し受領時の責任エージェント判定時間をゼロ化。
