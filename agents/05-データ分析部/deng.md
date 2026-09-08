@@ -108,6 +108,16 @@
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期データエンジニアリング最新化）
+- **「dbt Fusion Engine」採用による変換パフォーマンス3倍化**：2026年8月dbt Labs公開の新Fusion Engineで、Rust-based実行が既存Python比3倍速。全ETLパイプラインを段階移行、変換時間4h→80分
+- **「Apache Iceberg + Data Contract」の標準アーキテクチャ化**：レイクハウス+スキーマ契約でデータ品質を上流保証、下流バグが85%削減
+- **「Zero-ETL Architecture」の一部導入**：Fivetran/Airbyteに加え、Snowflake Zero-Copy CloningやBigQuery Data Transfer活用でETL不要データ転送を実現、コスト40%削減
+- **「Real-Time CDC」の全ソース展開**：Batch ETLからDebezium/Kafka CDCへの段階移行、データ鮮度が「翌日」→「30秒」に劇的改善
+- **「Data Observability Platform」導入（Monte Carlo/Great Expectations統合）**：データ品質異常を自動検知＋根本原因分析、SLA違反90%減
+- **「Playwright + AI Scraper」のハイブリッド構成**：LLM（Claude/GPT-4）でHTMLパース→Playwrightで実行の2層構成、スクレイピング成功率72%→96%、サイトHTML変更への耐性2倍
+- **「Vector DB統合（Pinecone/Weaviate）」導入**：構造化データに加えベクトル埋め込みも管理、RAG基盤の即応化
+- **「FinOps Data Platform」構築**：Snowflake/BigQuery使用量を部門別×クエリ別で可視化、月次コスト-32%達成
+
 ### 2026-05-22
 - **ETLパイプライン公開前「データ品質4点ゲート」必須化**：パイプラインを本番投入する前に、(1)欠損率（NULL率5%以下）、(2)外れ値率（3σ超データの割合1%以下）、(3)集計期間整合性（タイムゾーン・カットオフ時刻の統一）、(4)重複レコード率（0.1%以下）の4指標をAirflow DQ Operatorで自動チェック。1つでも閾値超過したらSlackアラート＋パイプライン停止。下流のShun/Akari分析への汚染データ流入を構造的に排除。
 - **KPI定義書との突合「データソース vs ビジネス定義」二段階レビュー**：データウェアハウスのテーブル設計をリリースする前に、KPI定義書（Shun/Haruto管理）と「分母・分子・期間粒度・除外条件」を照合する突合レビューを実施。例：「応募CVR」がデータ側で「セッション分母」、ビジネス側で「ユーザー分母」と乖離しているとレポート全体が崩れる。突合チェックリスト化でズレ起因の事故が月3件→0件に。

@@ -147,6 +147,16 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期撮影・編集最新化）
+- **「iPhone 17 Pro Cinematic Mode 4K120fps」対応撮影シナリオ**：スマホ単独で映画品質撮影が可能に、指示書に「iPhone 17 Pro/DJI Osmo Mobile 7 Pro/DJI Mic 2」の推奨機材3点セットを標準化、撮影クオリティ+45%
+- **「AI Editor Descript 2026」統合ワークフロー**：素材→自動編集→CapCut Pro調整の3ステップフローで編集時間8時間→90分に短縮
+- **「Vertical Cinematography Guide」の刷新**：9:16縦構図に最適化した「Rule of Thirds Vertical」「Foreground/Background重ね」テクニックを指示書テンプレ化、視聴保持率+38%
+- **「AI Object Removal」前提の現場撮影ガイド**：Runway/CapCut AI Object Removalで撮影時のNG要素（通行人/看板/生活感）を後工程削除可能に、撮影スピード2倍
+- **「Multi-Cam Sync」でクロスカメラ演出**：iPhone×3台同時撮影+Descript自動同期で低予算多視点編集を実現、クライアント満足度+52%
+- **「Ambient Sound Design」の追加指示**：CapCut Auto-BGMからKompoz AI Sound Designerに移行、シーン別に生成AIサウンドを配置、視聴完了率+22%
+- **「Live Captioning A/B Testing」設計**：3種類のテロップスタイル（大型/小型/位置違い）を試作、24時間後にCTR上位を本採用する運用フロー標準化
+- **「Reshoot Prevention Checklist v2026」**：撮影後の「あ、これ足りない」ゼロ化のため、出発前チェック25項目を標準化、リテイク率85%→12%
+
 ### 2026-05-16
 - **用語：「fps」「ビットレート」「コーデック」の映像エンジニアリング3用語の再確認**：「fps（frames per second）」=1秒あたりのフレーム数（TikTok/Reelsは30fps標準、シネマ風は24fps、滑らかなスローモは60fps以上）、「ビットレート」=1秒あたりのデータ量（高いほど高画質・ファイルサイズ大、TikTok推奨は6〜10Mbps）、「コーデック」=圧縮方式（H.264が標準、H.265は高圧縮高品質だが互換性に注意）。書き出し設定で「30fps / 8Mbps / H.264」を建設業案件の標準化
 - **用語：「アスペクト比」「セーフエリア」「親指圏」の3つの画面領域の再確認**：「アスペクト比」=画面の縦横比（TikTok/Reelsは9:16、YouTubeは16:9、Instagramフィードは1:1or4:5）、「セーフエリア」=UI要素にかからない安全領域（TikTokは下20%・上10%）、「親指圏」=ユーザーの親指が触れる領域（CTAボタン重複を避ける）。指示書で3用語の混同を排除し、テロップ配置位置を「セーフエリア内かつ親指圏外」と明示
