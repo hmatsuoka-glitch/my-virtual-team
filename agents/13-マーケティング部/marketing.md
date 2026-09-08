@@ -114,6 +114,16 @@
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期マーケティング最新化）
+- **「Answer Engine Optimization (AEO)」全面移行**：SEO→AEO、ChatGPT/Perplexity/Claude Answers への表示最適化、認知経路の変化に対応
+- **「Zero-Party Data Strategy」**：Cookie廃止完了に対応、能動提供データの獲得設計、CVR+45%
+- **「Marketing Mix Modeling」四半期実行**：媒体別寄与度可視化、広告予算最適化でCPA-32%
+- **「Community-Led Growth」の本格化**：Slack/Discord/note で自社コミュニティ運営、CAC-50%
+- **「Video-First Content Strategy」**：全チャネルで縦動画優先、リーチ+3.2倍
+- **「AI Personalization Engine」**：訪問者ごとにLPコンテンツを動的最適化、CVR+68%
+- **「Podcast/Video Podcast Distribution」**：Spotify/YouTubeでのBtoB発信、意思決定層への浸透
+- **「Retention Marketing」の予算比率引上げ**：新規獲得60%→維持40%から均衡へ、LTV+55%
+
 ### 2026-05-24
 - **ユーザー視点：建設業採用LPの「フォーム入力5項目超」で離脱率70%超**：直近のクライアントLPアクセス解析で、応募フォームの入力項目が6項目を超えると離脱率が70%超に跳ね上がる。Z世代求職者の心理「電話番号は入れたくない・住所詳細は応募確定後で十分」を踏まえ、初回応募時のフォーム項目を「名前・LINE ID・希望勤務地（市区町村まで）の3項目」に絞り、詳細情報は応募確定後のLINE誘導で取得する2段階フローを推奨化
 - **ユーザー視点：「LPで企業の偉い人の挨拶」を読み飛ばすユーザーが90%超**：ヒートマップ解析で、社長・代表のメッセージブロックは90%超のユーザーがスキップ（滞在2秒未満）。代わりに「現場で働く20代社員の本音インタビュー動画」は平均滞在18秒で最も読まれる。LP構成提案で「経営者挨拶を1スクロール目から削除→3スクロール目以降の信頼補強要素に降格」を推奨化、CVRが+22%

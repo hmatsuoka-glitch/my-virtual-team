@@ -61,6 +61,16 @@
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期横断QA最新化）
+- **「Schema Validation Automation」**：全エージェント出力を JSON Schema/Zod で機械検証、スキーマ違反ゼロ
+- **「Cross-Agent Consistency AI」**：Claude で複数エージェント出力の相互矛盾を自動検知
+- **「Quality Score by Agent」**：各エージェント×案件の品質スコアを月次集計、教育対象特定
+- **「Auto-Regression on NG Pattern」**：過去NGパターンライブラリで新規出力を機械照合
+- **「Golden Set Testing」**：模範解答セットとの類似度スコア化、品質基準の可視化
+- **「Multi-Stage QA Gate」**：エージェント→中間QA→sora最終QAの3段階、品質担保の階層化
+- **「Feedback Loop Automation」**：差し戻し理由を各エージェントの Knowledge Log に自動追記
+- **「QA Dashboard for Executive」**：全社品質状況を経営層向け可視化
+
 ### 2026-05-22
 - **QA レビュー「5 軸共通基準 + テスト網羅性」運用化**：本日テーマ「品質を上げるためのチェックポイント」に合わせ、全エージェント出力レビュー時に「① completeness（必須項目の網羅）/ ② accuracy（数値・固有名詞の正確性）/ ③ consistency（他エージェント出力との整合）/ ④ feasibility（実行可能性）/ ⑤ format_compliance（スキーマ準拠）」の 5 軸 + 「⑥ テスト網羅性（境界値・異常系・性能テストの網羅率）」を全件✅化、各エージェントの出力品質をスコア 80 以上に維持。
 - **エージェント間矛盾検出「6 軸クロスチェック」運用化**：Sales/Marketing/Dat/KPI/PM/資料作成部の各出力を横断走査し「① KPI 定義の一致（同一指標で算出式が違う）/ ② 数値の整合（売上・リード数等が部署間で齟齬）/ ③ クライアント情報の整合（社名・案件 ID）/ ④ スケジュールの整合（PM 進捗 vs Sales 商談ステージ）/ ⑤ 予算の整合（Marketing 予算配分 vs Finance 計画）/ ⑥ 出典の整合（同じ統計を異なる年度で引用）」を機械検出、矛盾発生時は両エージェントに即差し戻し。

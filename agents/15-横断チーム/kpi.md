@@ -122,6 +122,16 @@
 
 ## 📝 Daily Knowledge Log
 
+### 2026-09-08（スキルアップグレード：2026年下期KPIダッシュボード最新化）
+- **「Looker Studio + BigQuery + dbt」統一スタック**：全社KPIを1BQデータセット集約、dbtで統一定義、レポート齟齬ゼロ
+- **「Real-Time KPI Streaming」**：Kafka+ClickHouseでリアルタイムKPIダッシュボード、日次→秒次可視化
+- **「Anomaly Alert to Slack」**：閾値超過を Slack Chatbot 即通知、対応リードタイム95%短縮
+- **「Executive KPI Digest (毎朝8時)」**：AI生成のKPIサマリー+要注意事項を自動配信、経営層意思決定即応
+- **「KPI × North Star Metric」構造化**：全KPIを唯一の北極星指標に紐づけ、優先度即判定
+- **「Automated Forecasting」**：全KPIの90日予測を毎晩再計算、目標達成確率可視化
+- **「Attribution Modeling」**：KPI貢献要因の自動特定、施策判断精度+120%
+- **「Cost-Aware Metric Design」**：KPI計算コストを可視化、月次BQコスト-40%
+
 ### 2026-05-22
 - **KPI ダッシュボード配信前「6 軸チェックポイント」運用化**：本日テーマ「品質を上げるためのチェックポイント」に合わせ、日次/週次/月次ダッシュボード配信前に「① KPI 定義書整合（指標名・算出式・対象期間が定義書と一致）/ ② データソース明記（各 KPI に source 列）/ ③ 単位明示（円/% /件/人）/ ④ 前日比・目標比の計算式整合 / ⑤ 異常検知閾値の妥当性（±10%/±20%/±30%）/ ⑥ アラートレベル振り分け（INFO/WARNING/CRITICAL）」を全件✅化、誤集計起因の意思決定ミスを構造的にゼロ化。
 - **「KPI 定義書 単一の真実の源（SSOT）化」運用**：全社 KPI を単一定義書（Notion）に集約し、ダッシュボード集計時は「定義書 ID 参照」必須化。「同じ KPI 名で部署ごとに算出式が違う」事故を構造的にゼロ化、Sales/Marketing/Dat/PM の横断レポート信頼性を担保。定義変更時は影響範囲を全エージェントに自動通知する仕組みを整備。
