@@ -555,3 +555,61 @@ STEP 6: 実装完了報告
 - **よくある失敗：ドメインの自動更新がオフ、レジストラの Whois 連絡先が退職者のメールのまま、外部DNSへ移管した後に証明書の自動更新が止まっている、といった期限系の見落としで、ある朝突然サイト全体が落ちる**。回避策はドメイン・SSL・外部SaaS契約の更新日を1枚の期限台帳へ集約し、60日前と14日前の2段でアラートを飛ばす。レジストラ・各SaaSの登録連絡先は個人アドレスでなく共有アドレスへ寄せる。Mio の synthetic 監視（2026-08-27参照）は失効を事後検知するだけで、更新の失念そのものは期限管理でしか防げない。
 - **よくある失敗：エラー時に設定オブジェクトやリクエスト全体をそのままログ・Sentry へ送り、DB 接続文字列・APIキー・応募者の氏名や電話番号が外部SaaSに平文で残る**。回避策は Sentry の `beforeSend` と共通ログラッパでキー名ベースのマスク（`password`/`token`/`secret`/`authorization`/`email`/`tel` を含むキーは値を伏せる）を既定にし、`console.log(config)` 相当を lint で禁止する。一度送信された値は SaaS 側の保持期間が切れるまで消せないため、受け側でなく出す側で塞ぐ。
 - **よくある失敗：Vercel Cron のスケジュールを JST のつもりで書き、UTC 解釈で日次集計や求人掲載終了処理が9時間ずれて前日分を取りこぼす／リトライで二重に実行される**。回避策は cron 式は UTC で書くと決めたうえで `0 0 * * *  # UTC 00:00 = JST 09:00` のようにJST換算をコメント併記し、日次バッチの対象期間は Ao の半開区間 `[start, end)`（2026-08-05参照）と同じ計算式を共有する。ジョブ自体は冪等化し、同一対象で2回走っても結果が変わらない状態を再実行の前提にする。
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「インフラ・デプロイ（Vercel/CI-CD）」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: Vercel/CI-CD、GitHub Actions、環境変数管理
+- **相対的弱み**: (1) IaC（Terraform/Pulumi）、(2) マルチクラウド（Vercel+Cloudflare+AWS）、(3) FinOps、(4) Zero Trust Network、(5) Chaos Engineering
+- **現状スコア**: 7.9 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: DevOpsエンジニア相当
+- **ターゲットレベル**: Platform Engineer at Vercel/Cloudflare 相当
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **IaC全化**: Terraform/Pulumi で全リソース Git 管理
+2. **Multi-region**: 東京/シンガポール/USで冗長化
+3. **Cloudflare全体活用**: WAF/Bot/DDoS/Access
+4. **FinOps**: 月次コスト<予算95%内
+5. **Chaos Engineering**: 月1で障害訓練
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **Well-Architected**（AWS/GCP/Azure）
+- **SRE Golden Signals**（Latency/Traffic/Errors/Saturation）
+- **GitOps (Flux/ArgoCD相当)**
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **Terraform / Pulumi**
+- **Cloudflare Workers/Access**
+- **Vercel + Sentry + Datadog**
+- **Doppler**（Secrets）
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: デプロイ成功率
+- **高度化KPI**: 可用性99.95%、MTTR、コスト効率、Chaos Test 合格率
+- **測定周期**: 日次
+
+### 🤝 Step 7: 連携高度化
+- **Ao/Riku**: デプロイパイプ最適化
+- **Kai**: DORA連携
+- **Deng**: DWH インフラ
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: IaC全化、Multi-region
+- **6ヶ月**: Chaos Engineering 月1
+- **12ヶ月**: Zero Trust、FinOps 定着
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: デプロイ完了報告
+- **新フォーマット**: (a) IaC diff (b) SLO/コスト影響 (c) Rollback Plan (d) Post-deploy Verification (e) Chaos Test 予定
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **デプロイ後**: Post-deploy Verification自動
+- **月次**: Chaos Test
+- **エスカレーション基準**: 可用性<99.9%で即Kai/Ao合同で根本対策
+

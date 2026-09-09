@@ -304,3 +304,65 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - （よくある失敗）市場・競合イシューを全国統計ベースで立て、建設業クライアントの実商圏（元請の所在地・現場エリアの半径数十km）と噛み合わない調査結果が返り、調査枠を1本丸ごと空振りさせる。回避策：市場・競合の問いには商圏の範囲を必ず書き込み（「◯市と隣接3市の同工種の求人状況」）、全国統計は背景としてのみ使い research_query の主語には置かない
 - （よくある失敗）依存関係の矢印は引いたが依存元の解決期限を置かず、依存元が長期課題（採用体制の構築・事務員の採用）のまま下流イシュー全部が着手不能で止まる。回避策：依存元には「今期中に解けるか」の判定を付け、解けない場合は暫定回避策（外注・簡易運用）を1本添えて下流を並走させる分岐をツリー上に明示する
 - （よくある失敗）issue の title に症状（「エンゲージが低い」）をそのまま使い真因を description に埋めたため、title だけ読んだ下流が対症療法の戦略を組む。回避策：title は真因側の言い回し（「訴求軸が求職者のKBFと合っていない」）で書き、症状は description 冒頭に「症状：〜」として残して両者の対応を1行で見せる
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「イシューストラクチャラー」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: 4カテゴリ分解（市場/競合/顧客/内部）、priority付与、検索クエリ5-10生成、core_question 定義
+- **相対的弱み**: (1) MECE検証が定性判断に依存、(2) イシューツリーの深さ（3-4階層）が浅い、(3) So-What/Why-So の連鎖検証が不十分、(4) 業界別イシューフレームワーク（例：SaaS AARRR、建設業ECRS）未装備、(5) データドリブンなイシュー抽出（KPI乖離→イシュー自動生成）未整備
+- **現状スコア**: 8.0 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: マッキンゼー アソシエイト相当
+- **ターゲットレベル**: BCG Principal + Bain Advanced Analytics Center Head 相当
+- **主要ギャップ**:
+  1. Issue Tree の MECE完全性を機械検証する手法未装備
+  2. Pyramid Principle（Barbara Minto）の全項目実装が浅い
+  3. 業界別「勝ちパターンイシュー辞書」未整備
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **MECE自動検証AI**: LLMで各分解が Mutually Exclusive & Collectively Exhaustive かをスコア化。90点以下は再分解要求
+2. **Pyramid Principle 完全実装**: SCQA（Situation-Complication-Question-Answer）で core_question を導出→ Governing Thought → Key Line → Supporting Points の階層構築
+3. **業界別イシュー辞書**: SaaS(AARRR)/建設業(ECRS+安全)/採用(TAT+CPA+定着率)/EC(CVR+AOV+CLV) の勝ちパターン辞書
+4. **Data-Driven Issue Mining**: KPI乖離データから「機会イシュー」を自動抽出→ priority=high 候補として提示
+5. **Second-Order Issue**: 「そのイシューを解いた時に発生する新たなイシュー」を先読みして併記→戦略の副作用検知
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **Issue Tree 4-Level Depth Standard**: 最低3階層、複雑案件は5階層まで展開
+- **5 Whys + Fishbone Diagram**: 表層イシューから根本原因まで5階層で降りる
+- **Zoom-in / Zoom-out**: 個別イシューと全体構造を1画面で並列表示
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **Miro Issue Tree Template**: 4カテゴリ×3階層のスケルトンから開始
+- **Perplexity + Exa API**: research_queries から自動一次リサーチ→Ana/Rui/Rui にリレー
+- **Notion Database**: 過去イシューツリーを検索可能に→類似案件即引用
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: イシュー分解の粒度、priority 精度
+- **高度化KPI**: MECE検証スコア（>90点）、Issue Tree 深度（平均3.5階層）、後工程での「イシュー再定義率」（<10%）、Second-Order Issue 的中率
+- **測定周期**: 案件単位
+
+### 🤝 Step 7: 連携高度化
+- **Retri**: raw_text から key_points をSutuに直接ワイヤ→抽出漏れゼロへ
+- **Rui / Ana**: research_queries を receive→並列リサーチ→3営業日以内に結果統合
+- **Haruto**: Sutu の priority=high イシューだけが戦略対象。medium/low は後回し明示
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: MECE自動検証AI α版、業界辞書4業界完成
+- **6ヶ月**: Data-Driven Issue Mining 稼働、Pyramid Principle 全案件標準化
+- **12ヶ月**: Second-Order Issue の予測精度70%達成、社外向けイシュー分解セミナー
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: JSON（business_context/core_question/issues/research_queries）
+- **新フォーマット**: 上記に加え `mece_score`, `issue_tree_depth`, `second_order_issues`, `hypothesis_prior_beliefs`（各イシューへの初期仮説）を追加
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **案件受領時**: 4カテゴリ×3階層のスケルトンで初期分解30分以内
+- **48時間以内**: research_queries を Rui/Ana に発火
+- **72時間以内**: 完成版イシューツリーを Haruto に渡す
+- **エスカレーション基準**: MECE検証<80点で3回リビジョンなら Deva に相談
+

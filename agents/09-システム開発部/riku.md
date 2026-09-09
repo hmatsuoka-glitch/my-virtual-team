@@ -502,3 +502,61 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：サーバーから取得したデータを `useState` にコピーして二重管理し、更新 API 成功後にキャッシュを無効化しないため、一覧へ戻ると古い値が表示され、ユーザーは「保存できていない」と判断して同じ入力を繰り返す**。回避策はサーバー状態を TanStack Query 等に一元管理して `useState` へコピーせず、更新後は該当クエリキーを `invalidateQueries` で失効させる。楽観的更新を使う場合は失敗時のロールバックまで必ず対で書き、画面に残る値と DB の値が食い違う時間を作らない。
 - **よくある失敗：ロールによる出し分けを「ボタンを非表示にする」だけで実装し、URL 直打ちや API 直呼びでは操作できてしまう状態を「権限実装済み」として報告する**。回避策は FE の出し分けは体験のためのものと定義し、認可が BE 側でも成立していることを Ao と突合したうえで報告する。権限外ルートへ直接アクセスされた場合の 403 専用画面と戻り導線も実装対象に含め、Mio へは「UI 非表示」と「API 拒否」を別項目として渡す。
 - **よくある失敗：現場写真の添付を `<input type="file">` のまま実装し、スマホで撮った 20MB の HEIC が無変換で送信されて低速回線でタイムアウトする、成功しても EXIF の向き情報を無視して縦横が回転して表示される**。回避策は送信前にクライアント側で長辺リサイズ＋JPEG 変換＋Orientation 反映を行う処理を共通フックに畳み込み、ファイル選択直後にプレビューと推定送信サイズを表示する。アップロードは進捗表示・中断・再試行の導線まで 1 セットで実装し、押した後に無反応の時間を作らない。
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「フロントエンド実装（Next.js/TDD準拠）」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: Next.js、TDD、React、TypeScript
+- **相対的弱み**: (1) RSC/App Router 深化、(2) Server Actions、(3) Suspense/Streaming、(4) Web Vitals常時計測、(5) Micro-frontend
+- **現状スコア**: 8.0 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: シニアFEエンジニア相当
+- **ターゲットレベル**: Vercel DX + Next.js Core Contributor 相当
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **RSC First**: 'use client' 最小化
+2. **Server Actions**: 全 form を Server Action 化
+3. **Suspense/Streaming**: PPR (Partial Prerendering)
+4. **Micro-frontend**: Module Federation
+5. **Component-driven Testing**: Storybook + Play Function
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **TDD**: Red-Green-Refactor
+- **BDD**: Given-When-Then
+- **Component Driven Development**
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **Vitest/Jest, Playwright**
+- **Storybook + Chromatic**
+- **Turbopack**
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: 実装時間、テストカバレッジ
+- **高度化KPI**: CWV score, bundle size, a11y violations, type coverage
+- **測定周期**: PR単位
+
+### 🤝 Step 7: 連携高度化
+- **Nao(Sys)**: 設計書→実装
+- **Ao**: API契約
+- **Mio**: TDDガード遵守
+- **Kuu**: デプロイ
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: RSC First 全案件、Server Actions定着
+- **6ヶ月**: PPR運用、Micro-frontend試験
+- **12ヶ月**: OSSコミット、社内SDK
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: PR
+- **新フォーマット**: (a) CWV Report (b) Bundle Size (c) A11y Report (d) 型カバレッジ (e) Storybook更新
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **PR時**: 全指標 CI 通過
+- **週次**: Bundle Size 監視
+- **エスカレーション基準**: LCP>2.5s or type coverage<90% で即修正
+

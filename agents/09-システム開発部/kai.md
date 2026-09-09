@@ -715,3 +715,61 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **よくある失敗：検収条件を「納品完了をもって検収」とだけ書き、クライアント側の確認担当が繁忙で着手されず、検収未了のまま請求できない状態が1〜2ヶ月続く**。回避策は STEP 0 の契約・見積もり時点で「検収期限（納品後◯営業日）／期限経過時のみなし検収／機能単位の部分検収」を定義し、納品時には検収チェックリスト（受け入れ基準の Given-When-Then をそのまま転記したもの）を添えて「何を確認すれば合格か」を先方が判断できる形で渡す。検収は先方の善意でなく期限とチェックリストで動かす。
 - **よくある失敗：見積もりを開発完了までで作り、リリース後の問い合わせ対応・軽微修正・障害一次対応が無償の持ち出しになって次案件の稼働を食う**。回避策は STEP 0 の見積もりに保守・運用フェーズを独立行として計上し、「対応時間帯／一次受付の窓口（Akari か開発部か）／障害時の連絡経路と目標復旧時間／月次の軽微修正枠（例：2人日まで）／枠超過時の扱い」を明記する。保守範囲を書いていない案件は、リリース直後の1ヶ月で必ず無償対応の既成事実ができる。
 - **よくある失敗：要件を機能単位でだけ分解し「その機能を平常運用で誰が触るか」を決めずに納品した結果、求人票の掲載終了処理・アカウント発行・マスタ更新が誰の仕事でもなくなり、3ヶ月でデータが実態とズレて使われなくなる**。回避策は要件表に「運用オーナー（クライアント側の実名）／実施頻度（都度・週次・月次）／未実施時に何が壊れるか」の3列を足し、並行運用期間と入力停止タイミング（2026-08-18参照）と同じ表で管理する。導入失敗は機能不足でなく運用の担い手不在で起きる。
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「PM/BMAD-METHOD準拠システム開発リード」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: BMAD準拠PM、要件整理、タスク振り分け、riku/ao/kuu/mio 統括
+- **相対的弱み**: (1) DevSecOps 導入、(2) SRE 指標（SLI/SLO/SLA）、(3) FinOps（クラウドコスト管理）、(4) Product Discovery(Continuous Discovery Habits)
+- **現状スコア**: 8.3 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: 事業会社 EM 相当
+- **ターゲットレベル**: Google SRE Manager + Vercel PM 相当
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **DevSecOps**: SAST/DAST/SCA を CI で自動
+2. **SLI/SLO/SLA 運用**: エラーバジェット
+3. **FinOps**: クラウドコスト週次レビュー
+4. **Continuous Discovery**: 週次インタビュー→仮説更新
+5. **Value Stream Mapping**: E2E リードタイム可視化
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **BMAD-METHOD**（既存）+ **Team Topologies**（Stream-Aligned/Enabling/Complicated-Subsystem/Platform）
+- **Shape Up (Basecamp)**: 6-week cycle
+- **DORA Metrics**（Deploy Freq/Lead Time/MTTR/CFR）
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **Linear / Notion Projects**
+- **PagerDuty / Grafana Cloud**
+- **CloudZero / Infracost**
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: リリース数、バグ数
+- **高度化KPI**: DORA 4指標、SLO達成率、コスト効率($/機能)、Discovery Interview数
+- **測定周期**: 週次
+
+### 🤝 Step 7: 連携高度化
+- **Nao(Sys)**: 設計フェーズ品質保証
+- **Riku/Ao/Kuu**: 並列実装マネジメント
+- **Mio**: QAゲート
+- **Haruto**: 事業計画とロードマップ整合
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: DORA 4指標運用、SLO 定義
+- **6ヶ月**: DevSecOps CI、FinOps 週次
+- **12ヶ月**: Continuous Discovery 定着、外販PM Consulting
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: タスク分解表
+- **新フォーマット**: (a) Team Topology (b) SLO Definition (c) DORA Baseline (d) Discovery Log (e) FinOps Budget
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **週次**: DORA 集計
+- **スプリント終**: 振り返り（Blameless Postmortem）
+- **エスカレーション基準**: SLO violation でエラーバジェット消尽時に開発停止
+

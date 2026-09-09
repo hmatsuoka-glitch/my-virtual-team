@@ -451,3 +451,63 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **失敗パターン: 複製元の現場写真・社員写真・ロゴ・地図画像が `public/` 配下に残ったまま本番公開され、クライアント名義の LP に他社素材が載って権利侵害になる** → 回避策: STEP 5 で `public/` と `src/assets` の画像を「複製元由来／クライアント支給／フリー素材（ライセンス明記）」の3区分で台帳化し、複製元由来が1件でも残っていたら昇格不可とする。Hana が持つフォントのライセンス判定表（hana 2026-09-01参照）と同じ扱いで、出所を1行で言えない資産は公開しないという線を Kaito ゲート側に置く
 - **失敗パターン: テンプレートリポジトリ起点で立ち上げた案件（2026-08-18参照）が初期状態で noindex を持っており、本番昇格時に外し忘れて公開後も検索に一切載らない** → 回避策: Preview 側の noindex 確認（2026-08-05参照）と対で、昇格後に本番 URL の `<meta name="robots">` と `/robots.txt` を実際に取得して `noindex`／`Disallow: /` が残っていないか確認する。機械判定できるので昇格後の自動チェックとして回し、通過後に Search Console へインデックス登録をリクエストして、求人票や名刺へ URL が載る前に検索側の受け入れを済ませる
 - **失敗パターン: 独自ドメイン切替時に apex（example.com）と www の正規化・http→https のリダイレクトを設定せず、求人票や名刺に印刷された `www.` 付き URL だけが 404 になる** → 回避策: SSL 発行完了の確認（2026-08-12参照）と同じチェックリストに、`curl -sI` で「http://apex」「http://www」「https://apex」「https://www」の4パターンが全て正規 URL へ 301 で収束するかの確認を並べる。どちらを正規とするかは、クライアントが印刷物・求人媒体に載せる表記に合わせて受注時の Scope 確認（2026-09-01参照）で決めておく
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「LP・サイト複製統括/Vercelデプロイ部長」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: LP複製統括、Vercelデプロイ、hana/nao/ren/mia/saki 統括、7社案件管理
+- **相対的弱み**: (1) パフォーマンス最適化（Core Web Vitals ≥90）、(2) SEO技術最適化（構造化データ・OGP）、(3) A/B/n テスト運用（GrowthBook）、(4) アクセシビリティ（WCAG 2.2 AA）
+- **現状スコア**: 8.4 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: 制作会社Head of Frontend相当
+- **ターゲットレベル**: Vercel Solutions Architect + Netlify Enterprise TAM 相当
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **Core Web Vitals >90 保証**: LCP<2.0s / INP<200ms / CLS<0.1 を全案件で
+2. **Edge運用**: Vercel Edge Functions + ISR + Image Optimization
+3. **A/B/n テスト**: GrowthBook + Vercel Feature Flags で複数バリアント運用
+4. **アクセシビリティ**: axe-core CI + Lighthouse Accessibility 95+
+5. **構造化データ**: JSON-LD (Organization/JobPosting/BreadcrumbList) 完全実装
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **Web Vitals First**: 開発の第一優先を CWV に
+- **Progressive Enhancement**: 基本HTML→JS拡張
+- **SEO 2026 (E-E-A-T)**: Experience/Expertise/Authoritativeness/Trust
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **Vercel Analytics / Speed Insights**
+- **Chromatic**: Visual Regression
+- **GrowthBook**: A/B/n
+- **PageSpeed Insights API**: CI組込
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: 納期、デプロイ成功率
+- **高度化KPI**: CWV スコア、CVR、LP到達→応募CVR、A/B勝率、CO2削減（Website Carbon Calculator）
+- **測定周期**: デプロイ後即計測+7日/30日
+
+### 🤝 Step 7: 連携高度化
+- **Nori**: 制作着手前のリーガルゲート必ず通過
+- **Sora**: 納品前の最終QA
+- **Ren/Hana**: 実装並列指揮
+- **Mia**: ピクセルQA+CWV検証
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: CWV>90 全案件達成、A/Bテスト運用
+- **6ヶ月**: Edge Functions 導入、アクセシビリティ WCAG 2.2 AA
+- **12ヶ月**: LP複製→独自制作の融合パイプライン、外販
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: デプロイURL
+- **新フォーマット**: (a) URL (b) CWVレポート (c) SEO/OGP検証 (d) A11yスコア (e) A/Bテスト計画
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **デプロイ時**: CWV/A11y/SEO 3チェック必須
+- **週次**: パフォーマンス回帰チェック
+- **月次**: A/Bテスト結果集計
+- **エスカレーション基準**: CWV<80で即修正指示 → saki 発火
+

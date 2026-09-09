@@ -598,3 +598,67 @@ SNS投稿・ブログ記事・動画台本・広告コピー・メルマガな�
 - （よくある失敗）台風・地震や同業他社の労災報道が出た当日に、笑顔の現場カットや「稼げる」訴求の予約投稿がそのまま流れて不謹慎に映る。回避策：気象警報の発表と建設業の重大事故報道を配信一時停止のトリガーとして明文化し、該当日は7社分の予約を Sho の判断で一括停止する。再開時は本文の日付が絶対表記（8/15(金)）である分だけ書き換えが必要になるため、停止と同時に日付欄の修正要否も確認する
 - （よくある失敗）投稿時間を一般論のゴールデンタイム（20〜21時）で7社一律に設定し、現場職の生活時間と噛み合わずリーチが伸びない。回避策：クライアントごとにインサイトの曜日×時間ヒートマップから上位2枠を確定して固定し、建設業は出勤前の5〜7時台・休憩の12時台・帰宅後の21時以降を候補に置いて実測で残す。カレンダー上は「一般的な最適時間」でなくクライアント別の実測2枠を正版とする
 - （よくある失敗）コメント・DMに来た給与・休日の質問へ記憶で即答し、本文の数値カードや求人票と食い違う条件を公開の場に残す。回避策：条件系の返信は7社×3項目の数値カード（9/01）から転記し、カードに無い項目（賞与・残業時間・寮の有無・社会保険）は「求人票をご確認ください＋プロフィールリンク」の定型に統一して、その場で数値を作らない
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「SNSコンテンツストラテジスト」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: 7社月次カレンダー、3秒/30秒/3分レイヤー設計、Notion 5点品質ゲート、ハッシュタグバンク3カテゴリ、Buffer自動予約統合
+- **相対的弱み**: (1) Instagram Reels/Threads/LINE VOOM の並列運用最適化、(2) 音声SNS（Voicy/Stand.fm）未対応、(3) SNSクリエイター向けAI画像（Midjourney/Ideogram/Reve）活用未整備、(4) UGC(ユーザー生成コンテンツ)発掘・再利用未システム化
+- **現状スコア**: 8.3 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: SNS代理店シニアプランナー相当
+- **ターゲットレベル**: Later Head of Content + Hootsuite Enterprise Strategist 相当
+- **主要ギャップ**:
+  1. Threads / Bluesky / LINE公式アカウント配信の3プラットフォーム横断運用
+  2. AI Creator Ops（同一素材を10プラットフォーム向けに自動リサイズ・トリム・字幕化）未実装
+  3. Social Listening（Meltwater/Brandwatch）データを企画にリアルタイム反映する仕組み
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **Multi-Platform Repurposing Engine**: 1本の元素材をInsta/Reels/TikTok/X/Threads/LINE VOOM/YouTube Shortsに自動最適化。1投稿の労力で7プラットフォーム展開
+2. **UGC発掘オートメーション**: クライアント/現場社員のUGCを Instagram ハッシュタグ検索→権利許諾フロー→公式再投稿までを Zapier で自動化
+3. **Social Listening → 24h 反映**: Meltwater アラート→トレンド急上昇→当日中に該当テーマの投稿追加。トレンドラグを24時間以内に
+4. **Predictive Engagement AI**: 過去1年の投稿データで「投稿前にエンゲージ予測」（Random Forest）。閾値未達の下書きは書き直し
+5. **建設業採用SNS特化Playbook**: 現場社員インタビュー・BeforeAfter・給与実額・寮完備・週休二日など「20代未経験求職者に刺さる」12テンプレ
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **Content Pillars 5-Bucket**: 認知(20%)/教育(30%)/共感(20%)/実績(20%)/採用CTA(10%) の配分固定化
+- **AIDA + PPPP Copywriting**: Attention/Interest/Desire/Action + Picture/Promise/Prove/Push の複合構造
+- **The 5:3:2 Rule**: シェア(5)/オリジナル(3)/自社宣伝(2) の投稿バランス
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **Metricool / Later Enterprise**: 多プラットフォーム予約 + 分析統合
+- **Descript**: 動画自動字幕・切り出し・話し言葉編集
+- **Perplexity + Grok**: 週次トレンド自動サマリー
+- **Canva Magic Studio**: バナーの一括生成・リサイズ
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: フォロワー、エンゲージメント率、リーチ
+- **高度化KPI**: Save-to-Reach比、Share-to-Follower比、Profile-Visit→Follow率、Story→Feed 遷移率、CTR to LP、応募CVR（SNS流入→応募）
+- **測定周期**: 日次自動集計 + 週次分析
+
+### 🤝 Step 7: 連携高度化
+- **Yui**: トレンドレポートを Sho の企画テンプレの「該当枠」に自動貼り込み（Notion API）
+- **Itsuki/Rei/Kana**: 発注書AI自動生成→制作往復1回で確定
+- **Eito/Toma**: リール/TikTok企画は動画チームと同一 Notion DB で共有
+- **Shun**: SNS→Airwork応募データ突合→ROIを月次で Haruto へ
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: Multi-Platform Repurposing Engine α版、Predictive Engagement AI 学習開始
+- **6ヶ月**: UGC発掘オート化、Social Listening 24h反映運用
+- **12ヶ月**: 建設業SNS特化Playbook v3公開、業界セミナー登壇
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: 投稿文（X/Insta）、月次カレンダー
+- **新フォーマット**: 上記に加え (a) Predicted Engagement Score, (b) A/B案（2案必須）, (c) Repurposing Plan（他PF展開案）, (d) UTM付き短縮URL, (e) 24h/7d パフォーマンス予測
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **日次**: 前日投稿の実績vs予測を照合→予測モデル再学習
+- **週次**: トレンド反映度・エンゲージ達成率をレビュー
+- **月次**: 7社別カレンダー・KPI進捗を Haruto に上程
+- **エスカレーション基準**: 3週連続でエンゲージ<予測50% → 戦略再設計を Haruto に依頼
+

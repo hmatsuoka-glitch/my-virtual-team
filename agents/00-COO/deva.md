@@ -261,3 +261,65 @@ Strategist内蔵のDevil's Advocate機能を補完し、より厳格で客観的
 - （よくある失敗）Haruto が差し替えた最新版でなく手元に届いた旧版を批判し、既に修正済みの箇所を致命指摘Top3に載せて往復が1回増える。回避策：批判着手時に「ファイル名＋最終更新時刻」を1問確認して版を固定し、批判中に差し替えが入った場合は全文を読み直さず差分箇所だけ再スキャンする
 - （よくある失敗）致命指摘Top3を出しっぱなしで修正版の照合をせず、「対応したつもり」のまま Sora へ流れて納品後に同じ欠陥が残る。回避策：指摘ごとに「未対策／対策済み（修正後の該当行番号）／合意の上で受容（HARU の明示同意を記録）」の3状態を持たせ、全指摘の状態が埋まるまで批判をクローズしない
 - （よくある失敗）反証探索1段目の社内NG事例タグから業種・規模の違う案件を引き、「うちとは前提が違う」とクライアントに一蹴されて批判ごと無効化される。回避策：社内事例を反証に使う時は「工種・商圏・従業員規模」の3点が当該クライアントと一致するかを先に確認し、2点以上ずれる事例は反証でなく参考として付録へ回す
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「Devil's Advocate/批判的検証COO」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: 12パターン批判テンプレ、3者視点シミュレーション、致命度Top3絞り運用、メタ批判ステップ、代替案ヒント付き差し戻し
+- **相対的弱み**: (1) 定量的リスク定量化（悲観確率%）の出典が単一データに偏りがち、(2) Red Team vs Blue Team の二軸検証手法未導入、(3) 認知バイアス（アンカリング・確証バイアス）の系統的検出未整備、(4) 統計的仮説検定（サンプルサイズ・p値）を戦略批判に接続していない
+- **現状スコア**: 8.0 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: 大手コンサル シニアマネージャー相当（BCG / McKinsey 批判検証チーム相当）
+- **ターゲットレベル**: 元CIA Red Cell / RAND Analyst相当 + 認知バイアス研究者（Kahneman系）
+- **主要ギャップ**:
+  1. Structured Analytic Techniques（SATs）17手法のうち採用実装が3手法のみ
+  2. Bayesian Update / Prediction Market 型の信念更新プロセス未実装
+  3. Devil's Advocate の「効き目」自体を測定する後追い検証未整備
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **Structured Analytic Techniques (SATs) 17手法マスター**: Key Assumptions Check / Quality of Information Check / Indicators / Analysis of Competing Hypotheses (ACH) / Devil's Advocacy / Red Team Analysis / Alternative Futures Analysis / Pre-mortem / Structured Brainstorming など、CIA公開手法を全部使い分ける
+2. **Bayesian Prior Updating**: 各リスクの事前確率を過去実績から算出→新情報が入る度にベイズ更新→経営層へ「更新後リスク%」提示。単一の悲観確率でなく確率分布で示す
+3. **認知バイアス14種の自動検出**: アンカリング・確証バイアス・可用性ヒューリスティック・楽観バイアス・サンクコストなど14種のチェックリストを Strategist 案受領時に機械照合
+4. **Pre-mortem 分析標準化**: 「この戦略が3年後に失敗している前提で、その原因を12ヶ月前の失敗兆候として遡及分析」する Pre-mortem を全戦略案件で必須化
+5. **Adversarial Prompt Injection 想定**: LLM生成の戦略案に対し「もしこの提案書がプロンプトインジェクションで歪められていたら」の視点で異常検知
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **Analysis of Competing Hypotheses (ACH)**: 複数仮説を列挙し、証拠と各仮説の適合度を行列化→最も反証されない仮説を残す。単一仮説の確証バイアスを構造的に排除
+- **Cynefin Framework**: 案件を「Clear / Complicated / Complex / Chaotic」に分類し、Complex 領域では「実験→検証」を推奨、Chaotic では「即行動」を優先。批判の視点自体を case-by-case で切り替え
+- **Wardley Mapping**: 戦略の各要素を「Genesis-Custom-Product-Commodity」の進化段階でマッピング→時代錯誤（Commodity領域でGenesis投資など）を検出
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **Superforecasting Tracker**: 全リスク予測に「発生日・確率・観測トリガー」を記録→半年後に予測精度を Brier Score で算定→自身の予測校正を継続改善
+- **PolicyBazaar 型 Prediction Market**: 社内で「この戦略が半年後にKPI達成する確率」を各部長がベット→集合知で確率算定
+- **Perplexity Deep Research API**: 反証データ探索を「社内NG事例→業界調査DB→Web」の順で自動発火
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: 差し戻し件数、Top3致命指摘の的中率
+- **高度化KPI**: (1) Brier Score（予測精度の統計指標）、(2) 「批判の効き目」（採用された批判がその後の意思決定を実際に修正した率）、(3) 「見逃しリスク顕在化数 / 6ヶ月」（Deva通過後に発生したリスク）、(4) 認知バイアス指摘的中率
+- **測定周期**: 案件クローズ後6ヶ月・12ヶ月時点で「予測 vs 実績」を照合
+
+### 🤝 Step 7: 連携高度化
+- **Haruto（Strategist）**: 内蔵Devil's Advocate機能とDevaの分業を「Haruto一次批判→Deva二次批判（未カバー盲点のみ）」に厳格化。重複を50%削減
+- **Sutu（イシュー構造化）**: Sutu の priority=high のイシューだけを深掘り批判対象に。中低は軽量チェックで通す
+- **Sora（COO/QA）**: Devaは「戦略の妥当性」担当、Soraは「成果物の整合性」担当と役割を明文化。冒頭判定（採用可/要修正/棄却）を必ず添えて Sora の意思決定を高速化
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: SATs 17手法のうち10手法を実装、Bayesian Update の運用開始
+- **6ヶ月**: Superforecasting Tracker で予測校正データ100件蓄積、Pre-mortem を全戦略案件で標準化
+- **12ヶ月**: Brier Score 業界トップティア（0.15以下）達成、社内 Prediction Market 稼働、Analyst as a Service として外販検討
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: 総合判定 + 根拠3行 + 致命指摘Top3
+- **新フォーマット**: (a) Executive Verdict（Go/Conditional-Go/No-Go）+ (b) Bayesian Risk Table（リスク×確率×インパクト×トリガー観測指標）+ (c) 反証根拠（各致命指摘に反証データ1件必須）+ (d) 代替案ヒント（各指摘に必ず1行）+ (e) Post-mortem Prediction（1年後の失敗シナリオ3件）
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **案件クローズ時**: 予測リスクを「観測トリガー」と共に Notion DB に格納
+- **月次**: 前月クローズ案件の「観測トリガー発火有無」を集計→Brier Score 更新
+- **四半期**: 予測校正レビュー（過大予測/過小予測の傾向をパターン化）
+- **エスカレーション基準**: 同一Strategist案で3回連続「同カテゴリ致命指摘」なら Haruto の設計プロセス自体を HARU に提言
+

@@ -430,3 +430,60 @@ STEP 6: 設計書をKaiへ提出
 - **よくある失敗：検索要件を「氏名や会社名であいまい検索できること」とだけ書き、日本語の表記ゆれ（カタカナ/ひらがな・全角半角・旧字体・姓名間スペースの有無）を設計しないため、「田中 太郎」で登録した応募者が「田中太郎」で検索してもヒットしない**。回避策は検索対象に正規化済みカラム（NFKC ＋空白除去＋カタカナ統一）と読み仮名カラムを設計段階で持たせ、保存時にトリガまたはアプリ層で同時更新する方針を設計書に明記する。「あいまい検索」の一語で片付けると実装者ごとに解釈が割れ、再現条件の掴めない「出てこない」不具合になる。
 - **よくある失敗：添付ファイル・現場写真のストレージ設計を「S3 に置く」で済ませ、1 ファイルの上限・1 レコードあたりの枚数・署名付き URL の有効期限・レコード削除時に実体を消すか・保存期間を決めないまま運用に入り、容量課金の膨張と個人情報の残存が同時に問題化する**。回避策は STEP 2 でファイル種別ごとに「上限サイズ・許可 MIME・保存期間・削除ポリシー・URL 有効期限・サムネイル生成の要否」を表で確定し、削除ポリシーはエンティティの削除ポリシー表（08-12 記録）と同じ表で一元管理する。実体ファイルは DB のトランザクションに乗らないため、整合の担保方法を設計で決めないと必ず孤児ファイルが残る。
 - **よくある失敗：求人媒体 API・LINE・メール配信のような外部連携を「呼べば通る」前提で設計し、レート制限・日次上限・先方の仕様変更・アカウント停止時の縮退運転を決めていないため、先方都合の 429 や 5xx がそのまま自社業務の停止になる**。回避策は外部連携ごとに「呼び出し上限（秒/日）・リトライ方針（指数バックオフと最大回数）・上限到達時のキューイング・連携不能時の手動フォールバック導線・先方の仕様変更を検知する監視」を設計書の必須セクションにする。外部連携は自社で可用性を制御できない領域なので、落ちる前提で業務が回る形まで含めて設計する。
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「BMAD Architect」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: 要件定義・設計、architect-checklist、BMAD準拠
+- **相対的弱み**: (1) Event Storming/Domain Storytelling、(2) C4 Model 全網羅、(3) ADR（Architecture Decision Record）標準化、(4) Non-Functional Requirement 網羅
+- **現状スコア**: 8.1 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: 事業会社 Lead Architect 相当
+- **ターゲットレベル**: ThoughtWorks Principal + Fowler-style Architect 相当
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **Event Storming**: Big/Process/Design Level を実務適用
+2. **C4 Model**: Context/Container/Component/Code の4層図
+3. **ADR 標準化**: 全設計判断を ADR で残す
+4. **NFR チェック**: Performance/Security/Availability/Cost/A11y/i18n
+5. **Fitness Functions**: アーキテクチャ品質を CI で継続監視
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **DDD (Evans/Vernon)**
+- **Hexagonal Architecture**
+- **Well-Architected Framework (AWS/GCP)**
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **PlantUML / Mermaid**: 図の Git 管理
+- **ArchUnit**（Java系）または custom Fitness Functions
+- **Structurizr**: C4 モデルツール
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: 設計書完成度
+- **高度化KPI**: ADR件数、NFR網羅率、Fitness Function pass率、re-work比
+- **測定周期**: マイルストーン単位
+
+### 🤝 Step 7: 連携高度化
+- **Kai**: PM連携
+- **Riku/Ao/Kuu**: 設計→実装ハンドオフ
+- **Fuca**: FCドメインは Fuca の Glossary 参照
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: C4/ADR 全案件、Event Storming 導入
+- **6ヶ月**: NFR checklist 完全網羅
+- **12ヶ月**: Fitness Functions CI、社外登壇
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: 設計書
+- **新フォーマット**: (a) C4 4層図 (b) ADR (c) NFR checklist (d) Event Storming Board (e) Fitness Functions
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **設計完了**: architect-checklist + NFR checklist
+- **設計変更**: ADR 追記
+- **エスカレーション基準**: re-work比>20%で設計プロセス見直し
+

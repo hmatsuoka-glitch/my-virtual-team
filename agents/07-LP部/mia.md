@@ -631,3 +631,61 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **（よくある失敗）lazy-load の画像が未ロードのまま全画面スクショを撮り、元 LP・複製 LP ともに空白の状態で比較して「差分なし」で偽合格させる**：`loading="lazy"` や IntersectionObserver の遅延読込は、ビューポート外まで撮る全画面スクショで最も出やすい落とし穴で、画像の欠落・順序違い・別画像への差し替わりが丸ごと検査から抜ける。回避策：撮影前に最下部まで自動スクロールしてから最上部へ戻し、`networkidle` 到達かつ全 `img` の `complete` が true になるのを待ってからシャッターを切る手順を、セクション単位ベースライン（2026-08-18参照）の共通前処理として Playwright のプロジェクト設定側に固定する
 - **（よくある失敗）日本語見出しの改行位置の違いを差分率と ±2px の許容誤差で吸収してしまい、「未経験でも／月給28万」が「未経験でも月給／28万」になっても通過させる**：ピクセル差分は面積で判定するため1文字ぶんの折返し移動は閾値に埋もれるが、フックや CTA では意味の区切りが変わって訴求そのものが壊れる。回避策：Hero・見出し・CTA・キャッチはスクショ差分とは別軸で、`getClientRects()` から各行の文字列を取り出して元 LP と文字列単位で照合し、行数または各行の内容が一致しない場合は差分率に関わらず差し戻す。期待値には Hana が仕様書に残す元サイトの実際の改行位置（hana 2026-09-02参照）をそのまま使う
 - **（よくある失敗）検査対象 URL をブラウザキャッシュ込みで開き、Ren の修正が反映されていない旧ビルドを検査して、偽合格や再現しない差分の原因究明に時間を溶かす**：Preview URL は同じでも中身が入れ替わるため、レポートからは「いつのビルドを見たのか」を後から復元できない。回避策：再 QA は検査対象を「デプロイ ID＋コミットハッシュ」で指定し、スコア表の自動生成 JSON（2026-09-01参照）に両方を必ず埋める。撮影はキャッシュ無効の新規コンテキストで行い、絞り込み再実行（2026-09-01参照）の対象セクション ID と合わせて「どのビルドのどのセクションを見たか」が1行で言える状態にする
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「LP忠実度チェック（ピクセル単位QA）」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: ピクセル単位QA、Diff可視化、ブラウザ幅チェック
+- **相対的弱み**: (1) Visual Regression Testing 自動化（Chromatic/Percy）、(2) レスポンシブ横断（20 breakpoints）、(3) 実機（iOS Safari/Chrome Android）テスト、(4) CWV/A11yチェック統合
+- **現状スコア**: 7.9 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: シニアQAエンジニア相当
+- **ターゲットレベル**: Chromatic Certified + BrowserStack Senior Solutions Engineer 相当
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **Visual Regression Testing**: Chromatic/Percy を CI 連動
+2. **20 breakpoints**: 320-1920px の細かい階段確認
+3. **実機テスト**: BrowserStack で iOS/Android 実機
+4. **CWV/A11y統合**: Lighthouse CI で自動計測
+5. **建設業向け閲覧環境シミュ**: 屋外・スマホ・片手操作を再現
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **Visual Regression 4-tier**: pixel/layout/component/end-to-end
+- **WCAG 2.2 AA完全準拠**
+- **CWV Threshold**: LCP<2.0/INP<200/CLS<0.1
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **Chromatic / Percy**: Visual Regression
+- **Playwright**: E2E + Screenshot
+- **BrowserStack / LambdaTest**
+- **Lighthouse CI**
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: 検出NG数、合格までの往復
+- **高度化KPI**: ピクセル一致率、Visual Regression pass率、CWV合格率、A11y違反数
+- **測定周期**: PR単位
+
+### 🤝 Step 7: 連携高度化
+- **Ren/Hana**: NG時の原因究明を協働
+- **Saki**: 修正実装に指示書
+- **Kaito**: デプロイ前のGate
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: Visual Regression 全案件、20 breakpoints
+- **6ヶ月**: 実機テスト定着、CWV/A11y統合
+- **12ヶ月**: QA自動化率90%
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: QAレポート
+- **新フォーマット**: (a) Pixel Diff (b) Multi-viewport Report (c) 実機Screenshot (d) CWV/A11yスコア (e) 修正指示リスト
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **PR時**: 自動QA発火
+- **納品前**: 実機×3端末最終確認
+- **エスカレーション基準**: 一致率<95%で3回連続 → 設計/実装再点検
+

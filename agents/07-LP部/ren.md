@@ -683,3 +683,60 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **失敗パターン: プレビューと本番の分岐を `NODE_ENV` で書いたが、Vercel Preview も production ビルドで動くため分岐が本番側へ倒れ、社内確認用のテスト応募が本番の応募 DB とクライアントの通知メールへ流れ込む** → 回避策: 環境分岐は `NODE_ENV` でなく `VERCEL_ENV`（production / preview / development）で判定し、preview では送信先をテスト用エンドポイントへ、通知メールの宛先を社内アドレスへ固定する。本番以外から本番の応募データへ書き込めない状態を実装で担保し、クライアントに「今のはテストです」と連絡する経路そのものを消す
 - **失敗パターン: 電話番号欄に `maxLength` と厳しい正規表現を当てて全角数字・ハイフン入り・先頭の国番号を弾き、求職者側には「なぜ送信できないか」が表示されないまま応募が落ちる** → 回避策: 入力段階では弾かず、送信時にサーバー側で全角→半角・ハイフン/空白除去へ正規化してから桁数だけ検査する方針に統一し、クライアント側の必須検査は空欄と桁数の極端な外れ（9桁未満／12桁超）に限定する。`inputmode="tel"`＋`autocomplete="tel"`（2026-08-16参照）で入力手段を整えたうえで、受け側は「弾く」でなく「整形して受ける」を既定にする
 - **失敗パターン: クライアント支給の一眼レフ写真を無加工で `public/` に置き、1枚 8MB・長辺 6000px の原本がリポジトリへ入って画像最適化の変換対象になり、初回アクセスの変換待ちと最適化転送量の課金が跳ねる** → 回避策: コミット前のリサイズを入稿ゲートにし、Hero 用は長辺 2400px・セクション用は 1600px、いずれも 1 枚 1MB 以下を上限値として固定する。用途別ラッパー（2026-09-01参照）が配信側の最適化を担う前提でも、原本のサイズ落としは入稿時にやっておかないとビルドと課金に効く
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「LPコード生成スペシャリスト」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: Next.js/React実装、Tailwind、レスポンシブ
+- **相対的弱み**: (1) Server Components / App Router 最適化、(2) Image最適化、(3) Font最適化、(4) バンドルサイズ管理、(5) 型安全（TypeScript strict）
+- **現状スコア**: 8.0 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: シニアフロントエンドエンジニア相当
+- **ターゲットレベル**: Vercel DX Engineer + Next.js Contributor 相当
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **RSC First**: Server Components デフォルト、'use client' 最小化
+2. **next/image + next/font 完全活用**
+3. **Bundle Analyzer**: 各ページ<100KB
+4. **Type-safe API**: tRPC or Zod validation
+5. **Edge Runtime**: 動的LPは Edge で
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **React Server Components**
+- **CSS-in-Zero-JS (vanilla-extract)**
+- **Route Handlers + Server Actions**
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **Turbopack**: ビルド高速化
+- **@vercel/analytics**
+- **eslint-plugin-react-server-components**
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: 実装時間、Mia合格
+- **高度化KPI**: LCP/INP/CLS、bundle size、Lighthouse >95、accessibility violations
+- **測定周期**: PR単位
+
+### 🤝 Step 7: 連携高度化
+- **Nao(LP)**: 設計書のトークンをそのまま tailwind.config に
+- **Kuu**: デプロイ最適化
+- **Mia**: ピクセルQA連携
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: RSC 全案件、bundle<100KB
+- **6ヶ月**: Edge Runtime 導入、型カバレッジ100%
+- **12ヶ月**: OSSコントリビュート、社内SDK公開
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: PR
+- **新フォーマット**: (a) CWV Report (b) Bundle Size (c) Lighthouse Score (d) A11y Report (e) 型カバレッジ
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **PR時**: CI で CWV/A11y/Bundle 自動チェック
+- **週次**: Bundle Size 監視
+- **エスカレーション基準**: LCP>2.5s or Bundle>150KB 即修正
+

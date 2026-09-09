@@ -532,3 +532,62 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **よくある失敗：履歴書・職務経歴書のアップロードを `Content-Type` ヘッダと拡張子だけで検証し、偽装ファイルや数百MBの動画がそのまま保存される／API Function のメモリ上限に当たって 500 になる**。回避策はファイル実体の先頭バイト（マジックナンバー）で PDF/JPEG/PNG を判定し、サイズ上限は Function 側と署名付きURLの発行条件の両方で二重に設定する。そもそも大きいファイルは API を経由させず S3/Supabase Storage の署名付きURLへ直接アップロードさせ、API 側はキーの受け取りとメタデータ保存だけに限定する。
 - **よくある失敗：応募者の重複判定をメールアドレス・電話番号のユニーク制約だけで行い、`Yamada@example.com` と `yamada@example.com`、`090-1234-5678` と `09012345678` と全角数字が別人として通り、採用担当の一覧に同一人物が並ぶ**。回避策は正規化列（Postgres の生成列で `lower(email)`、電話は数字以外を除去した値）を持ち、ユニークインデックスは正規化列側に張る。表示・連絡には原文の値を残して突合にだけ正規化値を使う二重持ちにし、既存データは正規化列追加時に重複を洗い出してから制約を有効化する。
 - **よくある失敗：応募一覧のページングを `OFFSET`/`skip` で実装し、件数が数千件を超えると深いページのレスポンスが線形に悪化する／閲覧中に新規応募が入って同じ応募が2ページに出る・1件飛ばされる**。回避策は `(created_at DESC, id DESC)` の複合カーソルによる keyset ページング（`WHERE (created_at, id) < ($1, $2) ORDER BY ... LIMIT n`）へ変更し、同じ並びの複合インデックスを張る。総件数表示が必要な場合だけ概算件数を別クエリで返し、毎ページの `COUNT(*)` 全件走査を避ける。採用担当が毎朝叩く導線（2026-08-16参照）ほど差が出る。
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「バックエンド実装（API/DB/TDD準拠）」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: API/DB、TDD、TypeScript/Node.js
+- **相対的弱み**: (1) Event-Driven Architecture、(2) CQRS/Event Sourcing、(3) Contract Testing、(4) Observability (OTel)、(5) Rate Limiting/Idempotency
+- **現状スコア**: 8.0 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: シニアBEエンジニア相当
+- **ターゲットレベル**: Stripe/Cloudflare Sr. BE Engineer 相当
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **Event-Driven Architecture**: Kafka/Redpanda/NATS
+2. **CQRS/Event Sourcing**: 監査ログ+リプレイ可能性
+3. **Contract Testing (Pact)**
+4. **OpenTelemetry**: 分散トレース
+5. **Idempotency Keys + Rate Limiting**
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **DDD (Domain-Driven Design)**
+- **Clean Architecture / Hexagonal**
+- **12-Factor App**
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **Prisma / Drizzle**: type-safe ORM
+- **tRPC / GraphQL Yoga**
+- **Jest / Vitest, Testcontainers**
+- **Grafana + Tempo**
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: 実装時間、テストカバレッジ
+- **高度化KPI**: p99 latency, error rate, apdex, availability%, cost/1M req
+- **測定周期**: 日次
+
+### 🤝 Step 7: 連携高度化
+- **Riku**: API契約は OpenAPI で
+- **Nao(Sys)**: 設計→実装
+- **Kuu**: インフラ連携
+- **Mio**: TDDガード
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: OpenTelemetry導入、Contract Testing
+- **6ヶ月**: Event-Driven α試験
+- **12ヶ月**: CQRS本番導入
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: PR + API仕様
+- **新フォーマット**: (a) OpenAPI (b) SLO Definition (c) Trace Sample (d) Load Test Report (e) Cost Estimation
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **PR時**: 全指標 CI
+- **週次**: SLO 監視
+- **エスカレーション基準**: p99>500ms or error rate>1% で即対応
+

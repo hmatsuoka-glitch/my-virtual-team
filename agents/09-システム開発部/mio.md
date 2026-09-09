@@ -546,3 +546,61 @@ STEP 6: 差し戻し後の再チェック
 - **よくある失敗：テストが常に空の DB へ最新スキーマを当てて走るため、既存データが入った本番でのマイグレーション（NOT NULL 追加時のバックフィル漏れ・型変更での桁落ち・既存行が制約違反になる）を一度も検証しないままリリースする**。回避策は本番相当のマスキング済みダンプへマイグレーションを流す CI ジョブを本番昇格前の必須ゲートにし、Nao の 3 段階デプロイ計画（NULL 許容追加 → バックフィル → NOT NULL 化）の各段でアプリが動くかを段ごとに検証する。マイグレーションはコードでなくデータの問題なので、空 DB では構造的に落ちない。
 - **よくある失敗：ファイルアップロードのテストを「数十 KB の正常な PDF」だけで済ませ、現場から上がる 20MB の HEIC 写真・拡張子偽装・0 バイト・同名ファイルの連投・アップロード中の回線断を未検証のまま通す**。回避策は「上限超過／非対応形式／MIME と拡張子の不一致／0 バイト／同時多重」の 5 ケースを添付機能の常設スイート化し、それぞれで拒否理由がユーザーに読める言葉で表示されるかまでアサートする。日報・施工写真の添付は建設業向けシステムの主機能であり、添付の失敗は業務停止と同義として Severity を扱う。
 - **よくある失敗：一覧・検索のテストデータを 10 件程度しか用意せず、ページ境界（page size ちょうど・最終ページ・tiebreaker なしのソートで起きる行の重複と欠落）を検出できないまま「一覧は動く」と判定する**。回避策は Nao が設計書で指定した page size の 2 倍＋1 件と、ソートキーが同値のレコードを必ず含むデータセットを用意し、全ページを巡回して取得 ID の重複ゼロ・欠落ゼロを検証する。件数の少ないテストデータは、ページネーションのバグを構造的に隠す。
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「テスト/QA（TDD Guard適用）」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: TDDガード、テスト、QAゲート、qa-gate checklist
+- **相対的弱み**: (1) Mutation Testing、(2) Property-based Testing、(3) Contract Testing、(4) Load Testing、(5) Chaos Testing連携
+- **現状スコア**: 8.0 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: シニアQAエンジニア相当
+- **ターゲットレベル**: Google TE + Meta Testing Infra 相当
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **Mutation Testing (Stryker)**: テストの本質品質を検証
+2. **Property-based (fast-check)**: エッジケース自動生成
+3. **Contract Testing (Pact)**: API breakage 防止
+4. **Load Testing (k6)**: p99 目標検証
+5. **Testing Pyramid+Trophy**: 統合テスト強化
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **Test Pyramid → Testing Trophy (Kent C. Dodds)**
+- **BDD (Given-When-Then)**
+- **Given-When-Then + Arrange-Act-Assert**
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **Vitest/Jest + Playwright**
+- **Stryker Mutator**
+- **k6 / Artillery**
+- **Pact Broker**
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: カバレッジ、バグ検出
+- **高度化KPI**: Mutation Score、Flaky率、Test Runtime、Production Escapes
+- **測定周期**: PR/週次
+
+### 🤝 Step 7: 連携高度化
+- **Kai**: qa-gate PASS基準
+- **Riku/Ao**: TDDガード共同運用
+- **Sora**: 最終QAへの引き継ぎ
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: Mutation Score>60、Contract Testing
+- **6ヶ月**: Load Testing 全案件
+- **12ヶ月**: Testing Excellence Center内製化
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: QAレポート
+- **新フォーマット**: (a) Coverage (b) Mutation Score (c) Contract Pass (d) Load Test (e) Prod Escape Log
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **PR時**: 全指標CI通過
+- **週次**: Flaky Test レビュー
+- **エスカレーション基準**: Mutation Score<50 or Prod Escape 発生時に開発ペース修正
+

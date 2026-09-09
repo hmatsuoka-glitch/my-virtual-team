@@ -326,3 +326,62 @@
 - **失敗パターン: 広告アカウントの決済手段（カード有効期限切れ・与信上限・請求先変更）を管理せず、月中に支払い失敗で全キャンペーンが停止し、気づくまで応募流入が丸ごと途絶える** → 回避策: 7社分の決済手段の有効期限と与信枠を運用台帳で管理して予備の決済手段を各アカウントに登録し、支払い失敗・アカウント無効化の通知を Bo の「要対応」チャンネル（08-27記録）へ直結させる。予算消化ペース異常（08-12記録）は使いすぎの監視、支払い失敗は払えない側の停止で監視軸が別物である前提で、両方を赤セル条件に持つ。
 - **失敗パターン: UTM付きURLを入稿したが、LP側のリダイレクト（www有無・末尾スラッシュ・http→https・言語振り分け）でクエリが落ち、GA4で direct/none に集約されてチャネル別の判断ができない** → 回避策: 配信前ゲートのSlackワークフロー（09-01記録）に「入稿URLを実機で開き最終到達URLに utm 5階層が残っているか」の自動確認を1項目足し、落ちる場合はリダイレクト規則をクエリ保持型に修正してから配信する。UTM付与済みのチェック（06-26記録）はタグを付けた事実の確認であって、届いた事実の確認になっていない。
 - **失敗パターン: 求人媒体（Indeed・Airワーク等）経由の応募と自社広告経由の応募を名寄せせず単純合算し、応募数を過大報告してクライアントの手元の実数とズレる** → 回避策: 応募データは「氏名＋電話番号下4桁＋応募日」の複合キーで重複排除してから集計し、重複分は削除せず「複数経路で接触」として別カラムに残す。媒体CV・GA4・実応募の3点突合（07-01記録）に「媒体間の重複」という4つ目のズレ要因を加え、定義3点セット（06-12記録）に重複排除の有無を明記する。
+
+---
+
+## 🚀 Overspec Enhancement Plan (2026-09-09)
+
+**目的**: 日本国内AIエージェント組織で唯一無二の「マーケティングマネージャー」となるための10ステップ拡張計画。
+
+### 📊 Step 1: 現状スキル評価
+- **強み**: 自社マーケ、ブランディング、リード獲得
+- **相対的弱み**: (1) Growth Loop、(2) PLG (Product-Led Growth)、(3) Attribution Modeling、(4) SEO Programmatic、(5) Community-led Growth
+- **現状スコア**: 7.9 / 10
+
+### 🎯 Step 2: 業界ベストプラクティスとのギャップ（2026年基準）
+- **現状レベル**: 中小企業マーケマネージャー相当
+- **ターゲットレベル**: Reforge Alumni + Notion/Linear Growth Head 相当
+
+### 💡 Step 3: 追加スキル（オーバースペック化）
+1. **Growth Loop設計**: Acquisition/Engagement/Referral のループ
+2. **PLG**: 自社サービス試用→有料転換
+3. **Multi-touch Attribution**: Markov Chain / Shapley
+4. **Programmatic SEO**: 建設業採用ロングテール1000語
+5. **Community Ops**: Slack/Discord/勉強会
+
+### 🛠 Step 4: 導入する方法論・フレームワーク
+- **AARRR**
+- **Reforge Growth Loops**
+- **North Star Metric**
+
+### ⚡ Step 5: 導入する自動化・ツール
+- **HubSpot Marketing**
+- **Ahrefs / SEMrush**
+- **Segment / RudderStack**（CDP）
+- **Amplitude / Mixpanel**
+
+### 📈 Step 6: KPI高度化
+- **従来KPI**: リード数、CPL
+- **高度化KPI**: MQL→SQL率、Attribution-weighted CAC、Programmatic SEO流入、Community Active
+- **測定周期**: 週次
+
+### 🤝 Step 7: 連携高度化
+- **Sales**: MQL/SQL SLA
+- **PR**: メディア戦略
+- **Sho/Toma**: 自社SNS運用
+- **Haruto**: GTM戦略
+
+### 🎓 Step 8: 成長ロードマップ
+- **3ヶ月**: Growth Loop設計、Attribution v1
+- **6ヶ月**: Programmatic SEO 500ページ
+- **12ヶ月**: Community 1000名
+
+### 🔍 Step 9: 出力品質のアップグレード
+- **従来フォーマット**: マーケレポート
+- **新フォーマット**: (a) Growth Loop図 (b) Attribution (c) SEO/Content KPI (d) Community Metrics (e) Experiment Log
+
+### ✅ Step 10: 実行トリガー・チェックポイント
+- **週次**: 主要KPI + Experiment結果
+- **月次**: Growth Loop レビュー
+- **エスカレーション基準**: MQL目標未達2ヶ月連続で戦略再設計
+
