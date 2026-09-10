@@ -661,3 +661,11 @@ export const HERO = {
 - **失敗パターン: 実績カード・お知らせ一覧等が将来的に件数増加することを想定せず、全件を一括DOM描画する設計のまま渡し、クライアントが実績を追加し続けた結果ページが重くなる** → 回避策: 件数閾値（例：20件超）と超過時の表示方式（ページネーション／もっと見るボタン／件数上限＋アーカイブページ）を設計書に明記し、Ren が実装時に迷わない基準を最初から与える
 - **失敗パターン: 検索・絞り込み機能を持つセクション（募集職種フィルタ等）でフィルタ条件をURLに反映しない設計にし、ユーザーがフィルタ結果をブックマーク・共有できず、ブラウザバックで条件が消える** → 回避策: フィルタ・タブ切替等のUI状態は `useState` だけでなく URL クエリパラメータと同期させる設計を標準化し、共有・再訪時に同じ表示状態を復元できるようにする
 - **失敗パターン: 追従ヘッダーがあるのにアンカー遷移先の `scroll-margin-top` を設計せず、固定 CTA から募集要項へ飛んだ瞬間に見出しがヘッダーの下へ隠れ、求職者がどのセクションに着地したか分からないまま戻ってしまう** → 回避策: 固定ヘッダー高さを SP/PC 別の共通レイアウト値として設計書冒頭に置き、アンカー対象セクションの行に `scroll-margin-top = ヘッダー高 + 16px` を設計値として記入する。要項⇄CTA の相互アンカー（2026-08-16参照）を設計する以上、リンクの有無だけでなく着地位置の数値まで設計側が持つ
+
+### 2026-09-10
+- **[新スキル] 「BMAD-METHOD × Spec-Kit（GitHub 公式）」で設計書の GitOps 化**：GitHub の Spec-Kit（Spec-Driven Development 標準）を BMAD-METHOD と組み合わせ、設計書を Markdown + YAML front matter で GitHub 管理。PR で設計変更→ Ren/Mia/Kotone が承認→マージという GitOps ワークフロー。従来 Notion で分散していた設計書が Git 履歴付きで一元管理され、「いつ・誰が・なぜ変えたか」が追跡可能に。変更のロールバックも `git revert` で瞬時
+- **[新ナレッジ] 「Container Queries + Subgrid + CSS Cascade Layers（`@layer`）」の設計への必須組み込み**：Hana の抽出仕様（Hana 9/10参照）に Container Queries が入るため、設計書のブレークポイント欄を「viewport based」と「container based」の2列に分割し、どちらの基準でレスポンシブ切替するかを明示。Cascade Layers（`@layer base, components, utilities`）で優先順位を宣言的に管理し、Tailwind と手書き CSS の !important 戦争を構造的に排除
+- **[効率化ルール] Figma Dev Mode（2026年時点で MCP 対応）で「デザイン→設計書テーブル」自動生成**：Figma のフレーム情報を MCP 経由で取得し、セクション行×固定列の設計表（2026-09-01参照）に自動転写。従来1LPあたり2〜3時間の設計表起こしが20分（85%削減）。Ren・Mia・Kotone が読む列だけを Figma frame の name 属性から機械抽出
+- **[失敗パターン→回避策] 「LLM 生成設計の props 過多／variant 4値超え」**：Cursor/Claude で「フォームコンポーネントの設計」を生成すると、平気で `showLabel` `useCompact` `isRequired` 等の boolean を10個以上並べる。回避策は LLM 生成設計を必ず「variant 3値上限・boolean 禁止」（2026-09-02参照）のリンターに通し、違反 props は自動でリファクタ候補として警告。設計 PR マージ時の必須 CI ゲート
+- **[連携強化] Ren との「Component API Contract（Storybook + MDX）」定着**：設計書の各コンポーネントに対し、Ren の Storybook を「実装の唯一の真実」とする Contract を導入。設計書は API 仕様（props・variant・slot）を書き、実装後の見た目は Storybook で確認する分担。Mia のセクション別ベースライン（2026-08-18参照）は Storybook のスナップショットを流用可能に
+- **[品質チェック] Sora QA 提出前セルフチェック2項目**：①「設計表の全コンポーネント行に variant 上限・boolean 禁止のリンターが通過済みか」、②「Container Queries を使う設計行に container 定義親要素と `@container` breakpoint 値が明記されているか」（Hana との抽出仕様整合）。両方 GO で Sora へ
