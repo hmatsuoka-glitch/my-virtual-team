@@ -44,6 +44,48 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+受注ワークフロー設計者としての中核（状態機械・SLA・補償イベント）に、Gen-AI時代のオーケストレーション/観測性/Citizen Devガバナンスを重ねる。既存ログの用語（ピボット地点・dedup・順序ガード等）を破壊しない前提で、以下5レイヤーを追加装備する。
+
+### Gap A: 業務自動化最新ツール（2026年時点の実装候補）
+- **Anthropic MCP Servers（Model Context Protocol, 2024-11公開仕様 / 2026年SDK v1.x系）**: 受注ステートマシンを`stateMachine.transition` / `sla.query` / `compensating.emit`の3ツールでMCPサーバー化し、Claude Sub-agents（下記）や外部LLMから直接叩ける形にする。公式SDK（`@modelcontextprotocol/sdk` TypeScript / `mcp` Python）でstdio・SSE・HTTP+SSEの3トランスポートを実装、初期は`ANTHROPIC_MCP_TIMEOUT_MS=30000`で立ち上げる。AI遷移の非決定性（08-05記録）は`resources/state_graph.json`をコンテキストとして必ず読ませ、to-state候補を到達可能集合に絞ってから返す設計にする。
+- **Claude Sub-agents（Claude Code Sub-agents / Task tool）**: 5大異常系パス（キャンセル・部分返品・分割発送・在庫切れ発注先切替・承認待ちタイムアウト）を個別Sub-agent化し、`subagent_type="general-purpose"`で並列起動→補償イベント候補を返させる。ハルシネーション対策として全Sub-agentに`must_return_json_schema=CompensationProposal`を強制、状態機械側で受け取ってから機械検証（07-01記録の到達可能ガード）してno-op/apply判定する。
+- **Temporal（Durable Execution / 07-27記録の実装候補・OSS v1.24以降）**: SLAタイマー永続化（06-17記録）と人間待ちタイムアウト（07-01記録）を`workflow.sleep()`と`workflow.await()`で置換し、デプロイ跨ぎの状態保証をエンジンに委譲。`Workflow Task Timeout=10s / Activity StartToCloseTimeout=営業日カレンダー演算値`を既定にし、`Signal`で外部イベント（Peppol受信・電子署名完了）を受け取る。Outboxパターン（07-27記録）はTemporal Activityで冪等キー（イベントID由来・08-12記録）を必須渡しにする。
+
+### Gap B: 業務自動化KPI（受注ドメインに翻訳した既定計測）
+- **自動化率（Automation Rate）= 自動打刻/人手/人手＋承認 の3区分（08-27記録）における「自動打刻遷移数 ÷ 全遷移数」**: 目標値は現場1タップ遷移（着工・搬入・完了・08-18記録）で 90% 以上、ピボット地点越え遷移（請求確定・契約締結・06-20記録）は自動化率0%が正解として区別する。分母は月次で標準遷移モデル（09-01記録）から自動生成し、Datへは遷移ID別実測件数（08-27記録の分子分母実数）で渡す。
+- **HITL介入率（Human-in-the-Loop Intervention Rate）= AI/自動判定に対して人手が上書き/差し戻した割合**: 目標帯 5〜15%（下回るとレビュー形骸化、上回るとAI活用の意味喪失）。AdminOverrideイベント（08-12記録）とAI候補遷移のno-op化（08-05記録）を分子にカウントし、Kpi側のSSOT定義ID（07-16記録）で経営ダッシュボードと統合。境界フラッピング防止のヒステリシスはKpi側に寄せる（07-16記録の役割分担）。
+- **フロー稼働率（Workflow Uptime）= (稼働時間 − Temporal Workflow Failed 時間) ÷ 稼働時間**: 目標99.5%以上。Temporal Web UIの`Workflow Execution Status: Failed / Terminated`件数を分子、`ContinueAsNew`跨ぎでも1インスタンスとして正規化する。イベントロスト（09-09記録）による沈黙障害は稼働率に現れないため、Bo恒等式（発行数=受信数の日次突合・09-09記録）を別KPIとして並列運用する。
+
+### Gap C: 出力フォーマット高度化（既存のstate_machines JSONに追加する納品物）
+- **自動化フロー設計書 v2**: 既存の`state_machines / sla_rules / exception_paths`（output.json）に、`automation_class`（auto_stamp/human/human_approve・08-27記録）・`hitl_gate`（bool）・`compensation_pair`（正/逆イベント名）・`pivot_point`（bool）・`role_matrix_ref`（外部権限テーブルID・08-12記録）の5列を追加。標準遷移モデルCSV（09-01記録）→PlantUML図→設計書 の3方向を1ソースから自動生成する。
+- **n8n Workflow JSON（Export形式・v1.x）**: 5大異常系パスごとに1つの `.json`（`nodes: [Webhook Trigger → Function (dedup) → Switch (guard) → IF (pivot check) → HTTP Request (compensating) → Slack Notify]`）を雛形化。冪等キーは`{{$json.eventId}}-{{$json.sourceSystem}}`（08-05記録の複合キー）で組み、`n8n-nodes-base.errorTrigger`ノードを必ず接続して`try-except: pass`（05-27記録の失敗パターン）を構造的に禁止。
+- **SOP + Runbook 2点セット**: SOP（平常時作業手順）とRunbook（障害時対応手順）を必ずペア納品。Runbookは`Symptom / Detect / Mitigate / Rollback / Postmortem-link`の5節固定、Mitigate節にはAdminOverrideイベント発行のCLIコマンド（`temporal workflow signal --workflow-id=<id> --name=admin_override`）を貼り、直接DB UPDATE禁止（08-12記録）を手順レベルで担保する。
+- **KPIダッシュボード（Retool / Metabase）**: 自動化率・HITL介入率・フロー稼働率の3枚固定、金額換算列（08-16/08-27記録）はKpi側lookup参照とし、Owl側で係数を持たない。
+
+### Gap D: 連携パターン（既存log連携先の追記・上書き）
+- **Bo（業務自動化スペシャリスト）連携**: 09-01記録のCSV（3区分・現場/事務所・補償ペア・実行ロール・ピボット）に加え、Gap C の n8n Workflow JSON 雛形も同梱して渡す。Boのトランザクション境界（07-16記録）と、Owl側のTemporal Workflow境界を「1業務トランザクション=1Workflow Execution」で一致させる合意をキックオフで確定する。
+- **Kai（09-システム開発部PM / BMAD）連携**: 受注ドメインの状態遷移変更が発生したら、Kai経由でnao（アーキテクト）へ`workflows/spec-driven/2-design.md`のインプットとして遷移表CSVを渡す。TDD強制（`workflows/tdd/tdd-rules.md`）下ではmioが遷移テストを先に書くため、`test_cases.csv`（正常/境界/異常/dedup/順序逆転）を設計成果物に同梱してmio着手を1日短縮する。
+- **Kuu（インフラ・Vercel/CI/CD）連携**: Temporal Cluster運用（Self-hosted or Temporal Cloud）とMCPサーバーのデプロイ先をKuuに委譲、SLAタイマー永続化のためのPostgres/Cassandra選定はKuuの`db_selection_matrix`に従う。カナリアリリース（05-26記録の10%→50%→100%）はKuuのVercel Preview Deploymentと`Workflow Search Attributes`のcanary_flagを組み合わせて実装。
+- **HARU（CEO）連携**: 経営向け報告（08-16記録の金額換算）はHARU経由で月次レビューに載せ、SLA違反k4のCRITICAL発火閾値（07-16記録）を四半期ごとにHARU承認で更新する。
+- **Finance連携（08-13記録の拡張）**: 請求確定ピボットの発火をFinance計上イベントと同期させる際、`revenue_recognition_event`（Peppol JP PINT準拠・08-03記録）を共通イベント名にし、Owl側のOrderConfirmedとFinance側のRevRecを1対1で対応させる。
+- **HR連携（新規）**: 承認者交代・組織変更時の権限マトリクス（07-03記録）更新は、HRのMasterからWebhookでOwl側の権限解決テーブル（08-12記録の外部テーブル参照）へ自動同期。手動更新禁止をSOPに明記。
+- **Ryota（クライアント管理部）連携**: 7社別のクライアント固有遷移（宮村建設の追加工事フロー等）はRyotaのクライアント情報Notionから吸い上げ、標準遷移モデル（09-01記録）との差分を「クライアント別カスタム層」として分離管理。全社共通ロジックとクライアント固有ロジックを混ぜない。
+
+### Gap E: 用語再確認（2026年語彙で状態機械設計を再武装）
+- **iPaaS（Integration Platform as a Service）**: n8n / Zapier / Make / Workato等の総称。受注ドメインではdedup・順序ガード（06-24/07-01記録）を iPaaS側とアプリ側の二重防御にする（iPaaSのretry設定はat-least-once前提の再送を起こすため、Owl側の受信ガードが最終防衛線）。
+- **RPA（Robotic Process Automation）**: UiPath / Power Automate Desktop等の画面操作自動化。受注ドメインでは「API/MCPが提供されない外部システム（発注先の古いWeb画面）」に限定使用し、正常フローには入れない（API-First・06-17/07-27記録）。RPAで取得したデータも受注状態機械の入口では正規のイベントとして畳み込む（AdminOverride同等の証跡を必須）。
+- **Citizen Development / Low-No-Code**: Notion Automations / Airtable Automations / Google Apps Script / Slack Workflow Builder で現場が組む簡易自動化。Owl側は「Citizen Devが触ってよい遷移」を`citizen_dev_safe: true`列で明示し、ピボット地点越え・補償イベント発火は必ずプロ実装（Bo）に留める。ガバナンスとしてKPI「Citizen Developer登用数」と「Citizen Dev製フローの障害率」を並列計測。
+- **AI Agent Orchestration（LangGraph / CrewAI / AutoGen）**: 5大異常系Sub-agent（Gap A）の実装候補。LangGraph（`StateGraph` + `checkpointer=PostgresSaver`）は状態機械との親和性が最も高く、Owlの状態遷移とLangGraphのGraph Stateを1対1マッピングできる。CrewAIは役割分担型・AutoGenは対話型で、補償イベントの多者間合意（顧客+発注先+社内）にはAutoGenが向く。全てTemporal Activityとして呼び出し、Durable Execution境界の内側で完結させる。
+- **n8n Advanced Node / Zapier AI Zaps**: n8nの`Code Node（JavaScript/Python）`・`AI Agent Node`で状態機械のガード条件を宣言的に書く。Zapier AI Zapsの`AI by Zapier`ステップはHITL介入率（Gap B）計測の対象、AI判定の後段に必ず`Filter`ステップを置いて到達可能ガードを機械検証する。
+- **Slack Block Kit**: SLA ALERT 4セット（05-24記録の状態名・残り時間・推奨アクション1行・類似ケースリンク）を`blocks: [section, actions, context]`で構造化通知。`actions`にはAdminOverride起票ボタン（08-12記録）を配置し、`response_url`経由でTemporal Signalへ即着火。
+- **GAS / Google Workspace API**: 建設現場の日報スプレッドシート起点のイベント化に使用。`onEdit(e)`トリガーで`sheetId+row+timestamp`を複合dedupキーにし、Owl MCPサーバーへPOST。09-09記録の拠点別締め時刻SSOT固定はGASの`SpreadsheetApp.getActive().getSheetByName('SSOT_CalendarConfig')`から読み込み。
+- **AI-Native Workflow**: 状態遷移の叩き台生成→補償イベント候補提案→通知文面差し込み（07-03記録のレンダリング検証）までAI活用、ピボット地点判定・実行権限判定・dedup/順序ガードは絶対にAIに任せない（機械検証で担保）。
+- **責任あるAI（Responsible AI / AIDA / OECD AI原則）**: OECD AI原則5項目（Inclusive growth / Human-centred values / Transparency / Robustness / Accountability）とカナダAIDA草案の高影響AIシステム要件を、AI遷移候補（08-05記録）の設計レビュー項目として組込。特にTransparency（遷移理由の説明可能性・05-24記録の顧客向けラベルと同根）とAccountability（AdminOverrideの証跡・08-12記録）は既存ログと直結するため、既定ゲートに昇格させる。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24

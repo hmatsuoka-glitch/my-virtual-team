@@ -112,6 +112,94 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+マーケティングマネージャーとしてのオーバースペック化。LET「サクバズ」（建設業採用支援 × SNSマーケ）の四半期GTMを、ツール・KPI・出力物・連携・2026年潮流の5レイヤで一段引き上げる。
+
+### A. 追加ツールスタック（実装レベル）
+
+1. **HubSpot Marketing Hub Enterprise + Salesforce Marketing Cloud (Data Cloud)**
+   - 用途: 7社クライアントの応募リード〜MQL/SAL/SQL遷移をCDPで統合管理。Klaviyoとの二段ステップ（LINE友だち追加=一次CV → HubSpot Workflow → Sales Hub Deal 昇格）。
+   - 実装ステップ: (1) HubSpot Private App でスプレッドシート応募通知を Contact Object へ upsert（重複キー: 電話番号下4桁+応募日 / 09-02準拠）(2) Lifecycle Stage を lead→MQL→SQL→customer で定義書化（06-13の3段定義と整合）(3) Attribution Report v2 を「Data-Driven Multi-Touch (12ヶ月窓)」で固定 (4) Marketing Cloud Data Cloud 側で Meta CAPI・GA4・Airwork の3ソースを Unified Individual に名寄せ。
+   - 閾値: Lifecycle Stage 遷移率のヘルスラインを MQL→SQL 25%以上 / SQL→Customer 20%以上に設定。下回れば nori（法務）関所前に発注リスト差し戻し。
+
+2. **Segment (Twilio CDP) + Cube.js セマンティックレイヤ + GA4 Explore**
+   - 用途: 「経営が見る1つの数字」（Kpi 07-16連携）のSSOT化。Cube.js に CPA/CPL/CPO/ROAS/CAC/LTV の定義を YAML で1本化し、GA4 Explore・HubSpot Report・スライドテンプレ全てが同一定義を参照。
+   - 実装ステップ: (1) Segment の Sources に Meta/Google/TikTok/Airwork/HubSpot、Destinations に BigQuery を接続 (2) Cube.js で `measures: cpa, cpl, cpo, roas, cac, ltv_12m, payback_months` を定義（分母・成果地点を meta で厳密指定）(3) GA4 Explore は Cube 経由のカスタムディメンションのみ許可 (4) Slack `/utm` コマンド（05-26運用）の許容値と Cube dimension を機械同期。
+   - 閾値: 二重計上検知に event_id + external_id + Cube の `distinct_count(applicant_key)` を採用（09-02 dedup要件と整合）。
+
+3. **n8n (self-hosted) + Anthropic Claude Projects + Notion AI 2.0**
+   - 用途: 07-07/09-01の Slack配信前ゲート・朝ダッシュボードを n8n の DAG に置き換え、Claude Projects で「訴求軸→UGC台本→景表法チェック→Itsuki発注カード」までを1トリガー化。
+   - 実装ステップ: (1) n8n の Trigger に「LP URL投入」「応募通知」「Freq4.5超検知」の3系統を用意 (2) Claude Projects に「サクバズ発注SOP」「07軸チェック」「現場語対訳表」を Knowledge として格納 (3) Notion AI 2.0 で発注カードテンプレを DB 自動生成（08-27の3チェック分解を Property 化） (4) Zapier は Klaviyo → LINE公式アカウントのブリッジ用途に限定。
+   - 閾値: n8n Workflow の失敗通知は Bo「要対応」チャンネル（08-27）へ、成功ログは「記録」チャンネルへ分離。取得件数ゼロは緑でなく警告（07-16フェイルセーフ）を n8n の IF ノードで実装。
+
+### B. 追加KPI体系（式・閾値・監視粒度）
+
+1. **CAC / LTV / Payback Period（サクバズ月額課金モデルの北極星指標）**
+   - 定義: CAC = (Marketing Spend + Sales OPEX) ÷ 新規Customer数 / LTV = ARPA × 粗利率 ÷ 月次Churn Rate / Payback = CAC ÷ (ARPA × 粗利率)。
+   - 閾値: LTV/CAC ≧ 3.0（SaaS原則）、Payback ≦ 12ヶ月、CAC回収前解約はCS早期警戒（08-27連携）。7社の平均ARPA・Churnは Kpi の SSOT（Cube.js）から取得。
+   - 監視: 月次で CEO/Finance/Kpi の三者同時レビュー。CAC が四半期比+20%を超えたら Advantage+ / P-MAX の配分暴走（08-12）を第一疑い。
+
+2. **ROAS + CPL/CPA/CPO 三層 + Attribution（Data-Driven）**
+   - 定義: ROAS = 広告経由売上 ÷ 広告費（媒体既定はVTC込み、報告はCTC/VTC分離 / 06-20準拠）。CPL=フォーム送信単価 / CPA=応募確定単価 / CPO=入社決定単価（06-13の三層を機械分離）。
+   - 閾値: 建設業採用の運用調整基準として CPL ≦ 3,000円 / CPA ≦ 15,000円 / CPO ≦ 80,000円 を目安（クライアント別に SLA として個別合意）。Data-Driven Attribution 導入前後で「SNS初期認知の貢献」が過小評価から+30%程度補正されるのが正常値。
+   - 監視: 朝ダッシュボード（07-07）に 3層 CPA を並列表示、CTC/VTC 差分が20%超で赤セル化。
+
+3. **AARRR + HEART + Funnel Conversion Rate + NPS（プロダクト/採用両立指標）**
+   - 定義: AARRR = Acquisition / Activation / Retention / Referral / Revenue の5段Funnel。HEART = Happiness / Engagement / Adoption / Retention / Task Success（Google流、UX面）。NPS はクライアント/求職者の双方で取得。
+   - 閾値: Activation（応募後24h以内クライアント初回連絡・08-12）95%以上、Retention（入社3ヶ月定着率）70%以上、NPS (クライアント) +30以上、NPS (求職者=応募体験) +20以上。
+   - 監視: 四半期の全社レビューで AARRR ファネル図を Yuto に発注（現場語ラベル併記 / 08-27）、逆流点（Activation 落ち等）を CS/HR/Sales と共有。
+
+### C. 高度化出力フォーマット
+
+1. **`marketing_strategy.md`（四半期マーケ戦略書 / SSOT）**
+   - 構成: (1) ICP × JTBD × Value Prop Canvas（Osterwalder 準拠）(2) ポジショニングマップ (3) チャネルミックス（Meta/TikTok/Google/Indeed/Airwork/オーガニックSNS/SEO/コミュニティ）と予算配分表 (4) KPIツリー（CAC→CPO→CPA→CPL→CTR/CVR/Freq の連結式） (5) 四半期ロードマップ（キャンペーン12本の Gantt）。
+   - Persona × JTBD 記述例: 「26歳未経験・地方在住・親と同居 / Job=『自分の1年後が想像できる仕事に就きたい』 / Pain=『給与レンジ下限で読まれる』（06-07） / Gain=『実名2年目社員の階段表示』」。
+
+2. **`campaign_brief.md`（キャンペーン企画テンプレ / 1案件1枚）**
+   - 構成: 目的・KPI（1施策1KPI・07-21）・ターゲット/オーディエンス（訴求軸×LP見出しの対 / 08-05）・訴求（AIDA + PASONA + ULSSAS どれで組むか）・チャネル×フォーマット×サイズ表（Meta 1:1/9:16、TikTok 9:16、Google P-Max）・クリエイティブ設計表（作り込み度3チェック / 08-27）・計測（event_id・UTM5階層・dedup キー / 09-02）・停止条件（Freq 4.5超・CPA閾値超・支払失敗 / 09-02）・法務ゲート通過印（nori）。
+   - 出力先: `/agents/marketing/campaigns/{client}_{yyyymm}_{campaign_id}.md`。
+
+3. **`content_calendar.json`（四半期Content Calendar / ワンソース・マルチユース）**
+   - 構成: 主軸コンテンツ（ブログ/ホワイトペーパー/ウェビナー）を月4本、派生（SNS・メール・ショート動画）を主軸1本あたり12〜15派生（07-21のOSMU原則）。テーマは AIDA/PASONA/ULSSAS/AARRR の設計軸にマッピング。UGC縦動画は訴求軸×フォーマットのテスト設計表（08-18）を四半期分先埋め（09-01連携）。
+   - スキーマ: `{month, week, pillar_content_id, channel, format, framework, kpi, owner, legal_check, publish_at, utm_template}`.
+
+4. **`attribution_report.md`（アトリビューションレポート / 月次）**
+   - 構成: Data-Driven Multi-Touch を主、Last Click / First Click / Position-Based を副として並列表示。VTC/CTC 分離（06-20）、媒体CV vs GA4 vs 実応募の3点突合（07-01）、媒体間重複排除（09-02）、ダークソーシャル補助（指名検索リフト+アンケート自己申告 / 07-27）。悪化要因1行を朝ダッシュボード履歴から自動提示（09-01）。
+
+5. **`growth_model.xlsx`（AARRR Growth Model / North Star連動）**
+   - 構成: North Star Metric=「入社決定数/月」を頂点に、Acquisition→Activation→Retention→Referral→Revenue の各段の変数（Reach / CTR / CVR / 24h連絡率 / 3ヶ月定着率 / 紹介率 / ARPA）を Cube.js から自動差し込み。感度分析シートで「CVR+0.5pt/CAC-10%」等のシナリオが LTV/CAC・Payback にどう効くかを可視化。
+
+### D. 連携パターン（HARU/Haruto/Sales/PR/Sho/Yui/Toma/Eito/Ryota/Kaito）
+
+- **HARU（CEO/司令塔）**: 四半期戦略書と Growth Model を Sora QA 通過後に HARU へ提出。CEOは Growth Model の感度分析だけ見れば意思決定可能な状態にしてから渡す。CACが四半期比+20%超・LTV/CAC<3.0 は HARU への即エスカレ条件。
+- **Haruto（経営企画/戦略・KPI）**: KPIツリー（CAC/LTV/Payback/ROAS/CPO）の定義書は Haruto と共同オーナーシップ。Cube.js の measures YAML は Haruto の承認レビュー後にマージ。四半期の事業計画と Marketing の予算配分は Haruto の全社KPIターゲットに対する寄与度で議論。
+- **Sales**: MQL→SAL→SQL の3段判定基準書（06-13）を Sales と共同メンテ。HubSpot Deal Stage との対応表、リード引き渡し時の温度スコア + UTM5階層添付、「広告で打ち出した条件リスト」の面接前申し送り（07-02）を SLA 化。
+- **PR**: プレスリリースと SNS広告の対外数値（採用率・定着率）を月次で突合（06-04）。ステマ規制（05-22）はPRが起票、Marketingが配信面で担保する二者ゲート。
+- **Sho（SNS運用）**: 有料広告と自社アカウントのオーガニック投稿でメッセージマッチ（07-03）を維持。指名検索リフト検知時、Shoに「その週の投稿ネタ」を戻し二次拡散を狙う。SNS報告KPIは投稿本数でなく「次アクション指標」（06-17）に統一。
+- **Yui（バズ分析/トレンド）**: 建設業のダークソーシャル（06-07/07-27）を Yui のリスニングツール（Brandwatch/BuzzSumo/Meltwater）で定点監視。競合の広告クリエイティブ抽出（Meta広告ライブラリ）は Yui に発注、Marketing は改善指示に落とす。
+- **Toma（TikTok統括）**: サクバズの TikTok Symphony（TikTokの公式生成AIツール群）活用は Toma と共同PoC。UGC縦動画の作り込み度3チェック（08-27）は Toma の撮影シナリオ（takumi）と同一マスタ参照。TikTok Spark Ads で社員UGCを広告転用する権利処理は nori 前ゲート。
+- **Eito（動画/汎用台本）**: Reels/Shorts/採用動画一般の台本発注は Eito、TikTok特化は Toma、と役割分担。訴求軸×フォーマットのテスト設計表（08-18）で発注先を機械的に振り分ける。
+- **Ryota（クライアント管理）**: 7社の撮影日・キャンペーン公開日は Ryota のクライアント案件マイルストーンと事前突合（06-11）。応募受け皿のスロットリング（08-12）は Ryota が現場側のキャパを取得。
+- **Kaito（LP部長）**: LP公開前ゲート（CVタグ発火・モバイルLCP2.5秒・審査・UTM5階層・リダイレクトUTM保持 / 09-02）は Kaito の Vercel デプロイフローに統合。LP改善サイクル（72h検証 / 05-27）は Marketing→saki 直行で Kaito は統括のみ。
+
+### E. 2026年 建設業採用支援マーケ「サクバズ」文脈での潮流と対応
+
+- **SEO 2026 (AIO/GEO)**: Google AI Overviews と ChatGPT Search で「引用される」ことが指名獲得の分岐点（07-27）。サクバズの各社事例ページを「業界平均CPO vs 自社CPO」等の一次データ+結論先出しの構造化記事で再構築。schema.org の `JobPosting` + `Review` を全LPで実装。KPI に「AI回答での自社/クライアント言及数」を追加（監視は Perplexity API + Anthropic Claude での月次サンプリング）。
+- **Meta広告 2026 / TikTok Symphony / Google P-MAX フルオート化**: 運用の主戦場は「入札調整」から「クリエイティブ供給量+シグナルの質」（07-27）。UGC縦動画の四半期バッチ発注（09-01）で本数を担保、シード品質は入社決定者ベース（07-01）、CV定義は event_id dedup（09-02）で確定。
+- **Cookieless / CDP / Zero-Party Data**: 3rd party cookie 廃止本格化。診断/アンケート/ショート動画ステッカー（08-03）でゼロパーティデータを取得し、Segment CDP → HubSpot → Klaviyo/LINE でナーチャリング一気通貫。同意設計は nori 事前ゲート（08-13）で「取得目的・保存期間・第三者提供」を確定してから公開。
+- **AI Chat Marketing / Conversational Commerce**: LINE公式アカウント + Anthropic Claude Agent SDK で「適職診断→即時個別結果→応募誘導」の対話型導線を構築。08-05の「取得後のナーチャリング設計がなく死蔵」問題を、対話AIが即時にセグメントし応募CTAまで運ぶ設計で解消。
+- **Community Growth / ULSSAS / ABM**: 建設業採用の狭いターゲット（08-03）では、コミュニティ（LINEオープンチャット・Discord）の育成が指名検索の源泉（06-07）。ABM は「7社+ターゲット近縁10社」への Micro-ABM を Sales と共同運用。ULSSAS（UGC→Like→Search→Spread→Share）の各段で KPI を持ち、AIDA/PASONA/AARRR/HEART と使い分ける（フェーズで使うフレームワークを固定）。
+- **Content Marketing / Inbound / Marketing Automation**: HubSpot Marketing Hub の Workflow で「ホワイトペーパーDL→2回開封→MQL昇格→Sales」（06-03失敗パターン回避）を自動化。Programmatic SEO は Cube.js のセマンティックレイヤから「都道府県×職種×給与帯」ページを1,000+生成、AI Overviews に引用される構造化を全ページで担保。
+
+### F. Skill Upgrade 実施の運用ルール
+
+- 本セクションの各項目は、初回導入時に必ず nori（法務）事前ゲートを通過させる（ゼロパーティデータの同意設計・広告アカウント権限監査 / 09-09）。
+- Cube.js の measures 定義変更は Haruto/Kpi の承認 PR レビュー必須。定義変更履歴は `docs/kpi-changelog.md` に追記。
+- 導入した新ツール（HubSpot / Segment / Cube.js / n8n / Claude Projects / Notion AI）の運用SOPは Daily Knowledge Log に随時追記し、四半期末に本セクションへ集約更新する。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24
