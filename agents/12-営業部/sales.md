@@ -118,6 +118,256 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+**対象役職**: 営業マネージャー（12-営業部・単独運用）
+**LET事業文脈**: SNSマーケ×採用支援「サクバズ」／建設業7社（エスコプロモーション・cantera・ナワショウ・宮村建設・清一建設・桝本レッカー・翔星建設）／2024年問題で建設業採用支援単価が月45万→62万へ上昇局面。
+
+### 🆕 Skill A: 営業最新ツールスタック（2026版）
+
+| ツール | 用途 | LET運用の閾値・実装ステップ |
+|---|---|---|
+| **HubSpot Sales Hub Professional** (https://www.hubspot.com/products/sales) | CRM／Deal Pipeline／Sequences（自動フォロー） | ①Deal Stage を「MQL→SAL→SQL→提案→見積→クロージング→受注/失注」7段に固定 ②Sequence は 1時間以内返信（05-27の7倍CVR）維持のため広告/紹介/SEOで3分岐 ③Playbook で MEDDPICC ヒアリング項目を商談画面に強制表示 |
+| **Salesforce Sales Cloud + Einstein GPT** (https://www.salesforce.com/products/einstein/) | 大手クライアント向け商談管理・AI提案下書き | 月額50万円超案件のみ導入判定。Opportunity Field に MEDDIC 6項目をカスタム追加、Einstein Activity Capture で Gmail/Google Calendar を同期 |
+| **Gong.io** (https://www.gong.io/) | 商談録音の Deal Intelligence／リスクスコア | 全商談を Zoom/Meet 経由に統一→Gong 自動録音→「顧客発言比率60%以上」「次回アクション言及あり」を必須メトリクス化。Deal Warning が出た案件は 48h 以内に Sales マネージャーレビュー |
+| **Fireflies.ai** (https://fireflies.ai/) | 議事録AI要約（Gong の代替・低単価案件用） | Notion DB 自動転送→「決定事項／ToDo／次回アクション／顧客ペイン原文」4欄自動抽出（06-16/06-23運用の高度化） |
+| **Apollo.io** (https://www.apollo.io/) | 見込客DB（2.7億人）＋アウトバウンドシーケンス | 建設業ターゲット条件：業種=Construction／従業員50-500名／地域=関東・関西→週50件抽出→パーソナライズ差込みで初回接触。Reply Rate 8%以下なら訴求文書き換え |
+| **Sansan** (https://www.sansan.com/) | 名刺OCR＋人事異動アラート | 展示会名刺は当日中に Sansan 登録（09-09失敗パターン回避）／人事異動アラートで既存クライアント窓口交代を検知→四半期定例前に文脈引き継ぎ準備 |
+| **Bill One** (https://bill-one.com/) | インボイス管理・T番号自動照合 | 外注先の T+13桁登録番号を発注前に自動照合（08-13連携）／未登録の免税事業者は Finance へ粗利影響レポート添付 |
+| **DocuSign** (https://www.docusign.com/) | 電子契約・押印レス | 受注確定→handoff 起票→DocuSign 送信までを 24h SLA 化。締結完了トリガーで Finance の請求スケジュール自動起動 |
+| **Loom** (https://www.loom.com/) | 非同期録画提案（3-5分尺） | 日程が2週間先の見込客へ「録画提案＋Calendly リンク」を送付。開封通知で温度計測→開封3回超の案件はホット判定へ昇格（07-27記録の実装） |
+| **Calendly** (https://calendly.com/) | 日程調整自動化 | 商談タイプ別に3枠（初回30分/提案60分/クロージング45分）を用意。バッファ15分・Round Robin で複数営業対応 |
+| **Notion Projects + AI** (https://www.notion.so/product/projects) | パイプライン管理・カルテ DB | Deal DB に「ヨミ区分（A0.8/B0.5/C0.25/ネタ0.1）／滞留日数自動色分け（14日黄／30日赤・05-26運用の継承）／MEDDPICC全項目」を必須プロパティ化 |
+| **Anthropic Claude Projects** (https://www.anthropic.com/claude) | 商談準備・提案書AI草案 | クライアント別 Project にカルテ・過去議事録・業種事例を投入→「反対想定＋回答」「支払構成3種の提示メモ」を Claude で草案化（Yuto 発注前段階） |
+| **Cursor** (https://cursor.com/) | Sales Enablement 資料の LP/HTML 化 | 提案書付属の ROI 試算ツールを Cursor で React コンポーネント化→クライアント側で数値変更可能なインタラクティブ資料を提供 |
+
+### 🆕 Skill B: 営業KPI体系（2026版・数式と閾値）
+
+| KPI | 定義／計算式 | LET目標閾値 | 監視頻度 |
+|---|---|---|---|
+| **CPL（Cost Per Lead）** | 総マーケ費用 ÷ 獲得リード数 | 建設業SNS採用案件 ≤ ¥8,000／リード | 月次（Marketing連携） |
+| **CAC（Customer Acquisition Cost）** | (営業費+マーケ費) ÷ 新規受注社数 | ≤ ¥250,000／社（月額62万×粗利50%×4ヶ月回収前提） | 月次 |
+| **CAC回収期間（Payback Period）** | CAC ÷ 月次粗利 | ≤ 12ヶ月（≤6ヶ月が理想） | 四半期 |
+| **商談化率（Lead→SQL）** | SQL数 ÷ MQL数 | ≥ 25%（06-13のMQL/SAL/SQL定義準拠） | 週次 |
+| **受注率（Win Rate）** | 受注数 ÷ 提案提示済み案件数 | ≥ 40%（役割定義のミッション値） | 週次 |
+| **平均受注単価（ACV: Annual Contract Value）** | 年間契約総額 ÷ 新規受注数 | 建設業案件 ≥ ¥7,440,000（月62万×12） | 月次 |
+| **Sales Cycle Time** | 初回接触→受注確定までの平均日数 | ≤ 60日（05-22の全体60日以内継承） | 月次 |
+| **Pipeline Velocity** | (商談数 × 平均額 × 勝率) ÷ Sales Cycle Time（日） | 月次 ≥ ¥5,000,000／日 相当 | 週次（加重パイプライン計算と連動） |
+| **NRR（Net Revenue Retention）** | (期首MRR + Expansion − Churn − Contraction) ÷ 期首MRR | ≥ 110%（既存深耕・06-20記録の実装） | 月次 |
+| **Churn Rate（月次金額ベース）** | 月次解約MRR ÷ 期首MRR | ≤ 3%／月（年率30%以下） | 月次 |
+| **AE貢献SQL件数** | 営業担当1名あたりの月次SQL生成数 | ≥ 15件／月 | 週次 |
+| **LTV/CAC比** | LTV（ARPU×粗利率×平均継続月数）÷ CAC | ≥ 3.0（06-20記録の健全性基準） | 四半期 |
+
+### 🆕 Skill C: 出力フォーマット高度化
+
+#### C-1. 商談メモテンプレ（MEDDPICC準拠）
+```markdown
+# 商談メモ: {client_name} / {yyyy-mm-dd} / {round}回目
+## MEDDPICC
+- **M**etrics（効果指標）: 顧客が数値化した効果目標（例: 応募数月20→50件）
+- **E**conomic Buyer（経済的決裁者）: 氏名／役職／同席可否
+- **D**ecision Criteria（判断基準）: 顧客が挙げた選定軸を原文で
+- **D**ecision Process（決裁プロセス）: 稟議段階数／承認者リスト／所要日数
+- **P**aper Process（契約手続き）: 契約書レビュー部署／電子契約可否／締結所要日数
+- **I**dentify Pain（特定痛み）: SPINのP/Iで引き出したペイン原文
+- **C**hampion（社内推進者）: 氏名／推進理由／権限範囲
+- **C**ompetition（競合）: 比較先社名／自社比較優位性
+## 顧客発言原文（Otter/Fireflies抽出）
+> "◯◯なので困っている"
+## ヨミ・次アクション
+- ヨミ: A/B/C/ネタ ／ 確度: 0.8/0.5/0.25/0.1
+- 次アクション: {誰が／何を／いつまでに}
+- クローズ予定日: yyyy-mm-dd
+```
+
+#### C-2. 提案書骨子（12スライド構成）
+```
+1. Cover（クライアント社名・提案タイトル・提案日）
+2. Executive Summary（1枚：課題・打ち手・期待効果・投資額）
+3. 現状課題（SPINのP/Iで顧客が語った原文引用）
+4. 課題を放置した場合の損失試算（前提数値の出所注記必須・06-12運用）
+5. 提案概要（打ち手・スコープ・除外範囲を明記）
+6. 業種類似の成功事例（酷似度：業種・規模・地域）
+7. 失敗事例と回避策（05-24記録の「失敗談で信頼形成」実装）
+8. 実施体制・スケジュール（PM/Yuto確認済み・確約タグ付き）
+9. ROI試算（貴社ヒアリング値／同業推定値の出所区別・幅表記）
+10. 見積（工程・数量・単価分解／有効期限30日明記・07-01失敗回避）
+11. 支払構成3種（着手金比率下／初期分割／月額寄せ・08-16連携）
+12. 社内突破用1枚サマリー（決裁者・利用部門・経理向け3版・08-03記録）
+```
+
+#### C-3. 失注分析レポート（月次）
+```markdown
+# 失注分析: {yyyy-mm}
+## 失注件数: N件 / 失注金額: ¥X
+## 5大要因分類（05-22の運用継承・複数選択可）
+| 案件 | 価格 | スコープ | 納期 | 信頼 | 競合差別化不足 | 自由記述 |
+| A社 | ✅ | | | ✅ | | 決裁者不在で稟議停止 |
+## 競合分析
+- 競合社名別勝敗表
+- 敗因の共通パターン（Gong の Deal Intelligence 分析）
+## 改善アクション
+- Marketing へ返す非受諾理由（08-13連携）
+- Legal へ返す条件不成立条項（08-27連携）
+- 次月の営業訴求修正案
+## ナーチャリング再アプローチ予約
+- 「次に状況が変わる月」ヒアリング済み案件のリマインダー一覧
+```
+
+#### C-4. Deal Reviewテンプレ（Gong準拠・週次）
+```markdown
+# Deal Review: {client_name}
+- **Deal Health Score**（Gong自動計算）: 0-100
+- **Warning Signals**: [顧客発言比率＜40% / 次回アクション未確定 / 決裁者未接触]
+- **MEDDPICC充足度**: 8項目中 {n}項目確定
+- **Champion Enablement**: Champion 育成済み Y/N ／ 社内推進材料の提供状況
+- **Mutual Action Plan**: 相互合意タスク一覧／進捗
+- **Next Best Action**: マネージャー推奨アクション
+```
+
+#### C-5. Sales Enablement 資料一式
+- 業種別バトルカード（建設業／IT／小売の3種常設・06-16運用の高度化）
+- LET差別化比較表（実績・スピード・伴走・06-23運用の継承）
+- 想定Q&A集（決裁者別：社長／専務／工事部長／総務・08-27連携）
+- ROI計算Excel/Cursor製Reactツール
+- 導入事例スライド（業種×規模別マトリクス）
+
+#### C-6. パイプラインJSON拡張版
+```json
+{
+  "updated_at": "YYYY-MM-DD",
+  "summary": {
+    "total_deals": 0,
+    "weighted_pipeline_value": 0,
+    "pipeline_velocity_per_day": 0,
+    "expected_close_this_month": 0,
+    "win_rate_last_90d": 0.0,
+    "avg_sales_cycle_days": 0,
+    "nrr_current": 0.0
+  },
+  "deals": [
+    {
+      "client": "クライアント名",
+      "industry": "建設業/IT/小売",
+      "employee_size": "50-500",
+      "service": "SNS採用支援/LP制作/等",
+      "stage": "MQL/SAL/SQL/提案/見積/クロージング/受注/失注",
+      "yomi": "A/B/C/ネタ",
+      "probability": 0.8,
+      "amount": 0,
+      "acv": 0,
+      "days_in_stage": 0,
+      "meddpicc": {
+        "metrics": "",
+        "economic_buyer": "",
+        "decision_criteria": [],
+        "decision_process": "",
+        "paper_process": "",
+        "identify_pain": "",
+        "champion": "",
+        "competition": []
+      },
+      "mutual_action_plan": [],
+      "next_action": {"who": "", "what": "", "due": ""},
+      "close_date_forecast": "YYYY-MM-DD",
+      "deal_health_score": 0,
+      "warning_signals": [],
+      "owner": ""
+    }
+  ],
+  "nurturing": [
+    {"client": "", "lost_reason": "", "next_check_month": "YYYY-MM", "reminder_set": true}
+  ],
+  "alerts": []
+}
+```
+
+### 🆕 Skill D: 連携パターン（部署横断）
+
+| 連携先 | トリガー | 渡す情報 | 頻度／SLA |
+|---|---|---|---|
+| **HARU（代表）** | 月額100万円超案件／新規サービス提案 | 案件概要・戦略適合性・意思決定要否 | 発生都度・24h以内 |
+| **Ryota（04-クライアント管理部）** | 受注確定→CS引き継ぎ | カルテ（社内呼称・NGワード・現場訪問所見・決裁ライン）／窓口交代の3点説明済み証跡 | 受注当日・営業自身がクライアントへ交代説明を終えてから起動（08-27） |
+| **Marketing（マーケ部門）** | MQL受領時／月次リード品質レビュー | MQL→SAL受諾/非受諾判定＋非受諾理由1行／流入元別CVR実績 | リード当日・月次まとめ（07-16連携） |
+| **Rui（06-リサーチ部）** | 新規業種開拓／競合出現 | ターゲット業界の市場規模・競合動向・想定痛み仮説の依頼 | 案件着手前・5営業日以内 |
+| **Rin（10-資料作成部・執筆）** | 提案書のストーリー・調査パート | 顧客発言原文・業種事例・失敗談素材・数値ソース | 提案書発注時（ヒアリング完了直後・09-01運用） |
+| **Yuto（10-資料作成部・部長）** | 提案書制作全般 | 反対想定＋回答（決裁ライン人物別）／社内呼称／NGワード／現場訪問所見／確約タグ付き実施要件 | ヒアリング完了時点（受注確定を待たない・08-27更新） |
+| **nori（11-管理部門・リーガル）** | 商談中の口頭特約発生時／失注理由が契約条件だった時 | 口頭で出た特約（独占利用・SLA・中途解約）／失注案件の不成立条項リスト | 口頭特約は受注前・失注条項は月次まとめ（08-27連携） |
+| **sora（00-COO）** | 全成果物完成後 | 提案書・見積・handoffシート・失注分析レポート | 各成果物完成時・sora QA通過後にクライアント送付 |
+| **kai/nao/riku/ao（09-システム開発部）** | 提案スコープにシステム開発が含まれる時 | 要件仮説・想定規模・納期希望・予算感 | 見積提示前・BMADフロー起動 |
+| **kaito（07-LP部）** | 採用LP制作案件 | クライアント業種・訴求軸・参考LP・撮影素材有無 | 提案書段階から巻き込み |
+| **shun（05-データ分析部）** | Airwork/GA4データを提案に使う時 | クライアント既存アカウント・分析観点・可視化イメージ | 提案準備段階・3営業日以内 |
+
+### 🆕 Skill E: セールスメソドロジー体系化
+
+#### E-1. SPIN Selling（Neil Rackham / Huthwaite）
+- **Situation質問**（状況：最小限に・尋問化しない）／**Problem質問**（問題：困りごとの自覚化）／**Implication質問**（示唆：放置コストを相手に語らせる）／**Need-payoff質問**（解決：解決後の価値を相手自身に）
+- LET運用：既存の要約返し（06-07）の前段にI・Nを配置。営業が「放置すると年◯◯万円損失」と言わず、質問で相手に言わせる（06-13運用の徹底）
+- 適用場面：初回ヒアリング全案件・特に建設業の「採用できず現場が回らない」ペイン抽出
+
+#### E-2. Challenger Sale（CEB/Gartner・Matthew Dixon）
+- 5タイプ（Hard Worker/Relationship Builder/Lone Wolf/Reactive Problem Solver/**Challenger**）中、Challenger が高難度案件で最も成果
+- 3要素：**Teach**（顧客が気づいていない業界インサイトを教える）／**Tailor**（顧客の意思決定者別に訴求調整）／**Take Control**（価格議論の主導権を握る）
+- LET運用：建設業の2024年問題データ・SNS採用の業界統計を「教える」素材化。単なる御用聞きから脱却し、Rui/Shunのリサーチデータで武装
+
+#### E-3. MEDDIC / MEDDPICC（Jack Napoli・PTC発祥）
+- MEDDIC 6要素＋Paper Process（契約手続き）＋Competition（競合）を加えた MEDDPICC が2026現行標準
+- LET運用：月額50万円超・複数部門承認案件のみ全項目必須。中小案件はBANT簡易版で対応（06-13の使い分け継承）
+- 商談メモテンプレC-1に組み込み済み・Notion Deal DB の必須プロパティ化
+
+#### E-4. GAP Selling（Keenan）
+- 顧客の **Current State**（現状）と **Future State**（あるべき姿）の GAP を可視化し、その GAP を埋める価値を売る手法
+- SPINが「痛みを引き出す」ならGAP Sellingは「あるべき姿とのギャップを定量化」する点で補完
+- LET運用：ROI試算ページ（提案書スライド9）に「現状値／目標値／GAP／解決後の到達値」を数値で明記
+
+#### E-5. ソリューション営業（Solution Selling・Michael Bosworth）
+- 製品でなく「顧客の課題解決策」を売る古典的手法。単発サービス販売でなく複数サービス組合せの提案設計
+- LET運用：LP制作＋SNS運用＋撮影＋採用データ分析の複合パッケージ設計。ryota・kaito・shun連携で成立
+
+#### E-6. 建設業向け法人営業（業界特化）
+- **キーマン構造**：社長／専務／工事部長／総務部長／事務員の5層（08-27記録）。決裁は社長単独が多いが、工事部長・総務の反対で稟議停止しやすい
+- **決裁カレンダー**：建設業は3月決算＋現場繁忙期（春秋）を避ける／予算計上は12-1月・実行は4月以降が多い
+- **支払サイト**：60日〜120日サイトが標準（08-13記録）。Financeの入金予測に必ずフラグ
+- **文化的配慮**：現場訪問1回が資料10ページ相当（08-16記録）／「職人さん」「番頭さん」等社内呼称の尊重（07-03記録）
+- **法令**：建設業法・下請法の元請/下請関係の遵守（提案時に外注構造を確認）
+
+#### E-7. SaaS営業KPI体系（The Model型）
+- Marketing→Inside Sales(SDR)→Field Sales(AE)→Customer Success(CS) の4分業モデル（Salesforce流）
+- LET適用：単独マネージャーが4役兼任だが、各段階KPI（Skill B）を分けて計測し、どの段階のボトルネックかを可視化
+- 特にInside Sales段階の「商談化率25%」がボトルネックの場合、Marketing側のリード質改善に非受諾理由1行返し（07-16連携）で対応
+
+#### E-8. AIセールスエネーブルメント（2026新潮流）
+- **AI SDR**（Apollo AI/Outreach AI）による初回アウトバウンド自動化
+- **AI Deal Coach**（Gong/Salesforce Einstein）による Deal Warning 自動検知
+- **AI Proposal Generator**（Claude/GPT-4o）による提案書初稿自動生成
+- LET運用：AI化で浮いた時間を「AIで作れない一次情報」（業種類似事例＋成果数字＋失敗談3点セット・07-16記録）の収集に再投資（08-03記録の実装）
+
+#### E-9. 営業DX（Sales Digital Transformation）
+- CRM/SFA完全定着（Notion/HubSpot 二重管理禁止・一元化）
+- 商談録音の必須化（Gong/Fireflies・冒頭で許諾取得・09-01記録）
+- 電子契約標準化（DocuSign・押印レス）
+- インテント/シグナル営業（採用募集再開・拠点拡大・SNS再開・代表交代の公開シグナルで追客・09-01記録の実装）
+
+#### E-10. コンプライアンス（下請法・景表法・優良誤認NGワード）
+- **下請法**（親事業者→下請事業者への義務）：発注書面交付／60日以内支払／減額禁止／買いたたき禁止／※LETが元請の場合は制作外注に適用
+- **景品表示法**（優良誤認・有利誤認）：クライアントの求人広告代行時に「業界No.1」「日本一」「絶対」「必ず」「100%成功」等の断定表現禁止。合理的根拠資料の保管義務
+- **職業安定法・労働者派遣法**：採用支援業では求人票の記載事項（賃金・労働時間・社会保険・受動喫煙対策）の欠落チェック必須
+- **個人情報保護法**：応募者データの取扱について、収集目的の明示・第三者提供の同意取得
+- **NGワード一覧**（LET共通・norii連携）：「絶対」「必ず」「100%」「業界No.1」（根拠なし）「日本一」「最安」「唯一」等
+- 運用：全提案書・LP は送付前に nori（11-管理部門）でリーガルチェック→NGワード grep 一括照合を送付ゲート化
+
+#### E-11. ISM（Inbound Sales Methodology・HubSpot体系）
+- 4フェーズ：**Identify**（購買初期の見込客特定）／**Connect**（価値提供で接続）／**Explore**（ヒアリングで課題深掘り）／**Advise**（顧客固有のアドバイス提示）
+- 従来のプッシュ型営業でなく、購買者の journey に沿った pull 型
+- LET運用：警戒解除型初回返信（05-24/05-26運用）がConnect段階の実装／SPIN話法がExploreの実装
+
+#### E-12. コミュニティ営業（2026新潮流）
+- 顧客同士のコミュニティ（Slack/Discord/オフライン勉強会）を運営し、既存顧客の成功事例が新規獲得を生む構造
+- LET適用：建設業クライアント向け「サクバズ採用勉強会」（四半期オフライン＋月次オンライン）を設計。既存深耕（NRR向上）と紹介案件創出（08-03記録）を同時実現
+- コミュニティ内の発言（他社の成功談・失敗談）が Champion Enablement（05-25記録）の教材化
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
