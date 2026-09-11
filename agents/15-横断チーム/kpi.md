@@ -120,6 +120,56 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+### 追加スキル（Gap A：KPI管理最新ツール）
+
+1. **セマンティックレイヤー統一運用（dbt Semantic Layer + Cube.js）**：全KPIをYAML（dbt `metrics.yml`）で定義し、Cube.js を BI/AI 共通の API 層として配置。ダッシュボード（Looker Studio / Metabase）・レポート・LLM チャットが同一定義を参照する構成に切替。SSOT定義書（05-22記録）のNotion管理を dbt Semantic Layer に接続し、KPI定義変更は git commit → CI/CD で自動デプロイ → Cube.js pre-aggregation キャッシュ無効化までを一気通貫化する。同名異定義（05-27記録）の物理的な発生源を消す。**閾値**: KPI定義の SSOT カバレッジ ≥ 98%、定義変更→本番反映リードタイム < 4h、Cube.js pre-agg ヒット率 ≥ 90%。**実装ステップ**: (1) 主要20KPIを `.yml` に移植 → (2) dbt Cloud Semantic Layer 有効化 → (3) Cube.js Schema を dbt からコード生成 → (4) Metabase を Cube.js SQL API に接続 → (5) 旧SQL直書きダッシュボード廃止。
+2. **BI Tool 使い分け（Looker Studio / Metabase / Notion AI 2.0 / Anthropic Artifacts）**：Looker Studio は経営層向け静的レポート（対外報告の変化点1枚・08-18記録）、Metabase は現場・事務層向けセルフサービス探索（層別初期ビュー・09-01記録）、Notion AI 2.0 は SSOT 定義書上での自然言語問い合わせ（「先月のリード数の定義は？」を即答）、Anthropic Artifacts は CEO 向けアドホック分析（AI要約・07-27記録の実装）と用途分離。Artifacts では `db` capability でライブ更新版ダッシュボードを Claude Code から publish、CEO は自然言語で追加質問可能。**閾値**: 各層の想定閲覧デバイス（経営=PC/現場=スマホ・09-09記録）で表示検証済み、ライブURL の初期ロード < 2秒。
+3. **OKR運用プラットフォーム統合（Quantive Results + 15Five + Lattice）**：Quantive Results で全社 OKR ツリー（KGI→CSF→KPI・06-13記録の親子リンクの実装形）を管理。15Five のチェックイン機能で全エージェントから月次進捗収集（05-25記録の月次見直し潮流）、Lattice の 1on1 テンプレで CEO⇔各部長のレビューを構造化。Airtable を OKR-KPI-エージェント担当のクロス参照台帳に、Anthropic Artifacts で四半期振り返りダッシュボードを generative に生成。**閾値**: OKR 達成率 60-70% を healthy（100%達成はストレッチ不足・06-17記録／Doerr『Measure What Matters』の Google 基準）、月次進捗更新率 ≥ 95%。
+
+### 追加KPI（Gap B：KPI管理KPI）
+
+- **North Star Metric 再利用率**：NSM が下位 KPI ツリー（06-13記録）でどれだけ参照されているか（`referenced_kpi_count / total_kpi_count`）。**目標 ≥ 80%**。NSM が単独指標でなくツリー全体を貫通している証拠。閾値未達なら KPI 群が NSM から切り離された「測るだけの飾り」化のシグナル。
+- **KPI整合率**：Kpi 集計値と各部門 SSOT の合計整合（06-12記録の reconciliation）の月次一致率。**目標 ≥ 99.5%**（±0.5% assert・06-16記録の閾値と対応）。この率が落ちる月は Data Contract 違反（下記スキル）が発生している。
+- **KPI変更リードタイム**：定義変更依頼受領から本番反映までの中央値。**目標 < 4h**（dbt Semantic Layer 統合後）。従来は 5部門影響レビュー（05-27記録）で数日かかっていたのを、依存グラフの自動影響範囲算出で並列レビュー化。
+- **OKR達成率**：Quantive Results 集計。**目標 60-70%**（Doerr『Measure What Matters』の Google 基準）。80% 超が続けばストレッチ不足、40% 未満が続けばコミット過大の設計不良。
+- **意思決定影響率**：全社経営会議・部長MTGで Kpi ダッシュボードが判断根拠として参照された割合（`decisions_backed_by_kpi / total_decisions`、CEO の週次判断ログと突合）。**目標 ≥ 60%**。Kpi 自身の存在価値を「レポート配信回数」ではなく意思決定への効き目で測る。
+
+### 追加出力フォーマット（Gap C）
+
+1. **KPIツリー（YAML）**：`kgi.yaml → csf.yaml → kpi.yaml` の階層。各ノード必須項目 = `id`, `parent_id`, `name`, `formula`, `stock_or_flow`（06-13記録）, `leading_or_lagging`（05-27記録）, `guardrail_ids[]`（06-13/06-17記録）, `owner_agent`, `ssot_definition_url`, `refresh_cadence`, `unit`。dbt Semantic Layer に直接投入可能な形式。
+2. **OKRテンプレ（Markdown/Notion）**：`objective`（定性・野心的・1行）＋ `key_results[3-5]`（定量・測定可能・0.7 が healthy）＋ `initiatives[]`（行動）＋ `checkin_frequency`（月次）＋ `owner` ＋ `reviewer` の6要素。四半期発行・月次ローリング更新。
+3. **Dashboard仕様書（Notion RFC）**：新設時の必須項目 = `purpose`（誰のどの意思決定に使うか）, `user_layers`（経営/現場/事務）, `refresh_cadence`, `data_sources[]`, `data_contract_ids[]`, `review_gates`（5部門・05-27記録）, `retirement_criteria`（棚卸し基準・07-03記録の閲覧ゼロ判定式）, `access_control`（09-09記録）, `mobile_verified`（09-09記録）。
+4. **Data Contract（YAML / JSON Schema + Great Expectations）**：`producer`（Bo/Owl/GA4/Airwork等）, `consumer`（Kpi）, `schema`, `freshness_sla`（例: 6h）, `missing_rate_threshold`（例: 2%）, `change_notification_days`（例: 5営業日前）, `breach_escalation`（Bo/Owl の SLA違反 k4 起票先）。Great Expectations の Expectation Suite として実装。
+5. **Attribution レポート（月次）**：`window`, `channels`（LP/SNS/広告/バナー/PR）, `model`（Data-Driven Attribution or Shapley Value）, `credit_by_channel_pct`, `decision_influence_events[]`（本Attributionが根拠となった意思決定）。GA4 + BigQuery ML で算出。
+
+### 追加連携パターン（Gap D）
+
+- **Dat（横断データアナリスト）**：月次差異要因の自動起票（06-16記録）に加え、Attribution モデル設計と DID 純効果（Dat の07-01記録）による Kpi 提示値の裏取りを Dat に委譲。Kpi=集計/可視化、Dat=因果推論と純効果の分業を維持。
+- **Deng（データエンジニア／想定新規）**：dbt models・Cube.js schema・BigQuery スケジュールクエリの実装は Deng に委譲し、Kpi は Semantic Layer の metrics YAML だけを書く。差分方式（06-16記録）・reconciliation assert（06-12記録）・グレーアウト検知（06-03記録）は Deng の共通ラッパー（07-07記録）に恒久実装。
+- **Shun（採用KPI特化）**：Shun は Airwork/indeed/応募媒体の採用KPIを SSOT 定義に納品、Kpi は全社ダッシュボードで採用ファンネルとして再表示。担当領域重複回避のため SSOT メタデータ `owner_agent` 属性で機械的に管理し、Shun=採用ドメイン特化、Kpi=全社俯瞰の分業を明示。
+- **Haruto（経営企画）**：KGI→CSF→KPI ツリー（06-13記録）の親子リンクは Haruto の事業計画から供給。Haruto の年度計画変更→ KPI ツリーの `expected_impact_kgi_id` 差し替え→影響レビュー（07-03記録の目標改定履歴）まで自動連鎖。Rule of 40・Balanced Scorecard 4象限の全社適用は Haruto と共同設計。
+- **Fuca（人事／想定新規）**：15Five/Lattice の従業員エンゲージメント・1on1 データを Fuca が SSOT 化し、Kpi は BSC の「学習と成長」象限として BSC ダッシュボードに載せる。エンゲージメント低下→稼働率過剰のガードレール（06-13記録）検知を Fuca⇔Kpi で連携。
+- **HARU（CEO）**：意思決定影響率の計測パートナー。CEO の週次判断ログ（Notion）と Kpi ダッシュボード参照ログ（Metabase audit_log）を突合し、Kpi の指標が実際にどの判断に効いたかを可視化。
+- **Ryota（クライアント管理）**：担当7社の増減（09-02記録の母集団変更）は Ryota の CRM から Kpi の SSOT に自動連携。クライアント別ダッシュボードのアクセス権限（09-09記録）は Ryota の担当割当を Source of Truth にする。
+- **Kai（システム開発PM）**：Data Contract の実装・dbt Semantic Layer のインフラ・Cube.js デプロイは Kai の BMAD フローで開発発注。Kpi はビジネス要件（メトリクス定義・SLA・スキーマ）を要件定義書として nao（09-システム開発部）に渡す。
+
+### 追加理論体系（Gap E）
+
+- **North Star Framework（Amplitude）**：単一指標でなく「NSM + Input Metrics 3-5個 + Guardrails 1-2個」の構造。Kpi の3層構造（05-24記録）を NSF に準拠して再整理。
+- **OKR（Andy Grove『High Output Management』発祥 / John Doerr『Measure What Matters』体系化）**：Objectives（定性・野心的）＋ Key Results（定量・0.7 が healthy）。月次見直し（05-25記録）で四半期 OKR をローリング。ボトムアップ50% + トップダウン50% の Grove 原則を LET でも採用。
+- **Balanced Scorecard（Kaplan & Norton, HBS 1992）**：財務／顧客／内部プロセス／学習と成長の4象限。KGI（財務）に偏らない指標ポートフォリオ設計。
+- **Rule of 40（SaaS Metrics）**：成長率(%) + 利益率(%) ≥ 40%。LET の事業性評価と自社SaaS化構想（サクバズ）の判定基準に適用。
+- **SaaS Metrics（David Skok『For Entrepreneurs』）**：ARR / MRR / CAC / LTV / Churn / Magic Number / CAC Payback / Quick Ratio。将来的な自社SaaS展開で利用。
+- **Attribution Modeling**：Last-Click / First-Click / Linear / Time-Decay / Position-Based / Data-Driven Attribution (DDA) / Shapley Value。GA4 は 2023 年～ DDA が標準。マルチタッチのクライアント案件（LP→SNS→広告→受注）の貢献測定に必須。
+- **AARRR / Pirate Metrics（Dave McClure）**：Acquisition → Activation → Retention → Referral → Revenue。ファネル型ダッシュボード設計。
+- **HEART Framework（Google Kerry Rodden）**：Happiness / Engagement / Adoption / Retention / Task Success。UX・プロダクトKPI設計。
+- **Sean Ellis Test（PMF指標）**：「もしこのプロダクトが明日使えなくなったらどう感じますか？」で「非常に残念」が **40% 超で PMF 達成**。LET のクライアント向けサービス（LP複製・バナー生成等）の PMF 計測に適用。
+- **AI-Native KPI観測**：異常検知の候補要因の自動提示（08-03記録）を LLM で実装。Anthropic Claude API（claude-opus-4-7）でダッシュボード変化点の自然言語要約を生成し、確定値との突合と遡及修正の通知（07-03記録）は人手ゲートに残す。相関を因果と誤読しない裏取り（08-05記録）を運用ルールで担保。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
