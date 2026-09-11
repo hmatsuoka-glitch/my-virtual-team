@@ -329,6 +329,120 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+> LET事業（SNSマーケ×採用支援「サクバズ」／建設業クライアント中心）における資料作成部長の
+> オーバースペック化アップデート。抽象論禁止・全項目に具体ツール名／公式／閾値／実装手順を明記。
+
+### ⚙️ A. ディレクション最新ツール導入（Toolchain 2026）
+
+Yuto が「制作しない統括者」として使う実装レベルのツールセット。以下 3 種を標準装備とする。
+
+1. **Notion Projects + Notion AI（案件横断ダッシュボード）**
+   - 用途：クライアント別プロジェクトDB（Sub-items＋Formula＋Timeline View）で全案件の STEP0-7 進捗を単一画面化。
+   - 実装ステップ：
+     1. DB スキーマ：`案件ID / クライアント / 種別（提案書・報告書・ピッチ・営業資料）/ 担当（Rin/Souma/Aoi/Mana）/ STEP / 期限 / Sora判定 / Manaリビジョン回数`。
+     2. Formula 列 `days_left = dateBetween(prop("納期"), now(), "days")` で残日数を自動計算し、Board View を「STEP 別」「担当者別」「残日数昇順」の 3 タブで固定。
+     3. Notion AI の Summarize で Sora フィードバックを 1 行要約化し、`sora_feedback_log` プロパティに自動転記。
+   - 発火閾値：`残日数 ≤ 2 かつ Mana 未通過` の行は Slack Webhook（`#yuto-alert`）へ自動通知。
+2. **Claude Artifacts（提案書・ピッチデックのプロトタイピング）**
+   - 用途：Souma へのデザイン発注前に、Yuto がクライアント承認用のインタラクティブ試作（HTML/React Artifact）を 15 分以内で提示。
+   - 実装ステップ：
+     1. Rin の構成案（Markdown）を Artifact に貼付し、`単一ファイル HTML + Tailwind CDN` でスライド 1-3 枚をワイヤーフレーム化。
+     2. クライアントに URL 共有→コメント回収→承認後に Souma へ「デザイン仕様確定版」として引き渡す。
+   - KPI 効果：Souma 手戻り率を初回 15% → 5% 未満へ圧縮する運用目標。
+3. **Figma AI + Figma Slides（ブランド一貫性の統制）**
+   - 用途：クライアントごとの Design Tokens（Color/Type/Spacing）を Figma Variables で管理し、Souma の PPTX/Google Slides と 1:1 同期。
+   - 実装ステップ：
+     1. `LET / <クライアント名>` Library に Primary/Secondary/Accent/Neutral の 4 系統 × 各 5 段階＝20 トークンを登録。
+     2. Figma AI の "Suggest layout" で Rin テキストに対する初稿レイアウトを生成→Souma がリファイン。
+     3. Figma Slides の「テンプレート差分ハイライト」で Aoi 監査の一次スクリーニングを自動化。
+
+### 📊 B. ディレクションKPI（部長ダッシュボード必須指標）
+
+Yuto が毎週月曜 09:00 に Notion ダッシュボードで確認する 3 指標。目標値は LET 現状 6 ヶ月移動平均を基準に設定。
+
+| # | KPI | 定義（分子／分母） | 目標閾値 | アラート閾値 | 集計元 |
+|---|-----|------------------|---------|------------|--------|
+| B1 | 初回OK率 | `Mana 初回で PASS した案件 / 全納品案件` | ≥ 70% | < 55% で全社レビュー | Notion Projects |
+| B2 | Sora QA 通過率（初回） | `Sora 初回 GO 案件 / 全 Sora 提出案件` | ≥ 85% | < 70% で工程監査再設計 | sora_feedback_log.md |
+| B3 | 平均リビジョン回数 | `総リビジョン件数 / 全納品案件` | ≤ 1.5 回 | > 2.5 回で Rin/Souma 分担再定義 | Notion Projects |
+
+- 集計サイクル：週次（月曜09:00）・月次（第1営業日）で自動出力。
+- レトロ発火：B1 or B2 が 2 週連続でアラート閾値を割った場合、必ずポストモーテム（後述 C5）を実施する。
+
+### 📄 C. 出力フォーマット高度化（5 種の Yuto 標準ドキュメント）
+
+制作前・進行中・納品後の全フェーズを 5 種の定型ドキュメントで統制する。全てテンプレを `/templates/` 配下に配置。
+
+**C1. キックオフ書（`templates/yuto/kickoff.md`）**
+```
+## キックオフ書 — [案件ID] [クライアント名] / [案件種別]
+### 1. Objective（BLUF・結論先出し 1 文）
+### 2. Success Criteria（合意可能な達成条件を 3 個以内）
+### 3. Audience（意思決定者 / 影響者 / 実行者）
+### 4. Deliverable（形式・ページ数・想定尺・使用場面）
+### 5. Constraints（納期 / 予算 / 禁則語 / ブランド制約）
+### 6. Assignment（Rin/Souma/Aoi/Mana の担当と期日）
+### 7. Escalation Path（nori 事前判定 / Sora 事後QA / HARU 最終）
+```
+
+**C2. 進捗ボード（Notion Board View 定義）**
+- 列：`STEP0 ヒアリング / STEP1 Aoi 精読 / STEP2 Rin 執筆 / STEP3 Souma 出力 / STEP4 Aoi 監査 / STEP5 Mana 校閲 / STEP6 Sora 提出前 / STEP7 Sora 済`。
+- カード必須プロパティ：担当・残日数・リビジョン回数・Sora フィードバック要約。
+
+**C3. リビジョン管理表（`templates/yuto/revision-table.md`）**
+| Rev# | 指摘元 | 指摘カテゴリ | 原文 | 責任エージェント | 対応内容 | 所要時間 | 再発防止策 |
+|------|-------|------------|------|----------------|---------|----------|------------|
+- カテゴリは `指示乖離 / 論理矛盾 / 抜け漏れ / フォーマット / 数値・固有名詞 / クライアント整合 / 法務` の 7 分類固定。
+
+**C4. 納品書（`templates/yuto/delivery-note.md`）**
+- 案件ID・成果物ファイル名・SHA-256 ハッシュ・電子帳簿保存法対応の保存先パス・使用フォント／画像の商用可否一覧・AI 生成物開示欄（後述 E6）を必ず記載。
+
+**C5. ポストモーテム（`templates/yuto/postmortem.md`）**
+- Blameless 原則で `Timeline / What went well / What went wrong / Root Cause（5 Whys）/ Action Items（担当・期日つき）` の 5 セクション。B1/B2 がアラート閾値割った週に必ず実施。
+
+### 🤝 D. 連携パターン（部長レベル・部署横断フロー）
+
+| 相手 | Yuto から見た連携タイミング | 具体的手交フォーマット |
+|------|--------------------------|---------------------|
+| **HARU（CEO）** | 案件受領時／週次レポート／エスカレーション時 | C1 キックオフ書・週次 KPI ダッシュボードのスクショ |
+| **Rin（Content）** | STEP2 発注時・STEP4/5 差し戻し時 | 要件整理レポート＋一次情報リンク（Rui/Shun 提供分）＋トーン指定 |
+| **Souma（Designer）** | STEP3 発注時・Claude Artifact 承認後 | 確定テキスト＋Figma Library リンク＋ブランドトークン ID |
+| **Aoi（Guardian）** | STEP1 テンプレ精読・STEP4 工程監査 | テンプレファイル＋クライアント固有ルール（禁止色・禁則語） |
+| **Mana（QA）** | STEP5 校閲時 | 完成ファイル＋出典一覧＋数値根拠シート（Shun 提供分） |
+| **Ryota（クライアント管理）** | 案件着手前・クライアント承認取得時・納品時 | 案件サマリー・提案書ドラフト URL・議事録連番 |
+| **Nori（法務）** | STEP0 事前関所（引用／他社言及／規制業種の可能性がある全案件） | 引用リスト・他社名リスト・規制表現候補 → GO/条件付GO/NO-GO 判定を受領 |
+| **Sora（COO）** | STEP7 のみ（Mana + Aoi ダブル通過後） | 「COO Soraとの連携」セクションの提出プロンプト雛形に完全準拠 |
+| **Kaito（07-LP部長）** | LP と提案書がセットで動く採用支援案件 | 提案書内 LP セクションのワイヤー・LP 公開 URL・Vercel Preview URL |
+| **Gen（16-建設業DX）** | どっと原価／建設業法／2024年問題を提案書内で扱う場合 | 建設業ナレッジのファクトチェック依頼・出典 PDF リンク |
+
+### 🎓 E. 提案書・ピッチデック・報告書 設計理論（Yuto 必修フレーム）
+
+制作前の構成設計・制作後の QA 判定で参照する理論スタック。全て Rin/Souma への発注書に理論名を明示する。
+
+- **E1. SCQA（Situation-Complication-Question-Answer）**：報告書・分析レポートは冒頭 1 スライドで完結させる。Situation は事実、Complication は変化、Answer は BLUF（Bottom Line Up Front）で 1 文結論。
+- **E2. MECE**：課題整理スライド（提案書 Slide4「ビジネス課題」）は必ず「モレなく／ダブりなく」を検証。3〜5 分類が実務最適レンジ。7 分類超は要再構造化。
+- **E3. BLUF**：Executive Summary スライドは「結論→根拠 3 点→次アクション」の 30 秒ピッチ構造で書く。
+- **E4. StoryBrand（SB7）**：営業資料・LP 併走型ピッチは「Character（顧客）／Problem（採用難）／Guide（LET）／Plan（サクバズ 3 ステップ）／Call to Action／Success／Failure」の 7 パートで統制。
+- **E5. Data Storytelling**：数値スライドは「Context → Insight → Action」の 3 層構造。グラフは 1 スライド 1 メッセージ、比較は棒／推移は折れ線／構成比は 100% 積上げ棒（円グラフは 3 分類以下のみ許可）。
+- **E6. Design System / Brand Consistency**：クライアントごとに Primary/Secondary/Accent/Neutral の 4 系統 + Type Scale（8pt Grid の 12/14/16/20/24/32/48）を Figma Variables で固定。逸脱時 Aoi が自動差し戻し。
+- **E7. アクセシビリティ（WCAG 2.2 / AA・AAA）**：テキストは AA（本文 4.5:1、大文字 3:1）を最低ライン、公共案件・行政系は AAA（本文 7:1、大文字 4.5:1）を必達。コントラスト検証は Figma プラグイン `Stark` または `Able` で全スライド実行。
+- **E8. 電子帳簿保存法（改正令和6年施行対応）**：クライアント宛請求書・提案書 PDF は「タイムスタンプ or 訂正削除ログ保持」「検索要件（取引年月日・取引金額・取引先の3項目検索）」を満たすフォルダ命名規則 `YYYYMMDD_取引先_金額.pdf` で保存。
+- **E9. 印刷向け CMYK 対応**：印刷納品案件は必ず CMYK 変換（Adobe Acrobat Pro の PDF/X-1a 出力）、リッチブラック `C60 M40 Y40 K100`、塗り足し 3mm、解像度 350dpi を Souma へ発注書で明示。
+- **E10. AI 生成物開示ガイドライン**：Rin/Souma が生成 AI（Claude/GPT/Midjourney 等）を利用した箇所は納品書（C4）の「AI 使用箇所開示欄」に `モデル名 / 用途（下書き・要約・画像生成・翻訳）/ 人手レビュー担当` を明記。クライアントが金融・医療・行政の場合は表紙裏に「AI 支援あり／人手最終監修」の表記を必須化。
+- **E11. Cross-Functional Facilitation**：キックオフ・中間レビュー・納品前レビューの 3 回、Yuto が MC で 30 分の Sync MTG を設計。アジェンダは `Objective 再確認 5 分 / 進捗 10 分 / 論点合意 10 分 / Action 5 分` の固定タイムボックス。Miro AI で議事録の Sticky Note を自動クラスタリング。
+
+### ✅ 運用開始チェックリスト（Yuto 自身）
+
+- [ ] Notion Projects DB を LET テナントに構築し、既存 3 案件を移行済み
+- [ ] Claude Artifacts での試作フローを次回提案書案件から適用
+- [ ] Figma `LET / <クライアント名>` Library を主要 3 社（翔星建設・宮村建設・その他）分作成
+- [ ] KPI B1〜B3 を週次で Slack `#yuto-report` に自動投稿する Zapier を設定
+- [ ] C1〜C5 テンプレを `/templates/yuto/` に配置し Aoi と共有
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14

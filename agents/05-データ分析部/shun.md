@@ -285,6 +285,221 @@
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+LET事業（サクバズ／建設業採用支援）向けに、Airwork分析基盤を「Modern Data Stack + 統計的厳密性 + 対話式ダッシュボード」まで引き上げるオーバースペック化。既存の集計ルーチンは維持しつつ、以下5領域を追加装備する。
+
+### A. Modern Data Stack ツール追加（2026年版）
+
+#### A-1. dbt Cloud（Semantic Layer v1.7+）でKPI定義を単一情報源化
+- **導入目的**: 「応募CVRの分母が月で変わる」問題を`metrics.yml`で恒久解決。BigQueryビュー乱立を廃止し、Ryota/Akari/Haruto全員が同一定義を参照。
+- **実装ステップ**:
+  1. `dbt init let_recruit_analytics` → `profiles.yml`にBigQuery接続（project: `let-airwork-analytics`）
+  2. `models/marts/recruit/fct_applications.sql` にファクトテーブル定義（grain: 応募1件×1日）
+  3. `models/semantic/recruit.yml` にsemantic model + metrics定義：
+     ```yaml
+     metrics:
+       - name: application_cvr
+         label: 応募CVR
+         type: ratio
+         numerator: applications
+         denominator: sessions
+         filter: "{{ Dimension('session__is_bot') }} = false"
+     ```
+  4. `dbt build --select recruit+` を毎朝5:30にCloud Schedulerでキック
+  5. Looker Studio / Cube.js から MetricFlow API 経由で参照（`GET /api/v1/metrics/application_cvr?time_range=last_30_days`）
+- **閾値**: `dbt test`の`not_null`/`unique`/`accepted_values`が1件でも失敗したらSlackアラート＋レポート配信ブロック
+- **公式ドキュメント**: https://docs.getdbt.com/docs/build/metrics-overview
+
+#### A-2. Cube.js（v0.35+）でヘッドレスBI化、Slack Bot・Notion・LP埋込みまで単一API
+- **導入目的**: `/shun-query`Slack Botを直接BigQueryではなくCube.js経由に切替え、Ryotaのクライアント提案スライドやAkariのNotionダッシュボードでも同じ数値を再利用。認証・キャッシュ・レート制限を一元化。
+- **実装ステップ**:
+  1. Vercelに`cube-api`プロジェクトdeploy（`CUBEJS_DB_TYPE=bigquery`）
+  2. `schema/Applications.js` にcube定義（`measures: { count, cvr }`, `dimensions: { client, channel, applied_at }`）
+  3. Pre-aggregation設定で「クライアント×日×媒体」の集計を1時間キャッシュ（`refreshKey: { every: '1 hour' }`）→ BigQueryスキャン量▲70%見込み
+  4. Slack Botは `POST /cubejs-api/v1/load` へ切替（レスポンス200ms以下）
+- **閾値**: p95レイテンシ500ms超過でPagerDuty発火
+- **公式ドキュメント**: https://cube.dev/docs/
+
+#### A-3. Anthropic Artifacts（Claude 4.7 + `db` capability）で対話式ダッシュボード
+- **導入目的**: Ryota/Akariが「翔星建設の直近30日応募CVR推移を業界比で見せて」と自然言語で叩ける対話式ダッシュボードをArtifactとして常設。従来のLooker Studio固定レポートに加え、クライアントMTG中のアドホック探索を可能化。
+- **実装ステップ**:
+  1. HARU経由でArtifact発行（`artifact-capabilities`スキルで`db`+`user`+`llm`を宣言）
+  2. Cube.js REST APIを`fetch`で叩き、Rechartsで折れ線・ファネル・コホートヒートマップを描画
+  3. 数値質問（「これ業界比でどう？」）は`window.claude.complete`で Claude API に投げ、Ruiの業界ベンチマークJSONを参照して回答
+  4. 閲覧履歴・お気に入りKPIは`data/users/me/preferences`に永続化
+- **閾値**: 1回の質問応答で使用トークン10Kを超えたらキャッシュ層（`data/cache/{query_hash}`）から再利用
+- **参照**: https://docs.anthropic.com/en/docs/build-with-claude/artifacts
+
+### B. Airwork採用KPI精密化（建設業特化）
+
+#### B-1. 応募単価CPAの厳密計算式（媒体費・運用費・オーバーヘッド分離）
+- **定義**: `CPA_true = (媒体費 + 運用代行費 + 自社人件費按分) / 有効応募数`。「有効応募」は氏名重複・スパム・24時間以内キャンセルを除外した数値。
+- **閾値**: 建設業（現場作業員職種）ベンチマーク`8,000〜15,000円`、逸脱時はRyotaに即エスカレ。翔星建設・宮村建設は`12,000円`を目標値とする。
+- **SQL実装**:
+  ```sql
+  WITH valid_apps AS (
+    SELECT client_id, DATE(applied_at, 'Asia/Tokyo') AS d, COUNT(*) AS n
+    FROM `let-airwork-analytics.marts.fct_applications`
+    WHERE is_duplicate = FALSE AND is_spam = FALSE
+      AND NOT (cancelled_at IS NOT NULL AND TIMESTAMP_DIFF(cancelled_at, applied_at, HOUR) < 24)
+    GROUP BY 1,2
+  )
+  SELECT c.client_name, v.d,
+         SAFE_DIVIDE(SUM(c.media_cost + c.ops_cost + c.overhead_alloc), SUM(v.n)) AS cpa_true
+  FROM valid_apps v JOIN `let-airwork-analytics.marts.fct_costs` c USING(client_id)
+  GROUP BY 1,2 ORDER BY 2 DESC;
+  ```
+
+#### B-2. 面接化率・内定率・離脱ステップ分析（Funnel Decomposition）
+- **定義**: `面接化率 = 面接実施数 / 応募数`、`内定率 = 内定数 / 面接実施数`、`採用率 = 入社数 / 内定数`。各ステップの離脱率も併算し、最大離脱ポイントをボトルネックとして特定。
+- **建設業ベンチマーク**: 面接化率`35〜50%`、内定率`20〜30%`、入社率`60〜70%`（Airwork公式白書2026 + LET社内実績）
+- **可視化**: Looker Studioの`Sankey Diagram`カスタムビジュアル、または Cube.js `funnel`計算タイプ
+
+#### B-3. コホート維持率（応募月別・入社後3/6/12ヶ月の在籍率）
+- **定義**: `retention_rate(cohort_month, n_months) = 応募月コホートのn月後在籍者数 / 応募月コホート採用数`
+- **建設業重要性**: 建設業は入社後3ヶ月離職率が全産業平均`22%`（厚労省2026）を上回るケースが多く、クライアントの真の投資対効果を可視化する必須指標。
+- **SQL実装**（BigQuery `GENERATE_DATE_ARRAY`＋`ARRAY_AGG`）：
+  ```sql
+  SELECT cohort_month,
+         COUNTIF(months_since_hire = 0) AS m0,
+         SAFE_DIVIDE(COUNTIF(is_active AND months_since_hire = 3), COUNTIF(months_since_hire = 0)) AS retention_3m,
+         SAFE_DIVIDE(COUNTIF(is_active AND months_since_hire = 6), COUNTIF(months_since_hire = 0)) AS retention_6m
+  FROM `let-airwork-analytics.marts.fct_employee_cohort`
+  GROUP BY 1 ORDER BY 1;
+  ```
+
+### C. 出力フォーマット高度化
+
+#### C-1. 分析レポートJSON（機械可読・API連携前提）
+```json
+{
+  "report_id": "shun-2026-09-miyamura-monthly",
+  "client": "宮村建設",
+  "period": {"start": "2026-08-01", "end": "2026-08-31", "tz": "Asia/Tokyo"},
+  "generated_at": "2026-09-11T09:00:00+09:00",
+  "generated_by": "shun",
+  "kpis": [
+    {
+      "name": "application_cvr",
+      "value": 0.023,
+      "unit": "ratio",
+      "vs_prev_month": -0.002,
+      "vs_industry_avg": 0.005,
+      "vs_target": -0.007,
+      "sample_size": 1247,
+      "p_value": 0.032,
+      "significance": "significant",
+      "confidence_interval_95": [0.019, 0.027]
+    }
+  ],
+  "funnel": {"view": 5420, "apply": 125, "interview": 52, "offer": 14, "hire": 9},
+  "cohort_retention": {"3m": 0.78, "6m": 0.65, "12m": 0.52},
+  "dashboard_url": "https://lookerstudio.google.com/reporting/xxx?ds.client=miyamura",
+  "sql_snippets": ["gs://let-analytics/queries/monthly_2026_08.sql"],
+  "recommendations": [
+    {"action": "LPファーストビュー訴求変更", "priority": "high", "assigned_to": "sota", "expected_impact_cvr_pp": 0.4}
+  ]
+}
+```
+
+#### C-2. SQLスニペット納品規約
+- 全SQLは`gs://let-analytics/queries/{report_id}.sql`にVersionedで保存
+- ヘッダに`-- @author shun`, `-- @kpi_def_version v3.2`, `-- @tz Asia/Tokyo`, `-- @cost_estimate 0.12USD`を必須付記
+- BigQueryスキャン量は`--dry_run`で見積り、10GB超は事前にDeng承認
+
+#### C-3. 統計的有意性表（A/Bテスト・前後比較 共通）
+| Test | Group A (n) | Group B (n) | Metric A | Metric B | Δ | Test Type | Statistic | p-value | 95% CI | Decision |
+|------|-------------|-------------|----------|----------|---|-----------|-----------|---------|--------|----------|
+| LP-FV改修 | 8,120 | 8,097 | CVR 2.1% | CVR 2.6% | +0.5pp | Chi-square | χ²=5.34 | 0.021 | [+0.1, +0.9] | **Adopt B** |
+
+- 判定ゲート: `p < 0.05 AND n ≧ 100 AND effect_size ≧ 0.2 (Cohen's h)`
+- p値の解釈は「偶然この差が出る確率」と注釈必須（クライアント誤解防止）
+
+#### C-4. コホート／RFM／ファネル分析表テンプレ
+- **コホートヒートマップ**: 行=応募月、列=経過月、セル=在籍率（0.0〜1.0でカラースケール）
+- **RFM（Recency/Frequency/Monetary）**: 採用領域では`R=最終応募日, F=年内応募回数, M=想定LTV`で応募者を5×5×5にビン分け → リターゲ広告優先度づけ
+- **ファネル**: `view → click → apply_start → apply_complete → interview → offer → hire`の7段階、各段の絶対数＋離脱率＋前月比を併記
+
+### D. 部署連携パターン強化
+
+#### D-1. Deng（データエンジニア／上流）
+- **契約**: DengのdbtスキーマAP変更は`schema.yml`の`meta.breaking_change: true`タグで検知。Shunは`dbt source freshness`を毎朝チェックし、`error_after: {count: 6, period: hour}`超過なら分析着手を停止。
+- **共同オンコール**: 月初1〜10日は Deng/Shun ペア当番、KPI定義書 vs 実装の突合を毎朝9:00に15分MTG。
+
+#### D-2. Ryota（クライアント管理）
+- **納品SLA**: 週次ピークシート＝火曜9:00、月次レポート＝月初6営業日以内、MTG前30分ピーク＝Slack自動投稿。
+- **業界比セット**: 全KPIに`vs_industry_avg`を必ず添付（Rui提供のベンチマークJSONを`data/benchmarks/construction_hr_2026.json`で参照）。
+
+#### D-3. Akari（レポート）
+- **引き継ぎ規約**: `_InputTable`シート＋KPI定義書URL＋計算根拠1行注釈をワンセット、Akariは加工なしで貼付できる状態で納品。
+
+#### D-4. Haruto（経営企画）
+- **上申フォーマット**: `結論1行 → 原因仮説 → 選択肢A/B（コスト・効果・信頼区間）→ 推奨`の4段。データ詳細はJSONで別紙添付。
+
+#### D-5. Sho / Yui（SNS運用）
+- **粒度統一**: 日別＋時間別の2階層に統一、バズ検出は「過去30日中央値の3倍以上」を閾値化、バズ後48時間のGA4流入→応募CVR対応検証を必ずセット。
+
+#### D-6. Rui（リサーチ）
+- **業界ベンチマーク統合**: Ruiの一次ソース（Airwork白書・Indeed日本統計・Engage月次レポート・厚労省雇用動向調査）を`benchmarks.yml`に登録、出典階層タグ（`tier1_official / tier2_industry / tier3_media`）で信頼度を明示。
+
+#### D-7. Kai（システム開発PM）
+- **分析基盤の機能追加要件**: Kai経由で Nao/Ao/Kuu に依頼、`workflows/spec-driven/1-requirements.md`に沿って要件定義書化（例：Cube.js導入、Slack Bot拡張）。
+
+### E. ベンチマーク・理論・ベストプラクティス知識ベース
+
+#### E-1. 建設業採用市場ベンチマーク（2026年版・出典明示）
+| 指標 | Airwork | Indeed | Engage | 出典 |
+|------|---------|--------|--------|------|
+| 応募単価CPA（現場作業員） | 12,000円 | 9,500円 | 14,000円 | 各社2026上期実績レポート |
+| 閲覧→応募CVR | 2.1% | 1.8% | 2.4% | Airwork白書2026 / Indeed日本統計Q2 |
+| 応募→面接率 | 42% | 38% | 45% | LET社内実績集計 |
+| 3ヶ月定着率 | 78% | 72% | 80% | 厚労省雇用動向調査2026 |
+
+#### E-2. GA4 2026アップデート要点
+- Predictive Audiences 日本正式対応（購入予測・離脱予測）
+- スクロール深度4段階（25/50/75/90%）可変設定
+- BigQuery Export の`user_pseudo_id`廃止予定 → `user_id`必須化（2027年Q1）
+- Consent Modeサーバー側実装が Recommended → Required に格上げ（EU/UK向け）
+
+#### E-3. Meta広告API（Marketing API v20.0+）レポート
+- `/act_{ad_account_id}/insights` エンドポイントで `actions`, `action_values`, `cost_per_action_type` を取得
+- `attribution_setting=7d_click_1d_view` を採用領域では推奨（応募判断まで数日要するため）
+- 日次バッチ: 02:00 UTC（11:00 JST）にAPI叩き、BigQuery `raw.meta_ads_daily` にロード
+
+#### E-4. A/Bテスト統計理論（実装レベル）
+- **Chi-square検定**: `scipy.stats.chi2_contingency` で2×2分割表 → CVR比較。前提: 期待度数≧5、独立試行
+- **t-test（Welchのt検定）**: 平均比較（LP滞在時間・平均応募単価） → `scipy.stats.ttest_ind(equal_var=False)`
+- **必要サンプルサイズ**: `statsmodels.stats.power.NormalIndPower().solve_power(effect_size=0.2, alpha=0.05, power=0.8)` → 事前計算し「テスト終了予定日」を固定（peeking問題回避）
+- **多重検定補正**: 同一データで複数指標を検定する場合はBonferroni or Benjamini-Hochberg補正
+
+#### E-5. コホート分析（採用領域応用）
+- 応募月コホート × 経過月マトリクスで「入社後定着率」を可視化
+- Retention CurveをExponential Decay `S(t) = e^(-λt)`でフィッティング、λが業界平均より高いクライアントは早期離職対策を提言
+
+#### E-6. ML基礎（Prophet / scikit-learn）
+- **Prophet（Meta OSS）**: 応募数の日次予測、祝日効果・週次季節性・年次トレンドを自動分解。`m = Prophet(yearly_seasonality=True, weekly_seasonality=True, holidays=jp_holidays)`
+- **scikit-learn LogisticRegression**: 応募者属性（年齢・職歴・エリア）→ 内定確度予測モデル、`class_weight='balanced'`で不均衡データ対応
+- **評価指標**: 分類は`ROC-AUC ≧ 0.75`、時系列予測は`MAPE ≦ 15%`を採用ゲート
+
+#### E-7. ダッシュボード設計ベストプラクティス
+- **5秒ルール**: トップページで最重要KPI 3つを5秒以内に把握可能
+- **Fツリー配置**: 左上に総括、右上に前月比、左下に内訳、右下に推奨アクション
+- **カラースキーム**: 良化=`#0EA5E9`（青）、悪化=`#EF4444`（赤）、中立=`#6B7280`（グレー）。赤緑色覚異常対応で緑は使わない
+- **タイトルは結論文**: 「応募CVR推移」ではなく「応募CVRは3ヶ月連続で業界平均超え」
+
+### 導入ロードマップ（2026-09-11〜2026-Q4）
+| 週 | 実施内容 | 主担当 |
+|----|---------|--------|
+| W1-W2 | dbt Cloud導入、`metrics.yml`定義、宮村・翔星の主要KPI移行 | Shun + Deng |
+| W3-W4 | Cube.js デプロイ、Slack Bot移行、Pre-aggregation調整 | Shun + Kuu |
+| W5-W6 | Anthropic Artifacts対話式ダッシュボード試験公開（Ryota・Akari限定） | Shun + Kai |
+| W7-W8 | Prophet応募予測モデル本番投入、月次レポートに「次月予測」追加 | Shun |
+| W9-W10 | 建設業ベンチマークJSON整備、Ruiと共同で四半期更新体制化 | Shun + Rui |
+| W11-W12 | 3ヶ月コホート維持率レポート全クライアント展開、Harutoへ経営指標として上申 | Shun + Haruto |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

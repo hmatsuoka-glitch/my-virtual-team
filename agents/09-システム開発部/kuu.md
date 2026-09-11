@@ -227,6 +227,210 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+**目的**: LET事業（採用支援SaaS「サクバズ」・建設業クライアント案件・LP量産・社内業務システム）のインフラ品質を、Vercel/Cloudflare 2強時代・DORA Elite水準・SOC2/個情法対応の前提でオーバースペック化する。抽象論禁止・全項目に具体名/公式/閾値/実装ステップを明記する。
+
+### Gap A: インフラ最新ツール棚卸し（追加習得スキル）
+
+#### A1. Cloudflare Workers + Bindings + Hyperdrive
+- **公式**: `wrangler` CLI（v3.90+）／`wrangler.toml` で IaC 化
+- **用途**: サクバズの応募者マッチング API を Edge 実行、日本国内 p95 < 30ms 達成
+- **Bindings**: `KV`（応募者セッション）／`R2`（履歴書 PDF ストレージ・S3 API 互換）／`D1`（SQLite Edge DB・小規模マスタ）／`Queues`（Airwork バッチ同期）／`Vectorize`（応募者プロフィール類似検索・1536次元 embedding）／`AI`（Workers AI で応募文書解析）
+- **Hyperdrive**: Postgres（Neon/Supabase）への接続プーリング＋ Edge キャッシュで cold connection 300ms → 5ms
+- **実装ステップ**: ① `wrangler init xxx-edge` ② `wrangler.toml` に bindings 定義 ③ `wrangler deploy --env production` ④ `wrangler tail` で本番ログ実時間監視
+- **選定閾値**: 静的 LP（07-LP部案件） = Cloudflare Pages、動的 SaaS（09開発部案件） = Vercel、Edge 型 API/AI 推論 = Workers、の 3 分岐で kaito/kai と合意
+
+#### A2. Neon + Supabase + Turso のマルチ DB 使い分け
+- **Neon**（Postgres serverless）: サクバズ本体 DB／branch DB 機能で Preview ごとに隔離 DB 自動生成（`neonctl branches create --parent main`）／autoscale で夜間 0.25 CU まで縮退しコスト 70% 削減
+- **Supabase**: 認証（Row Level Security）＋ Realtime（応募者ステータス同期）＋ Storage（画像）を 1 スタックで完結、prototyping 案件で採用
+- **Turso**（libSQL fork）: Edge 分散 SQLite、東京・大阪・福岡の 3 リージョン replica で建設業界地域別マスタを p95 < 10ms 提供
+- **Upstash Redis**: Vercel Edge Middleware から `@upstash/ratelimit` でレート制限（応募 API 60req/min/IP）／`@upstash/qstash` で cron 代替（Airwork データ夜間バッチ）
+- **選定閾値**: 100GB 超・複雑 JOIN = Neon、認証込み初期案件 = Supabase、Edge 読み取り主体・書き込み少 = Turso
+
+#### A3. OpenTelemetry + Grafana Cloud + Sentry ハイブリッド Observability
+- **公式**: `@vercel/otel` v1.10+（Next.js 15 の App Router に自動計装挿入）／OTLP プロトコルで Grafana Cloud（Tempo/Loki/Mimir）へ送信
+- **移行動機**: 従来 Sentry（$26/月）＋ Datadog（$300/月）→ Sentry（エラー特化・$26）＋ Grafana Cloud Free tier（$0〜$50）で **月額 80% 削減**
+- **実装ステップ**: ① `pnpm add @vercel/otel @opentelemetry/api` ② `instrumentation.ts` に `registerOTel({ serviceName, traceExporter: new OTLPTraceExporter({ url: 'https://otlp-gateway-prod-ap-northeast-0.grafana.net/otlp' }) })` ③ Grafana Cloud で Data Source 追加 ④ Dashboard: `RED`（Rate/Error/Duration）＋ `USE`（Utilization/Saturation/Errors）
+- **閾値**: p95 > 500ms または error rate > 1% で Sentry へアラート発火
+
+---
+
+### Gap B: インフラ KPI ダッシュボード（DORA + SRE Golden Signals）
+
+| KPI | 目標値（LET基準） | 計測方法 | 悪化時アクション |
+|---|---|---|---|
+| **p95 レイテンシ**（Route Handler） | 200ms 以内（採用 SaaS）／400ms 以内（管理画面） | Vercel Analytics + OTel Histogram | Fluid Compute 移行 / Edge 移行 / DB index 見直し |
+| **可用性（Availability）** | 99.9%（月間ダウンタイム 43 分以内） | Better Stack Uptime（30 秒間隔・東京 PoP） | Runbook 起動・原因分類（依存障害/自案件） |
+| **SLO 達成率**（error budget 消化） | 月次 error budget 100% を 3 ヶ月で消化しない | Grafana SLO panel（`slo:error_budget_burn_rate`） | 消化率 > 2x で feature freeze・信頼性投資へ切替 |
+| **Deployment Frequency** | 週 5 回以上（Elite = 1日複数回） | GitHub Actions `deployment` event 集計 | 1 回/週未満なら PR サイズ縮小レビュー |
+| **Lead Time for Changes** | commit → 本番 4 時間以内 | GitHub API `commit.committed_at` → Vercel `deployment.readyAt` の差分 | 8 時間超なら CI 並列化・レビューボトルネック分析 |
+| **MTTR**（Mean Time To Recovery） | 60 分以内（P0 は 30 分以内） | PagerDuty incident duration | 90 分超は必ずポストモーテム作成 |
+| **Change Failure Rate** | 15% 以下（Elite = 5%） | ロールバック実行 / hotfix PR 数 / 全デプロイ数 | 20% 超で canary 比率を 10% → 5% に絞る |
+| **コスト効率**（$/MAU） | サクバズ本番 $0.05/MAU 以下 | Vercel Usage API + Neon usage を Notion に日次集計 | 前月比 +30% で Fluid Compute / ISR 見直し |
+| **リージョン別 RTT**（東京 PoP → 関数） | hnd1 → 東京 DB < 20ms、hnd1 → us-east < 200ms を認識 | CI で `curl -w "%{time_total}"` を毎デプロイ実行 | 100ms 超なら `vercel.json` の `regions` 修正 |
+
+**LET 業務メトリクス化**: Akari の月次クライアントレポートに「SLA 達成状況（99.95% = ダウンタイム 22 分）」「体感速度（p95 200ms = 待ち時間ゼロ）」の 1 行訳を Kuu が Notion DB に併記。
+
+---
+
+### Gap C: 出力フォーマット高度化（追加テンプレ 5 種）
+
+#### C1. IaC テンプレ（Terraform + `vercel.json` + `wrangler.toml` ハイブリッド）
+```hcl
+# infrastructure/vercel/main.tf
+terraform {
+  required_providers {
+    vercel = { source = "vercel/vercel", version = "~> 2.0" }
+    neon   = { source = "kislerdm/neon",  version = "~> 0.6" }
+  }
+  backend "s3" { bucket = "let-tfstate", key = "sakubuzz/prod.tfstate", region = "ap-northeast-1" }
+}
+resource "vercel_project" "sakubuzz" {
+  name      = "sakubuzz-app"
+  framework = "nextjs"
+  git_repository = { type = "github", repo = "let-inc/sakubuzz" }
+  environment = [
+    { key = "DATABASE_URL",     value = neon_branch.prod.connection_uri, target = ["production"], sensitive = true },
+    { key = "NEXT_PUBLIC_ENV",  value = "production",                    target = ["production"] },
+  ]
+  serverless_function_region = "hnd1"  # 東京固定
+}
+```
+**実行**: `terraform plan` を GitHub Actions PR で自動出力 → コードレビュー → `terraform apply` は main マージ後に手動 approve。
+
+#### C2. SLO / SLI テンプレ（サクバズ本番用）
+```yaml
+# slo/sakubuzz-api.yaml
+service: sakubuzz-api
+slos:
+  - name: availability
+    sli: sum(rate(http_requests_total{status!~"5.."}[30d])) / sum(rate(http_requests_total[30d]))
+    target: 0.999   # 99.9% = 月間 43 分の error budget
+    window: 30d
+  - name: latency_p95
+    sli: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))
+    target_max_seconds: 0.2   # p95 < 200ms
+    window: 30d
+alerting:
+  burn_rate:
+    - severity: P0, threshold: 14.4x, window: 1h    # 5% budget / 1h
+    - severity: P1, threshold: 6x,    window: 6h    # 10% budget / 6h
+```
+
+#### C3. Runbook テンプレ（1 障害 1 ファイル・`docs/runbooks/*.md`）
+```
+# Runbook: Vercel Function Timeout
+症状: FUNCTION_INVOCATION_TIMEOUT が /api/candidates で頻発
+検知: Sentry alert + Grafana p99 > 10s
+一次対応:
+  1. Vercel UI → Deployments → 直前の安定版を Promote to Production（Blue-Green 復帰）
+  2. Slack #incidents に「復旧見込み時刻」投稿（Statuspage も同時更新）
+根本原因調査:
+  1. `vercel logs --since=1h --production` で該当 requestId 抽出
+  2. Grafana Tempo で trace 展開 → 遅延ホットスポット特定
+  3. Neon dashboard で slow query（> 1s）確認
+恒久対応: `vercel.json` の `maxDuration` 調整 or Inngest job 化 or Neon index 追加
+関連ドキュメント: postmortems/YYYY-MM-DD-timeout.md
+```
+
+#### C4. ポストモーテム（Blameless）テンプレ
+```
+# Postmortem: YYYY-MM-DD サクバズ本番障害
+影響時間: HH:MM - HH:MM JST（合計 XX 分）
+影響ユーザー: 推定 XXX 名（Vercel Analytics のトラフィック × エラー率）
+影響金額: 応募機会損失 ≒ 平均応募数 × ダウンタイム分
+タイムライン（JST）:
+  HH:MM  第一報 Sentry alert
+  HH:MM  Kuu が oncall 認知（MTTA）
+  HH:MM  Blue-Green ロールバック完了（MTTR = XX 分）
+根本原因: 5 Whys で depth 5 まで（人でなくシステムを問う）
+再発防止 Action Items（Owner + 期限必須）:
+  - [ ] Kuu: CI に xxx チェック追加（YYYY-MM-DD まで）
+  - [ ] Ao:  Prisma migration に xxx 制約（YYYY-MM-DD まで）
+学び: （非難ゼロ・システム/プロセスの改善のみ記述）
+```
+
+#### C5. Deploy Checklist / CI-CD 図 / Incident Report
+- **Deploy Checklist**: 既存の Pre-Deploy 10 項目に「TLS 期限 30 日以上」「Neon branch 削除済み」「DORA CFR 悪化なし」を追加し 13 項目化・PR テンプレ埋め込み
+- **CI/CD フロー図**: Mermaid でリポジトリ `docs/architecture/cicd.md` に必置（PR → lint/test/security-scan → preview → E2E/Lighthouse → main merge → canary 10%/5min → 100% → Sentry 30min 監視）
+- **Incident Report**（クライアント向け）: 「原因・影響・復旧・再発防止」の 4 段構成、Akari が営業提示用に転記可能な日本語テンプレを `templates/incident-client-report.md` に配置
+
+---
+
+### Gap D: 連携パターン（部内・部門横断）
+
+| 連携先 | インターフェース | 具体運用 |
+|---|---|---|
+| **Kai（PM）** | 週次デプロイダッシュボード共有 | 毎週金 16:00 に DORA 4 指標＋SLO 消化率を Notion「Kai 週次」DB へ自動投稿。悪化検知時は kai がスプリント計画で信頼性投資枠を確保 |
+| **Nao（SD 設計）** | 設計書 STEP 2 完了時の「Kuu 向け 5 ページ」先読み | 外部 SaaS 依存・環境変数キー・リージョン要件・SLO 目標・データ配置国を Nao の設計 PR で Kuu が必須レビュアー化。設計段階でインフラ制約を差し戻し |
+| **Riku（FE）** | Preview デプロイ時の環境差分自動通知 | GitHub PR bot が `NEXT_PUBLIC_*` の diff・隔離 DB 接続先・Feature Flag 状態を PR コメントに列挙、Riku の「ローカルで動くのに preview で違う」問い合わせ 90% 削減 |
+| **Ao（BE）** | `.env.example` 変更コミット `[env]` プレフィックス → Slack #infra 自動通知 → 1 クリック `vercel env add`、3 環境（prod/preview/dev）同時投入。破壊的マイグレは `breaking-migration` label で Kuu 自動アサイン・3 段階デプロイ強制 |
+| **Mio（QA）** | CI Job 境界表を `docs/quality-gate-matrix.md` に明文化 | Kuu 担当（infra-*: env/secret/vuln/rollback/DORA）／Mio 担当（code-*: coverage/E2E/a11y/perf）を GitHub Actions Job 名で物理分離、`needs:` 並列で 8 分 → 3 分 |
+| **Gen（建設業DX）** | 建設業クライアント案件のデータ配置レビュー | どっと原価連携 API の実装時、Gen から業界特有の法定保存期間（建設業法 5〜10 年）・電子帳簿保存法要件を Kuu が受け取り、S3/R2 の Object Lock（WORM）＋ Lifecycle 設定に反映 |
+
+---
+
+### Gap E: 高度技術トピック（実装可能レベルまで習得）
+
+#### E1. Vercel Edge Runtime × Fluid Compute
+- **Fluid Compute**（2026 Q2 GA）: 1 関数インスタンスで複数リクエスト同時処理・cold start 90% 削減・コスト 50% 削減
+- **設定**: `vercel.json` に `{ "functions": { "app/api/**/*.ts": { "runtime": "nodejs20.x", "memory": 1024, "maxDuration": 60 } }, "fluid": true }`
+- **Edge Runtime 判定基準**: `edge` = 認証/リダイレクト/A-Bテスト（軽量・グローバル）／`nodejs`（Fluid）= DB アクセス・重い計算／`edge` は Node API・Prisma 直接接続不可
+
+#### E2. Cloudflare Workers Bindings（前述 A1 の実装詳細）
+- `wrangler.toml` サンプル: `[[kv_namespaces]] binding="SESSIONS" id="xxx"` ／ `[[r2_buckets]] binding="RESUMES" bucket_name="sakubuzz-resumes"` ／ `[[queues.producers]] binding="AIRWORK_SYNC" queue="airwork-batch"`
+- Service Bindings で Worker 間直接呼び出し（HTTP コストゼロ）
+
+#### E3. Terraform / Pulumi 選定基準
+- **Terraform**: 宣言的 HCL・エコシステム最大・state 管理必須（S3 + DynamoDB lock）／LET 標準採用
+- **Pulumi**: TypeScript で書ける・単体テスト容易／複雑な条件分岐が必要な案件のみ
+- **クリックオプス禁止ルール**: 手動 UI 変更は月次 `terraform plan` で必ず差分検出、次スプリントで IaC 化を Kai 承認で強制
+
+#### E4. GitOps（ArgoCD 相当を Vercel で実現）
+- Vercel は Git-driven デプロイが標準（`main` push = 本番）で GitOps 準拠
+- Kubernetes 案件が発生した場合: ArgoCD v2.13+ で Git を Single Source of Truth 化・`Application` CR で自動同期・drift 検出時 Slack 通知
+
+#### E5. Blue/Green・Canary・Feature Flag
+- **Blue/Green**: Vercel の Atomic Deployment が標準対応（旧版 URL 永続保持 → 1-click Promote）
+- **Canary**: Vercel Edge Middleware で `Math.random() < 0.1` 判定 → 10% を新版 URL へ rewrite、5 分監視後 100%
+- **Feature Flag**: `@vercel/flags` v3+ ／ Statsig（無料枠 100 万 events/月）で「クライアント別に新機能開放」を実装、コードデプロイと機能公開を分離
+
+#### E6. OpenTelemetry 計装 + Datadog RUM
+- **サーバー側**: `@vercel/otel` で自動計装＋手動 span（`tracer.startActiveSpan('airwork.sync', ...)`）
+- **クライアント側 RUM**: Datadog RUM SDK（`@datadog/browser-rum` v5+）で Core Web Vitals・エラー・セッションリプレイを収集、Riku と共有
+- **相関**: `trace_id` を HTTP ヘッダー `traceparent` で FE → API → DB まで貫通、Grafana Tempo で 1 画面追跡
+
+#### E7. Cost Optimization
+- **Vercel**: Fluid Compute 移行で $/req 50% 減／ISR で SSR コスト削減／Image Optimization は Cloudflare Images に逃がす（Vercel は $5/1000 optimization、Cloudflare は $5/100k）
+- **Neon**: autoscale min 0.25 CU に設定・非本番 branch は 5 分アイドルで自動 suspend
+- **月次 Spend Alert**: Vercel Spend Management で 50%/80%/100% を Slack 通知、100% 到達で自動 pause（ISR revalidate 無限ループ課金爆発を物理防止）
+
+#### E8. GDPR / 個人情報保護法データ配置
+- **原則**: 日本国内ユーザーの個情は `ap-northeast-1`（東京）に閉じ込め、越境データ移転（Vercel us-east でのログ保持等）は SCC / 十分性認定で法的根拠を確保
+- **実装**: Neon Tokyo region 指定・Vercel Function `regions: ["hnd1"]`・ログドレインは Grafana Cloud AP-Northeast エンドポイント・Sentry も EU/JP data residency を有料プランで選択
+- **nori 連携**: 新規 SaaS 導入時に「① 保存リージョン ② SCC ③ 解約時削除条項 ④ サブプロセッサ一覧」を nori にリーガルチェック依頼、契約前関所化
+
+#### E9. SOC2 / Zero Trust 準備
+- **SOC2 Type II 準備項目**: ① 全操作の audit log（Vercel Audit Log API を Grafana Loki 転送）② アクセスレビュー四半期実施（GitHub / Vercel / Neon の member 棚卸）③ 変更管理エビデンス（GitHub PR + Terraform plan の保管）④ インシデント対応記録（Postmortem テンプレ運用）⑤ バックアップ復元テスト四半期実施
+- **Zero Trust**: Cloudflare Access で管理画面を IdP（Google Workspace）SSO + デバイス posture チェック（`WARP` 導入端末のみ許可）／VPN 廃止・Zero Trust Network Access 採用でリモートワーク前提のセキュリティ
+
+#### E10. Anthropic MCP for Infra（2026 新潮流）
+- **MCP サーバー**: Vercel / GitHub / Sentry / Datadog / Neon 公式 MCP を Claude Code に接続し「本番エラーを Sentry MCP で取得 → GitHub MCP で hotfix PR 作成 → Vercel MCP で preview デプロイ確認」を 1 会話で完結
+- **LET 内製 MCP**: Airwork データ MCP・どっと原価 MCP を社内開発、Kuu のインシデント対応初動を AI 自動化
+
+---
+
+### 実装優先順位（2026-09-11 起点・12 週間ロードマップ）
+1. **Week 1-2**: Grafana Cloud + OTel 移行（Datadog 解約でコスト 80% 削減の即効果）
+2. **Week 3-4**: Terraform で Vercel + Neon を IaC 化（クリックオプス撲滅）
+3. **Week 5-6**: SLO / Error Budget 運用開始（Kai と月次レビュー枠設定）
+4. **Week 7-8**: Cloudflare Workers Bindings 実験（サクバズ Edge API PoC）
+5. **Week 9-10**: SOC2 準備の Audit Log / Access Review 体制構築
+6. **Week 11-12**: MCP による自動インシデント対応 PoC・DORA Elite 水準到達
+
+> このセクションは 2026-09-11 のスキル拡張により追加された。元プロフィール・役割定義・作業フロー・出力フォーマット・追加能力セクションは一切改変していない。以降の Daily Knowledge Log は日次学びの追記領域として維持する。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

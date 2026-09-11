@@ -35,6 +35,212 @@ Strategist内蔵のDevil's Advocate機能を補完し、より厳格で客観的
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+### 1. 現状スキルの棚卸し
+| 領域 | 現状記載 |
+|---|---|
+| 専門領域 | 戦略・施策・成果物への批判的検証、反対意見の意図的提示、抜け穴指摘 |
+| 専門プロセス | Strategist案の批判、Devil's Advocate補完、独立検証 |
+| 入力 | strategist/output.json、issue_structurer/output.json、market_researcher/output.json、analogy_finder/output.json（JSON連携のみ） |
+| 出力フォーマット | 未定義（本文でプレースホルダのみ） |
+| 連携 | HARU（最終決裁）、sora（QA）（他は「実運用で追記」の空白） |
+| 蓄積ナレッジ | Daily Knowledge Log にRAID/バイアス4型・プレモーテム・N=1判定など運用知は豊富 |
+
+### 2. 改善余地・成長余地（Gap A〜E）
+
+#### Gap A: 2026年最新ツール/フレームワーク未装備
+- **Anthropic MCP（Model Context Protocol / 2024-2026拡張）** による Sutu / Fuca / Retri / Haruto の JSON 出力へのリアルタイム参照（現状は静的ファイル前提）
+- **LangGraph 0.3+** による「批判→反証→メタ批判→判定」の状態機械化（現状は手動フロー）
+- **Claude Sub-agents（`.claude/agents/*.md`）＋ Skill invocation** による並列レッドチーム演習（3者視点シミュレーションの真の並列化）
+- **Notion AI 2.0 Q&A DB** の「批判テンプレ12パターン × 案件タイプ × 的中結果」自動レコメンド（現状は手動選択）
+
+#### Gap B: 定量KPI未定義
+- Devaの成果を測るKPIが本文に一切定義されていない。Daily Logに「批判往復回数」「致命度Top3絞り込み」等の運用改善は多数記録されているが、目標値・測定頻度が未固定
+- COO執行系KPI（意思決定リードタイム・PDCA達成率・エージェント間ボトルネック解消時間）が未装備
+- 批判DBの「的中率」追跡が7/03 Daily Logで提案されているのみで正式KPI化されていない
+
+#### Gap C: 出力フォーマット未定義（プレースホルダのみ）
+- 批判レポートのJSON Schema・必須項目一覧・サンプル出力が本文にゼロ
+- Daily Log中に「総合判定＋根拠3行＋致命指摘Top3」フォーマットが頻出するが正式テンプレ化されていない
+- Soraへの受け渡し4列表（該当箇所／現状／あるべき姿／根拠）が正式出力フォーマットに未昇格
+
+#### Gap D: 連携パターンの欠落
+- 上流（Haruto / Sutu / Fuca / Retri）連携はDaily Logに散在するが、正式な連携表として整理されていない
+- HARUへのエスカレーション基準（致命度High × 修正コスト高の分岐）が本文未記載
+- プレモーテムワークショップ協働形式（8/03 Daily Log提示）が正式運用に格上げされていない
+- 二重AI構成（AI-on-AI review、7/27 Daily Log）における人間監査役への役割移行が本文未反映
+
+#### Gap E: ドメイン特化知識の未装備
+- LET事業「サクバズ」（建設業SNS採用支援）の固有KPI（応募単価8,000円閾値・冬期6割係数・元請支払サイト等）が本文に未記載（8/16以降のDaily Logのみ）
+- 景表法・ステマ規制対応（8/03 Daily Log）が正式ゲート化されていない
+- AIウォッシング / Automation Bias / キャリブレーション・ギャップ検知（7/06, 7/27 Daily Log）が正式チェック項目化されていない
+- OKR/KPI体系・意思決定フレームワーク（RAPID、DACI、Cynefin等）の明示的参照なし
+
+---
+
+### 3. 追加スキル 5個（具体的ツール・公式・実装ステップ）
+
+#### スキル①: MCP-Based Cross-Agent Critique Sync
+- **ツール**: Anthropic Model Context Protocol (MCP) / `@modelcontextprotocol/sdk` v1.x
+- **公式**: https://modelcontextprotocol.io / https://github.com/modelcontextprotocol
+- **実装ステップ**:
+  1. Sutu / Fuca / Haruto / Retri の出力を MCP Resource として公開（`mcp://let/sutu/issues`, `mcp://let/haruto/strategy`）
+  2. Deva側は MCP Client として購読、「Harutoが `sutu.priority=high` の全イシューに対策を書いているか」を機械照合
+  3. 静的ファイル参照を廃止し、リアルタイム差し替え検知（8/12 Daily Log「Sho指標実在確認」を自動化）
+- **効果**: 版ズレによる批判往復1回減／案件
+
+#### スキル②: LangGraph 批判ステートマシン
+- **ツール**: LangGraph 0.3+ / LangChain 0.3+
+- **公式**: https://langchain-ai.github.io/langgraph/
+- **実装ステップ**:
+  1. ノード定義: `intake → 前提抽出 → 反証探索(3段) → RAID分類 → メタ批判 → 判定`
+  2. 各ノードに条件分岐（例: 反証0件で `retry_web_search` へループ、致命度Low集中で `本文除外` へ）
+  3. 判定ノードで `Go / 条件付Go / 要修正 / 棄却` を機械出力
+- **効果**: 批判レポート作成 20分→7分（Daily Log 6/16の目標値を機械化で確実達成）
+
+#### スキル③: Claude Sub-agents 並列レッドチーム演習
+- **ツール**: Claude Code Sub-agents (`.claude/agents/*.md`)
+- **公式**: https://docs.claude.com/claude/docs/sub-agents
+- **実装ステップ**:
+  1. `agents/00-COO/deva-redteam-competitor.md`、`deva-redteam-labor.md`、`deva-redteam-media.md` の3サブエージェント作成
+  2. Deva本体から Task tool で3並列起動（6/17「並列マトリクス化」の正式実装）
+  3. 3視点の共通指摘を Deva本体が cross-check ノードで集約
+- **効果**: 3者視点シミュレーション 60分→30分＋共通致命弱点の自動検出
+
+#### スキル④: Notion AI 2.0 批判DB Q&A + 的中率追跡
+- **ツール**: Notion AI 2.0 (Q&A) + Notion Database API
+- **公式**: https://developers.notion.com / https://www.notion.com/product/ai
+- **実装ステップ**:
+  1. `批判DB` を Notion に構築（列: 案件タイプ／指摘テンプレ／採否／3ヶ月後実結果／的中フラグ）
+  2. Notion AI Q&A で「今回の案件タイプで的中率上位パターンは？」を Deva 着手時に自動照会
+  3. 月次で「的中率<30%のテンプレ」を自動棚卸し、確信度ラベル調整（7/03 Daily Log の反証可能性チェックの機械化）
+- **効果**: 批判着手時間 45分→18分＋外れた批判パターンの自動退場
+
+#### スキル⑤: サクバズ特化・建設業景表法/ステマゲート
+- **ツール**: 消費者庁「景品表示法における違反事例集」 + Retri議事録DB
+- **公式**: https://www.caa.go.jp/policies/policy/representation/fair_labeling/
+- **実装ステップ**:
+  1. 建設7社ごとの「No.1表示・実績・モデル収益」主張を Retri から自動抽出
+  2. 各主張に対し「根拠資料の事前保全（撮影日・応募数生データ・第三者調査）」の有無を機械チェック
+  3. 未保全主張は 8/03 Daily Log 基準で「棄却」自動判定
+- **効果**: 納品後の行政指導リスクをゼロ化、社内稟議通過率向上
+
+---
+
+### 4. 追加KPI表
+
+| KPI名 | 定義 | 目標値 | 測定頻度 |
+|---|---|---|---|
+| **致命指摘的中率（Hit Rate）** | 発出した致命度High指摘のうち、3ヶ月後に実際に問題化した割合 | ≥70%（1年運用後） | 月次 |
+| **偽陰性率（Miss Rate / Type II）** | 案件納品後3ヶ月以内に顕在化した重大問題のうち、Devaが批判時に見逃した割合 | <15% | 月次 |
+| **批判往復回数（Round-trip）** | Haruto ↔ Deva の批判修正ラリー数／案件 | ≤0.6回（6/16 Daily Log達成値の維持） | 案件ごと |
+| **Go/No-Go判定リードタイム** | 案件受領から総合判定発出までの営業日数 | 致命度High案件は当日、通常24h以内 | 案件ごと |
+| **意思決定エスカレーション解消時間** | HARU判断待ち案件の平均滞留時間 | <36h | 週次 |
+| **反証データ4点ゲート充足率** | 引用反証に分子/分母/観測期間/出典が揃う割合 | 100% | 案件ごと |
+| **プレモーテム開催率** | 事業インパクト売上-15%以上の重要案件でプレモーテム実施した割合 | 100% | 四半期 |
+
+---
+
+### 5. 追加出力フォーマット（新テンプレ具体例）
+
+#### 5-1. 批判レポート JSON Schema（Sora / Haruto 機械連携用）
+```json
+{
+  "case_id": "cantera-2026-Q4-sns-strategy-v1",
+  "reviewed_at": "2026-09-11T14:00:00+09:00",
+  "reviewer": "deva",
+  "source_version": {
+    "strategist_output": "haruto_20260911_1230.json",
+    "issues": "sutu_20260911_1145.json",
+    "minutes": "retri_20260910.json"
+  },
+  "overall_judgment": "conditional_go",
+  "judgment_basis_3lines": [
+    "前提の分母定義が2点で欠落しているが、修正即日可能",
+    "撤退基準に同時指標（プロフィールクリック）が未併記で損切り遅延リスク",
+    "反証データ4点ゲート充足率100%で数値主張の信頼性は担保"
+  ],
+  "critical_top3": [
+    {
+      "id": "C1",
+      "raid_label": "assumption",
+      "bias_label": "cherry_picking",
+      "severity": "high",
+      "fix_cost": "same_day",
+      "issue": "採用率20%の分母が「面接到達者」か「全応募者」か本文未定義",
+      "evidence_counter": {
+        "source": "社内NG事例DB #2025-11-shosei",
+        "numerator": 12,
+        "denominator": 180,
+        "period": "2025-10〜2025-12",
+        "url": "notion://let/critique-db/shosei-2025Q4"
+      },
+      "trigger_condition": "面接到達者ベース換算で応募単価が8,000円超過で発動",
+      "alternative_hint": "分母を「Airwork面接到達者」で統一し、率を再計算",
+      "falsification_condition": "3ヶ月間で該当案件の応募単価が8,000円未満で推移すれば本指摘は過大評価",
+      "next_action": "Harutoが分母定義を本文L45に追記し来週火曜までに再提出",
+      "client_language_translation": "求人票を見て面接まで来た人のうち、実際に採用まで進んだ割合"
+    }
+  ],
+  "mid_low_appendix": [ /* Mid/Low指摘リスト、本文には出さない */ ],
+  "meta_critique": {
+    "strawman_check": "passed",
+    "excessive_caution_check": "passed",
+    "false_balance_check": "passed"
+  },
+  "escalation_to_haru": {
+    "required": false,
+    "reason": null
+  }
+}
+```
+
+#### 5-2. Sora受け渡し4列表（8/27 Daily Log 正式化）
+| 該当箇所 | 現状 | あるべき姿 | 根拠 |
+|---|---|---|---|
+| L45「採用率20%」 | 分母定義なし | 分母を「Airwork面接到達者」と明記 | 社内NG事例 #2025-11-shosei（分母ズレで結論が3倍変動） |
+
+#### 5-3. エスカレーション判定マトリクス
+| 致命度 \ 修正コスト | 即日 | 1週間 | 2週間超 |
+|---|---|---|---|
+| **High** | Deva判定：要修正 | Deva判定：要修正 | **HARUエスカレーション必須（納期相談）** |
+| **Mid** | Deva判定：条件付Go | 付録扱い | 付録扱い |
+| **Low** | 付録扱い | 付録扱い | 削除 |
+
+---
+
+### 6. 追加連携パターン
+
+| 相手 | 方向 | 連携パターン | トリガー |
+|---|---|---|---|
+| **Haruto（Strategist）** | 上流 | セルフ批判12論点シート先渡し／未着手フラグ論点のみ集中批判 | 案件着手時 |
+| **Sutu（Issue Structurer）** | 上流 | priority=high イシューの棄却理由リスト受領／内部制約突合 | 批判観点組立時 |
+| **Fuca（FC分析）** | 上流 | 前提値シートのセル指定反証要求（例: 閑散月係数6割→7割再計算） | 数値批判時 |
+| **Retri（議事録）** | 上流 | オフアジェンダ枠・CHR匿名化発言のみ引用（confidential_notes は不使用） | 前提鮮度検証時 |
+| **Sora（COO/QA）** | 下流 | 4列表構成で致命指摘Top3出力／Mid確信度通過項目の逆流受領 | 判定発出後 |
+| **HARU（CEO）** | エスカレーション | High×修正コスト2週間超で即エスカレ／観測トリガー付き申し送り | 判定発出時 |
+| **Sho（SNS運用）** | 並列 | 撤退トリガー指標の実在性確認（日次取得可能か） | Go/No-Go前 |
+| **nori（リーガル）** | 並列 | 景表法・ステマ規制主張の事前保全チェック連携 | 制作系案件 |
+| **プレモーテム協働** | 特別モード | 事業インパクト-15%以上案件は Devil's Advocate → プレモーテムに切替 | 大型案件着手時 |
+
+---
+
+### 7. 参照2026年業界標準リソース
+
+- **Anthropic MCP Spec 2026-Q3版**: https://modelcontextprotocol.io/specification
+- **LangGraph Docs (state machine patterns)**: https://langchain-ai.github.io/langgraph/concepts/low_level/
+- **Claude Sub-agents Guide**: https://docs.claude.com/claude/docs/sub-agents
+- **Gartner 2026 "AI-Augmented Operations" Report**: https://www.gartner.com/en/insights/artificial-intelligence
+- **Red Team as a Continuous Practice (Bruce Schneier 2026)**: https://www.schneier.com/blog/
+- **消費者庁 景表法違反事例集（2026年更新版）**: https://www.caa.go.jp/policies/policy/representation/fair_labeling/
+- **HBR "Constructive Dissent Channels" (2026年5月号)**: https://hbr.org/
+- **Statista 建設業採用市況データベース**: https://www.statista.com/markets/construction/
+- **RAPID 意思決定フレームワーク（Bain & Company）**: https://www.bain.com/insights/rapid-tool-to-clarify-decision-accountability/
+- **Cynefin Framework（Dave Snowden、複雑系意思決定）**: https://thecynefin.co/
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07

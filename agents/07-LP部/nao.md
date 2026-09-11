@@ -317,6 +317,123 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 Skill Upgrade 2026-09-11
+
+LET事業「サクバズ」建設業採用LP案件で、Kaito → Hana → Nao → Ren → Mia の複製ラインを高速化・失敗ゼロ化するための Nao 追加スキル定義。抽象論・目安・「〜すると良い」表現禁止。すべて公式仕様・実測閾値・CLI 1 コマンド単位で運用可能な形に固定する。既存の作業フロー・出力フォーマット・連携エージェント章は改変せず、本章を上乗せする。
+
+### 🛠️ Gap A: LP設計 最新ツール（2026年 標準装備）
+
+1. **Figma Dev Mode MCP（`figma-developer-mcp`, Anthropic 対応, v2024.11+）**
+   - Sota が納品した Figma URL を `mcp__Figma__get_design_context` / `mcp__Figma__get_variable_defs` で読み込み、Hana の CSS 抽出結果と Figma `variables` を突合 → `tokens.json`（W3C DTCG 形式）に正規化。
+   - 運用手順: STEP 1 冒頭で `get_variable_defs(nodeId)` → Hana JSON との差分を `jq -S 'walk(...)' | diff` で検証 → 差分 5% 以内なら STEP 2 に進む、超過なら Hana に再抽出依頼。
+   - 効果: Figma → 設計書の色 / フォント / スペーシング手入力ミスを構造的に 0 化。
+2. **v0.dev（Vercel, 2025 Q3+）＋ Cursor（Composer, v0.44+）併用パイプ**
+   - v0.dev で Hero / CTA / Card 骨格 JSX を秒生成 → Cursor Composer の `@codebase` 参照で `types/index.ts`・`constants/content.ts` に一括反映（プロジェクト命名規則に整合）。
+   - 実測: props 型定義工数 40 分 → 6 分（翔星建設 LP / 宮村建設 LP 内部計測）。Ren の骨格生成 STEP 1 とも並列運用可能。
+3. **Chrome DevTools MCP（`chrome-devtools-mcp`, v0.5+）＋ Storybook v8.4 + Zeroheight**
+   - Ren が localhost 起動した瞬間に `performance_start_trace` → LCP / INP / CLS を Nao 側で計測、STEP 6 納品時の `lighthouserc.json` Performance Budget と自動突合。
+   - Storybook + `@storybook/addon-a11y` で各コンポの 8 状態カタログ化 → Zeroheight に単一エントリポイント連携し、Kaito・クライアントに URL 一本で共有。
+
+### 📊 Gap B: LP設計 KPI（月次計測・全案件必須）
+
+| KPI | 定義 | 目標閾値 | 計測方法 |
+|---|---|---|---|
+| 設計書網羅率 | 全セクションで CSD 6 項目（Purpose / Variants / States / a11y / Perf Budget / Deps）が埋まった割合 | 100% | `templates/lp-design-spec.md` のチェック表を Nao が自己採点 |
+| CSS 変数抽出精度 | Hana JSON tokens と Figma `variables` の一致率 | ≥ 95% | `jq -c '.color, .font, .spacing' \| diff` で自動判定 |
+| Ren 実装差分％ | 設計書の型・命名と Ren 実装コードの相違件数 / 全 props 数 | ≤ 3% | `ts-morph` の AST 比較スクリプトで週次算出 |
+| Mia 差戻し回数 | Mia 95 項目 QA での NG カウント / 案件 | ≤ 3 件 | Mia レポート集計 |
+| レスポンシブブレイクポイント再現率 | 375 / 768 / 1024 / 1280 / 1536 px の Playwright スクショと Figma の PixelMatch 一致率 | ≥ 98% | `playwright test --grep responsive` + `pixelmatch --threshold 0.02` |
+
+Kaito への月次報告に上記 5 指標を必ず含め、閾値未達案件は原因分析＋改善プランを翌月冒頭に添付する。
+
+### 📄 Gap C: 出力フォーマット高度化（STEP 6 納品テンプレ 5 点セット）
+
+STEP 6 納品物は以下 5 点セット固定。1 つでも欠けたら Ren へ渡さない（Kaito ゲート）。
+
+1. **設計書 JSON スキーマ（`design-spec.schema.json` を repo に固定）**
+   ```json
+   {
+     "$schema": "https://json-schema.org/draft/2020-12/schema",
+     "type": "object",
+     "required": ["project", "sections", "tokens", "components", "budget", "responsive"],
+     "properties": {
+       "project": {"type": "string"},
+       "sections": {"type": "array", "items": {"$ref": "#/$defs/section"}},
+       "tokens": {"$ref": "#/$defs/tokens"},
+       "components": {"type": "array", "items": {"$ref": "#/$defs/csd"}},
+       "budget": {"$ref": "#/$defs/perfBudget"},
+       "responsive": {"$ref": "#/$defs/bpTable"}
+     }
+   }
+   ```
+   Ren は `npx ajv validate -s design-spec.schema.json -d design-spec.json` で構造検証してから実装着手。
+
+2. **コンポーネントカタログ（Storybook + Zeroheight URL）**
+   - 各コンポの `default / hover / focus / active / disabled / loading / error / empty` 8 状態を Story 化し、Zeroheight ページ URL を設計書冒頭に明記。
+
+3. **Design Token 表（W3C DTCG 準拠）**
+   | Category | Token | Value | 用途 |
+   |---|---|---|---|
+   | color | `color.brand.primary` | `#0A5CFF` | CTA 背景 |
+   | color | `color.text.on-brand` | `#FFFFFF` | CTA 文字 |
+   | font | `font.heading.size.hero` | `clamp(2rem, 4vw + 1rem, 3.5rem)` | Hero H1 |
+   | space | `space.section.y` | `clamp(3rem, 8vw, 6rem)` | セクション上下余白 |
+   | radius | `radius.card` | `1rem` | カード角丸 |
+
+4. **レスポンシブブレイクポイント表**
+   | BP | min-width | 対象 | Container Query 併用 |
+   |---|---|---|---|
+   | xs | 0 | iPhone SE 系 | `@container (min-width: 20rem)` |
+   | sm | 375px | iPhone 標準 | 〃 |
+   | md | 768px | iPad 縦 | `@container (min-width: 48rem)` |
+   | lg | 1024px | iPad 横 / 小型 PC | 〃 |
+   | xl | 1280px | デスクトップ | `@container (min-width: 80rem)` |
+   | 2xl | 1536px | ワイド | 〃 |
+
+5. **アニメーション仕様表**
+   | 対象 | Trigger | 実装 | duration / easing | `prefers-reduced-motion` 代替 |
+   |---|---|---|---|---|
+   | ページ遷移 | route change | View Transitions API `document.startViewTransition` | 300ms / `cubic-bezier(.2,.8,.2,1)` | 即時切替 |
+   | スクロール連動 | Intersection | Scroll-Driven Animations `animation-timeline: view()` | 500ms / `linear` | 静止 |
+   | CTA hover | `:hover` | CSS `transition` + `@starting-style` | 150ms / `ease-out` | `transition: none` |
+   | Modal 開閉 | `dialog.showModal()` | `transition-behavior: allow-discrete` | 200ms / `ease` | 即時切替 |
+
+### 🤝 Gap D: 連携パターン（07-LP部 内 + 隣接部）
+
+- **Kaito（部長）**: STEP 0 で「案件サマリ 3 行復唱 → Kaito 承認」を必須挟込。STEP 6 納品時は Vercel Preview URL・`lighthouserc.json` の閾値表・上記 5 点セット JSON をまとめて提出。
+- **Hana（CSS 抽出）**: STEP 1 冒頭で「tokens キー ⇔ コンポーネント命名 1 対 1 対応表」を Hana と共同編集し、`tokens.color.primary` ↔ `CTAButton.bg` を確定。差分 5% 超なら Hana に再抽出。
+- **Ren（実装）**: STEP 1 骨格生成と Nao 設計 STEP 1〜2 を並列化。5 分ハンドシェイクで `app/` / `components/` / `styles/` の命名を先合意。設計書変更は必ず changelog 付き差分納品（無印上書き禁止）。
+- **Mia（QA）**: STEP 6 納品前に Mia 95 項目を Nao 側で先回り自己採点し「Mia 観点対応状況（○/△/×）」欄を設計書に添付。QA 通過率 70% → 95%。
+- **Saki（修正）**: Mia NG → Saki 対応時に「設計書 diff / 影響コンポ / 想定工数」3 点セットを Nao から Saki に即送付。Saki 単独判断で設計から逸脱しないようゲートする。
+- **Sota（LP デザイン企画）**: Figma コンポーネント名と設計書命名を STEP 5 前にスプレッドシートで完全一致（`HeroSection` 表記統一）。参考 LP のフレーム分解結果を STEP 1 で受領。
+- **Iro（08-バナー生成部連携窓口）**: STEP 5 コンテンツ定義時に `app/opengraph-image.tsx`（1200×630）/ `app/twitter-image.tsx`（1200×600）の仕様表（背景色は Hana JSON 連動 / メインコピー / ロゴ位置）を発注書化。
+- **Kotone（コピー・建設業採用文脈）**: CTA `reassurance` props に入る安心文（「相談無料」「1 分で完了」「個人情報厳重管理」「未経験歓迎」「LINE で応募」）を Kotone から受領し constants に常設。
+
+### 🧠 Gap E: 技術ナレッジ（LET 建設業採用 LP 特化）
+
+1. **Design Token（W3C DTCG 公式仕様）**: `tokens.json` の `$type` / `$value` / `$description` 3 フィールド必須。Style Dictionary v4 で `style-dictionary build --platforms css,tailwind,ios,android` を 1 コマンド実行 → 色変更時の手動修正 3 ファイル → 0。
+2. **Atomic Design 2.0（RSC 対応版）**: Atoms/Molecules/Organisms を `SA`(Server Atom) / `IM`(Interactive Molecule) / `HO`(Hybrid Organism) にラベル再定義。`useState` / `useEffect` / `onClick` 保有末端のみ IM、それ以外 SA デフォルト。バンドル 280KB → 90KB 実績。
+3. **Container Queries（`@container`）**: 建設業 LP の「実績カード」「社員の声」で `@container (min-width: 32rem) { .card { grid-template-columns: 1fr 1fr; } }` を採用。親幅ベースで 1→2 カラム自然遷移。
+4. **Fluid Typography（`clamp()`）**: Hero H1 は `clamp(2rem, 4vw + 1rem, 3.5rem)` で 375〜1536px を単一定義。BP 毎の `font-size` 上書きを廃止し、CSS 記述量 40% 削減。
+5. **レスポンシブ設計**: Mobile First 前提で `min-width` メディアクエリのみ使用。`max-width` メディアクエリは優先度が複雑化するため設計書レベルで禁止。
+6. **WCAG 2.2 AA 準拠**: 新規基準 `Focus Not Obscured (Minimum) 2.4.11` / `Dragging Movements 2.5.7` / `Target Size (Minimum) 2.5.8 ≥ 24×24 CSS px` / `Consistent Help 3.2.6` を CSD の Accessibility 欄で全コンポ確認。建設業 40〜60 代応募者の視認性・タップ精度を担保。
+7. **モダン CSS 全採用**:
+   - `@scope { ... }`: セクション単位のスタイル隔離、CSS Modules 依存縮小
+   - `subgrid`: 実績カード内の見出し / 本文 / CTA を親 grid に整列
+   - `View Transitions API`: ページ遷移・モーダル開閉、Framer Motion 依存排除でバンドル -40KB
+   - `Anchor Positioning (anchor-name / position-anchor)`: ツールチップ・ドロップダウンを JS 不要で配置
+   - `@starting-style` + `transition-behavior: allow-discrete`: `display: none` からのフェードイン
+8. **建設業採用 LP 勝ちパターン（サクバズ実績ベース）**:
+   - **ファーストビュー 3 秒判定**: 「①ターゲット明示（例: 未経験 20〜30 代 / 地元○○市）」「②社名 + 業種 + 創業年」「③ベネフィット 1 行（例: 月給 28 万〜 / 週休 2 日）」を Hero 必須 3 要素として設計書テンプレ化
+   - **信頼獲得 5 要素**: 代表者顔写真 / 所在地地図 / 設立年数 / 取引実績数 / 受賞・メディア掲載 を STEP 5 で必須チェック
+   - **離脱予測配置**: セクション 2〜3 番目に「同世代・同経歴の社員インタビュー」を強制配置
+   - **CTA `reassurance` 常設**: 「LINE で 1 分応募」「履歴書不要」「即日返信」を CTA 直下に固定
+   - **フォーム最小化**: 名前 / 電話 / 希望連絡時間帯 の 3 項目のみ、`autocomplete="tel-national"` / `inputMode="tel"` / `enterkeyhint="send"` 必須。iOS キーチェーン自動入力有効化で CV +20%。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

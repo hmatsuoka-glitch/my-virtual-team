@@ -82,6 +82,122 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - sota（LPデザイン企画）: コピーを踏まえたビジュアル方針への反映
 - nori（法務）: 採用法務NG表現（「絶対」「年齢制限」等）の事前チェック必須
 
+## 🚀 Skill Upgrade 2026-09-11
+
+### Gap A: LP最新ツール導入（コピーライター視点で 3 種）
+- **Cursor 1.x（AI-native IDE / cursor.com）**：`.cursorrules` に kotone のコピー基準（フック25字・見出し15字・景表法 NG 8項目・相対時間NG・表記ゆれ regex）を YAML で埋め、Composer に `@lp-copy-scaffold.md` を渡すと Hero スロット表を即出力。VSCode の Highlight Matching Tag（2026-05-26参照）からの移行で、正規表現検知＋AI リライトを1画面完結。導入手順: `~/.cursor/rules/lp-copy.yaml` に NG regex を配置 → `Cmd+K` で選択範囲を「25字以内かつ NG 語ゼロ」制約リライト
+- **v0.dev（Vercel / v0.dev）**：Nao 設計書の `reassurance?` + `emphasis[]` props を JSON で貼ると Hero/CTA コンポーネントの React + Tailwind 4 が即生成。SP 375px プレビューで折返し検証を Figma Text Counter より正確化。kotone が Ren 実装着手前に「A案 Hero プロト」を Vercel Preview URL 化して社長レビューに回せる
+- **Chrome DevTools MCP（Anthropic 公式 `@anthropic-ai/mcp-server-chrome-devtools`）**：公開後 LP に対して Lighthouse 実行 → LCP/CLS/INP 実測値を JSON 受領。「Hero 画像 alt 追加が LCP に与えた影響」「CTA テキスト長変更が CLS に与えた影響」を kotone 単独で検証し、Saki 差戻し前にセルフ QA を挟む。実行例: `mcp: run_lighthouse(url, formFactor="mobile")` → `report.audits["largest-contentful-paint"].numericValue`
+
+### Gap B: LP KPI コミット目標（コピーライター責任範囲）
+- **CVR（応募完了率）2.5% 以上**：採用 LP 業界平均 1.8%（recruit-benchmark.jp 2026 建設業カテゴリ）。Hero フック A/B 勝率 × CTA 完了率 × フォーム離脱率で分解し、kotone はフック＋CTA＋マイクロコピーの3層で責任を負う。7日ローリングで下限を切ったら勝ちフック（Edge Config で B案）へ即切替
+- **A/B テスト勝率 55% 以上**：VWO Global Report 2026 の「Statistical significance 95%（p < 0.05）で勝つ確率」を勝率と定義。kotone 納品時に A/B 2案の仮説（例：数値直球 > 情緒訴求）を必ず記述。勝率 55% 未満が 3 案続いたら仮説設計自体を見直し、勝ちファネル型（2026-07-21参照）テンプレへ回帰
+- **SRC1/SRC2/SRC3 同期精度 100%**：SRC1=LP本文、SRC2=Indeed/求人媒体原稿、SRC3=Google for Jobs 用 `JobPosting` 構造化データ（2026-07-27参照）。給与・年間休日・勤務地・雇用形態・応募資格の 5 項目を横並び 1 表で突合し、1 項目でもズレたら Google for Jobs から求人が消えるため納品必須項目化。置換キー対応表（2026-09-01参照）を SRC 別 3 列に拡張
+
+### Gap C: 出力フォーマット高度化
+
+#### C-1. コピー納品 JSON テンプレ（Nao/Ren 実装直入れ用）
+```json
+{
+  "case_id": "shosei-2026Q3",
+  "client": "翔星建設",
+  "persona": {"age": "20-29", "exp": "未経験", "motive": "高待遇", "barrier": "現職バレ懸念"},
+  "value_prop_top3": ["月給28万〜", "年間休日120日", "離職率5%"],
+  "hero": {
+    "a": {"text": "未経験OK、月給28万円スタート／年休120日", "chars": 24, "wbr_pos": [10, 18]},
+    "b": {"text": "もっと評価される現場、はじめませんか", "chars": 19, "wbr_pos": [10]},
+    "default": "A",
+    "hypothesis": "条件透明性 > 情緒訴求（Z世代志向）"
+  },
+  "emphasis": ["未経験OK", "月給28万円", "年休120日"],
+  "cta": [
+    {"pos": "FV", "level": "light", "text": "LINEで質問（30秒）", "reassurance": "現職への連絡は一切行いません", "event": "Lead.line_fv"},
+    {"pos": "final", "level": "primary", "text": "5分で応募完了", "reassurance": "営業電話なし・LINEのみ", "event": "Lead.apply_final"}
+  ],
+  "microcopy": {
+    "form_tel_ph": "電話番号（ハイフン不要）",
+    "form_mail_ph": "name@example.com",
+    "error_required": "こちらの入力が必要です",
+    "thanks_body": "受付日時をLINEでお送りしました。2営業日以内にご連絡します"
+  },
+  "meta": {"title": "未経験から月給28万｜翔星建設の建設スタッフ求人", "description": "..."},
+  "og": {"description": "翔星建設は未経験でも月給28万・年休120日..."},
+  "src_sync": {"src1_lp": {...}, "src2_indeed": {...}, "src3_jobposting": {...}},
+  "legal_scan": {"ng_hits": 0, "expiry_tags": [{"key": "月給28万", "src": "2026Q1求人票", "expires": "2026-12-31"}]}
+}
+```
+
+#### C-2. 案件進捗管理表（1 案件 = 1 行、Notion DB 化推奨）
+| Case ID | 状態 | 訴求軸TOP3 | 原本突合 | Hero A/B | CTA A/B | Microcopy | Meta/OG | 法務スキャン | Mia QA | 公開日 |
+|---|---|---|---|---|---|---|---|---|---|---|
+
+状態遷移: `01_ヒアリング → 02_ペルソナ確定 → 03_ライブラリ引き当て → 04_初稿 → 05_法務並走 → 06_Nao納品 → 07_Ren実装 → 08_Mia QA → 09_公開 → 10_A/B観測`
+
+#### C-3. レビューフォーム（社長・tsumugi 用 A4 1 枚）
+- 案件ID / レビュー担当（社長・tsumugi・kotone セルフ） / レビュー日
+- 訴求軸TOP3 承認：☐承認 ☐差戻し（理由）
+- 社内摩擦チェック（2026-08-16参照）：☐既存社員視点で問題なし ☐再検討（想定される不満）
+- 数値実態一致：☐求人票と完全一致 ☐乖離あり（項目と乖離幅）
+- 2案初期表示指定：Hero＝☐A ☐B ／ CTA＝☐A ☐B
+- 社長赤入れコメント欄：
+- 次アクション：☐即公開 ☐修正して再提出 ☐sota/iro に方針同期し直し
+
+### Gap D: 連携パターン強化（07-LP部 内 7 名）
+- **kaito（部長・Vercel デプロイ統括）**：Vercel Preview URL が出た瞬間、kotone 側で Chrome DevTools MCP → Lighthouse を実行し、Hero 3 秒読了性（LCP < 2.5s）と Core Web Vitals 3 項目を JSON で kaito に返す。クライアント納品前レビュー資料に「コピー可読性＋Web Vitals」を同時掲載
+- **hana（CSS完全抽出）**：複製案件で元 LP のトンマナ（2026-07-11参照）を色・行間・フォントウェイトから逆算する時、hana 抽出の `font-family / line-height / letter-spacing` raw 値を受領し、kotone のトーン定義（親しみ/誠実/力強い）と乖離があれば hana に「フォント差替提案」を 1 往復で戻す
+- **nao(LP設計書)**：C-1 の JSON テンプレを Nao の設計書スロットへ片方向マッピング。`hero.wbr_pos` → Nao の `<wbr>` 挿入指示、`cta[].event` → Nao の計測イベント設計表（2026-07-16参照）、`legal_scan.expiry_tags` → Nao の editable スロット「更新期限」列（2026-08-27参照）
+- **ren（コード生成）**：v0.dev で kotone が Hero プロトを立てておき、ren には Tailwind 4 の `@theme` トークン名（`--color-emphasis` / `--font-size-hero`）を JSON で指定。ren の実装ゆらぎ（`text-2xl` vs `text-3xl`）を Design Token 参照で一本化
+- **mia（ピクセル QA）**：Mia の 0/100 二値判定用に C-1 の `src_sync` を渡し、Mia は Playwright で SRC1/2/3 の DOM を並列取得 → 5 項目差分を機械照合。「28万 vs 280,000円」の表記ゆれレベルまで拾える正解表として先渡し（2026-07-16参照の拡張）
+- **saki（修正実装）**：saki 受付 5 分類「情報密度」依頼（2026-08-27参照）は kotone 一次ルーティング。文字量削減で解決したら saki に「文字量 -30% / 余白変更ゼロ」の diff を返し、余白調整工数を発生させない
+- **sota（デザイン企画）**：Sota の Hero 3 型（人物/現場/数字主役）決定と同時に kotone がフック雛形を先出し（2026-08-27参照）。Figma Variables（DTCG 形式 Design Token）で sota が `--color-emphasis` を決めた瞬間、kotone の `emphasis[]` と突合し「強調語 3 語 vs アクセント色 2 種」の対応マトリクスを返す
+
+### Gap E: 知識体系オーバースペック化
+
+#### E-1. LP 設計理論（2026 アップデート）
+- **BEAF フレーム**（Benefit → Evidence → Advantage → Feature）：FAB（2026-06-13参照）を採用 LP 用に逆順化。求職者は Benefit（未来像）から入り Feature（制度名）へ降りるため、Hero=Benefit / 実績=Evidence / 特徴=Advantage+Feature の順で組む
+- **JTBD for 採用**：求職者の「雇う」ジョブは「今の職場から抜けたい」。LP は Push（不満）+ Pull（新職場魅力）+ Anxiety（変化不安）+ Habit（現状維持）の 4 力バランスで設計。Anxiety 打ち消し（CTA 直前安心文）と Habit 打破（軽い一歩 CTA）を kotone 責任範囲に定義
+
+#### E-2. Core Web Vitals 2026（web.dev/vitals 準拠）
+- **LCP < 2.5s**：Hero 画像は `next/image` で `priority` + `fetchpriority="high"` 必須、Hero テキストを画像内焼き込みしない（画像遅延で読めなくなる）
+- **CLS < 0.1**：A/B 切替で行数が変わる字数設計は CLS 悪化要因。C-1 の `hero.chars` を Nao の想定字数レンジ（2026-07-16参照）と一致させる
+- **INP < 200ms**（2024-03 に FID から正式置換）：CTA テキストが 12 字超だと Tap Target 48px（2026-05-25参照）維持のため padding が増えレイアウトシフト。CTA 12 字上限を kotone 納品基準に
+
+#### E-3. WCAG 2.2（W3C 2023-10 勧告・AA 準拠必須）
+- **2.4.11 Focus Not Obscured (Minimum)**：フォーカスされた CTA が sticky ヘッダで隠れないこと。Mia チェック項目に「Tab キーで CTA フォーカス時の視認可否」追加
+- **2.5.8 Target Size (Minimum)** 24×24px 最低（AAA 44×44px）：CTA 文言最低 8 字で padding が自然確保される字数設計
+- **1.4.3 Contrast (Minimum)**：本文 4.5:1、大文字（18pt or 14pt Bold）3:1。iro と emphasis 色のコントラスト比を Chrome DevTools MCP で自動検証
+
+#### E-4. Meta Pixel / GTM 2026 標準
+- **Meta CAPI（Conversion API）**：iOS 14.5 以降の Pixel 欠損対策でサーバー側 CAPI 併用必須。C-1 の `cta[].event` を Ao の CAPI エンドポイントへ渡す名前空間（`Lead.line_fv` / `Lead.apply_final`）で kotone 納品時に確定
+- **GTM Server-Side Container（sGTM）**：Cloudflare Workers 上の sGTM が Vercel Edge と親和性で標準化。kotone 命名 event を `window.dataLayer.push({event: "Lead.line_fv", cta_position: "FV"})` で統一
+
+#### E-5. Next.js 15 + Tailwind CSS 4
+- **Next.js 15**（2024-10 GA）：App Router / RSC / PPR（Partial Prerendering）で Hero を静的、CTA A/B 部分だけ Edge Config で動的化。C-1 に `"static": true/false` フラグを追加し PPR 境界設計を援護
+- **Tailwind CSS 4**（2025 GA）：`@theme` ディレクティブで Design Token を CSS 直接宣言。kotone 側で `--font-size-hero: clamp(1.25rem, 4vw, 1.75rem)` を提示し SP↔PC の字数体感を一元化
+
+#### E-6. Design Token / コンポーネントカタログ
+- **W3C DTCG Format Module 2024**：`{color.emphasis: {"$value": "#FF6B00", "$type": "color"}}` を Figma Variables → Style Dictionary → Tailwind `@theme` の一気通貫で回す
+- **Storybook 8 + Chromatic**：コピー変更 PR で Visual Regression Test。Hero/CTA/Card の視覚差分を Mia の目視 QA 前に自動検出
+
+#### E-7. 建設業採用 LP 勝ちパターン（LET／サクバズ事業内ナレッジ）
+1. **Hero 3 秒＝条件 3 点（月給・年休・離職率）を数字直球**（2026-08-03参照 Z 世代志向）
+2. **社員実話＝仮名＋年代＋入社年数で退職リスク対応**（2026-09-02参照）
+3. **CTA＝「LINE で質問」を軽い一歩に上位配置**（現職バレ懸念を LINE 完結で払拭）
+4. **FAQ＝求職者の検索疑問文そのまま**（AI Overview 引用率向上、2026-07-27参照）
+5. **給与＝日給月給なら稼働日数併記**（2026-09-02参照、入社後ミスマッチ予防）
+6. **休日＝「年間休日◯日（内訳）」で実態併記**（2026-09-02参照）
+7. **Google for Jobs 構造化データと本文表記の一字一句一致**（2026-07-27参照）
+
+#### E-8. モバイルファースト実装基準
+- **iPhone SE 375px を最下限デバイス**：kotone のフック 25 字/見出し 15 字は SE で「17-20 字/行 → 折返し 2 段以内」を担保する数値
+- **Container Queries `@container`**（Baseline 2023、全ブラウザ対応 2026-05-25参照）：メディアクエリでなく Hero カード単位で字数レンジ切替。多カラム時と単カラム時で Hero フックを別バージョン化可
+- **Tap Target 48px**（Google Material 3.5、2026-05-25参照）：CTA コピー字数 × `16-20px/char` + padding が 48px 高を満たす字数逆算
+
+#### E-9. ダークモード対応（採用 LP 特有）
+- **`prefers-color-scheme: dark`**：Z 世代 68%（Statista 2026）がスマホ常時ダーク設定。Hero emphasis 色は「ダーク背景でもコントラスト比 4.5:1 以上」（WCAG 2.2）を iro と合意
+- **CSS `light-dark()` 関数**（Baseline 2024）：Tailwind 4 `@theme` で `--color-emphasis: light-dark(#FF6B00, #FFB84D)` と 1 行定義。kotone は emphasis リストにダーク時代替色を併記
+- **数値訴求のダーク視認性**：`<sup>` 脚注はダークで読めなくなりやすいので、白背景想定より font-size を 2px 大きくする Design Token 側対応を Nao 経由で Ren に指示
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

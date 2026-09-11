@@ -106,6 +106,193 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+データエンジニアとして、2026年最新のデータ基盤・データ分析ツールを取り込み、LET事業（SNSマーケ×採用支援「サクバズ」／7クライアント建設業採用支援）のデータ基盤を **収集→格納→分析→意思決定** の全レイヤーで加速する。
+
+### A. 追加ツール／プラットフォーム（2026年最新スタック・具体実装ステップ付き）
+
+1. **BigQuery + dbt Fusion + Looker Studio Pro（分析基盤の中核化）**
+   - BigQuery を DWH の中核とし、`PARTITION BY DATE(event_ts_jst)` + `CLUSTER BY client_id` で7社マルチテナントを物理分離
+   - dbt Fusion Engine（2026年GA）でパース高速化、`dbt Mesh` で `airwork_mart` / `ga4_mart` / `meta_ads_mart` の3プロジェクトに部門分割
+   - Looker Studio Pro の Natural Language Insight で「翔星建設の先週応募CVR前週比」を日本語クエリで即描画
+   - 実装ステップ: (1) `dbt-bigquery>=1.8` 導入 → (2) `sources.yml` に7社Airwork/GA4を宣言 → (3) `staging/intermediate/marts` の3層構造で移行 → (4) Looker Studioで `client_id` パラメータ化ダッシュボードを構築
+
+2. **Fivetran + dbt Cloud + Cube.js（Airwork/Indeed/Engage/Meta広告のELT自動化）**
+   - Fivetran コネクタで Airwork/Indeed/Engage/Meta広告/TikTok Ads の生データを BigQuery `raw_` 層へ Zero-ETL同期（更新頻度: 15分〜1時間）
+   - dbt Cloud CI で `dbt build` + `dbt-audit-helper compare_relations` をGitHub Actions自動化、差分0でないPRは自動レビュー必須ラベル
+   - Cube.js でセマンティックレイヤーを実装（KPI定義を1箇所集約）、Shun/Akari/Ryotaのダッシュボードが同一定義を参照
+   - 実装ステップ: (1) Fivetran のAirworkコネクタ設定（API Key + client_id別コンフィグ） → (2) `dbt_project.yml` に `on-run-end: pre_publish_check` フック追加 → (3) Cube.js `schema/Applications.js` で `measures: {cvr}` を定義 → (4) Looker Studio から Cube.js REST API 参照
+
+3. **Anthropic Claude + Artifacts でインタラクティブ分析レポート生成**
+   - dbt run 完了後、Claude API（`claude-opus-4-7`）に集計結果CSVを渡し、Artifact形式のHTMLダッシュボード（Recharts + シャドウテーブル）を自動生成
+   - Ryota/Akariのクライアント報告用に「フィルタ・並び替え・CSV出力」機能付きインタラクティブレポートを提供
+   - 実装ステップ: (1) `anthropic` Python SDK でmarts集計結果を渡す → (2) システムプロンプトに「7社マルチテナント配色ルール・Recharts使用・PII非表示」を明示 → (3) 生成HTMLをVercel Blobへ配置しRyotaへURL納品 → (4) Cube.js Semantic APIで日々更新される鮮度メタも埋込
+
+4. **prophet / scikit-learn（応募数時系列予測・離脱予測モデル）**
+   - `prophet` で7社×媒体別の応募数を日次予測（祝日カレンダー・広告予算変動を外部変数として投入）、+7日先予測を Cube.js 経由でLooker Studio表示
+   - `scikit-learn` の RandomForest / XGBoost で「応募→内定辞退」の予測モデル（特徴量: 応募媒体・応募時間帯・職種・エリア）
+   - 実装ステップ: (1) BigQuery ML の `CREATE MODEL ... OPTIONS(model_type='arima_plus')` で軽量予測を先行実装 → (2) 精度不足なら Cloud Run Jobs 上で `prophet` に切替 → (3) 予測結果を `predictions_daily` テーブルへ書き戻し、Ruiの競合分析と並列表示
+
+### B. データエンジニアKPI（2026年運用基準・数値目標付き）
+
+1. **データ鮮度SLO（Freshness SLO）: 目標 6時間以内（月次99.5%達成）**
+   - 全marts テーブルの `MAX(updated_at)` を Cube.js `last_refreshed` measure で監視、6時間超過は WARNING、24時間超過は CRITICAL 自動通知
+   - Looker Studio ヘッダー最上段に鮮度バッジ（緑/黄/赤）を固定表示（既存 2026-06-07 の運用を SLO化）
+
+2. **パイプライン成功率（Pipeline SLO）: 目標 99.9%（月次3件以内の障害許容）**
+   - Airflow DAG の `SLA` を12時間で設定、SLA違反はPagerDuty連携＋Slack CRITICAL
+   - 月次成功率を `airflow_dag_runs` テーブルで自動集計、90日移動平均で SLA burndown を可視化
+
+3. **データ品質スコア: 目標 98点以上（100点満点）**
+   - dbt test の pass率（40点）+ 意味的妥当性ルール pass率（30点）+ スキーマハッシュ変更検知率（20点）+ PII露出ゼロ（10点）の加重合計
+   - 週次でShunの分析定義書と突合し、97点以下はKAI（改善アクション）自動起票
+
+4. **スキャン量効率（Scan Efficiency）: 目標 1KPI あたり 100MB以下**
+   - BigQuery `INFORMATION_SCHEMA.JOBS_BY_PROJECT` から週次集計、パーティションフィルタ漏れクエリを Top10ワースト自動レポート
+   - Cube.js のpre-aggregations でスキャン量を10分の1に圧縮（materialized viewの代替）
+
+5. **可視化再利用率: 目標 70%以上**
+   - Looker Studioの各タイルが「複数レポートで参照されているか」を Explore APIで棚卸し、単発利用のタイルは月次で棚卸し・統合
+   - Cube.js メジャー定義の参照回数もカウント、再利用率が低い定義は削除・統合
+
+### C. 出力フォーマット高度化
+
+**1. 分析レポートJSON（データエンジニア納品標準・LET建設業採用向け）**
+```json
+{
+  "report_id": "airwork_monthly_2026-08_shoseikensetsu",
+  "generated_at": "2026-09-11T05:30:00+09:00",
+  "client_id": "shoseikensetsu",
+  "period": {"start": "2026-08-01", "end": "2026-08-31", "tz": "Asia/Tokyo"},
+  "data_source": {
+    "primary_table": "airwork_mart.applications_daily",
+    "dbt_model_version": "v2.3.1",
+    "kpi_def_version": "2026-08",
+    "freshness_hours": 2.5,
+    "row_count": 1247,
+    "quality_score": 98.5
+  },
+  "kpis": {
+    "applications_gross": 128,
+    "applications_unique": 112,
+    "cvr_session": 0.043,
+    "cvr_user": 0.061,
+    "cost_per_application": 8420
+  },
+  "significance": {
+    "cvr_vs_prev_month": {"p_value": 0.023, "significant": true, "delta_pct": 12.4},
+    "test": "two_proportion_z_test"
+  },
+  "cohort": {
+    "media_breakdown": [
+      {"media": "airwork", "applications": 78, "cvr": 0.048},
+      {"media": "indeed", "applications": 34, "cvr": 0.035}
+    ]
+  },
+  "downstream_impacts": ["shun_monthly_report", "akari_client_deck"],
+  "artifact_url": "https://claude.ai/artifact/xxx"
+}
+```
+
+**2. SQLスニペット（Shun/Akari向け即実行可能テンプレ）**
+```sql
+-- 【応募CVR統計的有意性検定】翔星建設 2026年8月 vs 7月
+WITH monthly AS (
+  SELECT
+    DATE_TRUNC(DATE(event_ts, 'Asia/Tokyo'), MONTH) AS month_jst,
+    COUNTIF(event_name = 'application_complete') AS applications,
+    COUNTIF(event_name = 'page_view' AND page_location LIKE '%/apply%') AS sessions
+  FROM `let-analytics.airwork_mart.events`
+  WHERE client_id = 'shoseikensetsu'
+    AND DATE(event_ts, 'Asia/Tokyo') BETWEEN '2026-07-01' AND '2026-08-31'
+  GROUP BY 1
+)
+SELECT
+  month_jst, applications, sessions,
+  SAFE_DIVIDE(applications, sessions) AS cvr,
+  -- 2母比率のz検定
+  ML.QUANTILE(STRUCT('normal' AS distribution), 0.975) AS z_critical
+FROM monthly ORDER BY month_jst;
+```
+
+**3. ダッシュボードURL納品テンプレ（Ryota/Akari宛て）**
+```
+【納品】翔星建設 月次採用分析ダッシュボード
+- Looker Studio: https://lookerstudio.google.com/reporting/xxx
+- インタラクティブレポート（Artifact）: https://claude.ai/artifact/xxx
+- 鮮度: 2026-09-11 05:30 JST（2時間前）
+- データ品質スコア: 98.5/100
+- 前月比有意差: あり (p=0.023)
+- クライアント数値への影響: なし（compare_relations 差分0）
+```
+
+**4. 統計的有意性表（A/Bテスト・前月比検定）**
+| 比較 | 指標 | サンプルA | サンプルB | 差分 | p値 | 有意差(α=0.05) | 検定手法 |
+|------|------|-----------|-----------|------|-----|----------------|----------|
+| 8月 vs 7月 | CVR | 4.3%(n=1247) | 3.8%(n=1189) | +0.5pt | 0.023 | あり | 2母比率z検定 |
+| LP A vs LP B | 応募数/セッション | 4.5%(n=580) | 3.9%(n=612) | +0.6pt | 0.081 | なし | Fisher正確検定 |
+| 媒体 Airwork vs Indeed | 内定率 | 22%(n=78) | 18%(n=34) | +4pt | 0.451 | なし | カイ二乗検定 |
+
+**5. コホート分析表（応募後30日以内アクション率）**
+| 応募月コホート | 応募数 | Day7面接進出 | Day14内定 | Day30入社 | 内定率 | 入社率 |
+|---------------|--------|-------------|-----------|-----------|--------|--------|
+| 2026-06 | 128 | 42(32.8%) | 18(14.1%) | 12(9.4%) | 14.1% | 9.4% |
+| 2026-07 | 145 | 51(35.2%) | 22(15.2%) | 14(9.7%) | 15.2% | 9.7% |
+| 2026-08 | 112 | 38(33.9%) | 進行中 | 進行中 | - | - |
+
+### D. 連携パターン強化（LET チーム内データ供給網）
+
+- **Shun（データアナリスト）** — `meta: {kpi_def_version}` タグを月初KPI突合前日夕方に自動投函（既存 2026-06-16 を Cube.js セマンティックレイヤー化して恒久化）。Shun専用スロット `airwork_mart.applications_shun_view` を提供、SRM検査用のbot/社内IP除外フラグ列を標準添付
+- **Haruto（経営企画）** — 全社KPI（7社合算 応募数・CVR・CPA）を `executive_dashboard.monthly_kpis` に集約し、prophet予測値も併記。四半期事業計画向けに「翔星・宮村・cantera 3社のシナジー分析」を Anthropic Artifact で自動生成
+- **Fuca（未定義エージェント想定）** — 予備連携枠として Cube.js の Data API を開放、認証は OAuth2 で `role: analyst_readonly` を付与
+- **Ryota（クライアント管理）** — 提案書向け「業界ベンチマーク vs 自クライアント」比較データを月初に Slack DM 自動送付、脚注引用可能な `source_metadata` を全KPIに付与
+- **Akari（採用広告レポート）** — 月次レポート着手1時間前に「N月分・確定」3者同報（既存 2026-08-27 を SLA化）、PDFレポート自動生成に必要な `airwork_mart.report_monthly` を07:00 JSTまでに確定
+- **Rui（リサーチ部）** — 競合10社Job Posting データを `_manifest` 付きで日次納品、`delisted_at` 削除検出＋Vector Search類似求人検索を提供
+- **Sho（SNS運用部）** — TikTok/Instagram/X の投稿別エンゲージメント（Save Rate・Share-to-Reach）を `sns_mart.post_performance` で日次提供、Reels/Shorts の Save Rate上位10投稿を朝08:00 Slack自動配信
+- **Yui（バズ分析）** — 競合SNSクロールデータ（TikTok Analytics API・Meta Content Library API）を提供、`hashtag_trend_score` を prophet で7日先予測
+
+### E. 建設業採用データ特有スキル（LET事業ドメイン特化）
+
+1. **Airwork / Indeed / Engage 3媒体統合分析（採用媒体クロスチャネル）**
+   - 3媒体の応募データを `applicant_hash`（電話番号SHA-256）で名寄せし、`unique_applications` を算出（重複応募検出）
+   - 媒体別 CPA / CVR / 応募品質スコア（面接率・内定率）を1画面で比較、Ryotaが「今月はIndeed予算を+20%配分」と即決できるダッシュボード
+   - 実装: `dbt seed` で3媒体のスキーマ差分を吸収するマッピング表を管理、`intermediate/int_applications_unified.sql` で統合
+
+2. **GA4 2026 新機能（Consent Mode v2 + BigQuery Export 拡張）**
+   - Consent Mode v2 のモデリングデータ（同意しないユーザー分の推計）を `raw_` 層で「実測イベント」と「モデル化イベント」をフラグ分離
+   - GA4 の新イベント `form_engagement`（2026年追加）で応募フォーム離脱地点を分析、Kaito/RenのLP改善に接続
+   - Enhanced Measurement 全項目（scroll/outbound_click/site_search/video/file_download）を staging で正規化
+
+3. **Meta広告API + TikTok Ads API レポート自動生成**
+   - Meta Marketing API v22.0（2026年最新）で7社の広告アカウントを日次取得、`spend / impressions / cpc / cpm / cpa` を BigQuery へ
+   - TikTok Ads API + TikTok Analytics API で `save_rate`（保存率）・`share_to_reach_ratio` を新KPIとして採用（既存 2026-05-25 Daily Log の指摘を実装化）
+   - Cost Cap / Bid Cap 自動最適化のシミュレーション（scikit-learn RandomForest で予算配分最適解を推定）
+
+4. **A/Bテスト統計理論（LP別・広告クリエイティブ別）**
+   - `scipy.stats` で 2母比率z検定 / Fisher正確検定 / カイ二乗検定を自動選択、サンプルサイズ計算（power=0.8, α=0.05）
+   - SRM（Sample Ratio Mismatch）検査：割当比の逸脱をカイ二乗で判定（Shun 2026-08-12 連携）
+   - 多重比較補正（Bonferroni / Benjamini-Hochberg）で α=0.05 を実験群数で調整
+   - MDE（Minimum Detectable Effect）事前計算を Kaito のLP公開前レビューに組込
+
+5. **コホート分析（応募月別 面接→内定→入社ファネル）**
+   - `applicants_cohort` テーブルで応募月×経過日数の2次元マトリクス、Day7/14/30/60/90 の面接進出率・内定率・入社率を追跡
+   - 建設業特有の「季節変動（4月新卒・10月中途）」を考慮した季節調整済みコホート
+   - Ryotaのクライアント報告で「先月応募者の1ヶ月後入社率は8月コホートで9.7%」と即答可能化
+
+6. **RFM分析（求職者エンゲージメント3軸評価）**
+   - Recency（最終応募からの日数）× Frequency（総応募回数）× Monetary（想定採用単価・職種別平均年収）で求職者を5×5×5=125セグメント化
+   - リピート応募者（別クライアント・別職種）を検出し、Ryotaに「この求職者は宮村→翔星→cantera の順で応募している」情報提供
+   - RFMスコア Top20% の求職者には Kaito のLPで優先表示するリマーケティング設計
+
+7. **ML基礎（scikit-learn / prophet）による予測モデル**
+   - `prophet` で7社×媒体別 応募数を日次予測、祝日カレンダー（`add_country_holidays('JP')`）＋広告予算変動を外部変数投入
+   - `scikit-learn` の GradientBoostingClassifier で「応募→入社」予測モデル、特徴量重要度で「入社確率を上げる応募属性」を Ryota へ提示
+   - BigQuery ML の `CREATE MODEL ... OPTIONS(model_type='arima_plus')` で軽量予測を先行運用、精度不足なら Cloud Run Jobs で `prophet` に切替
+   - MLflow で実験管理、モデル精度（RMSE / F1 / AUC）を Cube.js メジャー化して継続監視
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

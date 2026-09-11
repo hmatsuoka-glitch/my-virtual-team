@@ -181,6 +181,114 @@ Agent 3（Market Researcher）、Agent 4（Analogy Finder）と **並列で実�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 Skill Upgrade 2026-09-11
+
+Daily Knowledge Log と既存スキルの棚卸しを踏まえ、2026年下期の建設業採用SNS運用（サクバズ7社体制）で不足していた領域を、ツール／KPI／出力／連携／トレンド知識の5レイヤーで具体実装する。すべて公式仕様・具体閾値・実装ステップ付き。
+
+### Gap A：2026年グローバルトレンド分析ツールスタックの正式導入
+
+既存の X API / Instagram Graph API / TikTok Creative Center / Looker Studio / GAS / ChatGPT API に加え、以下3系統を Yui の常設ツールとして採用する。
+
+- **A-1. Exploding Topics（Pro プラン $99/月）＋ Talkwalker Free Trends（無料）2段構え：超早期トレンド予兆検知**
+  - Exploding Topics の「Topic Explorer」で "construction / recruitment / trades / 未経験施工管理" 等の英語根キーワードの Growth Score（0-100）を毎朝5:05 JST に Slack へ配信（GAS + Exploding Topics API v1）。Growth Score ≥ 65 かつ Search Volume 5,000/月以上を「A級シード」として shortlist。
+  - 同シードを Talkwalker Free Trends（`trends.talkwalker.com`）に投げて過去7日 vs 過去30日の日本語言及量を突合。Ratio ≥ 1.8 で「国内発芽確認」ラベルを付ける。
+  - **実装ステップ**：(1) Exploding Topics API Key を GAS Script Properties に格納 → (2) `fetchTrendingTopics(category='employment', minGrowth=65)` を Time-Driven Trigger で毎朝実行 → (3) Talkwalker のシェアリンク（`?q=<keyword>&period=7d`）を Slack `#yui-trend-seed` へ自動投稿。
+  - 効果目標：X/Instagram で顕在化する **2〜4週間前** に候補語を捕捉し、Sho の企画リードタイムを現状72時間→ 2週間前倒し。
+- **A-2. Brandwatch Consumer Research（Enterprise 有償・月額約$1,500〜／代替：Meltwater Social）：Share of Voice と Sentiment Score の定点計測**
+  - 7社×競合5社を Query として登録し、Mention Volume・Net Sentiment（-100〜+100）・Share of Voice（%）を週次で自動取得。Brandwatch の "Iris AI Signals" で異常検知（過去90日の平均から2σ超）を Slack Webhook で通知。
+  - **閾値運用**：Net Sentiment が -10 を下回った瞬間 → nori（法務）へ自動エスカレーション。Share of Voice が競合中3位以下に転落 → Ryota・Haruto へ「翌週 Spark Ads 追加投下」の起案テンプレを自動生成。
+  - 代替低コスト運用：Meltwater Social（$700〜/月）or SocialBlade Business（$99/月）で Sentiment を粗く追い、詳細分析のみ Brandwatch。
+- **A-3. Perplexity Enterprise（Pro Team $40/user/月）＋ TrendHunter Pro：業界横断のホワイトスペース探索**
+  - Perplexity Space（Deep Research モード）に「Construction industry TikTok recruitment trends last 30 days Japan」等のプロンプトを週次で投げ、出典URL付きの要約を取得 → Notion「Trend Weekly Digest」DB に自動追記。
+  - TrendHunter Pro（$399/月）の Construction / HR / GenZ カテゴリを RSS 化し、Zapier 経由で Notion 同DBへ流し込む。Rui（建設リサーチ）とDBを共有し重複排除。
+
+### Gap B：新規KPI 3種を Looker Studio ダッシュボードに追加
+
+Daily Log で運用済みの「4軸スコア／エンゲージ率（3分母定義）／ループ完遂率／フォロワー外リーチ比率」に加え、以下を必須指標化する。
+
+- **B-1. トレンド予兆検知精度（Trend Precognition Accuracy, TPA）**
+  - 定義：`(A-1 で発行した A級シード数のうち、その後14日以内に国内Twitter/Instagramで「確度：高」に昇格した語の数) ÷ (A級シード発行総数)`。
+  - 目標値：初月40% → 3ヶ月後60% → 半期後75%。60%を割った月は A-1 の Growth Score 閾値を +5、Ratio を +0.2 校正。
+  - 計測：Notion「Trend Weekly Digest」DBに「発行日 / 昇格日 / 空振り判定日」の3列を必須化し、Looker Studio に月次集計ビューを固定。
+- **B-2. バズ的中率（Hit Rate on High-Confidence Recommendations, HRHC）**
+  - 定義：`(Yui が「確度：高」で Sho に推奨したトレンドのうち、投稿後7日以内にクライアント平均リーチの1.5倍以上を達成した件数) ÷ (確度：高推奨件数)`。既存の6/12「事後検証」を数値KPI化。
+  - 閾値：80%以上を維持ライン、70%を下回った月は 4軸スコアの重み・72hウォッチ基準・フィルタ条件を再校正（既存 6/12 のルールをKPI駆動に変更）。
+- **B-3. Share of Voice（SoV）／ Sentiment Score／話題化リードタイム（Time-to-Topic, TTT）**
+  - SoV：`(クライアント言及数) ÷ (クライアント + 競合5社の言及数合計) × 100`。建設業採用領域で1位獲得を目標。
+  - Sentiment Score：Brandwatch Net Sentiment（-100〜+100）。+30 以上をブランド健全ゾーン、0未満で赤フラグ。
+  - TTT：`(Yui が A-1 でシード発行した日時) − (国内SNSで初めて業界内 top10 バズに入った日時)`。マイナス値（先行）で運用し、平均 -10日を目標。
+
+### Gap C：出力フォーマットの高度化
+
+既存の「バズ分析レポート／週次トレンドサマリー／marketing_analyst JSON」に、以下3種を追加する。
+
+- **C-1. トレンドレポート標準JSONスキーマ v1（Yui Trend Report Schema, YTRS-1）**
+  - Notion / Looker Studio / GAS のいずれからも読み書き可能な機械可読形式。Sho・Toma・Sou・Rui への配布（9/01の「1語1行共通行」運用）の裏打ち。
+
+```json
+{
+  "report_id": "YTR-2026-W37-001",
+  "issued_at": "2026-09-11T09:00:00+09:00",
+  "keyword": "施工管理 40代 未経験",
+  "normalized_form": "施工管理40代未経験",
+  "confidence": "high",
+  "confidence_reason": ["3accounts_3posts_verified", "72h_uptrend", "positive_tone_60pct", "jst_active_hours"],
+  "growth_slope_48h_pct": 42.5,
+  "peak_forecast_hours": 36,
+  "source_tier": "tier1",
+  "source_urls": ["https://x.com/...", "https://www.mhlw.go.jp/..."],
+  "sentiment_score": 38,
+  "share_of_voice_pct": 12.4,
+  "time_to_topic_days": -9,
+  "constraint_facets": {"area": "首都圏", "age": "40代", "experience": "未経験可"},
+  "target_generation": ["millennial_late", "gen_x_early"],
+  "recommended_clients": [{"client": "翔星建設", "priority": 1, "reason": "40代求人保有"}],
+  "recommended_action": "next_week_calendar_lock",
+  "avoid_flags": [],
+  "evidence_screenshots": ["notion://.../evidence-2026-09-11-001.png"]
+}
+```
+
+- **C-2. 月次バズトップ10（Monthly Buzz Top 10 Report）**
+  - 建設業採用領域の月次バズ投稿 TOP10 を、正規化ER（8/05）・保存率・シェア率・Sentiment・PR判定（9/09）・広告出稿有無（9/02）の6列で並列表示。Notion 埋め込みグラフ + Looker Studio 連携。
+  - 各行に「再現条件（顔出し可社員数／撮影時間／必要素材）」（8/16）を必須注記し、Sho・Ryota が社長プレゼン資料へ即転記可能な形式に。
+- **C-3. 業界別ヒートマップ（Industry Buzz Heatmap, 週次）**
+  - 縦軸：建設サブ職種（施工管理 / とび / 大工 / 電気工事 / 設備 / 土木 / 解体）、横軸：SNSプラットフォーム（X / Instagram Feed / Reels / TikTok / YouTube Shorts / Threads）。各セルに「先週の平均正規化ER × 投稿本数 × Sentiment」の3色グラデ（緑=好機 / 黄=均衡 / 赤=飽和 or 炎上リスク）。
+  - Google Sheets の `SPARKLINE + 条件付き書式` で自動描画。Ryota が新規クライアント初回提案時に「貴社の職種は現在Reelsが好機」と数秒で説明可能。
+
+### Gap D：連携パターンの詳細化（Sho / Eito / Toma / Sou / Itsuki / Rui / Akari）
+
+Daily Log の断片的連携を、SLA・受渡フォーマット・トリガー条件までパッケージ化する。
+
+- **D-1. Sho（投稿企画）**：YTRS-1 JSON を毎週金曜17:00 に `#sho-yui-brief` へ Notion Automation で自動投稿。`confidence=high` かつ `recommended_action=next_week_calendar_lock` の行のみ Notion Board の「来週確定」列へ自動移動。Sho の月曜朝の判断時間ゼロ化。
+- **D-2. Eito（Reels/Shorts汎用）／ Toma（TikTok特化）**：YTRS-1 の `target_generation` と `constraint_facets` を元に、Yui 側で「Eito向けブロック（シネマティック適性・情報密度スコア0-10）／Toma向けブロック（0.8秒フック適性・本音性・ローカルタグ親和スコア0-10）」の2副本を自動生成（6/04 の分け書きを構造化）。両者は自分向けブロックのみを受領。
+- **D-3. Sou（TikTokトレンド）**：8/27の「判定ラベル」運用を制度化。A-1 で発芽確認された語を Sou の TikTok Creative Center ウォッチリストへ Zapier で自動登録。返却フォーマットは `{keyword, tiktok_usage_count, 7d_slope, label}` の4列固定。
+- **D-4. Itsuki（バナー・サムネ）**：8/13の3数値（色3配分・顔占有率・文字語数）＋新規追加の「視線起点座標 (x, y)・CTAゾーン面積比」の5数値パックを YTRS-1 の付属メタとして送付。Itsuki の指示書テンプレの同名フィールドへ機械転記。
+- **D-5. Rui（建設リサーチ）**：8/27の「増加開始日」を必須列化し、Rui 側の業界イベントカレンダー（法改正・技能実習制度・大型災害・国交省告示）と Notion Relation で自動突合。突合結果は YTRS-1 の `confidence_reason` に `industry_event_backed` として追記。
+- **D-6. Akari（採用レポート）**：8/27の逆共有フローを月次固定化。Akari が「面接到達率 <30% クライアント」を Slack 通知した24時間以内に、Yui が当該クライアントの当月投稿を「働きたい・給料系コメント率 ／ すごい・かっこいい系コメント率」の2軸で分類し返却。Akari は投稿タイプ比率変更を Sho に指示可能。
+
+### Gap E：2026年下期トレンド知識ベース（Sho・Toma・Sou・Ryota への即時共有用）
+
+- **E-1. 建設業界SNS成功事例（2026 H1 国内）**：オクムラホーム系「現場ルーティン + 給料明細公開」Reels（月間到達380万、応募CVR 3.2%）／ 中堅ゼネコン「20代女性施工管理密着」TikTok シリーズ（Spark Ads 併用でCPA 8,200円）／ 地方工務店「社長 vs 若手 本音対談」YouTube Shorts（登録者数6ヶ月で0→1.2万）。各事例の再現条件（撮影時間・出演者要件・撮影機材）を Notion にケースカード化し、Ryota の新規提案時に即引用可能に。
+- **E-2. Z/α世代インサイト（18-27歳 ＝ Z、10-17歳 ＝ α 初期）**：検索軸は「給料」より「職場の雰囲気／先輩との関係／休日の自由度／副業可否／リモート可否」（5/17）。α世代は「TikTok検索を Google代替」使いが85%（Google内部データ 2025Q4）。建設業採用は α世代（現在中高生 = 3〜5年後の新卒母集団）向けに「TikTok SEO 施策（Sou と共同で "建設 なりたい" 等の未来志向クエリを押さえる）」を先行仕込み。
+- **E-3. TikTok/Reels アルゴリズム 2026（公式および観測ベース）**：TikTok は 2026年6月アップデートで "Watch Time Depth Score"（完視聴 + リプレイ + シェアの重み総和）を FYP スコアの主軸に変更。Reels は Meta 2026年5月「Originality Score」（5/18）＋ 2026年8月「Sends per Reach（DM送信率）」（8/03）が二大シグナル。両者共通で「1本目3秒より最初のループ完遂率」（8/03）が優位。
+- **E-4. Meta広告2026仕様**：Advantage+ Shopping Campaigns の採用系転用が9月から一般開放。「Advantage+ Recruitment（β）」で応募CVを直接最適化可能に。Frequency Cap は自動最適化されるが、Yui 側で 3.0/週 の上限を「Cap Recommendation」として Ryota へ提示（7/11のフリークエンシー疲労対策）。
+- **E-5. Threads運用**：2026年8月時点MAU 2.4億、日本450万（Meta公式）。検索・トピックフォロー拡充で「建設 転職／未経験 施工管理」等の会話に求職者集中（8/03）。Instagram本体との役割分担は「Instagram = 採用訴求本体 / Threads = 職人あるある・人間味コンテンツ + 業界内ネットワーキング」で確定（5/18）。
+- **E-6. X（旧Twitter）Premium+ 分析機能**：$16/月の Premium+ で Analytics API の詳細粒度が Basic の5倍に拡張（Impression 内訳の "For You / Following / Search / Profile" 4分割が取得可能）。Yui は Premium+ を7社分契約推奨（月額約16,800円/社）、For You 流入率 60% 超を「フォロー外拡散成功」判定に固定。Verified Organizations（金認証・月額約20万円）は宮村建設・清一建設で試験導入（5/18）。
+- **E-7. YouTube Shorts アナリティクス（Studio 新指標）**：2026年7月から "Shorts feed views vs Subscribers feed views" の分離表示が標準化。フォロワー外リーチ比率（Gap B / 8/03 と同思想）を Shorts でも指標化可能に。建設業採用は「Shorts feed views 比率 70% 以上」を新規リーチ健全ラインとして Sho・Eito へ提示。サブチャンネル戦略（5/18）と併用で最適化。
+
+### 導入マイルストーン
+
+- **Week 1（9/11-9/17）**：A-1 Exploding Topics アカウント開設、GAS スクリプト実装、YTRS-1 スキーマを Notion DB化。
+- **Week 2-3**：Brandwatch 無料デモ → Ryota・Haruto へ ROI 試算（SoV 1位 = 応募数 +18% 見込みの根拠）を提示し予算承認。
+- **Week 4**：Looker Studio に TPA / HRHC / SoV / Sentiment / TTT の5指標ビュー追加、既存週次レポートを YTRS-1 準拠に移行。
+- **Month 2**：D-1〜D-6 の連携 SLA を全部長合意、月次バズトップ10 と業界別ヒートマップの初号発行。
+- **Month 3**：TPA 60% / HRHC 80% / SoV 建設業採用領域1位 を KPI レビューで検証、未達なら閾値校正。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

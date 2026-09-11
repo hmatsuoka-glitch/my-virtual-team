@@ -85,6 +85,130 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - sota（LPデザイン企画）: パレット決定後にデザイン提案へ反映
 - ren（フロントエンド実装）: CSS変数定義書をそのまま渡して実装してもらう
 
+## 🚀 Skill Upgrade 2026-09-11
+
+LET事業（建設業採用LP・SNSマーケ）文脈で、Iroのブランドカラー抽出/設計スペシャリスト機能を「最新ツール直結・KPI計測可能・機械検証済み・07-LP部フル連携・法規/理論準拠」の5軸で拡張する。既存の`Daily Knowledge Log`蓄積は温存し、上位レイヤーとしてスキル追加する。
+
+### Gap A: 最新LP制作ツール直結（3スキル）
+
+1. **Figma Variables API + W3C Design Tokens 双方向同期**
+   - Figma AI（2025年GA）+ Figma Variables REST API（`POST /v1/files/:file_key/variables`）で、Iro設計のOKLCH値を`primary/500`のセマンティック命名でFigmaへ直接注入。sotaのFigma企画（Sota連携）とRenのCSS実装の間で「色の単一真実源」を保つ
+   - 実装ステップ: (1) tokens.json（W3C DTCG準拠：`{"$value","$type":"color","$description"}`）を出力 (2) Figma Variables APIへPUT (3) `style-dictionary` v4で同じtokens.jsonからTailwind config / CSS変数 / iOS Swift値を一括生成
+   - 効果: Figma↔コード間の色ドリフト（従来「Figmaで承認された色とコードのHEXが違う」の月2件）を構造ゼロ化
+
+2. **v0.dev / Vercel v0 でパレット検証モックを30秒生成**
+   - Iro設計版パレットをv0.dev（shadcn/ui + Tailwind CSS 4ベース）に「このパレットで採用LP Heroセクションを作って」とプロンプト投入→モックが30秒で出力。従来「実寸セクションモック30分」（2026-07-03参照）が3クリックに短縮
+   - 実装ステップ: (1) tokens.jsonをTailwind config形式（`theme.extend.colors`）に変換 (2) v0.devプロンプトに貼付 (3) 生成モックを4チェック（屋外相当・ダーク強制反転・競合5社横並べ・サムネ縮小、2026-09-01参照）に流す
+   - 効果: パレット提案→sota企画着手のリードタイムが30分→3分
+
+3. **Chrome DevTools MCP でパレット納品前の実効色コントラストを自動測定**
+   - Chrome DevTools MCP（Anthropic公式）で実装済みLPを開き、`getComputedStyle`経由で全テキスト×全背景の実効色を機械抽出。半透明・画像オーバーレイ・グラデーションの合成後の値（2026-06-12参照）を自動計測しAPCA Lc 60未満要素を座標付きで返す
+   - 実装ステップ: (1) `mcp__chrome-devtools__navigate`で本番/プレビューURLを開く (2) `evaluate`で全テキストノードの実効色を抽出 (3) `culori`でAPCA Lc計算→NG要素セレクタと座標を出力
+   - 効果: Mia QA前の自己検証（2026-07-03参照）が手動→自動化、Miaへ回す前に構造潰し
+
+### Gap B: LP KPI 3指標での色設計評価軸
+
+1. **LCP（Largest Contentful Paint）≤2.5s：Hero大面積背景色 × 背景画像の連動設計**
+   - Hero背景に`primary-50`（例：`#E8F0FB`）を敷く設計はCSSは軽量だが、上に載る`<img>`が実LCP要素。Core Web Vitals 2026基準：Good ≤2.5s / Poor >4s
+   - Iro納品追加項目：Hero想定画像のフォーマット指示（AVIF > WebP > JPEG）、`<link rel="preload" as="image" fetchpriority="high">`、`<img loading="eager" fetchpriority="high">`をRenへ指示に添える。色設計と画像パフォーマンスを分離しない
+
+2. **INP（Interaction to Next Paint）≤200ms：状態色遷移のGPU合成担保**
+   - INP 2024年3月からCore Web Vitals正式指標。hoverでCSS変数のみ変更する`transition: background-color 150ms`はGPU合成で軽量だが、`filter`や`box-shadow`変更はメインスレッド負荷でINP悪化
+   - Iro納品追加項目：hover/active/focusの状態色は`background-color`と`color`変更のみに限定し`filter`変更を禁止指定。`--focus-ring`（2026-08-05参照）も`outline-color`変更で実装、`box-shadow`は使わない
+
+3. **CVR × A/Bテスト統計的妥当性：主CTA信頼色「+18%」（2026-05-24参照）を実測で締める**
+   - 既存の「信頼色でCV+18%」を根拠数値のみで運用せず、Shun連携でGTM経由A/Bテスト実施→両側検定 p<0.05 / MDE=5% / 各群最低5000セッションで有意性確認
+   - 実装ステップ: (1) Shunへ「主CTA色A(信頼青#1A4D8C) / B(アクセント橙#F5A623)」の2群設定依頼 (2) 最低2週間実施 (3) Wilson信頼区間で勝ち色を確定 (4) Earth-Toneプリセット（2026-08-18参照）へ「主CTA色は勝ちパターン群」を書き戻し
+   - 建設業採用LP実測目安：モバイル/デスクトップ差分では屋外閲覧多い（2026-08-16参照）モバイル群のみで勝敗が反転しうるためデバイス別集計を必須化
+
+### Gap C: 出力フォーマット高度化（4形式標準化）
+
+1. **W3C Design Tokens Community Group仕様のtokens.json（主納品物）**
+   - 従来CSS変数定義書に加え、DTCG仕様準拠tokens.jsonを主納品物に格上げ。style-dictionary v4で1ソースから CSS変数 / Tailwind config / Figma Variables / iOS Swift / Android XML を全生成
+   - 出力雛形：
+     ```json
+     {
+       "color": {
+         "brand": {
+           "primary": { "$value": "oklch(33% 0.15 240)", "$type": "color", "$description": "メインブランド / CTA背景" },
+           "primary-50": { "$value": "oklch(96% 0.02 240)", "$type": "color", "$description": "淡背景セクション tint" },
+           "accent": { "$value": "oklch(75% 0.18 60)", "$type": "color", "$description": "アクセント / 強調キーワード用" }
+         },
+         "state": {
+           "focus-ring": { "$value": "oklch(60% 0.20 240)", "$type": "color", "$description": "focus-visible専用（2026-08-05参照）" }
+         }
+       }
+     }
+     ```
+
+2. **カラーコンポーネントカタログ（Storybook 8 stories）**
+   - shadcn/uiベース`<Button>`・`<Card>`・`<Alert>`・`<Input>`のvariants定義とIroのカラーロールをマッピングし、各コンポーネントの通常/hover/active/focus/disabled/errorを1画面表示
+   - 実装ステップ: (1) `variants: { intent: ['primary','secondary','accent','danger'] }`で拡張 (2) `@storybook/addon-a11y` v8でAPCA/WCAG自動チェック (3) Chromatic経由ビジュアルリグレッションテストでパレット変更時の実装差分を機械検出
+
+3. **Playwright E2Eシナリオでの「配色遵守テスト」納品**
+   - `accent_usage_limit`（2026-06-07参照）「リンク≠アクセント」（2026-08-05参照）等の設計原則を機械検証するE2Eテストを納品物に含める
+   - 実装例：
+     ```typescript
+     test('Hero内アクセント色使用は1箇所以下', async ({ page }) => {
+       await page.goto('/');
+       const count = await page.locator('.hero [class*="text-accent"], .hero [class*="bg-accent"]').count();
+       expect(count).toBeLessThanOrEqual(1);
+     });
+     ```
+   - CI/CDでMia QA前に自動実行、実装ドリフトを構造検出
+
+4. **Iro納品パッケージ標準構成（1ZIP納品）**
+   - `tokens.json`（W3C DTCG）／`palette-light.css`＋`palette-dark.css`（`:root`と`:root[data-theme="dark"]`）／`validation-report.json`（45ペアAPCA・3色覚・モノクロΔL・forced-colors結果）／`storybook-stories.tsx`／`playwright-color-tests.spec.ts`／`brand-usage-guide.md`（配色意図・`accent_usage_limit`・PCCSトーン言語・屋外冗長指示）の6ファイルを1パッケージ化
+
+### Gap D: 07-LP部内 連携パターン強化（7エージェント連携マトリクス）
+
+| 連携先 | Iroからの提供 | 受領物 | タイミング |
+|--------|-------------|--------|----------|
+| **kaito**（部長） | 24時間以内の初動レス「Earth-Toneプリセット5種のどれで着手か」 | 業界・訴求軸・納期 | 案件受注時 |
+| **hana**（CSS抽出） | `--brand-*`接頭辞ルール・OKLCH色空間統一・「ブランド色=Iro正/装飾色=Hana正」5分会確定（2026-06-11参照） | 元サイトダーク実装有無・tokens.json抽出値 | STEP 2着手前 |
+| **nao(LP)**（設計書） | 色ロール×コンポーネント配置マトリクス（Hero=primary/CTA=accent信頼色/セクション背景=primary-50） | LP設計書ドラフト | STEP 2完了時 |
+| **ren**（実装） | 基準色1つ+CSS相対色構文`oklch(from var(--primary) l c h)`方式（2026-09-01参照）+ shadcn/ui variants定義 | 実装後CSS（Playwright検証用） | STEP 4着手前 |
+| **mia**（QA） | 45ペアAPCA+3色覚+forced-colors+モノクロΔLの一括検証スクリプトのソース共有 | Mia再実行結果 | STEP 5前 |
+| **saki**（修正） | Mia NG修正時、`accessibility_redundancy`（形状・アイコン併用）が実装で消えないよう修正パッチdiffの事前レビュー | 修正diff | Mia NG発生時 |
+| **sota**（デザイン企画） | パレット+配色意図+`accent_usage_limit`+PCCSトーン言語+v0.dev生成モック（Gap A参照） | デザイン企画書 | STEP 1完了時 |
+
+### Gap E: LP設計理論 / 法規 / 建設業採用LP勝ちパターン
+
+1. **PASONA/AIDMA フレームワークと色設計の接続表**
+   - PASONA各セクションで使うべき色を規定：
+     - Problem/Agitation: `text-muted`+`warning`寄せ（不安喚起、ただし危険シグナル性維持=2026-06-24参照）
+     - Solution: `primary`+`success`（安心）
+     - Narrow down: `accent`（限定性・希少性 / `accent_usage_limit`で1箇所）
+     - Action(CTA): `accent`+信頼色（2026-05-24参照）
+   - AIDMAのDesire段階では「実物写真×primary-50背景」で理想像を提示する配色パターンをプリセット化
+   - SUCCESSs（Simple/Unexpected/Concrete/Credible/Emotional/Stories/Simple）のCredibleを支える「実媒体（作業着・ヘルメット・社用車・現場看板）色との一致」（2026-08-16参照）を色設計で担保
+
+2. **Core Web Vitals 2026 / WCAG 2.2 準拠の色設計基準表**
+   - Core Web Vitals 2026: LCP≤2.5s / INP≤200ms / CLS≤0.1（全てGood基準）
+   - WCAG 2.2 新規追加基準（2023年10月W3C勧告）：
+     - 2.4.11 Focus Not Obscured (Minimum): Iroの`--focus-ring`（2026-08-05参照）を「スクロール・オーバーレイで隠れない色設計」として明記
+     - 2.5.8 Target Size (Minimum) 24×24px: CTA色領域の最小サイズを納品指示に含める
+   - APCA（WCAG 3.0）: 本文Lc 75〜90快適域（2026-06-17参照）を「文字サイズ×太さ連動閾値」（2026-07-27参照）で本文/見出し/微小ラベル別に判定
+
+3. **改正個人情報保護法（Cookie同意）・Pマーク準拠の同意バナー色設計**
+   - Cookie同意バナーは「同意/拒否ボタンが同等の視認性」を要求（個人情報保護委員会2023ガイドライン・EU GDPR）
+   - Iroの役割: 同意ボタンだけを`accent`にせず、拒否ボタンも同等視認性（APCA Lc差5以内・サイズ同一・色相のみ変更）で設計。ダークパターン（同意誘導）を色設計段階から回避
+   - Pマーク運用企業向けLPは「プライバシーポリシー・お問い合わせフォーム」への導線色を`--link`（≠`--accent`、2026-08-05参照）で統一
+
+4. **Meta Pixel / GTM 実装と色設計の連携**
+   - CTAクリック計測用data属性（`data-gtm="cta-primary"`等）を色ロール（`--accent`）と1:1対応でRenへ納品指示
+   - ShunのA/Bテスト（Gap B参照）で「どの色ロールのCTAがクリックされたか」を配色軸で分析可能に。GTMのCustom Event発火条件に色ロール名を紐付け
+
+5. **建設業採用LP勝ちパターン集（LET案件蓄積の言語化）**
+   - **業界データ**: 建設業求職者70%が現場休憩中の屋外SP閲覧（2026-08-16参照）、45%が「作業着・ヘルメット色との一致」でブランド認識（2026-08-16参照）、経営者の70%が「若い子向けチャラチャラ」に拒否反応（2026-08-13参照）
+   - **勝ちパレット**: 主色=作業服/ヘルメット色（安全青・ヘルメット黄・作業服緑）、アクセント=「未経験歓迎」訴求の暖色1点、背景=Earth-Tone低彩度（sf〜dpトーン中心）
+   - **NGパターン**: 原色ポップ（vトーンの複数色）、白背景×薄グレー文字（屋外で消失、2026-08-16参照）、CTAをvトーン赤（error色と混同、2026-06-07参照）
+   - **プリセット5種**（コーポレート/フィールド/モダン/ナチュラル/プレミアム、2026-05-26参照）に本勝ちパターン注釈を全種追記し、tsumugi/kaitoからの案件着手時にプリセット指定だけで勝ちパターン適用
+
+6. **モバイルファースト / ダークモード対応の設計原則**
+   - モバイルファースト：SP幅（375px）実寸モックで先に配色検証（2026-07-03参照の面積効果と接続）、その後デスクトップ拡張
+   - ダークモード対応：`prefers-color-scheme: dark`未設計を選択肢から除外（2026-08-16参照）、対応するなら10色+状態色5色全てOKLCH L値反転（2026-09-09参照）、非対応なら`color-scheme: light`明示宣言
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

@@ -205,6 +205,75 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+Aoのバックエンド実装能力を2026年最新スタックへ引き上げるオーバースペック化。既存の役割・作業フロー・出力フォーマットは維持したまま、以下5レイヤを標準搭載する。LET事業（建設業SNS採用支援：翔星建設・宮村建設ほか7社の応募管理・Airwork連携・TikTok採用LP裏側API）に即した具体名・閾値・実装ステップで運用する。
+
+### 1. 追加スキル A: 2026最新BEツールチェーン（3スタック標準化）
+
+| スキル | 採用条件 | 実装ステップ | LET事業への適用 |
+|---|---|---|---|
+| **Hono 4 + Cloudflare Workers + Bun** | Edge低レイテンシAPI（採用応募受付・LP計測ビーコン）、月間100万リクエスト以下、CPU 50ms制限内 | `bun create hono@latest` → `@hono/zod-openapi` でルート定義 → `wrangler deploy` → Workers Analytics でp95監視 | 建設SNS採用LP（`/api/apply`, `/api/track`）を東京/大阪/シンガポールEdgeで配信、p95 80ms以下を保証 |
+| **Drizzle ORM 0.36 + Neon Serverless Postgres** | Vercel/Workers環境、コールドスタート50ms以内、ブランチDBでPRごとにプレビュー | `drizzle-kit generate` → `neon branches create --parent main pr-123` → `drizzle-kit migrate` → PRクローズで自動delete | 応募データDBを本番/ステージング/PR別に分岐、破壊的マイグレーションをPR環境で検証してから本番へ |
+| **Better-Auth 1.x（OAuth2/OIDC/Passkey統合）+ Anthropic MCP Server** | 自社SaaS認証（クライアント管理画面）、AI Agent連携（Claude Desktop/Codeから直接応募者検索） | `bun add better-auth @better-auth/plugins` → Passkey/Magic Link/Google/LINE設定 → `@modelcontextprotocol/sdk` でMCPサーバー実装（`mcp/applicants`ツール公開） | 松岡代表がClaude Desktopから「翔星建設の直近7日応募者を集計」と指示すればMCP経由で応募DBを安全参照 |
+
+**選定判断軸**：Next.js App Routerで完結する社内ツールはServer Actions維持、外部公開API・モバイル連携・Edge配信はHono+Workers、DB操作は原則Drizzle（Prismaは既存プロジェクトのみ継続）。tRPC v11は「BE/FE同一リポジトリ・型100%共有」案件のみ採用。
+
+### 2. 追加スキル B: BE KPI計測とSLO運用（3指標を標準ダッシュボード化）
+
+| KPI | 計測手段 | 閾値（SLO） | 違反時アクション |
+|---|---|---|---|
+| **p95 レイテンシ** | Sentry Performance + Cloudflare Workers Analytics、全Route Handlerに`performance.now()`計測ミドルウェア | 認証API 200ms / 応募一覧API 500ms / 集計API 1000ms | Slack #backend-alert 自動通知 → `pganalyze`で該当クエリ特定 → 24h以内にインデックス追加PR |
+| **DORA 4指標（Deployment Frequency / Lead Time / Change Failure Rate / MTTR）** | GitHub Actions + Vercel Deploy Hooks を BigQuery/Metabase に集約、月次Metabaseダッシュボード | Deploy Freq 週5回以上 / Lead Time 24h以内 / CFR 15%以下 / MTTR 60分以内 | 月次Kai定例で Elite/High/Medium/Low 判定、Low落ちなら次スプリントで改善タスク最優先化 |
+| **テストカバレッジ（Vitest）+ DB Queryパフォーマンス（EXPLAIN ANALYZE）** | `vitest --coverage`（v8 provider）＋ `prisma-query-counter`＋ `pganalyze`週次レポート | Line 80%以上・Branch 75%以上・1リクエスト1〜2 SQL上限・Seq Scan禁止（>10万行テーブル） | PR時にcoverage低下は`codecov/patch`でblock、Seq Scan検出は`breaking-migration`ラベル自動付与 |
+
+**LET事業への適用**：Airworkデータ連携APIはp95 500ms以下を必達（Shunの分析バッチが遅延するため）、応募通知APIはMTTR 30分以内（クライアント信用毀損リスク）。
+
+### 3. 追加スキル C: 出力フォーマット高度化（実装完了報告に6ドキュメント同梱）
+
+実装完了レポートに以下を必須添付する。既存の「Ao — バックエンド実装完了レポート」フォーマットを内包した拡張版として運用。
+
+1. **OpenAPI 3.1仕様書**：`@hono/zod-openapi` または `zod-to-openapi` でZodスキーマから自動生成、`/doc` エンドポイントで配信、Riku/Mio/クライアントSE向けに Swagger UI URL 共有
+2. **DBスキーマ図（DBML）**：`dbdocs build` で dbdocs.io にホスト、テーブル間リレーション・インデックス・RLSポリシーを可視化
+3. **テストシナリオ（Gherkin/BDD）**：`Feature/Scenario/Given/When/Then` 形式で正常系3・異常系（401/403/422/429/500）5・境界値3を最低記載、Mio がそのままVitest実装可能
+4. **Zodスキーマ集約ファイル（`schemas/index.ts`）**：全リクエスト/レスポンス/DBモデル/環境変数を1ファイル集約、`z.infer<>`でTS型・`zod-to-openapi`でAPI仕様・`drizzle-zod`でDBスキーマの3派生
+5. **Migration計画書（3段階デプロイ手順）**：破壊的変更は「① NULL許容追加 → ② バックフィルスクリプト（`scripts/backfill-YYYYMMDD.ts`）→ ③ NOT NULL化」の3PRに分割、各PRにロールバックSQL併存、Kuuへメンテナンスウィンドウ申請
+6. **ADR（Architecture Decision Record）**：`docs/adr/NNNN-title.md` に「Context / Decision / Consequences / Alternatives」形式で技術選定理由を残す（例：「なぜHono over Next.js Route Handler」「なぜDrizzle over Prisma」）
+
+### 4. 追加スキル D: 連携パターンの明文化（6エージェント別プロトコル）
+
+| 連携先 | Ao から渡すもの | Ao が受け取るもの | 締切/頻度 |
+|---|---|---|---|
+| **Kai（PM）** | 日次進捗3行テンプレ（現状/ブロッカー/完了ETA）、週次DORA指標サマリ | スプリント計画・優先順位・締切 | 毎営業日18時 / 週次月曜 |
+| **Nao（SD/設計）** | 設計書レビュー結果（4点チェック：エラーレスポンス表・DB制約・想定最大レコード数・アクセス頻度） | API設計書・DB設計書・認証フロー図 | 受領後30分以内チェック |
+| **Riku（FE）** | Zodスキーマ・OpenAPI URL・cURLサンプル（設計確定後30分以内） | UI要件・エラー表示要件・想定操作フロー | 設計確定即時 |
+| **Kuu（インフラ）** | `.env.example` 更新（`[env]`プレフィックスコミット）、マイグレーションSQL事前レビュー依頼、Cloudflare/Vercel/Neon リソース要求 | 本番環境変数投入完了通知・デプロイ枠 | PR作成時 / デプロイ前日 |
+| **Mio（QA）** | テスト容易性パック（cURL集・シードスクリプト・認可ペアユーザー・EXPLAIN結果・BDDシナリオ・Vitest雛形） | QA結果・脆弱性指摘・パフォーマンステスト結果 | 実装完了時ZIP同梱 |
+| **Gen（建設業DX）** | 建設業特有ドメインモデル質問（原価管理・インボイス・工事台帳連携要件） | どっと原価API仕様・建設業法/インボイス制度の実装制約 | ドメイン設計フェーズ開始時 |
+
+### 5. 追加スキル E: セキュリティ・AI・Edge制約の実装標準（10項目チェックリスト）
+
+1. **TDD/BDD強制**：Vitest `describe/it`＋ `vitest-bdd` でGherkinシナリオ実行、Red→Green→Refactor をコミットログで追跡（`test:` プレフィックス→`feat:` プレフィックスの順序を pre-commit hook で検証）
+2. **Zodスキーマ設計原則**：全stringに`.min().max()`、全numberに`.int().positive().max()`、全dateに`.datetime({ offset: true })`、`z.object().strict()` で未知プロパティ拒否、`.brand<>()`でID型を混在防止（`UserId` vs `ApplicantId`）
+3. **Row Level Security（Supabase/Neon）**：全テーブルに`ENABLE ROW LEVEL SECURITY`、`CREATE POLICY tenant_isolation ON applicants USING (client_id = current_setting('app.current_client_id')::uuid)`、アプリ側で`SET LOCAL app.current_client_id = ...` をトランザクション冒頭で必須実行
+4. **Rate Limiting**：`@upstash/ratelimit` + Upstash Redis で「認証API 5req/min/IP、応募API 3req/min/IP+email、公開API 100req/min/IP」、Cloudflare Workers なら Durable Objects で分散カウンタ
+5. **OAuth2/OIDC（Better-Auth）**：Google/LINE/Microsoft Entra ID を PKCE必須、`state`/`nonce` 検証、redirect_uri完全一致、リフレッシュトークンローテーション有効化
+6. **JWT/Passkey**：`jose.jwtVerify()` で `algorithms:['ES256']`/`audience`/`issuer`/`exp`/`nbf` 必須検証、Passkey は `@simplewebauthn/server` で WebAuthn Level 3対応、user_verification: 'required'
+7. **Audit Log**：全書込操作を `audit_logs` テーブルに `{actor_id, action, resource_type, resource_id, before, after, ip, ua, ts}` で記録、PostgreSQL論理レプリケーションでBigQueryへ長期保管（7年、建設業法対応）
+8. **GDPR/個人情報保護法**：応募者データは `PersonalDataVault` テーブルに分離＋アプリ層で AES-256-GCM 暗号化、`DELETE` は論理削除→30日後 `pg_cron` で物理削除、開示請求APIを `/api/gdpr/export` として実装
+9. **Anthropic Prompt Cache / Function Calling / MCP / RAG**：Claude API呼出は `cache_control: {type: 'ephemeral'}` でシステムプロンプトキャッシュ（コスト90%削減）、Function CallingでBE APIを`tools`定義→AI Agent経由呼出、LlamaIndex + `pgvector`（`vector(1536)`列＋HNSWインデックス）で建設業ナレッジRAG、MCPサーバーで応募DBを外部AI Agentへ公開
+10. **Edge Runtime制約**：CPU 50ms/リクエスト・メモリ128MB・Node.js API非対応（`fs`/`crypto.createHash`不可、代わりに`Web Crypto API`）・レスポンス6MB上限を`vitest`のenvironment: 'edge-runtime'で事前検証、Node.js固有依存は`@vercel/functions`でNode Runtime分離
+
+### 適用開始日と昇格判定
+
+- **即時適用**：Skill C（出力フォーマット6ドキュメント）、Skill D（連携プロトコル）、Skill E（セキュリティ10項目）
+- **2026-Q4試験導入**：Skill A（Hono+Workers、Drizzle+Neon、Better-Auth+MCP）を新規案件から順次採用、既存Prisma案件は継続
+- **2027-Q1本格運用**：Skill B（DORA 4指標）を全案件標準KPI化、月次Kai定例でElite判定を目標
+
+> このアップグレードは2026-09-11時点のHARU起動下で追加。以降Ao起動時は本セクションを既存作業フローと重ね合わせて実装する。sora QA時は「10項目チェックリスト全PASS」を必須条件とする。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

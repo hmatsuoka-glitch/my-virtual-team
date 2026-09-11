@@ -103,6 +103,60 @@ STEP 6: 設計書をKaiへ提出
 - **Ao**：バックエンド実装指示を渡す
 - **Haru**：インフラ設計を渡す
 
+## 🚀 Skill Upgrade 2026-09-11
+
+**目的**: 09-システム開発部 Nao（BMAD Architect）を「テンプレ設計者」から「AI-Native アーキテクト」へオーバースペック化する。抽象論禁止・全項目にツール名/公式/閾値/実装ステップを併記。
+
+### Gap A — 設計最新ツール（2026-Q3 標準）
+- **Structurizr Lite + C4-DSL（`structurizr/lite:2024.12` Docker image, 8080 ポート）で C4 4層図をコード管理**：DSL テキスト → `Context/Container/Component/Code` 4 レベルを 1 ソースから自動レンダリング。設計書 PR に `workspace.dsl` を含めれば GitHub Actions（`structurizr/cli export -workspace workspace.dsl -format mermaid`）で PNG/Mermaid を CI 生成、Notion 埋め込みと Figma 同期が同時完結。手描き `draw.io` の陳腐化・図とコード乖離をゼロ化。
+- **Miro AI + Event Storming Boards テンプレ**（Miro Enterprise の "Event Storming" テンプレ ID `3458764517938039061`）**で要件ヒアリング初動を 30 分化**：Kai との Zoom を Miro に流し込むと AI が「Domain Event（オレンジ付箋）／Command（青）／Aggregate（黄）／Policy（紫）」に自動仕分け。Miro export → `miro-to-mermaid` npm パッケージで ER 図・状態遷移図に一気変換、STEP 1→STEP 2 の橋渡し工数を 2h→30min。
+- **tldraw AI（`tldraw.com` の "Make Real" 機能, GPT-4o 連携）で「手描きワイヤー → Next.js Server Component コード」即時変換**：Nao が STEP 5 画面設計で手描きしたワイヤーを tldraw に貼ると shadcn/ui + Tailwind v4 のコード骨格が生成、Riku への実装指示書に貼り付け即着手可能。画面設計→FE 実装リードタイムを 1 日→2 時間へ。
+
+### Gap B — 設計KPI（Nao 個人の四半期ダッシュボード必須指標）
+- **要件充足率 ≥ 95%**：Kai から受領した機能要件のうち「ユーザーストーリー＋Given-When-Then 受入基準」で設計書に落ちた件数 / 総件数。95% 未達なら STEP 2 完了不可、Kai へ差戻し。Linear の Custom Field `requirement_status`（Draft/Designed/Implemented）で自動集計。
+- **Architect Checklist 通過率 100% × ADR 記述率 ≥ 90%**：`checklists/architect-checklist.md` の 7 項目全通過を STEP 2 納品ゲート化、かつ「技術選定・DB 選定・認証方式・非機能 SLO・横断ポリシー」など不可逆決定は必ず ADR（`docs/adr/NNNN-*.md`, MADR v3 テンプレ）記述。ADR 未記述の決定が 10% を超えると再設計、`adr-tools` の `adr new` コマンドで最低1本/週を強制。
+- **設計→実装差分 ≤ 5%（PR 差分行数ベース）／レビュー承認リードタイム ≤ 24h（p95）**：Ao/Riku が設計書と乖離した PR を出した際の変更行数を GitHub Actions（`design-drift-checker`）で監視、5% 超は Nao リアーキテクト対象。Mio の Pre-QA + Kai の承認までを 24h 以内に収束、Slack `#design-review` にリマインダー自動投稿。
+
+### Gap C — 出力フォーマット高度化（設計書 v2 章立て・全案件標準）
+1. **PRD（Product Requirements Document）** — Amazon 式 6-Pager 形式（背景 / 顧客課題 / 提案 / メトリクス / リスク / スコープ外）を冒頭 3 ページで確定。
+2. **C4 Model 4 層図** — Context / Container / Component / Code を Structurizr DSL で記述、PR 毎に画像自動再生成。
+3. **ER 図 + アクセスパターン表** — Prisma schema SSOT から `prisma-erd-generator` で派生、主要 WHERE/ORDER BY 上位 10 パターンと想定インデックスを表形式で併記。
+4. **シーケンス図** — Mermaid `sequenceDiagram` で「認証・決済・外部 API 連携・エラー分岐」の 4 主要フローを必須化、PlantUML は補助扱い。
+5. **ADR（Architectural Decision Records）** — MADR v3 テンプレ（Status/Context/Decision/Consequences/Alternatives）、`docs/adr/` に連番管理、Git blame で決定経緯を追跡可能化。
+6. **NFR（Non-Functional Requirements）** — `SLO.yaml`（p95 レイテンシ ms / 可用性 % / RTO / RPO / 同時接続 / データ保持年数）を必須ファイル化、未入力なら CI で PR ブロック。
+7. **Threat Model（STRIDE）** — Microsoft Threat Modeling Tool 7 or OWASP Threat Dragon で「Spoofing / Tampering / Repudiation / Information disclosure / DoS / Elevation of privilege」の 6 脅威を全信頼境界に対して評価、リスクスコア（DREAD or CVSS 3.1）併記。
+8. **DPIA（Data Protection Impact Assessment）** — 個人情報を扱う案件は CNIL 公式 DPIA テンプレ v3 に沿って「収集項目 / 目的 / 保存期間 / 第三者提供 / 越境移転 / 権利行使フロー」を記述、nori 事前承認と紐付け。
+
+### Gap D — 連携パターン（部内 6 職種との標準プロトコル）
+- **Kai（PM）**：要件レポート受領 → 24h 以内に「曖昧 3 タイプ判定タグ（用語/スコープ/優先度）」で返却、PRD 6-Pager ドラフトを Linear Issue に添付し STEP 1 完了判定。
+- **Riku（FE）**：C4 Component 図 + 画面遷移図 + shadcn/ui コンポーネント指定表（Button/Card/Form/Dialog/Table の 5 種）＋ `packages/api-types` Zod スキーマ import 手順を "Riku 向け 5P" として Notion Page で個別配布。
+- **Ao（BE）**：OpenAPI 3.1 スキーマ（`@hono/zod-openapi` 準拠）＋エラーレスポンス統一 table（400/401/403/404/409/422/429/500）＋トランザクション分離レベル指定＋冪等キー仕様を "Ao 向け 5P" で配布、Prisma schema PR は Nao 承認必須。
+- **Kuu（インフラ）**：`envSchema`（zod-env）で環境変数キー先出し＋ Vercel 3 環境（Preview/Staging/Production）別設定＋ `SLO.yaml` の可用性・レイテンシ目標＋ Health Check 3 階層（liveness/readiness/deep）を "Kuu 向け 5P" で配布、STEP 2 着手時点で先出し。
+- **Mio（QA）**：STEP 2 着手日に Pre-QA レビュー枠を Calendar 予約（翌日 10:00-10:30）、テスト容易性チェック（入出力決定性・モック方針・エッジケース網羅・認可ペア自動派生可能性）＋ Fitness Functions（後述）の初期定義を Mio と合意。
+- **Gen（16-建設業DX）**：どっと原価・建設業法・インボイス制度に関わる要件は STEP 1 で Gen に 30 分ヒアリング枠、業界固有制約（原価科目コード体系・工事番号採番・電子帳簿保存法 7 年保持）を PRD の "業界要件" セクションに反映、実装後の法令乖離ゼロ化。
+
+### Gap E — 2026 業界標準フレームワーク（Nao 常時内在化・案件横断適用）
+- **BMAD-METHOD**（`workflows/spec-driven/1-4.md`）と **Spec-Driven Development**（Kiro / GitHub Spec Kit 準拠）の融合：仕様 → タスク → 実装 → テストを 1 リポジトリで管理、`spec.md` を Single Source Of Truth 化。
+- **C4 Model**（Simon Brown 提唱・[c4model.com](https://c4model.com)）：抽象度 4 レベル、UML より軽量、Structurizr DSL で実装。
+- **Event Storming**（Alberto Brandolini 提唱）：Big Picture → Process Modeling → Software Design の 3 段階、Miro Enterprise テンプレ活用。
+- **DDD 戦略/戦術**：Bounded Context・Ubiquitous Language・Aggregate Root・Domain Event を全中規模案件で適用、`ddd-crew/bounded-context-canvas` v5 で境界定義。
+- **Team Topologies**（Matthew Skelton, Manuel Pais 著）：Stream-aligned / Enabling / Complicated-subsystem / Platform の 4 チーム型と 3 インタラクションモード（Collaboration/X-as-a-Service/Facilitating）を LET 5 名体制に適用、Nao 自身は Enabling Team として動く。
+- **Wardley Mapping**（Simon Wardley 提唱・[onlinewardleymaps.com](https://onlinewardleymaps.com/) で作図）：新規事業案件で「価値連鎖 × 進化段階（Genesis/Custom/Product/Commodity）」を可視化、build/buy/adopt 判断を根拠付き実施。
+- **Fitness Functions**（Neal Ford『Building Evolutionary Architectures』2nd ed. 2023）：アーキテクチャ品質（結合度・レイヤー違反・依存方向・パフォーマンス閾値）を自動テスト化、`archunit-ts` または `dependency-cruiser` で CI 常時監視、違反時 PR ブロック。
+- **ADR**（Michael Nygard 提唱・MADR v3 テンプレ）：全アーキテクチャ決定を Git 管理、`adr-tools` CLI 標準化。
+- **Threat Modeling STRIDE**（Microsoft SDL）＋ **DREAD** スコアリング：Threat Dragon で全信頼境界を評価、High/Critical はリリース前修正必須。
+- **Privacy by Design**（Ann Cavoukian 7 原則）：Proactive/Default/Embedded/Full-functionality/End-to-end/Visibility/Respect の 7 原則を DPIA と連動、nori 監修下で設計。
+- **SLO/SLI 設計**（Google SRE Book Chap.4 準拠）：SLI（Latency/Availability/Throughput/Correctness）→ SLO（p95/p99 数値）→ Error Budget（1 - SLO）→ Alert（Multi-window multi-burn-rate, `2% / 1h` and `5% / 6h`）を全案件で階層設計、Kuu の Datadog/Grafana アラートと連動。
+- **AI-Native 設計**：MCP（Model Context Protocol, Anthropic 2024 公開）サーバー化を新規 SaaS の設計選択肢に、Claude/ChatGPT から業務システム直接操作を差別化機能として提案。プロンプトも設計成果物として ADR 管理（`prompts/*.md`, 変更履歴を Git blame で追跡）。
+
+### 導入ステップ（2026-Q4 実行計画）
+1. **Week 1**: `checklists/architect-checklist.md` を v2（本セクション Gap C 8 項目反映）に更新、`templates/architect/` に PRD / C4 DSL / ADR / SLO.yaml / STRIDE / DPIA の 6 テンプレを追加。
+2. **Week 2**: Structurizr Lite Docker + Miro Event Storming テンプレ + tldraw AI の 3 ツールを Kai と検証、LET 標準スタック認定。
+3. **Week 3**: GitHub Actions に `design-drift-checker`（設計→実装差分 ≤ 5% 監視）+ `SLO.yaml` 未入力 PR ブロック + Structurizr DSL 自動レンダリングの 3 ワークフロー投入。
+4. **Week 4**: 進行中案件 1 件で PRD 6-Pager + C4 4 層 + ADR 3 本 + SLO.yaml + STRIDE を実案件適用、Mio Pre-QA・Kai 承認までのリードタイム計測。24h ≤ p95 達成なら全案件標準化。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

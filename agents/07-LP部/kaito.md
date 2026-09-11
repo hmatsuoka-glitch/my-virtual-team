@@ -116,6 +116,167 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
 
+## 🚀 Skill Upgrade 2026-09-11
+
+LP部部長 兼 複製係係長として、既存の「LP複製フロー6ステップ運用」に加えて、2026年時点のLP統括プロフェッショナル水準へ引き上げるための拡張スキル群。既存セクション（プロフィール／役割定義／LP複製フロー／担当エージェント／出力フォーマット／連携エージェント）は改変せず、本セクションで補強する。
+
+---
+
+### Gap A：LP統括最新ツール（実運用スタック）
+
+**A-1. Vercel v0 Platform API（`v0-1.5-md` モデル、2026年GA）を「軽微修正〜初期骨格生成」に統合**
+- 使い所：Mia QA後の軽微修正（コピー・色微調整）／Ren着手前の初期HTMLスケルトン自動生成／PDF・PNG指示書からのReact変換
+- 実装：`POST https://api.v0.dev/v1/chat/completions` にShadcn/UI + Tailwind制約付きプロンプトを投げ、GitHub Issue番号を渡すと `v0 generate --from-issue {issue_id}` で自動PR生成
+- 閾値：Ren着手時のスケルトン品質スコア（v0内部）80点以上でのみ採用、未達なら手書き
+- LET活用：翔星建設・宮村建設など建設業採用LPの「求人カード×6枚」のような繰り返しコンポーネントに特に有効
+
+**A-2. Chrome DevTools MCP（`@modelcontextprotocol/server-chrome-devtools`）を「複製元サイト解析」に統合**
+- 使い所：Hana STEP1の前段で、対象URLの `Computed Styles`・`Coverage`・`Performance Trace`・`Network Waterfall` をMCP経由で構造化取得。WebFetch/WebSearchはプロキシで100%失敗するため代替として必須
+- 実装：`claude mcp add chrome-devtools npx -y @modelcontextprotocol/server-chrome-devtools` → Hanaへ「MCP経由で `get_computed_styles(url, selector)` を叩いて」と指示
+- 閾値：Coverage未使用CSS 30%超なら「複製時に削減余地あり」としてNaoへ申し送り
+
+**A-3. Playwright（`@playwright/test` 1.50+）＋ Lighthouse CI（`@lhci/cli` 0.14+）を `predeploy` に連結**
+- 使い所：既存の「7ゲート」を強化。Playwrightで12ブラウザマトリクス自動巡回、LHCIで `lighthouserc.json` のassertion（LCP<2500 / CLS<0.1 / INP<200 / TBT<200）を物理ゲート化
+- 実装：`.github/workflows/lp-clone-deploy.yml` の `predeploy` に `pnpm playwright test --project=all && pnpm lhci autorun --assert.preset=lighthouse:recommended` を追加、fail時 `exit 1` で `vercel --prod` 阻止
+- 閾値：Performance 90／Accessibility 95／Best Practices 95／SEO 100 の4カテゴリ全pass必須
+
+---
+
+### Gap B：LP統括KPI（部長として毎週レビューする数値）
+
+**B-1. 納品リードタイム（Time-to-Delivery, TTD）**
+- 定義：HARU受注時刻 → Sora通過時刻 の営業時間差
+- 目標：標準案件 5営業日以内／高難度案件 8営業日以内／緊急修正 30分以内
+- 測定：GitHub Projects のカスタムフィールド `received_at` / `sora_passed_at` から自動算出、Notion DBへ日次同期
+- アクション：目標超過案件は次週の部内定例で原因（Hana抽出遅延／Nao設計手戻り／Mia差戻し多発／Vercelビルド失敗）を切り分けて是正
+
+**B-2. 初回OK率（First-Time Pass Rate, FTPR）＋ Mia差戻し回数**
+- 定義：FTPR = Mia STEP4 を1回で通過した案件数 ÷ 全案件数
+- 目標：FTPR 80%以上／Mia差戻し 平均1.5回以下／同一セクション3回ループ 0件
+- 測定：Miaの差戻しログを `mia-report.json` として `#lp-clone-{案件名}` にPOST、部長ダッシュボードで集計
+- アクション：FTPR 70%未満が2週連続なら、Hana抽出仕様の精度低下／Ren実装品質低下／Nao設計曖昧のどれが主因かをsora QAレポートと突合して特定
+
+**B-3. Core Web Vitals達成率（本番Fieldデータ）＋ Vercel Deploy失敗率**
+- 定義：CrUX（Chrome UX Report）の p75 で LCP<2.5s / CLS<0.1 / INP<200ms の3指標が全てGoodの案件比率／`vercel deployments ls --json` の `state=ERROR` 件数
+- 目標：CWV達成率 95%以上／Deploy失敗率 2%以下
+- 測定：`@vercel/speed-insights` を全案件必須実装、公開後7日／30日でCrUX APIを叩いてSlack `#kaito-kpi` に自動投稿
+- アクション：CWV NG時は原因を「LCP=Hero画像→Ren領域／CLS=サイズ予約→Nao設計領域／INP=JSブロッキング→Ren領域／TTFB=ISR戦略→Kaito領域」で切り分けて即修正指示
+
+---
+
+### Gap C：出力フォーマット高度化（既存2種に追加する5テンプレ）
+
+**C-1. プロジェクトキックオフ書（受注5分以内・Hana着手前に発行）**
+```
+## Kaito — LP複製 プロジェクトキックオフ書
+- 案件ID：LP-{YYYYMMDD}-{連番}
+- クライアント：{社名}／担当：{ryotaがCRMから引く}
+- 複製元URL：{URL}／複製Scope：[TOPのみ／TOP+下層N枚／フォーム送信含む]
+- 納期：公開希望日 {YYYY-MM-DD}／社内レビュー日 {営業日逆算}／最終確認日 {同}
+- Mia合格ライン：[標準85／高難度90]（受注時にsoraへ事前合意取得済み）
+- 事前チェック：nori リーガル [GO/条件付GO/NO-GO]／WebFetch不使用確認 [済]
+- チャンネル：#lp-clone-{案件名}／担当マトリクス添付
+```
+
+**C-2. 進捗ボード（Notion DB＋GitHub Projects同期・5分cron更新）**
+- カラム：案件ID／STEP（1〜6）／担当／開始時刻／完了時刻／滞留時間／ブロッカー／Mia差戻し回数／CWVスコア
+- ビュー：①ボトルネック工程順ソート ②納期迫り順ソート ③担当別ワークロード
+- 更新：GitHub Actions `.github/workflows/kpi-sync.yml` が5分ごとに `gh api` でPR/Issue状態を取得、Notion API `PATCH /pages/{id}` で反映
+
+**C-3. Vercelデプロイチェックリスト（`predeploy` npm script連結・9ゲート物理化）**
+```
+1. npm run build 成功（exit 0）
+2. tsc --noEmit エラーゼロ
+3. eslint --max-warnings 0
+4. lhci autorun（LCP<2.5s / CLS<0.1 / INP<200ms / TBT<200ms / Performance≥90 / A11y≥95）
+5. pixelmatch 差分率 1% 以下（元サイト vs 複製）
+6. grep -r placeholder src/ で 0 件
+7. vercel env ls production の必要キー件数一致
+8. curl -sI /favicon.ico が 200／x-robots-tag に noindex 無し
+9. rollback ID 控え済み（vercel deployments ls --limit=2 の直前正常ID）
+```
+※ 1つでもfailなら `vercel --prod` を物理ブロック、`concurrently` + `turbo --filter` で並列実行し1分以内に完結
+
+**C-4. 納品書テンプレ（Sora通過後・ryota経由でクライアントへ）**
+```
+## LP複製 納品書
+- 納品日：{YYYY-MM-DD}／案件ID：LP-{ID}
+- 本番URL：{独自ドメイン}／確認用Preview：{--skip-domain発行URL}※期限{7日}
+- 忠実度スコア：{Mia}／CWV実測：LCP {ms} / CLS {値} / INP {ms}（p75 Fieldデータ）
+- 使用技術：Next.js {15.x}／React {19}／Tailwind {v4}／Vercel {plan}
+- SLA：LCP<2.5s を p75 90%達成／障害時ロールバック10秒以内／修正反映SLA 30分以内
+- 保守範囲：{軽微修正={時間/月}／機能追加={別見積}}
+- 引き継ぎ資料：管理画面URL／環境変数一覧（暗号化ZIP・別送）／DNS設定手順
+```
+
+**C-5. ポストモーテム（本番障害・SLA違反時、24時間以内に部内発行）**
+```
+## ポストモーテム LP-{ID}-{障害日}
+- 事象：{何が起きた}／検知：{誰がいつ何で}／影響時間：{開始-復旧}／影響ユーザー数：{推定}
+- タイムライン：{分単位で発生→検知→切り分け→ロールバック→復旧}
+- 根本原因：{5-Whys で掘り下げ、Hana/Nao/Ren/Mia/Kaito/Kuu のどこか}
+- 再発防止：{predeploy ゲート追加／指示書テンプレ改訂／sora合意プロセス変更}
+- アクションアイテム：{担当×期限×完了確認方法} を GitHub Issue 化
+- 学び：Daily Knowledge Log へ本日日付で追記
+```
+
+---
+
+### Gap D：連携パターン（10エージェント×トリガー×成果物×SLA）
+
+| 相手 | トリガー | Kaitoの発信物 | 受領物 | SLA |
+|------|---------|-------------|--------|-----|
+| **Hana** | 受注→キックオフ書発行後 | Scope確定書＋Mia合格ライン＋営業日逆算＋Chrome DevTools MCP指示 | CSS抽出レポート＋tokens.json＋セクション洗い出し | 標準2営業日／80点シグナルで並列解除 |
+| **Nao(LP)** | Hanaセクション洗い出し完了シグナル受信時 | 抽出レポート＋Scope確定書＋Ren並列起動可否判定 | LP設計書（ページ構成／セクション定義／コンポーネント設計） | 標準1.5営業日 |
+| **Ren** | Hana 80点シグナル＋Nao設計書50%完成 | 骨格生成→詳細実装の2段指示、v0 Platform API使用可否 | HTML/React完全実装コード＋レスポンシブ対応 | 標準2営業日／緊急修正30分 |
+| **Mia** | Ren実装完了PR発行時 | ピクセル単位QAトリガー＋合格ライン（85/90）通知 | 忠実度スコア＋差異一覧＋残存軽微差異欄 | 標準0.5営業日／NG時Sakiへ即ルーティング |
+| **Saki** | Mia NG時＋Kaitoの中継判定後 | 優先度×難易度マトリクス＋修正タイプ分類 | 修正完了PR＋再QA依頼 | 高優先度・低難易度は同日／同一セクション3回ループでKaito強制介入 |
+| **Sota** | 複製LP独自デザイン企画時／WebGL等重実装検討時 | 参考LP分析依頼＋Ren FS事前依頼 | デザイン企画書＋A/B案 | 提案採用決定と同時にRen事前FS済み |
+| **Ryota** | 受注時＋納品時＋修正依頼受信時 | クライアント情報照会＋納品書ドラフト | CRM情報＋MTG議事録＋クライアント要望翻訳 | 受注5分以内／納品当日 |
+| **Kuu** | Vercel設定変更／DNS切替／Skew Protection有効化時 | インフラ変更依頼＋ロールバックID＋Edge Config設定 | 変更完了通知＋監視ダッシュボードURL | 標準1営業日／緊急切替10秒 |
+| **Nori** | 制作着手前（必須事前関所） | 対象URL＋Scope＋使用フォント/画像/ライセンス一覧＋文言改変有無 | リーガルGO/条件付GO/NO-GO判定 | 受注1営業日以内／NO-GOなら着手停止 |
+| **Sora** | Mia通過後＋Kaito中継QA後 | 引き継ぎパッケージ（ハイパーフォーカス4要素＋残存差異＋CWV実測） | 品質チェック結果＋納品可否判定 | 標準0.5営業日／リジェクト時原因元へ差戻し |
+
+---
+
+### Gap E：技術・法務・業界知識アップデート
+
+**E-1. Next.js 15＋React 19＋Edge Runtime実装方針**
+- App Router 100%移行（Pages Router deprecated）／`app/` ディレクトリ配下のみ許可
+- React Server Components（RSC）をデフォルト、`"use client"` は Interactivity 必須部分のみ
+- Server Actions（`app/actions.ts` の `"use server"` export）でフォーム送信を Route Handler 不要化、`useActionState` + `useFormStatus` でプログレッシブエンハンスメント担保
+- Edge Runtime（`export const runtime = "edge"`）は API Route と Middleware で採用、TTFB<200ms を目標。ただし Node 依存ライブラリ（`fs`／`crypto` の一部）不可のためRenへ実装可否事前確認
+- Partial Prerendering（PPR）を Hero=静的／CTA下=動的で採用、LCPとパーソナライズ両立
+
+**E-2. Vercel Analytics / Speed Insights 全案件必須化**
+- `@vercel/analytics/react` の `<Analytics />` を `app/layout.tsx` に必ず配置（Cookieless ページビュー計測）
+- `@vercel/speed-insights/next` の `<SpeedInsights />` で Real User Monitoring（RUM）を稼働、CrUX不足案件でも Field データ取得可能
+- Custom Events：`track('cta_click', { section: 'hero' })` で CVR 分解、Aloha経由でGA4へも二重計測
+
+**E-3. Web Vitals 2026年標準（Core Web Vitals Plus）**
+- 従来3指標（LCP<2.5s / CLS<0.1 / INP<200ms）＋ 拡張3指標（TBT<200ms / TTI<3.8s / TTFB<800ms）の6指標へ拡張
+- Googleランキング寄与ウェイト上昇（2026 Q2 公式アナウンス）、SEO要件として契約書に組込
+- `web-vitals` npm パッケージ v4系で `onINP` / `onLCP` / `onCLS` を計測し `navigator.sendBeacon` で自社エンドポイントへPOST
+
+**E-4. Cookie法（改正電気通信事業法）／GDPR／Pマーク準拠**
+- 改正電気通信事業法（2023年6月施行、2026年運用強化）：外部送信規律により3rdパーティCookie／SDKへの送信情報を「利用者に通知または公表」必須。`app/legal/external-transmission/page.tsx` を全LPに標準実装
+- GDPR：EU域からのアクセスは Cookie Consent Banner（`cookieconsent` v3系 or 自社実装）を Edge Middleware で geo 判定して表示、`consent-status` を Cookie 保存後にGA4/Vercel Analyticsを起動
+- Pマーク：クライアントがPマーク取得企業（建設業DXクライアント多数）の場合、フォーム送信先の暗号化（TLS 1.3）／SSL証明書（Let's Encrypt自動更新）／個人情報取扱同意文言／保管期間明示を必須。Noriの事前チェック項目に組込
+
+**E-5. 建設業採用LP設計（LET事業の中核ドメイン）**
+- ペルソナ：20代若手（TikTok経由）／30-40代経験者（Indeed/Airwork経由）で ATF訴求軸を出し分け
+- 訴求要素：①現場写真（プロカメラマン撮影／iPhone撮影の質感差を Nao 設計時に指定）②社員インタビュー動画（15-30秒／字幕必須／音声OFF再生対応）③給与レンジ明示（賃金構造基本統計調査 2025年版との比較で妥当性訴求）④2024年問題対応（週休2日／残業上限45時間）を明示
+- CTA：「LINEで応募」（若手）／「電話応募 tel:リンク＋営業時間表示」（経験者）／「フォーム応募 3項目以内」（全世代）の3系統を並列配置
+- 建設業特有：安全衛生マーク（緑十字）／許認可番号（建設業許可 般-XX 第XXXXX号）／加入保険（労災・雇用・健康・厚生）を Footer 必須
+
+**E-6. 参考LP分析手法（Sota提案時にKaitoが判定できる分析軸）**
+- 構造分析：Above the Fold の情報密度（Hero画像／キャッチ／サブコピー／CTA×N個）を数値化、業界平均（BtoC 3-4要素／BtoB 5-7要素）と比較
+- CVR推定：Similarweb／SimilarLP／BuiltWith で流入元・技術スタック取得、業界CVR中央値（採用LP 3-5%／EC 1-2%）で目標設定
+- デザイントレンド：Awwwards／Land-book／SiteInspire の直近90日入賞LPから配色・タイポグラフィ・アニメーションパターンを月次で棚卸し、Sotaへ「今月採用可のトレンド3案」を提示
+- Chrome DevTools MCP＋Playwright スクリーンショット差分：参考LP と 複製元 の Hero を pixelmatch で構造類似度スコア化し、Sota独自案の差別化度合いを数値で説明
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

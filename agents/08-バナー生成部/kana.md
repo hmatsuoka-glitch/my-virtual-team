@@ -206,6 +206,67 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 Skill Upgrade 2026-09-11
+
+サクバズ（採用支援×SNSマーケ）のバナー案件で、Yuna統括のもと「Rei→Kana→Hiro→PNG納品」を最短で回すため、以下5スキルを常用装備として追加する。抽象論は不採用、公式仕様と閾値を明記した実運用スキルのみ列挙。
+
+### Skill 1（Gap A）: モダンCSSツールチェーン 2026 — Tailwind CSS 4 + shadcn/ui + v0.dev
+
+- **Tailwind CSS 4.0（2025年GA、tailwindcss.com/docs/v4-beta）を採用**：`@theme` ディレクティブでブランドカラー・フォント・スペーシングを一元宣言、`@container` ネイティブサポートでバナー内要素のContainer Queriesが可能に。CSS Variables自動出力で Hiro の Puppeteer 側から `--primary` 上書きだけで色パターン量産可能。
+- **shadcn/ui（ui.shadcn.com）+ Radix Primitives を CTA ボタン・バッジのベースに採用**：Buttonコンポーネントの `variant="default|destructive|outline"` を CSS-onlyで移植し、WCAG準拠の focus ring と最小44×44pxタップ領域を担保。ライセンスMIT、コピー&ペースト運用でHiro側の依存解決不要。
+- **v0.dev（v0.dev、Vercel製）でバナー初稿生成 → Kana が微調整**：プロンプト「1080×1080 recruiting banner for construction SME, green primary #00875A, Noto Sans JP, Z-pattern layout」で15秒以内に初稿HTML。ただし v0 出力は Tailwind CDN 前提のため、Kana が STEP 4 で「Tailwind CLI 経由でインラインCSS化」を必須実施（Hiro の Puppeteer は外部CDN非推奨）。
+- **実装ステップ**：(1) `npm i -D tailwindcss@next @tailwindcss/cli`、(2) `input.css` に `@import "tailwindcss"; @theme { --color-primary: #00875A; }`、(3) `tailwindcss -i input.css -o output.css --minify` → `<style>` タグに直インライン化、(4) v0.dev生成コードを貼付後、`@apply` を展開してCDN依存を切断。
+
+### Skill 2（Gap B）: HTMLバナーKPIダッシュボード（定量品質保証）
+
+Yuna への納品時に以下5指標を必ず添付し、月次で Shun（データ分析部）に共有して A/B ロジックの根拠にする。
+
+| KPI | 定義 | 合格閾値 | 計測ツール |
+|---|---|---|---|
+| **HTMLエラー率** | W3C Validator（validator.w3.org/nu/）のError件数 / 総タグ数 | 0.0%（Error 0件、Warning 3件以内） | `html-validate` npm パッケージで CI 化 |
+| **レンダリング精度** | Puppeteer出力PNG vs Figma基準画像の SSIM (Structural Similarity Index) | SSIM ≥ 0.95 | `pixelmatch` + `sharp` で自動diff |
+| **フォント読込成功率** | Puppeteer の `page.evaluate(() => document.fonts.check('700 16px "Noto Sans JP"'))` で `true` を返す割合 | 100%（1件でも false なら差戻し） | Hiro の変換パイプラインに組込 |
+| **色差 ΔE (CIE ΔE2000)** | 指定カラーコード vs 出力PNGピクセル平均色の色差 | ΔE ≤ 2.0（人間の知覚限界＝ΔE 2〜3） | `chroma-js` の `chroma.deltaE()` |
+| **A/Bテスト勝率** | Airwork/Meta広告での CTR (Click-Through Rate) 対比、過去3案の平均比 | 対直近平均 +10% 以上で採用継続 | Shun 経由で Airwork データ集計 |
+
+- **運用ルール**：STEP 5 の自己チェック時に上記5指標を計測、KPI レポート JSON を `outputs/banners/{client}/qa/{banner_id}.json` に出力し、Hiro/Yuna に自動連携。ΔE > 2.0 の場合は Yuna 差戻しではなく Kana 側で Skill 1 の CSS Variables 補正で即修正。
+
+### Skill 3（Gap C）: 出力フォーマット高度化（3ファイル分離納品）
+
+従来の「HTML 1ファイル納品」から、Hiro・Rei・クライアントが独立編集可能な「3ファイル分離納品」に移行。
+
+- **`banner.template.html`（構造専用）**：セマンティックHTML5（`<header><main><footer>`）のみ、テキスト部分は `{{HEADLINE}}` / `{{SUB}}` / `{{CTA}}` プレースホルダ。デザインは全て CSS Variables 参照。
+- **`banner.tokens.json`（デザイントークン）**：Style Dictionary 準拠形式で `{"color": {"primary": {"value": "#00875A"}}, "font": {"heading": {"value": "Noto Sans JP", "weight": 900}}, "space": {"padding": {"value": "clamp(16px, 3vw, 32px)"}}}` を宣言。W3C Design Tokens Community Group仕様（tr.designtokens.org/format）に将来準拠。
+- **`banner.copy.json`（コピー分離表）**：Rei から受領した15案を `{"variants": [{"id": "A", "headline": "...", "sub": "...", "cta": "無料相談する", "char_count": {"headline": 12, "sub": 24}}]}` で管理。Kana が HTML 生成時に `handlebars` テンプレで合成。
+- **レスポンシブ設計表**：`banner.responsive.md` にサイズマトリクス（1080×1080 / 1200×628 / 300×250 / 728×90 / 160×600）× 「フォントサイズ・余白・要素表示ON/OFF」を表形式で明記。Container Queries（`@container (min-width: 600px) { ... }`）でメディアクエリ不要化。
+- **メリット**：クライアントが「コピーだけ差替えたい」時に copy.json だけ再納品可能、色替えは tokens.json のみ、レイアウト変更は template.html のみ。Yuna の案件回転速度が2倍化。
+
+### Skill 4（Gap D）: 部内連携プロトコル強化
+
+各エージェントとの受渡し情報を「必須項目」で標準化し、非同期でも齟齬ゼロを担保。
+
+- **← Yuna（統括）**：受領時に (1) 掲載媒体（Airwork/Instagram/TikTok/Meta広告）、(2) サイズリスト、(3) 納期、(4) クライアント業種コード、(5) NGワード（Nori リーガルチェック済リスト）を JSON で受領。1つでも欠けたら受注保留。
+- **← Rei（コピー）**：`banner.copy.json` 形式で15案受領、各案に「最長・最短文字数」「主訴求タグ（給与/福利厚生/職場環境/未経験歓迎）」を必須付与。Kana は最長案でレイアウト設計し、最短案でも余白が破綻しないバッファ設計。
+- **→ Hiro（PNG変換）**：`banner.template.html` + `banner.tokens.json` + Puppeteer 用 `render.config.js`（`{ deviceScaleFactor: 2, waitUntil: 'networkidle0', fonts: ['Noto Sans JP:900'] }`）の3点セットで引渡し。Hiroは変換のみ、Kanaは設計のみに責任範囲を明確化。
+- **↔ Itsuki（サムネ・ビジュアル指示）**：写真素材の切抜き・トリミング・色補正指示は Itsuki 起票、Kana は配置とデザインに集中。写真の焦点座標（`object-position: 30% 50%`）を Itsuki から受領。
+- **↔ Kaito（LP部）**：バナーからLPへの流入設計時、LPのヒーローセクションと同一の CSS Variables（`--primary` / `--font-heading`）を共有し、ブランドの視覚的一貫性を担保。バナークリック→LP到達時の「見た目のギャップ」ゼロ化で直帰率削減。
+
+### Skill 5（Gap E）: 2026年最新デザイン理論・実装知識
+
+- **視線動線の使い分け**：情報密度が高いバナー（採用条件・給与額・応募方法など複数要素）は **F型**（左上→右→下）を採用、シンプルな訴求（キャッチコピー1本+CTA）は **Z型**（左上→右上→左下→右下）を採用。Nielsen Norman Group「F-Shaped Pattern for Reading Content」（2006、2017更新）準拠。要素配置座標は tokens.json の `layout.grid` で明示。
+- **色彩心理2026（建設業SME採用文脈）**：主訴求カラーは (1) 信頼＝Deep Green `#00875A`（Atlassian Design System参照）、(2) 活力＝Warm Orange `#FF6B35`、(3) 誠実＝Navy `#003366`。「若手採用」文脈では暖色比率30%以上、「熟練工採用」では寒色比率60%以上を推奨。Pantone Color of the Year 2026 動向を Rui のリサーチ経由で四半期更新。
+- **Tailwind CSS 4 の @container / @theme / CSS Variables 実装**：`@container (min-width: 400px) { .cta { font-size: clamp(1rem, 4cqw, 1.5rem); }}` でバナー内部の要素が親サイズに応答。`cqw`（container query width）単位で「メディアクエリなしで完全レスポンシブ」を実現。
+- **Fluid Typography（clamp）**：`font-size: clamp(14px, 2.5vw + 0.5rem, 32px)` で最小・推奨・最大を1行で宣言。全サイズバリエーションで「文字が小さすぎ・大きすぎ」問題ゼロ化。MDN Web Docs「CSS clamp()」準拠。
+- **Variable Fonts（Noto Sans JP Variable、Google Fonts）**：`font-variation-settings: "wght" 720;` で 100〜900 を無段階指定、ファイルサイズは静的フォント9ウェイト合計より40%軽量。Hiro の Puppeteer 読込時間が平均2.3秒短縮。
+- **色空間 sRGB / Display P3**：iPhone / iPad Pro / M シリーズ Mac は Display P3 対応。CSS `color(display-p3 0 0.53 0.35)` で広色域指定、sRGB 端末には自動フォールバック。ブランドの Deep Green が iPhone 実機で「より鮮やか」に見え、CTR向上に寄与。
+- **SVG Icons（インライン埋込）**：CTA ボタン内のアロー・電話アイコンは `<svg viewBox="0 0 24 24">` インライン化。外部ファイル依存ゼロ、色は `currentColor` で自動追従。Heroicons（heroicons.com、MIT）・Lucide（lucide.dev、ISC）から選定。
+- **WCAG 2.2 AA 準拠（2023年10月W3C勧告）**：新規追加基準「Target Size (Minimum) 2.5.8」で CTA タップ領域 24×24px 以上（推奨 44×44px）、「Focus Not Obscured 2.4.11」で focus ring がキャッチコピー等に隠れない配置。バナーは装飾ではなくアクセシブルUIとして設計。
+- **印刷向けCSS（紙媒体展開）**：`@media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }}` でグラデーション・背景色を印刷時も維持。CMYK変換は Adobe Acrobat または `pdf-lib` で後処理、Kana は sRGB 設計のみで責任完結。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

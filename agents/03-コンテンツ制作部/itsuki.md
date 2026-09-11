@@ -149,6 +149,92 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+### Gap A：2026年最新デザイン/生成AIツール運用（追加3種）
+- **Recraft V3（2025年10月GA・2026年主流継続）**：ベクター/ラスター両対応・**画像内テキスト日本語崩れなし**が最大強み（Midjourney/DALL-Eの最大弱点をカバー）。LP用ヒーローイラスト・アイコンセットはRecraft V3で一次生成→Figma/Illustratorで色調整。API単価 $0.04/枚。実装例：翔星建設「ヘルメット装着ピクトアイコン20点セット」を1時間で量産→バナー生成部Kanaへ即引き渡し。プロンプト規約は`style=digital_illustration/vector_illustration`＋`substyle=engraving`で建設業アイコンのラインテイストを統一
+- **Ideogram 3.0（2026年Q1リリース）**：**画像内テキスト日本語表記精度99%**。バナーキャッチコピーの画像焼込みは第一選択。プロンプトに`Japanese text: "月収35万" (Noto Sans JP Bold)`と明記→3秒で正確描画。A/Bバリエーション生成速度が従来比5倍。求人バナー用途で運用開始
+- **Photoshop Generative Fill 2026（Firefly Image 4搭載版）**：既存写真の背景差替え・不要オブジェクト除去・領域拡張が1クリック。クライアント支給現場写真から「他社ロゴ/看板消し→自社ブランドカラー背景差替え」を10秒。6/17受領チェックリストの権利問題を実務レベルで解決
+- **Figma AI（2026年5月GA）+ Figma Variables**：Figma内でプロンプト→バリエーション自動生成。既存クライアント7社のFigmaライブラリを学習→「ブランドトーン維持したまま新規案件を初稿30秒」。5/26のVariables運用と完全連携
+
+### Gap B：バナー/サムネKPIの定量運用（追加3軸）
+- **CTR基準値（媒体別2026Q3ベンチマーク）**：Meta広告（採用系）1.2%以上・Instagramフィード投稿2.5%以上・TikTok In-Feed 1.8%以上・YouTubeサムネ4.0%以上。**下限未達バナーは3日で差替判定**。Shunから週次CTR実測受領→基準未達は即Yuna/Kanaへ再生成依頼（A/Bバリエーション表から次候補選定）
+- **CPC/CVR連動判定**：CTR高＆CPC高騰（¥300超）＝「無関係層に刺さり」→ペルソナ再定義。CVR低下（応募到達率2%未満）＝LP側との訴求断絶→Kaito/SakiへLPファーストビュー同期化依頼。**CTR×CVR×CPCの3軸マトリクス**でスコアリング
+- **ヒートマップ/滞留時間（Microsoft Clarity・Hotjar 2026）**：LP掲載バナーはClarityで「クリック位置ヒートマップ+スクロール到達率+デッドクリック検出」を週次計測。バナー滞留2秒未満＝視認失敗判定→レイアウト（F型/Z型）切替再テスト
+- **視線動線適合率**：F型/Z型指定に対しClarityの視線推定ツールで実測動線と設計動線の一致率を測定→70%未満で要素配置を修正
+- **A/Bテスト勝率**：1バナーにつきA/B/C 3案投入→7日で統計有意（p<0.05・最低1000imp/案）を確認。勝率トップ案は勝因要素（配色/構図/コピー）抽出→テンプレ昇格。**変数は1回1点固定**（6/3失敗パターン準拠）で勝因特定率100%
+
+### Gap C：出力フォーマット高度化
+- **バナー指示書JSONテンプレ v2**（Claude Code/Notion API連携用の完全機械可読形式）：
+```json
+{
+  "brief_id": "SHOSEI-2026-Q3-001",
+  "client": "翔星建設",
+  "purpose": "Instagram広告（採用・未経験訴求）",
+  "size": {"w": 1080, "h": 1080, "safe_area": {"top": 60, "bottom": 50, "left": 20, "right": 20}},
+  "layout_type": "F_type",
+  "color": {"main": "#1A5276", "sub": "#F1C40F", "accent": "#E74C3C", "ratio": [60, 30, 10]},
+  "typography": {
+    "headline": {"font": "Noto Sans JP Bold", "size_pt": 72, "kerning": -50, "tracking": 0, "line_height": 1.2, "license": "OFL"},
+    "body": {"font": "Noto Sans JP Regular", "size_pt": 32, "kerning": 0, "tracking": 20, "line_height": 1.4}
+  },
+  "copy": {"headline": "月収35万／未経験OK", "sub": "20代・30代活躍中", "cta": "応募はこちら", "char_count": 12, "line_break_spec": "月収35万／未経験OK"},
+  "assets": {"logo": "svg_currentColor", "person": "AI生成不可・実社員写真必須", "reference_priority": [{"url": "...", "role": "全体構成"}, {"url": "...", "role": "配色"}, {"url": "...", "role": "フォント"}]},
+  "kpi_target": {"ctr": 2.5, "cpc_max": 300, "cvr": 3.0},
+  "ab_variants": ["A_main", "B_color_swap", "C_layout_Z"],
+  "wcag": "2.2 AA (contrast 4.5:1)",
+  "legal_check": {"nori_review": true, "keihyo_flag": false, "shokuan_flag": true, "yakki_flag": false}
+}
+```
+- **F型/Z型レイアウト選定表**：縦長（9:16）モバイル広告→F型固定・横長（16:9）YouTubeサムネ→Z型固定・正方形（1:1）フィード→顔クローズアップ中心配置＋Z型副次。テンプレJSONの`layout_type`で機械選定
+- **カラー/フォント/コピー分離表**：3要素を別テーブルで管理し、コピー変更時にカラー・フォント再指定不要化（Notion DBのリレーション運用）
+- **A/Bバリエーション比較表**：A/B/C各案の「変数・仮説CTR・狙い心理層・想定コスト・停止条件（例：3日で1.0%未満なら停止）」を1枚並列比較（5/6の推定CTR記載ルールを発展）
+
+### Gap D：チーム連携パターン詳細（役割別ゲート）
+- **Sho（SNS投稿）**：投稿カレンダー確定→48h前までにバナー納品必須。ファイル名規則`{client}_{媒体}_{yyyymmdd}_{variant}.png`＋カラーJSON同梱。投稿予約完了時点で「掲載媒体×URL×投稿時刻」をSlackに逆共有→CTR計測起点確定
+- **Toma（TikTok台本）**：台本フック秒数（0.8秒/1.5秒/3秒）に合わせカバー画像の情報量を可変。フック0.8秒＝顔+1語のみ、3秒＝顔+1語+補足アイコン。台本確定と同時にカバー画像発注書JSON自動生成
+- **Eito（Reels/汎用動画）**：動画5秒/15秒/30秒の3ポイントで表情ピーク静止画抜き出し依頼。サムネ3案並列制作の素材確保
+- **Yuna（バナー生成部長）**：JSON指示書＋Figma URL＋差替え変数のワンセット発注（5/7、6/11既定）。Yuna受領時に「Puppeteer実装可否」即判定してItsukiへ返送→実装不可要素は事前修正
+- **Rei（キャッチコピー）**：JSONの`copy.char_count`とKPI（CTR基準）を渡し、15案を「文字数区分（8字/12字/16字）×訴求軸（金額/条件/感情）」の3×3マトリクスで返却。Itsukiが3案選定→A/Bテスト投入
+- **Kana（HTMLバナー）**：Figma Variables→CSS Custom Properties自動変換のためVariables命名規則統一（`--color-main` / `--color-sub` / `--color-accent`）→Kanaが即CSS実装可能
+- **Hiro（Puppeteer PNG化）**：HTMLバナーの`data-testid`属性でPNG書出し領域を指定→Hiroが8媒体サイズ一括生成
+- **Ryota（クライアント管理）**：クライアント承認前バナーは`draft/`、承認後は`approved/`に自動移動→Ryota週次でステータス更新
+- **nori（法務・事前関所）**：**求人広告特有の景品表示法/職業安定法/薬機法**に該当する要素は着手前必ずnori事前相談（Gap E参照）。使用素材一覧シート＋広告文言原稿を1セット提出
+
+### Gap E：デザイン理論/法規制の実務適用
+- **視線動線理論の使い分け**：
+  - **グーテンベルク図（Gutenberg Diagram）**：均質情報が並ぶ縦長LPで有効。左上（Primary Optical Area）→右下（Terminal Area）の対角線視線。CTAボタンは必ずTerminal Area配置
+  - **F型（Nielsen Norman Group検証）**：テキスト主体LP・記事系向け。左端の縦視線＋上部2〜3本の横視線。左端に「重要キーワード」、CTAは上位3本目の横視線末端（右上）
+  - **Z型**：ビジュアル主体バナー・LPファーストビュー向け。左上ロゴ→右上メニュー→左下説明→右下CTA。フルスクリーン動画背景バナーで最強
+- **色彩心理2026年最新（Pantone Color Institute + Adobe Color Trend Report 2026）**：
+  - 2026年PANTONE Color of the Year「Mocha Mousse（#A47764）」＝落ち着き・信頼・アース感。建設業「実直・安全」訴求と親和性高（翔星/宮村建設案件で採用検討）
+  - Z世代（求職者20代前半）向けは「くすみパステル+高彩度アクセント」でフィード停留率+18%（Meta Creative Report 2026Q2）
+  - 「深緑+マスタード」の建設業パレットが2026Q3のPinterest建設業採用ボードで上位トレンド
+- **Meta広告クリエイティブベストプラクティス（Meta Business 2026版）**：
+  - 画像内テキスト面積20%以下（超過で配信抑制）→Ideogramで焼込み最小化＋Meta広告マネージャの「テキストオーバーレイツール」で事前検証
+  - 縦型9:16推奨（1:1から更新・6/23トレンド確認済）
+  - Advantage+ Creative対応で「同一案件バリエーション5案以上」を標準納品
+- **TikTokカバー画像2026ベストプラクティス（TikTok for Business Creative Center 2026）**：
+  - プロフィール一覧300×300px極小表示が勝負（5/11更新）
+  - **カバー内テキスト位置は上部20〜60%の帯**（下部はキャプション/ハッシュタグに被る）
+  - Trend Score 8.0以上音源連動カバーは視聴完了率+22%（Sou/Tomaと連携必須）
+- **WCAG 2.2（2023年10月W3C勧告・2026年主流）新基準**：
+  - 通常テキスト4.5:1・大テキスト（18pt以上/14pt太字）3:1（2.1と同じ）
+  - **新2.2追加：Focus Not Obscured（Minimum）2.4.11**＝インタラクティブバナー（LP用）で必須
+  - **Target Size (Minimum) 2.5.8**＝タップターゲット最小24×24px→CTAボタン設計に反映
+  - **Dragging Movements 2.5.7**＝ドラッグ操作にドラッグ以外の代替手段必須（カルーセルバナー設計時）
+- **YouTubeサムネ2026勝ちパターン（YouTube Creator Insider 2026Q2）**：
+  - 顔占有率30〜50%（5/24の40%基準を範囲化）
+  - 3色以内・大文字テキスト2〜4語（5/13の12文字ルールと整合）
+  - **Test & Compare（2024年全アカウント解放）**でサムネA/B/C自動選定→勝ちパターンをテンプレ昇格
+- **景品表示法・職業安定法・薬機法（求人広告特有・2026年運用）**：
+  - **景品表示法（不当表示防止）**：「業界No.1」「日本一」等の絶対表現は根拠データ（第三者調査・調査時期・調査母数）併記必須。バナー書ききれない場合はLP側で担保→`legal_check.keihyo_flag: true`
+  - **職業安定法5条の3（労働条件明示義務）**：賃金・勤務地・雇用形態・試用期間の有無。バナー1枚に全項目書けない場合は遷移先LPで完全開示→`legal_check.shokuan_flag: true`
+  - **薬機法（原則対象外だが健康食品タイアップ派生案件で注意）**：「疲労回復」「腰痛改善」等の効果効能表現は医薬品的表現→社員インタビュー動画のテロップ頻出注意→`legal_check.yakki_flag: true`
+  - 上記フラグ立ち案件は必ずnori事前関所（5/14既定）
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-16

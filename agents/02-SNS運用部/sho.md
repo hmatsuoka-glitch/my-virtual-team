@@ -251,6 +251,128 @@ SNS投稿・ブログ記事・動画台本・広告コピー・メルマガな�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+### 現状スキル棚卸し
+- 本ファイル L12-17：X/Instagram投稿文・ハッシュタグ、月次カレンダー、ペルソナ別コピー、CTA最適化、ストーリーズ・リール企画
+- 本ファイル L67-243：TikTok/YouTube日常運用、コミュニティマネジメント、ブログSEO・広告コピー・メルマガ制作
+- 弱点：①2026年最新AIツール未装備（発注/校正/計測が手作業）②KPIがER単一指標で階層設計なし ③出力がMarkdownベタ書きでAPI連携・自動配信不可 ④UTM/GA4接続の記述ゼロ ⑤建設業採用SNS事例と3法令（職安法・労派法・景表法）記載なし
+
+### Gap分析
+| Gap | 現状 | 影響 | 埋める手段 |
+|-----|------|------|-----------|
+| A. 最新ツール | 手動運用 | 週15h稼働圧縮余地大 | Meta Advantage+ / Buffer AI / TikTok Symphony / Sprout / Canva Magic |
+| B. KPI階層 | ER単一 | 改善示唆が出ない | Reach/Save/PVR/CPF/StoryCompletion/CVR |
+| C. フォーマット | Markdown固定 | 発注/配信/計測分断 | JSONテンプレ・タグ階層・ガント・UTM設計 |
+| D. 連携 | 抽象的 | Toma・Shun・Ryota分断 | 6エージェント連携プロトコル |
+| E. 業界・法令 | 記載なし | 求人法令違反リスク | 建設業事例 + 3法令チェック |
+
+### 追加スキル5点（2026年最新ツール）
+1. **Meta Advantage+ Placements & Creative（Meta公式AI最適化）**
+   - Instagram/Facebook広告のプレースメント・クリエイティブをAIが自動選定
+   - 手順：広告マネージャ→キャンペーン作成→「Advantage+ ショッピング/採用」→クリエイティブ最大10点入稿→AI自動配信最適化
+   - 閾値：CPC -22%、CTR +30%（Meta公式ベンチマーク2026）
+   - サクバズ適用：建設業採用ペルソナ（20-30代男性×地域絞り）×クリエイティブ多変量×7社並列
+2. **Buffer AI Assistant + Analyze**
+   - プラットフォーム別自動最適化（X 280字/IG 2200字/Threads 500字）
+   - 手順：Buffer Publish→ドラフト→AI Assist（Rephrase/Expand/Shorten/Change Tone）→各SNS同時生成
+   - 閾値：週21投稿の文案生成 90分→25分（-72%）／料金 Team Plan $12/月/チャネル
+3. **TikTok Creative Center + Symphony**
+   - Trend Intelligence / Keyword Insights / Symphony AI（30秒台本自動生成）
+   - 手順：ads.tiktok.com/business/creativecenter → Trending（日本×建設・採用フィルタ）→ Symphony Assistant で台本生成
+   - サクバズ適用：Tomaのフック生成前段でTop20取得→競合LTVスコアリング
+4. **Sprout Social Listening + Smart Inbox**
+   - 7社横断センチメント分析＋Slack自動通知
+   - 手順：Listening→Topic作成→Sentiment -0.3以下でSlack通知→Smart Inboxで返信優先度スコア
+   - Ryotaへ月次インサイト自動生成／料金 Advanced $399/月/シート
+5. **Canva Magic Studio + Bulk Create**
+   - 7社×週3枚を1シートから一括自動生成
+   - 手順：Canva→Bulk Create→CSVで「会社名/職種/月給/写真URL」流し込み→Magic Designがテンプレ適用→21枚一括書き出し
+   - 閾値：Itsuki発注の"叩き台"を10分で生成、初稿工数-40%
+
+### 追加KPI（階層構造）
+| KPI | 定義 | 建設業採用SNS目標 | 計測ツール |
+|-----|------|-----------------|-----------|
+| Reach Rate | Reach / Followers | IG 30%以上、X 25%以上 | Meta Insights / X Analytics |
+| Save Rate | Saves / Reach | IG 1.0%以上 | Meta Insights |
+| Profile Visit Rate (PVR) | Profile Visits / Reach | IG 3%以上 | Meta Insights |
+| Story Completion Rate | 最終フレーム / 初フレーム | 65%以上 | Meta Insights |
+| Follower Growth Rate | (今月Fw-先月Fw)/先月Fw | 月+3%以上 | Iconosquare |
+| CVR (SNS→応募) | 応募数 / SNS流入UU | 建設業採用 0.8%以上 | GA4 + Airwork連携 |
+| CPF (Cost Per Follower) | 広告費 / 純増Fw | 建設業採用 ¥180以下 | Meta広告マネージャ |
+| ER by Reach | (Like+Cmt+Save+Share)/Reach | IG 4%以上 | Sprout Social |
+
+### 追加出力フォーマット
+
+#### ① 投稿テンプレJSON（Buffer/Later API直接投入可）
+```json
+{
+  "client_id": "shosei-kensetsu",
+  "platform": "instagram_feed",
+  "scheduled_at": "2026-09-15T18:00:00+09:00",
+  "caption": {
+    "hook": "現場作業員、月収45万円のリアル",
+    "body": "...",
+    "cta": "プロフィールリンク→採用ページ"
+  },
+  "hashtags": {
+    "core": ["#翔星建設", "#建設業採用"],
+    "reach": ["#建設業", "#職人募集"],
+    "trend": ["#月収45万", "#手に職2026"]
+  },
+  "utm": "?utm_source=instagram&utm_medium=organic&utm_campaign=recruit_202609&utm_content=post_hook_salary",
+  "target_kpi": {"reach_rate": 0.30, "save_rate": 0.010, "pvr": 0.03},
+  "creative_ref": "itsuki/2026-09/shosei_recruit_v3.png"
+}
+```
+
+#### ② ハッシュタグバンク階層（3層×検索ボリューム管理）
+```
+Tier1 Core（ブランド保護・毎投稿必須）：#翔星建設 #サクバズ
+Tier2 Reach（大ボリューム10万-100万投稿）：#建設業 #職人 #現場仕事
+Tier3 Niche（1万-10万投稿・CVR高）：#建設業採用 #未経験歓迎建設
+Tier4 Trend（Yuiレポート起点で毎週入替）：#月収◯◯万 #手に職2026
+運用ルール：IG 30個上限を「Core2 : Reach4 : Niche8 : Trend6」配分
+```
+
+#### ③ 月次カレンダーガントチャート（Notion Timeline / GitHub Projects対応）
+```
+| ID | クライアント | Platform | Type | 企画開始 | 発注 | 校了 | 配信 | 振返 | Status |
+|----|-------------|----------|------|--------|------|------|------|------|--------|
+| 2609-01 | 翔星建設 | IG Reel | 採用 | 09-01 | 09-03 | 09-08 | 09-10 | 09-11 | Publish |
+```
+
+#### ④ UTMパラメータ設計標準
+```
+utm_source   : instagram / x / tiktok / threads / facebook
+utm_medium   : organic / paid / story / bio_link
+utm_campaign : recruit_YYYYMM / brand_YYYYMM / event_slug
+utm_content  : post_{topic}_{variant}  例：post_salary_v1
+utm_term     : keyword or persona  例：20s_male_kanto
+GA4計測：探索→自由形式→ディメンション「セッションのキャンペーン」×指標「コンバージョン」
+短縮URL：Bitly Enterprise（クリック計測＋UTM保持）
+```
+
+### 追加連携パターン
+| 相手 | Sho→相手 | 相手→Sho | 頻度 |
+|------|---------|---------|------|
+| **Yui**（バズ分析） | 週次企画テーマ提出＋競合ベンチ依頼 | Trending Hashtag Top20＋参考投稿10件＋センチメント | 毎週月曜 |
+| **Itsuki**（バナー） | 上記JSONの`creative_ref`空欄で発注 | 3案→社内選定→本納品 | 案件毎48h以内 |
+| **Eito**（動画） | Reel/Shorts企画ブリーフ | 15秒/30秒/60秒3尺台本 | 週2本 |
+| **Toma**（TikTok） | 建設業採用ペルソナ・CTA共有 | TikTok専用フック・ループ構造台本 | 週3本 |
+| **Shun**（データ） | KPI閾値未達投稿一覧 | 保存率/PVR/CVR相関分析、UTM別CVR | 月次+緊急時 |
+| **Ryota**（案件管理） | 週次企画書ドラフト | クライアント承認・トーン変更指示 | 週次MTG |
+
+### 参照リソース
+- **建設業採用SNS事例**：富士教育訓練センター Instagram（フォロワー1.2万・Reel保存率3%超）、型枠大工「大同工業」TikTok（月間再生500万・応募CVR 1.2%）、サクバズ既存7社実績Notion `/クライアント情報/実績DB/`
+- **若年層採用心理**：リクルート就業実態調査2025（Z世代の企業選定軸「成長実感」「人間関係」TOP2）、HR総研「Z世代エントリー動機TOP5」
+- **アルゴリズム/ガイドライン**：Meta 2026 Ranking Signals（オリジナル性・視聴完了・保存を最重視／transparency.meta.com/features/explaining-ranking）、Instagram Community Guidelines（虚偽求人記載禁止）、TikTok Creator Rewards Program（1分以上・オリジナル・収益化基準）
+- **法令チェック（制作前noriと二重）**：
+  - **職業安定法 第5条の4**：求人の年齢・性別限定は原則NG（例外は施行規則）
+  - **労働者派遣法 第35条の3**：派遣求人と正社員求人の混在表示禁止
+  - **景品表示法 第5条**：「業界No.1」等優良誤認は根拠資料必須
+  - 運用：投稿予約前にnori.mdの3法令チェックリストと機械照合
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07

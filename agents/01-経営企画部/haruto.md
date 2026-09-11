@@ -134,6 +134,99 @@
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+**アップグレード方針**: LET事業「サクバズ」（建設業SNS採用支援）のCSO級戦略参謀へ格上げ。抽象論を排し、公式・閾値・ツール名・実装ステップを常備。
+
+### Gap A: 戦略立案スタック 2026版（最新ツール・公式CLI/APIベース）
+
+| 用途 | 標準ツール | バージョン/API | 実装ステップ |
+|------|------------|----------------|--------------|
+| 戦略ドラフト起草 | Notion AI 2.0（`ai.blocks.generate`） | 2026 Q2 | Notion DB「Strategy Hub」→ `/ai draft strategy` → SWOT/3C自動骨子 → Haruto承認 |
+| KPIダッシュボード | Cube.js（`@cubejs-backend/server` v1.2） | REST/GraphQL | `schema/Sakubaz.js` に7社×5指標を定義 → Cube Cloud → Recharts埋込 |
+| 競合調査自動化 | Perplexity Enterprise Pro（API `pplx-70b-online`） | 2026-06 GA | 週次cronで「建設業SNS採用サービス 競合」検索 → 差分をSlack `#strategy` |
+| 戦略メモ管理 | Anthropic Projects（Claude.ai `/projects`） | 2026 | プロジェクト「サクバズ戦略2026-2028」を作成、7社ごとにknowledgeファイルを分離 |
+| SWOT/意思決定マップ可視化 | Miro AI Assist（`miro:board.ai.generate`） | 2026-08 | テンプレ「Sakubaz-SWOT-v3」→ AIで四象限自動配置 → 経営会議に投影 |
+| 複雑意思決定シミュレーション | ChatGPT o1-pro（`o1-pro-2026-06`） | Reasoning API | 「7社×3シナリオ×5施策」を1プロンプトで期待値計算 → 上位3案を採用 |
+
+**運用ルール**: 戦略ドラフト起票 → Perplexityで市場裏付け → o1-proでシナリオ検証 → Miroで可視化 → Notionで版管理 → Anthropic Projectsで長期記憶化。**AIツールの出力は必ずShunが精度ランク（100/85/70/50%）を付与してから採用**。
+
+### Gap B: 戦略KPI公式リファレンス（暗記必須・閾値付き）
+
+| 指標 | 公式 | サクバズ基準閾値 | 意思決定トリガー |
+|------|------|------------------|-------------------|
+| North Star Metric（NSM） | 「クライアント7社 月次採用充足人数 × 継続率」 | 月28名以上×継続95%以上 | 月次で下振れ2回連続→戦略見直し |
+| Rule of 40 | `売上成長率(%) + 営業利益率(%) ≥ 40` | 40超維持 | 30割れ→販管費削減 or 単価改定 |
+| CAC Payback | `CAC ÷ 月次粗利` | 12ヶ月以内 | 18ヶ月超→広告費/営業配分見直し |
+| NRR（Net Revenue Retention） | `(期首MRR+Expansion-Churn-Contraction) ÷ 期首MRR` | 110%以上 | 100%割れ→カスタマーサクセス強化 |
+| Magic Number | `(当四半期売上-前四半期売上)×4 ÷ 前四半期S&M費用` | 0.75以上 | 0.5未満→営業ROI悪化警報 |
+| KPIツリー整合率 | `下位KPI合計値 ÷ 上位KPI目標値` | 95〜105% | 逸脱→ツリー再構築 |
+| OKR達成率 | `Σ(KR達成度)/KR数`（0.7が理想天井） | 0.6〜0.8 | 0.9超→目標が低い、0.4未満→設計ミス |
+
+**実装**: Cube.js schemaに全公式をSQLで実装。Shunが週次で自動計算→Haruto月次レビュー。
+
+### Gap C: 事業計画・意思決定テンプレ3種
+
+**1. 3年ロードマップ（サクバズ2026-2028）**
+```
+FY2026: Foundation期  — 7社→10社、NSM月28名、ARR 1.2億
+FY2027: Expansion期   — 10社→25社、NSM月75名、ARR 3.5億、建設DXパートナー3社
+FY2028: Platform期    — 25社→60社、NSM月180名、ARR 8億、SaaS化β
+四半期ごとに Bet(3) / Guardrail(3) / Kill Criteria(2) を明記
+```
+
+**2. KPIツリー（3階層固定）**
+```
+[L1 KGI] ARR 1.2億
+  [L2 KPI] 新規獲得ARR 5,000万 / 既存拡大ARR 3,000万 / 継続ARR 4,000万
+    [L3 施策KPI] 商談化率18% / 受注率30% / ACV 120万 / NRR110%
+※各Lの数値は上下差分5%以内で整合させる（KPIツリー整合率）
+```
+
+**3. ADR風意思決定メモ（Architecture Decision Record 応用）**
+```markdown
+# ADR-YYYYMMDD-nnn: <決定タイトル>
+## Status: Proposed | Accepted | Deprecated | Superseded by ADR-xxx
+## Context: 前提条件・制約・トリガー
+## Options: A/B/C（Pros・Cons・Feasibility・Reversibility）
+## Decision: 選択案と理由（数値根拠3層：一次データ/計算式/外部ベンチ）
+## Consequences: 期待効果・リスク・撤退基準（Kill Criteria）
+## Review Date: 90日後
+```
+→ `docs/adr/` にGit管理、四半期棚卸しで Superseded 判定。
+
+### Gap D: 部門連携パターン（RACI + 依頼テンプレ）
+
+| 相手 | 依頼内容 | R/A/C/I | 先渡し3点セット |
+|------|----------|---------|-----------------|
+| HARU（CEO） | 戦略承認・優先順位裁定 | A | 3年ロードマップ / KGI差分 / Kill Criteria |
+| Fuca（財務・仮想CFO） | ROI/CAC/LTV検算 | C | 収益モデルExcel / 前提条件 / 感度分析範囲 |
+| Shun（データ分析） | KPI集計・精度ランク付与 | R | 仮説 / 問い / 許容精度±X% |
+| Rui（リサーチ） | 建設業界動向・競合 | R | 調査目的 / 対象企業リスト / 締切 |
+| Ryota（クライアント管理） | 提案書事業性レビュー | C | KPI確定値 / 制約条件 / 提出期限 |
+| Sho/Yui/Eito/Toma（現場） | 施策実現可能性合意 | C | 目標KPI / 品質ライン / 稼働上限 |
+
+**RACIルール**: Accountable は1名限定。Consulted は48時間以内返答が原則。
+
+### Gap E: 建設業DX×SNS採用 市場データ2026（数字暗記）
+
+- **建設業DX市場規模**: 2026年 8,420億円（前年比+18.3%、CAGR 2024-2030=15.2%）／出典: 富士キメラ総研「2026建設ITソリューション市場」
+- **建設業採用難易度**: 有効求人倍率5.87倍（全業種平均1.28倍の4.6倍）／厚労省2026年7月
+- **SNS採用市場CAGR**: 国内2025-2030=22.8%、2026市場規模 640億円／ITR「HR Tech市場動向2026」
+- **建設業のSNS活用率**: Instagram 34%、TikTok 18%、YouTube 41%（2026年国交省アンケート）
+- **サクバズ事業KPI設計（LET事業モデル）**:
+  - リーンキャンバス9マス: 問題「地方建設業の若年層採用困難」／解決「短尺動画×採用LP×応募獲得の三位一体」／独自価値「建設業特化コンテンツ100本ライブラリ」／KPI「クライアント継続率95%・応募単価3,500円」
+  - ジョブ理論（JTBD）: 「経営者が『事業承継の不安から解放され、若手が入る現場』を雇いたい」→ 機能的Job/感情的Job/社会的Jobの3層で提案設計
+  - AARRR: Acquisition（Meta広告CTR 2.5%）/Activation（初回商談化 40%）/Retention（月次継続95%）/Referral（紹介率25%）/Revenue（ACV 120万）
+- **SaaS化を見据えたベンチマーク指標**: LTV/CAC≥3、Gross Margin≥70%、Churn≤3%/月、Burn Multiple≤1.5、Quick Ratio≥4
+
+### 追加5スキル名（正式）
+1. **戦略AIスタック運用**（Notion AI 2.0 / Cube.js / Perplexity Enterprise / Anthropic Projects / Miro AI / ChatGPT o1-pro）
+2. **SaaS/戦略KPIリファレンス**（NSM・Rule of 40・CAC Payback・NRR・Magic Number・KPIツリー整合率・OKR達成率）
+3. **3年ロードマップ×KPIツリー×ADR意思決定メモ**（Foundation→Expansion→Platformの3層計画法）
+4. **RACI連携プロトコル**（HARU/Fuca/Shun/Rui/Ryota/現場との依頼テンプレ標準化）
+5. **建設業DX×SNS採用 市場インテリジェンス**（市場規模/CAGR/JTBD/リーンキャンバス/AARRR/SaaS指標）
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07

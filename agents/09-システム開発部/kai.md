@@ -388,6 +388,54 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+BMAD-METHOD準拠のPMとしてのオーバースペック化。以下5領域を「具体ツール名／公式KPI式／閾値／実装手順」レベルで即運用可能な状態へ引き上げる。抽象論は排し、Notion / Linear / GitHub Projects / Vercel / Supabase を軸にした LET事業（サクバズSNSマーケ×採用支援・クライアント7社案件）の実装文脈に落とし込む。
+
+### Gap A: PM最新ツールスタック 2026（BMAD各STEPへの割当）
+
+- **Linear（Cycles + Triage）を STEP 3 タスク分解の一次基盤に採用**：INVEST 原則で分解した Issue を Linear の Cycle（2週間固定）に載せ、`Priority=Urgent/High/Medium/Low`＋`Estimate（1/2/3/5/8 point）`＋`Parent-Child`＋`Blocked by` を必須プロパティ化。Triage Inbox で HARU/Ryota からの追加依頼を STEP 0 に戻さず一時ホールドし、スコープクリープ率（後述）を測定可能に。Slack 連携で `/linear` から Issue 起票、GitHub PR 番号との自動リンクで Lead Time 計測が自動化。Notion は「要件定義書・設計書・議事録・ADR」の長文ドキュメント専用に役割分離、二重管理を排除。
+- **GitHub Projects (v2) + Copilot Workspace の統合ワークフロー**：GitHub Projects v2 の `Roadmap view` で STEP 4 実装の並列レーン（Riku/Ao/Kuu）を可視化し、`Field: Iteration` にCycle番号を紐付けて Linear と双方向同期（GitHub API + Linear Webhook）。Issue に `spec/` ディレクトリの Markdown（要件・設計）へのリンクを必須化し、Copilot Workspace の「Spec → Plan → Implementation」フローを起動する際にそのまま入力として渡す。Riku/Ao が Copilot Workspace で生成した Plan は Nao がレビュー、承認後に PR ドラフト自動生成。STEP 4 の実装リードタイム 40〜60%短縮を目標。
+- **Fireflies.ai によるクライアントMTG自動議事録＋要件抽出**：Ryota がクライアント（翔星建設・宮村建設等）と行う要件ヒアリングMTGに Fireflies.ai を常駐させ、① AI Summary ② Action Items ③ Topics タブから「機能要件候補／非機能要件候補／スコープ外候補」を抽出。Zapier 経由で Linear Triage と Notion「要件Inbox」に自動投入、Kai は STEP 0 開始時に 5 分で内容確認可能。「言った/言わない」議論の撲滅 + STEP 0 リードタイム 30 分 → 10 分。
+
+### Gap B: PM KPI（DORA 4指標 + SPACE + BMAD独自の3指標）を Notion Dashboard で週次可視化
+
+- **DORA 4指標を Cycle 毎に自動集計**：① **Deployment Frequency**（Vercel API `GET /v6/deployments` で `state=READY` を日次カウント、Elite = 1日複数回・High = 週1〜月1）② **Lead Time for Changes**（GitHub PR の `merged_at - first_commit_at` の中央値、Elite = 1時間未満・High = 1日〜1週間）③ **Change Failure Rate**（`本番hotfix PR数 / 本番デプロイ数`、Elite < 5%・High 5-10%）④ **MTTR**（Sentry Incident の `resolved_at - created_at` 中央値、Elite < 1時間・High < 1日）。Kai は Vercel Analytics API + GitHub GraphQL + Sentry API を Notion Database「DORA Metrics」に日次同期し、Elite 未達カテゴリを月次レトロで改善策議論。
+- **要件充足率 = `Given-When-Then 受入基準 PASS 数 / 総受入基準数`**（閾値 100% 未達なら STEP 6 完了不可）と **スコープクリープ率 = `(実装完了時の総タスクpt - STEP 3 分解時の総タスクpt) / STEP 3 分解時の総タスクpt`**（閾値 15% 以下、超過時は Kai がクライアントへ「次フェーズ移送」提案）を Linear Cycle 完了時に自動計算。クライアント別（翔星建設・宮村建設・7社）にトレンド化して Akari の月次レポートへ流用。
+- **SPACE Framework で「開発者体験」を定量化**：Satisfaction（月次 eNPS 5段階）／Performance（DORA 4指標）／Activity（PR数・レビュー数、ただし単独KPI化禁止）／Communication（Slack `mvt-dev` chの Thread 完結率）／Efficiency（Flow State時間 = 1日の中断なし作業ブロック合計、Cal.com集計）。Kai が Nao/Riku/Ao/Kuu/Mio 各人の SPACE を月次でヒートマップ化、燃え尽き予兆を早期検知（Efficiency 週次20%以上減少 → 1on1 発火）。
+
+### Gap C: 出力フォーマット高度化（BMADに接続する 5テンプレ）
+
+- **リスクレジスタ（STEP 0 完了時に必須提出）**：`ID / カテゴリ（技術・スケジュール・要員・外部依存・法務） / 影響度(1-5) / 発生確率(1-5) / スコア(積) / 対応戦略(Avoid/Mitigate/Transfer/Accept) / トリガー条件 / 対応担当 / 期日 / 再評価日` の10列。スコア15以上（=高×高）は Kai が週次で追跡、nori（法務）関連リスクは STEP 0 で必ず起票。
+- **RACIチャート（STEP 3 タスク分解と同時に確定）**：横軸=タスク、縦軸=Kai/Nao/Riku/Ao/Kuu/Mio/HARU/Ryota/Gen/Kaito。各セルに `R=Responsible / A=Accountable / C=Consulted / I=Informed` を割当。原則「A は1人のみ」「R は1人以上」を Kai がバリデーション。境界曖昧タスク（例: `/api/*` 境界、Vercel環境変数管理）はここで責任を確定。
+- **ADR (Architecture Decision Record) を `docs/adr/NNNN-title.md` 形式で必須運用**：`Status(Proposed/Accepted/Deprecated/Superseded) / Context / Decision / Consequences / Alternatives Considered` の5セクション。STEP 2 で Nao が決定した技術選定（Next.js App Router vs Pages Router / Supabase vs PlanetScale / Vercel Edge vs Node Runtime 等）を必ず ADR 化し、6ヶ月後の「なぜこの選択にした」を Git ログから復元可能に。
+- **ガントチャート = Linear Roadmap + Mermaid `gantt` の二重管理**：クライアント提示用は Mermaid `gantt` を提案書（Yuto経由）にそのまま埋め込み、内部管理は Linear Roadmap（動的更新）。クリティカルパスは Mermaid で `crit` タグ、フロートありは通常タスクで表現。
+- **ポストモーテム（本番障害・重大QA NG発生時に72h以内必須）**：`Impact（影響ユーザー数・時間・金額） / Timeline（分単位） / Root Cause（5 Whys + Blameless） / Detection（どう気づいたか、SLI違反 or ユーザー通報） / Resolution / What Went Well / What Went Wrong / Action Items（担当・期日必須）` の8セクション。Blameless（人責追及禁止）を Kai が保証し、Action Items は Linear Issue 化で追跡。
+- **リリースノート**：Keep a Changelog 形式（`Added / Changed / Deprecated / Removed / Fixed / Security`）＋ SemVer（MAJOR.MINOR.PATCH）。GitHub Release と Notion「Release History」に二重投稿、クライアント向けは Akari が業務影響の日本語版へ翻訳。
+
+### Gap D: 連携パターン（部内 + 部外）を「起票→受渡→完了」のプロトコル化
+
+- **Nao(SD)**（STEP 1-2）: Linear Issue label `spec:requirements` `spec:design` で起票 → Nao が完成時に `docs/spec/*.md` PR → Kai が `architect-checklist.md` を PR コメントで貼付レビュー → Approve で `Status=Done`。**Pre-QA 設計レビュー**（STEP 2完了直後30分・Mio必須同席）で受入基準 GWT を確定させ、STEP 4 の QA NG を 70% 削減。
+- **Riku / Ao**（STEP 4 並列）: Ao が API 実装前に **Zod スキーマ + OpenAPI 3.1 YAML** を `docs/api/` に PR、Riku は `openapi-typescript` で型生成して FE を先行実装。両者の PR は `Draft → Ready for Review` 遷移時に self-review 8項目チェックリスト（型/Lint/カバレッジ80%/N+1/シード/env/README/マイグレ可逆）必須。
+- **Kuu**（STEP 4 インフラ）: Vercel Project 作成・環境変数・ドメイン・GitHub Actions を担当。**Preview Deploy URL を PR に自動コメント**（Vercel GitHub App）し、Riku/Ao/Mio が Preview 上で動作確認してから main マージ。Production 昇格は Kai の Approve 必須（Vercel Deployment Protection）。
+- **Mio**（STEP 5）: `qa-gate.md` に加え **Playwright E2E + Vitest Unit + axe-core a11y** の 3層テストを自動化。NG時は「要件漏れ/設計漏れ/実装漏れ/テスト不足」の4分類ラベルで Linear へ差し戻し、責任エージェント（Nao/Riku/Ao/自己）へ再発防止策記入を必須化。
+- **HARU（CEO）**: 週次 15 分の PMO 同期（毎週月曜 10:00）で「今週の Cycle 目標／リスクレジスタ Top3／DORA 前週比／クライアント別進捗」を 1画面で報告。HARU 判断待ちは Linear label `waiting:haru` で可視化、24h 以内応答を SLA 化。
+- **Ryota（クライアント管理）**: 毎週金曜 16:00 に Notion「週次レポート DB」へ 4項目（完了/次週着手/ブロッカー/想定リリース日）投稿、Ryota が月次でクライアント向け整形。要件変更依頼は Ryota → Linear Triage 経由でのみ受付、直接エージェントへの依頼を禁止（スコープクリープ防止）。
+- **Gen（建設業DX / どっと原価）**: 建設業クライアント案件で業界特有要件（インボイス制度・電子帳簿保存法・建設業法・2024年問題）を Gen へ STEP 0 で照会、Nao の非機能要件セクションに反映。回答は Notion「業界ナレッジ Q&A DB」に蓄積。
+- **Kaito（07-LP部）**: 管理画面付きLP案件で境界を `/api/*` から先 = kai / それ以外 = kaito と STEP 0 で明文化。Vercel Project は kuu が一括管理、ドメインは kaito が Route 53 / お名前.com 管理。共有 Supabase プロジェクトは RLS Policy を Ao がレビュー。
+
+### Gap E: 2026年PM必修フレームワーク（BMADへ統合する形で運用）
+
+- **BMAD-METHOD × Spec-Driven Development (SDD)**：GitHub の `github/spec-kit`（2026 Q1 GA）を採用検討。`spec/` `plan/` `tasks/` の3ディレクトリで仕様が Git 管理され、`/specify` `/plan` `/tasks` の3スラッシュコマンドで AI が初稿生成 → BMAD の STEP 1-3 に完全対応。BMAD の 6STEP は温存し、成果物置き場だけ Spec Kit 構造へ移行。
+- **DORA Metrics + SPACE Framework**：DORA は「システム性能」、SPACE は「開発者体験」で相補関係。両者を Notion Dashboard に統合、DORA が Elite なのに SPACE Satisfaction が低下していれば「持続不能な速度」のサインと判定し、Cycle 目標を意図的に下げる。
+- **Team Topologies（Skelton & Pais）**：Kai チームは **Stream-aligned team**（クライアント案件別ストリーム）、Kuu は **Platform team**（Vercel / Supabase / CI/CD を内部プラットフォーム化）、Mio は **Enabling team**（テスト文化を各チームへ伝播）と定義。認知負荷（Cognitive Load）の高いタスクは Kai が事前分割、`Team API` として役割・入出力・SLA を Notion に明文化。
+- **Wardley Mapping**：クライアント提案時に「バリューチェーン × 進化ステージ（Genesis→Custom→Product→Commodity）」で技術選定を可視化。例: 認証は Commodity（Supabase Auth / Auth.js を使う、自作しない）、業界特化ロジックは Custom（内製）と判定基準を明示化。
+- **Event Storming + C4 Model**：STEP 1-2 の設計フェーズで、**Event Storming**（オレンジ=Domain Event / 青=Command / 黄=Actor / ピンク=Hot Spot）で業務フローを可視化 → **C4 Model** の Level 1(System Context) / Level 2(Container) / Level 3(Component) / Level 4(Code) の階層で Nao が設計書化。Mermaid `C4Context` `C4Container` で GitHub 上に Diagram-as-Code。
+- **SLI / SLO / SLA + SRE + Chaos Engineering**：STEP 0 でクライアントと **SLO 99.9% / RTO 1h / RPO 5min** を数値合意 → SLI（Sentry・Vercel Analytics・Supabase Logs で実測）→ Error Budget（月次 43.2 分）を Kai が管理。**Chaos Engineering** は Kuu が本番相当のステージング環境で「DB接続断・API遅延・Vercel Region障害」を四半期に1回シミュレーション、Runbook の実効性を検証。
+- **AI-Native SDLC**：STEP 0-1 = Claude で対話深掘り＋要件初稿、STEP 2 = Claude で設計初稿 → Nao 修正、STEP 3 = Copilot Workspace で Plan 生成、STEP 4 = Cursor / Claude Code で実装、STEP 5 = Mio が AI レビュー + 人間レビュー併用、STEP 6 = Claude で完了レポート初稿。**「AI 初稿 + 人手仕上げ」** を全 STEP で徹底、完全自動化は品質劣化リスクとして禁止。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

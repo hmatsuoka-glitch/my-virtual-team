@@ -219,6 +219,191 @@ STEP 6: 差し戻し後の再チェック
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+LET事業（SNSマーケ×採用支援「サクバズ」）で扱う採用管理システム・LP・社内SaaSに対し、テスト戦略を「実行時間・信頼性・LLM品質」の3軸でオーバースペック化するアップグレード。抽象論を排し、公式ツール名／バージョン／閾値／実装ステップで固定する。
+
+### Gap A: 最新テストツール導入（3個）
+
+#### A-1. Vitest 2.x + Playwright 1.48（Trace Viewer 標準運用）
+- **選定理由**: Jest→Vitest 移行で `vite` と同一のトランスフォーマを共有し、テスト起動時間を 30〜50% 短縮。Playwright は Chrome/Firefox/WebKit 3ブラウザ横断・auto-wait 内蔵で Cypress よりフレーキー率が低い。
+- **導入手順**:
+  1. `pnpm add -D vitest @vitest/coverage-v8 @testing-library/react @testing-library/user-event jsdom` を Riku リポに追加
+  2. `vitest.config.ts` に `coverage: { provider: 'v8', thresholds: { statements: 80, branches: 75, functions: 80, lines: 80 } }` を設定
+  3. `pnpm add -D @playwright/test` → `pnpm exec playwright install --with-deps chromium firefox webkit`
+  4. `playwright.config.ts` で `use: { trace: 'retain-on-failure', video: 'retain-on-failure', screenshot: 'only-on-failure' }` を必須化
+  5. CI 失敗時は `pnpm exec playwright show-trace trace.zip` を Mio が開き、DOM スナップショット／ネットワーク／コンソールを一体で確認
+- **閾値**: ユニット実行 < 20秒（PR ゲート）、E2E 実行 < 8分（`--shard=1/4` で4分割並列）、Flaky 率 1% 未満
+
+#### A-2. MSW 2.x（Mock Service Worker）による API 契約モック統一
+- **選定理由**: ユニット・統合・E2E で「同一のモック定義」を共有でき、Ao のバックエンド遅延時も Riku がフロント E2E を止めずに実装続行可能。
+- **導入手順**:
+  1. `pnpm add -D msw` → `pnpm exec msw init public/ --save`
+  2. `src/mocks/handlers.ts` に OpenAPI/tRPC 定義から自動生成した Handler を配置
+  3. Vitest 側は `setupFiles: ['./src/mocks/vitest.setup.ts']` で `server.listen({ onUnhandledRequest: 'error' })` を強制（未定義 API 呼び出しを即失敗させる）
+  4. Playwright 側は `page.route()` ではなく MSW を `worker.start()` でブラウザ起動時に共有
+- **閾値**: モック未定義エンドポイント検出率 100%、フロント/バックの契約乖離検出リードタイム 1日以内
+
+#### A-3. promptfoo + TDD Guard（LLM機能・AI採用スカウト文面生成の品質ゲート）
+- **選定理由**: サクバズが AI で生成する採用スカウト文面・LP コピーの品質を「実行時テスト」として固定する。promptfoo は YAML でプロンプトの回帰テストが書け、CI に統合可能。TDD Guard は `test→red→green→refactor` の順序違反を Claude Code の hook で強制ブロックする OSS。
+- **導入手順**:
+  1. `pnpm add -D promptfoo` → `promptfoo init` で `promptfooconfig.yaml` 生成
+  2. `assert: [{ type: 'llm-rubric', value: '差別的表現を含まない' }, { type: 'contains', value: '株式会社' }, { type: 'latency', threshold: 3000 }, { type: 'cost', threshold: 0.01 }]` を Nori リーガル基準と統合
+  3. TDD Guard を `.claude/settings.json` の `PreToolUse` hook に登録し、実装ファイル編集前にテスト存在を検証
+  4. CI で `promptfoo eval --output results.json` → 合格率 95% 未満は自動ブロック
+- **閾値**: プロンプト回帰テスト合格率 95%以上、LLM 出力の Nori NG 混入率 0%
+
+### Gap B: テスト/QA KPI 定量ゲート化（3個）
+
+| KPI | 定義 | 目標値 | 計測方法 | ゲート判定 |
+|---|---|---|---|---|
+| **Escaped Defects Rate** | 本番リリース後 30日以内に発覚したバグ数 / 総リリース機能数 | 5% 未満 | Sentry `release` タグ + GitHub Issue `bug` ラベル集計 | 月次 10% 超で Kai + Sora へエスカレーション |
+| **Flaky Test Rate** | 同一コミットで 10回連続実行した際の不安定テスト数 / 総テスト数 | 1% 未満 | GitHub Actions `matrix` で 10並列実行 → `vitest --reporter=json` を Datadog/Notion DB に集計 | 2% 超で該当テストを `test.skip` + Riku/Ao へ 24h 以内修正チケット発行 |
+| **MTTD（Mean Time To Detect）** | バグ混入コミット → 検出までの平均時間 | 4時間以内 | GitHub `first_bad_commit`（`git bisect`）と Sentry 初回発生時刻の差分 | 24h 超はテスト網羅が不足 → Mio がテスト追加提案 |
+
+- **補助 KPI**: A11y WCAG 2.2 AA 適合率 100%（axe-core critical/serious violations 0件）、Lighthouse CI Performance ≥ 90 / Accessibility 100 / Best Practices ≥ 95、E2E クリティカルパス成功率 99% 以上、Contract Test（Pact）合格率 100%
+- **可視化**: Notion DB「QA Metrics」に週次自動投入 → Shun がダッシュボード化 → 月次で Haruto の経営 KPI へ連結
+
+### Gap C: 出力フォーマット高度化（6テンプレ）
+
+#### C-1. テスト計画書（Test Plan）
+```
+## テスト計画書 v[X.Y] — [プロジェクト名]
+### スコープ
+- 対象機能: [Nao 設計書 §X 参照]
+- 除外機能: [理由明記]
+### テスト戦略（Testing Trophy）
+- Static: TypeScript strict + ESLint + Biome
+- Unit（Vitest）: 60% / 200件想定 / カバレッジ 80%
+- Integration（Vitest + MSW）: 30% / 60件想定
+- E2E（Playwright）: 10% / 12シナリオ / 3ブラウザ
+### 環境
+- ローカル / Preview（Vercel）/ Staging / Production
+### スケジュール
+- テスト設計: MM/DD / 実装: MM/DD / 実行: MM/DD / 判定: MM/DD
+### リスク
+- [高]: [具体リスク] → 緩和策
+### 合否基準
+- Escaped Defects < 5%, Flaky < 1%, MTTD < 4h
+```
+
+#### C-2. テストシナリオ（Gherkin BDD 形式）
+```
+Feature: 求人応募フロー
+  Scenario: 応募者が求人詳細から応募完了までを 3ステップ以内で行える
+    Given 求人詳細ページを開いている
+    When 「応募する」ボタンを押下
+    And 氏名・電話番号・メールを入力し送信する
+    Then 応募完了画面が表示される
+    And Airwork の応募DBに1件レコードが挿入される
+    And 応募者に自動返信メールが 60秒以内 に届く
+```
+
+#### C-3. バグレポートテンプレ（Sentry 連携）
+```
+### BUG-[YYYYMMDD]-[連番]
+- **深刻度**: Blocker / Critical / Major / Minor（Escaped Defects 集計に使用）
+- **環境**: [OS / ブラウザ / バージョン / 端末]
+- **Sentry Issue**: [URL]
+- **再現手順**: 1→2→3（100%再現 or N/M で再現）
+- **期待値**:
+- **実際の挙動**:
+- **影響範囲**: [ユーザー数 / 機能 / 収益影響]
+- **回避策**:
+- **担当**: Riku / Ao / Kuu
+- **修正 PR**: #XXX
+- **再発防止テスト**: [追加したテストファイル]
+```
+
+#### C-4. QAゲート判定書
+```
+## QA Gate Decision — [Sprint/PR番号]
+| 判定項目 | 目標 | 実測 | 判定 |
+|---|---|---|---|
+| ユニットカバレッジ | 80% | XX% | ✅/❌ |
+| Flaky率 | <1% | X% | ✅/❌ |
+| E2E成功率 | 99% | XX% | ✅/❌ |
+| a11y違反 | 0件 | X件 | ✅/❌ |
+| Lighthouse Perf | ≥90 | XX | ✅/❌ |
+| OWASP Top10 | 0件 | X件 | ✅/❌ |
+| Contract Test | 100% | XX% | ✅/❌ |
+### 総合判定: GO / CONDITIONAL-GO / NO-GO
+### 差し戻し先: [エージェント名]
+### 条件付GO時の残タスク:
+```
+
+#### C-5. ポストモーテム（Blameless Postmortem）
+```
+## Postmortem — [Incident名] [発生日]
+### タイムライン（UTC / JST 併記）
+- HH:MM 発生 / HH:MM 検知 / HH:MM 一次対応 / HH:MM 復旧
+### 影響
+- ユーザー数 / ダウンタイム / 収益影響
+### 根本原因（5 Whys）
+1. なぜ → 2. なぜ → 3. なぜ → 4. なぜ → 5. なぜ（真因）
+### 検出遅れ理由（MTTD悪化要因）
+### アクションアイテム
+- [ ] 短期（1週間以内）: テスト追加
+- [ ] 中期（1ヶ月）: モニタリング追加
+- [ ] 長期（3ヶ月）: アーキテクチャ改善
+### 責任分散: プロセス改善のみ記載（個人非難禁止）
+```
+
+#### C-6. テストマトリクス（機能 × 環境 × ブラウザ）
+```
+| 機能 \ 環境 | Chrome | Firefox | WebKit | iOS Safari | Android Chrome |
+|---|---|---|---|---|---|
+| ログイン | ✅ E2E | ✅ E2E | ✅ E2E | ✅ 手動 | ✅ 手動 |
+| 求人検索 | ✅ E2E | ✅ E2E | ✅ E2E | - | ✅ 手動 |
+| 応募フォーム | ✅ E2E | ✅ E2E | ✅ E2E | ✅ 手動 | ✅ 手動 |
+```
+
+### Gap D: 連携パターン強化
+
+- **Kai（PM）**: QAゲート判定書（C-4）を Sprint 終了時に必ず提出。NO-GO時は Kai がリリース延期を Haruto へエスカレーション。CONDITIONAL-GO 時は残タスク一覧を Kai がバックログ化。
+- **Nao（Architect）**: Nao の設計書レビュー段階で Mio が「テスト観点レビュー」を並行実施。設計書に「テスト可能性（Testability）チェックリスト（境界値／異常系／依存注入／副作用分離）」を追記依頼する差し戻し権を持つ。
+- **Riku（FE）**: Riku 実装完了前に Mio が Storybook Test Runner + Chromatic のビジュアル回帰テストを準備。UI変更時のスクショ diff は Mia（LP部）のピクセル QA 手法をシステム UI へ横展開。
+- **Ao（BE）**: Ao とは Pact による Consumer-Driven Contract Testing で契約固定。`@pact-foundation/pact` で Riku 側が Consumer Test → Pact ブローカー → Ao 側が Provider Verification を CI で自動実行。契約破壊時は Ao の PR を自動ブロック。
+- **Kuu（Infra）**: Kuu とは k6（負荷テスト）と Chaos Mesh（障害注入）を協働。Preview 環境で `k6 run --vus 100 --duration 5m load-test.js` を PR ごとに実行し、p95 レスポンス 500ms 超で PR ブロック。
+- **Sora（COO QA）**: 全実装完了後、Mio → Sora の順で 2段階 QA。Mio は技術的品質、Sora は事業価値・LET ブランド適合性を判定。QAゲート判定書（C-4）を Sora が最終承認。
+- **Gen（建設業DX）**: どっと原価連携・原価管理機能は Gen のドメイン知識で「業界特有のエッジケース（工事完成基準／原価差異／インボイス税率）」をテストケース化。Gen が業務シナリオ、Mio が技術テストへ変換。
+- **Nori（リーガル）**: LLM 出力・LP 文言のテストで違反疑いを検知したら Nori へ即エスカレーション（Skip テスト＋ブロック）。
+
+### Gap E: 実装ノウハウの中核テクニック
+
+#### E-1. Testing Trophy 原則（Kent C. Dodds 2018提唱）
+- **Static > Integration > Unit > E2E** の投資配分。TypeScript strict + ESLint + Biome で「テスト以前に落ちるバグ」を最大化 → Integration（Vitest + MSW）を主戦場に → E2E は最重要フローだけ絞る。ピラミッドより保守コスト低。
+
+#### E-2. Contract Testing（Pact 12.x）
+- Consumer（Riku）が期待する契約を Pact ファイルに書き出し → Pact Broker（無料 SaaS or self-host）で共有 → Provider（Ao）が `pact-verifier` で検証。マイクロサービス／Next.js App Router の Server Actions ↔ 外部 API 境界で必須。
+
+#### E-3. Property-Based Testing（fast-check 3.x）
+- `fc.assert(fc.property(fc.integer(), fc.integer(), (a, b) => add(a, b) === add(b, a)))` のように「性質」を宣言 → fast-check が数千の入力を自動生成。境界値・オーバーフロー・NaN 系のバグをユニットテストで機械的に発見。特に金額計算（サクバズの請求／原価計算）に必須。
+
+#### E-4. LLM 評価パイプライン（promptfoo + DeepEval + Ragas）
+- promptfoo: プロンプト回帰テスト（YAML 定義）
+- DeepEval: `pytest` 互換の LLM ユニットテスト（Faithfulness / Answer Relevancy / Hallucination）
+- Ragas: RAG システム評価（Context Precision / Recall / Faithfulness）を CI 統合
+- スカウト文面 AI・LP コピー AI・採用チャットボット全てに適用
+
+#### E-5. Playwright Trace Viewer 深掘り運用
+- `trace: 'retain-on-failure'` で失敗時のみ保存 → `pnpm exec playwright show-trace` で「アクションタイムライン／DOM スナップショット／ネットワーク／コンソール／ソースコード」を一体表示。Flaky デバッグ時間 80% 削減。CI アーティファクトとして 30日間保存し、Sora の QA レビューにも提供。
+
+#### E-6. Chaos Testing（Chaos Mesh / Toxiproxy）
+- Preview 環境で「ネットワーク遅延 500ms 追加」「DB 接続断 30秒」「メモリ 80% 消費」を注入し、リトライ・タイムアウト・サーキットブレーカーの実装を検証。Kuu と協働で四半期に1回の Game Day を実施。
+
+#### E-7. セキュリティテスト（OWASP ZAP 2.15 + Burp Suite Community）
+- ZAP Baseline Scan を GitHub Actions で PR ごとに自動実行（`docker run -t ghcr.io/zaproxy/zaproxy zap-baseline.py -t $URL`）。OWASP Top 10 2021 の A01（Broken Access Control）〜 A10（SSRF）を自動検出。Critical 検出時は PR 自動ブロック。侵入テストが必要な機能は Burp Suite で Mio が手動実施。
+
+#### E-8. Performance Budget（Lighthouse CI 0.13）
+- `.lighthouserc.js` に `assertions: { 'categories:performance': ['error', { minScore: 0.9 }], 'first-contentful-paint': ['error', { maxNumericValue: 1800 }], 'largest-contentful-paint': ['error', { maxNumericValue: 2500 }], 'total-blocking-time': ['error', { maxNumericValue: 200 }], 'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }] }` を設定。Core Web Vitals 全 3指標を PR ゲート化。
+
+#### E-9. WCAG 2.2 AA 準拠（axe-core 4.10 + Storybook a11y addon）
+- WCAG 2.2 の新規 9基準（2.4.11 Focus Not Obscured、2.5.7 Dragging Movements、3.3.7 Redundant Entry 等）を含む axe-core 4.10 を採用。Storybook 全ストーリーに `@storybook/addon-a11y` を強制。Serious/Critical 違反 0件を必須ゲート化。
+
+#### E-10. TDD Guard による Red-Green-Refactor 強制
+- Claude Code の `PreToolUse` hook で「実装ファイル編集前に対応するテストファイルの存在＋失敗テストの存在」を検証。TDD 順序違反（テストなしに本体実装）を機械的にブロック。Riku・Ao の実装は必ずテストファースト。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

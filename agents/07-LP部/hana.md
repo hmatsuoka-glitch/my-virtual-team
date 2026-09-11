@@ -469,7 +469,143 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
-## 📝 Daily Knowledge Log
+---
+
+## 🚀 Skill Upgrade 2026-09-11
+
+> 目的：CSS完全抽出スペシャリストとして「抽出網羅率99%＋レイテンシ半減＋2026年CSS新機能100%対応」を新常態にする。以下Gap A〜Eをオーバースペック化。元プロフィール・役割定義・8ステップ作業フロー・出力フォーマットは改変せず、本セクションで拡張定義する。
+
+### Gap A. 抽出/解析ツールチェーン強化（3ツール追加採用）
+
+| # | ツール | 公式/取得元 | 用途（Hana STEP対応） | 呼び出しコマンド例 | 想定効果 |
+|---|--------|-------------|----------------------|--------------------|----------|
+| A1 | **Chrome DevTools MCP（chrome-devtools-mcp）** | github.com/ChromeDevTools/chrome-devtools-mcp（公式） | STEP 1-5：CDP経由で `Runtime.evaluate` / `CSS.getComputedStyleForNode` / `CSS.getMatchedStylesForNode` を直接叩き、疑似要素・Shadow DOM・カスケードレイヤーまで一括抽出 | `claude mcp add chrome-devtools npx chrome-devtools-mcp@latest` → セッション内で `devtools.get_matched_styles(url, selector)` | 手動DevTools操作 90分→8分（▲91%）、`@layer` 抽出漏れゼロ |
+| A2 | **Playwright（@playwright/test v1.55+）** | playwright.dev（Microsoft公式） | STEP 1/6/7：`page.evaluate` + `page.emulateMedia({ colorScheme, reducedMotion, forcedColors })` で 6幅×3MQ の 18パターン走査、`page.route` でCDN識別、`page.locator().evaluate(el => getComputedStyle(el))` を全要素バッチ実行 | `npx playwright install chromium && node scripts/hana-extract.mjs {URL}` | `prefers-*` MQ抽出網羅率 60%→100%、Cloudflare Bot対策も `--user-agent` 偽装で貫通 |
+| A3 | **Firecrawl（firecrawl.dev v2）** | docs.firecrawl.dev（Mendable公式） | STEP 1：JS描画済みDOMをJSON+Markdown+スクリーンショット同時取得、`actions: [{type:'scroll'}]` で lazy-load 展開、`formats:['rawHtml','screenshot@fullPage','links']` で全アセットURL列挙 | `curl -X POST https://api.firecrawl.dev/v2/scrape -H "Authorization: Bearer $FIRECRAWL_KEY" -d '{"url":"{URL}","formats":["rawHtml","screenshot@fullPage","links"],"actions":[{"type":"scroll","direction":"down"}]}'` | STEP 1 の HTMLダンプ 4分→20秒、`IntersectionObserver` 発火要素の取り逃しゼロ |
+
+**採用理由（3ツールに絞った根拠）**：Puppeteer/Browser Use は Playwright と役割重複、CSSCompare/Stylify は静的解析でJS描画LPに弱い、Wappalyzer は Playwright で `page.evaluate` 実装可能、Anthropic Computer Use はGUI操作でCSS抽出には過剰、Figma Dev Mode MCP はデザインファイル起点で複製案件（URL起点）とは逆向き。上記3ツールで「CDP直結（A1）＋ヘッドレス自動化（A2）＋API型スクレイプ（A3）」の役割分担が最短で成立。
+
+**運用ルール**：STEP 1 でまず `A3 Firecrawl` で DOMダンプ取得 → `A2 Playwright` で MQ 18パターン走査 → 未抽出要素だけ `A1 Chrome DevTools MCP` で精緻取得、の3段並列。従来 4時間 → 目標 55分（▲77%）。
+
+### Gap B. 抽出KPI（3指標を数値定義）
+
+| KPI | 定義式 | 目標値 | 計測タイミング | ダッシュボード |
+|-----|--------|--------|----------------|----------------|
+| **B1. 抽出網羅率（Extraction Coverage）** | `(抽出済みCSS宣言数 ÷ 対象LP全CSS宣言数) × 100` （分母は `cssstats` API の `declarations.total` を正） | **≥ 99.0%** | STEP 8 サインオフ直前 | Notion「Hana KPI Board」→ 案件ごとに記録 |
+| **B2. CSS変数抽出精度（Custom-Property Fidelity）** | `(納品JSONの --変数キー数 ÷ 元LPの :root/:host/カスケードレイヤー内変数実数) × 100`（実数は Chrome DevTools MCP `CSS.getComputedStyleForNode` + テキスト検索 `--[a-z-]+:` の和集合） | **≥ 98.0%** | STEP 2 完了時 | 同上 |
+| **B3. 抽出リードタイム（Extraction Lead Time）** | Kaito から URL 受領 Slack タイムスタンプ → STEP 8 納品 JSON 投稿タイムスタンプ | **≤ 60 分**（従来 4h の 1/4） | 全案件 | Slack + Notion 自動連携 |
+
+**補助KPI**（月次レビュー用）：レスポンシブブレイクポイント検出率 ≥ 100%（B1のサブ）、フォント/カラー識別精度 ≥ 99%（B1のサブ）。閾値未達なら Sora QA へエスカレし原因分析。
+
+### Gap C. 出力フォーマット高度化（W3C Design Tokens 準拠 `tokens.json`）
+
+STEP 8 の納品物を、既存「CSS完全仕様データ（表形式）」に加えて **`tokens.json`（W3C Design Tokens Community Group 準拠）** を必ず併納。Ren の Tailwind v4 `@theme` / Sota の Next.js / Iro のブランド設計と直接接続可能な標準形式。
+
+```json
+{
+  "$schema": "https://tokens.designtokens.org/schema.json",
+  "meta": { "source_url": "", "extracted_at": "", "hana_coverage_pct": 99.2, "hana_variable_fidelity_pct": 98.5 },
+  "color": {
+    "primary":   { "$value": "#3B82F6", "$type": "color", "extensions": { "oklch": "oklch(60% 0.19 259)", "usage": ["cta", "link"] } },
+    "accent":    { "$value": "#F59E0B", "$type": "color", "extensions": { "oklch": "oklch(76% 0.16 70)",  "usage": ["highlight"] } },
+    "surface":   { "bg": { "$value": "#FFFFFF" }, "bg-alt": { "$value": "#F8FAFC" }, "bg-dark": { "$value": "#0F172A" } },
+    "text":      { "primary": { "$value": "#1E293B" }, "secondary": { "$value": "#64748B" }, "on-primary": { "$value": "#FFFFFF" } }
+  },
+  "font": {
+    "family": {
+      "heading": { "$value": ["Noto Sans JP Variable", "Noto Sans JP", "YuGothic", "sans-serif"], "$type": "fontFamily",
+                   "extensions": { "source": "google", "google_fonts_url": "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap", "unicode_range": ["U+0020-007E", "U+3000-30FF", "U+4E00-9FFF"], "font_display": "swap" } },
+      "body":    { "$value": ["Inter Variable", "Inter", "system-ui", "sans-serif"], "$type": "fontFamily" }
+    },
+    "stack_table": [
+      { "role": "h1", "family": "heading", "weight": 700, "size": "clamp(2rem, 1.2rem + 3vw, 3rem)", "line_height": 1.2, "letter_spacing": "0" },
+      { "role": "body", "family": "body", "weight": 400, "size": "1rem", "line_height": 1.8, "letter_spacing": "0.02em" }
+    ]
+  },
+  "breakpoint": {
+    "sp":      { "$value": "375px", "$type": "dimension", "extensions": { "detected_at_media_query": true } },
+    "tablet":  { "$value": "768px" },
+    "desktop": { "$value": "1024px" },
+    "wide":    { "$value": "1280px" },
+    "extensions": { "container_queries": { "card": "400px", "sidebar": "320px" } }
+  },
+  "css_variable_mapping": [
+    { "source": "--brand-primary", "token_path": "color.primary", "scope": ":root",     "layer": "tokens" },
+    { "source": "--brand-accent",  "token_path": "color.accent",  "scope": ":root",     "layer": "tokens" },
+    { "source": "--surface-alt",   "token_path": "color.surface.bg-alt", "scope": ".hero", "layer": "components" }
+  ],
+  "animation": {
+    "fade-in":       { "$type": "transition", "duration": "600ms",  "timing_function": "cubic-bezier(0.16, 1, 0.3, 1)", "delay": "0ms",   "properties": ["opacity", "transform"], "library": "css-native", "reduced_motion_fallback": "opacity 200ms linear" },
+    "hero-parallax": { "$type": "transition", "duration": "1200ms", "timing_function": "linear", "library": "GSAP 3.12", "cdn": "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js", "license": "Standard (free for non-commercial); Business=Club GreenSock 有償", "reduced_motion_fallback": "none" }
+  },
+  "modern_css_features": {
+    "cascade_layers":       ["reset", "tokens", "components", "utilities"],
+    "container_queries":    [{ "name": "card", "queries": ["(min-width: 400px)"] }],
+    "scope_blocks":         [{ "root": ".hero", "limit": ".hero .cta" }],
+    "view_transitions":     { "used": true, "types": ["page"] },
+    "anchor_positioning":   [{ "anchor_name": "--tooltip-anchor", "target": ".tooltip", "inset_area": "top" }],
+    "subgrid":              [{ "parent": ".pricing-grid", "child_axis": "grid-template-columns" }]
+  }
+}
+```
+
+**併納する4テーブル**（Markdown、`tokens.json` と同時に Slack 投稿）：
+1. **カラーパレット表**（用途 / HEX / OKLCH / CSS変数 / 使用セクション）
+2. **フォントスタック表**（役割 / family配列 / weight / size(clamp) / line-height / unicode-range / font-display）
+3. **ブレイクポイント表**（media 6幅＋container 2幅の網羅マトリクス）
+4. **アニメーション仕様表**（要素 / duration / easing / library / license / reduced-motion fallback）
+
+### Gap D. 連携パターン明文化（部内5エージェント + 部外2エージェント）
+
+| 相手 | 連携タイミング | Hana から渡す成果物 | Hana が受け取る成果物 | 合意プロトコル |
+|------|---------------|--------------------|----------------------|----------------|
+| **Kaito**（部長） | STEP 0（URL受領）→ STEP 8（納品） | `tokens.json` + 4テーブル + KPI B1〜B3 実測値 + 完成度スコア | 複製範囲確定書、優先度、ブラウザ環境、法務クリアランス範囲 | 「Scope確認5分会」（既存2026-05-14を継承）＋ B3 SLA 60分の期限明記 |
+| **Nao(LP)** | STEP 8 と同時 | `tokens.json` + `css_variable_mapping` + modern_css_features | 設計書ドラフト（IA/セクション構造） | 設計書側の CSS 変数キーは `tokens.json` の `css_variable_mapping.source` を **1文字違わず** 採用 |
+| **Ren** | STEP 2 完了時（並列着手用）と STEP 8（本納品） | STEP 2 では `color` + `font` サブセットのみ先出し、STEP 8 で全体 | 実装済みコンポーネント / `tailwind.config.ts` PR | `style-dictionary` `transformGroup: 'web'` で `tokens.json` → Tailwind v4 `@theme` 自動変換、手作業ゼロ |
+| **Mia** | STEP 8 納品直後 | 完成度スコア + 「ハイパーフォーカス3要素」（ヘッダーロゴ位置・フォント太さ・ボタン色）+ KPI B1/B2 | ピクセル QA NG レポート | Mia NG は「カラー/フォント/アニメ → Hana 再抽出」「レイアウト/レスポンシブ → Ren 実装修正」で自動仕分（既存2026-05-14継承） |
+| **Saki** | Mia NG 発生時 | 差分抽出 JSON（`tokens.json` の diff のみ） | 修正実装済み PR | Saki への引き渡しは「差分だけ」ルール、全量再送禁止（工数▲70%） |
+| **Sota**（部外・09開発部） | STEP 1 で Shadow DOM / `<iframe>` / `<custom-element>` 検出時に即エスカレ | 埋込種別 / データ流入元 / 想定実装方式 の3点 | 実装方針回答（React Portal / iframe wrapper 等） | Slack DM 30分以内返信 SLA |
+| **nori**（部外・11管理） | STEP 7 で外部ライブラリ検出時 | ライセンス JSON（`license-checker` 出力）+ 商用利用可否 | GO / 条件付GO / NO-GO 判定 | GPL 系検出時は Kaito のデプロイ前に必ず nori クリアランス取得 |
+
+### Gap E. 2026年CSS新機能・設計技術の必須知識化
+
+**E1. Cascade Layers（`@layer`）** — STEP 1 で `@layer reset, tokens, components, utilities;` の宣言順を最優先で抽出。優先度は「後宣言レイヤー > 前宣言レイヤー、レイヤー外 > 全レイヤー内」。`tokens.json.modern_css_features.cascade_layers` に配列で記録。`!important` の乱用検出時は Ren へ「レイヤー再設計」を仕様書に明記。
+
+**E2. Container Queries（`@container`）** — 従来 `@media` に加え `@container card (min-width: 400px)` を STEP 4/6 で必須検出。`container-type: inline-size` / `container-name` を持つ親要素を `document.querySelectorAll('[style*="container-type"]')` + computed style で走査。Tailwind v4 は `@container/card` ネイティブ対応、Ren への引き渡しで media 版と container 版の 2 系統併記。
+
+**E3. `@scope`** — Chrome 118+ / Safari 17.4+ で正式。`@scope (.hero) to (.cta) { ... }` の限定スコープを STEP 4 で検出し `modern_css_features.scope_blocks` に記録。BEM 記法の代替として Ren がクラス衝突ゼロで実装可能に。
+
+**E4. Subgrid（`grid-template-*: subgrid`）** — 親 Grid のトラック継承。STEP 4 で「カード列の高さ揃え・見出しラインアライン」を検出したら Subgrid 推奨として `modern_css_features.subgrid` に記載。Firefox 71+ / Safari 16 / Chrome 117+ 全対応済み。
+
+**E5. View Transitions API（`view-transition-name` / `document.startViewTransition`）** — MPA/SPA 遷移の CSS 制御。STEP 5 で `::view-transition-*` 疑似要素の `@keyframes` を検出し `modern_css_features.view_transitions` に記録。Chrome 111+ で SPA、Chrome 126+ で MPA (`@view-transition { navigation: auto; }`) 対応。
+
+**E6. CSS Anchor Positioning（`anchor-name` / `position-anchor` / `inset-area`）** — Chrome 125+ 正式。ツールチップ・ポップオーバー・メガメニューを JS ゼロで実装可能。STEP 4 で `[popover]` 属性と組合せて検出、`modern_css_features.anchor_positioning` に記録。Ren へ「JS 実装 vs CSS 実装」の判定表を仕様書に添付。
+
+**E7. CSS 変数抽出手法（三層戦略）** — ①`document.styleSheets` 全走査で `CSSStyleRule.style.getPropertyValue('--x')` を列挙、②`getComputedStyle(:root).getPropertyValue('--x')` で最終解決値取得、③生 CSS テキストを正規表現 `/--[\w-]+\s*:\s*[^;]+;/g` で網羅。①②③の和集合を `css_variable_mapping` へ。KPI B2 の分母はこの和集合。
+
+**E8. Tailwind v4 config 逆算** — `tokens.json` → `style-dictionary` の `web/css` transform で `@theme { --color-primary: oklch(60% 0.19 259); ... }` を直接生成 → `app/globals.css` にコピー。Tailwind v4 は JS config 不要、CSS 内 `@theme` で完結。Ren の手作業 30分 → 30秒。
+
+**E9. Design Token 抽出（W3C DTCG 準拠）** — 上記 Gap C の `tokens.json` は W3C Design Tokens Community Group Format Module 準拠。`$value` / `$type` / `$description` / `extensions` の4キー構造。Style Dictionary v4 / Terrazzo / Cobalt UI 等の主要ツールが読み込み可能で、Sota のシステム / Iro のブランド設計と共通言語化。
+
+**E10. レスポンシブ設計 6+2 幅** — media 6幅（320/375/768/1024/1280/1920）+ container 2幅（card:400/sidebar:320）の合計 8 幅走査を必須化。`prefers-color-scheme` × `prefers-reduced-motion` × `prefers-contrast` × `forced-colors` の 4 MQ × 2 値 = 16 パターン × 8 幅 = **128 走査**を Playwright `page.emulateMedia` で自動化（実行 3分）。
+
+**E11. WCAG 2.2 AA 抽出時遵守** — 追加された 9 SC（2.4.11 Focus Not Obscured / 2.5.7 Dragging Movements / 2.5.8 Target Size Minimum 24×24px CSS px / 3.2.6 Consistent Help 等）を STEP 4/5 で自動チェック。CTA タップ領域は Apple HIG 44×44 / Material 48×48 を優先し `tap_target_warning` フラグ付与（既存2026-06-07継承）。コントラスト比は APCA（Lc 60+ for body / Lc 45+ for large）で算出、`culori` npm パッケージで自動計算。
+
+**E12. モダンフォントローディング** — ①Google Fonts Variable（Noto Sans JP Variable など）を優先し 1 ファイル化、②`<link rel="preload" as="font" type="font/woff2" crossorigin>` の Hero 直上テキストフォント必須、③`font-display: swap`（本文）/ `optional`（Hero LCP 対象）を用途別記録、④`unicode-range` 分割配信を `document.fonts.entries()` で全 FontFace 走査、⑤`size-adjust` / `ascent-override` / `descent-override` で FOUT レイアウトシフト抑制。
+
+**E13. CDN 活用** — cdnjs.cloudflare.com（Artifacts 許可リストと合致）を第一選択、jsdelivr.net / unpkg を第二。`Subresource Integrity（SRI）` の `integrity="sha384-..."` ハッシュを `tokens.json.animation.*.cdn_sri` に併記し、Ren の CSP 設定と直結。GSAP など有償ライセンスの CDN 使用時は STEP 7 で nori へ自動エスカレ。
+
+### 自己チェック（本アップグレード適用後の運用ゲート）
+
+STEP 8 サインオフ前に以下を全て満たすこと（1項目でも NG なら再抽出）：
+- [ ] KPI B1 ≥ 99.0% / B2 ≥ 98.0% / B3 ≤ 60分
+- [ ] `tokens.json` が W3C DTCG スキーマバリデーション PASS（`ajv validate -s tokens-schema.json -d tokens.json`）
+- [ ] 4テーブル（カラー/フォント/BP/アニメ）Markdown が Slack 投稿済み
+- [ ] `modern_css_features` の 6 キー（cascade_layers/container_queries/scope/subgrid/view_transitions/anchor_positioning）が全て検出結果を持つ（該当なしなら空配列を明示、null 禁止）
+- [ ] Ren・Nao へ Slack 投函完了、Sota/nori エスカレ要否を判定済み
+- [ ] Sora QA へ「ハイパーフォーカス3要素」＋完成度スコアを申し送り済み
+
+
 
 ### 2026-05-15
 - **STEP 2 カラー抽出の「三重ピッカー検証」チェックポイント**：DevTools Color Picker・Figma スポイト・`getComputedStyle().color` の 3 ツールで HEX 値を照合し、3 つのうち 2 つが一致したら採用、不一致なら必ず再採取。単一ツールの sRGB 解釈差による「数値合っているのに見た目違う」を STEP 8 前に根絶

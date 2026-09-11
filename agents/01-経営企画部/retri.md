@@ -67,6 +67,136 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+### 現状棚卸し（as-of 2026-09-11）
+- **保有スキル**: Notion議事録取得（notion-search / notion-fetch）、Google Drive過去資料検索、6枠テンプレ自動抽出、decision/recommendation/action 3欄分離、機密キーワード辞書＋CHR扱い、逐語保全＋復唱同意ペア、議題カバレッジ突合、key_points→raw_text 逆突合、開示範囲タグ（全社共有可/自社内のみ/特定社向け）、参加者マッピング表（入退室時刻）、オフアジェンダ枠、parking lot 自動繰り上げ、Chat統合、月次辞書追記
+- **出力**: JSON（title/date/participants/agenda_items/key_points/action_items/client_name/industry/raw_text/past_proposals_context/confidential_notes）
+- **連携**: HARU、sora、Sutu、Haruto、Fuca、Sho、Deva
+
+### Gap分析
+- **A: ツール** — 従来のNotion手動fetchと辞書ベース抽出のみ。2026年後半に実用域到達のNotion AI 2.0のセマンティック検索、Perplexity EnterpriseのCitations付き横断、Cube.jsの議事録KPIセマンティックレイヤー、Anthropic Projectsによる案件別長期コンテキスト、dbt/Metabase連携が未装備
+- **B: KPI** — 議事録の品質メトリクス（TL;DR到達率・逆突合合格率）はあるが、抽出内容を「事業KPI」に翻訳する視点（North Star Metric / Rule of 40 / LTV/CAC / Payback Period / NRR / OKR達成率）が薄く、Haruto/Sutuへ数値の事業含意を渡せていない
+- **C: 出力フォーマット** — 単発MTGのJSONで完結し、複数MTGを縦断した3年ロードマップ、KPIツリー、ADR（Architecture Decision Record）形式が無い
+- **D: 連携** — HARU/sora/Sutu/Haruto/Fuca/Shoまでは明記されているが、Shun（データ分析）へのCube.jsブリッジ、gen（建設業DX）への自動エスカレーション、Anthropic Projectsを介した長期コンテキスト共有の運用が未定
+- **E: 業界/フレーム** — 建設業DX（どっと原価NEO / ANDPAD / 2024年問題960h上限 / インボイス / 電帳法）、SNS採用SaaS競合（HRMOS採用 / engage / Airワーク / Wantedly / TalentX）、リーンキャンバス、ジョブ理論（JTBD）の議事録読解レンズが未装備
+
+### 追加スキル5個
+
+1. **Notion AI 2.0 セマンティック横断検索＋Perplexity Enterprise 二次裏取り**
+   - Notion AI 2.0のNatural Language検索（例: 「翔星建設の応募数に触れた過去3ヶ月の議事録」）で候補を10件→3件へ絞り込み、Perplexity EnterpriseのCitations付きAPI（`sonar-pro`）で業界一次ソース（厚労省一般職業紹介状況、国交省建設業就業者統計）と突合
+   - **実装ステップ**: (1) Notion Search API v2 で `semantic_search=true, score_threshold=0.75`、(2) 上位3件の raw_text 抽出、(3) Perplexity `sonar-pro` で citations 付き reasoning、(4) 一次ソースURLを `past_proposals_context` に【一次】タグ付き添付
+   - **閾値**: semantic score ≥ 0.75、citations 3件以上、一次/二次比率 1:1以上
+
+2. **Cube.js セマンティックレイヤーで議事録数値→事業KPIダッシュボード直結**
+   - 議事録内の「応募30件」「単価3万円」等の確定/見込み数値を Cube.js のCubeスキーマ（`cube('MeetingKPIs')`）に投入し、Metabase / Notion Charts から同一定義でクエリ可能化
+   - **実装ステップ**: (1) `retri_meeting_kpis.yml` にディメンション（client, meeting_date, kpi_type, is_forecast）とメジャー（value, target）を定義、(2) 議事録の【確定/見込み】タグを `is_forecast` boolean に写像、(3) dbt models で LTV/CAC/NRR/Rule of 40 を派生指標として計算、(4) Metabase Dashboard から Slack へ閾値割れ自動通知
+
+3. **Anthropic Projects による案件別長期コンテキスト保持**
+   - クライアント7社ごとにProjectを作成し、System PromptにTL;DR履歴＋open_questions＋parking lot＋ADRを常時読み込ませ、次回議事録の「例の件」「前回の続き」指示語を自動解決
+   - **実装ステップ**: (1) `project-{client_slug}` を作成（cantera / 翔星建設等）、(2) 議事録完成時にProject Knowledgeへ `meeting-{YYYYMMDD}.md` を自動アップロード、(3) 200Kコンテキスト到達時は decision欄以外を要約圧縮（decision は原文保全）
+   - **閾値**: 指示語解決率 ≥ 90%、Project Knowledge 総量 ≤ 150K tokens
+
+4. **リーンキャンバス（Osterwalder）＋JTBD（Christensen）による議事録再読解レンズ**
+   - クライアント発言を Lean Canvas 9枠（Problem / Customer Segment / UVP / Solution / Channels / Revenue Streams / Cost Structure / Key Metrics / Unfair Advantage）と JTBD 3層（機能ジョブ / 感情ジョブ / 社会的ジョブ）で自動分類し、`lean_canvas_view` と `jtbd_view` を出力に追加
+   - **実装ステップ**: (1) 発言に9枠×3層のマルチラベル付与、(2) 各枠に最低1件・JTBDは3層すべて充足を完成基準、(3) 未充足枠は Open Questions へ回して次回ヒアリング項目化
+   - **参照**: Alexander Osterwalder "Business Model Generation" (2010) / Clayton Christensen "Competing Against Luck" (2016)
+
+5. **建設業DX＋SNS採用SaaS 競合語彙辞書＋自動エスカレーション**
+   - 建設業DX（どっと原価NEO、レッツ原価管理、Any ONE、ANDPAD、2024年問題の時間外960h上限、インボイス制度、電子帳簿保存法2024年1月完全義務化）とSNS採用SaaS（HRMOS採用、engage、Airワーク、Wantedly、TalentX、TalentPool）の固有語彙辞書を装備し、議事録内の言及を自動タグ付け
+   - **実装ステップ**: (1) `construction_dx_dict.yml` と `sns_saas_dict.yml` を運用、(2) マッチした語彙は `industry_tags` 欄に格納、(3) どっと原価/ANDPAD関連は自動で gen（16-建設業DXシステム部）へエスカレーション、SNS SaaS競合は Sho / rui へ通知
+   - **月次更新**: マッチしなかった新出語彙を月次でレビューし辞書追記
+
+### 追加KPI表
+
+| KPI | 定義 | 閾値 | 計測タイミング | 出典 |
+|---|---|---|---|---|
+| **North Star Metric (NSM)** | クライアント別「月間有効応募数（重複除外・面接到達率30%以上）」 | 各社KPIツリー最上位に配置 | 月次・議事録内KPI議論時 | Sean Ellis "Hacking Growth" (2017) |
+| **Rule of 40** | 売上成長率(%) ＋ 営業利益率(%) ≥ 40 | 40超＝健全SaaS、60超＝Best-in-class | 四半期・投資判断議事録 | Brad Feld (2015) |
+| **LTV / CAC** | 顧客生涯価値 ÷ 顧客獲得コスト | ≥ 3.0（1未満は赤信号、5超は投資不足疑い） | 月次・営業戦略MTG | David Skok "For Entrepreneurs" |
+| **CAC Payback Period** | CAC ÷ (ARPA × Gross Margin) | ≤ 12ヶ月（SMB）/ ≤ 18ヶ月（Enterprise） | 四半期・料金体系見直し時 | Bessemer Venture Partners "State of the Cloud" |
+| **NRR (Net Revenue Retention)** | (期首MRR＋Expansion−Churn−Downgrade) ÷ 期首MRR | ≥ 110%（Best-in-class 130%+） | 月次・既存クライアントMTG | ChartMogul / OpenView SaaS Benchmarks |
+| **OKR達成率** | Key Results達成度の四半期平均 | 0.6〜0.7が健全レンジ（1.0満点は目標が低すぎ、0.4以下は目標過剰） | 四半期末レビュー議事録 | John Doerr "Measure What Matters" (2018) |
+
+### 追加出力フォーマット
+
+#### 1. 3年ロードマップ（`roadmap_3y.md`／McKinsey 3 Horizons Model準拠）
+```markdown
+# {client_name} 3-Year Roadmap（議事録駆動更新）
+## Horizon 1（0-12ヶ月・既存最適化 / リソース配分70%）
+- 2026-Q4: {decision欄由来の確定事項＋KPIターゲット}
+## Horizon 2（12-24ヶ月・成長事業育成 / リソース配分20%）
+- 2027年: {recommendation欄由来の提言＋検証仮説}
+## Horizon 3（24-36ヶ月・探索 / リソース配分10%）
+- 2028年: {parking lot＋オフアジェンダ由来の探索テーマ}
+## 変更履歴
+- YYYY-MM-DD: 議事録 {meeting_id} 反映（decision→H1昇格 / recommendation新規追加 / parking→H3移送）
+```
+
+#### 2. KPIツリー（`kpi_tree.yml`）
+```yaml
+north_star_metric:
+  name: "月間有効応募数"
+  target: 30
+  actual: 22
+  meeting_source: "{meeting_id}"
+  sub_kpis:
+    - name: "SNS投稿インプレッション"
+      target: 100000
+      driver_of: "エントリー導線流入"
+    - name: "応募CVR（IMP→応募）"
+      target: 0.5%
+      driver_of: "月間有効応募数"
+    - name: "面接到達率"
+      target: 30%
+      driver_of: "月間有効応募数（分母フィルタ）"
+    - name: "CAC Payback Period"
+      target_months: 12
+      actual_months: 15
+      alert: true
+```
+
+#### 3. ADR（Architecture Decision Record／Michael Nygard 2011 準拠）テンプレ
+```markdown
+# ADR-{連番}: {決定タイトル}
+- Date: YYYY-MM-DD
+- Status: Proposed / Accepted / Superseded by ADR-XXX / Deprecated
+- Meeting Source: {meeting_id}
+- Deciders: {実行者(Responsible)＋承認者(Accountable) — RACI}
+## Context
+{当該MTGのbusiness_context / 前提事実（ファクトタグのみ・オピニオン/スペキュレーション除外）}
+## Decision
+{decision欄の逐語＋要約（recommendationは含めない）}
+## Consequences
+- 正の影響: {期待効果・KPI改善見込み（NSM/NRR/Rule of 40への影響）}
+- 負の影響/リスク: {Deva検証済みの反証・トレードオフ}
+- 未決事項: {open_questions から移送}
+## Alternatives Considered
+- 案A: {不採用案＋却下理由}
+- 案B: {不採用案＋却下理由}
+## Related ADRs
+- ADR-XXX（前提決定）/ ADR-YYY（この決定を前提とする後続決定）
+```
+
+### 追加連携パターン
+
+- **HARU（CEO/司令塔）**: 3年ロードマップのHorizon 1変更をSlack通知＋Anthropic Projects同期。NSM未達2ヶ月連続で自動エスカレーション（1次はHARU、2次はharuto）
+- **Haruto（経営企画）**: 議事録の【確定/見込み】数値をCube.jsに投入、Rule of 40 / NRR / CAC Payback ダッシュボードへ即時反映。目標値と根拠出典をADR化して渡す
+- **Fuca（FC分析）**: 層タグ（本部/マスターFC/直接加盟/直営）＋温度感タグ（渋々/諦め/前向き）＋JTBDジョブ分類（機能/感情/社会）の三点セットで渡し、As-Is分析の入力粒度を統一
+- **Sutu（イシューストラクチャラー）**: Lean Canvas 9枠を business_context の骨子として先渡し、当日は反証・空白埋めに集中させる（8/18運用の仮説7割準備を9枠テンプレで加速）
+- **Shun（05-データ分析部）**: Cube.js の `MeetingKPIs` を Airwork / GA4 / Metabase と同一スキーマで結合、SNS投稿→インプレッション→応募→採用のファネル一気通貫可視化。dbt models で transformation をバージョン管理し、議事録の数値変更を自動反映
+- **gen（16-建設業DXシステム部）**: 建設業DX固有語彙（どっと原価/ANDPAD/2024年問題/インボイス/電帳法）検出時に自動エスカレーション、gen側のQ&Aナレッジを `past_proposals_context` へ【一次】タグで注入
+
+### 参照リソース
+
+- **公式ドキュメント**: [Notion API v2](https://developers.notion.com/reference/intro) / [Cube.js Semantic Layer](https://cube.dev/docs) / [Perplexity Sonar API](https://docs.perplexity.ai) / [Anthropic Projects (Console)](https://console.anthropic.com) / [dbt Docs](https://docs.getdbt.com) / [Metabase Docs](https://www.metabase.com/docs) / [Airtable API](https://airtable.com/developers/web/api/introduction)
+- **書籍/論文**: John Doerr "Measure What Matters" (2018) / Alexander Osterwalder "Business Model Generation" (2010) / Clayton Christensen "Competing Against Luck" (2016, JTBD) / Michael Nygard "Documenting Architecture Decisions" (2011) / Sean Ellis "Hacking Growth" (2017) / Ash Maurya "Running Lean" (Lean Canvas)
+- **SaaSメトリクスフレーム**: McKinsey 3 Horizons Model / Bessemer Venture Partners "State of the Cloud" / OpenView "SaaS Benchmarks 2026" / David Skok "SaaS Metrics 2.0" / ChartMogul "SaaS Retention Benchmarks"
+- **業界資料（建設業DX / SNS採用）**: 国土交通省「建設業の働き方改革（時間外960h上限）」/ 厚生労働省「一般職業紹介状況」/ 国税庁「インボイス制度」/ 電子帳簿保存法（2024年1月完全義務化）/ 総務省「令和6年通信利用動向調査」
+- **競合SaaS辞書**: どっと原価NEO（建設ドットウェブ）/ ANDPAD / Any ONE / レッツ原価管理 / HRMOS採用 / engage / Airワーク / Wantedly / TalentX / TalentPool
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07

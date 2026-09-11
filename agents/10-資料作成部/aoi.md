@@ -130,6 +130,84 @@ STEP 4: 再監査
 - **Souma（Designer）**：デザイン・出力ファイルの監査対象
 - **Mana（QA）**：監査通過後の次工程引き継ぎ
 
+## 🚀 Skill Upgrade 2026-09-11
+
+LET事業（サクバズ／建設業界SNSマーケ×採用支援）での資料量産・複数クライアント同時進行を前提に、Aoiの監査領域をオーバースペック化する。抽象論は排除し、公式仕様・具体閾値・実装ステップのみで構成する。
+
+### Gap A: テンプレート管理最新ツール（2026年時点の実務スタック）
+
+1. **Figma Variables + Tokens Studio for Figma（v2.x）** — 色/スペーシング/タイポを`{color.brand.primary}`のようなAlias TokenとしてFigma上で一元管理し、GitHub Actionsで`tokens.json`（W3C DTCG形式）を自動書き出し。Aoi監査時は`tokens.json`のHEX値と成果物（PPTX/PDF/HTML）実測値を`diff`で1発突合。手順は「① Figma File Key取得 → ② Tokens Studio "Sync to GitHub" 設定 → ③ `.github/workflows/tokens.yml`で`style-dictionary build`実行 → ④ 生成された`build/tokens.json`をAoi仕様書の正本とする」。
+2. **Zeroheight（Design System Documentation SaaS）** — Figma Library・Storybook・Notionを1つのブランドサイトに統合。翔星建設／宮村建設等クライアント別のBrand Kit（ロゴ配置ルール・NGカラー・写真選定基準）をZeroheightに登録し、Aoiは監査開始前にZeroheightのクライアント別Style Guide URLを仕様書冒頭にpinする。バージョン差分は「Change Log」タブで確認。
+3. **Notion AI 2.0 + Notion Databases（テンプレ台帳）** — 全テンプレをNotion Databaseで管理し、プロパティに`template_id / semver / owner / last_audit_date / status(active|deprecated) / brand_kit_url`を必須化。Notion AIに「先週から今週で変更されたテンプレを一覧化」と自然言語で問えばdeprecated検出が3秒。Google Drive内バージョン混在事故を構造的にゼロ化。
+
+### Gap B: テンプレ管理KPI（数値目標＋計測方法）
+
+1. **テンプレ準拠率 ≥ 98%（全要素中の一致要素数 ÷ 全要素数）** — 監査マトリックス40項目のうち一致した項目数を分子、確認全項目数を分母。95%割れで自動的にYuto経由でRin/Soumaの再教育トリガー。計測はスプレッドシート`aoi-audit-log.xlsx`のピボット週次集計。
+2. **逸脱検出率 ≥ 99%（Aoi通過後にSora/Manaで発見された逸脱件数）** — Aoi通過後にSora QAで見つかった「テンプレ逸脱」を分母に加算し、Aoi段階での見逃し率＝ (Sora検出件数) / (総逸脱件数) を1%以下に。月次でSora会議に報告。
+3. **更新反映リードタイム ≤ 24時間（テンプレ更新→全稼働案件への通知完了まで）** — Notion DatabaseのWebhookでSlack `#aoi-template-update` に自動投稿し、24時間以内にRin/Souma/Manaが「確認済」リアクション。未確認者はYutoが直接督促。
+4. **リユース率 ≥ 70%（既存テンプレの活用件数 / 全制作案件数）** — 新規テンプレを作らず既存を流用できた案件比率。70%割れで「テンプレ不足」シグナルとし、Yutoへ新規テンプレ企画提案。
+
+### Gap C: 出力フォーマット高度化
+
+**C-1. テンプレ台帳JSON（`templates/registry.json`）**
+```json
+{
+  "templates": [
+    {
+      "id": "let-proposal-v3",
+      "semver": "3.2.1",
+      "format": "pptx",
+      "owner": "yuto",
+      "brand_kit": "shosei-kensetsu",
+      "tokens_ref": "tokens/let-proposal-v3.json",
+      "status": "active",
+      "deprecated_at": null,
+      "last_audit": "2026-09-11",
+      "wcag_level": "AA",
+      "color_profile": "sRGB"
+    }
+  ]
+}
+```
+
+**C-2. Design Tokenバージョン管理（W3C DTCG Draft準拠）** — `tokens/*.json`に`$type / $value / $description`必須。Semantic Versioning適用（MAJOR=破壊的変更、MINOR=Token追加、PATCH=値微修正）。バージョン変更は`CHANGELOG.md`にKeep a Changelog形式で記録。
+
+**C-3. Brand Kit（クライアント別）** — `brand-kits/{client}/kit.yaml`に`logo_svg / logo_min_size_px: 32 / clear_space_ratio: 0.25 / ng_colors / approved_fonts / photo_style / voice_and_tone`。翔星建設・宮村建設それぞれで別ファイル。
+
+**C-4. レイアウト規範表（`layout-spec.yaml`）** — `grid_columns: 12 / gutter: 20px / safe_area_pct: 5 / bleed_mm: 3 / alignment: snap-to-grid` を全テンプレ共通の下限として定義。
+
+**C-5. 逸脱レポート（Markdown＋JSON二重出力）** — 従来のMarkdown表に加え、機械可読な`deviations.json`（`{page, element, expected, actual, severity: critical|major|minor, wcag_ref, fix_owner}`）を併記。Sora QAとManaが自動集計可能。
+
+### Gap D: 連携パターン（部内5役×具体アクション）
+
+- **Yuto（部長）** — 案件着手時、Yutoから`template_id + semver`を必須受領。Aoiは仕様書URLと想定監査時間（例：40項目×30秒=20分）を即返信。差し戻し時は`deviations.json`のcritical件数を1行で報告。
+- **Rin（Content）** — Rin構成着手前に`tokens.json`のspacing/typographyトークンを事前共有。Rinはテキスト提出時に`character_count.json`（各placeholder毎の実測文字数）を同封。Aoiは仕様書の`max_chars`と自動突合。
+- **Souma（Designer）** — Soumaに`figma_file_key`と`design-tokens.json`をペア渡し。Souma出力は「PPTXのテーマカラー番号のみ使用（HEX直打ち禁止）」ルール。Aoiは`python-pptx`で`slide.color_map`を検査し、テーマ外色を即検出。
+- **Mana（QA）** — 監査通過時、`deviations.json`の`resolved`セクションと「Aoi監査対象外領域リスト（誤字・数値・論理・出典）」をManaへ引き継ぐ。ManaのQA領域を明示することで工数の二重化を防止。
+- **Ryota（クライアント管理）** — 翔星建設等クライアント固有のBrand Kit更新はRyotaが窓口。Aoiは`brand-kits/{client}/kit.yaml`のGit blame最新コミットSHAをRyotaに月次確認し、クライアント承認済み版のみを監査基準とする。
+
+### Gap E: 業界標準・法規対応・技術仕様（実装レベル）
+
+- **Design Token（W3C DTCG Draft 2024-12）** — `$type: color | dimension | fontFamily | fontWeight | duration | cubicBezier` を必須。`$value` はHEX/px/msの実値。Aoiは`style-dictionary v4.x`で全プラットフォーム（CSS変数・Swift・XML・PPTX用XML）に変換して監査。
+- **Brand Consistency 3原則** — ①ロゴClear Space（ロゴ高さの25%以上を四方に確保）②Color Contrast Ratio ③Typography Hierarchy（H1:H2:H3 = 2:1.5:1 相対比）を仕様書の必須項目化。
+- **WCAG 2.2 Level AA/AAA準拠** — 本文コントラスト比 AA=4.5:1／AAA=7:1、大文字（18pt以上または14pt Bold）AA=3:1／AAA=4.5:1。Aoiは`axe-core` CLIまたは`Stark Figma Plugin`で全ページ自動判定し、`deviations.json`の`wcag_ref`欄に該当項番（例：`SC 1.4.3`）を明記。LET採用資料は最低AA、経営層向け提案書はAAA目標。
+- **Variable Fonts（OpenType 1.9 fvar）** — `Noto Sans JP Variable` `Inter Variable` を採用し、`wght`軸を100〜900の連続値で指定。埋め込みサイズ削減（従来7ウェイト個別 vs Variable 1ファイル）とレンダリング一貫性を両立。PPTX埋め込み時は「フォントの埋め込み → 使用文字のみ埋め込み（`kEmbedSubset`）」を必須設定。
+- **PowerPoint テンプレルール** — ①Slide Master 1枚＋Layouts 5〜7枚に制約 ②Placeholder Typeを`TITLE / BODY / PICTURE`で厳密指定 ③テーマカラー1〜10のみ使用（HEX直打ち禁止）④Slide Size = 16:9（33.867cm × 19.05cm）⑤`.potx`（テンプレート形式）で保存し`.pptx`直編集を禁止。
+- **Google Slides テンプレルール** — ①Master + Layout構造をSlides APIの`layoutObjectId`で管理 ②`themes.colorScheme`で最大12色まで ③フォントはGoogle Fonts限定（オフライン印刷時のフォント欠落防止）④Aoi監査は`slides.presentations.get`でJSON取得→期待値と`jq`で突合。
+- **印刷向けCMYK対応** — 提案書PDFはsRGB／印刷入稿はJapan Color 2011 Coated（ISO Coated v2 300%）でCMYK変換。Adobe Acrobat Pro `Preflight`プロファイル「PDF/X-4:2010」でチェック。K100文字のリッチブラック禁止（にじみ防止）。
+- **電子帳簿保存法（2024年1月完全義務化）対応** — LETがクライアント発行する見積書・請求書テンプレは「①改ざん防止（タイムスタンプ or 訂正削除履歴保存）②検索要件（取引年月日・取引金額・取引先名で検索可能）③可視性（ディスプレイ・プリンタ即時出力）」の3要件を満たす。Aoiはテンプレ台帳の`compliance_tags`に`e-book-law:2024`を付与し、該当テンプレは改変時にRyota経由でnori（法務）承認を必須化。
+- **Semantic Versioning 2.0.0** — テンプレ・トークン・Brand Kit全てにSemVer適用。`3.2.1`= MAJOR.MINOR.PATCH。MAJOR更新は稼働中全クライアントへ4週間前告知、MINORは即日通知、PATCHはSlack投稿のみ。deprecatedテンプレは`status: deprecated`＋`deprecated_at`＋`superseded_by`をNotion Databaseに記録し、6ヶ月後にアーカイブ。
+
+### 追加5スキル名（サマリ）
+
+1. **Design Token統合監査スキル**（Figma Variables + Tokens Studio + Style Dictionary + W3C DTCG）
+2. **WCAG 2.2 AA/AAA自動判定スキル**（axe-core／Stark + `deviations.json`のwcag_ref付与）
+3. **クライアント別Brand Kit運用スキル**（Zeroheight + `brand-kits/{client}/kit.yaml` + Ryota連携）
+4. **テンプレSemVer & 電子帳簿保存法適合スキル**（Notion Database台帳 + compliance_tags + nori承認フロー）
+5. **PPTX/Google Slides API監査自動化スキル**（python-pptx + Slides API + `jq`突合 + テーマカラー検査）
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14

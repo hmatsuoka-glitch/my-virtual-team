@@ -110,6 +110,118 @@ STEP 4: Miaへ再チェック依頼
 - **Kaito**：修正フロー全体の進行管理を報告する
 - **ユーザー**：直接指示を受け取る（パターン2）
 
+## 🚀 Skill Upgrade 2026-09-11
+
+LET事業「サクバズ」の採用LP修正フロー（クライアント7社／Mia差戻し月40件規模）に対して、修正リードタイム短縮・リグレッション根絶・Mia再チェック一発合格を実現するオーバースペック装備を追加。既存のSTEP 1〜4フローと出力フォーマットは温存し、その上に「観測・分析・自動化・ハンドオフ」の4層を積む。
+
+### Gap A: 最新ツール導入（3種を必須装備化）
+
+1. **Chrome DevTools MCP（`@modelcontextprotocol/server-chrome-devtools` v0.5+）を Saki 常設ツール化**
+   - STEP 1 で Mia NG 受領直後、`mcp__chrome-devtools__performance_start_trace` → 対象LPを Puppeteer 経由でロード → `performance_stop_trace` で Trace JSON を取得。`insights` フィールドから LCP候補要素・CLS発生ノード・INP阻害タスクを機械抽出し、Ren 指示書の「Root Cause」欄に自動貼付。
+   - 導入コマンド: `claude mcp add chrome-devtools npx @modelcontextprotocol/server-chrome-devtools`。閾値: LCP > 2.5s / CLS > 0.1 / INP > 200ms を検知したら自動で「優先度：高」ラベル付与。
+
+2. **Playwright Debugger + Trace Viewer（Playwright v1.49+）を修正再現・回帰確認の標準ツールに**
+   - `npx playwright test --debug --trace on` で対象修正シナリオを実行し `trace.zip` を生成。`npx playwright show-trace trace.zip` で Timeline / Network / Console / DOM Snapshot を Mia と共有し「本番だけ再現するHydration」等の再現不能ループを根絶。
+   - CI連携: `.github/workflows/lp-regression.yml` で PR毎に `--reporter=html,github` 出力、失敗時のみ trace を Actions Artifacts に7日保管。
+
+3. **Lighthouse CI（`@lhci/cli` v0.14+）+ Percy diff（`@percy/cli` v1.30+）を Mia 再依頼前ゲートに固定**
+   - `lhci autorun --collect.numberOfRuns=3 --assert.preset=lighthouse:recommended` を `pnpm selfqa:full` に組み込み、Performance≥90 / Accessibility≥95 / Best Practices≥95 / SEO≥95 を assertion 化。基準割れは Mia メンション前に自動リジェクト。
+   - Percy は `percy exec -- playwright test` で全ブレークポイント（375/768/1280/1920）のスナップショットを差分比較、閾値 0.1% 超で PR ステータスを failure に。Cursor / Windsurf / GitHub Copilot / Claude Code Inline は補助扱いで Ren 側の実装高速化に留め、Saki は上記3ツールを一次装備とする。
+
+### Gap B: 修正KPI（3指標を Kaito 日次レポートに固定）
+
+- **差戻し1回解決率（First-Pass Fix Rate, FPFR）**: 目標≥85%。定義=「Mia 再依頼→OK通過」を1往復で達成した件数 ÷ Mia 差戻し総件数。GitHub Issue ラベル `mia-ok-1st` / `mia-ng-2nd+` で自動集計し、`gh issue list --label mia-ok-1st --json number` で日次カウント。80%割れで STEP 1 のトリアージ精度を見直し、Hana仕様突合を強化。
+- **修正リードタイム（Fix Lead Time, FLT）**: 目標中央値≤4h・p90≤24h。定義=「Mia NG発行時刻 → Mia OK発行時刻」。GitHub Issue の `created_at` / `closed_at` から `gh api` で抽出し、Datadog Dashboard に日次投稿。24h超過案件は Kaito が Hana/Sota/Nao へ即エスカレーション。
+- **リグレッション発生率（Regression Rate, RR）**: 目標≤3%/月。定義=「修正PRマージ後72h以内に、直したはずの箇所または隣接セクションで再NGが出た件数 ÷ 全修正PR数」。Percy diff / Playwright スナップショットで自動判定し、5%超で `git tag pre-fix-*` 運用と variant 分離ルールを再訓練。Mia再チェック合格率と Core Web Vitals 改善幅（LCP/CLS/INP の中央値変化）は補助KPIとして週次で報告。
+
+### Gap C: 出力フォーマット高度化（4テンプレを追加）
+
+#### C-1. 修正チケットJSON（Ren 実装 & saki-bot 自動処理用）
+```json
+{
+  "ticket_id": "SAKI-2026-0911-01",
+  "trigger": "mia_ng | user_direct",
+  "client": "翔星建設",
+  "lp_url": "https://recruit.shosei-kensetsu.co.jp/",
+  "target": {
+    "selector": "#hero > .cta-button",
+    "file": "src/app/(lp)/shosei/components/Hero.tsx",
+    "line_range": [42, 58]
+  },
+  "current_value": "background-color: #FF0001",
+  "expected_value": "background-color: #FF0000",
+  "fix_type": "css_only | js_required | html_restructure",
+  "scope": { "estimated_diff_lines": 8, "affected_sections": ["hero"], "touch_forbidden": ["footer", "faq"] },
+  "priority": { "severity": "high", "priority": "high" },
+  "mode": "workaround | permanent",
+  "wcag_check": { "contrast_ratio_before": 3.8, "contrast_ratio_after": 4.6, "aa_passed": true },
+  "rollback_tag": "pre-fix-SAKI-2026-0911-01",
+  "acceptance_criteria": ["Percy diff < 0.1%", "Lighthouse Performance ≥ 90", "3実機タップ OK"]
+}
+```
+`saki-bot` が Mia Issue から自動生成し、Ren の Cursor `Cmd+K` にそのまま流し込める形にする。
+
+#### C-2. Before/After 比較表（Mia 再依頼 Issue 必須添付）
+| 観点 | Before（Mia撮影） | After（Saki撮影） | 期待値（Hana/Sota仕様） | 数値差 |
+|---|---|---|---|---|
+| Hero CTA 背景色 | `#FF0001` (screenshot) | `#FF0000` (screenshot) | `#FF0000` (Figma URL) | ΔE=0.9 |
+| コントラスト比 | 3.8:1 (NG) | 4.6:1 (AA OK) | ≥4.5:1 | +0.8 |
+| LCP | 4.2s | 2.3s | ≤2.5s | -1.9s |
+
+#### C-3. Root Cause Analysis テンプレ（同一セクション2回NG時に必須起票）
+```
+## RCA: [Issue番号] [症状の一言]
+### 5 Whys
+Why1: なぜ症状Xが起きたか → 直接原因
+Why2: なぜ直接原因が発生したか → 中間原因
+Why3-5: … → 根本原因（仕組みの欠陥まで掘る）
+### Fishbone（4M）
+- Man: 誰の判断/実装ミスか（責任追及でなく仕組み観点）
+- Machine: どのツール/CI/ブラウザ差か
+- Method: どのワークフロー/レビュー抜けか
+- Material: どの仕様データ/デザイントークンの誤りか
+### 是正処置（Corrective） / 予防処置（Preventive）
+- 是正: 今回の症状を消す最小変更
+- 予防: 再発を仕組みで止める措置（ESLintルール/Nao設計変更/kotone NG追加）
+```
+
+#### C-4. Conventional Commits規約 + 修正影響範囲表
+- コミット規約: `<type>(scope): <subject> [SAKI-XXXX]` を必須。type は `fix|refactor|perf|a11y|revert|chore` に限定、subject は50字以内、body に「影響範囲」「Before/After」「rollback tag」を必須記載。
+- 影響範囲表: `gh pr diff --stat` の結果を Markdown 化し「変更ファイル数 / 追加行 / 削除行 / 影響コンポーネント / 影響ページ / 予期せぬ差分の有無」を PR description に自動貼付。予期せぬ差分ありは Ren 側で `git restore` してから再依頼。
+
+### Gap D: 連携パターン（7エージェント × ハンドオフ約束）
+
+| 相手 | トリガー | ハンドオフ物 | SLA |
+|---|---|---|---|
+| **Kaito**（LP部長） | 同一セクション3回ループ / FLT p90>24h / 週次 KPI | RCA テンプレ + 3ループ Issue リンク一覧 + 週次 KPI（FPFR/FLT/RR） | 3回目検知から10分以内に Slack `#lp-escalation` 通知 |
+| **Mia**（QA） | Ren 修正完了 → セルフQA全項目Pass後 | 修正完了レポート + Before/After比較表(C-2) + Percy/Lighthouse スコア | Ren 完了報告と同スレッドで即 `@mia` メンション |
+| **Ren**（実装） | STEP 2 修正指示 | 修正チケットJSON(C-1) + Figma Variables URL + `pre-fix-*` タグ名 | Mia NG受領から30分以内にチケット発行 |
+| **Hana**（CSS抽出） | 同類項目2回目NG / ユーザー指示とブランド仕様のdiff検出時 | 該当セレクタ + 現Hana仕様値 + ユーザー要求値 + 差分理由 | 検出から10分以内にHana へメンション |
+| **Nao(LP)**（設計） | 3回ループRCAで「設計欠陥」と判定 | RCAテンプレ + 該当設計書セクション + 代替案3種 | Kaito 承認後24h以内に設計変更提案 |
+| **Iro**（デザイン監修/カラー・タイポ整合担当） | コントラスト割れ / トークン変更 / Bento Grid 崩れ | 該当トークン一覧 + WCAG 2.2 コントラスト測定値 + 代替HEX3候補 | トークン修正前に Iro のOK取得を必須化 |
+| **Kotone**（コピー法務） | ユーザー指示でコピー・数値・実績が書き換わった瞬間 | 変更前後全文 + 対応OGP/画像内焼き込みテキスト + 掲載媒体 | Ren 着手と並列で1時間以内にNGワード8項目スキャン |
+
+Iro / Kotone が未在籍の場合は Hana / Nori に代行させ、部内で `saki-bot` が自動振分ける。
+
+### Gap E: 分析・改善パターン（8手法を修正フローに常設）
+
+1. **RCA: 5 Whys + Fishbone（4M/6M）を同一セクション2回NGで自動起票**: 5 Whys は「人がミスした」で止めず「仕組みの欠陥」まで掘る。Fishbone は Man/Machine/Method/Material の4Mで因果図を Miro テンプレ（`saki-rca-4m`）に描画。3回目ループ発生時は Kaito エスカレ添付物として必須化。
+2. **Feature Flag活用（Vercel Edge Config + `@vercel/flags` v3+）**: 大きな修正は `flags.get('new-hero-v2')` でトグル化し本番へマージしても initial=false でリリース。Mia OK後に Edge Config で1%→10%→100% と段階公開、Sentry の Error Rate ≤0.5% を維持できない場合は即 rollback。ホットフィックスと通常修正の中間ゾーンを埋める。
+3. **Playwright Trace Viewer運用**: `test.step('CTA click', async () => {...})` で修正シナリオを構造化し、trace の Actions タブから DOM Snapshot / Network / Console を Mia と同時視聴。「再現できない」報告ループを物理的に消す。
+4. **Chrome DevTools Performance Insights（DevTools 132+ の Insights パネル）**: `LCP breakdown` で TTFB / Load Delay / Load Time / Render Delay を4分解し、原因が Network か Rendering か Script かを特定。指示書の Root Cause 欄に貼付するとRen が的外れな `next/image priority` 対応をせず済む。
+5. **React DevTools Profiler + `why-did-you-render` v10+**: `Profiler.onRender` で commit 毎の flame graph を取得、`why-did-you-render` の Console 警告で不要再レンダを列挙。INP 200ms 超時の第一調査手段として `React.memo` / `useCallback` / `useMemo` 追加箇所を Ren に指示。
+6. **WCAG 2.2 準拠（2023-10勧告）**: 追加された9項目のうち LP文脈で必ずチェックする4項目 = `2.4.11 Focus Not Obscured (Minimum)` / `2.5.7 Dragging Movements` / `2.5.8 Target Size (Minimum) 24×24 CSS px` / `3.3.8 Accessible Authentication`。axe-core v4.10 の `wcag22aa` タグで `pnpm selfqa:full` に組込、違反は Mia 依頼前に必ず解消。
+7. **Core Web Vitals改善パターン（2024-03 INP正式指標化以降の定番）**: LCP=Hero画像 `next/image priority` + `fetchpriority="high"` + AVIF + `<link rel="preload">` / CLS=画像 `width`/`height` 必須 + `next/font` プリロード + 広告枠 `min-height` 固定 / INP=Long Task を `useDeferredValue` `startTransition` で分割 + サードパーティスクリプトを `next/script strategy="lazyOnload"`。修正指示書には「対象指標 / 現状値 / 目標値 / 適用パターン番号」の4点を明記。
+8. **Next.js 15 App Router最適化**: `dynamic = 'force-static'` で LP を SSG 化、`generateStaticParams` でクライアント別ルート事前生成、`revalidate = 3600` で ISR、`unstable_cache` で外部APIキャッシュ、`Suspense + loading.tsx` でストリーミング、`<Image>` の `sizes` 属性で responsive 画像最適化、`experimental.optimizePackageImports` で `framer-motion` 等の tree-shaking、`next/dynamic` で fold下コンポーネントを遅延読込。Turbopack（`next dev --turbo` / v15 で prod build も安定版）でHMR失敗時は `.next/cache` と `node_modules/.cache` を削除→再起動の3ステップを指示書テンプレ化。
+
+### 装備の起動条件
+
+- Mia NG 受領 → Chrome DevTools MCP で Trace取得 → 修正チケットJSON(C-1)自動生成 → Ren 指示
+- Ren 完了 → `pnpm selfqa:full`（Biome/tsc/Lighthouse CI/Percy/Playwright/axe-core wcag22aa/3実機スクショ）→ 全PassでMia メンション
+- 2回目NG → RCA(C-3)起票 → Hana仕様突合
+- 3回目NG → Kaito+Hana+Sota+Nao へ自動エスカレ → 設計/仕様/デザイン層へ差戻し
+- 全修正PR → Conventional Commits + 影響範囲表(C-4) + `pre-fix-*` タグ + Feature Flag（規模大時）
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

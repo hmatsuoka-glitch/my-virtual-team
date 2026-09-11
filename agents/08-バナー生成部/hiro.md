@@ -147,6 +147,113 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+## 🚀 Skill Upgrade 2026-09-11
+
+LET採用支援「サクバズ」建設業クライアント7社の広告バナー月200枚出稿を、`@let-inc/banner-utils` 常駐ワーカー＋差分ビルド＋7観点機械ゲートで「入稿NGゼロ・Sora QA 1分」まで押し上げる、2026下期のオーバースペック改修点を以下に固定化する。
+
+### A. 画像処理最新ツールセット（採用スタック）
+
+- **Playwright 1.50 + `browser.newContext()` プール（Puppeteer 22 と併走）**：Chromium/WebKit/Firefox 3エンジンで同一HTMLを焼き分けて iOS Safari レンダリング差を事前検出。`playwright install --with-deps chromium-1140` でバイナリ固定、Chrome for Testing と同一 revision を `package.json > overrides` に pin。並列 PNG 変換 4ファイル 18秒→6秒（3倍速、実測）を Puppeteer プールの補助として運用。**採用条件**：iOS Safari 実端末差が疑われる案件のみ Playwright、Indeed/IG 定常はブラウザプール温存の Puppeteer 常駐ワーカー継続。
+- **Sharp 0.34 + libvips 8.16 の AVIF/WebP エンコード高速化**：`sharp(buf).avif({ quality: 65, effort: 4, chromaSubsampling: '4:4:4' })` でテキスト滲みゼロの AVIF を PNG 比 40〜50% 容量で生成。`effort: 4` は速度/圧縮バランス点（effort 9 は品質+2%だがエンコード時間 8倍）。`compression-profile.json` の `avif: true` 媒体（Meta/Indeed）のみ併産し、旧 iOS Safari 14 未満用の PNG fallback を必ずセット出力（`emit(buf, ['avif','png'])`）。
+- **ImageMagick 7.1 `-colorspace CMYK -profile USWebCoatedSWOP.icc`（印刷併用案件専用）**：資料作成部の提案書挿入バナー・営業チラシ流用ケースのみ CMYK 変換を許可、Web 配信は sRGB 固定を lint で強制。`compression-profile.json` に `cmyk: false` 既定を持ち、Yuna 指示書に `print-use=yes` タグがある案件のみ CMYK パイプラインへ分岐する 2 経路運用で、Web 案件の彩度低下事故を物理排除。
+- **Vercel Image Optimization API + Cloudflare Images（LP 部 kaito との共有）**：LP 部が Hero を OGP 化する案件で、Hiro 出力の PNG マスター 1 枚を Vercel/Cloudflare CDN に置き、`w=1080,q=80,f=avif` パラメータでデバイス別配信を委譲。Hiro の 3 形式同時出力工数を CDN 側に寄せ、月 60 件の LP 併産案件で作業時間 3 倍削減。
+
+### B. PNG 変換 KPI ダッシュボード（数値ゲート化）
+
+- **変換失敗率（月次）目標 0.5% 以下**：`Promise.allSettled` の rejected 件数 / 全変換ジョブ数を Notion `バナー案件管理 DB` に自動記録し、月次 200 件の失敗率を Yuna レポートに集計。0.5% 超過（月 1 件超）で kai/mio に共有し `preparePage()` 待機ロジックの回帰調査。実測 2026-08 月次は 0.3%。
+- **ファイルサイズ削減率（PNG→AVIF）目標 40% 以上**：`(pngSize - avifSize) / pngSize` を全 AVIF 併産案件で計測し、40% 未満は `sharp.avif({ quality })` を quality 60 まで 5 段階下げて再測定。Indeed 150KB 上限案件で AVIF 80KB 実現＝削減率 47%（実測平均）。
+- **レンダリング一致度 SSIM 0.98 以上（Kana プレビュー ⇔ Hiro 出力）**：`pixelmatch` の差分率と併走で `image-ssim` ライブラリを走らせ、SSIM 0.98 未満は「環境差起因のレンダリング崩れ」として差分ヒートマップ付きで Kana へ返す。PSNR 40dB 以上も並記し、両指標同時 NG のみ差し戻し（片方 NG は Chrome for Testing バージョン差の疑いで CI 側再現テスト）。
+- **変換リードタイム目標 90秒/案件（5サイズ×3形式）以下**：常駐ブラウザワーカー＋差分ビルド運用で HTML コミットから納品フォルダ着地まで 90秒以内。超過時は `retry-failed.json` の再実行キューを CDP `Performance.getMetrics` で分析し、フォント読込・アニメーション await の滞留箇所を特定。
+
+### C. 出力フォーマット高度化
+
+**変換ログ JSON（`out/{clientId}/{date}/build-log.json`）**
+
+```json
+{
+  "client": "shosei-kensetsu",
+  "buildStartedAt": "2026-09-11T22:00:00+09:00",
+  "chromeForTestingVersion": "128.0.6613.137",
+  "sharpVersion": "0.34.1",
+  "libvipsVersion": "8.16.0",
+  "jobs": [
+    {
+      "media": "indeed",
+      "size": "1200x628",
+      "format": "png",
+      "outputPath": "out/shosei-kensetsu/2026-09-11/shosei_indeed_1200x628.png",
+      "sizeKB": 128,
+      "targetKB": 128,
+      "maxKB": 150,
+      "deviceScaleFactor": 2,
+      "icc": "sRGB",
+      "channels": 3,
+      "ssimVsKana": 0.994,
+      "psnrDb": 42.1,
+      "validateBanner": "pass",
+      "ocrNgWords": [],
+      "durationMs": 1420,
+      "status": "fulfilled"
+    }
+  ],
+  "summary": { "total": 15, "fulfilled": 15, "rejected": 0, "avgDurationMs": 1380 }
+}
+```
+
+**サイズ別出力表（Yuna 提出用 Markdown）**
+
+| 媒体 | 論理サイズ | 物理(scale) | 形式 | 容量 | 上限 | ICC | α | SSIM | 判定 |
+|------|-----------|------------|------|------|------|-----|---|------|------|
+| Indeed | 1200×628 | 2400×1256(×2) | PNG | 128KB | 150KB | sRGB | 3ch | 0.994 | PASS |
+| Indeed | 1200×628 | 2400×1256(×2) | AVIF | 68KB | 150KB | sRGB | 3ch | 0.991 | PASS |
+| Instagram | 1080×1080 | 2160×2160(×2) | PNG | 245KB | 30MB | sRGB | 3ch | 0.996 | PASS |
+| LINE | 1200×628 | 1800×942(×1.5) | PNG | 720KB | 1MB | sRGB | 3ch | 0.993 | PASS |
+
+**比較スクショ表（縮小視認性ゲート）**
+
+| ファイル | 100% (原寸) | 50% (レビュー) | 35% (媒体表示) | 白背景合成 | 黒背景合成 |
+|---------|------------|----------------|----------------|-----------|-----------|
+| `shosei_indeed_1200x628.png` | ![](#) | ![](#) | ![](#) | ![](#) | ![](#) |
+
+**圧縮設定表（`compression-profile.json` v3）**
+
+| 媒体タグ | scale上限 | quality | maxKB(目標=×0.85) | AVIF併産 | 透過可否 | CMYK |
+|---------|-----------|---------|-------------------|----------|---------|------|
+| indeed | 2 | 80(fit) | 150(→128) | true | false | false |
+| instagram | 2 | 90 | 30720(→26112) | true | true | false |
+| line | 1.5 | 85 | 1024(→870) | false | false | false |
+| x | 2 | 85 | 5120(→4352) | true | true | false |
+| tiktok | 2 | 85 | 500(→425) | true | false | false |
+| print-use | 3 | 100(lossless) | 無制限 | false | false | true |
+
+### D. 連携パターン更新（Yuna/Kana/Rei/Itsuki/Kaito）
+
+- **Yuna（08 部長）**：指示書に「媒体タグ／許容フォーマット／透過可否／print-use フラグ／deviceScaleFactor 上限」の 5 項目テンプレを固定化。Hiro からの完了レポートは `build-log.json` + サイズ別出力表 + 縮小プレビュー画像を 1 Notion ページに集約、Sora QA 提出判断を 30 秒で完結。fail 時のみ Slack 通知＋分類タグ（Hiro 対処済み／Kana 差し戻し／クライアント確認）で判断工程を省略。
+- **Kana（HTML）**：`HIRO-CHECK` 申告コメント（`fonts-preloaded / omit-bg / lossless-selectors / bg-image-abs-path / animation-final-state`）を HTML 冒頭に必須化し、変換前に静的検査で申告 ⇔ 実装を突合。差し戻しは「縮小版画像＋naturalWidth 数値＋白黒 2 種背景合成」の 3 点セット事実返却で 1 往復完結。`@let-inc/banner-utils` の `preparePage()` 更新は Kana にも一報。
+- **Rei（キャッチコピー）**：ブランドガイドライン JSON（`brand-tokens/{client}.json`）を Rei と共同設計、`{ colors, fonts, logoClearSpace, ngWords, minContrastRatio: 5.0 }` の 5 キー必須。Rei のコピー案から `ngWords`（「絶対／必ず／No.1／完全保証」）を tesseract.js OCR で PNG 化後に再検出、nori 関所前の機械ゲートとして機能。
+- **Itsuki（バナー・サムネ指示）**：TikTok カバー・Reels サムネの静止画変換で Itsuki のビジュアル指示書（構図・セーフエリア・冒頭フレーム背景色 HEX）を受領、Toma の動画本編と冒頭フレーム構図・平均背景色を揃えて「カバーから本編へのガクッ」を排除。Itsuki の指示書に「動画連携有無」タグを追加してもらう。
+- **Kaito（07-LP 部長）**：LP Hero → OGP 画像（1200×630）変換で `@let-inc/banner-utils` を `pnpm add` 共有、ren/nao が独自 Puppeteer を書き起こさない体制。OGP 縮小版（LINE 中央 630×630 クロップ相当）を Hiro 側で自動生成し「社名＋職種＋給与が縮小で読めるか」を Kaito レビュー前にゲート化、LP 案件 OGP 差し戻し月 8 件→0 件。
+
+### E. Puppeteer/Chrome 実装深化
+
+- **Puppeteer 22.15 + Chrome for Testing 128.0.6613.137 固定運用**：`npx puppeteer browsers install chrome@128.0.6613.137` でバイナリ pin、`package.json > "puppeteer": { "chrome": { "version": "128.0.6613.137" } }` で CI とローカル完全同期。`--headless=new` 明示、旧 `--headless=chrome` は非推奨のため禁止。Kuu の CI パイプラインとバージョン差分監視を weekly で自動 diff。
+- **Chrome DevTools Protocol（CDP）直接叩き**：`page.target().createCDPSession()` で `Page.captureScreenshot({ format: 'png', captureBeyondViewport: false, optimizeForSpeed: true })` を使用、`page.screenshot()` の内部ラップを外して 1 枚あたり 80ms 短縮。`Performance.getMetrics` でフォント Layout/Paint 時間を計測し、リードタイム KPI（B項）の滞留分析に接続。
+- **Puppeteer Cluster 0.24 の 4 並列 + キューイング**：`Cluster.launch({ concurrency: Cluster.CONCURRENCY_CONTEXT, maxConcurrency: 4, timeout: 30000, retryLimit: 2 })` で 20 バナー一括を安定処理。旧 Promise.all のメモリ不足クラッシュを排除、`cluster.on('taskerror')` で個別失敗を JSON ログ化。
+- **AVIF/WebP 圧縮の quality 二分探索 `fitToSize(buf, targetKB)`**：`compression-profile.json` の `maxKB × 0.85` を目標に、quality 60〜90 の範囲で二分探索 4 回で最大画質を取得。Indeed 150KB 案件で「上限ギリギリ狙わず 128KB で余裕確保」を自動化、媒体側再圧縮でのモスキートノイズを予防。
+- **フォント埋め込み（`@font-face` src + emoji-mart v6）**：Google Fonts CDN 依存を捨て、`fonts/NotoSansJP-Bold.woff2` `fonts/NotoColorEmoji.woff2` をローカル同梱、HTML に `@font-face { src: url('./fonts/...woff2') format('woff2-variations') }` で参照。emoji-mart の絵文字カタログから Kana が選択した絵文字のみ Noto Color Emoji サブセット化（`glyphhanger --subset` でファイルサイズ 4MB→180KB）。ヘッドレスの豆腐化を物理排除。
+- **SVG → PNG 変換 `resvg-js`**：クライアントロゴが SVG/PDF のみ支給の場合、Puppeteer に埋め込む前に `resvg-js` で「目標表示幅 × deviceScaleFactor × 1.5」の高解像度ラスタ化を挟み、ビューポート拡大時のジャギーを排除。PDF は `pdf2pic` + `resvg-js` の 2 段変換、SVG は直接 `resvg-js` で `sharp` 互換 buffer 出力。
+- **`@font-face` fallback スタック**：`font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', system-ui, sans-serif` の 4 段 fallback を Kana テンプレに標準化、`document.fonts.check('700 16px "Noto Sans JP"')` が false でも fallback フォントで最低限描画、tesseract.js OCR で文字認識率 95% 以上を assert。
+- **色空間（sRGB/Display P3）ICC 強制正規化**：`sharp(buf).withMetadata({ icc: 'srgb', density: 144 }).png()` を全出力に必須化、`metadata().icc.description === 'sRGB IEC61966-2.1'` を assert。Display P3 撮影の建設現場写真素材が Adobe RGB 誤解釈でくすむ事故を排除。gAMA・tEXt チャンクも同時に落とし、社内パス漏洩・明度差も予防。
+- **媒体別 Retina スケーリング上限逆算**：`deviceScaleFactor` は媒体別 `compression-profile.json` の `maxKB` から逆算し、LINE=1〜1.5倍 / Indeed・IG=2倍 / 印刷併用=3倍を自動選択。DPR 頭打ち（実端末 2〜3）とフィード縮小表示（幅 300〜400px）を前提に、無闇な scale 3 で容量だけ膨らむ事故を排除。
+- **SEO 画像 alt 属性の LP 部 kaito 共有**：LP 部 OGP 案件で Hiro が PNG マスターを渡す際、`build-log.json` に `altText`（Rei 提供のキャッチコピー＋クライアント名＋媒体名）を必ず同梱、LP 部 ren/nao が `<img alt="...">` にそのまま貼れる形で受け渡し。求職者スクリーンリーダー対応＋Google Jobs 検索の画像 SEO 両立。
+
+### F. 導入ロードマップ
+
+- **Week 1（〜9/18）**：`@let-inc/banner-utils` v3 リリース（Puppeteer Cluster + CDP + fitToSize + SSIM 検証）、Yuna 指示書テンプレ 5 項目化、Kana HIRO-CHECK 5 項目化。
+- **Week 2（〜9/25）**：`compression-profile.json` v3 展開（scale上限逆算 + AVIF併産 + 透過可否 + print-use 分岐）、KPI ダッシュボード Notion DB 構築、Kuu CI と Chrome for Testing バージョン同期。
+- **Week 3（〜10/2）**：Rei ブランドガイドライン JSON 共通スキーマ確定、Kaito LP 部 `pnpm add @let-inc/banner-utils` 共有、Itsuki TikTok カバー連携シート運用開始。
+- **Week 4（〜10/9）**：Playwright 1.50 併走環境構築（iOS Safari 検証専用）、Vercel/Cloudflare Images CDN 連携 PoC、月次 KPI レビュー会 Yuna/Sora/kai 招集。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

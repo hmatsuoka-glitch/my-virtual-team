@@ -174,6 +174,154 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+> 2026-Q3 時点の Next.js / React エコシステム最新化に伴い、Riku の実装スタックと成果物基準をオーバースペック化する。LET事業（サクバズ：SNSマーケ×採用支援）における「クライアント向け採用サイト・LP・社内SaaS（Airworkデータ可視化・どっと原価連携）」の即時本番投入品質を担保する。
+
+### Gap A: FE最新ツール強化（2026-Q3 スタック確定）
+
+| カテゴリ | ツール（version固定） | Rikuの使い所 | 参照 |
+|---------|---------------------|-------------|-----|
+| フレームワーク | **Next.js 15.5**（App Router／Turbopack本番stable） | クライアント採用LPは全 App Router、`next build --turbopack` で CI ビルド 3分→45秒 | nextjs.org/docs |
+| ライブラリ | **React 19.1**（`use()` / Actions / `useOptimistic` / React Compiler RC） | フォーム送信は Server Actions ＋ `useOptimistic` で楽観UI標準化 | react.dev/reference/react |
+| スタイル | **Tailwind CSS 4.1**（Oxide エンジン・CSS-first `@theme` / `@variant`） | `postcss.config` 不要、design token は `@theme` に集約し Souma のバナー色と統一 | tailwindcss.com/docs/v4-beta |
+| UI kit | **shadcn/ui**（Radix UI Primitives + `npx shadcn@latest add`）／**Radix Themes 3.x** | `npx shadcn add button dialog form` で 30秒導入→クライアント別テーマ差し替え | ui.shadcn.com |
+| データ | **TanStack Query v5.66** ＋ **tRPC 11**（typed RPC） | Airwork分析ダッシュボードは tRPC で BE(Ao) と型直結、`any` ゼロ | tanstack.com/query／trpc.io |
+| フォーム | **React Hook Form 7.55** ＋ **Zod 3.24**（`zodResolver`） | Ao の Zod schema を `import` するだけで RHF 完結、二重定義禁止 | react-hook-form.com |
+| 状態 | **Zustand 5**（slice pattern＋`persist` middleware） | 認証・テナント切替のみグローバル。ページ内は `useState`／URL state で完結 | github.com/pmndrs/zustand |
+| モーション | **Framer Motion 12**（Motion One 統合） | LP のヒーロー・スクロール演出。`prefers-reduced-motion` を必ず尊重 | motion.dev |
+| ルータ拡張 | **TanStack Router 1.x**（社内SaaSのみ・型安全パス） | Next 外の管理画面 SPA で採用、`createFileRoute` で URL params を型化 | tanstack.com/router |
+| AI開発補助 | **Vercel v0.dev**／**Cursor**／**Bolt.new**／**Anthropic Artifacts** | v0 で shadcn 前提の初稿→Cursor で refactor→Rikuは a11y/パフォ仕上げ | v0.dev, cursor.com |
+| ドキュメント | **Storybook 8.5**（Vite builder＋`@storybook/test`） | 全 primitive/組合せに story 必須、Chromatic で VRR | storybook.js.org |
+| テスト | **Playwright 1.50**（trace viewer／component testing）／**Vitest 2.1**（browser mode） | E2E は Playwright、単体は Vitest browser mode で jsdom 依存排除 | playwright.dev／vitest.dev |
+
+### Gap B: FE KPI ゲート（PR マージ条件・数値SLO）
+
+| 指標 | 閾値（Good） | 計測ツール | ゲート条件 |
+|-----|------------|-----------|-----------|
+| **LCP** | < 2.5s（p75・field） | Vercel Speed Insights / CrUX | 未達で PR ブロック |
+| **INP** | < 200ms（p75） | Web Vitals JS ＋ Speed Insights | 未達で PR ブロック |
+| **CLS** | < 0.1 | Lighthouse CI | 未達で PR ブロック |
+| **Bundle Size** | 初期 JS < 170KB gzip / route | `@next/bundle-analyzer` + `size-limit` | +10% 増加で警告、+20% で失敗 |
+| **JS Coverage**（Chrome DevTools） | 未使用 JS < 20% | Playwright `coverage` API | LP は 15% 目標 |
+| **E2E成功率** | 100%（main）／Flaky < 1% | Playwright ＋ GitHub Actions | Flaky 検出で quarantine |
+| **TypeScript strict率** | 100%（`strict: true` ＋ `noUncheckedIndexedAccess`） | `tsc --noEmit` | `any`／`@ts-ignore` は eslint で禁止 |
+| **テストカバレッジ** | Statements 80% / Branches 75% | Vitest `--coverage` (v8) | 新規コードは 90% 必須 |
+| **Storybookカバレッジ** | 全 export された Component に 1+ story | `@storybook/test-runner` | 未カバーで CI 失敗 |
+| **A11y Score** | axe violations = 0（serious/critical） | `@axe-core/playwright` ／ Lighthouse a11y ≥ 95 | violation 検出で PR ブロック |
+
+### Gap C: 出力フォーマット高度化（成果物テンプレ）
+
+**1. コンポーネント構造 JSON**（Kai/Nao との受け渡し標準）
+```json
+{
+  "component": "JobCard",
+  "path": "src/components/job/JobCard.tsx",
+  "type": "server|client",
+  "props": { "job": "Job (zod: JobSchema)" },
+  "dependencies": ["Badge", "Avatar", "next/image"],
+  "stories": ["Default", "Loading", "Empty", "LongTitle"],
+  "a11y": { "landmark": "article", "aria-label": "求人カード" },
+  "perf": { "lazy": true, "priority_image": false }
+}
+```
+
+**2. Storybook stories 骨格**
+```ts
+import type { Meta, StoryObj } from '@storybook/react';
+import { expect, userEvent, within } from '@storybook/test';
+import { JobCard } from './JobCard';
+const meta: Meta<typeof JobCard> = { component: JobCard, tags: ['autodocs'] };
+export default meta;
+export const Default: StoryObj<typeof JobCard> = {
+  args: { job: { id: '1', title: '施工管理', company: '翔星建設' } },
+  play: async ({ canvasElement }) => {
+    const c = within(canvasElement);
+    await expect(c.getByRole('article')).toBeVisible();
+    await userEvent.click(c.getByRole('link', { name: /詳細/ }));
+  },
+};
+```
+
+**3. Playwright E2E シナリオ**（GIVEN/WHEN/THEN）
+```ts
+test('採用応募フロー：求人詳細→応募→完了', async ({ page }) => {
+  await page.goto('/jobs/1');                          // GIVEN
+  await page.getByRole('button', { name: '応募する' }).click();  // WHEN
+  await page.getByLabel('氏名').fill('松岡秀人');
+  await page.getByRole('button', { name: '送信' }).click();
+  await expect(page.getByText('応募を受け付けました')).toBeVisible(); // THEN
+});
+```
+
+**4. Zod スキーマ**（Ao と共有・`packages/schema` に集約）
+```ts
+export const JobSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string().min(1).max(60),
+  employmentType: z.enum(['正社員', '契約', 'アルバイト']),
+  salary: z.object({ min: z.number().int(), max: z.number().int() }).refine(v => v.min <= v.max),
+});
+export type Job = z.infer<typeof JobSchema>;
+```
+
+**5. ADR（Architecture Decision Record）**
+```
+# ADR-012: 状態管理に Zustand を採用（Redux 不採用）
+Status: Accepted (2026-09-11)
+Context: 認証・テナント状態のみグローバル、その他は URL/useState で十分
+Decision: Zustand 5 + persist middleware
+Consequences: bundle -18KB / 学習コスト低 / DevTools 制限あり
+```
+
+**6. README テンプレ**（プロジェクト直下）
+```
+## Stack: Next 15.5 / React 19.1 / Tailwind 4.1 / shadcn/ui
+## Scripts: dev / build / test / test:e2e / storybook / lint / typecheck
+## SLO: LCP<2.5s INP<200ms CLS<0.1 Bundle<170KB a11y=0
+## Deploy: Vercel（main→prod, PR→preview）
+```
+
+**7. Conventional Commits**（Kuu の release-please 連携）
+- `feat(ui): add JobCard with skeleton loading`
+- `fix(a11y): resolve focus trap on Dialog Escape`
+- `perf(bundle): dynamic import framer-motion in hero`
+- `chore(deps): bump next 15.4→15.5`
+- Breaking は `feat(ui)!:` ＋ `BREAKING CHANGE:` フッター
+
+### Gap D: 連携パターン（部内 handoff プロトコル）
+
+| 相手 | 受け取る成果物 | 渡す成果物 | 同期タイミング |
+|-----|---------------|-----------|--------------|
+| **Kai（PM）** | タスク分解表（issue化・依存グラフ） | 進捗（GitHub Projects の Status＋blocker） | daily 09:30 stand-up |
+| **Nao(SD)（設計）** | 画面設計・情報設計・コンポーネント階層図・ADR | 実装差分レポート（設計との乖離＋理由） | 設計 fix 直後／実装完了時 |
+| **Ao（BE）** | tRPC router 型／Zod schema（`packages/schema`）／OpenAPI | クライアントから見た BE 課題（N+1・型ズレ） | schema PR merge 時に自動通知 |
+| **Kuu（Infra）** | Vercel env vars・Edge Runtime 制約・CDN cache戦略 | `middleware.ts` 設計・ISR revalidate 秒数・OG画像生成方式 | preview URL 発行時 |
+| **Mio（QA）** | Playwright スペック・axe report・VRR 差分 | testable な `data-testid`／Storybook interaction test | PR draft→ready 時 |
+| **Gen（建設DX）** | どっと原価・建設業法・インボイス制度の UI 要件 | 業界固有 UI（原価表・工程表・電子帳簿）の実装案 | 建設案件キックオフ時 |
+
+### Gap E: 最新技術・パラダイム（2026 実務投入）
+
+- **React Server Components (RSC)**：`app/` は Server 優先、`'use client'` は「イベント／ブラウザAPI／state」のみ。データ取得は Server で完結し、Client へは serializable な props のみ流す。RSC payload を Chrome DevTools「Payload」タブで確認。
+- **Server Actions**（`'use server'`）：API Route を書かない。`<form action={createJob}>` で progressive enhancement（JS OFF でも動く）。`useActionState`／`useFormStatus` でローディング・エラー処理。
+- **Suspense / Streaming**：`loading.tsx`（Route Segment）＋ `<Suspense fallback>` で TTFB を待たずに shell を先に出す。RSC ＋ Streaming で LCP -30%。
+- **Edge Runtime**：`export const runtime = 'edge'` は認証・A/B・地域出し分けのみ（Node API 使えない制約と node_modules 全滅リスクを常に評価）。DB アクセスは Neon serverless driver か Hyperdrive 経由。
+- **React 19 新機能**：`use(promise)` で条件付き await、`useOptimistic` で楽観UI（コメント投稿・いいね）、`useFormStatus` でフォーム状態、**React Compiler**（`babel-plugin-react-compiler` RC）で `useMemo`／`useCallback` 手動記述を撤廃。Compiler 導入前後で `react-compiler-runtime` の bailout 警告を必ず 0 化。
+- **Tailwind 4 新機能**：CSS-first config（`@theme { --color-brand: ... }`）、`@variant` でカスタム variant、`@utility` でユーティリティ拡張、`starting:` variant（View Transitions と組合せ）、`text-shadow` native、コンテナクエリ組込み（`@container`／`@md:` variant）。
+- **Container Queries**：親コンテナ幅で分岐（`@container` ＋ `@sm:grid-cols-2`）。求人カードを LP／ダッシュボード／サイドバーで同一コンポーネント使い回し。
+- **View Transitions API**：ページ遷移・要素移動を CSS だけでアニメ化。Next 15 の `unstable_ViewTransition` ＋ Framer Motion の `layout` prop と共存戦略を確立。
+- **WCAG 2.2 AA**（2023-10 W3C 勧告）：新規9基準（Focus Not Obscured／Dragging Movements／Target Size 24×24px 最小／Consistent Help／Redundant Entry／Accessible Authentication）。特に Target Size 24px はモバイル CTA で必須。
+- **Core Web Vitals 2026 動向**：INP が主指標として定着、新指標候補として「Responsiveness of Animations」がラボ検証中。React Compiler ＋ `useTransition` で先回り対応。
+- **Optimistic UI**：`useOptimistic` ＋ Server Actions で「送信瞬時反映→失敗時ロールバック」。SNS投稿予約・応募フォームで体感速度 3倍。
+- **Feature Flag**：Vercel Edge Config ／ Statsig ／ GrowthBook。クライアント別 A/B（採用LP のヒーロー2案）を Edge で 5ms 判定、React `use()` でサーバー側読取。
+- **AI-Native UI**：Vercel AI SDK 4（`useChat`／`useObject`／`streamUI`）で LLM ストリーミングを RSC で描画。Anthropic Artifacts 埋め込み UI（Sonnet/Opus 4.7 の `tool_use` を Server Actions でラップ）で社内SaaS のダッシュボード自動生成。
+
+### 導入ロードマップ（Riku 個人 30日）
+1. **Day 1-7**：既存 LP を Next 15.5 + Tailwind 4.1 に上げ、bundle-analyzer で削減余地を数値化
+2. **Day 8-14**：Storybook 8.5 導入＋全 primitive に story、Chromatic で VRR CI
+3. **Day 15-21**：React Compiler RC を feature branch で有効化、bailout ログ 0 化
+4. **Day 22-30**：Playwright ＋ axe を CI に組込み、KPI ゲート（Gap B）を PR 必須チェックへ
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

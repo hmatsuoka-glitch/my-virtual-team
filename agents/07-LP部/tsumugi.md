@@ -52,6 +52,139 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - mia（ビジュアルQA）: 実装完了後に検収依頼
 - sora（最終QA）: 全工程完了後に最終チェック依頼
 
+## 🚀 Skill Upgrade 2026-09-11
+
+### 目的
+既存の「要件7項目ヒアリング × 3並列起動 × 3秒テスト × 差し戻し先マトリクス」統括スキルに、2026年下期の実装最新ツール・数字で語れるKPI閾値・Next.js 15/Tailwind 4/WCAG 2.2の設計知見・LP部9名（Kaito/Hana/Nao(LP)/Ren/Mia/Saki/Sota/Iro/Kotone）の連携パターンを追加し、Tsumugiを「概念設計だけの係長」から「ツール・閾値・データで品質を証明するプロジェクトディレクター」へ格上げする。
+
+### Gap A: LP関連最新ツール（実装フロー組込み・3種）
+
+1. **Figma Dev Mode MCP + Anthropic Artifacts プレビュー連携**
+   - 目的: sota確定Figma案を、ren実装前に「実装イメージ」としてArtifactsで即プレビュー化し、クライアント承認前段階の実装ズレを潰す。
+   - 手順: (a) Figma URLを `mcp__Figma__get_design_context` に投入→レイヤ/トークン取得 (b) 抽出したdesign-tokens.jsonをArtifactsのHTMLプレビューへ流し込み実装後の見え方を生成 (c) sotaへ差分フィードバックしFigma段階で修正指示 (d) 承認済み版のみren着手ゲート解除。
+   - 期待効果: sota→ren間の実装後差し戻しを平均2ラウンド→0.5ラウンド。
+
+2. **v0.dev v2 (Vercel) によるLP骨格生成 + Cursor Composerで詳細実装**
+   - 目的: 要件整理書＋iroのdesign-tokens.jsonを入力にNext.js 15 App Routerベース雛形を10分で生成し、renは詳細実装（shadcn/ui化・アクセシビリティ・計測タグ）に集中。
+   - 手順: (a) 要件整理書＋トークン＋Hero文言をv0公式サイト（v0.dev）にプロンプト投入 (b) 生成コードをGitHub PR化 (c) Cursor Composer上でshadcn/ui `Button`/`Form`/`Sheet` へ置換 (d) renがWCAG 2.2対応と計測タグ実装。
+   - 期待効果: ren初動30分短縮／Hero着手までのリードタイム半減。
+
+3. **Lighthouse CI + Chrome DevTools MCP + Playwright（3層自動QA）**
+   - 目的: mia検収前にtsumugi側で「Core Web Vitals＋実機操作＋アクセシビリティ」を自動走査し、mia検収は視覚崩れに集中させる。
+   - 手順: (a) GitHub Actionsに `treosh/lighthouse-ci-action@v11` を追加、`lhci autorun` でLCP/CLS/INP/TBT/A11yスコアを閾値超過時にPR fail化 (b) Chrome DevTools MCPで375px/768px/1440px/Dark Modeのスクショ差分を手元確認 (c) Playwrightで「Hero表示→CTAタップ→フォーム送信→サンクスページ到達」E2E 1本を全案件共通で回す (d) axe-core（`@axe-core/playwright`）でWCAG 2.2違反を自動検出。
+   - 期待効果: mia検収往復1〜2巡削減／公開後の性能・A11yクレームをCIで先取り。
+
+### Gap B: LP KPI閾値と公開ゲート（数字で証明する係長へ）
+
+| KPI | 定義 | 合格閾値（tsumugi公開ゲート） | 計測手段 |
+|-----|------|--------------------------|---------|
+| LCP | 最大コンテンツ描画（モバイル4G） | 2.5秒以内 | PageSpeed Insights / Lighthouse CI |
+| CLS | 累積レイアウトシフト | 0.1以下 | 同上 |
+| INP | 操作応答（旧FID後継・Core Web Vitals 2024〜） | 200ms以内 | Chrome UX Report / RUM (`web-vitals` v4) |
+| CVR | 応募完了/セッション | 建設業採用LP 3.0%以上（業界中央値2.1%） | GA4 コンバージョンイベント |
+| Mia差戻し率 | mia検収差戻し件数/納品件数 | 20%以下（現行約45%を半減目標） | Notion案件DB `mia_returns` フィールド |
+| Vercel Deploy成功率 | Kuu側デプロイ成功/試行（直近30日） | 95%以上 | Vercel Dashboard API |
+| コンポーネント再利用率 | `templates/construction/_base/components/ui` からの `import` 数/総UIコンポーネント数 | 60%以上 | `grep -r "@/components/ui" apps/lps` |
+
+- **運用ルール**: 公開前に上記7指標を「LPスコアカード（1枚Markdown）」でsora最終QAへ提出。1指標でも未達なら公開ゲート赤で公開不可。改善案件は納品後30日でRUM再計測しクライアント月次レポートへ差し込む（Akariへ連携）。
+
+### Gap C: 出力フォーマット高度化
+
+#### C-1. LPプロジェクト要件整理書 v2（JSONテンプレ）
+
+```json
+{
+  "client": "翔星建設",
+  "project_id": "LP-SHOSEI-2026-09",
+  "purpose": "recruit",
+  "persona": {
+    "age": 26, "job": "現場監督3年目", "annual_income": 3800000,
+    "device": "iPhone SE 375px", "reading_context": "通勤電車5分",
+    "transition_reason": "残業＋昇給頭打ち"
+  },
+  "kpi": {
+    "kgi": "月応募10件", "cv_target": 10, "cvr_target": 0.03,
+    "micro_cv": ["tel_tap", "line_add", "salary_scroll_50"]
+  },
+  "assets_ready": {
+    "logo_svg": true, "logo_ai": true,
+    "site_photos": true, "staff_photos": true,
+    "company_info_verified": true, "license_number": true
+  },
+  "design_tokens_path": "templates/construction/shosei/design-tokens.json",
+  "copy_source": {
+    "hero_headline_candidates": 3,
+    "salary_evidence": "2026春闘反映済み賃金規程v2.pdf",
+    "numbers_verified_at": "2026-09-10"
+  },
+  "tech_stack": {
+    "framework": "Next.js 15 App Router",
+    "ui": "shadcn/ui v2", "css": "Tailwind 4",
+    "form": "React Hook Form + Zod", "deploy": "Vercel Edge"
+  },
+  "gates": {
+    "lcp_ms": 2500, "cls": 0.1, "inp_ms": 200,
+    "cvr_min": 0.03, "wcag": "2.2 AA", "target_size_px": 24
+  },
+  "legal_scan": {
+    "keihyo_ng_words": 0, "employment_law_ng_words": 0,
+    "consent_checkbox": true, "privacy_policy_link": true
+  },
+  "linked_agents": {
+    "iro_kickoff": "2026-09-11", "kotone_kickoff": "2026-09-12",
+    "sota_kickoff": "2026-09-12", "ren_assigned": true, "mia_review": "2026-09-25"
+  },
+  "deadline": "2026-10-15",
+  "open_questions": []
+}
+```
+
+#### C-2. 進捗管理表（案件横断・週次 / Notionビュー相当）
+
+| 案件 | STEP | 担当 | ボール保持 | 期限 | LCP/CLS/INP | Mia差戻し | 公開日 |
+|------|------|------|-----------|------|-------------|----------|--------|
+| 翔星建設 | 実装 | ren | 自社 | 09-25 | 2.1/0.05/180 | 0回 | 10-01 |
+| 宮村建設 | 承認待ち | クライアント | 客先 | 09-20 | – | – | 10-05 |
+| 清一建設 | mia検収 | mia | 自社 | 09-18 | 2.3/0.08/195 | 1回 | 09-30 |
+
+#### C-3. レビュー結果表（mia／sora用サマリ）
+
+| 観点 | 判定 | 詳細 | 差し戻し先 |
+|------|------|------|-----------|
+| 3秒テスト | GO | 会社/職種/月給 全読取可 | – |
+| 法務（景表法） | GO | 禁止語0件（grep済） | – |
+| 法務（雇用関連法） | 条件付GO | 「若手歓迎」検出→「20代が活躍中」置換要 | kotone |
+| CWV（LCP/CLS/INP）| GO | 2.1/0.05/180 | – |
+| 実機375px＋セーフエリア | GO | `env(safe-area-inset-bottom)` 空け確認 | – |
+| 全リンク実クリック | GO | 12本＋`tel:`＋アンカー全通 | – |
+| 計測タグ発火 | GO | GA4/Meta Pixel/GTM 全発火 | – |
+| WCAG 2.2 (axe-core) | 条件付GO | Target Size 22px検出（要24px以上） | ren |
+
+### Gap D: LP部9名連携パターン（Tsumugi起点の指示テンプレ）
+
+- **Kaito（部長）**: 工数40h超の大型案件でリソース配分相談。複製係nao/renの借受け可否を週次「LP部リソース会」で確認。境界=「新規制作＝tsumugi統括／既存複製＝kaito統括」を案件受領時に明文化。
+- **Hana（CSS抽出）**: 参考LPが指定された案件で、sota企画前にHanaへCSS抽出依頼→抽出結果（配色・Grid・タイポ）をsotaに渡し「参考LP実装挙動」を根拠として企画。着想レベルでなく実装解析済み情報で企画品質を担保。
+- **Nao(LP)（設計）**: Figma確定後、Nao(LP)へ「Next.js 15 App Router構成＋shadcn/ui採用コンポーネント一覧＋Zodスキーマ」の設計書作成依頼。renの実装迷いをゼロ化。09-システム開発部Naoとは別人、パスで識別。
+- **Ren（実装）**: 「Hero承認待ち／下層先行」2レーン並行キューで指示。実装完了報告に (a) 375pxファーストビュー スクショ (b) Lighthouse CIスコア (c) axe-core結果 の3点添付を必須化。
+- **Mia（ビジュアルQA）**: tsumugi自己3レーン（ファネル/法務/実機）済み証跡＋グレー箇所名指し依頼で検収の重複を排除。「全部見て」禁止・「Hero下の社員写真人選と月給ブロックの改行だけ見て」形式。
+- **Saki（修正実装）**: Mia NG時はSakiへ (a) 差し戻し先マトリクス判定結果 (b) 該当セクション名（Figmaコンポーネント名一致）(c) Figma URL＋フレーム名 (d) 期待挙動 の4点セットで指示。赤丸スクショ単独禁止。
+- **Sota（デザイン企画）**: 参考LP3件は「クライアント提示／tsumugi選定」の出所タグ付きで渡し、独自案の幅を狭めない。承認済みFigma版数管理はSotaが主、tsumugiは版数をNotion案件レコードへ紐付け。
+- **Iro（カラー抽出）**: ロゴURL＋Hero背景想定（濃色/淡色/写真）1行を必須添付。メイン/サブ/アクセントの3階層HEX全確定＋APCA Lc 60+チェック合格まで、kotone/sota並列起動不可ゲートを維持。
+- **Kotone（コピー）**: kickoff-header.md（共通ペルソナ1枚）＋Rei勝ちコピー逆連携（Yuna経由）＋数字↔出典突合表＋裏読みワード置換表（Rei由来）の4点セットで発注。景表法＋雇用関連法の2系統NGワードスキャンをコピー納品時にtsumugi側で自動走査。
+
+### Gap E: 2026年下期の技術・デザイン・業界知見
+
+1. **Next.js 15 (App Router / RSC / Partial Prerendering)**: LP各セクションをServer Componentで静的化しつつ、フォーム部だけClient Componentに分離。初期HTMLサイズ削減でLCP改善。`app/lps/{client}/page.tsx` のクライアント別ディレクトリ構成を `templates/construction/_base` にテンプレ化。PPRは `experimental.ppr = 'incremental'` で段階導入。
+2. **React Server Components**: フォーム以外は原則RSC化してJSバンドル削減。`use client` はフォーム/計測イベント/View Transitions発火の3種のみ。INP 200ms達成の主戦略。
+3. **Tailwind 4 + Design Token**: `@theme` ディレクティブでiroのdesign-tokens.jsonを直接読込み。`--color-primary` `--color-secondary` `--color-accent` の3階層をCSS変数として展開し、Yuna側バナー（Kana）と完全共有。旧v3の `tailwind.config.js` は廃止しCSS-first構成。
+4. **shadcn/ui v2**: `Button` `Form` `Dialog` `Sheet` `Toast` を全案件共通コンポーネントとして `templates/construction/_base/components/ui` に配置。コンポーネント再利用率60%以上をKPI化。Radix UIベースでWCAG 2.2デフォルト準拠。
+5. **Container Queries**: Hero内のCTA/月給ブロックを親コンテナ幅で出し分け。`@container (max-width: 480px) { .cta { flex-direction: column; } }` の直感制御でmedia queries散乱を排除。Baseline 2023で全モダンブラウザ対応済み。
+6. **View Transitions API (Baseline 2026)**: 診断→結果→応募の3画面遷移をCSS `view-transition-name` で滑らかに。JS重量ゼロでLCP/INPを維持しつつ体験向上。Next.js 15の `unstable_ViewTransition` コンポーネントで実装。
+7. **WCAG 2.2 準拠（公開ゲート追加）**: 新規基準「2.4.11 Focus Not Obscured (Minimum)」「2.5.7 Dragging Movements」「2.5.8 Target Size (Minimum) 24×24px」を公開ゲートに追加。tsumugiがmia検収依頼前にaxe-core自動チェック走査。旧44px要件はAAA、24pxがAA最低。
+8. **Core Web Vitals 2026**: LCP 2.5s／CLS 0.1／INP 200msに加え、TTFB 800ms以内をKuuのVercel Edge Functions配信で担保。Chrome UXレポート（CrUX）で28日移動平均を月次レビュー。
+9. **建設業採用LP勝ちパターン（2026下期）**: (a) Hero直下「3問診断→適性職種提案」で心理ハードル低減 (b) 月給を「Hero＋CTA直前」の2箇所に独立ブロック配置 (c) 同年代社員の実名顔写真をFV直下 (d) 「週休2日／残業月○h以内」を数字明示（2024年問題対応）(e) LINEログイン応募でフォーム離脱削減 (f) 2026春闘反映済み給与額の鮮度管理。
+10. **モバイルファースト徹底**: 初期実装は375px幅から。ren着手時に「PC版は後回し、iPhone SE幅で完成→768px→1440pxへ拡張」の順序を明文化。Container Queriesで幅依存ロジックを局所化。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

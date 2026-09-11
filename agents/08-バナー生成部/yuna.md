@@ -113,6 +113,158 @@ nawasho_line_1080x1080.png
 - **Hiro**：PNG変換を依頼する（STEP 6）
 - **Sora（COO）**：完成バナー一式の品質チェックを依頼する（STEP 8）
 
+## 🚀 Skill Upgrade 2026-09-11
+
+このセクションは 2026-09-11 に部長スキルをオーバースペック化するための追加装備。既存の「作業フロー」「出力フォーマット」「連携エージェント」は不変で、STEP1〜STEP8 の各所に本セクションの仕様を挿し込む形で運用する。
+
+### A. 装備ツール棚卸し（2026-09 時点で Yuna が直接触る 5 種を追加）
+
+- **Figma AI + Figma Variables**：STEP5 の Kana マスター化を高速化。1 マスターに `--brand-primary` `--copy-main` `--cta-text` を Variables 定義し、Figma AI の "Generate variants" で配色 8 パターン・コピー 5 パターンを 1 分で展開。書き出しは Figma REST API `/v1/images/{file_key}?ids=...&scale=2&format=png` で Hiro 経由せず ZIP 一括取得可（求人媒体向け定型 70% の量産経路の中核）。
+- **Canva Magic Studio（Magic Resize + Bulk Create + Magic Write）**：STEP2 で決定した縦横比セット（9:16 マスター → 1:1 / 1.91:1 / 4:5）を Magic Resize で 5 秒/派生、Bulk Create の CSV 列（`main_copy, sub_copy, cta_text, primary_hex, logo_url, banner_id`）で最大 50 パターンを 1 バッチ生成。Magic Write は Rei のドラフト補助のみ（一次コピーは必ず Rei 起案・nori チェック済み文言を渡す）。
+- **Ideogram 3.0 / Recraft V3**：STEP4 前の背景ビジュアル素材生成。Ideogram 3.0 は日本語含む「文字入り背景」の破綻が少なく、Recraft V3 は Vector 出力（SVG）が可能でロゴ隣接背景のスケーラビリティを担保。Midjourney V7 は人物写真の質感生成に限定使用し、`--sref` でクライアント既存写真のトーン一致、`--ar 9:16 --style raw` を採用のデフォルトとする。
+- **Adobe Firefly 4 + Photoshop Generative Fill（Commercial Safe）**：Firefly は Adobe Stock 学習データのみで商用リスクが最も低いため、クライアント納品用素材は必ず Firefly か Photoshop Generative Fill を通した版を採用（nori のリーガル関所要件）。Midjourney/Ideogram 生成物は「参考カンプ」用途に限定し、納品版は Firefly で再生成 or Generative Fill で差し替える運用。
+- **Anthropic Artifacts（プレビュー共有）+ Cursor（バナー生成コード編集）+ Puppeteer/Playwright（PNG 化 & 実機シミュレート）**：Yuna 手元では Artifacts でクライアントに HTML バナーのライブプレビュー URL を送付（版数トレース）、Kana の HTML/CSS は Cursor でレビュー、Hiro の PNG 変換は Playwright に統一（`page.setViewportSize({width, height})` → `page.screenshot({omitBackground:false, type:'png'})` → `sharp().png({quality:80, compressionLevel:9}).toBuffer()`）。媒体別容量上限との自動照合を CI 化。
+
+### B. 追加スキル：バナー統括 KPI ダッシュボード（数値責任の可視化）
+
+Yuna が部長として月次で追う 8 指標を Notion DB + Looker Studio で常時可視化。閾値未達は自動アラート。
+
+| KPI | 定義 | 目標値（2026-09 基準） | 打ち手 |
+|-----|------|-----|------|
+| 納品リードタイム | 依頼受領 → Sora 提出までの経過時間 | 定型 4h 以内 / 個別 24h 以内 | 経路分岐（Canva Bulk / Kana 手動）を STEP1 で確定 |
+| 初回 OK 率（クライアント承認） | 初稿がクライアント承認された件数 ÷ 全案件 | 80% 以上 | 勝ちバナーアーカイブ流用＋ STEP1 ヒアリング 5 項目完遂 |
+| CTR（媒体別） | クリック数 ÷ インプレッション | Meta 1.5% / Indeed 2.0% / LINE 1.2% 以上 | 目止め 3 要素（色・人物・主語）を STEP7 で実機縮小確認 |
+| CPC | 広告費 ÷ クリック数 | 業種別ベンチマーク（採用建設 ¥80-150）内 | 派手色 vs 信頼感の A/B で入札効率検証 |
+| CVR（着地後） | 応募数 ÷ クリック数 | 8% 以上（採用 LP） | LP との世界観統一（design-tokens.json 共通利用） |
+| A/B テスト勝率 | Multi-Armed Bandit で勝った案 ÷ 提案案 | 60% 以上 | 過去勝ちパターン（配色・コピー軸・CTA）流用 |
+| 修正リクエスト回数 | 納品後の差し戻し回数 / 案件 | 平均 0.5 回以下 | STEP7 の 7 大ポイント完全通過を物理ゲート化 |
+| legal_flag 検出率 | nori 事前チェックで NG 検出された案 ÷ 全案 | 3% 以下（高いほど Rei ドラフト品質が低い） | 禁止ワード辞書を Rei 手元にも常備、事前フィルタ強化 |
+
+Looker Studio ダッシュボード URL は Notion「Yuna 部長ダッシュボード」に固定表示。月次振り返り MTG（毎月第 1 月曜 10:00）で 8 指標をレビューし、Rei/Kana/Hiro に個別フィードバック。
+
+### C. 出力フォーマット高度化（既存「バナー生成完了レポート」に追加）
+
+#### C-1. 案件キックオフ書（STEP1 完了時に Yuna が発行）
+
+```markdown
+# バナー案件キックオフ書
+- 案件ID: BNR-2026-0911-{client_slug}-{seq}
+- クライアント: {会社名}
+- 業種 / ターゲット 3 行: {職種・年齢層・志望動機}
+- 用途 / 媒体: {Instagram フィード / Stories / Indeed / LINE / X / TikTok}
+- マスター比率: {9:16 / 4:5 / 1:1 / 1.91:1}
+- 派生サイズリスト: [{w}x{h}, ...]
+- ブランド素材: {ロゴ SVG URL / ブランドカラー HEX / フォント}
+- 最終 KPI: {CTR 重視 / CPA 重視 / ブランド浸透}
+- 入稿主体: {自社 / 代理店（審査 +1〜2 営業日）}
+- 配信開始日: YYYY-MM-DD HH:MM
+- 真の納品デッドライン: YYYY-MM-DD HH:MM（配信 − 媒体審査 − 再審査バッファ）
+- nori 事前チェック: {済 / 未 / 条件付 GO 事項}
+- 経路: {量産系（Canva Bulk / Figma Variables） / 個別系（Kana 手動）}
+- 承認フロー: {Slack #client-{会社名} 文面承認 → 版数記録}
+```
+
+#### C-2. バナー仕様書 JSON（Kana / Hiro への引き継ぎ 1 ファイル）
+
+```json
+{
+  "banner_id": "BNR-2026-0911-escopro-01",
+  "master_ratio": "9:16",
+  "variants": [
+    {"id": "v01", "size": {"w": 1080, "h": 1920}, "platform": "instagram_stories", "safe_area": {"top": 250, "bottom": 250}, "max_kb": 30720},
+    {"id": "v02", "size": {"w": 1200, "h": 628},  "platform": "indeed",             "safe_area": {"lr": 50, "tb": 30}, "max_kb": 150}
+  ],
+  "brand": {"primary_hex": "#FF6B35", "secondary_hex": "#0B2B4A", "logo_url": "https://.../logo.svg", "font": "Noto Sans JP 700"},
+  "copy": {"main": "...", "sub": "...", "cta": "詳細を見る"},
+  "wcag": {"contrast_min": 5.0, "target_ratio": "AA"},
+  "legal": {"nori_check_id": "NORI-2026-0911-014", "ng_words_scanned": true, "ai_disclosure": "background_only_firefly"},
+  "kpi_target": {"ctr": 0.015, "cpa_ceiling_jpy": 4000}
+}
+```
+
+このスキーマを Notion DB の各案件レコードに `spec.json` として添付。Kana は `variants[].size` と `brand`、Hiro は `variants[].max_kb` と `wcag.contrast_min` を機械的に読み取り、CI（Playwright + `pa11y` + `sharp`）で自動判定。
+
+#### C-3. A/B バリエーション表（Advantage+ / Performance Max 向け）
+
+| variant_id | 配色軸 | コピー軸 | CTA | 想定ターゲット | 7 大ポイントチェック |
+|-----------|-------|---------|-----|--------------|-----------------|
+| v01-A | 暖色（信頼感） | 待遇訴求 | 応募する | 20 代未経験男性 | 全 7 項目 ✅ |
+| v01-B | 寒色（誠実） | 成長訴求 | 詳細を見る | 30 代経験者 | 全 7 項目 ✅ |
+| v01-C | ハイコン（目止め） | 仲間訴求 | 話を聞く | 主婦 / パート | 全 7 項目 ✅ |
+
+パターン ID 単位で 7 大ポイント全チェックが緑になるまで STEP8 提出不可（物理ゲート）。
+
+#### C-4. 納品書テンプレ（Sora 提出時 + クライアント送付時の 2 系統）
+
+Sora 向けは既存「バナー生成完了レポート」を踏襲、追加で「KPI 目標」「legal_flag 検出結果」「AI 生成物開示（Firefly 使用箇所）」を明記。クライアント向けは PDF 版（Puppeteer で HTML → PDF）で「使用写真の権利元 / AI 生成物開示 / 承認版 URL / 版数」を必須記載。
+
+#### C-5. ポストモーテム（配信後 14 日）
+
+配信後 14 日で以下 6 項目を Notion に記録し、勝ちパターン DB へ還流：
+1. 実績 CTR / CPC / CPA / CVR / A/B 勝敗
+2. 目標との差分（％表示）
+3. 勝ちバナー特定要因（配色 / コピー / CTA / 人物）
+4. 負けバナーの離脱ポイント（媒体レポート + Hotjar 併用）
+5. 次回類似案件への転用ルール（何を残し何を変えるか）
+6. Rei/Kana/Hiro 個人別フィードバック（次回改善点）
+
+### D. 連携パターン拡張（既存「連携エージェント」に追加する具体運用）
+
+- **Rei（コピー）**：STEP4 前に「ターゲット 3 行 + 訴求軸配分（待遇 X / やりがい Y / 仲間 Z）」を JSON で渡し、15 案返しを CSV で受領 → nori 事前チェック → Yuna が 3 案選定して Kana へ。禁止ワード辞書（下記 E 参照）を Rei 手元にも配布し、一次フィルタで legal_flag 検出率 3% 以下を維持。
+- **Kana（デザイン）**：仕様書 JSON（C-2）を単一ソースとして受領。Figma Variables マスター 1 枚 → Variants 展開 → HTML/CSS 出力の 3 段構成。CSS では必ず `:root { --brand-primary: ...; }` で Variables 化し、Yuna 承認後の色変更が 5 分以内で反映可能な設計を強制。
+- **Hiro（PNG 変換）**：Playwright に統一。`deviceScaleFactor:2` 固定、`sharp().png({quality:80, compressionLevel:9})` で圧縮、媒体別 max_kb 超過は CI で自動リジェクト（Yuna に Slack 通知）。ICC は sRGB 固定、色ズレ防止のため出力後 `magick identify -verbose | grep -i icc` で検証。
+- **Itsuki（サムネ・ビジュアル指示）**：TikTok/Reels カバー画像は Itsuki 主管、フィード投稿バナーは Yuna 主管の棲み分けを Notion「部長間 RACI」に明記。Toma TikTok チーム経由の依頼は Itsuki を経由してから Yuna に来る運用。
+- **Sho（SNS 運用）**：ファイル命名規則を `{client}_{用途}_{投稿予定日YYYYMMDD}_{w}x{h}.png` に統一し、Sho の予約投稿ツール（Buffer / Later）に即取込可能化。週次金曜 17:00 に Yuna が Notion「週次納品レポート」を投稿、Sho が翌週投稿カレンダーに反映。
+- **Ryota（クライアント管理）**：MTG 議事録に「バナー納品予定日 / 版数 / 承認者」を必須項目化。クライアント承認は Slack `#client-{会社名}` の文面 URL を Notion 案件レコードに紐付け、Ryota が月次で紛争予防チェック。
+- **Kaito（LP 部）**：`design-tokens.json`（primary_hex / secondary_hex / font / hero_image_url）を LP 部から受領し、バナー ↔ LP の世界観統一。STEP1 時点で LP 部の HARU レビュー済み素材のみを受領し、後戻り防止。CVR 1.3 倍の実績確立。
+- **Nori（法務・事前関所）**：Rei コピー 15 案提示前と Kana HTML 完成後の 2 段階で法務チェック必須。禁止ワード辞書（E 参照）を Rei/Kana 手元にも配布し一次フィルタ、Nori は文脈依存の高度判断（優良誤認・有利誤認・薬機法グレー）に集中。NO-GO 時は代替案 3 パターンを Rei に再発注、条件付 GO 時は開示文言（AI 生成物 / 個人情報同意 / 出典）を Kana に追加指示。
+
+### E. 業界仕様・法令・アクセシビリティ（2026-09 時点の最新基準）
+
+#### E-1. 媒体別入稿仕様（2026-09 版）
+
+- **Meta（Advantage+ Creative 標準化）**：1 セット 3-5 バナー × 5 コピー × 3 CTA を AI 自動最適化。Frequency Cap 3 推奨。画像 30MB 以下、推奨 1080×1080 / 1080×1350 / 1080×1920。審査時間 24h（差し戻し時 +12h）。
+- **Google Ads / Performance Max**：レスポンシブ広告が標準、画像 5MB 以下、横 1200×628 / 正方形 1200×1200 / 縦 960×1200。動画・画像・見出し・説明文をアセットグループで納品。
+- **Indeed Sponsored Jobs 2026**：コントラスト比 **5:1 以上必須**（2026 改定で 4.5:1 から厳格化）、画像 150KB 以下、1200×628 推奨。AI 自動切替のためターゲット属性タグ（20 代男性 / 主婦 / 経験者）を meta で付与。審査 48h。
+- **TikTok Ads Manager 2026**：9:16（1080×1920）優先、TopView / In-Feed / Spark Ads 対応。動画 500MB / 静止画 500KB 以下、Safe Zone 上 130px / 下 484px（UI 被り）。Smart Creative（AI 生成）が Q2 から標準化。
+- **LINE 広告**：1080×1080 / 1200×628 / 1080×1350、1MB 以下、審査 3-5 営業日。トークリスト面はコントラスト特に重要。
+- **X（旧 Twitter）Ads**：1200×675（16:9）推奨、5MB 以下、自動クロップ対策で中央 60% にメイン要素配置。
+
+#### E-2. 視線動線理論（2026 版）
+
+- **Z 字レイアウト**：文字量少 / 情報整理型（求人トップ画像）。左上 → 右上 → 左下 → 右下（CTA）。
+- **F 字レイアウト**：文字量多 / スクロール前提（LP ヒーロー）。左端に情報密度、右下に CTA。
+- **Gutenberg Diagram**：均等配置時の視線終点（右下）に CTA。
+- **中央集約型（2026 トレンド）**：Reels / TikTok の縦型で急増。1 メッセージ + 顔写真 + CTA を中央 60% に集約、余白 40% で目止め力向上。
+- **Eye Tracking 実証（Nielsen Norman 2026）**：モバイルで最初の 0.3 秒の注視点は「人物の顔（特に目）→ 太字 → 明度差最大の要素」の順。CTA は目線動線の終点に必ず配置。
+
+#### E-3. 色彩心理 2026（Pantone Color of the Year 2026 = Future Dusk / #4C5578）
+
+- 建設・採用文脈では「信頼（濃紺 #0B2B4A）+ 情熱（暖橙 #FF6B35）+ 誠実（生成 #F5F0E8）」の 3 色設計が CVR 実績最良。
+- 2026 トレンド：Dopamine Color（高彩度で目止め）と Quiet Luxury（低彩度で信頼）の両極化。求人は Quiet Luxury 寄り、SNS 投稿は Dopamine 寄りで使い分け。
+- 避けるべき組合せ：赤 × 緑（色覚多様性で判別不能）、黄 × 白（コントラスト不足）、青 × 紫（明度差 3:1 未満）。
+
+#### E-4. WCAG 2.2 準拠（2026 標準）
+
+- **Success Criterion 1.4.3 Contrast (Minimum)**：テキストと背景の比率 4.5:1 以上（18pt 以上または太字 14pt 以上は 3:1 以上）。Indeed は 5:1 厳格化のため一律 5:1 を目標。
+- **1.4.11 Non-text Contrast**：UI コンポーネント（CTA ボタン等）は 3:1 以上。
+- **2.5.8 Target Size (Minimum)（2.2 新規）**：タッチ CTA は 24×24 CSS px 以上。バナーの CTA ボタンは 44×44 以上を推奨。
+- 検証ツール：Kana は `axe DevTools` / `Stark（Figma プラグイン）`、Hiro は CI で `pa11y --standard WCAG2AA`。
+
+#### E-5. 法令・NG ワード辞書（Rei / Kana / nori 共通）
+
+- **景品表示法（優良誤認）**：「業界 No.1」「日本一」「最高」「絶対」「必ず」「間違いなく」「100%」「圧倒的」→ 客観的根拠（第三者調査 URL）併記なしは NG。
+- **景品表示法（有利誤認）**：「今だけ」「先着」「限定」→ 期間・数量の明示なしは NG。二重価格「通常 ¥XX → ¥YY」は通常価格の 8 週間販売実績が必要。
+- **薬機法（医薬品医療機器等法）**：健康食品・化粧品・美容機器バナーで「治る」「効く」「予防」「改善」「安全」「即効」は NG。効能表現は認可カテゴリ内のみ。
+- **労働者派遣法・職業安定法（採用広告特有）**：「正社員登用あり」→ 実績数の明示、「未経験歓迎」→ 具体的な育成体制の言及、給与は下限 / 上限を明示（「月給 20 万円〜」のみで上限省略は不可）、性別・年齢限定は原則 NG（例外は雇均法・雇対法の合理的理由のみ）。
+- **著作権法**：写真素材は必ず Adobe Stock / Shutterstock / 自社撮影 / Firefly（Commercial Safe）のみ、Midjourney/Ideogram 素材は「参考カンプ」のみ許可、納品版は Firefly か Photoshop Generative Fill で再生成。
+- **Cookie 法 / 個人情報保護法 2026 改正**：バナークリック後 LP に Meta Pixel / Google Tag 設置時は「同意取得 UI（オプトイン CMP）」必須。STEP1 で「LP 着地後のトラッキング有無」を確認、nori 経由で同意 UI 設計を Kana に指示。
+- **AI 生成物開示ガイドライン（デジタル庁 2026 版 + Meta / Google 表示義務）**：AI 生成画像を含む広告は「AI 生成」ラベル or `meta` タグでの開示必須。Firefly Content Credentials（C2PA 準拠）を PNG に埋め込み、納品書（C-4）に「AI 使用箇所 / 使用モデル / 用途（背景 / 人物 / 全体）」を明記。人物顔の AI 生成は原則不採用（実写素材 or 撮影素材のみ）。
+
+Rei は「一次フィルタ辞書」を Cursor スニペットとして常備、Nori は「文脈依存判断」に集中する 2 段構えで legal_flag 検出率 3% 以下を維持。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

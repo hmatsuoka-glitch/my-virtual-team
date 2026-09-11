@@ -293,6 +293,168 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+> LP忠実度チェック（07-LP部・Kaitoパイプライン下流）のオーバースペック化アップグレード。既存の 6 STEP フロー・95 項目チェックリスト・「Hero/CTA/Form のみ 0.05 厳格＋他は looks-same 知覚判定」の 2 段階運用はそのまま維持し、以下を **STEP 6 通過判定前の追加ゲート** として組み込む。
+
+### Gap A: LP QA最新ツール強化（2026年主流スタック）
+
+1. **Chrome DevTools MCP + Playwright 1.49 統合ワークフロー**
+   - `chrome-devtools-mcp` を Claude 経由で直接起動し `page.evaluate('performance.getEntriesByType("navigation")')` で LCP/INP/CLS/TTFB を取得。従来の外部 API 待ちを排除、STEP 4→STEP 6 の遷移を 5 分→30 秒に短縮
+   - Playwright `page.emulateCPU({ throttlingRate: 4 })` + `context.setOffline`/`route('**/*', r => r.continue({ delay: 400 }))` で 4G Slow + CPU 4x throttle をコード化し、Lab/Field 乖離を STEP 6 内で先取り検出
+   - 実装ステップ: (a) `mcp.json` に chrome-devtools-mcp 登録 (b) `mia.config.json` に `{devtools:{cdp:true, throttling:'4g-slow-4x'}}` (c) STEP 6 の 9 段階ゲートに `npx playwright test --project=devtools-mcp` を追加
+
+2. **Applitools Eyes（Ultrafast Grid）+ Visual AI 4.0**
+   - Applitools の Visual AI 4.0（2026 リリース）は「レイアウト検出モード」で DOM 構造とビジュアルを同時比較。従来 Chromatic AI で誤検出が残っていた「フォント fallback による 1px 差」を 99.7% 自動除外
+   - Ultrafast Grid で「Chrome/Safari/Firefox/Edge × iPhone14/Pixel8/iPad Air」12 環境を並列 40 秒実行。BrowserStack の 8 分→40 秒に短縮
+   - 実装ステップ: (a) `eyes-playwright` インストール (b) `applitools.config.js` で `browsersInfo` に 12 環境定義 (c) STEP 5 レスポンシブを Applitools Eyes 実行に置換 (d) `eyes.checkWindow({ matchLevel: 'Layout' })` で Layout モード活用
+
+3. **Lighthouse CI 12.x + `@lhci/cli autorun` の PR ブロック運用**
+   - `lighthouserc.json` の `assertions` で `["error", {maxNumericValue: 200}]` を INP に設定し PR レベルで物理ブロック
+   - `--collect.settings.formFactor=mobile` `--collect.settings.throttling.rttMs=150` で Moto G Power + 4G Slow 相当を強制
+   - 実装ステップ: (a) GitHub Actions の `on: pull_request` で `lhci autorun --upload.target=temporary-public-storage` (b) `lhci report --upload` URL を PR コメント自動貼付 (c) `lhci-server` で 30 日履歴保存し Sora が推移確認可能に
+
+### Gap B: ピクセル単位QA KPI（数値目標を STEP 6 に固定）
+
+| KPI | 合格閾値 | 計測方法 | 未達時の扱い |
+|-----|---------|---------|-------------|
+| **ピクセル差分率**（Hero/CTA/Form） | pixelmatch threshold 0.05 で 0.3% 以下 | `pixelmatch(a,b,d,w,h,{threshold:0.05})` の差分ピクセル数 / 総ピクセル数 | 即差し戻し（責務元へ自動振分） |
+| **ピクセル差分率**（装飾要素） | looks-same `ignoreAntialiasing:true` で PASS | `looks-same(a,b,{tolerance:2.3, antialiasingTolerance:4})` | 3 件以上で総合 84 点減点 |
+| **Core Web Vitals 達成率** | LCP≤2.5s / INP≤200ms / CLS≤0.1 の 3 指標 100% PASS | `chrome-devtools-mcp` + `web-vitals` npm 実測 | 1 指標未達で自動 84 点減点 |
+| **WCAG 2.2 AA 適合率** | `@axe-core/playwright` violations 0 件 + `critical`/`serious` 0 件 | `axe.run({runOnly:['wcag22aa']})` | violations 1 件でも差し戻し |
+| **色差 ΔE00**（ブランドカラー） | 主 CTA・ロゴ・ヘッダーで ΔE00 < 2.0 | `culori` npm の `differenceCiede2000(a,b)` | ΔE00 2 以上で差し戻し（HEX 一致でも） |
+| **レスポンシブ一致率** | 320/375/414/768/1024/1280/1920 の 7 幅で pixelmatch 1% 以下 | `page.setViewportSize` + `sharp.composite` 縦シート | 1 幅でも NG で減点 |
+| **アニメーションフレーム一致率** | 30fps 動画 × 3 秒（90 frame）で SSIM ≥ 0.95 | `puppeteer-screen-recorder` + `image-ssim` | 5 フレーム以上乖離で差し戻し |
+| **フォント FOUT/FOIT 時間** | `document.fonts.ready` まで 500ms 以下 | Performance API `font-display` トレース | 500ms 超過で warning、1000ms 超で NG |
+
+### Gap C: 出力フォーマット高度化（機械可読 + 人間可読の両立）
+
+#### 1. QA レポート JSON v3（機械可読・CI連携用）
+`mia/output/qa-report-v3.json` に以下スキーマで保存：
+```json
+{
+  "iteration": 1,
+  "verdict": "REJECTED",
+  "total_score": 82,
+  "gates": {
+    "pixel_strict": {"target":"Hero/CTA/Form","threshold":0.05,"diff_rate":0.008,"pass":false},
+    "pixel_perceptual": {"tool":"looks-same","pass":true},
+    "cwv": {"lcp_ms":2100,"inp_ms":180,"cls":0.05,"pass":true},
+    "wcag22aa": {"violations":2,"critical":0,"serious":1,"pass":false},
+    "delta_e00": {"cta_primary":2.4,"logo":1.2,"pass":false},
+    "responsive": {"breakpoints":[320,375,414,768,1024,1280,1920],"failed":[375]},
+    "font_display": {"fonts_ready_ms":420,"pass":true},
+    "hydration": {"warnings":0,"pass":true}
+  },
+  "routing": {
+    "hana": ["color HEX #FF0001 vs #FF0000 at .btn-primary"],
+    "saki_to_ren": ["layout: hero padding-top 40px vs 48px"],
+    "hiro_banner": ["Hero background image diff 3.2%"]
+  }
+}
+```
+
+#### 2. 差分スクショ表（Markdown・GitHub Issue 自動投稿）
+| セレクタ | 期待値 | 現状値 | 差分率 | スクショ |
+|---------|--------|--------|--------|----------|
+| `#hero > .btn-primary` | `#FF0000` | `#FF0001` | ΔE00=2.4 | [expected](./diff/1-exp.png) / [actual](./diff/1-act.png) / [diff](./diff/1-dif.png) |
+
+#### 3. Web Vitals 計測結果ブロック（Sota/Kuu 共有用）
+```
+## Core Web Vitals (Lab / Field)
+| Metric | Lab (Lighthouse) | Field (CrUX p75) | 乖離 | 判定 |
+|--------|------------------|------------------|------|------|
+| LCP    | 2.1s             | 2.8s             | +33% | ⚠️ 要調査 |
+| INP    | 180ms            | 190ms            | +5%  | ✅ |
+| CLS    | 0.05             | 0.06             | +20% | ✅ |
+```
+
+#### 4. WCAG 違反リスト（Nori リーガル連携）
+```
+## WCAG 2.2 Violations
+| 重大度 | 規準 | 該当要素 | 修正指示 |
+|--------|------|----------|----------|
+| serious | 1.4.11 Non-text Contrast | `.tag-new` | 背景/前景比 2.8:1 → 3.0:1 以上へ |
+| moderate | 2.4.7 Focus Visible | `.footer-link` | :focus-visible の outline 追加 |
+```
+
+#### 5. 修正指示書（Saki/Ren 向け・優先度×難易度マトリクス）
+```
+## Fix Instructions (Priority × Effort)
+| # | Priority | Effort | Responsible | File | Selector | Current | Expected |
+|---|----------|--------|-------------|------|----------|---------|----------|
+| 1 | high | 5min | Ren | app/page.tsx | `.hero .btn` | pt-10 | pt-12 |
+| 2 | high | 30min | Hana | tokens.css | `--color-primary` | #FF0001 | #FF0000 (ΔE00<1) |
+| 3 | med | 2h | Ren | components/Modal.tsx | `[role=dialog]` | focus trap 無し | focus-trap 実装 |
+```
+
+### Gap D: 連携パターン強化（責務元自動ルーティング）
+
+| 連携先 | トリガー条件 | 連携内容 | 連携方法 |
+|--------|-------------|----------|----------|
+| **Kaito** | STEP 6 通過判定 or NO-GO 判定時 | QA レポート JSON v3 全文 + Preview URL + 本番ドメインハードリロード結果 | GitHub Issue（`qa/verdict` label）+ Slack `#lp-kaito` |
+| **Hana** | 色 ΔE00≥2 / font-family 不一致 / animation duration/easing 不一致 | 「再抽出要求」+ 該当セレクタ + Hana 抽出 JSON との差分 | GitHub Issue（`hana/re-extract` label）自動起票、Ren をアサインしない |
+| **Nao（LP設計）** | 設計書と実装で構造ズレ検出（セクション順序・見出し階層） | 設計書リンク + a11y ツリー diff（`page.accessibility.snapshot()`） | Slack `#lp-nao` DM + 設計書 PR にレビュー投稿 |
+| **Ren** | レイアウト/実装ズレのみ（Hana/Nao 責務外） | Fix Instructions（優先度×難易度マトリクス）+ trace.zip（Playwright UI Mode） | GitHub Issue（`ren/fix` label）+ Saki アサイン |
+| **Saki** | Mia 差し戻し全件 | 修正区分（CSS 調整 / 再設計 / 再抽出）分類済みリスト + Ren 着手順推奨 | GitHub Issue コメント + Slack `#lp-saki` |
+| **Sora** | STEP 6 通過時 | ハイパーフォーカス 4 要素（ヘッダー位置・フォント太さ・ボタン色・余白感）判定 + 9 段階ゲート結果 + Lighthouse URL | Kaito 経由で `#00-coo-sora` へ |
+| **Nori（管理部門）** | WCAG 2.2 AA 違反 or 景表法・薬機法観点で疑義要素検出 | 違反規準 + 該当文言/画像 + スクショ | 事後リーガル追加チェック依頼を `#11-legal-nori` へ |
+
+### Gap E: Visual Regression / WCAG 2.2 / Core Web Vitals 2026 ベストプラクティス
+
+1. **Visual Regression のベストプラクティス（決定性の確保）**
+   - **フォント読込待機**: `await page.evaluate(() => document.fonts.ready)` を全スクショ前に必須実行。FOUT 由来の flaky を根絶
+   - **アニメ無効化**: `page.addStyleTag({content: '*,*::before,*::after {animation-duration:0s !important; transition-duration:0s !important;}'})` でスクショ時のみ無効化。動画・カルーセルは `video.pause(); video.currentTime = 0` で固定
+   - **サードパーティ mask**: Cookie バナー・チャット・A/B テスト枠は `page.locator('[data-cookie-banner]').evaluate(el => el.remove())` または Playwright `mask` オプションで pixelmatch 対象外化
+   - **時刻固定**: `page.clock.install({time: new Date('2026-09-11T00:00:00Z')})` で日時依存表示を決定的に
+
+2. **WCAG 2.2 新規準への対応（2023 年 10 月勧告済み・2026 年で完全普及）**
+   - **2.4.11 Focus Not Obscured (Minimum)**: sticky ヘッダーで `:focus-visible` 要素が隠れないか。`page.locator('[tabindex]').all()` で全要素に Tab → `elementHandle.isIntersectingViewport()` チェック
+   - **2.4.13 Focus Appearance**: `:focus-visible` の outline は最低 2px・コントラスト比 3:1 以上・要素外周を囲む形状。CSS `outline: 2px solid` + `outline-offset: 2px` を静的検証
+   - **2.5.7 Dragging Movements**: スライダー・カルーセルにドラッグ以外の代替手段（矢印ボタン）があるか
+   - **2.5.8 Target Size (Minimum)**: タップ領域 24×24 CSS px 以上。`elementHandle.boundingBox()` で width/height 検証
+   - **3.3.7 Redundant Entry**: フォーム再入力回避（住所自動入力等）
+   - **3.3.8 Accessible Authentication (Minimum)**: 認知テスト（画像から文字選択等）の廃止 or 代替提供
+   - **APCA（Advanced Perceptual Contrast Algorithm）併用**: 従来 WCAG 2.x 4.5:1 に加え、`apca-w3` npm で `apcaContrast(fg, bg)` を計測。本文 Lc≥75、大文字 Lc≥60 を推奨基準
+
+3. **Core Web Vitals 2026 計測（INP 完全定着 + 新指標追跡）**
+   - **INP（Interaction to Next Paint）**: 2024 年 3 月に FID 完全置換済み。`web-vitals` v4 の `onINP(metric => ...)` で全操作の p98 を取得。200ms 以下で Good、500ms 超で Poor
+   - **TTFB（Time to First Byte）**: 800ms 以下推奨（LCP 改善の前提）
+   - **候補指標追跡**: Google が 2026 年に議論中の「Responsiveness」「Smoothness」（DoubleRAF-based frame rate）を `PerformanceObserver` で先取り計測
+   - **CrUX Field Data 継続監視**: 納品後 7 日目に `psi-api`（`pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed`）で Field Data 取得、Lab/Field 乖離 20% 超なら Kaito 経由で改修 Issue 自動起票
+
+4. **モバイル/デスクトップ差分の物理検証**
+   - **iOS Safari 特有バグ**: `100vh` 問題 → `dvh`/`svh`/`lvh` 使用を静的検証（`grep -rn "100vh" src/`）。`position: fixed` + `-webkit-overflow-scrolling: touch` の組合せで慣性スクロール検証
+   - **Safe Area Insets**: `env(safe-area-inset-bottom)` が sticky CTA に適用されているか（iPhone Home Bar 対応）
+   - **BrowserStack Live 実機**: iOS Safari 17/18/26 + Android Chrome 130+ で STEP 5 を実施
+
+5. **フォントローディング最適化検証**
+   - **`font-display` プロパティ**: `swap` を推奨（fallback 表示 → 読込後スワップ）。`block` 使用時は LCP 悪化リスクを差し戻しに明記
+   - **`<link rel="preload" as="font" crossorigin>`**: 主要フォントの preload を静的チェック
+   - **`size-adjust`/`ascent-override`/`descent-override`**: fallback フォントとの CLS 発生を抑制。`@font-face` の指定有無を検証
+   - **Variable Font 採用時**: `font-variation-settings` の記述と weight 範囲の一致
+
+6. **CSS Container Queries 対応検証**
+   - `@container (min-width: 400px)` を使う場合、親要素に `container-type: inline-size` が指定されているか静的チェック（`grep -rn "container-type" src/`）
+   - Container Query 適用要素は Playwright で「親幅を段階変化させた際のスタイル切替」を検証（`page.locator('[data-container-parent]').evaluate(el => el.style.width='300px')`）
+   - `@media` breakpoints から `@container` へ移行した場合は「親コンテキスト独立性」を SSIM で確認
+
+7. **View Transitions API 検証（2026 年主要ブラウザ全対応）**
+   - `document.startViewTransition(() => ...)` を使う遷移は Playwright `page.on('framenavigated')` で発火確認
+   - `::view-transition-old(root)` / `::view-transition-new(root)` の CSS 定義漏れを静的チェック
+   - `prefers-reduced-motion: reduce` 時に自動フォールバック（即座遷移）するか動作検証
+
+8. **モーション軽減設定（`prefers-reduced-motion`）**
+   - Playwright `context.emulateMedia({reducedMotion: 'reduce'})` で必ずテスト（訪問者の約 18% が該当）
+   - `@media (prefers-reduced-motion: reduce)` ブロックで `animation`/`transition` が `0.01ms` 以下、または `animation: none` に上書きされているか CSS 静的検証
+   - parallax/marquee/auto-rotate カルーセルは reduced-motion 時に「無効化」または「fade のみ置換」を必須。前庭障害・乗り物酔い健康被害クレームを物理排除
+
+---
+
+**LET事業文脈**: 建設業クライアント（翔星建設・宮村建設等）の LP は 40〜60 代求職者アクセスが多く、`prefers-reduced-motion` 適合率と親指到達範囲（Y=560-844px）CTA 配置は CV 直結。ΔE00 判定と WCAG 2.2 AA 完全適合を Mia 通過条件に固定することで、Nori リーガルチェック → Sora COO 承認 → 納品までの往復ゼロ化を目指す。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

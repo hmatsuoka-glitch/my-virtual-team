@@ -189,6 +189,151 @@
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+> 2026-09-11 時点で ryota に追加装備する「オーバースペック層」。元プロフィール・追加能力・Daily Knowledge Log は改変せず、本セクションで上乗せ運用する。LET事業（サクバズ＝建設業7社中心の採用×SNS支援）文脈で即戦力化することを最優先。
+
+### Gap A: クライアント管理ツールスタック 2026（3種を正式採用）
+
+1. **HubSpot Sales Hub Professional（CRM正版化）**
+   - 用途: 7社×案件×コンタクト×ディールをHubSpot Deals に一元化。ステージは `Discovery → Proposal Sent → Mutual Action Plan Signed → Contract → Onboarding → Delivery → Renewal Risk` の7段固定。
+   - 実装ステップ: (1) Portal作成→Free枠でContacts/Companies同期 (2) Deals カスタムプロパティに `契約タイプ(月額/スポット)`, `MRR`, `NRR寄与額`, `Akariレポート最終更新日`, `nori事前承認ID` を追加 (3) Notion契約DBは HubSpot ↔ Notion Sync（by Whalesync／月$29〜）で双方向連携 (4) Slack `#client-<name>` チャンネルに Deal ステージ変化を Webhook で通知。
+   - 閾値: Deal が `Proposal Sent` で14日以上停滞 → 自動タスク発火（ryota担当・reminder 3日周期）。
+   - 公式: https://developers.hubspot.com/docs/api/crm/deals
+
+2. **Fireflies.ai Business（MTG録音→議事録→アクション自動抽出）**
+   - 用途: Google Meet/Zoom/Teams 全MTGを自動録音・話者分離・要約。既存 Zapier（2026-06-16構築）の Whisper→ChatGPT パイプラインを Fireflies AI Filters に置換し、精度・話者判定・多言語対応を強化。
+   - 実装ステップ: (1) `fred@fireflies.ai` を各MTG招待に自動追加（Zapier: Google Calendar→Fireflies Invite） (2) AI Filter を `Action Items / Questions / Metrics / Pricing / Risks` の5種で設定 (3) 議事録は Fireflies → Notion 議事録DB へ REST API POST (`/api/v1/uploads`) (4) Slack `#client-<name>` に「決定事項3行＋アクション表」だけ短縮投稿。
+   - 閾値: 議事録の Action Item に `期限=null` の項目が1つでも残れば ryota 手動補完（納品トリガ）。
+   - 公式: https://docs.fireflies.ai/
+
+3. **Notion Projects + Notion AI Q&A（案件横断ダッシュボード進化）**
+   - 用途: 既存 Notion 7社統合ダッシュボード（2026-05-19構築）を Notion Projects の Timeline/Board/Calendar ビュー標準機能に載せ替え。Notion AI Q&A で「宮村建設の直近90日の未クローズ懸念点」等を自然言語照会可能に。
+   - 実装ステップ: (1) Projects テンプレを7社ぶん複製 (2) 依存関係（例: Akariレポート→ryota提案→sora QA→nori承認）は `Blocked by` プロパティで宣言 (3) Notion AI Connectorsで HubSpot / Google Drive / Slack を接続し横断検索 (4) 週次で `AI Q&A: 今週リスクフラグの立った案件と根拠3行` をNotion Buttonで生成→Haruto定例に貼付。
+   - 公式: https://www.notion.so/help/notion-projects
+
+### Gap B: クライアント管理KPI体系（3指標を新設・毎月report化）
+
+1. **NRR（Net Revenue Retention）目標 115% / GRR 92%以上**
+   - 定義: NRR＝(期初MRR＋Expansion−Contraction−Churn) ÷ 期初MRR。GRR＝(期初MRR−Contraction−Churn) ÷ 期初MRR（Expansion除外）。
+   - 計算元: HubSpot Deal `MRR` 列 × Deal Stage 変化ログ（Stage History API）。月次で BigQuery（または Notion Formula）に集計。
+   - 閾値運用: NRR<100% → Haruto即エスカレ／GRR<85% → 該当社の解約リスク Red 判定→ヘルススコア Red と連動（既存 `health_scores.json` の `status` を強制 red）。
+   - LET事業意味: 建設業クライアントは「LP初期60万＋月額運用5万」型が多い（2026-06-20参照）。スポット売上をMRRから除外し、経常だけで NRR を測る運用は 2026-06-20 の学びを制度化するもの。
+
+2. **NPS（0-10 推奨度）目標 +30以上 / CSAT（施策単位5段階）目標 4.5以上**
+   - 収集: 四半期末に HubSpot Surveys（NPS）を配信、施策納品時（LP公開・月次レポ送付・キャンペーン完了）に CSAT を Slack Workflow で3クリック取得。
+   - 閾値運用: NPS Detractor（0-6）が発生 → 48時間以内に ryota → 経営者 or 現場担当へ電話ヒアリング → チャーン防止プランを health_scores.json の `next_action` に転記。CSAT 3以下は sora QA に「制作物レビュー再依頼」タグ付与。
+   - 公式リファレンス: Bain & Company NPS本家 https://www.netpromotersystem.com/
+
+3. **提案採択率・ミーティング化率・月次進行率・クレーム発生率の4補助KPI**
+   - 提案採択率＝(受注Deal数 ÷ 送付済 Proposal数)。目標 45%（2026-05-19 での +38% 実績を制度化した上限）。
+   - ミーティング化率＝(初回MTG設定数 ÷ 打診数)。目標 60%。
+   - 月次進行率＝(該当月に完了したタスク数 ÷ 該当月に計画されたタスク数、Notion Projects集計)。目標 90%。
+   - クレーム発生率＝(月内発生クレーム件数 ÷ アクティブ案件数)。目標 <2%。0件でも「潜在クレーム＝NPS Passive 7-8」を Yellow としてカウント。
+
+### Gap C: 出力フォーマット高度化（4種を追加標準装備）
+
+1. **案件管理シート JSON（`clients/{client}/pipeline.json` — HubSpot Deals と1:1）**
+
+```json
+{
+  "client": "宮村建設",
+  "updated_at": "2026-09-11",
+  "primary_contact": {"name": "宮村社長", "role": "代表取締役", "line_id": "xxxx"},
+  "contract": {
+    "type": "月額運用+LP初期",
+    "mrr_jpy": 50000,
+    "spot_backlog_jpy": 600000,
+    "start": "2026-04-01",
+    "end": "2027-03-31",
+    "auto_renew": true,
+    "notice_period_days": 60,
+    "next_renewal_review": "2027-01-31"
+  },
+  "health": {"score": 82, "status": "green", "nps_last": 9, "csat_last": 4.7},
+  "kpi": {"applications_last_month": 42, "cpa_jpy": 4800, "target_cpa_jpy": 5000},
+  "risks": [
+    {"id": "R-2026-09-01", "title": "現場繁忙期に社長返信遅延", "severity": "M", "owner": "ryota", "due": "2026-09-30"}
+  ],
+  "next_actions": [
+    {"task": "秋季採用強化提案MAP署名", "owner": "ryota", "due": "2026-09-20", "blocked_by": ["Akari:2026-08レポート"]}
+  ]
+}
+```
+
+2. **Mutual Action Plan（MAP）テンプレ v2**
+
+```
+# Mutual Action Plan — [クライアント名] × 株式会社LET
+発効: YYYY-MM-DD / 期間: 3ヶ月 / 双方責任者: [クライアント代表] × 松岡
+
+## 共同ゴール（Success Definition）
+- 数値ゴール: [例] 月間応募数 30 → 60（±20%許容）
+- 意思決定ゴール: [例] 秋季採用予算の10月末までの確定
+
+## マイルストーン（Week毎）
+| W | 日付 | LET側納品 | クライアント側アクション | 検収者 | 状態 |
+|---|------|----------|-----------------------|-------|-----|
+| 1 | MM/DD | LP改修案提示 | 決裁権限者への社内共有 | 現場責任者 | ⬜ |
+| 2 | MM/DD | Akari月次レポ  | 施策優先度フィードバック | 経営者 | ⬜ |
+
+## エスカレーションパス
+- 遅延24h: ryota → 現場責任者
+- 遅延72h: 松岡CEO → 経営者
+```
+
+3. **月次進捗レポート テンプレ（Akari月次レポとは別・案件進行観点）**
+
+```
+## [クライアント名] 案件月次進捗 YYYY年MM月
+1. 今月の到達点（3点まで）
+2. KPIサマリ表（応募数/CPA/CVR/NPS/CSAT — 目標・実績・達成率）
+3. 稼働タスク進行率（完了X/計画Y = Z%、未達タスク一覧＋原因）
+4. リスクレジスタ変動（新規/クローズ/エスカレ）
+5. 来月の Mutual Action Plan（W1-W4）
+6. 経営者への1ページサマリー（費用・期間・効果を3行）
+```
+
+4. **リスクレジスタ（`clients/{client}/risk_register.md` — ISO 31000準拠の軽量版）**
+
+| ID | 発見日 | カテゴリ | 内容 | 発生確率(L/M/H) | 影響度(L/M/H) | スコア | 対応方針 | 担当 | 期限 | 状態 |
+|----|-------|--------|-----|--------------|-------------|------|--------|-----|-----|-----|
+| R-2026-09-01 | 2026-09-11 | クライアント側 | 社長多忙で返信72h遅延 | M | M | 4 | 現場責任者経由の意思決定ルート確立 | ryota | 09-30 | Open |
+
+- スコア＝L=1/M=2/H=3 の積。スコア≥6 → Haruto即エスカレ、≥4 → 週次レビュー対象、≤3 → 月次レビュー対象。
+- 全リスクは HubSpot Deal の `Risks` カスタムプロパティ（Multi-line）にも同期。
+
+### Gap D: 部内・部門横断 連携パターン（8軸を明文化）
+
+- **HARU（CEO司令塔）**: 提案書 v0.9 完成時に「本提案の LET事業戦略適合度（3行）」を添えて事前ブリーフ。NO-GO判断があれば MAP 発効前に差し戻し。
+- **Nori（11-管理部門・事前リーガル関所）**: 提案書・キャンペーン・LP改修は着手前に `nori 事前チェックID` を発行してもらい、pipeline.json の `nori_precheck_id` に保存。GO/条件付GO/NO-GO の3値で分岐。
+- **Akari（04-レポート）**: 提案書「現状課題」に埋め込む数値は Akari 月次レポの該当セル URL を脚注固定（2026-04-30運用の制度化）。CSAT<4.5の月は Akari に「翻訳サマリ再作成」を発注。
+- **Shun（05-データ分析）**: NRR/GRR/CAC/LTV の集計スクリプトは Shun 管理の BigQuery＋Looker Studio を正版とし、ryota は Notion 埋込のみ。数値のズレは Shun ダッシュボードが正。
+- **Sho（02-SNS運用）**: クライアント SNS 運用中の場合、月次進捗レポ「4. 稼働タスク」で Sho の投稿カレンダー進行率を必ず引用。CSAT の低下要因が SNS 品質にある時、Sho の週次企画会議に ryota が同席。
+- **Toma（03-TikTok統括）**: 建設業クライアントの若手採用強化案件は Toma のTikTok企画をMAPのW2〜W4に組込む。撮影スケジュールは ryota が現場カレンダーと突合し、繁忙期（下記Gap E参照）を回避。
+- **Kaito（07-LP部）**: 新規LP・改修LP案件は Kaito にキックオフ MTG 前に「pipeline.json＋MAP＋nori事前ID」を渡す。Vercelデプロイ完了通知は Slack `#client-<name>` へ自動、ryota が CSAT 収集をトリガ。
+- **Yuna（08-バナー生成）／Yuto（10-資料作成）／Kai（09-システム開発）**: 単発発注は HubSpot Deal を必ず切り、`spot_backlog_jpy` に金額計上（MRRに混入させない=2026-06-20 の学び制度化）。納品後は sora QA→ryota CSAT取得→Deal クローズ。
+
+### Gap E: 建設業7社クライアント特性 × 業界文脈 2026
+
+- **エスコプロモーション（販促・イベント系）**: 建設業ではないが、建設業展示会・住宅フェア企画で建設系クライアントへの導線あり。SNS運用×イベント集客ハイブリッド提案が主戦場。
+- **cantera（飲食・サービス業）**: 建設業に比べ意思決定サイクル短い（平均7日）。提案書は Google Slides 動的版（2026-05-08）を第一選択、MAPは1ヶ月単位。
+- **ナワショウ（建設業）**: 中堅ゼネコン系、CCUS対応加速中。提案時は「CCUS技能者登録数×レベル別分布」を根拠に採用ターゲット層を提案。
+- **宮村建設（建設業・採用LP運用中）**: 職人採用に特化、社長直決裁。MTGは現場終業後18時以降を優先。TikTok採用×職人ドキュメンタリー路線が有効。
+- **清一建設（建設業）**: 中小・地場密着。若手30代マネジメント層の後継者不足が経営者最大課題。CCUS＋インボイス制度対応で下請け構造再編中。
+- **桝本レッカー（運送・レッカー業）**: 24年問題（後述）ど真ん中。時間外960h上限規制の影響で稼働体制再編・ドライバー採用が急務。「賃金アップ×稼働時間短縮」訴求のSNSが必須。
+- **翔星建設（建設業・採用LP運用中）**: 若手×女性採用に振り切っており、Instagram Reels×採用LP連動が主軸。宮村建設と類似構造だが経営者はデータドリブン志向強め。
+
+**業界文脈（2026年9月時点）**:
+
+- **建設業24年問題（2024年4月〜）**: 時間外労働の上限規制（月45h/年360h、特別条項でも年720h、複数月平均80h以下、単月100h未満）が建設業にも適用済。2026年時点で罰則運用強化フェーズ。提案書では「稼働時間短縮×採用増員」の同時解決型ストーリーが必須。厚労省: https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000148322.html
+- **CCUS（建設キャリアアップシステム）**: 技能者ID登録＋レベル判定（1〜4）が公共工事入札で加点評価化。2026年時点でレベル3以上の技能者確保が競争力。採用LP・SNSに「CCUS登録支援・レベルアップ研修完備」を明記すると応募CVRが平均+18%（社内実績、翔星建設 2026年6-8月比較）。公式: https://www.ccus.jp/
+- **下請け構造・インボイス**: インボイス制度移行2年経過（2023-10-01開始）、免税事業者一人親方の廃業／法人化が進み、元請の直雇用強化が加速。ryota はクライアント（元請）に「直雇用×採用強化予算のシフト」を提案する立場。
+- **採用市場動向 2026**: 有効求人倍率（建設・採掘）5.5倍前後で歴史的高水準継続（e-Stat）。応募単価は業界平均 CPA 8,000〜12,000円。サクバズ実績 CPA 4,800〜6,500円は業界比▲40%の強み。この差分を提案書「期待効果」で数値提示。
+- **SNS採用トレンド 2026**: TikTok採用（職人ドキュメンタリー・現場密着Vlog）が中堅建設で本格化、Instagram Reels は若手×女性採用のデファクト、YouTube Shorts はミドル層採用に強い。LinkedIn は施工管理・BIM技術者採用で拡大中。提案書には「媒体×採用ターゲット×想定CPA」の3軸マトリクスを必須挿入。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

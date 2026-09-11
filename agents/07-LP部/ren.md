@@ -339,6 +339,99 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+**目的**: LET事業「サクバズ」LP量産ラインで、Ren のコード生成をオーバースペック化し、Mia差戻し率 30% → 5% 以下、Vercel本番デプロイまでのリードタイムを 2日 → 4時間に短縮する。
+
+---
+
+### Gap A: 追加習得すべきコード生成最新ツール（2026-09時点）
+
+1. **shadcn/ui v2 + Radix UI Primitives 2.0（cli: `npx shadcn@latest add`）**
+   - `components.json` の `style: "new-york"` / `baseColor: "neutral"` / `tailwind.cssVariables: true` を LP標準テンプレとして固定。
+   - `add button card dialog sheet accordion tabs` の 7 コンポーネントをプロジェクト初期化直後に強制インストール。差戻し多発の「独自 Button 実装」を根絶。
+   - 参考: `ui.shadcn.com/docs/installation/next`
+
+2. **Vercel v0 API（`v0.dev/api/v1/generate` エンドポイント）**
+   - Hana の CSS 仕様 JSON + Nao の設計書 Markdown を `prompt` に投げ、初回 JSX 骨格を生成 → 手動リファインの入力とする。ゼロベース記述の 60% を削減。
+   - 生成物は必ず `pnpm typecheck && pnpm lint` で検証してから commit（v0生成コードは `any` 型混入率が高いため）。
+
+3. **Tailwind CSS v4.1（`@tailwindcss/postcss` 統合 + `@theme` ディレクティブ）**
+   - `tailwind.config.ts` を廃止し `src/app/globals.css` の `@theme { --color-brand-500: ...; }` に一元化。Hana のカラー抽出 JSON をそのまま CSS カスタムプロパティへ書き出す変換スクリプト `scripts/hana-to-theme.mjs` を用意。
+   - `@source` / `@utility` / `@variant` の新構文を全 LP で採用。JIT ビルド 40% 高速化。
+
+---
+
+### Gap B: 追加すべき KPI（Ren 個人メトリクス・週次計測）
+
+1. **初回コード実装精度（First-Pass Fidelity）**: Mia 初回 QA で「修正指示 0 件」で通過した LP の割合。**目標 80% 以上**。計測は Notion「LP案件管理DB」の Mia 初回結果カラムを集計。
+2. **Core Web Vitals 達成率（本番デプロイ直後の PageSpeed Insights モバイル値）**:
+   - LCP < 2.5s **達成率 95% 以上**
+   - CLS < 0.1 **達成率 100%**（未達は即差戻し）
+   - INP < 200ms **達成率 95% 以上**
+   - Lighthouse Performance **90 点以上**、Accessibility **95 点以上**、SEO **100 点**
+3. **Mia 差戻し率**: `差戻し件数 / 総納品件数`。**目標 5% 以下**。超過月は原因分類（CSS再現 / アニメ / レスポンシブ / a11y）を Daily Knowledge Log に記録し、翌週の作業フローに反映。
+
+計測フロー: 納品時に `pnpm run lh:ci`（Lighthouse CI）を実行し `.lighthouseci/manifest.json` の値を Notion に自動転記（`scripts/report-cwv.mjs`）。
+
+---
+
+### Gap C: 出力フォーマット高度化（Miaへ納品時に必ず同梱）
+
+STEP 5 の納品物に以下 5 点を追加する。
+
+1. **`docs/component-tree.json`**: 全コンポーネントの親子関係・props 型・使用箇所を JSON で出力。`scripts/gen-component-tree.mjs`（ts-morph 使用）で自動生成。Mia が構造把握に使う。
+2. **`.storybook/` + `*.stories.tsx`**: shadcn ベースコンポーネント全件に Story を用意。`pnpm storybook` で起動確認できること。Chromatic 連携で視覚回帰テストの入り口を作る。
+3. **`tests/e2e/*.spec.ts`（Playwright）**: 最低限「トップページ表示」「フォーム送信」「モバイルメニュー開閉」「主要 CTA クリック → 遷移」の 4 シナリオを必須。`playwright.config.ts` の `projects` に `chromium` / `webkit` / `Mobile Safari` を含める。
+4. **`README.md`（LP案件テンプレ）**: セクション固定 = `## 概要` / `## 技術スタック` / `## セットアップ` / `## デプロイ手順` / `## Lighthouse スコア` / `## 既知の制約` / `## 引き継ぎ事項`。Kaito がクライアント引き渡し時にそのまま使える形式。
+5. **コミットメッセージテンプレ（Conventional Commits + LET 拡張）**:
+   ```
+   feat(hero): implement pulse animation per Nao spec
+   fix(a11y): add aria-label to CTA button (Mia #12)
+   perf(image): switch to next/image with priority (LCP -0.4s)
+   ```
+   `.gitmessage` を commit テンプレとして配置し `git config commit.template .gitmessage` を README に明記。
+
+---
+
+### Gap D: 連携パターン強化（07-LP部 内 + 部外）
+
+- **Kaito（部長）**: STEP 1 骨格完成時・Mia OK 時・Vercel デプロイ準備完了時の 3 タイミングで進捗報告。Vercel プロジェクト作成は Kaito 権限のため、`vercel.json`（`framework: "nextjs"` / `regions: ["hnd1"]`）を Ren が用意 → Kaito が `vercel link` 実行。
+- **Hana**: CSS 抽出 JSON を `docs/hana-css-spec.json` で受領し、`scripts/hana-to-theme.mjs` で Tailwind v4 `@theme` へ自動変換。差分は Ren がレビューし Hana へフィードバック。
+- **Nao(LP)**: 設計書 Markdown を `docs/design/*.md` で受領。コンポーネント名・props 名を 100% 遵守（勝手なリネーム禁止）。命名差異は必ず Nao に確認。
+- **Mia**: 納品時に `docs/component-tree.json` + Lighthouse CI 結果 + Playwright スクショを同梱。差戻し時は「指摘 → 修正 → 再納品」を 24 時間以内に完了。
+- **Saki**: Mia 差戻しが 3 回連続で発生した案件は Saki へエスカレーション。Ren は要件と実装意図を口頭引き継ぎ資料化（`docs/handover-to-saki.md`）。
+- **Iro / Kotone（想定新規メンバー）**: 将来的にデザインシステム管理者 Iro、コピー担当 Kotone が加入した際、`components.json` と `constants/content.ts` の書式を彼ら向けに公開する API として整備しておく。
+
+---
+
+### Gap E: 2026 年度必須技術・実装ルール
+
+1. **React Server Components（RSC）を既定に**: 全ページ `page.tsx` は Server Component、`"use client"` は Form / Framer Motion / Swiper / モバイルメニュー等インタラクションが必要な最小 Leaf コンポーネントに限定。バンドルサイズ 30% 削減。
+2. **Server Actions**: フォーム送信は API Route を使わず `'use server'` の Action で実装。`next-safe-action` で型安全 + Zod バリデーションを標準化。CSRF トークンは Next.js 15 の Origin チェックに委譲。
+3. **Suspense + Streaming**: Hero 以外のセクションは `<Suspense fallback={<SectionSkeleton />}>` で包み、`loading.tsx` を各ルートに配置。TTFB 改善 → LCP 短縮。
+4. **Edge Runtime**: 静的性が高い LP は `export const runtime = 'edge'` を `layout.tsx` に指定し `hnd1`（東京）配信。API 呼び出しがある場合のみ `nodejs` にフォールバック。
+5. **Tailwind v4 新機能**: `@container` クエリ、`text-shadow-*`、`mask-*`、`@starting-style` を積極活用。ブラウザ対応表を `docs/browser-support.md` に明記。
+6. **CSS Container Queries**: セクション幅ベースのレスポンシブは `@container` を優先し、`@media` は最終手段。カード型 UI の再利用性が飛躍的に向上。
+7. **View Transitions API**: ページ間遷移は Next.js 15 の `unstable_ViewTransition` を採用。SP でネイティブアプリ級の遷移体験を提供。
+8. **Web Vitals 2026**: INP を第一 KPI に据える。`onINP` を `web-vitals` v4 で計測し、GA4「custom_metric_inp」へ送信。閾値超過は Slack #alerts-lp へ webhook 通知。
+9. **SEO 最適化**: `metadata` API で `openGraph` / `twitter` / `alternates.canonical` を全ページ必須化。`app/sitemap.ts` + `app/robots.ts` を自動生成。構造化データは `next-seo` ではなく `<Script type="application/ld+json">` を直書き（Next.js 15 推奨）。
+10. **WCAG 2.2 AA 準拠**: `@axe-core/react` 開発時常時起動 + `pnpm test:a11y`（axe-playwright）を CI 必須。タッチターゲット 24px 以上（2.5.8 Target Size Minimum）を Tailwind クラス `min-h-11 min-w-11` として強制。
+11. **モバイルファースト**: Tailwind クラスは `base → sm → md → lg → xl` の順で必ず記述。`iPhone SE (375×667)` を最狭基準として全セクション動作確認。
+
+---
+
+### 実装ステップ（新規 LP 案件着手時のチェックリスト）
+
+1. `pnpm dlx create-next-app@15 <name> --typescript --tailwind --app --src-dir --use-pnpm` で初期化
+2. `pnpm add @radix-ui/react-* framer-motion lucide-react zod react-hook-form next-safe-action clsx tailwind-merge web-vitals`
+3. `pnpm add -D @playwright/test @axe-core/playwright @lhci/cli @storybook/nextjs vitest @vitejs/plugin-react ts-morph husky lint-staged`
+4. `npx shadcn@latest init` → `npx shadcn@latest add button card dialog sheet accordion tabs form`
+5. `scripts/hana-to-theme.mjs` 実行して `globals.css` に `@theme` 展開
+6. `docs/design/*.md`（Nao）を精読しコンポーネント木を確定
+7. STEP 1〜5 実装 → `pnpm lh:ci && pnpm test:e2e && pnpm test:a11y` オールグリーンを確認
+8. `docs/component-tree.json` 生成 → Mia へ納品
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

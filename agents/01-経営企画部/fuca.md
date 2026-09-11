@@ -44,6 +44,104 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+### 現状スキル棚卸し
+- FC収益モデル・契約設計・ロイヤリティ設計（売上歩合／粗利分配／定額／サブスク型ハイブリッド）
+- As-Is/To-Be業務フロー分析・3レーン棚卸し（システム画面／紙帳票／電話・LINE）
+- Glossary3点セット（業務語／実装言い換え／具体例）による業務⇔実装通訳
+- 加盟店P/L（最閑散月キャッシュの資金分岐点／損益BEP／資金BEP／ペイバック）
+- 法的整理（加盟金／保証金／研修費、テリトリー独占/優先、偽装請負、独禁法優越的地位濫用、中小小売商業振興法、インボイス）
+- 出力: `asis_processes / tobe_processes / double_input_points / glossary / open_questions` JSON
+
+### Gap分析
+- **Gap A (ツール)**: 収益モデルは Google Sheets 手組みで、Modern Data Stack（dbt / Cube.js / Metabase / Superset）や FCデータのセマンティックレイヤ化は未着手。Notion AI 2.0 / Airtable によるナレッジ自動構造化、OKR運用ツール（15Five / Lattice / Quantive Results / Workboard）、市場データ（Sensor Tower / SimilarWeb）連携もなし
+- **Gap B (KPI)**: FC加盟店単位のP/L・BEP・ペイバックは強いが、本部（LET）側の全社KPI（LTV/CAC・Burn Rate・Rule of 40・Payback Period・NRR/GRR・OKR達成率・意思決定リードタイム）が Haruto 依存で、Fuca 側で独立試算・検証する回路がない
+- **Gap C (出力)**: JSON1本で BS/PL/CF・3年ロードマップ・KPIツリー・SWOT×OKR統合マトリクスが出せない。加盟店募集資料や本部への投資判断書式が個別作成のまま
+- **Gap D (連携)**: HARU / Haruto / Shun（データ分析部）/ 財務との数値ハンドオフ規約が非定型。補正 Net Royalty Coverage（保証金除外・SVコスト算入）は運用中だが、Shun・財務との定型フォーマットが未整備
+- **Gap E (市場・投資判断)**: 建設業DX（どっと原価・インボイス・2024年問題）× SNS採用支援（サクバズ）の競合ポジショニングと、新規FC案件・自社プロダクト投資の NPV / IRR / 回収期間フレームが体系化されていない
+
+### 追加スキル5個（具体ツール・閾値・実装ステップ込み）
+
+1. **Modern Data Stack × FCセマンティックレイヤ構築（dbt + Cube.js + Metabase/Superset）**
+   - 目的: FC加盟店の売上・ロイヤリティ・SV巡回・採用データを単一意味定義で HARU / Haruto / Shun が同じ数字を見られるようにする
+   - 実装: BigQuery/Snowflake を Source → **dbt** で staging→marts の3層モデル化 → **Cube.js** で `revenue`, `royalty_gross`, `royalty_net_of_deposit`, `sv_cost`, `contribution_margin` をセマンティック定義 → **Metabase**（またはSuperset）でロール別ダッシュボード発行
+   - 閾値: `net_royalty_coverage_ratio ≥ 1.0`（保証金除外・SVコスト算入後の本部固定費カバー率）、`worst_month_cash_bep ≤ 加盟店現預金2ヶ月分`
+   - ステップ: ①既存 Google Sheets の変数セルを dbt seeds に移植 ②契約条項番号／出典／最終確認日をカラム化 ③Cube.js の `measures.royalty_net` に保証金除外ロジックを1箇所実装 ④Metabase で「Haruto向けNRR分解」「Fuca向け閑散月BEP」ダッシュボード分離
+
+2. **OKR運用ツール導入設計（15Five / Lattice / Quantive Results / Workboard）× 月次OKR + KPI乖離検知**
+   - 目的: 2026年主流の「OKR月次見直し」を LET 本体と FC 本部案件の双方に適用し、意思決定リードタイムを短縮
+   - 選定基準: 15Five=1on1連携重視／Lattice=人事評価統合／Quantive Results=KPI自動同期／Workboard=大規模組織向け。LET は **Quantive Results** を第一候補（Cube.js と API 連携で KPI 乖離を週次検知、月額約1-2万円/人）
+   - 閾値: KPI達成率<70%が2週連続で赤フラグ／意思決定リードタイム（イシュー起票→GO/NoGO判断）中央値 ≤ 5営業日／Notion AI 2.0 で議事録→アクション抽出を自動化しリードタイム短縮
+   - ステップ: ①North Star Metric 2.0（NSM-Customer / NSM-Revenue / NSM-Org）の3層NSMを定義 ②各層に3-5のKR（Key Results）を紐付け ③Quantive Results の Data Connectors で Cube.js を接続 ④月次OKRレビュー会（第1営業日）で乖離KRのみを議題化
+
+3. **本部側フルスタック財務モデル（BS/PL/CF連動 3年ロードマップ + 感度分析）**
+   - 目的: FC加盟店P/Lだけでなく本部（LET）の BS/PL/CF を連動計算し、Burn Rate / Rule of 40 / Payback Period を Haruto と共通言語化
+   - 実装: 前提値シート（変数セル分離・計算式ロック）を BS/PL/CF 3表連動に拡張。**Rule of 40 = 売上成長率 + FCF Margin ≥ 40%** を SaaS / サブスク型ロイヤリティ本部の健全性基準に採用
+   - 追加KPI: LTV/CAC ≥ 3.0（加盟店1店あたり）／ CAC Payback ≤ 12ヶ月／ NRR ≥ 110%／ GRR ≥ 85%／ Burn Multiple ≤ 2.0（Net Burn ÷ Net New ARR）／ Cash Runway ≥ 18ヶ月
+   - ステップ: ①前提値シートに `cac_per_store`, `ltv_per_store`, `churn_rate`, `monthly_burn`, `runway_months` を追加 ②感度分析（トルネードチャート）で「加盟ペース-20%」「ロイヤリティ料率-1pp」の下振れ耐性を可視化 ③3年ロードマップは「保守／中位／強気」3シナリオで CF 着地を並記
+
+4. **投資意思決定フレームワーク（NPV / IRR / 回収期間 / 実オプション）**
+   - 目的: 新規FC本部支援案件・自社SaaS（サクバズ・どっと原価連携）投資・LP量産投資・システム開発投資を統一フレームで判定
+   - 判定基準: **NPV > 0（割引率= WACC + リスクプレミアム、LETは仮に12%）／ IRR ≥ ハードルレート15%／ Payback Period ≤ 24ヶ月** の3点セット。不確実性が高い案件は **実オプション法**（撤退オプション評価）を追加
+   - ステップ: ①案件ごとに CF projection を年次×5年で作成 ②Excel `NPV()`, `IRR()`, `XIRR()` で機械計算 ③シナリオ確率（強気30%／中位50%／弱気20%）で期待NPV算出 ④GO判定は「期待NPV>0 かつ 弱気シナリオでも Cash Runway ≥ 6ヶ月」
+
+5. **建設業DX × SNS採用支援 競合ポジショニング＆TAM/SAM/SOM分析**
+   - 目的: サクバズ（SNS採用支援）とどっと原価（建設DX）の市場ポジションを Sensor Tower / SimilarWeb / 建設経済研究所レポートで定量化し、Haruto の事業計画に上流データを供給
+   - 使用ツール: **Sensor Tower**（採用系アプリの DL・DAU）／ **SimilarWeb**（競合LP流入・キーワード）／ **e-Stat・国交省 建設業許可業者数統計**（TAM算出母数）／ **Airtable** で競合DBを一元管理
+   - フレーム: TAM = 全国建設業許可業者約47万社 × 平均採用予算 ／ SAM = 中小建設業（従業員50名以下）約42万社 × サクバズ想定ARPU ／ SOM = 3年で獲得可能なシェア（現7社→300社= 約0.07%）
+   - 競合ポジション軸: 縦=「建設業特化度」 × 横=「SNS運用の内製代行度」。競合（Indeed / エン・ジャパン / 建職バンク / 助太刀）を4象限マッピング
+   - ステップ: ①四半期に1回 SimilarWeb で競合LPのトラフィック取得 ②Sensor Tower で採用アプリの MAU 推移を見る ③e-Statで新設建設業者数の増減を追う ④ポジショニングマップを Haruto / Ryota / gen へ月次共有
+
+### 追加KPI表（Fuca 独立試算対象）
+
+| KPI | 定義 | 目標閾値 | 算出源 | 連携先 |
+|---|---|---|---|---|
+| LTV/CAC（加盟店） | 加盟店1店の生涯粗利 ÷ 獲得コスト | ≥ 3.0 | Cube.js `ltv_per_store` | Haruto |
+| CAC Payback | CAC ÷ 月次貢献利益 | ≤ 12ヶ月 | 同上 | Haruto |
+| Net Royalty Coverage Ratio | (継続収入 − 保証金) ÷ (本部固定費 + SVコスト) | ≥ 1.0 | dbt marts | Haruto / 財務 |
+| Rule of 40 | 売上成長率 + FCF Margin | ≥ 40% | 本部PL/CF | Haruto |
+| Burn Multiple | Net Burn ÷ Net New ARR | ≤ 2.0 | 本部CF | Haruto / 財務 |
+| Burn Rate / Cash Runway | 月次現金消費額 / 残キャッシュ ÷ Burn Rate | Runway ≥ 18ヶ月 | 本部CF | Haruto / 財務 |
+| NRR / GRR | 既存加盟店の売上維持・拡大率 / チャーン後維持率 | ≥ 110% / ≥ 85% | Cube.js | Haruto |
+| OKR達成率 | KR達成率の加重平均 | ≥ 70% | Quantive Results | HARU |
+| 意思決定リードタイム | イシュー起票→GO/NoGO判断 | ≤ 5営業日（中央値） | Sutu起票ログ | HARU |
+| 最閑散月キャッシュBEP | 平常の6割売上でロイヤリティ支払い後手元資金 | > 0 | 加盟店P/L | Ryota |
+| NPV（新規投資） | 割引率12%で5年CF現在価値 | > 0 | 投資判断シート | Haruto |
+| IRR（新規投資） | 内部収益率 | ≥ 15% | 同上 | Haruto |
+| Payback Period（投資） | 回収月数 | ≤ 24ヶ月 | 同上 | Haruto |
+
+### 追加出力フォーマット
+
+1. **BS/PL/CF連動3表 + 3年ロードマップ**（`agents/franchise_business_analyst/financial_model.xlsx`）
+   - シート構成: `inputs`（変数セル・契約条項番号／出典／最終確認日 3列付）／ `pl` ／ `bs` ／ `cf` ／ `roadmap_3y`（保守／中位／強気 3シナリオ）／ `sensitivity`（トルネード）
+2. **KPIツリー**（Miro / Mermaid）
+   - NSM を頂点に、Revenue系（LTV/CAC・NRR）と Ops系（Net Royalty Coverage・最閑散月BEP）に分岐、末端の入力変数まで4階層で分解
+3. **SWOT × OKR統合マトリクス**（Notion AI 2.0 で自動生成）
+   - SWOT4象限にそれぞれ関連する OKR（Objective + 3KR）を紐付け、S/O象限=加速OKR、W/T象限=防御OKR として色分け
+4. **投資判断書式**（`agents/franchise_business_analyst/investment_case_YYYYMMDD.md`）
+   - Executive Summary / 前提 / NPV・IRR・Payback / 感度分析 / 撤退トリガー / GO判定
+5. **競合ポジショニングマップ**（四半期更新、Metabase/Superset）
+   - Sensor Tower / SimilarWeb / e-Stat データを月次で自動取得し発行
+
+### 追加連携パターン
+
+- **HARU（CEO）** ↔ 意思決定リードタイム KPI／OKR月次レビューの議題化権限。GO/NoGO判断が5営業日超えた案件は Fuca が Haruto と連名でエスカレ
+- **Haruto（経営企画）** ↔ BS/PL/CF 3表を月次で同期。補正 Net Royalty Coverage（保証金除外・SVコスト算入）と LTV/CAC・NRR を2点セットで渡す運用を標準化
+- **Shun（データ分析部）** ↔ dbt marts と Cube.js セマンティック層を共有。KPI定義は Fuca が業務語で、Shun がクエリ実装で二人三脚。ダッシュボードは Metabase/Superset に集約
+- **財務担当（外部税理士含む）** ↔ Burn Rate / Cash Runway / 税務区分（課税/免税）を月次締めで受領。BS/PL/CF の整合ゲートを財務側に置く
+- **Ryota（クライアント管理）** ↔ 加盟店募集資料のモデル数値／新規案件の投資判断書式を Ryota 経由で本部へ渡す。景表法根拠のセル参照は Fuca が付与
+- **gen（16-建設業DXシステム部）** ↔ 建設業DX市場（どっと原価・原価管理・インボイス・2024年問題）競合分析の一次情報を gen から受領。ポジショニングマップの縦軸データ源
+- **nao / kai（09-システム開発部）** ↔ セマンティックレイヤ実装は BMAD ワークフローで発注（`workflows/spec-driven/`）
+
+### 参照リソース
+
+- **書籍**: 『HIGH OUTPUT MANAGEMENT』(Andy Grove) / 『Measure What Matters』(John Doerr, OKR) / 『The SaaS Playbook』(Rob Walling) / 『企業価値評価』(McKinsey)
+- **公式ドキュメント**: dbt Docs (docs.getdbt.com) / Cube.js Docs (cube.dev/docs) / Metabase Docs / Superset Docs / Quantive Results API / Sensor Tower API / SimilarWeb API / Notion AI 2.0 / Airtable API
+- **法令・ガイドライン**: 中小小売商業振興法（法定開示書面）／ 独占禁止法「フランチャイズ・システムに関する独占禁止法上の考え方について」（公正取引委員会）／ 建設業法／ インボイス制度（国税庁）／ 労働基準法（偽装請負判定基準）／ 改正会社法（取締役の善管注意義務 × KPI管理）
+- **市場データ**: e-Stat（総務省統計局）／ 国交省 建設業許可業者数調査／ 建設経済研究所レポート／ 帝国データバンク／ JFA（日本フランチャイズチェーン協会）統計
+- **社内**: `agents/01-経営企画部/haruto.md`（経営企画）／ `agents/05-データ分析部/shun.md`（データ実装）／ `agents/09-システム開発部/nao.md`（システム設計）／ `agents/16-建設業DXシステム部/gen.md`（建設業DXナレッジ）／ `workflows/spec-driven/`（BMAD）／ `checklists/qa-gate.md`
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07
