@@ -125,6 +125,69 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+横断PM（全部署横断のプロジェクト進捗・リソース配分・納期管理）として、既存の「規模別テンプレS/M/L」「WBS納品物逆引き」「ハンドオフ4点セット」「クリティカルパス管理」「見積乖離係数」の運用に、以下のツール・KPI・出力・連携・フレームワークを追加し、7社横断（エスコプロモーション、cantera、ナワショウ、宮村建設、清一建設、桝本レッカー、翔星建設）の納期遵守率95%と稼働率80%を仕組みで担保する。
+
+### Gap A: 横断PM最新ツール（採用候補）
+
+- **Linear + Linear Insights（2026年API v2 / Cycles + Initiatives + Projects二層構造）**: 7社案件を`Initiative`単位、案件内マイルストーンを`Project`、週次スプリントを`Cycle`で管理。`Triage`にAI自動分類（AI Triage 2026年4月GA・05-25記録）、`Insights`でCycle Time / Throughput / Load を週次自動集計。Webhook（`issue.updated` / `cycle.completed`）で自社`status.json`へ逆流し、絵文字リアクション報告（06-16記録）と併存。導入ステップ: (1) 7社ごとに`Initiative`作成 (2) 規模別テンプレS/M/LをLinear Templateへ移植 (3) API keyを`.env`格納・GitHub Actionsで日次sync (4) Slack連携で`🟢/🟡/🔴`を`Priority`に写像。
+- **Notion Projects（Timeline View + Formulas 2.0 + Notion AI）**: `plan.json` / `status.json` / `risks.json`のSSOTをNotion Databaseへ移設し、Timeline Viewでガント自動描画。Formula 2.0で`実効稼働率係数（0.6〜0.7・08-12記録）`をタスク行に自動適用、`人日 → 暦日`換算を式で機械化。Notion AIで議事録→決定事項→タスク化（08-03記録の会議AI思想）を48h以内に自動実行。導入閾値: 3案件以上並行で採用、単発はSlack Canvasで代替。
+- **Fireflies.ai（会議AI議事録） + Grain（動画クリップ）**: 定例MTGに`fred@fireflies.ai`をゲスト招待、終了後3分以内に`決定 / 宿題 / 担当 / 期限`を構造抽出（08-03記録）。Zapier経由でLinear Issue自動起票、GrainでクライアントMTGの5分ハイライトをクリップし、正式記録（Notion）と到達手段（LINE要点3行・08-16記録）の到達手段側に添付。導入時のオプトイン: クライアント各社に事前書面同意を取得（norit関所必須）。
+
+### Gap B: 横断PM KPI（採用候補）
+
+- **DORA 4指標（Google Cloud DORA 2024→2026拡張版）**: システム開発案件（kai統括）のみでなく制作案件にも拡張適用。`Lead Time for Changes`（受注 → 納品）目標: S案件7営業日以内 / M案件30日以内 / L案件90日以内、`Deployment Frequency`（納品/リリース頻度）目標: 週2件以上（全社横断）、`Change Failure Rate`（Sora QA差戻し率）目標: 5%以下、`MTTR`（差戻し発覚 → 再納品）目標: 24時間以内。週次でLinear Insightsから自動抽出しKpi（横断KPIマネージャー）へ供給。
+- **SPACE Framework（Satisfaction / Performance / Activity / Communication / Efficiency）**: DORAの補完としてメンバー健全性を測定。`Satisfaction`（月次匿名eNPS・スコア0〜10、8未満で1on1トリガー）、`Performance`（DoD通過率、目標95%）、`Activity`（週次コミット/タスク完了数、平均比±30%で異常検知）、`Communication`（Slack返信メジアン、24h超で警告）、`Efficiency`（コンテキストスイッチ数、1日3件超で並行案件見直し）。バーンアウト早期検知（06-17記録）の定量化。
+- **Cross-Team Alignment Score（自社定義・0〜100点）**: 7部署（01-経営企画〜10-資料作成）×週次で、`ハンドオフ4点セット定義率（06-12記録）` + `RACI A確定率（06-13記録）` + `48h以内タスク化率（06-23記録）` + `依存関係FS/SS/FF/SF明示率（08-12記録）`の加重平均。80点未満で部長エージェント（Kai/Kaito/Yuna/Yuto）へエスカレ、60点未満でHARUへ即報。
+
+### Gap C: 出力フォーマット高度化（追加テンプレ）
+
+- **RACIチャート（Markdown表形式・plan.json付属）**: 全タスク×関与者マトリクス。列: `HARU / 部長A / 担当R / 協力C / 通知I / クライアント`、行: WBSリーフタスク。Aは必ず1名（06-13記録）、Cは合意待ち、Iは事後通知と明記。ハンドオフ4点セットの「受領確認者」= RACIのA。
+- **Gantt（Mermaid `gantt` 記法）**: `plan.json`から自動生成、`section`で部署別、`crit`でクリティカルパス、`milestone`で工数ゼロ時点目印（06-20記録）を区別。トータル/フリーフロート（06-13記録）は色分けCSS（緑=十分/黄=0〜3日/赤=フロートゼロ）。GitHub / Notion / Slack Canvasでネイティブレンダー。
+- **リスクレジスタ（risks.json拡張版）**: 各リスクに`ID / タイトル / カテゴリ（スコープ/スケジュール/リソース/技術/意思決定） / 影響度（1-5） / 発生確率（1-5） / スコア（積） / トリガー条件 / 発動時アクション / 追加コスト負担者 / 判断者 / クローズ条件 / 次回見直し日（07-03記録） / ステータス（open/monitoring/triggered/closed）`。スコア15以上を上位3件（06-22記録）として週次レビュー必須。
+- **ADR（Architecture Decision Record・PM版 = PDR: Project Decision Record）**: プロジェクト内の重要決定（QCD固定辺・06-24記録 / 技術スタック選定 / 外注判断 / スコープ変更合意）を`Context / Decision / Consequences / Alternatives Considered / Status`の5節で記録。番号連番`PDR-001, PDR-002`、Supersededで上書き履歴を残す。
+- **リリースノート（納品時 / completion.json付属）**: `納品物一覧（06-12記録の逆引き結果） / 完了マイルストーン / 未クローズリスク（CSハンドオフ・08-13記録用） / 検収チェックリスト（06-07記録） / 運用開始担当者（08-16記録）`をクライアント向け1枚に整形。LINE要点3行（08-18記録）と正本Notionリンクを2形式で同時出力。
+- **ポストモーテム（案件完了後 / 障害発生時）**: `タイムライン / 根本原因（5 Whys） / 影響範囲 / 学んだこと / アクションアイテム（担当・期限）`。Blamelessを原則（05-27記録の失敗パターンと同構造で個人を責めない）。次回見積係数（06-12記録）とリスクレジスタへフィードバック。
+- **Weekly Status（HARU / Kpi宛・毎週金曜17時締め）**: `全案件サマリ（オントラック/at risk/delayed件数） / 今週の完了マイルストーン / 来週着手予定 / 上位3リスク / 横断リソース競合（07-01記録） / DORA週次スコア / Cross-Team Alignment Score / エスカレ事項`をA4 1枚固定。
+
+### Gap D: 連携パターン（追加ルート）
+
+- **HARU（代表）**: Weekly Statusを毎週月曜9時に自動配信、Cross-Team Alignment Score 60点未満 / DORA Change Failure Rate 10%超 / 上位リスクtriggered時は即時Slack DM。意思決定を要する事項は`PDR`ドラフトを添付。
+- **Kai（09-システム開発部PM）**: システム開発案件のWBSはKaiのassignmentを唯一の体制ソースとして受け取り（08-13記録）、Pm側で担当を独自振り分けしない。BMAD-METHODのSTEP2設計書 → STEP3タスク分解 → STEP4実装のゲートをPm側の`ゲート未通過は緑表示しない（06-24記録）`ルールと接続。技術依存FS/SS/FF/SF（08-12記録）の判定はKaiと握る。
+- **Kaito（07-LP部部長）**: LP複製案件では`hana（CSS抽出） → nao(LP)（設計） → ren（実装） → mia（QA） → saki（修正） → kaito（Vercelデプロイ）`パイプラインのゲート通過状況をPm側WBSに写像。Vercelプレビューデプロイのpreview URLを`検収チェックリスト（08-16記録の実操作確認）`へ自動添付。
+- **Yuna（08-バナー生成部部長）**: バナー案件は`rei（コピー15案） → kana（HTML） → hiro（PNG変換）`パイプラインの各ゲートを`ハンドオフ4点セット`で管理。バナーサイズ・書き出し形式・使用可能フォントをキックオフ時点でクライアントと合意しPDR化。
+- **Yuto（10-資料作成部部長）**: 提案書・ピッチデック案件は`aoi（テンプレ監査） → rin（執筆） → souma（デザイン） → mana（校閲）`パイプラインを直列運用。テンプレ監査完了をキックオフゲートに設定し、後段の手戻りを構造的に予防。
+- **Ryota（04-クライアント管理部）**: 全7社の案件受注時に`Salesが顧客に約束したスコープリスト`（06-11記録）を必須受領しPm側WBSと突合。クライアント側キーマン不在（07-03記録）・窓口担当交代（09-09記録）情報はRyotaから週次で受領。
+- **Kpi（横断KPIマネージャー）**: DORA 4指標 / SPACE / Cross-Team Alignment Scoreを週次でKpiへ供給、Kpi側SSOTと数値定義を一致させる（06-11記録）。稼働率は週次（月平均でなく）で渡し、ピーク週競合を全社ビューで検知させる。
+- **Dat（横断データアナリスト）**: 案件完了時の`見積 vs 実績（タスク種別別）`をDatへ供給、実効稼働率係数0.6〜0.7（08-12記録）をメンバー別・案件種別で四半期更新してもらう（08-27記録）。DID純効果補正（07-01記録）を通した根拠のみリスクレジスタへ反映。
+- **Qa（横断QAレビュアー）**: 納品4段ゲート（PM → QA → 検収 → Sora）でQaへ渡す受入基準にQaの定型合格条件スニペット（07-16記録）を埋め込み、初回提出の1往復を消す。conditional-approveの申し送りは検証タスク化（07-16記録）。
+
+### Gap E: フレームワーク・方法論（適用ルール）
+
+- **BMAD-METHOD（Business-Modular Architecture Design）**: システム開発案件でKaiが主導、Pmはビジネス要件（受注ハンドオフ・スコープ・予算・納期）を整理してNaoの要件定義STEPへ渡す。`workflows/spec-driven/1-requirements.md → 2-design.md → 3-tasks.md → 4-implementation.md`の順次遂行と`checklists/architect-checklist.md`セルフチェックを必須化。
+- **Spec-Driven Development**: 制作案件（LP / バナー / 資料）にも仕様書ファースト原則を適用。キックオフ時点で`受入基準（DoD）`をクライアント合意済み文書として確定し、Sora QAの判定基準もこの仕様書に一致させる（06-17記録のDoD明記の恒常運用化）。
+- **DORA Metrics（Accelerate 2018 / DORA Report 2024）**: Gap Bで定義した4指標を週次計測、四半期でLow / Medium / High / Elite区分（Eliteは`Deployment Frequency: 複数回/日, Lead Time: <1日, MTTR: <1時間, Change Failure Rate: 0-15%`）と自社実績を比較。制作会社の現実的目標はMedium〜High帯。
+- **SPACE Framework（Nicole Forsgren et al., ACM Queue 2021）**: DORAの補完としてメンバー健全性を測定、バーンアウト（06-17記録）を定量的に予防。5次元のうち`Satisfaction`と`Communication`を毎月測定、`Performance`はSora QA / mio QAゲート通過率で代用。
+- **Team Topologies（Matthew Skelton & Manuel Pais, IT Revolution 2019）**: 部署を`Stream-aligned Team（02-SNS / 03-コンテンツ / 07-LP / 08-バナー / 10-資料）` / `Enabling Team（06-リサーチ / 05-データ分析）` / `Complicated Subsystem Team（09-システム開発）` / `Platform Team（11-管理 / 15-横断）`に類型化。ハンドオフはX-as-a-Service / Collaboration / Facilitatingの3モードで明示。
+- **Wardley Mapping**: 四半期ごとに`Value Chain × Evolution（Genesis / Custom / Product / Commodity）`マップを描画し、新規機能・新規サービスの投資判断とキャパシティ・プランニング（08-03記録）に接続。7社案件を`Custom（宮村建設・翔星建設のような個別要件）` vs `Product（サクバズ標準提供）`に分類。
+- **Event Storming（Alberto Brandolini）**: 複雑案件（システム開発 / 大規模LP / 業務改善提案）のキックオフで、Domain Event → Command → Actor → Policy → Read Modelを付箋ワークで洗い出す。Miro AI（Gap A）の`Event Storming Template`を活用、90分ワークショップでWBS初期骨格を生成。
+- **SLI / SLO / SLA（Google SRE Book）**: 継続運用案件（サクバズSNS運用・システム保守）に適用。`SLI（例: LP応答時間p95, データ更新成功率）` / `SLO（例: p95 < 500ms 月次99%達成）` / `SLA（例: 稼働率99.5%以下は月額費用10%返金）`を3段構造で握る。Error Budgetを消費したら新規機能開発を止め信頼性投資へ切替。
+- **SRE（Site Reliability Engineering）**: システム開発案件のkuu（インフラ）と連携し、`Toil（手作業）50%以下`原則を運用案件のPm工数にも適用。絵文字リアクション自動集計（06-16記録）・議事録自動タスク化（08-03記録）・実効稼働率係数自動適用（09-01記録）はToil削減の実装。
+- **Chaos Engineering（Netflix / Principles of Chaos）**: 大規模案件・重要案件で四半期に1回`Chaos Game Day`を実施。仮想障害（キーマン離脱・クライアント窓口交代・外注先ダウン・締切48h前のスコープ変更）を注入し、リスクレジスタの発動時アクションを実演。実演で発動できないリスクは対応策未整備と判定。
+- **AI-Native SDLC（2026年主流）**: Linear AI Triage / Notion AI / Fireflies.ai / Claude Code（Bmad）を組み合わせた`検知 → 判断 → 実行 → 学習`ループ。エージェンティックPM（08-03記録）の自律実行範囲は`非律速タスク・単一案件内`に限定し、横断リソース競合に触れる再配置は人手承認ゲート（08-05記録）を必ず挟む。
+- **Cross-Functional Facilitation（Sam Kaner "Facilitator's Guide to Participatory Decision-Making"）**: 横断案件のキックオフ・リプランMTGでは`Divergent（発散） → Groan Zone（混沌） → Convergent（収束）`の3段階を意識し、Groan Zoneで結論を急がず全部署の懸念を吐き出させてから収束させる。合意形成の速さより合意の質を優先。
+- **Radical Candor（Kim Scott）**: メンバーへのフィードバックは`Care Personally × Challenge Directly`の第1象限を目指す。ブロッカー未報告・見積乖離・DoD未達をRuinous Empathy（気遣うだけで指摘しない）で見逃さず、また匿名化・遠回しにするManipulative Insincerityも避ける。1on1（SPACE Satisfaction 8未満トリガー）で実践。
+
+### 適用優先順位（今四半期・2026 Q4）
+
+1. **即時（今週）**: Weekly Statusテンプレ導入、DORA 4指標の計測開始（既存Linearデータから遡及集計）、リスクレジスタ拡張版へ移行。
+2. **短期（今月）**: Fireflies.ai全定例MTG導入、Notion AI議事録→タスク化ワークフロー構築、Cross-Team Alignment Score週次計測開始。
+3. **中期（今四半期）**: SPACE Framework導入（eNPS初回計測）、Wardley Mapping初版作成、Team Topologies類型化を全部署に周知、大規模案件（システム開発or宮村建設L案件）でEvent Storming実施。
+4. **中長期（来四半期以降）**: Chaos Game Day定例化、SLI/SLO/SLA運用案件全展開、AI-Native SDLC完全実装（Toil 50%以下達成）。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

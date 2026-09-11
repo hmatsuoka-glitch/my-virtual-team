@@ -132,6 +132,48 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 Skill Upgrade 2026-09-11
+
+横断データアナリストとして、Modern Data Stack・Data Contract・Semantic Layer・AI-Native Analytics 時代の実装スキルを拡張。LET事業（サクバズ＝建設7社×採用×SNS支援）文脈で、既存の「集計＝Kpi/深掘り＝Dat」役割分担（06-11記録）を保ったまま、データ供給側（Deng）〜経営意思決定側（Haruto/Ryota）までを Data as Product 思想で結線する。
+
+### A. 最新ツール導入（Modern Data Stack 実装）
+- **dbt Core 1.8 + dbt Semantic Layer**: 7社横断の指標定義（`tax_included_flag` / `period_type=calendar|fiscal|business_day` / `is_gross_margin_based`）を `models/marts/**/*.yml` にバージョン管理し、`dbt build` を GitHub Actions の CI/CD に組み込む。PR ごとに `dbt test`（`unique` / `not_null` / `accepted_values` / `relationships`）＋ `dbt build --select state:modified+ --defer --state prod` で影響範囲だけ再構築。指標定義 SSOT 化（05-27記録の統一辞書思想）をコード側で担保。導入手順: (1) `profiles.yml` に BigQuery プロジェクト設定 (2) `models/marts/finance/ltv_by_client.sql` で粗利ベース LTV を定義 (3) `.github/workflows/dbt-ci.yml` で PR ごとに `dbt build` を実行 (4) `dbt docs generate` で lineage を GitHub Pages 公開。
+- **BigQuery + Fivetran**: Airwork・GA4・Instagram Graph API・HubSpot・Slack を Fivetran 経由で BigQuery に 5分〜1時間間隔で自動連携（Airwork＝カスタム HTTP コネクタ／GA4＝ネイティブ）。生ログのスキャン量削減のため、パーティション列は `_PARTITIONDATE`、クラスタリング列は `client_id, channel` を規約化。月額目安: Fivetran Starter $1/MAR ＋ BigQuery on-demand $6.25/TiB。7社×採用/SNS/財務データを `raw_airwork.*` / `raw_ga4.*` / `raw_hubspot.*` スキーマで揃える。
+- **Cube.js Semantic Layer + Metabase 0.50**: Cube.js で `measures.gross_margin` / `measures.ltv_kaplan_meier` などを1本化し、Metabase からは Cube の REST エンドポイント経由でのみ集計させ、生 SQL を許可しない（08-03記録の AI ガードレール思想の人間版）。Cube の `pre_aggregations` で日次サマリーを事前集計（06-16記録のマテリアライズ）。BI 切替時（Looker Studio → Metabase 等）も指標定義は不変。
+
+### B. 横断KPI（Data Team 自体の OKR）
+- **データ鮮度 SLO（Data Freshness）**: 主要マート（`marts_client_daily`, `marts_recruitment_funnel`）は「取込完了 ≤ 6時間 / 遅延1時間ごとに Slack `#data-alerts` 通知 / SLO 99% 達成」を Monte Carlo Data Observability または dbt source freshness で監視。分子＝on-time 取込回数、分母＝期待取込回数（暦月）。SLO 未達3回連続で Root Cause 起票を必須化。
+- **パイプライン稼働率＆データ品質スコア**: Fivetran Sync Success 率 ＋ dbt test PASS 率 ＋ Great Expectations ルール（`expect_column_values_to_not_be_null` / `expect_column_values_to_be_between` 等）合格率を `quality_score = 0.4*sync + 0.3*test + 0.3*ge` で加重合成し、週次で Data Team ダッシュボードに掲載。閾値: 90%以上＝Green / 80-90%＝Yellow / 80%未満＝Red で自動起票。
+- **KPI 再利用率（Metric Reuse Rate）**: dbt Semantic Layer で定義した指標が過去90日で複数レポート／ダッシュボード／AI 集計から参照された比率＝再利用率。目標: 70% 以上（新規指標乱立の抑制）。参照0の指標は四半期棚卸しで deprecation 候補。
+
+### C. 出力フォーマット高度化
+- **Data Contract v1（YAML）**: 各データセット提供時に `data_contracts/{domain}.yaml` を同梱。`schema`（フィールド名／型／null 許容）／`sla`（鮮度／稼働率）／`owner`（Slack ハンドル）／`breaking_change_notice_days: 30` ／`pii_classification: none|pseudonymous|direct` ／`backfill_policy` を必須項目化。Producer（Fivetran/ao/riku）と Consumer（Dat/Shun/Akari）の契約として GitHub PR レビューで承認。
+- **ETL Runbook（Markdown）**: `runbooks/{pipeline}.md` に「起動コマンド／想定所要時間／依存関係 DAG／失敗時トリアージ手順（Fivetran ログ → dbt logs → BQ Query History）／エスカレーション先（一次: kuu, 二次: ao）／ロールバック手順（`dbt run --select state:modified+ --target prod --defer`）／過去インシデント履歴」を7項目テンプレで固定。
+- **統計有意性表（Statistical Significance Table）**: 施策効果検証レポート末尾に「指標／n_control ／ n_treatment ／ effect_size（Cohen's d または相対%）／ 95%CI ／ p 値 ／ MDE ／ 検出力 ／ 金額換算 ROI ／ 確度ラベル（◎/○/△）」の9列表を必須化。06-13/06-24/07-01/09-02 記録の統計テーマを1表で機械照合可能にし、QA（Qa）のオラクル照合も同一表で完結。
+- **KPI ダッシュボード URL**: レポート冒頭に「関連ダッシュボード: `https://metabase.let-inc.net/dashboard/{id}` （Cube.js query: `measures.gross_margin`, dimensions: `client_id`, filters: `period=last_90d`）」形式で必ず遷移先 URL を明示。数字と URL を分離しない。
+
+### D. 連携パターン（Data as Product 起点）
+- **Deng（データエンジニア）連携**: Data Contract 違反（schema drift / SLA 未達）の一次検知は Deng の dbt source freshness ＋ Great Expectations、Dat は影響分析（どのレポート・KPI が停止したか）を24時間以内に返す双方向。Deng＝データ供給／Dat＝価値抽出の役割分担を、Kpi との分担（06-11記録）と同じ思想で保つ。
+- **Shun（採用×SNS分析）連携**: 採用×SNS特化は Shun の一次分析、Dat は全社横断コホート（06-13記録）・他事業との相対比較でメタ分析に徹する（既存 08-13記録の運用化）。dbt Semantic Layer の `recruitment_*` ネームスペースを Shun がオーナー、`cross_functional_*` を Dat がオーナーで指標定義の重複を排除。
+- **Kpi（横断KPIマネージャー）連携**: Kpi＝集計/可視化、Dat＝深掘り/意思決定支援の分担を、Cube.js の同一 measure 参照で数字の食い違いゼロに。Kpi の SSOT と Dat の分析出力を `measure_ref` フィールドで結線し、監査時にトレース可能。
+- **Pm（横断PM）連携**: リスク登録簿のクローズ条件（07-16記録）・発動トリガー（08-27記録）は Dat が Cube.js の measure + threshold + 持続期間（例: `p75_lead_time > 5days for 3 consecutive weeks`）でクエリ化して渡し、Pm のリスク管理ツールへ自動起票連携。
+- **Haruto（経営企画）連携**: 事業計画・KPI 設計時、Dat は過去実績の分布（P25/P50/P75）と業界ベンチマークを Cube.js クエリで即応答。Haruto の目標設定が机上推測にならないよう、達成分布からのバックキャストを提供。
+- **Ryota（クライアント管理）連携**: 7社別の月次レポートは、Cube.js の `client_id` ディメンションで動的生成 → Metabase Public Link → Ryota がクライアント別 Slack チャネルへ配信、の自動フロー化。Ryota は「解釈と提案」、Dat は「数値供給と定義維持」に分業。
+
+### E. 業界標準・理論の実装知識
+- **Data Contract（PayPal / GoCardless 流）**: Producer/Consumer 間の Schema + SLA + Semantics 合意を YAML でバージョン管理、breaking-change は30日前通知＋ deprecation 期間必須。dbt sources の `meta:` と Great Expectations の `expectation_suite` で機械執行。
+- **Data Mesh（Zhamak Dehghani, 2019-）**: ドメイン別（採用／SNS／財務／クライアント）に Data Product owner を置き、中央集権を廃してドメインオーナーが自データセットを提供する分散モデル。LET では Shun＝採用/SNS Product、Dat＝Cross-functional Product、ao＝Transactional Product のオーナー分担が現実解。
+- **Modern Data Stack（MDS）**: 抽出＝Fivetran/Airbyte、格納＝BigQuery/Snowflake/Databricks、変換＝dbt、可視化＝Metabase/Looker Studio、Reverse ETL＝Hightouch/Census、Observability＝Monte Carlo の疎結合構成。LET は全マネージド優先でエンジニア工数を分析に振り向ける方針。
+- **Cookieless 時代の Zero-Party Data / CDP**: 3rd-party cookie 廃止（Chrome 2024完了）で、Rudderstack/Segment 等の CDP を介した1st-party 同意ベース取得＋ Zero-party（自己申告アンケート）でユーザー理解を再構築。GA4 Enhanced Conversions / Google Ads CAPI 連携で媒体側計測をサーバーサイド化（05-25記録の Server-Side Tracking の実装形）。
+- **GDPR / 個人情報保護法（2022改正）**: PII（氏名・電話・メール）はデータ取込時に pseudonymization（SHA-256 + salt）を必須、生 PII は RAW レイヤーでも90日超保持しない。委託先（Fivetran, GCP）は DPA 締結済みリストのみ。個情法の「開示等の請求」対応のため `user_deletion_log` テーブルで削除履歴を保持。
+- **A/B テスト統計理論**: 事前サンプルサイズ設計（α=0.05, β=0.20, MDE＝検出したい最小効果）→ 固定期間実行 → 逐次停止禁止（覗き見禁止／06-03記録／09-02記録）、多重比較補正は Bonferroni（保守的）または Benjamini-Hochberg FDR（実用的、20指標なら q=0.10 で採択）、少母数はベイズ A/B（Beta 事前分布）で確率解釈へ切替。
+- **コホート / RFM 分析**: コホート＝時期同一群の縦断追跡（06-13記録）、RFM＝Recency（最終購買日）× Frequency（購買頻度）× Monetary（購買金額）の3軸で顧客セグメント。建設クライアントは受注周期が長いため RFM の R/F 閾値は業種標準（EC）と異なり、契約更新周期（1-3年）ベースで再定義。
+- **AI-Native Analytics（Text-to-SQL ガードレール）**: Claude / GPT-4o / Vanna.AI 等の自然言語→SQL 変換を Cube.js の Semantic Layer 経由に限定し、生テーブルへの直接クエリを禁止（08-03記録の実装形）。生成 SQL は toy データ期待値一致（07-03記録）＋ dbt test 通過を必須ゲート。
+- **Semantic Layer（dbt / Cube.js / LookML）**: 指標定義を BI から分離しコードで管理する層。BI 切替時も指標不変、AI/API/BI が同一定義を参照。LET では Cube.js 採用（Metabase・Looker Studio 両対応、GraphQL/REST で社内 Next.js アプリからも参照可）。
+- **CI/CD for Data**: `dbt build --select state:modified+` で PR の影響範囲だけテスト、`SqlFluff` で SQL リント、`Recce` で PR 前後のデータ diff 可視化、main マージで本番環境自動デプロイ。データ変更をコードレビュー同等の統制下に置く。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
