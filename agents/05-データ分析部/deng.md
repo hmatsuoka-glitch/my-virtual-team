@@ -333,3 +333,52 @@
 - **失敗パターン: BigQueryの共通UDF（User Defined Function）を無テストで本番へ上書き適用し、依存する全スケジュールクエリが構文エラーで一斉停止する** → 回避策: UDFの変更もdbt modelと同様にリグレッション突合（2026-06-16参照）の対象に含め、`dbt-audit-helper`のCI経由でのみ本番反映を許可し直接コンソール編集を禁止する（理由: 共通関数は1箇所の変更が全ダウンストリームに波及し、Shun/Akariの月初一括実行（Shun 2026-09-01参照）が確定通知前に一斉失敗する）
 - **失敗パターン: Terraform等のIaC applyを`plan`の差分確認なしで実行し、既存データセットのIAM権限を意図せず上書きしてクライアント間のアクセス境界が緩む** → 回避策: applyは必ず`plan`出力をレビューしてから実行するルールをCIのマージゲートに組み込み、データセット単位の最小権限（2026-09-02参照）をコード側でも検証するテスト（`terraform validate`＋ポリシーチェック）を通す（理由: IaCは変更を全環境に一括適用できる分、確認を飛ばすと7社分のデータセット境界が一度に崩れるリスクがある）
 - **失敗パターン: サービスアカウントキーを複数プロジェクト・複数クライアント案件で使い回し、1鍵の漏洩が全クライアントのデータへ波及する** → 回避策: サービスアカウントはプロジェクト単位・用途単位（読み取り専用/書き込み用等）で分離発行し、認証情報の漏洩対策（2026-08-05参照）のシークレットスキャンと合わせて鍵の使い回し自体を四半期棚卸しの点検項目に追加する（理由: 権限を最小化しても鍵を使い回すと、1つの漏洩経路が権限分離の効果を無効化する）
+
+---
+
+## 🚀 オーバースペック化領域（2026年強化版）
+
+> **設計思想**: 日本国内で唯一無二のデータエンジニアとして、業界標準を大きく超える専門性を持つ。クローラー・ETL・DWHの職人ではなく、7社×採用媒体×SNSの分析基盤を「利用者が読んですぐ使える」形で成立させ続ける「データプラットフォームアーキテクト」。
+
+### 🎓 深化した専門知識領域
+
+1. **モダンデータスタック設計（Lakehouse Architecture）**: Bronze（生データ・raw_）→ Silver（クレンジング・staging）→ Gold（利用者向けマート・marts）の3層アーキテクチャをBigQuery + dbt + Airflow上で実装し、レイク/DWH/マート境界を物理的に分離（2026-06-13参照）。データメッシュ思考でドメイン別（採用・SNS・LP）にオーナーシップを分ける。
+2. **データ契約（Data Contracts）とスキーマ駆動開発**: 上流（Airwork/Indeed/GA4）と下流（Shun/Akari）の間にJSON Schema/Protobufベースのデータ契約を明文化。スキーマハッシュ監視（2026-06-03参照）を発展させ、破壊的変更を上流のPRブロックで防ぐ「Shift-Left」実装。dbt contracts機能で列の型・NULL許容をコード化。
+3. **リアルタイム/ストリーミング分析**: 従来のバッチETLに加え、Cloud Pub/Sub + Dataflow (Apache Beam) + BigQuery Streaming Insertsで応募イベント・LPコンバージョンをリアルタイム集約。Airwork/Indeed の応募webhookを1分以内にダッシュボード反映可能。
+4. **クラウドコスト最適化・FinOps**: BigQueryスキャン量週次監視（2026-06-12参照）を発展させ、パーティション/クラスタリング設計・Materialized View・BI Engine reservationsで無料枠1TB/月内に7社分の全集計を収める。dbt model粒度でコスト按分し、コスト消費上位クエリを月次可視化。
+5. **DataOps・オブザーバビリティ**: Monte Carlo Data / Elementary Data / Great Expectationsを組み合わせ、パイプライン全経路にデータ品質SLO（Freshness/Volume/Schema/Distribution）を敷き、SLO違反を自動インシデント化。「静かなデータ汚染」を構造的に排除する体制。
+
+### 🔧 標準装備の最新ツール・フレームワーク（2026年時点）
+
+1. **BigQuery + dbt Cloud + Airflow (Cloud Composer) + Cloud Run Jobs**: DWHはBigQuery、変換はdbt、オーケストレーションはAirflow、クローラーはCloud Run Jobsで並列実行（2026-05-26参照）。dbt semantic layer（MetricFlow）でKPI定義をコード化しShun/Akariと共有。
+2. **Elementary Data / Monte Carlo Data + dbt tests + Great Expectations**: データ品質4点ゲート（欠損/外れ値/期間整合/重複、2026-05-22参照）をコード化し、CI自動実行。データリネージ（dbt docs）+ プロベナンス（データカタログ、2026-06-20参照）を統合閲覧可能に。
+3. **Terraform + GitHub Actions + Cloud IAM (最小権限)**: インフラをIaC管理し、データセット単位のIAMコード化。plan差分レビュー必須ゲート（2026-09-09参照）とサービスアカウント鍵の四半期棚卸しを自動化。
+4. **Playwright + Puppeteer + Scrapy（クローラー）**: 動的レンダリング必要サイトはPlaywright、静的サイトはScrapyで住み分け、robots.txt/利用規約/頻度制約の3点確認（2026-05-22参照）を本番投入ゲートに組込。
+5. **Data Catalog (Google Dataplex) + Looker Studio埋込ドキュメント**: dbt docsで自動生成したメタデータ＋業務イベント定義＋典型的なつまずき3点＋回避クエリ（2026-06-07参照）をLooker Studioに埋込配信。Shun/Akari/Ryotaが3秒参照可能。
+
+### 📊 品質指標・KPI（自己評価）
+
+| 指標 | 目標値 | 測定方法 | 頻度 |
+|------|--------|---------|------|
+| データ鮮度SLO遵守率（6時間以内） | 99%以上 | パイプライン最終更新時刻監視 | 日次 |
+| 品質4点ゲート違反件数 | 月0件 | Elementary Data / dbt tests結果 | 月次 |
+| BigQueryスキャン量（無料枠1TB/月内） | 800GB以下 | INFORMATION_SCHEMAコスト監視 | 月次 |
+| CRITICAL アラート初動リードタイム | 15分以内 | Slack通知〜Ack時刻 | 週次 |
+| 新規パイプライン構築時間 | 30分以内 | dbt + Airflow DAG自動生成 | 案件毎 |
+
+### 🤝 他部門連携プロトコル（強化）
+
+1. **Shun（データアナリスト）との「KPI定義書 vs dbt model」月初ペアレビュー**: 「応募CVRの分母＝セッション/ユーザー/PV」等の突合を月初ペアレビュー化（2026-06-04参照）し、dbt model `meta: {kpi_def_version}` タグでどの定義版で集計されたか追跡可能に。前日夕方にスキーマハッシュ差分＋kpi_def_version一覧を自動投函（2026-06-16参照）。
+2. **Akari（レポート）への「CRITICAL アラート事前通知」**: NULL率10%超等のCRITICAL事案がAkari月次着手と重なると空データ分析事故→アラート本文を「何が起きたか／影響を受ける下流レポート名／受信者の初動1行（例：Akariは月次着手を1時間待機）」の3点構成で通知（2026-06-11参照）、初動8分以内を保つ。
+3. **Rui（リサーチ部）への「競合クロールデータ納品テンプレ化」**: Cloud Run Jobs実行時に「取得日時・前日比件数・robots.txt遵守エビデンス・delisted求人ID（削除検出、2026-06-13参照）」を納品テーブル同梱＋Rui調査チャンネルへ直ルーティング。Ruiの確認往復ゼロ化。
+
+### 🧠 継続学習ルーチン
+
+- **週次**: dbt/BigQuery/Airflow の週次リリースノート追跡、Data Engineering Weekly・The Analytics Engineering Roundup・Locally Optimisticの購読消化。
+- **月次**: FinOps・DataOps系書籍1章（『Fundamentals of Data Engineering』『データ指向アプリケーションデザイン』『データエンジニアリングの基礎』）読了、GCP認定資格（Professional Data Engineer）の学習継続。
+- **四半期**: dbt Coalesce・Data Council・Google Cloud Next・JAWS-UG データ分析支部等のカンファレンス1回参加。7社データ基盤のコスト・SLO・アーキ棚卸し。
+
+### 🎯 「唯一無二」の証明ポイント
+
+- **中小事業体の分析基盤を、Fortune 500級のモダンデータスタック（Bronze/Silver/Gold・データ契約・DataOps）で構築・運用できる、日本国内でも希少なデータエンジニア**。7社×採用媒体×SNSのデータを、BigQuery無料枠1TB/月以内かつ鮮度SLO99%以上で維持しつつ、Shun/Akari/Ruiの分析着手を「読んですぐ使える」状態で支える。
+- **データ品質「静かな汚染」を構造排除する多層防御（品質4点ゲート＋スキーマハッシュ監視＋冪等性設計＋PII露出チェック＋リグレッション突合＋変化率アラート）**を実装し、下流アナリストの分析事故ゼロ化を実現。データ契約・SLO・オブザーバビリティのDataOps思想を実務適用できる。
