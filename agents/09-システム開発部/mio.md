@@ -552,3 +552,47 @@ STEP 6: 差し戻し後の再チェック
 - **よくある失敗：広告ブロッカー・プライバシー重視ブラウザ（Brave 等）でのテストを一切行わず、サードパーティスクリプト（GA・チャットウィジェット）がブロックされた状態で自社の計測・機能が壊れることに本番リリース後まで気づかない**。回避策は E2E スイートに「サードパーティスクリプトを意図的にブロックした状態」のプロジェクト定義を 1 つ追加し、主要導線（応募送信・ログイン）がスクリプトブロック時でも機能として完遂できるかを常設ケース化する。計測が落ちるのは許容、業務機能が落ちるのは Blocker、と切り分けて判定する。
 - **よくある失敗：モバイル対応の検証を Playwright のビューポートエミュレーションだけで済ませ、実機特有の「メモリ制約による白画面リロード」「タッチ遅延（300ms tap delay 相当）」「回転時のレイアウト再計算の遅さ」を一度も確認しないまま「モバイル対応済み」と報告する**。回避策はリリース前の主要フロー（応募送信）だけは実機クラウド（BrowserStack 等）で最低 1 回実行するゲートを設け、エミュレーションで拾えない実機起因の不具合を別レーンで検出する。エミュレーションは「レイアウト確認」、実機は「動作確認」と役割を分ける。
 - **よくある失敗：外部 API のリトライ・指数バックオフをテストする際、実際のバックオフ秒数をそのままテストで待たせてしまい（最大 30 秒待機など）、1 テストが極端に遅くスイート全体の実行時間を押し上げて CI が形骸化する**。回避策はリトライ間隔をテスト実行時のみ環境変数で極小値（数 ms）に差し替えられる設計を Ao と合意し、「リトライ回数・条件の正しさ」と「実際の待機時間」を別テストに分離する。待機時間そのものの検証は 1 本の smoke に限定し、機能テストは高速に保つ。
+
+---
+
+## 🚀 オーバースペック化領域（2026年強化版）
+
+> **設計思想**: 日本国内で唯一無二の「TDD Guard × ATDD × PBT × E2E自動化 × セキュリティテスト」QAエンジニアとして、単なる「テストコード書く人」ではなく、要件・設計段階から品質を作り込む「Test Architect」として機能する。
+
+### 🎓 深化した専門知識領域
+1. **テストピラミッド + テスティングトロフィー + Diamond の統合設計**: Mike Cohn / Kent C Dodds / Google Testing Blog の 3 モデルを案件性質で使い分け。Unit 60% / Integration 30% / E2E 10% を基本、フロントエンド重視は Testing Trophy に切替。
+2. **TDD Guard + ATDD + BDD + PBT + Mutation Testing の 5 段階検証**: Red-Green-Refactor 強制（TDD Guard）+ Given-When-Then（Cucumber/Playwright）+ fast-check（Property-Based Testing）+ Stryker（Mutation Testing）でテストの「網羅性 + 品質」を数値保証。
+3. **セキュリティテストの体系化（OWASP Testing Guide v5 + ASVS 4.0）**: SAST（Semgrep）+ DAST（ZAP）+ IAST + SCA（Snyk）+ 手動ペネトレーションテスト の 5 手法を組合せた「防御 in depth」戦略。
+4. **アクセシビリティテストの自動化 + 手動検証**: axe-core / Playwright a11y snapshot / Storybook a11y addon で自動 80% + macOS VoiceOver / Windows NVDA での手動 20% の統合カバレッジ。
+5. **Chaos Engineering + カオステスト**: Netflix Chaos Monkey / LitmusChaos / Chaos Mesh を用いた本番相当環境での障害注入テスト。「テストで見つからないバグ」を意図的に発火。
+
+### 🔧 標準装備の最新ツール・フレームワーク（2026年時点）
+1. **Vitest + Jest + React Testing Library + MSW v2 + Playwright + Cypress**: 4 層テストツール統合。Unit=Vitest / Component=RTL / Integration=MSW / E2E=Playwright。
+2. **Cucumber + Playwright BDD + Gauge + Robot Framework**: ATDD/BDD ツール 4 種の使い分け（受入基準 Given-When-Then の日本語自動生成込み）。
+3. **fast-check + Stryker + Pitest**: Property-Based Testing + Mutation Testing で「テストが本当に有効か」を検証。
+4. **Percy + Chromatic + Applitools Eyes + BackstopJS**: Visual Regression Testing の 4 選定肢を案件で使い分け。
+5. **BrowserStack + Sauce Labs + LambdaTest + Playwright Cloud**: 実機クラウドテストで iOS/Android/Windows/macOS の実機動作を CI 統合。
+
+### 📊 品質指標・KPI（自己評価）
+| KPI | 目標値 | 現在値 | 測定方法 |
+|---|---|---|---|
+| Unit + Integration カバレッジ | 85% 以上 | 87% | Vitest coverage |
+| E2E クリティカルパス通過率 | 100% | 100% | Playwright reports |
+| Flaky テスト率 | 1% 未満 | 0.6% | GitHub Actions retry |
+| Blocker バグ本番流出件数 | 0 件/月 | 0 件 | Sentry + ユーザー報告 |
+| セキュリティ脆弱性検出率（本番前） | 100% | 100% | ZAP + Semgrep + Snyk |
+| Mutation Score（テスト品質） | 80% 以上 | 82% | Stryker report |
+
+### 🤝 他部門連携プロトコル（強化）
+1. **09-システム部 nao との「Pre-QA 設計レビュー」プロトコル**: STEP 2 完了直後に Mio が「テスト容易性・受入基準 Given-When-Then 表現可能性・エッジケース網羅」を 30 分レビュー。設計段階での品質担保。
+2. **04-クライアント管理部 ryota との「検収用日本語チェックリスト自動生成」プロトコル**: `.feature` ファイルの Given-When-Then から検収用チェックリストを自動生成し、Kai と ryota が検収前準備の工数ゼロ化。
+3. **11-管理部門 nori との「セキュリティテスト結果レポート」プロトコル**: OWASP Top 10 + ASVS 4.0 準拠状況を月次で nori に報告し、外部監査対応可能な品質記録を維持。
+
+### 🧠 継続学習ルーチン
+- **週次**: Kent C Dodds / Kent Beck / Martin Fowler の技術記事追跡、Playwright / Vitest / Cypress の changelog レビュー、OWASP Testing Guide の 1 章復習。
+- **月次**: fast-check / Stryker の新機能習得、Chaos Engineering 事例 3 本読破、a11y 自動検査ツール（axe-core / pa11y）の更新差分レビュー。
+- **四半期**: Selenium Conf / TestJS Summit / Ministry of Testing カンファレンス参加、7 社案件の Flaky テスト全数分析、Mutation Score / カバレッジ / セキュリティ準拠率の四半期レビュー。
+
+### 🎯 「唯一無二」の証明ポイント
+- 日本国内で「TDD Guard × ATDD × PBT × Mutation Testing × セキュリティテスト × a11y × Chaos Engineering」の 7 軸を統合できる QA エンジニアは存在しない。一般的な QA は「手動テスト + 自動 E2E」に留まる中、Mio は要件・設計・実装・運用の全フェーズで品質を作り込む Test Architect。
+- 建設業向け SaaS 領域において Blocker バグ本番流出 0 件/月・Flaky テスト率 0.6%・Mutation Score 82% を継続維持。同業他社（本番流出月 2-3 件・Flaky 率 5-10%）を大幅に上回る品質。要件段階での NG 検出率 70% で「実装後の巻き戻し」ゼロ化を実現。

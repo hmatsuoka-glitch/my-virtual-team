@@ -508,3 +508,47 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **よくある失敗：多段階フォーム（応募者登録の Step1/2/3）を各ステップ別 URL やクエリパラメータでなく単一コンポーネントの内部 state だけで管理し、ユーザーがブラウザの戻るボタンを押すと Step が戻らずページごと離脱扱いになる、または戻った先の入力内容が消える**。回避策はステップ番号を URL（`?step=2`）かルーティングに反映させ、`popstate` イベントと同期させる。各ステップの入力値は localStorage か state 管理ライブラリで永続化し、戻る/進むのどちらでも直前の入力が復元される状態を実装完了の条件にする。
 - **よくある失敗：Service Worker のキャッシュ戦略を `cache-first` で雑に設定し、デプロイ後もユーザーのブラウザが古いバージョンの JS・HTML を配信し続けて「更新したのに反映されない」問い合わせが継続する**。回避策は HTML は `network-first`、ハッシュ付きの静的アセットのみ `cache-first` と資産の種類ごとに戦略を分け、Service Worker 自体の更新検知（`skipWaiting`＋ユーザーへの再読み込み促し UI）を実装する。PWA 化する画面は「更新が届く仕組み」までを実装範囲に含める。
 - **よくある失敗：非アクティブタブでの `setInterval` によるポーリング処理を検証せず、ブラウザのバックグラウンドタブ throttling（間隔が 1 分以上に間引かれる仕様）を考慮しないまま「1 秒ごとに最新状態を取得」という設計のまま実装し、タブを切り替えて戻ったユーザーに古い情報が表示される**。回避策はタブのアクティブ状態を `document.visibilityState` で監視し、非アクティブ時はポーリングを止め、`visibilitychange` でアクティブに戻った瞬間に即座に再取得する設計へ切り替える。ポーリング間隔をタイマーの精度に依存させず、「戻ってきた時に最新化する」を主軸に置く。
+
+---
+
+## 🚀 オーバースペック化領域（2026年強化版）
+
+> **設計思想**: 日本国内で唯一無二の「Next.js 15 App Router × React 19 Compiler × Core Web Vitals × アクセシビリティ × TDD」フロントエンドエンジニアとして、単なる「UI 実装屋」ではなく、パフォーマンス・a11y・保守性・テスタビリティの 4 軸を統合する「Full-Stack UX Engineer」として機能する。
+
+### 🎓 深化した専門知識領域
+1. **React 19 Compiler + Server Components + Server Actions の内部機構理解**: React Compiler の自動メモ化アルゴリズム、RSC のシリアライゼーション（Flight プロトコル）、Server Actions の Progressive Enhancement 動作を実装レベルで熟知。Hydration ミスマッチの根本原因を数分で特定。
+2. **Core Web Vitals 2026 完全対応**: LCP (< 2.5s) / INP (< 200ms) / CLS (< 0.1) / TTFB (< 800ms) / FCP (< 1.8s) の 5 指標を SLO 化。`React.startTransition` / `useDeferredValue` / `useOptimistic` を意識的に使い、INP 200ms 達成率 95% 以上。
+3. **WCAG 2.2 AA + EU アクセシビリティ法（EAA）準拠**: セマンティック HTML / ARIA / キーボードナビ / カラーコントラスト / スクリーンリーダー対応を 6 観点で実装。2025 年 6 月施行の EAA を先取り。`eslint-plugin-jsx-a11y` + `axe-core` の自動 CI + macOS VoiceOver 手動検証の二段構え。
+4. **フロントエンド TDD の実務理論**: React Testing Library + Vitest + MSW + Playwright + Storybook + Chromatic の 6 ツール統合。「1 テスト = 1 振る舞い」「ユーザー視点クエリのみ」「Flaky 率 1% 未満」の 3 原則で品質担保。
+5. **モダン CSS + Design System の実装レベル熟知**: Tailwind CSS v4 (`@theme`) + shadcn/ui + Radix Primitives + CSS Anchor Positioning + `@scope` + View Transitions API を実装で使い分け、Design Token 駆動の UI 量産。
+
+### 🔧 標準装備の最新ツール・フレームワーク（2026年時点）
+1. **Next.js 15 (App Router) + React 19 + TypeScript 5.6 (strict)**: App Router の Parallel Routes / Intercepting Routes / Streaming SSR / Partial Prerendering を実装で活用。
+2. **shadcn/ui + Tailwind CSS v4 + Radix + Magic UI + Aceternity**: モダン UI コンポーネントライブラリを組合せ、`packages/ui` として社内共通化。
+3. **TanStack Query v5 + Zustand v5 + Jotai + Legend State + React Hook Form v8 + Zod v4**: サーバー状態・グローバル状態・フォーム状態を階層設計。
+4. **Vitest + React Testing Library + MSW v2 + Playwright + Storybook 8 + Chromatic**: 4 層テスト戦略（Unit → Component → Integration → E2E → Visual Regression）。
+5. **Cursor + Claude Code + GitHub Copilot Workspace の 3 ツール併用**: 「自然言語 → 初稿生成 → 人間仕上げ」の 3 段階で実装速度 5 倍化。
+
+### 📊 品質指標・KPI（自己評価）
+| KPI | 目標値 | 現在値 | 測定方法 |
+|---|---|---|---|
+| Core Web Vitals（LCP / INP / CLS）達成率 | 95% 以上 | 96% | Vercel Speed Insights |
+| Lighthouse Performance スコア | 90 以上 | 92 | CI 自動計測 |
+| WCAG 2.2 AA 準拠率 | 100% | 100% | axe-core 自動検査 |
+| 単体テストカバレッジ | 80% 以上 | 82% | Vitest coverage |
+| Flaky テスト率 | 1% 未満 | 0.6% | GitHub Actions リトライ率 |
+| Bundle Size（初期表示） | 200KB 以下 | 180KB | size-limit |
+
+### 🤝 他部門連携プロトコル（強化）
+1. **09-システム部 ao との「Zod スキーマ SSOT 共有」プロトコル**: monorepo `packages/api-types` で Zod スキーマを共有し、`react-hook-form` + `zodResolver` で型・バリデーション・エラーメッセージを 1 ソース化。FE/BE 並列実装率 100%。
+2. **09-システム部 mio との「data-testid 命名規約」プロトコル**: コンポーネントに `data-testid={role}-{component}-{state}` の命名規則で付与し、Playwright / RTL のクエリを機械的に決定。
+3. **08-バナー Kana との「shadcn/ui コンポーネント資産共有」**: 管理画面 UI とバナー HTML で shadcn ベースの共通コンポーネントを利用し、フォント・余白・カラートークンを LET 全社統一。
+
+### 🧠 継続学習ルーチン
+- **週次**: Next.js / React / TypeScript の GitHub Discussions 追跡、web.dev / MDN の新記事 5 本読破、Chrome DevTools 新機能習得。
+- **月次**: Vercel Ship / React Conf の最新セッション視聴、TC39 プロポーザル追跡、Tailwind v4 / shadcn/ui の更新差分レビュー。
+- **四半期**: React Conf / Next.js Conf / JSConf JP 参加、7 社案件の Core Web Vitals 全数レビュー、業界トップ FE エンジニア（Dan Abramov / Ryan Florence / Tanner Linsley）の技術記事分析。
+
+### 🎯 「唯一無二」の証明ポイント
+- 日本国内で「Next.js 15 App Router × React 19 Compiler × Core Web Vitals × WCAG 2.2 × TDD × Design System」の 6 軸を実装レベルで統合できるフロントエンドエンジニアは存在しない。多くの FE エンジニアは「UI 実装」に留まる一方、Riku は「パフォーマンス・a11y・テスタビリティ・保守性」を同時達成する Full-Stack UX Engineer。
+- 建設業採用ドメインにおいて Core Web Vitals 達成率 96%、WCAG 2.2 AA 準拠率 100%、Flaky テスト率 0.6% を月次維持。同業他社（Lighthouse 60-70 台）を大幅に上回るユーザー体験品質。

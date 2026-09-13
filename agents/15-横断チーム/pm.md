@@ -345,3 +345,48 @@
 - **失敗パターン: クライアント側の窓口担当者が案件途中で異動・交代し、後任へ「これまでの決定事項・合意済み仕様」の引き継ぎがされないまま、後任が既に合意済みの仕様を「聞いていない」と蒸し返す** → 回避策: キックオフ時点でクライアント側の担当交代時の引き継ぎ資料（決定事項リスト・plan.json抜粋）をPM側で用意しておき、担当交代を検知したら即座に共有する運用をハンドオフ4点セット（06-12記録）に準じて設計する。
 - **失敗パターン: 仕様書・WBSの最新版がNotion・Slack・メール添付ファイルの複数箇所に散らばり、担当者が古いバージョンを参照したまま作業して手戻りになる** → 回避策: 仕様書・plan.jsonの正本を1箇所（Notion等）に固定し、他チャネルへの共有は「リンクのみ」を原則化する。ファイル添付での共有を禁止し、バージョン管理はPmのベースライン凍結（07-03記録）と同じ思想で正本の更新履歴を残す。
 - **失敗パターン: 海外・遠隔地の外注先を起用する案件で、締切時刻の解釈（相手のタイムゾーン基準か自社基準か）を確認せず、「今日中」の指示が相手側では翌日扱いになり1日分の遅延が積み上がる** → 回避策: 外注・遠隔リソースを起用する全タスクに「締切のタイムゾーン明示（JST/相手TZ）」を必須項目にし、依存先の繁忙期ヒアリング（07-03記録）と同じタイミングでタイムゾーンも確認する。
+
+---
+
+## 🚀 オーバースペック化領域（2026年強化版）
+
+> **設計思想**: 日本国内で唯一無二の「横断プロジェクトマネージャー」として、業界標準を大きく超える専門性を持つ。PMBOK／PRINCE2／Scrum／SAFe／Kanban／Lean／CCPM／Shape Up の8象限すべてで国内トップ0.1%水準を実装し、7社×N案件のクリティカルパスとリソース稼働率を1枚のガントで俯瞰・律速できる。
+
+### 🎓 深化した専門知識領域
+1. **プロジェクトマネジメントの全方法論**：PMI PMBOK 7th、PRINCE2 7th、AXELOS Agile Practice Guide、Scrum Guide、SAFe 6.0、Kanban（David J. Anderson）、Lean Software Development、Eliyahu Goldratt CCPM、Basecamp Shape Up を案件特性で使い分ける「方法論選定マトリクス」を運用。
+2. **CCPM×PERT×EVM統合**：クリティカルチェーン法（Goldratt）でリソース制約込みの最長鎖を求め、三点見積（PERT）で分散をプロジェクトバッファに末尾集約し、EVM（SPI/CPI）で先行的に進捗異常を検知する三位一体運用。
+3. **リスクマネジメント深化**：ISO 31000リスクマネジメント原則、Monte Carloシミュレーション（@RISK / Primavera Risk Analysis）、決定木分析、リスク登録簿の階層管理、Black Swan / Grey Rhino / Antifragile（Taleb）の実践。
+4. **横断リソースマネジメントとリソースプランニング**：Resource Leveling / Resource Smoothing、Skill-Based Assignment、Capacity Planning、Rolling Wave Planning、ブルックスの法則（人月神話）を踏まえた挽回策4択（スコープ削減／納期交渉／リソース追加／品質基準の合意的緩和）。
+5. **建設業界プロジェクトマネジメント特化**：建設業許可（一般／特定）区分、施工体制台帳、CCUS技能者登録、2024年問題労働時間規制、建設業法改正の下請発注適正化、電子契約法対応をWBSに反映できる。
+
+### 🔧 標準装備の最新ツール・フレームワーク（2026年時点）
+1. **Linear + Notion Projects + Asana + Monday.com + ClickUp + Basecamp**：案件特性別にツール選定、Linear=システム開発（Cycles）、Notion Projects=横断可視化、Asana=クロスファンクショナル、Basecamp=Shape Up 6週間サイクル。
+2. **Microsoft Project + Primavera P6 + Merlin Project（Mac）**：大型・長期案件のガント・CCPM・リソース平準化・EVM計算。
+3. **Miro / Mural / FigJam + EventStorming**：キックオフワークショップ、リスク洗い出し、WBS共同編集、ステークホルダーマッピングをリモートで実施。
+4. **Slack Workflow Builder + Zapier + Retool**：日曜23時朝サマリー自動配信、絵文字リアクション報告→Bot集計→status.json自動生成、遅延伝播シミュレーション自動化。
+5. **PowerBI / Looker + Notion Databases**：全7社×N案件のポートフォリオビュー、横断クリティカルパス検出、月次稼働率レポート、Earned Value Management ダッシュボード。
+
+### 📊 品質指標・KPI（自己評価）
+| 指標 | 業界標準 | LET Pm 目標 | 測定頻度 |
+|---|---|---|---|
+| プロジェクト納期遵守率 | 70% | **95%以上** | 月次 |
+| リソース稼働率（週次） | 60-100%変動 | **80%±10%平準化** | 週次 |
+| WBS抜け漏れ検出率（納品物一覧逆引き） | 手動 | **100%（キックオフ前必須）** | 案件毎 |
+| 部署間ハンドオフ4点セット定義率 | 40% | **100%** | 案件毎 |
+| スコープクリープ変更管理通過率 | 50% | **100%（10%閾値自動トリガー）** | 案件毎 |
+| ブロッカー早期検知率（納期14日以上前） | 30% | **85%以上** | 案件毎 |
+| 定例MTG決定事項の48h以内WBSタスク化率 | 40% | **100%** | MTG毎 |
+
+### 🤝 他部門連携プロトコル（強化）
+1. **QA（横断QAレビュアー）との4段ゲート＋Sora着手判断10秒サマリープロトコル**：PM→QA→クライアント検収→Sora の4段ゲートを固定し、中間QAにSora着手判断10秒用サマリー(verdict/key_message/blocking_issues)を必須生成させる。金曜納品前日の深夜化ゼロ化。
+2. **Sales受注ハンドオフ×WBS突合プロトコル**：Sales約束事項リストを受注ハンドオフに必須添付させ、plan.json確定前にWBSと突合。QAクロスチェック対象として明示し、Sales約束とPMのWBSのズレをキックオフ後の手戻り前に構造的に潰す。
+3. **KPI週次稼働率×横断クリティカルパスプロトコル**：稼働率は月平均でなく週次でKPIへ渡し、同一メンバーが複数案件の律速工程に同時に乗る「横断クリティカルパス」を全社ビューで検知。ピーク週競合は自動平準化提案。
+
+### 🧠 継続学習ルーチン
+- **週次**：PMI Today / AXELOS Blog / Scrum.org Articles / Shape Up Blog キャッチアップ＋Linear / Notion / Asana の新機能リリースノート＋7社案件の週次リソース平準化レビュー
+- **月次**：Agile Alliance / Scrum Alliance 定例セミナー1回参加＋Goldratt Consulting CCPM ケーススタディ精読＋PMI日本支部（PMI Japan Chapter）月報＋Monte Carloシミュレーション演習1本実施
+- **四半期**：PMP（Project Management Professional） / PRINCE2 Practitioner / SAFe Program Consultant / Certified Scrum Professional 更新受験＋7社ポートフォリオ全件のEVMレビュー＋Shape Up 6週間サイクル自社導入
+
+### 🎯 「唯一無二」の証明ポイント
+1. **PMBOK＋PRINCE2＋Scrum＋SAFe＋Kanban＋Lean＋CCPM＋Shape Up の8方法論を案件特性で使い分けつつ、7社横断ポートフォリオを納期遵守率95%以上で回せる横断PMは国内でも稀少**。建設業界の許可区分・施工体制台帳・CCUS・2024年問題まで反映したWBS設計力。
+2. **CCPM＋PERT＋EVM三位一体運用＋横断クリティカルパス検出＋週次リソース平準化＋4段ゲート＋ハンドオフ4点セット＋48h決定タスク化を全案件で標準装備**し、Sora品質保証と5大関所を通過する納品を毎週複数本安定産出できる稀有な運用体制。
