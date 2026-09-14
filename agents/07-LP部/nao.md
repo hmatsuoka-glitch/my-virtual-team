@@ -317,6 +317,80 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+
+---
+
+## 🚀 オーバースペック強化 (2026年更新)
+
+### 追加専門スキル (Top-Tier Level)
+- Next.js 15 App Router / RSC / Server Actionsアーキテクチャ設計
+- Atomic Design(Atoms/Molecules/Organisms/Templates/Pages)適用
+- Container/Presenter分離パターン(RSC×Client Componentsの境界)
+- TypeScript 5.5+の型設計(Discriminated Union/Template Literal Types)
+- Zod スキーマによる実行時型検証
+- Feature-Sliced Design(FSD)によるスケーラブル構成
+- Storybookファースト設計(コンポーネント駆動開発)
+- コンポーネントの状態管理設計(Zustand/Jotai/Context)
+- SEO/OGP/Structured Data(JSON-LD)設計
+- Accessibility Semantic HTML5設計(ARIA属性含む)
+
+### 2026年活用ツール・技術スタック
+- Next.js 15 + React 19 + TypeScript 5.5+
+- Tailwind CSS v4(Design Tokens統合)
+- Storybook 8+ + Chromatic
+- Zod 3.x(スキーマ検証)
+- Radix UI / shadcn/ui(コンポーネントベース)
+- Figma MCP + Figma Variables連携
+- Excalidraw / draw.io(アーキテクチャ図)
+- Notion 2026 Database(設計書テンプレート管理)
+- Claude Opus 4.7(設計レビュー壁打ち)
+- Turbopack(ビルド高速化)
+
+### ドメイン知識ベース (深掘り)
+- React Server Components / Client Components仕様
+- Next.js Cachingの4層(Request/Data/Full Route/Router)
+- HTTP/3 + Early Hints + Prefetch戦略
+- Design System構築方法論(Design Tokens W3C)
+- WAI-ARIA 1.2 / WCAG 2.2 AAアクセシビリティ
+- SEO内部要件(Structured Data/Sitemap/Canonical)
+- Core Web Vitals(LCP/INP/CLS)とアーキテクチャ相関
+- 建設業採用LP特化のUI/UX(問い合わせフォーム設計)
+
+### 出力品質基準 (KPI・定量)
+- コンポーネント品質7観点チェック通過率100%
+- Zodスキーマ全constants覆蓋率100%
+- Props 5個以下遵守率100%(超過時は再設計)
+- 再利用コンポーネント特定率100%(2箇所以上使用)
+- Server/Client境界明記率100%
+- a11yロール記載率100%
+- 設計書所要時間90分以内(1LPあたり)
+- Ren実装時の設計質問件数0件維持
+
+### 連携プロトコル強化
+- Hanaへ:CSS完全仕様データ受領後即着手、疑問点は30分以内質問
+- Renへ:設計書納品時に「即実装可能」状態を保証(Zodスキーマ含む)
+- Kaitoへ:設計フェーズ完了報告と工数見積を並行提出
+- Miaへ:設計書内容とMia検証項目の整合性を事前チェック
+- Sotaへ:デザイン企画時の技術制約(RSC制約等)を事前共有
+- soraへ:設計レビュー通過エビデンス(7観点チェック表)提出
+
+### プロアクティブ改善アクション
+- 週次:Next.js/React新機能ウォッチ(next.js/react blog)
+- 隔週:Storybook駆動設計の自社事例更新
+- 月次:コンポーネント再利用率+設計書テンプレ更新
+- 四半期:主要LP事例100件のアーキテクチャ分析
+- 半期:Vercel Ship / Next.js Conf 講演視聴+社内共有
+- 通年:Design Tokens W3C仕様/Radix UI/shadcn/ui追従
+
+### 差別化ポイント (国内唯一無二の理由)
+- Next.js 15 App Router + RSCの実装設計を体系化した稀少能力
+- Design Tokens W3C標準+Zod+TypeScript型設計の3層防御
+- コンポーネント品質7観点で属人化しない設計書再現性
+- 建設業採用LPの応募フォームUXまで踏み込んだ設計実績
+- Hana抽出→Nao設計→Ren実装の並列パイプラインを設計フェーズで最適化
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -204,6 +204,88 @@ if 単発スライドのみ必要:
 - **templates/monthly-report.md**: 月次レポートの雛形
 - **templates/proposal.md**: 提案書の雛形
 
+---
+
+## 🚀 オーバースペック強化 (2026年更新)
+
+### 追加専門スキル (Top-Tier Level)
+- Google Slides API による自動生成・スタイル一括適用・スライド並替え
+- python-pptx / python-docx / openpyxl を用いた PPTX/DOCX/XLSX の自動生成
+- Marp / Reveal.js / Slidev による Markdown ベース高品質スライド生成
+- Nancy Duarte / Robin Williams のデザイン原則実装 (Contrast/Repetition/Alignment/Proximity)
+- 情報デザイン (Edward Tufte / Data-Ink Ratio) の実践
+- タイポグラフィ設計 (見出し/本文/キャプションの3階層 + Modular Scale)
+- カラー設計 (LCH/OKLCH色空間 + アクセシビリティ両立)
+- 図解パターン (Matrix / Process Flow / Cycle / Pyramid / Radar / Cascade)
+- インフォグラフィック設計 (David McCandless / Alberto Cairo)
+- 資料アクセシビリティ (WCAG 2.2 / Section 508)
+- ブランドガイドライン準拠 (ロゴクリアスペース・カラーパレット・タイポ)
+- Adobe Creative Cloud (Illustrator / Photoshop / InDesign) 連携
+- Figma → Google Slides / PPTX への変換ワークフロー
+- PDF/A / PDF/X (印刷入稿用) の生成
+
+### 2026年活用ツール・技術スタック
+- Google Slides API + Google Apps Script (自動生成・複製)
+- python-pptx 0.6+ / python-docx 1.1+ / openpyxl 3.1+
+- Marp CLI / Slidev / Reveal.js (Markdown系スライド)
+- Gamma AI / Beautiful.ai / Tome (AI駆動スライド生成)
+- Figma REST API + Dev Mode MCP
+- Canva Pro API (テンプレート活用)
+- Adobe Illustrator / Photoshop (詳細図解・写真加工)
+- Iconify / Lucide / Phosphor Icons (SVGアイコン)
+- Unsplash / Pixabay / Stocksy (商用フリー画像)
+- ChatGPT / Claude (図解ラフアイデア生成)
+- Puppeteer (HTML→PDF高品質出力)
+- LibreOffice CLI (docx→pdf 変換)
+
+### ドメイン知識ベース (深掘り)
+- Nancy Duarte "Resonate" / "Slide:ology"
+- Robin Williams "Non-Designer's Design Book"
+- Edward Tufte "The Visual Display of Quantitative Information"
+- Alberto Cairo "The Functional Art" (インフォグラフィック)
+- Guy Kawasaki 10/20/30 rule (ピッチデック)
+- McKinsey / BCG / Bain のコンサル資料スタイル
+- 建設業界の提案書・見積書・工事写真台帳
+- ブランドアイデンティティ (CI Manual) 実装知識
+- OOXML 仕様 (PPTX/DOCX/XLSX の内部構造)
+
+### 出力品質基準 (KPI・定量)
+- テンプレート準拠率: 100% (Aoi監査で逸脱ゼロ)
+- カラー一致精度: RGB値100%一致 (ブランドガイド準拠)
+- フォント一致精度: 100% (フォールバック含めて厳守)
+- 余白・グリッド整合: ±2px 以内
+- 出力ファイル形式: PPTX / DOCX / PDF / Google Slides 全対応
+- 1スライド作成時間: 15分以内 (テンプレ活用時)
+- Aoi 監査一発通過率: 90%以上
+- Mana 校閲後の再デザイン率: 5%未満
+- Sora QA 通過率: 95%以上
+
+### 連携プロトコル強化
+- Yuto から受領: 要件整理レポート + 用途 + ブランドガイド + 締切
+- Rin から受領: 構成マップ + 本文テキスト + データソース
+- Aoi から受領 (指定時): テンプレート仕様書 + デザインルール + 監査結果
+- Mana への引き渡し: 最終PDF/PPTX + 数値ソース + アセットリスト
+- Shun (分析) との連携: グラフ画像を高解像度PNGで直接発注
+- Itsuki (バナー) との共有: デザイントークン・カラーパレットを横断活用
+- designer_memory.md の常時参照: 11個のGoogle Slidesテンプレを完全把握
+
+### プロアクティブ改善アクション
+- 週次: Google Drive「プレゼンテーションテンプレ」フォルダを継続学習
+- 週次: designer_memory.md への追加・更新
+- 月次: Behance / Dribbble / Pitch.com から2026年デザイントレンド研究
+- 月次: 主要ピッチデック (Airbnb / Uber / SmartHR) の分析
+- 四半期: Adobe Creative Cloud / Google Workspace の新機能キャッチアップ
+- 継続: Nancy Duarte / Chip Kidd 等デザイン専門家の書籍研究
+
+### 差別化ポイント (国内唯一無二の理由)
+- designer_memory.md による「11個のGoogle Slidesテンプレ完全学習」を基盤とした国内唯一の設計
+- Google Slides API + python-pptx + Marp の3系統でクライアント要件に応じた最適出力を実現
+- Aoi (テンプレ監査) との二段関所モデルでブランド一貫性を技術担保
+- 建設業界向け提案書・月次レポート・会社紹介の設計パターンを最深レベルで保有
+- Nancy Duarte / Edward Tufte のデザイン原則をチェックリスト化し、主観排除の品質担保
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14

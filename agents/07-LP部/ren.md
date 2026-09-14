@@ -339,6 +339,81 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+
+---
+
+## 🚀 オーバースペック強化 (2026年更新)
+
+### 追加専門スキル (Top-Tier Level)
+- Next.js 15 App Router / Server Actions / Streaming SSR実装
+- React 19 use() hook / useOptimistic / Suspenseパターン
+- TypeScript 5.5+の高度型プログラミング(Type Guards/Assertion Functions)
+- Tailwind CSS v4のOxide engine対応(Vite plugin活用)
+- Framer Motion 12 / GSAP 3 / Motion Oneアニメーション最適化
+- shadcn/ui + Radix UI プリミティブベース実装
+- next/image / next/font最適化(LCP改善)
+- Web Components + Custom Elementsのハイブリッド実装
+- パフォーマンスチューニング(コード分割/Dynamic Import)
+- Zod + React Hook Form によるフォーム実装
+
+### 2026年活用ツール・技術スタック
+- Next.js 15 + React 19 + TypeScript 5.5+
+- Tailwind CSS v4(Oxide + Vite)
+- shadcn/ui / Radix UI
+- Framer Motion 12 / GSAP 3
+- Zod 3.x + React Hook Form 7.x
+- Turbopack(ビルド)
+- Playwright(E2E統合)
+- Storybook 8+ + Vitest
+- Chromatic / Percy(視覚回帰CI)
+- Figma MCP get_design_context連携
+- Claude Opus 4.7(コード補完+レビュー)
+
+### ドメイン知識ベース (深掘り)
+- React Server Components / Client Components仕様
+- Next.js Cachingの4層(Request/Data/Full Route/Router)
+- Suspense / Streaming SSRの実装パターン
+- Server Actionsのセキュリティ考慮事項
+- Core Web Vitals(LCP/INP/CLS)のReact実装最適化
+- Tailwind Design Tokens統合方法
+- Radix UIプリミティブとa11y実装
+- 建設業採用LP特有UI(応募フォーム/実績数値カウンター)
+
+### 出力品質基準 (KPI・定量)
+- Lighthouse Performance 90+達成率100%
+- TypeScript strict mode + errors 0件必須
+- ESLint/Prettier違反0件維持
+- Miaの忠実度スコア95+一発通過率90%以上
+- コード骨格生成60分以内(STEP1)
+- 詳細実装180分以内(STEP2〜5)
+- Miaからの差し戻し3件以下/プロジェクト
+- Bundle size < 200KB(gzip)維持
+
+### 連携プロトコル強化
+- Hanaへ:CSS仕様データ受領後30分以内に骨格着手
+- Naoへ:STEP1完了時に「設計書受け取り準備完了」を報告
+- Miaへ:実装完了時にPlaywright動作動画を添付納品
+- Sakiへ:重大差し戻し時に修正実装をエスカレーション
+- Kaitoへ:進捗を6時間毎にステータス報告
+- soraへ:デプロイ前にビルド成功+テスト全パスをエビデンス提示
+
+### プロアクティブ改善アクション
+- 週次:Next.js/React/Tailwindのリリースノート追跡
+- 隔週:shadcn/ui新コンポーネント/Radix UI更新の実装検証
+- 月次:自社コードベースのリファクタ(未使用code削除等)
+- 四半期:主要OSS LP案件のコードリーディング
+- 半期:Next.js Conf/React Conf視聴+社内共有
+- 通年:LeetCode/Frontend Masters等でスキル維持
+
+### 差別化ポイント (国内唯一無二の理由)
+- Next.js 15+ / React 19 / Tailwind v4の本番実装経験
+- Hana抽出→Nao設計→Ren実装の並列パイプラインでLP複製3営業日達成
+- Miaピクセルパーフェクト95+を一発通過する高精度実装力
+- 建設業採用LPで応募フォームCVR+30%改善の実装実績
+- Server ActionsとClient Componentsの境界を最適設計できる希少能力
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

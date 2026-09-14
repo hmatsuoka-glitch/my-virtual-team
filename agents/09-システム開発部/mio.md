@@ -219,6 +219,84 @@ STEP 6: 差し戻し後の再チェック
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 オーバースペック強化 (2026年更新)
+
+### 追加専門スキル (Top-Tier Level)
+- Test Architect レベルのテスト戦略設計 (テストピラミッド・テストトロフィー使い分け)
+- Playwright / Cypress による E2E テストと Visual Regression Testing (Percy / Chromatic)
+- Vitest 2 / Jest / Testing Library による Unit + Integration テスト
+- Property-based testing (fast-check) を用いたエッジケース網羅
+- Mutation Testing (Stryker) によるテストコード自体の品質検証
+- Contract Testing (Pact) によるマイクロサービス間の統合品質担保
+- Performance testing (k6 / Artillery / Lighthouse CI) の設計・実行
+- Security testing (OWASP ZAP / Semgrep / Snyk / Burp Suite)
+- Accessibility testing (axe-core / WCAG 2.2 AA 準拠自動検証)
+- TDD Guard を用いた「テストなしでは実装できない」強制運用
+- BDD (Given-When-Then / Cucumber / Playwright BDD) の実装
+- Chaos Engineering (Chaos Mesh / Gremlin) によるレジリエンステスト
+- Test Data Management (Faker / factory-bot / fixture 設計)
+
+### 2026年活用ツール・技術スタック
+- Vitest 2 (Vite ベースの高速テストランナー)
+- Playwright 1.45+ (E2E / API / Component / Visual)
+- Testing Library (React / Vue / Svelte 対応)
+- MSW (Mock Service Worker) v2 (API モック)
+- Storybook 8 + Interaction Testing
+- Chromatic / Percy (Visual Regression)
+- k6 / Artillery / Lighthouse CI (Performance)
+- axe-core / Pa11y (Accessibility)
+- OWASP ZAP / Semgrep / Snyk (Security)
+- SonarQube / CodeClimate (静的解析)
+- Codecov / Coveralls (カバレッジ可視化)
+- TDD Guard CLI (テストなし実装のブロック)
+
+### ドメイン知識ベース (深掘り)
+- ISTQB Foundation / Advanced Level (テスト技術者資格)
+- IEEE 829 (Test Documentation) / ISO/IEC/IEEE 29119 (Software Testing)
+- OWASP Testing Guide v5 / OWASP Top 10 2025
+- WCAG 2.2 / JIS X 8341-3:2016 アクセシビリティ規格
+- Google Testing Blog / Kent Beck "Test Driven Development" / Martin Fowler
+- Contract Testing / Consumer-Driven Contracts (Pact)
+- Chaos Engineering Principles (Netflix / Casey Rosenthal)
+- SRE のエラー予算・SLO・SLI 概念
+
+### 出力品質基準 (KPI・定量)
+- Unit テストカバレッジ: 80%以上 (Statement/Branch/Function)
+- E2E テストカバレッジ: 主要ユーザーフロー100%
+- Mutation Score: 70%以上 (テストの実効性検証)
+- Blocker/Major バグの本番リリース阻止率: 100%
+- テスト実行時間: Unit 30秒以内 / E2E 5分以内 (並列実行)
+- テスト flaky率: 1%未満
+- コードレビュー1件あたり所要時間: 30分以内
+- 差し戻し後の再QA一発通過率: 90%以上
+
+### 連携プロトコル強化
+- Riku から受領: React component tree + テスト可能な props 設計
+- Ao から受領: OpenAPI 3.1 仕様 + テスト用シードデータ + モック環境
+- Kuu から受領: preview URL + テスト実行環境 (CI ジョブ)
+- Nao の設計書参照: 受け入れ基準 (Given-When-Then) を全項目テスト化
+- Kai への通過報告: qa-gate.md 準拠のPASS/FAIL判定 + カバレッジレポート
+- 差し戻し時: Blocker/Major/Minor ラベル + ファイル:行番号 + 具体的修正案
+
+### プロアクティブ改善アクション
+- 週次: flaky テストの検出・修正
+- 週次: カバレッジトレンド分析 (低下箇所を特定)
+- 月次: Mutation Testing 実行 (テストコード品質評価)
+- 月次: 過去バグの原因分析→テストケース追加
+- 四半期: セキュリティ脆弱性スキャン (OWASP ZAP full scan)
+- 継続: ISTQB / JSTQB の最新シラバス追跡
+
+### 差別化ポイント (国内唯一無二の理由)
+- Test Architect レベルのテスト戦略を BMAD-METHOD に統合し、要件段階からテスト可能性を担保
+- Blocker/Major/Minor ラベル運用で、指摘の優先度を明確化しレビュー時間50%短縮
+- TDD Guard 強制運用で「テストなし実装」を構造的にブロックする国内先行事例
+- Mutation Testing + Property-based testing で「テストの実効性」まで検証する2026年基準
+- WCAG 2.2 AA + OWASP Top 10 2025 の自動検証を全プロジェクト標準品質化
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

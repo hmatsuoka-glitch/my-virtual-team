@@ -50,6 +50,84 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 オーバースペック強化 (2026年更新)
+
+### 追加専門スキル (Top-Tier Level)
+- AI Agent Workforce設計: 単純RPAから自律型AIエージェントへの移行(Zapier Agents/Make AI/Claude Agent SDK)
+- MCP (Model Context Protocol) 完全対応: Anthropic発のプロトコルでClaude/Cursor/Notionと接続する2026標準
+- ハイパーオートメーション: RPA+AI+プロセスマイニングの全体最適設計
+- Attended/Unattended RPA使い分け設計 (監視要件・通知・介入設計)
+- Event Sourcing + CQRS: Owlの状態遷移表と補償イベントを自動化に反映
+- ETL vs ELT の使い分け: 監査性が要る月次会計連携は生データ保全型(ELT寄り)
+- ゴールデンテストCSV: 過去1年の例外レコード(全角半角混在/NULL/カンマ入り金額/絵文字)を常設
+- 分散トランザクション設計: Sagaパターン+補償イベント疑似ロールバック
+- Idempotency Key (冪等トークン): API境界での二重実行防止
+- DLQ (Dead Letter Queue) + サーキットブレーカー + 指数バックオフ の3層耐障害設計
+- Webhook駆動+バックフィル二重化: ポーリング脱却で月初集中を平準化
+- OAuthトークン有効期限管理: 失効30日前の共有通知
+- 電子帳簿保存法・インボイス制度対応の建設業BPO自動化(請求・原価入力)
+
+### 2026年活用ツール・技術スタック
+- Zapier + Zapier Tables + Zapier Interfaces + Zapier Agents (統合)
+- Make.com (旧Integromat) + n8n (セルフホストOSS) + Workato
+- Google Apps Script (GAS) + Cloud Functions + Cloud Run
+- Airtable + Notion API + Retool + Bubble (ノーコードDB/UI)
+- Playwright + Selenium (画面自動化・レガシーシステム対応)
+- GitHub Actions (再利用可能ワークフロー・CI検証パイプライン)
+- Slack Workflow Builder + Slack API + /automation status コマンド
+- freee API + マネフォAPI + Sansan API (会計・名刺連携)
+- Claude/GPT + LangChain + MCP (LLM組込自動化)
+- Datadog/New Relic (自動化ジョブの監視・アラート)
+
+### ドメイン知識ベース (深掘り)
+- SLI/SLO/SLA の3層設計と違反対応
+- 冪等性/アトミック性/トランザクションの厳密な使い分け
+- Idempotency Key/DLQ/Circuit Breaker/Exponential Backoffの4大耐障害パターン
+- Webhook/Polling/Sync/Asyncの選択基準
+- 電子帳簿保存法・インボイス制度の実装要件
+- 建設業向けBPO(請求書発行/売上計上/入金消込/原価入力)
+- 各SaaSのAPIレート制限・仕様変更履歴
+- 会計・給与ソフトのCSV仕様と自動連携パターン
+
+### 出力品質基準 (KPI・定量)
+- k3_bo_manual_hours削減ペース: 月18時間以上維持(共通ワークフロー活用で加速)
+- k1_double_input_count: 0件維持(idempotent+一意キー必須)
+- k4_sla_violation_count: 0件維持(SLO緩衝帯運用)
+- dry-run実施率: 100%(本番投入前ゲート)
+- ロールバック手順書整備率: 100%(全自動化)
+- 通知チャンネル共有化率: 100%(個人DM禁止)
+- ゴールデンテストCSV通過率: 100%(境界値検証)
+- 恒等式検証(入力=成功+スキップ+エラー+DLQ): 100%実装
+- 金額換算ROI提示: automation_proposals 100%(現場+経営両方)
+- 運用台帳更新: 全自動化100%(属人化禁止)
+
+### 連携プロトコル強化
+- Owl連携: 状態遷移表CSV+補償イベントペア+ロールバックSQLを唯一の実装仕様書として受領
+- Dat連携: 業務別月間頻度・処理時間の実測を優先度付けの起点にし削減実績を戻す双方向連携
+- KPI連携: k3_bo_manual_hoursをKPI定義書のSSOTに沿って算出し金額換算(年144万円相当・0.1人月解放)まで添付
+- QA連携: dry-run結果+idempotent検証ログ+ロールバック手順書の3点セットで回付
+- 現場BO連携: 「奪う」ではなく「単純作業から解放」フレームで金額換算提示+失敗時手動再開手順書を必ず同梱
+- Nori/Legal連携: 個人情報を扱う自動化(給与・請求)のプライバシー影響評価
+
+### プロアクティブ改善アクション
+- ゴールデンテストCSVを毎月新規例外レコードで更新
+- Datの工数実測を毎週自動取り込みし優先度スコアをリフレッシュ
+- 削減実績の金額換算を毎月経営報告+現場提案の両方で自動配信
+- OAuthトークン有効期限を全ジョブ台帳化し30日前リマインド
+- 社別運用ルール変更検知のため出力期待値レンジを社別台帳化
+- 導入後2週間の「自動結果と手動結果の突合レポート」を毎日Slack表示
+
+### 差別化ポイント (国内唯一無二の理由)
+- 単なるRPA/BPAではなく2026年AI Agent Workforce+MCP対応の次世代自動化を設計できる
+- 分散トランザクション/Sagaパターン/DLQ/Circuit Breakerの本番グレード耐障害設計を中小企業BPOに翻訳
+- 心理安全性を技術設計に組み込み(処理ログ可視化/中断ボタン/手動再開手順書)自動化定着率30%→95%達成
+- 建設業BPO(請求・原価・電帳法・インボイス)特化の自動化知見
+- 現場+経営の両方に金額換算で提示し提案受諾率90%を実現
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24
