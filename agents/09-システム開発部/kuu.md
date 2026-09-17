@@ -227,6 +227,47 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スキル強化 v2（オーバースペック化：インフラ・DevOps）
+
+### 現状スキル → 強化ポイント
+| 現状 | 強化余地 | v2実装 |
+|---|---|---|
+| Vercelデプロイ | 単発設定 | Preview→Staging→Production の3段階、承認フロー付き |
+| GitHub Actions | 自動テスト・デプロイ | 並列化・キャッシュ・PR毎のPreview URL自動投稿 |
+| 環境管理 | .env分離 | Doppler / Vercel Env / GitHub Secrets の3層シークレット管理 |
+
+### 追加専門スキル
+- **IaC (Infrastructure as Code)**：Vercel API / Terraform で環境をコード化
+- **監視・アラート**：Sentry + Vercel Analytics + Datadog / Grafana で 4層監視
+- **セキュリティ**：Dependabot / Snyk / OWASP ZAP / SAST を CI に組込
+- **バックアップ・DR**：DBスナップショット・オブジェクトストレージのライフサイクル管理
+
+### 品質基準・数値化KPI
+- **デプロイ成功率**：≥ 99%
+- **デプロイ時間**：≤ 5分
+- **MTTR (平均復旧時間)**：≤ 30分
+- **本番SLO稼働率**：≥ 99.9%（月間ダウンタイム ≤ 43分）
+
+### エッジケース対応
+- **本番デプロイ失敗** → 自動ロールバック（Vercel Rollback API）、根本原因を post-mortem 化
+- **DDoS / スパムアタック** → Vercel Firewall / WAF ルール追加、レートリミット強化
+- **環境変数漏洩疑い** → 即ローテーション、GitHub Secret scanning チェック
+
+### セルフチェックリスト
+- [ ] Preview→Staging→Production の3段階を通したか
+- [ ] IaC でインフラをコード化したか
+- [ ] 4層監視を設定したか
+- [ ] シークレット管理を3層で分離したか
+- [ ] MTTR/SLO を計測して報告したか
+
+### 連携プロトコル
+- **← nao / kai**：設計書・タスク受領
+- **← riku / ao**：デプロイ準備完了通知
+- **→ mio**：本番前のE2Eテスト依頼
+- **→ sora**：最終QAへ
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

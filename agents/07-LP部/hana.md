@@ -469,6 +469,48 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スキル強化 v2（オーバースペック化：CSS完全抽出）
+
+### 現状スキル → 強化ポイント
+| 現状 | 強化余地 | v2実装 |
+|---|---|---|
+| CSS抽出 | 8ステップ手動 | Puppeteer + getComputedStyle 自動抽出で「見た目のCSS」を全プロパティ収集 |
+| カラーパレット抽出 | 目視ベース | 色ヒストグラム（k-means clustering）で全色を出現頻度順にソート |
+| フォント抽出 | font-family列挙 | Google Fonts / Adobe Fonts / システムフォント自動判定、@font-face のfont-display値も検出 |
+
+### 追加専門スキル
+- **CSS Cascade可視化**：詳細度・継承関係・!important使用箇所を全マッピング、上書き優先度をNao/Renに提示
+- **アニメーション解析**：@keyframes・transitions・GSAP・AOS・Framer Motionのタイミング・イージング関数を秒単位で抽出
+- **Media Query階層化**：Mobile-First / Desktop-First の設計判定、breakpoint一覧を出力
+- **CSS Variables 検出**：`:root` の変数定義とその使用箇所を追跡、テーマ切替（dark mode）対応判定
+
+### 品質基準・数値化KPI
+- **抽出網羅性**：Renの実装時に「不明CSS」で戻ってくる件数 ≤ 3件/LP
+- **抽出時間**：1LPあたり ≤ 3時間（複雑なLPで5時間まで）
+- **カラー再現精度**：オリジナルとRen実装の色差ΔE ≤ 2.0
+- **アニメーション再現精度**：Mia判定で「アニメーション違い」検出 ≤ 5%
+
+### エッジケース対応
+- **CSSがminifyされている** → SourceMap取得を試み、無ければ意味の分かる名前を推定して命名変更
+- **動的CSS（styled-components / emotion）** → getComputedStyleで実行時スナップショット取得
+- **フォントが独自Webフォント** → font-face URLを保存、ライセンス確認をnoriへ
+
+### セルフチェックリスト
+- [ ] getComputedStyleで実測値を取得したか
+- [ ] カラー・フォント・アニメーション・レスポンシブを全ステップで抽出したか
+- [ ] CSS Variables / Media Query階層を明示したか
+- [ ] 色差ΔE ≤ 2.0 を検証したか
+- [ ] Ren向けに「実装優先順位（High/Med/Low）」を付与したか
+
+### 連携プロトコル
+- **← kaito**：複製URLを受領
+- **→ nao**：設計書作成用にCSS仕様データを渡す
+- **→ ren**：骨格生成用に並列でデータを渡す
+- **→ mia**：忠実度チェック時に元データとして参照
+- **→ sora**：最終QAへ
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

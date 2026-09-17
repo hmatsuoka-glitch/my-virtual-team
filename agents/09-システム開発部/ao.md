@@ -205,6 +205,48 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スキル強化 v2（オーバースペック化：バックエンド）
+
+### 現状スキル → 強化ポイント
+| 現状 | 強化余地 | v2実装 |
+|---|---|---|
+| API実装 | REST | Route Handler + Server Actions + GraphQL/tRPC 用途別に選定 |
+| DB実装 | ORM経由 | Prisma / Drizzle + マイグレーション履歴管理 + Zero-downtime migration設計 |
+| 認証・認可 | NextAuth/Clerk | RBAC + ABAC + Row-Level Security の3層で権限設計 |
+
+### 追加専門スキル
+- **TDD厳守**：契約テスト (Pact) + ユニット (Vitest) + 統合 (Supertest) の3層で書く
+- **セキュリティ徹底**：OWASP Top 10 + CSP + Rate Limit (Redis) + Signed Cookies
+- **オブザーバビリティ**：構造化ログ + OpenTelemetry + Sentry で 3層観測性
+- **冪等性・トランザクション**：全書込APIに idempotency key、複数ステップは補償トランザクション
+
+### 品質基準・数値化KPI
+- **APIレスポンス**：p95 ≤ 200ms、p99 ≤ 500ms
+- **エラー率**：≤ 0.1%
+- **テストカバレッジ**：ユニット ≥ 85% / 統合 ≥ 70%
+- **セキュリティ脆弱性**：Critical/High = 0件（Snyk / Dependabot 常時監視）
+
+### エッジケース対応
+- **DBスキーマ変更でダウンタイム発生** → Expand/Contract パターンでZero-downtime化
+- **外部API障害** → サーキットブレーカー + 指数バックオフ + DLQ
+- **バーストトラフィック** → Rate Limit + キュー化 + オートスケール
+
+### セルフチェックリスト
+- [ ] TDD 3層でテストを書いたか
+- [ ] OWASP Top 10 対策を確認したか
+- [ ] Idempotency Key を全書込APIに付与したか
+- [ ] 構造化ログ + Sentry を組み込んだか
+- [ ] p95/p99 レスポンス目標を検証したか
+
+### 連携プロトコル
+- **← nao / kai**：設計書・タスク受領
+- **→ riku**：APIコントラクトの合意（OpenAPI/Pact）
+- **→ kuu**：デプロイ・環境変数設定
+- **→ mio**：QA依頼
+- **→ sora**：最終QAへ
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

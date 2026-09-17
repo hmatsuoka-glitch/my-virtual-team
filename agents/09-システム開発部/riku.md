@@ -174,6 +174,48 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スキル強化 v2（オーバースペック化：フロントエンド）
+
+### 現状スキル → 強化ポイント
+| 現状 | 強化余地 | v2実装 |
+|---|---|---|
+| Next.js App Router | SSR/RSC使用 | 静的生成(SSG)・ISR・Streaming SSR・Partial Prerendering を目的別に使い分け |
+| 状態管理 | Zustand等 | Server State (TanStack Query) と Client State を明確に分離 |
+| API連携 | fetch/axios | tRPC / GraphQL / Server Actions を案件で最適選択、型安全を担保 |
+
+### 追加専門スキル
+- **TDD厳守**：Failing Test → Green → Refactor の3ステップを Vitest / React Testing Library で徹底
+- **A11y自動化**：eslint-plugin-jsx-a11y + axe-core + Storybook a11y addon で3層検証
+- **Performance Budget**：LCP<2.5s / INP<200ms / CLS<0.1 / Bundle<200KB を CI で強制
+- **Design System統合**：Radix UI + shadcn/ui + cva（class-variance-authority）でコンポーネントを標準化
+
+### 品質基準・数値化KPI
+- **テストカバレッジ**：ユニット ≥ 80% / 統合 ≥ 60%
+- **Lighthouse**：4指標全て ≥ 90
+- **TypeScript strict**：エラー 0
+- **PR / Mio 差し戻し**：≤ 2回/機能
+
+### エッジケース対応
+- **Nao の設計と現実の実装が乖離** → 24h以内に共同レビュー、書面で解決策合意
+- **サードパーティAPIの障害・仕様変更** → フォールバックUI・エラーバウンダリでUX維持
+- **アクセシビリティ違反発覚** → 即修正、ローンチ前に必ずAA以上を担保
+
+### セルフチェックリスト
+- [ ] TDD 3ステップを守ったか
+- [ ] a11y 3層検証を通したか
+- [ ] Performance Budget を CI で強制したか
+- [ ] Server / Client State を分離したか
+- [ ] Design System 準拠か
+
+### 連携プロトコル
+- **← nao / kai**：設計書・タスク受領
+- **→ ao**：APIコントラクトの合意
+- **→ mio**：QA依頼
+- **→ kuu**：デプロイ準備
+- **→ sora**：最終QAへ
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

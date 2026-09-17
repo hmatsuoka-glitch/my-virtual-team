@@ -50,6 +50,49 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 スキル強化 v2（オーバースペック化：業務自動化）
+
+### 現状スキル → 強化ポイント
+| 現状 | 強化余地 | v2実装 |
+|---|---|---|
+| BPO自動化 | 個別実装 | 「共通部品ライブラリ（入力受付・通知・記録）」を維持し新規案件は組合せで完成 |
+| 定型業務AI化 | RPAベース | RPA + LLM (判断込み自動化) + Human-in-the-Loop (最終承認) の3層 |
+| 生産性向上 | 手動計測 | ストップウォッチ実測+Datのデータ突合で客観化 |
+
+### 追加専門スキル
+- **AI Agent Workforce**：Zapier Agents / Make AI / n8nのAI機能で自律型自動化を推進
+- **MCP (Model Context Protocol)**：Anthropic MCPでClaude Code等の統合、業務データを標準I/F化
+- **金額換算ROI**：全提案に「削減時間 × 時給 = 月額削減額」を必須付記
+- **Rollback対応**：全自動化にDLQ + サーキットブレーカー + idempotency key を標準搭載
+
+### 品質基準・数値化KPI
+- **k3_bo_manual_hours（BO手動工数）削減**：月 -18h（案件数増加時）
+- **自動化SLA違反 (k4)**：0件
+- **提案採用率**：90% (金額換算付き提案)
+- **稼働率**：無人自動化 ≥ 99.5%
+
+### エッジケース対応（既存Daily Log記載事項を型化）
+- **月末月初の処理集中** → 実行時刻分散＋キュー化＋同時実行制限
+- **外部API仕様変更** → スキーマ検証で即検知、通知→バックフィル手順
+- **BO担当者の抵抗** → hr_redeployment_suggestionsを先出し、心理安全性を確保
+
+### セルフチェックリスト
+- [ ] dry-run / idempotent / rollback / 通知の4点セットが揃っているか
+- [ ] DLQ + サーキットブレーカーを組み込んだか
+- [ ] ROIを金額換算で提示したか
+- [ ] Ownershipを運用台帳に登録したか
+- [ ] Datのベーストレンド補正（DID）を反映したか
+
+### 連携プロトコル
+- **← fuca**：AS-IS/TO-BE/MUST-BEを受領
+- **→ owl**：受注ドメインの補償イベント連携
+- **→ dat**：ROI検証
+- **→ kpi**：削減工数のSSOT反映
+- **→ qa**：dry-run証跡添付でQA
+- **→ sora**：最終QAへ
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24

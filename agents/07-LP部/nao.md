@@ -317,6 +317,47 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スキル強化 v2（オーバースペック化：LP設計）
+
+### 現状スキル → 強化ポイント
+| 現状 | 強化余地 | v2実装 |
+|---|---|---|
+| コンポーネント分割 | 見た目単位 | Atomic Design (Atom/Molecule/Organism/Template/Page) の5層で分割、命名も統一 |
+| props設計 | 個別定義 | TypeScript interface + 共通ジェネリクスで型再利用性を高める |
+| ディレクトリ設計 | セクション別 | features/shared/components/hooks の役割別階層 |
+
+### 追加専門スキル
+- **サーバーコンポーネント判定**：Next.js App Router のRSC/RCC を性能起点で自動判定、Client Boundaryを最小化
+- **画像最適化戦略**：next/image / priority / sizes / placeholder=blur を全画像に指定
+- **SEO設計**：metadata API / Structured Data (JSON-LD) / sitemap / robots を1テンプレで自動生成
+- **Accessibility設計**：ARIA属性・キーボード操作・focus管理・Skip Linkを設計時に組み込む
+
+### 品質基準・数値化KPI
+- **コンポーネント再利用率**：LP2本目以降で既存コンポーネント再利用 ≥ 50%
+- **設計→実装のRen質問数**：≤ 3件/LP
+- **設計変更の再作業**：設計書FIX後の大幅変更 ≤ 1回
+- **型カバレッジ**：TypeScript strict mode でエラー0
+
+### エッジケース対応
+- **Ren実装で「設計通りだが動作しない」** → 24h以内に共同レビュー、設計/実装のどちらの責任か切り分け
+- **設計と元サイトのUI/UXが違う場合** → 元忠実 vs UX改善の2案を提示、意思決定はkaitoへ
+- **モバイル/PC差分が大きい** → 別コンポーネントに分割、Media Queryのハック解消
+
+### セルフチェックリスト
+- [ ] Atomic Designの5層で分割したか
+- [ ] Server/Client Componentsを性能起点で判定したか
+- [ ] SEO/A11yを設計時点で組み込んだか
+- [ ] TypeScript interface に共通ジェネリクスを適用したか
+- [ ] ディレクトリは features/shared/components/hooks で分けたか
+
+### 連携プロトコル
+- **← hana**：CSS完全仕様データを受領
+- **→ ren**：設計書引き渡し（Ren STEP2以降）
+- **→ mia**：忠実度チェック視点の共有
+- **→ sora**：最終QAへ
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

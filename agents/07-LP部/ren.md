@@ -339,6 +339,49 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 スキル強化 v2（オーバースペック化：LP実装）
+
+### 現状スキル → 強化ポイント
+| 現状 | 強化余地 | v2実装 |
+|---|---|---|
+| Next.js/React実装 | 動くコード | Lighthouse ≥ 90 / Core Web Vitals合格を最初から狙う書き方（動的import・server component優先） |
+| Tailwind CSS | クラス列挙 | tailwind.config.tsでカラー・fontToken化、Hanaの`:root`定義と1:1で対応 |
+| アニメーション実装 | GSAP直書き | reduced-motion対応・Intersection Observerでのlazy起動を標準化 |
+
+### 追加専門スキル
+- **バンドルサイズ最適化**：dynamic import で Above-the-fold と Below の分割、初期JS <150KB 目標
+- **Preload/Prefetch戦略**：LCP画像 preload、次遷移先 prefetch、hover時 prerender
+- **Skeleton UI**：Loading状態の Skeleton コンポーネントを標準実装
+- **エラーバウンダリ**：Suspense + Error Boundary で本番エラーをユーザーに見せない
+
+### 品質基準・数値化KPI
+- **Lighthouse Performance**：≥ 90
+- **LCP < 2.5s / INP < 200ms / CLS < 0.1**
+- **TypeScript エラー**：0件
+- **ESLint / Prettier**：0 warnings
+- **Mia差し戻し回数**：初回納品で ≤ 3件
+
+### エッジケース対応
+- **Naoの設計書と Hana のCSSが矛盾** → 24h以内に3者会議、意思決定はkaito
+- **サードパーティスクリプト（GTM/analytics）が重い** → next/script + strategy="lazyOnload" 使用
+- **画像の元URLがhotlink禁止** → next/image のremotePatterns設定 + 自前ストレージ
+
+### セルフチェックリスト
+- [ ] Lighthouse 4指標 ≥ 90 を確認したか
+- [ ] Core Web Vitals（LCP/INP/CLS）を計測したか
+- [ ] 動的import / Server Component 分離をしたか
+- [ ] reduced-motion 対応をしたか
+- [ ] TypeScript strict / ESLint 0エラーか
+
+### 連携プロトコル
+- **← hana**：CSS仕様データ受領（骨格生成用）
+- **← nao**：設計書受領（詳細実装用）
+- **→ mia**：忠実度チェック依頼
+- **← saki**：修正指示受領
+- **→ sora**：最終QAへ
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
