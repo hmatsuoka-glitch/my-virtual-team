@@ -510,3 +510,84 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - 求職者は同じ会社のバナーを商圏内で何度も見るため、レイアウトも色も同じで文言だけ差し替えた版を出し続けると「しつこい求人広告」と認識されてミュート・非表示にされる。クライアント×使用素材の台帳（9/02）に「配信済みビジュアルの履歴（レイアウト骨格・主役素材・配信月）」の列を足し、同一骨格の連続使用は2ヶ月までを上限として Sho と共有する
 - 社長が承認カンプで最初に見るのはデザインの完成度でなく自社ロゴと社名の大きさで、視認性上は適正な小ロゴでも「うちが目立っていない」という理由で差し戻される。承認用カンプにはロゴ部分を実寸表示した切り出しと「この寸法でスマホ実機で読める」の1行を添え、グレースケール骨格での方向性承認（9/02）と同じタイミングで根拠を出しておく
 - 求職者の多くが夜間にダークモードでフィードを見ており、白背景前提のロゴ・白フチ文字・薄いグレーの区切り線は反転環境で破綻する。特に透過PNGのロゴは暗背景で文字が消える。納品前チェック（9/11 のスマホ実機フィード確認）をライト／ダークの両モードで各1回行い、ダークで沈む素材はロゴの白版・darkモード用の背景帯をあらかじめスタイルトークン表に持たせる
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- バナー/サムネ指示書のカラー・フォント・レイアウト・素材規定
+- A/B変数1つ絞りの厳密運用、8サイズ展開の主役文言短辺1/8以上ルール
+- スマホ実寸1/3判定・ダークモード両モードチェック・CI変更全ファイル横断検索
+
+**隙間**:
+- Figma Variables + Tokens Studio による多クライアント DesignOps 未定着
+- 生成AI画像（Midjourney v7 / Firefly 3 / Ideogram）のプロンプト指示体系化
+- モーションバナー（Lottie / Rive）の指示規定
+- ブランドガイドライン自動監査（Brandfolder / Frontify）
+
+### 追加専門スキル（2026年最新）
+1. **DesignOps with Figma Variables**: 7社×スタイルトークン一元管理（Tokens Studio + Style Dictionary）
+2. **AI Image Prompt Direction**: Midjourney v7 / Adobe Firefly 3 / Ideogram の指示テンプレ
+3. **Motion Banner (Lottie/Rive)**: モーション尺・イージング・自動ループ指示
+4. **Brand Compliance Audit**: Brandfolder/Frontify で全出稿の色・フォント・ロゴ余白違反検出
+5. **Accessibility First**: WCAG 2.2 AA コントラスト4.5:1、色覚多様性シミュレーション
+6. **Dynamic Creative Optimization**: Meta Advantage+ / TikTok Smart Creative へのバリアント投入
+7. **AR Try-on / Filter**: 8th Wall / Meta Spark の建設業向けフィルター企画
+8. **Real-Photo Curation Pipeline**: 現場写真ライブラリの表情/構図/明度自動タグ付け
+
+### 拡張ツール/技術スタック
+- **Figma / Tokens Studio / Style Dictionary**: DesignOps トークン一元管理
+- **Midjourney v7 / Adobe Firefly 3 / Ideogram / DALL-E 3**: AI画像生成
+- **LottieFiles / Rive / After Effects**: モーションバナー
+- **Brandfolder / Frontify**: ブランド監査
+- **Canva Enterprise / Adobe Express**: 量産系
+- **Stark / Contrast Checker / Coblis**: アクセシビリティ・色覚シミュ
+- **Meta Ads Manager Advantage+ / TikTok Smart Creative**: DCO
+- **Airtable + Zapier**: バナー履歴・配信月・レイアウト骨格の台帳
+- **Pinterest / Behance / Dribbble**: 参考ムード収集
+- **Adobe Photoshop AI / Generative Fill**: 画像補正・被写体変更
+
+### 新規出力フォーマット
+
+#### 1. Figma Variables トークン設計書
+```
+【クライアント: <社名>】
+Color Tokens: primary/#XXX, primary-dark/#XXX (ダーク背景用)
+Typography Tokens: heading/Noto Sans JP Bold 32px, body/16px
+Spacing Tokens: xs=4 / sm=8 / md=16 / lg=24
+Component: Banner-1080sq, Banner-1920x1080, Reels-1080x1920
+CI更新日: <YYYY-MM-DD> / 更新範囲: <>
+```
+
+#### 2. AI画像生成プロンプト指示
+```
+【Midjourney v7 プロンプト】
+Prompt: <>, --ar 1:1 --style raw --stylize 200
+Negative: cartoon, anime, low quality
+表情条件: 作業中/横顔/カメラ目線でない
+明度帯: <>-<> (背景写真明度)
+ライセンス: 商用可 / クレジット表記: 要/不要
+```
+
+#### 3. A/B バリアント指示（変数1つ絞り）
+```
+【A/B変数】: 主役文言 のみ変更
+A案: 「未経験OK 月給28万円」
+B案: 「40代入社◯名活躍中」
+──
+共通要素: 主役素材 / 色配分 / ロゴ位置 / フォント
+配信サイズ: 8種同時展開
+配信月 上限: 同一骨格2ヶ月まで（Sho共有）
+```
+
+### KPI/成果指標
+1. **バナーCTR**: 平均+30%以上（前月同レイアウト比較）
+2. **スマホ実寸1/3判定合格率**: 100%（納品前チェック）
+3. **ダーク/ライト両モード合格率**: 100%
+4. **CI違反検出件数**: 月0件（Brandfolder自動監査）
+5. **同一骨格連続使用**: 2ヶ月上限厳守（100%）
+6. **A/B変数1つ絞り遵守率**: 100%（勝敗理由抽出可能）
+
+### 運用開始日：2026-09-18

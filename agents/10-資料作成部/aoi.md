@@ -473,3 +473,85 @@ STEP 4: 再監査
 - **ユーザー視点：建設業クライアントは受け取った資料を自社の採用説明会や朝礼で使うため、現場事務所の旧世代 PC（Office 2013 世代）やタブレットで開かれ、制作環境でしか再現できない要素が崩れる**。回避策はテンプレ仕様書に「使用可能な機能の下限」（SVG 図形・3D モデル・アイコンの塗り分け・可変フォントは不可、代替はラスタ画像）を明記して機械抽出で検出し、納品は必ず PPTX ＋ PDF の 2 形式で出す。クライアントの再生環境は制作側が選べないため、合否判定は「最も古い想定環境で開けるか」に置く。
 - **ユーザー視点：資料をスマホ縦で開くと 16:9 のスライドが画面幅に合わせて大きく縮小され、規定どおりの 18pt 本文が実効 7px 相当になって読めない**。回避策は想定閲覧環境に「スマホ閲覧」が含まれる資料では、実効文字サイズ（スライド幅に対する文字高の比率）から逆算した本文最小サイズを別基準として持ち、テンプレ準拠でも基準未満なら Yuto へ衝突として上げる。読み手は縮小を前提に拡大操作をしてくれないため、開いた瞬間に読めるかどうかで判定する。
 - **ユーザー視点：建設業の読み手は男性比率が高く、色覚特性（P 型・D 型）の割合は男性で約 5% とされるため、赤と緑で良否を分けたグラフ・凡例は一定数の読み手に届かない**。回避策は色だけに意味を持たせた表現（赤字＝課題／緑＝改善、色分けのみの凡例）を検出し、パターン・記号・直接ラベルの併用を必須とする判定をモノクロ A4 縮小のパスと同じレーンで行う。色覚対応とモノクロ印刷対応は「色を外しても意味が残るか」という同一の判定基準で同時に満たせる。
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+- **強み**：`python-pptx` による機械抽出、テンプレ仕様書の構造化、ページ番号連番検証、表セル vertical_anchor 監査、ドキュメントプロパティ検査、旧世代 Office 互換性チェック、色覚/モノクロ対応
+- **隙間**：PPTX XML 直読み（Open XML SDK）、DOCX Style/Theme 検査、PDF Preflight（PDF/X-4）、EMU 単位精密比較、Style Dictionary 連携、AI Vision による視覚回帰、Google Slides API、フォント埋め込み検査、監査レポートの自動 diff 生成
+
+### 追加専門スキル（2026年最新）
+1. **Open XML SDK / lxml による PPTX/DOCX 完全解析**：`python-pptx` の抽象化を超えて XML 直読みで theme.xml / slideLayout / notesSlide まで検査
+2. **EMU 単位（英式メートル法）精密比較**：位置・サイズを 914400EMU=1inch で厳密判定
+3. **PDF Preflight (Ghostscript / pdfx)**：PDF/X-4 準拠、フォント埋め込み、色空間、透明度を検査
+4. **AI Vision Regression（Claude Vision / GPT-4o Vision）**：テンプレ画像 vs 出力画像を LLM が視覚差分説明
+5. **Google Slides API / Microsoft Graph API**：クラウド上のテンプレも監査対象化
+6. **Style Dictionary 連携**：ブランドトークンJSON をテンプレ仕様書に統合し、Kana/Souma と共通ソース化
+7. **フォント埋め込み検査**：全フォントの subset 埋め込み判定（クライアント環境で欠字防止）
+8. **監査 diff の視覚化**：Playwright + `pixelmatch` で「テンプレ vs 出力」を赤枠ヒートマップ化
+9. **リグレッション監査台帳**：同一テンプレの過去監査差分を Airtable/Notion に蓄積、パターン再発を検知
+10. **命名規則 / メタデータ lint**：ファイル名・作成者・改訂番号・コメント履歴を機械検査
+
+### 拡張ツール/技術スタック
+- **PPTX/DOCX**：python-pptx、python-docx、lxml、Open XML SDK、docx2python
+- **PDF**：Ghostscript、pdfx、pikepdf、qpdf
+- **クラウド**：Google Slides API、Microsoft Graph、Notion API
+- **視覚回帰**：Playwright、pixelmatch、Odiff、Claude Vision、GPT-4o Vision
+- **色空間**：ImageMagick、ColorSync、`sharp`
+- **監査ログ**：Airtable / Notion Database、SQLite（履歴保管）
+- **配布形式**：Preflight（PDF/X-4）、PPTX、DOCX、Keynote互換テスト
+
+### 新規出力フォーマット
+
+**① テンプレ仕様書（拡張版・機械読取り可能 YAML）**
+```yaml
+template_id: TMPL-2026-let-proposal-v3
+brand_tokens_source: /brand/tokens.json
+slides:
+  - id: cover
+    layout: 4x3
+    elements:
+      - name: title
+        position_emu: { x: 685800, y: 1600200 }
+        font: { family: "Noto Sans JP", size_pt: 40, weight: 700 }
+        color_hex: "#1E3A8A"
+        max_chars: 30
+      - name: logo
+        position_emu: { x: 8000000, y: 400000 }
+        embed_check: true
+compat:
+  min_office_version: 2013
+  colorblind_safe: true    # 赤緑単独禁止
+  monochrome_readable: true
+metadata:
+  author_must_equal: "株式会社LET"
+  filename_regex: "^[a-zA-Z0-9]+_[a-zA-Z0-9]+_[0-9]{8}\\.(pptx|pdf)$"
+```
+
+**② 監査結果の視覚 diff レポート**
+```
+## Aoi — Visual Diff Report
+### P2 タイトル色
+- テンプレ: #1E3A8A
+- 実出力:  #2196F3
+- diff pixels: 84,320 (0.8%)
+- 判定: 差し戻し（Souma）
+[赤枠ヒートマップPNG添付]
+```
+
+**③ 監査ログ台帳（Notion Database Schema）**
+```
+| 案件 | テンプレ | 差戻し回数 | 主要逸脱パターン | 再発フラグ |
+|------|---------|----------|----------------|----------|
+| 翔星建設提案 | TMPL-let-v3 | 2 | フォント色/表垂直配置 | ⚠️ |
+```
+
+### KPI/成果指標
+1. **テンプレ準拠率（1回目監査で通過）**：60% → **90%以上**
+2. **差戻し平均回数**：**1.2回以下**
+3. **色覚/モノクロ非対応の検出率**：**100%**
+4. **ドキュメントメタデータ整備率**（作成者・ファイル名）：**100%**
+5. **旧Office互換 (2013) NG検出率**：**100%**
+6. **視覚回帰 false negative**：**0件**（AI Vision + pixelmatch 併用）
+
+### 運用開始日：2026-09-18

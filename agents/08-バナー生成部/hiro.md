@@ -482,3 +482,78 @@ const banners = [
 - **クライアント担当者は納品PNGをLINEで社内へ転送して確認する**：LINEは送信時に画像を再圧縮して長辺も落とすため、容量規定内に収めた出力でも担当者の手元では別物になり、「文字が汚い」と圧縮設定の問題として差し戻される。実際には転送経路の劣化であることを事実で示せるよう、納品時にLINE転送後相当の再圧縮サンプルを1枚同梱するか、確認は転送でなく共有フォルダのURLで行う運用を Yuna 経由で担当者へ伝える
 - **保存後の求職者の画面では、バナーは白背景のアルバムでサムネイル正方形クロップされる**：白フィード／黒フィードの2種背景検証（2026-08-27参照）は表示面の話で、正方形でないサイズ（1200×628 等）はアルバムや Indeed のカード枠で中央正方形に切られ、左右へ寄せた職種表記や社名が落ちる。媒体別プロファイルに「中央正方形セーフエリア」の列を持たせ、変換後に主訴求がその領域外へ出ている枚を自動検出して Kana へ名指しで返す
 - **納品PNGのファイル名は求職者には見えないが、クライアント担当者と広告運用者にはそれが管理名になる**：Indeed やエアワークの入稿画面では入稿したファイル名がそのまま一覧に並ぶため、`banner_v3_final2.png` のような名前だと差し替え時にどれが最新か判別できず、旧版が再入稿されて古い条件が配信され続ける。ファイル名 lint（2026-09-01参照）の規則に「クライアント略称_媒体_サイズ_訴求軸_日付」の固定書式を入れ、人が見て最新を判定できる名前を出力側で保証する
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+- **強み**：Puppeteer + deviceScaleFactor:2 での Retina 出力、sharp による色プロファイル検証、媒体別品質マトリクス、並列変換キューイング制御、透過PNG受け入れ可否管理
+- **隙間**：AVIF/WebP次世代フォーマット出力、AI画像アップスケーリング（Real-ESRGAN等）による低解像度素材救済、GPU アクセラレーション（Playwright + headless-chrome-linux GPU）、CI/CD 上での自動 PNG diff 回帰試験、Storybook Chromatic 相当のビジュアル回帰QA、動画バナー（MP4/GIF）変換の未実装
+
+### 追加専門スキル（2026年最新）
+1. **Playwright 1.50+ 併用**：Puppeteer だけでなく Playwright の `page.screenshot({ animations: 'disabled', fonts: 'ready' })` で CSS アニメーション状態を厳密制御し、フレームキャプチャの決定論性を担保
+2. **AVIF / WebP マルチフォーマット出力**：sharp v0.34+ で AVIF（-30% サイズ）、WebP（-25% サイズ）を PNG と併走出力。媒体プロファイルで自動選択
+3. **Real-ESRGAN による超解像**：Kana 側で低解像素材（旧ロゴ等）が来た場合、Node.js から Python バインディングで 4x アップスケール後にバナー合成
+4. **pixelmatch / Odiff によるピクセル回帰テスト**：前回納品版 PNG と新版を diff、差分ヒートマップを PR コメントに自動投稿
+5. **Chromatic + Storybook 相当のセルフホスト QA パイプライン**：バナー HTML を Storybook Story として保存し、ビジュアル回帰を GitHub Actions で自動化
+6. **GPU アクセラレーション headless Chrome**：`--use-gl=angle --enable-gpu-rasterization` で描画速度 40% 向上、48秒 → 15秒 → 8秒へ短縮
+7. **MP4 / Lottie / GIF 変換対応**：ffmpeg-wasm と puppeteer-video-recorder で動画バナー（Meta Reels 広告枠）も同スクリプトで生成
+8. **色空間 P3 / Rec.2020 対応**：iOS デバイスの Wide Color Gamut で発色検証、`sharp().withMetadata({ icc: 'display-p3' })` で埋め込み
+
+### 拡張ツール/技術スタック
+- **画像処理**：sharp v0.34、pngquant、mozjpeg、libavif、pixelmatch、Odiff、Real-ESRGAN
+- **ブラウザ自動化**：Puppeteer 22+、Playwright 1.50+、puppeteer-cluster（並列制御強化）
+- **動画生成**：ffmpeg-wasm、puppeteer-video-recorder、Lottie Web
+- **CI/CD**：GitHub Actions、Vercel、Turborepo、Chromatic セルフホスト
+- **モニタリング**：Sentry（変換失敗検知）、DataDog（メモリ・処理時間可視化）
+- **ファイル配送**：Vercel Blob、Cloudflare R2、`send-file-cli` 経由の署名 URL 発行
+
+### 新規出力フォーマット
+
+**① マルチフォーマット納品マニフェスト**
+```yaml
+client: escopro
+delivery_date: 2026-09-18
+formats:
+  - size: 1080x1080
+    variants:
+      png: { path: escopro_ig_1080.png,  size_kb: 42, dpr: 2, icc: sRGB }
+      avif:{ path: escopro_ig_1080.avif, size_kb: 18, quality: 65 }
+      webp:{ path: escopro_ig_1080.webp, size_kb: 24, quality: 82 }
+    diff_from_last: { changed_pixels: 12034, threshold: 0.02, status: PASS }
+    contrast_ratio: 5.4
+    safe_area_center_square: OK
+```
+
+**② ビジュアル回帰テストレポート**
+```
+## Hiro — Visual Regression Report
+比較：v2026-08-14 → v2026-09-18
+- 変更ピクセル数：12,034 / 1,166,400（1.03%）→ 閾値 2% 以内 ✅
+- CTA座標ずれ：+2px（許容範囲 ±3px）✅
+- コントラスト比：5.4:1（規定 5.0:1 以上）✅
+- Wide Color Gamut 発色差：ΔE 1.2（許容 2.0 以下）✅
+- LINE 転送後想定劣化サンプル：同梱 ✅
+```
+
+**③ 変換パフォーマンス自動レポート（JSON構造化ログ）**
+```json
+{
+  "batch_id": "20260918-escopro",
+  "total_files": 12,
+  "success": 12, "failed": 0, "retried": 0,
+  "duration_sec": 8.2,
+  "peak_memory_mb": 412,
+  "avg_size_reduction_pct": 62,
+  "formats": ["png", "avif", "webp"]
+}
+```
+
+### KPI/成果指標
+1. **PNG 差し戻し率**：3% 以下（現状 2%）→ 1% 以下へ
+2. **バッチ変換時間**：12ファイル並列で 15秒 → **8秒以下**
+3. **ファイルサイズ削減率**：AVIF併用で PNG比 **60% 削減**
+4. **ビジュアル回帰検出率**：意図しない差分の 100% 検知（false negative 0）
+5. **媒体入稿NG率**：0.5% 以下（コントラスト・容量・透過起因のNGゼロ化）
+6. **色プロファイル準拠率**：sRGB / P3 埋め込み 100%
+
+### 運用開始日：2026-09-18

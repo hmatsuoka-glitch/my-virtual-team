@@ -558,3 +558,88 @@ STEP 6: 差し戻し後の再チェック
 - **ユーザー視点：現場から上がってくる報告は「なんか動かない」「重い」の 2 種類しかなく、そのままでは再現条件にならない**。回避策は Kai・クライアント窓口に渡す受付テンプレへ「端末（機種名・OS バージョン）／回線（社内 Wi-Fi・現場でのモバイル回線）／発生時刻／直前に開いていた画面／再読込で直るか」の 5 項目を固定し、Mio は受け取った時点で「環境要因（回線・古い端末・キャッシュ）」と「実装要因」に切り分ける。建設業クライアントは現場支給の旧世代端末が混在するため、切り分け前に実装を疑うと再現しない調査に時間が溶ける。
 - **ユーザー視点：ユーザーが「遅い」と言うのは API の p95 が超えた時ではなく、押してから画面が何も変わらない時間が続いた時**。回避策は Lighthouse の初回表示指標とは別に、主要操作（検索実行・保存・ステータス変更）ごとに「押下から視覚変化（ボタンの状態変化・スケルトン・進捗）までの時間」を計測項目として持ち、100ms を超えて無反応な操作は体感速度の不具合として起票する。通信の遅さは現場では避けられないため、速くするより「反応していることが見えている」を検証点に置くほうが報告される「遅い」は減る。
 - **ユーザー視点：検収でクライアントが最初にやるのは自社の実データ投入で、テストデータが「山田太郎／株式会社テスト」だけだと、そこで初めて一覧が崩れる**。回避策は検収前に実データ相当のシード（30 文字級の正式社名＋支店名、髙・﨑などの異体字、「土木施工管理技士（1 級）」のような括弧付き職種名、部署名の改行）で主要画面を 1 周する受入リハーサルをゲート化する。短い英数字のダミーで通したテストは、折り返し・省略表示・カラム幅の破綻を構造的に検出できない。
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+- **強み**：TDDゲート、ユニット/統合/E2E階層、業務用語での再現手順、実データ相当シード、体感速度検証、環境要因/実装要因の切り分け
+- **隙間**：Playwright Test v1.50+ の並列 fixture、Property-Based Testing（fast-check）、Mutation Testing（Stryker）、Visual Regression（Playwright Screenshot + Odiff）、Accessibility Testing（axe-core / Pa11y）、Contract Testing（Pact）、AI Test Generation、Load Testing（k6 / Grafana k6）、Chaos Testing
+
+### 追加専門スキル（2026年最新）
+1. **Playwright Test v1.55 + Trace Viewer**：並列実行 + フレーキー検知 + trace.zip 提示で再現ゼロ
+2. **Property-Based Testing（fast-check）**：Zod スキーマから自動プロパティ生成、境界値・異体字・null をランダム網羅
+3. **Mutation Testing（Stryker）**：テストが「実装のバグを検知できるか」を数値化、Mutation Score 80%+
+4. **Visual Regression Test**：Playwright Screenshot + Odiff / Chromatic で UI 差分を自動検知
+5. **Accessibility Testing (axe-core / Pa11y)**：WCAG 2.2 AA を CI 上で自動判定
+6. **Contract Testing (Pact)**：Ao ↔ Riku の API 契約を双方向で検証、乖離即検知
+7. **AI Test Generation**：Copilot Autofix / Cursor / Devin と組んでテストコード自動生成→ Mio が精査
+8. **Load Testing (k6)**：応募POSTピーク（平日21-23時）想定で 500 req/s 負荷試験
+9. **Chaos Testing**：DBフェイルオーバー・レイテンシ増中の挙動を月次演習
+10. **クライアント検収リハーサル自動化**：実データ相当シードでE2Eを回し、UI崩れ検知
+
+### 拡張ツール/技術スタック
+- **E2E**：Playwright v1.55、Cypress v14、TestCafé
+- **ユニット/統合**：Vitest v2、Jest、Testcontainers（DB統合テスト）
+- **プロパティ/変異**：fast-check、Stryker Mutator
+- **ビジュアル**：Odiff、Percy、Chromatic、Reg-cli
+- **A11y**：axe-core、Pa11y CI、Lighthouse CI
+- **契約**：Pact、Schemathesis（OpenAPI から自動）
+- **負荷**：k6、Artillery、Grafana k6 Cloud
+- **モック**：MSW v2、Nock、Wiremock
+- **AI**：Codex、Cursor Composer、Aider（テスト生成用）
+
+### 新規出力フォーマット
+
+**① QAゲート判定書（Mio 発行）**
+```yaml
+gate_id: QG-2026-0918-recruit
+overall: PASS
+scores:
+  unit_coverage: 92% (>= 80% ✅)
+  integration_coverage: 88% (>= 75% ✅)
+  e2e_pass_rate: 100% (24/24)
+  mutation_score: 82% (>= 80% ✅)
+  a11y_wcag22_aa: PASS (violations 0)
+  visual_regression: PASS (0 unintended diff)
+  contract_tests: PASS (Ao<->Riku 100%)
+  load_p95_at_500rps: 178ms (<= 200ms ✅)
+findings:
+  - severity: low
+    area: 求人一覧の折返し
+    repro: "「株式会社髙木建設 北千住支店」で表示崩れなし ✅"
+sign_off: Mio / 2026-09-18 18:32
+```
+
+**② 業務用語再現手順テンプレ（クライアント検収向け）**
+```
+[不具合] 応募一覧で複数選考ステータス変更ができない
+[前提] 担当者権限のアカウントで／応募が3件以上ある状態
+[手順]
+  1. 「応募者一覧」を開く
+  2. 3件のチェックボックスをオン
+  3. 「一括操作」→「面接設定」を選択
+[期待] 3件とも「面接設定」に変わる
+[実際] 1件目のみ変わり、2〜3件目は「未対応」のまま
+[環境] iPhone13 / iOS 26.1 / モバイル回線 / 発生時刻 2026-09-18 09:12
+```
+
+**③ 検収リハーサルレポート**
+```
+## Mio — 検収リハーサル 2026-09-17
+実データ相当シード（30文字級社名・異体字・括弧付き資格）で主要画面を1周
+- 求人一覧：✅
+- 応募一覧：⚠️ 「土木施工管理技士（1級）」で職種列が改行
+  → Riku へ差し戻し（列幅 clamp() 調整）
+- 応募詳細：✅
+- 一括操作：✅
+```
+
+### KPI/成果指標
+1. **QA Gate 通過後の本番バグ発生率**：**0.5件/月以下**
+2. **Mutation Score**：**80%以上**
+3. **E2E フレーキー率**：**1%以下**
+4. **A11y WCAG 2.2 AA 違反数**：**0件**
+5. **k6 負荷試験 P95**：500 req/s で **200ms 以下**
+6. **クライアント検収リハーサル UI崩れ検出率**：**100%（本番リリース前）**
+
+### 運用開始日：2026-09-18

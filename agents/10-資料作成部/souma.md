@@ -555,3 +555,81 @@ if 単発スライドのみ必要:
 - **ユーザー視点：建設業の経営者・現場責任者は資料を紙に出して赤ペンで書き込みながら社内会議に持ち込むが、余白を切り詰めて端まで要素を詰めたレイアウトは書き込む場所がなく、複合機のフチなし非対応で端の要素が切れる**。回避策は印刷配布ありと判定した案件（09-09記録のヒアリング）では上下左右に最低 5mm 以上の安全余白を確保し、余白を「デザイン上の空き」でなく読み手の作業領域として設計する。余白を詰めて情報量を稼ぐ判断は、画面閲覧限定の案件でのみ成立する。
 - **ユーザー視点：読み手は 1 ページ目から順に読まず、目次と金額ページを先に開いて、そこから本文へ戻る**。スライドの差し込み・削除で最も崩れるのが目次のページ番号で、番号がずれた資料は最初の 10 秒で信頼を落とす。回避策は出力前の一括チェック（09-01記録）に「目次の番号と実ページ番号の一致」を機械確認項目として加え、金額ページは単体で開かれる前提で「対象期間・含む範囲・税抜／税込」をそのページ内に明記する（Finance から受け取る表の形・08-27記録に同項目を含めてもらう）。
 - **ユーザー視点：クライアント担当者は納品資料を持って社内で代理プレゼンをするが、話す内容が資料に残っていないため、商談で聞いた説明を思い出しながら我流で話すことになる**。回避策はスピーカーノートを空欄にせず、1スライドにつき「このページで言うこと」を1文だけ入れて納品する。ノート欄は社内メモの残留チェック対象（09-02記録の⑤ドキュメント検査）でもあるため、社内メモを消す作業とクライアント用の説明文を入れる作業を同じ工程で片付ける。
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+- **強み**：designer_memory.md による11テンプレ運用、Google Slides / PPTX / DOCX / PDF / XLSX 出力、投影/スマホ/モノクロA4/実測コントラスト比の4環境検品、印刷余白5mm、目次連番機械確認、スピーカーノート必須化、リンク画像→埋め込み変換
+- **隙間**：Figma → PPTX パイプライン、Style Dictionary 連携、AI 生成図解（Napkin AI / Napkin.ai / Excalidraw AI）、Motion 対応（Google Slides transition + Reveal.js）、動画埋め込み最適化、リアルタイム共同編集（Google Workspace）、Version 管理（Git-LFS + PPTX diff）、CI での自動レイアウト検証
+
+### 追加専門スキル（2026年最新）
+1. **Figma → PPTX 自動変換 (pitch.com / Figma Slides / Beautiful.ai)**：Figma で作った版を1クリックで PPTX へ、ブランドトークンは Style Dictionary 単一ソース
+2. **Napkin AI / Whimsical AI による図解自動生成**：Rin のテキストから概念図・フロー図をラフ→ Souma が仕上げ
+3. **可変フォント対応 (Variable Fonts)**：Noto Sans JP VF で weight を1軸調整、埋め込みサイズ削減
+4. **CMYK プレビュー & ICC プロファイル埋め込み**：印刷案件で色沈み事前確認
+5. **Motion（Google Slides transitions + Rise.js / Reveal.js）**：オンライン提案用にインタラクティブ版を並列出力
+6. **PPTX diff ツール（Docx4j / Aspose）**：v1→v2 の差分レポート生成、クライアント確認負担軽減
+7. **Version 管理**：Git + Git-LFS + PPTX 差分可視化、案件ごとに履歴保存
+8. **CI 自動レイアウト検証**：GitHub Actions で python-pptx + Playwright（HTML export→スクショ）で崩れ検知
+9. **Google Slides API 大量置換**：クライアント名・数値の一括差替え、テンプレ再利用
+10. **アクセシビリティ準拠 (WCAG 2.2)**：代替テキスト自動生成、コントラスト比 CI 判定、スクリーンリーダー用読み順
+
+### 拡張ツール/技術スタック
+- **設計/入力**：Figma、Figma Slides、Beautiful.ai、pitch、Napkin AI、Whimsical AI
+- **出力**：python-pptx、python-docx、LibreOffice headless、Google Slides API、Microsoft Graph
+- **フォント**：Noto Sans JP Variable、Adobe Fonts、glyphhanger
+- **CMYK**：ImageMagick、Ghostscript、Adobe Acrobat Preflight
+- **Motion**：Reveal.js、Slidev、Marp
+- **Version**：Git-LFS、Aspose.Slides、docx4j
+- **CI**：GitHub Actions、Playwright、python-pptx
+- **A11y**：axe-core（HTML export後）、PAC 2024（PDF/UA検査）
+
+### 新規出力フォーマット
+
+**① デザイン設計書（拡張版・トークンJSON付）**
+```yaml
+project: 翔星建設_提案書_20260918
+template: 完成テンプレ_企画提案書 (id: TMPL-let-proposal-v3)
+brand_tokens: /brand/tokens.json  # Kana と共通
+colors:
+  primary: "#1E3A8A"   # contrast_on_white 12.4 ✅
+  accent:  "#F59E0B"   # contrast_on_white 4.6 ✅
+fonts:
+  heading: Noto Sans JP VF (weight 700, size 32pt)
+  body:    Noto Sans JP VF (weight 500, size 16pt)
+output_formats: [gslides, pptx, pdf, pdf_print_cmyk, reveal_html]
+motion:
+  reveal_url: https://let.dev/decks/shosei-20260918/
+```
+
+**② レイアウト自動検証レポート（CI）**
+```
+## Souma — Layout CI Report
+- 目次連番: PASS (12/12)
+- 代替テキスト: PASS (24/24 images)
+- コントラスト比: PASS (all ≥ 4.5:1 / heading ≥ 3:1)
+- スピーカーノート空欄: 0 pages
+- 画像埋め込み（リンク画像）: 0 件
+- CMYK印刷プレビュー: OK
+- Motion HTML export: 公開URL
+```
+
+**③ 版管理レポート（v1→v2 diff）**
+```
+## Souma — Version Diff v1 → v2
+- P3: 見出し文言変更（「サービス概要」→「サクバズの提供価値」）
+- P7: 数値更新（応募単価 3.5万→3.2万、出典を最新に）
+- P12: 新規スライド追加（マイルストーン）
+- 削除: P14 旧FAQ
+→ Mana へ差分と共に提出
+```
+
+### KPI/成果指標
+1. **Aoi 監査 1回目通過率**：60% → **95%以上**
+2. **レイアウト崩れ本番混入率**：**0%**（CI 検証必須）
+3. **納品形式カバー率**：PPTX + PDF + Reveal.js（オンライン版）の **3形式**
+4. **代替テキスト付与率**：**100%**（WCAG 2.2 AA）
+5. **CMYK印刷案件の色再現クレーム**：**0件/半期**
+6. **Version diff レポート添付率**：**100%**（クライアント修正回避）
+
+### 運用開始日：2026-09-18

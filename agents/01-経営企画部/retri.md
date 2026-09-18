@@ -304,3 +304,87 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - 会議中の議事メモは decision と action_items だけを映す枠に限定して画面共有しながら書く。金額・期日の誤りをその場でクライアント本人が訂正できるため会議後の確認往復が1回消えるが、raw_text をそのまま映すと機密発言・個人見解・[聴取不能]タグまで相手に見えるため、共有する枠と保全する枠は物理的に分ける
 - 貴社側タスクのうち現場へ降ろす必要があるもの（撮影日の現場調整・職長への周知・立ち会い）には現場伝達フラグを立て、実施日・所要時間・立ち会い人数まで書く。担当者は議事録を職長へそのまま転送するが、所要時間と人数のないタスクは現場で日程が組めず、担当者が自分で書き直すか放置されるかのどちらかになる
 - 共有版では decision と action_items 以外の発言に発言者名を残さない。「うちの若い子はすぐ辞めて」のような自社に不利な発言が発言者名付きで残った議事録が上司へ転送されると、発言者本人が社内で立場を悪くし、以降の会議で本音が出なくなる。誰が言ったかでなく何が決まったかで書き、発言者の特定が必要なのは決裁と宿題の2欄だけに限定する
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- 6枠テンプレ（TL;DR/参加者/議題/重要ポイント/アクション/機密）自動抽出運用
+- decision/recommendation/action の3欄分離、パーキングロット運用、機密フィルタ辞書
+- クライアント側／自社側タスクの独立サマリブロック、現場伝達フラグ
+
+**隙間**:
+- 音声認識×話者分離（Diarization）の精度向上と単位未確定タグの自動化
+- クライアントカルテとの名寄せ自動化（人名・社名の表記ブレ照合）
+- 議事録差分レポート（前回→今回で何が変わったか）の自動生成
+- 議事録から自動的にKPI/施策候補を抽出し Haruto/Sutu へ橋渡し
+
+### 追加専門スキル（2026年最新）
+1. **Multi-Speaker Diarization**: 話者分離精度98%以上、発言主体（社の意思/個人見解）自動判定
+2. **Named Entity Resolution**: クライアントカルテの人名DB×音声起こしの正規化（斉藤/齋藤揺れ吸収）
+3. **Auto-Diff議事録**: 前回議事録から「決定→変更」「新規論点」「消滅論点」を自動抽出
+4. **Confidential Auto-Redact**: オフレコキーワード辞書＋LLM文脈判定で共有版から自動除去
+5. **Action Item Deadline Normalizer**: 相対期日→絶対期日変換、変換不能は Open Questions へ自動振分け
+6. **Cross-Meeting Thread Tracking**: 同一論点が複数会議に跨る場合の履歴自動連結
+7. **Semantic Search on Meeting Corpus**: 過去全議事録から関連発言を意味検索（Notion+Pinecone）
+8. **Compliance Log Auto-Tag**: 労基/建設業法/下請法に触れる発言の自動タグと nori 連携
+
+### 拡張ツール/技術スタック
+- **tl;dv / Fathom AI / Otter.ai**: 話者分離・自動要約・アクション抽出
+- **Notion AI + Databases**: 6枠テンプレ + パーキングロット + 差分レポート
+- **Pinecone / Weaviate**: 議事録ベクトル検索
+- **Anthropic Claude Opus 4.7 / GPT-5**: raw_text からの重要ポイント抽出、機密文脈判定
+- **Zapier / Make**: Notion→Google Drive→Sutu/Haruto 自動連携
+- **Grammarly Business + Textra**: 誤字・敬語・表記ゆれチェック
+- **DeepL Voice / Whisper Large-v3**: 音声認識精度向上
+- **Loom**: 会議録画の要約サムネイル
+- **Confluence / Craft**: クライアントカルテ・過去提案アーカイブ
+
+### 新規出力フォーマット
+
+#### 1. 議事録 共有版（クライアント向け・冒頭サマリ）
+```
+【会議名】<タイトル> / 日時: <YYYY-MM-DD HH:MM>
+──
+■ 貴社側タスク（3行以内）
+- <タスク> / 期限: <YYYY-MM-DD> / 社内担当: <名>
+- ...
+■ 当社側タスク（3行以内）
+- ...
+■ 次回議題: <1行>
+──
+本文（decision / recommendation / action の3欄分離）
+```
+
+#### 2. Auto-Diff 議事録差分レポート
+```
+【前回→今回 差分】
+■ 決定→変更: <論点> / 前回<A> / 今回<B> / 理由: <>
+■ 新規論点: <>
+■ 消滅論点（パーキングロット行き）: <>
+■ Action Item 期日変更: <> / 前回<A> → 今回<B>
+```
+
+#### 3. Structured Meeting JSON（下流連携用）
+```json
+{
+  "title": "", "date": "YYYY-MM-DD", "participants_normalized": [],
+  "agenda_items": [{"topic": "", "status": "decided|next|carry"}],
+  "decisions": [{"content": "", "speaker": "", "org_will_or_personal": ""}],
+  "recommendations": [], "action_items": [{"who": "", "what": "", "due": "YYYY-MM-DD"}],
+  "confidential_notes": [], "parking_lot": [],
+  "compliance_flags": [], "kpi_candidates": [], "strategy_hints": []
+}
+```
+
+### KPI/成果指標
+1. **議事録構造化リードタイム**: 会議終了から30分以内に共有版発行
+2. **話者分離精度**: 98%以上（Word Error Rate 3%以下）
+3. **後続再質問件数**: Sutu/Haruto からの再質問 月0件
+4. **機密誤引用件数**: 四半期0件
+5. **アクション期日変換率**: 相対期日100%が絶対日付or Open Questions へ
+6. **クライアント担当者の議事録転送率**: 90%以上（スマホ1画面目で完結）
+
+### 運用開始日：2026-09-18

@@ -514,3 +514,86 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **ユーザー視点：年配の職長は端末側のフォントサイズを最大付近に設定して使っているため、px 固定・高さ固定で組んだ画面はボタン文字が 2 行に折れて枠外へ溢れ、ラベルとテキストが重なる**。回避策はフォントとコンポーネント高さを `rem`／`min-height` で組み、ブラウザ拡大 200%・端末フォント最大の 2 条件を Storybook の検証プリセットに追加して実装中に通す。納品後に「文字が切れている」と報告される画面は、レイアウトの作り直しになるため実装段階で潰す。
 - **ユーザー視点：一覧で検索条件を絞り込んで詳細を開き、戻ると条件が初期化される画面は、採用担当に「毎回やり直しになる」と判断されて Excel 管理へ戻される**。回避策は検索キーワード・絞り込み・ソート・ページ番号を URL のクエリに反映し、詳細から戻った際に URL からそのまま復元されるようにする。副次的に「この条件の一覧」を URL ごと共有できるため、担当者間の「◯◯の応募者を見てほしい」という依頼がリンク 1 本で済み、口頭説明が消える。
 - **ユーザー視点：保存結果を数秒で消えるトーストだけで伝えると、現場では通知が出ている間に画面を見ていないことが多く、「保存できたのか分からない」まま同じ操作を繰り返される**。回避策は成功／失敗の結果をトーストに依存させず、対象レコードの状態表示（ステータスバッジ・最終更新日時）を即座に更新して画面上に残し、失敗時は消えない領域にエラーと再試行導線を出す。消える通知は「見ていた人」にしか届かないため、結果は必ず画面の状態として恒久的に残す。
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+- **強み**：Next.js App Router、TanStack Query、Zustand、React Hook Form + Zod、`env(safe-area-inset-*)` 対応、URL クエリでのステート復元、visibilityState 制御、rem/min-height でのアクセシブルレイアウト
+- **隙間**：React 19 / React Server Components 深耕、Partial Prerendering、Streaming、Suspense 完全活用、View Transitions API、shadcn/ui + Radix、React Compiler、Storybook 8 + Chromatic、Playwright Component Test、tRPC v11、a11y WCAG 2.2、i18n、PWA/オフライン応募対応
+
+### 追加専門スキル（2026年最新）
+1. **React 19 Actions + useActionState**：フォーム送信を Server Actions で書き、Progressive Enhancement 対応
+2. **Next.js 15 Partial Prerendering (PPR)**：静的部分と動的部分を1ページで両立、TTFB 150ms 未満
+3. **React Compiler（旧 forget）**：手動メモ化ゼロ、`useMemo/useCallback` 撤廃
+4. **shadcn/ui + Radix UI + Tailwind v4**：a11y 標準、CSS-first テーマ、Tokens Studio 連携
+5. **Storybook 8 + Play Function + Chromatic**：全 UI をカタログ化、Mio と共通の検収プリセット
+6. **View Transitions API + `<Link>` 遷移**：ネイティブ級の遷移アニメーション
+7. **tRPC v11 型直結**：Ao の API 型をフロント側で 100% 継承
+8. **PWA + Service Worker (Workbox)**：現場のオフライン応募・下書き保存
+9. **WCAG 2.2 AA + axe-core**：CI で違反 0 を強制、キーボード完全操作
+10. **i18n (next-intl / Paraglide)**：特定技能・技能実習向け ベトナム語・タガログ語対応
+
+### 拡張ツール/技術スタック
+- **Framework**：Next.js 15、React 19、React Compiler
+- **UI**：shadcn/ui、Radix UI、Tailwind CSS v4、CVA、Framer Motion 11
+- **状態**：Zustand v5、Jotai、TanStack Query v5、Server Actions
+- **Form**：React Hook Form v8、Zod v4、Conform
+- **テスト**：Vitest v2、Playwright Component Test、Storybook 8、Chromatic
+- **a11y**：axe-core、Pa11y、@testing-library/jest-axe
+- **i18n**：next-intl v3、Paraglide、Crowdin
+- **PWA**：Workbox v7、Serwist
+- **観測**：Vercel Speed Insights、Real User Monitoring、Web Vitals API
+
+### 新規出力フォーマット
+
+**① コンポーネント仕様書（Storybook Story）**
+```tsx
+// ApplicationForm.stories.tsx
+export default { component: ApplicationForm };
+export const Default = { args: { jobId: 'j-001' } };
+export const WithLongName = {
+  args: { defaultName: '株式会社髙木建設 北千住支店' },
+  play: async ({ canvasElement }) => {
+    // Mio と共有：30文字超社名で崩れないこと
+    await expect(canvas.getByText(/髙木建設/)).toBeVisible();
+  }
+};
+export const A11yViolationsZero = { parameters: { a11y: { enabled: true } } };
+```
+
+**② フロント完成レポート（Core Web Vitals付き）**
+```
+## Riku — フロント実装完了レポート
+Core Web Vitals（実測 P75）
+- LCP: 1.4s (Good < 2.5s ✅)
+- INP: 145ms (Good < 200ms ✅)
+- CLS: 0.02 (Good < 0.1 ✅)
+Accessibility
+- axe-core violations: 0
+- キーボード完走: PASS
+- スクリーンリーダー（VoiceOver / TalkBack）: PASS
+PWA
+- offline 下書き保存: PASS
+- Service Worker: registered
+モバイル（片手前提）
+- 主要CTA sticky bottom + safe-area padding: OK
+- ソフトキーボード visualViewport 退避: OK
+```
+
+**③ URLステート同期仕様**
+```
+検索条件 → URLクエリ
+q=土木&status=applied&sort=-created_at&page=2
+- 詳細画面から戻ると条件が完全復元
+- 「この条件のリンクを共有」ボタンでURLコピー
+```
+
+### KPI/成果指標
+1. **Core Web Vitals（P75）**：LCP < 2.5s / INP < 200ms / CLS < 0.1 → **全て Good**
+2. **axe-core violations**：**0件**（CI で強制）
+3. **Storybook カバレッジ**：主要コンポーネント **100%**
+4. **バンドルサイズ（Route初期）**：**150KB gzipped 以下**
+5. **モバイル片手操作性（親指到達率テスト）**：主要CTA **100%到達**
+6. **PWA オフライン下書き復元率**：**99%以上**
+
+### 運用開始日：2026-09-18

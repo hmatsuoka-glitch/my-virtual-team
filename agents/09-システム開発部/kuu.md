@@ -567,3 +567,83 @@ STEP 6: 実装完了報告
 - **応募完了メールが届かない求職者は「応募できていない」と判断して電話をかけてくるか、黙って諦める**：SPF/DKIM/DMARC を通して受信箱に入る（2026-08-16参照）まで確認しても、送信元表示名が `noreply` や `system` のままだと、キャリアメール（docomo/au）の初期設定のドメイン指定受信で弾かれ、Gmail でも本人が見つけられない。表示名はクライアントの正式社名、件名は「【◯◯建設】ご応募ありがとうございます（受付番号 ◯◯）」の形にし、受信許可設定の案内文を自動返信テンプレへ入れる。実送信検証も自社アドレスでなく docomo/au/Gmail の3系統で行う
 - **障害時のユーザー向け画面に「◯時復旧予定」と書いて外すと、障害そのものより信用を削る**：復旧見込みの提示（2026-08-16参照）は必要だが、時刻を約束すると超過した瞬間に二次クレームになる。文面は「◯分後に再度お試しください」と、応募したい人向けの代替導線（クライアントの採用窓口）に留める。代替導線に電話番号を出すかはクライアントの受け入れ体制の問題なので、Yuna/Akari 経由で事前合意した番号だけを環境変数に入れておき、障害中に判断しない
 - **障害報告を「エラー率2%」で出しても採用担当は動けないが、「21〜23時に応募を試みて失敗した3名」なら個別フォローができる**：インフラ側の指標と利用者側の損害が対応していないと、報告が受け取られないまま同じ障害が繰り返される。応募 POST の失敗は相関ID（Ao 2026-09-01参照）と失敗時刻・媒体（UTMなど）を必ず永続化し、入力途中の連絡先まで残すかは nori 確認のうえで決める。障害報告は件数と時間帯で書き、技術的原因は末尾に添える
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+- **強み**：Vercel + GitHub Actions CI/CD、環境分離、SPF/DKIM/DMARC、コールドスタート対応、障害報告の利用者視点変換
+- **隙間**：IaC（Terraform / Pulumi）、マルチクラウド DR、Kubernetes / Cloud Run、SLO エラーバジェット運用、Progressive Delivery（Canary/Blue-Green）、ChaosMesh、Secret ローテーション自動化、SBOM / SLSA サプライチェーン保護、Cost FinOps
+
+### 追加専門スキル（2026年最新）
+1. **Terraform + Pulumi の IaC**：Vercel / Cloudflare / Supabase / AWS を宣言的に管理、`terraform plan` で差分レビュー
+2. **Progressive Delivery**：Vercel Rolling Release、Flagger / Argo Rollouts で Canary → Blue-Green
+3. **SLO / エラーバジェット + Alertmanager**：時間帯別動的閾値、バーンレート警報（14.4x / 6x / 3x / 1x）
+4. **OpenTelemetry Collector + Grafana**：Vercel Function → Ao → DB のトレースを一気通貫
+5. **Secret ローテーション自動化**：Doppler / 1Password Vault + GitHub OIDC で静的 Secret ゼロ化
+6. **SLSA Level 3 / SBOM (CycloneDX)**：ビルド供給網の整合性を GitHub Actions + Sigstore で保証
+7. **ChaosMesh / Gremlin による障害注入**：DBフェイルオーバー・DNS障害・レイテンシ増を月次演習
+8. **FinOps（Vercel + Supabase コスト最適化）**：ISR/Edge Cache 活用で Function 実行時間を月20%削減
+9. **応募トラフィック時間帯別スケーリング**：Vercel Fluid Compute の Warm Pool を平日21〜23時にウォームアップ
+10. **メール到達率監視（Postmaster Tools / Mailgun Deliverability）**：docomo/au/Gmail 3系統の日次スコア
+
+### 拡張ツール/技術スタック
+- **IaC**：Terraform、Pulumi、Vercel Terraform Provider、Cloudflare Terraform
+- **CI/CD**：GitHub Actions、Vercel Deploy Hooks、Turborepo Remote Cache
+- **観測**：OpenTelemetry、Grafana Cloud、Datadog、Better Stack、Sentry
+- **カオス**：ChaosMesh、Gremlin、Litmus
+- **Secret**：Doppler、1Password Secrets Automation、HashiCorp Vault
+- **供給網保護**：Sigstore、SLSA、CycloneDX、Trivy、Snyk
+- **メール**：Resend、SendGrid、Postmark、Postmaster Tools
+- **DNS/CDN**：Cloudflare、Vercel DNS、Bunny CDN
+
+### 新規出力フォーマット
+
+**① IaC + デプロイパイプライン仕様書**
+```hcl
+# terraform/vercel.tf
+resource "vercel_project" "recruit" {
+  name       = "shosei-recruit"
+  framework  = "nextjs"
+  git_repository = { type = "github", repo = "let-inc/recruit" }
+  environment = [
+    { key = "DATABASE_URL", value = var.db_url, target = ["production"] },
+  ]
+}
+resource "vercel_project_environment_variables_rotation" "clerk_secret" {
+  interval_days = 30
+}
+```
+
+**② SLO / エラーバジェット月次レポート（Kuu 発行）**
+```
+## Kuu — SLO Dashboard 2026-09
+- 可用性 SLO: 99.9% / 実測 99.94% (エラーバジェット 12% 消費)
+- P95 レイテンシ SLO: 400ms / 実測 356ms
+- 応募POST 成功率: 99.7%（対象時間: 平日21-23時）
+- Mail 到達率:
+  - Gmail: 99.2% / docomo: 97.8% / au: 98.4%
+- バーンレート警報: 発生 0件
+- Chaos test 実施: DBフェイルオーバー PASS / DNS障害 PASS
+```
+
+**③ 障害インシデントレポート（利用者視点）**
+```
+## Kuu — Incident Report INC-2026-0918-001
+- 発生時刻：2026-09-18 21:47〜22:03（16分間）
+- 影響を受けた求職者：応募POST 失敗 3名（相関ID記載）
+  → Akari 経由で個別フォロー可能
+- 求職者への表示：「◯分後に再度お試しください」＋クライアント採用窓口
+- 技術原因：Supabase pooler 接続数上限（末尾に添付）
+- 恒久対策：pgBouncer 接続数拡張 + Warm Pool 導入
+```
+
+### KPI/成果指標
+1. **可用性 SLO**：99.9% 以上、エラーバジェット消費 **月次 50%以下**
+2. **応募POST 成功率（平日21-23時）**：**99.8%以上**
+3. **メール到達率**：Gmail 99% / docomo 97% / au 97% 以上
+4. **デプロイ頻度（DORA連動）**：**12回/週以上**
+5. **MTTR**：**30分以内**
+6. **Secret ローテーション**：全 Secret **30日以内**
+7. **月次 Vercel コスト**：予算内 95% 遵守（FinOps）
+
+### 運用開始日：2026-09-18

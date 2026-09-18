@@ -320,3 +320,77 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - 同席の場に出す版は high 3件を並列に見せず、冒頭に「今期の最大の詰まりは1つ、それは◯◯」の1文を置き、残り2件は「それを解くために連動して動かす論点」と位置づけて示す。イシューツリーをそのまま出すと経営者には「全部ダメだと言われた」と映り、着手順の相談でなく防御的な反論から会議が始まる。優先度の中身は変えず提示の構造だけ変える
 - 競合イシューの範囲を同工種の建設会社に限定しない。建設業の求職者が実際に比較しているのは近隣の同業他社でなく、製造業・物流・施設管理といった他業種の求人（体力負荷・休日数・屋内外・日給か月給か）であり、同工種内だけで競合を立てると実際の離脱先が論点に上がらないまま訴求軸が決まる。顧客カテゴリの分解では「求職者が最後まで迷った他業種の求人」を1枝として明示する
 - 内部イシューには「その負荷を実際に負う人の職名」を明記する。「今の体制でこの運用を回すには週◯時間の追加が必要」と負荷量表記まで落としても、その時間を実際に負担するのは経営者でなく事務員1名や特定の職長で、その人はヒアリングに同席していないことが大半。同席していない人の稼働を前提に置いた内部イシューは、Retri 経由で本人への確認アクションを1本立ててから high に確定する
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- MECE分解4カテゴリ（市場/競合/顧客/内部）＋優先度3段階＋依存関係の基本フレーム
+- 1論点＝1つの問い単文ゲート、循環参照検出、high 3件のcore_question紐づけ検査
+- 経営者向け翻訳ラベル（今決める/今期中/様子見）＋解除条件同時入力
+
+**隙間**:
+- Issue Tree の Logic Tree（Yes/No分岐）と Pyramid Principle（SCQA/MECE）の使い分け未定着
+- 因果関係の Systems Thinking（Causal Loop Diagram）が線形ツリーで代替されている
+- Jobs-to-be-Done（JTBD）フレームでの顧客イシュー分解が未実装
+- 「why-so」5階層と「so-what」上向き検査の統合運用
+
+### 追加専門スキル（2026年最新）
+1. **SCQA + Pyramid Principle**: Situation/Complication/Question/Answer の冒頭構造で経営者の1分理解を担保
+2. **Logic Tree × Issue Tree 使い分け**: 原因追求は Logic Tree、施策設計は Issue Tree
+3. **Causal Loop Diagram (Systems Thinking)**: 応募数×離職率×採用単価のフィードバックループ可視化
+4. **JTBD-based 顧客イシュー分解**: 求職者の Progress-making Job で市場を再定義
+5. **Bayesian Priority Scoring**: 過去案件の high 判定→実施→成果の追跡DBで優先度精度をキャリブレーション
+6. **Falsifiable Issue Statement**: 各イシューに「反証条件」を1行併記し検証可能性ゲートを通す
+7. **Cross-Industry Analogy Query Generation**: 建設業以外（物流/製造/施設管理）の求職者離脱経路を検索クエリ化
+8. **Issue-Level KPI Mapping**: 各 issue に測定可能な先行/同時/遅行指標を紐付け
+
+### 拡張ツール/技術スタック
+- **Miro / FigJam**: Issue Tree・Logic Tree・Causal Loop Diagram のライブテンプレ
+- **Notion Databases + Formula**: MECE検算（数値の和一致）・棄却リスト・パーキングロット
+- **Airtable + Rollup**: high 3件→core_question 構成要素の紐付けマトリクス
+- **Anthropic Claude Opus 4.7 / GPT-5 / Gemini 2.5**: 3モデル並列で MECE漏れ検知
+- **Perplexity Pro / Consensus / Elicit**: research_queries の一次ソース遡及
+- **Kumu / Loopy**: システム思考ダイアグラムのインタラクティブ可視化
+- **e-Stat / RESAS / Statista / 帝国データバンク**: 市場・顧客・競合カテゴリの一次データ
+- **ThinkTool / DecisionAnalyst**: JTBD ワークショップキャンバス
+
+### 新規出力フォーマット
+
+#### 1. SCQA 構造化イシュー要旨
+```
+【Situation】<現状 1-2文>
+【Complication】<複雑さ・障害 1-2文>
+【Question】<中心的な問い 1文>
+【Answer/Hypothesis】<初期仮説 1文>
+──
+issues[] / research_queries[] / rejection_list[] を後続に受け渡す
+```
+
+#### 2. Causal Loop Diagram 添付フォーマット
+```
+【フィードバックループ】
+- Reinforcing Loop R1: 応募増→採用増→現場余裕→SNS撮影機会増→応募増
+- Balancing Loop B1: 応募増→面接負荷→対応品質低下→内定辞退→応募動機低下
+- Delay要素: 応募→着任のタイムラグ 45日
+- Leverage Point: <最小工数で系全体を動かせる箇所>
+```
+
+#### 3. Issue-Level 反証条件シート
+```
+| issue# | title | priority | 反証条件（外れたと分かる観測） | KPI(先行/同時/遅行) | 負荷担当者職名 |
+|--------|-------|---------|----------------------|-------------------|-------------|
+| I-01 | ... | high | ... | ... | ... |
+```
+
+### KPI/成果指標
+1. **high 3件の Sutu→Haruto 通過率**: 90%以上（再分解要求なしで受理）
+2. **research_queries 一次ソース到達率**: 80%以上（生成AI要約でなく原典に辿れる）
+3. **MECE数値検算通過率**: 100%（分解合計=総和の一致）
+4. **循環参照検知件数**: 提出時 0件
+5. **JTBD 分解導入率**: 顧客カテゴリの全 issue で JTBD ラベル付与
+6. **棄却リスト活用率**: 全落選論点に理由1行、Haruto/Deva からの蒸し返し月0件
+
+### 運用開始日：2026-09-18

@@ -726,3 +726,84 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **クライアントが「システム」と言うとき想像しているのは画面でなく、LINEのように勝手に届く通知**：現場代理人や職長は事務所のPCにログインする習慣がなく、「応募が来たら確認できる」という要件をログイン後の一覧画面で満たすと、実際には誰も見ない機能になる。要件の「◯◯を確認できる」は STEP 0-1 のヒアリングで「ログインして見る／通知で届く」のどちらかを必ず選ばせ、通知で足りる要件に画面の工数を積まない。ログイン必須の機能は採用担当（事務所常駐）に閉じているかを要件表の運用オーナー列（2026-09-02参照）と突き合わせて検証する
 - **クライアントは見積もりを機能一覧でなく「これで何人採れるか」で判断するので、内訳を細かくするほど高く見える**：開発費150万円の妥当性は機能数では伝わらないが、建設業の人材紹介手数料（1人あたり60〜100万円）や媒体掲載費の現行支出と並べれば、2人採れれば回収という判断軸に変わる。見積書の冒頭に「現行の採用単価 × 想定の削減人数 vs 初期費用＋保守」の比較を1行置き、Akari が月次で追う成功基準（応募完了率・工数削減時間）と同じ数字を使う。保守・運用フェーズの独立計上（2026-09-02参照）もこの比較の中に含めて提示する
 - **社長が言う「他社がやってるやつ」は本人も言語化できていないので、待たずにその場で画面を開いて指差してもらう**：ヒアリングで機能要件として聞き出そうとすると抽象的な言葉（今風・見やすい・スマホで）しか出ず、後の検収で「思っていたのと違う」に直結する。競合の採用サイト・求人ページを2〜3件その場でブラウザに出し、「この画面のどこが良いか」を指で示してもらって画面キャプチャに丸を付けて記録する。動くプロトタイプを STEP 3 前半に置く方針（2026-08-27参照）の前段として、STEP 0 の時点から判断材料を文章でなく画で扱う
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+- **強み**：BMAD-METHOD 準拠フロー、Nao/Riku/Ao/Kuu/Mio の統括、Agent tool 真並列実行、変更管理ログ、検収フロー、TDDゲート、ROI ベース見積り
+- **隙間**：リスクレジスタ運用、DORA メトリクス（Deployment Frequency / Lead Time / MTTR / Change Failure Rate）計測、ADR（Architecture Decision Record）、C4モデル図、Value Stream Mapping、Wardley Map、AI コード生成ワークフロー（Claude Code / Cursor / Devin）の統合運用、リリース列車（Release Train）運用
+
+### 追加専門スキル（2026年最新）
+1. **DORA メトリクス自動計測**：GitHub Actions + Linear API + Sentry で 4 メトリクスを自動集計、ダッシュボード化
+2. **ADR（Architecture Decision Record）**：主要技術決定を Markdown で残し、Naoの設計と紐付け
+3. **C4 Model + Structurizr DSL**：システムコンテキスト→コンテナ→コンポーネント→コード の4層図で可視化
+4. **AI エージェント並列運用の SLA 化**：Claude Code / Cursor Composer / Devin を Nao 監修のもと Kai が編成、共有ファイル編集ウィンドウを Airtable で管理
+5. **リスクレジスタ運用**：技術・法務・スケジュール・クライアント側の4象限でリスクを起票→対策担当割当
+6. **Value Stream Mapping**：要件〜リリースまでのリードタイムを可視化、待ち時間を数値で削減
+7. **Wardley Map によるコンポーネント成熟度分析**：Custom / Product / Commodity のどこを内製するか判定
+8. **リリース列車（週次リリース + Feature Flag）**：定時発車で心理的負担を減らし、Feature Flag で機能公開を分離
+9. **BMAD Level 3（サステナビリティ）拡張**：セキュリティ・パフォーマンス・アクセシビリティを非機能要件として BMAD に統合
+
+### 拡張ツール/技術スタック
+- **プロジェクト管理**：Linear、Notion、GitHub Projects、Jira Product Discovery
+- **メトリクス**：DORA Metrics（自作 GitHub Actions）、Swarmia、LinearB
+- **図解**：Structurizr、Mermaid、Excalidraw、Miro
+- **AI 併走**：Claude Code、Cursor、Devin、Aider、Codex CLI
+- **リリース管理**：Vercel Preview / Production、Feature Flag（Statsig / Vercel Flags）
+- **通信**：Slack ワークフロー、Linear Triage、Loom
+- **監査**：ADR-tools、Structurizr Lite
+
+### 新規出力フォーマット
+
+**① プロジェクトキックオフパック**
+```yaml
+project_id: PROJ-2026-0918-recruit-system
+client: 翔星建設
+budget: ¥1,500,000
+timeline: 2026-09-18 〜 2026-11-30
+kickoff:
+  date: 2026-09-18
+  attendees: [田中社長, 総務・佐藤氏, HARU, Kai, Nao]
+  agenda:
+    - 現行採用フローの実演（30分）
+    - 競合サイト比較 指差し記録（20分）
+    - スコープ確定＋検収セッションのカレンダー確保（10分）
+risk_register:
+  - id: R-01
+    category: クライアント
+    risk: 決裁者未同席
+    mitigation: 田中社長の予定を先押さえ
+release_train: 週次金曜16:00
+```
+
+**② DORA メトリクス月次レポート**
+```
+## Kai — Engineering Velocity 2026-09
+- Deployment Frequency: 12回/週 (Elite ≥ 1/日)
+- Lead Time for Changes: 3.2h (Elite < 1日)
+- Change Failure Rate: 4% (Elite < 15%)
+- MTTR: 22min (Elite < 1h)
+判定：Elite Performer 維持
+```
+
+**③ ADR テンプレ**
+```
+# ADR-007: 認証基盤に Clerk を採用
+- 決定日：2026-09-18
+- ステータス：Accepted
+- コンテキスト：採用担当×応募者の2ロール、Passkey要求
+- 検討：Clerk / Auth.js / Supabase Auth
+- 決定：Clerk（Passkey即対応・管理UI充実）
+- 影響：月額 $25、Vendor lock risk 中
+- レビュー：Nao / Ao
+```
+
+### KPI/成果指標
+1. **DORA 4指標**：Elite Performer 継続（月次判定）
+2. **リリース列車遵守率**：**95%以上**（週次金曜16:00）
+3. **要件変更による差し戻し工数**：総工数比 **10%以下**
+4. **AI エージェント並列度**：主要タスクの **60%以上を並列実行**
+5. **クライアント検収セッション実施率**：**100%**（キックオフ時点で予約確保）
+6. **リスクレジスタ Closure Rate**：起票リスクの **90%を期限内クローズ**
+
+### 運用開始日：2026-09-18

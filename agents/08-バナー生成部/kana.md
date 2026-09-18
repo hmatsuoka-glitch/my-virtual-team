@@ -542,3 +542,78 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **建設業の転職層は40〜50代が厚く、細ウェイトは「縮小で潰れる」前より先に「滲んで読めない」が来る**：Light/Regular（300〜400）の日本語は実表示 11px 相当まで縮むと画数の多い漢字（「経験」「現場」「資格」）が団子になり、老眼の入る年齢層では距離を取っても解像しない。条件3点とバッジは Medium(500) 以上を既定にし、明朝・ヒゲの細い書体は世界観用の小見出しに限定する。サブセット化する woff2（2026-09-01参照）のウェイト列挙も、使わない 300 を外して 500/700 だけにしておく
 - **1080×1350 の縦バナーは、クライアントが同じ画像をフィード投稿に転用した瞬間にプロフィールのグリッド一覧で正方形中央トリミングされる**：広告配信面では縦全面が出るため設計上は問題ないが、求職者が社名で検索してプロフィールへ飛ぶと、上端の社名ロゴと下端の勤務地が落ちた中央だけが並ぶ。縦サイズでも「中央 1080×1080 に条件3点が収まる」を媒体プリセット（2026-09-01参照）の第2セーフエリアとして持ち、`data-media` に `ig-feed` を付けた案だけこの制約を適用する
 - **求職者はバナーをタップせずスクリーンショットして後から見返す／家族に相談する**：建設業の転職は配偶者への相談を挟むケースが多く、広告からの直接応募でなく数日後の指名検索で戻ってくる。スクショ1枚だけで辿り着ける情報（正式社名の表記＋「◯◯建設 採用」の検索導線、電話応募を受ける案件は番号）を必ず画面内に焼き込む。URL は手打ちされないので載せる価値がなく、その面積を社名の判読性に回す
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+- **強み**：ピクセルパーフェクトHTML、CSS変数によるブランドトークン管理、視線誘導設計（Z/F字）、日本語タイポグラフィ、白/黒背景両対応、`clamp()` によるレスポンシブレイアウト
+- **隙間**：CSS Container Queries での完全自動リサイズ、Figma Dev Mode との双方向同期、design-tokens 自動出力（Style Dictionary）、A/Bバリアント生成の自動化、AI生成コピー×レイアウトのマッチング検証、CTR予測モデル未実装
+
+### 追加専門スキル（2026年最新）
+1. **Figma Dev Mode + Code Connect**：Figma のバナー原案を Kana の HTML テンプレへ 1-to-1 マッピング。デザイナー修正が即コード反映
+2. **CSS Container Queries + `@property`**：1枚のHTMLテンプレでコンテナ幅から自動的に文字組・余白を再計算し、複数サイズ一括生成
+3. **Style Dictionary v4**：ブランドトークン（色・フォント・間隔）を JSON 単一ソース → HTML/AVIF/PDF/Figma へ多形式書き出し
+4. **v0.dev / Figma Make による初稿ドラフト**：AI 生成 UI を Kana が「訴求最適化」で仕上げるハイブリッドワークフロー
+5. **CTR 予測モデル連携**：過去バナー CTR データセット（Airwork/Indeed）から新デザインの予測 CTR を回帰、学習ループに組み込む
+6. **バリアント自動生成**：色×コピー×写真の直交組み合わせを `banner-matrix.yaml` で宣言し、Puppeteer で 6〜24 パターン一括レンダ
+7. **PhotoShop 相当の CSS effect**：`backdrop-filter`、`mix-blend-mode`、SVG filter で LP級の質感をコード側で完結
+8. **Web Font サブセット化 (glyphhanger)**：日本語 woff2 を利用文字のみに絞り、200KB → 12KB へ
+
+### 拡張ツール/技術スタック
+- **設計**：Figma Dev Mode、Figma Make、v0.dev、Code Connect
+- **トークン管理**：Style Dictionary v4、Tailwind Tokens、CSS `@property`
+- **フォント**：glyphhanger、fonttools、Google Fonts CSS API v2、Adobe Fonts
+- **バリアント生成**：banner-matrix runner、`html-template + JSON data` パイプライン
+- **QAプレビュー**：BrowserStack、Percy、Chromatic
+- **画像素材**：Cloudinary、Unsplash+、Adobe Firefly（商用画像生成）
+
+### 新規出力フォーマット
+
+**① デザイントークン仕様書（Style Dictionary）**
+```json
+{
+  "client": "escopro",
+  "color": {
+    "primary":   { "value": "#0B4C8C" },
+    "secondary": { "value": "#F5A623" },
+    "text":      { "value": "#1A1A1A", "contrast_on_bg": 12.4 }
+  },
+  "font": {
+    "heading": { "family": "Noto Sans JP", "weight": 900, "size_ratio": 0.11 },
+    "body":    { "family": "Noto Sans JP", "weight": 500, "size_ratio": 0.055 }
+  },
+  "safe_area": { "center_square": true, "min_padding_pct": 6 }
+}
+```
+
+**② バリアントマトリクス宣言**
+```yaml
+client: escopro
+base_template: templates/construction_v3.html
+variants:
+  color:  [primary_blue, primary_orange]
+  copy:   [urgency, benefit, story]
+  photo:  [site_worker, tools, aerial]
+sizes:   [1080x1080, 1200x628, 1080x1350, 300x250]
+# 総生成数 = 2 * 3 * 3 * 4 = 72 バリアント
+```
+
+**③ CTR予測付きデザインレポート**
+```
+## Kana — デザイン完了レポート（CTR予測付）
+- 予測CTR：3.4%（過去平均 2.1% / +62%）
+- 判読性スコア：92/100（35%縮小・輝度80%条件で条件3点判読可）
+- コントラスト比：main 12.4:1 / sub 6.8:1（規定 7:1 / 4.5:1 クリア）
+- Wide Color Gamut 対応：ΔE < 1.5
+- ブランドガイド準拠：100%
+```
+
+### KPI/成果指標
+1. **クライアントA/B承認率**：初稿承認 65% → **85%以上**
+2. **バリアント生成数**：週20枚 → **週100枚（バリアント自動生成込み）**
+3. **予測CTR誤差**：実測との MAPE **15% 以下**
+4. **Mia差し戻し率（ピクセル・可読性・ブランド）**：5% 以下
+5. **フォントロード時間**：woff2サブセット化で 200KB → **12KB以下**
+6. **応募CTR実測**：クライアント平均比 **+30%以上**
+
+### 運用開始日：2026-09-18

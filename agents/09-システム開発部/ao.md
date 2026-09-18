@@ -544,3 +544,87 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **採用担当の管理画面での主作業は「閲覧」でなく「電話をかける」で、繋がらないのが常態**：一覧の電話番号を表示するだけだと手打ちで掛け直され、応募者ごとに何回架電したかがどこにも残らない。電話番号は `tel:` リンクで返す前提で正規化済みの値（2026-09-02参照の正規化列）と表示用原文を両方返し、対応ステータスは「連絡済み／未」の2値でなく架電試行回数・最終架電日時・次回架電予定を持つ。3回繋がらない応募者を抽出できるかどうかで、管理画面が業務ツールになるか閲覧ツールで終わるかが決まる
 - **採用担当は電話口で聞いた名前をカナで検索するが、DB には漢字しか入っていない**：応募者から折り返しの電話が来た時に「ヤマザキさん」で引けないと、一覧を目視で追う数分が電話を待たせたまま発生する。氏名は漢字・カナ・入力があればローマ字を別列で保持し、検索用の正規化列（カナは全角統一、濁点・長音・スペースを除去）に対して部分一致インデックスを張る。重複判定用の正規化列（2026-09-02参照）とは目的も正規化ルールも違うので同じ列を兼用しない
 - **採用担当が言う「削除したい」は一覧から消したいであって、応募者本人からの削除請求とは別物**：同じ削除APIに寄せると、誤操作による消失が復旧不能になるうえ、本人請求の対応記録も残らない。UI の削除は論理削除（非表示＋30日の復元期間）、本人請求によるパージは別エンドポイント＋監査ログ必須、の2系統に分けて設計し、どちらが呼ばれたかを Nao の設計表と nori 合意の保存期間ルールに1:1で対応させる。カスケード方針を後付けできない原則（PII連携）と同じ理由で、実装前に確定させる
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+- **強み**：Prisma/Drizzle ORM、Next.js Route Handler、Zod バリデーション、NextAuth/Clerk、keyset ページング、冪等キー設計、論理削除/物理削除の2系統設計、PII保護
+- **隙間**：Event-Driven / CQRS 設計、tRPC 完全型安全、gRPC / Protobuf、OpenTelemetry / OTLP 分散トレース、非同期ワーカー（Trigger.dev / Inngest）、Feature Flag、Chaos Engineering、SLO/SLIエラーバジェット運用、pgvector によるベクトル検索
+
+### 追加専門スキル（2026年最新）
+1. **tRPC v11 + Zod で完全型安全**：フロントエンド（riku）とバックエンドを型で結合し、API乖離ゼロ
+2. **Inngest / Trigger.dev v3 による非同期ワーカー**：長時間バッチ・応募通知・再送・スケジュール処理を型安全に実装
+3. **OpenTelemetry + Grafana Tempo**：分散トレースで DB → API → フロントのボトルネックを可視化
+4. **pgvector + Drizzle**：応募者スキルマッチのベクトル検索（1536次元 embedding）を SQL 内で完結
+5. **Row-Level Security (Supabase RLS / Postgres RLS)**：マルチテナント権限を DB 側で強制、アプリ実装漏れを構造的に防ぐ
+6. **Feature Flag (Vercel Flags / Statsig)**：段階リリース・A/B・killswitch
+7. **SLO / エラーバジェット**：可用性 99.9%、レイテンシP95 200ms を SLI として計測、逸脱時にリリース停止
+8. **Chaos Engineering (Litmus / Gremlin)**：DB接続断・レイテンシ劣化を意図的に発生させ回復性を検証
+9. **Argon2id / Passkey (WebAuthn)** による認証強化
+
+### 拡張ツール/技術スタック
+- **API**：tRPC v11、Hono、Fastify、Elysia（Bun）
+- **DB / ORM**：Prisma v5、Drizzle、Neon (serverless Postgres)、Supabase、pgvector、pgBouncer
+- **キュー**：Inngest v3、Trigger.dev v3、Cloudflare Queues、Upstash QStash
+- **観測**：OpenTelemetry、Grafana Tempo、Highlight.io、Sentry Performance
+- **認証**：Clerk、Auth.js v6、Passkey/WebAuthn、Argon2id
+- **キャッシュ**：Redis、Upstash Redis、Vercel KV、Cloudflare Cache API
+- **テスト**：Vitest、Supertest、Testcontainers、msw v2、k6（負荷試験）
+
+### 新規出力フォーマット
+
+**① API契約書（OpenAPI 3.1 + tRPC Router）**
+```typescript
+export const applicationRouter = router({
+  submit: publicProcedure
+    .input(z.object({
+      jobId: z.string().uuid(),
+      name: z.string().min(1).max(50),
+      nameKana: z.string().regex(/^[ァ-ヶー\s]+$/),  // カナ検索用
+      phone: E164Phone,
+      resume: z.string().max(4000).optional(),
+      idempotencyKey: z.string().uuid(),
+    }))
+    .output(z.union([SubmittedSchema, DuplicateSchema, RetryableSchema]))
+    .mutation(async ({ input, ctx }) => { ... })
+})
+```
+
+**② SLO/エラーバジェット月次レポート**
+```
+## Ao — SLO Report 2026-09
+| SLI | 目標 | 実測 | エラーバジェット消費 |
+|-----|------|------|---------------------|
+| 可用性 | 99.9% | 99.94% | 12% 消費 |
+| P95レイテンシ | 200ms | 178ms | ✅ |
+| API 5xx率 | <0.1% | 0.03% | ✅ |
+| 冪等キー衝突検知率 | 100% | 100% | ✅ |
+→ リリース速度維持可 / Chaos test 実施済み
+```
+
+**③ Postgres スキーマ + マイグレーション + RLS 一式**
+```sql
+-- applications テーブル + RLS
+CREATE TABLE applications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  name_kana_norm TEXT GENERATED ALWAYS AS (regexp_replace(name_kana, '\s|ー|゛|゜', '', 'g')) STORED,
+  ...
+);
+CREATE INDEX ON applications (tenant_id, created_at DESC, id DESC);
+CREATE INDEX ON applications USING gin (name_kana_norm gin_trgm_ops);
+
+ALTER TABLE applications ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON applications
+  USING (tenant_id = current_setting('app.tenant_id')::uuid);
+```
+
+### KPI/成果指標
+1. **API P95レイテンシ**：**200ms 以下**
+2. **可用性**：99.9% 以上（月次ダウンタイム 43分以下）
+3. **セキュリティ脆弱性**：CVE 発見〜パッチ **72時間以内**
+4. **型カバレッジ（tRPC + Zod）**：**100%**（any/unknown 0）
+5. **N+1クエリ検知率**：Prisma logs で **0件/週**
+6. **Chaos test 通過率**：主要導線 **100%**
+
+### 運用開始日：2026-09-18

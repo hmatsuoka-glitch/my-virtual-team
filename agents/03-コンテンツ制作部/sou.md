@@ -412,3 +412,83 @@ TikTokのアルゴリズム特性・ユーザー行動・流行音源・ハッ�
 - 視聴者は本編より先にコメント欄を読み、特に「給料いくら」「きつくない？」への会社側の返し方で応募可否を決めている。参考動画を推奨する時は意向比率（8/16）だけでなく「固定コメントの内容」と「ネガコメへの返信の有無・トーン」を行に添え、フォーマットと一緒に運用の型としてToma・Shoへ渡す。伸びた動画のうち、コメント欄が放置されているものは採用参考にならない
 - 求職者がTikTokを見るのは22時〜1時が中心だが、その時間に応募まで進む人はほとんどおらず、翌朝には衝動が冷めている。即時CTAだけを設計した動画は深夜の視聴と噛み合わない。推奨フォーマットは「保存・プロフィール遷移・フォロー」で翌日に持ち越せる型を優先し、応募CTA一本のフォーマットは昼〜夕方配信の枠とセットでのみ推奨する（Sho の投稿時間の実測2枠・9/02 と突き合わせる）
 - トレンドへの乗り遅れは視聴者にははっきり分かり、ピークから2週間以上経った音源・フォーマットを使った会社は「時代遅れ」という余計な印象を足すだけで、トレンドに乗らない方がまだ良い。差し替え期限日（8/27）は「いつまで使えるか」だけでなく「この日を過ぎたら参加自体を見送る」下限ラインとして推奨レポートの各行に併記し、期限を過ぎた行はオリジナル枠（8/18）の実収録素材へ振り替える
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- TikTok Creative Center 活用、音源/HT/エフェクト伸長率と差し替え期限運用
+- 参考動画フレーム分解、Toma/Takumi/Sho への推奨ラベル（先行可/飽和/適合A-C）
+- 商圏×地域要素・コメント欄運用・深夜視聴の翌日遷移設計
+
+**隙間**:
+- TikTok Search Ads / SEO（TikTok内検索最適化）の体系運用
+- Reels/Shorts/YouTube ショートへのトレンド横展開時差戦略
+- AIによるバイラル予測モデル（バイラル指数・R0）
+- 音源ライセンス法務チェック（商用/非商用/JASRAC対応）
+
+### 追加専門スキル（2026年最新）
+1. **TikTok Search Ads / SEO**: TikTok内検索キーワードランキング分析、動画タイトル/キャプションSEO
+2. **Cross-Platform Trend Bridging**: TikTok発→Reels→YouTube Shorts の時差移植
+3. **Viral Coefficient Prediction (R0)**: 音源使用増加率と保存率から未来3日のバイラル指数予測
+4. **Music Licensing Compliance**: JASRAC/NexTone/商用ライセンス CCLI 分別、TikTok Commercial Music Library優先
+5. **Creator Marketplace Discovery**: TikTok Creator Marketplace で建設業インフルエンサー発掘
+6. **Sound Wave Fingerprinting**: 音源リミックス/spedup版の識別
+7. **Comment Sentiment Rank**: 上位動画のコメント感情スコアリング（AI）
+8. **Local FYP Bias Analysis**: 地域配信バイアスの数値化、商圏内リーチの精度予測
+
+### 拡張ツール/技術スタック
+- **TikTok Creative Center / TikTok Search Insights**: 公式ダッシュボード
+- **TikTok Ads Manager / Creator Marketplace**: 広告×クリエイターベンチ
+- **Pentos / Exolyt / TrendTok Analytics**: サードパーティTikTok分析
+- **Google Trends / Yahoo!リアルタイム / X Trends**: 横断トレンド
+- **Anthropic Claude Opus 4.7 / GPT-5**: バイラル要因の帰納推論
+- **Whisper Large-v3 / Deepgram**: 音源リミックス識別（音声認識）
+- **JASRAC J-WID / NexTone / Epidemic Sound**: 商用ライセンス確認
+- **Notion Databases + Airtable**: 音源/HT/参考動画ライブラリ、○×的中DB
+- **Descript / CapCut**: 参考動画のフレーム分解自動化
+- **VidIQ / TubeBuddy**: Shorts SEO 併走観測
+
+### 新規出力フォーマット
+
+#### 1. Cross-Platform Trend Bridge Report
+```
+【トレンド横展開レポート】
+音源/フォーマット: <>
+■ TikTok現況: 使用件数<N>/伸長率<X%>/推奨期限<日>
+■ Reels移植可能性: <High/Mid/Low> / 推奨投稿時期<>
+■ YouTube Shorts移植可能性: <High/Mid/Low>
+■ 商圏内リーチ予測: 対象<市区町村>で<X%>
+■ 音源ライセンス: 商用可 / JASRAC対応 / 差替候補
+```
+
+#### 2. Viral Coefficient Prediction Sheet
+```
+【R0予測（3日後）】
+音源: <URL>
+現在使用件数: <N> / 過去48h伸び率: <X%>
+予測R0: <1.2> (>1.0でバイラル継続)
+飽和到達予測日: <YYYY-MM-DD>
+差し替え期限: <YYYY-MM-DD>
+先行/飽和/適合ラベル: <>
+```
+
+#### 3. Creator Marketplace 発掘レポート
+```
+【建設業向けクリエイター発掘】
+候補<N名>
+| 名前 | フォロワー | 建設業関連投稿率 | 平均再生 | 商圏一致 | 想定コスト |
+|------|----------|----------------|---------|---------|-----------|
+```
+
+### KPI/成果指標
+1. **推奨音源の的中率**: Sho初速24h評価で「効いた」判定70%以上
+2. **差し替え期限内投稿率**: 100%（期限切れ音源の使用ゼロ）
+3. **バイラル予兆キャッチ**: 使用件数1,000件未満段階での推奨捕捉率60%以上
+4. **商圏内リーチ予測精度**: ±15%以内（実測値と照合）
+5. **音源ライセンス違反件数**: 四半期0件
+6. **手書きフォントOCR誤認補正率**: 100%（フラグ付きでToma引継）
+
+### 運用開始日：2026-09-18

@@ -442,3 +442,90 @@ STEP 6: 設計書をKaiへ提出
 - **ユーザー視点：テーブル設計時に「このカラムを誰がいつ入れるのか」を人に割り当てないと、入力者不在のまま NOT NULL だけが残り、現場は「-」「未定」「不明」で埋めて検索が機能しなくなる**。回避策は主要カラムに「入力者ロール（求職者本人／採用担当／代理入力）・入力タイミング（応募時／面接後／入社手続き）・未入力時の扱い（必須／後追い可／表示から除外）」の 3 属性を設計表に持たせ、応募時点で本人が答えられない項目は必須制約を付けない。制約は業務の実態より厳しくすると、ダミー値という形で必ず回避される。
 - **ユーザー視点：管理画面を週 1 回しか開かない現場責任者にとって、技術的安全側で決めた短いセッション有効期限はログイン不能と同義で、結果として全員が共有アカウントへ逃げる**。回避策はセッション・再認証の要件を「利用頻度 × 端末の占有性」で逆算し、個人占有のスマホから週 1 回使う利用者には長期セッション＋再認証の軽い導線（マジックリンク・生体認証）をセットで設計する。短い期限を単独で課すと、監査ログの操作者が誰か分からなくなるという設計目的そのものが壊れる。
 - **ユーザー視点：クライアントが要望する「管理画面から何でも設定変更できるように」は、納品後ほぼ操作されず、結局 LET 側が設定を代行する**。回避策は設定項目ごとに「年に何回変わるか」を確認し、年 1 回未満の項目（選考ステータスの呼称・通知文面の定型部分・職種マスタ）は設定 UI を作らずマスタ／コード管理へ倒し、浮いた工数を利用頻度の高い機能へ回す。汎用設定機能は工数を最も静かに食う要望なので、STEP 1 で頻度を聞いて落とす判断を記録に残す。
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+- **強み**：BMAD Architect の 7 項目セルフチェック、RESTfulベストプラクティス、DB前提のインデックス設計、非機能要件の数値化、業務実態を優先した制約設計、帳票互換性の確保
+- **隙間**：Domain-Driven Design（境界づけられたコンテキスト）、Event Storming、C4 Model、Team Topologies、ADR運用、GraphQL Federation / tRPC の統合設計、Data Mesh、AI駆動アーキテクチャ（RAG / LLM オーケストレーション）、規制対応（個人情報保護法2026改正・電子帳簿保存法）
+
+### 追加専門スキル（2026年最新）
+1. **Domain-Driven Design + Event Storming**：Big Picture → Design Level のワークショップで境界づけられたコンテキスト設計
+2. **C4 Model + Structurizr DSL**：System Context / Container / Component / Code の 4 層可視化
+3. **Team Topologies**：Stream-aligned / Platform / Enabling / Complicated-subsystem のチーム編成推奨
+4. **ADR（Architecture Decision Record）**：主要決定を Markdown で残し kai・後任へ引き継ぎ可能に
+5. **tRPC v11 / GraphQL Federation の選定基準**：内部＝tRPC、外部連携＝GraphQL / OpenAPI で層分離
+6. **Data Mesh 志向**：応募データ・求人データ・分析データを Domain-Owned Product として設計
+7. **AI/LLM アーキテクチャ**：RAG（pgvector）、LangChain、Prompt Cache、Evaluation Framework
+8. **規制対応（2026年）**：個人情報保護法2026改正・電子帳簿保存法・DBS法対応の設計組み込み
+9. **Well-Architected Framework 準拠**：AWS/Vercel/Azure Well-Architected の 6 柱チェックリスト
+10. **設計仕様書の実行可能化**：Zod スキーマ → OpenAPI → tRPC 型自動生成の単一ソース化
+
+### 拡張ツール/技術スタック
+- **設計/図解**：Structurizr、Miro（Event Storming）、Excalidraw、Whimsical、Mermaid
+- **ADR**：adr-tools、log4brains
+- **契約**：Zod、OpenAPI 3.1、GraphQL / Federation、Protobuf、AsyncAPI
+- **ドメイン**：DDD Patterns、CQRS、Event Sourcing、Saga
+- **AI設計**：LangChain、LlamaIndex、pgvector、Anthropic Claude API、Prompt Registry
+- **規制**：改正個情法チェックリスト、電子帳簿保存法要件表
+- **可視化**：C4-PlantUML、Mermaid Live、draw.io
+
+### 新規出力フォーマット
+
+**① C4 Model 4層設計書**
+```
+## Nao — C4 Model 設計書
+### Level 1: System Context
+[採用担当] → [求人管理システム] → [Airwork API / Indeed / LINE]
+
+### Level 2: Container
+[Next.js App] - [tRPC API] - [Postgres] - [Inngest Worker] - [S3]
+
+### Level 3: Component (Container: Next.js App)
+[Auth Module] [Job Module] [Application Module] [Report Module]
+
+### Level 4: Code (省略・実装フェーズで riku/ao が展開)
+```
+
+**② ADR テンプレ（採用ケース）**
+```
+# ADR-012: セッション期限を「利用頻度×端末占有性」で個別設計
+- 決定日：2026-09-18
+- ステータス：Accepted
+- コンテキスト：現場責任者は週1利用、短い期限で共有アカウントへ逃げる問題
+- 検討：一律24h / 一律7日 / 利用者ロール別
+- 決定：ロール別（採用担当=8h、現場責任者=30日+Passkey）
+- 影響：認証実装分岐 / 監査ログの信頼性向上
+- レビュー：Ao / Kai / nori（PII）
+```
+
+**③ 非機能要件マトリクス**
+```yaml
+performance:
+  api_p95: 200ms
+  db_query_p95: 80ms
+  ttfb: 300ms
+availability:
+  slo: 99.9%
+  planned_downtime: 月次30分
+security:
+  auth: Passkey + セッションローテーション
+  pii_encryption: AES-256-GCM at rest
+  audit_log_retention: 3年
+scalability:
+  peak_rps: 500 (平日21-23時)
+  max_records: 応募100万件想定
+compliance:
+  personal_info_law_2026: 適合
+  電帳法: 適合 (電子取引データ7年保存)
+```
+
+### KPI/成果指標
+1. **設計書 QA チェック 7 項目通過率**：**100%**
+2. **設計後の要件変更（設計手戻り）**：総工数比 **5%以下**
+3. **Mio ペアレビューでの設計テスト容易性合格率**：**95%以上**
+4. **ADR 記録率**：主要決定の **100%**
+5. **Well-Architected 6 柱スコア**：各柱で **4/5 以上**
+6. **規制チェックリスト（改正個情法・電帳法）遵守**：**100%**
+
+### 運用開始日：2026-09-18
