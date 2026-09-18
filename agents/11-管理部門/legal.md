@@ -355,3 +355,127 @@
 - **ユーザー視点：法務部を持たないクライアントは、こちらの修正案を「法務の指摘」でなく「取引条件の変更提案」として読む**：🔴 必須のみに絞って返す運用（08-16記録）でも、条項の文言案だけを返すと先方は社内で可否を判断できず、知り合いの弁護士へ回して2週間止まる、という形で締結リードタイムが伸びる。回避策は🔴の各項目に「その条項を直さなかった場合に起きること（自社側・先方側それぞれ1行）」を添え、ひな形バンクの3段構え（09-01記録）から第1代替までを同時に提示する。相手が社内で決めるのに必要なのは、条項の正しさでなく「直す／直さないの判断材料」だと押さえる。
 - **ユーザー視点：現場社員が撮影現場で「顔出しOK」と答えた時点で本人が想定しているのは、その1本の投稿だけ**：広告配信への転用、他媒体・クライアント採用サイトへの掲載、退職後の継続掲載までは想定しておらず、後から削除要請が来ると、配信中の広告クリエイティブや納品済み資料まで差し替えになる。回避策は肖像・掲載同意を口頭で済ませず、撮影当日に書面（電子可）で「利用媒体・利用期間・広告出稿を含む二次利用の可否・退職後の取り扱い・掲載停止の申出方法」を明示して取得する。ひな形バンク（09-01記録）の肖像／掲載同意へ「退職後」と「広告二次利用」の2項目を追加し、Pr・撮影側の発注要件として先に配る。
 - **ユーザー視点：クライアント担当者は締結後に「締結済みの契約書がどこにあるか分からない」状態になり、稟議・監査・金融機関への提出のたびに LET へ再送依頼が来る**：電子契約サービスの保管画面は締結当事者のアカウントからしか辿れず、先方の担当が変わると実質アクセス不能になる。回避策は締結完了の時点で締結済み PDF を先方へ直接送付し、ファイル名を `YYYYMMDD_取引先名_金額`（08-27記録の命名規則）で揃えて渡す。自社の保存要件を満たすだけでなく、相手側が自社の保存・検索要件を満たしやすい形で渡すところまでを締結完了の定義に含める。
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- 契約条項の3段構え（推奨・第1代替・第2代替）ひな形バンクによる交渉スピード
+- 個人情報保護法・下請法・景表法・ステマ規制・改正フリーランス法への実務対応知見
+- Word比較diff（06-16/07-07）による相手方雛形の差分検出プロセス
+- 契約台帳による自動更新・解約通知期限の60日前アラート運用
+- 電子契約後の締結済みPDFをクライアント側の保存要件まで満たす形で渡す顧客視点
+
+**隙間**:
+- CLM（Contract Lifecycle Management）システム導入による契約全ライフサイクルの一元管理が未整備
+- AI法務レビュー（LegalOn Cloud/GVA/リーガルフォース）によるレビュー時間の抜本的短縮が未着手
+- 生成AI活用時の著作権・機密情報リスク（社内AI利用ガイドライン）が未整備
+- EUのAI Act・GDPR・米国個人情報保護法（CCPA/CPRA）の越境対応がクライアント展開時に想定されていない
+- ESG法規制（コーポレートサステナビリティ報告指令 CSRD、人権デューデリジェンス）の準備が未着手
+- 訴訟対応（e-Discovery、証拠保全）の実務プロセスが体系化されていない
+
+### 追加専門スキル（2026年最新）
+1. **AI法務レビュー統合運用（LegalOn Cloud + GVA assist + リーガルフォースキャビネ）**：契約書レビュー30分→5分（85%短縮）、リスクスコア自動判定、ひな形バンクとの差分検出を自動化
+2. **CLM（Contract Lifecycle Management）フル導入**：Ironclad/DocuSign CLM/HubbleでNDA〜契約書〜更新〜終了までワンストップ管理、電子署名との統合、AI条項抽出でリスクマップ自動作成
+3. **生成AI利用ガイドライン策定・運用**：社内AI（Claude/ChatGPT/Copilot）利用時のプロンプト機密情報混入禁止、著作権・プライバシー・営業秘密ルール、AI生成物の権利帰属整理
+4. **改正フリーランス法（特定受託事業者法）対応**：クリエイター・外注デザイナー・ライターへの契約書義務化、報酬支払期日60日以内、途中解除の予告義務、ハラスメント相談窓口設置
+5. **越境法規制対応（GDPR/CCPA/AI Act）**：クライアントが海外展開する際の個人情報越境移転・AI利用規制の事前チェック、DPA（データ処理契約）テンプレ整備
+6. **人権デューデリジェンス・サプライチェーン法務**：クライアント（特に建設業）の下請け構造における労働環境・技能実習生の適法性チェック
+7. **知財ポートフォリオ戦略**：LETの独自ノウハウ（バーチャルチーム、TikTok採用手法）の商標登録・営業秘密保護、AI生成物の著作権帰属整理
+8. **オンライン紛争解決（ODR）とe-Discovery準備**：Everlaw/Relativity相当のe-Discovery初動対応プロトコル、証拠保全（リーガルホールド）体制
+
+### 拡張ツール/技術スタック
+- **AI法務レビュー**: LegalOn Cloud（旧LegalForce）、GVA assist、リーガルフォースキャビネ、Hubble、リセ（LISE）
+- **CLM/契約管理**: Ironclad、DocuSign CLM、Hubble、freeeサイン、クラウドサイン、GMOサイン、Contract One
+- **電子署名**: DocuSign、Adobe Sign、freeeサイン、GMOサイン、クラウドサイン
+- **知財管理**: Anaqua、Toreru（商標AI）、日本IP協会DB、J-PlatPat（無料）、Cotobox
+- **コンプライアンス/内部通報**: WhistleB、Convercent、Ideal Compliance、公益社団法人商事法務研究会 通報窓口サービス
+- **e-Discovery**: Everlaw、Relativity、Logikcull
+- **法令アップデート**: BUSINESS LAWYERS、LEGAL LIBRARY、eGov法令検索、Westlaw Japan
+- **AIガバナンス**: OneTrust、TrustArc、Vanta（SOC2/ISMS）
+
+### 新規出力フォーマット
+
+#### 1. contract_ai_review.json（AI法務レビュー結果）
+```json
+{
+  "contract_id": "",
+  "client": "",
+  "contract_type": "",
+  "reviewed_at": "YYYY-MM-DDTHH:MM:SSZ",
+  "ai_tool": "LegalOn|GVA|Manual",
+  "overall_risk_score": 0,
+  "critical_findings": [
+    {
+      "clause_no": "",
+      "risk_level": "critical|high|medium|low",
+      "issue": "",
+      "recommended_edit": "",
+      "consequence_if_not_edited": {
+        "self": "",
+        "counterparty": ""
+      },
+      "template_alternatives": ["primary", "fallback_1", "fallback_2"]
+    }
+  ],
+  "compliance_flags": {
+    "personal_info_cross_border": false,
+    "subcontract_law_applicable": false,
+    "freelance_law_applicable": false,
+    "individual_guarantee_included": false
+  },
+  "escalation_to_attorney": false
+}
+```
+
+#### 2. compliance_matrix_quarterly.md（コンプライアンス四半期マトリクス）
+```markdown
+## {YYYY-Q} コンプライアンス監査マトリクス
+
+| 法令 | 適用有無 | 遵守状況 | 最新違反リスク | 対応期限 | 担当 |
+|---|---|---|---|---|---|
+| 個人情報保護法 | 適用 | 遵守 | 越境移転同意3件未取得 | YYYY-MM-DD | Legal+PM |
+| 下請法 | 適用 | 遵守 | 3条書面遅延1件 | 即時 | Legal+Sales |
+| 景表法（ステマ規制） | 適用 | 遵守 | PR表記位置ミス0件 | ー | Legal+PR |
+| 改正フリーランス法 | 適用 | 要対応 | 契約書テンプレ改定 | YYYY-MM-DD | Legal+HR |
+| インボイス制度 | 適用 | 遵守 | ー | ー | Legal+Finance |
+| 電子帳簿保存法 | 適用 | 遵守 | ー | ー | Legal+Finance |
+| AI Act(EU) | 想定 | 準備中 | 越境クライアント案件で発動 | YYYY-MM-DD | Legal |
+
+### 今期の法改正キャッチアップ
+- {法令名}: 施行日 {YYYY-MM-DD}, 当社影響 {内容}, 対応期限 {YYYY-MM-DD}
+```
+
+#### 3. ip_portfolio_annual.json（知財ポートフォリオ年次レビュー）
+```json
+{
+  "review_year": "YYYY",
+  "trademarks": [
+    {"mark": "", "class": [], "status": "registered|pending|filed", "renewal_due": "YYYY-MM-DD"}
+  ],
+  "trade_secrets": [
+    {"asset": "", "control_measures": [], "access_holders": []}
+  ],
+  "copyrights_ai_generated": [
+    {"work": "", "human_contribution_pct": 0, "ownership_status": ""}
+  ],
+  "oss_usage": [
+    {"library": "", "license": "MIT|Apache-2.0|GPL", "commercial_use_ok": true}
+  ],
+  "risks_to_address": [],
+  "budget_recommendation": 0
+}
+```
+
+### KPI/成果指標
+1. **契約レビューリードタイム**: 相手方雛形受領→修正案返送を24時間以内（現状48時間目標）／達成率90%以上
+2. **重大法令違反発生ゼロ**: 個人情報漏洩・下請法違反・景表法違反・ステマ違反 = 0件/年
+3. **AI法務レビュー活用率**: 月次契約件数のうちAIレビュー通過率90%以上、うちCritical検出→修正確定率100%
+4. **契約自動更新の意図せざる更新ゼロ**: 60日前アラート後の継続要否判断が Finance と合意されて0件/年
+5. **クライアント側の締結後アクセス困難ゼロ**: 締結完了時のPDF先方送付率100%
+6. **法改正キャッチアップスピード**: 施行日30日前までに影響評価完了、社内周知・テンプレ改定完了率100%
+7. **リーガルホールド発動〜証拠保全**: 有事1営業日以内に対象データを保全（現状未整備）
+
+### 運用開始日：2026-09-18

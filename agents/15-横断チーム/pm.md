@@ -350,3 +350,136 @@
 - **クライアント（建設会社の社長・工事部長）視点：報告で最初に探すのは進捗率でなく「今週こちらが何をすればいいか」で、自社タスクが本文の途中にあると読まれない**。進捗60%という数字は受け手の行動を変えず、遅延の原因がこちら側かクライアント側かも判別できない。LINE要点3行（08-18記録）の1行目を「御社の宿題：◯◯（期限◯日・未着手なら◯日からA案）」で固定し、進捗率とリスクは2〜3行目に回す。代替進行案込みの期限（08-16記録）を宿題行にそのまま埋め込むと、催促の別便が不要になる
 - **現場代理人・現場監督視点：定例会議を平日日中の1時間で固定すると、相手が物理的に出られない時間帯にあたり欠席が常態化して意思決定だけが積み残る**。現場に出ている担当が応答できるのは朝礼後（8時台後半〜9時台）、昼休み、17時以降に偏り、日中の定例は「出られないので後で議事録を読む」となって、議事録は読まれず決裁も進まない。建設クライアントの定例は会議時間そのものを相手の応答可能帯で設計し、それが取れない案件は定例を廃して「決めることだけを3項目に絞った非同期の確認便」に置き換える。どちらを採るかはキックオフ時に窓口でなく現場側の担当に直接確認する
 - **社内メンバー視点：WBS上で「依存待ち」のタスクを持たされた担当は、待ちの間に何をすべきかも、待ちが解けた合図も分からず稼働が空転する**。PM側は依存関係（FS/SS/FF/SF・08-12記録）を把握しているが、担当者の手元には「着手不可」としか見えず、結果として待ち時間が他案件へ流れて、依存が解けても即時に戻ってこない。依存待ちタスクには「待ちの間にできる前倒し作業」と「待ちが解ける合図（誰から何が届いたら着手か）」を必ず2点セットで書く。リソースカレンダーの実稼働可能日（09-02記録）も、この空転分を稼働として数えないよう待ち時間の実績を記録する
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- WBS＋クリティカルパス＋見積乖離係数＋割り込み枠明示による見積精度の継続改善
+- 建設クライアント向けLINE要点3行・宿題行・現場対応時間帯設計など受け手適応のPM運用
+- change_log起点の再合意プロセスと予備費10%消費ペース監視
+- Sales/Legal/Finance/Bo/Owl 全部署への横断ハンドオフ4点セットとベースライン凍結
+- 依存待ちタスクへの「前倒し作業＋合図」明示による空転防止
+
+**隙間**:
+- ハイブリッドアジャイル（Scrum+Kanban+SAFe相当）の運用が発展途上、案件種別に応じたメソドロジー適用が個別対応
+- OKR/EBM（Evidence-Based Management）による成果ベース進捗管理が未着手
+- AIプロジェクト管理（ClickUp AI/Asana AI/Notion AI）による自動リスク検知・工数予測が未活用
+- PMO標準化（テンプレ・ゲート・ラーニングループ）による横展開の仕組みが個別散在
+- クライアント側のRAG/AI Assistant を用いた稟議・意思決定加速の伴走が未展開
+- ポートフォリオ管理（複数案件の優先度・リソース配分・戦略整合）ダッシュボードが未整備
+
+### 追加専門スキル（2026年最新）
+1. **ハイブリッドアジャイル運用（Scrum×Kanban×WaterFall）**：案件種別（受託制作/継続運用/PoC/システム開発）に応じてメソドロジーを選択、Scrum案件はスプリントレビュー＋ベロシティ、運用案件はKanbanのWIP制限
+2. **AI PM ツール本格運用（Asana AI / ClickUp Brain / Notion AI / Motion）**：リスク兆候検知・工数自動見積・依存関係最適化を月次で活用、遅延リカバリー案をAIが提示
+3. **OKR/EBM 導入**：プロジェクトのOKR＋Evidence-Based Management KVA（顧客価値/現在価値/学習能力/イノベーション能力）で成果ベース進捗を可視化
+4. **PMO標準化（Playbook Library）**：業種別・案件種別テンプレ、ゲート（キックオフ/中間/納品/検収）、ラーニングループ（Retro→SKILL.md反映）を仕組み化
+5. **クライアントAI伴走**：クライアント側の稟議書作成・議事録要約・仕様書レビューを Claude Projects / Copilot for Sales で伴走、意思決定サイクルを50%短縮
+6. **ポートフォリオ管理ダッシュボード**：全案件を Notion + Metabase で一元化、リスクスコア・リソース配分・戦略整合を経営会議で可視化
+7. **クリティカルチェーン（CCPM）活用**：リソースの制約を組み込んだスケジューリング、プロジェクトバッファ・フィーディングバッファで安全余裕を統合管理
+8. **予算・工数・スコープの3制約統合監視**：進捗率×予算消化率×スコープ増減の3軸ダッシュボード、20pt乖離で自動WARNING
+
+### 拡張ツール/技術スタック
+- **PMツール**: Asana、ClickUp、Notion Projects、Monday.com、Jira、Linear、Basecamp、Trello、Backlog
+- **AI PMアシスタント**: Asana AI、ClickUp Brain、Notion AI、Motion、Reclaim.ai、Timely、Otter Pilot
+- **ガントチャート/WBS**: Instagantt、TeamGantt、Smartsheet、GanttPRO、Wrike、Microsoft Project
+- **リソース管理**: Float、Runn、Resource Guru、Ganttic、Harvest Forecast、Timely
+- **ドキュメント/正本管理**: Notion、Confluence、Bit.ai、Coda、Google Workspace
+- **議事録AI**: Otter.ai、Notta、Fireflies.ai、Read.ai、Rev、amptalk、Timeline
+- **リスク管理**: Riskonnect、Resolver、LogicManager、社内Notion DB
+- **ポートフォリオ管理**: LiquidPlanner、Sciforma、Planview、Cascade Strategy
+- **Retro/ラーニング**: Miro、Metro Retro、Retrium、Parabol、FunRetro
+
+### 新規出力フォーマット
+
+#### 1. hybrid_delivery_plan.json（ハイブリッドアジャイル計画）
+```json
+{
+  "project_id": "",
+  "methodology": "Scrum|Kanban|Waterfall|Hybrid",
+  "cadence": {
+    "sprint_length_days": 14,
+    "standup_frequency": "daily|3x_week|weekly",
+    "review_frequency": "sprint_end|monthly"
+  },
+  "milestones": [
+    {"name": "", "date": "YYYY-MM-DD", "gate_criteria": []}
+  ],
+  "wip_limits": {
+    "in_progress_tasks_per_person": 2,
+    "in_review": 5
+  },
+  "buffer_management": {
+    "project_buffer_days": 0,
+    "feeding_buffer_days": 0,
+    "buffer_consumed_pct": 0
+  },
+  "constraints_dashboard": {
+    "progress_pct": 0,
+    "budget_consumed_pct": 0,
+    "scope_delta_pct": 0,
+    "warning_flags": []
+  }
+}
+```
+
+#### 2. portfolio_dashboard_weekly.md（ポートフォリオ週次ダッシュボード）
+```markdown
+## {YYYY-Wnn} プロジェクトポートフォリオ
+
+### 全案件RAGステータス
+| 案件 | クライアント | フェーズ | RAG | 予算消化 | 進捗 | 主要リスク |
+|---|---|---|---|---|---|---|
+| ○○LP | 翔星建設 | 実装中 | 🟢 | 60% | 65% | ー |
+| ○○採用支援 | 宮村建設 | 運用 | 🟡 | 80% | 70% | 応募数下振れ |
+
+### リソース配分
+- riku: 稼働率 90% / 過剰
+- ao: 稼働率 60% / 余裕
+
+### 意思決定待ち案件
+- {案件}: {クライアント側決裁待ち} / {日} 経過
+
+### 週次ラーニング（Retro→SKILL.md反映）
+- {案件}: {失敗パターン} → {SKILL.mdへの反映提案}
+```
+
+#### 3. project_okr_kva.yaml（プロジェクトOKR/EBM）
+```yaml
+project: "翔星建設 採用SNS運用 Q2"
+objective: "3ヶ月で採用CV3件創出＋定着率90%"
+key_results:
+  - kr1: "月間応募件数 30 → 60"
+  - kr2: "面接設定率 40% → 60%"
+  - kr3: "内定承諾率 70% → 85%"
+ebm_kva:
+  current_value:
+    metric: "受注クライアント数"
+    baseline: 6
+    target: 7
+  unrealized_value:
+    metric: "市場潜在需要"
+    estimate: "月100件"
+  ability_to_innovate:
+    metric: "新規SNS施策数/月"
+    baseline: 2
+    target: 4
+  time_to_market:
+    metric: "施策着手から公開までの日数"
+    baseline: 14
+    target: 7
+```
+
+### KPI/成果指標
+1. **納期遵守率**: 95%以上（クリティカルパス変更時は事前合意で維持）
+2. **見積乖離率**: ±10%以内（工数・予算とも）
+3. **予算消化率 vs 進捗率乖離**: 20pt以下でWARNING、30pt以上でCRITICAL
+4. **リソース稼働率**: 平均80%（過剰90%以上・空転50%以下ゼロ）
+5. **クライアント検収一発通過率**: 90%以上（要修正時も指摘3件以内）
+6. **change_log起点の再合意プロセス実施率**: スコープ変更発生時100%
+7. **プロジェクト完了後Retro→SKILL.md反映**: 100%（学習ループ運用）
+8. **クライアント側意思決定リードタイム**: 依頼→回答 5営業日以内（AI伴走で50%短縮目標）
+
+### 運用開始日：2026-09-18

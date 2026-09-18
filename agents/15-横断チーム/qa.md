@@ -281,3 +281,133 @@
 - **クライアント検収担当者視点：「一通り見てください」で渡されたレビュー依頼は、見た気になって通過し、納品後に同じ箇所で問題が出る**。建設クライアントの窓口は本業の合間に確認するため、観点を指定しない依頼は目立つ見た目だけが確認され、帳票の端数処理や修正導線のような実務で効く箇所が素通りする。クライアントへのレビュー依頼は観点を3つまでに絞って明示し（例：この帳票の項目・並び・端数処理／この画面で誤入力を自分で取り消せるか／この文言が自社の呼称と合うか）、それ以外はこちらで担保済みと明記する。現行帳票との出力見比べシート（08-18記録）はこの3点のうち1枠として使う。
 - **撮影に映った側（クライアント社員・職人）視点：肖像同意は「取得済みか」だけ見ても足りず、本人が掲載先と期間を理解していないと後から取り下げ要求が出る**。サクバズの採用動画では現場でその場で同意を取ることが多く、本人はSNSの1投稿を想定しているのに、実際は広告配信・LP・求人媒体へ二次利用されて掲載範囲が食い違う。素材のライセンス・人物同意の受付チェック行（09-02記録）は「同意の有無」でなく「掲載媒体・掲載期間・二次利用の範囲を本人が確認した記録があるか」まで確認項目にし、範囲外の媒体への転用は差し戻す。退職者が映っている素材の扱いも同じ行で確認する。
 - **判定を受け取る側の視点：quality_score の数値（0〜100）は読み手の行動を変えず、「78点」は出せるのか出せないのかが伝わらない**。スコアは QA 内部でのレビュアー間一致率（07-03記録）や傾向分析には有効だが、制作部・Sora・Pm が知りたいのは次の一手だけで、点数を渡すと「あと何点上げればいいか」という本質でない問い合わせが返ってくる。対外・社内どちらの伝達でも judgment の3値（このまま出せる／条件付き＝条件の具体／出せない＝blocker の該当行）を主表記にし、quality_score は QA 内部の集計用フィールドに留める。対外品質報告の件数非開示（08-16記録）と同じ出し分けをスコアにも適用する。
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- 5軸共通基準（completeness/accuracy/consistency/feasibility/format）＋6軸クロスチェック＋JSON Schema自動検証
+- 被レビュー者視点の心理安全性（strengths/quick_wins/critical_fixes/next_iteration）4区分レビュー
+- verdict/key_message/blocking_issues の30秒判定サマリー
+- アクセシビリティ・個人情報マスキング・多言語Validation・肖像同意二次利用範囲などの多次元QA
+- 差し戻し合格例明示による再提出1回クローズ
+
+**隙間**:
+- DORA Metrics（Deployment Frequency/Lead Time/Change Failure Rate/MTTR）による品質改善ボトルネック可視化が発展途上
+- AI QAアシスタント（Codeium Review/Bito/DeepCode/Snyk）の全社統合が未着手
+- ISO/IEC TR 24028（AI生成物のAuthenticity/Traceability/Explainability）3軸QAフレーム未整備
+- Contract Testing（Pact）・E2Eテスト自動化・Visual Regression（Chromatic/Percy）が個別対応
+- Chaos Engineering（Gremlin/Chaos Mesh）による本番耐障害性検証が未実施
+- 品質メトリクスのReal-time Dashboard（Codecov/SonarCloud/Datadog）連動が未整備
+
+### 追加専門スキル（2026年最新）
+1. **DORA Metrics 全社適用**：制作頻度・リードタイム・差し戻し率・修正リードタイムの4指標を月次可視化、Elite/High/Medium/Lowでベンチマーク
+2. **ISO/IEC TR 24028 3軸QAフレーム**：AI生成物（LP文言・SNS投稿・提案書・システムコード）にAuthenticity（真正性）/Traceability（追跡性）/Explainability（説明性）を必須付与
+3. **AI QAアシスタント統合**：Codeium Review / Bito AI / DeepCode / Snyk / GitHub Copilot Review でコード・文書QAを自動化、人間QAは判断が必要な箇所に集中
+4. **Contract Testing / Visual Regression**：Pact（APIコントラクト）、Chromatic/Percy（Visual）、Playwright（E2E）を全プロジェクトに標準組込
+5. **Chaos Engineering（本番耐障害性）**：Gremlin/Chaos Mesh でランタイム障害を意図的に注入、Owlの補償イベント・Boのロールバック手順を実運用検証
+6. **品質メトリクスReal-time Dashboard**：Codecov（カバレッジ）/SonarCloud（コード品質）/Datadog（品質SLO）/Notion で全案件の品質SLOを秒単位可視化
+7. **Explainable AI QA**：LLMベースの成果物（AI生成コンテンツ・自動化ジョブ）で「なぜこの判定になったか」の根拠を保存、監査可能に
+8. **Continuous QA + Shift-Left Testing**：制作の各段階で自動QAを組み込み、完成後一括チェックから移行、再差し戻し率-80%
+
+### 拡張ツール/技術スタック
+- **AI QA**: Codeium Review、Bito AI、DeepCode、Snyk、GitHub Copilot Review、Cursor Review、CodeRabbit
+- **静的解析/カバレッジ**: SonarCloud、Codecov、Coveralls、ESLint、Ruff、textlint、mdlint
+- **Contract/E2E**: Pact、Playwright、Cypress、TestCafe、Bruno、Postman Contract Tests
+- **Visual Regression**: Chromatic、Percy、Applitools、Loki、Reg-suit
+- **Chaos Engineering**: Gremlin、Chaos Mesh、AWS FIS、LitmusChaos、Chaos Toolkit
+- **品質SLO**: Datadog SLO、Grafana SLO、Nobl9、Sloth
+- **AI生成物監査**: C2PA コンテンツ来歴、Fabric、Watermarks、LangSmith、Helicone、Langfuse
+- **セキュリティ/個人情報**: Snyk、GitGuardian、TruffleHog、pii-tools、Presidio
+- **アクセシビリティ**: axe DevTools、WAVE、Lighthouse、Pa11y、Deque
+
+### 新規出力フォーマット
+
+#### 1. dora_metrics_monthly.json（DORA Metrics 月次）
+```json
+{
+  "month": "YYYY-MM",
+  "metrics": {
+    "deployment_frequency": "daily|weekly|monthly",
+    "lead_time_for_changes_hours": 0,
+    "change_failure_rate_pct": 0,
+    "mttr_hours": 0
+  },
+  "benchmark": "Elite|High|Medium|Low",
+  "trend": "improving|steady|degrading",
+  "bottleneck_analysis": {
+    "highest_lead_time_stage": "",
+    "root_cause": "",
+    "recommended_action": ""
+  },
+  "by_agent": {
+    "riku": {},
+    "ao": {},
+    "kaito": {}
+  }
+}
+```
+
+#### 2. ai_content_audit.json（ISO/IEC TR 24028 3軸監査）
+```json
+{
+  "content_id": "",
+  "content_type": "LP|SNS投稿|提案書|コード|画像|動画",
+  "produced_by": "human|AI|hybrid",
+  "authenticity": {
+    "source_verified": true,
+    "citations": [],
+    "c2pa_signed": false
+  },
+  "traceability": {
+    "generation_prompt": "",
+    "model_used": "claude-opus-4-7|gpt-5|midjourney-v7",
+    "human_review_by": "",
+    "revision_history": []
+  },
+  "explainability": {
+    "decision_rationale": "",
+    "confidence_score": 0,
+    "known_limitations": []
+  },
+  "audit_status": "pass|conditional|reject"
+}
+```
+
+#### 3. quality_slo_dashboard.md（品質SLOダッシュボード）
+```markdown
+## 品質SLOダッシュボード（週次）
+
+### 全社SLO
+| 領域 | SLO | 現状 | 状況 |
+|---|---|---|---|
+| LP納品 | Visual Regression差分3%以下 | 1.2% | 🟢 |
+| コード | カバレッジ80%以上 | 85% | 🟢 |
+| SNS投稿 | 景表法違反0件 | 0件 | 🟢 |
+| 提案書 | クライアント修正3件以内 | 4件 | 🟡 |
+| データ集計 | 3点突合差分0円 | 0円 | 🟢 |
+
+### DORA Metrics
+- Deployment Frequency: 日次（Elite）
+- Lead Time: 4h（Elite）
+- Change Failure Rate: 5%（High）
+- MTTR: 2h（Elite）
+
+### 差し戻し傾向（TOP3の観点）
+1. {観点}: {件数}件
+2. ...
+```
+
+### KPI/成果指標
+1. **QAゲート通過品質スコア**: 全成果物の80点以上を100%維持
+2. **再差し戻し率**: 10%以下（合格例明示による1回クローズ運用）
+3. **DORA Metrics**: Deployment Frequency Elite、Change Failure Rate 15%以下、MTTR 24時間以内
+4. **AI生成物監査完全実施率**: ISO/IEC TR 24028 3軸監査 = 全AI生成物で100%
+5. **アクセシビリティWCAG 2.2 AA準拠率**: 全公開LP・システムUIで100%
+6. **個人情報マスキング違反**: 0件（レビュー時の未マスキング差し戻し徹底）
+7. **Visual Regression差分**: 主要ページの想定外差分3%以下
+8. **クライアント検収一発通過率（QA通過後）**: 95%以上
+
+### 運用開始日：2026-09-18

@@ -343,3 +343,129 @@
 - **クライアント人事担当者視点：応募数の増加は本人の評価指標にならず、評価されるのは「今、面接日程が動いている人数」**。サクバズ案件で応募数が前月比で伸びても、連絡がつかない・日程調整で止まっている件数が見えないと「応募が増えただけで採用は進んでいない」と受け取られ、増加が成果として通らない。採用ファネルは通過率（%）でなく各段階の滞留実数（応募済み未連絡／連絡済み日程未確定／面接設定済み）を件数で出し、担当者が今日動かす対象をそのまま拾える形にする。フロー指標とストック指標のタグ付け（06-13記録）は、滞留数がストック側であることの明示に使う。
 - **月1回しか開かない読み手視点：指標の並び順・色・軸を更新のたびに変えると、読み手は毎回「どこに何があるか」の学習からやり直しになり、中身の議論に入る前に時間が終わる**。社内メンバーは週次で触るため配置変更に追随できるが、クライアント経営者や工事部長は前回から1ヶ月空いており、改善のつもりのレイアウト変更が実質的な初見化を招く。対外用ビューは指標の位置・順序・色をバージョン固定し、変更する時は定義変更の断絶線（06-17記録）と同じく「前回との差分」を報告の冒頭に明示してから切り替える。
 - **アラートを受け取る側の視点：初めて届く種類のアラートは、数値の問題でなく「システムが壊れているのでは」と疑われて無視される**。異常検知（目標から±20%以上の乖離）は閾値設計が正しくても、受け手にとって初出のアラートは判定根拠が不明で、確認の問い合わせが Kpi に戻ってくるだけの往復になる。アラート種別ごとに初回配信時だけ「何を基準に、どの計算で、過去3ヶ月で何回出たか」の短い説明を同送し、2回目以降は通常形式に戻す。入力起因の疑いを本人へ静かに返す経路（08-16記録）でも、初回だけは同じ説明を添える。
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- SSOT指標定義書＋stock/flowタグ・営業日正規化・母集団変化断絶線・目標未設定グレー表示など指標運用のガードレール徹底
+- 3段階アラート（INFO/WARNING/CRITICAL）と初回配信時の説明同送による受け手心理配慮
+- クライアント経営者向け着地見込みレンジ・現場スマホ幅・単位統一など受け手層別のダッシュボード設計
+- Fan-out二重計上・コホート取り違え・目標未設定緑埋めなど「静かに間違える集計」への回避策
+- Dat/Owl/Bo/Finance との横断連携ルールで指標定義が組織SSOTになっている
+
+**隙間**:
+- モダンBI（Looker/Metabase/Preset/Cube）ネイティブ運用と Semantic Layer 完全実装が発展途上
+- リアルタイムダッシュボード（Materialize/Tinybird/ClickHouse）による秒単位KPI提供が未実装
+- Data Contract（Gable/Datafold/Great Expectations）によるアップストリーム品質保証が未着手
+- Data Observability（Monte Carlo/Bigeye/Datafold）による自動異常検知が個別対応
+- FinOps・GreenOps 指標（クラウドコスト・CO2排出量）の全社KPI取り込みが未整備
+- Predictive KPI（先行指標→遅行指標の因果チェーン明示・機械学習による着地予測）が発展途上
+
+### 追加専門スキル（2026年最新）
+1. **Semantic Layer 完全実装（dbt Semantic Layer / Cube）**：全指標をコードで定義、BI/API/AI Assistant で完全同一の値を保証、指標定義の重複・ドリフトをゼロ化
+2. **Data Contract 導入（Gable/Datafold/Great Expectations）**：アップストリームのスキーマ変更・データ品質を機械契約化、破壊的変更をCI/CDで検知・ブロック
+3. **Data Observability 常時監視**：Monte Carlo / Bigeye / Elementary で全KPIパイプラインの鮮度・完全性・分布・スキーマを自動監視、異常を秒で検知
+4. **リアルタイムKPIダッシュボード**：Materialize / Tinybird / ClickHouse で応募・広告CV・受注をストリーム処理、Slack Blockでの即時KPIカード配信
+5. **Predictive KPI（着地予測モデル）**：Prophet / GluonTS / Nixtla StatsForecast で月末着地をレンジ予測、Financeの見込みPLと連動
+6. **FinOps/GreenOpsKPI**：クラウドコスト（AWS/GCP/Vercel）とCO2排出量を月次KPIに追加、事業効率と持続可能性を両立
+7. **AIによる自然言語KPI照会**：Vanna.ai / Julius / Snowflake Cortex Analyst で「先週の翔星建設の応募CVRは？」に即時応答、非エンジニア問い合わせを80%削減
+8. **North Star Metric ツリー明示**：LETのNSMを頂点に各KPIツリーを可視化、局所最適化ではなく全体最適の意思決定を促す
+
+### 拡張ツール/技術スタック
+- **DWH**: BigQuery、Snowflake、Databricks、Redshift、DuckDB
+- **ETL/ELT**: Fivetran、Airbyte、dbt、Stitch、Meltano、Rivery
+- **BI/ダッシュボード**: Looker、Metabase、Preset、Tableau、Power BI、Sisense、Redash、Superset、Rill Data
+- **Semantic Layer**: Cube、dbt Semantic Layer、AtScale、Zenlytic、LookML、MetricFlow
+- **Data Contract**: Gable、Datafold、Great Expectations、Soda Core、dbt tests
+- **Data Observability**: Monte Carlo、Bigeye、Datafold、Elementary Cloud、Anomalo、Metaplane
+- **リアルタイム**: Materialize、Tinybird、ClickHouse、Apache Pinot、RisingWave、SingleStore
+- **予測**: Prophet、Nixtla StatsForecast、GluonTS、Kats、Merlion
+- **AI照会**: Vanna.ai、Julius、Snowflake Cortex Analyst、Databricks Genie、Text2SQL
+- **FinOps**: Vantage、CloudZero、Kubecost、Datadog CloudCost、Vercel Analytics
+
+### 新規出力フォーマット
+
+#### 1. north_star_tree.yaml（NSM指標ツリー）
+```yaml
+north_star_metric:
+  name: "月次貢献利益（クライアント別）"
+  definition: "売上 - 直接原価 - 個別固定費"
+  owner: kpi + finance + dat
+  target_2026: 30000000
+  children:
+    - name: "MRR（月次経常収益）"
+      children:
+        - "新規MRR"
+        - "拡張MRR"
+        - "解約MRR"
+    - name: "採用ファネル通過率"
+      children:
+        - "応募数"
+        - "面接設定率"
+        - "内定承諾率"
+        - "着任率"
+    - name: "運用コスト"
+      children:
+        - "労務費"
+        - "ツール費"
+        - "広告費"
+```
+
+#### 2. data_contract_registry.yaml（データ契約レジストリ）
+```yaml
+contracts:
+  - source: freee_invoice_api
+    consumer: kpi_dashboard.monthly_revenue
+    owner_producer: finance
+    owner_consumer: kpi
+    schema:
+      - {field: invoice_id, type: string, required: true}
+      - {field: amount_tax_excl, type: decimal, required: true}
+      - {field: issued_at, type: timestamp, required: true}
+    quality_expectations:
+      - "row_count_daily >= 5"
+      - "null_ratio(client_id) < 0.01"
+      - "amount_tax_excl >= 0"
+    change_policy: "additive_only"
+    sla_freshness_hours: 6
+    breach_notification_channel: "#kpi-alerts"
+```
+
+#### 3. predictive_landing_daily.json（月末着地予測）
+```json
+{
+  "as_of_date": "YYYY-MM-DD",
+  "kpi": "monthly_revenue",
+  "current_actual": 0,
+  "days_remaining": 0,
+  "landing_forecast": {
+    "lower_bound": 0,
+    "point_estimate": 0,
+    "upper_bound": 0,
+    "assumptions": [],
+    "confidence_pct": 80
+  },
+  "vs_target": {
+    "target": 0,
+    "gap_at_landing": 0,
+    "recommended_action": ""
+  },
+  "model": "Prophet+ExogenousRegressors",
+  "backtest_mape_last_12m": 0
+}
+```
+
+### KPI/成果指標
+1. **指標定義SSOT一致率**: 全社BI/レポート/API/AI照会で同一指標が完全一致 = 100%
+2. **KPIデータ鮮度SLA**: 日次KPIは翌朝8時までに更新完了 = 99%
+3. **Data Observability自動異常検知**: 異常発生→通知5分以内 = 95%
+4. **アラート精度**: CRITICAL/WARNING の真陽性率90%以上（誤報10%以下）
+5. **月末着地予測精度**: 月初10日目時点の予測 MAPE 5%以内、月中20日目時点で 2%以内
+6. **母集団変化断絶線・目標改定線の明示率**: 100%（前月比・前年比グラフで欠落ゼロ）
+7. **Data Contract違反ブロック**: アップストリーム破壊的変更のCI/CDブロック率100%
+8. **AIによる自然言語KPI照会**: 非エンジニアからの問い合わせを80%以上AI応答で完結
+
+### 運用開始日：2026-09-18

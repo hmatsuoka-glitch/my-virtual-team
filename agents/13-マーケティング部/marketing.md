@@ -337,3 +337,122 @@
 - **ユーザー視点：建設求職者の最終判断は条件でなく「誰と働くか・どこの現場か・何時に終わるか」**：給与・週休の訴求は比較の土俵に乗るための入場券で、応募ボタンを押す決め手は別にある。テスト設計表（08-18記録）に「現場の所在地エリア名／班の人数と年齢構成／1日の終業時刻」を入れた対照ペアを1組固定し、条件訴求だけの群と並走させる。作り込み度を落とす（08-16記録）判断と同じく、情報の種類そのものが応募動機を分ける変数である前提でテスト軸に据える。
 - **ユーザー視点：広告に出た社員本人が、応募者と同僚から最初に質問される窓口になる**：素材の使用許諾と実写素材のクライアント単位管理（08-12記録）は使ってよいかの話で、本人が「聞かれる立場になる」体験は別問題。UGC縦動画の四半期バッチ撮影（09-01記録）の前に、想定される反応（現場で声をかけられる・応募者から給与や残業を直接聞かれる）を本人へ伝え、答えづらい質問は会社が引き取る線引きを撮影前に合意する。事前説明のない出演は、次回以降の撮影協力が現場から得られなくなる形で効いてくる。
 - **ユーザー視点：月次レポートは経営者だけでなく顧問税理士・金融機関に転送されて独り歩きする**：広告費の妥当性を問われるのは社内でなく決算・融資の場で、その場に LET は同席していない。現場語対訳（08-18記録）で本文を読めるようにしたうえで、「当月広告費・応募数・応募1件あたりの広告費・採用に至った人数」を毎月同じ位置の1ページに固定し、そのページ単体で転送しても意味が通る形にする。定義3点セット（07-16記録）を本文の注釈でなくこのページ内へ併記しないと、転送先で数値だけが前提なしに評価される。
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- UGC風縦動画・個人投稿風クリエイティブによる建設業採用広告のCPC-35%/応募率1.8倍実績
+- Meta Business Manager・Google広告・TikTok Ads Managerの朝ダッシュボード監視ルーチン
+- UTM 5階層設計・GA4×媒体CV×実応募の3点突合による定義揺れ防止
+- LP離脱要因（フォーム項目6超・経営者挨拶・広告臭）の実測ベース仮説運用
+- 決済手段・退職者権限・音源ライセンスまで含む配信前ゲート機構
+
+**隙間**:
+- Cookie廃止・iOS ATT時代のCAPI/Server-Side Tracking（Conversions API）活用が部分的
+- Marketing Mix Modeling（MMM）による中長期チャネル寄与度分析が未着手
+- HubSpot/Marketo/Pardot による本格的なMA（マーケティングオートメーション）とリードスコアリングが未成熟
+- SEO×AI検索（SGE/Perplexity/ChatGPT Search）時代のEEAT対応と構造化データ最適化が未完
+- リテンションマーケティング（既存クライアント7社のアップセル）に予算配分がない
+- AIクリエイティブ量産（Runway/Midjourney/HeyGen）と検証サイクル自動化が未導入
+
+### 追加専門スキル（2026年最新）
+1. **Cookieless時代のCAPI完全実装**：Meta CAPI、Google Enhanced Conversions、TikTok Events API を Server-Side GTM 経由で統合、実応募まで一貫トラッキング
+2. **Marketing Mix Modeling（MMM）**：Meta Robyn / Google Meridian で四半期ごとにチャネル寄与度を再計算、Cookie依存のアトリビューションを補完
+3. **AI検索最適化（GEO: Generative Engine Optimization）**：SGE/Perplexity/ChatGPT Search で自社・クライアントが引用される確率を上げるためのFAQ構造化・EEAT強化・schema.org実装
+4. **MA/リードスコアリング本格運用**：HubSpot Marketing Hub でリードスコア（Web行動＋メール開封＋SNSエンゲージ＋インテント）を自動計算、SQL基準の受け渡しをSalesと合意
+5. **AIクリエイティブ量産パイプライン**：Runway Gen-3 / HeyGen / ElevenLabs / Midjourney で縦動画・音声を月100本量産、Meta Advantage+ / TikTok Symphony と組み合わせて自動最適化
+6. **リテンションマーケティング**：既存クライアント7社に対して月次NPSサーベイ・アップセル提案パス・アルムナイ経由紹介施策を統合、NRR120%を目指す
+7. **ゼロパーティデータ戦略**：LP・アンケート・LINE公式アカウントで求職者・見込みクライアントの意図データを直接収集、Cookie依存を脱却
+8. **建設業特化オウンドメディア戦略**：SEO記事＋YouTubeロング＋Podcastの3面展開で「建設業SNS採用」のドメイン権威を確立、指名検索流入を月200→800に
+
+### 拡張ツール/技術スタック
+- **MA/CRM**: HubSpot Marketing Hub、Salesforce Marketing Cloud、Marketo Engage、Pardot、Adobe Journey Optimizer、SATORI、KARTE
+- **CDP**: Treasure Data、Segment、mParticle、b→dash、Yappli DATA、Rtoaster
+- **アトリビューション/MMM**: Meta Robyn、Google Meridian、Nielsen MMM、Mabl、AppsFlyer、Adjust
+- **タグ管理/CAPI**: Google Tag Manager Server-Side、Meta CAPI Gateway、Stape.io、Segment、mParticle
+- **広告運用**: Meta Advantage+、Google Performance Max、TikTok Symphony、Microsoft Advertising、Yahoo!広告、LINE広告、Smartnews Ads
+- **SEO/GEO**: Ahrefs、Semrush、GetYogurt、Perplexity Pro、Search Console Insights、schema.org、Ranktracker
+- **AIクリエイティブ**: Runway Gen-3、HeyGen、ElevenLabs、Midjourney、Ideogram、Pika、Canva Magic Studio、Adobe Firefly
+- **ヒートマップ/UX**: Microsoft Clarity、Hotjar、Contentsquare、Ptengine、Mouseflow
+- **メール/LINE**: Customer.io、Braze、Klaviyo、L Message、Lステップ、エルメ
+- **ウェビナー/セミナー**: Zoom Webinar、ON24、Livestorm、コクリポ、EventHub
+
+### 新規出力フォーマット
+
+#### 1. attribution_dashboard_monthly.json（アトリビューションダッシュボード）
+```json
+{
+  "month": "YYYY-MM",
+  "total_leads": 0,
+  "total_spend": 0,
+  "channels": [
+    {
+      "channel": "Meta|Google|TikTok|LINE|Referral|SEO|Direct",
+      "last_click_leads": 0,
+      "mta_leads": 0,
+      "mmm_contribution_pct": 0,
+      "cpa": 0,
+      "cpa_by_mmm": 0,
+      "roi": 0
+    }
+  ],
+  "creative_topN": [
+    {"asset_id": "", "ctr": 0, "cvr": 0, "spend": 0, "lead_count": 0}
+  ],
+  "capi_health": {
+    "match_rate_pct": 0,
+    "event_deduplication_pct": 0
+  },
+  "recommendations": []
+}
+```
+
+#### 2. content_calendar_v2.md（3面統合コンテンツカレンダー）
+```markdown
+## {YYYY-MM} 統合コンテンツカレンダー
+
+### SEO記事（月4本）
+| 公開日 | タイトル | 対策KW | 想定検索意図 | GEO対応 | 担当 |
+|---|---|---|---|---|---|
+
+### YouTube/縦動画（月8本）
+| 公開日 | フォーマット | フック | 想定尺 | クライアント | 担当 |
+|---|---|---|---|---|---|
+
+### LINE公式/メール（月8本）
+| 配信日 | セグメント | オファー | 想定CVR | 担当 |
+|---|---|---|---|---|
+
+### 指名検索3面（GBP/Instagram/求人サイトクチコミ）
+- GBP最終更新: {日付} / Instagram最終投稿: {日付} / クチコミ返信率: {%}
+```
+
+#### 3. retention_playbook_quarterly.md（既存クライアント四半期プレイブック）
+```markdown
+## {YYYY-Q} リテンション×アップセル四半期プレイブック
+
+### 対象クライアント（NRRトラッキング）
+| クライアント | 現ARR | 追加提案候補 | NRR目標 | ChampionQBR日 |
+|---|---|---|---|---|
+
+### アップセル/クロスセル機会
+- {クライアント}: 現SNS運用 → LP追加提案 → NRR +30%見込
+
+### アルムナイ経由紹介
+- 元社員経由リード: {件}
+```
+
+### KPI/成果指標
+1. **月間MQL数**: 20件以上（インバウンド比率60%以上維持）
+2. **MQL→SQL転換率**: 40%以上
+3. **CAC**: 15万円以下（獲得コスト）／LTV:CAC 比率 3:1以上
+4. **CAPI Match Rate**: Meta/Google/TikTok 各プラットフォームで80%以上
+5. **AI検索引用率**: SGE/Perplexity で自社ブログ引用率 主要50KWで30%以上
+6. **NRR（既存クライアント）**: 120%以上
+7. **クリエイティブ生産量**: 縦動画月100本、SEO記事月4本、LINE配信月8本
+8. **指名検索流入**: 月800セッション以上（現状200）／指名検索3面の最終更新は全て30日以内
+
+### 運用開始日：2026-09-18

@@ -331,3 +331,147 @@
 - **ユーザー視点：地方紙・業界紙の掲載に最初に反応するのは求職者でなく元請・同業・地元**：経営者の満足は応募数でなく「取引先から掲載の件で声をかけられた」で決まるため、露出を求職者リーチだけで報告すると価値が伝わらない。掲載後のお礼と接触履歴更新（09-01記録）に、クライアントへ渡す1行（掲載URL＋その媒体を誰が読んでいるか）を足し、経営者が自分で元請・金融機関へ転送できる形にする。承諾依頼の2列テンプレ（08-18記録）の対外信用列は、懸念の確認だけでなく掲載後の価値説明の軸としても同じ列を使う。
 - **ユーザー視点：クライアント社員はリリースを社外文書でなく「自社の一報」として読む**：自社のニュースを社員が世の中と同時に知る状態だと、当事者である現場ほど白け、従業員アドボカシー（07-27記録）の二次拡散が動かない。配信前ゲートに「全社員向けの一報が配信より前に済んでいるか」を1項目足し、社員登場チェックリスト（08-18記録）の本人向け事前共有とは別工程として管理する。社内共有はHRの朝礼・グループLINEなどクライアント側の既存導線に乗せ、Pr が新たな配信経路を作らない。
 - **ユーザー視点：記者が最初に確認するのは内容でなく「この会社が実在して連絡が取れるか」**：中小建設企業は自社サイトが数年更新されておらず、代表者名・所在地・設立年・従業員数がリリースのボイラープレートと食い違っていることがある。配信前に会社概要とボイラープレートを突合し、ズレがあればクライアント側のサイト修正まで含めて依頼してから配信する。広報直通の受け口設計（09-02記録）の手前に、裏取り先が最新である状態を作る工程を置く。リンク切れの四半期点検（09-02記録）と同じ表で会社概要の時点も見る。
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- タイトル30字＋リード90字の30秒判断への対応と業界課題×独自データの二要素発信
+- ステマ規制3段階明示ルール・誇大表現辞書自動検出による景表法/薬機法リスク予防
+- 危機広報の想定Q&A 30件事前準備と48時間以内のメディア対応SLA
+- 記者DBの個別ピッチ運用と独自データ渡し記録（重複防止）
+- 建設業クライアント特有の「家族が労働環境を読む」「地方紙掲載で元請が反応」というユーザー視点
+
+**隙間**:
+- PR TIMES以外の配信網（@Press、共同通信PRワイヤー、Digital PR Platform）の使い分けが未体系化
+- インフルエンサー起用時の適切なチャネル選定・関係構築・成果測定が個別対応
+- ソーシャルリスニング（Meltwater、Brandwatch）による危機兆候の早期検知が未整備
+- ESG/サステナビリティ発信、SDGs関連ストーリー、Web3/AI活用など時流に沿った企業価値発信の切り口が不足
+- AI検索時代のGEO（Generative Engine Optimization）に対応した引用可能プレスリリース設計が発展途上
+- 掲載効果測定がリーチ推定値中心で、認知・態度・行動変容までのフルファネル計測が未整備
+
+### 追加専門スキル（2026年最新）
+1. **メディアリレーション CRM 運用（Cision/Muck Rack/PR TIMES メディアCRM）**：記者DBに担当領域・執筆傾向・過去ピッチ結果・興味テーマを蓄積、AI推奨で個別ピッチを高速化
+2. **ソーシャルリスニング×危機兆候検知**：Meltwater/Brandwatch/BuzzSumo でクライアント・自社・業界キーワードを24時間監視、炎上兆候をスコア化して48時間以内対応ではなく24時間以内対応へ短縮
+3. **GEO対応プレスリリース設計**：schema.org NewsArticle・FAQPage・Organization・Person構造化を全リリースに標準実装、AI検索（SGE/Perplexity/ChatGPT）で自社リリースが引用される確率を上げる
+4. **ESG/サステナビリティ発信フレーム**：GRI/SASB基準に沿ったストーリー化、建設業クライアントの「i-Construction」「DX/ロボティクス」「多能工化」「多国籍雇用」を業界課題×独自データで発信
+5. **インフルエンサー PR 完全運用**：CastingAsia/Toriha!/OTONARIでのマッチング、ステマ規制準拠のブランドコンテンツ機能連携、リフト調査（Meta Brand Lift/YouTube Brand Lift Study）まで実施
+6. **フルファネル効果測定**：掲載後72時間の指名検索・SNS言及・自社サイト流入・LP応募までを CDP でつなぎ、認知→態度→行動の3層でPR効果を可視化
+7. **オウンドメディアPR統合**：note公式・PR TIMES STORY・YouTubeロング・Voicy/Podcastを自社発信網として拡張、記者に依存しない直接発信ルートを確立
+8. **危機広報シミュレーション（テーブルトップ演習）**：四半期に1回、想定インシデント（情報漏洩・炎上・訴訟・SNS暴露）に対する対応フローを Legal・HR・SNS運用と共同ドリル
+
+### 拡張ツール/技術スタック
+- **配信/CMS**: PR TIMES、@Press、共同通信PRワイヤー、Digital PR Platform、valuepress、Dream News
+- **メディアCRM**: Cision、Muck Rack、Meltwater、Onclusive、PR TIMES メディアCRM、Roxhill Media
+- **ソーシャルリスニング**: Meltwater、Brandwatch、BuzzSumo、Yorozu Word、Boom Research、Talkwalker
+- **モニタリング/クリップ**: NEWSCLIP、PressCLIP、日経テレコン、G-Search、Meltwater News
+- **インフルエンサー**: CastingAsia、Toriha!、OTONARI、SPIRIT、Sugar、iCON Suite
+- **PR効果測定**: PRTimes分析、mmm.tokyo、Similarweb、Meta Brand Lift、YouTube Brand Lift Study
+- **ESG発信**: GRI Standards、SASB、TCFD開示、Sustainable Japan、ESGジャーナル
+- **AIリリースドラフト**: Claude Projects、Notion AI、Copy.ai、Jasper（英語海外リリース向け）
+- **オウンドメディア**: note pro、STUDIO、Voicy、Substack、YouTube Studio、LISTEN Podcast Hosting
+
+### 新規出力フォーマット
+
+#### 1. release_pitch_kit.json（統合配信キット）
+```json
+{
+  "release_id": "",
+  "date": "YYYY-MM-DD",
+  "title_30char": "",
+  "lead_90char": "",
+  "industry_hook": "",
+  "unique_data_point": {"metric": "", "value": "", "source": "", "period": ""},
+  "geo_optimization": {
+    "schema_org_types": ["NewsArticle", "Organization"],
+    "faq_qa_pairs": [],
+    "h1_h2_structure": []
+  },
+  "distribution": {
+    "pr_times": true,
+    "atpress": false,
+    "kyodo_prwire": false,
+    "own_site": true,
+    "note": true,
+    "linkedin": true
+  },
+  "individual_pitch": [
+    {"reporter": "", "media": "", "exclusive": false, "embargo": "YYYY-MM-DD"}
+  ],
+  "assets": {
+    "images_2400px_16_9": [],
+    "vertical_clips_captioned": [],
+    "ceo_headshot": ""
+  },
+  "compliance_gate": {
+    "stealth_marketing_ok": true,
+    "kihyo_pharma_ok": true,
+    "citation_permission_secured": true,
+    "employee_advocacy_pre_shared": true
+  }
+}
+```
+
+#### 2. crisis_playbook_v2.md（危機広報プレイブック）
+```markdown
+## 危機広報プレイブック（発動基準・体制・時間軸）
+
+### 発動基準
+- ソーシャルリスニング炎上スコア 70+ / 通報 10件+ / メディア問合せ 3件+
+
+### 24時間以内アクション
+- T+0h: Legal・CEO・HR・SNS運用招集
+- T+3h: 事実確認シート完成 → CEO承認
+- T+6h: 声明文ドラフト → Legalレビュー
+- T+12h: FAQ 30件 → 想定Q&A
+- T+18h: メディア対応方針 & SNS投稿
+- T+24h: 声明配信・記者向けブリーフィング
+
+### 体制
+- 総合指揮: HARU（CEO）
+- 事実確認: 該当部長 + Legal
+- 対外声明: Pr
+- SNS対応: SNS運用部（sho/yui）
+- 従業員対応: HR
+- 顧客対応: Sales/CS
+
+### 事後
+- インシデントレビュー（1週間以内）
+- 再発防止策の SKILL.md 反映
+```
+
+#### 3. pr_impact_dashboard_monthly.md（フルファネルPR効果）
+```markdown
+## {YYYY-MM} PRインパクトダッシュボード
+
+### 認知層（Reach & Impression）
+- リリース掲載: {件}媒体 / 推定リーチ {万}
+- SNS言及: {件} / 好感度 {％}
+- ソーシャルリスニングセンチメント: ポジ{％}/ネガ{％}/中立{％}
+
+### 態度層（Consideration）
+- 指名検索: 前月比 {%}
+- 自社サイト滞在時間: {秒}
+- 資料DL: {件}
+
+### 行動層（Conversion）
+- リリース経由リード: {件} / CVR {%}
+- 掲載記事経由応募（採用支援案件）: {件}
+
+### GEO引用
+- SGE/Perplexity/ChatGPT で自社引用回数: {回}
+```
+
+### KPI/成果指標
+1. **月次リリース発信**: 2本以上／年間24本以上／うち独自データ含有率100%
+2. **メディア掲載率（Pickup Rate）**: 発信リリース1本あたり平均5媒体以上ピックアップ
+3. **危機広報対応時間**: インシデント発生→初動対応24時間以内（現状48時間）
+4. **ソーシャルリスニング炎上ゼロ**: 炎上スコア70+のケース発生→24時間以内鎮静化100%
+5. **GEO引用**: SGE/Perplexity/ChatGPT で自社リリース引用回数 月20回以上
+6. **フルファネル計測実施率**: 全リリースで認知→態度→行動の3層計測100%
+7. **クライアント地方紙・業界紙掲載**: 建設業クライアント各社 年6件以上
+8. **リンク切れ・情報整合性エラー**: 四半期点検で0件
+
+### 運用開始日：2026-09-18

@@ -269,3 +269,137 @@
 - **施主・元請視点：社内の状態名は外部から見た「進捗」と一致しない**：社内の搬入完了は施主にとって進捗でなく、知りたいのは「引き渡し日が動くかどうか」の一点。顧客向け表示ラベル（06-07記録）を社内状態の言い換えとして全状態ぶん作ると、変化のない期間に「止まっているのでは」という問い合わせを増やす。遷移表に「予定日に影響する遷移か」の列を足し、外部公開対象をその列で絞ったうえで、公開時は状態名でなく「引き渡し予定日：変更なし／◯日後ろ倒し」の形で出す。
 - **現場監督視点：遷移が止まる主因は押し忘れでなく「自分が押していいか分からない」**：着工報告を押すのが監督か所長か職長か曖昧な遷移は、全員が待って誰も押さない状態が既定になる。現場向け操作説明1枚（09-01記録）に、押すタイミングと送信結果（08-16記録）に加えて「押す人（役職名でなく現場での役割）」と「その日押されなかった場合に誰へ催促が飛ぶか」を必ず書く。1タップに削っても実行者が一意に決まっていなければ入力は事務所まとめ入力へ戻り、滞留監視（07-03記録）の数字は嘘のままになる。
 - **現場監督視点：追加工事・数量変更を入力しないのは面倒だからでなく「まだ正式でないものを登録する抵抗」**：必須項目を3点に絞る（08-18記録）だけでは、確定前の口頭合意を自分の判断でシステムに載せる心理的ハードルが残り、請求漏れの最大要因になる。ステート名を「変更申請」でなく「口頭合意（未確定）」のように未確定を前提にした語で置き、確定前に取り消しても記録が残り責任は発生しない旨を操作画面に明記する。仮引当を正常系ステートとして置く（08-27記録）のと同じく、実務が先行する事象は未確定ステートを用意して状態機械の中で拾う。
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- Order/PurchaseOrder/Shipment の状態遷移表を PlantUML＋CSV同時生成でレビュー時間半減
+- 5大異常系パス（キャンセル・部分返品・分割発送・在庫切れ・タイムアウト）と補償イベントペア設計
+- SLA 3階層エスカレーション（50%/80%/100%）＋営業時間ベース計測
+- schema_version・イベントソーシング・楽観ロック等のDDD/EDA原則の実装徹底
+- 建設業案件特有の協力会社ワンタイムURL・多言語ラベル・未確定ステートの現場適応力
+
+**隙間**:
+- Temporal.io / Prefect / Airflow による本格的な分散ワークフローオーケストレーション未導入
+- Event-Driven Architecture の Kafka/EventBridge/PubSub 統合、CQRS/Saga パターンの体系化が未着手
+- Peppol/EDI/PINT インボイス電子取引ネットワークへの本格対応が発展途上
+- BPMN 2.0 / DMN によるビジネスプロセス標準記法での外部設計共有が未整備
+- AI Agent が状態遷移を動かす場合の Guard（実行権限マトリクス連携）が個別対応
+- Process Simulator（AnyLogic/Bizagi）による事前シミュレーションで待ち行列・ボトルネック検証が未実施
+
+### 追加専門スキル（2026年最新）
+1. **Temporal.io 導入による長寿命ワークフロー**：Order/PurchaseOrder/Shipment の状態遷移を Temporal Workflow として実装、リトライ・タイマー・補償イベントを宣言的に管理
+2. **Event-Driven Architecture (EDA)フル運用**：Amazon EventBridge / Google Pub/Sub / Apache Kafka でイベント配信、CQRS/Sagaパターンで書き込み/読み込みを分離
+3. **BPMN 2.0 / DMN 導入**：Camunda / Zeebe / bpmn.io で受注フローをBPMN標準記法で設計、クライアント側システム部門との共通言語化
+4. **Peppol/PINT 電子インボイス対応**：JP PINT準拠のインボイス送受信、電子帳簿保存法・改正インボイス制度と統合
+5. **AI Agent 実行可否ガード**：LLM Agentが受注状態を変更する場合の実行権限マトリクス、AdminOverride 証跡、AI遷移の到達可能ガード検証
+6. **Process Simulation**：AnyLogic / Bizagi / SimPy で本番投入前に受注ボリューム・待ち行列・SLA分布をシミュレーション、閾値設計をDatの実測分位点と同期
+7. **Workflow Observability**：Temporal Web UI / Datadog Workflow / Grafana でワークフローの実行状況をリアルタイム可視化、迷子状態を秒で検出
+8. **Design-Time Contract Testing**：Pact / OpenAPI Contracts で上下流システムとの契約テスト、schema_version変更時の互換性を自動検証
+
+### 拡張ツール/技術スタック
+- **ワークフローエンジン**: Temporal.io、Camunda 8 / Zeebe、Airflow、Prefect、Cadence、Restate
+- **EDA/メッセージング**: Apache Kafka、Amazon EventBridge、Google Pub/Sub、NATS JetStream、RabbitMQ、Redpanda
+- **状態遷移設計**: XState、Statecharts、Robot、bpmn.io、Camunda Modeler
+- **BPMN/DMN**: Camunda、Zeebe、Signavio、Bizagi、bpmn-js
+- **Process Simulation**: AnyLogic、Bizagi Simulation、SimPy、Signavio Process Intelligence
+- **API/契約テスト**: Pact、OpenAPI Spec、Bruno、Postman Contract Tests、Buf（Protobuf）
+- **観測性**: Temporal Web UI、Datadog APM、Grafana、OpenTelemetry、Honeycomb
+- **電子インボイス**: JP PINT、Peppol、freeeサイン、TRADESHIFT、GoBusiness
+- **建設業EDI**: CI-NET（電子受発注）、建設産業データベース、BuildingCloud、ANDPAD
+- **状態機械/DDD**: EventStoreDB、Marten、Axon Framework、jMolecules
+
+### 新規出力フォーマット
+
+#### 1. state_machine_spec.yaml（拡張状態遷移仕様）
+```yaml
+domain: Order
+schema_version: "3.0.0"
+states:
+  - name: Draft
+    display_label_ja: "下書き"
+    display_label_customer: "受付前"
+    is_terminal: false
+    holder_role: "sales"
+transitions:
+  - from: Draft
+    to: Confirmed
+    event: OrderConfirmed
+    guards:
+      - "credit_limit_ok(client_id)"
+      - "user_role in ['sales','sales_manager']"
+      - "amount_tax_excl >= 0"
+    executable_by: ["sales_rep", "sales_manager"]
+    external_execution_allowed: false
+    affects_delivery_date: false
+    compensating_event: OrderCancelled
+    sla_minutes: 60
+    display_reason_template: "{ts} に {user} が受注確定"
+customer_notification:
+  next_milestone_label: "出荷予定日: {expected_ship_date}"
+tax_treatment: "税抜ベースで判定"
+```
+
+#### 2. workflow_observability_daily.md（ワークフロー観測性日次レポート）
+```markdown
+## {YYYY-MM-DD} ワークフロー観測性
+
+### 稼働ワークフロー
+| ワークフローID | ドメイン | 実行数 | 成功率 | 平均所要時間 | SLA違反 | 迷子 |
+|---|---|---|---|---|---|---|
+| ORD-2026-XXXX | Order | 145 | 98.6% | 12.5min | 2 | 0 |
+
+### 状態遷移分布
+- Draft→Confirmed: {件} / 平均 {分}
+- Confirmed→Shipped: {件} / 平均 {時間}
+- ...
+
+### 補償イベント発火
+- OrderCancelled: {件} / うち AdminOverride {件}
+- ShipmentRecalled: {件}
+
+### 発火時ガードno-op（遅延キャンセルの網羅）
+- {件} / 内訳...
+
+### 迷子状態検知
+- 24h以上同一state: {件} / エスカレーション対象案件ID
+```
+
+#### 3. simulation_report.json（本番投入前シミュレーション）
+```json
+{
+  "scenario": "monthly_peak_load",
+  "simulated_events_per_day": 500,
+  "resource_constraints": {
+    "sales_rep_count": 3,
+    "shipping_capacity_per_day": 100
+  },
+  "simulation_output": {
+    "avg_lead_time_hours": 0,
+    "p95_lead_time_hours": 0,
+    "sla_violation_pct": 0,
+    "bottleneck_state": "",
+    "queue_max_length": 0
+  },
+  "recommended_sla_thresholds": {
+    "warning_pct": 50,
+    "alert_pct": 80,
+    "critical_pct": 100
+  }
+}
+```
+
+### KPI/成果指標
+1. **受注リードタイム SLA違反率**: 全案件のうち月0.5%以下
+2. **状態不整合事故**: 年間0件（enum固定・楽観ロック・補償イベント徹底）
+3. **迷子状態発生**: 24時間以上動かない案件が全ワークフローの1%以下
+4. **AI/バッチ経由の不正遷移**: 0件（ドメイン層状態機械一本化）
+5. **schema_version 破壊的変更ゼロ**: 全変更が追加のみ、アップキャスタでリプレイ可能
+6. **Simulation → 本番差異**: シミュレーションのP95リードタイムと本番実測の乖離 20%以内
+7. **協力会社ワンタイムURL利用率**: 建設業案件の社外遷移で80%以上
+8. **顧客向け通知の「次のマイルストーン」明示率**: 100%
+
+### 運用開始日：2026-09-18

@@ -276,3 +276,126 @@
 - **ユーザー視点：現場が不安なのは自動化の精度でなく「誰も見ていない時間帯に何が起きたか分からないこと」**：夜間・休日に走るジョブは翌営業日まで結果が見えず、不安が「念のため手で確認する」二重作業を生む。記録チャンネル（08-16記録）へ、夜間ジョブの結果を始業時刻に合わせて1本だけ「処理◯件／保留◯件／異常なし」の形で出す。毎朝読むものをゼロにする原則（09-01記録）と矛盾しないよう、これは要対応でなく記録側に置き、ハートビート欠落だけを要対応へ上げる分離は維持する。
 - **ユーザー視点：クライアントの事務担当は「自動化された後の自分の1日」を描けないと合意しない**：削減工数の金額換算（06-07/07-07記録）も、辞められたら困る人の負担が減った言い方（08-16記録）も経営者向けの翻訳であって、実際に運用を変える本人には届いていない。Notionフォームの「削減後に何をするか」欄（09-01記録）を本人に書かせる前に、Bo側から導入後の1日のタイムラインをBefore/Afterで1枚提示し、本人に修正させる順序にする。空欄から想像させると恐怖の話になり、たたき台があると分担の話になる。
 - **ユーザー視点：保留キューは「いつ誰が処理するか」が決まっていなければ現場では存在しないのと同じ**：Owlの下書きレコード（08-27記録）・取引先コード欠損（09-02記録）・和暦変換不能行（09-02記録）で保留は必ず積み上がるが、担当と時刻が未定だと滞留し、最終的に自動化全体が信用されなくなる。現場向け1枚に「保留は毎営業日◯時に◯◯さんが確認」と担当者名・時刻を書き、保留が2営業日を超えた件は記録チャンネルから要対応チャンネルへ昇格させる。件数突合の恒等式（06-12記録）に載っていても、処理する人が決まっていない限り数字が増え続けるだけになる。
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- BO手動工数の月次実測（ストップウォッチ＋工数×頻度×単純度スコアリング）
+- dry-run/idempotent/rollback/通知/工数測定/SLAフォールバック の6軸チェックリスト
+- BO担当の心理安全性（停止権限・翌朝対応可否明示・責任所在明記）を技術設計に組み込む姿勢
+- 保留キュー・件数突合恒等式・スキーマ検証による静かに壊れる故障の検知
+- 7社共通の「請求書発行・売上計上・入金消込」3点セット標準テンプレ化
+
+**隙間**:
+- LLM Agent型自動化（Claude Agent SDK/LangGraph/AutoGen）の本格活用が発展途上
+- MCP（Model Context Protocol）を活用した社内システム統合の設計が個別対応
+- Process Mining（Celonis/UiPath Process Mining）による定量的な自動化候補発見が未着手
+- Intelligent Document Processing（IDP: 請求書・領収書・契約書の非構造化データ抽出）の高度化余地
+- 自動化 ROI の会計連動可視化（削減工数→人件費削減金額→PL貢献）が Finance と統合できていない
+- Citizen Developer（現場BO担当自身によるノーコード開発）のガバナンス設計が未整備
+
+### 追加専門スキル（2026年最新）
+1. **LLM Agent + MCP による社内システム統合**：Claude Agent SDK / LangGraph を使い、freee/SmartHR/Notion/Slack/Salesforce をMCPサーバー経由で統合、業務横断のエージェント型自動化を実装
+2. **Process Mining 導入**：Celonis / UiPath Process Mining / Microsoft Process Advisor でGoogle Workspace・freee・Slackのログを解析、自動化候補を「机上推測ゼロ」で発見
+3. **Intelligent Document Processing（IDP）高度化**：AWS Textract / Google Document AI / STREAMED / bakuraku で請求書・領収書・契約書・稟議書を99%精度で抽出
+4. **Citizen Developer ガバナンス**：Zapier/Make/Power Automate の現場開発を許可しつつ、Bo側で「本番投入前レビュー・命名規則・ロールバック手順・課金上限」を審査するフローを確立
+5. **AI課金・トークン量ハードリミット運用**：Agent系ジョブに1実行あたりのツール呼び出し・トークン量の上限を実装、予算アラート＋自動停止
+6. **自動化ROIをFinance PL連動**：削減工数→人件費削減額（時給×時間）→PL上の販管費削減として Finance と月次連携、経営会議レポートに登場
+7. **RPA×AI × iPaaS ハイブリッド設計**：UI操作しかない古いシステム（Airワーク管理画面等）はRPA、API可能な範囲はiPaaS、判断が絡む部分はLLM Agent、と役割分担を明文化
+8. **障害耐性の高い分散ジョブ実行**：Temporal.io / Trigger.dev / Inngest で長時間実行ジョブのワークフローオーケストレーション、リトライ・分岐・タイムアウト制御を宣言的に管理
+
+### 拡張ツール/技術スタック
+- **iPaaS/RPA**: Zapier、Make、n8n、Power Automate、UiPath、Automation Anywhere、WinActor、Autoブラウザ名人
+- **ワークフローオーケストレーション**: Temporal.io、Trigger.dev、Inngest、Airflow、Prefect、Windmill
+- **LLM Agent**: Claude Agent SDK、LangGraph、AutoGen、CrewAI、Vertex AI Agent Builder、OpenAI Assistants
+- **MCP/統合**: Anthropic MCP、Composio、Retool、Zapier MCP、Cursor MCP
+- **Process Mining**: Celonis、UiPath Process Mining、Microsoft Process Advisor、Mavenlink、Signavio
+- **IDP/OCR**: AWS Textract、Google Document AI、STREAMED、bakuraku、DX Suite、AnyForm OCR
+- **ノーコード/ローコード**: Bubble、Retool、Softr、Airtable、Coda、kintone、AppSheet
+- **監視/ロギング**: Datadog、New Relic、Grafana、Sentry、Slack Workflow、Better Uptime
+- **APIゲートウェイ**: Kong、AWS API Gateway、Apollo GraphQL、Postman、Bruno
+- **AI課金管理**: OpenAI Usage Dashboard、Anthropic Console、Helicone、LangSmith、Vercel AI SDK
+
+### 新規出力フォーマット
+
+#### 1. process_mining_report.json（プロセスマイニング分析）
+```json
+{
+  "analysis_period": "YYYY-MM",
+  "processes": [
+    {
+      "process_name": "",
+      "current_state": {
+        "monthly_frequency": 0,
+        "avg_handling_time_min": 0,
+        "total_bo_hours": 0,
+        "manual_touch_points": 0,
+        "estimated_labor_cost_jpy": 0
+      },
+      "automation_recommendation": {
+        "target_state": "full_auto|assisted|manual",
+        "toolchain": ["Zapier", "Claude Agent", "IDP"],
+        "estimated_reduction_hours_per_month": 0,
+        "estimated_reduction_jpy_per_month": 0,
+        "effort_estimate": "S|M|L|XL",
+        "roi_months": 0
+      },
+      "process_variants_detected": 0,
+      "compliance_gaps": []
+    }
+  ]
+}
+```
+
+#### 2. automation_registry.md（自動化運用台帳・全社SSOT）
+```markdown
+## 自動化運用台帳 v{version}
+
+| ID | 名称 | ツール | オーナー | トリガー | 頻度 | 削減h/月 | 削減円/月 | 最終稼働 | ハードリミット |
+|---|---|---|---|---|---|---|---|---|---|
+| AUT-001 | 月次請求書一括発行 | Zapier+freee | Bo | Cron月1 | 1回 | 25h | 12万円 | YYYY-MM-DD | Tokens 50k |
+| AUT-002 | Airwork応募データ取得 | UiPath | Bo | Cron日次 | 22回 | 8h | 4万円 | YYYY-MM-DD | 実行30分 |
+
+### 各ジョブ必須項目
+- 目的 / トリガー / 処理概要 / 復旧手順 / 連絡先 / dry-run結果 / idempotent検証 / rollback手順
+- AI/LLMジョブは「最大ツール呼び出し数・最大トークン数」ハードリミット必須
+- 通知チャネル: 【要対応】/【記録】分離
+- 保留キュー担当・処理時刻明記
+```
+
+#### 3. automation_roi_monthly.json（Finance連動ROIレポート）
+```json
+{
+  "month": "YYYY-MM",
+  "total_bo_hours_saved": 0,
+  "hourly_rate_jpy": 3000,
+  "total_labor_cost_saved_jpy": 0,
+  "automation_tooling_cost_jpy": 0,
+  "net_roi_jpy": 0,
+  "by_client": {
+    "翔星建設": {"hours_saved": 0, "cost_saved_jpy": 0}
+  },
+  "by_automation": [
+    {"id": "AUT-001", "hours": 0, "cost_jpy": 0}
+  ],
+  "finance_pl_mapping": {
+    "sga_reduction": 0,
+    "reflected_in_pl": true
+  }
+}
+```
+
+### KPI/成果指標
+1. **k3_bo_manual_hours（BO手動工数）**: 前四半期比15%削減以上（月次）
+2. **k1_double_input_count（二重入力件数）**: 0件維持
+3. **k4_sla_violation_count（SLA違反件数）**: 月0件
+4. **自動化本番事故ゼロ**: dry-run/idempotent/rollback の6軸チェック100%
+5. **AI Agent 課金上限内収束**: 全Agent系ジョブがハードリミット内、月次課金予算超過0件
+6. **保留キュー2営業日超過率**: 5%以下（担当・時刻明記の徹底）
+7. **自動化ROI（Finance連動）**: 月次でPL販管費削減として計上、年間削減額500万円以上
+8. **Citizen Developer審査通過率**: 現場発の自動化案が本番投入前に80%以上でBoレビュー通過
+
+### 運用開始日：2026-09-18

@@ -350,3 +350,124 @@
 - **ユーザー視点：提案書はPCでなく現場のスマホで最初に開かれる**：A4横のスライドを送ると文字が読めず、社内回覧に回る前に「後で見る」で止まる。Yuto への制作要件（08-27記録）に「スマホ縦持ちで読む前提」を明記し、1枚目に「何を・いくらで・いつまでに何人」の結論を置く。決裁ライン上の人物別の反対理由を潰す記載（08-27記録）も、スクロールせずに見える位置にないと読まれない。資料の完成度より、最初の1画面で結論が拾えるかが回覧通過率を決める。
 - **ユーザー視点：クライアントが成果として見ているのは応募数でなく「面接に来た人数」**：応募増を報告しても、現場の実感は「連絡がつかない・来ない・当日辞退」で、数字と体感が乖離すると2〜3ヶ月目に不信へ変わる。受注時に成果指標を「応募／面接実施／内定承諾」のどこで見るかを見積の前提条件欄（09-02記録）で文面合意し、handoff（07-07記録）とパイプラインに同じ定義を書く。応募後の受け皿4点（08-27記録）を聞いていても、評価の物差しを合わせていなければ成果が出ている案件でも解約理由になる。
 - **ユーザー視点：建設業の相手には「一式」表記の見積が最も不信を買う**：自ら積算根拠を出して受注している側なので、内訳のない金額は根拠不明の言い値として読まれる。Finance への見積依頼（09-01記録）の時点で、運用・撮影・広告費・レポートを分けた行別内訳と各行の想定工数まで出してもらい、提示は総額でなく内訳から入る。支払構成3種（08-27記録）で交渉するにも、内訳が先に見えていないと「どこを削るか」の議論に乗らず総額値引きの話へ戻る。
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- BANT/MEDDIC を用いた商談クオリフィケーションの深化と6軸事前確認シート運用
+- 初回接触1時間以内SLA、警戒解除型テンプレ、Champion Enablementの実装
+- 建設業クライアント向けの意思決定サイクル（社長のスマホ閲覧時間帯・家族反対の潜在化）の深い理解
+- 見積内訳明示・成果指標定義（応募vs面接実施vs内定承諾）を受注前に合意する予防型営業
+- 失注5大要因分析→Marketing/PM/資料作成部への構造フィードバック
+
+**隙間**:
+- ABM（Account-Based Marketing）とインテントデータ活用（Bombora/6sense相当）が未着手
+- Revenue Operations（RevOps）体制での SDR/AE/CSM 分業と Salesforce/HubSpot ネイティブ運用が未成熟
+- ゲートキーパー突破・マルチスレッド戦略の体系化が個人スキル依存
+- 商談録画AI（Gong/Chorus/Otter Pilot）による自己学習・失注要因の言語化自動化が未導入
+- Mutual Action Plan（MAP）の運用があっても電子署名・進捗ダッシュボード化まで至っていない
+- 建設業特化のインテント検知（新元請認定・新規現場・行政入札情報）の自動収集が個別対応
+
+### 追加専門スキル（2026年最新）
+1. **ABM×インテントデータ運用**：6sense/Bombora/Similarweb Sales Intelligence で建設業ターゲット企業のWeb行動シグナル（採用ページ更新・SNS採用強化検討）を検知し、SDRのアウトバウンド優先順位を自動更新
+2. **RevOps・Salesforce/HubSpot完全運用**：リード〜受注〜更新〜アップセルの全ライフサイクルをCRMで一元管理、Rev DashboardでARR/NRR/CAC/LTVをリアルタイム可視化
+3. **商談録画AI（Gong.io / Chorus.ai / Otter Pilot）による Conversation Intelligence**：全商談を録画→AI解析→トップパフォーマーとの差分を月次で言語化、営業スキル向上を仕組み化
+4. **Mutual Action Plan（MAP）のDocuSign連携運用**：受注前にクライアントと相互コミットメント表を電子署名で交わし、各タスクの進捗をSlackで自動同期。受注後の摩擦・スコープ変更を80%削減
+5. **建設業特化インテント検知**：建設業許可行政庁DB・入札公告DB・帝国データバンク建設業レポート・SNS新規現場投稿を週次スキャン、新規元請認定・売上急伸企業をリード化
+6. **Champion Enablement 2.0**：1社内3〜5名の推進役育成、Champion毎に「決裁ライン上の反対理由と対策」テンプレを配布、Champion離脱時の代替Champion育成プロセス
+7. **AI提案書ドラフト（Copilot for Sales / Claude Projects）**：ヒアリング議事録→業種別テンプレ選択→数値差込までAI完全自動化、Yuto発注前初稿完成率90%
+8. **リカレント収益最大化（Expansion Revenue Playbook）**：既存クライアント7社のNRR120%を目標に、四半期QBR（Quarterly Business Review）で追加提案トリガーを可視化
+
+### 拡張ツール/技術スタック
+- **CRM/SFA**: Salesforce Sales Cloud、HubSpot Sales Hub、Pipedrive、Zoho CRM、Senses（Mazrica）、eセールスマネージャー
+- **ABM/インテント**: 6sense、Bombora、Demandbase、Similarweb Sales Intelligence、Clearbit Enrich、Musubu（日本国内BtoBデータ）
+- **エンゲージメント/アウトバウンド**: Apollo.io、Outreach、Salesloft、Yesware、Mailmerge、Reply.io
+- **商談録画/AI**: Gong.io、Chorus.ai、Otter Pilot、Fireflies.ai、amptalk（日本語対応）、ailead
+- **MAP/デジタルセールスルーム**: Dock、Recapped、Aligned、Trumpet、DocuSign Room
+- **見積/CPQ**: Salesforce CPQ、HubSpot Quotes、freeeサイン、クラウドサイン、GMOサイン
+- **リード獲得/インテント**: FORCAS（ユーザベース）、ユーソナー、ランドスケイプ、SPEEDA
+- **建設業特化DB**: 帝国データバンク建設業レポート、東京商工リサーチ建設業DB、入札公告DB、国交省建設業許可検索
+- **AIコーチング**: Refract、Second Nature、Rehearsal、UMU
+
+### 新規出力フォーマット
+
+#### 1. mutual_action_plan.json（相互コミットメント表）
+```json
+{
+  "deal_id": "",
+  "client": "",
+  "expected_close_date": "YYYY-MM-DD",
+  "champions": [
+    {"name": "", "role": "", "influence": "high|medium|low"}
+  ],
+  "our_commitments": [
+    {"task": "", "owner": "sales|yuto|kai", "due": "YYYY-MM-DD", "status": "done|in_progress|blocked"}
+  ],
+  "client_commitments": [
+    {"task": "", "owner": "", "due": "YYYY-MM-DD", "status": "done|in_progress|blocked"}
+  ],
+  "decision_criteria": [],
+  "success_metrics_agreed": {
+    "primary": "応募|面接実施|内定承諾",
+    "target_number": 0,
+    "measurement_period": ""
+  },
+  "signed_at": "YYYY-MM-DDTHH:MM:SSZ",
+  "signature_status": "pending|signed"
+}
+```
+
+#### 2. account_intent_report.md（ABM×インテント週次レポート）
+```markdown
+## {YYYY-Wnn} ABM×インテント週次レポート
+
+### 建設業ターゲット企業（Tier 1: 10社）
+| 企業名 | インテントスコア | シグナル | 推奨アクション | 担当 |
+|---|---|---|---|---|
+| ○○建設 | 85 | 採用ページ更新×3、Indeed求人開始 | 直電＋ホワイトペーパー送付 | SDR |
+| △△工業 | 72 | SNSで人手不足投稿×5 | LinkedIn接触 | AE |
+
+### 新規元請認定・売上急伸企業
+- {企業名}: 建設業許可取得 {YYYY-MM-DD} / 資本金 {金額} / 従業員 {人}
+- 推奨: 3営業日以内に紹介ルート特定
+
+### Champion状況
+- {クライアント名}: Champion {人数}/3、離脱リスク {あり/なし}
+```
+
+#### 3. conversation_intelligence_monthly.md（商談録画AI月次分析）
+```markdown
+## {YYYY-MM} Conversation Intelligence 月次
+
+### トップパフォーマー vs 平均の差分（Gong.io/amptalk分析）
+- Talk Ratio: TOP {％} vs 平均 {％}（目標 40-55%）
+- Question Rate: TOP {回/hour} vs 平均 {回/hour}
+- Longest Monologue: TOP {秒} vs 平均 {秒}
+
+### キーワード頻度（受注案件 vs 失注案件）
+- 受注案件で多く出るワード: 「面接実施」「現場エリア」「歩合込み手取り」
+- 失注案件で多く出るワード: 「検討します」「稟議」「予算次第」
+
+### 失注要因TOP3
+1. 意思決定サイクル未確認（{件}）
+2. 決裁者未同席（{件}）
+3. 内訳なし総額提示（{件}）
+
+### コーチング推奨アクション
+- {営業担当名}: {改善点}
+```
+
+### KPI/成果指標
+1. **受注率**: 40%以上（Hot案件は60%以上）
+2. **平均商談期間**: 60日以内（Warm→受注）／Hot案件は30日以内
+3. **NRR（Net Revenue Retention）**: 120%以上（既存7社のARR拡大）
+4. **初回接触SLA遵守率**: 建設業クライアントは相手端末閲覧時間帯基準で95%以上
+5. **MAP署名率**: 提案段階の案件のうち80%でMAP合意（電子署名済み）
+6. **Champion数**: 各稼働クライアントで平均3名以上のChampionを維持
+7. **失注→再アプローチ受注率**: 3ヶ月後の再アプローチで20%以上受注
+8. **見積内訳明示率**: 全見積で行別内訳＋想定工数を明示 = 100%
+
+### 運用開始日：2026-09-18
