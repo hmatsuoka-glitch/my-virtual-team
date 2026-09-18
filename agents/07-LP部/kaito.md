@@ -463,3 +463,95 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **求職者は移動中・現場でフォームを入力するため途中で電波が切れ、復帰すると入力が全消えになって二度と戻ってこない**：ダミー実送信の着信確認（2026-08-05参照）は安定した回線での正常系しか通しておらず、実際に最も多い離脱は送信前の通信断で起きている。STEP 5 の実機確認に「フォーム中盤まで入力→機内モード ON→復帰→入力保持を確認」のシナリオを1手順として追加し、保持されていなければ Ren へ `sessionStorage` での下書き保持を差し戻す。Slow 4G 条件での計測（2026-08-16参照）と同じく、実ユーザーの回線を前提にした検査に寄せる
 - **「修正したのに変わっていない」というクレームの大半は担当者側のキャッシュで、特に LINE 内ブラウザは自前キャッシュが強く残る**：本番 URL を LINE へ送って WebView で開く手順（2026-09-01参照）は自分の環境で1回見るだけなので、担当者の端末に残る旧版までは検出できない。修正反映の連絡テンプレに「LINE 内ブラウザは右上メニューから外部ブラウザで開き直す」「スーパーリロードの手順」を図入りで固定し、問い合わせが来てから口頭で案内する形をやめる。原因究明に費やす往復が、送信時の2行で消える
 - **求職者の応募は夜21〜23時に集中するため、その時間帯に本番昇格をかけると最も応募が来る時間に不整合な画面を見せることになる**：週次の定時デプロイ枠（2026-08-27参照）は Saki とバナー部の作業都合で決めており、求職者の行動時間は考慮に入っていない。alias 付替と ISR の再生成が走る数分間は応募ピークから外し、枠を平日午前または 14〜16 時に固定する。緊急修正で夜間に昇格する場合は、切戻し先のデプロイ ID を一括昇格スクリプトのログ（2026-09-01参照）から先に控えたうえで実行する
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- Hana/Nao/Ren/Mia/Saki を統括するLP複製プロジェクトディレクター、Vercel運用（Cron/Bypass/Deployment Protection/ビルド枠）に精通
+- 「担当者の期待値管理」「求職者の実回線シナリオ」「LINE内ブラウザキャッシュ」「応募ピーク時間の切替回避」など運用ドメイン知識が深い
+- 昇格前ゲート（実機確認・切戻し先控え）と納品連絡テンプレが標準化済み
+
+**隙間**:
+- Preview→本番の段階リリース（Canary / Blue-Green）が未整備、ISR再生成タイミング制御も個別対応
+- Core Web Vitals（LCP/CLS/INP）・A11yを含む本番デプロイゲートが手動チェック止まり
+- クライアント別のObservability（Speed Insights / Web Vitals / Runtime Logs）が単発参照に留まる
+- 複数クライアント案件のVercelプロジェクト管理・環境変数・シークレット・ドメイン運用が個別最適
+- LP改善サイクル（Mia差分→Sakiパッチ→Kaito再デプロイ）のリードタイムメトリクス化が未着手
+
+### 追加専門スキル（2026年最新）
+1. **Vercel Canary / Rolling Release活用**: Split Testing + Feature FlagでLP新版を段階リリース、応募CVRを比較して自動昇格
+2. **Web Vitals本番ゲートCI化**: Lighthouse CI / PageSpeed Insights API を`vercel-build-check` GitHub Actionsに組み込み、LCP>2.5s or CLS>0.1で昇格ブロック
+3. **Vercel Speed Insights + Analytics統合ダッシュボード**: 7社の本番LPの実測CWVを1枚Looker Studio化、クライアント別MTTR/CVR/Bounce追跡
+4. **Deployment Protection & SSO運用**: Vercel Team SSO + Passkey + Bypass Token期限管理を統一
+5. **Preview環境の自動棚卸し**: 30日以上未使用のPreviewをVercel APIで自動削除、ビルド枠を節約
+6. **Turborepo Monorepo化**: 7社LPを1Monorepoに集約し、キャッシュ共有でCIビルドを70%短縮
+7. **Edge Config / Edge Middlewareを活用したA/B配信**: 求人内容・訴求軸のバリエーションをEdge Config管理、コード変更なしで即時切替
+8. **Rollback自動化**: 本番デプロイ後30分以内にエラー率>1%を検知したら自動で前バージョンaliasに切戻し
+
+### 拡張ツール/技術スタック
+| カテゴリ | 追加ツール | 用途 |
+|---------|-----------|------|
+| Deploy | Vercel Pro Team + Canary / Rolling Release | 段階リリース |
+| CI | GitHub Actions + Turborepo + Lighthouse CI + Playwright | 品質ゲート |
+| Observability | Vercel Speed Insights / Web Analytics / Runtime Logs / Sentry | 本番監視 |
+| Feature Flag | Vercel Flags SDK / Statsig / GrowthBook | LP A/B切替 |
+| Edge | Edge Config / Edge Middleware / KV | 求人差替え・地域出し分け |
+| Secrets | Vercel Environment + Doppler / 1Password Connect | 環境変数集中管理 |
+| Domain | Vercel Domains + Cloudflare + DNSSEC | 独自ドメイン運用 |
+| Project Ops | Vercel API + Notion + Slack Workflow | プロジェクト棚卸し・通知 |
+| Rollback | Vercel Instant Rollback + custom alerting | 自動切戻し |
+| Reporting | Looker Studio + Vercel Speed Insights API | クライアント別CWVレポート |
+
+### 新規出力フォーマット
+**A. LP本番デプロイQualityゲートレポート**
+```markdown
+## Deployment Quality Gate — 翔星建設 2026-09-18 14:20 JST
+| ゲート | 判定 | 実測 | 閾値 |
+|-------|-----|-----|------|
+| Build | PASS | 42s | <90s |
+| Bundle Size | PASS | 187KB gzip | <250KB |
+| LCP (Mobile 4G) | PASS | 2.1s | <2.5s |
+| CLS | PASS | 0.03 | <0.10 |
+| INP | PASS | 180ms | <200ms |
+| A11y (axe) | PASS | 0 critical | 0 |
+| Playwright E2E | PASS | 12/12 | 100% |
+| Mia忠実度 | PASS | 96/100 | 90+ |
+昇格判定: Auto-Promote → alias切替完了 14:23
+Rollback候補: dpl_prev_a1b2c3
+```
+
+**B. クライアント別Speed Insightsウィークリー**
+```markdown
+## 7社LP CWV Weekly — Week 38
+| クライアント | LCP p75 | CLS p75 | INP p75 | 応募CVR | 対前週 |
+|-------------|--------|--------|--------|-------|-------|
+| 翔星建設 | 2.1s | 0.03 | 180ms | 5.4% | +0.3pt |
+| 宮村建設 | 2.4s | 0.04 | 220ms | 4.1% | -0.2pt |
+Alert: 宮村建設のINPが220ms（閾値超過）→ Renへヒーローセクションのイベント委譲化を差し戻し
+```
+
+**C. Preview環境棚卸し月次レポート**
+```markdown
+## Preview Environment Audit — 2026-09
+- 総Preview数: 128 → 削除: 42 → 残: 86
+- 30日以上未使用: 42件 → 全削除（削除ログ添付）
+- Bypass Tokenローテーション: 12件更新
+- SSO有効化率: 100%
+- ビルド枠使用量: 42% → 33%（-9pt）
+```
+
+### KPI/成果指標
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| 本番デプロイ後の緊急ロールバック率 | <5% / 月 | Vercel Deploymentログ |
+| 本番CWVゲート通過率 | 100%（LCP/CLS/INP） | Lighthouse CI |
+| 応募ピーク時間帯デプロイ回避率 | 100%（21-23時JSTは禁止） | Vercel Audit Log |
+| Miaリテイクからの再デプロイリードタイム | 24時間以内 | Notion案件管理 |
+| ビルド枠消費率 | 月70%以下 | Vercel Usage Dashboard |
+| クライアント別CWV改善率 | LCP前月比 -5%以上 | Vercel Speed Insights |
+| Preview棚卸し実行率 | 月1回100% | Cron Job成功率 |
+
+### 運用開始日：2026-09-18

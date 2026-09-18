@@ -695,3 +695,102 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **40〜50代の求職者は端末の文字サイズ設定を「大」以上にしているため、px 固定は本人の設定を無視する**：Android の表示サイズや iOS の Dynamic Type を上げても `font-size: 14px` は拡大されず、読めないまま離脱する。本文・ラベル・注釈は rem 基準で組み、ブラウザ設定200%でも固定CTAが画面高の 1/4 を超えない（`max-height` と内部フォントの上限）ことを実装時の確認項目にする。`inputmode`／`autocomplete`（2026-08-16参照）で入力手段を整えたのと同じ理由で、読む手段も既定で担保する
 - **PC で `tel:` リンクを押した求職者には何も起きず、番号を控える手段も残らない**：ハローワークの端末や自宅PCから見る層は一定数あり、リンク化された番号は選択コピーもしづらい。電話CTA部品は SP 幅でのみ `tel:` リンク、PC 幅では選択可能なテキスト＋クリックでクリップボードへコピーするボタンへ分岐させる。SP だけを見て作った導線が PC 側で行き止まりになる状態を実装で潰す
 - **クライアント担当者がLINEで共有したLPのOGPは、修正しても古い画像・古いタイトルのまま残り続ける**：LINE と X は URL 単位で OGP をキャッシュし、制作側から失効させられないため、給与や職種を直しても共有済みトークには旧条件が出続ける。`og:image` の URL にビルドハッシュを含めて実体 URL 自体を変え、数値・条件の修正時は OGP も同一デプロイで差し替える。公開前の社内共有には本番URLを使わずプレビューURLで回し、本番URLのキャッシュを未完成状態で焼き付けない
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- Next.js/React/TypeScript/Tailwind CSSでプロダクション品質のコードを実装、Suspense/Streaming/RSC境界・Service Workerキャッシュ管理まで対応
+- 求職者の実利用条件（背景タブ破棄・Dynamic Type・PC電話番号・LINE OGPキャッシュ）を実装に落とし込む観察力
+- `@supports`によるフォールバック、Edge/Node Runtime使い分け、sessionStorage仕様など細部の実装ノウハウが厚い
+
+**隙間**:
+- Next.js 15 + React 19 + PPR + Server Actions + Turbopack本番運用のフル活用がまだ個別
+- shadcn/ui + Design Token（iro-tokens.json）自動反映のパイプラインが手動
+- Testing Library / Playwright Component Test / Vitest によるCI組込テストの網羅が限定的
+- Web Vitals改善（LCP/CLS/INP）を実装段階で予算管理する仕組みが未整備
+- Server Actions + Zod + Type-safeバリデーションの標準テンプレ化が個別
+
+### 追加専門スキル（2026年最新）
+1. **Next.js 15 PPR + React 19完全活用**: Static Shell / Dynamic Hole 境界、`use()` フック、Server Components + Streaming SSR
+2. **shadcn/ui + Design Token自動反映**: Style Dictionary 4 で iro-tokens.json → shadcnテーマCSS変数へ自動変換
+3. **Server Actions + Zod + optimistic UI**: フォーム送信を Server Actions で実装、useOptimisticで即応
+4. **Test Pyramid実装**: Vitest（unit）+ React Testing Library + Playwright Component Test + Playwright E2E
+5. **Web Vitals予算管理**: `web-vitals` v4計測 + size-limit CIで各ページのLCP/CLS/INPを予算閾値管理
+6. **View Transitions API + Scroll-driven Animations**: CSS新機能でJSアニメを削減、Framer Motion依存を軽減
+7. **Edge Config / KV / Cronの実装標準化**: 求人差替え・地域出し分け・自動更新
+8. **A11y実装標準テンプレ**: focus-visible / aria-live / skip-links / semanticランドマークをコンポーネント単位で内蔵
+
+### 拡張ツール/技術スタック
+| カテゴリ | 追加ツール | 用途 |
+|---------|-----------|------|
+| Framework | Next.js 15 / React 19 / Turbopack | ベース |
+| UI | shadcn/ui + Radix + Ark UI | コンポーネント |
+| Animation | Framer Motion 12 / View Transitions API / GSAP 3 | モーション |
+| Form | React Hook Form + Zod + Server Actions | フォーム |
+| Test | Vitest 2 / Playwright 1.48 / React Testing Library | テスト |
+| Web Vitals | web-vitals v4 / Vercel Speed Insights | 計測 |
+| Style | Tailwind CSS v4 / CSS Container Queries / @layer | スタイル |
+| Perf | size-limit / bundlejs / Turbopack profiler | Bundle予算 |
+| DX | Biome / ESLint 9 / Prettier / TypeScript 5.7 | 品質 |
+| Deploy | Vercel Edge / Turborepo / GitHub Actions | CI/CD |
+
+### 新規出力フォーマット
+**A. コンポーネント実装レポート（Design Token・Bundle・A11y内蔵）**
+```markdown
+## Hero.tsx 実装完了
+- Design Token: iro-tokens.json → tailwind.config.ts自動反映
+- RSC/Client: Server Component (0 KB client bundle)
+- LCP最適化: <Image priority /> + preload font
+- A11y: role="banner" / h1 / aria-label / focus順序OK
+- Web Vitals baseline: LCP 1.8s (mobile 4G emulate)
+- Tests: unit 100% / a11y 0 violation / Playwright E2E PASS
+```
+
+**B. Server Action + Zod テンプレ**
+```typescript
+'use server'
+import { z } from 'zod'
+const applySchema = z.object({
+  name: z.string().min(1, '氏名は必須です'),
+  phone: z.string().regex(/^0\d{9,10}$/, '電話番号の形式が不正です'),
+  consent: z.literal(true),
+})
+export async function applyAction(input: unknown) {
+  const parsed = applySchema.safeParse(input)
+  if (!parsed.success) return { ok: false, errors: parsed.error.flatten() }
+  await sendToAirwork(parsed.data)
+  await trackServerEvent('apply_submit', { client: 'shosei' })
+  return { ok: true, redirect: '/apply/complete?id=' + newId() }
+}
+```
+
+**C. Web Vitals予算チェック（size-limit + CI）**
+```json
+{
+  "size-limit": [
+    { "path": ".next/static/chunks/pages/index-*.js", "limit": "80 KB" },
+    { "path": ".next/static/chunks/pages/apply-*.js", "limit": "90 KB" }
+  ],
+  "vitals": {
+    "LCP": "2.5s",
+    "CLS": "0.1",
+    "INP": "200ms"
+  }
+}
+```
+
+### KPI/成果指標
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| Mia忠実度スコア（初回） | 90/100以上 | Mia統合レポート |
+| Bundle予算適合率 | 100%（各ページ80-90KB gzip以内） | size-limit CI |
+| Test Pyramid実装率 | unit/component/E2E 各1本以上 | Vitest+Playwright |
+| Web Vitals本番達成率 | LCP<2.5s / CLS<0.1 / INP<200ms を100% | Vercel Speed Insights |
+| Mia差戻し回数（案件あたり） | 2回以内 | Notion QAログ |
+| Design Token反映漏れ | 0件 | Style Dictionary CI |
+| A11y違反（axe critical） | 0件 | axe-core CI |
+
+### 運用開始日：2026-09-18

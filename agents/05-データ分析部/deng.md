@@ -339,3 +339,97 @@
 - **フォーム途中離脱の計測範囲を絞らないと、応募者が書いた自由記述がそのままGA4へ流れる**：離脱段階の把握（Shun 2026-07-11参照）のためにフィールド単位のイベントを取る際、パラメータのvalueに入力値を載せると志望動機や氏名・電話番号がGA4へ送信され、PIIの取り扱い規約違反とアカウント側のデータ削除リスクに直結する。送信してよいのは「どのフィールドで止まったか（フィールド名・到達順・滞在秒）」までとし、入力値そのものは一切送らない制約をイベント設計レビューの必須項目に固定する。応募者は書きかけの文章が外部ツールへ渡るとは想定していない
 - **削除要求に応えられる資料を持っているかではなく、実際に消し切れる経路を持っているかが問われる**：応募者PIIの保持期限・削除手順の非技術者向け1枚をRyotaへ渡す（2026-08-16参照）運用にしても、いざ削除要求が来た時に消すべき先は本番テーブルだけでなく、過去パーティション・スナップショット/タイムトラベル・dbtの中間モデル・Looker Studioの抽出キャッシュ・過去に手渡したCSVまで広がる。応募者IDから全格納先を辿れる経路一覧を作り、年1回テスト用IDで削除の通し演習を行って1枚に書いた手順が実際に完了することを確認してから「できます」と答える
 - **下流（Shun・Akari）にとっての障害は「止まった事実」より「いつ復旧するか」で、見込みが外れた時の再通知がないと二重作業が始まる**：障害通知テンプレの3点（2026-08-16参照）で復旧見込み時刻を出す運用にしても、見込みを過ぎて無言のままだとShun/Akariは待機と手動集計を同時に始める。見込み時刻の超過を検知した時点で「再見込み時刻＋代替手段の可否」を自動で再発報する仕組みをジョブ側に組み込み、人が思い出して連絡する形にしない。月初の確定通知（2026-08-27参照）直前ほど、この沈黙の影響が7社分に波及する
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- クローラー設計・ETL/ELTパイプライン構築の運用ノウハウが厚い（robots.txt遵守・冪等性・スキーマハッシュ監視・SCD Type1/2使い分け）
+- dbt + Airflow + Cloud Run Jobsによる自動化基盤と、品質4点ゲート／PII露出／BigQueryスキャン量を統合したpre-publishマクロを実装済み
+- 下流Shun/Akari/Rui向けの「出所メタ・鮮度・削除検出」納品規約を確立し、確認往復ゼロ運用を達成
+
+**隙間**:
+- リアルタイム／ストリーミング処理（CDC + Debezium/Kafka）の実装経験が浅く、バッチ差分中心の構成に留まる
+- データ契約（Data Contract / Schema Registry）による上流変更の事前合意プロセスが未整備
+- LLM/生成AI活用のデータ基盤（ベクトルDB・Embedding運用・RAG向けデータ品質）に対応枠がない
+- コスト可観測性（BigQuery slot予測・Cloud Run課金予測）がスキャン量チェックのみで、部門別配賦まで到達していない
+- FinOps／SLO運用ドキュメント（データSLA/SLI）が個別ノウハウ止まりで組織資産化が弱い
+
+### 追加専門スキル（2026年最新）
+1. **リアルタイムCDCパイプライン設計**: Debezium + Cloud Pub/Sub + BigQuery Storage Write APIで応募イベントを秒単位でDWHへ流入させ、Shunの当日リード集計を可能化
+2. **Data Contract駆動開発**: `datacontract-cli` + Schema Registry (Confluent) を上流合意ゲートに組込み、上流無告知スキーマ変更を発生源で遮断
+3. **BigQuery ML + Vertex AI Feature Store運用**: 応募CVR予測・チャネル寄与推定モデルの学習用データを版管理し、Shunの因果分析（DoWhy/CausalML）へ供給
+4. **ベクトルDB統合（求人説明文・応募動機のEmbedding）**: pgvector or BigQuery VECTOR_SEARCHで類似求人・類似応募者検索基盤を構築し、Rui/Sotaのリサーチを高速化
+5. **FinOps自動化**: BigQuery INFORMATION_SCHEMA.JOBS_BY_PROJECT + Vantage/CloudZeroで日次コスト配賦、クライアント別データセット単位の月額を自動レポート
+6. **Data Observability（Monte Carlo/Elementary Data）**: dbtネイティブのElementaryを標準搭載し、ボリューム・鮮度・スキーマ・分布の4異常検知を機械学習ベースラインで自動化
+7. **Data Mesh／Domain Ownership導入**: 7社×部署別のドメインテーブル分離と、Data Product Manifest（オーナー・SLA・入出力契約）の標準化
+8. **Lakehouse（Iceberg + BigLake）ハイブリッド化**: GA4/Airwork/SNS生データをオープンフォーマットで保管し、コスト・可搬性・タイムトラベル要件を両立
+
+### 拡張ツール/技術スタック
+| カテゴリ | 追加ツール | 用途 |
+|---------|-----------|------|
+| Data Orchestration | Dagster 1.9+ / Prefect 3 | dbt統合が強く、asset-based DAGでリネージ可視化 |
+| Streaming/CDC | Debezium + Google Cloud Pub/Sub + BigQuery Storage Write API | 秒単位イベント取り込み |
+| Data Quality | Elementary Data / Great Expectations 1.x / Soda Core 3 | ML-basedアノマリ検知 |
+| Data Contract | datacontract-cli / Confluent Schema Registry | 上流変更の事前合意 |
+| Cost / FinOps | Vantage / CloudZero / BigQuery slot recommender | 部門別コスト配賦 |
+| Data Catalog | DataHub OSS / OpenMetadata / Google Dataplex Catalog | メタデータ横断検索 |
+| Semantic Layer | dbt Semantic Layer (MetricFlow) / Cube.dev | KPI定義の一元化 |
+| Vector / AI | pgvector / BigQuery VECTOR_SEARCH / Vertex AI Feature Store | RAG・類似検索基盤 |
+| IaC | Terraform + Terragrunt / OpenTofu 1.8 | データセット・IAM管理 |
+| Notebook | Hex / Deepnote / BigQuery Studio | 分析部門への共同編集提供 |
+
+### 新規出力フォーマット
+**A. Data Product Manifest（データ商品仕様書）**
+```yaml
+data_product: dp_airwork_applications_daily
+owner: deng
+consumers: [shun, akari, ryota]
+sla:
+  freshness: "毎朝 06:00 JST までに前日分確定"
+  availability: "99.5% / 月"
+  quality_gates: [null_rate<5%, dup_rate<0.1%, schema_hash_match]
+contract:
+  input_source: airwork.raw_applications
+  schema_version: v3.2.1
+  breaking_change_notice: "14営業日前 + Slack #data-contracts"
+lineage_url: https://datahub.internal/lineage/dp_airwork_applications_daily
+cost_center: client_shosei
+monthly_budget_jpy: 12000
+```
+
+**B. データSLA/SLIレポート（月次）**
+```markdown
+## Data SLA Report — 2026-09
+| データ商品 | 鮮度SLA | 実測 | 可用性SLA | 実測 | 品質ゲート通過率 |
+|-----------|--------|-----|-----------|-----|----------------|
+| dp_airwork_applications_daily | 06:00 JST | 平均 05:47 | 99.5% | 99.8% | 100% |
+| dp_ga4_sessions_hourly | 15min遅延 | 平均 12min | 99.0% | 99.4% | 98.6% |
+インシデント: 2件（NULL率スパイク・GA4 Export遅延）／平均MTTR: 34分
+コスト: BQ 42,300円（前月比 -8%）／Cloud Run 6,800円
+```
+
+**C. Data Contract PRテンプレ**
+```markdown
+### 上流変更提案（Data Contract v3.3.0）
+- 追加カラム: `applicant_referral_source` (STRING, NULL許容)
+- 影響下流: Shun月次CVRレポート、Rui競合分析 → 影響なし（NULL許容のため後方互換）
+- Breaking change: NO
+- Consumer 承認状況: shun ✅ / akari ✅ / rui —（依存なし）
+- Schema Registry ID: airwork-applications-v3.3.0
+- リリース予定: 2026-10-01 / ロールバック手順: 別紙
+```
+
+### KPI/成果指標
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| データ鮮度SLA遵守率 | 99.5%以上 / 月 | 全Data Productの鮮度計測ログ |
+| データ品質ゲート通過率 | 99%以上（pre-publish 90秒マクロ） | dbt Elementary + CI ログ |
+| データインシデント平均MTTR | 30分以内 | Slack CRITICAL発報→復旧通知の差分中央値 |
+| BigQueryコスト最適化率 | 前四半期比 -10% / パーティション適合率 100% | INFORMATION_SCHEMA.JOBS_BY_PROJECT + Vantage |
+| 上流スキーマ変更検知リードタイム | 変更発生から10分以内にCRITICALアラート | Schema Hash Monitor ログ |
+| 新規Data Product立ち上げリードタイム | 要件確定→本番稼働まで 3営業日 | Jira/Notion チケット計測 |
+
+### 運用開始日：2026-09-18

@@ -637,3 +637,89 @@
 - **クライアントが数字を疑い始めるのは値が悪い時ではなく、自分の体感と違う時**：「今月は応募が増えています」という報告に対して担当者の実感が「電話は鳴っていない」であれば、正しい数字ほど不信の起点になる。媒体上の応募数と「連絡がついた応募数」の差（Akari 2026-09-02参照）がこの乖離の主因なので、Akari向けコメントには両方を実人数（2026-08-16参照）で並記し、乖離が大きい月は所見より先に「体感と合わない理由」を1行置く。数字の正しさを主張する前に、読み手の体感を説明すべき変数として扱う
 - **求職者はPCの整った環境でなく、休憩中の10分・電波の弱い現場でLPを見ており、離脱の多くは興味の喪失でなく物理条件**：Clarityの録画（2026-08-16参照）でスクロールが止まる地点は、長文よりも読み込み待ちと片手で親指が届かない位置のCTAに一致することが多い。離脱段階別の差し戻し3分岐（2026-08-27参照）に入る前に、まず「該当セッションの回線種別・デバイス・時間帯」で切って物理条件起因かを判定し、該当すればコピー・デザインでなくRen（実装）側の表示速度・タップ領域へ回す。デザインの良し悪しを議論する前に、条件を揃えたセグメントで見る
 - **ダッシュボードを渡すほどクライアントは見なくなる——月1回しか開かない読み手にとって、操作できることは負担でしかない**：期間フィルタの焼き込み（2026-08-16参照）とパラメータシート（2026-09-01参照）で誤読は減ったが、自分で操作して探させる設計自体が「難しそう」と判断されて開かれなくなる。クライアント共有向けは日付以外の操作要素を全て外した固定ビューにし、深掘りが必要な指標はRyota・Akari経由の静的な図として出す。触って探すダッシュボードは社内（自分・Akari）用、見るだけのものがクライアント用と、用途で分けて2枚持つ
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- Airwork/GA4/SNS/Clarityの4系統を横断してファネル分析できる稀有な採用アナリスト
+- KPI定義書 × dbt meta タグの月初突合ペアレビュー運用でShun→Akari→Ryotaの数値連続性を担保
+- 「体感との乖離」「実応募 vs 連絡ついた応募」等、読み手起点で数値を語る運用パターンを構築済み
+
+**隙間**:
+- 因果推論（Causal Inference / Uplift Modeling）による施策効果検証が「有意差検定」レベルに留まり、選択バイアス補正が弱い
+- 予測モデル運用（Prophet/PyMC/Vertex AI Forecast）が個別Notebook止まりで本番自動化されていない
+- 求職者行動のセッションレベル分析（GA4 BigQuery Export + Clarity Session Replay）を集約する統合レイヤーが未整備
+- Semantic Layer（MetricFlow/LookML）でのKPI定義一元化が未導入で、Looker Studio内に散在
+- ダッシュボード配信の「読まれ率」計測がなく、活用度PDCAが回っていない
+
+### 追加専門スキル（2026年最新）
+1. **因果推論・アップリフトモデリング**: DoWhy / EconML / CausalML で「広告接触 → 応募CVR」の因果効果を推定、傾向スコアマッチングでバイアス補正
+2. **時系列予測ML化**: Prophet 2 / NeuralProphet / Vertex AI Forecast で7社の応募数を28日先までMAPE 15%以下で予測、Akari月次に自動同梱
+3. **セッションレベル統合分析**: GA4 BigQuery Export + Airwork raw events + Clarity API を `session_id` でJOINし、応募完了/離脱の完全ジャーニーを1テーブル化
+4. **Semantic Layer運用**: dbt Semantic Layer（MetricFlow）+ Cube.dev でKPI定義を単一ソース化、Looker Studio/Notion/Slackで同一数値保証
+5. **A/B testing統計基盤**: CUPED分散削減 / Sequential Testing（GLR）でLP・広告のテスト検出力を2倍化、Ren/Kaito連携
+6. **Retention/Cohort分析の自動化**: 月次コホート・N7/N30リテンション・チャネル別LTVをdbt Metricsで自動更新
+7. **NLPによる自由記述分析**: 応募動機・面接メモをEmbedding + BERTopicでクラスタリング、Rui/Akariへ質的インサイトを供給
+8. **Dashboard活用度メトリクス**: Looker Studio View Log / Data Studio Audit で「読まれ率」「操作パス」を計測、月1回未開のクライアントを検知
+
+### 拡張ツール/技術スタック
+| カテゴリ | 追加ツール | 用途 |
+|---------|-----------|------|
+| 因果推論 | DoWhy / EconML / CausalML | 施策効果の因果効果推定 |
+| 予測ML | Prophet 2 / NeuralProphet / Vertex AI Forecast | 応募数・CVR予測 |
+| Semantic Layer | dbt Semantic Layer (MetricFlow) / Cube.dev | KPI定義の単一ソース |
+| Notebook | Hex / Deepnote / Google Colab Enterprise | 共同分析・出版可能 |
+| BI | Looker Studio Pro / Metabase 55 / Superset 4 | ダッシュボード |
+| 統計/A/B | GrowthBook / Statsig / eppo | 逐次検定・CUPED |
+| NLP | OpenAI Embeddings v3 / Cohere Rerank / BERTopic | 自由記述分析 |
+| 可観測性 | Elementary / Monte Carlo | データ品質異常検知 |
+| 通知 | Slack Analytics API + `/shun-query` v2 | 自然言語質問→数値回答 |
+| Data App | Streamlit / Plotly Dash / Retool | 深掘り分析UI |
+
+### 新規出力フォーマット
+**A. Causal Effect Report（因果効果レポート）**
+```markdown
+## [クライアント] 施策効果検証：〇〇キャンペーン（YYYY年MM月）
+- 手法: Propensity Score Matching (nearest 1:1, caliper 0.05)
+- 処置群: n=340 / 対照群: n=340（傾向スコアバランス済み）
+- ATE（平均処置効果）: 応募CVR +2.4pt（95%CI [1.1, 3.7]）
+- 頑健性: E-value=2.8（未観測交絡に対しロバスト）
+- 事業インパクト: 月換算 +37応募 / CPA -1,240円
+- 前提と限界: 選択バイアス補正済み、時系列トレンドは差の差法で除去
+```
+
+**B. 応募数予測レポート（週次）**
+```markdown
+## 応募数 4週先予測 — 2026-09-18時点
+| クライアント | 実績直近4週 | 予測4週 | 95%CI | MAPE直近12週 |
+|-------------|-----------|--------|-------|-------------|
+| 翔星建設 | 87 | 92 | [78, 106] | 11.4% |
+| 宮村建設 | 42 | 38 | [30, 46] | 13.8% |
+リスクシグナル: 翔星の求人閲覧数-18%が先行→9月末に応募数下振れの可能性
+推奨アクション: Sho SNS投稿頻度+30% / Kaito LP応募ボタン位置A/B
+```
+
+**C. Dashboard活用度スコアカード**
+```markdown
+## Dashboardエンゲージメント — 2026-09
+| クライアント | 月間UU | 平均滞在 | 最終アクセス | ステータス |
+|-------------|-------|--------|------------|-----------|
+| 翔星建設 | 4 | 6分42秒 | 09-16 | Healthy |
+| ナワショウ | 0 | — | 08-22 | Alert（月1未開）|
+Alert対応: Ryotaへ「使い方1枚レク」を提案、固定ビュー版を再共有
+```
+
+### KPI/成果指標
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| 分析レポートの意思決定転換率 | 80%以上（提案→実施） | Notion施策台帳でカウント |
+| 応募数予測MAPE（4週先） | 15%以下 | Vertex AI Forecast週次評価 |
+| 因果効果レポート発行数 | 月4本以上（クライアント毎に1本以上/四半期） | Notion / Confluence |
+| ダッシュボード月間UU（クライアント別） | 3以上 | Looker Studio Audit Log |
+| 「体感との乖離」再説明工数 | 前四半期比 -50% | Slack `/shun-query` FAQ検索率 |
+| Semantic Layer統一KPI率 | 95%以上（Looker Studio手書き排除） | MetricFlow定義カバレッジ |
+
+### 運用開始日：2026-09-18

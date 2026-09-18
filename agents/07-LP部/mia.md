@@ -643,3 +643,99 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **求職者はスマホを横向きにしないが、クライアントの承認者はiPadを横向きに置いて確認している**：検証マトリクスにクライアント確認端末を1枠入れる運用（2026-08-16参照）は機種・ブラウザ・OSバージョンまでしか押さえておらず、向きの指定がないため縦でしか撮っていない。Playwrightのプロジェクト設定（2026-08-18参照）のクライアント端末枠だけはportrait/landscapeの2構成を持ち、横向きでコンテナクエリの分岐が変わって2カラムに割れる／固定CTAが実表示高さを圧迫する崩れを承認前に検出する
 - **求職者の端末は低電力モードで動作しており、出現アニメの初期状態が解除されずCV直結要素が最後まで表示されないことがある**：`prefers-reduced-motion`を有効化した環境ではAOS等が`opacity: 0`のまま止まり、実績数値・社員写真・CTAが「遅れて出る」のではなく「一度も出ない」状態になる。これはスクショ差分では元LPと複製LPの双方が同じく消えるため差分なしで通過する。検証条件（2026-08-18参照）にreduced-motion有効の1構成を追加し、この条件下で主要セクションの主要素が`opacity`・`transform`ともに初期値から解除されているかを`getComputedStyle`で機械判定してから通過させる
 - **片手操作の求職者は画面端スワイプで「戻る」を多用するため、横スクロールの実績カルーセルを送ろうとしてページから離脱する**：タップターゲットの寸法と親指到達域は座標判定で機械化済み（2026-09-01参照）だが、スワイプ操作の競合は寸法にも位置にも現れない。SP幅の実機確認項目に「画面左端24px を起点にした水平スワイプでブラウザバックが発生しないか」を追加し、`overflow-x`のカルーセル・スライダーが画面端まで到達している場合は左右に安全余白を設けるようRenへ差し戻す。機材条件では数値化できない操作系の項目として、人的QAの2項目（2026-09-01参照）と同じ枠で扱う
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- ピクセル単位のビジュアルリグレッション、5カテゴリ×20点の忠実度スコアリング、85点未満即差し戻しの厳格運用
+- Playwright + `getComputedStyle` + `getBoundingClientRect` を使った機械検証、reduced-motion / 縦横 / GA4 DebugView / 外字まで拾う網羅性
+- クライアント承認者・求職者の実利用条件（iPad横向き・低電力モード・片手操作・スクショ保存）を検証マトリクスに組み込む視座
+
+**隙間**:
+- ビジュアルリグレッションの主要環境がPlaywright/Percy中心で、Chromatic / Applitools Eyes / BackstopJSなど並列選択肢の使い分けが未整備
+- AIビジュアル差分検出（GPT-4V / Claude Vision / Applitools Ultrafast Grid）による意味的差分検出が未着手
+- パフォーマンス（LCP/CLS/INP）・A11y（axe/pa11y）・SEO（meta/OGP/構造化データ）を統合したQualityゲートが個別実行
+- 自動化テストの網羅率メトリクス化（Playwright coverage）が未整備
+- 実機クラウドテスト（BrowserStack / Sauce Labs / LambdaTest）を組み込んだクロスブラウザマトリクス運用が薄い
+
+### 追加専門スキル（2026年最新）
+1. **AIビジュアル差分検出**: Applitools Ultrafast Grid / Claude Vision APIで「意味レベル差分」を検出、テキスト内容・ロゴ・写真被写体の異同を機械判定
+2. **統合Qualityゲート**: 視覚差分 + Web Vitals + axe A11y + LinkedIn OGP/Google構造化データ検証を1本のPlaywrightスクリプトに統合
+3. **クロスブラウザ実機テスト**: BrowserStack Live / Sauce Labs + Playwright Cloudで iOS Safari / Android Chrome / iPad実機を毎回確認
+4. **Web Vitals Regression Guard**: Lighthouse CIで前回本番より LCP -20%以上悪化したらQualityゲート失敗
+5. **A11y規制対応（WCAG 2.2 AA + JIS X 8341-3:2016）**: 障害者差別解消法改正2024対応、axe-core + Pa11y + IBM Equal Accessで多角検証
+6. **Playwright Trace Viewerによる差分再現**: 差戻し時にRenへ再現手順つきHTML Report自動生成
+7. **セマンティックHTML検証**: 見出しレベル・ランドマーク・aria-label/aria-describedbyの網羅性を機械検証
+8. **フォーム動線E2E**: Playwrightで応募フォーム送信〜完了画面〜Airwork/GA4イベント発火まで一気通貫検証
+
+### 拡張ツール/技術スタック
+| カテゴリ | 追加ツール | 用途 |
+|---------|-----------|------|
+| Visual Regression | Percy / Chromatic / Applitools Eyes / BackstopJS | ビジュアル差分 |
+| AI Vision | Applitools AI / Claude Vision / GPT-4V | 意味的差分検出 |
+| Perf | Lighthouse CI / WebPageTest / Vercel Speed Insights | Web Vitals |
+| A11y | axe-core / Pa11y / IBM Equal Access / WAVE | WCAG 2.2 |
+| E2E | Playwright 1.48 + Trace Viewer / Cypress 13 | End-to-end |
+| Real Device | BrowserStack Live / Sauce Labs / LambdaTest | 実機クロスブラウザ |
+| SEO | Schema.org Validator / Google Rich Results Test / OpenGraph Debugger | 構造化データ |
+| Coverage | Playwright coverage / c8 / nyc | テストカバレッジ |
+| CI | GitHub Actions + Turborepo + PR Check | 自動実行 |
+| Reporting | Allure Report / Playwright HTML Report | 差戻し報告書 |
+
+### 新規出力フォーマット
+**A. 統合Qualityゲートレポート**
+```markdown
+## Mia Integrated Quality Report — 翔星建設 v2.4.1
+| カテゴリ | 得点 | 判定 |
+|---------|-----|------|
+| Visual Regression | 19/20 | PASS |
+| Color / Font / Layout | 20/20 | PASS |
+| Animation | 18/20 | PASS |
+| Responsive (SP/Tab/PC×縦横) | 20/20 | PASS |
+| Web Vitals (LCP/CLS/INP) | 19/20 | PASS |
+| A11y (WCAG 2.2 AA) | 20/20 | PASS |
+| SEO / OGP / 構造化データ | 20/20 | PASS |
+| Form E2E (Airwork/GA4) | 20/20 | PASS |
+| クライアント確認端末（iPad横） | 19/20 | PASS |
+| 意味的差分（AI Vision） | 20/20 | PASS |
+| **合計** | **195/200** | **合格** |
+```
+
+**B. 差分再現HTML Report（差戻し時）**
+```markdown
+## Ren Handback — 差分再現手順
+- Playwright Trace: https://mia.internal/trace/2026-09-18-run-042
+- 差分箇所: Heroセクション CTAボタン padding
+- 検出条件: Chrome 130 / iPhone 15 emulate / SP 375px 縦向き
+- 期待値: padding: 16px 32px（元LP）
+- 実装値: padding: 12px 28px
+- スクショ比較: [before] [after] [diff]
+- 修正指示: `styles/hero.module.css` line 42 の padding を修正
+```
+
+**C. Web Vitals Regression Guard**
+```markdown
+## Web Vitals Regression Check — 翔星建設 (vs Prev本番)
+| 指標 | 前本番 | 今回 | 差分 | 判定 |
+|-----|-------|-----|-----|------|
+| LCP p75 | 2.1s | 2.0s | -5% | PASS |
+| CLS p75 | 0.03 | 0.02 | -33% | PASS |
+| INP p75 | 180ms | 210ms | +17% | WARN |
+INP悪化のためRenへヒーローセクションのイベント委譲化を差し戻し
+```
+
+### KPI/成果指標
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| 忠実度スコア平均 | 95以上 / 200 | Playwright統合レポート |
+| 差戻し回数（案件あたり） | 平均2回以内で合格 | Notion案件管理 |
+| A11y重大違反検出→解決率 | 100%（0 critical残存） | axe-core |
+| 意味的差分（テキスト・ロゴ）検出漏れ | 0件 | AI Vision + 人的QA |
+| Web Vitals前本番比悪化検出率 | 100%（-10%以上を検出） | Lighthouse CI |
+| クライアント承認端末（iPad横）不合格率 | <5% | 実機QAログ |
+| フォーム→GA4/Airworkイベント整合 | 100% | E2E スクリプト |
+
+### 運用開始日：2026-09-18

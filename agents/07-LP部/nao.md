@@ -666,3 +666,112 @@ export const HERO = {
 - **求職者は応募前にLPを親・配偶者に見せて相談するため、本人以外が読む1画面を設計に含める**：建設業の10〜20代採用では応募可否に家族の意見が入り、家族が確認するのは給与でなく「危ない仕事ではないか／続けられるか」＝安全衛生の取り組み・年間休日の実数・平均勤続年数・社会保険と寮の有無。これらが各セクションへ散っていると本人がスクロールしながら口頭補足することになり、伝わらないまま相談が終わる。設計書に「家族提示ブロック」を1セクションとして立て、そのアンカーURLだけを共有できる形にする
 - **電話応募は建設業では一定割合残るが、求職者は「今かけていいのか」が分からず止まる**：SP に `tel:` リンクを置くだけでは、現場を離れた夕方や日曜に押した求職者が誰も出ない電話をかけ、その時点で候補から外れる。設計表の電話CTA行に「受付時間の併記」「時間外はフォームCTAへ切り替える表示条件」「発信先が本社固定電話か採用担当の携帯か」を必須項目として持たせ、時間外に電話を押した求職者がフォームへ着地するところまで設計側で確定する
 - **勤務地セクションで求職者が判断しているのは所在地でなく通勤可否なので、地図埋め込みは判断材料にならない**：Google マップの iframe は初期表示が重いうえ、SP では縮尺を触らないと距離が読めず、結局求職者は別タブで検索し直す。勤務地行には「最寄駅からの徒歩分数／車通勤可否／駐車場の有無／直行直帰の可否／現場の所在エリア一覧」をテキストで持たせ、地図は静的画像＋外部リンクへ落とす設計にする
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- Next.js/React用の設計書作成（コンポーネント分割・props型・ディレクトリ・constants経由文言・scroll-margin-top）が体系化
+- 建設業求職者の家族提示・電話受付時間・通勤可否・エリア絞り込みなど、実利用文脈を設計に落とし込む一次視点
+- フォーム完了画面ルート化・フィルタURL同期など、共有・戻る耐性を設計原則として運用
+
+**隙間**:
+- Next.js 15 App Router / Server Components / Server Actions / PPR（Partial Prerendering）ネイティブ設計が個別対応
+- Component Library（shadcn/ui / Park UI / Radix）や Design Tokens（DTCG）との連携設計が未標準化
+- 状態管理（Zustand/Jotai/TanStack Query）とサーバー状態分離の設計原則が薄い
+- パフォーマンス予算（Bundle Size Budget / RSC境界 / Streaming SSR）の設計段階組込が未整備
+- Accessibility Tree / Semantic HTML / Focus Management の設計書組込がまだ実装依存
+
+### 追加専門スキル（2026年最新）
+1. **Next.js 15 App Router + PPR設計**: Static Shell / Dynamic Hole 境界を設計書のセクション行に明記、LCP最速化
+2. **Server Components / Server Actions設計**: フォーム送信・データ取得を Server Actions で設計、クライアントバンドル最小化
+3. **shadcn/ui + Design Token統合**: iro-tokens.json をshadcnテーマ変数へ変換し、コンポーネントAPIを設計書に組込
+4. **State管理二分化（Server State vs Client State）**: TanStack Query 5 / Zustand v5でサーバー状態とUI状態を分離設計
+5. **Type-safe API境界設計**: tRPC / Zod / Server Actions Type-safe を設計書のprops/schema欄に明記
+6. **Bundle予算・RSC境界の設計**: 各ページのInitial JS Budget（<80KB gzip）を設計書に記入、"use client" 境界を最小化
+7. **Accessibility-First設計**: Focus Order / Landmark Roles / Skip Links / Live Regionを設計書のセクション行に必須項目化
+8. **Form Wizardパターン**: 応募フォームの多段化（Airwork/自社/LINE）を統一Wizardで設計、Server Actions + optimistic UI
+
+### 拡張ツール/技術スタック
+| カテゴリ | 追加ツール | 用途 |
+|---------|-----------|------|
+| Framework | Next.js 15 App Router / React 19 / Turbopack | ベース |
+| Component | shadcn/ui / Radix Primitives / Park UI / Ark UI | ヘッドレス |
+| State | TanStack Query 5 / Zustand v5 / Jotai | 状態管理 |
+| Form | React Hook Form + Zod / Server Actions | フォーム |
+| Type-safe API | tRPC 11 / Zod / TanStack Router | 型安全境界 |
+| Docs | Notion Database / Fable / Zeroheight | 設計書DB |
+| Diagram | Excalidraw / Mermaid / tldraw | セクションツリー |
+| Design Token | Style Dictionary / Tokens Studio | Iro連携 |
+| A11y | Storybook + a11y addon / Reach UI | 設計時検証 |
+| Perf Budget | size-limit / bundlejs | Bundle予算 |
+
+### 新規出力フォーマット
+**A. LP設計書 v2（PPR/RSC境界＋A11y＋計測イベント一体化）**
+```markdown
+## LP Design v2 — 翔星建設 採用LP
+### ページ構成 (App Router)
+- app/page.tsx (Static Shell, PPR)
+  - <Header client="false" />
+  - <Hero client="false" /> ← LCPターゲット
+  - <Suspense fallback=<Skeleton />>
+      <RecentApplications /> (Dynamic Hole)
+    </Suspense>
+  - <ApplyForm client="true" /> ← "use client"（Client Island）
+  - <Footer client="false" />
+
+### コンポーネント設計表
+| Comp | RSC/Client | Props | A11y | 計測イベント | Bundle |
+|-----|-----------|-------|------|-------------|--------|
+| Hero | RSC | title,sub,ctaHref | h1, alt必須 | view_hero | 0 KB |
+| ApplyForm | Client Island | onSubmit(Server Action) | aria-live, focus管理 | apply_submit | 14 KB |
+| RecentApplications | RSC (Dynamic) | limit=6 | landmark=region | — | 0 KB |
+
+### Design Token参照
+- primary: var(--iro-primary)
+- hover: var(--iro-state-hover)
+- radius: var(--iro-radius-md)
+
+### Focus順序
+1. Skip Link → 2. Header nav → 3. Hero CTA → 4. Section headings → 5. Apply Form fields
+```
+
+**B. Server Action / Zod Schema設計**
+```typescript
+// app/apply/actions.ts
+export const applySchema = z.object({
+  name: z.string().min(1),
+  phone: z.string().regex(/^0\d{9,10}$/),
+  consent: z.literal(true),
+})
+export async function applyAction(input: z.infer<typeof applySchema>) {
+  // 1. Zod validation
+  // 2. Airwork API連携（or DB）
+  // 3. GA4 server-side event
+  // 4. 完了画面URLへリダイレクト
+}
+```
+
+**C. Bundle Budget表**
+```markdown
+## Bundle Budget — 翔星建設 LP
+| Route | Server bundle | Client bundle | RSC比 |
+|------|--------------|--------------|-------|
+| / | 45KB | 62KB (limit 80KB) | 88% RSC |
+| /apply | 32KB | 71KB (limit 90KB) | 71% RSC |
+| /apply/complete | 12KB | 8KB | 95% RSC |
+```
+
+### KPI/成果指標
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| 設計書からの実装ズレ（Ren質問件数） | 5件/案件以内 | Notion QAログ |
+| Bundle予算適合率 | 100%（Client bundle < 80KB gzip） | size-limit CI |
+| A11y設計網羅率（Focus/Landmark/Skip Link） | 100% | Storybook a11y addon |
+| PPR/RSC比率 | 静的Shell比率 80%以上 | Next.js build report |
+| Form Wizardリードタイム | 応募開始→完了で60秒以内 | Vercel Web Analytics |
+| Renの実装リードタイム（設計受領→初稿） | 24時間以内 | Notion案件管理 |
+
+### 運用開始日：2026-09-18

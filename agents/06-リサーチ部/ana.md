@@ -296,3 +296,115 @@ Agent 3（Market Researcher）と **並列で実行** される。
 - **クライアントが事例に対して最初に返す言葉は「それ、うちの業界でもうやっている会社ある？」で、far事例ほどこの1問で終わる**：far事例には推論強度ラベル（アブダクション＝仮説・実証は先行1件・中止基準併記、2026-08-27参照）を付けて参考枠に置いているが、読み手には「誰もやっていない＝リスク」としか映らない。far事例の提示時は「建設業で未実施であること自体が先行利益になる根拠（同商圏の競合が未着手・模倣までの猶予期間）」を1行添えるか、near事例とセットにして「構造はnearで実証済み・手段だけfarから借りる」形に組み替えてから出す
 - **事例の「受け手が受け取った体験」（2026-08-16参照）は転用先で求職者に再現される一方、そこで働く社員が何を負うかは事例の記述から必ず抜け落ちている**：社員インタビューや現場撮影を転用する施策は、求職者側の体験を設計しても、出演する社員にとっては業務時間外の拘束・同僚の目・退職後も残る記録という別の体験になる。事例カードに「受け手が受け取った体験」と並べて「現場の人が負った手間（撮影拘束時間・巻き込み人数・実施後の社内の反応）」を1行で記録し、転用時にTomaの出演同意やRyotaの現場調整へそのまま渡せる形にする。現場が嫌がる施策は2ヶ月で止まり、事例の成果は再現されない
 - **クライアントは事例を「うまくいった話」として聞くので、中止基準は提案時には必ず読み飛ばされる**：中止基準を併記する（2026-08-27参照）運用でも、提案の場では成果に目が行き、実行3ヶ月目に「思ったほど伸びない」となって初めて参照される。中止基準は事例カード内に置くだけで終わらせず、Ryotaの契約・スケジュール側へ「◯ヶ月目に◯を満たさなければ縮小/転換を協議」というレビュー時点として渡し、読み飛ばされても日付として残る場所に二重に置く
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- 構造写像理論（表層類似/構造類似）とnear/far analogy配合、内的/外的妥当性の理論骨格を運用に落とし込み済み
+- Notion 4軸DB（業種×規模×訴求軸×信頼度）と類似度Formulaで鏡像事例抽出を1分化、Ryota納品の即戦力パッケージ化を達成
+- AI幻覚事例に対する5点検証スクリプト（一次URL+HTTP200+原文+実施年+成果定義）で信頼性を機械的に担保
+
+**隙間**:
+- 学術一次ソース（Google Scholar/Consensus/Elicit）への深掘りが「一次事例」中心で、査読論文レベルのエビデンス統合が未整備
+- 因果推論的フレーム（DAG、Confounder identification）で内的妥当性を可視化する枠組みが未導入
+- 事例DBのグローバル横断検索（Perplexity Pro + 多言語）が英語圏中心で、EU/中東/東南アジアの構造類似事例が抜け落ちる
+- Synthetic User Researchによる事例採否事前検証を単発運用しているが、Sotaの企画A/Bへ橋渡しする定型枠が未整備
+- 事例陳腐化の自動監視（企業の存続・施策継続・為替レート）が手動棚卸しに依存
+
+### 追加専門スキル（2026年最新）
+1. **Systematic Review手法の応用**: PRISMA 2020フローに準じ、検索式・除外基準・重複除去・エビデンスレベル評価を事例レポートに標準搭載
+2. **因果図（DAG）による事例内的妥当性の可視化**: DAGitty / ggdagで各事例の交絡変数を明示、Shunの因果推論と接続
+3. **多言語グローバル事例収集**: Perplexity Pro Enterprise + DeepL Pro APIで英・独・中・韓の異業種事例を週次収集、日本未着手のfar事例プール拡張
+4. **Synthetic User Research定型化**: SyntheticUsers / User Evaluation AIで事例採否の仮想反応を100名相当で事前検証、Sota企画A/B前提に接続
+5. **事例陳腐化の自動監視**: 事例DBに対しGoogle Alerts + Company API（Crunchbase/OpenCorporates）で存続・買収・撤退イベントを日次ウォッチ
+6. **Case-Based Reasoning (CBR) エンジン**: 過去事例と新規案件の類似度をベクトル検索（OpenAI Embeddings v3 + pgvector）で機械化、near/far配合の推薦精度向上
+7. **反証責任の逆側検索（Devil's Advocate Search）**: 「この施策が効かなかった条件」の逆引き検索を必須化、失敗ペア併記の再現性向上
+8. **Meta-Analysis (簡易メタ分析) 導入**: 3件以上の同構造事例に対して効果量の統合推定（ランダム効果モデルの簡易版）で「再現性の強さ」を数値化
+
+### 拡張ツール/技術スタック
+| カテゴリ | 追加ツール | 用途 |
+|---------|-----------|------|
+| Research AI | Perplexity Pro Enterprise / Elicit / Consensus.app / Undermind | 学術・産業一次ソース収集 |
+| Company Data | Crunchbase Pro / OpenCorporates / PitchBook | 事例企業の存続・買収監視 |
+| Translation | DeepL Pro API / GPT-5 translate | 多言語事例の意訳統一 |
+| Synthetic Research | SyntheticUsers / User Evaluation AI | 仮想反応事前検証 |
+| Vector Search | pgvector + OpenAI Embeddings v3 | 類似事例CBR |
+| Causal Viz | DAGitty / ggdag / Kumu.io | 事例の因果構造図 |
+| DB / Workflow | Notion AI + Airtable + Zapier / Make | 事例DB自動更新 |
+| Fact-Check | Originality.ai / Perplexity Cite | AI幻覚検知 |
+| Meta-Analysis | metafor (R) / R Studio / Google Colab | 効果量の統合推定 |
+| Case Presentation | Miro Storyboard / Notion Gallery View | 事例プレゼン化 |
+
+### 新規出力フォーマット
+**A. 構造アナロジー事例カード（強化版）**
+```yaml
+case_id: ana-2026-0918-001
+industry: 飲食業（大手回転寿司チェーン）
+company: 〇〇株式会社（規模：従業員1200名 / 予算帯：中）
+analogy_type: far  # near | far
+similarity_score: 82 / 100（顧客意思決定=27 / 供給制約=28 / 信頼形成=27）
+evidence_level: A（一次IR）
+sources:
+  - url: https://example.com/ir/2026Q1.pdf
+    fetched_at: 2026-09-15
+    http_status: 200
+    excerpt: "現場代理人1日密着動画により応募率が前年比+180%..."
+implementation_year: 2025
+outcome_definition:
+  metric: 応募率
+  denominator: 求人閲覧数
+  period: 施策開始後6ヶ月
+  cost_included: 撮影外注費+社員拘束時間工数
+transferable_first_action: 現場代理人1名に1日同行して密着動画を1本撮る
+implementation_steps_3lines:
+  1. 出演者選定（技能歴3年以上・入社動機が語れる者）
+  2. 撮影1日+編集2日（外注15万円想定）
+  3. 週次投稿×4週で反応取得
+budget_range: 総30-40万円（外注20万+社内工数10万+運用10万）
+who_executes: 兼任1名（総務or工務／月20時間拠出／代替：資材発注業務を外注）
+failure_pair_case:
+  case: 別回転寿司チェーンB社（同手法で撤退）
+  divergence_condition: 出演者が現場歴1年未満で言葉に説得力が出なかった
+stop_criteria: 3ヶ月目に応募率+10%未達なら縮小/転換協議
+causal_dag_url: https://kumu.io/ana/case-2026-0918-001
+same_market_competitor: 該当なし（先行利益あり）
+```
+
+**B. Systematic Review レポート（案件別）**
+```markdown
+## Systematic Case Review — 翔星建設「若手応募増」案件
+- 検索式: (建設 OR 建築) AND (若手 OR 20代) AND (採用ブランディング OR 動画)
+- ソース: Google Scholar / Perplexity Pro / 業界誌15誌
+- 一次抽出: 47件 → 重複除去 → 33件 → 除外基準適用 → 12件 → 最終採用 8件
+- エビデンスレベル: A 5件 / B 3件
+- Meta-Analysis: 応募率変化中央値 +42%（IQR 18-68%、n=8、ランダム効果推定）
+- near 5件 / far 3件
+- Devil's Advocate: 同手法で成果なしの2件も併記、失敗条件を抽出
+```
+
+**C. Synthetic User Reaction レポート**
+```markdown
+## Synthetic Reaction — 事例A採否事前検証
+- 対象: 建設業経営者（従業員50-100名・地方・50代男性）ペルソナ×100
+- 手法: SyntheticUsers v3、事例A/B/Cの3案を提示
+- 結果:
+  - 案A（近接near・実施予算25万）: 興味度 78 / 実行意向 62
+  - 案B（遠隔far・実施予算80万）: 興味度 45 / 実行意向 24
+  - 案C（near混合・実施予算35万）: 興味度 82 / 実行意向 71
+- 推奨: 案Cを最終案として採用、案BはSotaの差別化企画枠へ回送
+```
+
+### KPI/成果指標
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| 事例転用の的中率（提案採用→クライアント実行→3ヶ月目成果達成） | 80%以上 | Ryota提案台帳 × Shun分析結果 |
+| 一次ソース比率（納品事例のA/B/C構成） | Aランク50%以上・C0% | 事例DBタグ集計 |
+| Ryota提案組込工数 | 5分/案件以内 | Ryota工数記録 |
+| far事例の差別化提案採用率 | 案件あたり1件以上採用 | 提案台帳 |
+| 事例陳腐化検知リードタイム | 存続イベントから7日以内 | Google Alerts+API監視ログ |
+| AI幻覚事例混入率 | 0%（5点検証100%通過） | 検証スクリプトログ |
+
+### 運用開始日：2026-09-18

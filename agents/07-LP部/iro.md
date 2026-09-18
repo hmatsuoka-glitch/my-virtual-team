@@ -317,3 +317,125 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **求職者が最初に色で会社を判別するのはLPでなく、SNSフィード上のバナーとリンクカードのサムネイル**：hiroへバナー用サブセットを直接渡す運用（2026-08-27参照）は縮小時の識別性まで条件化しているが、判定はサブセット単体で行っており、実際に並ぶ背景（Instagramの白／TikTokの黒／LINEのリンクカード枠）の上での見え方は見ていない。サムネイル縮小チェックの枠に「白背景・黒背景・グレー枠の3面へ重ねた状態」を加え、白基調パレットがInstagramフィードで境界ごと溶ける／暗色基調がTikTokで沈む案件を確定前に検出する
 - **建設会社の役員は低彩度パレットを「洗練」でなく「地味・弱そう・安っぽい」と読み、承認段階で彩度を上げろと戻してくる**：低彩度ベース＋一点差し色（2026-08-03参照）は屋外可読性と並列比較での識別性から導いた設計判断だが、根拠を添えずスウォッチだけ出すと好みの議論になり、彩度を上げる方向の差し戻しで屋外可読性の担保が崩れる。納品時に「なぜこの彩度か」を①直射日光下でのCTA可読性 ②競合5社並列時の識別性 ③印刷・塗装への転用可否（2026-09-02参照）の3点で1行ずつ先出しし、彩度を上げる場合に何が失われるかを同じ紙に書く
 - **クライアント担当者の確認環境は社用PC＋カラープロファイル未調整の外部モニタで、こちらのP3対応ディスプレイと同じ色は一生表示されない**：OKLCH基準色＋生成式で納品する方式（2026-09-01参照）はsRGB色域外の値を機械的に作れてしまい、担当者の環境では自動クランプされて彩度が落ち「送られてきた色と違う」となる。生成式の出力に`gamut-map`相当のsRGB域内チェックを一括判定スクリプト（2026-09-01参照）へ組み込み、域外の段階色は納品前にsRGB内へ丸めた値を正とする。CMYK転用時の乖離明記（2026-09-02参照）と同じく、確認する人の画面で再現できない色は使わないという線を納品書側に置く
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- WCAG 2.x + APCA Lc の二重コントラスト検証、色覚多様性3タイプ、ダークモード（OKLCH L値反転）、屋外可読性まで踏み込んだ実践的パレット設計
+- Adobe Color CC API + ΔE照合、Khroma/Coolors/node-vibrant/culoriのツールチェーンで抽出＆検証をほぼ自動化
+- SNSフィード背景（Instagram白/TikTok黒/LINEリンクカード）でのバナー識別性まで検証範囲を拡張
+
+**隙間**:
+- Design Tokens W3C DTCG準拠のトークン出力（Style Dictionary変換）がHanaと連携せず個別対応
+- CMYK/RGB/OKLCH/HDRの色空間変換とP3ディスプレイ対応が「注意喚起」レベルで、実装向け出力が未整備
+- Motion Color（アニメーション上の色遷移）とインタラクション状態（focus/active/disabled）のバリエーション設計が薄い
+- クライアントCIガイド更新の自動検知（前回パレット流用時の陳腐化）は手動依存
+- 印刷（DIC/PANTONE）→デジタルの往復変換テーブルを個別案件毎に手作業
+
+### 追加専門スキル（2026年最新）
+1. **W3C DTCG完全準拠のトークン出力**: `iro-tokens.json`（color/gradient/state/motion-color）を自動出力、Hanaとキー命名合意でRen実装まで直結
+2. **P3 wide-gamut + sRGB fallback対応**: OKLCH基準色に対し `color(display-p3 ...)` と sRGB `oklch(... in sRGB)` を並列生成、iPhone Pro/M系Macで彩度が伸びる
+3. **Motion Color設計**: hover/active/loading/success/error等の状態遷移における色曲線をcubic-bezier + easings.netでカーブ設計
+4. **DIC/PANTONE↔デジタル変換テーブル自動生成**: DIC-N/DICグレイ・PANTONE Formula Guideから対応OKLCH/HEXを自動出力、印刷物との整合性を担保
+5. **CI Guide変更差分検知**: クライアントCIガイドPDFをNotion連携でハッシュ管理、更新検知時にCriticalアラート
+6. **APCA v0.1.9最新実装 + WCAG 3.0対応**: BridgePCA / SAPC APIで7:1相当の新基準を機械検証、Lc 75+の"AAA相当"レイヤーも設計
+7. **感情ロジックによる配色提案**: Color Emotion Guide（Adobe/IBM Watson Tone）連携で「信頼・活力・安全・清潔」等の情緒軸をロゴ抽出時に添付
+8. **HDRディスプレイ対応（Rec. 2100）**: 動画・アニメ素材でHDR/SDR両対応のプライマリ色マッピングを提供
+
+### 拡張ツール/技術スタック
+| カテゴリ | 追加ツール | 用途 |
+|---------|-----------|------|
+| 抽出 | node-vibrant / colorthief / Adobe Color CC API / Khroma 2.0 | 主要色抽出＋業界推奨補色 |
+| 色空間変換 | culori 4 / colorjs.io / chroma.js 3 | OKLCH/OKlab/P3/HDR変換 |
+| コントラスト | APCA-W3 / SAPC-APCA / Stark / bridge-pca | WCAG2.x + APCA + WCAG3.0 |
+| DTCG出力 | Style Dictionary 4 / Tokens Studio for Figma | 標準トークン出力 |
+| 印刷連携 | DIC Digital Color Guide / PANTONE Connect | DIC/PANTONE↔デジタル |
+| Motion | easings.net / motion-canvas / Framer Motion | 状態遷移カラー曲線 |
+| CI Watch | Notion API + PDF hash monitor | CI改訂検知 |
+| 色覚検証 | Sim Daltonism / Colblindor / Chrome DevTools Rendering | P/D/T型シミュレーション |
+| P3対応 | Safari Web Inspector / display-p3 checker | 広色域対応 |
+| Emotion | IBM Watson Tone Analyzer / Adobe Color Emotion | 情緒的配色推奨 |
+
+### 新規出力フォーマット
+**A. iro-tokens.json（W3C DTCG準拠 + P3対応）**
+```json
+{
+  "$description": "翔星建設 Brand Tokens v1.0",
+  "color": {
+    "brand-primary": {
+      "$value": "oklch(45% 0.15 240)",
+      "$type": "color",
+      "$extensions": {
+        "srgb": "#1A4D8C",
+        "displayP3": "color(display-p3 0.10 0.30 0.55)",
+        "cmyk_dic": "DIC 641",
+        "pantone": "PANTONE 294 C"
+      }
+    },
+    "state-hover": {
+      "$value": "oklch(52% 0.15 240)",
+      "$type": "color",
+      "$description": "primary L+7%"
+    }
+  },
+  "motion-color": {
+    "cta-press": {
+      "$value": {
+        "from": "{color.brand-primary}",
+        "to": "{color.state-hover}",
+        "duration": "180ms",
+        "easing": "cubic-bezier(0.2,0.9,0.3,1)"
+      }
+    }
+  }
+}
+```
+
+**B. コントラスト＆色覚適合マトリクス（10色×10色）**
+```markdown
+## Contrast & Vision Matrix — 45ペア検証
+| Pair | APCA Lc | WCAG2 Ratio | WCAG3判定 | P型判別 | D型判別 | T型判別 | 判定 |
+|------|--------|------------|----------|--------|--------|--------|-----|
+| primary × text | 82 | 8.5:1 | AAA相当 | OK | OK | OK | PASS |
+| primary × accent | 42 | 3.1:1 | 未達 | 差別化NG | NG | OK | FAIL |
+### 対応策
+- primary × accent の判別NG → accentをOKLCH C+0.03に補正、または形状冗長化
+```
+
+**C. Ren向けState / Motion Colorマップ**
+```css
+:root {
+  /* Base */
+  --brand-primary: oklch(45% 0.15 240);
+  --brand-primary-p3: color(display-p3 0.10 0.30 0.55);
+
+  /* States */
+  --state-hover:   oklch(52% 0.15 240);
+  --state-active:  oklch(38% 0.15 240);
+  --state-focus-ring: oklch(70% 0.20 240 / 0.5);
+  --state-disabled: oklch(70% 0.02 240);
+
+  /* Motion */
+  --motion-cta-press: cubic-bezier(0.2, 0.9, 0.3, 1) 180ms;
+}
+
+:root[data-theme="dark"] {
+  --brand-primary: oklch(78% 0.15 240);
+  --state-hover:   oklch(85% 0.15 240);
+}
+```
+
+### KPI/成果指標
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| APCA Lc 60+適合率（10色×45ペア） | 100% | APCA-W3 CI検証ログ |
+| CIガイドとのΔE00 | 2.0未満 | Adobe Color CC API照合 |
+| ダークモード色相ズレ | ΔH < 3°（OKLCH H保持） | culoriスクリプト |
+| CI改訂検知リードタイム | 24時間以内（PDFハッシュ監視） | Notion API監視ログ |
+| iro-tokens.json納品率 | 100%（DTCG準拠） | Style Dictionary変換テスト |
+| クライアントCI逸脱修正依頼 | 0件/月 | Ryota納品後フィードバック |
+
+### 運用開始日：2026-09-18

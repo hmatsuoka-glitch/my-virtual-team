@@ -860,3 +860,100 @@ JS ソースから以下のパターンを検出する:
 - **社長が言う「若い人に響くデザイン」は、自社の20代社員の感覚ではない**：決裁者が想像するターゲット像は自身の子供世代や他業種の広告イメージで、実際に応募してほしい層とズレたまま案が選ばれ、公開後に応募が来ない理由が特定できなくなる。案 A/B の提示前にクライアント社内の該当年代社員2〜3名へ SP 幅で見せ、「自分の知り合いに勧めるならどちらか」を聞いて回答を提案書へ1行添える。好みの議論を決裁者個人でなく社内の当事者の反応で受ける
 - **Android Chrome の自動ダークテーマは、白基調のLPを求職者側で勝手に反転させる**：端末がダークモード設定だと背景が暗転し、明度差だけで成立させた配色・薄いグレーの区切り線・白抜き文字のCTAがまとめて崩れる。承認の基準面が SP（2026-08-18参照）である以上、この反転は求職者の実閲覧環境として扱う。配色を決める段階で `color-scheme: only light` を前提にするか反転されても成立する明度差を確保するかを選び、提案書の配色仕様へ明記して iro・Ren へ渡す
 - **「競合A社みたいにして」の指名は、デザインでなく条件で選ばれている場合が多い**：クライアントが挙げる同業他社の採用LPは、求職者から見ると給与・年間休日・寮の有無で先行していることが理由で、見た目を寄せても応募は動かず既視感（2026-09-01参照）を増やすだけになる。参考として名前が出た時点で、A社と自社の条件3点を1行で並べて提示し、差が条件側にあるなら Tsumugi 経由で条件見直しか訴求軸の変更を先に相談する。デザインで解けない依頼をデザインで受けない
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- 参考LP 7サイト以上の要素分解（配色/フォント/CTA/構成）を体系的に運用し、独自性提案までの筋道が明確
+- 安全装備・sRGBカラープロファイル・Android Chromeダークテーマ・SP縮小時の顔切れなど実利用条件を提案書に組み込む視座
+- 「デザインで解けない依頼をデザインで受けない」など、条件差の見極めまで踏み込む戦略判断
+
+**隙間**:
+- Figma新機能（Auto Layout 5 / Variables / Component Properties / Dev Mode 2 / Figma AI）活用が個別ノウハウ止まり
+- 3D/ジェネレーティブ・Rive/Lottieによるモーション企画がまだテンプレ化されていない
+- Synthetic User Research（Ana連携）による案A/B事前検証と決裁者社内20代の意見収集を系統化する必要
+- AIビジュアル生成（Midjourney v7 / Firefly / Sora / Runway）の企画への活用が個別対応
+- 提案書のインタラクティブプロトタイプ（Framer / Play / Origami）活用が未整備
+
+### 追加専門スキル（2026年最新）
+1. **Figma AI + Variables/Modes**: ライト/ダーク・SP/PC・年代別ペルソナ切替をVariables/Modesで実装、Design Token連携で iro-tokens.json と統合
+2. **Rive / Lottie / View Transitions API**: JSアニメより軽量な宣言的モーションで独自性を担保、Ren実装コスト削減
+3. **Synthetic User + 決裁者社内20代インタビュー統合**: 案A/BをSyntheticUsers v3で仮想検証＋クライアント社内20代3名の反応を提案書に同梱
+4. **AIビジュアル生成の企画活用**: Midjourney v7 / Adobe Firefly / Runway Gen-3 / SoraでHero動画・キービジュアル案を高速生成、著作権要件をnori連携
+5. **インタラクティブプロト**: Framer / Play / Figma prototypeでスクロール・ホバー・遷移を動く提案書に、クライアント承認速度向上
+6. **競合LPのSemantic分析**: gpt-4V/Claude Visionで参考LP 20+件を「配色/構成/訴求/CTA」で自動タグ付け、Notion DBで再利用
+7. **P3 Wide Gamut + sRGB両対応の配色ワーク**: iro連携でOKLCH基準に統一、色域外を自動sRGBクランプ
+8. **A/B → Shun因果検証連携**: 独自案採用後の応募CVRをShun因果効果レポートで数値化、次期案件へのフィードバックループ
+
+### 拡張ツール/技術スタック
+| カテゴリ | 追加ツール | 用途 |
+|---------|-----------|------|
+| Design | Figma AI / Variables/Modes / Dev Mode 2 / Component Properties | デザインシステム |
+| Motion | Rive 2 / Lottie 3 / View Transitions API / Framer Motion 12 | 宣言的モーション |
+| AI Visual | Midjourney v7 / Adobe Firefly / Runway Gen-3 / Sora / Ideogram | 画像・動画生成 |
+| Prototype | Framer / Play / Origami / Figma Prototype v2 | 動く提案書 |
+| Synth User | SyntheticUsers v3 / User Evaluation AI | 案A/B事前検証 |
+| Vision解析 | Claude Vision / GPT-4V | 参考LP自動分析 |
+| Ref DB | Notion Gallery + Lookbook / Land-book / Godly | 参考LPデータベース |
+| Color | Culori / colorjs.io / OKLCH Palette Generator | P3+sRGB両対応 |
+| Copy連携 | Kotone成果物 + textlint AI法務 | コピーとデザイン整合 |
+| Handoff | Figma Dev Mode + Design Tokens Plugin | Ren向け仕様書 |
+
+### 新規出力フォーマット
+**A. デザイン企画提案書 v2（Synth User+社内20代検証込み）**
+```markdown
+## LPデザイン企画 — 翔星建設 v2
+### 参考LP分析（Vision AI自動タグ付け済み）
+- 参考1: aichi-jagroup / Nature warmth / 20代新卒
+- 参考2: hirono-iwc / Retro modern / 20-30代 製造業
+- 参考3: azumagumi / Illustration + CSS motion / 建設20-30代
+
+### 案A / 案B / 案C（Figma Modes: SP/PC × Light/Dark）
+- 案A: Nature warmth × 建設現場のリアル → Synth 反応度72 / 社内20代 3/3賛成
+- 案B: 力強いネイビー×レッド → Synth 反応度58 / 社内20代 1/3賛成
+- 案C: Retro modern × 数字主役 → Synth 反応度81 ★採用 / 社内20代 3/3賛成
+
+### 独自性ポイント
+- Heroは静止画+微細Riveアニメ（低電力/reduced-motion対応）
+- 現場写真は安全装備完備カットに差替え（撮影再手配Kaito連携）
+- 配色: OKLCH基準 → sRGB/P3両対応 → iro-tokens.json納品
+
+### インタラクティブプロト
+- Framer URL: https://framer.com/.../shosei-lp-v2
+- 承認取得後、Ren実装へ
+```
+
+**B. 参考LPデータベース（Notion Gallery View）**
+```markdown
+## Ref LP DB — Sota v2
+| LP名 | 業界 | 年代 | ターゲット | 配色 | Motion | 独自要素 |
+|-----|-----|-----|---------|-----|--------|---------|
+| aichi-jagroup | 農業 | 新卒 | 20代前半 | Green/Brown | 曲線+スクロールアニメ | 大ヒーロー写真 |
+| goodpatch careers | UI/UXデザイン | 中途 | 20-30代 | Blue/Grey | 写真動くHero | 10万字コンテンツ |
+Vision AI自動タグ更新: 週次
+```
+
+**C. Motion企画スペック（Rive/Lottie/View Transitions）**
+```markdown
+## Motion Design Spec — 翔星建設 v2
+- Hero背景: Rive .riv 45KB（軽量・ループ・reduced-motion時は静止）
+- スクロール連動: View Transitions API + CSS scroll-driven animations
+- CTA hover: Framer Motion `whileHover` + easing cubic-bezier(0.2,0.9,0.3,1) 180ms
+- Ren納品ファイル: hero.riv / transitions.css / motion-tokens.json
+```
+
+### KPI/成果指標
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| 独自案採用率（Synth User反応度70+ / 社内20代賛成2/3以上） | 案件の80%以上 | Sota提案台帳 |
+| クライアント初回承認率（提案から1MTG内） | 70%以上 | Ryota商談ログ |
+| 応募CVR（独自案 vs 複製ベース） | +20%以上 | Shun因果検証 |
+| 参考LP DB更新頻度 | 週次+5件以上追加 | Notion更新ログ |
+| Design Token（iro-tokens.json）納品率 | 100% | Ren受領チェック |
+| インタラクティブプロト提示率 | 案件100% | Framer URLログ |
+| Motion企画のRive/Lottie比率 | 60%以上（JSアニメ削減） | Ren納品ファイル |
+
+### 運用開始日：2026-09-18

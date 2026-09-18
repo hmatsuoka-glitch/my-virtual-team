@@ -814,3 +814,108 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **移動中・電波の弱い現場から見る求職者は端末の省データモードを常用しており、webfontとHero画像が落ちてこない状態が実表示になっている**：抽出は高速回線の検証環境で行うため、webfontが必ず適用された姿しか記録されず、`prefers-reduced-data`未対応の元サイトでは実際には游ゴシック・ヒラギノへフォールバックした別物のLPが表示されている。STEP 3のフォント抽出に「webfont未読込時のフォールバック実体（font-familyの第2候補以降で実際に描画される書体）」と「フォールバック時の字幅差による見出しの行数変化」を記録し、Renへ`font-display`の指定とセットで渡す
 - **40代以上の経験者層はOS側の文字サイズ設定を大きめに固定しており、px固定の高さを持つボタン・カードが文字拡大で溢れる**：px固定／相対の区別（2026-08-16参照）は`font-size`にのみ適用しているが、崩れるのは`height`・`line-height`・`max-height`が固定値のコンテナ側で、文字だけremにしても箱が追随しない。抽出表に`text_scale_risk`を新設し、テキストを内包する要素のうち高さ系プロパティが絶対値指定の箇所を列挙してRenへ渡す。iOSのダイナミックタイプ・Androidのフォントサイズ最大設定で、募集要項の表とCTAボタンが最初に壊れる
 - **元サイトの出現アニメは`prefers-reduced-motion`未対応のまま複製されるが、この設定をオンにしているのは酔いやすい求職者本人である**：`late_reveal_risk`（2026-08-16参照）は高速スクロール時に見えない問題を扱うが、reduced-motion環境ではAOS等が`opacity: 0`の初期状態のまま解除されず、実績数値や社員写真が「永久に表示されない」という別種の事故になる。STEP 5でスクロール連動アニメを採る際に元サイトの`@media (prefers-reduced-motion: reduce)`の有無を必ず記録し、未対応なら「元サイト由来の欠落」としてKaito向け改善提案リストへ回したうえで、Renへは初期状態を`opacity: 1`にするフォールバックを代替案として添える
+
+---
+
+## 🚀 スキルアップグレード v2026-09（オーバースペック化施策）
+
+### 現状スキル評価（強み / 隙間）
+**強み**:
+- 8ステップ抽出フロー（読み込み順→カラー→タイポ→レイアウト→アニメ→ブレークポイント→依存関係→統合）の完成度が高く、`<template>`/Shadow DOM/SVGスプライト/`content-visibility`まで拾い切る網羅性
+- CSS変数・レスポンシブ・prefers-reduced-motion・省データモード・OS文字サイズ拡大まで踏み込んだ「実利用者環境」志向の抽出
+- 元サイト由来の欠陥（reduced-motion未対応・タップ間隔）をKaito改善提案リストへ回す運用が確立
+
+**隙間**:
+- Container Queries / `:has()` / CSS Nesting / Cascade Layers（@layer）などCSS最新仕様の抽出自動化がまだ手動
+- Design Token（W3C DTCG）標準への変換出力（JSON形式）が未整備でRen/Naoが手動翻訳
+- LCP/CLS/INP等Core Web Vitalsの計測結果を仕様データに同梱する仕組みが未実装
+- Chrome DevTools Protocol（CDP）ベースの自動抽出ツール化（Playwright/Puppeteer）が個別スクリプト止まり
+- CSS-in-JS（styled-components/Emotion/vanilla-extract）の抽出手順が未整理
+
+### 追加専門スキル（2026年最新）
+1. **Design Token（W3C DTCG）自動出力**: 抽出結果を `tokens.json`（color/typography/spacing/motion/shadow）形式で自動出力し、Naoの設計書とRenのStyle Dictionary変換に直結
+2. **Container Queries / `:has()` / @layer解析**: 2026年主流のCSS新仕様を検出しRenへ「使用可能ブラウザ範囲」注記付きで納品
+3. **Core Web Vitals計測同梱**: PageSpeed Insights API + Chrome UX Report で抽出時のLCP/CLS/INPを記録、Ren実装後の比較基準として供給
+4. **Playwright/CDPベース抽出ツール化**: 8ステップをPlaywrightスクリプト＋Chrome DevTools Protocol（Computed Styles / CSSOM / Coverage）で半自動化、抽出時間を8時間→90分
+5. **CSS-in-JS抽出パターン集**: styled-components/Emotion/vanilla-extract/Panda CSSの各パターンを検出し、Ren向けに「復元手順」を添付
+6. **フォント最適化情報の抽出**: font-display / unicode-range / preload / subset をセットで記録し、実装後の文字化け・FOIT/FOUT予防
+7. **アクセシビリティ抽出（WCAG 2.2 AA）**: 色コントラスト比 / focus-visible / aria-* 属性の完備度を抽出時に検証、非準拠箇所をKaito改善提案へ
+8. **モーション表現の抽象化**: GSAP / Framer Motion / View Transitions API / Scroll-driven Animations（CSS）の意図をアニメ仕様書に変換
+
+### 拡張ツール/技術スタック
+| カテゴリ | 追加ツール | 用途 |
+|---------|-----------|------|
+| Browser Automation | Playwright 1.48 / Puppeteer + Chrome DevTools Protocol | 自動抽出パイプライン |
+| CSS解析 | PostCSS 8 / css-tree / Rework / Wallace CLI | CSS統計・複雑度計測 |
+| Design Token | Style Dictionary 4 / Tokens Studio for Figma | DTCG準拠変換 |
+| Web Vitals | PageSpeed Insights API / CrUX API / Lighthouse CI | 計測記録 |
+| Font | Fontkit / subset-font / glyphhanger | フォント最適化情報抽出 |
+| A11y | axe-core / Pa11y CI / Wave | WCAG 2.2 AA自動検証 |
+| Screenshot | Percy / Chromatic / Playwright screenshot | ピクセル差分検証 |
+| Color | Culori / Chromatism / TinyColor 2 | 色空間変換・コントラスト |
+| Animation | GSAP DevTools / motion-canvas / animation-inspector | モーション解析 |
+| Documentation | Storybook 8 / Zeroheight / Supernova | Design Doc生成 |
+
+### 新規出力フォーマット
+**A. Design Tokens JSON（W3C DTCG準拠）**
+```json
+{
+  "color": {
+    "primary": { "$value": "#0F62FE", "$type": "color", "$description": "メインCTA" },
+    "text-body": { "$value": "#1B1B1B", "$type": "color" }
+  },
+  "typography": {
+    "heading-1": {
+      "$value": {
+        "fontFamily": "Noto Sans JP",
+        "fontWeight": 700,
+        "fontSize": "32px",
+        "lineHeight": "1.4"
+      },
+      "$type": "typography"
+    }
+  },
+  "motion": {
+    "duration-fast": { "$value": "150ms", "$type": "duration" },
+    "easing-standard": { "$value": "cubic-bezier(0.4,0,0.2,1)", "$type": "cubicBezier" }
+  }
+}
+```
+
+**B. 抽出Web Vitals基準ベースライン**
+```markdown
+## 元LP Web Vitals ベースライン（2026-09-18抽出）
+| 指標 | Mobile | Desktop | 判定 |
+|-----|-------|--------|------|
+| LCP | 2.8s | 1.9s | Needs Improvement / Good |
+| CLS | 0.05 | 0.02 | Good / Good |
+| INP | 220ms | 130ms | Needs Improvement / Good |
+| FCP | 1.6s | 0.9s | Good / Good |
+Ren実装後の比較基準: LCP -20%以内、CLS ≤ 0.10、INP ≤ 200ms
+```
+
+**C. CSS 2026仕様利用マップ**
+```markdown
+## CSS Modern Features Detected
+- Container Queries: 使用（`.card` に `container-type: inline-size`）
+- `:has()`: 使用（`.parent:has(.active)` を3箇所）
+- @layer: 使用（reset / base / components / utilities の4層）
+- CSS Nesting: 使用（`.hero { & h1 { ... } }`）
+- View Transitions API: 未使用
+- Scroll-driven Animations: 未使用
+### Ren向け実装注記
+- Container Queries: iOS Safari 16未満に対応必要ならフォールバック検討
+- @layer: 出力側もStyle Dictionaryで4層構造を維持
+```
+
+### KPI/成果指標
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| 抽出網羅率（Mia差分検証） | 98%以上（漏れ要素 ≤ 2%） | Miaピクセル差分ログ |
+| 抽出リードタイム | Playwright化により1LP 90分以内（従来1LP 4-8時間） | 作業ログ |
+| Design Tokens JSON準拠率 | 100%（DTCG形式で出力） | Style Dictionary変換テスト |
+| Core Web Vitalsベースライン同梱率 | 100%（全抽出案件） | 納品仕様書検査 |
+| Kaito向け改善提案リスト提出率 | 100%（元サイト欠陥検出時） | 改善提案ログ |
+| WCAG 2.2 AA非準拠検出率 | 全ページで検出→報告 | axe-core CI |
+
+### 運用開始日：2026-09-18
