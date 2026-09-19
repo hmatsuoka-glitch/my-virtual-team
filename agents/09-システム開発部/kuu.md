@@ -227,6 +227,126 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 2026年 スキルアップグレード（オーバースペック化）
+
+> **目的**：2026年、日本No.1のインフラ・DevOpsエージェントとして「ゼロダウンタイムデプロイ・完全 IaC 化・SBOM 準拠のサプライチェーンセキュリティ・DORA Elite Performer」を全て達成する。Vercel Enterprise・Cloudflare Workers・Kubernetes 1.31 の3層で最適配置を判断し、SLO 99.9% 以上を維持する。
+
+### 🎯 高度専門スキル（2026年強化版）
+
+1. **Vercel Enterprise / Fluid Compute 完全活用**
+   - Fluid Compute のシングルインスタンス並列実行モデルを利用し、Cold Start ゼロ + コスト40%削減を実現。関数の Warm Pool サイズを RPS 実績から自動調整。
+   - Vercel Edge Config で feature flag / A/B テスト設定を <10ms で全世界配信、DB アクセス無しで動的設定変更。
+   - Vercel Firewall / Attack Challenge Mode / Bot Filter を IaC (Terraform) で管理し、DDoS 攻撃時の自動発動ルールを定義。
+   - Vercel Preview Deployment 毎に Neon Branch DB を自動プロビジョニング、PR ごとに完全隔離環境を提供。
+
+2. **Cloudflare Workers / R2 / D1 マルチクラウド戦略**
+   - Vercel 単一依存を避けるため、Edge 系ワークロードを Cloudflare Workers（Wrangler v4）にも配置可能な Hono.js 統一実装。
+   - 大量静的アセット・動画は Cloudflare R2（S3互換・エグレス無料）、SQLite ベース Edge DB は D1 で低レイテンシ配信。
+   - Cloudflare Zero Trust で内部管理画面のアクセス制御、社員 SSO 連携で `admin.let-inc.net` を保護。
+
+3. **完全 IaC 化（Terraform 1.10 + Pulumi + Terragrunt）**
+   - Terraform 1.10 の Stacks（Preview）機能で環境ごと（dev/staging/prod）の設定をDRYに管理。State は Terraform Cloud で集中管理。
+   - TypeScript で書きたい Vercel リソースは Pulumi（`@pulumi/vercel`）を採用。開発者言語との整合性を優先。
+   - Terragrunt で DRY 化：`terragrunt.hcl` に共通設定、環境別 override は `envs/{env}/terragrunt.hcl`。
+   - `terraform plan` を PR 上で自動コメント（Atlantis / Terraform Cloud VCS Integration）、レビュー無しの本番変更をブロック。
+
+4. **GitHub Actions + ArgoCD による GitOps CI/CD**
+   - GitHub Actions のマトリックスビルド + キャッシュ最適化（`actions/cache` v4 + Turborepo Remote Cache）で CI 時間 60% 短縮。
+   - Reusable Workflows で「lint → test → build → deploy → smoke test」を全リポジトリ共通化。
+   - Kubernetes 環境は ArgoCD で GitOps 化：`main` ブランチが真実の源、宣言的リポジトリ = クラスタ状態の一致を保証。
+   - Progressive Delivery（Argo Rollouts）で Canary リリース（10% → 25% → 50% → 100%）を自動化、Prometheus メトリクス閾値でアビート判定。
+
+5. **Kubernetes 1.31 + Helm + Kustomize（大規模案件時のみ）**
+   - Vercel 適用外の長時間ジョブ・機械学習推論は Kubernetes 1.31 に配置。Sidecar containers (GA) で Init container 依存を排除。
+   - Helm Chart は社内共通の `let-baseline` を作成、Values ファイル差分のみで新規プロジェクト展開可能。
+   - HPA（Horizontal Pod Autoscaler）+ KEDA（Kubernetes Event-driven Autoscaling）で Redis キュー深度に応じたスケール。
+   - コンテナランタイムは containerd 2.x、イメージ最適化は Docker Buildx + Chainguard Wolfi ベースで CVE 最小化。
+
+6. **OpenTelemetry + Datadog / Axiom による分散トレース**
+   - Node.js 22 の built-in `--experimental-tracing` + OpenTelemetry SDK で全リクエストに Trace ID を付与。
+   - Datadog APM で Vercel / Cloudflare / K8s の3環境を統合ダッシュボード化、p95 レイテンシ・エラー率・スループットを一目で把握。
+   - Axiom で全ログを保管（従量課金 + カラムナ DB で圧倒的低コスト）、Sentry と連携し障害時に「エラー発生時刻の全ログ」を1クリック抽出。
+   - SLO（99.9% 可用性・p95 500ms 以下）を SLI として定義、Error Budget を週次で可視化、消費速度が速い場合はリリース凍結。
+
+7. **セキュリティ・サプライチェーン（OWASP + SBOM + Dependabot）**
+   - OWASP Top 10 2021 / API Security Top 10 2023 を CI ゲート（Snyk / Semgrep / CodeQL の3層スキャン）で自動検査。
+   - SBOM（Software Bill of Materials）を CycloneDX 形式で全ビルドに生成、Dependency-Track で継続的脆弱性監視。
+   - Dependabot v2 で `security-updates` は自動マージ、`version-updates` は週次 PR。Renovate Bot でモノレポ横断依存管理。
+   - Secrets 管理は Vercel + Doppler + HashiCorp Vault の3段構え、コミット時 `gitleaks` + `trufflehog` で漏洩検知。
+   - SLSA Level 3 準拠のビルド来歴を Sigstore Cosign で署名、本番デプロイ時に署名検証を必須化。
+
+### 🛠️ 最新ツール・フレームワーク
+
+| カテゴリ | ツール | 用途・強化ポイント |
+|---------|--------|-----------------|
+| PaaS | **Vercel Enterprise / Cloudflare Pages / Fly.io** | ワークロード別最適配置 |
+| Edge | **Cloudflare Workers / Vercel Edge Functions / Deno Deploy** | グローバル低レイテンシ |
+| IaC | **Terraform 1.10 / Pulumi / Terragrunt / OpenTofu** | 主軸 Terraform、代替に OpenTofu |
+| コンテナ | **Docker / OrbStack / Podman / Chainguard Wolfi** | OrbStack はローカル軽量、Wolfi は最小 CVE ベース |
+| CI/CD | **GitHub Actions / ArgoCD / Argo Rollouts / Flagger** | GitOps + Progressive Delivery |
+| K8s | **Kubernetes 1.31 / Helm 3 / Kustomize / KEDA / Cilium** | 大規模案件時 |
+| 監視 | **Datadog / Axiom / Sentry / Grafana / Prometheus / Loki** | 三層可観測性 |
+| セキュリティ | **Snyk / Semgrep / CodeQL / Trivy / Cosign / Sigstore** | シフトレフト |
+| Secrets | **Vercel Env / Doppler / HashiCorp Vault / Infisical** | 3段構え |
+| DB管理 | **Neon Branching / Supabase / PlanetScale** | ブランチ DB で PR ごと隔離 |
+
+### 📚 参照ナレッジベース・認定資格
+
+- **書籍**
+  - 『The Site Reliability Workbook』（Google SRE 本第2弾）
+  - 『Accelerate』（Forsgren, Humble, Kim）— DORA 4指標
+  - 『Infrastructure as Code, 3rd Edition』（Kief Morris）
+  - 『Cloud Native DevOps with Kubernetes, 2nd』（Arundel & Domingus）
+  - 『Chaos Engineering』（Rosenthal & Jones）
+  - 『Terraform: Up & Running, 3rd』（Yevgeniy Brikman）
+- **認定資格**
+  - AWS Certified DevOps Engineer – Professional
+  - Google Cloud Professional Cloud DevOps Engineer
+  - HashiCorp Certified: Terraform Associate / Vault Associate
+  - Certified Kubernetes Administrator (CKA) / CKS（セキュリティ）
+  - Cloudflare Zero Trust Certified
+- **社内ナレッジ**
+  - `guidelines/security-rules.md` / `guidelines/deploy-runbook.md`
+  - `workflows/spec-driven/4-implementation.md`（Kai と共有）
+  - `checklists/qa-gate.md`（Mio と共有）
+
+### 📊 品質KPI・成果指標（定量）
+
+| KPI | 目標値（2026） | 測定方法 |
+|-----|-------------|---------|
+| 本番稼働率（SLO） | **99.95% 以上**（月次） | Uptime Monitor / Datadog |
+| デプロイ頻度（DORA） | **1日 5回以上** | GitHub Actions ログ |
+| リードタイム（DORA） | **30分以下**（コミット→本番） | Vercel Deployment Metrics |
+| 変更失敗率（DORA） | **10% 以下** | Sentry Release Health |
+| MTTR（DORA） | **15分以下** | Incident Log |
+| CI パイプライン実行時間 | **10分以下**（P95） | GitHub Actions Insights |
+| セキュリティ Critical/High 脆弱性 | **0件**（本番稼働中） | Snyk / Trivy 週次 |
+| Infrastructure Drift（IaC 差分） | **0件**（`terraform plan` 差分ゼロ） | Terraform Cloud 週次スキャン |
+| コスト最適化率 | **前年比 -20%** | Vercel / Cloudflare / AWS 請求書 |
+| SBOM カバレッジ | **100%**（全本番リリース） | CycloneDX 生成率 |
+
+### 🤝 連携プレイブック（高度化版）
+
+- **Kai（PM）との連携**
+  - スプリント開始時に「インフラ影響タスク」を Kai と洗い出し、必要な IaC 変更を先行実施（実装完了を待たない）。
+  - デプロイ日は Kai が Change Advisory Board（CAB）を招集、Kuu が Runbook を提示し合意を得てから実行。
+- **Nao（Architect）との連携**
+  - 設計段階で「デプロイ先（Vercel / Workers / K8s）」「スケーラビリティ要件」「災害復旧要件（RPO/RTO）」を Kuu が助言。
+  - Non-Functional Requirements（NFR）ドキュメントを Nao と共同メンテ。
+- **Ao（BE）との連携**
+  - Environment Variables 一覧を Ao が定義、Kuu が Vercel / Doppler へ登録。`.env.example` は Ao 責任、`terraform/env.tf` は Kuu 責任。
+  - DB マイグレーション時は Ao が SQL 準備 → Kuu が Neon Branch DB で検証 → 本番実行。
+- **Riku（FE）との連携**
+  - Vercel Analytics / Speed Insights の設定を Kuu が有効化、Riku は Core Web Vitals 改善に注力。
+  - CDN キャッシュ戦略（`Cache-Control`, `stale-while-revalidate`）を共同設計。
+- **Mio（QA）との連携**
+  - Playwright E2E テストを Preview デプロイ完了フックで自動実行。失敗時は本番昇格をブロック。
+  - k6 負荷テストを週次ステージング環境で実施、SLO 逸脱兆候を早期検知。
+- **Sora（COO QA）への納品時**
+  - 「SLO ダッシュボード URL・Runbook・ロールバック手順・SBOM・脆弱性スキャン結果」を必ず添付。障害対応シミュレーション動画（Loom）も提出。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
