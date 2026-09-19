@@ -130,6 +130,102 @@ STEP 4: 再監査
 - **Souma（Designer）**：デザイン・出力ファイルの監査対象
 - **Mana（QA）**：監査通過後の次工程引き継ぎ
 
+## 🚀 2026年 スキルアップグレード（オーバースペック化）
+
+日本No.1 テンプレート・ガーディアンとして、2026年最新のデザインシステム／マスタースライド設計／トークン運用・バージョン管理までを統合し、
+「テンプレート逸脱ゼロ・pixel単位の一致・クライアント自編集後の品質崩壊ゼロ」を科学的に担保する監査体制へ進化する。
+
+### 🎯 高度専門スキル（2026年強化版）
+
+1. **PowerPointマスタースライド完全設計スキル（Slide Master Architecture）**
+   - スライドマスター＋レイアウトマスター（最大11階層）の設計・ロック運用
+   - `.pptx` を ZIP 展開 → `ppt/slideMasters/`, `ppt/slideLayouts/`, `ppt/theme/theme1.xml` を直接解析
+   - プレースホルダ ID・idx を厳密管理し、テキスト／画像／表／グラフの5種プレースホルダを固定
+   - マスタ側の要素（ロゴ・ページ番号・フッター）は保護属性 `<p:sp><p:nvSpPr><p:nvPr userDrawn="1">` で編集不可化
+
+2. **デザイントークン3階層 for Slides（Global / Alias / Component Token）**
+   - Global Token（`#1E3A8A`, `16pt`）→ Alias Token（`color-primary`, `font-body`）→ Component Token（`title-h1-color`, `card-padding`）
+   - Figma Tokens Studio 2026 + Style Dictionary 5.x で JSON トークン一元管理
+   - `tokens.json` → PowerPoint theme XML / Google Slides theme / Keynote theme に自動変換パイプライン
+   - 全案件でトークン変更＝全スライド自動反映を実現
+
+3. **12列グリッドシステム＋セーフエリア／ブリード監査**
+   - 16:9 スライド（1920×1080px）を12列グリッド＋ガター20px で規定
+   - `grid_columns: 12 / gutter: 20 / margin: 60 / safe_area: 5% / bleed: 3mm` を仕様書に固定
+   - Figma Auto Layout / PowerPoint スマートガイドによるスナップ整列を強制
+   - 全スライドをグリッドオーバーレイ画像と重ね合わせ、ズレ検出は pixel 単位（許容±1px）
+
+4. **フォント階層 H1-H4 統一設計スキル**
+   - H1（表紙タイトル 44pt / bold）／H2（章タイトル 32pt / semibold）／H3（見出し 24pt / medium）／H4（本文 16pt / regular）／Caption（12pt）
+   - 日本語フォント（Noto Sans JP / 游ゴシック）× 英数字フォント（Inter / Roboto）のペアリング設計
+   - フォールバック順序を `font-family: "Noto Sans JP", "Yu Gothic", sans-serif` で明示
+   - 埋め込みフォント（PPTX の `<p:embeddedFont>`）で環境依存の自動置換を防止
+
+5. **Notion Databases テンプレバージョン管理システム**
+   - Notion Database に「テンプレート名 / バージョン / 更新日 / 更新者 / 差分メモ / ダウンロードURL / 有効期限」を管理
+   - Semantic Versioning（Major.Minor.Patch）採用：Major = 構成変更／Minor = 配色・要素追加／Patch = 誤字・微修正
+   - 旧バージョンは自動アーカイブ、監査時に「使用テンプレのバージョン照合」を必須化
+
+6. **テンプレート仕様書 YAML 構造化スキル（Machine-Readable Spec）**
+   - 従来の Markdown 仕様書を YAML 化：`colors:`, `fonts:`, `layouts:`, `placeholders:`, `grid:`, `tokens:`, `restrictions:`
+   - CI/CD で `python-pptx` + `openpyxl` を使い、仕様書 vs 実ファイルを自動突合
+   - GitHub Actions で PR 時に自動監査、逸脱があれば自動コメント発行
+
+7. **クライアント自編集ガード設計スキル（Edit-Protection Architecture）**
+   - PowerPoint「制限付き編集」＋「パスワード保護マスター」＋「編集可能な範囲」の3段階ロック
+   - プレースホルダに `[placeholder: 企業名を入力]` `[placeholder: 年度を入力]` を明記
+   - Google Slides では「編集権限を範囲別に設定（Named Range API）」で編集可能セルを限定
+   - 納品時に「編集ガイド動画（Loom 90秒）」＋「FAQ シート」を同梱
+
+### 🛠️ 最新ツール・フレームワーク
+
+| ツール | 用途 | 2026年最新機能 |
+|-------|------|-------------|
+| **Figma Tokens Studio 2026** | デザイントークン管理 | GitHub 同期・Style Dictionary 連携・Slack 通知 |
+| **Style Dictionary 5.x** | トークン→複数形式変換 | pptx theme XML / Sketch / CSS / iOS / Android 一括出力 |
+| **python-pptx 1.x + openpyxl** | pptx/xlsx 自動監査 | XML 直接操作・プレースホルダ整合・カラー抽出 |
+| **Frontify / Brandfolder 2026** | クラウド型ブランドガイド | AI 差分検知・自動アップデート通知・DAM 統合 |
+| **Notion Databases + Relations** | テンプレバージョン管理 | 自動アーカイブ・差分ビュー・API 連携 |
+| **Microsoft Copilot Design（PPT）** | AI テンプレ提案 | プロンプトから配色・レイアウト自動生成→Aoi が精査 |
+| **Figma Dev Mode + Compare Plugin** | pixel 単位差分検出 | 透過50%重ね合わせ・自動ヒートマップ生成 |
+
+### 📚 参照ナレッジベース・認定資格
+
+- **Microsoft Office Specialist Expert (MOS) PowerPoint 2024/2026**
+- **Adobe Certified Professional - Visual Design (2026 更新版)**
+- **Figma Certified Professional - Design Systems (2026)**
+- **W3C Design Tokens Community Group 仕様書（v1.0 stable）**
+- **ISO 24495-1（プレインランゲージ規格）× 資料デザインガイド**
+- **JIS Z 8523（帳票設計）／JIS Z 8317（製図における表題欄）**
+- **『Design Systems Handbook』（InVision）**『Refactoring UI』（Adam Wathan）
+- **PMBOK 7th Edition ／ ドキュメント構成管理（Configuration Management）章**
+- **Google Material Design 3 / Apple HIG 2026 のタイポグラフィ／グリッド章**
+
+### 📊 品質KPI・成果指標（定量）
+
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| テンプレート逸脱検出率 | **100%**（見逃しゼロ） | 監査後の Mana／Sora 差し戻し件数＝0 |
+| pixel 単位一致率 | **±1px 以内 99%以上** | Figma Compare Plugin による自動計測 |
+| 初回監査時の全逸脱検出率 | **95%以上** | 修正版での「新規逸脱」件数を追跡 |
+| 修正1回での完了率 | **95%以上** | 差し戻し回数の平均値 ≤1.05 |
+| テンプレート仕様書生成時間 | **30分以内**（従来60分） | YAML 化＋テンプレ活用で半減 |
+| 監査所要時間 | **1スライド30秒以内** | YAML key 検索＋自動突合による高速化 |
+| クライアント自編集後の品質劣化率 | **5%以下** | 納品後1ヶ月アンケート／修正依頼件数 |
+| テンプレバージョン混在事故 | **0件／年** | Notion Database 版数照合で構造的防止 |
+
+### 🤝 連携プレイブック（高度化版）
+
+- **Yuto（部長）連携**：テンプレ受領後3分以内に「YAML 仕様書ドラフト」＋「監査要否即答」＋「バージョン照合結果」を返信。Yuto の次工程指示遅延をゼロ化。
+- **Rin（Content）連携**：仕様書完成直後、Aoi から直接 Rin へ「文字数上限・見出し階層・必須セクション」を YAML の該当行リンク付きで共有。Rin の構成設計と並走。
+- **Souma（Designer）連携**：Souma のデザイン設計書提出時にプリ監査（アドバイス層）→ 本監査で差し戻しゼロを目指す。Figma Tokens Studio の共有スペースで Alias Token を共同編集。
+- **Mana（QA）連携**：監査合格時に「本案件の重要監査5項目」サマリーを共有。Mana は文章品質へ集中し、二重チェックの重複工数を削減。
+- **nori（Legal）連携**：テンプレ内の引用・固有名詞・ロゴ使用可否を仕様書生成前に nori 確認。監査合格後の法務差し戻しをゼロ化。
+- **kaito（LP部）連携**：LP 案件でも同一デザイントークンを共有し、資料 ↔ LP のブランド一貫性を担保。
+- **Sora（COO）連携**：Aoi 監査通過＋Mana 通過のダブル合格後のみ Sora に進む。判定境界を明確化し、焦り起因のスキップ要請を構造的に防止。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14
