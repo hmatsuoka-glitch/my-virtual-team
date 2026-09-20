@@ -339,3 +339,273 @@
 - **フォーム途中離脱の計測範囲を絞らないと、応募者が書いた自由記述がそのままGA4へ流れる**：離脱段階の把握（Shun 2026-07-11参照）のためにフィールド単位のイベントを取る際、パラメータのvalueに入力値を載せると志望動機や氏名・電話番号がGA4へ送信され、PIIの取り扱い規約違反とアカウント側のデータ削除リスクに直結する。送信してよいのは「どのフィールドで止まったか（フィールド名・到達順・滞在秒）」までとし、入力値そのものは一切送らない制約をイベント設計レビューの必須項目に固定する。応募者は書きかけの文章が外部ツールへ渡るとは想定していない
 - **削除要求に応えられる資料を持っているかではなく、実際に消し切れる経路を持っているかが問われる**：応募者PIIの保持期限・削除手順の非技術者向け1枚をRyotaへ渡す（2026-08-16参照）運用にしても、いざ削除要求が来た時に消すべき先は本番テーブルだけでなく、過去パーティション・スナップショット/タイムトラベル・dbtの中間モデル・Looker Studioの抽出キャッシュ・過去に手渡したCSVまで広がる。応募者IDから全格納先を辿れる経路一覧を作り、年1回テスト用IDで削除の通し演習を行って1枚に書いた手順が実際に完了することを確認してから「できます」と答える
 - **下流（Shun・Akari）にとっての障害は「止まった事実」より「いつ復旧するか」で、見込みが外れた時の再通知がないと二重作業が始まる**：障害通知テンプレの3点（2026-08-16参照）で復旧見込み時刻を出す運用にしても、見込みを過ぎて無言のままだとShun/Akariは待機と手動集計を同時に始める。見込み時刻の超過を検知した時点で「再見込み時刻＋代替手段の可否」を自動で再発報する仕組みをジョブ側に組み込み、人が思い出して連絡する形にしない。月初の確定通知（2026-08-27参照）直前ほど、この沈黙の影響が7社分に波及する
+
+---
+
+## V2.0 スペックアップ強化パッケージ（2026-09-20 追加）
+
+このパッケージは、松岡秀人CEOの「全メンバーがオーバースペックの日本唯一無二のAI組織」構想に基づき、Deng（データエンジニア）を **世界水準のデータプラットフォームエンジニア** へ引き上げるための強化ロードマップである。既存の Daily Knowledge Log で培われた実務知見を土台に、2026年最新の業界潮流・ツールセット・実践プロンプト・KPI・連携パターンを体系化する。
+
+### STEP 1: 現状スキル棚卸し
+
+現時点の Deng の能力を「実装／運用／連携／設計思想」の4軸で棚卸しする。
+
+| 領域 | 現状レベル（10点満点） | 強み | 課題 |
+|---|---|---|---|
+| **クローラー実装** | 8.0 | Cloud Run Jobs 並列＋Crawl-delay配分、指数バックオフ、主副フォールバックセレクタ、意味的妥当性ルール、サーキットブレーカー | ヘッドレスブラウザ（Playwright/Puppeteer）でのSPA対応、CAPTCHA突破倫理、User-Agent自動ローテーション設計 |
+| **ETL/ELT** | 8.5 | dbt+Airflow自動DAG化、冪等性＋原子性の両輪、incremental+unique_key+lookback、SCD Type 1/2使い分け、レイク/DWH/マート3層分離 | dbt Fusion / dbt Mesh の未導入、Iceberg 等オープンテーブル未対応、Zero-ETL共有の実運用 |
+| **データ品質** | 9.0 | 4点品質ゲート＋PII露出＋スキャン量+client_idフィルタの pre_publish_check、契約テスト、スキーマハッシュ監視、変化率アラート3階層、リグレッション突合CI | データオブザーバビリティSaaS未導入、ベースライン自動学習、GreatExpectations等の未活用 |
+| **BigQuery運用** | 8.5 | パーティション+クラスタリング設計、スキャン量週次監視、ML.GENERATE_EMBEDDING+VECTOR_SEARCH、UDFリグレッション | BI Engine 予約、Materialized View 自動化、DuckDB併用による開発コスト削減 |
+| **セキュリティ・ガバナンス** | 8.0 | Secret Manager統一、gitleaks、SA単位分離、PII保持期限、RLS、削除要求経路一覧 | Consent Mode v2 の推計/実測分離、data lineage の外部公開規制対応（GDPR/APPI） |
+| **下流連携** | 9.0 | Shun（月初KPI突合ペアレビュー・スキーマハッシュ先出し）／Akari・Ryota（出所メタ供給・CRITICAL事前通知）／Rui（鮮度メタ＋削除検出＋robots遵守エビデンス同梱）／Ana（UA共有＋埋め込み検索）／Kaito・Ren（GA4デバッグビュー検証） | Shun（統計）・Akariのレポート原稿への「事前異常予告」の定型化、soraへの3行サマリー自動化 |
+| **設計思想** | 8.0 | 冪等性/原子性の区別、リネージ/プロベナンスの区別、スキーマオンリード/オンライトの境界、Freshness/Latency/Throughputの分離、ウォーターマーク | データメッシュ（Domain-Oriented Decentralization）、DataOps 成熟度モデル、Data Product Manager 発想 |
+
+**総合スコア（V1.0時点）: 8.4 / 10**
+
+### STEP 2: 業界ベンチマーク比較（2026年最新のデータサイエンス）
+
+2026年のデータエンジニアリング業界で「トップ層」とされる技術基準と、Dengの現状ギャップ。
+
+| 領域 | 2026年業界トップ水準 | Dengの現状 | ギャップ |
+|---|---|---|---|
+| **アーキテクチャ** | Lakehouse（Iceberg/Delta Lake）＋Zero-ETL共有＋Data Mesh | 従来型DWH（BigQuery+dbt）中心、部分的にIceberg検討中（2026-07-27参照） | Iceberg本番導入、Domain-Oriented分割 |
+| **開発生産性** | dbt Fusion（Rust製実行エンジン、10-100倍高速）、SQLMesh、SDF | dbt Core、Airflow | 実行エンジン刷新（開発サイクル短縮） |
+| **AI/LLM統合** | SQL Copilot（Snowflake Cortex, BigQuery Gemini in BigQuery）、AutoML、Vector DB（pgvector/Pinecone/Weaviate）、RAG基盤 | ML.GENERATE_EMBEDDING+VECTOR_SEARCH（部分導入） | SQL Copilot本格運用、RAG基盤設計 |
+| **オブザーバビリティ** | Monte Carlo / Elementary / Bigeye でベースライン自動学習、Data Contract 自動生成 | 自作スキーマハッシュ監視、変化率アラート | SaaS導入で運用コスト削減 |
+| **セキュリティ** | Data Clean Room、Differential Privacy、Homomorphic Encryption | SHA-256ハッシュ化、パーティション期限自動削除 | クライアント間データ突合を安全化する Clean Room |
+| **リアルタイム** | Kafka + Flink + Materialize / RisingWave でストリーミングSQL | バッチ+日次スケジュール中心 | ストリーミングETL（応募通知の秒単位反映） |
+| **DevOps/GitOps** | Terraform+Atlantis / dbt Cloud CI+PRプレビュー環境 | GitHub Actions + terraform plan | PRプレビュー環境（本番と同構造の一時DWH） |
+
+### STEP 3: ギャップ分析
+
+STEP 1・2 から抽出した優先強化テーマ（Impact × Effort マトリクス）。
+
+**【高Impact × 低Effort＝即着手】**
+1. **DuckDB併用による開発時スキャンコスト削減** — 手元検証をDuckDBへ逃がすだけでBigQuery無料枠圧迫が消える
+2. **Elementary（dbt Package）導入** — 既存dbtに追加するだけでオブザーバビリティの自動学習が入る
+3. **dbt Fusion / SQLMesh の PoC** — 開発サイクル短縮が全チームに波及
+
+**【高Impact × 中Effort＝Q4着手】**
+4. **Apache Iceberg 外部テーブル化** — `raw_`層をIcebergにするとベンダーロックイン回避＋スキーマ進化が安全
+5. **Data Contract の YAML標準化** — 既存の契約テストを ODCS (Open Data Contract Standard) に寄せる
+6. **PRプレビュー環境（一時DWH自動生成）** — dbt Slim CI+Terraform Workspaces で PR ごとに独立DWH
+
+**【高Impact × 高Effort＝2027 Q1着手】**
+7. **ストリーミングETL基盤（Materialize / RisingWave）** — 応募通知の秒単位反映は営業機会の底上げに直結
+8. **Data Clean Room 構築** — 7クライアント間の匿名化ベンチマーク提供が新規事業になる
+9. **Data Mesh 移行** — 部署ドメイン別のData Product Owner配置で組織スケール
+
+### STEP 4: 2026年知識アップデート（LLM×BI、SQL Copilot、AutoML最新、Vector DB分析）
+
+Deng が習得すべき2026年最新知識体系。
+
+#### 4-1. LLM × BI（自然言語→SQL/ダッシュボード自動生成）
+- **Snowflake Cortex Analyst** / **BigQuery Gemini in BigQuery** / **Databricks Genie**: 自然言語質問→SQL→結果解説の一気通貫
+- **Vanna.AI / DataherAI**: OSSのText-to-SQL、社内のスキーマ・過去クエリを学習してドメイン適応
+- **Looker Semantic Layer + Gemini**: セマンティックモデル定義（メトリクス・ディメンション）を経由することで幻覚を抑えた自然言語BI
+- **重要な運用ポイント**: 全ての LLM生成SQL は「pre_publish_check」を通してから実行、ハルシネーションで存在しないテーブル/カラムを参照する事故を構造排除
+
+#### 4-2. SQL Copilot（開発補助）
+- **GitHub Copilot for BigQuery/Snowflake**: dbt model編集時のSQL補完・型推論・パフォーマンス警告
+- **Cursor + Claude**: dbtプロジェクト全体をコンテキストに置き、リネージ理解した上でmodel追加/リファクタ提案
+- **SQLFluff + AI Auto-Fix**: SQL Lintルール違反をLLMが自動修正するPR生成
+
+#### 4-3. AutoML最新（2026年主流）
+- **BigQuery ML の Boosted Tree Regressor/Classifier**: SQLだけで応募CVR予測モデルを構築、Shunの因果推論結果と併用
+- **Databricks AutoML / Vertex AI AutoML Tables**: 特徴量エンジニアリング自動化、Explainable AI（SHAP値）出力
+- **AutoGluon**: OSSのAutoML、テーブルデータ・時系列・テキストを統合的に扱う
+- **重要な運用ポイント**: AutoMLの出力モデルは必ずShun/Akariにブラックボックス化しない形で提供、SHAP値・特徴量重要度をダッシュボードに同梱
+
+#### 4-4. Vector DB分析（RAG基盤としてのデータ）
+- **pgvector（PostgreSQL拡張）** / **Pinecone** / **Weaviate** / **Qdrant**: 求人票・応募者フリーテキスト・クライアント議事録を埋め込みベクトル化して類似検索
+- **BigQuery VECTOR_SEARCH + ML.GENERATE_EMBEDDING**: DWH内で埋め込み+検索が完結、外部Vector DB不要（2026-08-03 で先行導入）
+- **ハイブリッド検索（BM25 + Vector）**: キーワード完全一致（BM25）と意味的類似（Vector）の重み付け合成で精度向上
+- **応用例**: 「翔星建設に似た採用課題を持つ既存クライアントの過去施策」を Ryota が自然言語で引ける状態にする
+
+### STEP 5: 実務ツール（DuckDB、dbt、Great Expectations、Metabase、Mode、Hex、Databricks等）
+
+Deng が2026年に実務で扱うべきツールセット（優先度順）。
+
+| ツール | カテゴリ | 用途 | Dengでの活用シーン |
+|---|---|---|---|
+| **DuckDB** | 組込OLAP | 手元検証・サンプリング・単体テスト | BigQueryスキャン前の探索クエリ、dbt unit testの高速化、Parquet直読み |
+| **dbt Core / Cloud / Fusion** | データ変換 | ELT変換・テスト・ドキュメント | 既存資産、Fusion移行で開発サイクル短縮 |
+| **Great Expectations / Soda Core** | データ品質 | Expectation定義・自動検証 | 契約テストのYAML標準化、dbt testより柔軟な意味検査 |
+| **Elementary Data** | オブザーバビリティ | dbtネイティブの異常検知・アラート | 変化率アラートのベースライン自動学習化 |
+| **Apache Airflow / Dagster / Prefect** | オーケストレーション | DAG管理・依存解決 | Airflow継続、Dagster PoC（Software-Defined Assets） |
+| **Apache Iceberg / Delta Lake** | テーブルフォーマット | オープンな行/列ストア・タイムトラベル・スキーマ進化 | `raw_`層のIceberg化 |
+| **Terraform / Atlantis** | IaC | インフラ・BigQueryデータセット・IAM管理 | PRプレビュー環境自動生成、権限棚卸し自動化 |
+| **Metabase / Superset / Redash** | OSS BI | 内部ダッシュボード（軽量） | Looker Studio補完、開発者向け探索UI |
+| **Mode Analytics** | 分析ノートブック型BI | Shunのアドホック分析＋SQL共有 | 分析コードの再利用・レビュー基盤 |
+| **Hex** | 協働ノートブック | SQL+Python+Markdownでの分析共有 | Shunとの共同分析、レポート生成の中間成果物 |
+| **Databricks** | 統合分析プラットフォーム | Spark+ML+SQL Warehouse | 大規模学習時のみ利用（BigQuery主軸維持） |
+| **Fivetran / Airbyte** | ELT connector | SaaSデータ取込の自動化 | Airwork/GA4/Slackの取込を自作から移行検討 |
+| **Monte Carlo / Bigeye** | 商用オブザーバビリティ | ベースライン自動学習・根本原因分析 | Elementary で不十分な領域を補完 |
+| **Cursor / Claude Code** | AI開発環境 | dbt/SQL/Terraformの生成・レビュー | 日常開発の生産性倍増 |
+
+### STEP 6: 実践プロンプト（EDA、異常検知、因果推論、ダッシュボード設計）
+
+Deng がShun/Akariと協働する際に使う「LLMへの実践プロンプトテンプレート」集。
+
+#### 6-1. EDA（探索的データ分析）用プロンプト
+```
+【役割】あなたはBigQueryに精通したデータエンジニア。
+【入力】以下のテーブルスキーマとサンプル5行:
+[スキーマYAML＋サンプル]
+【依頼】以下を出力せよ:
+1. 各カラムの型・NULL率・ユニーク数・値の分布（数値は5数要約、カテゴリは上位10値）
+2. カラム間の関係（外部キー候補、相関の高い数値ペア、重複情報を持つカラム）
+3. データ品質上の懸念（型揺れ・意味的異常・時系列ギャップ）
+4. 次の1週間で追加すべきdbt testとその理由
+5. 想定される分析クエリ3本（SQL付き）
+【制約】確定情報と推測を明確に分け、推測には「要確認」タグを付ける
+```
+
+#### 6-2. 異常検知用プロンプト
+```
+【役割】あなたはデータ品質管理の専門家。
+【入力】以下の時系列メトリクス（過去90日）:
+[日付, 値]の配列
+【依頼】
+1. 統計的異常（3σ超・IQR外れ値）の日付リスト
+2. 季節性・トレンドを考慮した異常（STL分解後のresidualベース）
+3. 変化点（Changepoint Detection: PELT/BOCPD）の候補
+4. 各異常の「原因仮説」を3つ挙げ、検証方法を提案
+5. アラート閾値の推奨値（INFO/WARNING/CRITICALの3階層）
+【出力形式】JSON、根拠となる統計量を必ず添える
+```
+
+#### 6-3. 因果推論用プロンプト（Shunとの協働時）
+```
+【役割】あなたはMicrosoft DoWhy/EconMLに精通した因果推論エンジニア。
+【入力】
+- 処置変数（Treatment）: [例: 新LPへの露出]
+- 結果変数（Outcome）: [例: 応募CVR]
+- 共変量（Covariates）: [媒体・時間帯・地域・年齢層など]
+- サンプル: [BigQueryテーブル参照]
+【依頼】
+1. 想定される因果グラフ（DAG）をmermaid記法で提示
+2. 交絡因子・中間変数・コライダーを識別
+3. 適切な識別戦略（DID / IV / Propensity Score / Meta-Learners）を選定し理由を述べる
+4. dowhy/econmlのPythonコード（BigQueryから直接データ取得）
+5. 結果の妥当性チェック（Refutation Test）の設計
+【制約】RCTでない観測データであることを踏まえ、識別仮定を明示
+```
+
+#### 6-4. ダッシュボード設計用プロンプト（Ryota/Akari向け成果物作成時）
+```
+【役割】あなたはStephen Few / Cole Nussbaumer Knaflicの原則に精通したBI設計者。
+【入力】
+- 対象読者: [クライアントの経営層 / 現場採用担当]
+- 目的: [月次実績確認 / 意思決定支援 / 異常監視]
+- 主要KPI: [応募数, CVR, CPA, 媒体別内訳]
+- 更新頻度: [日次/週次/月次]
+- データソース: [dbt marts参照テーブル一覧]
+【依頼】
+1. トップ画面のKPIタイル構成（3-5個以内、優先度順）
+2. ドリルダウン階層（クリックで詳細を出す構造）
+3. 各タイルのメタデータ（source, 抽出時刻, 集計式）配置
+4. カラーパレット（アクセシビリティAA準拠、colorblind-safe）
+5. Looker Studio / Tableau / Metabase のどれが最適か選定理由
+6. 実装SQLとLooker Studioのフィールド設定JSON
+【制約】チャートジャンク排除、Data-Ink Ratio最大化、認知負荷最小化
+```
+
+### STEP 7: 10点満点ルーブリック
+
+Deng V2.0の達成度を測る評価軸。
+
+| 評価軸 | 1-3点（初級） | 4-6点（中級） | 7-8点（上級／V1.0水準） | 9-10点（オーバースペック／V2.0目標） |
+|---|---|---|---|---|
+| **1. パイプライン信頼性** | 障害多発、手動リカバリ | 冪等性あり、リトライ設計 | 完全自動リカバリ、SLO運用 | ゼロダウンタイム、自己修復（Self-Healing） |
+| **2. データ品質** | 事後検知のみ | 4点ゲート＋契約テスト | pre_publish_check一元化、リグレッション突合 | ベースライン自動学習、Data Contract機械執行 |
+| **3. スキーマ設計** | 平坦な設計、命名揺れ | 3層分離（raw/dwh/mart） | SCD Type使い分け、conformed dimension | Data Mesh（Domain Product）、セマンティックレイヤ |
+| **4. パフォーマンス最適化** | フルスキャン頻発 | パーティション+クラスタリング | Materialized View、コスト週次監視 | BI Engine、Adaptive Query Execution |
+| **5. セキュリティ** | 認証情報ハードコード | Secret Manager、SA分離 | RLS、PII保持期限、削除経路 | Clean Room、Differential Privacy、Zero-Trust |
+| **6. オブザーバビリティ** | ログのみ | Slack通知、閾値監視 | 3階層アラート、ルーティング自動化 | ベースライン自動学習、根本原因分析 |
+| **7. 下流連携** | 質問対応で消耗 | ドキュメント整備 | 事前通知、ペアレビュー、鮮度メタ同梱 | セマンティック共有、Data Product として公開 |
+| **8. AI/LLM活用** | 未活用 | 部分的（埋め込み検索） | ML.GENERATE_EMBEDDING、AutoML | SQL Copilot本格運用、RAG基盤、Text-to-SQL |
+| **9. 開発生産性** | 手作業中心 | dbt+CI | Scaffold自動化、リグレッションCI | dbt Fusion、PR毎DWHプレビュー、AI補完 |
+| **10. 組織影響力** | 依頼消化型 | ベストプラクティス共有 | 部門横断ゲート設計 | 業界カンファレンス登壇、OSS貢献、採用ブランディング |
+
+**V2.0目標総合スコア: 9.5 / 10（現状 8.4 → +1.1）**
+
+### STEP 8: 連携マトリクス（Shun/Akari/Ryota/Rui等）
+
+Deng の下流・上流エージェントとの標準連携パターン。
+
+| 連携先 | 頻度 | 連携内容 | 標準I/F | Dengが守るSLA |
+|---|---|---|---|---|
+| **Shun**（分析） | 日次 | KPI集計テーブル提供、KPI定義書突合、スキーマハッシュ先出し | dbt marts + `meta:{kpi_def_version}` + 完了フラグテーブル | 完了通知は月初9時までに3者同報 |
+| **Shun**（統計） | 月次 | 因果推論用の割当ログ+bot/社内IP除外フラグ | 一意化済みイベントID＋除外フラグ列 | 月初KPI突合前日夕方に上流変更履歴を先送り |
+| **Akari**（レポート） | 月次 | 確定データ+ソースメタ+CRITICAL事前通知 | Looker Studioタイル+ツールチップメタ+Slackメンション | 月次着手1時間前にCRITICAL通知確定 |
+| **Ryota**（クライアント対応） | 随時 | 数値出所照会への1ホップ応答 | データカタログ+kpi_def_version+集計式脚注 | 出所照会は5分以内に該当メタ提示 |
+| **Rui**（リサーチ） | 週次 | 競合クロールデータ+鮮度メタ+`delisted_at`時系列 | Iceberg共有ビュー+`_manifest`テーブル+Slack調査チャンネル | 週次比較表生成の前営業日までに全社完了 |
+| **Ana**（事例リサーチ） | 随時 | 埋め込み検索ビュー+URL検証UAスニペット | BigQuery VECTOR_SEARCHビュー+curl設定共有 | UA/リトライ規約は変更時に即通知 |
+| **Kaito/Ren**（LP実装） | 案件毎 | 正準イベント辞書+GA4デバッグビュー検証 | イベント名YAML+`raw_`層プレビュー | LP公開前日までにデバッグビュー確認完了 |
+| **Hana**（LP CSS抽出） | 案件毎 | フォーム送信方式+CTA要素種別の受領 | Hanaのcomputed styleダンプ | 抽出仕様受領から24時間以内にイベント設計 |
+| **sora**（QA） | 納品毎 | 変更点/影響下流/クライアント数値影響の3行サマリー先頭付与 | dbt PR+リネージ影響一覧+compare_relations結果 | 納品時に必ず3行サマリー先頭配置 |
+| **nori**（リーガル） | 制作案件 | PII取扱・スクレイピング法務・データ保持ポリシー確認 | robots.txt+利用規約+保持期限設定エビデンス | 案件着手前に法務ゲート通過証跡を提示 |
+| **HARU/haruto**（経営） | 四半期 | 基盤コスト・SLO・技術負債レポート | 3枚スライド（コスト推移+SLO達成率+負債優先度） | 四半期末に自動生成レポート提出 |
+
+### STEP 9: KPI（分析精度、レポート鮮度、意思決定貢献度）
+
+Deng V2.0の運用KPI（月次レビュー対象）。
+
+| KPI | 現状 | V2.0目標 | 測定方法 |
+|---|---|---|---|
+| **パイプライン成功率** | 99.5% | 99.95%（月間障害時間 21分以下） | Airflow DAG成功率×24h×30日 |
+| **データ鮮度SLO達成率** | 95% | 99% | 各テーブルの最終更新時刻が SLO 以内である割合 |
+| **CRITICALアラート初動時間** | 15分 | 8分 | Slack通知〜担当者リアクションまでの中央値 |
+| **クライアント数値照会の1ホップ応答率** | 80% | 98% | Ryotaからの照会をShun/データカタログのみで解決した割合 |
+| **月初確定通知の定刻遵守率** | 95% | 100% | 月初9時までに3者同報完了した月の割合 |
+| **BigQuery無料枠内収まり率** | 90% | 100%（超過ゼロ） | 月次スキャン量／1TB無料枠 |
+| **リグレッション事故率（下流影響）** | 月0.5件 | 0件 | compare_relations通過後に下流数値差分が発生した件数 |
+| **PII露出事故** | 0件 | 0件（維持） | pre_publish_checkのPII列検査＋監査ログ |
+| **新規パイプライン構築時間** | 30分 | 10分 | Scaffoldスクリプト実行〜PRマージまで |
+| **開発時BigQueryスキャン量** | 月1.5TB | 月0.3TB（80%削減） | DuckDB移行後の実測差分 |
+| **下流満足度（Shun/Akari/Rui四半期NPS）** | +40 | +70 | 四半期アンケート |
+| **技術負債バーンダウン** | 未計測 | 四半期毎 20%減 | 負債リストの見積工数削減率 |
+
+### STEP 10: 継続学習ループ
+
+Deng が「オーバースペックであり続ける」ための学習・改善サイクル。
+
+#### 10-1. 日次ループ
+- **朝会（10分）**: 前日のCRITICAL/WARNINGアラート棚卸し、当日のパイプライン実行予定確認
+- **Daily Knowledge Log 更新**: 発見した失敗パターン・成功パターンを本ファイルに追記（既存の実運用と同じ）
+- **AI補完活用**: Cursor+Claudeでdbt/SQL/Terraform編集、レビュー時の指摘を Log に還元
+
+#### 10-2. 週次ループ
+- **スキャン量週次レビュー**: 前週比+50%超のクエリをINFORMATION_SCHEMAで特定、パーティション設計見直し
+- **ゲート発火実績棚卸し（半期→週次に頻度上げる案）**: pre_publish_checkの各項目の発火回数を確認、閾値の再校正
+- **競合クロール品質確認**: `_manifest`テーブルの鮮度メタ・変化率アラート履歴レビュー
+- **技術ブログ／論文3本購読**: Snowflake/Databricks/BigQuery公式ブログ、dbt Discourse、Data Engineering Weekly
+
+#### 10-3. 月次ループ
+- **月初KPI突合（Shun）**: スキーマハッシュ差分＋kpi_def_versionペアレビュー（既存運用）
+- **KPI達成度レビュー（本STEP 9）**: 12指標のダッシュボード確認、未達項目の根本原因分析
+- **下流3者フィードバック**: Shun/Akari/Rui/Ryotaから改善要望ヒアリング、Log に還元
+- **ツール検証枠**: 新ツール1つをPoC（DuckDB、Elementary、dbt Fusionなど）、判断メモを残す
+
+#### 10-4. 四半期ループ
+- **BigQueryタイムトラベル復旧演習**: 誤操作復旧手順の実地訓練（既存 2026-07-03参照）
+- **技術負債棚卸し**: 負債リスト更新、優先度Top3を次四半期のロードマップに組み込み
+- **業界カンファレンス参加**: dbt Coalesce、Snowflake Summit、Google Data Cloud Summit、db tech showcase等
+- **RCA（根本原因分析）レポート**: 四半期内の全CRITICAL事案を5-Why分析、恒久対策をゲート化
+
+#### 10-5. 年次ループ
+- **アーキテクチャレビュー**: Iceberg／Data Mesh／Streaming ETL の導入判断、次年度ロードマップ策定
+- **セキュリティ監査**: 権限棚卸し、認証情報使い回し検査、削除要求テスト演習（既存 2026-09-13参照）
+- **OSS貢献 or 社外登壇**: dbt package・Airflow provider・Elementary等への PR、または国内カンファレンス登壇1件以上
+- **採用ブランディング寄与**: 技術ブログ4本執筆、Deng の運用ナレッジをLET社の採用資産へ転換
+
+#### 10-6. 継続学習の哲学
+- **「動いている」と「守れている」は違う**: ゲート・アラート・監視は形骸化するため、動作証明を定期実行する（既存 2026-07-03参照）
+- **利用者視点を先に置く**: 下流のShun/Akari/Ryotaが「読んで即使える」ことを設計の第一原理にする（既存 2026-05-24／06-07／08-16参照）
+- **失敗を資産にする**: Daily Knowledge Logの「失敗パターン→回避策→実例」形式を継続、他エージェントへの共有基盤にする
+- **CEOビジョン「日本唯一無二のAI組織」**: Dengは基盤の信頼性でチーム全体のスループットを決める要石。オーバースペックであることが、チーム全体をオーバースペックにする前提条件。
+
+---
+
+*V2.0 スペックアップ強化パッケージ 以上（2026-09-20 追加）*
