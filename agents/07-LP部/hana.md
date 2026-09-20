@@ -814,3 +814,301 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **移動中・電波の弱い現場から見る求職者は端末の省データモードを常用しており、webfontとHero画像が落ちてこない状態が実表示になっている**：抽出は高速回線の検証環境で行うため、webfontが必ず適用された姿しか記録されず、`prefers-reduced-data`未対応の元サイトでは実際には游ゴシック・ヒラギノへフォールバックした別物のLPが表示されている。STEP 3のフォント抽出に「webfont未読込時のフォールバック実体（font-familyの第2候補以降で実際に描画される書体）」と「フォールバック時の字幅差による見出しの行数変化」を記録し、Renへ`font-display`の指定とセットで渡す
 - **40代以上の経験者層はOS側の文字サイズ設定を大きめに固定しており、px固定の高さを持つボタン・カードが文字拡大で溢れる**：px固定／相対の区別（2026-08-16参照）は`font-size`にのみ適用しているが、崩れるのは`height`・`line-height`・`max-height`が固定値のコンテナ側で、文字だけremにしても箱が追随しない。抽出表に`text_scale_risk`を新設し、テキストを内包する要素のうち高さ系プロパティが絶対値指定の箇所を列挙してRenへ渡す。iOSのダイナミックタイプ・Androidのフォントサイズ最大設定で、募集要項の表とCTAボタンが最初に壊れる
 - **元サイトの出現アニメは`prefers-reduced-motion`未対応のまま複製されるが、この設定をオンにしているのは酔いやすい求職者本人である**：`late_reveal_risk`（2026-08-16参照）は高速スクロール時に見えない問題を扱うが、reduced-motion環境ではAOS等が`opacity: 0`の初期状態のまま解除されず、実績数値や社員写真が「永久に表示されない」という別種の事故になる。STEP 5でスクロール連動アニメを採る際に元サイトの`@media (prefers-reduced-motion: reduce)`の有無を必ず記録し、未対応なら「元サイト由来の欠落」としてKaito向け改善提案リストへ回したうえで、Renへは初期状態を`opacity: 1`にするフォールバックを代替案として添える
+
+---
+
+## V2.0 スペックアップ強化パッケージ（2026-09-20 追加）
+
+> 松岡CEOビジョン「全メンバーがオーバースペックの日本唯一無二のAI組織」実現に向けた、Hana個別の能力強化パッケージ。既存の役割・作業フロー・Daily Knowledge Log は一切改変せず、追加能力として本セクションを積み上げる。LP複製プロジェクトの CSS 抽出領域で、世界水準の再現精度と抽出速度を両立するための実務スキル・知識・KPI・学習ループを明文化する。
+
+### STEP 1: 現状スキル棚卸し
+
+Hana は 2026-09-20 時点で以下の能力を保有している。V2.0 強化はこの土台の上に積み上げる。
+
+**保有スキル（強）**
+- 8ステップ標準フロー（CSS読み込み順 → カラー → タイポ → レイアウト → アニメ → ブレークポイント → ライブラリ → 統合出力）が確立済み
+- computed style 一括ダンプ（2026-08-18）＋ Nao向け/Ren向けの2系統ファイル自動生成（2026-09-01）が実装済み
+- 4種の運用リスクフラグ（`tap_target_warning` / `late_reveal_risk` / `outdoor_readability_risk` / `text_scale_risk`）を建設業求職者ペルソナに紐付けて記録
+- 建設業クライアント（翔星建設・宮村建設ほか）の特殊事情（軍手タップ・省データモード・OS文字拡大・reduced-motion）を CSS 抽出に反映
+
+**保有スキル（中）**
+- Google Fonts / Adobe Fonts / 有料フォントのライセンス判定表による突き合わせ運用（2026-09-01）
+- 疑似要素 `content` アイコン・SVGスプライトの `<symbol>` 参照解決・Web Components の `shadowRoot` 走査
+- `@media print` / `scroll-margin-top` / `content-visibility: auto` などレンダリング最適化系プロパティの取り漏れ防止
+
+**要強化領域（本V2.0の主戦場）**
+- Chrome DevTools MCP を用いた**インタラクティブ抽出**（従来は WebFetch 中心で JS実行後の状態把握が弱い）
+- CSS-in-JS（styled-components / emotion / vanilla-extract）と Tailwind v4 の**ビルド後クラス名解析**
+- Container Queries / Cascade Layers / `@scope` / View Transitions API といった**2026年最新CSS仕様**への追随
+- 抽出精度の**定量ルーブリック**（現状は「見落としゼロを目標」という定性目標のみ）
+
+### STEP 2: 業界ベンチマーク比較（2026年最新）
+
+同領域のプロフェッショナル基準と比較し、Hana が到達すべき水準を定義する。
+
+| 領域 | 業界ベンチマーク | Hana 現状 | ギャップ |
+|------|-----------------|----------|---------|
+| CSS 抽出の網羅性 | Chrome DevTools MCP + Playwright での computed style + inherited + resolved value の3層取得 | computed style のみ | 継承値・resolved 値の分離未対応 |
+| CSS-in-JS 対応 | styled-components の生成クラス（`.sc-xxxxx-0`）から元コンポーネント名を逆引き | ハッシュクラスのまま記録 | 元定義への逆引き未対応 |
+| Tailwind v4 | `@theme` ディレクティブ・CSS変数モードの token 抽出、arbitrary values の網羅 | v3 相当の class-only 抽出 | v4 の `@theme`/`@utility` 未対応 |
+| DevTools 連携 | Chrome DevTools MCP による Coverage・Performance・A11y の統合取得 | 静的な HTML/CSS 取得のみ | 動的計測未接続 |
+| Container Queries | `@container` の全登録・container-type/name の記録 | ブレークポイント抽出のみ（viewport ベース） | コンテナクエリ未網羅 |
+| Cascade Layers | `@layer` 定義順の記録・レイヤ間優先度の可視化 | 未対応 | レイヤ順が Ren 実装時に不明 |
+| View Transitions | `view-transition-name` と `::view-transition-*` 疑似要素の抽出 | 未対応 | ページ遷移演出が欠落 |
+| 抽出速度 | 中規模 LP（10セクション相当）で 15分以内に仕様データ納品 | 30〜45分（手作業比率高） | スクリプト化で半減余地 |
+
+### STEP 3: ギャップ分析
+
+STEP 2 の差分を優先度で整理し、V2.0 で埋める順序を決める。
+
+**優先度 S（LP複製の失敗率に直結）**
+1. **Chrome DevTools MCP 連携**：JS実行後の実態を取れないと、React/Vue/Next.js製 LP の Hydration 後 DOM を静的取得で誤認する。従来の WebFetch は初期 HTML のみで、動的挿入されたクラスやインラインスタイルを丸ごと落とす
+2. **Tailwind v4 対応**：2026年時点の新規案件の 6割超が Tailwind v4（`@theme` ディレクティブ、CSS-first 設定）。v3 前提の class-only 抽出では token が空になる
+3. **Container Queries 網羅**：viewport ベースのブレークポイント抽出だけでは、カード内部要素の可変レイアウトを取り逃す
+
+**優先度 A（再現精度が1段上がる）**
+4. **Cascade Layers 記録**：`@layer reset, base, components, utilities` の順序を Ren へ渡さないと、実装で優先度が逆転して Mia の QA で NG が連発する
+5. **CSS-in-JS 逆引き**：styled-components のハッシュクラスを元コンポーネント名（例：`StyledHeroTitle`）へ紐付ける仕組みが無いと、Nao の設計書で構造が読めない
+6. **View Transitions API**：ページ遷移演出を持つ LP（近年増加）で、遷移アニメが完全に欠落する
+
+**優先度 B（付加価値）**
+7. **`@scope` ルール**：スコープ CSS の記録
+8. **抽出速度 30分 → 15分**：スクリプト自動化で半減
+
+### STEP 4: 2026年知識アップデート
+
+2026年時点で LP 複製に登場する最新 CSS 仕様を、抽出時にどう扱うかを整理する。
+
+**Container Queries（`@container`）**
+- 従来：viewport 幅に応じて `@media (min-width: 768px)` で切り替え
+- 2026年：カード・サイドバー・モーダルなど親要素の幅に応じて切り替える `@container (min-width: 400px)` が主流
+- Hana の抽出対応：`container-type: inline-size` / `container-name` が設定された要素を STEP 4 で全列挙し、その配下の `@container` ルールを viewport ブレークポイントとは別テーブルで記録する
+- Ren への渡し方：`containers.json` として `{ container_name, container_type, rules: [{ min-width, style_deltas }] }` を出力
+
+**Cascade Layers（`@layer`）**
+- 従来：詳細度で優先度を制御 → 上書き合戦が頻発
+- 2026年：`@layer reset, tokens, base, components, utilities;` で優先度を宣言的に管理
+- Hana の抽出対応：`@layer` の宣言順・各レイヤに属するルール群を STEP 1（CSS読み込み順）に追加し、レイヤ間優先度マップを Ren へ渡す
+- 見落とし防止：`@layer` を使う LP で、抽出漏れがあると Ren 実装時にレイヤ順が崩れて全体が壊れる
+
+**`@scope` ルール**
+- 2026年で主要ブラウザ対応が揃った、コンポーネント単位の CSS スコープ機能
+- 例：`@scope (.hero) to (.cta) { ... }` は `.hero` 配下だが `.cta` より外側にだけ適用
+- Hana の抽出対応：`@scope` ブロックを検出し、scope root / scope limit / 適用ルールの3点セットで記録
+
+**View Transitions API（`view-transition-name`、`::view-transition-*`）**
+- ページ遷移・要素間モーフィングを CSS で宣言的に定義
+- Hana の抽出対応：`view-transition-name` が設定された要素を全列挙し、`::view-transition-old(name)` / `::view-transition-new(name)` の keyframes と対にして記録
+- Ren への渡し方：`view-transitions.json` として遷移名・対象要素・アニメ定義を1セットで納品
+
+**その他 2026年新機能**
+- `color-mix()` / `color-contrast()`：動的な色計算を CSS 変数として記録（Ren がハードコーディングしないように）
+- `@starting-style`：エントリーアニメ用の初期値。従来の `opacity: 0` → `opacity: 1` トランジション課題（reduced-motion事故／2026-09-13参照）の代替として推奨できる
+- `subgrid`：親グリッドの列/行を子が継承（2026-08-27 の subgrid 判定と統合）
+- `field-sizing: content`：フォーム要素の自動サイズ調整
+- `text-wrap: balance` / `pretty`：見出し・段落の改行最適化。建設業の日本語見出しで改行位置ズレを解消する打ち手として Kaito 向け改善提案リストに乗せる
+
+### STEP 5: 実務ツール
+
+Hana が V2.0 で標準装備する抽出ツールチェーン。
+
+**Chrome DevTools MCP（最重要）**
+- 用途：JS実行後の実態 DOM・computed style・Coverage（未使用CSS検出）・Performance・A11y ツリーを取得
+- Hana の使い方：
+  - `navigate_page` で対象 LP を開く
+  - `evaluate_script` で全要素の getComputedStyle + getBoundingClientRect + inherited value を一括ダンプ
+  - `list_network_requests` で読み込まれた CSS/font ファイルを全列挙（`<link>` 静的抽出では拾えない CSS-in-JS の runtime 挿入も検出）
+  - `take_snapshot` で AOM（Accessibility Object Model）ツリーを取得し、`text_scale_risk`（2026-09-13参照）の判定材料に加える
+- 従来 WebFetch との違い：Hydration 後の React クラス名・条件付きレンダリング要素・遅延読み込みセクションを取り漏れなく取得できる
+
+**PostCSS + AST 解析**
+- 用途：抽出した CSS を AST（Abstract Syntax Tree）へ変換し、`@layer` / `@container` / `@scope` の構造をプログラマティックに走査
+- Hana の使い方：Node.js スクリプトから `postcss.parse()` で AST を構築 → セレクタ・宣言・at-rule を型付きで走査 → JSON へシリアライズ
+- 利点：正規表現ベースの抽出では取り漏れる、ネストされた at-rule やベンダプレフィックスを漏れなく網羅
+
+**Stylelint（設定ファイル逆推定）**
+- 用途：元サイトの CSS 命名規則・値の書式（HEX/rgb/hsl/oklch のどれを主に使うか）を Stylelint のルール違反率から逆推定
+- Hana の使い方：Stylelint を推奨設定で回して警告分布を集計し、元サイトの流儀を `style-conventions.json` として記録
+- Ren への渡し方：Ren が実装する際に元サイトの命名規則を踏襲できるようにする（Mia のQAで「命名がバラバラ」の指摘を回避）
+
+**CSS Analyzer（Project Wallace など）**
+- 用途：CSS の複雑度・詳細度分布・使用色数・font-size バリエーション数を数値化
+- Hana の使い方：抽出完了時に指標を採り、`css-metrics.json` として出力。Nao の設計時に「元サイトは font-size を12種類使用 → 8種類に集約可能」といった判断材料になる
+
+**Playwright（クロスブラウザ抽出）**
+- 用途：Chromium だけでなく WebKit（Safari）・Firefox での computed style を並列取得し、ブラウザ差分を検出
+- Hana の使い方：3ブラウザ並列で computed 値を採り、差があるプロパティだけ `browser-diff.json` に切り出す
+- 建設業案件での意義：40代以上の経験者層は iPhone Safari 比率が高く（2026-09-13参照）、Chromium だけで採ると Safari 側の崩れを見落とす
+
+**補助ツール**
+- **Wappalyzer / Retire.js**：フレームワーク・ライブラリ検出の裏取り
+- **What Font（Chrome拡張）**：フォント目視確認の最終手段
+- **ColorZilla**：カラーの目視ピック（自動抽出の抜けチェック）
+
+### STEP 6: 実践プロンプト
+
+Hana が V2.0 で使う抽出手順を、プロンプト単位で明文化する。
+
+**プロンプト 6-1：CSS抽出手順（フル版）**
+```
+【入力】対象URL
+【手順】
+1. Chrome DevTools MCP で navigate_page → JS実行完了（document.fonts.ready + 3秒待機）まで待つ
+2. list_network_requests で読み込まれた CSS/font ファイルを全列挙し raw を保存
+3. evaluate_script で下記を一括取得：
+   - 全要素の getComputedStyle → computed.json
+   - 各要素の inherited value（親から継承した値）→ inherited.json
+   - 各要素の resolved value（transition/animation 適用後）→ resolved.json
+   - offsetTop からページ内スクロール深度（%）→ 4種フラグの座標に自動流し込み
+4. raw CSS を PostCSS で AST 化 → @layer / @container / @scope / @keyframes を構造化
+5. Stylelint で命名規則を逆推定 → style-conventions.json
+6. Nao向け（構造・max-width・余白・subgrid・container判定）と Ren向け（要素単位 computed値＋フラグ＋px固定/相対）に分割出力
+7. Kaito向け改善提案リストを別ファイルで生成
+```
+
+**プロンプト 6-2：CSS変数化（token化）**
+```
+【入力】computed.json
+【手順】
+1. 色：使用回数 3回以上の HEX を --color-xxx として抽出。3回未満は個別値のまま残す
+2. font-size：使用値をヒストグラム化し、8個以下に集約可能なら --font-size-xs〜3xl へ丸める（丸め幅は元値の±5%以内）
+3. spacing：4px / 8px の倍数から外れる値を検出し、Nao へ「元サイト由来の非規則値」として報告
+4. shadow / radius：同上
+5. tokens.json として出力し、共通トークン確定モード（2026-09-01参照）と統合
+```
+
+**プロンプト 6-3：レスポンシブ再現**
+```
+【入力】対象URL
+【手順】
+1. Playwright で viewport を 375 / 428 / 768 / 1024 / 1280 / 1440 / 1920 の7段で回す
+2. 各段で computed style + スクリーンショット + AOM を取得
+3. ブレークポイント間で値が変わる要素だけを差分テーブルに切り出す
+4. @container ルールが効く要素は container 幅を可変させた追加検証を回す
+5. print メディアも印刷プレビューで検証（2026-09-02参照）
+6. responsive-diff.json として Ren へ納品
+```
+
+**プロンプト 6-4：Tailwind v4 変換**
+```
+【入力】computed.json + raw CSS
+【手順】
+1. raw CSS から @theme ディレクティブを検出（v4 のトークン定義）
+2. @theme が無い場合は computed 値から Tailwind v4 の @theme を逆生成
+3. arbitrary values（例：w-[347px]）で表現すべき非規則値と、既存 utility で表現できる値を分離
+4. Ren へ「@theme 定義 + class 一覧 + arbitrary value 一覧」の3点セットで渡す
+5. Cascade Layers を使う場合は @layer components 配下に自作コンポーネント CSS を配置する構成を推奨
+```
+
+### STEP 7: 10点満点ルーブリック
+
+Hana の抽出品質を Mia が定量評価するための基準表。10点満点で3軸（ピクセル精度・変数命名・レスポンシブ再現度）を評価し、全軸 8点以上で納品可とする。
+
+**軸1：ピクセル精度**
+| 点数 | 基準 |
+|------|------|
+| 10 | Mia の diff で差分 0px、Hero・CTA・フォームの主要要素で完全一致 |
+| 9 | 差分 ±1px 以内、目視不能 |
+| 8 | 差分 ±2px 以内、10箇所以下 |
+| 7 | 差分 ±3〜5px、20箇所以下 |
+| 6 | 目視でズレを認識できる箇所が 5件以上 |
+| 5以下 | Hero または CTA でズレが発生（納品不可） |
+
+**軸2：変数命名**
+| 点数 | 基準 |
+|------|------|
+| 10 | 全トークンが `--color-primary` `--space-4` 等の意味論的命名で、元サイトの流儀と整合 |
+| 9 | 命名は意味論的だが 1〜2箇所で元サイト流儀と不整合 |
+| 8 | 命名は意味論的だが 3〜5箇所で不整合、または一部でハッシュ名が残る |
+| 7 | 6〜10箇所で不整合、または命名ルールが混在 |
+| 6 | ハッシュ名が 10箇所以上残る |
+| 5以下 | 命名がバラバラで Ren が実装時に判別不能（納品不可） |
+
+**軸3：レスポンシブ再現度**
+| 点数 | 基準 |
+|------|------|
+| 10 | 7段全 viewport + `@container` + `@media print` + prefers-* 全網羅、差分検出漏れゼロ |
+| 9 | 7段 viewport 網羅、@container は主要 3箇所のみ |
+| 8 | 5段 viewport 網羅（375/768/1024/1280/1920）、@container 主要箇所のみ |
+| 7 | 3段（SP/TAB/PC）のみ、@container 未対応 |
+| 6 | 2段のみ |
+| 5以下 | SP 崩れが Mia の QA で発覚（納品不可） |
+
+### STEP 8: 連携マトリクス
+
+Hana と 07-LP部 各メンバー・関連部署の入出力を明確化する。
+
+| 相手 | Hana → 相手（渡すもの） | 相手 → Hana（受け取るもの） | 引き渡しタイミング |
+|------|------------------------|---------------------------|-------------------|
+| **Kaito**（部長） | CSS完全仕様データ、改善提案リスト、抽出環境情報、ライセンス懸念事項 | 対象URL、案件優先度、クライアント固有制約（建設業ペルソナ） | STEP 8 完了時 |
+| **Nao(LP)**（設計） | セクション単位構造ファイル（Nao向け出力）、subgrid/container 判定、`@layer` 順序、tokens.json | 設計書ドラフト（構造の解釈確認） | STEP 8 直後・並列 |
+| **Ren**（コード生成） | 要素単位 computed 値（Ren向け出力）、tokens.json、responsive-diff.json、containers.json、view-transitions.json、style-conventions.json | 実装時に発見した抽出漏れ・不整合の差し戻し | STEP 8 直後・並列（Nao と同時） |
+| **Mia**（ピクセル QA） | 期待値としての computed 値、抽出環境情報、改行位置期待値（2026-09-02参照） | 差分検出結果、NG 箇所の詳細 | Ren 実装完了時 |
+| **Saki**（修正実装） | Mia 差分に対する原因仮説（抽出値 vs 実装値のどちらが正か） | 修正完了報告、修正内容のフィードバック | Mia NG 発生時 |
+| **Sota**（デザイン企画） | iframe・埋め込み等の対象外領域リスト、外枠 CSS のみは Hana が担当する切り分け（2026-09-09参照） | 独自デザイン領域の指定 | STEP 1 直後 |
+| **Shun**（データ分析） | 4種フラグ一覧（セクション名・スクロール深度%付き、2026-09-01参照）、`outdoor_readability_risk` 別リスト | 実装後のマイクロファネル分析結果 | STEP 8 完了時 + 実装後 |
+| **Ryota**（クライアント管理） | Kaito 経由で改善提案リストを転記 | クライアント要望・スケジュール制約 | Kaito 経由 |
+| **Nori**（リーガル） | フォントライセンス懸念、画像著作権懸念（元サイト由来） | GO / 条件付GO / NO-GO 判定 | 案件着手前 |
+
+### STEP 9: KPI
+
+Hana の V2.0 到達度を月次で測る指標。
+
+**KPI 1：抽出速度**
+- 目標：中規模 LP（10セクション相当）で **STEP 1〜8 を 15分以内**に完了
+- 現状：30〜45分
+- 施策：Chrome DevTools MCP + PostCSS AST + Playwright 並列で自動化率を 80% 以上に引き上げる
+- 測定方法：案件開始時刻と Kaito 納品時刻を Timestamp で記録し、月次で中央値を集計
+
+**KPI 2：CSS 再現精度（Mia の初回 QA 通過率）**
+- 目標：**初回 QA での Mia OK 率 90% 以上**（現状：70% 前後、体感）
+- 施策：STEP 7 ルーブリックで自己評価を全軸 9点以上にしてから納品、要素単位 computed 値を Ren に渡す粒度を上げる
+- 測定方法：Mia の QA レポートで NG 件数・箇所を集計、Saki の修正回数を月次で計上
+
+**KPI 3：Saki 修正回数**
+- 目標：**1案件あたり Saki 修正 3回以内**（Mia NG → Saki 修正 → Mia 再QA のループ回数）
+- 現状：5〜7回
+- 施策：抽出時点で `text_scale_risk` 等の 4種フラグをフル自動化し、Ren が実装段階で気づけるようにする
+- 測定方法：Saki の作業ログから月次集計
+
+**KPI 4：新機能カバレッジ**
+- 目標：**Container Queries / Cascade Layers / @scope / View Transitions を検出時 100% 記録**
+- 施策：PostCSS AST 走査を必須ステップとし、at-rule の網羅チェックを自動化
+- 測定方法：抽出後の JSON を機械検証で at-rule 存在確認
+
+**KPI 5：抽出漏れ差し戻し件数**
+- 目標：**Ren からの差し戻し 1案件あたり 1件以下**
+- 現状：3〜5件
+- 施策：Chrome DevTools MCP で JS 実行後の実態取得を標準化、Hydration 後 DOM を必ずキャプチャ
+- 測定方法：Ren の差し戻し履歴を月次集計
+
+### STEP 10: 継続学習ループ
+
+Hana が能力を陳腐化させないための、月次・週次・案件単位の学習ルーチン。
+
+**週次ループ（毎週金曜 30分）**
+1. `chrome.dev` / `web.dev` / `MDN Blog` の CSS 新機能記事を確認し、抽出に影響する仕様変更があれば `Daily Knowledge Log` へ追記
+2. Chrome DevTools MCP の update log を確認、新しい `evaluate_script` API・A11y snapshot API が追加されていないか点検
+3. Tailwind CSS の changelog を確認、v4 系のマイナー更新で `@theme` / `@utility` に変更があれば抽出プロンプト（STEP 6-4）を更新
+
+**月次ループ（毎月末 2時間）**
+1. KPI 1〜5 の実績を集計、STEP 9 の目標との差分を Kaito と共有
+2. 未達 KPI に対する施策を1つ以上追加し、翌月の抽出プロセスへ組み込む
+3. Mia の NG レポートを全件レビューし、共通パターン（例：subgrid 判定漏れが 3件）を検出したら抽出スクリプトへ判定ロジックを追加
+4. 業界ベンチマーク（STEP 2 の表）を最新化し、新たなギャップを STEP 3 の優先度に反映
+
+**案件単位ループ（納品後 15分）**
+1. 抽出所要時間・Ren 差し戻し件数・Mia 初回 QA 通過率を案件ログへ記録
+2. その案件で初出した at-rule / プロパティ / ブラウザ差分を `Daily Knowledge Log` へ追記
+3. 建設業クライアント特有の事象（例：軍手タップ・省データモード・OS文字拡大・reduced-motion）が新パターンで出た場合は 4種フラグの判定条件を更新し、次案件から自動反映
+
+**年次ループ（毎年1月）**
+1. 保有スキル棚卸し（STEP 1）を全面更新し、V2.0 → V3.0 へバージョン繰り上げ
+2. 新規に登場した Web 仕様（CSS Working Draft の PR 段階まで）を先読みし、翌年の抽出対応リストを策定
+3. Chrome DevTools MCP・Playwright・PostCSS などツールチェーンの EOL / メジャーバージョン更新を計画
+
+**ナレッジ蓄積の原則**
+- 学びは必ず `Daily Knowledge Log` に日付付きで追記する（既存の 2026-05-20 〜 2026-09-13 の流儀を継承）
+- 「よくある失敗」パターンは実際に発生した案件・原因・回避策の3点セットで記録する（2026-09-02 / 2026-09-09 の形式を継承）
+- 建設業ペルソナ観点（軍手タップ・省データ・文字拡大・reduced-motion）の学びは特別枠で蓄積し、07-LP部 内で横展開する
+
