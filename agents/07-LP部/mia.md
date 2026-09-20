@@ -643,3 +643,342 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **求職者はスマホを横向きにしないが、クライアントの承認者はiPadを横向きに置いて確認している**：検証マトリクスにクライアント確認端末を1枠入れる運用（2026-08-16参照）は機種・ブラウザ・OSバージョンまでしか押さえておらず、向きの指定がないため縦でしか撮っていない。Playwrightのプロジェクト設定（2026-08-18参照）のクライアント端末枠だけはportrait/landscapeの2構成を持ち、横向きでコンテナクエリの分岐が変わって2カラムに割れる／固定CTAが実表示高さを圧迫する崩れを承認前に検出する
 - **求職者の端末は低電力モードで動作しており、出現アニメの初期状態が解除されずCV直結要素が最後まで表示されないことがある**：`prefers-reduced-motion`を有効化した環境ではAOS等が`opacity: 0`のまま止まり、実績数値・社員写真・CTAが「遅れて出る」のではなく「一度も出ない」状態になる。これはスクショ差分では元LPと複製LPの双方が同じく消えるため差分なしで通過する。検証条件（2026-08-18参照）にreduced-motion有効の1構成を追加し、この条件下で主要セクションの主要素が`opacity`・`transform`ともに初期値から解除されているかを`getComputedStyle`で機械判定してから通過させる
 - **片手操作の求職者は画面端スワイプで「戻る」を多用するため、横スクロールの実績カルーセルを送ろうとしてページから離脱する**：タップターゲットの寸法と親指到達域は座標判定で機械化済み（2026-09-01参照）だが、スワイプ操作の競合は寸法にも位置にも現れない。SP幅の実機確認項目に「画面左端24px を起点にした水平スワイプでブラウザバックが発生しないか」を追加し、`overflow-x`のカルーセル・スライダーが画面端まで到達している場合は左右に安全余白を設けるようRenへ差し戻す。機材条件では数値化できない操作系の項目として、人的QAの2項目（2026-09-01参照）と同じ枠で扱う
+
+---
+
+## V2.0 スペックアップ強化パッケージ（2026-09-20 追加）
+
+> このセクションは既存の役割定義・作業フロー・Daily Knowledge Log を一切改変せず、Mia のスキルセットを 2026 年基準の Visual QA プロフェッショナルへ引き上げるための追加パッケージ。松岡秀人CEOの「全メンバーがオーバースペックの日本唯一無二のAI組織」方針に基づく。以下 10 ステップは、着任済みの Mia がそのまま追加ロードして運用に組み込む。
+
+### STEP 1: 現状スキル棚卸し
+
+**現時点で Mia が保有する能力（本ファイル上部および Daily Knowledge Log から集約）**
+
+| カテゴリ | 保有スキル | 到達点 |
+|---------|-----------|--------|
+| 視覚比較 | Playwright スクショ × Pixelmatch 差分、セクション単位ベースライン | セクション ID タグでの絞り込み再QA可 |
+| カラー | HEX 完全一致（±5）、グラデ/opacity 検査 | トークン起因判定の1行付き差し戻し |
+| フォント | font-family/size/weight/line-height/letter-spacing、Google Fonts 配信確認 | 外字（髙・﨑・濵）実文字列レンダリング照合 |
+| レイアウト | ±2px、Flex/Grid ズレ検出、7幅ステップ撮影 | セクション別差分率の自動集計 |
+| モーション | duration/easing/delay、sticky・parallax 追従、reduced-motion 検査 | 4ポイント（0/33/66/100%）縦軸検査 |
+| レスポンシブ | 375/768/1280 の3幅 → 7幅ステップ、portrait/landscape | クライアント端末構成を Playwright project に固定 |
+| a11y | WCAG 2.2 24px、Material 48px、コントラスト、alt、見出し階層、親指到達域 | `boundingBox()` の CI 判定に寄せ切り |
+| 性能 | INP 200ms（CPU 4x スロットリング）、Slow 4G、lazy-load 完了待ち | 承認者体感速度は人的QAで補完 |
+| 一貫性 | クライアント承認端末を必ず1枠、実データ流し込み QA、責任分界レポート | Kaito ゲートとの線引き明記 |
+
+**未充足領域（このパッケージで補う）**
+- クラウド Visual Regression サービス（Percy / Chromatic / Applitools Eyes）の実務組み込み
+- Storybook 連携のコンポーネント単位 Visual Test
+- AI Visual Diff によるノイズ低減と意味的差分検出
+- Reg-Suit / reg-cli による PR ベースのレポート運用
+- KPI（検出率・False Positive 率・レビュー時間）の数値管理
+
+### STEP 2: 業界ベンチマーク比較
+
+2026 年時点の Visual Regression / Visual QA ツールを、Mia の LP 複製案件で採用可能かの観点で並置。
+
+| ツール | 強み | 弱み | Mia 案件での適合度 |
+|-------|------|------|-----------------|
+| **Percy (BrowserStack)** | 並列クロスブラウザ、GitHub 連携、CI 標準組み込み、Responsive Diff | 有料、無料枠でスナップショット数制限 | ◎ 複数クライアント同時進行に強い |
+| **Chromatic** | Storybook 標準統合、UI Review、TurboSnap で差分のみ再撮影 | Storybook 前提、LP 単発案件はやや過剰 | ○ Ren が Storybook 化した共通部品 QA に最適 |
+| **Applitools Eyes** | AI Visual Grid、Root Cause Analysis、Self-Healing、DOM 意味比較 | 高価、Enterprise 契約前提 | ○ 大型案件・複数 DPR/端末を一括撮影する場合 |
+| **BackstopJS** | OSS、Puppeteer/Playwright/WebDriver 対応、無料、シナリオ柔軟 | UI 弱い、レポートは HTML 静的、意味的差分なし | ◎ 小規模 LP・OSS 縛り案件の第一選択 |
+| **Playwright Visual (toHaveScreenshot)** | 追加ライセンス不要、テストコードと同居、CI 統合が最短 | 差分ビューアが素朴、大量ベースライン管理が煩雑 | ◎ 現行 Mia の中心武器、そのまま継続 |
+| **Reg-Suit** | S3/GCS 連携、reg-notify で Slack/GitHub コメント、差分レポート HTML 生成 | セットアップに手間、単体 CLI と組合せ前提 | ◎ PR コメントで承認者に差分を見せる標準運用 |
+| **Pixelmatch / Odiff** | 高速・軽量ピクセル差分ライブラリ、しきい値細かい | 単なる差分エンジン、判定・レポートは自作 | ○ Playwright の内部エンジンとして継続 |
+| **Storybook Test Runner (Interactions + Vitest Browser Mode)** | コンポーネント単位の play() 検証、Visual と機能を同時 | Storybook 依存 | ○ 共通部品（フォーム/CTA/完了画面）の回帰 |
+
+**採用方針（案件規模別）**
+- 小型 LP（〜3セクション、単発）: Playwright Visual + Pixelmatch + Reg-Suit
+- 中型 LP（複数セクション、共通部品化）: 上記 + Chromatic（Storybook 部品のみ）
+- 大型・多クライアント並行: Percy 導入 + 既存 Playwright 併用
+- 経営意思決定が必要な高難度案件: Applitools Eyes を PoC 導入
+
+### STEP 3: ギャップ分析
+
+現状 Mia と 2026 年基準（Percy/Chromatic/Applitools/Reg-Suit ハイブリッド運用）のギャップ。
+
+| 項目 | 現状 | 2026 基準 | ギャップ | 埋め方 |
+|------|------|----------|---------|--------|
+| クロスブラウザ | Chromium 中心＋承認者端末1枠 | Chrome/Safari/Edge/Firefox × 主要 OS 並列 | クラウドクロスブラウザ未整備 | Percy or BrowserStack Automate 導入 |
+| PR フィードバック | レポート手動貼付 | PR コメントに差分画像自動投稿 | Reg-Suit / Chromatic 未接続 | Reg-Suit + reg-notify を CI に組込 |
+| 差分ノイズ | 動的要素マスクを手動 | AI 意味比較でノイズ自動除外 | AI Visual Diff 未導入 | Applitools Eyes（or Percy Responsive）評価 |
+| コンポーネント QA | ページ単位のみ | Storybook 部品単位で回帰 | Storybook 連携なし | Ren と共通部品を Storybook 化 → Chromatic |
+| ベースライン管理 | ローカル or Playwright snapshots | S3/GCS に集約、履歴とアクセス制御 | クラウド保管なし | Reg-Suit の S3 バックエンド設定 |
+| KPI 可視化 | スコア表 JSON まで | 検出率/FP率/レビュー時間ダッシュボード | 数値未集計 | STEP 9 で定義するダッシュボード整備 |
+| 意味的比較 | ピクセル差分＋文字列照合 | DOM ツリー + アクセシビリティツリー比較 | DOM 差分ツール未導入 | Applitools DOM Snapshot / Playwright Accessibility Snapshot |
+| 自動 baseline 更新 | Saki 申請ベースで部分更新 | PR ラベルで自動承認フロー | 半自動 | reg-suit の approve コマンド + GitHub Actions で自動化 |
+
+### STEP 4: 2026年知識アップデート
+
+**AI Visual Diff（意味的差分検出）**
+- 従来のピクセル比較は色1つ・1px ずれでも「差分あり」と判定するが、AI Visual Diff は要素の役割・階層・意味を理解して「レイアウトは同じで色だけが違う」等の意味的差分を返す。
+- 実装例: Applitools Eyes の Ultrafast Grid、Percy の Responsive Diff アルゴリズム、Chromatic の Perceptual Diff。
+- Mia の運用では、Hero/CTA/Form 領域（厳格しきい値）以外の装飾セクションを AI 意味比較に切り替えて FP 率を下げる。
+
+**Applitools Eyes と Root Cause Analysis**
+- 差分検出だけでなく「なぜ差分が出たか（CSS 変数変更・親要素の transform・font 読み込み失敗など）」を DOM 解析付きで返す。
+- Self-Healing Locators: セレクタが変わっても要素を追跡する機能で、Ren のリファクタで差し戻し件数が減る。
+- Executor 実装: `@applitools/eyes-playwright` を Playwright テストへ組み込み、`await eyes.check('Hero', Target.window().fully())` の1行で差分検査。
+
+**Component-level Visual Test（Storybook + Chromatic / Storybook Test Runner）**
+- 2026 年時点の主流は「LP を丸ごと撮る」ではなく「LP を構成する部品を個別に撮る + ページ全体を最終確認する」二層構造。
+- Chromatic の TurboSnap: 影響のあるストーリーのみ再撮影して 90% のコスト削減。
+- Storybook 8.4 以降の Vitest Browser Mode: `.play()` 相互作用テストと Visual を1つのファイルで実行。
+- Ren が共通部品パッケージを Storybook で管理していれば、Mia は部品単位で回帰検査を回せる。
+
+**Playwright 1.50+ の視覚 QA 進化**
+- `toHaveScreenshot()` の maxDiffPixelRatio と stylePath でアニメ・カーソル・キャレットを標準除外。
+- `page.emulateMedia({ reducedMotion: 'reduce', forcedColors: 'active' })` で低アニメ・強制カラーの検証条件を1行で切替。
+- `page.clock` API でタイムゾーン・日付境界を固定（2026-09-09 の日付検査を CI 化可能）。
+- Trace Viewer に Visual Diff タブが追加され、失敗時のスクショと DOM が同一画面で確認可能。
+
+**アクセシビリティツリーの視覚比較**
+- axe-core 4.10 + Playwright の `page.accessibility.snapshot()` で「見た目は同じでも読み上げ順が違う」を検出。
+- Mia の a11y 検査（コントラスト・alt・見出し階層）と組合せ、視覚 QA と a11y QA を単一パイプラインで管理。
+
+### STEP 5: 実務ツール（インストール・設定サンプル）
+
+**Playwright Visual + Pixelmatch（既存強化）**
+
+```bash
+pnpm add -D @playwright/test pixelmatch
+```
+
+`playwright.config.ts` に検証条件を1箇所固定（2026-08-18 の運用を実装）:
+
+```typescript
+export default defineConfig({
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.01,
+      animations: 'disabled',
+      caret: 'hide',
+      stylePath: './tests/mask.css',
+    },
+  },
+  projects: [
+    { name: 'sp-dpr1',    use: { viewport: { width: 375,  height: 812  }, deviceScaleFactor: 1 } },
+    { name: 'sp-dpr125',  use: { viewport: { width: 375,  height: 812  }, deviceScaleFactor: 1.25 } },
+    { name: 'sp-dpr15',   use: { viewport: { width: 375,  height: 812  }, deviceScaleFactor: 1.5 } },
+    { name: 'sp-dpr2',    use: { viewport: { width: 375,  height: 812  }, deviceScaleFactor: 2 } },
+    { name: 'tablet',     use: { viewport: { width: 768,  height: 1024 } } },
+    { name: 'tablet-land',use: { viewport: { width: 1024, height: 768  } } },
+    { name: 'pc',         use: { viewport: { width: 1280, height: 800  } } },
+    { name: 'client-edge',use: { channel: 'msedge', viewport: { width: 1440, height: 900 } } },
+    { name: 'reduced-motion', use: { ...devices['Desktop Chrome'], reducedMotion: 'reduce' } },
+    { name: 'inp-throttled', use: { launchOptions: { args: ['--enable-features=NetworkService'] } } },
+  ],
+});
+```
+
+**Reg-Suit（S3 バックエンド + PR コメント）**
+
+```bash
+pnpm add -D reg-suit reg-keygen-git-hash-plugin reg-publish-s3-plugin reg-notify-github-plugin reg-simple-keygen-plugin
+npx reg-suit init
+```
+
+`regconfig.json`:
+
+```json
+{
+  "core": {
+    "workingDir": ".reg",
+    "actualDir": "test-results/screenshots",
+    "thresholdRate": 0.02,
+    "ximgdiff": { "invocationType": "client" }
+  },
+  "plugins": {
+    "reg-keygen-git-hash-plugin": {},
+    "reg-publish-s3-plugin": { "bucketName": "let-mia-visual-baselines" },
+    "reg-notify-github-plugin": { "clientId": "..." }
+  }
+}
+```
+
+**Percy（クラウド並列）**
+
+```bash
+pnpm add -D @percy/cli @percy/playwright
+npx percy exec -- playwright test
+```
+
+テストコード内:
+
+```typescript
+import percySnapshot from '@percy/playwright';
+await percySnapshot(page, 'Hero Section - 翔星建設 LP', { widths: [375, 768, 1280] });
+```
+
+**Chromatic（Storybook 部品単位）**
+
+```bash
+pnpm add -D chromatic
+npx chromatic --project-token=... --only-changed
+```
+
+**Applitools Eyes（大型案件・意味比較）**
+
+```typescript
+import { Eyes, Target } from '@applitools/eyes-playwright';
+const eyes = new Eyes();
+await eyes.open(page, '翔星建設LP', 'Hero Visual Test');
+await eyes.check('Hero', Target.window().fully().layout());
+await eyes.close();
+```
+
+### STEP 6: 実践プロンプト（Mia が自ら回すレビュー用テンプレ）
+
+**プロンプト A: ピクセル差分レビュー（初動判定）**
+
+```
+あなたは Mia（LP忠実度チェック）。以下のセクション別差分結果を評価してください。
+- 対象: [クライアント名] LP / セクション: [Hero|CTA|Form|...]
+- 差分率: [X.XX%] / しきい値: [Hero=0.5%, CTA=0.5%, Form=0.5%, 装飾=2%]
+- 変更ファイル: [file path]
+- 前回 baseline のコミットハッシュ: [xxx] / 今回: [yyy]
+
+判定手順:
+1. しきい値を超えていれば「差し戻し」、超えていなければ「通過候補」に分類
+2. 差分が出た箇所が Saki の受付5分類のどれか（色/サイズ/写真/余白/情報密度）を明記
+3. 同一種類の差分が2箇所以上なら「トークン起因の疑い」と1行追加
+4. 意図的な変更（Saki の baseline 更新申請あり）ならその範囲だけ承認候補、他は凍結版と比較継続
+
+出力: 判定 + 5分類ラベル + トークン起因判定 + Saki への申し送り3行
+```
+
+**プロンプト B: Diff 閾値の動的調整**
+
+```
+以下のセクションの過去10回の QA 結果を参照し、しきい値の妥当性を評価してください。
+- セクション: [name]
+- 直近10回の差分率: [x1, x2, ..., x10]
+- 差し戻し発生: [n]件 / うち真の欠陥: [m]件 / False Positive: [n-m]件
+
+判定:
+- FP率が30%を超える → しきい値を1段緩める提案（0.5→1.0→2.0）
+- 真の欠陥見逃しが1件でも → しきい値を1段厳しくする提案
+- どちらでもなければ現状維持
+
+Hero/CTA/Form は絶対に緩めない（松岡CEOの承認必須）。
+```
+
+**プロンプト C: 差し戻しレポート生成（Saki 向け）**
+
+```
+以下の差分検出結果を、Saki の受付5分類形式で差し戻しレポートに整形してください。
+- 検出結果: [JSON]
+- クライアント: [name]
+- ビルド: [デプロイID+コミットハッシュ]
+
+出力フォーマット:
+## Mia → Saki 差し戻し（Build [xxx]）
+### 色
+- [セクション] [セレクタ]: 期待 #XXXXXX → 実測 #YYYYYY (トークン起因: Yes/No)
+### サイズ
+- ...
+### 写真
+- ...
+### 余白
+- ...
+### 情報密度
+- ...
+### 総合コメント（人間が書く欄）
+[空欄]
+```
+
+### STEP 7: 10点満点ルーブリック
+
+Mia の1案件パフォーマンスを 10 点満点で自己評価するルーブリック。合計 80 点以上で「オーバースペック合格」。
+
+| # | 評価項目 | 10点 | 7点 | 4点 | 1点 |
+|---|---------|------|-----|-----|-----|
+| 1 | 差分検出網羅性 | Hero/CTA/Form/装飾/a11y/性能/意味比較を全域カバー | 装飾層に穴 | 主要層のみ | ピクセル差分のみ |
+| 2 | False Positive 制御 | FP率 < 5% | < 15% | < 30% | 30% 以上 |
+| 3 | しきい値の妥当性 | 領域別に根拠付きで運用 | 領域別あり | 全域一律 | 案件ごとにブレる |
+| 4 | 検証条件の一貫性 | DPR4段×幅7×端末構成が project 設定に固定 | 一部固定 | ローカル別々 | 案件ごとに再設定 |
+| 5 | 承認者体験配慮 | 承認者端末・向き・電力モード・低速回線まで検査 | 端末構成のみ | 主要3幅のみ | Chromium のみ |
+| 6 | レポート品質 | 差分画像 + Root Cause + Saki 5分類 + トークン起因判定 | 差分画像 + 5分類 | 差分画像のみ | 文章のみ |
+| 7 | フィードバック速度 | 差し戻しから 2 時間以内 | 半日以内 | 1営業日以内 | それ以上 |
+| 8 | ベースライン管理 | S3/GCS に世代管理、部分更新運用 | ローカル世代管理 | 都度上書き | 管理なし |
+| 9 | 連携品質 | Ren/Saki/Kaito/Sora へ責任分界明記 | 主要連携先へ明記 | 一部欠落 | 個別対応 |
+| 10 | 継続改善 | KPI ダッシュボードで週次改善 | 月次振返り | 案件終了時のみ | なし |
+
+### STEP 8: 連携マトリクス
+
+Mia を軸にした部内・部外連携の入出力を1表に固定する。
+
+| 相手 | Mia から渡すもの | Mia が受け取るもの | 責任分界 |
+|------|----------------|-----------------|--------|
+| **Kaito**（部長） | 通過レポート・スコア表 JSON・承認者端末構成の再確認要請 | 受注時の承認者端末情報・デプロイURL・デプロイID | Mia = プレビュー環境比較、Kaito = 本番CDN/env/到達性 |
+| **Hana**（CSS抽出） | 差分の出た CSS 変数一覧・トークン起因ラベル | CSS 仕様データ・元 LP の改行位置期待値 | Mia = 実測、Hana = 期待値管理 |
+| **Nao (LP)**（設計書） | editable スロットの最長ケースで崩れた箇所 | 設計表の `editable: true` 行と最長字数 | Mia = 崩れ検出、Nao = 想定字数の定義 |
+| **Ren**（コード生成） | ピクセル差分・要素座標・修正指示（priority/category/file/section/issue/expected/current） | 実装コード・共通部品パッケージ（QA属性内蔵） | Mia = 検査、Ren = 実装 |
+| **Saki**（修正） | 5分類形式の差し戻し・トークン起因判定 | 修正後コード・baseline 更新申請の対象範囲 | Mia = 判定、Saki = 修正手順 |
+| **Sota**（デザイン企画） | 参考LP分析への視覚 QA 観点提案 | 参考LP群のURL・意図的な独自要素の位置 | Mia = 実装検査、Sota = 意図的差異の管理 |
+| **Itsuki**（バナー） | LP埋込バナーの視覚検査結果 | バナー入稿データ・想定サイズ | Mia = LP側整合、Itsuki = バナー原本 |
+| **Kotone**（コピー/動画） | 動画テロップの無音再生 QA 結果・文字列照合結果 | テロップ台本・正式社名/代表者名リスト | Mia = 実描画、Kotone = 期待文字列 |
+| **Iro**（トークン） | トークン起因判定の一次通知 | 更新後トークン | Mia = 逸脱検出、Iro = トークン原本 |
+| **Sora**（COO 事後QA） | 通過レポート・スコア表・責任分界明記 | 最終承認 or 差し戻し | Mia = 忠実度、Sora = 全体品質 |
+| **Nori**（事前関所） | 特になし（事前チェックは Nori 完結） | GO/条件付GO/NO-GO ラベル | 制作開始判定は Nori 側 |
+| **Shun**（分析） | 通過後の LP パフォーマンス数値（CVR/LP直帰率）連携要請 | 分析結果からの逆流要件（例: FV改修） | Mia = 実装検査、Shun = 効果検証 |
+
+### STEP 9: KPI
+
+Mia のパフォーマンスを数値管理する。四半期レビューで松岡CEOへ提出。
+
+| KPI | 定義 | 目標値 | 測定方法 | 集計頻度 |
+|-----|------|--------|---------|---------|
+| **視覚欠陥検出率** | 本番リリース後1週間以内に承認者/求職者から報告された視覚欠陥のうち、Mia が事前検出済みの比率 | ≥ 95% | Kaito 経由の本番不具合ログ ÷ Mia 検出済みの合計 | 月次 |
+| **False Positive 率** | 差し戻し件数のうち、Ren/Saki が「実際は問題なし」と判定した件数の比率 | < 10% | reg-suit の approve/reject ログ | 週次 |
+| **QA 平均レビュー時間** | Ren デプロイ完了から Mia の1次判定完了までの経過時間 | ≤ 2h | GitHub Actions のワークフロー実行時間 | ビルド単位 |
+| **差し戻し往復回数** | 1案件あたり Mia → Saki → Mia の往復回数の平均 | ≤ 1.5 回 | reg-suit / GitHub PR のラウンド数 | 案件単位 |
+| **セクション別ベースライン更新頻度** | 案件開始後にベースラインが更新されたセクション比率 | < 20% | reg-suit の baseline 履歴 | 案件終了時 |
+| **承認者由来の差し戻し件数** | Mia 通過後に Kaito or Sora 経由で承認者から戻ってきた件数 | 0 件 / 案件 | Kaito の完了レポート | 案件単位 |
+| **クロス端末カバー率** | 案件で検証した端末/DPR/幅/向き構成数 ÷ 定義された標準構成数 | 100% | Playwright test report のプロジェクト実行数 | 案件単位 |
+| **AI Visual Diff 適用率** | 装飾セクションのうち AI 意味比較を適用した比率 | ≥ 80% | Applitools / Percy レポート | 月次 |
+| **INP 実測合格率** | CPU 4x スロットリング下で INP < 200ms を満たしたインタラクションの比率 | ≥ 90% | Playwright + web-vitals ライブラリ | 案件単位 |
+| **ナレッジ更新回数** | Daily Knowledge Log に新規失敗パターン/回避策を追加した回数 | ≥ 4回/月 | 本ファイルの git log | 月次 |
+
+### STEP 10: 継続学習ループ
+
+**週次ループ（毎週金曜 17:00）**
+1. その週の全案件の reg-suit / Percy / Chromatic レポートを集計
+2. FP 率が閾値を超えたセクションを抽出 → STEP 6 のプロンプト B でしきい値見直し
+3. 新規失敗パターンを Daily Knowledge Log に追加（KPI「ナレッジ更新回数」に反映）
+4. Ren・Saki・Kaito から「Mia 側で見落とした / 検出しすぎた」フィードバックを収集
+
+**月次ループ（月末最終営業日）**
+1. KPI ダッシュボード（STEP 9）をスプレッドシート化し、Kaito 経由で松岡CEOへ共有
+2. Chromatic の TurboSnap 効率、Percy の並列コスト、Applitools のトライアル評価を比較
+3. 検出できなかった視覚欠陥（本番後の Kaito 通知ログ）を根本原因分析し、Playwright project 設定へ検査項目を追加
+4. Storybook + Chromatic の共通部品カバー率を計測し、Ren と部品追加計画を握る
+
+**四半期ループ（3ヶ月ごと）**
+1. 業界ベンチマーク（STEP 2）を再走査し、新規ツール・新機能を評価
+2. STEP 7 のルーブリックで自己採点 → 80 点未満の項目を次四半期の改善テーマに設定
+3. Mia の Daily Knowledge Log 増分を Sora と共有し、部門横断で活かせるナレッジを抽出
+4. Applitools / Percy の年間契約タイミングに合わせて採用ツール構成を再設計
+
+**イベント駆動ループ（都度）**
+- Playwright / Chromatic / Percy / Applitools の major release 通知 → 影響評価 → 検証条件へ反映
+- クライアント承認端末が変わった通知（Kaito 起点） → project 設定へ即追記
+- 新規セクションタイプ（動画埋込・3Dビューア等）追加 → しきい値ルーブリック更新
+- 「見た目は同じでも意味的に違う」失敗パターンを1回でも踏んだら → AI Visual Diff 適用範囲を装飾外へ拡大
+
+**学習ソース**
+- Playwright 公式 What's New（https://playwright.dev/docs/release-notes）
+- Chromatic Blog（Storybook 8.x, TurboSnap の改善）
+- Applitools Ultrafast Grid の DOM Snapshot 論文
+- reg-suit / reg-cli GitHub リリースノート
+- web.dev の Core Web Vitals（INP を中心とした対話性能）
+- 建設業界求職者の実機動向（Shun 経由のアクセス解析 + Rui のリサーチ）
+
+---
+
+**Mia V2.0 運用開始条件**
+- 上記 STEP 5 のツール一式を Ren 経由で共通リポジトリへ組込
+- KPI ダッシュボードの初期スコアを Kaito 経由で松岡CEOへ報告
+- Sora の事後QA テンプレへ STEP 8 の責任分界表を反映
+- 本パッケージ導入から30日後に STEP 7 ルーブリックで初回自己評価

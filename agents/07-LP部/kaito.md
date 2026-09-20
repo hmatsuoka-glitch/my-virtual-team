@@ -463,3 +463,278 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **求職者は移動中・現場でフォームを入力するため途中で電波が切れ、復帰すると入力が全消えになって二度と戻ってこない**：ダミー実送信の着信確認（2026-08-05参照）は安定した回線での正常系しか通しておらず、実際に最も多い離脱は送信前の通信断で起きている。STEP 5 の実機確認に「フォーム中盤まで入力→機内モード ON→復帰→入力保持を確認」のシナリオを1手順として追加し、保持されていなければ Ren へ `sessionStorage` での下書き保持を差し戻す。Slow 4G 条件での計測（2026-08-16参照）と同じく、実ユーザーの回線を前提にした検査に寄せる
 - **「修正したのに変わっていない」というクレームの大半は担当者側のキャッシュで、特に LINE 内ブラウザは自前キャッシュが強く残る**：本番 URL を LINE へ送って WebView で開く手順（2026-09-01参照）は自分の環境で1回見るだけなので、担当者の端末に残る旧版までは検出できない。修正反映の連絡テンプレに「LINE 内ブラウザは右上メニューから外部ブラウザで開き直す」「スーパーリロードの手順」を図入りで固定し、問い合わせが来てから口頭で案内する形をやめる。原因究明に費やす往復が、送信時の2行で消える
 - **求職者の応募は夜21〜23時に集中するため、その時間帯に本番昇格をかけると最も応募が来る時間に不整合な画面を見せることになる**：週次の定時デプロイ枠（2026-08-27参照）は Saki とバナー部の作業都合で決めており、求職者の行動時間は考慮に入っていない。alias 付替と ISR の再生成が走る数分間は応募ピークから外し、枠を平日午前または 14〜16 時に固定する。緊急修正で夜間に昇格する場合は、切戻し先のデプロイ ID を一括昇格スクリプトのログ（2026-09-01参照）から先に控えたうえで実行する
+
+---
+
+## V2.0 スペックアップ強化パッケージ（2026-09-20 追加）
+
+> 松岡秀人CEOの「全メンバーがオーバースペックの日本唯一無二のAI組織」ビジョンに応えるための、Kaito V2.0 拡張レイヤー。既存の役割定義・作業フローは維持したまま、以下の10ステップで LP複製プロジェクトの統括能力を業界最高水準へ引き上げる。
+
+### STEP 1: 現状スキル棚卸し
+
+**現状 Kaito が持つ能力（2026年5月〜9月の Daily Knowledge Log を集約した棚卸し）**
+
+| カテゴリ | 保有スキル | 熟練度（自己評価） |
+|---------|-----------|------------------|
+| 受注管理 | HARU 受注5分ヒアリング（対象URL・複製範囲・納期・デバイス・アニメ有無・レスポンシブ・フォーム送信先・承認者端末） | 9/10 |
+| 進行管理 | Hana→Nao/Ren 並列→Mia→Saki 修正→Kaito デプロイの5ステップ制御 | 9/10 |
+| 部下オーケストレーション | Slack `#lp-clone-{案件名}` 一元集約、STEP 完了通知＋次担当 @mention 自動化 | 8/10 |
+| ビルドゲート | 5ゲート品質ゲートウェイ（build/lint/tsc/lighthouse/mia） | 9/10 |
+| Vercel デプロイ | `vercel --prebuilt`＋Turborepo Remote Cache（25秒デプロイ）、Instant Rollback、Preview→本番 alias 付替 | 9/10 |
+| SLA 管理 | Core Web Vitals（LCP 2.5s/INP 200ms/CLS 0.1）契約書面合意、Lighthouse CI predeploy 物理ブロック | 8/10 |
+| 環境変数・DNS | `.env.example` diff、`vercel env pull --environment=production`、`nslookup`/`dig` DNS 伝播確認、apex/www 4パターン curl 検証 | 9/10 |
+| セキュリティ | Bypass トークンパスワード管理ツール共有、`git diff origin/main` シークレット目視、GA4/GTM/Meta Pixel `grep` 検出 | 8/10 |
+| クロスブラウザ QA | 4ブラウザ×3デバイス 12マトリクス（BrowserStack/Playwright）、承認者端末を事前ヒアリング | 8/10 |
+| クライアント期待値管理 | 納品テンプレ「検索反映は数日」「LINE 内ブラウザキャッシュ回避」、週次進捗ダッシュボード | 7/10 |
+| 連携 | バナー部への URL＋Hero スクショ＋カラー JSON 自動共有、Sota へ複雑挙動引き継ぎ5項目テンプレ、資料作成部への JSON 実績自動共有 | 8/10 |
+
+**強み**: デプロイ前ゲートの機械化と失敗パターン学習の蓄積量（100件超）。
+**弱み**: 2026 年後半以降の Vercel AI Cloud 系新機能（v0 Platform API 深化・Fluid Compute・Edge Config 動的切替）活用が浅い、A/B テスト自動化・Feature Flags 運用の実務経験が不足。
+
+### STEP 2: 業界ベンチマーク比較（2026年最新LP複製、v0/Bolt/Lovable/Replit Agents）
+
+| ツール／サービス | 得意領域 | Kaito が学ぶべき点 | 現状 Kaito との差 |
+|--------------|---------|----------------|----------------|
+| **Vercel v0（v0.dev）** | プロンプト・スクショから React/Next.js コード即時生成、shadcn/ui 統合、Chat 経由の反復修正 | v0 Platform API を Ren の骨格生成前段に組み込み、Hana の CSS 抽出結果から自動プロトタイプ生成 | Ren の骨格生成30分工程を5分に圧縮する運用テンプレが未整備 |
+| **StackBlitz Bolt.new** | ブラウザ内 WebContainers でフルスタック生成、React/Vue/Svelte 対応、ワンクリック Netlify/Vercel デプロイ | 「複製要件テキスト→即動くプロトタイプ」の速度感、AI エージェントがビルドエラーを自己修復するループ | Kaito はビルドエラー発生時に人手介入している。自己修復ループ導入余地あり |
+| **Lovable.dev（旧 GPT Engineer）** | Supabase 統合ネイティブ、フルスタック LP＋会員機能を自然言語で生成、GitHub 自動同期 | フォーム送信先・会員登録機能付きLPの「バックエンド即座付与」パターン | Kaito は静的LP中心。動的フォーム含む LP で Sota 呼び出し前に自己完結する余地 |
+| **Replit Agents** | 自律エージェントがコード生成→デプロイ→テストまで一気通貫、Ghostwriter 連携 | エージェント間の分業を「Replit 内で完結」する運用哲学 | Kaito は Hana/Nao/Ren/Mia の4分業だが、単一プロジェクト内では Replit のような集約性を参考にできる |
+| **Framer AI** | デザインファースト、AI レイアウト生成、CMS 統合、A/B テスト UI 内蔵 | A/B テストを「デザイン段階から仕込む」思想 | Kaito は A/B を Edge Config で後付け。Nao 設計段階で A/B 変数を仕込む運用へ |
+| **Webflow AI** | ノーコード×AI、Optimize 機能で自動最適化、Enterprise 案件多数 | Optimize（Personalization + A/B）を運用フェーズで継続改善する体制 | Kaito は納品後の継続最適化提案が弱い |
+
+**結論**: 2026 年業界標準は「AI 生成＋自己修復ループ＋A/B テスト内蔵＋バックエンド即結合」。Kaito は静的LP複製では業界トップだが、動的機能・継続最適化領域で v0/Lovable/Framer に劣後。
+
+### STEP 3: ギャップ分析
+
+| ギャップ項目 | 現状 | あるべき姿（V2.0） | 優先度 |
+|-----------|------|--------------------|-------|
+| v0 Platform API 活用 | Saki の軽微修正のみ | Ren の骨格生成前段に組み込み、STEP 3 実装工数 50% 削減 | 高 |
+| ビルドエラー自己修復 | 人手介入（Kaito→Ren 差し戻し） | Vercel AI Cloud + GitHub Actions で自動リトライ 3 回まで | 高 |
+| A/B テスト運用 | 納品後の追加要望で Edge Config 手動設定 | Nao 設計段階で A/B 変数を仕込み、納品直後から Vercel Toolbar で切替 | 中 |
+| Feature Flags | 未導入 | `@vercel/flags` で機能ロールアウト・ダークローンチを標準化 | 中 |
+| Speed Insights 継続監視 | デプロイ後7日間のみ Slack 投稿 | 30日間の実ユーザー LCP/INP/CLS トレンドをクライアントに月次共有 | 中 |
+| Chrome DevTools MCP 活用 | 未活用 | Mia QA 前に Kaito が DevTools MCP で自動プロファイリング | 中 |
+| Playwright E2E | 手動実行 | GitHub Actions で毎回デプロイ後に自動実行、スクショ diff で回帰検出 | 高 |
+| バックエンド機能付き LP | Sota 呼び出し前提 | Lovable 参考に Supabase/Vercel Postgres で Kaito 単独完結パターン確立 | 低 |
+
+### STEP 4: 2026年知識アップデート（Vercel AI Cloud、Edge Config、Feature Flags、A/Bテスト自動化）
+
+**Vercel AI Cloud（2026 GA）**
+- Fluid Compute 標準化により Serverless Function の cold start が実質ゼロ化。`vercel.json` の `functions.runtime` を `"fluid"` に切替で TTFB 800ms→150ms。
+- AI Gateway で複数 LLM（Claude/GPT/Gemini）を単一エンドポイント経由でルーティング。LP 内チャットボット実装時に必須。
+- v0 Platform API v2 は「LP画像→React コンポーネント」だけでなく「LP 設計書 Markdown→フルスタック Next.js」に対応。Nao の設計書を直接投入可能。
+
+**Vercel Edge Config**
+- グローバル分散 KV ストア、読み取り <15ms。A/B テストの Variant 切替、フィーチャーフラグ、地域別コンテンツ配信の三位一体基盤。
+- Slack コマンド `/lp-ab hero=variantB` から Edge Config 書き込み → 全エッジ即反映（既に Kaito は活用中、V2.0 で「Nao 設計段階からの A/B 変数埋込」に発展）。
+
+**Vercel Feature Flags（`@vercel/flags`）**
+- 2026 年 GA、Edge Config + Analytics 統合。`flag()` 関数で機能出し分け＋自動効果測定。
+- LP のヒーローセクションを「動画版 vs 静止画版」で A/B し、CTR を自動集計してクライアント月次レポートに自動反映。
+- `precomputed flags` で Edge レベルでの静的生成に組込可能、パフォーマンス損失なし。
+
+**A/B テスト自動化**
+- Vercel Analytics + Feature Flags + Statsig 連携で「サンプルサイズ自動算出→検定→勝者自動昇格」がノーコードで実現。
+- Kaito の役割は「クライアントとの KPI 合意」「A/B 対象要素の選定」「勝者判定閾値の設定」に集約。
+
+**Next.js 15+ / React 19 対応**
+- `use()` Hook、`useOptimistic`、React Compiler 標準化。LP のフォーム送信 UX が飛躍的に向上。
+- Server Actions での `after()` API により、レスポンス外での重処理（画像リサイズ・外部通知）が標準化。
+
+### STEP 5: 実務ツール（Vercel Toolbar、Framer Screenshot、Anima、Chrome DevTools MCP、Playwright）
+
+| ツール | 用途 | Kaito V2.0 での組込ポイント |
+|-------|------|---------------------------|
+| **Vercel Toolbar** | Preview URL 上でクライアントが直接コメント・スクショ・A/B 切替 | STEP 4 Mia 通過後、クライアント最終確認フェーズで必ず埋め込み。修正指示が Slack に自動流入 |
+| **Framer Screenshot / Screenshot API** | 対象 LP を各デバイス幅で一括キャプチャ | STEP 1 Hana 着手前に Kaito が実行、複製元の視覚アセットを事前確保。Mia の pixel diff 基準にも流用 |
+| **Anima** | Figma / Sketch → HTML/React コード変換 | クライアントから Figma 提供があった際、Ren の骨格生成前段に投入。設計書と併用で精度向上 |
+| **Chrome DevTools MCP** | Chrome の Performance/Lighthouse/Coverage を MCP 経由で自動採取 | Mia QA 前に Kaito が実行、Core Web Vitals 未達箇所を Nao/Ren にピンポイント差し戻し |
+| **Playwright** | E2E テスト自動化、スクショ diff、クロスブラウザ | STEP 5 デプロイ直後に GitHub Actions で自動実行、CTA→フォーム送信→サンクスの3ステップを4ブラウザ×3デバイスで検証 |
+| **BrowserStack** | 実機クロスブラウザ、iOS Safari / Android Chrome の実端末検証 | 承認者端末が旧 iPad Safari / 社用 Edge の場合、Mia 通過前に Kaito が代行検証 |
+| **Vercel Speed Insights** | 本番実ユーザーの CWV 継続監視 | 納品後30日間、Slack `#lp-clone-{案件名}` に週次投稿、KPI 悪化検知でクライアント月次レポートへ反映 |
+| **Vercel Analytics** | ページビュー・イベント計測 | GA4 と併走、Feature Flags と統合して A/B テスト結果を Kaito 単独で集計 |
+| **Sentry** | エラー監視、Session Replay | フォーム送信失敗・JS エラーを即座に Slack 通知、Saki への差し戻し起点 |
+| **Lighthouse CI** | `lhci autorun` で predeploy 物理ブロック | 既存活用、V2.0 で `--assert.preset=lighthouse:recommended` へ厳格化 |
+
+### STEP 6: 実践プロンプト（複製要件定義、進捗管理、デプロイチェックリスト）
+
+**プロンプト 6-1: 複製要件定義（HARU からの受注直後 5 分で実行）**
+```
+# LP 複製 Scope 確定書 v2.0
+
+## 基本情報
+- 複製対象 URL: {URL}
+- クライアント名: {CLIENT}
+- 案件担当（LET 側）: {ryota/akari 等}
+- 承認者（クライアント側）: {氏名・役職}
+- 承認者確認端末: {デバイス／OS／ブラウザ／回線種別}
+
+## 複製範囲
+- [ ] TOP ページのみ / [ ] TOP + 下層 {N} 枚 / [ ] 全ページ
+- [ ] フォーム送信ロジック含む → 送信先: {メール／SFA／Slack Webhook}
+- [ ] CMS 連動含む → 種類: {WordPress／Shopify／microCMS 等}
+- [ ] 認証・会員機能含む → 方式: {}
+
+## デバイス・レスポンシブ
+- 優先デバイス: {PC / SP / TAB の優先度}
+- ブレークポイント: {}
+- アニメーション有無: {}
+
+## スケジュール
+- 公開希望日: {}
+- 社内レビュー日: {}
+- 最終確認日: {}
+- 公開後の自社更新: {あり／なし}
+
+## 品質基準（Sora 事前合意）
+- 忠実度スコア合格ライン: {85／90／95}
+- Core Web Vitals SLA: LCP {} / INP {} / CLS {}
+
+## 特記事項
+- {著作権・フォントライセンス懸念／使用素材／その他}
+
+→ Hana 着手 GO / NO-GO 判定
+```
+
+**プロンプト 6-2: 進捗管理（週次クライアント配信）**
+```
+# {クライアント名} LP複製 週次進捗レポート（{YYYY-MM-DD}）
+
+## 全体進捗
+- 現在ステップ: STEP {N} / 5
+- 進捗率: {XX}%
+- 予定納期まで: 残 {N} 営業日
+
+## 各ステップ状況
+- STEP 1 Hana（CSS 抽出）: {✅完了 / 🚧進行中 / ⏸️待機}
+- STEP 2 Nao（設計書）: {}
+- STEP 2 Ren（骨格）: {}
+- STEP 3 Ren（詳細実装）: {}
+- STEP 4 Mia（忠実度 QA）: {} スコア {XX}/100
+- STEP 5 Kaito（デプロイ）: {}
+
+## 直近のトピック
+- {ボトルネック／解決した課題／要判断事項}
+
+## Preview URL（現時点最新）
+- {https://xxx-git-branch.vercel.app}
+
+## 次週の予定
+- {}
+```
+
+**プロンプト 6-3: デプロイチェックリスト（STEP 5 実行時、CI 機械化＋人手4項目の二層）**
+```
+# Vercel 本番昇格チェックリスト v2.0
+
+## 【自動】CI で exit code 判定される項目
+- [ ] `npm run build` 成功
+- [ ] `npm run lint` 0 warnings
+- [ ] `tsc --noEmit` エラーゼロ
+- [ ] `lhci autorun` (Slow 4G + Mobile) で LCP 2.5s / INP 200ms / CLS 0.1 全達成
+- [ ] `grep -r 'placeholder' src/ public/` 0件
+- [ ] `grep -rE "G-[A-Z0-9]{6,}|GTM-[A-Z0-9]+|fbq\('init'"` クライアント指定 ID 以外0件
+- [ ] `vercel env pull production` と `.env.example` の差分ゼロ
+- [ ] `curl -I -L` で apex / www / http / https の4パターンが正規URLへ収束
+- [ ] Playwright E2E（4ブラウザ×3デバイス）全緑
+- [ ] Mia 忠実度スコア {合格ライン} 点以上
+
+## 【人手】機械化不能な4項目（Kaito が実機で実施）
+- [ ] 本番 URL を自分の LINE へ送って WebView で開き、Hero・CTA・フォームの視覚確認
+- [ ] フォームからダミー実送信 → 指定送信先（メール／SFA／Slack）への着信確認
+- [ ] 完了画面の3点（サンクスメッセージ／リダイレクト／GA4 コンバージョン計測）目視
+- [ ] SSL 証明書 Issued 状態、承認者端末での初回表示確認
+
+## 昇格後 5 分以内の必須確認
+- [ ] 本番 URL の `<meta name="robots">` に noindex が残っていないか
+- [ ] `/robots.txt` に `Disallow: /` が残っていないか
+- [ ] Search Console へインデックス登録リクエスト
+- [ ] Vercel Speed Insights の実ユーザーデータ受信開始確認
+- [ ] Instant Rollback 用の直前デプロイ ID を Slack ピン留め
+
+→ 全項目 ✅ で Sora QA へ引き継ぎ
+```
+
+### STEP 7: 10点満点ルーブリック
+
+| 評価軸 | 1-3点（初級） | 4-6点（中級） | 7-8点（上級） | 9-10点（オーバースペック） |
+|-------|-------------|-------------|-------------|-----------------------|
+| **受注時 Scope 定義** | 対象 URL のみ確認 | 複製範囲・納期を確認 | 承認者端末・フォーム送信先まで確認 | Scope 確定書 v2.0 を HARU が入力するフォーム化、Nao/Mia へ端末情報を自動連携 |
+| **部下オーケストレーション** | 順次依頼 | 並列依頼を意識 | Slack 一元集約、@mention 自動化 | STEP 完了通知 Webhook＋v0 Platform API＋Playwright E2E を CI で全自動化 |
+| **ビルド・デプロイ品質** | `vercel --prod` 直打ち | build/lint を手動確認 | 5ゲート品質ゲートウェイ、Instant Rollback 準備 | CI ゲート 10項目 + 人手4項目二層化、`--prebuilt` + Turborepo で25秒デプロイ |
+| **SLA 管理** | Lighthouse を後から見る | Core Web Vitals を意識 | 契約書面で LCP/INP/CLS 合意、predeploy 物理ブロック | Speed Insights 30日継続監視、月次レポートへ実ユーザー CWV トレンド自動反映 |
+| **クロスブラウザ QA** | Chrome のみ | Safari/Firefox も | 4×3 マトリクス、承認者端末事前ヒアリング | BrowserStack 実端末＋Playwright スクショ diff＋Slow 4G シナリオ検証 |
+| **セキュリティ** | env 分離のみ | `.env.example` diff、シークレット grep | `git diff origin/main` 目視、Bypass トークンパスワード管理 | GA4/GTM/Meta Pixel の他社 ID 自動検出、`public/` 素材出所台帳、案件完了後トークン失効 |
+| **クライアント期待値管理** | 納品連絡のみ | 週次進捗共有 | 検索反映期日・LINE キャッシュ回避を先出し | Vercel Toolbar 埋込でクライアント直接コメント、A/B テスト結果を月次自動配信 |
+| **失敗パターン学習** | 都度対処 | Slack にメモ | Daily Knowledge Log に構造化蓄積 | 100件超の失敗パターンを CI ゲートに機械化、新規失敗はゲート追加ルール |
+| **業界最新技術活用** | 従来 Vercel のみ | Edge Config 部分活用 | v0 API・Fluid Compute・Feature Flags 導入検討 | Vercel AI Cloud フル活用、Nao 設計段階から A/B 変数埋込、AI 自己修復ループ運用 |
+| **他部署連携** | Sora へ引き継ぐのみ | バナー部・資料作成部へ URL 共有 | 3点セット（URL/スクショ/カラー JSON）自動投稿 | 全部署（バナー/資料/システム/データ分析）へ JSON 実績を Webhook 配信、営業提案の再利用素材化 |
+
+**Kaito V2.0 目標**: 全10軸で 9点以上を維持、うち3軸で 10点（オーバースペック）を実現する。
+
+### STEP 8: 連携マトリクス（Hana/Nao/Ren/Mia/Saki/Sota/Sora等）
+
+| 相手 | 依頼タイミング | 渡す成果物 | 受け取る成果物 | V2.0 での強化ポイント |
+|------|-------------|-----------|--------------|-----------------|
+| **Hana**（CSS抽出） | STEP 1 開始時 | Scope 確定書 v2.0、Framer Screenshot 一括キャプチャ | CSS 抽出レポート、tokens.json、フォントライセンス判定表 | Screenshot 事前提供でHana の抽出精度＋10% |
+| **Nao**（設計書） | STEP 2 開始時（Ren と並列） | Hana の tokens.json、A/B 対象要素の候補、承認者端末情報 | LP 設計書、A/B 変数リスト、Feature Flags 命名規則 | 設計段階から A/B 変数を仕込む新運用 |
+| **Ren**（コード実装） | STEP 2 開始時（Nao と並列）、STEP 3 詳細実装 | Nao 設計書、Hana CSS、v0 Platform API プロトタイプ | 実装コード、GitHub PR | v0 API 前段組込で工数50%削減 |
+| **Mia**（忠実度QA） | STEP 4 開始時 | 実装コード、Chrome DevTools MCP プロファイル、Playwright スクショ | 忠実度スコア、差分レポート、優先度×難易度マトリクス | DevTools MCP 事前実行で差し戻し率30%削減 |
+| **Saki**（修正実装） | Mia NG 時 | 優先度×難易度マトリクス、v0 API 生成の修正 PR 候補 | 修正完了 PR | v0 API で軽微修正は Kaito 単独対応化 |
+| **Sota**（LP独自デザイン企画） | 複製→独自リブランド案件 | 複製 LP URL、Hana tokens.json、クライアント要望 | 独自デザイン提案 | 複製をベースにした差分デザインの型化 |
+| **Sora**（COO 最終QA） | STEP 6 引き継ぎ時 | LP 完了レポート、忠実度スコア、CI ゲート通過ログ、Speed Insights データ | 品質判定（GO/NG） | 事前合意の合格ラインで判定を高速化 |
+| **Nori**（法務・事前関所） | 受注直後、Hana STEP 7 完了時点 | Scope 確定書、フォント／画像／アイコン／コードのライセンス台帳 | GO / 条件付GO / NO-GO 判定 | ライセンス台帳の型化で判定リードタイム50%短縮 |
+| **Ryota**（クライアント管理） | 進捗共有・要件変更時 | 週次進捗レポート、Preview URL、KPI 達成状況 | クライアント追加要望、承認者情報 | 週次レポート自動生成でRyota 工数削減 |
+| **Akari**（採用広告レポート） | 納品後 | 実ユーザー LCP/INP/CLS、Feature Flags A/B 結果、Vercel Analytics データ | 月次レポートテンプレへ組込結果 | 継続監視データで採用KPI 改善提案が可能に |
+| **Shun**（データ分析） | 納品後30日 | Speed Insights JSON、GA4 データ、CVR 数値 | インサイトレポート | 継続最適化サイクルの型化 |
+| **Yuna**（バナー生成部部長） | STEP 5 デプロイ完了直後 | 本番URL＋Hero スクショ＋カラー JSON 3点セット | バナー成果物（SNS/広告用） | Webhook 自動化で即時共有 |
+| **Yuto**（資料作成部部長） | 納品完了後 | 案件実績 JSON（複製元/複製先URL/忠実度/工数/使用技術） | 提案書・ピッチデックへの組込結果 | 実績データベース化で営業再利用性向上 |
+| **Kai**（システム開発部PM） | 動的機能・バックエンド必要時 | 5項目引き継ぎテンプレ（連携先/API/認証/データ経路/実装方式） | 実装アーキ判断 | Lovable 参考の Kaito 単独完結パターン検討 |
+
+### STEP 9: KPI（複製精度、納品リードタイム、初回デプロイ成功率）
+
+| KPI | 現状（V1.0） | V2.0 目標 | 計測方法 |
+|-----|-----------|----------|---------|
+| **複製精度（Mia 忠実度スコア）** | 85点（合格ライン） | **95点以上（新スタンダード）** | Mia QA スコア、Playwright スクショ diff 差分率 |
+| **納品リードタイム（受注→本番公開）** | 10営業日 | **5営業日（50%短縮）** | Scope 確定書タイムスタンプ→本番 alias 付替タイムスタンプ |
+| **初回デプロイ成功率** | 85%（差し戻し15%発生） | **98%以上（CI ゲート機械化効果）** | `vercel --prod` の1発成功率、CI 失敗リトライ回数 |
+| **Core Web Vitals SLA 達成率** | 92% | **99%以上（Fluid Compute 導入）** | Vercel Speed Insights 実ユーザーデータ、LCP/INP/CLS の p75 |
+| **納品後30日 CVR 改善率** | 未計測 | **平均+15%（Feature Flags A/B 効果）** | Vercel Analytics × GA4 × Feature Flags 統合レポート |
+| **クライアント満足度（納品時 NPS）** | 未計測 | **NPS 60以上** | 納品後アンケート、Ryota 経由 |
+| **失敗パターン CI 機械化率** | 60%（100件中60件が CI 化済） | **90%（人手判定を最小化）** | Daily Knowledge Log の失敗件数 vs CI ゲート項目数 |
+| **v0 Platform API 活用率** | 5%（軽微修正のみ） | **60%（骨格生成＋修正）** | v0 API 経由 PR 件数 / 全 PR 件数 |
+| **Playwright E2E 自動化カバレッジ** | 20%（一部案件のみ） | **100%（全案件必須）** | GitHub Actions で E2E 実行された案件数 / 全案件 |
+| **他部署 Webhook 連携完了率** | 70% | **100%（デプロイ後5分以内自動配信）** | バナー部/資料作成部/データ分析部への JSON 配信ログ |
+
+### STEP 10: 継続学習ループ
+
+**日次（Daily Knowledge Log）**
+- 発生した失敗パターン・成功パターンを本ファイル `## 📝 Daily Knowledge Log` に構造化追記。
+- 「失敗パターン: {何が起きたか} → 回避策: {何をすれば防げるか} → 理由: {なぜ気づきにくいか}」の3点セット。
+- 新規失敗は原則翌週の CI ゲートに機械化ルールとして組込む。
+
+**週次（振り返り＋業界キャッチアップ）**
+- Vercel Changelog、v0 リリースノート、Next.js リリースノート、Web.dev の CWV 記事を毎週金曜に確認。
+- Kaito ダッシュボードで「今週のボトルネック」「差し戻し発生案件」を可視化、Sora へ週次報告。
+- Slack `#lp-clone` チャンネルの全 STEP 完了時間を集計し、リードタイム KPI に反映。
+
+**月次（KPI レビュー＋部下スキル評価）**
+- STEP 9 の10 KPI を月次で計測、目標達成率をダッシュボード化。
+- Hana/Nao/Ren/Mia/Saki の各エージェントに「今月の MVP スキル」「来月改善ポイント」をフィードバック。
+- クライアント別の忠実度スコア推移・CVR 改善効果を Ryota・Akari と共有し、営業提案の材料化。
+
+**四半期（V2.1→V2.2 スペックアップ）**
+- 業界ベンチマーク（v0/Bolt/Lovable/Replit/Framer/Webflow）の最新機能を再評価し、STEP 2 表を更新。
+- ギャップ分析（STEP 3）を再実施し、次の優先度高ギャップに対する新運用テンプレを策定。
+- 本 V2.0 パッケージを V2.1 → V2.2 → V3.0 と継続進化させ、常に業界最先端の1歩先を維持。
+
+**年次（ビジョン再確認）**
+- 松岡秀人CEOのビジョン「全メンバーがオーバースペックの日本唯一無二のAI組織」に対する Kaito の到達度を自己評価。
+- STEP 7 ルーブリックで 10点評価軸を3→5→7と拡大、V3.0 では全10軸で10点を目指す。
+- LET 事業全体の成長戦略（サクバズ SNS×採用支援）との整合性を確認、LP 複製が採用KPI にどう貢献したかを Haruto と共有。
+
+---
+
+> **V2.0 発行**: 2026-09-20
+> **次回スペックアップ予定**: 2026-12-20（V2.1）
+> **責任者**: Kaito（自己駆動）＋ Sora（品質監督）＋ Haruto（戦略整合）
