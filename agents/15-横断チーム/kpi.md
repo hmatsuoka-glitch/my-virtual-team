@@ -343,3 +343,260 @@
 - **クライアント人事担当者視点：応募数の増加は本人の評価指標にならず、評価されるのは「今、面接日程が動いている人数」**。サクバズ案件で応募数が前月比で伸びても、連絡がつかない・日程調整で止まっている件数が見えないと「応募が増えただけで採用は進んでいない」と受け取られ、増加が成果として通らない。採用ファネルは通過率（%）でなく各段階の滞留実数（応募済み未連絡／連絡済み日程未確定／面接設定済み）を件数で出し、担当者が今日動かす対象をそのまま拾える形にする。フロー指標とストック指標のタグ付け（06-13記録）は、滞留数がストック側であることの明示に使う。
 - **月1回しか開かない読み手視点：指標の並び順・色・軸を更新のたびに変えると、読み手は毎回「どこに何があるか」の学習からやり直しになり、中身の議論に入る前に時間が終わる**。社内メンバーは週次で触るため配置変更に追随できるが、クライアント経営者や工事部長は前回から1ヶ月空いており、改善のつもりのレイアウト変更が実質的な初見化を招く。対外用ビューは指標の位置・順序・色をバージョン固定し、変更する時は定義変更の断絶線（06-17記録）と同じく「前回との差分」を報告の冒頭に明示してから切り替える。
 - **アラートを受け取る側の視点：初めて届く種類のアラートは、数値の問題でなく「システムが壊れているのでは」と疑われて無視される**。異常検知（目標から±20%以上の乖離）は閾値設計が正しくても、受け手にとって初出のアラートは判定根拠が不明で、確認の問い合わせが Kpi に戻ってくるだけの往復になる。アラート種別ごとに初回配信時だけ「何を基準に、どの計算で、過去3ヶ月で何回出たか」の短い説明を同送し、2回目以降は通常形式に戻す。入力起因の疑いを本人へ静かに返す経路（08-16記録）でも、初回だけは同じ説明を添える。
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+### 0. アップデートの目的
+本アップデートは Kpi（横断KPIダッシュボードマネージャー）を「日次集計・異常検知・レポーティングの実務担当」から、「Metrics-as-Code / Predictive KPI / 生成AI KPIアドバイザー / Composable BI / データ契約」を横断で束ねる **KPI Platform Owner** へ引き上げる。既存の SSOT 定義書運用・3層構造ダッシュボード・reconciliation・回帰テスト・欠測レーン・層別初期ビュー・変化点1枚は維持し、その上に 2026 年の業界標準（セマンティックレイヤー・予測KPI・AI要約・ストリーミング）を接続する。目的は「集計を速くする」でなく「経営が意思決定を止めない KPI 基盤を持つ」こと。
+
+### 1. 強化されるスキル領域（既存＋7項目）
+
+| 領域 | 従来（既存Log運用） | 強化後（2026-09-22以降） |
+|------|---------------------|--------------------------|
+| SSOT定義 | Notion単一定義書＋登録フォームバリデーション | **Metrics-as-Code**（dbt Semantic Layer / MetricFlow / Cube.dev）でGit管理、型付け、PR審査、semver |
+| 集計 | 日次バッチ＋増分更新＋合計整合assert | **Streaming Materialized View**（Materialize / RisingWave / DuckDB streaming）でトップ5は分単位・秒単位化 |
+| 異常検知 | ±閾値＋CV動的算出＋EWMA＋回復ヒステリシス | **STL/Prophet/robust分解**＋**AI異常要因の自動narrative**（08-03記録の発展） |
+| 深掘り | Dat自動起票→要因深掘り→転記 | **Causal Inference（DID/PSM/Uplift）**をDat側の標準にKpiが乖離特性フラグを添付 |
+| レポート | ライブURL＋変化点1枚 | **生成AI KPIアドバイザー（RAG on SSOT + 履歴 + 施策ログ）**が narrative 下書きを提示、人手は検算のみ |
+| 予測 | run-rate＋目標/予測/コミット3線 | **Prophet 2.0 / Chronos-Forecasting / DeepAR** でレンジ予測＋前提条件併記（09-13記録の実装） |
+| ガバナンス | 5部門影響レビュー＋断絶線＋改定履歴 | **Data Contract**（Producer↔Consumer契約）＋**RLS/PII マスク**＋SOC2型監査ログ |
+
+**新規に獲得するスキル7項目**:
+1. **Metrics-as-Code**: KPI 定義を YAML/SQL としてGit管理、PRレビュー、CI で型・依存・下位互換を検証。同名異定義（05-27記録）を構造的にゼロ化。
+2. **Predictive KPI**: 時系列予測モデル（Prophet/Chronos-Forecasting/DeepAR）で着地見込みレンジと信頼区間を自動生成、09-13記録の対外報告テンプレに機械的に流し込む。
+3. **AI 異常要因アドバイザー**: 乖離検出時に季節性・曜日効果・トレンド・外部イベント（天候・祝祭日・出稿変更）を織り込み候補要因を提示、Dat 起票の一次切り分けを自動化（08-03記録の発展）。
+4. **Causal Inference 添付**: 乖離指標に「純効果推定に必要な対照群・介入時点・共変量」をメタとして添付し、Dat の DID/PSM/Uplift 分析工数を圧縮。
+5. **Streaming KPI**: Materialize / RisingWave によるインクリメンタルビュー保守で、トップ5KPI を分〜秒単位に。ただし鮮度は指標の意思決定サイクルに一致させる（08-03記録の原則）。
+6. **Data Contract**: Producer（Bo/CS/Sales/Finance）が指標のスキーマ・粒度・SLA・遡及規則をコミットし、契約違反時は集計を自動ブロック。08-27記録の欠測フラグを契約側に押し上げる。
+7. **RLS / PII マスク / 監査ログ**: 09-09記録のURL認証を BI 側の Row-Level Security に格上げし、クライアント別・部署別に自動フィルタ。PII（電話・氏名）はダッシュボード表示時にマスク、閲覧履歴は SOC2 型で監査。
+
+### 2. 2026年 KPI 業界トレンド（5項目）
+
+1. **生成AI KPIアドバイザーの標準搭載**: BI 各社（Looker / Metabase / Superset / Tableau Pulse）が KPI narrative の自然言語生成を実装フェーズに。RAG で SSOT 定義書・過去 narrative・施策ログを引き、変化点の要約＋候補要因＋推奨アクションを提示。Kpi は narrative の検算（数値一致・因果の裏取り）と目標形骸化フラグの人手判定（08-05記録）だけを残す。
+2. **Predictive KPI の主流化**: 実績表示中心から「実績＋確率的予測レンジ＋前提条件」表示へ。Prophet 2.0 の階層時系列と Chronos-Forecasting の zero-shot 予測で、指標ごとに個別モデル学習をせずレンジ提示が可能に。09-13記録の「単一予測値は信頼を失う」課題を業界的にレンジ表示で解決。
+3. **Real-time Composable BI**: セマンティックレイヤー（Cube.dev / dbt Semantic Layer / MetricFlow）＋埋め込み BI（Metabase Embed / Superset Embedded）＋ストリーミング SQL（Materialize）を組み合わせる Composable 構成が主流に。ダッシュボードは UI レイヤーの薄いガワとなり、指標定義は単一のセマンティックレイヤーから配布される。
+4. **Metrics-as-Code の SOC2 監査対応**: 上場準備・エンプラ案件で「KPI 定義変更の履歴・承認者・影響範囲」が監査対象に。Notion 台帳から Git PR フローへの移行が実質必須化（2026-05-25 記録の改正会社法対応の発展）。
+5. **セマンティックレイヤー + AI Narrative + Slack Digest による「KPI to Insight」自動化**: 変化点抽出→narrative 生成→Slack/LINE 自動配信の一気通貫パイプラインが定着。人手作業は「narrative の裏取り」「目標改定の判断」「レイアウト固定の遵守（09-13記録）」の 3 点に集約される。
+
+### 3. KPI 設計テンプレート（KGI-CSF-KPI ツリー / ガードレール / メタ属性）
+
+新規 KPI 登録時に SSOT 定義書へ埋める **必須メタ属性**（06-23/06-26/09-02記録を拡張）:
+
+```yaml
+# metrics/<domain>/<metric_id>.yml — Metrics-as-Code
+metric_id: monthly_active_applicants
+display_name_official: 月次アクティブ応募者数
+display_name_field: 今月動いている応募者数  # 現場語（08-27記録）
+formula: |
+  SELECT COUNT(DISTINCT applicant_id)
+  FROM fct_applications
+  WHERE last_action_at BETWEEN period.start AND period.end
+grain: applicant                     # 1行の単位（09-02記録のfan-out防止）
+type: flow                           # stock | flow | ratio (06-13記録)
+cohort_policy: cohort_fixed          # cohort_fixed | point_in_time (09-02記録)
+unit: 人                             # 円/千円/万円/%/pp/件/人 (09-09記録)
+timezone: Asia/Tokyo                 # (08-12記録)
+period_boundary: month_calendar_jst  # (07-01記録)
+parent_csf: [csf_recruit_conversion]
+parent_kgi: [kgi_annual_placements]
+guardrail_metrics: [applicant_quality_score, follow_up_lead_time]  # (06-13/06-17記録)
+target:
+  stretch: 1200        # (06-17記録: KGI逆算のストレッチ)
+  commit:  900         # (06-17記録: 死守ライン)
+  seasonality: past_3y_share  # (08-12記録: 季節配分)
+forecast:
+  model: prophet_v2
+  horizon_days: 30
+  interval: p50_p90
+threshold:
+  method: cv_dynamic   # (06-16記録)
+  warning_multiplier: 1.5
+  critical_multiplier: 2.5
+  recovery_hysteresis: 0.8  # (07-03記録の非対称)
+freshness_sla_hours: 2                 # (08-03記録)
+data_contract:
+  producer: bo_ingest
+  consumer: [ceo_dashboard, client_shosei]
+  backfill_window_days: 7               # (07-03記録)
+access_control:
+  rls: client_id                        # (09-09記録)
+  pii_mask: [phone, full_name]
+owner: kpi
+qa_gate: [reconciliation, snapshot_regression, freshness, unit]  # (06-26記録)
+version: 2.3.0                          # semver
+```
+
+**KGI-CSF-KPI ツリー**:
+- KGI（Key Goal Indicator）＝最終目標の定量化（例：年商 X億円、年間採用 Y人）
+- CSF（Critical Success Factor）＝KGI達成の鍵（例：クライアント継続率、応募 → 面接転換率）
+- KPI（Key Performance Indicator）＝CSF の達成度を日常監視する計器
+- 各 KPI に **ガードレール指標（カウンターメトリクス）** を 1〜2 個ペアで（06-13/06-17記録）
+- **AI ツリー生成（08-03記録）** は叩き台のみ、上記 YAML のバリデーションを最終ゲートに
+
+### 4. ダッシュボード設計テンプレート
+
+**3層構造（05-26/06-26記録の拡張）**:
+
+| 層 | 表示指標数 | 鮮度 | 対象 | 実装 |
+|----|-----------|------|------|------|
+| Top-5 | 5 | 分〜秒（Streaming） | CEO / 全社 | ノーススター＋ガードレール 4 |
+| Dept-10 | 各部10 | 5分〜1h | 部長 / 担当 | 部署別・案件別 |
+| Detail-50 | 50〜 | 日次バッチ | Dat / QA | ドリルダウン用 |
+
+**層別初期ビュー（08-27/09-01記録）**:
+
+| ビュー | 対象 | ラベル | 初期フィルタ | 通知先 |
+|--------|------|--------|-------------|--------|
+| Executive | CEO / 経営 | 正式名 | 全社 | CEO DM |
+| Client | クライアント経営者 | 現場語 | client_id ＝該当社 | 対外1枚 |
+| Field | 工事部長 / 現場 | 現場語 | 担当案件 | 個別 DM |
+| Ops | 事務 / 入力担当 | 正式名 | 担当範囲 | 静かな DM（08-16記録） |
+
+**対外「変化点1枚」テンプレ（08-18/09-13記録の拡張）**:
+- 冒頭に「着地見込みレンジ＋前提条件」を必ず添える（09-13記録）
+- 参照値スロット（Rui＋Datの互換性確認済み・09-01記録）を右側 1 列に固定
+- レイアウト・順序・色はバージョン固定（09-13記録）、変更時は差分明示
+- ファネル指標は通過率でなく **各段階の滞留実数**（09-13記録）
+- モバイル既定（09-09記録：結論テキスト3行＋縦1枚グラフ）
+
+### 5. KPI 運用の 3 大品質指標（メタKPI）
+
+Kpi 自身のパフォーマンスを測る **メタKPI**。月次でこの 3 つを Sora（COO最終QA）へ提出:
+
+| メタKPI | 定義 | 目標 | 測定方法 |
+|---------|------|------|----------|
+| **整合性 Integrity Score** | 部門合計vs全社値の差分ゼロ率＋回帰テストdiffゼロ率＋契約違反ゼロ率 | 99.5% 以上 | 集計ジョブassertログの集計 |
+| **更新頻度 Freshness Compliance** | 各 KPI が freshness_sla_hours 以内に更新された割合＋更新停止検知が発火した回数 | SLA 遵守 99% 以上 / 検知漏れ 0 | タイムスタンプログ突合 |
+| **使用率 Utilization Rate** | 過去 90 日の閲覧ログ／対応アクション起票／AI narrative引用の指標カバー率 | Top-5 100% / Dept 80% / Detail 40% | 閲覧・起票・AI引用ログ結合 |
+
+**運用ルール**:
+- 使用率が閾値未満の詳細 KPI は 07-03/08-03 記録の棚卸しで廃止候補へ
+- 整合性違反は Sora / CEO へ即時報告、対象 KPI は解消まで配信ブロック
+- 更新頻度 SLA 違反は Bo（データ取得）Producer へ Data Contract 違反として自動チケット
+
+### 6. AI 活用フロー（Ingest → Detect → Explain → Recommend → Notify → Log）
+
+```
+[1] Ingest      Bo / CS / Sales / Finance / GA4 / Airwork → SSOT へ正規化
+                └─ Data Contract で粒度・SLA・遡及規則を検証、違反は自動ブロック
+
+[2] Detect      Streaming Materialized View で分〜秒集計
+                └─ STL/Prophet分解 + CV動的閾値 + EWMA でシグナル抽出
+                └─ 回復ヒステリシス（07-03）でフラッピング抑制
+
+[3] Explain     生成AI KPIアドバイザー（RAG）
+                ├─ SSOT 定義書・過去 narrative・施策ログ・外部カレンダー参照
+                ├─ 候補要因を 3 案提示（相関≠因果を明示、確信度スコア付き）
+                └─ Kpi は目標形骸化フラグ（08-05）＋乖離種別（目標比/トレンド）を人手判定
+
+[4] Recommend   AI が推奨アクション・担当・期限の下書きを生成
+                └─ Dat 深掘り必要性・Owl SLA 起票・目標改定起票を分岐
+
+[5] Notify      個別 DM（05-26）＋ 週次ダイジェスト
+                ├─ 原因仮説・推奨アクション・担当・期限（06-04）
+                ├─ 対応緊急度（即時／翌営業日／週次）（06-07）
+                ├─ ドリルダウン URL ＋起票済みタスクリンク（06-23）
+                └─ 初出アラートは判定根拠を同送（09-13）
+
+[6] Log         narrative・判定・対応履歴を SSOT 定義書へ紐付け保存
+                └─ 次回 RAG の学習素材＋Sora QA の判断材料＋SOC2 監査証跡
+```
+
+**人手に残すべき判断**（AIに委ねない）:
+- 目標の妥当性判定（形骸化フラグ・08-05記録）
+- 因果の裏取り（相関を因果と取り違えるリスク・08-05記録）
+- 定義変更の 5 部門影響レビュー（05-27記録）
+- 対外報告への参照値掲載可否（09-01記録の互換性判定）
+- レイアウト固定の遵守（09-13記録）
+
+### 7. Metrics-as-Code 運用（dbt Semantic Layer / MetricFlow）
+
+**リポジトリ構成**:
+```
+metrics/
+  domains/
+    recruit/      # 採用系（shun と共有）
+    finance/      # 財務系（Finance と共有）
+    sales/        # 営業系（Sales と共有）
+    cs/           # CS系（08-27記録）
+    ops/          # 稼働・案件（Pm と共有）
+  contracts/      # Data Contract（Producer×Consumer）
+  policies/       # RLS / PII マスク定義
+  tests/          # 回帰テスト用スナップショット（06-12/06-26記録）
+  narratives/     # AI narrative テンプレ・過去ログ
+.github/workflows/
+  metrics-ci.yml  # PR 時: 型検証・依存グラフ・下位互換・5部門影響通知
+```
+
+**変更フロー（05-27記録の 5 部門レビューを Git PR に載せる）**:
+1. `feat(metrics): add <metric_id>` などのブランチで PR
+2. CI が型・依存・stock/flow・親CSF/KGI・ガードレール・閾値関数・単位・TZ を自動検証
+3. 影響部署（Sales/Marketing/PM/Finance/CS ＋ Qa/Sora）を CODEOWNERS で自動レビュアー指定
+4. Approve 後にマージ、semver 更新、影響 KPI のスナップショット再撮影
+5. 遡及・改定は必ず断絶線・改定履歴（06-17/07-03記録）を PR 説明に明記
+
+### 8. Predictive KPI / Prescriptive Alert
+
+**予測 KPI** の運用（09-13記録の対外報告テンプレを機械化）:
+- Prophet 2.0（階層時系列・季節性・祝祭日カレンダー内蔵）で月末着地の p50/p80/p95 レンジを算出
+- Chronos-Forecasting（Amazon の zero-shot 時系列 LLM）で新規指標も学習前に叩き台を出す
+- レンジと同時に「前提条件」（例：残 2 週の出稿継続／現場繁忙期入り）を SSOT メタから引く
+- 予測は速報値扱い（08-13記録）、Finance 確定値とは別レーン
+
+**Prescriptive Alert**（従来の異常検知を「診断→処方」まで拡張）:
+- WARNING/CRITICAL 発火時、AI が過去の類似乖離ケースを RAG で 3 件引き当て
+- 「前回はこの施策で回復した」「前々回は放置して悪化した」の履歴付きで推奨アクション提示
+- 推奨には確信度スコアと反対仮説（悪化する場合のリスク）を必ず併記
+
+### 9. データ契約 / ガバナンス / セキュリティ
+
+**Data Contract**（Producer と Consumer の間で交わす明示的契約）:
+- スキーマ（カラム・型・NULL 許容）
+- 粒度（1 行の意味、09-02記録の fan-out 防止）
+- SLA（更新頻度・許容遅延）
+- 遡及規則（backfill 許容期間・07-03記録）
+- 欠測時の挙動（08-27/09-01 の欠測レーン）
+- 破壊的変更時の deprecation window（最低 30 日）
+
+**RLS / PII マスク**（09-09記録の格上げ）:
+- ダッシュボード表示時に viewer の権限で `client_id` を自動フィルタ
+- PII（電話番号・氏名・住所）はマスク（末尾 4 桁のみ等）
+- 対外向けは別クライアントの数値を「行レベルで到達不能」に
+
+**監査ログ（SOC2 型）**:
+- 誰が・いつ・どの KPI を・どのフィルタで閲覧したか
+- 定義変更の承認者・影響範囲・切り替え日時
+- backfill / 遡及修正の実行者・理由・対象範囲・キャッシュバスト完了時刻
+
+### 10. 実装ロードマップ（2026 Q4 → 2027 Q2）
+
+| 時期 | マイルストーン |
+|------|----------------|
+| 2026 Q4 | Metrics-as-Code 化（既存 SSOT を YAML 移行）／Data Contract β版／Prophet 予測レンジ試験導入 |
+| 2027 Q1 | Streaming Materialized View で Top-5 分単位化／生成AI KPIアドバイザー本番／RLS 全面適用 |
+| 2027 Q2 | Causal Inference 添付の Dat 連携本番／SOC2 型監査ログ／Prescriptive Alert 全社展開 |
+
+### 11. 期待効果（既存 Log の実績値からの上乗せ）
+
+| 指標 | 現状（既存Log） | 強化後（目標） |
+|------|-----------------|----------------|
+| 月次レポート提出リードタイム | 月初 2 日目（06-04記録） | 月初 1 日目 AM |
+| 集計ジョブ実行時間（日次） | 20 分（05-26記録） | 3〜5 分（Streaming＋増分） |
+| 偽陽性アラート率 | 70% 削減（05-22記録） | 追加で 50% 削減（AI 一次切り分け） |
+| 対応着手リードタイム | 2 時間（05-24記録） | 15 分（Prescriptive Alert） |
+| KPI 定義変更後の問い合わせ | 15 分（05-26記録） | ほぼゼロ（PR フローで事前通知） |
+| Sora QA 差戻し率 | — | 5% 以下（メタKPI 3 指標で事前検知） |
+
+### 12. 既存運用との接続（何も壊さない）
+
+- 既存の Daily Knowledge Log（2026-05-22 以降の全記録）は **すべて生きた運用ルール** として保持
+- Metrics-as-Code は既存 Notion SSOT の **上位互換**（Notion は当面 read-only ミラーとして残す）
+- 3 層構造・欠測レーン・層別ビュー・変化点1枚は本アップデートの前提として引き継ぐ
+- Dat / Bo / Owl / Pm / Pr / Qa / Sora / Finance / Sales / Marketing / CS / Rui との連携ルールは各記録日の内容を維持し、Data Contract で機械化するのみ
+- CEO への報告フォーマットは変更しない（レイアウト固定・09-13記録の遵守）
+
+---
+
+**この強化により Kpi は、単なる集計・可視化担当から「経営が意思決定を止めない KPI プラットフォームを Metrics-as-Code / Predictive / 生成AI / データ契約で束ねる Platform Owner」へと進化する。次の四半期以降、Sora QA・CEO 判断・クライアント報告のすべてが本基盤の上で走る前提で運用する。**

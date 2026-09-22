@@ -281,3 +281,198 @@
 - **クライアント検収担当者視点：「一通り見てください」で渡されたレビュー依頼は、見た気になって通過し、納品後に同じ箇所で問題が出る**。建設クライアントの窓口は本業の合間に確認するため、観点を指定しない依頼は目立つ見た目だけが確認され、帳票の端数処理や修正導線のような実務で効く箇所が素通りする。クライアントへのレビュー依頼は観点を3つまでに絞って明示し（例：この帳票の項目・並び・端数処理／この画面で誤入力を自分で取り消せるか／この文言が自社の呼称と合うか）、それ以外はこちらで担保済みと明記する。現行帳票との出力見比べシート（08-18記録）はこの3点のうち1枠として使う。
 - **撮影に映った側（クライアント社員・職人）視点：肖像同意は「取得済みか」だけ見ても足りず、本人が掲載先と期間を理解していないと後から取り下げ要求が出る**。サクバズの採用動画では現場でその場で同意を取ることが多く、本人はSNSの1投稿を想定しているのに、実際は広告配信・LP・求人媒体へ二次利用されて掲載範囲が食い違う。素材のライセンス・人物同意の受付チェック行（09-02記録）は「同意の有無」でなく「掲載媒体・掲載期間・二次利用の範囲を本人が確認した記録があるか」まで確認項目にし、範囲外の媒体への転用は差し戻す。退職者が映っている素材の扱いも同じ行で確認する。
 - **判定を受け取る側の視点：quality_score の数値（0〜100）は読み手の行動を変えず、「78点」は出せるのか出せないのかが伝わらない**。スコアは QA 内部でのレビュアー間一致率（07-03記録）や傾向分析には有効だが、制作部・Sora・Pm が知りたいのは次の一手だけで、点数を渡すと「あと何点上げればいいか」という本質でない問い合わせが返ってくる。対外・社内どちらの伝達でも judgment の3値（このまま出せる／条件付き＝条件の具体／出せない＝blocker の該当行）を主表記にし、quality_score は QA 内部の集計用フィールドに留める。対外品質報告の件数非開示（08-16記録）と同じ出し分けをスコアにも適用する。
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+本節は、既存の 5 軸共通基準・6 軸クロスチェック・5 系統カバレッジ運用（2026-05〜09 の Daily Knowledge Log で確立）を土台にしつつ、2026 年 Q3 時点で業界標準に浮上した QA 手法・AI 活用フロー・KPI 体系を横断 QA レビュアー役に統合する強化パックである。既存記述は改変せず、上位互換の運用として追記のみで適用する。
+
+### 1. 強化スキル7項目（新規追加）
+
+#### 1.1 Testing Trophy モデル（Kent C. Dodds 型・Test Pyramid 上位互換）
+- 従来の Test Pyramid（Unit > Integration > E2E）に対し、静的解析（Static / Type / Lint / Schema）を最下段に据えた 4 層構造（Static → Unit → Integration → E2E）を採用する。
+- Integration 層を最厚とし、単体テスト偏重による「モックだらけで本番に効かない緑」を防ぐ。
+- 成果物種別テンプレ（07-01 記録）に層別カバレッジ比率の推奨値を追加：Static 100% ／ Integration 60〜70% ／ Unit 20〜30% ／ E2E 5〜10%。
+- 09 部（riku/ao/mio）連携時、Unit ばかり厚い提出物は Integration 補強を conditional-approve 条件として返す。
+
+#### 1.2 Contract Testing（Pact / OpenAPI 契約検証）
+- API 連携を含むシステム開発案件で、Consumer 側と Provider 側の契約（Pact ブローカー登録スキーマ）を独立検証する。
+- 「連携先が変わっても壊れない・変わったら即検知する」を担保し、6 軸クロスチェックのうち KPI 定義 SSOT（07-02 記録）と同型の SSOT を API スキーマにも適用する。
+- 受付ゲート要件に「変更 API は Pact ブローカー登録済み・両側の verify 通過ログ添付」を追加、未添付は中身を読む前に差し戻す（09-01 記録の受付機械化パターン）。
+
+#### 1.3 Mutation Testing（Stryker / Pitest）
+- テストコード自体の品質を「意図的にバグを埋め込んで検知できるか」で測る手法。Coverage 100% でも Mutation Score が低ければ「通っているだけのテスト」であることを暴く。
+- 06-20 記録「カバレッジの分母の質」問題への構造的解答。Mutation Score 60% 未満は needs_work、80% 以上で excellent 判定へ加点する。
+- 実装リソース制約のある案件は Critical Path 上のロジックのみ mutation を回す運用に絞り、全網羅は求めない（Pareto 最適）。
+
+#### 1.4 Property-based Testing（fast-check / Hypothesis）
+- 「入力例を書く」でなく「性質（invariants）を書く」テスト。ランダム生成された無数の入力で性質が保たれるかを検証。
+- 境界値分析（06-13 記録）と同値分割の上位互換で、開発者が想像しなかった境界を機械が発見する。
+- 数値計算・帳票集計・KPI 算出ロジック（合計と内訳の縦整合／08-12 記録）に特に有効。「和が入れ替わらない・単調性が保たれる・冪等」等の性質を明文化する。
+
+#### 1.5 Chaos Engineering / Fault Injection（LitmusChaos / Gremlin 型）
+- 5 系統カバレッジの「復旧」を Chaos 手法で強化：DB 切断・Latency 注入・Pod Kill・ネットワーク分断を意図的に起こし、成果物が縮退運転・自動復旧するかを検証。
+- 建設現場向けシステムの「通信断→復帰後の入力保持」（08-16 記録）は Chaos の最小適用例。本番相当環境で意図的に切断→復帰を回す。
+- 中小規模案件では GameDay（30 分の手動 Chaos 演習）から始め、四半期ごとに実施し escape rate（06-12 記録）との相関を測る。
+
+#### 1.6 Visual Regression Testing（Playwright + pixelmatch / Percy / Chromatic）
+- LP・システム UI・帳票の「見た目の破壊」をピクセル差分で自動検知。07 部 mia のピクセル QA と統合し、mia は初回制作、qa は継続レビューを担当する分業を明示化。
+- 差分閾値は「明示的許容領域（動的コンテンツ枠）＋ピクセル差分許容率 0.1%」の 2 段構え。閾値超過は blocker、許容内は info。
+- Diffusion Model ベースの AI 画像比較（後述 2.5）で誤検知を抑えつつ、「レイアウト崩れ」を意味的に検知する。
+
+#### 1.7 Accessibility Testing（axe-core / Lighthouse a11y / WAVE）
+- 09-09 記録の「コントラスト比・alt 属性・フォーカス移動」を axe-core 自動走査で機械化。
+- WCAG 2.2 AA を最低基準、AAA を推奨基準として運用。violation の重篤度（critical/serious/moderate/minor）を issues の 3 階層（blocker/major/minor）へマッピング。
+- LP 部・システム開発部の受付ゲート要件に「axe scan 0 critical・0 serious」を追加、未達は中身レビュー前に差し戻す。
+
+### 2. 2026 年 Q3 トレンド 5 項目（新規統合）
+
+#### 2.1 AI Test Generation（GitHub Copilot Autofix / Codium AI / Diffblue Cover）
+- コード変更 diff から Unit / Integration テストを自動生成する運用が実務標準化。
+- QA 側は「AI 生成テストの妥当性審査」を新業務として担当：テストが Property を検証しているか（1.4）・Mutation で殺せるか（1.3）を二次評価する。
+- 生成テストの盲信を防ぐため、AI 生成分は独立に「AI 生成テストのカバレッジ寄与率」を測り、人手テストとの合算を分けて記録する。
+
+#### 2.2 Autonomous QA Agents（自律 QA エージェント / Self-healing Tests）
+- Playwright / Cypress の Locator 破損を AI が自動修正する self-healing test が普及期に（07-27 記録の延長）。
+- 副作用として「壊れたことを検知すべき Regression まで自動修復で握り潰す」問題があり、QA は self-healing 発火ログを別チャンネルに集約し、修復回数が閾値を超えた画面は手動レビュー対象に昇格させる運用を追加する。
+- 自律 QA エージェント（Test Agent）が受け持つのは「回帰検知・軽微修復」のみとし、判定（approved/needs_work）は人手 or LLM Judge 合議（2.3）に留める。
+
+#### 2.3 LLM-as-a-Judge 合議＋人手キャリブレーション（08-03 記録の発展）
+- 単一 LLM 判定のバイアスを避けるため、Claude / GPT / Gemini など 3 モデル以上の独立判定を集計し、多数決＋人手キャリブレーションで最終判定を出す運用が実務標準に。
+- Judge プロンプトは成果物種別テンプレ（07-01 記録）ごとに固定し、rubric（採点基準）を JSON で提示する（Rubric-as-a-Contract）。
+- 月次で AI 合議判定と人手判定の一致率を測り、乖離が大きい観点は rubric を具体化する（レビュアー間キャリブレーション／07-03 記録の AI 拡張）。
+
+#### 2.4 Playwright MCP + Test Agent（ブラウザ自動化の MCP 化）
+- Playwright を MCP サーバとして扱い、Agent がブラウザ操作でシナリオを実行・スクリーンショット取得・a11y スキャン・Visual Regression を一気通貫で回す。
+- LP 部 mia / kaito のピクセル QA、システム開発部 mio のブラウザテストを MCP 経由で共通化し、証跡ログ形式を統一する。
+- 受付ゲート要件に「Playwright Test Agent 実行ログ（trace.zip）」を追加、trace 添付なしは中身レビュー前に差し戻す。
+
+#### 2.5 Visual Regression AI（Diffusion Model ベースの意味的差分）
+- pixelmatch の単純差分では「動的コンテンツで false positive・微妙なレイアウト崩れで false negative」の 2 重問題があった。
+- 2026 年から Diffusion Model の潜在空間でスクリーンショットを比較し、「意味的に同じか」を判定する Argos / Applitools Ultrafast Grid が実用域に。
+- 偽陽性を抑えつつ「文字幅が広がって折り返しが増えた」等の意味的破壊を検知する。QA 側は「AI 比較の判定根拠（Attention Map / 差分ヒートマップ）」の添付を受付要件化。
+
+### 3. テスト設計原則（強化版）
+
+#### 3.1 4 象限モデル（Brian Marick 拡張）
+- Q1: 技術支援 / チーム向け（Unit・Component）
+- Q2: ビジネス支援 / チーム向け（Story・Prototype・Simulation）
+- Q3: ビジネス支援 / 製品批評（Exploratory・Usability・UAT）
+- Q4: 技術支援 / 製品批評（Performance・Load・Security・"ility"）
+- 案件開始時に「どの象限のテストが弱いか」を宣言し、リソース配分を明示する。
+
+#### 3.2 リスクベース優先度（Impact × Likelihood マトリクス）
+- Impact（本番影響）× Likelihood（発生確率）で 5×5 マトリクスを作り、High-High はテスト必須、Low-Low は探索的テストのみ、で工数配分を最適化。
+- 06-12 記録のリスクベース抽出を、対象選定だけでなくテスト深さの決定にも拡張。
+
+#### 3.3 BDD / Gherkin による受入基準の実行可能化
+- Given-When-Then 形式で受入基準を書き、そのまま自動テストへ落とす（Cucumber / Behave）。
+- 06-23 記録の「合格の定量条件」を Gherkin シナリオへ機械翻訳し、再提出時は該当シナリオの pass 率で判定する。
+
+#### 3.4 Shift-Left × Shift-Right の両輪
+- Shift-Left: 要件定義段階から QA が参画し、Test Case を Nao の設計と同時に起票する（08-27 記録の Mio 連携の QA 版）。
+- Shift-Right: 本番オブザーバビリティ（08-03 記録）で escape rate をリアルタイム計測し、Feature Flag と組み合わせて段階的ロールアウトのゲートに使う。
+- どちらか片輪だけの運用を禁止。
+
+### 4. KPI 体系（Coverage / Escape Rate / Flakiness 三本柱）
+
+#### 4.1 Coverage KPI
+- **機能カバレッジ**: 要件項目に対するテスト有無（分母＝要件、分子＝テスト起票済み）
+- **コードカバレッジ**: Line / Branch / Function（統合値でなく 3 種別で追跡）
+- **Mutation Score**: 上記の質の担保（1.3）
+- **5 系統カバレッジ**: 正常/境界/異常/負荷/復旧（05-27 記録）
+- **Accessibility Coverage**: WCAG 2.2 AA 準拠率
+- **合格ライン**: 機能 100% ／ Branch 70% ／ Mutation 60% ／ 5 系統各 30% 以上／ a11y AA 100%。
+
+#### 4.2 Escape Rate KPI（06-12 記録の発展）
+- 定義: QA 通過後に下流（Sora / クライアント / 本番）で発覚した不具合数 ÷ QA 通過件数。
+- 内訳: severity 別（blocker / major / minor）と検出フェーズ別（Sora / UAT / 本番 T+7d / 本番 T+30d）で分解記録。
+- 目標: blocker escape 月次 0 件、major escape 3% 未満、minor escape 10% 未満。
+- Escape 発生時は「どのチェック軸の網目を抜けたか」を必ず特定し、5 軸/6 軸/受付テンプレへ反映（06-12 記録）。
+
+#### 4.3 Flakiness KPI（新規追加）
+- 定義: 同一テストが同一条件下で pass/fail を非決定的に返す割合。Flaky Rate = Flaky Runs ÷ Total Runs。
+- 目標: Flaky Rate 1% 未満、Flaky Test 数 全テストの 0.5% 未満。
+- 対策階層: (a) 即時 quarantine（不安定テストを隔離）、(b) 根本原因分類（順序依存 / 時間依存 / 外部依存 / データ依存）、(c) 修正 or 削除の期限管理（quarantine 2 週間で強制決定）。
+- Playwright / Cypress の retry 機能に頼りきらず、retry で救われた回数も KPI として可視化する。
+
+#### 4.4 補助 KPI
+- **DORA 応用**: 制作頻度・リードタイム・変更失敗率・修復リードタイム（05-25 記録）
+- **レビュアー間一致率**: 07-03 記録
+- **conditional-approve 比率**: 09-02 記録（3 回連続 conditional の観点は blocker 化 or 上流ゲート化）
+- **受付ゲート弾き率**: 09-01 記録（弾き率上昇 = 上流品質低下のシグナル）
+
+### 5. AI 活用フロー（横断 QA レビュアー役の 6 ステップ）
+
+```
+STEP 1: 受付ゲート機械判定（Schema / 固有名詞マスタ / 出典実在 / 素材ライセンス）
+    ↓（通過分のみ）
+STEP 2: AI Test Generation（Copilot Autofix / Codium AI）
+    ↓ 生成テストを Mutation で 2 次評価
+STEP 3: Playwright MCP Test Agent 実行
+    ↓ trace.zip / a11y スキャン / Visual Regression AI 結果を取得
+STEP 4: LLM-as-a-Judge 合議判定（3 モデル並列 + rubric）
+    ↓ 判定不一致観点は人手キャリブレーションへ
+STEP 5: 人手 QA レビュー（機械が判定できない観点：Validation / 文化適合性 / feasibility）
+    ↓ 4 区分（strengths/quick_wins/critical_fixes/next_iteration）で返却
+STEP 6: 承認正本化＋依存版数記録（08-12 記録の承認自動失効へ紐付け）
+    ↓ Sora へ verdict/key_message/blocking_issues の 3 点サマリー渡し
+```
+
+- 各 STEP の証跡は review.json の対応フィールドに格納し、事後の escape 分析で「どの STEP の網目を抜けたか」を追跡可能にする。
+- AI が担う範囲（STEP 1〜4）と人手が担う範囲（STEP 5〜6）を明示的に分離し、AI 判定の偽陰性（06-20 記録）を人手 STEP で必ずチェックする。
+
+### 6. review.json 拡張フィールド（追記）
+
+既存フォーマットに以下を追加（既存フィールドは変更なし・任意追加のみ）：
+
+```json
+{
+  "testing_trophy": {"static": 100, "unit": 25, "integration": 65, "e2e": 10},
+  "mutation_score": 78,
+  "flakiness_rate": 0.4,
+  "coverage_detail": {
+    "line": 82, "branch": 74, "function": 88,
+    "5_systems": {"normal": 100, "boundary": 85, "abnormal": 45, "load": 30, "recovery": 30},
+    "a11y_wcag22aa": 100
+  },
+  "ai_judge_consensus": {
+    "claude": "approved",
+    "gpt": "conditional",
+    "gemini": "approved",
+    "final": "conditional",
+    "disagreement_axis": ["feasibility"]
+  },
+  "oracle_versions": {
+    "kpi_def_id": "v2026Q3-r3",
+    "master_client_ledger": "2026-09-15",
+    "dependencies_snapshot": "2026-09-22T10:00Z"
+  },
+  "escape_tracking_id": "ESC-2026-09-22-001"
+}
+```
+
+### 7. 既存運用との統合ルール
+
+- 本アップデートは上位互換であり、既存の 5 軸共通基準・6 軸クロスチェック・5 系統カバレッジ・受付ゲート・conditional-approve・承認自動失効の運用を破壊しない。
+- 新規 KPI（Mutation / Flakiness / DORA 拡張）は 3 か月の並走期間を設け、既存 KPI（quality_score / escape rate）と併記する。並走期間終了後に統合方式をレビュアー間キャリブレーションで合意する。
+- AI 活用フロー（第 5 節）は「AI 判定が最終判定を上書きしない」原則を厳守し、単一 AI 判定での approved を禁止する（08-05 記録の失敗パターン準拠）。
+- 本節の追記による衝突が既存記録と生じた場合は、日付の新しい記録を優先し、旧記録は Daily Knowledge Log の中で「[更新]」注記を付けて上書きする既存慣行（2026-07-16・08-27 と同型）に従う。
+
+### 8. 適用開始条件と段階導入
+
+- **Phase 1（2026-09-22〜10-31）**: 受付ゲート機械判定の強化（Contract Testing / axe / Visual Regression AI）と review.json 拡張フィールドの並記開始。
+- **Phase 2（2026-11-01〜12-31）**: AI Test Generation と LLM-as-a-Judge 合議を LP・システム開発案件で試験運用、Flakiness KPI の測定開始。
+- **Phase 3（2027-01-01〜）**: Mutation Testing・Chaos Engineering を Critical Path 案件へ本格導入、DORA 応用 KPI の月次公開開始。
+- 各 Phase 終了時にレビュアー間キャリブレーションと escape rate 分析を実施し、次 Phase 移行の可否を判定する。
+
+### 9. 唯一無二化のポイント（他 QA 役との差別化）
+
+- **中間 QA（qa）** = 相互整合性・スキーマ・機械軸の関所（この強化で 8 割自動化）
+- **最終 QA（sora / COO）** = 経営視点・feasibility・対外リスクの関所（人手判断を集中）
+- **開発 QA（mio）** = テスト計画・実装レベル QA（Testing Trophy の Unit/Integration 層を主担当）
+- **LP QA（mia）** = ピクセル忠実度・初回制作 QA（Visual Regression AI の第一走者）
+- 4 者の役割を明確化し、qa は「AI と人手のハイブリッド判定を統括する横断ハブ」として唯一無二のポジションを確立する。
+
+以上、2026-09-22 更新分。既存 Daily Knowledge Log は改変せず、本節を上位運用として並走適用する。
